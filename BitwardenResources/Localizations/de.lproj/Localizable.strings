@@ -381,6 +381,7 @@
 "MasterPasswordPolicyValidationTitle" = "Ungültiges Passwort";
 "MasterPasswordPolicyValidationMessage" = "Passwort entspricht nicht den Anforderungen der Organisation. Bitte überprüfe die Richtlinien-Informationen und versuche es erneut.";
 "Loading" = "Wird geladen";
+"LoadingSubscription" = "Abonnement wird geladen...";
 "AcceptPoliciesError" = "Die Nutzungsbedingungen und Datenschutzerklärung wurden nicht akzeptiert.";
 "PrivacyPolicy" = "Datenschutzbestimmungen";
 "PersonalOwnershipPolicyInEffect" = "Eine Organisationsrichtlinie beeinflusst deine Eigentümer-Optionen.";
@@ -1080,8 +1081,8 @@
 "UpgradePending" = "Upgrade ausstehend";
 "YourUpgradeIsBeingProcessedDescriptionLong" = "Dein Upgrade wird gerade bearbeitet. Bis zum Abschluss des Vorgangs bleibst du im kostenlosen Tarif. Führe jetzt eine Synchronisierung durch, um den Status zu überprüfen, oder fahre fort und die Aktualisierung erfolgt dann automatisch.";
 "UpgradedToPremium" = "Auf Premium upgraden";
-"ViewPlanDetails" = "Tarifdetails anzeigen";
-"WelcomeToPremiumYouNowHaveAccessDescriptionLong" = "Willkommen bei Premium! Du hast nun Zugriff auf alle erweiterten Sicherheitsfunktionen.";
+"YouNowHaveAccessToAdvancedSecurityDescriptionLong" = "Du hast nun Zugriff auf erweiterte Sicherheitsfunktionen. Erfahre mehr über das, was im Premium-Tarif enthalten ist.";
+"YouNowHaveAccessToAllAdvancedSecurityFeatures" = "Du hast nun Zugriff auf alle erweiterten Sicherheitsfunktionen.";
 "YoullGoToStripeSecureCheckoutToCompleteYourPurchase" = "Du wirst zur sicheren Kaufabwicklung von Stripe weitergeleitet, um deinen Kauf abzuschließen.";
 "YoullContinueToHavePremiumAccessUntilX" = "Du hast weiterhin Premium-Zugriff bis zum %1$@.";
 "UserIDCopiedToTheClipboard" = "Benutzer-ID in die Zwischenablage kopiert";

@@ -19,6 +19,7 @@ public class MockAppInfoService: AppInfoService {
     public var copyrightString = """
     © Bitwarden Inc. 2015\(String.enDash)\(Calendar.current.component(.year, from: Date.now))
     """
+    public var isBetaBuild = false
     public var versionString = "1.0 (1)"
 
     public var appInfoString: String {

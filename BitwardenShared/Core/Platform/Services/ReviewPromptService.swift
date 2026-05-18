@@ -33,6 +33,9 @@ protocol ReviewPromptService {
 /// A default implementation of a `ReviewPromptService`.
 ///
 class DefaultReviewPromptService: ReviewPromptService {
+    /// The service used to get info about the app, used to identify beta builds.
+    private let appInfoService: AppInfoService
+
     /// The current app version.
     private let appVersion: String
 
@@ -47,18 +50,21 @@ class DefaultReviewPromptService: ReviewPromptService {
     /// Initialize a `ReviewPromptService`.
     ///
     /// - Parameters:
+    ///   - appInfoService: The service used to get info about the app, used to identify beta builds.
     ///   - appVersion: The current app version.
     ///   - identityStore: The service used to manage the credentials available for AutoFill suggestions.
     ///   - stateService: The service used by the application to manage account state.
     ///
     init(
+        appInfoService: AppInfoService,
         appVersion: String,
         identityStore: CredentialIdentityStore = ASCredentialIdentityStore.shared,
         stateService: StateService,
     ) {
+        self.appInfoService = appInfoService
         self.appVersion = appVersion
-        self.stateService = stateService
         self.identityStore = identityStore
+        self.stateService = stateService
     }
 
     func clearUserActions() async {
@@ -69,6 +75,7 @@ class DefaultReviewPromptService: ReviewPromptService {
     }
 
     func isEligibleForReviewPrompt() async -> Bool {
+        guard !appInfoService.isBetaBuild else { return false }
         let isAutofillEnabled = await identityStore.isAutofillEnabled()
         guard isAutofillEnabled, let reviewPromptData = await stateService.getReviewPromptData(),
               reviewPromptData.reviewPromptShownForVersion != appVersion else {

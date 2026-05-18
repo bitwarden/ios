@@ -208,7 +208,7 @@
 "August" = "Agosto";
 "Brand" = "Bandeira";
 "CardholderName" = "Nome do titular do cartão";
-"WeFoundMultipleMatchesChooseTheCorrectOne" = "We found multiple matches. Choose the correct one.";
+"WeFoundMultipleMatchesChooseTheCorrectOne" = "Várias correspondências foram encontradas. Escolha a correta.";
 "CityTown" = "Cidade / Localidade";
 "Company" = "Empresa";
 "Country" = "País";
@@ -381,6 +381,7 @@
 "MasterPasswordPolicyValidationTitle" = "Senha inválida";
 "MasterPasswordPolicyValidationMessage" = "A senha não atende aos requisitos da organização. Confira as informações da política e tente novamente.";
 "Loading" = "Carregando";
+"LoadingSubscription" = "Carregando assinatura...";
 "AcceptPoliciesError" = "Os Termos de Serviço e a Política de Privacidade não foram reconhecidos.";
 "PrivacyPolicy" = "Política de Privacidade";
 "PersonalOwnershipPolicyInEffect" = "Uma política de organização está afetando suas opções de propriedade.";
@@ -606,7 +607,7 @@
 "SetUpAutofill" = "Configurar preenchimento automático";
 "AppInfo" = "Informações do app";
 "Browse" = "Navegar";
-"SelectCardholderName" = "Select cardholder name";
+"SelectCardholderName" = "Selecionar nome do dono do cartão";
 "SelectLanguage" = "Selecionar idioma";
 "ContinueToCompleteWebAuthnVerification" = "Continue para concluir a verificação do WebAuthn.";
 "ThereWasAnErrorStartingWebAuthnTwoFactorAuthentication" = "Houve um erro ao iniciar a autenticação de dois fatores do WebAuthn";
@@ -918,7 +919,7 @@
 "NoAskMe" = "Não, me pergunte";
 "NoCodes" = "Você não tem nenhum código para exibir";
 "None" = "Nenhum";
-"NoneOfTheAbove" = "None of the above";
+"NoneOfTheAbove" = "Nenhum dos anteriores";
 "NumberOfDigits" = "Número de dígitos";
 "OtpType" = "Tipo de OTP";
 "RefreshPeriod" = "Período de recarregamento";
@@ -928,7 +929,7 @@
 "SaveThisAuthenticatorKeyHereOrAddItToALoginInYourBitwardenApp" = "Salve esta chave de autenticador aqui, ou adicione-a a uma credencial no seu aplicativo do Bitwarden.";
 "SaveToBitwarden" = "Salvar no Bitwarden";
 "ScanCard" = "Ler cartão";
-"PositionYourCardInTheFrameToScanIt" = "Position your card in the frame to scan it";
+"PositionYourCardInTheFrameToScanIt" = "Posicione seu cartão na caixa para digitalizá-lo";
 "ScanComplete" = "Busca concluída";
 "ScanTheQRCodeInYourSettings" = "Escaneie o código QR nas configurações de verificação em duas etapas de qualquer conta.";
 "SecureYourAssetsWithBitwardenAuthenticator" = "Proteja suas contas com o Bitwarden Authenticator";
@@ -1080,8 +1081,8 @@
 "UpgradePending" = "Upgrade pendente";
 "YourUpgradeIsBeingProcessedDescriptionLong" = "Seu upgrade está sendo processado. Você continuará no plano grátis até que seja concluído. Sincronize agora para conferir, ou continue e será atualizado automaticamente.";
 "UpgradedToPremium" = "Upgrade para Premium realizado";
-"ViewPlanDetails" = "Ver detalhes do plano";
-"WelcomeToPremiumYouNowHaveAccessDescriptionLong" = "Boas-vindas ao Premium! Agora você tem acesso a todos os recursos avançados de segurança.";
+"YouNowHaveAccessToAdvancedSecurityDescriptionLong" = "Agora você tem acesso a todos os recursos avançados de segurança. Saiba mais sobre o que está incluso com o Premium.";
+"YouNowHaveAccessToAllAdvancedSecurityFeatures" = "Agora você tem acesso a todos os recursos avançados de segurança.";
 "YoullGoToStripeSecureCheckoutToCompleteYourPurchase" = "Você irá ao pagamento seguro do Stripe para concluir sua compra.";
 "YoullContinueToHavePremiumAccessUntilX" = "Você continuará tendo acesso ao Premium até %1$@.";
 "UserIDCopiedToTheClipboard" = "ID de usuário copiado para área de transferência";

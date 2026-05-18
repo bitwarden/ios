@@ -381,6 +381,7 @@
 "MasterPasswordPolicyValidationTitle" = "Μη έγκυρος κωδικός πρόσβασης";
 "MasterPasswordPolicyValidationMessage" = "Ο κωδικός πρόσβασης δεν πληροί τις απαιτήσεις του οργανισμού. Ελέγξτε τις πληροφορίες πολιτικής και δοκιμάστε ξανά.";
 "Loading" = "Φόρτωση";
+"LoadingSubscription" = "Loading subscription...";
 "AcceptPoliciesError" = "Οι Όροι Παροχής Υπηρεσιών και η Πολιτική Απορρήτου δεν έχουν αναγνωριστεί.";
 "PrivacyPolicy" = "Πολιτική Απορρήτου";
 "PersonalOwnershipPolicyInEffect" = "Μια πολιτική οργανισμού, επηρεάζει τις επιλογές ιδιοκτησίας σας.";
@@ -1080,8 +1081,8 @@
 "UpgradePending" = "Αναβάθμιση σε εκκρεμότητα";
 "YourUpgradeIsBeingProcessedDescriptionLong" = "Your upgrade is being processed. You'll remain on the free plan until it's complete. Sync now to check, or continue and it will update automatically.";
 "UpgradedToPremium" = "Έγινε αναβάθμιση στο Premium";
-"ViewPlanDetails" = "Προβολή λεπτομερειών πακέτου";
-"WelcomeToPremiumYouNowHaveAccessDescriptionLong" = "Welcome to Premium! You now have access to all advanced security features.";
+"YouNowHaveAccessToAdvancedSecurityDescriptionLong" = "You now have access to advanced security features. Learn more about what's included with Premium.";
+"YouNowHaveAccessToAllAdvancedSecurityFeatures" = "You now have access to all advanced security features.";
 "YoullGoToStripeSecureCheckoutToCompleteYourPurchase" = "You´ll go to Stripe´s secure checkout to complete your purchase.";
 "YoullContinueToHavePremiumAccessUntilX" = "You'll continue to have Premium access until %1$@.";
 "UserIDCopiedToTheClipboard" = "User ID copied to the clipboard";

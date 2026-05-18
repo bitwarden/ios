@@ -318,6 +318,24 @@ class AppInfoServiceTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         XCTAssertEqual(subject.copyrightString, "© Bitwarden Inc. 2015–2020")
     }
 
+    /// `isBetaBuild` is `false` for production bundle identifiers.
+    func test_isBetaBuild_false() {
+        bundle.bundleIdentifier = "com.8bit.bitwarden"
+        XCTAssertFalse(subject.isBetaBuild)
+    }
+
+    /// `isBetaBuild` is `false` when the bundle identifier is missing.
+    func test_isBetaBuild_missingBundleIdentifier() {
+        bundle.bundleIdentifier = nil
+        XCTAssertFalse(subject.isBetaBuild)
+    }
+
+    /// `isBetaBuild` is `true` when the bundle identifier ends with `.beta`.
+    func test_isBetaBuild_true() {
+        bundle.bundleIdentifier = "com.8bit.bitwarden.beta"
+        XCTAssertTrue(subject.isBetaBuild)
+    }
+
     /// `versionString` returns the app's formatted version string.
     func test_versionString() {
         XCTAssertEqual(subject.versionString, "Version: 1.0 (1)")

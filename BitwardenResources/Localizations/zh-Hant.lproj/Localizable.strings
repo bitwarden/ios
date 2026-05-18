@@ -381,6 +381,7 @@
 "MasterPasswordPolicyValidationTitle" = "密碼的無效";
 "MasterPasswordPolicyValidationMessage" = "輸入的密碼不符合組織要求，請確認原則資訊後再試一次。";
 "Loading" = "正在載入";
+"LoadingSubscription" = "正在載入訂閱資訊…";
 "AcceptPoliciesError" = "尚未接受服務條款與隱私權政策。";
 "PrivacyPolicy" = "隱私權政策";
 "PersonalOwnershipPolicyInEffect" = "組織原則正在影響您的擁有權選項。";
@@ -1081,8 +1082,8 @@
 "UpgradePending" = "升級處理中";
 "YourUpgradeIsBeingProcessedDescriptionLong" = "您的升級正在處理中。在完成之前，您將維持免費方案。立即同步以進行檢查，或繼續操作，系統將自動更新。";
 "UpgradedToPremium" = "升級到 Premium";
-"ViewPlanDetails" = "檢視方案詳細資訊";
-"WelcomeToPremiumYouNowHaveAccessDescriptionLong" = "歡迎使用 Premium！您現在可以使用所有進階安全功能。";
+"YouNowHaveAccessToAdvancedSecurityDescriptionLong" = "您現在可以使用進階安全功能。深入了解 Premium 包含的內容。";
+"YouNowHaveAccessToAllAdvancedSecurityFeatures" = "您現在可以使用所有進階安全功能。";
 "YoullGoToStripeSecureCheckoutToCompleteYourPurchase" = "您將前往 Stripe 的安全結帳頁面完成購買。";
 "YoullContinueToHavePremiumAccessUntilX" = "您將可持續使用 Premium 功能至 %1$@。";
 "UserIDCopiedToTheClipboard" = "使用者 ID 已複製到剪貼簿";

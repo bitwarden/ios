@@ -381,6 +381,7 @@
 "MasterPasswordPolicyValidationTitle" = "Neplatné heslo";
 "MasterPasswordPolicyValidationMessage" = "Heslo nesplňuje požadavky organizace. Zkontrolujte požadavky a zkuste to znovu.";
 "Loading" = "Načítání";
+"LoadingSubscription" = "Načítání předplatného...";
 "AcceptPoliciesError" = "Podmínky použití a Zásady ochrany osobních údajů nebyly odsouhlaseny.";
 "PrivacyPolicy" = "Zásady ochrany osobních údajů";
 "PersonalOwnershipPolicyInEffect" = "Zásady organizace ovlivňují možnosti vlastnictví.";
@@ -1080,8 +1081,8 @@
 "UpgradePending" = "Nevyřízená aktualizace";
 "YourUpgradeIsBeingProcessedDescriptionLong" = "Vaše aktualizace je zpracovávána. Zůstanete na bezplatném tarifu, dokud nebude dokončena. Synchronizujte pro kontrolu, nebo pokračujte a aktualizace se provede automaticky.";
 "UpgradedToPremium" = "Aktualizováno na Premium";
-"ViewPlanDetails" = "Zobrazit detaily tarifu";
-"WelcomeToPremiumYouNowHaveAccessDescriptionLong" = "Vítejte v předplatném Premium! Nyní máte přístup ke všem pokročilým bezpečnostním funkcím.";
+"YouNowHaveAccessToAdvancedSecurityDescriptionLong" = "Nyní máte přístup k pokročilým bezpečnostním funkcím. Přečtěte si více o tom, co je zahrnuto v Premium.";
+"YouNowHaveAccessToAllAdvancedSecurityFeatures" = "Nyní máte přístup ke všem pokročilým bezpečnostním funkcím.";
 "YoullGoToStripeSecureCheckoutToCompleteYourPurchase" = "Pro dokončení nákupu přejdete do zabezpečené pokladny Stripe.";
 "YoullContinueToHavePremiumAccessUntilX" = "Budete mít předplatné Premium až do %1$@.";
 "UserIDCopiedToTheClipboard" = "ID uživatele zkopírováno do schránky";
