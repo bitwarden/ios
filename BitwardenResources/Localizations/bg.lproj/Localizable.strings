@@ -381,6 +381,7 @@
 "MasterPasswordPolicyValidationTitle" = "Грешна парола";
 "MasterPasswordPolicyValidationMessage" = "Паролата не покрива изискванията на организацията. Проверете политиките и пробвайте отново.";
 "Loading" = "Зареждане";
+"LoadingSubscription" = "Зареждане на абонамента…";
 "AcceptPoliciesError" = "Условията за използване и политиката за поверителност не бяха приети.";
 "PrivacyPolicy" = "Политика за поверителност";
 "PersonalOwnershipPolicyInEffect" = "Политика от някоя организация влияе на вариантите за собственост.";
@@ -1080,8 +1081,8 @@
 "UpgradePending" = "Има чакащо надграждане";
 "YourUpgradeIsBeingProcessedDescriptionLong" = "Надграждането се обработва. Докато не бъде завършено, ще останете на безплатния план. Синхронизирайте сега, ако искате да направите проверка, или продължите и ще се опресни автоматично.";
 "UpgradedToPremium" = "Надградено до Платения план";
-"ViewPlanDetails" = "Преглед на подробностите за плана";
-"WelcomeToPremiumYouNowHaveAccessDescriptionLong" = "Добре дошли в Платения план! Вече имате достъп до всички разширени функционалности за сигурност.";
+"YouNowHaveAccessToAdvancedSecurityDescriptionLong" = "Вече имате достъп до разширени функционалности за сигурност. Научете повече относно това какво включва Платеният план.";
+"YouNowHaveAccessToAllAdvancedSecurityFeatures" = "Вече имате достъп до всички разширени функционалности за сигурност.";
 "YoullGoToStripeSecureCheckoutToCompleteYourPurchase" = "Ще бъдете прехвърлен(а) към страницата за сигурни разплащания на Stripe, за да завършите покупката си.";
 "YoullContinueToHavePremiumAccessUntilX" = "Ще продължите да имате достъп до функционалностите на Платения план до %1$@.";
 "UserIDCopiedToTheClipboard" = "Потребителският идентификатор е копиран в буфера";
