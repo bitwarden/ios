@@ -56,6 +56,9 @@ enum BitwardenKeychainItem: Equatable, KeychainItem {
     /// The keychain item for the number of unsuccessful unlock attempts.
     case unsuccessfulUnlockAttempts(userId: String)
 
+    /// The keychain item for the user session key (cross-process unlock).
+    case userSessionKey(userId: String)
+
     /// The keychain item for a user's vault timeout.
     case vaultTimeout(userId: String)
 
@@ -78,6 +81,7 @@ enum BitwardenKeychainItem: Equatable, KeychainItem {
              .refreshToken,
              .serverCommunicationConfig,
              .unsuccessfulUnlockAttempts,
+             .userSessionKey,
              .vaultTimeout:
             nil
         case .biometrics,
@@ -99,6 +103,7 @@ enum BitwardenKeychainItem: Equatable, KeychainItem {
              .neverLock,
              .pendingAdminLoginRequest,
              .unsuccessfulUnlockAttempts,
+             .userSessionKey,
              .vaultTimeout:
             kSecAttrAccessibleWhenUnlockedThisDeviceOnly
         case .accessToken,
@@ -147,6 +152,8 @@ enum BitwardenKeychainItem: Equatable, KeychainItem {
             "serverCommunicationConfig_\(hostname)"
         case let .unsuccessfulUnlockAttempts(userId):
             "unsuccessfulUnlockAttempts_\(userId)"
+        case let .userSessionKey(userId: id):
+            "userSessionKey_" + id
         case let .vaultTimeout(userId):
             "vaultTimeout_\(userId)"
         }
@@ -369,6 +376,7 @@ extension DefaultKeychainRepository {
             // is approved, the next login for the user will succeed with the pending request.
             .refreshToken(userId: userId),
             .unsuccessfulUnlockAttempts(userId: userId),
+            .userSessionKey(userId: userId),
             // Exclude `vaultTimeout` since it should be maintained for users who log out and back in regularly.
         ]
         for keychainItem in keychainItems {

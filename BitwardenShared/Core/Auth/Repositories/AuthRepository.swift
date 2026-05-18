@@ -278,6 +278,12 @@ protocol AuthRepository: AnyObject {
     ///
     func unlockVaultWithPIN(pin: String) async throws
 
+    /// Attempts to unlock the user's vault with the stored user session key.
+    ///
+    /// - Returns: `true` if the session key was found and the vault was unlocked; `false` if no session key is stored.
+    ///
+    func unlockVaultWithSessionKey() async throws -> Bool
+
     /// Updates the user's master password.
     ///
     /// - Parameters:
@@ -611,6 +617,7 @@ extension DefaultAuthRepository: AuthRepository {
                     && !account.isLoggedOut // Isn't already logged out (soft-logout)
 
                 if (shouldTimeout && !account.isLoggedOut) || shouldLogoutDueToNoUnlockMethod {
+                    try? await keychainService.deleteUserAuthKey(for: .userSessionKey(userId: userId))
                     if userId == activeUserId {
                         await handleActiveUser?(activeUserId)
                     } else {
@@ -793,7 +800,9 @@ extension DefaultAuthRepository: AuthRepository {
         await vaultTimeoutService.lockVault(userId: userId)
         if isManuallyLocking {
             do {
-                try await stateService.setManuallyLockedAccount(true, userId: userId)
+                let resolvedId = try await stateService.getAccountIdOrActiveId(userId: userId)
+                try? await keychainService.deleteUserAuthKey(for: .userSessionKey(userId: resolvedId))
+                try await stateService.setManuallyLockedAccount(true, userId: resolvedId)
             } catch {
                 errorReporter.log(error: error)
             }
@@ -965,6 +974,11 @@ extension DefaultAuthRepository: AuthRepository {
             )
         }
 
+        // Delete the session key when switching to a timeout that excludes it.
+        if !newValue.allowsUserSessionKeySharing {
+            try? await keychainService.deleteUserAuthKey(for: .userSessionKey(userId: id))
+        }
+
         // Then configure the vault timeout service with the correct value.
         try await vaultTimeoutService.setVaultTimeout(
             value: newValue,
@@ -1074,6 +1088,22 @@ extension DefaultAuthRepository: AuthRepository {
                 throw StateServiceError.noPinProtectedUserKey
             }
             try await unlockVault(method: .pin(pin: pin, pinProtectedUserKey: pinProtectedUserKey))
+        }
+    }
+
+    func unlockVaultWithSessionKey() async throws -> Bool {
+        let id = try await stateService.getActiveAccountId()
+        do {
+            let sessionKey = try await keychainService.getUserAuthKeyValue(for: .userSessionKey(userId: id))
+            do {
+                try await unlockVault(method: .decryptedKey(decryptedUserKey: sessionKey), hadUserInteraction: false)
+            } catch {
+                try? await keychainService.deleteUserAuthKey(for: .userSessionKey(userId: id))
+                throw error
+            }
+            return true
+        } catch KeychainServiceError.osStatusError(errSecItemNotFound), KeychainServiceError.keyNotFound {
+            return false
         }
     }
 
@@ -1195,6 +1225,17 @@ extension DefaultAuthRepository: AuthRepository {
         try await organizationService.initializeOrganizationCrypto()
         do {
             try await stateService.setManuallyLockedAccount(false, userId: account.profile.userId)
+        } catch {
+            errorReporter.log(error: error)
+        }
+        do {
+            let timeoutValue = try await vaultTimeoutService.sessionTimeoutValue(userId: account.profile.userId)
+            if timeoutValue.allowsUserSessionKeySharing {
+                try await keychainService.setUserAuthKey(
+                    for: .userSessionKey(userId: account.profile.userId),
+                    value: clientService.crypto().getUserEncryptionKey(),
+                )
+            }
         } catch {
             errorReporter.log(error: error)
         }
