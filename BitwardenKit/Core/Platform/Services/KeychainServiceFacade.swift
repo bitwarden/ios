@@ -228,11 +228,10 @@ public class DefaultKeychainServiceFacade: KeychainServiceFacade {
     }
 
     // MARK: Value
-
     
     /// Returns whether a value exists for the given keychain item without triggering a FaceID prompt.
     ///
-    ///   Two query options work together to make this safe:
+    /// Two query options work together to make this safe:
     /// - `kSecUseAuthenticationContext` with `interactionNotAllowed = true`: suppresses the Face ID
     ///   prompt. When a biometric-protected item is found, iOS returns `errSecInteractionNotAllowed`
     ///   instead of prompting, which this method catches and treats as "item exists".
