@@ -32,6 +32,7 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator {
         & HasPasteboardService
         & HasStateService
         & HasTimeProvider
+        & HasTOTPItemDisplayStateService
 
     // MARK: Private Properties
 

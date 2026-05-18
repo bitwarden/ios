@@ -46,12 +46,6 @@ protocol StateService: AnyObject {
     ///
     func getSecretKey(userId: String?) async throws -> String?
 
-    /// Get whether to show website icons.
-    ///
-    /// - Returns: Whether to show the website icons.
-    ///
-    func getShowWebIcons() async -> Bool
-
     /// Gets the session timeout value for the logged in user.
     ///
     /// - Returns: The session timeout value.
@@ -83,12 +77,6 @@ protocol StateService: AnyObject {
     ///
     func setSecretKey(_ key: String, userId: String?) async throws
 
-    /// Set whether to show the website icons.
-    ///
-    /// - Parameter showWebIcons: Whether to show the website icons.
-    ///
-    func setShowWebIcons(_ showWebIcons: Bool) async
-
     // MARK: Publishers
 
     /// A publisher for the app theme.
@@ -96,12 +84,6 @@ protocol StateService: AnyObject {
     /// - Returns: A publisher for the app theme.
     ///
     func appThemePublisher() async -> AnyPublisher<AppTheme, Never>
-
-    /// A publisher for whether or not to show the web icons.
-    ///
-    /// - Returns: A publisher for whether or not to show the web icons.
-    ///
-    func showWebIconsPublisher() async -> AnyPublisher<Bool, Never>
 }
 
 // MARK: - StateServiceError
@@ -215,10 +197,6 @@ actor DefaultStateService:
         return appSettingsStore.serverConfig(userId: userId)
     }
 
-    func getShowWebIcons() async -> Bool {
-        !appSettingsStore.disableWebIcons
-    }
-
     func getVaultTimeout() async -> SessionTimeoutValue {
         let accountId = await getActiveAccountId()
         guard let rawValue = appSettingsStore.vaultTimeout(userId: accountId) else { return .never }
@@ -254,19 +232,10 @@ actor DefaultStateService:
         appSettingsStore.setServerConfig(config, userId: userId)
     }
 
-    func setShowWebIcons(_ showWebIcons: Bool) async {
-        appSettingsStore.disableWebIcons = !showWebIcons
-        showWebIconsSubject.send(showWebIcons)
-    }
-
     // MARK: Publishers
 
     func appThemePublisher() async -> AnyPublisher<AppTheme, Never> {
         appThemeSubject.eraseToAnyPublisher()
-    }
-
-    func showWebIconsPublisher() async -> AnyPublisher<Bool, Never> {
-        showWebIconsSubject.eraseToAnyPublisher()
     }
 
     // MARK: Private
@@ -277,6 +246,31 @@ actor DefaultStateService:
     ///
     private func getActiveAccountUserId() throws -> String {
         appSettingsStore.localUserId
+    }
+}
+
+// MARK: TOTPItemDisplayStateService
+
+extension DefaultStateService: TOTPItemDisplayStateService {
+    func getShowNextTOTPCode() async -> Bool {
+        appSettingsStore.showNextTOTPCode
+    }
+
+    func setShowNextTOTPCode(_ value: Bool) async {
+        appSettingsStore.showNextTOTPCode = value
+    }
+
+    func getShowWebIcons() async -> Bool {
+        !appSettingsStore.disableWebIcons
+    }
+
+    func setShowWebIcons(_ showWebIcons: Bool) async {
+        appSettingsStore.disableWebIcons = !showWebIcons
+        showWebIconsSubject.send(showWebIcons)
+    }
+
+    func showWebIconsPublisher() async -> AnyPublisher<Bool, Never> {
+        showWebIconsSubject.eraseToAnyPublisher()
     }
 }
 

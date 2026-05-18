@@ -4,8 +4,9 @@ import BitwardenResources
 import XCTest
 
 @testable import AuthenticatorShared
+@testable import AuthenticatorSharedMocks
 
-class SettingsProcessorTests: BitwardenTestCase {
+class SettingsProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body_length
     // MARK: Properties
 
     var application: MockApplication!
@@ -16,7 +17,9 @@ class SettingsProcessorTests: BitwardenTestCase {
     var coordinator: MockCoordinator<SettingsRoute, SettingsEvent>!
     var flightRecorder: MockFlightRecorder!
     var pasteboardService: MockPasteboardService!
+    var stateService: MockStateService!
     var subject: SettingsProcessor!
+    var totpItemDisplayStateService: MockTOTPItemDisplayStateService!
 
     // MARK: Setup & Teardown
 
@@ -31,6 +34,9 @@ class SettingsProcessorTests: BitwardenTestCase {
         coordinator = MockCoordinator()
         flightRecorder = MockFlightRecorder()
         pasteboardService = MockPasteboardService()
+        stateService = MockStateService()
+        totpItemDisplayStateService = MockTOTPItemDisplayStateService()
+        totpItemDisplayStateService.getShowNextTOTPCodeReturnValue = false
 
         biometricsRepository.getBiometricUnlockStatusReturnValue = .notAvailable
 
@@ -44,6 +50,8 @@ class SettingsProcessorTests: BitwardenTestCase {
                 configService: configService,
                 flightRecorder: flightRecorder,
                 pasteboardService: pasteboardService,
+                stateService: stateService,
+                totpItemDisplayStateService: totpItemDisplayStateService,
             ),
             state: SettingsState(),
         )
@@ -60,7 +68,9 @@ class SettingsProcessorTests: BitwardenTestCase {
         coordinator = nil
         flightRecorder = nil
         pasteboardService = nil
+        stateService = nil
         subject = nil
+        totpItemDisplayStateService = nil
     }
 
     // MARK: Tests
@@ -119,6 +129,27 @@ class SettingsProcessorTests: BitwardenTestCase {
         await subject.perform(.loadData)
 
         XCTAssertEqual(subject.state.defaultSaveOption, .saveToBitwarden)
+    }
+
+    /// `perform(_:)` with `.loadData` loads the `showNextTOTPCode` value from the state service.
+    @MainActor
+    func test_perform_loadData_showNextTOTPCode_true() async throws {
+        totpItemDisplayStateService.getShowNextTOTPCodeReturnValue = true
+
+        await subject.perform(.loadData)
+
+        XCTAssertTrue(subject.state.showNextTOTPCode)
+    }
+
+    /// `perform(_:)` with `.loadData` loads the `showNextTOTPCode` value from the state service.
+    @MainActor
+    func test_perform_loadData_showNextTOTPCode_false() async throws {
+        subject.state.showNextTOTPCode = true
+        totpItemDisplayStateService.getShowNextTOTPCodeReturnValue = false
+
+        await subject.perform(.loadData)
+
+        XCTAssertFalse(subject.state.showNextTOTPCode)
     }
 
     /// Performing `.loadData` sets the sync related flags correctly when the sync is off.
@@ -224,6 +255,28 @@ class SettingsProcessorTests: BitwardenTestCase {
         flightRecorder.activeLogSubject.send(nil)
         try await waitForAsync { self.subject.state.flightRecorderState.activeLog == nil }
         XCTAssertNil(subject.state.flightRecorderState.activeLog)
+    }
+
+    /// `perform(_:)` with `.toggleShowNextTOTPCode(false)` updates the state and persists the value.
+    @MainActor
+    func test_perform_toggleShowNextTOTPCode_false() async {
+        subject.state.showNextTOTPCode = true
+
+        await subject.perform(.toggleShowNextTOTPCode(false))
+
+        XCTAssertFalse(subject.state.showNextTOTPCode)
+        XCTAssertEqual(totpItemDisplayStateService.setShowNextTOTPCodeReceivedValue, false)
+    }
+
+    /// `perform(_:)` with `.toggleShowNextTOTPCode(true)` updates the state and persists the value.
+    @MainActor
+    func test_perform_toggleShowNextTOTPCode_true() async {
+        subject.state.showNextTOTPCode = false
+
+        await subject.perform(.toggleShowNextTOTPCode(true))
+
+        XCTAssertTrue(subject.state.showNextTOTPCode)
+        XCTAssertEqual(totpItemDisplayStateService.setShowNextTOTPCodeReceivedValue, true)
     }
 
     /// Performing `.toggleUnlockWithBiometrics` with a `false` value disables biometric unlock and resets the
