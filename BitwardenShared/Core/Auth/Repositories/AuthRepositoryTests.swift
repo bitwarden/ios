@@ -2251,6 +2251,26 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         XCTAssertEqual(stateService.manuallyLockedAccounts["1"], false)
     }
 
+    /// `unlockVaultWithBiometrics` does not call restoreBiometricUnlockKey — the key was just
+    /// retrieved to unlock, so writing it again would trigger a second Face ID prompt.
+    func test_unlockVaultWithBiometrics_doesNotRestoreKeyWhenKeyAlreadyExists() async throws {
+        stateService.activeAccount = .fixture()
+        stateService.accountEncryptionKeys = [
+            "1": AccountEncryptionKeys(
+                accountKeys: .fixtureFilled(),
+                encryptedPrivateKey: "PRIVATE_KEY",
+                encryptedUserKey: "USER_KEY",
+            ),
+        ]
+        biometricsRepository.getBiometricUnlockStatusReturnValue = .available(.faceID, enabled: true)
+        biometricsRepository.hasBiometricUnlockKeyReturnValue = true
+
+        try await subject.unlockVaultWithBiometrics()
+
+        XCTAssertFalse(biometricsRepository.restoreBiometricUnlockKeyCalled)
+        XCTAssertFalse(clientService.mockCrypto.getUserEncryptionKeyCalled)
+    }
+
     /// `unlockVaultWithBiometrics()` clears the PIN if enrolling the PIN fails.
     func test_unlockVaultWithBiometrics_enrollPinWithEncryptedPinError() async throws {
         let account = Account.fixture()
@@ -2657,7 +2677,6 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         stateService.accounts = [account]
         stateService.activeAccount = account
         vaultTimeoutService.isClientLocked[account.profile.userId] = false
-        biometricsRepository.setBiometricUnlockKeyThrowableError = nil
         stateService.pinProtectedUserKeyValue["1"] = "1"
         stateService.encryptedPinByUserId["1"] = "1"
         stateService.syncToAuthenticatorByUserId["1"] = true
@@ -2665,9 +2684,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         try await subject.logout(userInitiated: true)
 
         XCTAssertEqual([account.profile.userId], stateService.accountsLoggedOut)
-        let setArguments = biometricsRepository.setBiometricUnlockKeyReceivedArguments
-        XCTAssertEqual(setArguments?.userId, "1")
-        XCTAssertNil(setArguments?.authKey)
+        XCTAssertFalse(biometricsRepository.setBiometricUnlockKeyCalled)
         XCTAssertEqual(keychainService.deleteItemsCallsCount, 1)
         XCTAssertEqual(keychainService.deleteItemsReceivedUserId, "1")
         XCTAssertEqual(clientCertificateService.removeCertificateUserIdReceivedUserId, account.profile.userId)
@@ -2678,13 +2695,55 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         XCTAssertEqual(stateService.syncToAuthenticatorByUserId["1"], false)
     }
 
+    /// Regression test for PM-17704: biometric unlock setting is lost after logout and re-login.
+    /// The preference flag must survive logout so the key can be silently restored on next password unlock.
+    func test_logout_thenUnlockWithPassword_preservesBiometricPreferenceAndRestoresKey() async throws {
+        let account = Account.fixture(profile: .fixture(
+            userDecryptionOptions: UserDecryptionOptions(
+                hasMasterPassword: true,
+                masterPasswordUnlock: .fixture(),
+                keyConnectorOption: nil,
+                trustedDeviceOption: nil,
+            ),
+        ))
+        stateService.accounts = [account]
+        stateService.activeAccount = account
+        stateService.accountEncryptionKeys = [
+            "1": AccountEncryptionKeys(
+                accountKeys: .fixtureFilled(),
+                encryptedPrivateKey: "PRIVATE_KEY",
+                encryptedUserKey: "USER_KEY",
+            ),
+        ]
+        biometricsRepository.getBiometricUnlockStatusReturnValue = .available(.faceID, enabled: true)
+        biometricsRepository.hasBiometricUnlockKeyReturnValue = false
+        let restoredKey = "RESTORED_ENCRYPTION_KEY"
+        clientService.mockCrypto.getUserEncryptionKeyResult = .success(restoredKey)
+
+        // Step 1: logout — must NOT call setBiometricUnlockKey, which was clearing the preference.
+        try await subject.logout(userInitiated: true)
+
+        XCTAssertFalse(
+            biometricsRepository.setBiometricUnlockKeyCalled,
+            "logout must not clear the biometric preference",
+        )
+
+        // Step 2: re-login with master password — must silently restore the biometric key.
+        try await subject.unlockVaultWithPassword(password: "password")
+
+        XCTAssertTrue(
+            biometricsRepository.restoreBiometricUnlockKeyCalled,
+            "unlockVaultWithPassword must restore the biometric key after logout",
+        )
+        XCTAssertEqual(biometricsRepository.restoreBiometricUnlockKeyReceivedArguments?.authKey, restoredKey)
+    }
+
     /// `logout` successfully logs out a user clearing pins because of policy Remove unlock with pin being enabled.
     func test_logout_successWhenClearingPins() async throws {
         let account = Account.fixture()
         stateService.accounts = [account]
         stateService.activeAccount = account
         vaultTimeoutService.isClientLocked[account.profile.userId] = false
-        biometricsRepository.setBiometricUnlockKeyThrowableError = nil
         stateService.pinProtectedUserKeyValue["1"] = "1"
         stateService.encryptedPinByUserId["1"] = "1"
         policyService.policyAppliesToUserResult[.removeUnlockWithPin] = true
@@ -2692,9 +2751,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         try await subject.logout(userInitiated: true)
 
         XCTAssertEqual([account.profile.userId], stateService.accountsLoggedOut)
-        let setArguments = biometricsRepository.setBiometricUnlockKeyReceivedArguments
-        XCTAssertEqual(setArguments?.userId, "1")
-        XCTAssertNil(setArguments?.authKey)
+        XCTAssertFalse(biometricsRepository.setBiometricUnlockKeyCalled)
         XCTAssertEqual(keychainService.deleteItemsCallsCount, 1)
         XCTAssertEqual(keychainService.deleteItemsReceivedUserId, "1")
         XCTAssertTrue(stateService.logoutAccountUserInitiated)
@@ -2812,6 +2869,30 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         )
         XCTAssertTrue(vaultTimeoutService.unlockVaultHadUserInteraction)
         XCTAssertEqual(stateService.manuallyLockedAccounts["1"], false)
+    }
+
+    /// `unlockVaultFromLoginWithDevice` restores the biometric key when biometrics was previously enabled.
+    func test_unlockVaultFromLoginWithDevice_restoresBiometricKeyWhenEnabled() async throws {
+        stateService.activeAccount = Account.fixture()
+        stateService.accountEncryptionKeys = [
+            "1": AccountEncryptionKeys(
+                accountKeys: .fixtureFilled(),
+                encryptedPrivateKey: "PRIVATE_KEY",
+                encryptedUserKey: "USER_KEY",
+            ),
+        ]
+        biometricsRepository.getBiometricUnlockStatusReturnValue = .available(.faceID, enabled: true)
+        biometricsRepository.hasBiometricUnlockKeyReturnValue = false
+        clientService.mockCrypto.getUserEncryptionKeyResult = .success("ENC_KEY")
+
+        try await subject.unlockVaultFromLoginWithDevice(
+            privateKey: "AUTH_REQUEST_PRIVATE_KEY",
+            key: "KEY",
+            masterPasswordHash: nil,
+        )
+
+        XCTAssertTrue(biometricsRepository.restoreBiometricUnlockKeyCalled)
+        XCTAssertEqual(biometricsRepository.restoreBiometricUnlockKeyReceivedArguments?.authKey, "ENC_KEY")
     }
 
     // `unlockVaultWithPassword(_:)` unlocks the vault with the user's password and clears an
@@ -3101,6 +3182,129 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         XCTAssertFalse(vaultTimeoutService.isLocked(userId: "1"))
         XCTAssertTrue(vaultTimeoutService.unlockVaultHadUserInteraction)
         XCTAssertEqual(stateService.manuallyLockedAccounts["1"], false)
+    }
+
+    /// `unlockVaultWithPassword` restores the biometric key after a successful unlock when biometrics is enabled.
+    func test_unlockVaultWithPassword_restoresBiometricKeyWhenEnabled() async throws {
+        let account = Account.fixture(profile: .fixture(
+            userDecryptionOptions: UserDecryptionOptions(
+                hasMasterPassword: true,
+                masterPasswordUnlock: .fixture(),
+                keyConnectorOption: nil,
+                trustedDeviceOption: nil,
+            ),
+        ))
+        stateService.activeAccount = account
+        stateService.accountEncryptionKeys = [
+            "1": AccountEncryptionKeys(
+                accountKeys: .fixtureFilled(),
+                encryptedPrivateKey: "PRIVATE_KEY",
+                encryptedUserKey: "USER_KEY",
+            ),
+        ]
+        biometricsRepository.getBiometricUnlockStatusReturnValue = .available(.faceID, enabled: true)
+        biometricsRepository.hasBiometricUnlockKeyReturnValue = false
+        clientService.mockCrypto.getUserEncryptionKeyResult = .success("ENC_KEY")
+
+        try await subject.unlockVaultWithPassword(password: "password")
+
+        XCTAssertTrue(biometricsRepository.restoreBiometricUnlockKeyCalled)
+        XCTAssertEqual(biometricsRepository.restoreBiometricUnlockKeyReceivedArguments?.authKey, "ENC_KEY")
+    }
+
+    /// `unlockVaultWithPassword` skips key generation and restore when the biometric key already exists.
+    func test_unlockVaultWithPassword_doesNotRestoreWhenBiometricKeyAlreadyExists() async throws {
+        let account = Account.fixture(profile: .fixture(
+            userDecryptionOptions: UserDecryptionOptions(
+                hasMasterPassword: true,
+                masterPasswordUnlock: .fixture(),
+                keyConnectorOption: nil,
+                trustedDeviceOption: nil,
+            ),
+        ))
+        stateService.activeAccount = account
+        stateService.accountEncryptionKeys = [
+            "1": AccountEncryptionKeys(
+                accountKeys: .fixtureFilled(),
+                encryptedPrivateKey: "PRIVATE_KEY",
+                encryptedUserKey: "USER_KEY",
+            ),
+        ]
+        biometricsRepository.getBiometricUnlockStatusReturnValue = .available(.faceID, enabled: true)
+        biometricsRepository.hasBiometricUnlockKeyReturnValue = true
+
+        try await subject.unlockVaultWithPassword(password: "password")
+
+        XCTAssertFalse(biometricsRepository.restoreBiometricUnlockKeyCalled)
+        XCTAssertFalse(clientService.mockCrypto.getUserEncryptionKeyCalled)
+    }
+
+    /// `unlockVaultWithPassword` does not call restoreBiometricUnlockKey when biometrics is not enabled.
+    func test_unlockVaultWithPassword_doesNotRestoreBiometricKeyWhenDisabled() async throws {
+        let account = Account.fixture(profile: .fixture(
+            userDecryptionOptions: UserDecryptionOptions(
+                hasMasterPassword: true,
+                masterPasswordUnlock: .fixture(),
+                keyConnectorOption: nil,
+                trustedDeviceOption: nil,
+            ),
+        ))
+        stateService.activeAccount = account
+        stateService.accountEncryptionKeys = [
+            "1": AccountEncryptionKeys(
+                accountKeys: .fixtureFilled(),
+                encryptedPrivateKey: "PRIVATE_KEY",
+                encryptedUserKey: "USER_KEY",
+            ),
+        ]
+        biometricsRepository.getBiometricUnlockStatusReturnValue = .notAvailable
+
+        try await subject.unlockVaultWithPassword(password: "password")
+
+        XCTAssertFalse(biometricsRepository.restoreBiometricUnlockKeyCalled)
+    }
+
+    /// `unlockVaultWithPIN` restores the biometric key after a successful unlock when biometrics is enabled.
+    func test_unlockVaultWithPIN_restoresBiometricKeyWhenEnabled() async throws {
+        let account = Account.fixture()
+        stateService.activeAccount = account
+        stateService.accountEncryptionKeys = [
+            "1": AccountEncryptionKeys(
+                accountKeys: .fixtureFilled(),
+                encryptedPrivateKey: "PRIVATE_KEY",
+                encryptedUserKey: "USER_KEY",
+            ),
+        ]
+        stateService.pinProtectedUserKeyEnvelopeValue[account.profile.userId] = "pinProtectedUserKeyEnvelope"
+        biometricsRepository.getBiometricUnlockStatusReturnValue = .available(.faceID, enabled: true)
+        biometricsRepository.hasBiometricUnlockKeyReturnValue = false
+        clientService.mockCrypto.getUserEncryptionKeyResult = .success("ENC_KEY")
+
+        try await subject.unlockVaultWithPIN(pin: "1234")
+
+        XCTAssertTrue(biometricsRepository.restoreBiometricUnlockKeyCalled)
+        XCTAssertEqual(biometricsRepository.restoreBiometricUnlockKeyReceivedArguments?.authKey, "ENC_KEY")
+    }
+
+    /// `unlockVaultWithPIN` skips key generation and restore when the biometric key already exists.
+    func test_unlockVaultWithPIN_doesNotRestoreWhenBiometricKeyAlreadyExists() async throws {
+        let account = Account.fixture()
+        stateService.activeAccount = account
+        stateService.accountEncryptionKeys = [
+            "1": AccountEncryptionKeys(
+                accountKeys: .fixtureFilled(),
+                encryptedPrivateKey: "PRIVATE_KEY",
+                encryptedUserKey: "USER_KEY",
+            ),
+        ]
+        stateService.pinProtectedUserKeyEnvelopeValue[account.profile.userId] = "pinProtectedUserKeyEnvelope"
+        biometricsRepository.getBiometricUnlockStatusReturnValue = .available(.faceID, enabled: true)
+        biometricsRepository.hasBiometricUnlockKeyReturnValue = true
+
+        try await subject.unlockVaultWithPIN(pin: "1234")
+
+        XCTAssertFalse(biometricsRepository.restoreBiometricUnlockKeyCalled)
+        XCTAssertFalse(clientService.mockCrypto.getUserEncryptionKeyCalled)
     }
 
     /// `unlockVaultWithPIN(_:)` throws an error if there's no pin.
