@@ -6,6 +6,7 @@ import XCTest
 
 // MARK: - BiometricsRepositoryTests
 
+// swiftlint:disable file_length
 final class BiometricsRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_body_length
     // MARK: Properties
 
@@ -354,5 +355,114 @@ final class BiometricsRepositoryTests: BitwardenTestCase { // swiftlint:disable:
         XCTAssertEqual("authKey", keychainService.setUserBiometricAuthKeyReceivedArguments?.value)
         XCTAssertEqual("inactiveUser", keychainService.setUserBiometricAuthKeyReceivedArguments?.userId)
         XCTAssertEqual(stateService.setBiometricAuthenticationEnabledByUserId["inactiveUser"], true)
+    }
+
+    // MARK: hasBiometricUnlockKey
+
+    /// `hasBiometricUnlockKey` returns `true` when the biometric key is present in the keychain.
+    func test_hasBiometricUnlockKey_returnsTrue_whenKeyExists() async {
+        stateService.activeAccountIdResult = .success("1")
+        keychainService.userBiometricAuthKeyExistsReturnValue = true
+
+        let result = await subject.hasBiometricUnlockKey()
+
+        XCTAssertTrue(result)
+        XCTAssertEqual(keychainService.userBiometricAuthKeyExistsReceivedUserId, "1")
+    }
+
+    /// `hasBiometricUnlockKey` returns `false` when the biometric key is absent from the keychain.
+    func test_hasBiometricUnlockKey_returnsFalse_whenKeyAbsent() async {
+        stateService.activeAccountIdResult = .success("1")
+        keychainService.userBiometricAuthKeyExistsReturnValue = false
+
+        let result = await subject.hasBiometricUnlockKey()
+
+        XCTAssertFalse(result)
+    }
+
+    /// `hasBiometricUnlockKey` returns `false` without throwing when there is no active account.
+    func test_hasBiometricUnlockKey_returnsFalse_whenNoActiveAccount() async {
+        stateService.activeAccountIdError = BitwardenTestError.mock("NoActiveAccount")
+
+        let result = await subject.hasBiometricUnlockKey()
+
+        XCTAssertFalse(result)
+    }
+
+    // MARK: restoreBiometricUnlockKey
+
+    /// `restoreBiometricUnlockKey` throws when there is no active account.
+    func test_restoreBiometricUnlockKey_noActiveAccount() async throws {
+        stateService.activeAccountIdError = BitwardenTestError.mock("NoActiveAccount")
+        await assertAsyncThrows(error: BitwardenTestError.mock("NoActiveAccount")) {
+            try await subject.restoreBiometricUnlockKey(authKey: "authKey")
+        }
+    }
+
+    /// `restoreBiometricUnlockKey` stores the key and sets preference to true when biometrics is authorized.
+    func test_restoreBiometricUnlockKey_authorized_storesKeyAndSetsPreference() async throws {
+        biometricsService.getBiometricAuthStatusReturnValue = .authorized(.faceID)
+        stateService.activeAccountIdResult = .success("1")
+
+        try await subject.restoreBiometricUnlockKey(authKey: "authKey")
+
+        waitFor(keychainService.setUserBiometricAuthKeyCalled)
+        XCTAssertEqual(keychainService.setUserBiometricAuthKeyReceivedArguments?.value, "authKey")
+        XCTAssertEqual(keychainService.setUserBiometricAuthKeyReceivedArguments?.userId, "1")
+        XCTAssertEqual(stateService.setBiometricAuthenticationEnabledByUserId["1"], true)
+    }
+
+    /// `restoreBiometricUnlockKey` does not prompt Face ID (no evaluateBiometricPolicy call).
+    func test_restoreBiometricUnlockKey_authorized_doesNotEvaluateBiometricPolicy() async throws {
+        biometricsService.getBiometricAuthStatusReturnValue = .authorized(.faceID)
+        stateService.activeAccountIdResult = .success("1")
+
+        try await subject.restoreBiometricUnlockKey(authKey: "authKey")
+
+        XCTAssertFalse(biometricsService.evaluateBiometricPolicyCalled)
+    }
+
+    /// `restoreBiometricUnlockKey` clears the preference when biometrics is denied.
+    func test_restoreBiometricUnlockKey_denied_clearsPreference() async throws {
+        biometricsService.getBiometricAuthStatusReturnValue = .denied(.faceID)
+        stateService.activeAccountIdResult = .success("1")
+
+        try await subject.restoreBiometricUnlockKey(authKey: "authKey")
+
+        XCTAssertFalse(keychainService.setUserBiometricAuthKeyCalled)
+        XCTAssertEqual(stateService.setBiometricAuthenticationEnabledByUserId["1"], false)
+    }
+
+    /// `restoreBiometricUnlockKey` clears the preference when biometrics is not enrolled.
+    func test_restoreBiometricUnlockKey_notEnrolled_clearsPreference() async throws {
+        biometricsService.getBiometricAuthStatusReturnValue = .notEnrolled(.faceID)
+        stateService.activeAccountIdResult = .success("1")
+
+        try await subject.restoreBiometricUnlockKey(authKey: "authKey")
+
+        XCTAssertFalse(keychainService.setUserBiometricAuthKeyCalled)
+        XCTAssertEqual(stateService.setBiometricAuthenticationEnabledByUserId["1"], false)
+    }
+
+    /// `restoreBiometricUnlockKey` does nothing when biometrics is temporarily locked out.
+    func test_restoreBiometricUnlockKey_lockedOut_doesNothing() async throws {
+        biometricsService.getBiometricAuthStatusReturnValue = .lockedOut(.faceID)
+        stateService.activeAccountIdResult = .success("1")
+
+        try await subject.restoreBiometricUnlockKey(authKey: "authKey")
+
+        XCTAssertFalse(keychainService.setUserBiometricAuthKeyCalled)
+        XCTAssertNil(stateService.setBiometricAuthenticationEnabledByUserId["1"])
+    }
+
+    /// `restoreBiometricUnlockKey` does nothing when biometrics permission has not been determined.
+    func test_restoreBiometricUnlockKey_notDetermined_doesNothing() async throws {
+        biometricsService.getBiometricAuthStatusReturnValue = .notDetermined
+        stateService.activeAccountIdResult = .success("1")
+
+        try await subject.restoreBiometricUnlockKey(authKey: "authKey")
+
+        XCTAssertFalse(keychainService.setUserBiometricAuthKeyCalled)
+        XCTAssertNil(stateService.setBiometricAuthenticationEnabledByUserId["1"])
     }
 }

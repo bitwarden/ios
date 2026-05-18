@@ -4,6 +4,13 @@ import Foundation
 
 /// Protocol defining the functionality of a TOTP (Time-based One-Time Password) service.
 protocol TOTPService {
+    /// Calculates the next TOTP code (the one valid in the upcoming period) for a given key.
+    ///
+    /// - Parameters:
+    ///   - key: The `TOTPKeyModel` to generate the next code for.
+    ///
+    func getNextTOTPCode(for key: TOTPKeyModel) async throws -> TOTPCodeModel
+
     /// Calculates the TOTP code for a given key
     ///
     /// - Parameters:
@@ -53,6 +60,14 @@ class DefaultTOTPService {
 }
 
 extension DefaultTOTPService: TOTPService {
+    func getNextTOTPCode(for key: TOTPKeyModel) async throws -> TOTPCodeModel {
+        let nextDate = timeProvider.presentTime.addingTimeInterval(Double(key.period))
+        return try await clientService.vault().generateTOTPCode(
+            for: key.rawAuthenticatorKey,
+            date: nextDate,
+        )
+    }
+
     func getTotpCode(for key: TOTPKeyModel) async throws -> TOTPCodeModel {
         try await clientService.vault().generateTOTPCode(
             for: key.rawAuthenticatorKey,
