@@ -18,7 +18,8 @@
 #
 # BUILD_DIR = .../DerivedData/Bitwarden-<hash>/Build/Products (regular)
 #           = .../DerivedData/Bitwarden-<hash>/Build/Intermediates.noindex/ArchiveIntermediates/... (archive)
-# BITWARDEN_SDK_PATH = .../DerivedData/Bitwarden-<hash>/SourcePackages/checkouts/sdk-swift
+# BITWARDEN_SDK_PATH = .../DerivedData/Bitwarden-<hash>/SourcePackages/checkouts/sdk-swift (remote SDK)
+#                    = .../sdk-internal/crates/bitwarden-uniffi/swift (local SDK, when LOCAL_SDK=true bootstrap was run)
 
 set -euo pipefail
 
@@ -53,6 +54,17 @@ while [ "$_search_dir" != "/" ]; do
     fi
     _search_dir="$(dirname "$_search_dir")"
 done
+
+if [ -z "$BITWARDEN_SDK_PATH" ]; then
+    # Fall back to a local sdk-internal checkout (used when LOCAL_SDK=true bootstrap was run).
+    # SRCROOT is set by Xcode in build phases; derive from script location for standalone runs.
+    _script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+    _repo_root="$(dirname "$_script_dir")"
+    _local_sdk_path="${SRCROOT:-$_repo_root}/../sdk-internal/crates/bitwarden-uniffi/swift"
+    if [ -d "$_local_sdk_path" ]; then
+        BITWARDEN_SDK_PATH="$(cd "$_local_sdk_path" && pwd)"
+    fi
+fi
 
 if [ -z "$BITWARDEN_SDK_PATH" ]; then
     echo "error: Could not locate sdk-swift checkout under SourcePackages/ — ensure SPM packages are resolved before running Sourcery."
