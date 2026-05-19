@@ -10,7 +10,10 @@ import Foundation
 class AttachmentsProcessor: StateProcessor<AttachmentsState, AttachmentsAction, AttachmentsEffect> {
     // MARK: Types
 
-    typealias Services = HasConfigService
+    typealias Services = HasBillingRepository
+        & HasBillingService
+        & HasConfigService
+        & HasEnvironmentService
         & HasErrorReporter
         & HasVaultRepository
 
@@ -18,6 +21,13 @@ class AttachmentsProcessor: StateProcessor<AttachmentsState, AttachmentsAction, 
 
     /// The `Coordinator` that handles navigation.
     private var coordinator: AnyCoordinator<VaultItemRoute, VaultItemEvent>
+
+    /// The helper used to navigate to the premium upgrade flow.
+    lazy var premiumUpgradeHelper: PremiumUpgradeHelper = DefaultPremiumUpgradeHelper(
+        services: services,
+        coordinator: coordinator,
+        setURL: { [weak self] url in self?.state.url = url },
+    )
 
     /// The services used by this processor.
     private var services: Services
@@ -57,6 +67,8 @@ class AttachmentsProcessor: StateProcessor<AttachmentsState, AttachmentsAction, 
         switch action {
         case .chooseFilePressed:
             presentFileSelectionAlert()
+        case .clearURL:
+            state.url = nil
         case let .deletePressed(attachment):
             confirmDeleteAttachment(attachment)
         case .dismissPressed:
@@ -101,13 +113,22 @@ class AttachmentsProcessor: StateProcessor<AttachmentsState, AttachmentsAction, 
 
     /// Load the user's premium status and display an alert if they do not have access to premium features.
     private func loadPremiumStatus() async {
-        // Fetch the user's premium status.
         state.hasPremium = await services.vaultRepository.doesActiveAccountHavePremium()
-
-        // If the user does not have access to premium features, show an alert.
         if !state.hasPremium {
-            coordinator.showAlert(.defaultAlert(title: Localizations.premiumRequired))
+            coordinator.navigate(to: .dismiss(DismissAction { [weak self] in
+                guard let self else { return }
+                coordinator.showAlert(.attachmentsUnavailable {
+                    await self.navigateToPremiumUpgrade()
+                })
+            }))
         }
+    }
+
+    /// Navigates to the premium upgrade flow. Uses the in-app upgrade path when available;
+    /// otherwise opens the web vault upgrade URL as a fallback.
+    ///
+    private func navigateToPremiumUpgrade() async {
+        await premiumUpgradeHelper.navigateToPremiumUpgrade()
     }
 
     /// Presents the file selection alert.
