@@ -6,7 +6,7 @@ import BitwardenSdkMocks
 @testable import AuthenticatorShared
 
 class MockClientService: ClientService {
-    var mockAuth: MockAuthClient
+    var mockAuth: MockAuthClientService
     var mockAuthIsPreAuth = false
     var mockAuthUserId: String?
     var mockCrypto: MockCryptoClientProtocol
@@ -20,7 +20,7 @@ class MockClientService: ClientService {
     var userClientArray = [String: BitwardenSdkClient]()
 
     init(
-        auth: MockAuthClient = MockAuthClient(),
+        auth: MockAuthClientService = MockAuthClientService(),
         crypto: MockCryptoClientProtocol = MockCryptoClientProtocol(),
         exporters: MockExporterClientProtocol = MockExporterClientProtocol(),
         generators: MockGeneratorClientsProtocol = MockGeneratorClientsProtocol(),
