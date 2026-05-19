@@ -115,12 +115,9 @@ class AttachmentsProcessor: StateProcessor<AttachmentsState, AttachmentsAction, 
     private func loadPremiumStatus() async {
         state.hasPremium = await services.vaultRepository.doesActiveAccountHavePremium()
         if !state.hasPremium {
-            coordinator.navigate(to: .dismiss(DismissAction { [weak self] in
-                guard let self else { return }
-                coordinator.showAlert(.attachmentsUnavailable {
-                    await self.navigateToPremiumUpgrade()
-                })
-            }))
+            coordinator.showAlert(.attachmentsUnavailable {
+                await self.navigateToPremiumUpgrade()
+            })
         }
     }
 
@@ -148,8 +145,9 @@ class AttachmentsProcessor: StateProcessor<AttachmentsState, AttachmentsAction, 
             try EmptyInputValidator(fieldName: Localizations.file)
                 .validate(input: state.fileName)
 
-            // Dismiss and show the upgrade alert if the user doesn't have premium.
+            // Show the upgrade alert and stop if the user doesn't have premium.
             await loadPremiumStatus()
+            guard state.hasPremium else { return }
 
             // Display an alert if the attachment is too large.
             guard let fileSize = state.fileData?.count, fileSize < Constants.maxFileSize else {

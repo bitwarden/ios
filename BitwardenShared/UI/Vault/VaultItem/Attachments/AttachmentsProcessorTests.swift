@@ -58,7 +58,7 @@ class AttachmentsProcessorTests: BitwardenTestCase {
         XCTAssertEqual(subject.state.fileData, data)
     }
 
-    /// `perform(_:)` with `.loadPremiumStatus` dismisses the view and then displays an alert.
+    /// `perform(_:)` with `.loadPremiumStatus` shows the premium upgrade alert if the user lacks premium.
     @MainActor
     func test_perform_loadPremiumStatus() async throws {
         vaultRepository.doesActiveAccountHavePremiumResult = false
@@ -66,15 +66,10 @@ class AttachmentsProcessorTests: BitwardenTestCase {
         await subject.perform(.loadPremiumStatus)
 
         XCTAssertFalse(subject.state.hasPremium)
-        guard case let .dismiss(dismissAction) = coordinator.routes.last else {
-            XCTFail("Expected dismiss route with action")
-            return
-        }
-        dismissAction?.action()
         XCTAssertEqual(coordinator.alertShown.last, .attachmentsUnavailable(action: {}))
     }
 
-    /// `perform(_:)` with `.loadPremiumStatus` does not dismiss the view when the user has premium.
+    /// `perform(_:)` with `.loadPremiumStatus` does not show an alert when the user has premium.
     @MainActor
     func test_perform_loadPremiumStatus_hasPremium() async throws {
         vaultRepository.doesActiveAccountHavePremiumResult = true
@@ -82,7 +77,7 @@ class AttachmentsProcessorTests: BitwardenTestCase {
         await subject.perform(.loadPremiumStatus)
 
         XCTAssertTrue(subject.state.hasPremium)
-        XCTAssertTrue(coordinator.routes.isEmpty)
+        XCTAssertNil(coordinator.alertShown.last)
     }
 
     /// `perform(_:)` with `.loadPremiumStatus` navigates to premium upgrade when tapping the upgrade button.
@@ -91,12 +86,6 @@ class AttachmentsProcessorTests: BitwardenTestCase {
         vaultRepository.doesActiveAccountHavePremiumResult = false
 
         await subject.perform(.loadPremiumStatus)
-
-        guard case let .dismiss(dismissAction) = coordinator.routes.last else {
-            XCTFail("Expected dismiss route with action")
-            return
-        }
-        dismissAction?.action()
 
         let alert = try XCTUnwrap(coordinator.alertShown.last)
         try await alert.tapAction(title: Localizations.upgradeToPremium)
@@ -148,7 +137,7 @@ class AttachmentsProcessorTests: BitwardenTestCase {
         )
     }
 
-    /// `perform(_:)` with `.save` dismisses the view and shows the upgrade alert if the user doesn't have premium.
+    /// `perform(_:)` with `.save` shows the premium upgrade alert if the user doesn't have premium.
     @MainActor
     func test_perform_save_noPremium() async throws {
         subject.state.fileName = "only cool people can see this file.txt"
@@ -157,11 +146,6 @@ class AttachmentsProcessorTests: BitwardenTestCase {
 
         await subject.perform(.save)
 
-        guard case let .dismiss(dismissAction) = coordinator.routes.last else {
-            XCTFail("Expected dismiss route with action")
-            return
-        }
-        dismissAction?.action()
         XCTAssertEqual(coordinator.alertShown.last, .attachmentsUnavailable(action: {}))
     }
 
