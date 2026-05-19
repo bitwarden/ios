@@ -19,7 +19,6 @@ struct CreatePasskeyView: View {
 
     // MARK: Private Views
 
-    /// The main content view.
     private var content: some View {
         Form {
             credentialsSection
