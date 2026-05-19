@@ -32,8 +32,10 @@ final class AuthenticatorSyncServiceTests: BitwardenTestCase { // swiftlint:disa
 
         authBridgeItemService = MockAuthenticatorBridgeItemService()
         authenticatorClientService = MockClientService()
+        authenticatorClientService.mockCrypto.getUserEncryptionKeyReturnValue = "USER_ENCRYPTION_KEY"
         cipherDataStore = MockCipherDataStore()
         clientService = MockClientService()
+        clientService.mockCrypto.getUserEncryptionKeyReturnValue = "USER_ENCRYPTION_KEY"
         errorReporter = MockErrorReporter()
         keychainRepository = MockKeychainRepository()
         keychainRepository.getAuthenticatorVaultKeyClosure = { [weak self] userId in
@@ -148,7 +150,7 @@ final class AuthenticatorSyncServiceTests: BitwardenTestCase { // swiftlint:disa
     func test_createAuthenticatorVaultKeyIfNeeded_cryptoError() async throws {
         setupInitialState()
         await subject.start()
-        clientService.mockCrypto.getUserEncryptionKeyResult = .failure(BitwardenTestError.example)
+        clientService.mockCrypto.getUserEncryptionKeyThrowableError = BitwardenTestError.example
         stateService.syncToAuthenticatorSubject.send(("1", true))
 
         try await waitForAsync {
@@ -938,8 +940,8 @@ final class AuthenticatorSyncServiceTests: BitwardenTestCase { // swiftlint:disa
         let items = try XCTUnwrap(authBridgeItemService.storedItems["1"])
         XCTAssertEqual(items.count, 1)
         XCTAssertEqual(items.first?.id, "1234")
-        XCTAssertNotNil(authenticatorClientService.mockCrypto.initializeUserCryptoRequest)
-        XCTAssertNotNil(authenticatorClientService.mockCrypto.initializeOrgCryptoRequest)
+        XCTAssertNotNil(authenticatorClientService.mockCrypto.initializeUserCryptoReceivedReq)
+        XCTAssertNotNil(authenticatorClientService.mockCrypto.initializeOrgCryptoReceivedReq)
         XCTAssertTrue(authenticatorClientService.userClientArray.isEmpty)
     }
 
@@ -973,10 +975,11 @@ final class AuthenticatorSyncServiceTests: BitwardenTestCase { // swiftlint:disa
         let items = try XCTUnwrap(authBridgeItemService.storedItems["1"])
         XCTAssertEqual(items.count, 1)
         XCTAssertEqual(items.first?.id, "1234")
-        XCTAssertNotNil(authenticatorClientService.mockCrypto.initializeUserCryptoRequest)
-        XCTAssertNotNil(authenticatorClientService.mockCrypto.initializeOrgCryptoRequest)
+        XCTAssertNotNil(authenticatorClientService.mockCrypto.initializeUserCryptoReceivedReq)
+        XCTAssertNotNil(authenticatorClientService.mockCrypto.initializeOrgCryptoReceivedReq)
         XCTAssertEqual(
-            authenticatorClientService.mockCrypto.initializeOrgCryptoRequest?.organizationKeys, ["org-1": "key-org-1"],
+            authenticatorClientService.mockCrypto.initializeOrgCryptoReceivedReq?.organizationKeys,
+            ["org-1": "key-org-1"],
         )
         XCTAssertTrue(authenticatorClientService.userClientArray.isEmpty)
     }
@@ -993,7 +996,7 @@ final class AuthenticatorSyncServiceTests: BitwardenTestCase { // swiftlint:disa
             self.keychainRepository.setAuthenticatorVaultKeyCalled
         }
 
-        authenticatorClientService.mockCrypto.initializeUserCryptoResult = .failure(BitwardenTestError.example)
+        authenticatorClientService.mockCrypto.initializeUserCryptoThrowableError = BitwardenTestError.example
         vaultTimeoutService.isClientLocked["1"] = true
         cipherDataStore.cipherSubjectByUserId["1"]?.send([
             .fixture(
@@ -1094,8 +1097,8 @@ final class AuthenticatorSyncServiceTests: BitwardenTestCase { // swiftlint:disa
             self.authBridgeItemService.storedItems["1"]?.first != nil
         }
         XCTAssertFalse(vaultTimeoutService.isClientLocked["1"] ?? true)
-        XCTAssertNotNil(authenticatorClientService.mockCrypto.initializeUserCryptoRequest)
-        XCTAssertNotNil(authenticatorClientService.mockCrypto.initializeOrgCryptoRequest)
+        XCTAssertNotNil(authenticatorClientService.mockCrypto.initializeUserCryptoReceivedReq)
+        XCTAssertNotNil(authenticatorClientService.mockCrypto.initializeOrgCryptoReceivedReq)
     }
 
     // MARK: - Private Methods

@@ -1,4 +1,5 @@
 import BitwardenSdk
+import BitwardenSdkMocks
 import XCTest
 
 @testable import BitwardenShared
@@ -7,14 +8,14 @@ import XCTest
 class CryptoClientProtocolExtensionsTests: BitwardenTestCase {
     // MARK: Properties
 
-    var subject: MockCryptoClient!
+    var subject: MockCryptoClientProtocol!
 
     // MARK: Setup & Teardown
 
     override func setUp() {
         super.setUp()
 
-        subject = MockCryptoClient()
+        subject = MockCryptoClientProtocol()
     }
 
     override func tearDown() {
@@ -45,7 +46,7 @@ class CryptoClientProtocolExtensionsTests: BitwardenTestCase {
             ),
         )
 
-        let request = try XCTUnwrap(subject.initializeUserCryptoRequest)
+        let request = try XCTUnwrap(subject.initializeUserCryptoReceivedReq)
         XCTAssertEqual(request.userId, "1")
         XCTAssertEqual(request.kdfParams, .pbkdf2(iterations: 600_000))
         XCTAssertEqual(request.email, "user@bitwarden.com")
@@ -86,7 +87,7 @@ class CryptoClientProtocolExtensionsTests: BitwardenTestCase {
             method: .pin(pin: "1234", pinProtectedUserKey: "pinProtectedUserKey"),
         )
 
-        let request = try XCTUnwrap(subject.initializeUserCryptoRequest)
+        let request = try XCTUnwrap(subject.initializeUserCryptoReceivedReq)
         XCTAssertEqual(request.userId, "1")
         XCTAssertEqual(request.kdfParams, .pbkdf2(iterations: 600_000))
         XCTAssertEqual(request.email, "user@bitwarden.com")
