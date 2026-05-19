@@ -155,6 +155,7 @@ class KeyConnectorServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
             .httpSuccess(testData: .emptyResponse),
             .httpSuccess(testData: .emptyResponse),
         ]
+        clientService.mockCrypto.deriveKeyConnectorReturnValue = "key"
         organizationService.fetchAllOrganizationsResult = .success([
             .fixture(keyConnectorEnabled: true, keyConnectorUrl: "https://example.com/key-connector"),
         ])
@@ -178,7 +179,7 @@ class KeyConnectorServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
             URL(string: "https://example.com/api/accounts/convert-to-key-connector")!,
         )
         XCTAssertEqual(
-            clientService.mockCrypto.deriveKeyConnectorRequest,
+            clientService.mockCrypto.deriveKeyConnectorReceivedRequest,
             DeriveKeyConnectorRequest(
                 userKeyEncrypted: "encryptedUserKey",
                 password: "testPassword123",
@@ -221,7 +222,7 @@ class KeyConnectorServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
 
     /// `migrateUser()` throws an error if deriving the key connector key fails.
     func test_migrateUser_deriveKeyConnectorError() async throws {
-        clientService.mockCrypto.deriveKeyConnectorResult = .failure(BitwardenTestError.example)
+        clientService.mockCrypto.deriveKeyConnectorThrowableError = BitwardenTestError.example
         organizationService.fetchAllOrganizationsResult = .success([
             .fixture(keyConnectorEnabled: true, keyConnectorUrl: "https://https://example.com/key-connector"),
         ])
@@ -245,6 +246,7 @@ class KeyConnectorServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
             .httpSuccess(testData: .emptyResponse),
             .httpFailure(URLError(.networkConnectionLost)),
         ]
+        clientService.mockCrypto.deriveKeyConnectorReturnValue = "key"
         organizationService.fetchAllOrganizationsResult = .success([
             .fixture(keyConnectorEnabled: true, keyConnectorUrl: "https://https://example.com/key-connector"),
         ])

@@ -14,9 +14,11 @@ extension Alert {
     ///   - action: A closure to execute on upgrading to premium.
     /// - Returns: The alert when archive is unavailable.
     static func archiveUnavailable(
-        action: @escaping () -> Void,
+        action: @escaping () async -> Void,
     ) -> Alert {
-        let preferredAction = AlertAction(title: Localizations.upgradeToPremium, style: .default) { _ in action() }
+        let preferredAction = AlertAction(title: Localizations.upgradeToPremium, style: .default) { _ in
+            await action()
+        }
         let alert = Alert(
             title: Localizations.archiveUnavailable,
             message: Localizations.archivingItemsIsAPremiumFeatureDescriptionLong,

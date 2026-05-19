@@ -1483,7 +1483,7 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         XCTAssertFalse(isRequired)
     }
 
-    /// `logoutAccount()` clears any account data.
+    /// `logoutAccount()` clears any account data except user's biometric authentication preference.
     func test_logoutAccount_clearAccountData() async throws { // swiftlint:disable:this function_body_length
         let account = Account.fixture(profile: Account.AccountProfile.fixture(userId: "1"))
         await subject.addAccount(account)
@@ -1530,7 +1530,7 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
 
         try await subject.logoutAccount(userInitiated: true)
 
-        XCTAssertEqual(appSettingsStore.biometricAuthenticationEnabled, [:])
+        XCTAssertEqual(appSettingsStore.biometricAuthenticationEnabled, ["1": true])
         XCTAssertEqual(appSettingsStore.accountKeys, [:])
         XCTAssertEqual(appSettingsStore.encryptedPrivateKeys, [:])
         XCTAssertEqual(appSettingsStore.encryptedUserKeys, [:])

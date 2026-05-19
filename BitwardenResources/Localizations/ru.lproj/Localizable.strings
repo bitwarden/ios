@@ -223,7 +223,7 @@
 "June" = "Июнь";
 "LastName" = "Фамилия";
 "FullName" = "Полное имя";
-"LicenseNumber" = "ИНН";
+"LicenseNumber" = "Номер водительского удостоверения";
 "March" = "Март";
 "May" = "Май";
 "MiddleName" = "Отчество";
@@ -381,6 +381,7 @@
 "MasterPasswordPolicyValidationTitle" = "Неверный пароль";
 "MasterPasswordPolicyValidationMessage" = "Пароль не соответствует требованиям организации. Пожалуйста, проверьте информацию о политике и попробуйте еще раз.";
 "Loading" = "Загрузка";
+"LoadingSubscription" = "Загрузка подписки...";
 "AcceptPoliciesError" = "Условия предоставления услуг и Политика конфиденциальности не были подтверждены.";
 "PrivacyPolicy" = "Политика конфиденциальности";
 "PersonalOwnershipPolicyInEffect" = "Политика организации влияет на ваши варианты владения.";
@@ -1080,8 +1081,8 @@
 "UpgradePending" = "Ожидание перехода";
 "YourUpgradeIsBeingProcessedDescriptionLong" = "Ваш переход на платный тарифный план находится в процессе обработки. До завершения перехода вы будете пользоваться бесплатным тарифным планом. Вы можете синхронизировать данные прямо сейчас, чтобы проверить, или продолжить — обновление произойдет автоматически.";
 "UpgradedToPremium" = "Обновлено до Премиум";
-"ViewPlanDetails" = "Подробнее о плане";
-"WelcomeToPremiumYouNowHaveAccessDescriptionLong" = "Добро пожаловать в Премиум! Теперь у вас есть доступ ко всем расширенным функциям безопасности.";
+"YouNowHaveAccessToAdvancedSecurityDescriptionLong" = "Теперь у вас есть доступ к расширенным функциям безопасности. Узнайте больше о том, что включено в Премиум.";
+"YouNowHaveAccessToAllAdvancedSecurityFeatures" = "Теперь у вас есть доступ ко всем расширенным функциям безопасности.";
 "YoullGoToStripeSecureCheckoutToCompleteYourPurchase" = "Вы будете перенаправлены на защищенную страницу оформления заказа Stripe для завершения покупки.";
 "YoullContinueToHavePremiumAccessUntilX" = "У вас будет доступ к Премиум до %1$@.";
 "UserIDCopiedToTheClipboard" = "ID пользователя скопирован в буфер обмена";

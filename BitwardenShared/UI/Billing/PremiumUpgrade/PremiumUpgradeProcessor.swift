@@ -15,7 +15,6 @@ final class PremiumUpgradeProcessor: StateProcessor<
     // MARK: Types
 
     typealias Services = HasBillingService
-        & HasEnvironmentService
         & HasErrorReporter
 
     // MARK: Properties
@@ -56,7 +55,7 @@ final class PremiumUpgradeProcessor: StateProcessor<
     override func perform(_ effect: PremiumUpgradeEffect) async {
         switch effect {
         case .appeared:
-            state.isSelfHosted = services.environmentService.region == .selfHosted
+            state.isSelfHosted = await services.billingService.isSelfHosted()
             if !state.isSelfHosted {
                 await fetchPremiumPrice()
             }
