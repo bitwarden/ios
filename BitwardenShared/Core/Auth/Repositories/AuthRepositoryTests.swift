@@ -92,7 +92,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
 
     // MARK: Setup & Teardown
 
-    override func setUp() {
+    override func setUp() { // swiftlint:disable:this function_body_length
         super.setUp()
 
         appContextHelper = MockAppContextHelper()
@@ -118,6 +118,13 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
 
         biometricsRepository.getBiometricUnlockStatusReturnValue = .notAvailable
         biometricsRepository.getUserAuthKeyReturnValue = "UserAuthKey"
+        clientService.mockAuth.hashPasswordReturnValue = "hash password"
+        clientService.mockAuth.makeRegisterKeysReturnValue = RegisterKeyResponse(
+            masterPasswordHash: "masterPasswordHash",
+            encryptedUserKey: "encryptedUserKey",
+            keys: RsaKeyPair(public: "public", private: "private"),
+        )
+        clientService.mockAuth.validatePinReturnValue = false
         userSessionStateService.getVaultTimeoutReturnValue = .fifteenMinutes
         userSessionStateService.getUnsuccessfulUnlockAttemptsReturnValue = 0
 
@@ -259,15 +266,15 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
             .httpSuccess(testData: .setAccountKeys),
             .httpSuccess(testData: .emptyResponse),
         ]
-        clientService.mockAuth.makeRegisterTdeKeysResult = .success(registerTdeInput)
+        clientService.mockAuth.makeRegisterTdeKeysReturnValue = registerTdeInput
         trustDeviceService.trustDeviceWithExistingKeysResult = .success(())
 
         try await subject.createNewSsoUser(orgIdentifier: "Bitwarden", rememberDevice: true)
 
         XCTAssertEqual(trustDeviceService.trustDeviceWithExistingKeysValue, registerTdeInput.deviceKey)
-        XCTAssertEqual(clientService.mockAuth.makeRegisterTdeKeysEmail, "user@bitwarden.com")
-        XCTAssertEqual(clientService.mockAuth.makeRegisterTdeKeysOrgPublicKey, "MIIBIjAN...2QIDAQAB")
-        XCTAssertEqual(clientService.mockAuth.makeRegisterTdeKeysRememberDevice, true)
+        XCTAssertEqual(clientService.mockAuth.makeRegisterTdeKeysReceivedArguments?.email, "user@bitwarden.com")
+        XCTAssertEqual(clientService.mockAuth.makeRegisterTdeKeysReceivedArguments?.orgPublicKey, "MIIBIjAN...2QIDAQAB")
+        XCTAssertEqual(clientService.mockAuth.makeRegisterTdeKeysReceivedArguments?.rememberDevice, true)
         XCTAssertEqual(
             stateService.accountEncryptionKeys["1"],
             AccountEncryptionKeys(
@@ -298,13 +305,13 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
             .httpSuccess(testData: .setAccountKeys),
             .httpSuccess(testData: .emptyResponse),
         ]
-        clientService.mockAuth.makeRegisterTdeKeysResult = .success(registerTdeInput)
+        clientService.mockAuth.makeRegisterTdeKeysReturnValue = registerTdeInput
 
         try await subject.createNewSsoUser(orgIdentifier: "Bitwarden", rememberDevice: false)
 
         XCTAssertNil(trustDeviceService.trustDeviceWithExistingKeysValue)
-        XCTAssertEqual(clientService.mockAuth.makeRegisterTdeKeysOrgPublicKey, "MIIBIjAN...2QIDAQAB")
-        XCTAssertEqual(clientService.mockAuth.makeRegisterTdeKeysRememberDevice, false)
+        XCTAssertEqual(clientService.mockAuth.makeRegisterTdeKeysReceivedArguments?.orgPublicKey, "MIIBIjAN...2QIDAQAB")
+        XCTAssertEqual(clientService.mockAuth.makeRegisterTdeKeysReceivedArguments?.rememberDevice, false)
         XCTAssertEqual(
             stateService.accountEncryptionKeys["1"],
             AccountEncryptionKeys(
@@ -335,7 +342,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
             .httpSuccess(testData: .setAccountKeysWithAccountKeys),
             .httpSuccess(testData: .emptyResponse),
         ]
-        clientService.mockAuth.makeRegisterTdeKeysResult = .success(registerTdeInput)
+        clientService.mockAuth.makeRegisterTdeKeysReturnValue = registerTdeInput
         trustDeviceService.trustDeviceWithExistingKeysResult = .success(())
 
         try await subject.createNewSsoUser(orgIdentifier: "Bitwarden", rememberDevice: true)
@@ -1478,14 +1485,14 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
             resetPasswordAutoEnroll: false,
         )
 
-        XCTAssertEqual(clientService.mockAuth.makeRegisterKeysKdf, account.kdf.sdkKdf)
-        XCTAssertEqual(clientService.mockAuth.makeRegisterKeysEmail, account.profile.email)
-        XCTAssertEqual(clientService.mockAuth.makeRegisterKeysPassword, "NEW_PASSWORD")
+        XCTAssertEqual(clientService.mockAuth.makeRegisterKeysReceivedArguments?.kdf, account.kdf.sdkKdf)
+        XCTAssertEqual(clientService.mockAuth.makeRegisterKeysReceivedArguments?.email, account.profile.email)
+        XCTAssertEqual(clientService.mockAuth.makeRegisterKeysReceivedArguments?.password, "NEW_PASSWORD")
 
-        XCTAssertEqual(clientService.mockAuth.hashPasswordEmail, account.profile.email)
-        XCTAssertEqual(clientService.mockAuth.hashPasswordKdfParams, account.kdf.sdkKdf)
-        XCTAssertEqual(clientService.mockAuth.hashPasswordPassword, "NEW_PASSWORD")
-        XCTAssertEqual(clientService.mockAuth.hashPasswordPurpose, .serverAuthorization)
+        XCTAssertEqual(clientService.mockAuth.hashPasswordReceivedArguments?.email, account.profile.email)
+        XCTAssertEqual(clientService.mockAuth.hashPasswordReceivedArguments?.kdfParams, account.kdf.sdkKdf)
+        XCTAssertEqual(clientService.mockAuth.hashPasswordReceivedArguments?.password, "NEW_PASSWORD")
+        XCTAssertEqual(clientService.mockAuth.hashPasswordReceivedArguments?.purpose, .serverAuthorization)
 
         let requests = client.requests
         XCTAssertEqual(requests.count, 1)
@@ -1904,27 +1911,27 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
 
     /// `passwordStrength(email:password)` returns the calculated password strength.
     func test_passwordStrength() async throws {
-        clientService.mockAuth.passwordStrengthResult = 0
+        clientService.mockAuth.passwordStrengthReturnValue = 0
         let weakPasswordStrength = try await subject.passwordStrength(
             email: "user@bitwarden.com",
             password: "password",
             isPreAuth: false,
         )
         XCTAssertEqual(weakPasswordStrength, 0)
-        XCTAssertEqual(clientService.mockAuth.passwordStrengthEmail, "user@bitwarden.com")
-        XCTAssertEqual(clientService.mockAuth.passwordStrengthPassword, "password")
+        XCTAssertEqual(clientService.mockAuth.passwordStrengthReceivedArguments?.email, "user@bitwarden.com")
+        XCTAssertEqual(clientService.mockAuth.passwordStrengthReceivedArguments?.password, "password")
         XCTAssertFalse(clientService.mockAuthIsPreAuth)
 
-        clientService.mockAuth.passwordStrengthResult = 4
+        clientService.mockAuth.passwordStrengthReturnValue = 4
         let strongPasswordStrength = try await subject.passwordStrength(
             email: "user@bitwarden.com",
             password: "ghu65zQ0*TjP@ij74g*&FykWss#Kgv8L8j8XmC03",
             isPreAuth: true,
         )
         XCTAssertEqual(strongPasswordStrength, 4)
-        XCTAssertEqual(clientService.mockAuth.passwordStrengthEmail, "user@bitwarden.com")
+        XCTAssertEqual(clientService.mockAuth.passwordStrengthReceivedArguments?.email, "user@bitwarden.com")
         XCTAssertEqual(
-            clientService.mockAuth.passwordStrengthPassword,
+            clientService.mockAuth.passwordStrengthReceivedArguments?.password,
             "ghu65zQ0*TjP@ij74g*&FykWss#Kgv8L8j8XmC03",
         )
 
@@ -3370,13 +3377,13 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
     func test_validatePassword() async throws {
         stateService.activeAccount = .fixture(profile: .fixture(userId: "1"))
         stateService.masterPasswordHashes["1"] = "wxyz4321"
-        clientService.mockAuth.validatePasswordResult = true
+        clientService.mockAuth.validatePasswordReturnValue = true
 
         let isValid = try await subject.validatePassword("test1234")
 
         XCTAssertTrue(isValid)
-        XCTAssertEqual(clientService.mockAuth.validatePasswordPassword, "test1234")
-        XCTAssertEqual(clientService.mockAuth.validatePasswordPasswordHash, "wxyz4321")
+        XCTAssertEqual(clientService.mockAuth.validatePasswordReceivedArguments?.password, "test1234")
+        XCTAssertEqual(clientService.mockAuth.validatePasswordReceivedArguments?.passwordHash, "wxyz4321")
     }
 
     /// `validatePassword(_:)` validates the password with the user key and sets the master password
@@ -3388,13 +3395,13 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
             encryptedPrivateKey: "PRIVATE_KEY",
             encryptedUserKey: "KEY",
         )
-        clientService.mockAuth.validatePasswordUserKeyResult = .success("MASTER_PASSWORD_HASH")
+        clientService.mockAuth.validatePasswordUserKeyReturnValue = "MASTER_PASSWORD_HASH"
 
         let isValid = try await subject.validatePassword("test1234")
 
         XCTAssertTrue(isValid)
-        XCTAssertEqual(clientService.mockAuth.validatePasswordUserKeyPassword, "test1234")
-        XCTAssertEqual(clientService.mockAuth.validatePasswordUserKeyEncryptedUserKey, "KEY")
+        XCTAssertEqual(clientService.mockAuth.validatePasswordUserKeyReceivedArguments?.password, "test1234")
+        XCTAssertEqual(clientService.mockAuth.validatePasswordUserKeyReceivedArguments?.encryptedUserKey, "KEY")
         XCTAssertEqual(stateService.masterPasswordHashes["1"], "MASTER_PASSWORD_HASH")
     }
 
@@ -3406,13 +3413,13 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
             encryptedPrivateKey: "PRIVATE_KEY",
             encryptedUserKey: "KEY",
         )
-        clientService.mockAuth.validatePasswordUserKeyResult = .failure(BitwardenTestError.example)
+        clientService.mockAuth.validatePasswordUserKeyThrowableError = BitwardenTestError.example
 
         let isValid = try await subject.validatePassword("not the password")
 
         XCTAssertFalse(isValid)
-        XCTAssertEqual(clientService.mockAuth.validatePasswordUserKeyPassword, "not the password")
-        XCTAssertEqual(clientService.mockAuth.validatePasswordUserKeyEncryptedUserKey, "KEY")
+        XCTAssertEqual(clientService.mockAuth.validatePasswordUserKeyReceivedArguments?.password, "not the password")
+        XCTAssertEqual(clientService.mockAuth.validatePasswordUserKeyReceivedArguments?.encryptedUserKey, "KEY")
         XCTAssertNil(stateService.masterPasswordHashes["1"])
     }
 
@@ -3420,7 +3427,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
     func test_validatePassword_notValid() async throws {
         stateService.activeAccount = .fixture(profile: .fixture(userId: "1"))
         stateService.masterPasswordHashes["1"] = "wxyz4321"
-        clientService.mockAuth.validatePasswordResult = false
+        clientService.mockAuth.validatePasswordReturnValue = false
 
         let isValid = try await subject.validatePassword("not the password")
 
@@ -3433,7 +3440,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         stateService.activeAccount = account
         stateService.pinProtectedUserKeyValue[account.profile.userId] = "123"
 
-        clientService.mockAuth.validatePinResult = .success(true)
+        clientService.mockAuth.validatePinReturnValue = true
 
         let isPinValid = try await subject.validatePin(pin: "123")
 
@@ -3464,7 +3471,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
 
         stateService.pinProtectedUserKeyValue[account.profile.userId] = "123"
 
-        clientService.mockAuth.validatePinResult = .success(false)
+        clientService.mockAuth.validatePinReturnValue = false
 
         let isPinValid = try await subject.validatePin(pin: "123")
 
@@ -3478,7 +3485,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
 
         stateService.pinProtectedUserKeyValue[account.profile.userId] = "123"
 
-        clientService.mockAuth.validatePinResult = .failure(BitwardenTestError.example)
+        clientService.mockAuth.validatePinThrowableError = BitwardenTestError.example
 
         await assertAsyncThrows(error: BitwardenTestError.example) {
             _ = try await subject.validatePin(pin: "123")
