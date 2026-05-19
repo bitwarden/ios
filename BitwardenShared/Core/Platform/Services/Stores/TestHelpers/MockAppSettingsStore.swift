@@ -10,7 +10,6 @@ import Foundation
 class MockAppSettingsStore: AppSettingsStore { // swiftlint:disable:this type_body_length
     var accessTokenExpirationDateByUserId = [String: Date]()
     var accountCryptographicStates = [String: WrappedAccountCryptographicState]()
-    var accountKeys = [String: PrivateKeysResponseModel]()
     var accountSetupAutofill = [String: AccountSetupProgress]()
     var accountSetupImportLogins = [String: AccountSetupProgress]()
     var accountSetupVaultUnlock = [String: AccountSetupProgress]()
@@ -45,7 +44,6 @@ class MockAppSettingsStore: AppSettingsStore { // swiftlint:disable:this type_bo
     var defaultUriMatchTypeByUserId = [String: BitwardenShared.UriMatchType]()
     var disableAutoTotpCopyByUserId = [String: Bool]()
     var encryptedPinByUserId = [String: String]()
-    var encryptedPrivateKeys = [String: String]()
     var encryptedUserKeys = [String: String]()
     var eventsByUserId = [String: [EventData]]()
     var featureFlags = [String: Bool]()
@@ -87,10 +85,6 @@ class MockAppSettingsStore: AppSettingsStore { // swiftlint:disable:this type_bo
 
     func accountCryptographicState(userId: String) -> WrappedAccountCryptographicState? {
         accountCryptographicStates[userId]
-    }
-
-    func accountKeys(userId: String) -> PrivateKeysResponseModel? {
-        accountKeys[userId]
     }
 
     func accountSetupAutofill(userId: String) -> AccountSetupProgress? {
@@ -139,10 +133,6 @@ class MockAppSettingsStore: AppSettingsStore { // swiftlint:disable:this type_bo
 
     func encryptedPin(userId: String) -> String? {
         encryptedPinByUserId[userId]
-    }
-
-    func encryptedPrivateKey(userId: String) -> String? {
-        encryptedPrivateKeys[userId]
     }
 
     func encryptedUserKey(userId: String) -> String? {
@@ -230,10 +220,6 @@ class MockAppSettingsStore: AppSettingsStore { // swiftlint:disable:this type_bo
         accountCryptographicStates[userId] = state
     }
 
-    func setAccountKeys(_ keys: BitwardenShared.PrivateKeysResponseModel?, userId: String) {
-        accountKeys[userId] = keys
-    }
-
     func setAccountSetupAutofill(_ autofillSetup: AccountSetupProgress?, userId: String) {
         accountSetupAutofill[userId] = autofillSetup
     }
@@ -280,14 +266,6 @@ class MockAppSettingsStore: AppSettingsStore { // swiftlint:disable:this type_bo
 
     func setEncryptedPin(_ encryptedPin: String?, userId: String) {
         encryptedPinByUserId[userId] = encryptedPin
-    }
-
-    func setEncryptedPrivateKey(key: String?, userId: String) {
-        guard let key else {
-            encryptedPrivateKeys.removeValue(forKey: userId)
-            return
-        }
-        encryptedPrivateKeys[userId] = key
     }
 
     func setEncryptedUserKey(key: String?, userId: String) {

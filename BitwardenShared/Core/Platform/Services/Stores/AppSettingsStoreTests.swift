@@ -84,57 +84,6 @@ class AppSettingsStoreTests: BitwardenTestCase { // swiftlint:disable:this type_
         XCTAssertNotNil(userDefaults.string(forKey: "bwPreferencesStorage:accountCryptographicState_2"))
     }
 
-    /// `accountKeys(userId:)` returns `nil` if there isn't a previously stored value.
-    func test_accountKeys_isInitiallyNil() {
-        XCTAssertNil(subject.accountKeys(userId: "-1"))
-    }
-
-    /// `accountKeys(userId:)` can be used to get the user's account encryption keys.
-    func test_accountKeys_withValue() {
-        let fixture1 = PrivateKeysResponseModel.fixtureFilled()
-        let fixture2 = PrivateKeysResponseModel.fixture(
-            publicKeyEncryptionKeyPair: .fixture(
-                publicKey: "PUBLIC_KEY_2",
-                signedPublicKey: "SIGNED_PUBLIC_KEY_2",
-                wrappedPrivateKey: "WRAPPED_PRIVATE_KEY_2",
-            ),
-            signatureKeyPair: SignatureKeyPairResponseModel(
-                wrappedSigningKey: "WRAPPED_SIGNING_KEY_2",
-                verifyingKey: "VERIFYING_KEY_2",
-            ),
-            securityState: SecurityStateResponseModel(securityState: "SECURITY_STATE_2"),
-        )
-
-        subject.setAccountKeys(fixture1, userId: "1")
-        subject.setAccountKeys(fixture2, userId: "2")
-
-        XCTAssertEqual(subject.accountKeys(userId: "1"), fixture1)
-        XCTAssertEqual(subject.accountKeys(userId: "2"), fixture2)
-
-        try XCTAssertEqual(
-            JSONDecoder().decode(
-                PrivateKeysResponseModel.self,
-                from: XCTUnwrap(
-                    userDefaults
-                        .string(forKey: "bwPreferencesStorage:accountKeys_1")?
-                        .data(using: .utf8),
-                ),
-            ),
-            fixture1,
-        )
-        try XCTAssertEqual(
-            JSONDecoder().decode(
-                PrivateKeysResponseModel.self,
-                from: XCTUnwrap(
-                    userDefaults
-                        .string(forKey: "bwPreferencesStorage:accountKeys_2")?
-                        .data(using: .utf8),
-                ),
-            ),
-            fixture2,
-        )
-    }
-
     /// `accountSetupAutofill(userId:)` returns `nil` if there isn't a previously stored value.
     func test_accountSetupAutofill_isInitiallyNil() {
         XCTAssertNil(subject.accountSetupAutofill(userId: "-1"))
@@ -448,42 +397,6 @@ class AppSettingsStoreTests: BitwardenTestCase { // swiftlint:disable:this type_
         subject.setEncryptedPin("123", userId: userId)
         let pin = subject.encryptedPin(userId: userId)
         XCTAssertEqual(userDefaults.string(forKey: "bwPreferencesStorage:protectedPin_1"), pin)
-    }
-
-    /// `encryptedPrivateKey(userId:)` returns `nil` if there isn't a previously stored value.
-    func test_encryptedPrivateKey_isInitiallyNil() {
-        XCTAssertNil(subject.encryptedPrivateKey(userId: "-1"))
-    }
-
-    /// `encryptedPrivateKey(userId:)` can be used to get the encrypted private key for a user.
-    func test_encryptedPrivateKey_withValue() {
-        subject.setEncryptedPrivateKey(key: "1:PRIVATE_KEY", userId: "1")
-        subject.setEncryptedPrivateKey(key: "2:PRIVATE_KEY", userId: "2")
-
-        XCTAssertEqual(subject.encryptedPrivateKey(userId: "1"), "1:PRIVATE_KEY")
-        XCTAssertEqual(subject.encryptedPrivateKey(userId: "2"), "2:PRIVATE_KEY")
-        XCTAssertEqual(
-            userDefaults.string(forKey: "bwPreferencesStorage:encPrivateKey_1"),
-            "1:PRIVATE_KEY",
-        )
-        XCTAssertEqual(
-            userDefaults.string(forKey: "bwPreferencesStorage:encPrivateKey_2"),
-            "2:PRIVATE_KEY",
-        )
-
-        subject.setEncryptedPrivateKey(key: "1:PRIVATE_KEY_NEW", userId: "1")
-        subject.setEncryptedPrivateKey(key: "2:PRIVATE_KEY_NEW", userId: "2")
-
-        XCTAssertEqual(subject.encryptedPrivateKey(userId: "1"), "1:PRIVATE_KEY_NEW")
-        XCTAssertEqual(subject.encryptedPrivateKey(userId: "2"), "2:PRIVATE_KEY_NEW")
-        XCTAssertEqual(
-            userDefaults.string(forKey: "bwPreferencesStorage:encPrivateKey_1"),
-            "1:PRIVATE_KEY_NEW",
-        )
-        XCTAssertEqual(
-            userDefaults.string(forKey: "bwPreferencesStorage:encPrivateKey_2"),
-            "2:PRIVATE_KEY_NEW",
-        )
     }
 
     /// `encryptedUserKey(userId:)` returns `nil` if there isn't a previously stored value.

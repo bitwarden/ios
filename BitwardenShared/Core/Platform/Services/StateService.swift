@@ -1857,10 +1857,8 @@ actor DefaultStateService: StateService, ActiveAccountStateProvider, ConfigState
 
         appSettingsStore.setAccessTokenExpirationDate(nil, userId: knownUserId)
         appSettingsStore.setAccountCryptographicState(nil, userId: knownUserId)
-        appSettingsStore.setAccountKeys(nil, userId: knownUserId)
         appSettingsStore.setDefaultUriMatchType(nil, userId: knownUserId)
         appSettingsStore.setDisableAutoTotpCopy(nil, userId: knownUserId)
-        appSettingsStore.setEncryptedPrivateKey(key: nil, userId: knownUserId)
         appSettingsStore.setEncryptedUserKey(key: nil, userId: knownUserId)
         appSettingsStore.setHasPerformedSyncAfterLogin(nil, userId: knownUserId)
         appSettingsStore.setLastSyncTime(nil, userId: knownUserId)
