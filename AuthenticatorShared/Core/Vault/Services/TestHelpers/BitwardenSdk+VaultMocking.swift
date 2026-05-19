@@ -107,6 +107,8 @@ extension CipherListViewType {
             self = .secureNote
         case .sshKey:
             self = .sshKey
+        case .bankAccount:
+            self = .bankAccount
         }
     }
 }
@@ -127,6 +129,7 @@ extension Cipher {
             card: cipherView.card.map(Card.init),
             secureNote: cipherView.secureNote.map(SecureNote.init),
             sshKey: cipherView.sshKey.map(SshKey.init),
+            bankAccount: nil, // TODO: PM-32809
             favorite: cipherView.favorite,
             reprompt: cipherView.reprompt,
             organizationUseTotp: cipherView.organizationUseTotp,
@@ -162,6 +165,7 @@ extension CipherView {
             card: cipher.card.map(CardView.init),
             secureNote: cipher.secureNote.map(SecureNoteView.init),
             sshKey: cipher.sshKey.map(SshKeyView.init),
+            bankAccount: nil, // TODO: PM-32809
             favorite: cipher.favorite,
             reprompt: cipher.reprompt,
             organizationUseTotp: cipher.organizationUseTotp,

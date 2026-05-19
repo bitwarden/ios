@@ -135,6 +135,9 @@ extension VaultListItem {
                 SharedAsset.Icons.file24
             case .sshKey:
                 SharedAsset.Icons.key24
+            case .bankAccount:
+                // TODO: PM-32809
+                SharedAsset.Icons.stickyNote24
             }
         case let .group(group, _):
             switch group {
@@ -180,6 +183,9 @@ extension VaultListItem {
                 "SecureNoteCipherIcon"
             case .sshKey:
                 "SSHKeyCipherIcon"
+            case .bankAccount:
+                // TODO: PM-32809
+                "BankAccountCipherIcon"
             }
         default:
             ""

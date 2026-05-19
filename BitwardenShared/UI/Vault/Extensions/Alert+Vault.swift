@@ -411,6 +411,9 @@ extension Alert {
                     ))
                 })
             }
+        case .bankAccount:
+            // TODO: PM-32809
+            break
         }
 
         if context.canArchive {

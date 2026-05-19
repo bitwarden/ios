@@ -63,7 +63,7 @@ extension CipherDetailsResponseModel {
         self.init(
             archivedDate: cipher.archivedDate,
             attachments: cipher.attachments?.map(AttachmentResponseModel.init),
-            bankAccount: nil,
+            bankAccount: nil, // TODO: PM-32809
             card: cipher.card.map(CipherCardModel.init),
             collectionIds: cipher.collectionIds,
             creationDate: cipher.creationDate,
@@ -220,6 +220,9 @@ extension CipherSSHKeyModel {
 extension CipherType {
     init(type: BitwardenSdk.CipherType) {
         switch type {
+        case .bankAccount:
+            // TODO: PM-32809
+            self = .secureNote
         case .card:
             self = .card
         case .identity:
@@ -235,6 +238,9 @@ extension CipherType {
 
     init(_ type: BitwardenSdk.CipherListViewType) {
         switch type {
+        case .bankAccount:
+            // TODO: PM-32809
+            self = .secureNote
         case .card:
             self = .card
         case .identity:
@@ -343,7 +349,8 @@ extension BitwardenSdk.Cipher {
             card: model.card.map(Card.init),
             secureNote: model.secureNote.map(SecureNote.init),
             sshKey: model.sshKey.map(SshKey.init),
-            favorite: model.favorite,
+            bankAccount: nil, // TODO: PM-32809
+            favorite:model.favorite,
             reprompt: BitwardenSdk.CipherRepromptType(model.reprompt),
             organizationUseTotp: model.organizationUseTotp,
             edit: model.edit,
@@ -388,7 +395,8 @@ extension BitwardenSdk.Cipher {
             card: model.card.map(Card.init),
             secureNote: model.secureNote.map(SecureNote.init),
             sshKey: model.sshKey.map(SshKey.init),
-            favorite: originalCipher?.favorite ?? false,
+            bankAccount: nil, // TODO: PM-32809
+            favorite:originalCipher?.favorite ?? false,
             reprompt: BitwardenSdk.CipherRepromptType(model.reprompt),
             organizationUseTotp: model.organizationUseTotp,
             edit: originalCipher?.edit ?? true,
@@ -476,6 +484,7 @@ extension BitwardenSdk.CipherView: @retroactive Identifiable, Fido2UserVerifiabl
             card: nil,
             secureNote: nil,
             sshKey: nil,
+            bankAccount: nil,
             favorite: false,
             reprompt: .none,
             organizationUseTotp: false,

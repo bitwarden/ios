@@ -190,6 +190,7 @@ extension CipherView {
             card: (addEditState.type == .card) ? addEditState.cardItemState.cardView : nil,
             secureNote: (addEditState.type == .secureNote) ? secureNote : nil,
             sshKey: (addEditState.type == .sshKey) ? sshKey : nil,
+            bankAccount: bankAccount, // TODO: PM-32809
             favorite: addEditState.isFavoriteOn,
             reprompt: addEditState.isMasterPasswordRePromptOn ? .password : .none,
             organizationUseTotp: organizationUseTotp,
@@ -364,6 +365,7 @@ extension CipherView {
             card: card,
             secureNote: secureNote,
             sshKey: sshKey,
+            bankAccount: bankAccount, // TODO: PM-32809
             favorite: favorite,
             reprompt: reprompt,
             organizationUseTotp: organizationUseTotp,

@@ -36,6 +36,9 @@ struct DefaultTextAutofillOptionsHelperFactory: TextAutofillOptionsHelperFactory
             IdentityTextAutofillOptionsHelper()
         case .sshKey:
             SSHKeyTextAutofillOptionsHelper()
+        case .bankAccount:
+            // TODO: PM-32809
+            SecureNoteTextAutofillOptionsHelper()
         }
     }
 }

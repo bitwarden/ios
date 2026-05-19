@@ -149,6 +149,8 @@ extension CipherListView {
             .secureNote
         case .sshKey:
             .sshKey
+        case .bankAccount:
+            .bankAccount
         }
 
         self.init(

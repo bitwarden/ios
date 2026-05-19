@@ -69,6 +69,7 @@ extension Cipher {
             card: card,
             secureNote: secureNote,
             sshKey: sshKey,
+            bankAccount: nil, // TODO: PM-32809
             favorite: favorite,
             reprompt: reprompt,
             organizationUseTotp: organizationUseTotp,
@@ -234,6 +235,7 @@ extension CipherView {
             card: card,
             secureNote: secureNote,
             sshKey: sshKey,
+            bankAccount: nil, // TODO: PM-32809
             favorite: favorite,
             reprompt: reprompt,
             organizationUseTotp: organizationUseTotp,
@@ -290,6 +292,7 @@ extension CipherView {
             card: card,
             secureNote: nil,
             sshKey: nil,
+            bankAccount: nil, // TODO: PM-32809
             favorite: favorite,
             reprompt: reprompt,
             organizationUseTotp: organizationUseTotp,
@@ -346,6 +349,7 @@ extension CipherView {
             card: nil,
             secureNote: nil,
             sshKey: nil,
+            bankAccount: nil, // TODO: PM-32809
             favorite: favorite,
             reprompt: reprompt,
             organizationUseTotp: organizationUseTotp,
