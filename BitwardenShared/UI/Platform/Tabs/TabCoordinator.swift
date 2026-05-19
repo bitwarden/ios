@@ -27,8 +27,8 @@ final class TabCoordinator: Coordinator, HasTabNavigator {
 
     // MARK: Private Properties
 
-    /// The set of tabs currently visible in the tab bar, keyed by route.
-    private var currentTabs: [TabRoute: Navigator] = [:]
+    /// The set of tabs currently visible in the tab bar, keyed by route index.
+    private var currentTabs: [Int: Navigator] = [:]
 
     /// The error reporter used by the tab coordinator.
     private var errorReporter: ErrorReporter
@@ -117,7 +117,7 @@ final class TabCoordinator: Coordinator, HasTabNavigator {
     // MARK: Methods
 
     func navigate(to route: TabRoute, context: AnyObject?) {
-        if case .send = route, !currentTabs.isEmpty, currentTabs[.send] == nil {
+        if case .send = route, !currentTabs.isEmpty, currentTabs[route.index] == nil {
             return
         }
 
@@ -266,7 +266,7 @@ final class TabCoordinator: Coordinator, HasTabNavigator {
         if isSendEnabled {
             tabs[.send] = sendNavigator
         }
-        currentTabs = tabs
+        currentTabs = Dictionary(uniqueKeysWithValues: tabs.map { ($0.key.index, $0.value) })
         tabNavigator?.setNavigators(tabs)
     }
 
@@ -279,7 +279,7 @@ final class TabCoordinator: Coordinator, HasTabNavigator {
     /// - Returns: The visual tab bar index for the route.
     ///
     private func visualIndex(for route: TabRoute) -> Int {
-        let sorted = currentTabs.keys.sorted { $0.index < $1.index }
-        return sorted.firstIndex(of: route) ?? route.index
+        let sorted = currentTabs.keys.sorted()
+        return sorted.firstIndex(of: route.index) ?? route.index
     }
 }

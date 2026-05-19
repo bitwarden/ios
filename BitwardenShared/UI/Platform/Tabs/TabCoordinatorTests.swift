@@ -80,6 +80,18 @@ class TabCoordinatorTests: BitwardenTestCase {
         XCTAssertEqual(tabNavigator.selectedIndex, 1)
     }
 
+    /// `navigate(to:)` with a non-canonical `.generator` route and Send hidden uses visual index 1.
+    @MainActor
+    func test_navigate_generator_nonCanonicalRoute_sendHidden_usesAdjustedIndex() {
+        policyService.policyAppliesToUserResult[.disableSend] = true
+        subject.start()
+        waitFor { self.tabNavigator.navigators.count == 3 }
+
+        subject.navigate(to: .generator(.generatorHistory))
+
+        XCTAssertEqual(tabNavigator.selectedIndex, 1)
+    }
+
     /// `navigate(to:)` with `.send` sets the correct selected index on tab navigator.
     @MainActor
     func test_navigate_send() {

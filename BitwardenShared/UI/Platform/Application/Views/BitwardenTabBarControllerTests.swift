@@ -127,6 +127,38 @@ class BitwardenTabBarControllerTests: BitwardenTestCase {
         XCTAssertNil(subject.navigator(for: TabRoute.send))
     }
 
+    /// `navigator(for:)` matches by tab case and ignores associated values, returning the
+    /// correct navigator even when the route carries a non-canonical associated value.
+    @MainActor
+    func test_navigatorFor_tabRoute_nonCanonicalAssociatedValue() throws {
+        let vaultNavigator = MockRootNavigator()
+        let generatorNavigator = MockRootNavigator()
+        let settingsNavigator = MockRootNavigator()
+        vaultNavigator.rootViewController = UIViewController()
+        generatorNavigator.rootViewController = UIViewController()
+        settingsNavigator.rootViewController = UIViewController()
+
+        let tabs: [TabRoute: MockRootNavigator] = [
+            .vault(.list): vaultNavigator,
+            .generator(.generator()): generatorNavigator,
+            .settings(.settings(.tab)): settingsNavigator,
+        ]
+        subject.setNavigators(tabs)
+
+        XCTAssertIdentical(
+            subject.navigator(for: TabRoute.generator(.generatorHistory)),
+            generatorNavigator,
+        )
+        XCTAssertIdentical(
+            subject.navigator(for: TabRoute.vault(.addFolder)),
+            vaultNavigator,
+        )
+        XCTAssertIdentical(
+            subject.navigator(for: TabRoute.settings(.about)),
+            settingsNavigator,
+        )
+    }
+
     /// `setNavigators` sets the `viewControllers` property correctly.
     @MainActor
     func test_setNavigators() throws {
