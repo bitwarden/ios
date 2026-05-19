@@ -562,6 +562,12 @@ extension CipherItemState: ViewVaultItemState {
         case .bankAccount:
             // TODO: PM-32809
             return SharedAsset.Icons.stickyNote24
+        case .driversLicense:
+            // TODO: PM-32807
+            return SharedAsset.Icons.stickyNote24
+        case .passport:
+            // TODO: PM-32805
+            return SharedAsset.Icons.stickyNote24
         }
     }
 
@@ -641,6 +647,8 @@ extension CipherItemState {
             secureNote: type == .secureNote ? .init(type: .generic) : nil,
             sshKey: type == .sshKey ? sshKeyState.sshKeyView : nil,
             bankAccount: nil, // TODO: PM-32809
+            driversLicense: nil, // TODO: PM-32807
+            passport: nil, // TODO: PM-32805
             favorite: isFavoriteOn,
             reprompt: isMasterPasswordRePromptOn ? .password : .none,
             organizationUseTotp: false,

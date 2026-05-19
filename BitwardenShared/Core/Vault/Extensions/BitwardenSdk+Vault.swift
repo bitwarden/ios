@@ -68,6 +68,7 @@ extension CipherDetailsResponseModel {
             collectionIds: cipher.collectionIds,
             creationDate: cipher.creationDate,
             deletedDate: cipher.deletedDate,
+            driversLicense: nil, // TODO: PM-32807
             edit: cipher.edit,
             favorite: cipher.favorite,
             fields: cipher.fields?.map(CipherFieldModel.init),
@@ -80,6 +81,7 @@ extension CipherDetailsResponseModel {
             notes: cipher.notes,
             organizationId: cipher.organizationId,
             organizationUseTotp: cipher.organizationUseTotp,
+            passport: nil, // TODO: PM-32805
             passwordHistory: cipher.passwordHistory?.map(CipherPasswordHistoryModel.init),
             permissions: CipherPermissionsModel(cipherPermissions: cipher.permissions),
             reprompt: BitwardenShared.CipherRepromptType(type: cipher.reprompt),
@@ -225,10 +227,16 @@ extension CipherType {
             self = .secureNote
         case .card:
             self = .card
+        case .driversLicense:
+            // TODO: PM-32807
+            self = .identity
         case .identity:
             self = .identity
         case .login:
             self = .login
+        case .passport:
+            // TODO: PM-32805
+            self = .identity
         case .secureNote:
             self = .secureNote
         case .sshKey:
@@ -243,10 +251,16 @@ extension CipherType {
             self = .secureNote
         case .card:
             self = .card
+        case .driversLicense:
+            // TODO: PM-32807
+            self = .identity
         case .identity:
             self = .identity
         case .login:
             self = .login
+        case .passport:
+            // TODO: PM-32805
+            self = .identity
         case .secureNote:
             self = .secureNote
         case .sshKey:
@@ -350,6 +364,8 @@ extension BitwardenSdk.Cipher {
             secureNote: model.secureNote.map(SecureNote.init),
             sshKey: model.sshKey.map(SshKey.init),
             bankAccount: nil, // TODO: PM-32809
+            driversLicense: nil, // TODO: PM-32807
+            passport: nil, // TODO: PM-32805
             favorite:model.favorite,
             reprompt: BitwardenSdk.CipherRepromptType(model.reprompt),
             organizationUseTotp: model.organizationUseTotp,
@@ -396,6 +412,8 @@ extension BitwardenSdk.Cipher {
             secureNote: model.secureNote.map(SecureNote.init),
             sshKey: model.sshKey.map(SshKey.init),
             bankAccount: nil, // TODO: PM-32809
+            driversLicense: nil, // TODO: PM-32807
+            passport: nil, // TODO: PM-32805
             favorite:originalCipher?.favorite ?? false,
             reprompt: BitwardenSdk.CipherRepromptType(model.reprompt),
             organizationUseTotp: model.organizationUseTotp,
@@ -485,6 +503,8 @@ extension BitwardenSdk.CipherView: @retroactive Identifiable, Fido2UserVerifiabl
             secureNote: nil,
             sshKey: nil,
             bankAccount: nil,
+            driversLicense: nil,
+            passport: nil,
             favorite: false,
             reprompt: .none,
             organizationUseTotp: false,

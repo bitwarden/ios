@@ -70,6 +70,8 @@ extension Cipher {
             secureNote: secureNote,
             sshKey: sshKey,
             bankAccount: nil, // TODO: PM-32809
+            driversLicense: nil, // TODO: PM-32807
+            passport: nil, // TODO: PM-32805
             favorite: favorite,
             reprompt: reprompt,
             organizationUseTotp: organizationUseTotp,
@@ -134,6 +136,8 @@ extension CipherView {
             secureNote: secureNote,
             sshKey: sshKey,
             bankAccount: nil, // TODO: PM-32809
+            driversLicense: nil, // TODO: PM-32807
+            passport: nil, // TODO: PM-32805
             favorite: favorite,
             reprompt: reprompt,
             organizationUseTotp: organizationUseTotp,
@@ -191,6 +195,8 @@ extension CipherView {
             secureNote: nil,
             sshKey: nil,
             bankAccount: nil, // TODO: PM-32809
+            driversLicense: nil, // TODO: PM-32807
+            passport: nil, // TODO: PM-32805
             favorite: favorite,
             reprompt: reprompt,
             organizationUseTotp: organizationUseTotp,
@@ -248,6 +254,8 @@ extension CipherView {
             secureNote: nil,
             sshKey: nil,
             bankAccount: nil, // TODO: PM-32809
+            driversLicense: nil, // TODO: PM-32807
+            passport: nil, // TODO: PM-32805
             favorite: favorite,
             reprompt: reprompt,
             organizationUseTotp: organizationUseTotp,

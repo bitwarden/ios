@@ -25,6 +25,7 @@ class AddItemStateTests: XCTestCase {
               - collectionIds: 0 elements
               - creationDate: 2023-10-20T00:00:00Z
               - deletedDate: Optional<Date>.none
+              - driversLicense: Optional<DriversLicenseView>.none
               - edit: true
               - favorite: false
               - fields: Optional<Array<FieldView>>.none
@@ -46,6 +47,7 @@ class AddItemStateTests: XCTestCase {
               - notes: Optional<String>.none
               - organizationId: Optional<String>.none
               - organizationUseTotp: false
+              - passport: Optional<PassportView>.none
               - passwordHistory: Optional<Array<PasswordHistoryView>>.none
               - permissions: Optional<CipherPermissions>.none
               - reprompt: CipherRepromptType.none
@@ -81,6 +83,7 @@ class AddItemStateTests: XCTestCase {
               - collectionIds: 0 elements
               - creationDate: 2023-09-01T00:00:00Z
               - deletedDate: Optional<Date>.none
+              - driversLicense: Optional<DriversLicenseView>.none
               - edit: true
               - favorite: true
               - fields: Optional<Array<FieldView>>.none
@@ -111,6 +114,7 @@ class AddItemStateTests: XCTestCase {
                 - some: "Bitwarden Login"
               - organizationId: Optional<String>.none
               - organizationUseTotp: false
+              - passport: Optional<PassportView>.none
               - passwordHistory: Optional<Array<PasswordHistoryView>>.none
               - permissions: Optional<CipherPermissions>.none
               - reprompt: CipherRepromptType.password

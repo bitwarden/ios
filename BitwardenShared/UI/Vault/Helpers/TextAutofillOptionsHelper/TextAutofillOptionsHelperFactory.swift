@@ -39,6 +39,12 @@ struct DefaultTextAutofillOptionsHelperFactory: TextAutofillOptionsHelperFactory
         case .bankAccount:
             // TODO: PM-32809
             SecureNoteTextAutofillOptionsHelper()
+        case .driversLicense:
+            // TODO: PM-32807
+            SecureNoteTextAutofillOptionsHelper()
+        case .passport:
+            // TODO: PM-32805
+            SecureNoteTextAutofillOptionsHelper()
         }
     }
 }
