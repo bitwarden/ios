@@ -98,6 +98,35 @@ class BitwardenTabBarControllerTests: BitwardenTestCase {
         XCTAssertIdentical(testController, viewController)
     }
 
+    /// `navigator(for:)` with a `TabRoute` uses the stored dictionary and returns the correct
+    /// navigator even when the Send tab is absent (non-contiguous indices).
+    @MainActor
+    func test_navigatorFor_tabRoute_sendHidden() throws {
+        let vaultNavigator = MockRootNavigator()
+        let generatorNavigator = MockRootNavigator()
+        let settingsNavigator = MockRootNavigator()
+        vaultNavigator.rootViewController = UIViewController()
+        generatorNavigator.rootViewController = UIViewController()
+        settingsNavigator.rootViewController = UIViewController()
+
+        let tabs: [TabRoute: MockRootNavigator] = [
+            .vault(.list): vaultNavigator,
+            .generator(.generator()): generatorNavigator,
+            .settings(.settings(.tab)): settingsNavigator,
+        ]
+        subject.setNavigators(tabs)
+
+        XCTAssertIdentical(
+            subject.navigator(for: TabRoute.generator(.generator())),
+            generatorNavigator,
+        )
+        XCTAssertIdentical(
+            subject.navigator(for: TabRoute.settings(.settings(.tab))),
+            settingsNavigator,
+        )
+        XCTAssertNil(subject.navigator(for: TabRoute.send))
+    }
+
     /// `setNavigators` sets the `viewControllers` property correctly.
     @MainActor
     func test_setNavigators() throws {
