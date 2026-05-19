@@ -1,4 +1,5 @@
 import BitwardenKit
+import BitwardenSdk
 import Combine
 import Foundation
 
@@ -8,6 +9,7 @@ import Foundation
 
 class MockAppSettingsStore: AppSettingsStore { // swiftlint:disable:this type_body_length
     var accessTokenExpirationDateByUserId = [String: Date]()
+    var accountCryptographicStates = [String: WrappedAccountCryptographicState]()
     var accountKeys = [String: PrivateKeysResponseModel]()
     var accountSetupAutofill = [String: AccountSetupProgress]()
     var accountSetupImportLogins = [String: AccountSetupProgress]()
@@ -40,7 +42,7 @@ class MockAppSettingsStore: AppSettingsStore { // swiftlint:disable:this type_bo
     var biometricAuthenticationEnabled = [String: Bool?]()
     var clearClipboardValues = [String: ClearClipboardValue]()
     var connectToWatchByUserId = [String: Bool]()
-    var defaultUriMatchTypeByUserId = [String: UriMatchType]()
+    var defaultUriMatchTypeByUserId = [String: BitwardenShared.UriMatchType]()
     var disableAutoTotpCopyByUserId = [String: Bool]()
     var encryptedPinByUserId = [String: String]()
     var encryptedPrivateKeys = [String: String]()
@@ -83,6 +85,10 @@ class MockAppSettingsStore: AppSettingsStore { // swiftlint:disable:this type_bo
         accessTokenExpirationDateByUserId[userId]
     }
 
+    func accountCryptographicState(userId: String) -> WrappedAccountCryptographicState? {
+        accountCryptographicStates[userId]
+    }
+
     func accountKeys(userId: String) -> PrivateKeysResponseModel? {
         accountKeys[userId]
     }
@@ -123,7 +129,7 @@ class MockAppSettingsStore: AppSettingsStore { // swiftlint:disable:this type_bo
         featureFlags[name]
     }
 
-    func defaultUriMatchType(userId: String) -> UriMatchType? {
+    func defaultUriMatchType(userId: String) -> BitwardenShared.UriMatchType? {
         defaultUriMatchTypeByUserId[userId]
     }
 
@@ -216,6 +222,14 @@ class MockAppSettingsStore: AppSettingsStore { // swiftlint:disable:this type_bo
         accessTokenExpirationDateByUserId[userId] = expirationDate
     }
 
+    func setAccountCryptographicState(_ state: WrappedAccountCryptographicState?, userId: String) {
+        guard let state else {
+            accountCryptographicStates.removeValue(forKey: userId)
+            return
+        }
+        accountCryptographicStates[userId] = state
+    }
+
     func setAccountKeys(_ keys: BitwardenShared.PrivateKeysResponseModel?, userId: String) {
         accountKeys[userId] = keys
     }
@@ -256,7 +270,7 @@ class MockAppSettingsStore: AppSettingsStore { // swiftlint:disable:this type_bo
         connectToWatchByUserId[userId] = connectToWatch
     }
 
-    func setDefaultUriMatchType(_ uriMatchType: UriMatchType?, userId: String) {
+    func setDefaultUriMatchType(_ uriMatchType: BitwardenShared.UriMatchType?, userId: String) {
         defaultUriMatchTypeByUserId[userId] = uriMatchType
     }
 

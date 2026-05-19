@@ -1,4 +1,5 @@
 import BitwardenKit
+import BitwardenSdk
 import XCTest
 
 @testable import BitwardenShared
@@ -56,6 +57,31 @@ class AppSettingsStoreTests: BitwardenTestCase { // swiftlint:disable:this type_
         XCTAssertEqual(subject.accessTokenExpirationDate(userId: "2"), date2)
         XCTAssertEqual(userDefaults.integer(forKey: "bwPreferencesStorage:accessTokenExpirationDate_1"), 780_969_600)
         XCTAssertEqual(userDefaults.integer(forKey: "bwPreferencesStorage:accessTokenExpirationDate_2"), 789_004_800)
+    }
+
+    /// `accountCryptographicState(userId:)` returns `nil` if there isn't a previously stored value.
+    func test_accountCryptographicState_isInitiallyNil() {
+        XCTAssertNil(subject.accountCryptographicState(userId: "-1"))
+    }
+
+    /// `accountCryptographicState(userId:)` can be used to get and set the cryptographic state for a user.
+    func test_accountCryptographicState_withValue() {
+        let state1 = WrappedAccountCryptographicState.v1(privateKey: "1:PRIVATE_KEY")
+        let state2 = WrappedAccountCryptographicState.v2(
+            privateKey: "2:PRIVATE_KEY",
+            signedPublicKey: "2:SIGNED_PUBLIC_KEY",
+            signingKey: "2:SIGNING_KEY",
+            securityState: "2:SECURITY_STATE",
+        )
+
+        subject.setAccountCryptographicState(state1, userId: "1")
+        subject.setAccountCryptographicState(state2, userId: "2")
+
+        XCTAssertEqual(subject.accountCryptographicState(userId: "1"), state1)
+        XCTAssertEqual(subject.accountCryptographicState(userId: "2"), state2)
+
+        XCTAssertNotNil(userDefaults.string(forKey: "bwPreferencesStorage:accountCryptographicState_1"))
+        XCTAssertNotNil(userDefaults.string(forKey: "bwPreferencesStorage:accountCryptographicState_2"))
     }
 
     /// `accountKeys(userId:)` returns `nil` if there isn't a previously stored value.

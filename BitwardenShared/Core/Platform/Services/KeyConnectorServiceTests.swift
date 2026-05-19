@@ -77,8 +77,7 @@ class KeyConnectorServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
         XCTAssertEqual(
             stateService.accountEncryptionKeys["1"],
             AccountEncryptionKeys(
-                accountKeys: nil,
-                encryptedPrivateKey: "private",
+                cryptographicState: .v1(privateKey: "private"),
                 encryptedUserKey: "encryptedUserKey",
             ),
         )
@@ -167,8 +166,7 @@ class KeyConnectorServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
         ])
         stateService.activeAccount = account
         stateService.accountEncryptionKeys["1"] = AccountEncryptionKeys(
-            accountKeys: nil,
-            encryptedPrivateKey: "encryptedPrivateKey",
+            cryptographicState: .v1(privateKey: "encryptedPrivateKey"),
             encryptedUserKey: "encryptedUserKey",
         )
 
@@ -214,8 +212,7 @@ class KeyConnectorServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
         ])
         stateService.activeAccount = .fixture()
         stateService.accountEncryptionKeys["1"] = AccountEncryptionKeys(
-            accountKeys: nil,
-            encryptedPrivateKey: "encryptedPrivateKey",
+            cryptographicState: .v1(privateKey: "encryptedPrivateKey"),
             encryptedUserKey: nil,
         )
 
@@ -234,8 +231,7 @@ class KeyConnectorServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
         ])
         stateService.activeAccount = .fixture()
         stateService.accountEncryptionKeys["1"] = AccountEncryptionKeys(
-            accountKeys: nil,
-            encryptedPrivateKey: "encryptedPrivateKey",
+            cryptographicState: .v1(privateKey: "encryptedPrivateKey"),
             encryptedUserKey: "encryptedUserKey",
         )
 
@@ -258,8 +254,7 @@ class KeyConnectorServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
         ])
         stateService.activeAccount = .fixture()
         stateService.accountEncryptionKeys["1"] = AccountEncryptionKeys(
-            accountKeys: nil,
-            encryptedPrivateKey: "encryptedPrivateKey",
+            cryptographicState: .v1(privateKey: "encryptedPrivateKey"),
             encryptedUserKey: "encryptedUserKey",
         )
 

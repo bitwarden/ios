@@ -1571,12 +1571,11 @@ actor DefaultStateService: StateService, ActiveAccountStateProvider, ConfigState
 
     func getAccountEncryptionKeys(userId: String?) async throws -> AccountEncryptionKeys {
         let userId = try userId ?? getActiveAccountUserId()
-        guard let encryptedPrivateKey = appSettingsStore.encryptedPrivateKey(userId: userId) else {
+        guard let cryptographicState = appSettingsStore.accountCryptographicState(userId: userId) else {
             throw StateServiceError.noEncryptedPrivateKey
         }
         return AccountEncryptionKeys(
-            accountKeys: appSettingsStore.accountKeys(userId: userId),
-            encryptedPrivateKey: encryptedPrivateKey,
+            cryptographicState: cryptographicState,
             encryptedUserKey: appSettingsStore.encryptedUserKey(userId: userId),
         )
     }
@@ -1857,6 +1856,7 @@ actor DefaultStateService: StateService, ActiveAccountStateProvider, ConfigState
         }
 
         appSettingsStore.setAccessTokenExpirationDate(nil, userId: knownUserId)
+        appSettingsStore.setAccountCryptographicState(nil, userId: knownUserId)
         appSettingsStore.setAccountKeys(nil, userId: knownUserId)
         appSettingsStore.setDefaultUriMatchType(nil, userId: knownUserId)
         appSettingsStore.setDisableAutoTotpCopy(nil, userId: knownUserId)
@@ -1904,8 +1904,7 @@ actor DefaultStateService: StateService, ActiveAccountStateProvider, ConfigState
 
     func setAccountEncryptionKeys(_ encryptionKeys: AccountEncryptionKeys, userId: String?) async throws {
         let userId = try userId ?? getActiveAccountUserId()
-        appSettingsStore.setAccountKeys(encryptionKeys.accountKeys, userId: userId)
-        appSettingsStore.setEncryptedPrivateKey(key: encryptionKeys.encryptedPrivateKey, userId: userId)
+        appSettingsStore.setAccountCryptographicState(encryptionKeys.cryptographicState, userId: userId)
         appSettingsStore.setEncryptedUserKey(key: encryptionKeys.encryptedUserKey, userId: userId)
     }
 

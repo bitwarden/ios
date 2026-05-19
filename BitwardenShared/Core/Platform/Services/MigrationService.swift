@@ -1,4 +1,5 @@
 import BitwardenKit
+import BitwardenSdk
 import OSLog
 
 // MARK: - MigrationService
@@ -254,6 +255,30 @@ class DefaultMigrationService {
             }
         }
     }
+
+    /// Performs migration 6.
+    ///
+    /// Notes:
+    ///  - Migrates account cryptographic state from two separate UserDefaults keys
+    ///    (`encPrivateKey`, `accountKeys`) into a single `accountCryptographicState` key
+    ///    storing a JSON-encoded `WrappedAccountCryptographicState`.
+    ///  - Accounts without a stored private key are skipped.
+    ///
+    private func performMigration6() async throws {
+        guard let state = appSettingsStore.state else { return }
+
+        for (accountId, _) in state.accounts {
+            guard let privateKey = appSettingsStore.encryptedPrivateKey(userId: accountId) else { continue }
+            let accountKeys = appSettingsStore.accountKeys(userId: accountId)
+            let cryptographicState = WrappedAccountCryptographicState.create(
+                accountKeys: accountKeys,
+                privateKey: privateKey,
+            )
+            appSettingsStore.setAccountCryptographicState(cryptographicState, userId: accountId)
+            appSettingsStore.setEncryptedPrivateKey(key: nil, userId: accountId)
+            appSettingsStore.setAccountKeys(nil, userId: accountId)
+        }
+    }
 }
 
 extension DefaultMigrationService {
@@ -265,6 +290,7 @@ extension DefaultMigrationService {
             performMigration3,
             performMigration4,
             performMigration5,
+            performMigration6,
         ]
     }
 

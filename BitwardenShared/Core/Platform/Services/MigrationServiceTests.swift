@@ -1,5 +1,6 @@
 import BitwardenKit
 import BitwardenKitMocks
+import BitwardenSdk
 import XCTest
 
 @testable import BitwardenShared
@@ -531,5 +532,66 @@ class MigrationServiceTests: BitwardenTestCase { // swiftlint:disable:this type_
         XCTAssertEqual(userSessionStateService.setLastActiveTimeCallsCount, 0)
         XCTAssertEqual(userSessionStateService.setUnsuccessfulUnlockAttemptsCallsCount, 0)
         XCTAssertEqual(userSessionStateService.setVaultTimeoutCallsCount, 0)
+    }
+
+    // MARK: Migration 6 (Migrate AccountEncryptionKeys to WrappedAccountCryptographicState)
+
+    /// `performMigrations()` for migration 6 converts V1 private keys to `WrappedAccountCryptographicState`.
+    func test_performMigrations_6_v1() async throws {
+        appSettingsStore.state = State(
+            accounts: [
+                "1": .fixture(),
+                "2": .fixture(profile: .fixture(userId: "2")),
+            ],
+            activeUserId: "1",
+        )
+        appSettingsStore.encryptedPrivateKeys["1"] = "1:PRIVATE_KEY"
+        appSettingsStore.encryptedPrivateKeys["2"] = "2:PRIVATE_KEY"
+
+        try await subject.performMigration(version: 6)
+
+        XCTAssertEqual(appSettingsStore.accountCryptographicStates["1"], .v1(privateKey: "1:PRIVATE_KEY"))
+        XCTAssertEqual(appSettingsStore.accountCryptographicStates["2"], .v1(privateKey: "2:PRIVATE_KEY"))
+        XCTAssertNil(appSettingsStore.encryptedPrivateKeys["1"])
+        XCTAssertNil(appSettingsStore.encryptedPrivateKeys["2"])
+        XCTAssertTrue(appSettingsStore.accountKeys.isEmpty)
+    }
+
+    /// `performMigrations()` for migration 6 converts V2 account keys to `WrappedAccountCryptographicState`.
+    func test_performMigrations_6_v2() async throws {
+        appSettingsStore.state = State(
+            accounts: ["1": .fixture()],
+            activeUserId: "1",
+        )
+        appSettingsStore.encryptedPrivateKeys["1"] = "FALLBACK_PRIVATE_KEY"
+        appSettingsStore.accountKeys["1"] = .fixtureFilled()
+
+        try await subject.performMigration(version: 6)
+
+        XCTAssertEqual(appSettingsStore.accountCryptographicStates["1"], .fixtureV2())
+        XCTAssertNil(appSettingsStore.encryptedPrivateKeys["1"])
+        XCTAssertTrue(appSettingsStore.accountKeys.isEmpty)
+    }
+
+    /// `performMigrations()` for migration 6 skips accounts without a stored private key.
+    func test_performMigrations_6_missingPrivateKey() async throws {
+        appSettingsStore.state = State(
+            accounts: ["1": .fixture()],
+            activeUserId: "1",
+        )
+
+        try await subject.performMigration(version: 6)
+
+        XCTAssertNil(appSettingsStore.accountCryptographicStates["1"])
+    }
+
+    /// `performMigrations()` for migration 6 handles no existing accounts.
+    func test_performMigrations_6_withNoAccounts() async throws {
+        appSettingsStore.state = nil
+
+        try await subject.performMigration(version: 6)
+
+        XCTAssertEqual(appSettingsStore.migrationVersion, 6)
+        XCTAssertTrue(appSettingsStore.accountCryptographicStates.isEmpty)
     }
 } // swiftlint:disable:this file_length

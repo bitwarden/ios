@@ -1,4 +1,5 @@
 import BitwardenKit
+import BitwardenSdk
 import Combine
 import Foundation
 import OSLog
@@ -79,6 +80,13 @@ protocol AppSettingsStore: AnyObject {
     /// - Returns: The user's access token expiration date.
     ///
     func accessTokenExpirationDate(userId: String) -> Date?
+
+    /// The cryptographic state required to initialize the user's vault encryption.
+    ///
+    /// - Parameter userId: The user ID associated with the stored cryptographic state.
+    /// - Returns: The cryptographic state, or `nil` if not yet stored.
+    ///
+    func accountCryptographicState(userId: String) -> WrappedAccountCryptographicState?
 
     /// The user's v2 account keys.
     ///
@@ -292,6 +300,14 @@ protocol AppSettingsStore: AnyObject {
     ///   - userId: The user ID associated with the access token expiration date.
     ///
     func setAccessTokenExpirationDate(_ expirationDate: Date?, userId: String)
+
+    /// Sets the user's cryptographic state for a user ID.
+    ///
+    /// - Parameters:
+    ///   - state: The user's cryptographic state to store.
+    ///   - userId: The user ID associated with the cryptographic state.
+    ///
+    func setAccountCryptographicState(_ state: WrappedAccountCryptographicState?, userId: String)
 
     /// Sets the account v2 keys for a user ID.
     ///
@@ -753,6 +769,7 @@ extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore {
     ///
     enum Keys {
         case accessTokenExpirationDate(userId: String)
+        case accountCryptographicState(userId: String)
         case accountKeys(userId: String)
         case accountSetupAutofill(userId: String)
         case accountSetupImportLogins(userId: String)
@@ -816,6 +833,8 @@ extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore {
             let key = switch self {
             case let .accessTokenExpirationDate(userId):
                 "accessTokenExpirationDate_\(userId)"
+            case let .accountCryptographicState(userId):
+                "accountCryptographicState_\(userId)"
             case let .accountKeys(userId):
                 "accountKeys_\(userId)"
             case let .accountSetupAutofill(userId):
@@ -1041,6 +1060,10 @@ extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore {
         fetch(for: .accessTokenExpirationDate(userId: userId))
     }
 
+    func accountCryptographicState(userId: String) -> WrappedAccountCryptographicState? {
+        fetch(for: .accountCryptographicState(userId: userId))
+    }
+
     func accountKeys(userId: String) -> PrivateKeysResponseModel? {
         fetch(for: .accountKeys(userId: userId))
     }
@@ -1173,6 +1196,10 @@ extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore {
 
     func setAccessTokenExpirationDate(_ expirationDate: Date?, userId: String) {
         store(expirationDate, for: .accessTokenExpirationDate(userId: userId))
+    }
+
+    func setAccountCryptographicState(_ state: WrappedAccountCryptographicState?, userId: String) {
+        store(state, for: .accountCryptographicState(userId: userId))
     }
 
     func setAccountKeys(_ keys: PrivateKeysResponseModel?, userId: String) {
