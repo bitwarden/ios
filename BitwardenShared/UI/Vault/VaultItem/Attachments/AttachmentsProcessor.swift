@@ -149,9 +149,7 @@ class AttachmentsProcessor: StateProcessor<AttachmentsState, AttachmentsAction, 
                 .validate(input: state.fileName)
 
             // Dismiss and show the upgrade alert if the user doesn't have premium.
-            guard state.hasPremium else {
-                return await loadPremiumStatus()
-            }
+            await loadPremiumStatus()
 
             // Display an alert if the attachment is too large.
             guard let fileSize = state.fileData?.count, fileSize < Constants.maxFileSize else {
