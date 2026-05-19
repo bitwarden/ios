@@ -115,7 +115,7 @@ class CreatePasskeyProcessor: StateProcessor<
         }
         let parsed = try COSEKeyParser.parseCredential(fromAttestationObject: attestationObject)
 
-        // Uses the parser's own extracted credential ID (rather than `registration.credentialID`)
+        // Uses the parser's extracted credential ID (rather than `registration.credentialID`)
         // so this path continuously exercises the same CBOR parsing the future verify flow will
         // depend on.
         return StoredPasskeyCredential(
