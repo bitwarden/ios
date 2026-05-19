@@ -173,17 +173,15 @@ final class SingleSignOnProcessor: StateProcessor<SingleSignOnState, SingleSignO
     /// - Parameter keyConnectorUrl: The organization's KeyConnector domain
     ///
     private func migrateUserKeyConnector(keyConnectorUrl: URL) async {
+        coordinator.showLoadingOverlay(title: Localizations.loggingIn)
+        defer { coordinator.hideLoadingOverlay() }
+
         do {
             try await services.authRepository.convertNewUserToKeyConnector(
                 keyConnectorURL: keyConnectorUrl,
                 orgIdentifier: state.identifierText,
             )
-
-            try await services.authRepository.unlockVaultWithKeyConnectorKey(
-                keyConnectorURL: keyConnectorUrl,
-                orgIdentifier: state.identifierText,
-            )
-
+            coordinator.hideLoadingOverlay()
             await coordinator.handleEvent(.didCompleteAuth)
             coordinator.navigate(to: .dismiss)
         } catch {
