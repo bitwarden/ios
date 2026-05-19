@@ -148,13 +148,9 @@ class AttachmentsProcessor: StateProcessor<AttachmentsState, AttachmentsAction, 
             try EmptyInputValidator(fieldName: Localizations.file)
                 .validate(input: state.fileName)
 
-            // Display an alert and don't allow the user to continue if
-            // they don't have access to premium features.
+            // Dismiss and show the upgrade alert if the user doesn't have premium.
             guard state.hasPremium else {
-                return coordinator.showAlert(.defaultAlert(
-                    title: Localizations.anErrorHasOccurred,
-                    message: Localizations.premiumRequired,
-                ))
+                return await loadPremiumStatus()
             }
 
             // Display an alert if the attachment is too large.
