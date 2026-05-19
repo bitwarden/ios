@@ -3,6 +3,9 @@ import Foundation
 /// The routes for navigating within the home flow.
 ///
 public enum RootRoute {
+    /// A route to the create passkey test screen.
+    case createPasskey
+
     /// A route to the scenario picker home screen.
     case scenarioPicker
 

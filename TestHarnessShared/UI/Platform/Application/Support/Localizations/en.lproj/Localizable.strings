@@ -11,3 +11,11 @@
 "FormValues" = "Form Values";
 "UsernameValue" = "Username: %@";
 "PasswordValue" = "Password: %@";
+"RelyingPartyId" = "Relying Party ID";
+"RelyingPartyIdFooter" = "Must match a webcredentials associated domain configured in the app entitlements.";
+"DisplayName" = "Display Name";
+"RegisterPasskey" = "Register Passkey";
+"CreatePasskeyFormDescription" = "Fill in the fields below, then tap Register Passkey. The Bitwarden AutoFill sheet will appear to save the credential.";
+"RegistrationResult" = "Registration Result";
+"PasskeyRegisteredSuccessfully" = "Passkey registered successfully.";
+"PasskeyRegistrationNotAvailable" = "Passkey registration requires iOS 17 or later.";
