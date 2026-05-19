@@ -1,3 +1,4 @@
+import AuthenticationServices
 import BitwardenKit
 import SwiftUI
 import UIKit
@@ -40,6 +41,8 @@ class RootCoordinator: Coordinator, HasStackNavigator {
             showCardAutofillForm()
         case .createAccountForm:
             showCreateAccountForm()
+        case .createPasskey:
+            showCreatePasskey()
         case .dateFieldPickerShowcase:
             showDateFieldPickerShowcase()
         case .fileShare:
@@ -87,6 +90,15 @@ class RootCoordinator: Coordinator, HasStackNavigator {
         stackNavigator?.push(viewController)
     }
 
+    /// Shows the create passkey test screen.
+    ///
+    private func showCreatePasskey() {
+        let processor = CreatePasskeyProcessor(coordinator: asAnyCoordinator(), delegate: self)
+        let view = CreatePasskeyView(store: Store(processor: processor))
+        let viewController = UIHostingController(rootView: view)
+        stackNavigator?.push(viewController)
+    }
+
     /// Shows the file share test screen.
     ///
     private func showFileShare() {
@@ -128,4 +140,12 @@ class RootCoordinator: Coordinator, HasStackNavigator {
 
 extension RootCoordinator: HasErrorAlertServices {
     var errorAlertServices: ErrorAlertServices { services }
+}
+
+// MARK: - CreatePasskeyProcessorDelegate
+
+extension RootCoordinator: CreatePasskeyProcessorDelegate {
+    func presentationAnchorForPasskeyRegistration() async -> ASPresentationAnchor {
+        stackNavigator?.rootViewController?.view.window ?? UIWindow()
+    }
 }
