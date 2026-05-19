@@ -1,3 +1,4 @@
+import AuthenticationServices
 import BitwardenKit
 import SwiftUI
 import UIKit
@@ -36,6 +37,8 @@ class RootCoordinator: Coordinator, HasStackNavigator {
 
     func navigate(to route: RootRoute, context: AnyObject?) {
         switch route {
+        case .createPasskey:
+            showCreatePasskey()
         case .scenarioPicker:
             showScenarioPicker()
         case .simpleLoginForm:
@@ -48,6 +51,15 @@ class RootCoordinator: Coordinator, HasStackNavigator {
     }
 
     // MARK: Private Methods
+
+    /// Shows the create passkey test screen.
+    ///
+    private func showCreatePasskey() {
+        let processor = CreatePasskeyProcessor(coordinator: asAnyCoordinator(), delegate: self)
+        let view = CreatePasskeyView(store: Store(processor: processor))
+        let viewController = UIHostingController(rootView: view)
+        stackNavigator?.push(viewController)
+    }
 
     /// Shows the scenario picker screen.
     ///
@@ -71,4 +83,12 @@ class RootCoordinator: Coordinator, HasStackNavigator {
 
 extension RootCoordinator: HasErrorAlertServices {
     var errorAlertServices: ErrorAlertServices { services }
+}
+
+// MARK: - CreatePasskeyProcessorDelegate
+
+extension RootCoordinator: CreatePasskeyProcessorDelegate {
+    func presentationAnchorForPasskeyRegistration() async -> ASPresentationAnchor {
+        stackNavigator?.rootViewController?.view.window ?? UIWindow()
+    }
 }

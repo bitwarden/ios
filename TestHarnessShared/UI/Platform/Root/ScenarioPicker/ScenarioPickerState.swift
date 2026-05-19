@@ -27,6 +27,6 @@ struct ScenarioPickerState: Equatable {
     var scenarios: [ScenarioItem] = [
         ScenarioItem(id: "simpleLoginForm", title: Localizations.simpleLoginForm, route: .simpleLoginForm),
         ScenarioItem(id: "passkeyAutofill", title: Localizations.passkeyAutofill, route: nil),
-        ScenarioItem(id: "createPasskey", title: Localizations.createPasskey, route: nil),
+        ScenarioItem(id: "createPasskey", title: Localizations.createPasskey, route: .createPasskey),
     ]
 }
