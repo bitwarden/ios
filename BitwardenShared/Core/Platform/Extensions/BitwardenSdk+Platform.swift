@@ -129,9 +129,11 @@ extension BitwardenSdk.ServerCommunicationConfig: @retroactive Codable {
 // MARK: - BitwardenSdk.SetCommunicationTypeRequest
 
 extension BitwardenSdk.SetCommunicationTypeRequest {
-    init(communicationSettings: ServerCommunicationSettings) {
+    init(communicationSettings: ServerCommunicationSettings, vaultUrl: String) {
         let bootstrap = communicationSettings.bootstrap
-        guard bootstrap.type == BitwardenSdk.BootstrapConfig.BootstrapType.ssoCookieVendor.rawValue else {
+        guard bootstrap.type == BitwardenSdk.BootstrapConfig.BootstrapType.ssoCookieVendor.rawValue,
+              let cookieName = bootstrap.cookieName,
+              let cookieDomain = bootstrap.cookieDomain else {
             self.init(bootstrap: .direct)
             return
         }
@@ -140,9 +142,9 @@ extension BitwardenSdk.SetCommunicationTypeRequest {
             bootstrap: .ssoCookieVendor(
                 SsoCookieVendorConfigRequest(
                     idpLoginUrl: bootstrap.idpLoginUrl,
-                    cookieName: bootstrap.cookieName,
-                    cookieDomain: bootstrap.cookieDomain,
-                    vaultUrl: nil,
+                    cookieName: cookieName,
+                    cookieDomain: cookieDomain,
+                    vaultUrl: vaultUrl,
                 ),
             ),
         )
@@ -163,10 +165,10 @@ extension BitwardenSdk.SsoCookieVendorConfig: @retroactive Codable {
     public init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         let idpLoginUrl = try container.decodeIfPresent(String.self, forKey: .idpLoginUrl)
-        let cookieName = try container.decodeIfPresent(String.self, forKey: .cookieName)
-        let cookieDomain = try container.decodeIfPresent(String.self, forKey: .cookieDomain)
+        let cookieName = try container.decodeIfPresent(String.self, forKey: .cookieName) ?? ""
+        let cookieDomain = try container.decodeIfPresent(String.self, forKey: .cookieDomain) ?? ""
         let cookieValue = try container.decodeIfPresent([AcquiredCookie].self, forKey: .cookieValue)
-        let vaultUrl = try container.decodeIfPresent(String.self, forKey: .vaultUrl)
+        let vaultUrl = try container.decodeIfPresent(String.self, forKey: .vaultUrl) ?? ""
         self.init(
             idpLoginUrl: idpLoginUrl,
             cookieName: cookieName,
