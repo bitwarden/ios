@@ -148,21 +148,21 @@ class AttachmentsProcessorTests: BitwardenTestCase {
         )
     }
 
-    /// `perform(_:)` with `.save` displays an error if the user doesn't have premium.
+    /// `perform(_:)` with `.save` dismisses the view and shows the upgrade alert if the user doesn't have premium.
     @MainActor
     func test_perform_save_noPremium() async throws {
         subject.state.fileName = "only cool people can see this file.txt"
         subject.state.hasPremium = false
+        vaultRepository.doesActiveAccountHavePremiumResult = false
 
         await subject.perform(.save)
 
-        XCTAssertEqual(
-            coordinator.alertShown.last,
-            .defaultAlert(
-                title: Localizations.anErrorHasOccurred,
-                message: Localizations.premiumRequired,
-            ),
-        )
+        guard case let .dismiss(dismissAction) = coordinator.routes.last else {
+            XCTFail("Expected dismiss route with action")
+            return
+        }
+        dismissAction?.action()
+        XCTAssertEqual(coordinator.alertShown.last, .attachmentsUnavailable(action: {}))
     }
 
     /// `perform(_:)` with `.save` shows an alert if the file is too large.
