@@ -32,6 +32,9 @@ extension ExternalLinksConstants {
     /// A link to Bitwarden's help page for learning more about Premium features.
     static let learnMoreAboutPremium = URL(string: "https://bitwarden.com/help/password-manager-plans/")!
 
+    /// A link to the subscription management page in the Bitwarden web app.
+    static let manageSubscription = URL(string: "https://vault.bitwarden.com/#/settings/subscription")!
+
     /// A link to the password options within the passwords section of the settings menu.
     static let passwordOptions = URL(string: "App-prefs:PASSWORDS&path=PASSWORD_OPTIONS")!
 
