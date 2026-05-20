@@ -69,10 +69,9 @@ final class PremiumPlanProcessor: StateProcessor<
     /// Shows the "Continue to web app?" alert for managing the subscription plan.
     ///
     private func showManageSubscriptionAlert() {
-        let manageSubscriptionURL = services.environmentService.manageSubscriptionURL
         coordinator.showAlert(
             .manageSubscriptionPlanAlert { [weak self] in
-                self?.state.urlToOpen = manageSubscriptionURL
+                self?.state.urlToOpen = self?.services.environmentService.manageSubscriptionURL
             },
         )
     }
