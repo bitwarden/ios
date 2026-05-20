@@ -150,27 +150,6 @@ class CredentialProviderViewController: ASCredentialProviderViewController {
         }
     }
 
-    /// Installs `keyboardAnchor` as first responder to keep InputUI's keyboard session alive.
-    ///
-    /// Call before any VC transition in `autofillText` mode. No retries are scheduled:
-    /// retries disrupt SwiftUI `@FocusState` sessions (`fromBecomeFirstResponder:0`, no timer),
-    /// turning them into explicit sessions (`fromBecomeFirstResponder:1`, 5-second timer) and
-    /// causing a visible keyboard flicker. `keyboardWillHide` handles true keyboard dismissals.
-    ///
-    /// SwiftUI must reclaim focus via `@FocusState` before the RTI 5-second timer fires;
-    /// screens without a focusable element remain on the `becomeFirstResponder:1` path.
-    private func installKeyboardAnchor() {
-        guard let context, case .autofillText = context.extensionMode else { return }
-
-        if keyboardAnchor == nil {
-            let anchor = KeyboardAnchorTextField(frame: .zero)
-            view.addSubview(anchor)
-            keyboardAnchor = anchor
-        }
-
-        keyboardAnchor?.becomeFirstResponder()
-    }
-
     /// Sets up and initializes the app and UI.
     ///
     /// - Parameters:
@@ -316,32 +295,15 @@ class CredentialProviderViewController: ASCredentialProviderViewController {
 extension CredentialProviderViewController {
     @available(iOSApplicationExtension 18.0, *)
     override func prepareInterfaceForUserChoosingTextToInsert() {
-        // Create the anchor directly here — `self.context` is nil at this point so
-        // `installKeyboardAnchor`'s context guard would return early. This is the only
-        // synchronous call site where the view is in the window, no children exist, and
-        // nothing else can steal focus. `initializeApp` launches an async Task, so anchoring
-        // inside it would be too late.
+        // Anchor here rather than inside initializeApp: initializeApp launches an async Task,
+        // so by the time it runs something else may have stolen focus. At this call site the view
+        // is already in the window with no child VCs, giving becomeFirstResponder a clean shot.
         let anchor = KeyboardAnchorTextField(frame: .zero)
         view.addSubview(anchor)
         keyboardAnchor = anchor
         anchor.becomeFirstResponder()
 
-        // Safety net: reclaim anchor when keyboard starts hiding and anchor isn't FR.
-        NotificationCenter.default.addObserver(
-            self,
-            selector: #selector(keyboardWillHide),
-            name: UIResponder.keyboardWillHideNotification,
-            object: nil,
-        )
-
         initializeApp(with: DefaultCredentialProviderContext(.autofillText))
-    }
-
-    @objc private func keyboardWillHide() {
-        guard let context, case .autofillText = context.extensionMode,
-              let anchor = keyboardAnchor, !anchor.isFirstResponder else { return }
-        Logger.appExtension.debug("KeyboardAnchorTextField: keyboard will hide without anchor as FR — reclaiming")
-        anchor.becomeFirstResponder()
     }
 
     @available(iOSApplicationExtension 18.0, *)
@@ -509,9 +471,9 @@ extension CredentialProviderViewController: RootNavigator {
     var rootViewController: UIViewController? { self }
 
     func show(child: Navigator) {
-        // In autofillText mode, seize the anchor BEFORE the transition so there is no gap
-        // where no text-input holds first responder (which would signal useKeyboard=0 to InputUI).
-        installKeyboardAnchor()
+        // In autofillText mode, reclaim the anchor before the transition to keep the keyboard
+        // session alive. In other modes keyboardAnchor is nil, so this is a no-op.
+        keyboardAnchor?.becomeFirstResponder()
 
         removeChildViewController()
 
@@ -535,22 +497,33 @@ extension CredentialProviderViewController: RootNavigator {
 
 // MARK: - KeyboardAnchorTextField
 
-/// A zero-frame text field used in `autofillText` mode to seed the initial RTI session before the
-/// SwiftUI view hierarchy is ready.
+/// A zero-frame text field used in `autofillText` mode to hold first responder and keep
+/// the system keyboard session alive until the SwiftUI view hierarchy is ready.
 ///
-/// `useKeyboard` is computed as `allowsSystemInputView && !hasCustomInputView && responderRequiresKeyboard`.
-/// Any non-nil `inputView` makes `!hasCustomInputView = 0` → `useKeyboard = 0` → `delayEndInputSession:YES`
-/// on every delegate transition, firing `endRemoteTextInputSessionWithID` after ~5 seconds.
+/// `inputView` must remain `nil` (the default); a custom input view suppresses the system
+/// keyboard session, causing InputUI to end it after ~5 seconds. Once the SwiftUI view
+/// appears it takes over first responder via `@FocusState`.
 ///
-/// With `inputView = nil` (the default), every transition produces `useKeyboard = 1`. Once the
-/// SwiftUI view appears it takes over via `@FocusState` (`fromBecomeFirstResponder:0`,
-/// `delayEndInputSession:NO`), clearing this anchor's initial timer.
+/// Registers a `keyboardWillHide` safety net on init to reclaim first responder if something
+/// unexpectedly dismisses the keyboard mid-flow.
 private final class KeyboardAnchorTextField: UITextField {
     @available(*, unavailable)
     required init?(coder: NSCoder) { nil }
 
     override init(frame: CGRect) {
         super.init(frame: frame)
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(keyboardWillHide),
+            name: UIResponder.keyboardWillHideNotification,
+            object: nil,
+        )
+    }
+
+    @objc private func keyboardWillHide() {
+        guard !isFirstResponder else { return }
+        Logger.appExtension.debug("KeyboardAnchorTextField: keyboard will hide without anchor as FR — reclaiming")
+        becomeFirstResponder()
     }
 
     @discardableResult
