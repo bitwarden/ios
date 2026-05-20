@@ -27,6 +27,12 @@ class KeyConnectorServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
         stateService = MockStateService()
         tokenService = MockTokenService()
 
+        clientService.mockAuth.makeKeyConnectorKeysReturnValue = KeyConnectorResponse(
+            masterKey: "masterKey",
+            encryptedUserKey: "encryptedUserKey",
+            keys: RsaKeyPair(public: "public", private: "private"),
+        )
+
         subject = DefaultKeyConnectorService(
             accountAPIService: APIService(client: client),
             clientService: clientService,
@@ -80,7 +86,7 @@ class KeyConnectorServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
 
     /// `convertNewUserToKeyConnector()` throws an error if making key connector keys fails.
     func test_convertNewUserToKeyConnector_makeKeyConnectorKeysFailure() async throws {
-        clientService.mockAuth.makeKeyConnectorKeysResult = .failure(BitwardenTestError.example)
+        clientService.mockAuth.makeKeyConnectorKeysThrowableError = BitwardenTestError.example
 
         await assertAsyncThrows(error: BitwardenTestError.example) {
             try await subject.convertNewUserToKeyConnector(

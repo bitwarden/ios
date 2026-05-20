@@ -87,8 +87,13 @@ extension CipherListView {
 extension CipherListViewType {
     init(cipher: Cipher) {
         switch cipher.type {
+        case .bankAccount:
+            self = .bankAccount
         case .card:
             self = .card(.init(brand: nil))
+        case .driversLicense:
+            // TODO: PM-32807
+            self = .driversLicense
         case .identity:
             self = .identity
         case .login:
@@ -103,6 +108,9 @@ extension CipherListViewType {
                     uris: cipher.login?.uris?.map { LoginUriView(loginUri: $0) },
                 ),
             )
+        case .passport:
+            // TODO: PM-32805
+            self = .passport
         case .secureNote:
             self = .secureNote
         case .sshKey:
@@ -127,6 +135,9 @@ extension Cipher {
             card: cipherView.card.map(Card.init),
             secureNote: cipherView.secureNote.map(SecureNote.init),
             sshKey: cipherView.sshKey.map(SshKey.init),
+            bankAccount: nil, // TODO: PM-32809
+            driversLicense: nil, // TODO: PM-32807
+            passport: nil, // TODO: PM-32805
             favorite: cipherView.favorite,
             reprompt: cipherView.reprompt,
             organizationUseTotp: cipherView.organizationUseTotp,
@@ -162,6 +173,9 @@ extension CipherView {
             card: cipher.card.map(CardView.init),
             secureNote: cipher.secureNote.map(SecureNoteView.init),
             sshKey: cipher.sshKey.map(SshKeyView.init),
+            bankAccount: nil, // TODO: PM-32809
+            driversLicense: nil, // TODO: PM-32807
+            passport: nil, // TODO: PM-32805
             favorite: cipher.favorite,
             reprompt: cipher.reprompt,
             organizationUseTotp: cipher.organizationUseTotp,

@@ -63,11 +63,12 @@ extension CipherDetailsResponseModel {
         self.init(
             archivedDate: cipher.archivedDate,
             attachments: cipher.attachments?.map(AttachmentResponseModel.init),
-            bankAccount: nil,
+            bankAccount: nil, // TODO: PM-32809
             card: cipher.card.map(CipherCardModel.init),
             collectionIds: cipher.collectionIds,
             creationDate: cipher.creationDate,
             deletedDate: cipher.deletedDate,
+            driversLicense: nil, // TODO: PM-32807
             edit: cipher.edit,
             favorite: cipher.favorite,
             fields: cipher.fields?.map(CipherFieldModel.init),
@@ -80,6 +81,7 @@ extension CipherDetailsResponseModel {
             notes: cipher.notes,
             organizationId: cipher.organizationId,
             organizationUseTotp: cipher.organizationUseTotp,
+            passport: nil, // TODO: PM-32805
             passwordHistory: cipher.passwordHistory?.map(CipherPasswordHistoryModel.init),
             permissions: CipherPermissionsModel(cipherPermissions: cipher.permissions),
             reprompt: BitwardenShared.CipherRepromptType(type: cipher.reprompt),
@@ -220,12 +222,21 @@ extension CipherSSHKeyModel {
 extension CipherType {
     init(type: BitwardenSdk.CipherType) {
         switch type {
+        case .bankAccount:
+            // TODO: PM-32809
+            self = .secureNote
         case .card:
             self = .card
+        case .driversLicense:
+            // TODO: PM-32807
+            self = .identity
         case .identity:
             self = .identity
         case .login:
             self = .login
+        case .passport:
+            // TODO: PM-32805
+            self = .identity
         case .secureNote:
             self = .secureNote
         case .sshKey:
@@ -235,12 +246,21 @@ extension CipherType {
 
     init(_ type: BitwardenSdk.CipherListViewType) {
         switch type {
+        case .bankAccount:
+            // TODO: PM-32809
+            self = .secureNote
         case .card:
             self = .card
+        case .driversLicense:
+            // TODO: PM-32807
+            self = .identity
         case .identity:
             self = .identity
         case .login:
             self = .login
+        case .passport:
+            // TODO: PM-32805
+            self = .identity
         case .secureNote:
             self = .secureNote
         case .sshKey:
@@ -343,7 +363,10 @@ extension BitwardenSdk.Cipher {
             card: model.card.map(Card.init),
             secureNote: model.secureNote.map(SecureNote.init),
             sshKey: model.sshKey.map(SshKey.init),
-            favorite: model.favorite,
+            bankAccount: nil, // TODO: PM-32809
+            driversLicense: nil, // TODO: PM-32807
+            passport: nil, // TODO: PM-32805
+            favorite:model.favorite,
             reprompt: BitwardenSdk.CipherRepromptType(model.reprompt),
             organizationUseTotp: model.organizationUseTotp,
             edit: model.edit,
@@ -388,7 +411,10 @@ extension BitwardenSdk.Cipher {
             card: model.card.map(Card.init),
             secureNote: model.secureNote.map(SecureNote.init),
             sshKey: model.sshKey.map(SshKey.init),
-            favorite: originalCipher?.favorite ?? false,
+            bankAccount: nil, // TODO: PM-32809
+            driversLicense: nil, // TODO: PM-32807
+            passport: nil, // TODO: PM-32805
+            favorite:originalCipher?.favorite ?? false,
             reprompt: BitwardenSdk.CipherRepromptType(model.reprompt),
             organizationUseTotp: model.organizationUseTotp,
             edit: originalCipher?.edit ?? true,
@@ -476,6 +502,9 @@ extension BitwardenSdk.CipherView: @retroactive Identifiable, Fido2UserVerifiabl
             card: nil,
             secureNote: nil,
             sshKey: nil,
+            bankAccount: nil,
+            driversLicense: nil,
+            passport: nil,
             favorite: false,
             reprompt: .none,
             organizationUseTotp: false,
@@ -797,7 +826,7 @@ extension BitwardenSdk.Folder {
     }
 }
 
-extension BitwardenSdk.FolderView: Menuable, @unchecked @retroactive Sendable, TreeNodeModel {
+extension BitwardenSdk.FolderView: @retroactive Menuable, @unchecked @retroactive Sendable, TreeNodeModel {
     public static var defaultValueLocalizedName: String {
         Localizations.folderNone
     }

@@ -19,3 +19,4 @@ extension GeneratorClientsProtocol {}
 extension PasswordHistoryClientProtocol {}
 extension RegistrationClientProtocol {}
 extension SendClientProtocol {}
+extension StateClientProtocol {}
