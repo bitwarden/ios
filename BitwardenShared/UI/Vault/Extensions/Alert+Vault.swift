@@ -436,6 +436,15 @@ extension Alert {
                     ))
                 })
             }
+        case .bankAccount:
+            // TODO: PM-32809
+            break
+        case .driversLicense:
+            // TODO: PM-32807
+            break
+        case .passport:
+            // TODO: PM-32805
+            break
         }
 
         if context.canArchive {

@@ -24,6 +24,9 @@ extension Cipher {
             card: card,
             secureNote: secureNote,
             sshKey: sshKey,
+            bankAccount: bankAccount,
+            driversLicense: driversLicense,
+            passport: passport,
             favorite: favorite,
             reprompt: reprompt,
             organizationUseTotp: organizationUseTotp,
@@ -41,6 +44,7 @@ extension Cipher {
             data: data,
         )
     }
+
 
     /// Returns a copy of the existing cipher with an updated folder ID.
     ///
@@ -62,6 +66,9 @@ extension Cipher {
             card: card,
             secureNote: secureNote,
             sshKey: sshKey,
+            bankAccount: bankAccount,
+            driversLicense: driversLicense,
+            passport: passport,
             favorite: favorite,
             reprompt: reprompt,
             organizationUseTotp: organizationUseTotp,
