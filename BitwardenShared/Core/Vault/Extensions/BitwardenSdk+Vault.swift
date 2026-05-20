@@ -44,6 +44,23 @@ extension AttachmentResponseModel {
 
 extension AttachmentView: @retroactive Identifiable {}
 
+extension CipherBankAccountModel {
+    init(bankAccount: BitwardenSdk.BankAccount) {
+        self.init(
+            accountNumber: bankAccount.accountNumber,
+            accountType: bankAccount.accountType,
+            bankName: bankAccount.bankName,
+            bankContactPhone: bankAccount.bankContactPhone,
+            branchNumber: bankAccount.branchNumber,
+            iban: bankAccount.iban,
+            nameOnAccount: bankAccount.nameOnAccount,
+            pin: bankAccount.pin,
+            routingNumber: bankAccount.routingNumber,
+            swiftCode: bankAccount.swiftCode,
+        )
+    }
+}
+
 extension CipherCardModel {
     init(card: BitwardenSdk.Card) {
         self.init(
@@ -63,7 +80,7 @@ extension CipherDetailsResponseModel {
         self.init(
             archivedDate: cipher.archivedDate,
             attachments: cipher.attachments?.map(AttachmentResponseModel.init),
-            bankAccount: nil,
+            bankAccount: cipher.bankAccount.map(CipherBankAccountModel.init),
             card: cipher.card.map(CipherCardModel.init),
             collectionIds: cipher.collectionIds,
             creationDate: cipher.creationDate,
@@ -220,6 +237,8 @@ extension CipherSSHKeyModel {
 extension CipherType {
     init(type: BitwardenSdk.CipherType) {
         switch type {
+        case .bankAccount:
+            self = .bankAccount
         case .card:
             self = .card
         case .identity:
@@ -235,6 +254,8 @@ extension CipherType {
 
     init(_ type: BitwardenSdk.CipherListViewType) {
         switch type {
+        case .bankAccount:
+            self = .bankAccount
         case .card:
             self = .card
         case .identity:
@@ -508,6 +529,8 @@ extension BitwardenSdk.CipherType {
             self = .identity
         case .sshKey:
             self = .sshKey
+        case .bankAccount:
+            self = .bankAccount
         }
     }
 }
