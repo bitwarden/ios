@@ -115,7 +115,7 @@ final class ClientServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
         XCTAssertIdentical(userAuth, userExistingAuthClient)
     }
 
-    /// `client(for:)` loads `enableCipherKeyEncryption: true` into the SDK.
+    /// `client(for:)` loads flags into the SDK.
     @MainActor
     func test_client_loadFlags() async throws {
         configService.configMocker.withResult(ServerConfig(
@@ -135,7 +135,7 @@ final class ClientServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
         let client = try XCTUnwrap(clientBuilder.clients.first)
         XCTAssertEqual(
             client.platformClient.featureFlags,
-            ["enableCipherKeyEncryption": true],
+            [:],
         )
     }
 
@@ -213,7 +213,7 @@ final class ClientServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
                 return false
             }
             let client = try? XCTUnwrap(self.clientBuilder.clients.first)
-            return client?.platformClient.featureFlags == ["enableCipherKeyEncryption": true]
+            return client!.platformClient.featureFlags.isEmpty
         }
     }
 
