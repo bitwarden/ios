@@ -9,13 +9,13 @@ public protocol PlatformClientService: AnyObject { // sourcery: AutoMockable
     func fido2() -> ClientFido2Service
 
     /// Gets the fingerprint (public key) based on `req`.
-    /// - Parameter request: Request with parameters for the fingerprint.
+    /// - Parameter req: Request with parameters for the fingerprint.
     /// - Returns: Fingerprint public key.
-    func fingerprint(request req: FingerprintRequest) throws -> String
+    func fingerprint(req: FingerprintRequest) throws -> String
 
     /// Load feature flags into the client.
     /// - Parameter flags: Flags to load.
-    func loadFlags(_ flags: [String: Bool]) async throws
+    func loadFlags(flags: [String: Bool]) async throws
 
     /// Server communication configuration operations.
     /// - Parameters:
@@ -31,9 +31,9 @@ public protocol PlatformClientService: AnyObject { // sourcery: AutoMockable
     func state() -> StateClientProtocol
 
     /// Fingerprint using logged in user's public key
-    /// - Parameter material: Fingerprint material to use
+    /// - Parameter fingerprintMaterial: Fingerprint material to use
     /// - Returns: User fingerprint
-    func userFingerprint(material fingerprintMaterial: String) throws -> String
+    func userFingerprint(fingerprintMaterial: String) throws -> String
 }
 
 // MARK: PlatformClient
@@ -41,14 +41,6 @@ public protocol PlatformClientService: AnyObject { // sourcery: AutoMockable
 extension PlatformClient: PlatformClientService {
     public func fido2() -> ClientFido2Service {
         fido2() as ClientFido2
-    }
-
-    public func fingerprint(request req: FingerprintRequest) throws -> String {
-        try fingerprint(req: req)
-    }
-
-    public func loadFlags(_ flags: [String: Bool]) async throws {
-        try await loadFlags(flags: flags)
     }
 
     public func serverCommunicationConfig(
@@ -64,9 +56,5 @@ extension PlatformClient: PlatformClientService {
 
     public func state() -> StateClientProtocol {
         state() as StateClient
-    }
-
-    public func userFingerprint(material fingerprintMaterial: String) throws -> String {
-        try userFingerprint(fingerprintMaterial: fingerprintMaterial)
     }
 }
