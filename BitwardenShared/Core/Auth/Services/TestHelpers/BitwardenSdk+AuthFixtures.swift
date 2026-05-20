@@ -64,7 +64,7 @@ extension BitwardenSdk.GetAssertionResult {
             signature: signature,
             userHandle: userHandle,
             selectedCredential: selectedCredential,
-            extensions: extensions
+            extensions: extensions,
         )
     }
 }
@@ -80,7 +80,7 @@ extension BitwardenSdk.MakeCredentialResult {
             authenticatorData: authenticatorData,
             attestationObject: attestationObject,
             credentialId: credentialId,
-            extensions: extensions
+            extensions: extensions,
         )
     }
 }

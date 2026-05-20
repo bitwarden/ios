@@ -797,7 +797,7 @@ extension BitwardenSdk.Folder {
     }
 }
 
-extension BitwardenSdk.FolderView: Menuable, @unchecked @retroactive Sendable, TreeNodeModel {
+extension BitwardenSdk.FolderView: @retroactive Menuable, @unchecked @retroactive Sendable, TreeNodeModel {
     public static var defaultValueLocalizedName: String {
         Localizations.folderNone
     }
