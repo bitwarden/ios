@@ -132,15 +132,13 @@ public extension EnvironmentURLs {
             webVaultURL = environmentURLData.webVault ?? URL(string: "https://vault.bitwarden.com")!
         }
         importItemsURL = environmentURLData.importItemsURL ?? URL(string: "https://vault.bitwarden.com/#/tools/import")!
-        manageSubscriptionURL = environmentURLData.manageSubscriptionURL ?? URL(
-            string: "https://vault.bitwarden.com/#/settings/subscription",
-        )!
         recoveryCodeURL = environmentURLData.recoveryCodeURL ?? URL(
             string: "https://vault.bitwarden.com/#/recover-2fa",
         )!
         sendShareURL = environmentURLData.sendShareURL ?? URL(string: "https://send.bitwarden.com/#")!
         settingsURL = environmentURLData.settingsURL ?? webVaultURL
         changeEmailURL = environmentURLData.changeEmailURL ?? settingsURL
+        manageSubscriptionURL = environmentURLData.manageSubscriptionURL ?? settingsURL
         proxyCookieRedirectConnectorURL = environmentURLData.proxyCookieRedirectConnectorURL ?? webVaultURL
         setUpTwoFactorURL = environmentURLData.setUpTwoFactorURL ?? settingsURL
         upgradeToPremiumURL = environmentURLData.upgradeToPremiumURL ?? settingsURL
