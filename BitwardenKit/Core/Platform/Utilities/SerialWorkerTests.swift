@@ -1,8 +1,6 @@
-import BitwardenKit
-import BitwardenKitMocks
 import Testing
 
-@testable import BitwardenShared
+@testable import BitwardenKit
 
 struct SerialWorkerTests {
     let subject: SerialWorker
