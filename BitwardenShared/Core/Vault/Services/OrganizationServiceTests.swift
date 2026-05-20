@@ -86,7 +86,7 @@ class OrganizationServiceTests: XCTestCase {
         try await subject.initializeOrganizationCrypto()
 
         XCTAssertEqual(
-            clientService.mockCrypto.initializeOrgCryptoRequest,
+            clientService.mockCrypto.initializeOrgCryptoReceivedReq,
             InitOrgCryptoRequest(organizationKeys: [
                 "ORG_2": "ORG_2_KEY",
                 "ORG_1": "ORG_1_KEY",
@@ -99,7 +99,7 @@ class OrganizationServiceTests: XCTestCase {
     func test_initializeOrganizationCrypto_error() async throws {
         struct InitializeOrgCryptoError: Error {}
 
-        clientService.mockCrypto.initializeOrgCryptoResult = .failure(InitializeOrgCryptoError())
+        clientService.mockCrypto.initializeOrgCryptoThrowableError = InitializeOrgCryptoError()
         stateService.activeAccount = .fixture()
 
         try await subject.initializeOrganizationCrypto()
@@ -116,7 +116,7 @@ class OrganizationServiceTests: XCTestCase {
         try await subject.initializeOrganizationCrypto()
 
         XCTAssertEqual(
-            clientService.mockCrypto.initializeOrgCryptoRequest,
+            clientService.mockCrypto.initializeOrgCryptoReceivedReq,
             InitOrgCryptoRequest(organizationKeys: [:]),
         )
     }
@@ -132,7 +132,7 @@ class OrganizationServiceTests: XCTestCase {
         try await subject.initializeOrganizationCrypto(organizations: organizations)
 
         XCTAssertEqual(
-            clientService.mockCrypto.initializeOrgCryptoRequest,
+            clientService.mockCrypto.initializeOrgCryptoReceivedReq,
             InitOrgCryptoRequest(organizationKeys: [
                 "ORG_2": "ORG_2_KEY",
                 "ORG_1": "ORG_1_KEY",

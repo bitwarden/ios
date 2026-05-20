@@ -28,6 +28,9 @@ struct CipherDetailsResponseModel: JSONResponse, Equatable {
     /// The date the cipher was deleted.
     let deletedDate: Date?
 
+    /// Driver's license data if the cipher is a driver's license.
+    let driversLicense: CipherDriversLicenseModel? // TODO: PM-32807
+
     /// Whether the cipher can be edited.
     let edit: Bool
 
@@ -63,6 +66,9 @@ struct CipherDetailsResponseModel: JSONResponse, Equatable {
 
     /// Whether the organization for the cipher supports TOTP.
     let organizationUseTotp: Bool
+
+    /// Passport data if the cipher is a passport.
+    let passport: CipherPassportModel? // TODO: PM-32805
 
     /// The password history for this cipher.
     let passwordHistory: [CipherPasswordHistoryModel]?

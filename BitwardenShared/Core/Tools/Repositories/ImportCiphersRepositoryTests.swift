@@ -1,5 +1,6 @@
 import AuthenticationServices
 import BitwardenKit
+import BitwardenSdkMocks
 import TestHelpers
 import XCTest
 
@@ -66,7 +67,7 @@ class ImportCiphersRepositoryTests: BitwardenTestCase {
         ))
         credentialManagerFactory.importManager = credentialImportManager
 
-        clientService.mockExporters.importCxfResult = .success([
+        clientService.mockExporters.importCxfReturnValue = [
             .fixture(id: "1", login: .fixture(), type: .login),
             .fixture(id: "2", login: .fixture(), type: .login),
             .fixture(id: "3", login: .fixture(fido2Credentials: [.fixture()]), type: .login),
@@ -76,7 +77,7 @@ class ImportCiphersRepositoryTests: BitwardenTestCase {
             .fixture(id: "7", type: .identity),
             .fixture(id: "8", type: .secureNote),
             .fixture(id: "9", type: .secureNote),
-        ])
+        ]
 
         let expectedResults = [
             CXFCredentialsResult(count: 2, type: .password),
@@ -98,7 +99,7 @@ class ImportCiphersRepositoryTests: BitwardenTestCase {
             onProgress: { progress in progressReports.append(progress) },
         )
 
-        XCTAssertNotNil(clientService.mockExporters.importCxfPayload)
+        XCTAssertNotNil(clientService.mockExporters.importCxfReceivedPayload)
         XCTAssertTrue(importCiphersService.importCiphersCalled)
         XCTAssertEqual(importCiphersService.importCiphersCiphers?.count, 9)
         XCTAssertTrue(syncService.didFetchSync)
@@ -149,7 +150,7 @@ class ImportCiphersRepositoryTests: BitwardenTestCase {
             ))
         credentialManagerFactory.importManager = credentialImportManager
 
-        clientService.mockExporters.importCxfResult = .failure(BitwardenTestError.example)
+        clientService.mockExporters.importCxfThrowableError = BitwardenTestError.example
 
         await assertAsyncThrows(error: BitwardenTestError.example) {
             _ = try await subject.importCiphers(
@@ -178,10 +179,10 @@ class ImportCiphersRepositoryTests: BitwardenTestCase {
             ))
         credentialManagerFactory.importManager = credentialImportManager
 
-        clientService.mockExporters.importCxfResult = .success([
+        clientService.mockExporters.importCxfReturnValue = [
             .fixture(id: "1", login: .fixture(), type: .login),
             .fixture(id: "2", login: .fixture(), type: .login),
-        ])
+        ]
 
         importCiphersService.importCiphersError = BitwardenTestError.example
 
@@ -214,10 +215,10 @@ class ImportCiphersRepositoryTests: BitwardenTestCase {
             ))
         credentialManagerFactory.importManager = credentialImportManager
 
-        clientService.mockExporters.importCxfResult = .success([
+        clientService.mockExporters.importCxfReturnValue = [
             .fixture(id: "1", login: .fixture(), type: .login),
             .fixture(id: "2", login: .fixture(), type: .login),
-        ])
+        ]
 
         syncService.fetchSyncResult = .failure(BitwardenTestError.example)
 

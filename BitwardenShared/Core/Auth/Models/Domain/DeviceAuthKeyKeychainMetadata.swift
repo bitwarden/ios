@@ -1,9 +1,9 @@
 import Foundation
 
-// MARK: - DeviceAuthKeyMetadata
+// MARK: - DeviceAuthKeyKeychainMetadata
 
 /// Metadata needed for matching a request to the device passkey before decrypting the secret data.
-public struct DeviceAuthKeyMetadata: Codable, Equatable, Sendable {
+public struct DeviceAuthKeyKeychainMetadata: Codable, Equatable, Sendable {
     /// The unique identifier of the cipher associated with this device auth key.
     public let cipherId: String
 

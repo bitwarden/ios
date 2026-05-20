@@ -202,15 +202,22 @@ struct WatchServiceTests { // swiftlint:disable:this type_body_length
             stateService.connectToWatchSubject.send(("1", true))
         }
 
+        // Capture the context at callback time rather than reading the shared property afterwards.
+        // A task from the first sync could otherwise overwrite it between the resume() call and the
+        // assertion below.
+        var capturedContext: [String: Any]?
         await withContinuationTimeout { resume in
-            watchSession.updateApplicationContextClosure = { _ in resume() }
+            watchSession.updateApplicationContextClosure = { context in
+                capturedContext = context
+                resume()
+            }
 
             // Now update with shouldConnect = false — the existing session will be used.
             stateService.connectToWatchByUserId["1"] = false
             stateService.connectToWatchSubject.send(("1", false))
         }
 
-        let dto = try decodedDTO(from: watchSession.updateApplicationContextReceivedApplicationContext)
+        let dto = try decodedDTO(from: capturedContext)
         #expect(dto.state == .needSetup)
     }
 
@@ -346,12 +353,22 @@ struct WatchServiceTests { // swiftlint:disable:this type_body_length
         let decryptCountAfterSetup = decryptCallCount
         #expect(decryptCountAfterSetup > 0)
 
-        // Lock the vault and trigger another sync.
+        // Lock the vault and trigger another sync (no updateApplicationContext expected).
         vaultTimeoutService.isClientLocked["1"] = true
         stateService.connectToWatchSubject.send(("1", true))
-        try await Task.sleep(nanoseconds: 10_000_000)
 
-        // Confirm no additional decrypt attempts.
+        // Use a barrier sync to guarantee sequential processing: unlock the vault and set
+        // shouldConnect = false so the next sync sends .needSetup without decrypting ciphers.
+        // By the time the barrier callback fires, the locked sync above has already been processed.
+        await withContinuationTimeout { resume in
+            watchSession.updateApplicationContextClosure = { _ in resume() }
+
+            vaultTimeoutService.isClientLocked["1"] = false
+            stateService.connectToWatchByUserId["1"] = false
+            stateService.connectToWatchSubject.send(("1", false))
+        }
+
+        // Confirm no additional decrypt attempts occurred during the locked sync.
         #expect(decryptCallCount == decryptCountAfterSetup)
     }
 
@@ -366,12 +383,16 @@ struct WatchServiceTests { // swiftlint:disable:this type_body_length
         vaultTimeoutService.isClientLocked["1"] = true
         stateService.connectToWatchByUserId["1"] = true
         stateService.connectToWatchSubject.send(("1", true))
-        try await Task.sleep(nanoseconds: 10_000_000)
-        #expect(watchSession.updateApplicationContextCallsCount == 0)
 
         // Unlock the vault — the publisher emits, triggering a fresh sync.
+        // The locked and unlock events are processed sequentially by the service's listener loop,
+        // so the unlock sync fires after the locked sync. Asserting callsCount == 1 inside the
+        // closure confirms the locked sync produced no calls before this one.
         await withContinuationTimeout { resume in
-            watchSession.updateApplicationContextClosure = { _ in resume() }
+            watchSession.updateApplicationContextClosure = { _ in
+                #expect(watchSession.updateApplicationContextCallsCount == 1)
+                resume()
+            }
 
             cipherService.ciphersSubject.send([.fixture()])
             vaultTimeoutService.isClientLocked["1"] = false

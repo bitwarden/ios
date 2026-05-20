@@ -208,7 +208,7 @@
 "August" = "八月";
 "Brand" = "品牌";
 "CardholderName" = "持卡人姓名";
-"WeFoundMultipleMatchesChooseTheCorrectOne" = "We found multiple matches. Choose the correct one.";
+"WeFoundMultipleMatchesChooseTheCorrectOne" = "我们找到了多个匹配项。请选择一个正确的匹配项。";
 "CityTown" = "市 / 镇";
 "Company" = "公司";
 "Country" = "国家";
@@ -217,13 +217,13 @@
 "ExpirationMonth" = "过期月份";
 "ExpirationYear" = "过期年份";
 "February" = "二月";
-"FirstName" = "名";
+"FirstName" = "名字";
 "January" = "一月";
 "July" = "七月";
 "June" = "六月";
-"LastName" = "姓";
+"LastName" = "姓氏";
 "FullName" = "全名";
-"LicenseNumber" = "许可证号码";
+"LicenseNumber" = "许可证编号";
 "March" = "三月";
 "May" = "五月";
 "MiddleName" = "中间名";
@@ -381,6 +381,7 @@
 "MasterPasswordPolicyValidationTitle" = "无效的密码";
 "MasterPasswordPolicyValidationMessage" = "密码不符合组织要求。请检查策略信息然后重试。";
 "Loading" = "加载中";
+"LoadingSubscription" = "正在加载订阅…";
 "AcceptPoliciesError" = "尚未同意服务条款和隐私政策。";
 "PrivacyPolicy" = "隐私政策";
 "PersonalOwnershipPolicyInEffect" = "某个组织策略正影响您的所有权选项。";
@@ -606,7 +607,7 @@
 "SetUpAutofill" = "设置自动填充";
 "AppInfo" = "App 信息";
 "Browse" = "浏览";
-"SelectCardholderName" = "Select cardholder name";
+"SelectCardholderName" = "选择持卡人姓名";
 "SelectLanguage" = "选择语言";
 "ContinueToCompleteWebAuthnVerification" = "继续完成 WebAuthn 验证。";
 "ThereWasAnErrorStartingWebAuthnTwoFactorAuthentication" = "启动 WebAuthn 双重身份验证时出错";
@@ -878,8 +879,8 @@
 "YouMustAttachAFileToSaveThisSend" = "必须附加一个文件才能保存此 Send";
 "WeDontRecognizeThisDeviceEnterTheCodeSentToYourEmailDescriptionLong" = "我们无法识别这个设备。请输入发送到您电子邮箱中的代码以验证您的身份。";
 "Created" = "创建于：%1$@";
-"LastEdited" = "最后编辑于：%1$@";
-"PasswordLastUpdated" = "密码最后更新于：%1$@";
+"LastEdited" = "上次编辑：%1$@";
+"PasswordLastUpdated" = "密码上次更新：%1$@";
 "DecryptionError" = "解密错误";
 "BitwardenCouldNotDecryptThisVaultItemDescriptionLong" = "Bitwarden 无法解密此密码库项目。复制此错误报告并将其分享给客户成功团队，以避免进一步的数据丢失。";
 "CopyErrorReport" = "复制错误报告";
@@ -918,7 +919,7 @@
 "NoAskMe" = "不，询问我";
 "NoCodes" = "您没有任何可显示的代码";
 "None" = "无";
-"NoneOfTheAbove" = "None of the above";
+"NoneOfTheAbove" = "以上都不是";
 "NumberOfDigits" = "位数";
 "OtpType" = "OTP 类型";
 "RefreshPeriod" = "刷新周期";
@@ -928,7 +929,7 @@
 "SaveThisAuthenticatorKeyHereOrAddItToALoginInYourBitwardenApp" = "将此验证器密钥保存到此处，或将其添加到您的 Bitwarden App 的登录中。";
 "SaveToBitwarden" = "保存到 Bitwarden";
 "ScanCard" = "扫描支付卡";
-"PositionYourCardInTheFrameToScanIt" = "Position your card in the frame to scan it";
+"PositionYourCardInTheFrameToScanIt" = "将您的卡片置于取景框内进行扫描";
 "ScanComplete" = "扫描完成";
 "ScanTheQRCodeInYourSettings" = "在任何账户的两步验证设置中扫描二维码。";
 "SecureYourAssetsWithBitwardenAuthenticator" = "使用 Bitwarden Authenticator 保护您的账户";
@@ -1080,8 +1081,8 @@
 "UpgradePending" = "升级待处理";
 "YourUpgradeIsBeingProcessedDescriptionLong" = "您的升级正在处理中。完成之前，您将继续使用免费版方案。立即同步以检查升级进度，或继续操作，它将自动更新。";
 "UpgradedToPremium" = "升级到高级版";
-"ViewPlanDetails" = "查看方案详细信息";
-"WelcomeToPremiumYouNowHaveAccessDescriptionLong" = "欢迎使用高级版！您现在拥有所有高级安全功能访问权限了。";
+"YouNowHaveAccessToAdvancedSecurityDescriptionLong" = "您现在拥有高级安全功能访问权限了。进一步了解高级版包含的内容。";
+"YouNowHaveAccessToAllAdvancedSecurityFeatures" = "您现在拥有所有高级安全功能访问权限了。";
 "YoullGoToStripeSecureCheckoutToCompleteYourPurchase" = "您将前往 Stripe 的安全结账页面完成购买。";
 "YoullContinueToHavePremiumAccessUntilX" = "在 %1$@ 之前，您将继续拥有高级版访问权限。";
 "UserIDCopiedToTheClipboard" = "用户 ID 已复制到剪贴板";

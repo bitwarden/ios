@@ -92,6 +92,7 @@ public struct DefaultErrorReportBuilder {
                 let spaces = String(repeating: " ", count: max(28 - lastNameComponent.count, 1))
                 return "\(lastNameComponent):\(spaces)\(header)"
             }
+            .sorted()
             .joined(separator: "\n")
     }
 }
