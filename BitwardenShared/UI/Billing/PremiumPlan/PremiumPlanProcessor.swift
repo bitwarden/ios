@@ -14,6 +14,7 @@ final class PremiumPlanProcessor: StateProcessor<
     // MARK: Types
 
     typealias Services = HasBillingService
+        & HasEnvironmentService
         & HasErrorReporter
 
     // MARK: Private Properties
@@ -68,9 +69,10 @@ final class PremiumPlanProcessor: StateProcessor<
     /// Shows the "Continue to web app?" alert for managing the subscription plan.
     ///
     private func showManageSubscriptionAlert() {
+        let webVaultURL = services.environmentService.webVaultURL
         coordinator.showAlert(
             .manageSubscriptionPlanAlert { [weak self] in
-                self?.state.urlToOpen = ExternalLinksConstants.manageSubscription
+                self?.state.urlToOpen = URL(string: webVaultURL.absoluteString + "/#/settings/subscription")
             },
         )
     }
