@@ -486,6 +486,10 @@ extension DefaultKeychainRepository: BiometricsKeychainRepository {
     func setUserBiometricAuthKey(userId: String, value: String) async throws {
         try await keychainServiceFacade.setValue(value, for: BitwardenKeychainItem.biometrics(userId: userId))
     }
+
+    func userBiometricAuthKeyExists(userId: String) async -> Bool {
+        await keychainServiceFacade.containsValue(for: BitwardenKeychainItem.biometrics(userId: userId))
+    }
 }
 
 // MARK: DeviceAuthKeychainRepository

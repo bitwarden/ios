@@ -42,6 +42,11 @@ protocol BillingService: AnyObject { // sourcery: AutoMockable
     ///
     func premiumCheckoutStatusPublisher() -> AnyPublisher<PremiumCheckoutStatus, Never>
 
+    /// Returns whether the current environment is effectively self-hosted for premium upgrade checks.
+    /// Returns `false` when the debug override flag is enabled, regardless of the actual region.
+    ///
+    func isSelfHosted() async -> Bool
+
     /// Notifies that a premium status change was detected (via deep link or push notification),
     /// triggers a sync, and publishes status updates.
     ///
@@ -147,6 +152,11 @@ class DefaultBillingService: BillingService {
         premiumCheckoutStatusSubject.send(nil)
     }
 
+    func isSelfHosted() async -> Bool {
+        guard environmentService.region == .selfHosted else { return false }
+        return await !configService.getFeatureFlag(.debugDisableSelfHostPremiumCheck)
+    }
+
     func premiumCheckoutStatusPublisher() -> AnyPublisher<PremiumCheckoutStatus, Never> {
         premiumCheckoutStatusSubject
             .compactMap(\.self)
@@ -155,7 +165,7 @@ class DefaultBillingService: BillingService {
     }
 
     func premiumStatusChanged() async {
-        guard environmentService.region != .selfHosted,
+        guard await !isSelfHosted(),
               await configService.getFeatureFlag(.premiumUpgradePath),
               await !stateService.doesActiveAccountHavePremium()
         else {

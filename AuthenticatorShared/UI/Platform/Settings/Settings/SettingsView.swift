@@ -120,6 +120,16 @@ struct SettingsView: View {
                 if store.state.shouldShowDefaultSaveOption {
                     defaultSaveOption
                 }
+
+                BitwardenToggle(
+                    Localizations.showNextCode,
+                    isOn: store.bindingAsync(
+                        get: \.showNextTOTPCode,
+                        perform: SettingsEffect.toggleShowNextTOTPCode,
+                    ),
+                )
+                .accessibilityIdentifier("ShowNextCodeSwitch")
+                .accessibilityLabel(Localizations.showNextCode)
             }
         }
     }
@@ -289,34 +299,46 @@ struct SettingsView: View {
 // MARK: - Previews
 
 #if DEBUG
-struct SettingsView_Previews: PreviewProvider {
-    static var previews: some View {
-        NavigationView {
-            SettingsView(
-                store: Store(
-                    processor: StateProcessor(
-                        state: SettingsState(
-                            biometricUnlockStatus: .available(
-                                .faceID,
-                                enabled: false,
-                            ),
-                        ),
-                    ),
+#Preview("Default") {
+    NavigationView {
+        SettingsView(
+            store: Store(
+                processor: StateProcessor(
+                    state: SettingsState(),
                 ),
-            )
-        }.previewDisplayName("SettingsView")
+            ),
+        )
+    }
+}
 
-        NavigationView {
-            SettingsView(
-                store: Store(
-                    processor: StateProcessor(
-                        state: SettingsState(
-                            shouldShowDefaultSaveOption: true,
+#Preview("With FaceID Available") {
+    NavigationView {
+        SettingsView(
+            store: Store(
+                processor: StateProcessor(
+                    state: SettingsState(
+                        biometricUnlockStatus: .available(
+                            .faceID,
+                            enabled: false,
                         ),
                     ),
                 ),
-            )
-        }.previewDisplayName("With Default Save Option")
+            ),
+        )
+    }
+}
+
+#Preview("With Default Save Option") {
+    NavigationView {
+        SettingsView(
+            store: Store(
+                processor: StateProcessor(
+                    state: SettingsState(
+                        shouldShowDefaultSaveOption: true,
+                    ),
+                ),
+            ),
+        )
     }
 }
 #endif

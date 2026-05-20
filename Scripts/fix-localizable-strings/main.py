@@ -13,6 +13,10 @@ Usage:
         --strings <path/to/Localizable.strings> \\
         --swift-source <dir> [--swift-source <dir> ...] \\
         [--dry-run]
+
+    python Scripts/fix-localizable-strings/main.py fix-ellipsis \\
+        --strings <path/to/Localizable.strings> \\
+        [--dry-run]
 """
 
 import argparse
@@ -21,6 +25,7 @@ import sys
 
 from delete_duplicate_strings import delete_duplicates, deduplicate
 from delete_unused_strings import delete_unused, delete_unused_content, find_used_keys
+from fix_ellipsis import fix_ellipsis, fix_ellipsis_file
 
 
 def _pluralize(count: int, singular: str, plural: str) -> str:
@@ -85,6 +90,31 @@ def cmd_delete_unused(args: argparse.Namespace) -> None:
         print(f"    {key}")
 
 
+def cmd_fix_ellipsis(args: argparse.Namespace) -> None:
+    if args.dry_run:
+        with open(args.strings, encoding="utf-8") as f:
+            content = f.read()
+        _, changed = fix_ellipsis(content)
+        if not changed:
+            print("  No three-dot sequences found.")
+            return
+        noun = _pluralize(len(changed), "entry", "entries")
+        print(f"  Found {len(changed)} {noun} with three-dot sequences:")
+        for key in changed:
+            print(f"    {key}")
+        print("\n  Dry run — no changes written.")
+        return
+
+    changed = fix_ellipsis_file(args.strings)
+    if not changed:
+        print("  No three-dot sequences found.")
+        return
+    noun = _pluralize(len(changed), "entry", "entries")
+    print(f"  Fixed {len(changed)} {noun} with three-dot sequences:")
+    for key in changed:
+        print(f"    {key}")
+
+
 def build_parser():
     parser = argparse.ArgumentParser(
         description="Tools for maintaining Localizable.strings files."
@@ -131,6 +161,22 @@ def build_parser():
         help="Report unused keys without modifying the strings file.",
     )
 
+    ellipsis_parser = subparsers.add_parser(
+        "fix-ellipsis",
+        help="Replace three-dot sequences (...) with the Unicode ellipsis character (…) in string values.",
+    )
+    ellipsis_parser.add_argument(
+        "--strings",
+        required=True,
+        metavar="PATH",
+        help="Path to the Localizable.strings file to process.",
+    )
+    ellipsis_parser.add_argument(
+        "--dry-run",
+        action="store_true",
+        help="Report affected entries without modifying the strings file.",
+    )
+
     return parser
 
 
@@ -142,6 +188,8 @@ def main():
         cmd_delete_duplicates(args)
     elif args.command == "delete-unused":
         cmd_delete_unused(args)
+    elif args.command == "fix-ellipsis":
+        cmd_fix_ellipsis(args)
     else:
         parser.print_help()
         sys.exit(1)

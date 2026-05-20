@@ -69,6 +69,7 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator { // swiftlint:d
         & HasAuthRepository
         & HasAuthService
         & HasAutofillCredentialService
+        & HasBillingService
         & HasBiometricsRepository
         & HasConfigService
         & HasEnvironmentService
