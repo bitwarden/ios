@@ -5,12 +5,14 @@ import TestHelpers
 import XCTest
 
 @testable import BitwardenShared
+@testable import BitwardenSharedMocks
 
 class AttachmentsProcessorTests: BitwardenTestCase {
     // MARK: Properties
 
     var coordinator: MockCoordinator<VaultItemRoute, VaultItemEvent>!
     var errorReporter: MockErrorReporter!
+    var premiumUpgradeHelper: MockPremiumUpgradeHelper!
     var subject: AttachmentsProcessor!
     var vaultRepository: MockVaultRepository!
 
@@ -21,6 +23,7 @@ class AttachmentsProcessorTests: BitwardenTestCase {
 
         coordinator = MockCoordinator()
         errorReporter = MockErrorReporter()
+        premiumUpgradeHelper = MockPremiumUpgradeHelper()
         vaultRepository = MockVaultRepository()
 
         subject = AttachmentsProcessor(
@@ -31,6 +34,7 @@ class AttachmentsProcessorTests: BitwardenTestCase {
             ),
             state: AttachmentsState(),
         )
+        subject.premiumUpgradeHelper = premiumUpgradeHelper
     }
 
     override func tearDown() {
@@ -38,6 +42,7 @@ class AttachmentsProcessorTests: BitwardenTestCase {
 
         coordinator = nil
         errorReporter = nil
+        premiumUpgradeHelper = nil
         subject = nil
         vaultRepository = nil
     }
@@ -53,7 +58,7 @@ class AttachmentsProcessorTests: BitwardenTestCase {
         XCTAssertEqual(subject.state.fileData, data)
     }
 
-    /// `perform(_:)` with `.loadPremiumStatus` loads the premium status and displays an alert if necessary.
+    /// `perform(_:)` with `.loadPremiumStatus` shows the premium upgrade alert if the user lacks premium.
     @MainActor
     func test_perform_loadPremiumStatus() async throws {
         vaultRepository.doesActiveAccountHavePremiumResult = false
@@ -61,7 +66,30 @@ class AttachmentsProcessorTests: BitwardenTestCase {
         await subject.perform(.loadPremiumStatus)
 
         XCTAssertFalse(subject.state.hasPremium)
-        XCTAssertEqual(coordinator.alertShown.last, .defaultAlert(title: Localizations.premiumRequired))
+        XCTAssertEqual(coordinator.alertShown.last, .attachmentsUnavailable(action: {}))
+    }
+
+    /// `perform(_:)` with `.loadPremiumStatus` does not show an alert when the user has premium.
+    @MainActor
+    func test_perform_loadPremiumStatus_hasPremium() async throws {
+        vaultRepository.doesActiveAccountHavePremiumResult = true
+
+        await subject.perform(.loadPremiumStatus)
+
+        XCTAssertTrue(subject.state.hasPremium)
+        XCTAssertNil(coordinator.alertShown.last)
+    }
+
+    /// `perform(_:)` with `.loadPremiumStatus` navigates to premium upgrade when tapping the upgrade button.
+    @MainActor
+    func test_perform_loadPremiumStatus_tapUpgrade() async throws {
+        vaultRepository.doesActiveAccountHavePremiumResult = false
+
+        await subject.perform(.loadPremiumStatus)
+
+        let alert = try XCTUnwrap(coordinator.alertShown.last)
+        try await alert.tapAction(title: Localizations.upgradeToPremium)
+        XCTAssertTrue(premiumUpgradeHelper.navigateToPremiumUpgradeCalled)
     }
 
     /// `perform(_:)` with `.save` saves the attachment and updates the view.
@@ -109,21 +137,16 @@ class AttachmentsProcessorTests: BitwardenTestCase {
         )
     }
 
-    /// `perform(_:)` with `.save` displays an error if the user doesn't have premium.
+    /// `perform(_:)` with `.save` shows the premium upgrade alert if the user doesn't have premium.
     @MainActor
     func test_perform_save_noPremium() async throws {
         subject.state.fileName = "only cool people can see this file.txt"
         subject.state.hasPremium = false
+        vaultRepository.doesActiveAccountHavePremiumResult = false
 
         await subject.perform(.save)
 
-        XCTAssertEqual(
-            coordinator.alertShown.last,
-            .defaultAlert(
-                title: Localizations.anErrorHasOccurred,
-                message: Localizations.premiumRequired,
-            ),
-        )
+        XCTAssertEqual(coordinator.alertShown.last, .attachmentsUnavailable(action: {}))
     }
 
     /// `perform(_:)` with `.save` shows an alert if the file is too large.
@@ -159,6 +182,14 @@ class AttachmentsProcessorTests: BitwardenTestCase {
         try await alert.tapAction(title: Localizations.photos)
         XCTAssertEqual(coordinator.routes.last, .fileSelection(.photo))
         XCTAssertIdentical(coordinator.contexts.last as? FileSelectionDelegate, subject)
+    }
+
+    /// `receive(_:)` with `.clearURL` clears the URL from the state.
+    @MainActor
+    func test_receive_clearURL() {
+        subject.state.url = .example
+        subject.receive(.clearURL)
+        XCTAssertNil(subject.state.url)
     }
 
     /// `.receive(_:)` with `.deletePressed(_)` presents the confirm alert and deletes the attachment.
