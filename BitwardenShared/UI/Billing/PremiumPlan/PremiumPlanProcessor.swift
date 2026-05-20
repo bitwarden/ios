@@ -50,7 +50,7 @@ final class PremiumPlanProcessor: StateProcessor<
         case .appeared:
             await loadPremiumPlan()
         case .managePlanTapped:
-            await openPortalUrl()
+            showManageSubscriptionAlert()
         }
     }
 
@@ -64,6 +64,16 @@ final class PremiumPlanProcessor: StateProcessor<
     }
 
     // MARK: Private Methods
+
+    /// Shows the "Continue to web app?" alert for managing the subscription plan.
+    ///
+    private func showManageSubscriptionAlert() {
+        coordinator.showAlert(
+            .manageSubscriptionPlanAlert { [weak self] in
+                self?.state.urlToOpen = ExternalLinksConstants.manageSubscription
+            },
+        )
+    }
 
     /// Fetches the portal URL from the billing service and sets it on state.
     ///
