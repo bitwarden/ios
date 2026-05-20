@@ -26,6 +26,9 @@ public struct EnvironmentURLs: Equatable {
     /// The URL for importing items.
     public let importItemsURL: URL
 
+    /// The URL for managing the subscription plan.
+    public let manageSubscriptionURL: URL
+
     /// The URL for a proxy on cookie redirect (used on SSO sync error).
     public let proxyCookieRedirectConnectorURL: URL
 
@@ -57,6 +60,7 @@ public struct EnvironmentURLs: Equatable {
     ///   - iconsURL: The URL for the icons API.
     ///   - identityURL: The URL for the identity API.
     ///   - importItemsURL: The URL for importing items.
+    ///   - manageSubscriptionURL: The URL for managing the subscription plan.
     ///   - proxyCookieRedirectConnectorURL: The URL for a proxy on cookie redirect (used on SSO sync error).
     ///   - recoveryCodeURL: The URL for the recovery code help page.
     ///   - sendShareURL: The URL for sharing a send.
@@ -72,6 +76,7 @@ public struct EnvironmentURLs: Equatable {
         iconsURL: URL,
         identityURL: URL,
         importItemsURL: URL,
+        manageSubscriptionURL: URL,
         proxyCookieRedirectConnectorURL: URL,
         recoveryCodeURL: URL,
         sendShareURL: URL,
@@ -87,6 +92,7 @@ public struct EnvironmentURLs: Equatable {
         self.iconsURL = iconsURL
         self.identityURL = identityURL
         self.importItemsURL = importItemsURL
+        self.manageSubscriptionURL = manageSubscriptionURL
         self.proxyCookieRedirectConnectorURL = proxyCookieRedirectConnectorURL
         self.recoveryCodeURL = recoveryCodeURL
         self.sendShareURL = sendShareURL
@@ -126,6 +132,9 @@ public extension EnvironmentURLs {
             webVaultURL = environmentURLData.webVault ?? URL(string: "https://vault.bitwarden.com")!
         }
         importItemsURL = environmentURLData.importItemsURL ?? URL(string: "https://vault.bitwarden.com/#/tools/import")!
+        manageSubscriptionURL = environmentURLData.manageSubscriptionURL ?? URL(
+            string: "https://vault.bitwarden.com/#/settings/subscription",
+        )!
         recoveryCodeURL = environmentURLData.recoveryCodeURL ?? URL(
             string: "https://vault.bitwarden.com/#/recover-2fa",
         )!
