@@ -2339,9 +2339,9 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         }
         keyConnectorService.getMasterKeyFromKeyConnectorResult = .success("key")
         stateService.activeAccount = .fixture()
-        stateService.getAccountEncryptionKeysError = StateServiceError.noEncryptedPrivateKey
+        stateService.getAccountEncryptionKeysError = StateServiceError.noAccountCryptographicState
 
-        await assertAsyncThrows(error: StateServiceError.noEncryptedPrivateKey) {
+        await assertAsyncThrows(error: StateServiceError.noAccountCryptographicState) {
             try await subject.unlockVaultWithKeyConnectorKey(
                 keyConnectorURL: URL(string: "https://example.com")!,
                 orgIdentifier: "org-id",
@@ -2388,7 +2388,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         }
         keyConnectorService.getMasterKeyFromKeyConnectorResult = .success("key")
         stateService.activeAccount = .fixture()
-        stateService.getAccountEncryptionKeysError = StateServiceError.noEncryptedPrivateKey
+        stateService.getAccountEncryptionKeysError = StateServiceError.noAccountCryptographicState
 
         await assertAsyncDoesNotThrow {
             try await subject.convertNewUserToKeyConnector(

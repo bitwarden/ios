@@ -375,7 +375,7 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
     func test_getAccountEncryptionKeys_noCryptographicState() async throws {
         await subject.addAccount(.fixture(profile: .fixture(userId: "1")))
 
-        await assertAsyncThrows(error: StateServiceError.noEncryptedPrivateKey) {
+        await assertAsyncThrows(error: StateServiceError.noAccountCryptographicState) {
             _ = try await subject.getAccountEncryptionKeys()
         }
     }

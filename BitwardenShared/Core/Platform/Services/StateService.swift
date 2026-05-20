@@ -1382,8 +1382,8 @@ enum StateServiceError: LocalizedError {
     /// There isn't an active account.
     case noActiveAccount
 
-    /// The user has no private key.
-    case noEncryptedPrivateKey
+    /// The user has no stored account cryptographic state.
+    case noAccountCryptographicState
 
     /// The user has no pin protected user key.
     case noPinProtectedUserKey
@@ -1572,7 +1572,7 @@ actor DefaultStateService: StateService, ActiveAccountStateProvider, ConfigState
     func getAccountEncryptionKeys(userId: String?) async throws -> AccountEncryptionKeys {
         let userId = try userId ?? getActiveAccountUserId()
         guard let cryptographicState = appSettingsStore.accountCryptographicState(userId: userId) else {
-            throw StateServiceError.noEncryptedPrivateKey
+            throw StateServiceError.noAccountCryptographicState
         }
         return AccountEncryptionKeys(
             cryptographicState: cryptographicState,
