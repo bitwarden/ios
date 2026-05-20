@@ -30,6 +30,9 @@ enum VaultListAction: Equatable {
     /// An item in the vault was pressed.
     case itemPressed(item: VaultListItem)
 
+    /// The "Learn more" button on the upgraded to premium action card was tapped.
+    case learnMoreAboutPremium
+
     /// The user tapped the go to settings button in the flight recorder banner.
     case navigateToFlightRecorderSettings
 
@@ -62,7 +65,4 @@ enum VaultListAction: Equatable {
 
     /// The selected vault filter changed.
     case vaultFilterChanged(VaultFilterType)
-
-    /// The "View plan details" button on the upgraded to premium action card was tapped.
-    case viewPlanDetails
 }

@@ -50,6 +50,7 @@ class CipherAPIServiceTests: XCTestCase { // swiftlint:disable:this type_body_le
             CipherDetailsResponseModel(
                 archivedDate: nil,
                 attachments: nil,
+                bankAccount: nil,
                 card: nil,
                 collectionIds: nil,
                 creationDate: Date(timeIntervalSince1970: 1_691_656_425.345),
@@ -105,6 +106,7 @@ class CipherAPIServiceTests: XCTestCase { // swiftlint:disable:this type_body_le
             CipherDetailsResponseModel(
                 archivedDate: nil,
                 attachments: nil,
+                bankAccount: nil,
                 card: nil,
                 collectionIds: nil,
                 creationDate: Date(timeIntervalSince1970: 1_691_656_425.345),
@@ -157,6 +159,7 @@ class CipherAPIServiceTests: XCTestCase { // swiftlint:disable:this type_body_le
             CipherDetailsResponseModel(
                 archivedDate: nil,
                 attachments: nil,
+                bankAccount: nil,
                 card: nil,
                 collectionIds: nil,
                 creationDate: Date(timeIntervalSince1970: 1_691_656_425.345),
@@ -322,6 +325,7 @@ class CipherAPIServiceTests: XCTestCase { // swiftlint:disable:this type_body_le
                             url: "https://cdn.bitwarden.net/attachments/071350c",
                         ),
                     ],
+                    bankAccount: nil,
                     card: nil,
                     collectionIds: nil,
                     creationDate: Date(timeIntervalSince1970: 1_691_656_425.345),
@@ -380,6 +384,7 @@ class CipherAPIServiceTests: XCTestCase { // swiftlint:disable:this type_body_le
             CipherDetailsResponseModel(
                 archivedDate: nil,
                 attachments: nil,
+                bankAccount: nil,
                 card: nil,
                 collectionIds: nil,
                 creationDate: Date(timeIntervalSince1970: 1_691_656_425.345),
@@ -444,6 +449,7 @@ class CipherAPIServiceTests: XCTestCase { // swiftlint:disable:this type_body_le
             CipherDetailsResponseModel(
                 archivedDate: nil,
                 attachments: nil,
+                bankAccount: nil,
                 card: nil,
                 collectionIds: nil,
                 creationDate: Date(timeIntervalSince1970: 1_691_656_425.345),

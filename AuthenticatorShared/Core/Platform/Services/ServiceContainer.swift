@@ -14,7 +14,7 @@ import UIKit
 ///             & HasExampleRepository
 ///     }
 ///
-public class ServiceContainer: Services {
+public class ServiceContainer: Services { // swiftlint:disable:this type_body_length
     // MARK: Properties
 
     /// The application instance (i.e. `UIApplication`), if the app isn't running in an extension.
@@ -89,6 +89,9 @@ public class ServiceContainer: Services {
     /// The factory to create TOTP expiration managers.
     let totpExpirationManagerFactory: TOTPExpirationManagerFactory
 
+    /// The service used by the application to manage TOTP item display state.
+    let totpItemDisplayStateService: TOTPItemDisplayStateService
+
     /// The service used by the application to validate TOTP keys and produce TOTP values.
     let totpService: TOTPService
 
@@ -124,6 +127,7 @@ public class ServiceContainer: Services {
     ///   - stateService: The service for managing account state.
     ///   - timeProvider: Provides the present time for TOTP Code Calculation.
     ///   - totpExpirationManagerFactory: The factory to create TOTP expiration managers.
+    ///   - totpItemDisplayStateService: The service used by the application to manage TOTP item display state.
     ///   - totpService: The service used by the application to validate TOTP keys and produce TOTP values.
     ///
     init(
@@ -151,6 +155,7 @@ public class ServiceContainer: Services {
         stateService: StateService,
         timeProvider: TimeProvider,
         totpExpirationManagerFactory: TOTPExpirationManagerFactory,
+        totpItemDisplayStateService: TOTPItemDisplayStateService,
         totpService: TOTPService,
     ) {
         self.application = application
@@ -177,6 +182,7 @@ public class ServiceContainer: Services {
         self.serverCommunicationConfigClientSingleton = serverCommunicationConfigClientSingleton
         self.stateService = stateService
         self.totpExpirationManagerFactory = totpExpirationManagerFactory
+        self.totpItemDisplayStateService = totpItemDisplayStateService
         self.totpService = totpService
     }
 
@@ -355,6 +361,7 @@ public class ServiceContainer: Services {
             errorReporter: errorReporter,
             sharedItemService: sharedItemService,
             timeProvider: timeProvider,
+            totpItemDisplayStateService: stateService,
             totpService: totpService,
         )
 
@@ -394,6 +401,7 @@ public class ServiceContainer: Services {
             stateService: stateService,
             timeProvider: timeProvider,
             totpExpirationManagerFactory: totpExpirationManagerFactory,
+            totpItemDisplayStateService: stateService,
             totpService: totpService,
         )
     }

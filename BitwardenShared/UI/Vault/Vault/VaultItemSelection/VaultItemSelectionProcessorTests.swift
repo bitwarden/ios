@@ -2,6 +2,7 @@ import BitwardenKit
 import BitwardenKitMocks
 import BitwardenResources
 import BitwardenSdk
+import Combine
 import InlineSnapshotTesting
 import TestHelpers
 import XCTest
@@ -15,9 +16,12 @@ class VaultItemSelectionProcessorTests: BitwardenTestCase { // swiftlint:disable
     // MARK: Properties
 
     var authRepository: MockAuthRepository!
+    var billingRepository: MockBillingRepository!
+    var billingService: MockBillingService!
     var coordinator: MockCoordinator<VaultRoute, AuthAction>!
     var errorReporter: MockErrorReporter!
     var pasteboardService: MockPasteboardService!
+    var premiumUpgradeHelper: MockPremiumUpgradeHelper!
     var searchProcessorMediator: MockSearchProcessorMediator!
     var searchProcessorMediatorFactory: MockSearchProcessorMediatorFactory!
     var stateService: MockStateService!
@@ -32,6 +36,9 @@ class VaultItemSelectionProcessorTests: BitwardenTestCase { // swiftlint:disable
         super.setUp()
 
         authRepository = MockAuthRepository()
+        billingRepository = MockBillingRepository()
+        billingRepository.isInAppUpgradeAvailableReturnValue = false
+        billingService = MockBillingService()
         coordinator = MockCoordinator()
         errorReporter = MockErrorReporter()
         pasteboardService = MockPasteboardService()
@@ -40,6 +47,7 @@ class VaultItemSelectionProcessorTests: BitwardenTestCase { // swiftlint:disable
         searchProcessorMediatorFactory = MockSearchProcessorMediatorFactory()
         searchProcessorMediatorFactory.makeReturnValue = searchProcessorMediator
 
+        premiumUpgradeHelper = MockPremiumUpgradeHelper()
         stateService = MockStateService()
         userVerificationHelper = MockUserVerificationHelper()
         vaultItemMoreOptionsHelper = MockVaultItemMoreOptionsHelper()
@@ -49,6 +57,8 @@ class VaultItemSelectionProcessorTests: BitwardenTestCase { // swiftlint:disable
             coordinator: coordinator.asAnyCoordinator(),
             services: ServiceContainer.withMocks(
                 authRepository: authRepository,
+                billingRepository: billingRepository,
+                billingService: billingService,
                 errorReporter: errorReporter,
                 pasteboardService: pasteboardService,
                 searchProcessorMediatorFactory: searchProcessorMediatorFactory,
@@ -62,15 +72,19 @@ class VaultItemSelectionProcessorTests: BitwardenTestCase { // swiftlint:disable
             userVerificationHelper: userVerificationHelper,
             vaultItemMoreOptionsHelper: vaultItemMoreOptionsHelper,
         )
+        subject.premiumUpgradeHelper = premiumUpgradeHelper
     }
 
     override func tearDown() {
         super.tearDown()
 
         authRepository = nil
+        billingRepository = nil
+        billingService = nil
         coordinator = nil
         errorReporter = nil
         pasteboardService = nil
+        premiumUpgradeHelper = nil
         searchProcessorMediator = nil
         searchProcessorMediatorFactory = nil
         stateService = nil
@@ -163,6 +177,19 @@ class VaultItemSelectionProcessorTests: BitwardenTestCase { // swiftlint:disable
         let url = URL.example
         vaultItemMoreOptionsHelper.showMoreOptionsAlertHandleOpenURL?(url)
         XCTAssertEqual(subject.state.url, url)
+    }
+
+    /// `perform(_:)` with `.morePressed` delegates to the premium upgrade helper when the
+    /// upgrade action is triggered.
+    @MainActor
+    func test_perform_morePressed_navigateToPremiumUpgrade() async throws {
+        await subject.perform(.morePressed(.fixture()))
+
+        let navigate = try XCTUnwrap(vaultItemMoreOptionsHelper.showMoreOptionsAlertHandlePremiumUpgrade)
+        await navigate()
+        try await waitForAsync { self.premiumUpgradeHelper.navigateToPremiumUpgradeCalled }
+
+        XCTAssertTrue(premiumUpgradeHelper.navigateToPremiumUpgradeCalled)
     }
 
     /// `perform(_:)` with `.profileSwitcher(.accountPressed)` updates the profile switcher's

@@ -211,6 +211,25 @@
         <string>%d tjedana</string>
       </dict>
     </dict>
+    <!-- A message indicating the grace period for a past due subscription, with pluralized days and the date. -->
+    <key>YouHaveAGracePeriodOfXDaysFromYourSubscriptionDescriptionLong</key>
+    <dict>
+      <key>NSStringLocalizedFormatKey</key>
+      <string>**%1$#@YouHaveAGracePeriodOfXDaysFromYourSubscriptionExpirationDate@** Molimo plati nepodmireni iznos do **%2$@**.</string>
+      <key>YouHaveAGracePeriodOfXDaysFromYourSubscriptionExpirationDate</key>
+      <dict>
+        <key>NSStringFormatSpecTypeKey</key>
+        <string>NSStringPluralRuleType</string>
+        <key>NSStringFormatValueTypeKey</key>
+        <string>d</string>
+        <key>one</key>
+        <string>Imaš razdoblje odgode od %1$d dana od datuma isteka tvoje pretplate.</string>
+        <key>few</key>
+        <string>Imaš razdoblje odgode od %1$d dana od datuma isteka tvoje pretplate.</string>
+        <key>other</key>
+        <string>Imaš razdoblje odgode od %1$d dana od datuma isteka tvoje pretplate.</string>
+      </dict>
+    </dict>
     <!-- A message indicating the minimum length of a PIN in characters. -->
     <key>YourPINMustBeAtLeastXCharactersDescriptionLong</key>
     <dict>

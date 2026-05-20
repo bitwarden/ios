@@ -15,7 +15,6 @@ final class PremiumUpgradeProcessor: StateProcessor<
     // MARK: Types
 
     typealias Services = HasBillingService
-        & HasEnvironmentService
         & HasErrorReporter
 
     // MARK: Properties
@@ -56,7 +55,7 @@ final class PremiumUpgradeProcessor: StateProcessor<
     override func perform(_ effect: PremiumUpgradeEffect) async {
         switch effect {
         case .appeared:
-            state.isSelfHosted = services.environmentService.region == .selfHosted
+            state.isSelfHosted = await services.billingService.isSelfHosted()
             if !state.isSelfHosted {
                 await fetchPremiumPrice()
             }
@@ -91,6 +90,8 @@ final class PremiumUpgradeProcessor: StateProcessor<
     /// Shows the pricing error banner on failure.
     ///
     private func fetchPremiumPrice() async {
+        defer { coordinator.hideLoadingOverlay() }
+        coordinator.showLoadingOverlay(title: Localizations.loading)
         do {
             let plan = try await services.billingService.getPremiumPlan()
             state.premiumSeatPrice = plan.seat.price
@@ -114,12 +115,16 @@ final class PremiumUpgradeProcessor: StateProcessor<
                     coordinator.showAlert(.paymentNotReceivedYet {
                         self.state.checkoutURL = self.lastCheckoutURL
                     })
-                case .confirmed,
-                     .pending,
-                     .syncing:
-                    // VaultListProcessor owns the dismiss and all post-dismiss actions
-                    // via DismissAction for each of these states.
+                case .syncing:
+                    coordinator.showLoadingOverlay(title: Localizations.confirmingYourUpgrade)
+                case .confirmed:
                     premiumStatusChangedCancellable = nil
+                    coordinator.hideLoadingOverlay()
+                    coordinator.navigate(to: .premiumUpgradeComplete)
+                case .pending:
+                    premiumStatusChangedCancellable = nil
+                    coordinator.hideLoadingOverlay()
+                    // Vault processors own the dismiss and alert for .pending.
                 }
             }
     }

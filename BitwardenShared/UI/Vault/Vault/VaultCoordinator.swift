@@ -78,6 +78,7 @@ final class VaultCoordinator: Coordinator, HasStackNavigator { // swiftlint:disa
         & HasAuthRepository
         & HasAuthService
         & HasAutofillCredentialService
+        & HasBillingRepository
         & HasBillingService
         & HasCameraService
         & HasChangeKdfService
@@ -273,8 +274,6 @@ final class VaultCoordinator: Coordinator, HasStackNavigator { // swiftlint:disa
                 delegate: context as? CipherItemOperationDelegate,
                 masterPasswordRepromptCheckCompleted: masterPasswordRepromptCheckCompleted,
             )
-        case .viewPlanDetails:
-            delegate?.switchToSettingsTab(route: .premiumPlan)
         case let .switchAccount(userId: userId):
             delegate?.didTapAccount(userId: userId)
         case .viewProfileSwitcher:

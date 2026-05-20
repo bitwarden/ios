@@ -31,9 +31,9 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>d</string>
         <key>one</key>
-        <string>%d caractere</string>
+        <string>A senha principal deve ter pelo menos %d caractere.</string>
         <key>other</key>
-        <string>%d caracteres</string>
+        <string>A senha principal deve ter pelo menos %d caracteres.</string>
       </dict>
     </dict>
     <!-- A warning if we have determined that a password has been exposed in a data breach. -->
@@ -187,6 +187,23 @@
         <string>%d semana</string>
         <key>other</key>
         <string>%d semanas</string>
+      </dict>
+    </dict>
+    <!-- A message indicating the grace period for a past due subscription, with pluralized days and the date. -->
+    <key>YouHaveAGracePeriodOfXDaysFromYourSubscriptionDescriptionLong</key>
+    <dict>
+      <key>NSStringLocalizedFormatKey</key>
+      <string>**%1$#@YouHaveAGracePeriodOfXDaysFromYourSubscriptionExpirationDate@** Resolva as faturas atrasados até **%2$@**.</string>
+      <key>YouHaveAGracePeriodOfXDaysFromYourSubscriptionExpirationDate</key>
+      <dict>
+        <key>NSStringFormatSpecTypeKey</key>
+        <string>NSStringPluralRuleType</string>
+        <key>NSStringFormatValueTypeKey</key>
+        <string>d</string>
+        <key>one</key>
+        <string>Você tem um período de tolerância de %1$d dia a partir da data de expiração da sua assinatura.</string>
+        <key>other</key>
+        <string>Você tem um período de tolerância de %1$d dias a partir da data de expiração da sua assinatura.</string>
       </dict>
     </dict>
     <!-- A message indicating the minimum length of a PIN in characters. -->

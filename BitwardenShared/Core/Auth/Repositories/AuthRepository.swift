@@ -610,7 +610,7 @@ extension DefaultAuthRepository: AuthRepository {
                     && !account.canBeLocked // Doesn't have an unlock method
                     && !account.isLoggedOut // Isn't already logged out (soft-logout)
 
-                if shouldTimeout || shouldLogoutDueToNoUnlockMethod {
+                if (shouldTimeout && !account.isLoggedOut) || shouldLogoutDueToNoUnlockMethod {
                     if userId == activeUserId {
                         await handleActiveUser?(activeUserId)
                     } else {
@@ -813,7 +813,6 @@ extension DefaultAuthRepository: AuthRepository {
 
         // Clear all user data.
         try await stateService.setSyncToAuthenticator(false, userId: userId)
-        try await biometricsRepository.setBiometricUnlockKey(authKey: nil, userId: userId)
         try await keychainService.deleteItems(for: userId)
         try await clientCertificateService.removeCertificate(userId: userId)
         await vaultTimeoutService.remove(userId: userId)
@@ -1198,6 +1197,7 @@ extension DefaultAuthRepository: AuthRepository {
         } catch {
             errorReporter.log(error: error)
         }
+        await configureBiometricUnlockIfNeeded()
     }
 
     /// Updates the user's KDF settings to the minimums.
@@ -1271,6 +1271,23 @@ extension DefaultAuthRepository: AuthRepository {
     private func userIdOrActive(_ maybeId: String?) async throws -> String {
         if let maybeId { return maybeId }
         return try await stateService.getActiveAccountId()
+    }
+
+    /// Restores the biometric unlock keychain entry after a vault unlock when the
+    /// biometric preference is enabled. The preference survives logout but the keychain entry
+    /// is cleared; this rewrites the key so biometric unlock works without re-enabling in settings.
+    ///
+    private func configureBiometricUnlockIfNeeded() async {
+        do {
+            guard try await biometricsRepository.getBiometricUnlockStatus().isEnabled else { return }
+            guard await !biometricsRepository.hasBiometricUnlockKey() else { return }
+            let authKey = try await clientService.crypto().getUserEncryptionKey()
+            try await biometricsRepository.restoreBiometricUnlockKey(authKey: authKey)
+        } catch BiometricsServiceError.biometryLocked {
+            // Lockout is a transient state; do nothing and let the user retry later.
+        } catch {
+            errorReporter.log(error: error)
+        }
     }
 
     /// Configures PIN unlock if the user requires master password or biometrics after an app restart.

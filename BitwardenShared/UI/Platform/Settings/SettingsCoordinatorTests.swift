@@ -355,6 +355,14 @@ class SettingsCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this ty
         XCTAssertEqual(module.billingCoordinator.routes, [.premiumPlan])
     }
 
+    /// `navigate(to:)` with `.premiumUpgrade` shows the premium upgrade via the billing coordinator.
+    @MainActor
+    func test_navigateTo_premiumUpgrade() throws {
+        subject.navigate(to: .premiumUpgrade)
+
+        XCTAssertEqual(module.billingCoordinator.routes, [.premiumUpgrade])
+    }
+
     /// `navigate(to:)` with `.selectLanguage()` presents the select language view.
     @MainActor
     func test_navigateTo_selectLanguage() throws {

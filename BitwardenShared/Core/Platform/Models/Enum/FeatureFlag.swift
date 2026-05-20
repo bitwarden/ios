@@ -5,8 +5,16 @@ import Foundation
 
 /// An enum to represent a feature flag sent by the server
 extension FeatureFlag: @retroactive CaseIterable {
+    /// A feature flag to enable/disable scanning a card to autocomplete its details in add/edit cipher.
+    static let cardScanner = FeatureFlag(rawValue: "pm-34171-card-scanner")
+
     /// Flag to enable/disable individual cipher encryption configured remotely.
     static let cipherKeyEncryption = FeatureFlag(rawValue: "cipher-key-encryption")
+
+    /// Debug flag to disable self-hosted checks in premium upgrade flows for QA testing.
+    static let debugDisableSelfHostPremiumCheck = FeatureFlag(
+        rawValue: "debug-disable-self-host-premium-check"
+    )
 
     /// Flag to enable/disable Device Auth Key flows.
     static let deviceAuthKey = FeatureFlag(rawValue: "pm-27581-device-auth-key")
@@ -20,6 +28,9 @@ extension FeatureFlag: @retroactive CaseIterable {
     /// Flag to enable/disable migration from My Vault Items to My Items.
     static let migrateMyVaultToMyItems = FeatureFlag(rawValue: "pm-20558-migrate-myvault-to-myitems")
 
+    /// Flag to enable/disable the new vault item types (Bank Account, Driver's License, Passport).
+    static let newItemTypes = FeatureFlag(rawValue: "pm-32009-new-item-types")
+
     /// Flag to enable/disable not logging out when a user's KDF settings are changed.
     static let noLogoutOnKdfChange = FeatureFlag(rawValue: "pm-23995-no-logout-on-kdf-change")
 
@@ -28,11 +39,14 @@ extension FeatureFlag: @retroactive CaseIterable {
 
     public static var allCases: [FeatureFlag] {
         [
+            .cardScanner,
             .cipherKeyEncryption,
+            .debugDisableSelfHostPremiumCheck,
             .deviceAuthKey,
             .enableCipherKeyEncryption,
             .forceUpdateKdfSettings,
             .migrateMyVaultToMyItems,
+            .newItemTypes,
             .noLogoutOnKdfChange,
             .premiumUpgradePath,
         ]

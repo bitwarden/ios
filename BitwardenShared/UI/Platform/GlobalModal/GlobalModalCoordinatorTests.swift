@@ -63,7 +63,7 @@ class GlobalModalCoordinatorTests: BitwardenTestCase {
     /// `navigate(to:)` with `.syncWithBrowser` replaces the stack with the sync with browser view.
     @MainActor
     func test_navigate_syncWithBrowser() throws {
-        subject.navigate(to: .syncWithBrowser)
+        subject.navigate(to: .syncWithBrowser(vaultUrl: "https://example.com"))
 
         let action = try XCTUnwrap(stackNavigator.actions.last)
         XCTAssertEqual(action.type, .replaced)

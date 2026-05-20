@@ -8,7 +8,7 @@ import SwiftUI
 // MARK: - SearchableVaultListView
 
 /// The main view of the vault.
-private struct SearchableVaultListView: View {
+private struct SearchableVaultListView: View { // swiftlint:disable:this type_body_length
     // MARK: Properties
 
     /// A flag indicating if the search bar is focused.
@@ -114,9 +114,9 @@ private struct SearchableVaultListView: View {
         if store.state.shouldShowUpgradedToPremiumActionCard {
             ActionCard(
                 title: Localizations.upgradedToPremium,
-                message: Localizations.welcomeToPremiumYouNowHaveAccessDescriptionLong,
-                actionButtonState: ActionCard.ButtonState(title: Localizations.viewPlanDetails) {
-                    store.send(.viewPlanDetails)
+                message: Localizations.youNowHaveAccessToAllAdvancedSecurityFeatures,
+                actionButtonState: ActionCard.ButtonState(title: Localizations.learnMore) {
+                    store.send(.learnMoreAboutPremium)
                 },
                 dismissButtonState: ActionCard.ButtonState(title: Localizations.dismiss) {
                     await store.perform(.dismissUpgradedToPremiumActionCard)

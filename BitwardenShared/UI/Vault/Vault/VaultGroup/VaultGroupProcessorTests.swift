@@ -2,6 +2,7 @@ import BitwardenKit
 import BitwardenKitMocks
 import BitwardenResources
 import BitwardenSdk
+import Combine
 import InlineSnapshotTesting
 import TestHelpers
 import XCTest
@@ -17,6 +18,8 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
     // MARK: Properties
 
     var authRepository: MockAuthRepository!
+    var billingRepository: MockBillingRepository!
+    var billingService: MockBillingService!
     var configService: MockConfigService!
     var coordinator: MockCoordinator<VaultRoute, AuthAction>!
     var errorReporter: MockErrorReporter!
@@ -24,6 +27,7 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
     var masterPasswordRepromptHelper: MockMasterPasswordRepromptHelper!
     var pasteboardService: MockPasteboardService!
     var policyService: MockPolicyService!
+    var premiumUpgradeHelper: MockPremiumUpgradeHelper!
     var searchProcessorMediator: MockSearchProcessorMediator!
     var searchProcessorMediatorFactory: MockSearchProcessorMediatorFactory!
     var stateService: MockStateService!
@@ -38,6 +42,9 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
         super.setUp()
 
         authRepository = MockAuthRepository()
+        billingRepository = MockBillingRepository()
+        billingRepository.isInAppUpgradeAvailableReturnValue = false
+        billingService = MockBillingService()
         configService = MockConfigService()
         coordinator = MockCoordinator()
         errorReporter = MockErrorReporter()
@@ -49,6 +56,7 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
         searchProcessorMediatorFactory = MockSearchProcessorMediatorFactory()
         searchProcessorMediatorFactory.makeReturnValue = searchProcessorMediator
 
+        premiumUpgradeHelper = MockPremiumUpgradeHelper()
         stateService = MockStateService()
         timeProvider = MockTimeProvider(.mockTime(fixedDate))
         vaultItemMoreOptionsHelper = MockVaultItemMoreOptionsHelper()
@@ -60,6 +68,8 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
             masterPasswordRepromptHelper: masterPasswordRepromptHelper,
             services: ServiceContainer.withMocks(
                 authRepository: authRepository,
+                billingRepository: billingRepository,
+                billingService: billingService,
                 configService: configService,
                 errorReporter: errorReporter,
                 pasteboardService: pasteboardService,
@@ -75,16 +85,20 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
             ),
             vaultItemMoreOptionsHelper: vaultItemMoreOptionsHelper,
         )
+        subject.premiumUpgradeHelper = premiumUpgradeHelper
     }
 
     override func tearDown() {
         super.tearDown()
 
         authRepository = nil
+        billingRepository = nil
+        billingService = nil
         configService = nil
         coordinator = nil
         errorReporter = nil
         masterPasswordRepromptHelper = nil
+        premiumUpgradeHelper = nil
         pasteboardService = nil
         policyService = nil
         searchProcessorMediator = nil
@@ -281,6 +295,19 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
         let url = URL.example
         vaultItemMoreOptionsHelper.showMoreOptionsAlertHandleOpenURL?(url)
         XCTAssertEqual(subject.state.url, url)
+    }
+
+    /// `perform(_:)` with `.morePressed` delegates to the premium upgrade helper when the
+    /// upgrade action is triggered.
+    @MainActor
+    func test_perform_morePressed_navigateToPremiumUpgrade() async throws {
+        await subject.perform(.morePressed(.fixture()))
+
+        let navigate = try XCTUnwrap(vaultItemMoreOptionsHelper.showMoreOptionsAlertHandlePremiumUpgrade)
+        await navigate()
+        try await waitForAsync { self.premiumUpgradeHelper.navigateToPremiumUpgradeCalled }
+
+        XCTAssertTrue(premiumUpgradeHelper.navigateToPremiumUpgradeCalled)
     }
 
     /// `perform(_:)` with `.refreshed` requests a fetch sync update with the vault repository.

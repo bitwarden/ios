@@ -82,13 +82,14 @@ struct ErrorReportBuilderTests {
             3   BitwardenShared    0x00000000 StateProcessor<A, B, C>.perform(_:)
 
             Binary images:
-            BitwardenKitTests:           0x0000000000000000
+            AuthenticatorBridgeKit:      0x0000000000000000
             AuthenticatorBridgeKitMocks: 0x0000000000000000
             BitwardenKit:                0x0000000000000000
             BitwardenKitMocks:           0x0000000000000000
-            BitwardenSdk_0000000000000000_PackageProduct: 0x0000000000000000
+            BitwardenKitTests:           0x0000000000000000
             BitwardenResources:          0x0000000000000000
-            AuthenticatorBridgeKit:      0x0000000000000000
+            BitwardenSdkMocks:           0x0000000000000000
+            BitwardenSdk_0000000000000000_PackageProduct: 0x0000000000000000
             """#
         }
         // swiftlint:enable line_length
@@ -121,13 +122,14 @@ struct ErrorReportBuilderTests {
             3   BitwardenShared    0x00000000 StateProcessor<A, B, C>.perform(_:)
 
             Binary images:
-            BitwardenKitTests:           0x0000000000000000
+            AuthenticatorBridgeKit:      0x0000000000000000
             AuthenticatorBridgeKitMocks: 0x0000000000000000
             BitwardenKit:                0x0000000000000000
             BitwardenKitMocks:           0x0000000000000000
-            BitwardenSdk_0000000000000000_PackageProduct: 0x0000000000000000
+            BitwardenKitTests:           0x0000000000000000
             BitwardenResources:          0x0000000000000000
-            AuthenticatorBridgeKit:      0x0000000000000000
+            BitwardenSdkMocks:           0x0000000000000000
+            BitwardenSdk_0000000000000000_PackageProduct: 0x0000000000000000
             """
         }
     }
@@ -159,13 +161,14 @@ struct ErrorReportBuilderTests {
             3   BitwardenShared    0x00000000 StateProcessor<A, B, C>.perform(_:)
 
             Binary images:
-            BitwardenKitTests:           0x0000000000000000
+            AuthenticatorBridgeKit:      0x0000000000000000
             AuthenticatorBridgeKitMocks: 0x0000000000000000
             BitwardenKit:                0x0000000000000000
             BitwardenKitMocks:           0x0000000000000000
-            BitwardenSdk_0000000000000000_PackageProduct: 0x0000000000000000
+            BitwardenKitTests:           0x0000000000000000
             BitwardenResources:          0x0000000000000000
-            AuthenticatorBridgeKit:      0x0000000000000000
+            BitwardenSdkMocks:           0x0000000000000000
+            BitwardenSdk_0000000000000000_PackageProduct: 0x0000000000000000
             """
         }
     }

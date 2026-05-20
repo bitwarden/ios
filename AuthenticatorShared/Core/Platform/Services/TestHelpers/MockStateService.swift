@@ -10,19 +10,17 @@ class MockStateService: StateService {
     var activeAccountId: String = "localtest"
     var appId: String = "mockAppId"
     var appLanguage: LanguageOption = .default
-    var hasSeenWelcomeTutorial: Bool = false
     var appTheme: AppTheme?
     var clearClipboardValues = [String: ClearClipboardValue]()
     var clearClipboardResult: Result<Void, Error> = .success(())
     var getSecretKeyResult: Result<String, Error> = .success("qwerty")
+    var hasSeenWelcomeTutorial: Bool = false
     var flightRecorderData: FlightRecorderData?
     var preAuthServerConfig: ServerConfig?
     var secretKeyValues = [String: String]()
     var serverConfig = [String: ServerConfig]()
     var setSecretKeyResult: Result<Void, Error> = .success(())
     var timeProvider = MockTimeProvider(.currentTime)
-    var showWebIcons = true
-    var showWebIconsSubject = CurrentValueSubject<Bool, Never>(true)
     var vaultTimeout = SessionTimeoutValue.never
 
     lazy var appThemeSubject = CurrentValueSubject<AppTheme, Never>(self.appTheme ?? .default)
@@ -54,10 +52,6 @@ class MockStateService: StateService {
         return serverConfig[userId]
     }
 
-    func getShowWebIcons() async -> Bool {
-        showWebIcons
-    }
-
     func getVaultTimeout() async -> SessionTimeoutValue {
         vaultTimeout
     }
@@ -74,10 +68,6 @@ class MockStateService: StateService {
 
     func setFlightRecorderData(_ data: FlightRecorderData?) async {
         flightRecorderData = data
-    }
-
-    func setShowWebIcons(_ showWebIcons: Bool) async {
-        self.showWebIcons = showWebIcons
     }
 
     func appThemePublisher() async -> AnyPublisher<AppTheme, Never> {
@@ -100,10 +90,6 @@ class MockStateService: StateService {
     func setServerConfig(_ config: ServerConfig?, userId: String?) async throws {
         let userId = try unwrapUserId(userId)
         serverConfig[userId] = config
-    }
-
-    func showWebIconsPublisher() async -> AnyPublisher<Bool, Never> {
-        showWebIconsSubject.eraseToAnyPublisher()
     }
 
     /// Attempts to convert a possible user id into a known account id.

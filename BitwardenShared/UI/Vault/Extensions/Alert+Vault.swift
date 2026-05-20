@@ -14,9 +14,11 @@ extension Alert {
     ///   - action: A closure to execute on upgrading to premium.
     /// - Returns: The alert when archive is unavailable.
     static func archiveUnavailable(
-        action: @escaping () -> Void,
+        action: @escaping () async -> Void,
     ) -> Alert {
-        let preferredAction = AlertAction(title: Localizations.upgradeToPremium, style: .default) { _ in action() }
+        let preferredAction = AlertAction(title: Localizations.upgradeToPremium, style: .default) { _ in
+            await action()
+        }
         let alert = Alert(
             title: Localizations.archiveUnavailable,
             message: Localizations.archivingItemsIsAPremiumFeatureDescriptionLong,
@@ -84,6 +86,23 @@ extension Alert {
                     copyAction(stringToCopy)
                 }),
                 AlertAction(title: Localizations.close, style: .cancel),
+            ],
+        )
+    }
+
+    /// Returns an alert asking the user to confirm archiving a vault item.
+    ///
+    /// - Parameters:
+    ///   - action: A closure to execute when the user confirms archiving.
+    /// - Returns: An alert confirming the archive action.
+    ///
+    static func confirmArchiveItem(action: @escaping () async -> Void) -> Alert {
+        Alert(
+            title: Localizations.archiveItem,
+            message: Localizations.onceArchivedThisItemWillBeExcludedDescriptionLong,
+            alertActions: [
+                AlertAction(title: Localizations.archive, style: .default) { _, _ in await action() },
+                AlertAction(title: Localizations.cancel, style: .cancel),
             ],
         )
     }

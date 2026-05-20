@@ -24,6 +24,42 @@ protocol UserSessionStateService { // sourcery: AutoMockable
     ///
     func setLastActiveTime(_ date: Date?, userId: String?) async throws
 
+    // MARK: Last Active Monotonic Time
+
+    /// Gets the user's last active monotonic time within the app.
+    ///
+    /// - Parameter userId: The user ID associated with the last active monotonic time within the app.
+    /// - Returns: The monotonic time of the last active time as a `TimeInterval` since system boot.
+    ///
+    func getLastActiveMonotonicTime(userId: String?) async throws -> TimeInterval?
+
+    /// Sets the last active monotonic time within the app.
+    ///
+    /// - Parameters:
+    ///   - monotonicTime: The current monotonic time as a `TimeInterval` since system boot.
+    ///   - userId: The user ID associated with the last active monotonic time within the app.
+    ///
+    func setLastActiveMonotonicTime(_ monotonicTime: TimeInterval?, userId: String?) async throws
+
+    // MARK: Last Active Boot Epoch
+
+    /// Gets the stored boot epoch for a user.
+    ///
+    /// The boot epoch is `wallTime − monotonicTime` and is used to detect the reboot-timing attack.
+    ///
+    /// - Parameter userId: The user ID associated with the stored boot epoch.
+    /// - Returns: The boot epoch as a `TimeInterval`, or `nil` if not yet stored.
+    ///
+    func getLastActiveBootEpoch(userId: String?) async throws -> TimeInterval?
+
+    /// Sets the boot epoch for a user.
+    ///
+    /// - Parameters:
+    ///   - bootEpoch: The boot epoch, computed as `wallTime − monotonicTime`.
+    ///   - userId: The user ID associated with the boot epoch.
+    ///
+    func setLastActiveBootEpoch(_ bootEpoch: TimeInterval?, userId: String?) async throws
+
     // MARK: Unsuccessful Unlock Attempts
 
     /// Gets the number of unsuccessful attempts to unlock the vault for a user ID.

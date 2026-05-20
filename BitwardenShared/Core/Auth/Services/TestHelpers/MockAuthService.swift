@@ -8,15 +8,15 @@ import Foundation
 class MockAuthService: AuthService {
     var answerLoginRequestApprove: Bool?
     var answerLoginRequestResult: Result<Void, Error> = .success(())
-    var answerLoginRequestRequest: LoginRequest?
+    var answerLoginRequestRequest: BitwardenShared.LoginRequest?
 
     var callbackUrlScheme: String = "callback"
 
     var checkPendingLoginRequestId: String?
-    var checkPendingLoginRequestResult: Result<LoginRequest, Error> = .success(.fixture())
+    var checkPendingLoginRequestResult: Result<BitwardenShared.LoginRequest, Error> = .success(.fixture())
 
     var denyAllLoginRequestsResult: Result<Void, Error> = .success(())
-    var denyAllLoginRequestsRequests: [LoginRequest]?
+    var denyAllLoginRequestsRequests: [BitwardenShared.LoginRequest]?
 
     var generateSingleSignOnUrlResult: Result<(URL, String), Error> = .success((url: .example, state: "state"))
     var generateSingleSignOnOrgIdentifier: String?
@@ -26,7 +26,7 @@ class MockAuthService: AuthService {
 
     var getPendingLoginRequestCalled = false
     var getPendingLoginRequestId: String?
-    var getPendingLoginRequestResult: Result<[LoginRequest], Error> = .success([])
+    var getPendingLoginRequestResult: Result<[BitwardenShared.LoginRequest], Error> = .success([])
 
     var hashPasswordPassword: String?
     var hashPasswordResult: Result<String, Error> = .success("hashed")
@@ -37,7 +37,7 @@ class MockAuthService: AuthService {
         (authRequestResponse: AuthRequestResponse, requestId: String), Error,
     > = .success((.fixture(), ""))
 
-    var loginWithDeviceRequest: LoginRequest?
+    var loginWithDeviceRequest: BitwardenShared.LoginRequest?
     var loginWithDeviceEmail: String?
     var loginWithDeviceIsAuthenticated: Bool?
     var loginWithDeviceResult: Result<(String, String), Error> = .success(("", ""))
@@ -67,18 +67,18 @@ class MockAuthService: AuthService {
 
     var webAuthenticationSession: ASWebAuthenticationSession?
 
-    func answerLoginRequest(_ request: LoginRequest, approve: Bool) async throws {
+    func answerLoginRequest(_ request: BitwardenShared.LoginRequest, approve: Bool) async throws {
         answerLoginRequestRequest = request
         answerLoginRequestApprove = approve
         try answerLoginRequestResult.get()
     }
 
-    func checkPendingLoginRequest(withId id: String) async throws -> LoginRequest {
+    func checkPendingLoginRequest(withId id: String) async throws -> BitwardenShared.LoginRequest {
         checkPendingLoginRequestId = id
         return try checkPendingLoginRequestResult.get()
     }
 
-    func denyAllLoginRequests(_ requests: [LoginRequest]) async throws {
+    func denyAllLoginRequests(_ requests: [BitwardenShared.LoginRequest]) async throws {
         denyAllLoginRequestsRequests = requests
         try denyAllLoginRequestsResult.get()
     }
@@ -93,7 +93,7 @@ class MockAuthService: AuthService {
         return try getPendingAdminLoginRequestResult.get()
     }
 
-    func getPendingLoginRequest(withId id: String?) async throws -> [LoginRequest] {
+    func getPendingLoginRequest(withId id: String?) async throws -> [BitwardenShared.LoginRequest] {
         getPendingLoginRequestCalled = true
         getPendingLoginRequestId = id
         return try getPendingLoginRequestResult.get()
@@ -114,7 +114,7 @@ class MockAuthService: AuthService {
     }
 
     func loginWithDevice(
-        _ loginRequest: LoginRequest,
+        _ loginRequest: BitwardenShared.LoginRequest,
         email: String,
         isAuthenticated: Bool,
     ) async throws -> (String, String) {

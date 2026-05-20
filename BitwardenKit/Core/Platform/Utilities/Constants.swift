@@ -24,6 +24,10 @@ public enum Constants {
     /// The minimum number of minutes before attempting a server config sync again.
     public static let minimumConfigSyncInterval: TimeInterval = 60 * 60 // 60 minutes
 
+    /// The number of seconds remaining on a TOTP code at which the next code
+    /// preview becomes visible, if enabled.
+    public static let nextTOTPCodePreviewThreshold = 10
+
     /// The search debounce time in nanoseconds.
     public static let searchDebounceTimeInNS: UInt64 = 200_000_000 // 200ms
 

@@ -58,21 +58,21 @@ class SettingsRepositoryTests: BitwardenTestCase {
         let folder = Folder.fixture(name: folderName)
         folderService.addFolderWithServerResult = .success(folder)
         let folderView = FolderView(folder: folder)
-        clientService.mockVault.clientFolders.decryptFolderResult = .success(folderView)
+        clientService.mockVault.clientFolders.decryptReturnValue = folderView
 
         let addedFolder = try await subject.addFolder(name: folderName)
 
         XCTAssertEqual(addedFolder, folderView)
-        XCTAssertEqual(clientService.mockVault.clientFolders.encryptedFolders.count, 1)
-        XCTAssertNil(clientService.mockVault.clientFolders.encryptedFolders.first?.id)
-        XCTAssertEqual(clientService.mockVault.clientFolders.encryptedFolders.first?.name, folderName)
-        XCTAssertEqual(clientService.mockVault.clientFolders.decryptFolderValueToDecrypt, folder)
+        XCTAssertEqual(clientService.mockVault.clientFolders.encryptCallsCount, 1)
+        XCTAssertNil(clientService.mockVault.clientFolders.encryptReceivedFolder?.id)
+        XCTAssertEqual(clientService.mockVault.clientFolders.encryptReceivedFolder?.name, folderName)
+        XCTAssertEqual(clientService.mockVault.clientFolders.decryptReceivedFolder, folder)
         XCTAssertEqual(folderService.addedFolderName, folderName)
     }
 
     /// `addFolder(name:)` throws an error if it's unable to decrypt the folder returned from the server.
     func test_addFolder_errorDecrypt() async throws {
-        clientService.mockVault.clientFolders.decryptFolderResult = .failure(BitwardenTestError.example)
+        clientService.mockVault.clientFolders.decryptThrowableError = BitwardenTestError.example
         await assertAsyncThrows(error: BitwardenTestError.example) {
             _ = try await subject.addFolder(name: "Test folder")
         }
@@ -114,7 +114,7 @@ class SettingsRepositoryTests: BitwardenTestCase {
     func test_editFolder() async throws {
         let folderName = "Test folder name"
         try await subject.editFolder(withID: "123456789", name: folderName)
-        XCTAssertEqual(clientService.mockVault.clientFolders.encryptedFolders.first?.name, folderName)
+        XCTAssertEqual(clientService.mockVault.clientFolders.encryptReceivedFolder?.name, folderName)
         XCTAssertEqual(folderService.editedFolderName, folderName)
     }
 
@@ -229,7 +229,7 @@ class SettingsRepositoryTests: BitwardenTestCase {
         try XCTAssertEqual(XCTUnwrap(publisherValue), [folderView2, folderView])
 
         // Ensure the folders were decrypted by the client vault.
-        XCTAssertEqual(clientService.mockVault.clientFolders.decryptedFolders, [folder, folder2])
+        XCTAssertEqual(clientService.mockVault.clientFolders.decryptListReceivedFolders, [folder, folder2])
     }
 
     /// `lastSyncTimePublisher` returns a publisher of the user's last sync time.

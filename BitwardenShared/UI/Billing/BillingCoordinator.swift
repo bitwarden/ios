@@ -16,6 +16,13 @@ class BillingCoordinator: Coordinator, HasStackNavigator {
 
     // MARK: Properties
 
+    /// Whether PremiumUpgrade was opened as the root of a modal navController (vault/archive context).
+    /// Determines the close behavior of PremiumUpgradeComplete.
+    private var isUpgradeAsModalRoot = false
+
+    /// Closure invoked after PremiumUpgradeComplete is dismissed.
+    private var premiumUpgradeCompleteOnClose: (() -> Void)?
+
     /// The services used by this coordinator.
     let services: Services
 
@@ -43,11 +50,15 @@ class BillingCoordinator: Coordinator, HasStackNavigator {
     func navigate(to route: BillingRoute, context: AnyObject?) {
         switch route {
         case .dismiss:
-            if stackNavigator?.isPresenting == false {
-                stackNavigator?.pop()
-            } else {
+            if stackNavigator?.isPresenting == true {
+                let onClose = premiumUpgradeCompleteOnClose
+                premiumUpgradeCompleteOnClose = nil
+                stackNavigator?.dismiss(completion: onClose)
+            } else if stackNavigator?.pop() == nil {
                 stackNavigator?.dismiss()
             }
+        case .premiumUpgradeComplete:
+            showPremiumUpgradeComplete()
         case .premiumPlan:
             showPremiumPlan()
         case .premiumUpgrade:
@@ -58,6 +69,22 @@ class BillingCoordinator: Coordinator, HasStackNavigator {
     func start() {}
 
     // MARK: Private Methods
+
+    /// Shows the premium upgrade complete screen.
+    ///
+    private func showPremiumUpgradeComplete() {
+        premiumUpgradeCompleteOnClose = isUpgradeAsModalRoot
+            ? { [weak self] in self?.stackNavigator?.dismiss() }
+            : { [weak self] in
+                // Pop PremiumUpgradeView silently so back navigation from PremiumPlanView
+                // returns to Settings, not to the (now-irrelevant) upgrade screen.
+                self?.stackNavigator?.pop(animated: false)
+                self?.showPremiumPlan()
+            }
+        let processor = PremiumUpgradeCompleteProcessor(coordinator: asAnyCoordinator())
+        let view = PremiumUpgradeCompleteView(store: Store(processor: processor))
+        stackNavigator?.present(view)
+    }
 
     /// Shows the premium plan screen.
     ///
@@ -76,13 +103,23 @@ class BillingCoordinator: Coordinator, HasStackNavigator {
     /// Shows the premium upgrade screen.
     ///
     private func showPremiumUpgrade() {
+        let shouldReplaceStack = stackNavigator?.isEmpty == true
+        isUpgradeAsModalRoot = shouldReplaceStack
+        var state = PremiumUpgradeState()
+        state.showCancelButton = shouldReplaceStack
         let processor = PremiumUpgradeProcessor(
             coordinator: asAnyCoordinator(),
             services: services,
-            state: PremiumUpgradeState(),
+            state: state,
         )
         let view = PremiumUpgradeView(store: Store(processor: processor))
-        stackNavigator?.replace(view)
+        if shouldReplaceStack {
+            stackNavigator?.replace(view)
+        } else {
+            let viewController = UIHostingController(rootView: view)
+            viewController.navigationItem.largeTitleDisplayMode = .never
+            stackNavigator?.push(viewController, navigationTitle: Localizations.upgradeToPremium)
+        }
     }
 }
 

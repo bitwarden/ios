@@ -9,8 +9,10 @@ import Testing
 
 // MARK: - BillingServiceTests
 
+// swiftlint:disable file_length
+
 @MainActor
-struct BillingServiceTests {
+struct BillingServiceTests { // swiftlint:disable:this type_body_length
     // MARK: Properties
 
     var billingAPIService: MockBillingAPIService!
@@ -35,6 +37,7 @@ struct BillingServiceTests {
         subject = DefaultBillingService(
             billingAPIService: billingAPIService,
             configService: configService,
+            debounceInterval: .milliseconds(100),
             environmentService: environmentService,
             errorReporter: errorReporter,
             stateService: stateService,
@@ -376,7 +379,7 @@ struct BillingServiceTests {
         var lateStatuses = [PremiumCheckoutStatus]()
         let lateCancellable = subject.premiumCheckoutStatusPublisher()
             .sink { lateStatuses.append($0) }
-        
+
         try await waitForAsync { lateStatuses.isEmpty }
     }
 
@@ -410,6 +413,38 @@ struct BillingServiceTests {
         #expect(syncService.didFetchSync)
     }
 
+    /// `isSelfHosted()` returns `false` when the region is not self-hosted.
+    @Test
+    func isSelfHosted_cloudRegion_returnsFalse() async {
+        environmentService.region = .unitedStates
+
+        let result = await subject.isSelfHosted()
+
+        #expect(result == false)
+    }
+
+    /// `isSelfHosted()` returns `true` when self-hosted and the debug flag is off.
+    @Test
+    func isSelfHosted_selfHostedRegion_debugFlagOff_returnsTrue() async {
+        environmentService.region = .selfHosted
+        configService.featureFlagsBool[.debugDisableSelfHostPremiumCheck] = false
+
+        let result = await subject.isSelfHosted()
+
+        #expect(result == true)
+    }
+
+    /// `isSelfHosted()` returns `false` when self-hosted but the debug override flag is enabled.
+    @Test
+    func isSelfHosted_selfHostedRegion_debugFlagOn_returnsFalse() async {
+        environmentService.region = .selfHosted
+        configService.featureFlagsBool[.debugDisableSelfHostPremiumCheck] = true
+
+        let result = await subject.isSelfHosted()
+
+        #expect(result == false)
+    }
+
     /// `premiumStatusChanged()` returns early without syncing when the environment is self-hosted.
     @Test
     func premiumStatusChanged_selfHosted() async throws {
@@ -423,6 +458,22 @@ struct BillingServiceTests {
 
         #expect(statuses.isEmpty)
         #expect(!syncService.didFetchSync)
+    }
+
+    /// `premiumStatusChanged()` syncs when self-hosted region is overridden by the debug flag.
+    @Test
+    func premiumStatusChanged_selfHosted_debugFlagEnabled_syncs() async throws {
+        environmentService.region = .selfHosted
+        configService.featureFlagsBool[.debugDisableSelfHostPremiumCheck] = true
+        stateService.doesActiveAccountHavePremiumResult = false
+        var statuses = [PremiumCheckoutStatus]()
+        let cancellable = subject.premiumCheckoutStatusPublisher()
+            .sink { statuses.append($0) }
+
+        await subject.premiumStatusChanged()
+
+        try await waitForAsync { !statuses.isEmpty }
+        #expect(syncService.didFetchSync)
     }
 
     /// `premiumStatusChanged()` reports the error and publishes `.pending` when sync fails.
