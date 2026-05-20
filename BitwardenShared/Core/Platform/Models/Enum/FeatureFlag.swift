@@ -13,7 +13,7 @@ extension FeatureFlag: @retroactive CaseIterable {
 
     /// Debug flag to disable self-hosted checks in premium upgrade flows for QA testing.
     static let debugDisableSelfHostPremiumCheck = FeatureFlag(
-        rawValue: "debug-disable-self-host-premium-check"
+        rawValue: "debug-disable-self-host-premium-check",
     )
 
     /// Flag to enable/disable Device Auth Key flows.

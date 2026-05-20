@@ -31,7 +31,9 @@ struct PremiumUpgradeHelperTests {
 
     // MARK: Helpers
 
-    private func makeSubject(onPendingDismiss: (() -> Void)? = nil) -> DefaultPremiumUpgradeHelper<VaultRoute, AuthAction> {
+    private func makeSubject(
+        onPendingDismiss: (() -> Void)? = nil,
+    ) -> DefaultPremiumUpgradeHelper<VaultRoute, AuthAction> {
         DefaultPremiumUpgradeHelper(
             services: ServiceContainer.withMocks(
                 billingRepository: billingRepository,
@@ -190,7 +192,7 @@ struct PremiumUpgradeHelperTests {
         statusSubject.send(.pending)
 
         try await waitForAsync {
-            guard case let .dismiss(action) = self.coordinator.routes.last else { return false }
+            guard case let .dismiss(action) = coordinator.routes.last else { return false }
             return action != nil
         }
         guard case let .dismiss(action) = coordinator.routes.last else {
@@ -216,7 +218,7 @@ struct PremiumUpgradeHelperTests {
         statusSubject.send(.pending)
 
         try await waitForAsync {
-            guard case let .dismiss(action) = self.coordinator.routes.last else { return false }
+            guard case let .dismiss(action) = coordinator.routes.last else { return false }
             return action != nil
         }
         guard case let .dismiss(action) = coordinator.routes.last else {
