@@ -87,8 +87,12 @@ extension CipherListView {
 extension CipherListViewType {
     init(cipher: Cipher) {
         switch cipher.type {
+        case .bankAccount:
+            self = .bankAccount
         case .card:
             self = .card(.init(brand: nil))
+        case .driversLicense:
+            self = .driversLicense
         case .identity:
             self = .identity
         case .login:
@@ -103,16 +107,12 @@ extension CipherListViewType {
                     uris: cipher.login?.uris?.map { LoginUriView(loginUri: $0) },
                 ),
             )
+        case .passport:
+            self = .passport
         case .secureNote:
             self = .secureNote
         case .sshKey:
             self = .sshKey
-        case .bankAccount:
-            self = .bankAccount
-        case .driversLicense:
-            self = .driversLicense
-        case .passport:
-            self = .passport
         }
     }
 }
