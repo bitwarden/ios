@@ -168,3 +168,4 @@ See `build-test-verify` skill for project generation, build commands, test execu
 |---------|-------|
 | `/plan-ios-work <PM-XXXXX>` | Use the `ios-architect` agent (or this command) to fetch ticket → refine requirements → design implementation approach |
 | `/work-on-ios <PM-XXXXX>` | Use the `ios-implementer` agent (or this command) for full workflow: implement → test → verify → preflight → commit → review → PR |
+| `/audit-build-warnings [scheme]` | Build the app, categorize all warnings (Swift 6 vs actionable), ask what to skip, auto-fix + manually fix the rest, verify — defaults to `Bitwarden` scheme |
