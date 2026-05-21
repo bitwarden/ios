@@ -32,6 +32,37 @@ struct PremiumPlanStateTests {
         #expect(state.billingAmount.isEmpty)
     }
 
+    // MARK: Tests - descriptionAccessibilityLabel
+
+    /// `descriptionAccessibilityLabel` returns a screen-reader-friendly description for the active plan status.
+    @Test
+    func descriptionAccessibilityLabel_active() {
+        var state = PremiumPlanState()
+        state.planStatus = .active
+        state.subscription = .fixture(
+            estimatedTax: 4.55,
+            nextCharge: testDate,
+        )
+        let label = state.descriptionAccessibilityLabel
+        #expect(label.contains("USD $"))
+        #expect(label.contains(state.nextChargeDate))
+    }
+
+    /// `descriptionAccessibilityLabel` returns `descriptionText` unchanged for non-active plan statuses.
+    @Test(arguments: [PremiumPlanStatus.canceled, .pastDue, .unknown, .updatePayment])
+    func descriptionAccessibilityLabel_nonActive(planStatus: PremiumPlanStatus) {
+        var state = PremiumPlanState()
+        state.planStatus = planStatus
+        state.subscription = .fixture(
+            cancelAt: testDate,
+            canceled: testDate,
+            gracePeriod: 14,
+            status: planStatus,
+            suspension: testDate,
+        )
+        #expect(state.descriptionAccessibilityLabel == state.descriptionText)
+    }
+
     // MARK: Tests - descriptionText
 
     /// `descriptionText` returns the correct text for the active plan status.
@@ -126,6 +157,26 @@ struct PremiumPlanStateTests {
         var state = PremiumPlanState()
         state.subscription = .fixture(estimatedTax: 0)
         #expect(state.estimatedTax.isEmpty)
+    }
+
+    // MARK: Tests - nextChargeAmountAccessibilityLabel
+
+    /// `nextChargeAmountAccessibilityLabel` returns a screen-reader-friendly amount (e.g. "USD $24.35").
+    @Test
+    func nextChargeAmountAccessibilityLabel() {
+        var state = PremiumPlanState()
+        state.subscription = .fixture(
+            estimatedTax: 4.55,
+            nextCharge: testDate,
+        )
+        #expect(state.nextChargeAmountAccessibilityLabel.hasPrefix("USD $"))
+    }
+
+    /// `nextChargeAmountAccessibilityLabel` returns empty when subscription is nil.
+    @Test
+    func nextChargeAmountAccessibilityLabel_nil() {
+        let state = PremiumPlanState()
+        #expect(state.nextChargeAmountAccessibilityLabel.isEmpty)
     }
 
     // MARK: Tests - showBillingDetails
