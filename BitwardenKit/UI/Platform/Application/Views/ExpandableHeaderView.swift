@@ -1,4 +1,3 @@
-import BitwardenKit
 import BitwardenResources
 import SwiftUI
 
@@ -6,7 +5,7 @@ import SwiftUI
 
 /// A wrapper around some content which can be expanded to show the content or collapsed to hide it.
 ///
-struct ExpandableHeaderView<Content: View>: View {
+public struct ExpandableHeaderView<Content: View>: View {
     // MARK: Properties
 
     /// The accessibility identifier for the button to expand or collapse the content.
@@ -29,7 +28,7 @@ struct ExpandableHeaderView<Content: View>: View {
 
     // MARK: View
 
-    var body: some View {
+    public var body: some View {
         VStack(spacing: 8) {
             expandButton
 
@@ -52,11 +51,11 @@ struct ExpandableHeaderView<Content: View>: View {
                 SectionHeaderView("\(title) (\(count))")
 
                 SharedAsset.Icons.chevronDown16.swiftUIImage
-                    .imageStyle(.accessoryIcon(scaleWithFont: true))
+                    .imageStyle(.accessoryIcon16(scaleWithFont: true))
                     .rotationEffect(isExpanded ? Angle(degrees: 180) : .zero)
             }
             .multilineTextAlignment(.leading)
-            .foregroundStyle(Asset.Colors.textSecondary.swiftUIColor)
+            .foregroundStyle(SharedAsset.Colors.textSecondary.swiftUIColor)
         }
         .accessibilityAddTraits(.isHeader)
         .accessibilityIdentifier(buttonAccessibilityIdentifier)
@@ -74,7 +73,7 @@ struct ExpandableHeaderView<Content: View>: View {
     ///   - buttonAccessibilityIdentifier: The accessibility identifier for the button to expand or
     ///     collapse the content.
     ///   - content: The content that is shown when the section is expanded or hidden otherwise.
-    init(
+    public init(
         title: String,
         count: Int,
         buttonAccessibilityIdentifier: String = "ExpandSectionButton",
@@ -103,6 +102,6 @@ struct ExpandableHeaderView<Content: View>: View {
     }
     .padding()
     .frame(maxHeight: .infinity, alignment: .top)
-    .background(Asset.Colors.backgroundPrimary.swiftUIColor)
+    .background(SharedAsset.Colors.backgroundPrimary.swiftUIColor)
 }
 #endif
