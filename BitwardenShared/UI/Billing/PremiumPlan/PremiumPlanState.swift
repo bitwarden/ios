@@ -35,6 +35,15 @@ struct PremiumPlanState: Equatable {
         return formatDate(canceled)
     }
 
+    /// The accessibility label for the description text, using a screen-reader-friendly currency format.
+    var descriptionAccessibilityLabel: String {
+        guard planStatus == .active else { return descriptionText }
+        return Localizations.yourNextChargeIsForXDueOnY(
+            nextChargeAmountAccessibilityLabel,
+            nextChargeDate,
+        )
+    }
+
     /// The description text for the current plan status.
     var descriptionText: String {
         switch planStatus {
@@ -77,6 +86,12 @@ struct PremiumPlanState: Equatable {
     var nextChargeAmount: String {
         guard let subscription, subscription.nextCharge != nil else { return "" }
         return formatCurrencyCode(subscription.totalAmount)
+    }
+
+    /// The next charge amount formatted for screen readers (e.g. "USD $24.35").
+    var nextChargeAmountAccessibilityLabel: String {
+        guard let subscription, subscription.nextCharge != nil else { return "" }
+        return "USD \(formatCurrency(subscription.totalAmount))"
     }
 
     /// The next charge date, formatted for display.
