@@ -470,11 +470,11 @@ extension CipherItemState: AddEditItemState {
         switch configuration {
         case .add:
             switch type {
-            case .card: Localizations.newCard
-            case .identity: Localizations.newIdentity
-            case .login: Localizations.newLogin
-            case .secureNote: Localizations.newNote
-            case .sshKey: Localizations.newSSHKey
+            case .card: Localizations.addCard
+            case .identity: Localizations.addIdentity
+            case .login: Localizations.addLogin
+            case .secureNote: Localizations.addNote
+            case .sshKey: Localizations.addSSHKey
             }
         case .existing:
             switch type {

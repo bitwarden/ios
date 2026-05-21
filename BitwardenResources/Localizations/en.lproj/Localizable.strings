@@ -1,6 +1,6 @@
 "About" = "About";
 "Add" = "Add";
-"AddFolder" = "Add Folder";
+"AddFolder" = "Add folder";
 "AnErrorHasOccurred" = "An error has occurred.";
 "Back" = "Back";
 "Bitwarden" = "Bitwarden";
@@ -706,6 +706,12 @@
 "TheVaultProtectsMoreThanJustPasswordsStoreSecureLoginsIdsCardsAndNotesSecurelyHere" = "The vault protects more than just your passwords. Store secure logins, IDs, cards and notes securely here.";
 "SendSensitiveInformationSafely" = "Send sensitive information, safely";
 "ShareFilesAndDataSecurelyWithAnyoneOnAnyPlatformYourInformationWillRemainEndToEndEncrypted" = "Share files and data securely with anyone, on any platform. Your information will remain end-to-end encrypted while limiting exposure.";
+"AddLogin" = "Add login";
+"AddCard" = "Add card";
+"AddIdentity" = "Add identity";
+"AddNote" = "Add note";
+"AddSSHKey" = "Add SSH key";
+// TODO: [PM-XXXXX] Remove New* keys once translation pipeline has replaced with Add* in all locales
 "NewLogin" = "New login";
 "NewCard" = "New card";
 "NewIdentity" = "New identity";
@@ -819,6 +825,8 @@
 "AddWebsite" = "Add website";
 "CannotDeleteAccount" = "Cannot delete account";
 "CannotDeleteAccountDescriptionLong" = "This action cannot be completed because your account is owned by an organization. Contact your organization administrator for additional details.";
+"AddItem" = "Add item";
+// TODO: [PM-XXXXX] Remove New* keys once translation pipeline has replaced with Add* in all locales
 "NewFolder" = "New folder";
 "SetUpAuthenticatorKey" = "Set up authenticator key";
 "ItemDetails" = "Item details";
