@@ -9,8 +9,12 @@
     "github-actions",
     "mint",
     "custom.regex",
-    "swift"
+    "swift",
+    "xcodegen"
   ],
+  "xcodegen": {
+    "managerFilePatterns": ["/project(-[a-z]+)?\\.yml$/"]
+  },
   "customManagers": [
     {
       "customType": "regex",
@@ -35,6 +39,10 @@
         "minor",
         "patch"
       ]
+    },
+    {
+      "matchPackageNames": ["bitwarden/sdk-swift"],
+      "enabled": false
     }
   ]
 }
