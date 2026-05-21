@@ -3,8 +3,8 @@
 set -euo pipefail
 
 if ! brew bundle check --no-upgrade --verbose; then
-    osascript -e 'display notification "Missing Brewfile dependencies." with title "Bootstrap failed" sound name "Submarine"'
-    exit 1
+    echo "❌ ❌ ❌ ❌ ❌ ❌"
+    echo
 fi
 
 mint bootstrap
