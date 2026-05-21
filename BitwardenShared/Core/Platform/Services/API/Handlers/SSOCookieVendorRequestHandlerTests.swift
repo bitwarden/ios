@@ -129,6 +129,6 @@ class SSOCookieVendorRequestHandlerTests: BitwardenTestCase {
         _ = try await subject.handle(&request)
 
         XCTAssertEqual(serverCommunicationConfigClientSingleton.resolveHostnameReceivedHostname, "api.example.com")
-        XCTAssertEqual(serverCommunicationConfigClient.cookiesReceivedHostname, "example.com")
+        XCTAssertEqual(serverCommunicationConfigClient.cookiesReceivedDomain, "example.com")
     }
 }

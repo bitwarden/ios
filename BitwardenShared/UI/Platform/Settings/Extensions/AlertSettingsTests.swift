@@ -122,6 +122,26 @@ class AlertSettingsTests: BitwardenTestCase {
         XCTAssertEqual(subject.message, Localizations.vaultTimeoutLogOutConfirmation)
     }
 
+    /// `manageSubscriptionPlanAlert(action:)` constructs an `Alert`
+    /// with the correct title, message, and Cancel and Continue buttons.
+    func test_manageSubscriptionPlanAlert() async throws {
+        var actionCalled = false
+        let subject = Alert.manageSubscriptionPlanAlert { actionCalled = true }
+
+        XCTAssertEqual(subject.preferredStyle, .alert)
+        XCTAssertEqual(subject.title, Localizations.continueToWebApp)
+        XCTAssertEqual(subject.message, Localizations.manageYourSubscriptionPlanInTheBitwardenWebApp)
+        XCTAssertEqual(subject.alertActions.count, 2)
+        XCTAssertEqual(subject.alertActions.first?.title, Localizations.cancel)
+        XCTAssertEqual(subject.alertActions.first?.style, .cancel)
+        XCTAssertEqual(subject.alertActions.last?.title, Localizations.continue)
+        XCTAssertEqual(subject.alertActions.last?.style, .default)
+
+        let action = try XCTUnwrap(subject.alertActions.last)
+        await action.handler?(action, [])
+        XCTAssertTrue(actionCalled)
+    }
+
     /// `neverLockAlert(encrypted:action:)` constructs an `Alert`
     /// with the correct title, message, and Yes and Cancel buttons.
     func test_neverLockAlert() {
