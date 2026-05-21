@@ -12,6 +12,7 @@
     "swift",
     "xcodegen"
   ],
+  "ignoreDeps": ["bitwarden/sdk-swift"],
   "xcodegen": {
     "managerFilePatterns": ["/project(-[a-z]+)?\\.yml$/"]
   },
@@ -39,10 +40,6 @@
         "minor",
         "patch"
       ]
-    },
-    {
-      "matchPackageNames": ["bitwarden/sdk-swift"],
-      "enabled": false
     }
   ]
 }
