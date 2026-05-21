@@ -1,6 +1,7 @@
 import BitwardenKit
 import BitwardenResources
 @preconcurrency import BitwardenSdk
+import Combine
 import Foundation
 
 // MARK: - SendListProcessor
@@ -10,17 +11,22 @@ import Foundation
 final class SendListProcessor: StateProcessor<SendListState, SendListAction, SendListEffect> {
     // MARK: Types
 
-    typealias Services = HasConfigService
+    typealias Services = HasBillingService
+        & HasConfigService
         & HasErrorReporter
         & HasPasteboardService
         & HasPolicyService
         & HasSendRepository
+        & HasStateService
         & HasVaultRepository
 
     // MARK: Private properties
 
     /// The `Coordinator` that handles navigation.
     private let coordinator: AnyCoordinator<SendRoute, Void>
+
+    /// A cancellable for the premium checkout status subscription.
+    private var premiumCheckoutCancellable: AnyCancellable?
 
     /// The services required by this processor.
     private let services: Services
@@ -50,6 +56,10 @@ final class SendListProcessor: StateProcessor<SendListState, SendListAction, Sen
         switch effect {
         case let .addItemPressed(sendType):
             await addNewSend(sendType: sendType)
+        case .appeared:
+            subscribeToPremiumCheckoutStatus()
+        case .dismissUpgradedToPremiumActionCard:
+            state.shouldShowUpgradedToPremiumActionCard = false
         case .loadData:
             await loadData()
         case let .search(text):
@@ -88,6 +98,8 @@ final class SendListProcessor: StateProcessor<SendListState, SendListAction, Sen
         switch action {
         case .clearInfoUrl:
             state.infoUrl = nil
+        case .clearUrl:
+            state.url = nil
         case .infoButtonPressed:
             state.infoUrl = ExternalLinksConstants.sendInfo
         case let .searchStateChanged(isSearching):
@@ -112,12 +124,34 @@ final class SendListProcessor: StateProcessor<SendListState, SendListAction, Sen
             case let .viewSend(sendView):
                 coordinator.navigate(to: .viewItem(sendView), context: self)
             }
+        case .learnMoreAboutPremium:
+            state.url = ExternalLinksConstants.learnMoreAboutPremium
+            state.shouldShowUpgradedToPremiumActionCard = false
         case let .toastShown(toast):
             state.toast = toast
         }
     }
 
     // MARK: Private Methods
+
+    /// Handles state updates after a premium upgrade is confirmed.
+    ///
+    private func handlePremiumUpgradeConfirmed() async {
+        let hasPremium = await services.stateService.doesActiveAccountHavePremium()
+        state.shouldShowUpgradedToPremiumActionCard = hasPremium
+    }
+
+    /// Subscribes to premium checkout status updates to show the upgraded card on confirmation.
+    ///
+    private func subscribeToPremiumCheckoutStatus() {
+        premiumCheckoutCancellable = services.billingService
+            .premiumCheckoutStatusPublisher()
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] status in
+                guard let self, case .confirmed = status else { return }
+                Task { @MainActor in await self.handlePremiumUpgradeConfirmed() }
+            }
+    }
 
     /// Navigates to the add new send view. If the user is trying to add a new send type which
     /// requires premium and they don't have premium this will instead show an error alert to the

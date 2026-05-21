@@ -31,10 +31,16 @@ struct SendListState: Sendable {
     /// An array of results matching the ``searchText``.
     var searchResults: [SendListItem] = []
 
+    /// Whether the "Upgraded to Premium" action card should be shown.
+    var shouldShowUpgradedToPremiumActionCard: Bool = false
+
     /// A toast message to show in the view.
     var toast: Toast?
 
     /// The type of sends to focus on in this list, if there is one. If `nil`, all Sends related
     /// information should be displayed.
     var type: SendType?
+
+    /// The URL to open externally (e.g. learn more about premium).
+    var url: URL?
 }

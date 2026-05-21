@@ -150,6 +150,13 @@ private struct MainSendListView: View {
     @ViewBuilder
     private func list(sections: [SendListSection]) -> some View {
         VStack(alignment: .leading, spacing: 16) {
+            if store.state.shouldShowUpgradedToPremiumActionCard {
+                UpgradedToPremiumActionCardView(
+                    onDismiss: { await store.perform(.dismissUpgradedToPremiumActionCard) },
+                    onLearnMore: { store.send(.learnMoreAboutPremium) },
+                )
+            }
+
             if store.state.isSendDisabled {
                 InfoContainer(Localizations.sendDisabledWarning)
             }
@@ -264,6 +271,7 @@ struct SendListView: View {
                 ),
                 additionalBottomPadding: FloatingActionButton.bottomOffsetPadding,
             )
+            .task { await store.perform(.appeared) }
             .task { await store.perform(.loadData) }
             .task { await store.perform(.streamSendList) }
             .searchDebouncedTask(id: store.state.searchText) {
@@ -273,6 +281,11 @@ struct SendListView: View {
                 guard let url = newValue else { return }
                 openURL(url)
                 store.send(.clearInfoUrl)
+            }
+            .onChange(of: store.state.url) { newValue in
+                guard let url = newValue else { return }
+                openURL(url)
+                store.send(.clearUrl)
             }
     }
 }
