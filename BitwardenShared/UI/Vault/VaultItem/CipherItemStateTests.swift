@@ -480,19 +480,19 @@ class CipherItemStateTests: BitwardenTestCase { // swiftlint:disable:this type_b
     /// `navigationTitle` returns the navigation title for the view based on the cipher type being added.
     func test_navigationTitle_newItem() {
         let subjectCard = CipherItemState(addItem: .card, hasPremium: false)
-        XCTAssertEqual(subjectCard.navigationTitle, Localizations.newCard)
+        XCTAssertEqual(subjectCard.navigationTitle, Localizations.addCard)
 
         let subjectIdentity = CipherItemState(addItem: .identity, hasPremium: false)
-        XCTAssertEqual(subjectIdentity.navigationTitle, Localizations.newIdentity)
+        XCTAssertEqual(subjectIdentity.navigationTitle, Localizations.addIdentity)
 
         let subjectLogin = CipherItemState(addItem: .login, hasPremium: false)
-        XCTAssertEqual(subjectLogin.navigationTitle, Localizations.newLogin)
+        XCTAssertEqual(subjectLogin.navigationTitle, Localizations.addLogin)
 
         let subjectSecureNote = CipherItemState(addItem: .secureNote, hasPremium: false)
-        XCTAssertEqual(subjectSecureNote.navigationTitle, Localizations.newNote)
+        XCTAssertEqual(subjectSecureNote.navigationTitle, Localizations.addNote)
 
         let subjectSSHKey = CipherItemState(addItem: .sshKey, hasPremium: false)
-        XCTAssertEqual(subjectSSHKey.navigationTitle, Localizations.newSSHKey)
+        XCTAssertEqual(subjectSSHKey.navigationTitle, Localizations.addSSHKey)
     }
 
     /// `setter:owner` adds the default user collection to the collection IDs
