@@ -112,19 +112,10 @@ private struct SearchableVaultListView: View { // swiftlint:disable:this type_bo
     /// The action card for the upgraded to premium confirmation.
     @ViewBuilder private var upgradedToPremiumActionCard: some View {
         if store.state.shouldShowUpgradedToPremiumActionCard {
-            ActionCard(
-                title: Localizations.upgradedToPremium,
-                message: Localizations.youNowHaveAccessToAllAdvancedSecurityFeatures,
-                actionButtonState: ActionCard.ButtonState(title: Localizations.learnMore) {
-                    store.send(.learnMoreAboutPremium)
-                },
-                dismissButtonState: ActionCard.ButtonState(title: Localizations.dismiss) {
-                    await store.perform(.dismissUpgradedToPremiumActionCard)
-                },
-            ) {
-                SharedAsset.Icons.star24.swiftUIImage
-                    .foregroundStyle(SharedAsset.Colors.iconSecondary.swiftUIColor)
-            }
+            UpgradedToPremiumActionCardView(
+                onLearnMore: { store.send(.learnMoreAboutPremium) },
+                onDismiss: { await store.perform(.dismissUpgradedToPremiumActionCard) },
+            )
         }
     }
 
