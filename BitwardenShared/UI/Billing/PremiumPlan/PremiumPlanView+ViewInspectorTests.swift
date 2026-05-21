@@ -86,8 +86,7 @@ class PremiumPlanViewTests: BitwardenTestCase {
         XCTAssertNotNil(button)
     }
 
-    /// The estimated tax row renders as $0.00 when tax is zero and the
-    /// plan is active. Matches the canonical web cart-summary behavior.
+    /// The estimated tax row renders as $0.00 when tax is zero and the plan is active.
     @MainActor
     func test_estimatedTax_visible_whenZero() throws {
         processor.state.planStatus = .active
@@ -116,8 +115,7 @@ class PremiumPlanViewTests: BitwardenTestCase {
         XCTAssertEqual(processor.effects.last, .managePlanTapped)
     }
 
-    /// The Total row is hidden when the plan is canceled (whole section
-    /// suppressed by `showBillingDetails`).
+    /// The Total row is hidden when the plan is canceled.
     @MainActor
     func test_totalRow_hidden_whenCanceled() throws {
         processor.state.planStatus = .canceled

@@ -236,24 +236,6 @@ struct PremiumPlanStateTests {
         #expect(!state.showDiscount)
     }
 
-    // MARK: Tests - showStorageCost
-
-    /// `showStorageCost` is true when storage cost is greater than zero.
-    @Test
-    func showStorageCost_true() {
-        var state = PremiumPlanState()
-        state.subscription = .fixture(storageCost: 4)
-        #expect(state.showStorageCost)
-    }
-
-    /// `showStorageCost` is false when storage cost is zero.
-    @Test
-    func showStorageCost_false() {
-        var state = PremiumPlanState()
-        state.subscription = .fixture(storageCost: 0)
-        #expect(!state.showStorageCost)
-    }
-
     // MARK: Tests - storageCostLabel
 
     /// `storageCostLabel` returns the formatted storage cost.
@@ -264,11 +246,18 @@ struct PremiumPlanStateTests {
         #expect(state.storageCostLabel == "$8.00")
     }
 
-    /// `storageCostLabel` returns empty when storage cost is zero.
+    /// `storageCostLabel` returns the formatted zero amount when storage cost is zero.
     @Test
-    func storageCostLabel_noStorage() {
+    func storageCostLabel_zero() {
         var state = PremiumPlanState()
         state.subscription = .fixture(storageCost: 0)
+        #expect(state.storageCostLabel == "$0.00")
+    }
+
+    /// `storageCostLabel` returns empty when subscription is nil.
+    @Test
+    func storageCostLabel_nil() {
+        let state = PremiumPlanState()
         #expect(state.storageCostLabel.isEmpty)
     }
 
