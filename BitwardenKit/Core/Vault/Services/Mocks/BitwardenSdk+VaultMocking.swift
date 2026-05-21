@@ -1,9 +1,10 @@
 // swiftlint:disable:this file_name
+// swiftlint:disable file_length missing_docs
 
 import BitwardenSdk
 import Foundation
 
-extension Attachment {
+public extension Attachment {
     init(attachmentView: AttachmentView) {
         self.init(
             id: attachmentView.id,
@@ -16,7 +17,7 @@ extension Attachment {
     }
 }
 
-extension AttachmentView {
+public extension AttachmentView {
     init(attachment: Attachment) {
         self.init(
             id: attachment.id,
@@ -29,7 +30,7 @@ extension AttachmentView {
     }
 }
 
-extension Card {
+public extension Card {
     init(cardView: CardView) {
         self.init(
             cardholderName: cardView.cardholderName,
@@ -42,7 +43,7 @@ extension Card {
     }
 }
 
-extension CardView {
+public extension CardView {
     init(card: Card) {
         self.init(
             cardholderName: card.cardholderName,
@@ -55,7 +56,7 @@ extension CardView {
     }
 }
 
-extension CipherListView {
+public extension CipherListView {
     init(cipher: Cipher) {
         self.init(
             id: cipher.id,
@@ -84,7 +85,7 @@ extension CipherListView {
     }
 }
 
-extension CipherListViewType {
+public extension CipherListViewType {
     init(cipher: Cipher) {
         switch cipher.type {
         case .bankAccount:
@@ -119,7 +120,7 @@ extension CipherListViewType {
     }
 }
 
-extension Cipher {
+public extension Cipher {
     init(cipherView: CipherView) {
         self.init(
             id: cipherView.id,
@@ -157,7 +158,7 @@ extension Cipher {
     }
 }
 
-extension CipherView {
+public extension CipherView {
     init(cipher: Cipher) {
         self.init(
             id: cipher.id,
@@ -195,7 +196,7 @@ extension CipherView {
     }
 }
 
-extension CollectionView {
+public extension CollectionView {
     init(collection: Collection) {
         self.init(
             id: collection.id,
@@ -210,7 +211,7 @@ extension CollectionView {
     }
 }
 
-extension Fido2Credential {
+public extension Fido2Credential {
     init(fido2CredentialView: Fido2CredentialView) {
         self.init(
             credentialId: fido2CredentialView.credentialId,
@@ -230,7 +231,7 @@ extension Fido2Credential {
     }
 }
 
-extension Fido2CredentialView {
+public extension Fido2CredentialView {
     init(fido2Credential: Fido2Credential) {
         self.init(
             credentialId: fido2Credential.credentialId,
@@ -250,7 +251,7 @@ extension Fido2CredentialView {
     }
 }
 
-extension Field {
+public extension Field {
     init(fieldView: FieldView) {
         self.init(
             name: fieldView.name,
@@ -261,7 +262,7 @@ extension Field {
     }
 }
 
-extension FieldView {
+public extension FieldView {
     init(field: Field) {
         self.init(
             name: field.name,
@@ -272,7 +273,7 @@ extension FieldView {
     }
 }
 
-extension Folder {
+public extension Folder {
     init(folderView: FolderView) {
         self.init(
             id: folderView.id,
@@ -282,7 +283,7 @@ extension Folder {
     }
 }
 
-extension FolderView {
+public extension FolderView {
     init(folder: Folder) {
         self.init(
             id: folder.id,
@@ -292,7 +293,7 @@ extension FolderView {
     }
 }
 
-extension Identity {
+public extension Identity {
     init(identityView: IdentityView) {
         self.init(
             title: identityView.title,
@@ -317,7 +318,7 @@ extension Identity {
     }
 }
 
-extension IdentityView {
+public extension IdentityView {
     init(identity: Identity) {
         self.init(
             title: identity.title,
@@ -342,7 +343,7 @@ extension IdentityView {
     }
 }
 
-extension LocalData {
+public extension LocalData {
     init(localDataView: LocalDataView) {
         self.init(
             lastUsedDate: localDataView.lastUsedDate,
@@ -351,7 +352,7 @@ extension LocalData {
     }
 }
 
-extension LocalDataView {
+public extension LocalDataView {
     init(localData: LocalData) {
         self.init(
             lastUsedDate: localData.lastUsedDate,
@@ -360,7 +361,7 @@ extension LocalDataView {
     }
 }
 
-extension Login {
+public extension Login {
     init(loginView: LoginView) {
         self.init(
             username: loginView.username,
@@ -374,7 +375,7 @@ extension Login {
     }
 }
 
-extension LoginView {
+public extension LoginView {
     init(login: Login) {
         self.init(
             username: login.username,
@@ -388,7 +389,7 @@ extension LoginView {
     }
 }
 
-extension LoginUri {
+public extension LoginUri {
     init(loginUriView: LoginUriView) {
         self.init(
             uri: loginUriView.uri,
@@ -398,7 +399,7 @@ extension LoginUri {
     }
 }
 
-extension LoginUriView {
+public extension LoginUriView {
     init(loginUri: LoginUri) {
         self.init(
             uri: loginUri.uri,
@@ -408,7 +409,7 @@ extension LoginUriView {
     }
 }
 
-extension PasswordHistory {
+public extension PasswordHistory {
     init(passwordHistoryView: PasswordHistoryView) {
         self.init(
             password: passwordHistoryView.password,
@@ -417,7 +418,7 @@ extension PasswordHistory {
     }
 }
 
-extension PasswordHistoryView {
+public extension PasswordHistoryView {
     init(passwordHistory: PasswordHistory) {
         self.init(
             password: passwordHistory.password,
@@ -426,19 +427,19 @@ extension PasswordHistoryView {
     }
 }
 
-extension SecureNote {
+public extension SecureNote {
     init(secureNoteView: SecureNoteView) {
         self.init(type: secureNoteView.type)
     }
 }
 
-extension SecureNoteView {
+public extension SecureNoteView {
     init(secureNote: SecureNote) {
         self.init(type: secureNote.type)
     }
 }
 
-extension SendFileView {
+public extension SendFileView {
     init(sendFile: SendFile) {
         self.init(
             id: sendFile.id,
@@ -449,7 +450,7 @@ extension SendFileView {
     }
 }
 
-extension SendTextView {
+public extension SendTextView {
     init(sendText: SendText) {
         self.init(
             text: sendText.text,
@@ -458,7 +459,7 @@ extension SendTextView {
     }
 }
 
-extension SendView {
+public extension SendView {
     init(send: Send) {
         self.init(
             id: send.id,
@@ -484,7 +485,7 @@ extension SendView {
     }
 }
 
-extension SendFile {
+public extension SendFile {
     init(sendFileView: SendFileView) {
         self.init(
             id: sendFileView.id,
@@ -495,7 +496,7 @@ extension SendFile {
     }
 }
 
-extension SendText {
+public extension SendText {
     init(sendTextView: SendTextView) {
         self.init(
             text: sendTextView.text,
@@ -504,7 +505,7 @@ extension SendText {
     }
 }
 
-extension Send {
+public extension Send {
     init(sendView: SendView) {
         self.init(
             id: sendView.id,
@@ -529,7 +530,7 @@ extension Send {
     }
 }
 
-extension SshKey {
+public extension SshKey {
     init(sshKeyView: SshKeyView) {
         self.init(
             privateKey: sshKeyView.privateKey,
@@ -539,7 +540,7 @@ extension SshKey {
     }
 }
 
-extension SshKeyView {
+public extension SshKeyView {
     init(sshKey: SshKey) {
         self.init(
             privateKey: sshKey.privateKey,
@@ -547,4 +548,6 @@ extension SshKeyView {
             fingerprint: sshKey.fingerprint,
         )
     }
-} // swiftlint:disable:this file_length
+}
+
+// swiftlint:enable missing_docs
