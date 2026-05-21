@@ -42,11 +42,6 @@ struct GeneratorView: View { // swiftlint:disable:this type_body_length
                 get: \.toast,
                 send: GeneratorAction.toastShown,
             ))
-            .onChange(of: store.state.url) { newValue in
-                guard let url = newValue else { return }
-                openURL(url)
-                store.send(.clearUrl)
-            }
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
                     if store.state.presentationMode.isDismissButtonVisible {
@@ -133,13 +128,6 @@ struct GeneratorView: View { // swiftlint:disable:this type_body_length
             ),
         ) {
             VStack(alignment: .leading, spacing: 24) {
-                if store.state.shouldShowUpgradedToPremiumActionCard {
-                    UpgradedToPremiumActionCardView(
-                        onLearnMore: { store.send(.learnMoreAboutPremium) },
-                        onDismiss: { await store.perform(.dismissUpgradedToPremiumActionCard) },
-                    )
-                }
-
                 if store.state.isLearnGeneratorActionCardEligible,
                    store.state.presentationMode == .tab {
                     ActionCard(

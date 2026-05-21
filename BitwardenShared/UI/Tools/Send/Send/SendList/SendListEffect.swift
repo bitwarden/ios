@@ -5,12 +5,6 @@ enum SendListEffect: Equatable {
     /// The add item button was pressed.
     case addItemPressed(SendType)
 
-    /// The view appeared on screen.
-    case appeared
-
-    /// The user tapped the dismiss button on the Upgraded to Premium action card.
-    case dismissUpgradedToPremiumActionCard
-
     /// Any initial data for the view should be loaded.
     case loadData
 

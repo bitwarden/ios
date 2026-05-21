@@ -9,35 +9,18 @@ import SwiftUI
 struct SettingsView: View {
     // MARK: Properties
 
-    /// An object used to open urls from this view.
-    @Environment(\.openURL) private var openURL
-
     /// The `Store` for this view.
     @ObservedObject var store: Store<SettingsState, SettingsAction, SettingsEffect>
 
     // MARK: View
 
     var body: some View {
-        VStack(spacing: 16) {
-            if store.state.shouldShowUpgradedToPremiumActionCard {
-                UpgradedToPremiumActionCardView(
-                    onLearnMore: { store.send(.learnMoreAboutPremium) },
-                    onDismiss: { await store.perform(.dismissUpgradedToPremiumActionCard) },
-                )
+        settingsItems
+            .scrollView()
+            .navigationBar(title: Localizations.settings, titleDisplayMode: .inline)
+            .task {
+                await store.perform(.appeared)
             }
-
-            settingsItems
-        }
-        .scrollView()
-        .navigationBar(title: Localizations.settings, titleDisplayMode: .inline)
-        .task {
-            await store.perform(.appeared)
-        }
-        .onChange(of: store.state.url) { newValue in
-            guard let url = newValue else { return }
-            openURL(url)
-            store.send(.clearUrl)
-        }
             .toolbar {
                 closeToolbarItem(hidden: store.state.presentationMode != .preLogin) {
                     store.send(.dismiss)

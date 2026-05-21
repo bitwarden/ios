@@ -1,6 +1,4 @@
 import BitwardenKit
-import Combine
-import Foundation
 
 // MARK: - SettingsProcessorDelegate
 
@@ -32,9 +30,6 @@ final class SettingsProcessor: StateProcessor<SettingsState, SettingsAction, Set
 
     /// The task used to update the tab's badge count.
     private var badgeUpdateTask: Task<Void, Never>?
-
-    /// A cancellable for the premium checkout status subscription.
-    private var premiumCheckoutCancellable: AnyCancellable?
 
     /// The `Coordinator` that handles navigation.
     private let coordinator: AnyCoordinator<SettingsRoute, SettingsEvent>
@@ -97,9 +92,6 @@ final class SettingsProcessor: StateProcessor<SettingsState, SettingsAction, Set
             let isSelfHosted = await services.billingService.isSelfHosted()
             state.hasPremium = hasPremium
             state.showPlanRow = featureEnabled && !isSelfHosted
-            subscribeToPremiumCheckoutStatus()
-        case .dismissUpgradedToPremiumActionCard:
-            state.shouldShowUpgradedToPremiumActionCard = false
         }
     }
 
@@ -107,8 +99,6 @@ final class SettingsProcessor: StateProcessor<SettingsState, SettingsAction, Set
         switch action {
         case .aboutPressed:
             coordinator.navigate(to: .about)
-        case .clearUrl:
-            state.url = nil
         case .accountSecurityPressed:
             coordinator.navigate(to: .accountSecurity)
         case .appearancePressed:
@@ -117,9 +107,6 @@ final class SettingsProcessor: StateProcessor<SettingsState, SettingsAction, Set
             coordinator.navigate(to: .autoFill)
         case .dismiss:
             coordinator.navigate(to: .dismiss)
-        case .learnMoreAboutPremium:
-            state.url = ExternalLinksConstants.learnMoreAboutPremium
-            state.shouldShowUpgradedToPremiumActionCard = false
         case .otherPressed:
             coordinator.navigate(to: .other)
         case .planPressed:
@@ -131,26 +118,5 @@ final class SettingsProcessor: StateProcessor<SettingsState, SettingsAction, Set
         case .vaultPressed:
             coordinator.navigate(to: .vault)
         }
-    }
-
-    // MARK: Private Methods
-
-    /// Handles state updates after a premium upgrade is confirmed.
-    ///
-    private func handlePremiumUpgradeConfirmed() async {
-        let hasPremium = await services.stateService.doesActiveAccountHavePremium()
-        state.shouldShowUpgradedToPremiumActionCard = hasPremium
-    }
-
-    /// Subscribes to premium checkout status updates to show the upgraded card on confirmation.
-    ///
-    private func subscribeToPremiumCheckoutStatus() {
-        premiumCheckoutCancellable = services.billingService
-            .premiumCheckoutStatusPublisher()
-            .receive(on: DispatchQueue.main)
-            .sink { [weak self] status in
-                guard let self, case .confirmed = status else { return }
-                Task { @MainActor in await self.handlePremiumUpgradeConfirmed() }
-            }
     }
 }

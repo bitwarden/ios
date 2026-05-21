@@ -17,14 +17,12 @@ final class SendCoordinator: Coordinator, HasStackNavigator {
         & SendItemCoordinator.Module
         & SendItemModule
 
-    typealias Services = HasBillingService
-        & HasConfigService
+    typealias Services = HasConfigService
         & HasErrorAlertServices.ErrorAlertServices
         & HasErrorReporter
         & HasPasteboardService
         & HasPolicyService
         & HasSendRepository
-        & HasStateService
         & HasVaultRepository
 
     // MARK: - Private Properties

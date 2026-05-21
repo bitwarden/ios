@@ -1,5 +1,3 @@
-import Foundation
-
 /// An object that defines the current state of a `SettingsView`.
 ///
 struct SettingsState: Equatable {
@@ -15,14 +13,8 @@ struct SettingsState: Equatable {
     /// if the UI should show specific elements.
     var presentationMode = SettingsPresentationMode.tab
 
-    /// Whether the "Upgraded to Premium" action card should be shown.
-    var shouldShowUpgradedToPremiumActionCard: Bool = false
-
     /// Whether the premium plan row should be shown.
     var showPlanRow = false
-
-    /// The URL to open externally (e.g. learn more about premium).
-    var url: URL?
 
     // MARK: Computed Properties
 

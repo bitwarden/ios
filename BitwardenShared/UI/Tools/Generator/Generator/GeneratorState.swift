@@ -1,6 +1,5 @@
 import BitwardenKit
 import BitwardenResources
-import Foundation
 
 // swiftlint:disable file_length
 
@@ -113,14 +112,8 @@ struct GeneratorState: Equatable {
     /// elements.
     var presentationMode: PresentationMode = .tab
 
-    /// Whether the "Upgraded to Premium" action card should be shown.
-    var shouldShowUpgradedToPremiumActionCard: Bool = false
-
     /// A toast message to show in the view.
     var toast: Toast?
-
-    /// The URL to open externally (e.g. learn more about premium).
-    var url: URL?
 
     /// The options used to generate a username.
     var usernameState = UsernameState()

@@ -6,14 +6,8 @@ enum GeneratorAction: Equatable {
     /// The copy generated value button was pressed.
     case copyGeneratedValue
 
-    /// Clears the URL after it has been opened.
-    case clearUrl
-
     /// The dismiss button was pressed
     case dismissPressed
-
-    /// The "Learn more" button on the Upgraded to Premium action card was tapped.
-    case learnMoreAboutPremium
 
     /// The email type was changed.
     case emailTypeChanged(UsernameEmailType)
@@ -83,11 +77,9 @@ extension GeneratorAction {
         case let .textFieldFocusChanged(keyPath):
             // Only generate a new value when focus leaves the field (keyPath == nil).
             keyPath == nil
-        case .clearUrl,
-             .copyGeneratedValue,
+        case .copyGeneratedValue,
              .dismissPressed,
              .guidedTourViewAction,
-             .learnMoreAboutPremium,
              .selectButtonPressed,
              .showPasswordHistory,
              .sliderEditingChanged,

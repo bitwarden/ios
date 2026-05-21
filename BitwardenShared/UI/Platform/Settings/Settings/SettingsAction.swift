@@ -4,9 +4,6 @@ enum SettingsAction: Equatable {
     /// The about button was pressed.
     case aboutPressed
 
-    /// Clears the URL after it has been opened.
-    case clearUrl
-
     /// The account security button was pressed.
     case accountSecurityPressed
 
@@ -18,9 +15,6 @@ enum SettingsAction: Equatable {
 
     /// The close button was tapped.
     case dismiss
-
-    /// The "Learn more" button on the Upgraded to Premium action card was tapped.
-    case learnMoreAboutPremium
 
     /// The other button was pressed.
     case otherPressed

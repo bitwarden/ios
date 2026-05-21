@@ -10,12 +10,6 @@ struct SendListState: Sendable {
     /// The info URL to open.
     var infoUrl: URL?
 
-    /// Whether the "Upgraded to Premium" action card should be shown.
-    var shouldShowUpgradedToPremiumActionCard: Bool = false
-
-    /// The URL to open externally (e.g. learn more about premium).
-    var url: URL?
-
     /// Is the view searching.
     var isSearching: Bool = false
 
