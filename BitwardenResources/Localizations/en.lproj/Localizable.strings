@@ -711,12 +711,6 @@
 "AddIdentity" = "Add identity";
 "AddNote" = "Add note";
 "AddSSHKey" = "Add SSH key";
-// TODO: [PM-33550] Remove New* keys once translation pipeline has replaced with Add* in all locales
-"NewLogin" = "New login";
-"NewCard" = "New card";
-"NewIdentity" = "New identity";
-"NewNote" = "New note";
-"NewSSHKey" = "New SSH key";
 "EditLogin" = "Edit login";
 "EditCard" = "Edit card";
 "EditIdentity" = "Edit identity";
@@ -826,8 +820,6 @@
 "CannotDeleteAccount" = "Cannot delete account";
 "CannotDeleteAccountDescriptionLong" = "This action cannot be completed because your account is owned by an organization. Contact your organization administrator for additional details.";
 "AddItem" = "Add item";
-// TODO: [PM-33550] Remove New* keys once translation pipeline has replaced with Add* in all locales
-"NewFolder" = "New folder";
 "SetUpAuthenticatorKey" = "Set up authenticator key";
 "ItemDetails" = "Item details";
 "CardDetails" = "Card details";
