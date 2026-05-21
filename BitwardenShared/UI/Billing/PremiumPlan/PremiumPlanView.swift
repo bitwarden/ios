@@ -41,7 +41,7 @@ struct PremiumPlanView: View {
 
     // MARK: Private Views
 
-    /// The billing details section with rows for billing amount, storage cost, and discount.
+    /// The billing details section.
     @ViewBuilder private var billingSection: some View {
         billingRow(
             label: Localizations.billingAmount,
@@ -71,7 +71,7 @@ struct PremiumPlanView: View {
             label: Localizations.total,
             value: store.state.totalLabel,
             valueColor: Color(asset: SharedAsset.Colors.textPrimary),
-            font: .bodyBold,
+            labelFont: .bodyBold,
         )
     }
 
@@ -157,24 +157,23 @@ struct PremiumPlanView: View {
     ///   - label: The label text displayed on the left.
     ///   - value: The value text displayed on the right.
     ///   - valueColor: The color to use for the value text.
-    ///   - font: The style guide font applied to both the label and the value. Defaults to `.body`;
-    ///     the Total row passes `.bodyBold` to match the design's emphasized total typography.
+    ///   - labelFont: The style guide font applied to the label.
     ///
     private func billingRow(
         label: String,
         value: String,
         valueColor: Color,
-        font: StyleGuideFont = .body,
+        labelFont: StyleGuideFont = .body,
     ) -> some View {
         HStack {
             Text(label)
-                .styleGuide(font)
+                .styleGuide(labelFont)
                 .foregroundColor(Color(asset: SharedAsset.Colors.textSecondary))
 
             Spacer()
 
             Text(value)
-                .styleGuide(font)
+                .styleGuide(.body)
                 .foregroundColor(valueColor)
         }
         .padding(.vertical, 20)

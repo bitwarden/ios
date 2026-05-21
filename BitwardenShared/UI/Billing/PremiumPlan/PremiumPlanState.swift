@@ -67,8 +67,7 @@ struct PremiumPlanState: Equatable {
         return Localizations.negativeX(formatCurrency(subscription.discount))
     }
 
-    /// The estimated tax label (e.g. "$4.55" or "$0.00"). Always renders when a
-    /// subscription exists, mirroring web's cart-summary always-render behavior.
+    /// The estimated tax label (e.g. "$4.55" or "$0.00").
     var estimatedTax: String {
         guard let subscription else { return "" }
         return formatCurrency(subscription.estimatedTax)
@@ -122,8 +121,7 @@ struct PremiumPlanState: Equatable {
         return ""
     }
 
-    /// The total label (e.g. "$25.55 / year"). Mirrors web's cart-summary
-    /// Total line, including the cadence suffix.
+    /// The total label (e.g. "$25.55 / year").
     var totalLabel: String {
         guard let subscription else { return "" }
         return Localizations.xAmountPerCadence(
