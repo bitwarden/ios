@@ -23,8 +23,10 @@ struct VaultListSectionView<Content: View>: View {
             if showCount {
                 SectionHeaderView("\(section.name) (\(section.items.count))")
                     .accessibilityLabel("\(section.name), \(Localizations.xItems(section.items.count))")
+                    .accessibilityAddTraits(.isHeader)
             } else {
                 SectionHeaderView(section.name)
+                    .accessibilityAddTraits(.isHeader)
             }
 
             LazyVStack(alignment: .leading, spacing: 0) {

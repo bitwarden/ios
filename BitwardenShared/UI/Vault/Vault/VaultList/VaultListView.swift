@@ -323,6 +323,11 @@ private struct SearchableVaultListView: View { // swiftlint:disable:this type_bo
         }
         .padding(.bottom, FloatingActionButton.bottomOffsetPadding)
         .scrollView()
+        .accessibilityRotor("Sections") {
+            ForEach(sections.filter { !$0.name.isEmpty }) { section in
+                AccessibilityRotorEntry(section.name, id: section.id)
+            }
+        }
     }
 
     /// Creates a row in the list for the provided item.
