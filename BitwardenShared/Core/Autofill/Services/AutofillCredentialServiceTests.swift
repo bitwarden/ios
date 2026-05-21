@@ -720,7 +720,7 @@ class AutofillCredentialServiceTests: BitwardenTestCase { // swiftlint:disable:t
             ),
         )
 
-        deviceAuthKeyService.getDeviceAuthKeyMetadataReturnValue = DeviceAuthKeyMetadata.fixture(
+        deviceAuthKeyService.getDeviceAuthKeyMetadataReturnValue = DeviceAuthKeyKeychainMetadata.fixture(
             cipherId: "dak-record-identifier",
         )
 
@@ -771,7 +771,7 @@ class AutofillCredentialServiceTests: BitwardenTestCase { // swiftlint:disable:t
             extensions: GetAssertionExtensionsOutput(prf: nil),
         )
 
-        deviceAuthKeyService.getDeviceAuthKeyMetadataReturnValue = DeviceAuthKeyMetadata.fixture(
+        deviceAuthKeyService.getDeviceAuthKeyMetadataReturnValue = DeviceAuthKeyKeychainMetadata.fixture(
             cipherId: "dak-record-identifier",
         )
 
@@ -1287,7 +1287,7 @@ class AutofillCredentialServiceTests: BitwardenTestCase { // swiftlint:disable:t
         waitFor(identityStore.replaceCredentialIdentitiesCalled == true)
         identityStore.replaceCredentialIdentitiesCalled = false
 
-        deviceAuthKeyService.getDeviceAuthKeyMetadataReturnValue = DeviceAuthKeyMetadata.fixture()
+        deviceAuthKeyService.getDeviceAuthKeyMetadataReturnValue = DeviceAuthKeyKeychainMetadata.fixture()
 
         deviceAuthKeySubject.send(["1": true])
         waitFor(identityStore.replaceCredentialIdentitiesIdentities?.isEmpty == false)
@@ -1321,7 +1321,7 @@ class AutofillCredentialServiceTests: BitwardenTestCase { // swiftlint:disable:t
         waitFor(identityStore.replaceCredentialIdentitiesCalled == true)
         identityStore.replaceCredentialIdentitiesCalled = false
 
-        deviceAuthKeyService.getDeviceAuthKeyMetadataReturnValue = DeviceAuthKeyMetadata.fixture()
+        deviceAuthKeyService.getDeviceAuthKeyMetadataReturnValue = DeviceAuthKeyKeychainMetadata.fixture()
 
         deviceAuthKeySubject.send(["1": true])
         waitFor(identityStore.replaceCredentialIdentitiesCalled == true)

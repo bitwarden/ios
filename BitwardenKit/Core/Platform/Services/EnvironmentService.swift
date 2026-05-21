@@ -29,6 +29,9 @@ public protocol EnvironmentService {
     /// The URL for importing items.
     var importItemsURL: URL { get }
 
+    /// The URL for managing the subscription plan.
+    var manageSubscriptionURL: URL { get }
+
     /// The URL for a proxy on cookie redirect (used on SSO sync error).
     var proxyCookieRedirectConnectorURL: URL { get }
 

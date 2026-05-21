@@ -6,8 +6,6 @@ import XCTest
 @testable import BitwardenShared
 @testable import BitwardenSharedMocks
 
-// swiftlint:disable file_length
-
 class GeneratorRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_body_length
     // MARK: Properties
 

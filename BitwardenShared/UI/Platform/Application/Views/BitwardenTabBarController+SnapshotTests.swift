@@ -4,35 +4,39 @@ import SnapshotTesting
 import XCTest
 
 @testable import BitwardenShared
+@testable import BitwardenSharedMocks
 
 // MARK: - BitwardenTabBarControllerTests
 
 class BitwardenTabBarControllerTests: BitwardenTestCase {
-    var module: MockAppModule!
     var coordinator: TabCoordinator!
-    var rootNavigator: MockRootNavigator!
-    var vaultDelegate: MockVaultCoordinatorDelegate!
-    var settingsDelegate: MockSettingsCoordinatorDelegate!
     var errorReporter: MockErrorReporter!
-    var vaultRepository: MockVaultRepository!
+    var module: MockAppModule!
+    var policyService: MockPolicyService!
+    var rootNavigator: MockRootNavigator!
+    var settingsDelegate: MockSettingsCoordinatorDelegate!
     var subject: BitwardenTabBarController!
+    var vaultDelegate: MockVaultCoordinatorDelegate!
+    var vaultRepository: MockVaultRepository!
 
     // MARK: Setup & Teardown
 
     override func setUp() {
         super.setUp()
 
-        module = MockAppModule()
-        rootNavigator = MockRootNavigator()
-        vaultDelegate = MockVaultCoordinatorDelegate()
-        settingsDelegate = MockSettingsCoordinatorDelegate()
         errorReporter = MockErrorReporter()
+        module = MockAppModule()
+        policyService = MockPolicyService()
+        rootNavigator = MockRootNavigator()
+        settingsDelegate = MockSettingsCoordinatorDelegate()
+        vaultDelegate = MockVaultCoordinatorDelegate()
         vaultRepository = MockVaultRepository()
         subject = BitwardenTabBarController()
 
         coordinator = TabCoordinator(
             errorReporter: errorReporter,
             module: module,
+            policyService: policyService,
             rootNavigator: rootNavigator,
             settingsDelegate: settingsDelegate,
             tabNavigator: subject,
@@ -46,14 +50,15 @@ class BitwardenTabBarControllerTests: BitwardenTestCase {
     override func tearDown() {
         super.tearDown()
 
-        module = nil
         coordinator = nil
-        rootNavigator = nil
-        vaultDelegate = nil
-        settingsDelegate = nil
         errorReporter = nil
-        vaultRepository = nil
+        module = nil
+        policyService = nil
+        rootNavigator = nil
+        settingsDelegate = nil
         subject = nil
+        vaultDelegate = nil
+        vaultRepository = nil
     }
 
     /// Tests that the tab bar items are laid out correctly with vault selected (default) in light mode.

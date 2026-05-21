@@ -1,10 +1,10 @@
 import BitwardenSdk
 import Foundation
 
-// MARK: - DeviceAuthKeyRecord
+// MARK: - DeviceAuthKeyKeychainRecord
 
 /// Stored key material needed to assert the device auth key passkey.
-public struct DeviceAuthKeyRecord: Codable, Equatable, Sendable {
+public struct DeviceAuthKeyKeychainRecord: Codable, Equatable, Sendable {
     /// The unique identifier of the cipher associated with this device auth key.
     public let cipherId: EncString
 
