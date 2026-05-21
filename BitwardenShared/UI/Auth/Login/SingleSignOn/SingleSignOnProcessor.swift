@@ -238,7 +238,7 @@ extension SingleSignOnProcessor: SingleSignOnFlowDelegate {
                             orgIdentifier: state.identifierText,
                         )
                         await coordinator.handleEvent(.didCompleteAuth)
-                    } catch StateServiceError.noEncryptedPrivateKey {
+                    } catch StateServiceError.noAccountCryptographicState {
                         coordinator.showAlert(Alert.keyConnectorConfirmation(keyConnectorUrl: keyConnectorUrl) {
                             await self.migrateUserKeyConnector(keyConnectorUrl: keyConnectorUrl)
                         })

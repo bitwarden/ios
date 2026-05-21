@@ -1,5 +1,6 @@
 import BitwardenKit
 import BitwardenKitMocks
+import BitwardenSdk
 import XCTest
 
 @testable import BitwardenShared
@@ -531,5 +532,69 @@ class MigrationServiceTests: BitwardenTestCase { // swiftlint:disable:this type_
         XCTAssertEqual(userSessionStateService.setLastActiveTimeCallsCount, 0)
         XCTAssertEqual(userSessionStateService.setUnsuccessfulUnlockAttemptsCallsCount, 0)
         XCTAssertEqual(userSessionStateService.setVaultTimeoutCallsCount, 0)
+    }
+
+    // MARK: Migration 6 (Migrate AccountEncryptionKeys to WrappedAccountCryptographicState)
+
+    /// `performMigrations()` for migration 6 converts V1 private keys to `WrappedAccountCryptographicState`.
+    func test_performMigrations_6_v1() async throws {
+        appSettingsStore.state = State(
+            accounts: [
+                "1": .fixture(),
+                "2": .fixture(profile: .fixture(userId: "2")),
+            ],
+            activeUserId: "1",
+        )
+        appGroupUserDefaults.set("1:PRIVATE_KEY", forKey: "bwPreferencesStorage:encPrivateKey_1")
+        appGroupUserDefaults.set("2:PRIVATE_KEY", forKey: "bwPreferencesStorage:encPrivateKey_2")
+
+        try await subject.performMigration(version: 6)
+
+        XCTAssertEqual(appSettingsStore.accountCryptographicStates["1"], .v1(privateKey: "1:PRIVATE_KEY"))
+        XCTAssertEqual(appSettingsStore.accountCryptographicStates["2"], .v1(privateKey: "2:PRIVATE_KEY"))
+        XCTAssertNil(appGroupUserDefaults.string(forKey: "bwPreferencesStorage:encPrivateKey_1"))
+        XCTAssertNil(appGroupUserDefaults.string(forKey: "bwPreferencesStorage:encPrivateKey_2"))
+        XCTAssertNil(appGroupUserDefaults.string(forKey: "bwPreferencesStorage:accountKeys_1"))
+    }
+
+    /// `performMigrations()` for migration 6 converts V2 account keys to `WrappedAccountCryptographicState`.
+    func test_performMigrations_6_v2() async throws {
+        appSettingsStore.state = State(
+            accounts: ["1": .fixture()],
+            activeUserId: "1",
+        )
+        appGroupUserDefaults.set("FALLBACK_PRIVATE_KEY", forKey: "bwPreferencesStorage:encPrivateKey_1")
+        let accountKeysData = try XCTUnwrap(
+            String(data: JSONEncoder().encode(PrivateKeysResponseModel.fixtureFilled()), encoding: .utf8),
+        )
+        appGroupUserDefaults.set(accountKeysData, forKey: "bwPreferencesStorage:accountKeys_1")
+
+        try await subject.performMigration(version: 6)
+
+        XCTAssertEqual(appSettingsStore.accountCryptographicStates["1"], .fixtureV2())
+        XCTAssertNil(appGroupUserDefaults.string(forKey: "bwPreferencesStorage:encPrivateKey_1"))
+        XCTAssertNil(appGroupUserDefaults.string(forKey: "bwPreferencesStorage:accountKeys_1"))
+    }
+
+    /// `performMigrations()` for migration 6 skips accounts without a stored private key.
+    func test_performMigrations_6_missingPrivateKey() async throws {
+        appSettingsStore.state = State(
+            accounts: ["1": .fixture()],
+            activeUserId: "1",
+        )
+
+        try await subject.performMigration(version: 6)
+
+        XCTAssertNil(appSettingsStore.accountCryptographicStates["1"])
+    }
+
+    /// `performMigrations()` for migration 6 handles no existing accounts.
+    func test_performMigrations_6_withNoAccounts() async throws {
+        appSettingsStore.state = nil
+
+        try await subject.performMigration(version: 6)
+
+        XCTAssertEqual(appSettingsStore.migrationVersion, 6)
+        XCTAssertTrue(appSettingsStore.accountCryptographicStates.isEmpty)
     }
 } // swiftlint:disable:this file_length

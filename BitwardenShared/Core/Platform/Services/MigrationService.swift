@@ -1,4 +1,5 @@
 import BitwardenKit
+import BitwardenSdk
 import OSLog
 
 // MARK: - MigrationService
@@ -254,6 +255,39 @@ class DefaultMigrationService {
             }
         }
     }
+
+    /// Performs migration 6.
+    ///
+    /// Notes:
+    ///  - Migrates account cryptographic state from two separate UserDefaults keys
+    ///    (`encPrivateKey`, `accountKeys`) into a single `accountCryptographicState` key
+    ///    storing a JSON-encoded `WrappedAccountCryptographicState`.
+    ///  - Accounts without a stored private key are skipped.
+    ///
+    private func performMigration6() async throws {
+        guard let state = appSettingsStore.state else { return }
+
+        for (accountId, _) in state.accounts {
+            let privateKeyStorageKey = "bwPreferencesStorage:encPrivateKey_\(accountId)"
+            guard let privateKey = appGroupUserDefaults.string(forKey: privateKeyStorageKey) else { continue }
+
+            let accountKeysStorageKey = "bwPreferencesStorage:accountKeys_\(accountId)"
+            let accountKeys: PrivateKeysResponseModel? = {
+                guard let string = appGroupUserDefaults.string(forKey: accountKeysStorageKey),
+                      let data = string.data(using: .utf8)
+                else { return nil }
+                return try? JSONDecoder().decode(PrivateKeysResponseModel.self, from: data)
+            }()
+
+            let cryptographicState = WrappedAccountCryptographicState.create(
+                accountKeys: accountKeys,
+                privateKey: privateKey,
+            )
+            appSettingsStore.setAccountCryptographicState(cryptographicState, userId: accountId)
+            appGroupUserDefaults.removeObject(forKey: privateKeyStorageKey)
+            appGroupUserDefaults.removeObject(forKey: accountKeysStorageKey)
+        }
+    }
 }
 
 extension DefaultMigrationService {
@@ -265,6 +299,7 @@ extension DefaultMigrationService {
             performMigration3,
             performMigration4,
             performMigration5,
+            performMigration6,
         ]
     }
 

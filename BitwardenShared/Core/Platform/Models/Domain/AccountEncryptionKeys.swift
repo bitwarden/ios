@@ -1,13 +1,12 @@
+import BitwardenSdk
+
 /// Domain model that contains the encryption keys for an account.
 ///
 struct AccountEncryptionKeys: Equatable {
     // MARK: Properties
 
-    /// The user's v2 account keys.
-    let accountKeys: PrivateKeysResponseModel?
-
-    /// The encrypted private key for the account.
-    let encryptedPrivateKey: String
+    /// The cryptographic state required to initialize the user's vault encryption.
+    let cryptographicState: WrappedAccountCryptographicState
 
     /// The encrypted user key for the account.
     let encryptedUserKey: String?
@@ -27,8 +26,10 @@ extension AccountEncryptionKeys {
         }
 
         self.init(
-            accountKeys: responseModel.accountKeys,
-            encryptedPrivateKey: privateKey,
+            cryptographicState: .create(
+                accountKeys: responseModel.accountKeys,
+                privateKey: privateKey,
+            ),
             encryptedUserKey: responseModel.key,
         )
     }
