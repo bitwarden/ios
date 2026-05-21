@@ -120,11 +120,18 @@ struct PremiumPlanStateTests {
         #expect(state.estimatedTax == "$4.55")
     }
 
-    /// `estimatedTax` returns empty when tax is zero.
+    /// `estimatedTax` returns the formatted zero amount when tax is zero.
     @Test
     func estimatedTax_zero() {
         var state = PremiumPlanState()
         state.subscription = .fixture(estimatedTax: 0)
+        #expect(state.estimatedTax == "$0.00")
+    }
+
+    /// `estimatedTax` returns empty when subscription is nil.
+    @Test
+    func estimatedTax_nil() {
+        let state = PremiumPlanState()
         #expect(state.estimatedTax.isEmpty)
     }
 
@@ -176,24 +183,6 @@ struct PremiumPlanStateTests {
         var state = PremiumPlanState()
         state.subscription = .fixture(discount: 0)
         #expect(!state.showDiscount)
-    }
-
-    // MARK: Tests - showEstimatedTax
-
-    /// `showEstimatedTax` is true when estimated tax is greater than zero.
-    @Test
-    func showEstimatedTax_true() {
-        var state = PremiumPlanState()
-        state.subscription = .fixture(estimatedTax: 4.55)
-        #expect(state.showEstimatedTax)
-    }
-
-    /// `showEstimatedTax` is false when estimated tax is zero.
-    @Test
-    func showEstimatedTax_false() {
-        var state = PremiumPlanState()
-        state.subscription = .fixture(estimatedTax: 0)
-        #expect(!state.showEstimatedTax)
     }
 
     // MARK: Tests - showStorageCost
@@ -256,5 +245,42 @@ struct PremiumPlanStateTests {
         var state = PremiumPlanState()
         state.subscription = .fixture()
         #expect(state.subscriptionEndDate.isEmpty)
+    }
+
+    // MARK: Tests - totalLabel
+
+    /// `totalLabel` returns the formatted total with cadence suffix.
+    @Test
+    func totalLabel() {
+        var state = PremiumPlanState()
+        state.subscription = .fixture(
+            cadence: .annually,
+            discount: 0,
+            estimatedTax: 4.55,
+            seatsCost: 19.80,
+            storageCost: 1.20,
+        )
+        #expect(state.totalLabel.contains("$25.55"))
+        #expect(state.totalLabel.contains(Localizations.perYear))
+    }
+
+    /// `totalLabel` floors at zero when discounts exceed costs.
+    @Test
+    func totalLabel_flooredAtZero() {
+        var state = PremiumPlanState()
+        state.subscription = .fixture(
+            discount: 100,
+            estimatedTax: 0,
+            seatsCost: 10,
+            storageCost: 0,
+        )
+        #expect(state.totalLabel.contains("$0.00"))
+    }
+
+    /// `totalLabel` returns empty when subscription is nil.
+    @Test
+    func totalLabel_nil() {
+        let state = PremiumPlanState()
+        #expect(state.totalLabel.isEmpty)
     }
 }
