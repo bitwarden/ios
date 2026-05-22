@@ -89,6 +89,7 @@ final class SettingsProcessor: StateProcessor<SettingsState, SettingsAction, Set
     override func perform(_ effect: SettingsEffect) async {
         switch effect {
         case .appeared:
+            guard state.presentationMode == .tab else { return }
             let featureEnabled = await services.configService
                 .getFeatureFlag(.premiumUpgradePath, defaultValue: false)
             let hasPremium = await services.vaultRepository.doesActiveAccountHavePremium()

@@ -198,6 +198,15 @@ class SettingsProcessorTests: BitwardenTestCase {
         XCTAssertFalse(subject.state.showPlanRow)
     }
 
+    /// `perform(.appeared)` does nothing in pre-login presentation mode.
+    @MainActor
+    func test_perform_appeared_preLogin_doesNothing() async {
+        setUpSubject(presentationMode: .preLogin)
+        await subject.perform(.appeared)
+        XCTAssertFalse(subject.state.hasPremium)
+        XCTAssertFalse(subject.state.showPlanRow)
+    }
+
     /// `perform(.appeared)` shows the plan row for a free user when the feature flag is enabled.
     @MainActor
     func test_perform_appeared_showsPlanRow_freeUser() async {
