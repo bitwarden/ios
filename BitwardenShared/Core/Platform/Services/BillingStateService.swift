@@ -17,6 +17,12 @@ protocol BillingStateService { // sourcery: AutoMockable
     /// - Returns: `true` if the user is eligible for the premium upgrade.
     ///
     func isPremiumUpgradeEligible() async -> Bool
+
+    /// Returns whether the "Upgraded to Premium" action card should be shown for the active account.
+    ///
+    /// - Returns: `true` if the card should be shown.
+    ///
+    func isUpgradedToPremiumActionCardVisible() async -> Bool
 }
 
 // MARK: - DefaultStateService
@@ -38,5 +44,14 @@ extension DefaultStateService: BillingStateService {
         guard let account = try? await getActiveAccount(),
               let creationDate = account.profile.creationDate else { return false }
         return timeProvider.timeSince(creationDate) >= Constants.premiumUpgradeBannerAccountAge
+    }
+
+    func isUpgradedToPremiumActionCardVisible() async -> Bool {
+        do {
+            return try await getUpgradedToPremiumActionCardVisible()
+        } catch {
+            errorReporter.log(error: error)
+            return false
+        }
     }
 }

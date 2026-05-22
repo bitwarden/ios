@@ -301,6 +301,12 @@ protocol StateService: AnyObject, BillingStateService {
     ///
     func getPremiumUpgradeBannerDismissed(userId: String?) async throws -> Bool
 
+    /// Gets whether the "Upgraded to Premium" action card should be shown for the active account.
+    ///
+    /// - Returns: Whether the action card should be shown.
+    ///
+    func getUpgradedToPremiumActionCardVisible() async throws -> Bool
+
     /// Gets the environment URLs for a given email during account creation.
     ///
     /// - Parameter email: The email used to start the account creation.
@@ -546,6 +552,12 @@ protocol StateService: AnyObject, BillingStateService {
     ///     Defaults to the active account if `nil`.
     ///
     func setPremiumUpgradeBannerDismissed(_ dismissed: Bool, userId: String?) async throws
+
+    /// Sets whether the "Upgraded to Premium" action card should be shown for the active account.
+    ///
+    /// - Parameter visible: Whether the action card should be shown.
+    ///
+    func setUpgradedToPremiumActionCardVisible(_ visible: Bool) async throws
 
     /// Sets the clear clipboard value for an account.
     ///
@@ -1644,6 +1656,11 @@ actor DefaultStateService: StateService, ActiveAccountStateProvider, ConfigState
         return appSettingsStore.premiumUpgradeBannerDismissed(userId: userId)
     }
 
+    func getUpgradedToPremiumActionCardVisible() async throws -> Bool {
+        let userId = try getActiveAccountUserId()
+        return appSettingsStore.upgradedToPremiumActionCardVisible(userId: userId)
+    }
+
     func getClearClipboardValue(userId: String?) async throws -> ClearClipboardValue {
         let userId = try userId ?? getActiveAccountUserId()
         return appSettingsStore.clearClipboardValue(userId: userId)
@@ -1998,6 +2015,11 @@ actor DefaultStateService: StateService, ActiveAccountStateProvider, ConfigState
     func setPremiumUpgradeBannerDismissed(_ dismissed: Bool, userId: String?) async throws {
         let userId = try userId ?? getActiveAccountUserId()
         appSettingsStore.setPremiumUpgradeBannerDismissed(dismissed, userId: userId)
+    }
+
+    func setUpgradedToPremiumActionCardVisible(_ visible: Bool) async throws {
+        let userId = try getActiveAccountUserId()
+        appSettingsStore.setUpgradedToPremiumActionCardVisible(visible, userId: userId)
     }
 
     func setClearClipboardValue(_ clearClipboardValue: ClearClipboardValue?, userId: String?) async throws {
