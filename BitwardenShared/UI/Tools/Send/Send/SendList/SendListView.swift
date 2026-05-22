@@ -74,6 +74,13 @@ private struct MainSendListView: View {
     /// The empty state for this view, displayed when there are no items.
     @ViewBuilder private var empty: some View {
         VStack(spacing: 24) {
+            if store.state.shouldShowUpgradedToPremiumActionCard {
+                UpgradedToPremiumActionCardView(
+                    onDismiss: { await store.perform(.dismissUpgradedToPremiumActionCard) },
+                    onLearnMore: { store.send(.learnMoreAboutPremium) },
+                )
+            }
+
             if store.state.isSendDisabled {
                 InfoContainer(Localizations.sendDisabledWarning)
                     .accessibilityIdentifier("SendPolicyLabel")
