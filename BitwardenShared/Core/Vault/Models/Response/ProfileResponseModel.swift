@@ -56,6 +56,9 @@ struct ProfileResponseModel: Codable, Equatable, AccountKeysResponseModelProtoco
     @available(*, deprecated, message: "Use accountKeys instead when possible") // TODO: PM-24659 remove
     let privateKey: String?
 
+    /// A list of organizations that the user has access to via a provider relationship.
+    let providerOrganizations: [ProfileProviderOrganizationResponseModel]?
+
     /// The user's security stamp.
     let securityStamp: String?
 

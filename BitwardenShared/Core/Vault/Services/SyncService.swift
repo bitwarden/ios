@@ -435,14 +435,14 @@ extension DefaultSyncService {
             return
         }
 
-        if let organizations = response.profile?.organizations {
+        if let effectiveOrganizations = resolveEffectiveOrganizations(from: response) {
             if await !vaultTimeoutService.isLocked(userId: userId) {
                 try await organizationService.initializeOrganizationCrypto(
-                    organizations: organizations.compactMap(Organization.init),
+                    organizations: effectiveOrganizations.compactMap(Organization.init),
                 )
             }
-            try await organizationService.replaceOrganizations(organizations, userId: userId)
-            try await checkTdeUserNeedsToSetPassword(account, organizations)
+            try await organizationService.replaceOrganizations(effectiveOrganizations, userId: userId)
+            try await checkTdeUserNeedsToSetPassword(account, effectiveOrganizations)
         }
 
         if let profile = response.profile {
@@ -475,6 +475,30 @@ extension DefaultSyncService {
         }
 
         await delegate?.onFetchSyncSucceeded(userId: userId)
+    }
+
+    /// Resolves the effective list of organizations from a sync response.
+    ///
+    /// Prefers `organizationsNew` (accepted-state members) over the legacy `organizations` list,
+    /// and coalesces `isProviderUser` by checking membership in `providerOrganizations`.
+    ///
+    /// - Parameter response: The sync response from the server.
+    /// - Returns: The effective organizations, or `nil` when neither list is present.
+    private func resolveEffectiveOrganizations(
+        from response: SyncResponseModel,
+    ) -> [ProfileOrganizationResponseModel]? {
+        guard let rawOrganizations = response.profile?.organizationsNew
+            ?? response.profile?.organizations
+        else { return nil }
+
+        let providerOrgIds = Set(response.profile?.providerOrganizations?.map(\.id) ?? [])
+        guard !providerOrgIds.isEmpty else { return rawOrganizations }
+        return rawOrganizations.map { org in
+            guard providerOrgIds.contains(org.id) else { return org }
+            var mutable = org
+            mutable.isProviderUser = true
+            return mutable
+        }
     }
 
     func deleteCipher(data: SyncCipherNotification) async throws {

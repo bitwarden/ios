@@ -11,6 +11,11 @@ public struct Organization: Equatable, Hashable, Sendable {
     /// The organization's identifier.
     let id: String
 
+    /// Whether the user accesses this organization through a provider relationship.
+    /// Set to `true` when the organization appears in both `organizations` and
+    /// `providerOrganizations` on the sync response profile.
+    @DefaultFalse var isProviderUser: Bool
+
     /// The profile organization's key.
     let key: String?
 
@@ -53,6 +58,7 @@ extension Organization {
         self.init(
             enabled: responseModel.enabled,
             id: responseModel.id,
+            isProviderUser: responseModel.isProviderUser,
             key: responseModel.key,
             keyConnectorEnabled: responseModel.keyConnectorEnabled,
             keyConnectorUrl: responseModel.keyConnectorUrl,

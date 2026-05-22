@@ -1366,6 +1366,98 @@ class SyncServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
         XCTAssertTrue(policyService.replacePoliciesNewPolicies.isEmpty)
     }
 
+    // MARK: - organizationsNew fallback tests
+
+    /// `fetchSync()` passes `organizationsNew` to `replaceOrganizations` when the field is present,
+    /// ignoring the legacy `profile.organizations`.
+    func test_fetchSync_organizationsNew_newOverridesLegacyOrganizations() async throws {
+        client.result = .httpSuccess(testData: .syncWithOrganizationsNew)
+        stateService.activeAccount = .fixture()
+
+        try await subject.fetchSync(forceSync: true)
+
+        XCTAssertEqual(organizationService.replaceOrganizationsOrganizations?.map(\.id), ["org-new-1"])
+    }
+
+    /// `fetchSync()` falls back to `profile.organizations` when `organizationsNew` is absent.
+    func test_fetchSync_organizationsNew_absentFallsBackToProfileOrganizations() async throws {
+        client.result = .httpSuccess(testData: .syncWithProfileOrganizations)
+        stateService.activeAccount = .fixture()
+
+        try await subject.fetchSync(forceSync: true)
+
+        // Legacy organizations from profile should be used when organizationsNew is nil.
+        XCTAssertFalse(organizationService.replaceOrganizationsOrganizations?.isEmpty ?? true)
+    }
+
+    /// `fetchSync()` calls `initializeOrganizationCrypto` with the `organizationsNew` data when present.
+    func test_fetchSync_organizationsNew_initializesOrgCryptoWithNewOrgs() async throws {
+        client.result = .httpSuccess(testData: .syncWithOrganizationsNew)
+        stateService.activeAccount = .fixture()
+        // isClientLocked defaults to false (not locked), so crypto init should be called.
+
+        try await subject.fetchSync(forceSync: true)
+
+        XCTAssertTrue(organizationService.initializeOrganizationCryptoWithOrgsCalled)
+    }
+
+    // MARK: - isProviderUser coalescing tests
+
+    /// `fetchSync()` sets `isProviderUser = false` when the org does not appear in `providerOrganizations`.
+    func test_fetchSync_isProviderUser_falseWhenNoProviderRelationship() async throws {
+        client.result = .httpSuccess(testData: .syncWithProfileOrganizations)
+        stateService.activeAccount = .fixture()
+
+        try await subject.fetchSync(forceSync: true)
+
+        let replacedOrgs = organizationService.replaceOrganizationsOrganizations ?? []
+        XCTAssertFalse(replacedOrgs.isEmpty)
+        XCTAssertTrue(replacedOrgs.allSatisfy { !$0.isProviderUser })
+    }
+
+    /// `fetchSync()` sets `isProviderUser = true` for any org that also appears in `providerOrganizations`,
+    /// including orgs where the user's member status is accepted (status = 1).
+    func test_fetchSync_isProviderUser_trueForMemberOrgWithProviderRelationship() async throws {
+        client.result = .httpSuccess(testData: .syncWithProviderOrganization)
+        stateService.activeAccount = .fixture()
+
+        try await subject.fetchSync(forceSync: true)
+
+        let replacedOrgs = organizationService.replaceOrganizationsOrganizations ?? []
+        XCTAssertEqual(replacedOrgs.count, 2)
+
+        let providerOrg = replacedOrgs.first { $0.id == "org-member-and-provider" }
+        let memberOnlyOrg = replacedOrgs.first { $0.id == "org-member-only" }
+
+        XCTAssertEqual(providerOrg?.isProviderUser, true)
+        XCTAssertEqual(memberOnlyOrg?.isProviderUser, false)
+    }
+
+    /// `fetchSync()` leaves `isProviderUser = false` for orgs not in `providerOrganizations`
+    /// even when other orgs in the same response have a provider relationship.
+    func test_fetchSync_isProviderUser_memberOnlyOrgIsNotMarkedAsProviderUser() async throws {
+        client.result = .httpSuccess(testData: .syncWithProviderOrganization)
+        stateService.activeAccount = .fixture()
+
+        try await subject.fetchSync(forceSync: true)
+
+        let replacedOrgs = organizationService.replaceOrganizationsOrganizations ?? []
+        let memberOnlyOrg = replacedOrgs.first { $0.id == "org-member-only" }
+        XCTAssertEqual(memberOnlyOrg?.isProviderUser, false)
+    }
+
+    /// `fetchSync()` does not modify any org when `providerOrganizations` is empty.
+    func test_fetchSync_isProviderUser_emptyProviderOrgListLeavesAllFalse() async throws {
+        // syncWithProfileOrganizations has providerOrganizations: [] on the profile.
+        client.result = .httpSuccess(testData: .syncWithProfileOrganizations)
+        stateService.activeAccount = .fixture()
+
+        try await subject.fetchSync(forceSync: true)
+
+        let replacedOrgs = organizationService.replaceOrganizationsOrganizations ?? []
+        XCTAssertFalse(replacedOrgs.isEmpty)
+        XCTAssertTrue(replacedOrgs.allSatisfy { !$0.isProviderUser })
+    }
 }
 
 class MockSyncServiceDelegate: SyncServiceDelegate {
