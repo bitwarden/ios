@@ -1,7 +1,6 @@
 import BitwardenKit
 import BitwardenResources
 import BitwardenSdk
-import Combine
 import OSLog
 
 /// The processor used to manage state and handle actions for the generator screen.
@@ -48,9 +47,6 @@ final class GeneratorProcessor: StateProcessor<GeneratorState, GeneratorAction, 
     /// Whether the slider is currently in editing mode.
     private var isEditingSlider = false
 
-    /// A cancellable for the premium checkout status subscription.
-    private var premiumCheckoutCancellable: AnyCancellable?
-
     /// The task used to generate a new value so it can be cancelled if needed.
     private var generateValueTask: Task<Void, Never>?
 
@@ -91,12 +87,13 @@ final class GeneratorProcessor: StateProcessor<GeneratorState, GeneratorAction, 
             await reloadGeneratorOptions()
             await generateValue(shouldSavePassword: true)
             await checkLearnGeneratorActionCardEligibility()
-            subscribeToPremiumCheckoutStatus()
+            state.shouldShowUpgradedToPremiumActionCard = await services.billingService.shouldShowUpgradedToPremiumActionCard()
         case .dismissLearnGeneratorActionCard:
             await services.stateService.setLearnGeneratorActionCardStatus(.complete)
             state.isLearnGeneratorActionCardEligible = false
         case .dismissUpgradedToPremiumActionCard:
             state.shouldShowUpgradedToPremiumActionCard = false
+            await services.billingService.setUpgradedToPremiumActionCardDismissed()
         case .showLearnGeneratorGuidedTour:
             state.generatorType = .password
             await services.stateService.setLearnGeneratorActionCardStatus(.complete)
@@ -189,6 +186,7 @@ final class GeneratorProcessor: StateProcessor<GeneratorState, GeneratorAction, 
         case .learnMoreAboutPremium:
             state.url = ExternalLinksConstants.learnMoreAboutPremium
             state.shouldShowUpgradedToPremiumActionCard = false
+            Task { await services.billingService.setUpgradedToPremiumActionCardDismissed() }
         }
 
         if let generateValueBehavior {
@@ -212,25 +210,6 @@ final class GeneratorProcessor: StateProcessor<GeneratorState, GeneratorAction, 
     private func checkLearnGeneratorActionCardEligibility() async {
         state.isLearnGeneratorActionCardEligible = await services.stateService
             .getLearnGeneratorActionCardStatus() == .incomplete
-    }
-
-    /// Handles state updates after a premium upgrade is confirmed.
-    ///
-    private func handlePremiumUpgradeConfirmed() async {
-        let hasPremium = await services.stateService.doesActiveAccountHavePremium()
-        state.shouldShowUpgradedToPremiumActionCard = hasPremium
-    }
-
-    /// Subscribes to premium checkout status updates to show the upgraded card on confirmation.
-    ///
-    private func subscribeToPremiumCheckoutStatus() {
-        premiumCheckoutCancellable = services.billingService
-            .premiumCheckoutStatusPublisher()
-            .receive(on: DispatchQueue.main)
-            .sink { [weak self] status in
-                guard let self, case .confirmed = status else { return }
-                Task { @MainActor in await self.handlePremiumUpgradeConfirmed() }
-            }
     }
 
     /// Generate a new passphrase.

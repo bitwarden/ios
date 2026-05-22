@@ -120,6 +120,7 @@ final class VaultListProcessor: StateProcessor<
             await dismissPremiumUpgradeActionCard()
         case .dismissUpgradedToPremiumActionCard:
             state.shouldShowUpgradedToPremiumActionCard = false
+            await services.billingService.setUpgradedToPremiumActionCardDismissed()
         case let .morePressed(item):
             await morePressed(item: item)
         case let .profileSwitcher(profileEffect):
@@ -166,6 +167,7 @@ final class VaultListProcessor: StateProcessor<
         case .learnMoreAboutPremium:
             state.url = ExternalLinksConstants.learnMoreAboutPremium
             state.shouldShowUpgradedToPremiumActionCard = false
+            Task { await services.billingService.setUpgradedToPremiumActionCardDismissed() }
         case .navigateToFlightRecorderSettings:
             coordinator.navigate(to: .flightRecorderSettings)
         case let .profileSwitcher(profileAction):
@@ -242,6 +244,7 @@ extension VaultListProcessor {
             return
         }
         state.shouldShowPremiumUpgradeActionCard = await services.billingRepository.isInAppUpgradeAvailable()
+        state.shouldShowUpgradedToPremiumActionCard = await services.billingService.shouldShowUpgradedToPremiumActionCard()
     }
 
     /// Checks if the user is eligible for an app review prompt and schedules one if so.

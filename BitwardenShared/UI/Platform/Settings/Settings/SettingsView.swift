@@ -38,16 +38,16 @@ struct SettingsView: View {
             openURL(url)
             store.send(.clearUrl)
         }
-            .toolbar {
-                closeToolbarItem(hidden: store.state.presentationMode != .preLogin) {
-                    store.send(.dismiss)
-                }
-
-                largeNavigationTitleToolbarItem(
-                    Localizations.settings,
-                    hidden: store.state.presentationMode != .tab,
-                )
+        .toolbar {
+            closeToolbarItem(hidden: store.state.presentationMode != .preLogin) {
+                store.send(.dismiss)
             }
+
+            largeNavigationTitleToolbarItem(
+                Localizations.settings,
+                hidden: store.state.presentationMode != .tab,
+            )
+        }
     }
 
     // MARK: Private views
