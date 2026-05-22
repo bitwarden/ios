@@ -103,7 +103,7 @@ struct PremiumPlanProcessorTests {
         #expect(subject.state.nextChargeAmount.contains("USD"))
         #expect(subject.state.nextChargeAmount.contains("24.35"))
         #expect(!subject.state.nextChargeDate.isEmpty)
-        #expect(!subject.state.showStorageCost)
+        #expect(subject.state.storageCostLabel.contains("$0.00"))
     }
 
     /// `receive(_:)` with `.cancelPremiumTapped` shows the confirmation alert.
