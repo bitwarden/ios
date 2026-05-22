@@ -6,6 +6,7 @@ import TestHelpers
 import XCTest
 
 @testable import BitwardenShared
+@testable import BitwardenSharedMocks
 
 // swiftlint:disable file_length
 
@@ -14,6 +15,7 @@ import XCTest
 class SendListProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body_length
     // MARK: Properties
 
+    var billingService: MockBillingService!
     var coordinator: MockCoordinator<SendRoute, Void>!
     var errorReporter: MockErrorReporter!
     var pasteboardService: MockPasteboardService!
@@ -25,6 +27,8 @@ class SendListProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
     override func setUp() {
         super.setUp()
 
+        billingService = MockBillingService()
+        billingService.shouldShowUpgradedToPremiumActionCardReturnValue = false
         coordinator = MockCoordinator()
         errorReporter = MockErrorReporter()
         pasteboardService = MockPasteboardService()
@@ -35,6 +39,7 @@ class SendListProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         subject = SendListProcessor(
             coordinator: coordinator.asAnyCoordinator(),
             services: ServiceContainer.withMocks(
+                billingService: billingService,
                 errorReporter: errorReporter,
                 pasteboardService: pasteboardService,
                 policyService: policyService,

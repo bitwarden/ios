@@ -6,12 +6,14 @@ import TestHelpers
 import XCTest
 
 @testable import BitwardenShared
+@testable import BitwardenSharedMocks
 
 // swiftlint:disable file_length
 
 class GeneratorProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body_length
     // MARK: Properties
 
+    var billingService: MockBillingService!
     var configService: MockConfigService!
     var coordinator: MockCoordinator<GeneratorRoute, Void>!
     var errorReporter: MockErrorReporter!
@@ -27,6 +29,8 @@ class GeneratorProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
     override func setUp() {
         super.setUp()
 
+        billingService = MockBillingService()
+        billingService.shouldShowUpgradedToPremiumActionCardReturnValue = false
         configService = MockConfigService()
         coordinator = MockCoordinator()
         errorReporter = MockErrorReporter()
@@ -42,6 +46,7 @@ class GeneratorProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
     override func tearDown() {
         super.tearDown()
 
+        billingService = nil
         configService = nil
         coordinator = nil
         errorReporter = nil
@@ -58,6 +63,7 @@ class GeneratorProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         subject = GeneratorProcessor(
             coordinator: coordinator.asAnyCoordinator(),
             services: ServiceContainer.withMocks(
+                billingService: billingService,
                 configService: configService,
                 errorReporter: errorReporter,
                 generatorRepository: generatorRepository,

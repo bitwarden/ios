@@ -23,6 +23,7 @@ class SettingsProcessorTests: BitwardenTestCase {
 
         billingService = MockBillingService()
         billingService.isSelfHostedReturnValue = false
+        billingService.shouldShowUpgradedToPremiumActionCardReturnValue = false
         configService = MockConfigService()
         coordinator = MockCoordinator()
         delegate = MockSettingsProcessorDelegate()
