@@ -711,11 +711,14 @@
 "AddIdentity" = "Add identity";
 "AddNote" = "Add note";
 "AddSSHKey" = "Add SSH key";
+"AddBankAccount" = "Add bank account";
+"EditBankAccount" = "Edit bank account";
 "EditLogin" = "Edit login";
 "EditCard" = "Edit card";
 "EditIdentity" = "Edit identity";
 "EditNote" = "Edit note";
 "EditSSHKey" = "Edit SSH key";
+"ViewBankAccount" = "View bank account";
 "ViewLogin" = "View login";
 "ViewCard" = "View card";
 "ViewIdentity" = "View identity";

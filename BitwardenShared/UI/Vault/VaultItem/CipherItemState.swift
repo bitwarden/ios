@@ -470,8 +470,7 @@ extension CipherItemState: AddEditItemState {
         switch configuration {
         case .add:
             switch type {
-            // TODO: PM-32809 - swap to `addBankAccount` once the Bank Account UI PR lands its localizations.
-            case .bankAccount: Localizations.bankAccount
+            case .bankAccount: Localizations.addBankAccount
             case .card: Localizations.addCard
             case .identity: Localizations.addIdentity
             case .login: Localizations.addLogin
@@ -480,8 +479,7 @@ extension CipherItemState: AddEditItemState {
             }
         case .existing:
             switch type {
-            // TODO: PM-32809 - swap to `editBankAccount` once the Bank Account UI PR lands its localizations.
-            case .bankAccount: Localizations.bankAccount
+            case .bankAccount: Localizations.editBankAccount
             case .card: Localizations.editCard
             case .identity: Localizations.editIdentity
             case .login: Localizations.editLogin

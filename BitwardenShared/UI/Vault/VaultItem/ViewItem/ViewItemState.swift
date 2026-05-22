@@ -35,8 +35,7 @@ struct ViewItemState: Equatable, Sendable {
     var navigationTitle: String {
         guard let item = loadingState.data else { return "" }
         return switch item.type {
-        // TODO: PM-32809 - use a `viewBankAccount` localization once Bank Account view UI lands.
-        case .bankAccount: Localizations.bankAccount
+        case .bankAccount: Localizations.viewBankAccount
         case .card: Localizations.viewCard
         case .identity: Localizations.viewIdentity
         case .login: Localizations.viewLogin
