@@ -18,3 +18,6 @@ fi
 
 # Run spell check on staged files
 "$REPO_ROOT/Scripts/spellcheck-changes.sh" || exit 1
+
+# Fix ellipsis sequences in .strings files
+"$REPO_ROOT/Scripts/fix-ellipsis-changes.sh" || exit 1
