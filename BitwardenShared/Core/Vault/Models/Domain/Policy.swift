@@ -43,6 +43,7 @@ extension Policy {
         }
         self.init(responseModel: model)
     }
+
 }
 
 extension Policy {
