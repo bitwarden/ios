@@ -13,7 +13,7 @@ extension ServerConfig {
     /// - Returns: `true` if it's supported, `false` otherwise.
     ///
     func supportsCipherKeyEncryption() -> Bool {
-        guard let minVersion = ServerVersion("2025.5.3"),
+        guard let minVersion = ServerVersion(Constants.cipherKeyEncryptionMinServerVersion),
               let serverVersion = ServerVersion(version),
               minVersion <= serverVersion else {
             return false

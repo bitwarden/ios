@@ -11,6 +11,9 @@ extension Constants {
     /// The app review prompt delay in nanoseconds.
     static let appReviewPromptDelay: UInt64 = 3_000_000_000
 
+    /// The minimum server version required to have cipher key encryption on.
+    static let cipherKeyEncryptionMinServerVersion = "2024.2.0"
+
     /// The size of the slice to decrypt ciphers in batch using the SDK.
     static let decryptCiphersBatchSize: Int = 100
 
