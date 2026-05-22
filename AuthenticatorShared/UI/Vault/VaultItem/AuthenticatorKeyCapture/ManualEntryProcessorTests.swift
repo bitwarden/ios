@@ -120,7 +120,7 @@ final class ManualEntryProcessorTests: BitwardenTestCase {
         XCTAssertEqual(
             coordinator.alertShown.last,
             .inputValidationAlert(error: InputValidationError(
-                message: Localizations.validationFieldRequired(Localizations.service),
+                message: Localizations.validationFieldRequired(Localizations.name),
             )),
         )
     }

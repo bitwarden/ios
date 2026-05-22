@@ -77,7 +77,7 @@ final class ManualEntryProcessor: StateProcessor<ManualEntryState, ManualEntryAc
     ///
     private func addItem(key: String, name: String, sendToBitwarden: Bool) {
         do {
-            try EmptyInputValidator(fieldName: Localizations.service)
+            try EmptyInputValidator(fieldName: Localizations.name)
                 .validate(input: state.name)
             try EmptyInputValidator(fieldName: Localizations.key)
                 .validate(input: state.authenticatorKey)
