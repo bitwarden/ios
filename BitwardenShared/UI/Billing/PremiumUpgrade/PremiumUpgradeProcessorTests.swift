@@ -79,6 +79,17 @@ struct PremiumUpgradeProcessorTests {
         #expect(coordinator.isLoadingOverlayShowing == false)
     }
 
+    /// `perform(_:)` with `.appeared` dismisses the view when the user already has premium.
+    @Test
+    func perform_appeared_hasPremium_dismisses() async {
+        stateService.doesActiveAccountHavePremiumResult = true
+
+        await subject.perform(.appeared)
+
+        #expect(coordinator.routes.last == .dismiss)
+        #expect(!billingService.getPremiumPlanCalled)
+    }
+
     /// `perform(_:)` with `.appeared` sets `isSelfHosted` to `false` when the billing service reports not self-hosted.
     @Test
     func perform_appeared_notSelfHosted() async {
@@ -109,15 +120,16 @@ struct PremiumUpgradeProcessorTests {
         #expect(billingService.getPremiumPlanCalled)
     }
 
-    /// `perform(_:)` with `.appeared` dismisses the view when the user already has premium.
+    /// `perform(_:)` with `.retryFetchPriceTapped` hides then re-shows the banner on failure.
     @Test
-    func perform_appeared_hasPremium_dismisses() async {
-        stateService.doesActiveAccountHavePremiumResult = true
+    func perform_retryFetchPriceTapped_failure() async {
+        subject.state.showPricingErrorBanner = true
+        billingService.getPremiumPlanThrowableError = BitwardenTestError.example
 
-        await subject.perform(.appeared)
+        await subject.perform(.retryFetchPriceTapped)
 
-        #expect(coordinator.routes.last == .dismiss)
-        #expect(!billingService.getPremiumPlanCalled)
+        #expect(subject.state.premiumPrice == nil)
+        #expect(subject.state.showPricingErrorBanner == true)
     }
 
     /// `perform(_:)` with `.retryFetchPriceTapped` dismisses the view when the user already has premium.
@@ -140,18 +152,6 @@ struct PremiumUpgradeProcessorTests {
 
         #expect(subject.state.premiumPrice != nil)
         #expect(subject.state.showPricingErrorBanner == false)
-    }
-
-    /// `perform(_:)` with `.retryFetchPriceTapped` hides then re-shows the banner on failure.
-    @Test
-    func perform_retryFetchPriceTapped_failure() async {
-        subject.state.showPricingErrorBanner = true
-        billingService.getPremiumPlanThrowableError = BitwardenTestError.example
-
-        await subject.perform(.retryFetchPriceTapped)
-
-        #expect(subject.state.premiumPrice == nil)
-        #expect(subject.state.showPricingErrorBanner == true)
     }
 
     /// `perform(_:)` with `.upgradeNowTapped` logs the error and shows an error alert on failure.
