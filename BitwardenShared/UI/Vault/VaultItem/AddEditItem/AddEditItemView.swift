@@ -330,6 +330,9 @@ private extension AddEditItemView {
     /// The specific fields for the type of item being created or updated.
     @ViewBuilder private var itemTypeSection: some View {
         switch store.state.type {
+        case .bankAccount:
+            // TODO: PM-32809 - render AddEditBankAccountItemView once the Bank Account UI PR lands.
+            EmptyView()
         case .card:
             cardItems
         case .login:
