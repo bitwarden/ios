@@ -311,7 +311,10 @@ final class VaultCoordinator: Coordinator, HasStackNavigator { // swiftlint:disa
                 iconBaseURL: services.environmentService.iconsURL,
             ),
         )
-        let view = VaultAutofillListView(store: Store(processor: processor), timeProvider: services.timeProvider)
+        let view = VaultAutofillListView(
+            store: Store(processor: processor),
+            timeProvider: services.timeProvider,
+        )
         stackNavigator?.replace(view)
     }
 
