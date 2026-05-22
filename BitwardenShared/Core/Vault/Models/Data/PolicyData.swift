@@ -69,3 +69,52 @@ extension PolicyData {
         )
     }
 }
+
+// MARK: - PolicyNewData helpers
+
+extension PolicyData {
+    /// The CoreData entity name for the accepted-state policies store (`policiesNew`).
+    static let policiesNewEntityName = "PolicyNewData"
+
+    /// Returns a `NSBatchDeleteRequest` that deletes all accepted-state policies for the specified user.
+    ///
+    /// - Parameter userId: The user associated with the objects to delete.
+    /// - Returns: A `NSBatchDeleteRequest` targeting the `PolicyNewData` entity.
+    ///
+    static func deletePoliciesNewByUserIdRequest(userId: String) -> NSBatchDeleteRequest {
+        let fetchRequest = NSFetchRequest<NSFetchRequestResult>(entityName: policiesNewEntityName)
+        fetchRequest.predicate = userIdPredicate(userId: userId)
+        return NSBatchDeleteRequest(fetchRequest: fetchRequest)
+    }
+
+    /// Returns a `NSFetchRequest` that fetches accepted-state policies for the specified user.
+    ///
+    /// - Parameter userId: The user associated with the objects to fetch.
+    /// - Returns: A `NSFetchRequest` targeting the `PolicyNewData` entity.
+    ///
+    static func fetchPoliciesNewByUserIdRequest(userId: String) -> NSFetchRequest<PolicyData> {
+        let fetchRequest = NSFetchRequest<PolicyData>(entityName: policiesNewEntityName)
+        fetchRequest.predicate = userIdPredicate(userId: userId)
+        return fetchRequest
+    }
+
+    /// Returns a `NSBatchInsertRequest` that inserts accepted-state policies for the specified user.
+    ///
+    /// - Parameters:
+    ///   - policies: The policies to insert.
+    ///   - userId: The user associated with the policies.
+    /// - Returns: A `NSBatchInsertRequest` targeting the `PolicyNewData` entity.
+    ///
+    static func batchInsertPoliciesNewRequest(
+        _ policies: [PolicyResponseModel],
+        userId: String,
+    ) -> NSBatchInsertRequest {
+        var index = 0
+        return NSBatchInsertRequest(entityName: policiesNewEntityName) { (object: NSManagedObject) -> Bool in
+            guard index < policies.count else { return true }
+            defer { index += 1 }
+            (object as? PolicyData)?.update(with: policies[index], userId: userId)
+            return false
+        }
+    }
+}
