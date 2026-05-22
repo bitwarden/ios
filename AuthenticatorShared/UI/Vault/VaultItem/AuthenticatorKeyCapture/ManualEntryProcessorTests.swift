@@ -1,4 +1,6 @@
+import BitwardenKit
 import BitwardenKitMocks
+import BitwardenResources
 import XCTest
 
 @testable import AuthenticatorShared
@@ -91,6 +93,36 @@ final class ManualEntryProcessorTests: BitwardenTestCase {
                                                            name: "NewYork",
                                                            sendToBitwarden: false)
         XCTAssertEqual(coordinator.routes, [route])
+    }
+
+    /// `receive()` with `.addPressed(:)` shows an alert when the key is empty.
+    @MainActor
+    func test_receive_addPressed_emptyKey() {
+        subject.state.authenticatorKey = ""
+        subject.state.name = "NewYork"
+        subject.receive(.addPressed(code: "", name: "NewYork", sendToBitwarden: false))
+        XCTAssertTrue(coordinator.routes.isEmpty)
+        XCTAssertEqual(
+            coordinator.alertShown.last,
+            .inputValidationAlert(error: InputValidationError(
+                message: Localizations.validationFieldRequired(Localizations.key),
+            )),
+        )
+    }
+
+    /// `receive()` with `.addPressed(:)` shows an alert when the name is empty.
+    @MainActor
+    func test_receive_addPressed_emptyName() {
+        subject.state.authenticatorKey = "YouNeedUniqueNewYork"
+        subject.state.name = ""
+        subject.receive(.addPressed(code: "YouNeedUniqueNewYork", name: "", sendToBitwarden: false))
+        XCTAssertTrue(coordinator.routes.isEmpty)
+        XCTAssertEqual(
+            coordinator.alertShown.last,
+            .inputValidationAlert(error: InputValidationError(
+                message: Localizations.validationFieldRequired(Localizations.service),
+            )),
+        )
     }
 
     /// `receive()` with `.authenticatorKeyChanged(:)` updates the state.
