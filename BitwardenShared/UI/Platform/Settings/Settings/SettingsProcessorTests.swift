@@ -47,7 +47,7 @@ class SettingsProcessorTests: BitwardenTestCase {
     }
 
     @MainActor
-    func setUpSubject() {
+    func setUpSubject(presentationMode: SettingsPresentationMode = .tab) {
         subject = SettingsProcessor(
             coordinator: coordinator.asAnyCoordinator(),
             delegate: delegate,
@@ -58,11 +58,18 @@ class SettingsProcessorTests: BitwardenTestCase {
                 stateService: stateService,
                 vaultRepository: vaultRepository,
             ),
-            state: SettingsState(),
+            state: SettingsState(presentationMode: presentationMode),
         )
     }
 
     // MARK: Tests
+
+    /// `init()` does not subscribe to the badge publisher when the presentation mode is `.preLogin`.
+    @MainActor
+    func test_init_preLogin_doesNotSubscribeToBadgePublisher() async {
+        setUpSubject(presentationMode: .preLogin)
+        XCTAssertNil(subject.badgeUpdateTask)
+    }
 
     /// `init()` subscribes to the badge publisher and notifies the delegate to update the badge
     /// count when it changes.
@@ -70,6 +77,7 @@ class SettingsProcessorTests: BitwardenTestCase {
     func test_init_subscribesToBadgePublisher() async throws {
         stateService.activeAccount = .fixture()
         setUpSubject()
+        XCTAssertNotNil(subject.badgeUpdateTask)
 
         var badgeState = SettingsBadgeState.fixture(badgeValue: "1", vaultUnlockSetupProgress: .setUpLater)
         stateService.settingsBadgeSubject.send(badgeState)
