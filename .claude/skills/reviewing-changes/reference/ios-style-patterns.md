@@ -36,6 +36,7 @@ Protocol conformance ordering is **not** an enforced project rule; don't flag it
 Source: [contributing.bitwarden.com — Swift style: Localization](https://contributing.bitwarden.com/contributing/code-style/swift#localization).
 
 - [ ] Localization keys mirror the English string closely. `Archive` for "Archive", not `MoveToArchive` or `ArchiveTitle`.
+  - Exception: long descriptive strings (~70-80+ chars) use a `DescriptionLong` suffix on a shortened opening phrase rather than mirroring the full sentence. Example: `PassphrasesAreOftenEasierToRememberDescriptionLong` for the multi-sentence description that begins "Passphrases are often easier to remember…".
 - [ ] Translator-facing comments (`/* … */` above a key) describe meaning, placement, or constraints that affect translation — not internal phasing or ticket bookkeeping. Translators are the audience.
 
 ## Module Imports
