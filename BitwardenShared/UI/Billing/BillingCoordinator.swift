@@ -13,6 +13,7 @@ class BillingCoordinator: Coordinator, HasStackNavigator {
         & HasEnvironmentService
         & HasErrorReportBuilder
         & HasErrorReporter
+        & HasStateService
 
     // MARK: Properties
 

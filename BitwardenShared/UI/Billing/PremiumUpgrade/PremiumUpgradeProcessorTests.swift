@@ -18,6 +18,7 @@ struct PremiumUpgradeProcessorTests {
     let billingService: MockBillingService
     let coordinator: MockCoordinator<BillingRoute, Void>
     let errorReporter: MockErrorReporter
+    let stateService: MockStateService
     let subject: PremiumUpgradeProcessor
 
     // MARK: Initialization
@@ -36,9 +37,12 @@ struct PremiumUpgradeProcessorTests {
             .eraseToAnyPublisher()
         coordinator = MockCoordinator<BillingRoute, Void>()
         errorReporter = MockErrorReporter()
+        stateService = MockStateService()
+        stateService.doesActiveAccountHavePremiumResult = false
         let services = ServiceContainer.withMocks(
             billingService: billingService,
             errorReporter: errorReporter,
+            stateService: stateService,
         )
         subject = PremiumUpgradeProcessor(
             coordinator: coordinator.asAnyCoordinator(),
@@ -103,6 +107,28 @@ struct PremiumUpgradeProcessorTests {
 
         #expect(subject.state.isSelfHosted == false)
         #expect(billingService.getPremiumPlanCalled)
+    }
+
+    /// `perform(_:)` with `.appeared` dismisses the view when the user already has premium.
+    @Test
+    func perform_appeared_hasPremium_dismisses() async {
+        stateService.doesActiveAccountHavePremiumResult = true
+
+        await subject.perform(.appeared)
+
+        #expect(coordinator.routes.last == .dismiss)
+        #expect(!billingService.getPremiumPlanCalled)
+    }
+
+    /// `perform(_:)` with `.retryFetchPriceTapped` dismisses the view when the user already has premium.
+    @Test
+    func perform_retryFetchPriceTapped_hasPremium_dismisses() async {
+        stateService.doesActiveAccountHavePremiumResult = true
+
+        await subject.perform(.retryFetchPriceTapped)
+
+        #expect(coordinator.routes.last == .dismiss)
+        #expect(!billingService.getPremiumPlanCalled)
     }
 
     /// `perform(_:)` with `.retryFetchPriceTapped` hides the banner and shows price on success.
