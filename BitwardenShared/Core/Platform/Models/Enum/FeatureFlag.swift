@@ -16,6 +16,9 @@ extension FeatureFlag: @retroactive CaseIterable {
     /// Flag to enable/disable Device Auth Key flows.
     static let deviceAuthKey = FeatureFlag(rawValue: "pm-27581-device-auth-key")
 
+    /// An SDK flag that enables individual cipher encryption.
+    static let enableCipherKeyEncryption = FeatureFlag(rawValue: "enableCipherKeyEncryption")
+
     /// Flag to enable/disable forced KDF updates.
     static let forceUpdateKdfSettings = FeatureFlag(rawValue: "pm-18021-force-update-kdf-settings")
 
@@ -36,6 +39,7 @@ extension FeatureFlag: @retroactive CaseIterable {
             .cardScanner,
             .debugDisableSelfHostPremiumCheck,
             .deviceAuthKey,
+            .enableCipherKeyEncryption,
             .forceUpdateKdfSettings,
             .migrateMyVaultToMyItems,
             .newItemTypes,
