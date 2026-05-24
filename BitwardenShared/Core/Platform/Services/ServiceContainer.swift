@@ -564,7 +564,10 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
         // Create certificate-aware HTTP client
         let certificateHttpClient = CertificateHTTPClient(certificateService: clientCertificateService)
 
-        CipherIconImageLoader.shared.configure(certificateService: clientCertificateService)
+        CipherIconImageLoader.shared.configure(
+            certificateService: clientCertificateService,
+            errorReporter: errorReporter,
+        )
 
         // Create holder for breaking circular dependency.
         // This is set later in this initializer, after serverCommConfigClientSingletonHolder is created.

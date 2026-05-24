@@ -1,3 +1,4 @@
+import BitwardenKitMocks
 import Foundation
 import Testing
 
@@ -10,18 +11,22 @@ struct CipherIconImageLoaderTests {
     // MARK: Properties
 
     var certificateService: MockClientCertificateService
+    var errorReporter: MockErrorReporter
     var subject: CipherIconImageLoader
 
     // MARK: Initialization
 
     init() {
         certificateService = MockClientCertificateService()
+        errorReporter = MockErrorReporter()
         subject = CipherIconImageLoader()
-        subject.configure(certificateService: certificateService)
+        subject.configure(certificateService: certificateService, errorReporter: errorReporter)
     }
 
-    // MARK: Tests
+    // MARK: Tests - urlSession(_:task:didReceive:)
 
+    /// `urlSession(_:task:didReceive:)` returns `.performDefaultHandling` for challenges that are
+    /// not for a client certificate.
     @Test
     func taskDidReceiveChallenge_nonClientCertificate_performsDefaultHandling() async {
         let session = URLSession.shared
@@ -34,6 +39,8 @@ struct CipherIconImageLoaderTests {
         #expect(credential == nil)
     }
 
+    /// `urlSession(_:task:didReceive:)` returns `.performDefaultHandling` when the challenge is
+    /// for a client certificate but no identity is available.
     @Test
     func taskDidReceiveChallenge_clientCertificateNoIdentity_performsDefaultHandling() async {
         let session = URLSession.shared
@@ -47,6 +54,10 @@ struct CipherIconImageLoaderTests {
         #expect(credential == nil)
     }
 
+    // MARK: Tests - urlSession(_:didReceive:)
+
+    /// `urlSession(_:didReceive:)` returns `.performDefaultHandling` for challenges that are not
+    /// for a client certificate.
     @Test
     func sessionDidReceiveChallenge_nonClientCertificate_performsDefaultHandling() async {
         let session = URLSession.shared
@@ -58,6 +69,8 @@ struct CipherIconImageLoaderTests {
         #expect(credential == nil)
     }
 
+    /// `urlSession(_:didReceive:)` returns `.performDefaultHandling` when the challenge is for a
+    /// client certificate but no identity is available.
     @Test
     func sessionDidReceiveChallenge_clientCertificateNoIdentity_performsDefaultHandling() async {
         let session = URLSession.shared
@@ -70,8 +83,8 @@ struct CipherIconImageLoaderTests {
         #expect(credential == nil)
     }
 
-    /// Verifies icon requests participate in mTLS — the loader must query the certificate service
-    /// on a client-certificate challenge, not silently skip it.
+    /// `urlSession(_:didReceive:)` queries the certificate service on a client-certificate
+    /// challenge, confirming icon requests participate in mTLS.
     @Test
     func sessionDidReceiveChallenge_clientCertificate_queriesCertificateService() async {
         let session = URLSession.shared
@@ -81,6 +94,19 @@ struct CipherIconImageLoaderTests {
         _ = await subject.urlSession(session, didReceive: challenge)
 
         #expect(certificateService.getClientCertificateIdentityCalled)
+    }
+
+    // MARK: Tests - loadImage(from:)
+
+    /// `loadImage(from:)` returns `nil` when `configure` was never called, so the loader fails
+    /// closed instead of falling back to a non-mTLS-aware session.
+    @Test
+    func loadImage_notConfigured_returnsNil() async {
+        let unconfigured = CipherIconImageLoader()
+
+        let image = await unconfigured.loadImage(from: URL(string: "https://example.com/icon.png")!)
+
+        #expect(image == nil)
     }
 
     // MARK: Private
