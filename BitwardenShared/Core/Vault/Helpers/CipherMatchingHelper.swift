@@ -181,14 +181,16 @@ class DefaultCipherMatchingHelper: CipherMatchingHelper {
         return loginURL?.hostWithPort != matchURL?.hostWithPort
     }
 
-    /// Determines whether a URL resolves to localhost or an IP address.
+    /// Determines whether a URL resolves to localhost or an IP address (IPv4 or IPv6).
     ///
     /// - Parameter url: URL to inspect.
     /// - Returns: `true` when the URL host is localhost or an IP address.
     ///
     private func isLocalHostOrIpAddress(_ url: URL?) -> Bool {
-        guard let url else { return false }
-        return url.host?.lowercased() == "localhost" || url.isIPAddress
+        guard let host = url?.host?.lowercased() else { return false }
+        // `URL.host` strips brackets from IPv6 hosts, so a colon in the host
+        // indicates an IPv6 literal (regular domains and IPv4 never contain `:`).
+        return host == "localhost" || url?.isIPAddress == true || host.contains(":")
     }
 
     /// Returns a list of domains that match the specified domain. If the domain is contained

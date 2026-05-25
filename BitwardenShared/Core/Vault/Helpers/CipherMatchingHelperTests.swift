@@ -192,6 +192,35 @@ class CipherMatchingHelperTests: BitwardenTestCase { // swiftlint:disable:this t
         XCTAssertEqual(result, .exact)
     }
 
+    /// `doesCipherMatch(cipher:)` returns `.none` when match type is `.domain` and IPv6 hosts
+    /// match but ports are different.
+    func test_doesCipherMatch_domainIPv6DifferentPortNone() async {
+        subject.uriToMatch = "http://[::1]:8080"
+        subject.matchingDomains = ["::1"]
+        let result = subject.doesCipherMatch(
+            cipher: .fixture(
+                type: .login(.fixture(uris: [.fixture(uri: "http://[::1]:3000/login", match: .domain)])),
+            ),
+        )
+        XCTAssertEqual(result, .none)
+    }
+
+    /// `doesCipherMatch(cipher:)` falls through to subsequent URIs when an earlier `.domain` URI
+    /// is rejected due to a local host/IP port mismatch.
+    func test_doesCipherMatch_domainLocalIpPortMismatchFallsBackToNextUri() async {
+        subject.uriToMatch = "http://192.168.1.10:9000"
+        subject.matchingDomains = ["192.168.1.10"]
+        let result = subject.doesCipherMatch(
+            cipher: .fixture(
+                type: .login(.fixture(uris: [
+                    .fixture(uri: "http://192.168.1.10:9001/login", match: .domain),
+                    .fixture(uri: "http://192.168.1.10:9000/login", match: .domain),
+                ])),
+            ),
+        )
+        XCTAssertEqual(result, .exact)
+    }
+
     /// `doesCipherMatch(cipher:)` returns `.exact` when match type is `.domain` and the match URI base domain
     /// is the same as of the logins URI's base domains in iosapp:// scheme.
     func test_doesCipherMatch_domainExactAppScheme() async {
