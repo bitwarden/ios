@@ -14,6 +14,8 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
     // MARK: Properties
 
     var authRepository: MockAuthRepository!
+    var billingRepository: MockBillingRepository!
+    var billingService: MockBillingService!
     var client: MockHTTPClient!
     var configService: MockConfigService!
     var coordinator: MockCoordinator<VaultItemRoute, VaultItemEvent>!
@@ -21,6 +23,7 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
     var errorReporter: MockErrorReporter!
     var eventService: MockEventService!
     var pasteboardService: MockPasteboardService!
+    var premiumUpgradeHelper: MockPremiumUpgradeHelper!
     var rehydrationHelper: MockRehydrationHelper!
     var stateService: MockStateService!
     var subject: ViewItemProcessor!
@@ -32,6 +35,8 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
     override func setUp() {
         super.setUp()
         authRepository = MockAuthRepository()
+        billingRepository = MockBillingRepository()
+        billingService = MockBillingService()
         client = MockHTTPClient()
         configService = MockConfigService()
         coordinator = MockCoordinator<VaultItemRoute, VaultItemEvent>()
@@ -41,10 +46,13 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         pasteboardService = MockPasteboardService()
         rehydrationHelper = MockRehydrationHelper()
         stateService = MockStateService()
+        premiumUpgradeHelper = MockPremiumUpgradeHelper()
         vaultItemActionHelper = MockVaultItemActionHelper()
         vaultRepository = MockVaultRepository()
         let services = ServiceContainer.withMocks(
             authRepository: authRepository,
+            billingRepository: billingRepository,
+            billingService: billingService,
             configService: configService,
             errorReporter: errorReporter,
             eventService: eventService,
@@ -62,11 +70,14 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
             state: ViewItemState(),
             vaultItemActionHelper: vaultItemActionHelper,
         )
+        subject.premiumUpgradeHelper = premiumUpgradeHelper
     }
 
     override func tearDown() {
         super.tearDown()
         authRepository = nil
+        billingRepository = nil
+        billingService = nil
         client = nil
         coordinator = nil
         errorReporter = nil
@@ -795,9 +806,9 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         XCTAssertEqual(vaultItemActionHelper.archiveReceivedArguments?.cipher.id, "123")
     }
 
-    /// `perform(_:)` with `.archivedPressed` handles URL opening and completion.
+    /// `perform(_:)` with `.archivedPressed` delegates to the premium upgrade helper.
     @MainActor
-    func test_perform_archivedPressed_withURLAndCompletion() async {
+    func test_perform_archivedPressed_navigateToPremiumUpgrade() async {
         let cipherState = CipherItemState(
             existing: CipherView.loginFixture(id: "123"),
             hasPremium: false,
@@ -811,12 +822,29 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         await subject.perform(.archivedPressed)
 
         XCTAssertEqual(vaultItemActionHelper.archiveCalled, true)
-        XCTAssertNotNil(vaultItemActionHelper.archiveReceivedArguments?.handleOpenURL)
-        XCTAssertNotNil(vaultItemActionHelper.archiveReceivedArguments?.completionHandler)
+        XCTAssertNotNil(vaultItemActionHelper.archiveReceivedArguments?.handleNavigateToPremiumUpgrade)
 
-        let testURL = URL(string: "https://vault.bitwarden.com")!
-        vaultItemActionHelper.archiveReceivedArguments?.handleOpenURL(testURL)
-        XCTAssertEqual(subject.state.url, testURL)
+        await vaultItemActionHelper.archiveReceivedArguments?.handleNavigateToPremiumUpgrade()
+        XCTAssertTrue(premiumUpgradeHelper.navigateToPremiumUpgradeCalled)
+    }
+
+    /// `perform(_:)` with `.archivedPressed` handles completion.
+    @MainActor
+    func test_perform_archivedPressed_withCompletion() async {
+        let cipherState = CipherItemState(
+            existing: CipherView.loginFixture(id: "123"),
+            hasPremium: false,
+        )!
+
+        let state = ViewItemState(
+            loadingState: .data(cipherState),
+        )
+        subject.state = state
+
+        await subject.perform(.archivedPressed)
+
+        XCTAssertEqual(vaultItemActionHelper.archiveCalled, true)
+        XCTAssertNotNil(vaultItemActionHelper.archiveReceivedArguments?.completionHandler)
 
         vaultItemActionHelper.archiveReceivedArguments?.completionHandler()
 

@@ -6,6 +6,9 @@ struct SettingsState: Equatable {
     /// The state of the badges in the settings tab.
     var badgeState: SettingsBadgeState?
 
+    /// Whether the active account has a premium subscription.
+    var hasPremium = false
+
     /// The presentation mode based on where the settings view is displayed from. This determines
     /// if the UI should show specific elements.
     var presentationMode = SettingsPresentationMode.tab

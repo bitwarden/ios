@@ -27,6 +27,7 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
     var masterPasswordRepromptHelper: MockMasterPasswordRepromptHelper!
     var pasteboardService: MockPasteboardService!
     var policyService: MockPolicyService!
+    var premiumUpgradeHelper: MockPremiumUpgradeHelper!
     var searchProcessorMediator: MockSearchProcessorMediator!
     var searchProcessorMediatorFactory: MockSearchProcessorMediatorFactory!
     var stateService: MockStateService!
@@ -55,6 +56,7 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
         searchProcessorMediatorFactory = MockSearchProcessorMediatorFactory()
         searchProcessorMediatorFactory.makeReturnValue = searchProcessorMediator
 
+        premiumUpgradeHelper = MockPremiumUpgradeHelper()
         stateService = MockStateService()
         timeProvider = MockTimeProvider(.mockTime(fixedDate))
         vaultItemMoreOptionsHelper = MockVaultItemMoreOptionsHelper()
@@ -83,6 +85,7 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
             ),
             vaultItemMoreOptionsHelper: vaultItemMoreOptionsHelper,
         )
+        subject.premiumUpgradeHelper = premiumUpgradeHelper
     }
 
     override func tearDown() {
@@ -95,6 +98,7 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
         coordinator = nil
         errorReporter = nil
         masterPasswordRepromptHelper = nil
+        premiumUpgradeHelper = nil
         pasteboardService = nil
         policyService = nil
         searchProcessorMediator = nil
@@ -293,125 +297,17 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
         XCTAssertEqual(subject.state.url, url)
     }
 
-    /// `perform(_:)` with `.morePressed` navigates to the premium upgrade screen via in-app flow
-    /// when `isInAppUpgradeAvailable` returns `true`.
+    /// `perform(_:)` with `.morePressed` delegates to the premium upgrade helper when the
+    /// upgrade action is triggered.
     @MainActor
-    func test_perform_morePressed_navigateToPremiumUpgrade_inAppUpgradeAvailable() async throws {
-        billingRepository.isInAppUpgradeAvailableReturnValue = true
-        let statusSubject = PassthroughSubject<PremiumCheckoutStatus, Never>()
-        billingService.premiumCheckoutStatusPublisherReturnValue = statusSubject.eraseToAnyPublisher()
-
+    func test_perform_morePressed_navigateToPremiumUpgrade() async throws {
         await subject.perform(.morePressed(.fixture()))
 
         let navigate = try XCTUnwrap(vaultItemMoreOptionsHelper.showMoreOptionsAlertHandlePremiumUpgrade)
         await navigate()
-        try await waitForAsync { self.coordinator.routes.last == .premiumUpgrade }
+        try await waitForAsync { self.premiumUpgradeHelper.navigateToPremiumUpgradeCalled }
 
-        XCTAssertEqual(coordinator.routes.last, .premiumUpgrade)
-        XCTAssertNil(subject.state.url)
-        XCTAssertTrue(billingService.premiumCheckoutStatusPublisherCalled)
-    }
-
-    /// `perform(_:)` with `.morePressed` opens the web upgrade URL when `isInAppUpgradeAvailable`
-    /// returns `false`.
-    @MainActor
-    func test_perform_morePressed_navigateToPremiumUpgrade_inAppUpgradeNotAvailable() async throws {
-        billingRepository.isInAppUpgradeAvailableReturnValue = false
-
-        await subject.perform(.morePressed(.fixture()))
-
-        let navigate = try XCTUnwrap(vaultItemMoreOptionsHelper.showMoreOptionsAlertHandlePremiumUpgrade)
-        await navigate()
-        try await waitForAsync { self.subject.state.url != nil }
-
-        XCTAssertEqual(
-            subject.state.url,
-            URL(string: "https://example.com/#/settings/subscription/premium?callToAction=upgradeToPremium"),
-        )
-        XCTAssertNotEqual(coordinator.routes.last, .premiumUpgrade)
-    }
-
-    /// When the billing service emits `.canceled`, no new route is navigated.
-    @MainActor
-    func test_subscribeToPremiumCheckoutStatus_canceled() async throws {
-        billingRepository.isInAppUpgradeAvailableReturnValue = true
-        let statusSubject = PassthroughSubject<PremiumCheckoutStatus, Never>()
-        billingService.premiumCheckoutStatusPublisherReturnValue = statusSubject.eraseToAnyPublisher()
-        await subject.perform(.morePressed(.fixture()))
-        let navigate = try XCTUnwrap(vaultItemMoreOptionsHelper.showMoreOptionsAlertHandlePremiumUpgrade)
-        await navigate()
-        let routeCountBeforeSend = coordinator.routes.count
-
-        statusSubject.send(.canceled)
-
-        try await waitForAsync { self.coordinator.routes.count == routeCountBeforeSend }
-    }
-
-    /// When the billing service emits `.confirmed`, the processor navigates to `.dismiss` with a
-    /// `DismissAction` whose completion hides the overlay and refreshes the vault group.
-    @MainActor
-    func test_subscribeToPremiumCheckoutStatus_confirmed() async throws {
-        billingRepository.isInAppUpgradeAvailableReturnValue = true
-        let statusSubject = PassthroughSubject<PremiumCheckoutStatus, Never>()
-        billingService.premiumCheckoutStatusPublisherReturnValue = statusSubject.eraseToAnyPublisher()
-        await subject.perform(.morePressed(.fixture()))
-        let navigate = try XCTUnwrap(vaultItemMoreOptionsHelper.showMoreOptionsAlertHandlePremiumUpgrade)
-        await navigate()
-
-        statusSubject.send(.confirmed)
-
-        try await waitForAsync {
-            guard case let .dismiss(action) = self.coordinator.routes.last else { return false }
-            return action != nil
-        }
-        guard case let .dismiss(action) = coordinator.routes.last else { return XCTFail("Expected .dismiss route") }
-        action?.action()
-        XCTAssertFalse(coordinator.isLoadingOverlayShowing)
-    }
-
-    /// When the billing service emits `.pending`, the processor navigates to `.dismiss` with a
-    /// `DismissAction` whose completion shows the upgrade pending alert.
-    @MainActor
-    func test_subscribeToPremiumCheckoutStatus_pending() async throws {
-        billingRepository.isInAppUpgradeAvailableReturnValue = true
-        let statusSubject = PassthroughSubject<PremiumCheckoutStatus, Never>()
-        billingService.premiumCheckoutStatusPublisherReturnValue = statusSubject.eraseToAnyPublisher()
-        await subject.perform(.morePressed(.fixture()))
-        let navigate = try XCTUnwrap(vaultItemMoreOptionsHelper.showMoreOptionsAlertHandlePremiumUpgrade)
-        await navigate()
-
-        statusSubject.send(.pending)
-
-        try await waitForAsync {
-            guard case let .dismiss(action) = self.coordinator.routes.last else { return false }
-            return action != nil
-        }
-        guard case let .dismiss(action) = coordinator.routes.last else { return XCTFail("Expected .dismiss route") }
-        action?.action()
-        XCTAssertEqual(coordinator.alertShown.last?.title, Localizations.upgradePending)
-        XCTAssertFalse(coordinator.isLoadingOverlayShowing)
-    }
-
-    /// When the billing service emits `.syncing`, the processor navigates to `.dismiss` with a
-    /// `DismissAction` whose completion shows the confirming-upgrade loading overlay.
-    @MainActor
-    func test_subscribeToPremiumCheckoutStatus_syncing() async throws {
-        billingRepository.isInAppUpgradeAvailableReturnValue = true
-        let statusSubject = PassthroughSubject<PremiumCheckoutStatus, Never>()
-        billingService.premiumCheckoutStatusPublisherReturnValue = statusSubject.eraseToAnyPublisher()
-        await subject.perform(.morePressed(.fixture()))
-        let navigate = try XCTUnwrap(vaultItemMoreOptionsHelper.showMoreOptionsAlertHandlePremiumUpgrade)
-        await navigate()
-
-        statusSubject.send(.syncing)
-
-        try await waitForAsync {
-            guard case let .dismiss(action) = self.coordinator.routes.last else { return false }
-            return action != nil
-        }
-        guard case let .dismiss(action) = coordinator.routes.last else { return XCTFail("Expected .dismiss route") }
-        action?.action()
-        XCTAssertEqual(coordinator.loadingOverlaysShown.last?.title, Localizations.confirmingYourUpgrade)
+        XCTAssertTrue(premiumUpgradeHelper.navigateToPremiumUpgradeCalled)
     }
 
     /// `perform(_:)` with `.refreshed` requests a fetch sync update with the vault repository.

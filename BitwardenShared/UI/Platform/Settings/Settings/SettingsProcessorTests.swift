@@ -7,10 +7,10 @@ import XCTest
 class SettingsProcessorTests: BitwardenTestCase {
     // MARK: Properties
 
+    var billingService: MockBillingService!
     var configService: MockConfigService!
     var coordinator: MockCoordinator<SettingsRoute, SettingsEvent>!
     var delegate: MockSettingsProcessorDelegate!
-    var environmentService: MockEnvironmentService!
     var errorReporter: MockErrorReporter!
     var subject: SettingsProcessor!
     var stateService: MockStateService!
@@ -21,10 +21,11 @@ class SettingsProcessorTests: BitwardenTestCase {
     override func setUp() {
         super.setUp()
 
+        billingService = MockBillingService()
+        billingService.isSelfHostedReturnValue = false
         configService = MockConfigService()
         coordinator = MockCoordinator()
         delegate = MockSettingsProcessorDelegate()
-        environmentService = MockEnvironmentService()
         errorReporter = MockErrorReporter()
         stateService = MockStateService()
         vaultRepository = MockVaultRepository()
@@ -35,10 +36,10 @@ class SettingsProcessorTests: BitwardenTestCase {
     override func tearDown() {
         super.tearDown()
 
+        billingService = nil
         configService = nil
         coordinator = nil
         delegate = nil
-        environmentService = nil
         errorReporter = nil
         subject = nil
         stateService = nil
@@ -51,8 +52,8 @@ class SettingsProcessorTests: BitwardenTestCase {
             coordinator: coordinator.asAnyCoordinator(),
             delegate: delegate,
             services: ServiceContainer.withMocks(
+                billingService: billingService,
                 configService: configService,
-                environmentService: environmentService,
                 errorReporter: errorReporter,
                 stateService: stateService,
                 vaultRepository: vaultRepository,
@@ -152,9 +153,19 @@ class SettingsProcessorTests: BitwardenTestCase {
         XCTAssertEqual(coordinator.routes.last, .other)
     }
 
-    /// Receiving `.planPressed` navigates to the premium plan screen.
+    /// Receiving `.planPressed` navigates to the premium upgrade screen for a free user.
     @MainActor
-    func test_receive_planPressed() {
+    func test_receive_planPressed_freeUser() {
+        subject.state.hasPremium = false
+        subject.receive(.planPressed)
+
+        XCTAssertEqual(coordinator.routes.last, .premiumUpgrade)
+    }
+
+    /// Receiving `.planPressed` navigates to the premium plan screen for a premium user.
+    @MainActor
+    func test_receive_planPressed_hasPremium() {
+        subject.state.hasPremium = true
         subject.receive(.planPressed)
 
         XCTAssertEqual(coordinator.routes.last, .premiumPlan)
@@ -179,23 +190,24 @@ class SettingsProcessorTests: BitwardenTestCase {
         XCTAssertFalse(subject.state.showPlanRow)
     }
 
-    /// `perform(.appeared)` hides the plan row when the user does not have premium.
+    /// `perform(.appeared)` shows the plan row for a free user when the feature flag is enabled.
     @MainActor
-    func test_perform_appeared_hidesPlanRow_noPremium() async {
+    func test_perform_appeared_showsPlanRow_freeUser() async {
         configService.featureFlagsBool[.premiumUpgradePath] = true
         vaultRepository.doesActiveAccountHavePremiumResult = false
 
         await subject.perform(.appeared)
 
-        XCTAssertFalse(subject.state.showPlanRow)
+        XCTAssertTrue(subject.state.showPlanRow)
+        XCTAssertFalse(subject.state.hasPremium)
     }
 
-    /// `perform(.appeared)` hides the plan row when the user is self-hosted.
+    /// `perform(.appeared)` hides the plan row when the billing service reports self-hosted.
     @MainActor
     func test_perform_appeared_hidesPlanRow_selfHosted() async {
+        billingService.isSelfHostedReturnValue = true
         configService.featureFlagsBool[.premiumUpgradePath] = true
         vaultRepository.doesActiveAccountHavePremiumResult = true
-        environmentService.region = .selfHosted
 
         await subject.perform(.appeared)
 
@@ -204,10 +216,22 @@ class SettingsProcessorTests: BitwardenTestCase {
 
     /// `perform(.appeared)` shows the plan row when the feature flag is enabled and the user has premium.
     @MainActor
-    func test_perform_appeared_showsPlanRow() async {
+    func test_perform_appeared_showsPlanRow_hasPremium() async {
         configService.featureFlagsBool[.premiumUpgradePath] = true
         vaultRepository.doesActiveAccountHavePremiumResult = true
-        environmentService.region = .unitedStates
+
+        await subject.perform(.appeared)
+
+        XCTAssertTrue(subject.state.showPlanRow)
+        XCTAssertTrue(subject.state.hasPremium)
+    }
+
+    /// `perform(.appeared)` shows the plan row for a self-hosted user when the debug override is enabled.
+    @MainActor
+    func test_perform_appeared_showsPlanRow_selfHosted_debugOverrideEnabled() async {
+        billingService.isSelfHostedReturnValue = false
+        configService.featureFlagsBool[.premiumUpgradePath] = true
+        vaultRepository.doesActiveAccountHavePremiumResult = false
 
         await subject.perform(.appeared)
 

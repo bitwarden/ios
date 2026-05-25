@@ -2,6 +2,7 @@ import AuthenticationServices
 import BitwardenKit
 import BitwardenKitMocks
 import BitwardenResources
+import BitwardenSdk
 import Networking
 import TestHelpers
 import XCTest
@@ -18,7 +19,7 @@ class CompleteRegistrationProcessorTests: BitwardenTestCase {
     var authRepository: MockAuthRepository!
     var authService: MockAuthService!
     var client: MockHTTPClient!
-    var authClient: MockAuthClient!
+    var authClient: MockAuthClientService!
     var configService: MockConfigService!
     var coordinator: MockCoordinator<AuthRoute, AuthEvent>!
     var environmentService: MockEnvironmentService!
@@ -33,12 +34,20 @@ class CompleteRegistrationProcessorTests: BitwardenTestCase {
         authRepository = MockAuthRepository()
         authService = MockAuthService()
         client = MockHTTPClient()
-        authClient = MockAuthClient()
+        authClient = MockAuthClientService()
         configService = MockConfigService()
         coordinator = MockCoordinator<AuthRoute, AuthEvent>()
         environmentService = MockEnvironmentService()
         errorReporter = MockErrorReporter()
         stateService = MockStateService()
+
+        authClient.hashPasswordReturnValue = "hash password"
+        authClient.makeRegisterKeysReturnValue = RegisterKeyResponse(
+            masterPasswordHash: "masterPasswordHash",
+            encryptedUserKey: "encryptedUserKey",
+            keys: RsaKeyPair(public: "public", private: "private"),
+        )
+
         subject = CompleteRegistrationProcessor(
             coordinator: coordinator.asAnyCoordinator(),
             services: ServiceContainer.withMocks(

@@ -274,8 +274,6 @@ final class VaultCoordinator: Coordinator, HasStackNavigator { // swiftlint:disa
                 delegate: context as? CipherItemOperationDelegate,
                 masterPasswordRepromptCheckCompleted: masterPasswordRepromptCheckCompleted,
             )
-        case .viewPlanDetails:
-            delegate?.switchToSettingsTab(route: .premiumPlan)
         case let .switchAccount(userId: userId):
             delegate?.didTapAccount(userId: userId)
         case .viewProfileSwitcher:
@@ -313,7 +311,10 @@ final class VaultCoordinator: Coordinator, HasStackNavigator { // swiftlint:disa
                 iconBaseURL: services.environmentService.iconsURL,
             ),
         )
-        let view = VaultAutofillListView(store: Store(processor: processor), timeProvider: services.timeProvider)
+        let view = VaultAutofillListView(
+            store: Store(processor: processor),
+            timeProvider: services.timeProvider,
+        )
         stackNavigator?.replace(view)
     }
 

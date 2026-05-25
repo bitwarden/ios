@@ -36,6 +36,8 @@ enum BitwardenKeychainItem: Equatable, KeychainItem {
     /// The keychain item for a user's last active time.
     case lastActiveTime(userId: String)
 
+    /// The keychain item for local user data key states.
+    case localUserDataKeyStates(userId: String)
     /// The keychain item for a user's last active monotonic time.
     case lastActiveMonotonicTime(userId: String)
 
@@ -70,6 +72,7 @@ enum BitwardenKeychainItem: Equatable, KeychainItem {
              .lastActiveBootEpoch,
              .lastActiveMonotonicTime,
              .lastActiveTime,
+             .localUserDataKeyStates,
              .neverLock,
              .pendingAdminLoginRequest,
              .refreshToken,
@@ -101,6 +104,7 @@ enum BitwardenKeychainItem: Equatable, KeychainItem {
         case .accessToken,
              .authenticatorVaultKey,
              .clientCertificateIdentity,
+             .localUserDataKeyStates,
              .refreshToken,
              .serverCommunicationConfig:
             kSecAttrAccessibleAfterFirstUnlockThisDeviceOnly
@@ -131,6 +135,8 @@ enum BitwardenKeychainItem: Equatable, KeychainItem {
             "lastActiveMonotonicTime_\(userId)"
         case let .lastActiveTime(userId):
             "lastActiveTime_\(userId)"
+        case let .localUserDataKeyStates(userId):
+            "localUserDataKeyStates_\(userId)"
         case let .neverLock(userId: id):
             "userKeyAutoUnlock_" + id
         case let .pendingAdminLoginRequest(userId):
@@ -149,7 +155,8 @@ enum BitwardenKeychainItem: Equatable, KeychainItem {
 
 // MARK: - KeychainRepository
 
-protocol KeychainRepository: AnyObject, ServerCommunicationConfigKeychainRepository { // sourcery: AutoMockable
+// swiftlint:disable:next line_length
+protocol KeychainRepository: AnyObject, ServerCommunicationConfigKeychainRepository, LocalUserDataKeychainRepository { // sourcery: AutoMockable
     /// Deletes all items stored in the keychain.
     ///
     func deleteAllItems() async throws
@@ -307,6 +314,10 @@ class DefaultKeychainRepository: KeychainRepository {
     /// The keychain service facade used by the repository.
     ///
     let keychainServiceFacade: KeychainServiceFacade
+
+    /// Serializes concurrent mutations to local user data key states per user ID.
+    ///
+    let localUserDataKeyStateMutationSerializer = SerialWorker()
 
     // MARK: Initialization
 
@@ -475,6 +486,10 @@ extension DefaultKeychainRepository: BiometricsKeychainRepository {
     func setUserBiometricAuthKey(userId: String, value: String) async throws {
         try await keychainServiceFacade.setValue(value, for: BitwardenKeychainItem.biometrics(userId: userId))
     }
+
+    func userBiometricAuthKeyExists(userId: String) async -> Bool {
+        await keychainServiceFacade.containsValue(for: BitwardenKeychainItem.biometrics(userId: userId))
+    }
 }
 
 // MARK: DeviceAuthKeychainRepository
@@ -489,7 +504,7 @@ extension DefaultKeychainRepository: DeviceAuthKeychainRepository {
         try await keychainServiceFacade.deleteValue(for: BitwardenKeychainItem.deviceAuthKey(userId: userId))
     }
 
-    func getDeviceAuthKey(userId: String) async throws -> DeviceAuthKeyRecord? {
+    func getDeviceAuthKey(userId: String) async throws -> DeviceAuthKeyKeychainRecord? {
         do {
             return try await keychainServiceFacade.getValue(
                 for: BitwardenKeychainItem.deviceAuthKey(userId: userId),
@@ -499,7 +514,7 @@ extension DefaultKeychainRepository: DeviceAuthKeychainRepository {
         }
     }
 
-    func getDeviceAuthKeyMetadata(userId: String) async throws -> DeviceAuthKeyMetadata? {
+    func getDeviceAuthKeyMetadata(userId: String) async throws -> DeviceAuthKeyKeychainMetadata? {
         do {
             return try await keychainServiceFacade.getValue(
                 for: BitwardenKeychainItem.deviceAuthKeyMetadata(userId: userId),
@@ -510,8 +525,8 @@ extension DefaultKeychainRepository: DeviceAuthKeychainRepository {
     }
 
     func setDeviceAuthKey(
-        record: DeviceAuthKeyRecord,
-        metadata: DeviceAuthKeyMetadata,
+        record: DeviceAuthKeyKeychainRecord,
+        metadata: DeviceAuthKeyKeychainMetadata,
         userId: String,
     ) async throws {
         // We want to set metadata last because that's what's used to determine if we're in a

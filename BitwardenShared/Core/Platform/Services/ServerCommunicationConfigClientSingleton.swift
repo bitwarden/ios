@@ -126,24 +126,19 @@ actor DefaultServerCommunicationConfigClientSingleton: ServerCommunicationConfig
     /// - Parameter config: The configuration for the update.
     private func updateSDKCommunicationType(_ config: ServerConfig) async {
         guard let communicationSettings = config.communication,
-              let hostname = communicationSettings.bootstrap.cookieDomain ?? environmentService.webVaultURL.host else {
+              let hostname = communicationSettings.bootstrap.cookieDomain ?? environmentService.webVaultURL.host,
+              let vaultUrl = config.environment?.vault else {
             return
         }
 
         do {
-            var commSettings = ServerCommunicationConfig(communicationSettings: communicationSettings)
-            let localConfig = try await serverCommunicationConfigStateService.getServerCommunicationConfig(
-                hostname: hostname,
+            let request = SetCommunicationTypeRequest(
+                communicationSettings: communicationSettings,
+                vaultUrl: vaultUrl,
             )
-            if let localConfig,
-               case .ssoCookieVendor = commSettings.bootstrap,
-               case .ssoCookieVendor = localConfig.bootstrap {
-                commSettings = commSettings.updateCookieValue(from: localConfig)
-            }
-
             try await client().setCommunicationType(
-                hostname: hostname,
-                config: commSettings,
+                domain: hostname,
+                request: request,
             )
         } catch {
             errorReporter.log(error: error)

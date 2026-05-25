@@ -872,6 +872,20 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         XCTAssertEqual(learnNewLoginActionCardStatus, .complete)
     }
 
+    /// `getLocalUserDataKeyStates(userId:)` returns stored key states for a user.
+    func test_getLocalUserDataKeyStates() async throws {
+        let states: [String: UserKeyData] = ["k1": UserKeyData(wrappedKey: "key1")]
+        keychainRepository.getLocalUserDataKeyStatesReturnValue = states
+        let result = try await subject.getLocalUserDataKeyStates(userId: "1")
+        XCTAssertEqual(result, states)
+    }
+
+    /// `getLocalUserDataKeyStates(userId:)` returns `nil` when no states are stored.
+    func test_getLocalUserDataKeyStates_notSet() async throws {
+        let result = try await subject.getLocalUserDataKeyStates(userId: "1")
+        XCTAssertNil(result)
+    }
+
     /// `getLastRequestToTurnOnCredentialProvider()` returns the date of the last request
     /// to turn on the credential provider.
     func test_getLastRequestToTurnOnCredentialProvider() async {
@@ -1469,7 +1483,7 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         XCTAssertFalse(isRequired)
     }
 
-    /// `logoutAccount()` clears any account data.
+    /// `logoutAccount()` clears any account data except user's biometric authentication preference.
     func test_logoutAccount_clearAccountData() async throws { // swiftlint:disable:this function_body_length
         let account = Account.fixture(profile: Account.AccountProfile.fixture(userId: "1"))
         await subject.addAccount(account)
@@ -1516,13 +1530,14 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
 
         try await subject.logoutAccount(userInitiated: true)
 
-        XCTAssertEqual(appSettingsStore.biometricAuthenticationEnabled, [:])
+        XCTAssertEqual(appSettingsStore.biometricAuthenticationEnabled, ["1": true])
         XCTAssertEqual(appSettingsStore.accountKeys, [:])
         XCTAssertEqual(appSettingsStore.encryptedPrivateKeys, [:])
         XCTAssertEqual(appSettingsStore.encryptedUserKeys, [:])
         XCTAssertEqual(appSettingsStore.defaultUriMatchTypeByUserId, [:])
         XCTAssertEqual(appSettingsStore.disableAutoTotpCopyByUserId, [:])
         XCTAssertEqual(appSettingsStore.passwordGenerationOptions, [:])
+        XCTAssertTrue(keychainRepository.clearLocalUserDataKeyStatesCalled)
 
         let context = dataStore.persistentContainer.viewContext
         try XCTAssertEqual(context.count(for: CipherData.fetchByUserIdRequest(userId: "1")), 0)
@@ -2352,6 +2367,58 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
 
         await subject.setLearnNewLoginActionCardStatus(.complete)
         XCTAssertEqual(appSettingsStore.learnNewLoginActionCardStatus, .complete)
+    }
+
+    /// `setBulkLocalUserDataKeyStates(_:userId:)` merges multiple key states atomically.
+    func test_setBulkLocalUserDataKeyStates() async throws {
+        keychainRepository.mutateLocalUserDataKeyStatesClosure = { [keychainRepository] _, transform in
+            var states = keychainRepository?.getLocalUserDataKeyStatesReturnValue ?? [:]
+            transform(&states)
+            keychainRepository?.getLocalUserDataKeyStatesReturnValue = states.nilIfEmpty
+        }
+        let values: [String: UserKeyData] = [
+            "k1": UserKeyData(wrappedKey: "key1"),
+            "k2": UserKeyData(wrappedKey: "key2"),
+        ]
+        try await subject.setBulkLocalUserDataKeyStates(values, userId: "1")
+        XCTAssertEqual(keychainRepository.getLocalUserDataKeyStatesReturnValue, values)
+    }
+
+    /// `removeLocalUserDataKeyState(id:userId:)` removes a single key state.
+    func test_removeLocalUserDataKeyState() async throws {
+        keychainRepository.getLocalUserDataKeyStatesReturnValue = ["k1": UserKeyData(wrappedKey: "key1")]
+        keychainRepository.mutateLocalUserDataKeyStatesClosure = { [keychainRepository] _, transform in
+            var states = keychainRepository?.getLocalUserDataKeyStatesReturnValue ?? [:]
+            transform(&states)
+            keychainRepository?.getLocalUserDataKeyStatesReturnValue = states.nilIfEmpty
+        }
+        try await subject.removeLocalUserDataKeyState(id: "k1", userId: "1")
+        XCTAssertNil(keychainRepository.getLocalUserDataKeyStatesReturnValue)
+    }
+
+    /// `removeBulkLocalUserDataKeyStates(keys:userId:)` removes multiple key states atomically.
+    func test_removeBulkLocalUserDataKeyStates() async throws {
+        keychainRepository.getLocalUserDataKeyStatesReturnValue = [
+            "k1": UserKeyData(wrappedKey: "key1"),
+            "k2": UserKeyData(wrappedKey: "key2"),
+            "k3": UserKeyData(wrappedKey: "key3"),
+        ]
+        keychainRepository.mutateLocalUserDataKeyStatesClosure = { [keychainRepository] _, transform in
+            var states = keychainRepository?.getLocalUserDataKeyStatesReturnValue ?? [:]
+            transform(&states)
+            keychainRepository?.getLocalUserDataKeyStatesReturnValue = states.nilIfEmpty
+        }
+        try await subject.removeBulkLocalUserDataKeyStates(keys: ["k1", "k2"], userId: "1")
+        XCTAssertEqual(
+            keychainRepository.getLocalUserDataKeyStatesReturnValue,
+            ["k3": UserKeyData(wrappedKey: "key3")],
+        )
+    }
+
+    /// `removeAllLocalUserDataKeyStates(userId:)` clears all stored states.
+    func test_removeAllLocalUserDataKeyStates() async throws {
+        try await subject.removeAllLocalUserDataKeyStates(userId: "1")
+        XCTAssertTrue(keychainRepository.clearLocalUserDataKeyStatesCalled)
     }
 
     /// `setLoginRequest()` sets the pending login requests.

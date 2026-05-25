@@ -381,6 +381,7 @@
 "MasterPasswordPolicyValidationTitle" = "Неисправна лозинка";
 "MasterPasswordPolicyValidationMessage" = "Лозинка не испуњава организационе захтеве. Проверите информације о политици и покушајте поново.";
 "Loading" = "Учитавање";
+"LoadingSubscription" = "Loading subscription...";
 "AcceptPoliciesError" = "Услови услуге и Политика приватности нису признати.";
 "PrivacyPolicy" = "Политика приватности";
 "PersonalOwnershipPolicyInEffect" = "Политика организације утичу на ваше могућности власништва.";
@@ -1080,8 +1081,8 @@
 "UpgradePending" = "Upgrade pending";
 "YourUpgradeIsBeingProcessedDescriptionLong" = "Your upgrade is being processed. You'll remain on the free plan until it's complete. Sync now to check, or continue and it will update automatically.";
 "UpgradedToPremium" = "Надограђено на премијум";
-"ViewPlanDetails" = "View plan details";
-"WelcomeToPremiumYouNowHaveAccessDescriptionLong" = "Welcome to Premium! You now have access to all advanced security features.";
+"YouNowHaveAccessToAdvancedSecurityDescriptionLong" = "You now have access to advanced security features. Learn more about what's included with Premium.";
+"YouNowHaveAccessToAllAdvancedSecurityFeatures" = "You now have access to all advanced security features.";
 "YoullGoToStripeSecureCheckoutToCompleteYourPurchase" = "Ићи ћете на Stripe-ову сигурну наплату да бисте довршили своју куповину.";
 "YoullContinueToHavePremiumAccessUntilX" = "You'll continue to have Premium access until %1$@.";
 "UserIDCopiedToTheClipboard" = "User ID copied to the clipboard";

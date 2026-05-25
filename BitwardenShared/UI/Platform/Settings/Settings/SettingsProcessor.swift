@@ -20,8 +20,8 @@ protocol SettingsProcessorDelegate: AnyObject {
 final class SettingsProcessor: StateProcessor<SettingsState, SettingsAction, SettingsEffect> {
     // MARK: Types
 
-    typealias Services = HasConfigService
-        & HasEnvironmentService
+    typealias Services = HasBillingService
+        & HasConfigService
         & HasErrorReporter
         & HasStateService
         & HasVaultRepository
@@ -89,8 +89,9 @@ final class SettingsProcessor: StateProcessor<SettingsState, SettingsAction, Set
             let featureEnabled = await services.configService
                 .getFeatureFlag(.premiumUpgradePath, defaultValue: false)
             let hasPremium = await services.vaultRepository.doesActiveAccountHavePremium()
-            let isSelfHosted = services.environmentService.region == .selfHosted
-            state.showPlanRow = featureEnabled && hasPremium && !isSelfHosted
+            let isSelfHosted = await services.billingService.isSelfHosted()
+            state.hasPremium = hasPremium
+            state.showPlanRow = featureEnabled && !isSelfHosted
         }
     }
 
@@ -109,7 +110,11 @@ final class SettingsProcessor: StateProcessor<SettingsState, SettingsAction, Set
         case .otherPressed:
             coordinator.navigate(to: .other)
         case .planPressed:
-            coordinator.navigate(to: .premiumPlan)
+            if state.hasPremium {
+                coordinator.navigate(to: .premiumPlan)
+            } else {
+                coordinator.navigate(to: .premiumUpgrade)
+            }
         case .vaultPressed:
             coordinator.navigate(to: .vault)
         }

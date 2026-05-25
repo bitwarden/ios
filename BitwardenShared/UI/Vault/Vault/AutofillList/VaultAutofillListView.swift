@@ -8,6 +8,14 @@ import SwiftUI
 /// A view that allows the user see a list of their vault item for autofill.
 ///
 struct VaultAutofillListView: View {
+    // MARK: Private types
+
+    /// Which text field in `autofillText` mode currently owns focus.
+    private enum FocusableField: Hashable {
+        case anchor
+        case search
+    }
+
     // MARK: Properties
 
     /// The GroupSearchDelegate used to bridge UIKit to SwiftUI
@@ -19,16 +27,36 @@ struct VaultAutofillListView: View {
     /// The `TimeProvider` used to calculate TOTP expiration.
     var timeProvider: any TimeProvider
 
+    // MARK: Private properties
+
+    /// PM-28227 WORKAROUND:  Which field owns focus in `autofillText` mode. Keeping both transitions inside SwiftUI's
+    /// focus system ensures `fromBecomeFirstResponder:0` / `delayEndInputSession:NO` on every
+    /// handoff, preventing the 5-second RTI timer that fires when UIKit's explicit
+    /// `becomeFirstResponder()` (`fromBecomeFirstResponder:1`) is used instead.
+    @FocusState private var focusedField: FocusableField?
+
     // MARK: View
 
     var body: some View {
-        ZStack {
-            VaultAutofillListSearchableView(store: store, timeProvider: timeProvider)
-
-            profileSwitcher
+        VStack(spacing: 0) {
+            if store.state.isAutofillingTextToInsertList {
+                inlineSearchBarView()
+                // Zero-size anchor that holds the RTI session when the inline search bar is idle.
+                // Using @FocusState (fromBecomeFirstResponder:0) avoids the 5-second timer that
+                // UIKit's explicit becomeFirstResponder() (fromBecomeFirstResponder:1) would start.
+                TextField("", text: .constant(""))
+                    .focused($focusedField, equals: .anchor)
+                    .frame(width: 0, height: 0)
+                    .allowsHitTesting(false)
+                    .accessibilityHidden(true)
+            }
+            ZStack {
+                VaultAutofillListSearchableView(store: store, timeProvider: timeProvider)
+                profileSwitcher
+            }
         }
         .navigationBar(title: store.state.group?.navigationTitle ?? Localizations.items, titleDisplayMode: .inline)
-        .if(store.state.excludedCredentialIdFound == nil) { view in
+        .if(store.state.excludedCredentialIdFound == nil && !store.state.isAutofillingTextToInsertList) { view in
             view.searchable(
                 text: store.binding(
                     get: \.searchText,
@@ -53,9 +81,77 @@ struct VaultAutofillListView: View {
                 )
             }
         }
+        .onAppear {
+            if store.state.isAutofillingTextToInsertList {
+                focusedField = .anchor
+            }
+        }
+        .onChange(of: focusedField) { field in
+            store.send(.searchStateChanged(isSearching: field == .search))
+        }
     }
 
-    // MARK: Private properties
+    // MARK: Private views
+
+    /// An inline search bar shown instead of `.searchable` in `autofillText` mode.
+    ///
+    /// **PM-28227 workaround.** In `autofillText` mode the extension is presented as a keyboard
+    /// panel (InputUI) backed by a Remote Text Input (RTI) session. If any text field becomes first
+    /// responder via UIKit's explicit `becomeFirstResponder()`, the RTI system marks the session
+    /// with `delayEndInputSession:YES` (`fromBecomeFirstResponder:1`) and starts a ~5-second
+    /// countdown. When the timer fires, `endRemoteTextInputSessionWithID` tears down the keyboard
+    /// panel and the extension is dismissed.
+    ///
+    /// Using `.searchable` triggers `UISearchController`, which eventually calls explicit
+    /// `becomeFirstResponder()` on resign — starting that timer. This custom bar keeps every focus
+    /// transition inside SwiftUI's `@FocusState` machinery (`fromBecomeFirstResponder:0`,
+    /// `delayEndInputSession:NO`), so the RTI session is never put on a countdown regardless of
+    /// how many times the user opens and cancels search.
+    @ViewBuilder
+    private func inlineSearchBarView() -> some View {
+        HStack(spacing: 8) {
+            HStack(spacing: 6) {
+                Image(systemName: "magnifyingglass")
+                    .foregroundStyle(Color(.tertiaryLabel))
+                    .font(.system(size: 15))
+                TextField(
+                    Localizations.search,
+                    text: store.binding(
+                        get: \.searchText,
+                        send: VaultAutofillListAction.searchTextChanged,
+                    ),
+                )
+                .focused($focusedField, equals: .search)
+                .autocorrectionDisabled()
+                .textInputAutocapitalization(.never)
+                if !store.state.searchText.isEmpty {
+                    Button {
+                        store.send(.searchTextChanged(""))
+                    } label: {
+                        Image(systemName: "xmark.circle.fill")
+                            .foregroundStyle(Color(.tertiaryLabel))
+                            .font(.system(size: 15))
+                    }
+                }
+            }
+            .padding(.horizontal, 8)
+            .padding(.vertical, 7)
+            .background(Color(.tertiarySystemFill))
+            .clipShape(RoundedRectangle(cornerRadius: 10))
+
+            if focusedField == .search || !store.state.searchText.isEmpty {
+                Button(Localizations.cancel) {
+                    focusedField = .anchor
+                    store.send(.searchTextChanged(""))
+                }
+                .transition(.move(edge: .trailing).combined(with: .opacity))
+            }
+        }
+        .padding(.horizontal, 16)
+        .padding(.vertical, 8)
+        .animation(.default, value: focusedField)
+        .background(SharedAsset.Colors.backgroundSecondary.swiftUIColor)
+    }
 
     /// A view that displays the ability to add or switch between account profiles
     @ViewBuilder private var profileSwitcher: some View {

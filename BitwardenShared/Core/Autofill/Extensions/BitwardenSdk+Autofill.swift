@@ -96,7 +96,7 @@ extension ASPasskeyAssertionCredential {
 
 @available(iOS 17.0, *)
 extension ASPasskeyCredentialIdentity {
-    convenience init(deviceAuthKeyMetadata metadata: DeviceAuthKeyMetadata) {
+    convenience init(deviceAuthKeyMetadata metadata: DeviceAuthKeyKeychainMetadata) {
         self.init(
             relyingPartyIdentifier: metadata.rpId,
             userName: metadata.userName,
@@ -113,7 +113,7 @@ extension BitwardenSdk.MakeCredentialRequest: @retroactive CustomDebugStringConv
     public var debugDescription: String {
         let rpName = rp.name ?? "nil"
         let excludeList = excludeList?.description ?? "nil"
-        let extensions = extensions?.description ?? "nil"
+        let extensions = if let extensions { String(describing: extensions) } else { "nil" }
 
         return [
             "ClientDataHash: \(clientDataHash.asHexString())",
@@ -139,6 +139,7 @@ extension BitwardenSdk.MakeCredentialResult: @retroactive CustomDebugStringConve
             "AuthenticatorData: \(authenticatorData.asHexString())",
             "AttestationObject: \(attestationObject.asHexString())",
             "CredentialId: \(credentialId.asHexString())",
+            "Extensions: \(extensions)",
         ].joined(separator: "\n")
     }
 }

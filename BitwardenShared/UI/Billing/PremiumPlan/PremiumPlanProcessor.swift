@@ -14,6 +14,7 @@ final class PremiumPlanProcessor: StateProcessor<
     // MARK: Types
 
     typealias Services = HasBillingService
+        & HasEnvironmentService
         & HasErrorReporter
 
     // MARK: Private Properties
@@ -50,7 +51,7 @@ final class PremiumPlanProcessor: StateProcessor<
         case .appeared:
             await loadPremiumPlan()
         case .managePlanTapped:
-            await openPortalUrl()
+            showManageSubscriptionAlert()
         }
     }
 
@@ -64,6 +65,16 @@ final class PremiumPlanProcessor: StateProcessor<
     }
 
     // MARK: Private Methods
+
+    /// Shows the "Continue to web app?" alert for managing the subscription plan.
+    ///
+    private func showManageSubscriptionAlert() {
+        coordinator.showAlert(
+            .manageSubscriptionPlanAlert { [weak self] in
+                self?.state.urlToOpen = self?.services.environmentService.manageSubscriptionURL
+            },
+        )
+    }
 
     /// Fetches the portal URL from the billing service and sets it on state.
     ///
@@ -102,7 +113,7 @@ final class PremiumPlanProcessor: StateProcessor<
     ///
     private func loadPremiumPlan() async {
         defer { coordinator.hideLoadingOverlay() }
-        coordinator.showLoadingOverlay(title: Localizations.loading)
+        coordinator.showLoadingOverlay(title: Localizations.loadingSubscription)
 
         do {
             let plan = try await services.billingService.getPremiumPlan()
