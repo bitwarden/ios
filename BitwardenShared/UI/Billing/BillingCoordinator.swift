@@ -82,7 +82,10 @@ class BillingCoordinator: Coordinator, HasStackNavigator {
                 self?.stackNavigator?.pop(animated: false)
                 self?.showPremiumPlan()
             }
-        let processor = PremiumUpgradeCompleteProcessor(coordinator: asAnyCoordinator())
+        let processor = PremiumUpgradeCompleteProcessor(
+            coordinator: asAnyCoordinator(),
+            services: services,
+        )
         let view = PremiumUpgradeCompleteView(store: Store(processor: processor))
         stackNavigator?.present(view)
     }
