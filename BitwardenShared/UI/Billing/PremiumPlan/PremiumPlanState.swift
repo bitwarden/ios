@@ -37,13 +37,13 @@ struct PremiumPlanState: Equatable {
 
     /// The accessibility label for the description text, using a screen-reader-friendly currency format.
     var descriptionAccessibilityLabel: String {
-        if planStatus == .active {
-            return Localizations.yourNextChargeIsForXDueOnY(
-                nextChargeAmountAccessibilityLabel,
-                nextChargeDate,
-            ).replacingOccurrences(of: "**", with: "")
+        guard planStatus == .active else {
+            return descriptionText.replacingOccurrences(of: "**", with: "")
         }
-        return descriptionText.replacingOccurrences(of: "**", with: "")
+        return Localizations.yourNextChargeIsForXDueOnY(
+            nextChargeAmountAccessibilityLabel,
+            nextChargeDate,
+        ).replacingOccurrences(of: "**", with: "")
     }
 
     /// The description text for the current plan status.
