@@ -16,7 +16,6 @@ final class SendListProcessor: StateProcessor<SendListState, SendListAction, Sen
         & HasPasteboardService
         & HasPolicyService
         & HasSendRepository
-        & HasStateService
         & HasVaultRepository
 
     // MARK: Private properties
