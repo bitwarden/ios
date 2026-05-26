@@ -112,10 +112,10 @@ struct PremiumPlanProcessorTests {
         subject.receive(.cancelPremiumTapped)
 
         #expect(coordinator.alertShown.count == 1)
-        #expect(coordinator.alertShown.first?.title == Localizations.cancelPremium)
+        #expect(coordinator.alertShown.first?.title == Localizations.continueToStripe)
         #expect(coordinator.alertShown.first?.alertActions.count == 2)
-        #expect(coordinator.alertShown.first?.alertActions.first?.title == Localizations.cancelNow)
-        #expect(coordinator.alertShown.first?.alertActions.last?.title == Localizations.close)
+        #expect(coordinator.alertShown.first?.alertActions.first?.title == Localizations.cancel)
+        #expect(coordinator.alertShown.first?.alertActions.last?.title == Localizations.continue)
     }
 
     /// `receive(_:)` with `.cancelPremiumTapped`, after confirming, fetches portal URL and sets state.
@@ -125,7 +125,7 @@ struct PremiumPlanProcessorTests {
         billingService.getPortalUrlReturnValue = portalURL
         subject.receive(.cancelPremiumTapped)
 
-        let confirmAction = try #require(coordinator.alertShown.first?.alertActions.first)
+        let confirmAction = try #require(coordinator.alertShown.first?.alertActions.last)
         await confirmAction.handler?(confirmAction, [])
 
         #expect(billingService.getPortalUrlCallsCount == 1)
@@ -138,7 +138,7 @@ struct PremiumPlanProcessorTests {
         billingService.getPortalUrlThrowableError = BitwardenTestError.example
         subject.receive(.cancelPremiumTapped)
 
-        let confirmAction = try #require(coordinator.alertShown.first?.alertActions.first)
+        let confirmAction = try #require(coordinator.alertShown.first?.alertActions.last)
         await confirmAction.handler?(confirmAction, [])
 
         #expect(errorReporter.errors.first as? BitwardenTestError == .example)
