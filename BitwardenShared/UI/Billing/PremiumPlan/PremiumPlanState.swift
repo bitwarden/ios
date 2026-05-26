@@ -35,15 +35,16 @@ struct PremiumPlanState: Equatable {
         return formatDate(canceled)
     }
 
-    /// The accessibility label for the description text, using a screen-reader-friendly currency format.
+    /// The accessibility label for the description text, with markdown stripped for VoiceOver.
+    /// For the active status, uses a screen-reader-friendly currency format instead of `descriptionText`.
     var descriptionAccessibilityLabel: String {
         guard planStatus == .active else {
-            return descriptionText.replacingOccurrences(of: "**", with: "")
+            return descriptionText.removingMarkdownForVoiceOver()
         }
         return Localizations.yourNextChargeIsForXDueOnY(
             nextChargeAmountAccessibilityLabel,
             nextChargeDate,
-        ).replacingOccurrences(of: "**", with: "")
+        ).removingMarkdownForVoiceOver()
     }
 
     /// The description text for the current plan status.
