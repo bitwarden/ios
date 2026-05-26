@@ -1058,6 +1058,7 @@
 "StorageCost" = "Storage cost";
 "Discount" = "Discount";
 "EstimatedTax" = "Estimated tax";
+"Total" = "Total";
 "ManagePlan" = "Manage plan";
 "CancelPremium" = "Cancel Premium";
 "CancelNow" = "Cancel now";
