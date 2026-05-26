@@ -576,6 +576,26 @@ class MigrationServiceTests: BitwardenTestCase { // swiftlint:disable:this type_
         XCTAssertNil(appGroupUserDefaults.string(forKey: "bwPreferencesStorage:accountKeys_1"))
     }
 
+    /// `performMigrations()` for migration 6 logs a decoding error when account keys JSON is malformed.
+    func test_performMigrations_6_invalidAccountKeysJSON() async throws {
+        appSettingsStore.state = State(
+            accounts: ["1": .fixture()],
+            activeUserId: "1",
+        )
+        appGroupUserDefaults.set("1:PRIVATE_KEY", forKey: "bwPreferencesStorage:encPrivateKey_1")
+        appGroupUserDefaults.set("not valid json", forKey: "bwPreferencesStorage:accountKeys_1")
+
+        try await subject.performMigration(version: 6)
+
+        let nsError = try XCTUnwrap(errorReporter.errors.first as? NSError)
+        XCTAssertEqual(nsError.domain, "General Error: Migration 6 - AccountKeys Decode")
+        XCTAssertEqual(nsError.code, 4000)
+        XCTAssertTrue(nsError.userInfo[NSUnderlyingErrorKey] is DecodingError)
+        XCTAssertEqual(appSettingsStore.accountCryptographicStates["1"], .v1(privateKey: "1:PRIVATE_KEY"))
+        XCTAssertNil(appGroupUserDefaults.string(forKey: "bwPreferencesStorage:encPrivateKey_1"))
+        XCTAssertNil(appGroupUserDefaults.string(forKey: "bwPreferencesStorage:accountKeys_1"))
+    }
+
     /// `performMigrations()` for migration 6 skips accounts without a stored private key.
     func test_performMigrations_6_missingPrivateKey() async throws {
         appSettingsStore.state = State(
