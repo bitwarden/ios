@@ -44,6 +44,23 @@ extension AttachmentResponseModel {
 
 extension AttachmentView: @retroactive Identifiable {}
 
+extension CipherBankAccountModel {
+    init(bankAccount: BitwardenSdk.BankAccount) {
+        self.init(
+            accountNumber: bankAccount.accountNumber,
+            accountType: bankAccount.accountType,
+            bankContactPhone: bankAccount.bankContactPhone,
+            bankName: bankAccount.bankName,
+            branchNumber: bankAccount.branchNumber,
+            iban: bankAccount.iban,
+            nameOnAccount: bankAccount.nameOnAccount,
+            pin: bankAccount.pin,
+            routingNumber: bankAccount.routingNumber,
+            swiftCode: bankAccount.swiftCode,
+        )
+    }
+}
+
 extension CipherCardModel {
     init(card: BitwardenSdk.Card) {
         self.init(
@@ -63,7 +80,7 @@ extension CipherDetailsResponseModel {
         self.init(
             archivedDate: cipher.archivedDate,
             attachments: cipher.attachments?.map(AttachmentResponseModel.init),
-            bankAccount: nil, // TODO: PM-32809
+            bankAccount: cipher.bankAccount.map(CipherBankAccountModel.init),
             card: cipher.card.map(CipherCardModel.init),
             collectionIds: cipher.collectionIds,
             creationDate: cipher.creationDate,
@@ -223,8 +240,7 @@ extension CipherType {
     init(type: BitwardenSdk.CipherType) {
         switch type {
         case .bankAccount:
-            // TODO: PM-32809
-            self = .secureNote
+            self = .bankAccount
         case .card:
             self = .card
         case .driversLicense:
@@ -247,8 +263,7 @@ extension CipherType {
     init(_ type: BitwardenSdk.CipherListViewType) {
         switch type {
         case .bankAccount:
-            // TODO: PM-32809
-            self = .secureNote
+            self = .bankAccount
         case .card:
             self = .card
         case .driversLicense:
@@ -537,6 +552,8 @@ extension BitwardenSdk.CipherType {
             self = .identity
         case .sshKey:
             self = .sshKey
+        case .bankAccount:
+            self = .bankAccount
         }
     }
 }

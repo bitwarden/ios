@@ -470,6 +470,7 @@ extension CipherItemState: AddEditItemState {
         switch configuration {
         case .add:
             switch type {
+            case .bankAccount: Localizations.addBankAccount
             case .card: Localizations.addCard
             case .identity: Localizations.addIdentity
             case .login: Localizations.addLogin
@@ -478,6 +479,7 @@ extension CipherItemState: AddEditItemState {
             }
         case .existing:
             switch type {
+            case .bankAccount: Localizations.editBankAccount
             case .card: Localizations.editCard
             case .identity: Localizations.editIdentity
             case .login: Localizations.editLogin
