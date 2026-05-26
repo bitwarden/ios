@@ -1089,7 +1089,7 @@
 "YouNowHaveAccessToAllAdvancedSecurityFeatures" = "You now have access to all advanced security features.";
 "YoullGoToStripeSecureCheckoutToCompleteYourPurchase" = "You´ll go to Stripe´s secure checkout to complete your purchase.";
 "ContinueToStripe" = "Continue to Stripe?";
-"YoullBeTakenToStripeToManageYourSubscriptionCancellation" = "You'll be taken to stripe to manage your subscription cancellation.";
+"YoullBeTakenToStripeToManageYourSubscriptionCancellation" = "You'll be taken to Stripe to manage your subscription cancellation.";
 "UserIDCopiedToTheClipboard" = "User ID copied to the clipboard";
 "UserID" = "User ID";
 "CopyUserID" = "Copy user ID";
