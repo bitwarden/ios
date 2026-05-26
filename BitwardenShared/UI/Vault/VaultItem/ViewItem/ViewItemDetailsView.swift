@@ -304,7 +304,7 @@ struct ViewItemDetailsView: View { // swiftlint:disable:this type_body_length
             // TODO: PM-32809 - render ViewBankAccountItemView once the Bank Account view UI lands.
             EmptyView()
         case .driversLicense:
-            // TODO: PM-32807 - render ViewDriversLicenseItemView once the Driver's License view UI lands.
+            // TODO: PM-38150 - render ViewDriversLicenseItemView once the Driver's License view UI lands.
             EmptyView()
         case .card:
             ViewCardItemView(
