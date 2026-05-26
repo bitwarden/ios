@@ -46,6 +46,7 @@ struct PremiumPlanStateTests {
         let label = state.descriptionAccessibilityLabel
         #expect(label.contains("USD $"))
         #expect(label.contains(state.nextChargeDate))
+        #expect(!label.contains("**"))
     }
 
     /// `descriptionAccessibilityLabel` returns `descriptionText` unchanged for non-active plan statuses.
@@ -60,7 +61,8 @@ struct PremiumPlanStateTests {
             status: planStatus,
             suspension: testDate,
         )
-        #expect(state.descriptionAccessibilityLabel == state.descriptionText)
+        #expect(!state.descriptionAccessibilityLabel.contains("**"))
+        #expect(state.descriptionAccessibilityLabel == state.descriptionText.replacingOccurrences(of: "**", with: ""))
     }
 
     // MARK: Tests - descriptionText
