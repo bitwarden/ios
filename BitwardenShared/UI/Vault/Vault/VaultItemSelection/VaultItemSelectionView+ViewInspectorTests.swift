@@ -57,7 +57,7 @@ class VaultItemSelectionViewTests: BitwardenTestCase {
     /// In the empty state, tapping the add item button dispatches the `.addTapped` action.
     @MainActor
     func test_emptyState_addItemTapped() throws {
-        let button = try subject.inspect().find(button: Localizations.newItem)
+        let button = try subject.inspect().find(button: Localizations.addItem)
         try button.tap()
         XCTAssertEqual(processor.dispatchedActions.last, .addTapped)
     }
