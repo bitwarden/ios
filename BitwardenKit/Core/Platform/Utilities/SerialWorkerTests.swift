@@ -15,7 +15,7 @@ struct SerialWorkerTests {
     ///
     @Test
     func serialize_executesOperation() async throws {
-        var executed = false
+        nonisolated(unsafe) var executed = false
 
         try await subject.enqueue(userId: "u1") {
             executed = true
@@ -34,7 +34,7 @@ struct SerialWorkerTests {
             try await subject.enqueue(userId: "u1") { throw TestError() }
         }
 
-        var executed = false
+        nonisolated(unsafe) var executed = false
         try await subject.enqueue(userId: "u1") {
             executed = true
         }
@@ -46,8 +46,8 @@ struct SerialWorkerTests {
     ///
     @Test
     func serialize_differentUsers_bothOperationsRun() async throws {
-        var u1Ran = false
-        var u2Ran = false
+        nonisolated(unsafe) var u1Ran = false
+        nonisolated(unsafe) var u2Ran = false
 
         try await subject.enqueue(userId: "u1") { u1Ran = true }
         try await subject.enqueue(userId: "u2") { u2Ran = true }
