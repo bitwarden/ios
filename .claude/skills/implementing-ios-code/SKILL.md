@@ -53,6 +53,12 @@ For new screens, create all required files together (see `templates.md`):
 6. **Processor** — `StateProcessor` subclass, business logic only
 7. **View** — SwiftUI view using `store.binding`, `store.perform`, `@ObservedObject`
 
+**New localization keys** (`BitwardenResources/.../Localizable.strings`):
+
+- Key name mirrors the English string: `Archive` for "Archive", not `MoveToArchive` or `ArchiveTitle`.
+  - Exception: long descriptive strings (~70-80+ chars) use a `DescriptionLong` suffix on a shortened opening phrase. Example: `PassphrasesAreOftenEasierToRememberDescriptionLong`.
+- Translator-facing `/* … */` comments describe meaning, placement, or constraints that affect translation — translators are the audience, not internal engineers.
+
 ## Step 4: Wire Dependency Injection
 
 After creating a new service/repository:
