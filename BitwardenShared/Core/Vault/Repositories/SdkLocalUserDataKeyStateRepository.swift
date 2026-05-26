@@ -2,7 +2,7 @@ import BitwardenSdk
 
 /// `LocalUserDataKeyStateRepository` implementation to be used on SDK client-managed state.
 /// Stores the wrapped user key in the iOS keychain per user, keyed by the SDK-assigned id.
-/// 
+///
 actor SdkLocalUserDataKeyStateRepository: BitwardenSdk.LocalUserDataKeyStateRepository {
     // MARK: Properties
 

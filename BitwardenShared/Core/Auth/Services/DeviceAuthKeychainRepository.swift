@@ -18,14 +18,14 @@ protocol DeviceAuthKeychainRepository { // sourcery: AutoMockable
     /// - Parameter userId: The user ID associated with the stored device auth key.
     /// - Returns: The device auth key.
     ///
-    func getDeviceAuthKey(userId: String) async throws -> DeviceAuthKeyRecord?
+    func getDeviceAuthKey(userId: String) async throws -> DeviceAuthKeyKeychainRecord?
 
     /// Gets the metadata about the stored device auth key for a user from the keychain.
     ///
     /// - Parameter userId: The user ID associated with the stored device auth key.
     /// - Returns: The device auth key metadata.
     ///
-    func getDeviceAuthKeyMetadata(userId: String) async throws -> DeviceAuthKeyMetadata?
+    func getDeviceAuthKeyMetadata(userId: String) async throws -> DeviceAuthKeyKeychainMetadata?
 
     /// Stores the device auth key and metadata for a user in the keychain.
     ///
@@ -35,8 +35,8 @@ protocol DeviceAuthKeychainRepository { // sourcery: AutoMockable
     ///   - userId: The user's ID, used to get back the device auth key later on.
     ///
     func setDeviceAuthKey(
-        record: DeviceAuthKeyRecord,
-        metadata: DeviceAuthKeyMetadata,
+        record: DeviceAuthKeyKeychainRecord,
+        metadata: DeviceAuthKeyKeychainMetadata,
         userId: String,
     ) async throws
 }

@@ -39,13 +39,13 @@ struct SSOCookieVendorResponseHandler: ResponseHandler {
         let hostname = await serverCommunicationConfigClientSingleton.resolveHostname(hostname: requestURLHost)
 
         guard let serverCommunicationConfigClient = try? await serverCommunicationConfigClientSingleton.client(),
-              await serverCommunicationConfigClient.needsBootstrap(hostname: hostname)
+              await serverCommunicationConfigClient.needsBootstrap(domain: hostname)
         else {
             return try await manuallyHandle302Redirect(&response, for: request, retryWith: retryWith)
         }
 
         do {
-            try await serverCommunicationConfigClient.acquireCookie(hostname: hostname)
+            try await serverCommunicationConfigClient.acquireCookie(domain: hostname)
         } catch BitwardenSdk.BitwardenError.AcquireCookie(.Cancelled(_)) {
             // no-op, just continue to throw the error to try again.
         }

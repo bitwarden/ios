@@ -90,6 +90,7 @@ struct PremiumPlanView: View {
         Text(LocalizedStringKey(store.state.descriptionText))
             .styleGuide(.callout)
             .foregroundColor(Color(asset: SharedAsset.Colors.textSecondary))
+            .accessibilityLabel(store.state.descriptionAccessibilityLabel)
     }
 
     /// The header section with title, badge, and description.

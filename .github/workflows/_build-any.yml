@@ -67,7 +67,7 @@ jobs:
           fi
 
       - name: Set Xcode version
-        uses: maxim-lobanov/setup-xcode@60606e260d2fc5762a71e64e74b2174e8ea3c8bd # v1.6.0
+        uses: maxim-lobanov/setup-xcode@ed7a3b1fda3918c0306d1b724322adc0b8cc0a90 # v1.7.0
         with:
           xcode-version: ${{ env._XCODE_VERSION }}
 
@@ -78,7 +78,7 @@ jobs:
           xcodebuild -downloadPlatform watchOS
 
       - name: Configure Ruby
-        uses: ruby/setup-ruby@c984c1a20bb35a1cbda04477c816cea024418be9 # v1.294.0
+        uses: ruby/setup-ruby@c4e5b1316158f92e3d49443a9d58b31d25ac0f8f # v1.306.0
         with:
           bundler-cache: true
 
@@ -90,7 +90,7 @@ jobs:
 
       - name: Cache Mint packages
         id: mint-cache
-        uses: actions/cache@cdf6c1fa76f9f475f3d7449005a359c84ca0f306 # v5.0.3
+        uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
         with:
           path: .mint
           key: ${{ runner.os }}-mint-${{ hashFiles('**/Mintfile') }}
@@ -239,7 +239,7 @@ jobs:
           echo "export_filepath=$EXPORT_FILEPATH" >> "$GITHUB_OUTPUT"
 
       - name: Upload artifacts to GitHub
-        uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: ${{ steps.get_file_paths.outputs.artifact_filename }}
           path: ${{ env._EXPORT_PATH }}

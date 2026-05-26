@@ -83,6 +83,11 @@ public extension EnvironmentURLData {
         subpageURL(additionalPath: "tools/import")
     }
 
+    /// The URL for managing the subscription plan.
+    var manageSubscriptionURL: URL? {
+        subpageURL(additionalPath: "settings/subscription")
+    }
+
     /// Whether all of the environment URLs are not set.
     var isEmpty: Bool {
         api == nil

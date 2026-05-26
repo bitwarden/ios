@@ -2403,7 +2403,7 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
             "k2": UserKeyData(wrappedKey: "key2"),
             "k3": UserKeyData(wrappedKey: "key3"),
         ]
-        keychainRepository.mutateLocalUserDataKeyStatesClosure = { [keychainRepository] userId, transform in
+        keychainRepository.mutateLocalUserDataKeyStatesClosure = { [keychainRepository] _, transform in
             var states = keychainRepository?.getLocalUserDataKeyStatesReturnValue ?? [:]
             transform(&states)
             keychainRepository?.getLocalUserDataKeyStatesReturnValue = states.nilIfEmpty
@@ -2411,7 +2411,7 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         try await subject.removeBulkLocalUserDataKeyStates(keys: ["k1", "k2"], userId: "1")
         XCTAssertEqual(
             keychainRepository.getLocalUserDataKeyStatesReturnValue,
-            ["k3": UserKeyData(wrappedKey: "key3")]
+            ["k3": UserKeyData(wrappedKey: "key3")],
         )
     }
 

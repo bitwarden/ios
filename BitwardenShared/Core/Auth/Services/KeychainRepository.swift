@@ -504,7 +504,7 @@ extension DefaultKeychainRepository: DeviceAuthKeychainRepository {
         try await keychainServiceFacade.deleteValue(for: BitwardenKeychainItem.deviceAuthKey(userId: userId))
     }
 
-    func getDeviceAuthKey(userId: String) async throws -> DeviceAuthKeyRecord? {
+    func getDeviceAuthKey(userId: String) async throws -> DeviceAuthKeyKeychainRecord? {
         do {
             return try await keychainServiceFacade.getValue(
                 for: BitwardenKeychainItem.deviceAuthKey(userId: userId),
@@ -514,7 +514,7 @@ extension DefaultKeychainRepository: DeviceAuthKeychainRepository {
         }
     }
 
-    func getDeviceAuthKeyMetadata(userId: String) async throws -> DeviceAuthKeyMetadata? {
+    func getDeviceAuthKeyMetadata(userId: String) async throws -> DeviceAuthKeyKeychainMetadata? {
         do {
             return try await keychainServiceFacade.getValue(
                 for: BitwardenKeychainItem.deviceAuthKeyMetadata(userId: userId),
@@ -525,8 +525,8 @@ extension DefaultKeychainRepository: DeviceAuthKeychainRepository {
     }
 
     func setDeviceAuthKey(
-        record: DeviceAuthKeyRecord,
-        metadata: DeviceAuthKeyMetadata,
+        record: DeviceAuthKeyKeychainRecord,
+        metadata: DeviceAuthKeyKeychainMetadata,
         userId: String,
     ) async throws {
         // We want to set metadata last because that's what's used to determine if we're in a
