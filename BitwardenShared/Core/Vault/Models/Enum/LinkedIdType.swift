@@ -160,6 +160,8 @@ extension LinkedIdType {
         switch cipherType {
         case .bankAccount:
             []
+        case .driversLicense:
+            []
         case .card:
             [
                 .cardCardholderName,
