@@ -54,9 +54,9 @@ public class TOTPCountdownTimer: ObservableObject {
         Int(totpCodeMode.period)
     }
 
-    /// The countdown remainder calculated relative to the current time.
+    /// The number of whole seconds remaining before the current TOTP code expires.
     ///
-    private var secondsRemaining: Int {
+    var secondsRemaining: Int {
         TOTPExpirationCalculator.remainingSeconds(for: timeProvider.presentTime, using: period)
     }
 

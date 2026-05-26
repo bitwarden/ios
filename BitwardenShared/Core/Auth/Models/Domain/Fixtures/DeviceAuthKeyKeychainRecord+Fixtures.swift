@@ -2,7 +2,7 @@ import BitwardenSdk
 import BitwardenShared
 import Foundation
 
-public extension DeviceAuthKeyRecord {
+public extension DeviceAuthKeyKeychainRecord {
     /// Creates a test fixture for a device auth key record with default encrypted values.
     ///
     /// - Parameters:
@@ -23,7 +23,7 @@ public extension DeviceAuthKeyRecord {
     ///   - userDisplayName: The user's human-readable display name. Defaults to `"encrypted-Test User"`.
     ///   - userId: The user identifier for the relying party. Defaults to `"encrypted-user-id"`.
     ///   - userName: The user's username or login name. Defaults to `"encrypted-user@example.com"`.
-    /// - Returns: A `DeviceAuthKeyRecord` configured with the specified or default values.
+    /// - Returns: A `DeviceAuthKeyKeychainRecord` configured with the specified or default values.
     static func fixture(
         cipherId: EncString = "encrypted-cipher-123",
         cipherName: EncString = "encrypted-Test Device Key",
@@ -41,8 +41,8 @@ public extension DeviceAuthKeyRecord {
         userDisplayName: EncString? = "encrypted-Test User",
         userId: EncString? = "encrypted-user-id",
         userName: EncString? = "encrypted-user@example.com",
-    ) -> DeviceAuthKeyRecord {
-        DeviceAuthKeyRecord(
+    ) -> DeviceAuthKeyKeychainRecord {
+        DeviceAuthKeyKeychainRecord(
             cipherId: cipherId,
             cipherName: cipherName,
             counter: counter,

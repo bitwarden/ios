@@ -140,4 +140,18 @@ struct KeychainRepositoryTests {
             try await subject.setUserBiometricAuthKey(userId: "user-1", value: "biometric-key")
         }
     }
+
+    /// `userBiometricAuthKeyExists(userId:)` returns the result from the façade.
+    @Test
+    func userBiometricAuthKeyExists_returnsFromFacade() async {
+        keychainServiceFacade.containsValueReturnValue = true
+
+        let result = await subject.userBiometricAuthKeyExists(userId: "user-1")
+
+        #expect(result == true)
+
+        let actualReceivedItem = keychainServiceFacade.containsValueReceivedItem as? AuthenticatorKeychainItem
+        let expectedReceivedItem = AuthenticatorKeychainItem.biometrics(userId: "user-1")
+        #expect(actualReceivedItem == expectedReceivedItem)
+    }
 }

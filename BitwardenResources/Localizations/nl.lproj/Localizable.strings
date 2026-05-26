@@ -381,6 +381,7 @@
 "MasterPasswordPolicyValidationTitle" = "Ongeldig wachtwoord";
 "MasterPasswordPolicyValidationMessage" = "Het wachtwoord voldoet niet aan de organisatievereisten. Controleer het beleid en probeer het opnieuw.";
 "Loading" = "Laden";
+"LoadingSubscription" = "Abonnement laden...";
 "AcceptPoliciesError" = "Algemene voorwaarden en privacybeleid zijn nog niet erkend.";
 "PrivacyPolicy" = "Privacybeleid";
 "PersonalOwnershipPolicyInEffect" = "Een organisatiebeleid heeft invloed op je eigendomsopties.";
@@ -1080,8 +1081,8 @@
 "UpgradePending" = "Upgrade in behandeling";
 "YourUpgradeIsBeingProcessedDescriptionLong" = "Je upgrade wordt verwerkt. Je werkt met het gratis abonnement totdat het is afgerond. Synchroniseer nu om te controleren, of ga door waarna de upgrade automatisch zal worden verwerkt.";
 "UpgradedToPremium" = "Naar Premium upgraden";
-"ViewPlanDetails" = "Abonnementsgegevens weergeven";
-"WelcomeToPremiumYouNowHaveAccessDescriptionLong" = "Welkom bij Premium! Je hebt nu toegang tot alle geavanceerde beveiligingsfuncties.";
+"YouNowHaveAccessToAdvancedSecurityDescriptionLong" = "Je hebt nu toegang tot geavanceerde beveiligingsfuncties. Lees meer over wat bij Premium is inbegrepen.";
+"YouNowHaveAccessToAllAdvancedSecurityFeatures" = "Je hebt nu toegang tot alle geavanceerde beveiligingsfuncties.";
 "YoullGoToStripeSecureCheckoutToCompleteYourPurchase" = "Je gaat naar Stripe's beveiligde checkout voor het afronden van je aankoop.";
 "YoullContinueToHavePremiumAccessUntilX" = "Je blijft Premium-toegang hebben tot %1$@.";
 "UserIDCopiedToTheClipboard" = "Gebruikers-ID naar klembord gekopieerd";

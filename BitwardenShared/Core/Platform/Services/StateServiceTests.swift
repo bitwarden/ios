@@ -1483,7 +1483,7 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         XCTAssertFalse(isRequired)
     }
 
-    /// `logoutAccount()` clears any account data.
+    /// `logoutAccount()` clears any account data except user's biometric authentication preference.
     func test_logoutAccount_clearAccountData() async throws { // swiftlint:disable:this function_body_length
         let account = Account.fixture(profile: Account.AccountProfile.fixture(userId: "1"))
         await subject.addAccount(account)
@@ -1530,7 +1530,7 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
 
         try await subject.logoutAccount(userInitiated: true)
 
-        XCTAssertEqual(appSettingsStore.biometricAuthenticationEnabled, [:])
+        XCTAssertEqual(appSettingsStore.biometricAuthenticationEnabled, ["1": true])
         XCTAssertEqual(appSettingsStore.accountKeys, [:])
         XCTAssertEqual(appSettingsStore.encryptedPrivateKeys, [:])
         XCTAssertEqual(appSettingsStore.encryptedUserKeys, [:])
@@ -2403,7 +2403,7 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
             "k2": UserKeyData(wrappedKey: "key2"),
             "k3": UserKeyData(wrappedKey: "key3"),
         ]
-        keychainRepository.mutateLocalUserDataKeyStatesClosure = { [keychainRepository] userId, transform in
+        keychainRepository.mutateLocalUserDataKeyStatesClosure = { [keychainRepository] _, transform in
             var states = keychainRepository?.getLocalUserDataKeyStatesReturnValue ?? [:]
             transform(&states)
             keychainRepository?.getLocalUserDataKeyStatesReturnValue = states.nilIfEmpty
@@ -2411,7 +2411,7 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         try await subject.removeBulkLocalUserDataKeyStates(keys: ["k1", "k2"], userId: "1")
         XCTAssertEqual(
             keychainRepository.getLocalUserDataKeyStatesReturnValue,
-            ["k3": UserKeyData(wrappedKey: "key3")]
+            ["k3": UserKeyData(wrappedKey: "key3")],
         )
     }
 

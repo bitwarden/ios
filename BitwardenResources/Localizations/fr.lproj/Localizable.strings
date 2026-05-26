@@ -381,6 +381,7 @@
 "MasterPasswordPolicyValidationTitle" = "Mot de passe invalide";
 "MasterPasswordPolicyValidationMessage" = "Le mot de passe ne répond pas aux exigences de l'organisation. Veuillez vérifier les restrictions et réessayer.";
 "Loading" = "Chargement";
+"LoadingSubscription" = "Loading subscription...";
 "AcceptPoliciesError" = "Les conditions d'utilisation et la politique de confidentialité n'ont pas été acceptées.";
 "PrivacyPolicy" = "Politique de confidentialité";
 "PersonalOwnershipPolicyInEffect" = "Une politique d'organisation affecte vos options de Propriétaire.";
@@ -1080,8 +1081,8 @@
 "UpgradePending" = "Upgrade pending";
 "YourUpgradeIsBeingProcessedDescriptionLong" = "Your upgrade is being processed. You'll remain on the free plan until it's complete. Sync now to check, or continue and it will update automatically.";
 "UpgradedToPremium" = "Passer à la version Premium";
-"ViewPlanDetails" = "View plan details";
-"WelcomeToPremiumYouNowHaveAccessDescriptionLong" = "Welcome to Premium! You now have access to all advanced security features.";
+"YouNowHaveAccessToAdvancedSecurityDescriptionLong" = "You now have access to advanced security features. Learn more about what's included with Premium.";
+"YouNowHaveAccessToAllAdvancedSecurityFeatures" = "You now have access to all advanced security features.";
 "YoullGoToStripeSecureCheckoutToCompleteYourPurchase" = "Vous allez passer au paiement sécurisé Stripe pour compléter votre achat.";
 "YoullContinueToHavePremiumAccessUntilX" = "You'll continue to have Premium access until %1$@.";
 "UserIDCopiedToTheClipboard" = "User ID copied to the clipboard";

@@ -208,7 +208,7 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
     /// Tapping the new folder button dispatches the `.addFolder` action.
     @MainActor
     func test_newFolder_tap() throws {
-        let button = try subject.inspect().find(button: Localizations.newFolder)
+        let button = try subject.inspect().find(button: Localizations.addFolder)
         try button.tap()
         XCTAssertEqual(processor.dispatchedActions.last, .addFolder)
     }

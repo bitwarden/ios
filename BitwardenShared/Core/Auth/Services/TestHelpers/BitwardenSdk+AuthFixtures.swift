@@ -64,7 +64,7 @@ extension BitwardenSdk.GetAssertionResult {
             signature: signature,
             userHandle: userHandle,
             selectedCredential: selectedCredential,
-            extensions: extensions
+            extensions: extensions,
         )
     }
 }
@@ -80,7 +80,7 @@ extension BitwardenSdk.MakeCredentialResult {
             authenticatorData: authenticatorData,
             attestationObject: attestationObject,
             credentialId: credentialId,
-            extensions: extensions
+            extensions: extensions,
         )
     }
 }
@@ -135,6 +135,32 @@ extension BitwardenSdk.SelectedCredential {
         credential: Fido2CredentialView = .fixture(),
     ) -> BitwardenSdk.SelectedCredential {
         .init(cipher: .fixture(), credential: .fixture())
+    }
+}
+
+extension BitwardenSdk.UpdateKdfResponse {
+    static func fixture(
+        masterPasswordAuthenticationData: MasterPasswordAuthenticationData = MasterPasswordAuthenticationData(
+            kdf: .pbkdf2(iterations: 600_000),
+            salt: "AUTHENTICATION_SALT",
+            masterPasswordAuthenticationHash: "MASTER_PASSWORD_AUTHENTICATION_HASH",
+        ),
+        masterPasswordUnlockData: MasterPasswordUnlockData = MasterPasswordUnlockData(
+            kdf: .pbkdf2(iterations: 600_000),
+            masterKeyWrappedUserKey: "MASTER_KEY_WRAPPED_USER_KEY",
+            salt: "UNLOCK_SALT",
+        ),
+        oldMasterPasswordAuthenticationData: MasterPasswordAuthenticationData = MasterPasswordAuthenticationData(
+            kdf: .pbkdf2(iterations: 600_000),
+            salt: "OLD_SALT",
+            masterPasswordAuthenticationHash: "OLD_MASTER_PASSWORD_AUTHENTICATION_HASH",
+        ),
+    ) -> UpdateKdfResponse {
+        UpdateKdfResponse(
+            masterPasswordAuthenticationData: masterPasswordAuthenticationData,
+            masterPasswordUnlockData: masterPasswordUnlockData,
+            oldMasterPasswordAuthenticationData: oldMasterPasswordAuthenticationData,
+        )
     }
 }
 
