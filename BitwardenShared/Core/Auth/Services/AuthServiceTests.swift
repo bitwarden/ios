@@ -369,8 +369,7 @@ class AuthServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
             stateService.accountEncryptionKeys,
             [
                 "13512467-9cfe-43b0-969f-07534084764b": AccountEncryptionKeys(
-                    accountKeys: nil,
-                    encryptedPrivateKey: "PRIVATE_KEY",
+                    cryptographicState: .v1(privateKey: "PRIVATE_KEY"),
                     encryptedUserKey: "KEY",
                 ),
             ],
@@ -439,8 +438,7 @@ class AuthServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
             stateService.accountEncryptionKeys,
             [
                 "13512467-9cfe-43b0-969f-07534084764b": AccountEncryptionKeys(
-                    accountKeys: nil,
-                    encryptedPrivateKey: "PRIVATE_KEY",
+                    cryptographicState: .v1(privateKey: "PRIVATE_KEY"),
                     encryptedUserKey: "KEY",
                 ),
             ],
@@ -697,8 +695,7 @@ class AuthServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
             stateService.accountEncryptionKeys,
             [
                 "13512467-9cfe-43b0-969f-07534084764b": AccountEncryptionKeys(
-                    accountKeys: nil,
-                    encryptedPrivateKey: "PRIVATE_KEY",
+                    cryptographicState: .v1(privateKey: "PRIVATE_KEY"),
                     encryptedUserKey: "KEY",
                 ),
             ],
@@ -768,8 +765,7 @@ class AuthServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
             stateService.accountEncryptionKeys,
             [
                 "13512467-9cfe-43b0-969f-07534084764b": AccountEncryptionKeys(
-                    accountKeys: nil,
-                    encryptedPrivateKey: "PRIVATE_KEY",
+                    cryptographicState: .v1(privateKey: "PRIVATE_KEY"),
                     encryptedUserKey: "KEY",
                 ),
             ],
@@ -835,8 +831,7 @@ class AuthServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
             stateService.accountEncryptionKeys,
             [
                 "13512467-9cfe-43b0-969f-07534084764b": AccountEncryptionKeys(
-                    accountKeys: nil,
-                    encryptedPrivateKey: "PRIVATE_KEY",
+                    cryptographicState: .v1(privateKey: "PRIVATE_KEY"),
                     encryptedUserKey: "KEY",
                 ),
             ],
