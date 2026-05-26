@@ -9,11 +9,11 @@ struct CipherBankAccountModel: Codable, Equatable, Sendable {
     /// The type of the bank account.
     let accountType: String?
 
-    /// The name of the bank.
-    let bankName: String?
-
     /// The phone number for contacting the bank.
     let bankContactPhone: String?
+
+    /// The name of the bank.
+    let bankName: String?
 
     /// The branch number of the bank.
     let branchNumber: String?

@@ -124,8 +124,8 @@ class BitwardenSdkVaultCipherBankAccountModelTests: BitwardenTestCase {
 
         XCTAssertEqual(model.accountNumber, "accountNumber")
         XCTAssertEqual(model.accountType, "accountType")
-        XCTAssertEqual(model.bankName, "bankName")
         XCTAssertEqual(model.bankContactPhone, "bankContactPhone")
+        XCTAssertEqual(model.bankName, "bankName")
         XCTAssertEqual(model.branchNumber, "branchNumber")
         XCTAssertEqual(model.iban, "iban")
         XCTAssertEqual(model.nameOnAccount, "nameOnAccount")

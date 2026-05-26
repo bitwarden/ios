@@ -49,8 +49,8 @@ extension CipherBankAccountModel {
         self.init(
             accountNumber: bankAccount.accountNumber,
             accountType: bankAccount.accountType,
-            bankName: bankAccount.bankName,
             bankContactPhone: bankAccount.bankContactPhone,
+            bankName: bankAccount.bankName,
             branchNumber: bankAccount.branchNumber,
             iban: bankAccount.iban,
             nameOnAccount: bankAccount.nameOnAccount,
