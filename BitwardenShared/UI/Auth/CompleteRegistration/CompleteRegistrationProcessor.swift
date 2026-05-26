@@ -179,27 +179,11 @@ class CompleteRegistrationProcessor: StateProcessor<
     }
 
     /// Performs an API request to create the user's account.
-    private func createAccount() async throws {
-        if await services.configService.getFeatureFlag(.accountEncryptionV2PasswordRegistration, isPreAuth: true) {
-            _ = try await services.clientService.auth(isPreAuth: true)
-                .registration()
-                .postKeysForUserPasswordRegistration(
-                    request: UserMasterPasswordRegistrationRequest(
-                        email: state.userEmail,
-                        salt: state.userEmail,
-                        masterPassword: state.passwordText,
-                        masterPasswordHint: state.passwordHintText.nilIfEmpty,
-                        emailVerificationToken: state.emailVerificationToken,
-                        organizationUserId: nil,
-                        orgInviteToken: nil,
-                        orgSponsoredFreeFamilyPlanToken: nil,
-                        acceptEmergencyAccessInviteToken: nil,
-                        acceptEmergencyAccessId: nil,
-                        providerInviteToken: nil,
-                        providerUserId: nil,
-                    ),
-                )
-        } else {
+    private func createAccount() async throws { // swiftlint:disable:this function_body_length
+        guard await services.configService.getFeatureFlag(
+            .accountEncryptionV2PasswordRegistration,
+            isPreAuth: true,
+        ) else {
             // V1 path — to be removed with FeatureFlag.accountEncryptionV2PasswordRegistration
             let kdfConfig = KdfConfig.defaultKdfConfig
 
@@ -230,7 +214,28 @@ class CompleteRegistrationProcessor: StateProcessor<
                     ),
                 ),
             )
+            state.didCreateAccount = true
+            return
         }
+
+        _ = try await services.clientService.auth(isPreAuth: true)
+            .registration()
+            .postKeysForUserPasswordRegistration(
+                request: UserMasterPasswordRegistrationRequest(
+                    email: state.userEmail,
+                    salt: state.userEmail,
+                    masterPassword: state.passwordText,
+                    masterPasswordHint: state.passwordHintText.nilIfEmpty,
+                    emailVerificationToken: state.emailVerificationToken,
+                    organizationUserId: nil,
+                    orgInviteToken: nil,
+                    orgSponsoredFreeFamilyPlanToken: nil,
+                    acceptEmergencyAccessInviteToken: nil,
+                    acceptEmergencyAccessId: nil,
+                    providerInviteToken: nil,
+                    providerUserId: nil,
+                ),
+            )
 
         state.didCreateAccount = true
     }
