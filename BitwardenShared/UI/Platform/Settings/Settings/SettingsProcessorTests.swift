@@ -1,4 +1,6 @@
+import BitwardenKit
 import BitwardenKitMocks
+import TestHelpers
 import XCTest
 
 @testable import BitwardenShared
@@ -237,6 +239,61 @@ class SettingsProcessorTests: BitwardenTestCase {
         await subject.perform(.appeared)
 
         XCTAssertTrue(subject.state.showPlanRow)
+    }
+
+    /// `perform(.appeared)` sets `shouldShowUpgradedToPremiumActionCard` to `true` when the
+    /// billing service returns `true`.
+    @MainActor
+    func test_perform_appeared_setsShowUpgradedToPremiumActionCard_true() async {
+        billingService.shouldShowUpgradedToPremiumActionCardReturnValue = true
+
+        await subject.perform(.appeared)
+
+        XCTAssertTrue(subject.state.shouldShowUpgradedToPremiumActionCard)
+    }
+
+    /// `perform(.appeared)` sets `shouldShowUpgradedToPremiumActionCard` to `false` when the
+    /// billing service returns `false`.
+    @MainActor
+    func test_perform_appeared_setsShowUpgradedToPremiumActionCard_false() async {
+        billingService.shouldShowUpgradedToPremiumActionCardReturnValue = false
+
+        await subject.perform(.appeared)
+
+        XCTAssertFalse(subject.state.shouldShowUpgradedToPremiumActionCard)
+    }
+
+    /// `perform(.dismissUpgradedToPremiumActionCard)` hides the card and persists the dismissal.
+    @MainActor
+    func test_perform_dismissUpgradedToPremiumActionCard() async {
+        subject.state.shouldShowUpgradedToPremiumActionCard = true
+
+        await subject.perform(.dismissUpgradedToPremiumActionCard)
+
+        XCTAssertFalse(subject.state.shouldShowUpgradedToPremiumActionCard)
+        XCTAssertEqual(billingService.setUpgradedToPremiumActionCardDismissedCallsCount, 1)
+    }
+
+    /// `receive(.learnMoreAboutPremium)` opens the learn more URL, hides the card, and persists
+    /// the dismissal.
+    @MainActor
+    func test_receive_learnMoreAboutPremium() {
+        subject.state.shouldShowUpgradedToPremiumActionCard = true
+        subject.receive(.learnMoreAboutPremium)
+
+        XCTAssertEqual(subject.state.url, ExternalLinksConstants.learnMoreAboutPremium)
+        XCTAssertFalse(subject.state.shouldShowUpgradedToPremiumActionCard)
+        waitFor { billingService.setUpgradedToPremiumActionCardDismissedCallsCount == 1 }
+        XCTAssertEqual(billingService.setUpgradedToPremiumActionCardDismissedCallsCount, 1)
+    }
+
+    /// `receive(.clearUrl)` clears the URL from state.
+    @MainActor
+    func test_receive_clearUrl() {
+        subject.state.url = .example
+        subject.receive(.clearUrl)
+
+        XCTAssertNil(subject.state.url)
     }
 }
 
