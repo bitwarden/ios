@@ -191,7 +191,7 @@ struct AddEditItemView: View {
                         send: AddEditItemAction.folderChanged,
                     ),
                     additionalMenu: {
-                        Button(Localizations.newFolder) {
+                        Button(Localizations.addFolder) {
                             store.send(.addFolder)
                         }
                     },
