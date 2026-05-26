@@ -125,8 +125,7 @@ struct PremiumPlanProcessorTests {
         billingService.getPortalUrlReturnValue = portalURL
         subject.receive(.cancelPremiumTapped)
 
-        let confirmAction = try #require(coordinator.alertShown.first?.alertActions.last)
-        await confirmAction.handler?(confirmAction, [])
+        try await coordinator.alertShown.first?.tapAction(title: Localizations.continue)
 
         #expect(billingService.getPortalUrlCallsCount == 1)
         #expect(subject.state.urlToOpen == portalURL)
@@ -138,8 +137,7 @@ struct PremiumPlanProcessorTests {
         billingService.getPortalUrlThrowableError = BitwardenTestError.example
         subject.receive(.cancelPremiumTapped)
 
-        let confirmAction = try #require(coordinator.alertShown.first?.alertActions.last)
-        await confirmAction.handler?(confirmAction, [])
+        try await coordinator.alertShown.first?.tapAction(title: Localizations.continue)
 
         #expect(errorReporter.errors.first as? BitwardenTestError == .example)
         #expect(coordinator.errorAlertsShown.count == 1)
