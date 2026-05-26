@@ -9,6 +9,12 @@ class LinkedIdTypeTests: BitwardenTestCase {
         XCTAssertEqual(result, expected)
     }
 
+    func test_getLinkedIdType_driversLicense() {
+        let result = LinkedIdType.getLinkedIdType(for: .driversLicense)
+        let expected: [LinkedIdType] = []
+        XCTAssertEqual(result, expected)
+    }
+
     func test_getLinkedIdType_card() {
         let result = LinkedIdType.getLinkedIdType(for: .card)
         let expected: [LinkedIdType] = [
