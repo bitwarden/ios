@@ -72,7 +72,7 @@ extension CipherType: Menuable {
         switch self {
         case .bankAccount: Localizations.bankAccount
         case .card: Localizations.typeCard
-        case .driversLicense: Localizations.driversLicense
+        case .driversLicense: Localizations.license
         case .identity: Localizations.typeIdentity
         case .login: Localizations.typeLogin
         case .secureNote: Localizations.typeSecureNote
