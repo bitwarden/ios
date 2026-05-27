@@ -7,6 +7,9 @@ import Foundation
 /// A protocol for a service used to manage billing operations.
 ///
 protocol BillingService: AnyObject { // sourcery: AutoMockable
+    /// The callback URL scheme used by the Stripe checkout web authentication session.
+    var checkoutCallbackUrlScheme: String { get }
+
     /// Creates a checkout session for premium upgrade and returns the checkout URL.
     ///
     /// - Returns: A validated HTTPS URL for the checkout session.
@@ -62,6 +65,8 @@ class DefaultBillingService: BillingService {
 
     /// The API service used for billing requests.
     private let billingAPIService: BillingAPIService
+
+    let checkoutCallbackUrlScheme = "bitwarden"
 
     /// The service used to manage feature flags.
     private let configService: ConfigService

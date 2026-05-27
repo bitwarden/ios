@@ -1,3 +1,4 @@
+import AuthenticationServices
 import BitwardenKit
 import BitwardenResources
 import SwiftUI
@@ -6,7 +7,7 @@ import SwiftUI
 
 /// A coordinator that manages navigation for billing-related views.
 ///
-class BillingCoordinator: Coordinator, HasStackNavigator {
+class BillingCoordinator: NSObject, Coordinator, HasStackNavigator {
     // MARK: Types
 
     typealias Services = HasBillingService
@@ -19,6 +20,9 @@ class BillingCoordinator: Coordinator, HasStackNavigator {
     /// Whether PremiumUpgrade was opened as the root of a modal navController (vault/archive context).
     /// Determines the close behavior of PremiumUpgradeComplete.
     private var isUpgradeAsModalRoot = false
+
+    /// The active web authentication session for the Stripe checkout flow.
+    private var webAuthSession: ASWebAuthenticationSession?
 
     /// Closure invoked after PremiumUpgradeComplete is dismissed.
     private var premiumUpgradeCompleteOnClose: (() -> Void)?
@@ -109,6 +113,7 @@ class BillingCoordinator: Coordinator, HasStackNavigator {
         state.showCancelButton = shouldReplaceStack
         let processor = PremiumUpgradeProcessor(
             coordinator: asAnyCoordinator(),
+            delegate: self,
             services: services,
             state: state,
         )
@@ -127,4 +132,36 @@ class BillingCoordinator: Coordinator, HasStackNavigator {
 
 extension BillingCoordinator: HasErrorAlertServices {
     var errorAlertServices: ErrorAlertServices { services }
+}
+
+// MARK: - PremiumUpgradeProcessorDelegate
+
+extension BillingCoordinator: PremiumUpgradeProcessorDelegate {
+    func performCheckoutWebAuthSession(url: URL) async -> CheckoutWebAuthSessionOutcome {
+        await withCheckedContinuation { continuation in
+            let session = ASWebAuthenticationSession(
+                url: url,
+                callbackURLScheme: services.billingService.checkoutCallbackUrlScheme,
+            ) { [weak self] callbackURL, _ in
+                self?.webAuthSession = nil
+                if let callbackURL {
+                    continuation.resume(returning: .completed(callbackURL: callbackURL))
+                } else {
+                    continuation.resume(returning: .canceled)
+                }
+            }
+            session.prefersEphemeralWebBrowserSession = false
+            session.presentationContextProvider = self
+            webAuthSession = session
+            session.start()
+        }
+    }
+}
+
+// MARK: - ASWebAuthenticationPresentationContextProviding
+
+extension BillingCoordinator: ASWebAuthenticationPresentationContextProviding {
+    func presentationAnchor(for _: ASWebAuthenticationSession) -> ASPresentationAnchor {
+        stackNavigator?.rootViewController?.view.window ?? UIWindow()
+    }
 }
