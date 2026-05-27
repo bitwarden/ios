@@ -381,6 +381,7 @@
 "MasterPasswordPolicyValidationTitle" = "Hasło jest nieprawidłowe";
 "MasterPasswordPolicyValidationMessage" = "Hasło nie spełnia wymogów organizacji. Sprawdź wymaganą zasadę i spróbuj ponownie.";
 "Loading" = "Ładowanie";
+"LoadingSubscription" = "Ładowanie subskrypcji...";
 "AcceptPoliciesError" = "Regulamin i polityka prywatności nie zostały zaakceptowane.";
 "PrivacyPolicy" = "Polityka prywatności";
 "PersonalOwnershipPolicyInEffect" = "Zasada organizacji ma wpływ na opcję własności elementów.";
@@ -1080,8 +1081,8 @@
 "UpgradePending" = "Trwa ulepszanie";
 "YourUpgradeIsBeingProcessedDescriptionLong" = "Ulepszenie jest przetwarzane. Do czasu jego zakończenia będziesz korzystać z darmowego planu. Zsynchronizuj, aby sprawdzić status lub kontynuuj. Aktualizacja nastąpi automatycznie.";
 "UpgradedToPremium" = "Masz konto Premium";
-"ViewPlanDetails" = "Zobacz szczegóły planu";
-"WelcomeToPremiumYouNowHaveAccessDescriptionLong" = "Witaj w planie Premium! Teraz masz dostęp do wszystkich zaawansowanych funkcji bezpieczeństwa.";
+"YouNowHaveAccessToAdvancedSecurityDescriptionLong" = "Masz teraz dostęp do zaawansowanych funkcji bezpieczeństwa. Dowiedz się więcej o tym, co zawiera plan Premium.";
+"YouNowHaveAccessToAllAdvancedSecurityFeatures" = "Masz teraz dostęp do wszystkich zaawansowanych funkcji bezpieczeństwa.";
 "YoullGoToStripeSecureCheckoutToCompleteYourPurchase" = "Zostaniesz przekierowany do płatności Stripe, aby zakończyć zakup.";
 "YoullContinueToHavePremiumAccessUntilX" = "Będziesz mieć dostęp do funkcji Premium do %1$@.";
 "UserIDCopiedToTheClipboard" = "Identyfikator użytkownika został skopiowany do schowka";

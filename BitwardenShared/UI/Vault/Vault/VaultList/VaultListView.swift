@@ -152,7 +152,7 @@ private struct SearchableVaultListView: View { // swiftlint:disable:this type_bo
                         Image(decorative: SharedAsset.Icons.plus16)
                             .resizable()
                             .frame(width: 16, height: 16)
-                        Text(Localizations.newLogin)
+                        Text(Localizations.addLogin)
                     }
                 }
                 .buttonStyle(.primary(shouldFillWidth: false))

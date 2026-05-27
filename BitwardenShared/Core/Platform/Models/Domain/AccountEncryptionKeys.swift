@@ -5,11 +5,8 @@ import BitwardenSdk
 struct AccountEncryptionKeys: Equatable {
     // MARK: Properties
 
-    /// The user's v2 account keys.
-    let accountKeys: PrivateKeysResponseModel?
-
-    /// The encrypted private key for the account.
-    let encryptedPrivateKey: String
+    /// The cryptographic state required to initialize the user's vault encryption.
+    let cryptographicState: WrappedAccountCryptographicState
 
     /// The encrypted user key for the account.
     let encryptedUserKey: String?
@@ -29,43 +26,11 @@ extension AccountEncryptionKeys {
         }
 
         self.init(
-            accountKeys: responseModel.accountKeys,
-            encryptedPrivateKey: privateKey,
+            cryptographicState: .create(
+                accountKeys: responseModel.accountKeys,
+                privateKey: privateKey,
+            ),
             encryptedUserKey: responseModel.key,
         )
-    }
-
-    /// Initializes an `AccountEncryptionKeys` from a `WrappedAccountCryptographicState`.
-    ///
-    /// - Parameters:
-    ///   - accountCryptographicState: The SDK's wrapped account cryptographic state.
-    ///   - encryptedUserKey: An optional encrypted user key to store alongside the cryptographic state.
-    ///
-    init(accountCryptographicState: WrappedAccountCryptographicState, encryptedUserKey: String? = nil) {
-        switch accountCryptographicState {
-        case let .v1(privateKey):
-            self.init(
-                accountKeys: nil,
-                encryptedPrivateKey: privateKey,
-                encryptedUserKey: encryptedUserKey,
-            )
-        case let .v2(privateKey, signedPublicKey, signingKey, securityState):
-            self.init(
-                accountKeys: PrivateKeysResponseModel(
-                    publicKeyEncryptionKeyPair: PublicKeyEncryptionKeyPairResponseModel(
-                        publicKey: "", // Not returned by SDK at registration; will populate on next sync.
-                        signedPublicKey: signedPublicKey,
-                        wrappedPrivateKey: privateKey,
-                    ),
-                    signatureKeyPair: SignatureKeyPairResponseModel(
-                        wrappedSigningKey: signingKey,
-                        verifyingKey: "", // Not returned by SDK at registration; will populate on next sync.
-                    ),
-                    securityState: SecurityStateResponseModel(securityState: securityState),
-                ),
-                encryptedPrivateKey: privateKey,
-                encryptedUserKey: encryptedUserKey,
-            )
-        }
     }
 }

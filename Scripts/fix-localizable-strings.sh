@@ -44,6 +44,7 @@ done
 for strings_file in "${STRINGS_FILES[@]}"; do
     echo "${strings_file}"
     python3 "${PYTHON}" delete-duplicates --strings "${REPO_ROOT}/${strings_file}" "$@"
+    python3 "${PYTHON}" fix-ellipsis --strings "${REPO_ROOT}/${strings_file}" "$@"
     # delete-unused only applies to the main Localizable.strings because it works
     # by scanning for Localizations.X references, which maps exclusively to the
     # SwiftGen-generated Localizations enum produced from that file. The other

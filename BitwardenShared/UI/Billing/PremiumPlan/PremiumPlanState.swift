@@ -35,6 +35,15 @@ struct PremiumPlanState: Equatable {
         return formatDate(canceled)
     }
 
+    /// The accessibility label for the description text, using a screen-reader-friendly currency format.
+    var descriptionAccessibilityLabel: String {
+        guard planStatus == .active else { return descriptionText }
+        return Localizations.yourNextChargeIsForXDueOnY(
+            nextChargeAmountAccessibilityLabel,
+            nextChargeDate,
+        )
+    }
+
     /// The description text for the current plan status.
     var descriptionText: String {
         switch planStatus {
@@ -67,9 +76,9 @@ struct PremiumPlanState: Equatable {
         return Localizations.negativeX(formatCurrency(subscription.discount))
     }
 
-    /// The estimated tax label (e.g. "$4.55").
+    /// The estimated tax label (e.g. "$4.55" or "$0.00").
     var estimatedTax: String {
-        guard let subscription, subscription.estimatedTax > 0 else { return "" }
+        guard let subscription else { return "" }
         return formatCurrency(subscription.estimatedTax)
     }
 
@@ -77,6 +86,12 @@ struct PremiumPlanState: Equatable {
     var nextChargeAmount: String {
         guard let subscription, subscription.nextCharge != nil else { return "" }
         return formatCurrencyCode(subscription.totalAmount)
+    }
+
+    /// The next charge amount formatted for screen readers (e.g. "USD $24.35").
+    var nextChargeAmountAccessibilityLabel: String {
+        guard let subscription, subscription.nextCharge != nil else { return "" }
+        return "USD \(formatCurrency(subscription.totalAmount))"
     }
 
     /// The next charge date, formatted for display.
@@ -100,19 +115,9 @@ struct PremiumPlanState: Equatable {
         !discount.isEmpty
     }
 
-    /// Whether the estimated tax row should be shown.
-    var showEstimatedTax: Bool {
-        !estimatedTax.isEmpty
-    }
-
-    /// Whether the storage cost row should be shown.
-    var showStorageCost: Bool {
-        (subscription?.storageCost ?? 0) > 0
-    }
-
-    /// The storage cost label (e.g. "$4.00").
+    /// The storage cost label (e.g. "$4.00" or "$0.00").
     var storageCostLabel: String {
-        guard let subscription, subscription.storageCost > 0 else { return "" }
+        guard let subscription else { return "" }
         return formatCurrency(subscription.storageCost)
     }
 
@@ -124,6 +129,15 @@ struct PremiumPlanState: Equatable {
             return formatDate(cancelAt)
         }
         return ""
+    }
+
+    /// The total label (e.g. "$25.55 / year").
+    var totalLabel: String {
+        guard let subscription else { return "" }
+        return Localizations.xAmountPerCadence(
+            formatCurrency(subscription.totalAmount),
+            subscription.cadence.label,
+        )
     }
 
     // MARK: Private Methods

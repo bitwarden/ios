@@ -1,11 +1,10 @@
-import BitwardenKit
 import BitwardenSdk
 import Foundation
 
 /// A protocol for a service that handles encryption and decryption tasks for the vault. This is
 /// similar to `VaultClientProtocol` but returns the protocols so they can be mocked for testing.
 ///
-protocol VaultClientService: AnyObject {
+public protocol VaultClientService: AnyObject {
     /// Returns an object that handles encryption and decryption for attachments.
     ///
     func attachments() -> AttachmentsClientProtocol
@@ -48,23 +47,23 @@ protocol VaultClientService: AnyObject {
 // MARK: - VaultClient
 
 extension VaultClient: VaultClientService {
-    func attachments() -> AttachmentsClientProtocol {
+    public func attachments() -> AttachmentsClientProtocol {
         attachments() as AttachmentsClient
     }
 
-    func ciphers() -> CiphersClientProtocol {
+    public func ciphers() -> CiphersClientProtocol {
         ciphers() as CiphersClient
     }
 
-    func collections() -> CollectionsClientProtocol {
+    public func collections() -> CollectionsClientProtocol {
         collections() as CollectionsClient
     }
 
-    func folders() -> FoldersClientProtocol {
+    public func folders() -> FoldersClientProtocol {
         folders() as FoldersClient
     }
 
-    func generateTOTPCode(for key: String, date: Date? = nil) throws -> TOTPCodeModel {
+    public func generateTOTPCode(for key: String, date: Date? = nil) throws -> TOTPCodeModel {
         let calculationDate: Date = date ?? Date()
         do {
             let response = try generateTotp(key: key, time: calculationDate)
@@ -78,7 +77,7 @@ extension VaultClient: VaultClientService {
         }
     }
 
-    func generateTOTPCode(for cipherListView: CipherListView, date: Date? = nil) throws -> TOTPCodeModel {
+    public func generateTOTPCode(for cipherListView: CipherListView, date: Date? = nil) throws -> TOTPCodeModel {
         let calculationDate: Date = date ?? Date()
         do {
             let response = try generateTotpCipherView(view: cipherListView, time: calculationDate)
@@ -92,7 +91,7 @@ extension VaultClient: VaultClientService {
         }
     }
 
-    func passwordHistory() -> PasswordHistoryClientProtocol {
+    public func passwordHistory() -> PasswordHistoryClientProtocol {
         passwordHistory() as PasswordHistoryClient
     }
 

@@ -68,9 +68,12 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
 
     typealias Services = HasAPIService
         & HasAuthRepository
+        & HasBillingRepository
+        & HasBillingService
         & HasCameraService
         & HasCardTextParser
         & HasConfigService
+        & HasEnvironmentService
         & HasErrorReporter
         & HasEventService
         & HasFido2UserInterfaceHelper
@@ -100,6 +103,13 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
 
     /// The delegate that is notified when delete cipher item have occurred.
     private weak var delegate: CipherItemOperationDelegate?
+
+    /// The helper used to navigate to the premium upgrade flow.
+    lazy var premiumUpgradeHelper: PremiumUpgradeHelper = DefaultPremiumUpgradeHelper(
+        services: services,
+        coordinator: coordinator,
+        setURL: { [weak self] url in self?.state.url = url },
+    )
 
     /// The services required by this processor.
     private let services: Services
@@ -310,11 +320,18 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
     /// Archives a cipher.
     ///
     private func archiveItem() async {
-        await vaultItemActionHelper.archive(cipher: state.cipher) { [weak self] url in
-            self?.state.url = url
+        await vaultItemActionHelper.archive(cipher: state.cipher) { [weak self] in
+            await self?.navigateToPremiumUpgrade()
         } completionHandler: { [weak self, delegate] in
             self?.dismiss { delegate?.itemArchived() }
         }
+    }
+
+    /// Navigates to the premium upgrade flow. Uses the in-app upgrade path when available;
+    /// otherwise opens the web vault upgrade URL as a fallback.
+    ///
+    private func navigateToPremiumUpgrade() async {
+        await premiumUpgradeHelper.navigateToPremiumUpgrade()
     }
 
     /// Dismisses with an action.
@@ -482,7 +499,6 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
     ///   - state: The parent `AddEditCardState` to be updated.
     ///   - action: The `AddEditCardItemAction` received.
     private func updateCardState(_ state: inout AddEditItemState, for action: AddEditCardItemAction) {
-        // swiftlint:disable:previous function_body_length
         switch action {
         case let .brandChanged(brand):
             state.cardItemState.brand = brand

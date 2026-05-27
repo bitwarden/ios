@@ -41,20 +41,18 @@ struct PremiumPlanView: View {
 
     // MARK: Private Views
 
-    /// The billing details section with rows for billing amount, storage cost, and discount.
+    /// The billing details section with rows for billing amount, storage cost, and discount
     @ViewBuilder private var billingSection: some View {
         billingRow(
             label: Localizations.billingAmount,
             value: store.state.billingAmount,
             valueColor: Color(asset: SharedAsset.Colors.textPrimary),
         )
-        if store.state.showStorageCost {
-            billingRow(
-                label: Localizations.storageCost,
-                value: store.state.storageCostLabel,
-                valueColor: Color(asset: SharedAsset.Colors.textPrimary),
-            )
-        }
+        billingRow(
+            label: Localizations.storageCost,
+            value: store.state.storageCostLabel,
+            valueColor: Color(asset: SharedAsset.Colors.textPrimary),
+        )
         if store.state.showDiscount {
             billingRow(
                 label: Localizations.discount,
@@ -62,13 +60,17 @@ struct PremiumPlanView: View {
                 valueColor: SharedAsset.Colors.statusStrong.swiftUIColor,
             )
         }
-        if store.state.showEstimatedTax {
-            billingRow(
-                label: Localizations.estimatedTax,
-                value: store.state.estimatedTax,
-                valueColor: Color(asset: SharedAsset.Colors.textPrimary),
-            )
-        }
+        billingRow(
+            label: Localizations.estimatedTax,
+            value: store.state.estimatedTax,
+            valueColor: Color(asset: SharedAsset.Colors.textPrimary),
+        )
+        billingRow(
+            label: Localizations.total,
+            value: store.state.totalLabel,
+            valueColor: Color(asset: SharedAsset.Colors.textPrimary),
+            labelWeight: .bold,
+        )
     }
 
     /// The cancel premium button.
@@ -90,6 +92,7 @@ struct PremiumPlanView: View {
         Text(LocalizedStringKey(store.state.descriptionText))
             .styleGuide(.callout)
             .foregroundColor(Color(asset: SharedAsset.Colors.textSecondary))
+            .accessibilityLabel(store.state.descriptionAccessibilityLabel)
     }
 
     /// The header section with title, badge, and description.
@@ -153,15 +156,17 @@ struct PremiumPlanView: View {
     ///   - label: The label text displayed on the left.
     ///   - value: The value text displayed on the right.
     ///   - valueColor: The color to use for the value text.
+    ///   - labelWeight: The font weight applied to the label.
     ///
     private func billingRow(
         label: String,
         value: String,
         valueColor: Color,
+        labelWeight: SwiftUI.Font.Weight = .regular,
     ) -> some View {
         HStack {
             Text(label)
-                .styleGuide(.body)
+                .styleGuide(.body, weight: labelWeight)
                 .foregroundColor(Color(asset: SharedAsset.Colors.textSecondary))
 
             Spacer()

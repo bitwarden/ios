@@ -20,8 +20,8 @@ protocol SettingsProcessorDelegate: AnyObject {
 final class SettingsProcessor: StateProcessor<SettingsState, SettingsAction, SettingsEffect> {
     // MARK: Types
 
-    typealias Services = HasConfigService
-        & HasEnvironmentService
+    typealias Services = HasBillingService
+        & HasConfigService
         & HasErrorReporter
         & HasStateService
         & HasVaultRepository
@@ -29,7 +29,7 @@ final class SettingsProcessor: StateProcessor<SettingsState, SettingsAction, Set
     // MARK: Private Properties
 
     /// The task used to update the tab's badge count.
-    private var badgeUpdateTask: Task<Void, Never>?
+    private(set) var badgeUpdateTask: Task<Void, Never>?
 
     /// The `Coordinator` that handles navigation.
     private let coordinator: AnyCoordinator<SettingsRoute, SettingsEvent>
@@ -63,16 +63,19 @@ final class SettingsProcessor: StateProcessor<SettingsState, SettingsAction, Set
         super.init(state: state)
 
         // Kick off this task in init so that the tab bar badge will be updated immediately when
-        // the tab bar is shown vs once the user navigates to the settings tab.
-        badgeUpdateTask = Task { @MainActor [weak self] in
-            do {
-                guard let publisher = try await self?.services.stateService.settingsBadgePublisher() else { return }
-                for await badgeState in publisher.values {
-                    self?.delegate?.updateSettingsTabBadge(badgeState.badgeValue)
-                    self?.state.badgeState = badgeState
+        // the tab bar is shown vs once the user navigates to the settings tab. Badge updates
+        // require an active account, so this is skipped in pre-login presentation mode.
+        if state.presentationMode == .tab {
+            badgeUpdateTask = Task { @MainActor [weak self] in
+                do {
+                    guard let publisher = try await self?.services.stateService.settingsBadgePublisher() else { return }
+                    for await badgeState in publisher.values {
+                        self?.delegate?.updateSettingsTabBadge(badgeState.badgeValue)
+                        self?.state.badgeState = badgeState
+                    }
+                } catch {
+                    self?.services.errorReporter.log(error: error)
                 }
-            } catch {
-                self?.services.errorReporter.log(error: error)
             }
         }
     }
@@ -86,10 +89,11 @@ final class SettingsProcessor: StateProcessor<SettingsState, SettingsAction, Set
     override func perform(_ effect: SettingsEffect) async {
         switch effect {
         case .appeared:
+            guard state.presentationMode == .tab else { return }
             let featureEnabled = await services.configService
                 .getFeatureFlag(.premiumUpgradePath, defaultValue: false)
             let hasPremium = await services.vaultRepository.doesActiveAccountHavePremium()
-            let isSelfHosted = services.environmentService.region == .selfHosted
+            let isSelfHosted = await services.billingService.isSelfHosted()
             state.hasPremium = hasPremium
             state.showPlanRow = featureEnabled && !isSelfHosted
         }

@@ -96,7 +96,7 @@ extension ASPasskeyAssertionCredential {
 
 @available(iOS 17.0, *)
 extension ASPasskeyCredentialIdentity {
-    convenience init(deviceAuthKeyMetadata metadata: DeviceAuthKeyMetadata) {
+    convenience init(deviceAuthKeyMetadata metadata: DeviceAuthKeyKeychainMetadata) {
         self.init(
             relyingPartyIdentifier: metadata.rpId,
             userName: metadata.userName,

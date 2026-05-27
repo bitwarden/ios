@@ -3,6 +3,12 @@ import XCTest
 @testable import BitwardenShared
 
 class LinkedIdTypeTests: BitwardenTestCase {
+    func test_getLinkedIdType_bankAccount() {
+        let result = LinkedIdType.getLinkedIdType(for: .bankAccount)
+        let expected: [LinkedIdType] = []
+        XCTAssertEqual(result, expected)
+    }
+
     func test_getLinkedIdType_card() {
         let result = LinkedIdType.getLinkedIdType(for: .card)
         let expected: [LinkedIdType] = [

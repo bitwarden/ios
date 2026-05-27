@@ -16,6 +16,7 @@ struct PremiumPlanProcessorTests {
 
     let billingService: MockBillingService
     let coordinator: MockCoordinator<BillingRoute, Void>
+    let environmentService: MockEnvironmentService
     let errorReporter: MockErrorReporter
     let subject: PremiumPlanProcessor
 
@@ -24,9 +25,11 @@ struct PremiumPlanProcessorTests {
     init() {
         billingService = MockBillingService()
         coordinator = MockCoordinator<BillingRoute, Void>()
+        environmentService = MockEnvironmentService()
         errorReporter = MockErrorReporter()
         let services = ServiceContainer.withMocks(
             billingService: billingService,
+            environmentService: environmentService,
             errorReporter: errorReporter,
         )
         subject = PremiumPlanProcessor(
@@ -100,7 +103,7 @@ struct PremiumPlanProcessorTests {
         #expect(subject.state.nextChargeAmount.contains("USD"))
         #expect(subject.state.nextChargeAmount.contains("24.35"))
         #expect(!subject.state.nextChargeDate.isEmpty)
-        #expect(!subject.state.showStorageCost)
+        #expect(subject.state.storageCostLabel.contains("$0.00"))
     }
 
     /// `receive(_:)` with `.cancelPremiumTapped` shows the confirmation alert.
@@ -153,27 +156,29 @@ struct PremiumPlanProcessorTests {
         #expect(subject.state.urlToOpen == nil)
     }
 
-    /// `perform(_:)` with `.managePlanTapped` fetches portal URL and sets state.
+    /// `perform(_:)` with `.managePlanTapped` shows the "Continue to web app?" alert.
     @Test
-    func perform_managePlanTapped_setsPortalUrl() async {
-        let portalURL = URL(string: "https://billing.stripe.com/portal/session")!
-        billingService.getPortalUrlReturnValue = portalURL
-
+    func perform_managePlanTapped_showsAlert() async {
         await subject.perform(.managePlanTapped)
 
-        #expect(billingService.getPortalUrlCallsCount == 1)
-        #expect(subject.state.urlToOpen == portalURL)
+        #expect(coordinator.alertShown.count == 1)
+        #expect(coordinator.alertShown.first?.title == Localizations.continueToWebApp)
+        #expect(
+            coordinator.alertShown.first?.message == Localizations.manageYourSubscriptionPlanInTheBitwardenWebApp,
+        )
+        #expect(coordinator.alertShown.first?.alertActions.count == 2)
+        #expect(coordinator.alertShown.first?.alertActions.first?.title == Localizations.cancel)
+        #expect(coordinator.alertShown.first?.alertActions.last?.title == Localizations.continue)
     }
 
-    /// `perform(_:)` with `.managePlanTapped` logs error and shows alert on failure.
+    /// `perform(_:)` with `.managePlanTapped`, after confirming, sets `urlToOpen` to the subscription URL.
     @Test
-    func perform_managePlanTapped_serviceError() async {
-        billingService.getPortalUrlThrowableError = BitwardenTestError.example
-
+    func perform_managePlanTapped_continue_setsSubscriptionUrl() async throws {
         await subject.perform(.managePlanTapped)
 
-        #expect(errorReporter.errors.first as? BitwardenTestError == .example)
-        #expect(coordinator.errorAlertsShown.count == 1)
-        #expect(subject.state.urlToOpen == nil)
+        let continueAction = try #require(coordinator.alertShown.first?.alertActions.last)
+        await continueAction.handler?(continueAction, [])
+
+        #expect(subject.state.urlToOpen == environmentService.manageSubscriptionURL)
     }
 }

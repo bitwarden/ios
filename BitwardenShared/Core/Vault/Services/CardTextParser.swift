@@ -31,7 +31,7 @@ final class DefaultCardTextParser: CardTextParser {
 
     // MARK: CardTextParser
 
-    func parseCard(lines: [String]) -> ScannedCardData { // swiftlint:disable:this cyclomatic_complexity
+    func parseCard(lines: [String]) -> ScannedCardData {
         var result = ScannedCardData()
 
         // Flatten embedded newlines: OCR transcripts can contain \n within a single

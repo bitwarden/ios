@@ -470,14 +470,16 @@ extension CipherItemState: AddEditItemState {
         switch configuration {
         case .add:
             switch type {
-            case .card: Localizations.newCard
-            case .identity: Localizations.newIdentity
-            case .login: Localizations.newLogin
-            case .secureNote: Localizations.newNote
-            case .sshKey: Localizations.newSSHKey
+            case .bankAccount: Localizations.addBankAccount
+            case .card: Localizations.addCard
+            case .identity: Localizations.addIdentity
+            case .login: Localizations.addLogin
+            case .secureNote: Localizations.addNote
+            case .sshKey: Localizations.addSSHKey
             }
         case .existing:
             switch type {
+            case .bankAccount: Localizations.editBankAccount
             case .card: Localizations.editCard
             case .identity: Localizations.editIdentity
             case .login: Localizations.editLogin
@@ -559,6 +561,15 @@ extension CipherItemState: ViewVaultItemState {
             return SharedAsset.Icons.stickyNote24
         case .sshKey:
             return SharedAsset.Icons.key24
+        case .bankAccount:
+            // TODO: PM-32809
+            return SharedAsset.Icons.stickyNote24
+        case .driversLicense:
+            // TODO: PM-32807
+            return SharedAsset.Icons.stickyNote24
+        case .passport:
+            // TODO: PM-32805
+            return SharedAsset.Icons.stickyNote24
         }
     }
 
@@ -637,6 +648,9 @@ extension CipherItemState {
             card: type == .card ? cardItemState.cardView : nil,
             secureNote: type == .secureNote ? .init(type: .generic) : nil,
             sshKey: type == .sshKey ? sshKeyState.sshKeyView : nil,
+            bankAccount: nil, // TODO: PM-32809
+            driversLicense: nil, // TODO: PM-32807
+            passport: nil, // TODO: PM-32805
             favorite: isFavoriteOn,
             reprompt: isMasterPasswordRePromptOn ? .password : .none,
             organizationUseTotp: false,

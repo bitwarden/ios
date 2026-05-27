@@ -1,14 +1,11 @@
 import BitwardenKit
-import BitwardenKitMocks
 import BitwardenSdk
 import BitwardenSdkMocks
 import Foundation
 
-@testable import BitwardenShared
-
-class MockVaultClientService: VaultClientService {
-    var clientAttachments = MockAttachmentsClientProtocol()
-    var clientCiphers: MockCiphersClientProtocol = {
+public class MockVaultClientService: VaultClientService {
+    public var clientAttachments = MockAttachmentsClientProtocol()
+    public var clientCiphers: MockCiphersClientProtocol = {
         let mock = MockCiphersClientProtocol()
         mock.decryptClosure = { CipherView(cipher: $0) }
         mock.decryptFido2CredentialsReturnValue = []
@@ -19,19 +16,18 @@ class MockVaultClientService: VaultClientService {
         mock.encryptClosure = { cipherView in
             EncryptionContext(encryptedFor: "1", cipher: Cipher(cipherView: cipherView))
         }
-        mock.moveToOrganizationReturnValue = .fixture()
         mock.prepareCiphersForBulkShareReturnValue = []
         return mock
     }()
 
-    var clientCollections: MockCollectionsClientProtocol = {
+    public var clientCollections: MockCollectionsClientProtocol = {
         let mock = MockCollectionsClientProtocol()
         mock.decryptClosure = { CollectionView(collection: $0) }
         mock.decryptListClosure = { $0.map(CollectionView.init) }
         return mock
     }()
 
-    var clientFolders: MockFoldersClientProtocol = {
+    public var clientFolders: MockFoldersClientProtocol = {
         let mock = MockFoldersClientProtocol()
         mock.decryptClosure = { FolderView(folder: $0) }
         mock.decryptListClosure = { $0.map(FolderView.init) }
@@ -39,35 +35,37 @@ class MockVaultClientService: VaultClientService {
         return mock
     }()
 
-    var clientPasswordHistory: MockPasswordHistoryClientProtocol = {
+    public var clientPasswordHistory: MockPasswordHistoryClientProtocol = {
         let mock = MockPasswordHistoryClientProtocol()
         mock.encryptClosure = { PasswordHistory(passwordHistoryView: $0) }
         mock.decryptListClosure = { $0.map(PasswordHistoryView.init) }
         return mock
     }()
 
-    var generateTOTPCodeCipherParam: CipherListView?
-    var generateTOTPCodeResult: Result<String, Error> = .success("123456")
-    var timeProvider = MockTimeProvider(.currentTime)
-    var totpPeriod: UInt32 = 30
+    public var generateTOTPCodeCipherParam: CipherListView?
+    public var generateTOTPCodeResult: Result<String, Error> = .success("123456")
+    public var timeProvider = MockTimeProvider(.currentTime)
+    public var totpPeriod: UInt32 = 30
 
-    func attachments() -> AttachmentsClientProtocol {
+    public init() {}
+
+    public func attachments() -> AttachmentsClientProtocol {
         clientAttachments
     }
 
-    func ciphers() -> CiphersClientProtocol {
+    public func ciphers() -> CiphersClientProtocol {
         clientCiphers
     }
 
-    func collections() -> CollectionsClientProtocol {
+    public func collections() -> CollectionsClientProtocol {
         clientCollections
     }
 
-    func folders() -> FoldersClientProtocol {
+    public func folders() -> FoldersClientProtocol {
         clientFolders
     }
 
-    func generateTOTPCode(for _: String, date: Date?) throws -> BitwardenKit.TOTPCodeModel {
+    public func generateTOTPCode(for _: String, date: Date?) throws -> TOTPCodeModel {
         let code = try generateTOTPCodeResult.get()
         return TOTPCodeModel(
             code: code,
@@ -76,10 +74,10 @@ class MockVaultClientService: VaultClientService {
         )
     }
 
-    func generateTOTPCode(
-        for cipherListView: BitwardenSdk.CipherListView,
+    public func generateTOTPCode(
+        for cipherListView: CipherListView,
         date: Date?,
-    ) throws -> BitwardenKit.TOTPCodeModel {
+    ) throws -> TOTPCodeModel {
         generateTOTPCodeCipherParam = cipherListView
         let code = try generateTOTPCodeResult.get()
         return TOTPCodeModel(
@@ -89,7 +87,7 @@ class MockVaultClientService: VaultClientService {
         )
     }
 
-    func passwordHistory() -> PasswordHistoryClientProtocol {
+    public func passwordHistory() -> PasswordHistoryClientProtocol {
         clientPasswordHistory
     }
 }

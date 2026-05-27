@@ -19,6 +19,7 @@ class BitwardenSdkVaultBitwardenCipherTypeTests: BitwardenTestCase {
         XCTAssertEqual(BitwardenSdk.CipherType(.identity), .identity)
         XCTAssertEqual(BitwardenSdk.CipherType(.secureNote), .secureNote)
         XCTAssertEqual(BitwardenSdk.CipherType(.sshKey), .sshKey)
+        XCTAssertEqual(BitwardenSdk.CipherType(.bankAccount), .bankAccount)
     }
 }
 
@@ -99,6 +100,41 @@ class BitwardenSdkCipherListViewTypeTests: BitwardenTestCase {
     }
 }
 
+// MARK: - CipherBankAccountModel
+
+class BitwardenSdkVaultCipherBankAccountModelTests: BitwardenTestCase {
+    // MARK: Tests
+
+    /// `init(bankAccount:)` Inits cipher bank account model from the SDK one.
+    func test_init_fromSdkBankAccount() {
+        let model = CipherBankAccountModel(
+            bankAccount: .init(
+                bankName: "bankName",
+                nameOnAccount: "nameOnAccount",
+                accountType: "accountType",
+                accountNumber: "accountNumber",
+                routingNumber: "routingNumber",
+                branchNumber: "branchNumber",
+                pin: "pin",
+                swiftCode: "swiftCode",
+                iban: "iban",
+                bankContactPhone: "bankContactPhone",
+            ),
+        )
+
+        XCTAssertEqual(model.accountNumber, "accountNumber")
+        XCTAssertEqual(model.accountType, "accountType")
+        XCTAssertEqual(model.bankContactPhone, "bankContactPhone")
+        XCTAssertEqual(model.bankName, "bankName")
+        XCTAssertEqual(model.branchNumber, "branchNumber")
+        XCTAssertEqual(model.iban, "iban")
+        XCTAssertEqual(model.nameOnAccount, "nameOnAccount")
+        XCTAssertEqual(model.pin, "pin")
+        XCTAssertEqual(model.routingNumber, "routingNumber")
+        XCTAssertEqual(model.swiftCode, "swiftCode")
+    }
+}
+
 // MARK: - CipherSSHKeyModel
 
 class BitwardenSdkVaultCipherSSHKeyModelTests: BitwardenTestCase {
@@ -132,6 +168,7 @@ class BitwardenSdkVaultCipherTypeTests: BitwardenTestCase {
         XCTAssertEqual(CipherType(type: .identity), .identity)
         XCTAssertEqual(CipherType(type: .secureNote), .secureNote)
         XCTAssertEqual(CipherType(type: .sshKey), .sshKey)
+        XCTAssertEqual(CipherType(type: .bankAccount), .bankAccount)
     }
 
     /// `init(type:)` initializes the SDK cipher type based on the cipher list view type.
@@ -141,6 +178,7 @@ class BitwardenSdkVaultCipherTypeTests: BitwardenTestCase {
         XCTAssertEqual(CipherType(CipherListViewType.identity), .identity)
         XCTAssertEqual(CipherType(CipherListViewType.secureNote), .secureNote)
         XCTAssertEqual(CipherType(CipherListViewType.sshKey), .sshKey)
+        XCTAssertEqual(CipherType(CipherListViewType.bankAccount), .bankAccount)
     }
 }
 
@@ -197,6 +235,9 @@ class CipherViewTests: BitwardenTestCase {
                 card: nil,
                 secureNote: nil,
                 sshKey: nil,
+                bankAccount: nil,
+                driversLicense: nil,
+                passport: nil,
                 favorite: false,
                 reprompt: .none,
                 organizationUseTotp: false,
@@ -249,6 +290,9 @@ class CipherViewTests: BitwardenTestCase {
                 card: nil,
                 secureNote: nil,
                 sshKey: nil,
+                bankAccount: nil,
+                driversLicense: nil,
+                passport: nil,
                 favorite: false,
                 reprompt: .none,
                 organizationUseTotp: false,

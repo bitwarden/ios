@@ -4,7 +4,7 @@ import Foundation
 /// A protocol for a service that handles auth tasks. This is similar to `AuthClientProtocol` but
 /// returns protocols so they can be mocked for testing.
 ///
-public protocol AuthClientService: AnyObject, Sendable {
+public protocol AuthClientService: AnyObject, Sendable { // sourcery: AutoMockable
     /// Approve an auth request.
     ///
     func approveAuthRequest(publicKey: String) throws -> UnsignedSharedKey

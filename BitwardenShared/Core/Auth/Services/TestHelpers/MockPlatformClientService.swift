@@ -1,6 +1,10 @@
+import BitwardenKit
+import BitwardenKitMocks
 import BitwardenSdk
+import BitwardenSdkMocks
 
 @testable import BitwardenShared
+@testable import BitwardenSharedMocks
 
 class MockPlatformClientService: PlatformClientService {
     var fido2Mock = MockClientFido2Service()
@@ -9,7 +13,7 @@ class MockPlatformClientService: PlatformClientService {
     var featureFlags: [String: Bool] = [:]
     var loadFlagsError: Error?
     var serverCommunicationConfigResult: ServerCommunicationConfigClientProtocol!
-    var stateMock = MockStateClient()
+    var stateMock = MockStateClientProtocol()
     var userFingerprintCalled = false
 
     func fido2() -> ClientFido2Service {

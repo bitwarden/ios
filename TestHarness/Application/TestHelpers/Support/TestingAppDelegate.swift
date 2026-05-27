@@ -1,6 +1,8 @@
 import TestHarnessShared
 import UIKit
 
+@testable import TestHarness
+
 /// The app's `UIApplicationDelegate` used when running tests.
 class TestingAppDelegate: UIResponder, UIApplicationDelegate, AppDelegateType {
     // MARK: Properties

@@ -18,6 +18,9 @@ public enum CipherType: Int, Codable, Sendable {
 
     /// An SSH key.
     case sshKey = 5
+
+    /// A bank account.
+    case bankAccount = 6
 }
 
 extension CipherType {
@@ -50,12 +53,13 @@ extension CipherType {
 }
 
 extension CipherType: CaseIterable {
-    public static let allCases: [CipherType] = [.login, .card, .identity, .secureNote, .sshKey]
+    public static let allCases: [CipherType] = [.login, .card, .identity, .secureNote, .sshKey, .bankAccount]
 }
 
 extension CipherType: Menuable {
     public var localizedName: String {
         switch self {
+        case .bankAccount: Localizations.bankAccount
         case .card: Localizations.typeCard
         case .identity: Localizations.typeIdentity
         case .login: Localizations.typeLogin
@@ -74,7 +78,7 @@ extension CipherType {
         switch self {
         case .card, .identity, .login:
             [.text, .hidden, .boolean, .linked]
-        case .secureNote, .sshKey:
+        case .bankAccount, .secureNote, .sshKey:
             [.text, .hidden, .boolean]
         }
     }
