@@ -32,7 +32,7 @@ class CipherAPIServiceTests: XCTestCase { // swiftlint:disable:this type_body_le
     // MARK: Tests
 
     /// `addCipher()` performs the add cipher request and decodes the response.
-    func test_addCipher() async throws {
+    func test_addCipher() async throws { // swiftlint:disable:this function_body_length
         client.result = .httpSuccess(testData: .cipherResponse)
 
         let response = try await subject.addCipher(
@@ -90,7 +90,7 @@ class CipherAPIServiceTests: XCTestCase { // swiftlint:disable:this type_body_le
     }
 
     /// `addCipherWithCollections()` performs the add cipher with collections request and decodes the response.
-    func test_addCipherWithCollections() async throws {
+    func test_addCipherWithCollections() async throws { // swiftlint:disable:this function_body_length
         client.result = .httpSuccess(testData: .cipherResponse)
 
         let response = try await subject.addCipherWithCollections(
@@ -374,7 +374,7 @@ class CipherAPIServiceTests: XCTestCase { // swiftlint:disable:this type_body_le
     }
 
     /// `shareCipher()` performs the share cipher request and decodes the response.
-    func test_shareCipher() async throws {
+    func test_shareCipher() async throws { // swiftlint:disable:this function_body_length
         client.result = .httpSuccess(testData: .cipherResponse)
 
         let response = try await subject.shareCipher(
