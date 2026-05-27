@@ -20,6 +20,7 @@ class BitwardenSdkVaultBitwardenCipherTypeTests: BitwardenTestCase {
         XCTAssertEqual(BitwardenSdk.CipherType(.secureNote), .secureNote)
         XCTAssertEqual(BitwardenSdk.CipherType(.sshKey), .sshKey)
         XCTAssertEqual(BitwardenSdk.CipherType(.bankAccount), .bankAccount)
+        XCTAssertEqual(BitwardenSdk.CipherType(.driversLicense), .driversLicense)
     }
 }
 
@@ -135,6 +136,43 @@ class BitwardenSdkVaultCipherBankAccountModelTests: BitwardenTestCase {
     }
 }
 
+// MARK: - CipherDriversLicenseModel
+
+class BitwardenSdkVaultCipherDriversLicenseModelTests: BitwardenTestCase {
+    // MARK: Tests
+
+    /// `init(driversLicense:)` Inits cipher driver's license model from the SDK one.
+    func test_init_fromSdkDriversLicense() {
+        let model = CipherDriversLicenseModel(
+            driversLicense: .init(
+                firstName: "firstName",
+                middleName: "middleName",
+                lastName: "lastName",
+                dateOfBirth: "dateOfBirth",
+                licenseNumber: "licenseNumber",
+                issuingCountry: "issuingCountry",
+                issuingState: "issuingState",
+                issueDate: "issueDate",
+                expirationDate: "expirationDate",
+                issuingAuthority: "issuingAuthority",
+                licenseClass: "licenseClass",
+            ),
+        )
+
+        XCTAssertEqual(model.dateOfBirth, "dateOfBirth")
+        XCTAssertEqual(model.expirationDate, "expirationDate")
+        XCTAssertEqual(model.firstName, "firstName")
+        XCTAssertEqual(model.issueDate, "issueDate")
+        XCTAssertEqual(model.issuingAuthority, "issuingAuthority")
+        XCTAssertEqual(model.issuingCountry, "issuingCountry")
+        XCTAssertEqual(model.issuingState, "issuingState")
+        XCTAssertEqual(model.lastName, "lastName")
+        XCTAssertEqual(model.licenseClass, "licenseClass")
+        XCTAssertEqual(model.licenseNumber, "licenseNumber")
+        XCTAssertEqual(model.middleName, "middleName")
+    }
+}
+
 // MARK: - CipherSSHKeyModel
 
 class BitwardenSdkVaultCipherSSHKeyModelTests: BitwardenTestCase {
@@ -169,6 +207,7 @@ class BitwardenSdkVaultCipherTypeTests: BitwardenTestCase {
         XCTAssertEqual(CipherType(type: .secureNote), .secureNote)
         XCTAssertEqual(CipherType(type: .sshKey), .sshKey)
         XCTAssertEqual(CipherType(type: .bankAccount), .bankAccount)
+        XCTAssertEqual(CipherType(type: .driversLicense), .driversLicense)
     }
 
     /// `init(type:)` initializes the SDK cipher type based on the cipher list view type.
@@ -179,6 +218,7 @@ class BitwardenSdkVaultCipherTypeTests: BitwardenTestCase {
         XCTAssertEqual(CipherType(CipherListViewType.secureNote), .secureNote)
         XCTAssertEqual(CipherType(CipherListViewType.sshKey), .sshKey)
         XCTAssertEqual(CipherType(CipherListViewType.bankAccount), .bankAccount)
+        XCTAssertEqual(CipherType(CipherListViewType.driversLicense), .driversLicense)
     }
 }
 

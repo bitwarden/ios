@@ -712,13 +712,16 @@
 "AddNote" = "Add note";
 "AddSSHKey" = "Add SSH key";
 "AddBankAccount" = "Add bank account";
+"AddLicense" = "Add license";
 "EditBankAccount" = "Edit bank account";
+"EditLicense" = "Edit license";
 "EditLogin" = "Edit login";
 "EditCard" = "Edit card";
 "EditIdentity" = "Edit identity";
 "EditNote" = "Edit note";
 "EditSSHKey" = "Edit SSH key";
 "ViewBankAccount" = "View bank account";
+"ViewLicense" = "View license";
 "ViewLogin" = "View login";
 "ViewCard" = "View card";
 "ViewIdentity" = "View identity";
@@ -1102,3 +1105,4 @@
 "CheckYourConnectionAndTryAgain" = "Check your connection and try again.";
 "PricingUnavailable" = "Pricing unavailable";
 "BankAccount" = "Bank account";
+"License" = "License";
