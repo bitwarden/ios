@@ -862,7 +862,6 @@ class SyncServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
                 key: "key",
                 organizations: [],
                 privateKey: "private key",
-                providerOrganizations: [],
                 securityStamp: "stamp",
             ),
         )
@@ -894,7 +893,6 @@ class SyncServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
                 key: "key",
                 organizations: [],
                 privateKey: "private key",
-                providerOrganizations: [],
                 securityStamp: "stamp",
             ),
         )
