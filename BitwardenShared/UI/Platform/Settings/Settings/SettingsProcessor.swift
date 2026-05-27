@@ -1,4 +1,5 @@
 import BitwardenKit
+import BitwardenResources
 
 // MARK: - SettingsProcessorDelegate
 
@@ -130,10 +131,13 @@ final class SettingsProcessor: StateProcessor<SettingsState, SettingsAction, Set
             return
         }
 
+        defer { coordinator.hideLoadingOverlay() }
+        coordinator.showLoadingOverlay(title: Localizations.loading)
+
         do {
             let subscription = try await services.billingService.getSubscription()
             if subscription.status.isTroubleState {
-                coordinator.navigate(to: .premiumPlan)
+                coordinator.navigate(to: .premiumPlan, context: PremiumSubscriptionContext(subscription))
             } else {
                 coordinator.navigate(to: .premiumUpgrade)
             }
