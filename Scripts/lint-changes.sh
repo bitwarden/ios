@@ -50,28 +50,35 @@ for file in "${FILE_ARRAY[@]}"; do
     echo "  $file"
 done
 
+run_swiftformat() {
+    if [ "$FIX_MODE" = true ]; then
+        if ! mint run swiftformat --quiet "${FILE_ARRAY[@]}"; then
+            echo "❌ SwiftFormat failed"
+            SWIFTFORMAT_FAILED=1
+        fi
+    else
+        if ! mint run swiftformat --lint "${FILE_ARRAY[@]}"; then
+            echo "❌ SwiftFormat found formatting issues"
+            SWIFTFORMAT_FAILED=1
+        fi
+    fi
+}
+
 # Run SwiftFormat
 echo ""
 echo "Running SwiftFormat..."
-if [ "$FIX_MODE" = true ]; then
-    # Format files
-    if ! mint run swiftformat --quiet "${FILE_ARRAY[@]}"; then
-        echo "❌ SwiftFormat failed"
-        SWIFTFORMAT_FAILED=1
-    fi
-else
-    # Check formatting without modifying files
-    if ! mint run swiftformat --lint "${FILE_ARRAY[@]}"; then
-        echo "❌ SwiftFormat found formatting issues"
-        SWIFTFORMAT_FAILED=1
-    fi
-fi
+run_swiftformat
 
 # Run SwiftLint
 echo ""
 echo "Running SwiftLint..."
 if [ "$FIX_MODE" = true ]; then
     mint run swiftlint lint --quiet --fix "${FILE_ARRAY[@]}" || true
+
+    # Re-run SwiftFormat to catch any formatting issues introduced by SwiftLint fixes
+    echo ""
+    echo "Re-running SwiftFormat after SwiftLint fixes..."
+    run_swiftformat
 
     # Re-run in check mode to surface any violations that couldn't be auto-fixed
     echo ""
