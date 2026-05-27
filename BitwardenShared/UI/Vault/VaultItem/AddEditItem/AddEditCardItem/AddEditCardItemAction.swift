@@ -27,9 +27,6 @@ enum AddEditCardItemAction: Equatable, Sendable {
     /// The expiration year of the card changed.
     case expirationYearChanged(String)
 
-    /// The user tapped the Scan Card button.
-    case scanCardButtonTapped
-
     /// Toggle for code visibility changed.
     case toggleCodeVisibilityChanged(Bool)
 

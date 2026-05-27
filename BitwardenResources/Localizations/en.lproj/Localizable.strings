@@ -936,6 +936,7 @@
 "SaveToBitwarden" = "Save to Bitwarden";
 "ScanCard" = "Scan card";
 "PositionYourCardInTheFrameToScanIt" = "Position your card in the frame to scan it";
+"EnableCameraPermissionInSettingsToScanYourCard" = "Enable camera access in Settings to scan your card.";
 "ScanComplete" = "Scan complete";
 "ScanTheQRCodeInYourSettings" = "Scan the QR code in your 2-step verification settings for any account.";
 "SecureYourAssetsWithBitwardenAuthenticator" = "Secure your accounts with Bitwarden Authenticator";
