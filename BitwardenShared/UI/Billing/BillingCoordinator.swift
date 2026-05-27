@@ -144,16 +144,37 @@ extension BillingCoordinator: PremiumUpgradeProcessorDelegate {
                 callbackURLScheme: services.billingService.checkoutCallbackUrlScheme,
             ) { [weak self] callbackURL, _ in
                 self?.webAuthSession = nil
-                if let callbackURL {
-                    continuation.resume(returning: .completed(callbackURL: callbackURL))
-                } else {
-                    continuation.resume(returning: .canceled)
-                }
+                let outcome: CheckoutWebAuthSessionOutcome = callbackURL
+                    .map { .completed(callbackURL: $0) } ?? .canceled
+                self?.resumeAfterDismissal(continuation: continuation, outcome: outcome)
             }
             session.prefersEphemeralWebBrowserSession = false
             session.presentationContextProvider = self
             webAuthSession = session
             session.start()
+        }
+    }
+
+    /// Resumes the continuation only after any active sheet dismissal animation completes,
+    /// so callers can safely present new UI without UIKit dropping the presentation.
+    private func resumeAfterDismissal(
+        continuation: CheckedContinuation<CheckoutWebAuthSessionOutcome, Never>,
+        outcome: CheckoutWebAuthSessionOutcome
+    ) {
+        // Traverse from the window root to find the deepest non-dismissing VC —
+        // its presentedViewController (the session sheet) is being dismissed.
+        var presentingVC = stackNavigator?.rootViewController?.view.window?.rootViewController
+        while let child = presentingVC?.presentedViewController, !child.isBeingDismissed {
+            presentingVC = child
+        }
+
+        if let dismissingVC = presentingVC?.presentedViewController,
+           let transitionCoordinator = dismissingVC.transitionCoordinator {
+            transitionCoordinator.animate(alongsideTransition: nil) { _ in
+                continuation.resume(returning: outcome)
+            }
+        } else {
+            continuation.resume(returning: outcome)
         }
     }
 }

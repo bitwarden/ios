@@ -164,9 +164,6 @@ final class PremiumUpgradeProcessor: StateProcessor<
             subscribeToPremiumCheckoutStatus()
             switch await delegate?.performCheckoutWebAuthSession(url: url) {
             case .canceled, nil:
-                // Wait for the ASWebAuthenticationSession sheet to finish dismissing
-                // before presenting the alert, otherwise UIKit drops the presentation.
-                try? await Task.sleep(nanoseconds: 300_000_000)
                 coordinator.showAlert(.paymentNotReceivedYet {
                     await self.createCheckoutSession()
                 })
