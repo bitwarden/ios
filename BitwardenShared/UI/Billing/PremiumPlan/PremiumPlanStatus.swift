@@ -37,6 +37,16 @@ enum PremiumPlanStatus: Equatable {
         }
     }
 
+    /// Whether the status represents a subscription in a troubled state (e.g. canceled, past due).
+    var isTroubleState: Bool {
+        switch self {
+        case .canceled, .pastDue, .updatePayment:
+            true
+        case .active, .unknown:
+            false
+        }
+    }
+
     /// The localized label for this status.
     var label: String {
         switch self {
