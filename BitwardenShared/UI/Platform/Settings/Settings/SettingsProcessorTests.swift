@@ -1,4 +1,5 @@
 import BitwardenKitMocks
+import TestHelpers
 import XCTest
 
 @testable import BitwardenShared
@@ -161,22 +162,59 @@ class SettingsProcessorTests: BitwardenTestCase {
         XCTAssertEqual(coordinator.routes.last, .other)
     }
 
-    /// Receiving `.planPressed` navigates to the premium upgrade screen for a free user.
+    /// `perform(.planPressed)` navigates to the premium plan screen for a premium user.
     @MainActor
-    func test_receive_planPressed_freeUser() {
-        subject.state.hasPremium = false
-        subject.receive(.planPressed)
-
-        XCTAssertEqual(coordinator.routes.last, .premiumUpgrade)
-    }
-
-    /// Receiving `.planPressed` navigates to the premium plan screen for a premium user.
-    @MainActor
-    func test_receive_planPressed_hasPremium() {
+    func test_perform_planPressed_hasPremium() async {
         subject.state.hasPremium = true
-        subject.receive(.planPressed)
+
+        await subject.perform(.planPressed)
 
         XCTAssertEqual(coordinator.routes.last, .premiumPlan)
+    }
+
+    /// `perform(.planPressed)` navigates to the premium plan screen when the user has a canceled subscription.
+    @MainActor
+    func test_perform_planPressed_canceledSubscription() async {
+        subject.state.hasPremium = false
+        billingService.getSubscriptionReturnValue = .fixture(status: .canceled)
+
+        await subject.perform(.planPressed)
+
+        XCTAssertEqual(coordinator.routes.last, .premiumPlan)
+    }
+
+    /// `perform(.planPressed)` navigates to the premium plan screen when the user has a past due subscription.
+    @MainActor
+    func test_perform_planPressed_pastDueSubscription() async {
+        subject.state.hasPremium = false
+        billingService.getSubscriptionReturnValue = .fixture(status: .pastDue)
+
+        await subject.perform(.planPressed)
+
+        XCTAssertEqual(coordinator.routes.last, .premiumPlan)
+    }
+
+    /// `perform(.planPressed)` navigates to the premium upgrade screen and logs the error when the subscription fetch fails.
+    @MainActor
+    func test_perform_planPressed_freeUser_noSubscription() async {
+        subject.state.hasPremium = false
+        billingService.getSubscriptionThrowableError = BitwardenTestError.example
+
+        await subject.perform(.planPressed)
+
+        XCTAssertEqual(coordinator.routes.last, .premiumUpgrade)
+        XCTAssertEqual(errorReporter.errors as? [BitwardenTestError], [.example])
+    }
+
+    /// `perform(.planPressed)` navigates to the premium upgrade screen when subscription status is active.
+    @MainActor
+    func test_perform_planPressed_activeSubscription() async {
+        subject.state.hasPremium = false
+        billingService.getSubscriptionReturnValue = .fixture(status: .active)
+
+        await subject.perform(.planPressed)
+
+        XCTAssertEqual(coordinator.routes.last, .premiumUpgrade)
     }
 
     /// Receiving `.vaultPressed` navigates to the vault settings screen.

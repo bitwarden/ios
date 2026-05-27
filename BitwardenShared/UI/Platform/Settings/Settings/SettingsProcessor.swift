@@ -96,6 +96,8 @@ final class SettingsProcessor: StateProcessor<SettingsState, SettingsAction, Set
             let isSelfHosted = await services.billingService.isSelfHosted()
             state.hasPremium = hasPremium
             state.showPlanRow = featureEnabled && !isSelfHosted
+        case .planPressed:
+            await navigateToPlan()
         }
     }
 
@@ -113,14 +115,31 @@ final class SettingsProcessor: StateProcessor<SettingsState, SettingsAction, Set
             coordinator.navigate(to: .dismiss)
         case .otherPressed:
             coordinator.navigate(to: .other)
-        case .planPressed:
-            if state.hasPremium {
+        case .vaultPressed:
+            coordinator.navigate(to: .vault)
+        }
+    }
+
+    // MARK: Private Methods
+
+    /// Navigates to the appropriate plan screen based on the user's premium and subscription status.
+    ///
+    private func navigateToPlan() async {
+        guard !state.hasPremium else {
+            coordinator.navigate(to: .premiumPlan)
+            return
+        }
+
+        do {
+            let subscription = try await services.billingService.getSubscription()
+            if subscription.status.isTroubleState {
                 coordinator.navigate(to: .premiumPlan)
             } else {
                 coordinator.navigate(to: .premiumUpgrade)
             }
-        case .vaultPressed:
-            coordinator.navigate(to: .vault)
+        } catch {
+            services.errorReporter.log(error: error)
+            coordinator.navigate(to: .premiumUpgrade)
         }
     }
 }
