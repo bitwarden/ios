@@ -44,6 +44,23 @@ extension AttachmentResponseModel {
 
 extension AttachmentView: @retroactive Identifiable {}
 
+extension CipherBankAccountModel {
+    init(bankAccount: BitwardenSdk.BankAccount) {
+        self.init(
+            accountNumber: bankAccount.accountNumber,
+            accountType: bankAccount.accountType,
+            bankContactPhone: bankAccount.bankContactPhone,
+            bankName: bankAccount.bankName,
+            branchNumber: bankAccount.branchNumber,
+            iban: bankAccount.iban,
+            nameOnAccount: bankAccount.nameOnAccount,
+            pin: bankAccount.pin,
+            routingNumber: bankAccount.routingNumber,
+            swiftCode: bankAccount.swiftCode,
+        )
+    }
+}
+
 extension CipherCardModel {
     init(card: BitwardenSdk.Card) {
         self.init(
@@ -57,18 +74,36 @@ extension CipherCardModel {
     }
 }
 
+extension CipherDriversLicenseModel {
+    init(driversLicense: BitwardenSdk.DriversLicense) {
+        self.init(
+            dateOfBirth: driversLicense.dateOfBirth,
+            expirationDate: driversLicense.expirationDate,
+            firstName: driversLicense.firstName,
+            issueDate: driversLicense.issueDate,
+            issuingAuthority: driversLicense.issuingAuthority,
+            issuingCountry: driversLicense.issuingCountry,
+            issuingState: driversLicense.issuingState,
+            lastName: driversLicense.lastName,
+            licenseClass: driversLicense.licenseClass,
+            licenseNumber: driversLicense.licenseNumber,
+            middleName: driversLicense.middleName,
+        )
+    }
+}
+
 extension CipherDetailsResponseModel {
     init(cipher: BitwardenSdk.Cipher) throws {
         guard let id = cipher.id else { throw DataMappingError.invalidData }
         self.init(
             archivedDate: cipher.archivedDate,
             attachments: cipher.attachments?.map(AttachmentResponseModel.init),
-            bankAccount: nil, // TODO: PM-32809
+            bankAccount: cipher.bankAccount.map(CipherBankAccountModel.init),
             card: cipher.card.map(CipherCardModel.init),
             collectionIds: cipher.collectionIds,
             creationDate: cipher.creationDate,
             deletedDate: cipher.deletedDate,
-            driversLicense: nil, // TODO: PM-32807
+            driversLicense: cipher.driversLicense.map(CipherDriversLicenseModel.init),
             edit: cipher.edit,
             favorite: cipher.favorite,
             fields: cipher.fields?.map(CipherFieldModel.init),
@@ -223,13 +258,11 @@ extension CipherType {
     init(type: BitwardenSdk.CipherType) {
         switch type {
         case .bankAccount:
-            // TODO: PM-32809
-            self = .secureNote
+            self = .bankAccount
         case .card:
             self = .card
         case .driversLicense:
-            // TODO: PM-32807
-            self = .identity
+            self = .driversLicense
         case .identity:
             self = .identity
         case .login:
@@ -247,13 +280,11 @@ extension CipherType {
     init(_ type: BitwardenSdk.CipherListViewType) {
         switch type {
         case .bankAccount:
-            // TODO: PM-32809
-            self = .secureNote
+            self = .bankAccount
         case .card:
             self = .card
         case .driversLicense:
-            // TODO: PM-32807
-            self = .identity
+            self = .driversLicense
         case .identity:
             self = .identity
         case .login:
@@ -537,6 +568,10 @@ extension BitwardenSdk.CipherType {
             self = .identity
         case .sshKey:
             self = .sshKey
+        case .bankAccount:
+            self = .bankAccount
+        case .driversLicense:
+            self = .driversLicense
         }
     }
 }

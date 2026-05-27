@@ -711,11 +711,17 @@
 "AddIdentity" = "Add identity";
 "AddNote" = "Add note";
 "AddSSHKey" = "Add SSH key";
+"AddBankAccount" = "Add bank account";
+"AddLicense" = "Add license";
+"EditBankAccount" = "Edit bank account";
+"EditLicense" = "Edit license";
 "EditLogin" = "Edit login";
 "EditCard" = "Edit card";
 "EditIdentity" = "Edit identity";
 "EditNote" = "Edit note";
 "EditSSHKey" = "Edit SSH key";
+"ViewBankAccount" = "View bank account";
+"ViewLicense" = "View license";
 "ViewLogin" = "View login";
 "ViewCard" = "View card";
 "ViewIdentity" = "View identity";
@@ -1058,9 +1064,9 @@
 "StorageCost" = "Storage cost";
 "Discount" = "Discount";
 "EstimatedTax" = "Estimated tax";
+"Total" = "Total";
 "ManagePlan" = "Manage plan";
 "CancelPremium" = "Cancel Premium";
-"CancelNow" = "Cancel now";
 "YourNextChargeIsForXDueOnY" = "Your next charge is for **%1$@**, due on **%2$@**.";
 "WeCouldNotProcessYourPaymentUpdateYourPaymentMethodDescriptionLong" = "We could not process your payment. Update your payment method before your subscription ends on **%1$@**.";
 "YourSubscriptionWasCanceledOnXResubscribeToContinueUsingDescriptionLong" = "Your subscription was canceled on **%1$@**. Resubscribe to continue using premium features.";
@@ -1089,7 +1095,8 @@
 "YouNowHaveAccessToAdvancedSecurityDescriptionLong" = "You now have access to advanced security features. Learn more about what's included with Premium.";
 "YouNowHaveAccessToAllAdvancedSecurityFeatures" = "You now have access to all advanced security features.";
 "YoullGoToStripeSecureCheckoutToCompleteYourPurchase" = "You´ll go to Stripe´s secure checkout to complete your purchase.";
-"YoullContinueToHavePremiumAccessUntilX" = "You'll continue to have Premium access until %1$@.";
+"ContinueToStripe" = "Continue to Stripe?";
+"YoullBeTakenToStripeToManageYourSubscriptionCancellation" = "You'll be taken to Stripe to manage your subscription cancellation.";
 "UserIDCopiedToTheClipboard" = "User ID copied to the clipboard";
 "UserID" = "User ID";
 "CopyUserID" = "Copy user ID";
@@ -1098,3 +1105,4 @@
 "CheckYourConnectionAndTryAgain" = "Check your connection and try again.";
 "PricingUnavailable" = "Pricing unavailable";
 "BankAccount" = "Bank account";
+"License" = "License";
