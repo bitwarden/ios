@@ -16,14 +16,9 @@ if [ "${1:-}" == "--fix" ]; then
     FIX_MODE=true
 fi
 
-# Determine if we're running as a pre-commit hook
-if [ -n "${GIT_INDEX_FILE:-}" ]; then
-    # Running as pre-commit hook - check staged files
-    SWIFT_FILES=$(git diff --cached --name-only --diff-filter=ACMR | grep "\.swift$" || true)
-else
-    # Running standalone - check all modified files (staged and unstaged)
-    SWIFT_FILES=$(git diff --name-only --diff-filter=ACMR HEAD | grep "\.swift$" || true)
-fi
+# Staged files only when running as pre-commit hook, all changed files when standalone
+DIFF_ARGS=$( [ -n "${GIT_INDEX_FILE:-}" ] && echo "--cached" || echo "HEAD" )
+SWIFT_FILES=$(git diff --name-only $DIFF_ARGS --diff-filter=ACMR | grep "\.swift$" || true)
 
 # Exit early if no Swift files changed
 if [ -z "$SWIFT_FILES" ]; then
