@@ -46,9 +46,10 @@ struct PremiumPlanStateTests {
         let label = state.descriptionAccessibilityLabel
         #expect(label.contains("USD $"))
         #expect(label.contains(state.nextChargeDate))
+        #expect(!label.contains("**"))
     }
 
-    /// `descriptionAccessibilityLabel` returns `descriptionText` unchanged for non-active plan statuses.
+    /// `descriptionAccessibilityLabel` returns `descriptionText` with markdown stripped for non-active plan statuses.
     @Test(arguments: [PremiumPlanStatus.canceled, .pastDue, .unknown, .updatePayment])
     func descriptionAccessibilityLabel_nonActive(planStatus: PremiumPlanStatus) {
         var state = PremiumPlanState()
@@ -60,7 +61,8 @@ struct PremiumPlanStateTests {
             status: planStatus,
             suspension: testDate,
         )
-        #expect(state.descriptionAccessibilityLabel == state.descriptionText)
+        #expect(!state.descriptionAccessibilityLabel.contains("**"))
+        #expect(state.descriptionAccessibilityLabel == state.descriptionText.removingMarkdownForVoiceOver())
     }
 
     // MARK: Tests - descriptionText
