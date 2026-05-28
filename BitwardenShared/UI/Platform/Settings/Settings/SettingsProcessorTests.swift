@@ -172,12 +172,12 @@ class SettingsProcessorTests: BitwardenTestCase {
 
         await subject.perform(.planPressed)
 
-        XCTAssertEqual(coordinator.routes.last, .premiumPlan)
+        XCTAssertEqual(coordinator.routes.last, .premiumPlan(nil))
         XCTAssertTrue(coordinator.loadingOverlaysShown.isEmpty)
     }
 
     /// `perform(.planPressed)` shows a loading overlay and navigates to the premium plan screen
-    /// when the user has a canceled subscription, passing the subscription via context.
+    /// when the user has a canceled subscription.
     @MainActor
     func test_perform_planPressed_canceledSubscription() async {
         subject.state.hasPremium = false
@@ -186,13 +186,12 @@ class SettingsProcessorTests: BitwardenTestCase {
 
         await subject.perform(.planPressed)
 
-        XCTAssertEqual(coordinator.routes.last, .premiumPlan)
-        XCTAssertEqual((coordinator.contexts.last as? PremiumSubscriptionContext)?.subscription, subscription)
+        XCTAssertEqual(coordinator.routes.last, .premiumPlan(subscription))
         XCTAssertEqual(coordinator.loadingOverlaysShown, [LoadingOverlayState(title: Localizations.loading)])
     }
 
     /// `perform(.planPressed)` shows a loading overlay and navigates to the premium plan screen
-    /// when the user has a past due subscription, passing the subscription via context.
+    /// when the user has a past due subscription.
     @MainActor
     func test_perform_planPressed_pastDueSubscription() async {
         subject.state.hasPremium = false
@@ -201,8 +200,7 @@ class SettingsProcessorTests: BitwardenTestCase {
 
         await subject.perform(.planPressed)
 
-        XCTAssertEqual(coordinator.routes.last, .premiumPlan)
-        XCTAssertEqual((coordinator.contexts.last as? PremiumSubscriptionContext)?.subscription, subscription)
+        XCTAssertEqual(coordinator.routes.last, .premiumPlan(subscription))
         XCTAssertEqual(coordinator.loadingOverlaysShown, [LoadingOverlayState(title: Localizations.loading)])
     }
 
