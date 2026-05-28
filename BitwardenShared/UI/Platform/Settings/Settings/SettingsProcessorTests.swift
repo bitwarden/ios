@@ -204,16 +204,30 @@ class SettingsProcessorTests: BitwardenTestCase {
         XCTAssertEqual(coordinator.loadingOverlaysShown, [LoadingOverlayState(title: Localizations.loading)])
     }
 
-    /// `perform(.planPressed)` shows a loading overlay, navigates to the premium upgrade screen,
-    /// and logs the error when the subscription fetch fails.
+    /// `perform(.planPressed)` shows a loading overlay and navigates to the premium upgrade screen
+    /// when the subscription fetch returns a 404 (free user with no subscription).
     @MainActor
     func test_perform_planPressed_freeUser_noSubscription() async {
+        subject.state.hasPremium = false
+        billingService.getSubscriptionThrowableError = GetSubscriptionRequestError.noSubscription
+
+        await subject.perform(.planPressed)
+
+        XCTAssertEqual(coordinator.routes.last, .premiumUpgrade)
+        XCTAssertEqual(coordinator.loadingOverlaysShown, [LoadingOverlayState(title: Localizations.loading)])
+        XCTAssertTrue(errorReporter.errors.isEmpty)
+    }
+
+    /// `perform(.planPressed)` shows a loading overlay and shows an error alert
+    /// when the subscription fetch fails with a non-404 error.
+    @MainActor
+    func test_perform_planPressed_freeUser_subscriptionFetchError() async {
         subject.state.hasPremium = false
         billingService.getSubscriptionThrowableError = BitwardenTestError.example
 
         await subject.perform(.planPressed)
 
-        XCTAssertEqual(coordinator.routes.last, .premiumUpgrade)
+        XCTAssertEqual(coordinator.alertShown.last, .networkResponseError(BitwardenTestError.example))
         XCTAssertEqual(coordinator.loadingOverlaysShown, [LoadingOverlayState(title: Localizations.loading)])
         XCTAssertTrue(errorReporter.errors.contains { $0 as? BitwardenTestError == .example })
     }
