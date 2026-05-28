@@ -56,11 +56,11 @@ struct PremiumPlanState: Equatable {
                 nextChargeDate,
             )
         case .canceled:
-            Localizations.yourSubscriptionWasCanceledOnXResubscribeToContinueUsingDescriptionLong(
+            Localizations.yourSubscriptionWasCanceledOnXDescriptionLong(
                 canceledDate,
             )
         case .expired:
-            Localizations.yourSubscriptionExpiredOnXResubscribeToContinueUsingDescriptionLong(
+            Localizations.yourSubscriptionExpiredOnXDescriptionLong(
                 expiredDate,
             )
         case .pastDue:

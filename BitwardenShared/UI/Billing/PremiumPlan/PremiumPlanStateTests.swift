@@ -91,7 +91,7 @@ struct PremiumPlanStateTests {
         state.planStatus = .canceled
         state.subscription = .fixture(canceled: testDate, status: .canceled)
         #expect(state.descriptionText == Localizations
-            .yourSubscriptionWasCanceledOnXResubscribeToContinueUsingDescriptionLong(
+            .yourSubscriptionWasCanceledOnXDescriptionLong(
                 state.canceledDate,
             ))
     }
@@ -101,7 +101,7 @@ struct PremiumPlanStateTests {
     func descriptionText_expired() {
         var state = PremiumPlanState(planStatus: .expired)
         state.subscription = .fixture(status: .expired, suspension: testDate)
-        let localization = Localizations.yourSubscriptionExpiredOnXResubscribeToContinueUsingDescriptionLong
+        let localization = Localizations.yourSubscriptionExpiredOnXDescriptionLong
         #expect(state.descriptionText == localization(state.expiredDate))
     }
 

@@ -1073,8 +1073,8 @@
 "ExternalLink" = "External link";
 "YourNextChargeIsForXDueOnY" = "Your next charge is for **%1$@**, due on **%2$@**.";
 "WeCouldNotProcessYourPaymentUpdateYourPaymentMethodDescriptionLong" = "We could not process your payment. Update your payment method before your subscription ends on **%1$@**.";
-"YourSubscriptionWasCanceledOnXResubscribeToContinueUsingDescriptionLong" = "Your subscription was canceled on **%1$@**. Resubscribe to continue using premium features.";
-"YourSubscriptionExpiredOnXResubscribeToContinueUsingDescriptionLong" = "Your subscription expired on **%1$@**. Resubscribe to continue using Premium features.";
+"YourSubscriptionWasCanceledOnXDescriptionLong" = "Your subscription was canceled on **%1$@**. Resubscribe to continue using Premium features.";
+"YourSubscriptionExpiredOnXDescriptionLong" = "Your subscription expired on **%1$@**. Resubscribe to continue using Premium features.";
 "YourSubscriptionIsScheduledToCancelOnXDescriptionLong" = "Your subscription is scheduled to cancel on **%1$@**. You can reinstate it anytime before then.";
 "PerMonth" = "/ month";
 "PerYear" = "/ year";
