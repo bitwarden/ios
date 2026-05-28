@@ -12,6 +12,8 @@ class AddEditSendItemProcessor: // swiftlint:disable:this type_body_length
     // MARK: Types
 
     typealias Services = HasAuthRepository
+        & HasBillingRepository
+        & HasBillingService
         & HasEnvironmentService
         & HasErrorReporter
         & HasPasteboardService
@@ -29,6 +31,13 @@ class AddEditSendItemProcessor: // swiftlint:disable:this type_body_length
 
     /// The `Coordinator` that handles navigation for this processor.
     let coordinator: AnyCoordinator<SendItemRoute, AuthAction>
+
+    /// The helper used to navigate to the premium upgrade flow.
+    lazy var premiumUpgradeHelper: PremiumUpgradeHelper = DefaultPremiumUpgradeHelper(
+        services: services,
+        coordinator: coordinator,
+        setURL: { [weak self] url in self?.state.url = url },
+    )
 
     /// The services required by this processor.
     let services: Services
@@ -425,7 +434,9 @@ class AddEditSendItemProcessor: // swiftlint:disable:this type_body_length
     private func showSpecificPeoplePremiumRequiredAlert() {
         let alert = Alert.specificPeopleUnavailable { [weak self] in
             guard let self else { return }
-            state.url = services.environmentService.upgradeToPremiumURL
+            Task {
+                await self.premiumUpgradeHelper.navigateToPremiumUpgrade()
+            }
         }
         coordinator.showAlert(alert)
     }
