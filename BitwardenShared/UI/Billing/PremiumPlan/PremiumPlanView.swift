@@ -241,6 +241,20 @@ private extension PremiumSubscription {
         suspension: Date().addingTimeInterval(60 * 60 * 24 * 30),
     )
 
+    static let previewPendingCancellation = PremiumSubscription(
+        cadence: .annually,
+        cancelAt: Date().addingTimeInterval(60 * 60 * 24 * 30),
+        canceled: nil,
+        discount: 2.10,
+        estimatedTax: 3.85,
+        gracePeriod: nil,
+        nextCharge: Date().addingTimeInterval(60 * 60 * 24 * 30),
+        seatsCost: 19.8,
+        status: .pendingCancellation,
+        storageCost: 8,
+        suspension: nil,
+    )
+
     static let previewUpdatePayment = PremiumSubscription(
         cadence: .annually,
         cancelAt: Date().addingTimeInterval(60 * 60 * 24 * 14),
@@ -324,6 +338,21 @@ private extension PremiumSubscription {
                     state: PremiumPlanState(
                         planStatus: .expired,
                         subscription: .previewExpired,
+                    ),
+                ),
+            ),
+        )
+    }
+}
+
+#Preview("Pending Cancellation") {
+    NavigationView {
+        PremiumPlanView(
+            store: Store(
+                processor: StateProcessor(
+                    state: PremiumPlanState(
+                        planStatus: .pendingCancellation,
+                        subscription: .previewPendingCancellation,
                     ),
                 ),
             ),

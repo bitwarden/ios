@@ -1,5 +1,6 @@
 import BitwardenKit
 import BitwardenResources
+import Foundation
 
 // MARK: - PremiumPlanStatus
 
@@ -18,6 +19,9 @@ enum PremiumPlanStatus: Equatable {
     /// The plan is past due.
     case pastDue
 
+    /// The plan is active but scheduled to cancel at a future date.
+    case pendingCancellation
+
     /// The plan has an unknown status not yet supported by the app.
     case unknown
 
@@ -35,6 +39,7 @@ enum PremiumPlanStatus: Equatable {
              .expired:
             .danger
         case .pastDue,
+             .pendingCancellation,
              .unknown,
              .updatePayment:
             .warning
@@ -52,6 +57,8 @@ enum PremiumPlanStatus: Equatable {
             Localizations.expired
         case .pastDue:
             Localizations.pastDue
+        case .pendingCancellation:
+            Localizations.pendingCancellation
         case .unknown:
             Localizations.unknownStatus
         case .updatePayment:
@@ -61,15 +68,17 @@ enum PremiumPlanStatus: Equatable {
 
     // MARK: Initialization
 
-    /// Initializes a `PremiumPlanStatus` from a `SubscriptionStatus`.
+    /// Initializes a `PremiumPlanStatus` from a `SubscriptionStatus` and optional cancellation date.
     ///
-    /// - Parameter subscriptionStatus: The subscription status from the API.
+    /// - Parameters:
+    ///   - subscriptionStatus: The subscription status from the API.
+    ///   - cancelAt: The scheduled cancellation date, if any.
     ///
-    init(subscriptionStatus: SubscriptionStatus) {
+    init(subscriptionStatus: SubscriptionStatus, cancelAt: Date? = nil) {
         switch subscriptionStatus {
         case .active,
              .trialing:
-            self = .active
+            self = cancelAt != nil ? .pendingCancellation : .active
         case .canceled,
              .paused:
             self = .canceled

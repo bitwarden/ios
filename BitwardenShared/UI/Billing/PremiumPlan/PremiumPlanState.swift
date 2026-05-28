@@ -68,6 +68,10 @@ struct PremiumPlanState: Equatable {
                 subscription?.gracePeriod ?? 0,
                 subscriptionEndDate,
             )
+        case .pendingCancellation:
+            Localizations.yourSubscriptionIsScheduledToCancelOnXDescriptionLong(
+                pendingCancellationDate,
+            )
         case .unknown:
             Localizations.yourSubscriptionStatusIsUnknownVisitTheWebAppDescriptionLong
         case .updatePayment:
@@ -113,6 +117,12 @@ struct PremiumPlanState: Equatable {
         return formatDate(nextCharge)
     }
 
+    /// The date the subscription is scheduled to cancel, formatted for display.
+    var pendingCancellationDate: String {
+        guard let cancelAt = subscription?.cancelAt else { return "" }
+        return formatDate(cancelAt)
+    }
+
     /// Whether the billing details section should be shown.
     var showBillingDetails: Bool {
         planStatus != .canceled && planStatus != .expired && planStatus != .unknown
@@ -120,7 +130,10 @@ struct PremiumPlanState: Equatable {
 
     /// Whether the cancel premium button should be shown.
     var showCancelButton: Bool {
-        planStatus != .canceled && planStatus != .expired && planStatus != .unknown
+        planStatus != .canceled
+            && planStatus != .expired
+            && planStatus != .pendingCancellation
+            && planStatus != .unknown
     }
 
     /// Whether the discount row should be shown.
