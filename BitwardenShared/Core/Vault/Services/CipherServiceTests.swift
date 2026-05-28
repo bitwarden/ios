@@ -377,14 +377,35 @@ class CipherServiceTests: BitwardenTestCase { // swiftlint:disable:this type_bod
 
     /// `updateCipherCollectionsWithServer(_:)` updates the cipher's collections and updates the data store.
     func test_updateCipherCollections() async throws {
-        client.result = .success(.success())
+        client.result = .httpSuccess(testData: .updateCipherCollectionsResponse)
         stateService.activeAccount = .fixture()
 
-        let cipher = Cipher.fixture(collectionIds: ["1", "2"], id: "123")
+        let cipher = Cipher.fixture(
+            collectionIds: ["collection-1", "collection-2"],
+            id: "3792af7a-4441-11ee-be56-0242ac120002",
+        )
         try await subject.updateCipherCollectionsWithServer(cipher)
 
-        XCTAssertEqual(cipherDataStore.upsertCipherValue, cipher)
+        // The cipher from the server response should be upserted with the original collectionIds preserved.
+        XCTAssertEqual(cipherDataStore.upsertCipherValue?.id, "3792af7a-4441-11ee-be56-0242ac120002")
+        XCTAssertEqual(cipherDataStore.upsertCipherValue?.collectionIds, ["collection-1", "collection-2"])
         XCTAssertEqual(cipherDataStore.upsertCipherUserId, "1")
+        XCTAssertNil(cipherDataStore.deleteCipherId)
+    }
+
+    /// `updateCipherCollectionsWithServer(_:)` deletes the cipher locally when the server marks it unavailable.
+    func test_updateCipherCollections_unavailable() async throws {
+        let unavailableJson = APITestData(data: Data("""
+            {"unavailable": true, "cipher": null}
+            """.utf8))
+        client.result = .httpSuccess(testData: unavailableJson)
+        stateService.activeAccount = .fixture()
+
+        let cipher = Cipher.fixture(collectionIds: ["1"], id: "cipher-id")
+        try await subject.updateCipherCollectionsWithServer(cipher)
+
+        XCTAssertEqual(cipherDataStore.deleteCipherId, "cipher-id")
+        XCTAssertNil(cipherDataStore.upsertCipherValue)
     }
 
     /// `updateCipherWithServer(_:)` updates the cipher in the backend and local storage.

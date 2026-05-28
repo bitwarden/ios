@@ -448,10 +448,24 @@ extension DefaultCipherService {
         let userId = try await stateService.getActiveAccountId()
 
         // Update the cipher collections in the backend.
-        try await cipherAPIService.updateCipherCollections(cipher)
+        let response = try await cipherAPIService.updateCipherCollections(cipher)
 
-        // Update the cipher collections in local storage.
-        try await cipherDataStore.upsertCipher(cipher, userId: userId)
+        if response.unavailable {
+            // The user no longer has access to the cipher (e.g. they removed themselves from all
+            // collections that granted Can Manage access), so remove it from local storage.
+            try await cipherDataStore.deleteCipher(id: cipher.id ?? "", userId: userId)
+        } else {
+            // Use the server-returned cipher if available; fall back to the local model.
+            let updatedCipher: Cipher
+            if var cipherResponse = response.cipher {
+                // The API doesn't return collectionIds, so carry them forward from the request.
+                cipherResponse.collectionIds = cipher.collectionIds
+                updatedCipher = Cipher(responseModel: cipherResponse)
+            } else {
+                updatedCipher = cipher
+            }
+            try await cipherDataStore.upsertCipher(updatedCipher, userId: userId)
+        }
     }
 
     func updateCipherWithServer(_ cipher: Cipher, encryptedFor: String) async throws {

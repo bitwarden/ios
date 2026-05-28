@@ -8,10 +8,10 @@ enum UpdateCipherCollectionsRequestError: Error {
     case missingCipherId
 }
 
-/// A request model for sharing a cipher with an organization.
+/// A request model for updating the collections a cipher belongs to within an organization.
 ///
 struct UpdateCipherCollectionsRequest: Request {
-    typealias Response = EmptyResponse
+    typealias Response = UpdateCipherCollectionsResponseModel
 
     // MARK: Properties
 
@@ -27,7 +27,7 @@ struct UpdateCipherCollectionsRequest: Request {
     let method = HTTPMethod.put
 
     /// The URL path for this request.
-    var path: String { "/ciphers/\(id)/collections" }
+    var path: String { "/ciphers/\(id)/collections_v2" }
 
     /// The request details to include in the body of the request.
     let requestModel: CipherCollectionsRequestModel
