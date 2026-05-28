@@ -12,6 +12,9 @@ enum PremiumPlanStatus: Equatable {
     /// The plan has been canceled.
     case canceled
 
+    /// The plan has expired due to an incomplete payment.
+    case expired
+
     /// The plan is past due.
     case pastDue
 
@@ -28,7 +31,8 @@ enum PremiumPlanStatus: Equatable {
         switch self {
         case .active:
             .success
-        case .canceled:
+        case .canceled,
+             .expired:
             .danger
         case .pastDue,
              .unknown,
@@ -44,6 +48,8 @@ enum PremiumPlanStatus: Equatable {
             Localizations.active
         case .canceled:
             Localizations.canceled
+        case .expired:
+            Localizations.expired
         case .pastDue:
             Localizations.pastDue
         case .unknown:
@@ -65,9 +71,10 @@ enum PremiumPlanStatus: Equatable {
              .trialing:
             self = .active
         case .canceled,
-             .incompleteExpired,
              .paused:
             self = .canceled
+        case .incompleteExpired:
+            self = .expired
         case .incomplete,
              .unpaid:
             self = .updatePayment

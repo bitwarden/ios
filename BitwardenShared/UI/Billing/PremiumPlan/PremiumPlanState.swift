@@ -59,6 +59,10 @@ struct PremiumPlanState: Equatable {
             Localizations.yourSubscriptionWasCanceledOnXResubscribeToContinueUsingDescriptionLong(
                 canceledDate,
             )
+        case .expired:
+            Localizations.yourSubscriptionExpiredOnXResubscribeToContinueUsingDescriptionLong(
+                expiredDate,
+            )
         case .pastDue:
             Localizations.youHaveAGracePeriodOfXDaysFromYourSubscriptionDescriptionLong(
                 subscription?.gracePeriod ?? 0,
@@ -85,6 +89,12 @@ struct PremiumPlanState: Equatable {
         return formatCurrency(subscription.estimatedTax)
     }
 
+    /// The date the subscription expired, formatted for display.
+    var expiredDate: String {
+        guard let suspension = subscription?.suspension else { return "" }
+        return formatDate(suspension)
+    }
+
     /// The next charge amount with currency code, formatted for display (e.g. "24.35 USD").
     var nextChargeAmount: String {
         guard let subscription, subscription.nextCharge != nil else { return "" }
@@ -105,12 +115,12 @@ struct PremiumPlanState: Equatable {
 
     /// Whether the billing details section should be shown.
     var showBillingDetails: Bool {
-        planStatus != .canceled && planStatus != .unknown
+        planStatus != .canceled && planStatus != .expired && planStatus != .unknown
     }
 
     /// Whether the cancel premium button should be shown.
     var showCancelButton: Bool {
-        planStatus != .canceled && planStatus != .unknown
+        planStatus != .canceled && planStatus != .expired && planStatus != .unknown
     }
 
     /// Whether the discount row should be shown.

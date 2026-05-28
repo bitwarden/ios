@@ -674,6 +674,7 @@
 "BitwardenCannotResetALostOrForgottenMasterPassword" = "Bitwarden cannot reset a lost or forgotten master password.";
 "LearnAboutWaysToPreventAccountLockout" = "Learn about ways to prevent account lockout";
 "RestartRegistration" = "Restart registration";
+"Expired" = "Expired";
 "ExpiredLink" = "Expired link";
 "PleaseRestartRegistrationOrTryLoggingInYouMayAlreadyHaveAnAccount" = "Please restart registration or try logging in. You may already have an account.";
 "RemovePasskey" = "Remove passkey";
@@ -1072,6 +1073,7 @@
 "YourNextChargeIsForXDueOnY" = "Your next charge is for **%1$@**, due on **%2$@**.";
 "WeCouldNotProcessYourPaymentUpdateYourPaymentMethodDescriptionLong" = "We could not process your payment. Update your payment method before your subscription ends on **%1$@**.";
 "YourSubscriptionWasCanceledOnXResubscribeToContinueUsingDescriptionLong" = "Your subscription was canceled on **%1$@**. Resubscribe to continue using premium features.";
+"YourSubscriptionExpiredOnXResubscribeToContinueUsingDescriptionLong" = "Your subscription expired on **%1$@**. Resubscribe to continue using Premium features.";
 "PerMonth" = "/ month";
 "PerYear" = "/ year";
 "XAmountPerCadence" = "%1$@ %2$@";
