@@ -5,7 +5,7 @@ import BitwardenResources
 
 /// The status of the user's premium plan.
 ///
-enum PremiumPlanStatus: Equatable {
+public enum PremiumPlanStatus: Equatable, Hashable {
     /// The plan is active.
     case active
 
