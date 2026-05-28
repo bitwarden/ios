@@ -520,7 +520,8 @@ private final class KeyboardAnchorTextField: UITextField {
         )
     }
 
-    @objc private func keyboardWillHide() {
+    @objc
+    private func keyboardWillHide() {
         guard !isFirstResponder else { return }
         Logger.appExtension.debug("KeyboardAnchorTextField: keyboard will hide without anchor as FR — reclaiming")
         becomeFirstResponder()

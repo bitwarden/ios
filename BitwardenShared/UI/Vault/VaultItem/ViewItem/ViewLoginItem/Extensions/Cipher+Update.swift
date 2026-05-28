@@ -45,7 +45,6 @@ extension Cipher {
         )
     }
 
-
     /// Returns a copy of the existing cipher with an updated folder ID.
     ///
     /// - Parameter folderId: The folder ID to update in the cipher.

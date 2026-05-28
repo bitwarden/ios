@@ -658,8 +658,10 @@ extension DefaultAuthRepository: AuthRepository {
 
         try await stateService.setAccountEncryptionKeys(
             AccountEncryptionKeys(
-                accountKeys: setAccountKeysResponse.accountKeys,
-                encryptedPrivateKey: registrationKeys.privateKey,
+                cryptographicState: .create(
+                    accountKeys: setAccountKeysResponse.accountKeys,
+                    privateKey: registrationKeys.privateKey,
+                ),
                 encryptedUserKey: nil,
             ),
         )
@@ -866,8 +868,7 @@ extension DefaultAuthRepository: AuthRepository {
         let requestUserKey: String
         let requestKeys: KeysRequestModel?
         let requestPasswordHash: String
-        let accountPrivateKeys: PrivateKeysResponseModel?
-        let encryptedPrivateKey: String
+        let cryptographicState: WrappedAccountCryptographicState
 
         // TDE user
         if account.profile.userDecryptionOptions?.trustedDeviceOption != nil {
@@ -876,8 +877,7 @@ extension DefaultAuthRepository: AuthRepository {
             requestPasswordHash = passwordResult.passwordHash
             requestUserKey = passwordResult.newKey
             requestKeys = nil
-            accountPrivateKeys = accountKeys.accountKeys
-            encryptedPrivateKey = accountKeys.encryptedPrivateKey
+            cryptographicState = accountKeys.cryptographicState
         } else {
             let keys = try await clientService.auth().makeRegisterKeys(
                 email: email,
@@ -895,8 +895,7 @@ extension DefaultAuthRepository: AuthRepository {
                 encryptedPrivateKey: keys.keys.private,
                 publicKey: keys.keys.public,
             )
-            accountPrivateKeys = nil
-            encryptedPrivateKey = keys.keys.private
+            cryptographicState = .v1(privateKey: keys.keys.private)
         }
 
         let requestModel = SetPasswordRequestModel(
@@ -910,8 +909,7 @@ extension DefaultAuthRepository: AuthRepository {
 
         try await accountAPIService.setPassword(requestModel)
         try await stateService.setAccountEncryptionKeys(AccountEncryptionKeys(
-            accountKeys: accountPrivateKeys,
-            encryptedPrivateKey: encryptedPrivateKey,
+            cryptographicState: cryptographicState,
             encryptedUserKey: requestUserKey,
         ))
         try await stateService.setUserHasMasterPassword(true)
@@ -1232,8 +1230,7 @@ extension DefaultAuthRepository: AuthRepository {
 
         let encryptionKeys = try await stateService.getAccountEncryptionKeys()
         let newEncryptionKeys = AccountEncryptionKeys(
-            accountKeys: encryptionKeys.accountKeys,
-            encryptedPrivateKey: encryptionKeys.encryptedPrivateKey,
+            cryptographicState: encryptionKeys.cryptographicState,
             encryptedUserKey: updatePasswordResponse.newKey,
         )
 

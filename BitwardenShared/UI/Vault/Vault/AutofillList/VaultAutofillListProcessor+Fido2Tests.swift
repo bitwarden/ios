@@ -24,6 +24,7 @@ class VaultAutofillListProcessorFido2Tests: BitwardenTestCase { // swiftlint:dis
     var clientService: MockClientService!
     var coordinator: MockCoordinator<VaultRoute, AuthAction>!
     var errorReporter: MockErrorReporter!
+    var fido2AuthenticatorMock: MockClientFido2Authenticator!
     var fido2CredentialStore: MockFido2CredentialStore!
     var fido2UserInterfaceHelper: MockFido2UserInterfaceHelper!
     var policyService: MockPolicyService!
@@ -43,6 +44,7 @@ class VaultAutofillListProcessorFido2Tests: BitwardenTestCase { // swiftlint:dis
         autofillCredentialService = MockAutofillCredentialService()
         cipherOwnershipHelper = MockCipherOwnershipHelper()
         clientService = MockClientService()
+        fido2AuthenticatorMock = MockClientFido2Authenticator()
         coordinator = MockCoordinator()
         errorReporter = MockErrorReporter()
         fido2CredentialStore = MockFido2CredentialStore()
@@ -67,6 +69,7 @@ class VaultAutofillListProcessorFido2Tests: BitwardenTestCase { // swiftlint:dis
             ),
             name: "rpName",
         )
+        clientService.mockPlatform.fido2Mock.vaultAuthenticatorReturnValue = fido2AuthenticatorMock
 
         subject = VaultAutofillListProcessor(
             appExtensionDelegate: appExtensionDelegate,
@@ -98,6 +101,7 @@ class VaultAutofillListProcessorFido2Tests: BitwardenTestCase { // swiftlint:dis
         clientService = nil
         coordinator = nil
         errorReporter = nil
+        fido2AuthenticatorMock = nil
         fido2CredentialStore = nil
         fido2UserInterfaceHelper = nil
         policyService = nil
@@ -942,8 +946,7 @@ class VaultAutofillListProcessorFido2Tests: BitwardenTestCase { // swiftlint:dis
         appExtensionDelegate.extensionMode = .registerFido2Credential(expectedRequest)
 
         let expectedResult = MakeCredentialResult.fixture()
-        clientService.mockPlatform.fido2Mock
-            .clientFido2AuthenticatorMock
+        fido2AuthenticatorMock
             .makeCredentialMocker
             .withVerification { request in
                 request.clientDataHash == expectedRequest.clientDataHash
@@ -995,8 +998,7 @@ class VaultAutofillListProcessorFido2Tests: BitwardenTestCase { // swiftlint:dis
     func test_perform_initFido2_registerFido2CredentialThrows() async throws {
         appExtensionDelegate.extensionMode = .registerFido2Credential(ASPasskeyCredentialRequest.fixture())
 
-        clientService.mockPlatform.fido2Mock
-            .clientFido2AuthenticatorMock
+        fido2AuthenticatorMock
             .makeCredentialMocker
             .throwing(BitwardenTestError.example)
 
@@ -1019,10 +1021,7 @@ class VaultAutofillListProcessorFido2Tests: BitwardenTestCase { // swiftlint:dis
     func test_perform_initFido2_noRequestForFido2Creation() async throws {
         await subject.perform(.initFido2)
 
-        XCTAssertFalse(clientService.mockPlatform.fido2Mock
-            .clientFido2AuthenticatorMock
-            .makeCredentialMocker
-            .called)
+        XCTAssertFalse(fido2AuthenticatorMock.makeCredentialMocker.called)
 
         XCTAssertTrue(errorReporter.errors.isEmpty)
         XCTAssertFalse(appExtensionDelegate.completeRegistrationRequestMocker.called)
@@ -1037,10 +1036,7 @@ class VaultAutofillListProcessorFido2Tests: BitwardenTestCase { // swiftlint:dis
 
         await subject.perform(.initFido2)
 
-        XCTAssertFalse(clientService.mockPlatform.fido2Mock
-            .clientFido2AuthenticatorMock
-            .makeCredentialMocker
-            .called)
+        XCTAssertFalse(fido2AuthenticatorMock.makeCredentialMocker.called)
 
         XCTAssertTrue(errorReporter.errors.isEmpty)
         XCTAssertFalse(appExtensionDelegate.completeRegistrationRequestMocker.called)
