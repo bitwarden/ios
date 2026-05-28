@@ -1068,6 +1068,7 @@
 "Total" = "Total";
 "ManagePlan" = "Manage plan";
 "CancelPremium" = "Cancel Premium";
+"ExternalLink" = "External link";
 "YourNextChargeIsForXDueOnY" = "Your next charge is for **%1$@**, due on **%2$@**.";
 "WeCouldNotProcessYourPaymentUpdateYourPaymentMethodDescriptionLong" = "We could not process your payment. Update your payment method before your subscription ends on **%1$@**.";
 "YourSubscriptionWasCanceledOnXResubscribeToContinueUsingDescriptionLong" = "Your subscription was canceled on **%1$@**. Resubscribe to continue using premium features.";
