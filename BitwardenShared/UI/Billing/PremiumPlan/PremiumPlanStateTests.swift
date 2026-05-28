@@ -50,7 +50,7 @@ struct PremiumPlanStateTests {
     }
 
     /// `descriptionAccessibilityLabel` returns `descriptionText` with markdown stripped for non-active plan statuses.
-    @Test(arguments: [PremiumPlanStatus.canceled, .expired, .pastDue, .unknown, .updatePayment])
+    @Test(arguments: [PremiumPlanStatus.canceled, .expired, .pastDue, .pendingCancellation, .unknown, .updatePayment])
     func descriptionAccessibilityLabel_nonActive(planStatus: PremiumPlanStatus) {
         var state = PremiumPlanState()
         state.planStatus = planStatus
@@ -103,6 +103,15 @@ struct PremiumPlanStateTests {
         state.subscription = .fixture(status: .expired, suspension: testDate)
         let localization = Localizations.yourSubscriptionExpiredOnXResubscribeToContinueUsingDescriptionLong
         #expect(state.descriptionText == localization(state.expiredDate))
+    }
+
+    /// `descriptionText` returns the correct text for the pending cancellation plan status.
+    @Test
+    func descriptionText_pendingCancellation() {
+        var state = PremiumPlanState(planStatus: .pendingCancellation)
+        state.subscription = .fixture(cancelAt: testDate, status: .pendingCancellation)
+        let localization = Localizations.yourSubscriptionIsScheduledToCancelOnXDescriptionLong
+        #expect(state.descriptionText == localization(state.pendingCancellationDate))
     }
 
     /// `descriptionText` returns the correct text for the past due plan status.
@@ -205,6 +214,7 @@ struct PremiumPlanStateTests {
         (PremiumPlanStatus.canceled, false),
         (PremiumPlanStatus.expired, false),
         (PremiumPlanStatus.pastDue, true),
+        (PremiumPlanStatus.pendingCancellation, true),
         (PremiumPlanStatus.unknown, false),
         (PremiumPlanStatus.updatePayment, true),
     ])
@@ -222,6 +232,7 @@ struct PremiumPlanStateTests {
         (PremiumPlanStatus.canceled, false),
         (PremiumPlanStatus.expired, false),
         (PremiumPlanStatus.pastDue, true),
+        (PremiumPlanStatus.pendingCancellation, false),
         (PremiumPlanStatus.unknown, false),
         (PremiumPlanStatus.updatePayment, true),
     ])

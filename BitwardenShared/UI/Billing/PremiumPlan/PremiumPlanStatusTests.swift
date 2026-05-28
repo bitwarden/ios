@@ -1,5 +1,6 @@
 import BitwardenKit
 import BitwardenResources
+import Foundation
 import Testing
 
 @testable import BitwardenShared
@@ -14,6 +15,7 @@ struct PremiumPlanStatusTests {
         (.canceled, .danger),
         (.expired, .danger),
         (.pastDue, .warning),
+        (.pendingCancellation, .warning),
         (.unknown, .warning),
         (.updatePayment, .warning),
     ] as [(PremiumPlanStatus, PillBadgeStyle)])
@@ -35,6 +37,12 @@ struct PremiumPlanStatusTests {
         #expect(PremiumPlanStatus(subscriptionStatus: status) == expected)
     }
 
+    @Test(arguments: [SubscriptionStatus.active, .trialing] as [SubscriptionStatus])
+    func init_mapsSubscriptionStatus_withCancelAt(_ status: SubscriptionStatus) {
+        let cancelAt = Date()
+        #expect(PremiumPlanStatus(subscriptionStatus: status, cancelAt: cancelAt) == .pendingCancellation)
+    }
+
     // MARK: Tests - label
 
     @Test(arguments: [
@@ -42,6 +50,7 @@ struct PremiumPlanStatusTests {
         (.canceled, Localizations.canceled),
         (.expired, Localizations.expired),
         (.pastDue, Localizations.pastDue),
+        (.pendingCancellation, Localizations.pendingCancellation),
         (.unknown, Localizations.unknownStatus),
         (.updatePayment, Localizations.updatePayment),
     ] as [(PremiumPlanStatus, String)])
