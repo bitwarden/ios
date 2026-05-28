@@ -12,6 +12,7 @@ struct PremiumPlanStatusTests {
     @Test(arguments: [
         (PremiumPlanStatus.active, PillBadgeStyle.success),
         (.canceled, .danger),
+        (.expired, .danger),
         (.pastDue, .warning),
         (.unknown, .warning),
         (.updatePayment, .warning),
@@ -25,6 +26,7 @@ struct PremiumPlanStatusTests {
     @Test(arguments: [
         (SubscriptionStatus.active, PremiumPlanStatus.active),
         (.canceled, .canceled),
+        (.incompleteExpired, .expired),
         (.pastDue, .pastDue),
         (.unknown, .unknown),
         (.unpaid, .updatePayment),
@@ -38,6 +40,7 @@ struct PremiumPlanStatusTests {
     @Test(arguments: [
         (PremiumPlanStatus.active, Localizations.active),
         (.canceled, Localizations.canceled),
+        (.expired, Localizations.expired),
         (.pastDue, Localizations.pastDue),
         (.unknown, Localizations.unknownStatus),
         (.updatePayment, Localizations.updatePayment),
