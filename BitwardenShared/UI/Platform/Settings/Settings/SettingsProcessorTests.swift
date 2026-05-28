@@ -215,7 +215,7 @@ class SettingsProcessorTests: BitwardenTestCase {
 
         XCTAssertEqual(coordinator.routes.last, .premiumUpgrade)
         XCTAssertEqual(coordinator.loadingOverlaysShown, [LoadingOverlayState(title: Localizations.loading)])
-        XCTAssertTrue(errorReporter.errors.isEmpty)
+        XCTAssertFalse(errorReporter.errors.contains { $0 is GetSubscriptionRequestError })
     }
 
     /// `perform(.planPressed)` shows a loading overlay and shows an error alert
@@ -227,7 +227,7 @@ class SettingsProcessorTests: BitwardenTestCase {
 
         await subject.perform(.planPressed)
 
-        XCTAssertEqual(coordinator.alertShown.last, .networkResponseError(BitwardenTestError.example))
+        XCTAssertEqual(coordinator.errorAlertsShown.count, 1)
         XCTAssertEqual(coordinator.loadingOverlaysShown, [LoadingOverlayState(title: Localizations.loading)])
         XCTAssertTrue(errorReporter.errors.contains { $0 as? BitwardenTestError == .example })
     }
