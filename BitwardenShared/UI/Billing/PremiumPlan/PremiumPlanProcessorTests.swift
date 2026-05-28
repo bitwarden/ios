@@ -89,22 +89,14 @@ struct PremiumPlanProcessorTests {
             storage: PlanPricingResponseModel(price: 4.80, provided: 1, stripePriceId: "storage"),
         )
         let preloaded = PremiumSubscription.fixture(status: .canceled)
-        let subjectWithSubscription = PremiumPlanProcessor(
-            coordinator: coordinator.asAnyCoordinator(),
-            services: ServiceContainer.withMocks(
-                billingService: billingService,
-                environmentService: environmentService,
-                errorReporter: errorReporter,
-            ),
-            state: PremiumPlanState(subscription: preloaded),
-        )
+        subject.state = PremiumPlanState(subscription: preloaded)
 
-        await subjectWithSubscription.perform(.appeared)
+        await subject.perform(.appeared)
 
         #expect(billingService.getPremiumPlanCallsCount == 1)
         #expect(billingService.getSubscriptionCallsCount == 0)
-        #expect(subjectWithSubscription.state.planStatus == .canceled)
-        #expect(subjectWithSubscription.state.subscription == preloaded)
+        #expect(subject.state.planStatus == .canceled)
+        #expect(subject.state.subscription == preloaded)
     }
 
     /// `perform(_:)` with `.appeared` loads the subscription and updates state.
