@@ -10,22 +10,27 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
 PYTHON="${SCRIPT_DIR}/fix-localizable-strings/main.py"
 
-STRINGS_FILES=(
-    "Bitwarden/Application/Support/AppShortcutsLocalizations/en.lproj/AppShortcuts.strings"
-    "BitwardenResources/Localizations/en.lproj/Localizable.strings"
-    "BitwardenWatchApp/Localization/en.lproj/Localizable.strings"
-    "TestHarnessShared/UI/Platform/Application/Support/Localizations/en.lproj/Localizable.strings"
-)
+# Only operate on staged .strings files to avoid silently staging unrelated unstaged changes
+if [ -n "${GIT_INDEX_FILE:-}" ]; then
+    STAGED_STRINGS=$(git diff --cached --name-only --diff-filter=ACM 2>/dev/null | grep '\.strings$' || true)
+else
+    STAGED_STRINGS=$(git diff --name-only --diff-filter=ACM HEAD 2>/dev/null | grep '\.strings$' || \
+                     git diff --cached --name-only --diff-filter=ACM 2>/dev/null | grep '\.strings$' || true)
+fi
+
+if [ -z "$STAGED_STRINGS" ]; then
+    exit 0
+fi
 
 FIXED_FILES=()
-for file in "${STRINGS_FILES[@]}"; do
+while IFS= read -r file; do
     [ -f "${REPO_ROOT}/${file}" ] || continue
     output=$(python3 "${PYTHON}" fix-ellipsis --strings "${REPO_ROOT}/${file}")
     if echo "$output" | grep -q "^  Fixed"; then
         FIXED_FILES+=("${file}")
         git add "${REPO_ROOT}/${file}"
     fi
-done
+done <<< "$STAGED_STRINGS"
 
 if [ ${#FIXED_FILES[@]} -gt 0 ]; then
     echo "✅ Fixed ellipsis sequences in ${#FIXED_FILES[@]} file(s):"
