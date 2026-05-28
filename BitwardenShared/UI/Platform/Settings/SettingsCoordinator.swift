@@ -6,19 +6,6 @@ import SwiftUI
 
 // swiftlint:disable file_length
 
-// MARK: - PremiumSubscriptionContext
-
-/// A reference-type box used to pass a `PremiumSubscription` value via the coordinator context.
-///
-final class PremiumSubscriptionContext {
-    /// The subscription to pass.
-    let subscription: PremiumSubscription
-
-    init(_ subscription: PremiumSubscription) {
-        self.subscription = subscription
-    }
-}
-
 // MARK: - SettingsCoordinatorDelegate
 
 /// An object that is signaled when specific circumstances in the application flow have been encountered.
@@ -204,8 +191,8 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator { // swiftlint:d
             showPasswordAutoFill(delegate: context as? PasswordAutoFillProcessorDelegate)
         case .pendingLoginRequests:
             showPendingLoginRequests()
-        case .premiumPlan:
-            showPremiumPlan(subscription: (context as? PremiumSubscriptionContext)?.subscription)
+        case let .premiumPlan(subscription):
+            showPremiumPlan(subscription: subscription)
         case .premiumUpgrade:
             showPremiumUpgrade()
         case let .selectLanguage(currentLanguage: currentLanguage):
@@ -491,7 +478,7 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator { // swiftlint:d
     private func showPremiumPlan(subscription: PremiumSubscription?) {
         guard let stackNavigator else { return }
         let coordinator = module.makeBillingCoordinator(stackNavigator: stackNavigator)
-        coordinator.navigate(to: .premiumPlan, context: subscription.map(PremiumSubscriptionContext.init))
+        coordinator.navigate(to: .premiumPlan(subscription))
     }
 
     /// Shows the premium upgrade screen.

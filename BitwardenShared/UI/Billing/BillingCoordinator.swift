@@ -59,8 +59,8 @@ class BillingCoordinator: Coordinator, HasStackNavigator {
             }
         case .premiumUpgradeComplete:
             showPremiumUpgradeComplete()
-        case .premiumPlan:
-            showPremiumPlan(subscription: (context as? PremiumSubscriptionContext)?.subscription)
+        case let .premiumPlan(subscription):
+            showPremiumPlan(subscription: subscription)
         case .premiumUpgrade:
             showPremiumUpgrade()
         }

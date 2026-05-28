@@ -127,7 +127,7 @@ final class SettingsProcessor: StateProcessor<SettingsState, SettingsAction, Set
     ///
     private func navigateToPlan() async {
         guard !state.hasPremium else {
-            coordinator.navigate(to: .premiumPlan)
+            coordinator.navigate(to: .premiumPlan(nil))
             return
         }
 
@@ -137,7 +137,7 @@ final class SettingsProcessor: StateProcessor<SettingsState, SettingsAction, Set
         do {
             let subscription = try await services.billingService.getSubscription()
             if subscription.status.isTroubleState {
-                coordinator.navigate(to: .premiumPlan, context: PremiumSubscriptionContext(subscription))
+                coordinator.navigate(to: .premiumPlan(subscription))
             } else {
                 coordinator.navigate(to: .premiumUpgrade)
             }
