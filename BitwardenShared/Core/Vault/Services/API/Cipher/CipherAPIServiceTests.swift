@@ -503,7 +503,7 @@ class CipherAPIServiceTests: XCTestCase { // swiftlint:disable:this type_body_le
         client.result = .httpSuccess(testData: .updateCipherCollectionsResponse)
 
         let response = try await subject.updateCipherCollections(
-            .fixture(collectionIds: ["1", "2", "3"], id: "1")
+            .fixture(collectionIds: ["1", "2", "3"], id: "1"),
         )
 
         XCTAssertEqual(client.requests.count, 1)
@@ -511,7 +511,7 @@ class CipherAPIServiceTests: XCTestCase { // swiftlint:disable:this type_body_le
         XCTAssertEqual(client.requests[0].method, .put)
         XCTAssertEqual(
             client.requests[0].url.absoluteString,
-            "https://example.com/api/ciphers/1/collections_v2"
+            "https://example.com/api/ciphers/1/collections_v2",
         )
         XCTAssertFalse(response.unavailable)
         XCTAssertNotNil(response.cipher)

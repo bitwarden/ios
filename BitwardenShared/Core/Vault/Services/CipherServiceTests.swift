@@ -396,8 +396,8 @@ class CipherServiceTests: BitwardenTestCase { // swiftlint:disable:this type_bod
     /// `updateCipherCollectionsWithServer(_:)` deletes the cipher locally when the server marks it unavailable.
     func test_updateCipherCollections_unavailable() async throws {
         let unavailableJson = APITestData(data: Data("""
-            {"unavailable": true, "cipher": null}
-            """.utf8))
+        {"unavailable": true, "cipher": null}
+        """.utf8))
         client.result = .httpSuccess(testData: unavailableJson)
         stateService.activeAccount = .fixture()
 
