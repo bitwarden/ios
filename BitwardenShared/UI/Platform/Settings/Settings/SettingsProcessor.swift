@@ -141,9 +141,11 @@ final class SettingsProcessor: StateProcessor<SettingsState, SettingsAction, Set
             } else {
                 coordinator.navigate(to: .premiumUpgrade)
             }
+        } catch is GetSubscriptionRequestError {
+            coordinator.navigate(to: .premiumUpgrade)
         } catch {
             services.errorReporter.log(error: error)
-            coordinator.navigate(to: .premiumUpgrade)
+            await coordinator.showErrorAlert(error: error)
         }
     }
 }
