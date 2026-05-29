@@ -3,30 +3,18 @@ import BitwardenResources
 import Combine
 import Foundation
 
-// MARK: - CheckoutWebAuthSessionOutcome
-
-/// The result of a Stripe checkout web authentication session.
-///
-enum CheckoutWebAuthSessionOutcome {
-    /// The user dismissed the session without completing checkout.
-    case canceled
-
-    /// The session completed and Stripe returned a callback URL.
-    case completed(callbackURL: URL)
-}
-
 // MARK: - PremiumUpgradeProcessorDelegate
 
 /// A delegate for `PremiumUpgradeProcessor` to start a web authentication session for Stripe checkout.
 ///
 @MainActor
-protocol PremiumUpgradeProcessorDelegate: AnyObject {
-    /// Starts an `ASWebAuthenticationSession` for the Stripe checkout and returns the outcome.
+protocol PremiumUpgradeProcessorDelegate: AnyObject { // sourcery: AutoMockable
+    /// Starts an `ASWebAuthenticationSession` for the Stripe checkout and returns the result.
     ///
     /// - Parameter url: The Stripe checkout URL to open.
-    /// - Returns: `.completed(callbackURL:)` if Stripe redirected back, or `.canceled` if the user dismissed.
+    /// - Returns: `.success(callbackURL)` if Stripe redirected back, or `.failure` if canceled or an error occurred.
     ///
-    func performCheckoutWebAuthSession(url: URL) async -> CheckoutWebAuthSessionOutcome
+    func performCheckoutWebAuthSession(url: URL) async -> Result<URL, Error>
 }
 
 // MARK: - PremiumUpgradeProcessor
@@ -163,12 +151,17 @@ final class PremiumUpgradeProcessor: StateProcessor<
             state.isLoading = false
             subscribeToPremiumCheckoutStatus()
             switch await delegate?.performCheckoutWebAuthSession(url: url) {
-            case .canceled, nil:
+            case let .success(callbackURL)?:
+                await handleCheckoutCallback(callbackURL)
+            case let .failure(error)? where !(error is CancellationError):
+                services.errorReporter.log(error: error)
                 coordinator.showAlert(.paymentNotReceivedYet {
                     await self.createCheckoutSession()
                 })
-            case let .completed(callbackURL):
-                await handleCheckoutCallback(callbackURL)
+            default:
+                coordinator.showAlert(.paymentNotReceivedYet {
+                    await self.createCheckoutSession()
+                })
             }
         } catch {
             coordinator.hideLoadingOverlay()

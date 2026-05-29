@@ -21,9 +21,6 @@ class BillingCoordinator: NSObject, Coordinator, HasStackNavigator {
     /// Determines the close behavior of PremiumUpgradeComplete.
     private var isUpgradeAsModalRoot = false
 
-    /// The active web authentication session for the Stripe checkout flow.
-    private var webAuthSession: ASWebAuthenticationSession?
-
     /// Closure invoked after PremiumUpgradeComplete is dismissed.
     private var premiumUpgradeCompleteOnClose: (() -> Void)?
 
@@ -32,6 +29,9 @@ class BillingCoordinator: NSObject, Coordinator, HasStackNavigator {
 
     /// The stack navigator that is managed by this coordinator.
     private(set) weak var stackNavigator: StackNavigator?
+
+    /// The active web authentication session for the Stripe checkout flow.
+    private var webAuthSession: ASWebAuthenticationSession?
 
     // MARK: Initialization
 
@@ -137,18 +137,24 @@ extension BillingCoordinator: HasErrorAlertServices {
 // MARK: - PremiumUpgradeProcessorDelegate
 
 extension BillingCoordinator: PremiumUpgradeProcessorDelegate {
-    func performCheckoutWebAuthSession(url: URL) async -> CheckoutWebAuthSessionOutcome {
+    func performCheckoutWebAuthSession(url: URL) async -> Result<URL, Error> {
         await withCheckedContinuation { continuation in
             let session = ASWebAuthenticationSession(
                 url: url,
                 callbackURLScheme: services.billingService.checkoutCallbackUrlScheme,
-            ) { [weak self] callbackURL, _ in
+            ) { [weak self] callbackURL, error in
                 self?.webAuthSession = nil
-                let outcome: CheckoutWebAuthSessionOutcome = callbackURL
-                    .map { .completed(callbackURL: $0) } ?? .canceled
-                self?.resumeAfterDismissal(continuation: continuation, outcome: outcome)
+                let result: Result<URL, Error> = if let callbackURL {
+                    .success(callbackURL)
+                } else if let sessionError = error as? ASWebAuthenticationSessionError,
+                          sessionError.code == .canceledLogin {
+                    .failure(CancellationError())
+                } else {
+                    .failure(error ?? CancellationError())
+                }
+                self?.resumeAfterDismissal(continuation: continuation, outcome: result)
             }
-            session.prefersEphemeralWebBrowserSession = false
+            session.prefersEphemeralWebBrowserSession = true
             session.presentationContextProvider = self
             webAuthSession = session
             session.start()
@@ -158,8 +164,8 @@ extension BillingCoordinator: PremiumUpgradeProcessorDelegate {
     /// Resumes the continuation only after any active sheet dismissal animation completes,
     /// so callers can safely present new UI without UIKit dropping the presentation.
     private func resumeAfterDismissal(
-        continuation: CheckedContinuation<CheckoutWebAuthSessionOutcome, Never>,
-        outcome: CheckoutWebAuthSessionOutcome
+        continuation: CheckedContinuation<Result<URL, Error>, Never>,
+        outcome: Result<URL, Error>,
     ) {
         // Traverse from the window root to find the deepest non-dismissing VC —
         // its presentedViewController (the session sheet) is being dismissed.
