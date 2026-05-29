@@ -106,6 +106,8 @@ struct VaultGroupState: Equatable, Sendable {
             Localizations.thereAreNoIdentitiesInYourVault
         case .login:
             Localizations.thereAreNoLoginsInYourVault
+        case .passport:
+            Localizations.thereAreNoPassportsInYourVault
         case .secureNote:
             Localizations.thereAreNoNotesInYourVault
         case .sshKey:

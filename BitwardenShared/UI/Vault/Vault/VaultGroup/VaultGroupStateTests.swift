@@ -108,6 +108,9 @@ class VaultGroupStateTests: BitwardenTestCase {
         let subjectLogin = VaultGroupState(group: .login, vaultFilterType: .myVault)
         XCTAssertEqual(subjectLogin.noItemsString, Localizations.thereAreNoLoginsInYourVault)
 
+        let subjectPassport = VaultGroupState(group: .passport, vaultFilterType: .myVault)
+        XCTAssertEqual(subjectPassport.noItemsString, Localizations.thereAreNoPassportsInYourVault)
+
         let subjectSecureNote = VaultGroupState(group: .secureNote, vaultFilterType: .myVault)
         XCTAssertEqual(subjectSecureNote.noItemsString, Localizations.thereAreNoNotesInYourVault)
 
