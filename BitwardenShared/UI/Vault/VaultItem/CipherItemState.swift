@@ -475,6 +475,7 @@ extension CipherItemState: AddEditItemState {
             case .driversLicense: Localizations.addLicense
             case .identity: Localizations.addIdentity
             case .login: Localizations.addLogin
+            case .passport: Localizations.addPassport
             case .secureNote: Localizations.addNote
             case .sshKey: Localizations.addSSHKey
             }
@@ -485,6 +486,7 @@ extension CipherItemState: AddEditItemState {
             case .driversLicense: Localizations.editLicense
             case .identity: Localizations.editIdentity
             case .login: Localizations.editLogin
+            case .passport: Localizations.editPassport
             case .secureNote: Localizations.editNote
             case .sshKey: Localizations.editSSHKey
             }
