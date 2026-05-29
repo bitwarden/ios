@@ -37,6 +37,8 @@ class RootCoordinator: Coordinator, HasStackNavigator {
 
     func navigate(to route: RootRoute, context: AnyObject?) {
         switch route {
+        case .cardAutofillForm:
+            showCardAutofillForm()
         case .createPasskey:
             showCreatePasskey()
         case .scenarioPicker:
@@ -51,6 +53,16 @@ class RootCoordinator: Coordinator, HasStackNavigator {
     }
 
     // MARK: Private Methods
+
+    /// Shows the card autofill form test screen.
+    ///
+    private func showCardAutofillForm() {
+        guard #available(iOS 17, *) else { return }
+        let processor = CardAutofillFormProcessor(coordinator: asAnyCoordinator())
+        let view = CardAutofillFormView(store: Store(processor: processor))
+        let viewController = UIHostingController(rootView: view)
+        stackNavigator?.push(viewController)
+    }
 
     /// Shows the create passkey test screen.
     ///

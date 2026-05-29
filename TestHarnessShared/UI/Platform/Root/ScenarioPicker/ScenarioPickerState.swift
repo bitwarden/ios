@@ -24,9 +24,21 @@ struct ScenarioPickerState: Equatable {
     var title: String = Localizations.testHarness
 
     /// The available test scenarios.
-    var scenarios: [ScenarioItem] = [
-        ScenarioItem(id: "simpleLoginForm", title: Localizations.simpleLoginForm, route: .simpleLoginForm),
-        ScenarioItem(id: "passkeyAutofill", title: Localizations.passkeyAutofill, route: nil),
-        ScenarioItem(id: "createPasskey", title: Localizations.createPasskey, route: .createPasskey),
-    ]
+    var scenarios: [ScenarioItem]
+
+    // MARK: Initialization
+
+    init() {
+        var items: [ScenarioItem] = [
+            ScenarioItem(id: "simpleLoginForm", title: Localizations.simpleLoginForm, route: .simpleLoginForm),
+        ]
+        if #available(iOS 17, *) {
+            items.append(ScenarioItem(id: "cardAutofillForm", title: Localizations.cardAutofillForm, route: .cardAutofillForm))
+        }
+        items.append(contentsOf: [
+            ScenarioItem(id: "passkeyAutofill", title: Localizations.passkeyAutofill, route: nil),
+            ScenarioItem(id: "createPasskey", title: Localizations.createPasskey, route: .createPasskey),
+        ])
+        scenarios = items
+    }
 }
