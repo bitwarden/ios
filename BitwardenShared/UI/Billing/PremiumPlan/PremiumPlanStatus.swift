@@ -5,7 +5,7 @@ import BitwardenResources
 
 /// The status of the user's premium plan.
 ///
-enum PremiumPlanStatus: Equatable {
+public enum PremiumPlanStatus: Equatable, Hashable {
     /// The plan is active.
     case active
 
@@ -34,6 +34,16 @@ enum PremiumPlanStatus: Equatable {
              .unknown,
              .updatePayment:
             .warning
+        }
+    }
+
+    /// Whether the status represents a subscription in a troubled state (e.g. canceled, past due).
+    var isTroubleState: Bool {
+        switch self {
+        case .canceled, .pastDue, .updatePayment:
+            true
+        case .active, .unknown:
+            false
         }
     }
 

@@ -131,7 +131,12 @@ final class PremiumPlanProcessor: StateProcessor<
                 return
             }
 
-            let subscription = try await services.billingService.getSubscription()
+            let subscription: PremiumSubscription
+            if let existing = state.subscription {
+                subscription = existing
+            } else {
+                subscription = try await services.billingService.getSubscription()
+            }
             state.subscription = subscription
             state.planStatus = subscription.status
         } catch {
