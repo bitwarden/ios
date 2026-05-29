@@ -84,6 +84,7 @@ struct PremiumPlanView: View {
             }
         }
         .buttonStyle(.secondary())
+        .accessibilityHint(Localizations.externalLink)
         .accessibilityIdentifier("CancelPremiumButton")
     }
 
@@ -127,6 +128,7 @@ struct PremiumPlanView: View {
             }
         }
         .buttonStyle(.primary())
+        .accessibilityHint(Localizations.externalLink)
         .accessibilityIdentifier("ManagePlanButton")
     }
 

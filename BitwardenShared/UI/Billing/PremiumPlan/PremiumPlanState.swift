@@ -35,13 +35,16 @@ struct PremiumPlanState: Equatable {
         return formatDate(canceled)
     }
 
-    /// The accessibility label for the description text, using a screen-reader-friendly currency format.
+    /// The accessibility label for the description text, with markdown stripped for VoiceOver.
+    /// For the active status, uses a screen-reader-friendly currency format instead of `descriptionText`.
     var descriptionAccessibilityLabel: String {
-        guard planStatus == .active else { return descriptionText }
+        guard planStatus == .active else {
+            return descriptionText.removingMarkdownForVoiceOver()
+        }
         return Localizations.yourNextChargeIsForXDueOnY(
             nextChargeAmountAccessibilityLabel,
             nextChargeDate,
-        )
+        ).removingMarkdownForVoiceOver()
     }
 
     /// The description text for the current plan status.
@@ -107,7 +110,7 @@ struct PremiumPlanState: Equatable {
 
     /// Whether the cancel premium button should be shown.
     var showCancelButton: Bool {
-        planStatus != .canceled && planStatus != .unknown
+        planStatus != .canceled && planStatus != .unknown && planStatus != .updatePayment
     }
 
     /// Whether the discount row should be shown.
@@ -167,5 +170,18 @@ struct PremiumPlanState: Equatable {
     ///
     private func formatDate(_ date: Date) -> String {
         date.formatted(date: .long, time: .omitted)
+    }
+}
+
+// MARK: - PremiumPlanState + Initialization
+
+extension PremiumPlanState {
+    /// Creates a `PremiumPlanState` pre-populated with a subscription, skipping the plan screen's
+    /// own `getSubscription()` fetch.
+    ///
+    /// - Parameter subscription: The already-fetched subscription.
+    ///
+    init(subscription: PremiumSubscription) {
+        self.init(planStatus: subscription.status, subscription: subscription)
     }
 }

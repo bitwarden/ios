@@ -1,4 +1,5 @@
 import BitwardenKit
+import BitwardenResources
 
 // MARK: - SettingsProcessorDelegate
 
@@ -96,6 +97,8 @@ final class SettingsProcessor: StateProcessor<SettingsState, SettingsAction, Set
             let isSelfHosted = await services.billingService.isSelfHosted()
             state.hasPremium = hasPremium
             state.showPlanRow = featureEnabled && !isSelfHosted
+        case .planPressed:
+            await navigateToPlan()
         }
     }
 
@@ -113,14 +116,36 @@ final class SettingsProcessor: StateProcessor<SettingsState, SettingsAction, Set
             coordinator.navigate(to: .dismiss)
         case .otherPressed:
             coordinator.navigate(to: .other)
-        case .planPressed:
-            if state.hasPremium {
-                coordinator.navigate(to: .premiumPlan)
+        case .vaultPressed:
+            coordinator.navigate(to: .vault)
+        }
+    }
+
+    // MARK: Private Methods
+
+    /// Navigates to the appropriate plan screen based on the user's premium and subscription status.
+    ///
+    private func navigateToPlan() async {
+        guard !state.hasPremium else {
+            coordinator.navigate(to: .premiumPlan(nil))
+            return
+        }
+
+        defer { coordinator.hideLoadingOverlay() }
+        coordinator.showLoadingOverlay(title: Localizations.loading)
+
+        do {
+            let subscription = try await services.billingService.getSubscription()
+            if subscription.status.isTroubleState {
+                coordinator.navigate(to: .premiumPlan(subscription))
             } else {
                 coordinator.navigate(to: .premiumUpgrade)
             }
-        case .vaultPressed:
-            coordinator.navigate(to: .vault)
+        } catch is GetSubscriptionRequestError {
+            coordinator.navigate(to: .premiumUpgrade)
+        } catch {
+            services.errorReporter.log(error: error)
+            await coordinator.showErrorAlert(error: error)
         }
     }
 }

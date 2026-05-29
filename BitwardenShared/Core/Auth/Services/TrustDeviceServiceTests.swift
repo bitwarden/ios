@@ -123,7 +123,6 @@ class TrustDeviceServiceTests: BitwardenTestCase {
     func test_trustDeviceWithExistingKeys() async throws {
         // Set up the mock data.
         client.results = [.httpSuccess(testData: .emptyResponse)]
-        let userId = try await stateService.getActiveAccountId()
         let trustDeviceResponse = TrustDeviceResponse(
             deviceKey: "DEVICE_KEY",
             protectedUserKey: "USER_KEY",

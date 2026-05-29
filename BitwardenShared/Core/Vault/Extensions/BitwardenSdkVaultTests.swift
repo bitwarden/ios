@@ -298,7 +298,7 @@ class CipherViewTests: BitwardenTestCase {
     }
 
     /// `init(fido2CredentialNewView:timeProvider:)` initializes correctly with rpName and username
-    func test_init_fido2CredentialNewView_rpNameUsername() {
+    func test_init_fido2CredentialNewView_rpNameUsername() { // swiftlint:disable:this function_body_length
         let fido2CredentialNewView = Fido2CredentialNewView.fixture(
             userName: "username",
             rpName: "MyApp",

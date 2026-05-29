@@ -939,6 +939,7 @@
 "SaveToBitwarden" = "Save to Bitwarden";
 "ScanCard" = "Scan card";
 "PositionYourCardInTheFrameToScanIt" = "Position your card in the frame to scan it";
+"EnableCameraPermissionInSettingsToScanYourCard" = "Enable camera access in Settings to scan your card.";
 "ScanComplete" = "Scan complete";
 "ScanTheQRCodeInYourSettings" = "Scan the QR code in your 2-step verification settings for any account.";
 "SecureYourAssetsWithBitwardenAuthenticator" = "Secure your accounts with Bitwarden Authenticator";
@@ -1067,6 +1068,7 @@
 "Total" = "Total";
 "ManagePlan" = "Manage plan";
 "CancelPremium" = "Cancel Premium";
+"ExternalLink" = "External link";
 "YourNextChargeIsForXDueOnY" = "Your next charge is for **%1$@**, due on **%2$@**.";
 "WeCouldNotProcessYourPaymentUpdateYourPaymentMethodDescriptionLong" = "We could not process your payment. Update your payment method before your subscription ends on **%1$@**.";
 "YourSubscriptionWasCanceledOnXResubscribeToContinueUsingDescriptionLong" = "Your subscription was canceled on **%1$@**. Resubscribe to continue using premium features.";
