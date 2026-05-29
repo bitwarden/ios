@@ -59,8 +59,8 @@ class BillingCoordinator: Coordinator, HasStackNavigator {
             }
         case .premiumUpgradeComplete:
             showPremiumUpgradeComplete()
-        case .premiumPlan:
-            showPremiumPlan()
+        case let .premiumPlan(subscription):
+            showPremiumPlan(subscription: subscription)
         case .premiumUpgrade:
             showPremiumUpgrade()
         }
@@ -79,7 +79,7 @@ class BillingCoordinator: Coordinator, HasStackNavigator {
                 // Pop PremiumUpgradeView silently so back navigation from PremiumPlanView
                 // returns to Settings, not to the (now-irrelevant) upgrade screen.
                 self?.stackNavigator?.pop(animated: false)
-                self?.showPremiumPlan()
+                self?.showPremiumPlan(subscription: nil)
             }
         let processor = PremiumUpgradeCompleteProcessor(coordinator: asAnyCoordinator())
         let view = PremiumUpgradeCompleteView(store: Store(processor: processor))
@@ -88,11 +88,14 @@ class BillingCoordinator: Coordinator, HasStackNavigator {
 
     /// Shows the premium plan screen.
     ///
-    private func showPremiumPlan() {
+    /// - Parameter subscription: An already-fetched subscription; pass `nil` to let the plan screen fetch it.
+    ///
+    private func showPremiumPlan(subscription: PremiumSubscription?) {
+        let state = subscription.map(PremiumPlanState.init(subscription:)) ?? PremiumPlanState()
         let processor = PremiumPlanProcessor(
             coordinator: asAnyCoordinator(),
             services: services,
-            state: PremiumPlanState(),
+            state: state,
         )
         let view = PremiumPlanView(store: Store(processor: processor))
         let viewController = UIHostingController(rootView: view)

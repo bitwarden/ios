@@ -134,6 +134,7 @@ struct PremiumPlanState: Equatable {
             && planStatus != .expired
             && planStatus != .pendingCancellation
             && planStatus != .unknown
+            && planStatus != .updatePayment
     }
 
     /// Whether the discount row should be shown.
@@ -193,5 +194,18 @@ struct PremiumPlanState: Equatable {
     ///
     private func formatDate(_ date: Date) -> String {
         date.formatted(date: .long, time: .omitted)
+    }
+}
+
+// MARK: - PremiumPlanState + Initialization
+
+extension PremiumPlanState {
+    /// Creates a `PremiumPlanState` pre-populated with a subscription, skipping the plan screen's
+    /// own `getSubscription()` fetch.
+    ///
+    /// - Parameter subscription: The already-fetched subscription.
+    ///
+    init(subscription: PremiumSubscription) {
+        self.init(planStatus: subscription.status, subscription: subscription)
     }
 }

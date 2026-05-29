@@ -78,6 +78,27 @@ struct PremiumPlanProcessorTests {
         #expect(coordinator.routes.last == .dismiss)
     }
 
+    /// `perform(_:)` with `.appeared` skips `getSubscription()` when a subscription is pre-loaded in state.
+    @Test
+    func perform_appeared_skipsGetSubscription_whenPreloaded() async {
+        billingService.getPremiumPlanReturnValue = PremiumPlanResponseModel(
+            available: true,
+            legacyYear: nil,
+            name: "Premium",
+            seat: PlanPricingResponseModel(price: 12, provided: 1, stripePriceId: "seat"),
+            storage: PlanPricingResponseModel(price: 4.80, provided: 1, stripePriceId: "storage"),
+        )
+        let preloaded = PremiumSubscription.fixture(status: .canceled)
+        subject.state = PremiumPlanState(subscription: preloaded)
+
+        await subject.perform(.appeared)
+
+        #expect(billingService.getPremiumPlanCallsCount == 1)
+        #expect(billingService.getSubscriptionCallsCount == 0)
+        #expect(subject.state.planStatus == .canceled)
+        #expect(subject.state.subscription == preloaded)
+    }
+
     /// `perform(_:)` with `.appeared` loads the subscription and updates state.
     @Test
     func perform_appeared_success() async {

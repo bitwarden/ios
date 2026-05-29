@@ -90,10 +90,8 @@ struct PremiumPlanStateTests {
         var state = PremiumPlanState()
         state.planStatus = .canceled
         state.subscription = .fixture(canceled: testDate, status: .canceled)
-        #expect(state.descriptionText == Localizations
-            .yourSubscriptionWasCanceledOnXDescriptionLong(
-                state.canceledDate,
-            ))
+        let localization = Localizations.yourSubscriptionWasCanceledOnXDescriptionLong
+        #expect(state.descriptionText == localization(state.canceledDate))
     }
 
     /// `descriptionText` returns the correct text for the expired plan status.
@@ -234,7 +232,7 @@ struct PremiumPlanStateTests {
         (PremiumPlanStatus.pastDue, true),
         (PremiumPlanStatus.pendingCancellation, false),
         (PremiumPlanStatus.unknown, false),
-        (PremiumPlanStatus.updatePayment, true),
+        (PremiumPlanStatus.updatePayment, false),
     ])
     func showCancelButton(planStatus: PremiumPlanStatus, expected: Bool) {
         var state = PremiumPlanState()

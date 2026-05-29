@@ -43,6 +43,21 @@ struct PremiumPlanStatusTests {
         #expect(PremiumPlanStatus(subscriptionStatus: status, cancelAt: cancelAt) == .pendingCancellation)
     }
 
+    // MARK: Tests - isTroubleState
+
+    @Test(arguments: [
+        (PremiumPlanStatus.active, false),
+        (.canceled, true),
+        (.expired, true),
+        (.pastDue, true),
+        (.pendingCancellation, true),
+        (.unknown, false),
+        (.updatePayment, true),
+    ] as [(PremiumPlanStatus, Bool)])
+    func isTroubleState(_ status: PremiumPlanStatus, expected: Bool) {
+        #expect(status.isTroubleState == expected)
+    }
+
     // MARK: Tests - label
 
     @Test(arguments: [
