@@ -58,20 +58,6 @@ class DateFieldPickerTests: BitwardenTestCase {
         XCTAssertNoThrow(try subject.inspect().find(text: expected))
     }
 
-    /// A date-and-time field formats the collapsed value with both date and time.
-    func test_collapsedSelected_dateAndTime_showsFormattedDateTime() throws {
-        let dateTime = Date(year: 2023, month: 6, day: 23, hour: 8)
-        date = dateTime
-        subject = DateFieldPicker(
-            title: "Ends",
-            date: bindingDate,
-            defaultDate: defaultDate,
-            displayedComponents: [.date, .hourAndMinute],
-        )
-        let expected = dateTime.formatted(date: .long, time: .shortened)
-        XCTAssertNoThrow(try subject.inspect().find(text: expected))
-    }
-
     /// The collapsed header is a button so a single tap expands the picker.
     func test_headerButton_exists() throws {
         XCTAssertNoThrow(try subject.inspect().find(viewWithAccessibilityIdentifier: "DateFieldHeaderButton"))

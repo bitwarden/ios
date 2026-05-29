@@ -9,7 +9,7 @@ class DateFieldPickerSnapshotTests: BitwardenTestCase {
     // MARK: Properties
 
     /// A fixed date used so snapshots are deterministic.
-    let date = Date(year: 2023, month: 6, day: 23, hour: 8)
+    let date = Date(year: 2023, month: 6, day: 23)
 
     var subject: DateFieldPicker!
 
@@ -57,13 +57,12 @@ class DateFieldPickerSnapshotTests: BitwardenTestCase {
         assertSnapshot(of: subject, as: .defaultPortraitDark)
     }
 
-    /// Test a snapshot of a collapsed date-and-time field with a footer in light mode.
-    func disabletest_snapshot_dateAndTimeWithFooter_lightMode() {
+    /// Test a snapshot of a collapsed field with a footer in light mode.
+    func disabletest_snapshot_withFooter_lightMode() {
         subject = DateFieldPicker(
-            title: "Ends",
+            title: "Expiration date",
             date: .constant(date),
-            displayedComponents: [.date, .hourAndMinute],
-            footer: "When this date passes the item will no longer be available.",
+            footer: "The date this document expires.",
         )
 
         assertSnapshot(of: subject, as: .defaultPortrait)

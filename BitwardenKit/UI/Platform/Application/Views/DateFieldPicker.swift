@@ -3,11 +3,11 @@ import SwiftUI
 
 // MARK: - DateFieldPicker
 
-/// A reusable field for entering an optional date and, optionally, time.
+/// A reusable field for entering an optional calendar date.
 ///
 /// The field renders as a single collapsed row showing its title and current value (or a
 /// placeholder when empty) with a chevron affordance. Tapping the row presents the native
-/// `DatePicker` (graphical calendar) as a popover dialog so a single tap reveals the picker.
+/// wheel-style `DatePicker` as a popover dialog so a single tap reveals the picker.
 /// Because the field operates on an optional `Date?`, it can represent a genuinely empty value —
 /// which the underlying `DatePicker` cannot do on its own — and offers a control to clear a
 /// selected date.
@@ -23,9 +23,6 @@ public struct DateFieldPicker: View {
 
     /// The date used to seed the picker when the user first selects a date for an empty field.
     let defaultDate: Date
-
-    /// The components shown by the underlying `DatePicker` (date, or date and time).
-    let displayedComponents: DatePicker.Components
 
     /// The (optional) footer text shown below the field.
     let footer: String?
@@ -80,8 +77,6 @@ public struct DateFieldPicker: View {
     ///   - date: A binding to the selected date, or `nil` if no date has been selected.
     ///   - defaultDate: The date used to seed the picker when the user first selects a date for an
     ///     empty field. Defaults to the current date.
-    ///   - displayedComponents: The components shown by the underlying `DatePicker`. Defaults to
-    ///     `.date` for calendar-date-only selection.
     ///   - range: The (optional) range of selectable dates. When `nil` the picker is unbounded.
     ///   - footer: The (optional) footer text shown below the field.
     ///
@@ -90,7 +85,6 @@ public struct DateFieldPicker: View {
         accessibilityIdentifier: String? = nil,
         date: Binding<Date?>,
         defaultDate: Date = Date(),
-        displayedComponents: DatePicker.Components = [.date],
         in range: ClosedRange<Date>? = nil,
         footer: String? = nil,
     ) {
@@ -98,7 +92,6 @@ public struct DateFieldPicker: View {
         self.accessibilityIdentifier = accessibilityIdentifier
         _date = date
         self.defaultDate = defaultDate
-        self.displayedComponents = displayedComponents
         self.range = range
         self.footer = footer
     }
@@ -119,17 +112,17 @@ public struct DateFieldPicker: View {
         .accessibilityIdentifier("DateFieldClearButton")
     }
 
-    /// The native graphical `DatePicker`, optionally constrained to `range`.
+    /// The native wheel-style date `DatePicker`, optionally constrained to `range`.
     @ViewBuilder
     private func datePicker() -> some View {
         if let range {
-            DatePicker("", selection: unwrappedDate(), in: range, displayedComponents: displayedComponents)
+            DatePicker("", selection: unwrappedDate(), in: range, displayedComponents: [.date])
                 .labelsHidden()
-                .datePickerStyle(.graphical)
+                .datePickerStyle(.wheel)
         } else {
-            DatePicker("", selection: unwrappedDate(), displayedComponents: displayedComponents)
+            DatePicker("", selection: unwrappedDate(), displayedComponents: [.date])
                 .labelsHidden()
-                .datePickerStyle(.graphical)
+                .datePickerStyle(.wheel)
         }
     }
 
@@ -182,28 +175,27 @@ public struct DateFieldPicker: View {
     /// placeholder when there is no title).
     private func headerText() -> String {
         guard let date else { return title ?? Localizations.selectADate }
-        return date.formatted(
-            date: displayedComponents.contains(.date) ? .long : .omitted,
-            time: displayedComponents.contains(.hourAndMinute) ? .shortened : .omitted,
-        )
+        return date.formatted(date: .long, time: .omitted)
     }
 
-    /// The picker presented as a popover dialog: the graphical calendar plus a clear control when a
-    /// date is set. On iOS 16.4+ this is forced to render as a popover (a floating dialog) rather
-    /// than adapting to a sheet in compact width.
+    /// The picker presented as a popover dialog: the wheel picker plus a clear control when a date
+    /// is set. On iOS 16.4+ this is forced to render as a popover (a floating dialog) rather than
+    /// adapting to a sheet in compact width.
     @ViewBuilder
     private func pickerDialog() -> some View {
         VStack(spacing: 0) {
             datePicker()
+                .frame(height: 180)
                 .padding(.horizontal, 16)
-                .padding(.top, 16)
+                .padding(.top, 8)
 
             if date != nil {
                 Divider()
                 clearButton()
             }
         }
-        .frame(idealWidth: 320)
+        .frame(width: 320)
+        .fixedSize(horizontal: false, vertical: true)
         .modifier(PopoverDialogAdaptation())
     }
 
@@ -251,13 +243,12 @@ private struct PopoverDialogAdaptation: ViewModifier {
 }
 
 @available(iOS 17, *)
-#Preview("Date and time") {
-    @Previewable @SwiftUI.State var date: Date? = Date(year: 2021, month: 8, day: 10, hour: 8)
+#Preview("With footer") {
+    @Previewable @SwiftUI.State var date: Date? = Date(year: 2021, month: 8, day: 10)
     DateFieldPicker(
-        title: "Ends",
+        title: "Expiration date",
         date: $date,
-        displayedComponents: [.date, .hourAndMinute],
-        footer: "When this date passes the item will no longer be available.",
+        footer: "The date this document expires.",
     )
     .padding()
     .background(SharedAsset.Colors.backgroundPrimary.swiftUIColor)
