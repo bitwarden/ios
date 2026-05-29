@@ -674,6 +674,7 @@
 "BitwardenCannotResetALostOrForgottenMasterPassword" = "Bitwarden cannot reset a lost or forgotten master password.";
 "LearnAboutWaysToPreventAccountLockout" = "Learn about ways to prevent account lockout";
 "RestartRegistration" = "Restart registration";
+"Expired" = "Expired";
 "ExpiredLink" = "Expired link";
 "PleaseRestartRegistrationOrTryLoggingInYouMayAlreadyHaveAnAccount" = "Please restart registration or try logging in. You may already have an account.";
 "RemovePasskey" = "Remove passkey";
@@ -939,6 +940,7 @@
 "SaveToBitwarden" = "Save to Bitwarden";
 "ScanCard" = "Scan card";
 "PositionYourCardInTheFrameToScanIt" = "Position your card in the frame to scan it";
+"EnableCameraPermissionInSettingsToScanYourCard" = "Enable camera access in Settings to scan your card.";
 "ScanComplete" = "Scan complete";
 "ScanTheQRCodeInYourSettings" = "Scan the QR code in your 2-step verification settings for any account.";
 "SecureYourAssetsWithBitwardenAuthenticator" = "Secure your accounts with Bitwarden Authenticator";
@@ -1059,6 +1061,7 @@
 "Active" = "Active";
 "Canceled" = "Canceled";
 "PastDue" = "Past due";
+"PendingCancellation" = "Pending cancellation";
 "UpdatePayment" = "Update payment";
 "BillingAmount" = "Billing amount";
 "StorageCost" = "Storage cost";
@@ -1067,9 +1070,12 @@
 "Total" = "Total";
 "ManagePlan" = "Manage plan";
 "CancelPremium" = "Cancel Premium";
+"ExternalLink" = "External link";
 "YourNextChargeIsForXDueOnY" = "Your next charge is for **%1$@**, due on **%2$@**.";
 "WeCouldNotProcessYourPaymentUpdateYourPaymentMethodDescriptionLong" = "We could not process your payment. Update your payment method before your subscription ends on **%1$@**.";
-"YourSubscriptionWasCanceledOnXResubscribeToContinueUsingDescriptionLong" = "Your subscription was canceled on **%1$@**. Resubscribe to continue using premium features.";
+"YourSubscriptionWasCanceledOnXDescriptionLong" = "Your subscription was canceled on **%1$@**. Resubscribe to continue using Premium features.";
+"YourSubscriptionExpiredOnXDescriptionLong" = "Your subscription expired on **%1$@**. Resubscribe to continue using Premium features.";
+"YourSubscriptionIsScheduledToCancelOnXDescriptionLong" = "Your subscription is scheduled to cancel on **%1$@**. You can reinstate it anytime before then.";
 "PerMonth" = "/ month";
 "PerYear" = "/ year";
 "XAmountPerCadence" = "%1$@ %2$@";
