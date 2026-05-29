@@ -196,8 +196,12 @@
 "CustomFields" = "Custom fields";
 "CopyNumber" = "Copy number";
 "CopySecurityCode" = "Copy security code";
+"CopyAccountNumber" = "Copy account number";
+"CopyRoutingNumber" = "Copy routing number";
 "Number" = "Number";
 "SecurityCode" = "Security code";
+"AccountNumber" = "Account number";
+"RoutingNumber" = "Routing number";
 "TypeCard" = "Card";
 "TypeIdentity" = "Identity";
 "TypeLicense" = "License";
