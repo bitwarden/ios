@@ -20,7 +20,7 @@ packages:
     exactVersion: 11.14.0
   SnapshotTesting:
     url: https://github.com/pointfreeco/swift-snapshot-testing
-    exactVersion: 1.18.4
+    exactVersion: 1.19.2
   ViewInspector:
     url: https://github.com/nalexn/ViewInspector
     exactVersion: 0.10.3
