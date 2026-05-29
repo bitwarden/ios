@@ -3,6 +3,20 @@ import BitwardenResources
 import Combine
 import Foundation
 
+// MARK: - PremiumUpgradeProcessorDelegate
+
+/// A delegate for `PremiumUpgradeProcessor` to start a web authentication session for Stripe checkout.
+///
+@MainActor
+protocol PremiumUpgradeProcessorDelegate: AnyObject { // sourcery: AutoMockable
+    /// Starts an `ASWebAuthenticationSession` for the Stripe checkout and returns the result.
+    ///
+    /// - Parameter url: The Stripe checkout URL to open.
+    /// - Returns: `.success(callbackURL)` if Stripe redirected back, or `.failure` if canceled or an error occurred.
+    ///
+    func performCheckoutWebAuthSession(url: URL) async -> Result<URL, Error>
+}
+
 // MARK: - PremiumUpgradeProcessor
 
 /// The processor used to manage state and handle actions for the `PremiumUpgradeView`.
@@ -23,8 +37,8 @@ final class PremiumUpgradeProcessor: StateProcessor<
     /// The coordinator used to manage navigation.
     private let coordinator: AnyCoordinator<BillingRoute, Void>
 
-    /// The last checkout URL returned by the billing service, used to reopen Stripe if canceled.
-    private var lastCheckoutURL: URL?
+    /// A delegate used to start the Stripe web authentication session.
+    private weak var delegate: PremiumUpgradeProcessorDelegate?
 
     /// Cancellable for the premium checkout status subscription.
     private var premiumStatusChangedCancellable: AnyCancellable?
@@ -38,15 +52,18 @@ final class PremiumUpgradeProcessor: StateProcessor<
     ///
     /// - Parameters:
     ///   - coordinator: The coordinator used for navigation.
+    ///   - delegate: The delegate used to start the Stripe web authentication session.
     ///   - services: The services used by this processor.
     ///   - state: The initial state of the processor.
     ///
     init(
         coordinator: AnyCoordinator<BillingRoute, Void>,
+        delegate: PremiumUpgradeProcessorDelegate?,
         services: Services,
         state: PremiumUpgradeState,
     ) {
         self.coordinator = coordinator
+        self.delegate = delegate
         self.services = services
         super.init(state: state)
     }
@@ -72,16 +89,10 @@ final class PremiumUpgradeProcessor: StateProcessor<
         switch action {
         case .cancelTapped:
             coordinator.navigate(to: .dismiss)
-        case .clearURL:
-            state.checkoutURL = nil
         case .dismissBannerTapped:
             state.isBannerDismissed = true
         case .dismissPricingErrorBannerTapped:
             state.showPricingErrorBanner = false
-        case .urlOpenFailed:
-            Task {
-                await coordinator.showErrorAlert(error: BillingError.unableToOpenCheckout)
-            }
         }
     }
 
@@ -118,7 +129,7 @@ final class PremiumUpgradeProcessor: StateProcessor<
                 switch status {
                 case .canceled:
                     coordinator.showAlert(.paymentNotReceivedYet {
-                        self.state.checkoutURL = self.lastCheckoutURL
+                        await self.createCheckoutSession()
                     })
                 case .syncing:
                     coordinator.showLoadingOverlay(title: Localizations.confirmingYourUpgrade)
@@ -134,7 +145,7 @@ final class PremiumUpgradeProcessor: StateProcessor<
             }
     }
 
-    /// Creates a checkout session by calling the billing service.
+    /// Creates a checkout session, opens it via `ASWebAuthenticationSession`, and handles the result.
     ///
     private func createCheckoutSession() async {
         do {
@@ -143,9 +154,20 @@ final class PremiumUpgradeProcessor: StateProcessor<
             let url = try await services.billingService.createCheckoutSession()
             coordinator.hideLoadingOverlay()
             state.isLoading = false
-            lastCheckoutURL = url
             subscribeToPremiumCheckoutStatus()
-            state.checkoutURL = url
+            switch await delegate?.performCheckoutWebAuthSession(url: url) {
+            case let .success(callbackURL)?:
+                await handleCheckoutCallback(callbackURL)
+            case let .failure(error)? where !(error is CancellationError):
+                services.errorReporter.log(error: error)
+                coordinator.showAlert(.paymentNotReceivedYet {
+                    await self.createCheckoutSession()
+                })
+            default:
+                coordinator.showAlert(.paymentNotReceivedYet {
+                    await self.createCheckoutSession()
+                })
+            }
         } catch {
             coordinator.hideLoadingOverlay()
             state.isLoading = false
@@ -153,6 +175,22 @@ final class PremiumUpgradeProcessor: StateProcessor<
             coordinator.showAlert(.secureCheckoutDidntLoad {
                 await self.createCheckoutSession()
             })
+        }
+    }
+
+    /// Routes the Stripe callback URL to the appropriate billing service method.
+    ///
+    private func handleCheckoutCallback(_ callbackURL: URL) async {
+        let components = URLComponents(url: callbackURL, resolvingAgainstBaseURL: false)
+        let result = components?.queryItems?.first(where: { item in
+            item.name == BitwardenDeepLinkConstants.PremiumCheckoutResultQuery.parameterName
+        })?.value
+
+        if callbackURL.host == BitwardenDeepLinkConstants.premiumCheckoutResultHost,
+           result == BitwardenDeepLinkConstants.PremiumCheckoutResultQuery.successValue {
+            await services.billingService.premiumStatusChanged()
+        } else {
+            services.billingService.premiumCheckoutCanceled()
         }
     }
 }
