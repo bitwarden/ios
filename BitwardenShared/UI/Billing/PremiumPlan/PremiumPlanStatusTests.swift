@@ -1,5 +1,6 @@
 import BitwardenKit
 import BitwardenResources
+import Foundation
 import Testing
 
 @testable import BitwardenShared
@@ -12,7 +13,9 @@ struct PremiumPlanStatusTests {
     @Test(arguments: [
         (PremiumPlanStatus.active, PillBadgeStyle.success),
         (.canceled, .danger),
+        (.expired, .danger),
         (.pastDue, .warning),
+        (.pendingCancellation, .warning),
         (.unknown, .warning),
         (.updatePayment, .warning),
     ] as [(PremiumPlanStatus, PillBadgeStyle)])
@@ -25,6 +28,7 @@ struct PremiumPlanStatusTests {
     @Test(arguments: [
         (SubscriptionStatus.active, PremiumPlanStatus.active),
         (.canceled, .canceled),
+        (.incompleteExpired, .expired),
         (.pastDue, .pastDue),
         (.unknown, .unknown),
         (.unpaid, .updatePayment),
@@ -33,12 +37,20 @@ struct PremiumPlanStatusTests {
         #expect(PremiumPlanStatus(subscriptionStatus: status) == expected)
     }
 
+    @Test(arguments: [SubscriptionStatus.active, .trialing] as [SubscriptionStatus])
+    func init_mapsSubscriptionStatus_withCancelAt(_ status: SubscriptionStatus) {
+        let cancelAt = Date()
+        #expect(PremiumPlanStatus(subscriptionStatus: status, cancelAt: cancelAt) == .pendingCancellation)
+    }
+
     // MARK: Tests - isTroubleState
 
     @Test(arguments: [
         (PremiumPlanStatus.active, false),
         (.canceled, true),
+        (.expired, true),
         (.pastDue, true),
+        (.pendingCancellation, true),
         (.unknown, false),
         (.updatePayment, true),
     ] as [(PremiumPlanStatus, Bool)])
@@ -51,7 +63,9 @@ struct PremiumPlanStatusTests {
     @Test(arguments: [
         (PremiumPlanStatus.active, Localizations.active),
         (.canceled, Localizations.canceled),
+        (.expired, Localizations.expired),
         (.pastDue, Localizations.pastDue),
+        (.pendingCancellation, Localizations.pendingCancellation),
         (.unknown, Localizations.unknownStatus),
         (.updatePayment, Localizations.updatePayment),
     ] as [(PremiumPlanStatus, String)])
