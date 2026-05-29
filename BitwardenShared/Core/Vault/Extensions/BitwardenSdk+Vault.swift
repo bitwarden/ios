@@ -92,6 +92,26 @@ extension CipherDriversLicenseModel {
     }
 }
 
+extension CipherPassportModel {
+    init(passport: BitwardenSdk.Passport) {
+        self.init(
+            birthPlace: passport.birthPlace,
+            dateOfBirth: passport.dateOfBirth,
+            expirationDate: passport.expirationDate,
+            givenName: passport.givenName,
+            issueDate: passport.issueDate,
+            issuingAuthority: passport.issuingAuthority,
+            issuingCountry: passport.issuingCountry,
+            nationalIdentificationNumber: passport.nationalIdentificationNumber,
+            nationality: passport.nationality,
+            passportNumber: passport.passportNumber,
+            passportType: passport.passportType,
+            sex: passport.sex,
+            surname: passport.surname,
+        )
+    }
+}
+
 extension CipherDetailsResponseModel {
     init(cipher: BitwardenSdk.Cipher) throws {
         guard let id = cipher.id else { throw DataMappingError.invalidData }
@@ -116,7 +136,7 @@ extension CipherDetailsResponseModel {
             notes: cipher.notes,
             organizationId: cipher.organizationId,
             organizationUseTotp: cipher.organizationUseTotp,
-            passport: nil, // TODO: PM-32805
+            passport: cipher.passport.map(CipherPassportModel.init),
             passwordHistory: cipher.passwordHistory?.map(CipherPasswordHistoryModel.init),
             permissions: CipherPermissionsModel(cipherPermissions: cipher.permissions),
             reprompt: BitwardenShared.CipherRepromptType(type: cipher.reprompt),
@@ -268,8 +288,7 @@ extension CipherType {
         case .login:
             self = .login
         case .passport:
-            // TODO: PM-32805
-            self = .identity
+            self = .passport
         case .secureNote:
             self = .secureNote
         case .sshKey:
@@ -290,8 +309,7 @@ extension CipherType {
         case .login:
             self = .login
         case .passport:
-            // TODO: PM-32805
-            self = .identity
+            self = .passport
         case .secureNote:
             self = .secureNote
         case .sshKey:
@@ -572,6 +590,8 @@ extension BitwardenSdk.CipherType {
             self = .bankAccount
         case .driversLicense:
             self = .driversLicense
+        case .passport:
+            self = .passport
         }
     }
 }

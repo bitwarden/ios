@@ -59,7 +59,7 @@ struct CipherMiniResponseModel: JSONResponse, Equatable {
     let organizationUseTotp: Bool
 
     /// Passport data if the cipher is a passport.
-    let passport: CipherPassportModel? // TODO: PM-32805
+    let passport: CipherPassportModel?
 
     /// The password history for this cipher.
     let passwordHistory: [CipherPasswordHistoryModel]?
