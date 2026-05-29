@@ -1,3 +1,17 @@
+"CardAutofillForm" = "Card Autofill Form";
+"CardAutofillFormDescription" = "Tap each field and select Bitwarden from the QuickType bar to autofill card details. Requires iOS 18+, Bitwarden PM as AutoFill provider, and a saved Card cipher.";
+"CardDetails" = "Card Details";
+"CardholderName" = "Cardholder Name";
+"CardholderNameValue" = "Cardholder Name: %@";
+"CardNumber" = "Card Number";
+"CardNumberValue" = "Card Number: %@";
+"EnterCardDetailsAbove" = "Enter card details above";
+"ExpirationMonth" = "Expiration Month";
+"ExpirationMonthValue" = "Expiration Month: %@";
+"ExpirationYear" = "Expiration Year";
+"ExpirationYearValue" = "Expiration Year: %@";
+"SecurityCode" = "Security Code";
+"SecurityCodeValue" = "Security Code: %@";
 "TestHarness" = "Test Harness";
 "TestScenarios" = "Test Scenarios";
 "SimpleLoginForm" = "Simple Login Form";
