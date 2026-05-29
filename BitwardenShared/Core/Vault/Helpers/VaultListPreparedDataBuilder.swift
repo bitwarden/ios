@@ -224,6 +224,8 @@ class DefaultVaultListPreparedDataBuilder: VaultListPreparedDataBuilder { // swi
         }
 
         switch group {
+        case .bankAccount:
+            guard cipher.type == .bankAccount else { return self }
         case .card:
             guard cipher.type.isCard else { return self }
         case .driversLicense:

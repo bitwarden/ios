@@ -36,6 +36,8 @@ extension CipherType {
     ///
     init?(group: VaultListGroup) {
         switch group {
+        case .bankAccount:
+            self = .bankAccount
         case .card:
             self = .card
         case .driversLicense:

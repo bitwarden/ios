@@ -409,6 +409,10 @@ class DefaultVaultListSectionsBuilder: VaultListSectionsBuilder { // swiftlint:d
             )
         }
 
+        if preparedData.isNewItemTypesEnabled {
+            types.append(newItemTypeRow(id: "Types.BankAccounts", group: .bankAccount, type: .bankAccount))
+        }
+
         types.append(
             VaultListItem(
                 id: "Types.Identities",
@@ -417,12 +421,7 @@ class DefaultVaultListSectionsBuilder: VaultListSectionsBuilder { // swiftlint:d
         )
 
         if preparedData.isNewItemTypesEnabled {
-            types.append(
-                VaultListItem(
-                    id: "Types.DriversLicense",
-                    itemType: .group(.driversLicense, preparedData.countPerCipherType[.driversLicense, default: 0]),
-                ),
-            )
+            types.append(newItemTypeRow(id: "Types.DriversLicense", group: .driversLicense, type: .driversLicense))
         }
 
         types.append(
@@ -440,6 +439,11 @@ class DefaultVaultListSectionsBuilder: VaultListSectionsBuilder { // swiftlint:d
 
         vaultListData.sections.append(VaultListSection(id: "Types", items: types, name: Localizations.types))
         return self
+    }
+
+    /// Builds a Types-section row for a `.newItemTypes`-gated cipher type using its current count.
+    private func newItemTypeRow(id: String, group: VaultListGroup, type: CipherType) -> VaultListItem {
+        VaultListItem(id: id, itemType: .group(group, preparedData.countPerCipherType[type, default: 0]))
     }
 
     func build() -> VaultListData {
@@ -470,6 +474,7 @@ struct VaultListPreparedData {
 
     /// A dictionary mapping cipher types to their counts in the vault.
     var countPerCipherType: [CipherType: Int] = [
+        .bankAccount: 0,
         .card: 0,
         .driversLicense: 0,
         .identity: 0,

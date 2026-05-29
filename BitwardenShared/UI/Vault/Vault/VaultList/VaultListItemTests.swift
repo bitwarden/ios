@@ -162,6 +162,10 @@ class VaultListItemTests: BitwardenTestCase { // swiftlint:disable:this type_bod
     /// `icon` returns the expected value.
     func test_icon() { // swiftlint:disable:this function_body_length
         XCTAssertEqual(
+            VaultListItem(cipherListView: .fixture(type: .bankAccount))?.icon.name,
+            SharedAsset.Icons.bankAccount24.name,
+        )
+        XCTAssertEqual(
             VaultListItem(cipherListView: .fixture(type: .card(.init(brand: nil))))?.icon.name,
             SharedAsset.Icons.card24.name,
         )
@@ -193,6 +197,10 @@ class VaultListItemTests: BitwardenTestCase { // swiftlint:disable:this type_bod
             SharedAsset.Icons.key24.name,
         )
 
+        XCTAssertEqual(
+            VaultListItem(id: "", itemType: .group(.bankAccount, 1)).icon.name,
+            SharedAsset.Icons.bankAccount24.name,
+        )
         XCTAssertEqual(
             VaultListItem(id: "", itemType: .group(.card, 1)).icon.name,
             SharedAsset.Icons.card24.name,
@@ -246,6 +254,10 @@ class VaultListItemTests: BitwardenTestCase { // swiftlint:disable:this type_bod
 
     /// `getter:iconAccessibilityId` gets the appropriate id for each icon.
     func test_iconAccessibilityId() {
+        XCTAssertEqual(
+            VaultListItem(cipherListView: .fixture(type: .bankAccount))?.iconAccessibilityId,
+            "BankAccountCipherIcon",
+        )
         XCTAssertEqual(
             VaultListItem(cipherListView: .fixture(type: .card(.init(brand: nil))))?.iconAccessibilityId,
             "CardCipherIcon",

@@ -136,8 +136,7 @@ extension VaultListItem {
             case .sshKey:
                 SharedAsset.Icons.key24
             case .bankAccount:
-                // TODO: PM-32809
-                SharedAsset.Icons.stickyNote24
+                SharedAsset.Icons.bankAccount24
             case .driversLicense:
                 SharedAsset.Icons.idCard24
             case .passport:
@@ -146,6 +145,8 @@ extension VaultListItem {
             }
         case let .group(group, _):
             switch group {
+            case .bankAccount:
+                SharedAsset.Icons.bankAccount24
             case .card:
                 SharedAsset.Icons.card24
             case .collection:
@@ -191,7 +192,6 @@ extension VaultListItem {
             case .sshKey:
                 "SSHKeyCipherIcon"
             case .bankAccount:
-                // TODO: PM-32809
                 "BankAccountCipherIcon"
             case .driversLicense:
                 "DriverLicenseCipherIcon"
