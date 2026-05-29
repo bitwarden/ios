@@ -15,6 +15,7 @@ class CipherTypeTests: BitwardenTestCase {
         XCTAssertEqual(CipherType.sshKey.allowedFieldTypes, [.text, .hidden, .boolean])
         XCTAssertEqual(CipherType.bankAccount.allowedFieldTypes, [.text, .hidden, .boolean])
         XCTAssertEqual(CipherType.driversLicense.allowedFieldTypes, [.text, .hidden, .boolean])
+        XCTAssertEqual(CipherType.passport.allowedFieldTypes, [.text, .hidden, .boolean])
     }
 
     /// `localizedName` returns the correct values.
@@ -24,6 +25,7 @@ class CipherTypeTests: BitwardenTestCase {
         XCTAssertEqual(CipherType.driversLicense.localizedName, Localizations.license)
         XCTAssertEqual(CipherType.identity.localizedName, Localizations.typeIdentity)
         XCTAssertEqual(CipherType.login.localizedName, Localizations.typeLogin)
+        XCTAssertEqual(CipherType.passport.localizedName, Localizations.passport)
         XCTAssertEqual(CipherType.secureNote.localizedName, Localizations.typeSecureNote)
         XCTAssertEqual(CipherType.sshKey.localizedName, Localizations.sshKey)
     }
@@ -51,5 +53,11 @@ class CipherTypeTests: BitwardenTestCase {
     /// `newItemTypesGatedCases` returns the cipher types gated behind the `.newItemTypes` feature flag.
     func test_newItemTypesGatedCases() {
         XCTAssertEqual(CipherType.newItemTypesGatedCases, [.bankAccount, .driversLicense])
+    }
+
+    /// `CipherType.passport` has the expected raw value and is included in `allCases`.
+    func test_passport() {
+        XCTAssertEqual(CipherType.passport.rawValue, 8)
+        XCTAssertTrue(CipherType.allCases.contains(.passport))
     }
 }

@@ -30,6 +30,7 @@ final class PremiumUpgradeProcessor: StateProcessor<
 
     typealias Services = HasBillingService
         & HasErrorReporter
+        & HasStateService
 
     // MARK: Properties
 
@@ -104,6 +105,10 @@ final class PremiumUpgradeProcessor: StateProcessor<
         defer { coordinator.hideLoadingOverlay() }
         coordinator.showLoadingOverlay(title: Localizations.loading)
         do {
+            guard await !services.stateService.doesActiveAccountHavePremium() else {
+                coordinator.navigate(to: .dismiss)
+                return
+            }
             let plan = try await services.billingService.getPremiumPlan()
             state.premiumSeatPrice = plan.seat.price
             state.showPricingErrorBanner = false

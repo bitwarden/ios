@@ -60,6 +60,11 @@ final class SendListProcessor: StateProcessor<SendListState, SendListAction, Sen
         switch effect {
         case let .addItemPressed(sendType):
             await addNewSend(sendType: sendType)
+        case .appeared:
+            state.shouldShowUpgradedToPremiumActionCard = await services.billingService.shouldShowUpgradedToPremiumActionCard()
+        case .dismissUpgradedToPremiumActionCard:
+            state.shouldShowUpgradedToPremiumActionCard = false
+            await services.billingService.setUpgradedToPremiumActionCardDismissed()
         case .loadData:
             await loadData()
         case let .search(text):
@@ -98,6 +103,8 @@ final class SendListProcessor: StateProcessor<SendListState, SendListAction, Sen
         switch action {
         case .clearInfoUrl:
             state.infoUrl = nil
+        case .clearUrl:
+            state.url = nil
         case .infoButtonPressed:
             state.infoUrl = ExternalLinksConstants.sendInfo
         case let .searchStateChanged(isSearching):
@@ -122,6 +129,10 @@ final class SendListProcessor: StateProcessor<SendListState, SendListAction, Sen
             case let .viewSend(sendView):
                 coordinator.navigate(to: .viewItem(sendView), context: self)
             }
+        case .learnMoreAboutPremium:
+            state.url = ExternalLinksConstants.learnMoreAboutPremium
+            state.shouldShowUpgradedToPremiumActionCard = false
+            Task { await services.billingService.setUpgradedToPremiumActionCardDismissed() }
         case let .toastShown(toast):
             state.toast = toast
         }

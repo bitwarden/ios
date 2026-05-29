@@ -14,6 +14,7 @@ class BillingCoordinator: NSObject, Coordinator, HasStackNavigator {
         & HasEnvironmentService
         & HasErrorReportBuilder
         & HasErrorReporter
+        & HasStateService
 
     // MARK: Properties
 
@@ -85,7 +86,10 @@ class BillingCoordinator: NSObject, Coordinator, HasStackNavigator {
                 self?.stackNavigator?.pop(animated: false)
                 self?.showPremiumPlan(subscription: nil)
             }
-        let processor = PremiumUpgradeCompleteProcessor(coordinator: asAnyCoordinator())
+        let processor = PremiumUpgradeCompleteProcessor(
+            coordinator: asAnyCoordinator(),
+            services: services,
+        )
         let view = PremiumUpgradeCompleteView(store: Store(processor: processor))
         stackNavigator?.present(view)
     }
