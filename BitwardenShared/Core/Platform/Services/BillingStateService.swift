@@ -22,7 +22,7 @@ protocol BillingStateService { // sourcery: AutoMockable
     ///
     /// - Returns: `true` if the card should be shown.
     ///
-    func isUpgradedToPremiumActionCardVisible() async -> Bool
+    func getUpgradedToPremiumActionCardVisible() async -> Bool
 }
 
 // MARK: - DefaultStateService
@@ -46,12 +46,4 @@ extension DefaultStateService: BillingStateService {
         return timeProvider.timeSince(creationDate) >= Constants.premiumUpgradeBannerAccountAge
     }
 
-    func isUpgradedToPremiumActionCardVisible() async -> Bool {
-        do {
-            return try await getUpgradedToPremiumActionCardVisible()
-        } catch {
-            errorReporter.log(error: error)
-            return false
-        }
-    }
 }

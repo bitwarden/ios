@@ -31,6 +31,7 @@ class MockStateService: StateService, ActiveAccountStateProvider, AutofillStateS
     var premiumUpgradeBannerDismissedByUserId = [String: Bool]()
     var premiumUpgradeBannerDismissedResult: Result<Void, Error> = .success(())
     var upgradedToPremiumActionCardVisibleResult: Bool = false
+    var setUpgradedToPremiumActionCardResult: Result<Void, Error> = .success(())
     var biometricsEnabled = [String: Bool]()
     var capturedUserId: String?
     var clearClipboardValues = [String: ClearClipboardValue]()
@@ -256,14 +257,6 @@ class MockStateService: StateService, ActiveAccountStateProvider, AutofillStateS
         return premiumUpgradeBannerDismissedByUserId[userId] ?? false
     }
 
-    func getUpgradedToPremiumActionCardVisible() async throws -> Bool {
-        upgradedToPremiumActionCardVisibleResult
-    }
-
-    func isUpgradedToPremiumActionCardVisible() async -> Bool {
-        upgradedToPremiumActionCardVisibleResult
-    }
-
     func getClearClipboardValue(userId: String?) async throws -> ClearClipboardValue {
         try clearClipboardResult.get()
         let userId = try unwrapUserId(userId)
@@ -430,6 +423,10 @@ class MockStateService: StateService, ActiveAccountStateProvider, AutofillStateS
         twoFactorTokens[email]
     }
 
+    func getUpgradedToPremiumActionCardVisible() async -> Bool {
+        upgradedToPremiumActionCardVisibleResult
+    }
+
     func getUserHasMasterPassword(userId: String?) async throws -> Bool {
         if let userHasMasterPasswordError { throw userHasMasterPasswordError }
         let userId = try unwrapUserId(userId)
@@ -590,6 +587,7 @@ class MockStateService: StateService, ActiveAccountStateProvider, AutofillStateS
     }
 
     func setUpgradedToPremiumActionCardVisible(_ visible: Bool) async throws {
+        try setUpgradedToPremiumActionCardResult.get()
         upgradedToPremiumActionCardVisibleResult = visible
     }
 

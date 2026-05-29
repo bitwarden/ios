@@ -305,7 +305,7 @@ protocol StateService: AnyObject, BillingStateService {
     ///
     /// - Returns: Whether the action card should be shown.
     ///
-    func getUpgradedToPremiumActionCardVisible() async throws -> Bool
+    func getUpgradedToPremiumActionCardVisible() async -> Bool
 
     /// Gets the environment URLs for a given email during account creation.
     ///
@@ -1655,9 +1655,14 @@ actor DefaultStateService: StateService, ActiveAccountStateProvider, ConfigState
         return appSettingsStore.premiumUpgradeBannerDismissed(userId: userId)
     }
 
-    func getUpgradedToPremiumActionCardVisible() async throws -> Bool {
-        let userId = try getActiveAccountUserId()
-        return appSettingsStore.upgradedToPremiumActionCardVisible(userId: userId)
+    func getUpgradedToPremiumActionCardVisible() async -> Bool {
+        do {
+            let userId = try getActiveAccountUserId()
+            return appSettingsStore.upgradedToPremiumActionCardVisible(userId: userId)
+        } catch {
+            errorReporter.log(error: error)
+            return false
+        }
     }
 
     func getClearClipboardValue(userId: String?) async throws -> ClearClipboardValue {

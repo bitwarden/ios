@@ -209,6 +209,6 @@ class DefaultBillingService: BillingService {
     }
 
     func shouldShowUpgradedToPremiumActionCard() async -> Bool {
-        await stateService.isUpgradedToPremiumActionCardVisible()
+        await stateService.getUpgradedToPremiumActionCardVisible()
     }
 }
