@@ -109,12 +109,8 @@ extension PolicyData {
         _ policies: [PolicyResponseModel],
         userId: String,
     ) -> NSBatchInsertRequest {
-        var index = 0
-        return NSBatchInsertRequest(entityName: policiesNewEntityName) { (object: NSManagedObject) -> Bool in
-            guard index < policies.count else { return true }
-            defer { index += 1 }
-            (object as? PolicyData)?.update(with: policies[index], userId: userId)
-            return false
+        batchInsertRequest(entityName: policiesNewEntityName, objects: policies) { policyData, policy in
+            policyData.update(with: policy, userId: userId)
         }
     }
 }
