@@ -29,7 +29,7 @@ struct CipherMiniResponseModel: JSONResponse, Equatable {
     let deletedDate: Date?
 
     /// Driver's license data if the cipher is a driver's license.
-    let driversLicense: CipherDriversLicenseModel? // TODO: PM-32807
+    let driversLicense: CipherDriversLicenseModel?
 
     /// The cipher's list of user-defined fields.
     let fields: [CipherFieldModel]?
@@ -59,7 +59,7 @@ struct CipherMiniResponseModel: JSONResponse, Equatable {
     let organizationUseTotp: Bool
 
     /// Passport data if the cipher is a passport.
-    let passport: CipherPassportModel? // TODO: PM-32805
+    let passport: CipherPassportModel?
 
     /// The password history for this cipher.
     let passwordHistory: [CipherPasswordHistoryModel]?

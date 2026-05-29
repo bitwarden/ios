@@ -13,14 +13,17 @@ enum SettingsAction: Equatable {
     /// The auto-fill button was pressed.
     case autoFillPressed
 
+    /// Clears the URL after it has been opened.
+    case clearUrl
+
     /// The close button was tapped.
     case dismiss
 
+    /// The "Learn more" button on the Upgraded to Premium action card was tapped.
+    case learnMoreAboutPremium
+
     /// The other button was pressed.
     case otherPressed
-
-    /// The plan button was pressed.
-    case planPressed
 
     /// The vault button was pressed.
     case vaultPressed

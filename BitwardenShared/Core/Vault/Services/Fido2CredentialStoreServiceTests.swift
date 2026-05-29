@@ -125,31 +125,30 @@ class Fido2CredentialStoreServiceTests: BitwardenTestCase { // swiftlint:disable
         syncService.needsSyncResult = .success(true)
 
         var callCount = 0
-        clientService.mockPlatform.fido2Mock.decryptFido2AutofillCredentialsMocker
-            .withResult { (cipherView: CipherView) -> [Fido2CredentialAutofillView] in
-                guard let cipherId = cipherView.id else {
-                    return []
-                }
-
-                let hasExpectedCredentialId = cipherId == expectedCipherId
-                callCount += 1
-                return [
-                    Fido2CredentialAutofillView.fixture(
-                        credentialId: hasExpectedCredentialId
-                            ? expectedCredentialId
-                            : Data(repeating: 123, count: 16),
-                        cipherId: cipherId,
-                        rpId: expectedRpId,
-                        hasCounter: true,
-                    ),
-                    Fido2CredentialAutofillView.fixture(
-                        credentialId: Data(repeating: 123, count: 16),
-                        cipherId: cipherId,
-                        rpId: "test",
-                        hasCounter: false,
-                    ),
-                ]
+        clientService.mockPlatform.fido2Mock.decryptFido2AutofillCredentialsClosure = { cipherView in
+            guard let cipherId = cipherView.id else {
+                return []
             }
+
+            let hasExpectedCredentialId = cipherId == expectedCipherId
+            callCount += 1
+            return [
+                Fido2CredentialAutofillView.fixture(
+                    credentialId: hasExpectedCredentialId
+                        ? expectedCredentialId
+                        : Data(repeating: 123, count: 16),
+                    cipherId: cipherId,
+                    rpId: expectedRpId,
+                    hasCounter: true,
+                ),
+                Fido2CredentialAutofillView.fixture(
+                    credentialId: Data(repeating: 123, count: 16),
+                    cipherId: cipherId,
+                    rpId: "test",
+                    hasCounter: false,
+                ),
+            ]
+        }
 
         let result = try await subject.findCredentials(ids: credentialIds, ripId: expectedRpId, userHandle: nil)
 
@@ -173,27 +172,26 @@ class Fido2CredentialStoreServiceTests: BitwardenTestCase { // swiftlint:disable
         stateService.activeAccount = .fixture(profile: .fixture(userId: "user123"))
         syncService.needsSyncResult = .success(true)
 
-        clientService.mockPlatform.fido2Mock.decryptFido2AutofillCredentialsMocker
-            .withResult { cipherView in
-                guard let cipherId = cipherView.id,
-                      expectedCipherIds.contains(cipherId) else {
-                    return []
-                }
-                return [
-                    .fixture(
-                        credentialId: Data(repeating: 1, count: 16),
-                        cipherId: cipherId,
-                        rpId: expectedRpId,
-                        hasCounter: false,
-                    ),
-                    .fixture(
-                        credentialId: Data(repeating: 123, count: 16),
-                        cipherId: cipherId,
-                        rpId: "test",
-                        hasCounter: false,
-                    ),
-                ]
+        clientService.mockPlatform.fido2Mock.decryptFido2AutofillCredentialsClosure = { cipherView in
+            guard let cipherId = cipherView.id,
+                  expectedCipherIds.contains(cipherId) else {
+                return []
             }
+            return [
+                .fixture(
+                    credentialId: Data(repeating: 1, count: 16),
+                    cipherId: cipherId,
+                    rpId: expectedRpId,
+                    hasCounter: false,
+                ),
+                .fixture(
+                    credentialId: Data(repeating: 123, count: 16),
+                    cipherId: cipherId,
+                    rpId: "test",
+                    hasCounter: false,
+                ),
+            ]
+        }
 
         let result = try await subject.findCredentials(ids: nil, ripId: expectedRpId, userHandle: nil)
 
@@ -223,23 +221,22 @@ class Fido2CredentialStoreServiceTests: BitwardenTestCase { // swiftlint:disable
         stateService.activeAccount = .fixture(profile: .fixture(userId: "user123"))
         syncService.needsSyncResult = .success(true)
 
-        clientService.mockPlatform.fido2Mock.decryptFido2AutofillCredentialsMocker
-            .withResult { cipherView in
-                guard let cipherId = cipherView.id else {
-                    return []
-                }
-                let hasExpectedCredentialId = cipherId == expectedCipherId
-                return [
-                    .fixture(
-                        credentialId: hasExpectedCredentialId
-                            ? Data(repeating: 1, count: 16)
-                            : Data(repeating: 123, count: 16),
-                        cipherId: cipherId,
-                        rpId: expectedRpId,
-                        hasCounter: false,
-                    ),
-                ]
+        clientService.mockPlatform.fido2Mock.decryptFido2AutofillCredentialsClosure = { cipherView in
+            guard let cipherId = cipherView.id else {
+                return []
             }
+            let hasExpectedCredentialId = cipherId == expectedCipherId
+            return [
+                .fixture(
+                    credentialId: hasExpectedCredentialId
+                        ? Data(repeating: 1, count: 16)
+                        : Data(repeating: 123, count: 16),
+                    cipherId: cipherId,
+                    rpId: expectedRpId,
+                    hasCounter: false,
+                ),
+            ]
+        }
 
         let result = try await subject.findCredentials(ids: nil, ripId: expectedRpId, userHandle: nil)
 
@@ -258,23 +255,22 @@ class Fido2CredentialStoreServiceTests: BitwardenTestCase { // swiftlint:disable
         stateService.activeAccount = .fixture(profile: .fixture(userId: "user123"))
         syncService.needsSyncResult = .success(false)
 
-        clientService.mockPlatform.fido2Mock.decryptFido2AutofillCredentialsMocker
-            .withResult { cipherView in
-                guard let cipherId = cipherView.id else {
-                    return []
-                }
-                let hasExpectedCredentialId = cipherId == expectedCipherId
-                return [
-                    .fixture(
-                        credentialId: hasExpectedCredentialId
-                            ? Data(repeating: 1, count: 16)
-                            : Data(repeating: 123, count: 16),
-                        cipherId: cipherId,
-                        rpId: expectedRpId,
-                        hasCounter: true,
-                    ),
-                ]
+        clientService.mockPlatform.fido2Mock.decryptFido2AutofillCredentialsClosure = { cipherView in
+            guard let cipherId = cipherView.id else {
+                return []
             }
+            let hasExpectedCredentialId = cipherId == expectedCipherId
+            return [
+                .fixture(
+                    credentialId: hasExpectedCredentialId
+                        ? Data(repeating: 1, count: 16)
+                        : Data(repeating: 123, count: 16),
+                    cipherId: cipherId,
+                    rpId: expectedRpId,
+                    hasCounter: true,
+                ),
+            ]
+        }
 
         let result = try await subject.findCredentials(ids: nil, ripId: expectedRpId, userHandle: nil)
 
@@ -293,23 +289,22 @@ class Fido2CredentialStoreServiceTests: BitwardenTestCase { // swiftlint:disable
         stateService.activeAccount = .fixture(profile: .fixture(userId: "user123"))
         syncService.needsSyncResult = .failure(BitwardenTestError.example)
 
-        clientService.mockPlatform.fido2Mock.decryptFido2AutofillCredentialsMocker
-            .withResult { cipherView in
-                guard let cipherId = cipherView.id else {
-                    return []
-                }
-                let hasExpectedCredentialId = cipherId == expectedCipherId
-                return [
-                    .fixture(
-                        credentialId: hasExpectedCredentialId
-                            ? Data(repeating: 1, count: 16)
-                            : Data(repeating: 123, count: 16),
-                        cipherId: cipherId,
-                        rpId: expectedRpId,
-                        hasCounter: true,
-                    ),
-                ]
+        clientService.mockPlatform.fido2Mock.decryptFido2AutofillCredentialsClosure = { cipherView in
+            guard let cipherId = cipherView.id else {
+                return []
             }
+            let hasExpectedCredentialId = cipherId == expectedCipherId
+            return [
+                .fixture(
+                    credentialId: hasExpectedCredentialId
+                        ? Data(repeating: 1, count: 16)
+                        : Data(repeating: 123, count: 16),
+                    cipherId: cipherId,
+                    rpId: expectedRpId,
+                    hasCounter: true,
+                ),
+            ]
+        }
 
         let result = try await subject.findCredentials(ids: nil, ripId: expectedRpId, userHandle: nil)
 
@@ -328,20 +323,19 @@ class Fido2CredentialStoreServiceTests: BitwardenTestCase { // swiftlint:disable
         let expectedRpId = Fido2CredentialAutofillView.defaultRpId
         setupFindCredentials(cipherIdWithFullFido2Credential: "4", expectedRpId: expectedRpId)
 
-        clientService.mockPlatform.fido2Mock.decryptFido2AutofillCredentialsMocker
-            .withResult { cipherView in
-                guard let cipherId = cipherView.id else {
-                    return []
-                }
-                return [
-                    .fixture(
-                        credentialId: Data(repeating: 1, count: 16),
-                        cipherId: cipherId,
-                        rpId: expectedRpId,
-                        hasCounter: true,
-                    ),
-                ]
+        clientService.mockPlatform.fido2Mock.decryptFido2AutofillCredentialsClosure = { cipherView in
+            guard let cipherId = cipherView.id else {
+                return []
             }
+            return [
+                .fixture(
+                    credentialId: Data(repeating: 1, count: 16),
+                    cipherId: cipherId,
+                    rpId: expectedRpId,
+                    hasCounter: true,
+                ),
+            ]
+        }
 
         _ = try await subject.findCredentials(ids: nil, ripId: expectedRpId, userHandle: nil)
 
@@ -393,8 +387,7 @@ class Fido2CredentialStoreServiceTests: BitwardenTestCase { // swiftlint:disable
                 type: .login,
             ),
         ])
-        clientService.mockPlatform.fido2Mock.decryptFido2AutofillCredentialsMocker
-            .throwing(BitwardenTestError.example)
+        clientService.mockPlatform.fido2Mock.decryptFido2AutofillCredentialsThrowableError = BitwardenTestError.example
 
         await assertAsyncThrows(error: BitwardenTestError.example) {
             _ = try await subject.findCredentials(ids: nil, ripId: "something", userHandle: nil)

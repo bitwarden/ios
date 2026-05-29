@@ -1,19 +1,26 @@
 import BitwardenKit
 import BitwardenResources
+import Foundation
 
 // MARK: - PremiumPlanStatus
 
 /// The status of the user's premium plan.
 ///
-enum PremiumPlanStatus: Equatable {
+public enum PremiumPlanStatus: Equatable, Hashable {
     /// The plan is active.
     case active
 
     /// The plan has been canceled.
     case canceled
 
+    /// The plan has expired due to an incomplete payment.
+    case expired
+
     /// The plan is past due.
     case pastDue
+
+    /// The plan is active but scheduled to cancel at a future date.
+    case pendingCancellation
 
     /// The plan has an unknown status not yet supported by the app.
     case unknown
@@ -28,12 +35,24 @@ enum PremiumPlanStatus: Equatable {
         switch self {
         case .active:
             .success
-        case .canceled:
+        case .canceled,
+             .expired:
             .danger
         case .pastDue,
+             .pendingCancellation,
              .unknown,
              .updatePayment:
             .warning
+        }
+    }
+
+    /// Whether the status represents a subscription in a troubled state (e.g. canceled, past due).
+    var isTroubleState: Bool {
+        switch self {
+        case .canceled, .expired, .pastDue, .pendingCancellation, .updatePayment:
+            true
+        case .active, .unknown:
+            false
         }
     }
 
@@ -44,8 +63,12 @@ enum PremiumPlanStatus: Equatable {
             Localizations.active
         case .canceled:
             Localizations.canceled
+        case .expired:
+            Localizations.expired
         case .pastDue:
             Localizations.pastDue
+        case .pendingCancellation:
+            Localizations.pendingCancellation
         case .unknown:
             Localizations.unknownStatus
         case .updatePayment:
@@ -55,19 +78,22 @@ enum PremiumPlanStatus: Equatable {
 
     // MARK: Initialization
 
-    /// Initializes a `PremiumPlanStatus` from a `SubscriptionStatus`.
+    /// Initializes a `PremiumPlanStatus` from a `SubscriptionStatus` and optional cancellation date.
     ///
-    /// - Parameter subscriptionStatus: The subscription status from the API.
+    /// - Parameters:
+    ///   - subscriptionStatus: The subscription status from the API.
+    ///   - cancelAt: The scheduled cancellation date, if any.
     ///
-    init(subscriptionStatus: SubscriptionStatus) {
+    init(subscriptionStatus: SubscriptionStatus, cancelAt: Date? = nil) {
         switch subscriptionStatus {
         case .active,
              .trialing:
-            self = .active
+            self = cancelAt != nil ? .pendingCancellation : .active
         case .canceled,
-             .incompleteExpired,
              .paused:
             self = .canceled
+        case .incompleteExpired:
+            self = .expired
         case .incomplete,
              .unpaid:
             self = .updatePayment
