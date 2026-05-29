@@ -289,6 +289,7 @@ struct BillingServiceTests { // swiftlint:disable:this type_body_length
         var statuses = [PremiumCheckoutStatus]()
         let cancellable = subject.premiumCheckoutStatusPublisher()
             .sink { statuses.append($0) }
+        defer { cancellable.cancel() }
 
         subject.premiumCheckoutCanceled()
 
@@ -299,6 +300,7 @@ struct BillingServiceTests { // swiftlint:disable:this type_body_length
         var lateStatuses = [PremiumCheckoutStatus]()
         let lateCancellable = subject.premiumCheckoutStatusPublisher()
             .sink { lateStatuses.append($0) }
+        defer { lateCancellable.cancel() }
         try await waitForAsync { lateStatuses.isEmpty }
     }
 
@@ -332,6 +334,7 @@ struct BillingServiceTests { // swiftlint:disable:this type_body_length
         var statuses = [PremiumCheckoutStatus]()
         let cancellable = subject.premiumCheckoutStatusPublisher()
             .sink { statuses.append($0) }
+        defer { cancellable.cancel() }
 
         await subject.premiumStatusChanged()
 
@@ -350,6 +353,7 @@ struct BillingServiceTests { // swiftlint:disable:this type_body_length
         var statuses = [PremiumCheckoutStatus]()
         let cancellable = subject.premiumCheckoutStatusPublisher()
             .sink { statuses.append($0) }
+        defer { cancellable.cancel() }
 
         await subject.premiumStatusChanged()
 
@@ -371,6 +375,7 @@ struct BillingServiceTests { // swiftlint:disable:this type_body_length
         var earlyStatuses = [PremiumCheckoutStatus]()
         let earlyCancellable = subject.premiumCheckoutStatusPublisher()
             .sink { earlyStatuses.append($0) }
+        defer { earlyCancellable.cancel() }
 
         await subject.premiumStatusChanged()
         try await waitForAsync { !earlyStatuses.isEmpty }
@@ -379,6 +384,7 @@ struct BillingServiceTests { // swiftlint:disable:this type_body_length
         var lateStatuses = [PremiumCheckoutStatus]()
         let lateCancellable = subject.premiumCheckoutStatusPublisher()
             .sink { lateStatuses.append($0) }
+        defer { lateCancellable.cancel() }
 
         try await waitForAsync { lateStatuses.isEmpty }
     }
@@ -391,6 +397,7 @@ struct BillingServiceTests { // swiftlint:disable:this type_body_length
         var statuses = [PremiumCheckoutStatus]()
         let cancellable = subject.premiumCheckoutStatusPublisher()
             .sink { statuses.append($0) }
+        defer { cancellable.cancel() }
 
         await subject.premiumStatusChanged()
 
@@ -405,6 +412,7 @@ struct BillingServiceTests { // swiftlint:disable:this type_body_length
         var statuses = [PremiumCheckoutStatus]()
         let cancellable = subject.premiumCheckoutStatusPublisher()
             .sink { statuses.append($0) }
+        defer { cancellable.cancel() }
 
         await subject.premiumStatusChanged()
 
@@ -453,6 +461,7 @@ struct BillingServiceTests { // swiftlint:disable:this type_body_length
         var statuses = [PremiumCheckoutStatus]()
         let cancellable = subject.premiumCheckoutStatusPublisher()
             .sink { statuses.append($0) }
+        defer { cancellable.cancel() }
 
         await subject.premiumStatusChanged()
 
@@ -469,6 +478,7 @@ struct BillingServiceTests { // swiftlint:disable:this type_body_length
         var statuses = [PremiumCheckoutStatus]()
         let cancellable = subject.premiumCheckoutStatusPublisher()
             .sink { statuses.append($0) }
+        defer { cancellable.cancel() }
 
         await subject.premiumStatusChanged()
 
@@ -484,6 +494,7 @@ struct BillingServiceTests { // swiftlint:disable:this type_body_length
         var statuses = [PremiumCheckoutStatus]()
         let cancellable = subject.premiumCheckoutStatusPublisher()
             .sink { statuses.append($0) }
+        defer { cancellable.cancel() }
 
         await subject.premiumStatusChanged()
 

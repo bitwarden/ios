@@ -21,4 +21,26 @@ public extension String {
 
         return self
     }
+
+    /// Returns a copy of the string with common markdown formatting removed, suitable for VoiceOver labels.
+    ///
+    /// Strips bold (`**text**`, `__text__`), italic (`*text*`, `_text_`), strikethrough (`~~text~~`),
+    /// and inline links (`[text](url)` → `text`). Bold patterns are applied before italic to avoid
+    /// partial matches on double markers.
+    ///
+    func removingMarkdownForVoiceOver() -> String {
+        var text = self
+        let patterns = [
+            "\\*\\*(.*?)\\*\\*",
+            "__(.*?)__",
+            "\\*(.*?)\\*",
+            "_(.*?)_",
+            "~~(.*?)~~",
+            "\\[(.*?)\\]\\(.*?\\)",
+        ]
+        for pattern in patterns {
+            text = text.replacingOccurrences(of: pattern, with: "$1", options: .regularExpression)
+        }
+        return text
+    }
 }

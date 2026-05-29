@@ -61,6 +61,10 @@ extension DefaultEnvironmentService {
         environmentURLs.importItemsURL
     }
 
+    var manageSubscriptionURL: URL {
+        environmentURLs.manageSubscriptionURL
+    }
+
     var proxyCookieRedirectConnectorURL: URL {
         environmentURLs.proxyCookieRedirectConnectorURL
     }

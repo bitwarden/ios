@@ -6,10 +6,10 @@ import BitwardenSdkMocks
 @testable import BitwardenShared
 
 class MockClientService: ClientService {
-    var mockAuth: MockAuthClient
+    var mockAuth: MockAuthClientService
     var mockAuthIsPreAuth = false
     var mockAuthUserId: String?
-    var mockCrypto: MockCryptoClient
+    var mockCrypto: MockCryptoClientProtocol
     var mockExporters: MockExporterClientProtocol
     var mockGenerators: MockGeneratorClientsProtocol
     var mockGeneratorsIsPreAuth = false
@@ -23,8 +23,8 @@ class MockClientService: ClientService {
     var userClientArray = [String: BitwardenSdkClient]()
 
     init(
-        auth: MockAuthClient = MockAuthClient(),
-        crypto: MockCryptoClient = MockCryptoClient(),
+        auth: MockAuthClientService = MockAuthClientService(),
+        crypto: MockCryptoClientProtocol = MockCryptoClientProtocol(),
         exporters: MockExporterClientProtocol = MockExporterClientProtocol(),
         generators: MockGeneratorClientsProtocol = MockGeneratorClientsProtocol(),
         platform: MockPlatformClientService = MockPlatformClientService(),

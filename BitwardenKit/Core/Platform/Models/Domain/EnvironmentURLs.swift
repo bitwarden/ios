@@ -26,6 +26,9 @@ public struct EnvironmentURLs: Equatable {
     /// The URL for importing items.
     public let importItemsURL: URL
 
+    /// The URL for managing the subscription plan.
+    public let manageSubscriptionURL: URL
+
     /// The URL for a proxy on cookie redirect (used on SSO sync error).
     public let proxyCookieRedirectConnectorURL: URL
 
@@ -57,6 +60,7 @@ public struct EnvironmentURLs: Equatable {
     ///   - iconsURL: The URL for the icons API.
     ///   - identityURL: The URL for the identity API.
     ///   - importItemsURL: The URL for importing items.
+    ///   - manageSubscriptionURL: The URL for managing the subscription plan.
     ///   - proxyCookieRedirectConnectorURL: The URL for a proxy on cookie redirect (used on SSO sync error).
     ///   - recoveryCodeURL: The URL for the recovery code help page.
     ///   - sendShareURL: The URL for sharing a send.
@@ -72,6 +76,7 @@ public struct EnvironmentURLs: Equatable {
         iconsURL: URL,
         identityURL: URL,
         importItemsURL: URL,
+        manageSubscriptionURL: URL,
         proxyCookieRedirectConnectorURL: URL,
         recoveryCodeURL: URL,
         sendShareURL: URL,
@@ -87,6 +92,7 @@ public struct EnvironmentURLs: Equatable {
         self.iconsURL = iconsURL
         self.identityURL = identityURL
         self.importItemsURL = importItemsURL
+        self.manageSubscriptionURL = manageSubscriptionURL
         self.proxyCookieRedirectConnectorURL = proxyCookieRedirectConnectorURL
         self.recoveryCodeURL = recoveryCodeURL
         self.sendShareURL = sendShareURL
@@ -132,6 +138,7 @@ public extension EnvironmentURLs {
         sendShareURL = environmentURLData.sendShareURL ?? URL(string: "https://send.bitwarden.com/#")!
         settingsURL = environmentURLData.settingsURL ?? webVaultURL
         changeEmailURL = environmentURLData.changeEmailURL ?? settingsURL
+        manageSubscriptionURL = environmentURLData.manageSubscriptionURL ?? settingsURL
         proxyCookieRedirectConnectorURL = environmentURLData.proxyCookieRedirectConnectorURL ?? webVaultURL
         setUpTwoFactorURL = environmentURLData.setUpTwoFactorURL ?? settingsURL
         upgradeToPremiumURL = environmentURLData.upgradeToPremiumURL ?? settingsURL

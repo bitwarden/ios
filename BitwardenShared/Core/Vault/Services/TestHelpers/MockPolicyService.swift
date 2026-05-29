@@ -23,12 +23,12 @@ class MockPolicyService: PolicyService {
 
     var fetchTimeoutPolicyValuesResult: Result<SessionTimeoutPolicy?, Error> = .success(nil)
 
-    var getEarliestOrganizationApplyingPolicyResult: [PolicyType: String?] = [:] // swiftlint:disable:this identifier_name line_length
+    var getEarliestOrganizationApplyingPolicyResult: [BitwardenShared.PolicyType: String?] = [:] // swiftlint:disable:this identifier_name line_length
 
-    var organizationsApplyingPolicyToUserResult: [PolicyType: [String]] = [:]
+    var organizationsApplyingPolicyToUserResult: [BitwardenShared.PolicyType: [String]] = [:]
 
-    var policyAppliesToUserResult = [PolicyType: Bool]()
-    var policyAppliesToUserPoliciesType = [PolicyType]()
+    var policyAppliesToUserResult = [BitwardenShared.PolicyType: Bool]()
+    var policyAppliesToUserPoliciesType = [BitwardenShared.PolicyType]()
     var policyAppliesToUserPolicies = [Policy]()
     var getRestrictedItemCipherTypesResult: [BitwardenShared.CipherType] = []
 
@@ -62,7 +62,7 @@ class MockPolicyService: PolicyService {
         try fetchTimeoutPolicyValuesResult.get()
     }
 
-    func getEarliestOrganizationApplyingPolicy(_ policyType: PolicyType) async -> String? {
+    func getEarliestOrganizationApplyingPolicy(_ policyType: BitwardenShared.PolicyType) async -> String? {
         getEarliestOrganizationApplyingPolicyResult[policyType] ?? nil
     }
 
@@ -70,7 +70,7 @@ class MockPolicyService: PolicyService {
         organizationsApplyingPolicyToUserResult[policyType] ?? []
     }
 
-    func policyAppliesToUser(_ policyType: PolicyType) async -> Bool {
+    func policyAppliesToUser(_ policyType: BitwardenShared.PolicyType) async -> Bool {
         policyAppliesToUserPoliciesType.append(policyType)
         return policyAppliesToUserResult[policyType] ?? false
     }

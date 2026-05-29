@@ -6,23 +6,31 @@ import BitwardenSdk
 public final class StubServerCommunicationConfigClientProtocol: ServerCommunicationConfigClientProtocol {
     public init() {}
 
-    public func acquireCookie(hostname: String) async throws {
+    public func acquireCookie(domain: String) async throws {
         // no-op
     }
 
-    public func cookies(hostname: String) async -> [BitwardenSdk.AcquiredCookie] {
+    public func cookies(domain: String) async -> [BitwardenSdk.AcquiredCookie] {
         []
     }
 
-    public func getConfig(hostname: String) async throws -> BitwardenSdk.ServerCommunicationConfig {
+    public func getConfig(domain: String) async throws -> BitwardenSdk.ServerCommunicationConfig {
         ServerCommunicationConfig(bootstrap: .direct)
     }
 
-    public func needsBootstrap(hostname: String) async -> Bool {
+    public func getCookies(domain: String) async throws -> [BitwardenSdk.AcquiredCookie] {
+        []
+    }
+
+    public func needsBootstrap(domain: String) async -> Bool {
         false
     }
 
-    public func setCommunicationType(hostname: String, request: BitwardenSdk.SetCommunicationTypeRequest) async throws {
+    public func setCommunicationType(domain: String, request: BitwardenSdk.SetCommunicationTypeRequest) async throws {
+        // no-op
+    }
+
+    public func setCommunicationTypeV2(request: BitwardenSdk.SetCommunicationTypeRequest) async throws {
         // no-op
     }
 }
