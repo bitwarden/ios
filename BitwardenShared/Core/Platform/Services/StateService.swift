@@ -1394,8 +1394,8 @@ enum StateServiceError: LocalizedError {
     /// There isn't an active account.
     case noActiveAccount
 
-    /// The user has no private key.
-    case noEncryptedPrivateKey
+    /// The user has no stored account cryptographic state.
+    case noAccountCryptographicState
 
     /// The user has no pin protected user key.
     case noPinProtectedUserKey
@@ -1583,12 +1583,11 @@ actor DefaultStateService: StateService, ActiveAccountStateProvider, ConfigState
 
     func getAccountEncryptionKeys(userId: String?) async throws -> AccountEncryptionKeys {
         let userId = try userId ?? getActiveAccountUserId()
-        guard let encryptedPrivateKey = appSettingsStore.encryptedPrivateKey(userId: userId) else {
-            throw StateServiceError.noEncryptedPrivateKey
+        guard let cryptographicState = appSettingsStore.accountCryptographicState(userId: userId) else {
+            throw StateServiceError.noAccountCryptographicState
         }
         return AccountEncryptionKeys(
-            accountKeys: appSettingsStore.accountKeys(userId: userId),
-            encryptedPrivateKey: encryptedPrivateKey,
+            cryptographicState: cryptographicState,
             encryptedUserKey: appSettingsStore.encryptedUserKey(userId: userId),
         )
     }
@@ -1874,10 +1873,9 @@ actor DefaultStateService: StateService, ActiveAccountStateProvider, ConfigState
         }
 
         appSettingsStore.setAccessTokenExpirationDate(nil, userId: knownUserId)
-        appSettingsStore.setAccountKeys(nil, userId: knownUserId)
+        appSettingsStore.setAccountCryptographicState(nil, userId: knownUserId)
         appSettingsStore.setDefaultUriMatchType(nil, userId: knownUserId)
         appSettingsStore.setDisableAutoTotpCopy(nil, userId: knownUserId)
-        appSettingsStore.setEncryptedPrivateKey(key: nil, userId: knownUserId)
         appSettingsStore.setEncryptedUserKey(key: nil, userId: knownUserId)
         appSettingsStore.setHasPerformedSyncAfterLogin(nil, userId: knownUserId)
         appSettingsStore.setLastSyncTime(nil, userId: knownUserId)
@@ -1921,8 +1919,7 @@ actor DefaultStateService: StateService, ActiveAccountStateProvider, ConfigState
 
     func setAccountEncryptionKeys(_ encryptionKeys: AccountEncryptionKeys, userId: String?) async throws {
         let userId = try userId ?? getActiveAccountUserId()
-        appSettingsStore.setAccountKeys(encryptionKeys.accountKeys, userId: userId)
-        appSettingsStore.setEncryptedPrivateKey(key: encryptionKeys.encryptedPrivateKey, userId: userId)
+        appSettingsStore.setAccountCryptographicState(encryptionKeys.cryptographicState, userId: userId)
         appSettingsStore.setEncryptedUserKey(key: encryptionKeys.encryptedUserKey, userId: userId)
     }
 

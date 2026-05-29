@@ -217,3 +217,19 @@ extension BitwardenSdk.Fido2CredentialNewView {
         )
     }
 }
+
+extension WrappedAccountCryptographicState {
+    static func fixtureV2(
+        privateKey: String = "WRAPPED_PRIVATE_KEY",
+        signedPublicKey: String = "SIGNED_PUBLIC_KEY",
+        signingKey: String = "WRAPPED_SIGNING_KEY",
+        securityState: String = "SECURITY_STATE",
+    ) -> WrappedAccountCryptographicState {
+        .v2(
+            privateKey: privateKey,
+            signedPublicKey: signedPublicKey,
+            signingKey: signingKey,
+            securityState: securityState,
+        )
+    }
+}

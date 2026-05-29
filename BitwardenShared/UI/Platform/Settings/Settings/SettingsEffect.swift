@@ -6,4 +6,7 @@ enum SettingsEffect: Equatable {
 
     /// The user tapped the dismiss button on the Upgraded to Premium action card.
     case dismissUpgradedToPremiumActionCard
+
+    /// The plan row was tapped.
+    case planPressed
 }

@@ -147,7 +147,7 @@ struct SettingsView: View {
             Localizations.plan,
             icon: SharedAsset.Icons.card24,
         ) {
-            store.send(.planPressed)
+            Task { await store.perform(.planPressed) }
         } trailingContent: {
             chevron
         }

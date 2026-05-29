@@ -300,6 +300,12 @@ struct ViewItemDetailsView: View { // swiftlint:disable:this type_body_length
     @ViewBuilder private var itemInformationSection: some View {
         // check for type
         switch store.state.type {
+        case .bankAccount:
+            // TODO: PM-32809 - render ViewBankAccountItemView once the Bank Account view UI lands.
+            EmptyView()
+        case .driversLicense:
+            // TODO: PM-38150 - render ViewDriversLicenseItemView once the Driver's License view UI lands.
+            EmptyView()
         case .card:
             ViewCardItemView(
                 store: store.child(
