@@ -18,6 +18,7 @@ class SendListProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
     var errorReporter: MockErrorReporter!
     var pasteboardService: MockPasteboardService!
     var policyService: MockPolicyService!
+    var premiumUpgradeHelper: MockPremiumUpgradeHelper!
     var sendRepository: MockSendRepository!
     var subject: SendListProcessor!
     var vaultRepository: MockVaultRepository!
@@ -29,6 +30,7 @@ class SendListProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         errorReporter = MockErrorReporter()
         pasteboardService = MockPasteboardService()
         policyService = MockPolicyService()
+        premiumUpgradeHelper = MockPremiumUpgradeHelper()
         sendRepository = MockSendRepository()
         vaultRepository = MockVaultRepository()
 
@@ -43,6 +45,7 @@ class SendListProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
             ),
             state: SendListState(),
         )
+        subject.premiumUpgradeHelper = premiumUpgradeHelper
     }
 
     override func tearDown() {
@@ -51,6 +54,7 @@ class SendListProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         coordinator = nil
         errorReporter = nil
         policyService = nil
+        premiumUpgradeHelper = nil
         sendRepository = nil
         subject = nil
         vaultRepository = nil
@@ -67,19 +71,29 @@ class SendListProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         XCTAssertEqual(coordinator.routes.last, .addItem(type: .file))
     }
 
-    /// `perform(_:)` with `.addItemPressed` shows an alert if attempting to add a file send and
-    /// the user doesn't have premium.
+    /// `perform(_:)` with `.addItemPressed` shows a premium required alert with an upgrade action
+    /// if attempting to add a file send and the user doesn't have premium.
     @MainActor
     func test_perform_addItemPressed_fileType_withoutPremium() async throws {
         sendRepository.doesActivateAccountHavePremiumResult = false
         subject.state.type = .file
         await subject.perform(.addItemPressed(.file))
 
-        XCTAssertEqual(
-            coordinator.alertShown,
-            [.defaultAlert(title: Localizations.sendFilePremiumRequired)],
-        )
+        XCTAssertEqual(coordinator.alertShown, [.fileSendPremiumRequired {}])
         XCTAssertTrue(coordinator.routes.isEmpty)
+    }
+
+    /// `perform(_:)` with `.addItemPressed` tapping "Upgrade to Premium" in the premium required
+    /// alert triggers the premium upgrade flow.
+    @MainActor
+    func test_perform_addItemPressed_fileType_withoutPremium_upgradeAction() async throws {
+        sendRepository.doesActivateAccountHavePremiumResult = false
+        await subject.perform(.addItemPressed(.file))
+
+        try await coordinator.alertShown.last?.tapAction(title: Localizations.upgradeToPremium)
+
+        try await waitForAsync { self.premiumUpgradeHelper.navigateToPremiumUpgradeCalled }
+        XCTAssertTrue(premiumUpgradeHelper.navigateToPremiumUpgradeCalled)
     }
 
     /// `perform(_:)` with `.addItemPressed` navigates to the `.addItem` route.

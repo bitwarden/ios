@@ -26,7 +26,7 @@ final class SendListProcessor: StateProcessor<SendListState, SendListAction, Sen
     private let coordinator: AnyCoordinator<SendRoute, Void>
 
     /// The helper used to navigate to the premium upgrade flow.
-    private lazy var premiumUpgradeHelper: PremiumUpgradeHelper = DefaultPremiumUpgradeHelper(
+    lazy var premiumUpgradeHelper: PremiumUpgradeHelper = DefaultPremiumUpgradeHelper(
         services: services,
         coordinator: coordinator,
         setURL: { [weak self] url in self?.state.infoUrl = url },
