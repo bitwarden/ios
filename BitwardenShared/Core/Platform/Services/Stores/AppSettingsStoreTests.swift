@@ -1017,6 +1017,22 @@ class AppSettingsStoreTests: BitwardenTestCase { // swiftlint:disable:this type_
         XCTAssertFalse(userDefaults.bool(forKey: "bwPreferencesStorage:premiumUpgradeBannerDismissed_1"))
     }
 
+    /// `upgradedToPremiumActionCardVisible(userId:)` returns `false` if there isn't a previously stored value.
+    func test_upgradedToPremiumActionCardVisible_isInitiallyFalse() {
+        XCTAssertFalse(subject.upgradedToPremiumActionCardVisible(userId: "1"))
+    }
+
+    /// `upgradedToPremiumActionCardVisible(userId:)` can be used to get and set the persisted value in user defaults.
+    func test_upgradedToPremiumActionCardVisible_withValue() {
+        subject.setUpgradedToPremiumActionCardVisible(true, userId: "1")
+        XCTAssertTrue(subject.upgradedToPremiumActionCardVisible(userId: "1"))
+        XCTAssertTrue(userDefaults.bool(forKey: "bwPreferencesStorage:upgradedToPremiumActionCardVisible_1"))
+
+        subject.setUpgradedToPremiumActionCardVisible(false, userId: "1")
+        XCTAssertFalse(subject.upgradedToPremiumActionCardVisible(userId: "1"))
+        XCTAssertFalse(userDefaults.bool(forKey: "bwPreferencesStorage:upgradedToPremiumActionCardVisible_1"))
+    }
+
     /// `serverConfig(:)` is initially `nil`
     func test_serverConfig_isInitiallyNil() {
         XCTAssertNil(subject.serverConfig(userId: "1"))

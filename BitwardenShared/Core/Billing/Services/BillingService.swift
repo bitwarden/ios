@@ -54,6 +54,16 @@ protocol BillingService: AnyObject { // sourcery: AutoMockable
     /// triggers a sync, and publishes status updates.
     ///
     func premiumStatusChanged() async
+
+    /// Sets the "Upgraded to Premium" action card as dismissed and clears its visibility flag.
+    ///
+    func setUpgradedToPremiumActionCardDismissed() async
+
+    /// Gets whether the "Upgraded to Premium" action card should be shown for the active account.
+    ///
+    /// - Returns: Whether the action card should be shown.
+    ///
+    func shouldShowUpgradedToPremiumActionCard() async -> Bool
 }
 
 // MARK: - DefaultBillingService
@@ -187,6 +197,23 @@ class DefaultBillingService: BillingService {
         premiumCheckoutStatusSubject.send(hasPremium ? .confirmed : .pending)
         if hasPremium {
             premiumCheckoutStatusSubject.send(nil)
+            do {
+                try await stateService.setUpgradedToPremiumActionCardVisible(true)
+            } catch {
+                errorReporter.log(error: error)
+            }
         }
+    }
+
+    func setUpgradedToPremiumActionCardDismissed() async {
+        do {
+            try await stateService.setUpgradedToPremiumActionCardVisible(false)
+        } catch {
+            errorReporter.log(error: error)
+        }
+    }
+
+    func shouldShowUpgradedToPremiumActionCard() async -> Bool {
+        await stateService.getUpgradedToPremiumActionCardVisible()
     }
 }
