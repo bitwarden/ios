@@ -4,7 +4,7 @@ import Foundation
 
 /// A domain model representing the user's premium subscription details.
 ///
-struct PremiumSubscription: Equatable {
+public struct PremiumSubscription: Equatable, Hashable {
     // MARK: Properties
 
     /// The billing cadence (e.g. annually, monthly).

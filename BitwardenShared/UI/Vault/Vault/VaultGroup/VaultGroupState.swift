@@ -25,17 +25,17 @@ struct VaultGroupState: Equatable, Sendable {
     var addItemButtonTitle: String {
         switch group {
         case .card:
-            Localizations.newCard
+            Localizations.addCard
         case .collection, .folder:
-            Localizations.newItem
+            Localizations.addItem
         case .identity:
-            Localizations.newIdentity
+            Localizations.addIdentity
         case .login:
-            Localizations.newLogin
+            Localizations.addLogin
         case .secureNote:
-            Localizations.newNote
+            Localizations.addNote
         default:
-            Localizations.newItem
+            Localizations.addItem
         }
     }
 
