@@ -70,6 +70,8 @@ class AutofillCredentialServiceAppExtensionTests: BitwardenTestCase { // swiftli
         totpService = MockTOTPService()
         vaultTimeoutService = MockVaultTimeoutService()
 
+        clientService.mockPlatform.fido2Mock.vaultAuthenticatorReturnValue = MockClientFido2Authenticator()
+
         subject = DefaultAutofillCredentialService(
             appContextHelper: appContextHelper,
             cipherService: cipherService,

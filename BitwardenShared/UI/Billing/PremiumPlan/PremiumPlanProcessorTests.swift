@@ -78,6 +78,27 @@ struct PremiumPlanProcessorTests {
         #expect(coordinator.routes.last == .dismiss)
     }
 
+    /// `perform(_:)` with `.appeared` skips `getSubscription()` when a subscription is pre-loaded in state.
+    @Test
+    func perform_appeared_skipsGetSubscription_whenPreloaded() async {
+        billingService.getPremiumPlanReturnValue = PremiumPlanResponseModel(
+            available: true,
+            legacyYear: nil,
+            name: "Premium",
+            seat: PlanPricingResponseModel(price: 12, provided: 1, stripePriceId: "seat"),
+            storage: PlanPricingResponseModel(price: 4.80, provided: 1, stripePriceId: "storage"),
+        )
+        let preloaded = PremiumSubscription.fixture(status: .canceled)
+        subject.state = PremiumPlanState(subscription: preloaded)
+
+        await subject.perform(.appeared)
+
+        #expect(billingService.getPremiumPlanCallsCount == 1)
+        #expect(billingService.getSubscriptionCallsCount == 0)
+        #expect(subject.state.planStatus == .canceled)
+        #expect(subject.state.subscription == preloaded)
+    }
+
     /// `perform(_:)` with `.appeared` loads the subscription and updates state.
     @Test
     func perform_appeared_success() async {
@@ -103,7 +124,7 @@ struct PremiumPlanProcessorTests {
         #expect(subject.state.nextChargeAmount.contains("USD"))
         #expect(subject.state.nextChargeAmount.contains("24.35"))
         #expect(!subject.state.nextChargeDate.isEmpty)
-        #expect(!subject.state.showStorageCost)
+        #expect(subject.state.storageCostLabel.contains("$0.00"))
     }
 
     /// `receive(_:)` with `.cancelPremiumTapped` shows the confirmation alert.
@@ -112,10 +133,10 @@ struct PremiumPlanProcessorTests {
         subject.receive(.cancelPremiumTapped)
 
         #expect(coordinator.alertShown.count == 1)
-        #expect(coordinator.alertShown.first?.title == Localizations.cancelPremium)
+        #expect(coordinator.alertShown.first?.title == Localizations.continueToStripe)
         #expect(coordinator.alertShown.first?.alertActions.count == 2)
-        #expect(coordinator.alertShown.first?.alertActions.first?.title == Localizations.cancelNow)
-        #expect(coordinator.alertShown.first?.alertActions.last?.title == Localizations.close)
+        #expect(coordinator.alertShown.first?.alertActions.first?.title == Localizations.cancel)
+        #expect(coordinator.alertShown.first?.alertActions.last?.title == Localizations.continue)
     }
 
     /// `receive(_:)` with `.cancelPremiumTapped`, after confirming, fetches portal URL and sets state.
@@ -125,8 +146,7 @@ struct PremiumPlanProcessorTests {
         billingService.getPortalUrlReturnValue = portalURL
         subject.receive(.cancelPremiumTapped)
 
-        let confirmAction = try #require(coordinator.alertShown.first?.alertActions.first)
-        await confirmAction.handler?(confirmAction, [])
+        try await coordinator.alertShown.first?.tapAction(title: Localizations.continue)
 
         #expect(billingService.getPortalUrlCallsCount == 1)
         #expect(subject.state.urlToOpen == portalURL)
@@ -138,8 +158,7 @@ struct PremiumPlanProcessorTests {
         billingService.getPortalUrlThrowableError = BitwardenTestError.example
         subject.receive(.cancelPremiumTapped)
 
-        let confirmAction = try #require(coordinator.alertShown.first?.alertActions.first)
-        await confirmAction.handler?(confirmAction, [])
+        try await coordinator.alertShown.first?.tapAction(title: Localizations.continue)
 
         #expect(errorReporter.errors.first as? BitwardenTestError == .example)
         #expect(coordinator.errorAlertsShown.count == 1)

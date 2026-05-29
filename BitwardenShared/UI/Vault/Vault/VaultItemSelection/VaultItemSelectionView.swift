@@ -160,7 +160,7 @@ private struct VaultItemSelectionSearchableView: View {
                     store.send(.addTapped)
                 } label: {
                     Label {
-                        Text(Localizations.newItem)
+                        Text(Localizations.addItem)
                     } icon: {
                         SharedAsset.Icons.plus16.swiftUIImage
                             .imageStyle(.accessoryIcon16(
