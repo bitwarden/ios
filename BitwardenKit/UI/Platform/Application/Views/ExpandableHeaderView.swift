@@ -65,11 +65,11 @@ public struct ExpandableHeaderView<Content: View>: View {
 
     // MARK: Initialization
 
-    /// Initialize an `ExpandableContent`.
+    /// Initialize an `ExpandableHeaderView`.
     ///
     /// - Parameters:
     ///   - title: The title of the button used to expand or collapse the content.
-    ///   - isExpanded: A binding to determine if the content in the section is expanded or collapsed.
+    ///   - count: The count of items shown in the header alongside the title.
     ///   - buttonAccessibilityIdentifier: The accessibility identifier for the button to expand or
     ///     collapse the content.
     ///   - content: The content that is shown when the section is expanded or hidden otherwise.
