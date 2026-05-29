@@ -110,7 +110,7 @@ struct PremiumPlanState: Equatable {
 
     /// Whether the cancel premium button should be shown.
     var showCancelButton: Bool {
-        planStatus != .canceled && planStatus != .unknown
+        planStatus != .canceled && planStatus != .unknown && planStatus != .updatePayment
     }
 
     /// Whether the discount row should be shown.
