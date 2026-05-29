@@ -16,6 +16,8 @@ class MockClientService: ClientService {
     var mockGeneratorsUserId: String?
     var mockPlatform: MockPlatformClientService
     var mockPlatformIsPreAuth = false
+    var mockPolicies: MockPoliciesClient
+    var policiesError: Error?
     var mockSends: MockSendClientProtocol
     var mockVault: MockVaultClientService
     var platformCallCount = 0
@@ -28,6 +30,7 @@ class MockClientService: ClientService {
         exporters: MockExporterClientProtocol = MockExporterClientProtocol(),
         generators: MockGeneratorClientsProtocol = MockGeneratorClientsProtocol(),
         platform: MockPlatformClientService = MockPlatformClientService.withMocks(),
+        policies: MockPoliciesClient = MockPoliciesClient(),
         sends: MockSendClientProtocol = {
             let mock = MockSendClientProtocol()
             mock.decryptClosure = { SendView(send: $0) }
@@ -42,6 +45,7 @@ class MockClientService: ClientService {
         mockExporters = exporters
         mockGenerators = generators
         mockPlatform = platform
+        mockPolicies = policies
         mockSends = sends
         mockVault = vault
     }
@@ -73,6 +77,11 @@ class MockClientService: ClientService {
         }
         mockPlatformIsPreAuth = isPreAuth
         return mockPlatform
+    }
+
+    func policies(for userId: String?) throws -> PoliciesClientProtocol {
+        if let policiesError { throw policiesError }
+        return mockPolicies
     }
 
     func removeClient(for userId: String?) async throws {
