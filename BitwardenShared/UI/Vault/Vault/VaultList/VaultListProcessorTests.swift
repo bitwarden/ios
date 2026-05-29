@@ -633,6 +633,19 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         XCTAssertFalse(subject.state.shouldShowPremiumUpgradeActionCard)
     }
 
+    /// `perform(_:)` with `.appeared` still shows the upgraded-to-premium card even when the
+    /// upgrade banner was previously dismissed.
+    @MainActor
+    func test_perform_appeared_loadPremiumUpgradeBanner_bannerDismissed_stillShowsUpgradedCard() async {
+        stateService.isPremiumUpgradeBannerDismissedResult = true
+        billingService.shouldShowUpgradedToPremiumActionCardReturnValue = true
+
+        await subject.perform(.appeared)
+
+        XCTAssertFalse(subject.state.shouldShowPremiumUpgradeActionCard)
+        XCTAssertTrue(subject.state.shouldShowUpgradedToPremiumActionCard)
+    }
+
     /// `perform(_:)` with `.appeared` hides the premium upgrade action card when the in-app upgrade
     /// is not available.
     @MainActor
