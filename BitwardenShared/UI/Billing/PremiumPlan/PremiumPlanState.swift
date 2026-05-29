@@ -110,7 +110,7 @@ struct PremiumPlanState: Equatable {
 
     /// Whether the cancel premium button should be shown.
     var showCancelButton: Bool {
-        planStatus != .canceled && planStatus != .unknown
+        planStatus != .canceled && planStatus != .unknown && planStatus != .updatePayment
     }
 
     /// Whether the discount row should be shown.
@@ -170,5 +170,18 @@ struct PremiumPlanState: Equatable {
     ///
     private func formatDate(_ date: Date) -> String {
         date.formatted(date: .long, time: .omitted)
+    }
+}
+
+// MARK: - PremiumPlanState + Initialization
+
+extension PremiumPlanState {
+    /// Creates a `PremiumPlanState` pre-populated with a subscription, skipping the plan screen's
+    /// own `getSubscription()` fetch.
+    ///
+    /// - Parameter subscription: The already-fetched subscription.
+    ///
+    init(subscription: PremiumSubscription) {
+        self.init(planStatus: subscription.status, subscription: subscription)
     }
 }

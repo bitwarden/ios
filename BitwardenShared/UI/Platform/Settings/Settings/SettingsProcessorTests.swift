@@ -1,4 +1,7 @@
+import BitwardenKit
 import BitwardenKitMocks
+import BitwardenResources
+import TestHelpers
 import XCTest
 
 @testable import BitwardenShared
@@ -161,22 +164,85 @@ class SettingsProcessorTests: BitwardenTestCase {
         XCTAssertEqual(coordinator.routes.last, .other)
     }
 
-    /// Receiving `.planPressed` navigates to the premium upgrade screen for a free user.
+    /// `perform(.planPressed)` navigates to the premium plan screen for a premium user
+    /// without showing a loading overlay.
     @MainActor
-    func test_receive_planPressed_freeUser() {
-        subject.state.hasPremium = false
-        subject.receive(.planPressed)
+    func test_perform_planPressed_hasPremium() async {
+        subject.state.hasPremium = true
 
-        XCTAssertEqual(coordinator.routes.last, .premiumUpgrade)
+        await subject.perform(.planPressed)
+
+        XCTAssertEqual(coordinator.routes.last, .premiumPlan(nil))
+        XCTAssertTrue(coordinator.loadingOverlaysShown.isEmpty)
     }
 
-    /// Receiving `.planPressed` navigates to the premium plan screen for a premium user.
+    /// `perform(.planPressed)` shows a loading overlay and navigates to the premium plan screen
+    /// when the user has a canceled subscription.
     @MainActor
-    func test_receive_planPressed_hasPremium() {
-        subject.state.hasPremium = true
-        subject.receive(.planPressed)
+    func test_perform_planPressed_canceledSubscription() async {
+        subject.state.hasPremium = false
+        let subscription = PremiumSubscription.fixture(status: .canceled)
+        billingService.getSubscriptionReturnValue = subscription
 
-        XCTAssertEqual(coordinator.routes.last, .premiumPlan)
+        await subject.perform(.planPressed)
+
+        XCTAssertEqual(coordinator.routes.last, .premiumPlan(subscription))
+        XCTAssertEqual(coordinator.loadingOverlaysShown, [LoadingOverlayState(title: Localizations.loading)])
+    }
+
+    /// `perform(.planPressed)` shows a loading overlay and navigates to the premium plan screen
+    /// when the user has a past due subscription.
+    @MainActor
+    func test_perform_planPressed_pastDueSubscription() async {
+        subject.state.hasPremium = false
+        let subscription = PremiumSubscription.fixture(status: .pastDue)
+        billingService.getSubscriptionReturnValue = subscription
+
+        await subject.perform(.planPressed)
+
+        XCTAssertEqual(coordinator.routes.last, .premiumPlan(subscription))
+        XCTAssertEqual(coordinator.loadingOverlaysShown, [LoadingOverlayState(title: Localizations.loading)])
+    }
+
+    /// `perform(.planPressed)` shows a loading overlay and navigates to the premium upgrade screen
+    /// when the subscription fetch returns a 404 (free user with no subscription).
+    @MainActor
+    func test_perform_planPressed_freeUser_noSubscription() async {
+        subject.state.hasPremium = false
+        billingService.getSubscriptionThrowableError = GetSubscriptionRequestError.noSubscription
+
+        await subject.perform(.planPressed)
+
+        XCTAssertEqual(coordinator.routes.last, .premiumUpgrade)
+        XCTAssertEqual(coordinator.loadingOverlaysShown, [LoadingOverlayState(title: Localizations.loading)])
+        XCTAssertFalse(errorReporter.errors.contains { $0 is GetSubscriptionRequestError })
+    }
+
+    /// `perform(.planPressed)` shows a loading overlay and shows an error alert
+    /// when the subscription fetch fails with a non-404 error.
+    @MainActor
+    func test_perform_planPressed_freeUser_subscriptionFetchError() async {
+        subject.state.hasPremium = false
+        billingService.getSubscriptionThrowableError = BitwardenTestError.example
+
+        await subject.perform(.planPressed)
+
+        XCTAssertEqual(coordinator.errorAlertsShown.count, 1)
+        XCTAssertEqual(coordinator.loadingOverlaysShown, [LoadingOverlayState(title: Localizations.loading)])
+        XCTAssertTrue(errorReporter.errors.contains { $0 as? BitwardenTestError == .example })
+    }
+
+    /// `perform(.planPressed)` shows a loading overlay and navigates to the premium upgrade screen
+    /// when subscription status is active.
+    @MainActor
+    func test_perform_planPressed_activeSubscription() async {
+        subject.state.hasPremium = false
+        billingService.getSubscriptionReturnValue = .fixture(status: .active)
+
+        await subject.perform(.planPressed)
+
+        XCTAssertEqual(coordinator.routes.last, .premiumUpgrade)
+        XCTAssertEqual(coordinator.loadingOverlaysShown, [LoadingOverlayState(title: Localizations.loading)])
     }
 
     /// Receiving `.vaultPressed` navigates to the vault settings screen.

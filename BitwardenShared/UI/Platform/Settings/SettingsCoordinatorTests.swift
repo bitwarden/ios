@@ -350,9 +350,9 @@ class SettingsCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this ty
     /// `navigate(to:)` with `.premiumPlan` shows the premium plan via the billing coordinator.
     @MainActor
     func test_navigateTo_premiumPlan() throws {
-        subject.navigate(to: .premiumPlan)
+        subject.navigate(to: .premiumPlan(nil))
 
-        XCTAssertEqual(module.billingCoordinator.routes, [.premiumPlan])
+        XCTAssertEqual(module.billingCoordinator.routes, [.premiumPlan(nil)])
     }
 
     /// `navigate(to:)` with `.premiumUpgrade` shows the premium upgrade via the billing coordinator.

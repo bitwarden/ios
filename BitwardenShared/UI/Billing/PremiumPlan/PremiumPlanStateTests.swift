@@ -212,7 +212,7 @@ struct PremiumPlanStateTests {
         (PremiumPlanStatus.canceled, false),
         (PremiumPlanStatus.pastDue, true),
         (PremiumPlanStatus.unknown, false),
-        (PremiumPlanStatus.updatePayment, true),
+        (PremiumPlanStatus.updatePayment, false),
     ])
     func showCancelButton(planStatus: PremiumPlanStatus, expected: Bool) {
         var state = PremiumPlanState()
