@@ -172,3 +172,16 @@ struct PremiumPlanState: Equatable {
         date.formatted(date: .long, time: .omitted)
     }
 }
+
+// MARK: - PremiumPlanState + Initialization
+
+extension PremiumPlanState {
+    /// Creates a `PremiumPlanState` pre-populated with a subscription, skipping the plan screen's
+    /// own `getSubscription()` fetch.
+    ///
+    /// - Parameter subscription: The already-fetched subscription.
+    ///
+    init(subscription: PremiumSubscription) {
+        self.init(planStatus: subscription.status, subscription: subscription)
+    }
+}
