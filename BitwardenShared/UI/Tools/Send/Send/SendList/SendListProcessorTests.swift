@@ -90,7 +90,8 @@ class SendListProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         sendRepository.doesActivateAccountHavePremiumResult = false
         await subject.perform(.addItemPressed(.file))
 
-        try await coordinator.alertShown.last?.tapAction(title: Localizations.upgradeToPremium)
+        let alert = try XCTUnwrap(coordinator.alertShown.last)
+        try await alert.tapAction(title: Localizations.upgradeToPremium)
 
         try await waitForAsync { self.premiumUpgradeHelper.navigateToPremiumUpgradeCalled }
         XCTAssertTrue(premiumUpgradeHelper.navigateToPremiumUpgradeCalled)
