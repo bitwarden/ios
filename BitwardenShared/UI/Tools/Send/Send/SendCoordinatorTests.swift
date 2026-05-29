@@ -163,7 +163,7 @@ class SendCoordinatorTests: BitwardenTestCase {
         let action = try XCTUnwrap(stackNavigator.actions.last)
         XCTAssertEqual(action.type, .presented)
         XCTAssertTrue(action.view is UINavigationController)
-        XCTAssertTrue(module.billingCoordinator.isStarted)
+        XCTAssertEqual(module.billingCoordinator.routes, [.premiumUpgrade])
     }
 
     /// `navigate(to:)` with `.share` presents the share sheet.
