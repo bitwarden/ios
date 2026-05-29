@@ -112,6 +112,25 @@ class VaultListPreparedDataBuilderTests: BitwardenTestCase { // swiftlint:disabl
         XCTAssertTrue(preparedData.groupItems.isEmpty)
     }
 
+    /// `addItem(forGroup:with:)` adds the cipher to the group items when the group is `.passport`
+    /// and the cipher is a passport.
+    func test_addItem_forGroupPassport_succeeds() async {
+        let cipher = CipherListView.fixture(id: "1", type: .passport)
+        let preparedData = await subject.addItem(forGroup: .passport, with: cipher).build()
+
+        XCTAssertEqual(preparedData.groupItems.count, 1)
+        XCTAssertEqual(preparedData.groupItems[0].id, "1")
+    }
+
+    /// `addItem(forGroup:with:)` doesn't add the cipher to the group items when the group is
+    /// `.passport` but the cipher is not a passport.
+    func test_addItem_forGroupPassport_nonMatchingType() async {
+        let cipher = CipherListView.fixture(id: "1", type: .identity)
+        let preparedData = await subject.addItem(forGroup: .passport, with: cipher).build()
+
+        XCTAssertTrue(preparedData.groupItems.isEmpty)
+    }
+
     /// `addFavoriteItem(cipher:)` adds a favorite list item to the prepared data when cipher is favorite.
     func test_addFavoriteItem_succeeds() {
         let cipher = CipherListView.fixture(favorite: true)
@@ -313,6 +332,7 @@ class VaultListPreparedDataBuilderTests: BitwardenTestCase { // swiftlint:disabl
             .incrementCipherTypeCount(cipher: .fixture(type: .login(.fixture())))
             .incrementCipherTypeCount(cipher: .fixture(type: .secureNote))
             .incrementCipherTypeCount(cipher: .fixture(type: .driversLicense))
+            .incrementCipherTypeCount(cipher: .fixture(type: .passport))
             .build()
 
         XCTAssertEqual(preparedData.countPerCipherType[.card], 3)
@@ -321,6 +341,7 @@ class VaultListPreparedDataBuilderTests: BitwardenTestCase { // swiftlint:disabl
         XCTAssertEqual(preparedData.countPerCipherType[.secureNote], 2)
         XCTAssertEqual(preparedData.countPerCipherType[.sshKey], 1)
         XCTAssertEqual(preparedData.countPerCipherType[.driversLicense], 1)
+        XCTAssertEqual(preparedData.countPerCipherType[.passport], 1)
     }
 
     /// `incrementCipherDeletedCount()` increments cipher deleted count on the prepared data.

@@ -140,8 +140,7 @@ extension VaultListItem {
             case .driversLicense:
                 SharedAsset.Icons.idCard24
             case .passport:
-                // TODO: PM-32805
-                SharedAsset.Icons.stickyNote24
+                SharedAsset.Icons.idCard24
             }
         case let .group(group, _):
             switch group {
@@ -160,6 +159,8 @@ extension VaultListItem {
                 SharedAsset.Icons.idCard24
             case .login:
                 SharedAsset.Icons.globe24
+            case .passport:
+                SharedAsset.Icons.idCard24
             case .secureNote:
                 SharedAsset.Icons.file24
             case .sshKey:
@@ -196,7 +197,6 @@ extension VaultListItem {
             case .driversLicense:
                 "DriverLicenseCipherIcon"
             case .passport:
-                // TODO: PM-32805
                 "PassportCipherIcon"
             }
         default:

@@ -54,6 +54,8 @@ extension CipherListView {
             type == .identity
         case .login:
             type.isLogin
+        case .passport:
+            type == .passport
         case .noFolder:
             folderId == nil
         case .secureNote:

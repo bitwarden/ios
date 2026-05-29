@@ -31,6 +31,8 @@ extension Cipher {
             type == .identity
         case .login:
             type == .login
+        case .passport:
+            type == .passport
         case .noFolder:
             folderId == nil
         case .secureNote:

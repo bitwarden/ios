@@ -189,6 +189,10 @@ class VaultListItemTests: BitwardenTestCase { // swiftlint:disable:this type_bod
             SharedAsset.Icons.passkey24.name,
         )
         XCTAssertEqual(
+            VaultListItem(cipherListView: .fixture(type: .passport))?.icon.name,
+            SharedAsset.Icons.idCard24.name,
+        )
+        XCTAssertEqual(
             VaultListItem(cipherListView: .fixture(type: .secureNote))?.icon.name,
             SharedAsset.Icons.file24.name,
         )
@@ -224,6 +228,10 @@ class VaultListItemTests: BitwardenTestCase { // swiftlint:disable:this type_bod
         XCTAssertEqual(
             VaultListItem(id: "", itemType: .group(.login, 1)).icon.name,
             SharedAsset.Icons.globe24.name,
+        )
+        XCTAssertEqual(
+            VaultListItem(id: "", itemType: .group(.passport, 1)).icon.name,
+            SharedAsset.Icons.idCard24.name,
         )
         XCTAssertEqual(
             VaultListItem(id: "", itemType: .group(.secureNote, 1)).icon.name,
@@ -280,6 +288,10 @@ class VaultListItemTests: BitwardenTestCase { // swiftlint:disable:this type_bod
                 fido2CredentialAutofillView: .fixture(),
             )?.iconAccessibilityId,
             "LoginCipherIcon",
+        )
+        XCTAssertEqual(
+            VaultListItem(cipherListView: .fixture(type: .passport))?.iconAccessibilityId,
+            "PassportCipherIcon",
         )
         XCTAssertEqual(
             VaultListItem(cipherListView: .fixture(type: .secureNote))?.iconAccessibilityId,

@@ -243,6 +243,7 @@ extension CipherView {
         notes: String? = nil,
         organizationId: String? = nil,
         organizationUseTotp: Bool = false,
+        passport: PassportView? = nil,
         passwordHistory: [PasswordHistoryView]? = nil,
         permissions: CipherPermissions? = nil,
         reprompt: BitwardenSdk.CipherRepromptType = .none,
@@ -268,7 +269,7 @@ extension CipherView {
             sshKey: sshKey,
             bankAccount: bankAccount,
             driversLicense: nil, // TODO: PM-32807
-            passport: nil, // TODO: PM-32805
+            passport: passport,
             favorite: favorite,
             reprompt: reprompt,
             organizationUseTotp: organizationUseTotp,
@@ -813,6 +814,40 @@ extension BitwardenSdk.SshKeyView {
         fingerprint: String = "fingerprint",
     ) -> SshKeyView {
         SshKeyView(privateKey: privateKey, publicKey: publicKey, fingerprint: fingerprint)
+    }
+}
+
+extension BitwardenSdk.PassportView {
+    static func fixture(
+        surname: String? = nil,
+        givenName: String? = nil,
+        dateOfBirth: String? = nil,
+        sex: String? = nil,
+        birthPlace: String? = nil,
+        nationality: String? = nil,
+        issuingCountry: String? = nil,
+        passportNumber: String? = "P1234567",
+        passportType: String? = nil,
+        nationalIdentificationNumber: String? = nil,
+        issuingAuthority: String? = nil,
+        issueDate: String? = nil,
+        expirationDate: String? = nil,
+    ) -> BitwardenSdk.PassportView {
+        BitwardenSdk.PassportView(
+            surname: surname,
+            givenName: givenName,
+            dateOfBirth: dateOfBirth,
+            sex: sex,
+            birthPlace: birthPlace,
+            nationality: nationality,
+            issuingCountry: issuingCountry,
+            passportNumber: passportNumber,
+            passportType: passportType,
+            nationalIdentificationNumber: nationalIdentificationNumber,
+            issuingAuthority: issuingAuthority,
+            issueDate: issueDate,
+            expirationDate: expirationDate,
+        )
     }
 }
 

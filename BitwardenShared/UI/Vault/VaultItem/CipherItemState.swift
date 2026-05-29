@@ -574,8 +574,7 @@ extension CipherItemState: ViewVaultItemState {
         case .driversLicense:
             return SharedAsset.Icons.idCard24
         case .passport:
-            // TODO: PM-32805
-            return SharedAsset.Icons.stickyNote24
+            return SharedAsset.Icons.idCard24
         }
     }
 

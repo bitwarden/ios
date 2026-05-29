@@ -6,6 +6,7 @@
 "Bitwarden" = "Bitwarden";
 "Cancel" = "Cancel";
 "Copy" = "Copy";
+"CopyPassportNumber" = "Copy passport number";
 "CopyPassword" = "Copy password";
 "CopyUsername" = "Copy username";
 "Delete" = "Delete";
@@ -1125,6 +1126,7 @@
 "License" = "License";
 "Licenses" = "Licenses";
 "Passport" = "Passport";
+"Passports" = "Passports";
 "LicenseDetails" = "License details";
 "DateOfBirth" = "Date of birth";
 "IssuingCountry" = "Issuing country";
