@@ -54,9 +54,6 @@ extension Alert {
         return alert
     }
 
-    /// Returns an alert for when the "Specific People" Send feature is unavailable due to
-    /// lack of premium subscription.
-    ///
     /// Returns an alert notifying the user that a premium subscription is required to send files,
     /// with an option to upgrade.
     ///
@@ -79,6 +76,9 @@ extension Alert {
         return alert
     }
 
+    /// Returns an alert for when the "Specific People" Send feature is unavailable due to
+    /// lack of premium subscription.
+    ///
     /// - Parameters:
     ///   - action: A closure to execute on upgrading to premium.
     /// - Returns: The alert when "Specific People" is unavailable.
