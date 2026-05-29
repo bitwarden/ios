@@ -26,6 +26,16 @@ class CipherExtensionsTests: BitwardenTestCase {
         XCTAssertFalse(cipher.belongsToGroup(.identity))
     }
 
+    /// `belongsToGroup(_:)` returns `true` when the cipher is a driver's license type and the group is
+    /// `.driversLicense`.
+    func test_belongsToGroup_driversLicense() {
+        let cipher = Cipher.fixture(type: .driversLicense)
+        XCTAssertTrue(cipher.belongsToGroup(.driversLicense))
+        XCTAssertFalse(cipher.belongsToGroup(.identity))
+        XCTAssertFalse(cipher.belongsToGroup(.login))
+        XCTAssertFalse(Cipher.fixture(type: .identity).belongsToGroup(.driversLicense))
+    }
+
     /// `belongsToGroup(_:)` returns `true` when the cipher is a login type and the group is `.login`.
     func test_belongsToGroup_login() {
         let cipher = Cipher.fixture(type: .login)

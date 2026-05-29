@@ -21,6 +21,8 @@ extension Cipher {
             type == .card
         case let .collection(id, _, _):
             collectionIds.contains(id)
+        case .driversLicense:
+            type == .driversLicense
         case let .folder(id, _):
             folderId == id
         case .identity:

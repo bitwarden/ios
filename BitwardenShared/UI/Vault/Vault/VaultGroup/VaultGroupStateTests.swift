@@ -34,6 +34,9 @@ class VaultGroupStateTests: BitwardenTestCase {
         )
         XCTAssertEqual(subjectFolder.newItemButtonType, .menu)
 
+        let subjectDriversLicense = VaultGroupState(group: .driversLicense, vaultFilterType: .myVault)
+        XCTAssertNil(subjectDriversLicense.newItemButtonType)
+
         let subjectSSHKey = VaultGroupState(group: .sshKey, vaultFilterType: .myVault)
         XCTAssertNil(subjectSSHKey.newItemButtonType)
 

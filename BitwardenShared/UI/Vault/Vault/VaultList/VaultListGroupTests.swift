@@ -63,6 +63,7 @@ class VaultListGroupTests: BitwardenTestCase {
             VaultListGroup.collection(id: "", name: "Collection 🗂️", organizationId: "1").name,
             "Collection 🗂️",
         )
+        XCTAssertEqual(VaultListGroup.driversLicense.name, Localizations.license)
         XCTAssertEqual(VaultListGroup.folder(id: "", name: "Folder 📁").name, "Folder 📁")
         XCTAssertEqual(VaultListGroup.identity.name, "Identity")
         XCTAssertEqual(VaultListGroup.login.name, "Login")
@@ -80,6 +81,7 @@ class VaultListGroupTests: BitwardenTestCase {
             VaultListGroup.collection(id: "", name: "Collection 🗂️", organizationId: "1").navigationTitle,
             "Collection 🗂️",
         )
+        XCTAssertEqual(VaultListGroup.driversLicense.navigationTitle, Localizations.licenses)
         XCTAssertEqual(VaultListGroup.folder(id: "", name: "Folder 📁").navigationTitle, "Folder 📁")
         XCTAssertEqual(VaultListGroup.identity.navigationTitle, Localizations.identities)
         XCTAssertEqual(VaultListGroup.login.navigationTitle, Localizations.logins)

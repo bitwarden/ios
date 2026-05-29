@@ -166,6 +166,10 @@ class VaultListItemTests: BitwardenTestCase { // swiftlint:disable:this type_bod
             SharedAsset.Icons.card24.name,
         )
         XCTAssertEqual(
+            VaultListItem(cipherListView: .fixture(type: .driversLicense))?.icon.name,
+            SharedAsset.Icons.idCard24.name,
+        )
+        XCTAssertEqual(
             VaultListItem(cipherListView: .fixture(type: .identity))?.icon.name,
             SharedAsset.Icons.idCard24.name,
         )
@@ -200,6 +204,10 @@ class VaultListItemTests: BitwardenTestCase { // swiftlint:disable:this type_bod
         XCTAssertEqual(
             VaultListItem(id: "", itemType: .group(.folder(id: "", name: ""), 1)).icon.name,
             SharedAsset.Icons.folder24.name,
+        )
+        XCTAssertEqual(
+            VaultListItem(id: "", itemType: .group(.driversLicense, 1)).icon.name,
+            SharedAsset.Icons.idCard24.name,
         )
         XCTAssertEqual(
             VaultListItem(id: "", itemType: .group(.identity, 1)).icon.name,
@@ -241,6 +249,10 @@ class VaultListItemTests: BitwardenTestCase { // swiftlint:disable:this type_bod
         XCTAssertEqual(
             VaultListItem(cipherListView: .fixture(type: .card(.init(brand: nil))))?.iconAccessibilityId,
             "CardCipherIcon",
+        )
+        XCTAssertEqual(
+            VaultListItem(cipherListView: .fixture(type: .driversLicense))?.iconAccessibilityId,
+            "DriverLicenseCipherIcon",
         )
         XCTAssertEqual(
             VaultListItem(cipherListView: .fixture(type: .identity))?.iconAccessibilityId,
