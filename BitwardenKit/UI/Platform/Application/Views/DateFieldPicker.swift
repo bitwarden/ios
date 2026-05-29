@@ -6,10 +6,11 @@ import SwiftUI
 /// A reusable field for entering an optional date and, optionally, time.
 ///
 /// The field renders as a single collapsed row showing its title and current value (or a
-/// placeholder when empty) with a chevron affordance. Tapping the row expands an inline native
-/// `DatePicker` (graphical calendar) so a single tap reveals the picker. Because the field operates
-/// on an optional `Date?`, it can represent a genuinely empty value — which the underlying
-/// `DatePicker` cannot do on its own — and offers a control to clear a selected date.
+/// placeholder when empty) with a chevron affordance. Tapping the row presents the native
+/// `DatePicker` (graphical calendar) as a popover dialog so a single tap reveals the picker.
+/// Because the field operates on an optional `Date?`, it can represent a genuinely empty value —
+/// which the underlying `DatePicker` cannot do on its own — and offers a control to clear a
+/// selected date.
 ///
 public struct DateFieldPicker: View {
     // MARK: Properties
@@ -35,8 +36,8 @@ public struct DateFieldPicker: View {
     /// The (optional) title of the field.
     let title: String?
 
-    /// Whether the inline date picker is currently expanded.
-    @State private var isExpanded = false
+    /// Whether the date picker dialog is currently presented.
+    @State private var isPickerPresented = false
 
     /// Whether the view allows user interaction.
     @Environment(\.isEnabled) var isEnabled: Bool
@@ -46,18 +47,6 @@ public struct DateFieldPicker: View {
     public var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             headerButton()
-
-            if isExpanded {
-                Divider()
-                datePicker()
-                    .padding(.horizontal, 16)
-                    .padding(.vertical, 8)
-
-                if date != nil {
-                    Divider()
-                    clearButton()
-                }
-            }
 
             if let footer {
                 Divider()
@@ -76,6 +65,9 @@ public struct DateFieldPicker: View {
         )
         .clipShape(RoundedRectangle(cornerRadius: 8))
         .accessibilityIdentifier(accessibilityIdentifier ?? "DateFieldPicker")
+        .popover(isPresented: $isPickerPresented) {
+            pickerDialog()
+        }
     }
 
     // MARK: Initialization
@@ -113,12 +105,12 @@ public struct DateFieldPicker: View {
 
     // MARK: Private
 
-    /// A button to clear the selected date, shown in the expanded picker when a date is set.
+    /// A button to clear the selected date, shown in the picker dialog when a date is set.
     @ViewBuilder
     private func clearButton() -> some View {
         Button(Localizations.clear) {
             date = nil
-            isExpanded = false
+            isPickerPresented = false
         }
         .buttonStyle(.bitwardenBorderless)
         .padding(.horizontal, 16)
@@ -127,7 +119,7 @@ public struct DateFieldPicker: View {
         .accessibilityIdentifier("DateFieldClearButton")
     }
 
-    /// The inline native graphical `DatePicker`, optionally constrained to `range`.
+    /// The native graphical `DatePicker`, optionally constrained to `range`.
     @ViewBuilder
     private func datePicker() -> some View {
         if let range {
@@ -145,9 +137,7 @@ public struct DateFieldPicker: View {
     @ViewBuilder
     private func headerButton() -> some View {
         Button {
-            withAnimation(.easeInOut(duration: 0.2)) {
-                isExpanded.toggle()
-            }
+            isPickerPresented = true
         } label: {
             HStack(spacing: 8) {
                 VStack(alignment: .leading, spacing: 2) {
@@ -178,7 +168,6 @@ public struct DateFieldPicker: View {
 
                 SharedAsset.Icons.chevronDown24.swiftUIImage
                     .foregroundColor(SharedAsset.Colors.iconSecondary.swiftUIColor)
-                    .rotationEffect(.degrees(isExpanded ? 180 : 0))
             }
             .padding(.horizontal, 16)
             .padding(.vertical, 12)
@@ -199,6 +188,25 @@ public struct DateFieldPicker: View {
         )
     }
 
+    /// The picker presented as a popover dialog: the graphical calendar plus a clear control when a
+    /// date is set. On iOS 16.4+ this is forced to render as a popover (a floating dialog) rather
+    /// than adapting to a sheet in compact width.
+    @ViewBuilder
+    private func pickerDialog() -> some View {
+        VStack(spacing: 0) {
+            datePicker()
+                .padding(.horizontal, 16)
+                .padding(.top, 16)
+
+            if date != nil {
+                Divider()
+                clearButton()
+            }
+        }
+        .frame(idealWidth: 320)
+        .modifier(PopoverDialogAdaptation())
+    }
+
     /// A binding that unwraps the optional `date`, falling back to `defaultDate` so it can drive the
     /// native `DatePicker`, which requires a non-optional `Date`.
     private func unwrappedDate() -> Binding<Date> {
@@ -206,6 +214,20 @@ public struct DateFieldPicker: View {
             get: { date ?? defaultDate },
             set: { date = $0 },
         )
+    }
+}
+
+// MARK: - PopoverDialogAdaptation
+
+/// Forces popover presentation (a floating dialog) in compact width on iOS 16.4+, where the system
+/// would otherwise adapt a popover into a sheet. On earlier versions the system default applies.
+private struct PopoverDialogAdaptation: ViewModifier {
+    func body(content: Content) -> some View {
+        if #available(iOS 16.4, *) {
+            content.presentationCompactAdaptation(.popover)
+        } else {
+            content
+        }
     }
 }
 
@@ -222,7 +244,7 @@ public struct DateFieldPicker: View {
 
 @available(iOS 17, *)
 #Preview("Collapsed selected") {
-    @Previewable @SwiftUI.State var date: Date? = Date(year: 2023, month: 6, day: 23)
+    @Previewable @SwiftUI.State var date: Date? = Date(year: 2021, month: 8, day: 10)
     DateFieldPicker(title: "Expiration date", date: $date)
         .padding()
         .background(SharedAsset.Colors.backgroundPrimary.swiftUIColor)
@@ -230,7 +252,7 @@ public struct DateFieldPicker: View {
 
 @available(iOS 17, *)
 #Preview("Date and time") {
-    @Previewable @SwiftUI.State var date: Date? = Date(year: 2023, month: 6, day: 23, hour: 8)
+    @Previewable @SwiftUI.State var date: Date? = Date(year: 2021, month: 8, day: 10, hour: 8)
     DateFieldPicker(
         title: "Ends",
         date: $date,
