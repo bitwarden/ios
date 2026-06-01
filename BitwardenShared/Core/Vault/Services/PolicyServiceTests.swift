@@ -1134,4 +1134,39 @@ class PolicyServiceTests: BitwardenTestCase { // swiftlint:disable:this type_bod
         // Degraded to empty (not crashing)
         XCTAssertFalse(applies)
     }
+
+    /// `getMasterPasswordPolicyOptions()` excludes policies without data before invoking the SDK
+    /// when the feature flag is enabled — verifying the filter is forwarded to `sdkFilterPolicies`.
+    @MainActor
+    func test_getMasterPasswordPolicyOptions_sdkPath_filterExcludesNilDataPolicy() async throws {
+        stateService.activeAccount = .fixture()
+        configService.featureFlagsBool[.policiesInAcceptedState] = true
+        organizationService.fetchAllOrganizationsResult = .success([.fixture(id: "org-1", status: .accepted)])
+
+        // Policy without data — the { $0.data != nil } filter should exclude it before the SDK call.
+        policyDataStore.fetchPoliciesNewResult = .success([.fixture(type: .masterPassword)])
+
+        let options = try await subject.getMasterPasswordPolicyOptions()
+
+        XCTAssertNil(options)
+        XCTAssertFalse(clientService.mockPolicies.filterByTypeCalled)
+    }
+
+    /// `isSendHideEmailDisabledByPolicy()` excludes policies that lack the `disableHideEmail` option
+    /// before invoking the SDK when the feature flag is enabled — verifying the filter is forwarded
+    /// to `sdkFilterPolicies`.
+    @MainActor
+    func test_isSendHideEmailDisabledByPolicy_sdkPath_filterExcludesPolicyWithoutOption() async {
+        stateService.activeAccount = .fixture()
+        configService.featureFlagsBool[.policiesInAcceptedState] = true
+        organizationService.fetchAllOrganizationsResult = .success([.fixture(id: "org-1", status: .accepted)])
+
+        // Policy without disableHideEmail — { policy[.disableHideEmail]?.boolValue == true } excludes it.
+        policyDataStore.fetchPoliciesNewResult = .success([.fixture(type: .sendOptions)])
+
+        let isDisabled = await subject.isSendHideEmailDisabledByPolicy()
+
+        XCTAssertFalse(isDisabled)
+        XCTAssertFalse(clientService.mockPolicies.filterByTypeCalled)
+    }
 } // swiftlint:disable:this file_length

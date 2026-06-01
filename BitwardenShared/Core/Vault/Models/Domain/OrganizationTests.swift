@@ -24,7 +24,6 @@ class OrganizationTests: XCTestCase {
 
         XCTAssertFalse(Organization.fixture(type: .user).isAdmin)
         XCTAssertFalse(Organization.fixture(type: .custom).isAdmin)
-        XCTAssertFalse(Organization.fixture(type: .custom).isAdmin)
     }
 
     /// `isExemptFromPolicies` returns whether the user is exempt from policies.

@@ -216,6 +216,7 @@ actor DefaultPolicyService: PolicyService {
                 organizations: organizations,
                 policyType: policyType,
                 userId: userId,
+                filter: filter,
             )
         } catch {
             errorReporter.log(error: error)
