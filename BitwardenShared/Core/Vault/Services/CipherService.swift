@@ -456,14 +456,7 @@ extension DefaultCipherService {
             try await cipherDataStore.deleteCipher(id: cipher.id ?? "", userId: userId)
         } else {
             // Use the server-returned cipher if available; fall back to the local model.
-            let updatedCipher: Cipher
-            if var cipherResponse = response.cipher {
-                // The API doesn't return collectionIds, so carry them forward from the request.
-                cipherResponse.collectionIds = cipher.collectionIds
-                updatedCipher = Cipher(responseModel: cipherResponse)
-            } else {
-                updatedCipher = cipher
-            }
+            let updatedCipher = response.cipher.map { Cipher(responseModel: $0) } ?? cipher
             try await cipherDataStore.upsertCipher(updatedCipher, userId: userId)
         }
     }

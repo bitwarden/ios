@@ -381,12 +381,12 @@ class CipherServiceTests: BitwardenTestCase { // swiftlint:disable:this type_bod
         stateService.activeAccount = .fixture()
 
         let cipher = Cipher.fixture(
-            collectionIds: ["collection-1", "collection-2"],
+            collectionIds: ["request-collection-1", "request-collection-2"],
             id: "3792af7a-4441-11ee-be56-0242ac120002",
         )
         try await subject.updateCipherCollectionsWithServer(cipher)
 
-        // The cipher from the server response should be upserted with the original collectionIds preserved.
+        // The server-returned collectionIds should be used, not the ones from the request.
         XCTAssertEqual(cipherDataStore.upsertCipherValue?.id, "3792af7a-4441-11ee-be56-0242ac120002")
         XCTAssertEqual(cipherDataStore.upsertCipherValue?.collectionIds, ["collection-1", "collection-2"])
         XCTAssertEqual(cipherDataStore.upsertCipherUserId, "1")
