@@ -7,7 +7,7 @@ import Combine
 class CardAutofillFormProcessor: StateProcessor<
     CardAutofillFormState,
     CardAutofillFormAction,
-    CardAutofillFormEffect
+    CardAutofillFormEffect,
 > {
     // MARK: Types
 
