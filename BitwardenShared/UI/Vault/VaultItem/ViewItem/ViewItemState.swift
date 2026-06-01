@@ -40,6 +40,7 @@ struct ViewItemState: Equatable, Sendable {
         case .driversLicense: Localizations.viewLicense
         case .identity: Localizations.viewIdentity
         case .login: Localizations.viewLogin
+        case .passport: Localizations.viewPassport
         case .secureNote: Localizations.viewNote
         case .sshKey: Localizations.viewSSHKey
         }

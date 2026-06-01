@@ -97,6 +97,10 @@ final class SettingsProcessor: StateProcessor<SettingsState, SettingsAction, Set
             let isSelfHosted = await services.billingService.isSelfHosted()
             state.hasPremium = hasPremium
             state.showPlanRow = featureEnabled && !isSelfHosted
+            state.shouldShowUpgradedToPremiumActionCard = await services.billingService.shouldShowUpgradedToPremiumActionCard()
+        case .dismissUpgradedToPremiumActionCard:
+            state.shouldShowUpgradedToPremiumActionCard = false
+            await services.billingService.setUpgradedToPremiumActionCardDismissed()
         case .planPressed:
             await navigateToPlan()
         }
@@ -112,8 +116,14 @@ final class SettingsProcessor: StateProcessor<SettingsState, SettingsAction, Set
             coordinator.navigate(to: .appearance)
         case .autoFillPressed:
             coordinator.navigate(to: .autoFill)
+        case .clearUrl:
+            state.url = nil
         case .dismiss:
             coordinator.navigate(to: .dismiss)
+        case .learnMoreAboutPremium:
+            state.url = ExternalLinksConstants.learnMoreAboutPremium
+            state.shouldShowUpgradedToPremiumActionCard = false
+            Task { await services.billingService.setUpgradedToPremiumActionCardDismissed() }
         case .otherPressed:
             coordinator.navigate(to: .other)
         case .vaultPressed:
