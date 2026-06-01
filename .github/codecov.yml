@@ -1,2 +1,8 @@
 ignore:
-  - "**/*Tests.*/**,**/TestHelpers/**,**/Fixtures/**,GlobalTestHelpers/**" # Tests
+  - "**/*Tests*/**"
+  - "**/TestHelpers/**"
+  - "**/Fixtures/**"
+  - "GlobalTestHelpers/**"
+  - "GlobalTestHelpers-bwa/**"
+  - "**/Mocks/**"
+  - "**/*Mock*.swift"
