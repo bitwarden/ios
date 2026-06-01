@@ -4,5 +4,6 @@ ignore:
   - "**/Fixtures/**"
   - "GlobalTestHelpers/**"
   - "GlobalTestHelpers-bwa/**"
+  - "GlobalTestHelpers-bwth/**"
   - "**/Mocks/**"
   - "**/*Mock*.swift"
