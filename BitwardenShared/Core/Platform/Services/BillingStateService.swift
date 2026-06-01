@@ -45,5 +45,4 @@ extension DefaultStateService: BillingStateService {
               let creationDate = account.profile.creationDate else { return false }
         return timeProvider.timeSince(creationDate) >= Constants.premiumUpgradeBannerAccountAge
     }
-
 }
