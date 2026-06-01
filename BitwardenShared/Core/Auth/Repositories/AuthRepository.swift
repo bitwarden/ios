@@ -658,8 +658,10 @@ extension DefaultAuthRepository: AuthRepository {
 
         try await stateService.setAccountEncryptionKeys(
             AccountEncryptionKeys(
-                accountKeys: setAccountKeysResponse.accountKeys,
-                encryptedPrivateKey: registrationKeys.privateKey,
+                cryptographicState: .create(
+                    accountKeys: setAccountKeysResponse.accountKeys,
+                    privateKey: registrationKeys.privateKey,
+                ),
                 encryptedUserKey: nil,
             ),
         )
@@ -813,7 +815,6 @@ extension DefaultAuthRepository: AuthRepository {
 
         // Clear all user data.
         try await stateService.setSyncToAuthenticator(false, userId: userId)
-        try await biometricsRepository.setBiometricUnlockKey(authKey: nil, userId: userId)
         try await keychainService.deleteItems(for: userId)
         try await clientCertificateService.removeCertificate(userId: userId)
         await vaultTimeoutService.remove(userId: userId)
@@ -867,8 +868,7 @@ extension DefaultAuthRepository: AuthRepository {
         let requestUserKey: String
         let requestKeys: KeysRequestModel?
         let requestPasswordHash: String
-        let accountPrivateKeys: PrivateKeysResponseModel?
-        let encryptedPrivateKey: String
+        let cryptographicState: WrappedAccountCryptographicState
 
         // TDE user
         if account.profile.userDecryptionOptions?.trustedDeviceOption != nil {
@@ -877,8 +877,7 @@ extension DefaultAuthRepository: AuthRepository {
             requestPasswordHash = passwordResult.passwordHash
             requestUserKey = passwordResult.newKey
             requestKeys = nil
-            accountPrivateKeys = accountKeys.accountKeys
-            encryptedPrivateKey = accountKeys.encryptedPrivateKey
+            cryptographicState = accountKeys.cryptographicState
         } else {
             let keys = try await clientService.auth().makeRegisterKeys(
                 email: email,
@@ -896,8 +895,7 @@ extension DefaultAuthRepository: AuthRepository {
                 encryptedPrivateKey: keys.keys.private,
                 publicKey: keys.keys.public,
             )
-            accountPrivateKeys = nil
-            encryptedPrivateKey = keys.keys.private
+            cryptographicState = .v1(privateKey: keys.keys.private)
         }
 
         let requestModel = SetPasswordRequestModel(
@@ -911,8 +909,7 @@ extension DefaultAuthRepository: AuthRepository {
 
         try await accountAPIService.setPassword(requestModel)
         try await stateService.setAccountEncryptionKeys(AccountEncryptionKeys(
-            accountKeys: accountPrivateKeys,
-            encryptedPrivateKey: encryptedPrivateKey,
+            cryptographicState: cryptographicState,
             encryptedUserKey: requestUserKey,
         ))
         try await stateService.setUserHasMasterPassword(true)
@@ -1198,6 +1195,7 @@ extension DefaultAuthRepository: AuthRepository {
         } catch {
             errorReporter.log(error: error)
         }
+        await configureBiometricUnlockIfNeeded()
     }
 
     /// Updates the user's KDF settings to the minimums.
@@ -1232,8 +1230,7 @@ extension DefaultAuthRepository: AuthRepository {
 
         let encryptionKeys = try await stateService.getAccountEncryptionKeys()
         let newEncryptionKeys = AccountEncryptionKeys(
-            accountKeys: encryptionKeys.accountKeys,
-            encryptedPrivateKey: encryptionKeys.encryptedPrivateKey,
+            cryptographicState: encryptionKeys.cryptographicState,
             encryptedUserKey: updatePasswordResponse.newKey,
         )
 
@@ -1271,6 +1268,23 @@ extension DefaultAuthRepository: AuthRepository {
     private func userIdOrActive(_ maybeId: String?) async throws -> String {
         if let maybeId { return maybeId }
         return try await stateService.getActiveAccountId()
+    }
+
+    /// Restores the biometric unlock keychain entry after a vault unlock when the
+    /// biometric preference is enabled. The preference survives logout but the keychain entry
+    /// is cleared; this rewrites the key so biometric unlock works without re-enabling in settings.
+    ///
+    private func configureBiometricUnlockIfNeeded() async {
+        do {
+            guard try await biometricsRepository.getBiometricUnlockStatus().isEnabled else { return }
+            guard await !biometricsRepository.hasBiometricUnlockKey() else { return }
+            let authKey = try await clientService.crypto().getUserEncryptionKey()
+            try await biometricsRepository.restoreBiometricUnlockKey(authKey: authKey)
+        } catch BiometricsServiceError.biometryLocked {
+            // Lockout is a transient state; do nothing and let the user retry later.
+        } catch {
+            errorReporter.log(error: error)
+        }
     }
 
     /// Configures PIN unlock if the user requires master password or biometrics after an app restart.

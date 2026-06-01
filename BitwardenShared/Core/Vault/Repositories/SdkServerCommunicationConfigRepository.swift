@@ -20,23 +20,23 @@ final class SdkServerCommunicationConfigRepository: ServerCommunicationConfigRep
 
     // MARK: Methods
 
-    func get(hostname: String) async throws -> BitwardenSdk.ServerCommunicationConfig? {
-        try await serverCommunicationConfigStateService.getServerCommunicationConfig(hostname: hostname)
+    func get(domain: String) async throws -> BitwardenSdk.ServerCommunicationConfig? {
+        try await serverCommunicationConfigStateService.getServerCommunicationConfig(hostname: domain)
     }
 
-    func save(hostname: String, config: BitwardenSdk.ServerCommunicationConfig) async throws {
+    func save(domain: String, config: BitwardenSdk.ServerCommunicationConfig) async throws {
         let localConfig = try await serverCommunicationConfigStateService.getServerCommunicationConfig(
-            hostname: hostname,
+            hostname: domain,
         )
         guard let localConfig else {
-            try await serverCommunicationConfigStateService.setServerCommunicationConfig(config, hostname: hostname)
+            try await serverCommunicationConfigStateService.setServerCommunicationConfig(config, hostname: domain)
             return
         }
 
         let updatedConfig = localConfig.updateCookieValue(from: config)
         try await serverCommunicationConfigStateService.setServerCommunicationConfig(
             updatedConfig,
-            hostname: hostname,
+            hostname: domain,
         )
     }
 }

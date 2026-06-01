@@ -7,6 +7,9 @@ import Foundation
 /// A protocol for a service used to manage billing operations.
 ///
 protocol BillingService: AnyObject { // sourcery: AutoMockable
+    /// The callback URL scheme used by the Stripe checkout web authentication session.
+    var checkoutCallbackUrlScheme: String { get }
+
     /// Creates a checkout session for premium upgrade and returns the checkout URL.
     ///
     /// - Returns: A validated HTTPS URL for the checkout session.
@@ -42,10 +45,25 @@ protocol BillingService: AnyObject { // sourcery: AutoMockable
     ///
     func premiumCheckoutStatusPublisher() -> AnyPublisher<PremiumCheckoutStatus, Never>
 
+    /// Returns whether the current environment is effectively self-hosted for premium upgrade checks.
+    /// Returns `false` when the debug override flag is enabled, regardless of the actual region.
+    ///
+    func isSelfHosted() async -> Bool
+
     /// Notifies that a premium status change was detected (via deep link or push notification),
     /// triggers a sync, and publishes status updates.
     ///
     func premiumStatusChanged() async
+
+    /// Sets the "Upgraded to Premium" action card as dismissed and clears its visibility flag.
+    ///
+    func setUpgradedToPremiumActionCardDismissed() async
+
+    /// Gets whether the "Upgraded to Premium" action card should be shown for the active account.
+    ///
+    /// - Returns: Whether the action card should be shown.
+    ///
+    func shouldShowUpgradedToPremiumActionCard() async -> Bool
 }
 
 // MARK: - DefaultBillingService
@@ -57,6 +75,8 @@ class DefaultBillingService: BillingService {
 
     /// The API service used for billing requests.
     private let billingAPIService: BillingAPIService
+
+    let checkoutCallbackUrlScheme = "bitwarden"
 
     /// The service used to manage feature flags.
     private let configService: ConfigService
@@ -147,6 +167,11 @@ class DefaultBillingService: BillingService {
         premiumCheckoutStatusSubject.send(nil)
     }
 
+    func isSelfHosted() async -> Bool {
+        guard environmentService.region == .selfHosted else { return false }
+        return await !configService.getFeatureFlag(.debugDisableSelfHostPremiumCheck)
+    }
+
     func premiumCheckoutStatusPublisher() -> AnyPublisher<PremiumCheckoutStatus, Never> {
         premiumCheckoutStatusSubject
             .compactMap(\.self)
@@ -155,7 +180,7 @@ class DefaultBillingService: BillingService {
     }
 
     func premiumStatusChanged() async {
-        guard environmentService.region != .selfHosted,
+        guard await !isSelfHosted(),
               await configService.getFeatureFlag(.premiumUpgradePath),
               await !stateService.doesActiveAccountHavePremium()
         else {
@@ -172,6 +197,23 @@ class DefaultBillingService: BillingService {
         premiumCheckoutStatusSubject.send(hasPremium ? .confirmed : .pending)
         if hasPremium {
             premiumCheckoutStatusSubject.send(nil)
+            do {
+                try await stateService.setUpgradedToPremiumActionCardVisible(true)
+            } catch {
+                errorReporter.log(error: error)
+            }
         }
+    }
+
+    func setUpgradedToPremiumActionCardDismissed() async {
+        do {
+            try await stateService.setUpgradedToPremiumActionCardVisible(false)
+        } catch {
+            errorReporter.log(error: error)
+        }
+    }
+
+    func shouldShowUpgradedToPremiumActionCard() async -> Bool {
+        await stateService.getUpgradedToPremiumActionCardVisible()
     }
 }

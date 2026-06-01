@@ -69,6 +69,7 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator { // swiftlint:d
         & HasAuthRepository
         & HasAuthService
         & HasAutofillCredentialService
+        & HasBillingService
         & HasBiometricsRepository
         & HasConfigService
         & HasEnvironmentService
@@ -190,8 +191,8 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator { // swiftlint:d
             showPasswordAutoFill(delegate: context as? PasswordAutoFillProcessorDelegate)
         case .pendingLoginRequests:
             showPendingLoginRequests()
-        case .premiumPlan:
-            showPremiumPlan()
+        case let .premiumPlan(subscription):
+            showPremiumPlan(subscription: subscription)
         case .premiumUpgrade:
             showPremiumUpgrade()
         case let .selectLanguage(currentLanguage: currentLanguage):
@@ -472,10 +473,12 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator { // swiftlint:d
 
     /// Shows the premium plan screen.
     ///
-    private func showPremiumPlan() {
+    /// - Parameter subscription: An already-fetched subscription; pass `nil` to let the plan screen fetch it.
+    ///
+    private func showPremiumPlan(subscription: PremiumSubscription?) {
         guard let stackNavigator else { return }
         let coordinator = module.makeBillingCoordinator(stackNavigator: stackNavigator)
-        coordinator.navigate(to: .premiumPlan)
+        coordinator.navigate(to: .premiumPlan(subscription))
     }
 
     /// Shows the premium upgrade screen.

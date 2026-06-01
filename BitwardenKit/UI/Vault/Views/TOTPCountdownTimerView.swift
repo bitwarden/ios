@@ -67,4 +67,22 @@ public struct TOTPCountdownTimerView: View {
             onExpiration: onExpiration,
         )
     }
+
+    /// Initializes the view with an existing countdown timer.
+    ///
+    /// Use this initializer when the caller needs to share a single `TOTPCountdownTimer`
+    /// instance across multiple consumers — for example, to read `secondsRemaining`
+    /// without creating a second independent timer.
+    ///
+    /// - Parameters:
+    ///   - timer: An existing `TOTPCountdownTimer` to observe.
+    ///   - totpCode: The code that the timer represents.
+    ///
+    public init(
+        timer: TOTPCountdownTimer,
+        totpCode: TOTPCodeModel,
+    ) {
+        self.timer = timer
+        self.totpCode = totpCode
+    }
 }

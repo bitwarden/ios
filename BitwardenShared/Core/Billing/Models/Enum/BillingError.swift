@@ -10,7 +10,4 @@ enum BillingError: Error {
 
     /// The portal URL is invalid (e.g., not HTTPS).
     case invalidPortalUrl
-
-    /// Unable to open the checkout URL in the browser.
-    case unableToOpenCheckout
 }

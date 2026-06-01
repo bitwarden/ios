@@ -381,6 +381,7 @@
 "MasterPasswordPolicyValidationTitle" = "Nederīga parole";
 "MasterPasswordPolicyValidationMessage" = "Parole neatbilst apvienības prasībām. Lūgums pārskatīt nosacījumus un mēģināt vēlreiz.";
 "Loading" = "Ielādē";
+"LoadingSubscription" = "Loading subscription...";
 "AcceptPoliciesError" = "Nav apstiprināti izmantošanas noteikumi un privātuma nosacījumi.";
 "PrivacyPolicy" = "Privātuma nosacījumi";
 "PersonalOwnershipPolicyInEffect" = "Apvienības nosacījumi ietekmē Tavas īpašumtiesību iespējas.";
@@ -1080,8 +1081,8 @@
 "UpgradePending" = "Upgrade pending";
 "YourUpgradeIsBeingProcessedDescriptionLong" = "Your upgrade is being processed. You'll remain on the free plan until it's complete. Sync now to check, or continue and it will update automatically.";
 "UpgradedToPremium" = "Uzlabots uz Premium";
-"ViewPlanDetails" = "View plan details";
-"WelcomeToPremiumYouNowHaveAccessDescriptionLong" = "Welcome to Premium! You now have access to all advanced security features.";
+"YouNowHaveAccessToAdvancedSecurityDescriptionLong" = "You now have access to advanced security features. Learn more about what's included with Premium.";
+"YouNowHaveAccessToAllAdvancedSecurityFeatures" = "You now have access to all advanced security features.";
 "YoullGoToStripeSecureCheckoutToCompleteYourPurchase" = "You´ll go to Stripe´s secure checkout to complete your purchase.";
 "YoullContinueToHavePremiumAccessUntilX" = "You'll continue to have Premium access until %1$@.";
 "UserIDCopiedToTheClipboard" = "User ID copied to the clipboard";

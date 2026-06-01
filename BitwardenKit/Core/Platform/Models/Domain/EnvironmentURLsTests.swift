@@ -20,6 +20,7 @@ class EnvironmentURLsTests: BitwardenTestCase {
                 iconsURL: URL(string: "https://icons.bitwarden.net")!,
                 identityURL: URL(string: "https://identity.bitwarden.com")!,
                 importItemsURL: URL(string: "https://vault.bitwarden.com/#/tools/import")!,
+                manageSubscriptionURL: URL(string: "https://vault.bitwarden.com/#/settings/subscription")!,
                 proxyCookieRedirectConnectorURL: URL(
                     string: "https://vault.bitwarden.com/proxy-cookie-redirect-connector.html",
                 )!,
@@ -50,6 +51,7 @@ class EnvironmentURLsTests: BitwardenTestCase {
                 iconsURL: URL(string: "https://icons.bitwarden.eu")!,
                 identityURL: URL(string: "https://identity.bitwarden.eu")!,
                 importItemsURL: URL(string: "https://vault.bitwarden.eu/#/tools/import")!,
+                manageSubscriptionURL: URL(string: "https://vault.bitwarden.eu/#/settings/subscription")!,
                 proxyCookieRedirectConnectorURL: URL(
                     string: "https://vault.bitwarden.eu/proxy-cookie-redirect-connector.html",
                 )!,
@@ -81,6 +83,7 @@ class EnvironmentURLsTests: BitwardenTestCase {
                 iconsURL: URL(string: "https://example.com/icons")!,
                 identityURL: URL(string: "https://example.com/identity")!,
                 importItemsURL: URL(string: "https://example.com/#/tools/import")!,
+                manageSubscriptionURL: URL(string: "https://example.com/#/settings/subscription")!,
                 proxyCookieRedirectConnectorURL: URL(
                     string: "https://example.com/proxy-cookie-redirect-connector.html",
                 )!,
@@ -111,6 +114,7 @@ class EnvironmentURLsTests: BitwardenTestCase {
                 iconsURL: URL(string: "https://icons.bitwarden.eu")!,
                 identityURL: URL(string: "https://identity.bitwarden.eu")!,
                 importItemsURL: URL(string: "https://vault.bitwarden.eu/#/tools/import")!,
+                manageSubscriptionURL: URL(string: "https://vault.bitwarden.eu/#/settings/subscription")!,
                 proxyCookieRedirectConnectorURL: URL(
                     string: "https://vault.bitwarden.eu/proxy-cookie-redirect-connector.html",
                 )!,
@@ -141,6 +145,7 @@ class EnvironmentURLsTests: BitwardenTestCase {
                 iconsURL: URL(string: "https://icons.bitwarden.net")!,
                 identityURL: URL(string: "https://identity.bitwarden.com")!,
                 importItemsURL: URL(string: "https://vault.bitwarden.com/#/tools/import")!,
+                manageSubscriptionURL: URL(string: "https://vault.bitwarden.com/#/settings/subscription")!,
                 proxyCookieRedirectConnectorURL: URL(
                     string: "https://vault.bitwarden.com/proxy-cookie-redirect-connector.html",
                 )!,
@@ -171,6 +176,7 @@ class EnvironmentURLsTests: BitwardenTestCase {
                 iconsURL: URL(string: "https://example.com/icons")!,
                 identityURL: URL(string: "https://example.com/identity")!,
                 importItemsURL: URL(string: "https://example.com/#/tools/import")!,
+                manageSubscriptionURL: URL(string: "https://example.com/#/settings/subscription")!,
                 proxyCookieRedirectConnectorURL: URL(
                     string: "https://example.com/proxy-cookie-redirect-connector.html",
                 )!,
@@ -207,6 +213,7 @@ class EnvironmentURLsTests: BitwardenTestCase {
                 iconsURL: URL(string: "https://icons.example.com")!,
                 identityURL: URL(string: "https://identity.example.com")!,
                 importItemsURL: URL(string: "https://example.com/#/tools/import")!,
+                manageSubscriptionURL: URL(string: "https://example.com/#/settings/subscription")!,
                 proxyCookieRedirectConnectorURL: URL(
                     string: "https://example.com/proxy-cookie-redirect-connector.html",
                 )!,
@@ -235,6 +242,7 @@ class EnvironmentURLsTests: BitwardenTestCase {
                 iconsURL: URL(string: "https://icons.bitwarden.net")!,
                 identityURL: URL(string: "https://identity.bitwarden.com")!,
                 importItemsURL: URL(string: "https://vault.bitwarden.com/#/tools/import")!,
+                manageSubscriptionURL: URL(string: "https://vault.bitwarden.com")!,
                 proxyCookieRedirectConnectorURL: URL(string: "https://vault.bitwarden.com")!,
                 recoveryCodeURL: URL(string: "https://vault.bitwarden.com/#/recover-2fa")!,
                 sendShareURL: URL(string: "https://send.bitwarden.com/#")!,

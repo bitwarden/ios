@@ -58,6 +58,7 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         billingRepository = MockBillingRepository()
         billingRepository.isInAppUpgradeAvailableReturnValue = false
         billingService = MockBillingService()
+        billingService.shouldShowUpgradedToPremiumActionCardReturnValue = false
         errorReporter = MockErrorReporter()
         changeKdfService = MockChangeKdfService()
         configService = MockConfigService()
@@ -632,6 +633,19 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         XCTAssertFalse(subject.state.shouldShowPremiumUpgradeActionCard)
     }
 
+    /// `perform(_:)` with `.appeared` still shows the upgraded-to-premium card even when the
+    /// upgrade banner was previously dismissed.
+    @MainActor
+    func test_perform_appeared_loadPremiumUpgradeBanner_bannerDismissed_stillShowsUpgradedCard() async {
+        stateService.isPremiumUpgradeBannerDismissedResult = true
+        billingService.shouldShowUpgradedToPremiumActionCardReturnValue = true
+
+        await subject.perform(.appeared)
+
+        XCTAssertFalse(subject.state.shouldShowPremiumUpgradeActionCard)
+        XCTAssertTrue(subject.state.shouldShowUpgradedToPremiumActionCard)
+    }
+
     /// `perform(_:)` with `.appeared` hides the premium upgrade action card when the in-app upgrade
     /// is not available.
     @MainActor
@@ -669,7 +683,8 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         XCTAssertTrue(stateService.premiumUpgradeBannerDismissedByUserId["1"] ?? false)
     }
 
-    /// `perform(_:)` with `.dismissUpgradedToPremiumActionCard` hides the upgraded to premium card.
+    /// `perform(_:)` with `.dismissUpgradedToPremiumActionCard` hides the upgraded to premium card
+    /// and persists the dismissal.
     @MainActor
     func test_perform_dismissUpgradedToPremiumActionCard() async {
         subject.state.shouldShowUpgradedToPremiumActionCard = true
@@ -677,9 +692,11 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         await subject.perform(.dismissUpgradedToPremiumActionCard)
 
         XCTAssertFalse(subject.state.shouldShowUpgradedToPremiumActionCard)
+        XCTAssertEqual(billingService.setUpgradedToPremiumActionCardDismissedCallsCount, 1)
     }
 
-    /// `receive(_:)` with `.learnMoreAboutPremium` opens the learn more about premium URL and hides the card.
+    /// `receive(_:)` with `.learnMoreAboutPremium` opens the learn more about premium URL, hides the
+    /// card, and persists the dismissal.
     @MainActor
     func test_receive_learnMoreAboutPremium() {
         subject.state.shouldShowUpgradedToPremiumActionCard = true
@@ -687,6 +704,8 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
 
         XCTAssertEqual(subject.state.url, ExternalLinksConstants.learnMoreAboutPremium)
         XCTAssertFalse(subject.state.shouldShowUpgradedToPremiumActionCard)
+        waitFor { billingService.setUpgradedToPremiumActionCardDismissedCallsCount == 1 }
+        XCTAssertEqual(billingService.setUpgradedToPremiumActionCardDismissedCallsCount, 1)
     }
 
     /// `perform(_:)` with `.dismissFlightRecorderToastBanner` hides the flight recorder toast banner.

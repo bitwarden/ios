@@ -1,3 +1,4 @@
+import BitwardenSdk
 import XCTest
 
 @testable import BitwardenShared
@@ -20,8 +21,7 @@ class AccountEncryptionKeysTests: BitwardenTestCase {
         XCTAssertEqual(
             subject,
             AccountEncryptionKeys(
-                accountKeys: accountKeys,
-                encryptedPrivateKey: "WRAPPED_PRIVATE_KEY",
+                cryptographicState: .fixtureV2(),
                 encryptedUserKey: "KEY",
             ),
         )
@@ -41,8 +41,7 @@ class AccountEncryptionKeysTests: BitwardenTestCase {
         XCTAssertEqual(
             subject,
             AccountEncryptionKeys(
-                accountKeys: nil,
-                encryptedPrivateKey: "PRIVATE_KEY",
+                cryptographicState: .v1(privateKey: "PRIVATE_KEY"),
                 encryptedUserKey: "KEY",
             ),
         )

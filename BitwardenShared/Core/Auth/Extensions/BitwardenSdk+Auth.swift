@@ -22,6 +22,8 @@ extension BitwardenSdk.InitUserCryptoMethod {
             "PIN"
         case .pinEnvelope:
             "PIN Envelope"
+        case .pinState:
+            "PIN State"
         }
     }
 }

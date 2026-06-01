@@ -14,6 +14,7 @@ final class PremiumPlanProcessor: StateProcessor<
     // MARK: Types
 
     typealias Services = HasBillingService
+        & HasEnvironmentService
         & HasErrorReporter
 
     // MARK: Private Properties
@@ -50,7 +51,7 @@ final class PremiumPlanProcessor: StateProcessor<
         case .appeared:
             await loadPremiumPlan()
         case .managePlanTapped:
-            await openPortalUrl()
+            showManageSubscriptionAlert()
         }
     }
 
@@ -64,6 +65,16 @@ final class PremiumPlanProcessor: StateProcessor<
     }
 
     // MARK: Private Methods
+
+    /// Shows the "Continue to web app?" alert for managing the subscription plan.
+    ///
+    private func showManageSubscriptionAlert() {
+        coordinator.showAlert(
+            .manageSubscriptionPlanAlert { [weak self] in
+                self?.state.urlToOpen = self?.services.environmentService.manageSubscriptionURL
+            },
+        )
+    }
 
     /// Fetches the portal URL from the billing service and sets it on state.
     ///
@@ -85,14 +96,14 @@ final class PremiumPlanProcessor: StateProcessor<
     private func showCancelConfirmation() {
         coordinator.showAlert(
             Alert(
-                title: Localizations.cancelPremium,
-                message: Localizations.youllContinueToHavePremiumAccessUntilX(state.nextChargeDate),
+                title: Localizations.continueToStripe,
+                message: Localizations.youllBeTakenToStripeToManageYourSubscriptionCancellation,
                 alertActions: [
-                    AlertAction(title: Localizations.cancelNow, style: .destructive) { [weak self] _ in
+                    AlertAction(title: Localizations.cancel, style: .cancel),
+                    AlertAction(title: Localizations.continue, style: .default) { [weak self] _ in
                         guard let self else { return }
                         await openPortalUrl()
                     },
-                    AlertAction(title: Localizations.close, style: .cancel),
                 ],
             ),
         )
@@ -120,7 +131,12 @@ final class PremiumPlanProcessor: StateProcessor<
                 return
             }
 
-            let subscription = try await services.billingService.getSubscription()
+            let subscription: PremiumSubscription
+            if let existing = state.subscription {
+                subscription = existing
+            } else {
+                subscription = try await services.billingService.getSubscription()
+            }
             state.subscription = subscription
             state.planStatus = subscription.status
         } catch {

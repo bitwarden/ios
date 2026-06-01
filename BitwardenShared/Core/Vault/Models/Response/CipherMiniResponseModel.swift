@@ -28,6 +28,9 @@ struct CipherMiniResponseModel: JSONResponse, Equatable {
     /// The date the cipher was deleted.
     let deletedDate: Date?
 
+    /// Driver's license data if the cipher is a driver's license.
+    let driversLicense: CipherDriversLicenseModel?
+
     /// The cipher's list of user-defined fields.
     let fields: [CipherFieldModel]?
 
@@ -54,6 +57,9 @@ struct CipherMiniResponseModel: JSONResponse, Equatable {
 
     /// Whether the organization for the cipher supports TOTP.
     let organizationUseTotp: Bool
+
+    /// Passport data if the cipher is a passport.
+    let passport: CipherPassportModel?
 
     /// The password history for this cipher.
     let passwordHistory: [CipherPasswordHistoryModel]?

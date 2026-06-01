@@ -1,4 +1,5 @@
 import BitwardenSdk
+import BitwardenSdkMocks
 
 @testable import AuthenticatorShared
 
@@ -7,7 +8,7 @@ class MockPlatformClientService: PlatformClientService {
     var fingerprintResult: Result<String, Error> = .success("a-fingerprint-phrase-string-placeholder")
     var featureFlags: [String: Bool] = [:]
     var loadFlagsError: Error?
-    var stateMock = MockStateClient()
+    var stateMock = MockStateClientProtocol()
     var userFingerprintCalled = false
 
     func fingerprint(request req: BitwardenSdk.FingerprintRequest) throws -> String {

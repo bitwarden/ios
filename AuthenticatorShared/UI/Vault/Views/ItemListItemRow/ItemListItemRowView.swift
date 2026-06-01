@@ -1,6 +1,5 @@
 import BitwardenKit
 import BitwardenResources
-import BitwardenSdk
 import SwiftUI
 
 // MARK: - ItemListItemRowView
@@ -34,11 +33,12 @@ struct ItemListItemRowView: View {
                 .accessibilityIdentifier("ItemImage")
 
                 HStack {
-                    if let totpCodeModel = store.state.item.totpCodeModel {
+                    if let currentCode = store.state.item.totpCodeModel {
                         totpCodeRow(
                             name: store.state.item.name,
                             accountName: store.state.item.accountName,
-                            model: totpCodeModel,
+                            currentCode: currentCode,
+                            nextCode: store.state.item.nextTotpCodeModel,
                         )
                     } else {
                         EmptyView()
@@ -78,7 +78,12 @@ struct ItemListItemRowView: View {
 
     /// The row showing the totp code.
     @ViewBuilder
-    private func totpCodeRow(name: String, accountName: String?, model: TOTPCodeModel) -> some View {
+    private func totpCodeRow(
+        name: String,
+        accountName: String?,
+        currentCode: TOTPCodeModel,
+        nextCode: TOTPCodeModel?,
+    ) -> some View {
         VStack(alignment: .leading, spacing: 0) {
             if let name = name.nilIfEmpty {
                 Text(name)
@@ -104,15 +109,13 @@ struct ItemListItemRowView: View {
             }
         }
         Spacer()
-        TOTPCountdownTimerView(
+        TOTPCodeDisplay(
+            currentCode: currentCode,
+            nextCode: nextCode,
+            showNextTOTPCode: store.state.showNextTOTPCode,
             timeProvider: timeProvider,
-            totpCode: model,
-            onExpiration: nil,
         )
-        Text(model.displayCode)
-            .styleGuide(.bodyMonospaced, weight: .regular, monoSpacedDigit: true)
-            .foregroundColor(Asset.Colors.textPrimary.swiftUIColor)
-            .accessibilityIdentifier("ItemTOTPCodeLabel")
+
     }
 }
 
@@ -138,6 +141,7 @@ struct ItemListItemRowView: View {
                         ),
                     ),
                     hasDivider: true,
+                    showNextTOTPCode: true,
                     showWebIcons: true,
                 ),
             ),
@@ -167,6 +171,7 @@ struct ItemListItemRowView: View {
                         ),
                     ),
                     hasDivider: true,
+                    showNextTOTPCode: true,
                     showWebIcons: true,
                 ),
             ),
@@ -196,6 +201,7 @@ struct ItemListItemRowView: View {
                         ),
                     ),
                     hasDivider: true,
+                    showNextTOTPCode: true,
                     showWebIcons: true,
                 ),
             ),
@@ -204,48 +210,84 @@ struct ItemListItemRowView: View {
     )
 }
 
-struct ItemListItemRow_Previews: PreviewProvider {
-    static var previews: some View {
-        NavigationView {
-            VStack(spacing: 4) {
-                ForEach(ItemListSection.digitsFixture(accountNames: false).items) { item in
-                    ItemListItemRowView(
-                        store: Store(
-                            processor: StateProcessor(
-                                state: ItemListItemRowState(
-                                    item: item,
-                                    hasDivider: true,
-                                    showWebIcons: true,
+#Preview("With next code visible") {
+    ItemListItemRowView(
+        store: Store(
+            processor: StateProcessor(
+                state: ItemListItemRowState(
+                    item: ItemListItem(
+                        id: UUID().uuidString,
+                        name: "Example",
+                        accountName: "person@example.com",
+                        itemType: .totp(
+                            model: ItemListTotpItem(
+                                itemView: AuthenticatorItemView.fixture(),
+                                nextTotpCode: TOTPCodeModel(
+                                    code: "789012",
+                                    codeGenerationDate: Date(),
+                                    period: 30,
+                                ),
+                                totpCode: TOTPCodeModel(
+                                    code: "123456",
+                                    codeGenerationDate: Date().addingTimeInterval(-22),
+                                    period: 30,
                                 ),
                             ),
                         ),
-                        timeProvider: PreviewTimeProvider(),
-                    )
-                }
-            }
-        }.previewDisplayName(
-            "Digits without account",
-        )
-        NavigationView {
-            VStack(spacing: 4) {
-                ForEach(ItemListSection.digitsFixture(accountNames: true).items) { item in
-                    ItemListItemRowView(
-                        store: Store(
-                            processor: StateProcessor(
-                                state: ItemListItemRowState(
-                                    item: item,
-                                    hasDivider: true,
-                                    showWebIcons: true,
-                                ),
+                    ),
+                    hasDivider: true,
+                    showNextTOTPCode: true,
+                    showWebIcons: true,
+                ),
+            ),
+        ),
+        timeProvider: PreviewTimeProvider(
+            fixedDate: Date(year: 2023, month: 12, day: 31, hour: 0, minute: 0, second: 25),
+        ),
+    )
+}
+
+#Preview("Digits without account") {
+    NavigationView {
+        VStack(spacing: 4) {
+            ForEach(ItemListSection.digitsFixture(accountNames: false).items) { item in
+                ItemListItemRowView(
+                    store: Store(
+                        processor: StateProcessor(
+                            state: ItemListItemRowState(
+                                item: item,
+                                hasDivider: true,
+                                showNextTOTPCode: true,
+                                showWebIcons: true,
                             ),
                         ),
-                        timeProvider: PreviewTimeProvider(),
-                    )
-                }
+                    ),
+                    timeProvider: PreviewTimeProvider(),
+                )
             }
-        }.previewDisplayName(
-            "Digits with account",
-        )
+        }
+    }
+}
+
+#Preview("Digits with account") {
+    NavigationView {
+        VStack(spacing: 4) {
+            ForEach(ItemListSection.digitsFixture(accountNames: true).items) { item in
+                ItemListItemRowView(
+                    store: Store(
+                        processor: StateProcessor(
+                            state: ItemListItemRowState(
+                                item: item,
+                                hasDivider: true,
+                                showNextTOTPCode: true,
+                                showWebIcons: true,
+                            ),
+                        ),
+                    ),
+                    timeProvider: PreviewTimeProvider(),
+                )
+            }
+        }
     }
 }
 #endif

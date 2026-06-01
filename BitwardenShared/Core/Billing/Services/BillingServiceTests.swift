@@ -289,6 +289,7 @@ struct BillingServiceTests { // swiftlint:disable:this type_body_length
         var statuses = [PremiumCheckoutStatus]()
         let cancellable = subject.premiumCheckoutStatusPublisher()
             .sink { statuses.append($0) }
+        defer { cancellable.cancel() }
 
         subject.premiumCheckoutCanceled()
 
@@ -299,6 +300,7 @@ struct BillingServiceTests { // swiftlint:disable:this type_body_length
         var lateStatuses = [PremiumCheckoutStatus]()
         let lateCancellable = subject.premiumCheckoutStatusPublisher()
             .sink { lateStatuses.append($0) }
+        defer { lateCancellable.cancel() }
         try await waitForAsync { lateStatuses.isEmpty }
     }
 
@@ -332,6 +334,7 @@ struct BillingServiceTests { // swiftlint:disable:this type_body_length
         var statuses = [PremiumCheckoutStatus]()
         let cancellable = subject.premiumCheckoutStatusPublisher()
             .sink { statuses.append($0) }
+        defer { cancellable.cancel() }
 
         await subject.premiumStatusChanged()
 
@@ -350,6 +353,7 @@ struct BillingServiceTests { // swiftlint:disable:this type_body_length
         var statuses = [PremiumCheckoutStatus]()
         let cancellable = subject.premiumCheckoutStatusPublisher()
             .sink { statuses.append($0) }
+        defer { cancellable.cancel() }
 
         await subject.premiumStatusChanged()
 
@@ -371,6 +375,7 @@ struct BillingServiceTests { // swiftlint:disable:this type_body_length
         var earlyStatuses = [PremiumCheckoutStatus]()
         let earlyCancellable = subject.premiumCheckoutStatusPublisher()
             .sink { earlyStatuses.append($0) }
+        defer { earlyCancellable.cancel() }
 
         await subject.premiumStatusChanged()
         try await waitForAsync { !earlyStatuses.isEmpty }
@@ -379,6 +384,7 @@ struct BillingServiceTests { // swiftlint:disable:this type_body_length
         var lateStatuses = [PremiumCheckoutStatus]()
         let lateCancellable = subject.premiumCheckoutStatusPublisher()
             .sink { lateStatuses.append($0) }
+        defer { lateCancellable.cancel() }
 
         try await waitForAsync { lateStatuses.isEmpty }
     }
@@ -391,6 +397,7 @@ struct BillingServiceTests { // swiftlint:disable:this type_body_length
         var statuses = [PremiumCheckoutStatus]()
         let cancellable = subject.premiumCheckoutStatusPublisher()
             .sink { statuses.append($0) }
+        defer { cancellable.cancel() }
 
         await subject.premiumStatusChanged()
 
@@ -405,12 +412,45 @@ struct BillingServiceTests { // swiftlint:disable:this type_body_length
         var statuses = [PremiumCheckoutStatus]()
         let cancellable = subject.premiumCheckoutStatusPublisher()
             .sink { statuses.append($0) }
+        defer { cancellable.cancel() }
 
         await subject.premiumStatusChanged()
 
         try await waitForAsync { !statuses.isEmpty }
         #expect(statuses == [.pending])
         #expect(syncService.didFetchSync)
+    }
+
+    /// `isSelfHosted()` returns `false` when the region is not self-hosted.
+    @Test
+    func isSelfHosted_cloudRegion_returnsFalse() async {
+        environmentService.region = .unitedStates
+
+        let result = await subject.isSelfHosted()
+
+        #expect(result == false)
+    }
+
+    /// `isSelfHosted()` returns `true` when self-hosted and the debug flag is off.
+    @Test
+    func isSelfHosted_selfHostedRegion_debugFlagOff_returnsTrue() async {
+        environmentService.region = .selfHosted
+        configService.featureFlagsBool[.debugDisableSelfHostPremiumCheck] = false
+
+        let result = await subject.isSelfHosted()
+
+        #expect(result == true)
+    }
+
+    /// `isSelfHosted()` returns `false` when self-hosted but the debug override flag is enabled.
+    @Test
+    func isSelfHosted_selfHostedRegion_debugFlagOn_returnsFalse() async {
+        environmentService.region = .selfHosted
+        configService.featureFlagsBool[.debugDisableSelfHostPremiumCheck] = true
+
+        let result = await subject.isSelfHosted()
+
+        #expect(result == false)
     }
 
     /// `premiumStatusChanged()` returns early without syncing when the environment is self-hosted.
@@ -421,11 +461,69 @@ struct BillingServiceTests { // swiftlint:disable:this type_body_length
         var statuses = [PremiumCheckoutStatus]()
         let cancellable = subject.premiumCheckoutStatusPublisher()
             .sink { statuses.append($0) }
+        defer { cancellable.cancel() }
 
         await subject.premiumStatusChanged()
 
         #expect(statuses.isEmpty)
         #expect(!syncService.didFetchSync)
+    }
+
+    /// `premiumStatusChanged()` syncs when self-hosted region is overridden by the debug flag.
+    @Test
+    func premiumStatusChanged_selfHosted_debugFlagEnabled_syncs() async throws {
+        environmentService.region = .selfHosted
+        configService.featureFlagsBool[.debugDisableSelfHostPremiumCheck] = true
+        stateService.doesActiveAccountHavePremiumResult = false
+        var statuses = [PremiumCheckoutStatus]()
+        let cancellable = subject.premiumCheckoutStatusPublisher()
+            .sink { statuses.append($0) }
+        defer { cancellable.cancel() }
+
+        await subject.premiumStatusChanged()
+
+        try await waitForAsync { !statuses.isEmpty }
+        #expect(syncService.didFetchSync)
+    }
+
+    /// `setUpgradedToPremiumActionCardDismissed()` sets the visibility flag to `false` for the active account.
+    @Test
+    func setUpgradedToPremiumActionCardDismissed() async {
+        stateService.upgradedToPremiumActionCardVisibleResult = true
+
+        await subject.setUpgradedToPremiumActionCardDismissed()
+
+        #expect(stateService.upgradedToPremiumActionCardVisibleResult == false)
+    }
+
+    /// `setUpgradedToPremiumActionCardDismissed()` logs an error if the state service throws.
+    @Test
+    func setUpgradedToPremiumActionCardDismissed_error() async {
+        stateService.setUpgradedToPremiumActionCardResult = .failure(StateServiceError.noActiveAccount)
+
+        await subject.setUpgradedToPremiumActionCardDismissed()
+
+        #expect(errorReporter.errors.first as? StateServiceError == .noActiveAccount)
+    }
+
+    /// `shouldShowUpgradedToPremiumActionCard()` returns `true` when the state service reports the card is visible.
+    @Test
+    func shouldShowUpgradedToPremiumActionCard_visible() async {
+        stateService.upgradedToPremiumActionCardVisibleResult = true
+
+        let result = await subject.shouldShowUpgradedToPremiumActionCard()
+
+        #expect(result == true)
+    }
+
+    /// `shouldShowUpgradedToPremiumActionCard()` returns `false` when the state service reports it is not visible.
+    @Test
+    func shouldShowUpgradedToPremiumActionCard_notVisible() async {
+        stateService.upgradedToPremiumActionCardVisibleResult = false
+
+        let result = await subject.shouldShowUpgradedToPremiumActionCard()
+
+        #expect(result == false)
     }
 
     /// `premiumStatusChanged()` reports the error and publishes `.pending` when sync fails.
@@ -436,6 +534,7 @@ struct BillingServiceTests { // swiftlint:disable:this type_body_length
         var statuses = [PremiumCheckoutStatus]()
         let cancellable = subject.premiumCheckoutStatusPublisher()
             .sink { statuses.append($0) }
+        defer { cancellable.cancel() }
 
         await subject.premiumStatusChanged()
 

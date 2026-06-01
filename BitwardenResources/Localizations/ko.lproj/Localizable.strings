@@ -381,6 +381,7 @@
 "MasterPasswordPolicyValidationTitle" = "유효하지 않은 비밀번호";
 "MasterPasswordPolicyValidationMessage" = "비밀번호가 조직 요구 사항을 충족하지 않습니다. 정책 정보를 확인해보고 다시 시도해보세요.";
 "Loading" = "불러오는 중";
+"LoadingSubscription" = "Loading subscription...";
 "AcceptPoliciesError" = "서비스 약관 및 개인 정보 보호 정책을 확인하지 않았습니다.";
 "PrivacyPolicy" = "개인 정보 보호 정책";
 "PersonalOwnershipPolicyInEffect" = "조직의 정책이 소유권 설정에 영향을 미치고 있습니다.";
@@ -1080,8 +1081,8 @@
 "UpgradePending" = "Upgrade pending";
 "YourUpgradeIsBeingProcessedDescriptionLong" = "Your upgrade is being processed. You'll remain on the free plan until it's complete. Sync now to check, or continue and it will update automatically.";
 "UpgradedToPremium" = "Upgraded to Premium";
-"ViewPlanDetails" = "View plan details";
-"WelcomeToPremiumYouNowHaveAccessDescriptionLong" = "Welcome to Premium! You now have access to all advanced security features.";
+"YouNowHaveAccessToAdvancedSecurityDescriptionLong" = "You now have access to advanced security features. Learn more about what's included with Premium.";
+"YouNowHaveAccessToAllAdvancedSecurityFeatures" = "You now have access to all advanced security features.";
 "YoullGoToStripeSecureCheckoutToCompleteYourPurchase" = "You´ll go to Stripe´s secure checkout to complete your purchase.";
 "YoullContinueToHavePremiumAccessUntilX" = "You'll continue to have Premium access until %1$@.";
 "UserIDCopiedToTheClipboard" = "User ID copied to the clipboard";
