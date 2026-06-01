@@ -17,7 +17,11 @@ struct StringExtensionsTests {
             "https://bitwarden.com",
             "http://192.168.0.1:8080",
             "https://ht tp://broken.com",
+<<<<<<< HEAD
         ],
+=======
+        ]
+>>>>>>> main
     ))
     func fixURLIfNeeded(input: String, expected: String) {
         #expect(input.fixURLIfNeeded() == expected)
@@ -46,7 +50,11 @@ struct StringExtensionsTests {
             "Visit Bitwarden now.",
             "Bold text",
             "No markdown here.",
+<<<<<<< HEAD
         ],
+=======
+        ]
+>>>>>>> main
     ))
     func removingMarkdownForVoiceOver(input: String, expected: String) {
         #expect(input.removingMarkdownForVoiceOver() == expected)

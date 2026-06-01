@@ -33,7 +33,10 @@ public struct TOTPCodeDisplay: View {
                 Text(currentCode.displayCode)
                     .styleGuide(.bodyMonospaced, weight: .regular, monoSpacedDigit: true)
                     .foregroundColor(SharedAsset.Colors.textPrimary.swiftUIColor)
+<<<<<<< HEAD
                     .accessibilityIdentifier("ItemTOTPCodeLabel")
+=======
+>>>>>>> main
                 if timer.secondsRemaining <= Constants.nextTOTPCodePreviewThreshold,
                    let nextCode,
                    showNextTOTPCode {
