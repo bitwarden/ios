@@ -5,6 +5,11 @@ import Foundation
 
 /// An enum to represent a feature flag sent by the server
 extension FeatureFlag: @retroactive CaseIterable {
+    /// A feature flag to enable/disable V2 account encryption for JIT password registration.
+    static let accountEncryptionV2JITPassword = FeatureFlag(
+        rawValue: "enable-account-encryption-v2-jit-password-registration",
+    )
+
     /// Flag to enable/disable V2 password-based registration using the SDK registration client.
     static let accountEncryptionV2PasswordRegistration = FeatureFlag(rawValue: "pm-27278-v2-password-registration")
 
@@ -42,6 +47,7 @@ extension FeatureFlag: @retroactive CaseIterable {
 
     public static var allCases: [FeatureFlag] {
         [
+            .accountEncryptionV2JITPassword,
             .accountEncryptionV2PasswordRegistration,
             .cardScanner,
             .cipherKeyEncryption,
