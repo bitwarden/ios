@@ -9,7 +9,7 @@ struct UpdateCipherCollectionsResponseModel: JSONResponse, Equatable {
     /// The updated cipher, or `nil` if the user no longer has access.
     let cipher: CipherDetailsResponseModel?
 
-    /// Whether the cipher is now unavailable to the current user (e.g. because they removed
-    /// themselves from all collections that granted them Can Manage access).
+    /// Whether the cipher is now unavailable to the current user (i.e. they no longer have any
+    /// collection access to it after the update).
     let unavailable: Bool
 }

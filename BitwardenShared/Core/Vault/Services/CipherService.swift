@@ -451,8 +451,8 @@ extension DefaultCipherService {
         let response = try await cipherAPIService.updateCipherCollections(cipher)
 
         if response.unavailable {
-            // The user no longer has access to the cipher (e.g. they removed themselves from all
-            // collections that granted Can Manage access), so remove it from local storage.
+            // The user no longer has any collection access to the cipher after the update,
+            // so remove it from local storage.
             try await cipherDataStore.deleteCipher(id: cipher.id ?? "", userId: userId)
         } else {
             // Use the server-returned cipher if available; fall back to the local model.
