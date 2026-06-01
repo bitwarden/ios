@@ -34,9 +34,9 @@ struct UpdateCipherCollectionsRequest: Request {
 
     // MARK: Initialization
 
-    /// Initialize a `ShareCipherRequest` for a `Cipher`.
+    /// Initialize an `UpdateCipherCollectionsRequest` for a `Cipher`.
     ///
-    /// - Parameter cipher: The `Cipher` to share with an organization.
+    /// - Parameter cipher: The `Cipher` whose collection assignments to update.
     ///
     init(cipher: Cipher) throws {
         guard let id = cipher.id else { throw UpdateCipherCollectionsRequestError.missingCipherId }
