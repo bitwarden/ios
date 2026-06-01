@@ -115,7 +115,6 @@ struct ItemListItemRowView: View {
             showNextTOTPCode: store.state.showNextTOTPCode,
             timeProvider: timeProvider,
         )
-
     }
 }
 

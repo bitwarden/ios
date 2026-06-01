@@ -276,11 +276,11 @@ private struct SearchableItemListView: View { // swiftlint:disable:this type_bod
     private func groupView(title: String?, items: [ItemListItem]) -> some View {
         LazyVStack(alignment: .leading, spacing: 7) {
             if let title = title?.nilIfEmpty {
-                ExpandableHeaderView(title: title, count: items.count, buttonAccessibilityIdentifier: title + "Header") {
+                ExpandableHeaderView(title: title, count: items.count, buttonAccessibilityIdentifier: title+"Header") {
                     ForEach(items) { item in
                         buildRow(item: item, isLastInSection: true)
                             .clipShape(RoundedRectangle(cornerRadius: 10))
-                    };
+                    }
                 }
             } else {
                 ForEach(items) { item in
