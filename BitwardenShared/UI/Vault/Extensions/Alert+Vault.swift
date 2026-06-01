@@ -14,12 +14,59 @@ extension Alert {
     ///   - action: A closure to execute on upgrading to premium.
     /// - Returns: The alert when archive is unavailable.
     static func archiveUnavailable(
-        action: @escaping () -> Void,
+        action: @escaping () async -> Void,
     ) -> Alert {
-        let preferredAction = AlertAction(title: Localizations.upgradeToPremium, style: .default) { _ in action() }
+        let preferredAction = AlertAction(title: Localizations.upgradeToPremium, style: .default) { _ in
+            await action()
+        }
         let alert = Alert(
             title: Localizations.archiveUnavailable,
             message: Localizations.archivingItemsIsAPremiumFeatureDescriptionLong,
+            alertActions: [
+                preferredAction,
+                AlertAction(title: Localizations.cancel, style: .cancel),
+            ],
+        )
+        alert.preferredAction = preferredAction
+        return alert
+    }
+
+    /// Returns an alert for when attachments are unavailable.
+    ///
+    /// - Parameters:
+    ///   - action: A closure to execute on upgrading to premium.
+    /// - Returns: The alert when attachments are unavailable.
+    static func attachmentsUnavailable(
+        action: @escaping () async -> Void,
+    ) -> Alert {
+        let preferredAction = AlertAction(title: Localizations.upgradeToPremium, style: .default) { _ in
+            await action()
+        }
+        let alert = Alert(
+            title: Localizations.attachmentsUnavailable,
+            message: Localizations.addingAttachmentsIsAPremiumFeatureDescriptionLong,
+            alertActions: [
+                preferredAction,
+                AlertAction(title: Localizations.cancel, style: .cancel),
+            ],
+        )
+        alert.preferredAction = preferredAction
+        return alert
+    }
+
+    /// Returns an alert notifying the user that a premium subscription is required to send files,
+    /// with an option to upgrade.
+    ///
+    /// - Parameters:
+    ///   - action: A closure to execute on upgrading to premium.
+    /// - Returns: The alert shown when a non-premium user tries to send a file.
+    static func fileSendPremiumRequired(
+        action: @escaping () -> Void,
+    ) -> Alert {
+        let preferredAction = AlertAction(title: Localizations.upgradeToPremium, style: .default) { _, _ in action() }
+        let alert = Alert(
+            title: Localizations.premiumSubscriptionRequired,
+            message: Localizations.sendFilePremiumRequired,
             alertActions: [
                 preferredAction,
                 AlertAction(title: Localizations.cancel, style: .cancel),
@@ -84,6 +131,23 @@ extension Alert {
                     copyAction(stringToCopy)
                 }),
                 AlertAction(title: Localizations.close, style: .cancel),
+            ],
+        )
+    }
+
+    /// Returns an alert asking the user to confirm archiving a vault item.
+    ///
+    /// - Parameters:
+    ///   - action: A closure to execute when the user confirms archiving.
+    /// - Returns: An alert confirming the archive action.
+    ///
+    static func confirmArchiveItem(action: @escaping () async -> Void) -> Alert {
+        Alert(
+            title: Localizations.archiveItem,
+            message: Localizations.onceArchivedThisItemWillBeExcludedDescriptionLong,
+            alertActions: [
+                AlertAction(title: Localizations.archive, style: .default) { _, _ in await action() },
+                AlertAction(title: Localizations.cancel, style: .cancel),
             ],
         )
     }
@@ -394,6 +458,15 @@ extension Alert {
                     ))
                 })
             }
+        case .bankAccount:
+            // TODO: PM-32809
+            break
+        case .driversLicense:
+            // TODO: PM-32807
+            break
+        case .passport:
+            // TODO: PM-32805
+            break
         }
 
         if context.canArchive {

@@ -1,6 +1,6 @@
 import BitwardenKit
+import Foundation
 import Networking
-import UIKit
 
 /// A service used by the application to make API requests.
 ///
@@ -31,19 +31,19 @@ class APIService {
     ///     to `URLSession.shared`.
     ///   - environmentService: The service used by the application to retrieve the environment settings.
     ///   - flightRecorder: The service used by the application for recording temporary debug logs.
+    ///   - userAgentBuilder: Builds the user agent string from app and device information.
     ///
     init(
         client: HTTPClient = URLSession.shared,
         environmentService: EnvironmentService,
         flightRecorder: FlightRecorder,
+        userAgentBuilder: UserAgentBuilder,
     ) {
         self.client = client
 
         defaultHeadersRequestHandler = DefaultHeadersRequestHandler(
-            appName: "Bitwarden_Authenticator_Mobile",
             appVersion: Bundle.main.appVersion,
-            buildNumber: Bundle.main.buildNumber,
-            systemDevice: UIDevice.current,
+            userAgentBuilder: userAgentBuilder,
         )
 
         apiUnauthenticatedService = HTTPService(

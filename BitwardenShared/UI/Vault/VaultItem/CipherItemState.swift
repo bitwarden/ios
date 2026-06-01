@@ -78,9 +78,6 @@ struct CipherItemState: Equatable { // swiftlint:disable:this type_body_length
     /// Whether the additional options section is expanded.
     var isAdditionalOptionsExpanded = false
 
-    /// Whether archive vault items feature flag is enabled.
-    var isArchiveVaultItemsFFEnabled = false
-
     /// A flag indicating if this item is favorited.
     var isFavoriteOn = false
 
@@ -157,7 +154,7 @@ struct CipherItemState: Equatable { // swiftlint:disable:this type_body_length
 
     /// Whether or not this item can be archived by the user.
     var canBeArchived: Bool {
-        isArchiveVaultItemsFFEnabled && cipher.archivedDate == nil && cipher.deletedDate == nil
+        cipher.canBeArchived
     }
 
     /// Whether the cipher belongs to any organization.
@@ -206,7 +203,7 @@ struct CipherItemState: Equatable { // swiftlint:disable:this type_body_length
 
     /// Whether or not this item can be unarchived by the user.
     var canBeUnarchived: Bool {
-        isArchiveVaultItemsFFEnabled && cipher.archivedDate != nil && cipher.deletedDate == nil
+        cipher.canBeUnarchived
     }
 
     /// Whether or not this item can be moved to an organization.
@@ -282,7 +279,7 @@ struct CipherItemState: Equatable { // swiftlint:disable:this type_body_length
 
     /// Whether the item should be displayed as archived.
     var shouldDisplayAsArchived: Bool {
-        isArchiveVaultItemsFFEnabled && canBeUnarchived
+        canBeUnarchived
     }
 
     /// The flag indicating if we should show the learn new login action card.
@@ -427,12 +424,16 @@ struct CipherItemState: Equatable { // swiftlint:disable:this type_body_length
     ///     primarily used when cloning a cipher to provide a default name for the cloned `CipherView`
     ///     that is different from the original.
     ///   - overrideLoginItemState: An optional value to override the `CipherView`s `LoginItemState`.
-    ///     This is primarily used when cloning a cipher to exclude FIDO2 credentials.
+    ///     Used when cloning a cipher to exclude FIDO2 credentials.
+    ///   - overrideTOTPState: An optional TOTP state that always takes precedence over whatever
+    ///     TOTP value is derived from the cipher view. Used to preserve an in-memory TOTP key
+    ///     added via BWA import that may not yet be persisted to the server.
     ///
     private mutating func apply(
         cipherView: CipherView,
         overrideName: String? = nil,
         overrideLoginItemState: LoginItemState? = nil,
+        overrideTOTPState: LoginTOTPState? = nil,
     ) {
         let type = CipherType(type: cipherView.type)
 
@@ -447,8 +448,12 @@ struct CipherItemState: Equatable { // swiftlint:disable:this type_body_length
         identityState = cipherView.identityItemState()
         isFavoriteOn = cipherView.favorite
         isMasterPasswordRePromptOn = cipherView.reprompt == .password
-        loginState = overrideLoginItemState
+        var newLoginState = overrideLoginItemState
             ?? cipherView.loginItemState(showTOTP: accountHasPremium || cipherView.organizationUseTotp)
+        if let overrideTOTPState {
+            newLoginState.totpState = overrideTOTPState
+        }
+        loginState = newLoginState
         name = overrideName ?? cipherView.name
         notes = cipherView.notes ?? ""
         organizationId = cipherView.organizationId
@@ -465,17 +470,23 @@ extension CipherItemState: AddEditItemState {
         switch configuration {
         case .add:
             switch type {
-            case .card: Localizations.newCard
-            case .identity: Localizations.newIdentity
-            case .login: Localizations.newLogin
-            case .secureNote: Localizations.newNote
-            case .sshKey: Localizations.newSSHKey
+            case .bankAccount: Localizations.addBankAccount
+            case .card: Localizations.addCard
+            case .driversLicense: Localizations.addLicense
+            case .identity: Localizations.addIdentity
+            case .login: Localizations.addLogin
+            case .passport: Localizations.addPassport
+            case .secureNote: Localizations.addNote
+            case .sshKey: Localizations.addSSHKey
             }
         case .existing:
             switch type {
+            case .bankAccount: Localizations.editBankAccount
             case .card: Localizations.editCard
+            case .driversLicense: Localizations.editLicense
             case .identity: Localizations.editIdentity
             case .login: Localizations.editLogin
+            case .passport: Localizations.editPassport
             case .secureNote: Localizations.editNote
             case .sshKey: Localizations.editSSHKey
             }
@@ -501,8 +512,11 @@ extension CipherItemState: AddEditItemState {
         collectionIds.append(defaultCollectionId)
     }
 
-    mutating func update(from cipherView: CipherView) {
-        apply(cipherView: cipherView)
+    mutating func update(
+        from cipherView: CipherView,
+        preservingTOTPState totpState: LoginTOTPState?,
+    ) {
+        apply(cipherView: cipherView, overrideTOTPState: totpState)
     }
 }
 
@@ -551,6 +565,15 @@ extension CipherItemState: ViewVaultItemState {
             return SharedAsset.Icons.stickyNote24
         case .sshKey:
             return SharedAsset.Icons.key24
+        case .bankAccount:
+            // TODO: PM-32809
+            return SharedAsset.Icons.stickyNote24
+        case .driversLicense:
+            // TODO: PM-32807
+            return SharedAsset.Icons.stickyNote24
+        case .passport:
+            // TODO: PM-32805
+            return SharedAsset.Icons.stickyNote24
         }
     }
 
@@ -629,6 +652,9 @@ extension CipherItemState {
             card: type == .card ? cardItemState.cardView : nil,
             secureNote: type == .secureNote ? .init(type: .generic) : nil,
             sshKey: type == .sshKey ? sshKeyState.sshKeyView : nil,
+            bankAccount: nil, // TODO: PM-32809
+            driversLicense: nil, // TODO: PM-32807
+            passport: nil, // TODO: PM-32805
             favorite: isFavoriteOn,
             reprompt: isMasterPasswordRePromptOn ? .password : .none,
             organizationUseTotp: false,

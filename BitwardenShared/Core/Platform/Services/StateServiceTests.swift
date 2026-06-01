@@ -14,6 +14,7 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
     var dataStore: DataStore!
     var errorReporter: MockErrorReporter!
     var keychainRepository: MockKeychainRepository!
+    var timeProvider: MockTimeProvider!
     var userSessionKeychainRepository: MockUserSessionKeychainRepository!
     var subject: DefaultStateService!
 
@@ -26,6 +27,7 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         dataStore = DataStore(errorReporter: MockErrorReporter(), storeType: .memory)
         errorReporter = MockErrorReporter()
         keychainRepository = MockKeychainRepository()
+        timeProvider = MockTimeProvider(.currentTime)
         userSessionKeychainRepository = MockUserSessionKeychainRepository()
 
         subject = DefaultStateService(
@@ -33,6 +35,7 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
             dataStore: dataStore,
             errorReporter: errorReporter,
             keychainRepository: keychainRepository,
+            timeProvider: timeProvider,
             userSessionKeychainRepository: userSessionKeychainRepository,
         )
     }
@@ -45,6 +48,7 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         errorReporter = nil
         keychainRepository = nil
         subject = nil
+        timeProvider = nil
         userSessionKeychainRepository = nil
     }
 
@@ -320,14 +324,8 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
 
     /// `getAccountEncryptionKeys(_:)` returns the encryption keys for the user account.
     func test_getAccountEncryptionKeys() async throws {
-        appSettingsStore.accountKeys["1"] = .fixture(
-            publicKeyEncryptionKeyPair: .fixture(wrappedPrivateKey: "1:WRAPPED_PRIVATE_KEY"),
-        )
-        appSettingsStore.accountKeys["2"] = .fixture(
-            publicKeyEncryptionKeyPair: .fixture(wrappedPrivateKey: "2:WRAPPED_PRIVATE_KEY"),
-        )
-        appSettingsStore.encryptedPrivateKeys["1"] = "1:PRIVATE_KEY"
-        appSettingsStore.encryptedPrivateKeys["2"] = "2:PRIVATE_KEY"
+        appSettingsStore.accountCryptographicStates["1"] = .v1(privateKey: "1:PRIVATE_KEY")
+        appSettingsStore.accountCryptographicStates["2"] = .fixtureV2()
         appSettingsStore.encryptedUserKeys["1"] = "1:USER_KEY"
         appSettingsStore.encryptedUserKeys["2"] = "2:USER_KEY"
 
@@ -341,10 +339,7 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         XCTAssertEqual(
             accountKeys,
             AccountEncryptionKeys(
-                accountKeys: .fixture(
-                    publicKeyEncryptionKeyPair: .fixture(wrappedPrivateKey: "1:WRAPPED_PRIVATE_KEY"),
-                ),
-                encryptedPrivateKey: "1:PRIVATE_KEY",
+                cryptographicState: .v1(privateKey: "1:PRIVATE_KEY"),
                 encryptedUserKey: "1:USER_KEY",
             ),
         )
@@ -354,10 +349,7 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         XCTAssertEqual(
             otherAccountKeys,
             AccountEncryptionKeys(
-                accountKeys: .fixture(
-                    publicKeyEncryptionKeyPair: .fixture(wrappedPrivateKey: "2:WRAPPED_PRIVATE_KEY"),
-                ),
-                encryptedPrivateKey: "2:PRIVATE_KEY",
+                cryptographicState: .fixtureV2(),
                 encryptedUserKey: "2:USER_KEY",
             ),
         )
@@ -366,10 +358,7 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         XCTAssertEqual(
             accountKeysForUserId,
             AccountEncryptionKeys(
-                accountKeys: .fixture(
-                    publicKeyEncryptionKeyPair: .fixture(wrappedPrivateKey: "1:WRAPPED_PRIVATE_KEY"),
-                ),
-                encryptedPrivateKey: "1:PRIVATE_KEY",
+                cryptographicState: .v1(privateKey: "1:PRIVATE_KEY"),
                 encryptedUserKey: "1:USER_KEY",
             ),
         )
@@ -382,11 +371,11 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         }
     }
 
-    /// `getAccountEncryptionKeys(_:)` throws an error if there's no private key.
-    func test_getAccountEncryptionKeys_noPrivateKey() async throws {
+    /// `getAccountEncryptionKeys(_:)` throws an error if there's no cryptographic state.
+    func test_getAccountEncryptionKeys_noCryptographicState() async throws {
         await subject.addAccount(.fixture(profile: .fixture(userId: "1")))
 
-        await assertAsyncThrows(error: StateServiceError.noEncryptedPrivateKey) {
+        await assertAsyncThrows(error: StateServiceError.noAccountCryptographicState) {
             _ = try await subject.getAccountEncryptionKeys()
         }
     }
@@ -636,6 +625,24 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         XCTAssertTrue(hasShownOnboarding)
     }
 
+    /// `getPremiumUpgradeBannerDismissed(userId:)` returns whether the premium upgrade banner has been dismissed.
+    func test_getPremiumUpgradeBannerDismissed() async throws {
+        await subject.addAccount(.fixture())
+        var hasDismissedBanner = try await subject.getPremiumUpgradeBannerDismissed(userId: nil)
+        XCTAssertFalse(hasDismissedBanner)
+
+        appSettingsStore.premiumUpgradeBannerDismissedByUserId["1"] = true
+        hasDismissedBanner = try await subject.getPremiumUpgradeBannerDismissed(userId: nil)
+        XCTAssertTrue(hasDismissedBanner)
+    }
+
+    /// `getPremiumUpgradeBannerDismissed(userId:)` throws errors if no user exists.
+    func test_getPremiumUpgradeBannerDismissed_error() async throws {
+        await assertAsyncThrows(error: StateServiceError.noActiveAccount) {
+            _ = try await subject.getPremiumUpgradeBannerDismissed(userId: nil)
+        }
+    }
+
     /// `getBiometricAuthenticationEnabled(:)` returns biometric unlock preference of the active user.
     func test_getBiometricAuthenticationEnabled_default() async throws {
         await subject.addAccount(.fixture())
@@ -848,6 +855,32 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         appSettingsStore.learnNewLoginActionCardStatus = .complete
         learnNewLoginActionCardStatus = await subject.getLearnNewLoginActionCardStatus()
         XCTAssertEqual(learnNewLoginActionCardStatus, .complete)
+    }
+
+    /// `getLocalUserDataKeyStates(userId:)` returns stored key states for a user.
+    func test_getLocalUserDataKeyStates() async throws {
+        let states: [String: UserKeyData] = ["k1": UserKeyData(wrappedKey: "key1")]
+        keychainRepository.getLocalUserDataKeyStatesReturnValue = states
+        let result = try await subject.getLocalUserDataKeyStates(userId: "1")
+        XCTAssertEqual(result, states)
+    }
+
+    /// `getLocalUserDataKeyStates(userId:)` returns `nil` when no states are stored.
+    func test_getLocalUserDataKeyStates_notSet() async throws {
+        let result = try await subject.getLocalUserDataKeyStates(userId: "1")
+        XCTAssertNil(result)
+    }
+
+    /// `getLastRequestToTurnOnCredentialProvider()` returns the date of the last request
+    /// to turn on the credential provider.
+    func test_getLastRequestToTurnOnCredentialProvider() async {
+        var result = await subject.getLastRequestToTurnOnCredentialProvider()
+        XCTAssertNil(result)
+
+        let date = Date(year: 2024, month: 6, day: 15)
+        appSettingsStore.lastRequestToTurnOnCredentialProviderDate = date
+        result = await subject.getLastRequestToTurnOnCredentialProvider()
+        XCTAssertEqual(result, date)
     }
 
     /// `getLastSyncTime(userId:)` gets the user's last sync time.
@@ -1272,6 +1305,32 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         )
     }
 
+    /// After switching accounts, `connectToWatchPublisher()` should only emit for the new
+    /// active account and not the previous one.
+    func test_connectToWatchPublisher_accountSwitch_onlyEmitsForActiveAccount() async throws {
+        await subject.addAccount(.fixture(profile: .fixture(userId: "1")))
+
+        var publishedValues = [ConnectToWatchValue]()
+        let publisher = await subject.connectToWatchPublisher()
+            .sink(receiveValue: { userId, shouldConnect in
+                publishedValues.append(ConnectToWatchValue(userId: userId, shouldConnect: shouldConnect))
+            })
+        defer { publisher.cancel() }
+
+        // Switch to account "2".
+        await subject.addAccount(.fixture(profile: .fixture(userId: "2")))
+        try await subject.setActiveAccount(userId: "2")
+
+        // Clear emissions from the switch so we isolate post-switch behavior.
+        publishedValues.removeAll()
+
+        // Toggle the setting for the now-active account "2".
+        try await subject.setConnectToWatch(true)
+
+        // Only account "2" should appear; account "1" must not re-emit.
+        XCTAssertEqual(publishedValues, [ConnectToWatchValue(userId: "2", shouldConnect: true)])
+    }
+
     /// `connectToWatchPublisher()` gets the initial stored value if a cached value doesn't exist.
     func test_connectToWatchPublisher_fetchesInitialValue() async throws {
         await subject.addAccount(.fixture(profile: .fixture(userId: "1")))
@@ -1325,13 +1384,14 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
     func test_isAuthenticated() async throws {
         await subject.addAccount(.fixture())
 
-        keychainRepository.getAccessTokenResult = .failure(
-            KeychainServiceError.osStatusError(errSecItemNotFound),
+        keychainRepository.getAccessTokenThrowableError = KeychainServiceError.keyNotFound(
+            BitwardenKeychainItem.accessToken(userId: "1"),
         )
         var authenticationState = try await subject.isAuthenticated()
         XCTAssertFalse(authenticationState)
 
-        keychainRepository.getAccessTokenResult = .success("ACCESS_TOKEN")
+        keychainRepository.getAccessTokenThrowableError = nil
+        keychainRepository.getAccessTokenReturnValue = "ACCESS_TOKEN"
         authenticationState = try await subject.isAuthenticated()
         XCTAssertTrue(authenticationState)
     }
@@ -1340,7 +1400,7 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
     func test_isAuthenticated_keychainError() async throws {
         await subject.addAccount(.fixture())
         let error = KeychainServiceError.osStatusError(errSecParam)
-        keychainRepository.getAccessTokenResult = .failure(error)
+        keychainRepository.getAccessTokenThrowableError = error
 
         await assertAsyncThrows(error: error) {
             _ = try await subject.isAuthenticated()
@@ -1408,13 +1468,12 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         XCTAssertFalse(isRequired)
     }
 
-    /// `logoutAccount()` clears any account data.
+    /// `logoutAccount()` clears any account data except user's biometric authentication preference.
     func test_logoutAccount_clearAccountData() async throws { // swiftlint:disable:this function_body_length
         let account = Account.fixture(profile: Account.AccountProfile.fixture(userId: "1"))
         await subject.addAccount(account)
         try await subject.setAccountEncryptionKeys(AccountEncryptionKeys(
-            accountKeys: .fixtureFilled(),
-            encryptedPrivateKey: "PRIVATE_KEY",
+            cryptographicState: .fixtureV2(),
             encryptedUserKey: "USER_KEY",
         ))
         try await subject.setBiometricAuthenticationEnabled(true, userId: "1")
@@ -1455,13 +1514,13 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
 
         try await subject.logoutAccount(userInitiated: true)
 
-        XCTAssertEqual(appSettingsStore.biometricAuthenticationEnabled, [:])
-        XCTAssertEqual(appSettingsStore.accountKeys, [:])
-        XCTAssertEqual(appSettingsStore.encryptedPrivateKeys, [:])
+        XCTAssertEqual(appSettingsStore.biometricAuthenticationEnabled, ["1": true])
+        XCTAssertEqual(appSettingsStore.accountCryptographicStates, [:])
         XCTAssertEqual(appSettingsStore.encryptedUserKeys, [:])
         XCTAssertEqual(appSettingsStore.defaultUriMatchTypeByUserId, [:])
         XCTAssertEqual(appSettingsStore.disableAutoTotpCopyByUserId, [:])
         XCTAssertEqual(appSettingsStore.passwordGenerationOptions, [:])
+        XCTAssertTrue(keychainRepository.clearLocalUserDataKeyStatesCalled)
 
         let context = dataStore.persistentContainer.viewContext
         try XCTAssertEqual(context.count(for: CipherData.fetchByUserIdRequest(userId: "1")), 0)
@@ -1483,8 +1542,7 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         let account = Account.fixture(profile: Account.AccountProfile.fixture(userId: "1"))
         await subject.addAccount(account)
         try await subject.setAccountEncryptionKeys(AccountEncryptionKeys(
-            accountKeys: .fixture(),
-            encryptedPrivateKey: "PRIVATE_KEY",
+            cryptographicState: .fixtureV2(),
             encryptedUserKey: "USER_KEY",
         ))
 
@@ -1496,8 +1554,7 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         XCTAssertNil(state.activeUserId)
 
         // Additional user keys are removed.
-        XCTAssertEqual(appSettingsStore.accountKeys, [:])
-        XCTAssertEqual(appSettingsStore.encryptedPrivateKeys, [:])
+        XCTAssertEqual(appSettingsStore.accountCryptographicStates, [:])
         XCTAssertEqual(appSettingsStore.encryptedUserKeys, [:])
     }
 
@@ -1507,20 +1564,14 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         let firstAccount = Account.fixture(profile: Account.AccountProfile.fixture(userId: "1"))
         await subject.addAccount(firstAccount)
         try await subject.setAccountEncryptionKeys(AccountEncryptionKeys(
-            accountKeys: .fixture(
-                publicKeyEncryptionKeyPair: .fixture(wrappedPrivateKey: "1:WRAPPED_PRIVATE_KEY"),
-            ),
-            encryptedPrivateKey: "1:PRIVATE_KEY",
+            cryptographicState: .v1(privateKey: "1:PRIVATE_KEY"),
             encryptedUserKey: "1:USER_KEY",
         ))
 
         let secondAccount = Account.fixture(profile: Account.AccountProfile.fixture(userId: "2"))
         await subject.addAccount(secondAccount)
         try await subject.setAccountEncryptionKeys(AccountEncryptionKeys(
-            accountKeys: .fixture(
-                publicKeyEncryptionKeyPair: .fixture(wrappedPrivateKey: "2:WRAPPED_PRIVATE_KEY"),
-            ),
-            encryptedPrivateKey: "2:PRIVATE_KEY",
+            cryptographicState: .v1(privateKey: "2:PRIVATE_KEY"),
             encryptedUserKey: "2:USER_KEY",
         ))
 
@@ -1532,10 +1583,7 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         XCTAssertEqual(state.activeUserId, "1")
 
         // Additional user keys are removed.
-        XCTAssertEqual(appSettingsStore.accountKeys, [
-            "1": .fixture(publicKeyEncryptionKeyPair: .fixture(wrappedPrivateKey: "1:WRAPPED_PRIVATE_KEY")),
-        ])
-        XCTAssertEqual(appSettingsStore.encryptedPrivateKeys, ["1": "1:PRIVATE_KEY"])
+        XCTAssertEqual(appSettingsStore.accountCryptographicStates, ["1": .v1(privateKey: "1:PRIVATE_KEY")])
         XCTAssertEqual(appSettingsStore.encryptedUserKeys, ["1": "1:USER_KEY"])
     }
 
@@ -1545,20 +1593,14 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         let firstAccount = Account.fixture(profile: Account.AccountProfile.fixture(userId: "1"))
         await subject.addAccount(firstAccount)
         try await subject.setAccountEncryptionKeys(AccountEncryptionKeys(
-            accountKeys: .fixture(
-                publicKeyEncryptionKeyPair: .fixture(wrappedPrivateKey: "1:WRAPPED_PRIVATE_KEY"),
-            ),
-            encryptedPrivateKey: "1:PRIVATE_KEY",
+            cryptographicState: .v1(privateKey: "1:PRIVATE_KEY"),
             encryptedUserKey: "1:USER_KEY",
         ))
 
         let secondAccount = Account.fixture(profile: Account.AccountProfile.fixture(userId: "2"))
         await subject.addAccount(secondAccount)
         try await subject.setAccountEncryptionKeys(AccountEncryptionKeys(
-            accountKeys: .fixture(
-                publicKeyEncryptionKeyPair: .fixture(wrappedPrivateKey: "2:WRAPPED_PRIVATE_KEY"),
-            ),
-            encryptedPrivateKey: "2:PRIVATE_KEY",
+            cryptographicState: .v1(privateKey: "2:PRIVATE_KEY"),
             encryptedUserKey: "2:USER_KEY",
         ))
 
@@ -1570,10 +1612,7 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         XCTAssertEqual(state.activeUserId, "2")
 
         // Additional user keys are removed.
-        XCTAssertEqual(appSettingsStore.accountKeys, [
-            "2": .fixture(publicKeyEncryptionKeyPair: .fixture(wrappedPrivateKey: "2:WRAPPED_PRIVATE_KEY")),
-        ])
-        XCTAssertEqual(appSettingsStore.encryptedPrivateKeys, ["2": "2:PRIVATE_KEY"])
+        XCTAssertEqual(appSettingsStore.accountCryptographicStates, ["2": .v1(privateKey: "2:PRIVATE_KEY")])
         XCTAssertEqual(appSettingsStore.encryptedUserKeys, ["2": "2:USER_KEY"])
     }
 
@@ -1582,17 +1621,13 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         let account = Account.fixture(profile: .fixture(userId: "1"))
         await subject.addAccount(account)
         try await subject.setAccountEncryptionKeys(AccountEncryptionKeys(
-            accountKeys: .fixture(
-                publicKeyEncryptionKeyPair: .fixture(wrappedPrivateKey: "1:WRAPPED_PRIVATE_KEY"),
-            ),
-            encryptedPrivateKey: "1:PRIVATE_KEY",
+            cryptographicState: .v1(privateKey: "1:PRIVATE_KEY"),
             encryptedUserKey: "1:USER_KEY",
         ))
 
         try await subject.logoutAccount(userInitiated: false)
 
-        XCTAssertNil(appSettingsStore.accountKeys["1"])
-        XCTAssertNil(appSettingsStore.encryptedPrivateKeys["1"])
+        XCTAssertNil(appSettingsStore.accountCryptographicStates["1"])
         XCTAssertNil(appSettingsStore.encryptedUserKeys["1"])
         XCTAssertEqual(appSettingsStore.state?.accounts, ["1": account])
         XCTAssertEqual(appSettingsStore.state?.activeUserId, "1")
@@ -1746,32 +1781,22 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         await subject.addAccount(.fixture(profile: .fixture(userId: "2")))
 
         let encryptionKeys = AccountEncryptionKeys(
-            accountKeys: .fixture(
-                publicKeyEncryptionKeyPair: .fixture(wrappedPrivateKey: "1:WRAPPED_PRIVATE_KEY"),
-            ),
-            encryptedPrivateKey: "1:PRIVATE_KEY",
+            cryptographicState: .v1(privateKey: "1:PRIVATE_KEY"),
             encryptedUserKey: "1:USER_KEY",
         )
         try await subject.setAccountEncryptionKeys(encryptionKeys, userId: "1")
 
         let otherEncryptionKeys = AccountEncryptionKeys(
-            accountKeys: .fixture(
-                publicKeyEncryptionKeyPair: .fixture(wrappedPrivateKey: "2:WRAPPED_PRIVATE_KEY"),
-            ),
-            encryptedPrivateKey: "2:PRIVATE_KEY",
+            cryptographicState: .v1(privateKey: "2:PRIVATE_KEY"),
             encryptedUserKey: "2:USER_KEY",
         )
         try await subject.setAccountEncryptionKeys(otherEncryptionKeys)
 
-        XCTAssertEqual(appSettingsStore.accountKeys, [
-            "1": .fixture(publicKeyEncryptionKeyPair: .fixture(wrappedPrivateKey: "1:WRAPPED_PRIVATE_KEY")),
-            "2": .fixture(publicKeyEncryptionKeyPair: .fixture(wrappedPrivateKey: "2:WRAPPED_PRIVATE_KEY")),
-        ])
         XCTAssertEqual(
-            appSettingsStore.encryptedPrivateKeys,
+            appSettingsStore.accountCryptographicStates,
             [
-                "1": "1:PRIVATE_KEY",
-                "2": "2:PRIVATE_KEY",
+                "1": .v1(privateKey: "1:PRIVATE_KEY"),
+                "2": .v1(privateKey: "2:PRIVATE_KEY"),
             ],
         )
         XCTAssertEqual(
@@ -1857,6 +1882,58 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         XCTAssertFalse(appSettingsStore.archiveOnboardingShown)
     }
 
+    /// `setPremiumUpgradeBannerDismissed(_:)` sets whether the premium upgrade banner has been dismissed.
+    func test_setPremiumUpgradeBannerDismissed() async throws {
+        await subject.addAccount(.fixture())
+        try await subject.setPremiumUpgradeBannerDismissed(true, userId: nil)
+        XCTAssertTrue(appSettingsStore.premiumUpgradeBannerDismissedByUserId["1"] ?? false)
+
+        try await subject.setPremiumUpgradeBannerDismissed(false, userId: nil)
+        XCTAssertFalse(appSettingsStore.premiumUpgradeBannerDismissedByUserId["1"] ?? true)
+    }
+
+    /// `setPremiumUpgradeBannerDismissed(_:userId:)` throws errors if no user exists.
+    func test_setPremiumUpgradeBannerDismissed_error() async throws {
+        await assertAsyncThrows(error: StateServiceError.noActiveAccount) {
+            try await subject.setPremiumUpgradeBannerDismissed(true, userId: nil)
+        }
+    }
+
+    /// `getUpgradedToPremiumActionCardVisible()` returns the stored value for the active account.
+    func test_getUpgradedToPremiumActionCardVisible() async {
+        await subject.addAccount(.fixture())
+        var isVisible = await subject.getUpgradedToPremiumActionCardVisible()
+        XCTAssertFalse(isVisible)
+
+        appSettingsStore.upgradedToPremiumCardVisibleByUserId["1"] = true
+        isVisible = await subject.getUpgradedToPremiumActionCardVisible()
+        XCTAssertTrue(isVisible)
+    }
+
+    /// `getUpgradedToPremiumActionCardVisible()` returns `false` and logs an error when there is no active account.
+    func test_getUpgradedToPremiumActionCardVisible_noActiveAccount() async {
+        let isVisible = await subject.getUpgradedToPremiumActionCardVisible()
+        XCTAssertFalse(isVisible)
+        XCTAssertEqual(errorReporter.errors as? [StateServiceError], [.noActiveAccount])
+    }
+
+    /// `setUpgradedToPremiumActionCardVisible(_:)` sets the stored value for the active account.
+    func test_setUpgradedToPremiumActionCardVisible() async throws {
+        await subject.addAccount(.fixture())
+        try await subject.setUpgradedToPremiumActionCardVisible(true)
+        XCTAssertTrue(appSettingsStore.upgradedToPremiumCardVisibleByUserId["1"] ?? false)
+
+        try await subject.setUpgradedToPremiumActionCardVisible(false)
+        XCTAssertFalse(appSettingsStore.upgradedToPremiumCardVisibleByUserId["1"] ?? true)
+    }
+
+    /// `setUpgradedToPremiumActionCardVisible(_:)` throws errors if no user exists.
+    func test_setUpgradedToPremiumActionCardVisible_error() async throws {
+        await assertAsyncThrows(error: StateServiceError.noActiveAccount) {
+            try await subject.setUpgradedToPremiumActionCardVisible(true)
+        }
+    }
+
     /// `setBiometricAuthenticationEnabled(isEnabled:)` sets biometric unlock preference for the default user.
     func test_setBiometricAuthenticationEnabled_default() async throws {
         await subject.addAccount(.fixture())
@@ -1940,6 +2017,16 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         let date2 = Date(year: 2023, month: 12, day: 2)
         try await subject.setLastSyncTime(date2, userId: "1")
         XCTAssertEqual(appSettingsStore.lastSyncTimeByUserId["1"], date2)
+    }
+
+    /// `setLastRequestToTurnOnCredentialProvider(_:)` stores the date in the app settings store.
+    func test_setLastRequestToTurnOnCredentialProvider() async {
+        let date = Date(year: 2024, month: 6, day: 15)
+        await subject.setLastRequestToTurnOnCredentialProvider(date)
+        XCTAssertEqual(appSettingsStore.lastRequestToTurnOnCredentialProviderDate, date)
+
+        await subject.setLastRequestToTurnOnCredentialProvider(nil)
+        XCTAssertNil(appSettingsStore.lastRequestToTurnOnCredentialProviderDate)
     }
 
     /// `setDefaultUriMatchType(_:userId:)` sets the default URI match type value for a user.
@@ -2036,18 +2123,16 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
     /// `setAccountMasterPasswordUnlock(_:)` sets the master password unlock data for the user account.
     func test_setAccountMasterPasswordUnlock() async throws {
         await subject.addAccount(.fixture(profile: .fixture(userId: "1")))
-        await subject.addAccount(
-            .fixture(
-                profile: .fixture(
-                    userDecryptionOptions: UserDecryptionOptions(
-                        hasMasterPassword: true,
-                        keyConnectorOption: KeyConnectorUserDecryptionOption(keyConnectorUrl: "https://example.com"),
-                        trustedDeviceOption: nil,
-                    ),
-                    userId: "2",
+        await subject.addAccount(.fixture(
+            profile: .fixture(
+                userDecryptionOptions: UserDecryptionOptions(
+                    hasMasterPassword: true,
+                    keyConnectorOption: KeyConnectorUserDecryptionOption(keyConnectorUrl: "https://example.com"),
+                    trustedDeviceOption: nil,
                 ),
+                userId: "2",
             ),
-        )
+        ))
 
         let masterPasswordUnlockUser1 = MasterPasswordUnlockResponseModel(
             kdf: KdfConfig(kdfType: .pbkdf2sha256, iterations: 600_000),
@@ -2070,9 +2155,17 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
 
         let user1 = appSettingsStore.state?.accounts["1"]
         XCTAssertEqual(user1?.profile.userDecryptionOptions?.masterPasswordUnlock, masterPasswordUnlockUser1)
+        XCTAssertEqual(user1?.profile.kdfType, .pbkdf2sha256)
+        XCTAssertEqual(user1?.profile.kdfIterations, 600_000)
+        XCTAssertNil(user1?.profile.kdfMemory)
+        XCTAssertNil(user1?.profile.kdfParallelism)
 
         let user2 = appSettingsStore.state?.accounts["2"]
         XCTAssertEqual(user2?.profile.userDecryptionOptions?.masterPasswordUnlock, masterPasswordUnlockUser2)
+        XCTAssertEqual(user2?.profile.kdfType, .argon2id)
+        XCTAssertEqual(user2?.profile.kdfIterations, 3)
+        XCTAssertEqual(user2?.profile.kdfMemory, 64)
+        XCTAssertEqual(user2?.profile.kdfParallelism, 4)
         // Ensure any existing other decryption options aren't affected.
         XCTAssertEqual(
             user2?.profile.userDecryptionOptions,
@@ -2169,6 +2262,79 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         XCTAssertFalse(appSettingsStore.hasPerformedSyncAfterLogin["1"]!)
     }
 
+    /// `setLastActiveMonotonicTime(_:userId:)` sets the last active monotonic time for a user.
+    func test_setLastActiveMonotonicTime() async throws {
+        let account = Account.fixture()
+        await subject.addAccount(account)
+
+        let monotonicTime: TimeInterval = 54321.98
+
+        try await subject.setLastActiveMonotonicTime(monotonicTime, userId: account.profile.userId)
+
+        XCTAssertEqual(
+            userSessionKeychainRepository.setLastActiveMonotonicTimeReceivedArguments?.monotonicTime,
+            monotonicTime,
+        )
+        XCTAssertEqual(
+            userSessionKeychainRepository.setLastActiveMonotonicTimeReceivedArguments?.userId,
+            account.profile.userId,
+        )
+    }
+
+    /// `setLastActiveMonotonicTime(_:userId:)` sets nil to clear the monotonic time.
+    func test_setLastActiveMonotonicTime_nil() async throws {
+        let account = Account.fixture()
+        await subject.addAccount(account)
+
+        try await subject.setLastActiveMonotonicTime(nil, userId: nil)
+
+        XCTAssertNil(userSessionKeychainRepository.setLastActiveMonotonicTimeReceivedArguments?.monotonicTime)
+        XCTAssertEqual(
+            userSessionKeychainRepository.setLastActiveMonotonicTimeReceivedArguments?.userId,
+            account.profile.userId,
+        )
+    }
+
+    /// `setLastActiveMonotonicTime(_:userId:)` throws an error if there's no active account.
+    func test_setLastActiveMonotonicTime_noActiveAccount() async throws {
+        await assertAsyncThrows(error: StateServiceError.noActiveAccount) {
+            try await subject.setLastActiveMonotonicTime(1000.0, userId: nil)
+        }
+    }
+
+    /// `setLastSyncMonotonicTime(_:userId:)` sets the last sync monotonic time for a user.
+    func test_setLastSyncMonotonicTime() async throws {
+        let account = Account.fixture()
+        await subject.addAccount(account)
+
+        let monotonicTime: TimeInterval = 11111.22
+
+        try await subject.setLastSyncMonotonicTime(monotonicTime, userId: account.profile.userId)
+
+        XCTAssertEqual(appSettingsStore.lastSyncMonotonicTimeByUserId[account.profile.userId], monotonicTime)
+    }
+
+    /// `setLastSyncMonotonicTime(_:userId:)` sets nil to clear the monotonic time.
+    func test_setLastSyncMonotonicTime_nil() async throws {
+        let account = Account.fixture()
+        await subject.addAccount(account)
+
+        // First set a value
+        appSettingsStore.lastSyncMonotonicTimeByUserId[account.profile.userId] = 12345.0
+
+        // Then clear it
+        try await subject.setLastSyncMonotonicTime(nil, userId: nil)
+
+        XCTAssertNil(appSettingsStore.lastSyncMonotonicTimeByUserId[account.profile.userId] ?? nil)
+    }
+
+    /// `setLastSyncMonotonicTime(_:userId:)` throws an error if there's no active account.
+    func test_setLastSyncMonotonicTime_noActiveAccount() async throws {
+        await assertAsyncThrows(error: StateServiceError.noActiveAccount) {
+            try await subject.setLastSyncMonotonicTime(2000.0, userId: nil)
+        }
+    }
+
     /// `setLearnGeneratorActionCardStatus(_:)` sets the learn generator action card status.
     func test_setLearnGeneratorActionCardStatus() async {
         await subject.setLearnGeneratorActionCardStatus(.incomplete)
@@ -2185,6 +2351,58 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
 
         await subject.setLearnNewLoginActionCardStatus(.complete)
         XCTAssertEqual(appSettingsStore.learnNewLoginActionCardStatus, .complete)
+    }
+
+    /// `setBulkLocalUserDataKeyStates(_:userId:)` merges multiple key states atomically.
+    func test_setBulkLocalUserDataKeyStates() async throws {
+        keychainRepository.mutateLocalUserDataKeyStatesClosure = { [keychainRepository] _, transform in
+            var states = keychainRepository?.getLocalUserDataKeyStatesReturnValue ?? [:]
+            transform(&states)
+            keychainRepository?.getLocalUserDataKeyStatesReturnValue = states.nilIfEmpty
+        }
+        let values: [String: UserKeyData] = [
+            "k1": UserKeyData(wrappedKey: "key1"),
+            "k2": UserKeyData(wrappedKey: "key2"),
+        ]
+        try await subject.setBulkLocalUserDataKeyStates(values, userId: "1")
+        XCTAssertEqual(keychainRepository.getLocalUserDataKeyStatesReturnValue, values)
+    }
+
+    /// `removeLocalUserDataKeyState(id:userId:)` removes a single key state.
+    func test_removeLocalUserDataKeyState() async throws {
+        keychainRepository.getLocalUserDataKeyStatesReturnValue = ["k1": UserKeyData(wrappedKey: "key1")]
+        keychainRepository.mutateLocalUserDataKeyStatesClosure = { [keychainRepository] _, transform in
+            var states = keychainRepository?.getLocalUserDataKeyStatesReturnValue ?? [:]
+            transform(&states)
+            keychainRepository?.getLocalUserDataKeyStatesReturnValue = states.nilIfEmpty
+        }
+        try await subject.removeLocalUserDataKeyState(id: "k1", userId: "1")
+        XCTAssertNil(keychainRepository.getLocalUserDataKeyStatesReturnValue)
+    }
+
+    /// `removeBulkLocalUserDataKeyStates(keys:userId:)` removes multiple key states atomically.
+    func test_removeBulkLocalUserDataKeyStates() async throws {
+        keychainRepository.getLocalUserDataKeyStatesReturnValue = [
+            "k1": UserKeyData(wrappedKey: "key1"),
+            "k2": UserKeyData(wrappedKey: "key2"),
+            "k3": UserKeyData(wrappedKey: "key3"),
+        ]
+        keychainRepository.mutateLocalUserDataKeyStatesClosure = { [keychainRepository] _, transform in
+            var states = keychainRepository?.getLocalUserDataKeyStatesReturnValue ?? [:]
+            transform(&states)
+            keychainRepository?.getLocalUserDataKeyStatesReturnValue = states.nilIfEmpty
+        }
+        try await subject.removeBulkLocalUserDataKeyStates(keys: ["k1", "k2"], userId: "1")
+        XCTAssertEqual(
+            keychainRepository.getLocalUserDataKeyStatesReturnValue,
+            ["k3": UserKeyData(wrappedKey: "key3")],
+        )
+    }
+
+    /// `removeAllLocalUserDataKeyStates(userId:)` clears all stored states.
+    func test_removeAllLocalUserDataKeyStates() async throws {
+        try await subject.removeAllLocalUserDataKeyStates(userId: "1")
+        XCTAssertTrue(keychainRepository.clearLocalUserDataKeyStatesCalled)
     }
 
     /// `setLoginRequest()` sets the pending login requests.

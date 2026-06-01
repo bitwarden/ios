@@ -7,5 +7,5 @@ public protocol InputValidator {
     ///
     /// - Parameter input: The input to validate.
     ///
-    func validate(input: String?) throws
+    func validate(input: String?) throws(InputValidationError)
 }

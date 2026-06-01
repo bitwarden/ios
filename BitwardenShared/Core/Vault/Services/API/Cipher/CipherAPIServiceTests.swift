@@ -5,6 +5,7 @@ import XCTest
 
 @testable import BitwardenShared
 
+@MainActor
 class CipherAPIServiceTests: XCTestCase { // swiftlint:disable:this type_body_length
     // MARK: Properties
 
@@ -31,7 +32,7 @@ class CipherAPIServiceTests: XCTestCase { // swiftlint:disable:this type_body_le
     // MARK: Tests
 
     /// `addCipher()` performs the add cipher request and decodes the response.
-    func test_addCipher() async throws {
+    func test_addCipher() async throws { // swiftlint:disable:this function_body_length
         client.result = .httpSuccess(testData: .cipherResponse)
 
         let response = try await subject.addCipher(
@@ -49,10 +50,12 @@ class CipherAPIServiceTests: XCTestCase { // swiftlint:disable:this type_body_le
             CipherDetailsResponseModel(
                 archivedDate: nil,
                 attachments: nil,
+                bankAccount: nil,
                 card: nil,
                 collectionIds: nil,
                 creationDate: Date(timeIntervalSince1970: 1_691_656_425.345),
                 deletedDate: nil,
+                driversLicense: nil,
                 edit: true,
                 favorite: true,
                 fields: nil,
@@ -73,6 +76,7 @@ class CipherAPIServiceTests: XCTestCase { // swiftlint:disable:this type_body_le
                 notes: nil,
                 organizationId: nil,
                 organizationUseTotp: false,
+                passport: nil,
                 passwordHistory: nil,
                 permissions: nil,
                 reprompt: .none,
@@ -86,7 +90,7 @@ class CipherAPIServiceTests: XCTestCase { // swiftlint:disable:this type_body_le
     }
 
     /// `addCipherWithCollections()` performs the add cipher with collections request and decodes the response.
-    func test_addCipherWithCollections() async throws {
+    func test_addCipherWithCollections() async throws { // swiftlint:disable:this function_body_length
         client.result = .httpSuccess(testData: .cipherResponse)
 
         let response = try await subject.addCipherWithCollections(
@@ -104,10 +108,12 @@ class CipherAPIServiceTests: XCTestCase { // swiftlint:disable:this type_body_le
             CipherDetailsResponseModel(
                 archivedDate: nil,
                 attachments: nil,
+                bankAccount: nil,
                 card: nil,
                 collectionIds: nil,
                 creationDate: Date(timeIntervalSince1970: 1_691_656_425.345),
                 deletedDate: nil,
+                driversLicense: nil,
                 edit: true,
                 favorite: true,
                 fields: nil,
@@ -128,6 +134,7 @@ class CipherAPIServiceTests: XCTestCase { // swiftlint:disable:this type_body_le
                 notes: nil,
                 organizationId: nil,
                 organizationUseTotp: false,
+                passport: nil,
                 passwordHistory: nil,
                 permissions: nil,
                 reprompt: .none,
@@ -156,10 +163,12 @@ class CipherAPIServiceTests: XCTestCase { // swiftlint:disable:this type_body_le
             CipherDetailsResponseModel(
                 archivedDate: nil,
                 attachments: nil,
+                bankAccount: nil,
                 card: nil,
                 collectionIds: nil,
                 creationDate: Date(timeIntervalSince1970: 1_691_656_425.345),
                 deletedDate: nil,
+                driversLicense: nil,
                 edit: true,
                 favorite: true,
                 fields: nil,
@@ -180,6 +189,7 @@ class CipherAPIServiceTests: XCTestCase { // swiftlint:disable:this type_body_le
                 notes: nil,
                 organizationId: nil,
                 organizationUseTotp: false,
+                passport: nil,
                 passwordHistory: nil,
                 permissions: nil,
                 reprompt: .none,
@@ -321,10 +331,12 @@ class CipherAPIServiceTests: XCTestCase { // swiftlint:disable:this type_body_le
                             url: "https://cdn.bitwarden.net/attachments/071350c",
                         ),
                     ],
+                    bankAccount: nil,
                     card: nil,
                     collectionIds: nil,
                     creationDate: Date(timeIntervalSince1970: 1_691_656_425.345),
                     deletedDate: nil,
+                    driversLicense: nil,
                     edit: true,
                     favorite: false,
                     fields: nil,
@@ -345,6 +357,7 @@ class CipherAPIServiceTests: XCTestCase { // swiftlint:disable:this type_body_le
                     notes: nil,
                     organizationId: nil,
                     organizationUseTotp: false,
+                    passport: nil,
                     passwordHistory: nil,
                     permissions: nil,
                     reprompt: .none,
@@ -361,7 +374,7 @@ class CipherAPIServiceTests: XCTestCase { // swiftlint:disable:this type_body_le
     }
 
     /// `shareCipher()` performs the share cipher request and decodes the response.
-    func test_shareCipher() async throws {
+    func test_shareCipher() async throws { // swiftlint:disable:this function_body_length
         client.result = .httpSuccess(testData: .cipherResponse)
 
         let response = try await subject.shareCipher(
@@ -379,10 +392,12 @@ class CipherAPIServiceTests: XCTestCase { // swiftlint:disable:this type_body_le
             CipherDetailsResponseModel(
                 archivedDate: nil,
                 attachments: nil,
+                bankAccount: nil,
                 card: nil,
                 collectionIds: nil,
                 creationDate: Date(timeIntervalSince1970: 1_691_656_425.345),
                 deletedDate: nil,
+                driversLicense: nil,
                 edit: true,
                 favorite: true,
                 fields: nil,
@@ -403,6 +418,7 @@ class CipherAPIServiceTests: XCTestCase { // swiftlint:disable:this type_body_le
                 notes: nil,
                 organizationId: nil,
                 organizationUseTotp: false,
+                passport: nil,
                 passwordHistory: nil,
                 permissions: nil,
                 reprompt: .none,
@@ -443,10 +459,12 @@ class CipherAPIServiceTests: XCTestCase { // swiftlint:disable:this type_body_le
             CipherDetailsResponseModel(
                 archivedDate: nil,
                 attachments: nil,
+                bankAccount: nil,
                 card: nil,
                 collectionIds: nil,
                 creationDate: Date(timeIntervalSince1970: 1_691_656_425.345),
                 deletedDate: nil,
+                driversLicense: nil,
                 edit: true,
                 favorite: true,
                 fields: nil,
@@ -467,6 +485,7 @@ class CipherAPIServiceTests: XCTestCase { // swiftlint:disable:this type_body_le
                 notes: nil,
                 organizationId: nil,
                 organizationUseTotp: false,
+                passport: nil,
                 passwordHistory: nil,
                 permissions: nil,
                 reprompt: .none,

@@ -3,13 +3,19 @@
   "extends": [
     "github>bitwarden/renovate-config"
   ],
+  "labels": ["t:deps"],
   "enabledManagers": [
     "bundler",
     "github-actions",
     "mint",
     "custom.regex",
-    "swift"
+    "swift",
+    "xcodegen"
   ],
+  "ignoreDeps": ["bitwarden/sdk-swift"],
+  "xcodegen": {
+    "managerFilePatterns": ["/project(-[a-z]+)?\\.yml$/"]
+  },
   "customManagers": [
     {
       "customType": "regex",
@@ -25,16 +31,6 @@
     }
   ],
   "packageRules": [
-    {
-      "groupName": "bundler minor",
-      "matchUpdateTypes": [
-        "minor",
-        "patch"
-      ],
-      "matchManagers": [
-        "bundler"
-      ]
-    },
     {
       "groupName": "gh minor",
       "matchManagers": [

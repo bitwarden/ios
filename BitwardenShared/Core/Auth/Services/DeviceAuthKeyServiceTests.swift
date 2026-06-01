@@ -61,6 +61,29 @@ final class DeviceAuthKeyServiceTests: BitwardenTestCase {
 
     // MARK: Tests - createDeviceAuthKey
 
+    /// `createDeviceAuthKey(masterPasswordHash:overwrite:userId:)` sends an event on the publisher when called.
+    func test_createDeviceAuthKey_publisher() async throws {
+        var publishedValues = [[String: Bool]]()
+
+        let publisher = subject.deviceAuthKeyPublisher()
+            .sink(receiveValue: { value in
+                publishedValues.append(value)
+            })
+        defer { publisher.cancel() }
+
+        // TODO: PM-26177 Once the create flow is working, this can become a `try` instead of `try?`
+        _ = try? await subject.createDeviceAuthKey(
+            masterPasswordHash: "hashedPassword",
+            overwrite: false,
+            userId: "userId123",
+        )
+
+        XCTAssertEqual(
+            publishedValues.last,
+            ["userId123": true],
+        )
+    }
+
     /// `createDeviceAuthKey(masterPasswordHash:overwrite:userId:)` throws notImplemented error.
     ///
     func test_createDeviceAuthKey_throwsNotImplemented() async throws {
@@ -103,7 +126,7 @@ final class DeviceAuthKeyServiceTests: BitwardenTestCase {
     /// `getDeviceAuthKeyMetadata(userId:)` returns metadata from the keychain repository.
     ///
     func test_getDeviceAuthKeyMetadata_success() async throws {
-        let metadata = DeviceAuthKeyMetadata.fixture()
+        let metadata = DeviceAuthKeyKeychainMetadata.fixture()
         deviceAuthKeychainRepository.getDeviceAuthKeyMetadataReturnValue = metadata
 
         let result = try await subject.getDeviceAuthKeyMetadata(userId: "userId123")

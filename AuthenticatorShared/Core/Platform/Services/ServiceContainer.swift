@@ -1,3 +1,4 @@
+// swiftlint:disable file_length
 import AuthenticatorBridgeKit
 import BitwardenKit
 import BitwardenSdk
@@ -14,7 +15,7 @@ import UIKit
 ///             & HasExampleRepository
 ///     }
 ///
-public class ServiceContainer: Services {
+public class ServiceContainer: Services { // swiftlint:disable:this type_body_length
     // MARK: Properties
 
     /// The application instance (i.e. `UIApplication`), if the app isn't running in an extension.
@@ -47,6 +48,9 @@ public class ServiceContainer: Services {
     /// The service used by the application to encrypt and decrypt items
     let cryptographyService: CryptographyService
 
+    /// The service used by the application to manage the environment settings.
+    public let environmentService: EnvironmentService
+
     /// A helper for building an error report containing the details of an error that occurred.
     public let errorReportBuilder: ErrorReportBuilder
 
@@ -74,6 +78,9 @@ public class ServiceContainer: Services {
     /// The service used by the application for sharing data with other apps.
     let pasteboardService: PasteboardService
 
+    /// The lazily-initialized, cached holder for a `ServerCommunicationConfigClientProtocol` instance.
+    public let serverCommunicationConfigClientSingleton: ServerCommunicationConfigClientSingleton
+
     /// The service used by the application to manage account state.
     let stateService: StateService
 
@@ -82,6 +89,9 @@ public class ServiceContainer: Services {
 
     /// The factory to create TOTP expiration managers.
     let totpExpirationManagerFactory: TOTPExpirationManagerFactory
+
+    /// The service used by the application to manage TOTP item display state.
+    let totpItemDisplayStateService: TOTPItemDisplayStateService
 
     /// The service used by the application to validate TOTP keys and produce TOTP values.
     let totpService: TOTPService
@@ -102,6 +112,7 @@ public class ServiceContainer: Services {
     ///   - clientService: The service used by the application to handle encryption and decryption tasks.
     ///   - configService: The service to get locally-specified configuration.
     ///   - cryptographyService: The service used by the application to encrypt and decrypt items
+    ///   - environmentService: The service used by the application to manage the environment settings.
     ///   - errorReportBuilder: A helper for building an error report containing the details of an
     ///     error that occurred.
     ///   - errorReporter: The service used by the application to report non-fatal errors.
@@ -112,9 +123,12 @@ public class ServiceContainer: Services {
     ///   - migrationService: The service to do data migrations
     ///   - notificationCenterService:  The service used to receive foreground and background notifications.
     ///   - pasteboardService: The service used by the application for sharing data with other apps.
+    ///   - serverCommunicationConfigClientSingleton: The lazily-initialized, cached holder for a
+    ///   `ServerCommunicationConfigClientProtocol` instance..
     ///   - stateService: The service for managing account state.
     ///   - timeProvider: Provides the present time for TOTP Code Calculation.
     ///   - totpExpirationManagerFactory: The factory to create TOTP expiration managers.
+    ///   - totpItemDisplayStateService: The service used by the application to manage TOTP item display state.
     ///   - totpService: The service used by the application to validate TOTP keys and produce TOTP values.
     ///
     init(
@@ -128,6 +142,7 @@ public class ServiceContainer: Services {
         clientService: ClientService,
         configService: ConfigService,
         cryptographyService: CryptographyService,
+        environmentService: EnvironmentService,
         errorReportBuilder: ErrorReportBuilder,
         errorReporter: ErrorReporter,
         exportItemsService: ExportItemsService,
@@ -137,9 +152,11 @@ public class ServiceContainer: Services {
         migrationService: MigrationService,
         notificationCenterService: NotificationCenterService,
         pasteboardService: PasteboardService,
+        serverCommunicationConfigClientSingleton: ServerCommunicationConfigClientSingleton,
         stateService: StateService,
         timeProvider: TimeProvider,
         totpExpirationManagerFactory: TOTPExpirationManagerFactory,
+        totpItemDisplayStateService: TOTPItemDisplayStateService,
         totpService: TOTPService,
     ) {
         self.application = application
@@ -152,6 +169,7 @@ public class ServiceContainer: Services {
         self.clientService = clientService
         self.configService = configService
         self.cryptographyService = cryptographyService
+        self.environmentService = environmentService
         self.errorReportBuilder = errorReportBuilder
         self.errorReporter = errorReporter
         self.exportItemsService = exportItemsService
@@ -162,8 +180,10 @@ public class ServiceContainer: Services {
         self.notificationCenterService = notificationCenterService
         self.pasteboardService = pasteboardService
         self.timeProvider = timeProvider
+        self.serverCommunicationConfigClientSingleton = serverCommunicationConfigClientSingleton
         self.stateService = stateService
         self.totpExpirationManagerFactory = totpExpirationManagerFactory
+        self.totpItemDisplayStateService = totpItemDisplayStateService
         self.totpService = totpService
     }
 
@@ -181,7 +201,7 @@ public class ServiceContainer: Services {
             userDefaults: UserDefaults(suiteName: Bundle.main.groupIdentifier)!,
         )
 
-        let appIdService = AppIdService(appSettingStore: appSettingsStore)
+        let appIDService = AppIDService(appIDSettingsStore: appSettingsStore)
 
         // Create holder for breaking circular dependency.
         // This is set later in this initializer, after configService is created.
@@ -202,9 +222,18 @@ public class ServiceContainer: Services {
         let keychainService = DefaultKeychainService()
         let timeProvider = CurrentTime()
 
-        let keychainRepository = DefaultKeychainRepository(
-            appIdService: appIdService,
+        let keychainServiceFacade = DefaultKeychainServiceFacade(
+            appSecAttrAccessGroup: Bundle.main.groupIdentifier,
             keychainService: keychainService,
+            namespacing: .appScoped(
+                appIDService: appIDService,
+                appSecAttrService: Bundle.main.appIdentifier,
+                storageKeyPrefix: "bwaKeychainStorage",
+            ),
+        )
+
+        let keychainRepository = DefaultKeychainRepository(
+            keychainServiceFacade: keychainServiceFacade,
         )
 
         let stateService = DefaultStateService(
@@ -225,6 +254,11 @@ public class ServiceContainer: Services {
         let apiService = APIService(
             environmentService: environmentService,
             flightRecorder: flightRecorder,
+            userAgentBuilder: UserAgentBuilder(
+                appName: "Bitwarden_Authenticator_Mobile",
+                appVersion: Bundle.main.appVersion,
+                systemDevice: UIDevice.current,
+            ),
         )
 
         let errorReportBuilder = DefaultErrorReportBuilder(
@@ -288,13 +322,14 @@ public class ServiceContainer: Services {
             authenticatorItemDataStore: dataStore,
         )
 
-        let sharedKeychainStorage = DefaultSharedKeychainStorage(
+        let sharedKeychainServiceFacade = DefaultKeychainServiceFacade(
+            appSecAttrAccessGroup: Bundle.main.sharedAppGroupIdentifier,
             keychainService: keychainService,
-            sharedAppGroupIdentifier: Bundle.main.sharedAppGroupIdentifier,
+            namespacing: .shared,
         )
 
         let sharedKeychainRepository = DefaultSharedKeychainRepository(
-            storage: sharedKeychainStorage,
+            keychainServiceFacade: sharedKeychainServiceFacade,
         )
 
         let sharedCryptographyService = DefaultAuthenticatorCryptographyService(
@@ -327,6 +362,7 @@ public class ServiceContainer: Services {
             errorReporter: errorReporter,
             sharedItemService: sharedItemService,
             timeProvider: timeProvider,
+            totpItemDisplayStateService: stateService,
             totpService: totpService,
         )
 
@@ -352,6 +388,7 @@ public class ServiceContainer: Services {
             clientService: clientService,
             configService: configService,
             cryptographyService: cryptographyService,
+            environmentService: environmentService,
             errorReportBuilder: errorReportBuilder,
             errorReporter: errorReporter,
             exportItemsService: exportItemsService,
@@ -361,9 +398,11 @@ public class ServiceContainer: Services {
             migrationService: migrationService,
             notificationCenterService: notificationCenterService,
             pasteboardService: pasteboardService,
+            serverCommunicationConfigClientSingleton: StubServerCommunicationConfigClientSingleton(),
             stateService: stateService,
             timeProvider: timeProvider,
             totpExpirationManagerFactory: totpExpirationManagerFactory,
+            totpItemDisplayStateService: stateService,
             totpService: totpService,
         )
     }

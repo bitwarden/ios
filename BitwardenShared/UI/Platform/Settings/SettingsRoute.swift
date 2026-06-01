@@ -68,6 +68,12 @@ public enum SettingsRoute: Equatable, Hashable {
     /// A route to the pending login requests view.
     case pendingLoginRequests
 
+    /// A route to the premium plan screen.
+    case premiumPlan(PremiumSubscription?)
+
+    /// A route to the premium upgrade screen.
+    case premiumUpgrade
+
     /// A route to view the select language view.
     ///
     /// - Parameter currentLanguage: The currently selected language option.

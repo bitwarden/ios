@@ -1,5 +1,6 @@
 import BitwardenKitMocks
 import BitwardenSdk
+import BitwardenSdkMocks
 import InlineSnapshotTesting
 import TestHelpers
 import XCTest
@@ -141,7 +142,6 @@ final class ExportVaultServiceTests: BitwardenTestCase { // swiftlint:disable:th
 
     var cipherService: MockCipherService!
     var clientService: MockClientService!
-    var configService: MockConfigService!
     var errorReporter: MockErrorReporter!
     var folderService: MockFolderService!
     var stateService: MockStateService!
@@ -166,15 +166,12 @@ final class ExportVaultServiceTests: BitwardenTestCase { // swiftlint:disable:th
                 secureNoteCipher,
             ],
         )
-        configService = MockConfigService()
-        // Enable the archive feature flag by default to exclude archived items in existing tests
-        configService.featureFlagsBool[.archiveVaultItems] = true
         errorReporter = MockErrorReporter()
         clientService = MockClientService()
         folderService = MockFolderService()
         policyService = MockPolicyService()
         stateService = MockStateService()
-        clientService.mockExporters.exportVaultResult = .success("success")
+        clientService.mockExporters.exportVaultReturnValue = "success"
         folderService.fetchAllFoldersResult = .success(
             [
                 folder,
@@ -192,7 +189,6 @@ final class ExportVaultServiceTests: BitwardenTestCase { // swiftlint:disable:th
         subject = DefaultExportVaultService(
             cipherService: cipherService,
             clientService: clientService,
-            configService: configService,
             errorReporter: errorReporter,
             folderService: folderService,
             policyService: policyService,
@@ -206,7 +202,6 @@ final class ExportVaultServiceTests: BitwardenTestCase { // swiftlint:disable:th
 
         clientService = nil
         cipherService = nil
-        configService = nil
         errorReporter = nil
         folderService = nil
         timeProvider = nil
@@ -220,11 +215,11 @@ final class ExportVaultServiceTests: BitwardenTestCase { // swiftlint:disable:th
     /// `exportVaultFileContents(format:)` applies the correct content for CSV export type.
     ///
     func test_exportVaultFileContents_csv() async throws {
-        clientService.mockExporters.exportVaultResult = .success("success")
+        clientService.mockExporters.exportVaultReturnValue = "success"
         _ = try await subject.exportVaultFileContents(format: ExportFileType.csv, includeArchivedItems: true)
-        XCTAssertEqual(clientService.mockExporters.folders, [folder])
+        XCTAssertEqual(clientService.mockExporters.exportVaultReceivedArguments?.folders, [folder])
         XCTAssertEqual(
-            clientService.mockExporters.ciphers,
+            clientService.mockExporters.exportVaultReceivedArguments?.ciphers,
             [
                 archivedCipher,
                 loginCipher,
@@ -236,14 +231,14 @@ final class ExportVaultServiceTests: BitwardenTestCase { // swiftlint:disable:th
     /// `exportVaultFileContents(format:)` applies the correct content for encrypted JSON export type.
     ///
     func test_exportVaultFileContents_encryptedJSON() async throws {
-        clientService.mockExporters.exportVaultResult = .success("success")
+        clientService.mockExporters.exportVaultReturnValue = "success"
         _ = try await subject.exportVaultFileContents(
             format: ExportFileType.encryptedJson(password: "1234"),
             includeArchivedItems: true,
         )
-        XCTAssertEqual(clientService.mockExporters.folders, [folder])
+        XCTAssertEqual(clientService.mockExporters.exportVaultReceivedArguments?.folders, [folder])
         XCTAssertEqual(
-            Set(clientService.mockExporters.ciphers),
+            Set(clientService.mockExporters.exportVaultReceivedArguments?.ciphers ?? []),
             Set([
                 archivedCipher,
                 cardCipher,
@@ -266,7 +261,7 @@ final class ExportVaultServiceTests: BitwardenTestCase { // swiftlint:disable:th
     /// `exportVaultFileContents(format:)` throws on an export error.
     ///
     func test_exportVaultFileContents_error_export() async throws {
-        clientService.mockExporters.exportVaultResult = .failure(BitwardenTestError.example)
+        clientService.mockExporters.exportVaultThrowableError = BitwardenTestError.example
         await assertAsyncThrows(error: BitwardenTestError.example) {
             _ = try await subject.exportVaultFileContents(format: .csv, includeArchivedItems: true)
         }
@@ -285,33 +280,12 @@ final class ExportVaultServiceTests: BitwardenTestCase { // swiftlint:disable:th
     /// `includeArchivedItems` is false.
     ///
     func test_exportVaultFileContents_excludeArchivedItems() async throws {
-        clientService.mockExporters.exportVaultResult = .success("success")
+        clientService.mockExporters.exportVaultReturnValue = "success"
         _ = try await subject.exportVaultFileContents(format: .json, includeArchivedItems: false)
-        XCTAssertEqual(clientService.mockExporters.folders, [folder])
+        XCTAssertEqual(clientService.mockExporters.exportVaultReceivedArguments?.folders, [folder])
         XCTAssertEqual(
-            Set(clientService.mockExporters.ciphers),
+            Set(clientService.mockExporters.exportVaultReceivedArguments?.ciphers ?? []),
             Set([
-                cardCipher,
-                identityCipher,
-                loginCipher,
-                secureNoteCipher,
-            ]),
-        )
-    }
-
-    /// `exportVaultFileContents(format:includeArchivedItems:)` includes archived ciphers when
-    /// `includeArchivedItems` is false but the archive vault items FF is disabled.
-    ///
-    @MainActor
-    func test_exportVaultFileContents_includeArchivedItemsWithFFDisabled() async throws {
-        clientService.mockExporters.exportVaultResult = .success("success")
-        configService.featureFlagsBool[.archiveVaultItems] = false
-        _ = try await subject.exportVaultFileContents(format: .json, includeArchivedItems: false)
-        XCTAssertEqual(clientService.mockExporters.folders, [folder])
-        XCTAssertEqual(
-            Set(clientService.mockExporters.ciphers),
-            Set([
-                archivedCipher,
                 cardCipher,
                 identityCipher,
                 loginCipher,
@@ -323,11 +297,11 @@ final class ExportVaultServiceTests: BitwardenTestCase { // swiftlint:disable:th
     /// `exportVaultFileContents(format:)` applies the correct content for JSON export type.
     ///
     func test_exportVaultFileContents_json() async throws {
-        clientService.mockExporters.exportVaultResult = .success("success")
+        clientService.mockExporters.exportVaultReturnValue = "success"
         _ = try await subject.exportVaultFileContents(format: ExportFileType.json, includeArchivedItems: true)
-        XCTAssertEqual(clientService.mockExporters.folders, [folder])
+        XCTAssertEqual(clientService.mockExporters.exportVaultReceivedArguments?.folders, [folder])
         XCTAssertEqual(
-            clientService.mockExporters.ciphers,
+            clientService.mockExporters.exportVaultReceivedArguments?.ciphers,
             [
                 archivedCipher,
                 cardCipher,
@@ -341,12 +315,12 @@ final class ExportVaultServiceTests: BitwardenTestCase { // swiftlint:disable:th
     /// `exportVaultFileContents(format:)` doesn't filter ciphers if restrictedTypes is empty
     ///
     func test_exportVaultFileContents_restrictedTypes_empty() async throws {
-        clientService.mockExporters.exportVaultResult = .success("success")
+        clientService.mockExporters.exportVaultReturnValue = "success"
         policyService.getRestrictedItemCipherTypesResult = []
         _ = try await subject.exportVaultFileContents(format: ExportFileType.json, includeArchivedItems: true)
-        XCTAssertEqual(clientService.mockExporters.folders, [folder])
+        XCTAssertEqual(clientService.mockExporters.exportVaultReceivedArguments?.folders, [folder])
         XCTAssertEqual(
-            clientService.mockExporters.ciphers,
+            clientService.mockExporters.exportVaultReceivedArguments?.ciphers,
             [
                 archivedCipher,
                 cardCipher,
@@ -361,12 +335,12 @@ final class ExportVaultServiceTests: BitwardenTestCase { // swiftlint:disable:th
     ///
     @MainActor
     func test_exportVaultFileContents_restrictedTypes_excludeCard() async throws {
-        clientService.mockExporters.exportVaultResult = .success("success")
+        clientService.mockExporters.exportVaultReturnValue = "success"
         policyService.getRestrictedItemCipherTypesResult = [.card]
         _ = try await subject.exportVaultFileContents(format: ExportFileType.json, includeArchivedItems: true)
-        XCTAssertEqual(clientService.mockExporters.folders, [folder])
+        XCTAssertEqual(clientService.mockExporters.exportVaultReceivedArguments?.folders, [folder])
         XCTAssertEqual(
-            clientService.mockExporters.ciphers,
+            clientService.mockExporters.exportVaultReceivedArguments?.ciphers,
             [
                 archivedCipher,
                 identityCipher,
@@ -380,12 +354,12 @@ final class ExportVaultServiceTests: BitwardenTestCase { // swiftlint:disable:th
     /// with restrictedTypes.
     ///
     func test_exportVaultFileContents_restrictedTypes_csvWithRestrictions() async throws {
-        clientService.mockExporters.exportVaultResult = .success("success")
+        clientService.mockExporters.exportVaultReturnValue = "success"
         policyService.getRestrictedItemCipherTypesResult = [.card]
         _ = try await subject.exportVaultFileContents(format: ExportFileType.csv, includeArchivedItems: true)
-        XCTAssertEqual(clientService.mockExporters.folders, [folder])
+        XCTAssertEqual(clientService.mockExporters.exportVaultReceivedArguments?.folders, [folder])
         XCTAssertEqual(
-            clientService.mockExporters.ciphers,
+            clientService.mockExporters.exportVaultReceivedArguments?.ciphers,
             [
                 archivedCipher,
                 loginCipher,
@@ -399,25 +373,6 @@ final class ExportVaultServiceTests: BitwardenTestCase { // swiftlint:disable:th
     @MainActor
     func test_fetchAllCiphersToExport() async throws {
         let ciphers = try await subject.fetchAllCiphersToExport(includeArchivedItems: true)
-        XCTAssertEqual(
-            ciphers,
-            [
-                archivedCipher,
-                cardCipher,
-                identityCipher,
-                loginCipher,
-                secureNoteCipher,
-            ],
-        )
-    }
-
-    /// `fetchAllCiphersToExport()` includes archived ciphers when the feature flag is disabled,
-    /// regardless of `includeArchivedItems` parameter.
-    ///
-    @MainActor
-    func test_fetchAllCiphersToExport_archivedWithFFDisabled() async throws {
-        configService.featureFlagsBool[.archiveVaultItems] = false
-        let ciphers = try await subject.fetchAllCiphersToExport(includeArchivedItems: false)
         XCTAssertEqual(
             ciphers,
             [

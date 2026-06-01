@@ -42,14 +42,14 @@ class SdkServerCommunicationConfigRepositoryTests: BitwardenTestCase {
             bootstrap: .direct,
         )
 
-        let result = try await subject.get(hostname: hostname)
+        let result = try await subject.get(domain: hostname)
 
         XCTAssertEqual(result, ServerCommunicationConfig(bootstrap: .direct))
     }
 
     /// `get(hostname:)` returns `nil` when no config exists for the hostname.
     func test_get_returnsNilWhenNoConfig() async throws {
-        let result = try await subject.get(hostname: "example.com")
+        let result = try await subject.get(domain: "example.com")
 
         XCTAssertNil(result)
     }
@@ -59,7 +59,7 @@ class SdkServerCommunicationConfigRepositoryTests: BitwardenTestCase {
         serverCommunicationConfigStateService.getServerCommunicationConfigThrowableError = BitwardenTestError.example
 
         await assertAsyncThrows(error: BitwardenTestError.example) {
-            _ = try await subject.get(hostname: "example.com")
+            _ = try await subject.get(domain: "example.com")
         }
     }
 
@@ -68,7 +68,7 @@ class SdkServerCommunicationConfigRepositoryTests: BitwardenTestCase {
         let hostname = "example.com"
         let config = ServerCommunicationConfig(bootstrap: .direct)
 
-        try await subject.save(hostname: hostname, config: config)
+        try await subject.save(domain: hostname, config: config)
 
         let saved = serverCommunicationConfigStateService.setServerCommunicationConfigReceivedArguments?.config
 
@@ -85,6 +85,7 @@ class SdkServerCommunicationConfigRepositoryTests: BitwardenTestCase {
                     idpLoginUrl: "https://idp.example.com",
                     cookieName: "bwauth",
                     cookieDomain: "example.com",
+                    vaultUrl: "https://example.com",
                     cookieValue: nil,
                 ),
             ),
@@ -95,13 +96,14 @@ class SdkServerCommunicationConfigRepositoryTests: BitwardenTestCase {
                     idpLoginUrl: "https://idp.example.com",
                     cookieName: "bwauth",
                     cookieDomain: "example.com",
+                    vaultUrl: "https://example.com",
                     cookieValue: [AcquiredCookie(name: "session", value: "token123")],
                 ),
             ),
         )
         serverCommunicationConfigStateService.getServerCommunicationConfigReturnValue = localConfig
 
-        try await subject.save(hostname: hostname, config: incomingConfig)
+        try await subject.save(domain: hostname, config: incomingConfig)
 
         let saved = serverCommunicationConfigStateService.setServerCommunicationConfigReceivedArguments?.config
         guard case let .ssoCookieVendor(savedSsoConfig) = saved?.bootstrap else {
@@ -113,6 +115,7 @@ class SdkServerCommunicationConfigRepositoryTests: BitwardenTestCase {
         XCTAssertEqual(savedSsoConfig.cookieDomain, "example.com")
         XCTAssertEqual(savedSsoConfig.cookieValue?.first?.name, "session")
         XCTAssertEqual(savedSsoConfig.cookieValue?.first?.value, "token123")
+        XCTAssertEqual(savedSsoConfig.vaultUrl, "https://example.com")
     }
 
     /// `save(hostname:config:)` throws when `getServerCommunicationConfig` throws.
@@ -121,7 +124,7 @@ class SdkServerCommunicationConfigRepositoryTests: BitwardenTestCase {
 
         await assertAsyncThrows(error: BitwardenTestError.example) {
             try await self.subject.save(
-                hostname: "example.com",
+                domain: "example.com",
                 config: ServerCommunicationConfig(bootstrap: .direct),
             )
         }
@@ -133,7 +136,7 @@ class SdkServerCommunicationConfigRepositoryTests: BitwardenTestCase {
 
         await assertAsyncThrows(error: BitwardenTestError.example) {
             try await self.subject.save(
-                hostname: "example.com",
+                domain: "example.com",
                 config: ServerCommunicationConfig(bootstrap: .direct),
             )
         }

@@ -1,0 +1,211 @@
+import BitwardenKit
+import BitwardenResources
+import Foundation
+
+// MARK: - PremiumPlanState
+
+/// An object that defines the current state of a `PremiumPlanView`.
+///
+struct PremiumPlanState: Equatable {
+    // MARK: Properties
+
+    /// The current status of the premium plan.
+    var planStatus: PremiumPlanStatus = .active
+
+    /// The subscription details.
+    var subscription: PremiumSubscription?
+
+    /// The URL to open externally (manage plan or cancel premium).
+    var urlToOpen: URL?
+
+    // MARK: Computed Properties
+
+    /// The billing amount label (e.g. "$19.80 / year").
+    var billingAmount: String {
+        guard let subscription else { return "" }
+        return Localizations.xAmountPerCadence(
+            formatCurrency(subscription.seatsCost),
+            subscription.cadence.label,
+        )
+    }
+
+    /// The date the subscription was canceled, formatted for display.
+    var canceledDate: String {
+        guard let canceled = subscription?.canceled else { return "" }
+        return formatDate(canceled)
+    }
+
+    /// The accessibility label for the description text, with markdown stripped for VoiceOver.
+    /// For the active status, uses a screen-reader-friendly currency format instead of `descriptionText`.
+    var descriptionAccessibilityLabel: String {
+        guard planStatus == .active else {
+            return descriptionText.removingMarkdownForVoiceOver()
+        }
+        return Localizations.yourNextChargeIsForXDueOnY(
+            nextChargeAmountAccessibilityLabel,
+            nextChargeDate,
+        ).removingMarkdownForVoiceOver()
+    }
+
+    /// The description text for the current plan status.
+    var descriptionText: String {
+        switch planStatus {
+        case .active:
+            Localizations.yourNextChargeIsForXDueOnY(
+                nextChargeAmount,
+                nextChargeDate,
+            )
+        case .canceled:
+            Localizations.yourSubscriptionWasCanceledOnXDescriptionLong(
+                canceledDate,
+            )
+        case .expired:
+            Localizations.yourSubscriptionExpiredOnXDescriptionLong(
+                expiredDate,
+            )
+        case .pastDue:
+            Localizations.youHaveAGracePeriodOfXDaysFromYourSubscriptionDescriptionLong(
+                subscription?.gracePeriod ?? 0,
+                subscriptionEndDate,
+            )
+        case .pendingCancellation:
+            Localizations.yourSubscriptionIsScheduledToCancelOnXDescriptionLong(
+                pendingCancellationDate,
+            )
+        case .unknown:
+            Localizations.yourSubscriptionStatusIsUnknownVisitTheWebAppDescriptionLong
+        case .updatePayment:
+            Localizations.weCouldNotProcessYourPaymentUpdateYourPaymentMethodDescriptionLong(
+                subscriptionEndDate,
+            )
+        }
+    }
+
+    /// The discount label (e.g. "-$0.10").
+    var discount: String {
+        guard let subscription, subscription.discount > 0 else { return "" }
+        return Localizations.negativeX(formatCurrency(subscription.discount))
+    }
+
+    /// The estimated tax label (e.g. "$4.55" or "$0.00").
+    var estimatedTax: String {
+        guard let subscription else { return "" }
+        return formatCurrency(subscription.estimatedTax)
+    }
+
+    /// The date the subscription expired, formatted for display.
+    var expiredDate: String {
+        guard let suspension = subscription?.suspension else { return "" }
+        return formatDate(suspension)
+    }
+
+    /// The next charge amount with currency code, formatted for display (e.g. "24.35 USD").
+    var nextChargeAmount: String {
+        guard let subscription, subscription.nextCharge != nil else { return "" }
+        return formatCurrencyCode(subscription.totalAmount)
+    }
+
+    /// The next charge amount formatted for screen readers (e.g. "USD $24.35").
+    var nextChargeAmountAccessibilityLabel: String {
+        guard let subscription, subscription.nextCharge != nil else { return "" }
+        return "USD \(formatCurrency(subscription.totalAmount))"
+    }
+
+    /// The next charge date, formatted for display.
+    var nextChargeDate: String {
+        guard let nextCharge = subscription?.nextCharge else { return "" }
+        return formatDate(nextCharge)
+    }
+
+    /// The date the subscription is scheduled to cancel, formatted for display.
+    var pendingCancellationDate: String {
+        guard let cancelAt = subscription?.cancelAt else { return "" }
+        return formatDate(cancelAt)
+    }
+
+    /// Whether the billing details section should be shown.
+    var showBillingDetails: Bool {
+        planStatus != .canceled && planStatus != .expired && planStatus != .unknown
+    }
+
+    /// Whether the cancel premium button should be shown.
+    var showCancelButton: Bool {
+        planStatus != .canceled
+            && planStatus != .expired
+            && planStatus != .pendingCancellation
+            && planStatus != .unknown
+            && planStatus != .updatePayment
+    }
+
+    /// Whether the discount row should be shown.
+    var showDiscount: Bool {
+        !discount.isEmpty
+    }
+
+    /// The storage cost label (e.g. "$4.00" or "$0.00").
+    var storageCostLabel: String {
+        guard let subscription else { return "" }
+        return formatCurrency(subscription.storageCost)
+    }
+
+    /// The date the subscription ends or will be suspended, formatted for display.
+    var subscriptionEndDate: String {
+        if let suspension = subscription?.suspension {
+            return formatDate(suspension)
+        } else if let cancelAt = subscription?.cancelAt {
+            return formatDate(cancelAt)
+        }
+        return ""
+    }
+
+    /// The total label (e.g. "$25.55 / year").
+    var totalLabel: String {
+        guard let subscription else { return "" }
+        return Localizations.xAmountPerCadence(
+            formatCurrency(subscription.totalAmount),
+            subscription.cadence.label,
+        )
+    }
+
+    // MARK: Private Methods
+
+    /// Formats a decimal price as a US dollar currency string using the currency symbol.
+    ///
+    /// - Parameter price: The price to format.
+    /// - Returns: A formatted currency string (e.g. "$1.65").
+    ///
+    private func formatCurrency(_ price: Decimal) -> String {
+        NumberFormatter.usdCurrency.string(from: price as NSDecimalNumber) ?? "--"
+    }
+
+    /// Formats a decimal price as a US dollar currency string using the ISO currency code.
+    ///
+    /// - Parameter price: The price to format.
+    /// - Returns: A formatted currency string (e.g. "1.65 USD").
+    ///
+    private func formatCurrencyCode(_ price: Decimal) -> String {
+        NumberFormatter.usdCurrencyCode.string(from: price as NSDecimalNumber) ?? "--"
+    }
+
+    /// Formats a date for display using the long date style (e.g. "April 2, 2026").
+    ///
+    /// - Parameter date: The date to format.
+    /// - Returns: A formatted date string.
+    ///
+    private func formatDate(_ date: Date) -> String {
+        date.formatted(date: .long, time: .omitted)
+    }
+}
+
+// MARK: - PremiumPlanState + Initialization
+
+extension PremiumPlanState {
+    /// Creates a `PremiumPlanState` pre-populated with a subscription, skipping the plan screen's
+    /// own `getSubscription()` fetch.
+    ///
+    /// - Parameter subscription: The already-fetched subscription.
+    ///
+    init(subscription: PremiumSubscription) {
+        self.init(planStatus: subscription.status, subscription: subscription)
+    }
+}

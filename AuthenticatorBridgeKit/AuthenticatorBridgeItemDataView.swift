@@ -3,7 +3,7 @@ import Foundation
 /// A struct for storing **unencrypted** information about items that are shared between the Bitwarden
 /// and Authenticator apps.
 ///
-public struct AuthenticatorBridgeItemDataView: Codable, Equatable {
+public struct AuthenticatorBridgeItemDataView: Codable, Equatable, Sendable {
     // MARK: Properties
 
     /// The domain of the Bitwarden account that owns this item. (e.g. https://vault.bitwarden.com)

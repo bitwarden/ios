@@ -38,7 +38,7 @@ public class MockConfigStateService: ConfigStateService {
         serverConfig[userId] = config
     }
 
-    /// Attempts to convert a possible user id into a known account id.
+    /// Attempts to convert a possible user ID into a known account id.
     ///
     /// - Parameter userId: If nil, the active account id is returned. Otherwise, validate the id.
     ///

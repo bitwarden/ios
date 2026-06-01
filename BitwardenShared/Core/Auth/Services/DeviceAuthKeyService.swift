@@ -1,5 +1,6 @@
 import BitwardenKit
 import BitwardenSdk
+import Combine
 import Foundation
 
 // MARK: - DeviceAuthKeyService
@@ -35,7 +36,7 @@ protocol DeviceAuthKeyService { // sourcery: AutoMockable
         masterPasswordHash: String,
         overwrite: Bool,
         userId: String?,
-    ) async throws -> DeviceAuthKeyRecord
+    ) async throws -> DeviceAuthKeyKeychainRecord
 
     /// Deletes the device auth key.
     ///
@@ -51,7 +52,12 @@ protocol DeviceAuthKeyService { // sourcery: AutoMockable
     /// - Parameters:
     ///   - userId: The user ID for the account to get device auth key metadata for.
     ///
-    func getDeviceAuthKeyMetadata(userId: String?) async throws -> DeviceAuthKeyMetadata?
+    func getDeviceAuthKeyMetadata(userId: String?) async throws -> DeviceAuthKeyKeychainMetadata?
+
+    // MARK: Publishers
+
+    /// A publisher for the device auth key
+    func deviceAuthKeyPublisher() -> AnyPublisher<[String: Bool], Never>
 }
 
 // MARK: - Convenience Methods
@@ -88,7 +94,7 @@ extension DeviceAuthKeyService {
     func createDeviceAuthKey(
         masterPasswordHash: String,
         overwrite: Bool,
-    ) async throws -> DeviceAuthKeyRecord {
+    ) async throws -> DeviceAuthKeyKeychainRecord {
         try await createDeviceAuthKey(
             masterPasswordHash: masterPasswordHash,
             overwrite: overwrite,
@@ -104,7 +110,7 @@ extension DeviceAuthKeyService {
 
     /// Retrieve the metadata for the device auth key for the current user, if it exists.
     ///
-    func getDeviceAuthKeyMetadata() async throws -> DeviceAuthKeyMetadata? {
+    func getDeviceAuthKeyMetadata() async throws -> DeviceAuthKeyKeychainMetadata? {
         try await getDeviceAuthKeyMetadata(userId: nil)
     }
 }
@@ -120,6 +126,9 @@ struct DefaultDeviceAuthKeyService: DeviceAuthKeyService {
 
     /// Repository for managing device auth keys in the keychain.
     private let deviceAuthKeychainRepository: DeviceAuthKeychainRepository
+
+    /// A subject containing a userId and flag for the presence of the unlock passkey for logged in accounts.
+    private let deviceAuthKeySubject = CurrentValueSubject<[String: Bool], Never>([:])
 
     // MARK: Initializers
 
@@ -152,7 +161,13 @@ struct DefaultDeviceAuthKeyService: DeviceAuthKeyService {
         masterPasswordHash: String,
         overwrite: Bool,
         userId: String?,
-    ) async throws -> DeviceAuthKeyRecord {
+    ) async throws -> DeviceAuthKeyKeychainRecord {
+        let resolvedUserId = try await activeAccountStateProvider.userIdOrActive(userId)
+
+        var curVal = deviceAuthKeySubject.value
+        curVal[resolvedUserId] = true
+        deviceAuthKeySubject.send(curVal)
+
         // TODO: PM-26177 to finish building out this stub
         throw DeviceAuthKeyError.notImplemented
     }
@@ -164,7 +179,7 @@ struct DefaultDeviceAuthKeyService: DeviceAuthKeyService {
         try await deviceAuthKeychainRepository.deleteDeviceAuthKey(userId: resolvedUserId)
     }
 
-    func getDeviceAuthKeyMetadata(userId: String?) async throws -> DeviceAuthKeyMetadata? {
+    func getDeviceAuthKeyMetadata(userId: String?) async throws -> DeviceAuthKeyKeychainMetadata? {
         let resolvedUserId = try await activeAccountStateProvider.userIdOrActive(userId)
         return try await deviceAuthKeychainRepository.getDeviceAuthKeyMetadata(userId: resolvedUserId)
     }
@@ -179,9 +194,15 @@ struct DefaultDeviceAuthKeyService: DeviceAuthKeyService {
     /// - Parameters:
     ///   - userId: User ID for the account to fetch. If `nil`, the active account will be used.
     ///
-    private func getDeviceAuthKeyRecord(userId: String?) async throws -> DeviceAuthKeyRecord? {
+    private func getDeviceAuthKeyRecord(userId: String?) async throws -> DeviceAuthKeyKeychainRecord? {
         let resolvedUserId = try await activeAccountStateProvider.userIdOrActive(userId)
         return try await deviceAuthKeychainRepository.getDeviceAuthKey(userId: resolvedUserId)
+    }
+
+    // MARK: Publishers
+
+    func deviceAuthKeyPublisher() -> AnyPublisher<[String: Bool], Never> {
+        deviceAuthKeySubject.eraseToAnyPublisher()
     }
 }
 

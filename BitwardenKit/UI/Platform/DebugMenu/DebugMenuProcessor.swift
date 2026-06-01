@@ -1,5 +1,7 @@
+import BitwardenResources
 import BitwardenSdk
 import Foundation
+import UIKit
 
 // MARK: - DebugMenuProcessor
 
@@ -9,7 +11,10 @@ final class DebugMenuProcessor: StateProcessor<DebugMenuState, DebugMenuAction, 
     // MARK: Types
 
     typealias Services = HasConfigService
+        & HasEnvironmentService
+        & HasErrorAlertServices.ErrorAlertServices
         & HasErrorReporter
+        & HasServerCommunicationConfigClientSingleton
 
     // MARK: Properties
 
@@ -54,6 +59,8 @@ final class DebugMenuProcessor: StateProcessor<DebugMenuState, DebugMenuAction, 
 
     override func receive(_ action: DebugMenuAction) {
         switch action {
+        case .copyUserID:
+            copyUserID()
         case .dismissTapped:
             coordinator.navigate(to: .dismiss)
         case .generateCrash:
@@ -74,13 +81,15 @@ final class DebugMenuProcessor: StateProcessor<DebugMenuState, DebugMenuAction, 
             services.errorReporter.log(error: BitwardenSdk.BitwardenError.Api(ApiError.ResponseContent(
                 message: "Generated SDK error report from debug view.",
             )))
+        case let .toastShown(toast):
+            state.toast = toast
         }
     }
 
     override func perform(_ effect: DebugMenuEffect) async {
         switch effect {
-        case .viewAppeared:
-            await fetchFlags()
+        case .clearSsoCookies:
+            await clearSsoCookies()
         case .refreshFeatureFlags:
             await refreshFlags()
         case let .toggleFeatureFlag(flag, newValue):
@@ -89,10 +98,32 @@ final class DebugMenuProcessor: StateProcessor<DebugMenuState, DebugMenuAction, 
                 newValue: newValue,
             )
             state.featureFlags = await services.configService.getDebugFeatureFlags(currentFeatureFlags)
+        case .viewAppeared:
+            await fetchFlags()
+            state.userID = await services.errorReportBuilder.getUserID()
         }
     }
 
     // MARK: Private Functions
+
+    /// Clears the SSO cookie value stored in the keychain for the current environment's hostname.
+    private func clearSsoCookies() async {
+        do {
+            guard let webVaultURLHost = services.environmentService.webVaultURL.host else {
+                return
+            }
+
+            let hostname = await services.serverCommunicationConfigClientSingleton.resolveHostname(
+                hostname: webVaultURLHost,
+            )
+
+            try await services.configService.clearServerCommunicationCookieValue(hostname: hostname)
+
+            state.toast = Toast(title: Localizations.ssoCookiesCleared)
+        } catch {
+            services.errorReporter.log(error: error)
+        }
+    }
 
     /// Fetch the current debug feature flags.
     private func fetchFlags() async {
@@ -102,5 +133,17 @@ final class DebugMenuProcessor: StateProcessor<DebugMenuState, DebugMenuAction, 
     /// Refreshes the feature flags by resetting their local values and fetching the latest configurations.
     private func refreshFlags() async {
         state.featureFlags = await services.configService.refreshDebugFeatureFlags(currentFeatureFlags)
+    }
+
+    /// Copies the user ID to the user's clipboard.
+    private func copyUserID() {
+        guard let id = state.userID else {
+            state.toast = Toast(title: Localizations.somethingWentWrong)
+            return
+        }
+
+        // TODO: PM-21029 - Inject & replace UIPasteboard with PasteboardService
+        UIPasteboard.general.string = id
+        state.toast = Toast(title: Localizations.userIDCopiedToTheClipboard)
     }
 }

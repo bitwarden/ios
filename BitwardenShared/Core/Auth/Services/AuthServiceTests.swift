@@ -9,11 +9,12 @@ import XCTest
 
 // MARK: - AuthServiceTests
 
+@MainActor
 class AuthServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_length
     // MARK: Properties
 
     var accountAPIService: AccountAPIService!
-    var appSettingsStore: MockAppSettingsStore!
+    var appIDSettingsStore: MockAppIDSettingsStore!
     var authAPIService: AuthAPIService!
     var client: MockHTTPClient!
     var clientService: MockClientService!
@@ -35,7 +36,7 @@ class AuthServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
 
         client = MockHTTPClient()
         accountAPIService = APIService(client: client)
-        appSettingsStore = MockAppSettingsStore()
+        appIDSettingsStore = MockAppIDSettingsStore()
         authAPIService = APIService(client: client)
         clientService = MockClientService()
         configService = MockConfigService()
@@ -60,9 +61,14 @@ class AuthServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
         systemDevice = MockSystemDevice()
         trustDeviceService = MockTrustDeviceService()
 
+        clientService.mockAuth.approveAuthRequestReturnValue = ""
+        clientService.mockAuth.hashPasswordReturnValue = "hashPassword"
+        clientService.mockAuth.passwordStrengthReturnValue = 0
+        clientService.mockAuth.satisfiesPolicyReturnValue = false
+
         subject = DefaultAuthService(
             accountAPIService: accountAPIService,
-            appIdService: AppIdService(appSettingStore: appSettingsStore),
+            appIDService: AppIDService(appIDSettingsStore: appIDSettingsStore),
             authAPIService: authAPIService,
             clientService: clientService,
             configService: configService,
@@ -77,11 +83,11 @@ class AuthServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
         )
     }
 
-    override func tearDown() {
-        super.tearDown()
+    override func tearDown() async throws {
+        try await super.tearDown()
 
         accountAPIService = nil
-        appSettingsStore = nil
+        appIDSettingsStore = nil
         authAPIService = nil
         client = nil
         clientService = nil
@@ -102,13 +108,13 @@ class AuthServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
         // Set up the mock data.
         client.result = .httpSuccess(testData: .authRequestSuccess)
         stateService.activeAccount = .fixture()
-        appSettingsStore.appId = "App id"
+        appIDSettingsStore.appID = "App ID"
 
         // Test.
         try await subject.answerLoginRequest(.fixture(), approve: true)
 
         // Confirm the results.
-        XCTAssertEqual(clientService.mockAuth.approveAuthRequestPublicKey, "reallyLongPublicKey")
+        XCTAssertEqual(clientService.mockAuth.approveAuthRequestReceivedPublicKey, "reallyLongPublicKey")
         XCTAssertEqual(client.requests.last?.url.absoluteString, "https://example.com/api/auth-requests/1")
     }
 
@@ -124,13 +130,13 @@ class AuthServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
             .httpSuccess(testData: .authRequestSuccess),
             .httpSuccess(testData: .authRequestSuccess),
         ]
-        appSettingsStore.appId = "App id"
-        clientService.mockAuth.newAuthRequestResult = .success(.init(
+        appIDSettingsStore.appID = "App ID"
+        clientService.mockAuth.newAuthRequestReturnValue = .init(
             privateKey: "",
             publicKey: "",
             fingerprint: "fingerprint",
             accessCode: "accessCode",
-        ))
+        )
         let request = try await subject.initiateLoginWithDevice(
             email: "email@example.com",
             type: AuthRequestType.authenticateAndUnlock,
@@ -158,13 +164,13 @@ class AuthServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
         // Set up the mock data.
         client.result = .httpSuccess(testData: .authRequestSuccess)
         stateService.activeAccount = .fixture()
-        appSettingsStore.appId = "App id"
+        appIDSettingsStore.appID = "App ID"
 
         // Test.
         try await subject.denyAllLoginRequests([.fixture()])
 
         // Confirm the results.
-        XCTAssertEqual(clientService.mockAuth.approveAuthRequestPublicKey, "reallyLongPublicKey")
+        XCTAssertEqual(clientService.mockAuth.approveAuthRequestReceivedPublicKey, "reallyLongPublicKey")
         XCTAssertEqual(client.requests.last?.url.absoluteString, "https://example.com/api/auth-requests/1")
     }
 
@@ -172,6 +178,7 @@ class AuthServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
     func test_generateSingleSignOnUrl() async throws {
         // Set up the mock data.
         client.result = .httpSuccess(testData: .preValidateSingleSignOn)
+        clientService.mockGenerators.passwordReturnValue = "PASSWORD"
 
         // Generate the url.
         let result = try await subject.generateSingleSignOnUrl(from: "TeamLivefront")
@@ -198,7 +205,7 @@ class AuthServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
     func test_getPendingAdminLoginRequest() async throws {
         stateService.activeAccount = .fixture()
         let keychainRequest = try JSONEncoder().encode(PendingAdminLoginRequest.fixture())
-        keychainRepository.getPendingAdminLoginRequestResult = .success(String(data: keychainRequest, encoding: .utf8)!)
+        keychainRepository.getPendingAdminLoginRequestReturnValue = String(data: keychainRequest, encoding: .utf8)!
 
         let result = try await subject.getPendingAdminLoginRequest(userId: "1")
         XCTAssertEqual(result, .fixture())
@@ -207,13 +214,12 @@ class AuthServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
     /// setPendingAdminLoginRequest()` sets the specific pending login request.
     func test_setPendingAdminLoginRequest_value() async throws {
         stateService.activeAccount = .fixture()
-        keychainRepository.setPendingAdminLoginRequestResult = .success(())
 
         try await subject.setPendingAdminLoginRequest(PendingAdminLoginRequest.fixture(), userId: "1")
 
-        let jsonData = keychainRepository.mockStorage[
-            keychainRepository.formattedKey(for: .pendingAdminLoginRequest(userId: "1")),
-        ]!.data(using: .utf8)!
+        let jsonData = try XCTUnwrap(
+            keychainRepository.setPendingAdminLoginRequestReceivedArguments?.value.data(using: .utf8),
+        )
         let request = try JSONDecoder().decode(PendingAdminLoginRequest.self, from: jsonData)
         XCTAssertEqual(
             request,
@@ -224,20 +230,10 @@ class AuthServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
     /// setPendingAdminLoginRequest()` deletes the specific pending login request.
     func test_setPendingAdminLoginRequest_nil() async throws {
         stateService.activeAccount = .fixture()
-        let keychainRequest = try JSONEncoder().encode(PendingAdminLoginRequest.fixture())
-        keychainRepository.setPendingAdminLoginRequestResult = .success(())
-        keychainRepository.mockStorage[
-            keychainRepository.formattedKey(for: .pendingAdminLoginRequest(userId: "1")),
-        ] = String(data: keychainRequest, encoding: .utf8)!
 
         try await subject.setPendingAdminLoginRequest(nil, userId: "1")
 
-        XCTAssertEqual(
-            keychainRepository.mockStorage[
-                keychainRepository.formattedKey(for: .pendingAdminLoginRequest(userId: "1")),
-            ],
-            nil,
-        )
+        XCTAssertEqual(keychainRepository.deletePendingAdminLoginRequestReceivedUserId, "1")
     }
 
     /// `getPendingLoginRequests(withId:)` returns the specific pending login request.
@@ -264,9 +260,9 @@ class AuthServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
     func test_initiateLoginWithDevice() async throws {
         // Set up the mock data.
         client.result = .httpSuccess(testData: .authRequestSuccess)
-        appSettingsStore.appId = "App id"
+        appIDSettingsStore.appID = "App ID"
         let authRequestResponse = AuthRequestResponse.fixture()
-        clientService.mockAuth.newAuthRequestResult = .success(authRequestResponse)
+        clientService.mockAuth.newAuthRequestReturnValue = authRequestResponse
 
         // Test.
         let result = try await subject.initiateLoginWithDevice(
@@ -276,7 +272,7 @@ class AuthServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
 
         // Verify the results.
         XCTAssertEqual(client.requests.count, 1)
-        XCTAssertEqual(clientService.mockAuth.newAuthRequestEmail, "email@example.com")
+        XCTAssertEqual(clientService.mockAuth.newAuthRequestReceivedEmail, "email@example.com")
         XCTAssertTrue(clientService.mockAuthIsPreAuth)
         XCTAssertEqual(result.authRequestResponse, authRequestResponse)
         XCTAssertEqual(result.requestId, LoginRequest.fixture().id)
@@ -289,14 +285,14 @@ class AuthServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
             .httpSuccess(testData: .authRequestSuccess),
             .httpSuccess(testData: .identityTokenSuccess),
         ]
-        appSettingsStore.appId = "App id"
+        appIDSettingsStore.appID = "App ID"
         systemDevice.modelIdentifier = "Model id"
-        clientService.mockAuth.newAuthRequestResult = .success(.init(
+        clientService.mockAuth.newAuthRequestReturnValue = .init(
             privateKey: "",
             publicKey: "",
             fingerprint: "fingerprint",
             accessCode: "accessCode",
-        ))
+        )
         _ = try await subject.initiateLoginWithDevice(
             email: "email@example.com",
             type: AuthRequestType.authenticateAndUnlock,
@@ -312,13 +308,13 @@ class AuthServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
                 password: "accessCode",
             ),
             deviceInfo: DeviceInfo(
-                identifier: "App id",
+                identifier: "App ID",
                 name: "Model id",
             ),
             loginRequestId: "1",
         )
         XCTAssertEqual(client.requests.last?.body, try tokenRequest.encode())
-        await assertGetConfig()
+        assertGetConfig()
     }
 
     /// `loginWithDevice(_:email:)` throws an error if there's no cached data.
@@ -336,8 +332,8 @@ class AuthServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
             .httpSuccess(testData: .preLoginSuccess),
             .httpSuccess(testData: .identityTokenSuccess),
         ]
-        appSettingsStore.appId = "App id"
-        clientService.mockAuth.hashPasswordResult = .success("hashed password")
+        appIDSettingsStore.appID = "App ID"
+        clientService.mockAuth.hashPasswordReturnValue = "hashed password"
         stateService.preAuthEnvironmentURLs = EnvironmentURLData(base: URL(string: "https://vault.bitwarden.com"))
         systemDevice.modelIdentifier = "Model id"
 
@@ -355,7 +351,7 @@ class AuthServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
         let tokenRequest = IdentityTokenRequestModel(
             authenticationMethod: .password(username: "email@example.com", password: "hashed password"),
             deviceInfo: DeviceInfo(
-                identifier: "App id",
+                identifier: "App ID",
                 name: "Model id",
             ),
             loginRequestId: nil,
@@ -364,17 +360,16 @@ class AuthServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
         XCTAssertEqual(client.requests[0].body, try preLoginRequest.encode())
         XCTAssertEqual(client.requests[1].body, try tokenRequest.encode())
 
-        XCTAssertEqual(clientService.mockAuth.hashPasswordEmail, "user@bitwarden.com")
-        XCTAssertEqual(clientService.mockAuth.hashPasswordPassword, "Password1234!")
-        XCTAssertEqual(clientService.mockAuth.hashPasswordKdfParams, .pbkdf2(iterations: 600_000))
+        XCTAssertEqual(clientService.mockAuth.hashPasswordReceivedArguments?.email, "user@bitwarden.com")
+        XCTAssertEqual(clientService.mockAuth.hashPasswordReceivedArguments?.password, "Password1234!")
+        XCTAssertEqual(clientService.mockAuth.hashPasswordReceivedArguments?.kdfParams, .pbkdf2(iterations: 600_000))
 
         XCTAssertEqual(stateService.accountsAdded, [Account.fixtureAccountLogin()])
         XCTAssertEqual(
             stateService.accountEncryptionKeys,
             [
                 "13512467-9cfe-43b0-969f-07534084764b": AccountEncryptionKeys(
-                    accountKeys: nil,
-                    encryptedPrivateKey: "PRIVATE_KEY",
+                    cryptographicState: .v1(privateKey: "PRIVATE_KEY"),
                     encryptedUserKey: "KEY",
                 ),
             ],
@@ -386,12 +381,12 @@ class AuthServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
             stateService.masterPasswordHashes,
             ["13512467-9cfe-43b0-969f-07534084764b": "hashed password"],
         )
-        try XCTAssertEqual(
-            keychainRepository.getValue(for: .accessToken(userId: "13512467-9cfe-43b0-969f-07534084764b")),
+        XCTAssertEqual(
+            keychainRepository.setAccessTokenReceivedArguments?.value,
             IdentityTokenResponseModel.fixture().accessToken,
         )
-        try XCTAssertEqual(
-            keychainRepository.getValue(for: .refreshToken(userId: "13512467-9cfe-43b0-969f-07534084764b")),
+        XCTAssertEqual(
+            keychainRepository.setRefreshTokenReceivedArguments?.value,
             IdentityTokenResponseModel.fixture().refreshToken,
         )
         assertGetConfig()
@@ -405,8 +400,8 @@ class AuthServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
             .httpSuccess(testData: .preLoginSuccess),
             .httpSuccess(testData: .identityTokenSuccess),
         ]
-        appSettingsStore.appId = "App id"
-        clientService.mockAuth.hashPasswordResult = .success("hashed password")
+        appIDSettingsStore.appID = "App ID"
+        clientService.mockAuth.hashPasswordReturnValue = "hashed password"
         credentialIdentityStore.state.mockIsEnabled = false
         stateService.preAuthEnvironmentURLs = EnvironmentURLData(base: URL(string: "https://vault.bitwarden.com"))
         systemDevice.modelIdentifier = "Model id"
@@ -425,7 +420,7 @@ class AuthServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
         let tokenRequest = IdentityTokenRequestModel(
             authenticationMethod: .password(username: "email@example.com", password: "hashed password"),
             deviceInfo: DeviceInfo(
-                identifier: "App id",
+                identifier: "App ID",
                 name: "Model id",
             ),
             loginRequestId: nil,
@@ -434,17 +429,16 @@ class AuthServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
         XCTAssertEqual(client.requests[0].body, try preLoginRequest.encode())
         XCTAssertEqual(client.requests[1].body, try tokenRequest.encode())
 
-        XCTAssertEqual(clientService.mockAuth.hashPasswordEmail, "user@bitwarden.com")
-        XCTAssertEqual(clientService.mockAuth.hashPasswordPassword, "Password1234!")
-        XCTAssertEqual(clientService.mockAuth.hashPasswordKdfParams, .pbkdf2(iterations: 600_000))
+        XCTAssertEqual(clientService.mockAuth.hashPasswordReceivedArguments?.email, "user@bitwarden.com")
+        XCTAssertEqual(clientService.mockAuth.hashPasswordReceivedArguments?.password, "Password1234!")
+        XCTAssertEqual(clientService.mockAuth.hashPasswordReceivedArguments?.kdfParams, .pbkdf2(iterations: 600_000))
 
         XCTAssertEqual(stateService.accountsAdded, [Account.fixtureAccountLogin()])
         XCTAssertEqual(
             stateService.accountEncryptionKeys,
             [
                 "13512467-9cfe-43b0-969f-07534084764b": AccountEncryptionKeys(
-                    accountKeys: nil,
-                    encryptedPrivateKey: "PRIVATE_KEY",
+                    cryptographicState: .v1(privateKey: "PRIVATE_KEY"),
                     encryptedUserKey: "KEY",
                 ),
             ],
@@ -456,12 +450,12 @@ class AuthServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
             stateService.masterPasswordHashes,
             ["13512467-9cfe-43b0-969f-07534084764b": "hashed password"],
         )
-        try XCTAssertEqual(
-            keychainRepository.getValue(for: .accessToken(userId: "13512467-9cfe-43b0-969f-07534084764b")),
+        XCTAssertEqual(
+            keychainRepository.setAccessTokenReceivedArguments?.value,
             IdentityTokenResponseModel.fixture().accessToken,
         )
-        try XCTAssertEqual(
-            keychainRepository.getValue(for: .refreshToken(userId: "13512467-9cfe-43b0-969f-07534084764b")),
+        XCTAssertEqual(
+            keychainRepository.setRefreshTokenReceivedArguments?.value,
             IdentityTokenResponseModel.fixture().refreshToken,
         )
         assertGetConfig()
@@ -476,8 +470,8 @@ class AuthServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
             .httpSuccess(testData: .preLoginSuccess),
             .httpSuccess(testData: .identityTokenSuccess),
         ]
-        appSettingsStore.appId = "App id"
-        clientService.mockAuth.hashPasswordResult = .success("hashed password")
+        appIDSettingsStore.appID = "App ID"
+        clientService.mockAuth.hashPasswordReturnValue = "hashed password"
         credentialIdentityStore.state.mockIsEnabled = true
         stateService.accountSetupAutofillError = BitwardenTestError.example
         stateService.preAuthEnvironmentURLs = EnvironmentURLData(base: URL(string: "https://vault.bitwarden.com"))
@@ -506,8 +500,8 @@ class AuthServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
             .httpSuccess(testData: .preLoginSuccess),
             .httpSuccess(testData: .identityTokenSuccess),
         ]
-        appSettingsStore.appId = "App id"
-        clientService.mockAuth.hashPasswordResult = .success("hashed password")
+        appIDSettingsStore.appID = "App ID"
+        clientService.mockAuth.hashPasswordReturnValue = "hashed password"
         credentialIdentityStore.state.mockIsEnabled = true
         stateService.preAuthEnvironmentURLs = EnvironmentURLData(base: URL(string: "https://vault.bitwarden.com"))
         systemDevice.modelIdentifier = "Model id"
@@ -533,9 +527,9 @@ class AuthServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
             .httpSuccess(testData: .preLoginSuccess),
             .httpSuccess(testData: .identityTokenWithMasterPasswordPolicy),
         ]
-        appSettingsStore.appId = "App id"
-        clientService.mockAuth.hashPasswordResult = .success("hashed password")
-        clientService.mockAuth.satisfiesPolicyResult = false
+        appIDSettingsStore.appID = "App ID"
+        clientService.mockAuth.hashPasswordReturnValue = "hashed password"
+        clientService.mockAuth.satisfiesPolicyReturnValue = false
         stateService.preAuthEnvironmentURLs = EnvironmentURLData(base: URL(string: "https://vault.bitwarden.com"))
         systemDevice.modelIdentifier = "Model id"
 
@@ -556,7 +550,7 @@ class AuthServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
                 password: "hashed password",
             ),
             deviceInfo: DeviceInfo(
-                identifier: "App id",
+                identifier: "App ID",
                 name: "Model id",
             ),
             loginRequestId: nil,
@@ -565,9 +559,9 @@ class AuthServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
         XCTAssertEqual(client.requests[0].body, try preLoginRequest.encode())
         XCTAssertEqual(client.requests[1].body, try tokenRequest.encode())
 
-        XCTAssertEqual(clientService.mockAuth.hashPasswordEmail, "user@bitwarden.com")
-        XCTAssertEqual(clientService.mockAuth.hashPasswordPassword, "Password1234!")
-        XCTAssertEqual(clientService.mockAuth.hashPasswordKdfParams, .pbkdf2(iterations: 600_000))
+        XCTAssertEqual(clientService.mockAuth.hashPasswordReceivedArguments?.email, "user@bitwarden.com")
+        XCTAssertEqual(clientService.mockAuth.hashPasswordReceivedArguments?.password, "Password1234!")
+        XCTAssertEqual(clientService.mockAuth.hashPasswordReceivedArguments?.kdfParams, .pbkdf2(iterations: 600_000))
 
         XCTAssertEqual(
             stateService.forcePasswordResetReason["13512467-9cfe-43b0-969f-07534084764b"],
@@ -587,9 +581,9 @@ class AuthServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
                 data: APITestData.identityTokenTwoFactorError.data,
             ),
         ]
-        appSettingsStore.appId = "App id"
+        appIDSettingsStore.appID = "App ID"
         await stateService.setTwoFactorToken("some token", email: "email@example.com")
-        clientService.mockAuth.hashPasswordResult = .success("hashed password")
+        clientService.mockAuth.hashPasswordReturnValue = "hashed password"
         stateService.preAuthEnvironmentURLs = EnvironmentURLData(base: URL(string: "https://vault.bitwarden.com"))
         systemDevice.modelIdentifier = "Model id"
 
@@ -622,7 +616,7 @@ class AuthServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
         let unlockMethod = try await subject.loginWithSingleSignOn(code: "super_cool_secret_code", email: "")
 
         XCTAssertEqual(unlockMethod, .deviceKey)
-        await assertGetConfig()
+        assertGetConfig()
     }
 
     /// `loginWithSingleSignOn(code:email:)` returns the key connector unlock method if the user
@@ -636,7 +630,7 @@ class AuthServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
             unlockMethod,
             .keyConnector(keyConnectorURL: URL(string: "https://vault.bitwarden.com/key-connector")!),
         )
-        await assertGetConfig()
+        assertGetConfig()
     }
 
     // `loginWithSingleSignOn(code:email:)` returns the master password unlock method if the user
@@ -656,7 +650,7 @@ class AuthServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
             unlockMethod,
             .masterPassword(account),
         )
-        await assertGetConfig()
+        assertGetConfig()
     }
 
     /// `loginWithSingleSignOn(code:email:)` throws an error if the user doesn't have a master password set.
@@ -666,13 +660,13 @@ class AuthServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
         await assertAsyncThrows(error: AuthError.requireSetPassword) {
             _ = try await subject.loginWithSingleSignOn(code: "super_cool_secret_code", email: "")
         }
-        await assertGetConfig()
+        assertGetConfig()
     }
 
     /// `loginWithSingleSignOn(code:email:)` returns an account if the vault is still locked after authenticating.
     func test_loginSingleSignOn_vaultLocked() async throws {
         // Set up the mock data.
-        appSettingsStore.appId = "App id"
+        appIDSettingsStore.appID = "App ID"
         client.result = .httpSuccess(testData: .identityTokenSuccess)
         stateService.preAuthEnvironmentURLs = EnvironmentURLData(base: URL(string: "https://vault.bitwarden.com"))
         systemDevice.modelIdentifier = "Model id"
@@ -688,7 +682,7 @@ class AuthServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
                 redirectUri: "bitwarden://sso-callback",
             ),
             deviceInfo: DeviceInfo(
-                identifier: "App id",
+                identifier: "App ID",
                 name: "Model id",
             ),
             loginRequestId: nil,
@@ -701,23 +695,22 @@ class AuthServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
             stateService.accountEncryptionKeys,
             [
                 "13512467-9cfe-43b0-969f-07534084764b": AccountEncryptionKeys(
-                    accountKeys: nil,
-                    encryptedPrivateKey: "PRIVATE_KEY",
+                    cryptographicState: .v1(privateKey: "PRIVATE_KEY"),
                     encryptedUserKey: "KEY",
                 ),
             ],
         )
-        try XCTAssertEqual(
-            keychainRepository.getValue(for: .accessToken(userId: "13512467-9cfe-43b0-969f-07534084764b")),
+        XCTAssertEqual(
+            keychainRepository.setAccessTokenReceivedArguments?.value,
             IdentityTokenResponseModel.fixture().accessToken,
         )
-        try XCTAssertEqual(
-            keychainRepository.getValue(for: .refreshToken(userId: "13512467-9cfe-43b0-969f-07534084764b")),
+        XCTAssertEqual(
+            keychainRepository.setRefreshTokenReceivedArguments?.value,
             IdentityTokenResponseModel.fixture().refreshToken,
         )
 
         XCTAssertEqual(unlockMethod, .masterPassword(.fixtureAccountLogin()))
-        await assertGetConfig()
+        assertGetConfig()
     }
 
     /// `loginWithTwoFactorCode(email:code:method:remember:)` uses the cached request but with two factor
@@ -733,9 +726,9 @@ class AuthServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
             ),
             .httpSuccess(testData: .identityTokenSuccessTwoFactorToken),
         ]
-        appSettingsStore.appId = "App id"
+        appIDSettingsStore.appID = "App ID"
         await stateService.setTwoFactorToken("some token", email: "email@example.com")
-        clientService.mockAuth.hashPasswordResult = .success("hashed password")
+        clientService.mockAuth.hashPasswordReturnValue = "hashed password"
         stateService.preAuthEnvironmentURLs = EnvironmentURLData(base: URL(string: "https://vault.bitwarden.com"))
         systemDevice.modelIdentifier = "Model id"
 
@@ -772,8 +765,7 @@ class AuthServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
             stateService.accountEncryptionKeys,
             [
                 "13512467-9cfe-43b0-969f-07534084764b": AccountEncryptionKeys(
-                    accountKeys: nil,
-                    encryptedPrivateKey: "PRIVATE_KEY",
+                    cryptographicState: .v1(privateKey: "PRIVATE_KEY"),
                     encryptedUserKey: "KEY",
                 ),
             ],
@@ -782,17 +774,17 @@ class AuthServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
             stateService.masterPasswordHashes,
             ["13512467-9cfe-43b0-969f-07534084764b": "hashed password"],
         )
-        try XCTAssertEqual(
-            keychainRepository.getValue(for: .accessToken(userId: "13512467-9cfe-43b0-969f-07534084764b")),
+        XCTAssertEqual(
+            keychainRepository.setAccessTokenReceivedArguments?.value,
             IdentityTokenResponseModel.fixture().accessToken,
         )
-        try XCTAssertEqual(
-            keychainRepository.getValue(for: .refreshToken(userId: "13512467-9cfe-43b0-969f-07534084764b")),
+        XCTAssertEqual(
+            keychainRepository.setRefreshTokenReceivedArguments?.value,
             IdentityTokenResponseModel.fixture().refreshToken,
         )
 
         XCTAssertEqual(unlockMethod, .masterPassword(.fixtureAccountLogin()))
-        await assertGetConfig()
+        assertGetConfig()
     }
 
     /// `loginWithTwoFactorCode(email:code:method:remember:)` uses the cached request
@@ -808,9 +800,9 @@ class AuthServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
             ),
             .httpSuccess(testData: .identityTokenSuccess),
         ]
-        appSettingsStore.appId = "App id"
+        appIDSettingsStore.appID = "App ID"
         await stateService.setTwoFactorToken("some token", email: "email@example.com")
-        clientService.mockAuth.hashPasswordResult = .success("hashed password")
+        clientService.mockAuth.hashPasswordReturnValue = "hashed password"
         stateService.preAuthEnvironmentURLs = EnvironmentURLData(base: URL(string: "https://vault.bitwarden.com"))
         systemDevice.modelIdentifier = "Model id"
 
@@ -839,8 +831,7 @@ class AuthServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
             stateService.accountEncryptionKeys,
             [
                 "13512467-9cfe-43b0-969f-07534084764b": AccountEncryptionKeys(
-                    accountKeys: nil,
-                    encryptedPrivateKey: "PRIVATE_KEY",
+                    cryptographicState: .v1(privateKey: "PRIVATE_KEY"),
                     encryptedUserKey: "KEY",
                 ),
             ],
@@ -849,17 +840,17 @@ class AuthServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
             stateService.masterPasswordHashes,
             ["13512467-9cfe-43b0-969f-07534084764b": "hashed password"],
         )
-        try XCTAssertEqual(
-            keychainRepository.getValue(for: .accessToken(userId: "13512467-9cfe-43b0-969f-07534084764b")),
+        XCTAssertEqual(
+            keychainRepository.setAccessTokenReceivedArguments?.value,
             IdentityTokenResponseModel.fixture().accessToken,
         )
-        try XCTAssertEqual(
-            keychainRepository.getValue(for: .refreshToken(userId: "13512467-9cfe-43b0-969f-07534084764b")),
+        XCTAssertEqual(
+            keychainRepository.setRefreshTokenReceivedArguments?.value,
             IdentityTokenResponseModel.fixture().refreshToken,
         )
 
         XCTAssertEqual(unlockMethod, .masterPassword(.fixtureAccountLogin()))
-        await assertGetConfig()
+        assertGetConfig()
     }
 
     /// `loginWithTwoFactorCode()` returns the device key unlock method if the user uses trusted
@@ -898,7 +889,7 @@ class AuthServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
             remember: true,
         )
         XCTAssertEqual(unlockMethod, .deviceKey)
-        await assertGetConfig()
+        assertGetConfig()
     }
 
     /// `loginWithTwoFactorCode(email:code:method:remember:)` set forcePasswordResetReason as
@@ -914,9 +905,9 @@ class AuthServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
             ),
             .httpSuccess(testData: .identityTokenSuccessTwoFactorToken),
         ]
-        appSettingsStore.appId = "App id"
+        appIDSettingsStore.appID = "App ID"
         await stateService.setTwoFactorToken("some token", email: "email@example.com")
-        clientService.mockAuth.hashPasswordResult = .success("hashed password")
+        clientService.mockAuth.hashPasswordReturnValue = "hashed password"
         stateService.preAuthEnvironmentURLs = EnvironmentURLData(base: URL(string: "https://vault.bitwarden.com"))
         systemDevice.modelIdentifier = "Model id"
 
@@ -929,7 +920,7 @@ class AuthServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
             requireSpecial: true,
             enforceOnLogin: true,
         )
-        clientService.mockAuth.satisfiesPolicyResult = false
+        clientService.mockAuth.satisfiesPolicyReturnValue = false
         policyService.getMasterPasswordPolicyOptionsResult = .success(policy)
 
         // First login with the master password so that the request will be saved.
@@ -976,9 +967,9 @@ class AuthServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
             ),
             .httpSuccess(testData: .identityTokenSuccessTwoFactorToken),
         ]
-        appSettingsStore.appId = "App id"
+        appIDSettingsStore.appID = "App ID"
         await stateService.setTwoFactorToken("some token", email: "email@example.com")
-        clientService.mockAuth.hashPasswordResult = .success("hashed password")
+        clientService.mockAuth.hashPasswordReturnValue = "hashed password"
         stateService.preAuthEnvironmentURLs = EnvironmentURLData(base: URL(string: "https://vault.bitwarden.com"))
         systemDevice.modelIdentifier = "Model id"
 
@@ -991,7 +982,7 @@ class AuthServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
             requireSpecial: true,
             enforceOnLogin: true,
         )
-        clientService.mockAuth.satisfiesPolicyResult = true
+        clientService.mockAuth.satisfiesPolicyReturnValue = true
         policyService.getMasterPasswordPolicyOptionsResult = .success(policy)
 
         // First login with the master password so that the request will be saved.
@@ -1060,7 +1051,7 @@ class AuthServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
             unlockMethod,
             .keyConnector(keyConnectorURL: URL(string: "https://vault.bitwarden.com/key-connector")!),
         )
-        await assertGetConfig()
+        assertGetConfig()
     }
 
     /// `requirePasswordChange(email:masterPassword:policy)` returns `false` if there
@@ -1079,7 +1070,7 @@ class AuthServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
     /// `requirePasswordChange(email:masterPassword:policy)` returns `true` if the master password meet the
     /// master password policy option.
     func test_requirePasswordChange_withPolicy_strong() async throws {
-        clientService.mockAuth.satisfiesPolicyResult = true
+        clientService.mockAuth.satisfiesPolicyReturnValue = true
         policyService.getMasterPasswordPolicyOptionsResult = .success(nil)
         let policy = MasterPasswordPolicyOptions(
             minComplexity: 6,
@@ -1102,7 +1093,7 @@ class AuthServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
     /// `requirePasswordChange(email:masterPassword:policy)` returns `true` if the master password does not
     /// meet master password policy option.
     func test_requirePasswordChange_withPolicy_weak() async throws {
-        clientService.mockAuth.satisfiesPolicyResult = false
+        clientService.mockAuth.satisfiesPolicyReturnValue = false
         policyService.getMasterPasswordPolicyOptionsResult = .success(nil)
         let policy = MasterPasswordPolicyOptions(
             minComplexity: 6,
@@ -1141,9 +1132,9 @@ class AuthServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
             ),
             .httpSuccess(testData: .emptyResponse),
         ]
-        appSettingsStore.appId = "App id"
+        appIDSettingsStore.appID = "App ID"
         await stateService.setTwoFactorToken("some token", email: "email@example.com")
-        clientService.mockAuth.hashPasswordResult = .success("hashed password")
+        clientService.mockAuth.hashPasswordReturnValue = "hashed password"
         stateService.preAuthEnvironmentURLs = EnvironmentURLData(base: URL(string: "https://vault.bitwarden.com"))
         systemDevice.modelIdentifier = "Model id"
 
@@ -1187,9 +1178,9 @@ class AuthServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
             ),
             .httpSuccess(testData: .emptyResponse),
         ]
-        appSettingsStore.appId = "App id"
+        appIDSettingsStore.appID = "App ID"
         await stateService.setTwoFactorToken("some token", email: "email@example.com")
-        clientService.mockAuth.hashPasswordResult = .success("hashed password")
+        clientService.mockAuth.hashPasswordReturnValue = "hashed password"
         stateService.preAuthEnvironmentURLs = EnvironmentURLData(base: URL(string: "https://vault.bitwarden.com"))
         systemDevice.modelIdentifier = "Model id"
 

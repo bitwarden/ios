@@ -4,10 +4,12 @@ import BitwardenSdk
 /// Protocol of the factory to create credential identities.
 protocol CredentialIdentityFactory {
     /// Creates the `ASCredentialIdentity` array from a `CipherView` (it may return empty).
-    /// - Parameter cipher: The cipher to get the identities from.
+    /// - Parameters:
+    ///   - cipher: The cipher to get the identities from.
+    ///   - accountHasPremium: Whether the active account has premium access.
     /// - Returns: An array of `ASCredentialIdentity` (password or one time code)
     @available(iOS 17.0, *)
-    func createCredentialIdentities(from cipher: CipherView) async -> [ASCredentialIdentity]
+    func createCredentialIdentities(from cipher: CipherView, accountHasPremium: Bool) async -> [ASCredentialIdentity]
 
     /// Tries to create a `ASPasswordCredentialIdentity` from the given `cipher`
     /// - Parameter cipher: CIpher to create the password identity.
@@ -18,10 +20,11 @@ protocol CredentialIdentityFactory {
 /// Default implementation of `CredentialIdentityFactory` to create credential identities.
 struct DefaultCredentialIdentityFactory: CredentialIdentityFactory {
     @available(iOS 17.0, *)
-    func createCredentialIdentities(from cipher: CipherView) async -> [ASCredentialIdentity] {
+    func createCredentialIdentities(from cipher: CipherView, accountHasPremium: Bool) async -> [ASCredentialIdentity] {
         var identities = [ASCredentialIdentity]()
 
-        if let oneTimeCodeIdentity = tryCreateOneTimeCodeIdentity(from: cipher) {
+        let isTotpAuthorized = accountHasPremium || cipher.organizationUseTotp
+        if isTotpAuthorized, let oneTimeCodeIdentity = tryCreateOneTimeCodeIdentity(from: cipher) {
             identities.append(oneTimeCodeIdentity)
         }
 

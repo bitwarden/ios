@@ -4,6 +4,13 @@ import Foundation
 
 /// Protocol defining the functionality of a TOTP (Time-based One-Time Password) service.
 protocol TOTPService {
+    /// Calculates the next TOTP code (the one valid in the upcoming period) for a given key.
+    ///
+    /// - Parameters:
+    ///   - key: The `TOTPKeyModel` to generate the next code for.
+    ///
+    func getNextTOTPCode(for key: TOTPKeyModel) async throws -> TOTPCodeModel
+
     /// Calculates the TOTP code for a given key
     ///
     /// - Parameters:
@@ -14,7 +21,7 @@ protocol TOTPService {
     /// Retrieves the TOTP configuration for a given key.
     ///
     /// - Parameter key: A string representing the TOTP key.
-    /// - Throws: `TOTPServiceError.invalidKeyFormat` if the key format is invalid.
+    /// - Throws: `TOTPKeyError.invalidKeyFormat` if the key format is invalid.
     /// - Returns: A `TOTPKeyModel` containing the configuration details.
     func getTOTPConfiguration(key: String?) throws -> TOTPKeyModel
 }
@@ -53,6 +60,14 @@ class DefaultTOTPService {
 }
 
 extension DefaultTOTPService: TOTPService {
+    func getNextTOTPCode(for key: TOTPKeyModel) async throws -> TOTPCodeModel {
+        let nextDate = timeProvider.presentTime.addingTimeInterval(Double(key.period))
+        return try await clientService.vault().generateTOTPCode(
+            for: key.rawAuthenticatorKey,
+            date: nextDate,
+        )
+    }
+
     func getTotpCode(for key: TOTPKeyModel) async throws -> TOTPCodeModel {
         try await clientService.vault().generateTOTPCode(
             for: key.rawAuthenticatorKey,
@@ -63,7 +78,7 @@ extension DefaultTOTPService: TOTPService {
     func getTOTPConfiguration(key: String?) throws -> TOTPKeyModel {
         guard let key,
               let config = TOTPKeyModel(authenticatorKey: key) else {
-            throw TOTPServiceError.invalidKeyFormat
+            throw TOTPKeyError.invalidKeyFormat
         }
         return config
     }

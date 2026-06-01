@@ -74,15 +74,6 @@ class CipherItemStateTests: BitwardenTestCase { // swiftlint:disable:this type_b
         XCTAssertEqual(state.archiveInfoText, "")
     }
 
-    /// `archiveInfoText` returns nil when the feature flag is disabled.
-    func test_archiveInfoText_featureFlagDisabled() throws {
-        let state = try CipherItemState.initForArchive(
-            archivedDate: .now,
-            isArchiveVaultItemsFFEnabled: false,
-        )
-        XCTAssertEqual(state.archiveInfoText, "")
-    }
-
     /// `archiveInfoText` returns nil when the item is deleted.
     func test_archiveInfoText_deleted() throws {
         let state = try CipherItemState.initForArchive(
@@ -149,9 +140,6 @@ class CipherItemStateTests: BitwardenTestCase { // swiftlint:disable:this type_b
     func test_canBeArchived() throws {
         XCTAssertTrue(
             try CipherItemState.initForArchive(archivedDate: nil).canBeArchived,
-        )
-        XCTAssertFalse(
-            try CipherItemState.initForArchive(archivedDate: nil, isArchiveVaultItemsFFEnabled: false).canBeArchived,
         )
         XCTAssertTrue(
             try CipherItemState.initForArchive(archivedDate: nil, hasPremium: false).canBeArchived,
@@ -313,9 +301,6 @@ class CipherItemStateTests: BitwardenTestCase { // swiftlint:disable:this type_b
     func test_canBeUnarchived() throws {
         XCTAssertTrue(
             try CipherItemState.initForArchive(archivedDate: .now).canBeUnarchived,
-        )
-        XCTAssertFalse(
-            try CipherItemState.initForArchive(archivedDate: .now, isArchiveVaultItemsFFEnabled: false).canBeUnarchived,
         )
         XCTAssertFalse(
             try CipherItemState.initForArchive(archivedDate: nil).canBeUnarchived,
@@ -495,19 +480,19 @@ class CipherItemStateTests: BitwardenTestCase { // swiftlint:disable:this type_b
     /// `navigationTitle` returns the navigation title for the view based on the cipher type being added.
     func test_navigationTitle_newItem() {
         let subjectCard = CipherItemState(addItem: .card, hasPremium: false)
-        XCTAssertEqual(subjectCard.navigationTitle, Localizations.newCard)
+        XCTAssertEqual(subjectCard.navigationTitle, Localizations.addCard)
 
         let subjectIdentity = CipherItemState(addItem: .identity, hasPremium: false)
-        XCTAssertEqual(subjectIdentity.navigationTitle, Localizations.newIdentity)
+        XCTAssertEqual(subjectIdentity.navigationTitle, Localizations.addIdentity)
 
         let subjectLogin = CipherItemState(addItem: .login, hasPremium: false)
-        XCTAssertEqual(subjectLogin.navigationTitle, Localizations.newLogin)
+        XCTAssertEqual(subjectLogin.navigationTitle, Localizations.addLogin)
 
         let subjectSecureNote = CipherItemState(addItem: .secureNote, hasPremium: false)
-        XCTAssertEqual(subjectSecureNote.navigationTitle, Localizations.newNote)
+        XCTAssertEqual(subjectSecureNote.navigationTitle, Localizations.addNote)
 
         let subjectSSHKey = CipherItemState(addItem: .sshKey, hasPremium: false)
-        XCTAssertEqual(subjectSSHKey.navigationTitle, Localizations.newSSHKey)
+        XCTAssertEqual(subjectSSHKey.navigationTitle, Localizations.addSSHKey)
     }
 
     /// `setter:owner` adds the default user collection to the collection IDs
@@ -640,16 +625,6 @@ class CipherItemStateTests: BitwardenTestCase { // swiftlint:disable:this type_b
         )
     }
 
-    /// `shouldDisplayAsArchived` returns `false` when the feature flag is disabled.
-    func test_shouldDisplayAsArchived_false_featureFlagDisabled() throws {
-        XCTAssertFalse(
-            try CipherItemState.initForArchive(
-                archivedDate: .now,
-                isArchiveVaultItemsFFEnabled: false,
-            ).shouldDisplayAsArchived,
-        )
-    }
-
     /// `shouldDisplayAsArchived` returns `false` when the cipher is not archived.
     func test_shouldDisplayAsArchived_false_notArchived() throws {
         XCTAssertFalse(
@@ -663,16 +638,6 @@ class CipherItemStateTests: BitwardenTestCase { // swiftlint:disable:this type_b
             try CipherItemState.initForArchive(
                 archivedDate: .now,
                 deletedDate: .now,
-            ).shouldDisplayAsArchived,
-        )
-    }
-
-    /// `shouldDisplayAsArchived` returns `false` when the cipher is both not archived and feature flag is disabled.
-    func test_shouldDisplayAsArchived_false_notArchivedAndFeatureFlagDisabled() throws {
-        XCTAssertFalse(
-            try CipherItemState.initForArchive(
-                archivedDate: nil,
-                isArchiveVaultItemsFFEnabled: false,
             ).shouldDisplayAsArchived,
         )
     }
@@ -803,6 +768,44 @@ class CipherItemStateTests: BitwardenTestCase { // swiftlint:disable:this type_b
 
         XCTAssertEqual(subject, expected)
     }
+
+    /// `update(from:preservingTOTPState:)` preserves the in-memory TOTP state regardless of
+    /// whether the incoming cipher view has a TOTP key, while still updating all other login
+    /// fields normally.
+    func test_updateFromCipherView_TOTPState() throws {
+        let totpKey = "JBSWY3DPEHPK3PXP"
+        var subject = try XCTUnwrap(
+            CipherItemState(
+                existing: .fixture(login: .fixture(totp: totpKey), type: .login),
+                hasPremium: false,
+            ),
+        )
+        let originalLoginState = subject.loginState
+
+        // Cipher arrives with no TOTP key: override wins.
+        let updatedCipherNoTotp = CipherView.fixture(
+            id: "123",
+            login: .fixture(password: "updated-password", totp: nil),
+            name: "Updated Name",
+            type: .login,
+        )
+        subject.update(from: updatedCipherNoTotp, preservingTOTPState: originalLoginState.totpState)
+
+        XCTAssertEqual(subject.name, "Updated Name")
+        XCTAssertEqual(subject.loginState.totpState, originalLoginState.totpState)
+        XCTAssertEqual(subject.loginState.password, "updated-password")
+
+        // Cipher arrives with a different TOTP key: override still wins.
+        let updatedCipherWithTotp = CipherView.fixture(
+            id: "123",
+            login: .fixture(password: "updated-password", totp: "DIFFERENTKEY"),
+            name: "Updated Name",
+            type: .login,
+        )
+        subject.update(from: updatedCipherWithTotp, preservingTOTPState: originalLoginState.totpState)
+
+        XCTAssertEqual(subject.loginState.totpState, originalLoginState.totpState)
+    }
 }
 
 // MARK: - CipherItemState
@@ -813,14 +816,12 @@ private extension CipherItemState {
     ///   - archivedDate: The archived date.
     ///   - deletedDate: The deleted date.
     ///   - hasPremium: Whether the user has premium account.
-    ///   - isArchiveVaultItemsFFEnabled: Whether the archive vualt items feature flag is enabled.
     static func initForArchive(
         archivedDate: Date?,
         deletedDate: Date? = nil,
         hasPremium: Bool = true,
-        isArchiveVaultItemsFFEnabled: Bool = true,
     ) throws -> CipherItemState {
-        var state = try XCTUnwrap(CipherItemState(
+        try XCTUnwrap(CipherItemState(
             existing: CipherView.loginFixture(
                 archivedDate: archivedDate,
                 deletedDate: deletedDate,
@@ -828,7 +829,5 @@ private extension CipherItemState {
             ),
             hasPremium: hasPremium,
         ))
-        state.isArchiveVaultItemsFFEnabled = isArchiveVaultItemsFFEnabled
-        return state
     }
 }

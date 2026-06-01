@@ -219,7 +219,7 @@ class AccountSecurityProcessorTests: BitwardenTestCase { // swiftlint:disable:th
         )
         XCTAssertEqual(
             subject.state.policyTimeoutMessage,
-            Localizations.yourOrganizationHasSetTheDefaultSessionTimeoutToX("never"),
+            Localizations.yourOrganizationHasSetTheDefaultSessionTimeoutToNever,
         )
     }
 
@@ -261,7 +261,7 @@ class AccountSecurityProcessorTests: BitwardenTestCase { // swiftlint:disable:th
         )
         XCTAssertEqual(
             subject.state.policyTimeoutMessage,
-            Localizations.yourOrganizationHasSetTheDefaultSessionTimeoutToX("on app restart"),
+            Localizations.yourOrganizationHasSetTheDefaultSessionTimeoutToAppRestart,
         )
     }
 

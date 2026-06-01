@@ -20,6 +20,7 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
     var authRepository: MockAuthRepository!
     var authenticatorSyncService: MockAuthenticatorSyncService!
     var autofillCredentialService: MockAutofillCredentialService!
+    var billingService: MockBillingService!
     var clientService: MockClientService!
     var configService: MockConfigService!
     var coordinator: MockCoordinator<AppRoute, AppEvent>!
@@ -55,6 +56,7 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
         authRepository = MockAuthRepository()
         authenticatorSyncService = MockAuthenticatorSyncService()
         autofillCredentialService = MockAutofillCredentialService()
+        billingService = MockBillingService()
         clientService = MockClientService()
         configService = MockConfigService()
         coordinator = MockCoordinator()
@@ -85,6 +87,7 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
                 authRepository: authRepository,
                 authenticatorSyncService: authenticatorSyncService,
                 autofillCredentialService: autofillCredentialService,
+                billingService: billingService,
                 clientService: clientService,
                 configService: configService,
                 environmentService: environmentService,
@@ -112,6 +115,7 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
         appModule = nil
         authRepository = nil
         autofillCredentialService = nil
+        billingService = nil
         clientService = nil
         configService = nil
         coordinator = nil
@@ -195,6 +199,10 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
     /// `init()` subscribes to will enter foreground events and handles an active user timeout.
     @MainActor
     func test_init_appForeground_activeUserTimeout() {
+        // The processor checks for account timeouts when entering the foreground. Wait for the
+        // initial check to finish when the test starts before continuing.
+        waitFor(willEnterForegroundCalled == 1)
+
         let account1 = Account.fixture(profile: .fixture(userId: "1"))
         let account2 = Account.fixture(profile: .fixture(userId: "2"))
         stateService.activeAccount = account1
@@ -203,7 +211,7 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
         vaultTimeoutService.shouldSessionTimeout["1"] = true
         notificationCenterService.willEnterForegroundSubject.send()
         // Wait for the checkSessionTimeouts method to be called
-        waitFor(authRepository.checkSessionTimeoutCalled)
+        waitFor(authRepository.checkSessionTimeoutCalled && authRepository.handleActiveUserClosure != nil)
 
         // Simulate calling the handleActiveUser closure
         if let handleActiveUserClosure = authRepository.handleActiveUserClosure {
@@ -691,6 +699,19 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
         XCTAssertEqual(coordinator.events, [.setAuthCompletionRoute(.tab(.settings(.accountSecurity)))])
     }
 
+    /// `openUrl(_:)` handles receiving a bitwarden deep link and setting an auth completion route on the
+    /// coordinator if the user's vault is unlocked but a vault migration is required.
+    @MainActor
+    func test_openUrl_bitwardenAccountSecurity_vaultUnlockedMigrationRequired() async throws {
+        let account = Account.fixture()
+        stateService.activeAccount = .fixture()
+        vaultTimeoutService.isClientLocked[account.profile.userId] = false
+        syncService.organizationIdRequiringVaultMigrationResult = .success("org-123")
+
+        await subject.openUrl(.bitwardenAccountSecurity)
+        XCTAssertEqual(coordinator.events, [.setAuthCompletionRoute(.tab(.settings(.accountSecurity)))])
+    }
+
     /// `openUrl(_:)` handles receiving a bitwarden Authenticator new item deep link with the vault unlocked and an
     /// invalid item is found. It shows a generic error alert and does not produce a route.
     @MainActor
@@ -875,44 +896,6 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
 
         XCTAssertEqual(coordinator.alertShown, [.defaultAlert(title: Localizations.anErrorHasOccurred)])
         XCTAssertEqual(coordinator.routes, [])
-    }
-
-    /// `openUrl(_:)` handles receiving a `bitwarden://sso-cookie-vendor` deep link and delivers
-    /// the cookies parsed from the query parameters.
-    @MainActor
-    func test_openUrl_ssoCookieVendor_deliversCookies() async throws {
-        await subject.openUrl(.bitwardenSSOCookieVendor)
-
-        let result = try XCTUnwrap(serverCommunicationConfigAPIService.cookiesAcquiredResult)
-        let cookies = try XCTUnwrap(try result.get())
-        XCTAssertEqual(cookies.count, 2)
-        XCTAssertTrue(cookies.contains(where: { $0.name == "auth" && $0.value == "token123" }))
-        XCTAssertTrue(cookies.contains(where: { $0.name == "session" && $0.value == "abc" }))
-        XCTAssertEqual(coordinator.alertShown, [])
-        XCTAssertEqual(coordinator.routes, [])
-    }
-
-    /// `openUrl(_:)` handles receiving a `bitwarden://sso-cookie-vendor` deep link with no
-    /// query parameters and delivers an empty cookie list.
-    @MainActor
-    func test_openUrl_ssoCookieVendor_noCookies_deliversEmptyList() async throws {
-        await subject.openUrl(.bitwardenSSOCookieVendorNoCookies)
-
-        let result = try XCTUnwrap(serverCommunicationConfigAPIService.cookiesAcquiredResult)
-        let cookies = try result.get()
-        XCTAssertTrue(cookies == nil || cookies?.isEmpty == true)
-    }
-
-    /// `openUrl(_:)` handles receiving a `bitwarden://sso-cookie-vendor` deep link and excludes
-    /// the `"d"` query parameter from the delivered cookies.
-    @MainActor
-    func test_openUrl_ssoCookieVendor_excludesDParam() async throws {
-        await subject.openUrl(.bitwardenSSOCookieVendorDParam)
-
-        let result = try XCTUnwrap(serverCommunicationConfigAPIService.cookiesAcquiredResult)
-        let cookies = try XCTUnwrap(try result.get())
-        XCTAssertFalse(cookies.contains(where: { $0.name == "d" }))
-        XCTAssertTrue(cookies.contains(where: { $0.name == "auth" && $0.value == "myToken" }))
     }
 
     /// `provideCredential(for:)` returns the credential with the specified identifier.
@@ -1199,6 +1182,34 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
         await subject.start(appContext: .mainApp, navigator: rootNavigator, window: nil)
 
         XCTAssertTrue(stateService.accountSetupAutofill.isEmpty)
+    }
+
+    /// `start(navigator:)` subscribes to `acquireCookiesPublisher` and navigates to `.syncWithBrowser`
+    /// when a non-nil vault URL is emitted.
+    @MainActor
+    func test_start_acquireCookiesPublisher_withVaultURL_navigatesToSyncWithBrowser() async throws {
+        let rootNavigator = MockRootNavigator()
+        await subject.start(appContext: .mainApp, navigator: rootNavigator, window: nil)
+
+        serverCommunicationConfigAPIService.acquireCookiesSubject.send("https://example.com")
+
+        try await waitForAsync { [weak self] in
+            self?.coordinator.routes.contains(.syncWithBrowser(vaultUrl: "https://example.com")) == true
+        }
+
+        XCTAssertTrue(coordinator.routes.contains(.syncWithBrowser(vaultUrl: "https://example.com")))
+    }
+
+    /// `start(navigator:)` subscribes to `acquireCookiesPublisher` and does not navigate to
+    /// `.syncWithBrowser` when a nil vault URL is emitted.
+    @MainActor
+    func test_start_acquireCookiesPublisher_withNilVaultURL_doesNotNavigate() async {
+        let rootNavigator = MockRootNavigator()
+        await subject.start(appContext: .mainApp, navigator: rootNavigator, window: nil)
+
+        serverCommunicationConfigAPIService.acquireCookiesSubject.send(nil)
+
+        XCTAssertFalse(coordinator.routes.contains(.syncWithBrowser(vaultUrl: "https://example.com")))
     }
 
     /// `start(navigator:)` completes the user's autofill setup progress if autofill is enabled and

@@ -11,12 +11,12 @@ options:
     "icon":
       file: true 
 settings:
-  MARKETING_VERSION: 2024.6.1
+  MARKETING_VERSION: 2026.4.0
   CURRENT_PROJECT_VERSION: 1
 packages:
   SwiftProtobuf:
     url: https://github.com/apple/swift-protobuf
-    exactVersion: 1.31.0
+    exactVersion: 1.38.0
 projectReferences:
   BitwardenKit:
     path: BitwardenKit.xcodeproj
@@ -195,6 +195,7 @@ targets:
       - target: AuthenticatorShared
       - target: BitwardenKit/AuthenticatorBridgeKitMocks
       - target: BitwardenKit/TestHelpers
+      - package: BitwardenSdk
   AuthenticatorSharedTests:
     type: bundle.unit-test
     platform: iOS
@@ -215,6 +216,7 @@ targets:
       - target: AuthenticatorSharedMocks
       - target: BitwardenKit/AuthenticatorBridgeKitMocks
       - target: BitwardenKit/BitwardenKitMocks
+      - target: BitwardenKit/BitwardenSdkMocks
       - target: BitwardenKit/TestHelpers
       - package: BitwardenSdk
       - package: SnapshotTesting
@@ -240,6 +242,7 @@ targets:
       - target: AuthenticatorSharedMocks
       - target: BitwardenKit/AuthenticatorBridgeKitMocks
       - target: BitwardenKit/BitwardenKitMocks
+      - target: BitwardenKit/BitwardenSdkMocks
       - target: BitwardenKit/TestHelpers
       - package: BitwardenSdk
       - package: SnapshotTesting
@@ -266,6 +269,7 @@ targets:
       - target: AuthenticatorSharedMocks
       - target: BitwardenKit/AuthenticatorBridgeKitMocks
       - target: BitwardenKit/BitwardenKitMocks
+      - target: BitwardenKit/BitwardenSdkMocks
       - target: BitwardenKit/TestHelpers
       - target: BitwardenKit/ViewInspectorTestHelpers
       - package: BitwardenSdk

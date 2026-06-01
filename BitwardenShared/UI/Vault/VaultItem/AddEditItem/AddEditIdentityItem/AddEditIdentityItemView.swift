@@ -173,6 +173,12 @@ struct AddEditIdentityItemView: View {
                         send: AddEditIdentityItemAction.socialSecurityNumberChanged,
                     ),
                     accessibilityIdentifier: "IdentitySsnEntry",
+                    passwordVisibilityAccessibilityId: "IdentitySsnVisibilityButton",
+                    canViewPassword: true,
+                    isPasswordVisible: store.binding(
+                        get: \.showSocialSecurityNumber,
+                        send: AddEditIdentityItemAction.ssnVisibilityChanged,
+                    ),
                 )
                 .focused($focusedField, equals: .ssn)
                 .onSubmit { focusNextField($focusedField) }

@@ -5,17 +5,22 @@ import Foundation
 
 /// An enum to represent a feature flag sent by the server
 extension FeatureFlag: @retroactive CaseIterable {
-    /// A feature flag to enable/disable ciphers archive option.
-    static let archiveVaultItems = FeatureFlag(rawValue: "pm-19148-innovation-archive")
+    /// Flag to enable/disable V2 password-based registration using the SDK registration client.
+    static let accountEncryptionV2PasswordRegistration = FeatureFlag(rawValue: "pm-27278-v2-password-registration")
 
-    /// Flag to enable/disable Credential Exchange export flow.
-    static let cxpExportMobile = FeatureFlag(rawValue: "cxp-export-mobile")
-
-    /// Flag to enable/disable Credential Exchange import flow.
-    static let cxpImportMobile = FeatureFlag(rawValue: "cxp-import-mobile")
+    /// A feature flag to enable/disable scanning a card to autocomplete its details in add/edit cipher.
+    static let cardScanner = FeatureFlag(rawValue: "pm-34171-card-scanner")
 
     /// Flag to enable/disable individual cipher encryption configured remotely.
     static let cipherKeyEncryption = FeatureFlag(rawValue: "cipher-key-encryption")
+
+    /// Debug flag to disable self-hosted checks in premium upgrade flows for QA testing.
+    static let debugDisableSelfHostPremiumCheck = FeatureFlag(
+        rawValue: "debug-disable-self-host-premium-check",
+    )
+
+    /// Flag to enable/disable Device Auth Key flows.
+    static let deviceAuthKey = FeatureFlag(rawValue: "pm-27581-device-auth-key")
 
     /// An SDK flag that enables individual cipher encryption.
     static let enableCipherKeyEncryption = FeatureFlag(rawValue: "enableCipherKeyEncryption")
@@ -26,23 +31,28 @@ extension FeatureFlag: @retroactive CaseIterable {
     /// Flag to enable/disable migration from My Vault Items to My Items.
     static let migrateMyVaultToMyItems = FeatureFlag(rawValue: "pm-20558-migrate-myvault-to-myitems")
 
+    /// Flag to enable/disable the new vault item types (Bank Account, Driver's License, Passport).
+    static let newItemTypes = FeatureFlag(rawValue: "pm-32009-new-item-types")
+
     /// Flag to enable/disable not logging out when a user's KDF settings are changed.
     static let noLogoutOnKdfChange = FeatureFlag(rawValue: "pm-23995-no-logout-on-kdf-change")
 
-    /// Flag to enable/disable sends email verification feature.
-    static let sendEmailVerification = FeatureFlag(rawValue: "pm-19051-send-email-verification")
+    /// Flag to enable/disable premium upgrade path.
+    static let premiumUpgradePath = FeatureFlag(rawValue: "pm-31697-premium-upgrade-path")
 
     public static var allCases: [FeatureFlag] {
         [
-            .archiveVaultItems,
-            .cxpExportMobile,
-            .cxpImportMobile,
+            .accountEncryptionV2PasswordRegistration,
+            .cardScanner,
             .cipherKeyEncryption,
+            .debugDisableSelfHostPremiumCheck,
+            .deviceAuthKey,
             .enableCipherKeyEncryption,
             .forceUpdateKdfSettings,
             .migrateMyVaultToMyItems,
+            .newItemTypes,
             .noLogoutOnKdfChange,
-            .sendEmailVerification,
+            .premiumUpgradePath,
         ]
     }
 }

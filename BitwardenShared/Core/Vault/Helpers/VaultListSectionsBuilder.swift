@@ -98,8 +98,6 @@ class DefaultVaultListSectionsBuilder: VaultListSectionsBuilder { // swiftlint:d
     let clientService: ClientService
     /// The helper functions for collections.
     let collectionHelper: CollectionHelper
-    /// The service to get server-specified configuration.
-    let configService: ConfigService
     /// The service used by the application to report non-fatal errors.
     let errorReporter: ErrorReporter
     /// Vault list data prepared to  be used by the builder.
@@ -122,14 +120,12 @@ class DefaultVaultListSectionsBuilder: VaultListSectionsBuilder { // swiftlint:d
     init(
         clientService: ClientService,
         collectionHelper: CollectionHelper,
-        configService: ConfigService,
         errorReporter: ErrorReporter,
         stateService: StateService,
         withData preparedData: VaultListPreparedData,
     ) {
         self.clientService = clientService
         self.collectionHelper = collectionHelper
-        self.configService = configService
         self.errorReporter = errorReporter
         self.preparedData = preparedData
         self.stateService = stateService
@@ -333,16 +329,14 @@ class DefaultVaultListSectionsBuilder: VaultListSectionsBuilder { // swiftlint:d
     func addHiddenItemsSection() async -> VaultListSectionsBuilder {
         var items: [VaultListItem] = []
 
-        if await configService.getFeatureFlag(.archiveVaultItems) {
-            let hasPremium = await stateService.doesActiveAccountHavePremium()
-            items.append(
-                VaultListItem(
-                    id: "Archive",
-                    hasPremium: hasPremium,
-                    itemType: .group(.archive, preparedData.ciphersArchivedCount),
-                ),
-            )
-        }
+        let hasPremium = await stateService.doesActiveAccountHavePremium()
+        items.append(
+            VaultListItem(
+                id: "Archive",
+                hasPremium: hasPremium,
+                itemType: .group(.archive, preparedData.ciphersArchivedCount),
+            ),
+        )
 
         items.append(VaultListItem(id: "Trash", itemType: .group(.trash, preparedData.ciphersDeletedCount)))
 

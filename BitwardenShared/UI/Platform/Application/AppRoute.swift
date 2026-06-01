@@ -16,10 +16,20 @@ public enum AppRoute: Equatable {
     case loginRequest(LoginRequest)
 
     /// A route to show the migrate to my items screen.
+    ///
+    /// - Parameter organizationId: The organization ID that requires the vault migration.
+    ///
     case migrateToMyItems(organizationId: String)
 
     /// A route to the send interface.
     case sendItem(SendItemRoute)
+
+    /// A route to the sync with browser screen.
+    ///
+    /// - Parameter vaultUrl: The vault URL from the SSO cookie config, used to construct
+    ///   the browser redirect URL.
+    ///
+    case syncWithBrowser(vaultUrl: String)
 
     /// A route to the tab interface.
     case tab(TabRoute)

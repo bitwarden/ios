@@ -233,6 +233,27 @@
         <string>%d tygodnia</string>
       </dict>
     </dict>
+    <!-- A message indicating the grace period for a past due subscription, with pluralized days and the date. -->
+    <key>YouHaveAGracePeriodOfXDaysFromYourSubscriptionDescriptionLong</key>
+    <dict>
+      <key>NSStringLocalizedFormatKey</key>
+      <string>%1$#@YouHaveAGracePeriodOfXDaysFromYourSubscriptionExpirationDate@ Zapłać zaległe faktury do **%2$@**.</string>
+      <key>YouHaveAGracePeriodOfXDaysFromYourSubscriptionExpirationDate</key>
+      <dict>
+        <key>NSStringFormatSpecTypeKey</key>
+        <string>NSStringPluralRuleType</string>
+        <key>NSStringFormatValueTypeKey</key>
+        <string>d</string>
+        <key>one</key>
+        <string>Masz %1$d dzień od daty wygaśnięcia subskrypcji na uregulowanie płatności.</string>
+        <key>few</key>
+        <string>Masz %1$d dni od daty wygaśnięcia subskrypcji na uregulowanie płatności.</string>
+        <key>many</key>
+        <string>Masz %1$d dni od daty wygaśnięcia subskrypcji na uregulowanie płatności.</string>
+        <key>other</key>
+        <string>Masz %1$d dnia od daty wygaśnięcia subskrypcji na uregulowanie płatności.</string>
+      </dict>
+    </dict>
     <!-- A message indicating the minimum length of a PIN in characters. -->
     <key>YourPINMustBeAtLeastXCharactersDescriptionLong</key>
     <dict>

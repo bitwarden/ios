@@ -217,6 +217,7 @@ class AutofillHelperTests: BitwardenTestCase { // swiftlint:disable:this type_bo
             login: .fixture(password: "PASSWORD", username: nil, totp: "totp"),
             name: "Bitwarden Login",
         ))
+        vaultRepository.getTOTPKeyIfAllowedToCopyResult = .success("totp")
         vaultRepository.refreshTOTPCodeResult = .success(
             LoginTOTPState(
                 authKeyModel: TOTPKeyModel(authenticatorKey: .standardTotpKey),
@@ -253,6 +254,7 @@ class AutofillHelperTests: BitwardenTestCase { // swiftlint:disable:this type_bo
             login: .fixture(password: "PASSWORD", username: nil, totp: "totp"),
             name: "Bitwarden Login",
         ))
+        vaultRepository.getTOTPKeyIfAllowedToCopyResult = .success("totp")
         struct GenerateTotpError: Error, Equatable {}
         vaultRepository.refreshTOTPCodeResult = .failure(GenerateTotpError())
 
@@ -262,6 +264,42 @@ class AutofillHelperTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         let alert = try XCTUnwrap(coordinator.alertShown.last)
         try await alert.tapAction(title: Localizations.copyTotp)
         XCTAssertEqual(errorReporter.errors.last as? GenerateTotpError, GenerateTotpError())
+    }
+
+    /// `handleCipherForAutofill(cipherListView:)` logs an error if `getTOTPKeyIfAllowedToCopy` throws
+    /// in the missing value alert.
+    @MainActor
+    func test_handleCipherForAutofill_missingValueGetTOTPKeyError() async throws {
+        vaultRepository.fetchCipherResult = .success(.fixture(
+            login: .fixture(password: "PASSWORD", username: nil, totp: "totp"),
+            name: "Bitwarden Login",
+        ))
+        struct GetTOTPKeyError: Error, Equatable {}
+        vaultRepository.getTOTPKeyIfAllowedToCopyResult = .failure(GetTOTPKeyError())
+
+        let cipher = CipherListView.fixture(id: "1")
+        await subject.handleCipherForAutofill(cipherListView: cipher) { _ in }
+
+        XCTAssertEqual(errorReporter.errors.last as? GetTOTPKeyError, GetTOTPKeyError())
+    }
+
+    /// `handleCipherForAutofill(cipherListView:)` does not show Copy TOTP in the missing value alert
+    /// when the user is not authorized to use TOTP.
+    @MainActor
+    func test_handleCipherForAutofill_missingValueTotpNotAuthorized() async throws {
+        vaultRepository.fetchCipherResult = .success(.fixture(
+            login: .fixture(password: "PASSWORD", username: nil, totp: "totp"),
+            name: "Bitwarden Login",
+        ))
+        vaultRepository.getTOTPKeyIfAllowedToCopyResult = .success(nil)
+
+        let cipher = CipherListView.fixture(id: "1")
+        await subject.handleCipherForAutofill(cipherListView: cipher) { _ in }
+
+        let alert = try XCTUnwrap(coordinator.alertShown.last)
+        XCTAssertEqual(alert.alertActions.count, 2)
+        XCTAssertEqual(alert.alertActions[0].title, Localizations.copyPassword)
+        XCTAssertEqual(alert.alertActions[1].title, Localizations.cancel)
     }
 
     /// `handleCipherForAutofill(cipherListView:)` shows an alert if the cipher is missing an

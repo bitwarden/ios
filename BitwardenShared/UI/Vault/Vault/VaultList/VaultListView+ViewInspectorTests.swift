@@ -59,7 +59,7 @@ class VaultListViewTests: BitwardenTestCase {
     @MainActor
     func test_newLoginButton_tap() throws {
         processor.state.loadingState = .data([])
-        let button = try subject.inspect().find(button: Localizations.newLogin)
+        let button = try subject.inspect().find(button: Localizations.addLogin)
         try button.tap()
         XCTAssertEqual(processor.dispatchedActions.last, .addItemPressed(.login))
     }
@@ -282,7 +282,7 @@ class VaultListViewTests: BitwardenTestCase {
     func test_vaultItem_moreButton_tap() async throws {
         let item = VaultListItem.fixture()
         processor.state.loadingState = .data([VaultListSection(id: "1", items: [item], name: "Group")])
-        let button = try subject.inspect().find(asyncButtonWithAccessibilityLabel: Localizations.more)
+        let button = try subject.inspect().find(asyncButtonWithAccessibilityLabel: Localizations.moreOptions)
         try await button.tap()
         XCTAssertEqual(processor.effects.last, .morePressed(item))
     }

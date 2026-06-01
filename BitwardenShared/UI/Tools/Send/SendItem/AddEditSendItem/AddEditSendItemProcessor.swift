@@ -7,12 +7,13 @@ import Foundation
 
 /// The processor used to manage state and handle actions for the add/edit send item screen.
 ///
-class AddEditSendItemProcessor:
+class AddEditSendItemProcessor: // swiftlint:disable:this type_body_length
     StateProcessor<AddEditSendItemState, AddEditSendItemAction, AddEditSendItemEffect> {
     // MARK: Types
 
     typealias Services = HasAuthRepository
-        & HasConfigService
+        & HasBillingRepository
+        & HasBillingService
         & HasEnvironmentService
         & HasErrorReporter
         & HasPasteboardService
@@ -30,6 +31,13 @@ class AddEditSendItemProcessor:
 
     /// The `Coordinator` that handles navigation for this processor.
     let coordinator: AnyCoordinator<SendItemRoute, AuthAction>
+
+    /// The helper used to navigate to the premium upgrade flow.
+    lazy var premiumUpgradeHelper: PremiumUpgradeHelper = DefaultPremiumUpgradeHelper(
+        services: services,
+        coordinator: coordinator,
+        setURL: { [weak self] url in self?.state.url = url },
+    )
 
     /// The services required by this processor.
     let services: Services
@@ -89,7 +97,7 @@ class AddEditSendItemProcessor:
         }
     }
 
-    override func receive(_ action: AddEditSendItemAction) {
+    override func receive(_ action: AddEditSendItemAction) { // swiftlint:disable:this function_body_length
         switch action {
         case let .accessTypeChanged(newValue):
             // Check if non-premium user is trying to select "Specific People"
@@ -225,7 +233,6 @@ class AddEditSendItemProcessor:
         state.isSendDisabled = await services.policyService.policyAppliesToUser(.disableSend)
         state.isSendHideEmailDisabled = await services.policyService.isSendHideEmailDisabledByPolicy()
         state.hasPremium = await services.sendRepository.doesActiveAccountHavePremium()
-        state.isSendEmailVerificationEnabled = await services.configService.getFeatureFlag(.sendEmailVerification)
         await refreshProfileState()
 
         if state.maximumAccessCount != 0 {
@@ -353,7 +360,7 @@ class AddEditSendItemProcessor:
     ///
     /// - Returns: A flag indicating if the state holds valid information for creating a send.
     ///
-    private func validateSend() async -> Bool {
+    private func validateSend() async -> Bool { // swiftlint:disable:this function_body_length cyclomatic_complexity
         guard !state.name.isEmpty else {
             let alert = Alert.validationFieldRequired(fieldName: Localizations.name)
             coordinator.showAlert(alert)
@@ -382,10 +389,10 @@ class AddEditSendItemProcessor:
 
         let hasPremium = await services.sendRepository.doesActiveAccountHavePremium()
         guard hasPremium else {
-            let alert = Alert.defaultAlert(
-                message: Localizations.sendFilePremiumRequired,
-            )
-            coordinator.showAlert(alert)
+            coordinator.showAlert(.fileSendPremiumRequired { [weak self] in
+                guard let self else { return }
+                Task { await self.premiumUpgradeHelper.navigateToPremiumUpgrade() }
+            })
             return false
         }
 
@@ -427,7 +434,9 @@ class AddEditSendItemProcessor:
     private func showSpecificPeoplePremiumRequiredAlert() {
         let alert = Alert.specificPeopleUnavailable { [weak self] in
             guard let self else { return }
-            state.url = services.environmentService.upgradeToPremiumURL
+            Task {
+                await self.premiumUpgradeHelper.navigateToPremiumUpgrade()
+            }
         }
         coordinator.showAlert(alert)
     }

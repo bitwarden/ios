@@ -9,25 +9,45 @@ import SwiftUI
 struct SettingsView: View {
     // MARK: Properties
 
+    /// An object used to open urls from this view.
+    @Environment(\.openURL) private var openURL
+
     /// The `Store` for this view.
-    @ObservedObject var store: Store<SettingsState, SettingsAction, Void>
+    @ObservedObject var store: Store<SettingsState, SettingsAction, SettingsEffect>
 
     // MARK: View
 
     var body: some View {
-        settingsItems
-            .scrollView()
-            .navigationBar(title: Localizations.settings, titleDisplayMode: .inline)
-            .toolbar {
-                closeToolbarItem(hidden: store.state.presentationMode != .preLogin) {
-                    store.send(.dismiss)
-                }
-
-                largeNavigationTitleToolbarItem(
-                    Localizations.settings,
-                    hidden: store.state.presentationMode != .tab,
+        VStack(spacing: 16) {
+            if store.state.shouldShowUpgradedToPremiumActionCard {
+                UpgradedToPremiumActionCardView(
+                    onDismiss: { await store.perform(.dismissUpgradedToPremiumActionCard) },
+                    onLearnMore: { store.send(.learnMoreAboutPremium) },
                 )
             }
+
+            settingsItems
+        }
+        .scrollView()
+        .navigationBar(title: Localizations.settings, titleDisplayMode: .inline)
+        .task {
+            await store.perform(.appeared)
+        }
+        .onChange(of: store.state.url) { newValue in
+            guard let url = newValue else { return }
+            openURL(url)
+            store.send(.clearUrl)
+        }
+        .toolbar {
+            closeToolbarItem(hidden: store.state.presentationMode != .preLogin) {
+                store.send(.dismiss)
+            }
+
+            largeNavigationTitleToolbarItem(
+                Localizations.settings,
+                hidden: store.state.presentationMode != .tab,
+            )
+        }
     }
 
     // MARK: Private views
@@ -48,6 +68,9 @@ struct SettingsView: View {
                 accountSecurityRow
                 autofillRow
                 vaultRow
+                if store.state.showPlanRow {
+                    planRow
+                }
                 appearanceRow
                 otherRow
                 aboutRow
@@ -116,6 +139,19 @@ struct SettingsView: View {
             chevron
         }
         .accessibilityIdentifier("OtherSettingsButton")
+    }
+
+    /// The plan settings row.
+    private var planRow: some View {
+        SettingsListItem(
+            Localizations.plan,
+            icon: SharedAsset.Icons.card24,
+        ) {
+            Task { await store.perform(.planPressed) }
+        } trailingContent: {
+            chevron
+        }
+        .accessibilityIdentifier("PlanSettingsButton")
     }
 
     /// The vault settings row.

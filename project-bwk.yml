@@ -7,12 +7,12 @@ configs:
 include:
   - path: project-common.yml
 settings:
-  MARKETING_VERSION: 2024.6.0    # Bump this for a new version update.
+  MARKETING_VERSION: 2026.4.0    # Bump this for a new version update.
   CURRENT_PROJECT_VERSION: 1
 packages:
   SwiftUIIntrospect:
     url: https://github.com/siteline/SwiftUI-Introspect
-    exactVersion: 1.3.0
+    exactVersion: 26.0.1
 schemes:
   AuthenticatorBridgeKit:
     build:
@@ -46,6 +46,10 @@ schemes:
     build:
       targets:
         BitwardenResources: all
+  BitwardenSdkMocks:
+    build:
+      targets:
+        BitwardenSdkMocks: all
   Networking:
     build:
       targets:
@@ -69,6 +73,7 @@ targets:
         SWIFT_STRICT_CONCURRENCY: complete
     templates:
       - CommonTarget
+      - SourceryTarget
     templateAttributes:
       sourcesPath: AuthenticatorBridgeKit
     dependencies:
@@ -103,6 +108,9 @@ targets:
       - MocksTarget
     templateAttributes:
       sourcesPath: AuthenticatorBridgeKit
+    sources:
+      - path: AuthenticatorBridgeKit/Sourcery/Generated/AutoMockable.generated.swift
+        optional: true
     dependencies:
       - target: AuthenticatorBridgeKit
       - target: BitwardenKit
@@ -154,6 +162,8 @@ targets:
         optional: true
     dependencies:
       - target: BitwardenKit
+      - package: BitwardenSdk
+      - target: BitwardenSdkMocks
       - target: TestHelpers
   BitwardenKitTests:
     type: bundle.unit-test
@@ -239,6 +249,22 @@ targets:
           - $(SRCROOT)/BitwardenResources/Generated/Fonts.swift
           - $(SRCROOT)/BitwardenResources/Generated/Localizations.swift
           - $(SRCROOT)/BitwardenResources/Generated/SharedAssets.swift
+  BitwardenSdkMocks:
+    type: framework
+    platform: iOS
+    settings:
+      base:
+        INFOPLIST_FILE: BitwardenSdkMocks/Info.plist
+    templates:
+      - CommonTarget
+      - SourceryTarget
+    templateAttributes:
+      sourcesPath: BitwardenSdkMocks
+    sources:
+      - path: BitwardenSdkMocks/Sourcery/Generated/AutoMockable.generated.swift
+        optional: true
+    dependencies:
+      - package: BitwardenSdk
   Networking:
     type: framework
     platform: iOS

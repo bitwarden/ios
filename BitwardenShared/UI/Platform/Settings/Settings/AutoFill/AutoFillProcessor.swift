@@ -8,10 +8,13 @@ import BitwardenResources
 final class AutoFillProcessor: StateProcessor<AutoFillState, AutoFillAction, AutoFillEffect> {
     // MARK: Types
 
-    typealias Services = HasConfigService
+    typealias Services = HasASSettingsMediator
+        & HasAutofillCredentialService
+        & HasConfigService
         & HasErrorReporter
         & HasSettingsRepository
         & HasStateService
+        & HasTimeProvider
 
     // MARK: Properties
 
@@ -48,6 +51,8 @@ final class AutoFillProcessor: StateProcessor<AutoFillState, AutoFillAction, Aut
             await dismissSetUpAutofillActionCard()
         case .fetchSettingValues:
             await fetchSettingValues()
+        case .setUpAutofill:
+            await setUpAutofill()
         case .streamSettingsBadge:
             await streamSettingsBadge()
         }
@@ -63,15 +68,17 @@ final class AutoFillProcessor: StateProcessor<AutoFillState, AutoFillAction, Aut
             Task {
                 await confirmAndUpdateDefaultUriMatchType(newValue)
             }
+        case .learnMoreAboutAutofillTapped:
+            state.url = ExternalLinksConstants.autofillHelp
         case .passwordAutoFillTapped:
-            coordinator.navigate(to: .passwordAutoFill)
-        case .showSetUpAutofill:
-            coordinator.navigate(to: .passwordAutoFill)
+            coordinator.navigate(to: .passwordAutoFill, context: self)
         case let .toggleCopyTOTPToggle(isOn):
             state.isCopyTOTPToggleOn = isOn
             Task {
                 await updateDisableAutoTotpCopy(!isOn)
             }
+        case let .toastShown(newValue):
+            state.toast = newValue
         }
     }
 
@@ -123,11 +130,32 @@ final class AutoFillProcessor: StateProcessor<AutoFillState, AutoFillAction, Aut
     /// Fetches the initial stored setting values for the view.
     ///
     private func fetchSettingValues() async {
+        state.defaultUriMatchType = await services.settingsRepository.getDefaultUriMatchType()
+        state.shouldShowPasswordAutofill = await !services.autofillCredentialService.isAutofillCredentialsEnabled()
         do {
-            state.defaultUriMatchType = await services.settingsRepository.getDefaultUriMatchType()
             state.isCopyTOTPToggleOn = try await !services.settingsRepository.getDisableAutoTotpCopy()
         } catch {
             coordinator.showAlert(.defaultAlert(title: Localizations.anErrorHasOccurred))
+            services.errorReporter.log(error: error)
+        }
+    }
+
+    /// Sets up as credential provider for autofill.
+    private func setUpAutofill() async {
+        guard #available(iOS 18.0, *) else {
+            coordinator.navigate(to: .passwordAutoFill)
+            return
+        }
+
+        do {
+            let isOn = try await services.asSettingsMediator.requestToTurnOnCredentialProviderExtension()
+            guard isOn else { return }
+
+            await dismissSetUpAutofillActionCard()
+            state.toast = Toast(title: Localizations.autofillEnabled)
+        } catch ASSettingsMediatorError.cantRequest {
+            coordinator.navigate(to: .passwordAutoFill, context: self)
+        } catch {
             services.errorReporter.log(error: error)
         }
     }

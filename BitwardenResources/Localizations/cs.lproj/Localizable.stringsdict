@@ -56,13 +56,13 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>d</string>
         <key>one</key>
-        <string>Toto heslo bylo odhaleno %d krát při úniku dat.</string>
+        <string>Toto heslo bylo odhaleno %dkrát při úniku dat.</string>
         <key>few</key>
-        <string>Toto heslo bylo odhaleno %d krát při úniku dat.</string>
+        <string>Toto heslo bylo odhaleno %dkrát při úniku dat.</string>
         <key>many</key>
-        <string>Toto heslo bylo odhaleno %d krát při úniku dat.</string>
+        <string>Toto heslo bylo odhaleno %dkrát při úniku dat.</string>
         <key>other</key>
-        <string>Toto heslo bylo odhaleno %d krát při úniku dat.</string>
+        <string>Toto heslo bylo odhaleno %dkrát při úniku dat.</string>
       </dict>
     </dict>
     <!-- A number of characters, as in letters/numbers/punctuation. For example, the minimum number of characters when creating a password. -->
@@ -231,6 +231,27 @@
         <string>%d týdnů</string>
         <key>other</key>
         <string>%d týdnů</string>
+      </dict>
+    </dict>
+    <!-- A message indicating the grace period for a past due subscription, with pluralized days and the date. -->
+    <key>YouHaveAGracePeriodOfXDaysFromYourSubscriptionDescriptionLong</key>
+    <dict>
+      <key>NSStringLocalizedFormatKey</key>
+      <string>%1$#@YouHaveAGracePeriodOfXDaysFromYourSubscriptionExpirationDate@ Prosíme, uhraďte faktury po splatnosti do **%2$@**.</string>
+      <key>YouHaveAGracePeriodOfXDaysFromYourSubscriptionExpirationDate</key>
+      <dict>
+        <key>NSStringFormatSpecTypeKey</key>
+        <string>NSStringPluralRuleType</string>
+        <key>NSStringFormatValueTypeKey</key>
+        <string>d</string>
+        <key>one</key>
+        <string>Máte k dispozici odkladnou lhůtu v délce %1$d den od data vypršení platnosti předplatného.</string>
+        <key>few</key>
+        <string>Máte k dispozici odkladnou lhůtu v délce %1$d dny od data vypršení platnosti předplatného.</string>
+        <key>many</key>
+        <string>Máte k dispozici odkladnou lhůtu v délce %1$d dnů od data vypršení platnosti předplatného.</string>
+        <key>other</key>
+        <string>Máte k dispozici odkladnou lhůtu v délce %1$d dnů od data vypršení platnosti předplatného.</string>
       </dict>
     </dict>
     <!-- A message indicating the minimum length of a PIN in characters. -->

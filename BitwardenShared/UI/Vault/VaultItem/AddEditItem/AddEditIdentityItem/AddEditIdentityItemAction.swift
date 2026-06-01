@@ -31,6 +31,9 @@ enum AddEditIdentityItemAction: Equatable {
     /// The license number field was changed.
     case licenseNumberChanged(String)
 
+    /// The SSN visibility toggle was changed.
+    case ssnVisibilityChanged(Bool)
+
     /// The email address field was changed.
     case emailChanged(String)
 

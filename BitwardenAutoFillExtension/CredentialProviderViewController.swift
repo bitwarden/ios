@@ -22,6 +22,10 @@ class CredentialProviderViewController: ASCredentialProviderViewController {
     /// The context of the credential provider to see how the extension is being used.
     private var context: CredentialProviderContext?
 
+    /// Zero-frame text field that holds first responder in `autofillText` mode to keep
+    /// InputUI's keyboard session alive across view-controller transitions and search dismissals.
+    private var keyboardAnchor: KeyboardAnchorTextField?
+
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
 
@@ -291,6 +295,14 @@ class CredentialProviderViewController: ASCredentialProviderViewController {
 extension CredentialProviderViewController {
     @available(iOSApplicationExtension 18.0, *)
     override func prepareInterfaceForUserChoosingTextToInsert() {
+        // Anchor here rather than inside initializeApp: initializeApp launches an async Task,
+        // so by the time it runs something else may have stolen focus. At this call site the view
+        // is already in the window with no child VCs, giving becomeFirstResponder a clean shot.
+        let anchor = KeyboardAnchorTextField(frame: .zero)
+        view.addSubview(anchor)
+        keyboardAnchor = anchor
+        anchor.becomeFirstResponder()
+
         initializeApp(with: DefaultCredentialProviderContext(.autofillText))
     }
 
@@ -459,6 +471,10 @@ extension CredentialProviderViewController: RootNavigator {
     var rootViewController: UIViewController? { self }
 
     func show(child: Navigator) {
+        // In autofillText mode, reclaim the anchor before the transition to keep the keyboard
+        // session alive. In other modes keyboardAnchor is nil, so this is a no-op.
+        keyboardAnchor?.becomeFirstResponder()
+
         removeChildViewController()
 
         if let toViewController = child.rootViewController {
@@ -470,26 +486,58 @@ extension CredentialProviderViewController: RootNavigator {
 
     // MARK: Private methods
 
-    /// Removes the first child view controller taking into account some edge cases.
+    /// Removes the first child view controller.
     func removeChildViewController() {
-        let fromViewController = children.first
+        guard let fromViewController = children.first else { return }
+        fromViewController.willMove(toParent: nil)
+        fromViewController.view.removeFromSuperview()
+        fromViewController.removeFromParent()
+    }
+}
 
-        // HACK: [PM-28227] When opening this extension on mode `text to insert`
-        // We can't use `removeFromSuperview` or the extension closes afterwards after a few seconds.
-        // Therefore we have this hack to pop to root on navigation controller.
-        // iOS sometimes changes something on the navigation from `prepareInterfaceForUserChoosingTextToInsert`
-        // which needs this workaround.
-        if let context,
-           case .autofillText = context.extensionMode,
-           let navController = fromViewController as? UINavigationController {
-            navController.popToRoot(animated: true)
-            return
-        }
+// MARK: - KeyboardAnchorTextField
 
-        if let fromViewController {
-            fromViewController.willMove(toParent: nil)
-            fromViewController.view.removeFromSuperview()
-            fromViewController.removeFromParent()
-        }
+/// A zero-frame text field used in `autofillText` mode to hold first responder and keep
+/// the system keyboard session alive until the SwiftUI view hierarchy is ready.
+///
+/// `inputView` must remain `nil` (the default); a custom input view suppresses the system
+/// keyboard session, causing InputUI to end it after ~5 seconds. Once the SwiftUI view
+/// appears it takes over first responder via `@FocusState`.
+///
+/// Registers a `keyboardWillHide` safety net on init to reclaim first responder if something
+/// unexpectedly dismisses the keyboard mid-flow.
+private final class KeyboardAnchorTextField: UITextField {
+    @available(*, unavailable)
+    required init?(coder: NSCoder) { nil }
+
+    override init(frame: CGRect) {
+        super.init(frame: frame)
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(keyboardWillHide),
+            name: UIResponder.keyboardWillHideNotification,
+            object: nil,
+        )
+    }
+
+    @objc
+    private func keyboardWillHide() {
+        guard !isFirstResponder else { return }
+        Logger.appExtension.debug("KeyboardAnchorTextField: keyboard will hide without anchor as FR — reclaiming")
+        becomeFirstResponder()
+    }
+
+    @discardableResult
+    override func becomeFirstResponder() -> Bool {
+        let result = super.becomeFirstResponder()
+        Logger.appExtension.debug("KeyboardAnchorTextField: becomeFirstResponder → \(result)")
+        return result
+    }
+
+    @discardableResult
+    override func resignFirstResponder() -> Bool {
+        let result = super.resignFirstResponder()
+        Logger.appExtension.debug("KeyboardAnchorTextField: resignFirstResponder → \(result)")
+        return result
     }
 } // swiftlint:disable:this file_length

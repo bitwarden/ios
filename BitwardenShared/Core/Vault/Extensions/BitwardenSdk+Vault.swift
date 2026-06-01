@@ -44,6 +44,23 @@ extension AttachmentResponseModel {
 
 extension AttachmentView: @retroactive Identifiable {}
 
+extension CipherBankAccountModel {
+    init(bankAccount: BitwardenSdk.BankAccount) {
+        self.init(
+            accountNumber: bankAccount.accountNumber,
+            accountType: bankAccount.accountType,
+            bankContactPhone: bankAccount.bankContactPhone,
+            bankName: bankAccount.bankName,
+            branchNumber: bankAccount.branchNumber,
+            iban: bankAccount.iban,
+            nameOnAccount: bankAccount.nameOnAccount,
+            pin: bankAccount.pin,
+            routingNumber: bankAccount.routingNumber,
+            swiftCode: bankAccount.swiftCode,
+        )
+    }
+}
+
 extension CipherCardModel {
     init(card: BitwardenSdk.Card) {
         self.init(
@@ -57,16 +74,56 @@ extension CipherCardModel {
     }
 }
 
+extension CipherDriversLicenseModel {
+    init(driversLicense: BitwardenSdk.DriversLicense) {
+        self.init(
+            dateOfBirth: driversLicense.dateOfBirth,
+            expirationDate: driversLicense.expirationDate,
+            firstName: driversLicense.firstName,
+            issueDate: driversLicense.issueDate,
+            issuingAuthority: driversLicense.issuingAuthority,
+            issuingCountry: driversLicense.issuingCountry,
+            issuingState: driversLicense.issuingState,
+            lastName: driversLicense.lastName,
+            licenseClass: driversLicense.licenseClass,
+            licenseNumber: driversLicense.licenseNumber,
+            middleName: driversLicense.middleName,
+        )
+    }
+}
+
+extension CipherPassportModel {
+    init(passport: BitwardenSdk.Passport) {
+        self.init(
+            birthPlace: passport.birthPlace,
+            dateOfBirth: passport.dateOfBirth,
+            expirationDate: passport.expirationDate,
+            givenName: passport.givenName,
+            issueDate: passport.issueDate,
+            issuingAuthority: passport.issuingAuthority,
+            issuingCountry: passport.issuingCountry,
+            nationalIdentificationNumber: passport.nationalIdentificationNumber,
+            nationality: passport.nationality,
+            passportNumber: passport.passportNumber,
+            passportType: passport.passportType,
+            sex: passport.sex,
+            surname: passport.surname,
+        )
+    }
+}
+
 extension CipherDetailsResponseModel {
     init(cipher: BitwardenSdk.Cipher) throws {
         guard let id = cipher.id else { throw DataMappingError.invalidData }
         self.init(
             archivedDate: cipher.archivedDate,
             attachments: cipher.attachments?.map(AttachmentResponseModel.init),
+            bankAccount: cipher.bankAccount.map(CipherBankAccountModel.init),
             card: cipher.card.map(CipherCardModel.init),
             collectionIds: cipher.collectionIds,
             creationDate: cipher.creationDate,
             deletedDate: cipher.deletedDate,
+            driversLicense: cipher.driversLicense.map(CipherDriversLicenseModel.init),
             edit: cipher.edit,
             favorite: cipher.favorite,
             fields: cipher.fields?.map(CipherFieldModel.init),
@@ -79,6 +136,7 @@ extension CipherDetailsResponseModel {
             notes: cipher.notes,
             organizationId: cipher.organizationId,
             organizationUseTotp: cipher.organizationUseTotp,
+            passport: cipher.passport.map(CipherPassportModel.init),
             passwordHistory: cipher.passwordHistory?.map(CipherPasswordHistoryModel.init),
             permissions: CipherPermissionsModel(cipherPermissions: cipher.permissions),
             reprompt: BitwardenShared.CipherRepromptType(type: cipher.reprompt),
@@ -219,12 +277,18 @@ extension CipherSSHKeyModel {
 extension CipherType {
     init(type: BitwardenSdk.CipherType) {
         switch type {
+        case .bankAccount:
+            self = .bankAccount
         case .card:
             self = .card
+        case .driversLicense:
+            self = .driversLicense
         case .identity:
             self = .identity
         case .login:
             self = .login
+        case .passport:
+            self = .passport
         case .secureNote:
             self = .secureNote
         case .sshKey:
@@ -234,12 +298,18 @@ extension CipherType {
 
     init(_ type: BitwardenSdk.CipherListViewType) {
         switch type {
+        case .bankAccount:
+            self = .bankAccount
         case .card:
             self = .card
+        case .driversLicense:
+            self = .driversLicense
         case .identity:
             self = .identity
         case .login:
             self = .login
+        case .passport:
+            self = .passport
         case .secureNote:
             self = .secureNote
         case .sshKey:
@@ -342,6 +412,9 @@ extension BitwardenSdk.Cipher {
             card: model.card.map(Card.init),
             secureNote: model.secureNote.map(SecureNote.init),
             sshKey: model.sshKey.map(SshKey.init),
+            bankAccount: nil, // TODO: PM-32809
+            driversLicense: nil, // TODO: PM-32807
+            passport: nil, // TODO: PM-32805
             favorite: model.favorite,
             reprompt: BitwardenSdk.CipherRepromptType(model.reprompt),
             organizationUseTotp: model.organizationUseTotp,
@@ -387,6 +460,9 @@ extension BitwardenSdk.Cipher {
             card: model.card.map(Card.init),
             secureNote: model.secureNote.map(SecureNote.init),
             sshKey: model.sshKey.map(SshKey.init),
+            bankAccount: nil, // TODO: PM-32809
+            driversLicense: nil, // TODO: PM-32807
+            passport: nil, // TODO: PM-32805
             favorite: originalCipher?.favorite ?? false,
             reprompt: BitwardenSdk.CipherRepromptType(model.reprompt),
             organizationUseTotp: model.organizationUseTotp,
@@ -442,13 +518,20 @@ extension BitwardenSdk.CipherView: @retroactive Identifiable, Fido2UserVerifiabl
     /// Initializes a new `CipherView` based on a `Fido2CredentialNewView`
     /// - Parameters:
     ///   - fido2CredentialNewView: The `Fido2CredentialNewView` for the Fido2 creation flow
+    ///   - organizationId: The organization ID to assign to the cipher, if any.
+    ///   - collectionIds: The collection IDs to assign to the cipher.
     ///   - timeProvider: The time provider.
-    init(fido2CredentialNewView: Fido2CredentialNewView, timeProvider: TimeProvider) {
+    init(
+        fido2CredentialNewView: Fido2CredentialNewView,
+        organizationId: String? = nil,
+        collectionIds: [String] = [],
+        timeProvider: TimeProvider,
+    ) {
         self = CipherView(
             id: nil,
-            organizationId: nil,
+            organizationId: organizationId,
             folderId: nil,
-            collectionIds: [],
+            collectionIds: collectionIds,
             key: nil,
             name: fido2CredentialNewView.rpName ?? fido2CredentialNewView.rpId,
             notes: nil,
@@ -468,6 +551,9 @@ extension BitwardenSdk.CipherView: @retroactive Identifiable, Fido2UserVerifiabl
             card: nil,
             secureNote: nil,
             sshKey: nil,
+            bankAccount: nil,
+            driversLicense: nil,
+            passport: nil,
             favorite: false,
             reprompt: .none,
             organizationUseTotp: false,
@@ -500,6 +586,12 @@ extension BitwardenSdk.CipherType {
             self = .identity
         case .sshKey:
             self = .sshKey
+        case .bankAccount:
+            self = .bankAccount
+        case .driversLicense:
+            self = .driversLicense
+        case .passport:
+            self = .passport
         }
     }
 }
@@ -589,6 +681,12 @@ extension BitwardenSdk.Identity {
             passportNumber: model.passportNumber,
             licenseNumber: model.licenseNumber,
         )
+    }
+}
+
+extension BitwardenSdk.LocalUserDataKeyState {
+    init(_ value: UserKeyData) {
+        self.init(wrappedKey: value.wrappedKey)
     }
 }
 
@@ -783,7 +881,7 @@ extension BitwardenSdk.Folder {
     }
 }
 
-extension BitwardenSdk.FolderView: Menuable, @unchecked @retroactive Sendable, TreeNodeModel {
+extension BitwardenSdk.FolderView: @retroactive Menuable, @unchecked @retroactive Sendable, TreeNodeModel {
     public static var defaultValueLocalizedName: String {
         Localizations.folderNone
     }

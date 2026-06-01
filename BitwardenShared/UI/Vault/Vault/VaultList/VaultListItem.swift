@@ -1,3 +1,4 @@
+import BitwardenKit
 import BitwardenResources
 @preconcurrency import BitwardenSdk
 import Foundation
@@ -41,7 +42,7 @@ public struct VaultListItem: Equatable, Identifiable, Sendable, VaultItemWithDec
     public let id: String
 
     /// Whether the user has premium subscription.
-    /// This is only used on Archive group for now, so it's not being set for any other occassions.
+    /// This is only used on Archive group for now, so it's not being set for any other occasions.
     public let hasPremium: Bool
 
     /// The type of item being displayed by this item.
@@ -134,6 +135,15 @@ extension VaultListItem {
                 SharedAsset.Icons.file24
             case .sshKey:
                 SharedAsset.Icons.key24
+            case .bankAccount:
+                // TODO: PM-32809
+                SharedAsset.Icons.stickyNote24
+            case .driversLicense:
+                // TODO: PM-32807
+                SharedAsset.Icons.stickyNote24
+            case .passport:
+                // TODO: PM-32805
+                SharedAsset.Icons.stickyNote24
             }
         case let .group(group, _):
             switch group {
@@ -179,6 +189,15 @@ extension VaultListItem {
                 "SecureNoteCipherIcon"
             case .sshKey:
                 "SSHKeyCipherIcon"
+            case .bankAccount:
+                // TODO: PM-32809
+                "BankAccountCipherIcon"
+            case .driversLicense:
+                // TODO: PM-32807
+                "DriverLicenseCipherIcon"
+            case .passport:
+                // TODO: PM-32805
+                "PassportCipherIcon"
             }
         default:
             ""

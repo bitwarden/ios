@@ -3,6 +3,7 @@ import Networking
 
 /// An `HTTPClient` that can be used to return mocked responses.
 ///
+@MainActor
 public final class MockHTTPClient: HTTPClient {
     // MARK: Properties
 
@@ -11,6 +12,10 @@ public final class MockHTTPClient: HTTPClient {
 
     /// A list of download results that will be returned in order for future requests.
     public var downloadResults: [Result<URL, Error>] = []
+
+    /// A callback that is invoked when a request is received, before returning the result.
+    /// Useful for simulating state changes during async operations.
+    public var onRequest: ((HTTPRequest) -> Void)?
 
     /// A list of requests that have been received by the HTTP client.
     public var requests: [HTTPRequest] = []
@@ -35,7 +40,7 @@ public final class MockHTTPClient: HTTPClient {
     // MARK: Initializer
 
     /// Initializes a `MockHTTPClient`.
-    public init() {}
+    public nonisolated init() {}
 
     // MARK: Methods
 
@@ -60,6 +65,9 @@ public final class MockHTTPClient: HTTPClient {
     ///
     public func send(_ request: HTTPRequest) async throws -> HTTPResponse {
         requests.append(request)
+
+        // Invoke callback if provided (useful for simulating state changes during async operations)
+        onRequest?(request)
 
         guard !results.isEmpty else { throw MockHTTPClientError.noResultForRequest }
 

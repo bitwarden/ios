@@ -68,8 +68,12 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
 
     typealias Services = HasAPIService
         & HasAuthRepository
+        & HasBillingRepository
+        & HasBillingService
         & HasCameraService
+        & HasCardTextParser
         & HasConfigService
+        & HasEnvironmentService
         & HasErrorReporter
         & HasEventService
         & HasFido2UserInterfaceHelper
@@ -99,6 +103,13 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
 
     /// The delegate that is notified when delete cipher item have occurred.
     private weak var delegate: CipherItemOperationDelegate?
+
+    /// The helper used to navigate to the premium upgrade flow.
+    lazy var premiumUpgradeHelper: PremiumUpgradeHelper = DefaultPremiumUpgradeHelper(
+        services: services,
+        coordinator: coordinator,
+        setURL: { [weak self] url in self?.state.url = url },
+    )
 
     /// The services required by this processor.
     private let services: Services
@@ -165,6 +176,8 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
             await fetchCipherOptions()
         case .savePressed:
             await saveItem()
+        case .scanCardButtonTapped:
+            await openCardScanner()
         case .setupTotpPressed:
             await setupTotp()
         case .deletePressed:
@@ -279,16 +292,48 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
 
     // MARK: Private Methods
 
+    /// Applies a parsed card scan result to the item state, dismissing the scanner on success.
+    /// Only applies if both a card number and expiration month were detected.
+    ///
+    /// - Parameters:
+    ///   - state: The item state to update.
+    ///   - data: The parsed card data returned by the card text parser.
+    private func applyCardScanResult(_ state: inout AddEditItemState, data: ScannedCardData) {
+        guard data.cardNumber != nil,
+              data.expirationMonth != nil else {
+            return
+        }
+
+        state.cardItemState.isCardScannerPresented = false
+        state.cardItemState.shouldFocusCardholderNameAfterScan = true
+        if let number = data.cardNumber {
+            state.cardItemState.cardNumber = number
+            state.cardItemState.brand = .custom(CardComponent.Brand.detect(from: number))
+        }
+        if let month = data.expirationMonth,
+           let cardMonth = CardComponent.Month(rawValue: month) {
+            state.cardItemState.expirationMonth = .custom(cardMonth)
+        }
+        if let year = data.expirationYear {
+            state.cardItemState.expirationYear = year
+        }
+    }
+
     /// Archives a cipher.
     ///
     private func archiveItem() async {
-        await vaultItemActionHelper.archive(cipher: state.cipher) { [weak self] url in
-            self?.state.url = url
-        } completionHandler: { [weak self] in
-            self?.dismiss { [weak self] in
-                self?.delegate?.itemArchived()
-            }
+        await vaultItemActionHelper.archive(cipher: state.cipher) { [weak self] in
+            await self?.navigateToPremiumUpgrade()
+        } completionHandler: { [weak self, delegate] in
+            self?.dismiss { delegate?.itemArchived() }
         }
+    }
+
+    /// Navigates to the premium upgrade flow. Uses the in-app upgrade path when available;
+    /// otherwise opens the web vault upgrade URL as a fallback.
+    ///
+    private func navigateToPremiumUpgrade() async {
+        await premiumUpgradeHelper.navigateToPremiumUpgrade()
     }
 
     /// Dismisses with an action.
@@ -446,7 +491,7 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
 
     /// Loads the feature flags required for this processor.
     private func loadFeatureFlags() async {
-        state.isArchiveVaultItemsFFEnabled = await services.configService.getFeatureFlag(.archiveVaultItems)
+        state.cardItemState.cardScannerEnabled = await services.configService.getFeatureFlag(.cardScanner)
     }
 
     /// Receives an `AddEditCardItem` action from the `AddEditCardView` view's store, and updates
@@ -462,7 +507,12 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
         case let .cardholderNameChanged(name):
             state.cardItemState.cardholderName = name
         case let .cardNumberChanged(number):
-            state.cardItemState.cardNumber = number
+            state.cardItemState.cardNumber = number.filter(\.isNumber)
+        case .cardScannerDismissed:
+            state.cardItemState.isCardScannerPresented = false
+            state.cardItemState.shouldFocusCardholderNameAfterScan = false
+        case let .cardScannerLinesUpdated(lines):
+            applyCardScanResult(&state, data: services.cardTextParser.parseCard(lines: lines))
         case let .cardSecurityCodeChanged(code):
             state.cardItemState.cardSecurityCode = code
         case let .expirationMonthChanged(month):
@@ -520,6 +570,8 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
             state.identityState.passportNumber = passportNumber
         case let .licenseNumberChanged(licenseNumber):
             state.identityState.licenseNumber = licenseNumber
+        case let .ssnVisibilityChanged(isVisible):
+            state.identityState.showSocialSecurityNumber = isVisible
         case let .emailChanged(email):
             state.identityState.email = email
         case let .phoneNumberChanged(phoneNumber):
@@ -544,10 +596,8 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
     /// Unarchives cipher.
     ///
     private func unarchiveItem() async {
-        await vaultItemActionHelper.unarchive(cipher: state.cipher) { [weak self] in
-            self?.dismiss { [weak self] in
-                self?.delegate?.itemUnarchived()
-            }
+        await vaultItemActionHelper.unarchive(cipher: state.cipher) { [weak self, delegate] in
+            self?.dismiss { delegate?.itemUnarchived() }
         }
     }
 
@@ -696,6 +746,15 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
             return
         } catch UserVerificationError.cancelled {
             return
+        } catch let error as ServerError
+            where error.message.contains("Cipher was not encrypted for the current user") {
+            await coordinator.showErrorAlert(error: error)
+            services.errorReporter.log(error: BitwardenError.generalError(
+                type: "Save item failed",
+                message: error.message,
+                error: error,
+            ))
+            return
         } catch {
             await coordinator.showErrorAlert(error: error)
             services.errorReporter.log(error: error)
@@ -747,9 +806,7 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
         do {
             coordinator.showLoadingOverlay(title: Localizations.softDeleting)
             try await services.vaultRepository.softDeleteCipher(state.cipher)
-            coordinator.navigate(to: .dismiss(DismissAction(action: { [weak self] in
-                self?.delegate?.itemSoftDeleted()
-            })))
+            coordinator.navigate(to: .dismiss(DismissAction(action: { [delegate] in delegate?.itemSoftDeleted() })))
         } catch {
             await coordinator.showErrorAlert(error: error)
             services.errorReporter.log(error: error)
@@ -770,13 +827,21 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
         await services.stateService.setAddSitePromptShown(true)
     }
 
-    /// Stream the cipher details.
+    /// Streams cipher details for the current cipher, updating state whenever the vault repository
+    /// emits an updated `CipherView`. When the current TOTP state contains a key (i.e., it was
+    /// set via BWA import and is not yet persisted to the server), that key is preserved and all
+    /// other login fields (password, username, URIs, etc.) are updated normally. When the current
+    /// TOTP state is `.none`, the full cipher view is applied so that any TOTP key added on
+    /// another client is not silently discarded.
     private func streamCipherDetails() async {
         guard let cipherId = state.cipher.id else { return }
         do {
             for try await cipherView in try await services.vaultRepository.cipherDetailsPublisher(id: cipherId) {
                 guard let cipherView else { continue }
-                state.update(from: cipherView)
+                let totpOverride: LoginTOTPState? = state.loginState.totpState == .none
+                    ? nil
+                    : state.loginState.totpState
+                state.update(from: cipherView, preservingTOTPState: totpOverride)
             }
         } catch {
             services.errorReporter.log(error: error)
@@ -881,6 +946,22 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
         let shouldDismissed = delegate?.itemUpdated() ?? true
         if shouldDismissed {
             coordinator.navigate(to: .dismiss())
+        }
+    }
+
+    /// Checks camera authorization and either opens the card scanner sheet or shows a
+    /// camera-permission-required alert with a link to iOS Settings.
+    ///
+    private func openCardScanner() async {
+        let status = await services.cameraService.checkStatusOrRequestCameraAuthorization()
+        guard status == .authorized else {
+            coordinator.showAlert(.cameraPermissionRequired { [weak self] in
+                self?.state.url = URL(string: UIApplication.openSettingsURLString)
+            })
+            return
+        }
+        await MainActor.run {
+            state.cardItemState.isCardScannerPresented = true
         }
     }
 

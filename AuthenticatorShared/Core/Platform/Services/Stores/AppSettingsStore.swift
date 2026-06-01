@@ -10,20 +10,17 @@ import OSLog
 /// A protocol for an object that persists app setting values.
 ///
 protocol AppSettingsStore: AnyObject {
-    /// The app's unique identifier.
-    var appId: String? { get set }
-
     /// The app's locale.
     var appLocale: String? { get set }
 
     /// The app's theme.
     var appTheme: String? { get set }
 
-    /// Whether to disable the website icons.
-    var disableWebIcons: Bool { get set }
-
     /// The default save location for new keys.
     var defaultSaveOption: DefaultSaveOption { get set }
+
+    /// Whether to disable the website icons.
+    var disableWebIcons: Bool { get set }
 
     /// The data used by the flight recorder for the active and any inactive logs.
     var flightRecorderData: FlightRecorderData? { get set }
@@ -42,6 +39,9 @@ protocol AppSettingsStore: AnyObject {
 
     /// The server config used prior to user authentication.
     var preAuthServerConfig: ServerConfig? { get set }
+
+    /// Whether to show the next TOTP code when the current code is about to expire.
+    var showNextTOTPCode: Bool { get set }
 
     /// Gets the closed state for the given card.
     ///
@@ -287,7 +287,7 @@ extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore {
     /// The keys used to store their associated values.
     ///
     enum Keys {
-        case appId
+        case appID
         case appLocale
         case appTheme
         case biometricAuthEnabled(userId: String)
@@ -304,12 +304,13 @@ extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore {
         case preAuthServerConfig
         case secretKey(userId: String)
         case serverConfig(userId: String)
+        case showNextTOTPCode
         case vaultTimeout(userId: String)
 
         /// Returns the key used to store the data under for retrieving it later.
         var storageKey: String {
             let key = switch self {
-            case .appId:
+            case .appID:
                 "appId"
             case .appLocale:
                 "appLocale"
@@ -343,16 +344,13 @@ extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore {
                 "secretKey_\(userId)"
             case let .serverConfig(userId):
                 "serverConfig_\(userId)"
+            case .showNextTOTPCode:
+                "showNextTOTPCode"
             case let .vaultTimeout(userId):
                 "vaultTimeout_\(userId)"
             }
             return "bwaPreferencesStorage:\(key)"
         }
-    }
-
-    var appId: String? {
-        get { fetch(for: .appId) }
-        set { store(newValue, for: .appId) }
     }
 
     var appLocale: String? {
@@ -365,11 +363,6 @@ extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore {
         set { store(newValue, for: .appTheme) }
     }
 
-    var disableWebIcons: Bool {
-        get { fetch(for: .disableWebIcons) }
-        set { store(newValue, for: .disableWebIcons) }
-    }
-
     var defaultSaveOption: DefaultSaveOption {
         get {
             guard let rawValue: String = fetch(for: .defaultSaveOption),
@@ -379,6 +372,11 @@ extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore {
             return value
         }
         set { store(newValue.rawValue, for: .defaultSaveOption) }
+    }
+
+    var disableWebIcons: Bool {
+        get { fetch(for: .disableWebIcons) }
+        set { store(newValue, for: .disableWebIcons) }
     }
 
     var flightRecorderData: FlightRecorderData? {
@@ -403,6 +401,11 @@ extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore {
     var preAuthServerConfig: ServerConfig? {
         get { fetch(for: .preAuthServerConfig) }
         set { store(newValue, for: .preAuthServerConfig) }
+    }
+
+    var showNextTOTPCode: Bool {
+        get { fetch(for: .showNextTOTPCode) }
+        set { store(newValue, for: .showNextTOTPCode) }
     }
 
     func cardClosedState(card: ItemListCard) -> Bool {
@@ -479,6 +482,15 @@ extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore {
 
     func vaultTimeout(userId: String) -> Int? {
         fetch(for: .vaultTimeout(userId: userId))
+    }
+}
+
+// MARK: AppIDSettingsStore
+
+extension DefaultAppSettingsStore: AppIDSettingsStore {
+    var appID: String? {
+        get { fetch(for: .appID) }
+        set { store(newValue, for: .appID) }
     }
 }
 

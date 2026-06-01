@@ -1,12 +1,13 @@
 import BitwardenKit
 import BitwardenResources
 import BitwardenSdk
+import Combine
 import Foundation
 
 // MARK: - VaultGroupProcessor
 
 /// A `Processor` that can process `VaultGroupAction`s and `VaultGroupEffect`s.
-final class VaultGroupProcessor: StateProcessor<
+final class VaultGroupProcessor: StateProcessor<// swiftlint:disable:this type_body_length
     VaultGroupState,
     VaultGroupAction,
     VaultGroupEffect,
@@ -14,6 +15,8 @@ final class VaultGroupProcessor: StateProcessor<
     // MARK: Types
 
     typealias Services = HasAuthRepository
+        & HasBillingRepository
+        & HasBillingService
         & HasConfigService
         & HasEnvironmentService
         & HasErrorReporter
@@ -34,6 +37,16 @@ final class VaultGroupProcessor: StateProcessor<
 
     /// The helper to handle master password reprompts.
     private let masterPasswordRepromptHelper: MasterPasswordRepromptHelper
+
+    /// The helper used to navigate to the premium upgrade flow.
+    lazy var premiumUpgradeHelper: PremiumUpgradeHelper = DefaultPremiumUpgradeHelper(
+        services: services,
+        coordinator: coordinator,
+        setURL: { [weak self] url in self?.state.url = url },
+        onPendingDismiss: { [weak self] in
+            Task { @MainActor in await self?.dismissPremiumUpgradeActionCard() }
+        },
+    )
 
     /// The services for this processor.
     private var services: Services
@@ -119,6 +132,9 @@ final class VaultGroupProcessor: StateProcessor<
                 for: item,
                 handleDisplayToast: { [weak self] toast in
                     self?.state.toast = toast
+                },
+                handleNavigateToPremiumUpgrade: { [weak self] in
+                    await self?.navigateToPremiumUpgrade()
                 },
                 handleOpenURL: { [weak self] url in
                     self?.state.url = url
@@ -207,6 +223,25 @@ final class VaultGroupProcessor: StateProcessor<
     ///
     private func loadItemTypesUserCanCreate() async {
         state.itemTypesUserCanCreate = await vaultRepository.getItemTypesUserCanCreate()
+    }
+
+    /// Dismisses the premium upgrade action card and persists the banner-dismissed preference.
+    ///
+    private func dismissPremiumUpgradeActionCard() async {
+        do {
+            try await services.stateService.setPremiumUpgradeBannerDismissed(true)
+        } catch {
+            services.errorReporter.log(error: error)
+        }
+    }
+
+    /// Navigates to the premium upgrade flow. Uses the in-app upgrade path when available;
+    /// otherwise opens the web vault upgrade URL as a fallback.
+    ///
+    private func navigateToPremiumUpgrade() async {
+        await premiumUpgradeHelper.navigateToPremiumUpgrade(onConfirmed: { [weak self] in
+            await self?.refreshVaultGroup()
+        })
     }
 
     /// Navigates to the view item view for the specified cipher. If the cipher requires master
@@ -366,4 +401,4 @@ extension VaultGroupProcessor: CipherItemOperationDelegate {
             await perform(.refresh)
         }
     }
-}
+} // swiftlint:disable:this file_length

@@ -95,25 +95,6 @@ extension BitwardenSdk.ServerCommunicationConfig: @retroactive Codable {
         self.init(bootstrap: bootstrap)
     }
 
-    init(communicationSettings: ServerCommunicationSettings) {
-        let bootstrap = communicationSettings.bootstrap
-        guard bootstrap.type == BitwardenSdk.BootstrapConfig.BootstrapType.ssoCookieVendor.rawValue else {
-            self.init(bootstrap: .direct)
-            return
-        }
-
-        self.init(
-            bootstrap: .ssoCookieVendor(
-                SsoCookieVendorConfig(
-                    idpLoginUrl: bootstrap.idpLoginUrl,
-                    cookieName: bootstrap.cookieName,
-                    cookieDomain: bootstrap.cookieDomain,
-                    cookieValue: nil,
-                ),
-            ),
-        )
-    }
-
     // MARK: Methods
 
     public func encode(to encoder: Encoder) throws {
@@ -137,7 +118,33 @@ extension BitwardenSdk.ServerCommunicationConfig: @retroactive Codable {
                     idpLoginUrl: currentCookieConfig.idpLoginUrl,
                     cookieName: currentCookieConfig.cookieName,
                     cookieDomain: currentCookieConfig.cookieDomain,
+                    vaultUrl: currentCookieConfig.vaultUrl,
                     cookieValue: fromSSOCookieConfig.cookieValue,
+                ),
+            ),
+        )
+    }
+}
+
+// MARK: - BitwardenSdk.SetCommunicationTypeRequest
+
+extension BitwardenSdk.SetCommunicationTypeRequest {
+    init(communicationSettings: ServerCommunicationSettings, vaultUrl: String) {
+        let bootstrap = communicationSettings.bootstrap
+        guard bootstrap.type == BitwardenSdk.BootstrapConfig.BootstrapType.ssoCookieVendor.rawValue,
+              let cookieName = bootstrap.cookieName,
+              let cookieDomain = bootstrap.cookieDomain else {
+            self.init(bootstrap: .direct)
+            return
+        }
+
+        self.init(
+            bootstrap: .ssoCookieVendor(
+                SsoCookieVendorConfigRequest(
+                    idpLoginUrl: bootstrap.idpLoginUrl,
+                    cookieName: cookieName,
+                    cookieDomain: cookieDomain,
+                    vaultUrl: vaultUrl,
                 ),
             ),
         )
@@ -152,18 +159,21 @@ extension BitwardenSdk.SsoCookieVendorConfig: @retroactive Codable {
         case cookieName
         case cookieDomain
         case cookieValue
+        case vaultUrl
     }
 
     public init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         let idpLoginUrl = try container.decodeIfPresent(String.self, forKey: .idpLoginUrl)
-        let cookieName = try container.decodeIfPresent(String.self, forKey: .cookieName)
-        let cookieDomain = try container.decodeIfPresent(String.self, forKey: .cookieDomain)
+        let cookieName = try container.decodeIfPresent(String.self, forKey: .cookieName) ?? ""
+        let cookieDomain = try container.decodeIfPresent(String.self, forKey: .cookieDomain) ?? ""
         let cookieValue = try container.decodeIfPresent([AcquiredCookie].self, forKey: .cookieValue)
+        let vaultUrl = try container.decodeIfPresent(String.self, forKey: .vaultUrl) ?? ""
         self.init(
             idpLoginUrl: idpLoginUrl,
             cookieName: cookieName,
             cookieDomain: cookieDomain,
+            vaultUrl: vaultUrl,
             cookieValue: cookieValue,
         )
     }
@@ -174,5 +184,6 @@ extension BitwardenSdk.SsoCookieVendorConfig: @retroactive Codable {
         try container.encodeIfPresent(cookieName, forKey: .cookieName)
         try container.encodeIfPresent(cookieDomain, forKey: .cookieDomain)
         try container.encodeIfPresent(cookieValue, forKey: .cookieValue)
+        try container.encodeIfPresent(vaultUrl, forKey: .vaultUrl)
     }
 }

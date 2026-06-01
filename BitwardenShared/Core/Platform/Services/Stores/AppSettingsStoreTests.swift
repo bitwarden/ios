@@ -1,4 +1,5 @@
 import BitwardenKit
+import BitwardenSdk
 import XCTest
 
 @testable import BitwardenShared
@@ -58,55 +59,29 @@ class AppSettingsStoreTests: BitwardenTestCase { // swiftlint:disable:this type_
         XCTAssertEqual(userDefaults.integer(forKey: "bwPreferencesStorage:accessTokenExpirationDate_2"), 789_004_800)
     }
 
-    /// `accountKeys(userId:)` returns `nil` if there isn't a previously stored value.
-    func test_accountKeys_isInitiallyNil() {
-        XCTAssertNil(subject.accountKeys(userId: "-1"))
+    /// `accountCryptographicState(userId:)` returns `nil` if there isn't a previously stored value.
+    func test_accountCryptographicState_isInitiallyNil() {
+        XCTAssertNil(subject.accountCryptographicState(userId: "-1"))
     }
 
-    /// `accountKeys(userId:)` can be used to get the user's account encryption keys.
-    func test_accountKeys_withValue() {
-        let fixture1 = PrivateKeysResponseModel.fixtureFilled()
-        let fixture2 = PrivateKeysResponseModel.fixture(
-            publicKeyEncryptionKeyPair: .fixture(
-                publicKey: "PUBLIC_KEY_2",
-                signedPublicKey: "SIGNED_PUBLIC_KEY_2",
-                wrappedPrivateKey: "WRAPPED_PRIVATE_KEY_2",
-            ),
-            signatureKeyPair: SignatureKeyPairResponseModel(
-                wrappedSigningKey: "WRAPPED_SIGNING_KEY_2",
-                verifyingKey: "VERIFYING_KEY_2",
-            ),
-            securityState: SecurityStateResponseModel(securityState: "SECURITY_STATE_2"),
+    /// `accountCryptographicState(userId:)` can be used to get and set the cryptographic state for a user.
+    func test_accountCryptographicState_withValue() {
+        let state1 = WrappedAccountCryptographicState.v1(privateKey: "1:PRIVATE_KEY")
+        let state2 = WrappedAccountCryptographicState.v2(
+            privateKey: "2:PRIVATE_KEY",
+            signedPublicKey: "2:SIGNED_PUBLIC_KEY",
+            signingKey: "2:SIGNING_KEY",
+            securityState: "2:SECURITY_STATE",
         )
 
-        subject.setAccountKeys(fixture1, userId: "1")
-        subject.setAccountKeys(fixture2, userId: "2")
+        subject.setAccountCryptographicState(state1, userId: "1")
+        subject.setAccountCryptographicState(state2, userId: "2")
 
-        XCTAssertEqual(subject.accountKeys(userId: "1"), fixture1)
-        XCTAssertEqual(subject.accountKeys(userId: "2"), fixture2)
+        XCTAssertEqual(subject.accountCryptographicState(userId: "1"), state1)
+        XCTAssertEqual(subject.accountCryptographicState(userId: "2"), state2)
 
-        try XCTAssertEqual(
-            JSONDecoder().decode(
-                PrivateKeysResponseModel.self,
-                from: XCTUnwrap(
-                    userDefaults
-                        .string(forKey: "bwPreferencesStorage:accountKeys_1")?
-                        .data(using: .utf8),
-                ),
-            ),
-            fixture1,
-        )
-        try XCTAssertEqual(
-            JSONDecoder().decode(
-                PrivateKeysResponseModel.self,
-                from: XCTUnwrap(
-                    userDefaults
-                        .string(forKey: "bwPreferencesStorage:accountKeys_2")?
-                        .data(using: .utf8),
-                ),
-            ),
-            fixture2,
-        )
+        XCTAssertNotNil(userDefaults.string(forKey: "bwPreferencesStorage:accountCryptographicState_1"))
+        XCTAssertNotNil(userDefaults.string(forKey: "bwPreferencesStorage:accountCryptographicState_2"))
     }
 
     /// `accountSetupAutofill(userId:)` returns `nil` if there isn't a previously stored value.
@@ -173,23 +148,23 @@ class AppSettingsStoreTests: BitwardenTestCase { // swiftlint:disable:this type_
         XCTAssertFalse(userDefaults.bool(forKey: "bwPreferencesStorage:addSitePromptShown"))
     }
 
-    /// `appId` returns `nil` if there isn't a previously stored value.
-    func test_appId_isInitiallyNil() {
-        XCTAssertNil(subject.appId)
+    /// `appID` returns `nil` if there isn't a previously stored value.
+    func test_appID_isInitiallyNil() {
+        XCTAssertNil(subject.appID)
     }
 
-    /// `appId` can be used to get and set the persisted value in user defaults.
-    func test_appId_withValue() {
-        subject.appId = "📱"
-        XCTAssertEqual(subject.appId, "📱")
+    /// `appID` can be used to get and set the persisted value in user defaults.
+    func test_appID_withValue() {
+        subject.appID = "📱"
+        XCTAssertEqual(subject.appID, "📱")
         XCTAssertEqual(userDefaults.string(forKey: "bwPreferencesStorage:appId"), "📱")
 
-        subject.appId = "☎️"
-        XCTAssertEqual(subject.appId, "☎️")
+        subject.appID = "☎️"
+        XCTAssertEqual(subject.appID, "☎️")
         XCTAssertEqual(userDefaults.string(forKey: "bwPreferencesStorage:appId"), "☎️")
 
-        subject.appId = nil
-        XCTAssertNil(subject.appId)
+        subject.appID = nil
+        XCTAssertNil(subject.appID)
         XCTAssertNil(userDefaults.string(forKey: "bwPreferencesStorage:appId"))
     }
 
@@ -424,42 +399,6 @@ class AppSettingsStoreTests: BitwardenTestCase { // swiftlint:disable:this type_
         XCTAssertEqual(userDefaults.string(forKey: "bwPreferencesStorage:protectedPin_1"), pin)
     }
 
-    /// `encryptedPrivateKey(userId:)` returns `nil` if there isn't a previously stored value.
-    func test_encryptedPrivateKey_isInitiallyNil() {
-        XCTAssertNil(subject.encryptedPrivateKey(userId: "-1"))
-    }
-
-    /// `encryptedPrivateKey(userId:)` can be used to get the encrypted private key for a user.
-    func test_encryptedPrivateKey_withValue() {
-        subject.setEncryptedPrivateKey(key: "1:PRIVATE_KEY", userId: "1")
-        subject.setEncryptedPrivateKey(key: "2:PRIVATE_KEY", userId: "2")
-
-        XCTAssertEqual(subject.encryptedPrivateKey(userId: "1"), "1:PRIVATE_KEY")
-        XCTAssertEqual(subject.encryptedPrivateKey(userId: "2"), "2:PRIVATE_KEY")
-        XCTAssertEqual(
-            userDefaults.string(forKey: "bwPreferencesStorage:encPrivateKey_1"),
-            "1:PRIVATE_KEY",
-        )
-        XCTAssertEqual(
-            userDefaults.string(forKey: "bwPreferencesStorage:encPrivateKey_2"),
-            "2:PRIVATE_KEY",
-        )
-
-        subject.setEncryptedPrivateKey(key: "1:PRIVATE_KEY_NEW", userId: "1")
-        subject.setEncryptedPrivateKey(key: "2:PRIVATE_KEY_NEW", userId: "2")
-
-        XCTAssertEqual(subject.encryptedPrivateKey(userId: "1"), "1:PRIVATE_KEY_NEW")
-        XCTAssertEqual(subject.encryptedPrivateKey(userId: "2"), "2:PRIVATE_KEY_NEW")
-        XCTAssertEqual(
-            userDefaults.string(forKey: "bwPreferencesStorage:encPrivateKey_1"),
-            "1:PRIVATE_KEY_NEW",
-        )
-        XCTAssertEqual(
-            userDefaults.string(forKey: "bwPreferencesStorage:encPrivateKey_2"),
-            "2:PRIVATE_KEY_NEW",
-        )
-    }
-
     /// `encryptedUserKey(userId:)` returns `nil` if there isn't a previously stored value.
     func test_encryptedUserKey_isInitiallyNil() {
         XCTAssertNil(subject.encryptedUserKey(userId: "-1"))
@@ -601,6 +540,48 @@ class AppSettingsStoreTests: BitwardenTestCase { // swiftlint:disable:this type_
         XCTAssertFalse(subject.isBiometricAuthenticationEnabled(userId: "1"))
     }
 
+    /// `lastSyncMonotonicTime(userId:)` returns `nil` if there isn't a previously stored value.
+    func test_lastSyncMonotonicTime_isInitiallyNil() {
+        XCTAssertNil(subject.lastSyncMonotonicTime(userId: "-1"))
+    }
+
+    /// `lastSyncMonotonicTime(userId:)` can be used to get the last sync monotonic time for a user.
+    func test_lastSyncMonotonicTime_withValue() {
+        let monotonicTime1: TimeInterval = 12345.67
+        let monotonicTime2: TimeInterval = 98765.43
+
+        subject.setLastSyncMonotonicTime(monotonicTime1, userId: "1")
+        subject.setLastSyncMonotonicTime(monotonicTime2, userId: "2")
+
+        XCTAssertEqual(subject.lastSyncMonotonicTime(userId: "1"), monotonicTime1)
+        XCTAssertEqual(subject.lastSyncMonotonicTime(userId: "2"), monotonicTime2)
+        XCTAssertEqual(userDefaults.double(forKey: "bwPreferencesStorage:lastSyncMonotonic_1"), 12345.67)
+        XCTAssertEqual(userDefaults.double(forKey: "bwPreferencesStorage:lastSyncMonotonic_2"), 98765.43)
+
+        let monotonicTime3: TimeInterval = 11111.22
+        let monotonicTime4: TimeInterval = 22222.33
+
+        subject.setLastSyncMonotonicTime(monotonicTime3, userId: "1")
+        subject.setLastSyncMonotonicTime(monotonicTime4, userId: "2")
+
+        XCTAssertEqual(subject.lastSyncMonotonicTime(userId: "1"), monotonicTime3)
+        XCTAssertEqual(subject.lastSyncMonotonicTime(userId: "2"), monotonicTime4)
+        XCTAssertEqual(userDefaults.double(forKey: "bwPreferencesStorage:lastSyncMonotonic_1"), 11111.22)
+        XCTAssertEqual(userDefaults.double(forKey: "bwPreferencesStorage:lastSyncMonotonic_2"), 22222.33)
+    }
+
+    /// `setLastSyncMonotonicTime(_:userId:)` can be used to clear the monotonic time by setting nil.
+    func test_lastSyncMonotonicTime_clearValue() {
+        let monotonicTime: TimeInterval = 54321.98
+
+        subject.setLastSyncMonotonicTime(monotonicTime, userId: "1")
+        XCTAssertEqual(subject.lastSyncMonotonicTime(userId: "1"), monotonicTime)
+
+        subject.setLastSyncMonotonicTime(nil, userId: "1")
+        XCTAssertNil(subject.lastSyncMonotonicTime(userId: "1"))
+        XCTAssertNil(userDefaults.object(forKey: "bwPreferencesStorage:lastSyncMonotonic_1"))
+    }
+
     /// `learnNewLoginActionCardStatus` returns `.incomplete` if there isn't a previously stored value.
     func test_learnNewLoginActionCardStatus_isInitiallyIncomplete() {
         XCTAssertEqual(subject.learnNewLoginActionCardStatus, .incomplete)
@@ -636,6 +617,26 @@ class AppSettingsStoreTests: BitwardenTestCase { // swiftlint:disable:this type_
 
         subject.lastUserShouldConnectToWatch = false
         XCTAssertFalse(userDefaults.bool(forKey: "bwPreferencesStorage:lastUserShouldConnectToWatch"))
+    }
+
+    /// `lastRequestToTurnOnCredentialProvider()` returns `nil` if there isn't a previously stored value.
+    func test_lastRequestToTurnOnCredentialProvider_isInitiallyNil() {
+        XCTAssertNil(subject.lastRequestToTurnOnCredentialProvider())
+    }
+
+    /// `lastRequestToTurnOnCredentialProvider()` can be used to get and set the persisted value in user defaults.
+    func test_lastRequestToTurnOnCredentialProvider_withValue() {
+        let date = Date(year: 2024, month: 6, day: 15)
+        subject.setLastRequestToTurnOnCredentialProvider(date)
+
+        XCTAssertEqual(subject.lastRequestToTurnOnCredentialProvider(), date)
+        XCTAssertEqual(
+            userDefaults.double(forKey: "bwPreferencesStorage:lastRequestToTurnOnCredentialProvider"),
+            date.timeIntervalSince1970,
+        )
+
+        subject.setLastRequestToTurnOnCredentialProvider(nil)
+        XCTAssertNil(subject.lastRequestToTurnOnCredentialProvider())
     }
 
     /// `lastSyncTime(userId:)` returns `nil` if there isn't a previously stored value.
@@ -998,6 +999,38 @@ class AppSettingsStoreTests: BitwardenTestCase { // swiftlint:disable:this type_
             ),
             config,
         )
+    }
+
+    /// `premiumUpgradeBannerDismissed(userId:)` returns `false` if there isn't a previously stored value.
+    func test_premiumUpgradeBannerDismissed_isInitiallyFalse() {
+        XCTAssertFalse(subject.premiumUpgradeBannerDismissed(userId: "1"))
+    }
+
+    /// `premiumUpgradeBannerDismissed(userId:)` can be used to get and set the persisted value in user defaults.
+    func test_premiumUpgradeBannerDismissed_withValue() {
+        subject.setPremiumUpgradeBannerDismissed(true, userId: "1")
+        XCTAssertTrue(subject.premiumUpgradeBannerDismissed(userId: "1"))
+        XCTAssertTrue(userDefaults.bool(forKey: "bwPreferencesStorage:premiumUpgradeBannerDismissed_1"))
+
+        subject.setPremiumUpgradeBannerDismissed(false, userId: "1")
+        XCTAssertFalse(subject.premiumUpgradeBannerDismissed(userId: "1"))
+        XCTAssertFalse(userDefaults.bool(forKey: "bwPreferencesStorage:premiumUpgradeBannerDismissed_1"))
+    }
+
+    /// `upgradedToPremiumActionCardVisible(userId:)` returns `false` if there isn't a previously stored value.
+    func test_upgradedToPremiumActionCardVisible_isInitiallyFalse() {
+        XCTAssertFalse(subject.upgradedToPremiumActionCardVisible(userId: "1"))
+    }
+
+    /// `upgradedToPremiumActionCardVisible(userId:)` can be used to get and set the persisted value in user defaults.
+    func test_upgradedToPremiumActionCardVisible_withValue() {
+        subject.setUpgradedToPremiumActionCardVisible(true, userId: "1")
+        XCTAssertTrue(subject.upgradedToPremiumActionCardVisible(userId: "1"))
+        XCTAssertTrue(userDefaults.bool(forKey: "bwPreferencesStorage:upgradedToPremiumActionCardVisible_1"))
+
+        subject.setUpgradedToPremiumActionCardVisible(false, userId: "1")
+        XCTAssertFalse(subject.upgradedToPremiumActionCardVisible(userId: "1"))
+        XCTAssertFalse(userDefaults.bool(forKey: "bwPreferencesStorage:upgradedToPremiumActionCardVisible_1"))
     }
 
     /// `serverConfig(:)` is initially `nil`

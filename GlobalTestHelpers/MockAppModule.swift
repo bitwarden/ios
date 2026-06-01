@@ -10,12 +10,14 @@ class MockAppModule:
     AddEditFolderModule,
     AppModule,
     AuthModule,
+    BillingModule,
     DebugMenuModule,
     ExportCXFModule,
     ExtensionSetupModule,
     FileSelectionModule,
     FlightRecorderModule,
     GeneratorModule,
+    GlobalModalModule,
     ImportCXFModule,
     ImportLoginsModule,
     LoginRequestModule,
@@ -34,6 +36,7 @@ class MockAppModule:
     var appCoordinator = MockCoordinator<AppRoute, AppEvent>()
     var authCoordinator = MockCoordinator<AuthRoute, AuthEvent>()
     var authRouter = MockRouter<AuthEvent, AuthRoute>(routeForEvent: { _ in .landing })
+    var billingCoordinator = MockCoordinator<BillingRoute, Void>()
     var debugMenuCoordinator = MockCoordinator<DebugMenuRoute, Void>()
     var debugMenuCoordinatorDelegate: DebugMenuCoordinatorDelegate?
     var exportCXFCoordinator = MockCoordinator<ExportCXFRoute, Void>()
@@ -42,6 +45,7 @@ class MockAppModule:
     var fileSelectionCoordinator = MockCoordinator<FileSelectionRoute, Void>()
     var flightRecorderCoordinator = MockCoordinator<FlightRecorderRoute, Void>()
     var generatorCoordinator = MockCoordinator<GeneratorRoute, Void>()
+    var globalModalCoordinator = MockCoordinator<GlobalModalRoute, Void>()
     var importCXFCoordinator = MockCoordinator<ImportCXFRoute, Void>()
     var importLoginsCoordinator = MockCoordinator<ImportLoginsRoute, ImportLoginsEvent>()
     var loginRequestCoordinator = MockCoordinator<LoginRequestRoute, Void>()
@@ -87,6 +91,12 @@ class MockAppModule:
         authRouter.asAnyRouter()
     }
 
+    func makeBillingCoordinator(
+        stackNavigator _: StackNavigator,
+    ) -> AnyCoordinator<BillingRoute, Void> {
+        billingCoordinator.asAnyCoordinator()
+    }
+
     func makeDebugMenuCoordinator(
         delegate: DebugMenuCoordinatorDelegate,
         stackNavigator: StackNavigator,
@@ -126,6 +136,10 @@ class MockAppModule:
         stackNavigator _: StackNavigator,
     ) -> AnyCoordinator<GeneratorRoute, Void> {
         generatorCoordinator.asAnyCoordinator()
+    }
+
+    func makeGlobalModalCoordinator(stackNavigator: StackNavigator) -> AnyCoordinator<GlobalModalRoute, Void> {
+        globalModalCoordinator.asAnyCoordinator()
     }
 
     func makeImportCXFCoordinator(

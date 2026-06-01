@@ -1,4 +1,5 @@
 import BitwardenKit
+import BitwardenKitMocks
 import BitwardenResources
 import BitwardenSdk
 import Networking
@@ -126,7 +127,7 @@ class SSOCookieVendorResponseHandlerTests: BitwardenTestCase {
         }
 
         XCTAssertEqual(serverCommunicationConfigClient.acquireCookieCallsCount, 1)
-        XCTAssertEqual(serverCommunicationConfigClient.acquireCookieReceivedHostname, "example.com")
+        XCTAssertEqual(serverCommunicationConfigClient.acquireCookieReceivedDomain, "example.com")
     }
 
     /// `handle(_:for:retryWith:)` calls `acquireCookie`, silently ignores a `Cancelled` error,
@@ -152,7 +153,10 @@ class SSOCookieVendorResponseHandlerTests: BitwardenTestCase {
             XCTFail("Expected ServerError.error, got \(String(describing: thrownError))")
             return
         }
-        XCTAssertEqual(errorResponse.message, Localizations.tryAgain)
+        XCTAssertEqual(
+            errorResponse.message,
+            Localizations.yourRequestWasInterruptedBecauseTheAppNeededToReAuthenticatePleaseTryAgain,
+        )
     }
 
     /// `handle(_:for:retryWith:)` throws the underlying error when `acquireCookie` fails with
@@ -180,7 +184,7 @@ class SSOCookieVendorResponseHandlerTests: BitwardenTestCase {
         } catch {}
 
         XCTAssertEqual(serverCommunicationConfigClientSingleton.resolveHostnameReceivedHostname, "api.example.com")
-        XCTAssertEqual(serverCommunicationConfigClient.needsBootstrapReceivedHostname, "example.com")
+        XCTAssertEqual(serverCommunicationConfigClient.needsBootstrapReceivedDomain, "example.com")
     }
 
     /// `handle(_:for:retryWith:)` returns the 302 response when there is no `Location` header

@@ -250,6 +250,57 @@ class CipherDataStoreTests: BitwardenTestCase {
         try XCTAssertEqual(fetchCiphers(userId: "1"), expectedCiphers)
     }
 
+    /// `hasPersonalCiphers(userId:)` returns `false` when user has no ciphers.
+    func test_hasPersonalCiphers_noCiphers() async throws {
+        let result = try await subject.hasPersonalCiphers(userId: "1")
+        XCTAssertFalse(result)
+    }
+
+    /// `hasPersonalCiphers(userId:)` returns `true` when user has personal ciphers.
+    func test_hasPersonalCiphers_hasPersonalCipher() async throws {
+        let personalCipher = Cipher.fixture(id: "1", organizationId: nil)
+        try await insertCiphers([personalCipher], userId: "1")
+
+        let result = try await subject.hasPersonalCiphers(userId: "1")
+        XCTAssertTrue(result)
+    }
+
+    /// `hasPersonalCiphers(userId:)` returns `false` when user only has organization ciphers.
+    func test_hasPersonalCiphers_onlyOrgCiphers() async throws {
+        let orgCiphers = [
+            Cipher.fixture(id: "1", organizationId: "org-123"),
+            Cipher.fixture(id: "2", organizationId: "org-456"),
+        ]
+        try await insertCiphers(orgCiphers, userId: "1")
+
+        let result = try await subject.hasPersonalCiphers(userId: "1")
+        XCTAssertFalse(result)
+    }
+
+    /// `hasPersonalCiphers(userId:)` returns `true` when user has mixed personal and organization ciphers.
+    func test_hasPersonalCiphers_mixedCiphers() async throws {
+        let mixedCiphers = [
+            Cipher.fixture(id: "1", organizationId: "org-123"),
+            Cipher.fixture(id: "2", organizationId: nil),
+            Cipher.fixture(id: "3", organizationId: "org-456"),
+        ]
+        try await insertCiphers(mixedCiphers, userId: "1")
+
+        let result = try await subject.hasPersonalCiphers(userId: "1")
+        XCTAssertTrue(result)
+    }
+
+    /// `hasPersonalCiphers(userId:)` only checks ciphers for the specified user.
+    func test_hasPersonalCiphers_userSpecific() async throws {
+        let user1Cipher = Cipher.fixture(id: "1", organizationId: "org-123")
+        let user2Cipher = Cipher.fixture(id: "2", organizationId: nil)
+        try await insertCiphers([user1Cipher], userId: "1")
+        try await insertCiphers([user2Cipher], userId: "2")
+
+        let result = try await subject.hasPersonalCiphers(userId: "1")
+        XCTAssertFalse(result)
+    }
+
     // MARK: Test Helpers
 
     /// A test helper to fetch all cipher's for a user.

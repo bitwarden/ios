@@ -98,7 +98,7 @@ class DefaultChangeKdfService: ChangeKdfService {
 
             // If the account needs a KDF update, sync the user's account and check again before
             // proceeding to ensure the local data is up-to-date.
-            try await syncService.fetchSync(forceSync: false)
+            try await syncService.fetchSync(forceSync: true)
             return try await accountNeedsKdfUpdate()
         } catch {
             errorReporter.log(error: error)

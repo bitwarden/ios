@@ -1,5 +1,7 @@
 import BitwardenKit
 import BitwardenResources
+import Combine
+import Foundation
 
 // MARK: - VaultItemSelectionProcessor
 
@@ -13,6 +15,9 @@ class VaultItemSelectionProcessor: StateProcessor<
     // MARK: Types
 
     typealias Services = HasAuthRepository
+        & HasBillingRepository
+        & HasBillingService
+        & HasEnvironmentService
         & HasErrorReporter
         & HasEventService
         & HasPasteboardService
@@ -24,6 +29,13 @@ class VaultItemSelectionProcessor: StateProcessor<
 
     /// The `Coordinator` that handles navigation.
     private var coordinator: AnyCoordinator<VaultRoute, AuthAction>
+
+    /// The helper used to navigate to the premium upgrade flow.
+    lazy var premiumUpgradeHelper: PremiumUpgradeHelper = DefaultPremiumUpgradeHelper(
+        services: services,
+        coordinator: coordinator,
+        setURL: { [weak self] url in self?.state.url = url },
+    )
 
     /// The mediator between processors and search publisher/subscription behavior.
     private let searchProcessorMediator: SearchProcessorMediator
@@ -76,6 +88,9 @@ class VaultItemSelectionProcessor: StateProcessor<
                 handleDisplayToast: { [weak self] toast in
                     self?.state.toast = toast
                 },
+                handleNavigateToPremiumUpgrade: { [weak self] in
+                    await self?.navigateToPremiumUpgrade()
+                },
                 handleOpenURL: { [weak self] url in
                     self?.state.url = url
                 },
@@ -111,7 +126,7 @@ class VaultItemSelectionProcessor: StateProcessor<
                 context: self,
             )
         case .cancelTapped:
-            coordinator.navigate(to: .dismiss)
+            coordinator.navigate(to: .dismiss())
         case .clearURL:
             state.url = nil
         case let .profileSwitcher(action):
@@ -128,7 +143,6 @@ class VaultItemSelectionProcessor: StateProcessor<
                 self?.searchResultsReceived(data: data)
             }
             state.profileSwitcherState.isVisible = false
-            dismissProfileSwitcher()
         case let .searchTextChanged(newValue):
             state.searchText = newValue
         case let .toastShown(newValue):
@@ -137,6 +151,13 @@ class VaultItemSelectionProcessor: StateProcessor<
     }
 
     // MARK: Private Methods
+
+    /// Navigates to the premium upgrade flow. Uses the in-app upgrade path when available;
+    /// otherwise opens the web vault upgrade URL as a fallback.
+    ///
+    private func navigateToPremiumUpgrade() async {
+        await premiumUpgradeHelper.navigateToPremiumUpgrade()
+    }
 
     /// Handles receiving a `ProfileSwitcherAction`.
     ///
@@ -265,21 +286,21 @@ class VaultItemSelectionProcessor: StateProcessor<
 
 extension VaultItemSelectionProcessor: CipherItemOperationDelegate {
     func itemAdded() -> Bool {
-        coordinator.navigate(to: .dismiss)
+        coordinator.navigate(to: .dismiss())
         // Return false to notify the calling processor that the dismissal occurs here.
         return false
     }
 
     func itemArchived() {
-        coordinator.navigate(to: .dismiss)
+        coordinator.navigate(to: .dismiss())
     }
 
     func itemUnarchived() {
-        coordinator.navigate(to: .dismiss)
+        coordinator.navigate(to: .dismiss())
     }
 
     func itemUpdated() -> Bool {
-        coordinator.navigate(to: .dismiss)
+        coordinator.navigate(to: .dismiss())
         // Return false to notify the calling processor that the dismissal occurs here.
         return false
     }
@@ -323,7 +344,7 @@ extension VaultItemSelectionProcessor: ProfileSwitcherHandler {
     }
 
     func dismissProfileSwitcher() {
-        coordinator.navigate(to: .dismiss)
+        coordinator.navigate(to: .dismiss())
     }
 
     func handleAuthEvent(_ authEvent: AuthEvent) async {

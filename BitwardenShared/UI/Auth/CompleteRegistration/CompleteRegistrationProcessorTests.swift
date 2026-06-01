@@ -2,6 +2,8 @@ import AuthenticationServices
 import BitwardenKit
 import BitwardenKitMocks
 import BitwardenResources
+import BitwardenSdk
+import BitwardenSdkMocks
 import Networking
 import TestHelpers
 import XCTest
@@ -18,11 +20,12 @@ class CompleteRegistrationProcessorTests: BitwardenTestCase {
     var authRepository: MockAuthRepository!
     var authService: MockAuthService!
     var client: MockHTTPClient!
-    var authClient: MockAuthClient!
+    var authClient: MockAuthClientService!
     var configService: MockConfigService!
     var coordinator: MockCoordinator<AuthRoute, AuthEvent>!
     var environmentService: MockEnvironmentService!
     var errorReporter: MockErrorReporter!
+    var mockRegistrationClient: MockRegistrationClientProtocol!
     var subject: CompleteRegistrationProcessor!
     var stateService: MockStateService!
 
@@ -33,12 +36,31 @@ class CompleteRegistrationProcessorTests: BitwardenTestCase {
         authRepository = MockAuthRepository()
         authService = MockAuthService()
         client = MockHTTPClient()
-        authClient = MockAuthClient()
+        authClient = MockAuthClientService()
         configService = MockConfigService()
         coordinator = MockCoordinator<AuthRoute, AuthEvent>()
         environmentService = MockEnvironmentService()
         errorReporter = MockErrorReporter()
+        mockRegistrationClient = MockRegistrationClientProtocol()
         stateService = MockStateService()
+
+        authClient.hashPasswordReturnValue = "hash password"
+        authClient.makeRegisterKeysReturnValue = RegisterKeyResponse(
+            masterPasswordHash: "masterPasswordHash",
+            encryptedUserKey: "encryptedUserKey",
+            keys: RsaKeyPair(public: "public", private: "private"),
+        )
+        authClient.registrationReturnValue = mockRegistrationClient
+        mockRegistrationClient.postKeysForUserPasswordRegistrationReturnValue = UserMasterPasswordRegistrationResponse(
+            accountCryptographicState: .v1(privateKey: "privateKey"),
+            masterPasswordUnlock: MasterPasswordUnlockData(
+                kdf: .pbkdf2(iterations: 600_000),
+                masterKeyWrappedUserKey: "masterKeyWrappedUserKey",
+                salt: "salt",
+            ),
+            userKey: "userKey",
+        )
+
         subject = CompleteRegistrationProcessor(
             coordinator: coordinator.asAnyCoordinator(),
             services: ServiceContainer.withMocks(
@@ -67,6 +89,7 @@ class CompleteRegistrationProcessorTests: BitwardenTestCase {
         coordinator = nil
         configService = nil
         errorReporter = nil
+        mockRegistrationClient = nil
         subject = nil
         stateService = nil
     }
@@ -372,9 +395,193 @@ class CompleteRegistrationProcessorTests: BitwardenTestCase {
         )
     }
 
+    /// `perform(_:)` with `.completeRegistration` and V2 flag enabled calls `postKeysForUserPasswordRegistration`.
+    @MainActor
+    func test_perform_completeRegistration_callsPostKeysForUserPasswordRegistration() async throws {
+        configService.featureFlagsBoolPreAuth[.accountEncryptionV2PasswordRegistration] = true
+        subject.state = .fixture()
+
+        await subject.perform(.completeRegistration)
+
+        XCTAssertTrue(mockRegistrationClient.postKeysForUserPasswordRegistrationCalled)
+        let request = try XCTUnwrap(mockRegistrationClient.postKeysForUserPasswordRegistrationReceivedRequest)
+        XCTAssertEqual(request.email, "email@example.com")
+        XCTAssertEqual(request.salt, "email@example.com")
+        XCTAssertEqual(request.masterPassword, "password1234")
+        XCTAssertNil(request.masterPasswordHint)
+        XCTAssertEqual(request.emailVerificationToken, "emailVerificationToken")
+        XCTAssertFalse(coordinator.isLoadingOverlayShowing)
+        XCTAssertEqual(coordinator.loadingOverlaysShown, [LoadingOverlayState(title: Localizations.creatingAccount)])
+        XCTAssertEqual(coordinator.events, [.didCompleteAuth])
+        XCTAssertTrue(subject.state.didCreateAccount)
+    }
+
+    /// `perform(_:)` with `.completeRegistration` presents an alert when the password field is empty.
+    @MainActor
+    func test_perform_completeRegistration_emptyPassword() async {
+        subject.state = .fixture(passwordHintText: "hint", passwordText: "", retypePasswordText: "")
+
+        client.result = .httpSuccess(testData: .registerFinishRequest)
+
+        await subject.perform(.completeRegistration)
+
+        XCTAssertEqual(client.requests.count, 0)
+        XCTAssertEqual(coordinator.alertShown.last, .validationFieldRequired(fieldName: "Master password"))
+        XCTAssertTrue(coordinator.loadingOverlaysShown.isEmpty)
+    }
+
+    /// `perform(_:)` with `.completeRegistration` and V2 flag enabled propagates errors from the SDK.
+    @MainActor
+    func test_perform_completeRegistration_errorPropagates() async {
+        configService.featureFlagsBoolPreAuth[.accountEncryptionV2PasswordRegistration] = true
+        mockRegistrationClient.postKeysForUserPasswordRegistrationThrowableError = BitwardenTestError.example
+        subject.state = .fixture()
+
+        await subject.perform(.completeRegistration)
+
+        XCTAssertTrue(mockRegistrationClient.postKeysForUserPasswordRegistrationCalled)
+        XCTAssertFalse(subject.state.didCreateAccount)
+        XCTAssertFalse(coordinator.isLoadingOverlayShowing)
+        XCTAssertEqual(coordinator.errorAlertsWithRetryShown.last?.error as? BitwardenTestError, .example)
+    }
+
+    /// `perform(_:)` with `.completeRegistration` navigates to login if the create account request
+    /// succeeds, but login fails.
+    @MainActor
+    func test_perform_completeRegistration_loginError() async throws {
+        configService.featureFlagsBoolPreAuth[.accountEncryptionV2PasswordRegistration] = true
+        authService.loginWithMasterPasswordResult = .failure(BitwardenTestError.example)
+        subject.state = .fixture()
+
+        await subject.perform(.completeRegistration)
+
+        XCTAssertTrue(mockRegistrationClient.postKeysForUserPasswordRegistrationCalled)
+        XCTAssertTrue(subject.state.didCreateAccount)
+
+        XCTAssertTrue(coordinator.alertShown.isEmpty)
+        XCTAssertFalse(coordinator.isLoadingOverlayShowing)
+        XCTAssertEqual(
+            coordinator.loadingOverlaysShown,
+            [
+                LoadingOverlayState(title: Localizations.creatingAccount),
+            ],
+        )
+        XCTAssertEqual(coordinator.routes.count, 1)
+        guard case let .dismissWithAction(dismissAction) = coordinator.routes.first else {
+            return XCTFail("Unable to find dismiss action.")
+        }
+        dismissAction?.action()
+        XCTAssertEqual(coordinator.routes.count, 2)
+        XCTAssertEqual(coordinator.routes[1], .login(username: "email@example.com", isNewAccount: true))
+        XCTAssertEqual(coordinator.toastsShown, [Toast(title: Localizations.accountSuccessfullyCreated)])
+    }
+
+    /// `perform(_:)` with `.completeRegistration` presents an alert when the password matches the hint.
+    @MainActor
+    func test_perform_completeRegistration_passwordMatchesHint() async {
+        subject.state = .fixture(
+            passwordHintText: "123456789012 ",
+            passwordText: "123456789012",
+            retypePasswordText: "123456789012",
+        )
+
+        client.result = .httpSuccess(testData: .registerFinishRequest)
+
+        await subject.perform(.completeRegistration)
+
+        XCTAssertEqual(client.requests.count, 0)
+        XCTAssertTrue(coordinator.loadingOverlaysShown.isEmpty)
+        XCTAssertEqual(coordinator.alertShown.last, .defaultAlert(
+            title: Localizations.anErrorHasOccurred,
+            message: Localizations.yourPasswordAndHintCannotBeTheSamePleaseChooseADifferentHint,
+        ))
+    }
+
+    /// `perform(_:)` with `.completeRegistration` presents an alert when password confirmation is incorrect.
+    @MainActor
+    func test_perform_completeRegistration_passwordsDontMatch() async {
+        configService.featureFlagsBoolPreAuth[.accountEncryptionV2PasswordRegistration] = true
+        subject.state = .fixture(passwordText: "123456789012", retypePasswordText: "123456789000")
+
+        await subject.perform(.completeRegistration)
+
+        XCTAssertEqual(coordinator.alertShown.last, .passwordsDontMatch)
+        XCTAssertTrue(coordinator.loadingOverlaysShown.isEmpty)
+        XCTAssertFalse(mockRegistrationClient.postKeysForUserPasswordRegistrationCalled)
+    }
+
+    /// `perform(_:)` with `.completeRegistration` presents an alert when the password isn't long enough.
+    @MainActor
+    func test_perform_completeRegistration_passwordsTooShort() async {
+        configService.featureFlagsBoolPreAuth[.accountEncryptionV2PasswordRegistration] = true
+        subject.state = .fixture(passwordText: "123", retypePasswordText: "123")
+
+        await subject.perform(.completeRegistration)
+
+        XCTAssertEqual(coordinator.alertShown.last, .passwordIsTooShort)
+        XCTAssertTrue(coordinator.loadingOverlaysShown.isEmpty)
+        XCTAssertFalse(mockRegistrationClient.postKeysForUserPasswordRegistrationCalled)
+    }
+
+    /// `perform(_:)` with `.completeRegistration` navigates to login if the create account and
+    /// login requests succeed, but vault unlocking fails.
+    @MainActor
+    func test_perform_completeRegistration_unlockError() async throws {
+        configService.featureFlagsBoolPreAuth[.accountEncryptionV2PasswordRegistration] = true
+        authRepository.unlockWithPasswordResult = .failure(BitwardenTestError.example)
+        subject.state = .fixture()
+
+        await subject.perform(.completeRegistration)
+
+        XCTAssertTrue(mockRegistrationClient.postKeysForUserPasswordRegistrationCalled)
+        XCTAssertTrue(subject.state.didCreateAccount)
+
+        XCTAssertTrue(coordinator.alertShown.isEmpty)
+        XCTAssertFalse(coordinator.isLoadingOverlayShowing)
+        XCTAssertEqual(
+            coordinator.loadingOverlaysShown,
+            [
+                LoadingOverlayState(title: Localizations.creatingAccount),
+            ],
+        )
+        XCTAssertEqual(coordinator.routes.count, 1)
+        guard case let .dismissWithAction(dismissAction) = coordinator.routes.first else {
+            return XCTFail("Unable to find dismiss action.")
+        }
+        dismissAction?.action()
+        XCTAssertEqual(coordinator.routes.count, 2)
+        XCTAssertEqual(coordinator.routes[1], .login(username: "email@example.com", isNewAccount: true))
+        XCTAssertEqual(coordinator.toastsShown, [Toast(title: Localizations.accountSuccessfullyCreated)])
+    }
+
+    /// `perform(_:)` with `.completeRegistration` and V2 flag enabled passes a non-empty hint in the request.
+    @MainActor
+    func test_perform_completeRegistration_withPasswordHint_setsHintInRequest() async throws {
+        configService.featureFlagsBoolPreAuth[.accountEncryptionV2PasswordRegistration] = true
+        subject.state = .fixture(passwordHintText: "my hint")
+
+        await subject.perform(.completeRegistration)
+
+        let request = try XCTUnwrap(mockRegistrationClient.postKeysForUserPasswordRegistrationReceivedRequest)
+        XCTAssertEqual(request.masterPasswordHint, "my hint")
+    }
+
+    /// `perform(_:)` with `.completeRegistration` and V2 flag enabled passes nil when hint is empty.
+    @MainActor
+    func test_perform_completeRegistration_withPasswordHintEmpty_setsNilHintInRequest() async throws {
+        configService.featureFlagsBoolPreAuth[.accountEncryptionV2PasswordRegistration] = true
+        subject.state = .fixture(passwordHintText: "")
+
+        await subject.perform(.completeRegistration)
+
+        let request = try XCTUnwrap(mockRegistrationClient.postKeysForUserPasswordRegistrationReceivedRequest)
+        XCTAssertNil(request.masterPasswordHint)
+    }
+
     /// `perform(_:)` with `.completeRegistration` presents an alert when the email has already been taken.
     @MainActor
-    func test_perform_completeRegistration_accountAlreadyExists() async {
+    func test_perform_completeRegistration_v1_accountAlreadyExists() async {
+        configService.featureFlagsBoolPreAuth[.accountEncryptionV2PasswordRegistration] = false
         subject.state = .fixture()
 
         let response = HTTPResponse.failure(
@@ -395,23 +602,28 @@ class CompleteRegistrationProcessorTests: BitwardenTestCase {
         XCTAssertEqual(coordinator.loadingOverlaysShown, [LoadingOverlayState(title: Localizations.creatingAccount)])
     }
 
-    /// `perform(_:)` with `.completeRegistration` presents an alert when the password field is empty.
+    /// `perform(_:)` with `.completeRegistration` and V2 flag disabled calls `registerFinish` (V1 path).
     @MainActor
-    func test_perform_completeRegistration_emptyPassword() async {
-        subject.state = .fixture(passwordText: "", retypePasswordText: "")
-
+    func test_perform_completeRegistration_v1_callsRegisterFinish() async {
+        configService.featureFlagsBoolPreAuth[.accountEncryptionV2PasswordRegistration] = false
         client.result = .httpSuccess(testData: .registerFinishRequest)
+        subject.state = .fixture()
 
         await subject.perform(.completeRegistration)
 
-        XCTAssertEqual(client.requests.count, 0)
-        XCTAssertEqual(coordinator.alertShown.last, .validationFieldRequired(fieldName: "Master password"))
-        XCTAssertTrue(coordinator.loadingOverlaysShown.isEmpty)
+        XCTAssertFalse(mockRegistrationClient.postKeysForUserPasswordRegistrationCalled)
+        XCTAssertEqual(client.requests.count, 1)
+        XCTAssertEqual(
+            client.requests[0].url,
+            URL(string: "https://example.com/identity/accounts/register/finish"),
+        )
+        XCTAssertTrue(subject.state.didCreateAccount)
     }
 
     /// `perform(_:)` with `.completeRegistration` presents an alert when the password hint is too long.
     @MainActor
-    func test_perform_completeRegistration_hintTooLong() async {
+    func test_perform_completeRegistration_v1_hintTooLong() async {
+        configService.featureFlagsBoolPreAuth[.accountEncryptionV2PasswordRegistration] = false
         subject.state = .fixture(passwordHintText: """
         ajajajajajajajajajajajajajajajajajajajajajajajajajajajajajajajajajajaj
         ajajajajajajajajajajajajajajajajajajajajajajajajajajajajajsjajajajajaj
@@ -437,7 +649,8 @@ class CompleteRegistrationProcessorTests: BitwardenTestCase {
 
     /// `perform(_:)` with `.completeRegistration` presents an alert when the email is in an invalid format.
     @MainActor
-    func test_perform_completeRegistration_invalidEmailFormat() async {
+    func test_perform_completeRegistration_v1_invalidEmailFormat() async {
+        configService.featureFlagsBoolPreAuth[.accountEncryptionV2PasswordRegistration] = false
         subject.state = .fixture(userEmail: "∫@ø.com")
 
         let response = HTTPResponse.failure(
@@ -461,7 +674,8 @@ class CompleteRegistrationProcessorTests: BitwardenTestCase {
     /// `perform(_:)` with `.completeRegistration` navigates to login if the create account request
     /// succeeds, but login fails.
     @MainActor
-    func test_perform_completeRegistration_loginError() async throws {
+    func test_perform_completeRegistration_v1_loginError() async throws {
+        configService.featureFlagsBoolPreAuth[.accountEncryptionV2PasswordRegistration] = false
         authService.loginWithMasterPasswordResult = .failure(BitwardenTestError.example)
         client.result = .httpSuccess(testData: .registerFinishRequest)
         subject.state = .fixture()
@@ -492,7 +706,8 @@ class CompleteRegistrationProcessorTests: BitwardenTestCase {
     /// `perform(_:)` with `.completeRegistration` navigates to login if the create account and
     /// login requests succeed, but vault unlocking fails.
     @MainActor
-    func test_perform_completeRegistration_unlockError() async throws {
+    func test_perform_completeRegistration_v1_unlockError() async throws {
+        configService.featureFlagsBoolPreAuth[.accountEncryptionV2PasswordRegistration] = false
         authRepository.unlockWithPasswordResult = .failure(BitwardenTestError.example)
         client.result = .httpSuccess(testData: .registerFinishRequest)
         subject.state = .fixture()
@@ -523,7 +738,8 @@ class CompleteRegistrationProcessorTests: BitwardenTestCase {
     /// `perform(_:)` with `.completeRegistration` presents an alert when there is no internet connection.
     /// When the user taps `Try again`, the create account request is made again.
     @MainActor
-    func test_perform_completeRegistration_noInternetConnection() async throws {
+    func test_perform_completeRegistration_v1_noInternetConnection() async throws {
+        configService.featureFlagsBoolPreAuth[.accountEncryptionV2PasswordRegistration] = false
         authService.loginWithMasterPasswordResult = .success(())
         subject.state = .fixture()
 
@@ -555,38 +771,11 @@ class CompleteRegistrationProcessorTests: BitwardenTestCase {
         )
     }
 
-    /// `perform(_:)` with `.completeRegistration` presents an alert when password confirmation is incorrect.
-    @MainActor
-    func test_perform_completeRegistration_passwordsDontMatch() async {
-        subject.state = .fixture(passwordText: "123456789012", retypePasswordText: "123456789000")
-
-        client.result = .httpSuccess(testData: .registerFinishRequest)
-
-        await subject.perform(.completeRegistration)
-
-        XCTAssertEqual(client.requests.count, 0)
-        XCTAssertEqual(coordinator.alertShown.last, .passwordsDontMatch)
-        XCTAssertTrue(coordinator.loadingOverlaysShown.isEmpty)
-    }
-
-    /// `perform(_:)` with `.completeRegistration` presents an alert when the password isn't long enough.
-    @MainActor
-    func test_perform_completeRegistration_passwordsTooShort() async {
-        subject.state = .fixture(passwordText: "123", retypePasswordText: "123")
-
-        client.result = .httpSuccess(testData: .registerFinishRequest)
-
-        await subject.perform(.completeRegistration)
-
-        XCTAssertEqual(client.requests.count, 0)
-        XCTAssertEqual(coordinator.alertShown.last, .passwordIsTooShort)
-        XCTAssertTrue(coordinator.loadingOverlaysShown.isEmpty)
-    }
-
     /// `perform(_:)` with `.completeRegistration` presents an alert when the request times out.
     /// When the user taps `Try again`, the create account request is made again.
     @MainActor
-    func test_perform_completeRegistration_timeout() async throws {
+    func test_perform_completeRegistration_v1_timeout() async throws {
+        configService.featureFlagsBoolPreAuth[.accountEncryptionV2PasswordRegistration] = false
         authService.loginWithMasterPasswordResult = .success(())
         subject.state = .fixture()
 

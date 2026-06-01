@@ -4,6 +4,7 @@ import BitwardenSdk
 import Networking
 
 @testable import AuthenticatorShared
+@testable import AuthenticatorSharedMocks
 
 extension ServiceContainer {
     static func withMocks(
@@ -16,6 +17,7 @@ extension ServiceContainer {
         cameraService: CameraService = MockCameraService(),
         clientService: ClientService = MockClientService(),
         configService: ConfigService = MockConfigService(),
+        environmentService: EnvironmentService = MockEnvironmentService(),
         cryptographyService: CryptographyService = MockCryptographyService(),
         errorReportBuilder: ErrorReportBuilder = MockErrorReportBuilder(),
         errorReporter: ErrorReporter = MockErrorReporter(),
@@ -26,9 +28,12 @@ extension ServiceContainer {
         migrationService: MigrationService = MockMigrationService(),
         notificationCenterService: NotificationCenterService = MockNotificationCenterService(),
         pasteboardService: PasteboardService = MockPasteboardService(),
+        // swiftlint:disable:next line_length
+        serverCommunicationConfigClientSingleton: ServerCommunicationConfigClientSingleton = MockServerCommunicationConfigClientSingleton(),
         stateService: StateService = MockStateService(),
         timeProvider: TimeProvider = MockTimeProvider(.currentTime),
         totpExpirationManagerFactory: TOTPExpirationManagerFactory = MockTOTPExpirationManagerFactory(),
+        totpItemDisplayStateService: TOTPItemDisplayStateService = MockTOTPItemDisplayStateService(),
         totpService: TOTPService = MockTOTPService(),
     ) -> ServiceContainer {
         ServiceContainer(
@@ -42,6 +47,7 @@ extension ServiceContainer {
             clientService: clientService,
             configService: configService,
             cryptographyService: cryptographyService,
+            environmentService: environmentService,
             errorReportBuilder: errorReportBuilder,
             errorReporter: errorReporter,
             exportItemsService: exportItemsService,
@@ -51,9 +57,11 @@ extension ServiceContainer {
             migrationService: migrationService,
             notificationCenterService: notificationCenterService,
             pasteboardService: pasteboardService,
+            serverCommunicationConfigClientSingleton: serverCommunicationConfigClientSingleton,
             stateService: stateService,
             timeProvider: timeProvider,
             totpExpirationManagerFactory: totpExpirationManagerFactory,
+            totpItemDisplayStateService: totpItemDisplayStateService,
             totpService: totpService,
         )
     }

@@ -1,6 +1,7 @@
 import BitwardenKit
 import BitwardenResources
 import BitwardenSdk
+import Combine
 import SwiftUI
 
 // swiftlint:disable file_length
@@ -19,8 +20,9 @@ final class VaultListProcessor: StateProcessor<
     typealias Services = HasApplication
         & HasAuthRepository
         & HasAuthService
+        & HasBillingRepository
+        & HasBillingService
         & HasChangeKdfService
-        & HasConfigService
         & HasEnvironmentService
         & HasErrorReporter
         & HasEventService
@@ -31,6 +33,7 @@ final class VaultListProcessor: StateProcessor<
         & HasReviewPromptService
         & HasSearchProcessorMediatorFactory
         & HasStateService
+        & HasSyncService
         & HasTimeProvider
         & HasVaultRepository
 
@@ -45,6 +48,16 @@ final class VaultListProcessor: StateProcessor<
 
     /// The helper to handle master password reprompts.
     private let masterPasswordRepromptHelper: MasterPasswordRepromptHelper
+
+    /// The helper used to navigate to the premium upgrade flow.
+    lazy var premiumUpgradeHelper: PremiumUpgradeHelper = DefaultPremiumUpgradeHelper(
+        services: services,
+        coordinator: coordinator,
+        setURL: { [weak self] url in self?.state.url = url },
+        onPendingDismiss: { [weak self] in
+            Task { @MainActor in await self?.dismissPremiumUpgradeActionCard() }
+        },
+    )
 
     /// The task that schedules the app review prompt.
     private(set) var reviewPromptTask: Task<Void, Never>?
@@ -96,28 +109,20 @@ final class VaultListProcessor: StateProcessor<
         case .appeared:
             await appeared()
         case .checkAppReviewEligibility:
-            if await services.reviewPromptService.isEligibleForReviewPrompt() {
-                await scheduleReviewPrompt()
-            } else {
-                state.isEligibleForAppReview = false
-            }
+            await checkAppReviewEligibility()
         case .dismissArchiveOnboardingActionCard:
-            state.shouldShowArchiveOnboardingActionCard = false
-            await services.stateService.setArchiveOnboardingShown(true)
+            await dismissArchiveOnboardingActionCard()
         case .dismissFlightRecorderToastBanner:
             await dismissFlightRecorderToastBanner()
         case .dismissImportLoginsActionCard:
             await setImportLoginsProgress(.setUpLater)
+        case .dismissPremiumUpgradeActionCard:
+            await dismissPremiumUpgradeActionCard()
+        case .dismissUpgradedToPremiumActionCard:
+            state.shouldShowUpgradedToPremiumActionCard = false
+            await services.billingService.setUpgradedToPremiumActionCardDismissed()
         case let .morePressed(item):
-            await vaultItemMoreOptionsHelper.showMoreOptionsAlert(
-                for: item,
-                handleDisplayToast: { [weak self] toast in
-                    self?.state.toast = toast
-                },
-                handleOpenURL: { [weak self] url in
-                    self?.state.url = url
-                },
-            )
+            await morePressed(item: item)
         case let .profileSwitcher(profileEffect):
             await handleProfileSwitcherEffect(profileEffect)
         case .refreshAccountProfiles:
@@ -133,14 +138,11 @@ final class VaultListProcessor: StateProcessor<
         case .streamOrganizations:
             await streamOrganizations()
         case .streamShowWebIcons:
-            for await value in await services.stateService.showWebIconsPublisher().values {
-                state.showWebIcons = value
-            }
+            await streamShowWebIcons()
         case .streamVaultList:
             await streamVaultList()
         case .tryAgainTapped:
-            state.loadingState = .loading(nil)
-            await appeared()
+            await tryAgainTapped()
         }
     }
 
@@ -151,11 +153,7 @@ final class VaultListProcessor: StateProcessor<
         case let .addItemPressed(type):
             addItem(type: type)
         case .appReviewPromptShown:
-            state.isEligibleForAppReview = false
-            Task {
-                await services.reviewPromptService.setReviewPromptShownVersion()
-                await services.reviewPromptService.clearUserActions()
-            }
+            handleAppReviewPromptShown()
         case .clearURL:
             state.url = nil
         case .copyTOTPCode:
@@ -166,21 +164,16 @@ final class VaultListProcessor: StateProcessor<
             coordinator.navigate(to: .group(.archive, filter: state.vaultFilterType))
         case let .itemPressed(item):
             handleItemTapped(item)
+        case .learnMoreAboutPremium:
+            state.url = ExternalLinksConstants.learnMoreAboutPremium
+            state.shouldShowUpgradedToPremiumActionCard = false
+            Task { await services.billingService.setUpgradedToPremiumActionCardDismissed() }
         case .navigateToFlightRecorderSettings:
             coordinator.navigate(to: .flightRecorderSettings)
         case let .profileSwitcher(profileAction):
             handleProfileSwitcherAction(profileAction)
         case let .searchStateChanged(isSearching: isSearching):
-            guard isSearching else {
-                state.searchText = ""
-                state.searchResults = []
-                searchProcessorMediator.stopSearching()
-                return
-            }
-            searchProcessorMediator.startSearching(mode: nil) { [weak self] data in
-                self?.searchResultsReceived(data: data)
-            }
-            state.profileSwitcherState.isVisible = !isSearching
+            searchStateChanged(isSearching: isSearching)
         case let .searchTextChanged(newValue):
             state.searchText = newValue
         case let .searchVaultFilterChanged(newValue):
@@ -192,6 +185,8 @@ final class VaultListProcessor: StateProcessor<
         case .totpCodeExpired:
             // No-op: TOTP codes aren't shown on the list view and can't be copied.
             break
+        case .upgradeToPremium:
+            upgradeToPremium()
         case let .vaultFilterChanged(newValue):
             state.vaultFilterType = newValue
         }
@@ -200,6 +195,15 @@ final class VaultListProcessor: StateProcessor<
 
 extension VaultListProcessor {
     // MARK: Private Methods
+
+    /// Handles the app review prompt shown action by updating state and clearing review data.
+    private func handleAppReviewPromptShown() {
+        state.isEligibleForAppReview = false
+        Task {
+            await services.reviewPromptService.setReviewPromptShownVersion()
+            await services.reviewPromptService.clearUserActions()
+        }
+    }
 
     /// Navigates to the add vault item screen.
     ///
@@ -232,8 +236,24 @@ extension VaultListProcessor {
 
         state.hasPremium = await services.stateService.doesActiveAccountHavePremium()
 
-        if await services.configService.getFeatureFlag(.archiveVaultItems) {
-            state.shouldShowArchiveOnboardingActionCard = await services.stateService.shouldDoArchiveOnboarding()
+        state.shouldShowArchiveOnboardingActionCard = await services.stateService.shouldDoArchiveOnboarding()
+
+        state.shouldShowUpgradedToPremiumActionCard = await services.billingService.shouldShowUpgradedToPremiumActionCard()
+
+        let isBannerDismissed = await services.stateService.isPremiumUpgradeBannerDismissed()
+        guard !isBannerDismissed else {
+            state.shouldShowPremiumUpgradeActionCard = false
+            return
+        }
+        state.shouldShowPremiumUpgradeActionCard = await services.billingRepository.isInAppUpgradeAvailable()
+    }
+
+    /// Checks if the user is eligible for an app review prompt and schedules one if so.
+    private func checkAppReviewEligibility() async {
+        if await services.reviewPromptService.isEligibleForReviewPrompt() {
+            await scheduleReviewPrompt()
+        } else {
+            state.isEligibleForAppReview = false
         }
     }
 
@@ -274,6 +294,9 @@ extension VaultListProcessor {
                 // Since the request has been handled, remove it from local storage.
                 await services.stateService.setLoginRequest(nil)
             }
+        } catch is PendingLoginRequestError {
+            // Login request no longer exists on the server (e.g., expired); clear it from state.
+            await services.stateService.setLoginRequest(nil)
         } catch {
             services.errorReporter.log(error: error)
         }
@@ -293,10 +316,26 @@ extension VaultListProcessor {
         state.itemTypesUserCanCreate = await services.vaultRepository.getItemTypesUserCanCreate()
     }
 
+    /// Dismisses the archive onboarding action card and persists the preference.
+    private func dismissArchiveOnboardingActionCard() async {
+        state.shouldShowArchiveOnboardingActionCard = false
+        await services.stateService.setArchiveOnboardingShown(true)
+    }
+
     /// Dismisses the flight recorder toast banner for the active user.
     ///
     private func dismissFlightRecorderToastBanner() async {
         await services.flightRecorder.setFlightRecorderBannerDismissed()
+    }
+
+    /// Dismisses the premium upgrade action card and persists the banner-dismissed preference.
+    private func dismissPremiumUpgradeActionCard() async {
+        do {
+            try await services.stateService.setPremiumUpgradeBannerDismissed(true)
+            state.shouldShowPremiumUpgradeActionCard = false
+        } catch {
+            services.errorReporter.log(error: error)
+        }
     }
 
     /// If the vault has ciphers which failed to decrypt, and the cipher decryption failure alert
@@ -330,8 +369,9 @@ extension VaultListProcessor {
             if !state.hasPremium, group == .archive, count == 0 {
                 coordinator.showAlert(
                     Alert.archiveUnavailable(action: { [weak self] in
-                        guard let self else { return }
-                        state.url = services.environmentService.upgradeToPremiumURL
+                        Task { [weak self] in
+                            await self?.navigateToPremiumUpgrade()
+                        }
                     }),
                 )
                 return
@@ -467,6 +507,23 @@ extension VaultListProcessor {
         state.searchResults = items
     }
 
+    /// Handles the search state change action.
+    ///
+    /// - Parameter isSearching: Whether the user has started or stopped searching.
+    ///
+    private func searchStateChanged(isSearching: Bool) {
+        guard isSearching else {
+            state.searchText = ""
+            state.searchResults = []
+            searchProcessorMediator.stopSearching()
+            return
+        }
+        searchProcessorMediator.startSearching(mode: nil) { [weak self] data in
+            self?.searchResultsReceived(data: data)
+        }
+        state.profileSwitcherState.isVisible = !isSearching
+    }
+
     /// Searches the vault using the provided string and sets to state any matching results.
     ///
     /// - Parameter searchText: The string to use when searching the vault.
@@ -524,6 +581,43 @@ extension VaultListProcessor {
         }
     }
 
+    /// Shows the more options alert for the given vault item.
+    ///
+    /// - Parameter item: The vault list item for which to show more options.
+    ///
+    private func morePressed(item: VaultListItem) async {
+        await vaultItemMoreOptionsHelper.showMoreOptionsAlert(
+            for: item,
+            handleDisplayToast: { [weak self] toast in
+                self?.state.toast = toast
+            },
+            handleNavigateToPremiumUpgrade: { [weak self] in
+                await self?.navigateToPremiumUpgrade()
+            },
+            handleOpenURL: { [weak self] url in
+                self?.state.url = url
+            },
+        )
+    }
+
+    /// Handles state updates after a premium upgrade is confirmed.
+    ///
+    private func handlePremiumUpgradeConfirmed() async {
+        await refreshVault(syncWithPeriodicCheck: false)
+        state.hasPremium = await services.stateService.doesActiveAccountHavePremium()
+        state.shouldShowPremiumUpgradeActionCard = !state.hasPremium
+        state.shouldShowUpgradedToPremiumActionCard = state.hasPremium
+    }
+
+    /// Navigates to the premium upgrade flow. Uses the in-app upgrade path when available;
+    /// otherwise opens the web vault upgrade URL as a fallback.
+    ///
+    private func navigateToPremiumUpgrade() async {
+        await premiumUpgradeHelper.navigateToPremiumUpgrade(onConfirmed: { [weak self] in
+            await self?.handlePremiumUpgradeConfirmed()
+        })
+    }
+
     /// Streams the user's account setup progress.
     ///
     private func streamAccountSetupProgress() async {
@@ -552,6 +646,13 @@ extension VaultListProcessor {
             }
         } catch {
             services.errorReporter.log(error: error)
+        }
+    }
+
+    /// Streams the web icons visibility setting and updates state accordingly.
+    private func streamShowWebIcons() async {
+        for await value in await services.stateService.showWebIconsPublisher().values {
+            state.showWebIcons = value
         }
     }
 
@@ -597,6 +698,19 @@ extension VaultListProcessor {
         } catch {
             services.errorReporter.log(error: error)
         }
+    }
+
+    /// Resets the loading state and re-runs the appeared flow.
+    private func tryAgainTapped() async {
+        state.loadingState = .loading(nil)
+        await appeared()
+    }
+
+    /// Subscribes to premium checkout status and navigates to the upgrade screen.
+    private func upgradeToPremium() {
+        premiumUpgradeHelper.startInAppPremiumUpgrade(onConfirmed: { [weak self] in
+            await self?.handlePremiumUpgradeConfirmed()
+        })
     }
 }
 
@@ -695,7 +809,7 @@ extension VaultListProcessor: ProfileSwitcherHandler {
     }
 
     func dismissProfileSwitcher() {
-        coordinator.navigate(to: .dismiss)
+        coordinator.navigate(to: .dismiss())
     }
 
     func showAddAccount() {

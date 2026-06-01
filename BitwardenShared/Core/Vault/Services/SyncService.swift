@@ -67,6 +67,17 @@ protocol SyncService: AnyObject {
     ///
     /// - Returns: A bool indicating if the user needs a sync or not.
     func needsSync(for userId: String, onlyCheckLocalData: Bool) async throws -> Bool
+
+    /// Checks if the user needs to migrate their personal vault items to an organization.
+    ///
+    /// The user needs to migrate if:
+    /// - The feature flag is enabled
+    /// - The user is a member of an organization with the Personal Ownership policy enabled
+    /// - The user has one or more items in their personal vault (including deleted items)
+    ///
+    /// - Returns: The organization ID if migration is needed, or `nil` if not.
+    ///
+    func organizationIdRequiringVaultMigration() async throws -> String?
 }
 
 extension SyncService {
@@ -86,6 +97,13 @@ extension SyncService {
 /// be taken outside of the service layer.
 ///
 protocol SyncServiceDelegate: AnyObject {
+    /// The user needs to migrate their personal vault items to the organization.
+    ///
+    /// - Parameter organizationId: The organization ID that requires the vault migration.
+    ///
+    @MainActor
+    func migrateVaultToMyItems(organizationId: String)
+
     /// Called when `fetchSync(forceSync:)` is completed successfully.
     ///
     /// - Parameter userId: The user ID of the account that was synced.
@@ -113,13 +131,6 @@ protocol SyncServiceDelegate: AnyObject {
     /// - Parameter orgIdentifier: The organization Identifier the user belongs to.
     ///
     func setMasterPassword(orgIdentifier: String) async
-
-    /// The user needs to migrate their personal vault items to the organization.
-    ///
-    /// - Parameter organizationId: The organization ID that requires the vault migration.
-    ///
-    @MainActor
-    func migrateVaultToMyItems(organizationId: String)
 }
 
 // MARK: - DefaultSyncService
@@ -127,6 +138,18 @@ protocol SyncServiceDelegate: AnyObject {
 /// A default implementation of a `SyncService` which manages syncing vault data with the API.
 ///
 class DefaultSyncService: SyncService {
+    // MARK: - PeriodicSyncTimeResult
+
+    /// The result to use when checking whether sync should be done on periodic syncing.
+    enum PeriodicSyncTimeResult {
+        /// The flow should perform a sync.
+        case shouldSync
+        /// The flow should not perform a sync.
+        case shouldNotSync
+        /// The flow should perform further checks to see if sync should be done or not.
+        case undefined
+    }
+
     // MARK: Properties
 
     /// The services used by the application to make account related API requests.
@@ -146,6 +169,9 @@ class DefaultSyncService: SyncService {
 
     /// The service to get server-specified configuration.
     private let configService: ConfigService
+
+    /// The service used by the application for recording temporary debug logs.
+    private let flightRecorder: FlightRecorder
 
     /// The service for managing the folders for the user.
     private let folderService: FolderService
@@ -194,6 +220,7 @@ class DefaultSyncService: SyncService {
     ///   - clientService: The service that handles common client functionality such as encryption and decryption.
     ///   - collectionService: The service for managing the collections for the user.
     ///   - configService: The service to get server-specified configuration.
+    ///   - flightRecorder: The service used by the application for recording temporary debug logs.
     ///   - folderService: The service for managing the folders for the user.
     ///   - keyConnectorService: The service used by the application to manage Key Connector.
     ///   - organizationService: The service for managing the organizations for the user.
@@ -213,6 +240,7 @@ class DefaultSyncService: SyncService {
         clientService: ClientService,
         collectionService: CollectionService,
         configService: ConfigService,
+        flightRecorder: FlightRecorder,
         folderService: FolderService,
         keyConnectorService: KeyConnectorService,
         organizationService: OrganizationService,
@@ -231,6 +259,7 @@ class DefaultSyncService: SyncService {
         self.clientService = clientService
         self.collectionService = collectionService
         self.configService = configService
+        self.flightRecorder = flightRecorder
         self.folderService = folderService
         self.keyConnectorService = keyConnectorService
         self.organizationService = organizationService
@@ -253,7 +282,31 @@ class DefaultSyncService: SyncService {
         )
     }
 
+    func organizationIdRequiringVaultMigration() async throws -> String? {
+        guard await configService.getFeatureFlag(.migrateMyVaultToMyItems) else {
+            return nil
+        }
+        guard let organizationId = await policyService.getEarliestOrganizationApplyingPolicy(.personalOwnership)
+        else {
+            return nil
+        }
+
+        guard try await cipherService.hasPersonalCiphers() else {
+            return nil
+        }
+
+        return organizationId
+    }
+
     // MARK: Private
+
+    /// Checks if the user needs to migrate their personal vault items to an organization
+    /// and notifies the delegate if migration is needed.
+    ///
+    private func checkUserNeedsVaultMigration() async throws {
+        guard let organizationId = try await organizationIdRequiringVaultMigration() else { return }
+        await delegate?.migrateVaultToMyItems(organizationId: organizationId)
+    }
 
     /// Determine if a full sync is necessary.
     ///
@@ -280,8 +333,19 @@ class DefaultSyncService: SyncService {
             return true
         }
 
-        if isPeriodic, lastSyncTime.addingTimeInterval(Constants.minimumSyncInterval) >= timeProvider.presentTime {
-            return false
+        if isPeriodic {
+            let shouldSyncResult = try await shouldSyncBasedOnPeriodicSyncTime(
+                lastSyncTime: lastSyncTime,
+                userId: userId,
+            )
+            switch shouldSyncResult {
+            case .shouldSync:
+                return true
+            case .shouldNotSync:
+                return false
+            default:
+                break
+            }
         }
 
         guard !onlyCheckLocalData else {
@@ -301,11 +365,55 @@ class DefaultSyncService: SyncService {
                     timeProvider.presentTime,
                     userId: userId,
                 )
+                try await stateService.setLastSyncMonotonicTime(
+                    timeProvider.monotonicTime,
+                    userId: userId,
+                )
                 return false
             }
         } catch {
             return false
         }
+    }
+
+    /// Whether sync should be done based on periodic sync time conditions.
+    /// This checks minimum sync interval using monotonic time for tamper-resistance, if possible.
+    /// - Parameters:
+    ///   - lastSyncTime: The last sync wall-clock time.
+    ///   - userId: The user ID to check whether sync is needed.
+    /// - Returns: A `PeriodicSyncTimeResult` to determine whether sync should be done, or not, or further checks
+    /// are necessary to determine that.
+    private func shouldSyncBasedOnPeriodicSyncTime(
+        lastSyncTime: Date,
+        userId: String,
+    ) async throws -> PeriodicSyncTimeResult {
+        let lastSyncMonotonic = try await stateService.getLastSyncMonotonicTime(userId: userId)
+
+        // Migration fallback: use wall-clock if monotonic time not available
+        guard let lastSyncMonotonic else {
+            if lastSyncTime.addingTimeInterval(Constants.minimumSyncInterval) >= timeProvider.presentTime {
+                return .shouldNotSync
+            }
+            return .undefined
+        }
+
+        let result = timeProvider.calculateTamperResistantElapsedTime(
+            lastMonotonicTime: lastSyncMonotonic,
+            lastWallClockTime: lastSyncTime,
+            divergenceThreshold: 15.0,
+        )
+
+        // Force sync if tampering detected (reboot or clock manipulation)
+        if result.tamperingDetected {
+            return .shouldSync
+        }
+
+        // Check if minimum interval has passed (use effective elapsed time)
+        if result.effectiveElapsed < Constants.minimumSyncInterval {
+            return .shouldNotSync
+        }
+
+        return .undefined
     }
 }
 
@@ -351,6 +459,7 @@ extension DefaultSyncService {
         try await settingsService.replaceEquivalentDomains(response.domains, userId: userId)
         try await policyService.replacePolicies(response.policies, userId: userId)
         try await stateService.setLastSyncTime(timeProvider.presentTime, userId: userId)
+        try await stateService.setLastSyncMonotonicTime(timeProvider.monotonicTime, userId: userId)
         try await checkVaultTimeoutPolicy()
         try await checkUserNeedsVaultMigration()
 
@@ -517,30 +626,6 @@ extension DefaultSyncService {
            account.profile.userDecryptionOptions?.hasMasterPassword == false {
             await delegate?.setMasterPassword(orgIdentifier: userOrgId)
         }
-    }
-
-    /// Checks if the user needs to migrate their personal vault items to an organization.
-    ///
-    /// The user needs to migrate if:
-    /// - The app is running in the main app context (not an extension)
-    /// - The feature flag is enabled
-    /// - The user is a member of an organization with the Personal Ownership policy enabled
-    /// - The user has one or more items in their personal vault (including deleted items)
-    ///
-    private func checkUserNeedsVaultMigration() async throws {
-        guard appContextHelper.appContext == .mainApp else { return }
-        guard await configService.getFeatureFlag(.migrateMyVaultToMyItems) else { return }
-        guard let organizationId = await policyService.getEarliestOrganizationApplyingPolicy(.personalOwnership)
-        else { return }
-
-        let allCiphers = try await cipherService.fetchAllCiphers()
-        let hasPersonalVaultItems = allCiphers.contains { cipher in
-            cipher.organizationId == nil
-        }
-
-        guard hasPersonalVaultItems else { return }
-
-        await delegate?.migrateVaultToMyItems(organizationId: organizationId)
     }
 
     /// Updates the necessary state when an account profile is synced.

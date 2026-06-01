@@ -12,6 +12,7 @@ class VaultItemCoordinator: NSObject, Coordinator, HasStackNavigator { // swiftl
     // MARK: Types
 
     typealias Module = AddEditFolderModule
+        & BillingModule
         & FileSelectionModule
         & GeneratorModule
         & NavigatorBuilderModule
@@ -21,7 +22,11 @@ class VaultItemCoordinator: NSObject, Coordinator, HasStackNavigator { // swiftl
     typealias Services = AuthenticatorKeyCaptureCoordinator.Services
         & GeneratorCoordinator.Services
         & HasAPIService
+        & HasAppContextHelper
         & HasAuthRepository
+        & HasBillingRepository
+        & HasBillingService
+        & HasCardTextParser
         & HasConfigService
         & HasEnvironmentService
         & HasErrorAlertServices.ErrorAlertServices
@@ -136,6 +141,8 @@ class VaultItemCoordinator: NSObject, Coordinator, HasStackNavigator { // swiftl
             showMoveToOrganization(cipher: cipher, delegate: context as? MoveToOrganizationProcessorDelegate)
         case let .passwordHistory(passwordHistory):
             showPasswordHistory(passwordHistory)
+        case .premiumUpgrade:
+            showPremiumUpgrade()
         case let .saveFile(temporaryUrl):
             showSaveFile(temporaryUrl)
         case .setupTotpManual:
@@ -406,11 +413,17 @@ class VaultItemCoordinator: NSObject, Coordinator, HasStackNavigator { // swiftl
         organizationId: String,
         delegate: MigrateToMyItemsProcessorDelegate?,
     ) {
+        let isExtension = services.appContextHelper.appContext == .appExtension
         let processor = MigrateToMyItemsProcessor(
+            appExtensionDelegate: appExtensionDelegate,
             coordinator: asAnyCoordinator(),
             delegate: delegate,
             services: services,
-            state: MigrateToMyItemsState(organizationId: organizationId),
+            state: MigrateToMyItemsState(
+                isExtension: isExtension,
+                organizationId: organizationId,
+                page: isExtension ? .extensionPrompt : .transfer,
+            ),
         )
         let view = MigrateToMyItemsView(store: Store(processor: processor))
         stackNavigator?.replace(view)
@@ -437,6 +450,15 @@ class VaultItemCoordinator: NSObject, Coordinator, HasStackNavigator { // swiftl
         let coordinator = module.makePasswordHistoryCoordinator(stackNavigator: navigationController)
         coordinator.start()
         coordinator.navigate(to: .passwordHistoryList(.item(passwordHistory)))
+        stackNavigator?.present(navigationController)
+    }
+
+    /// Shows the premium upgrade screen.
+    ///
+    private func showPremiumUpgrade() {
+        let navigationController = module.makeNavigationController()
+        let coordinator = module.makeBillingCoordinator(stackNavigator: navigationController)
+        coordinator.navigate(to: .premiumUpgrade)
         stackNavigator?.present(navigationController)
     }
 

@@ -26,6 +26,7 @@ class AutofillCredentialServiceAppExtensionTests: BitwardenTestCase { // swiftli
     var clientService: MockClientService!
     var configService: MockConfigService!
     var credentialIdentityFactory: MockCredentialIdentityFactory!
+    var deviceAuthKeyService: MockDeviceAuthKeyService!
     var errorReporter: MockErrorReporter!
     var eventService: MockEventService!
     var fido2UserInterfaceHelperDelegate: MockFido2UserInterfaceHelperDelegate!
@@ -54,6 +55,7 @@ class AutofillCredentialServiceAppExtensionTests: BitwardenTestCase { // swiftli
         clientService = MockClientService()
         configService = MockConfigService()
         credentialIdentityFactory = MockCredentialIdentityFactory()
+        deviceAuthKeyService = MockDeviceAuthKeyService()
         errorReporter = MockErrorReporter()
         eventService = MockEventService()
         fido2UserInterfaceHelperDelegate = MockFido2UserInterfaceHelperDelegate()
@@ -68,12 +70,15 @@ class AutofillCredentialServiceAppExtensionTests: BitwardenTestCase { // swiftli
         totpService = MockTOTPService()
         vaultTimeoutService = MockVaultTimeoutService()
 
+        clientService.mockPlatform.fido2Mock.vaultAuthenticatorReturnValue = MockClientFido2Authenticator()
+
         subject = DefaultAutofillCredentialService(
             appContextHelper: appContextHelper,
             cipherService: cipherService,
             clientService: clientService,
             configService: configService,
             credentialIdentityFactory: credentialIdentityFactory,
+            deviceAuthKeyService: deviceAuthKeyService,
             errorReporter: errorReporter,
             eventService: eventService,
             fido2CredentialStore: fido2CredentialStore,
@@ -98,6 +103,7 @@ class AutofillCredentialServiceAppExtensionTests: BitwardenTestCase { // swiftli
         clientService = nil
         configService = nil
         credentialIdentityFactory = nil
+        deviceAuthKeyService = nil
         errorReporter = nil
         eventService = nil
         fido2UserInterfaceHelperDelegate = nil
@@ -121,10 +127,7 @@ class AutofillCredentialServiceAppExtensionTests: BitwardenTestCase { // swiftli
         prepareDataForIdentitiesReplacement()
         stateService.activeAccount = .fixture(profile: .fixture(userId: "1"))
 
-        try await waitForAsync { [weak self] in
-            guard let self else { return false }
-            return subject.hasCipherChangesSubscription
-        }
+        try await waitForCipherChangesSubscription()
 
         // Send an upserted cipher
         cipherService.cipherChangesSubject.send(
@@ -143,6 +146,7 @@ class AutofillCredentialServiceAppExtensionTests: BitwardenTestCase { // swiftli
             return identityStore.saveCredentialIdentitiesCalled
         }
 
+        XCTAssertTrue(stateService.doesActiveAccountHavePremiumCalled)
         XCTAssertTrue(identityStore.saveCredentialIdentitiesCalled)
         XCTAssertEqual(
             identityStore.saveCredentialIdentitiesIdentities,
@@ -174,10 +178,7 @@ class AutofillCredentialServiceAppExtensionTests: BitwardenTestCase { // swiftli
                 }
             }
 
-        try await waitForAsync { [weak self] in
-            guard let self else { return false }
-            return subject.hasCipherChangesSubscription
-        }
+        try await waitForCipherChangesSubscription()
 
         // Send an upserted cipher
         cipherService.cipherChangesSubject.send(
@@ -210,10 +211,7 @@ class AutofillCredentialServiceAppExtensionTests: BitwardenTestCase { // swiftli
         prepareDataForIdentitiesReplacement()
         stateService.activeAccount = .fixture(profile: .fixture(userId: "1"))
 
-        try await waitForAsync { [weak self] in
-            guard let self else { return false }
-            return subject.hasCipherChangesSubscription
-        }
+        try await waitForCipherChangesSubscription()
 
         // Send a deleted cipher
         cipherService.cipherChangesSubject.send(
@@ -247,10 +245,7 @@ class AutofillCredentialServiceAppExtensionTests: BitwardenTestCase { // swiftli
         prepareDataForIdentitiesReplacement()
         stateService.activeAccount = .fixture(profile: .fixture(userId: "1"))
 
-        try await waitForAsync { [weak self] in
-            guard let self else { return false }
-            return subject.hasCipherChangesSubscription
-        }
+        try await waitForCipherChangesSubscription()
 
         // Send a replaced event
         cipherService.cipherChangesSubject.send(.replacedAll)
@@ -269,10 +264,7 @@ class AutofillCredentialServiceAppExtensionTests: BitwardenTestCase { // swiftli
         stateService.activeAccount = .fixture(profile: .fixture(userId: "1"))
         identityStore.state.mockIsEnabled = false
 
-        try await waitForAsync { [weak self] in
-            guard let self else { return false }
-            return subject.hasCipherChangesSubscription
-        }
+        try await waitForCipherChangesSubscription()
 
         // Send an upserted cipher
         cipherService.cipherChangesSubject.send(
@@ -298,10 +290,7 @@ class AutofillCredentialServiceAppExtensionTests: BitwardenTestCase { // swiftli
         stateService.activeAccount = .fixture(profile: .fixture(userId: "1"))
         identityStore.state.mockSupportsIncrementalUpdates = false
 
-        try await waitForAsync { [weak self] in
-            guard let self else { return false }
-            return subject.hasCipherChangesSubscription
-        }
+        try await waitForCipherChangesSubscription()
 
         // Send an upserted cipher
         cipherService.cipherChangesSubject.send(
@@ -418,5 +407,18 @@ class AutofillCredentialServiceAppExtensionTests: BitwardenTestCase { // swiftli
                     []
                 }
             }
+    }
+
+    /// Waits until the cipher changes subscription is established.
+    private func waitForCipherChangesSubscription() async throws {
+        try await waitForAsync { [weak self] in
+            guard let self else { return false }
+            return subject.hasCipherChangesSubscription
+        }
+        // `hasCipherChangesSubscription` is set immediately before the `for try await` loop, but the
+        // actual Combine subscription isn't registered until the iterator's first `next()` call.
+        // Wait long enough for the subscription to be established, otherwise receiving the first
+        // value from the subscription can be unreliable.
+        try? await Task.sleep(forSeconds: 0.01)
     }
 }

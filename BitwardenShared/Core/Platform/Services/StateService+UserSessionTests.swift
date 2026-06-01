@@ -28,6 +28,9 @@ class StateServiceUserSessionTests: BitwardenTestCase {
         dataStore = DataStore(errorReporter: MockErrorReporter(), storeType: .memory)
         errorReporter = MockErrorReporter()
         keychainRepository = MockKeychainRepository()
+        keychainRepository.getUserAuthKeyValueThrowableError = KeychainServiceError.keyNotFound(
+            BitwardenKeychainItem.neverLock(userId: "1"),
+        )
         userSessionKeychainRepository = MockUserSessionKeychainRepository()
 
         subject = DefaultStateService(
@@ -35,6 +38,7 @@ class StateServiceUserSessionTests: BitwardenTestCase {
             dataStore: dataStore,
             errorReporter: errorReporter,
             keychainRepository: keychainRepository,
+            timeProvider: CurrentTime(),
             userSessionKeychainRepository: userSessionKeychainRepository,
         )
     }
@@ -74,6 +78,68 @@ class StateServiceUserSessionTests: BitwardenTestCase {
         XCTAssertEqual(actual?.date, date)
     }
 
+    // MARK: Last Active Monotonic Time
+
+    /// `getLastActiveMonotonicTime(userId:)` returns the last active monotonic time for a user.
+    func test_getLastActiveMonotonicTime() async throws {
+        let account = Account.fixture()
+        await subject.addAccount(account)
+
+        let expectedMonotonicTime: TimeInterval = 12345.67
+        userSessionKeychainRepository.getLastActiveMonotonicTimeReturnValue = expectedMonotonicTime
+
+        let monotonicTime = try await subject.getLastActiveMonotonicTime(userId: account.profile.userId)
+        XCTAssertEqual(monotonicTime, expectedMonotonicTime)
+        XCTAssertEqual(userSessionKeychainRepository.getLastActiveMonotonicTimeReceivedUserId, account.profile.userId)
+    }
+
+    /// `getLastActiveMonotonicTime(userId:)` returns nil when no monotonic time is stored.
+    func test_getLastActiveMonotonicTime_nil() async throws {
+        let account = Account.fixture()
+        await subject.addAccount(account)
+
+        userSessionKeychainRepository.getLastActiveMonotonicTimeReturnValue = nil
+
+        let monotonicTime = try await subject.getLastActiveMonotonicTime(userId: nil)
+        XCTAssertNil(monotonicTime)
+        XCTAssertEqual(userSessionKeychainRepository.getLastActiveMonotonicTimeReceivedUserId, account.profile.userId)
+    }
+
+    /// `getLastActiveMonotonicTime(userId:)` throws an error if there's no active account.
+    func test_getLastActiveMonotonicTime_noActiveAccount() async throws {
+        await assertAsyncThrows(error: StateServiceError.noActiveAccount) {
+            _ = try await subject.getLastActiveMonotonicTime(userId: nil)
+        }
+    }
+
+    /// `getLastSyncMonotonicTime(userId:)` returns the last sync monotonic time for a user.
+    func test_getLastSyncMonotonicTime() async throws {
+        let account = Account.fixture()
+        await subject.addAccount(account)
+
+        let expectedMonotonicTime: TimeInterval = 98765.43
+        appSettingsStore.lastSyncMonotonicTimeByUserId[account.profile.userId] = expectedMonotonicTime
+
+        let monotonicTime = try await subject.getLastSyncMonotonicTime(userId: account.profile.userId)
+        XCTAssertEqual(monotonicTime, expectedMonotonicTime)
+    }
+
+    /// `getLastSyncMonotonicTime(userId:)` returns nil when no monotonic time is stored.
+    func test_getLastSyncMonotonicTime_nil() async throws {
+        let account = Account.fixture()
+        await subject.addAccount(account)
+
+        let monotonicTime = try await subject.getLastSyncMonotonicTime(userId: nil)
+        XCTAssertNil(monotonicTime)
+    }
+
+    /// `getLastSyncMonotonicTime(userId:)` throws an error if there's no active account.
+    func test_getLastSyncMonotonicTime_noActiveAccount() async throws {
+        await assertAsyncThrows(error: StateServiceError.noActiveAccount) {
+            _ = try await subject.getLastSyncMonotonicTime(userId: nil)
+        }
+    }
+
     // MARK: Unsuccessful Unlock Attempts
 
     /// `getUnsuccessfulUnlockAttempts(userId:)` gets the unsuccessful unlock attempts for the account.
@@ -88,7 +154,7 @@ class StateServiceUserSessionTests: BitwardenTestCase {
 
     /// `getUnsuccessfulUnlockAttempts(userId:)` returns `0` if no value is stored.
     func test_getUnsuccessfulUnlockAttempts_default() async throws {
-        let item = KeychainItem.unsuccessfulUnlockAttempts(userId: "1")
+        let item = BitwardenKeychainItem.unsuccessfulUnlockAttempts(userId: "1")
         let error = KeychainServiceError.keyNotFound(item)
         userSessionKeychainRepository.getUnsuccessfulUnlockAttemptsThrowableError = error
 
@@ -127,7 +193,7 @@ class StateServiceUserSessionTests: BitwardenTestCase {
 
     /// `.getVaultTimeout(userId:)` gets the default vault timeout for the user if a value isn't set.
     func test_getVaultTimeout_default() async throws {
-        let item = KeychainItem.vaultTimeout(userId: "1")
+        let item = BitwardenKeychainItem.vaultTimeout(userId: "1")
         userSessionKeychainRepository.getVaultTimeoutThrowableError = KeychainServiceError.keyNotFound(item)
 
         await subject.addAccount(.fixture(profile: .fixture(userId: "1")))
@@ -138,9 +204,10 @@ class StateServiceUserSessionTests: BitwardenTestCase {
 
     /// `.getVaultTimeout(userId:)` gets the user's vault timeout when it's set to never lock.
     func test_getVaultTimeout_neverLock() async throws {
-        let item = KeychainItem.vaultTimeout(userId: "1")
+        let item = BitwardenKeychainItem.vaultTimeout(userId: "1")
         userSessionKeychainRepository.getVaultTimeoutThrowableError = KeychainServiceError.keyNotFound(item)
-        keychainRepository.mockStorage[keychainRepository.formattedKey(for: .neverLock(userId: "1"))] = "NEVER_LOCK_KEY"
+        keychainRepository.getUserAuthKeyValueThrowableError = nil
+        keychainRepository.getUserAuthKeyValueReturnValue = "NEVER_LOCK_KEY"
 
         await subject.addAccount(.fixture(profile: .fixture(userId: "1")))
 

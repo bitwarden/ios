@@ -21,6 +21,14 @@ public struct DebugMenuView: View {
                 featureFlagSectionHeader
             }
             Section {
+                ssoCookiesSection
+            } header: {
+                Text("SSO cookies")
+            }
+
+            userIDSection
+
+            Section {
                 errorReportSection
             } header: {
                 Text("Error reports")
@@ -37,6 +45,10 @@ public struct DebugMenuView: View {
         .task {
             await store.perform(.viewAppeared)
         }
+        .toast(store.binding(
+            get: \.toast,
+            send: DebugMenuAction.toastShown,
+        ))
     }
 
     /// The error reports section.
@@ -90,6 +102,33 @@ public struct DebugMenuView: View {
                 Image(systemName: "arrow.clockwise")
             }
             .accessibilityLabel("RefreshFeatureFlagsButton")
+        }
+    }
+
+    /// The SSO cookies section.
+    private var ssoCookiesSection: some View {
+        AsyncButton {
+            await store.perform(.clearSsoCookies)
+        } label: {
+            Text(Localizations.clearSsoCookies)
+        }
+        .accessibilityIdentifier("ClearSsoCookiesButton")
+    }
+
+    /// The section displaying the user ID
+    private var userIDSection: some View {
+        Section {
+            Button {
+                store.send(.copyUserID)
+            } label: {
+                Text(Localizations.copyUserID)
+            }
+            .accessibilityIdentifier("CopyUserIdToClipboardButton")
+        } header: {
+            Text("\(Localizations.userID): \(store.state.userID ?? Localizations.userIDUnavailable)")
+                .truncationMode(.middle)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .lineLimit(1)
         }
     }
 }
