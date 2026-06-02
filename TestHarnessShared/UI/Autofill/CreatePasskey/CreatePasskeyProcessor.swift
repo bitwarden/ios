@@ -16,6 +16,8 @@ class CreatePasskeyProcessor: StateProcessor<
 
     typealias Services = HasErrorReporter
 
+    typealias PerformRegistration = (_ rpId: String, _ userName: String, _ displayName: String) async throws -> Void
+
     // MARK: Private Properties
 
     /// The coordinator that handles navigation.
@@ -32,7 +34,7 @@ class CreatePasskeyProcessor: StateProcessor<
     ///   - rpId: The relying party identifier.
     ///   - userName: The username for the credential.
     ///   - displayName: The display name for the credential.
-    var performRegistration: (String, String, String) async throws -> Void
+    var performRegistration: PerformRegistration
 
     // MARK: Initialization
 
@@ -48,9 +50,9 @@ class CreatePasskeyProcessor: StateProcessor<
     ) {
         self.coordinator = coordinator
         self.delegate = delegate
-        // Placeholder replaced after super.init so [weak self] is available.
         performRegistration = { _, _, _ in throw PasskeyRegistrationError.notAvailable }
         super.init(state: CreatePasskeyState())
+
         performRegistration = { [weak self] rpId, userName, displayName in
             try await self?.performPasskeyRegistration(
                 rpId: rpId,
