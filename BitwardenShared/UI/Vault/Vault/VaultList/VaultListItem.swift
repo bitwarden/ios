@@ -219,6 +219,8 @@ extension VaultListItem {
                 "FolderCell"
             case .card:
                 "CardCell"
+            case .driversLicense:
+                "DriversLicenseCell"
             case .identity:
                 "IdentityCell"
             case .login:
