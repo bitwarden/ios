@@ -15,6 +15,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
 
     var accountAPIService: APIService!
     var appContextHelper: MockAppContextHelper!
+    var appIDSettingsStore: MockAppIDSettingsStore!
     var authService: MockAuthService!
     var biometricsRepository: MockBiometricsRepository!
     var changeKdfService: MockChangeKdfService!
@@ -98,6 +99,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         super.setUp()
 
         appContextHelper = MockAppContextHelper()
+        appIDSettingsStore = MockAppIDSettingsStore()
         client = MockHTTPClient()
         clientService = MockClientService()
         accountAPIService = APIService(client: client)
@@ -137,6 +139,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         subject = DefaultAuthRepository(
             accountAPIService: accountAPIService,
             appContextHelper: appContextHelper,
+            appIDService: AppIDService(appIDSettingsStore: appIDSettingsStore),
             authService: authService,
             biometricsRepository: biometricsRepository,
             changeKdfService: changeKdfService,
@@ -164,6 +167,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
 
         accountAPIService = nil
         appContextHelper = nil
+        appIDSettingsStore = nil
         authService = nil
         biometricsRepository = nil
         changeKdfService = nil
@@ -254,7 +258,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
     }
 
     /// `createNewSsoUser()` creates a new account for sso JIT user and trust device.
-    func test_createNewSsoUser_remember() async throws {
+    func test_createNewSsoUser_v1_remember() async throws {
         let registerTdeInput = RegisterTdeKeyResponse(
             privateKey: "privateKey",
             publicKey: "publicKey",
@@ -292,7 +296,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
     }
 
     /// `createNewSsoUser()` creates a new account for sso JIT user and don't trust device.
-    func test_createNewSsoUser_notRemember() async throws {
+    func test_createNewSsoUser_v1_notRemember() async throws {
         let registerTdeInput = RegisterTdeKeyResponse(
             privateKey: "privateKey",
             publicKey: "publicKey",
@@ -328,7 +332,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
     }
 
     /// `createNewSsoUser()` stores the accountKeys from the setAccountKeys response.
-    func test_createNewSsoUser_withAccountKeys() async throws {
+    func test_createNewSsoUser_v1_withAccountKeys() async throws {
         let registerTdeInput = RegisterTdeKeyResponse(
             privateKey: "privateKey",
             publicKey: "publicKey",
@@ -360,6 +364,116 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
                 encryptedUserKey: nil,
             ),
         )
+    }
+
+    /// `createNewSsoUser()` creates a new SSO JIT user account and trusts the device.
+    func test_createNewSsoUser_remember() async throws {
+        appIDSettingsStore.appID = "TEST_DEVICE_ID"
+        client.results = [
+            .httpSuccess(testData: .organizationAutoEnrollStatus),
+            .httpSuccess(testData: .organizationKeys),
+        ]
+        configService.featureFlagsBool[.accountEncryptionV2TDE] = true
+        stateService.activeAccount = Account.fixture()
+        let mockRegistrationClient = MockRegistrationClientProtocol()
+        mockRegistrationClient.postKeysForTdeRegistrationReturnValue = TdeRegistrationResponse(
+            accountCryptographicState: .fixtureV2(),
+            deviceKey: "DEVICE_KEY",
+            userKey: "USER_KEY",
+        )
+        clientService.mockAuth.registrationReturnValue = mockRegistrationClient
+
+        try await subject.createNewSsoUser(orgIdentifier: "Bitwarden", rememberDevice: true)
+
+        let request = try XCTUnwrap(mockRegistrationClient.postKeysForTdeRegistrationReceivedRequest)
+        XCTAssertEqual(request.orgId, "af0d946f-8a7c-41eb-af0e-4b2e4e9fb8f5")
+        XCTAssertEqual(request.orgPublicKey, "MIIBIjAN...2QIDAQAB")
+        XCTAssertEqual(request.userId, "1")
+        XCTAssertEqual(request.deviceIdentifier, "TEST_DEVICE_ID")
+        XCTAssertTrue(request.trustDevice)
+        XCTAssertEqual(
+            stateService.accountEncryptionKeys["1"],
+            AccountEncryptionKeys(
+                cryptographicState: .fixtureV2(),
+                encryptedUserKey: nil,
+            ),
+        )
+        XCTAssertEqual(keychainService.setDeviceKeyReceivedArguments?.value, "DEVICE_KEY")
+        XCTAssertEqual(keychainService.setDeviceKeyReceivedArguments?.userId, "1")
+        XCTAssertEqual(
+            clientService.mockCrypto.initializeUserCryptoReceivedReq,
+            InitUserCryptoRequest(
+                userId: "1",
+                kdfParams: Account.fixture().kdf.sdkKdf,
+                email: "user@bitwarden.com",
+                accountCryptographicState: .fixtureV2(),
+                method: .decryptedKey(decryptedUserKey: "USER_KEY"),
+                upgradeToken: nil,
+            ),
+        )
+    }
+
+    /// `createNewSsoUser()` creates a new SSO JIT user account without trusting the device.
+    func test_createNewSsoUser_notRemember() async throws {
+        appIDSettingsStore.appID = "TEST_DEVICE_ID"
+        client.results = [
+            .httpSuccess(testData: .organizationAutoEnrollStatus),
+            .httpSuccess(testData: .organizationKeys),
+        ]
+        configService.featureFlagsBool[.accountEncryptionV2TDE] = true
+        stateService.activeAccount = Account.fixture()
+        let mockRegistrationClient = MockRegistrationClientProtocol()
+        mockRegistrationClient.postKeysForTdeRegistrationReturnValue = TdeRegistrationResponse(
+            accountCryptographicState: .fixtureV2(),
+            deviceKey: "DEVICE_KEY",
+            userKey: "USER_KEY",
+        )
+        clientService.mockAuth.registrationReturnValue = mockRegistrationClient
+
+        try await subject.createNewSsoUser(orgIdentifier: "Bitwarden", rememberDevice: false)
+
+        let request = try XCTUnwrap(mockRegistrationClient.postKeysForTdeRegistrationReceivedRequest)
+        XCTAssertFalse(request.trustDevice)
+        XCTAssertEqual(
+            stateService.accountEncryptionKeys["1"],
+            AccountEncryptionKeys(
+                cryptographicState: .fixtureV2(),
+                encryptedUserKey: nil,
+            ),
+        )
+        XCTAssertFalse(keychainService.setDeviceKeyCalled)
+        XCTAssertEqual(
+            clientService.mockCrypto.initializeUserCryptoReceivedReq,
+            InitUserCryptoRequest(
+                userId: "1",
+                kdfParams: Account.fixture().kdf.sdkKdf,
+                email: "user@bitwarden.com",
+                accountCryptographicState: .fixtureV2(),
+                method: .decryptedKey(decryptedUserKey: "USER_KEY"),
+                upgradeToken: nil,
+            ),
+        )
+    }
+
+    /// `createNewSsoUser()` rethrows an error from the SDK registration call without storing any keys.
+    func test_createNewSsoUser_registrationError() async throws {
+        client.results = [
+            .httpSuccess(testData: .organizationAutoEnrollStatus),
+            .httpSuccess(testData: .organizationKeys),
+        ]
+        configService.featureFlagsBool[.accountEncryptionV2TDE] = true
+        stateService.activeAccount = Account.fixture()
+        let mockRegistrationClient = MockRegistrationClientProtocol()
+        mockRegistrationClient.postKeysForTdeRegistrationThrowableError = BitwardenTestError.example
+        clientService.mockAuth.registrationReturnValue = mockRegistrationClient
+
+        await assertAsyncThrows(error: BitwardenTestError.example) {
+            try await subject.createNewSsoUser(orgIdentifier: "Bitwarden", rememberDevice: true)
+        }
+
+        XCTAssertNil(stateService.accountEncryptionKeys["1"])
+        XCTAssertFalse(keychainService.setDeviceKeyCalled)
+        XCTAssertFalse(clientService.mockCrypto.initializeUserCryptoCalled)
     }
 
     /// `deleteAccount()` deletes the active account and removes it from the state.

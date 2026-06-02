@@ -13,6 +13,9 @@ extension FeatureFlag: @retroactive CaseIterable {
     /// Flag to enable/disable V2 password-based registration using the SDK registration client.
     static let accountEncryptionV2PasswordRegistration = FeatureFlag(rawValue: "pm-27278-v2-password-registration")
 
+    /// A feature flag to enable/disable V2 account encryption for TDE.
+    static let accountEncryptionV2TDE = FeatureFlag(rawValue: "pm-27279-v2-registration-tde-jit")
+
     /// A feature flag to enable/disable scanning a card to autocomplete its details in add/edit cipher.
     static let cardScanner = FeatureFlag(rawValue: "pm-34171-card-scanner")
 
@@ -49,6 +52,7 @@ extension FeatureFlag: @retroactive CaseIterable {
         [
             .accountEncryptionV2JITPassword,
             .accountEncryptionV2PasswordRegistration,
+            .accountEncryptionV2TDE,
             .cardScanner,
             .cipherKeyEncryption,
             .debugDisableSelfHostPremiumCheck,
