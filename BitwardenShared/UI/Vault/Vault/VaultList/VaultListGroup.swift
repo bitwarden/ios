@@ -79,7 +79,7 @@ extension VaultListGroup {
         case .archive:
             Localizations.archive
         case .bankAccount:
-            Localizations.bankAccount
+            Localizations.typeBankAccount
         case .card:
             Localizations.typeCard
         case let .collection(_, name, _):

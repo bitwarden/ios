@@ -202,6 +202,7 @@
 "SecurityCode" = "Security code";
 "AccountNumber" = "Account number";
 "RoutingNumber" = "Routing number";
+"TypeBankAccount" = "Bank account";
 "TypeCard" = "Card";
 "TypeIdentity" = "Identity";
 "TypeLicense" = "License";

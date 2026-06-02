@@ -58,7 +58,7 @@ class VaultListGroupTests: BitwardenTestCase {
 
     /// `name` returns the display name of the group.
     func test_name() {
-        XCTAssertEqual(VaultListGroup.bankAccount.name, Localizations.bankAccount)
+        XCTAssertEqual(VaultListGroup.bankAccount.name, Localizations.typeBankAccount)
         XCTAssertEqual(VaultListGroup.card.name, "Card")
         XCTAssertEqual(
             VaultListGroup.collection(id: "", name: "Collection 🗂️", organizationId: "1").name,
