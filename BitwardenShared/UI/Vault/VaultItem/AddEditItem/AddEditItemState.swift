@@ -32,6 +32,9 @@ protocol AddEditItemState: Sendable {
     /// The Cipher underpinning the state
     var cipher: CipherView { get }
 
+    /// The driver's license item state.
+    var driversLicenseItemState: DriversLicenseItemState { get set }
+
     /// The list of collection IDs that the cipher is included in.
     var collectionIds: [String] { get set }
 

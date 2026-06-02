@@ -535,6 +535,156 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
         XCTAssertEqual(processor.dispatchedActions.last, .identityFieldChanged(.countryChanged("text")))
     }
 
+    // MARK: Driver's License
+
+    /// Updating the first name field dispatches the `.driversLicenseFieldChanged(.firstNameChanged())` action.
+    @MainActor
+    func test_driversLicense_firstNameTextField_updateValue() throws {
+        processor.state.type = .driversLicense
+        let textField = try subject.inspect().find(bitwardenTextField: Localizations.firstName)
+        try textField.inputBinding().wrappedValue = "text"
+        XCTAssertEqual(processor.dispatchedActions.last, .driversLicenseFieldChanged(.firstNameChanged("text")))
+    }
+
+    /// Updating the middle name field dispatches the `.driversLicenseFieldChanged(.middleNameChanged())` action.
+    @MainActor
+    func test_driversLicense_middleNameTextField_updateValue() throws {
+        processor.state.type = .driversLicense
+        let textField = try subject.inspect().find(bitwardenTextField: Localizations.middleName)
+        try textField.inputBinding().wrappedValue = "text"
+        XCTAssertEqual(processor.dispatchedActions.last, .driversLicenseFieldChanged(.middleNameChanged("text")))
+    }
+
+    /// Updating the last name field dispatches the `.driversLicenseFieldChanged(.lastNameChanged())` action.
+    @MainActor
+    func test_driversLicense_lastNameTextField_updateValue() throws {
+        processor.state.type = .driversLicense
+        let textField = try subject.inspect().find(bitwardenTextField: Localizations.lastName)
+        try textField.inputBinding().wrappedValue = "text"
+        XCTAssertEqual(processor.dispatchedActions.last, .driversLicenseFieldChanged(.lastNameChanged("text")))
+    }
+
+    /// Updating the license number field dispatches the
+    /// `.driversLicenseFieldChanged(.licenseNumberChanged())` action.
+    @MainActor
+    func test_driversLicense_licenseNumberTextField_updateValue() throws {
+        processor.state.type = .driversLicense
+        let textField = try subject.inspect().find(bitwardenTextField: Localizations.licenseNumber)
+        try textField.inputBinding().wrappedValue = "text"
+        XCTAssertEqual(processor.dispatchedActions.last, .driversLicenseFieldChanged(.licenseNumberChanged("text")))
+    }
+
+    /// Updating the issuing country field dispatches the
+    /// `.driversLicenseFieldChanged(.issuingCountryChanged())` action.
+    @MainActor
+    func test_driversLicense_issuingCountryTextField_updateValue() throws {
+        processor.state.type = .driversLicense
+        let textField = try subject.inspect().find(bitwardenTextField: Localizations.issuingCountry)
+        try textField.inputBinding().wrappedValue = "text"
+        XCTAssertEqual(processor.dispatchedActions.last, .driversLicenseFieldChanged(.issuingCountryChanged("text")))
+    }
+
+    /// Updating the issuing state field dispatches the
+    /// `.driversLicenseFieldChanged(.issuingStateChanged())` action.
+    @MainActor
+    func test_driversLicense_issuingStateTextField_updateValue() throws {
+        processor.state.type = .driversLicense
+        let textField = try subject.inspect().find(bitwardenTextField: Localizations.issuingStateProvince)
+        try textField.inputBinding().wrappedValue = "text"
+        XCTAssertEqual(processor.dispatchedActions.last, .driversLicenseFieldChanged(.issuingStateChanged("text")))
+    }
+
+    /// Updating the issuing authority field dispatches the
+    /// `.driversLicenseFieldChanged(.issuingAuthorityChanged())` action.
+    @MainActor
+    func test_driversLicense_issuingAuthorityTextField_updateValue() throws {
+        processor.state.type = .driversLicense
+        let textField = try subject.inspect().find(bitwardenTextField: Localizations.issuingAuthority)
+        try textField.inputBinding().wrappedValue = "text"
+        XCTAssertEqual(
+            processor.dispatchedActions.last,
+            .driversLicenseFieldChanged(.issuingAuthorityChanged("text")),
+        )
+    }
+
+    /// Updating the license class field dispatches the
+    /// `.driversLicenseFieldChanged(.licenseClassChanged())` action.
+    @MainActor
+    func test_driversLicense_licenseClassTextField_updateValue() throws {
+        processor.state.type = .driversLicense
+        let textField = try subject.inspect().find(bitwardenTextField: Localizations.licenseClass)
+        try textField.inputBinding().wrappedValue = "text"
+        XCTAssertEqual(processor.dispatchedActions.last, .driversLicenseFieldChanged(.licenseClassChanged("text")))
+    }
+
+    /// Tapping the license number visibility button dispatches the
+    /// `.driversLicenseFieldChanged(.toggleLicenseNumberVisibilityChanged())` action when the number is not visible.
+    @MainActor
+    func test_driversLicense_licenseNumberVisibilityButton_tap_whenNotVisible() throws {
+        processor.state.type = .driversLicense
+        processor.state.driversLicenseItemState.isLicenseNumberVisible = false
+        let button = try subject.inspect()
+            .find(bitwardenTextField: Localizations.licenseNumber)
+            .find(buttonWithAccessibilityLabel: Localizations.passwordIsNotVisibleTapToShow)
+        try button.tap()
+        XCTAssertEqual(
+            processor.dispatchedActions.last,
+            .driversLicenseFieldChanged(.toggleLicenseNumberVisibilityChanged(true)),
+        )
+    }
+
+    /// Tapping the license number visibility button dispatches the
+    /// `.driversLicenseFieldChanged(.toggleLicenseNumberVisibilityChanged())` action when the number is visible.
+    @MainActor
+    func test_driversLicense_licenseNumberVisibilityButton_tap_whenVisible() throws {
+        processor.state.type = .driversLicense
+        processor.state.driversLicenseItemState.isLicenseNumberVisible = true
+        let button = try subject.inspect()
+            .find(bitwardenTextField: Localizations.licenseNumber)
+            .find(buttonWithAccessibilityLabel: Localizations.passwordIsVisibleTapToHide)
+        try button.tap()
+        XCTAssertEqual(
+            processor.dispatchedActions.last,
+            .driversLicenseFieldChanged(.toggleLicenseNumberVisibilityChanged(false)),
+        )
+    }
+
+    /// The date of birth field is read-only and renders the long-date display string.
+    @MainActor
+    func test_driversLicense_dateOfBirthField_isDisabledAndShowsDisplayString() throws {
+        processor.state.type = .driversLicense
+        processor.state.driversLicenseItemState.dateOfBirth = "1989-08-01"
+        let expected = processor.state.driversLicenseItemState.dateOfBirthDisplay
+
+        let textField = try subject.inspect().find(bitwardenTextField: Localizations.dateOfBirth)
+        XCTAssertEqual(try textField.inputBinding().wrappedValue, expected)
+        XCTAssertTrue(expected.contains("1989"))
+    }
+
+    /// The issue date field is read-only and renders the long-date display string.
+    @MainActor
+    func test_driversLicense_issueDateField_isDisabledAndShowsDisplayString() throws {
+        processor.state.type = .driversLicense
+        processor.state.driversLicenseItemState.issueDate = "2019-08-01"
+        let expected = processor.state.driversLicenseItemState.issueDateDisplay
+
+        let textField = try subject.inspect().find(bitwardenTextField: Localizations.issueDate)
+        XCTAssertEqual(try textField.inputBinding().wrappedValue, expected)
+        XCTAssertTrue(expected.contains("2019"))
+    }
+
+    /// The expiration date field is read-only and renders the long-date display string.
+    @MainActor
+    func test_driversLicense_expirationDateField_isDisabledAndShowsDisplayString() throws {
+        processor.state.type = .driversLicense
+        processor.state.driversLicenseItemState.expirationDate = "2029-08-01"
+        let expected = processor.state.driversLicenseItemState.expirationDateDisplay
+
+        let textField = try subject.inspect().find(bitwardenTextField: Localizations.expirationDate)
+        XCTAssertEqual(try textField.inputBinding().wrappedValue, expected)
+        XCTAssertTrue(expected.contains("2029"))
+    }
+
     // MARK: Private
 
     /// Creates a `CipherItemState` for an SSH key item.

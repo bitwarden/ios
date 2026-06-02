@@ -39,6 +39,9 @@ struct CipherItemState: Equatable { // swiftlint:disable:this type_body_length
     /// The card item state.
     var cardItemState = CardItemState()
 
+    /// The driver's license item state.
+    var driversLicenseItemState = DriversLicenseItemState()
+
     /// The list of collection IDs that the cipher is included in.
     var collectionIds: [String]
 
@@ -442,6 +445,7 @@ struct CipherItemState: Equatable { // swiftlint:disable:this type_body_length
         }
 
         cardItemState = cipherView.cardItemState()
+        driversLicenseItemState = cipherView.driversLicenseItemState()
         collectionIds = cipherView.collectionIds
         customFieldsState = AddEditCustomFieldsState(cipherType: type, customFields: cipherView.customFields)
         folderId = cipherView.folderId
@@ -651,7 +655,7 @@ extension CipherItemState {
             secureNote: type == .secureNote ? .init(type: .generic) : nil,
             sshKey: type == .sshKey ? sshKeyState.sshKeyView : nil,
             bankAccount: nil, // TODO: PM-32809
-            driversLicense: nil, // TODO: PM-32807
+            driversLicense: type == .driversLicense ? driversLicenseItemState.driversLicenseView : nil,
             passport: nil, // TODO: PM-32805
             favorite: isFavoriteOn,
             reprompt: isMasterPasswordRePromptOn ? .password : .none,
