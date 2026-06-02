@@ -11,7 +11,7 @@ class MockAutofillAppExtensionDelegate: MockAppExtensionDelegate, AutofillAppExt
     var completeOTPRequestCodeCalled: String?
     var completeRegistrationRequestMocker = InvocationMocker<ASPasskeyRegistrationCredential>()
     var completeTextRequestTextToInsert: String?
-    var extensionMode: AutofillExtensionMode = .configureAutofill
+    var extensionMode: CredentialProviderMode = .configureAutofill
     var didAppearPublisher = CurrentValueSubject<Bool, Never>(false)
     var setUserInteractionRequiredCalled = false
 

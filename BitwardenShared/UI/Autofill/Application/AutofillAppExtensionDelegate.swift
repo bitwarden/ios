@@ -6,7 +6,7 @@ import Combine
 @MainActor
 public protocol AutofillAppExtensionDelegate: AppExtensionDelegate {
     /// The mode in which the autofill extension is running.
-    var extensionMode: AutofillExtensionMode { get }
+    var extensionMode: CredentialProviderMode { get }
 
     /// Whether the current flow is being executed with user interaction.
     var flowWithUserInteraction: Bool { get }
