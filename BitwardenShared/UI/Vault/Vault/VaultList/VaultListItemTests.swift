@@ -317,27 +317,40 @@ class VaultListItemTests: BitwardenTestCase { // swiftlint:disable:this type_bod
 
         XCTAssertEqual(
             VaultListItem(id: "", itemType: .group(.login, 1)).vaultItemAccessibilityId,
-            "ItemFilterCell",
+            "LoginCell",
         )
         XCTAssertEqual(
             VaultListItem(id: "", itemType: .group(.card, 1)).vaultItemAccessibilityId,
-            "ItemFilterCell",
+            "CardCell",
         )
         XCTAssertEqual(
             VaultListItem(id: "", itemType: .group(.identity, 1)).vaultItemAccessibilityId,
-            "ItemFilterCell",
+            "IdentityCell",
         )
         XCTAssertEqual(
             VaultListItem(id: "", itemType: .group(.secureNote, 1)).vaultItemAccessibilityId,
-            "ItemFilterCell",
+            "SecureNoteCell",
         )
         XCTAssertEqual(
             VaultListItem(id: "", itemType: .group(.sshKey, 1)).vaultItemAccessibilityId,
-            "ItemFilterCell",
+            "SSHKeyCell",
         )
         XCTAssertEqual(
             VaultListItem(id: "", itemType: .group(.totp, 1)).vaultItemAccessibilityId,
+            "TOTPCell",
+        )
+        XCTAssertEqual(
+            VaultListItem(id: "", itemType: .group(.noFolder, 1)).vaultItemAccessibilityId,
             "ItemFilterCell",
+        )
+
+        XCTAssertEqual(
+            VaultListItem(id: "", itemType: .group(.archive, 1)).vaultItemAccessibilityId,
+            "ArchiveCell",
+        )
+        XCTAssertEqual(
+            VaultListItem(id: "", itemType: .group(.trash, 1)).vaultItemAccessibilityId,
+            "TrashCell",
         )
     }
 

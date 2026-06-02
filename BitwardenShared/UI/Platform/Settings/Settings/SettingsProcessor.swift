@@ -97,7 +97,8 @@ final class SettingsProcessor: StateProcessor<SettingsState, SettingsAction, Set
             let isSelfHosted = await services.billingService.isSelfHosted()
             state.hasPremium = hasPremium
             state.showPlanRow = featureEnabled && !isSelfHosted
-            state.shouldShowUpgradedToPremiumActionCard = await services.billingService.shouldShowUpgradedToPremiumActionCard()
+            state.shouldShowUpgradedToPremiumActionCard = await services.billingService
+                .shouldShowUpgradedToPremiumActionCard()
         case .dismissUpgradedToPremiumActionCard:
             state.shouldShowUpgradedToPremiumActionCard = false
             await services.billingService.setUpgradedToPremiumActionCardDismissed()
