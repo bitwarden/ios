@@ -80,7 +80,7 @@ extension VaultListGroup {
         case let .collection(_, name, _):
             name
         case .driversLicense:
-            Localizations.license
+            Localizations.typeLicense
         case let .folder(_, name):
             name
         case .identity:
