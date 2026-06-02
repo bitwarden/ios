@@ -878,7 +878,38 @@ extension DefaultAuthRepository: AuthRepository {
             requestUserKey = passwordResult.newKey
             requestKeys = nil
             cryptographicState = accountKeys.cryptographicState
+        } else if await configService.getFeatureFlag(.accountEncryptionV2JITPassword) {
+            // V2 JIT password path: SDK handles all server-side API calls internally.
+            let organizationKeys = try await organizationAPIService.getOrganizationKeys(
+                organizationId: organizationId,
+            )
+            let request = JitMasterPasswordRegistrationRequest(
+                orgId: organizationId,
+                orgPublicKey: organizationKeys.publicKey,
+                organizationSsoIdentifier: organizationIdentifier,
+                userId: account.profile.userId,
+                salt: email,
+                masterPassword: password,
+                masterPasswordHint: masterPasswordHint.nilIfEmpty,
+                resetPasswordEnroll: resetPasswordAutoEnroll,
+            )
+            let response = try await clientService.auth().registration().postKeysForJitPasswordRegistration(
+                request: request,
+            )
+            try await stateService.setAccountEncryptionKeys(
+                AccountEncryptionKeys(
+                    cryptographicState: response.accountCryptographicState,
+                    encryptedUserKey: response.masterPasswordUnlock.masterKeyWrappedUserKey,
+                ),
+            )
+            try await stateService.setAccountMasterPasswordUnlock(
+                MasterPasswordUnlockResponseModel(unlockData: response.masterPasswordUnlock),
+            )
+            try await stateService.setUserHasMasterPassword(true)
+            try await unlockVault(method: .decryptedKey(decryptedUserKey: response.userKey))
+            return
         } else {
+            // V1 JIT password path
             let keys = try await clientService.auth().makeRegisterKeys(
                 email: email,
                 password: password,
