@@ -143,7 +143,7 @@ struct PremiumPlanView: View {
                     .padding(.horizontal, 16)
             }
 
-            if store.state.planStatus == .canceled {
+            if store.state.planStatus == .canceled || store.state.planStatus == .expired {
                 PremiumFeaturesList()
                     .padding(.horizontal, 16)
             }
@@ -213,6 +213,20 @@ private extension PremiumSubscription {
         suspension: nil,
     )
 
+    static let previewExpired = PremiumSubscription(
+        cadence: .annually,
+        cancelAt: nil,
+        canceled: nil,
+        discount: 0,
+        estimatedTax: 0,
+        gracePeriod: 1,
+        nextCharge: nil,
+        seatsCost: 19.8,
+        status: .expired,
+        storageCost: 0,
+        suspension: Date().addingTimeInterval(-60 * 60 * 24 * 9),
+    )
+
     static let previewPastDue = PremiumSubscription(
         cadence: .annually,
         cancelAt: nil,
@@ -225,6 +239,20 @@ private extension PremiumSubscription {
         status: .pastDue,
         storageCost: 4,
         suspension: Date().addingTimeInterval(60 * 60 * 24 * 30),
+    )
+
+    static let previewPendingCancellation = PremiumSubscription(
+        cadence: .annually,
+        cancelAt: Date().addingTimeInterval(60 * 60 * 24 * 30),
+        canceled: nil,
+        discount: 2.10,
+        estimatedTax: 3.85,
+        gracePeriod: nil,
+        nextCharge: Date().addingTimeInterval(60 * 60 * 24 * 30),
+        seatsCost: 19.8,
+        status: .pendingCancellation,
+        storageCost: 8,
+        suspension: nil,
     )
 
     static let previewUpdatePayment = PremiumSubscription(
@@ -295,6 +323,36 @@ private extension PremiumSubscription {
                     state: PremiumPlanState(
                         planStatus: .canceled,
                         subscription: .previewCanceled,
+                    ),
+                ),
+            ),
+        )
+    }
+}
+
+#Preview("Expired") {
+    NavigationView {
+        PremiumPlanView(
+            store: Store(
+                processor: StateProcessor(
+                    state: PremiumPlanState(
+                        planStatus: .expired,
+                        subscription: .previewExpired,
+                    ),
+                ),
+            ),
+        )
+    }
+}
+
+#Preview("Pending Cancellation") {
+    NavigationView {
+        PremiumPlanView(
+            store: Store(
+                processor: StateProcessor(
+                    state: PremiumPlanState(
+                        planStatus: .pendingCancellation,
+                        subscription: .previewPendingCancellation,
                     ),
                 ),
             ),

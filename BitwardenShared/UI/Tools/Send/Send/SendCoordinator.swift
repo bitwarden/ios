@@ -17,7 +17,10 @@ final class SendCoordinator: Coordinator, HasStackNavigator {
         & SendItemCoordinator.Module
         & SendItemModule
 
-    typealias Services = HasConfigService
+    typealias Services = HasBillingRepository
+        & HasBillingService
+        & HasConfigService
+        & HasEnvironmentService
         & HasErrorAlertServices.ErrorAlertServices
         & HasErrorReporter
         & HasPasteboardService
@@ -82,6 +85,8 @@ final class SendCoordinator: Coordinator, HasStackNavigator {
             showGroup(type)
         case .list:
             showList()
+        case .premiumUpgrade:
+            showPremiumUpgrade()
         case let .share(url):
             showShareSheet(for: [url])
         case let .viewItem(sendView):
@@ -153,6 +158,15 @@ final class SendCoordinator: Coordinator, HasStackNavigator {
         let store = Store(processor: processor)
         let view = SendListView(store: store)
         stackNavigator?.replace(view)
+    }
+
+    /// Shows the premium upgrade screen.
+    ///
+    private func showPremiumUpgrade() {
+        let navigationController = module.makeNavigationController()
+        let coordinator = module.makeBillingCoordinator(stackNavigator: navigationController)
+        coordinator.navigate(to: .premiumUpgrade)
+        stackNavigator?.present(navigationController)
     }
 
     /// Presents the system share sheet for the specified items.

@@ -486,6 +486,46 @@ struct BillingServiceTests { // swiftlint:disable:this type_body_length
         #expect(syncService.didFetchSync)
     }
 
+    /// `setUpgradedToPremiumActionCardDismissed()` sets the visibility flag to `false` for the active account.
+    @Test
+    func setUpgradedToPremiumActionCardDismissed() async {
+        stateService.upgradedToPremiumActionCardVisibleResult = true
+
+        await subject.setUpgradedToPremiumActionCardDismissed()
+
+        #expect(stateService.upgradedToPremiumActionCardVisibleResult == false)
+    }
+
+    /// `setUpgradedToPremiumActionCardDismissed()` logs an error if the state service throws.
+    @Test
+    func setUpgradedToPremiumActionCardDismissed_error() async {
+        stateService.setUpgradedToPremiumActionCardResult = .failure(StateServiceError.noActiveAccount)
+
+        await subject.setUpgradedToPremiumActionCardDismissed()
+
+        #expect(errorReporter.errors.first as? StateServiceError == .noActiveAccount)
+    }
+
+    /// `shouldShowUpgradedToPremiumActionCard()` returns `true` when the state service reports the card is visible.
+    @Test
+    func shouldShowUpgradedToPremiumActionCard_visible() async {
+        stateService.upgradedToPremiumActionCardVisibleResult = true
+
+        let result = await subject.shouldShowUpgradedToPremiumActionCard()
+
+        #expect(result == true)
+    }
+
+    /// `shouldShowUpgradedToPremiumActionCard()` returns `false` when the state service reports it is not visible.
+    @Test
+    func shouldShowUpgradedToPremiumActionCard_notVisible() async {
+        stateService.upgradedToPremiumActionCardVisibleResult = false
+
+        let result = await subject.shouldShowUpgradedToPremiumActionCard()
+
+        #expect(result == false)
+    }
+
     /// `premiumStatusChanged()` reports the error and publishes `.pending` when sync fails.
     @Test
     func premiumStatusChanged_syncError() async throws {

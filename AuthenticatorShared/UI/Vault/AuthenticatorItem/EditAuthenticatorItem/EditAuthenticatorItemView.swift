@@ -64,8 +64,8 @@ struct EditAuthenticatorItemView: View {
                     get: \.issuer,
                     send: EditAuthenticatorItemAction.issuerChanged,
                 ),
+                accessibilityIdentifier: "EditItemNameField",
             )
-            .accessibilityIdentifier("EditItemNameField")
 
             BitwardenTextField(
                 title: Localizations.key,
@@ -88,9 +88,9 @@ struct EditAuthenticatorItemView: View {
                     get: \.accountName,
                     send: EditAuthenticatorItemAction.accountNameChanged,
                 ),
+                accessibilityIdentifier: "EditItemUsernameField",
             )
             .textFieldConfiguration(.username)
-            .accessibilityIdentifier("EditItemUsernameField")
 
             Toggle(Localizations.favorite, isOn: store.binding(
                 get: \.isFavorited,
@@ -122,6 +122,7 @@ struct EditAuthenticatorItemView: View {
     @ViewBuilder private var advancedOptions: some View {
         BitwardenMenuField(
             title: Localizations.otpType,
+            accessibilityIdentifier: "OTPTypeDropdown",
             options: TotpTypeOptions.allCases,
             selection: store.binding(
                 get: \.totpType,
@@ -132,6 +133,7 @@ struct EditAuthenticatorItemView: View {
         if store.state.totpType == .totp {
             BitwardenMenuField(
                 title: Localizations.algorithm,
+                accessibilityIdentifier: "AlgorithmDropdown",
                 options: TOTPCryptoHashAlgorithm.allCases,
                 selection: store.binding(
                     get: \.algorithm,
@@ -141,6 +143,7 @@ struct EditAuthenticatorItemView: View {
 
             BitwardenMenuField(
                 title: Localizations.refreshPeriod,
+                accessibilityIdentifier: "RefreshPeriodDropdown",
                 options: TotpPeriodOptions.allCases,
                 selection: store.binding(
                     get: \.period,
@@ -150,7 +153,7 @@ struct EditAuthenticatorItemView: View {
 
             StepperFieldView(
                 field: StepperField<EditAuthenticatorItemState>(
-                    accessibilityId: nil,
+                    accessibilityId: "NumberOfDigitsStepper",
                     keyPath: \.digits,
                     range: 5 ... 10,
                     title: Localizations.numberOfDigits,

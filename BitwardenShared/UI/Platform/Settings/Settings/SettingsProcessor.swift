@@ -25,6 +25,7 @@ final class SettingsProcessor: StateProcessor<SettingsState, SettingsAction, Set
         & HasConfigService
         & HasErrorReporter
         & HasStateService
+        & HasStorefrontService
         & HasVaultRepository
 
     // MARK: Private Properties
@@ -95,8 +96,14 @@ final class SettingsProcessor: StateProcessor<SettingsState, SettingsAction, Set
                 .getFeatureFlag(.premiumUpgradePath, defaultValue: false)
             let hasPremium = await services.vaultRepository.doesActiveAccountHavePremium()
             let isSelfHosted = await services.billingService.isSelfHosted()
+            let isUSStorefront = await services.storefrontService.isUSStorefront()
             state.hasPremium = hasPremium
-            state.showPlanRow = featureEnabled && !isSelfHosted
+            state.showPlanRow = featureEnabled && !isSelfHosted && isUSStorefront
+            state.shouldShowUpgradedToPremiumActionCard = await services.billingService
+                .shouldShowUpgradedToPremiumActionCard()
+        case .dismissUpgradedToPremiumActionCard:
+            state.shouldShowUpgradedToPremiumActionCard = false
+            await services.billingService.setUpgradedToPremiumActionCardDismissed()
         case .planPressed:
             await navigateToPlan()
         }
@@ -112,8 +119,14 @@ final class SettingsProcessor: StateProcessor<SettingsState, SettingsAction, Set
             coordinator.navigate(to: .appearance)
         case .autoFillPressed:
             coordinator.navigate(to: .autoFill)
+        case .clearUrl:
+            state.url = nil
         case .dismiss:
             coordinator.navigate(to: .dismiss)
+        case .learnMoreAboutPremium:
+            state.url = ExternalLinksConstants.learnMoreAboutPremium
+            state.shouldShowUpgradedToPremiumActionCard = false
+            Task { await services.billingService.setUpgradedToPremiumActionCardDismissed() }
         case .otherPressed:
             coordinator.navigate(to: .other)
         case .vaultPressed:
