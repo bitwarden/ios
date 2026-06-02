@@ -67,4 +67,24 @@ struct ProfileResponseModel: Codable, Equatable, AccountKeysResponseModelProtoco
 
     /// Whether the user uses key connector.
     @DefaultFalse var usesKeyConnector: Bool
+
+    // MARK: Computed Properties
+
+    /// The effective list of organizations for this profile.
+    ///
+    /// Prefers `organizationsNew` (accepted-state members) over the legacy `organizations` list,
+    /// and coalesces `isProviderUser` by checking membership in `providerOrganizations`.
+    /// Returns `nil` when neither list is present.
+    var effectiveOrganizations: [ProfileOrganizationResponseModel]? {
+        guard let rawOrganizations = organizationsNew ?? organizations else { return nil }
+
+        let providerOrgIds = Set(providerOrganizations?.map(\.id) ?? [])
+        guard !providerOrgIds.isEmpty else { return rawOrganizations }
+        return rawOrganizations.map { org in
+            guard providerOrgIds.contains(org.id) else { return org }
+            var mutable = org
+            mutable.isProviderUser = true
+            return mutable
+        }
+    }
 }
