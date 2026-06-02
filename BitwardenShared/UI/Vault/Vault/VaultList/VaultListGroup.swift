@@ -96,7 +96,7 @@ extension VaultListGroup {
         case .login:
             Localizations.typeLogin
         case .passport:
-            Localizations.passport
+            Localizations.typePassport
         case .secureNote:
             Localizations.typeSecureNote
         case .sshKey:

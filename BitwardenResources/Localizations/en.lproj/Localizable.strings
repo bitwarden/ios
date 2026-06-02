@@ -208,6 +208,7 @@
 "TypeIdentity" = "Identity";
 "TypeLicense" = "License";
 "TypeLogin" = "Login";
+"TypePassport" = "Passport";
 "TypeSecureNote" = "Secure note";
 "Address1" = "Address 1";
 "Address2" = "Address 2";

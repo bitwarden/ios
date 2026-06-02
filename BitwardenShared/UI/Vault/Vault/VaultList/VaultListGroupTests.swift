@@ -68,7 +68,7 @@ class VaultListGroupTests: BitwardenTestCase {
         XCTAssertEqual(VaultListGroup.folder(id: "", name: "Folder 📁").name, "Folder 📁")
         XCTAssertEqual(VaultListGroup.identity.name, "Identity")
         XCTAssertEqual(VaultListGroup.login.name, "Login")
-        XCTAssertEqual(VaultListGroup.passport.name, Localizations.passport)
+        XCTAssertEqual(VaultListGroup.passport.name, Localizations.typePassport)
         XCTAssertEqual(VaultListGroup.secureNote.name, "Secure note")
         XCTAssertEqual(VaultListGroup.sshKey.name, "SSH key")
         XCTAssertEqual(VaultListGroup.totp.name, Localizations.verificationCodes)
