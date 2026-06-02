@@ -714,8 +714,10 @@
 "AddSSHKey" = "Add SSH key";
 "AddBankAccount" = "Add bank account";
 "AddLicense" = "Add license";
+"AddPassport" = "Add passport";
 "EditBankAccount" = "Edit bank account";
 "EditLicense" = "Edit license";
+"EditPassport" = "Edit passport";
 "EditLogin" = "Edit login";
 "EditCard" = "Edit card";
 "EditIdentity" = "Edit identity";
@@ -723,6 +725,7 @@
 "EditSSHKey" = "Edit SSH key";
 "ViewBankAccount" = "View bank account";
 "ViewLicense" = "View license";
+"ViewPassport" = "View passport";
 "ViewLogin" = "View login";
 "ViewCard" = "View card";
 "ViewIdentity" = "View identity";
@@ -1112,3 +1115,4 @@
 "PricingUnavailable" = "Pricing unavailable";
 "BankAccount" = "Bank account";
 "License" = "License";
+"Passport" = "Passport";

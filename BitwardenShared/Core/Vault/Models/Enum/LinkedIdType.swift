@@ -162,6 +162,8 @@ extension LinkedIdType {
             []
         case .driversLicense:
             []
+        case .passport:
+            []
         case .card:
             [
                 .cardCardholderName,

@@ -199,7 +199,7 @@ public struct BitwardenTextField<FooterContent: View, TrailingContent: View>: Vi
                     .accessibilityIdentifier(accessibilityIdentifier ?? "BitwardenTextField")
                     .hidden(isPasswordMasked)
                     .id(title)
-                    .introspect(.textField, on: .iOS(.v15, .v16, .v17, .v18)) { textField in
+                    .introspect(.textField, on: .iOS(.v15, .v16, .v17, .v18, .v26)) { textField in
                         textField.smartDashesType = isPassword ? .no : .default
                         textField.smartQuotesType = isPassword ? .no : .default
                     }
