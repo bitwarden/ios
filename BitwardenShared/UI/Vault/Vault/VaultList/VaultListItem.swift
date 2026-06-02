@@ -208,17 +208,34 @@ extension VaultListItem {
     var vaultItemAccessibilityId: String {
         switch itemType {
         case let .group(vaultListGroup, _):
-            if vaultListGroup.isFolder {
-                return "FolderCell"
+            switch vaultListGroup {
+            case .archive:
+                "ArchiveCell"
+            case .trash:
+                "TrashCell"
+            case .collection:
+                "CollectionCell"
+            case .folder:
+                "FolderCell"
+            case .card:
+                "CardCell"
+            case .identity:
+                "IdentityCell"
+            case .login:
+                "LoginCell"
+            case .secureNote:
+                "SecureNoteCell"
+            case .sshKey:
+                "SSHKeyCell"
+            case .totp:
+                "TOTPCell"
+            case .noFolder:
+                "ItemFilterCell"
             }
-            if vaultListGroup.collectionId != nil {
-                return "CollectionCell"
-            }
-            return "ItemFilterCell"
         case .cipher:
-            return "CipherCell"
+            "CipherCell"
         case .totp:
-            return "TOTPCell"
+            "TOTPCell"
         }
     }
 
