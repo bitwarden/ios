@@ -464,7 +464,7 @@ extension Alert {
                     await action(.copy(
                         toast: Localizations.accountNumber,
                         value: accountNumber,
-                        requiresMasterPasswordReprompt: false,
+                        requiresMasterPasswordReprompt: true,
                         logEvent: nil,
                         cipherId: nil,
                     ))
@@ -475,7 +475,7 @@ extension Alert {
                     await action(.copy(
                         toast: Localizations.routingNumber,
                         value: routingNumber,
-                        requiresMasterPasswordReprompt: false,
+                        requiresMasterPasswordReprompt: true,
                         logEvent: nil,
                         cipherId: nil,
                     ))

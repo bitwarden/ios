@@ -466,7 +466,7 @@ class AlertVaultTests: BitwardenTestCase { // swiftlint:disable:this type_body_l
     /// `moreOptions(context:action:)` for a bank account includes copy actions for the
     /// account number and routing number.
     @MainActor
-    func test_moreOptions_bankAccount() async throws {
+    func test_moreOptions_bankAccount() async throws { // swiftlint:disable:this function_body_length
         var capturedAction: MoreOptionsAction?
         let action: (MoreOptionsAction) -> Void = { action in
             capturedAction = action
@@ -507,7 +507,7 @@ class AlertVaultTests: BitwardenTestCase { // swiftlint:disable:this type_body_l
             .copy(
                 toast: Localizations.accountNumber,
                 value: "1234567890",
-                requiresMasterPasswordReprompt: false,
+                requiresMasterPasswordReprompt: true,
                 logEvent: nil,
                 cipherId: nil,
             ),
@@ -520,7 +520,7 @@ class AlertVaultTests: BitwardenTestCase { // swiftlint:disable:this type_body_l
             .copy(
                 toast: Localizations.routingNumber,
                 value: "021000021",
-                requiresMasterPasswordReprompt: false,
+                requiresMasterPasswordReprompt: true,
                 logEvent: nil,
                 cipherId: nil,
             ),
