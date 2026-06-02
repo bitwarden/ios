@@ -35,11 +35,6 @@ class CreatePasskeyProcessor: StateProcessor<
 
     /// Performs the passkey registration flow. Injected for testability.
     ///
-    /// - Parameters:
-    ///   - rpId: The relying party identifier.
-    ///   - userName: The username for the credential.
-    ///   - displayName: The display name for the credential.
-    ///   - presentationAnchor: Provides the window used to present the passkey sheet.
     let performRegistration: PerformRegistration
 
     /// Persists successfully created passkey credentials for later use in the verify flow.
