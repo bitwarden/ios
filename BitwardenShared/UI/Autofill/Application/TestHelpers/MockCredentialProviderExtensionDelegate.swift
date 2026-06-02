@@ -6,7 +6,7 @@ import TestHelpers
 @testable import BitwardenShared
 
 @available(iOS 17.0, *)
-class MockAutofillAppExtensionDelegate: MockAppExtensionDelegate, AutofillAppExtensionDelegate {
+class MockCredentialProviderExtensionDelegate: MockAppExtensionDelegate, CredentialProviderExtensionDelegate {
     var completeAssertionRequestMocker = InvocationMocker<ASPasskeyAssertionCredential>()
     var completeOTPRequestCodeCalled: String?
     var completeRegistrationRequestMocker = InvocationMocker<ASPasskeyRegistrationCredential>()

@@ -1,10 +1,9 @@
 import AuthenticationServices
 import Combine
 
-/// A delegate that is used to handle actions and retrieve information from within an Autofill extension
-/// on credential provider flows.
+/// A delegate that is used to handle actions and retrieve information from within the credential provider extension.
 @MainActor
-public protocol AutofillAppExtensionDelegate: AppExtensionDelegate {
+public protocol CredentialProviderExtensionDelegate: AppExtensionDelegate {
     /// The mode in which the autofill extension is running.
     var extensionMode: CredentialProviderMode { get }
 
@@ -37,7 +36,7 @@ public protocol AutofillAppExtensionDelegate: AppExtensionDelegate {
     func setUserInteractionRequired()
 }
 
-extension AutofillAppExtensionDelegate {
+extension CredentialProviderExtensionDelegate {
     /// Gets the mode in which the autofill list should run.
     var autofillListMode: AutofillListMode {
         switch extensionMode {

@@ -421,9 +421,9 @@ extension CredentialProviderViewController: AppExtensionDelegate {
     }
 }
 
-// MARK: - AutofillAppExtensionDelegate
+// MARK: - CredentialProviderExtensionDelegate
 
-extension CredentialProviderViewController: AutofillAppExtensionDelegate {
+extension CredentialProviderViewController: CredentialProviderExtensionDelegate {
     /// The mode in which the autofill extension is running.
     var extensionMode: CredentialProviderMode {
         context?.extensionMode ?? .configureAutofill
