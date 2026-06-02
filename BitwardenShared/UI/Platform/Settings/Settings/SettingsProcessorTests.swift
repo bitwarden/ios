@@ -4,10 +4,12 @@ import BitwardenResources
 import TestHelpers
 import XCTest
 
+// swiftlint:disable file_length
+
 @testable import BitwardenShared
 @testable import BitwardenSharedMocks
 
-class SettingsProcessorTests: BitwardenTestCase {
+class SettingsProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body_length
     // MARK: Properties
 
     var billingService: MockBillingService!
@@ -17,6 +19,7 @@ class SettingsProcessorTests: BitwardenTestCase {
     var errorReporter: MockErrorReporter!
     var subject: SettingsProcessor!
     var stateService: MockStateService!
+    var storefrontService: MockStorefrontService!
     var vaultRepository: MockVaultRepository!
 
     // MARK: Setup & Teardown
@@ -31,6 +34,8 @@ class SettingsProcessorTests: BitwardenTestCase {
         delegate = MockSettingsProcessorDelegate()
         errorReporter = MockErrorReporter()
         stateService = MockStateService()
+        storefrontService = MockStorefrontService()
+        storefrontService.isUSStorefrontReturnValue = true
         vaultRepository = MockVaultRepository()
 
         setUpSubject()
@@ -46,6 +51,7 @@ class SettingsProcessorTests: BitwardenTestCase {
         errorReporter = nil
         subject = nil
         stateService = nil
+        storefrontService = nil
         vaultRepository = nil
     }
 
@@ -59,6 +65,7 @@ class SettingsProcessorTests: BitwardenTestCase {
                 configService: configService,
                 errorReporter: errorReporter,
                 stateService: stateService,
+                storefrontService: storefrontService,
                 vaultRepository: vaultRepository,
             ),
             state: SettingsState(presentationMode: presentationMode),
@@ -291,6 +298,17 @@ class SettingsProcessorTests: BitwardenTestCase {
         billingService.isSelfHostedReturnValue = true
         configService.featureFlagsBool[.premiumUpgradePath] = true
         vaultRepository.doesActiveAccountHavePremiumResult = true
+
+        await subject.perform(.appeared)
+
+        XCTAssertFalse(subject.state.showPlanRow)
+    }
+
+    /// `perform(.appeared)` hides the plan row when the storefront is not US.
+    @MainActor
+    func test_perform_appeared_hidesPlanRow_nonUSStorefront() async {
+        storefrontService.isUSStorefrontReturnValue = false
+        configService.featureFlagsBool[.premiumUpgradePath] = true
 
         await subject.perform(.appeared)
 
