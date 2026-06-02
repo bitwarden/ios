@@ -25,6 +25,7 @@ final class SettingsProcessor: StateProcessor<SettingsState, SettingsAction, Set
         & HasConfigService
         & HasErrorReporter
         & HasStateService
+        & HasStorefrontService
         & HasVaultRepository
 
     // MARK: Private Properties
@@ -95,8 +96,9 @@ final class SettingsProcessor: StateProcessor<SettingsState, SettingsAction, Set
                 .getFeatureFlag(.premiumUpgradePath, defaultValue: false)
             let hasPremium = await services.vaultRepository.doesActiveAccountHavePremium()
             let isSelfHosted = await services.billingService.isSelfHosted()
+            let isUSStorefront = await services.storefrontService.isUSStorefront()
             state.hasPremium = hasPremium
-            state.showPlanRow = featureEnabled && !isSelfHosted
+            state.showPlanRow = featureEnabled && !isSelfHosted && isUSStorefront
             state.shouldShowUpgradedToPremiumActionCard = await services.billingService
                 .shouldShowUpgradedToPremiumActionCard()
         case .dismissUpgradedToPremiumActionCard:
