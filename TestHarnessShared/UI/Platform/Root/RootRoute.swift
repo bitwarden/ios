@@ -9,7 +9,6 @@ public enum RootRoute {
     /// A route to the create account form test screen.
     case createAccountForm
 
-
     /// A route to the date field picker showcase screen.
     case dateFieldPickerShowcase
 
