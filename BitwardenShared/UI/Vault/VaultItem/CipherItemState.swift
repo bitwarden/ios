@@ -472,8 +472,10 @@ extension CipherItemState: AddEditItemState {
             switch type {
             case .bankAccount: Localizations.addBankAccount
             case .card: Localizations.addCard
+            case .driversLicense: Localizations.addLicense
             case .identity: Localizations.addIdentity
             case .login: Localizations.addLogin
+            case .passport: Localizations.addPassport
             case .secureNote: Localizations.addNote
             case .sshKey: Localizations.addSSHKey
             }
@@ -481,8 +483,10 @@ extension CipherItemState: AddEditItemState {
             switch type {
             case .bankAccount: Localizations.editBankAccount
             case .card: Localizations.editCard
+            case .driversLicense: Localizations.editLicense
             case .identity: Localizations.editIdentity
             case .login: Localizations.editLogin
+            case .passport: Localizations.editPassport
             case .secureNote: Localizations.editNote
             case .sshKey: Localizations.editSSHKey
             }

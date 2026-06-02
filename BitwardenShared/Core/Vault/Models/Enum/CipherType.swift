@@ -21,6 +21,12 @@ public enum CipherType: Int, Codable, Sendable {
 
     /// A bank account.
     case bankAccount = 6
+
+    /// A driver's license.
+    case driversLicense = 7
+
+    /// A passport.
+    case passport = 8
 }
 
 extension CipherType {
@@ -53,7 +59,16 @@ extension CipherType {
 }
 
 extension CipherType: CaseIterable {
-    public static let allCases: [CipherType] = [.login, .card, .identity, .secureNote, .sshKey, .bankAccount]
+    public static let allCases: [CipherType] = [
+        .login,
+        .card,
+        .identity,
+        .secureNote,
+        .sshKey,
+        .bankAccount,
+        .driversLicense,
+        .passport,
+    ]
 }
 
 extension CipherType: Menuable {
@@ -61,8 +76,10 @@ extension CipherType: Menuable {
         switch self {
         case .bankAccount: Localizations.bankAccount
         case .card: Localizations.typeCard
+        case .driversLicense: Localizations.license
         case .identity: Localizations.typeIdentity
         case .login: Localizations.typeLogin
+        case .passport: Localizations.passport
         case .secureNote: Localizations.typeSecureNote
         case .sshKey: Localizations.sshKey
         }
@@ -78,7 +95,7 @@ extension CipherType {
         switch self {
         case .card, .identity, .login:
             [.text, .hidden, .boolean, .linked]
-        case .bankAccount, .secureNote, .sshKey:
+        case .bankAccount, .driversLicense, .passport, .secureNote, .sshKey:
             [.text, .hidden, .boolean]
         }
     }

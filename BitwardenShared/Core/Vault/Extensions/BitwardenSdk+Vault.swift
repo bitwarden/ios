@@ -74,6 +74,44 @@ extension CipherCardModel {
     }
 }
 
+extension CipherDriversLicenseModel {
+    init(driversLicense: BitwardenSdk.DriversLicense) {
+        self.init(
+            dateOfBirth: driversLicense.dateOfBirth,
+            expirationDate: driversLicense.expirationDate,
+            firstName: driversLicense.firstName,
+            issueDate: driversLicense.issueDate,
+            issuingAuthority: driversLicense.issuingAuthority,
+            issuingCountry: driversLicense.issuingCountry,
+            issuingState: driversLicense.issuingState,
+            lastName: driversLicense.lastName,
+            licenseClass: driversLicense.licenseClass,
+            licenseNumber: driversLicense.licenseNumber,
+            middleName: driversLicense.middleName,
+        )
+    }
+}
+
+extension CipherPassportModel {
+    init(passport: BitwardenSdk.Passport) {
+        self.init(
+            birthPlace: passport.birthPlace,
+            dateOfBirth: passport.dateOfBirth,
+            expirationDate: passport.expirationDate,
+            givenName: passport.givenName,
+            issueDate: passport.issueDate,
+            issuingAuthority: passport.issuingAuthority,
+            issuingCountry: passport.issuingCountry,
+            nationalIdentificationNumber: passport.nationalIdentificationNumber,
+            nationality: passport.nationality,
+            passportNumber: passport.passportNumber,
+            passportType: passport.passportType,
+            sex: passport.sex,
+            surname: passport.surname,
+        )
+    }
+}
+
 extension CipherDetailsResponseModel {
     init(cipher: BitwardenSdk.Cipher) throws {
         guard let id = cipher.id else { throw DataMappingError.invalidData }
@@ -85,7 +123,7 @@ extension CipherDetailsResponseModel {
             collectionIds: cipher.collectionIds,
             creationDate: cipher.creationDate,
             deletedDate: cipher.deletedDate,
-            driversLicense: nil, // TODO: PM-32807
+            driversLicense: cipher.driversLicense.map(CipherDriversLicenseModel.init),
             edit: cipher.edit,
             favorite: cipher.favorite,
             fields: cipher.fields?.map(CipherFieldModel.init),
@@ -98,7 +136,7 @@ extension CipherDetailsResponseModel {
             notes: cipher.notes,
             organizationId: cipher.organizationId,
             organizationUseTotp: cipher.organizationUseTotp,
-            passport: nil, // TODO: PM-32805
+            passport: cipher.passport.map(CipherPassportModel.init),
             passwordHistory: cipher.passwordHistory?.map(CipherPasswordHistoryModel.init),
             permissions: CipherPermissionsModel(cipherPermissions: cipher.permissions),
             reprompt: BitwardenShared.CipherRepromptType(type: cipher.reprompt),
@@ -244,15 +282,13 @@ extension CipherType {
         case .card:
             self = .card
         case .driversLicense:
-            // TODO: PM-32807
-            self = .identity
+            self = .driversLicense
         case .identity:
             self = .identity
         case .login:
             self = .login
         case .passport:
-            // TODO: PM-32805
-            self = .identity
+            self = .passport
         case .secureNote:
             self = .secureNote
         case .sshKey:
@@ -267,15 +303,13 @@ extension CipherType {
         case .card:
             self = .card
         case .driversLicense:
-            // TODO: PM-32807
-            self = .identity
+            self = .driversLicense
         case .identity:
             self = .identity
         case .login:
             self = .login
         case .passport:
-            // TODO: PM-32805
-            self = .identity
+            self = .passport
         case .secureNote:
             self = .secureNote
         case .sshKey:
@@ -381,7 +415,7 @@ extension BitwardenSdk.Cipher {
             bankAccount: nil, // TODO: PM-32809
             driversLicense: nil, // TODO: PM-32807
             passport: nil, // TODO: PM-32805
-            favorite:model.favorite,
+            favorite: model.favorite,
             reprompt: BitwardenSdk.CipherRepromptType(model.reprompt),
             organizationUseTotp: model.organizationUseTotp,
             edit: model.edit,
@@ -429,7 +463,7 @@ extension BitwardenSdk.Cipher {
             bankAccount: nil, // TODO: PM-32809
             driversLicense: nil, // TODO: PM-32807
             passport: nil, // TODO: PM-32805
-            favorite:originalCipher?.favorite ?? false,
+            favorite: originalCipher?.favorite ?? false,
             reprompt: BitwardenSdk.CipherRepromptType(model.reprompt),
             organizationUseTotp: model.organizationUseTotp,
             edit: originalCipher?.edit ?? true,
@@ -554,6 +588,10 @@ extension BitwardenSdk.CipherType {
             self = .sshKey
         case .bankAccount:
             self = .bankAccount
+        case .driversLicense:
+            self = .driversLicense
+        case .passport:
+            self = .passport
         }
     }
 }

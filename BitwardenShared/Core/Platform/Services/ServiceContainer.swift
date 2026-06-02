@@ -830,6 +830,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
         let authRepository = DefaultAuthRepository(
             accountAPIService: apiService,
             appContextHelper: appContextHelper,
+            appIDService: appIDService,
             authService: authService,
             biometricsRepository: biometricsRepository,
             changeKdfService: changeKdfService,

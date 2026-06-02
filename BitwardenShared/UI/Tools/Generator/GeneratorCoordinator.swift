@@ -31,7 +31,8 @@ final class GeneratorCoordinator: Coordinator, HasStackNavigator {
     typealias Module = NavigatorBuilderModule
         & PasswordHistoryModule
 
-    typealias Services = HasConfigService
+    typealias Services = HasBillingService
+        & HasConfigService
         & HasErrorAlertServices.ErrorAlertServices
         & HasErrorReporter
         & HasGeneratorRepository

@@ -1,4 +1,5 @@
 // swiftlint:disable:this file_name
+// swiftlint:disable file_length
 
 import BitwardenKitMocks
 import BitwardenSdk
@@ -20,6 +21,8 @@ class BitwardenSdkVaultBitwardenCipherTypeTests: BitwardenTestCase {
         XCTAssertEqual(BitwardenSdk.CipherType(.secureNote), .secureNote)
         XCTAssertEqual(BitwardenSdk.CipherType(.sshKey), .sshKey)
         XCTAssertEqual(BitwardenSdk.CipherType(.bankAccount), .bankAccount)
+        XCTAssertEqual(BitwardenSdk.CipherType(.driversLicense), .driversLicense)
+        XCTAssertEqual(BitwardenSdk.CipherType(.passport), .passport)
     }
 }
 
@@ -135,6 +138,84 @@ class BitwardenSdkVaultCipherBankAccountModelTests: BitwardenTestCase {
     }
 }
 
+// MARK: - CipherDriversLicenseModel
+
+class BitwardenSdkVaultCipherDriversLicenseModelTests: BitwardenTestCase {
+    // MARK: Tests
+
+    /// `init(driversLicense:)` Inits cipher driver's license model from the SDK one.
+    func test_init_fromSdkDriversLicense() {
+        let model = CipherDriversLicenseModel(
+            driversLicense: .init(
+                firstName: "firstName",
+                middleName: "middleName",
+                lastName: "lastName",
+                dateOfBirth: "dateOfBirth",
+                licenseNumber: "licenseNumber",
+                issuingCountry: "issuingCountry",
+                issuingState: "issuingState",
+                issueDate: "issueDate",
+                expirationDate: "expirationDate",
+                issuingAuthority: "issuingAuthority",
+                licenseClass: "licenseClass",
+            ),
+        )
+
+        XCTAssertEqual(model.dateOfBirth, "dateOfBirth")
+        XCTAssertEqual(model.expirationDate, "expirationDate")
+        XCTAssertEqual(model.firstName, "firstName")
+        XCTAssertEqual(model.issueDate, "issueDate")
+        XCTAssertEqual(model.issuingAuthority, "issuingAuthority")
+        XCTAssertEqual(model.issuingCountry, "issuingCountry")
+        XCTAssertEqual(model.issuingState, "issuingState")
+        XCTAssertEqual(model.lastName, "lastName")
+        XCTAssertEqual(model.licenseClass, "licenseClass")
+        XCTAssertEqual(model.licenseNumber, "licenseNumber")
+        XCTAssertEqual(model.middleName, "middleName")
+    }
+}
+
+// MARK: - CipherPassportModel
+
+class BitwardenSdkVaultCipherPassportModelTests: BitwardenTestCase {
+    // MARK: Tests
+
+    /// `init(passport:)` Inits cipher passport model from the SDK one.
+    func test_init_fromSdkPassport() {
+        let model = CipherPassportModel(
+            passport: .init(
+                surname: "surname",
+                givenName: "givenName",
+                dateOfBirth: "dateOfBirth",
+                sex: "sex",
+                birthPlace: "birthPlace",
+                nationality: "nationality",
+                issuingCountry: "issuingCountry",
+                passportNumber: "passportNumber",
+                passportType: "passportType",
+                nationalIdentificationNumber: "nationalIdentificationNumber",
+                issuingAuthority: "issuingAuthority",
+                issueDate: "issueDate",
+                expirationDate: "expirationDate",
+            ),
+        )
+
+        XCTAssertEqual(model.birthPlace, "birthPlace")
+        XCTAssertEqual(model.dateOfBirth, "dateOfBirth")
+        XCTAssertEqual(model.expirationDate, "expirationDate")
+        XCTAssertEqual(model.givenName, "givenName")
+        XCTAssertEqual(model.issueDate, "issueDate")
+        XCTAssertEqual(model.issuingAuthority, "issuingAuthority")
+        XCTAssertEqual(model.issuingCountry, "issuingCountry")
+        XCTAssertEqual(model.nationalIdentificationNumber, "nationalIdentificationNumber")
+        XCTAssertEqual(model.nationality, "nationality")
+        XCTAssertEqual(model.passportNumber, "passportNumber")
+        XCTAssertEqual(model.passportType, "passportType")
+        XCTAssertEqual(model.sex, "sex")
+        XCTAssertEqual(model.surname, "surname")
+    }
+}
+
 // MARK: - CipherSSHKeyModel
 
 class BitwardenSdkVaultCipherSSHKeyModelTests: BitwardenTestCase {
@@ -169,6 +250,8 @@ class BitwardenSdkVaultCipherTypeTests: BitwardenTestCase {
         XCTAssertEqual(CipherType(type: .secureNote), .secureNote)
         XCTAssertEqual(CipherType(type: .sshKey), .sshKey)
         XCTAssertEqual(CipherType(type: .bankAccount), .bankAccount)
+        XCTAssertEqual(CipherType(type: .driversLicense), .driversLicense)
+        XCTAssertEqual(CipherType(type: .passport), .passport)
     }
 
     /// `init(type:)` initializes the SDK cipher type based on the cipher list view type.
@@ -179,6 +262,8 @@ class BitwardenSdkVaultCipherTypeTests: BitwardenTestCase {
         XCTAssertEqual(CipherType(CipherListViewType.secureNote), .secureNote)
         XCTAssertEqual(CipherType(CipherListViewType.sshKey), .sshKey)
         XCTAssertEqual(CipherType(CipherListViewType.bankAccount), .bankAccount)
+        XCTAssertEqual(CipherType(CipherListViewType.driversLicense), .driversLicense)
+        XCTAssertEqual(CipherType(CipherListViewType.passport), .passport)
     }
 }
 
@@ -258,7 +343,7 @@ class CipherViewTests: BitwardenTestCase {
     }
 
     /// `init(fido2CredentialNewView:timeProvider:)` initializes correctly with rpName and username
-    func test_init_fido2CredentialNewView_rpNameUsername() {
+    func test_init_fido2CredentialNewView_rpNameUsername() { // swiftlint:disable:this function_body_length
         let fido2CredentialNewView = Fido2CredentialNewView.fixture(
             userName: "username",
             rpName: "MyApp",
