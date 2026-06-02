@@ -26,6 +26,7 @@ struct ScenarioPickerState: Equatable {
     /// The available test scenarios.
     var scenarios: [ScenarioItem] = [
         ScenarioItem(id: "simpleLoginForm", title: Localizations.simpleLoginForm, route: .simpleLoginForm),
+        ScenarioItem(id: "totpAutofillForm", title: Localizations.totpAutofillForm, route: .totpAutofillForm),
         ScenarioItem(id: "passkeyAutofill", title: Localizations.passkeyAutofill, route: nil),
         ScenarioItem(id: "createPasskey", title: Localizations.createPasskey, route: nil),
     ]

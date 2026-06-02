@@ -8,4 +8,7 @@ public enum RootRoute {
 
     /// A route to the simple login form test screen.
     case simpleLoginForm
+
+    /// A route to the TOTP autofill form test screen.
+    case totpAutofillForm
 }
