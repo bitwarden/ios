@@ -344,6 +344,10 @@ class VaultListItemTests: BitwardenTestCase { // swiftlint:disable:this type_bod
             "LoginCell",
         )
         XCTAssertEqual(
+            VaultListItem(id: "", itemType: .group(.bankAccount, 1)).vaultItemAccessibilityId,
+            "BankAccountCell",
+        )
+        XCTAssertEqual(
             VaultListItem(id: "", itemType: .group(.card, 1)).vaultItemAccessibilityId,
             "CardCell",
         )
