@@ -133,7 +133,7 @@ final class ClientServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
         let client = try XCTUnwrap(clientBuilder.clients.first)
         XCTAssertEqual(
             client.platformClient.featureFlags,
-            [:],
+            [FeatureFlag.enableCipherKeyEncryption.rawValue: true],
         )
     }
 
