@@ -311,9 +311,7 @@ actor DefaultClientService: ClientService {
                 return
             }
 
-            try await client.platform().loadFlags([
-                FeatureFlag.enableCipherKeyEncryption.rawValue: config.supportsCipherKeyEncryption(),
-            ])
+            try await client.platform().loadFlags([:])
         } catch {
             errorReporter.log(error: error)
         }
