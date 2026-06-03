@@ -64,7 +64,25 @@ extension BitwardenSdk.GetAssertionResult {
             signature: signature,
             userHandle: userHandle,
             selectedCredential: selectedCredential,
-            extensions: extensions
+            extensions: extensions,
+        )
+    }
+}
+
+extension BitwardenSdk.JitMasterPasswordRegistrationResponse {
+    static func fixture(
+        accountCryptographicState: WrappedAccountCryptographicState = .fixtureV2(),
+        masterPasswordUnlock: BitwardenSdk.MasterPasswordUnlockData = MasterPasswordUnlockData(
+            kdf: .pbkdf2(iterations: 600_000),
+            masterKeyWrappedUserKey: "MASTER_KEY_WRAPPED_USER_KEY",
+            salt: "SALT",
+        ),
+        userKey: String = "USER_KEY",
+    ) -> BitwardenSdk.JitMasterPasswordRegistrationResponse {
+        .init(
+            accountCryptographicState: accountCryptographicState,
+            masterPasswordUnlock: masterPasswordUnlock,
+            userKey: userKey,
         )
     }
 }
@@ -80,7 +98,7 @@ extension BitwardenSdk.MakeCredentialResult {
             authenticatorData: authenticatorData,
             attestationObject: attestationObject,
             credentialId: credentialId,
-            extensions: extensions
+            extensions: extensions,
         )
     }
 }
@@ -138,6 +156,32 @@ extension BitwardenSdk.SelectedCredential {
     }
 }
 
+extension BitwardenSdk.UpdateKdfResponse {
+    static func fixture(
+        masterPasswordAuthenticationData: MasterPasswordAuthenticationData = MasterPasswordAuthenticationData(
+            kdf: .pbkdf2(iterations: 600_000),
+            salt: "AUTHENTICATION_SALT",
+            masterPasswordAuthenticationHash: "MASTER_PASSWORD_AUTHENTICATION_HASH",
+        ),
+        masterPasswordUnlockData: MasterPasswordUnlockData = MasterPasswordUnlockData(
+            kdf: .pbkdf2(iterations: 600_000),
+            masterKeyWrappedUserKey: "MASTER_KEY_WRAPPED_USER_KEY",
+            salt: "UNLOCK_SALT",
+        ),
+        oldMasterPasswordAuthenticationData: MasterPasswordAuthenticationData = MasterPasswordAuthenticationData(
+            kdf: .pbkdf2(iterations: 600_000),
+            salt: "OLD_SALT",
+            masterPasswordAuthenticationHash: "OLD_MASTER_PASSWORD_AUTHENTICATION_HASH",
+        ),
+    ) -> UpdateKdfResponse {
+        UpdateKdfResponse(
+            masterPasswordAuthenticationData: masterPasswordAuthenticationData,
+            masterPasswordUnlockData: masterPasswordUnlockData,
+            oldMasterPasswordAuthenticationData: oldMasterPasswordAuthenticationData,
+        )
+    }
+}
+
 extension BitwardenSdk.Fido2CredentialAutofillView {
     static let defaultRpId = "myApp.com"
 
@@ -188,6 +232,22 @@ extension BitwardenSdk.Fido2CredentialNewView {
             rpName: rpName,
             userDisplayName: userDisplayName,
             creationDate: creationDate,
+        )
+    }
+}
+
+extension WrappedAccountCryptographicState {
+    static func fixtureV2(
+        privateKey: String = "WRAPPED_PRIVATE_KEY",
+        signedPublicKey: String = "SIGNED_PUBLIC_KEY",
+        signingKey: String = "WRAPPED_SIGNING_KEY",
+        securityState: String = "SECURITY_STATE",
+    ) -> WrappedAccountCryptographicState {
+        .v2(
+            privateKey: privateKey,
+            signedPublicKey: signedPublicKey,
+            signingKey: signingKey,
+            securityState: securityState,
         )
     }
 }

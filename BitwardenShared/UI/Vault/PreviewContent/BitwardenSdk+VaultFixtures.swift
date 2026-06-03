@@ -69,6 +69,9 @@ extension Cipher {
             card: card,
             secureNote: secureNote,
             sshKey: sshKey,
+            bankAccount: nil, // TODO: PM-32809
+            driversLicense: nil, // TODO: PM-32807
+            passport: nil, // TODO: PM-32805
             favorite: favorite,
             reprompt: reprompt,
             organizationUseTotp: organizationUseTotp,
@@ -190,10 +193,39 @@ extension CipherListView {
     }
 }
 
+extension BankAccountView {
+    static func fixture(
+        accountNumber: String? = nil,
+        accountType: String? = nil,
+        bankContactPhone: String? = nil,
+        bankName: String? = nil,
+        branchNumber: String? = nil,
+        iban: String? = nil,
+        nameOnAccount: String? = nil,
+        pin: String? = nil,
+        routingNumber: String? = nil,
+        swiftCode: String? = nil,
+    ) -> BankAccountView {
+        BankAccountView(
+            bankName: bankName,
+            nameOnAccount: nameOnAccount,
+            accountType: accountType,
+            accountNumber: accountNumber,
+            routingNumber: routingNumber,
+            branchNumber: branchNumber,
+            pin: pin,
+            swiftCode: swiftCode,
+            iban: iban,
+            bankContactPhone: bankContactPhone,
+        )
+    }
+}
+
 extension CipherView {
     static func fixture(
         archivedDate: Date? = nil,
         attachments: [AttachmentView]? = nil,
+        bankAccount: BankAccountView? = nil,
         card: CardView? = nil,
         collectionIds: [String] = [],
         creationDate: DateTime = Date(year: 2023, month: 11, day: 5, hour: 9, minute: 41),
@@ -234,6 +266,9 @@ extension CipherView {
             card: card,
             secureNote: secureNote,
             sshKey: sshKey,
+            bankAccount: bankAccount,
+            driversLicense: nil, // TODO: PM-32807
+            passport: nil, // TODO: PM-32805
             favorite: favorite,
             reprompt: reprompt,
             organizationUseTotp: organizationUseTotp,
@@ -290,6 +325,9 @@ extension CipherView {
             card: card,
             secureNote: nil,
             sshKey: nil,
+            bankAccount: nil, // TODO: PM-32809
+            driversLicense: nil, // TODO: PM-32807
+            passport: nil, // TODO: PM-32805
             favorite: favorite,
             reprompt: reprompt,
             organizationUseTotp: organizationUseTotp,
@@ -346,6 +384,9 @@ extension CipherView {
             card: nil,
             secureNote: nil,
             sshKey: nil,
+            bankAccount: nil, // TODO: PM-32809
+            driversLicense: nil, // TODO: PM-32807
+            passport: nil, // TODO: PM-32805
             favorite: favorite,
             reprompt: reprompt,
             organizationUseTotp: organizationUseTotp,

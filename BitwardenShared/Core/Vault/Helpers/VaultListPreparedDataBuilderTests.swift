@@ -74,6 +74,44 @@ class VaultListPreparedDataBuilderTests: BitwardenTestCase { // swiftlint:disabl
         XCTAssertTrue(preparedData.cipherDecryptionFailureIds.isEmpty)
     }
 
+    /// `addItem(forGroup:with:)` adds the cipher to the group items when the group is `.bankAccount`
+    /// and the cipher is a bank account.
+    func test_addItem_forGroupBankAccount_addsItem() async {
+        let cipher = CipherListView.fixture(id: "1", type: .bankAccount)
+        let preparedData = await subject.addItem(forGroup: .bankAccount, with: cipher).build()
+
+        XCTAssertEqual(preparedData.groupItems.count, 1)
+        XCTAssertEqual(preparedData.groupItems[0].id, "1")
+    }
+
+    /// `addItem(forGroup:with:)` doesn't add the cipher to the group items when the group is
+    /// `.bankAccount` but the cipher is not a bank account.
+    func test_addItem_forGroupBankAccount_skipsNonBankAccount() async {
+        let cipher = CipherListView.fixture(id: "1", type: .identity)
+        let preparedData = await subject.addItem(forGroup: .bankAccount, with: cipher).build()
+
+        XCTAssertTrue(preparedData.groupItems.isEmpty)
+    }
+
+    /// `addItem(forGroup:with:)` adds the cipher to the group items when the group is `.driversLicense`
+    /// and the cipher is a driver's license.
+    func test_addItem_forGroupDriversLicense_succeeds() async {
+        let cipher = CipherListView.fixture(id: "1", type: .driversLicense)
+        let preparedData = await subject.addItem(forGroup: .driversLicense, with: cipher).build()
+
+        XCTAssertEqual(preparedData.groupItems.count, 1)
+        XCTAssertEqual(preparedData.groupItems[0].id, "1")
+    }
+
+    /// `addItem(forGroup:with:)` doesn't add the cipher to the group items when the group is
+    /// `.driversLicense` but the cipher is not a driver's license.
+    func test_addItem_forGroupDriversLicense_nonMatchingType() async {
+        let cipher = CipherListView.fixture(id: "1", type: .identity)
+        let preparedData = await subject.addItem(forGroup: .driversLicense, with: cipher).build()
+
+        XCTAssertTrue(preparedData.groupItems.isEmpty)
+    }
+
     /// `addFavoriteItem(cipher:)` adds a favorite list item to the prepared data when cipher is favorite.
     func test_addFavoriteItem_succeeds() {
         let cipher = CipherListView.fixture(favorite: true)
@@ -107,8 +145,7 @@ class VaultListPreparedDataBuilderTests: BitwardenTestCase { // swiftlint:disabl
         cipherService.fetchCipherResult = .success(.fixture(id: "1"))
         clientService.mockPlatform
             .fido2Mock
-            .decryptFido2AutofillCredentialsMocker
-            .withResult([.fixture()])
+            .decryptFido2AutofillCredentialsReturnValue = [.fixture()]
 
         let preparedData = await subject.addFido2Item(cipher: cipher).build()
 
@@ -142,8 +179,7 @@ class VaultListPreparedDataBuilderTests: BitwardenTestCase { // swiftlint:disabl
         cipherService.fetchCipherResult = .success(.fixture(id: "1"))
         clientService.mockPlatform
             .fido2Mock
-            .decryptFido2AutofillCredentialsMocker
-            .withResult([])
+            .decryptFido2AutofillCredentialsReturnValue = []
 
         let preparedData = await subject.addFido2Item(cipher: cipher).build()
 
@@ -280,6 +316,7 @@ class VaultListPreparedDataBuilderTests: BitwardenTestCase { // swiftlint:disabl
             .incrementCipherTypeCount(cipher: .fixture(type: .card(.fixture())))
             .incrementCipherTypeCount(cipher: .fixture(type: .login(.fixture())))
             .incrementCipherTypeCount(cipher: .fixture(type: .secureNote))
+            .incrementCipherTypeCount(cipher: .fixture(type: .driversLicense))
             .build()
 
         XCTAssertEqual(preparedData.countPerCipherType[.card], 3)
@@ -287,6 +324,7 @@ class VaultListPreparedDataBuilderTests: BitwardenTestCase { // swiftlint:disabl
         XCTAssertEqual(preparedData.countPerCipherType[.identity], 1)
         XCTAssertEqual(preparedData.countPerCipherType[.secureNote], 2)
         XCTAssertEqual(preparedData.countPerCipherType[.sshKey], 1)
+        XCTAssertEqual(preparedData.countPerCipherType[.driversLicense], 1)
     }
 
     /// `incrementCipherDeletedCount()` increments cipher deleted count on the prepared data.
@@ -493,6 +531,22 @@ class VaultListPreparedDataBuilderTests: BitwardenTestCase { // swiftlint:disabl
             .build()
 
         XCTAssertTrue(preparedData.folders.isEmpty)
+    }
+
+    /// `prepareNewItemTypesEnabled(_:)` stores `true` on the prepared data when the flag is enabled.
+    func test_prepareNewItemTypesEnabled_true() {
+        let preparedData = subject
+            .prepareNewItemTypesEnabled(true)
+            .build()
+        XCTAssertTrue(preparedData.isNewItemTypesEnabled)
+    }
+
+    /// `prepareNewItemTypesEnabled(_:)` stores `false` on the prepared data when the flag is disabled.
+    func test_prepareNewItemTypesEnabled_false() {
+        let preparedData = subject
+            .prepareNewItemTypesEnabled(false)
+            .build()
+        XCTAssertFalse(preparedData.isNewItemTypesEnabled)
     }
 
     /// `test_prepareRestrictItemsPolicyOrganizations(restrictedOrganizationIds:)` adds restrictedOrganizationIds

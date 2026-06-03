@@ -16,6 +16,7 @@ class VaultListDataPreparatorSearchTests: BitwardenTestCase { // swiftlint:disab
     var cipherMatchingHelperFactory: MockCipherMatchingHelperFactory!
     var ciphersClientWrapperService: MockCiphersClientWrapperService!
     var clientService: MockClientService!
+    var configService: MockConfigService!
     var errorReporter: MockErrorReporter!
     var mockCallOrderHelper: MockCallOrderHelper!
     var policyService: MockPolicyService!
@@ -35,6 +36,7 @@ class VaultListDataPreparatorSearchTests: BitwardenTestCase { // swiftlint:disab
 
         ciphersClientWrapperService = MockCiphersClientWrapperService()
         clientService = MockClientService()
+        configService = MockConfigService()
         errorReporter = MockErrorReporter()
         policyService = MockPolicyService()
         stateService = MockStateService()
@@ -50,6 +52,7 @@ class VaultListDataPreparatorSearchTests: BitwardenTestCase { // swiftlint:disab
             cipherMatchingHelperFactory: cipherMatchingHelperFactory,
             ciphersClientWrapperService: ciphersClientWrapperService,
             clientService: clientService,
+            configService: configService,
             errorReporter: errorReporter,
             policyService: policyService,
             stateService: stateService,
@@ -64,6 +67,7 @@ class VaultListDataPreparatorSearchTests: BitwardenTestCase { // swiftlint:disab
         cipherMatchingHelperFactory = nil
         ciphersClientWrapperService = nil
         clientService = nil
+        configService = nil
         errorReporter = nil
         mockCallOrderHelper = nil
         policyService = nil
@@ -104,6 +108,7 @@ class VaultListDataPreparatorSearchTests: BitwardenTestCase { // swiftlint:disab
 
         XCTAssertEqual(mockCallOrderHelper.callOrder, [
             "prepareRestrictItemsPolicyOrganizations",
+            "prepareNewItemTypesEnabled",
         ])
         XCTAssertNotNil(result)
     }
@@ -168,6 +173,7 @@ class VaultListDataPreparatorSearchTests: BitwardenTestCase { // swiftlint:disab
 
         XCTAssertEqual(mockCallOrderHelper.callOrder, [
             "prepareRestrictItemsPolicyOrganizations",
+            "prepareNewItemTypesEnabled",
             "addItemForGroup",
         ])
         XCTAssertNotNil(result)
@@ -202,6 +208,7 @@ class VaultListDataPreparatorSearchTests: BitwardenTestCase { // swiftlint:disab
 
         XCTAssertEqual(mockCallOrderHelper.callOrder, [
             "prepareRestrictItemsPolicyOrganizations",
+            "prepareNewItemTypesEnabled",
             "addFido2Item",
             "addItemForGroup",
         ])
@@ -237,6 +244,7 @@ class VaultListDataPreparatorSearchTests: BitwardenTestCase { // swiftlint:disab
 
         XCTAssertEqual(mockCallOrderHelper.callOrder, [
             "prepareRestrictItemsPolicyOrganizations",
+            "prepareNewItemTypesEnabled",
             "addItemForGroup",
         ])
         XCTAssertNotNil(result)
@@ -271,6 +279,7 @@ class VaultListDataPreparatorSearchTests: BitwardenTestCase { // swiftlint:disab
 
         XCTAssertEqual(mockCallOrderHelper.callOrder, [
             "prepareRestrictItemsPolicyOrganizations",
+            "prepareNewItemTypesEnabled",
             "addItemForGroup",
         ])
         XCTAssertNotNil(result)
@@ -299,6 +308,7 @@ class VaultListDataPreparatorSearchTests: BitwardenTestCase { // swiftlint:disab
 
         XCTAssertEqual(mockCallOrderHelper.callOrder, [
             "prepareRestrictItemsPolicyOrganizations",
+            "prepareNewItemTypesEnabled",
         ])
         XCTAssertNotNil(result)
     }
@@ -324,6 +334,7 @@ class VaultListDataPreparatorSearchTests: BitwardenTestCase { // swiftlint:disab
 
         XCTAssertEqual(mockCallOrderHelper.callOrder, [
             "prepareRestrictItemsPolicyOrganizations",
+            "prepareNewItemTypesEnabled",
         ])
         XCTAssertEqual(ciphersClientWrapperService.decryptAndProcessCiphersInBatchPreFilterCallCount, 1)
         XCTAssertEqual(
@@ -357,6 +368,7 @@ class VaultListDataPreparatorSearchTests: BitwardenTestCase { // swiftlint:disab
 
         XCTAssertEqual(mockCallOrderHelper.callOrder, [
             "prepareRestrictItemsPolicyOrganizations",
+            "prepareNewItemTypesEnabled",
         ])
         XCTAssertEqual(ciphersClientWrapperService.decryptAndProcessCiphersInBatchPreFilterCallCount, 1)
         XCTAssertEqual(
@@ -400,6 +412,7 @@ class VaultListDataPreparatorSearchTests: BitwardenTestCase { // swiftlint:disab
 
         XCTAssertEqual(mockCallOrderHelper.callOrder, [
             "prepareRestrictItemsPolicyOrganizations",
+            "prepareNewItemTypesEnabled",
         ])
         XCTAssertNotNil(result)
     }
@@ -432,6 +445,7 @@ class VaultListDataPreparatorSearchTests: BitwardenTestCase { // swiftlint:disab
 
         XCTAssertEqual(mockCallOrderHelper.callOrder, [
             "prepareRestrictItemsPolicyOrganizations",
+            "prepareNewItemTypesEnabled",
         ])
         XCTAssertNotNil(result)
     }
@@ -453,6 +467,7 @@ class VaultListDataPreparatorSearchTests: BitwardenTestCase { // swiftlint:disab
 
         XCTAssertEqual(mockCallOrderHelper.callOrder, [
             "prepareRestrictItemsPolicyOrganizations",
+            "prepareNewItemTypesEnabled",
         ])
         XCTAssertNotNil(result)
     }
@@ -474,6 +489,7 @@ class VaultListDataPreparatorSearchTests: BitwardenTestCase { // swiftlint:disab
 
         XCTAssertEqual(mockCallOrderHelper.callOrder, [
             "prepareRestrictItemsPolicyOrganizations",
+            "prepareNewItemTypesEnabled",
             "addSearchResultItem",
         ])
         XCTAssertNotNil(result)
@@ -519,6 +535,7 @@ class VaultListDataPreparatorSearchTests: BitwardenTestCase { // swiftlint:disab
 
         XCTAssertEqual(mockCallOrderHelper.callOrder, [
             "prepareRestrictItemsPolicyOrganizations",
+            "prepareNewItemTypesEnabled",
             "addSearchResultItem",
         ])
         XCTAssertNotNil(result)
@@ -544,6 +561,7 @@ class VaultListDataPreparatorSearchTests: BitwardenTestCase { // swiftlint:disab
 
         XCTAssertEqual(mockCallOrderHelper.callOrder, [
             "prepareRestrictItemsPolicyOrganizations",
+            "prepareNewItemTypesEnabled",
         ])
         XCTAssertNotNil(result)
     }
@@ -561,6 +579,7 @@ class VaultListDataPreparatorSearchTests: BitwardenTestCase { // swiftlint:disab
 
         XCTAssertEqual(mockCallOrderHelper.callOrder, [
             "prepareRestrictItemsPolicyOrganizations",
+            "prepareNewItemTypesEnabled",
         ])
         XCTAssertEqual(ciphersClientWrapperService.decryptAndProcessCiphersInBatchPreFilterCallCount, 1)
         XCTAssertEqual(
@@ -589,6 +608,7 @@ class VaultListDataPreparatorSearchTests: BitwardenTestCase { // swiftlint:disab
 
         XCTAssertEqual(mockCallOrderHelper.callOrder, [
             "prepareRestrictItemsPolicyOrganizations",
+            "prepareNewItemTypesEnabled",
             "addSearchResultItem",
         ])
         XCTAssertEqual(ciphersClientWrapperService.decryptAndProcessCiphersInBatchPreFilterCallCount, 1)
@@ -614,6 +634,7 @@ class VaultListDataPreparatorSearchTests: BitwardenTestCase { // swiftlint:disab
 
         XCTAssertEqual(mockCallOrderHelper.callOrder, [
             "prepareRestrictItemsPolicyOrganizations",
+            "prepareNewItemTypesEnabled",
         ])
         XCTAssertEqual(ciphersClientWrapperService.decryptAndProcessCiphersInBatchPreFilterCallCount, 1)
         XCTAssertEqual(
@@ -642,6 +663,7 @@ class VaultListDataPreparatorSearchTests: BitwardenTestCase { // swiftlint:disab
 
         XCTAssertEqual(mockCallOrderHelper.callOrder, [
             "prepareRestrictItemsPolicyOrganizations",
+            "prepareNewItemTypesEnabled",
             "addSearchResultItem",
         ])
         XCTAssertEqual(ciphersClientWrapperService.decryptAndProcessCiphersInBatchPreFilterCallCount, 1)
@@ -671,6 +693,7 @@ class VaultListDataPreparatorSearchTests: BitwardenTestCase { // swiftlint:disab
 
         XCTAssertEqual(mockCallOrderHelper.callOrder, [
             "prepareRestrictItemsPolicyOrganizations",
+            "prepareNewItemTypesEnabled",
             "addSearchResultItem",
         ])
         XCTAssertEqual(ciphersClientWrapperService.decryptAndProcessCiphersInBatchPreFilterCallCount, 1)
@@ -699,6 +722,7 @@ class VaultListDataPreparatorSearchTests: BitwardenTestCase { // swiftlint:disab
 
         XCTAssertEqual(mockCallOrderHelper.callOrder, [
             "prepareRestrictItemsPolicyOrganizations",
+            "prepareNewItemTypesEnabled",
             "addSearchResultItem",
         ])
         XCTAssertNotNil(result)

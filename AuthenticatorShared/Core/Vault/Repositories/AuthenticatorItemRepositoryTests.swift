@@ -8,6 +8,7 @@ import TestHelpers
 import XCTest
 
 @testable import AuthenticatorShared
+@testable import AuthenticatorSharedMocks
 
 class AuthenticatorItemRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_body_length
     // MARK: Properties
@@ -20,6 +21,7 @@ class AuthenticatorItemRepositoryTests: BitwardenTestCase { // swiftlint:disable
     var errorReporter: MockErrorReporter!
     var sharedItemService: MockAuthenticatorBridgeItemService!
     var subject: DefaultAuthenticatorItemRepository!
+    var totpItemDisplayStateService: MockTOTPItemDisplayStateService!
     var timeProvider: MockTimeProvider!
     var totpService: MockTOTPService!
 
@@ -36,6 +38,8 @@ class AuthenticatorItemRepositoryTests: BitwardenTestCase { // swiftlint:disable
         errorReporter = MockErrorReporter()
         sharedItemService = MockAuthenticatorBridgeItemService()
         timeProvider = MockTimeProvider(.mockTime(Date()))
+        totpItemDisplayStateService = MockTOTPItemDisplayStateService()
+        totpItemDisplayStateService.getShowNextTOTPCodeReturnValue = false
         totpService = MockTOTPService()
 
         subject = DefaultAuthenticatorItemRepository(
@@ -46,6 +50,7 @@ class AuthenticatorItemRepositoryTests: BitwardenTestCase { // swiftlint:disable
             errorReporter: errorReporter,
             sharedItemService: sharedItemService,
             timeProvider: timeProvider,
+            totpItemDisplayStateService: totpItemDisplayStateService,
             totpService: totpService,
         )
     }
@@ -59,6 +64,7 @@ class AuthenticatorItemRepositoryTests: BitwardenTestCase { // swiftlint:disable
         cryptographyService = nil
         sharedItemService = nil
         subject = nil
+        totpItemDisplayStateService = nil
         timeProvider = nil
     }
 
@@ -187,7 +193,14 @@ class AuthenticatorItemRepositoryTests: BitwardenTestCase { // swiftlint:disable
             codeGenerationDate: timeProvider.presentTime,
             period: 30,
         )
+        let nextCodeModel = TOTPCodeModel(
+            code: "246813",
+            codeGenerationDate: timeProvider.presentTime,
+            period: 30,
+        )
+        totpItemDisplayStateService.getShowNextTOTPCodeReturnValue = true
         totpService.getTotpCodeResult = .success(newCodeModel)
+        totpService.getNextTOTPCodeResult = .success(nextCodeModel)
 
         let item = ItemListItem.fixture()
         let sharedItem = ItemListItem.fixtureShared()
@@ -199,6 +212,7 @@ class AuthenticatorItemRepositoryTests: BitwardenTestCase { // swiftlint:disable
         XCTAssertEqual(actual.name, item.name)
         XCTAssertEqual(actual.accountName, item.accountName)
         XCTAssertEqual(actual.totpCodeModel, newCodeModel)
+        XCTAssertEqual(actual.nextTotpCodeModel, nextCodeModel)
 
         let shared = try XCTUnwrap(result[1])
 
@@ -206,11 +220,31 @@ class AuthenticatorItemRepositoryTests: BitwardenTestCase { // swiftlint:disable
         XCTAssertEqual(shared.name, sharedItem.name)
         XCTAssertEqual(shared.accountName, sharedItem.accountName)
         XCTAssertEqual(shared.totpCodeModel, newCodeModel)
+        XCTAssertEqual(shared.nextTotpCodeModel, nextCodeModel)
 
         let syncError = try XCTUnwrap(result[2])
         XCTAssertEqual(syncError, ItemListItem.syncError())
 
         XCTAssertTrue(errorReporter.errors.isEmpty)
+    }
+
+    /// `refreshTOTPCodes(on:)` skips next-code generation when `showNextTOTPCode` is disabled.
+    func test_refreshTOTPCodes_showNextTOTPCode_disabled() async throws {
+        let newCodeModel = TOTPCodeModel(
+            code: "987654",
+            codeGenerationDate: timeProvider.presentTime,
+            period: 30,
+        )
+        totpItemDisplayStateService.getShowNextTOTPCodeReturnValue = false
+        totpService.getTotpCodeResult = .success(newCodeModel)
+
+        let item = ItemListItem.fixture()
+        let result = try await subject.refreshTOTPCodes(for: [item])
+
+        let actual = try XCTUnwrap(result[0])
+        XCTAssertEqual(actual.totpCodeModel, newCodeModel)
+        XCTAssertNil(actual.nextTotpCodeModel)
+        XCTAssertNil(totpService.getNextTOTPCodeKey)
     }
 
     /// `saveTemporarySharedItem(_)` saves a temporary item into the Authenticator Bridge shared store.

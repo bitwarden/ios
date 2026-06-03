@@ -26,9 +26,33 @@ public struct BitwardenTextField<FooterContent: View, TrailingContent: View>: Vi
     /// A flag indicating if the text field is currently focused.
     @FocusState private var isTextFieldFocused
 
+    /// Local buffer decoupling the native text field from the external binding, so iOS autofill's
+    /// post-fill verification doesn't see a binding-driven re-evaluation as a rejection.
+    @State private var localText: String = ""
+
+    /// Tracks every value sent outward so that store echoes arriving out of order can be
+    /// identified and dropped rather than overwriting localText with a stale value.
+    @State private var pendingEchoes: [String: Int] = [:]
+
     /// Whether the placeholder text should be shown in the text field.
     private var showPlaceholder: Bool {
-        !isFocused && text.isEmpty
+        !isFocused && localText.isEmpty
+    }
+
+    /// A binding for the native text fields that propagates user input outward inline in the
+    /// setter, rather than via `onChange`, so that test environments (e.g. ViewInspector) that
+    /// call the setter directly without triggering SwiftUI's observation cycle still dispatch
+    /// actions correctly.
+    private var textFieldBinding: Binding<String> {
+        Binding(
+            get: { localText },
+            set: { newValue in
+                guard localText != newValue else { return }
+                localText = newValue
+                pendingEchoes[newValue, default: 0] += 1
+                text = newValue
+            },
+        )
     }
 
     // MARK: Properties
@@ -82,6 +106,14 @@ public struct BitwardenTextField<FooterContent: View, TrailingContent: View>: Vi
         )
         .clipShape(RoundedRectangle(cornerRadius: 8))
         .accessibilityElement(children: .contain)
+        .onChange(of: text) { newValue in
+            if let count = pendingEchoes[newValue], count > 0 {
+                pendingEchoes[newValue] = count == 1 ? nil : count - 1
+                return
+            }
+            guard newValue != localText else { return }
+            localText = newValue
+        }
         .onTapGesture {
             let isPassword = isPasswordVisible != nil || canViewPassword == false
             let isPasswordVisible = isPasswordVisible?.wrappedValue ?? false
@@ -158,7 +190,7 @@ public struct BitwardenTextField<FooterContent: View, TrailingContent: View>: Vi
                 let isPassword = isPasswordVisible != nil || canViewPassword == false
                 let isPasswordVisible = isPasswordVisible?.wrappedValue ?? false
                 let isPasswordMasked = !isPasswordVisible && isPassword
-                TextField("", text: $text)
+                TextField("", text: textFieldBinding)
                     .focused($isTextFieldFocused)
                     .styleGuide(isPassword ? .bodyMonospaced : .body, includeLineSpacing: false)
                     // After some investigation, we found that .accessibilityIdentifier(..)
@@ -167,7 +199,7 @@ public struct BitwardenTextField<FooterContent: View, TrailingContent: View>: Vi
                     .accessibilityIdentifier(accessibilityIdentifier ?? "BitwardenTextField")
                     .hidden(isPasswordMasked)
                     .id(title)
-                    .introspect(.textField, on: .iOS(.v15, .v16, .v17, .v18)) { textField in
+                    .introspect(.textField, on: .iOS(.v15, .v16, .v17, .v18, .v26)) { textField in
                         textField.smartDashesType = isPassword ? .no : .default
                         textField.smartQuotesType = isPassword ? .no : .default
                     }
@@ -180,7 +212,7 @@ public struct BitwardenTextField<FooterContent: View, TrailingContent: View>: Vi
                     )
                     .disabled(isTextFieldDisabled)
                 if isPasswordMasked {
-                    SecureField("", text: $text)
+                    SecureField("", text: textFieldBinding)
                         .focused($isSecureFieldFocused)
                         .accessibilityIdentifier(accessibilityIdentifier ?? "BitwardenTextField")
                         .styleGuide(.bodyMonospaced, includeLineSpacing: false)
@@ -238,6 +270,7 @@ public struct BitwardenTextField<FooterContent: View, TrailingContent: View>: Vi
         self.canViewPassword = canViewPassword
         self.passwordVisibilityAccessibilityId = passwordVisibilityAccessibilityId
         _text = text
+        _localText = State(initialValue: text.wrappedValue)
         self.title = title
         self.trailingContent = trailingContent()
     }
@@ -277,6 +310,7 @@ public struct BitwardenTextField<FooterContent: View, TrailingContent: View>: Vi
         self.canViewPassword = canViewPassword
         self.passwordVisibilityAccessibilityId = passwordVisibilityAccessibilityId
         _text = text
+        _localText = State(initialValue: text.wrappedValue)
         self.title = title
         self.trailingContent = trailingContent()
     }
@@ -318,6 +352,7 @@ public extension BitwardenTextField where TrailingContent == EmptyView {
         self.isTextFieldDisabled = isTextFieldDisabled
         self.passwordVisibilityAccessibilityId = passwordVisibilityAccessibilityId
         _text = text
+        _localText = State(initialValue: text.wrappedValue)
         self.title = title
         trailingContent = nil
     }
@@ -357,6 +392,7 @@ public extension BitwardenTextField where FooterContent == EmptyView, TrailingCo
         self.isTextFieldDisabled = isTextFieldDisabled
         self.passwordVisibilityAccessibilityId = passwordVisibilityAccessibilityId
         _text = text
+        _localText = State(initialValue: text.wrappedValue)
         self.title = title
         trailingContent = nil
     }

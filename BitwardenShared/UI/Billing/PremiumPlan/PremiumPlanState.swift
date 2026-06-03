@@ -35,6 +35,18 @@ struct PremiumPlanState: Equatable {
         return formatDate(canceled)
     }
 
+    /// The accessibility label for the description text, with markdown stripped for VoiceOver.
+    /// For the active status, uses a screen-reader-friendly currency format instead of `descriptionText`.
+    var descriptionAccessibilityLabel: String {
+        guard planStatus == .active else {
+            return descriptionText.removingMarkdownForVoiceOver()
+        }
+        return Localizations.yourNextChargeIsForXDueOnY(
+            nextChargeAmountAccessibilityLabel,
+            nextChargeDate,
+        ).removingMarkdownForVoiceOver()
+    }
+
     /// The description text for the current plan status.
     var descriptionText: String {
         switch planStatus {
@@ -44,13 +56,21 @@ struct PremiumPlanState: Equatable {
                 nextChargeDate,
             )
         case .canceled:
-            Localizations.yourSubscriptionWasCanceledOnXResubscribeToContinueUsingDescriptionLong(
+            Localizations.yourSubscriptionWasCanceledOnXDescriptionLong(
                 canceledDate,
+            )
+        case .expired:
+            Localizations.yourSubscriptionExpiredOnXDescriptionLong(
+                expiredDate,
             )
         case .pastDue:
             Localizations.youHaveAGracePeriodOfXDaysFromYourSubscriptionDescriptionLong(
                 subscription?.gracePeriod ?? 0,
                 subscriptionEndDate,
+            )
+        case .pendingCancellation:
+            Localizations.yourSubscriptionIsScheduledToCancelOnXDescriptionLong(
+                pendingCancellationDate,
             )
         case .unknown:
             Localizations.yourSubscriptionStatusIsUnknownVisitTheWebAppDescriptionLong
@@ -67,10 +87,16 @@ struct PremiumPlanState: Equatable {
         return Localizations.negativeX(formatCurrency(subscription.discount))
     }
 
-    /// The estimated tax label (e.g. "$4.55").
+    /// The estimated tax label (e.g. "$4.55" or "$0.00").
     var estimatedTax: String {
-        guard let subscription, subscription.estimatedTax > 0 else { return "" }
+        guard let subscription else { return "" }
         return formatCurrency(subscription.estimatedTax)
+    }
+
+    /// The date the subscription expired, formatted for display.
+    var expiredDate: String {
+        guard let suspension = subscription?.suspension else { return "" }
+        return formatDate(suspension)
     }
 
     /// The next charge amount with currency code, formatted for display (e.g. "24.35 USD").
@@ -79,20 +105,36 @@ struct PremiumPlanState: Equatable {
         return formatCurrencyCode(subscription.totalAmount)
     }
 
+    /// The next charge amount formatted for screen readers (e.g. "USD $24.35").
+    var nextChargeAmountAccessibilityLabel: String {
+        guard let subscription, subscription.nextCharge != nil else { return "" }
+        return "USD \(formatCurrency(subscription.totalAmount))"
+    }
+
     /// The next charge date, formatted for display.
     var nextChargeDate: String {
         guard let nextCharge = subscription?.nextCharge else { return "" }
         return formatDate(nextCharge)
     }
 
+    /// The date the subscription is scheduled to cancel, formatted for display.
+    var pendingCancellationDate: String {
+        guard let cancelAt = subscription?.cancelAt else { return "" }
+        return formatDate(cancelAt)
+    }
+
     /// Whether the billing details section should be shown.
     var showBillingDetails: Bool {
-        planStatus != .canceled && planStatus != .unknown
+        planStatus != .canceled && planStatus != .expired && planStatus != .unknown
     }
 
     /// Whether the cancel premium button should be shown.
     var showCancelButton: Bool {
-        planStatus != .canceled && planStatus != .unknown
+        planStatus != .canceled
+            && planStatus != .expired
+            && planStatus != .pendingCancellation
+            && planStatus != .unknown
+            && planStatus != .updatePayment
     }
 
     /// Whether the discount row should be shown.
@@ -100,19 +142,9 @@ struct PremiumPlanState: Equatable {
         !discount.isEmpty
     }
 
-    /// Whether the estimated tax row should be shown.
-    var showEstimatedTax: Bool {
-        !estimatedTax.isEmpty
-    }
-
-    /// Whether the storage cost row should be shown.
-    var showStorageCost: Bool {
-        (subscription?.storageCost ?? 0) > 0
-    }
-
-    /// The storage cost label (e.g. "$4.00").
+    /// The storage cost label (e.g. "$4.00" or "$0.00").
     var storageCostLabel: String {
-        guard let subscription, subscription.storageCost > 0 else { return "" }
+        guard let subscription else { return "" }
         return formatCurrency(subscription.storageCost)
     }
 
@@ -124,6 +156,15 @@ struct PremiumPlanState: Equatable {
             return formatDate(cancelAt)
         }
         return ""
+    }
+
+    /// The total label (e.g. "$25.55 / year").
+    var totalLabel: String {
+        guard let subscription else { return "" }
+        return Localizations.xAmountPerCadence(
+            formatCurrency(subscription.totalAmount),
+            subscription.cadence.label,
+        )
     }
 
     // MARK: Private Methods
@@ -153,5 +194,18 @@ struct PremiumPlanState: Equatable {
     ///
     private func formatDate(_ date: Date) -> String {
         date.formatted(date: .long, time: .omitted)
+    }
+}
+
+// MARK: - PremiumPlanState + Initialization
+
+extension PremiumPlanState {
+    /// Creates a `PremiumPlanState` pre-populated with a subscription, skipping the plan screen's
+    /// own `getSubscription()` fetch.
+    ///
+    /// - Parameter subscription: The already-fetched subscription.
+    ///
+    init(subscription: PremiumSubscription) {
+        self.init(planStatus: subscription.status, subscription: subscription)
     }
 }

@@ -126,7 +126,7 @@ final class DeviceAuthKeyServiceTests: BitwardenTestCase {
     /// `getDeviceAuthKeyMetadata(userId:)` returns metadata from the keychain repository.
     ///
     func test_getDeviceAuthKeyMetadata_success() async throws {
-        let metadata = DeviceAuthKeyMetadata.fixture()
+        let metadata = DeviceAuthKeyKeychainMetadata.fixture()
         deviceAuthKeychainRepository.getDeviceAuthKeyMetadataReturnValue = metadata
 
         let result = try await subject.getDeviceAuthKeyMetadata(userId: "userId123")

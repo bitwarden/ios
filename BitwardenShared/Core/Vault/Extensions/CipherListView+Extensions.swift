@@ -40,10 +40,14 @@ extension CipherListView {
         switch group {
         case .archive:
             archivedDate != nil
+        case .bankAccount:
+            type == .bankAccount
         case .card:
             type.isCard
         case let .collection(id, _, _):
             collectionIds.contains(id)
+        case .driversLicense:
+            type == .driversLicense
         case let .folder(id, _):
             folderId == id
         case .identity:
@@ -149,6 +153,12 @@ extension CipherListView {
             .secureNote
         case .sshKey:
             .sshKey
+        case .bankAccount:
+            .bankAccount
+        case .driversLicense:
+            .driversLicense
+        case .passport:
+            .passport
         }
 
         self.init(

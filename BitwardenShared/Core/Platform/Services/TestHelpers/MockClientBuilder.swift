@@ -20,9 +20,9 @@ final class MockClientBuilder: ClientBuilder {
 }
 
 class MockClient: BitwardenSdkClient {
-    var authClient = MockAuthClient()
-    var cryptoClient = MockCryptoClient()
-    var exporterClient = MockExporterClient()
+    var authClient = MockAuthClientService()
+    var cryptoClient = MockCryptoClientProtocol()
+    var exporterClient = MockExporterClientProtocol()
     var generatorClient = MockGeneratorClientsProtocol()
     var platformClient = MockPlatformClientService()
     var sendClient = MockSendClientProtocol()

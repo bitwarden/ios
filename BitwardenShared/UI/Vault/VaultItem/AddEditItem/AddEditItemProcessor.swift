@@ -176,6 +176,8 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
             await fetchCipherOptions()
         case .savePressed:
             await saveItem()
+        case .scanCardButtonTapped:
+            await openCardScanner()
         case .setupTotpPressed:
             await setupTotp()
         case .deletePressed:
@@ -499,7 +501,6 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
     ///   - state: The parent `AddEditCardState` to be updated.
     ///   - action: The `AddEditCardItemAction` received.
     private func updateCardState(_ state: inout AddEditItemState, for action: AddEditCardItemAction) {
-        // swiftlint:disable:previous function_body_length
         switch action {
         case let .brandChanged(brand):
             state.cardItemState.brand = brand
@@ -518,8 +519,6 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
             state.cardItemState.expirationMonth = month
         case let .expirationYearChanged(year):
             state.cardItemState.expirationYear = year
-        case .scanCardButtonTapped:
-            state.cardItemState.isCardScannerPresented = true
         case let .toggleCodeVisibilityChanged(isVisible):
             state.cardItemState.isCodeVisible = isVisible
             if isVisible {
@@ -947,6 +946,22 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
         let shouldDismissed = delegate?.itemUpdated() ?? true
         if shouldDismissed {
             coordinator.navigate(to: .dismiss())
+        }
+    }
+
+    /// Checks camera authorization and either opens the card scanner sheet or shows a
+    /// camera-permission-required alert with a link to iOS Settings.
+    ///
+    private func openCardScanner() async {
+        let status = await services.cameraService.checkStatusOrRequestCameraAuthorization()
+        guard status == .authorized else {
+            coordinator.showAlert(.cameraPermissionRequired { [weak self] in
+                self?.state.url = URL(string: UIApplication.openSettingsURLString)
+            })
+            return
+        }
+        await MainActor.run {
+            state.cardItemState.isCardScannerPresented = true
         }
     }
 

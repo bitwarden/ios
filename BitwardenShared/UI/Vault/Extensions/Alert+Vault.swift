@@ -31,6 +31,51 @@ extension Alert {
         return alert
     }
 
+    /// Returns an alert for when attachments are unavailable.
+    ///
+    /// - Parameters:
+    ///   - action: A closure to execute on upgrading to premium.
+    /// - Returns: The alert when attachments are unavailable.
+    static func attachmentsUnavailable(
+        action: @escaping () async -> Void,
+    ) -> Alert {
+        let preferredAction = AlertAction(title: Localizations.upgradeToPremium, style: .default) { _ in
+            await action()
+        }
+        let alert = Alert(
+            title: Localizations.attachmentsUnavailable,
+            message: Localizations.addingAttachmentsIsAPremiumFeatureDescriptionLong,
+            alertActions: [
+                preferredAction,
+                AlertAction(title: Localizations.cancel, style: .cancel),
+            ],
+        )
+        alert.preferredAction = preferredAction
+        return alert
+    }
+
+    /// Returns an alert notifying the user that a premium subscription is required to send files,
+    /// with an option to upgrade.
+    ///
+    /// - Parameters:
+    ///   - action: A closure to execute on upgrading to premium.
+    /// - Returns: The alert shown when a non-premium user tries to send a file.
+    static func fileSendPremiumRequired(
+        action: @escaping () -> Void,
+    ) -> Alert {
+        let preferredAction = AlertAction(title: Localizations.upgradeToPremium, style: .default) { _, _ in action() }
+        let alert = Alert(
+            title: Localizations.premiumSubscriptionRequired,
+            message: Localizations.sendFilePremiumRequired,
+            alertActions: [
+                preferredAction,
+                AlertAction(title: Localizations.cancel, style: .cancel),
+            ],
+        )
+        alert.preferredAction = preferredAction
+        return alert
+    }
+
     /// Returns an alert for when the "Specific People" Send feature is unavailable due to
     /// lack of premium subscription.
     ///
@@ -413,6 +458,35 @@ extension Alert {
                     ))
                 })
             }
+        case .bankAccount:
+            if let accountNumber = context.cipherView.bankAccount?.accountNumber {
+                alertActions.append(AlertAction(title: Localizations.copyAccountNumber, style: .default) { _, _ in
+                    await action(.copy(
+                        toast: Localizations.accountNumber,
+                        value: accountNumber,
+                        requiresMasterPasswordReprompt: true,
+                        logEvent: nil,
+                        cipherId: nil,
+                    ))
+                })
+            }
+            if let routingNumber = context.cipherView.bankAccount?.routingNumber {
+                alertActions.append(AlertAction(title: Localizations.copyRoutingNumber, style: .default) { _, _ in
+                    await action(.copy(
+                        toast: Localizations.routingNumber,
+                        value: routingNumber,
+                        requiresMasterPasswordReprompt: true,
+                        logEvent: nil,
+                        cipherId: nil,
+                    ))
+                })
+            }
+        case .driversLicense:
+            // TODO: PM-32807
+            break
+        case .passport:
+            // TODO: PM-32805
+            break
         }
 
         if context.canArchive {

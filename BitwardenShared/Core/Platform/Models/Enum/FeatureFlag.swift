@@ -5,6 +5,17 @@ import Foundation
 
 /// An enum to represent a feature flag sent by the server
 extension FeatureFlag: @retroactive CaseIterable {
+    /// A feature flag to enable/disable V2 account encryption for JIT password registration.
+    static let accountEncryptionV2JITPassword = FeatureFlag(
+        rawValue: "enable-account-encryption-v2-jit-password-registration",
+    )
+
+    /// Flag to enable/disable V2 password-based registration using the SDK registration client.
+    static let accountEncryptionV2PasswordRegistration = FeatureFlag(rawValue: "pm-27278-v2-password-registration")
+
+    /// A feature flag to enable/disable V2 account encryption for TDE.
+    static let accountEncryptionV2TDE = FeatureFlag(rawValue: "pm-27279-v2-registration-tde-jit")
+
     /// A feature flag to enable/disable scanning a card to autocomplete its details in add/edit cipher.
     static let cardScanner = FeatureFlag(rawValue: "pm-34171-card-scanner")
 
@@ -13,7 +24,7 @@ extension FeatureFlag: @retroactive CaseIterable {
 
     /// Debug flag to disable self-hosted checks in premium upgrade flows for QA testing.
     static let debugDisableSelfHostPremiumCheck = FeatureFlag(
-        rawValue: "debug-disable-self-host-premium-check"
+        rawValue: "debug-disable-self-host-premium-check",
     )
 
     /// Flag to enable/disable Device Auth Key flows.
@@ -39,6 +50,9 @@ extension FeatureFlag: @retroactive CaseIterable {
 
     public static var allCases: [FeatureFlag] {
         [
+            .accountEncryptionV2JITPassword,
+            .accountEncryptionV2PasswordRegistration,
+            .accountEncryptionV2TDE,
             .cardScanner,
             .cipherKeyEncryption,
             .debugDisableSelfHostPremiumCheck,

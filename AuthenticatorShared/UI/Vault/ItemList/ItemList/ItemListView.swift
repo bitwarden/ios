@@ -184,7 +184,6 @@ private struct SearchableItemListView: View { // swiftlint:disable:this type_bod
                 LazyVStack(spacing: 0) {
                     ForEach(store.state.searchResults) { item in
                         buildRow(item: item, isLastInSection: store.state.searchResults.last == item)
-                            .accessibilityIdentifier("ItemCell")
                     }
                 }
             }
@@ -216,6 +215,7 @@ private struct SearchableItemListView: View { // swiftlint:disable:this type_bod
                         .imageStyle(.accessoryIcon(scaleWithFont: true))
                 }
             }
+            .accessibilityIdentifier("CopyTOTPCodeButton")
 
             if case .totp = item.itemType {
                 Button {
@@ -228,6 +228,7 @@ private struct SearchableItemListView: View { // swiftlint:disable:this type_bod
                             .imageStyle(.accessoryIcon(scaleWithFont: true))
                     }
                 }
+                .accessibilityIdentifier("EditItemButton")
 
                 if store.state.showMoveToBitwarden {
                     AsyncButton {
@@ -240,6 +241,7 @@ private struct SearchableItemListView: View { // swiftlint:disable:this type_bod
                                 .imageStyle(.accessoryIcon(scaleWithFont: true))
                         }
                     }
+                    .accessibilityIdentifier("MoveToBitwardenButton")
                 }
 
                 Divider()
@@ -254,6 +256,7 @@ private struct SearchableItemListView: View { // swiftlint:disable:this type_bod
                             .imageStyle(.accessoryIcon(scaleWithFont: true))
                     }
                 }
+                .accessibilityIdentifier("DeleteItemButton")
             }
         } label: {
             itemListItemRow(
@@ -263,6 +266,7 @@ private struct SearchableItemListView: View { // swiftlint:disable:this type_bod
         } primaryAction: {
             store.send(.itemPressed(item))
         }
+        .accessibilityIdentifier("ItemCell")
         .background(Asset.Colors.backgroundPrimary.swiftUIColor)
     }
 
@@ -272,7 +276,7 @@ private struct SearchableItemListView: View { // swiftlint:disable:this type_bod
     private func groupView(title: String?, items: [ItemListItem]) -> some View {
         LazyVStack(alignment: .leading, spacing: 7) {
             if let title = title?.nilIfEmpty {
-                ExpandableHeaderView(title: title, count: items.count) {
+                ExpandableHeaderView(title: title, count: items.count, buttonAccessibilityIdentifier: title+"Header") {
                     ForEach(items) { item in
                         buildRow(item: item, isLastInSection: true)
                             .clipShape(RoundedRectangle(cornerRadius: 10))
@@ -325,6 +329,7 @@ private struct SearchableItemListView: View { // swiftlint:disable:this type_bod
                         iconBaseURL: state.iconBaseURL,
                         item: item,
                         hasDivider: !isLastInSection,
+                        showNextTOTPCode: state.showNextTOTPCode,
                         showWebIcons: state.showWebIcons,
                     )
                 },

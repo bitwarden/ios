@@ -898,38 +898,6 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
         XCTAssertEqual(coordinator.routes, [])
     }
 
-    /// `openUrl(_:)` with a premium checkout success URL calls `billingService.premiumStatusChanged()`.
-    @MainActor
-    func test_openUrl_premiumCheckoutResult_success() async throws {
-        let url = try XCTUnwrap(URL(string: "bitwarden://premium-checkout-result?result=success"))
-
-        await subject.openUrl(url)
-
-        XCTAssertEqual(billingService.premiumStatusChangedCallsCount, 1)
-    }
-
-    /// `openUrl(_:)` with a premium checkout canceled URL calls `premiumCheckoutCanceled()`.
-    @MainActor
-    func test_openUrl_premiumCheckoutResult_canceled() async throws {
-        let url = try XCTUnwrap(URL(string: "bitwarden://premium-checkout-result?result=canceled"))
-
-        await subject.openUrl(url)
-
-        XCTAssertEqual(billingService.premiumCheckoutCanceledCallsCount, 1)
-        XCTAssertEqual(billingService.premiumStatusChangedCallsCount, 0)
-    }
-
-    /// `openUrl(_:)` with a non-premium-checkout URL is not handled by `handlePremiumCheckoutResult`.
-    @MainActor
-    func test_openUrl_premiumCheckoutResult_unrelatedUrl() async throws {
-        let url = try XCTUnwrap(URL(string: "bitwarden://other-path"))
-
-        await subject.openUrl(url)
-
-        XCTAssertEqual(billingService.premiumStatusChangedCallsCount, 0)
-        XCTAssertEqual(billingService.premiumCheckoutCanceledCallsCount, 0)
-    }
-
     /// `provideCredential(for:)` returns the credential with the specified identifier.
     func test_provideCredential() async throws {
         let credential = ASPasswordCredential(user: "user@bitwarden.com", password: "password123")

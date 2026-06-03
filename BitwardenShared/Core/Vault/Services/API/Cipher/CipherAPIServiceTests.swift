@@ -32,7 +32,7 @@ class CipherAPIServiceTests: XCTestCase { // swiftlint:disable:this type_body_le
     // MARK: Tests
 
     /// `addCipher()` performs the add cipher request and decodes the response.
-    func test_addCipher() async throws {
+    func test_addCipher() async throws { // swiftlint:disable:this function_body_length
         client.result = .httpSuccess(testData: .cipherResponse)
 
         let response = try await subject.addCipher(
@@ -55,6 +55,7 @@ class CipherAPIServiceTests: XCTestCase { // swiftlint:disable:this type_body_le
                 collectionIds: nil,
                 creationDate: Date(timeIntervalSince1970: 1_691_656_425.345),
                 deletedDate: nil,
+                driversLicense: nil,
                 edit: true,
                 favorite: true,
                 fields: nil,
@@ -75,6 +76,7 @@ class CipherAPIServiceTests: XCTestCase { // swiftlint:disable:this type_body_le
                 notes: nil,
                 organizationId: nil,
                 organizationUseTotp: false,
+                passport: nil,
                 passwordHistory: nil,
                 permissions: nil,
                 reprompt: .none,
@@ -88,7 +90,7 @@ class CipherAPIServiceTests: XCTestCase { // swiftlint:disable:this type_body_le
     }
 
     /// `addCipherWithCollections()` performs the add cipher with collections request and decodes the response.
-    func test_addCipherWithCollections() async throws {
+    func test_addCipherWithCollections() async throws { // swiftlint:disable:this function_body_length
         client.result = .httpSuccess(testData: .cipherResponse)
 
         let response = try await subject.addCipherWithCollections(
@@ -111,6 +113,7 @@ class CipherAPIServiceTests: XCTestCase { // swiftlint:disable:this type_body_le
                 collectionIds: nil,
                 creationDate: Date(timeIntervalSince1970: 1_691_656_425.345),
                 deletedDate: nil,
+                driversLicense: nil,
                 edit: true,
                 favorite: true,
                 fields: nil,
@@ -131,6 +134,7 @@ class CipherAPIServiceTests: XCTestCase { // swiftlint:disable:this type_body_le
                 notes: nil,
                 organizationId: nil,
                 organizationUseTotp: false,
+                passport: nil,
                 passwordHistory: nil,
                 permissions: nil,
                 reprompt: .none,
@@ -164,6 +168,7 @@ class CipherAPIServiceTests: XCTestCase { // swiftlint:disable:this type_body_le
                 collectionIds: nil,
                 creationDate: Date(timeIntervalSince1970: 1_691_656_425.345),
                 deletedDate: nil,
+                driversLicense: nil,
                 edit: true,
                 favorite: true,
                 fields: nil,
@@ -184,6 +189,7 @@ class CipherAPIServiceTests: XCTestCase { // swiftlint:disable:this type_body_le
                 notes: nil,
                 organizationId: nil,
                 organizationUseTotp: false,
+                passport: nil,
                 passwordHistory: nil,
                 permissions: nil,
                 reprompt: .none,
@@ -330,6 +336,7 @@ class CipherAPIServiceTests: XCTestCase { // swiftlint:disable:this type_body_le
                     collectionIds: nil,
                     creationDate: Date(timeIntervalSince1970: 1_691_656_425.345),
                     deletedDate: nil,
+                    driversLicense: nil,
                     edit: true,
                     favorite: false,
                     fields: nil,
@@ -350,6 +357,7 @@ class CipherAPIServiceTests: XCTestCase { // swiftlint:disable:this type_body_le
                     notes: nil,
                     organizationId: nil,
                     organizationUseTotp: false,
+                    passport: nil,
                     passwordHistory: nil,
                     permissions: nil,
                     reprompt: .none,
@@ -366,7 +374,7 @@ class CipherAPIServiceTests: XCTestCase { // swiftlint:disable:this type_body_le
     }
 
     /// `shareCipher()` performs the share cipher request and decodes the response.
-    func test_shareCipher() async throws {
+    func test_shareCipher() async throws { // swiftlint:disable:this function_body_length
         client.result = .httpSuccess(testData: .cipherResponse)
 
         let response = try await subject.shareCipher(
@@ -389,6 +397,7 @@ class CipherAPIServiceTests: XCTestCase { // swiftlint:disable:this type_body_le
                 collectionIds: nil,
                 creationDate: Date(timeIntervalSince1970: 1_691_656_425.345),
                 deletedDate: nil,
+                driversLicense: nil,
                 edit: true,
                 favorite: true,
                 fields: nil,
@@ -409,6 +418,7 @@ class CipherAPIServiceTests: XCTestCase { // swiftlint:disable:this type_body_le
                 notes: nil,
                 organizationId: nil,
                 organizationUseTotp: false,
+                passport: nil,
                 passwordHistory: nil,
                 permissions: nil,
                 reprompt: .none,
@@ -454,6 +464,7 @@ class CipherAPIServiceTests: XCTestCase { // swiftlint:disable:this type_body_le
                 collectionIds: nil,
                 creationDate: Date(timeIntervalSince1970: 1_691_656_425.345),
                 deletedDate: nil,
+                driversLicense: nil,
                 edit: true,
                 favorite: true,
                 fields: nil,
@@ -474,6 +485,7 @@ class CipherAPIServiceTests: XCTestCase { // swiftlint:disable:this type_body_le
                 notes: nil,
                 organizationId: nil,
                 organizationUseTotp: false,
+                passport: nil,
                 passwordHistory: nil,
                 permissions: nil,
                 reprompt: .none,
@@ -488,13 +500,19 @@ class CipherAPIServiceTests: XCTestCase { // swiftlint:disable:this type_body_le
 
     /// `updateCipherCollections()` performs the update cipher collections request.
     func test_updateCipherCollections() async throws {
-        client.result = .httpSuccess(testData: .emptyResponse)
+        client.result = .httpSuccess(testData: .updateCipherCollectionsResponse)
 
-        try await subject.updateCipherCollections(.fixture(collectionIds: ["1", "2", "3"], id: "1"))
+        let response = try await subject.updateCipherCollections(
+            .fixture(collectionIds: ["1", "2", "3"], id: "1"),
+        )
 
         XCTAssertEqual(client.requests.count, 1)
         XCTAssertNotNil(client.requests[0].body)
         XCTAssertEqual(client.requests[0].method, .put)
-        XCTAssertEqual(client.requests[0].url.absoluteString, "https://example.com/api/ciphers/1/collections")
+        XCTAssertEqual(
+            client.requests[0].url.absoluteString,
+            "https://example.com/api/ciphers/1/collections_v2",
+        )
+        XCTAssertNotNil(response.cipher)
     }
 } // swiftlint:disable:this file_length
