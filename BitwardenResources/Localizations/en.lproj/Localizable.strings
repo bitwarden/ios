@@ -200,6 +200,7 @@
 "SecurityCode" = "Security code";
 "TypeCard" = "Card";
 "TypeIdentity" = "Identity";
+"TypeLicense" = "License";
 "TypeLogin" = "Login";
 "TypeSecureNote" = "Secure note";
 "Address1" = "Address 1";
@@ -1115,4 +1116,5 @@
 "PricingUnavailable" = "Pricing unavailable";
 "BankAccount" = "Bank account";
 "License" = "License";
+"Licenses" = "Licenses";
 "Passport" = "Passport";

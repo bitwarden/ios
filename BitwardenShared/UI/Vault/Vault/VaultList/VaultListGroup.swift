@@ -9,6 +9,9 @@ public enum VaultListGroup: Equatable, Hashable, Sendable {
     /// A group of card type ciphers.
     case card
 
+    /// A group of driver's license type ciphers.
+    case driversLicense
+
     /// A group of identity type ciphers.
     case identity
 
@@ -76,6 +79,8 @@ extension VaultListGroup {
             Localizations.typeCard
         case let .collection(_, name, _):
             name
+        case .driversLicense:
+            Localizations.typeLicense
         case let .folder(_, name):
             name
         case .identity:
@@ -104,6 +109,8 @@ extension VaultListGroup {
             Localizations.cards
         case let .collection(_, name, _):
             name
+        case .driversLicense:
+            Localizations.licenses
         case let .folder(_, name):
             name
         case .identity:

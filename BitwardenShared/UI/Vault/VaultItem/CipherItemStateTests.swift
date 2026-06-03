@@ -397,6 +397,13 @@ class CipherItemStateTests: BitwardenTestCase { // swiftlint:disable:this type_b
         XCTAssertEqual(state.icon.name, SharedAsset.Icons.card24.name)
     }
 
+    /// `getter:icon` returns the icon for a driver's license cipher.
+    func test_icon_driversLicense() throws {
+        let cipher = CipherView.fixture(type: .driversLicense)
+        let state = try XCTUnwrap(CipherItemState(existing: cipher, hasPremium: true))
+        XCTAssertEqual(state.icon.name, SharedAsset.Icons.idCard24.name)
+    }
+
     /// `getter:icon` returns the icon for an identity cipher.
     func test_icon_identity() throws {
         let cipher = CipherView.fixture(type: .identity)

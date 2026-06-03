@@ -59,7 +59,7 @@ struct VaultGroupState: Equatable, Sendable {
             return .button
         case .collection, .folder, .noFolder:
             return .menu
-        case .archive, .sshKey, .totp, .trash:
+        case .archive, .driversLicense, .sshKey, .totp, .trash:
             return nil
         }
     }
