@@ -17,6 +17,8 @@ extension Cipher {
         switch group {
         case .archive:
             archivedDate != nil
+        case .bankAccount:
+            type == .bankAccount
         case .card:
             type == .card
         case let .collection(id, _, _):
