@@ -19,9 +19,6 @@ extension FeatureFlag: @retroactive CaseIterable {
     /// A feature flag to enable/disable scanning a card to autocomplete its details in add/edit cipher.
     static let cardScanner = FeatureFlag(rawValue: "pm-34171-card-scanner")
 
-    /// Flag to enable/disable individual cipher encryption configured remotely.
-    static let cipherKeyEncryption = FeatureFlag(rawValue: "cipher-key-encryption")
-
     /// Debug flag to disable self-hosted checks in premium upgrade flows for QA testing.
     static let debugDisableSelfHostPremiumCheck = FeatureFlag(
         rawValue: "debug-disable-self-host-premium-check",
