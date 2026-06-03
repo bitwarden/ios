@@ -1,5 +1,5 @@
 "CardAutofillForm" = "Card Autofill Form";
-"CardAutofillFormDescription" = "Tap each field and select Bitwarden from the QuickType bar to autofill card details. Requires iOS 18+, Bitwarden PM as AutoFill provider, and a saved Card cipher.";
+"CardAutofillFormDescription" = "Long press a field, then select Credit Card to autofill with Bitwarden. Requires Bitwarden PM as AutoFill provider and a saved Card cipher.";
 "CardDetails" = "Card Details";
 "CardholderName" = "Cardholder Name";
 "CardholderNameValue" = "Cardholder Name: %@";
