@@ -95,3 +95,5 @@ BitwardenKit/Core/Platform/Utilities/SDKVersionInfo.swift
 __pycache__/
 *.py[codz]
 *$py.class
+
+# trigger-actions test marker
