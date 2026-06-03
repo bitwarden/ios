@@ -274,7 +274,7 @@ public class AppProcessor {
         try await unlockVaultWithNeverlockKey()
 
         try await services.vaultRepository.addCipher(
-            CipherView(username: username, password: password, uri: uri, name: name)
+            CipherView(username: username, password: password, uri: uri, name: name),
         )
     }
 
