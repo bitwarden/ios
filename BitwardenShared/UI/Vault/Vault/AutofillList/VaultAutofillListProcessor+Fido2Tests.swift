@@ -17,7 +17,7 @@ import XCTest
 class VaultAutofillListProcessorFido2Tests: BitwardenTestCase { // swiftlint:disable:this type_body_length
     // MARK: Properties
 
-    var appExtensionDelegate: MockAutofillAppExtensionDelegate!
+    var appExtensionDelegate: MockCredentialProviderExtensionDelegate!
     var authRepository: MockAuthRepository!
     var autofillCredentialService: MockAutofillCredentialService!
     var cipherOwnershipHelper: MockCipherOwnershipHelper!
@@ -39,7 +39,7 @@ class VaultAutofillListProcessorFido2Tests: BitwardenTestCase { // swiftlint:dis
     override func setUp() {
         super.setUp()
 
-        appExtensionDelegate = MockAutofillAppExtensionDelegate()
+        appExtensionDelegate = MockCredentialProviderExtensionDelegate()
         authRepository = MockAuthRepository()
         autofillCredentialService = MockAutofillCredentialService()
         cipherOwnershipHelper = MockCipherOwnershipHelper()

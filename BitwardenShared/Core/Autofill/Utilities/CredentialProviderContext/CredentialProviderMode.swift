@@ -1,7 +1,7 @@
 import AuthenticationServices
 
-/// The autofill extension modes
-public enum AutofillExtensionMode {
+/// The credential provider extension modes
+public enum CredentialProviderMode {
     /// The extension is autofilling a specific password credential.
     case autofillCredential(ASPasswordCredentialIdentity, userInteraction: Bool)
 
