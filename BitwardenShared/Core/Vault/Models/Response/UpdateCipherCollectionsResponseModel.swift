@@ -6,10 +6,6 @@ import Networking
 struct UpdateCipherCollectionsResponseModel: JSONResponse, Equatable {
     // MARK: Properties
 
-    /// The updated cipher, or `nil` if the user no longer has access.
+    /// The updated cipher, or `nil` if the user no longer has access to it.
     let cipher: CipherDetailsResponseModel?
-
-    /// Whether the cipher is now unavailable to the current user (i.e. they no longer have any
-    /// collection access to it after the update).
-    let unavailable: Bool
 }

@@ -1,5 +1,4 @@
 {
-  "unavailable": false,
   "cipher": {
     "collectionIds": ["collection-1", "collection-2"],
     "folderId": "folderId",

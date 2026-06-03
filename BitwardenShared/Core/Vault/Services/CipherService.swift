@@ -450,14 +450,11 @@ extension DefaultCipherService {
         // Update the cipher collections in the backend.
         let response = try await cipherAPIService.updateCipherCollections(cipher)
 
-        if response.unavailable {
-            // The user no longer has any collection access to the cipher after the update,
-            // so remove it from local storage.
-            try await cipherDataStore.deleteCipher(id: cipher.id ?? "", userId: userId)
+        if let cipherResponse = response.cipher {
+            try await cipherDataStore.upsertCipher(Cipher(responseModel: cipherResponse), userId: userId)
         } else {
-            // Use the server-returned cipher if available; fall back to the local model.
-            let updatedCipher = response.cipher.map { Cipher(responseModel: $0) } ?? cipher
-            try await cipherDataStore.upsertCipher(updatedCipher, userId: userId)
+            // A nil cipher indicates the user no longer has access to it after the update.
+            try await cipherDataStore.deleteCipher(id: cipher.id ?? "", userId: userId)
         }
     }
 

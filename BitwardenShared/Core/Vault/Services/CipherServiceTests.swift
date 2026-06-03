@@ -393,12 +393,12 @@ class CipherServiceTests: BitwardenTestCase { // swiftlint:disable:this type_bod
         XCTAssertNil(cipherDataStore.deleteCipherId)
     }
 
-    /// `updateCipherCollectionsWithServer(_:)` deletes the cipher locally when the server marks it unavailable.
-    func test_updateCipherCollections_unavailable() async throws {
-        let unavailableJson = APITestData(data: Data("""
-        {"unavailable": true, "cipher": null}
+    /// `updateCipherCollectionsWithServer(_:)` deletes the cipher locally when the server returns a nil cipher.
+    func test_updateCipherCollections_nilCipher() async throws {
+        let nilCipherJson = APITestData(data: Data("""
+        {"cipher": null}
         """.utf8))
-        client.result = .httpSuccess(testData: unavailableJson)
+        client.result = .httpSuccess(testData: nilCipherJson)
         stateService.activeAccount = .fixture()
 
         let cipher = Cipher.fixture(collectionIds: ["1"], id: "cipher-id")

@@ -513,7 +513,6 @@ class CipherAPIServiceTests: XCTestCase { // swiftlint:disable:this type_body_le
             client.requests[0].url.absoluteString,
             "https://example.com/api/ciphers/1/collections_v2",
         )
-        XCTAssertFalse(response.unavailable)
         XCTAssertNotNil(response.cipher)
     }
 } // swiftlint:disable:this file_length
