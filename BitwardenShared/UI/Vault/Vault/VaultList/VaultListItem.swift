@@ -139,8 +139,7 @@ extension VaultListItem {
                 // TODO: PM-32809
                 SharedAsset.Icons.stickyNote24
             case .driversLicense:
-                // TODO: PM-32807
-                SharedAsset.Icons.stickyNote24
+                SharedAsset.Icons.idCard24
             case .passport:
                 // TODO: PM-32805
                 SharedAsset.Icons.stickyNote24
@@ -151,6 +150,8 @@ extension VaultListItem {
                 SharedAsset.Icons.card24
             case .collection:
                 SharedAsset.Icons.collections24
+            case .driversLicense:
+                SharedAsset.Icons.idCard24
             case .folder,
                  .noFolder:
                 SharedAsset.Icons.folder24
@@ -193,7 +194,6 @@ extension VaultListItem {
                 // TODO: PM-32809
                 "BankAccountCipherIcon"
             case .driversLicense:
-                // TODO: PM-32807
                 "DriverLicenseCipherIcon"
             case .passport:
                 // TODO: PM-32805
@@ -219,6 +219,8 @@ extension VaultListItem {
                 "FolderCell"
             case .card:
                 "CardCell"
+            case .driversLicense:
+                "DriversLicenseCell"
             case .identity:
                 "IdentityCell"
             case .login:
