@@ -48,11 +48,13 @@ struct PremiumPlanView: View {
             value: store.state.billingAmount,
             valueColor: Color(asset: SharedAsset.Colors.textPrimary),
         )
-        billingRow(
-            label: Localizations.storageCost,
-            value: store.state.storageCostLabel,
-            valueColor: Color(asset: SharedAsset.Colors.textPrimary),
-        )
+        if store.state.showStorageCost {
+            billingRow(
+                label: Localizations.storageCost,
+                value: store.state.storageCostLabel,
+                valueColor: Color(asset: SharedAsset.Colors.textPrimary),
+            )
+        }
         if store.state.showDiscount {
             billingRow(
                 label: Localizations.discount,
