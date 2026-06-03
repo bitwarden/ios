@@ -107,6 +107,23 @@ class PremiumPlanViewTests: BitwardenTestCase {
         XCTAssertNotNil(try subject.inspect().find(text: processor.state.estimatedTax))
     }
 
+    /// The storage cost row is hidden when storage cost is zero.
+    @MainActor
+    func test_storageCostRow_hidden_whenZero() throws {
+        processor.state.planStatus = .active
+        processor.state.subscription = .fixture(storageCost: 0)
+        XCTAssertThrowsError(try subject.inspect().find(text: Localizations.storageCost))
+    }
+
+    /// The storage cost row is visible when storage cost is greater than zero.
+    @MainActor
+    func test_storageCostRow_visible_whenNonZero() throws {
+        processor.state.planStatus = .active
+        processor.state.subscription = .fixture(storageCost: 4)
+        XCTAssertNotNil(try subject.inspect().find(text: Localizations.storageCost))
+        XCTAssertNotNil(try subject.inspect().find(text: processor.state.storageCostLabel))
+    }
+
     /// Tapping the manage plan button dispatches the `.managePlanTapped` effect.
     @MainActor
     func test_managePlanButton_tap() async throws {

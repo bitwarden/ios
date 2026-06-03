@@ -8,7 +8,7 @@ import Testing
 
 // MARK: - PremiumPlanStateTests
 
-struct PremiumPlanStateTests {
+struct PremiumPlanStateTests { // swiftlint:disable:this type_body_length
     // MARK: Properties
 
     /// A date used for testing: April 2, 2026 at 12:00 UTC.
@@ -256,6 +256,31 @@ struct PremiumPlanStateTests {
         var state = PremiumPlanState()
         state.subscription = .fixture(discount: 0)
         #expect(!state.showDiscount)
+    }
+
+    // MARK: Tests - showStorageCost
+
+    /// `showStorageCost` returns `true` when storage cost is greater than zero.
+    @Test
+    func showStorageCost_true() {
+        var state = PremiumPlanState()
+        state.subscription = .fixture(storageCost: 4)
+        #expect(state.showStorageCost)
+    }
+
+    /// `showStorageCost` returns `false` when storage cost is zero.
+    @Test
+    func showStorageCost_zero() {
+        var state = PremiumPlanState()
+        state.subscription = .fixture(storageCost: 0)
+        #expect(!state.showStorageCost)
+    }
+
+    /// `showStorageCost` returns `false` when subscription is nil.
+    @Test
+    func showStorageCost_nil() {
+        let state = PremiumPlanState()
+        #expect(!state.showStorageCost)
     }
 
     // MARK: Tests - storageCostLabel
