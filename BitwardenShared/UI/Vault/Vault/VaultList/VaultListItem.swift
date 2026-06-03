@@ -227,6 +227,8 @@ extension VaultListItem {
                 "IdentityCell"
             case .login:
                 "LoginCell"
+            case .passport:
+                "PassportCell"
             case .secureNote:
                 "SecureNoteCell"
             case .sshKey:
