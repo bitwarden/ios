@@ -475,6 +475,7 @@ extension CipherItemState: AddEditItemState {
             case .driversLicense: Localizations.addLicense
             case .identity: Localizations.addIdentity
             case .login: Localizations.addLogin
+            case .passport: Localizations.addPassport
             case .secureNote: Localizations.addNote
             case .sshKey: Localizations.addSSHKey
             }
@@ -485,6 +486,7 @@ extension CipherItemState: AddEditItemState {
             case .driversLicense: Localizations.editLicense
             case .identity: Localizations.editIdentity
             case .login: Localizations.editLogin
+            case .passport: Localizations.editPassport
             case .secureNote: Localizations.editNote
             case .sshKey: Localizations.editSSHKey
             }
@@ -564,11 +566,9 @@ extension CipherItemState: ViewVaultItemState {
         case .sshKey:
             return SharedAsset.Icons.key24
         case .bankAccount:
-            // TODO: PM-32809
-            return SharedAsset.Icons.stickyNote24
+            return SharedAsset.Icons.bankAccount24
         case .driversLicense:
-            // TODO: PM-32807
-            return SharedAsset.Icons.stickyNote24
+            return SharedAsset.Icons.idCard24
         case .passport:
             // TODO: PM-32805
             return SharedAsset.Icons.stickyNote24

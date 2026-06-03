@@ -120,7 +120,7 @@ struct BillingCoordinatorTests {
     /// `navigate(to:)` with `.premiumPlan` pushes the premium plan view.
     @Test
     func navigate_premiumPlan() throws {
-        subject.navigate(to: .premiumPlan)
+        subject.navigate(to: .premiumPlan(nil))
 
         #expect(stackNavigator.actions.count == 1)
         let action = try #require(stackNavigator.actions.last)

@@ -1,4 +1,5 @@
 // swiftlint:disable:this file_name
+// swiftlint:disable file_length
 
 import BitwardenKitMocks
 import BitwardenSdk
@@ -21,6 +22,7 @@ class BitwardenSdkVaultBitwardenCipherTypeTests: BitwardenTestCase {
         XCTAssertEqual(BitwardenSdk.CipherType(.sshKey), .sshKey)
         XCTAssertEqual(BitwardenSdk.CipherType(.bankAccount), .bankAccount)
         XCTAssertEqual(BitwardenSdk.CipherType(.driversLicense), .driversLicense)
+        XCTAssertEqual(BitwardenSdk.CipherType(.passport), .passport)
     }
 }
 
@@ -173,6 +175,47 @@ class BitwardenSdkVaultCipherDriversLicenseModelTests: BitwardenTestCase {
     }
 }
 
+// MARK: - CipherPassportModel
+
+class BitwardenSdkVaultCipherPassportModelTests: BitwardenTestCase {
+    // MARK: Tests
+
+    /// `init(passport:)` Inits cipher passport model from the SDK one.
+    func test_init_fromSdkPassport() {
+        let model = CipherPassportModel(
+            passport: .init(
+                surname: "surname",
+                givenName: "givenName",
+                dateOfBirth: "dateOfBirth",
+                sex: "sex",
+                birthPlace: "birthPlace",
+                nationality: "nationality",
+                issuingCountry: "issuingCountry",
+                passportNumber: "passportNumber",
+                passportType: "passportType",
+                nationalIdentificationNumber: "nationalIdentificationNumber",
+                issuingAuthority: "issuingAuthority",
+                issueDate: "issueDate",
+                expirationDate: "expirationDate",
+            ),
+        )
+
+        XCTAssertEqual(model.birthPlace, "birthPlace")
+        XCTAssertEqual(model.dateOfBirth, "dateOfBirth")
+        XCTAssertEqual(model.expirationDate, "expirationDate")
+        XCTAssertEqual(model.givenName, "givenName")
+        XCTAssertEqual(model.issueDate, "issueDate")
+        XCTAssertEqual(model.issuingAuthority, "issuingAuthority")
+        XCTAssertEqual(model.issuingCountry, "issuingCountry")
+        XCTAssertEqual(model.nationalIdentificationNumber, "nationalIdentificationNumber")
+        XCTAssertEqual(model.nationality, "nationality")
+        XCTAssertEqual(model.passportNumber, "passportNumber")
+        XCTAssertEqual(model.passportType, "passportType")
+        XCTAssertEqual(model.sex, "sex")
+        XCTAssertEqual(model.surname, "surname")
+    }
+}
+
 // MARK: - CipherSSHKeyModel
 
 class BitwardenSdkVaultCipherSSHKeyModelTests: BitwardenTestCase {
@@ -208,6 +251,7 @@ class BitwardenSdkVaultCipherTypeTests: BitwardenTestCase {
         XCTAssertEqual(CipherType(type: .sshKey), .sshKey)
         XCTAssertEqual(CipherType(type: .bankAccount), .bankAccount)
         XCTAssertEqual(CipherType(type: .driversLicense), .driversLicense)
+        XCTAssertEqual(CipherType(type: .passport), .passport)
     }
 
     /// `init(type:)` initializes the SDK cipher type based on the cipher list view type.
@@ -219,6 +263,7 @@ class BitwardenSdkVaultCipherTypeTests: BitwardenTestCase {
         XCTAssertEqual(CipherType(CipherListViewType.sshKey), .sshKey)
         XCTAssertEqual(CipherType(CipherListViewType.bankAccount), .bankAccount)
         XCTAssertEqual(CipherType(CipherListViewType.driversLicense), .driversLicense)
+        XCTAssertEqual(CipherType(CipherListViewType.passport), .passport)
     }
 }
 

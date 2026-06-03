@@ -68,12 +68,10 @@ struct VaultItemManagementMenuView: View {
                 AsyncButton(Localizations.archive) {
                     await store.perform(.archiveItem)
                 }
-                .accessibilityIdentifier("ArchiveButton")
             } else if isUnarchiveEnabled {
                 AsyncButton(Localizations.unarchive) {
                     await store.perform(.unarchiveItem)
                 }
-                .accessibilityIdentifier("UnarchiveButton")
             }
 
             if isDeleteEnabled {

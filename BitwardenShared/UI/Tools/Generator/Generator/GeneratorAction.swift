@@ -3,6 +3,9 @@ import BitwardenKit
 /// Actions that can be processed by a `GeneratorProcessor`.
 ///
 enum GeneratorAction: Equatable {
+    /// Clears the URL after it has been opened.
+    case clearUrl
+
     /// The copy generated value button was pressed.
     case copyGeneratedValue
 
@@ -17,6 +20,9 @@ enum GeneratorAction: Equatable {
 
     /// A guided tour view action was triggered.
     case guidedTourViewAction(GuidedTourViewAction)
+
+    /// The "Learn more" button on the Upgraded to Premium action card was tapped.
+    case learnMoreAboutPremium
 
     /// The refresh generated value button was pressed.
     case refreshGeneratedValue
@@ -77,9 +83,11 @@ extension GeneratorAction {
         case let .textFieldFocusChanged(keyPath):
             // Only generate a new value when focus leaves the field (keyPath == nil).
             keyPath == nil
-        case .copyGeneratedValue,
+        case .clearUrl,
+             .copyGeneratedValue,
              .dismissPressed,
              .guidedTourViewAction,
+             .learnMoreAboutPremium,
              .selectButtonPressed,
              .showPasswordHistory,
              .sliderEditingChanged,

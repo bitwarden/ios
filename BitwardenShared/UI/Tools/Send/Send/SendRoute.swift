@@ -28,6 +28,9 @@ public enum SendRoute: Equatable {
     /// A route to the send screen.
     case list
 
+    /// A route to the premium upgrade screen.
+    case premiumUpgrade
+
     /// A route to share the provided URL.
     ///
     /// - Parameter url: The `URL` to share.

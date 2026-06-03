@@ -1,4 +1,5 @@
 import BitwardenKit
+import BitwardenResources
 
 // MARK: - SettingsProcessorDelegate
 
@@ -24,6 +25,7 @@ final class SettingsProcessor: StateProcessor<SettingsState, SettingsAction, Set
         & HasConfigService
         & HasErrorReporter
         & HasStateService
+        & HasStorefrontService
         & HasVaultRepository
 
     // MARK: Private Properties
@@ -94,8 +96,16 @@ final class SettingsProcessor: StateProcessor<SettingsState, SettingsAction, Set
                 .getFeatureFlag(.premiumUpgradePath, defaultValue: false)
             let hasPremium = await services.vaultRepository.doesActiveAccountHavePremium()
             let isSelfHosted = await services.billingService.isSelfHosted()
+            let isUSStorefront = await services.storefrontService.isUSStorefront()
             state.hasPremium = hasPremium
-            state.showPlanRow = featureEnabled && !isSelfHosted
+            state.showPlanRow = featureEnabled && !isSelfHosted && isUSStorefront
+            state.shouldShowUpgradedToPremiumActionCard = await services.billingService
+                .shouldShowUpgradedToPremiumActionCard()
+        case .dismissUpgradedToPremiumActionCard:
+            state.shouldShowUpgradedToPremiumActionCard = false
+            await services.billingService.setUpgradedToPremiumActionCardDismissed()
+        case .planPressed:
+            await navigateToPlan()
         }
     }
 
@@ -109,18 +119,46 @@ final class SettingsProcessor: StateProcessor<SettingsState, SettingsAction, Set
             coordinator.navigate(to: .appearance)
         case .autoFillPressed:
             coordinator.navigate(to: .autoFill)
+        case .clearUrl:
+            state.url = nil
         case .dismiss:
             coordinator.navigate(to: .dismiss)
+        case .learnMoreAboutPremium:
+            state.url = ExternalLinksConstants.learnMoreAboutPremium
+            state.shouldShowUpgradedToPremiumActionCard = false
+            Task { await services.billingService.setUpgradedToPremiumActionCardDismissed() }
         case .otherPressed:
             coordinator.navigate(to: .other)
-        case .planPressed:
-            if state.hasPremium {
-                coordinator.navigate(to: .premiumPlan)
+        case .vaultPressed:
+            coordinator.navigate(to: .vault)
+        }
+    }
+
+    // MARK: Private Methods
+
+    /// Navigates to the appropriate plan screen based on the user's premium and subscription status.
+    ///
+    private func navigateToPlan() async {
+        guard !state.hasPremium else {
+            coordinator.navigate(to: .premiumPlan(nil))
+            return
+        }
+
+        defer { coordinator.hideLoadingOverlay() }
+        coordinator.showLoadingOverlay(title: Localizations.loading)
+
+        do {
+            let subscription = try await services.billingService.getSubscription()
+            if subscription.status.isTroubleState {
+                coordinator.navigate(to: .premiumPlan(subscription))
             } else {
                 coordinator.navigate(to: .premiumUpgrade)
             }
-        case .vaultPressed:
-            coordinator.navigate(to: .vault)
+        } catch is GetSubscriptionRequestError {
+            coordinator.navigate(to: .premiumUpgrade)
+        } catch {
+            services.errorReporter.log(error: error)
+            await coordinator.showErrorAlert(error: error)
         }
     }
 }

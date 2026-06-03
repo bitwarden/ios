@@ -56,13 +56,21 @@ struct PremiumPlanState: Equatable {
                 nextChargeDate,
             )
         case .canceled:
-            Localizations.yourSubscriptionWasCanceledOnXResubscribeToContinueUsingDescriptionLong(
+            Localizations.yourSubscriptionWasCanceledOnXDescriptionLong(
                 canceledDate,
+            )
+        case .expired:
+            Localizations.yourSubscriptionExpiredOnXDescriptionLong(
+                expiredDate,
             )
         case .pastDue:
             Localizations.youHaveAGracePeriodOfXDaysFromYourSubscriptionDescriptionLong(
                 subscription?.gracePeriod ?? 0,
                 subscriptionEndDate,
+            )
+        case .pendingCancellation:
+            Localizations.yourSubscriptionIsScheduledToCancelOnXDescriptionLong(
+                pendingCancellationDate,
             )
         case .unknown:
             Localizations.yourSubscriptionStatusIsUnknownVisitTheWebAppDescriptionLong
@@ -85,6 +93,12 @@ struct PremiumPlanState: Equatable {
         return formatCurrency(subscription.estimatedTax)
     }
 
+    /// The date the subscription expired, formatted for display.
+    var expiredDate: String {
+        guard let suspension = subscription?.suspension else { return "" }
+        return formatDate(suspension)
+    }
+
     /// The next charge amount with currency code, formatted for display (e.g. "24.35 USD").
     var nextChargeAmount: String {
         guard let subscription, subscription.nextCharge != nil else { return "" }
@@ -103,14 +117,24 @@ struct PremiumPlanState: Equatable {
         return formatDate(nextCharge)
     }
 
+    /// The date the subscription is scheduled to cancel, formatted for display.
+    var pendingCancellationDate: String {
+        guard let cancelAt = subscription?.cancelAt else { return "" }
+        return formatDate(cancelAt)
+    }
+
     /// Whether the billing details section should be shown.
     var showBillingDetails: Bool {
-        planStatus != .canceled && planStatus != .unknown
+        planStatus != .canceled && planStatus != .expired && planStatus != .unknown
     }
 
     /// Whether the cancel premium button should be shown.
     var showCancelButton: Bool {
-        planStatus != .canceled && planStatus != .unknown
+        planStatus != .canceled
+            && planStatus != .expired
+            && planStatus != .pendingCancellation
+            && planStatus != .unknown
+            && planStatus != .updatePayment
     }
 
     /// Whether the discount row should be shown.
@@ -170,5 +194,18 @@ struct PremiumPlanState: Equatable {
     ///
     private func formatDate(_ date: Date) -> String {
         date.formatted(date: .long, time: .omitted)
+    }
+}
+
+// MARK: - PremiumPlanState + Initialization
+
+extension PremiumPlanState {
+    /// Creates a `PremiumPlanState` pre-populated with a subscription, skipping the plan screen's
+    /// own `getSubscription()` fetch.
+    ///
+    /// - Parameter subscription: The already-fetched subscription.
+    ///
+    init(subscription: PremiumSubscription) {
+        self.init(planStatus: subscription.status, subscription: subscription)
     }
 }

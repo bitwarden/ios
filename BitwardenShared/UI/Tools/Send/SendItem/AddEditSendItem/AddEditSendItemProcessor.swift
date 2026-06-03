@@ -389,10 +389,10 @@ class AddEditSendItemProcessor: // swiftlint:disable:this type_body_length
 
         let hasPremium = await services.sendRepository.doesActiveAccountHavePremium()
         guard hasPremium else {
-            let alert = Alert.defaultAlert(
-                message: Localizations.sendFilePremiumRequired,
-            )
-            coordinator.showAlert(alert)
+            coordinator.showAlert(.fileSendPremiumRequired { [weak self] in
+                guard let self else { return }
+                Task { await self.premiumUpgradeHelper.navigateToPremiumUpgrade() }
+            })
             return false
         }
 
