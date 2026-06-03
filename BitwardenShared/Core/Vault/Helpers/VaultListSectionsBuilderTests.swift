@@ -508,12 +508,13 @@ class VaultListSectionsBuilderTests: BitwardenTestCase { // swiftlint:disable:th
         }
     }
 
-    /// `addTypesSection()` adds the Driver's License row after Identities when the `.newItemTypes`
-    /// flag is enabled, using its count.
+    /// `addTypesSection()` adds the Bank Accounts row between Cards and Identities and the Driver's
+    /// License row after Identities when the `.newItemTypes` flag is enabled, using their counts.
     func test_addTypesSection_newItemTypesEnabled() {
         setUpSubject(
             withData: VaultListPreparedData(
                 countPerCipherType: [
+                    .bankAccount: 3,
                     .card: 10,
                     .driversLicense: 4,
                     .identity: 1,
@@ -531,8 +532,38 @@ class VaultListSectionsBuilderTests: BitwardenTestCase { // swiftlint:disable:th
             Section[Types]: Types
               - Group[Types.Logins]: Login (15)
               - Group[Types.Cards]: Card (10)
+              - Group[Types.BankAccounts]: Bank account (3)
               - Group[Types.Identities]: Identity (1)
               - Group[Types.DriversLicense]: License (4)
+              - Group[Types.SecureNotes]: Secure note (2)
+              - Group[Types.SSHKeys]: SSH key (0)
+            """
+        }
+    }
+
+    /// `addTypesSection()` does not add the Bank Accounts row when the `.newItemTypes` flag is disabled.
+    func test_addTypesSection_bankAccount_newItemTypesDisabled() {
+        setUpSubject(
+            withData: VaultListPreparedData(
+                countPerCipherType: [
+                    .bankAccount: 3,
+                    .card: 10,
+                    .identity: 1,
+                    .login: 15,
+                    .secureNote: 2,
+                ],
+                isNewItemTypesEnabled: false,
+            ),
+        )
+
+        let vaultListData = subject.addTypesSection().build()
+
+        assertInlineSnapshot(of: vaultListData.sections.dump(), as: .lines) {
+            """
+            Section[Types]: Types
+              - Group[Types.Logins]: Login (15)
+              - Group[Types.Cards]: Card (10)
+              - Group[Types.Identities]: Identity (1)
               - Group[Types.SecureNotes]: Secure note (2)
               - Group[Types.SSHKeys]: SSH key (0)
             """

@@ -40,6 +40,8 @@ extension CipherListView {
         switch group {
         case .archive:
             archivedDate != nil
+        case .bankAccount:
+            type == .bankAccount
         case .card:
             type.isCard
         case let .collection(id, _, _):

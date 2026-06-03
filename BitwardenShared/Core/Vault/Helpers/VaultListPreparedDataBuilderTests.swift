@@ -74,6 +74,25 @@ class VaultListPreparedDataBuilderTests: BitwardenTestCase { // swiftlint:disabl
         XCTAssertTrue(preparedData.cipherDecryptionFailureIds.isEmpty)
     }
 
+    /// `addItem(forGroup:with:)` adds the cipher to the group items when the group is `.bankAccount`
+    /// and the cipher is a bank account.
+    func test_addItem_forGroupBankAccount_addsItem() async {
+        let cipher = CipherListView.fixture(id: "1", type: .bankAccount)
+        let preparedData = await subject.addItem(forGroup: .bankAccount, with: cipher).build()
+
+        XCTAssertEqual(preparedData.groupItems.count, 1)
+        XCTAssertEqual(preparedData.groupItems[0].id, "1")
+    }
+
+    /// `addItem(forGroup:with:)` doesn't add the cipher to the group items when the group is
+    /// `.bankAccount` but the cipher is not a bank account.
+    func test_addItem_forGroupBankAccount_skipsNonBankAccount() async {
+        let cipher = CipherListView.fixture(id: "1", type: .identity)
+        let preparedData = await subject.addItem(forGroup: .bankAccount, with: cipher).build()
+
+        XCTAssertTrue(preparedData.groupItems.isEmpty)
+    }
+
     /// `addItem(forGroup:with:)` adds the cipher to the group items when the group is `.driversLicense`
     /// and the cipher is a driver's license.
     func test_addItem_forGroupDriversLicense_succeeds() async {
