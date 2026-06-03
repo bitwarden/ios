@@ -44,6 +44,8 @@ public struct DefaultCredentialProviderContext: CredentialProviderContext {
             AppRoute.extensionSetup(.extensionActivation(type: .autofillExtension))
         case .registerFido2Credential:
             AppRoute.vault(.autofillList)
+        case .savePasswordWithoutUserInteraction:
+            nil
         }
     }
 
@@ -66,6 +68,8 @@ public struct DefaultCredentialProviderContext: CredentialProviderContext {
             userInteraction
         case let .autofillOTPCredential(_, userInteraction):
             userInteraction
+        case .savePasswordWithoutUserInteraction:
+            false
         default:
             true
         }

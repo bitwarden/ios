@@ -312,6 +312,55 @@ extension CredentialProviderViewController {
     }
 }
 
+// MARK: - iOS 26
+
+extension CredentialProviderViewController {
+    @available(iOSApplicationExtension 26.2, *)
+    override func performWithoutUserInteractionIfPossible(savePasswordRequest: ASSavePasswordRequest) {
+        Task {
+            await initializeAppWithoutUserInteraction(
+                with: DefaultCredentialProviderContext(
+                    .savePasswordWithoutUserInteraction(savePasswordRequest),
+                ),
+            )
+            await savePassword(savePasswordRequest: savePasswordRequest)
+        }
+    }
+
+    @available(iOSApplicationExtension 26.2, *)
+    private func savePassword(savePasswordRequest: ASSavePasswordRequest) async {
+        guard let appProcessor else {
+            cancel(error: ASExtensionError(.failed))
+            return
+        }
+
+        let serviceIdentifier = savePasswordRequest.serviceIdentifier
+        let uri: String = switch serviceIdentifier.type {
+        case .app:
+            serviceIdentifier.identifier
+        case .domain:
+            "https://" + serviceIdentifier.identifier
+        case .URL:
+            serviceIdentifier.identifier
+        @unknown default:
+            serviceIdentifier.identifier
+        }
+
+        do {
+            try await appProcessor.savePasswordCredential(
+                username: savePasswordRequest.credential.user,
+                password: savePasswordRequest.credential.password,
+                uri: uri,
+                name: savePasswordRequest.title,
+            )
+            extensionContext.completeSavePasswordRequest(completionHandler: nil)
+        } catch {
+            Logger.appExtension.error("Error saving password credential without user interaction: \(error)")
+            cancel(error: error)
+        }
+    }
+}
+
 // MARK: - AppExtensionDelegate
 
 extension CredentialProviderViewController: AppExtensionDelegate {

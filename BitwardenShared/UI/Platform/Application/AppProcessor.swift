@@ -256,6 +256,28 @@ public class AppProcessor {
         )
     }
 
+    /// Saves a password credential to the vault without showing UI.
+    ///
+    /// - Parameters:
+    ///   - username: The username to save.
+    ///   - password: The password to save.
+    ///   - uri: The URI associated with the credential.
+    ///   - name: An optional display name; falls back to the URI's hostname.
+    ///
+    @available(iOSApplicationExtension 26.2, *)
+    public func savePasswordCredential(
+        username: String,
+        password: String,
+        uri: String,
+        name: String?,
+    ) async throws {
+        try await unlockVaultWithNeverlockKey()
+
+        try await services.vaultRepository.addCipher(
+            CipherView(username: username, password: password, uri: uri, name: name)
+        )
+    }
+
     /// Reprompts the user for their master password if the cipher for the user-requested credential
     /// requires reprompt. Once reprompt has been completed (or when it's not required), the
     /// `completion` closure is called notifying the caller if the master password was validated
