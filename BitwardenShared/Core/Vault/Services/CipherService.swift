@@ -454,7 +454,8 @@ extension DefaultCipherService {
             try await cipherDataStore.upsertCipher(Cipher(responseModel: cipherResponse), userId: userId)
         } else {
             // A nil cipher indicates the user no longer has access to it after the update.
-            try await cipherDataStore.deleteCipher(id: cipher.id ?? "", userId: userId)
+            guard let cipherId = cipher.id else { throw UpdateCipherCollectionsRequestError.missingCipherId }
+            try await cipherDataStore.deleteCipher(id: cipherId, userId: userId)
         }
     }
 
