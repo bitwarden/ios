@@ -53,6 +53,12 @@ extension FeatureFlag: @retroactive CaseIterable {
     /// Flag to enable/disable not logging out when a user's KDF settings are changed.
     static let noLogoutOnKdfChange = FeatureFlag(rawValue: "pm-23995-no-logout-on-kdf-change")
 
+    /// Flag to enable/disable accepted-state organization policy enforcement via the SDK.
+    ///
+    /// When enabled, `PolicyService.policiesApplyingToUser` routes through the Bitwarden SDK
+    /// so that policies are enforced against members in the accepted (not only confirmed) state.
+    static let policiesInAcceptedState = FeatureFlag(rawValue: "pm-34145-policies-in-accepted-state")
+
     /// Flag to enable/disable premium upgrade path.
     static let premiumUpgradePath = FeatureFlag(rawValue: "pm-31697-premium-upgrade-path")
 
@@ -72,6 +78,7 @@ extension FeatureFlag: @retroactive CaseIterable {
             .migrateMyVaultToMyItems,
             .newItemTypes,
             .noLogoutOnKdfChange,
+            .policiesInAcceptedState,
             .premiumUpgradePath,
         ]
     }
