@@ -104,29 +104,32 @@ jobs:
         with:
           bundler-cache: true
 
-      - name: Cache Mint packages
-        uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
+      - name: Restore Mint packages
+        id: restore-mint
+        uses: actions/cache/restore@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
         with:
           path: .mint
           key: ${{ runner.os }}-mint-${{ hashFiles('**/Mintfile') }}
           restore-keys: |
             ${{ runner.os }}-mint-
 
-      - name: Cache SPM packages
-        uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
+      - name: Restore SPM packages
+        id: restore-spm
+        uses: actions/cache/restore@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
         with:
           path: build/DerivedData/SourcePackages
           key: ${{ runner.os }}-spm-${{ hashFiles('**/Package.resolved') }}
           restore-keys: |
             ${{ runner.os }}-spm-
 
-      - name: Cache DerivedData
-        uses: actions/cache@cdf6c1fa76f9f475f3d7449005a359c84ca0f306 # v5.0.3
+      - name: Restore DerivedData
+        id: restore-deriveddata
+        uses: actions/cache/restore@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
         with:
           path: build/DerivedData
           key: ${{ runner.os }}-deriveddata-${{ github.workflow }}-${{ github.sha }}
           restore-keys: |
-            ${{ runner.os }}-deriveddata-${{ github.workflow }}
+            ${{ runner.os }}-deriveddata-${{ github.workflow }}-
 
       - name: Restore timestamps
         uses: chetan/git-restore-mtime-action@d186aca54f8760da4dec55313195e51ed3ebb0b3 # v2.3
@@ -167,6 +170,28 @@ jobs:
               -resultBundlePath "$_BUILD_RESULT_BUNDLE_PATH" \
               -showBuildTimingSummary
             kill "$PYEETD_PID"
+
+
+      - name: Save Mint packages
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main' && steps.restore-mint.outputs.cache-hit != 'true'
+        uses: actions/cache/save@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
+        with:
+          path: .mint
+          key: ${{ runner.os }}-mint-${{ hashFiles('**/Mintfile') }}
+
+      - name: Save SPM packages
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main' && steps.restore-spm.outputs.cache-hit != 'true'
+        uses: actions/cache/save@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
+        with:
+          path: build/DerivedData/SourcePackages
+          key: ${{ runner.os }}-spm-${{ hashFiles('**/Package.resolved') }}
+
+      - name: Save DerivedData
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main' && steps.restore-deriveddata.outputs.cache-hit != 'true'
+        uses: actions/cache/save@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
+        with:
+          path: build/DerivedData
+          key: ${{ runner.os }}-deriveddata-${{ github.workflow }}-${{ github.sha }}
 
       - name: Print DerivedData file tree
         if: always()
