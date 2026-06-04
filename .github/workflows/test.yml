@@ -3,9 +3,8 @@ name: Test Password Manager
 on:
   push:
     branches:
-      - "main"
-      - "rc"
-      - "hotfix-rc"
+      - main
+      - release/**/*
   pull_request:
     types: [opened, synchronize]
     paths-ignore:
