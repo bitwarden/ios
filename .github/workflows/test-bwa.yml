@@ -175,6 +175,9 @@ jobs:
             -destination "platform=iOS Simulator,id=$_SIMULATOR_ID" \
             -derivedDataPath build/DerivedData \
             -resultBundlePath "$_BUILD_RESULT_BUNDLE_PATH" \
+            -parallelizeTargets \
+            -skipPackagePluginValidation \
+            -skipMacroValidation \
             -showBuildTimingSummary \
             -quiet
           kill "$PYEETD_PID"
