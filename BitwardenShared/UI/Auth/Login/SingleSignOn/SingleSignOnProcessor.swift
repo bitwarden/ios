@@ -237,6 +237,7 @@ extension SingleSignOnProcessor: SingleSignOnFlowDelegate {
                         coordinator.hideLoadingOverlay()
                         await coordinator.handleEvent(.didCompleteAuth)
                     } catch StateServiceError.noAccountCryptographicState {
+                        coordinator.hideLoadingOverlay()
                         coordinator.showAlert(Alert.keyConnectorConfirmation(keyConnectorUrl: keyConnectorUrl) {
                             await self.migrateUserKeyConnector(keyConnectorUrl: keyConnectorUrl)
                         })
