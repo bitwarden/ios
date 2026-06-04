@@ -54,6 +54,10 @@ For new screens, create all required files together (see `templates.md`):
 6. **Processor** — `StateProcessor` subclass, business logic only
 7. **View** — SwiftUI view using `store.binding`, `store.perform`, `@ObservedObject`
 
+**SwiftUI previews:**
+
+- Use `#Preview` macros for new views — the modern default across the codebase. Do not add new `PreviewProvider` structs. A view's snapshot coverage comes from a snapshot test that instantiates the view directly, not from `PreviewProvider._allPreviews` (see the `testing-ios-code` skill).
+
 **New localization keys** (`BitwardenResources/.../Localizable.strings`):
 
 - Key name mirrors the English string: `Archive` for "Archive", not `MoveToArchive` or `ArchiveTitle`.
@@ -80,3 +84,9 @@ Before finishing:
 All new public types and methods require DocC (`///`) documentation.
 Exceptions: protocol property/function implementations (docs live in the protocol), mock classes.
 Use pragma marks to organize code. `// MARK: -` is used to denote different objects in the same file; `// MARK:` is used to denote different sections within an object.
+
+## Conventions
+
+- **Member ordering** — keep a type's stored properties and protocol requirements in alphabetical order. When adding a member, insert it at its alphabetical position rather than appending.
+- **No file-scope globals** — prefer a `static` member on the relevant type or extension over a file-scope global function or property, even a `private` one.
+- **Prefer typed over stringly-typed** — model values with their natural types (enums, `Date`, etc.) rather than raw strings, unless deliberately mirroring an external contract (e.g. an SDK model that stores ISO date strings) where typed conversion is intentionally deferred.
