@@ -5,12 +5,11 @@ import SwiftUI
 
 /// A reusable field for entering an optional calendar date.
 ///
-/// The field renders as a single collapsed row showing its title and current value (or a
-/// placeholder when empty) with a chevron affordance. Tapping the row presents the native
-/// wheel-style `DatePicker` as a popover dialog so a single tap reveals the picker.
-/// Because the field operates on an optional `Date?`, it can represent a genuinely empty value —
-/// which the underlying `DatePicker` cannot do on its own — and offers a control to clear a
-/// selected date.
+/// The field renders as a collapsed row showing its title and current value (or a placeholder when
+/// empty). Tapping the row expands an inline graphical calendar; selecting a day populates the
+/// value and collapses the calendar. When a date is set, a clear control is shown to reset it.
+/// Because the field operates on an optional `Date?`, it can represent a genuinely empty value,
+/// which the underlying `DatePicker` cannot do on its own.
 ///
 public struct DateFieldPicker: View {
     // MARK: Properties
@@ -21,7 +20,7 @@ public struct DateFieldPicker: View {
     /// A binding to the currently selected date, or `nil` if no date has been selected.
     @Binding var date: Date?
 
-    /// The date used to seed the picker when the user first selects a date for an empty field.
+    /// The date the calendar opens to when the user expands an empty field.
     let defaultDate: Date
 
     /// The (optional) footer text shown below the field.
@@ -33,8 +32,8 @@ public struct DateFieldPicker: View {
     /// The (optional) title of the field.
     let title: String?
 
-    /// Whether the date picker dialog is currently presented.
-    @State private var isPickerPresented = false
+    /// Whether the inline calendar is currently expanded.
+    @State private var isExpanded = false
 
     /// Whether the view allows user interaction.
     @Environment(\.isEnabled) var isEnabled: Bool
@@ -43,7 +42,14 @@ public struct DateFieldPicker: View {
 
     public var body: some View {
         VStack(alignment: .leading, spacing: 0) {
-            headerButton()
+            headerRow()
+
+            if isExpanded {
+                Divider()
+                datePicker()
+                    .padding(.horizontal, 16)
+                    .padding(.vertical, 8)
+            }
 
             if let footer {
                 Divider()
@@ -62,9 +68,6 @@ public struct DateFieldPicker: View {
         )
         .clipShape(RoundedRectangle(cornerRadius: 8))
         .accessibilityIdentifier(accessibilityIdentifier ?? "DateFieldPicker")
-        .popover(isPresented: $isPickerPresented) {
-            pickerDialog()
-        }
     }
 
     // MARK: Initialization
@@ -75,9 +78,9 @@ public struct DateFieldPicker: View {
     ///   - title: The (optional) title of the field.
     ///   - accessibilityIdentifier: The (optional) accessibility identifier applied to the field.
     ///   - date: A binding to the selected date, or `nil` if no date has been selected.
-    ///   - defaultDate: The date used to seed the picker when the user first selects a date for an
-    ///     empty field. Defaults to the current date.
-    ///   - range: The (optional) range of selectable dates. When `nil` the picker is unbounded.
+    ///   - defaultDate: The date the calendar opens to when expanding an empty field. Defaults to
+    ///     the current date.
+    ///   - range: The (optional) range of selectable dates. When `nil` the calendar is unbounded.
     ///   - footer: The (optional) footer text shown below the field.
     ///
     public init(
@@ -98,128 +101,115 @@ public struct DateFieldPicker: View {
 
     // MARK: Private
 
-    /// A button to clear the selected date, shown in the picker dialog when a date is set.
-    @ViewBuilder
-    private func clearButton() -> some View {
-        Button(Localizations.clear) {
-            date = nil
-            isPickerPresented = false
-        }
-        .buttonStyle(.bitwardenBorderless)
-        .padding(.horizontal, 16)
-        .padding(.vertical, 12)
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .accessibilityIdentifier("DateFieldClearButton")
-    }
-
-    /// The native wheel-style date `DatePicker`, optionally constrained to `range`.
+    /// The inline graphical `DatePicker`, optionally constrained to `range`. Selecting a day commits
+    /// the value and collapses the calendar via `selection()`.
     @ViewBuilder
     private func datePicker() -> some View {
         if let range {
-            DatePicker("", selection: unwrappedDate(), in: range, displayedComponents: [.date])
+            DatePicker("", selection: selection(), in: range, displayedComponents: [.date])
                 .labelsHidden()
-                .datePickerStyle(.wheel)
+                .datePickerStyle(.graphical)
         } else {
-            DatePicker("", selection: unwrappedDate(), displayedComponents: [.date])
+            DatePicker("", selection: selection(), displayedComponents: [.date])
                 .labelsHidden()
-                .datePickerStyle(.wheel)
+                .datePickerStyle(.graphical)
         }
     }
 
-    /// The collapsed, tappable header row showing the title, value, and chevron.
+    /// The title and value (or placeholder) shown on the collapsed row.
     @ViewBuilder
-    private func headerButton() -> some View {
-        Button {
-            isPickerPresented = true
-        } label: {
-            HStack(spacing: 8) {
-                VStack(alignment: .leading, spacing: 2) {
-                    if date != nil, let title {
-                        Text(title)
-                            .styleGuide(
-                                .subheadline,
-                                weight: .semibold,
-                                includeLinePadding: false,
-                                includeLineSpacing: false,
-                            )
-                            .foregroundColor(
-                                isEnabled
-                                    ? SharedAsset.Colors.textSecondary.swiftUIColor
-                                    : SharedAsset.Colors.textDisabled.swiftUIColor,
-                            )
-                    }
-
-                    Text(headerText())
-                        .styleGuide(.body)
-                        .foregroundColor(
-                            date == nil
-                                ? SharedAsset.Colors.textSecondary.swiftUIColor
-                                : SharedAsset.Colors.textPrimary.swiftUIColor,
-                        )
-                }
-                .frame(maxWidth: .infinity, alignment: .leading)
-
-                SharedAsset.Icons.chevronDown24.swiftUIImage
-                    .foregroundColor(SharedAsset.Colors.iconSecondary.swiftUIColor)
+    private func labelContent() -> some View {
+        VStack(alignment: .leading, spacing: 2) {
+            if let title {
+                Text(title)
+                    .styleGuide(
+                        .subheadline,
+                        weight: .semibold,
+                        includeLinePadding: false,
+                        includeLineSpacing: false,
+                    )
+                    .foregroundColor(
+                        isEnabled
+                            ? SharedAsset.Colors.textSecondary.swiftUIColor
+                            : SharedAsset.Colors.textDisabled.swiftUIColor,
+                    )
             }
-            .padding(.horizontal, 16)
-            .padding(.vertical, 12)
-            .frame(minHeight: 64)
-            .contentShape(Rectangle())
+
+            if let date {
+                Text(date.formatted(date: .long, time: .omitted))
+                    .styleGuide(.body)
+                    .foregroundColor(SharedAsset.Colors.textPrimary.swiftUIColor)
+            } else {
+                Text(Localizations.selectADate)
+                    .styleGuide(.body)
+                    .foregroundColor(SharedAsset.Colors.textSecondary.swiftUIColor)
+            }
         }
-        .buttonStyle(.plain)
-        .accessibilityIdentifier("DateFieldHeaderButton")
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .contentShape(Rectangle())
     }
 
-    /// The text shown on the collapsed row: the formatted date when set, otherwise the title (or a
-    /// placeholder when there is no title).
-    private func headerText() -> String {
-        guard let date else { return title ?? Localizations.selectADate }
-        return date.formatted(date: .long, time: .omitted)
-    }
-
-    /// The picker presented as a popover dialog: the wheel picker plus a clear control when a date
-    /// is set. On iOS 16.4+ this is forced to render as a popover (a floating dialog) rather than
-    /// adapting to a sheet in compact width.
+    /// The collapsed row: the title and value (or placeholder), a clear control when a date is set,
+    /// and a chevron. Tapping the title region or chevron toggles the inline calendar.
     @ViewBuilder
-    private func pickerDialog() -> some View {
-        VStack(spacing: 0) {
-            datePicker()
-                .frame(height: 180)
-                .padding(.horizontal, 16)
-                .padding(.top, 8)
+    private func headerRow() -> some View {
+        HStack(spacing: 8) {
+            Button {
+                toggleExpanded()
+            } label: {
+                labelContent()
+            }
+            .buttonStyle(.plain)
+            .accessibilityIdentifier("DateFieldHeaderButton")
 
             if date != nil {
-                Divider()
-                clearButton()
+                AccessoryButton(
+                    asset: SharedAsset.Icons.circleX24,
+                    accessibilityLabel: Localizations.clear,
+                    accessibilityIdentifier: "DateFieldClearButton",
+                ) {
+                    clearDate()
+                }
             }
+
+            Button {
+                toggleExpanded()
+            } label: {
+                SharedAsset.Icons.chevronDown24.swiftUIImage
+                    .foregroundColor(SharedAsset.Colors.iconSecondary.swiftUIColor)
+                    .rotationEffect(.degrees(isExpanded ? 180 : 0))
+            }
+            .buttonStyle(.plain)
+            .accessibilityHidden(true)
         }
-        .frame(width: 320)
-        .fixedSize(horizontal: false, vertical: true)
-        .modifier(PopoverDialogAdaptation())
+        .padding(.horizontal, 16)
+        .padding(.vertical, 12)
+        .frame(minHeight: 64)
     }
 
-    /// A binding that unwraps the optional `date`, falling back to `defaultDate` so it can drive the
-    /// native `DatePicker`, which requires a non-optional `Date`.
-    private func unwrappedDate() -> Binding<Date> {
+    /// A binding driving the calendar: reads the selected date (falling back to `defaultDate` when
+    /// empty) and, on selection, commits the value and collapses the calendar.
+    private func selection() -> Binding<Date> {
         Binding(
             get: { date ?? defaultDate },
-            set: { date = $0 },
+            set: { newValue in
+                date = newValue
+                withAnimation { isExpanded = false }
+            },
         )
     }
-}
 
-// MARK: - PopoverDialogAdaptation
-
-/// Forces popover presentation (a floating dialog) in compact width on iOS 16.4+, where the system
-/// would otherwise adapt a popover into a sheet. On earlier versions the system default applies.
-private struct PopoverDialogAdaptation: ViewModifier {
-    func body(content: Content) -> some View {
-        if #available(iOS 16.4, *) {
-            content.presentationCompactAdaptation(.popover)
-        } else {
-            content
+    /// Clears the selected date.
+    private func clearDate() {
+        withAnimation {
+            date = nil
+            isExpanded = false
         }
+    }
+
+    /// Toggles the inline calendar's expanded state.
+    private func toggleExpanded() {
+        withAnimation { isExpanded.toggle() }
     }
 }
 
@@ -236,15 +226,15 @@ private struct PopoverDialogAdaptation: ViewModifier {
 
 @available(iOS 17, *)
 #Preview("Collapsed selected") {
-    @Previewable @SwiftUI.State var date: Date? = Date(year: 2021, month: 8, day: 10)
-    DateFieldPicker(title: "Expiration date", date: $date)
+    @Previewable @SwiftUI.State var date: Date? = Date(year: 2025, month: 4, day: 20)
+    DateFieldPicker(title: "Date of birth", date: $date)
         .padding()
         .background(SharedAsset.Colors.backgroundPrimary.swiftUIColor)
 }
 
 @available(iOS 17, *)
 #Preview("With footer") {
-    @Previewable @SwiftUI.State var date: Date? = Date(year: 2021, month: 8, day: 10)
+    @Previewable @SwiftUI.State var date: Date? = Date(year: 2025, month: 4, day: 20)
     DateFieldPicker(
         title: "Expiration date",
         date: $date,

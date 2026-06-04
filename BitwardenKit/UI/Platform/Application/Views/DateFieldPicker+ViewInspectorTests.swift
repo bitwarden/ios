@@ -63,6 +63,19 @@ class DateFieldPickerTests: BitwardenTestCase {
         XCTAssertNoThrow(try subject.inspect().find(viewWithAccessibilityIdentifier: "DateFieldHeaderButton"))
     }
 
+    /// When a date is selected, a clear control is shown and tapping it resets the value to `nil`.
+    func test_clearButton_clearsDate() throws {
+        date = defaultDate
+        let clearButton = try subject.inspect().find(viewWithAccessibilityIdentifier: "DateFieldClearButton")
+        try clearButton.button().tap()
+        XCTAssertNil(date)
+    }
+
+    /// No clear control is shown when the field is empty.
+    func test_clearButton_hiddenWhenEmpty() throws {
+        XCTAssertThrowsError(try subject.inspect().find(viewWithAccessibilityIdentifier: "DateFieldClearButton"))
+    }
+
     /// A provided footer is rendered below the field.
     func test_footer_isRendered() throws {
         subject = DateFieldPicker(
