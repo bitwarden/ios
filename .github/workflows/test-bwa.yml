@@ -1,11 +1,10 @@
 name: Test Authenticator
 
 on:
-  # push:
-  #   branches:
-  #     - "main"
-  #     - "rc"
-  #     - "hotfix-rc"
+  push:
+    branches:
+      - main
+      - release/**/*
   pull_request:
     types: [opened, synchronize]
     paths-ignore:
