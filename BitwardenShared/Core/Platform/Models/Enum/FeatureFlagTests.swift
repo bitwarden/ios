@@ -9,5 +9,6 @@ final class FeatureFlagTests: BitwardenTestCase {
     /// `initialValues` returns the correct value for each flag.
     func test_initialValues() {
         XCTAssertNil(FeatureFlag.cardScanner.initialValue?.boolValue)
+        XCTAssertNil(FeatureFlag.policiesInAcceptedState.initialValue?.boolValue)
     }
 }

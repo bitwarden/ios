@@ -69,10 +69,18 @@ protocol PolicyService: AnyObject {
     /// Replaces the list of policies for the user.
     ///
     /// - Parameters:
-    ///   - domains: The list of policies.
+    ///   - policies: The list of policies.
     ///   - userId: The user ID associated with the policies.
     ///
     func replacePolicies(_ policies: [PolicyResponseModel], userId: String) async throws
+
+    /// Replaces the list of accepted-state policies (from `policiesNew`) for the user.
+    ///
+    /// - Parameters:
+    ///   - policies: The list of accepted-state policies.
+    ///   - userId: The user ID associated with the policies.
+    ///
+    func replacePoliciesNew(_ policies: [PolicyResponseModel], userId: String) async throws
 }
 
 // MARK: - DefaultPolicyService
@@ -94,6 +102,9 @@ actor DefaultPolicyService: PolicyService {
 
     /// The list of policies, keyed by the user's ID.
     private var policiesByUserId = [String: [Policy]]()
+
+    /// The list of accepted-state policies (from `policiesNew`), keyed by the user's ID.
+    private var policiesNewByUserId = [String: [Policy]]()
 
     /// The service used by the application to manage account state.
     let stateService: StateService
@@ -409,5 +420,10 @@ extension DefaultPolicyService {
     func replacePolicies(_ policies: [PolicyResponseModel], userId: String) async throws {
         policiesByUserId[userId] = policies.map(Policy.init)
         try await policyDataStore.replacePolicies(policies, userId: userId)
+    }
+
+    func replacePoliciesNew(_ policies: [PolicyResponseModel], userId: String) async throws {
+        policiesNewByUserId[userId] = policies.map(Policy.init)
+        try await policyDataStore.replacePoliciesNew(policies, userId: userId)
     }
 }
