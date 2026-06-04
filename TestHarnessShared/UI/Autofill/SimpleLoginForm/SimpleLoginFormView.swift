@@ -56,7 +56,7 @@ struct SimpleLoginFormView: View {
                                 .styleGuide(.body)
                         }
                         if !store.state.password.isEmpty {
-                            Text(Localizations.passwordValueX(store.state.password.count))
+                            Text(Localizations.passwordValueX(store.state.password))
                                 .styleGuide(.body)
                         }
                     }
