@@ -10,6 +10,11 @@ extension FeatureFlag: @retroactive CaseIterable {
         rawValue: "enable-account-encryption-v2-jit-password-registration",
     )
 
+    /// A feature flag to enable/disable V2 account encryption for Key Connector.
+    static let accountEncryptionV2KeyConnector = FeatureFlag(
+        rawValue: "enable-account-encryption-v2-key-connector-registration",
+    )
+
     /// Flag to enable/disable V2 password-based registration using the SDK registration client.
     static let accountEncryptionV2PasswordRegistration = FeatureFlag(rawValue: "pm-27278-v2-password-registration")
 
@@ -30,6 +35,9 @@ extension FeatureFlag: @retroactive CaseIterable {
     /// An SDK flag that enables individual cipher encryption.
     static let enableCipherKeyEncryption = FeatureFlag(rawValue: "enableCipherKeyEncryption")
 
+    /// Flag to enable/disable Fill-Assist targeting rules.
+    static let fillAssistTargetingRules = FeatureFlag(rawValue: "fill-assist-targeting-rules")
+
     /// Flag to enable/disable forced KDF updates.
     static let forceUpdateKdfSettings = FeatureFlag(rawValue: "pm-18021-force-update-kdf-settings")
 
@@ -48,12 +56,14 @@ extension FeatureFlag: @retroactive CaseIterable {
     public static var allCases: [FeatureFlag] {
         [
             .accountEncryptionV2JITPassword,
+            .accountEncryptionV2KeyConnector,
             .accountEncryptionV2PasswordRegistration,
             .accountEncryptionV2TDE,
             .cardScanner,
             .debugDisableSelfHostPremiumCheck,
             .deviceAuthKey,
             .enableCipherKeyEncryption,
+            .fillAssistTargetingRules,
             .forceUpdateKdfSettings,
             .migrateMyVaultToMyItems,
             .newItemTypes,

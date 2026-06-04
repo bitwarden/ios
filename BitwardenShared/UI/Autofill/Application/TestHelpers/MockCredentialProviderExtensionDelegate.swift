@@ -6,12 +6,12 @@ import TestHelpers
 @testable import BitwardenShared
 
 @available(iOS 17.0, *)
-class MockAutofillAppExtensionDelegate: MockAppExtensionDelegate, AutofillAppExtensionDelegate {
+class MockCredentialProviderExtensionDelegate: MockAppExtensionDelegate, CredentialProviderExtensionDelegate {
     var completeAssertionRequestMocker = InvocationMocker<ASPasskeyAssertionCredential>()
     var completeOTPRequestCodeCalled: String?
     var completeRegistrationRequestMocker = InvocationMocker<ASPasskeyRegistrationCredential>()
     var completeTextRequestTextToInsert: String?
-    var extensionMode: AutofillExtensionMode = .configureAutofill
+    var extensionMode: CredentialProviderMode = .configureAutofill
     var didAppearPublisher = CurrentValueSubject<Bool, Never>(false)
     var setUserInteractionRequiredCalled = false
 

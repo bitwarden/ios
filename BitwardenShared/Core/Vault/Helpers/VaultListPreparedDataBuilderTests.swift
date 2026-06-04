@@ -143,9 +143,7 @@ class VaultListPreparedDataBuilderTests: BitwardenTestCase { // swiftlint:disabl
     func test_addFido2Item_succeeds() async {
         let cipher = CipherListView.fixture(id: "1")
         cipherService.fetchCipherResult = .success(.fixture(id: "1"))
-        clientService.mockPlatform
-            .fido2Mock
-            .decryptFido2AutofillCredentialsReturnValue = [.fixture()]
+        clientService.mockPlatform.mockFido2.decryptFido2AutofillCredentialsReturnValue = [.fixture()]
 
         let preparedData = await subject.addFido2Item(cipher: cipher).build()
 
@@ -177,9 +175,7 @@ class VaultListPreparedDataBuilderTests: BitwardenTestCase { // swiftlint:disabl
     func test_addFido2Item_emptyFido2Credentials() async {
         let cipher = CipherListView.fixture(id: "1")
         cipherService.fetchCipherResult = .success(.fixture(id: "1"))
-        clientService.mockPlatform
-            .fido2Mock
-            .decryptFido2AutofillCredentialsReturnValue = []
+        clientService.mockPlatform.mockFido2.decryptFido2AutofillCredentialsReturnValue = []
 
         let preparedData = await subject.addFido2Item(cipher: cipher).build()
 

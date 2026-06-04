@@ -21,3 +21,6 @@ fi
 
 # Run SwiftFormat and SwiftLint on staged Swift files
 "$REPO_ROOT/Scripts/lint-changes.sh" || exit 1
+
+# Fix ellipsis sequences in .strings files
+"$REPO_ROOT/Scripts/fix-ellipsis-changes.sh" || exit 1
