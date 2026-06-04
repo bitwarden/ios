@@ -709,6 +709,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
         let keyConnectorService = DefaultKeyConnectorService(
             accountAPIService: apiService,
             clientService: clientService,
+            configService: configService,
             keyConnectorAPIService: apiService,
             organizationService: organizationService,
             stateService: stateService,

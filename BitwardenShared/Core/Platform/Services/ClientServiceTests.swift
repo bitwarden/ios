@@ -138,7 +138,7 @@ final class ClientServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
 
         let client = try XCTUnwrap(clientBuilder.clients.first)
         XCTAssertEqual(
-            client.platformClient.featureFlags,
+            client.platformClient.loadFlagsReceivedFlags,
             ["enableCipherKeyEncryption": true],
         )
     }
@@ -164,7 +164,7 @@ final class ClientServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
 
         let client = try XCTUnwrap(clientBuilder.clients.first)
         XCTAssertEqual(
-            client.platformClient.featureFlags,
+            client.platformClient.loadFlagsReceivedFlags,
             ["enableCipherKeyEncryption": false],
         )
     }
@@ -190,7 +190,7 @@ final class ClientServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
 
         let client = try XCTUnwrap(clientBuilder.clients.first)
         XCTAssertEqual(
-            client.platformClient.featureFlags,
+            client.platformClient.loadFlagsReceivedFlags,
             ["enableCipherKeyEncryption": false],
         )
     }
@@ -210,7 +210,7 @@ final class ClientServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
             ),
         ))
         clientBuilder.setupClientOnCreation = { client in
-            client.platformClient.loadFlagsError = BitwardenTestError.example
+            client.platformClient.loadFlagsThrowableError = BitwardenTestError.example
         }
 
         _ = try await subject.auth(for: "1")
@@ -226,10 +226,7 @@ final class ClientServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
         _ = try await subject.auth(for: "1")
 
         let client = try XCTUnwrap(clientBuilder.clients.first)
-        XCTAssertEqual(
-            client.platformClient.featureFlags,
-            [:],
-        )
+        XCTAssertNil(client.platformClient.loadFlagsReceivedFlags)
     }
 
     /// `client(for:)` registers the SDK client managed repositories.
@@ -240,7 +237,7 @@ final class ClientServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
         let client = try XCTUnwrap(clientBuilder.clients.first)
         XCTAssertIdentical(auth, client.authClient)
         XCTAssertTrue(sdkRepositoryFactory.makeRepositoriesCalled)
-        XCTAssertNotNil(client.platformClient.stateMock.registerClientManagedRepositoriesReceivedRepositories)
+        XCTAssertNotNil(client.platformClient.mockState.registerClientManagedRepositoriesReceivedRepositories)
     }
 
     /// `configPublisher` loads flags into the SDK.
@@ -270,7 +267,7 @@ final class ClientServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
                 return false
             }
             let client = try? XCTUnwrap(self.clientBuilder.clients.first)
-            return client?.platformClient.featureFlags == ["enableCipherKeyEncryption": true]
+            return client?.platformClient.loadFlagsReceivedFlags == ["enableCipherKeyEncryption": true]
         }
     }
 
@@ -293,7 +290,7 @@ final class ClientServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
         _ = try await subject.auth(for: "1")
         let client = try XCTUnwrap(clientBuilder.clients.first)
         XCTAssertEqual(
-            client.platformClient.featureFlags,
+            client.platformClient.loadFlagsReceivedFlags,
             ["enableCipherKeyEncryption": false],
         )
 
@@ -317,7 +314,7 @@ final class ClientServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
 
         try await waitForAsync {
             let client = try? XCTUnwrap(self.clientBuilder.clients.first)
-            return client?.platformClient.featureFlags == ["enableCipherKeyEncryption": false]
+            return client?.platformClient.loadFlagsReceivedFlags == ["enableCipherKeyEncryption": false]
         }
         XCTAssertEqual(clientBuilder.clients.count, 1)
 
@@ -342,7 +339,7 @@ final class ClientServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
 
         try await waitForAsync {
             let client = try? XCTUnwrap(self.clientBuilder.clients.first)
-            return client?.platformClient.featureFlags == ["enableCipherKeyEncryption": true]
+            return client?.platformClient.loadFlagsReceivedFlags == ["enableCipherKeyEncryption": true]
         }
         XCTAssertEqual(clientBuilder.clients.count, 1)
     }
@@ -411,10 +408,7 @@ final class ClientServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
         }
 
         let client = try XCTUnwrap(clientBuilder.clients.first)
-        XCTAssertEqual(
-            client.platformClient.featureFlags,
-            [:],
-        )
+        XCTAssertNil(client.platformClient.loadFlagsReceivedFlags)
     }
 
     /// `crypto(for:)` returns a new `CryptoClientProtocol` for every user.
