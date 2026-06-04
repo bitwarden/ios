@@ -145,6 +145,6 @@ See `references/mock-generation.md` for full details.
 
 ## Conventions
 
-- **Fixtures live in the shared fixtures file** — reusable SDK-model and `CipherView` fixtures belong in `BitwardenShared/UI/Vault/PreviewContent/BitwardenSdk+VaultFixtures.swift` (e.g. `CipherView.cardFixture()`), not co-located inside an individual test file. Add new reusable fixtures there.
+- **Fixtures live in the shared fixtures file** — reusable SDK-model and `CipherView` fixtures belong in the shared `BitwardenSdk+VaultFixtures.swift` for the framework the test targets (e.g. `CipherView.cardFixture()`), not co-located inside an individual test file. Use `BitwardenShared/UI/Vault/PreviewContent/BitwardenSdk+VaultFixtures.swift` for Password Manager fixtures, and the `AuthenticatorShared/UI/Vault/PreviewContent/BitwardenSdk+VaultFixtures.swift` counterpart for Authenticator fixtures. Add new reusable fixtures there.
 - **Split large test files per feature** — when a test file grows unwieldy, break it into `<Type>Tests+<Feature>.swift` extensions (e.g. `AddEditItemProcessorTests+DriversLicense.swift`), and author the new file in Swift Testing.
 - **Snapshot tests instantiate the view directly** — build the view with a `MockProcessor`/`Store` in `setUp`, then `assertSnapshot(of: subject.navStackWrapped, as:)` per state (all prefixed `disabletest_`). Do not iterate `PreviewProvider._allPreviews`; new views use `#Preview` macros, which the snapshot harness does not consume. See `AddEditSendItemView+SnapshotTests.swift` for the pattern.
