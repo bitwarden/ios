@@ -10,6 +10,11 @@ extension FeatureFlag: @retroactive CaseIterable {
         rawValue: "enable-account-encryption-v2-jit-password-registration",
     )
 
+    /// A feature flag to enable/disable V2 account encryption for Key Connector.
+    static let accountEncryptionV2KeyConnector = FeatureFlag(
+        rawValue: "enable-account-encryption-v2-key-connector-registration",
+    )
+
     /// Flag to enable/disable V2 password-based registration using the SDK registration client.
     static let accountEncryptionV2PasswordRegistration = FeatureFlag(rawValue: "pm-27278-v2-password-registration")
 
@@ -54,6 +59,7 @@ extension FeatureFlag: @retroactive CaseIterable {
     public static var allCases: [FeatureFlag] {
         [
             .accountEncryptionV2JITPassword,
+            .accountEncryptionV2KeyConnector,
             .accountEncryptionV2PasswordRegistration,
             .accountEncryptionV2TDE,
             .cardScanner,
