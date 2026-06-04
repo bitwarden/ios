@@ -31,10 +31,10 @@ extension Cipher {
             type == .identity
         case .login:
             type == .login
-        case .passport:
-            type == .passport
         case .noFolder:
             folderId == nil
+        case .passport:
+            type == .passport
         case .secureNote:
             type == .secureNote
         case .sshKey:

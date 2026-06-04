@@ -42,12 +42,12 @@ extension CipherType {
             self = .card
         case .driversLicense:
             self = .driversLicense
-        case .passport:
-            self = .passport
         case .identity:
             self = .identity
         case .login:
             self = .login
+        case .passport:
+            self = .passport
         case .secureNote:
             self = .secureNote
         case .sshKey:
