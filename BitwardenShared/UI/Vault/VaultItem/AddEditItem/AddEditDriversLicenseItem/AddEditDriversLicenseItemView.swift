@@ -125,84 +125,77 @@ struct AddEditDriversLicenseItemView: View {
 }
 
 #if DEBUG
-struct AddEditDriversLicenseItemView_Previews: PreviewProvider {
-    static var previews: some View {
-        NavigationView {
-            ScrollView {
-                AddEditDriversLicenseItemView(
-                    store: Store(
-                        processor: StateProcessor(
-                            state: DriversLicenseItemState() as (any AddEditDriversLicenseItemState),
-                        ),
+#Preview("Empty") {
+    NavigationView {
+        ScrollView {
+            AddEditDriversLicenseItemView(
+                store: Store(
+                    processor: StateProcessor(
+                        state: DriversLicenseItemState() as (any AddEditDriversLicenseItemState),
                     ),
-                )
-                .padding(16)
-            }
-            .background(SharedAsset.Colors.backgroundPrimary.swiftUIColor)
-            .navigationBar(title: "Empty Add Edit State", titleDisplayMode: .inline)
+                ),
+            )
+            .padding(16)
         }
-        .previewDisplayName("Empty Add Edit State")
+        .background(SharedAsset.Colors.backgroundPrimary.swiftUIColor)
+        .navigationBar(title: "Empty Add Edit State", titleDisplayMode: .inline)
+    }
+}
 
-        NavigationView {
-            ScrollView {
-                AddEditDriversLicenseItemView(
-                    store: Store(
-                        processor: StateProcessor(
-                            state: {
-                                var state = DriversLicenseItemState()
-                                state.firstName = "Bit"
-                                state.middleName = "W"
-                                state.lastName = "Warden"
-                                state.licenseNumber = "D1234567"
-                                state.dateOfBirth = "1989-08-01"
-                                state.issuingCountry = "United States"
-                                state.issuingState = "California"
-                                state.issuingAuthority = "DMV"
-                                state.issueDate = "2019-08-01"
-                                state.expirationDate = "2029-08-01"
-                                state.licenseClass = "C"
-                                return state
-                            }() as (any AddEditDriversLicenseItemState),
-                        ),
+#Preview("Populated") {
+    NavigationView {
+        ScrollView {
+            AddEditDriversLicenseItemView(
+                store: Store(
+                    processor: StateProcessor(
+                        state: DriversLicenseItemState.previewPopulated as (any AddEditDriversLicenseItemState),
                     ),
-                )
-                .padding(16)
-            }
-            .background(SharedAsset.Colors.backgroundPrimary.swiftUIColor)
-            .navigationBar(title: "Hidden Add Edit State", titleDisplayMode: .inline)
+                ),
+            )
+            .padding(16)
         }
-        .previewDisplayName("Hidden Add Edit State")
+        .background(SharedAsset.Colors.backgroundPrimary.swiftUIColor)
+        .navigationBar(title: "Populated Add Edit State", titleDisplayMode: .inline)
+    }
+}
 
-        NavigationView {
-            ScrollView {
-                AddEditDriversLicenseItemView(
-                    store: Store(
-                        processor: StateProcessor(
-                            state: {
-                                var state = DriversLicenseItemState()
-                                state.firstName = "Bit"
-                                state.middleName = "W"
-                                state.lastName = "Warden"
-                                state.licenseNumber = "D1234567"
-                                state.dateOfBirth = "1989-08-01"
-                                state.issuingCountry = "United States"
-                                state.issuingState = "California"
-                                state.issuingAuthority = "DMV"
-                                state.issueDate = "2019-08-01"
-                                state.expirationDate = "2029-08-01"
-                                state.licenseClass = "C"
-                                state.isLicenseNumberVisible = true
-                                return state
-                            }() as (any AddEditDriversLicenseItemState),
-                        ),
+#Preview("License Number Visible") {
+    NavigationView {
+        ScrollView {
+            AddEditDriversLicenseItemView(
+                store: Store(
+                    processor: StateProcessor(
+                        state: {
+                            var state = DriversLicenseItemState.previewPopulated
+                            state.isLicenseNumberVisible = true
+                            return state
+                        }() as (any AddEditDriversLicenseItemState),
                     ),
-                )
-                .padding(16)
-            }
-            .background(SharedAsset.Colors.backgroundPrimary.swiftUIColor)
-            .navigationBar(title: "Visible Add Edit State", titleDisplayMode: .inline)
+                ),
+            )
+            .padding(16)
         }
-        .previewDisplayName("Visible Add Edit State")
+        .background(SharedAsset.Colors.backgroundPrimary.swiftUIColor)
+        .navigationBar(title: "Visible Add Edit State", titleDisplayMode: .inline)
+    }
+}
+
+private extension DriversLicenseItemState {
+    /// A fully populated state used by previews.
+    static var previewPopulated: DriversLicenseItemState {
+        DriversLicenseItemState(
+            dateOfBirth: "1989-08-01",
+            expirationDate: "2029-08-01",
+            firstName: "Bit",
+            issueDate: "2019-08-01",
+            issuingAuthority: "DMV",
+            issuingCountry: "United States",
+            issuingState: "California",
+            lastName: "Warden",
+            licenseClass: "C",
+            licenseNumber: "D1234567",
+            middleName: "W",
+        )
     }
 }
 #endif
