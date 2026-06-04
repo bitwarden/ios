@@ -334,23 +334,11 @@ extension CredentialProviderViewController {
             return
         }
 
-        let serviceIdentifier = savePasswordRequest.serviceIdentifier
-        let uri: String = switch serviceIdentifier.type {
-        case .app:
-            serviceIdentifier.identifier
-        case .domain:
-            "https://" + serviceIdentifier.identifier
-        case .URL:
-            serviceIdentifier.identifier
-        @unknown default:
-            serviceIdentifier.identifier
-        }
-
         do {
             try await appProcessor.savePasswordCredential(
                 username: savePasswordRequest.credential.user,
                 password: savePasswordRequest.credential.password,
-                uri: uri,
+                uri: savePasswordRequest.serviceIdentifier.normalizedURI,
                 name: savePasswordRequest.title,
             )
             extensionContext.completeSavePasswordRequest(completionHandler: nil)

@@ -113,16 +113,7 @@ public struct DefaultCredentialProviderContext: CredentialProviderContext {
             return nil
         }
 
-        return switch serviceIdentifier.type {
-        case .app:
-            serviceIdentifier.identifier
-        case .domain:
-            "https://" + serviceIdentifier.identifier
-        case .URL:
-            serviceIdentifier.identifier
-        @unknown default:
-            serviceIdentifier.identifier
-        }
+        return serviceIdentifier.normalizedURI
     }
 
     /// Initializes the context.
