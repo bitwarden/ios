@@ -16,8 +16,14 @@ struct CipherRequestModel: JSONRequestBody {
     ///   attachment data.
     let attachments2: [String: AttachmentRequestModel]?
 
+    /// Bank account data if the cipher is a bank account.
+    let bankAccount: CipherBankAccountModel?
+
     /// Card data if the cipher is a card.
     let card: CipherCardModel?
+
+    /// Driver's license data if the cipher is a driver's license.
+    let driversLicense: CipherDriversLicenseModel?
 
     /// The ID of the user that encrypted the cipher. It should always represent a UserId.
     /// This is used to check that the user who encrypted the cipher is the same making the request.
@@ -61,6 +67,9 @@ struct CipherRequestModel: JSONRequestBody {
     /// The password history for this cipher.
     let passwordHistory: [CipherPasswordHistoryModel]?
 
+    /// Passport data if the cipher is a passport.
+    let passport: CipherPassportModel?
+
     /// Whether the user needs to be re-prompted for their master password prior to autofilling the
     /// cipher's password.
     let reprompt: CipherRepromptType
@@ -90,7 +99,9 @@ extension CipherRequestModel {
                 guard let id = attachment.id else { return }
                 result[id] = AttachmentRequestModel(attachment: attachment)
             },
+            bankAccount: cipher.bankAccount.map(CipherBankAccountModel.init),
             card: cipher.card.map(CipherCardModel.init),
+            driversLicense: cipher.driversLicense.map(CipherDriversLicenseModel.init),
             encryptedFor: encryptedFor,
             favorite: cipher.favorite,
             fields: cipher.fields?.map(CipherFieldModel.init),
@@ -104,6 +115,7 @@ extension CipherRequestModel {
             notes: cipher.notes,
             organizationID: cipher.organizationId,
             passwordHistory: cipher.passwordHistory?.map(CipherPasswordHistoryModel.init),
+            passport: cipher.passport.map(CipherPassportModel.init),
             reprompt: CipherRepromptType(type: cipher.reprompt),
             secureNote: cipher.secureNote.map(CipherSecureNoteModel.init),
             sshKey: cipher.sshKey.map(CipherSSHKeyModel.init),
