@@ -28,6 +28,7 @@ Implement from the bottom up:
 **Data Models** (if needed)
 - Request/Response types in `Core/<Domain>/Models/Request/` and `Response/`
 - Enum types in `Core/<Domain>/Models/Enum/`
+  - Keep cases alphabetical. When you add a case to an existing enum, insert it at its alphabetical position in **every `switch` over that enum** (across all layers) rather than appending it — match the surrounding order.
 
 **Persistence** (if needed)
 - Vault sync data → CoreData via `DataStore` (add entities to `Bitwarden.xcdatamodeld`)
