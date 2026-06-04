@@ -76,30 +76,30 @@ struct CardAutofillFormView: View {
             } header: {
                 Text(Localizations.cardDetails)
             } footer: {
-                Text(Localizations.cardAutofillFormDescription)
+                Text(Localizations.cardAutofillFormDescriptionLong)
             }
 
             Section {
                 if store.state.hasAnyValue {
                     VStack(alignment: .leading, spacing: 8) {
                         if !store.state.cardholderName.isEmpty {
-                            Text(Localizations.cardholderNameValue(store.state.cardholderName))
+                            Text(Localizations.cardholderNameValueX(store.state.cardholderName))
                                 .styleGuide(.body)
                         }
                         if !store.state.cardNumber.isEmpty {
-                            Text(Localizations.cardNumberValue(store.state.cardNumber))
+                            Text(Localizations.cardNumberValueX(store.state.cardNumber))
                                 .styleGuide(.body)
                         }
                         if !store.state.expirationMonth.isEmpty {
-                            Text(Localizations.expirationMonthValue(store.state.expirationMonth))
+                            Text(Localizations.expirationMonthValueX(store.state.expirationMonth))
                                 .styleGuide(.body)
                         }
                         if !store.state.expirationYear.isEmpty {
-                            Text(Localizations.expirationYearValue(store.state.expirationYear))
+                            Text(Localizations.expirationYearValueX(store.state.expirationYear))
                                 .styleGuide(.body)
                         }
                         if !store.state.securityCode.isEmpty {
-                            Text(Localizations.securityCodeValue(store.state.securityCode))
+                            Text(Localizations.securityCodeValueX(store.state.securityCode))
                                 .styleGuide(.body)
                         }
                     }
