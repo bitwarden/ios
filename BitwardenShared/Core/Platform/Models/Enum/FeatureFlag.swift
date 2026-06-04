@@ -33,6 +33,9 @@ extension FeatureFlag: @retroactive CaseIterable {
     /// An SDK flag that enables individual cipher encryption.
     static let enableCipherKeyEncryption = FeatureFlag(rawValue: "enableCipherKeyEncryption")
 
+    /// Flag to enable/disable Fill-Assist targeting rules.
+    static let fillAssistTargetingRules = FeatureFlag(rawValue: "fill-assist-targeting-rules")
+
     /// Flag to enable/disable forced KDF updates.
     static let forceUpdateKdfSettings = FeatureFlag(rawValue: "pm-18021-force-update-kdf-settings")
 
@@ -58,6 +61,7 @@ extension FeatureFlag: @retroactive CaseIterable {
             .debugDisableSelfHostPremiumCheck,
             .deviceAuthKey,
             .enableCipherKeyEncryption,
+            .fillAssistTargetingRules,
             .forceUpdateKdfSettings,
             .migrateMyVaultToMyItems,
             .newItemTypes,
