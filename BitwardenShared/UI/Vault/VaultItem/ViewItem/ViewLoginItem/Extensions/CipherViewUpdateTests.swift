@@ -165,6 +165,72 @@ final class CipherViewUpdateTests: BitwardenTestCase { // swiftlint:disable:this
         XCTAssertEqual(comparison.driversLicense?.expirationDate, "2029-08-01")
     }
 
+    /// `bankAccountItemState()` returns the bank account item state from the cipher view, reading
+    /// every field.
+    func test_bankAccountItemState() {
+        let cipherView = CipherView.fixture(
+            bankAccount: BankAccountView(
+                bankName: "Bank of America",
+                nameOnAccount: "Personal Checking",
+                accountType: "checking",
+                accountNumber: "1234567890123456",
+                routingNumber: "1234567890",
+                branchNumber: "100",
+                pin: "1234",
+                swiftCode: "123234",
+                iban: "23423434543",
+                bankContactPhone: "123-456-7890",
+            ),
+            type: .bankAccount,
+        )
+
+        let state = cipherView.bankAccountItemState()
+        XCTAssertEqual(state.bankName, "Bank of America")
+        XCTAssertEqual(state.nameOnAccount, "Personal Checking")
+        XCTAssertEqual(state.accountType, .custom(.checking))
+        XCTAssertEqual(state.accountNumber, "1234567890123456")
+        XCTAssertEqual(state.routingNumber, "1234567890")
+        XCTAssertEqual(state.branchNumber, "100")
+        XCTAssertEqual(state.pin, "1234")
+        XCTAssertEqual(state.swiftCode, "123234")
+        XCTAssertEqual(state.iban, "23423434543")
+        XCTAssertEqual(state.bankContactPhone, "123-456-7890")
+    }
+
+    /// `bankAccountItemState()` returns an empty state when there's no `bankAccount` in the cipher view.
+    func test_bankAccountItemState_nil() {
+        let cipherView = CipherView.fixture()
+        let state = cipherView.bankAccountItemState()
+        XCTAssertEqual(state, BankAccountItemState())
+    }
+
+    /// `updatedView(with:)` round-trips a bank account, preserving all 10 fields.
+    func test_update_bankAccount_edits_succeeds() {
+        cipherItemState.type = .bankAccount
+        var expectedBankAccountState = BankAccountItemState()
+        expectedBankAccountState.bankName = "Bank of America"
+        expectedBankAccountState.nameOnAccount = "Personal Checking"
+        expectedBankAccountState.accountType = .custom(.checking)
+        expectedBankAccountState.accountNumber = "1234567890123456"
+        expectedBankAccountState.routingNumber = "1234567890"
+        expectedBankAccountState.branchNumber = "100"
+        expectedBankAccountState.pin = "1234"
+        expectedBankAccountState.swiftCode = "123234"
+        expectedBankAccountState.iban = "23423434543"
+        expectedBankAccountState.bankContactPhone = "123-456-7890"
+        cipherItemState.bankAccountItemState = expectedBankAccountState
+
+        let comparison = subject.updatedView(with: cipherItemState)
+        XCTAssertEqual(comparison.type, .bankAccount)
+        XCTAssertNil(comparison.login)
+        XCTAssertNil(comparison.card)
+        XCTAssertNil(comparison.identity)
+
+        XCTAssertEqual(comparison.bankAccountItemState(), expectedBankAccountState)
+        XCTAssertEqual(comparison.bankAccount?.accountType, "checking")
+        XCTAssertEqual(comparison.bankAccount?.accountNumber, "1234567890123456")
+    }
+
     /// `sshKeyItemState()` returns the correct SSH key item state based on the CIpherView.
     func test_sshKeyItemState() {
         let cipherView = CipherView.fixture(
