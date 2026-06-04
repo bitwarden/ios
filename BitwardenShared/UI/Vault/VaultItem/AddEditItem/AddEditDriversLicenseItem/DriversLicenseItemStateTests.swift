@@ -1,14 +1,16 @@
 import BitwardenSdk
-import XCTest
+import Foundation
+import Testing
 
 @testable import BitwardenShared
 
-class DriversLicenseItemStateTests: BitwardenTestCase {
+struct DriversLicenseItemStateTests {
     // MARK: Tests
 
     /// `driversLicenseView` maps every populated text and date field through to the SDK view,
     /// passing the raw ISO date strings through verbatim (no `Date` conversion in the model).
-    func test_driversLicenseView_populated() {
+    @Test
+    func driversLicenseView_populated() {
         let subject = DriversLicenseItemState(
             dateOfBirth: "1989-08-01",
             expirationDate: "2029-08-01",
@@ -25,41 +27,43 @@ class DriversLicenseItemStateTests: BitwardenTestCase {
 
         let view = subject.driversLicenseView
 
-        XCTAssertEqual(view.firstName, "Bit")
-        XCTAssertEqual(view.middleName, "W")
-        XCTAssertEqual(view.lastName, "Warden")
-        XCTAssertEqual(view.dateOfBirth, "1989-08-01")
-        XCTAssertEqual(view.licenseNumber, "D1234567")
-        XCTAssertEqual(view.issuingCountry, "United States")
-        XCTAssertEqual(view.issuingState, "California")
-        XCTAssertEqual(view.issueDate, "2019-08-01")
-        XCTAssertEqual(view.expirationDate, "2029-08-01")
-        XCTAssertEqual(view.issuingAuthority, "DMV")
-        XCTAssertEqual(view.licenseClass, "C")
+        #expect(view.firstName == "Bit")
+        #expect(view.middleName == "W")
+        #expect(view.lastName == "Warden")
+        #expect(view.dateOfBirth == "1989-08-01")
+        #expect(view.licenseNumber == "D1234567")
+        #expect(view.issuingCountry == "United States")
+        #expect(view.issuingState == "California")
+        #expect(view.issueDate == "2019-08-01")
+        #expect(view.expirationDate == "2029-08-01")
+        #expect(view.issuingAuthority == "DMV")
+        #expect(view.licenseClass == "C")
     }
 
     /// `driversLicenseView` maps every empty field to `nil` via `.nilIfEmpty`.
-    func test_driversLicenseView_empty() {
+    @Test
+    func driversLicenseView_empty() {
         let subject = DriversLicenseItemState()
 
         let view = subject.driversLicenseView
 
-        XCTAssertNil(view.firstName)
-        XCTAssertNil(view.middleName)
-        XCTAssertNil(view.lastName)
-        XCTAssertNil(view.dateOfBirth)
-        XCTAssertNil(view.licenseNumber)
-        XCTAssertNil(view.issuingCountry)
-        XCTAssertNil(view.issuingState)
-        XCTAssertNil(view.issueDate)
-        XCTAssertNil(view.expirationDate)
-        XCTAssertNil(view.issuingAuthority)
-        XCTAssertNil(view.licenseClass)
+        #expect(view.firstName == nil)
+        #expect(view.middleName == nil)
+        #expect(view.lastName == nil)
+        #expect(view.dateOfBirth == nil)
+        #expect(view.licenseNumber == nil)
+        #expect(view.issuingCountry == nil)
+        #expect(view.issuingState == nil)
+        #expect(view.issueDate == nil)
+        #expect(view.expirationDate == nil)
+        #expect(view.issuingAuthority == nil)
+        #expect(view.licenseClass == nil)
     }
 
     /// `driversLicenseView` passes raw ISO date strings through verbatim without transformation,
     /// while still mapping empty date strings to `nil`.
-    func test_driversLicenseView_dateStringsPassThroughVerbatim() {
+    @Test
+    func driversLicenseView_dateStringsPassThroughVerbatim() {
         var subject = DriversLicenseItemState()
         subject.dateOfBirth = "1989-08-01"
         subject.issueDate = "2019-12-31"
@@ -67,59 +71,63 @@ class DriversLicenseItemStateTests: BitwardenTestCase {
 
         let view = subject.driversLicenseView
 
-        XCTAssertEqual(view.dateOfBirth, "1989-08-01")
-        XCTAssertEqual(view.issueDate, "2019-12-31")
-        XCTAssertNil(view.expirationDate)
+        #expect(view.dateOfBirth == "1989-08-01")
+        #expect(view.issueDate == "2019-12-31")
+        #expect(view.expirationDate == nil)
     }
 
     /// `dateOfBirthDisplay` formats a valid ISO date-only string as a long localized date and
     /// returns an empty string when unset.
-    func test_dateOfBirthDisplay() throws {
+    @Test
+    func dateOfBirthDisplay() throws {
         var subject = DriversLicenseItemState()
 
-        XCTAssertEqual(subject.dateOfBirthDisplay, "")
+        #expect(subject.dateOfBirthDisplay.isEmpty)
 
         subject.dateOfBirth = "2026-08-10"
         let expectedDate = try utcDate("2026-08-10")
         // Compare against the same `.formatted` render the source uses so the assertion is
         // deterministic regardless of the host time zone (both sides render in the same zone).
-        XCTAssertEqual(subject.dateOfBirthDisplay, expectedDate.formatted(date: .long, time: .omitted))
-        XCTAssertTrue(subject.dateOfBirthDisplay.contains("August"))
-        XCTAssertTrue(subject.dateOfBirthDisplay.contains("2026"))
+        #expect(subject.dateOfBirthDisplay == expectedDate.formatted(date: .long, time: .omitted))
+        #expect(subject.dateOfBirthDisplay.contains("August"))
+        #expect(subject.dateOfBirthDisplay.contains("2026"))
     }
 
     /// `dateOfBirthDisplay` returns an empty string for an unparsable date string.
-    func test_dateOfBirthDisplay_unparsable() {
+    @Test
+    func dateOfBirthDisplay_unparsable() {
         var subject = DriversLicenseItemState()
         subject.dateOfBirth = "not-a-date"
 
-        XCTAssertEqual(subject.dateOfBirthDisplay, "")
+        #expect(subject.dateOfBirthDisplay.isEmpty)
     }
 
     /// `expirationDateDisplay` formats a valid ISO date-only string as a long localized date and
     /// returns an empty string when unset.
-    func test_expirationDateDisplay() throws {
+    @Test
+    func expirationDateDisplay() throws {
         var subject = DriversLicenseItemState()
 
-        XCTAssertEqual(subject.expirationDateDisplay, "")
+        #expect(subject.expirationDateDisplay.isEmpty)
 
         subject.expirationDate = "2029-01-05"
         let expectedDate = try utcDate("2029-01-05")
-        XCTAssertEqual(subject.expirationDateDisplay, expectedDate.formatted(date: .long, time: .omitted))
-        XCTAssertTrue(subject.expirationDateDisplay.contains("January"))
+        #expect(subject.expirationDateDisplay == expectedDate.formatted(date: .long, time: .omitted))
+        #expect(subject.expirationDateDisplay.contains("January"))
     }
 
     /// `issueDateDisplay` formats a valid ISO date-only string as a long localized date and
     /// returns an empty string when unset.
-    func test_issueDateDisplay() throws {
+    @Test
+    func issueDateDisplay() throws {
         var subject = DriversLicenseItemState()
 
-        XCTAssertEqual(subject.issueDateDisplay, "")
+        #expect(subject.issueDateDisplay.isEmpty)
 
         subject.issueDate = "2019-08-01"
         let expectedDate = try utcDate("2019-08-01")
-        XCTAssertEqual(subject.issueDateDisplay, expectedDate.formatted(date: .long, time: .omitted))
-        XCTAssertTrue(subject.issueDateDisplay.contains("August"))
+        #expect(subject.issueDateDisplay == expectedDate.formatted(date: .long, time: .omitted))
+        #expect(subject.issueDateDisplay.contains("August"))
     }
 
     // MARK: Helpers
@@ -131,6 +139,6 @@ class DriversLicenseItemStateTests: BitwardenTestCase {
         formatter.locale = Locale(identifier: "en_US_POSIX")
         formatter.timeZone = TimeZone(identifier: "UTC")
         formatter.dateFormat = "yyyy-MM-dd"
-        return try XCTUnwrap(formatter.date(from: string))
+        return try #require(formatter.date(from: string))
     }
 }

@@ -32,9 +32,6 @@ protocol AddEditItemState: Sendable {
     /// The Cipher underpinning the state
     var cipher: CipherView { get }
 
-    /// The driver's license item state.
-    var driversLicenseItemState: DriversLicenseItemState { get set }
-
     /// The list of collection IDs that the cipher is included in.
     var collectionIds: [String] { get set }
 
@@ -49,6 +46,9 @@ protocol AddEditItemState: Sendable {
 
     /// The custom fields state.
     var customFieldsState: AddEditCustomFieldsState { get set }
+
+    /// The driver's license item state.
+    var driversLicenseItemState: DriversLicenseItemState { get set }
 
     /// The folder this item should be added to.
     var folder: DefaultableType<FolderView> { get set }

@@ -46,31 +46,27 @@ protocol AddEditDriversLicenseItemState: Equatable, Sendable {
 
 extension AddEditDriversLicenseItemState {
     /// The date of birth formatted as a long localized date (e.g. "August 10, 2026"); empty when unset.
-    var dateOfBirthDisplay: String { displayDate(from: dateOfBirth) }
+    var dateOfBirthDisplay: String { Self.displayDate(from: dateOfBirth) }
 
     /// The expiration date formatted as a long localized date (e.g. "August 10, 2026"); empty when unset.
-    var expirationDateDisplay: String { displayDate(from: expirationDate) }
+    var expirationDateDisplay: String { Self.displayDate(from: expirationDate) }
 
     /// The issue date formatted as a long localized date (e.g. "August 10, 2026"); empty when unset.
-    var issueDateDisplay: String { displayDate(from: issueDate) }
-}
+    var issueDateDisplay: String { Self.displayDate(from: issueDate) }
 
-/// Formats a raw ISO-8601 date-only string (`yyyy-MM-dd`) as a long localized date for display
-/// (e.g. "August 10, 2026"), or returns an empty string when the value is unset or unparsable.
-///
-/// - Note: Self-contained parsing is used here intentionally; PM-38360 introduces the shared
-///   `DateFieldPicker` and date utilities that will replace these read-only fields.
-private func displayDate(from isoString: String) -> String {
-    guard !isoString.isEmpty, let date = isoDateOnlyParser.date(from: isoString) else { return "" }
-    return date.formatted(date: .long, time: .omitted)
+    /// Formats a raw ISO-8601 date-only string (`yyyy-MM-dd`) as a long localized date for display
+    /// (e.g. "August 10, 2026"), or returns an empty string when the value is unset or unparsable.
+    ///
+    /// Parses fixed to UTC so a stored date reads back as the same calendar day regardless of device
+    /// locale. Self-contained intentionally; PM-38360 introduces the shared `DateFieldPicker` and date
+    /// utilities that will replace these read-only fields.
+    private static func displayDate(from isoString: String) -> String {
+        guard !isoString.isEmpty else { return "" }
+        let parser = DateFormatter()
+        parser.locale = Locale(identifier: "en_US_POSIX")
+        parser.timeZone = TimeZone(identifier: "UTC")
+        parser.dateFormat = "yyyy-MM-dd"
+        guard let date = parser.date(from: isoString) else { return "" }
+        return date.formatted(date: .long, time: .omitted)
+    }
 }
-
-/// A parser for ISO-8601 date-only (`yyyy-MM-dd`) strings, fixed to UTC so a stored date is read
-/// back as the same calendar day regardless of device locale.
-private let isoDateOnlyParser: DateFormatter = {
-    let formatter = DateFormatter()
-    formatter.locale = Locale(identifier: "en_US_POSIX")
-    formatter.timeZone = TimeZone(identifier: "UTC")
-    formatter.dateFormat = "yyyy-MM-dd"
-    return formatter
-}()

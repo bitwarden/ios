@@ -39,9 +39,6 @@ struct CipherItemState: Equatable { // swiftlint:disable:this type_body_length
     /// The card item state.
     var cardItemState = CardItemState()
 
-    /// The driver's license item state.
-    var driversLicenseItemState = DriversLicenseItemState()
-
     /// The list of collection IDs that the cipher is included in.
     var collectionIds: [String]
 
@@ -53,6 +50,9 @@ struct CipherItemState: Equatable { // swiftlint:disable:this type_body_length
 
     /// The custom fields state.
     var customFieldsState: AddEditCustomFieldsState
+
+    /// The driver's license item state.
+    var driversLicenseItemState = DriversLicenseItemState()
 
     /// The identifier of the folder for this item.
     var folderId: String?
