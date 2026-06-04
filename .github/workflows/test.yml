@@ -51,7 +51,8 @@ env:
   _COMPILER_FLAGS: ${{ inputs.compiler-flags }}
   _GITHUB_ACTION_RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}/attempts/${{ github.run_attempt }}
 
-  # xcode26 compilation cache
+  # xcode optimization flags
+  COMPILER_INDEX_STORE_ENABLE: "NO"
   COMPILATION_CACHE_ENABLE_CACHING: "YES"
   COMPILATION_CACHE_ENABLE_PLUGIN: "YES"
   SWIFT_ENABLE_COMPILE_CACHE: "YES"
