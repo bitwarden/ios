@@ -1356,6 +1356,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
     /// `getFingerprintPhrase()` gets the account's fingerprint phrase.
     func test_getFingerprintPhrase() async throws {
         let account = Account.fixture()
+        clientService.mockPlatform.userFingerprintReturnValue = "fingerprint"
         stateService.accounts = [account]
         _ = try await subject.setActiveAccount(userId: account.profile.userId)
         try await stateService.setAccountEncryptionKeys(AccountEncryptionKeys(
@@ -1364,8 +1365,8 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         ))
 
         let phrase = try await subject.getFingerprintPhrase()
-        XCTAssertEqual(clientService.mockPlatform.fingerprintMaterialString, account.profile.userId)
-        XCTAssertEqual(try clientService.mockPlatform.fingerprintResult.get(), phrase)
+        XCTAssertEqual(clientService.mockPlatform.userFingerprintReceivedFingerprintMaterial, account.profile.userId)
+        XCTAssertEqual(phrase, "fingerprint")
     }
 
     /// `getFingerprintPhrase()` throws an error if there is no active account.
