@@ -42,6 +42,10 @@ struct ProfileResponseModel: Codable, Equatable, AccountKeysResponseModelProtoco
     /// A list of organizations that the user belongs to.
     let organizations: [ProfileOrganizationResponseModel]?
 
+    /// A new organizations list including accepted-state members from the server-side flag.
+    /// Falls back to `organizations` when absent.
+    let organizationsNew: [ProfileOrganizationResponseModel]?
+
     /// Whether the user has a premium account.
     let premium: Bool
 

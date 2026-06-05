@@ -1,3 +1,4 @@
+import BitwardenKit
 import BitwardenSdk
 import Foundation
 
@@ -11,11 +12,12 @@ protocol KeyConnectorService {
     /// - Parameters:
     ///   - keyConnectorUrl: The URL to the Key Connector API.
     ///   - orgIdentifier: The text identifier for the organization.
+    /// - Returns: The keys needed to immediately unlock the vault.
     ///
     func convertNewUserToKeyConnector(
         keyConnectorUrl: URL,
         orgIdentifier: String,
-    ) async throws
+    ) async throws -> KeyConnectorConversionResult
 
     /// Returns the managing organization that requires the use of Key Connector for the user.
     ///
@@ -68,6 +70,9 @@ class DefaultKeyConnectorService {
     /// The service that handles common client functionality such as encryption and decryption.
     private let clientService: ClientService
 
+    /// The service to get server-specified configuration.
+    private let configService: ConfigService
+
     /// The API service used to make key connector requests.
     private let keyConnectorAPIService: KeyConnectorAPIService
 
@@ -88,6 +93,7 @@ class DefaultKeyConnectorService {
     ///   - accountAPIService: The service used by the application to make account related API requests.
     ///   - clientService: The service that handles common client functionality such as encryption
     ///     and decryption.
+    ///   - configService: The service to get server-specified configuration.
     ///   - keyConnectorAPIService: The API service used to make key connector requests.
     ///   - organizationService: The service for managing the organizations for the user.
     ///   - stateService: The service used by the application to manage account state.
@@ -96,6 +102,7 @@ class DefaultKeyConnectorService {
     init(
         accountAPIService: AccountAPIService,
         clientService: ClientService,
+        configService: ConfigService,
         keyConnectorAPIService: KeyConnectorAPIService,
         organizationService: OrganizationService,
         stateService: StateService,
@@ -103,6 +110,7 @@ class DefaultKeyConnectorService {
     ) {
         self.accountAPIService = accountAPIService
         self.clientService = clientService
+        self.configService = configService
         self.keyConnectorAPIService = keyConnectorAPIService
         self.organizationService = organizationService
         self.stateService = stateService
@@ -111,29 +119,55 @@ class DefaultKeyConnectorService {
 }
 
 extension DefaultKeyConnectorService: KeyConnectorService {
-    func convertNewUserToKeyConnector(keyConnectorUrl: URL, orgIdentifier: String) async throws {
-        let keyConnectorResponse = try await clientService.auth().makeKeyConnectorKeys()
+    func convertNewUserToKeyConnector(
+        keyConnectorUrl: URL,
+        orgIdentifier: String,
+    ) async throws -> KeyConnectorConversionResult {
+        guard await configService.getFeatureFlag(.accountEncryptionV2KeyConnector) else {
+            let keyConnectorResponse = try await clientService.auth().makeKeyConnectorKeys()
 
-        try await keyConnectorAPIService.postMasterKeyToKeyConnector(
-            key: keyConnectorResponse.masterKey,
-            keyConnectorUrl: keyConnectorUrl,
-        )
+            try await keyConnectorAPIService.postMasterKeyToKeyConnector(
+                key: keyConnectorResponse.masterKey,
+                keyConnectorUrl: keyConnectorUrl,
+            )
 
-        let account = try await stateService.getActiveAccount()
-        try await accountAPIService.setKeyConnectorKey(
-            SetKeyConnectorKeyRequestModel(
-                kdfConfig: account.kdf,
-                key: keyConnectorResponse.encryptedUserKey,
-                keys: KeysRequestModel(keyPair: keyConnectorResponse.keys),
-                orgIdentifier: orgIdentifier,
-            ),
+            let account = try await stateService.getActiveAccount()
+            try await accountAPIService.setKeyConnectorKey(
+                SetKeyConnectorKeyRequestModel(
+                    kdfConfig: account.kdf,
+                    key: keyConnectorResponse.encryptedUserKey,
+                    keys: KeysRequestModel(keyPair: keyConnectorResponse.keys),
+                    orgIdentifier: orgIdentifier,
+                ),
+            )
+
+            try await stateService.setAccountEncryptionKeys(
+                AccountEncryptionKeys(
+                    cryptographicState: .v1(privateKey: keyConnectorResponse.keys.private),
+                    encryptedUserKey: keyConnectorResponse.encryptedUserKey,
+                ),
+            )
+            return KeyConnectorConversionResult(
+                encryptedUserKey: keyConnectorResponse.encryptedUserKey,
+                masterKey: keyConnectorResponse.masterKey,
+            )
+        }
+
+        let result = try await clientService.auth().registration().postKeysForKeyConnectorRegistration(
+            keyConnectorUrl: keyConnectorUrl.absoluteString,
+            ssoOrgIdentifier: orgIdentifier,
         )
 
         try await stateService.setAccountEncryptionKeys(
             AccountEncryptionKeys(
-                cryptographicState: .v1(privateKey: keyConnectorResponse.keys.private),
-                encryptedUserKey: keyConnectorResponse.encryptedUserKey,
+                cryptographicState: result.accountCryptographicState,
+                encryptedUserKey: result.keyConnectorKeyWrappedUserKey,
             ),
+        )
+
+        return KeyConnectorConversionResult(
+            encryptedUserKey: result.keyConnectorKeyWrappedUserKey,
+            masterKey: result.keyConnectorKey,
         )
     }
 

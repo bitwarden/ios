@@ -51,6 +51,7 @@
 "Saving" = "Saving…";
 "Settings" = "ಸೆಟ್ಟಿಂಗ್‍ಗಳು
 ";
+"ShowNextCode" = "Show next code";
 "ItemDeleted" = "ಐಟಂ ಅಳಿಸಲಾಗಿದೆ.";
 "Submit" = "ಒಪ್ಪಿಸು";
 "UseFingerprintToUnlock" = "ಅನ್ಲಾಕ್ ಮಾಡಲು ಫಿಂಗರ್ಪ್ರಿಂಟ್ ಬಳಸಿ";
@@ -382,7 +383,7 @@
 "MasterPasswordPolicyValidationTitle" = "ಅಮಾನ್ಯ ಪಾಸ್‌ವರ್ಡ್";
 "MasterPasswordPolicyValidationMessage" = "ಪಾಸ್ವರ್ಡ್ ಸಂಸ್ಥೆಯ ಅವಶ್ಯಕತೆಗಳನ್ನು ಪೂರೈಸುವುದಿಲ್ಲ. ದಯವಿಟ್ಟು ನೀತಿ ಮಾಹಿತಿಯನ್ನು ಪರಿಶೀಲಿಸಿ ಮತ್ತು ಮತ್ತೆ ಪ್ರಯತ್ನಿಸಿ.";
 "Loading" = "ಲೋಡ್‌ಆಗುತ್ತಿದೆ";
-"LoadingSubscription" = "Loading subscription...";
+"LoadingSubscription" = "Loading subscription…";
 "AcceptPoliciesError" = "ಸೇವಾ ನಿಯಮಗಳು ಮತ್ತು ಗೌಪ್ಯತೆ ನೀತಿಯನ್ನು ಅಂಗೀಕರಿಸಲಾಗಿಲ್ಲ.";
 "PrivacyPolicy" = "ಗೌಪ್ಯತಾ ನೀತಿ";
 "PersonalOwnershipPolicyInEffect" = "ಸಂಸ್ಥೆಯ ನೀತಿಯು ನಿಮ್ಮ ಮಾಲೀಕತ್ವದ ಆಯ್ಕೆಗಳ ಮೇಲೆ ಪರಿಣಾಮ ಬೀರುತ್ತಿದೆ.";
@@ -674,6 +675,7 @@
 "BitwardenCannotResetALostOrForgottenMasterPassword" = "Bitwarden cannot reset a lost or forgotten master password.";
 "LearnAboutWaysToPreventAccountLockout" = "Learn about ways to prevent account lockout";
 "RestartRegistration" = "Restart registration";
+"Expired" = "ಅವಧಿ ಮೀರಿದೆ";
 "ExpiredLink" = "Expired link";
 "PleaseRestartRegistrationOrTryLoggingInYouMayAlreadyHaveAnAccount" = "Please restart registration or try logging in. You may already have an account.";
 "RemovePasskey" = "Remove passkey";
@@ -706,16 +708,25 @@
 "TheVaultProtectsMoreThanJustPasswordsStoreSecureLoginsIdsCardsAndNotesSecurelyHere" = "The vault protects more than just your passwords. Store secure logins, IDs, cards and notes securely here.";
 "SendSensitiveInformationSafely" = "Send sensitive information, safely";
 "ShareFilesAndDataSecurelyWithAnyoneOnAnyPlatformYourInformationWillRemainEndToEndEncrypted" = "Share files and data securely with anyone, on any platform. Your information will remain end-to-end encrypted while limiting exposure.";
-"NewLogin" = "New login";
-"NewCard" = "New card";
-"NewIdentity" = "New identity";
-"NewNote" = "New note";
-"NewSSHKey" = "New SSH key";
+"AddLogin" = "Add login";
+"AddCard" = "Add card";
+"AddIdentity" = "Add identity";
+"AddNote" = "Add note";
+"AddSSHKey" = "Add SSH key";
+"AddBankAccount" = "Add bank account";
+"AddLicense" = "Add license";
+"AddPassport" = "Add passport";
+"EditBankAccount" = "Edit bank account";
+"EditLicense" = "Edit license";
+"EditPassport" = "Edit passport";
 "EditLogin" = "Edit login";
 "EditCard" = "Edit card";
 "EditIdentity" = "Edit identity";
 "EditNote" = "Edit note";
 "EditSSHKey" = "Edit SSH key";
+"ViewBankAccount" = "View bank account";
+"ViewLicense" = "View license";
+"ViewPassport" = "View passport";
 "ViewLogin" = "View login";
 "ViewCard" = "View card";
 "ViewIdentity" = "View identity";
@@ -748,6 +759,7 @@
 "BitwardenTools" = "Bitwarden tools";
 "ImportSuccessful" = "Import successful!";
 "ManageYourLoginsFromAnywhereWithBitwardenToolsForWebAndDesktop" = "Manage your logins from anywhere with Bitwarden tools for web and desktop.";
+"ManageYourSubscriptionPlanInTheBitwardenWebApp" = "Manage your subscription plan in the Bitwarden web app.";
 "DownloadTheBrowserExtension" = "Download the browser extension";
 "GoToBitwardenToIntegrateBitwardenIntoYourFavoriteBrowserForASeamlessExperience" = "Go to bitwarden.com/download to integrate Bitwarden into your favorite browser for a seamless experience.";
 "UseTheWebApp" = "Use the web app";
@@ -772,6 +784,7 @@
 "UnableToMoveTheSelectedItemPleaseTryAgain" = "Unable to move the selected item. Please try again.";
 "Done" = "Done";
 "Next" = "Next";
+"NextCode" = "Next code";
 "CopyPublicKey" = "Copy public key";
 "CopyPrivateKey" = "Copy private key";
 "CopyFingerprint" = "Copy fingerprint";
@@ -818,7 +831,7 @@
 "AddWebsite" = "Add website";
 "CannotDeleteAccount" = "Cannot delete account";
 "CannotDeleteAccountDescriptionLong" = "This action cannot be completed because your account is owned by an organization. Contact your organization administrator for additional details.";
-"NewFolder" = "New folder";
+"AddItem" = "ಐಟಂ ಸೇರಿಸಿ";
 "SetUpAuthenticatorKey" = "Set up authenticator key";
 "ItemDetails" = "Item details";
 "CardDetails" = "Card details";
@@ -931,6 +944,7 @@
 "SaveToBitwarden" = "Save to Bitwarden";
 "ScanCard" = "Scan card";
 "PositionYourCardInTheFrameToScanIt" = "Position your card in the frame to scan it";
+"EnableCameraPermissionInSettingsToScanYourCard" = "Enable camera access in Settings to scan your card.";
 "ScanComplete" = "Scan complete";
 "ScanTheQRCodeInYourSettings" = "Scan the QR code in your 2-step verification settings for any account.";
 "SecureYourAssetsWithBitwardenAuthenticator" = "Secure your accounts with Bitwarden Authenticator";
@@ -1005,6 +1019,8 @@
 "OnceArchivedThisItemWillBeExcludedDescriptionLong" = "Once archived, this item will be excluded from search results and autofill suggestions.";
 "ArchiveUnavailable" = "Archive unavailable";
 "ArchivingItemsIsAPremiumFeatureDescriptionLong" = "Archiving items is a Premium feature. Your current plan does not include access to this feature.";
+"AddingAttachmentsIsAPremiumFeatureDescriptionLong" = "Adding attachments is a Premium feature. Your current plan does not include access to this feature.";
+"AttachmentsUnavailable" = "Attachments unavailable";
 "UpgradeToPremium" = "Upgrade to premium";
 "ThisItemIsArchived" = "This item is archived.";
 "YourPremiumSubscriptionEnded" = "Your Premium subscription ended";
@@ -1049,17 +1065,21 @@
 "Active" = "Active";
 "Canceled" = "Canceled";
 "PastDue" = "Past due";
+"PendingCancellation" = "Pending cancellation";
 "UpdatePayment" = "Update payment";
 "BillingAmount" = "Billing amount";
 "StorageCost" = "Storage cost";
 "Discount" = "Discount";
 "EstimatedTax" = "Estimated tax";
+"Total" = "Total";
 "ManagePlan" = "Manage plan";
 "CancelPremium" = "Cancel Premium";
-"CancelNow" = "Cancel now";
+"ExternalLink" = "External link";
 "YourNextChargeIsForXDueOnY" = "Your next charge is for **%1$@**, due on **%2$@**.";
 "WeCouldNotProcessYourPaymentUpdateYourPaymentMethodDescriptionLong" = "We could not process your payment. Update your payment method before your subscription ends on **%1$@**.";
-"YourSubscriptionWasCanceledOnXResubscribeToContinueUsingDescriptionLong" = "Your subscription was canceled on **%1$@**. Resubscribe to continue using premium features.";
+"YourSubscriptionWasCanceledOnXDescriptionLong" = "Your subscription was canceled on **%1$@**. Resubscribe to continue using Premium features.";
+"YourSubscriptionExpiredOnXDescriptionLong" = "Your subscription expired on **%1$@**. Resubscribe to continue using Premium features.";
+"YourSubscriptionIsScheduledToCancelOnXDescriptionLong" = "Your subscription is scheduled to cancel on **%1$@**. You can reinstate it anytime before then.";
 "PerMonth" = "/ month";
 "PerYear" = "/ year";
 "XAmountPerCadence" = "%1$@ %2$@";
@@ -1085,7 +1105,8 @@
 "YouNowHaveAccessToAdvancedSecurityDescriptionLong" = "You now have access to advanced security features. Learn more about what's included with Premium.";
 "YouNowHaveAccessToAllAdvancedSecurityFeatures" = "You now have access to all advanced security features.";
 "YoullGoToStripeSecureCheckoutToCompleteYourPurchase" = "You´ll go to Stripe´s secure checkout to complete your purchase.";
-"YoullContinueToHavePremiumAccessUntilX" = "You'll continue to have Premium access until %1$@.";
+"ContinueToStripe" = "Continue to Stripe?";
+"YoullBeTakenToStripeToManageYourSubscriptionCancellation" = "You'll be taken to Stripe to manage your subscription cancellation.";
 "UserIDCopiedToTheClipboard" = "User ID copied to the clipboard";
 "UserID" = "User ID";
 "CopyUserID" = "Copy user ID";
@@ -1094,3 +1115,5 @@
 "CheckYourConnectionAndTryAgain" = "Check your connection and try again.";
 "PricingUnavailable" = "Pricing unavailable";
 "BankAccount" = "Bank account";
+"License" = "License";
+"Passport" = "Passport";

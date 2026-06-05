@@ -500,13 +500,19 @@ class CipherAPIServiceTests: XCTestCase { // swiftlint:disable:this type_body_le
 
     /// `updateCipherCollections()` performs the update cipher collections request.
     func test_updateCipherCollections() async throws {
-        client.result = .httpSuccess(testData: .emptyResponse)
+        client.result = .httpSuccess(testData: .updateCipherCollectionsResponse)
 
-        try await subject.updateCipherCollections(.fixture(collectionIds: ["1", "2", "3"], id: "1"))
+        let response = try await subject.updateCipherCollections(
+            .fixture(collectionIds: ["1", "2", "3"], id: "1"),
+        )
 
         XCTAssertEqual(client.requests.count, 1)
         XCTAssertNotNil(client.requests[0].body)
         XCTAssertEqual(client.requests[0].method, .put)
-        XCTAssertEqual(client.requests[0].url.absoluteString, "https://example.com/api/ciphers/1/collections")
+        XCTAssertEqual(
+            client.requests[0].url.absoluteString,
+            "https://example.com/api/ciphers/1/collections_v2",
+        )
+        XCTAssertNotNil(response.cipher)
     }
 } // swiftlint:disable:this file_length

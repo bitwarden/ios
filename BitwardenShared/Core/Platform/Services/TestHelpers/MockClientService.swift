@@ -27,7 +27,7 @@ class MockClientService: ClientService {
         crypto: MockCryptoClientProtocol = MockCryptoClientProtocol(),
         exporters: MockExporterClientProtocol = MockExporterClientProtocol(),
         generators: MockGeneratorClientsProtocol = MockGeneratorClientsProtocol(),
-        platform: MockPlatformClientService = MockPlatformClientService(),
+        platform: MockPlatformClientService = MockPlatformClientService.withMocks(),
         sends: MockSendClientProtocol = {
             let mock = MockSendClientProtocol()
             mock.decryptClosure = { SendView(send: $0) }

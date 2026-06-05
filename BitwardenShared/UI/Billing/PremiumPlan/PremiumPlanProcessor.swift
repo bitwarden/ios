@@ -130,7 +130,6 @@ final class PremiumPlanProcessor: StateProcessor<
                 )
                 return
             }
-
             let subscription: PremiumSubscription
             if let existing = state.subscription {
                 subscription = existing

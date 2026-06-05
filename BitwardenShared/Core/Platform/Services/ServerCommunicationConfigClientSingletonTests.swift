@@ -36,7 +36,7 @@ class ServerCommunicationConfigClientSingletonTests: BitwardenTestCase { // swif
         serverCommunicationConfigAPIService = MockServerCommunicationConfigAPIService()
 
         serverCommunicationConfigClient = MockServerCommunicationConfigClient()
-        clientService.mockPlatform.serverCommunicationConfigResult = serverCommunicationConfigClient
+        clientService.mockPlatform.serverCommunicationConfigReturnValue = serverCommunicationConfigClient
 
         serverCommunicationConfigRepository = MockServerCommunicationConfigRepository()
         sdkRepositoryFactory.makeServerCommunicationConfigRepositoryReturnValue = serverCommunicationConfigRepository
