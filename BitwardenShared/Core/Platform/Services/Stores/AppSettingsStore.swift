@@ -266,6 +266,13 @@ protocol AppSettingsStore: AnyObject {
     ///
     func premiumUpgradeBannerDismissed(userId: String) -> Bool
 
+    /// Gets whether the "Upgraded to Premium" action card should be shown for the given user.
+    ///
+    /// - Parameter userId: The user ID.
+    /// - Returns: Whether the action card should be shown.
+    ///
+    func upgradedToPremiumActionCardVisible(userId: String) -> Bool
+
     /// Gets the environment URLs used to start the account creation flow.
     ///
     /// - Parameters:
@@ -495,6 +502,14 @@ protocol AppSettingsStore: AnyObject {
     ///   - userId: The user ID associated with the premium upgrade banner dismissed value.
     ///
     func setPremiumUpgradeBannerDismissed(_ dismissed: Bool, userId: String)
+
+    /// Sets whether the "Upgraded to Premium" action card should be shown for the given user.
+    ///
+    /// - Parameters:
+    ///   - visible: Whether the action card should be shown.
+    ///   - userId: The user ID.
+    ///
+    func setUpgradedToPremiumActionCardVisible(_ visible: Bool, userId: String)
 
     /// Sets the environment URLs used to start the account creation flow.
     ///
@@ -793,6 +808,7 @@ extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore {
         case syncToAuthenticator(userId: String)
         case state
         case twoFactorToken(email: String)
+        case upgradedToPremiumActionCardVisible(userId: String)
         case usernameGenerationOptions(userId: String)
         case usesKeyConnector(userId: String)
         case vaultTimeoutAction(userId: String)
@@ -908,6 +924,8 @@ extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore {
                 "shouldSyncToAuthenticator_\(userId)"
             case let .twoFactorToken(email):
                 "twoFactorToken_\(email)"
+            case let .upgradedToPremiumActionCardVisible(userId):
+                "upgradedToPremiumActionCardVisible_\(userId)"
             case let .usernameGenerationOptions(userId):
                 "usernameGenerationOptions_\(userId)"
             case let .usesKeyConnector(userId):
@@ -1141,6 +1159,10 @@ extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore {
         fetch(for: .premiumUpgradeBannerDismissed(userId: userId))
     }
 
+    func upgradedToPremiumActionCardVisible(userId: String) -> Bool {
+        fetch(for: .upgradedToPremiumActionCardVisible(userId: userId))
+    }
+
     func accountCreationEnvironmentURLs(email: String) -> EnvironmentURLData? {
         fetch(
             for: .accountCreationEnvironmentURLs(email: email),
@@ -1257,6 +1279,10 @@ extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore {
 
     func setPremiumUpgradeBannerDismissed(_ dismissed: Bool, userId: String) {
         store(dismissed, for: .premiumUpgradeBannerDismissed(userId: userId))
+    }
+
+    func setUpgradedToPremiumActionCardVisible(_ visible: Bool, userId: String) {
+        store(visible, for: .upgradedToPremiumActionCardVisible(userId: userId))
     }
 
     func setAccountCreationEnvironmentURLs(environmentURLData: EnvironmentURLData, email: String) {

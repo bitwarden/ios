@@ -4,10 +4,12 @@ import BitwardenResources
 import TestHelpers
 import XCTest
 
+// swiftlint:disable file_length
+
 @testable import BitwardenShared
 @testable import BitwardenSharedMocks
 
-class SettingsProcessorTests: BitwardenTestCase {
+class SettingsProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body_length
     // MARK: Properties
 
     var billingService: MockBillingService!
@@ -17,6 +19,7 @@ class SettingsProcessorTests: BitwardenTestCase {
     var errorReporter: MockErrorReporter!
     var subject: SettingsProcessor!
     var stateService: MockStateService!
+    var storefrontService: MockStorefrontService!
     var vaultRepository: MockVaultRepository!
 
     // MARK: Setup & Teardown
@@ -26,11 +29,14 @@ class SettingsProcessorTests: BitwardenTestCase {
 
         billingService = MockBillingService()
         billingService.isSelfHostedReturnValue = false
+        billingService.shouldShowUpgradedToPremiumActionCardReturnValue = false
         configService = MockConfigService()
         coordinator = MockCoordinator()
         delegate = MockSettingsProcessorDelegate()
         errorReporter = MockErrorReporter()
         stateService = MockStateService()
+        storefrontService = MockStorefrontService()
+        storefrontService.isUSStorefrontReturnValue = true
         vaultRepository = MockVaultRepository()
 
         setUpSubject()
@@ -46,6 +52,7 @@ class SettingsProcessorTests: BitwardenTestCase {
         errorReporter = nil
         subject = nil
         stateService = nil
+        storefrontService = nil
         vaultRepository = nil
     }
 
@@ -59,6 +66,7 @@ class SettingsProcessorTests: BitwardenTestCase {
                 configService: configService,
                 errorReporter: errorReporter,
                 stateService: stateService,
+                storefrontService: storefrontService,
                 vaultRepository: vaultRepository,
             ),
             state: SettingsState(presentationMode: presentationMode),
@@ -297,6 +305,17 @@ class SettingsProcessorTests: BitwardenTestCase {
         XCTAssertFalse(subject.state.showPlanRow)
     }
 
+    /// `perform(.appeared)` hides the plan row when the storefront is not US.
+    @MainActor
+    func test_perform_appeared_hidesPlanRow_nonUSStorefront() async {
+        storefrontService.isUSStorefrontReturnValue = false
+        configService.featureFlagsBool[.premiumUpgradePath] = true
+
+        await subject.perform(.appeared)
+
+        XCTAssertFalse(subject.state.showPlanRow)
+    }
+
     /// `perform(.appeared)` shows the plan row when the feature flag is enabled and the user has premium.
     @MainActor
     func test_perform_appeared_showsPlanRow_hasPremium() async {
@@ -319,6 +338,61 @@ class SettingsProcessorTests: BitwardenTestCase {
         await subject.perform(.appeared)
 
         XCTAssertTrue(subject.state.showPlanRow)
+    }
+
+    /// `perform(.appeared)` sets `shouldShowUpgradedToPremiumActionCard` to `true` when the
+    /// billing service returns `true`.
+    @MainActor
+    func test_perform_appeared_setsShowUpgradedToPremiumActionCard_true() async {
+        billingService.shouldShowUpgradedToPremiumActionCardReturnValue = true
+
+        await subject.perform(.appeared)
+
+        XCTAssertTrue(subject.state.shouldShowUpgradedToPremiumActionCard)
+    }
+
+    /// `perform(.appeared)` sets `shouldShowUpgradedToPremiumActionCard` to `false` when the
+    /// billing service returns `false`.
+    @MainActor
+    func test_perform_appeared_setsShowUpgradedToPremiumActionCard_false() async {
+        billingService.shouldShowUpgradedToPremiumActionCardReturnValue = false
+
+        await subject.perform(.appeared)
+
+        XCTAssertFalse(subject.state.shouldShowUpgradedToPremiumActionCard)
+    }
+
+    /// `perform(.dismissUpgradedToPremiumActionCard)` hides the card and persists the dismissal.
+    @MainActor
+    func test_perform_dismissUpgradedToPremiumActionCard() async {
+        subject.state.shouldShowUpgradedToPremiumActionCard = true
+
+        await subject.perform(.dismissUpgradedToPremiumActionCard)
+
+        XCTAssertFalse(subject.state.shouldShowUpgradedToPremiumActionCard)
+        XCTAssertEqual(billingService.setUpgradedToPremiumActionCardDismissedCallsCount, 1)
+    }
+
+    /// `receive(.learnMoreAboutPremium)` opens the learn more URL, hides the card, and persists
+    /// the dismissal.
+    @MainActor
+    func test_receive_learnMoreAboutPremium() {
+        subject.state.shouldShowUpgradedToPremiumActionCard = true
+        subject.receive(.learnMoreAboutPremium)
+
+        XCTAssertEqual(subject.state.url, ExternalLinksConstants.learnMoreAboutPremium)
+        XCTAssertFalse(subject.state.shouldShowUpgradedToPremiumActionCard)
+        waitFor { billingService.setUpgradedToPremiumActionCardDismissedCallsCount == 1 }
+        XCTAssertEqual(billingService.setUpgradedToPremiumActionCardDismissedCallsCount, 1)
+    }
+
+    /// `receive(.clearUrl)` clears the URL from state.
+    @MainActor
+    func test_receive_clearUrl() {
+        subject.state.url = .example
+        subject.receive(.clearUrl)
+
+        XCTAssertNil(subject.state.url)
     }
 }
 

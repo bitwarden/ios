@@ -171,6 +171,52 @@ class SyncAPIServiceTests: BitwardenTestCase {
         )
     }
 
+    /// `getSync()` successfully decodes a legacy-only response — `policiesNew` is absent and
+    /// `profile.organizationsNew` is absent.
+    func test_sync_withPoliciesNew_legacyOnly() async throws {
+        client.result = .httpSuccess(testData: .syncWithPolicies)
+
+        let response = try await subject.getSync()
+
+        XCTAssertNil(response.policiesNew)
+        XCTAssertNil(response.profile?.organizationsNew)
+        XCTAssertFalse(response.policies.isEmpty)
+    }
+
+    /// `getSync()` successfully decodes a response where only the new fields are present —
+    /// `policiesNew` at the sync root and `profile.organizationsNew` on the profile, with
+    /// the legacy `policies` and `profile.organizations` empty.
+    func test_sync_withPoliciesNew_newOnly() async throws {
+        client.result = .httpSuccess(testData: .syncWithPoliciesNewOnly)
+
+        let response = try await subject.getSync()
+
+        XCTAssertEqual(response.policiesNew?.count, 1)
+        XCTAssertEqual(response.policiesNew?.first?.id, "policy-new-1")
+        XCTAssertTrue(response.policies.isEmpty)
+        XCTAssertEqual(response.profile?.organizationsNew?.count, 1)
+        XCTAssertEqual(response.profile?.organizationsNew?.first?.id, "org-new-1")
+        XCTAssertEqual(response.profile?.organizations?.count, 0)
+    }
+
+    /// `getSync()` successfully decodes a response where both new fields and legacy fields are
+    /// present: `policiesNew` alongside `policies`, and `profile.organizationsNew` alongside
+    /// `profile.organizations`.
+    func test_sync_withPoliciesNew_newAndLegacy() async throws {
+        client.result = .httpSuccess(testData: .syncWithNewAndLegacyFields)
+
+        let response = try await subject.getSync()
+
+        XCTAssertEqual(response.policiesNew?.count, 1)
+        XCTAssertEqual(response.policiesNew?.first?.id, "policy-new-1")
+        XCTAssertEqual(response.policies.count, 1)
+        XCTAssertEqual(response.policies.first?.id, "policy-legacy-1")
+        XCTAssertEqual(response.profile?.organizationsNew?.count, 1)
+        XCTAssertEqual(response.profile?.organizationsNew?.first?.id, "org-new-1")
+        XCTAssertEqual(response.profile?.organizations?.count, 1)
+        XCTAssertEqual(response.profile?.organizations?.first?.id, "org-legacy-1")
+    }
+
     /// `getSync()` successfully decodes a response with sends.
     func test_sync_withSends() async throws {
         client.result = .httpSuccess(testData: .syncWithSends)

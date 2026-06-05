@@ -768,6 +768,13 @@ class PolicyServiceTests: BitwardenTestCase { // swiftlint:disable:this type_bod
         XCTAssertEqual(policyDataStore.replacePoliciesPolicies, policies)
     }
 
+    /// `replacePoliciesNew(_:userId:)` replaces the persisted accepted-state policies in the data store.
+    func test_replacePoliciesNew() async throws {
+        try await subject.replacePoliciesNew(policies, userId: "1")
+
+        XCTAssertEqual(policyDataStore.replacePoliciesNewPolicies, policies)
+    }
+
     /// `replacePolicies(_:userId:)` updates the cached list of policies for the user.
     func test_replacePolicies_updatesPolicyAppliesToUser() async throws {
         stateService.activeAccount = .fixture()

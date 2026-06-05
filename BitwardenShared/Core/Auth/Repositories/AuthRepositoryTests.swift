@@ -1,6 +1,7 @@
 import BitwardenKit
 import BitwardenKitMocks
 import BitwardenSdk
+import BitwardenSdkMocks
 import SwiftUI
 import TestHelpers
 import XCTest
@@ -14,11 +15,13 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
 
     var accountAPIService: APIService!
     var appContextHelper: MockAppContextHelper!
+    var appIDSettingsStore: MockAppIDSettingsStore!
     var authService: MockAuthService!
     var biometricsRepository: MockBiometricsRepository!
     var changeKdfService: MockChangeKdfService!
     var client: MockHTTPClient!
     var clientCertificateService: MockClientCertificateService!
+    var clientRegistration: MockRegistrationClientProtocol!
     var clientService: MockClientService!
     var configService: MockConfigService!
     var environmentService: MockEnvironmentService!
@@ -96,6 +99,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         super.setUp()
 
         appContextHelper = MockAppContextHelper()
+        appIDSettingsStore = MockAppIDSettingsStore()
         client = MockHTTPClient()
         clientService = MockClientService()
         accountAPIService = APIService(client: client)
@@ -103,6 +107,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         biometricsRepository = MockBiometricsRepository()
         changeKdfService = MockChangeKdfService()
         clientCertificateService = MockClientCertificateService()
+        clientRegistration = MockRegistrationClientProtocol()
         configService = MockConfigService()
         environmentService = MockEnvironmentService()
         errorReporter = MockErrorReporter()
@@ -124,13 +129,17 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
             encryptedUserKey: "encryptedUserKey",
             keys: RsaKeyPair(public: "public", private: "private"),
         )
+        clientService.mockAuth.registrationReturnValue = clientRegistration
+        clientRegistration.postKeysForJitPasswordRegistrationReturnValue = .fixture()
         clientService.mockAuth.validatePinReturnValue = false
+        configService.featureFlagsBool[.accountEncryptionV2JITPassword] = true
         userSessionStateService.getVaultTimeoutReturnValue = .fifteenMinutes
         userSessionStateService.getUnsuccessfulUnlockAttemptsReturnValue = 0
 
         subject = DefaultAuthRepository(
             accountAPIService: accountAPIService,
             appContextHelper: appContextHelper,
+            appIDService: AppIDService(appIDSettingsStore: appIDSettingsStore),
             authService: authService,
             biometricsRepository: biometricsRepository,
             changeKdfService: changeKdfService,
@@ -158,11 +167,13 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
 
         accountAPIService = nil
         appContextHelper = nil
+        appIDSettingsStore = nil
         authService = nil
         biometricsRepository = nil
         changeKdfService = nil
         client = nil
         clientCertificateService = nil
+        clientRegistration = nil
         clientService = nil
         configService = nil
         environmentService = nil
@@ -246,8 +257,59 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         XCTAssertNil(stateService.accountVolatileData[userId]?.pinProtectedUserKey)
     }
 
+    /// `convertNewUserToKeyConnector()` converts a new user to key connector and unlocks the vault.
+    func test_convertNewUserToKeyConnector() async throws {
+        stateService.activeAccount = .fixture()
+        stateService.accountEncryptionKeys["1"] = AccountEncryptionKeys(
+            cryptographicState: .fixtureV2(),
+            encryptedUserKey: "encryptedUserKey",
+        )
+
+        try await subject.convertNewUserToKeyConnector(
+            keyConnectorURL: URL(string: "https://example.com")!,
+            orgIdentifier: "org-id",
+        )
+
+        XCTAssertTrue(keyConnectorService.convertNewUserToKeyConnectorCalled)
+        XCTAssertEqual(keyConnectorService.convertNewUserToKeyConnectorOrganizationId, "org-id")
+        XCTAssertEqual(
+            keyConnectorService.convertNewUserToKeyConnectorKeyConnectorUrl,
+            URL(string: "https://example.com"),
+        )
+        XCTAssertEqual(
+            clientService.mockCrypto.initializeUserCryptoReceivedReq,
+            InitUserCryptoRequest(
+                userId: "1",
+                kdfParams: KdfConfig().sdkKdf,
+                email: "user@bitwarden.com",
+                accountCryptographicState: .fixtureV2(),
+                method: .keyConnector(masterKey: "masterKey", userKey: "encryptedUserKey"),
+                upgradeToken: nil,
+            ),
+        )
+        XCTAssertTrue(vaultTimeoutService.unlockVaultHadUserInteraction)
+    }
+
+    /// `convertNewUserToKeyConnector()` throws if vault unlock fails after the conversion succeeds.
+    func test_convertNewUserToKeyConnector_unlockVaultError() async {
+        clientService.mockCrypto.initializeUserCryptoThrowableError = BitwardenTestError.example
+        stateService.activeAccount = .fixture()
+        stateService.accountEncryptionKeys["1"] = AccountEncryptionKeys(
+            cryptographicState: .fixtureV2(),
+            encryptedUserKey: "encryptedUserKey",
+        )
+
+        await assertAsyncThrows(error: BitwardenTestError.example) {
+            try await subject.convertNewUserToKeyConnector(
+                keyConnectorURL: URL(string: "https://example.com")!,
+                orgIdentifier: "org-id",
+            )
+        }
+        XCTAssertTrue(keyConnectorService.convertNewUserToKeyConnectorCalled)
+    }
+
     /// `createNewSsoUser()` creates a new account for sso JIT user and trust device.
-    func test_createNewSsoUser_remember() async throws {
+    func test_createNewSsoUser_v1_remember() async throws {
         let registerTdeInput = RegisterTdeKeyResponse(
             privateKey: "privateKey",
             publicKey: "publicKey",
@@ -285,7 +347,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
     }
 
     /// `createNewSsoUser()` creates a new account for sso JIT user and don't trust device.
-    func test_createNewSsoUser_notRemember() async throws {
+    func test_createNewSsoUser_v1_notRemember() async throws {
         let registerTdeInput = RegisterTdeKeyResponse(
             privateKey: "privateKey",
             publicKey: "publicKey",
@@ -321,7 +383,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
     }
 
     /// `createNewSsoUser()` stores the accountKeys from the setAccountKeys response.
-    func test_createNewSsoUser_withAccountKeys() async throws {
+    func test_createNewSsoUser_v1_withAccountKeys() async throws {
         let registerTdeInput = RegisterTdeKeyResponse(
             privateKey: "privateKey",
             publicKey: "publicKey",
@@ -353,6 +415,116 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
                 encryptedUserKey: nil,
             ),
         )
+    }
+
+    /// `createNewSsoUser()` creates a new SSO JIT user account and trusts the device.
+    func test_createNewSsoUser_remember() async throws {
+        appIDSettingsStore.appID = "TEST_DEVICE_ID"
+        client.results = [
+            .httpSuccess(testData: .organizationAutoEnrollStatus),
+            .httpSuccess(testData: .organizationKeys),
+        ]
+        configService.featureFlagsBool[.accountEncryptionV2TDE] = true
+        stateService.activeAccount = Account.fixture()
+        let mockRegistrationClient = MockRegistrationClientProtocol()
+        mockRegistrationClient.postKeysForTdeRegistrationReturnValue = TdeRegistrationResponse(
+            accountCryptographicState: .fixtureV2(),
+            deviceKey: "DEVICE_KEY",
+            userKey: "USER_KEY",
+        )
+        clientService.mockAuth.registrationReturnValue = mockRegistrationClient
+
+        try await subject.createNewSsoUser(orgIdentifier: "Bitwarden", rememberDevice: true)
+
+        let request = try XCTUnwrap(mockRegistrationClient.postKeysForTdeRegistrationReceivedRequest)
+        XCTAssertEqual(request.orgId, "af0d946f-8a7c-41eb-af0e-4b2e4e9fb8f5")
+        XCTAssertEqual(request.orgPublicKey, "MIIBIjAN...2QIDAQAB")
+        XCTAssertEqual(request.userId, "1")
+        XCTAssertEqual(request.deviceIdentifier, "TEST_DEVICE_ID")
+        XCTAssertTrue(request.trustDevice)
+        XCTAssertEqual(
+            stateService.accountEncryptionKeys["1"],
+            AccountEncryptionKeys(
+                cryptographicState: .fixtureV2(),
+                encryptedUserKey: nil,
+            ),
+        )
+        XCTAssertEqual(keychainService.setDeviceKeyReceivedArguments?.value, "DEVICE_KEY")
+        XCTAssertEqual(keychainService.setDeviceKeyReceivedArguments?.userId, "1")
+        XCTAssertEqual(
+            clientService.mockCrypto.initializeUserCryptoReceivedReq,
+            InitUserCryptoRequest(
+                userId: "1",
+                kdfParams: Account.fixture().kdf.sdkKdf,
+                email: "user@bitwarden.com",
+                accountCryptographicState: .fixtureV2(),
+                method: .decryptedKey(decryptedUserKey: "USER_KEY"),
+                upgradeToken: nil,
+            ),
+        )
+    }
+
+    /// `createNewSsoUser()` creates a new SSO JIT user account without trusting the device.
+    func test_createNewSsoUser_notRemember() async throws {
+        appIDSettingsStore.appID = "TEST_DEVICE_ID"
+        client.results = [
+            .httpSuccess(testData: .organizationAutoEnrollStatus),
+            .httpSuccess(testData: .organizationKeys),
+        ]
+        configService.featureFlagsBool[.accountEncryptionV2TDE] = true
+        stateService.activeAccount = Account.fixture()
+        let mockRegistrationClient = MockRegistrationClientProtocol()
+        mockRegistrationClient.postKeysForTdeRegistrationReturnValue = TdeRegistrationResponse(
+            accountCryptographicState: .fixtureV2(),
+            deviceKey: "DEVICE_KEY",
+            userKey: "USER_KEY",
+        )
+        clientService.mockAuth.registrationReturnValue = mockRegistrationClient
+
+        try await subject.createNewSsoUser(orgIdentifier: "Bitwarden", rememberDevice: false)
+
+        let request = try XCTUnwrap(mockRegistrationClient.postKeysForTdeRegistrationReceivedRequest)
+        XCTAssertFalse(request.trustDevice)
+        XCTAssertEqual(
+            stateService.accountEncryptionKeys["1"],
+            AccountEncryptionKeys(
+                cryptographicState: .fixtureV2(),
+                encryptedUserKey: nil,
+            ),
+        )
+        XCTAssertFalse(keychainService.setDeviceKeyCalled)
+        XCTAssertEqual(
+            clientService.mockCrypto.initializeUserCryptoReceivedReq,
+            InitUserCryptoRequest(
+                userId: "1",
+                kdfParams: Account.fixture().kdf.sdkKdf,
+                email: "user@bitwarden.com",
+                accountCryptographicState: .fixtureV2(),
+                method: .decryptedKey(decryptedUserKey: "USER_KEY"),
+                upgradeToken: nil,
+            ),
+        )
+    }
+
+    /// `createNewSsoUser()` rethrows an error from the SDK registration call without storing any keys.
+    func test_createNewSsoUser_registrationError() async throws {
+        client.results = [
+            .httpSuccess(testData: .organizationAutoEnrollStatus),
+            .httpSuccess(testData: .organizationKeys),
+        ]
+        configService.featureFlagsBool[.accountEncryptionV2TDE] = true
+        stateService.activeAccount = Account.fixture()
+        let mockRegistrationClient = MockRegistrationClientProtocol()
+        mockRegistrationClient.postKeysForTdeRegistrationThrowableError = BitwardenTestError.example
+        clientService.mockAuth.registrationReturnValue = mockRegistrationClient
+
+        await assertAsyncThrows(error: BitwardenTestError.example) {
+            try await subject.createNewSsoUser(orgIdentifier: "Bitwarden", rememberDevice: true)
+        }
+
+        XCTAssertNil(stateService.accountEncryptionKeys["1"])
+        XCTAssertFalse(keychainService.setDeviceKeyCalled)
+        XCTAssertFalse(clientService.mockCrypto.initializeUserCryptoCalled)
     }
 
     /// `deleteAccount()` deletes the active account and removes it from the state.
@@ -1184,6 +1356,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
     /// `getFingerprintPhrase()` gets the account's fingerprint phrase.
     func test_getFingerprintPhrase() async throws {
         let account = Account.fixture()
+        clientService.mockPlatform.userFingerprintReturnValue = "fingerprint"
         stateService.accounts = [account]
         _ = try await subject.setActiveAccount(userId: account.profile.userId)
         try await stateService.setAccountEncryptionKeys(AccountEncryptionKeys(
@@ -1192,8 +1365,8 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         ))
 
         let phrase = try await subject.getFingerprintPhrase()
-        XCTAssertEqual(clientService.mockPlatform.fingerprintMaterialString, account.profile.userId)
-        XCTAssertEqual(try clientService.mockPlatform.fingerprintResult.get(), phrase)
+        XCTAssertEqual(clientService.mockPlatform.userFingerprintReceivedFingerprintMaterial, account.profile.userId)
+        XCTAssertEqual(phrase, "fingerprint")
     }
 
     /// `getFingerprintPhrase()` throws an error if there is no active account.
@@ -1457,9 +1630,97 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         XCTAssertEqual(value, .never)
     }
 
-    /// `setMasterPassword()` sets the user's master password, saves their encryption keys and
+    /// `setMasterPassword()` sets a JIT user's master password, saves their encryption keys and
     /// unlocks the vault.
-    func test_setMasterPassword() async throws { // swiftlint:disable:this function_body_length
+    func test_setMasterPassword_JIT() async throws {
+        let account = Account.fixture()
+        client.result = .httpSuccess(testData: .organizationKeys)
+        stateService.accountEncryptionKeys["1"] = nil
+        stateService.activeAccount = account
+
+        try await subject.setMasterPassword(
+            "NEW_PASSWORD",
+            masterPasswordHint: "HINT",
+            organizationId: "1234",
+            organizationIdentifier: "ORG_ID",
+            resetPasswordAutoEnroll: false,
+        )
+
+        XCTAssertEqual(
+            clientRegistration.postKeysForJitPasswordRegistrationReceivedRequest,
+            JitMasterPasswordRegistrationRequest(
+                orgId: "1234",
+                orgPublicKey: "MIIBIjAN...2QIDAQAB",
+                organizationSsoIdentifier: "ORG_ID",
+                userId: "1",
+                salt: "user@bitwarden.com",
+                masterPassword: "NEW_PASSWORD",
+                masterPasswordHint: "HINT",
+                resetPasswordEnroll: false,
+            ),
+        )
+
+        XCTAssertEqual(
+            stateService.accountEncryptionKeys["1"],
+            AccountEncryptionKeys(
+                cryptographicState: .fixtureV2(),
+                encryptedUserKey: "MASTER_KEY_WRAPPED_USER_KEY",
+            ),
+        )
+        XCTAssertEqual(stateService.userHasMasterPassword["1"], true)
+
+        XCTAssertEqual(
+            clientService.mockCrypto.initializeUserCryptoReceivedReq,
+            InitUserCryptoRequest(
+                userId: "1",
+                kdfParams: account.kdf.sdkKdf,
+                email: account.profile.email,
+                accountCryptographicState: .fixtureV2(),
+                method: .decryptedKey(decryptedUserKey: "USER_KEY"),
+                upgradeToken: nil,
+            ),
+        )
+
+        // The SDK handles server-side calls; only the org public key GET should be made.
+        let requests = client.requests
+        XCTAssertEqual(requests.count, 1)
+        XCTAssertEqual(requests[0].url.absoluteString, "https://example.com/api/organizations/1234/public-key")
+        XCTAssertNil(clientService.mockAuth.makeRegisterKeysReceivedArguments?.email)
+    }
+
+    /// `setMasterPassword()` passes `resetPasswordEnroll: true` when enrollment is requested for a JIT user.
+    func test_setMasterPassword_JIT_resetPasswordEnroll() async throws {
+        let account = Account.fixture()
+        client.result = .httpSuccess(testData: .organizationKeys)
+        stateService.accountEncryptionKeys["1"] = nil
+        stateService.activeAccount = account
+
+        try await subject.setMasterPassword(
+            "NEW_PASSWORD",
+            masterPasswordHint: "",
+            organizationId: "1234",
+            organizationIdentifier: "ORG_ID",
+            resetPasswordAutoEnroll: true,
+        )
+
+        XCTAssertEqual(
+            clientRegistration.postKeysForJitPasswordRegistrationReceivedRequest?.resetPasswordEnroll,
+            true,
+        )
+        // Empty hint is converted to nil.
+        XCTAssertNil(
+            clientRegistration.postKeysForJitPasswordRegistrationReceivedRequest?.masterPasswordHint,
+        )
+
+        // SDK handles enrollment — no separate enrollment API call, only the org keys GET.
+        let requests = client.requests
+        XCTAssertEqual(requests.count, 1)
+        XCTAssertEqual(requests[0].url.absoluteString, "https://example.com/api/organizations/1234/public-key")
+    }
+
+    /// `setMasterPassword()` sets the user's master password using the JIT v1 path, saves their
+    /// encryption keys and unlocks the vault.
+    func test_setMasterPassword_JIT_v1() async throws { // swiftlint:disable:this function_body_length
         let account = Account.fixture(profile: .fixture(
             userDecryptionOptions: UserDecryptionOptions(
                 hasMasterPassword: true,
@@ -1469,6 +1730,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
             ),
         ))
         client.result = .httpSuccess(testData: .emptyResponse)
+        configService.featureFlagsBool[.accountEncryptionV2JITPassword] = false
         // Account encryption keys don't exist until after a MP has been set for non-TDE users.
         stateService.accountEncryptionKeys["1"] = nil
         stateService.activeAccount = account
@@ -1524,8 +1786,8 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         )
     }
 
-    /// `setMasterPassword()` throws an error if one occurs.
-    func test_setMasterPassword_error() async {
+    /// `setMasterPassword()` throws an error if one occurs for a TDE user.
+    func test_setMasterPassword_TDE_error() async {
         clientService.mockCrypto.makeUpdatePasswordThrowableError = BitwardenTestError.example
         stateService.activeAccount = Account.fixtureWithTdeNoPassword()
         stateService.accountEncryptionKeys["1"] = AccountEncryptionKeys(
@@ -1544,9 +1806,9 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         }
     }
 
-    /// `setMasterPassword()` sets the user's master password, saves their encryption keys, enrolls
+    /// `setMasterPassword()` sets a TDE user's master password, saves their encryption keys, enrolls
     /// the user in password reset and unlocks the vault.
-    func test_setMasterPassword_resetPasswordEnrollment() async throws {
+    func test_setMasterPassword_TDE_resetPasswordEnrollment() async throws {
         client.results = [
             .httpSuccess(testData: .emptyResponse),
             .httpSuccess(testData: .organizationKeys),
@@ -1600,7 +1862,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         )
     }
 
-    /// `setMasterPassword()` sets the user's master password, saves their encryption keys and
+    /// `setMasterPassword()` sets a TDE user's master password, saves their encryption keys and
     /// unlocks the vault.
     func test_setMasterPassword_TDE() async throws {
         var account = Account.fixtureWithTDE()
@@ -2325,82 +2587,6 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         XCTAssertFalse(keyConnectorService.convertNewUserToKeyConnectorCalled)
         XCTAssertTrue(vaultTimeoutService.unlockVaultHadUserInteraction)
         XCTAssertEqual(stateService.manuallyLockedAccounts["1"], false)
-    }
-
-    /// `unlockVaultWithKeyConnectorKey()` converts a new user to use key connector and unlocks the
-    /// user's vault with their key connector key.
-    func test_unlockVaultWithKeyConnectorKey_newKeyConnectorUser() async {
-        keyConnectorService.convertNewUserToKeyConnectorHandler = { [weak self] in
-            self?.stateService.accountEncryptionKeys["1"] = AccountEncryptionKeys(
-                cryptographicState: .v1(privateKey: "private"),
-                encryptedUserKey: "user",
-            )
-            self?.stateService.getAccountEncryptionKeysError = nil
-        }
-        keyConnectorService.getMasterKeyFromKeyConnectorResult = .success("key")
-        stateService.activeAccount = .fixture()
-        stateService.getAccountEncryptionKeysError = StateServiceError.noAccountCryptographicState
-
-        await assertAsyncThrows(error: StateServiceError.noAccountCryptographicState) {
-            try await subject.unlockVaultWithKeyConnectorKey(
-                keyConnectorURL: URL(string: "https://example.com")!,
-                orgIdentifier: "org-id",
-            )
-        }
-
-        await assertAsyncDoesNotThrow {
-            try await subject.convertNewUserToKeyConnector(
-                keyConnectorURL: URL(string: "https://example.com")!,
-                orgIdentifier: "org-id",
-            )
-        }
-
-        await assertAsyncDoesNotThrow {
-            try await subject.unlockVaultWithKeyConnectorKey(
-                keyConnectorURL: URL(string: "https://example.com")!,
-                orgIdentifier: "org-id",
-            )
-        }
-
-        XCTAssertEqual(
-            clientService.mockCrypto.initializeUserCryptoReceivedReq,
-            InitUserCryptoRequest(
-                userId: "1",
-                kdfParams: KdfConfig().sdkKdf,
-                email: "user@bitwarden.com",
-                accountCryptographicState: .v1(privateKey: "private"),
-                method: .keyConnector(masterKey: "key", userKey: "user"),
-                upgradeToken: nil,
-            ),
-        )
-        XCTAssertTrue(keyConnectorService.convertNewUserToKeyConnectorCalled)
-        XCTAssertTrue(vaultTimeoutService.unlockVaultHadUserInteraction)
-    }
-
-    /// `convertNewUserToKeyConnector()` converts a new user to use key connector.
-    func test_convertNewUserToKeyconnector() async {
-        keyConnectorService.convertNewUserToKeyConnectorHandler = { [weak self] in
-            self?.stateService.accountEncryptionKeys["1"] = AccountEncryptionKeys(
-                cryptographicState: .v1(privateKey: "private"),
-                encryptedUserKey: "user",
-            )
-            self?.stateService.getAccountEncryptionKeysError = nil
-        }
-        keyConnectorService.getMasterKeyFromKeyConnectorResult = .success("key")
-        stateService.activeAccount = .fixture()
-        stateService.getAccountEncryptionKeysError = StateServiceError.noAccountCryptographicState
-
-        await assertAsyncDoesNotThrow {
-            try await subject.convertNewUserToKeyConnector(
-                keyConnectorURL: URL(string: "https://example.com")!,
-                orgIdentifier: "org-id",
-            )
-        }
-        XCTAssertTrue(keyConnectorService.convertNewUserToKeyConnectorCalled)
-        XCTAssertEqual(keyConnectorService.convertNewUserToKeyConnectorOrganizationId,
-                       "org-id")
-        XCTAssertEqual(keyConnectorService.convertNewUserToKeyConnectorKeyConnectorUrl,
-                       URL(string: "https://example.com"))
     }
 
     /// `unlockVaultWithKeyConnectorKey()` throws an error if the user is missing an encrypted user key.

@@ -105,10 +105,6 @@ public class AppProcessor {
     /// - Parameter url: The deep link URL to handle.
     ///
     public func openUrl(_ url: URL) async {
-        if await handlePremiumCheckoutResult(url: url) {
-            return
-        }
-
         var route = await getBitwardenUrlRoute(url: url)
         if route == nil {
             route = await getOtpAuthUrlRoute(url: url)
@@ -435,28 +431,6 @@ extension AppProcessor {
         }
     }
 
-    /// Handles the premium checkout result deep link.
-    ///
-    /// - Parameter url: The URL to check.
-    /// - Returns: `true` if the URL was a premium checkout result and was handled.
-    ///
-    private func handlePremiumCheckoutResult(url: URL) async -> Bool {
-        guard url.scheme?.isBitwardenAppScheme == true,
-              url.host == BitwardenDeepLinkConstants.premiumCheckoutResultHost else {
-            return false
-        }
-        let components = URLComponents(url: url, resolvingAgainstBaseURL: false)
-        let result = components?.queryItems?.first(where: { item in
-            item.name == BitwardenDeepLinkConstants.PremiumCheckoutResultQuery.parameterName
-        })?.value
-        if result == BitwardenDeepLinkConstants.PremiumCheckoutResultQuery.successValue {
-            await services.billingService.premiumStatusChanged()
-        } else {
-            services.billingService.premiumCheckoutCanceled()
-        }
-        return true
-    }
-
     /// Attempt to create an `AppRoute` from an "bitwarden://" url.
     ///
     /// - Parameter url: The Bitwarden URL received by the app.
@@ -779,8 +753,8 @@ extension AppProcessor: Fido2UserInterfaceHelperDelegate {
     // MARK: Properties
 
     var isAutofillingFromList: Bool {
-        guard let autofillAppExtensionDelegate = appExtensionDelegate as? AutofillAppExtensionDelegate,
-              autofillAppExtensionDelegate.isAutofillingFido2CredentialFromList else {
+        guard let credentialProviderExtensionDelegate = appExtensionDelegate as? CredentialProviderExtensionDelegate,
+              credentialProviderExtensionDelegate.isAutofillingFido2CredentialFromList else {
             return false
         }
         return true
@@ -793,12 +767,13 @@ extension AppProcessor: Fido2UserInterfaceHelperDelegate {
     }
 
     func onNeedsUserInteraction() async throws {
-        guard let autofillAppExtensionDelegate = appExtensionDelegate as? AutofillAppExtensionDelegate else {
+        guard let credentialProviderExtensionDelegate = appExtensionDelegate
+            as? CredentialProviderExtensionDelegate else {
             return
         }
 
-        if !autofillAppExtensionDelegate.flowWithUserInteraction {
-            autofillAppExtensionDelegate.setUserInteractionRequired()
+        if !credentialProviderExtensionDelegate.flowWithUserInteraction {
+            credentialProviderExtensionDelegate.setUserInteractionRequired()
             throw Fido2Error.userInteractionRequired
         }
 
@@ -806,7 +781,7 @@ extension AppProcessor: Fido2UserInterfaceHelperDelegate {
         // action that needs user interaction or it might not show the prompt to the user.
         // E.g. without this there are certain devices that don't show the FaceID prompt
         // and the user only sees the screen dimming a bit and failing the flow.
-        for await didAppear in autofillAppExtensionDelegate.getDidAppearPublisher() {
+        for await didAppear in credentialProviderExtensionDelegate.getDidAppearPublisher() {
             guard didAppear else { continue }
             return
         }

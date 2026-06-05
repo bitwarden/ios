@@ -24,6 +24,9 @@ public enum CipherType: Int, Codable, Sendable {
 
     /// A driver's license.
     case driversLicense = 7
+
+    /// A passport.
+    case passport = 8
 }
 
 extension CipherType {
@@ -33,8 +36,12 @@ extension CipherType {
     ///
     init?(group: VaultListGroup) {
         switch group {
+        case .bankAccount:
+            self = .bankAccount
         case .card:
             self = .card
+        case .driversLicense:
+            self = .driversLicense
         case .identity:
             self = .identity
         case .login:
@@ -64,6 +71,7 @@ extension CipherType: CaseIterable {
         .sshKey,
         .bankAccount,
         .driversLicense,
+        .passport,
     ]
 }
 
@@ -75,6 +83,7 @@ extension CipherType: Menuable {
         case .driversLicense: Localizations.license
         case .identity: Localizations.typeIdentity
         case .login: Localizations.typeLogin
+        case .passport: Localizations.passport
         case .secureNote: Localizations.typeSecureNote
         case .sshKey: Localizations.sshKey
         }
@@ -85,12 +94,17 @@ extension CipherType {
     /// These are the cases of `CipherType` that the user can use to create a cipher.
     static let canCreateCases: [CipherType] = [.login, .card, .identity, .secureNote]
 
+    // TODO: PM-32805 - Add `.passport` once that `CipherType` case is wired through the SDK.
+    /// The cases of `CipherType` that are gated behind the `.newItemTypes` feature flag.
+    /// While the flag is disabled these types are hidden from vault list/search assembly.
+    static let newItemTypesGatedCases: [CipherType] = [.bankAccount, .driversLicense]
+
     /// The allowed custom field types per cipher type.
     var allowedFieldTypes: [FieldType] {
         switch self {
         case .card, .identity, .login:
             [.text, .hidden, .boolean, .linked]
-        case .bankAccount, .driversLicense, .secureNote, .sshKey:
+        case .bankAccount, .driversLicense, .passport, .secureNote, .sshKey:
             [.text, .hidden, .boolean]
         }
     }

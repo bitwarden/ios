@@ -19,6 +19,7 @@ protocol PremiumUpgradeRoute {
 }
 
 extension SendItemRoute: PremiumUpgradeRoute {}
+extension SendRoute: PremiumUpgradeRoute {}
 extension VaultItemRoute: PremiumUpgradeRoute {}
 extension VaultRoute: PremiumUpgradeRoute {}
 
