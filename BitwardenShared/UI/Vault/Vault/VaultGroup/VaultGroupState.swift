@@ -28,6 +28,8 @@ struct VaultGroupState: Equatable, Sendable {
             Localizations.addBankAccount
         case .card:
             Localizations.addCard
+        case .driversLicense:
+            Localizations.addLicense
         case .collection, .folder:
             Localizations.addItem
         case .identity:

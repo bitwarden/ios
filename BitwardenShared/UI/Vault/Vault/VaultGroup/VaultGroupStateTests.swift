@@ -14,6 +14,12 @@ class VaultGroupStateTests: BitwardenTestCase {
         XCTAssertEqual(subject.addItemButtonTitle, Localizations.addBankAccount)
     }
 
+    /// `addItemButtonTitle` returns the add license title for the driver's license group.
+    func test_addItemButtonTitle_driversLicense() {
+        let subject = VaultGroupState(group: .driversLicense, vaultFilterType: .myVault)
+        XCTAssertEqual(subject.addItemButtonTitle, Localizations.addLicense)
+    }
+
     /// `newItemButtonType` returns the new item button type based on the group.
     func test_newItemButtonType() {
         let subjectBankAccount = VaultGroupState(group: .bankAccount, vaultFilterType: .myVault)
