@@ -28,6 +28,8 @@ struct VaultGroupState: Equatable, Sendable {
             Localizations.addBankAccount
         case .card:
             Localizations.addCard
+        case .driversLicense:
+            Localizations.addLicense
         case .collection, .folder:
             Localizations.addItem
         case .identity:
@@ -57,11 +59,11 @@ struct VaultGroupState: Equatable, Sendable {
         }
 
         switch group {
-        case .card, .identity, .login, .secureNote:
+        case .card, .driversLicense, .identity, .login, .secureNote:
             return .button
         case .collection, .folder, .noFolder:
             return .menu
-        case .archive, .bankAccount, .driversLicense, .sshKey, .totp, .trash:
+        case .archive, .bankAccount, .sshKey, .totp, .trash:
             return nil
         }
     }
