@@ -17,6 +17,9 @@ public struct EnvironmentURLs: Equatable {
     /// The URL for the events API.
     public let eventsURL: URL
 
+    /// The URL for fetching Fill-Assist targeting rules.
+    public let fillAssistRulesURL: URL
+
     /// The URL for the icons API.
     public let iconsURL: URL
 
@@ -57,6 +60,7 @@ public struct EnvironmentURLs: Equatable {
     ///   - baseURL: The base URL.
     ///   - changeEmailURL: The URL for changing email address.
     ///   - eventsURL: The URL for the events API.
+    ///   - fillAssistRulesURL: The URL for fetching Fill-Assist targeting rules.
     ///   - iconsURL: The URL for the icons API.
     ///   - identityURL: The URL for the identity API.
     ///   - importItemsURL: The URL for importing items.
@@ -73,6 +77,7 @@ public struct EnvironmentURLs: Equatable {
         baseURL: URL,
         changeEmailURL: URL,
         eventsURL: URL,
+        fillAssistRulesURL: URL,
         iconsURL: URL,
         identityURL: URL,
         importItemsURL: URL,
@@ -89,6 +94,7 @@ public struct EnvironmentURLs: Equatable {
         self.baseURL = baseURL
         self.changeEmailURL = changeEmailURL
         self.eventsURL = eventsURL
+        self.fillAssistRulesURL = fillAssistRulesURL
         self.iconsURL = iconsURL
         self.identityURL = identityURL
         self.importItemsURL = importItemsURL
@@ -131,6 +137,7 @@ public extension EnvironmentURLs {
             identityURL = environmentURLData.identity ?? URL(string: "https://identity.bitwarden.com")!
             webVaultURL = environmentURLData.webVault ?? URL(string: "https://vault.bitwarden.com")!
         }
+        fillAssistRulesURL = URL(string: "https://github.com/bitwarden/map-the-web/releases/latest/download")!
         importItemsURL = environmentURLData.importItemsURL ?? URL(string: "https://vault.bitwarden.com/#/tools/import")!
         recoveryCodeURL = environmentURLData.recoveryCodeURL ?? URL(
             string: "https://vault.bitwarden.com/#/recover-2fa",
