@@ -49,7 +49,7 @@ extension CipherView {
             login: BitwardenSdk.LoginView(
                 username: username,
                 password: password,
-                passwordRevisionDate: creationDate,
+                passwordRevisionDate: nil,
                 uris: [LoginUriView(uri: uri, match: nil, uriChecksum: nil)],
                 totp: nil,
                 autofillOnPageLoad: nil,

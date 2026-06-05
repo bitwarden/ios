@@ -327,6 +327,9 @@ extension CredentialProviderViewController {
         }
     }
 
+    /// Handles a save-password request from the AutoFill extension, persisting the credential to the vault.
+    ///
+    /// - Parameter savePasswordRequest: The `ASSavePasswordRequest` containing the credential and service info to save.
     @available(iOSApplicationExtension 26.2, *)
     private func savePassword(savePasswordRequest: ASSavePasswordRequest) async {
         guard let appProcessor else {
