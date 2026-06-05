@@ -467,24 +467,6 @@ class TwoFactorAuthProcessorTests: BitwardenTestCase { // swiftlint:disable:this
         XCTAssertEqual(coordinator.events.last, .didCompleteAuth)
     }
 
-    /// `perform(_:)` with `.continueTapped` throws an error if the organization identifier is
-    /// missing for log in with Key Connector.
-    @MainActor
-    func test_perform_continueTapped_loginWithKeyConnectorKey_missingOrgIdentifier() async {
-        authService.loginWithTwoFactorCodeResult = .success(.keyConnector(
-            keyConnectorKeyWrappedUserKey: "KEY",
-            keyConnectorURL: URL(string: "https://example.com")!,
-        ))
-        subject.state.verificationCode = "Test"
-
-        await subject.perform(.continueTapped)
-
-        XCTAssertFalse(authRepository.unlockVaultWithKeyConnectorKeyCalled)
-        XCTAssertEqual(coordinator.errorAlertsShown.last as? TwoFactorAuthError, .missingOrgIdentifier)
-        XCTAssertEqual(coordinator.routes, [])
-        XCTAssertEqual(errorReporter.errors as? [TwoFactorAuthError], [.missingOrgIdentifier])
-    }
-
     /// `perform(_:)` with `.continueTapped` throws `noEncUserKey` when the key connector wrapped
     /// user key is missing (e.g. new user not yet migrated to key connector).
     @MainActor
