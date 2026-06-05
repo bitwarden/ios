@@ -29,10 +29,12 @@ extension Cipher {
     static func fixture(
         archivedDate: Date? = nil,
         attachments: [Attachment]? = nil,
+        bankAccount: BankAccount? = nil,
         card: Card? = nil,
         collectionIds: [String] = [],
         creationDate: DateTime = Date(year: 2023, month: 11, day: 5, hour: 9, minute: 41),
         deletedDate: Date? = nil,
+        driversLicense: DriversLicense? = nil,
         edit: Bool = true,
         favorite: Bool = false,
         fields: [Field]? = nil,
@@ -46,6 +48,7 @@ extension Cipher {
         notes: String? = nil,
         organizationId: String? = nil,
         organizationUseTotp: Bool = false,
+        passport: Passport? = nil,
         passwordHistory: [PasswordHistory]? = nil,
         permissions: CipherPermissions? = nil,
         reprompt: BitwardenSdk.CipherRepromptType = .none,
@@ -69,9 +72,9 @@ extension Cipher {
             card: card,
             secureNote: secureNote,
             sshKey: sshKey,
-            bankAccount: nil, // TODO: PM-32809
-            driversLicense: nil, // TODO: PM-32807
-            passport: nil, // TODO: PM-32805
+            bankAccount: bankAccount,
+            driversLicense: driversLicense,
+            passport: passport,
             favorite: favorite,
             reprompt: reprompt,
             organizationUseTotp: organizationUseTotp,
@@ -189,6 +192,34 @@ extension CipherListView {
             archivedDate: archivedDate,
             copyableFields: copyableFields,
             localData: localData,
+        )
+    }
+}
+
+extension BankAccount {
+    static func fixture(
+        accountNumber: String? = nil,
+        accountType: String? = nil,
+        bankContactPhone: String? = nil,
+        bankName: String? = nil,
+        branchNumber: String? = nil,
+        iban: String? = nil,
+        nameOnAccount: String? = nil,
+        pin: String? = nil,
+        routingNumber: String? = nil,
+        swiftCode: String? = nil,
+    ) -> BankAccount {
+        BankAccount(
+            bankName: bankName,
+            nameOnAccount: nameOnAccount,
+            accountType: accountType,
+            accountNumber: accountNumber,
+            routingNumber: routingNumber,
+            branchNumber: branchNumber,
+            pin: pin,
+            swiftCode: swiftCode,
+            iban: iban,
+            bankContactPhone: bankContactPhone,
         )
     }
 }
@@ -539,6 +570,36 @@ extension CollectionView {
     }
 }
 
+extension DriversLicense {
+    static func fixture(
+        dateOfBirth: String? = nil,
+        expirationDate: String? = nil,
+        firstName: String? = nil,
+        issueDate: String? = nil,
+        issuingAuthority: String? = nil,
+        issuingCountry: String? = nil,
+        issuingState: String? = nil,
+        lastName: String? = nil,
+        licenseClass: String? = nil,
+        licenseNumber: String? = nil,
+        middleName: String? = nil,
+    ) -> DriversLicense {
+        DriversLicense(
+            firstName: firstName,
+            middleName: middleName,
+            lastName: lastName,
+            dateOfBirth: dateOfBirth,
+            licenseNumber: licenseNumber,
+            issuingCountry: issuingCountry,
+            issuingState: issuingState,
+            issueDate: issueDate,
+            expirationDate: expirationDate,
+            issuingAuthority: issuingAuthority,
+            licenseClass: licenseClass,
+        )
+    }
+}
+
 extension Fido2Credential {
     static func fixture(
         counter: String = "",
@@ -814,6 +875,40 @@ extension BitwardenSdk.SshKeyView {
         fingerprint: String = "fingerprint",
     ) -> SshKeyView {
         SshKeyView(privateKey: privateKey, publicKey: publicKey, fingerprint: fingerprint)
+    }
+}
+
+extension Passport {
+    static func fixture(
+        birthPlace: String? = nil,
+        dateOfBirth: String? = nil,
+        expirationDate: String? = nil,
+        givenName: String? = nil,
+        issueDate: String? = nil,
+        issuingAuthority: String? = nil,
+        issuingCountry: String? = nil,
+        nationalIdentificationNumber: String? = nil,
+        nationality: String? = nil,
+        passportNumber: String? = nil,
+        passportType: String? = nil,
+        sex: String? = nil,
+        surname: String? = nil,
+    ) -> Passport {
+        Passport(
+            surname: surname,
+            givenName: givenName,
+            dateOfBirth: dateOfBirth,
+            sex: sex,
+            birthPlace: birthPlace,
+            nationality: nationality,
+            issuingCountry: issuingCountry,
+            passportNumber: passportNumber,
+            passportType: passportType,
+            nationalIdentificationNumber: nationalIdentificationNumber,
+            issuingAuthority: issuingAuthority,
+            issueDate: issueDate,
+            expirationDate: expirationDate,
+        )
     }
 }
 
