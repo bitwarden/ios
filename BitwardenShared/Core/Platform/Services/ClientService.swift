@@ -316,7 +316,7 @@ actor DefaultClientService: ClientService {
             )
             let enableCipherKeyEncryption = cipherKeyEncryptionFlagEnabled && config.supportsCipherKeyEncryption()
 
-            try await client.platform().loadFlags([
+            try await client.platform().loadFlags(flags: [
                 FeatureFlag.enableCipherKeyEncryption.rawValue: enableCipherKeyEncryption,
             ])
         } catch {

@@ -10,6 +10,11 @@ extension FeatureFlag: @retroactive CaseIterable {
         rawValue: "enable-account-encryption-v2-jit-password-registration",
     )
 
+    /// A feature flag to enable/disable V2 account encryption for Key Connector.
+    static let accountEncryptionV2KeyConnector = FeatureFlag(
+        rawValue: "enable-account-encryption-v2-key-connector-registration",
+    )
+
     /// Flag to enable/disable V2 password-based registration using the SDK registration client.
     static let accountEncryptionV2PasswordRegistration = FeatureFlag(rawValue: "pm-27278-v2-password-registration")
 
@@ -48,12 +53,19 @@ extension FeatureFlag: @retroactive CaseIterable {
     /// Flag to enable/disable not logging out when a user's KDF settings are changed.
     static let noLogoutOnKdfChange = FeatureFlag(rawValue: "pm-23995-no-logout-on-kdf-change")
 
+    /// Flag to enable/disable accepted-state organization policy enforcement via the SDK.
+    ///
+    /// When enabled, `PolicyService.policiesApplyingToUser` routes through the Bitwarden SDK
+    /// so that policies are enforced against members in the accepted (not only confirmed) state.
+    static let policiesInAcceptedState = FeatureFlag(rawValue: "pm-34145-policies-in-accepted-state")
+
     /// Flag to enable/disable premium upgrade path.
     static let premiumUpgradePath = FeatureFlag(rawValue: "pm-31697-premium-upgrade-path")
 
     public static var allCases: [FeatureFlag] {
         [
             .accountEncryptionV2JITPassword,
+            .accountEncryptionV2KeyConnector,
             .accountEncryptionV2PasswordRegistration,
             .accountEncryptionV2TDE,
             .cardScanner,
@@ -66,6 +78,7 @@ extension FeatureFlag: @retroactive CaseIterable {
             .migrateMyVaultToMyItems,
             .newItemTypes,
             .noLogoutOnKdfChange,
+            .policiesInAcceptedState,
             .premiumUpgradePath,
         ]
     }

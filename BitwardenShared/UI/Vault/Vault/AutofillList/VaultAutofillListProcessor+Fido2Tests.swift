@@ -69,7 +69,7 @@ class VaultAutofillListProcessorFido2Tests: BitwardenTestCase { // swiftlint:dis
             ),
             name: "rpName",
         )
-        clientService.mockPlatform.fido2Mock.vaultAuthenticatorReturnValue = fido2AuthenticatorMock
+        clientService.mockPlatform.mockFido2.vaultAuthenticatorReturnValue = fido2AuthenticatorMock
 
         subject = VaultAutofillListProcessor(
             appExtensionDelegate: appExtensionDelegate,

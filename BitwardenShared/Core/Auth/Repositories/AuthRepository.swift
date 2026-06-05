@@ -48,7 +48,12 @@ protocol AuthRepository: AnyObject {
     ///
     func clearPins() async throws
 
-    /// Convert new user to key connector.
+    /// Converts a new user to Key Connector and unlocks the vault using the keys obtained during
+    /// conversion.
+    ///
+    /// - Parameters:
+    ///   - keyConnectorURL: The URL to the Key Connector API.
+    ///   - orgIdentifier: The text identifier for the organization.
     ///
     func convertNewUserToKeyConnector(keyConnectorURL: URL, orgIdentifier: String) async throws
 
@@ -643,10 +648,14 @@ extension DefaultAuthRepository: AuthRepository {
     }
 
     func convertNewUserToKeyConnector(keyConnectorURL: URL, orgIdentifier: String) async throws {
-        try await keyConnectorService.convertNewUserToKeyConnector(
+        let conversionResult = try await keyConnectorService.convertNewUserToKeyConnector(
             keyConnectorUrl: keyConnectorURL,
             orgIdentifier: orgIdentifier,
         )
+        try await unlockVault(method: .keyConnector(
+            masterKey: conversionResult.masterKey,
+            userKey: conversionResult.encryptedUserKey,
+        ))
     }
 
     func createNewSsoUser(orgIdentifier: String, rememberDevice: Bool) async throws {
@@ -768,7 +777,7 @@ extension DefaultAuthRepository: AuthRepository {
 
     func getFingerprintPhrase() async throws -> String {
         let userId = try await stateService.getActiveAccountId()
-        return try await clientService.platform().userFingerprint(material: userId)
+        return try await clientService.platform().userFingerprint(fingerprintMaterial: userId)
     }
 
     func getProfilesState(
