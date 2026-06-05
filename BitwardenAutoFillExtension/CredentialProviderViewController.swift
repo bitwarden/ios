@@ -421,11 +421,11 @@ extension CredentialProviderViewController: AppExtensionDelegate {
     }
 }
 
-// MARK: - AutofillAppExtensionDelegate
+// MARK: - CredentialProviderExtensionDelegate
 
-extension CredentialProviderViewController: AutofillAppExtensionDelegate {
+extension CredentialProviderViewController: CredentialProviderExtensionDelegate {
     /// The mode in which the autofill extension is running.
-    var extensionMode: AutofillExtensionMode {
+    var extensionMode: CredentialProviderMode {
         context?.extensionMode ?? .configureAutofill
     }
 
@@ -520,7 +520,8 @@ private final class KeyboardAnchorTextField: UITextField {
         )
     }
 
-    @objc private func keyboardWillHide() {
+    @objc
+    private func keyboardWillHide() {
         guard !isFirstResponder else { return }
         Logger.appExtension.debug("KeyboardAnchorTextField: keyboard will hide without anchor as FR — reclaiming")
         becomeFirstResponder()

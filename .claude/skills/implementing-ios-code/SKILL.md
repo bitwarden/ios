@@ -28,6 +28,7 @@ Implement from the bottom up:
 **Data Models** (if needed)
 - Request/Response types in `Core/<Domain>/Models/Request/` and `Response/`
 - Enum types in `Core/<Domain>/Models/Enum/`
+  - Keep cases alphabetical. When you add a case to an existing enum, insert it at its alphabetical position in **every `switch` over that enum** (across all layers) rather than appending it — match the surrounding order.
 
 **Persistence** (if needed)
 - Vault sync data → CoreData via `DataStore` (add entities to `Bitwarden.xcdatamodeld`)
@@ -52,6 +53,12 @@ For new screens, create all required files together (see `templates.md`):
 5. **Effect** — Enum of async work handled in `perform(_:)`
 6. **Processor** — `StateProcessor` subclass, business logic only
 7. **View** — SwiftUI view using `store.binding`, `store.perform`, `@ObservedObject`
+
+**New localization keys** (`BitwardenResources/.../Localizable.strings`):
+
+- Key name mirrors the English string: `Archive` for "Archive", not `MoveToArchive` or `ArchiveTitle`.
+  - Exception: long descriptive strings (~70-80+ chars) use a `DescriptionLong` suffix on a shortened opening phrase. Example: `PassphrasesAreOftenEasierToRememberDescriptionLong`.
+- Translator-facing `/* … */` comments describe meaning, placement, or constraints that affect translation — translators are the audience, not internal engineers.
 
 ## Step 4: Wire Dependency Injection
 

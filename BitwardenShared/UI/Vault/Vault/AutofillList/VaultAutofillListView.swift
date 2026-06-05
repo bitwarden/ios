@@ -40,7 +40,7 @@ struct VaultAutofillListView: View {
     var body: some View {
         VStack(spacing: 0) {
             if store.state.isAutofillingTextToInsertList {
-                inlineSearchBarView()
+                inlineSearchBarView
                 // Zero-size anchor that holds the RTI session when the inline search bar is idle.
                 // Using @FocusState (fromBecomeFirstResponder:0) avoids the 5-second timer that
                 // UIKit's explicit becomeFirstResponder() (fromBecomeFirstResponder:1) would start.
@@ -107,13 +107,12 @@ struct VaultAutofillListView: View {
     /// transition inside SwiftUI's `@FocusState` machinery (`fromBecomeFirstResponder:0`,
     /// `delayEndInputSession:NO`), so the RTI session is never put on a countdown regardless of
     /// how many times the user opens and cancels search.
-    @ViewBuilder
-    private func inlineSearchBarView() -> some View {
+    @ViewBuilder private var inlineSearchBarView: some View {
         HStack(spacing: 8) {
             HStack(spacing: 6) {
                 Image(systemName: "magnifyingglass")
                     .foregroundStyle(Color(.tertiaryLabel))
-                    .font(.system(size: 15))
+                    .font(.system(size: 15)) // swiftlint:disable:this style_guide_font
                 TextField(
                     Localizations.search,
                     text: store.binding(
@@ -130,7 +129,7 @@ struct VaultAutofillListView: View {
                     } label: {
                         Image(systemName: "xmark.circle.fill")
                             .foregroundStyle(Color(.tertiaryLabel))
-                            .font(.system(size: 15))
+                            .font(.system(size: 15)) // swiftlint:disable:this style_guide_font
                     }
                 }
             }

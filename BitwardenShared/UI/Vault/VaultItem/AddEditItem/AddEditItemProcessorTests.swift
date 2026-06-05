@@ -1717,6 +1717,78 @@ class AddEditItemProcessorTests: BitwardenTestCase {
         XCTAssertTrue(reviewPromptService.userActions.isEmpty)
     }
 
+    /// `perform(_:)` with `.scanCardButtonTapped` when camera access is authorized presents the
+    /// card scanner sheet.
+    @MainActor
+    func test_perform_scanCardButtonTapped_cameraAuthorizationAuthorized() async {
+        cameraService.cameraAuthorizationStatus = .authorized
+
+        await subject.perform(.scanCardButtonTapped)
+
+        XCTAssertTrue(subject.state.cardItemState.isCardScannerPresented)
+        XCTAssertTrue(coordinator.alertShown.isEmpty)
+    }
+
+    /// `perform(_:)` with `.scanCardButtonTapped` when camera access is denied shows the
+    /// camera-permission-required alert instead of opening the scanner.
+    @MainActor
+    func test_perform_scanCardButtonTapped_cameraAuthorizationDenied() async throws {
+        cameraService.cameraAuthorizationStatus = .denied
+
+        await subject.perform(.scanCardButtonTapped)
+
+        XCTAssertFalse(subject.state.cardItemState.isCardScannerPresented)
+        let alert = try XCTUnwrap(coordinator.alertShown.last)
+        XCTAssertEqual(alert.title, Localizations.camera)
+        XCTAssertEqual(alert.message, Localizations.enableCameraPermissionInSettingsToScanYourCard)
+        XCTAssertEqual(alert.alertActions.count, 2)
+        XCTAssertEqual(alert.alertActions[0].title, Localizations.settings)
+        XCTAssertEqual(alert.alertActions[1].title, Localizations.cancel)
+    }
+
+    /// `perform(_:)` with `.scanCardButtonTapped` when camera access is restricted shows the
+    /// camera-permission-required alert instead of opening the scanner.
+    @MainActor
+    func test_perform_scanCardButtonTapped_cameraAuthorizationRestricted() async throws {
+        cameraService.cameraAuthorizationStatus = .restricted
+
+        await subject.perform(.scanCardButtonTapped)
+
+        XCTAssertFalse(subject.state.cardItemState.isCardScannerPresented)
+        let alert = try XCTUnwrap(coordinator.alertShown.last)
+        XCTAssertEqual(alert.title, Localizations.camera)
+        XCTAssertEqual(alert.message, Localizations.enableCameraPermissionInSettingsToScanYourCard)
+        XCTAssertEqual(alert.alertActions.count, 2)
+        XCTAssertEqual(alert.alertActions[0].title, Localizations.settings)
+        XCTAssertEqual(alert.alertActions[1].title, Localizations.cancel)
+    }
+
+    /// `perform(_:)` with `.scanCardButtonTapped` when camera access is not yet determined and
+    /// the user allows it presents the card scanner sheet.
+    @MainActor
+    func test_perform_scanCardButtonTapped_cameraAuthorizationNotDetermined_authorized() async {
+        cameraService.cameraAuthorizationStatus = .authorized
+
+        await subject.perform(.scanCardButtonTapped)
+
+        XCTAssertTrue(subject.state.cardItemState.isCardScannerPresented)
+        XCTAssertTrue(coordinator.alertShown.isEmpty)
+    }
+
+    /// `perform(_:)` with `.scanCardButtonTapped` when camera access is not yet determined and
+    /// the user denies it shows the camera-permission-required alert.
+    @MainActor
+    func test_perform_scanCardButtonTapped_cameraAuthorizationNotDetermined_denied() async throws {
+        cameraService.cameraAuthorizationStatus = .denied
+
+        await subject.perform(.scanCardButtonTapped)
+
+        XCTAssertFalse(subject.state.cardItemState.isCardScannerPresented)
+        let alert = try XCTUnwrap(coordinator.alertShown.last)
+        XCTAssertEqual(alert.title, Localizations.camera)
+        XCTAssertEqual(alert.message, Localizations.enableCameraPermissionInSettingsToScanYourCard)
+    }
+
     /// `perform(_:)` with `.setupTotpPressed` with camera authorization authorized navigates to the
     /// `.setupTotpCamera` route.
     @MainActor
@@ -2126,16 +2198,6 @@ class AddEditItemProcessorTests: BitwardenTestCase {
         subject.receive(.cardFieldChanged(.cardScannerLinesUpdated(["4111111111111111", "JANE DOE", "12/28"])))
 
         XCTAssertEqual(subject.state.cardItemState.brand, .custom(.visa))
-    }
-
-    /// `receive(_:)` with `.cardFieldChanged(.scanCardButtonTapped)` presents the card scanner.
-    @MainActor
-    func test_receive_cardFieldChanged_scanCardButtonTapped() {
-        subject.state.cardItemState.isCardScannerPresented = false
-
-        subject.receive(.cardFieldChanged(.scanCardButtonTapped))
-
-        XCTAssertTrue(subject.state.cardItemState.isCardScannerPresented)
     }
 
     /// `receive(_:)` with `.cardFieldChanged(.cardScannerDismissed)` hides the card scanner and

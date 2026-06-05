@@ -176,6 +176,8 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
             await fetchCipherOptions()
         case .savePressed:
             await saveItem()
+        case .scanCardButtonTapped:
+            await openCardScanner()
         case .setupTotpPressed:
             await setupTotp()
         case .deletePressed:
@@ -517,8 +519,6 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
             state.cardItemState.expirationMonth = month
         case let .expirationYearChanged(year):
             state.cardItemState.expirationYear = year
-        case .scanCardButtonTapped:
-            state.cardItemState.isCardScannerPresented = true
         case let .toggleCodeVisibilityChanged(isVisible):
             state.cardItemState.isCodeVisible = isVisible
             if isVisible {
@@ -764,8 +764,8 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
     /// Adds the item currently in `state`.
     ///
     private func addItem(fido2UserVerified: Bool) async throws {
-        if let autofillAppExtensionDelegate = appExtensionDelegate as? AutofillAppExtensionDelegate,
-           autofillAppExtensionDelegate.isCreatingFido2Credential {
+        if let credentialProviderExtensionDelegate = appExtensionDelegate as? CredentialProviderExtensionDelegate,
+           credentialProviderExtensionDelegate.isCreatingFido2Credential {
             services.fido2UserInterfaceHelper.pickedCredentialForCreation(
                 result: .success(
                     CheckUserAndPickCredentialForCreationResult(
@@ -785,8 +785,8 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
 
     /// Checks user verification if needed on Fido2 flows.
     private func fido2CheckUserIfNeeded() async throws -> Bool {
-        guard let autofillAppExtensionDelegate = appExtensionDelegate as? AutofillAppExtensionDelegate,
-              autofillAppExtensionDelegate.isCreatingFido2Credential,
+        guard let credentialProviderExtensionDelegate = appExtensionDelegate as? CredentialProviderExtensionDelegate,
+              credentialProviderExtensionDelegate.isCreatingFido2Credential,
               let fido2CreationOptions = services.fido2UserInterfaceHelper.fido2CreationOptions else {
             return false
         }
@@ -946,6 +946,22 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
         let shouldDismissed = delegate?.itemUpdated() ?? true
         if shouldDismissed {
             coordinator.navigate(to: .dismiss())
+        }
+    }
+
+    /// Checks camera authorization and either opens the card scanner sheet or shows a
+    /// camera-permission-required alert with a link to iOS Settings.
+    ///
+    private func openCardScanner() async {
+        let status = await services.cameraService.checkStatusOrRequestCameraAuthorization()
+        guard status == .authorized else {
+            coordinator.showAlert(.cameraPermissionRequired { [weak self] in
+                self?.state.url = URL(string: UIApplication.openSettingsURLString)
+            })
+            return
+        }
+        await MainActor.run {
+            state.cardItemState.isCardScannerPresented = true
         }
     }
 

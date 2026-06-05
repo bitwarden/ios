@@ -23,6 +23,7 @@ class AutofillCredentialServiceTests: BitwardenTestCase { // swiftlint:disable:t
     var deviceAuthKeyService: MockDeviceAuthKeyService!
     var errorReporter: MockErrorReporter!
     var eventService: MockEventService!
+    var fido2AuthenticatorMock: MockClientFido2Authenticator!
     var fido2UserInterfaceHelperDelegate: MockFido2UserInterfaceHelperDelegate!
     var fido2CredentialStore: MockFido2CredentialStore!
     var fido2UserInterfaceHelper: MockFido2UserInterfaceHelper!
@@ -45,6 +46,7 @@ class AutofillCredentialServiceTests: BitwardenTestCase { // swiftlint:disable:t
         autofillCredentialServiceDelegate = MockAutofillCredentialServiceDelegate()
         cipherService = MockCipherService()
         clientService = MockClientService()
+        fido2AuthenticatorMock = MockClientFido2Authenticator()
         configService = MockConfigService()
         credentialIdentityFactory = MockCredentialIdentityFactory()
         deviceAuthKeyService = MockDeviceAuthKeyService()
@@ -62,6 +64,7 @@ class AutofillCredentialServiceTests: BitwardenTestCase { // swiftlint:disable:t
         totpService = MockTOTPService()
         vaultTimeoutService = MockVaultTimeoutService()
 
+        clientService.mockPlatform.mockFido2.vaultAuthenticatorReturnValue = fido2AuthenticatorMock
         deviceAuthKeyService.deviceAuthKeyPublisherReturnValue = deviceAuthKeySubject.eraseToAnyPublisher()
 
         subject = DefaultAutofillCredentialService(
@@ -104,6 +107,7 @@ class AutofillCredentialServiceTests: BitwardenTestCase { // swiftlint:disable:t
         deviceAuthKeyService = nil
         errorReporter = nil
         eventService = nil
+        fido2AuthenticatorMock = nil
         fido2UserInterfaceHelperDelegate = nil
         fido2CredentialStore = nil
         fido2UserInterfaceHelper = nil
@@ -344,8 +348,7 @@ class AutofillCredentialServiceTests: BitwardenTestCase { // swiftlint:disable:t
         let passkeyRequest = ASPasskeyCredentialRequest.fixture(credentialIdentity: passkeyIdentity)
         let expectedAssertionResult = GetAssertionResult.fixture()
 
-        clientService.mockPlatform.fido2Mock
-            .clientFido2AuthenticatorMock
+        fido2AuthenticatorMock
             .getAssertionMocker
             .withVerification { request in
                 request.rpId == passkeyIdentity.relyingPartyIdentifier
@@ -400,8 +403,7 @@ class AutofillCredentialServiceTests: BitwardenTestCase { // swiftlint:disable:t
         )
         totpService.copyTotpIfPossibleError = BitwardenTestError.example
 
-        clientService.mockPlatform.fido2Mock
-            .clientFido2AuthenticatorMock
+        fido2AuthenticatorMock
             .getAssertionMocker
             .withVerification { request in
                 request.rpId == passkeyIdentity.relyingPartyIdentifier
@@ -449,8 +451,7 @@ class AutofillCredentialServiceTests: BitwardenTestCase { // swiftlint:disable:t
         let passkeyRequest = ASPasskeyCredentialRequest.fixture(credentialIdentity: passkeyIdentity)
         let expectedAssertionResult = GetAssertionResult.fixture()
 
-        clientService.mockPlatform.fido2Mock
-            .clientFido2AuthenticatorMock
+        fido2AuthenticatorMock
             .getAssertionMocker
             .withVerification { request in
                 request.rpId == passkeyIdentity.relyingPartyIdentifier
@@ -519,8 +520,7 @@ class AutofillCredentialServiceTests: BitwardenTestCase { // swiftlint:disable:t
         let passkeyRequest = ASPasskeyCredentialRequest.fixture(credentialIdentity: passkeyIdentity)
         let expectedAssertionResult = GetAssertionResult.fixture()
 
-        clientService.mockPlatform.fido2Mock
-            .clientFido2AuthenticatorMock
+        fido2AuthenticatorMock
             .getAssertionMocker
             .withVerification { request in
                 request.rpId == passkeyIdentity.relyingPartyIdentifier
@@ -562,8 +562,7 @@ class AutofillCredentialServiceTests: BitwardenTestCase { // swiftlint:disable:t
         let passkeyIdentity = ASPasskeyCredentialIdentity.fixture()
         let passkeyRequest = ASPasskeyCredentialRequest.fixture(credentialIdentity: passkeyIdentity)
 
-        clientService.mockPlatform.fido2Mock
-            .clientFido2AuthenticatorMock
+        fido2AuthenticatorMock
             .getAssertionMocker
             .throwing(BitwardenTestError.example)
 
@@ -586,8 +585,7 @@ class AutofillCredentialServiceTests: BitwardenTestCase { // swiftlint:disable:t
         let passkeyIdentity = ASPasskeyCredentialIdentity.fixture()
         let passkeyRequest = ASPasskeyCredentialRequest.fixture(credentialIdentity: passkeyIdentity)
 
-        clientService.mockPlatform.fido2Mock
-            .clientFido2AuthenticatorMock
+        fido2AuthenticatorMock
             .getAssertionMocker
             .throwing(BitwardenTestError.example)
 
@@ -610,8 +608,7 @@ class AutofillCredentialServiceTests: BitwardenTestCase { // swiftlint:disable:t
         let passkeyIdentity = ASPasskeyCredentialIdentity.fixture()
         let passkeyRequest = ASPasskeyCredentialRequest.fixture(credentialIdentity: passkeyIdentity)
 
-        clientService.mockPlatform.fido2Mock
-            .clientFido2AuthenticatorMock
+        fido2AuthenticatorMock
             .getAssertionMocker
             .throwing(BitwardenTestError.example)
 
@@ -637,8 +634,7 @@ class AutofillCredentialServiceTests: BitwardenTestCase { // swiftlint:disable:t
         let passkeyParameters = MockPasskeyCredentialRequestParameters(allowedCredentials: allowedCredentials)
         let expectedAssertionResult = GetAssertionResult.fixture()
 
-        clientService.mockPlatform.fido2Mock
-            .clientFido2AuthenticatorMock
+        fido2AuthenticatorMock
             .getAssertionMocker
             .withVerification { request in
                 request.rpId == passkeyParameters.relyingPartyIdentifier
@@ -679,8 +675,7 @@ class AutofillCredentialServiceTests: BitwardenTestCase { // swiftlint:disable:t
 
         let passkeyParameters = MockPasskeyCredentialRequestParameters()
 
-        clientService.mockPlatform.fido2Mock
-            .clientFido2AuthenticatorMock
+        fido2AuthenticatorMock
             .getAssertionMocker
             .throwing(BitwardenTestError.example)
 
@@ -726,8 +721,7 @@ class AutofillCredentialServiceTests: BitwardenTestCase { // swiftlint:disable:t
 
         deviceAuthKeyService.assertDeviceAuthKeyReturnValue = expectedAssertionResult
 
-        clientService.mockPlatform.fido2Mock
-            .clientFido2AuthenticatorMock
+        fido2AuthenticatorMock
             .getAssertionMocker
             .throwing(BitwardenTestError.example)
 
@@ -1132,8 +1126,7 @@ class AutofillCredentialServiceTests: BitwardenTestCase { // swiftlint:disable:t
                     ),
                 ]
             }
-        clientService.mockPlatform.fido2Mock
-            .clientFido2AuthenticatorMock
+        fido2AuthenticatorMock
             .credentialsForAutofillResult = .success(
                 [
                     Fido2CredentialAutofillView(
@@ -1226,8 +1219,7 @@ class AutofillCredentialServiceTests: BitwardenTestCase { // swiftlint:disable:t
                     ),
                 ]
             }
-        clientService.mockPlatform.fido2Mock
-            .clientFido2AuthenticatorMock
+        fido2AuthenticatorMock
             .credentialsForAutofillResult = .success(
                 [
                     Fido2CredentialAutofillView(

@@ -376,6 +376,13 @@ class CipherItemStateTests: BitwardenTestCase { // swiftlint:disable:this type_b
         XCTAssertFalse(state.hasOrganizations)
     }
 
+    /// `getter:icon` returns the icon for a bank account cipher.
+    func test_icon_bankAccount() throws {
+        let cipher = CipherView.fixture(type: .bankAccount)
+        let state = try XCTUnwrap(CipherItemState(existing: cipher, hasPremium: true))
+        XCTAssertEqual(state.icon.name, SharedAsset.Icons.bankAccount24.name)
+    }
+
     /// `getter:icon` returns the icon for a card cipher with a known brand.
     func test_icon_cardKnownBrand() throws {
         let cipher = CipherView.cardFixture(card: .fixture(brand: "Visa"))
@@ -395,6 +402,13 @@ class CipherItemStateTests: BitwardenTestCase { // swiftlint:disable:this type_b
         let cipher = CipherView.cardFixture(card: .fixture())
         let state = try XCTUnwrap(CipherItemState(existing: cipher, hasPremium: true))
         XCTAssertEqual(state.icon.name, SharedAsset.Icons.card24.name)
+    }
+
+    /// `getter:icon` returns the icon for a driver's license cipher.
+    func test_icon_driversLicense() throws {
+        let cipher = CipherView.fixture(type: .driversLicense)
+        let state = try XCTUnwrap(CipherItemState(existing: cipher, hasPremium: true))
+        XCTAssertEqual(state.icon.name, SharedAsset.Icons.idCard24.name)
     }
 
     /// `getter:icon` returns the icon for an identity cipher.
@@ -480,19 +494,19 @@ class CipherItemStateTests: BitwardenTestCase { // swiftlint:disable:this type_b
     /// `navigationTitle` returns the navigation title for the view based on the cipher type being added.
     func test_navigationTitle_newItem() {
         let subjectCard = CipherItemState(addItem: .card, hasPremium: false)
-        XCTAssertEqual(subjectCard.navigationTitle, Localizations.newCard)
+        XCTAssertEqual(subjectCard.navigationTitle, Localizations.addCard)
 
         let subjectIdentity = CipherItemState(addItem: .identity, hasPremium: false)
-        XCTAssertEqual(subjectIdentity.navigationTitle, Localizations.newIdentity)
+        XCTAssertEqual(subjectIdentity.navigationTitle, Localizations.addIdentity)
 
         let subjectLogin = CipherItemState(addItem: .login, hasPremium: false)
-        XCTAssertEqual(subjectLogin.navigationTitle, Localizations.newLogin)
+        XCTAssertEqual(subjectLogin.navigationTitle, Localizations.addLogin)
 
         let subjectSecureNote = CipherItemState(addItem: .secureNote, hasPremium: false)
-        XCTAssertEqual(subjectSecureNote.navigationTitle, Localizations.newNote)
+        XCTAssertEqual(subjectSecureNote.navigationTitle, Localizations.addNote)
 
         let subjectSSHKey = CipherItemState(addItem: .sshKey, hasPremium: false)
-        XCTAssertEqual(subjectSSHKey.navigationTitle, Localizations.newSSHKey)
+        XCTAssertEqual(subjectSSHKey.navigationTitle, Localizations.addSSHKey)
     }
 
     /// `setter:owner` adds the default user collection to the collection IDs
