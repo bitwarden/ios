@@ -88,6 +88,6 @@ Use pragma marks to organize code. `// MARK: -` is used to denote different obje
 
 ## Conventions
 
-- **Member ordering** — keep a type's stored properties and protocol requirements in alphabetical order. When adding a member, insert it at its alphabetical position rather than appending.
+- **Member ordering** — within a `// MARK:` section, keep members in a single alphabetical order (stored properties, computed properties, methods, and static members share that order), and alphabetize function and initializer parameters the same way (default-valued, variadic, then trailing-closure parameters last). Insert new members and parameters at their alphabetical position rather than appending. Exceptions: UI objects (views, view modifiers) follow visual layout order, not alphabetical; and protocol *conformance* ordering is not enforced.
 - **No file-scope globals** — prefer a `static` member on the relevant type or extension over a file-scope global function or property, even a `private` one.
 - **Prefer typed over stringly-typed** — model values with their natural types (enums, `Date`, etc.) rather than raw strings, unless deliberately mirroring an external contract (e.g. an SDK model that stores ISO date strings) where typed conversion is intentionally deferred.
