@@ -57,17 +57,6 @@ if [ -z "${BITWARDEN_SDK_PATH:-}" ]; then
         fi
         _search_dir="$(dirname "$_search_dir")"
     done
-
-    if [ -z "$BITWARDEN_SDK_PATH" ]; then
-        # Last resort: local sdk-internal checkout at the well-known sibling path.
-        # SRCROOT is set by Xcode in build phases; derive from script location for standalone runs.
-        _script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-        _repo_root="$(dirname "$_script_dir")"
-        _local_sdk_path="${SRCROOT:-$_repo_root}/../sdk-internal/crates/bitwarden-uniffi/swift"
-        if [ -d "$_local_sdk_path" ]; then
-            BITWARDEN_SDK_PATH="$(cd "$_local_sdk_path" && pwd)"
-        fi
-    fi
 fi
 
 if [ -z "$BITWARDEN_SDK_PATH" ]; then
