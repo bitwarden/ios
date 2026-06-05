@@ -1,13 +1,14 @@
 import BitwardenSdk
-import XCTest
+import Testing
 
 @testable import BitwardenShared
 
-class CipherRequestModelTests: BitwardenTestCase {
+struct CipherRequestModelTests {
     // MARK: Tests
 
     /// `init(cipher:)` maps the cipher's bank account data into the request model.
-    func test_init_bankAccount() {
+    @Test
+    func init_bankAccount() {
         let cipher = Cipher.fixture(
             bankAccount: .fixture(
                 accountNumber: "123456789",
@@ -26,27 +27,29 @@ class CipherRequestModelTests: BitwardenTestCase {
 
         let subject = CipherRequestModel(cipher: cipher)
 
-        XCTAssertEqual(subject.bankAccount?.accountNumber, "123456789")
-        XCTAssertEqual(subject.bankAccount?.accountType, "checking")
-        XCTAssertEqual(subject.bankAccount?.bankContactPhone, "555-0100")
-        XCTAssertEqual(subject.bankAccount?.bankName, "Bitwarden Bank")
-        XCTAssertEqual(subject.bankAccount?.branchNumber, "001")
-        XCTAssertEqual(subject.bankAccount?.iban, "GB33BUKB20201555555555")
-        XCTAssertEqual(subject.bankAccount?.nameOnAccount, "Test User")
-        XCTAssertEqual(subject.bankAccount?.pin, "4321")
-        XCTAssertEqual(subject.bankAccount?.routingNumber, "021000021")
-        XCTAssertEqual(subject.bankAccount?.swiftCode, "BUKBGB22")
+        #expect(subject.bankAccount?.accountNumber == "123456789")
+        #expect(subject.bankAccount?.accountType == "checking")
+        #expect(subject.bankAccount?.bankContactPhone == "555-0100")
+        #expect(subject.bankAccount?.bankName == "Bitwarden Bank")
+        #expect(subject.bankAccount?.branchNumber == "001")
+        #expect(subject.bankAccount?.iban == "GB33BUKB20201555555555")
+        #expect(subject.bankAccount?.nameOnAccount == "Test User")
+        #expect(subject.bankAccount?.pin == "4321")
+        #expect(subject.bankAccount?.routingNumber == "021000021")
+        #expect(subject.bankAccount?.swiftCode == "BUKBGB22")
     }
 
     /// `init(cipher:)` leaves the bank account data `nil` when the cipher has none.
-    func test_init_bankAccount_nil() {
+    @Test
+    func init_bankAccount_nil() {
         let subject = CipherRequestModel(cipher: .fixture(bankAccount: nil))
 
-        XCTAssertNil(subject.bankAccount)
+        #expect(subject.bankAccount == nil)
     }
 
     /// `init(cipher:)` maps the cipher's driver's license data into the request model.
-    func test_init_driversLicense() {
+    @Test
+    func init_driversLicense() {
         let cipher = Cipher.fixture(
             driversLicense: .fixture(
                 dateOfBirth: "1990-01-01",
@@ -66,28 +69,30 @@ class CipherRequestModelTests: BitwardenTestCase {
 
         let subject = CipherRequestModel(cipher: cipher)
 
-        XCTAssertEqual(subject.driversLicense?.dateOfBirth, "1990-01-01")
-        XCTAssertEqual(subject.driversLicense?.expirationDate, "2030-01-01")
-        XCTAssertEqual(subject.driversLicense?.firstName, "Test")
-        XCTAssertEqual(subject.driversLicense?.issueDate, "2020-01-01")
-        XCTAssertEqual(subject.driversLicense?.issuingAuthority, "DMV")
-        XCTAssertEqual(subject.driversLicense?.issuingCountry, "US")
-        XCTAssertEqual(subject.driversLicense?.issuingState, "CA")
-        XCTAssertEqual(subject.driversLicense?.lastName, "User")
-        XCTAssertEqual(subject.driversLicense?.licenseClass, "C")
-        XCTAssertEqual(subject.driversLicense?.licenseNumber, "D1234567")
-        XCTAssertEqual(subject.driversLicense?.middleName, "Q")
+        #expect(subject.driversLicense?.dateOfBirth == "1990-01-01")
+        #expect(subject.driversLicense?.expirationDate == "2030-01-01")
+        #expect(subject.driversLicense?.firstName == "Test")
+        #expect(subject.driversLicense?.issueDate == "2020-01-01")
+        #expect(subject.driversLicense?.issuingAuthority == "DMV")
+        #expect(subject.driversLicense?.issuingCountry == "US")
+        #expect(subject.driversLicense?.issuingState == "CA")
+        #expect(subject.driversLicense?.lastName == "User")
+        #expect(subject.driversLicense?.licenseClass == "C")
+        #expect(subject.driversLicense?.licenseNumber == "D1234567")
+        #expect(subject.driversLicense?.middleName == "Q")
     }
 
     /// `init(cipher:)` leaves the driver's license data `nil` when the cipher has none.
-    func test_init_driversLicense_nil() {
+    @Test
+    func init_driversLicense_nil() {
         let subject = CipherRequestModel(cipher: .fixture(driversLicense: nil))
 
-        XCTAssertNil(subject.driversLicense)
+        #expect(subject.driversLicense == nil)
     }
 
     /// `init(cipher:)` maps the cipher's passport data into the request model.
-    func test_init_passport() {
+    @Test
+    func init_passport() {
         let cipher = Cipher.fixture(
             passport: .fixture(
                 birthPlace: "Springfield",
@@ -109,25 +114,26 @@ class CipherRequestModelTests: BitwardenTestCase {
 
         let subject = CipherRequestModel(cipher: cipher)
 
-        XCTAssertEqual(subject.passport?.birthPlace, "Springfield")
-        XCTAssertEqual(subject.passport?.dateOfBirth, "1990-01-01")
-        XCTAssertEqual(subject.passport?.expirationDate, "2030-01-01")
-        XCTAssertEqual(subject.passport?.givenName, "Test")
-        XCTAssertEqual(subject.passport?.issueDate, "2020-01-01")
-        XCTAssertEqual(subject.passport?.issuingAuthority, "State Dept")
-        XCTAssertEqual(subject.passport?.issuingCountry, "US")
-        XCTAssertEqual(subject.passport?.nationalIdentificationNumber, "N1234567")
-        XCTAssertEqual(subject.passport?.nationality, "American")
-        XCTAssertEqual(subject.passport?.passportNumber, "P1234567")
-        XCTAssertEqual(subject.passport?.passportType, "P")
-        XCTAssertEqual(subject.passport?.sex, "X")
-        XCTAssertEqual(subject.passport?.surname, "User")
+        #expect(subject.passport?.birthPlace == "Springfield")
+        #expect(subject.passport?.dateOfBirth == "1990-01-01")
+        #expect(subject.passport?.expirationDate == "2030-01-01")
+        #expect(subject.passport?.givenName == "Test")
+        #expect(subject.passport?.issueDate == "2020-01-01")
+        #expect(subject.passport?.issuingAuthority == "State Dept")
+        #expect(subject.passport?.issuingCountry == "US")
+        #expect(subject.passport?.nationalIdentificationNumber == "N1234567")
+        #expect(subject.passport?.nationality == "American")
+        #expect(subject.passport?.passportNumber == "P1234567")
+        #expect(subject.passport?.passportType == "P")
+        #expect(subject.passport?.sex == "X")
+        #expect(subject.passport?.surname == "User")
     }
 
     /// `init(cipher:)` leaves the passport data `nil` when the cipher has none.
-    func test_init_passport_nil() {
+    @Test
+    func init_passport_nil() {
         let subject = CipherRequestModel(cipher: .fixture(passport: nil))
 
-        XCTAssertNil(subject.passport)
+        #expect(subject.passport == nil)
     }
 }

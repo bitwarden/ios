@@ -64,11 +64,11 @@ struct CipherRequestModel: JSONRequestBody {
     /// The organization identifier for the cipher.
     let organizationID: String?
 
-    /// The password history for this cipher.
-    let passwordHistory: [CipherPasswordHistoryModel]?
-
     /// Passport data if the cipher is a passport.
     let passport: CipherPassportModel?
+
+    /// The password history for this cipher.
+    let passwordHistory: [CipherPasswordHistoryModel]?
 
     /// Whether the user needs to be re-prompted for their master password prior to autofilling the
     /// cipher's password.
@@ -114,8 +114,8 @@ extension CipherRequestModel {
             name: cipher.name,
             notes: cipher.notes,
             organizationID: cipher.organizationId,
-            passwordHistory: cipher.passwordHistory?.map(CipherPasswordHistoryModel.init),
             passport: cipher.passport.map(CipherPassportModel.init),
+            passwordHistory: cipher.passwordHistory?.map(CipherPasswordHistoryModel.init),
             reprompt: CipherRepromptType(type: cipher.reprompt),
             secureNote: cipher.secureNote.map(CipherSecureNoteModel.init),
             sshKey: cipher.sshKey.map(CipherSSHKeyModel.init),
