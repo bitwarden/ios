@@ -173,6 +173,40 @@ class BitwardenSdkVaultCipherDriversLicenseModelTests: BitwardenTestCase {
         XCTAssertEqual(model.licenseNumber, "licenseNumber")
         XCTAssertEqual(model.middleName, "middleName")
     }
+
+    /// `DriversLicense.init(cipherDriversLicenseModel:)` round-trips all 11 fields, including the raw
+    /// date strings, from the API model back into the SDK type.
+    func test_init_fromCipherDriversLicenseModel() {
+        let model = CipherDriversLicenseModel(
+            driversLicense: .init(
+                firstName: "firstName",
+                middleName: "middleName",
+                lastName: "lastName",
+                dateOfBirth: "dateOfBirth",
+                licenseNumber: "licenseNumber",
+                issuingCountry: "issuingCountry",
+                issuingState: "issuingState",
+                issueDate: "issueDate",
+                expirationDate: "expirationDate",
+                issuingAuthority: "issuingAuthority",
+                licenseClass: "licenseClass",
+            ),
+        )
+
+        let driversLicense = BitwardenSdk.DriversLicense(cipherDriversLicenseModel: model)
+
+        XCTAssertEqual(driversLicense.firstName, "firstName")
+        XCTAssertEqual(driversLicense.middleName, "middleName")
+        XCTAssertEqual(driversLicense.lastName, "lastName")
+        XCTAssertEqual(driversLicense.dateOfBirth, "dateOfBirth")
+        XCTAssertEqual(driversLicense.licenseNumber, "licenseNumber")
+        XCTAssertEqual(driversLicense.issuingCountry, "issuingCountry")
+        XCTAssertEqual(driversLicense.issuingState, "issuingState")
+        XCTAssertEqual(driversLicense.issueDate, "issueDate")
+        XCTAssertEqual(driversLicense.expirationDate, "expirationDate")
+        XCTAssertEqual(driversLicense.issuingAuthority, "issuingAuthority")
+        XCTAssertEqual(driversLicense.licenseClass, "licenseClass")
+    }
 }
 
 // MARK: - CipherPassportModel
