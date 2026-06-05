@@ -1269,6 +1269,10 @@ extension ServiceContainer {
         apiService
     }
 
+    var fillAssistAPIService: FillAssistAPIService {
+        apiService
+    }
+
     var organizationAPIService: OrganizationAPIService {
         apiService
     }
