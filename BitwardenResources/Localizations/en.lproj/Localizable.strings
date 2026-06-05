@@ -1137,3 +1137,10 @@
 "IssueDate" = "Issue date";
 "ExpirationDate" = "Expiration date";
 "LicenseClass" = "License class";
+"PassportDetails" = "Passport details";
+"Sex" = "Sex";
+"BirthPlace" = "Birth place";
+"Nationality" = "Nationality";
+"PassportType" = "Passport type";
+"NationalIdentificationNumber" = "National identification number";
+"IssuingAuthorityOffice" = "Issuing authority/office";

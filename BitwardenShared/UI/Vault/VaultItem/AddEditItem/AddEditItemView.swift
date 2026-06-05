@@ -351,8 +351,7 @@ private extension AddEditItemView {
         case .driversLicense:
             driversLicenseItems
         case .passport:
-            // TODO: PM-38153 - render AddEditPassportItemView once the Passport UI PR lands.
-            EmptyView()
+            passportItems
         case .card:
             cardItems
         case .login:
@@ -389,6 +388,21 @@ private extension AddEditItemView {
                     )),
                 )
             },
+        )
+    }
+
+    /// Specific fields for a passport item.
+    @ViewBuilder private var passportItems: some View {
+        AddEditPassportItemView(
+            store: store.child(
+                state: { addEditState in
+                    addEditState.passportItemState
+                },
+                mapAction: { action in
+                    .passportFieldChanged(action)
+                },
+                mapEffect: { $0 },
+            ),
         )
     }
 

@@ -117,6 +117,9 @@ struct CipherItemState: Equatable { // swiftlint:disable:this type_body_length
     /// The list of ownership options that can be selected for the cipher.
     var ownershipOptions = [CipherOwner]()
 
+    /// The passport item state.
+    var passportItemState = PassportItemState()
+
     /// If master password reprompt toggle should be shown
     var showMasterPasswordReprompt = true
 
@@ -461,6 +464,7 @@ struct CipherItemState: Equatable { // swiftlint:disable:this type_body_length
         name = overrideName ?? cipherView.name
         notes = cipherView.notes ?? ""
         organizationId = cipherView.organizationId
+        passportItemState = cipherView.passportItemState()
         sshKeyState = cipherView.sshKeyItemState()
         self.type = type
         updatedDate = cipherView.revisionDate
@@ -655,7 +659,7 @@ extension CipherItemState {
             sshKey: type == .sshKey ? sshKeyState.sshKeyView : nil,
             bankAccount: nil, // TODO: PM-32809
             driversLicense: type == .driversLicense ? driversLicenseItemState.driversLicenseView : nil,
-            passport: nil, // TODO: PM-32805
+            passport: type == .passport ? passportItemState.passportView : nil,
             favorite: isFavoriteOn,
             reprompt: isMasterPasswordRePromptOn ? .password : .none,
             organizationUseTotp: false,
