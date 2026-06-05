@@ -36,7 +36,7 @@ struct FillAssistAPIServiceTests {
 
     // MARK: Tests
 
-    /// `getFormsMap()` performs the request with the correct method and path.
+    /// `getFormsMap()` performs the request with the correct method, URL, and no body.
     @Test
     func getFormsMap() async throws {
         client.result = .httpSuccess(testData: .formsMap)
