@@ -47,6 +47,15 @@ class CredentialProviderContextTests: BitwardenTestCase { // swiftlint:disable:t
                 .authCompletionRoute,
             AppRoute.vault(.autofillList),
         )
+        XCTAssertNil(
+            DefaultCredentialProviderContext(.savePasswordCredential(MockSavePasswordRequest(), userInteraction: true))
+                .authCompletionRoute,
+            "authCompletionRoute is nil when the proxy cannot be cast to ASSavePasswordRequest",
+        )
+        XCTAssertNil(
+            DefaultCredentialProviderContext(.savePasswordCredential(MockSavePasswordRequest(), userInteraction: false))
+                .authCompletionRoute,
+        )
     }
 
     /// `getter:configuring` returns `true` if configuring, `false` otherwise.
@@ -155,6 +164,15 @@ class CredentialProviderContextTests: BitwardenTestCase { // swiftlint:disable:t
         } else {
             XCTFail("ExtensionMode doesn't match")
         }
+
+        let context9 = DefaultCredentialProviderContext(
+            .savePasswordCredential(MockSavePasswordRequest(), userInteraction: true),
+        )
+        if case .savePasswordCredential = context9.extensionMode {
+            XCTAssert(true)
+        } else {
+            XCTFail("ExtensionMode doesn't match")
+        }
     }
 
     /// `getter:passwordCredentialIdentity` returns the identity of `autofillCredential` mode.
@@ -240,6 +258,16 @@ class CredentialProviderContextTests: BitwardenTestCase { // swiftlint:disable:t
 
         let subject4 = DefaultCredentialProviderContext(.registerFido2Credential(MockPasskeyCredentialRequest()))
         XCTAssertTrue(subject4.flowWithUserInteraction)
+
+        let subjectSavePassword = DefaultCredentialProviderContext(
+            .savePasswordCredential(MockSavePasswordRequest(), userInteraction: true),
+        )
+        XCTAssertTrue(subjectSavePassword.flowWithUserInteraction)
+
+        let subjectSavePasswordNoUI = DefaultCredentialProviderContext(
+            .savePasswordCredential(MockSavePasswordRequest(), userInteraction: false),
+        )
+        XCTAssertFalse(subjectSavePasswordNoUI.flowWithUserInteraction)
     }
 
     /// `getter:serviceIdentifiers` returns the identifiers of `autofillVaultList`.
@@ -294,6 +322,11 @@ class CredentialProviderContextTests: BitwardenTestCase { // swiftlint:disable:t
 
         let subject6 = DefaultCredentialProviderContext(.autofillText)
         XCTAssertEqual(subject6.serviceIdentifiers, expectedIdentifiers)
+
+        let subject7 = DefaultCredentialProviderContext(
+            .savePasswordCredential(MockSavePasswordRequest(), userInteraction: true),
+        )
+        XCTAssertEqual(subject7.serviceIdentifiers, expectedIdentifiers)
     }
 
     /// `getter:uri` returns the URI with https prefix when service identifier is a domain.
@@ -397,3 +430,5 @@ class CredentialProviderContextTests: BitwardenTestCase { // swiftlint:disable:t
 class MockPasskeyCredentialRequest: PasskeyCredentialRequest {}
 
 class MockOneTimeCodeCredentialIdentity: OneTimeCodeCredentialIdentityProxy {}
+
+class MockSavePasswordRequest: SavePasswordRequestProxy {} // swiftlint:disable:this file_length

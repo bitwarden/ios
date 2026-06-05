@@ -213,4 +213,45 @@ class AddEditItemProcessorFido2Tests: BitwardenTestCase {
         XCTAssertTrue(vaultRepository.addCipherCiphers.isEmpty)
         XCTAssertEqual(errorReporter.errors.first as? BitwardenTestError, .example)
     }
+
+    /// `perform(_:)` with `.savePressed` in the save-password-credential extension flow adds
+    /// the cipher and completes the save password request without navigating away.
+    @MainActor
+    func test_perform_savePressed_savePasswordCredential() async {
+        subject.state.name = "example.com"
+        subject.state.loginState.username = "user@example.com"
+        subject.state.loginState.password = "s3cr3t"
+        appExtensionDelegate.extensionMode = .savePasswordCredential(
+            MockSavePasswordRequestProxy(),
+            userInteraction: true,
+        )
+
+        await subject.perform(.savePressed)
+
+        XCTAssertFalse(vaultRepository.addCipherCiphers.isEmpty)
+        XCTAssertTrue(appExtensionDelegate.completeSavePasswordRequestCalled)
+        XCTAssertTrue(coordinator.routes.isEmpty)
+    }
+
+    /// `perform(_:)` with `.savePressed` in the save-password-credential flow shows an error alert
+    /// and stays on screen when the vault save fails.
+    @MainActor
+    func test_perform_savePressed_savePasswordCredential_saveError() async {
+        subject.state.name = "example.com"
+        appExtensionDelegate.extensionMode = .savePasswordCredential(
+            MockSavePasswordRequestProxy(),
+            userInteraction: true,
+        )
+        vaultRepository.addCipherResult = .failure(BitwardenTestError.example)
+
+        await subject.perform(.savePressed)
+
+        XCTAssertFalse(appExtensionDelegate.completeSavePasswordRequestCalled)
+        XCTAssertEqual(coordinator.errorAlertsShown.last as? BitwardenTestError, .example)
+        XCTAssertTrue(coordinator.routes.isEmpty)
+    }
 }
+
+// MARK: - MockSavePasswordRequestProxy
+
+private class MockSavePasswordRequestProxy: SavePasswordRequestProxy {}
