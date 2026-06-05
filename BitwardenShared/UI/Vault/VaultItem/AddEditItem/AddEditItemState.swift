@@ -47,6 +47,9 @@ protocol AddEditItemState: Sendable {
     /// The custom fields state.
     var customFieldsState: AddEditCustomFieldsState { get set }
 
+    /// The driver's license item state.
+    var driversLicenseItemState: DriversLicenseItemState { get set }
+
     /// The folder this item should be added to.
     var folder: DefaultableType<FolderView> { get set }
 

@@ -47,8 +47,7 @@ class CipherTypeTests: BitwardenTestCase {
 
     /// `canCreateCases` return the correct cipher types that the user can use to create ciphers.
     func test_canCreateCases() {
-        XCTAssertEqual(CipherType.canCreateCases, [.login, .card, .identity, .secureNote])
-        XCTAssertFalse(CipherType.canCreateCases.contains(.driversLicense))
+        XCTAssertEqual(CipherType.canCreateCases, [.login, .card, .identity, .secureNote, .driversLicense])
     }
 
     /// `newItemTypesGatedCases` returns the cipher types gated behind the `.newItemTypes` feature flag.

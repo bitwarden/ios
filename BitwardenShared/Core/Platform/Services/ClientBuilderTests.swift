@@ -11,7 +11,6 @@ class ClientBuilderTests: BitwardenTestCase {
     var appIDService: AppIDService!
     var clientManagedTokens: MockClientManagedTokens!
     var environmentService: MockEnvironmentService!
-    var mockPlatform: MockPlatformClientService!
     var subject: DefaultClientBuilder!
 
     // MARK: Setup and Teardown
@@ -22,7 +21,6 @@ class ClientBuilderTests: BitwardenTestCase {
         appIDService = AppIDService(appIDSettingsStore: MockAppIDSettingsStore())
         clientManagedTokens = MockClientManagedTokens()
         environmentService = MockEnvironmentService()
-        mockPlatform = MockPlatformClientService()
         subject = DefaultClientBuilder(
             appIDService: appIDService,
             environmentService: environmentService,
@@ -41,7 +39,6 @@ class ClientBuilderTests: BitwardenTestCase {
         appIDService = nil
         clientManagedTokens = nil
         environmentService = nil
-        mockPlatform = nil
         subject = nil
     }
 
@@ -52,6 +49,5 @@ class ClientBuilderTests: BitwardenTestCase {
         let builtClient = await subject.buildClient()
 
         XCTAssertNotNil(builtClient)
-        XCTAssertNotNil(mockPlatform.featureFlags)
     }
 }

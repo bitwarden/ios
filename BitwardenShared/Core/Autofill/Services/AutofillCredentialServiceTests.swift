@@ -64,7 +64,7 @@ class AutofillCredentialServiceTests: BitwardenTestCase { // swiftlint:disable:t
         totpService = MockTOTPService()
         vaultTimeoutService = MockVaultTimeoutService()
 
-        clientService.mockPlatform.fido2Mock.vaultAuthenticatorReturnValue = fido2AuthenticatorMock
+        clientService.mockPlatform.mockFido2.vaultAuthenticatorReturnValue = fido2AuthenticatorMock
         deviceAuthKeyService.deviceAuthKeyPublisherReturnValue = deviceAuthKeySubject.eraseToAnyPublisher()
 
         subject = DefaultAutofillCredentialService(

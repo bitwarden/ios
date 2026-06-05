@@ -22,6 +22,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
     var clientService: MockClientService!
     var collectionHelper: MockCollectionHelper!
     var collectionService: MockCollectionService!
+    var configService: MockConfigService!
     var environmentService: MockEnvironmentService!
     var errorReporter: MockErrorReporter!
     var fido2UserInterfaceHelper: MockFido2UserInterfaceHelper!
@@ -43,7 +44,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
 
     // MARK: Setup & Teardown
 
-    override func setUp() {
+    override func setUp() { // swiftlint:disable:this function_body_length
         super.setUp()
 
         cipherEncryptionMediator = MockCipherEncryptionMediator()
@@ -59,6 +60,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         clientService = MockClientService()
         collectionHelper = MockCollectionHelper()
         collectionService = MockCollectionService()
+        configService = MockConfigService()
         environmentService = MockEnvironmentService()
         errorReporter = MockErrorReporter()
         fido2UserInterfaceHelper = MockFido2UserInterfaceHelper()
@@ -86,6 +88,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
             clientService: clientService,
             collectionHelper: collectionHelper,
             collectionService: collectionService,
+            configService: configService,
             environmentService: environmentService,
             errorReporter: errorReporter,
             folderService: folderService,
@@ -111,6 +114,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         clientService = nil
         collectionHelper = nil
         collectionService = nil
+        configService = nil
         environmentService = nil
         errorReporter = nil
         fido2UserInterfaceHelper = nil
@@ -653,7 +657,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
     func test_createAutofillListExcludedCredentialSection_throws() async throws {
         let cipher = CipherView.fixture()
         cipherService.fetchCipherResult = .success(.fixture(id: "1"))
-        clientService.mockPlatform.fido2Mock.decryptFido2AutofillCredentialsThrowableError = BitwardenTestError.example
+        clientService.mockPlatform.mockFido2.decryptFido2AutofillCredentialsThrowableError = BitwardenTestError.example
 
         await assertAsyncThrows(error: BitwardenTestError.example) {
             _ = try await subject.createAutofillListExcludedCredentialSection(from: cipher)
@@ -1016,6 +1020,50 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
 
         let result = await subject.getItemTypesUserCanCreate()
         XCTAssertEqual(result, [.secureNote, .identity, .card, .login])
+    }
+
+    /// `getItemTypesUserCanCreate()` includes the gated `.driversLicense` type when the
+    /// `.newItemTypes` feature flag is enabled.
+    @MainActor
+    func test_getItemTypesUserCanCreate_newItemTypesEnabled_includesDriversLicense() async throws {
+        stateService.activeAccount = .fixture()
+        policyService.policyAppliesToUserPolicies = []
+        configService.featureFlagsBool[.newItemTypes] = true
+
+        let result = await subject.getItemTypesUserCanCreate()
+        XCTAssertTrue(result.contains(.driversLicense))
+    }
+
+    /// `getItemTypesUserCanCreate()` excludes the gated `.driversLicense` type when the
+    /// `.newItemTypes` feature flag is disabled.
+    @MainActor
+    func test_getItemTypesUserCanCreate_newItemTypesDisabled_excludesDriversLicense() async throws {
+        stateService.activeAccount = .fixture()
+        policyService.policyAppliesToUserPolicies = []
+        configService.featureFlagsBool[.newItemTypes] = false
+
+        let result = await subject.getItemTypesUserCanCreate()
+        XCTAssertFalse(result.contains(.driversLicense))
+    }
+
+    /// `getItemTypesUserCanCreate()` still excludes `.card` under the restrict-item-types policy even
+    /// when the `.newItemTypes` feature flag is enabled.
+    @MainActor
+    func test_getItemTypesUserCanCreate_newItemTypesEnabled_restrictPolicy_excludesCard() async throws {
+        stateService.activeAccount = .fixture()
+        policyService.policyAppliesToUserPolicies = [
+            .fixture(
+                enabled: true,
+                id: "restrict_item_type",
+                organizationId: "org1",
+                type: .restrictItemTypes,
+            ),
+        ]
+        configService.featureFlagsBool[.newItemTypes] = true
+
+        let result = await subject.getItemTypesUserCanCreate()
+        XCTAssertFalse(result.contains(.card))
+        XCTAssertTrue(result.contains(.driversLicense))
     }
 
     /// `getTOTPKeyIfAllowedToCopy(cipher:)` return the TOTP key when cipher has TOTP key,
@@ -1865,7 +1913,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         expectedCredentialId: Data,
         cipherIdToReturnEmptyFido2Credentials: String? = nil,
     ) {
-        clientService.mockPlatform.fido2Mock.decryptFido2AutofillCredentialsClosure = { cipherView in
+        clientService.mockPlatform.mockFido2.decryptFido2AutofillCredentialsClosure = { cipherView in
             guard let cipherId = cipherView.id,
                   cipherId != cipherIdToReturnEmptyFido2Credentials else {
                 return []
