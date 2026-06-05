@@ -132,7 +132,7 @@ final class ClientServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
 
         let client = try XCTUnwrap(clientBuilder.clients.first)
         XCTAssertEqual(
-            client.platformClient.featureFlags,
+            client.platformClient.loadFlagsReceivedFlags,
             [FeatureFlag.enableCipherKeyEncryption.rawValue: true],
         )
     }
@@ -207,7 +207,8 @@ final class ClientServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
             guard let client = self.clientBuilder.clients.first else {
                 return false
             }
-            return client.platformClient.featureFlags.isEmpty
+            return client.platformClient.loadFlagsReceivedFlags ==
+                [FeatureFlag.enableCipherKeyEncryption.rawValue: true]
         }
     }
 
