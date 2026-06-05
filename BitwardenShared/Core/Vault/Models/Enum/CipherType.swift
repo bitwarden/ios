@@ -92,7 +92,7 @@ extension CipherType: Menuable {
 
 extension CipherType {
     /// These are the cases of `CipherType` that the user can use to create a cipher.
-    static let canCreateCases: [CipherType] = [.login, .card, .identity, .secureNote]
+    static let canCreateCases: [CipherType] = [.login, .card, .identity, .secureNote, .driversLicense]
 
     // TODO: PM-32805 - Add `.passport` once that `CipherType` case is wired through the SDK.
     /// The cases of `CipherType` that are gated behind the `.newItemTypes` feature flag.
