@@ -56,7 +56,7 @@ For new screens, create all required files together (see `templates.md`):
 
 **SwiftUI previews:**
 
-- Use `#Preview` macros for new views — the modern default across the codebase. Do not add new `PreviewProvider` structs. A view's snapshot coverage comes from a snapshot test that instantiates the view directly, not from `PreviewProvider._allPreviews` (see the `testing-ios-code` skill).
+- Use `#Preview` macros for new views — the modern default across the codebase. Do not add new `PreviewProvider` structs. Because the snapshot harness cannot enumerate `#Preview` macros, such a view's snapshot coverage comes from a test that instantiates the view directly; see the `testing-ios-code` skill for how to choose between that and iterating `PreviewProvider._allPreviews` when a view exposes both.
 
 **New localization keys** (`BitwardenResources/.../Localizable.strings`):
 
