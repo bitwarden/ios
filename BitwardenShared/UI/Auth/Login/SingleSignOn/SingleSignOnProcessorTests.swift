@@ -406,7 +406,6 @@ class SingleSignOnProcessorTests: BitwardenTestCase { // swiftlint:disable:this 
         subject.singleSignOnCompleted(code: "super_cool_secret_code")
         try await Task.sleep(nanoseconds: 100_000_000) // 0.1s
         waitFor(!coordinator.alertShown.isEmpty)
-        authRepository.unlockVaultWithKeyConnectorKeyResult = .success(())
         authRepository.convertNewUserToKeyConnectorKeyResult = .failure(error)
 
         // Verify the results.

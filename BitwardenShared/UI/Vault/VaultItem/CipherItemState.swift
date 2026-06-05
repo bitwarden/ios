@@ -566,11 +566,9 @@ extension CipherItemState: ViewVaultItemState {
         case .sshKey:
             return SharedAsset.Icons.key24
         case .bankAccount:
-            // TODO: PM-32809
-            return SharedAsset.Icons.stickyNote24
+            return SharedAsset.Icons.bankAccount24
         case .driversLicense:
-            // TODO: PM-32807
-            return SharedAsset.Icons.stickyNote24
+            return SharedAsset.Icons.idCard24
         case .passport:
             // TODO: PM-32805
             return SharedAsset.Icons.stickyNote24

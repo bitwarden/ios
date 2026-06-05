@@ -6,8 +6,14 @@ import BitwardenSdk
 public enum VaultListGroup: Equatable, Hashable, Sendable {
     // MARK: Cipher Types
 
+    /// A group of bank account type ciphers.
+    case bankAccount
+
     /// A group of card type ciphers.
     case card
+
+    /// A group of driver's license type ciphers.
+    case driversLicense
 
     /// A group of identity type ciphers.
     case identity
@@ -72,10 +78,14 @@ extension VaultListGroup {
         switch self {
         case .archive:
             Localizations.archive
+        case .bankAccount:
+            Localizations.typeBankAccount
         case .card:
             Localizations.typeCard
         case let .collection(_, name, _):
             name
+        case .driversLicense:
+            Localizations.typeLicense
         case let .folder(_, name):
             name
         case .identity:
@@ -100,10 +110,14 @@ extension VaultListGroup {
         switch self {
         case .archive:
             Localizations.archive
+        case .bankAccount:
+            Localizations.bankAccounts
         case .card:
             Localizations.cards
         case let .collection(_, name, _):
             name
+        case .driversLicense:
+            Localizations.licenses
         case let .folder(_, name):
             name
         case .identity:

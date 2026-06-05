@@ -17,12 +17,32 @@ class CipherListViewExtensionsTests: BitwardenTestCase { // swiftlint:disable:th
         XCTAssertFalse(cipher.belongsToGroup(.identity))
     }
 
+    /// `belongsToGroup(_:)` returns `true` when the cipher is a bank account type and the group is
+    /// `.bankAccount`.
+    func test_belongsToGroup_bankAccount() {
+        let cipher = CipherListView.fixture(type: .bankAccount)
+        XCTAssertTrue(cipher.belongsToGroup(.bankAccount))
+        XCTAssertFalse(cipher.belongsToGroup(.identity))
+        XCTAssertFalse(cipher.belongsToGroup(.login))
+        XCTAssertFalse(CipherListView.fixture(type: .identity).belongsToGroup(.bankAccount))
+    }
+
     /// `belongsToGroup(_:)` returns `true` when the cipher is a card type and the group is `.card`.
     func test_belongsToGroup_card() {
         let cipher = CipherListView.fixture(type: .card(.fixture()))
         XCTAssertTrue(cipher.belongsToGroup(.card))
         XCTAssertFalse(cipher.belongsToGroup(.login))
         XCTAssertFalse(cipher.belongsToGroup(.identity))
+    }
+
+    /// `belongsToGroup(_:)` returns `true` when the cipher is a driver's license type and the group is
+    /// `.driversLicense`.
+    func test_belongsToGroup_driversLicense() {
+        let cipher = CipherListView.fixture(type: .driversLicense)
+        XCTAssertTrue(cipher.belongsToGroup(.driversLicense))
+        XCTAssertFalse(cipher.belongsToGroup(.identity))
+        XCTAssertFalse(cipher.belongsToGroup(.login))
+        XCTAssertFalse(CipherListView.fixture(type: .identity).belongsToGroup(.driversLicense))
     }
 
     /// `belongsToGroup(_:)` returns `true` when the cipher is a login type and the group is `.login`.

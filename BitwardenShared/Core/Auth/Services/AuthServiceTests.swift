@@ -240,6 +240,7 @@ class AuthServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
     func test_getPendingLoginRequest() async throws {
         stateService.activeAccount = .fixture()
         client.result = .httpSuccess(testData: .authRequestSuccess)
+        clientService.mockPlatform.fingerprintReturnValue = "a-fingerprint-phrase-string-placeholder"
 
         let result = try await subject.getPendingLoginRequest(withId: "1")
 
@@ -250,6 +251,7 @@ class AuthServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
     func test_getPendingLoginRequests() async throws {
         stateService.activeAccount = .fixture()
         client.result = .httpSuccess(testData: .authRequestsSuccess)
+        clientService.mockPlatform.fingerprintReturnValue = "a-fingerprint-phrase-string-placeholder"
 
         let result = try await subject.getPendingLoginRequests()
 
