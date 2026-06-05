@@ -267,10 +267,15 @@ protocol AuthRepository: AnyObject {
     /// Attempts to unlock the user's vault with the user's Key Connector key.
     ///
     /// - Parameters:
-    ///   - keyConnectorUrl: The URL to the Key Connector API.
+    ///   - keyConnectorKeyWrappedUserKey: The user key encrypted (wrapped) by the Key Connector key.
+    ///   - keyConnectorURL: The URL to the Key Connector API.
     ///   - orgIdentifier: The text identifier for the organization.
     ///
-    func unlockVaultWithKeyConnectorKey(keyConnectorURL: URL, orgIdentifier: String) async throws
+    func unlockVaultWithKeyConnectorKey(
+        keyConnectorKeyWrappedUserKey: String,
+        keyConnectorURL: URL,
+        orgIdentifier: String,
+    ) async throws
 
     /// Attempts to unlock the user's vault with the stored neverlock key.
     ///
@@ -1098,16 +1103,14 @@ extension DefaultAuthRepository: AuthRepository {
         ))
     }
 
-    func unlockVaultWithKeyConnectorKey(keyConnectorURL: URL, orgIdentifier: String) async throws {
-        let account = try await stateService.getActiveAccount()
-
-        let encryptionKeys = try await stateService.getAccountEncryptionKeys(userId: account.profile.userId)
-
-        guard let encryptedUserKey = encryptionKeys.encryptedUserKey else { throw StateServiceError.noEncUserKey }
-
+    func unlockVaultWithKeyConnectorKey(
+        keyConnectorKeyWrappedUserKey: String,
+        keyConnectorURL: URL,
+        orgIdentifier: String,
+    ) async throws {
         try await unlockVault(method: .keyConnectorUrl(
             url: keyConnectorURL.absoluteString,
-            keyConnectorKeyWrappedUserKey: encryptedUserKey,
+            keyConnectorKeyWrappedUserKey: keyConnectorKeyWrappedUserKey,
         ))
     }
 
