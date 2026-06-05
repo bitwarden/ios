@@ -37,8 +37,10 @@ struct ViewItemState: Equatable, Sendable {
         return switch item.type {
         case .bankAccount: Localizations.viewBankAccount
         case .card: Localizations.viewCard
+        case .driversLicense: Localizations.viewLicense
         case .identity: Localizations.viewIdentity
         case .login: Localizations.viewLogin
+        case .passport: Localizations.viewPassport
         case .secureNote: Localizations.viewNote
         case .sshKey: Localizations.viewSSHKey
         }

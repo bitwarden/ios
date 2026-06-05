@@ -318,16 +318,21 @@ final class ConfigServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
     /// but in background returning nil to the caller as is the current available local config.
     func test_getConfig_noLocalPreAuth() async throws {
         configApiService.clientResult = .httpSuccess(testData: .validServerConfig)
+        // Subscribe before getConfig so the background-task emission is not missed.
+        var configUpdates = await subject.configPublisher().makeAsyncIterator()
         let response = await subject.getConfig(forceRefresh: false, isPreAuth: true)
         XCTAssertNil(response)
 
-        try await waitForAsync {
-            self.stateService.preAuthServerConfig != nil
-        }
-
-        XCTAssertEqual(stateService.preAuthServerConfig?.gitHash, "75238191")
+        // CurrentValueSubject emits nil on subscribe; skip it, then await the
+        // background fetch update via the thread-safe publisher instead of polling
+        // the mock's state across thread boundaries (which causes SEGV data races).
+        _ = await configUpdates.next()
+        let wrappedMetaConfig = await configUpdates.next()
+        let metaConfig = try XCTUnwrap(XCTUnwrap(wrappedMetaConfig))
+        XCTAssertTrue(metaConfig.isPreAuth)
+        XCTAssertEqual(metaConfig.serverConfig?.gitHash, "75238191")
         XCTAssertEqual(
-            stateService.preAuthServerConfig?.featureStates[FeatureFlag.testFeatureFlag.rawValue],
+            metaConfig.serverConfig?.featureStates[FeatureFlag.testFeatureFlag.rawValue],
             .bool(true),
         )
     }

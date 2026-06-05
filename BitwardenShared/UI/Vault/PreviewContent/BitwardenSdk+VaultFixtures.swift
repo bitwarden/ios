@@ -193,10 +193,39 @@ extension CipherListView {
     }
 }
 
+extension BankAccountView {
+    static func fixture(
+        accountNumber: String? = nil,
+        accountType: String? = nil,
+        bankContactPhone: String? = nil,
+        bankName: String? = nil,
+        branchNumber: String? = nil,
+        iban: String? = nil,
+        nameOnAccount: String? = nil,
+        pin: String? = nil,
+        routingNumber: String? = nil,
+        swiftCode: String? = nil,
+    ) -> BankAccountView {
+        BankAccountView(
+            bankName: bankName,
+            nameOnAccount: nameOnAccount,
+            accountType: accountType,
+            accountNumber: accountNumber,
+            routingNumber: routingNumber,
+            branchNumber: branchNumber,
+            pin: pin,
+            swiftCode: swiftCode,
+            iban: iban,
+            bankContactPhone: bankContactPhone,
+        )
+    }
+}
+
 extension CipherView {
     static func fixture(
         archivedDate: Date? = nil,
         attachments: [AttachmentView]? = nil,
+        bankAccount: BankAccountView? = nil,
         card: CardView? = nil,
         collectionIds: [String] = [],
         creationDate: DateTime = Date(year: 2023, month: 11, day: 5, hour: 9, minute: 41),
@@ -237,7 +266,7 @@ extension CipherView {
             card: card,
             secureNote: secureNote,
             sshKey: sshKey,
-            bankAccount: nil, // TODO: PM-32809
+            bankAccount: bankAccount,
             driversLicense: nil, // TODO: PM-32807
             passport: nil, // TODO: PM-32805
             favorite: favorite,
@@ -314,6 +343,56 @@ extension CipherView {
             deletedDate: deletedDate,
             revisionDate: revisionDate,
             archivedDate: archivedDate,
+        )
+    }
+
+    /// A `CipherView` fixture populated with a fully-filled driver's license, used to verify the
+    /// state round-trip preserves all 11 fields including the raw date strings.
+    static func driversLicenseFixture() -> CipherView {
+        CipherView(
+            id: "1",
+            organizationId: nil,
+            folderId: nil,
+            collectionIds: [],
+            key: nil,
+            name: "Bitwarden",
+            notes: nil,
+            type: .driversLicense,
+            login: nil,
+            identity: nil,
+            card: nil,
+            secureNote: nil,
+            sshKey: nil,
+            bankAccount: nil,
+            driversLicense: DriversLicenseView(
+                firstName: "Bit",
+                middleName: "W",
+                lastName: "Warden",
+                dateOfBirth: "1989-08-01",
+                licenseNumber: "D1234567",
+                issuingCountry: "United States",
+                issuingState: "California",
+                issueDate: "2019-08-01",
+                expirationDate: "2029-08-01",
+                issuingAuthority: "DMV",
+                licenseClass: "C",
+            ),
+            passport: nil,
+            favorite: false,
+            reprompt: .none,
+            organizationUseTotp: false,
+            edit: true,
+            permissions: nil,
+            viewPassword: true,
+            localData: nil,
+            attachments: nil,
+            attachmentDecryptionFailures: nil,
+            fields: nil,
+            passwordHistory: nil,
+            creationDate: Date(year: 2023, month: 11, day: 5),
+            deletedDate: nil,
+            revisionDate: Date(year: 2023, month: 11, day: 5),
+            archivedDate: nil,
         )
     }
 

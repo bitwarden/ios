@@ -709,6 +709,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
         let keyConnectorService = DefaultKeyConnectorService(
             accountAPIService: apiService,
             clientService: clientService,
+            configService: configService,
             keyConnectorAPIService: apiService,
             organizationService: organizationService,
             stateService: stateService,
@@ -829,6 +830,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
         let authRepository = DefaultAuthRepository(
             accountAPIService: apiService,
             appContextHelper: appContextHelper,
+            appIDService: appIDService,
             authService: authService,
             biometricsRepository: biometricsRepository,
             changeKdfService: changeKdfService,
@@ -948,6 +950,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
                     errorReporter: errorReporter,
                 ),
                 clientService: clientService,
+                configService: configService,
                 errorReporter: errorReporter,
                 policyService: policyService,
                 stateService: stateService,
@@ -973,6 +976,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
             clientService: clientService,
             collectionHelper: collectionHelper,
             collectionService: collectionService,
+            configService: configService,
             environmentService: environmentService,
             errorReporter: errorReporter,
             folderService: folderService,

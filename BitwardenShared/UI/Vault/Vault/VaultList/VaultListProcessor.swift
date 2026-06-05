@@ -120,6 +120,7 @@ final class VaultListProcessor: StateProcessor<
             await dismissPremiumUpgradeActionCard()
         case .dismissUpgradedToPremiumActionCard:
             state.shouldShowUpgradedToPremiumActionCard = false
+            await services.billingService.setUpgradedToPremiumActionCardDismissed()
         case let .morePressed(item):
             await morePressed(item: item)
         case let .profileSwitcher(profileEffect):
@@ -166,6 +167,7 @@ final class VaultListProcessor: StateProcessor<
         case .learnMoreAboutPremium:
             state.url = ExternalLinksConstants.learnMoreAboutPremium
             state.shouldShowUpgradedToPremiumActionCard = false
+            Task { await services.billingService.setUpgradedToPremiumActionCardDismissed() }
         case .navigateToFlightRecorderSettings:
             coordinator.navigate(to: .flightRecorderSettings)
         case let .profileSwitcher(profileAction):
@@ -235,6 +237,8 @@ extension VaultListProcessor {
         state.hasPremium = await services.stateService.doesActiveAccountHavePremium()
 
         state.shouldShowArchiveOnboardingActionCard = await services.stateService.shouldDoArchiveOnboarding()
+
+        state.shouldShowUpgradedToPremiumActionCard = await services.billingService.shouldShowUpgradedToPremiumActionCard()
 
         let isBannerDismissed = await services.stateService.isPremiumUpgradeBannerDismissed()
         guard !isBannerDismissed else {

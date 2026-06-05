@@ -867,9 +867,13 @@ class SyncServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
         )
         XCTAssertEqual(stateService.updateProfileUserId, "1")
         XCTAssertEqual(stateService.usesKeyConnector["1"], false)
-        XCTAssertNil(stateService.accountEncryptionKeys["1"]?.accountKeys)
-        XCTAssertEqual(stateService.accountEncryptionKeys["1"]?.encryptedPrivateKey, "private key")
-        XCTAssertEqual(stateService.accountEncryptionKeys["1"]?.encryptedUserKey, "key")
+        XCTAssertEqual(
+            stateService.accountEncryptionKeys["1"],
+            AccountEncryptionKeys(
+                cryptographicState: .v1(privateKey: "private key"),
+                encryptedUserKey: "key",
+            ),
+        )
     }
 
     /// `fetchSync()` updates the user's profile when it has account keys.
@@ -894,9 +898,13 @@ class SyncServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
         )
         XCTAssertEqual(stateService.updateProfileUserId, "1")
         XCTAssertEqual(stateService.usesKeyConnector["1"], false)
-        XCTAssertEqual(stateService.accountEncryptionKeys["1"]?.accountKeys, .fixtureFilled())
-        XCTAssertEqual(stateService.accountEncryptionKeys["1"]?.encryptedPrivateKey, "WRAPPED_PRIVATE_KEY")
-        XCTAssertEqual(stateService.accountEncryptionKeys["1"]?.encryptedUserKey, "key")
+        XCTAssertEqual(
+            stateService.accountEncryptionKeys["1"],
+            AccountEncryptionKeys(
+                cryptographicState: .fixtureV2(),
+                encryptedUserKey: "key",
+            ),
+        )
     }
 
     /// `fetchSync()` notifies the sync service delegate if the user needs to be migrated to Key
@@ -1317,6 +1325,45 @@ class SyncServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
         XCTAssertNil(result)
         XCTAssertTrue(cipherService.hasPersonalCiphersCalled)
     }
+
+    // MARK: - policiesNew independent storage tests
+
+    /// `fetchSync()` stores `policiesNew` via `replacePoliciesNew` and the (empty) legacy `policies`
+    /// via `replacePolicies` independently when only `policiesNew` is present.
+    func test_fetchSync_policiesNew_newOnlyStoredInNewStore() async throws {
+        client.result = .httpSuccess(testData: .syncWithPoliciesNewOnly)
+        stateService.activeAccount = .fixture()
+
+        try await subject.fetchSync(forceSync: true)
+
+        XCTAssertTrue(policyService.replacePoliciesPolicies.isEmpty)
+        XCTAssertEqual(policyService.replacePoliciesNewPolicies.map(\.id), ["policy-new-1"])
+    }
+
+    /// `fetchSync()` stores `policiesNew` and `policies` each in their own store when both are present.
+    func test_fetchSync_policiesNew_newAndLegacyStoredIndependently() async throws {
+        client.result = .httpSuccess(testData: .syncWithNewAndLegacyFields)
+        stateService.activeAccount = .fixture()
+
+        try await subject.fetchSync(forceSync: true)
+
+        XCTAssertEqual(policyService.replacePoliciesPolicies.map(\.id), ["policy-legacy-1"])
+        XCTAssertEqual(policyService.replacePoliciesNewPolicies.map(\.id), ["policy-new-1"])
+    }
+
+    /// `fetchSync()` stores the legacy `policies` via `replacePolicies` and an empty list via
+    /// `replacePoliciesNew` when `policiesNew` is absent.
+    func test_fetchSync_policiesNew_absentStoresEmptyInNewStore() async throws {
+        client.result = .httpSuccess(testData: .syncWithPolicies)
+        stateService.activeAccount = .fixture()
+
+        try await subject.fetchSync(forceSync: true)
+
+        XCTAssertFalse(policyService.replacePoliciesPolicies.isEmpty)
+        XCTAssertEqual(policyService.replacePoliciesPolicies.first?.id, "policy-0")
+        XCTAssertTrue(policyService.replacePoliciesNewPolicies.isEmpty)
+    }
+
 }
 
 class MockSyncServiceDelegate: SyncServiceDelegate {

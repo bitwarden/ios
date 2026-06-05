@@ -14,22 +14,28 @@ class CipherTypeTests: BitwardenTestCase {
         XCTAssertEqual(CipherType.secureNote.allowedFieldTypes, [.text, .hidden, .boolean])
         XCTAssertEqual(CipherType.sshKey.allowedFieldTypes, [.text, .hidden, .boolean])
         XCTAssertEqual(CipherType.bankAccount.allowedFieldTypes, [.text, .hidden, .boolean])
+        XCTAssertEqual(CipherType.driversLicense.allowedFieldTypes, [.text, .hidden, .boolean])
+        XCTAssertEqual(CipherType.passport.allowedFieldTypes, [.text, .hidden, .boolean])
     }
 
     /// `localizedName` returns the correct values.
     func test_localizedName() {
         XCTAssertEqual(CipherType.bankAccount.localizedName, Localizations.bankAccount)
         XCTAssertEqual(CipherType.card.localizedName, Localizations.typeCard)
+        XCTAssertEqual(CipherType.driversLicense.localizedName, Localizations.license)
         XCTAssertEqual(CipherType.identity.localizedName, Localizations.typeIdentity)
         XCTAssertEqual(CipherType.login.localizedName, Localizations.typeLogin)
+        XCTAssertEqual(CipherType.passport.localizedName, Localizations.passport)
         XCTAssertEqual(CipherType.secureNote.localizedName, Localizations.typeSecureNote)
         XCTAssertEqual(CipherType.sshKey.localizedName, Localizations.sshKey)
     }
 
     /// `init` with a `VaultListGroup` produces the correct value.
     func test_init_group() {
+        XCTAssertEqual(CipherType(group: .bankAccount), .bankAccount)
         XCTAssertEqual(CipherType(group: .card), .card)
         XCTAssertNil(CipherType(group: .collection(id: "id", name: "name", organizationId: "1")))
+        XCTAssertEqual(CipherType(group: .driversLicense), .driversLicense)
         XCTAssertNil(CipherType(group: .folder(id: "id", name: "name")))
         XCTAssertEqual(CipherType(group: .identity), .identity)
         XCTAssertEqual(CipherType(group: .login), .login)
@@ -41,6 +47,17 @@ class CipherTypeTests: BitwardenTestCase {
 
     /// `canCreateCases` return the correct cipher types that the user can use to create ciphers.
     func test_canCreateCases() {
-        XCTAssertEqual(CipherType.canCreateCases, [.login, .card, .identity, .secureNote])
+        XCTAssertEqual(CipherType.canCreateCases, [.login, .card, .identity, .secureNote, .driversLicense])
+    }
+
+    /// `newItemTypesGatedCases` returns the cipher types gated behind the `.newItemTypes` feature flag.
+    func test_newItemTypesGatedCases() {
+        XCTAssertEqual(CipherType.newItemTypesGatedCases, [.bankAccount, .driversLicense])
+    }
+
+    /// `CipherType.passport` has the expected raw value and is included in `allCases`.
+    func test_passport() {
+        XCTAssertEqual(CipherType.passport.rawValue, 8)
+        XCTAssertTrue(CipherType.allCases.contains(.passport))
     }
 }
