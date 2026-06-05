@@ -877,6 +877,69 @@ class CipherItemStateTests: BitwardenTestCase { // swiftlint:disable:this type_b
 
         XCTAssertNil(cipher.driversLicense)
     }
+
+    /// `init(existing:hasPremium:)` populates `passportItemState` from a cipher with a passport,
+    /// preserving all fields including the raw date strings.
+    func test_init_existing_passport() throws {
+        let cipher = CipherView.fixture(
+            passport: .fixture(
+                surname: "Johnson",
+                givenName: "Mitchell",
+                dateOfBirth: "2025-04-20",
+                sex: "Male",
+                birthPlace: "USA",
+                nationality: "USA",
+                issuingCountry: "United States",
+                passportNumber: "X12345678",
+                passportType: "Regular/Tourist",
+                nationalIdentificationNumber: "123456789",
+                issuingAuthority: "U.S. Department of State",
+                issueDate: "2021-08-10",
+                expirationDate: "2026-08-10",
+            ),
+            type: .passport,
+        )
+        let state = try XCTUnwrap(CipherItemState(existing: cipher, hasPremium: true))
+
+        XCTAssertEqual(state.passportItemState, cipher.passportItemState())
+        XCTAssertEqual(state.passportItemState.surname, "Johnson")
+        XCTAssertEqual(state.passportItemState.givenName, "Mitchell")
+        XCTAssertEqual(state.passportItemState.dateOfBirth, "2025-04-20")
+        XCTAssertEqual(state.passportItemState.passportNumber, "X12345678")
+        XCTAssertEqual(state.passportItemState.nationalIdentificationNumber, "123456789")
+        XCTAssertEqual(state.passportItemState.issueDate, "2021-08-10")
+        XCTAssertEqual(state.passportItemState.expirationDate, "2026-08-10")
+    }
+
+    /// `newCipherView()` emits the `passport` view only when the cipher type is `.passport`,
+    /// preserving the state's fields.
+    func test_newCipherView_passport() {
+        var subject = CipherItemState(hasPremium: true)
+        subject.type = .passport
+        subject.passportItemState.surname = "Johnson"
+        subject.passportItemState.passportNumber = "X12345678"
+        subject.passportItemState.dateOfBirth = "2025-04-20"
+        subject.passportItemState.expirationDate = "2026-08-10"
+
+        let cipher = subject.newCipherView()
+
+        XCTAssertEqual(cipher.passport?.surname, "Johnson")
+        XCTAssertEqual(cipher.passport?.passportNumber, "X12345678")
+        XCTAssertEqual(cipher.passport?.dateOfBirth, "2025-04-20")
+        XCTAssertEqual(cipher.passport?.expirationDate, "2026-08-10")
+    }
+
+    /// `newCipherView()` emits a `nil` `passport` view when the cipher type is not `.passport`, even
+    /// if passport state happens to be populated.
+    func test_newCipherView_passport_nilForOtherTypes() {
+        var subject = CipherItemState(hasPremium: true)
+        subject.type = .login
+        subject.passportItemState.surname = "Johnson"
+
+        let cipher = subject.newCipherView()
+
+        XCTAssertNil(cipher.passport)
+    }
 }
 
 // MARK: - CipherItemState

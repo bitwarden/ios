@@ -141,6 +141,33 @@ extension CipherView {
         )
     }
 
+    /// Creates a `PassportItemState` representation of the cipher.
+    ///
+    /// This function converts the `passport` information of the cipher into a `PassportItemState`,
+    /// which is used to manage and display passport data in the UI. Date fields are read as raw
+    /// strings without any parsing.
+    ///
+    /// - Returns: A `PassportItemState` representing the passport information of the cipher.
+    ///
+    func passportItemState() -> PassportItemState {
+        guard let passport else { return PassportItemState() }
+        return PassportItemState(
+            birthPlace: passport.birthPlace ?? "",
+            dateOfBirth: passport.dateOfBirth ?? "",
+            expirationDate: passport.expirationDate ?? "",
+            givenName: passport.givenName ?? "",
+            issueDate: passport.issueDate ?? "",
+            issuingAuthority: passport.issuingAuthority ?? "",
+            issuingCountry: passport.issuingCountry ?? "",
+            nationalIdentificationNumber: passport.nationalIdentificationNumber ?? "",
+            nationality: passport.nationality ?? "",
+            passportNumber: passport.passportNumber ?? "",
+            passportType: passport.passportType ?? "",
+            sex: passport.sex ?? "",
+            surname: passport.surname ?? "",
+        )
+    }
+
     /// Creates an `SSHKeyItemState` representation of the cipher.
     ///
     /// This function converts the `sshKey` information of the cipher into an `SSHKeyItemState`,
@@ -219,7 +246,7 @@ extension CipherView {
             driversLicense: (addEditState.type == .driversLicense)
                 ? addEditState.driversLicenseItemState.driversLicenseView
                 : nil,
-            passport: passport, // TODO: PM-32805
+            passport: (addEditState.type == .passport) ? addEditState.passportItemState.passportView : nil,
             favorite: addEditState.isFavoriteOn,
             reprompt: addEditState.isMasterPasswordRePromptOn ? .password : .none,
             organizationUseTotp: organizationUseTotp,

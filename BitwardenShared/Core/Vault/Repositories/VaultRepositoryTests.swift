@@ -1066,6 +1066,30 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         XCTAssertTrue(result.contains(.driversLicense))
     }
 
+    /// `getItemTypesUserCanCreate()` includes the gated `.passport` type when the `.newItemTypes`
+    /// feature flag is enabled.
+    @MainActor
+    func test_getItemTypesUserCanCreate_newItemTypesEnabled_includesPassport() async throws {
+        stateService.activeAccount = .fixture()
+        policyService.policyAppliesToUserPolicies = []
+        configService.featureFlagsBool[.newItemTypes] = true
+
+        let result = await subject.getItemTypesUserCanCreate()
+        XCTAssertTrue(result.contains(.passport))
+    }
+
+    /// `getItemTypesUserCanCreate()` excludes the gated `.passport` type when the `.newItemTypes`
+    /// feature flag is disabled.
+    @MainActor
+    func test_getItemTypesUserCanCreate_newItemTypesDisabled_excludesPassport() async throws {
+        stateService.activeAccount = .fixture()
+        policyService.policyAppliesToUserPolicies = []
+        configService.featureFlagsBool[.newItemTypes] = false
+
+        let result = await subject.getItemTypesUserCanCreate()
+        XCTAssertFalse(result.contains(.passport))
+    }
+
     /// `getTOTPKeyIfAllowedToCopy(cipher:)` return the TOTP key when cipher has TOTP key,
     /// is enable to auto copy the TOTP and cipher organization uses TOTP.
     func test_getTOTPKeyIfAllowedToCopy_orgUsesTOTP() async throws {
