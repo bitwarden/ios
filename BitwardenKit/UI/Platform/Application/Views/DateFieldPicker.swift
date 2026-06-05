@@ -5,8 +5,8 @@ import SwiftUI
 
 /// A reusable field for entering an optional calendar date.
 ///
-/// The field renders as a collapsed row showing its title and current value (or a placeholder when
-/// empty). Tapping the row expands an inline graphical calendar; selecting a day populates the
+/// The field renders as a collapsed row showing its title and, once set, the current value.
+/// Tapping the row expands an inline graphical calendar; selecting a day populates the
 /// value and collapses the calendar. When a date is set, a clear control is shown to reset it.
 /// Because the field operates on an optional `Date?`, it can represent a genuinely empty value,
 /// which the underlying `DatePicker` cannot do on its own.
@@ -139,10 +139,6 @@ public struct DateFieldPicker: View {
                 Text(date.formatted(date: .long, time: .omitted))
                     .styleGuide(.body)
                     .foregroundColor(SharedAsset.Colors.textPrimary.swiftUIColor)
-            } else {
-                Text(Localizations.selectADate)
-                    .styleGuide(.body)
-                    .foregroundColor(SharedAsset.Colors.textSecondary.swiftUIColor)
             }
         }
         .frame(maxWidth: .infinity, alignment: .leading)

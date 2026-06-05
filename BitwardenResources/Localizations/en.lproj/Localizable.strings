@@ -620,8 +620,6 @@
 "Browse" = "Browse";
 "SelectCardholderName" = "Select cardholder name";
 "SelectLanguage" = "Select language";
-/* Placeholder shown in a date picker field when no date has been selected yet. */
-"SelectADate" = "Select a date";
 "ContinueToCompleteWebAuthnVerification" = "Continue to complete WebAuthn verification.";
 "ThereWasAnErrorStartingWebAuthnTwoFactorAuthentication" = "There was an error starting WebAuthn two factor authentication";
 "LaunchWebAuthn" = "Launch WebAuthn";
