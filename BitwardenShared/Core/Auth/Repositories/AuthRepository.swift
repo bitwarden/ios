@@ -1124,7 +1124,7 @@ extension DefaultAuthRepository: AuthRepository {
         if account.profile.userDecryptionOptions?.masterPasswordUnlock == nil {
             // masterPasswordUnlock can be missing if the account data was stored before the server
             // added it. Force a sync to refresh it.
-            // TODO: PM-37535
+            // TODO: PM-37535 Investigate if this check is still needed.
             try await syncService.fetchSync(forceSync: true)
             account = try await stateService.getActiveAccount()
         }
