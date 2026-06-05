@@ -1363,7 +1363,6 @@ class SyncServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
         XCTAssertEqual(policyService.replacePoliciesPolicies.first?.id, "policy-0")
         XCTAssertTrue(policyService.replacePoliciesNewPolicies.isEmpty)
     }
-
 }
 
 class MockSyncServiceDelegate: SyncServiceDelegate {
