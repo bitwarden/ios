@@ -2117,6 +2117,82 @@ class AddEditItemProcessorTests: BitwardenTestCase {
         XCTAssertEqual(subject.state.cardItemState.expirationYear, "2029")
     }
 
+    /// `receive(_:)` with `.driversLicenseFieldChanged(.firstNameChanged)` updates the state correctly.
+    @MainActor
+    func test_receive_driversLicenseFieldChanged_firstNameChanged() {
+        subject.state.driversLicenseItemState.firstName = "Bit"
+        subject.receive(.driversLicenseFieldChanged(.firstNameChanged("Warden")))
+        XCTAssertEqual(subject.state.driversLicenseItemState.firstName, "Warden")
+    }
+
+    /// `receive(_:)` with `.driversLicenseFieldChanged(.middleNameChanged)` updates the state correctly.
+    @MainActor
+    func test_receive_driversLicenseFieldChanged_middleNameChanged() {
+        subject.state.driversLicenseItemState.middleName = "A"
+        subject.receive(.driversLicenseFieldChanged(.middleNameChanged("W")))
+        XCTAssertEqual(subject.state.driversLicenseItemState.middleName, "W")
+    }
+
+    /// `receive(_:)` with `.driversLicenseFieldChanged(.lastNameChanged)` updates the state correctly.
+    @MainActor
+    func test_receive_driversLicenseFieldChanged_lastNameChanged() {
+        subject.state.driversLicenseItemState.lastName = "Doe"
+        subject.receive(.driversLicenseFieldChanged(.lastNameChanged("Warden")))
+        XCTAssertEqual(subject.state.driversLicenseItemState.lastName, "Warden")
+    }
+
+    /// `receive(_:)` with `.driversLicenseFieldChanged(.licenseNumberChanged)` updates the state correctly.
+    @MainActor
+    func test_receive_driversLicenseFieldChanged_licenseNumberChanged() {
+        subject.state.driversLicenseItemState.licenseNumber = "111"
+        subject.receive(.driversLicenseFieldChanged(.licenseNumberChanged("D1234567")))
+        XCTAssertEqual(subject.state.driversLicenseItemState.licenseNumber, "D1234567")
+    }
+
+    /// `receive(_:)` with `.driversLicenseFieldChanged(.issuingCountryChanged)` updates the state correctly.
+    @MainActor
+    func test_receive_driversLicenseFieldChanged_issuingCountryChanged() {
+        subject.state.driversLicenseItemState.issuingCountry = "Canada"
+        subject.receive(.driversLicenseFieldChanged(.issuingCountryChanged("United States")))
+        XCTAssertEqual(subject.state.driversLicenseItemState.issuingCountry, "United States")
+    }
+
+    /// `receive(_:)` with `.driversLicenseFieldChanged(.issuingStateChanged)` updates the state correctly.
+    @MainActor
+    func test_receive_driversLicenseFieldChanged_issuingStateChanged() {
+        subject.state.driversLicenseItemState.issuingState = "Nevada"
+        subject.receive(.driversLicenseFieldChanged(.issuingStateChanged("California")))
+        XCTAssertEqual(subject.state.driversLicenseItemState.issuingState, "California")
+    }
+
+    /// `receive(_:)` with `.driversLicenseFieldChanged(.issuingAuthorityChanged)` updates the state correctly.
+    @MainActor
+    func test_receive_driversLicenseFieldChanged_issuingAuthorityChanged() {
+        subject.state.driversLicenseItemState.issuingAuthority = "RMV"
+        subject.receive(.driversLicenseFieldChanged(.issuingAuthorityChanged("DMV")))
+        XCTAssertEqual(subject.state.driversLicenseItemState.issuingAuthority, "DMV")
+    }
+
+    /// `receive(_:)` with `.driversLicenseFieldChanged(.licenseClassChanged)` updates the state correctly.
+    @MainActor
+    func test_receive_driversLicenseFieldChanged_licenseClassChanged() {
+        subject.state.driversLicenseItemState.licenseClass = "A"
+        subject.receive(.driversLicenseFieldChanged(.licenseClassChanged("C")))
+        XCTAssertEqual(subject.state.driversLicenseItemState.licenseClass, "C")
+    }
+
+    /// `receive(_:)` with `.driversLicenseFieldChanged(.toggleLicenseNumberVisibilityChanged)` updates
+    /// the state correctly.
+    @MainActor
+    func test_receive_driversLicenseFieldChanged_toggleLicenseNumberVisibilityChanged() {
+        subject.state.driversLicenseItemState.isLicenseNumberVisible = false
+        subject.receive(.driversLicenseFieldChanged(.toggleLicenseNumberVisibilityChanged(true)))
+        XCTAssertTrue(subject.state.driversLicenseItemState.isLicenseNumberVisible)
+
+        subject.receive(.driversLicenseFieldChanged(.toggleLicenseNumberVisibilityChanged(false)))
+        XCTAssertFalse(subject.state.driversLicenseItemState.isLicenseNumberVisible)
+    }
+
     /// `receive(_:)` with `.identityFieldChanged(.titleChanged)` with a value updates the state correctly.
     @MainActor
     func test_receive_identity_titleChange_withValidValue() {

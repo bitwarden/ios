@@ -820,6 +820,56 @@ class CipherItemStateTests: BitwardenTestCase { // swiftlint:disable:this type_b
 
         XCTAssertEqual(subject.loginState.totpState, originalLoginState.totpState)
     }
+
+    /// `init(existing:hasPremium:)` populates `driversLicenseItemState` from a cipher with a
+    /// driver's license, preserving all 11 fields including the raw date strings.
+    func test_init_existing_driversLicense() throws {
+        let cipher = CipherView.driversLicenseFixture()
+        let state = try XCTUnwrap(CipherItemState(existing: cipher, hasPremium: true))
+
+        XCTAssertEqual(state.driversLicenseItemState, cipher.driversLicenseItemState())
+        XCTAssertEqual(state.driversLicenseItemState.firstName, "Bit")
+        XCTAssertEqual(state.driversLicenseItemState.middleName, "W")
+        XCTAssertEqual(state.driversLicenseItemState.lastName, "Warden")
+        XCTAssertEqual(state.driversLicenseItemState.dateOfBirth, "1989-08-01")
+        XCTAssertEqual(state.driversLicenseItemState.licenseNumber, "D1234567")
+        XCTAssertEqual(state.driversLicenseItemState.issuingCountry, "United States")
+        XCTAssertEqual(state.driversLicenseItemState.issuingState, "California")
+        XCTAssertEqual(state.driversLicenseItemState.issueDate, "2019-08-01")
+        XCTAssertEqual(state.driversLicenseItemState.expirationDate, "2029-08-01")
+        XCTAssertEqual(state.driversLicenseItemState.issuingAuthority, "DMV")
+        XCTAssertEqual(state.driversLicenseItemState.licenseClass, "C")
+    }
+
+    /// `newCipherView()` emits the `driversLicense` view only when the cipher type is
+    /// `.driversLicense`, preserving all the state's fields.
+    func test_newCipherView_driversLicense() {
+        var subject = CipherItemState(hasPremium: true)
+        subject.type = .driversLicense
+        subject.driversLicenseItemState.firstName = "Bit"
+        subject.driversLicenseItemState.licenseNumber = "D1234567"
+        subject.driversLicenseItemState.dateOfBirth = "1989-08-01"
+        subject.driversLicenseItemState.expirationDate = "2029-08-01"
+
+        let cipher = subject.newCipherView()
+
+        XCTAssertEqual(cipher.driversLicense?.firstName, "Bit")
+        XCTAssertEqual(cipher.driversLicense?.licenseNumber, "D1234567")
+        XCTAssertEqual(cipher.driversLicense?.dateOfBirth, "1989-08-01")
+        XCTAssertEqual(cipher.driversLicense?.expirationDate, "2029-08-01")
+    }
+
+    /// `newCipherView()` emits a `nil` `driversLicense` view when the cipher type is not
+    /// `.driversLicense`, even if driver's license state happens to be populated.
+    func test_newCipherView_driversLicense_nilForOtherTypes() {
+        var subject = CipherItemState(hasPremium: true)
+        subject.type = .login
+        subject.driversLicenseItemState.firstName = "Bit"
+
+        let cipher = subject.newCipherView()
+
+        XCTAssertNil(cipher.driversLicense)
+    }
 }
 
 // MARK: - CipherItemState
