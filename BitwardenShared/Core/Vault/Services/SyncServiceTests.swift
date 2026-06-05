@@ -1403,5 +1403,4 @@ class MockSyncServiceDelegate: SyncServiceDelegate {
         setMasterPasswordCalled = true
         setMasterPasswordOrgId = orgIdentifier
     }
-
 } // swiftlint:disable:this file_length
