@@ -248,6 +248,41 @@ class BitwardenSdkVaultCipherPassportModelTests: BitwardenTestCase {
         XCTAssertEqual(model.sex, "sex")
         XCTAssertEqual(model.surname, "surname")
     }
+
+    /// `init(cipherPassportModel:)` inits the SDK passport from the cipher passport model.
+    func test_init_fromCipherPassportModel() {
+        let model = CipherPassportModel(
+            birthPlace: "birthPlace",
+            dateOfBirth: "dateOfBirth",
+            expirationDate: "expirationDate",
+            givenName: "givenName",
+            issueDate: "issueDate",
+            issuingAuthority: "issuingAuthority",
+            issuingCountry: "issuingCountry",
+            nationalIdentificationNumber: "nationalIdentificationNumber",
+            nationality: "nationality",
+            passportNumber: "passportNumber",
+            passportType: "passportType",
+            sex: "sex",
+            surname: "surname",
+        )
+
+        let passport = BitwardenSdk.Passport(cipherPassportModel: model)
+
+        XCTAssertEqual(passport.surname, "surname")
+        XCTAssertEqual(passport.givenName, "givenName")
+        XCTAssertEqual(passport.dateOfBirth, "dateOfBirth")
+        XCTAssertEqual(passport.sex, "sex")
+        XCTAssertEqual(passport.birthPlace, "birthPlace")
+        XCTAssertEqual(passport.nationality, "nationality")
+        XCTAssertEqual(passport.issuingCountry, "issuingCountry")
+        XCTAssertEqual(passport.passportNumber, "passportNumber")
+        XCTAssertEqual(passport.passportType, "passportType")
+        XCTAssertEqual(passport.nationalIdentificationNumber, "nationalIdentificationNumber")
+        XCTAssertEqual(passport.issuingAuthority, "issuingAuthority")
+        XCTAssertEqual(passport.issueDate, "issueDate")
+        XCTAssertEqual(passport.expirationDate, "expirationDate")
+    }
 }
 
 // MARK: - CipherSSHKeyModel
