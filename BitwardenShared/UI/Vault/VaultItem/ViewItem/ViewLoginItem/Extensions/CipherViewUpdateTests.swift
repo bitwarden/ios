@@ -204,6 +204,30 @@ final class CipherViewUpdateTests: BitwardenTestCase { // swiftlint:disable:this
         XCTAssertEqual(state, BankAccountItemState())
     }
 
+    /// `bankAccountItemState()` maps an unrecognized account type to `.default` while still
+    /// reading the remaining fields.
+    func test_bankAccountItemState_unknownAccountType() {
+        let cipherView = CipherView.fixture(
+            bankAccount: BankAccountView(
+                bankName: "Bank of America",
+                nameOnAccount: nil,
+                accountType: "not-a-real-type",
+                accountNumber: nil,
+                routingNumber: nil,
+                branchNumber: nil,
+                pin: nil,
+                swiftCode: nil,
+                iban: nil,
+                bankContactPhone: nil,
+            ),
+            type: .bankAccount,
+        )
+
+        let state = cipherView.bankAccountItemState()
+        XCTAssertEqual(state.accountType, .default)
+        XCTAssertEqual(state.bankName, "Bank of America")
+    }
+
     /// `updatedView(with:)` round-trips a bank account, preserving all 10 fields.
     func test_update_bankAccount_edits_succeeds() {
         cipherItemState.type = .bankAccount
