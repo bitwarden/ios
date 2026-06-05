@@ -44,7 +44,7 @@ class VaultGroupStateTests: BitwardenTestCase {
         XCTAssertEqual(subjectFolder.newItemButtonType, .menu)
 
         let subjectDriversLicense = VaultGroupState(group: .driversLicense, vaultFilterType: .myVault)
-        XCTAssertNil(subjectDriversLicense.newItemButtonType)
+        XCTAssertEqual(subjectDriversLicense.newItemButtonType, .button)
 
         let subjectSSHKey = VaultGroupState(group: .sshKey, vaultFilterType: .myVault)
         XCTAssertNil(subjectSSHKey.newItemButtonType)
@@ -57,6 +57,17 @@ class VaultGroupStateTests: BitwardenTestCase {
 
         let subjectTrash = VaultGroupState(group: .trash, vaultFilterType: .myVault)
         XCTAssertNil(subjectTrash.newItemButtonType)
+    }
+
+    /// `newItemButtonType` returns `nil` for the driver's license group when the user can't create
+    /// driver's license items.
+    func test_newItemButtonType_driversLicense_cannotCreate() {
+        let subject = VaultGroupState(
+            group: .driversLicense,
+            itemTypesUserCanCreate: [.login],
+            vaultFilterType: .myVault,
+        )
+        XCTAssertNil(subject.newItemButtonType)
     }
 
     /// `noItemsString` returns the appropriate message based on the group.
