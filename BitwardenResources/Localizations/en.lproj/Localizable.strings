@@ -175,7 +175,6 @@
 "CopyTotp" = "Copy TOTP";
 "CopyTotpAutomaticallyDescription" = "If a login has an authenticator key, copy the TOTP verification code to your clipboard when you autofill the login.";
 "CopyTotpAutomatically" = "Copy TOTP automatically";
-"PremiumRequired" = "A premium membership is required to use this feature.";
 "AttachementAdded" = "Attachment added";
 "AttachmentDeleted" = "Attachment deleted";
 "ChooseFile" = "Choose file";
@@ -215,7 +214,6 @@
 "August" = "August";
 "Brand" = "Brand";
 "CardholderName" = "Cardholder name";
-"WeFoundMultipleMatchesChooseTheCorrectOne" = "We found multiple matches. Choose the correct one.";
 "CityTown" = "City / Town";
 "Company" = "Company";
 "Country" = "Country";
@@ -615,7 +613,6 @@
 "SetUpAutofill" = "Set up autofill";
 "AppInfo" = "App info";
 "Browse" = "Browse";
-"SelectCardholderName" = "Select cardholder name";
 "SelectLanguage" = "Select language";
 "ContinueToCompleteWebAuthnVerification" = "Continue to complete WebAuthn verification.";
 "ThereWasAnErrorStartingWebAuthnTwoFactorAuthentication" = "There was an error starting WebAuthn two factor authentication";
@@ -634,7 +631,6 @@
 "ByContinuingYouAgreeToTheTermsOfServiceAndPrivacyPolicy" = "By continuing, you agree to the **[Terms of Service](%1$@)** and **[Privacy Policy](%2$@)**";
 "GetAdviceAnnouncementsAndResearchOpportunitiesFromBitwardenInYourInboxUnsubscribeAtAnyTime." = "Get advice, announcements, and research opportunities from Bitwarden in your inbox. **[Unsubscribe](%1$@)** at any time.";
 "UserVerificationForPasskey" = "User verification for passkey";
-"NewItem" = "New item";
 "ExploreTheGenerator" = "Explore the generator";
 "LearnMoreAboutGeneratingSecureLoginCredentialsWithAGuidedTour" = "Learn more about generating secure login credentials with a guided tour.";
 "ExportVaultFilePwProtectInfo" = "This file export will be password protected and require the file password to decrypt.";
@@ -939,7 +935,6 @@
 "NoAskMe" = "No, ask me";
 "NoCodes" = "You don’t have any codes to display";
 "None" = "None";
-"NoneOfTheAbove" = "None of the above";
 "NumberOfDigits" = "Number of digits";
 "OtpType" = "OTP Type";
 "RefreshPeriod" = "Refresh period";
