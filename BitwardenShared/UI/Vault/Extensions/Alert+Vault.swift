@@ -485,8 +485,17 @@ extension Alert {
             // TODO: PM-32807
             break
         case .passport:
-            // TODO: PM-32805
-            break
+            if let passportNumber = context.cipherView.passport?.passportNumber {
+                alertActions.append(AlertAction(title: Localizations.copyPassportNumber, style: .default) { _, _ in
+                    await action(.copy(
+                        toast: Localizations.passportNumber,
+                        value: passportNumber,
+                        requiresMasterPasswordReprompt: true,
+                        logEvent: nil,
+                        cipherId: context.cipherView.id,
+                    ))
+                })
+            }
         }
 
         if context.canArchive {
