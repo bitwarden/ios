@@ -83,23 +83,23 @@ struct CardAutofillFormView: View {
                 if store.state.hasAnyValue {
                     VStack(alignment: .leading, spacing: 8) {
                         if !store.state.cardholderName.isEmpty {
-                            Text(Localizations.cardholderNameValueX(store.state.cardholderName))
+                            Text(Localizations.xColonY(Localizations.cardholderName, store.state.cardholderName))
                                 .styleGuide(.body)
                         }
                         if !store.state.cardNumber.isEmpty {
-                            Text(Localizations.cardNumberValueX(store.state.cardNumber))
+                            Text(Localizations.xColonY(Localizations.cardNumber, store.state.cardNumber))
                                 .styleGuide(.body)
                         }
                         if !store.state.expirationMonth.isEmpty {
-                            Text(Localizations.expirationMonthValueX(store.state.expirationMonth))
+                            Text(Localizations.xColonY(Localizations.expirationMonth, store.state.expirationMonth))
                                 .styleGuide(.body)
                         }
                         if !store.state.expirationYear.isEmpty {
-                            Text(Localizations.expirationYearValueX(store.state.expirationYear))
+                            Text(Localizations.xColonY(Localizations.expirationYear, store.state.expirationYear))
                                 .styleGuide(.body)
                         }
                         if !store.state.securityCode.isEmpty {
-                            Text(Localizations.securityCodeValueX(store.state.securityCode))
+                            Text(Localizations.xColonY(Localizations.securityCode, store.state.securityCode))
                                 .styleGuide(.body)
                         }
                     }
