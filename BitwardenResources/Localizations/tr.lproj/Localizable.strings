@@ -126,7 +126,7 @@
 "ItemUpdated" = "Kayıt kaydedildi";
 "Submitting" = "Gönderiliyor…";
 "Syncing" = "Eşitleniyor…";
-"SyncingLogins" = "Hesaplar eşitleniyor...";
+"SyncingLogins" = "Hesaplar eşitleniyor…";
 "SyncingComplete" = "Eşitleme tamamlandı";
 "TouchID" = "Touch ID";
 "TwoStepLogin" = "İki aşamalı giriş";
@@ -388,7 +388,7 @@
 "MasterPasswordPolicyValidationTitle" = "Geçersiz parola";
 "MasterPasswordPolicyValidationMessage" = "Parolanız kuruluş gereksinimlerini karşılamıyor.  Lütfen parola politikasını kontrol edip yeniden deneyin.";
 "Loading" = "Yükleniyor";
-"LoadingSubscription" = "Abonelik yükleniyor...";
+"LoadingSubscription" = "Abonelik yükleniyor…";
 "AcceptPoliciesError" = "Hizmet Koşulları ve Gizlilik Politikası kabul edilmemiş.";
 "PrivacyPolicy" = "Gizlilik Politikası";
 "PersonalOwnershipPolicyInEffect" = "Bir kuruluş ilkesi sahiplik seçeneklerinizi etkiliyor.";

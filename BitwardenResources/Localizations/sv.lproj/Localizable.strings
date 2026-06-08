@@ -126,7 +126,7 @@
 "ItemUpdated" = "Objektet uppdaterades";
 "Submitting" = "Skickar in…";
 "Syncing" = "Synkroniserar…";
-"SyncingLogins" = "Synkroniserar inloggningar...";
+"SyncingLogins" = "Synkroniserar inloggningar…";
 "SyncingComplete" = "Synkronisering slutförd";
 "TouchID" = "Touch ID";
 "TwoStepLogin" = "Tvåfaktorsautentisering";
@@ -804,7 +804,7 @@
 "YouMayNeedToEnableDevicePasscodeOrBiometrics" = "Du kan behöva aktivera enhetens lösenkod eller biometri.";
 "StartImportCXFDescriptionLong" = "Importera lösenord, lösenordsnycklar, kreditkort och annan personlig identitetsinformation från en annan lösenordshanterare.\n\nDina uppgifter kommer **inte** att raderas från din tidigare leverantör.";
 "ImportPasswords" = "Importera lösenord";
-"ImportingEllipsis" = "Importerar...";
+"ImportingEllipsis" = "Importerar…";
 "AreYouSureYouWantToCancelTheImportProcessQuestionMark" = "Är du säker på att du vill avbryta importprocessen?";
 "ImportFailed" = "Importen misslyckades";
 "ThereWasAnIssueImportingAllOfYourPasswordsNoDataWasDeleted" = "Det uppstod ett problem med att importera alla dina lösenord.\n\nInga uppgifter raderades.";
@@ -989,7 +989,7 @@
 "DefaultX" = "Standard (%1$@)";
 "UpdateYourEncryptionSettings" = "Uppdatera dina krypteringsinställningar";
 "TheNewRecommendedEncryptionSettingsDescriptionLong" = "De nya rekommenderade krypteringsinställningarna kommer att förbättra ditt kontos säkerhet. Ange ditt huvudlösenord för att uppdatera nu.";
-"Updating" = "Uppdaterar...";
+"Updating" = "Uppdaterar…";
 "EncryptionSettingsUpdated" = "Krypteringsinställningar uppdaterade";
 "IntroducingArchive" = "Introducerar arkiv";
 "KeepYtemsYouDontNeedRightNowSafeButOutOfSight" = "Håll objekt som du inte behöver just nu är säkra, men utom synhåll.";

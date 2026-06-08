@@ -805,7 +805,7 @@
 "YouMayNeedToEnableDevicePasscodeOrBiometrics" = "நீங்கள் சாதன கடவுச்சொல் அல்லது பயோமெட்ரிக்ஸை இயக்க வேண்டியிருக்கலாம்.";
 "StartImportCXFDescriptionLong" = "மற்றொரு கடவுச்சொல் மேலாளரிடமிருந்து கடவுச்சொற்கள், பாஸ்கீகள், கிரெடிட் கார்டுகள் மற்றும் தனிப்பட்ட அடையாள தகவல்களை இறக்குமதி செய்யவும்.\n\nஉங்கள் தரவு உங்கள் முந்தைய வழங்குநரிடமிருந்து **நீக்கப்படாது**.";
 "ImportPasswords" = "கடவுச்சொற்களை இறக்குமதி செய்";
-"ImportingEllipsis" = "இறக்குமதி செய்கிறது...";
+"ImportingEllipsis" = "இறக்குமதி செய்கிறது…";
 "AreYouSureYouWantToCancelTheImportProcessQuestionMark" = "நீங்கள் இறக்குமதி செயல்முறையை ரத்துசெய்ய விரும்புகிறீர்களா?";
 "ImportFailed" = "இறக்குமதி தோல்வியடைந்தது";
 "ThereWasAnIssueImportingAllOfYourPasswordsNoDataWasDeleted" = "உங்கள் எல்லா கடவுச்சொற்களையும் இறக்குமதி செய்வதில் ஒரு சிக்கல் ஏற்பட்டது.\n\nதரவு எதுவும் நீக்கப்படவில்லை.";

@@ -126,7 +126,7 @@
 "ItemUpdated" = "Entrada gardada";
 "Submitting" = "Submitting…";
 "Syncing" = "Syncing…";
-"SyncingLogins" = "Sincronizando credenciais...";
+"SyncingLogins" = "Sincronizando credenciais…";
 "SyncingComplete" = "Sincronización completa";
 "TouchID" = "Touch ID";
 "TwoStepLogin" = "Verificación en dous pasos";
@@ -804,7 +804,7 @@
 "YouMayNeedToEnableDevicePasscodeOrBiometrics" = "Pode que precises activar un método de bloqueo no dispositivo.";
 "StartImportCXFDescriptionLong" = "Importar contrasinais, Claves de acceso, tarxetas e calquera información persoal dende outro xestor de contrasinais.\n\nOs teus datos **non** se borrarán do teu provedor previo.";
 "ImportPasswords" = "Importar contrasinais";
-"ImportingEllipsis" = "Importando...";
+"ImportingEllipsis" = "Importando…";
 "AreYouSureYouWantToCancelTheImportProcessQuestionMark" = "Seguro que queres cancelar o proceso de importado?";
 "ImportFailed" = "Importación falida";
 "ThereWasAnIssueImportingAllOfYourPasswordsNoDataWasDeleted" = "Houbo un problema ó importar os contrasinais.\n\nNon se eliminou ningún dato.";

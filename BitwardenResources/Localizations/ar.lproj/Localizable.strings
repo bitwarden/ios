@@ -102,7 +102,7 @@
 "Lock" = "قفل";
 "Immediately" = "فورًا";
 "VaultTimeoutLogOutConfirmation" = "سيؤدي تسجيل الخروج إلى إزالة جميع الوصول إلى الخزانة الخاصة بك ويتطلب المصادقة عبر الإنترنت بعد انتهاء المهلة. هل أنت متأكد من أنك تريد استخدام هذا الإعداد؟";
-"LoggingIn" = "جار تسجيل الدخول...";
+"LoggingIn" = "جار تسجيل الدخول…";
 "LogInToBitwarden" = "تسجيل الدخول إلى بت واردن";
 "MasterPasswordConfirmationValMessage" = "تأكيد كلمة المرور غير صحيح.";
 "TheMasterPasswordIsThePasswordYouUseToAccessYourVault" = "كلمة المرور الرئيسية هي كلمة المرور التي تستخدمها للوصول إلى خزانك.";
@@ -364,7 +364,7 @@
 "ExportVaultFailure" = "كانت هناك مشكلة في تصدير خزنتك. إذا استمرت المشكلة، ستحتاج إلى التصدير من خزنة الويب.";
 "Clone" = "استنساخ";
 "PasswordGeneratorPolicyInEffect" = "واحدة أو أكثر من سياسات المؤسسة تؤثر على إعدادات المولد الخاص بك";
-"SoftDeleting" = "إرسال إلى سلة المهملات...";
+"SoftDeleting" = "إرسال إلى سلة المهملات…";
 "ItemSoftDeleted" = "تم إرسال العنصر إلى سلة المهملات.";
 "Restore" = "استعادة";
 "Restoring" = "جارٍ الاسترداد…";
@@ -805,7 +805,7 @@
 "YouMayNeedToEnableDevicePasscodeOrBiometrics" = "قد تحتاج إلى تمكين رمز المرور أو القياسات الحيوية للجهاز.";
 "StartImportCXFDescriptionLong" = "استيراد كلمات المرور، ومفاتيح المرور، وبطاقات الائتمان، وأي معلومات هوية شخصية من مدير كلمات مرور آخر.\n\nلن يتم حذف بياناتك من مزود الخدمة السابق لديك.";
 "ImportPasswords" = "استيراد كلمات المرور";
-"ImportingEllipsis" = "استيراد...";
+"ImportingEllipsis" = "استيراد…";
 "AreYouSureYouWantToCancelTheImportProcessQuestionMark" = "هل أنت متأكد من أنك تريد إلغاء عملية الاستيراد؟";
 "ImportFailed" = "فشل الاستيراد";
 "ThereWasAnIssueImportingAllOfYourPasswordsNoDataWasDeleted" = "حدثت مشكلة أثناء استيراد جميع كلمات المرور الخاصة بك.\n\nلم يتم حذف أي بيانات.";

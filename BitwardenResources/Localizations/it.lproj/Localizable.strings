@@ -451,7 +451,7 @@
 "YourAccountHasBeenPermanentlyDeleted" = "Il tuo account è stato eliminato definitivamente";
 "InvalidVerificationCode" = "Codice di verifica non valido";
 "SendCode" = "Invia codice";
-"SendingCode" = "Invio codice in corso...";
+"SendingCode" = "Invio codice in corso…";
 "Verifying" = "Verifica";
 "ResendCode" = "Invia codice di nuovo";
 "EnterTheVerificationCodeThatWasSentToYourEmail" = "Inserisci il codice di verifica che è stato inviato alla tua email";
@@ -804,7 +804,7 @@
 "YouMayNeedToEnableDevicePasscodeOrBiometrics" = "Potrebbe essere necessario abilitare il codice di accesso del dispositivo o l'autenticazione biometrica.";
 "StartImportCXFDescriptionLong" = "Importa parole d'accesso, chiavi d'accesso, carte di credito e qualsiasi informazione di identità personale da un altro gestore di credenziali.\n\nI tuoi dati **non** saranno cancellati dal tuo fornitore precedente.";
 "ImportPasswords" = "Importa password";
-"ImportingEllipsis" = "Importazione...";
+"ImportingEllipsis" = "Importazione…";
 "AreYouSureYouWantToCancelTheImportProcessQuestionMark" = "Vuoi davvero annullare il processo di importazione?";
 "ImportFailed" = "Importazione fallita";
 "ThereWasAnIssueImportingAllOfYourPasswordsNoDataWasDeleted" = "Si è verificato un problema durante l'importazione delle tue password.\n\nNessun dato è stato eliminato.";
