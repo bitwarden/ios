@@ -126,7 +126,7 @@
 "ItemUpdated" = "Το στοιχείο αποθηκεύτηκε";
 "Submitting" = "Υποβολή…";
 "Syncing" = "Συγχρονισμός…";
-"SyncingLogins" = "Συγχρονισμός συνδέσεων...";
+"SyncingLogins" = "Συγχρονισμός συνδέσεων…";
 "SyncingComplete" = "Ο συγχρονισμός ολοκληρώθηκε";
 "TouchID" = "Touch ID";
 "TwoStepLogin" = "Σύνδεση δύο βημάτων";
@@ -196,10 +196,16 @@
 "CustomFields" = "Προσαρμοσμένα πεδία";
 "CopyNumber" = "Αντιγραφή αριθμού";
 "CopySecurityCode" = "Αντιγραφή κωδικού ασφαλείας";
+"CopyAccountNumber" = "Αντιγραφή αριθμού λογαριασμού";
+"CopyRoutingNumber" = "Αντιγραφή αριθμού υποκαταστήματος";
 "Number" = "Αριθμός";
 "SecurityCode" = "Κωδικός ασφαλείας";
+"AccountNumber" = "Αριθμός λογαριασμού";
+"RoutingNumber" = "Routing number";
+"TypeBankAccount" = "Τραπεζικός λογαριασμός";
 "TypeCard" = "Κάρτα";
 "TypeIdentity" = "Ταυτότητα";
+"TypeLicense" = "License";
 "TypeLogin" = "Σύνδεση";
 "TypeSecureNote" = "Ασφαλής σημείωση";
 "Address1" = "Διεύθυνση 1";
@@ -398,7 +404,7 @@
 "CurrentAccessCount" = "Τρέχων Αριθμός Πρόσβασης";
 "RemovePassword" = "Αφαίρεση κωδικού πρόσβασης";
 "AreYouSureRemoveSendPassword" = "Είστε βέβαιοι ότι θέλετε να καταργήσετε τον κωδικό πρόσβασης;";
-"RemovingSendPassword" = "Αφαίρεση κωδικού...";
+"RemovingSendPassword" = "Αφαίρεση κωδικού…";
 "SendPasswordRemoved" = "Ο κωδικός πρόσβασης αφαιρέθηκε";
 "CopyLink" = "Αντιγραφή συνδέσμου";
 "ShareLink" = "Κοινοποίηση συνδέσμου";
@@ -550,6 +556,7 @@
 "ThereAreNoNotesInYourVault" = "Δεν υπάρχουν σημειώσεις στην κρύπτη σας";
 "ThereAreNoIdentitiesInYourVault" = "Δεν υπάρχουν ταυτότητες στην κρύπτη σας";
 "ThereAreNoSSHKeysInYourVault" = "Δεν υπάρχουν SSH κλειδιά στην κρύπτη σας";
+"ThereAreNoBankAccountsInYourVault" = "There are no bank accounts in your vault";
 "US" = "ΗΠΑ";
 "EU" = "ΕΕ";
 "SelfHosted" = "Αυτο-φιλοξενούμενο";
@@ -797,7 +804,7 @@
 "YouMayNeedToEnableDevicePasscodeOrBiometrics" = "You may need to enable device passcode or biometrics.";
 "StartImportCXFDescriptionLong" = "Import passwords, passkeys, credit cards, and any personal identity information from another password manager.\n\nYour data will **not** be deleted from your previous provider.";
 "ImportPasswords" = "Εισαγωγή κωδικών πρόσβασης";
-"ImportingEllipsis" = "Εισαγωγή...";
+"ImportingEllipsis" = "Εισαγωγή…";
 "AreYouSureYouWantToCancelTheImportProcessQuestionMark" = "Are you sure you want to cancel the import process?";
 "ImportFailed" = "Αποτυχία εισαγωγής";
 "ThereWasAnIssueImportingAllOfYourPasswordsNoDataWasDeleted" = "There was an issue importing all of your passwords.\n\nNo data was deleted.";
@@ -1114,5 +1121,15 @@
 "CheckYourConnectionAndTryAgain" = "Check your connection and try again.";
 "PricingUnavailable" = "Μη διαθέσιμη τιμολόγηση";
 "BankAccount" = "Τραπεζικός λογαριασμός";
+"BankAccounts" = "Bank accounts";
 "License" = "License";
+"Licenses" = "Licenses";
 "Passport" = "Διαβατήριο";
+"LicenseDetails" = "License details";
+"DateOfBirth" = "Ημερομηνία γέννησης";
+"IssuingCountry" = "Χώρα έκδοσης";
+"IssuingStateProvince" = "Issuing state / province";
+"IssuingAuthority" = "Εκδούσα αρχή/γραφείο";
+"IssueDate" = "Ημερομηνία έκδοσης";
+"ExpirationDate" = "Ημερομηνία λήξης";
+"LicenseClass" = "License class";

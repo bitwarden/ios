@@ -937,6 +937,56 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
         }
     }
 
+    /// `savePasswordCredential(username:password:uri:name:)` saves a new login cipher.
+    @available(iOS 26.2, *)
+    func test_savePasswordCredential() async throws {
+        try await subject.savePasswordCredential(
+            username: "user@example.com",
+            password: "password1234",
+            uri: "https://example.com",
+            name: "example.com",
+        )
+
+        XCTAssertTrue(authRepository.unlockVaultWithNeverlockKeyCalled)
+        XCTAssertEqual(vaultRepository.addCipherCiphers.count, 1)
+        let cipher = try XCTUnwrap(vaultRepository.addCipherCiphers.first)
+        XCTAssertEqual(cipher.login?.username, "user@example.com")
+        XCTAssertEqual(cipher.login?.password, "password1234")
+        XCTAssertEqual(cipher.login?.uris?.first?.uri, "https://example.com")
+        XCTAssertEqual(cipher.name, "example.com")
+    }
+
+    /// `savePasswordCredential(username:password:uri:name:)` derives the cipher name from the URI host
+    /// when name is nil.
+    @available(iOS 26.2, *)
+    func test_savePasswordCredential_nilName_derivesFromHost() async throws {
+        try await subject.savePasswordCredential(
+            username: "user",
+            password: "pass",
+            uri: "https://github.com",
+            name: nil,
+        )
+
+        let cipher = try XCTUnwrap(vaultRepository.addCipherCiphers.first)
+        XCTAssertEqual(cipher.name, "github.com")
+    }
+
+    /// `savePasswordCredential(username:password:uri:name:)` throws when vault unlock fails.
+    @available(iOS 26.2, *)
+    func test_savePasswordCredential_unlockError() async throws {
+        authRepository.unlockVaultWithNeverlockResult = .failure(BitwardenTestError.example)
+
+        await assertAsyncThrows(error: BitwardenTestError.example) {
+            try await subject.savePasswordCredential(
+                username: "user",
+                password: "pass",
+                uri: "https://example.com",
+                name: nil,
+            )
+        }
+        XCTAssertTrue(vaultRepository.addCipherCiphers.isEmpty)
+    }
+
     /// `repromptForCredentialIfNecessary(for:)` reprompts the user for their master password if
     /// reprompt is enabled for the cipher.
     @MainActor
