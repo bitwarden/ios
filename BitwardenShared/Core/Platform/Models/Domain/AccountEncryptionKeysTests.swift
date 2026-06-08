@@ -1,14 +1,17 @@
 import BitwardenSdk
-import XCTest
+import Testing
 
 @testable import BitwardenShared
 @testable import BitwardenSharedMocks
 
-class AccountEncryptionKeysTests: BitwardenTestCase {
+// MARK: - AccountEncryptionKeysTests
+
+struct AccountEncryptionKeysTests {
     // MARK: Tests
 
     /// `init(responseModel:)` initializes an `AccountEncryptionKeys` from a response model with encryption keys.
-    func test_init_responseModel() {
+    @Test
+    func init_responseModel() {
         let accountKeys = PrivateKeysResponseModel.fixtureFilled()
         let subject = AccountEncryptionKeys(
             responseModel: ProfileResponseModel.fixture(
@@ -18,9 +21,8 @@ class AccountEncryptionKeysTests: BitwardenTestCase {
             ),
         )
 
-        XCTAssertEqual(
-            subject,
-            AccountEncryptionKeys(
+        #expect(
+            subject == AccountEncryptionKeys(
                 cryptographicState: .fixtureV2(),
                 encryptedUserKey: "KEY",
             ),
@@ -29,7 +31,8 @@ class AccountEncryptionKeysTests: BitwardenTestCase {
 
     /// `init(responseModel:)` initializes an `AccountEncryptionKeys` from a response model with encryption keys
     /// but no account keys.
-    func test_init_responseModelNoAccountKeys() {
+    @Test
+    func init_responseModel_noAccountKeys() {
         let subject = AccountEncryptionKeys(
             responseModel: IdentityTokenResponseModel.fixture(
                 accountKeys: nil,
@@ -38,9 +41,8 @@ class AccountEncryptionKeysTests: BitwardenTestCase {
             ),
         )
 
-        XCTAssertEqual(
-            subject,
-            AccountEncryptionKeys(
+        #expect(
+            subject == AccountEncryptionKeys(
                 cryptographicState: .v1(privateKey: "PRIVATE_KEY"),
                 encryptedUserKey: "KEY",
             ),
@@ -48,10 +50,11 @@ class AccountEncryptionKeysTests: BitwardenTestCase {
     }
 
     /// `init(responseModel:)` returns `nil` if the response model doesn't contain encryption keys.
-    func test_init_responseModel_missingKeys() {
+    @Test
+    func init_responseModel_missingKeys() {
         let subject = AccountEncryptionKeys(
             responseModel: IdentityTokenResponseModel.fixture(accountKeys: nil, key: nil, privateKey: nil),
         )
-        XCTAssertNil(subject)
+        #expect(subject == nil)
     }
 }

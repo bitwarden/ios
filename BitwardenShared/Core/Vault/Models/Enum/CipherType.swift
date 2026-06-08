@@ -36,12 +36,18 @@ extension CipherType {
     ///
     init?(group: VaultListGroup) {
         switch group {
+        case .bankAccount:
+            self = .bankAccount
         case .card:
             self = .card
+        case .driversLicense:
+            self = .driversLicense
         case .identity:
             self = .identity
         case .login:
             self = .login
+        case .passport:
+            self = .passport
         case .secureNote:
             self = .secureNote
         case .sshKey:
@@ -88,7 +94,11 @@ extension CipherType: Menuable {
 
 extension CipherType {
     /// These are the cases of `CipherType` that the user can use to create a cipher.
-    static let canCreateCases: [CipherType] = [.login, .card, .identity, .secureNote]
+    static let canCreateCases: [CipherType] = [.login, .card, .identity, .secureNote, .driversLicense]
+
+    /// The cases of `CipherType` that are gated behind the `.newItemTypes` feature flag.
+    /// While the flag is disabled these types are hidden from vault list/search assembly.
+    static let newItemTypesGatedCases: [CipherType] = [.bankAccount, .driversLicense, .passport]
 
     /// The allowed custom field types per cipher type.
     var allowedFieldTypes: [FieldType] {

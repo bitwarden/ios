@@ -136,21 +136,22 @@ extension VaultListItem {
             case .sshKey:
                 SharedAsset.Icons.key24
             case .bankAccount:
-                // TODO: PM-32809
-                SharedAsset.Icons.stickyNote24
+                SharedAsset.Icons.bankAccount24
             case .driversLicense:
-                // TODO: PM-32807
-                SharedAsset.Icons.stickyNote24
+                SharedAsset.Icons.idCard24
             case .passport:
-                // TODO: PM-32805
-                SharedAsset.Icons.stickyNote24
+                SharedAsset.Icons.idCard24
             }
         case let .group(group, _):
             switch group {
+            case .bankAccount:
+                SharedAsset.Icons.bankAccount24
             case .card:
                 SharedAsset.Icons.card24
             case .collection:
                 SharedAsset.Icons.collections24
+            case .driversLicense:
+                SharedAsset.Icons.idCard24
             case .folder,
                  .noFolder:
                 SharedAsset.Icons.folder24
@@ -158,6 +159,8 @@ extension VaultListItem {
                 SharedAsset.Icons.idCard24
             case .login:
                 SharedAsset.Icons.globe24
+            case .passport:
+                SharedAsset.Icons.idCard24
             case .secureNote:
                 SharedAsset.Icons.file24
             case .sshKey:
@@ -190,13 +193,10 @@ extension VaultListItem {
             case .sshKey:
                 "SSHKeyCipherIcon"
             case .bankAccount:
-                // TODO: PM-32809
                 "BankAccountCipherIcon"
             case .driversLicense:
-                // TODO: PM-32807
                 "DriverLicenseCipherIcon"
             case .passport:
-                // TODO: PM-32805
                 "PassportCipherIcon"
             }
         default:
@@ -217,12 +217,18 @@ extension VaultListItem {
                 "CollectionCell"
             case .folder:
                 "FolderCell"
+            case .bankAccount:
+                "BankAccountCell"
             case .card:
                 "CardCell"
+            case .driversLicense:
+                "DriversLicenseCell"
             case .identity:
                 "IdentityCell"
             case .login:
                 "LoginCell"
+            case .passport:
+                "PassportCell"
             case .secureNote:
                 "SecureNoteCell"
             case .sshKey:

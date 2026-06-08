@@ -10,7 +10,7 @@
 "CopyUsername" = "Kopier brukernavn";
 "Delete" = "Slett";
 "DeleteAll" = "Delete all";
-"Deleting" = "Sletter...";
+"Deleting" = "Sletter…";
 "DoYouReallyWantToDelete" = "Vil du virkelig slette den? Dette kan ikke angres på.";
 "Edit" = "Rediger";
 "EditFolder" = "Rediger mappe";
@@ -48,7 +48,7 @@
 "Password" = "Passord";
 "Save" = "Lagre";
 "Move" = "Flytt";
-"Saving" = "Lagrer...";
+"Saving" = "Lagrer…";
 "Settings" = "Innstillinger";
 "ShowNextCode" = "Show next code";
 "ItemDeleted" = "Elementet har blitt slettet.";
@@ -79,7 +79,7 @@
 "Close" = "Lukk";
 "Continue" = "Fortsett";
 "CreateAccount" = "Opprett konto";
-"CreatingAccount" = "Lager konto...";
+"CreatingAccount" = "Lager konto…";
 "EditItem" = "Rediger elementet";
 "EnableAutomaticSyncing" = "Aktiver automatisk synkronisering";
 "EnterEmailForHint" = "Skriv inn kontoens e-postadresse for å motta hint om hovedpassordet ditt.";
@@ -102,7 +102,7 @@
 "Lock" = "Lås";
 "Immediately" = "Umiddelbart";
 "VaultTimeoutLogOutConfirmation" = "Dersom du logger ut vil all tilgang til hvelvet fjernes og du må autentisere online etter tidsavbruddet. Er du sikker på at du vil bruke denne innstillingen?";
-"LoggingIn" = "Logger inn...";
+"LoggingIn" = "Logger inn…";
 "LogInToBitwarden" = "Logg inn på Bitwarden";
 "MasterPasswordConfirmationValMessage" = "Passordbekreftelsen er ikke riktig.";
 "TheMasterPasswordIsThePasswordYouUseToAccessYourVault" = "Hovedpassordet er det passordet du bruker for å få tilgang til hvelvet ditt.";
@@ -125,8 +125,8 @@
 "Select" = "Velg";
 "ItemUpdated" = "Element oppdatert.";
 "Submitting" = "Submitting…";
-"Syncing" = "Synkroniserer...";
-"SyncingLogins" = "Syncing logins...";
+"Syncing" = "Synkroniserer…";
+"SyncingLogins" = "Syncing logins…";
 "SyncingComplete" = "Synkronisering fullført.";
 "TouchID" = "Touch ID";
 "TwoStepLogin" = "2-trinnsinnlogging";
@@ -196,10 +196,16 @@
 "CustomFields" = "Tilpassede felter";
 "CopyNumber" = "Kopier nummeret";
 "CopySecurityCode" = "Kopier sikkerhetskoden";
+"CopyAccountNumber" = "Copy account number";
+"CopyRoutingNumber" = "Copy routing number";
 "Number" = "Nummer";
 "SecurityCode" = "Sikkerhetskode";
+"AccountNumber" = "Account number";
+"RoutingNumber" = "Routing number";
+"TypeBankAccount" = "Bank account";
 "TypeCard" = "Kort";
 "TypeIdentity" = "Identitet";
+"TypeLicense" = "License";
 "TypeLogin" = "Innlogging";
 "TypeSecureNote" = "Sikre notater";
 "Address1" = "Adresse 1";
@@ -292,7 +298,7 @@
 "Identities" = "Identiteter";
 "Logins" = "Innlogginger";
 "SecureNotes" = "Sikre notater";
-"CheckingPassword" = "Sjekker passord...";
+"CheckingPassword" = "Sjekker passord…";
 "CheckPassword" = "Sjekk om passordet har blitt eksponert.";
 "PasswordSafe" = "Dette passordet ble ikke funnet i noen kjente datalekkasjer. Det bør være trygt å bruke.";
 "IdentityName" = "Identitetsnavn";
@@ -550,6 +556,7 @@
 "ThereAreNoNotesInYourVault" = "There are no notes in your vault";
 "ThereAreNoIdentitiesInYourVault" = "There are no identities in your vault";
 "ThereAreNoSSHKeysInYourVault" = "There are no SSH keys in your vault";
+"ThereAreNoBankAccountsInYourVault" = "There are no bank accounts in your vault";
 "US" = "US";
 "EU" = "EU";
 "SelfHosted" = "Self-hosted";
@@ -982,7 +989,7 @@
 "DefaultX" = "Standard (%1$@)";
 "UpdateYourEncryptionSettings" = "Update your encryption settings";
 "TheNewRecommendedEncryptionSettingsDescriptionLong" = "The new recommended encryption settings will improve your account security. Enter your master password to update now.";
-"Updating" = "Oppdaterer...";
+"Updating" = "Oppdaterer…";
 "EncryptionSettingsUpdated" = "Encryption settings updated";
 "IntroducingArchive" = "Introducing Archive";
 "KeepYtemsYouDontNeedRightNowSafeButOutOfSight" = "Keep items you don’t need right now safe but out of sight.";
@@ -1114,5 +1121,15 @@
 "CheckYourConnectionAndTryAgain" = "Check your connection and try again.";
 "PricingUnavailable" = "Pricing unavailable";
 "BankAccount" = "Bank account";
+"BankAccounts" = "Bank accounts";
 "License" = "License";
+"Licenses" = "Licenses";
 "Passport" = "Passport";
+"LicenseDetails" = "License details";
+"DateOfBirth" = "Date of birth";
+"IssuingCountry" = "Issuing country";
+"IssuingStateProvince" = "Issuing state / province";
+"IssuingAuthority" = "Issuing authority";
+"IssueDate" = "Issue date";
+"ExpirationDate" = "Expiration date";
+"LicenseClass" = "License class";

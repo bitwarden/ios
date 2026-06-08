@@ -40,10 +40,14 @@ extension CipherListView {
         switch group {
         case .archive:
             archivedDate != nil
+        case .bankAccount:
+            type == .bankAccount
         case .card:
             type.isCard
         case let .collection(id, _, _):
             collectionIds.contains(id)
+        case .driversLicense:
+            type == .driversLicense
         case let .folder(id, _):
             folderId == id
         case .identity:
@@ -52,6 +56,8 @@ extension CipherListView {
             type.isLogin
         case .noFolder:
             folderId == nil
+        case .passport:
+            type == .passport
         case .secureNote:
             type == .secureNote
         case .sshKey:

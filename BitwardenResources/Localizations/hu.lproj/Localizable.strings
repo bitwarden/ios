@@ -126,7 +126,7 @@
 "ItemUpdated" = "Az elem frissítésre került.";
 "Submitting" = "Beküldés…";
 "Syncing" = "Syncing…";
-"SyncingLogins" = "Bejelentkezések szinkronizálása...";
+"SyncingLogins" = "Bejelentkezések szinkronizálása…";
 "SyncingComplete" = "A szinkronizálás kész.";
 "TouchID" = "Touch ID";
 "TwoStepLogin" = "Kétlépcsős bejelentkezés";
@@ -196,10 +196,16 @@
 "CustomFields" = "Egyedi mezők";
 "CopyNumber" = "Szám másolása";
 "CopySecurityCode" = "Biztonsági kód másolása";
+"CopyAccountNumber" = "Számlaszám másolása";
+"CopyRoutingNumber" = "Banki azonosító másolása";
 "Number" = "Szám";
 "SecurityCode" = "Biztonsági Kód";
+"AccountNumber" = "Számlaszám";
+"RoutingNumber" = "Banki azonosító";
+"TypeBankAccount" = "Bankszámla";
 "TypeCard" = "Kártya";
 "TypeIdentity" = "Azonosság";
+"TypeLicense" = "Licensz";
 "TypeLogin" = "Bejelentkezés";
 "TypeSecureNote" = "Védett jegyzet";
 "Address1" = "Cím 1";
@@ -382,7 +388,7 @@
 "MasterPasswordPolicyValidationTitle" = "Érvénytelen jelszó.";
 "MasterPasswordPolicyValidationMessage" = "A jelszó nem egyezik a szervezeti követelményekhez. Ellenőrizzük a szabály információt és próbáljuk újra.";
 "Loading" = "A betöltés folyamatban van.";
-"LoadingSubscription" = "Előfizetés betöltése...";
+"LoadingSubscription" = "Előfizetés betöltése…";
 "AcceptPoliciesError" = "A szolgáltatási feltételeket és az adatvédelmi irányelveket nem vették figyelembe.";
 "PrivacyPolicy" = "Adatvédelmi Irányelvek";
 "PersonalOwnershipPolicyInEffect" = "Egy szervezeti házirend befolyásolja a tulajdonjog beállításait.";
@@ -550,6 +556,7 @@
 "ThereAreNoNotesInYourVault" = "Nincsenek jegyzetek a széfben.";
 "ThereAreNoIdentitiesInYourVault" = "Nincsenek azonosítások a széfben.";
 "ThereAreNoSSHKeysInYourVault" = "Nincsenek SSH kulcsok a széfben.";
+"ThereAreNoBankAccountsInYourVault" = "Nincsenek bankszámlák a széfben.";
 "US" = "US";
 "EU" = "EU";
 "SelfHosted" = "Saját kiszolgáló";
@@ -797,7 +804,7 @@
 "YouMayNeedToEnableDevicePasscodeOrBiometrics" = "Lehetséges, hogy engedélyezni kell az eszköz jelkódot vagy a biometrikus adatokat.";
 "StartImportCXFDescriptionLong" = "Importáljunk jelszavakat, belépőkulcsokat, hitelkártyákat és bármilyen személyes azonosító információt egy másik jelszókezelőből.\n\nAz adatok **nem** kerülnek törlésre a korábbi szolgáltatónál.";
 "ImportPasswords" = "Jelszavak importálása";
-"ImportingEllipsis" = "Importálás...";
+"ImportingEllipsis" = "Importálás…";
 "AreYouSureYouWantToCancelTheImportProcessQuestionMark" = "Biztosan megszakításra kerüljön az importálási folyamat?";
 "ImportFailed" = "Az importálás sikertelen volt.";
 "ThereWasAnIssueImportingAllOfYourPasswordsNoDataWasDeleted" = "Hiba történt az összes jelszó importálásakor.\n\nNem lett adat törölve.";
@@ -982,7 +989,7 @@
 "DefaultX" = "Alapértelmezés (%1$@)";
 "UpdateYourEncryptionSettings" = "A titkosítási beállítások frissítése";
 "TheNewRecommendedEncryptionSettingsDescriptionLong" = "Az új ajánlott titkosítási beállítások javítják a fiók biztonságát. Adjuk meg a mesterjelszót a frissítéshez most.";
-"Updating" = "Frissítés...";
+"Updating" = "Frissítés…";
 "EncryptionSettingsUpdated" = "A titkosítási beállítások frissítésre kerültek.";
 "IntroducingArchive" = "Archívum bemutatása";
 "KeepYtemsYouDontNeedRightNowSafeButOutOfSight" = "Tartsuk biztonságban azokat az elemeket, amelyekre jelenleg nincs szükség, de ne lássuk azokat.";
@@ -1096,7 +1103,7 @@
 "SecureFileStorage" = "Biztonságos fájl tárolás";
 "BreachMonitoring" = "Adatszivárgás figyelés";
 "UpgradeNow" = "Áttérés most";
-"ConfirmingYourUpgrade" = "A frissítés megerősítése...";
+"ConfirmingYourUpgrade" = "A frissítés megerősítése…";
 "OpeningCheckout" = "Pénztár megnyitása…";
 "UpgradePending" = "Függő áttérés";
 "YourUpgradeIsBeingProcessedDescriptionLong" = "Az áttérés feldolgozása folyamatban van. Az ingyenes csomag marad, amíg az be nem fejeződik. Szinkronizáljunk most az ellenőrzéshez vagy a folytatáshoz, és az áttérés automatikus.";
@@ -1114,5 +1121,15 @@
 "CheckYourConnectionAndTryAgain" = "Ellenőrizzük a hálózati kapcsolatot és próbáljuk újra.";
 "PricingUnavailable" = "Az árazás nem érhető el.";
 "BankAccount" = "Bankszámla";
+"BankAccounts" = "Bankszámlák";
 "License" = "Licensz";
+"Licenses" = "Licenszek";
 "Passport" = "Útlevél";
+"LicenseDetails" = "Licensz részletek";
+"DateOfBirth" = "Születési dátum";
+"IssuingCountry" = "Kiállító ország";
+"IssuingStateProvince" = "Kiállító állam/tartomány";
+"IssuingAuthority" = "Kiállító hatóság/hivatal";
+"IssueDate" = "Kiállítási dátum";
+"ExpirationDate" = "Lejárati dátum";
+"LicenseClass" = "Engedély osztály";
