@@ -126,7 +126,7 @@
 "ItemUpdated" = "Item disimpan";
 "Submitting" = "Mengirim…";
 "Syncing" = "Menyinkronkan…";
-"SyncingLogins" = "Menyinkronkan login...";
+"SyncingLogins" = "Menyinkronkan login…";
 "SyncingComplete" = "Sinkronisasi selesai";
 "TouchID" = "Touch ID";
 "TwoStepLogin" = "Login dua langkah";
@@ -196,10 +196,16 @@
 "CustomFields" = "Kolom ubahsuai";
 "CopyNumber" = "Salin Nomor";
 "CopySecurityCode" = "Salin Kode Keamanan";
+"CopyAccountNumber" = "Copy account number";
+"CopyRoutingNumber" = "Copy routing number";
 "Number" = "Nomor";
 "SecurityCode" = "Kode Keamanan";
+"AccountNumber" = "Account number";
+"RoutingNumber" = "Routing number";
+"TypeBankAccount" = "Bank account";
 "TypeCard" = "Kartu";
 "TypeIdentity" = "Identitas";
+"TypeLicense" = "License";
 "TypeLogin" = "Info Masuk";
 "TypeSecureNote" = "Catatan Aman";
 "Address1" = "Alamat 1";
@@ -398,7 +404,7 @@
 "CurrentAccessCount" = "Hitungan akses saat ini";
 "RemovePassword" = "Hapus Kata Sandi";
 "AreYouSureRemoveSendPassword" = "Anda yakin ingin menghapus kata sandi?";
-"RemovingSendPassword" = "Menghapus kata sandi...";
+"RemovingSendPassword" = "Menghapus kata sandi…";
 "SendPasswordRemoved" = "Sandi dihapus";
 "CopyLink" = "Salin Tautan";
 "ShareLink" = "Membagikan tautan";
@@ -446,7 +452,7 @@
 "InvalidVerificationCode" = "Kode verifikasi tidak valid.";
 "SendCode" = "Kirim Kode";
 "SendingCode" = "Mengirim kode";
-"Verifying" = "Memverifikasi...";
+"Verifying" = "Memverifikasi…";
 "ResendCode" = "Kirim ulang kode";
 "EnterTheVerificationCodeThatWasSentToYourEmail" = "Masukkan kode verifikasi yang dikirim ke email anda";
 "SubmitCrashLogs" = "Kirim catatan kerusakan";
@@ -550,6 +556,7 @@
 "ThereAreNoNotesInYourVault" = "Tidak ada catatan di brankas Anda";
 "ThereAreNoIdentitiesInYourVault" = "Tidak ada indentitas di brankas Anda";
 "ThereAreNoSSHKeysInYourVault" = "Tidak ada kunci SSH di brankas Anda";
+"ThereAreNoBankAccountsInYourVault" = "There are no bank accounts in your vault";
 "US" = "AS";
 "EU" = "EU";
 "SelfHosted" = "Hosting mandiri";
@@ -797,7 +804,7 @@
 "YouMayNeedToEnableDevicePasscodeOrBiometrics" = "Anda mungkin perlu mengaktifkan kode sandi atau biometrik perangkat.";
 "StartImportCXFDescriptionLong" = "Impor sandi, kunci sandi, kartu kredit, dan informasi identitas pribadi apa pun dari pengelola sandi lain.\n\nData Anda **tidak** akan dihapus dari penyedia sebelumnya.";
 "ImportPasswords" = "Impor sandi";
-"ImportingEllipsis" = "Mengimpor...";
+"ImportingEllipsis" = "Mengimpor…";
 "AreYouSureYouWantToCancelTheImportProcessQuestionMark" = "Anda yakin ingin membatalkan proses impor?";
 "ImportFailed" = "Impor gagal";
 "ThereWasAnIssueImportingAllOfYourPasswordsNoDataWasDeleted" = "Terjadi masalah saat mengimpor semua sandi Anda.\n\nTidak ada data yang dihapus.";
@@ -982,7 +989,7 @@
 "DefaultX" = "Standar (%1$@)";
 "UpdateYourEncryptionSettings" = "Perbarui pengaturan enkripsi Anda";
 "TheNewRecommendedEncryptionSettingsDescriptionLong" = "Rekomendasi pengaturan enkripsi baru akan meningkatkan keamanan akun Anda. Masukkan sandi utama untuk memperbarui sekarang.";
-"Updating" = "Memperbarui...";
+"Updating" = "Memperbarui…";
 "EncryptionSettingsUpdated" = "Pengaturan enkripsi diperbarui";
 "IntroducingArchive" = "Memperkenalkan Arsip";
 "KeepYtemsYouDontNeedRightNowSafeButOutOfSight" = "Simpan item yang belum Anda perlukan dengan aman tanpa terlihat.";
@@ -1114,5 +1121,15 @@
 "CheckYourConnectionAndTryAgain" = "Check your connection and try again.";
 "PricingUnavailable" = "Pricing unavailable";
 "BankAccount" = "Bank account";
+"BankAccounts" = "Bank accounts";
 "License" = "License";
+"Licenses" = "Licenses";
 "Passport" = "Passport";
+"LicenseDetails" = "License details";
+"DateOfBirth" = "Date of birth";
+"IssuingCountry" = "Issuing country";
+"IssuingStateProvince" = "Issuing state / province";
+"IssuingAuthority" = "Issuing authority";
+"IssueDate" = "Issue date";
+"ExpirationDate" = "Expiration date";
+"LicenseClass" = "License class";
