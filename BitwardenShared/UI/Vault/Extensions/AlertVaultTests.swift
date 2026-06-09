@@ -379,6 +379,65 @@ class AlertVaultTests: BitwardenTestCase { // swiftlint:disable:this type_body_l
     }
 
     /// `static moreOptions(canCopyTotp:cipherView:hasMasterPassword:id:showEdit:action:)` returns
+    /// the appropriate options for `.passport` type
+    @MainActor
+    func test_moreOptions_passport() async throws {
+        var capturedAction: MoreOptionsAction?
+        let action: (MoreOptionsAction) -> Void = { action in
+            capturedAction = action
+        }
+        let cipher = CipherView.fixture(
+            edit: false,
+            id: "123",
+            name: "Test Cipher",
+            passport: .fixture(),
+            type: .passport,
+            viewPassword: true,
+        )
+        let alert = Alert.moreOptions(
+            context: MoreOptionsAlertContext(
+                canArchive: false,
+                canCopyTotp: false,
+                canUnarchive: false,
+                cipherView: cipher,
+                id: cipher.id!,
+                showEdit: true,
+            ),
+            action: action,
+        )
+        XCTAssertEqual(alert.title, cipher.name)
+        XCTAssertEqual(alert.preferredStyle, .actionSheet)
+        XCTAssertEqual(alert.alertActions.count, 4)
+
+        try await alert.tapAction(byIndex: 0, withTitle: Localizations.view)
+        XCTAssertEqual(capturedAction, .view(id: "123"))
+        capturedAction = nil
+
+        try await alert.tapAction(byIndex: 1, withTitle: Localizations.edit)
+        XCTAssertEqual(
+            capturedAction,
+            .edit(cipherView: cipher),
+        )
+        capturedAction = nil
+
+        try await alert.tapAction(byIndex: 2, withTitle: Localizations.copyPassportNumber)
+        XCTAssertEqual(
+            capturedAction,
+            .copy(
+                toast: Localizations.passportNumber,
+                value: "P1234567",
+                requiresMasterPasswordReprompt: true,
+                logEvent: nil,
+                cipherId: "123",
+            ),
+        )
+        capturedAction = nil
+
+        try await alert.tapAction(byIndex: 3, withTitle: Localizations.cancel)
+        XCTAssertNil(capturedAction)
+    }
+
+    /// `static moreOptions(canCopyTotp:cipherView:hasMasterPassword:id:showEdit:action:)` returns
     /// the appropriate options for `.sshKey` type
     @MainActor
     func test_moreOptions_sshKey() async throws { // swiftlint:disable:this function_body_length

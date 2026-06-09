@@ -6,6 +6,7 @@ extension Organization {
     static func fixture(
         enabled: Bool = true,
         id: String = "organization-1",
+        isProviderUser: Bool = false,
         key: String? = nil,
         keyConnectorEnabled: Bool = false,
         keyConnectorUrl: String? = nil,
@@ -21,6 +22,7 @@ extension Organization {
         Organization(
             enabled: enabled,
             id: id,
+            isProviderUser: isProviderUser,
             key: key,
             keyConnectorEnabled: keyConnectorEnabled,
             keyConnectorUrl: keyConnectorUrl,

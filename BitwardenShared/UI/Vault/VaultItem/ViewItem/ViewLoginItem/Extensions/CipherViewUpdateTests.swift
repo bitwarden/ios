@@ -65,6 +65,106 @@ final class CipherViewUpdateTests: BitwardenTestCase { // swiftlint:disable:this
         XCTAssertTrue(loginItemState.fido2Credentials.isEmpty)
     }
 
+    /// `driversLicenseItemState()` returns the driver's license item state from the cipher view,
+    /// reading every field including the raw date strings without parsing.
+    func test_driversLicenseItemState() { // swiftlint:disable:this function_body_length
+        let cipherView = CipherView.fixture(type: .driversLicense)
+        let withLicense = CipherView(
+            id: cipherView.id,
+            organizationId: cipherView.organizationId,
+            folderId: cipherView.folderId,
+            collectionIds: cipherView.collectionIds,
+            key: cipherView.key,
+            name: cipherView.name,
+            notes: cipherView.notes,
+            type: .driversLicense,
+            login: nil,
+            identity: nil,
+            card: nil,
+            secureNote: nil,
+            sshKey: nil,
+            bankAccount: nil,
+            driversLicense: DriversLicenseView(
+                firstName: "Bit",
+                middleName: "W",
+                lastName: "Warden",
+                dateOfBirth: "1989-08-01",
+                licenseNumber: "D1234567",
+                issuingCountry: "United States",
+                issuingState: "California",
+                issueDate: "2019-08-01",
+                expirationDate: "2029-08-01",
+                issuingAuthority: "DMV",
+                licenseClass: "C",
+            ),
+            passport: nil,
+            favorite: cipherView.favorite,
+            reprompt: cipherView.reprompt,
+            organizationUseTotp: cipherView.organizationUseTotp,
+            edit: cipherView.edit,
+            permissions: cipherView.permissions,
+            viewPassword: cipherView.viewPassword,
+            localData: cipherView.localData,
+            attachments: cipherView.attachments,
+            attachmentDecryptionFailures: nil,
+            fields: cipherView.fields,
+            passwordHistory: cipherView.passwordHistory,
+            creationDate: cipherView.creationDate,
+            deletedDate: cipherView.deletedDate,
+            revisionDate: cipherView.revisionDate,
+            archivedDate: cipherView.archivedDate,
+        )
+
+        let state = withLicense.driversLicenseItemState()
+        XCTAssertEqual(state.firstName, "Bit")
+        XCTAssertEqual(state.middleName, "W")
+        XCTAssertEqual(state.lastName, "Warden")
+        XCTAssertEqual(state.dateOfBirth, "1989-08-01")
+        XCTAssertEqual(state.licenseNumber, "D1234567")
+        XCTAssertEqual(state.issuingCountry, "United States")
+        XCTAssertEqual(state.issuingState, "California")
+        XCTAssertEqual(state.issueDate, "2019-08-01")
+        XCTAssertEqual(state.expirationDate, "2029-08-01")
+        XCTAssertEqual(state.issuingAuthority, "DMV")
+        XCTAssertEqual(state.licenseClass, "C")
+    }
+
+    /// `driversLicenseItemState()` returns an empty state when there's no `driversLicense` in the cipher view.
+    func test_driversLicenseItemState_nil() {
+        let cipherView = CipherView.fixture()
+        let state = cipherView.driversLicenseItemState()
+        XCTAssertEqual(state, DriversLicenseItemState())
+    }
+
+    /// `updatedView(with:)` round-trips a driver's license, preserving all 11 fields as strings.
+    func test_update_driversLicense_edits_succeeds() {
+        cipherItemState.type = .driversLicense
+        var expectedLicenseState = DriversLicenseItemState()
+        expectedLicenseState.firstName = "Bit"
+        expectedLicenseState.middleName = "W"
+        expectedLicenseState.lastName = "Warden"
+        expectedLicenseState.dateOfBirth = "1989-08-01"
+        expectedLicenseState.licenseNumber = "D1234567"
+        expectedLicenseState.issuingCountry = "United States"
+        expectedLicenseState.issuingState = "California"
+        expectedLicenseState.issueDate = "2019-08-01"
+        expectedLicenseState.expirationDate = "2029-08-01"
+        expectedLicenseState.issuingAuthority = "DMV"
+        expectedLicenseState.licenseClass = "C"
+        cipherItemState.driversLicenseItemState = expectedLicenseState
+
+        let comparison = subject.updatedView(with: cipherItemState)
+        XCTAssertEqual(comparison.type, .driversLicense)
+        XCTAssertNil(comparison.login)
+        XCTAssertNil(comparison.card)
+        XCTAssertNil(comparison.identity)
+
+        XCTAssertEqual(comparison.driversLicenseItemState(), expectedLicenseState)
+        XCTAssertEqual(comparison.driversLicense?.dateOfBirth, "1989-08-01")
+        XCTAssertEqual(comparison.driversLicense?.issueDate, "2019-08-01")
+        XCTAssertEqual(comparison.driversLicense?.expirationDate, "2029-08-01")
+    }
+
     /// `sshKeyItemState()` returns the correct SSH key item state based on the CIpherView.
     func test_sshKeyItemState() {
         let cipherView = CipherView.fixture(

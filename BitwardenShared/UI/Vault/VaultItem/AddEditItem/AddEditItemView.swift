@@ -312,6 +312,21 @@ private extension AddEditItemView {
         )
     }
 
+    /// Specific fields for a driver's license item.
+    @ViewBuilder private var driversLicenseItems: some View {
+        AddEditDriversLicenseItemView(
+            store: store.child(
+                state: { addEditState in
+                    addEditState.driversLicenseItemState
+                },
+                mapAction: { action in
+                    .driversLicenseFieldChanged(action)
+                },
+                mapEffect: { $0 },
+            ),
+        )
+    }
+
     /// Specific fields for an identity item.
     @ViewBuilder private var identityItems: some View {
         AddEditIdentityItemView(
@@ -334,8 +349,7 @@ private extension AddEditItemView {
             // TODO: PM-32809 - render AddEditBankAccountItemView once the Bank Account UI PR lands.
             EmptyView()
         case .driversLicense:
-            // TODO: PM-38149 - render AddEditDriversLicenseItemView once the Driver's License UI PR lands.
-            EmptyView()
+            driversLicenseItems
         case .passport:
             // TODO: PM-38153 - render AddEditPassportItemView once the Passport UI PR lands.
             EmptyView()

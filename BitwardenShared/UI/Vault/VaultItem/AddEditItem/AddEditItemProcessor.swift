@@ -212,6 +212,8 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
             handleCustomFieldAction(action)
         case .dismissPressed:
             handleDismiss()
+        case let .driversLicenseFieldChanged(driversLicenseFieldAction):
+            updateDriversLicenseState(&state, for: driversLicenseFieldAction)
         case let .favoriteChanged(newValue):
             state.isFavoriteOn = newValue
         case let .folderChanged(newValue):
@@ -541,6 +543,38 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
                     )
                 }
             }
+        }
+    }
+
+    /// Receives an `AddEditDriversLicenseItem` action from the `AddEditDriversLicenseItemView` view's store, and
+    /// updates the `DriversLicenseItemState`.
+    ///
+    /// - Parameters:
+    ///   - state: The parent `AddEditItemState` to be updated.
+    ///   - action: The `AddEditDriversLicenseItemAction` received.
+    private func updateDriversLicenseState(
+        _ state: inout AddEditItemState,
+        for action: AddEditDriversLicenseItemAction,
+    ) {
+        switch action {
+        case let .firstNameChanged(firstName):
+            state.driversLicenseItemState.firstName = firstName
+        case let .issuingAuthorityChanged(issuingAuthority):
+            state.driversLicenseItemState.issuingAuthority = issuingAuthority
+        case let .issuingCountryChanged(issuingCountry):
+            state.driversLicenseItemState.issuingCountry = issuingCountry
+        case let .issuingStateChanged(issuingState):
+            state.driversLicenseItemState.issuingState = issuingState
+        case let .lastNameChanged(lastName):
+            state.driversLicenseItemState.lastName = lastName
+        case let .licenseClassChanged(licenseClass):
+            state.driversLicenseItemState.licenseClass = licenseClass
+        case let .licenseNumberChanged(licenseNumber):
+            state.driversLicenseItemState.licenseNumber = licenseNumber
+        case let .middleNameChanged(middleName):
+            state.driversLicenseItemState.middleName = middleName
+        case let .toggleLicenseNumberVisibilityChanged(isVisible):
+            state.driversLicenseItemState.isLicenseNumberVisible = isVisible
         }
     }
 

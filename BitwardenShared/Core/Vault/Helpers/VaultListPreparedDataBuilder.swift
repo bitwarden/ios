@@ -234,6 +234,8 @@ class DefaultVaultListPreparedDataBuilder: VaultListPreparedDataBuilder { // swi
             guard cipher.type == .identity else { return self }
         case .login:
             guard cipher.type.isLogin else { return self }
+        case .passport:
+            guard cipher.type == .passport else { return self }
         case .secureNote:
             guard cipher.type == .secureNote else { return self }
         case .sshKey:
