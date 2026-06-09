@@ -40,6 +40,7 @@ class MockAppSettingsStore: AppSettingsStore { // swiftlint:disable:this type_bo
 
     var biometricAuthenticationEnabled = [String: Bool?]()
     var clearClipboardValues = [String: ClearClipboardValue]()
+    var collapsedVaultListSectionIdsByUserId = [String: [String]]()
     var connectToWatchByUserId = [String: Bool]()
     var defaultUriMatchTypeByUserId = [String: BitwardenShared.UriMatchType]()
     var disableAutoTotpCopyByUserId = [String: Bool]()
@@ -114,6 +115,10 @@ class MockAppSettingsStore: AppSettingsStore { // swiftlint:disable:this type_bo
 
     func clearClipboardValue(userId: String) -> ClearClipboardValue {
         clearClipboardValues[userId] ?? .never
+    }
+
+    func collapsedVaultListSectionIds(userId: String) -> [String] {
+        collapsedVaultListSectionIdsByUserId[userId] ?? []
     }
 
     func connectToWatch(userId: String) -> Bool {
@@ -255,6 +260,10 @@ class MockAppSettingsStore: AppSettingsStore { // swiftlint:disable:this type_bo
 
     func setClearClipboardValue(_ clearClipboardValue: ClearClipboardValue?, userId: String) {
         clearClipboardValues[userId] = clearClipboardValue
+    }
+
+    func setCollapsedVaultListSectionIds(_ ids: [String], userId: String) {
+        collapsedVaultListSectionIdsByUserId[userId] = ids
     }
 
     func setConnectToWatch(_ connectToWatch: Bool, userId: String) {
