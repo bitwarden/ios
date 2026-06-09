@@ -42,7 +42,7 @@ struct TOTPAutofillFormView: View {
 
             Section {
                 if !store.state.totpCode.isEmpty {
-                    Text(Localizations.totpCodeValue(store.state.totpCode))
+                    Text(Localizations.xColonY(Localizations.totpCode, store.state.totpCode))
                         .styleGuide(.body)
                 } else {
                     Text(Localizations.enterTOTPCodeAbove)
