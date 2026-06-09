@@ -63,6 +63,20 @@ class DateFieldPickerTests: BitwardenTestCase {
         XCTAssertNoThrow(try subject.inspect().find(viewWithAccessibilityIdentifier: "DateFieldHeaderButton"))
     }
 
+    /// The header button carries an accessibility hint telling VoiceOver users it selects a date.
+    func test_headerButton_hasSelectDateHint() throws {
+        let header = try subject.inspect().find(viewWithAccessibilityIdentifier: "DateFieldHeaderButton")
+        XCTAssertEqual(try header.accessibilityHint().string(), Localizations.selectDate)
+    }
+
+    /// The clear control's accessibility label names the field so VoiceOver users know what it clears.
+    func test_clearButton_accessibilityLabel_namesField() throws {
+        date = defaultDate
+        XCTAssertNoThrow(
+            try subject.inspect().find(viewWithAccessibilityLabel: Localizations.clearFieldName("Date of birth")),
+        )
+    }
+
     /// When a date is selected, a clear control is shown and tapping it resets the value to `nil`.
     func test_clearButton_clearsDate() throws {
         date = defaultDate

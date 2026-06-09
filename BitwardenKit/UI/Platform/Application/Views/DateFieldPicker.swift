@@ -38,6 +38,10 @@ public struct DateFieldPicker: View {
     /// Whether the view allows user interaction.
     @Environment(\.isEnabled) var isEnabled: Bool
 
+    /// Whether VoiceOver is currently running. The graphical calendar is difficult to navigate with
+    /// VoiceOver, so a wheel picker is substituted when it is active.
+    @Environment(\.accessibilityVoiceOverEnabled) var voiceOverEnabled: Bool
+
     // MARK: View
 
     public var body: some View {
@@ -101,18 +105,25 @@ public struct DateFieldPicker: View {
 
     // MARK: Private
 
-    /// The inline graphical `DatePicker`, optionally constrained to `range`. Selecting a day commits
-    /// the value and collapses the calendar via `selection()`.
+    /// The inline `DatePicker`, optionally constrained to `range`. Uses the graphical calendar by
+    /// default, falling back to the wheel style under VoiceOver where the calendar is hard to navigate.
+    /// In the graphical style, selecting a day commits the value and collapses the calendar via
+    /// `selection()`; the wheel style stays expanded so the user can scrub freely.
     @ViewBuilder
     private func datePicker() -> some View {
-        if let range {
-            DatePicker("", selection: selection(), in: range, displayedComponents: [.date])
-                .labelsHidden()
-                .datePickerStyle(.graphical)
+        let picker = Group {
+            if let range {
+                DatePicker("", selection: selection(), in: range, displayedComponents: [.date])
+            } else {
+                DatePicker("", selection: selection(), displayedComponents: [.date])
+            }
+        }
+        .labelsHidden()
+
+        if voiceOverEnabled {
+            picker.datePickerStyle(.wheel)
         } else {
-            DatePicker("", selection: selection(), displayedComponents: [.date])
-                .labelsHidden()
-                .datePickerStyle(.graphical)
+            picker.datePickerStyle(.graphical)
         }
     }
 
@@ -157,11 +168,12 @@ public struct DateFieldPicker: View {
             }
             .buttonStyle(.plain)
             .accessibilityIdentifier("DateFieldHeaderButton")
+            .accessibilityHint(Localizations.selectDate)
 
             if date != nil {
                 AccessoryButton(
                     asset: SharedAsset.Icons.circleX24,
-                    accessibilityLabel: Localizations.clear,
+                    accessibilityLabel: title.map { Localizations.clearFieldName($0) } ?? Localizations.clear,
                     accessibilityIdentifier: "DateFieldClearButton",
                 ) {
                     clearDate()
@@ -184,12 +196,15 @@ public struct DateFieldPicker: View {
     }
 
     /// A binding driving the calendar: reads the selected date (falling back to `defaultDate` when
-    /// empty) and, on selection, commits the value and collapses the calendar.
+    /// empty) and, on selection, commits the value. With the graphical calendar, a selection also
+    /// collapses the calendar; under VoiceOver the wheel stays expanded so continuous scrubbing does
+    /// not dismiss it on the first change — the user collapses it via the header instead.
     private func selection() -> Binding<Date> {
         Binding(
             get: { date ?? defaultDate },
             set: { newValue in
                 date = newValue
+                guard !voiceOverEnabled else { return }
                 withAnimation { isExpanded = false }
             },
         )
