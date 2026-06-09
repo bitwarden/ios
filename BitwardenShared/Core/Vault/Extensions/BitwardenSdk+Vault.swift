@@ -132,7 +132,7 @@ extension CipherDetailsResponseModel {
             identity: cipher.identity.map(CipherIdentityModel.init),
             key: cipher.key,
             login: cipher.login.map(CipherLoginModel.init),
-            name: cipher.name,
+            name: cipher.name ?? "",
             notes: cipher.notes,
             organizationId: cipher.organizationId,
             organizationUseTotp: cipher.organizationUseTotp,
