@@ -137,6 +137,25 @@ class ViewBankAccountItemViewTests: BitwardenTestCase {
         )
     }
 
+    /// `isBankAccountDetailsSectionEmpty` is `true` when every field is empty and no account type is selected.
+    func test_isBankAccountDetailsSectionEmpty_empty() {
+        XCTAssertTrue(BankAccountItemState().isBankAccountDetailsSectionEmpty)
+    }
+
+    /// `isBankAccountDetailsSectionEmpty` is `false` when any string field has a value.
+    func test_isBankAccountDetailsSectionEmpty_populatedField() {
+        var state = BankAccountItemState()
+        state.bankName = "Bank of America"
+        XCTAssertFalse(state.isBankAccountDetailsSectionEmpty)
+    }
+
+    /// `isBankAccountDetailsSectionEmpty` is `false` when only an account type is selected and all fields are empty.
+    func test_isBankAccountDetailsSectionEmpty_accountTypeOnly() {
+        var state = BankAccountItemState()
+        state.accountType = .custom(.checking)
+        XCTAssertFalse(state.isBankAccountDetailsSectionEmpty)
+    }
+
     // MARK: Private
 
     /// Initializes the subject with the given state.
