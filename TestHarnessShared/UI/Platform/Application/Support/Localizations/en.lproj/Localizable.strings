@@ -11,7 +11,7 @@
 "TestHarness" = "Test Harness";
 "TestScenarios" = "Test Scenarios";
 "TOTPAutofillForm" = "TOTP Autofill Form";
-"TOTPAutofillFormDescription" = "Tap the TOTP Code field and select a code from Bitwarden in the QuickType bar. Requires Bitwarden PM as AutoFill provider and a saved Login with a TOTP seed.";
+"TOTPAutofillFormDescription" = "Tap the TOTP Code field and select a code from Bitwarden. Requires Bitwarden PM as AutoFill provider and a saved Login with a TOTP seed.";
 "TOTPCode" = "TOTP Code";
 "TOTPCodeValue" = "TOTP Code: %@";
 "Username" = "Username";
