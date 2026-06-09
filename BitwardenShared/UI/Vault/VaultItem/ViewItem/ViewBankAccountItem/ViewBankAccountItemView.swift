@@ -22,10 +22,12 @@ struct ViewBankAccountItemView: View {
                         valueAccessibilityIdentifier: "BankAccountBankNameEntry",
                     )
 
-                    textField(
+                    copyableTextField(
                         title: Localizations.nameOnAccount,
                         value: store.state.nameOnAccount,
                         valueAccessibilityIdentifier: "BankAccountNameOnAccountEntry",
+                        copyButtonAccessibilityIdentifier: "BankAccountCopyNameOnAccountButton",
+                        copyField: .nameOnAccount,
                     )
 
                     accountTypeItem
@@ -40,10 +42,12 @@ struct ViewBankAccountItemView: View {
                         copyField: .routingNumber,
                     )
 
-                    textField(
+                    copyableTextField(
                         title: Localizations.branchNumber,
                         value: store.state.branchNumber,
                         valueAccessibilityIdentifier: "BankAccountBranchNumberEntry",
+                        copyButtonAccessibilityIdentifier: "BankAccountCopyBranchNumberButton",
+                        copyField: .branchNumber,
                     )
 
                     pinItem
@@ -58,10 +62,12 @@ struct ViewBankAccountItemView: View {
 
                     ibanItem
 
-                    textField(
+                    copyableTextField(
                         title: Localizations.bankContactPhone,
                         value: store.state.bankContactPhone,
                         valueAccessibilityIdentifier: "BankAccountContactPhoneEntry",
+                        copyButtonAccessibilityIdentifier: "BankAccountCopyContactPhoneButton",
+                        copyField: .bankContactPhone,
                     )
                 }
             }

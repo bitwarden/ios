@@ -73,6 +73,39 @@ class ViewBankAccountItemViewTests: BitwardenTestCase {
         XCTAssertEqual(processor.dispatchedActions.last, .copyPressed(value: "BOFAUS3N", field: .swiftCode))
     }
 
+    /// Tapping the copy branch number button dispatches the copy action.
+    @MainActor
+    func test_copyBranchNumberButton_pressed() throws {
+        let button = try subject.inspect().find(
+            viewWithAccessibilityIdentifier: "BankAccountCopyBranchNumberButton",
+        ).button()
+        try button.tap()
+        XCTAssertEqual(processor.dispatchedActions.last, .copyPressed(value: "100", field: .branchNumber))
+    }
+
+    /// Tapping the copy bank contact phone button dispatches the copy action.
+    @MainActor
+    func test_copyContactPhoneButton_pressed() throws {
+        let button = try subject.inspect().find(
+            viewWithAccessibilityIdentifier: "BankAccountCopyContactPhoneButton",
+        ).button()
+        try button.tap()
+        XCTAssertEqual(processor.dispatchedActions.last, .copyPressed(value: "123-456-7890", field: .bankContactPhone))
+    }
+
+    /// Tapping the copy name on account button dispatches the copy action.
+    @MainActor
+    func test_copyNameOnAccountButton_pressed() throws {
+        let button = try subject.inspect().find(
+            viewWithAccessibilityIdentifier: "BankAccountCopyNameOnAccountButton",
+        ).button()
+        try button.tap()
+        XCTAssertEqual(
+            processor.dispatchedActions.last,
+            .copyPressed(value: "Personal Checking", field: .nameOnAccount),
+        )
+    }
+
     /// Tapping the copy IBAN button dispatches the copy action.
     @MainActor
     func test_copyIbanButton_pressed() throws {

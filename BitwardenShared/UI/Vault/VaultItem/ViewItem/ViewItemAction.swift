@@ -68,8 +68,17 @@ enum CopyableField {
     /// The bank account number field.
     case accountNumber
 
+    /// The bank contact phone field.
+    case bankContactPhone
+
+    /// The bank account branch number field.
+    case branchNumber
+
     /// The bank account IBAN field.
     case iban
+
+    /// The name on the bank account field.
+    case nameOnAccount
 
     /// The bank account PIN field.
     case pin
@@ -169,8 +178,14 @@ enum CopyableField {
         switch self {
         case .accountNumber:
             Localizations.accountNumber
+        case .bankContactPhone:
+            Localizations.bankContactPhone
+        case .branchNumber:
+            Localizations.branchNumber
         case .iban:
             Localizations.iban
+        case .nameOnAccount:
+            Localizations.nameOnAccount
         case .pin:
             Localizations.pin
         case .routingNumber:
