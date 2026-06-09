@@ -61,6 +61,9 @@ protocol ViewVaultItemState: Sendable, VaultItemWithDecorativeIcon {
     /// The name of the organization the item belongs to, if any.
     var organizationName: String? { get set }
 
+    /// The passport item state.
+    var passportItemState: PassportItemState { get set }
+
     /// Whether the item should be displayed as archived.
     var shouldDisplayAsArchived: Bool { get }
 
