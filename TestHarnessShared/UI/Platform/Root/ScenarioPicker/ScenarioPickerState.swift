@@ -31,6 +31,11 @@ struct ScenarioPickerState: Equatable {
     init() {
         var items: [ScenarioItem] = [
             ScenarioItem(id: "simpleLoginForm", title: Localizations.simpleLoginForm, route: .simpleLoginForm),
+            ScenarioItem(
+                id: "dateFieldPicker",
+                title: Localizations.dateFieldPicker,
+                route: .dateFieldPickerShowcase,
+            ),
         ]
         if #available(iOS 17, *) {
             items.append(
