@@ -25,7 +25,7 @@ class MockClient: BitwardenSdkClient {
     var exporterClient = MockExporterClientProtocol()
     var generatorClient = MockGeneratorClientsProtocol()
     var platformClient = MockPlatformClientService.withMocks()
-    var policiesClient = MockPoliciesClient()
+    var policiesClient = MockPoliciesClientProtocol()
     var sendClient = MockSendClientProtocol()
     var vaultClient = MockVaultClientService()
 

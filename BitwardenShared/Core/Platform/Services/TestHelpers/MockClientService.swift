@@ -16,12 +16,12 @@ class MockClientService: ClientService {
     var mockGeneratorsUserId: String?
     var mockPlatform: MockPlatformClientService
     var mockPlatformIsPreAuth = false
-    var mockPolicies: MockPoliciesClient
-    var policiesError: Error?
+    var mockPolicies: MockPoliciesClientProtocol
     var mockSends: MockSendClientProtocol
     var mockVault: MockVaultClientService
     var platformCallCount = 0
     var platformError: Error?
+    var policiesError: Error?
     var userClientArray = [String: BitwardenSdkClient]()
 
     init(
@@ -30,7 +30,7 @@ class MockClientService: ClientService {
         exporters: MockExporterClientProtocol = MockExporterClientProtocol(),
         generators: MockGeneratorClientsProtocol = MockGeneratorClientsProtocol(),
         platform: MockPlatformClientService = MockPlatformClientService.withMocks(),
-        policies: MockPoliciesClient = MockPoliciesClient(),
+        policies: MockPoliciesClientProtocol = MockPoliciesClientProtocol(),
         sends: MockSendClientProtocol = {
             let mock = MockSendClientProtocol()
             mock.decryptClosure = { SendView(send: $0) }

@@ -17,6 +17,7 @@ extension ExporterClientProtocol {}
 extension FoldersClientProtocol {}
 extension GeneratorClientsProtocol {}
 extension PasswordHistoryClientProtocol {}
+extension PoliciesClientProtocol {}
 extension RegistrationClientProtocol {}
 extension SendClientProtocol {}
 extension StateClientProtocol {}

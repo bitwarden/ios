@@ -43,13 +43,6 @@ protocol ClientService {
     ///
     func generators(for userId: String?, isPreAuth: Bool) async throws -> GeneratorClientsProtocol
 
-    /// Returns a `PoliciesClientProtocol` for policy data tasks.
-    ///
-    /// - Parameter userId: The user ID mapped to the client instance.
-    /// - Returns: A `PoliciesClientProtocol` for policy data tasks.
-    ///
-    func policies(for userId: String?) async throws -> PoliciesClientProtocol
-
     /// Returns a `PlatformClientService` for client platform tasks.
     ///
     /// - Parameters:
@@ -59,6 +52,13 @@ protocol ClientService {
     /// - Returns: A `PlatformClientService` for client platform tasks.
     ///
     func platform(for userId: String?, isPreAuth: Bool) async throws -> PlatformClientService
+
+    /// Returns a `PoliciesClientProtocol` for policy data tasks.
+    ///
+    /// - Parameter userId: The user ID mapped to the client instance.
+    /// - Returns: A `PoliciesClientProtocol` for policy data tasks.
+    ///
+    func policies(for userId: String?) async throws -> PoliciesClientProtocol
 
     /// Removes the user's client from memory.
     ///
@@ -228,12 +228,12 @@ actor DefaultClientService: ClientService {
         try await client(for: userId, isPreAuth: isPreAuth).generators()
     }
 
-    func policies(for userId: String?) async throws -> PoliciesClientProtocol {
-        try await client(for: userId).policies()
-    }
-
     func platform(for userId: String?, isPreAuth: Bool = false) async throws -> PlatformClientService {
         try await client(for: userId, isPreAuth: isPreAuth).platform()
+    }
+
+    func policies(for userId: String?) async throws -> PoliciesClientProtocol {
+        try await client(for: userId).policies()
     }
 
     func removeClient(for userId: String?) async throws {
