@@ -4,6 +4,7 @@ import XCTest
 @testable import BitwardenShared
 @testable import BitwardenSharedMocks
 
+// swiftlint:disable file_length
 class CredentialProviderContextTests: BitwardenTestCase { // swiftlint:disable:this type_body_length
     // MARK: Tests
 
@@ -42,6 +43,7 @@ class CredentialProviderContextTests: BitwardenTestCase { // swiftlint:disable:t
                 .authCompletionRoute,
             AppRoute.extensionSetup(.extensionActivation(type: .autofillExtension)),
         )
+        XCTAssertNil(DefaultCredentialProviderContext(.generatePasswordWithoutUserInteraction).authCompletionRoute)
         XCTAssertEqual(
             DefaultCredentialProviderContext(.registerFido2Credential(MockPasskeyCredentialRequest()))
                 .authCompletionRoute,
@@ -83,6 +85,7 @@ class CredentialProviderContextTests: BitwardenTestCase { // swiftlint:disable:t
                 ),
             ).configuring,
         )
+        XCTAssertFalse(DefaultCredentialProviderContext(.generatePasswordWithoutUserInteraction).configuring)
         XCTAssertFalse(
             DefaultCredentialProviderContext(.registerFido2Credential(MockPasskeyCredentialRequest()))
                 .configuring,
@@ -240,6 +243,9 @@ class CredentialProviderContextTests: BitwardenTestCase { // swiftlint:disable:t
 
         let subject4 = DefaultCredentialProviderContext(.registerFido2Credential(MockPasskeyCredentialRequest()))
         XCTAssertTrue(subject4.flowWithUserInteraction)
+
+        let subjectGenPw = DefaultCredentialProviderContext(.generatePasswordWithoutUserInteraction)
+        XCTAssertFalse(subjectGenPw.flowWithUserInteraction)
     }
 
     /// `getter:serviceIdentifiers` returns the identifiers of `autofillVaultList`.

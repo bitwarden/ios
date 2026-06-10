@@ -256,6 +256,30 @@ public class AppProcessor {
         )
     }
 
+    /// Generates a password using the user's saved generation options without showing UI.
+    ///
+    /// - Returns: The generated password string.
+    ///
+    @available(iOSApplicationExtension 26.2, *)
+    public func generatePasswordCredential() async throws -> String {
+        try await unlockVaultWithNeverlockKey()
+
+        let options = try await services.generatorRepository.getPasswordGenerationOptions()
+        let request = PasswordGeneratorRequest(
+            lowercase: options.lowercase ?? true,
+            uppercase: options.uppercase ?? true,
+            numbers: options.number ?? true,
+            special: options.special ?? false,
+            length: UInt8(clamping: options.length ?? 14),
+            avoidAmbiguous: !(options.allowAmbiguousChar ?? true),
+            minLowercase: (options.lowercase ?? true) ? 1 : nil,
+            minUppercase: (options.uppercase ?? true) ? 1 : nil,
+            minNumber: (options.number ?? true) ? UInt8(clamping: options.minNumber ?? 1) : nil,
+            minSpecial: (options.special ?? false) ? UInt8(clamping: options.minSpecial ?? 1) : nil,
+        )
+        return try await services.generatorRepository.generatePassword(settings: request)
+    }
+
     /// Saves a password credential to the vault without showing UI.
     ///
     /// - Parameters:

@@ -28,6 +28,9 @@ public enum CredentialProviderMode {
     /// The extension is being configured to set up autofill.
     case configureAutofill
 
+    /// The extension is generating a password without user interaction.
+    case generatePasswordWithoutUserInteraction
+
     /// The extension is being configured to register a Fido2 credential.
     case registerFido2Credential(any PasskeyCredentialRequest)
 

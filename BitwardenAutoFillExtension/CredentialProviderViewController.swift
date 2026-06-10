@@ -316,6 +316,40 @@ extension CredentialProviderViewController {
 
 extension CredentialProviderViewController {
     @available(iOSApplicationExtension 26.2, *)
+    override func performWithoutUserInteraction(generatePasswordsRequest: ASGeneratePasswordsRequest) {
+        Task {
+            await initializeAppWithoutUserInteraction(
+                with: DefaultCredentialProviderContext(.generatePasswordWithoutUserInteraction),
+            )
+            await generatePassword()
+        }
+    }
+
+    /// Generates a password using the user's saved options and returns it to the requesting app.
+    ///
+    @available(iOSApplicationExtension 26.2, *)
+    private func generatePassword() async {
+        guard let appProcessor else {
+            cancel(error: ASExtensionError(.failed))
+            return
+        }
+
+        do {
+            let password = try await appProcessor.generatePasswordCredential()
+            // TODO: PM-29569 Replace stub with SDK call once ASGeneratedPasswords is in the shipping Xcode SDK.
+            // extensionContext.completeGeneratePasswordRequest(
+            //     results: [ASGeneratedPasswords(password: password)],
+            //     completionHandler: nil,
+            // )
+            _ = password
+            cancel(error: ASExtensionError(.failed))
+        } catch {
+            Logger.appExtension.error("Error generating password without user interaction: \(error)")
+            cancel(error: error)
+        }
+    }
+
+    @available(iOSApplicationExtension 26.2, *)
     override func performWithoutUserInteractionIfPossible(savePasswordRequest: ASSavePasswordRequest) {
         Task {
             await initializeAppWithoutUserInteraction(

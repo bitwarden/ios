@@ -119,6 +119,8 @@
 				</array>
 				<key>SupportsCredentialExchange</key>
 				<true/>
+				<key>SupportsGeneratePasswordCredentials</key>
+				<true/>
 				<key>SupportsSavePasswordCredentials</key>
 				<true/>
 			</dict>

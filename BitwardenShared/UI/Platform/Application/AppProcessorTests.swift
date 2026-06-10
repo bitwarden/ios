@@ -28,6 +28,7 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
     var errorReporter: MockErrorReporter!
     var fido2UserInterfaceHelper: MockFido2UserInterfaceHelper!
     var eventService: MockEventService!
+    var generatorRepository: MockGeneratorRepository!
     var migrationService: MockMigrationService!
     var notificationCenterService: MockNotificationCenterService!
     var notificationService: MockNotificationService!
@@ -66,6 +67,7 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
         errorReporter = MockErrorReporter()
         fido2UserInterfaceHelper = MockFido2UserInterfaceHelper()
         eventService = MockEventService()
+        generatorRepository = MockGeneratorRepository()
         migrationService = MockMigrationService()
         notificationCenterService = MockNotificationCenterService()
         notificationService = MockNotificationService()
@@ -94,6 +96,7 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
                 errorReporter: errorReporter,
                 eventService: eventService,
                 fido2UserInterfaceHelper: fido2UserInterfaceHelper,
+                generatorRepository: generatorRepository,
                 migrationService: migrationService,
                 notificationService: notificationService,
                 pendingAppIntentActionMediator: pendingAppIntentActionMediator,
@@ -123,6 +126,7 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
         errorReporter = nil
         fido2UserInterfaceHelper = nil
         eventService = nil
+        generatorRepository = nil
         migrationService = nil
         notificationCenterService = nil
         notificationService = nil
@@ -985,6 +989,40 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
             )
         }
         XCTAssertTrue(vaultRepository.addCipherCiphers.isEmpty)
+    }
+
+    /// `generatePasswordCredential()` unlocks the vault, retrieves options, generates, and returns a password.
+    @available(iOS 26.2, *)
+    func test_generatePasswordCredential() async throws {
+        generatorRepository.passwordResult = .success("generated-password")
+
+        let result = try await subject.generatePasswordCredential()
+
+        XCTAssertTrue(authRepository.unlockVaultWithNeverlockKeyCalled)
+        XCTAssertTrue(generatorRepository.getPasswordGenerationOptionsCalled)
+        XCTAssertNotNil(generatorRepository.passwordGeneratorRequest)
+        XCTAssertEqual(result, "generated-password")
+    }
+
+    /// `generatePasswordCredential()` throws when vault unlock fails.
+    @available(iOS 26.2, *)
+    func test_generatePasswordCredential_unlockError() async throws {
+        authRepository.unlockVaultWithNeverlockResult = .failure(BitwardenTestError.example)
+
+        await assertAsyncThrows(error: BitwardenTestError.example) {
+            _ = try await subject.generatePasswordCredential()
+        }
+        XCTAssertNil(generatorRepository.passwordGeneratorRequest)
+    }
+
+    /// `generatePasswordCredential()` throws when the generator fails.
+    @available(iOS 26.2, *)
+    func test_generatePasswordCredential_generatorError() async throws {
+        generatorRepository.passwordResult = .failure(BitwardenTestError.example)
+
+        await assertAsyncThrows(error: BitwardenTestError.example) {
+            _ = try await subject.generatePasswordCredential()
+        }
     }
 
     /// `repromptForCredentialIfNecessary(for:)` reprompts the user for their master password if
