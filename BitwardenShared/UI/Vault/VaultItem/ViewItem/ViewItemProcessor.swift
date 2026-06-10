@@ -439,8 +439,8 @@ private extension ViewItemProcessor {
             return
         }
         switch action {
-        case let .toggleLicenseNumberVisibilityChanged(isVisible):
-            cipherState.driversLicenseItemState.isLicenseNumberVisible = isVisible
+        case .toggleLicenseNumberVisibilityChanged:
+            cipherState.driversLicenseItemState.isLicenseNumberVisible.toggle()
             state.loadingState = .data(cipherState)
         }
     }

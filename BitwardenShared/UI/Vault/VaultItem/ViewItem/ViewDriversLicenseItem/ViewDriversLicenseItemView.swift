@@ -44,6 +44,8 @@ struct ViewDriversLicenseItemView: View {
 
     // MARK: Private Views
 
+    /// The first name field.
+    ///
     @ViewBuilder private var firstNameItem: some View {
         if !store.state.firstName.isEmpty {
             let firstName = store.state.firstName
@@ -58,6 +60,8 @@ struct ViewDriversLicenseItemView: View {
         }
     }
 
+    /// The middle name field.
+    ///
     @ViewBuilder private var middleNameItem: some View {
         if !store.state.middleName.isEmpty {
             let middleName = store.state.middleName
@@ -72,6 +76,8 @@ struct ViewDriversLicenseItemView: View {
         }
     }
 
+    /// The last name field.
+    ///
     @ViewBuilder private var lastNameItem: some View {
         if !store.state.lastName.isEmpty {
             let lastName = store.state.lastName
@@ -86,6 +92,8 @@ struct ViewDriversLicenseItemView: View {
         }
     }
 
+    /// The license number field, masked behind a visibility toggle with a copy button.
+    ///
     @ViewBuilder private var licenseNumberItem: some View {
         let licenseNumber = store.state.licenseNumber
         let isVisible = store.state.isLicenseNumberVisible
@@ -100,7 +108,7 @@ struct ViewDriversLicenseItemView: View {
                     accessibilityIdentifier: "ShowDriversLicenseNumberButton",
                     isPasswordVisible: isVisible,
                 ) {
-                    store.send(.driversLicenseItemAction(.toggleLicenseNumberVisibilityChanged(!isVisible)))
+                    store.send(.driversLicenseItemAction(.toggleLicenseNumberVisibilityChanged))
                 }
 
                 Button {
@@ -116,6 +124,8 @@ struct ViewDriversLicenseItemView: View {
         }
     }
 
+    /// The issuing country field.
+    ///
     @ViewBuilder private var issuingCountryItem: some View {
         if !store.state.issuingCountry.isEmpty {
             BitwardenTextValueField(
@@ -127,6 +137,8 @@ struct ViewDriversLicenseItemView: View {
         }
     }
 
+    /// The issuing state or province field.
+    ///
     @ViewBuilder private var issuingStateItem: some View {
         if !store.state.issuingState.isEmpty {
             BitwardenTextValueField(
@@ -138,6 +150,8 @@ struct ViewDriversLicenseItemView: View {
         }
     }
 
+    /// The issuing authority field.
+    ///
     @ViewBuilder private var issuingAuthorityItem: some View {
         if !store.state.issuingAuthority.isEmpty {
             BitwardenTextValueField(
@@ -149,6 +163,8 @@ struct ViewDriversLicenseItemView: View {
         }
     }
 
+    /// The license class field.
+    ///
     @ViewBuilder private var licenseClassItem: some View {
         if !store.state.licenseClass.isEmpty {
             BitwardenTextValueField(

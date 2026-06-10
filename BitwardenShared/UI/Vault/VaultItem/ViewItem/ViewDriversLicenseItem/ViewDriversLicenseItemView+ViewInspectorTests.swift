@@ -77,7 +77,7 @@ class ViewDriversLicenseItemViewTests: BitwardenTestCase {
         try button.tap()
         XCTAssertEqual(
             processor.dispatchedActions.last,
-            .driversLicenseItemAction(.toggleLicenseNumberVisibilityChanged(true)),
+            .driversLicenseItemAction(.toggleLicenseNumberVisibilityChanged),
         )
     }
 

@@ -647,7 +647,7 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
             hasPremium: true,
         )!
         subject.state.loadingState = .data(cipherState)
-        subject.receive(.driversLicenseItemAction(.toggleLicenseNumberVisibilityChanged(true)))
+        subject.receive(.driversLicenseItemAction(.toggleLicenseNumberVisibilityChanged))
 
         cipherState.driversLicenseItemState.isLicenseNumberVisible = true
         XCTAssertEqual(subject.state.loadingState, .data(cipherState))
@@ -657,7 +657,7 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
     @MainActor
     func test_receive_driversLicenseItemAction_impossible_loading() throws {
         subject.state.loadingState = .loading(nil)
-        subject.receive(.driversLicenseItemAction(.toggleLicenseNumberVisibilityChanged(true)))
+        subject.receive(.driversLicenseItemAction(.toggleLicenseNumberVisibilityChanged))
         XCTAssertEqual(
             errorReporter.errors.first as? ViewItemProcessor.ActionError,
             ViewItemProcessor.ActionError.dataNotLoaded("Cannot handle driver's license action without loaded data"),
@@ -679,7 +679,7 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
             hasPremium: true,
         )!
         subject.state.loadingState = .data(cipherState)
-        subject.receive(.driversLicenseItemAction(.toggleLicenseNumberVisibilityChanged(true)))
+        subject.receive(.driversLicenseItemAction(.toggleLicenseNumberVisibilityChanged))
         XCTAssertEqual(
             errorReporter.errors.first as? ViewItemProcessor.ActionError,
             ViewItemProcessor.ActionError.nonDriversLicenseTypeToggle(
