@@ -25,4 +25,5 @@
 "TestHarness" = "Test Harness";
 "TestScenarios" = "Test Scenarios";
 "Username" = "Username";
+"UseThisLoginFormToTestAutofillFunctionality" = "Use this login form to test autofill functionality.";
 "XColonY" = "%@: %@";
