@@ -166,52 +166,50 @@ struct AddEditBankAccountItemView: View {
 }
 
 #if DEBUG
-struct AddEditBankAccountItemView_Previews: PreviewProvider {
-    static var previews: some View {
-        NavigationView {
-            ScrollView {
-                AddEditBankAccountItemView(
-                    store: Store(
-                        processor: StateProcessor(
-                            state: BankAccountItemState() as (any AddEditBankAccountItemState),
-                        ),
+#Preview("Empty") {
+    NavigationView {
+        ScrollView {
+            AddEditBankAccountItemView(
+                store: Store(
+                    processor: StateProcessor(
+                        state: BankAccountItemState() as (any AddEditBankAccountItemState),
                     ),
-                )
-                .padding(16)
-            }
-            .background(SharedAsset.Colors.backgroundPrimary.swiftUIColor)
-            .navigationBar(title: "Empty Add Edit State", titleDisplayMode: .inline)
+                ),
+            )
+            .padding(16)
         }
-        .previewDisplayName("Empty Add Edit State")
+        .background(SharedAsset.Colors.backgroundPrimary.swiftUIColor)
+        .navigationBar(title: "Empty Add Edit State", titleDisplayMode: .inline)
+    }
+}
 
-        NavigationView {
-            ScrollView {
-                AddEditBankAccountItemView(
-                    store: Store(
-                        processor: StateProcessor(
-                            state: {
-                                var state = BankAccountItemState()
-                                state.bankName = "Bank of America"
-                                state.nameOnAccount = "Personal Checking"
-                                state.accountType = .custom(.checking)
-                                state.accountNumber = "1234567890123456"
-                                state.routingNumber = "1234567890"
-                                state.branchNumber = "100"
-                                state.pin = "1234"
-                                state.swiftCode = "123234"
-                                state.iban = "23423434543"
-                                state.bankContactPhone = "123-456-7890"
-                                return state
-                            }() as (any AddEditBankAccountItemState),
-                        ),
+#Preview("Populated") {
+    NavigationView {
+        ScrollView {
+            AddEditBankAccountItemView(
+                store: Store(
+                    processor: StateProcessor(
+                        state: {
+                            var state = BankAccountItemState()
+                            state.bankName = "Bank of America"
+                            state.nameOnAccount = "Personal Checking"
+                            state.accountType = .custom(.checking)
+                            state.accountNumber = "1234567890123456"
+                            state.routingNumber = "1234567890"
+                            state.branchNumber = "100"
+                            state.pin = "1234"
+                            state.swiftCode = "123234"
+                            state.iban = "23423434543"
+                            state.bankContactPhone = "123-456-7890"
+                            return state
+                        }() as (any AddEditBankAccountItemState),
                     ),
-                )
-                .padding(16)
-            }
-            .background(SharedAsset.Colors.backgroundPrimary.swiftUIColor)
-            .navigationBar(title: "Populated Add Edit State", titleDisplayMode: .inline)
+                ),
+            )
+            .padding(16)
         }
-        .previewDisplayName("Populated Add Edit State")
+        .background(SharedAsset.Colors.backgroundPrimary.swiftUIColor)
+        .navigationBar(title: "Populated Add Edit State", titleDisplayMode: .inline)
     }
 }
 #endif
