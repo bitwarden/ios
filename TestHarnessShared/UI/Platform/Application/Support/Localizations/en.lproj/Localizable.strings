@@ -8,10 +8,16 @@
 "EnterCredentialsAbove" = "Enter credentials above";
 "ExpirationMonth" = "Expiration Month";
 "ExpirationYear" = "Expiration Year";
+"FileShare" = "File Share";
+"FileShareDescriptionLong" = "Use this view to test the Bitwarden Share Extension. Tap a share button, then select Bitwarden from the iOS share sheet to create a Send.";
 "FormValues" = "Form Values";
 "PasskeyAutofill" = "Passkey Autofill";
 "Password" = "Password";
 "SecurityCode" = "Security Code";
+"ShareFile" = "Share File";
+"ShareFileDescription" = "Opens the iOS share sheet with a sample .txt file. Select Bitwarden to create a file Send.";
+"ShareText" = "Share Text";
+"ShareTextDescription" = "Opens the iOS share sheet with text content. Select Bitwarden to create a text Send.";
 "SimpleLoginForm" = "Simple Login Form";
 "SimpleLoginFormDescription" = "Use this simple login form to test autofill functionality.";
 "TestHarness" = "Test Harness";

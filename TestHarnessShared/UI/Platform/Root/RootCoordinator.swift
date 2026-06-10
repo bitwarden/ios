@@ -38,6 +38,8 @@ class RootCoordinator: Coordinator, HasStackNavigator {
         switch route {
         case .cardAutofillForm:
             showCardAutofillForm()
+        case .fileShare:
+            showFileShare()
         case .scenarioPicker:
             showScenarioPicker()
         case .simpleLoginForm:
@@ -57,6 +59,16 @@ class RootCoordinator: Coordinator, HasStackNavigator {
         guard #available(iOS 17, *) else { return }
         let processor = CardAutofillFormProcessor(coordinator: asAnyCoordinator())
         let view = CardAutofillFormView(store: Store(processor: processor))
+        let viewController = UIHostingController(rootView: view)
+        stackNavigator?.push(viewController)
+    }
+
+    /// Shows the file share test screen.
+    ///
+    private func showFileShare() {
+        guard #available(iOS 16.0, *) else { return }
+        let processor = FileShareProcessor(coordinator: asAnyCoordinator())
+        let view = FileShareView(store: Store(processor: processor))
         let viewController = UIHostingController(rootView: view)
         stackNavigator?.push(viewController)
     }
