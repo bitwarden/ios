@@ -37,7 +37,7 @@ struct TOTPAutofillFormView: View {
             } header: {
                 Text(Localizations.totpCode)
             } footer: {
-                Text(Localizations.totpAutofillFormDescription)
+                Text(Localizations.tapTheTOTPCodeFieldAndSelectDescriptionLong)
             }
 
             Section {
