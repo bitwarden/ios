@@ -21,6 +21,9 @@ public enum VaultListGroup: Equatable, Hashable, Sendable {
     /// A group of login type ciphers.
     case login
 
+    /// A group of passport type ciphers.
+    case passport
+
     /// A group of secure note type ciphers.
     case secureNote
 
@@ -92,6 +95,8 @@ extension VaultListGroup {
             Localizations.typeIdentity
         case .login:
             Localizations.typeLogin
+        case .passport:
+            Localizations.typePassport
         case .secureNote:
             Localizations.typeSecureNote
         case .sshKey:
@@ -124,6 +129,8 @@ extension VaultListGroup {
             Localizations.identities
         case .login:
             Localizations.logins
+        case .passport:
+            Localizations.passports
         case .secureNote:
             Localizations.secureNotes
         case .sshKey:

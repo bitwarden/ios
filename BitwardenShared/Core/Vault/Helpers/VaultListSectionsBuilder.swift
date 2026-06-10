@@ -422,6 +422,7 @@ class DefaultVaultListSectionsBuilder: VaultListSectionsBuilder { // swiftlint:d
 
         if preparedData.isNewItemTypesEnabled {
             types.append(newItemTypeRow(id: "Types.DriversLicense", group: .driversLicense, type: .driversLicense))
+            types.append(newItemTypeRow(id: "Types.Passport", group: .passport, type: .passport))
         }
 
         types.append(
@@ -479,6 +480,7 @@ struct VaultListPreparedData {
         .driversLicense: 0,
         .identity: 0,
         .login: 0,
+        .passport: 0,
         .secureNote: 0,
         .sshKey: 0,
     ]
