@@ -674,7 +674,9 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
         )
 
         let policyService = DefaultPolicyService(
+            clientService: clientService,
             configService: configService,
+            errorReporter: errorReporter,
             organizationService: organizationService,
             policyDataStore: dataStore,
             stateService: stateService,
@@ -847,6 +849,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
             organizationUserAPIService: apiService,
             policyService: policyService,
             stateService: stateService,
+            syncService: syncService,
             trustDeviceService: trustDeviceService,
             userSessionStateService: stateService,
             vaultTimeoutService: vaultTimeoutService,

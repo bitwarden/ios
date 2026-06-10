@@ -323,6 +323,17 @@ final class ClientServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
         XCTAssertNotIdentical(platform, user2Platform)
     }
 
+    /// `policies(for:)` returns a non-nil `PoliciesClientProtocol` for every user.
+    func test_policies() async throws {
+        stateService.activeAccount = .fixture(profile: .fixture(userId: "1"))
+
+        let policies = try await subject.policies()
+        XCTAssertIdentical(policies, clientBuilder.clients.first?.policiesClient)
+
+        let user2Policies = try await subject.policies(for: "2")
+        XCTAssertNotIdentical(policies, user2Policies)
+    }
+
     /// `removeClient(for:)` removes a cached client for a user.
     func test_removeClient() async throws {
         stateService.activeAccount = .fixture(profile: .fixture(userId: "1"))
