@@ -15,9 +15,11 @@
 "Password" = "Password";
 "SecurityCode" = "Security Code";
 "ShareFile" = "Share File";
-"ShareFileDescription" = "Opens the iOS share sheet with a sample .txt file. Select Bitwarden to create a file Send.";
+"ShareFileDescription" = "Shares a sample PDF via the iOS share sheet. Exercises the UTType.data → URL → file Send path in the share extension.";
+"ShareImage" = "Share Image";
+"ShareImageDescription" = "Shares a generated PNG image via the iOS share sheet. Exercises the UTType.data → UIImage → file Send path in the share extension.";
 "ShareText" = "Share Text";
-"ShareTextDescription" = "Opens the iOS share sheet with text content. Select Bitwarden to create a text Send.";
+"ShareTextDescription" = "Shares the text above via the iOS share sheet. Exercises the UTType.plainText → text Send path in the share extension.";
 "SimpleLoginForm" = "Simple Login Form";
 "SimpleLoginFormDescription" = "Use this simple login form to test autofill functionality.";
 "TestHarness" = "Test Harness";

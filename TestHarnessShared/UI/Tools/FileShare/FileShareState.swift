@@ -5,16 +5,22 @@ import Foundation
 struct FileShareState: Equatable {
     // MARK: Static Properties
 
-    /// The content written to the sample file.
-    static let sampleFileContent = "This is a sample file for testing Bitwarden Send file sharing."
+    /// The raw bytes written to the sample PDF file.
+    static let sampleFileData = Data("%PDF-1.4\n%%EOF\n".utf8)
 
-    /// The name of the sample file written to the temporary directory.
-    static let sampleFileName = "bitwarden-sample.txt"
+    /// The name of the sample PDF file written to the temporary directory.
+    static let sampleFileName = "bitwarden-sample.pdf"
+
+    /// The display name for the generated PNG image shared via the iOS share sheet.
+    static let sampleImageName = "bitwarden-sample.png"
 
     // MARK: Properties
 
-    /// The URL of the sample file written to the temporary directory, once available.
+    /// The URL of the sample PDF file in the temporary directory, once available.
     var shareableFileURL: URL?
+
+    /// The PNG data for the generated sample image, once available.
+    var shareableImageData: Data?
 
     /// The text content to share via the iOS share sheet.
     var textContent: String = "Sample text to share via Bitwarden Send."

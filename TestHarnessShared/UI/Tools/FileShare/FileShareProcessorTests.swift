@@ -33,11 +33,12 @@ class FileShareProcessorTests: BitwardenTestCase {
 
     // MARK: Initial State Tests
 
-    /// Initial state has the expected default text content and no shareable file URL.
+    /// Initial state has the expected default text content and no shareable URLs or image data.
     @MainActor
     func test_initialState_defaults() {
         XCTAssertEqual(subject.state.textContent, "Sample text to share via Bitwarden Send.")
         XCTAssertNil(subject.state.shareableFileURL)
+        XCTAssertNil(subject.state.shareableImageData)
         XCTAssertEqual(subject.state.title, Localizations.fileShare)
     }
 
@@ -68,7 +69,7 @@ class FileShareProcessorTests: BitwardenTestCase {
 
     // MARK: Effect Tests
 
-    /// `perform(.viewAppeared)` writes the sample file and sets `shareableFileURL`.
+    /// `perform(.viewAppeared)` writes the sample PDF and sets `shareableFileURL`.
     @MainActor
     func test_perform_viewAppeared_writesFileAndSetsURL() async {
         await subject.perform(.viewAppeared)
@@ -80,8 +81,8 @@ class FileShareProcessorTests: BitwardenTestCase {
             XCTAssertTrue(FileManager.default.fileExists(atPath: fileURL.path))
             XCTAssertEqual(fileURL.lastPathComponent, FileShareState.sampleFileName)
 
-            let writtenContent = try? String(contentsOf: fileURL, encoding: .utf8)
-            XCTAssertEqual(writtenContent, FileShareState.sampleFileContent)
+            let writtenData = try? Data(contentsOf: fileURL)
+            XCTAssertEqual(writtenData, FileShareState.sampleFileData)
         }
     }
 
@@ -92,5 +93,13 @@ class FileShareProcessorTests: BitwardenTestCase {
 
         let tempDir = FileManager.default.temporaryDirectory
         XCTAssertEqual(subject.state.shareableFileURL?.deletingLastPathComponent(), tempDir)
+    }
+
+    /// `perform(.viewAppeared)` generates PNG data and sets `shareableImageData`.
+    @MainActor
+    func test_perform_viewAppeared_setsShareableImageData() async {
+        await subject.perform(.viewAppeared)
+
+        XCTAssertNotNil(subject.state.shareableImageData)
     }
 }

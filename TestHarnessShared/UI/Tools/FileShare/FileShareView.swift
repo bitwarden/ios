@@ -1,11 +1,23 @@
 import BitwardenKit
 import SwiftUI
+import UniformTypeIdentifiers
 
-/// A view for testing the Bitwarden Share Extension by sharing text or file content
+/// A view for testing the Bitwarden Share Extension by sharing text, file, or image content
 /// via the iOS share sheet.
 ///
 @available(iOS 16.0, *)
 struct FileShareView: View {
+    // MARK: Private Types
+
+    /// A `Transferable` wrapper that exports raw PNG data to the iOS share sheet.
+    private struct ShareableImage: Transferable {
+        static var transferRepresentation: some TransferRepresentation {
+            DataRepresentation(exportedContentType: .png) { $0.data }
+        }
+
+        let data: Data
+    }
+
     // MARK: Properties
 
     /// The store used to render the view.
@@ -29,6 +41,7 @@ struct FileShareView: View {
         Form {
             shareTextSection
             shareFileSection
+            shareImageSection
         }
     }
 
@@ -54,7 +67,7 @@ struct FileShareView: View {
         }
     }
 
-    /// The section for sharing a sample file.
+    /// The section for sharing a sample PDF file.
     private var shareFileSection: some View {
         Section {
             if let fileURL = store.state.shareableFileURL {
@@ -78,6 +91,33 @@ struct FileShareView: View {
             Text(Localizations.shareFile)
         } footer: {
             Text(Localizations.shareFileDescription)
+        }
+    }
+
+    /// The section for sharing a generated PNG image.
+    private var shareImageSection: some View {
+        Section {
+            if let imageData = store.state.shareableImageData {
+                ShareLink(
+                    item: ShareableImage(data: imageData),
+                    preview: SharePreview(FileShareState.sampleImageName),
+                ) {
+                    HStack {
+                        Label(Localizations.shareImage, systemImage: "photo.badge.arrow.up")
+                        Spacer()
+                        Text(FileShareState.sampleImageName)
+                            .foregroundColor(.secondary)
+                            .styleGuide(.body)
+                    }
+                }
+            } else {
+                Label(Localizations.shareImage, systemImage: "photo.badge.arrow.up")
+                    .foregroundColor(.secondary)
+            }
+        } header: {
+            Text(Localizations.shareImage)
+        } footer: {
+            Text(Localizations.shareImageDescription)
         }
     }
 }
