@@ -53,6 +53,8 @@ protocol AddEditPassportItemState: Equatable, Sendable {
 
 // MARK: - Display Helpers
 
+// TODO: PM-38360 - Remove this `Display Helpers` extension (and the read-only date fields it backs)
+// once the shared `DateFieldPicker` and date utilities replace them.
 extension AddEditPassportItemState {
     /// The date of birth formatted as a long localized date (e.g. "August 10, 2026"); empty when unset.
     var dateOfBirthDisplay: String { Self.displayDate(from: dateOfBirth) }
@@ -67,8 +69,7 @@ extension AddEditPassportItemState {
     /// (e.g. "August 10, 2026"), or returns an empty string when the value is unset or unparsable.
     ///
     /// Parses fixed to UTC so a stored date reads back as the same calendar day regardless of device
-    /// locale. Self-contained intentionally; PM-38360 introduces the shared `DateFieldPicker` and date
-    /// utilities that will replace these read-only fields.
+    /// locale.
     private static func displayDate(from isoString: String) -> String {
         guard !isoString.isEmpty else { return "" }
         let parser = DateFormatter()
