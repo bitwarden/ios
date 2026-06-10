@@ -49,6 +49,31 @@ extension CipherView {
         )
     }
 
+    /// Creates a `DriversLicenseItemState` representation of the cipher.
+    ///
+    /// This function converts the `driversLicense` information of the cipher into a
+    /// `DriversLicenseItemState`, which is used to manage and display driver's license data in the
+    /// UI. Date fields are read as raw strings without any parsing.
+    ///
+    /// - Returns: A `DriversLicenseItemState` representing the driver's license information of the cipher.
+    ///
+    func driversLicenseItemState() -> DriversLicenseItemState {
+        guard let driversLicense else { return DriversLicenseItemState() }
+        return DriversLicenseItemState(
+            dateOfBirth: driversLicense.dateOfBirth ?? "",
+            expirationDate: driversLicense.expirationDate ?? "",
+            firstName: driversLicense.firstName ?? "",
+            issueDate: driversLicense.issueDate ?? "",
+            issuingAuthority: driversLicense.issuingAuthority ?? "",
+            issuingCountry: driversLicense.issuingCountry ?? "",
+            issuingState: driversLicense.issuingState ?? "",
+            lastName: driversLicense.lastName ?? "",
+            licenseClass: driversLicense.licenseClass ?? "",
+            licenseNumber: driversLicense.licenseNumber ?? "",
+            middleName: driversLicense.middleName ?? "",
+        )
+    }
+
     /// Creates an `IdentityItemState` representation of the cipher.
     ///
     /// This function converts the `identity` information of the cipher into an `IdentityItemState`,
@@ -191,7 +216,9 @@ extension CipherView {
             secureNote: (addEditState.type == .secureNote) ? secureNote : nil,
             sshKey: (addEditState.type == .sshKey) ? sshKey : nil,
             bankAccount: bankAccount, // TODO: PM-32809
-            driversLicense: driversLicense, // TODO: PM-32807
+            driversLicense: (addEditState.type == .driversLicense)
+                ? addEditState.driversLicenseItemState.driversLicenseView
+                : nil,
             passport: passport, // TODO: PM-32805
             favorite: addEditState.isFavoriteOn,
             reprompt: addEditState.isMasterPasswordRePromptOn ? .password : .none,

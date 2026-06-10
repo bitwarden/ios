@@ -86,11 +86,60 @@ class PremiumPlanViewTests: BitwardenTestCase {
         XCTAssertNotNil(button)
     }
 
+    /// The estimated tax row renders as $0.00 when tax is zero and the plan is active.
+    @MainActor
+    func test_estimatedTax_visible_whenZero() throws {
+        processor.state.planStatus = .active
+        processor.state.subscription = PremiumSubscription(
+            cadence: .monthly,
+            cancelAt: nil,
+            canceled: nil,
+            discount: 0,
+            estimatedTax: 0,
+            gracePeriod: nil,
+            nextCharge: nil,
+            seatsCost: Decimal(string: "1.65")!,
+            status: .active,
+            storageCost: 0,
+            suspension: nil,
+        )
+        XCTAssertNotNil(try subject.inspect().find(text: Localizations.estimatedTax))
+        XCTAssertNotNil(try subject.inspect().find(text: processor.state.estimatedTax))
+    }
+
     /// Tapping the manage plan button dispatches the `.managePlanTapped` effect.
     @MainActor
     func test_managePlanButton_tap() async throws {
         let button = try subject.inspect().find(asyncButton: Localizations.managePlan)
         try await button.tap()
         XCTAssertEqual(processor.effects.last, .managePlanTapped)
+    }
+
+    /// The Total row is hidden when the plan is canceled.
+    @MainActor
+    func test_totalRow_hidden_whenCanceled() throws {
+        processor.state.planStatus = .canceled
+        XCTAssertThrowsError(try subject.inspect().find(text: Localizations.total))
+    }
+
+    /// The Total row renders with cadence suffix when the plan is active.
+    @MainActor
+    func test_totalRow_visible_whenActive() throws {
+        processor.state.planStatus = .active
+        processor.state.subscription = PremiumSubscription(
+            cadence: .monthly,
+            cancelAt: nil,
+            canceled: nil,
+            discount: 0,
+            estimatedTax: 0,
+            gracePeriod: nil,
+            nextCharge: nil,
+            seatsCost: Decimal(string: "1.65")!,
+            status: .active,
+            storageCost: 0,
+            suspension: nil,
+        )
+        XCTAssertNotNil(try subject.inspect().find(text: Localizations.total))
+        XCTAssertNotNil(try subject.inspect().find(text: processor.state.totalLabel))
     }
 }

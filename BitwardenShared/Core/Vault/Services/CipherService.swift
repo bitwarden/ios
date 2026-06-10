@@ -448,10 +448,15 @@ extension DefaultCipherService {
         let userId = try await stateService.getActiveAccountId()
 
         // Update the cipher collections in the backend.
-        try await cipherAPIService.updateCipherCollections(cipher)
+        let response = try await cipherAPIService.updateCipherCollections(cipher)
 
-        // Update the cipher collections in local storage.
-        try await cipherDataStore.upsertCipher(cipher, userId: userId)
+        if let cipherResponse = response.cipher {
+            try await cipherDataStore.upsertCipher(Cipher(responseModel: cipherResponse), userId: userId)
+        } else {
+            // A nil cipher indicates the user no longer has access to it after the update.
+            guard let cipherId = cipher.id else { throw UpdateCipherCollectionsRequestError.missingCipherId }
+            try await cipherDataStore.deleteCipher(id: cipherId, userId: userId)
+        }
     }
 
     func updateCipherWithServer(_ cipher: Cipher, encryptedFor: String) async throws {

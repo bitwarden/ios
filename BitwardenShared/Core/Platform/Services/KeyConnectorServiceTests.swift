@@ -1,16 +1,23 @@
+import BitwardenKit
+import BitwardenKitMocks
 import BitwardenSdk
+import BitwardenSdkMocks
 import TestHelpers
 import XCTest
 
 @testable import BitwardenShared
 @testable import BitwardenSharedMocks
 
+// swiftlint:disable file_length
+
 @MainActor
 class KeyConnectorServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_length
     // MARK: Properties
 
     var client: MockHTTPClient!
+    var clientRegistration: MockRegistrationClientProtocol!
     var clientService: MockClientService!
+    var configService: MockConfigService!
     var organizationService: MockOrganizationService!
     var subject: DefaultKeyConnectorService!
     var stateService: MockStateService!
@@ -22,20 +29,36 @@ class KeyConnectorServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
         super.setUp()
 
         client = MockHTTPClient()
+        clientRegistration = MockRegistrationClientProtocol()
         clientService = MockClientService()
+        configService = MockConfigService()
         organizationService = MockOrganizationService()
         stateService = MockStateService()
         tokenService = MockTokenService()
 
+        clientRegistration.postKeysForKeyConnectorRegistrationReturnValue = KeyConnectorRegistrationResult(
+            accountCryptographicState: .v2(
+                privateKey: "private",
+                signedPublicKey: "signedPublicKey",
+                signingKey: "signingKey",
+                securityState: "securityState",
+            ),
+            keyConnectorKey: "masterKey",
+            keyConnectorKeyWrappedUserKey: "encryptedUserKey",
+            userKey: "userKey",
+        )
         clientService.mockAuth.makeKeyConnectorKeysReturnValue = KeyConnectorResponse(
             masterKey: "masterKey",
             encryptedUserKey: "encryptedUserKey",
             keys: RsaKeyPair(public: "public", private: "private"),
         )
+        clientService.mockAuth.registrationReturnValue = clientRegistration
+        configService.featureFlagsBool[.accountEncryptionV2KeyConnector] = true
 
         subject = DefaultKeyConnectorService(
             accountAPIService: APIService(client: client),
             clientService: clientService,
+            configService: configService,
             keyConnectorAPIService: APIService(client: client),
             organizationService: organizationService,
             stateService: stateService,
@@ -48,6 +71,7 @@ class KeyConnectorServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
 
         client = nil
         clientService = nil
+        configService = nil
         organizationService = nil
         subject = nil
         stateService = nil
@@ -56,19 +80,61 @@ class KeyConnectorServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
 
     // MARK: Tests
 
-    /// `convertNewUserToKeyConnector()` makes connector keys and uploads them to key connector and the API.
+    /// `convertNewUserToKeyConnector()` calls SDK registration and saves encryption keys.
     func test_convertNewUserToKeyConnector() async throws {
+        stateService.activeAccount = .fixture()
+
+        let result = try await subject.convertNewUserToKeyConnector(
+            keyConnectorUrl: URL(string: "https://example.com/key-connector")!,
+            orgIdentifier: "org-id",
+        )
+
+        XCTAssertEqual(result.masterKey, "masterKey")
+        XCTAssertEqual(result.encryptedUserKey, "encryptedUserKey")
+        XCTAssertTrue(clientRegistration.postKeysForKeyConnectorRegistrationCalled)
+        XCTAssertEqual(
+            clientRegistration.postKeysForKeyConnectorRegistrationReceivedArguments?.keyConnectorUrl,
+            "https://example.com/key-connector",
+        )
+        XCTAssertEqual(
+            clientRegistration.postKeysForKeyConnectorRegistrationReceivedArguments?.ssoOrgIdentifier,
+            "org-id",
+        )
+        XCTAssertTrue(client.requests.isEmpty)
+        XCTAssertNotNil(stateService.accountEncryptionKeys["1"]?.cryptographicState)
+        XCTAssertEqual(stateService.accountEncryptionKeys["1"]?.encryptedUserKey, "encryptedUserKey")
+    }
+
+    /// `convertNewUserToKeyConnector()` throws if SDK registration fails.
+    func test_convertNewUserToKeyConnector_postKeysForKeyConnectorRegistrationFailure() async throws {
+        clientRegistration.postKeysForKeyConnectorRegistrationThrowableError = BitwardenTestError.example
+
+        await assertAsyncThrows(error: BitwardenTestError.example) {
+            _ = try await subject.convertNewUserToKeyConnector(
+                keyConnectorUrl: URL(string: "https://example.com/key-connector")!,
+                orgIdentifier: "org-id",
+            )
+        }
+
+        XCTAssertNil(stateService.accountEncryptionKeys["1"])
+    }
+
+    /// `convertNewUserToKeyConnector()` (v1) makes connector keys and uploads them to key connector and the API.
+    func test_convertNewUserToKeyConnector_v1() async throws {
+        configService.featureFlagsBool[.accountEncryptionV2KeyConnector] = false
         client.results = [
             .httpSuccess(testData: .emptyResponse),
             .httpSuccess(testData: .emptyResponse),
         ]
         stateService.activeAccount = .fixture()
 
-        try await subject.convertNewUserToKeyConnector(
+        let result = try await subject.convertNewUserToKeyConnector(
             keyConnectorUrl: URL(string: "https://example.com/key-connector")!,
             orgIdentifier: "org-id",
         )
 
+        XCTAssertEqual(result.masterKey, "masterKey")
+        XCTAssertEqual(result.encryptedUserKey, "encryptedUserKey")
         XCTAssertTrue(clientService.mockAuth.makeKeyConnectorKeysCalled)
         XCTAssertEqual(client.requests[0].method, .post)
         XCTAssertEqual(client.requests[0].url, URL(string: "https://example.com/key-connector/user-keys")!)
@@ -77,19 +143,19 @@ class KeyConnectorServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
         XCTAssertEqual(
             stateService.accountEncryptionKeys["1"],
             AccountEncryptionKeys(
-                accountKeys: nil,
-                encryptedPrivateKey: "private",
+                cryptographicState: .v1(privateKey: "private"),
                 encryptedUserKey: "encryptedUserKey",
             ),
         )
     }
 
-    /// `convertNewUserToKeyConnector()` throws an error if making key connector keys fails.
-    func test_convertNewUserToKeyConnector_makeKeyConnectorKeysFailure() async throws {
+    /// `convertNewUserToKeyConnector()` (v1) throws an error if making key connector keys fails.
+    func test_convertNewUserToKeyConnector_v1_makeKeyConnectorKeysFailure() async throws {
+        configService.featureFlagsBool[.accountEncryptionV2KeyConnector] = false
         clientService.mockAuth.makeKeyConnectorKeysThrowableError = BitwardenTestError.example
 
         await assertAsyncThrows(error: BitwardenTestError.example) {
-            try await subject.convertNewUserToKeyConnector(
+            _ = try await subject.convertNewUserToKeyConnector(
                 keyConnectorUrl: URL(string: "https://example.com/key-connector")!,
                 orgIdentifier: "org-id",
             )
@@ -100,12 +166,13 @@ class KeyConnectorServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
         XCTAssertNil(stateService.accountEncryptionKeys["1"])
     }
 
-    /// `convertNewUserToKeyConnector()` throws an error if uploading the keys fails.
-    func test_convertNewUserToKeyConnector_setKeyConnectorKeysFailure() async throws {
+    /// `convertNewUserToKeyConnector()` (v1) throws an error if uploading the keys fails.
+    func test_convertNewUserToKeyConnector_v1_setKeyConnectorKeysFailure() async throws {
+        configService.featureFlagsBool[.accountEncryptionV2KeyConnector] = false
         client.result = .httpFailure(BitwardenTestError.example)
 
         await assertAsyncThrows(error: BitwardenTestError.example) {
-            try await subject.convertNewUserToKeyConnector(
+            _ = try await subject.convertNewUserToKeyConnector(
                 keyConnectorUrl: URL(string: "https://example.com/key-connector")!,
                 orgIdentifier: "org-id",
             )
@@ -115,14 +182,15 @@ class KeyConnectorServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
         XCTAssertEqual(client.requests.count, 1)
     }
 
-    /// `convertNewUserToKeyConnector()` throws an error if setting the account encryption keys fails.
-    func test_convertNewUserToKeyConnector_setAccountEncryptionKeysFailure() async throws {
+    /// `convertNewUserToKeyConnector()` (v1) throws an error if setting the account encryption keys fails.
+    func test_convertNewUserToKeyConnector_v1_setAccountEncryptionKeysFailure() async throws {
+        configService.featureFlagsBool[.accountEncryptionV2KeyConnector] = false
         client.results = [
             .httpSuccess(testData: .emptyResponse),
         ]
 
         await assertAsyncThrows(error: StateServiceError.noActiveAccount) {
-            try await subject.convertNewUserToKeyConnector(
+            _ = try await subject.convertNewUserToKeyConnector(
                 keyConnectorUrl: URL(string: "https://example.com/key-connector")!,
                 orgIdentifier: "org-id",
             )
@@ -167,8 +235,7 @@ class KeyConnectorServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
         ])
         stateService.activeAccount = account
         stateService.accountEncryptionKeys["1"] = AccountEncryptionKeys(
-            accountKeys: nil,
-            encryptedPrivateKey: "encryptedPrivateKey",
+            cryptographicState: .v1(privateKey: "encryptedPrivateKey"),
             encryptedUserKey: "encryptedUserKey",
         )
 
@@ -214,8 +281,7 @@ class KeyConnectorServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
         ])
         stateService.activeAccount = .fixture()
         stateService.accountEncryptionKeys["1"] = AccountEncryptionKeys(
-            accountKeys: nil,
-            encryptedPrivateKey: "encryptedPrivateKey",
+            cryptographicState: .v1(privateKey: "encryptedPrivateKey"),
             encryptedUserKey: nil,
         )
 
@@ -234,8 +300,7 @@ class KeyConnectorServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
         ])
         stateService.activeAccount = .fixture()
         stateService.accountEncryptionKeys["1"] = AccountEncryptionKeys(
-            accountKeys: nil,
-            encryptedPrivateKey: "encryptedPrivateKey",
+            cryptographicState: .v1(privateKey: "encryptedPrivateKey"),
             encryptedUserKey: "encryptedUserKey",
         )
 
@@ -258,8 +323,7 @@ class KeyConnectorServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
         ])
         stateService.activeAccount = .fixture()
         stateService.accountEncryptionKeys["1"] = AccountEncryptionKeys(
-            accountKeys: nil,
-            encryptedPrivateKey: "encryptedPrivateKey",
+            cryptographicState: .v1(privateKey: "encryptedPrivateKey"),
             encryptedUserKey: "encryptedUserKey",
         )
 

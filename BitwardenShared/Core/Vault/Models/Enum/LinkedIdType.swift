@@ -158,6 +158,12 @@ extension LinkedIdType {
     ///
     static func getLinkedIdType(for cipherType: CipherType) -> [LinkedIdType] {
         switch cipherType {
+        case .bankAccount:
+            []
+        case .driversLicense:
+            []
+        case .passport:
+            []
         case .card:
             [
                 .cardCardholderName,

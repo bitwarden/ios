@@ -69,6 +69,24 @@ extension BitwardenSdk.GetAssertionResult {
     }
 }
 
+extension BitwardenSdk.JitMasterPasswordRegistrationResponse {
+    static func fixture(
+        accountCryptographicState: WrappedAccountCryptographicState = .fixtureV2(),
+        masterPasswordUnlock: BitwardenSdk.MasterPasswordUnlockData = MasterPasswordUnlockData(
+            kdf: .pbkdf2(iterations: 600_000),
+            masterKeyWrappedUserKey: "MASTER_KEY_WRAPPED_USER_KEY",
+            salt: "SALT",
+        ),
+        userKey: String = "USER_KEY",
+    ) -> BitwardenSdk.JitMasterPasswordRegistrationResponse {
+        .init(
+            accountCryptographicState: accountCryptographicState,
+            masterPasswordUnlock: masterPasswordUnlock,
+            userKey: userKey,
+        )
+    }
+}
+
 extension BitwardenSdk.MakeCredentialResult {
     static func fixture(
         authenticatorData: Data = Data(capacity: 37),
@@ -214,6 +232,22 @@ extension BitwardenSdk.Fido2CredentialNewView {
             rpName: rpName,
             userDisplayName: userDisplayName,
             creationDate: creationDate,
+        )
+    }
+}
+
+extension WrappedAccountCryptographicState {
+    static func fixtureV2(
+        privateKey: String = "WRAPPED_PRIVATE_KEY",
+        signedPublicKey: String = "SIGNED_PUBLIC_KEY",
+        signingKey: String = "WRAPPED_SIGNING_KEY",
+        securityState: String = "SECURITY_STATE",
+    ) -> WrappedAccountCryptographicState {
+        .v2(
+            privateKey: privateKey,
+            signedPublicKey: signedPublicKey,
+            signingKey: signingKey,
+            securityState: securityState,
         )
     }
 }

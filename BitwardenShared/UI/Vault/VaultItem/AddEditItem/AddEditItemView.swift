@@ -191,7 +191,7 @@ struct AddEditItemView: View {
                         send: AddEditItemAction.folderChanged,
                     ),
                     additionalMenu: {
-                        Button(Localizations.newFolder) {
+                        Button(Localizations.addFolder) {
                             store.send(.addFolder)
                         }
                     },
@@ -312,6 +312,21 @@ private extension AddEditItemView {
         )
     }
 
+    /// Specific fields for a driver's license item.
+    @ViewBuilder private var driversLicenseItems: some View {
+        AddEditDriversLicenseItemView(
+            store: store.child(
+                state: { addEditState in
+                    addEditState.driversLicenseItemState
+                },
+                mapAction: { action in
+                    .driversLicenseFieldChanged(action)
+                },
+                mapEffect: { $0 },
+            ),
+        )
+    }
+
     /// Specific fields for an identity item.
     @ViewBuilder private var identityItems: some View {
         AddEditIdentityItemView(
@@ -330,6 +345,14 @@ private extension AddEditItemView {
     /// The specific fields for the type of item being created or updated.
     @ViewBuilder private var itemTypeSection: some View {
         switch store.state.type {
+        case .bankAccount:
+            // TODO: PM-32809 - render AddEditBankAccountItemView once the Bank Account UI PR lands.
+            EmptyView()
+        case .driversLicense:
+            driversLicenseItems
+        case .passport:
+            // TODO: PM-38153 - render AddEditPassportItemView once the Passport UI PR lands.
+            EmptyView()
         case .card:
             cardItems
         case .login:

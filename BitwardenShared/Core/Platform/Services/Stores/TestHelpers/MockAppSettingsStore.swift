@@ -1,4 +1,5 @@
 import BitwardenKit
+import BitwardenSdk
 import Combine
 import Foundation
 
@@ -8,7 +9,7 @@ import Foundation
 
 class MockAppSettingsStore: AppSettingsStore { // swiftlint:disable:this type_body_length
     var accessTokenExpirationDateByUserId = [String: Date]()
-    var accountKeys = [String: PrivateKeysResponseModel]()
+    var accountCryptographicStates = [String: WrappedAccountCryptographicState]()
     var accountSetupAutofill = [String: AccountSetupProgress]()
     var accountSetupImportLogins = [String: AccountSetupProgress]()
     var accountSetupVaultUnlock = [String: AccountSetupProgress]()
@@ -40,10 +41,9 @@ class MockAppSettingsStore: AppSettingsStore { // swiftlint:disable:this type_bo
     var biometricAuthenticationEnabled = [String: Bool?]()
     var clearClipboardValues = [String: ClearClipboardValue]()
     var connectToWatchByUserId = [String: Bool]()
-    var defaultUriMatchTypeByUserId = [String: UriMatchType]()
+    var defaultUriMatchTypeByUserId = [String: BitwardenShared.UriMatchType]()
     var disableAutoTotpCopyByUserId = [String: Bool]()
     var encryptedPinByUserId = [String: String]()
-    var encryptedPrivateKeys = [String: String]()
     var encryptedUserKeys = [String: String]()
     var eventsByUserId = [String: [EventData]]()
     var featureFlags = [String: Bool]()
@@ -59,6 +59,7 @@ class MockAppSettingsStore: AppSettingsStore { // swiftlint:disable:this type_bo
     var pinProtectedUserKey = [String: String]()
     var pinProtectedUserKeyEnvelope = [String: String]()
     var premiumUpgradeBannerDismissedByUserId = [String: Bool]()
+    var upgradedToPremiumCardVisibleByUserId = [String: Bool]()
     var accountCreationEnvironmentURLs = [String: EnvironmentURLData]()
     var serverConfig = [String: ServerConfig]()
     var shouldTrustDevice = [String: Bool?]()
@@ -83,8 +84,8 @@ class MockAppSettingsStore: AppSettingsStore { // swiftlint:disable:this type_bo
         accessTokenExpirationDateByUserId[userId]
     }
 
-    func accountKeys(userId: String) -> PrivateKeysResponseModel? {
-        accountKeys[userId]
+    func accountCryptographicState(userId: String) -> WrappedAccountCryptographicState? {
+        accountCryptographicStates[userId]
     }
 
     func accountSetupAutofill(userId: String) -> AccountSetupProgress? {
@@ -123,7 +124,7 @@ class MockAppSettingsStore: AppSettingsStore { // swiftlint:disable:this type_bo
         featureFlags[name]
     }
 
-    func defaultUriMatchType(userId: String) -> UriMatchType? {
+    func defaultUriMatchType(userId: String) -> BitwardenShared.UriMatchType? {
         defaultUriMatchTypeByUserId[userId]
     }
 
@@ -133,10 +134,6 @@ class MockAppSettingsStore: AppSettingsStore { // swiftlint:disable:this type_bo
 
     func encryptedPin(userId: String) -> String? {
         encryptedPinByUserId[userId]
-    }
-
-    func encryptedPrivateKey(userId: String) -> String? {
-        encryptedPrivateKeys[userId]
     }
 
     func encryptedUserKey(userId: String) -> String? {
@@ -200,6 +197,10 @@ class MockAppSettingsStore: AppSettingsStore { // swiftlint:disable:this type_bo
         premiumUpgradeBannerDismissedByUserId[userId] ?? false
     }
 
+    func upgradedToPremiumActionCardVisible(userId: String) -> Bool {
+        upgradedToPremiumCardVisibleByUserId[userId] ?? false
+    }
+
     func accountCreationEnvironmentURLs(email: String) -> EnvironmentURLData? {
         accountCreationEnvironmentURLs[email]
     }
@@ -216,8 +217,12 @@ class MockAppSettingsStore: AppSettingsStore { // swiftlint:disable:this type_bo
         accessTokenExpirationDateByUserId[userId] = expirationDate
     }
 
-    func setAccountKeys(_ keys: BitwardenShared.PrivateKeysResponseModel?, userId: String) {
-        accountKeys[userId] = keys
+    func setAccountCryptographicState(_ state: WrappedAccountCryptographicState?, userId: String) {
+        guard let state else {
+            accountCryptographicStates.removeValue(forKey: userId)
+            return
+        }
+        accountCryptographicStates[userId] = state
     }
 
     func setAccountSetupAutofill(_ autofillSetup: AccountSetupProgress?, userId: String) {
@@ -256,7 +261,7 @@ class MockAppSettingsStore: AppSettingsStore { // swiftlint:disable:this type_bo
         connectToWatchByUserId[userId] = connectToWatch
     }
 
-    func setDefaultUriMatchType(_ uriMatchType: UriMatchType?, userId: String) {
+    func setDefaultUriMatchType(_ uriMatchType: BitwardenShared.UriMatchType?, userId: String) {
         defaultUriMatchTypeByUserId[userId] = uriMatchType
     }
 
@@ -266,14 +271,6 @@ class MockAppSettingsStore: AppSettingsStore { // swiftlint:disable:this type_bo
 
     func setEncryptedPin(_ encryptedPin: String?, userId: String) {
         encryptedPinByUserId[userId] = encryptedPin
-    }
-
-    func setEncryptedPrivateKey(key: String?, userId: String) {
-        guard let key else {
-            encryptedPrivateKeys.removeValue(forKey: userId)
-            return
-        }
-        encryptedPrivateKeys[userId] = key
     }
 
     func setEncryptedUserKey(key: String?, userId: String) {
@@ -342,6 +339,10 @@ class MockAppSettingsStore: AppSettingsStore { // swiftlint:disable:this type_bo
 
     func setPremiumUpgradeBannerDismissed(_ dismissed: Bool, userId: String) {
         premiumUpgradeBannerDismissedByUserId[userId] = dismissed
+    }
+
+    func setUpgradedToPremiumActionCardVisible(_ visible: Bool, userId: String) {
+        upgradedToPremiumCardVisibleByUserId[userId] = visible
     }
 
     func setAccountCreationEnvironmentURLs(environmentURLData: EnvironmentURLData, email: String) {

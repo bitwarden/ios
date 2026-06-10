@@ -27,7 +27,9 @@ Implement from the bottom up:
 
 **Data Models** (if needed)
 - Request/Response types in `Core/<Domain>/Models/Request/` and `Response/`
+  - Alphabetize stored properties and initializer parameters (parameters with default values go last). When you add one to an existing type, insert it at its alphabetical position and update the synthesized initializer and every call site to match — don't append.
 - Enum types in `Core/<Domain>/Models/Enum/`
+  - Keep cases alphabetical. When you add a case to an existing enum, insert it at its alphabetical position in **every `switch` over that enum** (across all layers) rather than appending it — match the surrounding order.
 
 **Persistence** (if needed)
 - Vault sync data → CoreData via `DataStore` (add entities to `Bitwarden.xcdatamodeld`)
@@ -53,6 +55,16 @@ For new screens, create all required files together (see `templates.md`):
 6. **Processor** — `StateProcessor` subclass, business logic only
 7. **View** — SwiftUI view using `store.binding`, `store.perform`, `@ObservedObject`
 
+**SwiftUI previews:**
+
+- Use `#Preview` macros for new views — the modern default across the codebase. Do not add new `PreviewProvider` structs. Because the snapshot harness cannot enumerate `#Preview` macros, such a view's snapshot coverage comes from a test that instantiates the view directly; see the `testing-ios-code` skill for how to choose between that and iterating `PreviewProvider._allPreviews` when a view exposes both.
+
+**New localization keys** (`BitwardenResources/.../Localizable.strings`):
+
+- Key name mirrors the English string: `Archive` for "Archive", not `MoveToArchive` or `ArchiveTitle`.
+  - Exception: long descriptive strings (~70-80+ chars) use a `DescriptionLong` suffix on a shortened opening phrase. Example: `PassphrasesAreOftenEasierToRememberDescriptionLong`.
+- Translator-facing `/* … */` comments describe meaning, placement, or constraints that affect translation — translators are the audience, not internal engineers.
+
 ## Step 4: Wire Dependency Injection
 
 After creating a new service/repository:
@@ -73,3 +85,9 @@ Before finishing:
 All new public types and methods require DocC (`///`) documentation.
 Exceptions: protocol property/function implementations (docs live in the protocol), mock classes.
 Use pragma marks to organize code. `// MARK: -` is used to denote different objects in the same file; `// MARK:` is used to denote different sections within an object.
+
+## Conventions
+
+- **Member ordering** — within a `// MARK:` section, keep members in a single alphabetical order (stored properties, computed properties, methods, and static members share that order), and alphabetize function and initializer parameters the same way (default-valued, variadic, then trailing-closure parameters last). Insert new members and parameters at their alphabetical position rather than appending. Exceptions: UI objects (views, view modifiers) follow visual layout order, not alphabetical; and protocol *conformance* ordering is not enforced.
+- **No file-scope globals** — prefer a `static` member on the relevant type or extension over a file-scope global function or property, even a `private` one.
+- **Prefer typed over stringly-typed** — model values with their natural types (enums, `Date`, etc.) rather than raw strings, unless deliberately mirroring an external contract (e.g. an SDK model that stores ISO date strings) where typed conversion is intentionally deferred.

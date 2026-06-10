@@ -240,6 +240,7 @@ class AuthServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
     func test_getPendingLoginRequest() async throws {
         stateService.activeAccount = .fixture()
         client.result = .httpSuccess(testData: .authRequestSuccess)
+        clientService.mockPlatform.fingerprintReturnValue = "a-fingerprint-phrase-string-placeholder"
 
         let result = try await subject.getPendingLoginRequest(withId: "1")
 
@@ -250,6 +251,7 @@ class AuthServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
     func test_getPendingLoginRequests() async throws {
         stateService.activeAccount = .fixture()
         client.result = .httpSuccess(testData: .authRequestsSuccess)
+        clientService.mockPlatform.fingerprintReturnValue = "a-fingerprint-phrase-string-placeholder"
 
         let result = try await subject.getPendingLoginRequests()
 
@@ -369,8 +371,7 @@ class AuthServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
             stateService.accountEncryptionKeys,
             [
                 "13512467-9cfe-43b0-969f-07534084764b": AccountEncryptionKeys(
-                    accountKeys: nil,
-                    encryptedPrivateKey: "PRIVATE_KEY",
+                    cryptographicState: .v1(privateKey: "PRIVATE_KEY"),
                     encryptedUserKey: "KEY",
                 ),
             ],
@@ -439,8 +440,7 @@ class AuthServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
             stateService.accountEncryptionKeys,
             [
                 "13512467-9cfe-43b0-969f-07534084764b": AccountEncryptionKeys(
-                    accountKeys: nil,
-                    encryptedPrivateKey: "PRIVATE_KEY",
+                    cryptographicState: .v1(privateKey: "PRIVATE_KEY"),
                     encryptedUserKey: "KEY",
                 ),
             ],
@@ -697,8 +697,7 @@ class AuthServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
             stateService.accountEncryptionKeys,
             [
                 "13512467-9cfe-43b0-969f-07534084764b": AccountEncryptionKeys(
-                    accountKeys: nil,
-                    encryptedPrivateKey: "PRIVATE_KEY",
+                    cryptographicState: .v1(privateKey: "PRIVATE_KEY"),
                     encryptedUserKey: "KEY",
                 ),
             ],
@@ -768,8 +767,7 @@ class AuthServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
             stateService.accountEncryptionKeys,
             [
                 "13512467-9cfe-43b0-969f-07534084764b": AccountEncryptionKeys(
-                    accountKeys: nil,
-                    encryptedPrivateKey: "PRIVATE_KEY",
+                    cryptographicState: .v1(privateKey: "PRIVATE_KEY"),
                     encryptedUserKey: "KEY",
                 ),
             ],
@@ -835,8 +833,7 @@ class AuthServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
             stateService.accountEncryptionKeys,
             [
                 "13512467-9cfe-43b0-969f-07534084764b": AccountEncryptionKeys(
-                    accountKeys: nil,
-                    encryptedPrivateKey: "PRIVATE_KEY",
+                    cryptographicState: .v1(privateKey: "PRIVATE_KEY"),
                     encryptedUserKey: "KEY",
                 ),
             ],

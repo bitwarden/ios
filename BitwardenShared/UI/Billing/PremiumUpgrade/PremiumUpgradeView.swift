@@ -9,9 +9,6 @@ import SwiftUI
 struct PremiumUpgradeView: View {
     // MARK: Properties
 
-    /// An object used to open URLs from this view.
-    @Environment(\.openURL) private var openURL
-
     /// The store that renders the view.
     @ObservedObject var store: Store<PremiumUpgradeState, PremiumUpgradeAction, PremiumUpgradeEffect>
 
@@ -24,15 +21,6 @@ struct PremiumUpgradeView: View {
                 cancelToolbarItem(hidden: !store.state.showCancelButton) {
                     store.send(.cancelTapped)
                 }
-            }
-            .onChange(of: store.state.checkoutURL) { url in
-                guard let url else { return }
-                openURL(url) { success in
-                    if !success {
-                        store.send(.urlOpenFailed)
-                    }
-                }
-                store.send(.clearURL)
             }
     }
 

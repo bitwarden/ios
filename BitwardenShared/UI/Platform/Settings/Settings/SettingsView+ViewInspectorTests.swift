@@ -90,13 +90,15 @@ class SettingsViewTests: BitwardenTestCase {
         XCTAssertThrowsError(try subject.inspect().find(button: Localizations.plan))
     }
 
-    /// Tapping the plan button dispatches the `.planPressed` action.
+    /// Tapping the plan button performs the `.planPressed` effect.
     @MainActor
     func test_planButton_tap() throws {
         processor.state.showPlanRow = true
         let button = try subject.inspect().find(button: Localizations.plan)
         try button.tap()
-        XCTAssertEqual(processor.dispatchedActions.last, .planPressed)
+
+        waitFor { !self.processor.effects.isEmpty }
+        XCTAssertEqual(processor.effects.last, .planPressed)
     }
 
     /// Tapping the vault button dispatches the `.vaultPressed` action.

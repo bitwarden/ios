@@ -28,6 +28,9 @@ enum AddEditItemAction: Equatable, Sendable {
     /// The dismiss button was pressed.
     case dismissPressed
 
+    /// A driver's license field changed.
+    case driversLicenseFieldChanged(AddEditDriversLicenseItemAction)
+
     /// The favorite toggle was changed.
     case favoriteChanged(Bool)
 

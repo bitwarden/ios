@@ -312,6 +312,46 @@ extension CredentialProviderViewController {
     }
 }
 
+// MARK: - iOS 26
+
+extension CredentialProviderViewController {
+    @available(iOSApplicationExtension 26.2, *)
+    override func performWithoutUserInteractionIfPossible(savePasswordRequest: ASSavePasswordRequest) {
+        Task {
+            await initializeAppWithoutUserInteraction(
+                with: DefaultCredentialProviderContext(
+                    .savePasswordWithoutUserInteraction(savePasswordRequest),
+                ),
+            )
+            await savePassword(savePasswordRequest: savePasswordRequest)
+        }
+    }
+
+    /// Handles a save-password request from the AutoFill extension, persisting the credential to the vault.
+    ///
+    /// - Parameter savePasswordRequest: The `ASSavePasswordRequest` containing the credential and service info to save.
+    @available(iOSApplicationExtension 26.2, *)
+    private func savePassword(savePasswordRequest: ASSavePasswordRequest) async {
+        guard let appProcessor else {
+            cancel(error: ASExtensionError(.failed))
+            return
+        }
+
+        do {
+            try await appProcessor.savePasswordCredential(
+                username: savePasswordRequest.credential.user,
+                password: savePasswordRequest.credential.password,
+                uri: savePasswordRequest.serviceIdentifier.normalizedURI,
+                name: savePasswordRequest.title,
+            )
+            extensionContext.completeSavePasswordRequest(completionHandler: nil)
+        } catch {
+            Logger.appExtension.error("Error saving password credential without user interaction: \(error)")
+            cancel(error: error)
+        }
+    }
+}
+
 // MARK: - AppExtensionDelegate
 
 extension CredentialProviderViewController: AppExtensionDelegate {
@@ -421,11 +461,11 @@ extension CredentialProviderViewController: AppExtensionDelegate {
     }
 }
 
-// MARK: - AutofillAppExtensionDelegate
+// MARK: - CredentialProviderExtensionDelegate
 
-extension CredentialProviderViewController: AutofillAppExtensionDelegate {
+extension CredentialProviderViewController: CredentialProviderExtensionDelegate {
     /// The mode in which the autofill extension is running.
-    var extensionMode: AutofillExtensionMode {
+    var extensionMode: CredentialProviderMode {
         context?.extensionMode ?? .configureAutofill
     }
 
@@ -520,7 +560,8 @@ private final class KeyboardAnchorTextField: UITextField {
         )
     }
 
-    @objc private func keyboardWillHide() {
+    @objc
+    private func keyboardWillHide() {
         guard !isFirstResponder else { return }
         Logger.appExtension.debug("KeyboardAnchorTextField: keyboard will hide without anchor as FR — reclaiming")
         becomeFirstResponder()

@@ -2,7 +2,10 @@
 
 set -euo pipefail
 
-brew bundle check # use --verbose to list missing dependencies
+if ! brew bundle check --no-upgrade --verbose; then
+    echo "❌ ❌ ❌ ❌ ❌ ❌"
+    echo
+fi
 
 mint bootstrap
 

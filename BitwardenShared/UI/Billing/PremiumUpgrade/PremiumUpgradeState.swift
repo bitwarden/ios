@@ -7,9 +7,6 @@ import Foundation
 struct PremiumUpgradeState: Equatable {
     // MARK: Properties
 
-    /// The checkout URL to open when the user taps the upgrade button.
-    var checkoutURL: URL?
-
     /// Whether the self-hosted info banner has been dismissed.
     var isBannerDismissed = false
 

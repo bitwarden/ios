@@ -32,8 +32,7 @@ class CryptoClientProtocolExtensionsTests: BitwardenTestCase {
         try await subject.initializeUserCrypto(
             account: .fixture(),
             encryptionKeys: AccountEncryptionKeys(
-                accountKeys: .fixtureFilled(),
-                encryptedPrivateKey: "PRIVATE_KEY",
+                cryptographicState: .fixtureV2(),
                 encryptedUserKey: "encryptedUserKey",
             ),
             method: .masterPasswordUnlock(
@@ -80,8 +79,7 @@ class CryptoClientProtocolExtensionsTests: BitwardenTestCase {
         try await subject.initializeUserCrypto(
             account: .fixture(),
             encryptionKeys: AccountEncryptionKeys(
-                accountKeys: .fixtureFilled(),
-                encryptedPrivateKey: "PRIVATE_KEY",
+                cryptographicState: .fixtureV2(),
                 encryptedUserKey: "encryptedUserKey",
             ),
             method: .pin(pin: "1234", pinProtectedUserKey: "pinProtectedUserKey"),

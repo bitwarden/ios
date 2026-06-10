@@ -92,4 +92,25 @@ class ItemListViewTests: BitwardenTestCase {
         try button.tap()
         XCTAssertEqual(processor.dispatchedActions, [.navigateToFlightRecorderSettings])
     }
+
+    /// The main list rows and their inner labels have the expected accessibility identifiers.
+    @MainActor
+    func test_itemRow_hasAccessibilityIdentifiers() throws {
+        processor.state.loadingState = .data([ItemListSection.fixture()])
+
+        let view = try subject.inspect()
+        XCTAssertNoThrow(try view.find(viewWithAccessibilityIdentifier: "ItemCell"))
+        XCTAssertNoThrow(try view.find(viewWithAccessibilityIdentifier: "ItemNameLabel"))
+        XCTAssertNoThrow(try view.find(viewWithAccessibilityIdentifier: "ItemAccountNameLabel"))
+        XCTAssertNoThrow(try view.find(viewWithAccessibilityIdentifier: "ItemTOTPCodeLabel"))
+    }
+
+    /// The search results rows have the `ItemCell` accessibility identifier.
+    @MainActor
+    func test_searchResultRow_hasAccessibilityIdentifier() throws {
+        processor.state.searchResults = ItemListSection.fixture().items
+        processor.state.searchText = "Name"
+
+        XCTAssertNoThrow(try subject.inspect().find(viewWithAccessibilityIdentifier: "ItemCell"))
+    }
 }

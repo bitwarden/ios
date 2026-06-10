@@ -819,7 +819,7 @@ class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_leng
     /// - Returns: The fingerprint phrase.
     ///
     private func getFingerprintPhrase(from publicKey: String, email: String) async throws -> String {
-        try await clientService.platform().fingerprint(request: .init(
+        try await clientService.platform().fingerprint(req: .init(
             fingerprintMaterial: email,
             publicKey: publicKey.urlDecoded(),
         ))

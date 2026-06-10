@@ -4,7 +4,7 @@ import Foundation
 
 /// A domain model representing the user's premium subscription details.
 ///
-struct PremiumSubscription: Equatable {
+public struct PremiumSubscription: Equatable, Hashable {
     // MARK: Properties
 
     /// The billing cadence (e.g. annually, monthly).
@@ -73,7 +73,7 @@ struct PremiumSubscription: Equatable {
         gracePeriod = response.gracePeriod
         nextCharge = response.nextCharge
         self.seatsCost = seatsCost
-        status = PremiumPlanStatus(subscriptionStatus: response.status)
+        status = PremiumPlanStatus(subscriptionStatus: response.status, cancelAt: response.cancelAt)
         self.storageCost = storageCost
         suspension = response.suspension
     }

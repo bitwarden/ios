@@ -30,6 +30,7 @@ public struct TOTPCountdownTimerView: View {
             Text(timer.displayTime ?? "")
                 .styleGuide(.caption2Monospaced, monoSpacedDigit: true)
                 .foregroundColor(SharedAsset.Colors.textPrimary.swiftUIColor)
+                .accessibilityIdentifier("ItemTOTPCountdownTimer")
         }
         .padding(6)
         .background {

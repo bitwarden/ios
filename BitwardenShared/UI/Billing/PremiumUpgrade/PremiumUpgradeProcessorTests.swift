@@ -17,7 +17,9 @@ struct PremiumUpgradeProcessorTests {
 
     let billingService: MockBillingService
     let coordinator: MockCoordinator<BillingRoute, Void>
+    let delegate: MockPremiumUpgradeProcessorDelegate
     let errorReporter: MockErrorReporter
+    let stateService: MockStateService
     let subject: PremiumUpgradeProcessor
 
     // MARK: Initialization
@@ -35,13 +37,19 @@ struct PremiumUpgradeProcessorTests {
         billingService.premiumCheckoutStatusPublisherReturnValue = PassthroughSubject<PremiumCheckoutStatus, Never>()
             .eraseToAnyPublisher()
         coordinator = MockCoordinator<BillingRoute, Void>()
+        delegate = MockPremiumUpgradeProcessorDelegate()
+        delegate.performCheckoutWebAuthSessionReturnValue = .failure(CancellationError())
         errorReporter = MockErrorReporter()
+        stateService = MockStateService()
+        stateService.doesActiveAccountHavePremiumResult = false
         let services = ServiceContainer.withMocks(
             billingService: billingService,
             errorReporter: errorReporter,
+            stateService: stateService,
         )
         subject = PremiumUpgradeProcessor(
             coordinator: coordinator.asAnyCoordinator(),
+            delegate: delegate,
             services: services,
             state: PremiumUpgradeState(),
         )
@@ -75,6 +83,17 @@ struct PremiumUpgradeProcessorTests {
         #expect(coordinator.isLoadingOverlayShowing == false)
     }
 
+    /// `perform(_:)` with `.appeared` dismisses the view when the user already has premium.
+    @Test
+    func perform_appeared_hasPremium_dismisses() async {
+        stateService.doesActiveAccountHavePremiumResult = true
+
+        await subject.perform(.appeared)
+
+        #expect(coordinator.routes.last == .dismiss)
+        #expect(!billingService.getPremiumPlanCalled)
+    }
+
     /// `perform(_:)` with `.appeared` sets `isSelfHosted` to `false` when the billing service reports not self-hosted.
     @Test
     func perform_appeared_notSelfHosted() async {
@@ -105,17 +124,6 @@ struct PremiumUpgradeProcessorTests {
         #expect(billingService.getPremiumPlanCalled)
     }
 
-    /// `perform(_:)` with `.retryFetchPriceTapped` hides the banner and shows price on success.
-    @Test
-    func perform_retryFetchPriceTapped_success() async {
-        subject.state.showPricingErrorBanner = true
-
-        await subject.perform(.retryFetchPriceTapped)
-
-        #expect(subject.state.premiumPrice != nil)
-        #expect(subject.state.showPricingErrorBanner == false)
-    }
-
     /// `perform(_:)` with `.retryFetchPriceTapped` hides then re-shows the banner on failure.
     @Test
     func perform_retryFetchPriceTapped_failure() async {
@@ -128,6 +136,28 @@ struct PremiumUpgradeProcessorTests {
         #expect(subject.state.showPricingErrorBanner == true)
     }
 
+    /// `perform(_:)` with `.retryFetchPriceTapped` dismisses the view when the user already has premium.
+    @Test
+    func perform_retryFetchPriceTapped_hasPremium_dismisses() async {
+        stateService.doesActiveAccountHavePremiumResult = true
+
+        await subject.perform(.retryFetchPriceTapped)
+
+        #expect(coordinator.routes.last == .dismiss)
+        #expect(!billingService.getPremiumPlanCalled)
+    }
+
+    /// `perform(_:)` with `.retryFetchPriceTapped` hides the banner and shows price on success.
+    @Test
+    func perform_retryFetchPriceTapped_success() async {
+        subject.state.showPricingErrorBanner = true
+
+        await subject.perform(.retryFetchPriceTapped)
+
+        #expect(subject.state.premiumPrice != nil)
+        #expect(subject.state.showPricingErrorBanner == false)
+    }
+
     /// `perform(_:)` with `.upgradeNowTapped` logs the error and shows an error alert on failure.
     @Test
     func perform_upgradeNowTapped_failure() async throws {
@@ -136,7 +166,6 @@ struct PremiumUpgradeProcessorTests {
         await subject.perform(.upgradeNowTapped)
 
         #expect(billingService.createCheckoutSessionCallsCount == 1)
-        #expect(subject.state.checkoutURL == nil)
         #expect(subject.state.isLoading == false)
         #expect(errorReporter.errors.first as? BitwardenTestError == .example)
         #expect(coordinator.alertShown.count == 1)
@@ -149,25 +178,43 @@ struct PremiumUpgradeProcessorTests {
 
         await subject.perform(.upgradeNowTapped)
 
-        #expect(subject.state.checkoutURL == nil)
         #expect(subject.state.isLoading == false)
         #expect(errorReporter.errors.first as? BillingError == .invalidCheckoutUrl)
         #expect(coordinator.alertShown.count == 1)
     }
 
-    /// `perform(_:)` with `.upgradeNowTapped` sets the checkout URL on success.
+    /// `perform(_:)` with `.upgradeNowTapped` calls `premiumStatusChanged` when the session returns a success URL.
     @Test
-    func perform_upgradeNowTapped_success() async throws {
-        let expectedURL = URL(string: "https://checkout.stripe.com/session")!
-        billingService.createCheckoutSessionReturnValue = expectedURL
+    func perform_upgradeNowTapped_checkoutSucceeded() async throws {
+        let checkoutURL = URL(string: "https://checkout.stripe.com/session")!
+        let callbackURL = URL(string: "bitwarden://premium-checkout-result?result=success")!
+        billingService.createCheckoutSessionReturnValue = checkoutURL
         billingService.premiumCheckoutStatusPublisherReturnValue = PassthroughSubject<PremiumCheckoutStatus, Never>()
             .eraseToAnyPublisher()
+        delegate.performCheckoutWebAuthSessionReturnValue = .success(callbackURL)
 
         await subject.perform(.upgradeNowTapped)
 
         #expect(billingService.createCheckoutSessionCallsCount == 1)
-        #expect(subject.state.checkoutURL == expectedURL)
+        #expect(delegate.performCheckoutWebAuthSessionReceivedUrl == checkoutURL)
+        #expect(billingService.premiumStatusChangedCalled)
         #expect(subject.state.isLoading == false)
+    }
+
+    /// `perform(_:)` with `.upgradeNowTapped` shows the retry alert when the user cancels the session.
+    @Test
+    func perform_upgradeNowTapped_checkoutCanceled() async throws {
+        let checkoutURL = URL(string: "https://checkout.stripe.com/session")!
+        billingService.createCheckoutSessionReturnValue = checkoutURL
+        billingService.premiumCheckoutStatusPublisherReturnValue = PassthroughSubject<PremiumCheckoutStatus, Never>()
+            .eraseToAnyPublisher()
+        delegate.performCheckoutWebAuthSessionReturnValue = .failure(CancellationError())
+
+        await subject.perform(.upgradeNowTapped)
+
+        #expect(delegate.performCheckoutWebAuthSessionReceivedUrl == checkoutURL)
+        let alert = try #require(coordinator.alertShown.last)
+        #expect(alert.title == Localizations.paymentNotReceivedYet)
     }
 
     /// `receive(_:)` with `.cancelTapped` navigates to dismiss.
@@ -200,25 +247,6 @@ struct PremiumUpgradeProcessorTests {
         #expect(subject.state.showPricingErrorBanner == false)
     }
 
-    /// `receive(_:)` with `.clearURL` clears the checkout URL.
-    @Test
-    func receive_clearURL() {
-        subject.state.checkoutURL = URL(string: "https://example.com")
-
-        subject.receive(.clearURL)
-
-        #expect(subject.state.checkoutURL == nil)
-    }
-
-    /// `receive(_:)` with `.urlOpenFailed` shows an error alert.
-    @Test
-    func receive_urlOpenFailed() async throws {
-        subject.receive(.urlOpenFailed)
-
-        try await waitForAsync { coordinator.errorAlertsShown.count == 1 }
-        #expect(coordinator.errorAlertsShown.first as? BillingError == .unableToOpenCheckout)
-    }
-
     /// When the billing service emits `.syncing` after checkout, the processor shows the
     /// confirming-upgrade loading overlay on the upgrade screen.
     @Test
@@ -243,6 +271,9 @@ struct PremiumUpgradeProcessorTests {
         billingService.createCheckoutSessionReturnValue = expectedURL
         let statusSubject = PassthroughSubject<PremiumCheckoutStatus, Never>()
         billingService.premiumCheckoutStatusPublisherReturnValue = statusSubject.eraseToAnyPublisher()
+        delegate.performCheckoutWebAuthSessionReturnValue = .success(
+            URL(string: "bitwarden://premium-checkout-result?result=success")!,
+        )
 
         await subject.perform(.upgradeNowTapped)
         statusSubject.send(.confirmed)
@@ -261,6 +292,9 @@ struct PremiumUpgradeProcessorTests {
         billingService.createCheckoutSessionReturnValue = expectedURL
         let statusSubject = PassthroughSubject<PremiumCheckoutStatus, Never>()
         billingService.premiumCheckoutStatusPublisherReturnValue = statusSubject.eraseToAnyPublisher()
+        delegate.performCheckoutWebAuthSessionReturnValue = .success(
+            URL(string: "bitwarden://premium-checkout-result?result=success")!,
+        )
 
         await subject.perform(.upgradeNowTapped)
         let routeCountBefore = coordinator.routes.count

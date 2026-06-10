@@ -650,8 +650,7 @@ final class AuthenticatorSyncServiceTests: BitwardenTestCase { // swiftlint:disa
             settings: .fixture(environmentURLs: .fixture(webVault: URL(string: "https://vault.example.com"))),
         ))
         stateService.accountEncryptionKeys["2"] = AccountEncryptionKeys(
-            accountKeys: .fixtureFilled(),
-            encryptedPrivateKey: "privateKey_2",
+            cryptographicState: .fixtureV2(),
             encryptedUserKey: "userKey_2",
         )
         stateService.syncToAuthenticatorByUserId["2"] = true
@@ -1115,8 +1114,7 @@ final class AuthenticatorSyncServiceTests: BitwardenTestCase { // swiftlint:disa
         stateService.activeAccount = .fixture()
         stateService.accounts = [.fixture()]
         stateService.accountEncryptionKeys["1"] = AccountEncryptionKeys(
-            accountKeys: .fixtureFilled(),
-            encryptedPrivateKey: "privateKey",
+            cryptographicState: .fixtureV2(),
             encryptedUserKey: "userKey",
         )
         stateService.syncToAuthenticatorByUserId["1"] = true

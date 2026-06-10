@@ -8,8 +8,23 @@ import XCTest
 class VaultGroupStateTests: BitwardenTestCase {
     // MARK: Tests
 
+    /// `addItemButtonTitle` returns the add bank account title for the bank account group.
+    func test_addItemButtonTitle_bankAccount() {
+        let subject = VaultGroupState(group: .bankAccount, vaultFilterType: .myVault)
+        XCTAssertEqual(subject.addItemButtonTitle, Localizations.addBankAccount)
+    }
+
+    /// `addItemButtonTitle` returns the add license title for the driver's license group.
+    func test_addItemButtonTitle_driversLicense() {
+        let subject = VaultGroupState(group: .driversLicense, vaultFilterType: .myVault)
+        XCTAssertEqual(subject.addItemButtonTitle, Localizations.addLicense)
+    }
+
     /// `newItemButtonType` returns the new item button type based on the group.
     func test_newItemButtonType() {
+        let subjectBankAccount = VaultGroupState(group: .bankAccount, vaultFilterType: .myVault)
+        XCTAssertNil(subjectBankAccount.newItemButtonType)
+
         let subjectCard = VaultGroupState(group: .card, vaultFilterType: .myVault)
         XCTAssertEqual(subjectCard.newItemButtonType, .button)
 
@@ -34,6 +49,12 @@ class VaultGroupStateTests: BitwardenTestCase {
         )
         XCTAssertEqual(subjectFolder.newItemButtonType, .menu)
 
+        let subjectDriversLicense = VaultGroupState(group: .driversLicense, vaultFilterType: .myVault)
+        XCTAssertEqual(subjectDriversLicense.newItemButtonType, .button)
+
+        let subjectPassport = VaultGroupState(group: .passport, vaultFilterType: .myVault)
+        XCTAssertNil(subjectPassport.newItemButtonType)
+
         let subjectSSHKey = VaultGroupState(group: .sshKey, vaultFilterType: .myVault)
         XCTAssertNil(subjectSSHKey.newItemButtonType)
 
@@ -47,10 +68,24 @@ class VaultGroupStateTests: BitwardenTestCase {
         XCTAssertNil(subjectTrash.newItemButtonType)
     }
 
+    /// `newItemButtonType` returns `nil` for the driver's license group when the user can't create
+    /// driver's license items.
+    func test_newItemButtonType_driversLicense_cannotCreate() {
+        let subject = VaultGroupState(
+            group: .driversLicense,
+            itemTypesUserCanCreate: [.login],
+            vaultFilterType: .myVault,
+        )
+        XCTAssertNil(subject.newItemButtonType)
+    }
+
     /// `noItemsString` returns the appropriate message based on the group.
     func test_noItemsString() {
         let subjectArchive = VaultGroupState(group: .archive, vaultFilterType: .myVault)
         XCTAssertEqual(subjectArchive.noItemsString, Localizations.archiveEmptyDescriptionLong)
+
+        let subjectBankAccount = VaultGroupState(group: .bankAccount, vaultFilterType: .myVault)
+        XCTAssertEqual(subjectBankAccount.noItemsString, Localizations.thereAreNoBankAccountsInYourVault)
 
         let subjectCard = VaultGroupState(group: .card, vaultFilterType: .myVault)
         XCTAssertEqual(subjectCard.noItemsString, Localizations.thereAreNoCardsInYourVault)
@@ -72,6 +107,9 @@ class VaultGroupStateTests: BitwardenTestCase {
 
         let subjectLogin = VaultGroupState(group: .login, vaultFilterType: .myVault)
         XCTAssertEqual(subjectLogin.noItemsString, Localizations.thereAreNoLoginsInYourVault)
+
+        let subjectPassport = VaultGroupState(group: .passport, vaultFilterType: .myVault)
+        XCTAssertEqual(subjectPassport.noItemsString, Localizations.thereAreNoPassportsInYourVault)
 
         let subjectSecureNote = VaultGroupState(group: .secureNote, vaultFilterType: .myVault)
         XCTAssertEqual(subjectSecureNote.noItemsString, Localizations.thereAreNoNotesInYourVault)

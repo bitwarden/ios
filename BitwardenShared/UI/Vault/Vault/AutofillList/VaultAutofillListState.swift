@@ -17,7 +17,7 @@ struct VaultAutofillListState: Equatable, Sendable {
     var emptyViewMessage: String = Localizations.noItemsTap
 
     /// The text to be displayed in the button of the empty view.
-    var emptyViewButtonText: String = Localizations.newItem
+    var emptyViewButtonText: String = Localizations.addItem
 
     /// The excluded Fido2 credential id that was found when registering.
     var excludedCredentialIdFound: String?

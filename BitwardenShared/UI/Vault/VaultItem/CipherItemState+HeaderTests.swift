@@ -276,7 +276,7 @@ class CipherItemStateHeaderTests: BitwardenTestCase { // swiftlint:disable:this 
 
     /// `getter:shouldDisplayNoFolder` returns `false` when cipher should display as archived.
     func test_shouldDisplayNoFolder_falseDisplayedAsArchived() throws {
-        var state = try XCTUnwrap(CipherItemState(existing: .fixture(archivedDate: .now), hasPremium: true))
+        let state = try XCTUnwrap(CipherItemState(existing: .fixture(archivedDate: .now), hasPremium: true))
         XCTAssertFalse(state.shouldDisplayNoFolder)
     }
 

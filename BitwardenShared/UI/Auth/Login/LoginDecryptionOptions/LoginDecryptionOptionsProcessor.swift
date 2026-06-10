@@ -98,6 +98,9 @@ class LoginDecryptionOptionsProcessor: StateProcessor<
 
     /// Creates a new SSO user
     private func createNewSsoUser() async {
+        coordinator.showLoadingOverlay(title: Localizations.loading)
+        defer { coordinator.hideLoadingOverlay() }
+
         do {
             guard let orgIdentifier = state.orgIdentifier else { throw AuthError.missingData }
             try await services.authRepository.createNewSsoUser(
@@ -105,9 +108,10 @@ class LoginDecryptionOptionsProcessor: StateProcessor<
                 rememberDevice: state.isRememberDeviceToggleOn,
             )
 
+            coordinator.hideLoadingOverlay()
             await coordinator.handleEvent(.didCompleteAuth)
         } catch {
-            coordinator.showAlert(.defaultAlert(title: Localizations.anErrorHasOccurred))
+            await coordinator.showErrorAlert(error: error)
         }
     }
 

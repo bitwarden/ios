@@ -141,6 +141,11 @@ struct AddEditCardItemView: View {
             guard shouldFocus else { return }
             focusedField = .cardholderName
         }
+        .onChange(of: store.state.isCardScannerPresented) { isPresented in
+            if !isPresented {
+                preWarmedScanner = nil
+            }
+        }
     }
 
     // MARK: Private Views
@@ -149,9 +154,9 @@ struct AddEditCardItemView: View {
     /// and ``FeatureFlag.cardScanner`` enabled.
     @ViewBuilder private var scanCardButton: some View {
         if #available(iOS 16.0, *), DataScannerViewController.isSupported, store.state.cardScannerEnabled {
-            Button {
+            AsyncButton {
                 preWarmedScanner = CardScannerView.makeScanner()
-                store.send(.scanCardButtonTapped)
+                await store.perform(.scanCardButtonTapped)
             } label: {
                 Label(Localizations.scanCard, image: SharedAsset.Icons.camera16.swiftUIImage)
             }

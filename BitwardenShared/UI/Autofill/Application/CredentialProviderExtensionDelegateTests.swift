@@ -5,17 +5,17 @@ import XCTest
 @testable import BitwardenSharedMocks
 
 @available(iOS 17.0, *)
-class AutofillAppExtensionDelegateTests: BitwardenTestCase {
+class CredentialProviderExtensionDelegateTests: BitwardenTestCase {
     // MARK: Properties
 
-    var subject: MockAutofillAppExtensionDelegate!
+    var subject: MockCredentialProviderExtensionDelegate!
 
     // MARK: Setup & Teardown
 
     override func setUp() {
         super.setUp()
 
-        subject = MockAutofillAppExtensionDelegate()
+        subject = MockCredentialProviderExtensionDelegate()
     }
 
     override func tearDown() {

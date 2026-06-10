@@ -10,7 +10,10 @@ import Foundation
 final class SendListProcessor: StateProcessor<SendListState, SendListAction, SendListEffect> {
     // MARK: Types
 
-    typealias Services = HasConfigService
+    typealias Services = HasBillingRepository
+        & HasBillingService
+        & HasConfigService
+        & HasEnvironmentService
         & HasErrorReporter
         & HasPasteboardService
         & HasPolicyService
@@ -21,6 +24,13 @@ final class SendListProcessor: StateProcessor<SendListState, SendListAction, Sen
 
     /// The `Coordinator` that handles navigation.
     private let coordinator: AnyCoordinator<SendRoute, Void>
+
+    /// The helper used to navigate to the premium upgrade flow.
+    lazy var premiumUpgradeHelper: PremiumUpgradeHelper = DefaultPremiumUpgradeHelper(
+        services: services,
+        coordinator: coordinator,
+        setURL: { [weak self] url in self?.state.infoUrl = url },
+    )
 
     /// The services required by this processor.
     private let services: Services
@@ -50,6 +60,11 @@ final class SendListProcessor: StateProcessor<SendListState, SendListAction, Sen
         switch effect {
         case let .addItemPressed(sendType):
             await addNewSend(sendType: sendType)
+        case .appeared:
+            state.shouldShowUpgradedToPremiumActionCard = await services.billingService.shouldShowUpgradedToPremiumActionCard()
+        case .dismissUpgradedToPremiumActionCard:
+            state.shouldShowUpgradedToPremiumActionCard = false
+            await services.billingService.setUpgradedToPremiumActionCardDismissed()
         case .loadData:
             await loadData()
         case let .search(text):
@@ -88,6 +103,8 @@ final class SendListProcessor: StateProcessor<SendListState, SendListAction, Sen
         switch action {
         case .clearInfoUrl:
             state.infoUrl = nil
+        case .clearUrl:
+            state.url = nil
         case .infoButtonPressed:
             state.infoUrl = ExternalLinksConstants.sendInfo
         case let .searchStateChanged(isSearching):
@@ -112,6 +129,10 @@ final class SendListProcessor: StateProcessor<SendListState, SendListAction, Sen
             case let .viewSend(sendView):
                 coordinator.navigate(to: .viewItem(sendView), context: self)
             }
+        case .learnMoreAboutPremium:
+            state.url = ExternalLinksConstants.learnMoreAboutPremium
+            state.shouldShowUpgradedToPremiumActionCard = false
+            Task { await services.billingService.setUpgradedToPremiumActionCardDismissed() }
         case let .toastShown(toast):
             state.toast = toast
         }
@@ -130,7 +151,10 @@ final class SendListProcessor: StateProcessor<SendListState, SendListAction, Sen
             let hasPremium = await services.sendRepository.doesActiveAccountHavePremium()
 
             guard hasPremium else {
-                coordinator.showAlert(.defaultAlert(title: Localizations.sendFilePremiumRequired))
+                coordinator.showAlert(.fileSendPremiumRequired { [weak self] in
+                    guard let self else { return }
+                    Task { await self.premiumUpgradeHelper.navigateToPremiumUpgrade() }
+                })
                 return
             }
         }

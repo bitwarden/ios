@@ -7,7 +7,7 @@ enum BillingRoute: Equatable {
     case dismiss
 
     /// A route to the premium plan screen.
-    case premiumPlan
+    case premiumPlan(PremiumSubscription?)
 
     /// A route to the premium upgrade screen.
     case premiumUpgrade

@@ -18,6 +18,8 @@ protocol PremiumUpgradeRoute {
     static func dismiss(_ action: DismissAction?) -> Self
 }
 
+extension SendItemRoute: PremiumUpgradeRoute {}
+extension SendRoute: PremiumUpgradeRoute {}
 extension VaultItemRoute: PremiumUpgradeRoute {}
 extension VaultRoute: PremiumUpgradeRoute {}
 

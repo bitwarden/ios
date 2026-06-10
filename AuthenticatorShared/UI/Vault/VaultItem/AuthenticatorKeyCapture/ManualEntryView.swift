@@ -56,8 +56,8 @@ struct ManualEntryView: View {
                     get: \.name,
                     send: ManualEntryAction.nameChanged,
                 ),
+                accessibilityIdentifier: "ManualEntryNameField",
             )
-            .accessibilityIdentifier("ManualEntryNameField")
 
             BitwardenTextField(
                 title: Localizations.key,
@@ -65,8 +65,8 @@ struct ManualEntryView: View {
                     get: \.authenticatorKey,
                     send: ManualEntryAction.authenticatorKeyChanged,
                 ),
+                accessibilityIdentifier: "ManualEntryKeyField",
             )
-            .accessibilityIdentifier("ManualEntryKeyField")
 
             if store.state.isPasswordManagerSyncActive {
                 if store.state.defaultSaveOption == .saveHere {

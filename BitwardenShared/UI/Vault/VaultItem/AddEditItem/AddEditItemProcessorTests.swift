@@ -1717,6 +1717,78 @@ class AddEditItemProcessorTests: BitwardenTestCase {
         XCTAssertTrue(reviewPromptService.userActions.isEmpty)
     }
 
+    /// `perform(_:)` with `.scanCardButtonTapped` when camera access is authorized presents the
+    /// card scanner sheet.
+    @MainActor
+    func test_perform_scanCardButtonTapped_cameraAuthorizationAuthorized() async {
+        cameraService.cameraAuthorizationStatus = .authorized
+
+        await subject.perform(.scanCardButtonTapped)
+
+        XCTAssertTrue(subject.state.cardItemState.isCardScannerPresented)
+        XCTAssertTrue(coordinator.alertShown.isEmpty)
+    }
+
+    /// `perform(_:)` with `.scanCardButtonTapped` when camera access is denied shows the
+    /// camera-permission-required alert instead of opening the scanner.
+    @MainActor
+    func test_perform_scanCardButtonTapped_cameraAuthorizationDenied() async throws {
+        cameraService.cameraAuthorizationStatus = .denied
+
+        await subject.perform(.scanCardButtonTapped)
+
+        XCTAssertFalse(subject.state.cardItemState.isCardScannerPresented)
+        let alert = try XCTUnwrap(coordinator.alertShown.last)
+        XCTAssertEqual(alert.title, Localizations.camera)
+        XCTAssertEqual(alert.message, Localizations.enableCameraPermissionInSettingsToScanYourCard)
+        XCTAssertEqual(alert.alertActions.count, 2)
+        XCTAssertEqual(alert.alertActions[0].title, Localizations.settings)
+        XCTAssertEqual(alert.alertActions[1].title, Localizations.cancel)
+    }
+
+    /// `perform(_:)` with `.scanCardButtonTapped` when camera access is restricted shows the
+    /// camera-permission-required alert instead of opening the scanner.
+    @MainActor
+    func test_perform_scanCardButtonTapped_cameraAuthorizationRestricted() async throws {
+        cameraService.cameraAuthorizationStatus = .restricted
+
+        await subject.perform(.scanCardButtonTapped)
+
+        XCTAssertFalse(subject.state.cardItemState.isCardScannerPresented)
+        let alert = try XCTUnwrap(coordinator.alertShown.last)
+        XCTAssertEqual(alert.title, Localizations.camera)
+        XCTAssertEqual(alert.message, Localizations.enableCameraPermissionInSettingsToScanYourCard)
+        XCTAssertEqual(alert.alertActions.count, 2)
+        XCTAssertEqual(alert.alertActions[0].title, Localizations.settings)
+        XCTAssertEqual(alert.alertActions[1].title, Localizations.cancel)
+    }
+
+    /// `perform(_:)` with `.scanCardButtonTapped` when camera access is not yet determined and
+    /// the user allows it presents the card scanner sheet.
+    @MainActor
+    func test_perform_scanCardButtonTapped_cameraAuthorizationNotDetermined_authorized() async {
+        cameraService.cameraAuthorizationStatus = .authorized
+
+        await subject.perform(.scanCardButtonTapped)
+
+        XCTAssertTrue(subject.state.cardItemState.isCardScannerPresented)
+        XCTAssertTrue(coordinator.alertShown.isEmpty)
+    }
+
+    /// `perform(_:)` with `.scanCardButtonTapped` when camera access is not yet determined and
+    /// the user denies it shows the camera-permission-required alert.
+    @MainActor
+    func test_perform_scanCardButtonTapped_cameraAuthorizationNotDetermined_denied() async throws {
+        cameraService.cameraAuthorizationStatus = .denied
+
+        await subject.perform(.scanCardButtonTapped)
+
+        XCTAssertFalse(subject.state.cardItemState.isCardScannerPresented)
+        let alert = try XCTUnwrap(coordinator.alertShown.last)
+        XCTAssertEqual(alert.title, Localizations.camera)
+        XCTAssertEqual(alert.message, Localizations.enableCameraPermissionInSettingsToScanYourCard)
+    }
+
     /// `perform(_:)` with `.setupTotpPressed` with camera authorization authorized navigates to the
     /// `.setupTotpCamera` route.
     @MainActor
@@ -2045,6 +2117,82 @@ class AddEditItemProcessorTests: BitwardenTestCase {
         XCTAssertEqual(subject.state.cardItemState.expirationYear, "2029")
     }
 
+    /// `receive(_:)` with `.driversLicenseFieldChanged(.firstNameChanged)` updates the state correctly.
+    @MainActor
+    func test_receive_driversLicenseFieldChanged_firstNameChanged() {
+        subject.state.driversLicenseItemState.firstName = "Bit"
+        subject.receive(.driversLicenseFieldChanged(.firstNameChanged("Warden")))
+        XCTAssertEqual(subject.state.driversLicenseItemState.firstName, "Warden")
+    }
+
+    /// `receive(_:)` with `.driversLicenseFieldChanged(.middleNameChanged)` updates the state correctly.
+    @MainActor
+    func test_receive_driversLicenseFieldChanged_middleNameChanged() {
+        subject.state.driversLicenseItemState.middleName = "A"
+        subject.receive(.driversLicenseFieldChanged(.middleNameChanged("W")))
+        XCTAssertEqual(subject.state.driversLicenseItemState.middleName, "W")
+    }
+
+    /// `receive(_:)` with `.driversLicenseFieldChanged(.lastNameChanged)` updates the state correctly.
+    @MainActor
+    func test_receive_driversLicenseFieldChanged_lastNameChanged() {
+        subject.state.driversLicenseItemState.lastName = "Doe"
+        subject.receive(.driversLicenseFieldChanged(.lastNameChanged("Warden")))
+        XCTAssertEqual(subject.state.driversLicenseItemState.lastName, "Warden")
+    }
+
+    /// `receive(_:)` with `.driversLicenseFieldChanged(.licenseNumberChanged)` updates the state correctly.
+    @MainActor
+    func test_receive_driversLicenseFieldChanged_licenseNumberChanged() {
+        subject.state.driversLicenseItemState.licenseNumber = "111"
+        subject.receive(.driversLicenseFieldChanged(.licenseNumberChanged("D1234567")))
+        XCTAssertEqual(subject.state.driversLicenseItemState.licenseNumber, "D1234567")
+    }
+
+    /// `receive(_:)` with `.driversLicenseFieldChanged(.issuingCountryChanged)` updates the state correctly.
+    @MainActor
+    func test_receive_driversLicenseFieldChanged_issuingCountryChanged() {
+        subject.state.driversLicenseItemState.issuingCountry = "Canada"
+        subject.receive(.driversLicenseFieldChanged(.issuingCountryChanged("United States")))
+        XCTAssertEqual(subject.state.driversLicenseItemState.issuingCountry, "United States")
+    }
+
+    /// `receive(_:)` with `.driversLicenseFieldChanged(.issuingStateChanged)` updates the state correctly.
+    @MainActor
+    func test_receive_driversLicenseFieldChanged_issuingStateChanged() {
+        subject.state.driversLicenseItemState.issuingState = "Nevada"
+        subject.receive(.driversLicenseFieldChanged(.issuingStateChanged("California")))
+        XCTAssertEqual(subject.state.driversLicenseItemState.issuingState, "California")
+    }
+
+    /// `receive(_:)` with `.driversLicenseFieldChanged(.issuingAuthorityChanged)` updates the state correctly.
+    @MainActor
+    func test_receive_driversLicenseFieldChanged_issuingAuthorityChanged() {
+        subject.state.driversLicenseItemState.issuingAuthority = "RMV"
+        subject.receive(.driversLicenseFieldChanged(.issuingAuthorityChanged("DMV")))
+        XCTAssertEqual(subject.state.driversLicenseItemState.issuingAuthority, "DMV")
+    }
+
+    /// `receive(_:)` with `.driversLicenseFieldChanged(.licenseClassChanged)` updates the state correctly.
+    @MainActor
+    func test_receive_driversLicenseFieldChanged_licenseClassChanged() {
+        subject.state.driversLicenseItemState.licenseClass = "A"
+        subject.receive(.driversLicenseFieldChanged(.licenseClassChanged("C")))
+        XCTAssertEqual(subject.state.driversLicenseItemState.licenseClass, "C")
+    }
+
+    /// `receive(_:)` with `.driversLicenseFieldChanged(.toggleLicenseNumberVisibilityChanged)` updates
+    /// the state correctly.
+    @MainActor
+    func test_receive_driversLicenseFieldChanged_toggleLicenseNumberVisibilityChanged() {
+        subject.state.driversLicenseItemState.isLicenseNumberVisible = false
+        subject.receive(.driversLicenseFieldChanged(.toggleLicenseNumberVisibilityChanged(true)))
+        XCTAssertTrue(subject.state.driversLicenseItemState.isLicenseNumberVisible)
+
+        subject.receive(.driversLicenseFieldChanged(.toggleLicenseNumberVisibilityChanged(false)))
+        XCTAssertFalse(subject.state.driversLicenseItemState.isLicenseNumberVisible)
+    }
+
     /// `receive(_:)` with `.identityFieldChanged(.titleChanged)` with a value updates the state correctly.
     @MainActor
     func test_receive_identity_titleChange_withValidValue() {
@@ -2126,16 +2274,6 @@ class AddEditItemProcessorTests: BitwardenTestCase {
         subject.receive(.cardFieldChanged(.cardScannerLinesUpdated(["4111111111111111", "JANE DOE", "12/28"])))
 
         XCTAssertEqual(subject.state.cardItemState.brand, .custom(.visa))
-    }
-
-    /// `receive(_:)` with `.cardFieldChanged(.scanCardButtonTapped)` presents the card scanner.
-    @MainActor
-    func test_receive_cardFieldChanged_scanCardButtonTapped() {
-        subject.state.cardItemState.isCardScannerPresented = false
-
-        subject.receive(.cardFieldChanged(.scanCardButtonTapped))
-
-        XCTAssertTrue(subject.state.cardItemState.isCardScannerPresented)
     }
 
     /// `receive(_:)` with `.cardFieldChanged(.cardScannerDismissed)` hides the card scanner and

@@ -12,7 +12,8 @@ import SwiftUI
 final class SendItemCoordinator: Coordinator, HasStackNavigator, ProfileSwitcherDisplayable {
     // MARK: Types
 
-    typealias Module = FileSelectionModule
+    typealias Module = BillingModule
+        & FileSelectionModule
         & GeneratorModule
         & NavigatorBuilderModule
         & ProfileSwitcherModule
@@ -20,6 +21,8 @@ final class SendItemCoordinator: Coordinator, HasStackNavigator, ProfileSwitcher
 
     typealias Services = GeneratorCoordinator.Services
         & HasAuthRepository
+        & HasBillingRepository
+        & HasBillingService
         & HasConfigService
         & HasEnvironmentService
         & HasErrorAlertServices.ErrorAlertServices
@@ -101,6 +104,8 @@ final class SendItemCoordinator: Coordinator, HasStackNavigator, ProfileSwitcher
         case .generator:
             guard let delegate = context as? GeneratorCoordinatorDelegate else { return }
             showGenerator(delegate: delegate)
+        case .premiumUpgrade:
+            showPremiumUpgrade()
         case let .share(url):
             showShareSheet(for: [url])
         case let .view(sendView):
@@ -220,6 +225,15 @@ final class SendItemCoordinator: Coordinator, HasStackNavigator, ProfileSwitcher
         coordinator.navigate(to: .generator(staticType: .password))
         stackNavigator?.present(navigationController)
         generatorCoordinator = coordinator
+    }
+
+    /// Shows the premium upgrade screen.
+    ///
+    private func showPremiumUpgrade() {
+        let navigationController = module.makeNavigationController()
+        let coordinator = module.makeBillingCoordinator(stackNavigator: navigationController)
+        coordinator.navigate(to: .premiumUpgrade)
+        stackNavigator?.present(navigationController)
     }
 
     /// Presents the system share sheet for the specified items.

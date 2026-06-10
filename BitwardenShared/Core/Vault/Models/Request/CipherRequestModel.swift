@@ -16,8 +16,14 @@ struct CipherRequestModel: JSONRequestBody {
     ///   attachment data.
     let attachments2: [String: AttachmentRequestModel]?
 
+    /// Bank account data if the cipher is a bank account.
+    let bankAccount: CipherBankAccountModel?
+
     /// Card data if the cipher is a card.
     let card: CipherCardModel?
+
+    /// Driver's license data if the cipher is a driver's license.
+    let driversLicense: CipherDriversLicenseModel?
 
     /// The ID of the user that encrypted the cipher. It should always represent a UserId.
     /// This is used to check that the user who encrypted the cipher is the same making the request.
@@ -58,6 +64,9 @@ struct CipherRequestModel: JSONRequestBody {
     /// The organization identifier for the cipher.
     let organizationID: String?
 
+    /// Passport data if the cipher is a passport.
+    let passport: CipherPassportModel?
+
     /// The password history for this cipher.
     let passwordHistory: [CipherPasswordHistoryModel]?
 
@@ -90,7 +99,9 @@ extension CipherRequestModel {
                 guard let id = attachment.id else { return }
                 result[id] = AttachmentRequestModel(attachment: attachment)
             },
+            bankAccount: cipher.bankAccount.map(CipherBankAccountModel.init),
             card: cipher.card.map(CipherCardModel.init),
+            driversLicense: cipher.driversLicense.map(CipherDriversLicenseModel.init),
             encryptedFor: encryptedFor,
             favorite: cipher.favorite,
             fields: cipher.fields?.map(CipherFieldModel.init),
@@ -103,6 +114,7 @@ extension CipherRequestModel {
             name: cipher.name,
             notes: cipher.notes,
             organizationID: cipher.organizationId,
+            passport: cipher.passport.map(CipherPassportModel.init),
             passwordHistory: cipher.passwordHistory?.map(CipherPasswordHistoryModel.init),
             reprompt: CipherRepromptType(type: cipher.reprompt),
             secureNote: cipher.secureNote.map(CipherSecureNoteModel.init),

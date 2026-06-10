@@ -30,6 +30,7 @@ struct ItemListItemRowView: View {
                 .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
                 .padding(.vertical, 19)
                 .accessibilityHidden(true)
+                .accessibilityIdentifier("ItemImage")
 
                 HStack {
                     if let currentCode = store.state.item.totpCodeModel {
@@ -89,11 +90,13 @@ struct ItemListItemRowView: View {
                     .styleGuide(.headline)
                     .lineLimit(1)
                     .foregroundColor(Asset.Colors.textPrimary.swiftUIColor)
+                    .accessibilityIdentifier("ItemNameLabel")
                 if let accountName = accountName?.nilIfEmpty {
                     Text(accountName)
                         .styleGuide(.subheadline)
                         .lineLimit(1)
                         .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
+                        .accessibilityIdentifier("ItemAccountNameLabel")
                 }
             } else {
                 if let accountName = accountName?.nilIfEmpty {
@@ -101,6 +104,7 @@ struct ItemListItemRowView: View {
                         .styleGuide(.headline)
                         .lineLimit(1)
                         .foregroundColor(Asset.Colors.textPrimary.swiftUIColor)
+                        .accessibilityIdentifier("ItemAccountNameLabel")
                 }
             }
         }

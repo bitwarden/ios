@@ -4,7 +4,7 @@ import Foundation
 /// A protocol for a service that handles Fido2 tasks. This is similar to
 /// `ClientFido2Protocol` but returns the protocols so they can be mocked for testing.
 ///
-protocol ClientFido2Service: AnyObject {
+public protocol ClientFido2Service: AnyObject { // sourcery: AutoMockable
     /// Returns the `ClientFido2Client` to perform Fido2 client tasks.
     /// - Parameters:
     ///   - userInterface: `Fido2UserInterface` with necessary platform side logic related to UI.
@@ -34,18 +34,14 @@ protocol ClientFido2Service: AnyObject {
 // MARK: ClientFido2
 
 extension ClientFido2: ClientFido2Service {
-    func client(
+    public func client(
         userInterface: Fido2UserInterface,
         credentialStore: Fido2CredentialStore,
     ) -> ClientFido2ClientProtocol {
         client(userInterface: userInterface, credentialStore: credentialStore) as ClientFido2Client
     }
 
-    func decryptFido2AutofillCredentials(cipher cipherView: CipherView) throws -> [Fido2CredentialAutofillView] {
-        try decryptFido2AutofillCredentials(cipherView: cipherView)
-    }
-
-    func vaultAuthenticator(
+    public func vaultAuthenticator(
         userInterface: Fido2UserInterface,
         credentialStore: Fido2CredentialStore,
     ) -> ClientFido2AuthenticatorProtocol {

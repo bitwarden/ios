@@ -8,8 +8,14 @@ enum SendListAction: Equatable, Sendable {
     /// Clears the info URL after the web app has been opened.
     case clearInfoUrl
 
+    /// Clears the URL after it has been opened.
+    case clearUrl
+
     /// The info button was pressed.
     case infoButtonPressed
+
+    /// The "Learn more" button on the Upgraded to Premium action card was tapped.
+    case learnMoreAboutPremium
 
     /// The user has started or stopped searching.
     case searchStateChanged(isSearching: Bool)

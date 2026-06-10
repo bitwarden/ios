@@ -119,6 +119,8 @@
 				</array>
 				<key>SupportsCredentialExchange</key>
 				<true/>
+				<key>SupportsSavePasswordCredentials</key>
+				<true/>
 			</dict>
 			<key>ASCredentialProviderExtensionShowsConfigurationUI</key>
 			<true/>

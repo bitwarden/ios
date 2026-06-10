@@ -100,6 +100,7 @@ class DataStore {
                     OrganizationData.deleteByUserIdRequest(userId: userId),
                     PasswordHistoryData.deleteByUserIdRequest(userId: userId),
                     PolicyData.deleteByUserIdRequest(userId: userId),
+                    PolicyData.deletePoliciesNewByUserIdRequest(userId: userId),
                     SendData.deleteByUserIdRequest(userId: userId),
                     DomainData.deleteByUserIdRequest(userId: userId),
                 ],
