@@ -193,7 +193,7 @@
     <key>YouHaveAGracePeriodOfXDaysFromYourSubscriptionDescriptionLong</key>
     <dict>
       <key>NSStringLocalizedFormatKey</key>
-      <string>%1$#@YouHaveAGracePeriodOfXDaysFromYourSubscriptionExpirationDate@ Please resolve the past due invoices by **%2$@**.</string>
+      <string>Vous bénéficiez d'une période de grâce de %1$#@YouHaveAGracePeriodOfXDaysFromYourSubscriptionExpirationDate@ à compter de la date d'expiration de votre abonnement. Veuillez régulariser les factures impayées avant le **%2$@**.</string>
       <key>YouHaveAGracePeriodOfXDaysFromYourSubscriptionExpirationDate</key>
       <dict>
         <key>NSStringFormatSpecTypeKey</key>
@@ -201,9 +201,9 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>d</string>
         <key>one</key>
-        <string>You have a grace period of %1$d day from your subscription expiration date.</string>
+        <string>Vous bénéficiez d'une période de grâce de %1$d jour à compter de la date d'expiration de votre abonnement.</string>
         <key>other</key>
-        <string>You have a grace period of %1$d days from your subscription expiration date.</string>
+        <string>Vous bénéficiez d'une période de grâce de %1$d jours à compter de la date d'expiration de votre abonnement.</string>
       </dict>
     </dict>
     <!-- A message indicating the minimum length of a PIN in characters. -->

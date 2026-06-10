@@ -210,7 +210,7 @@
     <key>YourPINMustBeAtLeastXCharactersDescriptionLong</key>
     <dict>
       <key>NSStringLocalizedFormatKey</key>
-      <string>Seu PIN deve ter pelo menos %#@characters@. O seu PIN será reconfigurado se você se desconectar do aplicativo.</string>
+      <string>%#@YourPINMustBeAtLeastCharacters@ As suas configurações de PIN serão redefinidas se você se desconectar do aplicativo.</string>
       <key>YourPINMustBeAtLeastCharacters</key>
       <dict>
         <key>NSStringFormatSpecTypeKey</key>

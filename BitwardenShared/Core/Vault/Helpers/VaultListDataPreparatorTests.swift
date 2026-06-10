@@ -747,6 +747,64 @@ class VaultListDataPreparatorTests: BitwardenTestCase { // swiftlint:disable:thi
         XCTAssertNotNil(result)
     }
 
+    /// `prepareData(from:collections:folders:filter:)` includes a passport cipher when the
+    /// `.newItemTypes` feature flag is enabled.
+    @MainActor
+    func test_prepareData_passport_newItemTypesEnabled() async throws {
+        configService.featureFlagsBool[.newItemTypes] = true
+        ciphersClientWrapperService.decryptAndProcessCiphersInBatchOnCipherParameterToPass = .fixture(
+            id: "1",
+            type: .passport,
+        )
+
+        let result = await subject.prepareData(
+            from: [.fixture(type: .passport)],
+            collections: [.fixture(id: "1"), .fixture(id: "2")],
+            folders: [.fixture(id: "1"), .fixture(id: "2"), .fixture(id: "3")],
+            filter: VaultListFilter(),
+        )
+
+        XCTAssertEqual(mockCallOrderHelper.callOrder, [
+            "prepareFolders",
+            "prepareCollections",
+            "prepareRestrictItemsPolicyOrganizations",
+            "prepareNewItemTypesEnabled",
+            "addCipherDecryptionFailure",
+            "addFolderItem",
+            "addFavoriteItem",
+            "addNoFolderItem",
+            "incrementCipherTypeCount",
+            "incrementCollectionCount",
+        ])
+        XCTAssertNotNil(result)
+    }
+
+    /// `prepareData(from:collections:folders:filter:)` filters out a passport cipher when the
+    /// `.newItemTypes` feature flag is disabled.
+    @MainActor
+    func test_prepareData_passport_newItemTypesDisabled() async throws {
+        configService.featureFlagsBool[.newItemTypes] = false
+        ciphersClientWrapperService.decryptAndProcessCiphersInBatchOnCipherParameterToPass = .fixture(
+            id: "1",
+            type: .passport,
+        )
+
+        let result = await subject.prepareData(
+            from: [.fixture(type: .passport)],
+            collections: [.fixture(id: "1"), .fixture(id: "2")],
+            folders: [.fixture(id: "1"), .fixture(id: "2"), .fixture(id: "3")],
+            filter: VaultListFilter(),
+        )
+
+        XCTAssertEqual(mockCallOrderHelper.callOrder, [
+            "prepareFolders",
+            "prepareCollections",
+            "prepareRestrictItemsPolicyOrganizations",
+            "prepareNewItemTypesEnabled",
+        ])
+        XCTAssertNotNil(result)
+    }
+
     /// `prepareData(from:collections:folders:filter:)` returns the prepared data filtering out cipher
     /// when vault list filter is `.myVault` and the cipher belongs to an organization.
     func test_prepareData_withMyVaultFilterAndBelongingToOrganization() async throws {
@@ -978,6 +1036,59 @@ class VaultListDataPreparatorTests: BitwardenTestCase { // swiftlint:disable:thi
             collections: [.fixture(id: "1"), .fixture(id: "2")],
             folders: [.fixture(id: "1"), .fixture(id: "2"), .fixture(id: "3")],
             filter: VaultListFilter(group: .driversLicense),
+        )
+
+        XCTAssertEqual(mockCallOrderHelper.callOrder, [
+            "prepareFolders",
+            "prepareCollections",
+            "prepareRestrictItemsPolicyOrganizations",
+            "prepareNewItemTypesEnabled",
+        ])
+        XCTAssertNotNil(result)
+    }
+
+    /// `prepareGroupData(from:collections:folders:filter:)` includes a passport cipher in the
+    /// passport group when the `.newItemTypes` feature flag is enabled.
+    @MainActor
+    func test_prepareGroupData_passport_newItemTypesEnabled() async throws {
+        configService.featureFlagsBool[.newItemTypes] = true
+        ciphersClientWrapperService.decryptAndProcessCiphersInBatchOnCipherParameterToPass = .fixture(
+            id: "1",
+            type: .passport,
+        )
+
+        let result = await subject.prepareGroupData(
+            from: [.fixture(type: .passport)],
+            collections: [.fixture(id: "1"), .fixture(id: "2")],
+            folders: [.fixture(id: "1"), .fixture(id: "2"), .fixture(id: "3")],
+            filter: VaultListFilter(group: .passport),
+        )
+
+        XCTAssertEqual(mockCallOrderHelper.callOrder, [
+            "prepareFolders",
+            "prepareCollections",
+            "prepareRestrictItemsPolicyOrganizations",
+            "prepareNewItemTypesEnabled",
+            "addItemForGroup",
+        ])
+        XCTAssertNotNil(result)
+    }
+
+    /// `prepareGroupData(from:collections:folders:filter:)` filters out a passport cipher when
+    /// the `.newItemTypes` feature flag is disabled.
+    @MainActor
+    func test_prepareGroupData_passport_newItemTypesDisabled() async throws {
+        configService.featureFlagsBool[.newItemTypes] = false
+        ciphersClientWrapperService.decryptAndProcessCiphersInBatchOnCipherParameterToPass = .fixture(
+            id: "1",
+            type: .passport,
+        )
+
+        let result = await subject.prepareGroupData(
+            from: [.fixture(type: .passport)],
+            collections: [.fixture(id: "1"), .fixture(id: "2")],
+            folders: [.fixture(id: "1"), .fixture(id: "2"), .fixture(id: "3")],
+            filter: VaultListFilter(group: .passport),
         )
 
         XCTAssertEqual(mockCallOrderHelper.callOrder, [
@@ -1366,6 +1477,51 @@ class VaultListDataPreparatorTests: BitwardenTestCase { // swiftlint:disable:thi
         let result = await subject.prepareSearchData(
             from: [.fixture(type: .driversLicense)],
             filter: VaultListFilter(searchText: "license"),
+        )
+
+        XCTAssertEqual(mockCallOrderHelper.callOrder, [
+            "prepareRestrictItemsPolicyOrganizations",
+            "prepareNewItemTypesEnabled",
+        ])
+        XCTAssertNotNil(result)
+    }
+
+    /// `prepareSearchData(from:filter:)` includes a passport cipher in the search results when
+    /// the `.newItemTypes` feature flag is enabled.
+    @MainActor
+    func test_prepareSearchData_passport_newItemTypesEnabled() async throws {
+        configService.featureFlagsBool[.newItemTypes] = true
+        ciphersClientWrapperService.decryptAndProcessCiphersInBatchOnCipherParameterToPass = .fixture(
+            id: "1",
+            type: .passport,
+        )
+
+        let result = await subject.prepareSearchData(
+            from: [.fixture(type: .passport)],
+            filter: VaultListFilter(searchText: "passport"),
+        )
+
+        XCTAssertEqual(mockCallOrderHelper.callOrder, [
+            "prepareRestrictItemsPolicyOrganizations",
+            "prepareNewItemTypesEnabled",
+            "addSearchResultItem",
+        ])
+        XCTAssertNotNil(result)
+    }
+
+    /// `prepareSearchData(from:filter:)` filters out a passport cipher from the search results
+    /// when the `.newItemTypes` feature flag is disabled.
+    @MainActor
+    func test_prepareSearchData_passport_newItemTypesDisabled() async throws {
+        configService.featureFlagsBool[.newItemTypes] = false
+        ciphersClientWrapperService.decryptAndProcessCiphersInBatchOnCipherParameterToPass = .fixture(
+            id: "1",
+            type: .passport,
+        )
+
+        let result = await subject.prepareSearchData(
+            from: [.fixture(type: .passport)],
+            filter: VaultListFilter(searchText: "passport"),
         )
 
         XCTAssertEqual(mockCallOrderHelper.callOrder, [
