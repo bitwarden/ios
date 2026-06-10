@@ -63,7 +63,7 @@ struct FileShareView: View {
         } header: {
             Text(Localizations.shareText)
         } footer: {
-            Text(Localizations.shareTextDescription)
+            Text(Localizations.sharesTheTextAboveDescriptionLong)
         }
     }
 
@@ -90,7 +90,7 @@ struct FileShareView: View {
         } header: {
             Text(Localizations.shareFile)
         } footer: {
-            Text(Localizations.shareFileDescription)
+            Text(Localizations.sharesASamplePDFDescriptionLong)
         }
     }
 
@@ -117,7 +117,7 @@ struct FileShareView: View {
         } header: {
             Text(Localizations.shareImage)
         } footer: {
-            Text(Localizations.shareImageDescription)
+            Text(Localizations.sharesAGeneratedPNGImageDescriptionLong)
         }
     }
 }
