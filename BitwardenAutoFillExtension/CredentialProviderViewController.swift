@@ -319,30 +319,32 @@ extension CredentialProviderViewController {
     override func performWithoutUserInteraction(generatePasswordsRequest: ASGeneratePasswordsRequest) {
         Task {
             await initializeAppWithoutUserInteraction(
-                with: DefaultCredentialProviderContext(.generatePasswordWithoutUserInteraction),
+                with: DefaultCredentialProviderContext(
+                    .generatePasswordCredential(generatePasswordsRequest, userInteraction: false),
+                ),
             )
-            await generatePassword()
+            await generatePassword(request: generatePasswordsRequest)
         }
     }
 
-    /// Generates a password using the user's saved options and returns it to the requesting app.
+    /// Generates a password for the requesting app using the developer-specified rules in the request.
+    ///
+    /// - Parameter request: The generate-password request containing developer-specified rules.
     ///
     @available(iOSApplicationExtension 26.2, *)
-    private func generatePassword() async {
+    private func generatePassword(request: ASGeneratePasswordsRequest) async {
         guard let appProcessor else {
             cancel(error: ASExtensionError(.failed))
             return
         }
 
         do {
-            let password = try await appProcessor.generatePasswordCredential()
-            // TODO: PM-29569 Replace stub with SDK call once ASGeneratedPasswords is in the shipping Xcode SDK.
-            // extensionContext.completeGeneratePasswordRequest(
-            //     results: [ASGeneratedPasswords(password: password)],
-            //     completionHandler: nil,
-            // )
-            _ = password
-            cancel(error: ASExtensionError(.failed))
+            let password = try await appProcessor.generatePasswordCredential(request: request)
+            // TODO: PM-29569 Derive kind from request rules once SDK exposes the mapping API.
+            extensionContext.completeGeneratePasswordRequest(
+                results: [ASGeneratedPassword(kind: .alphanumeric, value: password)],
+                completionHandler: nil,
+            )
         } catch {
             Logger.appExtension.error("Error generating password without user interaction: \(error)")
             cancel(error: error)

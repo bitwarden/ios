@@ -28,8 +28,8 @@ public enum CredentialProviderMode {
     /// The extension is being configured to set up autofill.
     case configureAutofill
 
-    /// The extension is generating a password without user interaction.
-    case generatePasswordWithoutUserInteraction
+    /// The extension is generating a password credential.
+    case generatePasswordCredential(any GeneratePasswordRequestProxy, userInteraction: Bool)
 
     /// The extension is being configured to register a Fido2 credential.
     case registerFido2Credential(any PasskeyCredentialRequest)
@@ -44,6 +44,9 @@ public protocol PasskeyCredentialRequest {}
 /// Protocol to bypass using @available for OTP credential identities.
 public protocol OneTimeCodeCredentialIdentityProxy {}
 
+/// Protocol to bypass using @available for generate password requests (iOS 26.2+).
+public protocol GeneratePasswordRequestProxy {}
+
 /// Protocol to bypass using @available for save password requests (iOS 26.2+).
 public protocol SavePasswordRequestProxy {}
 
@@ -52,6 +55,9 @@ extension ASPasskeyCredentialRequest: PasskeyCredentialRequest {}
 
 @available(iOSApplicationExtension 18.0, *)
 extension ASOneTimeCodeCredentialIdentity: OneTimeCodeCredentialIdentityProxy {}
+
+@available(iOSApplicationExtension 26.2, *)
+extension ASGeneratePasswordsRequest: GeneratePasswordRequestProxy {}
 
 @available(iOSApplicationExtension 26.2, *)
 extension ASSavePasswordRequest: SavePasswordRequestProxy {}

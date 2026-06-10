@@ -256,28 +256,29 @@ public class AppProcessor {
         )
     }
 
-    /// Generates a password using the user's saved generation options without showing UI.
+    /// Generates a password for a credential provider generate-password request without showing UI.
     ///
+    /// - Parameter request: The generate-password request containing developer-specified rules.
     /// - Returns: The generated password string.
     ///
     @available(iOSApplicationExtension 26.2, *)
-    public func generatePasswordCredential() async throws -> String {
+    public func generatePasswordCredential(request: any GeneratePasswordRequestProxy) async throws -> String {
         try await unlockVaultWithNeverlockKey()
 
-        let options = try await services.generatorRepository.getPasswordGenerationOptions()
-        let request = PasswordGeneratorRequest(
-            lowercase: options.lowercase ?? true,
-            uppercase: options.uppercase ?? true,
-            numbers: options.number ?? true,
-            special: options.special ?? false,
-            length: UInt8(clamping: options.length ?? 14),
-            avoidAmbiguous: !(options.allowAmbiguousChar ?? true),
-            minLowercase: (options.lowercase ?? true) ? 1 : nil,
-            minUppercase: (options.uppercase ?? true) ? 1 : nil,
-            minNumber: (options.number ?? true) ? UInt8(clamping: options.minNumber ?? 1) : nil,
-            minSpecial: (options.special ?? false) ? UInt8(clamping: options.minSpecial ?? 1) : nil,
+        // TODO: PM-29569 Map ASGeneratePasswordsRequest rules to PasswordGeneratorRequest once SDK exposes the API.
+        let passwordRequest = PasswordGeneratorRequest(
+            lowercase: true,
+            uppercase: true,
+            numbers: true,
+            special: false,
+            length: 14,
+            avoidAmbiguous: false,
+            minLowercase: 1,
+            minUppercase: 1,
+            minNumber: 1,
+            minSpecial: nil,
         )
-        return try await services.generatorRepository.generatePassword(settings: request)
+        return try await services.generatorRepository.generatePassword(settings: passwordRequest)
     }
 
     /// Saves a password credential to the vault without showing UI.

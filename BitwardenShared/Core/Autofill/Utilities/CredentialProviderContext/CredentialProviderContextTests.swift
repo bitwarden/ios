@@ -43,7 +43,11 @@ class CredentialProviderContextTests: BitwardenTestCase { // swiftlint:disable:t
                 .authCompletionRoute,
             AppRoute.extensionSetup(.extensionActivation(type: .autofillExtension)),
         )
-        XCTAssertNil(DefaultCredentialProviderContext(.generatePasswordWithoutUserInteraction).authCompletionRoute)
+        XCTAssertNil(
+            DefaultCredentialProviderContext(
+                .generatePasswordCredential(MockGeneratePasswordRequest(), userInteraction: false),
+            ).authCompletionRoute,
+        )
         XCTAssertEqual(
             DefaultCredentialProviderContext(.registerFido2Credential(MockPasskeyCredentialRequest()))
                 .authCompletionRoute,
@@ -85,7 +89,11 @@ class CredentialProviderContextTests: BitwardenTestCase { // swiftlint:disable:t
                 ),
             ).configuring,
         )
-        XCTAssertFalse(DefaultCredentialProviderContext(.generatePasswordWithoutUserInteraction).configuring)
+        XCTAssertFalse(
+            DefaultCredentialProviderContext(
+                .generatePasswordCredential(MockGeneratePasswordRequest(), userInteraction: false),
+            ).configuring,
+        )
         XCTAssertFalse(
             DefaultCredentialProviderContext(.registerFido2Credential(MockPasskeyCredentialRequest()))
                 .configuring,
@@ -244,8 +252,15 @@ class CredentialProviderContextTests: BitwardenTestCase { // swiftlint:disable:t
         let subject4 = DefaultCredentialProviderContext(.registerFido2Credential(MockPasskeyCredentialRequest()))
         XCTAssertTrue(subject4.flowWithUserInteraction)
 
-        let subjectGenPw = DefaultCredentialProviderContext(.generatePasswordWithoutUserInteraction)
-        XCTAssertFalse(subjectGenPw.flowWithUserInteraction)
+        let subjectGenPwFalse = DefaultCredentialProviderContext(
+            .generatePasswordCredential(MockGeneratePasswordRequest(), userInteraction: false),
+        )
+        XCTAssertFalse(subjectGenPwFalse.flowWithUserInteraction)
+
+        let subjectGenPwTrue = DefaultCredentialProviderContext(
+            .generatePasswordCredential(MockGeneratePasswordRequest(), userInteraction: true),
+        )
+        XCTAssertTrue(subjectGenPwTrue.flowWithUserInteraction)
     }
 
     /// `getter:serviceIdentifiers` returns the identifiers of `autofillVaultList`.
@@ -403,3 +418,5 @@ class CredentialProviderContextTests: BitwardenTestCase { // swiftlint:disable:t
 class MockPasskeyCredentialRequest: PasskeyCredentialRequest {}
 
 class MockOneTimeCodeCredentialIdentity: OneTimeCodeCredentialIdentityProxy {}
+
+class MockGeneratePasswordRequest: GeneratePasswordRequestProxy {}

@@ -991,37 +991,36 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
         XCTAssertTrue(vaultRepository.addCipherCiphers.isEmpty)
     }
 
-    /// `generatePasswordCredential()` unlocks the vault, retrieves options, generates, and returns a password.
+    /// `generatePasswordCredential(request:)` unlocks the vault, generates, and returns a password.
     @available(iOS 26.2, *)
     func test_generatePasswordCredential() async throws {
         generatorRepository.passwordResult = .success("generated-password")
 
-        let result = try await subject.generatePasswordCredential()
+        let result = try await subject.generatePasswordCredential(request: MockGeneratePasswordRequest())
 
         XCTAssertTrue(authRepository.unlockVaultWithNeverlockKeyCalled)
-        XCTAssertTrue(generatorRepository.getPasswordGenerationOptionsCalled)
         XCTAssertNotNil(generatorRepository.passwordGeneratorRequest)
         XCTAssertEqual(result, "generated-password")
     }
 
-    /// `generatePasswordCredential()` throws when vault unlock fails.
+    /// `generatePasswordCredential(request:)` throws when vault unlock fails.
     @available(iOS 26.2, *)
     func test_generatePasswordCredential_unlockError() async throws {
         authRepository.unlockVaultWithNeverlockResult = .failure(BitwardenTestError.example)
 
         await assertAsyncThrows(error: BitwardenTestError.example) {
-            _ = try await subject.generatePasswordCredential()
+            _ = try await subject.generatePasswordCredential(request: MockGeneratePasswordRequest())
         }
         XCTAssertNil(generatorRepository.passwordGeneratorRequest)
     }
 
-    /// `generatePasswordCredential()` throws when the generator fails.
+    /// `generatePasswordCredential(request:)` throws when the generator fails.
     @available(iOS 26.2, *)
     func test_generatePasswordCredential_generatorError() async throws {
         generatorRepository.passwordResult = .failure(BitwardenTestError.example)
 
         await assertAsyncThrows(error: BitwardenTestError.example) {
-            _ = try await subject.generatePasswordCredential()
+            _ = try await subject.generatePasswordCredential(request: MockGeneratePasswordRequest())
         }
     }
 
