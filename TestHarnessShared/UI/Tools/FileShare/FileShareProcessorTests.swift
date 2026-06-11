@@ -82,7 +82,7 @@ class FileShareProcessorTests: BitwardenTestCase {
             XCTAssertEqual(fileURL.lastPathComponent, FileShareState.sampleFileName)
 
             let writtenData = try? Data(contentsOf: fileURL)
-            XCTAssertEqual(writtenData, FileShareState.sampleFileData)
+            XCTAssertEqual(writtenData, FileShareState.helloWorldPdfData)
         }
     }
 

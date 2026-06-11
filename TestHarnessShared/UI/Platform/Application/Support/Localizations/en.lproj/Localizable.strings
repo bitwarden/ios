@@ -14,7 +14,7 @@
 "Password" = "Password";
 "SecurityCode" = "Security Code";
 "ShareFile" = "Share File";
-"SharesASamplePDFDescriptionLong" = "Shares a sample PDF. Exercises the UTType.data → URL → file Send path in the share extension.";
+"SharesASamplePDFDescriptionLong" = "Shares a sample PDF containing the text \"Hello World\". Exercises the UTType.data → URL → file Send path in the share extension.";
 "ShareImage" = "Share Image";
 "SharesAGeneratedPNGImageDescriptionLong" = "Shares a generated PNG image. Exercises the UTType.data → UIImage → file Send path in the share extension.";
 "ShareText" = "Share Text";

@@ -1,4 +1,5 @@
 import Foundation
+import UIKit
 
 /// The state for the file share test screen.
 ///
@@ -6,7 +7,19 @@ struct FileShareState: Equatable {
     // MARK: Static Properties
 
     /// The raw bytes written to the sample PDF file.
-    static let sampleFileData = Data("%PDF-1.4\n%%EOF\n".utf8)
+    static let helloWorldPdfData: Data = {
+        let textToDraw = "Hello World"
+        let bounds = CGRect(x: 0, y: 0, width: 600, height: 800)
+        let renderer = UIGraphicsPDFRenderer(bounds: bounds)
+        let font = UIFont.systemFont(ofSize: 24)
+        return renderer.pdfData { context in
+            context.beginPage()
+            textToDraw.draw(
+                at: CGPoint(x: 100, y: 100),
+                withAttributes: [.font: font],
+            )
+        }
+    }()
 
     /// The name of the sample PDF file written to the temporary directory.
     static let sampleFileName = "bitwarden-sample.pdf"

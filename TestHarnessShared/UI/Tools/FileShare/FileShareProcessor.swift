@@ -47,7 +47,7 @@ class FileShareProcessor: StateProcessor<FileShareState, FileShareAction, FileSh
         let fileURL = FileManager.default.temporaryDirectory
             .appendingPathComponent(FileShareState.sampleFileName)
         do {
-            try FileShareState.sampleFileData.write(to: fileURL)
+            try FileShareState.helloWorldPdfData.write(to: fileURL)
             state.shareableFileURL = fileURL
         } catch {
             // Leave shareableFileURL as nil; the Share File button stays disabled.
