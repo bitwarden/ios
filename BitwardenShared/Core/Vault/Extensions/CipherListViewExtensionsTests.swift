@@ -61,6 +61,15 @@ class CipherListViewExtensionsTests: BitwardenTestCase { // swiftlint:disable:th
         XCTAssertFalse(cipher.belongsToGroup(.login))
     }
 
+    /// `belongsToGroup(_:)` returns `true` when the cipher is a passport type and the group is `.passport`.
+    func test_belongsToGroup_passport() {
+        let cipher = CipherListView.fixture(type: .passport)
+        XCTAssertTrue(cipher.belongsToGroup(.passport))
+        XCTAssertFalse(cipher.belongsToGroup(.identity))
+        XCTAssertFalse(cipher.belongsToGroup(.login))
+        XCTAssertFalse(CipherListView.fixture(type: .identity).belongsToGroup(.passport))
+    }
+
     /// `belongsToGroup(_:)` returns `true` when the cipher is a secure note type and the group is `.secureNote`.
     func test_belongsToGroup_secureNote() {
         let cipher = CipherListView.fixture(type: .secureNote)

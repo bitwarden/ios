@@ -6,6 +6,7 @@
 "Bitwarden" = "Bitwarden";
 "Cancel" = "Cancel";
 "Copy" = "Copy";
+"CopyPassportNumber" = "Copy passport number";
 "CopyPassword" = "Copy password";
 "CopyUsername" = "Copy username";
 "Delete" = "Delete";
@@ -207,6 +208,7 @@
 "TypeIdentity" = "Identity";
 "TypeLicense" = "License";
 "TypeLogin" = "Login";
+"TypePassport" = "Passport";
 "TypeSecureNote" = "Secure note";
 "Address1" = "Address 1";
 "Address2" = "Address 2";
@@ -555,6 +557,7 @@
 "ThereAreNoCardsInYourVault" = "There are no cards in your vault";
 "ThereAreNoNotesInYourVault" = "There are no notes in your vault";
 "ThereAreNoIdentitiesInYourVault" = "There are no identities in your vault";
+"ThereAreNoPassportsInYourVault" = "There are no passports in your vault";
 "ThereAreNoSSHKeysInYourVault" = "There are no SSH keys in your vault";
 "ThereAreNoBankAccountsInYourVault" = "There are no bank accounts in your vault";
 "US" = "US";
@@ -1125,3 +1128,12 @@
 "License" = "License";
 "Licenses" = "Licenses";
 "Passport" = "Passport";
+"Passports" = "Passports";
+"LicenseDetails" = "License details";
+"DateOfBirth" = "Date of birth";
+"IssuingCountry" = "Issuing country";
+"IssuingStateProvince" = "Issuing state / province";
+"IssuingAuthority" = "Issuing authority";
+"IssueDate" = "Issue date";
+"ExpirationDate" = "Expiration date";
+"LicenseClass" = "License class";
