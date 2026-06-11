@@ -7,6 +7,9 @@ import Foundation
 /// Errors thrown by `TwoFactorAuthProcessor`.
 ///
 enum TwoFactorAuthError: Error {
+    /// The key connector wrapped user key is missing, but required for Key Connector unlock.
+    case missingKeyConnectorKey
+
     /// The organization's identifier is missing, but required for Key Connector unlock.
     case missingOrgIdentifier
 }
@@ -250,7 +253,7 @@ final class TwoFactorAuthProcessor: StateProcessor<TwoFactorAuthState, TwoFactor
                     throw TwoFactorAuthError.missingOrgIdentifier
                 }
                 guard let keyConnectorKeyWrappedUserKey else {
-                    throw StateServiceError.noEncUserKey
+                    throw TwoFactorAuthError.missingKeyConnectorKey
                 }
                 try await services.authRepository.unlockVaultWithKeyConnectorKey(
                     keyConnectorKeyWrappedUserKey: keyConnectorKeyWrappedUserKey,
