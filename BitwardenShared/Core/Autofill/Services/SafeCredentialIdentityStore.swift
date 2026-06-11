@@ -25,9 +25,8 @@ import AuthenticationServices
 ///   extension ASCredentialIdentityStore: CredentialIdentityStore {}
 ///   ```
 ///
-///   Then change the three call sites that default to `SafeCredentialIdentityStore()` back to
-///   `ASCredentialIdentityStore.shared` (`AuthService`, `ReviewPromptService`,
-///   `AutofillCredentialService`).
+///   Then change any call sites that default to `SafeCredentialIdentityStore()` back to
+///   `ASCredentialIdentityStore.shared`.
 @available(iOS, deprecated: 18.0, message: "Obsolete on iOS 18+; delete and restore the direct conformance (see note).")
 class SafeCredentialIdentityStore: CredentialIdentityStore {
     // MARK: Properties
