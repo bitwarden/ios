@@ -255,14 +255,6 @@ class VaultCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this type_
         XCTAssertFalse(mockNavController.dismissCalled)
     }
 
-    /// `navigate(to:)` with `.flightRecorderSettings` notifies the delegate to switch to the about
-    /// screen in the settings tab.
-    @MainActor
-    func test_navigateTo_flightRecorderSettings() throws {
-        subject.navigate(to: .flightRecorderSettings)
-        XCTAssertEqual(delegate.switchToSettingsTabRoute, .about)
-    }
-
     /// `navigate(to:)` with `.autofillListForGroup` pushes the vault autofill list view
     /// onto the stack navigator filtered by a group.
     @MainActor
@@ -274,6 +266,55 @@ class VaultCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this type_
 
         let view = try XCTUnwrap((action.view as? UIHostingController<VaultAutofillListView>)?.rootView)
         XCTAssertEqual(view.store.state.group, .identity)
+    }
+
+    /// `navigate(to:)` with `.flightRecorderSettings` notifies the delegate to switch to the about
+    /// screen in the settings tab.
+    @MainActor
+    func test_navigateTo_flightRecorderSettings() throws {
+        subject.navigate(to: .flightRecorderSettings)
+        XCTAssertEqual(delegate.switchToSettingsTabRoute, .about)
+    }
+
+    /// `navigate(to:)` with `.generatePassword` starts a generator coordinator and replaces the
+    /// stack with the generator view scoped to password type.
+    @MainActor
+    @available(iOS 26.2, *)
+    func test_navigateTo_generatePassword() throws {
+        subject = VaultCoordinator(
+            appExtensionDelegate: MockCredentialProviderExtensionDelegate(),
+            delegate: delegate,
+            masterPasswordRepromptHelper: masterPasswordRepromptHelper,
+            module: module,
+            services: ServiceContainer.withMocks(
+                errorReporter: errorReporter,
+                vaultRepository: vaultRepository,
+            ),
+            stackNavigator: stackNavigator,
+        )
+
+        subject.navigate(to: .generatePassword)
+
+        XCTAssertTrue(module.generatorCoordinator.isStarted)
+        let action = try XCTUnwrap(stackNavigator.actions.last)
+        XCTAssertEqual(action.type, .replaced)
+        XCTAssertTrue(action.view is GeneratorView)
+        let store = try XCTUnwrap((action.view as? GeneratorView)?.store)
+        XCTAssertEqual(store.state.generatorType, .password)
+        XCTAssertEqual(store.state.presentationMode, .inPlace)
+    }
+
+    /// `navigate(to:)` with `.generatePassword` does nothing when the extension delegate is not a
+    /// `CredentialProviderExtensionDelegate`.
+    @MainActor
+    @available(iOS 26.2, *)
+    func test_navigateTo_generatePassword_withoutExtensionDelegate() {
+        // subject is already initialised with a plain MockAppExtensionDelegate, not a
+        // CredentialProviderExtensionDelegate, so showGeneratePassword() should exit early.
+        subject.navigate(to: .generatePassword)
+
+        XCTAssertFalse(module.generatorCoordinator.isStarted)
+        XCTAssertTrue(stackNavigator.actions.isEmpty)
     }
 
     /// `navigate(to:)` with `.group` pushes the vault group view onto the stack navigator.
