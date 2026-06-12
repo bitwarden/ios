@@ -291,6 +291,15 @@ protocol StateService: AnyObject, BillingStateService {
     ///
     func getNotificationsLastRegistrationDate(userId: String?) async throws -> Date?
 
+    /// Gets the organization user notification banner dismissal record for a user ID.
+    ///
+    /// - Parameter userId: The user ID of the account. Defaults to the active account if `nil`.
+    /// - Returns: The organization user notification banner dismissal record, or `nil` if not dismissed.
+    ///
+    func getOrganizationUserNotificationBannerDismissal(
+        userId: String?,
+    ) async throws -> OrganizationUserNotificationBannerDismissal?
+
     /// Gets the password generation options for a user ID.
     ///
     /// - Parameter userId: The user ID associated with the password generation options.
@@ -706,6 +715,17 @@ protocol StateService: AnyObject, BillingStateService {
     ///
     func setNotificationsLastRegistrationDate(_ date: Date?, userId: String?) async throws
 
+    /// Sets the organization user notification banner dismissal record for a user ID.
+    ///
+    /// - Parameters:
+    ///   - dismissal: The dismissal record to store, or `nil` to clear it.
+    ///   - userId: The user ID of the account. Defaults to the active account if `nil`.
+    ///
+    func setOrganizationUserNotificationBannerDismissal(
+        _ dismissal: OrganizationUserNotificationBannerDismissal?,
+        userId: String?,
+    ) async throws
+
     /// Sets the password generation options for a user ID.
     ///
     /// - Parameters:
@@ -1083,6 +1103,14 @@ extension StateService {
         try await getNotificationsLastRegistrationDate(userId: nil)
     }
 
+    /// Gets the organization user notification banner dismissal record for the active account.
+    ///
+    /// - Returns: The organization user notification banner dismissal record, or `nil` if not dismissed.
+    ///
+    func getOrganizationUserNotificationBannerDismissal() async throws -> OrganizationUserNotificationBannerDismissal? {
+        try await getOrganizationUserNotificationBannerDismissal(userId: nil)
+    }
+
     /// Gets the password generation options for the active account.
     ///
     /// - Returns: The password generation options for the user ID.
@@ -1345,6 +1373,16 @@ extension StateService {
     ///
     func setNotificationsLastRegistrationDate(_ date: Date?) async throws {
         try await setNotificationsLastRegistrationDate(date, userId: nil)
+    }
+
+    /// Sets the organization user notification banner dismissal record for the active account.
+    ///
+    /// - Parameter dismissal: The dismissal record to store, or `nil` to clear it.
+    ///
+    func setOrganizationUserNotificationBannerDismissal(
+        _ dismissal: OrganizationUserNotificationBannerDismissal?,
+    ) async throws {
+        try await setOrganizationUserNotificationBannerDismissal(dismissal, userId: nil)
     }
 
     /// Sets the password generation options for the active account.
@@ -1806,6 +1844,13 @@ actor DefaultStateService: StateService, ActiveAccountStateProvider, ConfigState
         return appSettingsStore.notificationsLastRegistrationDate(userId: userId)
     }
 
+    func getOrganizationUserNotificationBannerDismissal(
+        userId: String?,
+    ) async throws -> OrganizationUserNotificationBannerDismissal? {
+        let userId = try userId ?? getActiveAccountUserId()
+        return appSettingsStore.organizationUserNotificationBannerDismissal(userId: userId)
+    }
+
     func getPasswordGenerationOptions(userId: String?) async throws -> PasswordGenerationOptions? {
         let userId = try userId ?? getActiveAccountUserId()
         return appSettingsStore.passwordGenerationOptions(userId: userId)
@@ -1941,6 +1986,15 @@ actor DefaultStateService: StateService, ActiveAccountStateProvider, ConfigState
         appSettingsStore.setLastSyncTime(nil, userId: knownUserId)
         appSettingsStore.setMasterPasswordHash(nil, userId: knownUserId)
         appSettingsStore.setPasswordGenerationOptions(nil, userId: knownUserId)
+
+        // Reset the organization user notification banner dismissal so the banner can reappear on the next
+        // login. A user-initiated (hard) logout always clears it; a soft logout (e.g. a vault-timeout logout)
+        // clears it only when the banner is configured to show after every login.
+        let bannerDismissal = appSettingsStore.organizationUserNotificationBannerDismissal(userId: knownUserId)
+        if userInitiated || bannerDismissal?.showAfterEveryLogin == true {
+            appSettingsStore.setOrganizationUserNotificationBannerDismissal(nil, userId: knownUserId)
+        }
+
         try await keychainRepository.clearLocalUserDataKeyStates(userId: knownUserId)
 
         try await dataStore.deleteDataForUser(userId: knownUserId)
@@ -2172,6 +2226,14 @@ actor DefaultStateService: StateService, ActiveAccountStateProvider, ConfigState
     func setNotificationsLastRegistrationDate(_ date: Date?, userId: String?) async throws {
         let userId = try userId ?? getActiveAccountUserId()
         appSettingsStore.setNotificationsLastRegistrationDate(date, userId: userId)
+    }
+
+    func setOrganizationUserNotificationBannerDismissal(
+        _ dismissal: OrganizationUserNotificationBannerDismissal?,
+        userId: String?,
+    ) async throws {
+        let userId = try userId ?? getActiveAccountUserId()
+        appSettingsStore.setOrganizationUserNotificationBannerDismissal(dismissal, userId: userId)
     }
 
     func setPasswordGenerationOptions(_ options: PasswordGenerationOptions?, userId: String?) async throws {

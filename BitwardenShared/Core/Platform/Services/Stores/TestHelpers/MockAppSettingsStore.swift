@@ -56,6 +56,8 @@ class MockAppSettingsStore: AppSettingsStore { // swiftlint:disable:this type_bo
     var manuallyLockedAccounts = [String: Bool]()
     var masterPasswordHashes = [String: String]()
     var notificationsLastRegistrationDates = [String: Date]()
+    // swiftlint:disable:next identifier_name
+    var organizationUserNotificationBannerDismissals = [String: OrganizationUserNotificationBannerDismissal]()
     var passwordGenerationOptions = [String: PasswordGenerationOptions]()
     var pinProtectedUserKey = [String: String]()
     var pinProtectedUserKeyEnvelope = [String: String]()
@@ -179,6 +181,12 @@ class MockAppSettingsStore: AppSettingsStore { // swiftlint:disable:this type_bo
 
     func notificationsLastRegistrationDate(userId: String) -> Date? {
         notificationsLastRegistrationDates[userId]
+    }
+
+    func organizationUserNotificationBannerDismissal(
+        userId: String,
+    ) -> OrganizationUserNotificationBannerDismissal? {
+        organizationUserNotificationBannerDismissals[userId]
     }
 
     func overrideDebugFeatureFlag(name: String, value: Bool?) {
@@ -328,6 +336,17 @@ class MockAppSettingsStore: AppSettingsStore { // swiftlint:disable:this type_bo
 
     func setNotificationsLastRegistrationDate(_ date: Date?, userId: String) {
         notificationsLastRegistrationDates[userId] = date
+    }
+
+    func setOrganizationUserNotificationBannerDismissal(
+        _ dismissal: OrganizationUserNotificationBannerDismissal?,
+        userId: String,
+    ) {
+        guard let dismissal else {
+            organizationUserNotificationBannerDismissals.removeValue(forKey: userId)
+            return
+        }
+        organizationUserNotificationBannerDismissals[userId] = dismissal
     }
 
     func setPasswordGenerationOptions(_ options: PasswordGenerationOptions?, userId: String) {

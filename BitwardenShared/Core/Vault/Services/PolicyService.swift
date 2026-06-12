@@ -441,6 +441,7 @@ extension DefaultPolicyService {
             buttonText: policy[.buttonText]?.stringValue,
             description: description,
             headerText: policy[.header]?.stringValue,
+            revisionDate: policy.revisionDate,
             showAfterEveryLogin: policy[.showAfterEveryLogin]?.boolValue ?? false,
         )
     }

@@ -208,6 +208,19 @@ class VaultListViewTests: BitwardenTestCase {
         XCTAssertNoThrow(try subject.inspect().find(actionCard: "Upcoming Maintenance"))
     }
 
+    /// When the organization banner has a primary button (and a header), the close (X) button is not shown.
+    @MainActor
+    func test_orgBannerActionCard_primaryButtonHidesCloseButton() throws {
+        processor.state.loadingState = .data([])
+        processor.state.organizationUserNotificationBannerData = .fixture(
+            buttonText: "I understand",
+            headerText: "Upcoming Maintenance",
+        )
+        let actionCard = try subject.inspect().find(actionCard: "Upcoming Maintenance")
+        XCTAssertNoThrow(try actionCard.find(asyncButton: "I understand"))
+        XCTAssertThrowsError(try actionCard.find(asyncButton: Localizations.dismiss))
+    }
+
     /// Tapping the dismiss button on the organization banner dispatches the `.dismissOrganizationBanner` effect.
     @MainActor
     func test_orgBannerActionCard_tapDismiss() async throws {

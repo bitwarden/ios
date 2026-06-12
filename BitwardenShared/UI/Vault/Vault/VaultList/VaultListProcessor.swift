@@ -334,11 +334,21 @@ extension VaultListProcessor {
         await services.flightRecorder.setFlightRecorderBannerDismissed()
     }
 
-    /// Dismisses the organization user notification banner.
+    /// Dismisses the organization user notification banner and persists the decision so it isn't
+    /// shown again until the policy is updated or the dismissal is reset on login.
     ///
     private func dismissOrganizationBanner() async {
-        // TODO: PM-33861 Persist banner dismissal data
+        guard let data = state.organizationUserNotificationBannerData else { return }
         state.organizationUserNotificationBannerData = nil
+        let dismissal = OrganizationUserNotificationBannerDismissal(
+            revisionDate: data.revisionDate,
+            showAfterEveryLogin: data.showAfterEveryLogin,
+        )
+        do {
+            try await services.stateService.setOrganizationUserNotificationBannerDismissal(dismissal)
+        } catch {
+            services.errorReporter.log(error: error)
+        }
     }
 
     /// Dismisses the Premium upgrade action card and persists the banner-dismissed preference.
@@ -407,10 +417,26 @@ extension VaultListProcessor {
         }
     }
 
-    /// Loads the organization user notification banner data.
+    /// Loads the organization user notification banner data, suppressing it when the user has already dismissed
+    /// the banner for the current policy revision.
     private func loadOrganizationUserNotificationBannerData() async {
-        state.organizationUserNotificationBannerData = await services.policyService
-            .getOrganizationUserNotificationBannerData()
+        guard let data = await services.policyService.getOrganizationUserNotificationBannerData() else {
+            state.organizationUserNotificationBannerData = nil
+            return
+        }
+
+        do {
+            let dismissal = try await services.stateService.getOrganizationUserNotificationBannerDismissal()
+            if let dismissal, dismissal.revisionDate == data.revisionDate {
+                state.organizationUserNotificationBannerData = nil
+            } else {
+                state.organizationUserNotificationBannerData = data
+            }
+        } catch {
+            // If the dismissal state can't be read, default to showing the banner.
+            services.errorReporter.log(error: error)
+            state.organizationUserNotificationBannerData = data
+        }
     }
 
     /// Navigates to the view item view for the specified cipher. If the cipher requires master

@@ -1,3 +1,5 @@
+import Foundation
+
 // MARK: - OrganizationUserNotificationBannerData
 
 /// Data for displaying the organization user notification banner, derived from the
@@ -14,6 +16,11 @@ struct OrganizationUserNotificationBannerData: Equatable {
 
     /// Optional header text for the banner.
     let headerText: String?
+
+    /// The revision date of the policy backing this banner, sourced from `Policy.revisionDate`.
+    /// Used to identify the banner so that a previously dismissed banner reappears when the
+    /// organization publishes an updated one.
+    let revisionDate: Date?
 
     /// When `true`, re-show the banner on every login.
     let showAfterEveryLogin: Bool
