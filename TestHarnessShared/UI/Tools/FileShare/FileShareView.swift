@@ -54,11 +54,13 @@ struct FileShareView: View {
                     send: FileShareAction.textContentChanged,
                 ),
             )
+            .accessibilityIdentifier(AccessibilityIdentifier.FileShare.textContentEditor)
             .frame(minHeight: 80)
 
             ShareLink(item: store.state.textContent) {
                 Label(Localizations.shareText, systemImage: "square.and.arrow.up")
             }
+            .accessibilityIdentifier(AccessibilityIdentifier.FileShare.shareTextButton)
             .disabled(store.state.textContent.isEmpty)
         } header: {
             Text(Localizations.shareText)
@@ -83,8 +85,10 @@ struct FileShareView: View {
                             .styleGuide(.body)
                     }
                 }
+                .accessibilityIdentifier(AccessibilityIdentifier.FileShare.shareFileButton)
             } else {
                 Label(Localizations.shareFile, systemImage: "doc.badge.arrow.up")
+                    .accessibilityIdentifier(AccessibilityIdentifier.FileShare.shareFileButton)
                     .foregroundColor(.secondary)
             }
         } header: {
@@ -110,8 +114,10 @@ struct FileShareView: View {
                             .styleGuide(.body)
                     }
                 }
+                .accessibilityIdentifier(AccessibilityIdentifier.FileShare.shareImageButton)
             } else {
                 Label(Localizations.shareImage, systemImage: "photo.badge.arrow.up")
+                    .accessibilityIdentifier(AccessibilityIdentifier.FileShare.shareImageButton)
                     .foregroundColor(.secondary)
             }
         } header: {

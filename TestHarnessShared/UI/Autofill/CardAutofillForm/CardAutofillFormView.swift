@@ -31,6 +31,7 @@ struct CardAutofillFormView: View {
                         send: CardAutofillFormAction.cardholderNameChanged,
                     ),
                 )
+                .accessibilityIdentifier(AccessibilityIdentifier.CardAutofillForm.cardholderNameEntry)
                 .textContentType(.creditCardName)
                 .autocorrectionDisabled()
 
@@ -41,6 +42,7 @@ struct CardAutofillFormView: View {
                         send: CardAutofillFormAction.cardNumberChanged,
                     ),
                 )
+                .accessibilityIdentifier(AccessibilityIdentifier.CardAutofillForm.cardNumberEntry)
                 .textContentType(.creditCardNumber)
                 .keyboardType(.numberPad)
 
@@ -51,6 +53,7 @@ struct CardAutofillFormView: View {
                         send: CardAutofillFormAction.expirationMonthChanged,
                     ),
                 )
+                .accessibilityIdentifier(AccessibilityIdentifier.CardAutofillForm.expirationMonthEntry)
                 .textContentType(.creditCardExpirationMonth)
                 .keyboardType(.numberPad)
 
@@ -61,6 +64,7 @@ struct CardAutofillFormView: View {
                         send: CardAutofillFormAction.expirationYearChanged,
                     ),
                 )
+                .accessibilityIdentifier(AccessibilityIdentifier.CardAutofillForm.expirationYearEntry)
                 .textContentType(.creditCardExpirationYear)
                 .keyboardType(.numberPad)
 
@@ -71,6 +75,7 @@ struct CardAutofillFormView: View {
                         send: CardAutofillFormAction.securityCodeChanged,
                     ),
                 )
+                .accessibilityIdentifier(AccessibilityIdentifier.CardAutofillForm.securityCodeEntry)
                 .textContentType(.creditCardSecurityCode)
                 .keyboardType(.numberPad)
             } header: {

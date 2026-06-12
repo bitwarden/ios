@@ -35,6 +35,9 @@ struct ScenarioPickerView: View {
                                 .foregroundColor(.secondary)
                         }
                     }
+                    .accessibilityIdentifier(
+                        AccessibilityIdentifier.ScenarioPicker.scenarioButton(scenario.title),
+                    )
                     .foregroundColor(.primary)
                 }
             } header: {
