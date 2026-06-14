@@ -6,6 +6,7 @@
 "Bitwarden" = "Bitwarden";
 "Cancel" = "Отмена";
 "Copy" = "Скопировать";
+"CopyPassportNumber" = "Скопировать номер паспорта";
 "CopyPassword" = "Скопировать пароль";
 "CopyUsername" = "Скопировать имя пользователя";
 "Delete" = "Удалить";
@@ -126,7 +127,7 @@
 "ItemUpdated" = "Элемент сохранен";
 "Submitting" = "Отправка…";
 "Syncing" = "Синхронизация…";
-"SyncingLogins" = "Синхронизация логинов…";
+"SyncingLogins" = "Синхронизация логинов...";
 "SyncingComplete" = "Синхронизация выполнена";
 "TouchID" = "Touch ID";
 "TwoStepLogin" = "Двухэтапная аутентификация";
@@ -207,6 +208,7 @@
 "TypeIdentity" = "Личная информация";
 "TypeLicense" = "Водительское удостоверение";
 "TypeLogin" = "Логин";
+"TypePassport" = "Паспорт";
 "TypeSecureNote" = "Защищенная заметка";
 "Address1" = "Строка адреса 1";
 "Address2" = "Строка адреса 2";
@@ -388,7 +390,7 @@
 "MasterPasswordPolicyValidationTitle" = "Неверный пароль";
 "MasterPasswordPolicyValidationMessage" = "Пароль не соответствует требованиям организации. Пожалуйста, проверьте информацию о политике и попробуйте еще раз.";
 "Loading" = "Загрузка";
-"LoadingSubscription" = "Загрузка подписки…";
+"LoadingSubscription" = "Загрузка подписки...";
 "AcceptPoliciesError" = "Условия предоставления услуг и Политика конфиденциальности не были подтверждены.";
 "PrivacyPolicy" = "Политика конфиденциальности";
 "PersonalOwnershipPolicyInEffect" = "Политика организации влияет на ваши варианты владения.";
@@ -555,6 +557,7 @@
 "ThereAreNoCardsInYourVault" = "В вашем хранилище нет карт";
 "ThereAreNoNotesInYourVault" = "В вашем хранилище нет заметок";
 "ThereAreNoIdentitiesInYourVault" = "В вашем хранилище нет личной информации";
+"ThereAreNoPassportsInYourVault" = "В вашем хранилище нет паспортов.";
 "ThereAreNoSSHKeysInYourVault" = "В вашем хранилище нет ключей SSH";
 "ThereAreNoBankAccountsInYourVault" = "В вашем хранилище нет банковских счетов.";
 "US" = "США";
@@ -1125,6 +1128,7 @@
 "License" = "Водительское удостоверение";
 "Licenses" = "Водительские удостоверения";
 "Passport" = "Паспорт";
+"Passports" = "Паспорта";
 "LicenseDetails" = "Детали водительского удостоверения";
 "DateOfBirth" = "Дата рождения";
 "IssuingCountry" = "Страна выдачи";
