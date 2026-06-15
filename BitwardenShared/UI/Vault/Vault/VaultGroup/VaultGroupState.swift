@@ -59,11 +59,11 @@ struct VaultGroupState: Equatable, Sendable {
         }
 
         switch group {
-        case .card, .driversLicense, .identity, .login, .secureNote:
+        case .bankAccount, .card, .driversLicense, .identity, .login, .passport, .secureNote:
             return .button
         case .collection, .folder, .noFolder:
             return .menu
-        case .archive, .bankAccount, .passport, .sshKey, .totp, .trash:
+        case .archive, .sshKey, .totp, .trash:
             return nil
         }
     }

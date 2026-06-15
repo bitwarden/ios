@@ -1022,27 +1022,29 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         XCTAssertEqual(result, [.secureNote, .identity, .card, .login])
     }
 
-    /// `getItemTypesUserCanCreate()` includes the gated `.driversLicense` type when the
-    /// `.newItemTypes` feature flag is enabled.
+    /// `getItemTypesUserCanCreate()` includes the gated `.bankAccount` and `.driversLicense` types
+    /// when the `.newItemTypes` feature flag is enabled.
     @MainActor
-    func test_getItemTypesUserCanCreate_newItemTypesEnabled_includesDriversLicense() async throws {
+    func test_getItemTypesUserCanCreate_newItemTypesEnabled() async throws {
         stateService.activeAccount = .fixture()
         policyService.policyAppliesToUserPolicies = []
         configService.featureFlagsBool[.newItemTypes] = true
 
         let result = await subject.getItemTypesUserCanCreate()
+        XCTAssertTrue(result.contains(.bankAccount))
         XCTAssertTrue(result.contains(.driversLicense))
     }
 
-    /// `getItemTypesUserCanCreate()` excludes the gated `.driversLicense` type when the
-    /// `.newItemTypes` feature flag is disabled.
+    /// `getItemTypesUserCanCreate()` excludes the gated `.bankAccount` and `.driversLicense` types
+    /// when the `.newItemTypes` feature flag is disabled.
     @MainActor
-    func test_getItemTypesUserCanCreate_newItemTypesDisabled_excludesDriversLicense() async throws {
+    func test_getItemTypesUserCanCreate_newItemTypesDisabled() async throws {
         stateService.activeAccount = .fixture()
         policyService.policyAppliesToUserPolicies = []
         configService.featureFlagsBool[.newItemTypes] = false
 
         let result = await subject.getItemTypesUserCanCreate()
+        XCTAssertFalse(result.contains(.bankAccount))
         XCTAssertFalse(result.contains(.driversLicense))
     }
 
@@ -1063,7 +1065,32 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
 
         let result = await subject.getItemTypesUserCanCreate()
         XCTAssertFalse(result.contains(.card))
+        XCTAssertTrue(result.contains(.bankAccount))
         XCTAssertTrue(result.contains(.driversLicense))
+    }
+
+    /// `getItemTypesUserCanCreate()` includes the gated `.passport` type when the `.newItemTypes`
+    /// feature flag is enabled.
+    @MainActor
+    func test_getItemTypesUserCanCreate_newItemTypesEnabled_includesPassport() async throws {
+        stateService.activeAccount = .fixture()
+        policyService.policyAppliesToUserPolicies = []
+        configService.featureFlagsBool[.newItemTypes] = true
+
+        let result = await subject.getItemTypesUserCanCreate()
+        XCTAssertTrue(result.contains(.passport))
+    }
+
+    /// `getItemTypesUserCanCreate()` excludes the gated `.passport` type when the `.newItemTypes`
+    /// feature flag is disabled.
+    @MainActor
+    func test_getItemTypesUserCanCreate_newItemTypesDisabled_excludesPassport() async throws {
+        stateService.activeAccount = .fixture()
+        policyService.policyAppliesToUserPolicies = []
+        configService.featureFlagsBool[.newItemTypes] = false
+
+        let result = await subject.getItemTypesUserCanCreate()
+        XCTAssertFalse(result.contains(.passport))
     }
 
     /// `getTOTPKeyIfAllowedToCopy(cipher:)` return the TOTP key when cipher has TOTP key,
