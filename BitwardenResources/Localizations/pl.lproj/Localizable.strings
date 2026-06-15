@@ -6,6 +6,7 @@
 "Bitwarden" = "Bitwarden";
 "Cancel" = "Anuluj";
 "Copy" = "Kopiuj";
+"CopyPassportNumber" = "Kopiuj numer paszportu";
 "CopyPassword" = "Kopiuj hasło";
 "CopyUsername" = "Kopiuj nazwę użytkownika";
 "Delete" = "Usuń";
@@ -207,6 +208,7 @@
 "TypeIdentity" = "Tożsamość";
 "TypeLicense" = "Prawo jazdy";
 "TypeLogin" = "Dane logowania";
+"TypePassport" = "Paszport";
 "TypeSecureNote" = "Bezpieczna notatka";
 "Address1" = "Adres 1";
 "Address2" = "Adres 2";
@@ -388,7 +390,7 @@
 "MasterPasswordPolicyValidationTitle" = "Hasło jest nieprawidłowe";
 "MasterPasswordPolicyValidationMessage" = "Hasło nie spełnia wymogów organizacji. Sprawdź wymaganą zasadę i spróbuj ponownie.";
 "Loading" = "Ładowanie";
-"LoadingSubscription" = "Ładowanie subskrypcji…";
+"LoadingSubscription" = "Ładowanie subskrypcji...";
 "AcceptPoliciesError" = "Regulamin i polityka prywatności nie zostały zaakceptowane.";
 "PrivacyPolicy" = "Polityka prywatności";
 "PersonalOwnershipPolicyInEffect" = "Zasada organizacji ma wpływ na opcję własności elementów.";
@@ -555,6 +557,7 @@
 "ThereAreNoCardsInYourVault" = "Brak kart w sejfie";
 "ThereAreNoNotesInYourVault" = "Brak notatek w sejfie";
 "ThereAreNoIdentitiesInYourVault" = "Brak tożsamości w sejfie";
+"ThereAreNoPassportsInYourVault" = "Brak paszportów w sejfie";
 "ThereAreNoSSHKeysInYourVault" = "Brak kluczy SSH w sejfie";
 "ThereAreNoBankAccountsInYourVault" = "Brak kont bankowych w sejfie";
 "US" = "US";
@@ -1125,6 +1128,7 @@
 "License" = "Prawo jazdy";
 "Licenses" = "Prawa jazdy";
 "Passport" = "Paszport";
+"Passports" = "Paszporty";
 "LicenseDetails" = "Szczegóły prawa jazdy";
 "DateOfBirth" = "Data urodzenia";
 "IssuingCountry" = "Kraj wydający";

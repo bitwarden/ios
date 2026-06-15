@@ -5,8 +5,8 @@
 // Please pull this list from, and only from https://publicsuffix.org/list/public_suffix_list.dat,
 // rather than any other VCS sites. Pulling from any other URL is not guaranteed to be supported.
 
-// VERSION: 2026-05-28_06-25-58_UTC
-// COMMIT: e596036bde712ffb073b948eb8b884c72c94c6e1
+// VERSION: 2026-06-10_05-34-24_UTC
+// COMMIT: 8239d0891aa88bee07083d581e59cb3be27a82a0
 
 // Instructions on pulling and using this list can be found at https://publicsuffix.org/list/.
 
@@ -13894,6 +13894,10 @@ whitesnow.jp
 zombie.jp
 heteml.net
 
+// GNTC, Inc. : https://gntc.com/
+// Submitted by VibeHost Security <security@vibehost.com>
+vibehost.space
+
 // GoDaddy Registry : https://registry.godaddy
 // Submitted by Rohan Durrant <tldns@registry.godaddy>
 graphic.design
@@ -15052,6 +15056,7 @@ opensocial.site
 // OpenAI : https://openai.com
 // Submitted by Thomas Shadwell <security@openai.com>
 *.oaiusercontent.com
+chatgpt.site
 
 // OpenCraft GmbH : http://opencraft.com/
 // Submitted by Sven Marnach <sven@opencraft.com>

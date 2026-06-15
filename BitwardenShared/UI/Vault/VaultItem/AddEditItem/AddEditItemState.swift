@@ -11,6 +11,9 @@ protocol AddEditItemState: Sendable {
     /// The info text to display when item is archived.
     var archiveInfoText: String { get }
 
+    /// The bank account item state.
+    var bankAccountItemState: BankAccountItemState { get set }
+
     /// The card item state.
     var cardItemState: CardItemState { get set }
 
@@ -109,6 +112,9 @@ protocol AddEditItemState: Sendable {
 
     /// The list of ownership options to allow the user to select from.
     var ownershipOptions: [CipherOwner] { get set }
+
+    /// The passport item state.
+    var passportItemState: PassportItemState { get set }
 
     /// If master password reprompt toggle should be shown.
     var showMasterPasswordReprompt: Bool { get set }

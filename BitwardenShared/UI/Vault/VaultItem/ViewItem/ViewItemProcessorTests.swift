@@ -638,6 +638,56 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         XCTAssertEqual(subject.state.loadingState, .data(cipherState))
     }
 
+    /// `receive` with `.driversLicenseItemAction` toggles the license number visibility.
+    @MainActor
+    func test_receive_driversLicenseItemAction_toggleLicenseNumberVisibility() throws {
+        let cipherView = CipherView.driversLicenseFixture()
+        var cipherState = CipherItemState(
+            existing: cipherView,
+            hasPremium: true,
+        )!
+        subject.state.loadingState = .data(cipherState)
+        subject.receive(.driversLicenseItemAction(.toggleLicenseNumberVisibilityChanged))
+
+        cipherState.driversLicenseItemState.isLicenseNumberVisible = true
+        XCTAssertEqual(subject.state.loadingState, .data(cipherState))
+    }
+
+    /// `receive` with `.driversLicenseItemAction` while loading logs an error.
+    @MainActor
+    func test_receive_driversLicenseItemAction_impossible_loading() throws {
+        subject.state.loadingState = .loading(nil)
+        subject.receive(.driversLicenseItemAction(.toggleLicenseNumberVisibilityChanged))
+        XCTAssertEqual(
+            errorReporter.errors.first as? ViewItemProcessor.ActionError,
+            ViewItemProcessor.ActionError.dataNotLoaded("Cannot handle driver's license action without loaded data"),
+        )
+    }
+
+    /// `receive` with `.driversLicenseItemAction` throws if the cipher is not of driver's license type.
+    @MainActor
+    func test_receive_driversLicenseItemAction_impossible_nonDriversLicense() throws {
+        let cipherView = CipherView.fixture(
+            id: "123",
+            login: nil,
+            name: "name",
+            revisionDate: Date(),
+            type: .login,
+        )
+        let cipherState = CipherItemState(
+            existing: cipherView,
+            hasPremium: true,
+        )!
+        subject.state.loadingState = .data(cipherState)
+        subject.receive(.driversLicenseItemAction(.toggleLicenseNumberVisibilityChanged))
+        XCTAssertEqual(
+            errorReporter.errors.first as? ViewItemProcessor.ActionError,
+            ViewItemProcessor.ActionError.nonDriversLicenseTypeToggle(
+                "Cannot handle driver's license action on non-driver's license type",
+            ),
+        )
+    }
+
     /// `receive` with `.copyPressed` copies the value with the pasteboard service and shows a toast.
     @MainActor
     func test_receive_copyPressed() {

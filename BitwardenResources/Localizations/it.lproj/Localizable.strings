@@ -6,6 +6,7 @@
 "Bitwarden" = "Bitwarden";
 "Cancel" = "Annulla";
 "Copy" = "Copia";
+"CopyPassportNumber" = "Copia numero passaporto";
 "CopyPassword" = "Copia password";
 "CopyUsername" = "Copia nome utente";
 "Delete" = "Elimina";
@@ -207,6 +208,7 @@
 "TypeIdentity" = "Identità";
 "TypeLicense" = "License";
 "TypeLogin" = "Login";
+"TypePassport" = "Passport";
 "TypeSecureNote" = "Nota sicura";
 "Address1" = "Indirizzo 1";
 "Address2" = "Indirizzo 2";
@@ -451,7 +453,7 @@
 "YourAccountHasBeenPermanentlyDeleted" = "Il tuo account è stato eliminato definitivamente";
 "InvalidVerificationCode" = "Codice di verifica non valido";
 "SendCode" = "Invia codice";
-"SendingCode" = "Invio codice in corso…";
+"SendingCode" = "Invio codice in corso...";
 "Verifying" = "Verifica";
 "ResendCode" = "Invia codice di nuovo";
 "EnterTheVerificationCodeThatWasSentToYourEmail" = "Inserisci il codice di verifica che è stato inviato alla tua email";
@@ -555,6 +557,7 @@
 "ThereAreNoCardsInYourVault" = "La cassaforte non contiene carte";
 "ThereAreNoNotesInYourVault" = "La cassaforte non contiene note";
 "ThereAreNoIdentitiesInYourVault" = "La cassaforte non contiene identità";
+"ThereAreNoPassportsInYourVault" = "There are no passports in your vault";
 "ThereAreNoSSHKeysInYourVault" = "Non ci sono chiavi SSH nella cassaforte";
 "ThereAreNoBankAccountsInYourVault" = "There are no bank accounts in your vault";
 "US" = "US";
@@ -804,7 +807,7 @@
 "YouMayNeedToEnableDevicePasscodeOrBiometrics" = "Potrebbe essere necessario abilitare il codice di accesso del dispositivo o l'autenticazione biometrica.";
 "StartImportCXFDescriptionLong" = "Importa parole d'accesso, chiavi d'accesso, carte di credito e qualsiasi informazione di identità personale da un altro gestore di credenziali.\n\nI tuoi dati **non** saranno cancellati dal tuo fornitore precedente.";
 "ImportPasswords" = "Importa password";
-"ImportingEllipsis" = "Importazione…";
+"ImportingEllipsis" = "Importazione...";
 "AreYouSureYouWantToCancelTheImportProcessQuestionMark" = "Vuoi davvero annullare il processo di importazione?";
 "ImportFailed" = "Importazione fallita";
 "ThereWasAnIssueImportingAllOfYourPasswordsNoDataWasDeleted" = "Si è verificato un problema durante l'importazione delle tue password.\n\nNessun dato è stato eliminato.";
@@ -1125,6 +1128,7 @@
 "License" = "License";
 "Licenses" = "Licenses";
 "Passport" = "Passport";
+"Passports" = "Passports";
 "LicenseDetails" = "License details";
 "DateOfBirth" = "Date of birth";
 "IssuingCountry" = "Issuing country";

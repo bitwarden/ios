@@ -340,7 +340,7 @@ class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_leng
         authAPIService: AuthAPIService,
         clientService: ClientService,
         configService: ConfigService,
-        credentialIdentityStore: CredentialIdentityStore = ASCredentialIdentityStore.shared,
+        credentialIdentityStore: CredentialIdentityStore = SafeCredentialIdentityStore(),
         environmentService: EnvironmentService,
         errorReporter: ErrorReporter,
         keychainRepository: KeychainRepository,

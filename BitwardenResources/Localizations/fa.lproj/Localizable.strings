@@ -6,6 +6,7 @@
 "Bitwarden" = "Bitwarden";
 "Cancel" = "انصراف";
 "Copy" = "کپی";
+"CopyPassportNumber" = "کپی شماره گذرنامه";
 "CopyPassword" = "کپی کلمه عبور";
 "CopyUsername" = "کپی نام کاربری";
 "Delete" = "حذف";
@@ -126,7 +127,7 @@
 "ItemUpdated" = "مورد به‌روزرسانی شد";
 "Submitting" = "Submitting…";
 "Syncing" = "Syncing…";
-"SyncingLogins" = "همگام‌سازی ورودها…";
+"SyncingLogins" = "همگام‌سازی ورودها...";
 "SyncingComplete" = "همگام‌سازی کامل شد";
 "TouchID" = "Touch ID";
 "TwoStepLogin" = "ورود دو مرحله‌ای";
@@ -207,6 +208,7 @@
 "TypeIdentity" = "هویت";
 "TypeLicense" = "License";
 "TypeLogin" = "ورود";
+"TypePassport" = "Passport";
 "TypeSecureNote" = "یادداشت امن";
 "Address1" = "نشانی ۱";
 "Address2" = "نشانی ۲";
@@ -556,6 +558,7 @@
 "ThereAreNoCardsInYourVault" = "هیچ کارتی در گاوصندوق‌تان موجود نیست";
 "ThereAreNoNotesInYourVault" = "هیج یادداشتی در گاوصندوق‌تان موجود نیست";
 "ThereAreNoIdentitiesInYourVault" = "هیچ هویتی در گاوصندوق‌تان موجود نیست";
+"ThereAreNoPassportsInYourVault" = "There are no passports in your vault";
 "ThereAreNoSSHKeysInYourVault" = "هیچ کلید SSH در گاوصندوق‌تان موجود نیست";
 "ThereAreNoBankAccountsInYourVault" = "There are no bank accounts in your vault";
 "US" = "امریکا";
@@ -805,7 +808,7 @@
 "YouMayNeedToEnableDevicePasscodeOrBiometrics" = "ممکن است نیاز باشد کلمه عبور دستگاه یا بیومتریک را فعال کنید.";
 "StartImportCXFDescriptionLong" = "کلمات عبور، کلیدهای عبور، کارت‌های اعتباری و هر اطلاعات هویتی شخصی را از یک مدیر کلمه عبور دیگر درون ریزی کنید.\n\nداده‌های شما از ارائه‌دهنده قبلی **حذف نخواهند شد.**";
 "ImportPasswords" = "درون ریزی کلمات عبور";
-"ImportingEllipsis" = "در حال وارد کردن…";
+"ImportingEllipsis" = "در حال وارد کردن...";
 "AreYouSureYouWantToCancelTheImportProcessQuestionMark" = "آیا مطمئن هستید که می‌خواهید فرایند درون ریزی داده‌ها را لغو کنید؟";
 "ImportFailed" = "درون ریزی ناموفق بود";
 "ThereWasAnIssueImportingAllOfYourPasswordsNoDataWasDeleted" = "در درون ریزی همه کلمات عبور شما مشکلی پیش آمد.\n\nاطلاعاتی حذف نشده است.";
@@ -1126,6 +1129,7 @@
 "License" = "License";
 "Licenses" = "Licenses";
 "Passport" = "Passport";
+"Passports" = "Passports";
 "LicenseDetails" = "License details";
 "DateOfBirth" = "Date of birth";
 "IssuingCountry" = "Issuing country";

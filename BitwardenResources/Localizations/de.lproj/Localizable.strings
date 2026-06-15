@@ -6,6 +6,7 @@
 "Bitwarden" = "Bitwarden";
 "Cancel" = "Abbrechen";
 "Copy" = "Kopieren";
+"CopyPassportNumber" = "Reisepassnummer kopieren";
 "CopyPassword" = "Passwort kopieren";
 "CopyUsername" = "Benutzername kopieren";
 "Delete" = "Löschen";
@@ -126,7 +127,7 @@
 "ItemUpdated" = "Eintrag gespeichert";
 "Submitting" = "Wird übermittelt…";
 "Syncing" = "Wird synchronisiert…";
-"SyncingLogins" = "Synchronisiere Zugangsdaten…";
+"SyncingLogins" = "Synchronisiere Zugangsdaten...";
 "SyncingComplete" = "Synchronisierung abgeschlossen";
 "TouchID" = "Touch ID";
 "TwoStepLogin" = "Zwei-Faktor-Authentifizierung";
@@ -207,6 +208,7 @@
 "TypeIdentity" = "Identität";
 "TypeLicense" = "Führerschein";
 "TypeLogin" = "Zugangsdaten";
+"TypePassport" = "Reisepass";
 "TypeSecureNote" = "Sichere Notiz";
 "Address1" = "Adresse 1";
 "Address2" = "Adresse 2";
@@ -388,7 +390,7 @@
 "MasterPasswordPolicyValidationTitle" = "Ungültiges Passwort";
 "MasterPasswordPolicyValidationMessage" = "Passwort entspricht nicht den Anforderungen der Organisation. Bitte überprüfe die Richtlinien-Informationen und versuche es erneut.";
 "Loading" = "Wird geladen";
-"LoadingSubscription" = "Abonnement wird geladen…";
+"LoadingSubscription" = "Abonnement wird geladen...";
 "AcceptPoliciesError" = "Die Nutzungsbedingungen und Datenschutzerklärung wurden nicht akzeptiert.";
 "PrivacyPolicy" = "Datenschutzbestimmungen";
 "PersonalOwnershipPolicyInEffect" = "Eine Organisationsrichtlinie beeinflusst deine Eigentümer-Optionen.";
@@ -555,6 +557,7 @@
 "ThereAreNoCardsInYourVault" = "Du hast keine Karten in deinem Tresor.";
 "ThereAreNoNotesInYourVault" = "Du hast keine Notizen in deinem Tresor.";
 "ThereAreNoIdentitiesInYourVault" = "Du hast keine Identitäten in deinem Tresor.";
+"ThereAreNoPassportsInYourVault" = "Es gibt keine Reisepässe in deinem Tresor";
 "ThereAreNoSSHKeysInYourVault" = "Es gibt keine SSH-Schlüssel in deinem Tresor";
 "ThereAreNoBankAccountsInYourVault" = "Es gibt keine Bankkonten in deinem Tresor";
 "US" = "US";
@@ -804,7 +807,7 @@
 "YouMayNeedToEnableDevicePasscodeOrBiometrics" = "Möglicherweise musst du Gerätecodes oder Biometrie aktivieren.";
 "StartImportCXFDescriptionLong" = "Importiere Passwörter, Passkeys, Kreditkarten und sämtliche persönlichen Informationen zur Identität von einem anderen Passwort-Manager.\n\nDeine Daten werden von deinem vorherigen Anbieter **nicht** gelöscht.";
 "ImportPasswords" = "Passwörter importieren";
-"ImportingEllipsis" = "Wird importiert…";
+"ImportingEllipsis" = "Wird importiert...";
 "AreYouSureYouWantToCancelTheImportProcessQuestionMark" = "Bist du sicher, dass du den Importvorgang abbrechen möchtest?";
 "ImportFailed" = "Import fehlgeschlagen";
 "ThereWasAnIssueImportingAllOfYourPasswordsNoDataWasDeleted" = "Es gab ein Problem beim Importieren aller Passwörter.\n\nEs wurden keine Daten gelöscht.";
@@ -837,7 +840,7 @@
 "AddWebsite" = "Website hinzufügen";
 "CannotDeleteAccount" = "Konto kann nicht gelöscht werden";
 "CannotDeleteAccountDescriptionLong" = "Diese Aktion kann nicht abgeschlossen werden, da dein Konto im Besitz einer Organisation ist. Kontaktiere deinen Organisationsadministrator für weitere Details.";
-"AddItem" = "Neuer Eintrag";
+"AddItem" = "Eintrag hinzufügen";
 "SetUpAuthenticatorKey" = "Authenticator-Schlüssel einrichten";
 "ItemDetails" = "Eintrag-Details";
 "CardDetails" = "Kartendetails";
@@ -989,7 +992,7 @@
 "DefaultX" = "Standard (%1$@)";
 "UpdateYourEncryptionSettings" = "Aktualisiere deine Verschlüsselungseinstellungen";
 "TheNewRecommendedEncryptionSettingsDescriptionLong" = "Die neuen empfohlenen Verschlüsselungseinstellungen verbessern deine Kontosicherheit. Gib dein Master-Passwort ein, um sie zu aktualisieren.";
-"Updating" = "Wird aktualisiert…";
+"Updating" = "Wird aktualisiert...";
 "EncryptionSettingsUpdated" = "Verschlüsselungseinstellungen aktualisiert";
 "IntroducingArchive" = "Einführung des Archivs";
 "KeepYtemsYouDontNeedRightNowSafeButOutOfSight" = "Bewahre Einträge, die du derzeit nicht benötigst, sicher, aber außer Sichtweite auf.";
@@ -1033,7 +1036,7 @@
 "YourPremiumSubscriptionEndedArchiveDescriptionLong" = "Starte dein Premium-Abonnement neu, um den Zugriff auf dein Archiv wiederherzustellen. Wenn du die Details für einen archivierten Eintrag vor dem Neustart bearbeitest, wird er wieder zurück in deinen Tresor verschoben.";
 "RestartPremium" = "Premium neu starten";
 "ThisItemIsArchivedSavingChangesWillRestoreItToYourVault" = "Dieser Eintrag ist archiviert. Wenn du Änderungen speicherst, wird er in deinem Tresor wiederhergestellt.";
-"SettingUpAutofill" = "Auto-Ausfüllen wird eingerichtet…";
+"SettingUpAutofill" = "Auto-Ausfüllen wird eingerichtet...";
 "AddEmail" = "E-Mail hinzufügen";
 "AnyoneWithPasswordSetByYou" = "Alle mit einem von dir festgelegtem Passwort";
 "AnyoneWithTheLink" = "Alle mit dem Link";
@@ -1125,6 +1128,7 @@
 "License" = "Führerschein";
 "Licenses" = "Führerscheine";
 "Passport" = "Reisepass";
+"Passports" = "Reisepässe";
 "LicenseDetails" = "Führerscheindetails";
 "DateOfBirth" = "Geburtsdatum";
 "IssuingCountry" = "Ausstellendes Land";

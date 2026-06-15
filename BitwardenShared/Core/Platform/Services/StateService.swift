@@ -44,6 +44,13 @@ protocol StateService: AnyObject, BillingStateService {
     ///
     func doesActiveAccountHavePremium() async -> Bool
 
+    /// Returns whether the active user account has premium personally (i.e. premium that the user
+    /// purchased themselves), as opposed to premium granted by an organization.
+    ///
+    /// - Returns: Whether the active account has premium personally.
+    ///
+    func doesActiveAccountHavePremiumPersonally() async -> Bool
+
     /// Gets the access token's expiration date for an account.
     ///
     /// - Parameter userId: The user ID associated with the access token expiration date.
@@ -1559,6 +1566,16 @@ actor DefaultStateService: StateService, ActiveAccountStateProvider, ConfigState
                 .fetchAllOrganizations(userId: account.profile.userId)
                 .filter { $0.enabled && $0.usersGetPremium }
             return !organizations.isEmpty
+        } catch {
+            errorReporter.log(error: error)
+            return false
+        }
+    }
+
+    func doesActiveAccountHavePremiumPersonally() async -> Bool {
+        do {
+            let account = try await getActiveAccount()
+            return account.profile.hasPremiumPersonally ?? false
         } catch {
             errorReporter.log(error: error)
             return false

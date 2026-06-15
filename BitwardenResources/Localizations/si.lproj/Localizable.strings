@@ -6,6 +6,7 @@
 "Bitwarden" = "බිට්වාඩන්";
 "Cancel" = "අවලංගු කරන්න";
 "Copy" = "පිටපත්";
+"CopyPassportNumber" = "Copy passport number";
 "CopyPassword" = "මුරපදය පිටපත් කරන්න";
 "CopyUsername" = "පරිශීලකනාමය පිටපත් කරන්න";
 "Delete" = "මකන්න";
@@ -207,6 +208,7 @@
 "TypeIdentity" = "අනන්‍යතාව";
 "TypeLicense" = "License";
 "TypeLogin" = "පිවිසෙන්න";
+"TypePassport" = "Passport";
 "TypeSecureNote" = "Secure note";
 "Address1" = "ලිපිනය 1";
 "Address2" = "ලිපිනය 2";
@@ -555,6 +557,7 @@
 "ThereAreNoCardsInYourVault" = "There are no cards in your vault";
 "ThereAreNoNotesInYourVault" = "There are no notes in your vault";
 "ThereAreNoIdentitiesInYourVault" = "There are no identities in your vault";
+"ThereAreNoPassportsInYourVault" = "There are no passports in your vault";
 "ThereAreNoSSHKeysInYourVault" = "There are no SSH keys in your vault";
 "ThereAreNoBankAccountsInYourVault" = "There are no bank accounts in your vault";
 "US" = "US";
@@ -1125,6 +1128,7 @@
 "License" = "License";
 "Licenses" = "Licenses";
 "Passport" = "Passport";
+"Passports" = "Passports";
 "LicenseDetails" = "License details";
 "DateOfBirth" = "Date of birth";
 "IssuingCountry" = "Issuing country";

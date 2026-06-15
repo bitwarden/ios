@@ -6,6 +6,7 @@
 "Bitwarden" = "Bitwarden";
 "Cancel" = "Atcelt";
 "Copy" = "Ievietot starpliktuvē";
+"CopyPassportNumber" = "Ievietot pases numuru starpliktuvē";
 "CopyPassword" = "Ievietot paroli starpliktuvē";
 "CopyUsername" = "Ievietot lietotājvārdu starpliktuvē";
 "Delete" = "Izdzēst";
@@ -126,7 +127,7 @@
 "ItemUpdated" = "Vienums atjaunināts.";
 "Submitting" = "Submitting…";
 "Syncing" = "Syncing…";
-"SyncingLogins" = "Sinhronizē pieteikšanās vienumus…";
+"SyncingLogins" = "Sinhronizē pieteikšanās vienumus...";
 "SyncingComplete" = "Sinhronizēšana pabeigta";
 "TouchID" = "Touch ID";
 "TwoStepLogin" = "Divpakāpju pieteikšanās";
@@ -207,6 +208,7 @@
 "TypeIdentity" = "Identitāte";
 "TypeLicense" = "Licence";
 "TypeLogin" = "Pieteikšanās vienums";
+"TypePassport" = "Passport";
 "TypeSecureNote" = "Droša piezīme";
 "Address1" = "Adrese 1";
 "Address2" = "Adrese 2";
@@ -555,6 +557,7 @@
 "ThereAreNoCardsInYourVault" = "Glabātavā nav karšu.";
 "ThereAreNoNotesInYourVault" = "Glabātavā nav piezīmju.";
 "ThereAreNoIdentitiesInYourVault" = "Glabātavā nav identitāšu.";
+"ThereAreNoPassportsInYourVault" = "There are no passports in your vault";
 "ThereAreNoSSHKeysInYourVault" = "Glabātavā nav SSH atslēgu";
 "ThereAreNoBankAccountsInYourVault" = "Glabātavā nav bankas kontu";
 "US" = "ASV";
@@ -804,7 +807,7 @@
 "YouMayNeedToEnableDevicePasscodeOrBiometrics" = "Var būt nepieciešams iespējot ierīces piekļuves kodu vai biometriju.";
 "StartImportCXFDescriptionLong" = "Paroļu, piekļuves atslēgu, kredītkaršu un jebkādas personīgās identitātes informācijas ievietošana no cita paroļu pārvaldnieka.\n\nIepriekšējā nodrošinātāja dati **netiks** izdzēsti.";
 "ImportPasswords" = "Ievietot paroles";
-"ImportingEllipsis" = "Ievieto…";
+"ImportingEllipsis" = "Ievieto...";
 "AreYouSureYouWantToCancelTheImportProcessQuestionMark" = "Vai tiešām atcelt ievietošanu?";
 "ImportFailed" = "Ievietošana neizdevās";
 "ThereWasAnIssueImportingAllOfYourPasswordsNoDataWasDeleted" = "Bija sarežģījums ar visu paroļu ievietošanu.\n\nNekādi dati netika izdzēsti.";
@@ -989,7 +992,7 @@
 "DefaultX" = "Noklusējums (%1$@)";
 "UpdateYourEncryptionSettings" = "Atjaunini savus šifrēšanas iestatījumus";
 "TheNewRecommendedEncryptionSettingsDescriptionLong" = "Jaunie ieteicamie šifrēšanas iestatījumi uzlabos Tava konta drošību. Jāievada sava galvenā parole, lai atjauninātu tagad.";
-"Updating" = "Atjaunina…";
+"Updating" = "Atjaunina...";
 "EncryptionSettingsUpdated" = "Šifrēšanas iestatījumi ir atjaunināti";
 "IntroducingArchive" = "Introducing Archive";
 "KeepYtemsYouDontNeedRightNowSafeButOutOfSight" = "Keep items you don’t need right now safe but out of sight.";
@@ -1125,6 +1128,7 @@
 "License" = "Licence";
 "Licenses" = "Licenses";
 "Passport" = "Passport";
+"Passports" = "Passports";
 "LicenseDetails" = "Informācija par licenci";
 "DateOfBirth" = "Date of birth";
 "IssuingCountry" = "Issuing country";

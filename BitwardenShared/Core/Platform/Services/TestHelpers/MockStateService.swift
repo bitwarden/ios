@@ -45,6 +45,8 @@ class MockStateService: StateService, ActiveAccountStateProvider, AutofillStateS
     var disableAutoTotpCopyByUserId = [String: Bool]()
     var doesActiveAccountHavePremiumCalled = false
     var doesActiveAccountHavePremiumResult: Bool = true
+    var doesActiveAccountHavePremiumPersonallyCalled = false // swiftlint:disable:this identifier_name
+    var doesActiveAccountHavePremiumPersonallyResult: Bool = true // swiftlint:disable:this identifier_name
     var encryptedPinByUserId = [String: String]()
     var environmentURLs = [String: EnvironmentURLData]()
     var environmentURLsError: Error?
@@ -161,6 +163,11 @@ class MockStateService: StateService, ActiveAccountStateProvider, AutofillStateS
     func doesActiveAccountHavePremium() async -> Bool {
         doesActiveAccountHavePremiumCalled = true
         return doesActiveAccountHavePremiumResult
+    }
+
+    func doesActiveAccountHavePremiumPersonally() async -> Bool {
+        doesActiveAccountHavePremiumPersonallyCalled = true
+        return doesActiveAccountHavePremiumPersonallyResult
     }
 
     func getAccountEncryptionKeys(userId: String?) async throws -> AccountEncryptionKeys {

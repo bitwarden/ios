@@ -6,6 +6,7 @@
 "Bitwarden" = "Bitwarden";
 "Cancel" = "キャンセル";
 "Copy" = "コピー";
+"CopyPassportNumber" = "パスポート番号をコピー";
 "CopyPassword" = "パスワードをコピー";
 "CopyUsername" = "ユーザー名をコピー";
 "Delete" = "削除";
@@ -126,7 +127,7 @@
 "ItemUpdated" = "アイテムを更新しました。";
 "Submitting" = "送信中…";
 "Syncing" = "同期中…";
-"SyncingLogins" = "ログインを同期…";
+"SyncingLogins" = "ログインを同期...";
 "SyncingComplete" = "同期が完了しました。";
 "TouchID" = "Touch ID";
 "TwoStepLogin" = "2段階認証";
@@ -207,6 +208,7 @@
 "TypeIdentity" = "ID";
 "TypeLicense" = "免許証";
 "TypeLogin" = "ログイン";
+"TypePassport" = "パスポート";
 "TypeSecureNote" = "セキュアメモ";
 "Address1" = "住所1";
 "Address2" = "住所2";
@@ -388,7 +390,7 @@
 "MasterPasswordPolicyValidationTitle" = "無効なパスワード";
 "MasterPasswordPolicyValidationMessage" = "パスワードが組織の要件を満たしていません。ポリシー情報を確認して、もう一度やり直してください。";
 "Loading" = "読み込み中";
-"LoadingSubscription" = "サブスクリプションを読み込み中…";
+"LoadingSubscription" = "サブスクリプションを読み込み中...";
 "AcceptPoliciesError" = "利用規約とプライバシーポリシーが確認されていません。";
 "PrivacyPolicy" = "プライバシーポリシー";
 "PersonalOwnershipPolicyInEffect" = "組織のポリシーが所有者のオプションに影響を与えています。";
@@ -555,6 +557,7 @@
 "ThereAreNoCardsInYourVault" = "保管庫にカードがありません";
 "ThereAreNoNotesInYourVault" = "保管庫にメモがありません";
 "ThereAreNoIdentitiesInYourVault" = "保管庫にIDがありません";
+"ThereAreNoPassportsInYourVault" = "保管庫にパスポートはありません";
 "ThereAreNoSSHKeysInYourVault" = "保管庫に SSH キーがありません";
 "ThereAreNoBankAccountsInYourVault" = "保管庫に銀行口座がありません";
 "US" = "米国";
@@ -1125,6 +1128,7 @@
 "License" = "免許証";
 "Licenses" = "免許証";
 "Passport" = "パスポート";
+"Passports" = "パスポート";
 "LicenseDetails" = "免許証の詳細";
 "DateOfBirth" = "生年月日";
 "IssuingCountry" = "発行国";

@@ -40,7 +40,7 @@
     <key>ThisPasswordHasBeenExposedXTimesDescriptionLong</key>
     <dict>
       <key>NSStringLocalizedFormatKey</key>
-      <string>%#@ThisPasswordHasBeenExposedTimes@ You should change it.</string>
+      <string>%#@ThisPasswordHasBeenExposedTimes@ Sinun tulisi vaihtaa se.</string>
       <key>ThisPasswordHasBeenExposedTimes</key>
       <dict>
         <key>NSStringFormatSpecTypeKey</key>
@@ -48,9 +48,9 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>d</string>
         <key>one</key>
-        <string>This password has been exposed %d time in data breaches.</string>
+        <string>Tämä salasana on paljastunut tietovuodoissa %d kerran.</string>
         <key>other</key>
-        <string>This password has been exposed %d times in data breaches.</string>
+        <string>Tämä salasana on paljastunut tietovuodoissa %d kertaa.</string>
       </dict>
     </dict>
     <!-- A number of characters, as in letters/numbers/punctuation. For example, the minimum number of characters when creating a password. -->
@@ -65,9 +65,9 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>d</string>
         <key>one</key>
-        <string>%d character</string>
+        <string>%d merkki</string>
         <key>other</key>
-        <string>%d characters</string>
+        <string>%d merkkiä</string>
       </dict>
     </dict>
     <!-- A number of days, used in menu selections. For example, the number of days to keep a send before deletion. -->
@@ -82,9 +82,9 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>d</string>
         <key>one</key>
-        <string>%d day</string>
+        <string>%d päivä</string>
         <key>other</key>
-        <string>%d days</string>
+        <string>%d päivää</string>
       </dict>
     </dict>
     <!-- A number of hours, used in menu selections. For example, how long to log events in the flight recorder. -->
@@ -99,9 +99,9 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>d</string>
         <key>one</key>
-        <string>%d hour</string>
+        <string>%d tunti</string>
         <key>other</key>
-        <string>%d hours</string>
+        <string>%d tuntia</string>
       </dict>
     </dict>
     <!-- A number of items, used in headers' voiceover to indicate how many items are in a section. -->
@@ -116,9 +116,9 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>d</string>
         <key>one</key>
-        <string>%d item</string>
+        <string>%d kohde</string>
         <key>other</key>
-        <string>%d items</string>
+        <string>%d kohdetta</string>
       </dict>
     </dict>
     <!-- Message indicating a number of items were successfully imported in the Credential Exchange flow. -->
@@ -133,9 +133,9 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>d</string>
         <key>one</key>
-        <string>%d item successfully imported</string>
+        <string>%d kohde tuotiin</string>
         <key>other</key>
-        <string>%d items successfully imported</string>
+        <string>%d kohdetta tuotiin</string>
       </dict>
     </dict>
     <!-- A number of minutes, used in menu selections. For example, the amount of time to keep the vault unlocked after being unlocked. -->
@@ -150,9 +150,9 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>d</string>
         <key>one</key>
-        <string>%d minute</string>
+        <string>%d minuutti</string>
         <key>other</key>
-        <string>%d minutes</string>
+        <string>%d minuuttia</string>
       </dict>
     </dict>
     <!-- A number of seconds, used in menu selection. For example, how long to keep copied fields in the clipboard before clearing. -->
@@ -167,9 +167,9 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>d</string>
         <key>one</key>
-        <string>%d second</string>
+        <string>%d sekunti</string>
         <key>other</key>
-        <string>%d seconds</string>
+        <string>%d sekuntia</string>
       </dict>
     </dict>
     <!-- A number of weeks, used in menu selection. For example, how long to log events in the flight recorder. -->
@@ -184,16 +184,16 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>d</string>
         <key>one</key>
-        <string>%d week</string>
+        <string>%d viikko</string>
         <key>other</key>
-        <string>%d weeks</string>
+        <string>%d viikkoa</string>
       </dict>
     </dict>
     <!-- A message indicating the grace period for a past due subscription, with pluralized days and the date. -->
     <key>YouHaveAGracePeriodOfXDaysFromYourSubscriptionDescriptionLong</key>
     <dict>
       <key>NSStringLocalizedFormatKey</key>
-      <string>%1$#@YouHaveAGracePeriodOfXDaysFromYourSubscriptionExpirationDate@ Please resolve the past due invoices by **%2$@**.</string>
+      <string>%1$#@YouHaveAGracePeriodOfXDaysFromYourSubscriptionExpirationDate@ Käsittele erääntyneet laskut **%2$@** mennessä, kiitos.</string>
       <key>YouHaveAGracePeriodOfXDaysFromYourSubscriptionExpirationDate</key>
       <dict>
         <key>NSStringFormatSpecTypeKey</key>
@@ -201,16 +201,16 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>d</string>
         <key>one</key>
-        <string>You have a grace period of %1$d day from your subscription expiration date.</string>
+        <string>Käytössäsi on %1$d päivän varoaika tilauksen päättymisestä.</string>
         <key>other</key>
-        <string>You have a grace period of %1$d days from your subscription expiration date.</string>
+        <string>Käytössäsi on %1$d päivän varoaika tilauksen päättymisestä.</string>
       </dict>
     </dict>
     <!-- A message indicating the minimum length of a PIN in characters. -->
     <key>YourPINMustBeAtLeastXCharactersDescriptionLong</key>
     <dict>
       <key>NSStringLocalizedFormatKey</key>
-      <string>%#@YourPINMustBeAtLeastCharacters@ Your PIN settings will be reset if you ever fully log out of the application.</string>
+      <string>%#@YourPINMustBeAtLeastCharacters@ PIN-asetuksesi tyhjentyvät, jos kirjaudut sovelluksesta kokonaan ulos.</string>
       <key>YourPINMustBeAtLeastCharacters</key>
       <dict>
         <key>NSStringFormatSpecTypeKey</key>
@@ -218,9 +218,9 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>d</string>
         <key>one</key>
-        <string>Your PIN must be at least %d character.</string>
+        <string>PIN-koodisi tulee sisältää ainakin %d merkki.</string>
         <key>other</key>
-        <string>Your PIN must be at least %d characters.</string>
+        <string>PIN-koodisi tulee sisältää ainakin %d merkkiä.</string>
       </dict>
     </dict>
   </dict>

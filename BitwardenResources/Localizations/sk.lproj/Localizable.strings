@@ -6,6 +6,7 @@
 "Bitwarden" = "Bitwarden";
 "Cancel" = "Zrušiť";
 "Copy" = "Kopírovať";
+"CopyPassportNumber" = "Kopírovať číslo pasu";
 "CopyPassword" = "Kopírovať heslo";
 "CopyUsername" = "Kopírovať používateľské meno";
 "Delete" = "Odstrániť";
@@ -207,6 +208,7 @@
 "TypeIdentity" = "Identita";
 "TypeLicense" = "Vodičský preukaz";
 "TypeLogin" = "Prihlásenie";
+"TypePassport" = "Pas";
 "TypeSecureNote" = "Zabezpečená poznámka";
 "Address1" = "Adresa 1";
 "Address2" = "Adresa 2";
@@ -555,6 +557,7 @@
 "ThereAreNoCardsInYourVault" = "V trezore sa nenachádzajú žiadne karty";
 "ThereAreNoNotesInYourVault" = "V trezore sa nenachádzajú žiadne poznámky";
 "ThereAreNoIdentitiesInYourVault" = "V trezore sa nenachádzajú žiadne identity";
+"ThereAreNoPassportsInYourVault" = "V trezore sa nenachádzajú žiadne pasy";
 "ThereAreNoSSHKeysInYourVault" = "V trezore sa nenachádzajú žiadne kľúče SSH";
 "ThereAreNoBankAccountsInYourVault" = "V trezore sa nenachádzajú žiadne bankové účty";
 "US" = "USA";
@@ -1125,6 +1128,7 @@
 "License" = "Vodičský preukaz";
 "Licenses" = "Vodičské preukazy";
 "Passport" = "Pas";
+"Passports" = "Pasy";
 "LicenseDetails" = "Podrobnosti o vodičskom preukaze";
 "DateOfBirth" = "Dátum narodenia";
 "IssuingCountry" = "Vydávajúca krajina";

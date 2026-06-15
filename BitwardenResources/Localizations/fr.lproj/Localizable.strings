@@ -6,6 +6,7 @@
 "Bitwarden" = "Bitwarden";
 "Cancel" = "Annuler";
 "Copy" = "Copier";
+"CopyPassportNumber" = "Copier le numéro de passeport";
 "CopyPassword" = "Copier le mot de passe";
 "CopyUsername" = "Copier le nom d'utilisateur";
 "Delete" = "Supprimer";
@@ -207,6 +208,7 @@
 "TypeIdentity" = "Identité";
 "TypeLicense" = "Permis de conduire";
 "TypeLogin" = "Identifiant";
+"TypePassport" = "Passeport";
 "TypeSecureNote" = "Note sécurisée";
 "Address1" = "Adresse 1";
 "Address2" = "Adresse 2";
@@ -555,6 +557,7 @@
 "ThereAreNoCardsInYourVault" = "Il n'y a pas de carte de paiement dans votre coffre";
 "ThereAreNoNotesInYourVault" = "Il n'y a pas de note dans votre coffre";
 "ThereAreNoIdentitiesInYourVault" = "Il n'y a pas d'identité dans votre coffre";
+"ThereAreNoPassportsInYourVault" = "Il n'y a pas de passeport dans votre coffre";
 "ThereAreNoSSHKeysInYourVault" = "Il n'y a pas de clé SSH dans votre coffre";
 "ThereAreNoBankAccountsInYourVault" = "Il n'y a pas de compte bancaire dans votre coffre";
 "US" = "US";
@@ -661,7 +664,7 @@
 "ChooseThreeOrFourRandomWordsDescriptionLong" = "Choisissez trois ou quatre mots aléatoires, sans rapport entre eux, que vous pouvez facilement mémoriser. Pensez à des **objets, des lieux ou des choses** que vous aimez.";
 "CombineThoseWordsTogether" = "Combinez ces mots ensemble";
 "CombineThoseWordsTogetherDescriptionLong" = "Assemblez les mots dans n'importe quel ordre pour former votre phrase secrète. **Utilisez des tirets, des espaces ou laissez-les tels quels pour former un seul mot long**, c'est vous qui choisissez !";
-"MakeItYours" = "Appropriez-vous la";
+"MakeItYours" = "Personnalisez-le";
 "MakeItYoursDescriptionLong" = "**Ajoutez un nombre ou un symbole** pour la rendre encore plus forte. Vous disposez désormais d'une phrase de passe unique, sécurisée et facile à mémoriser !";
 "NeedSomeInspiration?" = "Besoin d'inspiration ?";
 "CheckOutThePassphraseGenerator" = "Découvrez le générateur de phrases de passe";
@@ -829,7 +832,7 @@
 "CheckPasswordForDataBreaches" = "Chercher si ce mot de passe a été retrouvé dans des fuites de données";
 "PrivateNote" = "Note privée";
 "CannotDeleteUserSoleOwnerDescriptionLong" = "Impossible de supprimer cet utilisateur car il est le seul propriétaire d'au moins une organisation. Veuillez supprimer ces organisations ou promouvoir un autre utilisateur.";
-"APasskeyAlreadyExistsForThisApplication" = "Une clé d'accès (passkey) existe déjà pour cette application.";
+"APasskeyAlreadyExistsForThisApplication" = "Une clé d'accès existe déjà pour cette application.";
 "APasskeyAlreadyExistsForThisApplicationButAnErrorOccurredWhileLoadingIt" = "Une clé d'accès existe déjà pour cette application mais une erreur est survenue lors de son chargement.";
 "ItemNameRequired" = "Nom de l'élément (requis)";
 "AutofillOptions" = "Options de saisie automatique";
@@ -1125,6 +1128,7 @@
 "License" = "Permis de conduire";
 "Licenses" = "Permis";
 "Passport" = "Passeport";
+"Passports" = "Passeports";
 "LicenseDetails" = "Détails du permis";
 "DateOfBirth" = "Date de naissance";
 "IssuingCountry" = "Pays émetteur";

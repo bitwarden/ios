@@ -58,7 +58,7 @@ class DefaultReviewPromptService: ReviewPromptService {
     init(
         appInfoService: AppInfoService,
         appVersion: String,
-        identityStore: CredentialIdentityStore = ASCredentialIdentityStore.shared,
+        identityStore: CredentialIdentityStore = SafeCredentialIdentityStore(),
         stateService: StateService,
     ) {
         self.appInfoService = appInfoService

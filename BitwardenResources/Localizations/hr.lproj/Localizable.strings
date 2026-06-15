@@ -6,6 +6,7 @@
 "Bitwarden" = "Bitwarden";
 "Cancel" = "Odustani";
 "Copy" = "Kopiraj";
+"CopyPassportNumber" = "Kopiraj broj putovnice";
 "CopyPassword" = "Kopiraj lozinku";
 "CopyUsername" = "Kopiraj korisničko ime";
 "Delete" = "Izbriši";
@@ -126,7 +127,7 @@
 "ItemUpdated" = "Stavka spremljena";
 "Submitting" = "Slanje…";
 "Syncing" = "Sinkronizacija…";
-"SyncingLogins" = "Sinkronizacija prijava…";
+"SyncingLogins" = "Sinkronizacija prijava...";
 "SyncingComplete" = "Sinkronizacija dovršena.";
 "TouchID" = "Touch ID";
 "TwoStepLogin" = "Prijava dvostrukom autentifikacijom";
@@ -207,6 +208,7 @@
 "TypeIdentity" = "Identitet";
 "TypeLicense" = "Dozvola";
 "TypeLogin" = "Prijava";
+"TypePassport" = "Putovnica";
 "TypeSecureNote" = "Sigurna bilješka";
 "Address1" = "Adresa 1";
 "Address2" = "Adresa 2";
@@ -555,6 +557,7 @@
 "ThereAreNoCardsInYourVault" = "U tvom trezoru nema kartica";
 "ThereAreNoNotesInYourVault" = "U tvom trezoru nema bilješki";
 "ThereAreNoIdentitiesInYourVault" = "U tvom trezoru nema identiteta";
+"ThereAreNoPassportsInYourVault" = "There are no passports in your vault";
 "ThereAreNoSSHKeysInYourVault" = "U tvom trezoru nema SSH ključeva";
 "ThereAreNoBankAccountsInYourVault" = "There are no bank accounts in your vault";
 "US" = "SAD";
@@ -804,7 +807,7 @@
 "YouMayNeedToEnableDevicePasscodeOrBiometrics" = "Možda ćeš trebati omogućiti lozinku uređaja ili biometriju.";
 "StartImportCXFDescriptionLong" = "Uvezi lozinke, pristupne ključeve, kreditne kartice i sve podatke o osobnom identitetu iz drugog upravitelja zaporki.\n\nTvoji podaci **neće** biti izbrisani kod tvog prethodnog pružatelja usluga.";
 "ImportPasswords" = "Uvezi lozinke";
-"ImportingEllipsis" = "Uvoz…";
+"ImportingEllipsis" = "Uvoz...";
 "AreYouSureYouWantToCancelTheImportProcessQuestionMark" = "Sigurno želiš prekinuti proces uvoza?";
 "ImportFailed" = "Uvoz nije uspio!";
 "ThereWasAnIssueImportingAllOfYourPasswordsNoDataWasDeleted" = "Došlo je do problema s uvozom svih tvojih lozinki.\n\nNijedan podatak nije izbrisan.";
@@ -989,7 +992,7 @@
 "DefaultX" = "Zadano (%1$@)";
 "UpdateYourEncryptionSettings" = "Ažuriraj svoje postakve šifriranja";
 "TheNewRecommendedEncryptionSettingsDescriptionLong" = "Nove preporučene postavke šifriranja poboljšat će sigurnost tvojeg računa. Za ažuriranje, unesi svoju glavnu lozinku.";
-"Updating" = "Ažuriranje…";
+"Updating" = "Ažuriranje...";
 "EncryptionSettingsUpdated" = "Postavke šifriranje su ažurirane";
 "IntroducingArchive" = "Predstavljamo Arhivu";
 "KeepYtemsYouDontNeedRightNowSafeButOutOfSight" = "Čuvaj stavke koje ti trenutno ne trebaju sigurne, ali izvan vidokruga.";
@@ -1125,6 +1128,7 @@
 "License" = "Dozvola";
 "Licenses" = "Osobne";
 "Passport" = "Putovnica";
+"Passports" = "Putovnice";
 "LicenseDetails" = "Detalji dozvole";
 "DateOfBirth" = "Datum rođenja";
 "IssuingCountry" = "Država izdavanja";

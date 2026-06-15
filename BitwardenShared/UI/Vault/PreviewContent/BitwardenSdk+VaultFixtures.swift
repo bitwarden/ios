@@ -319,6 +319,26 @@ extension CipherView {
         )
     }
 
+    /// A `CipherView` fixture populated with a fully-filled bank account, used to verify the
+    /// state round-trip preserves all 10 fields.
+    static func bankAccountFixture() -> CipherView {
+        .fixture(
+            bankAccount: .fixture(
+                accountNumber: "1234567890123456",
+                accountType: "checking",
+                bankContactPhone: "123-456-7890",
+                bankName: "Bank of America",
+                branchNumber: "100",
+                iban: "23423434543",
+                nameOnAccount: "Personal Checking",
+                pin: "1234",
+                routingNumber: "1234567890",
+                swiftCode: "123234",
+            ),
+            type: .bankAccount,
+        )
+    }
+
     static func cardFixture(
         archivedDate: Date? = nil,
         attachments: [AttachmentView]? = nil,

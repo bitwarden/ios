@@ -6,6 +6,7 @@
 "Bitwarden" = "Bitwarden";
 "Cancel" = "Cancelar";
 "Copy" = "Copiar";
+"CopyPassportNumber" = "Copiar número do passaporte";
 "CopyPassword" = "Copiar palavra-passe";
 "CopyUsername" = "Copiar nome de utilizador";
 "Delete" = "Eliminar";
@@ -207,6 +208,7 @@
 "TypeIdentity" = "Identidade";
 "TypeLicense" = "Carta de condução";
 "TypeLogin" = "Credencial";
+"TypePassport" = "Passaporte";
 "TypeSecureNote" = "Nota segura";
 "Address1" = "Endereço 1";
 "Address2" = "Endereço 2";
@@ -388,7 +390,7 @@
 "MasterPasswordPolicyValidationTitle" = "Palavra-passe inválida";
 "MasterPasswordPolicyValidationMessage" = "A palavra-passe não corresponde aos requisitos da organização. Verifique as informações da política e tente novamente.";
 "Loading" = "A carregar";
-"LoadingSubscription" = "A carregar subscrição…";
+"LoadingSubscription" = "A carregar subscrição...";
 "AcceptPoliciesError" = "Os Termos de utilização e a Política de privacidade não foram aceites.";
 "PrivacyPolicy" = "Política de privacidade";
 "PersonalOwnershipPolicyInEffect" = "Uma política da organização está a afetar as suas opções de propriedade.";
@@ -555,6 +557,7 @@
 "ThereAreNoCardsInYourVault" = "Não existem cartões no seu cofre";
 "ThereAreNoNotesInYourVault" = "Não existem notas no seu cofre";
 "ThereAreNoIdentitiesInYourVault" = "Não existem identidades no seu cofre";
+"ThereAreNoPassportsInYourVault" = "Não existem passaportes no seu cofre";
 "ThereAreNoSSHKeysInYourVault" = "Não existem chaves SSH no seu cofre";
 "ThereAreNoBankAccountsInYourVault" = "Não existem contas bancárias no seu cofre";
 "US" = "EUA";
@@ -1125,6 +1128,7 @@
 "License" = "Carta de condução";
 "Licenses" = "Cartas de condução";
 "Passport" = "Passaporte";
+"Passports" = "Passaportes";
 "LicenseDetails" = "Detalhes da carta de condução";
 "DateOfBirth" = "Data de nascimento";
 "IssuingCountry" = "País de emissão";

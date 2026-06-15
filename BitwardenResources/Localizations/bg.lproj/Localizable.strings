@@ -6,6 +6,7 @@
 "Bitwarden" = "Bitwarden";
 "Cancel" = "Отказ";
 "Copy" = "Копиране";
+"CopyPassportNumber" = "Копиране на номера на паспорта";
 "CopyPassword" = "Копиране на паролата";
 "CopyUsername" = "Копиране на потребителското име";
 "Delete" = "Изтриване";
@@ -207,6 +208,7 @@
 "TypeIdentity" = "Самоличност";
 "TypeLicense" = "Лиценз";
 "TypeLogin" = "Запис";
+"TypePassport" = "Паспорт";
 "TypeSecureNote" = "Защитена бележка";
 "Address1" = "Адрес 1";
 "Address2" = "Адрес 2";
@@ -555,6 +557,7 @@
 "ThereAreNoCardsInYourVault" = "Няма карти в трезора.";
 "ThereAreNoNotesInYourVault" = "Няма бележки в трезора.";
 "ThereAreNoIdentitiesInYourVault" = "Няма самоличности в трезора.";
+"ThereAreNoPassportsInYourVault" = "Няма паспорти в трезора";
 "ThereAreNoSSHKeysInYourVault" = "Няма SSH ключове в трезора";
 "ThereAreNoBankAccountsInYourVault" = "Няма банкови сметки в трезора";
 "US" = "САЩ";
@@ -1125,6 +1128,7 @@
 "License" = "Лиценз";
 "Licenses" = "Лицензи";
 "Passport" = "Паспорт";
+"Passports" = "Паспорти";
 "LicenseDetails" = "Подробности за лиценза";
 "DateOfBirth" = "Дата на раждане";
 "IssuingCountry" = "Страна издател";

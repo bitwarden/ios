@@ -1,6 +1,7 @@
 ignore:
   - "**/*Tests*/**"
   - "**/TestHelpers/**"
+  - "**/*Tests.swift"
   - "**/Fixtures/**"
   - "GlobalTestHelpers/**"
   - "GlobalTestHelpers-bwa/**"

@@ -299,6 +299,37 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         XCTAssertEqual(errorReporter.errors as? [StateServiceError], [.noActiveAccount])
     }
 
+    /// `doesActiveAccountHavePremiumPersonally()` returns true when the user has premium personally.
+    func test_doesActiveAccountHavePremiumPersonally_personalTrue() async throws {
+        await subject.addAccount(.fixture(profile: .fixture(hasPremiumPersonally: true)))
+        let hasPremium = await subject.doesActiveAccountHavePremiumPersonally()
+        XCTAssertTrue(hasPremium)
+    }
+
+    /// `doesActiveAccountHavePremiumPersonally()` returns false when the user has no personal
+    /// premium, even when an organization grants premium.
+    func test_doesActiveAccountHavePremiumPersonally_personalFalse_organizationTrue() async throws {
+        await subject.addAccount(.fixture(profile: .fixture(hasPremiumPersonally: false)))
+        try await dataStore.replaceOrganizations([.fixture(usersGetPremium: true)], userId: "1")
+        let hasPremium = await subject.doesActiveAccountHavePremiumPersonally()
+        XCTAssertFalse(hasPremium)
+    }
+
+    /// `doesActiveAccountHavePremiumPersonally()` returns false when personal premium is nil.
+    func test_doesActiveAccountHavePremiumPersonally_personalNil() async throws {
+        await subject.addAccount(.fixture(profile: .fixture(hasPremiumPersonally: nil)))
+        let hasPremium = await subject.doesActiveAccountHavePremiumPersonally()
+        XCTAssertFalse(hasPremium)
+    }
+
+    /// `doesActiveAccountHavePremiumPersonally()` with no accounts throws error internally which is
+    /// logged and returns `false` as default.
+    func test_doesActiveAccountHavePremiumPersonally_throwsNoAccountLogsErrorAndReturnsFalse() async throws {
+        let hasPremium = await subject.doesActiveAccountHavePremiumPersonally()
+        XCTAssertFalse(hasPremium)
+        XCTAssertEqual(errorReporter.errors as? [StateServiceError], [.noActiveAccount])
+    }
+
     /// `getAccessTokenExpirationDate(userId:)` gets the user's access token expiration date.
     func test_getAccessTokenExpirationDate() async throws {
         let date1 = Date(year: 2025, month: 1, day: 1)

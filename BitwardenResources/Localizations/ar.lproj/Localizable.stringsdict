@@ -285,7 +285,7 @@
       <key>YouHaveAGracePeriodOfXDaysFromYourSubscriptionExpirationDate</key>
       <dict>
         <key>zero</key>
-        <string>لا توجد لديك فِترة سماح من تاريخ انتهاء اشتراكك.</string>
+        <string> لديك %1$d فِترة سماح من تاريخ انتهاء اشتراكك.</string>
         <key>NSStringFormatSpecTypeKey</key>
         <string>NSStringPluralRuleType</string>
         <key>NSStringFormatValueTypeKey</key>
