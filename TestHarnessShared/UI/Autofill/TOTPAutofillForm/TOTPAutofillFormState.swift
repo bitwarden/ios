@@ -6,7 +6,7 @@ struct TOTPAutofillFormState: Equatable {
     // MARK: Properties
 
     /// The title of the screen.
-    var title: String = Localizations.totpAutofillForm
+    var title: String = ""
 
     /// The TOTP code field value.
     var totpCode: String = ""

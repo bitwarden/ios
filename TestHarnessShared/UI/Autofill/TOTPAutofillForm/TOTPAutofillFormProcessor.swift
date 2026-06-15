@@ -6,7 +6,7 @@ import Combine
 class TOTPAutofillFormProcessor: StateProcessor<
     TOTPAutofillFormState,
     TOTPAutofillFormAction,
-    TOTPAutofillFormEffect,
+    Void,
 > {
     // MARK: Private Properties
 

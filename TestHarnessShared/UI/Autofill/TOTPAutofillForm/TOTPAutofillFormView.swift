@@ -7,13 +7,13 @@ struct TOTPAutofillFormView: View {
     // MARK: Properties
 
     /// The store used to render the view.
-    @ObservedObject var store: Store<TOTPAutofillFormState, TOTPAutofillFormAction, TOTPAutofillFormEffect>
+    @ObservedObject var store: Store<TOTPAutofillFormState, TOTPAutofillFormAction, Void>
 
     // MARK: View
 
     var body: some View {
         content
-            .navigationTitle(store.state.title)
+            .navigationTitle(Localizations.totpAutofillForm)
             .navigationBarTitleDisplayMode(.large)
     }
 
@@ -34,6 +34,7 @@ struct TOTPAutofillFormView: View {
                 .keyboardType(.default)
                 .textInputAutocapitalization(.never)
                 .autocorrectionDisabled()
+                .accessibilityIdentifier(AccessibilityIdentifier.TOTPForm.totpCodeTextField)
             } header: {
                 Text(Localizations.totpCode)
             } footer: {
@@ -44,6 +45,7 @@ struct TOTPAutofillFormView: View {
                 if !store.state.totpCode.isEmpty {
                     Text(Localizations.xColonY(Localizations.totpCode, store.state.totpCode))
                         .styleGuide(.body)
+                        .accessibilityIdentifier(AccessibilityIdentifier.TOTPForm.totpCodeValue)
                 } else {
                     Text(Localizations.enterTOTPCodeAbove)
                         .foregroundColor(.secondary)
