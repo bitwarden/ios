@@ -73,6 +73,9 @@ enum AddEditItemAction: Equatable, Sendable {
     /// The owner field was changed.
     case ownerChanged(CipherOwner)
 
+    /// A passport field changed.
+    case passportFieldChanged(AddEditPassportItemAction)
+
     /// The password field was changed.
     case passwordChanged(String)
 
