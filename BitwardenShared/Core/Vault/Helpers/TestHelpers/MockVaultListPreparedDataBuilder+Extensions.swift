@@ -69,6 +69,10 @@ extension MockVaultListPreparedDataBuilder {
             helper.recordCall("prepareFolders")
             return self
         }
+        prepareNewItemTypesEnabledClosure = { _ -> VaultListPreparedDataBuilder in
+            helper.recordCall("prepareNewItemTypesEnabled")
+            return self
+        }
         prepareRestrictItemsPolicyOrganizationsClosure = { _ -> VaultListPreparedDataBuilder in
             helper.recordCall("prepareRestrictItemsPolicyOrganizations")
             return self
@@ -89,6 +93,7 @@ extension MockVaultListPreparedDataBuilder {
         incrementTOTPCountReturnValue = self
         prepareCollectionsReturnValue = self
         prepareFoldersReturnValue = self
+        prepareNewItemTypesEnabledReturnValue = self
         prepareRestrictItemsPolicyOrganizationsReturnValue = self
     }
 }

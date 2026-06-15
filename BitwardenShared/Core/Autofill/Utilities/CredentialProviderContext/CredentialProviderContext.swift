@@ -7,7 +7,7 @@ public protocol CredentialProviderContext {
     /// Whether the provider is being configured.
     var configuring: Bool { get }
     /// The mode in which the autofill extension is running.
-    var extensionMode: AutofillExtensionMode { get }
+    var extensionMode: CredentialProviderMode { get }
     /// The password credential identity of `autofillCredential(_:)`.
     var passwordCredentialIdentity: ASPasswordCredentialIdentity? { get }
     /// Whether the flow has failed because user interaction is required.
@@ -44,6 +44,8 @@ public struct DefaultCredentialProviderContext: CredentialProviderContext {
             AppRoute.extensionSetup(.extensionActivation(type: .autofillExtension))
         case .registerFido2Credential:
             AppRoute.vault(.autofillList)
+        case .savePasswordWithoutUserInteraction:
+            nil
         }
     }
 
@@ -54,7 +56,7 @@ public struct DefaultCredentialProviderContext: CredentialProviderContext {
         return true
     }
 
-    public private(set) var extensionMode = AutofillExtensionMode.configureAutofill
+    public private(set) var extensionMode = CredentialProviderMode.configureAutofill
 
     public var flowFailedBecauseUserInteractionRequired: Bool = false
 
@@ -66,6 +68,8 @@ public struct DefaultCredentialProviderContext: CredentialProviderContext {
             userInteraction
         case let .autofillOTPCredential(_, userInteraction):
             userInteraction
+        case .savePasswordWithoutUserInteraction:
+            false
         default:
             true
         }
@@ -109,21 +113,12 @@ public struct DefaultCredentialProviderContext: CredentialProviderContext {
             return nil
         }
 
-        return switch serviceIdentifier.type {
-        case .app:
-            serviceIdentifier.identifier
-        case .domain:
-            "https://" + serviceIdentifier.identifier
-        case .URL:
-            serviceIdentifier.identifier
-        @unknown default:
-            serviceIdentifier.identifier
-        }
+        return serviceIdentifier.normalizedURI
     }
 
     /// Initializes the context.
     /// - Parameter extensionMode: The mode of the extension.
-    public init(_ extensionMode: AutofillExtensionMode) {
+    public init(_ extensionMode: CredentialProviderMode) {
         self.extensionMode = extensionMode
     }
 }

@@ -26,20 +26,12 @@ struct VaultItemDecorativeImageView<PlaceholderContent: View>: View {
         // is excluded from the accessibility tree.
         Group {
             if showWebIcons, let cipherDecorativeIconDataView = item.cipherDecorativeIconDataView, let iconBaseURL {
-                AsyncImage(
+                CipherIconAsyncImage(
                     url: IconImageHelper.getIconImage(
                         for: cipherDecorativeIconDataView,
                         from: iconBaseURL,
                     ),
-                    content: { image in
-                        image
-                            .resizable()
-                            .scaledToFit()
-                            .accessibilityHidden(true)
-                    },
-                    placeholder: {
-                        placeholder(item.icon)
-                    },
+                    placeholder: { placeholder(item.icon) },
                 )
             } else {
                 placeholder(item.icon)
@@ -90,6 +82,37 @@ struct VaultItemDecorativeImageView<PlaceholderContent: View>: View {
             .resizable()
             .scaledToFit()
             .accessibilityHidden(true)
+    }
+}
+
+// MARK: - CipherIconAsyncImage
+
+/// `AsyncImage` replacement that fetches through `CipherIconImageLoader` so requests carry the
+/// user's mTLS client certificate.
+private struct CipherIconAsyncImage<Placeholder: View>: View {
+    let url: URL?
+    let placeholder: () -> Placeholder
+
+    @SwiftUI.State private var image: UIImage?
+
+    var body: some View {
+        Group {
+            if let image {
+                Image(uiImage: image)
+                    .resizable()
+                    .scaledToFit()
+                    .accessibilityHidden(true)
+            } else {
+                placeholder()
+            }
+        }
+        .task(id: url) {
+            guard let url else {
+                image = nil
+                return
+            }
+            image = await CipherIconImageLoader.shared.loadImage(from: url)
+        }
     }
 }
 

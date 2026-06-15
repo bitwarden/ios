@@ -17,7 +17,7 @@ class AddEditItemProcessorFido2Tests: BitwardenTestCase {
     // MARK: Properties
 
     var authRepository: MockAuthRepository!
-    var appExtensionDelegate: MockAutofillAppExtensionDelegate!
+    var appExtensionDelegate: MockCredentialProviderExtensionDelegate!
     var cameraService: MockCameraService!
     var client: MockHTTPClient!
     var coordinator: MockCoordinator<VaultItemRoute, VaultItemEvent>!
@@ -38,7 +38,7 @@ class AddEditItemProcessorFido2Tests: BitwardenTestCase {
         super.setUp()
 
         authRepository = MockAuthRepository()
-        appExtensionDelegate = MockAutofillAppExtensionDelegate()
+        appExtensionDelegate = MockCredentialProviderExtensionDelegate()
         cameraService = MockCameraService()
         client = MockHTTPClient()
         coordinator = MockCoordinator<VaultItemRoute, VaultItemEvent>()

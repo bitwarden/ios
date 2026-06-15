@@ -136,6 +136,38 @@ class BitwardenSdkVaultCipherBankAccountModelTests: BitwardenTestCase {
         XCTAssertEqual(model.routingNumber, "routingNumber")
         XCTAssertEqual(model.swiftCode, "swiftCode")
     }
+
+    /// `BankAccount.init(cipherBankAccountModel:)` round-trips all 10 fields from the API model back
+    /// into the SDK type.
+    func test_init_fromCipherBankAccountModel() {
+        let model = CipherBankAccountModel(
+            bankAccount: .init(
+                bankName: "bankName",
+                nameOnAccount: "nameOnAccount",
+                accountType: "accountType",
+                accountNumber: "accountNumber",
+                routingNumber: "routingNumber",
+                branchNumber: "branchNumber",
+                pin: "pin",
+                swiftCode: "swiftCode",
+                iban: "iban",
+                bankContactPhone: "bankContactPhone",
+            ),
+        )
+
+        let bankAccount = BitwardenSdk.BankAccount(cipherBankAccountModel: model)
+
+        XCTAssertEqual(bankAccount.bankName, "bankName")
+        XCTAssertEqual(bankAccount.nameOnAccount, "nameOnAccount")
+        XCTAssertEqual(bankAccount.accountType, "accountType")
+        XCTAssertEqual(bankAccount.accountNumber, "accountNumber")
+        XCTAssertEqual(bankAccount.routingNumber, "routingNumber")
+        XCTAssertEqual(bankAccount.branchNumber, "branchNumber")
+        XCTAssertEqual(bankAccount.pin, "pin")
+        XCTAssertEqual(bankAccount.swiftCode, "swiftCode")
+        XCTAssertEqual(bankAccount.iban, "iban")
+        XCTAssertEqual(bankAccount.bankContactPhone, "bankContactPhone")
+    }
 }
 
 // MARK: - CipherDriversLicenseModel
@@ -172,6 +204,40 @@ class BitwardenSdkVaultCipherDriversLicenseModelTests: BitwardenTestCase {
         XCTAssertEqual(model.licenseClass, "licenseClass")
         XCTAssertEqual(model.licenseNumber, "licenseNumber")
         XCTAssertEqual(model.middleName, "middleName")
+    }
+
+    /// `DriversLicense.init(cipherDriversLicenseModel:)` round-trips all 11 fields, including the raw
+    /// date strings, from the API model back into the SDK type.
+    func test_init_fromCipherDriversLicenseModel() {
+        let model = CipherDriversLicenseModel(
+            driversLicense: .init(
+                firstName: "firstName",
+                middleName: "middleName",
+                lastName: "lastName",
+                dateOfBirth: "dateOfBirth",
+                licenseNumber: "licenseNumber",
+                issuingCountry: "issuingCountry",
+                issuingState: "issuingState",
+                issueDate: "issueDate",
+                expirationDate: "expirationDate",
+                issuingAuthority: "issuingAuthority",
+                licenseClass: "licenseClass",
+            ),
+        )
+
+        let driversLicense = BitwardenSdk.DriversLicense(cipherDriversLicenseModel: model)
+
+        XCTAssertEqual(driversLicense.firstName, "firstName")
+        XCTAssertEqual(driversLicense.middleName, "middleName")
+        XCTAssertEqual(driversLicense.lastName, "lastName")
+        XCTAssertEqual(driversLicense.dateOfBirth, "dateOfBirth")
+        XCTAssertEqual(driversLicense.licenseNumber, "licenseNumber")
+        XCTAssertEqual(driversLicense.issuingCountry, "issuingCountry")
+        XCTAssertEqual(driversLicense.issuingState, "issuingState")
+        XCTAssertEqual(driversLicense.issueDate, "issueDate")
+        XCTAssertEqual(driversLicense.expirationDate, "expirationDate")
+        XCTAssertEqual(driversLicense.issuingAuthority, "issuingAuthority")
+        XCTAssertEqual(driversLicense.licenseClass, "licenseClass")
     }
 }
 
@@ -213,6 +279,41 @@ class BitwardenSdkVaultCipherPassportModelTests: BitwardenTestCase {
         XCTAssertEqual(model.passportType, "passportType")
         XCTAssertEqual(model.sex, "sex")
         XCTAssertEqual(model.surname, "surname")
+    }
+
+    /// `init(cipherPassportModel:)` inits the SDK passport from the cipher passport model.
+    func test_init_fromCipherPassportModel() {
+        let model = CipherPassportModel(
+            birthPlace: "birthPlace",
+            dateOfBirth: "dateOfBirth",
+            expirationDate: "expirationDate",
+            givenName: "givenName",
+            issueDate: "issueDate",
+            issuingAuthority: "issuingAuthority",
+            issuingCountry: "issuingCountry",
+            nationalIdentificationNumber: "nationalIdentificationNumber",
+            nationality: "nationality",
+            passportNumber: "passportNumber",
+            passportType: "passportType",
+            sex: "sex",
+            surname: "surname",
+        )
+
+        let passport = BitwardenSdk.Passport(cipherPassportModel: model)
+
+        XCTAssertEqual(passport.surname, "surname")
+        XCTAssertEqual(passport.givenName, "givenName")
+        XCTAssertEqual(passport.dateOfBirth, "dateOfBirth")
+        XCTAssertEqual(passport.sex, "sex")
+        XCTAssertEqual(passport.birthPlace, "birthPlace")
+        XCTAssertEqual(passport.nationality, "nationality")
+        XCTAssertEqual(passport.issuingCountry, "issuingCountry")
+        XCTAssertEqual(passport.passportNumber, "passportNumber")
+        XCTAssertEqual(passport.passportType, "passportType")
+        XCTAssertEqual(passport.nationalIdentificationNumber, "nationalIdentificationNumber")
+        XCTAssertEqual(passport.issuingAuthority, "issuingAuthority")
+        XCTAssertEqual(passport.issueDate, "issueDate")
+        XCTAssertEqual(passport.expirationDate, "expirationDate")
     }
 }
 

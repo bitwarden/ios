@@ -564,6 +564,11 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
         // Create certificate-aware HTTP client
         let certificateHttpClient = CertificateHTTPClient(certificateService: clientCertificateService)
 
+        CipherIconImageLoader.shared.configure(
+            certificateService: clientCertificateService,
+            errorReporter: errorReporter,
+        )
+
         // Create holder for breaking circular dependency.
         // This is set later in this initializer, after serverCommConfigClientSingletonHolder is created.
         var serverCommConfigClientSingletonHolder: ServerCommunicationConfigClientSingleton?
@@ -674,7 +679,9 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
         )
 
         let policyService = DefaultPolicyService(
+            clientService: clientService,
             configService: configService,
+            errorReporter: errorReporter,
             organizationService: organizationService,
             policyDataStore: dataStore,
             stateService: stateService,
@@ -709,6 +716,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
         let keyConnectorService = DefaultKeyConnectorService(
             accountAPIService: apiService,
             clientService: clientService,
+            configService: configService,
             keyConnectorAPIService: apiService,
             organizationService: organizationService,
             stateService: stateService,
@@ -846,6 +854,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
             organizationUserAPIService: apiService,
             policyService: policyService,
             stateService: stateService,
+            syncService: syncService,
             trustDeviceService: trustDeviceService,
             userSessionStateService: stateService,
             vaultTimeoutService: vaultTimeoutService,
@@ -949,6 +958,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
                     errorReporter: errorReporter,
                 ),
                 clientService: clientService,
+                configService: configService,
                 errorReporter: errorReporter,
                 policyService: policyService,
                 stateService: stateService,
@@ -974,6 +984,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
             clientService: clientService,
             collectionHelper: collectionHelper,
             collectionService: collectionService,
+            configService: configService,
             environmentService: environmentService,
             errorReporter: errorReporter,
             folderService: folderService,
