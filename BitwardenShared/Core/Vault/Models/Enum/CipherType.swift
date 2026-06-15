@@ -94,7 +94,9 @@ extension CipherType: Menuable {
 
 extension CipherType {
     /// These are the cases of `CipherType` that the user can use to create a cipher.
-    static let canCreateCases: [CipherType] = [.login, .card, .identity, .secureNote, .driversLicense, .passport]
+    static let canCreateCases: [CipherType] = [
+        .login, .card, .identity, .secureNote, .bankAccount, .driversLicense, .passport,
+    ]
 
     /// The cases of `CipherType` that are gated behind the `.newItemTypes` feature flag.
     /// While the flag is disabled these types are hidden from vault list/search assembly.

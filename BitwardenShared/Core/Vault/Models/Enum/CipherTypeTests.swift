@@ -50,7 +50,7 @@ class CipherTypeTests: BitwardenTestCase {
     func test_canCreateCases() {
         XCTAssertEqual(
             CipherType.canCreateCases,
-            [.login, .card, .identity, .secureNote, .driversLicense, .passport],
+            [.login, .card, .identity, .secureNote, .bankAccount, .driversLicense, .passport],
         )
     }
 

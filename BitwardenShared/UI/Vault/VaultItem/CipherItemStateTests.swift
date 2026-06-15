@@ -940,6 +940,55 @@ class CipherItemStateTests: BitwardenTestCase { // swiftlint:disable:this type_b
 
         XCTAssertNil(cipher.passport)
     }
+
+    /// `init(existing:hasPremium:)` populates `bankAccountItemState` from a cipher with a bank
+    /// account, preserving all 10 fields.
+    func test_init_existing_bankAccount() throws {
+        let cipher = CipherView.bankAccountFixture()
+        let state = try XCTUnwrap(CipherItemState(existing: cipher, hasPremium: true))
+
+        XCTAssertEqual(state.bankAccountItemState, cipher.bankAccountItemState())
+        XCTAssertEqual(state.bankAccountItemState.bankName, "Bank of America")
+        XCTAssertEqual(state.bankAccountItemState.nameOnAccount, "Personal Checking")
+        XCTAssertEqual(state.bankAccountItemState.accountType, .custom(.checking))
+        XCTAssertEqual(state.bankAccountItemState.accountNumber, "1234567890123456")
+        XCTAssertEqual(state.bankAccountItemState.routingNumber, "1234567890")
+        XCTAssertEqual(state.bankAccountItemState.branchNumber, "100")
+        XCTAssertEqual(state.bankAccountItemState.pin, "1234")
+        XCTAssertEqual(state.bankAccountItemState.swiftCode, "123234")
+        XCTAssertEqual(state.bankAccountItemState.iban, "23423434543")
+        XCTAssertEqual(state.bankAccountItemState.bankContactPhone, "123-456-7890")
+    }
+
+    /// `newCipherView()` emits the `bankAccount` view only when the cipher type is `.bankAccount`,
+    /// preserving the state's fields.
+    func test_newCipherView_bankAccount() {
+        var subject = CipherItemState(hasPremium: true)
+        subject.type = .bankAccount
+        subject.bankAccountItemState.bankName = "Bank of America"
+        subject.bankAccountItemState.accountType = .custom(.checking)
+        subject.bankAccountItemState.accountNumber = "1234567890123456"
+        subject.bankAccountItemState.pin = "1234"
+
+        let cipher = subject.newCipherView()
+
+        XCTAssertEqual(cipher.bankAccount?.bankName, "Bank of America")
+        XCTAssertEqual(cipher.bankAccount?.accountType, "checking")
+        XCTAssertEqual(cipher.bankAccount?.accountNumber, "1234567890123456")
+        XCTAssertEqual(cipher.bankAccount?.pin, "1234")
+    }
+
+    /// `newCipherView()` emits a `nil` `bankAccount` view when the cipher type is not
+    /// `.bankAccount`, even if bank account state happens to be populated.
+    func test_newCipherView_bankAccount_nilForOtherTypes() {
+        var subject = CipherItemState(hasPremium: true)
+        subject.type = .login
+        subject.bankAccountItemState.bankName = "Bank of America"
+
+        let cipher = subject.newCipherView()
+
+        XCTAssertNil(cipher.bankAccount)
+    }
 }
 
 // MARK: - CipherItemState
