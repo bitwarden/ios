@@ -7,3 +7,4 @@ ignore:
   - "GlobalTestHelpers-bwth/**"
   - "**/Mocks/**"
   - "**/*Mock*.swift"
+  - "**/*Tests.swift"
