@@ -251,6 +251,8 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
             state.notes = newValue
         case let .ownerChanged(newValue):
             state.owner = newValue
+        case let .passportFieldChanged(passportFieldAction):
+            updatePassportState(&state, for: passportFieldAction)
         case let .passwordChanged(newValue):
             state.loginState.password = newValue
         case .removePasskeyPressed:
@@ -665,6 +667,41 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
             state.identityState.postalCode = postalCode
         case let .countryChanged(country):
             state.identityState.country = country
+        }
+    }
+
+    /// Receives an `AddEditPassportItem` action from the `AddEditPassportItemView` view's store, and
+    /// updates the `PassportItemState`.
+    ///
+    /// - Parameters:
+    ///   - state: The parent `AddEditItemState` to be updated.
+    ///   - action: The `AddEditPassportItemAction` received.
+    private func updatePassportState(_ state: inout AddEditItemState, for action: AddEditPassportItemAction) {
+        switch action {
+        case let .birthPlaceChanged(birthPlace):
+            state.passportItemState.birthPlace = birthPlace
+        case let .givenNameChanged(givenName):
+            state.passportItemState.givenName = givenName
+        case let .issuingAuthorityChanged(issuingAuthority):
+            state.passportItemState.issuingAuthority = issuingAuthority
+        case let .issuingCountryChanged(issuingCountry):
+            state.passportItemState.issuingCountry = issuingCountry
+        case let .nationalIdentificationNumberChanged(nationalIdentificationNumber):
+            state.passportItemState.nationalIdentificationNumber = nationalIdentificationNumber
+        case let .nationalityChanged(nationality):
+            state.passportItemState.nationality = nationality
+        case let .passportNumberChanged(passportNumber):
+            state.passportItemState.passportNumber = passportNumber
+        case let .passportTypeChanged(passportType):
+            state.passportItemState.passportType = passportType
+        case let .sexChanged(sex):
+            state.passportItemState.sex = sex
+        case let .surnameChanged(surname):
+            state.passportItemState.surname = surname
+        case let .toggleNationalIdentificationNumberVisibilityChanged(isVisible):
+            state.passportItemState.isNationalIdentificationNumberVisible = isVisible
+        case let .togglePassportNumberVisibilityChanged(isVisible):
+            state.passportItemState.isPassportNumberVisible = isVisible
         }
     }
 
