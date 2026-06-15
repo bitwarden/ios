@@ -320,13 +320,15 @@ final class ConfigServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
         configApiService.clientResult = .httpSuccess(testData: .validServerConfig)
         // Subscribe before getConfig so the background-task emission is not missed.
         var configUpdates = await subject.configPublisher().makeAsyncIterator()
+
+        // AsyncPublisher uses demand-based delivery (.max(1) per next() call). Consuming the
+        // initial nil here replenishes demand to 1 before the background fetch fires, so the
+        // subsequent MetaServerConfig emission is delivered rather than dropped.
+        _ = await configUpdates.next()
+
         let response = await subject.getConfig(forceRefresh: false, isPreAuth: true)
         XCTAssertNil(response)
 
-        // CurrentValueSubject emits nil on subscribe; skip it, then await the
-        // background fetch update via the thread-safe publisher instead of polling
-        // the mock's state across thread boundaries (which causes SEGV data races).
-        _ = await configUpdates.next()
         let wrappedMetaConfig = await configUpdates.next()
         let metaConfig = try XCTUnwrap(XCTUnwrap(wrappedMetaConfig))
         XCTAssertTrue(metaConfig.isPreAuth)
