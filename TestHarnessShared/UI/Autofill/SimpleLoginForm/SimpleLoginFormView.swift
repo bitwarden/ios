@@ -52,11 +52,11 @@ struct SimpleLoginFormView: View {
                 if !store.state.username.isEmpty || !store.state.password.isEmpty {
                     VStack(alignment: .leading, spacing: 8) {
                         if !store.state.username.isEmpty {
-                            Text(Localizations.usernameValue(store.state.username))
+                            Text(Localizations.xColonY(Localizations.username, store.state.username))
                                 .styleGuide(.body)
                         }
                         if !store.state.password.isEmpty {
-                            Text(Localizations.passwordValue(String(repeating: "•", count: store.state.password.count)))
+                            Text(Localizations.xColonY(Localizations.password, store.state.password))
                                 .styleGuide(.body)
                         }
                     }

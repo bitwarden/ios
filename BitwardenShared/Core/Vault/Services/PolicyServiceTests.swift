@@ -1,5 +1,7 @@
 import BitwardenKit
 import BitwardenKitMocks
+import BitwardenSdk
+import TestHelpers
 import XCTest
 
 @testable import BitwardenShared
@@ -8,7 +10,9 @@ import XCTest
 class PolicyServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_length
     // MARK: Properties
 
+    var clientService: MockClientService!
     var configService: MockConfigService!
+    var errorReporter: MockErrorReporter!
     var organizationService: MockOrganizationService!
     var policyDataStore: MockPolicyDataStore!
     var stateService: MockStateService!
@@ -74,13 +78,17 @@ class PolicyServiceTests: BitwardenTestCase { // swiftlint:disable:this type_bod
     override func setUp() {
         super.setUp()
 
+        clientService = MockClientService()
         configService = MockConfigService()
+        errorReporter = MockErrorReporter()
         organizationService = MockOrganizationService()
         policyDataStore = MockPolicyDataStore()
         stateService = MockStateService()
 
         subject = DefaultPolicyService(
+            clientService: clientService,
             configService: configService,
+            errorReporter: errorReporter,
             organizationService: organizationService,
             policyDataStore: policyDataStore,
             stateService: stateService,
@@ -90,7 +98,9 @@ class PolicyServiceTests: BitwardenTestCase { // swiftlint:disable:this type_bod
     override func tearDown() {
         super.tearDown()
 
+        clientService = nil
         configService = nil
+        errorReporter = nil
         organizationService = nil
         policyDataStore = nil
         stateService = nil
@@ -768,6 +778,13 @@ class PolicyServiceTests: BitwardenTestCase { // swiftlint:disable:this type_bod
         XCTAssertEqual(policyDataStore.replacePoliciesPolicies, policies)
     }
 
+    /// `replacePoliciesNew(_:userId:)` replaces the persisted accepted-state policies in the data store.
+    func test_replacePoliciesNew() async throws {
+        try await subject.replacePoliciesNew(policies, userId: "1")
+
+        XCTAssertEqual(policyDataStore.replacePoliciesNewPolicies, policies)
+    }
+
     /// `replacePolicies(_:userId:)` updates the cached list of policies for the user.
     func test_replacePolicies_updatesPolicyAppliesToUser() async throws {
         stateService.activeAccount = .fixture()
@@ -903,7 +920,7 @@ class PolicyServiceTests: BitwardenTestCase { // swiftlint:disable:this type_bod
         organizationService.fetchAllOrganizationsResult = .success([.fixture()])
         policyDataStore.fetchPoliciesResult = .success([result])
 
-        let restrictedTypes: [CipherType] = await subject.getRestrictedItemCipherTypes()
+        let restrictedTypes: [BitwardenShared.CipherType] = await subject.getRestrictedItemCipherTypes()
         XCTAssertEqual(restrictedTypes, [.card])
     }
 
@@ -981,5 +998,175 @@ class PolicyServiceTests: BitwardenTestCase { // swiftlint:disable:this type_bod
 
         let restrictedTypes = await subject.getRestrictedItemCipherTypes()
         XCTAssertTrue(restrictedTypes.isEmpty)
+    }
+
+    /// `replacePoliciesNew(_:userId:)` updates the in-memory accepted-state policy cache used by
+    /// the SDK path so subsequent calls to `policyAppliesToUser(_:)` reflect the new policies.
+    @MainActor
+    func test_replacePoliciesNew_updatesSdkPathCache() async throws {
+        stateService.activeAccount = .fixture()
+        configService.featureFlagsBool[.policiesInAcceptedState] = true
+        organizationService.fetchAllOrganizationsResult = .success([.fixture(id: "org-1")])
+
+        // Initially no accepted-state policies → SDK path returns false
+        clientService.mockPolicies.filterByTypeReturnValue = []
+
+        var policyApplies = await subject.policyAppliesToUser(.twoFactorAuthentication)
+        XCTAssertFalse(policyApplies)
+
+        // Replace accepted-state policies — this populates the in-memory cache
+        try await subject.replacePoliciesNew(
+            [.fixture(type: .twoFactorAuthentication)],
+            userId: "1",
+        )
+
+        clientService.mockPolicies.filterByTypeReturnValue = [
+            BitwardenSdk.PolicyView(
+                id: "policy-1",
+                organizationId: "org-1",
+                type: .twoFactorAuthentication,
+                data: nil,
+                enabled: true,
+                revisionDate: nil,
+            ),
+        ]
+
+        policyApplies = await subject.policyAppliesToUser(.twoFactorAuthentication)
+        XCTAssertTrue(policyApplies)
+    }
+
+    // MARK: SDK path — policiesInAcceptedState flag
+
+    /// `policyAppliesToUser(_:)` delegates to `PoliciesClient.filterByType` when the feature flag
+    /// is enabled and returns `true` when the SDK reports the policy applies.
+    @MainActor
+    func test_policyAppliesToUser_sdkPath_filterByTypeCalled() async {
+        stateService.activeAccount = .fixture()
+        configService.featureFlagsBool[.policiesInAcceptedState] = true
+
+        policyDataStore.fetchPoliciesNewResult = .success([.fixture(enabled: true, type: .masterPassword)])
+        organizationService.fetchAllOrganizationsResult = .success([.fixture(id: "organization-1", status: .accepted)])
+
+        // SDK returns the policy → applies
+        clientService.mockPolicies.filterByTypeReturnValue = [
+            BitwardenSdk.PolicyView(
+                id: "policy-1",
+                organizationId: "organization-1",
+                type: .masterPassword,
+                data: nil,
+                enabled: true,
+                revisionDate: nil,
+            ),
+        ]
+
+        let applies = await subject.policyAppliesToUser(.masterPassword)
+
+        XCTAssertTrue(applies)
+        XCTAssertTrue(clientService.mockPolicies.filterByTypeCalled)
+        XCTAssertEqual(clientService.mockPolicies.filterByTypeReceivedArguments?.policyType, .masterPassword)
+    }
+
+    /// `policyAppliesToUser(_:)` returns `false` when the SDK returns an empty list (policy does
+    /// not apply to this user in their organization context).
+    @MainActor
+    func test_policyAppliesToUser_sdkPath_sdkReturnsEmpty() async {
+        stateService.activeAccount = .fixture()
+        configService.featureFlagsBool[.policiesInAcceptedState] = true
+
+        policyDataStore.fetchPoliciesNewResult = .success([.fixture(enabled: true, type: .masterPassword)])
+        organizationService.fetchAllOrganizationsResult = .success([.fixture(type: .owner)])
+
+        // SDK returns empty (e.g. owner is exempt)
+        clientService.mockPolicies.filterByTypeReturnValue = []
+
+        let applies = await subject.policyAppliesToUser(.masterPassword)
+
+        XCTAssertFalse(applies)
+        XCTAssertTrue(clientService.mockPolicies.filterByTypeCalled)
+    }
+
+    /// `policyAppliesToUser(_:)` passes organizations including provider-user context to the SDK.
+    @MainActor
+    func test_policyAppliesToUser_sdkPath_providerUserMapped() async {
+        stateService.activeAccount = .fixture()
+        configService.featureFlagsBool[.policiesInAcceptedState] = true
+
+        policyDataStore.fetchPoliciesNewResult = .success([.fixture(enabled: true, type: .masterPassword)])
+        let providerOrg = Organization.fixture(id: "org-provider", isProviderUser: true, status: .accepted)
+        organizationService.fetchAllOrganizationsResult = .success([providerOrg])
+
+        clientService.mockPolicies.filterByTypeReturnValue = []
+
+        _ = await subject.policyAppliesToUser(.masterPassword)
+
+        let receivedContexts = clientService.mockPolicies.filterByTypeReceivedArguments?.organizationUserPolicyContexts
+        XCTAssertEqual(receivedContexts?.first?.isProviderUser, true)
+    }
+
+    /// `policyAppliesToUser(_:)` uses the native filter when the feature flag is disabled.
+    func test_policyAppliesToUser_nativePathWhenFlagOff() async {
+        stateService.activeAccount = .fixture()
+        // Flag not set → defaults to false
+
+        policyDataStore.fetchPoliciesResult = .success([.fixture(enabled: true, type: .masterPassword)])
+        organizationService.fetchAllOrganizationsResult = .success([.fixture(status: .confirmed)])
+
+        let applies = await subject.policyAppliesToUser(.masterPassword)
+
+        XCTAssertTrue(applies)
+        XCTAssertFalse(clientService.mockPolicies.filterByTypeCalled) // SDK not invoked
+    }
+
+    /// `policyAppliesToUser(_:)` returns `[]` (safe degradation) when `clientService.policies` throws
+    /// while the SDK flag is enabled.
+    @MainActor
+    func test_policyAppliesToUser_sdkPath_clientServiceThrowsReturnsEmpty() async {
+        stateService.activeAccount = .fixture()
+        configService.featureFlagsBool[.policiesInAcceptedState] = true
+
+        policyDataStore.fetchPoliciesNewResult = .success([.fixture(enabled: true, type: .masterPassword)])
+        organizationService.fetchAllOrganizationsResult = .success([.fixture(status: .accepted)])
+
+        clientService.policiesError = BitwardenTestError.example
+
+        let applies = await subject.policyAppliesToUser(.masterPassword)
+
+        // Degraded to empty (not crashing)
+        XCTAssertFalse(applies)
+    }
+
+    /// `getMasterPasswordPolicyOptions()` excludes policies without data before invoking the SDK
+    /// when the feature flag is enabled — verifying the filter is forwarded to `sdkFilterPolicies`.
+    @MainActor
+    func test_getMasterPasswordPolicyOptions_sdkPath_filterExcludesNilDataPolicy() async throws {
+        stateService.activeAccount = .fixture()
+        configService.featureFlagsBool[.policiesInAcceptedState] = true
+        organizationService.fetchAllOrganizationsResult = .success([.fixture(id: "org-1", status: .accepted)])
+
+        // Policy without data — the { $0.data != nil } filter should exclude it before the SDK call.
+        policyDataStore.fetchPoliciesNewResult = .success([.fixture(type: .masterPassword)])
+
+        let options = try await subject.getMasterPasswordPolicyOptions()
+
+        XCTAssertNil(options)
+        XCTAssertFalse(clientService.mockPolicies.filterByTypeCalled)
+    }
+
+    /// `isSendHideEmailDisabledByPolicy()` excludes policies that lack the `disableHideEmail` option
+    /// before invoking the SDK when the feature flag is enabled — verifying the filter is forwarded
+    /// to `sdkFilterPolicies`.
+    @MainActor
+    func test_isSendHideEmailDisabledByPolicy_sdkPath_filterExcludesPolicyWithoutOption() async {
+        stateService.activeAccount = .fixture()
+        configService.featureFlagsBool[.policiesInAcceptedState] = true
+        organizationService.fetchAllOrganizationsResult = .success([.fixture(id: "org-1", status: .accepted)])
+
+        // Policy without disableHideEmail — { policy[.disableHideEmail]?.boolValue == true } excludes it.
+        policyDataStore.fetchPoliciesNewResult = .success([.fixture(type: .sendOptions)])
+
+        let isDisabled = await subject.isSendHideEmailDisabledByPolicy()
+
+        XCTAssertFalse(isDisabled)
+        XCTAssertFalse(clientService.mockPolicies.filterByTypeCalled)
     }
 } // swiftlint:disable:this file_length

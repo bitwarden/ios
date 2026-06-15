@@ -44,6 +44,13 @@ protocol StateService: AnyObject, BillingStateService {
     ///
     func doesActiveAccountHavePremium() async -> Bool
 
+    /// Returns whether the active user account has premium personally (i.e. premium that the user
+    /// purchased themselves), as opposed to premium granted by an organization.
+    ///
+    /// - Returns: Whether the active account has premium personally.
+    ///
+    func doesActiveAccountHavePremiumPersonally() async -> Bool
+
     /// Gets the access token's expiration date for an account.
     ///
     /// - Parameter userId: The user ID associated with the access token expiration date.
@@ -301,6 +308,12 @@ protocol StateService: AnyObject, BillingStateService {
     ///
     func getPremiumUpgradeBannerDismissed(userId: String?) async throws -> Bool
 
+    /// Gets whether the "Upgraded to Premium" action card should be shown for the active account.
+    ///
+    /// - Returns: Whether the action card should be shown.
+    ///
+    func getUpgradedToPremiumActionCardVisible() async -> Bool
+
     /// Gets the environment URLs for a given email during account creation.
     ///
     /// - Parameter email: The email used to start the account creation.
@@ -546,6 +559,12 @@ protocol StateService: AnyObject, BillingStateService {
     ///     Defaults to the active account if `nil`.
     ///
     func setPremiumUpgradeBannerDismissed(_ dismissed: Bool, userId: String?) async throws
+
+    /// Sets whether the "Upgraded to Premium" action card should be shown for the active account.
+    ///
+    /// - Parameter visible: Whether the action card should be shown.
+    ///
+    func setUpgradedToPremiumActionCardVisible(_ visible: Bool) async throws
 
     /// Sets the clear clipboard value for an account.
     ///
@@ -1382,8 +1401,8 @@ enum StateServiceError: LocalizedError {
     /// There isn't an active account.
     case noActiveAccount
 
-    /// The user has no private key.
-    case noEncryptedPrivateKey
+    /// The user has no stored account cryptographic state.
+    case noAccountCryptographicState
 
     /// The user has no pin protected user key.
     case noPinProtectedUserKey
@@ -1553,6 +1572,16 @@ actor DefaultStateService: StateService, ActiveAccountStateProvider, ConfigState
         }
     }
 
+    func doesActiveAccountHavePremiumPersonally() async -> Bool {
+        do {
+            let account = try await getActiveAccount()
+            return account.profile.hasPremiumPersonally ?? false
+        } catch {
+            errorReporter.log(error: error)
+            return false
+        }
+    }
+
     func getAccessTokenExpirationDate(userId: String) -> Date? {
         appSettingsStore.accessTokenExpirationDate(userId: userId)
     }
@@ -1571,12 +1600,11 @@ actor DefaultStateService: StateService, ActiveAccountStateProvider, ConfigState
 
     func getAccountEncryptionKeys(userId: String?) async throws -> AccountEncryptionKeys {
         let userId = try userId ?? getActiveAccountUserId()
-        guard let encryptedPrivateKey = appSettingsStore.encryptedPrivateKey(userId: userId) else {
-            throw StateServiceError.noEncryptedPrivateKey
+        guard let cryptographicState = appSettingsStore.accountCryptographicState(userId: userId) else {
+            throw StateServiceError.noAccountCryptographicState
         }
         return AccountEncryptionKeys(
-            accountKeys: appSettingsStore.accountKeys(userId: userId),
-            encryptedPrivateKey: encryptedPrivateKey,
+            cryptographicState: cryptographicState,
             encryptedUserKey: appSettingsStore.encryptedUserKey(userId: userId),
         )
     }
@@ -1642,6 +1670,16 @@ actor DefaultStateService: StateService, ActiveAccountStateProvider, ConfigState
     func getPremiumUpgradeBannerDismissed(userId: String?) async throws -> Bool {
         let userId = try userId ?? getActiveAccountUserId()
         return appSettingsStore.premiumUpgradeBannerDismissed(userId: userId)
+    }
+
+    func getUpgradedToPremiumActionCardVisible() async -> Bool {
+        do {
+            let userId = try getActiveAccountUserId()
+            return appSettingsStore.upgradedToPremiumActionCardVisible(userId: userId)
+        } catch {
+            errorReporter.log(error: error)
+            return false
+        }
     }
 
     func getClearClipboardValue(userId: String?) async throws -> ClearClipboardValue {
@@ -1857,10 +1895,9 @@ actor DefaultStateService: StateService, ActiveAccountStateProvider, ConfigState
         }
 
         appSettingsStore.setAccessTokenExpirationDate(nil, userId: knownUserId)
-        appSettingsStore.setAccountKeys(nil, userId: knownUserId)
+        appSettingsStore.setAccountCryptographicState(nil, userId: knownUserId)
         appSettingsStore.setDefaultUriMatchType(nil, userId: knownUserId)
         appSettingsStore.setDisableAutoTotpCopy(nil, userId: knownUserId)
-        appSettingsStore.setEncryptedPrivateKey(key: nil, userId: knownUserId)
         appSettingsStore.setEncryptedUserKey(key: nil, userId: knownUserId)
         appSettingsStore.setHasPerformedSyncAfterLogin(nil, userId: knownUserId)
         appSettingsStore.setLastSyncTime(nil, userId: knownUserId)
@@ -1904,8 +1941,7 @@ actor DefaultStateService: StateService, ActiveAccountStateProvider, ConfigState
 
     func setAccountEncryptionKeys(_ encryptionKeys: AccountEncryptionKeys, userId: String?) async throws {
         let userId = try userId ?? getActiveAccountUserId()
-        appSettingsStore.setAccountKeys(encryptionKeys.accountKeys, userId: userId)
-        appSettingsStore.setEncryptedPrivateKey(key: encryptionKeys.encryptedPrivateKey, userId: userId)
+        appSettingsStore.setAccountCryptographicState(encryptionKeys.cryptographicState, userId: userId)
         appSettingsStore.setEncryptedUserKey(key: encryptionKeys.encryptedUserKey, userId: userId)
     }
 
@@ -1998,6 +2034,11 @@ actor DefaultStateService: StateService, ActiveAccountStateProvider, ConfigState
     func setPremiumUpgradeBannerDismissed(_ dismissed: Bool, userId: String?) async throws {
         let userId = try userId ?? getActiveAccountUserId()
         appSettingsStore.setPremiumUpgradeBannerDismissed(dismissed, userId: userId)
+    }
+
+    func setUpgradedToPremiumActionCardVisible(_ visible: Bool) async throws {
+        let userId = try getActiveAccountUserId()
+        appSettingsStore.setUpgradedToPremiumActionCardVisible(visible, userId: userId)
     }
 
     func setClearClipboardValue(_ clearClipboardValue: ClearClipboardValue?, userId: String?) async throws {

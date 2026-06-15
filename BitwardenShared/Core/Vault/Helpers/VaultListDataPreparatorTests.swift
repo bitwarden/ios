@@ -14,6 +14,7 @@ class VaultListDataPreparatorTests: BitwardenTestCase { // swiftlint:disable:thi
     var cipherMatchingHelperFactory: MockCipherMatchingHelperFactory!
     var ciphersClientWrapperService: MockCiphersClientWrapperService!
     var clientService: MockClientService!
+    var configService: MockConfigService!
     var errorReporter: MockErrorReporter!
     var mockCallOrderHelper: MockCallOrderHelper!
     var policyService: MockPolicyService!
@@ -33,6 +34,7 @@ class VaultListDataPreparatorTests: BitwardenTestCase { // swiftlint:disable:thi
 
         ciphersClientWrapperService = MockCiphersClientWrapperService()
         clientService = MockClientService()
+        configService = MockConfigService()
         errorReporter = MockErrorReporter()
         policyService = MockPolicyService()
         stateService = MockStateService()
@@ -48,6 +50,7 @@ class VaultListDataPreparatorTests: BitwardenTestCase { // swiftlint:disable:thi
             cipherMatchingHelperFactory: cipherMatchingHelperFactory,
             ciphersClientWrapperService: ciphersClientWrapperService,
             clientService: clientService,
+            configService: configService,
             errorReporter: errorReporter,
             policyService: policyService,
             stateService: stateService,
@@ -62,6 +65,7 @@ class VaultListDataPreparatorTests: BitwardenTestCase { // swiftlint:disable:thi
         cipherMatchingHelperFactory = nil
         ciphersClientWrapperService = nil
         clientService = nil
+        configService = nil
         errorReporter = nil
         mockCallOrderHelper = nil
         policyService = nil
@@ -101,6 +105,7 @@ class VaultListDataPreparatorTests: BitwardenTestCase { // swiftlint:disable:thi
 
         XCTAssertEqual(mockCallOrderHelper.callOrder, [
             "prepareRestrictItemsPolicyOrganizations",
+            "prepareNewItemTypesEnabled",
         ])
         XCTAssertNotNil(result)
     }
@@ -150,6 +155,7 @@ class VaultListDataPreparatorTests: BitwardenTestCase { // swiftlint:disable:thi
 
         XCTAssertEqual(mockCallOrderHelper.callOrder, [
             "prepareRestrictItemsPolicyOrganizations",
+            "prepareNewItemTypesEnabled",
             "addItemForGroup",
         ])
         XCTAssertNotNil(result)
@@ -181,6 +187,7 @@ class VaultListDataPreparatorTests: BitwardenTestCase { // swiftlint:disable:thi
 
         XCTAssertEqual(mockCallOrderHelper.callOrder, [
             "prepareRestrictItemsPolicyOrganizations",
+            "prepareNewItemTypesEnabled",
             "addFido2Item",
         ])
         XCTAssertNotNil(result)
@@ -209,6 +216,7 @@ class VaultListDataPreparatorTests: BitwardenTestCase { // swiftlint:disable:thi
 
         XCTAssertEqual(mockCallOrderHelper.callOrder, [
             "prepareRestrictItemsPolicyOrganizations",
+            "prepareNewItemTypesEnabled",
         ])
         XCTAssertNotNil(result)
     }
@@ -240,6 +248,7 @@ class VaultListDataPreparatorTests: BitwardenTestCase { // swiftlint:disable:thi
 
         XCTAssertEqual(mockCallOrderHelper.callOrder, [
             "prepareRestrictItemsPolicyOrganizations",
+            "prepareNewItemTypesEnabled",
             "addItemForGroup",
         ])
         XCTAssertNotNil(result)
@@ -268,6 +277,7 @@ class VaultListDataPreparatorTests: BitwardenTestCase { // swiftlint:disable:thi
 
         XCTAssertEqual(mockCallOrderHelper.callOrder, [
             "prepareRestrictItemsPolicyOrganizations",
+            "prepareNewItemTypesEnabled",
         ])
         XCTAssertNotNil(result)
     }
@@ -301,6 +311,7 @@ class VaultListDataPreparatorTests: BitwardenTestCase { // swiftlint:disable:thi
 
         XCTAssertEqual(mockCallOrderHelper.callOrder, [
             "prepareRestrictItemsPolicyOrganizations",
+            "prepareNewItemTypesEnabled",
         ])
         XCTAssertNotNil(result)
     }
@@ -353,6 +364,7 @@ class VaultListDataPreparatorTests: BitwardenTestCase { // swiftlint:disable:thi
 
         XCTAssertEqual(mockCallOrderHelper.callOrder, [
             "prepareRestrictItemsPolicyOrganizations",
+            "prepareNewItemTypesEnabled",
             "addItemForGroup",
         ])
         XCTAssertNotNil(result)
@@ -387,6 +399,7 @@ class VaultListDataPreparatorTests: BitwardenTestCase { // swiftlint:disable:thi
 
         XCTAssertEqual(mockCallOrderHelper.callOrder, [
             "prepareRestrictItemsPolicyOrganizations",
+            "prepareNewItemTypesEnabled",
             "addFido2Item",
             "addItemForGroup",
         ])
@@ -422,6 +435,7 @@ class VaultListDataPreparatorTests: BitwardenTestCase { // swiftlint:disable:thi
 
         XCTAssertEqual(mockCallOrderHelper.callOrder, [
             "prepareRestrictItemsPolicyOrganizations",
+            "prepareNewItemTypesEnabled",
             "addItemForGroup",
         ])
         XCTAssertNotNil(result)
@@ -456,6 +470,7 @@ class VaultListDataPreparatorTests: BitwardenTestCase { // swiftlint:disable:thi
 
         XCTAssertEqual(mockCallOrderHelper.callOrder, [
             "prepareRestrictItemsPolicyOrganizations",
+            "prepareNewItemTypesEnabled",
             "addItemForGroup",
         ])
         XCTAssertNotNil(result)
@@ -485,6 +500,7 @@ class VaultListDataPreparatorTests: BitwardenTestCase { // swiftlint:disable:thi
 
         XCTAssertEqual(mockCallOrderHelper.callOrder, [
             "prepareRestrictItemsPolicyOrganizations",
+            "prepareNewItemTypesEnabled",
         ])
         XCTAssertNotNil(result)
     }
@@ -513,6 +529,7 @@ class VaultListDataPreparatorTests: BitwardenTestCase { // swiftlint:disable:thi
 
         XCTAssertEqual(mockCallOrderHelper.callOrder, [
             "prepareRestrictItemsPolicyOrganizations",
+            "prepareNewItemTypesEnabled",
         ])
         XCTAssertNotNil(result)
     }
@@ -537,6 +554,7 @@ class VaultListDataPreparatorTests: BitwardenTestCase { // swiftlint:disable:thi
 
         XCTAssertEqual(mockCallOrderHelper.callOrder, [
             "prepareRestrictItemsPolicyOrganizations",
+            "prepareNewItemTypesEnabled",
         ])
         XCTAssertNotNil(result)
     }
@@ -569,6 +587,7 @@ class VaultListDataPreparatorTests: BitwardenTestCase { // swiftlint:disable:thi
 
         XCTAssertEqual(mockCallOrderHelper.callOrder, [
             "prepareRestrictItemsPolicyOrganizations",
+            "prepareNewItemTypesEnabled",
         ])
         XCTAssertNotNil(result)
     }
@@ -600,6 +619,7 @@ class VaultListDataPreparatorTests: BitwardenTestCase { // swiftlint:disable:thi
 
         XCTAssertEqual(mockCallOrderHelper.callOrder, [
             "prepareRestrictItemsPolicyOrganizations",
+            "prepareNewItemTypesEnabled",
         ])
         XCTAssertNotNil(result)
     }
@@ -630,6 +650,7 @@ class VaultListDataPreparatorTests: BitwardenTestCase { // swiftlint:disable:thi
             "prepareFolders",
             "prepareCollections",
             "prepareRestrictItemsPolicyOrganizations",
+            "prepareNewItemTypesEnabled",
             "incrementTOTPCount",
             "addCipherDecryptionFailure",
             "addFolderItem",
@@ -657,12 +678,129 @@ class VaultListDataPreparatorTests: BitwardenTestCase { // swiftlint:disable:thi
             "prepareFolders",
             "prepareCollections",
             "prepareRestrictItemsPolicyOrganizations",
+            "prepareNewItemTypesEnabled",
             "addCipherDecryptionFailure",
             "addFolderItem",
             "addFavoriteItem",
             "addNoFolderItem",
             "incrementCipherTypeCount",
             "incrementCollectionCount",
+        ])
+        XCTAssertNotNil(result)
+    }
+
+    /// `prepareData(from:collections:folders:filter:)` includes a driver's license cipher when the
+    /// `.newItemTypes` feature flag is enabled.
+    @MainActor
+    func test_prepareData_driversLicense_newItemTypesEnabled() async throws {
+        configService.featureFlagsBool[.newItemTypes] = true
+        ciphersClientWrapperService.decryptAndProcessCiphersInBatchOnCipherParameterToPass = .fixture(
+            id: "1",
+            type: .driversLicense,
+        )
+
+        let result = await subject.prepareData(
+            from: [.fixture(type: .driversLicense)],
+            collections: [.fixture(id: "1"), .fixture(id: "2")],
+            folders: [.fixture(id: "1"), .fixture(id: "2"), .fixture(id: "3")],
+            filter: VaultListFilter(),
+        )
+
+        XCTAssertEqual(mockCallOrderHelper.callOrder, [
+            "prepareFolders",
+            "prepareCollections",
+            "prepareRestrictItemsPolicyOrganizations",
+            "prepareNewItemTypesEnabled",
+            "addCipherDecryptionFailure",
+            "addFolderItem",
+            "addFavoriteItem",
+            "addNoFolderItem",
+            "incrementCipherTypeCount",
+            "incrementCollectionCount",
+        ])
+        XCTAssertNotNil(result)
+    }
+
+    /// `prepareData(from:collections:folders:filter:)` filters out a driver's license cipher when the
+    /// `.newItemTypes` feature flag is disabled.
+    @MainActor
+    func test_prepareData_driversLicense_newItemTypesDisabled() async throws {
+        configService.featureFlagsBool[.newItemTypes] = false
+        ciphersClientWrapperService.decryptAndProcessCiphersInBatchOnCipherParameterToPass = .fixture(
+            id: "1",
+            type: .driversLicense,
+        )
+
+        let result = await subject.prepareData(
+            from: [.fixture(type: .driversLicense)],
+            collections: [.fixture(id: "1"), .fixture(id: "2")],
+            folders: [.fixture(id: "1"), .fixture(id: "2"), .fixture(id: "3")],
+            filter: VaultListFilter(),
+        )
+
+        XCTAssertEqual(mockCallOrderHelper.callOrder, [
+            "prepareFolders",
+            "prepareCollections",
+            "prepareRestrictItemsPolicyOrganizations",
+            "prepareNewItemTypesEnabled",
+        ])
+        XCTAssertNotNil(result)
+    }
+
+    /// `prepareData(from:collections:folders:filter:)` includes a passport cipher when the
+    /// `.newItemTypes` feature flag is enabled.
+    @MainActor
+    func test_prepareData_passport_newItemTypesEnabled() async throws {
+        configService.featureFlagsBool[.newItemTypes] = true
+        ciphersClientWrapperService.decryptAndProcessCiphersInBatchOnCipherParameterToPass = .fixture(
+            id: "1",
+            type: .passport,
+        )
+
+        let result = await subject.prepareData(
+            from: [.fixture(type: .passport)],
+            collections: [.fixture(id: "1"), .fixture(id: "2")],
+            folders: [.fixture(id: "1"), .fixture(id: "2"), .fixture(id: "3")],
+            filter: VaultListFilter(),
+        )
+
+        XCTAssertEqual(mockCallOrderHelper.callOrder, [
+            "prepareFolders",
+            "prepareCollections",
+            "prepareRestrictItemsPolicyOrganizations",
+            "prepareNewItemTypesEnabled",
+            "addCipherDecryptionFailure",
+            "addFolderItem",
+            "addFavoriteItem",
+            "addNoFolderItem",
+            "incrementCipherTypeCount",
+            "incrementCollectionCount",
+        ])
+        XCTAssertNotNil(result)
+    }
+
+    /// `prepareData(from:collections:folders:filter:)` filters out a passport cipher when the
+    /// `.newItemTypes` feature flag is disabled.
+    @MainActor
+    func test_prepareData_passport_newItemTypesDisabled() async throws {
+        configService.featureFlagsBool[.newItemTypes] = false
+        ciphersClientWrapperService.decryptAndProcessCiphersInBatchOnCipherParameterToPass = .fixture(
+            id: "1",
+            type: .passport,
+        )
+
+        let result = await subject.prepareData(
+            from: [.fixture(type: .passport)],
+            collections: [.fixture(id: "1"), .fixture(id: "2")],
+            folders: [.fixture(id: "1"), .fixture(id: "2"), .fixture(id: "3")],
+            filter: VaultListFilter(),
+        )
+
+        XCTAssertEqual(mockCallOrderHelper.callOrder, [
+            "prepareFolders",
+            "prepareCollections",
+            "prepareRestrictItemsPolicyOrganizations",
+            "prepareNewItemTypesEnabled",
         ])
         XCTAssertNotNil(result)
     }
@@ -686,6 +824,7 @@ class VaultListDataPreparatorTests: BitwardenTestCase { // swiftlint:disable:thi
             "prepareFolders",
             "prepareCollections",
             "prepareRestrictItemsPolicyOrganizations",
+            "prepareNewItemTypesEnabled",
         ])
         XCTAssertNotNil(result)
     }
@@ -712,6 +851,7 @@ class VaultListDataPreparatorTests: BitwardenTestCase { // swiftlint:disable:thi
             "prepareFolders",
             "prepareCollections",
             "prepareRestrictItemsPolicyOrganizations",
+            "prepareNewItemTypesEnabled",
         ])
         XCTAssertNotNil(result)
     }
@@ -738,6 +878,7 @@ class VaultListDataPreparatorTests: BitwardenTestCase { // swiftlint:disable:thi
             "prepareFolders",
             "prepareCollections",
             "prepareRestrictItemsPolicyOrganizations",
+            "prepareNewItemTypesEnabled",
             "incrementTOTPCount",
             "addCipherDecryptionFailure",
             "addFolderItem",
@@ -770,6 +911,7 @@ class VaultListDataPreparatorTests: BitwardenTestCase { // swiftlint:disable:thi
             "prepareFolders",
             "prepareCollections",
             "prepareRestrictItemsPolicyOrganizations",
+            "prepareNewItemTypesEnabled",
             "incrementCipherArchivedCount",
         ])
         XCTAssertNotNil(result)
@@ -795,6 +937,7 @@ class VaultListDataPreparatorTests: BitwardenTestCase { // swiftlint:disable:thi
             "prepareFolders",
             "prepareCollections",
             "prepareRestrictItemsPolicyOrganizations",
+            "prepareNewItemTypesEnabled",
             "incrementCipherDeletedCount",
         ])
         XCTAssertNotNil(result)
@@ -820,6 +963,7 @@ class VaultListDataPreparatorTests: BitwardenTestCase { // swiftlint:disable:thi
             "prepareFolders",
             "prepareCollections",
             "prepareRestrictItemsPolicyOrganizations",
+            "prepareNewItemTypesEnabled",
         ])
         XCTAssertNotNil(result)
     }
@@ -844,7 +988,114 @@ class VaultListDataPreparatorTests: BitwardenTestCase { // swiftlint:disable:thi
             "prepareFolders",
             "prepareCollections",
             "prepareRestrictItemsPolicyOrganizations",
+            "prepareNewItemTypesEnabled",
             "addItemForGroup",
+        ])
+        XCTAssertNotNil(result)
+    }
+
+    /// `prepareGroupData(from:collections:folders:filter:)` includes a driver's license cipher in the
+    /// driver's license group when the `.newItemTypes` feature flag is enabled.
+    @MainActor
+    func test_prepareGroupData_driversLicense_newItemTypesEnabled() async throws {
+        configService.featureFlagsBool[.newItemTypes] = true
+        ciphersClientWrapperService.decryptAndProcessCiphersInBatchOnCipherParameterToPass = .fixture(
+            id: "1",
+            type: .driversLicense,
+        )
+
+        let result = await subject.prepareGroupData(
+            from: [.fixture(type: .driversLicense)],
+            collections: [.fixture(id: "1"), .fixture(id: "2")],
+            folders: [.fixture(id: "1"), .fixture(id: "2"), .fixture(id: "3")],
+            filter: VaultListFilter(group: .driversLicense),
+        )
+
+        XCTAssertEqual(mockCallOrderHelper.callOrder, [
+            "prepareFolders",
+            "prepareCollections",
+            "prepareRestrictItemsPolicyOrganizations",
+            "prepareNewItemTypesEnabled",
+            "addItemForGroup",
+        ])
+        XCTAssertNotNil(result)
+    }
+
+    /// `prepareGroupData(from:collections:folders:filter:)` filters out a driver's license cipher when
+    /// the `.newItemTypes` feature flag is disabled.
+    @MainActor
+    func test_prepareGroupData_driversLicense_newItemTypesDisabled() async throws {
+        configService.featureFlagsBool[.newItemTypes] = false
+        ciphersClientWrapperService.decryptAndProcessCiphersInBatchOnCipherParameterToPass = .fixture(
+            id: "1",
+            type: .driversLicense,
+        )
+
+        let result = await subject.prepareGroupData(
+            from: [.fixture(type: .driversLicense)],
+            collections: [.fixture(id: "1"), .fixture(id: "2")],
+            folders: [.fixture(id: "1"), .fixture(id: "2"), .fixture(id: "3")],
+            filter: VaultListFilter(group: .driversLicense),
+        )
+
+        XCTAssertEqual(mockCallOrderHelper.callOrder, [
+            "prepareFolders",
+            "prepareCollections",
+            "prepareRestrictItemsPolicyOrganizations",
+            "prepareNewItemTypesEnabled",
+        ])
+        XCTAssertNotNil(result)
+    }
+
+    /// `prepareGroupData(from:collections:folders:filter:)` includes a passport cipher in the
+    /// passport group when the `.newItemTypes` feature flag is enabled.
+    @MainActor
+    func test_prepareGroupData_passport_newItemTypesEnabled() async throws {
+        configService.featureFlagsBool[.newItemTypes] = true
+        ciphersClientWrapperService.decryptAndProcessCiphersInBatchOnCipherParameterToPass = .fixture(
+            id: "1",
+            type: .passport,
+        )
+
+        let result = await subject.prepareGroupData(
+            from: [.fixture(type: .passport)],
+            collections: [.fixture(id: "1"), .fixture(id: "2")],
+            folders: [.fixture(id: "1"), .fixture(id: "2"), .fixture(id: "3")],
+            filter: VaultListFilter(group: .passport),
+        )
+
+        XCTAssertEqual(mockCallOrderHelper.callOrder, [
+            "prepareFolders",
+            "prepareCollections",
+            "prepareRestrictItemsPolicyOrganizations",
+            "prepareNewItemTypesEnabled",
+            "addItemForGroup",
+        ])
+        XCTAssertNotNil(result)
+    }
+
+    /// `prepareGroupData(from:collections:folders:filter:)` filters out a passport cipher when
+    /// the `.newItemTypes` feature flag is disabled.
+    @MainActor
+    func test_prepareGroupData_passport_newItemTypesDisabled() async throws {
+        configService.featureFlagsBool[.newItemTypes] = false
+        ciphersClientWrapperService.decryptAndProcessCiphersInBatchOnCipherParameterToPass = .fixture(
+            id: "1",
+            type: .passport,
+        )
+
+        let result = await subject.prepareGroupData(
+            from: [.fixture(type: .passport)],
+            collections: [.fixture(id: "1"), .fixture(id: "2")],
+            folders: [.fixture(id: "1"), .fixture(id: "2"), .fixture(id: "3")],
+            filter: VaultListFilter(group: .passport),
+        )
+
+        XCTAssertEqual(mockCallOrderHelper.callOrder, [
+            "prepareFolders",
+            "prepareCollections",
+            "prepareRestrictItemsPolicyOrganizations",
+            "prepareNewItemTypesEnabled",
         ])
         XCTAssertNotNil(result)
     }
@@ -880,6 +1131,7 @@ class VaultListDataPreparatorTests: BitwardenTestCase { // swiftlint:disable:thi
             "prepareFolders",
             "prepareCollections",
             "prepareRestrictItemsPolicyOrganizations",
+            "prepareNewItemTypesEnabled",
         ])
         XCTAssertNotNil(result)
     }
@@ -906,6 +1158,7 @@ class VaultListDataPreparatorTests: BitwardenTestCase { // swiftlint:disable:thi
             "prepareFolders",
             "prepareCollections",
             "prepareRestrictItemsPolicyOrganizations",
+            "prepareNewItemTypesEnabled",
         ])
         XCTAssertNotNil(result)
     }
@@ -926,6 +1179,7 @@ class VaultListDataPreparatorTests: BitwardenTestCase { // swiftlint:disable:thi
             "prepareFolders",
             "prepareCollections",
             "prepareRestrictItemsPolicyOrganizations",
+            "prepareNewItemTypesEnabled",
         ])
         XCTAssertNotNil(result)
     }
@@ -948,6 +1202,7 @@ class VaultListDataPreparatorTests: BitwardenTestCase { // swiftlint:disable:thi
             "prepareFolders",
             "prepareCollections",
             "prepareRestrictItemsPolicyOrganizations",
+            "prepareNewItemTypesEnabled",
             "addFolderItem",
             "addItemForGroup",
         ])
@@ -972,6 +1227,7 @@ class VaultListDataPreparatorTests: BitwardenTestCase { // swiftlint:disable:thi
             "prepareFolders",
             "prepareCollections",
             "prepareRestrictItemsPolicyOrganizations",
+            "prepareNewItemTypesEnabled",
             "incrementCollectionCount",
             "addItemForGroup",
         ])
@@ -1015,6 +1271,7 @@ class VaultListDataPreparatorTests: BitwardenTestCase { // swiftlint:disable:thi
             "prepareFolders",
             "prepareCollections",
             "prepareRestrictItemsPolicyOrganizations",
+            "prepareNewItemTypesEnabled",
             "addItemForGroup",
         ])
         XCTAssertNotNil(result)
@@ -1043,6 +1300,7 @@ class VaultListDataPreparatorTests: BitwardenTestCase { // swiftlint:disable:thi
 
         XCTAssertEqual(mockCallOrderHelper.callOrder, [
             "prepareRestrictItemsPolicyOrganizations",
+            "prepareNewItemTypesEnabled",
         ])
         XCTAssertNotNil(result)
         XCTAssertNil(cipherMatchingHelper.doesCipherMatchReceivedCipher)
@@ -1088,6 +1346,7 @@ class VaultListDataPreparatorTests: BitwardenTestCase { // swiftlint:disable:thi
 
         XCTAssertEqual(mockCallOrderHelper.callOrder, [
             "prepareRestrictItemsPolicyOrganizations",
+            "prepareNewItemTypesEnabled",
             "addItemWithMatchResultCipher",
         ])
         XCTAssertNotNil(result)
@@ -1119,6 +1378,7 @@ class VaultListDataPreparatorTests: BitwardenTestCase { // swiftlint:disable:thi
 
         XCTAssertEqual(mockCallOrderHelper.callOrder, [
             "prepareRestrictItemsPolicyOrganizations",
+            "prepareNewItemTypesEnabled",
         ])
         XCTAssertNotNil(result)
         XCTAssertNil(cipherMatchingHelper.doesCipherMatchReceivedCipher)
@@ -1147,6 +1407,7 @@ class VaultListDataPreparatorTests: BitwardenTestCase { // swiftlint:disable:thi
 
         XCTAssertEqual(mockCallOrderHelper.callOrder, [
             "prepareRestrictItemsPolicyOrganizations",
+            "prepareNewItemTypesEnabled",
         ])
         XCTAssertNotNil(result)
         XCTAssertNil(cipherMatchingHelper.doesCipherMatchReceivedCipher)
@@ -1174,9 +1435,123 @@ class VaultListDataPreparatorTests: BitwardenTestCase { // swiftlint:disable:thi
 
         XCTAssertEqual(mockCallOrderHelper.callOrder, [
             "prepareRestrictItemsPolicyOrganizations",
+            "prepareNewItemTypesEnabled",
         ])
         XCTAssertNotNil(result)
         XCTAssertNil(cipherMatchingHelper.doesCipherMatchReceivedCipher)
+    }
+
+    /// `prepareSearchData(from:filter:)` includes a driver's license cipher in the search results when
+    /// the `.newItemTypes` feature flag is enabled.
+    @MainActor
+    func test_prepareSearchData_driversLicense_newItemTypesEnabled() async throws {
+        configService.featureFlagsBool[.newItemTypes] = true
+        ciphersClientWrapperService.decryptAndProcessCiphersInBatchOnCipherParameterToPass = .fixture(
+            id: "1",
+            type: .driversLicense,
+        )
+
+        let result = await subject.prepareSearchData(
+            from: [.fixture(type: .driversLicense)],
+            filter: VaultListFilter(searchText: "license"),
+        )
+
+        XCTAssertEqual(mockCallOrderHelper.callOrder, [
+            "prepareRestrictItemsPolicyOrganizations",
+            "prepareNewItemTypesEnabled",
+            "addSearchResultItem",
+        ])
+        XCTAssertNotNil(result)
+    }
+
+    /// `prepareSearchData(from:filter:)` filters out a driver's license cipher from the search results
+    /// when the `.newItemTypes` feature flag is disabled.
+    @MainActor
+    func test_prepareSearchData_driversLicense_newItemTypesDisabled() async throws {
+        configService.featureFlagsBool[.newItemTypes] = false
+        ciphersClientWrapperService.decryptAndProcessCiphersInBatchOnCipherParameterToPass = .fixture(
+            id: "1",
+            type: .driversLicense,
+        )
+
+        let result = await subject.prepareSearchData(
+            from: [.fixture(type: .driversLicense)],
+            filter: VaultListFilter(searchText: "license"),
+        )
+
+        XCTAssertEqual(mockCallOrderHelper.callOrder, [
+            "prepareRestrictItemsPolicyOrganizations",
+            "prepareNewItemTypesEnabled",
+        ])
+        XCTAssertNotNil(result)
+    }
+
+    /// `prepareSearchData(from:filter:)` includes a passport cipher in the search results when
+    /// the `.newItemTypes` feature flag is enabled.
+    @MainActor
+    func test_prepareSearchData_passport_newItemTypesEnabled() async throws {
+        configService.featureFlagsBool[.newItemTypes] = true
+        ciphersClientWrapperService.decryptAndProcessCiphersInBatchOnCipherParameterToPass = .fixture(
+            id: "1",
+            type: .passport,
+        )
+
+        let result = await subject.prepareSearchData(
+            from: [.fixture(type: .passport)],
+            filter: VaultListFilter(searchText: "passport"),
+        )
+
+        XCTAssertEqual(mockCallOrderHelper.callOrder, [
+            "prepareRestrictItemsPolicyOrganizations",
+            "prepareNewItemTypesEnabled",
+            "addSearchResultItem",
+        ])
+        XCTAssertNotNil(result)
+    }
+
+    /// `prepareSearchData(from:filter:)` filters out a passport cipher from the search results
+    /// when the `.newItemTypes` feature flag is disabled.
+    @MainActor
+    func test_prepareSearchData_passport_newItemTypesDisabled() async throws {
+        configService.featureFlagsBool[.newItemTypes] = false
+        ciphersClientWrapperService.decryptAndProcessCiphersInBatchOnCipherParameterToPass = .fixture(
+            id: "1",
+            type: .passport,
+        )
+
+        let result = await subject.prepareSearchData(
+            from: [.fixture(type: .passport)],
+            filter: VaultListFilter(searchText: "passport"),
+        )
+
+        XCTAssertEqual(mockCallOrderHelper.callOrder, [
+            "prepareRestrictItemsPolicyOrganizations",
+            "prepareNewItemTypesEnabled",
+        ])
+        XCTAssertNotNil(result)
+    }
+
+    /// `prepareSearchData(from:filter:)` includes a non-gated cipher in the search results regardless
+    /// of the `.newItemTypes` feature flag.
+    @MainActor
+    func test_prepareSearchData_login_newItemTypesDisabled() async throws {
+        configService.featureFlagsBool[.newItemTypes] = false
+        ciphersClientWrapperService.decryptAndProcessCiphersInBatchOnCipherParameterToPass = .fixture(
+            id: "1",
+            type: .login(.fixture()),
+        )
+
+        let result = await subject.prepareSearchData(
+            from: [.fixture(type: .login)],
+            filter: VaultListFilter(searchText: "site"),
+        )
+
+        XCTAssertEqual(mockCallOrderHelper.callOrder, [
+            "prepareRestrictItemsPolicyOrganizations",
+            "prepareNewItemTypesEnabled",
+            "addSearchResultItem",
+        ])
+        XCTAssertNotNil(result)
     }
 
     // MARK: Private
@@ -1195,6 +1570,7 @@ class VaultListDataPreparatorTests: BitwardenTestCase { // swiftlint:disable:thi
             "prepareFolders",
             "prepareCollections",
             "prepareRestrictItemsPolicyOrganizations",
+            "prepareNewItemTypesEnabled",
             "addItemForGroup",
         ])
         XCTAssertNotNil(result)

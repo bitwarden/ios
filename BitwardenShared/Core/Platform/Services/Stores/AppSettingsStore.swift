@@ -1,4 +1,5 @@
 import BitwardenKit
+import BitwardenSdk
 import Combine
 import Foundation
 import OSLog
@@ -80,12 +81,12 @@ protocol AppSettingsStore: AnyObject {
     ///
     func accessTokenExpirationDate(userId: String) -> Date?
 
-    /// The user's v2 account keys.
+    /// The cryptographic state required to initialize the user's vault encryption.
     ///
-    /// - Parameter userId: The user ID associated with the stored account keys.
-    /// - Returns: The user's account keys.
+    /// - Parameter userId: The user ID associated with the stored cryptographic state.
+    /// - Returns: The cryptographic state, or `nil` if not yet stored.
     ///
-    func accountKeys(userId: String) -> PrivateKeysResponseModel?
+    func accountCryptographicState(userId: String) -> WrappedAccountCryptographicState?
 
     /// The user's progress for setting up autofill.
     ///
@@ -171,12 +172,6 @@ protocol AppSettingsStore: AnyObject {
     /// - Returns: The user's events.
     ///
     func events(userId: String) -> [EventData]
-
-    /// Gets the encrypted private key for the user ID.
-    ///
-    /// - Parameter userId: The user ID associated with the encrypted private key.
-    ///
-    func encryptedPrivateKey(userId: String) -> String?
 
     /// Gets the encrypted user key for the user ID.
     ///
@@ -271,6 +266,13 @@ protocol AppSettingsStore: AnyObject {
     ///
     func premiumUpgradeBannerDismissed(userId: String) -> Bool
 
+    /// Gets whether the "Upgraded to Premium" action card should be shown for the given user.
+    ///
+    /// - Parameter userId: The user ID.
+    /// - Returns: Whether the action card should be shown.
+    ///
+    func upgradedToPremiumActionCardVisible(userId: String) -> Bool
+
     /// Gets the environment URLs used to start the account creation flow.
     ///
     /// - Parameters:
@@ -293,13 +295,13 @@ protocol AppSettingsStore: AnyObject {
     ///
     func setAccessTokenExpirationDate(_ expirationDate: Date?, userId: String)
 
-    /// Sets the account v2 keys for a user ID.
+    /// Sets the user's cryptographic state for a user ID.
     ///
     /// - Parameters:
-    ///   - keys: The user's account keys.
-    ///   - userId: The user ID associated with the encrypted private key.
+    ///   - state: The user's cryptographic state to store.
+    ///   - userId: The user ID associated with the cryptographic state.
     ///
-    func setAccountKeys(_ keys: PrivateKeysResponseModel?, userId: String)
+    func setAccountCryptographicState(_ state: WrappedAccountCryptographicState?, userId: String)
 
     /// Sets the user's progress for autofill setup.
     ///
@@ -398,14 +400,6 @@ protocol AppSettingsStore: AnyObject {
     ///   - userId: The user ID.
     ///
     func setEncryptedPin(_ encryptedPin: String?, userId: String)
-
-    /// Sets the encrypted private key for a user ID.
-    ///
-    /// - Parameters:
-    ///   - key: The user's encrypted private key.
-    ///   - userId: The user ID associated with the encrypted private key.
-    ///
-    func setEncryptedPrivateKey(key: String?, userId: String)
 
     /// Sets the encrypted user key for a user ID.
     ///
@@ -508,6 +502,14 @@ protocol AppSettingsStore: AnyObject {
     ///   - userId: The user ID associated with the premium upgrade banner dismissed value.
     ///
     func setPremiumUpgradeBannerDismissed(_ dismissed: Bool, userId: String)
+
+    /// Sets whether the "Upgraded to Premium" action card should be shown for the given user.
+    ///
+    /// - Parameters:
+    ///   - visible: Whether the action card should be shown.
+    ///   - userId: The user ID.
+    ///
+    func setUpgradedToPremiumActionCardVisible(_ visible: Bool, userId: String)
 
     /// Sets the environment URLs used to start the account creation flow.
     ///
@@ -753,7 +755,7 @@ extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore {
     ///
     enum Keys {
         case accessTokenExpirationDate(userId: String)
-        case accountKeys(userId: String)
+        case accountCryptographicState(userId: String)
         case accountSetupAutofill(userId: String)
         case accountSetupImportLogins(userId: String)
         case accountSetupVaultUnlock(userId: String)
@@ -773,7 +775,6 @@ extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore {
         case disableAutoTotpCopy(userId: String)
         case disableWebIcons
         case encryptedPin(userId: String)
-        case encryptedPrivateKey(userId: String)
         case encryptedUserKey(userId: String)
         case events(userId: String)
         case flightRecorderData
@@ -807,6 +808,7 @@ extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore {
         case syncToAuthenticator(userId: String)
         case state
         case twoFactorToken(email: String)
+        case upgradedToPremiumActionCardVisible(userId: String)
         case usernameGenerationOptions(userId: String)
         case usesKeyConnector(userId: String)
         case vaultTimeoutAction(userId: String)
@@ -816,8 +818,8 @@ extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore {
             let key = switch self {
             case let .accessTokenExpirationDate(userId):
                 "accessTokenExpirationDate_\(userId)"
-            case let .accountKeys(userId):
-                "accountKeys_\(userId)"
+            case let .accountCryptographicState(userId):
+                "accountCryptographicState_\(userId)"
             case let .accountSetupAutofill(userId):
                 "accountSetupAutofill_\(userId)"
             case let .accountSetupImportLogins(userId):
@@ -858,8 +860,6 @@ extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore {
                 "masterKeyEncryptedUserKey_\(userId)"
             case let .encryptedPin(userId):
                 "protectedPin_\(userId)"
-            case let .encryptedPrivateKey(userId):
-                "encPrivateKey_\(userId)"
             case let .events(userId):
                 "events_\(userId)"
             case .flightRecorderData:
@@ -924,6 +924,8 @@ extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore {
                 "shouldSyncToAuthenticator_\(userId)"
             case let .twoFactorToken(email):
                 "twoFactorToken_\(email)"
+            case let .upgradedToPremiumActionCardVisible(userId):
+                "upgradedToPremiumActionCardVisible_\(userId)"
             case let .usernameGenerationOptions(userId):
                 "usernameGenerationOptions_\(userId)"
             case let .usesKeyConnector(userId):
@@ -1041,8 +1043,8 @@ extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore {
         fetch(for: .accessTokenExpirationDate(userId: userId))
     }
 
-    func accountKeys(userId: String) -> PrivateKeysResponseModel? {
-        fetch(for: .accountKeys(userId: userId))
+    func accountCryptographicState(userId: String) -> WrappedAccountCryptographicState? {
+        fetch(for: .accountCryptographicState(userId: userId))
     }
 
     func accountSetupAutofill(userId: String) -> AccountSetupProgress? {
@@ -1095,10 +1097,6 @@ extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore {
 
     func encryptedPin(userId: String) -> String? {
         fetch(for: .encryptedPin(userId: userId))
-    }
-
-    func encryptedPrivateKey(userId: String) -> String? {
-        fetch(for: .encryptedPrivateKey(userId: userId))
     }
 
     func encryptedUserKey(userId: String) -> String? {
@@ -1161,6 +1159,10 @@ extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore {
         fetch(for: .premiumUpgradeBannerDismissed(userId: userId))
     }
 
+    func upgradedToPremiumActionCardVisible(userId: String) -> Bool {
+        fetch(for: .upgradedToPremiumActionCardVisible(userId: userId))
+    }
+
     func accountCreationEnvironmentURLs(email: String) -> EnvironmentURLData? {
         fetch(
             for: .accountCreationEnvironmentURLs(email: email),
@@ -1175,8 +1177,8 @@ extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore {
         store(expirationDate, for: .accessTokenExpirationDate(userId: userId))
     }
 
-    func setAccountKeys(_ keys: PrivateKeysResponseModel?, userId: String) {
-        store(keys, for: .accountKeys(userId: userId))
+    func setAccountCryptographicState(_ state: WrappedAccountCryptographicState?, userId: String) {
+        store(state, for: .accountCryptographicState(userId: userId))
     }
 
     func setAccountSetupAutofill(_ autofillSetup: AccountSetupProgress?, userId: String) {
@@ -1225,10 +1227,6 @@ extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore {
 
     func setEncryptedPin(_ encryptedPin: String?, userId: String) {
         store(encryptedPin, for: .encryptedPin(userId: userId))
-    }
-
-    func setEncryptedPrivateKey(key: String?, userId: String) {
-        store(key, for: .encryptedPrivateKey(userId: userId))
     }
 
     func setEncryptedUserKey(key: String?, userId: String) {
@@ -1281,6 +1279,10 @@ extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore {
 
     func setPremiumUpgradeBannerDismissed(_ dismissed: Bool, userId: String) {
         store(dismissed, for: .premiumUpgradeBannerDismissed(userId: userId))
+    }
+
+    func setUpgradedToPremiumActionCardVisible(_ visible: Bool, userId: String) {
+        store(visible, for: .upgradedToPremiumActionCardVisible(userId: userId))
     }
 
     func setAccountCreationEnvironmentURLs(environmentURLData: EnvironmentURLData, email: String) {

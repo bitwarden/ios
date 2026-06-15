@@ -10,7 +10,8 @@ final class GeneratorProcessor: StateProcessor<GeneratorState, GeneratorAction, 
 
     // MARK: Types
 
-    typealias Services = HasConfigService
+    typealias Services = HasBillingService
+        & HasConfigService
         & HasErrorReporter
         & HasGeneratorRepository
         & HasPasteboardService
@@ -86,9 +87,13 @@ final class GeneratorProcessor: StateProcessor<GeneratorState, GeneratorAction, 
             await reloadGeneratorOptions()
             await generateValue(shouldSavePassword: true)
             await checkLearnGeneratorActionCardEligibility()
+            state.shouldShowUpgradedToPremiumActionCard = await services.billingService.shouldShowUpgradedToPremiumActionCard()
         case .dismissLearnGeneratorActionCard:
             await services.stateService.setLearnGeneratorActionCardStatus(.complete)
             state.isLearnGeneratorActionCardEligible = false
+        case .dismissUpgradedToPremiumActionCard:
+            state.shouldShowUpgradedToPremiumActionCard = false
+            await services.billingService.setUpgradedToPremiumActionCardDismissed()
         case .showLearnGeneratorGuidedTour:
             state.generatorType = .password
             await services.stateService.setLearnGeneratorActionCardStatus(.complete)
@@ -103,6 +108,8 @@ final class GeneratorProcessor: StateProcessor<GeneratorState, GeneratorAction, 
             : nil
 
         switch action {
+        case .clearUrl:
+            state.url = nil
         case .copyGeneratedValue:
             services.pasteboardService.copy(state.generatedValue)
             state.showCopiedValueToast()
@@ -176,6 +183,10 @@ final class GeneratorProcessor: StateProcessor<GeneratorState, GeneratorAction, 
             state.usernameState.usernameGeneratorType = usernameGeneratorType
         case let .guidedTourViewAction(action):
             state.guidedTourViewState.updateStateForGuidedTourViewAction(action)
+        case .learnMoreAboutPremium:
+            state.url = ExternalLinksConstants.learnMoreAboutPremium
+            state.shouldShowUpgradedToPremiumActionCard = false
+            Task { await services.billingService.setUpgradedToPremiumActionCardDismissed() }
         }
 
         if let generateValueBehavior {

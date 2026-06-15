@@ -1,4 +1,5 @@
 import BitwardenKit
+import BitwardenResources
 
 // MARK: - SettingsProcessorDelegate
 
@@ -24,12 +25,13 @@ final class SettingsProcessor: StateProcessor<SettingsState, SettingsAction, Set
         & HasConfigService
         & HasErrorReporter
         & HasStateService
+        & HasStorefrontService
         & HasVaultRepository
 
     // MARK: Private Properties
 
     /// The task used to update the tab's badge count.
-    private var badgeUpdateTask: Task<Void, Never>?
+    private(set) var badgeUpdateTask: Task<Void, Never>?
 
     /// The `Coordinator` that handles navigation.
     private let coordinator: AnyCoordinator<SettingsRoute, SettingsEvent>
@@ -63,16 +65,19 @@ final class SettingsProcessor: StateProcessor<SettingsState, SettingsAction, Set
         super.init(state: state)
 
         // Kick off this task in init so that the tab bar badge will be updated immediately when
-        // the tab bar is shown vs once the user navigates to the settings tab.
-        badgeUpdateTask = Task { @MainActor [weak self] in
-            do {
-                guard let publisher = try await self?.services.stateService.settingsBadgePublisher() else { return }
-                for await badgeState in publisher.values {
-                    self?.delegate?.updateSettingsTabBadge(badgeState.badgeValue)
-                    self?.state.badgeState = badgeState
+        // the tab bar is shown vs once the user navigates to the settings tab. Badge updates
+        // require an active account, so this is skipped in pre-login presentation mode.
+        if state.presentationMode == .tab {
+            badgeUpdateTask = Task { @MainActor [weak self] in
+                do {
+                    guard let publisher = try await self?.services.stateService.settingsBadgePublisher() else { return }
+                    for await badgeState in publisher.values {
+                        self?.delegate?.updateSettingsTabBadge(badgeState.badgeValue)
+                        self?.state.badgeState = badgeState
+                    }
+                } catch {
+                    self?.services.errorReporter.log(error: error)
                 }
-            } catch {
-                self?.services.errorReporter.log(error: error)
             }
         }
     }
@@ -86,12 +91,25 @@ final class SettingsProcessor: StateProcessor<SettingsState, SettingsAction, Set
     override func perform(_ effect: SettingsEffect) async {
         switch effect {
         case .appeared:
+            guard state.presentationMode == .tab else { return }
             let featureEnabled = await services.configService
                 .getFeatureFlag(.premiumUpgradePath, defaultValue: false)
             let hasPremium = await services.vaultRepository.doesActiveAccountHavePremium()
+            let hasPremiumPersonally = await services.stateService.doesActiveAccountHavePremiumPersonally()
             let isSelfHosted = await services.billingService.isSelfHosted()
+            let isUSStorefront = await services.storefrontService.isUSStorefront()
             state.hasPremium = hasPremium
-            state.showPlanRow = featureEnabled && !isSelfHosted
+            // Users whose premium comes only from their organization (not purchased personally)
+            // have no personal subscription to manage or upgrade, so the plan row is hidden for them.
+            let hasPremiumFromOrganizationOnly = hasPremium && !hasPremiumPersonally
+            state.showPlanRow = featureEnabled && !isSelfHosted && isUSStorefront && !hasPremiumFromOrganizationOnly
+            state.shouldShowUpgradedToPremiumActionCard = await services.billingService
+                .shouldShowUpgradedToPremiumActionCard()
+        case .dismissUpgradedToPremiumActionCard:
+            state.shouldShowUpgradedToPremiumActionCard = false
+            await services.billingService.setUpgradedToPremiumActionCardDismissed()
+        case .planPressed:
+            await navigateToPlan()
         }
     }
 
@@ -105,18 +123,46 @@ final class SettingsProcessor: StateProcessor<SettingsState, SettingsAction, Set
             coordinator.navigate(to: .appearance)
         case .autoFillPressed:
             coordinator.navigate(to: .autoFill)
+        case .clearUrl:
+            state.url = nil
         case .dismiss:
             coordinator.navigate(to: .dismiss)
+        case .learnMoreAboutPremium:
+            state.url = ExternalLinksConstants.learnMoreAboutPremium
+            state.shouldShowUpgradedToPremiumActionCard = false
+            Task { await services.billingService.setUpgradedToPremiumActionCardDismissed() }
         case .otherPressed:
             coordinator.navigate(to: .other)
-        case .planPressed:
-            if state.hasPremium {
-                coordinator.navigate(to: .premiumPlan)
+        case .vaultPressed:
+            coordinator.navigate(to: .vault)
+        }
+    }
+
+    // MARK: Private Methods
+
+    /// Navigates to the appropriate plan screen based on the user's premium and subscription status.
+    ///
+    private func navigateToPlan() async {
+        guard !state.hasPremium else {
+            coordinator.navigate(to: .premiumPlan(nil))
+            return
+        }
+
+        defer { coordinator.hideLoadingOverlay() }
+        coordinator.showLoadingOverlay(title: Localizations.loading)
+
+        do {
+            let subscription = try await services.billingService.getSubscription()
+            if subscription.status.isTroubleState {
+                coordinator.navigate(to: .premiumPlan(subscription))
             } else {
                 coordinator.navigate(to: .premiumUpgrade)
             }
-        case .vaultPressed:
-            coordinator.navigate(to: .vault)
+        } catch is GetSubscriptionRequestError {
+            coordinator.navigate(to: .premiumUpgrade)
+        } catch {
+            services.errorReporter.log(error: error)
+            await coordinator.showErrorAlert(error: error)
         }
     }
 }

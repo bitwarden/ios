@@ -281,25 +281,26 @@
     <key>YouHaveAGracePeriodOfXDaysFromYourSubscriptionDescriptionLong</key>
     <dict>
       <key>NSStringLocalizedFormatKey</key>
-      <string>**%1$#@YouHaveAGracePeriodOfXDaysFromYourSubscriptionExpirationDate@** Please resolve the past due invoices by **%2$@**.</string>
+      <string>%1$#@YouHaveAGracePeriodOfXDaysFromYourSubscriptionExpirationDate@ يُرجى تسوية الفواتير المتأخرة قبل **%2$@**.</string>
       <key>YouHaveAGracePeriodOfXDaysFromYourSubscriptionExpirationDate</key>
       <dict>
         <key>zero</key>
-        <string>You have a grace period of %1$d days from your subscription expiration date.</string>
+        <string>لا توجد لديك فِترة سماح من تاريخ انتهاء اشتراكك.</string>
         <key>NSStringFormatSpecTypeKey</key>
         <string>NSStringPluralRuleType</string>
         <key>NSStringFormatValueTypeKey</key>
         <string>d</string>
         <key>one</key>
-        <string>You have a grace period of %1$d day from your subscription expiration date.</string>
+        <string>
+لديك فِترة سماح مدتها %1$d يوم من تاريخ انتهاء اشتراكك.</string>
         <key>two</key>
-        <string>You have a grace period of %1$d days from your subscription expiration date.</string>
+        <string>لديك فِترة سماح مدتها %1$d يومين من تاريخ انتهاء اشتراكك.</string>
         <key>few</key>
-        <string>You have a grace period of %1$d days from your subscription expiration date.</string>
+        <string>لديك فِترة سماح مدتها %1$d أيام من تاريخ انتهاء اشتراكك.</string>
         <key>many</key>
-        <string>You have a grace period of %1$d days from your subscription expiration date.</string>
+        <string>لديك فِترة سماح مدتها %1$d يومًا من تاريخ انتهاء اشتراكك.</string>
         <key>other</key>
-        <string>You have a grace period of %1$d days from your subscription expiration date.</string>
+        <string>لديك فِترة سماح مدتها %1$d يوم من تاريخ انتهاء اشتراكك.</string>
       </dict>
     </dict>
     <!-- A message indicating the minimum length of a PIN in characters. -->

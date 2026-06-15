@@ -24,7 +24,10 @@ struct BillingAPIServiceTests {
         activeAccountStateProvider = MockActiveAccountStateProvider()
         client = MockHTTPClient()
         stateService = MockStateService()
+        let accountTokenProvider = MockAccountTokenProvider()
+        accountTokenProvider.getTokenReturnValue = "ACCESS_TOKEN"
         subject = APIService(
+            accountTokenProvider: accountTokenProvider,
             activeAccountStateProvider: activeAccountStateProvider,
             client: client,
             stateService: stateService,
