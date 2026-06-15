@@ -20,6 +20,10 @@ struct SyncResponseModel: JSONResponse, Equatable {
     /// Policies that apply to the user.
     let policies: [PolicyResponseModel]
 
+    /// The new policies list including accepted-state members from the server-side flag.
+    /// Falls back to `policies` when absent.
+    let policiesNew: [PolicyResponseModel]?
+
     /// The user's profile.
     let profile: ProfileResponseModel?
 

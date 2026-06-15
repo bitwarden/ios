@@ -69,6 +69,24 @@ extension BitwardenSdk.GetAssertionResult {
     }
 }
 
+extension BitwardenSdk.JitMasterPasswordRegistrationResponse {
+    static func fixture(
+        accountCryptographicState: WrappedAccountCryptographicState = .fixtureV2(),
+        masterPasswordUnlock: BitwardenSdk.MasterPasswordUnlockData = MasterPasswordUnlockData(
+            kdf: .pbkdf2(iterations: 600_000),
+            masterKeyWrappedUserKey: "MASTER_KEY_WRAPPED_USER_KEY",
+            salt: "SALT",
+        ),
+        userKey: String = "USER_KEY",
+    ) -> BitwardenSdk.JitMasterPasswordRegistrationResponse {
+        .init(
+            accountCryptographicState: accountCryptographicState,
+            masterPasswordUnlock: masterPasswordUnlock,
+            userKey: userKey,
+        )
+    }
+}
+
 extension BitwardenSdk.MakeCredentialResult {
     static func fixture(
         authenticatorData: Data = Data(capacity: 37),

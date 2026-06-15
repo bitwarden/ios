@@ -25,6 +25,7 @@ final class SettingsProcessor: StateProcessor<SettingsState, SettingsAction, Set
         & HasConfigService
         & HasErrorReporter
         & HasStateService
+        & HasStorefrontService
         & HasVaultRepository
 
     // MARK: Private Properties
@@ -94,10 +95,16 @@ final class SettingsProcessor: StateProcessor<SettingsState, SettingsAction, Set
             let featureEnabled = await services.configService
                 .getFeatureFlag(.premiumUpgradePath, defaultValue: false)
             let hasPremium = await services.vaultRepository.doesActiveAccountHavePremium()
+            let hasPremiumPersonally = await services.stateService.doesActiveAccountHavePremiumPersonally()
             let isSelfHosted = await services.billingService.isSelfHosted()
+            let isUSStorefront = await services.storefrontService.isUSStorefront()
             state.hasPremium = hasPremium
-            state.showPlanRow = featureEnabled && !isSelfHosted
-            state.shouldShowUpgradedToPremiumActionCard = await services.billingService.shouldShowUpgradedToPremiumActionCard()
+            // Users whose premium comes only from their organization (not purchased personally)
+            // have no personal subscription to manage or upgrade, so the plan row is hidden for them.
+            let hasPremiumFromOrganizationOnly = hasPremium && !hasPremiumPersonally
+            state.showPlanRow = featureEnabled && !isSelfHosted && isUSStorefront && !hasPremiumFromOrganizationOnly
+            state.shouldShowUpgradedToPremiumActionCard = await services.billingService
+                .shouldShowUpgradedToPremiumActionCard()
         case .dismissUpgradedToPremiumActionCard:
             state.shouldShowUpgradedToPremiumActionCard = false
             await services.billingService.setUpgradedToPremiumActionCardDismissed()

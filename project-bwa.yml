@@ -126,6 +126,8 @@ targets:
     dependencies:
       - target: Authenticator
       - target: BitwardenKit/AuthenticatorBridgeKit
+      - target: BitwardenKit/BitwardenKitMocks
+      - target: BitwardenKit/BitwardenSdkMocks
       - target: BitwardenKit/TestHelpers
       - package: SnapshotTesting
     randomExecutionOrder: true

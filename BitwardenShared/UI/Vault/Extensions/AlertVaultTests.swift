@@ -379,6 +379,65 @@ class AlertVaultTests: BitwardenTestCase { // swiftlint:disable:this type_body_l
     }
 
     /// `static moreOptions(canCopyTotp:cipherView:hasMasterPassword:id:showEdit:action:)` returns
+    /// the appropriate options for `.passport` type
+    @MainActor
+    func test_moreOptions_passport() async throws {
+        var capturedAction: MoreOptionsAction?
+        let action: (MoreOptionsAction) -> Void = { action in
+            capturedAction = action
+        }
+        let cipher = CipherView.fixture(
+            edit: false,
+            id: "123",
+            name: "Test Cipher",
+            passport: .fixture(),
+            type: .passport,
+            viewPassword: true,
+        )
+        let alert = Alert.moreOptions(
+            context: MoreOptionsAlertContext(
+                canArchive: false,
+                canCopyTotp: false,
+                canUnarchive: false,
+                cipherView: cipher,
+                id: cipher.id!,
+                showEdit: true,
+            ),
+            action: action,
+        )
+        XCTAssertEqual(alert.title, cipher.name)
+        XCTAssertEqual(alert.preferredStyle, .actionSheet)
+        XCTAssertEqual(alert.alertActions.count, 4)
+
+        try await alert.tapAction(byIndex: 0, withTitle: Localizations.view)
+        XCTAssertEqual(capturedAction, .view(id: "123"))
+        capturedAction = nil
+
+        try await alert.tapAction(byIndex: 1, withTitle: Localizations.edit)
+        XCTAssertEqual(
+            capturedAction,
+            .edit(cipherView: cipher),
+        )
+        capturedAction = nil
+
+        try await alert.tapAction(byIndex: 2, withTitle: Localizations.copyPassportNumber)
+        XCTAssertEqual(
+            capturedAction,
+            .copy(
+                toast: Localizations.passportNumber,
+                value: "P1234567",
+                requiresMasterPasswordReprompt: true,
+                logEvent: nil,
+                cipherId: "123",
+            ),
+        )
+        capturedAction = nil
+
+        try await alert.tapAction(byIndex: 3, withTitle: Localizations.cancel)
+        XCTAssertNil(capturedAction)
+    }
+
+    /// `static moreOptions(canCopyTotp:cipherView:hasMasterPassword:id:showEdit:action:)` returns
     /// the appropriate options for `.sshKey` type
     @MainActor
     func test_moreOptions_sshKey() async throws { // swiftlint:disable:this function_body_length
@@ -460,6 +519,74 @@ class AlertVaultTests: BitwardenTestCase { // swiftlint:disable:this type_body_l
         capturedAction = nil
 
         try await alert.tapAction(byIndex: 5, withTitle: Localizations.cancel)
+        XCTAssertNil(capturedAction)
+    }
+
+    /// `moreOptions(context:action:)` for a bank account includes copy actions for the
+    /// account number and routing number.
+    @MainActor
+    func test_moreOptions_bankAccount() async throws { // swiftlint:disable:this function_body_length
+        var capturedAction: MoreOptionsAction?
+        let action: (MoreOptionsAction) -> Void = { action in
+            capturedAction = action
+        }
+        let cipher = CipherView.fixture(
+            bankAccount: .fixture(accountNumber: "1234567890", routingNumber: "021000021"),
+            edit: false,
+            id: "123",
+            name: "Test Cipher",
+            type: .bankAccount,
+        )
+        let alert = Alert.moreOptions(
+            context: MoreOptionsAlertContext(
+                canArchive: false,
+                canCopyTotp: false,
+                canUnarchive: false,
+                cipherView: cipher,
+                id: cipher.id!,
+                showEdit: true,
+            ),
+            action: action,
+        )
+        XCTAssertEqual(alert.title, cipher.name)
+        XCTAssertEqual(alert.preferredStyle, .actionSheet)
+        XCTAssertEqual(alert.alertActions.count, 5)
+
+        try await alert.tapAction(byIndex: 0, withTitle: Localizations.view)
+        XCTAssertEqual(capturedAction, .view(id: "123"))
+        capturedAction = nil
+
+        try await alert.tapAction(byIndex: 1, withTitle: Localizations.edit)
+        XCTAssertEqual(capturedAction, .edit(cipherView: cipher))
+        capturedAction = nil
+
+        try await alert.tapAction(byIndex: 2, withTitle: Localizations.copyAccountNumber)
+        XCTAssertEqual(
+            capturedAction,
+            .copy(
+                toast: Localizations.accountNumber,
+                value: "1234567890",
+                requiresMasterPasswordReprompt: true,
+                logEvent: nil,
+                cipherId: nil,
+            ),
+        )
+        capturedAction = nil
+
+        try await alert.tapAction(byIndex: 3, withTitle: Localizations.copyRoutingNumber)
+        XCTAssertEqual(
+            capturedAction,
+            .copy(
+                toast: Localizations.routingNumber,
+                value: "021000021",
+                requiresMasterPasswordReprompt: true,
+                logEvent: nil,
+                cipherId: nil,
+            ),
+        )
+        capturedAction = nil
+
+        try await alert.tapAction(byIndex: 4, withTitle: Localizations.cancel)
         XCTAssertNil(capturedAction)
     }
 

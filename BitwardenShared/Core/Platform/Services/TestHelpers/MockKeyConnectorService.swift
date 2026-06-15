@@ -5,7 +5,9 @@ import Foundation
 class MockKeyConnectorService: KeyConnectorService {
     var convertNewUserToKeyConnectorCalled = false
     var convertNewUserToKeyConnectorHandler: (() -> Void)?
-    var convertNewUserToKeyConnectorResult: Result<Void, Error> = .success(())
+    var convertNewUserToKeyConnectorResult: Result<KeyConnectorConversionResult, Error> = .success(
+        KeyConnectorConversionResult(encryptedUserKey: "encryptedUserKey", masterKey: "masterKey"),
+    )
     var convertNewUserToKeyConnectorKeyConnectorUrl: URL? // swiftlint:disable:this identifier_name
     var convertNewUserToKeyConnectorOrganizationId: String? // swiftlint:disable:this identifier_name
 
@@ -18,7 +20,10 @@ class MockKeyConnectorService: KeyConnectorService {
 
     var userNeedsMigrationResult: Result<Bool, Error> = .success(true)
 
-    func convertNewUserToKeyConnector(keyConnectorUrl: URL, orgIdentifier: String) async throws {
+    func convertNewUserToKeyConnector(
+        keyConnectorUrl: URL,
+        orgIdentifier: String,
+    ) async throws -> KeyConnectorConversionResult {
         convertNewUserToKeyConnectorCalled = true
         convertNewUserToKeyConnectorKeyConnectorUrl = keyConnectorUrl
         convertNewUserToKeyConnectorOrganizationId = orgIdentifier

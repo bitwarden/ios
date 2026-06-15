@@ -76,6 +76,7 @@ targets:
       - target: TestHarnessShared
       - target: BitwardenKit/BitwardenKit
       - target: BitwardenKit/BitwardenResources
+      - target: BitwardenKit/Networking
   TestHarnessTests:
     type: bundle.unit-test
     platform: iOS

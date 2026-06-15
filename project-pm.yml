@@ -242,6 +242,8 @@ targets:
     dependencies:
       - target: BitwardenActionExtension
       - target: BitwardenShared
+      - target: BitwardenKit/BitwardenKitMocks
+      - target: BitwardenKit/BitwardenSdkMocks
       - target: BitwardenKit/TestHelpers
     randomExecutionOrder: true
 
@@ -277,6 +279,8 @@ targets:
     dependencies:
       - target: BitwardenAutoFillExtension
       - target: BitwardenShared
+      - target: BitwardenKit/BitwardenKitMocks
+      - target: BitwardenKit/BitwardenSdkMocks
       - target: BitwardenKit/TestHelpers
     randomExecutionOrder: true
 
@@ -329,6 +333,8 @@ targets:
     dependencies:
       - target: BitwardenShareExtension
       - target: BitwardenShared
+      - target: BitwardenKit/BitwardenKitMocks
+      - target: BitwardenKit/BitwardenSdkMocks
       - target: BitwardenKit/TestHelpers
     randomExecutionOrder: true
 

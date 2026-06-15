@@ -2117,6 +2117,82 @@ class AddEditItemProcessorTests: BitwardenTestCase {
         XCTAssertEqual(subject.state.cardItemState.expirationYear, "2029")
     }
 
+    /// `receive(_:)` with `.driversLicenseFieldChanged(.firstNameChanged)` updates the state correctly.
+    @MainActor
+    func test_receive_driversLicenseFieldChanged_firstNameChanged() {
+        subject.state.driversLicenseItemState.firstName = "Bit"
+        subject.receive(.driversLicenseFieldChanged(.firstNameChanged("Warden")))
+        XCTAssertEqual(subject.state.driversLicenseItemState.firstName, "Warden")
+    }
+
+    /// `receive(_:)` with `.driversLicenseFieldChanged(.middleNameChanged)` updates the state correctly.
+    @MainActor
+    func test_receive_driversLicenseFieldChanged_middleNameChanged() {
+        subject.state.driversLicenseItemState.middleName = "A"
+        subject.receive(.driversLicenseFieldChanged(.middleNameChanged("W")))
+        XCTAssertEqual(subject.state.driversLicenseItemState.middleName, "W")
+    }
+
+    /// `receive(_:)` with `.driversLicenseFieldChanged(.lastNameChanged)` updates the state correctly.
+    @MainActor
+    func test_receive_driversLicenseFieldChanged_lastNameChanged() {
+        subject.state.driversLicenseItemState.lastName = "Doe"
+        subject.receive(.driversLicenseFieldChanged(.lastNameChanged("Warden")))
+        XCTAssertEqual(subject.state.driversLicenseItemState.lastName, "Warden")
+    }
+
+    /// `receive(_:)` with `.driversLicenseFieldChanged(.licenseNumberChanged)` updates the state correctly.
+    @MainActor
+    func test_receive_driversLicenseFieldChanged_licenseNumberChanged() {
+        subject.state.driversLicenseItemState.licenseNumber = "111"
+        subject.receive(.driversLicenseFieldChanged(.licenseNumberChanged("D1234567")))
+        XCTAssertEqual(subject.state.driversLicenseItemState.licenseNumber, "D1234567")
+    }
+
+    /// `receive(_:)` with `.driversLicenseFieldChanged(.issuingCountryChanged)` updates the state correctly.
+    @MainActor
+    func test_receive_driversLicenseFieldChanged_issuingCountryChanged() {
+        subject.state.driversLicenseItemState.issuingCountry = "Canada"
+        subject.receive(.driversLicenseFieldChanged(.issuingCountryChanged("United States")))
+        XCTAssertEqual(subject.state.driversLicenseItemState.issuingCountry, "United States")
+    }
+
+    /// `receive(_:)` with `.driversLicenseFieldChanged(.issuingStateChanged)` updates the state correctly.
+    @MainActor
+    func test_receive_driversLicenseFieldChanged_issuingStateChanged() {
+        subject.state.driversLicenseItemState.issuingState = "Nevada"
+        subject.receive(.driversLicenseFieldChanged(.issuingStateChanged("California")))
+        XCTAssertEqual(subject.state.driversLicenseItemState.issuingState, "California")
+    }
+
+    /// `receive(_:)` with `.driversLicenseFieldChanged(.issuingAuthorityChanged)` updates the state correctly.
+    @MainActor
+    func test_receive_driversLicenseFieldChanged_issuingAuthorityChanged() {
+        subject.state.driversLicenseItemState.issuingAuthority = "RMV"
+        subject.receive(.driversLicenseFieldChanged(.issuingAuthorityChanged("DMV")))
+        XCTAssertEqual(subject.state.driversLicenseItemState.issuingAuthority, "DMV")
+    }
+
+    /// `receive(_:)` with `.driversLicenseFieldChanged(.licenseClassChanged)` updates the state correctly.
+    @MainActor
+    func test_receive_driversLicenseFieldChanged_licenseClassChanged() {
+        subject.state.driversLicenseItemState.licenseClass = "A"
+        subject.receive(.driversLicenseFieldChanged(.licenseClassChanged("C")))
+        XCTAssertEqual(subject.state.driversLicenseItemState.licenseClass, "C")
+    }
+
+    /// `receive(_:)` with `.driversLicenseFieldChanged(.toggleLicenseNumberVisibilityChanged)` updates
+    /// the state correctly.
+    @MainActor
+    func test_receive_driversLicenseFieldChanged_toggleLicenseNumberVisibilityChanged() {
+        subject.state.driversLicenseItemState.isLicenseNumberVisible = false
+        subject.receive(.driversLicenseFieldChanged(.toggleLicenseNumberVisibilityChanged(true)))
+        XCTAssertTrue(subject.state.driversLicenseItemState.isLicenseNumberVisible)
+
+        subject.receive(.driversLicenseFieldChanged(.toggleLicenseNumberVisibilityChanged(false)))
+        XCTAssertFalse(subject.state.driversLicenseItemState.isLicenseNumberVisible)
+    }
+
     /// `receive(_:)` with `.identityFieldChanged(.titleChanged)` with a value updates the state correctly.
     @MainActor
     func test_receive_identity_titleChange_withValidValue() {
@@ -3124,6 +3200,112 @@ class AddEditItemProcessorTests: BitwardenTestCase {
         subject.receive(.identityFieldChanged(.countryChanged("")))
 
         XCTAssertEqual(subject.state.identityState.country, "")
+    }
+
+    // MARK: Passport
+
+    /// `receive(_:)` with `.passportFieldChanged(.birthPlaceChanged)` updates the state correctly.
+    @MainActor
+    func test_receive_passportFieldChanged_birthPlaceChanged() {
+        subject.state.passportItemState.birthPlace = "Canada"
+        subject.receive(.passportFieldChanged(.birthPlaceChanged("USA")))
+        XCTAssertEqual(subject.state.passportItemState.birthPlace, "USA")
+    }
+
+    /// `receive(_:)` with `.passportFieldChanged(.givenNameChanged)` updates the state correctly.
+    @MainActor
+    func test_receive_passportFieldChanged_givenNameChanged() {
+        subject.state.passportItemState.givenName = "Bit"
+        subject.receive(.passportFieldChanged(.givenNameChanged("Mitchell")))
+        XCTAssertEqual(subject.state.passportItemState.givenName, "Mitchell")
+    }
+
+    /// `receive(_:)` with `.passportFieldChanged(.issuingAuthorityChanged)` updates the state correctly.
+    @MainActor
+    func test_receive_passportFieldChanged_issuingAuthorityChanged() {
+        subject.state.passportItemState.issuingAuthority = "Other"
+        subject.receive(.passportFieldChanged(.issuingAuthorityChanged("U.S. Department of State")))
+        XCTAssertEqual(subject.state.passportItemState.issuingAuthority, "U.S. Department of State")
+    }
+
+    /// `receive(_:)` with `.passportFieldChanged(.issuingCountryChanged)` updates the state correctly.
+    @MainActor
+    func test_receive_passportFieldChanged_issuingCountryChanged() {
+        subject.state.passportItemState.issuingCountry = "Canada"
+        subject.receive(.passportFieldChanged(.issuingCountryChanged("United States")))
+        XCTAssertEqual(subject.state.passportItemState.issuingCountry, "United States")
+    }
+
+    /// `receive(_:)` with `.passportFieldChanged(.nationalIdentificationNumberChanged)` updates the state correctly.
+    @MainActor
+    func test_receive_passportFieldChanged_nationalIdentificationNumberChanged() {
+        subject.state.passportItemState.nationalIdentificationNumber = "000"
+        subject.receive(.passportFieldChanged(.nationalIdentificationNumberChanged("123456789")))
+        XCTAssertEqual(subject.state.passportItemState.nationalIdentificationNumber, "123456789")
+    }
+
+    /// `receive(_:)` with `.passportFieldChanged(.nationalityChanged)` updates the state correctly.
+    @MainActor
+    func test_receive_passportFieldChanged_nationalityChanged() {
+        subject.state.passportItemState.nationality = "Canadian"
+        subject.receive(.passportFieldChanged(.nationalityChanged("USA")))
+        XCTAssertEqual(subject.state.passportItemState.nationality, "USA")
+    }
+
+    /// `receive(_:)` with `.passportFieldChanged(.passportNumberChanged)` updates the state correctly.
+    @MainActor
+    func test_receive_passportFieldChanged_passportNumberChanged() {
+        subject.state.passportItemState.passportNumber = "000"
+        subject.receive(.passportFieldChanged(.passportNumberChanged("X12345678")))
+        XCTAssertEqual(subject.state.passportItemState.passportNumber, "X12345678")
+    }
+
+    /// `receive(_:)` with `.passportFieldChanged(.passportTypeChanged)` updates the state correctly.
+    @MainActor
+    func test_receive_passportFieldChanged_passportTypeChanged() {
+        subject.state.passportItemState.passportType = "Other"
+        subject.receive(.passportFieldChanged(.passportTypeChanged("Regular/Tourist")))
+        XCTAssertEqual(subject.state.passportItemState.passportType, "Regular/Tourist")
+    }
+
+    /// `receive(_:)` with `.passportFieldChanged(.sexChanged)` updates the state correctly.
+    @MainActor
+    func test_receive_passportFieldChanged_sexChanged() {
+        subject.state.passportItemState.sex = "Female"
+        subject.receive(.passportFieldChanged(.sexChanged("Male")))
+        XCTAssertEqual(subject.state.passportItemState.sex, "Male")
+    }
+
+    /// `receive(_:)` with `.passportFieldChanged(.surnameChanged)` updates the state correctly.
+    @MainActor
+    func test_receive_passportFieldChanged_surnameChanged() {
+        subject.state.passportItemState.surname = "Warden"
+        subject.receive(.passportFieldChanged(.surnameChanged("Johnson")))
+        XCTAssertEqual(subject.state.passportItemState.surname, "Johnson")
+    }
+
+    /// `receive(_:)` with `.passportFieldChanged(.toggleNationalIdentificationNumberVisibilityChanged)` updates
+    /// the state correctly.
+    @MainActor
+    func test_receive_passportFieldChanged_toggleNationalIdentificationNumberVisibilityChanged() {
+        subject.state.passportItemState.isNationalIdentificationNumberVisible = false
+        subject.receive(.passportFieldChanged(.toggleNationalIdentificationNumberVisibilityChanged(true)))
+        XCTAssertTrue(subject.state.passportItemState.isNationalIdentificationNumberVisible)
+
+        subject.receive(.passportFieldChanged(.toggleNationalIdentificationNumberVisibilityChanged(false)))
+        XCTAssertFalse(subject.state.passportItemState.isNationalIdentificationNumberVisible)
+    }
+
+    /// `receive(_:)` with `.passportFieldChanged(.togglePassportNumberVisibilityChanged)` updates the state
+    /// correctly.
+    @MainActor
+    func test_receive_passportFieldChanged_togglePassportNumberVisibilityChanged() {
+        subject.state.passportItemState.isPassportNumberVisible = false
+        subject.receive(.passportFieldChanged(.togglePassportNumberVisibilityChanged(true)))
+        XCTAssertTrue(subject.state.passportItemState.isPassportNumberVisible)
+
+        subject.receive(.passportFieldChanged(.togglePassportNumberVisibilityChanged(false)))
+        XCTAssertFalse(subject.state.passportItemState.isPassportNumberVisible)
     }
 
     /// `getter:rehydrationState` returns the proper state with the cipher id.

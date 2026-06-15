@@ -14,6 +14,31 @@ public extension ManagedObject where Self: NSManagedObject {
         String(describing: self)
     }
 
+    /// Returns a `NSBatchInsertRequest` for batch inserting an array of objects into the specified entity.
+    ///
+    /// - Parameters:
+    ///   - entityName: The name of the entity to insert the objects into.
+    ///   - objects: The objects (or objects that can be converted to managed objects) to insert.
+    ///   - handler: A handler that is called for each object to set the properties on the
+    ///     `NSManagedObject` to insert.
+    /// - Returns: A `NSBatchInsertRequest` for batch inserting an array of objects.
+    ///
+    static func batchInsertRequest<T>(
+        entityName: String,
+        objects: [T],
+        handler: @escaping (Self, T) -> Void,
+    ) -> NSBatchInsertRequest {
+        var index = 0
+        return NSBatchInsertRequest(entityName: entityName) { (managedObject: NSManagedObject) -> Bool in
+            guard index < objects.count else { return true }
+            defer { index += 1 }
+            if let managedObject = managedObject as? Self {
+                handler(managedObject, objects[index])
+            }
+            return false
+        }
+    }
+
     /// Returns a `NSBatchInsertRequest` for batch inserting an array of objects.
     ///
     /// - Parameters:
