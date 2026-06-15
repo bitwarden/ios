@@ -2,6 +2,5 @@
 enum AccessibilityIdentifier {
     enum TOTPForm {
         static let totpCodeTextField = "TOTPCodeTextField"
-        static let totpCodeValue = "TOTPCodeValue"
     }
 }

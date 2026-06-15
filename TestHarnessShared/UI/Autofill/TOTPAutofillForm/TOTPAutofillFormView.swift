@@ -40,20 +40,6 @@ struct TOTPAutofillFormView: View {
             } footer: {
                 Text(Localizations.tapTheTOTPCodeFieldAndSelectDescriptionLong)
             }
-
-            Section {
-                if !store.state.totpCode.isEmpty {
-                    Text(Localizations.xColonY(Localizations.totpCode, store.state.totpCode))
-                        .styleGuide(.body)
-                        .accessibilityIdentifier(AccessibilityIdentifier.TOTPForm.totpCodeValue)
-                } else {
-                    Text(Localizations.enterTOTPCodeAbove)
-                        .foregroundColor(.secondary)
-                        .styleGuide(.body)
-                }
-            } header: {
-                Text(Localizations.formValues)
-            }
         }
     }
 }

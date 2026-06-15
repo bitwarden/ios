@@ -5,9 +5,6 @@ import Foundation
 struct TOTPAutofillFormState: Equatable {
     // MARK: Properties
 
-    /// The title of the screen.
-    var title: String = ""
-
     /// The TOTP code field value.
     var totpCode: String = ""
 }
