@@ -682,6 +682,82 @@ final class CipherViewUpdateTests: BitwardenTestCase { // swiftlint:disable:this
         XCTAssertNil(comparison.secureNote)
     }
 
+    /// `passportItemState()` returns the passport item state from the cipher view, reading every
+    /// field including the raw date strings without parsing.
+    func test_passportItemState() {
+        let cipherView = CipherView.fixture(
+            passport: .fixture(
+                surname: "Johnson",
+                givenName: "Mitchell",
+                dateOfBirth: "2025-04-20",
+                sex: "Male",
+                birthPlace: "USA",
+                nationality: "USA",
+                issuingCountry: "United States",
+                passportNumber: "X12345678",
+                passportType: "Regular/Tourist",
+                nationalIdentificationNumber: "123456789",
+                issuingAuthority: "U.S. Department of State",
+                issueDate: "2021-08-10",
+                expirationDate: "2026-08-10",
+            ),
+            type: .passport,
+        )
+
+        let state = cipherView.passportItemState()
+        XCTAssertEqual(state.surname, "Johnson")
+        XCTAssertEqual(state.givenName, "Mitchell")
+        XCTAssertEqual(state.dateOfBirth, "2025-04-20")
+        XCTAssertEqual(state.sex, "Male")
+        XCTAssertEqual(state.birthPlace, "USA")
+        XCTAssertEqual(state.nationality, "USA")
+        XCTAssertEqual(state.issuingCountry, "United States")
+        XCTAssertEqual(state.passportNumber, "X12345678")
+        XCTAssertEqual(state.passportType, "Regular/Tourist")
+        XCTAssertEqual(state.nationalIdentificationNumber, "123456789")
+        XCTAssertEqual(state.issuingAuthority, "U.S. Department of State")
+        XCTAssertEqual(state.issueDate, "2021-08-10")
+        XCTAssertEqual(state.expirationDate, "2026-08-10")
+    }
+
+    /// `passportItemState()` returns an empty state when there's no `passport` in the cipher view.
+    func test_passportItemState_nil() {
+        let cipherView = CipherView.fixture()
+        let state = cipherView.passportItemState()
+        XCTAssertEqual(state, PassportItemState())
+    }
+
+    /// `updatedView(with:)` round-trips a passport, preserving all fields as strings.
+    func test_update_passport_edits_succeeds() {
+        cipherItemState.type = .passport
+        var expectedPassportState = PassportItemState()
+        expectedPassportState.surname = "Johnson"
+        expectedPassportState.givenName = "Mitchell"
+        expectedPassportState.dateOfBirth = "2025-04-20"
+        expectedPassportState.sex = "Male"
+        expectedPassportState.birthPlace = "USA"
+        expectedPassportState.nationality = "USA"
+        expectedPassportState.issuingCountry = "United States"
+        expectedPassportState.passportNumber = "X12345678"
+        expectedPassportState.passportType = "Regular/Tourist"
+        expectedPassportState.nationalIdentificationNumber = "123456789"
+        expectedPassportState.issuingAuthority = "U.S. Department of State"
+        expectedPassportState.issueDate = "2021-08-10"
+        expectedPassportState.expirationDate = "2026-08-10"
+        cipherItemState.passportItemState = expectedPassportState
+
+        let comparison = subject.updatedView(with: cipherItemState)
+        XCTAssertEqual(comparison.type, .passport)
+        XCTAssertNil(comparison.login)
+        XCTAssertNil(comparison.card)
+        XCTAssertNil(comparison.identity)
+
+        XCTAssertEqual(comparison.passportItemState(), expectedPassportState)
+        XCTAssertEqual(comparison.passport?.dateOfBirth, "2025-04-20")
+        XCTAssertEqual(comparison.passport?.issueDate, "2021-08-10")
+        XCTAssertEqual(comparison.passport?.expirationDate, "2026-08-10")
+    }
+
     /// Tests that the update succeeds with new properties.
     func test_update_identity_edits_nilValues() throws {
         let state = CipherItemState(

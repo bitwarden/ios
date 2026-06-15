@@ -685,6 +685,203 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
         XCTAssertTrue(expected.contains("2029"))
     }
 
+    // MARK: Passport
+
+    /// Updating the first name field dispatches the `.passportFieldChanged(.givenNameChanged())` action.
+    @MainActor
+    func test_passport_givenNameTextField_updateValue() throws {
+        processor.state.type = .passport
+        let textField = try subject.inspect().find(bitwardenTextField: Localizations.firstName)
+        try textField.inputBinding().wrappedValue = "text"
+        XCTAssertEqual(processor.dispatchedActions.last, .passportFieldChanged(.givenNameChanged("text")))
+    }
+
+    /// Updating the last name field dispatches the `.passportFieldChanged(.surnameChanged())` action.
+    @MainActor
+    func test_passport_surnameTextField_updateValue() throws {
+        processor.state.type = .passport
+        let textField = try subject.inspect().find(bitwardenTextField: Localizations.lastName)
+        try textField.inputBinding().wrappedValue = "text"
+        XCTAssertEqual(processor.dispatchedActions.last, .passportFieldChanged(.surnameChanged("text")))
+    }
+
+    /// Updating the sex field dispatches the `.passportFieldChanged(.sexChanged())` action.
+    @MainActor
+    func test_passport_sexTextField_updateValue() throws {
+        processor.state.type = .passport
+        let textField = try subject.inspect().find(bitwardenTextField: Localizations.sex)
+        try textField.inputBinding().wrappedValue = "text"
+        XCTAssertEqual(processor.dispatchedActions.last, .passportFieldChanged(.sexChanged("text")))
+    }
+
+    /// Updating the birth place field dispatches the `.passportFieldChanged(.birthPlaceChanged())` action.
+    @MainActor
+    func test_passport_birthPlaceTextField_updateValue() throws {
+        processor.state.type = .passport
+        let textField = try subject.inspect().find(bitwardenTextField: Localizations.birthPlace)
+        try textField.inputBinding().wrappedValue = "text"
+        XCTAssertEqual(processor.dispatchedActions.last, .passportFieldChanged(.birthPlaceChanged("text")))
+    }
+
+    /// Updating the nationality field dispatches the `.passportFieldChanged(.nationalityChanged())` action.
+    @MainActor
+    func test_passport_nationalityTextField_updateValue() throws {
+        processor.state.type = .passport
+        let textField = try subject.inspect().find(bitwardenTextField: Localizations.nationality)
+        try textField.inputBinding().wrappedValue = "text"
+        XCTAssertEqual(processor.dispatchedActions.last, .passportFieldChanged(.nationalityChanged("text")))
+    }
+
+    /// Updating the passport number field dispatches the `.passportFieldChanged(.passportNumberChanged())` action.
+    @MainActor
+    func test_passport_passportNumberTextField_updateValue() throws {
+        processor.state.type = .passport
+        let textField = try subject.inspect().find(bitwardenTextField: Localizations.passportNumber)
+        try textField.inputBinding().wrappedValue = "text"
+        XCTAssertEqual(processor.dispatchedActions.last, .passportFieldChanged(.passportNumberChanged("text")))
+    }
+
+    /// Updating the passport type field dispatches the `.passportFieldChanged(.passportTypeChanged())` action.
+    @MainActor
+    func test_passport_passportTypeTextField_updateValue() throws {
+        processor.state.type = .passport
+        let textField = try subject.inspect().find(bitwardenTextField: Localizations.passportType)
+        try textField.inputBinding().wrappedValue = "text"
+        XCTAssertEqual(processor.dispatchedActions.last, .passportFieldChanged(.passportTypeChanged("text")))
+    }
+
+    /// Updating the national identification number field dispatches the
+    /// `.passportFieldChanged(.nationalIdentificationNumberChanged())` action.
+    @MainActor
+    func test_passport_nationalIdentificationNumberTextField_updateValue() throws {
+        processor.state.type = .passport
+        let textField = try subject.inspect().find(bitwardenTextField: Localizations.nationalIdentificationNumber)
+        try textField.inputBinding().wrappedValue = "text"
+        XCTAssertEqual(
+            processor.dispatchedActions.last,
+            .passportFieldChanged(.nationalIdentificationNumberChanged("text")),
+        )
+    }
+
+    /// Updating the issuing country field dispatches the `.passportFieldChanged(.issuingCountryChanged())` action.
+    @MainActor
+    func test_passport_issuingCountryTextField_updateValue() throws {
+        processor.state.type = .passport
+        let textField = try subject.inspect().find(bitwardenTextField: Localizations.issuingCountry)
+        try textField.inputBinding().wrappedValue = "text"
+        XCTAssertEqual(processor.dispatchedActions.last, .passportFieldChanged(.issuingCountryChanged("text")))
+    }
+
+    /// Updating the issuing authority field dispatches the
+    /// `.passportFieldChanged(.issuingAuthorityChanged())` action.
+    @MainActor
+    func test_passport_issuingAuthorityTextField_updateValue() throws {
+        processor.state.type = .passport
+        let textField = try subject.inspect().find(bitwardenTextField: Localizations.issuingAuthorityOffice)
+        try textField.inputBinding().wrappedValue = "text"
+        XCTAssertEqual(processor.dispatchedActions.last, .passportFieldChanged(.issuingAuthorityChanged("text")))
+    }
+
+    /// Tapping the passport number visibility button dispatches the
+    /// `.passportFieldChanged(.togglePassportNumberVisibilityChanged())` action when the number is not visible.
+    @MainActor
+    func test_passport_passportNumberVisibilityButton_tap_whenNotVisible() throws {
+        processor.state.type = .passport
+        processor.state.passportItemState.isPassportNumberVisible = false
+        let button = try subject.inspect()
+            .find(bitwardenTextField: Localizations.passportNumber)
+            .find(buttonWithAccessibilityLabel: Localizations.passwordIsNotVisibleTapToShow)
+        try button.tap()
+        XCTAssertEqual(
+            processor.dispatchedActions.last,
+            .passportFieldChanged(.togglePassportNumberVisibilityChanged(true)),
+        )
+    }
+
+    /// Tapping the passport number visibility button dispatches the
+    /// `.passportFieldChanged(.togglePassportNumberVisibilityChanged())` action when the number is visible.
+    @MainActor
+    func test_passport_passportNumberVisibilityButton_tap_whenVisible() throws {
+        processor.state.type = .passport
+        processor.state.passportItemState.isPassportNumberVisible = true
+        let button = try subject.inspect()
+            .find(bitwardenTextField: Localizations.passportNumber)
+            .find(buttonWithAccessibilityLabel: Localizations.passwordIsVisibleTapToHide)
+        try button.tap()
+        XCTAssertEqual(
+            processor.dispatchedActions.last,
+            .passportFieldChanged(.togglePassportNumberVisibilityChanged(false)),
+        )
+    }
+
+    /// Tapping the national identification number visibility button dispatches the
+    /// `.passportFieldChanged(.toggleNationalIdentificationNumberVisibilityChanged())` action when not visible.
+    @MainActor
+    func test_passport_nationalIdentificationNumberVisibilityButton_tap_whenNotVisible() throws {
+        processor.state.type = .passport
+        processor.state.passportItemState.isNationalIdentificationNumberVisible = false
+        let button = try subject.inspect()
+            .find(bitwardenTextField: Localizations.nationalIdentificationNumber)
+            .find(buttonWithAccessibilityLabel: Localizations.passwordIsNotVisibleTapToShow)
+        try button.tap()
+        XCTAssertEqual(
+            processor.dispatchedActions.last,
+            .passportFieldChanged(.toggleNationalIdentificationNumberVisibilityChanged(true)),
+        )
+    }
+
+    /// Tapping the national identification number visibility button dispatches the
+    /// `.passportFieldChanged(.toggleNationalIdentificationNumberVisibilityChanged())` action when visible.
+    @MainActor
+    func test_passport_nationalIdentificationNumberVisibilityButton_tap_whenVisible() throws {
+        processor.state.type = .passport
+        processor.state.passportItemState.isNationalIdentificationNumberVisible = true
+        let button = try subject.inspect()
+            .find(bitwardenTextField: Localizations.nationalIdentificationNumber)
+            .find(buttonWithAccessibilityLabel: Localizations.passwordIsVisibleTapToHide)
+        try button.tap()
+        XCTAssertEqual(
+            processor.dispatchedActions.last,
+            .passportFieldChanged(.toggleNationalIdentificationNumberVisibilityChanged(false)),
+        )
+    }
+
+    /// The date of birth field is read-only and renders the long-date display string.
+    @MainActor
+    func test_passport_dateOfBirthField_isDisabledAndShowsDisplayString() throws {
+        processor.state.type = .passport
+        processor.state.passportItemState.dateOfBirth = "2025-04-20"
+        let expected = processor.state.passportItemState.dateOfBirthDisplay
+
+        let textField = try subject.inspect().find(bitwardenTextField: Localizations.dateOfBirth)
+        XCTAssertEqual(try textField.inputBinding().wrappedValue, expected)
+        XCTAssertTrue(expected.contains("2025"))
+    }
+
+    /// The issue date field is read-only and renders the long-date display string.
+    @MainActor
+    func test_passport_issueDateField_isDisabledAndShowsDisplayString() throws {
+        processor.state.type = .passport
+        processor.state.passportItemState.issueDate = "2021-08-10"
+        let expected = processor.state.passportItemState.issueDateDisplay
+
+        let textField = try subject.inspect().find(bitwardenTextField: Localizations.issueDate)
+        XCTAssertEqual(try textField.inputBinding().wrappedValue, expected)
+        XCTAssertTrue(expected.contains("2021"))
+    }
+
+    /// The expiration date field is read-only and renders the long-date display string.
+    @MainActor
+    func test_passport_expirationDateField_isDisabledAndShowsDisplayString() throws {
+        processor.state.type = .passport
+        processor.state.passportItemState.expirationDate = "2026-08-10"
+        let expected = processor.state.passportItemState.expirationDateDisplay
+
+        let textField = try subject.inspect().find(bitwardenTextField: Localizations.expirationDate)
+        XCTAssertEqual(try textField.inputBinding().wrappedValue, expected)
+        XCTAssertTrue(expected.contains("2026"))
+    }
+
     // MARK: Private
 
     /// Creates a `CipherItemState` for an SSH key item.

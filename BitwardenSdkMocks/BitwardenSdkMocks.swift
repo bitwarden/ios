@@ -21,4 +21,5 @@ extension PasswordHistoryClientProtocol {}
 extension PoliciesClientProtocol {}
 extension RegistrationClientProtocol {}
 extension SendClientProtocol {}
+extension ServerCommunicationConfigRepository {}
 extension StateClientProtocol {}
