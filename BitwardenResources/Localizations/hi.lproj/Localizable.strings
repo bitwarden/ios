@@ -6,6 +6,7 @@
 "Bitwarden" = "बिटवार्डन";
 "Cancel" = "कैंसिल करें";
 "Copy" = "कॉपी करें";
+"CopyPassportNumber" = "Copy passport number";
 "CopyPassword" = "पासवर्ड कॉपी करें";
 "CopyUsername" = "यूज़रनेम कॉपी करें";
 "Delete" = "हटाएं";
@@ -207,6 +208,7 @@
 "TypeIdentity" = "आईडी";
 "TypeLicense" = "License";
 "TypeLogin" = "लॉगइन";
+"TypePassport" = "Passport";
 "TypeSecureNote" = "सेक्योर नोट";
 "Address1" = "पता 1";
 "Address2" = "पता 2";
@@ -555,6 +557,7 @@
 "ThereAreNoCardsInYourVault" = "There are no cards in your vault";
 "ThereAreNoNotesInYourVault" = "There are no notes in your vault";
 "ThereAreNoIdentitiesInYourVault" = "There are no identities in your vault";
+"ThereAreNoPassportsInYourVault" = "There are no passports in your vault";
 "ThereAreNoSSHKeysInYourVault" = "There are no SSH keys in your vault";
 "ThereAreNoBankAccountsInYourVault" = "There are no bank accounts in your vault";
 "US" = "यूएस";
@@ -1125,6 +1128,7 @@
 "License" = "License";
 "Licenses" = "Licenses";
 "Passport" = "Passport";
+"Passports" = "Passports";
 "LicenseDetails" = "License details";
 "DateOfBirth" = "Date of birth";
 "IssuingCountry" = "Issuing country";

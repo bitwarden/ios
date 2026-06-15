@@ -6,6 +6,7 @@
 "Bitwarden" = "Bitwarden";
 "Cancel" = "Cancelar";
 "Copy" = "Copiar";
+"CopyPassportNumber" = "Copiar número de pasaporte";
 "CopyPassword" = "Copiar contrasinal";
 "CopyUsername" = "Copiar nome de usuario";
 "Delete" = "Borrar";
@@ -126,7 +127,7 @@
 "ItemUpdated" = "Entrada gardada";
 "Submitting" = "Submitting…";
 "Syncing" = "Syncing…";
-"SyncingLogins" = "Sincronizando credenciais…";
+"SyncingLogins" = "Sincronizando credenciais...";
 "SyncingComplete" = "Sincronización completa";
 "TouchID" = "Touch ID";
 "TwoStepLogin" = "Verificación en dous pasos";
@@ -207,6 +208,7 @@
 "TypeIdentity" = "Identidade";
 "TypeLicense" = "License";
 "TypeLogin" = "Credencial";
+"TypePassport" = "Passport";
 "TypeSecureNote" = "Nota segura";
 "Address1" = "Enderezo 1";
 "Address2" = "Enderezo 2";
@@ -555,6 +557,7 @@
 "ThereAreNoCardsInYourVault" = "There are no cards in your vault";
 "ThereAreNoNotesInYourVault" = "There are no notes in your vault";
 "ThereAreNoIdentitiesInYourVault" = "There are no identities in your vault";
+"ThereAreNoPassportsInYourVault" = "There are no passports in your vault";
 "ThereAreNoSSHKeysInYourVault" = "There are no SSH keys in your vault";
 "ThereAreNoBankAccountsInYourVault" = "There are no bank accounts in your vault";
 "US" = "EUA";
@@ -804,7 +807,7 @@
 "YouMayNeedToEnableDevicePasscodeOrBiometrics" = "Pode que precises activar un método de bloqueo no dispositivo.";
 "StartImportCXFDescriptionLong" = "Importar contrasinais, Claves de acceso, tarxetas e calquera información persoal dende outro xestor de contrasinais.\n\nOs teus datos **non** se borrarán do teu provedor previo.";
 "ImportPasswords" = "Importar contrasinais";
-"ImportingEllipsis" = "Importando…";
+"ImportingEllipsis" = "Importando...";
 "AreYouSureYouWantToCancelTheImportProcessQuestionMark" = "Seguro que queres cancelar o proceso de importado?";
 "ImportFailed" = "Importación falida";
 "ThereWasAnIssueImportingAllOfYourPasswordsNoDataWasDeleted" = "Houbo un problema ó importar os contrasinais.\n\nNon se eliminou ningún dato.";
@@ -1125,6 +1128,7 @@
 "License" = "License";
 "Licenses" = "Licenses";
 "Passport" = "Passport";
+"Passports" = "Passports";
 "LicenseDetails" = "License details";
 "DateOfBirth" = "Date of birth";
 "IssuingCountry" = "Issuing country";
