@@ -136,6 +136,38 @@ class BitwardenSdkVaultCipherBankAccountModelTests: BitwardenTestCase {
         XCTAssertEqual(model.routingNumber, "routingNumber")
         XCTAssertEqual(model.swiftCode, "swiftCode")
     }
+
+    /// `BankAccount.init(cipherBankAccountModel:)` round-trips all 10 fields from the API model back
+    /// into the SDK type.
+    func test_init_fromCipherBankAccountModel() {
+        let model = CipherBankAccountModel(
+            bankAccount: .init(
+                bankName: "bankName",
+                nameOnAccount: "nameOnAccount",
+                accountType: "accountType",
+                accountNumber: "accountNumber",
+                routingNumber: "routingNumber",
+                branchNumber: "branchNumber",
+                pin: "pin",
+                swiftCode: "swiftCode",
+                iban: "iban",
+                bankContactPhone: "bankContactPhone",
+            ),
+        )
+
+        let bankAccount = BitwardenSdk.BankAccount(cipherBankAccountModel: model)
+
+        XCTAssertEqual(bankAccount.bankName, "bankName")
+        XCTAssertEqual(bankAccount.nameOnAccount, "nameOnAccount")
+        XCTAssertEqual(bankAccount.accountType, "accountType")
+        XCTAssertEqual(bankAccount.accountNumber, "accountNumber")
+        XCTAssertEqual(bankAccount.routingNumber, "routingNumber")
+        XCTAssertEqual(bankAccount.branchNumber, "branchNumber")
+        XCTAssertEqual(bankAccount.pin, "pin")
+        XCTAssertEqual(bankAccount.swiftCode, "swiftCode")
+        XCTAssertEqual(bankAccount.iban, "iban")
+        XCTAssertEqual(bankAccount.bankContactPhone, "bankContactPhone")
+    }
 }
 
 // MARK: - CipherDriversLicenseModel

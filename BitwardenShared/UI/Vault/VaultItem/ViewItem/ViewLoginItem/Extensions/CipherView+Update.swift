@@ -13,6 +13,35 @@ extension CipherView {
 
     // MARK: Methods
 
+    /// Creates a `BankAccountItemState` representation of the cipher.
+    ///
+    /// This function converts the `bankAccount` information of the cipher into a
+    /// `BankAccountItemState`, which is used to manage and display bank account data in the UI.
+    ///
+    /// - Returns: A `BankAccountItemState` representing the bank account information of the cipher.
+    ///
+    func bankAccountItemState() -> BankAccountItemState {
+        guard let bankAccount else { return BankAccountItemState() }
+        return BankAccountItemState(
+            accountNumber: bankAccount.accountNumber ?? "",
+            accountType: {
+                guard let accountType = bankAccount.accountType,
+                      let value = BankAccountType(rawValue: accountType) else {
+                    return .default
+                }
+                return .custom(value)
+            }(),
+            bankContactPhone: bankAccount.bankContactPhone ?? "",
+            bankName: bankAccount.bankName ?? "",
+            branchNumber: bankAccount.branchNumber ?? "",
+            iban: bankAccount.iban ?? "",
+            nameOnAccount: bankAccount.nameOnAccount ?? "",
+            pin: bankAccount.pin ?? "",
+            routingNumber: bankAccount.routingNumber ?? "",
+            swiftCode: bankAccount.swiftCode ?? "",
+        )
+    }
+
     /// Creates a `CardItemState` representation of the cipher.
     ///
     /// This function converts the `card` information of the cipher into a `CardItemState`, which
@@ -215,7 +244,7 @@ extension CipherView {
             card: (addEditState.type == .card) ? addEditState.cardItemState.cardView : nil,
             secureNote: (addEditState.type == .secureNote) ? secureNote : nil,
             sshKey: (addEditState.type == .sshKey) ? sshKey : nil,
-            bankAccount: bankAccount, // TODO: PM-32809
+            bankAccount: (addEditState.type == .bankAccount) ? addEditState.bankAccountItemState.bankAccountView : nil,
             driversLicense: (addEditState.type == .driversLicense)
                 ? addEditState.driversLicenseItemState.driversLicenseView
                 : nil,
