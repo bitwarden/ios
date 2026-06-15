@@ -32,6 +32,9 @@ final class ViewItemProcessor: StateProcessor<ViewItemState, ViewItemAction, Vie
         /// An error for card action handling
         case nonCardTypeToggle(String)
 
+        /// An error for driver's license action handling
+        case nonDriversLicenseTypeToggle(String)
+
         /// A password visibility toggle occurred when not possible.
         case nonLoginPasswordToggle(String)
 
@@ -180,6 +183,8 @@ final class ViewItemProcessor: StateProcessor<ViewItemState, ViewItemAction, Vie
             coordinator.navigate(to: .dismiss())
         case let .downloadAttachment(attachment):
             confirmDownload(attachment)
+        case let .driversLicenseItemAction(action):
+            handleDriversLicenseAction(action)
         case .editPressed:
             editItem()
         case let .morePressed(menuAction):
@@ -416,6 +421,32 @@ private extension ViewItemProcessor {
                     )
                 }
             }
+        }
+    }
+
+    /// Handles `ViewDriversLicenseItemAction` events.
+    ///
+    /// - Parameter action: The action to handle.
+    ///
+    private func handleDriversLicenseAction(_ action: ViewDriversLicenseItemAction) {
+        guard case var .data(cipherState) = state.loadingState else {
+            services.errorReporter.log(
+                error: ActionError.dataNotLoaded("Cannot handle driver's license action without loaded data"),
+            )
+            return
+        }
+        guard case .driversLicense = cipherState.type else {
+            services.errorReporter.log(
+                error: ActionError.nonDriversLicenseTypeToggle(
+                    "Cannot handle driver's license action on non-driver's license type",
+                ),
+            )
+            return
+        }
+        switch action {
+        case .toggleLicenseNumberVisibilityChanged:
+            cipherState.driversLicenseItemState.isLicenseNumberVisible.toggle()
+            state.loadingState = .data(cipherState)
         }
     }
 

@@ -23,7 +23,7 @@ class VaultGroupStateTests: BitwardenTestCase {
     /// `newItemButtonType` returns the new item button type based on the group.
     func test_newItemButtonType() {
         let subjectBankAccount = VaultGroupState(group: .bankAccount, vaultFilterType: .myVault)
-        XCTAssertNil(subjectBankAccount.newItemButtonType)
+        XCTAssertEqual(subjectBankAccount.newItemButtonType, .button)
 
         let subjectCard = VaultGroupState(group: .card, vaultFilterType: .myVault)
         XCTAssertEqual(subjectCard.newItemButtonType, .button)

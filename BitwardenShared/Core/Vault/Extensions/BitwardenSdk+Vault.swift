@@ -376,6 +376,23 @@ extension BitwardenSdk.Attachment {
     }
 }
 
+extension BitwardenSdk.BankAccount {
+    init(cipherBankAccountModel model: CipherBankAccountModel) {
+        self.init(
+            bankName: model.bankName,
+            nameOnAccount: model.nameOnAccount,
+            accountType: model.accountType,
+            accountNumber: model.accountNumber,
+            routingNumber: model.routingNumber,
+            branchNumber: model.branchNumber,
+            pin: model.pin,
+            swiftCode: model.swiftCode,
+            iban: model.iban,
+            bankContactPhone: model.bankContactPhone,
+        )
+    }
+}
+
 extension BitwardenSdk.Card {
     init(cipherCardModel model: CipherCardModel) {
         self.init(
@@ -450,7 +467,7 @@ extension BitwardenSdk.Cipher {
             card: model.card.map(Card.init),
             secureNote: model.secureNote.map(SecureNote.init),
             sshKey: model.sshKey.map(SshKey.init),
-            bankAccount: nil, // TODO: PM-32809
+            bankAccount: model.bankAccount.map(BankAccount.init),
             driversLicense: model.driversLicense.map(DriversLicense.init),
             passport: model.passport.map(Passport.init),
             favorite: model.favorite,
@@ -498,7 +515,7 @@ extension BitwardenSdk.Cipher {
             card: model.card.map(Card.init),
             secureNote: model.secureNote.map(SecureNote.init),
             sshKey: model.sshKey.map(SshKey.init),
-            bankAccount: nil, // TODO: PM-32809
+            bankAccount: model.bankAccount.map(BankAccount.init),
             driversLicense: model.driversLicense.map(DriversLicense.init),
             passport: model.passport.map(Passport.init),
             favorite: originalCipher?.favorite ?? false,

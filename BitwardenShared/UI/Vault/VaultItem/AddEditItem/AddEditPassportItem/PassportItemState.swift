@@ -52,6 +52,8 @@ struct PassportItemState: Equatable {
 }
 
 extension PassportItemState {
+    /// The `PassportView` representation of this state, mapping empty fields to `nil` and passing the
+    /// raw ISO date strings through verbatim.
     var passportView: PassportView {
         .init(
             surname: surname.nilIfEmpty,

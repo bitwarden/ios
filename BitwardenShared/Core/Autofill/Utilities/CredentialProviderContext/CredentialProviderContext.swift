@@ -44,6 +44,8 @@ public struct DefaultCredentialProviderContext: CredentialProviderContext {
             AppRoute.extensionSetup(.extensionActivation(type: .autofillExtension))
         case .registerFido2Credential:
             AppRoute.vault(.autofillList)
+        case .savePasswordWithoutUserInteraction:
+            nil
         }
     }
 
@@ -66,6 +68,8 @@ public struct DefaultCredentialProviderContext: CredentialProviderContext {
             userInteraction
         case let .autofillOTPCredential(_, userInteraction):
             userInteraction
+        case .savePasswordWithoutUserInteraction:
+            false
         default:
             true
         }
@@ -109,16 +113,7 @@ public struct DefaultCredentialProviderContext: CredentialProviderContext {
             return nil
         }
 
-        return switch serviceIdentifier.type {
-        case .app:
-            serviceIdentifier.identifier
-        case .domain:
-            "https://" + serviceIdentifier.identifier
-        case .URL:
-            serviceIdentifier.identifier
-        @unknown default:
-            serviceIdentifier.identifier
-        }
+        return serviceIdentifier.normalizedURI
     }
 
     /// Initializes the context.

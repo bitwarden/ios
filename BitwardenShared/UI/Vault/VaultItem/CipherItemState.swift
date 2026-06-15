@@ -36,6 +36,9 @@ struct CipherItemState: Equatable { // swiftlint:disable:this type_body_length
     /// A flag indicating if this account has premium features.
     var accountHasPremium: Bool
 
+    /// The bank account item state.
+    var bankAccountItemState = BankAccountItemState()
+
     /// The card item state.
     var cardItemState = CardItemState()
 
@@ -447,6 +450,7 @@ struct CipherItemState: Equatable { // swiftlint:disable:this type_body_length
             configuration = .existing(cipherView: cipherView)
         }
 
+        bankAccountItemState = cipherView.bankAccountItemState()
         cardItemState = cipherView.cardItemState()
         driversLicenseItemState = cipherView.driversLicenseItemState()
         collectionIds = cipherView.collectionIds
@@ -657,7 +661,7 @@ extension CipherItemState {
             card: type == .card ? cardItemState.cardView : nil,
             secureNote: type == .secureNote ? .init(type: .generic) : nil,
             sshKey: type == .sshKey ? sshKeyState.sshKeyView : nil,
-            bankAccount: nil, // TODO: PM-32809
+            bankAccount: type == .bankAccount ? bankAccountItemState.bankAccountView : nil,
             driversLicense: type == .driversLicense ? driversLicenseItemState.driversLicenseView : nil,
             passport: type == .passport ? passportItemState.passportView : nil,
             favorite: isFavoriteOn,

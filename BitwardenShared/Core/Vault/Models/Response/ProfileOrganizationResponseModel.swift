@@ -15,6 +15,11 @@ struct ProfileOrganizationResponseModel: Codable, Equatable {
     /// The profile organization's identifier.
     let identifier: String?
 
+    /// Whether the user accesses this organization through a provider relationship.
+    /// Set to `true` during sync coalescing when the organization appears in both
+    /// `organizations` and `providerOrganizations` on the profile.
+    @DefaultFalse var isProviderUser: Bool
+
     /// The profile organization's key.
     let key: String?
 
