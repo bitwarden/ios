@@ -302,7 +302,7 @@ private struct SearchableVaultListView: View { // swiftlint:disable:this type_bo
 
             vaultFilterRow
 
-            ForEach(sections.filter { !$0.items.isEmpty }) { section in
+            ForEach(sections) { section in
                 VaultListSectionView(
                     section: section,
                     isExpanded: store.binding(
