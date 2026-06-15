@@ -10,6 +10,7 @@ import BitwardenSdk
 
 extension AttachmentsClientProtocol {}
 extension CiphersClientProtocol {}
+extension ClientFido2AuthenticatorProtocol {}
 extension ClientManagedTokens {}
 extension CollectionsClientProtocol {}
 extension CryptoClientProtocol {}
