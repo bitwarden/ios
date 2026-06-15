@@ -13,6 +13,9 @@ enum AddEditItemAction: Equatable, Sendable {
     /// The auth key visibility was toggled.
     case authKeyVisibilityTapped(Bool)
 
+    /// A bank account field changed.
+    case bankAccountFieldChanged(AddEditBankAccountItemAction)
+
     /// A card field changed
     case cardFieldChanged(AddEditCardItemAction)
 

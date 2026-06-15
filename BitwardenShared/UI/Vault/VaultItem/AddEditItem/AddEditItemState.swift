@@ -11,6 +11,9 @@ protocol AddEditItemState: Sendable {
     /// The info text to display when item is archived.
     var archiveInfoText: String { get }
 
+    /// The bank account item state.
+    var bankAccountItemState: BankAccountItemState { get set }
+
     /// The card item state.
     var cardItemState: CardItemState { get set }
 
