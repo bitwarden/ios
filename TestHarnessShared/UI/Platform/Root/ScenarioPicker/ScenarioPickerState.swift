@@ -41,6 +41,7 @@ struct ScenarioPickerState: Equatable {
                 ScenarioItem(id: "registerPasskey", title: Localizations.registerPasskey, route: .registerPasskey),
                 ScenarioItem(id: "usePasskey", title: Localizations.usePasskey, route: .usePasskey),
                 ScenarioItem(id: "cardAutofillForm", title: Localizations.cardAutofillForm, route: .cardAutofillForm),
+                ScenarioItem(id: "passkeyAutofill", title: Localizations.passkeyAutofill, route: .usePasskey),
             ])
         }
         if #available(iOS 16.0, *) {
