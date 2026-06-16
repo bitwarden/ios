@@ -258,7 +258,7 @@ public extension Text {
 // MARK: Previews
 
 #if DEBUG
-struct StyleGuideFont_Previews: PreviewProvider {
+struct StyleGuideFont_Previews: PreviewProvider { // swiftlint:disable:this type_body_length
     static var previews: some View {
         HStack {
             VStack(alignment: .trailing, spacing: 8) {
@@ -454,6 +454,51 @@ struct StyleGuideFont_Previews: PreviewProvider {
         }
         .background(Color(.systemGroupedBackground))
         .previewDisplayName("Standard vs Bold Italic")
+
+        HStack {
+            VStack(alignment: .trailing, spacing: 8) {
+                Text("Ultra Light")
+                    .styleGuide(.body, weight: .ultraLight)
+                Text("Thin")
+                    .styleGuide(.body, weight: .thin)
+                Text("Light")
+                    .styleGuide(.body, weight: .light)
+                Text("Normal")
+                    .styleGuide(.body, weight: .regular)
+                Text("Medium")
+                    .styleGuide(.body, weight: .medium)
+                Text("Semibold")
+                    .styleGuide(.body, weight: .semibold)
+                Text("Bold")
+                    .styleGuide(.body, weight: .bold)
+                Text("Heavy")
+                    .styleGuide(.body, weight: .heavy)
+                Text("Black")
+                    .styleGuide(.body, weight: .black)
+            }
+            VStack(alignment: .leading, spacing: 8) {
+                Text("Ultra Light Italic")
+                    .styleGuide(.body, weight: .ultraLight, isItalic: true)
+                Text("Thin Italic")
+                    .styleGuide(.body, weight: .thin, isItalic: true)
+                Text("Light Italic")
+                    .styleGuide(.body, weight: .light, isItalic: true)
+                Text("Normal Italic")
+                    .styleGuide(.body, weight: .regular, isItalic: true)
+                Text("Medium Italic")
+                    .styleGuide(.body, weight: .medium, isItalic: true)
+                Text("Semibold Italic")
+                    .styleGuide(.body, weight: .semibold, isItalic: true)
+                Text("Bold Italic")
+                    .styleGuide(.body, weight: .bold, isItalic: true)
+                Text("Heavy Italic")
+                    .styleGuide(.body, weight: .heavy, isItalic: true)
+                Text("Black Italic")
+                    .styleGuide(.body, weight: .black, isItalic: true)
+            }
+        }
+        .background(Color(.systemGroupedBackground))
+        .previewDisplayName("Body Weights")
 
         VStack(alignment: .leading) {
             Button("Sample Button", action: {})
