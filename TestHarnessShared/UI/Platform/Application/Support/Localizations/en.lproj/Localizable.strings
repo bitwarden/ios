@@ -100,13 +100,13 @@
 "UnsupportedAlgorithmReceived" = "The credential's public key algorithm (%d) is not supported; expected ES256.";
 "UnsupportedCurveReceived" = "The credential's public key curve (%d) is not supported; expected P-256.";
 "UnsupportedKeyTypeReceived" = "The credential's public key type (%d) is not supported; expected EC2.";
+"UsePasskeyFormDescriptionLong" = "Enter a relying party ID below, then tap Sign In with Passkey. The Bitwarden AutoFill sheet will appear to select a credential.";
+"UseThisLoginFormToTestAutofillFunctionality" = "Use this login form to test autofill functionality.";
 "Username" = "Username";
 "UserPresenceNotAssertedExplanationLong" = "The authenticator data's flags byte did not have the \"user present\" bit set.";
 "UserPresenceNotAssertedReceived" = "The authenticator did not assert user presence.";
 "UserPresenceNotAssertedTitle" = "User presence not asserted";
 "UsePasskey" = "Use passkey";
-"UsePasskeyFormDescriptionLong" = "Enter a relying party ID above, then tap Sign In with Passkey. The Bitwarden AutoFill sheet will appear to select a credential.";
-"UseThisLoginFormToTestAutofillFunctionality" = "Use this login form to test autofill functionality.";
 "Username" = "Username";
 "UsernameValue" = "Username: %@";
 "VerificationErrors" = "Verification Errors";
