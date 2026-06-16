@@ -129,7 +129,7 @@ public struct BitwardenUITextView: UIViewRepresentable {
         textView.textContainerInset = UIEdgeInsets(top: 4, left: 0, bottom: 4, right: 0)
         textView.textContainer.lineFragmentPadding = 0
         textView.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
-        let customFont = FontFamily.DMSans.regular.font(size: 15)
+        let customFont = FontFamily.InterVariable.regular.font(size: 15)
         textView.font = UIFontMetrics(forTextStyle: .body).scaledFont(for: customFont)
         return textView
     }
