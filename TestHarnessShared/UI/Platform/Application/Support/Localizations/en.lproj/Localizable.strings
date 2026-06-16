@@ -110,6 +110,7 @@
 "UsernameValue" = "Username: %@";
 "VerificationErrors" = "Verification Errors";
 "VerificationErrorsDescriptionLong" = "Occur while matching the parsed assertion against a stored credential, in the order they are checked.";
+"UsernameValue" = "Username: %@";
 "XColonY" = "%@: %@";
 "DateFieldPicker" = "Date Field Picker";
 "DateFieldPickerDescription" = "Tap the field to expand the inline calendar and select a date.";
