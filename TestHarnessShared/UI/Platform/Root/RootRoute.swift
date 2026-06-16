@@ -14,4 +14,7 @@ public enum RootRoute {
 
     /// A route to the simple login form test screen.
     case simpleLoginForm
+
+    /// A route to the use passkey test screen.
+    case usePasskey
 }

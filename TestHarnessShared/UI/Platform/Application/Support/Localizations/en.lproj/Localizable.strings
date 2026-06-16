@@ -1,4 +1,5 @@
 "CardAutofillForm" = "Card Autofill Form";
+"CreatePasskey" = "Create Passkey";
 "CardAutofillFormDescriptionLong" = "Long press a field, then select Autofill and Password to autofill with Bitwarden. Requires Bitwarden PM as AutoFill provider and a saved Card cipher.";
 "CardDetails" = "Card Details";
 "CardholderName" = "Cardholder Name";
@@ -32,4 +33,9 @@
 "RegistrationResult" = "Registration Result";
 "PasskeyRegisteredSuccessfully" = "Passkey registered successfully.";
 "PasskeyRegistrationNotAvailable" = "Passkey registration requires iOS 17 or later.";
+"AssertionResult" = "Assertion Result";
+"PasskeyAssertedSuccessfully" = "Passkey sign-in succeeded.";
+"PasskeyAssertionNotAvailable" = "Passkey assertion requires iOS 17 or later.";
+"SignInWithPasskey" = "Sign In with Passkey";
+"UsePasskeyFormDescription" = "Enter a relying party ID below, then tap Sign In with Passkey. The Bitwarden AutoFill sheet will appear to select a credential.";
 "XColonY" = "%@: %@";
