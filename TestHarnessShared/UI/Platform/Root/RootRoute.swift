@@ -10,7 +10,7 @@ public enum RootRoute {
     case createAccountForm
 
     /// A route to the create passkey test screen.
-    case createPasskey
+    case registerPasskey
 
     /// A route to the date field picker showcase screen.
     case dateFieldPickerShowcase
