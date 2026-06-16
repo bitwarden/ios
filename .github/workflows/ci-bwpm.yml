@@ -54,7 +54,7 @@ permissions:
 jobs:
   version:
     name: Calculate Version Name and Number
-    uses: bitwarden/ios/.github/workflows/_version.yml@main
+    uses: ./.github/workflows/_version.yml
     with:
       app_codename: "bwpm"
       base_version_number: 2300
@@ -70,7 +70,7 @@ jobs:
       contents: read
       id-token: write
     if: ${{ github.event_name == 'workflow_dispatch' && inputs.build-mode != 'CI' }}
-    uses: bitwarden/ios/.github/workflows/_build-any.yml@main
+    uses: ./.github/workflows/_build-any.yml
     with:
       bw-env: ${{ (inputs.build-variant == 'Production') && 'bwpm_prod' || 'bwpm_beta' }}
       build-mode: ${{ inputs.build-mode }}
@@ -88,7 +88,7 @@ jobs:
       contents: read
       id-token: write
     if: ${{ github.event_name == 'push' || inputs.build-mode == 'CI' }}
-    uses: bitwarden/ios/.github/workflows/_build-any.yml@main
+    uses: ./.github/workflows/_build-any.yml
     strategy:
       matrix:
         include:
