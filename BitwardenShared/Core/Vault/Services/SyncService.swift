@@ -435,14 +435,14 @@ extension DefaultSyncService {
             return
         }
 
-        if let organizations = response.profile?.organizations {
+        if let effectiveOrganizations = response.profile?.effectiveOrganizations {
             if await !vaultTimeoutService.isLocked(userId: userId) {
                 try await organizationService.initializeOrganizationCrypto(
-                    organizations: organizations.compactMap(Organization.init),
+                    organizations: effectiveOrganizations.compactMap(Organization.init),
                 )
             }
-            try await organizationService.replaceOrganizations(organizations, userId: userId)
-            try await checkTdeUserNeedsToSetPassword(account, organizations)
+            try await organizationService.replaceOrganizations(effectiveOrganizations, userId: userId)
+            try await checkTdeUserNeedsToSetPassword(account, effectiveOrganizations)
         }
 
         if let profile = response.profile {

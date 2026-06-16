@@ -30,7 +30,7 @@ public extension MockPlatformClientService {
     ///   - state: The mock to return from `state()`. Defaults to a new `MockStateClientProtocol`.
     ///
     static func withMocks(
-        fido2: MockClientFido2Service = MockClientFido2Service(),
+        fido2: MockClientFido2Service = MockClientFido2Service.withMocks(),
         state: MockStateClientProtocol = MockStateClientProtocol(),
     ) -> MockPlatformClientService {
         let mock = MockPlatformClientService()
