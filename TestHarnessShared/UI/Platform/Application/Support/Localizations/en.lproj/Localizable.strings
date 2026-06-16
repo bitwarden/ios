@@ -1,7 +1,9 @@
 "AccountCreatedSuccessfully" = "Account created successfully";
 "AccountDetails" = "Account Details";
+"AssertionResult" = "Assertion Result";
 "AuthDataTooShortReceived" = "The authenticator data was too short to contain the expected fields.";
 "CardAutofillForm" = "Card Autofill Form";
+"CreatePasskey" = "Create Passkey";
 "CardAutofillFormDescriptionLong" = "Long press a field, then select Autofill and Password to autofill with Bitwarden. Requires Bitwarden PM as AutoFill provider and a saved Card cipher.";
 "CardDetails" = "Card Details";
 "CardholderName" = "Cardholder Name";
@@ -34,6 +36,8 @@
 "MissingAuthDataReceived" = "The attestation object did not contain authenticator data.";
 "MissingClientDataChallengeReceived" = "The client data JSON did not contain a challenge field.";
 "MissingClientDataTypeReceived" = "The client data JSON did not contain a type field.";
+"PasskeyAssertedSuccessfully" = "Passkey sign-in succeeded.";
+"PasskeyAssertionNotAvailable" = "Passkey assertion requires iOS 17 or later.";
 "PasskeyAutofill" = "Passkey Autofill";
 "PasskeyCreatedButNotSaved" = "Passkey created, but not saved for later verification.";
 "PasskeyRegistrationNotAvailable" = "Passkey registration requires iOS 17 or later.";
@@ -55,6 +59,7 @@
 "SharesTheTextAboveDescriptionLong" = "Shares the text above. Exercises the UTType.plainText → text Send path in the share extension.";
 "SimpleLoginForm" = "Simple Login Form";
 "SimpleLoginFormDescription" = "Use this simple login form to test autofill functionality.";
+"SignInWithPasskey" = "Sign In with Passkey";
 "TestHarness" = "Test Harness";
 "TestScenarios" = "Test Scenarios";
 "TOTPAutofillForm" = "TOTP Autofill Form";
@@ -65,9 +70,10 @@
 "UnsupportedAlgorithmReceived" = "The credential's public key algorithm (%@) is not supported; expected ES256.";
 "UnsupportedCurveReceived" = "The credential's public key curve (%@) is not supported; expected P-256.";
 "UnsupportedKeyTypeReceived" = "The credential's public key type (%@) is not supported; expected EC2.";
+"UsePasskeyFormDescription" = "Enter a relying party ID below, then tap Sign In with Passkey. The Bitwarden AutoFill sheet will appear to select a credential.";
+"UseThisLoginFormToTestAutofillFunctionality" = "Use this login form to test autofill functionality.";
 "Username" = "Username";
 "UsernameValue" = "Username: %@";
-"UseThisLoginFormToTestAutofillFunctionality" = "Use this login form to test autofill functionality.";
 "XColonY" = "%@: %@";
 "DateFieldPicker" = "Date Field Picker";
 "DateFieldPickerDescription" = "Tap the field to expand the inline calendar and select a date.";

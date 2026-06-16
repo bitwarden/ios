@@ -53,6 +53,8 @@ class RootCoordinator: Coordinator, HasStackNavigator {
             showSimpleLoginForm()
         case .totpAutofillForm:
             showTOTPAutofillForm()
+        case .usePasskey:
+            showUsePasskey()
         }
     }
 
@@ -132,6 +134,12 @@ class RootCoordinator: Coordinator, HasStackNavigator {
     private func showTOTPAutofillForm() {
         let processor = TOTPAutofillFormProcessor(coordinator: asAnyCoordinator())
         let view = TOTPAutofillFormView(store: Store(processor: processor))
+
+    /// Shows the use passkey test screen.
+    ///
+    private func showUsePasskey() {
+        let processor = UsePasskeyProcessor(coordinator: asAnyCoordinator(), delegate: self)
+        let view = UsePasskeyView(store: Store(processor: processor))
         let viewController = UIHostingController(rootView: view)
         stackNavigator?.push(viewController)
     }
@@ -147,6 +155,14 @@ extension RootCoordinator: HasErrorAlertServices {
 
 extension RootCoordinator: CreatePasskeyProcessorDelegate {
     func presentationAnchorForPasskeyRegistration() async -> ASPresentationAnchor {
+        stackNavigator?.rootViewController?.view.window ?? UIWindow()
+    }
+}
+
+// MARK: - UsePasskeyProcessorDelegate
+
+extension RootCoordinator: UsePasskeyProcessorDelegate {
+    func presentationAnchorForPasskeyAssertion() async -> ASPresentationAnchor {
         stackNavigator?.rootViewController?.view.window ?? UIWindow()
     }
 }
