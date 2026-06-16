@@ -13,6 +13,9 @@ enum AddEditItemAction: Equatable, Sendable {
     /// The auth key visibility was toggled.
     case authKeyVisibilityTapped(Bool)
 
+    /// A bank account field changed.
+    case bankAccountFieldChanged(AddEditBankAccountItemAction)
+
     /// A card field changed
     case cardFieldChanged(AddEditCardItemAction)
 
@@ -27,6 +30,9 @@ enum AddEditItemAction: Equatable, Sendable {
 
     /// The dismiss button was pressed.
     case dismissPressed
+
+    /// A driver's license field changed.
+    case driversLicenseFieldChanged(AddEditDriversLicenseItemAction)
 
     /// The favorite toggle was changed.
     case favoriteChanged(Bool)
@@ -66,6 +72,9 @@ enum AddEditItemAction: Equatable, Sendable {
 
     /// The owner field was changed.
     case ownerChanged(CipherOwner)
+
+    /// A passport field changed.
+    case passportFieldChanged(AddEditPassportItemAction)
 
     /// The password field was changed.
     case passwordChanged(String)

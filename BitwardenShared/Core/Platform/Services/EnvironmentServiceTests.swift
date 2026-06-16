@@ -98,8 +98,6 @@ class EnvironmentServiceTests: XCTestCase {
         XCTAssertEqual(subject.settingsURL, URL(string: "https://example.com/#/settings"))
         XCTAssertEqual(subject.setUpTwoFactorURL, URL(string: "https://example.com/#/settings/security/two-factor"))
         XCTAssertEqual(subject.webVaultURL, URL(string: "https://example.com"))
-        XCTAssertEqual(stateService.preAuthEnvironmentURLs, urls)
-
         XCTAssertEqual(errorReporter.region?.region, "Self-Hosted")
         XCTAssertEqual(errorReporter.region?.isPreAuth, false)
     }
@@ -141,8 +139,6 @@ class EnvironmentServiceTests: XCTestCase {
         // swiftlint:disable:next line_length
         XCTAssertEqual(subject.setUpTwoFactorURL, URL(string: "https://vault.bitwarden.eu/#/settings/security/two-factor"))
         XCTAssertEqual(subject.webVaultURL, URL(string: "https://vault.bitwarden.eu"))
-        XCTAssertEqual(stateService.preAuthEnvironmentURLs, urls)
-
         XCTAssertEqual(errorReporter.region?.region, "EU")
         XCTAssertEqual(errorReporter.region?.isPreAuth, false)
     }
@@ -173,11 +169,9 @@ class EnvironmentServiceTests: XCTestCase {
         // swiftlint:disable:next line_length
         XCTAssertEqual(subject.setUpTwoFactorURL, URL(string: "https://vault.example.com/#/settings/security/two-factor"))
         XCTAssertEqual(subject.webVaultURL, URL(string: "https://vault.example.com"))
-        XCTAssertEqual(stateService.preAuthEnvironmentURLs, urls)
     }
 
-    /// `loadURLsForActiveAccount()` doesn't load the managed config URLs if there's an active
-    /// account, but sets the pre-auth URLs to the managed config URLs.
+    /// `loadURLsForActiveAccount()` doesn't load the managed config URLs if there's an active account.
     func test_loadURLsForActiveAccount_managedConfigActiveAccount() async throws {
         let account = Account.fixture()
         stateService.activeAccount = account
@@ -205,9 +199,6 @@ class EnvironmentServiceTests: XCTestCase {
         // swiftlint:disable:next line_length
         XCTAssertEqual(subject.setUpTwoFactorURL, URL(string: "https://vault.bitwarden.com/#/settings/security/two-factor"))
         XCTAssertEqual(subject.webVaultURL, URL(string: "https://vault.bitwarden.com"))
-
-        let urls = try EnvironmentURLData(base: XCTUnwrap(URL(string: "https://vault.example.com")))
-        XCTAssertEqual(stateService.preAuthEnvironmentURLs, urls)
     }
 
     /// `loadURLsForActiveAccount()` loads the default URLs if there's no active account
@@ -231,8 +222,6 @@ class EnvironmentServiceTests: XCTestCase {
         // swiftlint:disable:next line_length
         XCTAssertEqual(subject.setUpTwoFactorURL, URL(string: "https://vault.bitwarden.com/#/settings/security/two-factor"))
         XCTAssertEqual(subject.webVaultURL, URL(string: "https://vault.bitwarden.com"))
-        XCTAssertEqual(stateService.preAuthEnvironmentURLs, .defaultUS)
-
         XCTAssertEqual(errorReporter.region?.region, "US")
         XCTAssertEqual(errorReporter.region?.isPreAuth, false)
     }
@@ -269,6 +258,22 @@ class EnvironmentServiceTests: XCTestCase {
 
         XCTAssertEqual(errorReporter.region?.region, "Self-Hosted")
         XCTAssertEqual(errorReporter.region?.isPreAuth, false)
+    }
+
+    /// `loadURLsForActiveAccount()` never modifies pre-auth URLs, preserving any
+    /// in-progress new-account login flow regardless of context.
+    func test_loadURLsForActiveAccount_doesNotUpdatePreAuthURLs() async {
+        let cloudURLs = EnvironmentURLData.defaultUS
+        let account = Account.fixture(settings: .fixture(environmentURLs: cloudURLs))
+        stateService.activeAccount = account
+        stateService.environmentURLs = [account.profile.userId: cloudURLs]
+        let selfHostedURLs = EnvironmentURLData(base: .example)
+        stateService.preAuthEnvironmentURLs = selfHostedURLs
+
+        await subject.loadURLsForActiveAccount()
+
+        XCTAssertEqual(stateService.preAuthEnvironmentURLs, selfHostedURLs)
+        XCTAssertEqual(subject.baseURL, URL(string: "https://vault.bitwarden.com"))
     }
 
     /// `setPreAuthURLs(urls:)` sets the pre-auth URLs.

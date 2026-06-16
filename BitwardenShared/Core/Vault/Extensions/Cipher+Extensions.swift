@@ -33,6 +33,8 @@ extension Cipher {
             type == .login
         case .noFolder:
             folderId == nil
+        case .passport:
+            type == .passport
         case .secureNote:
             type == .secureNote
         case .sshKey:

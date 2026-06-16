@@ -53,7 +53,11 @@ class DefaultEnvironmentService: EnvironmentService {
     ///   - stateService: The service used by the application to manage account state.
     ///   - standardUserDefaults: The shared UserDefaults instance.
     ///
-    init(errorReporter: ErrorReporter, stateService: StateService, standardUserDefaults: UserDefaults = .standard) {
+    init(
+        errorReporter: ErrorReporter,
+        stateService: StateService,
+        standardUserDefaults: UserDefaults = .standard,
+    ) {
         self.errorReporter = errorReporter
         self.stateService = stateService
         self.standardUserDefaults = standardUserDefaults
@@ -76,7 +80,6 @@ class DefaultEnvironmentService: EnvironmentService {
             urls = .defaultUS
         }
 
-        await setPreAuthURLs(urls: managedSettingsURLs ?? urls)
         currentClientCertificateFingerprint = urls.clientCertificateFingerprint
         environmentURLs = EnvironmentURLs(environmentURLData: urls)
 

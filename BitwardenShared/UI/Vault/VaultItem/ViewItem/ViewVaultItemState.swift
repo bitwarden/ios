@@ -28,6 +28,9 @@ protocol ViewVaultItemState: Sendable, VaultItemWithDecorativeIcon {
     /// The custom fields state.
     var customFieldsState: AddEditCustomFieldsState { get set }
 
+    /// The driver's license item state.
+    var driversLicenseItemState: DriversLicenseItemState { get set }
+
     /// The name of the folder the cipher belongs to, if any.
     var folderName: String? { get }
 
