@@ -26,4 +26,7 @@ public enum RootRoute {
 
     /// A route to the TOTP autofill form test screen.
     case totpAutofillForm
+
+    /// A route to the use passkey test screen.
+    case usePasskey
 }
