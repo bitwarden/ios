@@ -54,13 +54,13 @@ struct FileShareView: View {
                     send: FileShareAction.textContentChanged,
                 ),
             )
-            .accessibilityIdentifier(AccessibilityIdentifier.FileShare.textContentEditor)
+            .accessibilityIdentifier("TextContentEditor")
             .frame(minHeight: 80)
 
             ShareLink(item: store.state.textContent) {
                 Label(Localizations.shareText, systemImage: "square.and.arrow.up")
             }
-            .accessibilityIdentifier(AccessibilityIdentifier.FileShare.shareTextButton)
+            .accessibilityIdentifier("ShareTextButton")
             .disabled(store.state.textContent.isEmpty)
         } header: {
             Text(Localizations.shareText)
@@ -85,10 +85,10 @@ struct FileShareView: View {
                             .styleGuide(.body)
                     }
                 }
-                .accessibilityIdentifier(AccessibilityIdentifier.FileShare.shareFileButton)
+                .accessibilityIdentifier("ShareFileButton")
             } else {
                 Label(Localizations.shareFile, systemImage: "doc.badge.arrow.up")
-                    .accessibilityIdentifier(AccessibilityIdentifier.FileShare.shareFileButton)
+                    .accessibilityIdentifier("ShareFileButton")
                     .foregroundColor(.secondary)
             }
         } header: {
@@ -114,10 +114,10 @@ struct FileShareView: View {
                             .styleGuide(.body)
                     }
                 }
-                .accessibilityIdentifier(AccessibilityIdentifier.FileShare.shareImageButton)
+                .accessibilityIdentifier("ShareImageButton")
             } else {
                 Label(Localizations.shareImage, systemImage: "photo.badge.arrow.up")
-                    .accessibilityIdentifier(AccessibilityIdentifier.FileShare.shareImageButton)
+                    .accessibilityIdentifier("ShareImageButton")
                     .foregroundColor(.secondary)
             }
         } header: {

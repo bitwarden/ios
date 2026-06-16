@@ -35,9 +35,15 @@ struct ScenarioPickerView: View {
                                 .foregroundColor(.secondary)
                         }
                     }
-                    .accessibilityIdentifier(
-                        AccessibilityIdentifier.ScenarioPicker.scenarioButton(scenario.title),
-                    )
+                    .accessibilityIdentifier({
+                        switch scenario.title {
+                        case Localizations.simpleLoginForm: "ScenarioButton_LoginForm"
+                        case Localizations.cardAutofillForm: "ScenarioButton_CardForm"
+                        case Localizations.fileShare: "ScenarioButton_FileShare"
+                        case Localizations.passkeyAutofill: "ScenarioButton_Passkey"
+                        default: "ScenarioButton_\(scenario.title)"
+                        }
+                    }())
                     .foregroundColor(.primary)
                 }
             } header: {

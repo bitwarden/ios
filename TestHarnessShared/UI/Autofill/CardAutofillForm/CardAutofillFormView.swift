@@ -31,7 +31,7 @@ struct CardAutofillFormView: View {
                         send: CardAutofillFormAction.cardholderNameChanged,
                     ),
                 )
-                .accessibilityIdentifier(AccessibilityIdentifier.CardAutofillForm.cardholderNameEntry)
+                .accessibilityIdentifier("CardholderNameEntry")
                 .textContentType(.creditCardName)
                 .autocorrectionDisabled()
 
@@ -42,7 +42,7 @@ struct CardAutofillFormView: View {
                         send: CardAutofillFormAction.cardNumberChanged,
                     ),
                 )
-                .accessibilityIdentifier(AccessibilityIdentifier.CardAutofillForm.cardNumberEntry)
+                .accessibilityIdentifier("CardNumberEntry")
                 .textContentType(.creditCardNumber)
                 .keyboardType(.numberPad)
 
@@ -53,7 +53,7 @@ struct CardAutofillFormView: View {
                         send: CardAutofillFormAction.expirationMonthChanged,
                     ),
                 )
-                .accessibilityIdentifier(AccessibilityIdentifier.CardAutofillForm.expirationMonthEntry)
+                .accessibilityIdentifier("ExpirationMonthEntry")
                 .textContentType(.creditCardExpirationMonth)
                 .keyboardType(.numberPad)
 
@@ -64,7 +64,7 @@ struct CardAutofillFormView: View {
                         send: CardAutofillFormAction.expirationYearChanged,
                     ),
                 )
-                .accessibilityIdentifier(AccessibilityIdentifier.CardAutofillForm.expirationYearEntry)
+                .accessibilityIdentifier("ExpirationYearEntry")
                 .textContentType(.creditCardExpirationYear)
                 .keyboardType(.numberPad)
 
@@ -75,7 +75,7 @@ struct CardAutofillFormView: View {
                         send: CardAutofillFormAction.securityCodeChanged,
                     ),
                 )
-                .accessibilityIdentifier(AccessibilityIdentifier.CardAutofillForm.securityCodeEntry)
+                .accessibilityIdentifier("SecurityCodeEntry")
                 .textContentType(.creditCardSecurityCode)
                 .keyboardType(.numberPad)
             } header: {
