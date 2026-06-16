@@ -72,7 +72,7 @@ jobs:
           xcode-version: ${{ env._XCODE_VERSION }}
 
       - name: Install simulators for specific Xcode version
-        if: env._XCODE_VERSION == '26.0-beta'
+        if: env._BUILD_MODE == 'Simulator' || env._XCODE_VERSION == '26.0-beta'
         run: |
           xcodebuild -downloadPlatform iOS
           xcodebuild -downloadPlatform watchOS
