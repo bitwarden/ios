@@ -34,7 +34,7 @@ struct TOTPAutofillFormView: View {
                 .keyboardType(.default)
                 .textInputAutocapitalization(.never)
                 .autocorrectionDisabled()
-                .accessibilityIdentifier(AccessibilityIdentifier.TOTPForm.totpCodeTextField)
+                .accessibilityIdentifier("TOTPCodeTextField")
             } header: {
                 Text(Localizations.totpCode)
             } footer: {
