@@ -9,7 +9,6 @@
 "ExpirationMonth" = "Expiration Month";
 "ExpirationYear" = "Expiration Year";
 "FormValues" = "Form Values";
-"PasskeyAutofill" = "Passkey Autofill";
 "Password" = "Password";
 "SecurityCode" = "Security Code";
 "SimpleLoginForm" = "Simple Login Form";
@@ -24,6 +23,7 @@
 "FormValues" = "Form Values";
 "UsernameValue" = "Username: %@";
 "PasswordValue" = "Password: %@";
+"RegisterPasskey" = "Register Passkey";
 "RelyingPartyId" = "Relying Party ID";
 "RelyingPartyIdFooter" = "Must match a webcredentials associated domain configured in the app entitlements.";
 "DisplayName" = "Display Name";

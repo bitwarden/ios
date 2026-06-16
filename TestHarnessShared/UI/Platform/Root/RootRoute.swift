@@ -4,7 +4,7 @@ import Foundation
 ///
 public enum RootRoute {
     /// A route to the create passkey test screen.
-    case createPasskey
+    case registerPasskey
 
     /// A route to the card autofill form test screen.
     case cardAutofillForm

@@ -38,7 +38,7 @@ struct ScenarioPickerState: Equatable {
             )
         }
         items.append(contentsOf: [
-            ScenarioItem(id: "passkeyAutofill", title: Localizations.passkeyAutofill, route: nil),
+            ScenarioItem(id: "registerPasskey", title: Localizations.registerPasskey, route: .registerPasskey),
         ])
         scenarios = items
     }

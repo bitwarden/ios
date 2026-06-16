@@ -37,7 +37,7 @@ class RootCoordinator: Coordinator, HasStackNavigator {
 
     func navigate(to route: RootRoute, context: AnyObject?) {
         switch route {
-        case .createPasskey:
+        case .registerPasskey:
             showCreatePasskey()
         case .cardAutofillForm:
             showCardAutofillForm()
@@ -62,7 +62,7 @@ class RootCoordinator: Coordinator, HasStackNavigator {
         let viewController = UIHostingController(rootView: view)
         stackNavigator?.push(viewController)
     }
-    
+
     /// Shows the card autofill form test screen.
     ///
     private func showCardAutofillForm() {
