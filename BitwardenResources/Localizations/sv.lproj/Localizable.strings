@@ -6,6 +6,7 @@
 "Bitwarden" = "Bitwarden";
 "Cancel" = "Avbryt";
 "Copy" = "Kopiera";
+"CopyPassportNumber" = "Kopiera passnummer";
 "CopyPassword" = "Kopiera lösenord";
 "CopyUsername" = "Kopiera användarnamn";
 "Delete" = "Radera";
@@ -126,7 +127,7 @@
 "ItemUpdated" = "Objektet uppdaterades";
 "Submitting" = "Skickar in…";
 "Syncing" = "Synkroniserar…";
-"SyncingLogins" = "Synkroniserar inloggningar…";
+"SyncingLogins" = "Synkroniserar inloggningar...";
 "SyncingComplete" = "Synkronisering slutförd";
 "TouchID" = "Touch ID";
 "TwoStepLogin" = "Tvåfaktorsautentisering";
@@ -207,6 +208,7 @@
 "TypeIdentity" = "Identitet";
 "TypeLicense" = "License";
 "TypeLogin" = "Inloggning";
+"TypePassport" = "Passport";
 "TypeSecureNote" = "Säker anteckning";
 "Address1" = "Adress 1";
 "Address2" = "Adress 2";
@@ -555,6 +557,7 @@
 "ThereAreNoCardsInYourVault" = "Det finns inga kort i ditt valv";
 "ThereAreNoNotesInYourVault" = "Det finns inga anteckningar i ditt valv";
 "ThereAreNoIdentitiesInYourVault" = "Det finns inga identiteter i ditt valv";
+"ThereAreNoPassportsInYourVault" = "There are no passports in your vault";
 "ThereAreNoSSHKeysInYourVault" = "Det finns inga SSH-nycklar i ditt valv";
 "ThereAreNoBankAccountsInYourVault" = "Det finns inga bankkonton i ditt valv";
 "US" = "USA";
@@ -804,7 +807,7 @@
 "YouMayNeedToEnableDevicePasscodeOrBiometrics" = "Du kan behöva aktivera enhetens lösenkod eller biometri.";
 "StartImportCXFDescriptionLong" = "Importera lösenord, lösenordsnycklar, kreditkort och annan personlig identitetsinformation från en annan lösenordshanterare.\n\nDina uppgifter kommer **inte** att raderas från din tidigare leverantör.";
 "ImportPasswords" = "Importera lösenord";
-"ImportingEllipsis" = "Importerar…";
+"ImportingEllipsis" = "Importerar...";
 "AreYouSureYouWantToCancelTheImportProcessQuestionMark" = "Är du säker på att du vill avbryta importprocessen?";
 "ImportFailed" = "Importen misslyckades";
 "ThereWasAnIssueImportingAllOfYourPasswordsNoDataWasDeleted" = "Det uppstod ett problem med att importera alla dina lösenord.\n\nInga uppgifter raderades.";
@@ -989,7 +992,7 @@
 "DefaultX" = "Standard (%1$@)";
 "UpdateYourEncryptionSettings" = "Uppdatera dina krypteringsinställningar";
 "TheNewRecommendedEncryptionSettingsDescriptionLong" = "De nya rekommenderade krypteringsinställningarna kommer att förbättra ditt kontos säkerhet. Ange ditt huvudlösenord för att uppdatera nu.";
-"Updating" = "Uppdaterar…";
+"Updating" = "Uppdaterar...";
 "EncryptionSettingsUpdated" = "Krypteringsinställningar uppdaterade";
 "IntroducingArchive" = "Introducerar arkiv";
 "KeepYtemsYouDontNeedRightNowSafeButOutOfSight" = "Håll objekt som du inte behöver just nu är säkra, men utom synhåll.";
@@ -1125,6 +1128,7 @@
 "License" = "License";
 "Licenses" = "Licenses";
 "Passport" = "Passport";
+"Passports" = "Passports";
 "LicenseDetails" = "License details";
 "DateOfBirth" = "Date of birth";
 "IssuingCountry" = "Issuing country";
