@@ -41,12 +41,12 @@ class RootCoordinator: Coordinator, HasStackNavigator {
             showCardAutofillForm()
         case .createAccountForm:
             showCreateAccountForm()
-        case .createPasskey:
-            showCreatePasskey()
         case .dateFieldPickerShowcase:
             showDateFieldPickerShowcase()
         case .fileShare:
             showFileShare()
+        case .registerPasskey:
+            showCreatePasskey()
         case .scenarioPicker:
             showScenarioPicker()
         case .simpleLoginForm:

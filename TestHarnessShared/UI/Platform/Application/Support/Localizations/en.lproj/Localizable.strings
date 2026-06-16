@@ -21,12 +21,12 @@
 "FileShare" = "File Share";
 "FormValues" = "Form Values";
 "PasskeyAutofill" = "Passkey Autofill";
-"Result" = "Result";
 "PasskeyRegistrationNotAvailable" = "Passkey registration requires iOS 17 or later.";
 "PasskeyRegisteredSuccessfully" = "Passkey registered successfully.";
 "Password" = "Password";
 "PasswordValue" = "Password: %@";
 "PasswordsDoNotMatch" = "Passwords do not match";
+"Result" = "Result";
 "RegisterPasskey" = "Register Passkey";
 "RegistrationResult" = "Registration Result";
 "RelyingPartyId" = "Relying Party ID";
