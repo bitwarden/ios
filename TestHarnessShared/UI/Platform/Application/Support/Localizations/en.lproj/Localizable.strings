@@ -5,6 +5,7 @@
 "AuthDataTooShortExplanationLong" = "The raw authenticator data was shorter than the fixed 37-byte prefix (32-byte relying party hash, 1-byte flags, 4-byte signature counter), so the relying party hash and flags could not be read.";
 "AuthDataTooShortReceived" = "The authenticator data was too short to contain the expected fields.";
 "CardAutofillForm" = "Card Autofill Form";
+"CreatePasskey" = "Create Passkey";
 "CardAutofillFormDescriptionLong" = "Long press a field, then select Autofill and Password to autofill with Bitwarden. Requires Bitwarden PM as AutoFill provider and a saved Card cipher.";
 "CardDetails" = "Card Details";
 "CardholderName" = "Cardholder Name";
