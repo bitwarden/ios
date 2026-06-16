@@ -56,6 +56,8 @@ extension CipherListView {
             type.isLogin
         case .noFolder:
             folderId == nil
+        case .passport:
+            type == .passport
         case .secureNote:
             type == .secureNote
         case .sshKey:

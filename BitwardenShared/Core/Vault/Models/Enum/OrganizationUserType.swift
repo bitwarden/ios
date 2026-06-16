@@ -10,9 +10,6 @@ enum OrganizationUserType: Int, Codable {
     /// The user is a user in the organization.
     case user = 2
 
-    /// The user is a manage in the organization.
-    case manager = 3
-
     /// The user is a custom user in the organization.
     case custom = 4
 }
