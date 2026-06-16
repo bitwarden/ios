@@ -48,7 +48,7 @@ jobs:
       MINT_LINK_PATH: .mint/bin
     steps:
       - name: Log inputs to job summary
-        uses: ./.github/actions/log-inputs
+        uses: bitwarden/ios/.github/actions/log-inputs@main
         with:
           inputs: "${{ toJson(inputs) }}"
 
