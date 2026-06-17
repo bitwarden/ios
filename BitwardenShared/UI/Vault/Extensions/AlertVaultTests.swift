@@ -12,7 +12,7 @@ class AlertVaultTests: BitwardenTestCase { // swiftlint:disable:this type_body_l
         var called = false
         let subject = Alert.archiveUnavailable { called = true }
 
-        XCTAssertEqual(subject.title, Localizations.archiveUnavailable)
+        XCTAssertEqual(subject.title, Localizations.premiumSubscriptionRequired)
         XCTAssertEqual(subject.message, Localizations.archivingItemsIsAPremiumFeatureDescriptionLong)
         XCTAssertEqual(subject.alertActions.count, 2)
         XCTAssertEqual(subject.alertActions[0].title, Localizations.upgradeToPremium)
