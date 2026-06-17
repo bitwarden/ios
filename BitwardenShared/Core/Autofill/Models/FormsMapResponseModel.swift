@@ -1,10 +1,11 @@
 import Foundation
+import Networking
 
 // MARK: - FormsMapResponseModel
 
 /// The response model for the Forms Map from the map-the-web repository.
 ///
-struct FormsMapResponseModel: Codable, Equatable {
+struct FormsMapResponseModel: Equatable, JSONResponse {
     /// The schema version of the map.
     let schemaVersion: String
 
