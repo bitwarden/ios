@@ -238,7 +238,8 @@ extension VaultListProcessor {
 
         state.shouldShowArchiveOnboardingActionCard = await services.stateService.shouldDoArchiveOnboarding()
 
-        state.shouldShowUpgradedToPremiumActionCard = await services.billingService.shouldShowUpgradedToPremiumActionCard()
+        state.shouldShowUpgradedToPremiumActionCard = await services.billingService
+            .shouldShowUpgradedToPremiumActionCard()
 
         let isBannerDismissed = await services.stateService.isPremiumUpgradeBannerDismissed()
         guard !isBannerDismissed else {

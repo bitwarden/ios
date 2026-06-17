@@ -61,7 +61,8 @@ final class SendListProcessor: StateProcessor<SendListState, SendListAction, Sen
         case let .addItemPressed(sendType):
             await addNewSend(sendType: sendType)
         case .appeared:
-            state.shouldShowUpgradedToPremiumActionCard = await services.billingService.shouldShowUpgradedToPremiumActionCard()
+            state.shouldShowUpgradedToPremiumActionCard = await services.billingService
+                .shouldShowUpgradedToPremiumActionCard()
         case .dismissUpgradedToPremiumActionCard:
             state.shouldShowUpgradedToPremiumActionCard = false
             await services.billingService.setUpgradedToPremiumActionCardDismissed()
