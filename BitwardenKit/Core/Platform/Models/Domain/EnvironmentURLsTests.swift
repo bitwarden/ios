@@ -261,4 +261,18 @@ class EnvironmentURLsTests: BitwardenTestCase {
             ),
         )
     }
+
+    /// `init(environmentURLData:)` preserves a server-provided `fillAssistRulesUrl` even when the
+    /// region maps to a US/EU default (which has `fillAssistRulesUrl = nil`).
+    func test_init_environmentURLData_fillAssistRulesURL_preservedForCloudRegion() {
+        let customFillAssistURL = URL(string: "https://custom.example.com/fill-assist")!
+        let usData = EnvironmentURLData(
+            base: URL(string: "https://vault.bitwarden.com")!,
+            fillAssistRulesUrl: customFillAssistURL,
+        )
+
+        let subject = EnvironmentURLs(environmentURLData: usData)
+
+        XCTAssertEqual(subject.fillAssistRulesURL, customFillAssistURL)
+    }
 }

@@ -115,6 +115,10 @@ public extension EnvironmentURLs {
     /// - Parameter environmentURLData: The environment URLs used to initialize `EnvironmentURLs`.
     ///
     init(environmentURLData: EnvironmentURLData) {
+        // Capture fillAssistRulesUrl before the region switch may replace environmentURLData with a
+        // default that has fillAssistRulesUrl = nil, which would discard the server-config override.
+        let fillAssistRulesUrl = environmentURLData.fillAssistRulesUrl
+
         // Use the default URLs if the region matches US or EU.
         let environmentURLData: EnvironmentURLData = switch environmentURLData.region {
         case .europe: .defaultEU
@@ -137,7 +141,7 @@ public extension EnvironmentURLs {
             identityURL = environmentURLData.identity ?? URL(string: "https://identity.bitwarden.com")!
             webVaultURL = environmentURLData.webVault ?? URL(string: "https://vault.bitwarden.com")!
         }
-        fillAssistRulesURL = environmentURLData.fillAssistRulesUrl
+        fillAssistRulesURL = fillAssistRulesUrl
             ?? URL(string: "https://github.com/bitwarden/map-the-web/releases/latest/download")!
         importItemsURL = environmentURLData.importItemsURL ?? URL(string: "https://vault.bitwarden.com/#/tools/import")!
         recoveryCodeURL = environmentURLData.recoveryCodeURL ?? URL(
