@@ -6,11 +6,29 @@ import Networking
 /// The response model for the Forms Map from the map-the-web repository.
 ///
 struct FormsMapResponseModel: Equatable, JSONResponse {
-    /// The schema version of the map.
-    let schemaVersion: String
+    // MARK: Types
+
+    private enum CodingKeys: String, CodingKey {
+        case hosts
+        case schemaVersion
+    }
+
+    // MARK: Properties
 
     /// The host entries keyed by hostname. Null-valued entries are excluded during decoding.
     let hosts: [String: FormsMapHostEntry]
+
+    /// The schema version of the map.
+    let schemaVersion: String
+
+    // MARK: Codable
+
+    init(from decoder: any Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        hosts = try container.decode([String: FormsMapHostEntry?].self, forKey: .hosts)
+            .compactMapValues { $0 }
+        schemaVersion = try container.decode(String.self, forKey: .schemaVersion)
+    }
 }
 
 // MARK: - FormsMapHostEntry
