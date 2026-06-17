@@ -2200,6 +2200,12 @@ actor DefaultStateService: StateService, ActiveAccountStateProvider, ConfigState
     func setServerConfig(_ config: ServerConfig?, userId: String?) async throws {
         let userId = try userId ?? getActiveAccountUserId()
         appSettingsStore.setServerConfig(config, userId: userId)
+        if let fillAssistRulesUrl = config?.environment?.fillAssistRules.flatMap(URL.init) {
+            guard var state = appSettingsStore.state else { return }
+            let currentUrls = state.accounts[userId]?.settings.environmentUrls ?? EnvironmentURLData()
+            state.accounts[userId]?.settings.environmentUrls = currentUrls.with(fillAssistRulesUrl: fillAssistRulesUrl)
+            appSettingsStore.state = state
+        }
     }
 
     func setShouldTrustDevice(_ shouldTrustDevice: Bool?, userId: String) {

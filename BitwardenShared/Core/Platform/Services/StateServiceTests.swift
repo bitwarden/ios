@@ -2625,6 +2625,59 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         XCTAssertEqual(appSettingsStore.serverConfig["1"], model)
     }
 
+    /// `setServerConfig(_:userId:)` updates the account's `fillAssistRulesUrl` when the server config
+    /// contains a `fillAssistRules` URL.
+    func test_setServerConfig_updatesFillAssistRulesUrl() async throws {
+        await subject.addAccount(.fixture())
+        let model = ServerConfig(
+            date: Date(timeIntervalSince1970: 100),
+            responseModel: ConfigResponseModel(
+                communication: nil,
+                environment: EnvironmentServerConfigResponseModel(
+                    api: nil,
+                    cloudRegion: nil,
+                    fillAssistRules: "https://custom.example.com/fill-assist",
+                    identity: nil,
+                    notifications: nil,
+                    sso: nil,
+                    vault: nil,
+                ),
+                featureStates: [:],
+                gitHash: nil,
+                server: nil,
+                version: "2025.1.0",
+            ),
+        )
+        try await subject.setServerConfig(model)
+
+        let urls = try await subject.getEnvironmentURLs()
+        XCTAssertEqual(urls?.fillAssistRulesUrl, URL(string: "https://custom.example.com/fill-assist"))
+    }
+
+    /// `setServerConfig(_:userId:)` does not modify `fillAssistRulesUrl` when the server config has no
+    /// `fillAssistRules` URL.
+    func test_setServerConfig_noFillAssistRules_doesNotModifyEnvironmentURLs() async throws {
+        let existingUrls = EnvironmentURLData(base: .example)
+        let account = Account.fixture(settings: .fixture(environmentURLs: existingUrls))
+        await subject.addAccount(account)
+        let model = ServerConfig(
+            date: Date(timeIntervalSince1970: 100),
+            responseModel: ConfigResponseModel(
+                communication: nil,
+                environment: nil,
+                featureStates: [:],
+                gitHash: nil,
+                server: nil,
+                version: "2025.1.0",
+            ),
+        )
+        try await subject.setServerConfig(model)
+
+        let urls = try await subject.getEnvironmentURLs()
+        XCTAssertEqual(urls?.base, .example)
+        XCTAssertNil(urls?.fillAssistRulesUrl)
+    }
+
     /// `setShouldTrustDevice` saves the should trust device value.
     func test_setShouldTrustDevice() async {
         await subject.setShouldTrustDevice(true, userId: "1")

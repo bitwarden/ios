@@ -20,6 +20,9 @@ public struct EnvironmentURLData: Codable, Equatable, Hashable, Sendable {
     /// The URL for the events API.
     public let events: URL?
 
+    /// The base URL for fetching Fill-Assist targeting rules. Set from the server config.
+    public let fillAssistRulesUrl: URL?
+
     /// The URL for the icons API.
     public let icons: URL?
 
@@ -42,6 +45,7 @@ public struct EnvironmentURLData: Codable, Equatable, Hashable, Sendable {
     ///   - clientCertificateAlias: The human-readable alias for the client certificate.
     ///   - clientCertificateFingerprint: The SHA-256 fingerprint of the client certificate.
     ///   - events: The URL for the events API.
+    ///   - fillAssistRulesUrl: The base URL for fetching Fill-Assist targeting rules.
     ///   - icons: The URL for the icons API.
     ///   - identity: The URL for the identity API.
     ///   - notifications: The URL for the notifications API.
@@ -53,6 +57,7 @@ public struct EnvironmentURLData: Codable, Equatable, Hashable, Sendable {
         clientCertificateAlias: String? = nil,
         clientCertificateFingerprint: String? = nil,
         events: URL? = nil,
+        fillAssistRulesUrl: URL? = nil,
         icons: URL? = nil,
         identity: URL? = nil,
         notifications: URL? = nil,
@@ -63,6 +68,7 @@ public struct EnvironmentURLData: Codable, Equatable, Hashable, Sendable {
         self.clientCertificateAlias = clientCertificateAlias
         self.clientCertificateFingerprint = clientCertificateFingerprint
         self.events = events
+        self.fillAssistRulesUrl = fillAssistRulesUrl
         self.icons = icons
         self.identity = identity
         self.notifications = notifications
@@ -81,11 +87,6 @@ public extension EnvironmentURLData {
     /// The base url for importing items.
     var importItemsURL: URL? {
         subpageURL(additionalPath: "tools/import")
-    }
-
-    /// The URL for managing the subscription plan.
-    var manageSubscriptionURL: URL? {
-        subpageURL(additionalPath: "settings/subscription")
     }
 
     /// Whether all of the environment URLs are not set.
@@ -148,6 +149,26 @@ public extension EnvironmentURLData {
     var webVaultHost: String? {
         let url = webVault ?? base
         return url?.host
+    }
+
+    /// Returns a copy of this `EnvironmentURLData` with the given Fill-Assist rules URL applied.
+    ///
+    /// - Parameter fillAssistRulesUrl: The Fill-Assist rules URL to set.
+    /// - Returns: A new `EnvironmentURLData` with `fillAssistRulesUrl` updated.
+    ///
+    func with(fillAssistRulesUrl: URL?) -> EnvironmentURLData {
+        EnvironmentURLData(
+            api: api,
+            base: base,
+            clientCertificateAlias: clientCertificateAlias,
+            clientCertificateFingerprint: clientCertificateFingerprint,
+            events: events,
+            fillAssistRulesUrl: fillAssistRulesUrl,
+            icons: icons,
+            identity: identity,
+            notifications: notifications,
+            webVault: webVault,
+        )
     }
 
     // MARK: Methods

@@ -137,7 +137,8 @@ public extension EnvironmentURLs {
             identityURL = environmentURLData.identity ?? URL(string: "https://identity.bitwarden.com")!
             webVaultURL = environmentURLData.webVault ?? URL(string: "https://vault.bitwarden.com")!
         }
-        fillAssistRulesURL = URL(string: "https://github.com/bitwarden/map-the-web/releases/latest/download")!
+        fillAssistRulesURL = environmentURLData.fillAssistRulesUrl
+            ?? URL(string: "https://github.com/bitwarden/map-the-web/releases/latest/download")!
         importItemsURL = environmentURLData.importItemsURL ?? URL(string: "https://vault.bitwarden.com/#/tools/import")!
         recoveryCodeURL = environmentURLData.recoveryCodeURL ?? URL(
             string: "https://vault.bitwarden.com/#/recover-2fa",
