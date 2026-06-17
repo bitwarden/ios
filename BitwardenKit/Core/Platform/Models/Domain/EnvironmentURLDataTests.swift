@@ -275,4 +275,19 @@ class EnvironmentURLDataTests: XCTestCase {
             "https://web.vault.example.com/proxy-cookie-redirect-connector.html",
         )
     }
+
+    /// `with(fillAssistRulesUrl:)` returns a copy with `fillAssistRulesUrl` updated.
+    func test_with_fillAssistRulesUrl() {
+        let original = EnvironmentURLData(
+            api: URL(string: "https://api.example.com"),
+            base: URL(string: "https://vault.example.com"),
+        )
+        let fillAssistURL = URL(string: "https://custom.example.com/fill-assist")!
+
+        let updated = original.with(fillAssistRulesUrl: fillAssistURL)
+
+        XCTAssertEqual(updated.fillAssistRulesUrl, fillAssistURL)
+        XCTAssertEqual(updated.api, original.api)
+        XCTAssertEqual(updated.base, original.base)
+    }
 }
