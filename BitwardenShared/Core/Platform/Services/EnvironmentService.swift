@@ -164,16 +164,7 @@ extension DefaultEnvironmentService {
     }
 
     var region: RegionType {
-        if environmentURLs.baseURL == EnvironmentURLData.defaultUS.base {
-            .unitedStates
-        } else if environmentURLs.baseURL == EnvironmentURLData.defaultEU.base {
-            .europe
-        } else if let host = URLComponents(url: environmentURLs.baseURL, resolvingAgainstBaseURL: false)?.host,
-                  host == "bitwarden.pw" || host.hasSuffix(".bitwarden.pw") {
-            .internal
-        } else {
-            .selfHosted
-        }
+        environmentURLs.region
     }
 
     var sendShareURL: URL {

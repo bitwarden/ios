@@ -110,6 +110,11 @@ public struct EnvironmentURLs: Equatable {
 }
 
 public extension EnvironmentURLs {
+    /// Gets the region depending on the base url.
+    var region: RegionType {
+        RegionType(baseURL: baseURL)
+    }
+
     /// Initialize `EnvironmentURLs` from `EnvironmentURLData`.
     ///
     /// - Parameter environmentURLData: The environment URLs used to initialize `EnvironmentURLs`.

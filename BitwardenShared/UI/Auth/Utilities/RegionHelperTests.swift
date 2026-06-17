@@ -150,6 +150,17 @@ class RegionHelperTests: BitwardenTestCase {
         XCTAssertEqual(regionDelegate.setRegionType, .selfHosted)
         XCTAssertEqual(regionDelegate.setRegionUrls, EnvironmentURLData(base: URL(string: "https://selfhosted.com")))
     }
+
+    /// `loadRegion()` resolves a `bitwarden.pw` pre-auth environment (including subdomains) to
+    /// `.internal` rather than treating it as self-hosted.
+    func test_loadRegion_internal() async throws {
+        let urls = EnvironmentURLData(base: URL(string: "https://qa-team.sh.bitwarden.pw"))
+        stateService.preAuthEnvironmentURLs = urls
+        await subject.loadRegion()
+        XCTAssertTrue(regionDelegate.setRegionCalled)
+        XCTAssertEqual(regionDelegate.setRegionType, .internal)
+        XCTAssertEqual(regionDelegate.setRegionUrls, urls)
+    }
 }
 
 class MockRegionDelegate: RegionDelegate {

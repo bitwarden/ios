@@ -66,13 +66,7 @@ class RegionHelper {
             return
         }
 
-        if urls.base == EnvironmentURLData.defaultUS.base {
-            await delegate?.setRegion(.unitedStates, urls)
-        } else if urls.base == EnvironmentURLData.defaultEU.base {
-            await delegate?.setRegion(.europe, urls)
-        } else {
-            await delegate?.setRegion(.selfHosted, urls)
-        }
+        await delegate?.setRegion(urls.region, urls)
     }
 }
 

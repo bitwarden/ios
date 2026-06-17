@@ -119,17 +119,7 @@ public extension EnvironmentURLData {
 
     /// Gets the region depending on the base url.
     var region: RegionType {
-        if base == EnvironmentURLData.defaultUS.base {
-            .unitedStates
-        } else if base == EnvironmentURLData.defaultEU.base {
-            .europe
-        } else if let base,
-                  let host = URLComponents(url: base, resolvingAgainstBaseURL: false)?.host,
-                  host == "bitwarden.pw" || host.hasSuffix(".bitwarden.pw") {
-            .internal
-        } else {
-            .selfHosted
-        }
+        RegionType(baseURL: base)
     }
 
     /// The base url for send sharing.
