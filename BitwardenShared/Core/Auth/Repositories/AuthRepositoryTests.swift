@@ -2684,7 +2684,6 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
                 trustedDeviceOption: nil,
             ),
         ))
-        configService.featureFlagsBool[.forceUpdateKdfSettings] = false
         changeKdfService.needsKdfUpdateToMinimumsResult = true
         stateService.activeAccount = account
         stateService.accountEncryptionKeys = [
@@ -2736,7 +2735,6 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
                 trustedDeviceOption: nil,
             ),
         ))
-        configService.featureFlagsBool[.forceUpdateKdfSettings] = false
         changeKdfService.needsKdfUpdateToMinimumsResult = true
         changeKdfService.updateKdfToMinimumsResult = .failure(BitwardenTestError.example)
         stateService.activeAccount = account

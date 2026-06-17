@@ -38,9 +38,6 @@ extension FeatureFlag: @retroactive CaseIterable {
     /// Flag to enable/disable Fill-Assist targeting rules.
     static let fillAssistTargetingRules = FeatureFlag(rawValue: "fill-assist-targeting-rules")
 
-    /// Flag to enable/disable forced KDF updates.
-    static let forceUpdateKdfSettings = FeatureFlag(rawValue: "pm-18021-force-update-kdf-settings")
-
     /// Flag to enable/disable migration from My Vault Items to My Items.
     static let migrateMyVaultToMyItems = FeatureFlag(rawValue: "pm-20558-migrate-myvault-to-myitems")
 
@@ -70,7 +67,6 @@ extension FeatureFlag: @retroactive CaseIterable {
             .deviceAuthKey,
             .enableCipherKeyEncryption,
             .fillAssistTargetingRules,
-            .forceUpdateKdfSettings,
             .migrateMyVaultToMyItems,
             .newItemTypes,
             .noLogoutOnKdfChange,
