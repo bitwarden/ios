@@ -37,7 +37,7 @@ public enum SendType: Int, CaseIterable, Codable, Equatable, Identifiable, Menua
         }
     }
 
-    /// A flag indicating if this type requires a premium account to use.
+    /// A flag indicating if this type requires a Premium account to use.
     public var requiresPremium: Bool {
         switch self {
         case .text: false

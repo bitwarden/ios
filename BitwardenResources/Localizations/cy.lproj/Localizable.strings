@@ -421,7 +421,7 @@
 "AboutSend" = "Ynghylch Send";
 "HideEmail" = "Cuddio fy nghyfeiriad ebost rhag derbynwyr";
 "SendOptionsPolicyInEffect" = "One or more organization policies are affecting your Send options.";
-"SendFilePremiumRequired" = "Free accounts are restricted to sharing text only. A premium membership is required to use files with Send.";
+"SendFilePremiumRequired" = "Free accounts are restricted to sharing text only. A Premium membership is required to use files with Send.";
 "SendFileEmailVerificationRequired" = "You must verify your email to use files with Send. You can verify your email in the web vault.";
 "PasswordPrompt" = "Ailofyn am y prif gyfrinair";
 "PasswordConfirmation" = "Master password confirmation";
@@ -1030,7 +1030,7 @@
 "ArchivingItemsIsAPremiumFeatureDescriptionLong" = "Archiving items is a Premium feature. Your current plan does not include access to this feature.";
 "AddingAttachmentsIsAPremiumFeatureDescriptionLong" = "Adding attachments is a Premium feature. Your current plan does not include access to this feature.";
 "AttachmentsUnavailable" = "Attachments unavailable";
-"UpgradeToPremium" = "Upgrade to premium";
+"UpgradeToPremium" = "Upgrade to Premium";
 "ThisItemIsArchived" = "Mae'r eitem hon wedi'i harchifo.";
 "YourPremiumSubscriptionEnded" = "Your Premium subscription ended";
 "YourPremiumSubscriptionEndedArchiveDescriptionLong" = "To regain access to your archive, restart your Premium subscription. If you edit details for an archived item before restarting, it’ll be moved back into your vault.";
@@ -1095,7 +1095,7 @@
 "NegativeX" = "-%1$@";
 "UnknownStatus" = "Unknown";
 "YourSubscriptionStatusIsUnknownVisitTheWebAppDescriptionLong" = "Your subscription status could not be determined. Please visit the web app for more details or update to the latest version.";
-"AtTheMomentPremiumPlanIsNotAvailableDescriptionLong" = "At the moment premium plan is not available, please try again later.";
+"AtTheMomentPremiumPlanIsNotAvailableDescriptionLong" = "At the moment Premium plan is not available, please try again later.";
 "UnlockMoreAdvancedFeaturesWithPremiumPlan" = "Unlock more advanced features with a Premium plan.";
 "BuiltInAuthenticator" = "Built-in authenticator";
 "EmergencyAccess" = "Emergency access";

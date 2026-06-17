@@ -214,14 +214,14 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         XCTAssertTrue(didSwitch)
     }
 
-    /// `doesActiveAccountHavePremium()` with premium personally and no organizations returns true.
+    /// `doesActiveAccountHavePremium()` with Premium personally and no organizations returns true.
     func test_doesActiveAccountHavePremium_personalTrue_noOrganization() async throws {
         await subject.addAccount(.fixture(profile: .fixture(hasPremiumPersonally: true)))
         let hasPremium = await subject.doesActiveAccountHavePremium()
         XCTAssertTrue(hasPremium)
     }
 
-    /// `doesActiveAccountHavePremium()` with no premium personally and no organizations returns
+    /// `doesActiveAccountHavePremium()` with no Premium personally and no organizations returns
     /// false.
     func test_doesActiveAccountHavePremium_personalFalse_noOrganization() async throws {
         await subject.addAccount(.fixture(profile: .fixture(hasPremiumPersonally: false)))
@@ -229,7 +229,7 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         XCTAssertFalse(hasPremium)
     }
 
-    /// `doesActiveAccountHavePremium()` with nil premium personally and no organizations returns
+    /// `doesActiveAccountHavePremium()` with nil Premium personally and no organizations returns
     /// false.
     func test_doesActiveAccountHavePremium_personalNil_noOrganization() async throws {
         await subject.addAccount(.fixture(profile: .fixture(hasPremiumPersonally: nil)))
@@ -237,7 +237,7 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         XCTAssertFalse(hasPremium)
     }
 
-    /// `doesActiveAccountHavePremium()` with premium personally and an organization without premium
+    /// `doesActiveAccountHavePremium()` with Premium personally and an organization without Premium
     /// returns true.
     func test_doesActiveAccountHavePremium_personalTrue_organizationFalse() async throws {
         await subject.addAccount(.fixture(profile: .fixture(hasPremiumPersonally: true)))
@@ -246,7 +246,7 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         XCTAssertTrue(hasPremium)
     }
 
-    /// `doesActiveAccountHavePremium()` with no premium personally and an organization with premium
+    /// `doesActiveAccountHavePremium()` with no Premium personally and an organization with Premium
     /// returns true.
     func test_doesActiveAccountHavePremium_personalFalse_organizationTrue() async throws {
         await subject.addAccount(.fixture(profile: .fixture(hasPremiumPersonally: false)))
@@ -255,7 +255,7 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         XCTAssertTrue(hasPremium)
     }
 
-    /// `doesActiveAccountHavePremium()` with premium personally and an organization with premium
+    /// `doesActiveAccountHavePremium()` with Premium personally and an organization with Premium
     /// returns true.
     func test_doesActiveAccountHavePremium_personalTrue_organizationTrue() async throws {
         await subject.addAccount(.fixture(profile: .fixture(hasPremiumPersonally: true)))
@@ -264,7 +264,7 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         XCTAssertTrue(hasPremium)
     }
 
-    /// `doesActiveAccountHavePremium()` with premium personally and an organization with premium
+    /// `doesActiveAccountHavePremium()` with Premium personally and an organization with Premium
     /// but disabled returns true.
     func test_doesActiveAccountHavePremium_personalTrue_organizationTrueDisabled() async throws {
         await subject.addAccount(.fixture(profile: .fixture(hasPremiumPersonally: true)))
@@ -273,7 +273,7 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         XCTAssertTrue(hasPremium)
     }
 
-    /// `doesActiveAccountHavePremium()` with no premium personally and an organization with premium
+    /// `doesActiveAccountHavePremium()` with no Premium personally and an organization with Premium
     /// but disabled returns false.
     func test_doesActiveAccountHavePremium_personalFalse_organizationTrueDisabled() async throws {
         await subject.addAccount(.fixture(profile: .fixture(hasPremiumPersonally: false)))
@@ -282,7 +282,7 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         XCTAssertFalse(hasPremium)
     }
 
-    /// `doesActiveAccountHavePremium()` with no premium personally and an organization with premium
+    /// `doesActiveAccountHavePremium()` with no Premium personally and an organization with Premium
     /// for a different user returns false.
     func test_doesActiveAccountHavePremium_personalFalse_organizationTrueForOtherUser() async throws {
         await subject.addAccount(.fixture(profile: .fixture(hasPremiumPersonally: false)))
@@ -299,7 +299,7 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         XCTAssertEqual(errorReporter.errors as? [StateServiceError], [.noActiveAccount])
     }
 
-    /// `doesActiveAccountHavePremiumPersonally()` returns true when the user has premium personally.
+    /// `doesActiveAccountHavePremiumPersonally()` returns true when the user has Premium personally.
     func test_doesActiveAccountHavePremiumPersonally_personalTrue() async throws {
         await subject.addAccount(.fixture(profile: .fixture(hasPremiumPersonally: true)))
         let hasPremium = await subject.doesActiveAccountHavePremiumPersonally()
@@ -307,7 +307,7 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
     }
 
     /// `doesActiveAccountHavePremiumPersonally()` returns false when the user has no personal
-    /// premium, even when an organization grants premium.
+    /// Premium, even when an organization grants Premium.
     func test_doesActiveAccountHavePremiumPersonally_personalFalse_organizationTrue() async throws {
         await subject.addAccount(.fixture(profile: .fixture(hasPremiumPersonally: false)))
         try await dataStore.replaceOrganizations([.fixture(usersGetPremium: true)], userId: "1")
@@ -315,7 +315,7 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         XCTAssertFalse(hasPremium)
     }
 
-    /// `doesActiveAccountHavePremiumPersonally()` returns false when personal premium is nil.
+    /// `doesActiveAccountHavePremiumPersonally()` returns false when personal Premium is nil.
     func test_doesActiveAccountHavePremiumPersonally_personalNil() async throws {
         await subject.addAccount(.fixture(profile: .fixture(hasPremiumPersonally: nil)))
         let hasPremium = await subject.doesActiveAccountHavePremiumPersonally()
@@ -656,7 +656,7 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         XCTAssertTrue(hasShownOnboarding)
     }
 
-    /// `getPremiumUpgradeBannerDismissed(userId:)` returns whether the premium upgrade banner has been dismissed.
+    /// `getPremiumUpgradeBannerDismissed(userId:)` returns whether the Premium upgrade banner has been dismissed.
     func test_getPremiumUpgradeBannerDismissed() async throws {
         await subject.addAccount(.fixture())
         var hasDismissedBanner = try await subject.getPremiumUpgradeBannerDismissed(userId: nil)
@@ -1913,7 +1913,7 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         XCTAssertFalse(appSettingsStore.archiveOnboardingShown)
     }
 
-    /// `setPremiumUpgradeBannerDismissed(_:)` sets whether the premium upgrade banner has been dismissed.
+    /// `setPremiumUpgradeBannerDismissed(_:)` sets whether the Premium upgrade banner has been dismissed.
     func test_setPremiumUpgradeBannerDismissed() async throws {
         await subject.addAccount(.fixture())
         try await subject.setPremiumUpgradeBannerDismissed(true, userId: nil)
@@ -2790,7 +2790,7 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         XCTAssertEqual(appSettingsStore.usesKeyConnector["1"], true)
     }
 
-    /// `shouldDoArchiveOnboarding()` returns `true` when active account is premium
+    /// `shouldDoArchiveOnboarding()` returns `true` when active account is Premium
     /// and the archive onboarding has not been shown yet.
     func test_shouldDoArchiveOnboarding_true() async {
         await subject.addAccount(.fixture(profile: .fixture(hasPremiumPersonally: true)))
@@ -2799,7 +2799,7 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         XCTAssertTrue(shouldDoArchiveOnboarding)
     }
 
-    /// `shouldDoArchiveOnboarding()` returns `false` when active account is premium
+    /// `shouldDoArchiveOnboarding()` returns `false` when active account is Premium
     /// and the archive onboarding has already been shown.
     func test_shouldDoArchiveOnboarding_onboardingAlreadyShown() async {
         await subject.addAccount(.fixture(profile: .fixture(hasPremiumPersonally: true)))
@@ -2808,7 +2808,7 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         XCTAssertFalse(shouldDoArchiveOnboarding)
     }
 
-    /// `shouldDoArchiveOnboarding()` returns `false` when active account is not premium
+    /// `shouldDoArchiveOnboarding()` returns `false` when active account is not Premium
     /// and the archive onboarding has not been shown yet.
     func test_shouldDoArchiveOnboarding_noPremium() async {
         await subject.addAccount(.fixture(profile: .fixture(hasPremiumPersonally: false)))

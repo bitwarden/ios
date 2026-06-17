@@ -699,7 +699,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         XCTAssertEqual(cipherService.deleteCipherId, "123")
     }
 
-    /// `doesActiveAccountHavePremium()` returns whether the active account has access to premium features.
+    /// `doesActiveAccountHavePremium()` returns whether the active account has access to Premium features.
     func test_doesActiveAccountHavePremium() async throws {
         stateService.doesActiveAccountHavePremiumResult = true
         var hasPremium = await subject.doesActiveAccountHavePremium()
@@ -1554,7 +1554,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         XCTAssertEqual(cipherEncryptionMediator.encryptAndUpdateCipherReceivedCipherView, cipher)
     }
 
-    /// `updateCipherCollections()` unarchives the cipher when it's updated and user doesn't have premium.
+    /// `updateCipherCollections()` unarchives the cipher when it's updated and user doesn't have Premium.
     @MainActor
     func test_updateCipherCollections_unarchivesNonPremiumUser() async throws {
         stateService.activeAccount = nonPremiumAccount
@@ -1572,7 +1572,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         )
     }
 
-    /// `updateCipherCollections()` does NOT unarchive the cipher when user has premium.
+    /// `updateCipherCollections()` does NOT unarchive the cipher when user has Premium.
     @MainActor
     func test_updateCipherCollections_doesNotUnarchivePremiumUser() async throws {
         stateService.activeAccount = premiumAccount
@@ -1627,7 +1627,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         XCTAssertEqual(cipherService.updateCipherWithServerEncryptedFor, "1")
     }
 
-    /// `updateCipher()` unarchives the cipher when it's updated and user doesn't have premium.
+    /// `updateCipher()` unarchives the cipher when it's updated and user doesn't have Premium.
     @MainActor
     func test_updateCipher_unarchivesNonPremiumUser() async throws {
         stateService.activeAccount = nonPremiumAccount
@@ -1643,7 +1643,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         XCTAssertEqual(cipherService.updateCipherWithServerEncryptedFor, "1")
     }
 
-    /// `updateCipher()` does NOT unarchive the cipher when user has premium.
+    /// `updateCipher()` does NOT unarchive the cipher when user has Premium.
     @MainActor
     func test_updateCipher_doesNotUnarchivePremiumUser() async throws {
         stateService.activeAccount = premiumAccount

@@ -93,7 +93,7 @@ private struct SearchableVaultListView: View { // swiftlint:disable:this type_bo
         }
     }
 
-    /// The action card for premium upgrade.
+    /// The action card for Premium upgrade.
     @ViewBuilder private var premiumUpgradeActionCard: some View {
         if store.state.shouldShowPremiumUpgradeActionCard {
             ActionCard(
@@ -109,7 +109,7 @@ private struct SearchableVaultListView: View { // swiftlint:disable:this type_bo
         }
     }
 
-    /// The action card for the upgraded to premium confirmation.
+    /// The action card for the upgraded to Premium confirmation.
     @ViewBuilder private var upgradedToPremiumActionCard: some View {
         if store.state.shouldShowUpgradedToPremiumActionCard {
             UpgradedToPremiumActionCardView(

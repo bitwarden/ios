@@ -28,7 +28,7 @@ struct ViewItemState: Equatable, Sendable {
     /// appropriate internal state.
     var loadingState: LoadingState<CipherItemState> = .loading(nil)
 
-    /// A flag indicating if the user has premium features.
+    /// A flag indicating if the user has Premium features.
     var hasPremiumFeatures = false
 
     /// The view's navigation title.
@@ -63,7 +63,7 @@ extension ViewItemState {
     ///
     /// - Parameters:
     ///   - cipherView: The `CipherView` to create this state with.
-    ///   - hasPremium: Does the account have premium features.
+    ///   - hasPremium: Does the account have Premium features.
     ///   - iconBaseURL: The base url used to fetch icons.
     ///
     init?(

@@ -49,7 +49,7 @@ final class VaultListProcessor: StateProcessor<
     /// The helper to handle master password reprompts.
     private let masterPasswordRepromptHelper: MasterPasswordRepromptHelper
 
-    /// The helper used to navigate to the premium upgrade flow.
+    /// The helper used to navigate to the Premium upgrade flow.
     lazy var premiumUpgradeHelper: PremiumUpgradeHelper = DefaultPremiumUpgradeHelper(
         services: services,
         coordinator: coordinator,
@@ -329,7 +329,7 @@ extension VaultListProcessor {
         await services.flightRecorder.setFlightRecorderBannerDismissed()
     }
 
-    /// Dismisses the premium upgrade action card and persists the banner-dismissed preference.
+    /// Dismisses the Premium upgrade action card and persists the banner-dismissed preference.
     private func dismissPremiumUpgradeActionCard() async {
         do {
             try await services.stateService.setPremiumUpgradeBannerDismissed(true)
@@ -601,7 +601,7 @@ extension VaultListProcessor {
         )
     }
 
-    /// Handles state updates after a premium upgrade is confirmed.
+    /// Handles state updates after a Premium upgrade is confirmed.
     ///
     private func handlePremiumUpgradeConfirmed() async {
         await refreshVault(syncWithPeriodicCheck: false)
@@ -610,7 +610,7 @@ extension VaultListProcessor {
         state.shouldShowUpgradedToPremiumActionCard = state.hasPremium
     }
 
-    /// Navigates to the premium upgrade flow. Uses the in-app upgrade path when available;
+    /// Navigates to the Premium upgrade flow. Uses the in-app upgrade path when available;
     /// otherwise opens the web vault upgrade URL as a fallback.
     ///
     private func navigateToPremiumUpgrade() async {
@@ -707,7 +707,7 @@ extension VaultListProcessor {
         await appeared()
     }
 
-    /// Subscribes to premium checkout status and navigates to the upgrade screen.
+    /// Subscribes to Premium checkout status and navigates to the upgrade screen.
     private func upgradeToPremium() {
         premiumUpgradeHelper.startInAppPremiumUpgrade(onConfirmed: { [weak self] in
             await self?.handlePremiumUpgradeConfirmed()

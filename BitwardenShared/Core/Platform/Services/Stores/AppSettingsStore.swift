@@ -259,10 +259,10 @@ protocol AppSettingsStore: AnyObject {
     ///
     func pinProtectedUserKeyEnvelope(userId: String) -> String?
 
-    /// Whether the premium upgrade banner has been dismissed for the user.
+    /// Whether the Premium upgrade banner has been dismissed for the user.
     ///
-    /// - Parameter userId: The user ID associated with the premium upgrade banner dismissed value.
-    /// - Returns: Whether the premium upgrade banner has been dismissed.
+    /// - Parameter userId: The user ID associated with the Premium upgrade banner dismissed value.
+    /// - Returns: Whether the Premium upgrade banner has been dismissed.
     ///
     func premiumUpgradeBannerDismissed(userId: String) -> Bool
 
@@ -495,11 +495,11 @@ protocol AppSettingsStore: AnyObject {
     ///
     func setPinProtectedUserKeyEnvelope(key: String?, userId: String)
 
-    /// Sets whether the premium upgrade banner has been dismissed for the user.
+    /// Sets whether the Premium upgrade banner has been dismissed for the user.
     ///
     /// - Parameters:
-    ///   - dismissed: Whether the premium upgrade banner has been dismissed.
-    ///   - userId: The user ID associated with the premium upgrade banner dismissed value.
+    ///   - dismissed: Whether the Premium upgrade banner has been dismissed.
+    ///   - userId: The user ID associated with the Premium upgrade banner dismissed value.
     ///
     func setPremiumUpgradeBannerDismissed(_ dismissed: Bool, userId: String)
 
