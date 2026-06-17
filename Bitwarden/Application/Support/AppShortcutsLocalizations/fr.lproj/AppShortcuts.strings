@@ -12,7 +12,7 @@
 "Log out all ${applicationName} accounts" = "Déconnecter tous les comptes ${applicationName}";
 "Sign out of every ${applicationName} session" = "Se déconnecter de chaque session ${applicationName}";
 "${applicationName}, log out all users" = "${applicationName}, déconnecter tous les utilisateurs";
-"Terminate all ${applicationName} logins" = "Clore tous les connexions ${applicationName}";
+"Terminate all ${applicationName} logins" = "Déconnecter toutes les sessions ${applicationName}";
 "Disconnect all ${applicationName} accounts" = "Déconnecter tous les comptes ${applicationName}";
 "Remove every ${applicationName} session" = "Supprimer chaque session ${applicationName}";
 "End all ${applicationName} connections" = "Mettre fin à toutes les connexions ${applicationName}";

@@ -6,6 +6,7 @@
 "Bitwarden" = "Bitwarden";
 "Cancel" = "Otkaži";
 "Copy" = "Kopiraj";
+"CopyPassportNumber" = "Copy passport number";
 "CopyPassword" = "Kopirajte lozinku";
 "CopyUsername" = "Kopirajte korisničko ime";
 "Delete" = "Izbriši";
@@ -207,6 +208,7 @@
 "TypeIdentity" = "Identitet";
 "TypeLicense" = "License";
 "TypeLogin" = "Prijava";
+"TypePassport" = "Passport";
 "TypeSecureNote" = "Sigurna beleška";
 "Address1" = "Adresa 1";
 "Address2" = "Adresa 2";
@@ -555,6 +557,7 @@
 "ThereAreNoCardsInYourVault" = "There are no cards in your vault";
 "ThereAreNoNotesInYourVault" = "There are no notes in your vault";
 "ThereAreNoIdentitiesInYourVault" = "There are no identities in your vault";
+"ThereAreNoPassportsInYourVault" = "There are no passports in your vault";
 "ThereAreNoSSHKeysInYourVault" = "There are no SSH keys in your vault";
 "ThereAreNoBankAccountsInYourVault" = "There are no bank accounts in your vault";
 "US" = "US";
@@ -1125,6 +1128,7 @@
 "License" = "License";
 "Licenses" = "Licenses";
 "Passport" = "Passport";
+"Passports" = "Passports";
 "LicenseDetails" = "License details";
 "DateOfBirth" = "Date of birth";
 "IssuingCountry" = "Issuing country";
