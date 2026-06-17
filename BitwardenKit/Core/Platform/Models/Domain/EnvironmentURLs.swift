@@ -119,14 +119,16 @@ public extension EnvironmentURLs {
         // default that has fillAssistRulesUrl = nil, which would discard the server-config override.
         let fillAssistRulesUrl = environmentURLData.fillAssistRulesUrl
 
-        // Use the default URLs if the region matches US or EU.
+        // Use the default URLs if the region matches US or EU. Internal (`bitwarden.pw`) environments
+        // use their entered URLs, like self-hosted.
         let environmentURLData: EnvironmentURLData = switch environmentURLData.region {
         case .europe: .defaultEU
         case .unitedStates: .defaultUS
-        case .selfHosted: environmentURLData
+        case .internal, .selfHosted: environmentURLData
         }
 
-        if environmentURLData.region == .selfHosted, let base = environmentURLData.base {
+        if environmentURLData.region == .selfHosted || environmentURLData.region == .internal,
+           let base = environmentURLData.base {
             apiURL = base.appendingPathComponent("api")
             baseURL = base
             eventsURL = base.appendingPathComponent("events")

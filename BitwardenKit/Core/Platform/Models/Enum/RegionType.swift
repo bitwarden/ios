@@ -10,4 +10,7 @@ public enum RegionType: CaseIterable, Sendable {
 
     /// A self-hosted instance.
     case selfHosted
+
+    /// Bitwarden's internal/QA environment (any `bitwarden.pw` host). Not user-selectable.
+    case `internal`
 }

@@ -119,12 +119,15 @@ public extension EnvironmentURLData {
 
     /// Gets the region depending on the base url.
     var region: RegionType {
-        switch base {
-        case EnvironmentURLData.defaultUS.base:
+        if base == EnvironmentURLData.defaultUS.base {
             .unitedStates
-        case EnvironmentURLData.defaultEU.base:
+        } else if base == EnvironmentURLData.defaultEU.base {
             .europe
-        default:
+        } else if let base,
+                  let host = URLComponents(url: base, resolvingAgainstBaseURL: false)?.host,
+                  host == "bitwarden.pw" || host.hasSuffix(".bitwarden.pw") {
+            .internal
+        } else {
             .selfHosted
         }
     }

@@ -652,7 +652,7 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
         let preAuthEnvironmentURLs = services.appSettingsStore.preAuthEnvironmentURLs ?? EnvironmentURLData()
         var state = SelfHostedState()
 
-        if currentRegion == .selfHosted {
+        if currentRegion == .selfHosted || currentRegion == .internal {
             state = SelfHostedState(
                 apiServerUrl: preAuthEnvironmentURLs.api?.sanitized.description ?? "",
                 iconsServerUrl: preAuthEnvironmentURLs.icons?.sanitized.description ?? "",

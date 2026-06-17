@@ -168,6 +168,9 @@ extension DefaultEnvironmentService {
             .unitedStates
         } else if environmentURLs.baseURL == EnvironmentURLData.defaultEU.base {
             .europe
+        } else if let host = URLComponents(url: environmentURLs.baseURL, resolvingAgainstBaseURL: false)?.host,
+                  host == "bitwarden.pw" || host.hasSuffix(".bitwarden.pw") {
+            .internal
         } else {
             .selfHosted
         }

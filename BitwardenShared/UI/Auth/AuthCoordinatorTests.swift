@@ -478,6 +478,28 @@ class AuthCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this type_b
         XCTAssertEqual(action.embedInNavigationController, true)
     }
 
+    /// `navigate(to:)` with `.selfHosted` pre-fills the self-hosted view with the stored URLs when
+    /// the current region is internal, mirroring self-hosted behavior.
+    @MainActor
+    func test_navigate_selfHosted_prefillsURLsForInternalRegion() throws {
+        appSettingsStore.preAuthEnvironmentURLs = EnvironmentURLData(base: URL(string: "https://bitwarden.pw")!)
+        subject.navigate(to: .selfHosted(currentRegion: .internal))
+
+        let view = try XCTUnwrap(stackNavigator.actions.last?.view as? SelfHostedView)
+        XCTAssertEqual(view.store.state.serverUrl, "https://bitwarden.pw")
+    }
+
+    /// `navigate(to:)` with `.selfHosted` pre-fills the self-hosted view with the stored URLs when
+    /// the current region is self-hosted.
+    @MainActor
+    func test_navigate_selfHosted_prefillsURLsForSelfHostedRegion() throws {
+        appSettingsStore.preAuthEnvironmentURLs = EnvironmentURLData(base: URL(string: "https://example.com")!)
+        subject.navigate(to: .selfHosted(currentRegion: .selfHosted))
+
+        let view = try XCTUnwrap(stackNavigator.actions.last?.view as? SelfHostedView)
+        XCTAssertEqual(view.store.state.serverUrl, "https://example.com")
+    }
+
     /// `navigate(to:)` with `.removeMasterPassword` pushes the remove master password view onto the stack navigator.
     @MainActor
     func test_navigate_removeMasterPassword() throws {

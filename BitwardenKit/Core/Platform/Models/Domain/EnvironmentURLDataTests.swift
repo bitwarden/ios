@@ -136,6 +136,17 @@ class EnvironmentURLDataTests: XCTestCase {
         XCTAssertTrue(subject.region == .selfHosted)
     }
 
+    /// `region` returns `.internal` if the base URL host is `bitwarden.pw` or any subdomain of it.
+    func test_region_internal() {
+        XCTAssertEqual(EnvironmentURLData(base: URL(string: "https://bitwarden.pw")!).region, .internal)
+        XCTAssertEqual(EnvironmentURLData(base: URL(string: "https://qa-team.sh.bitwarden.pw")!).region, .internal)
+    }
+
+    /// `region` does not treat a look-alike host ending in `bitwarden.pw` as `.internal`.
+    func test_region_internal_lookAlikeHostIsSelfHosted() {
+        XCTAssertEqual(EnvironmentURLData(base: URL(string: "https://notbitwarden.pw")!).region, .selfHosted)
+    }
+
     /// `sendShareURL` returns the send URL for the united states region.
     func test_sendShareURL_unitedStates() {
         let subject = EnvironmentURLData.defaultUS
