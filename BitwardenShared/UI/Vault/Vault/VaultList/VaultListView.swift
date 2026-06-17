@@ -99,7 +99,7 @@ private struct SearchableVaultListView: View { // swiftlint:disable:this type_bo
             ActionCard(
                 title: Localizations.unlockAdvancedSecurityFeatures,
                 message: Localizations.aPremiumPlanGivesYouMoreToolsDescriptionLong,
-                actionButtonState: ActionCard.ButtonState(title: Localizations.upgradeToPremium) {
+                actionButtonState: ActionCard.ButtonState(title: Localizations.learnMore) {
                     store.send(.upgradeToPremium)
                 },
                 dismissButtonState: ActionCard.ButtonState(title: Localizations.dismiss) {
