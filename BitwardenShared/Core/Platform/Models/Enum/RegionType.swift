@@ -10,6 +10,17 @@ extension RegionType {
         allCases.filter(\.isUserSelectable)
     }
 
+    /// The region's apex domain, used as the host for the HTTPS auth-connector callback (Cloud
+    /// regions only), or `nil` for self-hosted (which uses the `bitwarden://` custom scheme).
+    var authCallbackHost: String? {
+        switch self {
+        case .europe: "bitwarden.eu"
+        case .internal: "bitwarden.pw"
+        case .selfHosted: nil
+        case .unitedStates: "bitwarden.com"
+        }
+    }
+
     /// The name for this region, localized.
     var localizedName: String {
         switch self {

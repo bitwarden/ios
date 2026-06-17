@@ -219,9 +219,8 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
             showSelfHostedView(delegate: context as? SelfHostedProcessorDelegate, currentRegion: region)
         case let .setMasterPassword(organizationIdentifier):
             showSetMasterPassword(organizationIdentifier: organizationIdentifier)
-        case let .singleSignOn(callbackUrlScheme, state, url):
+        case let .singleSignOn(state, url):
             showSingleSignOn(
-                callbackUrlScheme: callbackUrlScheme,
                 delegate: context as? SingleSignOnFlowDelegate,
                 state: state,
                 url: url,
@@ -373,9 +372,9 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
         authURL url: URL,
         delegate: DuoAuthenticationFlowDelegate?,
     ) {
-        let session = ASWebAuthenticationSession(
+        let session = services.authService.webAuthenticationSession(
             url: url,
-            callbackURLScheme: services.authService.callbackUrlScheme,
+            callbackKind: .duo,
         ) { callbackURL, error in
             if let error {
                 delegate?.duoErrored(error: error)
@@ -691,21 +690,19 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
     /// Shows the single sign on screen.
     ///
     /// - Parameters:
-    ///   - callbackUrlScheme: The callback url scheme for this application.
     ///   - delegate: A `SingleSignOnFlowDelegate` object that is notified when the single sign on flow succeeds or
     ///     fails.
     ///   - state: The password that the response has to match.
     ///   - url: The URL for the single sign on web auth session.
     ///
     private func showSingleSignOn(
-        callbackUrlScheme: String,
         delegate: SingleSignOnFlowDelegate?,
         state: String,
         url: URL,
     ) {
-        let session = ASWebAuthenticationSession(
+        let session = services.authService.webAuthenticationSession(
             url: url,
-            callbackURLScheme: callbackUrlScheme,
+            callbackKind: .singleSignOn,
         ) { url, error in
             if let error {
                 delegate?.singleSignOnErrored(error: error)
@@ -914,6 +911,7 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
         guard let delegate else { return }
         let session = services.authService.webAuthenticationSession(
             url: url,
+            callbackKind: .webAuthnSelfHosted,
         ) { callbackURL, error in
             if let error {
                 delegate.webAuthnErrored(error: error)

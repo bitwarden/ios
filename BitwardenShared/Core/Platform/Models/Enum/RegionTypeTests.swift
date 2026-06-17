@@ -7,6 +7,14 @@ import BitwardenResources
 class RegionTypeTests: BitwardenTestCase {
     // MARK: Tests
 
+    /// `authCallbackHost` returns the apex host for Cloud regions and `nil` for self-hosted.
+    func test_authCallbackHost() {
+        XCTAssertEqual(RegionType.europe.authCallbackHost, "bitwarden.eu")
+        XCTAssertEqual(RegionType.internal.authCallbackHost, "bitwarden.pw")
+        XCTAssertNil(RegionType.selfHosted.authCallbackHost)
+        XCTAssertEqual(RegionType.unitedStates.authCallbackHost, "bitwarden.com")
+    }
+
     /// `getter:localizedName` returns the correct values.
     func test_localizedName() {
         XCTAssertEqual(RegionType.europe.localizedName, Localizations.eu)
