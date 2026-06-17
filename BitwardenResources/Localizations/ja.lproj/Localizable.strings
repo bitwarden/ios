@@ -1030,7 +1030,7 @@
 "ArchivingItemsIsAPremiumFeatureDescriptionLong" = "Archiving items is a Premium feature. Your current plan does not include access to this feature.";
 "AddingAttachmentsIsAPremiumFeatureDescriptionLong" = "添付ファイルはプレミアム機能です。現在のプランにはこの機能へのアクセス権が含まれていません。";
 "AttachmentsUnavailable" = "添付ファイルは利用できません";
-"UpgradeToPremium" = "Upgrade to Premium";
+"UpgradeToPremium" = "Upgrade to premium";
 "ThisItemIsArchived" = "This item is archived.";
 "YourPremiumSubscriptionEnded" = "Your Premium subscription ended";
 "YourPremiumSubscriptionEndedArchiveDescriptionLong" = "To regain access to your archive, restart your Premium subscription. If you edit details for an archived item before restarting, it’ll be moved back into your vault.";
