@@ -100,6 +100,11 @@ public extension EnvironmentURLData {
             && webVault == nil
     }
 
+    /// The URL for managing the subscription plan.
+    var manageSubscriptionURL: URL? {
+        subpageURL(additionalPath: "settings/subscription")
+    }
+
     /// The URL for a proxy on cookie redirect (used on SSO sync error).
     var proxyCookieRedirectConnectorURL: URL? {
         subpageURL(additionalPath: "proxy-cookie-redirect-connector.html", shouldAddPoundSign: false)
