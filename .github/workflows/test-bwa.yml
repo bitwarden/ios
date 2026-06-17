@@ -199,31 +199,6 @@ jobs:
           path: build/DerivedData
           key: ${{ runner.os }}-deriveddata-${{ github.workflow }}-${{ github.sha }}
 
-      - name: Print DerivedData file tree
-        if: always()
-        run: |
-          echo "=== Disk Usage Report ==="
-          echo ""
-          echo "--- Homebrew ---"
-          du -sh ~/Library/Caches/Homebrew
-          du -sh /opt/homebrew/Cellar
-
-          echo ""
-          echo "--- top level build/ ---"
-          du -sh build
-          du -sh build/DerivedData
-          du -sh build/DerivedData/*
-          du -sh build/DerivedData/Build/*
-          du -sh build/DerivedData/Build/Intermediates.noindex/*
-          du -sh build/DerivedData/SourcePackages/*
-          du -sh build/DerivedData/SourcePackages/artifacts/*
-          du -sh build/DerivedData/SourcePackages/checkouts/*
-          du -sh build/DerivedData/SourcePackages/repositories/*
-
-          echo ""
-          echo "=== build/ Directory Trees ==="
-          find build/ -type d
-
       - name: Test
         id: test
         env:
