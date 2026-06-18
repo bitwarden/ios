@@ -42,6 +42,8 @@ class RootCoordinator: Coordinator, HasStackNavigator {
             showScenarioPicker()
         case .simpleLoginForm:
             showSimpleLoginForm()
+        case .totpAutofillForm:
+            showTOTPAutofillForm()
         }
     }
 
@@ -74,6 +76,15 @@ class RootCoordinator: Coordinator, HasStackNavigator {
     private func showSimpleLoginForm() {
         let processor = SimpleLoginFormProcessor(coordinator: asAnyCoordinator())
         let view = SimpleLoginFormView(store: Store(processor: processor))
+        let viewController = UIHostingController(rootView: view)
+        stackNavigator?.push(viewController)
+    }
+
+    /// Shows the TOTP autofill form test screen.
+    ///
+    private func showTOTPAutofillForm() {
+        let processor = TOTPAutofillFormProcessor(coordinator: asAnyCoordinator())
+        let view = TOTPAutofillFormView(store: Store(processor: processor))
         let viewController = UIHostingController(rootView: view)
         stackNavigator?.push(viewController)
     }

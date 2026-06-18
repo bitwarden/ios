@@ -44,6 +44,13 @@ protocol StateService: AnyObject, BillingStateService {
     ///
     func doesActiveAccountHavePremium() async -> Bool
 
+    /// Returns whether the active user account has premium personally (i.e. premium that the user
+    /// purchased themselves), as opposed to premium granted by an organization.
+    ///
+    /// - Returns: Whether the active account has premium personally.
+    ///
+    func doesActiveAccountHavePremiumPersonally() async -> Bool
+
     /// Gets the access token's expiration date for an account.
     ///
     /// - Parameter userId: The user ID associated with the access token expiration date.
@@ -159,6 +166,14 @@ protocol StateService: AnyObject, BillingStateService {
     /// - Returns: The time after which the clipboard should clear.
     ///
     func getClearClipboardValue(userId: String?) async throws -> ClearClipboardValue
+
+    /// Gets the IDs of the collapsed vault list sections for the user ID.
+    ///
+    /// - Parameter userId: The user ID associated with the collapsed vault list section IDs. Defaults
+    ///   to the active account if `nil`.
+    /// - Returns: The IDs of the vault list sections that are currently collapsed.
+    ///
+    func getCollapsedVaultListSectionIds(userId: String?) async throws -> [String]
 
     /// Gets the connect to watch value for an account.
     ///
@@ -566,6 +581,15 @@ protocol StateService: AnyObject, BillingStateService {
     ///   - userId: The user ID of the account. Defaults to the active account if `nil`.
     ///
     func setClearClipboardValue(_ clearClipboardValue: ClearClipboardValue?, userId: String?) async throws
+
+    /// Sets the IDs of the collapsed vault list sections for the user ID.
+    ///
+    /// - Parameters:
+    ///   - ids: The IDs of the vault list sections that are currently collapsed.
+    ///   - userId: The user ID associated with the collapsed vault list section IDs. Defaults to the
+    ///     active account if `nil`.
+    ///
+    func setCollapsedVaultListSectionIds(_ ids: [String], userId: String?) async throws
 
     /// Sets the connect to watch value for an account.
     ///
@@ -977,6 +1001,14 @@ extension StateService {
         try await getClearClipboardValue(userId: nil)
     }
 
+    /// Gets the IDs of the collapsed vault list sections for the active account.
+    ///
+    /// - Returns: The IDs of the vault list sections that are currently collapsed.
+    ///
+    func getCollapsedVaultListSectionIds() async throws -> [String] {
+        try await getCollapsedVaultListSectionIds(userId: nil)
+    }
+
     /// Gets the connect to watch value for the active account.
     ///
     /// - Returns: Whether to connect to the watch app.
@@ -1239,6 +1271,14 @@ extension StateService {
     ///
     func setClearClipboardValue(_ clearClipboardValue: ClearClipboardValue?) async throws {
         try await setClearClipboardValue(clearClipboardValue, userId: nil)
+    }
+
+    /// Sets the IDs of the collapsed vault list sections for the active account.
+    ///
+    /// - Parameter ids: The IDs of the vault list sections that are currently collapsed.
+    ///
+    func setCollapsedVaultListSectionIds(_ ids: [String]) async throws {
+        try await setCollapsedVaultListSectionIds(ids, userId: nil)
     }
 
     /// Sets the connect to watch value for the active account.
@@ -1565,6 +1605,16 @@ actor DefaultStateService: StateService, ActiveAccountStateProvider, ConfigState
         }
     }
 
+    func doesActiveAccountHavePremiumPersonally() async -> Bool {
+        do {
+            let account = try await getActiveAccount()
+            return account.profile.hasPremiumPersonally ?? false
+        } catch {
+            errorReporter.log(error: error)
+            return false
+        }
+    }
+
     func getAccessTokenExpirationDate(userId: String) -> Date? {
         appSettingsStore.accessTokenExpirationDate(userId: userId)
     }
@@ -1668,6 +1718,11 @@ actor DefaultStateService: StateService, ActiveAccountStateProvider, ConfigState
     func getClearClipboardValue(userId: String?) async throws -> ClearClipboardValue {
         let userId = try userId ?? getActiveAccountUserId()
         return appSettingsStore.clearClipboardValue(userId: userId)
+    }
+
+    func getCollapsedVaultListSectionIds(userId: String?) async throws -> [String] {
+        let userId = try userId ?? getActiveAccountUserId()
+        return appSettingsStore.collapsedVaultListSectionIds(userId: userId)
     }
 
     func getConnectToWatch(userId: String?) async throws -> Bool {
@@ -2027,6 +2082,11 @@ actor DefaultStateService: StateService, ActiveAccountStateProvider, ConfigState
     func setClearClipboardValue(_ clearClipboardValue: ClearClipboardValue?, userId: String?) async throws {
         let userId = try userId ?? getActiveAccountUserId()
         appSettingsStore.setClearClipboardValue(clearClipboardValue, userId: userId)
+    }
+
+    func setCollapsedVaultListSectionIds(_ ids: [String], userId: String?) async throws {
+        let userId = try userId ?? getActiveAccountUserId()
+        appSettingsStore.setCollapsedVaultListSectionIds(ids, userId: userId)
     }
 
     func setConnectToWatch(_ connectToWatch: Bool, userId: String?) async throws {

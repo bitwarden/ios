@@ -297,6 +297,21 @@ private extension AddEditItemView {
 }
 
 private extension AddEditItemView {
+    /// Specific fields for a bank account item.
+    @ViewBuilder private var bankAccountItems: some View {
+        AddEditBankAccountItemView(
+            store: store.child(
+                state: { addEditState in
+                    addEditState.bankAccountItemState
+                },
+                mapAction: { action in
+                    .bankAccountFieldChanged(action)
+                },
+                mapEffect: { $0 },
+            ),
+        )
+    }
+
     /// Specific fields for a card item.
     @ViewBuilder private var cardItems: some View {
         AddEditCardItemView(
@@ -346,13 +361,11 @@ private extension AddEditItemView {
     @ViewBuilder private var itemTypeSection: some View {
         switch store.state.type {
         case .bankAccount:
-            // TODO: PM-32809 - render AddEditBankAccountItemView once the Bank Account UI PR lands.
-            EmptyView()
+            bankAccountItems
         case .driversLicense:
             driversLicenseItems
         case .passport:
-            // TODO: PM-38153 - render AddEditPassportItemView once the Passport UI PR lands.
-            EmptyView()
+            passportItems
         case .card:
             cardItems
         case .login:
@@ -389,6 +402,21 @@ private extension AddEditItemView {
                     )),
                 )
             },
+        )
+    }
+
+    /// Specific fields for a passport item.
+    @ViewBuilder private var passportItems: some View {
+        AddEditPassportItemView(
+            store: store.child(
+                state: { addEditState in
+                    addEditState.passportItemState
+                },
+                mapAction: { action in
+                    .passportFieldChanged(action)
+                },
+                mapEffect: { $0 },
+            ),
         )
     }
 

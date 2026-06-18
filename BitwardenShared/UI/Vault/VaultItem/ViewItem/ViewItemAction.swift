@@ -32,6 +32,9 @@ enum ViewItemAction: Equatable, Sendable {
     /// The download attachment button was pressed.
     case downloadAttachment(AttachmentView)
 
+    /// A driver's license item action.
+    case driversLicenseItemAction(ViewDriversLicenseItemAction)
+
     /// The edit button was pressed.
     case editPressed
 
@@ -94,6 +97,15 @@ enum CopyableField {
 
     /// The identity name field.
     case identityName
+
+    /// The first name field.
+    case firstName
+
+    /// The middle name field.
+    case middleName
+
+    /// The last name field.
+    case lastName
 
     /// The company field.
     case company
@@ -160,6 +172,12 @@ enum CopyableField {
             Localizations.username
         case .identityName:
             Localizations.identityName
+        case .firstName:
+            Localizations.firstName
+        case .middleName:
+            Localizations.middleName
+        case .lastName:
+            Localizations.lastName
         case .company:
             Localizations.company
         case .socialSecurityNumber:

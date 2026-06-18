@@ -45,7 +45,7 @@ struct SimpleLoginFormView: View {
             } header: {
                 Text(Localizations.credentials)
             } footer: {
-                Text(Localizations.simpleLoginFormDescription)
+                Text(Localizations.useThisLoginFormToTestAutofillFunctionality)
             }
 
             Section {

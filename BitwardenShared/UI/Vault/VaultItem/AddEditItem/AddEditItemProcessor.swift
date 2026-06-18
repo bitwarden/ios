@@ -202,6 +202,8 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
             coordinator.navigate(to: .addFolder, context: self)
         case let .authKeyVisibilityTapped(newValue):
             state.loginState.isAuthKeyVisible = newValue
+        case let .bankAccountFieldChanged(bankAccountFieldAction):
+            updateBankAccountState(&state, for: bankAccountFieldAction)
         case let .cardFieldChanged(cardFieldAction):
             updateCardState(&state, for: cardFieldAction)
         case .clearUrl:
@@ -249,6 +251,8 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
             state.notes = newValue
         case let .ownerChanged(newValue):
             state.owner = newValue
+        case let .passportFieldChanged(passportFieldAction):
+            updatePassportState(&state, for: passportFieldAction)
         case let .passwordChanged(newValue):
             state.loginState.password = newValue
         case .removePasskeyPressed:
@@ -496,6 +500,45 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
         state.cardItemState.cardScannerEnabled = await services.configService.getFeatureFlag(.cardScanner)
     }
 
+    /// Updates the bank account state based on the action received.
+    ///
+    /// - Parameters:
+    ///   - state: The parent `AddEditItemState` to be updated.
+    ///   - action: The `AddEditBankAccountItemAction` received.
+    private func updateBankAccountState(
+        _ state: inout AddEditItemState,
+        for action: AddEditBankAccountItemAction,
+    ) {
+        switch action {
+        case let .accountNumberChanged(accountNumber):
+            state.bankAccountItemState.accountNumber = accountNumber
+        case let .accountTypeChanged(accountType):
+            state.bankAccountItemState.accountType = accountType
+        case let .bankContactPhoneChanged(bankContactPhone):
+            state.bankAccountItemState.bankContactPhone = bankContactPhone
+        case let .bankNameChanged(bankName):
+            state.bankAccountItemState.bankName = bankName
+        case let .branchNumberChanged(branchNumber):
+            state.bankAccountItemState.branchNumber = branchNumber
+        case let .ibanChanged(iban):
+            state.bankAccountItemState.iban = iban
+        case let .nameOnAccountChanged(nameOnAccount):
+            state.bankAccountItemState.nameOnAccount = nameOnAccount
+        case let .pinChanged(pin):
+            state.bankAccountItemState.pin = pin
+        case let .routingNumberChanged(routingNumber):
+            state.bankAccountItemState.routingNumber = routingNumber
+        case let .swiftCodeChanged(swiftCode):
+            state.bankAccountItemState.swiftCode = swiftCode
+        case let .toggleAccountNumberVisibilityChanged(isVisible):
+            state.bankAccountItemState.isAccountNumberVisible = isVisible
+        case let .toggleIbanVisibilityChanged(isVisible):
+            state.bankAccountItemState.isIbanVisible = isVisible
+        case let .togglePinVisibilityChanged(isVisible):
+            state.bankAccountItemState.isPinVisible = isVisible
+        }
+    }
+
     /// Receives an `AddEditCardItem` action from the `AddEditCardView` view's store, and updates
     /// the `AddEditCardState`.
     ///
@@ -624,6 +667,41 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
             state.identityState.postalCode = postalCode
         case let .countryChanged(country):
             state.identityState.country = country
+        }
+    }
+
+    /// Receives an `AddEditPassportItem` action from the `AddEditPassportItemView` view's store, and
+    /// updates the `PassportItemState`.
+    ///
+    /// - Parameters:
+    ///   - state: The parent `AddEditItemState` to be updated.
+    ///   - action: The `AddEditPassportItemAction` received.
+    private func updatePassportState(_ state: inout AddEditItemState, for action: AddEditPassportItemAction) {
+        switch action {
+        case let .birthPlaceChanged(birthPlace):
+            state.passportItemState.birthPlace = birthPlace
+        case let .givenNameChanged(givenName):
+            state.passportItemState.givenName = givenName
+        case let .issuingAuthorityChanged(issuingAuthority):
+            state.passportItemState.issuingAuthority = issuingAuthority
+        case let .issuingCountryChanged(issuingCountry):
+            state.passportItemState.issuingCountry = issuingCountry
+        case let .nationalIdentificationNumberChanged(nationalIdentificationNumber):
+            state.passportItemState.nationalIdentificationNumber = nationalIdentificationNumber
+        case let .nationalityChanged(nationality):
+            state.passportItemState.nationality = nationality
+        case let .passportNumberChanged(passportNumber):
+            state.passportItemState.passportNumber = passportNumber
+        case let .passportTypeChanged(passportType):
+            state.passportItemState.passportType = passportType
+        case let .sexChanged(sex):
+            state.passportItemState.sex = sex
+        case let .surnameChanged(surname):
+            state.passportItemState.surname = surname
+        case let .toggleNationalIdentificationNumberVisibilityChanged(isVisible):
+            state.passportItemState.isNationalIdentificationNumberVisible = isVisible
+        case let .togglePassportNumberVisibilityChanged(isVisible):
+            state.passportItemState.isPassportNumberVisible = isVisible
         }
     }
 
