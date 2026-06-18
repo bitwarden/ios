@@ -1304,6 +1304,32 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         XCTAssertEqual(errorReporter.errors.last as? BitwardenTestError, .example)
     }
 
+    /// `perform(_:)` with `.streamVaultList` loads the persisted collapsed section IDs into the
+    /// state.
+    @MainActor
+    func test_perform_streamVaultList_loadsCollapsedSectionIds() throws {
+        stateService.activeAccount = .fixture()
+        stateService.collapsedVaultListSectionIds["1"] = ["1", "2"]
+        vaultRepository.vaultListSubject.send(VaultListData(
+            sections: [
+                VaultListSection(
+                    id: "1",
+                    items: [VaultListItem.fixture()],
+                    name: "Name",
+                ),
+            ],
+        ))
+
+        let task = Task {
+            await subject.perform(.streamVaultList)
+        }
+
+        waitFor(!subject.state.collapsedSectionIds.isEmpty)
+        task.cancel()
+
+        XCTAssertEqual(subject.state.collapsedSectionIds, ["1", "2"])
+    }
+
     /// `perform(_:)` with `.streamVaultList` updates the state's vault list whenever it changes.
     @MainActor
     func test_perform_streamVaultList_needsSync_emptyData() throws {
@@ -2198,6 +2224,33 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
                 searchVaultFilterType: .organization(organization),
             ),
         )
+    }
+
+    /// `receive(_:)` with `.sectionExpandToggled` collapsing a section adds its ID to the state's
+    /// collapsed section IDs and persists the updated set.
+    @MainActor
+    func test_receive_sectionExpandToggled_collapse() {
+        stateService.activeAccount = .fixture()
+
+        subject.receive(.sectionExpandToggled(sectionId: "1", isExpanded: false))
+
+        XCTAssertEqual(subject.state.collapsedSectionIds, ["1"])
+        waitFor(stateService.collapsedVaultListSectionIds["1"] != nil)
+        XCTAssertEqual(stateService.collapsedVaultListSectionIds["1"], ["1"])
+    }
+
+    /// `receive(_:)` with `.sectionExpandToggled` expanding a section removes its ID from the
+    /// state's collapsed section IDs and persists the updated set.
+    @MainActor
+    func test_receive_sectionExpandToggled_expand() {
+        stateService.activeAccount = .fixture()
+        subject.state.collapsedSectionIds = ["1", "2"]
+
+        subject.receive(.sectionExpandToggled(sectionId: "1", isExpanded: true))
+
+        XCTAssertEqual(subject.state.collapsedSectionIds, ["2"])
+        waitFor(stateService.collapsedVaultListSectionIds["1"] != nil)
+        XCTAssertEqual(stateService.collapsedVaultListSectionIds["1"], ["2"])
     }
 
     /// `receive(_:)` with `showImportLogins(:)` has the coordinator navigate to the import logins

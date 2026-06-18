@@ -36,6 +36,7 @@ class MockStateService: StateService, ActiveAccountStateProvider, AutofillStateS
     var capturedUserId: String?
     var clearClipboardValues = [String: ClearClipboardValue]()
     var clearClipboardResult: Result<Void, Error> = .success(())
+    var collapsedVaultListSectionIds = [String: [String]]()
     var connectToWatchByUserId = [String: Bool]()
     var connectToWatchResult: Result<Void, Error> = .success(())
     var connectToWatchSubject = CurrentValueSubject<(String?, Bool), Never>((nil, false))
@@ -268,6 +269,11 @@ class MockStateService: StateService, ActiveAccountStateProvider, AutofillStateS
         try clearClipboardResult.get()
         let userId = try unwrapUserId(userId)
         return clearClipboardValues[userId] ?? .never
+    }
+
+    func getCollapsedVaultListSectionIds(userId: String?) async throws -> [String] {
+        let userId = try unwrapUserId(userId)
+        return collapsedVaultListSectionIds[userId] ?? []
     }
 
     func getConnectToWatch(userId: String?) async throws -> Bool {
@@ -602,6 +608,11 @@ class MockStateService: StateService, ActiveAccountStateProvider, AutofillStateS
         try clearClipboardResult.get()
         let userId = try unwrapUserId(userId)
         clearClipboardValues[userId] = clearClipboardValue
+    }
+
+    func setCollapsedVaultListSectionIds(_ ids: [String], userId: String?) async throws {
+        let userId = try unwrapUserId(userId)
+        collapsedVaultListSectionIds[userId] = ids
     }
 
     func setConnectToWatch(_ connectToWatch: Bool, userId: String?) async throws {

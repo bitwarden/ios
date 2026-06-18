@@ -48,6 +48,14 @@ enum VaultListAction: Equatable {
     /// The selected vault filter for search changed.
     case searchVaultFilterChanged(VaultFilterType)
 
+    /// A vault list section header was tapped to expand or collapse the section.
+    ///
+    /// - Parameters:
+    ///   - sectionId: The ID of the section that was expanded or collapsed.
+    ///   - isExpanded: Whether the section is now expanded.
+    ///
+    case sectionExpandToggled(sectionId: String, isExpanded: Bool)
+
     /// The user tapped the get started button on the import logins action card.
     case showImportLogins
 
