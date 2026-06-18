@@ -10,10 +10,17 @@
 "EnterTOTPCodeAbove" = "Enter TOTP code above";
 "ExpirationMonth" = "Expiration Month";
 "ExpirationYear" = "Expiration Year";
+"FileShare" = "File Share";
 "FormValues" = "Form Values";
 "PasskeyAutofill" = "Passkey Autofill";
 "Password" = "Password";
 "SecurityCode" = "Security Code";
+"ShareFile" = "Share File";
+"SharesASamplePDFDescriptionLong" = "Shares a sample PDF containing the text \"Hello World\". Exercises the UTType.data → URL → file Send path in the share extension.";
+"ShareImage" = "Share Image";
+"SharesAGeneratedPNGImageDescriptionLong" = "Shares a generated PNG image. Exercises the UTType.data → UIImage → file Send path in the share extension.";
+"ShareText" = "Share Text";
+"SharesTheTextAboveDescriptionLong" = "Shares the text above. Exercises the UTType.plainText → text Send path in the share extension.";
 "SimpleLoginForm" = "Simple Login Form";
 "TestHarness" = "Test Harness";
 "TestScenarios" = "Test Scenarios";

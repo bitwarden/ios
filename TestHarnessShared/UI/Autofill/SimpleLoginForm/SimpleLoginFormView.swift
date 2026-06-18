@@ -30,6 +30,7 @@ struct SimpleLoginFormView: View {
                         send: SimpleLoginFormAction.usernameChanged,
                     ),
                 )
+                .accessibilityIdentifier("UsernameEntry")
                 .textContentType(.username)
                 .textInputAutocapitalization(.never)
                 .autocorrectionDisabled()
@@ -41,6 +42,7 @@ struct SimpleLoginFormView: View {
                         send: SimpleLoginFormAction.passwordChanged,
                     ),
                 )
+                .accessibilityIdentifier("PasswordEntry")
                 .textContentType(.password)
             } header: {
                 Text(Localizations.credentials)
