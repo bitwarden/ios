@@ -712,6 +712,23 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         XCTAssertEqual(value, .twoMinutes)
     }
 
+    /// `getCollapsedVaultListSectionIds()` returns the collapsed vault list section IDs for the
+    /// active account.
+    func test_getCollapsedVaultListSectionIds() async throws {
+        await subject.addAccount(.fixture())
+        appSettingsStore.collapsedVaultListSectionIdsByUserId["1"] = ["1", "2"]
+        let value = try await subject.getCollapsedVaultListSectionIds()
+        XCTAssertEqual(value, ["1", "2"])
+    }
+
+    /// `getCollapsedVaultListSectionIds()` returns an empty array if the active account doesn't have
+    /// a value set.
+    func test_getCollapsedVaultListSectionIds_notSet() async throws {
+        await subject.addAccount(.fixture())
+        let value = try await subject.getCollapsedVaultListSectionIds()
+        XCTAssertEqual(value, [])
+    }
+
     /// `getConnectToWatch()` returns the connect to watch value for the active account.
     func test_getConnectToWatch() async throws {
         await subject.addAccount(.fixture())
@@ -1998,6 +2015,15 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
 
         try await subject.setClearClipboardValue(.thirtySeconds)
         XCTAssertEqual(appSettingsStore.clearClipboardValues["1"], .thirtySeconds)
+    }
+
+    /// `setCollapsedVaultListSectionIds(_:)` sets the collapsed vault list section IDs for the
+    /// active account.
+    func test_setCollapsedVaultListSectionIds() async throws {
+        await subject.addAccount(.fixture())
+
+        try await subject.setCollapsedVaultListSectionIds(["1", "2"])
+        XCTAssertEqual(appSettingsStore.collapsedVaultListSectionIdsByUserId["1"], ["1", "2"])
     }
 
     /// `setConnectToWatch(_:userId:)` sets the connect to watch value for a user.

@@ -3,9 +3,11 @@
 "CardDetails" = "Card Details";
 "CardholderName" = "Cardholder Name";
 "CardNumber" = "Card Number";
+"CreatePasskey" = "Create Passkey";
 "Credentials" = "Credentials";
 "EnterCardDetailsAbove" = "Enter card details above";
 "EnterCredentialsAbove" = "Enter credentials above";
+"EnterTOTPCodeAbove" = "Enter TOTP code above";
 "ExpirationMonth" = "Expiration Month";
 "ExpirationYear" = "Expiration Year";
 "FormValues" = "Form Values";
@@ -13,8 +15,11 @@
 "Password" = "Password";
 "SecurityCode" = "Security Code";
 "SimpleLoginForm" = "Simple Login Form";
-"SimpleLoginFormDescription" = "Use this simple login form to test autofill functionality.";
 "TestHarness" = "Test Harness";
 "TestScenarios" = "Test Scenarios";
+"TOTPAutofillForm" = "TOTP Autofill Form";
+"TapTheTOTPCodeFieldAndSelectDescriptionLong" = "Tap the TOTP Code field and select a code from Bitwarden. Requires Bitwarden PM as AutoFill provider and a saved Login with a TOTP seed.";
+"TOTPCode" = "TOTP Code";
 "Username" = "Username";
+"UseThisLoginFormToTestAutofillFunctionality" = "Use this login form to test autofill functionality.";
 "XColonY" = "%@: %@";
