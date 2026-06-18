@@ -26,6 +26,6 @@ extension APIService: FillAssistAPIService {
     }
 
     func getManifest() async throws -> FillAssistManifestResponseModel {
-        try await mapTheWebService.send(FillAssistManifestRequest())
+        try await fillAssistService.send(FillAssistManifestRequest())
     }
 }
