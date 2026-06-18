@@ -68,10 +68,10 @@ public enum SettingsRoute: Equatable, Hashable {
     /// A route to the pending login requests view.
     case pendingLoginRequests
 
-    /// A route to the premium plan screen.
+    /// A route to the Premium plan screen.
     case premiumPlan(PremiumSubscription?)
 
-    /// A route to the premium upgrade screen.
+    /// A route to the Premium upgrade screen.
     case premiumUpgrade
 
     /// A route to view the select language view.

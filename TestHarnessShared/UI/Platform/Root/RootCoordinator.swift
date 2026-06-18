@@ -38,10 +38,14 @@ class RootCoordinator: Coordinator, HasStackNavigator {
         switch route {
         case .cardAutofillForm:
             showCardAutofillForm()
+        case .fileShare:
+            showFileShare()
         case .scenarioPicker:
             showScenarioPicker()
         case .simpleLoginForm:
             showSimpleLoginForm()
+        case .totpAutofillForm:
+            showTOTPAutofillForm()
         }
     }
 
@@ -61,6 +65,16 @@ class RootCoordinator: Coordinator, HasStackNavigator {
         stackNavigator?.push(viewController)
     }
 
+    /// Shows the file share test screen.
+    ///
+    private func showFileShare() {
+        guard #available(iOS 16.0, *) else { return }
+        let processor = FileShareProcessor(coordinator: asAnyCoordinator())
+        let view = FileShareView(store: Store(processor: processor))
+        let viewController = UIHostingController(rootView: view)
+        stackNavigator?.push(viewController)
+    }
+
     /// Shows the scenario picker screen.
     ///
     private func showScenarioPicker() {
@@ -74,6 +88,15 @@ class RootCoordinator: Coordinator, HasStackNavigator {
     private func showSimpleLoginForm() {
         let processor = SimpleLoginFormProcessor(coordinator: asAnyCoordinator())
         let view = SimpleLoginFormView(store: Store(processor: processor))
+        let viewController = UIHostingController(rootView: view)
+        stackNavigator?.push(viewController)
+    }
+
+    /// Shows the TOTP autofill form test screen.
+    ///
+    private func showTOTPAutofillForm() {
+        let processor = TOTPAutofillFormProcessor(coordinator: asAnyCoordinator())
+        let view = TOTPAutofillFormView(store: Store(processor: processor))
         let viewController = UIHostingController(rootView: view)
         stackNavigator?.push(viewController)
     }

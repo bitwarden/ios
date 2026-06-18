@@ -248,7 +248,13 @@ private struct SearchableVaultListView: View {
             vaultFilterRow
 
             ForEach(sections) { section in
-                VaultListSectionView(section: section) { item in
+                VaultListSectionView(
+                    section: section,
+                    isExpanded: store.binding(
+                        get: { !$0.collapsedSectionIds.contains(section.id) },
+                        send: { .sectionExpandToggled(sectionId: section.id, isExpanded: $0) },
+                    ),
+                ) { item in
                     Button {
                         store.send(.itemPressed(item: item))
                     } label: {
@@ -358,7 +364,7 @@ extension SearchableVaultListView {
         }
     }
 
-    /// The action card for premium upgrade.
+    /// The action card for Premium upgrade.
     @ViewBuilder private var premiumUpgradeActionCard: some View {
         if store.state.shouldShowPremiumUpgradeActionCard {
             ActionCard(
@@ -374,7 +380,7 @@ extension SearchableVaultListView {
         }
     }
 
-    /// The action card for the upgraded to premium confirmation.
+    /// The action card for the upgraded to Premium confirmation.
     @ViewBuilder private var upgradedToPremiumActionCard: some View {
         if store.state.shouldShowUpgradedToPremiumActionCard {
             UpgradedToPremiumActionCardView(

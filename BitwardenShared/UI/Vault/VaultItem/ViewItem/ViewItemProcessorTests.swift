@@ -299,7 +299,7 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         XCTAssertFalse(vaultRepository.fetchSyncCalled)
     }
 
-    /// `perform(_:)` with `.appeared` observe the premium status of a user.
+    /// `perform(_:)` with `.appeared` observe the Premium status of a user.
     @MainActor
     func test_perform_appeared_nonPremium() {
         let account = Account.fixture()
@@ -856,7 +856,7 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         XCTAssertEqual(vaultItemActionHelper.archiveReceivedArguments?.cipher.id, "123")
     }
 
-    /// `perform(_:)` with `.archivedPressed` delegates to the premium upgrade helper.
+    /// `perform(_:)` with `.archivedPressed` delegates to the Premium upgrade helper.
     @MainActor
     func test_perform_archivedPressed_navigateToPremiumUpgrade() async {
         let cipherState = CipherItemState(

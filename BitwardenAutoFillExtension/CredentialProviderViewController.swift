@@ -316,11 +316,18 @@ extension CredentialProviderViewController {
 
 extension CredentialProviderViewController {
     @available(iOSApplicationExtension 26.2, *)
+    override func prepareInterface(for savePasswordRequest: ASSavePasswordRequest) {
+        initializeApp(with: DefaultCredentialProviderContext(
+            .savePasswordCredential(savePasswordRequest, userInteraction: true),
+        ))
+    }
+
+    @available(iOSApplicationExtension 26.2, *)
     override func performWithoutUserInteractionIfPossible(savePasswordRequest: ASSavePasswordRequest) {
         Task {
             await initializeAppWithoutUserInteraction(
                 with: DefaultCredentialProviderContext(
-                    .savePasswordWithoutUserInteraction(savePasswordRequest),
+                    .savePasswordCredential(savePasswordRequest, userInteraction: false),
                 ),
             )
             await savePassword(savePasswordRequest: savePasswordRequest)
@@ -347,7 +354,7 @@ extension CredentialProviderViewController {
             extensionContext.completeSavePasswordRequest(completionHandler: nil)
         } catch {
             Logger.appExtension.error("Error saving password credential without user interaction: \(error)")
-            cancel(error: error)
+            cancel(error: ASExtensionError(.userInteractionRequired))
         }
     }
 }
@@ -481,6 +488,11 @@ extension CredentialProviderViewController: CredentialProviderExtensionDelegate 
     @available(iOSApplicationExtension 18.0, *)
     func completeOTPRequest(code: String) {
         extensionContext.completeOneTimeCodeRequest(using: ASOneTimeCodeCredential(code: code))
+    }
+
+    func completeSavePasswordRequest() {
+        guard #available(iOSApplicationExtension 26.2, *) else { return }
+        extensionContext.completeSavePasswordRequest(completionHandler: nil)
     }
 
     @available(iOSApplicationExtension 17.0, *)
