@@ -26,6 +26,7 @@ class AddEditItemProcessorFido2Tests: BitwardenTestCase {
     var fido2UserInterfaceHelper: MockFido2UserInterfaceHelper!
     var pasteboardService: MockPasteboardService!
     var policyService: MockPolicyService!
+    var reviewPromptService: MockReviewPromptService!
     var stateService: MockStateService!
     var totpService: MockTOTPService!
     var subject: AddEditItemProcessor!
@@ -47,6 +48,7 @@ class AddEditItemProcessorFido2Tests: BitwardenTestCase {
         fido2UserInterfaceHelper = MockFido2UserInterfaceHelper()
         pasteboardService = MockPasteboardService()
         policyService = MockPolicyService()
+        reviewPromptService = MockReviewPromptService()
         stateService = MockStateService()
         totpService = MockTOTPService()
         vaultItemActionHelper = MockVaultItemActionHelper()
@@ -64,6 +66,7 @@ class AddEditItemProcessorFido2Tests: BitwardenTestCase {
                 httpClient: client,
                 pasteboardService: pasteboardService,
                 policyService: policyService,
+                reviewPromptService: reviewPromptService,
                 stateService: stateService,
                 totpService: totpService,
                 vaultRepository: vaultRepository,
@@ -91,6 +94,7 @@ class AddEditItemProcessorFido2Tests: BitwardenTestCase {
         coordinator = nil
         errorReporter = nil
         pasteboardService = nil
+        reviewPromptService = nil
         stateService = nil
         subject = nil
         totpService = nil
@@ -231,6 +235,7 @@ class AddEditItemProcessorFido2Tests: BitwardenTestCase {
         XCTAssertFalse(vaultRepository.addCipherCiphers.isEmpty)
         XCTAssertTrue(appExtensionDelegate.completeSavePasswordRequestCalled)
         XCTAssertTrue(coordinator.routes.isEmpty)
+        XCTAssertTrue(reviewPromptService.userActions.isEmpty)
     }
 
     /// `perform(_:)` with `.savePressed` in the save-password-credential flow shows an error alert
