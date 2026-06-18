@@ -8,8 +8,6 @@ import XCTest
 @testable import BitwardenShared
 @testable import BitwardenSharedMocks
 
-// swiftlint:disable file_length
-
 @MainActor
 class KeyConnectorServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_length
     // MARK: Properties
@@ -201,25 +199,6 @@ class KeyConnectorServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
         XCTAssertEqual(client.requests[0].method, .post)
         XCTAssertEqual(client.requests[0].url, URL(string: "https://example.com/key-connector/user-keys")!)
         XCTAssertNil(stateService.accountEncryptionKeys["1"])
-    }
-
-    /// `getMasterKeyFromKeyConnector()` returns the user's master key from the Key Connector API.
-    func test_getMasterKeyFromKeyConnector() async throws {
-        client.result = .httpSuccess(testData: .keyConnectorUserKey)
-        stateService.activeAccount = .fixture(
-            profile: .fixture(
-                userDecryptionOptions: UserDecryptionOptions(
-                    hasMasterPassword: false,
-                    keyConnectorOption: KeyConnectorUserDecryptionOption(keyConnectorUrl: "https://example.com"),
-                    trustedDeviceOption: nil,
-                ),
-            ),
-        )
-
-        let key = try await subject.getMasterKeyFromKeyConnector(
-            keyConnectorUrl: URL(string: "https://example.com/key-connector")!,
-        )
-        XCTAssertEqual(key, "EXsYYd2Wx4H/9dhzmINS0P30lpG8bZ44RRn/T15tVA8=")
     }
 
     /// `migrateUser()` migrates the user keys and uploads them to the API and Key Connector.

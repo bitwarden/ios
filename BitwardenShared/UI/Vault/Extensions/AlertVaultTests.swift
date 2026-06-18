@@ -7,7 +7,7 @@ import XCTest
 
 class AlertVaultTests: BitwardenTestCase { // swiftlint:disable:this type_body_length
     /// `archiveUnavailable(baseURL:handleOpenURL:)` returns an `Alert` notifying the user that
-    /// archiving is unavailable and requires premium.
+    /// archiving is unavailable and requires Premium.
     func test_archiveUnavailable() async throws {
         var called = false
         let subject = Alert.archiveUnavailable { called = true }
@@ -64,7 +64,7 @@ class AlertVaultTests: BitwardenTestCase { // swiftlint:disable:this type_body_l
     }
 
     /// `specificPeopleUnavailable(action:)` returns an `Alert` notifying the user that the
-    /// "Specific People" Send feature requires premium.
+    /// "Specific People" Send feature requires Premium.
     func test_specificPeopleUnavailable() async throws {
         var called = false
         let subject = Alert.specificPeopleUnavailable { called = true }

@@ -217,7 +217,7 @@ class EnvironmentURLDataTests: XCTestCase {
         )
     }
 
-    /// `upgradeToPremiumURL` returns the upgrade to premium URL.
+    /// `upgradeToPremiumURL` returns the upgrade to Premium URL.
     func test_upgradeToPremiumURL() {
         let subject = EnvironmentURLData(
             base: URL(string: "https://vault.example.com"),

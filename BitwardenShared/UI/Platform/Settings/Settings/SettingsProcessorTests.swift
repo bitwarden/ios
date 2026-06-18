@@ -172,7 +172,7 @@ class SettingsProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         XCTAssertEqual(coordinator.routes.last, .other)
     }
 
-    /// `perform(.planPressed)` navigates to the premium plan screen for a premium user
+    /// `perform(.planPressed)` navigates to the Premium plan screen for a Premium user
     /// without showing a loading overlay.
     @MainActor
     func test_perform_planPressed_hasPremium() async {
@@ -184,7 +184,7 @@ class SettingsProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         XCTAssertTrue(coordinator.loadingOverlaysShown.isEmpty)
     }
 
-    /// `perform(.planPressed)` shows a loading overlay and navigates to the premium plan screen
+    /// `perform(.planPressed)` shows a loading overlay and navigates to the Premium plan screen
     /// when the user has a canceled subscription.
     @MainActor
     func test_perform_planPressed_canceledSubscription() async {
@@ -198,7 +198,7 @@ class SettingsProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         XCTAssertEqual(coordinator.loadingOverlaysShown, [LoadingOverlayState(title: Localizations.loading)])
     }
 
-    /// `perform(.planPressed)` shows a loading overlay and navigates to the premium plan screen
+    /// `perform(.planPressed)` shows a loading overlay and navigates to the Premium plan screen
     /// when the user has a past due subscription.
     @MainActor
     func test_perform_planPressed_pastDueSubscription() async {
@@ -212,7 +212,7 @@ class SettingsProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         XCTAssertEqual(coordinator.loadingOverlaysShown, [LoadingOverlayState(title: Localizations.loading)])
     }
 
-    /// `perform(.planPressed)` shows a loading overlay and navigates to the premium upgrade screen
+    /// `perform(.planPressed)` shows a loading overlay and navigates to the Premium upgrade screen
     /// when the subscription fetch returns a 404 (free user with no subscription).
     @MainActor
     func test_perform_planPressed_freeUser_noSubscription() async {
@@ -240,7 +240,7 @@ class SettingsProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         XCTAssertTrue(errorReporter.errors.contains { $0 as? BitwardenTestError == .example })
     }
 
-    /// `perform(.planPressed)` shows a loading overlay and navigates to the premium upgrade screen
+    /// `perform(.planPressed)` shows a loading overlay and navigates to the Premium upgrade screen
     /// when subscription status is active.
     @MainActor
     func test_perform_planPressed_activeSubscription() async {
@@ -318,7 +318,7 @@ class SettingsProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
     }
 
     /// `perform(.appeared)` shows the plan row when the feature flag is enabled and the user has
-    /// premium personally.
+    /// Premium personally.
     @MainActor
     func test_perform_appeared_showsPlanRow_hasPremium() async {
         configService.featureFlagsBool[.premiumUpgradePath] = true
@@ -331,7 +331,7 @@ class SettingsProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         XCTAssertTrue(subject.state.hasPremium)
     }
 
-    /// `perform(.appeared)` hides the plan row when the user's premium comes only from their
+    /// `perform(.appeared)` hides the plan row when the user's Premium comes only from their
     /// organization (they have no personal subscription to manage or upgrade).
     @MainActor
     func test_perform_appeared_hidesPlanRow_premiumFromOrganizationOnly() async {
