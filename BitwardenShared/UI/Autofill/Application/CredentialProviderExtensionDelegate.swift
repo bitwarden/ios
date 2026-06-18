@@ -25,6 +25,9 @@ public protocol CredentialProviderExtensionDelegate: AppExtensionDelegate {
     @available(iOSApplicationExtension 17.0, *)
     func completeRegistrationRequest(asPasskeyRegistrationCredential: ASPasskeyRegistrationCredential)
 
+    /// Completes the save password request.
+    func completeSavePasswordRequest()
+
     /// Completes the text request with some text to insert.
     @available(iOSApplicationExtension 18.0, *)
     func completeTextRequest(text: String)
@@ -51,6 +54,14 @@ extension CredentialProviderExtensionDelegate {
         default:
             .passwords
         }
+    }
+
+    /// Whether the autofill extension is in the save-password flow with user interaction.
+    var isSavingPasswordCredential: Bool {
+        guard case let .savePasswordCredential(_, userInteraction) = extensionMode else {
+            return false
+        }
+        return userInteraction
     }
 
     /// Whether the autofill extension is creating a Fido2 credential.
