@@ -214,7 +214,7 @@ jobs:
             -derivedDataPath build/DerivedData \
             -test-timeouts-enabled yes \
             -maximum-test-execution-time-allowance 2 \
-            -showBuildTimingSummary
+            -showBuildTimingSummary \
             -quiet
           kill "$PYEETD_PID"
 
