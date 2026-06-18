@@ -18,3 +18,9 @@
 "TestScenarios" = "Test Scenarios";
 "Username" = "Username";
 "XColonY" = "%@: %@";
+"DateFieldPicker" = "Date Field Picker";
+"DateFieldPickerDescription" = "Tap the field to expand the inline calendar and select a date.";
+"DateField" = "Date Field";
+"DateOfBirth" = "Date of birth";
+"SelectedDateValue" = "Selected date: %@";
+"NoDateSelected" = "No date selected";
