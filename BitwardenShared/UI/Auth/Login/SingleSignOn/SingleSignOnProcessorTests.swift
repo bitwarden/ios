@@ -338,6 +338,7 @@ class SingleSignOnProcessorTests: BitwardenTestCase { // swiftlint:disable:this 
         authService.loginWithSingleSignOnResult = .success(.keyConnector(
             keyConnectorURL: URL(string: "https://example.com")!,
         ))
+        coordinator.isLoadingOverlayShowing = true
         subject.state.identifierText = "BestOrganization"
 
         // Receive the completed code.
@@ -363,6 +364,7 @@ class SingleSignOnProcessorTests: BitwardenTestCase { // swiftlint:disable:this 
         ))
         subject.state.identifierText = "BestOrganization"
         authRepository.unlockVaultWithKeyConnectorKeyResult = .failure(StateServiceError.noAccountCryptographicState)
+        coordinator.isLoadingOverlayShowing = true
 
         // Receive the completed code.
         subject.singleSignOnCompleted(code: "super_cool_secret_code")
@@ -401,6 +403,7 @@ class SingleSignOnProcessorTests: BitwardenTestCase { // swiftlint:disable:this 
         ))
         subject.state.identifierText = "BestOrganization"
         authRepository.unlockVaultWithKeyConnectorKeyResult = .failure(StateServiceError.noAccountCryptographicState)
+        coordinator.isLoadingOverlayShowing = true
 
         // Receive the completed code.
         subject.singleSignOnCompleted(code: "super_cool_secret_code")
