@@ -137,6 +137,13 @@ protocol AppSettingsStore: AnyObject {
     ///
     func clearClipboardValue(userId: String) -> ClearClipboardValue
 
+    /// Gets the IDs of the collapsed vault list sections for a user ID.
+    ///
+    /// - Parameter userId: The user ID associated with the collapsed vault list section IDs.
+    /// - Returns: The IDs of the vault list sections that are currently collapsed.
+    ///
+    func collapsedVaultListSectionIds(userId: String) -> [String]
+
     /// Gets the connect to watch setting for the user.
     ///
     /// - Parameter userId: The user ID associated with the connect to watch value.
@@ -368,6 +375,14 @@ protocol AppSettingsStore: AnyObject {
     /// - Returns: The time after which the clipboard should be cleared.
     ///
     func setClearClipboardValue(_ clearClipboardValue: ClearClipboardValue?, userId: String)
+
+    /// Sets the IDs of the collapsed vault list sections for a user ID.
+    ///
+    /// - Parameters:
+    ///   - ids: The IDs of the vault list sections that are currently collapsed.
+    ///   - userId: The user ID associated with the collapsed vault list section IDs.
+    ///
+    func setCollapsedVaultListSectionIds(_ ids: [String], userId: String)
 
     /// Sets the connect to watch setting for the user.
     ///
@@ -769,6 +784,7 @@ extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore {
         case archiveOnboardingShown
         case biometricAuthEnabled(userId: String)
         case clearClipboardValue(userId: String)
+        case collapsedVaultListSectionIds(userId: String)
         case connectToWatch(userId: String)
         case debugFeatureFlag(name: String)
         case defaultUriMatch(userId: String)
@@ -846,6 +862,8 @@ extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore {
                 "biometricUnlock_\(userId)"
             case let .clearClipboardValue(userId):
                 "clearClipboard_\(userId)"
+            case let .collapsedVaultListSectionIds(userId):
+                "collapsedVaultListSectionIds_\(userId)"
             case let .connectToWatch(userId):
                 "shouldConnectToWatch_\(userId)"
             case let .debugFeatureFlag(name):
@@ -1079,6 +1097,10 @@ extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore {
         return .never
     }
 
+    func collapsedVaultListSectionIds(userId: String) -> [String] {
+        fetch(for: .collapsedVaultListSectionIds(userId: userId)) ?? []
+    }
+
     func connectToWatch(userId: String) -> Bool {
         fetch(for: .connectToWatch(userId: userId))
     }
@@ -1211,6 +1233,10 @@ extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore {
 
     func setClearClipboardValue(_ clearClipboardValue: ClearClipboardValue?, userId: String) {
         store(clearClipboardValue?.rawValue, for: .clearClipboardValue(userId: userId))
+    }
+
+    func setCollapsedVaultListSectionIds(_ ids: [String], userId: String) {
+        store(ids, for: .collapsedVaultListSectionIds(userId: userId))
     }
 
     func setConnectToWatch(_ connectToWatch: Bool, userId: String) {

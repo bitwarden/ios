@@ -303,7 +303,13 @@ private struct SearchableVaultListView: View { // swiftlint:disable:this type_bo
             vaultFilterRow
 
             ForEach(sections) { section in
-                VaultListSectionView(section: section) { item in
+                VaultListSectionView(
+                    section: section,
+                    isExpanded: store.binding(
+                        get: { !$0.collapsedSectionIds.contains(section.id) },
+                        send: { .sectionExpandToggled(sectionId: section.id, isExpanded: $0) },
+                    ),
+                ) { item in
                     Button {
                         store.send(.itemPressed(item: item))
                     } label: {
