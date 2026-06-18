@@ -60,6 +60,8 @@ struct ViewPassportItemView: View {
 
     // MARK: Private Views
 
+    /// The given name field.
+    ///
     @ViewBuilder private var givenNameItem: some View {
         if !store.state.givenName.isEmpty {
             let givenName = store.state.givenName
@@ -74,6 +76,8 @@ struct ViewPassportItemView: View {
         }
     }
 
+    /// The surname field.
+    ///
     @ViewBuilder private var surnameItem: some View {
         if !store.state.surname.isEmpty {
             let surname = store.state.surname
@@ -88,6 +92,8 @@ struct ViewPassportItemView: View {
         }
     }
 
+    /// The sex field.
+    ///
     @ViewBuilder private var sexItem: some View {
         if !store.state.sex.isEmpty {
             BitwardenTextValueField(
@@ -99,6 +105,8 @@ struct ViewPassportItemView: View {
         }
     }
 
+    /// The birth place field.
+    ///
     @ViewBuilder private var birthPlaceItem: some View {
         if !store.state.birthPlace.isEmpty {
             BitwardenTextValueField(
@@ -110,6 +118,8 @@ struct ViewPassportItemView: View {
         }
     }
 
+    /// The nationality field.
+    ///
     @ViewBuilder private var nationalityItem: some View {
         if !store.state.nationality.isEmpty {
             BitwardenTextValueField(
@@ -121,6 +131,8 @@ struct ViewPassportItemView: View {
         }
     }
 
+    /// The passport number field, masked behind a reveal toggle with a copy control.
+    ///
     @ViewBuilder private var passportNumberItem: some View {
         let passportNumber = store.state.passportNumber
         let isVisible = store.state.isPassportNumberVisible
@@ -151,6 +163,8 @@ struct ViewPassportItemView: View {
         }
     }
 
+    /// The passport type field.
+    ///
     @ViewBuilder private var passportTypeItem: some View {
         if !store.state.passportType.isEmpty {
             BitwardenTextValueField(
@@ -162,6 +176,8 @@ struct ViewPassportItemView: View {
         }
     }
 
+    /// The national identification number field, masked behind a reveal toggle with a copy control.
+    ///
     @ViewBuilder private var nationalIdentificationNumberItem: some View {
         let nationalIdentificationNumber = store.state.nationalIdentificationNumber
         let isVisible = store.state.isNationalIdentificationNumberVisible
@@ -194,6 +210,8 @@ struct ViewPassportItemView: View {
         }
     }
 
+    /// The issuing country field.
+    ///
     @ViewBuilder private var issuingCountryItem: some View {
         if !store.state.issuingCountry.isEmpty {
             BitwardenTextValueField(
@@ -205,6 +223,8 @@ struct ViewPassportItemView: View {
         }
     }
 
+    /// The issuing authority field.
+    ///
     @ViewBuilder private var issuingAuthorityItem: some View {
         if !store.state.issuingAuthority.isEmpty {
             BitwardenTextValueField(
@@ -233,29 +253,6 @@ struct ViewPassportItemView: View {
             )
             .accessibilityElement(children: .contain)
         }
-    }
-}
-
-// MARK: - PassportItemState
-
-extension PassportItemState {
-    /// Whether the passport details section has no values to display.
-    var isPassportDetailsSectionEmpty: Bool {
-        [
-            birthPlace,
-            dateOfBirth,
-            expirationDate,
-            givenName,
-            issueDate,
-            issuingAuthority,
-            issuingCountry,
-            nationalIdentificationNumber,
-            nationality,
-            passportNumber,
-            passportType,
-            sex,
-            surname,
-        ].allSatisfy(\.isEmpty)
     }
 }
 
