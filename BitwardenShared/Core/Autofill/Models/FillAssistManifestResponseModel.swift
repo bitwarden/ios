@@ -15,8 +15,8 @@ struct FillAssistManifestResponseModel: Equatable, JSONResponse {
     /// The available map artifacts, keyed by map name then by major schema version (e.g. `"v1"`).
     let maps: [String: [String: FillAssistManifestEntryModel]]
 
-    /// The ISO 8601 timestamp when this manifest was produced.
-    let timestamp: String
+    /// The timestamp when this manifest was produced.
+    let timestamp: Date
 }
 
 // MARK: - FillAssistManifestEntryModel

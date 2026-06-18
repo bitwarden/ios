@@ -1,3 +1,4 @@
+import BitwardenKit
 import Foundation
 import Testing
 
@@ -27,14 +28,17 @@ struct FillAssistManifestResponseModelTests {
             "timestamp": "2026-06-11T14:29:32.184Z"
         }
         """
-        let model = try JSONDecoder().decode(
+        let model = try JSONDecoder.pascalOrSnakeCaseDecoder.decode(
             FillAssistManifestResponseModel.self,
             from: Data(json.utf8),
         )
 
+        var dateFormatter = ISO8601DateFormatter()
+        dateFormatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
+        let expectedTimestamp = try #require(dateFormatter.date(from: "2026-06-11T14:29:32.184Z"))
         #expect(model.buildId == "v20260611.1")
         #expect(model.gitSha == "ef5022c3cbd8ea198bf7cb497d71320ed722ae23")
-        #expect(model.timestamp == "2026-06-11T14:29:32.184Z")
+        #expect(model.timestamp == expectedTimestamp)
 
         let formsV1 = try #require(model.maps["forms"]?["v1"])
         #expect(formsV1.filename == "forms.v1.json")
@@ -63,7 +67,7 @@ struct FillAssistManifestResponseModelTests {
             "timestamp": "2026-06-11T14:29:32.184Z"
         }
         """
-        let model = try JSONDecoder().decode(
+        let model = try JSONDecoder.pascalOrSnakeCaseDecoder.decode(
             FillAssistManifestResponseModel.self,
             from: Data(json.utf8),
         )
