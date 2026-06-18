@@ -38,16 +38,16 @@ protocol StateService: AnyObject, BillingStateService {
     ///
     func didAccountSwitchInExtension() async throws -> Bool
 
-    /// Returns whether the active user account has access to premium features.
+    /// Returns whether the active user account has access to Premium features.
     ///
-    /// - Returns: Whether the active account has access to premium features.
+    /// - Returns: Whether the active account has access to Premium features.
     ///
     func doesActiveAccountHavePremium() async -> Bool
 
-    /// Returns whether the active user account has premium personally (i.e. premium that the user
-    /// purchased themselves), as opposed to premium granted by an organization.
+    /// Returns whether the active user account has Premium personally (i.e. Premium that the user
+    /// purchased themselves), as opposed to Premium granted by an organization.
     ///
-    /// - Returns: Whether the active account has premium personally.
+    /// - Returns: Whether the active account has Premium personally.
     ///
     func doesActiveAccountHavePremiumPersonally() async -> Bool
 
@@ -308,11 +308,11 @@ protocol StateService: AnyObject, BillingStateService {
     ///
     func getPreAuthEnvironmentURLs() async -> EnvironmentURLData?
 
-    /// Gets whether the premium upgrade banner has been dismissed.
+    /// Gets whether the Premium upgrade banner has been dismissed.
     ///
-    /// - Parameter userId: The user ID associated with the premium upgrade banner dismissed value.
+    /// - Parameter userId: The user ID associated with the Premium upgrade banner dismissed value.
     ///   Defaults to the active account if `nil`.
-    /// - Returns: Whether the premium upgrade banner has been dismissed.
+    /// - Returns: Whether the Premium upgrade banner has been dismissed.
     ///
     func getPremiumUpgradeBannerDismissed(userId: String?) async throws -> Bool
 
@@ -559,11 +559,11 @@ protocol StateService: AnyObject, BillingStateService {
     ///
     func setArchiveOnboardingShown(_ shown: Bool) async
 
-    /// Sets whether the premium upgrade banner has been dismissed.
+    /// Sets whether the Premium upgrade banner has been dismissed.
     ///
     /// - Parameters:
-    ///   - dismissed: Whether the premium upgrade banner has been dismissed.
-    ///   - userId: The user ID associated with the premium upgrade banner dismissed value.
+    ///   - dismissed: Whether the Premium upgrade banner has been dismissed.
+    ///   - userId: The user ID associated with the Premium upgrade banner dismissed value.
     ///     Defaults to the active account if `nil`.
     ///
     func setPremiumUpgradeBannerDismissed(_ dismissed: Bool, userId: String?) async throws
@@ -1091,9 +1091,9 @@ extension StateService {
         try await getPasswordGenerationOptions(userId: nil)
     }
 
-    /// Gets whether the premium upgrade banner has been dismissed for the active account.
+    /// Gets whether the Premium upgrade banner has been dismissed for the active account.
     ///
-    /// - Returns: Whether the premium upgrade banner has been dismissed.
+    /// - Returns: Whether the Premium upgrade banner has been dismissed.
     ///
     func getPremiumUpgradeBannerDismissed() async throws -> Bool {
         try await getPremiumUpgradeBannerDismissed(userId: nil)
@@ -1355,9 +1355,9 @@ extension StateService {
         try await setPasswordGenerationOptions(options, userId: nil)
     }
 
-    /// Sets whether the premium upgrade banner has been dismissed for the active account.
+    /// Sets whether the Premium upgrade banner has been dismissed for the active account.
     ///
-    /// - Parameter dismissed: Whether the premium upgrade banner has been dismissed.
+    /// - Parameter dismissed: Whether the Premium upgrade banner has been dismissed.
     ///
     func setPremiumUpgradeBannerDismissed(_ dismissed: Bool) async throws {
         try await setPremiumUpgradeBannerDismissed(dismissed, userId: nil)

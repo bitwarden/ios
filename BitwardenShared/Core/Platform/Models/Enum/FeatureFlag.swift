@@ -24,7 +24,7 @@ extension FeatureFlag: @retroactive CaseIterable {
     /// A feature flag to enable/disable scanning a card to autocomplete its details in add/edit cipher.
     static let cardScanner = FeatureFlag(rawValue: "pm-34171-card-scanner")
 
-    /// Debug flag to disable self-hosted checks in premium upgrade flows for QA testing.
+    /// Debug flag to disable self-hosted checks in Premium upgrade flows for QA testing.
     static let debugDisableSelfHostPremiumCheck = FeatureFlag(
         rawValue: "debug-disable-self-host-premium-check",
     )
@@ -53,7 +53,7 @@ extension FeatureFlag: @retroactive CaseIterable {
     /// so that policies are enforced against members in the accepted (not only confirmed) state.
     static let policiesInAcceptedState = FeatureFlag(rawValue: "pm-34145-policies-in-accepted-state")
 
-    /// Flag to enable/disable premium upgrade path.
+    /// Flag to enable/disable Premium upgrade path.
     static let premiumUpgradePath = FeatureFlag(rawValue: "pm-31697-premium-upgrade-path")
 
     public static var allCases: [FeatureFlag] {

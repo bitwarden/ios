@@ -44,7 +44,7 @@ final class TOTPServiceTests: BitwardenTestCase {
     // MARK: Tests
 
     /// `copyTotpIfPossible(cipher:)` successfully copies the code when there's a login wihth Totp,
-    /// auto Totp copy is enabled and account is premium.
+    /// auto Totp copy is enabled and account is Premium.
     func test_copyTotpIfPossible_succeeds() async throws {
         let cipher = CipherView.fixture(
             login: .fixture(
@@ -58,7 +58,7 @@ final class TOTPServiceTests: BitwardenTestCase {
         XCTAssertEqual(pasteboardService.copiedString, "123456")
     }
 
-    /// `copyTotpIfPossible(cipher:)` succeeds copying the code when account is not premium
+    /// `copyTotpIfPossible(cipher:)` succeeds copying the code when account is not Premium
     /// but organization uses totp.
     func test_copyTotpIfPossible_succeedsOrganizationUseTotp() async throws {
         let cipher = CipherView.fixture(
@@ -116,7 +116,7 @@ final class TOTPServiceTests: BitwardenTestCase {
         XCTAssertNil(pasteboardService.copiedString)
     }
 
-    /// `copyTotpIfPossible(cipher:)` doesn't copy the code because user not premium and
+    /// `copyTotpIfPossible(cipher:)` doesn't copy the code because user not Premium and
     /// organization doesn't use totp.
     func test_copyTotpIfPossible_noPremiumNorOrgUseTotp() async throws {
         let cipher = CipherView.fixture(
@@ -191,7 +191,7 @@ final class TOTPServiceTests: BitwardenTestCase {
         }
     }
 
-    /// `isTotpAuthorized(for:)` returns `false` when the account is not premium and
+    /// `isTotpAuthorized(for:)` returns `false` when the account is not Premium and
     /// the cipher's organization does not have TOTP enabled.
     func test_isTotpAuthorized_noPremiumNorOrgUseTotp() async {
         let cipher = CipherView.fixture(organizationUseTotp: false)
@@ -204,7 +204,7 @@ final class TOTPServiceTests: BitwardenTestCase {
     }
 
     /// `isTotpAuthorized(for:)` returns `true` when the cipher's organization has TOTP enabled,
-    /// even if the account is not premium.
+    /// even if the account is not Premium.
     func test_isTotpAuthorized_organizationUseTotp() async {
         let cipher = CipherView.fixture(organizationUseTotp: true)
         stateService.activeAccount = .fixture()
@@ -215,7 +215,7 @@ final class TOTPServiceTests: BitwardenTestCase {
         XCTAssertTrue(result)
     }
 
-    /// `isTotpAuthorized(for:)` returns `true` when the account has premium.
+    /// `isTotpAuthorized(for:)` returns `true` when the account has Premium.
     func test_isTotpAuthorized_premium() async {
         let cipher = CipherView.fixture()
         stateService.activeAccount = .fixture()

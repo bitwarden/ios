@@ -55,7 +55,7 @@ struct VaultGroupView: View {
 
     // MARK: Private
 
-    /// The action card for premium subscription ended for archive.
+    /// The action card for Premium subscription ended for archive.
     @ViewBuilder private var archivePremiumSubscriptionEndedCard: some View {
         if store.state.showArchivePremiumSubscriptionEndedCard {
             ActionCard(

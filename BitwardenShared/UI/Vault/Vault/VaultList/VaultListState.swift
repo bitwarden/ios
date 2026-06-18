@@ -19,7 +19,7 @@ struct VaultListState: Equatable {
     /// The state for the flight recorder toast banner displayed in the item list.
     var flightRecorderToastBanner = FlightRecorderToastBannerState()
 
-    /// Whether the user has premium subscription.
+    /// Whether the user has Premium subscription.
     var hasPremium: Bool = false
 
     /// The base url used to fetch icons.
