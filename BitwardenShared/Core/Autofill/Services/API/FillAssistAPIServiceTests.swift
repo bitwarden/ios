@@ -1,11 +1,8 @@
-import BitwardenKit
-import BitwardenKitMocks
 import Foundation
 import TestHelpers
 import Testing
 
 @testable import BitwardenShared
-@testable import BitwardenSharedMocks
 
 // MARK: - FillAssistAPIServiceTests
 
@@ -13,25 +10,14 @@ import Testing
 struct FillAssistAPIServiceTests {
     // MARK: Properties
 
-    var activeAccountStateProvider: MockActiveAccountStateProvider!
     var client: MockHTTPClient!
-    var stateService: MockStateService!
     var subject: FillAssistAPIService!
 
     // MARK: Initialization
 
     init() {
-        activeAccountStateProvider = MockActiveAccountStateProvider()
         client = MockHTTPClient()
-        stateService = MockStateService()
-        let accountTokenProvider = MockAccountTokenProvider()
-        accountTokenProvider.getTokenReturnValue = "ACCESS_TOKEN"
-        subject = APIService(
-            accountTokenProvider: accountTokenProvider,
-            activeAccountStateProvider: activeAccountStateProvider,
-            client: client,
-            stateService: stateService,
-        )
+        subject = APIService(client: client)
     }
 
     // MARK: Tests

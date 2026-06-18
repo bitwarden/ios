@@ -276,18 +276,18 @@ class EnvironmentURLDataTests: XCTestCase {
         )
     }
 
-    /// `with(fillAssistRulesUrl:)` returns a copy with `fillAssistRulesUrl` updated.
-    func test_with_fillAssistRulesUrl() {
-        let original = EnvironmentURLData(
+    /// `fillAssistRulesUrl` can be mutated directly after creation.
+    func test_fillAssistRulesUrl_isMutable() {
+        var subject = EnvironmentURLData(
             api: URL(string: "https://api.example.com"),
             base: URL(string: "https://vault.example.com"),
         )
         let fillAssistURL = URL(string: "https://custom.example.com/fill-assist")!
 
-        let updated = original.with(fillAssistRulesUrl: fillAssistURL)
+        subject.fillAssistRulesUrl = fillAssistURL
 
-        XCTAssertEqual(updated.fillAssistRulesUrl, fillAssistURL)
-        XCTAssertEqual(updated.api, original.api)
-        XCTAssertEqual(updated.base, original.base)
+        XCTAssertEqual(subject.fillAssistRulesUrl, fillAssistURL)
+        XCTAssertEqual(subject.api, URL(string: "https://api.example.com"))
+        XCTAssertEqual(subject.base, URL(string: "https://vault.example.com"))
     }
 }

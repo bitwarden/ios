@@ -21,7 +21,9 @@ public struct EnvironmentURLData: Codable, Equatable, Hashable, Sendable {
     public let events: URL?
 
     /// The base URL for fetching Fill-Assist targeting rules. Set from the server config.
-    public let fillAssistRulesUrl: URL?
+    /// Declared `var` because it is updated independently after initial construction, when the
+    /// server config is received, without replacing the entire struct.
+    public var fillAssistRulesUrl: URL?
 
     /// The URL for the icons API.
     public let icons: URL?
@@ -154,26 +156,6 @@ public extension EnvironmentURLData {
     var webVaultHost: String? {
         let url = webVault ?? base
         return url?.host
-    }
-
-    /// Returns a copy of this `EnvironmentURLData` with the given Fill-Assist rules URL applied.
-    ///
-    /// - Parameter fillAssistRulesUrl: The Fill-Assist rules URL to set.
-    /// - Returns: A new `EnvironmentURLData` with `fillAssistRulesUrl` updated.
-    ///
-    func with(fillAssistRulesUrl: URL?) -> EnvironmentURLData {
-        EnvironmentURLData(
-            api: api,
-            base: base,
-            clientCertificateAlias: clientCertificateAlias,
-            clientCertificateFingerprint: clientCertificateFingerprint,
-            events: events,
-            fillAssistRulesUrl: fillAssistRulesUrl,
-            icons: icons,
-            identity: identity,
-            notifications: notifications,
-            webVault: webVault,
-        )
     }
 
     // MARK: Methods
