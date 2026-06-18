@@ -65,6 +65,8 @@ enum ViewItemAction: Equatable, Sendable {
 /// The text fields within the `ViewItemView` that can be copied.
 ///
 enum CopyableField {
+    // MARK: Bank Account Fields
+
     /// The bank account number field.
     case accountNumber
 

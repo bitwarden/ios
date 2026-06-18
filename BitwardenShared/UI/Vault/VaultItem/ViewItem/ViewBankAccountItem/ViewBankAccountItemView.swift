@@ -78,7 +78,7 @@ struct ViewBankAccountItemView: View {
 
     /// The account type field, displaying the selected type's localized name, hidden when no type is selected.
     @ViewBuilder private var accountTypeItem: some View {
-        if case let .custom(type) = store.state.accountType {
+        if let type = store.state.accountType.customValue {
             BitwardenTextValueField(
                 title: Localizations.accountType,
                 value: type.localizedName,
@@ -231,26 +231,6 @@ struct ViewBankAccountItemView: View {
             )
             .accessibilityElement(children: .contain)
         }
-    }
-}
-
-// MARK: - BankAccountItemState
-
-extension BankAccountItemState {
-    /// Whether the bank account details section has no values to display.
-    var isBankAccountDetailsSectionEmpty: Bool {
-        guard accountType == .default else { return false }
-        return [
-            accountNumber,
-            bankContactPhone,
-            bankName,
-            branchNumber,
-            iban,
-            nameOnAccount,
-            pin,
-            routingNumber,
-            swiftCode,
-        ].allSatisfy(\.isEmpty)
     }
 }
 
