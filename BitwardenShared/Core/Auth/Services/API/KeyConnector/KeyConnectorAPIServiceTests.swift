@@ -26,31 +26,6 @@ class KeyConnectorAPIServiceTests: BitwardenTestCase {
 
     // MARK: Tests
 
-    /// `getMasterKeyFromKeyConnector(keyConnectorUrl:)` returns the user's key.
-    func test_getMasterKeyFromKeyConnector() async throws {
-        client.result = .httpSuccess(testData: .keyConnectorUserKey)
-
-        let key = try await subject.getMasterKeyFromKeyConnector(
-            keyConnectorUrl: URL(string: "https://example.com")!,
-        )
-        XCTAssertEqual(key, "EXsYYd2Wx4H/9dhzmINS0P30lpG8bZ44RRn/T15tVA8=")
-
-        let request = try XCTUnwrap(client.requests.first)
-        XCTAssertEqual(request.method, .get)
-        XCTAssertEqual(request.url.relativePath, "/user-keys")
-    }
-
-    /// `getMasterKeyFromKeyConnector(keyConnectorUrl:)` throws an error if the request fails.
-    func test_getMasterKeyFromKeyConnector_httpFailure() async throws {
-        client.result = .httpFailure(BitwardenTestError.example)
-
-        await assertAsyncThrows(error: BitwardenTestError.example) {
-            _ = try await subject.getMasterKeyFromKeyConnector(
-                keyConnectorUrl: URL(string: "https://example.com")!,
-            )
-        }
-    }
-
     /// `postMasterKeyToKeyConnector(keyConnectorUrl:)` sends the user's key to the API.
     func test_postMasterKeyToKeyConnector() async throws {
         client.result = .httpSuccess(testData: .emptyResponse)

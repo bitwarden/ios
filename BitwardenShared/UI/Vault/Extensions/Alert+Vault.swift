@@ -459,14 +459,43 @@ extension Alert {
                 })
             }
         case .bankAccount:
-            // TODO: PM-32809
-            break
+            if let accountNumber = context.cipherView.bankAccount?.accountNumber {
+                alertActions.append(AlertAction(title: Localizations.copyAccountNumber, style: .default) { _, _ in
+                    await action(.copy(
+                        toast: Localizations.accountNumber,
+                        value: accountNumber,
+                        requiresMasterPasswordReprompt: true,
+                        logEvent: nil,
+                        cipherId: nil,
+                    ))
+                })
+            }
+            if let routingNumber = context.cipherView.bankAccount?.routingNumber {
+                alertActions.append(AlertAction(title: Localizations.copyRoutingNumber, style: .default) { _, _ in
+                    await action(.copy(
+                        toast: Localizations.routingNumber,
+                        value: routingNumber,
+                        requiresMasterPasswordReprompt: true,
+                        logEvent: nil,
+                        cipherId: nil,
+                    ))
+                })
+            }
         case .driversLicense:
             // TODO: PM-32807
             break
         case .passport:
-            // TODO: PM-32805
-            break
+            if let passportNumber = context.cipherView.passport?.passportNumber {
+                alertActions.append(AlertAction(title: Localizations.copyPassportNumber, style: .default) { _, _ in
+                    await action(.copy(
+                        toast: Localizations.passportNumber,
+                        value: passportNumber,
+                        requiresMasterPasswordReprompt: true,
+                        logEvent: nil,
+                        cipherId: context.cipherView.id,
+                    ))
+                })
+            }
         }
 
         if context.canArchive {

@@ -327,6 +327,30 @@ class AppSettingsStoreTests: BitwardenTestCase { // swiftlint:disable:this type_
         XCTAssertEqual(userDefaults.integer(forKey: "bwPreferencesStorage:clearClipboard_2"), -1)
     }
 
+    /// `collapsedVaultListSectionIds(userId:)` returns an empty array if there isn't a previously
+    /// stored value.
+    func test_collapsedVaultListSectionIds_isInitiallyEmpty() {
+        XCTAssertEqual(subject.collapsedVaultListSectionIds(userId: "0"), [])
+    }
+
+    /// `collapsedVaultListSectionIds(userId:)` can be used to get the collapsed vault list section
+    /// IDs for a user.
+    func test_collapsedVaultListSectionIds_withValue() {
+        subject.setCollapsedVaultListSectionIds(["1", "2"], userId: "1")
+        subject.setCollapsedVaultListSectionIds(["3"], userId: "2")
+
+        XCTAssertEqual(subject.collapsedVaultListSectionIds(userId: "1"), ["1", "2"])
+        XCTAssertEqual(subject.collapsedVaultListSectionIds(userId: "2"), ["3"])
+        XCTAssertEqual(
+            userDefaults.string(forKey: "bwPreferencesStorage:collapsedVaultListSectionIds_1"),
+            #"["1","2"]"#,
+        )
+        XCTAssertEqual(
+            userDefaults.string(forKey: "bwPreferencesStorage:collapsedVaultListSectionIds_2"),
+            #"["3"]"#,
+        )
+    }
+
     /// `connectToWatch(userId:)` returns false if there isn't a previously stored value.
     func test_connectToWatch_isInitiallyFalse() {
         XCTAssertFalse(subject.connectToWatch(userId: "0"))

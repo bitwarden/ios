@@ -178,6 +178,8 @@ final class VaultListProcessor: StateProcessor<
             state.searchText = newValue
         case let .searchVaultFilterChanged(newValue):
             state.searchVaultFilterType = newValue
+        case let .sectionExpandToggled(sectionId, isExpanded):
+            setSectionExpanded(sectionId: sectionId, isExpanded: isExpanded)
         case .showImportLogins:
             coordinator.navigate(to: .importLogins)
         case let .toastShown(newValue):
@@ -238,7 +240,8 @@ extension VaultListProcessor {
 
         state.shouldShowArchiveOnboardingActionCard = await services.stateService.shouldDoArchiveOnboarding()
 
-        state.shouldShowUpgradedToPremiumActionCard = await services.billingService.shouldShowUpgradedToPremiumActionCard()
+        state.shouldShowUpgradedToPremiumActionCard = await services.billingService
+            .shouldShowUpgradedToPremiumActionCard()
 
         let isBannerDismissed = await services.stateService.isPremiumUpgradeBannerDismissed()
         guard !isBannerDismissed else {
@@ -656,9 +659,36 @@ extension VaultListProcessor {
         }
     }
 
+    /// Persists the expanded / collapsed state of a vault list section.
+    ///
+    /// The in-memory state is updated synchronously so the header animates immediately, then the
+    /// collapsed section IDs are persisted to disk so the preference survives app launches.
+    ///
+    /// - Parameters:
+    ///   - sectionId: The ID of the section that was expanded or collapsed.
+    ///   - isExpanded: Whether the section is now expanded.
+    ///
+    private func setSectionExpanded(sectionId: String, isExpanded: Bool) {
+        if isExpanded {
+            state.collapsedSectionIds.remove(sectionId)
+        } else {
+            state.collapsedSectionIds.insert(sectionId)
+        }
+        let collapsedSectionIds = Array(state.collapsedSectionIds)
+        Task {
+            do {
+                try await services.stateService.setCollapsedVaultListSectionIds(collapsedSectionIds)
+            } catch {
+                services.errorReporter.log(error: error)
+            }
+        }
+    }
+
     /// Streams the user's vault list.
     private func streamVaultList() async {
         do {
+            let collapsedSectionIds = await (try? services.stateService.getCollapsedVaultListSectionIds()) ?? []
+            state.collapsedSectionIds = Set(collapsedSectionIds)
             for try await vaultList in try await services.vaultRepository
                 .vaultListPublisher(
                     filter: VaultListFilter(

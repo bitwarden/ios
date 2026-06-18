@@ -409,12 +409,24 @@ class DefaultVaultListSectionsBuilder: VaultListSectionsBuilder { // swiftlint:d
             )
         }
 
+        if preparedData.isNewItemTypesEnabled {
+            types.append(newItemTypeRow(id: "Types.BankAccounts", group: .bankAccount, type: .bankAccount))
+        }
+
+        types.append(
+            VaultListItem(
+                id: "Types.Identities",
+                itemType: .group(.identity, preparedData.countPerCipherType[.identity, default: 0]),
+            ),
+        )
+
+        if preparedData.isNewItemTypesEnabled {
+            types.append(newItemTypeRow(id: "Types.DriversLicense", group: .driversLicense, type: .driversLicense))
+            types.append(newItemTypeRow(id: "Types.Passport", group: .passport, type: .passport))
+        }
+
         types.append(
             contentsOf: [
-                VaultListItem(
-                    id: "Types.Identities",
-                    itemType: .group(.identity, preparedData.countPerCipherType[.identity, default: 0]),
-                ),
                 VaultListItem(
                     id: "Types.SecureNotes",
                     itemType: .group(.secureNote, preparedData.countPerCipherType[.secureNote, default: 0]),
@@ -428,6 +440,11 @@ class DefaultVaultListSectionsBuilder: VaultListSectionsBuilder { // swiftlint:d
 
         vaultListData.sections.append(VaultListSection(id: "Types", items: types, name: Localizations.types))
         return self
+    }
+
+    /// Builds a Types-section row for a `.newItemTypes`-gated cipher type using its current count.
+    private func newItemTypeRow(id: String, group: VaultListGroup, type: CipherType) -> VaultListItem {
+        VaultListItem(id: id, itemType: .group(group, preparedData.countPerCipherType[type, default: 0]))
     }
 
     func build() -> VaultListData {
@@ -458,9 +475,12 @@ struct VaultListPreparedData {
 
     /// A dictionary mapping cipher types to their counts in the vault.
     var countPerCipherType: [CipherType: Int] = [
+        .bankAccount: 0,
         .card: 0,
+        .driversLicense: 0,
         .identity: 0,
         .login: 0,
+        .passport: 0,
         .secureNote: 0,
         .sshKey: 0,
     ]
@@ -485,6 +505,9 @@ struct VaultListPreparedData {
 
     /// Vault list items belonging to the currently filtered group.
     var groupItems: [VaultListItem] = []
+
+    /// Whether the `.newItemTypes` feature flag is enabled, gating the new cipher types.
+    var isNewItemTypesEnabled = false
 
     /// Vault list items that are not assigned to any folder.
     var noFolderItems: [VaultListItem] = []

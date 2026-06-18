@@ -36,6 +36,7 @@ class MockStateService: StateService, ActiveAccountStateProvider, AutofillStateS
     var capturedUserId: String?
     var clearClipboardValues = [String: ClearClipboardValue]()
     var clearClipboardResult: Result<Void, Error> = .success(())
+    var collapsedVaultListSectionIds = [String: [String]]()
     var connectToWatchByUserId = [String: Bool]()
     var connectToWatchResult: Result<Void, Error> = .success(())
     var connectToWatchSubject = CurrentValueSubject<(String?, Bool), Never>((nil, false))
@@ -45,6 +46,8 @@ class MockStateService: StateService, ActiveAccountStateProvider, AutofillStateS
     var disableAutoTotpCopyByUserId = [String: Bool]()
     var doesActiveAccountHavePremiumCalled = false
     var doesActiveAccountHavePremiumResult: Bool = true
+    var doesActiveAccountHavePremiumPersonallyCalled = false // swiftlint:disable:this identifier_name
+    var doesActiveAccountHavePremiumPersonallyResult: Bool = true // swiftlint:disable:this identifier_name
     var encryptedPinByUserId = [String: String]()
     var environmentURLs = [String: EnvironmentURLData]()
     var environmentURLsError: Error?
@@ -163,6 +166,11 @@ class MockStateService: StateService, ActiveAccountStateProvider, AutofillStateS
         return doesActiveAccountHavePremiumResult
     }
 
+    func doesActiveAccountHavePremiumPersonally() async -> Bool {
+        doesActiveAccountHavePremiumPersonallyCalled = true
+        return doesActiveAccountHavePremiumPersonallyResult
+    }
+
     func getAccountEncryptionKeys(userId: String?) async throws -> AccountEncryptionKeys {
         if let error = getAccountEncryptionKeysError {
             throw error
@@ -261,6 +269,11 @@ class MockStateService: StateService, ActiveAccountStateProvider, AutofillStateS
         try clearClipboardResult.get()
         let userId = try unwrapUserId(userId)
         return clearClipboardValues[userId] ?? .never
+    }
+
+    func getCollapsedVaultListSectionIds(userId: String?) async throws -> [String] {
+        let userId = try unwrapUserId(userId)
+        return collapsedVaultListSectionIds[userId] ?? []
     }
 
     func getConnectToWatch(userId: String?) async throws -> Bool {
@@ -595,6 +608,11 @@ class MockStateService: StateService, ActiveAccountStateProvider, AutofillStateS
         try clearClipboardResult.get()
         let userId = try unwrapUserId(userId)
         clearClipboardValues[userId] = clearClipboardValue
+    }
+
+    func setCollapsedVaultListSectionIds(_ ids: [String], userId: String?) async throws {
+        let userId = try unwrapUserId(userId)
+        collapsedVaultListSectionIds[userId] = ids
     }
 
     func setConnectToWatch(_ connectToWatch: Bool, userId: String?) async throws {

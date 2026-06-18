@@ -74,6 +74,36 @@ class PolicyDataStoreTests: BitwardenTestCase {
         XCTAssertEqual(fetchedPolicies, policies.map(Policy.init))
     }
 
+    /// `deleteAllPoliciesNew(userId:)` removes all accepted-state policies for the user.
+    func test_deleteAllPoliciesNew() async throws {
+        try await insertPoliciesNew(policies, userId: "1")
+        try await insertPoliciesNew(policies, userId: "2")
+
+        try await subject.deleteAllPoliciesNew(userId: "1")
+
+        try XCTAssertTrue(fetchPoliciesNew(userId: "1").isEmpty)
+        try XCTAssertEqual(fetchPoliciesNew(userId: "2").count, 2)
+    }
+
+    /// `fetchAllPoliciesNew(userId:)` fetches all accepted-state policies for a user.
+    func test_fetchAllPoliciesNew() async throws {
+        try await insertPoliciesNew(policies, userId: "1")
+
+        let fetchedPolicies = try await subject.fetchAllPoliciesNew(userId: "1")
+        XCTAssertEqual(fetchedPolicies, policies.map(Policy.init))
+
+        let emptyPolicies = try await subject.fetchAllPoliciesNew(userId: "-1")
+        XCTAssertEqual(emptyPolicies, [])
+    }
+
+    /// `replacePoliciesNew(_:userId:)` replaces the list of accepted-state policies for the user.
+    func test_replacePoliciesNew() async throws {
+        try await subject.replacePoliciesNew(policies, userId: "1")
+
+        let fetchedPolicies = try await subject.fetchAllPoliciesNew(userId: "1")
+        XCTAssertEqual(fetchedPolicies, policies.map(Policy.init))
+    }
+
     // MARK: Test Helpers
 
     /// A test helper to fetch all policies for a user.
@@ -88,6 +118,27 @@ class PolicyDataStoreTests: BitwardenTestCase {
         try await subject.backgroundContext.performAndSave {
             for policy in policies {
                 _ = PolicyData(context: self.subject.backgroundContext, userId: userId, policy: policy)
+            }
+        }
+    }
+
+    /// A test helper to fetch all accepted-state policies for a user.
+    private func fetchPoliciesNew(userId: String) throws -> [Policy] {
+        let fetchRequest = PolicyData.fetchPoliciesNewByUserIdRequest(userId: userId)
+        fetchRequest.sortDescriptors = [NSSortDescriptor(keyPath: \PolicyData.id, ascending: true)]
+        return try subject.backgroundContext.fetch(fetchRequest).compactMap(Policy.init)
+    }
+
+    /// A test helper for inserting a list of accepted-state policies for a user.
+    private func insertPoliciesNew(_ policies: [PolicyResponseModel], userId: String) async throws {
+        try await subject.backgroundContext.performAndSave {
+            for policy in policies {
+                let entityDesc = NSEntityDescription.entity(
+                    forEntityName: PolicyData.policiesNewEntityName,
+                    in: self.subject.backgroundContext,
+                )!
+                let policyData = PolicyData(entity: entityDesc, insertInto: self.subject.backgroundContext)
+                policyData.update(with: policy, userId: userId)
             }
         }
     }

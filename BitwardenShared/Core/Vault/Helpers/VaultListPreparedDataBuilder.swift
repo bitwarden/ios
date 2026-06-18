@@ -90,6 +90,9 @@ protocol VaultListPreparedDataBuilder { // sourcery: AutoMockable
     func prepareCollections(collections: [Collection], filterType: VaultFilterType) -> VaultListPreparedDataBuilder
     /// Prepares folders to the prepared data that then can be used for filtering.
     func prepareFolders(folders: [Folder], filterType: VaultFilterType) -> VaultListPreparedDataBuilder
+    /// Prepares whether the `.newItemTypes` feature flag is enabled.
+    @discardableResult
+    func prepareNewItemTypesEnabled(_ isEnabled: Bool) -> VaultListPreparedDataBuilder
     /// Prepares the sections with restricted organization IDs.
     @discardableResult
     func prepareRestrictItemsPolicyOrganizations(restrictedOrganizationIds: [String]) -> VaultListPreparedDataBuilder
@@ -221,12 +224,18 @@ class DefaultVaultListPreparedDataBuilder: VaultListPreparedDataBuilder { // swi
         }
 
         switch group {
+        case .bankAccount:
+            guard cipher.type == .bankAccount else { return self }
         case .card:
             guard cipher.type.isCard else { return self }
+        case .driversLicense:
+            guard cipher.type == .driversLicense else { return self }
         case .identity:
             guard cipher.type == .identity else { return self }
         case .login:
             guard cipher.type.isLogin else { return self }
+        case .passport:
+            guard cipher.type == .passport else { return self }
         case .secureNote:
             guard cipher.type == .secureNote else { return self }
         case .sshKey:
@@ -370,6 +379,12 @@ class DefaultVaultListPreparedDataBuilder: VaultListPreparedDataBuilder { // swi
         if filterType == .allVaults {
             preparedData.folders = folders
         }
+        return self
+    }
+
+    @discardableResult
+    func prepareNewItemTypesEnabled(_ isEnabled: Bool) -> VaultListPreparedDataBuilder {
+        preparedData.isNewItemTypesEnabled = isEnabled
         return self
     }
 

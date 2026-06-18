@@ -12,6 +12,10 @@ struct VaultListState: Equatable {
     /// Whether the vault filter can be shown.
     var canShowVaultFilter = true
 
+    /// The IDs of the vault list sections that are currently collapsed. Sections whose ID is not in
+    /// this set are expanded.
+    var collapsedSectionIds: Set<String> = []
+
     /// The state for the flight recorder toast banner displayed in the item list.
     var flightRecorderToastBanner = FlightRecorderToastBannerState()
 

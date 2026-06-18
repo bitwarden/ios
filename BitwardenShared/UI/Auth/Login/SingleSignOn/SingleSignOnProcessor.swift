@@ -173,17 +173,15 @@ final class SingleSignOnProcessor: StateProcessor<SingleSignOnState, SingleSignO
     /// - Parameter keyConnectorUrl: The organization's KeyConnector domain
     ///
     private func migrateUserKeyConnector(keyConnectorUrl: URL) async {
+        coordinator.showLoadingOverlay(title: Localizations.loggingIn)
+        defer { coordinator.hideLoadingOverlay() }
+
         do {
             try await services.authRepository.convertNewUserToKeyConnector(
                 keyConnectorURL: keyConnectorUrl,
                 orgIdentifier: state.identifierText,
             )
-
-            try await services.authRepository.unlockVaultWithKeyConnectorKey(
-                keyConnectorURL: keyConnectorUrl,
-                orgIdentifier: state.identifierText,
-            )
-
+            coordinator.hideLoadingOverlay()
             await coordinator.handleEvent(.didCompleteAuth)
             coordinator.navigate(to: .dismiss)
         } catch {
@@ -212,16 +210,15 @@ extension SingleSignOnProcessor: SingleSignOnFlowDelegate {
                 // Remember the organization identifier after successfully logging on.
                 services.stateService.rememberedOrgIdentifier = state.identifierText
 
-                // Dismiss the loading overlay.
-                coordinator.hideLoadingOverlay()
-
                 // Show the appropriate view and dismiss this sheet.
                 switch unlockMethod {
                 case .deviceKey:
                     // Attempt to unlock the vault with tde.
                     try await services.authRepository.unlockVaultWithDeviceKey()
+                    coordinator.hideLoadingOverlay()
                     await coordinator.handleEvent(.didCompleteAuth)
                 case let .masterPassword(account):
+                    coordinator.hideLoadingOverlay()
                     coordinator.navigate(
                         to: .vaultUnlock(
                             account,
@@ -237,8 +234,10 @@ extension SingleSignOnProcessor: SingleSignOnFlowDelegate {
                             keyConnectorURL: keyConnectorUrl,
                             orgIdentifier: state.identifierText,
                         )
+                        coordinator.hideLoadingOverlay()
                         await coordinator.handleEvent(.didCompleteAuth)
                     } catch StateServiceError.noAccountCryptographicState {
+                        coordinator.hideLoadingOverlay()
                         coordinator.showAlert(Alert.keyConnectorConfirmation(keyConnectorUrl: keyConnectorUrl) {
                             await self.migrateUserKeyConnector(keyConnectorUrl: keyConnectorUrl)
                         })

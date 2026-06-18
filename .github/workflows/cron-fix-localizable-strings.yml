@@ -1,0 +1,101 @@
+name: Cron / Fix localizable strings
+on:
+  schedule:
+    # Run weekly on Sunday at 00:00 UTC
+    - cron: '0 0 * * 0'
+  workflow_dispatch:
+
+jobs:
+  fix-localizable-strings:
+    name: Fix localizable strings
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write
+      pull-requests: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+        with:
+          persist-credentials: true
+
+      - name: Run fix-localizable-strings
+        run: bash Scripts/fix-localizable-strings.sh | tee /tmp/fix-output.txt
+
+      - name: Check for changes
+        id: check-changes
+        run: |
+          if git diff --quiet; then
+            echo "✅ No changes detected, skipping..."
+            echo "has_changes=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          echo "has_changes=true" >> "$GITHUB_OUTPUT"
+          echo "👀 Changes detected"
+
+      - name: Check branch safety
+        if: steps.check-changes.outputs.has_changes == 'true'
+        run: |
+          BRANCH_NAME="cron/fix-localizable-strings"
+          if git ls-remote --exit-code origin "$BRANCH_NAME" > /dev/null 2>&1; then
+            git fetch origin "$BRANCH_NAME"
+            LATEST_AUTHOR=$(git log -1 --format='%ae' "origin/$BRANCH_NAME")
+            if [ "$LATEST_AUTHOR" != "actions@github.com" ]; then
+              echo "::error::Branch $BRANCH_NAME has a commit not made by the bot" \
+                "(last author: $LATEST_AUTHOR). Merge or close the existing PR before" \
+                "running this workflow again."
+              exit 1
+            fi
+            echo "✅ Branch tip commit was made by the bot. Safe to proceed."
+          else
+            echo "✅ Branch does not exist on remote yet. Safe to proceed."
+          fi
+
+      - name: Create branch and commit
+        if: steps.check-changes.outputs.has_changes == 'true'
+        run: |
+          BRANCH_NAME="cron/fix-localizable-strings"
+          git config user.name "GitHub Actions Bot"
+          git config user.email "actions@github.com"
+          git checkout -b "$BRANCH_NAME"
+          git add -A
+          git commit -m "chore: Fix Localizable.strings file"
+          git push origin "$BRANCH_NAME" --force
+          echo "BRANCH_NAME=$BRANCH_NAME" >> "$GITHUB_ENV"
+
+      - name: Create or update Pull Request
+        if: steps.check-changes.outputs.has_changes == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          {
+            echo "Automated cleanup of Localizable.strings files."
+            echo ""
+            echo "## Script output"
+            echo ""
+            printf '```\n'
+            cat /tmp/fix-output.txt
+            printf '```\n'
+          } > /tmp/pr-body.md
+
+          EXISTING_PR=$(gh pr list \
+            --head "$BRANCH_NAME" \
+            --base main \
+            --state open \
+            --json number \
+            --jq '.[0].number // empty')
+
+          if [ -n "$EXISTING_PR" ]; then
+            gh pr edit "$EXISTING_PR" \
+              --title "chore: Fix Localizable.strings file" \
+              --body-file /tmp/pr-body.md
+            echo "Updated existing PR #$EXISTING_PR"
+          else
+            gh pr create \
+              --title "chore: Fix Localizable.strings file" \
+              --body-file /tmp/pr-body.md \
+              --base main \
+              --head "$BRANCH_NAME" \
+              --label "automated-pr" \
+              --label "t:tech-debt"
+          fi

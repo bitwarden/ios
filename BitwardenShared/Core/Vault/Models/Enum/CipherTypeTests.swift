@@ -32,11 +32,14 @@ class CipherTypeTests: BitwardenTestCase {
 
     /// `init` with a `VaultListGroup` produces the correct value.
     func test_init_group() {
+        XCTAssertEqual(CipherType(group: .bankAccount), .bankAccount)
         XCTAssertEqual(CipherType(group: .card), .card)
         XCTAssertNil(CipherType(group: .collection(id: "id", name: "name", organizationId: "1")))
+        XCTAssertEqual(CipherType(group: .driversLicense), .driversLicense)
         XCTAssertNil(CipherType(group: .folder(id: "id", name: "name")))
         XCTAssertEqual(CipherType(group: .identity), .identity)
         XCTAssertEqual(CipherType(group: .login), .login)
+        XCTAssertEqual(CipherType(group: .passport), .passport)
         XCTAssertEqual(CipherType(group: .secureNote), .secureNote)
         XCTAssertEqual(CipherType(group: .sshKey), .sshKey)
         XCTAssertNil(CipherType(group: .archive))
@@ -45,7 +48,15 @@ class CipherTypeTests: BitwardenTestCase {
 
     /// `canCreateCases` return the correct cipher types that the user can use to create ciphers.
     func test_canCreateCases() {
-        XCTAssertEqual(CipherType.canCreateCases, [.login, .card, .identity, .secureNote])
+        XCTAssertEqual(
+            CipherType.canCreateCases,
+            [.login, .card, .identity, .secureNote, .bankAccount, .driversLicense, .passport],
+        )
+    }
+
+    /// `newItemTypesGatedCases` returns the cipher types gated behind the `.newItemTypes` feature flag.
+    func test_newItemTypesGatedCases() {
+        XCTAssertEqual(CipherType.newItemTypesGatedCases, [.bankAccount, .driversLicense, .passport])
     }
 
     /// `CipherType.passport` has the expected raw value and is included in `allCases`.

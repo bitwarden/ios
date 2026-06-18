@@ -58,14 +58,17 @@ class VaultListGroupTests: BitwardenTestCase {
 
     /// `name` returns the display name of the group.
     func test_name() {
+        XCTAssertEqual(VaultListGroup.bankAccount.name, Localizations.typeBankAccount)
         XCTAssertEqual(VaultListGroup.card.name, "Card")
         XCTAssertEqual(
             VaultListGroup.collection(id: "", name: "Collection 🗂️", organizationId: "1").name,
             "Collection 🗂️",
         )
+        XCTAssertEqual(VaultListGroup.driversLicense.name, Localizations.typeLicense)
         XCTAssertEqual(VaultListGroup.folder(id: "", name: "Folder 📁").name, "Folder 📁")
         XCTAssertEqual(VaultListGroup.identity.name, "Identity")
         XCTAssertEqual(VaultListGroup.login.name, "Login")
+        XCTAssertEqual(VaultListGroup.passport.name, Localizations.typePassport)
         XCTAssertEqual(VaultListGroup.secureNote.name, "Secure note")
         XCTAssertEqual(VaultListGroup.sshKey.name, "SSH key")
         XCTAssertEqual(VaultListGroup.totp.name, Localizations.verificationCodes)
@@ -75,14 +78,17 @@ class VaultListGroupTests: BitwardenTestCase {
 
     /// `navigationTitle` returns the navigation title of the group.
     func test_navigationTitle() {
+        XCTAssertEqual(VaultListGroup.bankAccount.navigationTitle, Localizations.bankAccounts)
         XCTAssertEqual(VaultListGroup.card.navigationTitle, Localizations.cards)
         XCTAssertEqual(
             VaultListGroup.collection(id: "", name: "Collection 🗂️", organizationId: "1").navigationTitle,
             "Collection 🗂️",
         )
+        XCTAssertEqual(VaultListGroup.driversLicense.navigationTitle, Localizations.licenses)
         XCTAssertEqual(VaultListGroup.folder(id: "", name: "Folder 📁").navigationTitle, "Folder 📁")
         XCTAssertEqual(VaultListGroup.identity.navigationTitle, Localizations.identities)
         XCTAssertEqual(VaultListGroup.login.navigationTitle, Localizations.logins)
+        XCTAssertEqual(VaultListGroup.passport.navigationTitle, Localizations.passports)
         XCTAssertEqual(VaultListGroup.secureNote.navigationTitle, Localizations.secureNotes)
         XCTAssertEqual(VaultListGroup.sshKey.navigationTitle, Localizations.sshKeys)
         XCTAssertEqual(VaultListGroup.totp.navigationTitle, Localizations.verificationCodes)

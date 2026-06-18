@@ -19,9 +19,11 @@ Bitwarden-specific style rules enforced by tooling. Do not flag issues that Swif
 
 Source: [contributing.bitwarden.com — Swift style: Alphabetization](https://contributing.bitwarden.com/contributing/code-style/swift#alphabetization).
 
+- [ ] Members within a `// MARK:` section are alphabetized — stored properties, computed properties, methods, and static members share one alphabetical order within their section.
+- [ ] Function and initializer parameters are alphabetized. These go last instead, in this conventional order: parameters with default values, variadic parameters, then trailing-closure parameters. When adding a parameter to an existing signature, insert it at its alphabetical position and update the synthesized initializer (if any) and every call site to match.
 - [ ] Enum cases are alphabetized — unless the raw type encodes ordering (e.g., `Int` raw values that line up with server error codes or persisted indices). Document the carve-out inline if you take it.
 - [ ] Tests within a test file are alphabetized by function name. Within a group of tests for the same function, error-case tests are commonly placed at the end of the group rather than strictly alphabetized.
-- [ ] Static members and computed properties within a section are alphabetized.
+- [ ] UI objects (views, view modifiers) follow visual layout order rather than alphabetical order — do not flag them.
 
 Protocol conformance ordering is **not** an enforced project rule; don't flag it during review even if a reviewer expresses a personal preference.
 

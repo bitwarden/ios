@@ -5,20 +5,23 @@ import Foundation
 class MockKeyConnectorService: KeyConnectorService {
     var convertNewUserToKeyConnectorCalled = false
     var convertNewUserToKeyConnectorHandler: (() -> Void)?
-    var convertNewUserToKeyConnectorResult: Result<Void, Error> = .success(())
+    var convertNewUserToKeyConnectorResult: Result<KeyConnectorConversionResult, Error> = .success(
+        KeyConnectorConversionResult(encryptedUserKey: "encryptedUserKey", masterKey: "masterKey"),
+    )
     var convertNewUserToKeyConnectorKeyConnectorUrl: URL? // swiftlint:disable:this identifier_name
     var convertNewUserToKeyConnectorOrganizationId: String? // swiftlint:disable:this identifier_name
 
     var getManagingOrganizationResult: Result<Organization?, Error> = .success(nil)
-
-    var getMasterKeyFromKeyConnectorResult: Result<String, Error> = .success("key")
 
     var migrateUserPassword: String?
     var migrateUserResult: Result<Void, Error> = .success(())
 
     var userNeedsMigrationResult: Result<Bool, Error> = .success(true)
 
-    func convertNewUserToKeyConnector(keyConnectorUrl: URL, orgIdentifier: String) async throws {
+    func convertNewUserToKeyConnector(
+        keyConnectorUrl: URL,
+        orgIdentifier: String,
+    ) async throws -> KeyConnectorConversionResult {
         convertNewUserToKeyConnectorCalled = true
         convertNewUserToKeyConnectorKeyConnectorUrl = keyConnectorUrl
         convertNewUserToKeyConnectorOrganizationId = orgIdentifier
@@ -28,10 +31,6 @@ class MockKeyConnectorService: KeyConnectorService {
 
     func getManagingOrganization() async throws -> Organization? {
         try getManagingOrganizationResult.get()
-    }
-
-    func getMasterKeyFromKeyConnector(keyConnectorUrl: URL) async throws -> String {
-        try getMasterKeyFromKeyConnectorResult.get()
     }
 
     func migrateUser(password: String) async throws {

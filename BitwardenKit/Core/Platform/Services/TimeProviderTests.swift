@@ -83,10 +83,16 @@ class TimeProviderTests: BitwardenTestCase {
     }
 
     /// `calculateTamperResistantElapsedTime(lastMonotonicTime:lastWallClockTime:divergenceThreshold:)` tests
-    /// divergence exactly at threshold boundary.
+    /// divergence just below threshold boundary does not trigger detection.
+    ///
+    /// A 4 s divergence (1 s below the 5 s threshold) is used rather than exactly 5 s because
+    /// the implementation reads the live monotonic and wall-clock clocks in separate statements;
+    /// the resulting sub-millisecond jitter between those reads can push an "exactly at threshold"
+    /// divergence fractionally over 5.0, causing `divergence > threshold` to flip true and making
+    /// the test fail intermittently. The `_divergenceOverThreshold` test covers the "just past" case.
     func test_calculateTamperResistantElapsedTime_divergenceAtThreshold() {
         let lastMonotonicTime = subject.monotonicTime - 150
-        let lastWallClockTime = subject.presentTime.addingTimeInterval(-155)
+        let lastWallClockTime = subject.presentTime.addingTimeInterval(-154)
 
         let result = subject.calculateTamperResistantElapsedTime(
             lastMonotonicTime: lastMonotonicTime,
@@ -95,7 +101,7 @@ class TimeProviderTests: BitwardenTestCase {
         )
 
         XCTAssertFalse(result.tamperingDetected)
-        XCTAssertEqual(result.divergence, 5, accuracy: 0.1)
+        XCTAssertEqual(result.divergence, 4, accuracy: 0.1)
     }
 
     /// `calculateTamperResistantElapsedTime(lastMonotonicTime:lastWallClockTime:divergenceThreshold:)` tests

@@ -24,8 +24,12 @@ struct VaultGroupState: Equatable, Sendable {
     /// The title of the add item button.
     var addItemButtonTitle: String {
         switch group {
+        case .bankAccount:
+            Localizations.addBankAccount
         case .card:
             Localizations.addCard
+        case .driversLicense:
+            Localizations.addLicense
         case .collection, .folder:
             Localizations.addItem
         case .identity:
@@ -55,7 +59,7 @@ struct VaultGroupState: Equatable, Sendable {
         }
 
         switch group {
-        case .card, .identity, .login, .secureNote:
+        case .bankAccount, .card, .driversLicense, .identity, .login, .passport, .secureNote:
             return .button
         case .collection, .folder, .noFolder:
             return .menu
@@ -90,6 +94,8 @@ struct VaultGroupState: Equatable, Sendable {
         switch group {
         case .archive:
             Localizations.archiveEmptyDescriptionLong
+        case .bankAccount:
+            Localizations.thereAreNoBankAccountsInYourVault
         case .card:
             Localizations.thereAreNoCardsInYourVault
         case .collection:
@@ -100,6 +106,8 @@ struct VaultGroupState: Equatable, Sendable {
             Localizations.thereAreNoIdentitiesInYourVault
         case .login:
             Localizations.thereAreNoLoginsInYourVault
+        case .passport:
+            Localizations.thereAreNoPassportsInYourVault
         case .secureNote:
             Localizations.thereAreNoNotesInYourVault
         case .sshKey:
