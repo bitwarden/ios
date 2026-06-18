@@ -2202,8 +2202,7 @@ actor DefaultStateService: StateService, ActiveAccountStateProvider, ConfigState
         appSettingsStore.setServerConfig(config, userId: userId)
         if let fillAssistRulesUrl = config?.environment?.fillAssistRules.flatMap(URL.init) {
             guard var state = appSettingsStore.state else { return }
-            let currentUrls = state.accounts[userId]?.settings.environmentUrls ?? EnvironmentURLData()
-            state.accounts[userId]?.settings.environmentUrls = currentUrls.with(fillAssistRulesUrl: fillAssistRulesUrl)
+            state.accounts[userId]?.settings.environmentUrls?.fillAssistRulesUrl = fillAssistRulesUrl
             appSettingsStore.state = state
         }
     }

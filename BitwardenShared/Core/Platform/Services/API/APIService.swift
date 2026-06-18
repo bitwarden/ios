@@ -22,8 +22,8 @@ class APIService {
     /// The API service used for user identity requests.
     let identityService: HTTPService
 
-    /// The API service used for map-the-web requests.
-    let mapTheWebService: HTTPService
+    /// The API service used for Fill-Assist requests.
+    let fillAssistService: HTTPService
 
     /// The service used by the application to manage account state
     let stateService: StateService
@@ -113,7 +113,7 @@ class APIService {
         identityService = httpServiceBuilder.makeService(
             baseURLGetter: { environmentService.identityURL },
         )
-        mapTheWebService = httpServiceBuilder.makeService(
+        fillAssistService = httpServiceBuilder.makeService(
             baseURLGetter: { environmentService.fillAssistRulesURL },
         )
     }

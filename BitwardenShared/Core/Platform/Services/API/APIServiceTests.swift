@@ -74,9 +74,9 @@ class APIServiceTests: BitwardenTestCase {
         )
         XCTAssertNil(subject.identityService.tokenProvider)
 
-        let mapTheWebServiceBaseURL = subject.mapTheWebService.baseURL
-        XCTAssertEqual(mapTheWebServiceBaseURL, URL(string: "https://example.com/fill-assist-rules")!)
-        XCTAssertNil(subject.mapTheWebService.tokenProvider)
+        let fillAssistServiceBaseURL = subject.fillAssistService.baseURL
+        XCTAssertEqual(fillAssistServiceBaseURL, URL(string: "https://example.com/fill-assist-rules")!)
+        XCTAssertNil(subject.fillAssistService.tokenProvider)
     }
 
     /// `setupAccountTokenProviderDelegate(:)` sets up the delegate in the account token provider.
