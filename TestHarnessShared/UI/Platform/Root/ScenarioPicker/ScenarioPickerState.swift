@@ -31,15 +31,14 @@ struct ScenarioPickerState: Equatable {
     init() {
         var items: [ScenarioItem] = [
             ScenarioItem(id: "simpleLoginForm", title: Localizations.simpleLoginForm, route: .simpleLoginForm),
+            ScenarioItem(id: "totpAutofillForm", title: Localizations.totpAutofillForm, route: .totpAutofillForm),
+            ScenarioItem(id: "passkeyAutofill", title: Localizations.passkeyAutofill, route: nil),
         ]
         if #available(iOS 17, *) {
             items.append(
                 ScenarioItem(id: "cardAutofillForm", title: Localizations.cardAutofillForm, route: .cardAutofillForm),
             )
         }
-        items.append(contentsOf: [
-            ScenarioItem(id: "passkeyAutofill", title: Localizations.passkeyAutofill, route: nil),
-        ])
         scenarios = items
     }
 }
