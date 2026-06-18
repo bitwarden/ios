@@ -16,6 +16,6 @@ protocol FillAssistAPIService { // sourcery: AutoMockable
 
 extension APIService: FillAssistAPIService {
     func getFormsMap() async throws -> FormsMapResponseModel {
-        try await mapTheWebService.send(FormsMapRequest())
+        try await fillAssistService.send(FormsMapRequest())
     }
 }
