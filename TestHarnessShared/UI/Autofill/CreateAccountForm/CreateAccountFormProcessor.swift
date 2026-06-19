@@ -53,10 +53,10 @@ class CreateAccountFormProcessor: StateProcessor<
                 return
             }
             state.errorMessage = nil
-            // Mark the account as created. The view observes this flag and resigns
-            // focus from all fields, which causes iOS to detect the completed
-            // .newPassword form and prompt the active credential provider to save.
-            state.isAccountCreated = true
+            // Increment the counter so the view's onChange fires on every submission
+            // (not just the first). Each increment is a distinct value change, which
+            // causes the view to resign focus and prompt the credential provider to save.
+            state.accountCreationCount += 1
         }
     }
 }

@@ -35,8 +35,8 @@ struct CreateAccountFormView: View {
         content
             .navigationTitle(store.state.title)
             .navigationBarTitleDisplayMode(.large)
-            .onChange(of: store.state.isAccountCreated) { isCreated in
-                if isCreated {
+            .onChange(of: store.state.accountCreationCount) { count in
+                if count > 0 {
                     // Resigning focus from all fields after a .newPassword form submission
                     // causes iOS to detect the completed account-creation flow and prompt
                     // the active credential provider to save the new credential.
