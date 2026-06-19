@@ -34,4 +34,17 @@ struct FillAssistAPIServiceTests {
         #expect(request.url.absoluteString == "https://example.com/fill-assist-rules/forms.v0.json")
         #expect(request.body == nil)
     }
+
+    /// `getManifest()` performs the request with the correct method, URL, and no body.
+    @Test
+    func getManifest() async throws {
+        client.result = .httpSuccess(testData: .fillAssistManifest)
+
+        _ = try await subject.getManifest()
+
+        let request = try #require(client.requests.last)
+        #expect(request.method == .get)
+        #expect(request.url.absoluteString == "https://example.com/fill-assist-rules/manifest.json")
+        #expect(request.body == nil)
+    }
 }
