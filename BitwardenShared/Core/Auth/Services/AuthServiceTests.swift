@@ -630,7 +630,10 @@ class AuthServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
 
         XCTAssertEqual(
             unlockMethod,
-            .keyConnector(keyConnectorURL: URL(string: "https://vault.bitwarden.com/key-connector")!),
+            .keyConnector(
+                keyConnectorKeyWrappedUserKey: "KEY",
+                keyConnectorURL: URL(string: "https://vault.bitwarden.com/key-connector")!,
+            ),
         )
         assertGetConfig()
     }
@@ -1051,7 +1054,10 @@ class AuthServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
         )
         XCTAssertEqual(
             unlockMethod,
-            .keyConnector(keyConnectorURL: URL(string: "https://vault.bitwarden.com/key-connector")!),
+            .keyConnector(
+                keyConnectorKeyWrappedUserKey: "KEY",
+                keyConnectorURL: URL(string: "https://vault.bitwarden.com/key-connector")!,
+            ),
         )
         assertGetConfig()
     }
