@@ -170,7 +170,7 @@ class AttachmentsProcessor: StateProcessor<AttachmentsState, AttachmentsAction, 
             state.cipher = updatedCipherView
             state.fileName = nil
             state.fileData = nil
-            state.toast = Toast(title: Localizations.attachmentAdded)
+            state.toast = Toast(title: Localizations.attachementAdded)
         } catch let error as InputValidationError {
             coordinator.showAlert(.inputValidationAlert(error: error))
         } catch {
