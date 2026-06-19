@@ -221,7 +221,8 @@ class VaultListViewTests: BitwardenTestCase {
         XCTAssertThrowsError(try actionCard.find(asyncButton: Localizations.dismiss))
     }
 
-    /// Tapping the dismiss button on the organization banner dispatches the `.dismissOrganizationBanner` effect.
+    /// Tapping the dismiss button on the organization banner dispatches the
+    /// `.dismissOrganizationBanner(fromActionButton: false)` effect.
     @MainActor
     func test_orgBannerActionCard_tapDismiss() async throws {
         processor.state.loadingState = .data([])
@@ -229,10 +230,11 @@ class VaultListViewTests: BitwardenTestCase {
         let actionCard = try subject.inspect().find(actionCard: "Upcoming Maintenance")
         let button = try actionCard.find(asyncButton: Localizations.dismiss)
         try await button.tap()
-        XCTAssertEqual(processor.effects, [.dismissOrganizationBanner])
+        XCTAssertEqual(processor.effects, [.dismissOrganizationBanner(fromActionButton: false)])
     }
 
-    /// Tapping the action button on the organization banner dispatches the `.dismissOrganizationBanner` effect.
+    /// Tapping the action button on the organization banner dispatches the
+    /// `.dismissOrganizationBanner(fromActionButton: true)` effect.
     @MainActor
     func test_orgBannerActionCard_tapActionButton() async throws {
         processor.state.loadingState = .data([])
@@ -240,7 +242,7 @@ class VaultListViewTests: BitwardenTestCase {
         let actionCard = try subject.inspect().find(actionCard: "Upcoming Maintenance")
         let button = try actionCard.find(asyncButton: "I understand")
         try await button.tap()
-        XCTAssertEqual(processor.effects, [.dismissOrganizationBanner])
+        XCTAssertEqual(processor.effects, [.dismissOrganizationBanner(fromActionButton: true)])
     }
 
     /// Tapping the profile button dispatches the `.requestedProfileSwitcher` effect.

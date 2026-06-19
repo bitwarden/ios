@@ -116,8 +116,8 @@ final class VaultListProcessor: StateProcessor<
             await dismissFlightRecorderToastBanner()
         case .dismissImportLoginsActionCard:
             await setImportLoginsProgress(.setUpLater)
-        case .dismissOrganizationBanner:
-            await dismissOrganizationBanner()
+        case let .dismissOrganizationBanner(fromActionButton):
+            await dismissOrganizationBanner(fromActionButton: fromActionButton)
         case .dismissPremiumUpgradeActionCard:
             await dismissPremiumUpgradeActionCard()
         case .dismissUpgradedToPremiumActionCard:
@@ -337,9 +337,18 @@ extension VaultListProcessor {
     /// Dismisses the organization user notification banner and persists the decision so it isn't
     /// shown again until the policy is updated or the dismissal is reset on login.
     ///
-    private func dismissOrganizationBanner() async {
+    /// - Parameter fromActionButton: Whether the dismissal came from tapping the banner's action
+    ///   button rather than the dismiss button.
+    ///
+    private func dismissOrganizationBanner(fromActionButton: Bool) async {
         guard let data = state.organizationUserNotificationBannerData else { return }
         state.organizationUserNotificationBannerData = nil
+        if fromActionButton {
+            await services.eventService.collect(
+                eventType: .organizationUserNotificationBannerActionClicked,
+                organizationId: data.organizationId,
+            )
+        }
         let dismissal = OrganizationUserNotificationBannerDismissal(
             revisionDate: data.revisionDate,
             showAfterEveryLogin: data.showAfterEveryLogin,

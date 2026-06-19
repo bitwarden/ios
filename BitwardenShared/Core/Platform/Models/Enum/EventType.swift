@@ -42,6 +42,7 @@ public enum EventType: Int, Codable, Sendable {
     case organizationUserUpdated = 1502
     case organizationUserRemoved = 1503
     case organizationUserUpdatedGroups = 1504
+    case organizationUserNotificationBannerActionClicked = 1522 // swiftlint:disable:this identifier_name
 
     case organizationUpdated = 1600
     case organizationPurgedVault = 1601

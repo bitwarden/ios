@@ -1007,6 +1007,7 @@ class PolicyServiceTests: BitwardenTestCase { // swiftlint:disable:this type_bod
         XCTAssertEqual(result?.headerText, "Important Notice")
         XCTAssertEqual(result?.description, "Please review your settings.")
         XCTAssertEqual(result?.buttonText, "I understand")
+        XCTAssertEqual(result?.organizationId, "organization-1")
         XCTAssertEqual(result?.revisionDate, revisionDate)
         XCTAssertTrue(result?.showAfterEveryLogin == true)
     }

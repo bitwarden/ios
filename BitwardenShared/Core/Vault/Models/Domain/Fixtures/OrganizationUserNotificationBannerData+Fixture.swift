@@ -7,6 +7,7 @@ extension OrganizationUserNotificationBannerData {
         buttonText: String? = "I understand",
         description: String = "Scheduled maintenance on March 11 from 9-11 PM.",
         headerText: String? = "Upcoming Maintenance",
+        organizationId: String = "organization-1",
         revisionDate: Date? = nil,
         showAfterEveryLogin: Bool = false,
     ) -> OrganizationUserNotificationBannerData {
@@ -14,6 +15,7 @@ extension OrganizationUserNotificationBannerData {
             buttonText: buttonText,
             description: description,
             headerText: headerText,
+            organizationId: organizationId,
             revisionDate: revisionDate,
             showAfterEveryLogin: showAfterEveryLogin,
         )
