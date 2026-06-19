@@ -78,7 +78,7 @@ final class DebugMenuProcessor: StateProcessor<DebugMenuState, DebugMenuAction, 
                 ),
             )
         case .generateSdkErrorReport:
-            services.errorReporter.log(error: BitwardenSdk.BitwardenError.Api(ApiError.ResponseContent(
+            services.errorReporter.log(error: BitwardenSdk.BitwardenError.Api(ApiError.Response(
                 message: "Generated SDK error report from debug view.",
             )))
         case let .toastShown(toast):

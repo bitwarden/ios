@@ -472,7 +472,7 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator { // swiftlint:d
         stackNavigator?.present(PendingRequestsView(store: Store(processor: processor)))
     }
 
-    /// Shows the premium plan screen.
+    /// Shows the Premium plan screen.
     ///
     /// - Parameter subscription: An already-fetched subscription; pass `nil` to let the plan screen fetch it.
     ///
@@ -482,7 +482,7 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator { // swiftlint:d
         coordinator.navigate(to: .premiumPlan(subscription))
     }
 
-    /// Shows the premium upgrade screen.
+    /// Shows the Premium upgrade screen.
     ///
     private func showPremiumUpgrade() {
         guard let stackNavigator else { return }

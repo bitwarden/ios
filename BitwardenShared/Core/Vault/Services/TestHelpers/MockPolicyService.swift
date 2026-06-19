@@ -25,6 +25,9 @@ class MockPolicyService: PolicyService {
 
     var getEarliestOrganizationApplyingPolicyResult: [BitwardenShared.PolicyType: String?] = [:] // swiftlint:disable:this identifier_name line_length
 
+    // swiftlint:disable:next identifier_name
+    var getOrganizationUserNotificationBannerDataResult: OrganizationUserNotificationBannerData?
+
     var organizationsApplyingPolicyToUserResult: [BitwardenShared.PolicyType: [String]] = [:]
 
     var policyAppliesToUserResult = [BitwardenShared.PolicyType: Bool]()
@@ -48,6 +51,10 @@ class MockPolicyService: PolicyService {
 
     func getOrganizationIdsForRestricItemTypesPolicy() async -> [String] {
         policyAppliesToUserPolicies.map(\.organizationId)
+    }
+
+    func getOrganizationUserNotificationBannerData() async -> OrganizationUserNotificationBannerData? {
+        getOrganizationUserNotificationBannerDataResult
     }
 
     func getRestrictedItemCipherTypes() async -> [BitwardenShared.CipherType] {

@@ -33,7 +33,7 @@ struct CipherItemState: Equatable { // swiftlint:disable:this type_body_length
 
     // MARK: Properties
 
-    /// A flag indicating if this account has premium features.
+    /// A flag indicating if this account has Premium features.
     var accountHasPremium: Bool
 
     /// The bank account item state.

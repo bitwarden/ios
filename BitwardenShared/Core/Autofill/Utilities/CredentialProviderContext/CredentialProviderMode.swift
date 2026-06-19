@@ -34,8 +34,8 @@ public enum CredentialProviderMode {
     /// The extension is being configured to register a Fido2 credential.
     case registerFido2Credential(any PasskeyCredentialRequest)
 
-    /// The extension is saving a password credential without user interaction.
-    case savePasswordWithoutUserInteraction(any SavePasswordRequestProxy)
+    /// The extension is saving a password credential.
+    case savePasswordCredential(any SavePasswordRequestProxy, userInteraction: Bool)
 }
 
 /// Protocol to bypass using @available for passkey requests.

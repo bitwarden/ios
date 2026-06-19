@@ -88,6 +88,8 @@ extension BitwardenSdk.PolicyType {
         case .restrictItemTypes: self = .restrictedItemTypes
         case .sendOptions: self = .sendOptions
         case .twoFactorAuthentication: self = .twoFactorAuthentication
+        // TODO: PM-39144 Add SDK mapping for `organizationUserNotification` PolicyType
+        case .organizationUserNotification: return nil
         case .unknown: return nil
         }
     }

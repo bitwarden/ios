@@ -454,7 +454,7 @@ class AutofillHelperTests: BitwardenTestCase { // swiftlint:disable:this type_bo
     }
 
     /// `handleCipherForAutofill(cipherListView:)` doesn't copy the TOTP code if the user doesn't
-    /// have premium.
+    /// have Premium.
     func test_handleCipherForAutofill_totpCopyWithoutPremium() async {
         vaultRepository.fetchCipherResult = .success(.fixture(
             login: .fixture(password: "PASSWORD", username: "user@bitwarden.com", totp: "totp"),

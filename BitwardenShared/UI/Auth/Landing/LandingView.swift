@@ -160,6 +160,7 @@ struct LandingView: View {
             } label: {
                 Label(Localizations.appSettings, image: SharedAsset.Icons.cog16.swiftUIImage)
             }
+            .accessibilityIdentifier("AppSettingsButton")
             .buttonStyle(.bitwardenBorderless)
             .frame(maxWidth: .infinity, alignment: .center)
         }

@@ -55,6 +55,51 @@ class CredentialProviderContextTests: BitwardenTestCase { // swiftlint:disable:t
         )
     }
 
+    /// `getter:authCompletionRoute` returns nil for save password credential when proxy cannot be cast.
+    func test_authCompletionRoute_savePasswordCredential() {
+        XCTAssertNil(
+            DefaultCredentialProviderContext(.savePasswordCredential(MockSavePasswordRequest(), userInteraction: true))
+                .authCompletionRoute,
+            "authCompletionRoute is nil when the proxy cannot be cast to ASSavePasswordRequest",
+        )
+        XCTAssertNil(
+            DefaultCredentialProviderContext(.savePasswordCredential(MockSavePasswordRequest(), userInteraction: false))
+                .authCompletionRoute,
+        )
+    }
+
+    /// `getter:authCompletionRoute` returns the add item route for a save password request
+    /// with user interaction on iOS 26.2+.
+    func test_authCompletionRoute_savePasswordCredential_iOS26() {
+        guard #available(iOS 26.2, *) else { return }
+        let credential = ASPasswordCredential(user: "user@example.com", password: "p@ssw0rd")
+        let serviceIdentifier = ASCredentialServiceIdentifier(
+            identifier: "https://example.com",
+            type: .URL,
+        )
+        let request = ASSavePasswordRequest(
+            serviceIdentifier: serviceIdentifier,
+            credential: credential,
+            title: "Example",
+            sessionID: "session-1",
+            event: .userInitiated,
+        )
+        XCTAssertEqual(
+            DefaultCredentialProviderContext(.savePasswordCredential(request, userInteraction: true))
+                .authCompletionRoute,
+            AppRoute.vault(.addItem(
+                group: .login,
+                newCipherOptions: NewCipherOptions(
+                    name: "Example",
+                    password: "p@ssw0rd",
+                    uri: "https://example.com",
+                    username: "user@example.com",
+                ),
+                type: .login,
+            )),
+        )
+    }
+
     /// `getter:configuring` returns `true` if configuring, `false` otherwise.
     func test_configuring() {
         XCTAssertTrue(
@@ -96,6 +141,10 @@ class CredentialProviderContextTests: BitwardenTestCase { // swiftlint:disable:t
         )
         XCTAssertFalse(
             DefaultCredentialProviderContext(.registerFido2Credential(MockPasskeyCredentialRequest()))
+                .configuring,
+        )
+        XCTAssertFalse(
+            DefaultCredentialProviderContext(.savePasswordCredential(MockSavePasswordRequest(), userInteraction: true))
                 .configuring,
         )
     }
@@ -166,6 +215,15 @@ class CredentialProviderContextTests: BitwardenTestCase { // swiftlint:disable:t
         } else {
             XCTFail("ExtensionMode doesn't match")
         }
+
+        let context9 = DefaultCredentialProviderContext(
+            .savePasswordCredential(MockSavePasswordRequest(), userInteraction: true),
+        )
+        if case .savePasswordCredential = context9.extensionMode {
+            XCTAssert(true)
+        } else {
+            XCTFail("ExtensionMode doesn't match")
+        }
     }
 
     /// `getter:passwordCredentialIdentity` returns the identity of `autofillCredential` mode.
@@ -200,6 +258,10 @@ class CredentialProviderContextTests: BitwardenTestCase { // swiftlint:disable:t
         )
         XCTAssertNil(
             DefaultCredentialProviderContext(.registerFido2Credential(MockPasskeyCredentialRequest()))
+                .passwordCredentialIdentity,
+        )
+        XCTAssertNil(
+            DefaultCredentialProviderContext(.savePasswordCredential(MockSavePasswordRequest(), userInteraction: true))
                 .passwordCredentialIdentity,
         )
     }
@@ -261,6 +323,16 @@ class CredentialProviderContextTests: BitwardenTestCase { // swiftlint:disable:t
             .generatePasswordCredential(MockGeneratePasswordRequest(), userInteraction: true),
         )
         XCTAssertTrue(subjectGenPwTrue.flowWithUserInteraction)
+
+        let subjectSavePassword = DefaultCredentialProviderContext(
+            .savePasswordCredential(MockSavePasswordRequest(), userInteraction: true),
+        )
+        XCTAssertTrue(subjectSavePassword.flowWithUserInteraction)
+
+        let subjectSavePasswordNoUI = DefaultCredentialProviderContext(
+            .savePasswordCredential(MockSavePasswordRequest(), userInteraction: false),
+        )
+        XCTAssertFalse(subjectSavePasswordNoUI.flowWithUserInteraction)
     }
 
     /// `getter:serviceIdentifiers` returns the identifiers of `autofillVaultList`.
@@ -315,6 +387,11 @@ class CredentialProviderContextTests: BitwardenTestCase { // swiftlint:disable:t
 
         let subject6 = DefaultCredentialProviderContext(.autofillText)
         XCTAssertEqual(subject6.serviceIdentifiers, expectedIdentifiers)
+
+        let subject7 = DefaultCredentialProviderContext(
+            .savePasswordCredential(MockSavePasswordRequest(), userInteraction: true),
+        )
+        XCTAssertEqual(subject7.serviceIdentifiers, expectedIdentifiers)
     }
 
     /// `getter:uri` returns the URI with https prefix when service identifier is a domain.
@@ -406,6 +483,11 @@ class CredentialProviderContextTests: BitwardenTestCase { // swiftlint:disable:t
 
         let subject6 = DefaultCredentialProviderContext(.autofillText)
         XCTAssertNil(subject6.uri)
+
+        let subject7 = DefaultCredentialProviderContext(
+            .savePasswordCredential(MockSavePasswordRequest(), userInteraction: false),
+        )
+        XCTAssertNil(subject7.uri)
     }
 
     /// `getter:uri` returns nil when service identifiers are empty for autofillVaultList.
@@ -420,3 +502,5 @@ class MockPasskeyCredentialRequest: PasskeyCredentialRequest {}
 class MockOneTimeCodeCredentialIdentity: OneTimeCodeCredentialIdentityProxy {}
 
 class MockGeneratePasswordRequest: GeneratePasswordRequestProxy {}
+
+class MockSavePasswordRequest: SavePasswordRequestProxy {}

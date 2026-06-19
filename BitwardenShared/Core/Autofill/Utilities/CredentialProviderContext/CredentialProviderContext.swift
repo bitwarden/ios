@@ -46,7 +46,23 @@ public struct DefaultCredentialProviderContext: CredentialProviderContext {
             nil
         case .registerFido2Credential:
             AppRoute.vault(.autofillList)
-        case .savePasswordWithoutUserInteraction:
+        case let .savePasswordCredential(request, userInteraction: true):
+            if #available(iOSApplicationExtension 26.2, *),
+               let saveRequest = request as? ASSavePasswordRequest {
+                AppRoute.vault(.addItem(
+                    group: .login,
+                    newCipherOptions: NewCipherOptions(
+                        name: saveRequest.title,
+                        password: saveRequest.credential.password,
+                        uri: saveRequest.serviceIdentifier.normalizedURI,
+                        username: saveRequest.credential.user,
+                    ),
+                    type: .login,
+                ))
+            } else {
+                nil
+            }
+        case .savePasswordCredential:
             nil
         }
     }
@@ -74,6 +90,8 @@ public struct DefaultCredentialProviderContext: CredentialProviderContext {
             userInteraction
         case .savePasswordWithoutUserInteraction:
             false
+        case let .savePasswordCredential(_, userInteraction):
+            userInteraction
         default:
             true
         }

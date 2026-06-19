@@ -432,7 +432,7 @@ class NotificationServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
     }
 
     /// `messageReceived(_:notificationDismissed:notificationTapped:)` performs a sync when
-    /// receiving a premium status changed notification.
+    /// receiving a Premium status changed notification.
     func test_messageReceived_premiumStatusChanged() async throws {
         stateService.setIsAuthenticated()
         appIDSettingsStore.appID = "10"

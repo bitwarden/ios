@@ -4,7 +4,7 @@ import SwiftUI
 
 // MARK: - PremiumFeaturesList
 
-/// A reusable view that displays a list of premium features with check icons.
+/// A reusable view that displays a list of Premium features with check icons.
 ///
 struct PremiumFeaturesList: View {
     // MARK: View
