@@ -44,7 +44,7 @@ struct FillAssistManifestResponseModelTests {
         #expect(formsV1.filename == "forms.v1.json")
         #expect(formsV1.schema == "forms.v1.schema.json")
         #expect(formsV1.cid == "sha256:3b68ed123425a334166b378bec1ecd0bfab232c21667725b8710d9b35c98f26a")
-        #expect(formsV1.deprecated == nil)
+        #expect(formsV1.deprecated == false)
     }
 
     /// `init(from:)` decodes the `deprecated` flag when present.

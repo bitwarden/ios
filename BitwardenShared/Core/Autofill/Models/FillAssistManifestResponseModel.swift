@@ -1,3 +1,4 @@
+import BitwardenKit
 import Foundation
 import Networking
 
@@ -28,7 +29,7 @@ struct FillAssistManifestEntryModel: Codable, Equatable {
     let cid: String
 
     /// Whether this major version has entered its end-of-life support window.
-    let deprecated: Bool?
+    @DefaultFalse var deprecated: Bool
 
     /// The filename of the artifact (e.g. `"forms.v1.json"`).
     let filename: String
