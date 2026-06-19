@@ -20,6 +20,9 @@ public protocol EnvironmentService {
     /// The URL for the events API.
     var eventsURL: URL { get }
 
+    /// The URL for fetching Fill-Assist targeting rules.
+    var fillAssistRulesURL: URL { get }
+
     /// The URL for the icons API.
     var iconsURL: URL { get }
 

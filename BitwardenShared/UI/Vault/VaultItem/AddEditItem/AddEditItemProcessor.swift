@@ -891,6 +891,13 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
 
         try await services.vaultRepository.addCipher(state.cipher)
         coordinator.hideLoadingOverlay()
+
+        if let credentialProviderExtensionDelegate = appExtensionDelegate as? CredentialProviderExtensionDelegate,
+           credentialProviderExtensionDelegate.isSavingPasswordCredential {
+            credentialProviderExtensionDelegate.completeSavePasswordRequest()
+            return
+        }
+
         handleDismiss(didAddItem: true)
         await services.reviewPromptService.trackUserAction(.addedNewItem)
     }

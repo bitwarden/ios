@@ -154,6 +154,9 @@ public struct EnvironmentServerConfigResponseModel: Equatable, JSONResponse {
     /// The Cloud Region (e.g. "US")
     public let cloudRegion: String?
 
+    /// The Fill-Assist rules URL.
+    public let fillAssistRules: String?
+
     /// The Identity URL.
     public let identity: String?
 
@@ -173,6 +176,7 @@ public struct EnvironmentServerConfigResponseModel: Equatable, JSONResponse {
     /// - Parameters:
     ///   - api: The API URL.
     ///   - cloudRegion: The Cloud Region (e.g. "US").
+    ///   - fillAssistRules: The Fill-Assist rules URL.
     ///   - identity: The Identity URL.
     ///   - notifications: The Notifications URL.
     ///   - sso: The SSO URL.
@@ -180,6 +184,7 @@ public struct EnvironmentServerConfigResponseModel: Equatable, JSONResponse {
     public init(
         api: String?,
         cloudRegion: String?,
+        fillAssistRules: String?,
         identity: String?,
         notifications: String?,
         sso: String?,
@@ -187,6 +192,7 @@ public struct EnvironmentServerConfigResponseModel: Equatable, JSONResponse {
     ) {
         self.api = api
         self.cloudRegion = cloudRegion
+        self.fillAssistRules = fillAssistRules
         self.identity = identity
         self.notifications = notifications
         self.sso = sso

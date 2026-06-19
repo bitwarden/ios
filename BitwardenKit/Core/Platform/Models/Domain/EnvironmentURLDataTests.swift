@@ -275,4 +275,19 @@ class EnvironmentURLDataTests: XCTestCase {
             "https://web.vault.example.com/proxy-cookie-redirect-connector.html",
         )
     }
+
+    /// `fillAssistRulesUrl` can be mutated directly after creation.
+    func test_fillAssistRulesUrl_isMutable() {
+        var subject = EnvironmentURLData(
+            api: URL(string: "https://api.example.com"),
+            base: URL(string: "https://vault.example.com"),
+        )
+        let fillAssistURL = URL(string: "https://custom.example.com/fill-assist")!
+
+        subject.fillAssistRulesUrl = fillAssistURL
+
+        XCTAssertEqual(subject.fillAssistRulesUrl, fillAssistURL)
+        XCTAssertEqual(subject.api, URL(string: "https://api.example.com"))
+        XCTAssertEqual(subject.base, URL(string: "https://vault.example.com"))
+    }
 }

@@ -20,6 +20,11 @@ public struct EnvironmentURLData: Codable, Equatable, Hashable, Sendable {
     /// The URL for the events API.
     public let events: URL?
 
+    /// The base URL for fetching Fill-Assist targeting rules. Set from the server config.
+    /// Declared `var` because it is updated independently after initial construction, when the
+    /// server config is received, without replacing the entire struct.
+    public var fillAssistRulesUrl: URL?
+
     /// The URL for the icons API.
     public let icons: URL?
 
@@ -42,6 +47,7 @@ public struct EnvironmentURLData: Codable, Equatable, Hashable, Sendable {
     ///   - clientCertificateAlias: The human-readable alias for the client certificate.
     ///   - clientCertificateFingerprint: The SHA-256 fingerprint of the client certificate.
     ///   - events: The URL for the events API.
+    ///   - fillAssistRulesUrl: The base URL for fetching Fill-Assist targeting rules.
     ///   - icons: The URL for the icons API.
     ///   - identity: The URL for the identity API.
     ///   - notifications: The URL for the notifications API.
@@ -53,6 +59,7 @@ public struct EnvironmentURLData: Codable, Equatable, Hashable, Sendable {
         clientCertificateAlias: String? = nil,
         clientCertificateFingerprint: String? = nil,
         events: URL? = nil,
+        fillAssistRulesUrl: URL? = nil,
         icons: URL? = nil,
         identity: URL? = nil,
         notifications: URL? = nil,
@@ -63,6 +70,7 @@ public struct EnvironmentURLData: Codable, Equatable, Hashable, Sendable {
         self.clientCertificateAlias = clientCertificateAlias
         self.clientCertificateFingerprint = clientCertificateFingerprint
         self.events = events
+        self.fillAssistRulesUrl = fillAssistRulesUrl
         self.icons = icons
         self.identity = identity
         self.notifications = notifications
@@ -83,11 +91,6 @@ public extension EnvironmentURLData {
         subpageURL(additionalPath: "tools/import")
     }
 
-    /// The URL for managing the subscription plan.
-    var manageSubscriptionURL: URL? {
-        subpageURL(additionalPath: "settings/subscription")
-    }
-
     /// Whether all of the environment URLs are not set.
     var isEmpty: Bool {
         api == nil
@@ -97,6 +100,11 @@ public extension EnvironmentURLData {
             && identity == nil
             && notifications == nil
             && webVault == nil
+    }
+
+    /// The URL for managing the subscription plan.
+    var manageSubscriptionURL: URL? {
+        subpageURL(additionalPath: "settings/subscription")
     }
 
     /// The URL for a proxy on cookie redirect (used on SSO sync error).
