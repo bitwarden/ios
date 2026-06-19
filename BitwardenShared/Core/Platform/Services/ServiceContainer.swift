@@ -118,6 +118,9 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
     /// of the `Fido2UserInterface` from the SDK.
     let fido2UserInterfaceHelper: Fido2UserInterfaceHelper
 
+    /// The repository used by the application to manage fill-assist data.
+    let fillAssistRepository: FillAssistRepository
+
     /// The service used by the application for recording temporary debug logs.
     public let flightRecorder: FlightRecorder
 
@@ -348,6 +351,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
         exportVaultService: ExportVaultService,
         fido2CredentialStore: Fido2CredentialStore,
         fido2UserInterfaceHelper: Fido2UserInterfaceHelper,
+        fillAssistRepository: FillAssistRepository,
         flightRecorder: FlightRecorder,
         generatorRepository: GeneratorRepository,
         importCiphersRepository: ImportCiphersRepository,
@@ -418,6 +422,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
         self.exportVaultService = exportVaultService
         self.fido2CredentialStore = fido2CredentialStore
         self.fido2UserInterfaceHelper = fido2UserInterfaceHelper
+        self.fillAssistRepository = fillAssistRepository
         self.flightRecorder = flightRecorder
         self.generatorRepository = generatorRepository
         self.importCiphersRepository = importCiphersRepository
@@ -767,6 +772,15 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
             stateService: stateService,
         )
 
+        let fillAssistRepository = DefaultFillAssistRepository(
+            appSettingsStore: appSettingsStore,
+            configService: configService,
+            environmentService: environmentService,
+            errorReporter: errorReporter,
+            fillAssistAPIService: apiService,
+            stateService: stateService,
+        )
+
         let syncService = DefaultSyncService(
             accountAPIService: apiService,
             appContextHelper: appContextHelper,
@@ -774,6 +788,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
             clientService: clientService,
             collectionService: collectionService,
             configService: configService,
+            fillAssistRepository: fillAssistRepository,
             flightRecorder: flightRecorder,
             folderService: folderService,
             keyConnectorService: keyConnectorService,
@@ -1179,6 +1194,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
             exportVaultService: exportVaultService,
             fido2CredentialStore: fido2CredentialStore,
             fido2UserInterfaceHelper: fido2UserInterfaceHelper,
+            fillAssistRepository: fillAssistRepository,
             flightRecorder: flightRecorder,
             generatorRepository: generatorRepository,
             importCiphersRepository: importCiphersRepository,
