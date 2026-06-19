@@ -100,7 +100,7 @@ class KeyConnectorServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
         )
         XCTAssertTrue(client.requests.isEmpty)
         XCTAssertNotNil(stateService.accountEncryptionKeys["1"]?.cryptographicState)
-        XCTAssertEqual(stateService.accountEncryptionKeys["1"]?.encryptedUserKey, "encryptedUserKey")
+        XCTAssertNil(stateService.accountEncryptionKeys["1"]?.encryptedUserKey)
     }
 
     /// `convertNewUserToKeyConnector()` throws if SDK registration fails.
@@ -142,7 +142,7 @@ class KeyConnectorServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
             stateService.accountEncryptionKeys["1"],
             AccountEncryptionKeys(
                 cryptographicState: .v1(privateKey: "private"),
-                encryptedUserKey: "encryptedUserKey",
+                encryptedUserKey: nil,
             ),
         )
     }
