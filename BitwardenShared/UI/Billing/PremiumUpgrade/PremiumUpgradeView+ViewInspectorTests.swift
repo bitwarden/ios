@@ -107,7 +107,7 @@ class PremiumUpgradeViewTests: BitwardenTestCase {
         XCTAssertEqual(processor.effects.last, .retryFetchPriceTapped)
     }
 
-    /// The premium price text displays the value from state.
+    /// The Premium price text displays the value from state.
     @MainActor
     func test_premiumPrice_displaysStateValue() throws {
         processor.state.premiumSeatPrice = 19.80
@@ -115,7 +115,7 @@ class PremiumUpgradeViewTests: BitwardenTestCase {
         XCTAssertNotNil(text)
     }
 
-    /// The premium price section is hidden when `premiumPrice` is `nil`.
+    /// The Premium price section is hidden when `premiumPrice` is `nil`.
     @MainActor
     func test_premiumPrice_hiddenWhenNil() throws {
         processor.state.premiumSeatPrice = nil

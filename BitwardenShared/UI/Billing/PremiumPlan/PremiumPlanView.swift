@@ -4,7 +4,7 @@ import SwiftUI
 
 // MARK: - PremiumPlanView
 
-/// A view that displays the user's premium plan details and billing information.
+/// A view that displays the user's Premium plan details and billing information.
 ///
 struct PremiumPlanView: View {
     // MARK: Properties
@@ -73,7 +73,7 @@ struct PremiumPlanView: View {
         )
     }
 
-    /// The cancel premium button.
+    /// The cancel Premium button.
     private var cancelPremiumButton: some View {
         Button {
             store.send(.cancelPremiumTapped)

@@ -147,7 +147,7 @@ public extension EnvironmentURLData {
         subpageURL(additionalPath: "settings/security/two-factor")
     }
 
-    /// The URL for upgrading to premium.
+    /// The URL for upgrading to Premium.
     var upgradeToPremiumURL: URL? {
         subpageURL(additionalPath: "settings/subscription/premium?callToAction=upgradeToPremium")
     }

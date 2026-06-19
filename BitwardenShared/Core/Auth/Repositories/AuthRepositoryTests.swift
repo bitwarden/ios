@@ -2613,7 +2613,6 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
 
     /// `unlockVaultWithKeyConnectorKey()` unlocks the user's vault with their key connector key.
     func test_unlockVaultWithKeyConnectorKey() async {
-        keyConnectorService.getMasterKeyFromKeyConnectorResult = .success("key")
         stateService.accountEncryptionKeys = [
             "1": AccountEncryptionKeys(
                 cryptographicState: .v1(privateKey: "private"),
@@ -2636,7 +2635,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
                 kdfParams: KdfConfig().sdkKdf,
                 email: "user@bitwarden.com",
                 accountCryptographicState: .v1(privateKey: "private"),
-                method: .keyConnector(masterKey: "key", userKey: "user"),
+                method: .keyConnectorUrl(url: "https://example.com", keyConnectorKeyWrappedUserKey: "user"),
                 upgradeToken: nil,
             ),
         )
@@ -2685,7 +2684,6 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
                 trustedDeviceOption: nil,
             ),
         ))
-        configService.featureFlagsBool[.forceUpdateKdfSettings] = false
         changeKdfService.needsKdfUpdateToMinimumsResult = true
         stateService.activeAccount = account
         stateService.accountEncryptionKeys = [
@@ -2737,7 +2735,6 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
                 trustedDeviceOption: nil,
             ),
         ))
-        configService.featureFlagsBool[.forceUpdateKdfSettings] = false
         changeKdfService.needsKdfUpdateToMinimumsResult = true
         changeKdfService.updateKdfToMinimumsResult = .failure(BitwardenTestError.example)
         stateService.activeAccount = account

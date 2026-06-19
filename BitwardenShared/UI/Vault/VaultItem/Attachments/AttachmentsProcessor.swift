@@ -22,7 +22,7 @@ class AttachmentsProcessor: StateProcessor<AttachmentsState, AttachmentsAction, 
     /// The `Coordinator` that handles navigation.
     private var coordinator: AnyCoordinator<VaultItemRoute, VaultItemEvent>
 
-    /// The helper used to navigate to the premium upgrade flow.
+    /// The helper used to navigate to the Premium upgrade flow.
     lazy var premiumUpgradeHelper: PremiumUpgradeHelper = DefaultPremiumUpgradeHelper(
         services: services,
         coordinator: coordinator,
@@ -111,7 +111,7 @@ class AttachmentsProcessor: StateProcessor<AttachmentsState, AttachmentsAction, 
         }
     }
 
-    /// Load the user's premium status and display an alert if they do not have access to premium features.
+    /// Load the user's Premium status and display an alert if they do not have access to Premium features.
     private func loadPremiumStatus() async {
         state.hasPremium = await services.vaultRepository.doesActiveAccountHavePremium()
         if !state.hasPremium {
@@ -121,7 +121,7 @@ class AttachmentsProcessor: StateProcessor<AttachmentsState, AttachmentsAction, 
         }
     }
 
-    /// Navigates to the premium upgrade flow. Uses the in-app upgrade path when available;
+    /// Navigates to the Premium upgrade flow. Uses the in-app upgrade path when available;
     /// otherwise opens the web vault upgrade URL as a fallback.
     ///
     private func navigateToPremiumUpgrade() async {
@@ -137,7 +137,7 @@ class AttachmentsProcessor: StateProcessor<AttachmentsState, AttachmentsAction, 
         coordinator.showAlert(alert)
     }
 
-    /// Attempt to save the attachment, or show an alert if the user doesn't have access to premium features.
+    /// Attempt to save the attachment, or show an alert if the user doesn't have access to Premium features.
     private func save() async {
         defer { coordinator.hideLoadingOverlay() }
         do {
@@ -145,7 +145,7 @@ class AttachmentsProcessor: StateProcessor<AttachmentsState, AttachmentsAction, 
             try EmptyInputValidator(fieldName: Localizations.file)
                 .validate(input: state.fileName)
 
-            // Show the upgrade alert and stop if the user doesn't have premium.
+            // Show the upgrade alert and stop if the user doesn't have Premium.
             await loadPremiumStatus()
             guard state.hasPremium else { return }
 
@@ -170,7 +170,7 @@ class AttachmentsProcessor: StateProcessor<AttachmentsState, AttachmentsAction, 
             state.cipher = updatedCipherView
             state.fileName = nil
             state.fileData = nil
-            state.toast = Toast(title: Localizations.attachementAdded)
+            state.toast = Toast(title: Localizations.attachmentAdded)
         } catch let error as InputValidationError {
             coordinator.showAlert(.inputValidationAlert(error: error))
         } catch {

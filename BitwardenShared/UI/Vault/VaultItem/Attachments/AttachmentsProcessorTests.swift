@@ -58,7 +58,7 @@ class AttachmentsProcessorTests: BitwardenTestCase {
         XCTAssertEqual(subject.state.fileData, data)
     }
 
-    /// `perform(_:)` with `.loadPremiumStatus` shows the premium upgrade alert if the user lacks premium.
+    /// `perform(_:)` with `.loadPremiumStatus` shows the Premium upgrade alert if the user lacks Premium.
     @MainActor
     func test_perform_loadPremiumStatus() async throws {
         vaultRepository.doesActiveAccountHavePremiumResult = false
@@ -69,7 +69,7 @@ class AttachmentsProcessorTests: BitwardenTestCase {
         XCTAssertEqual(coordinator.alertShown.last, .attachmentsUnavailable(action: {}))
     }
 
-    /// `perform(_:)` with `.loadPremiumStatus` does not show an alert when the user has premium.
+    /// `perform(_:)` with `.loadPremiumStatus` does not show an alert when the user has Premium.
     @MainActor
     func test_perform_loadPremiumStatus_hasPremium() async throws {
         vaultRepository.doesActiveAccountHavePremiumResult = true
@@ -80,7 +80,7 @@ class AttachmentsProcessorTests: BitwardenTestCase {
         XCTAssertNil(coordinator.alertShown.last)
     }
 
-    /// `perform(_:)` with `.loadPremiumStatus` navigates to premium upgrade when tapping the upgrade button.
+    /// `perform(_:)` with `.loadPremiumStatus` navigates to Premium upgrade when tapping the upgrade button.
     @MainActor
     func test_perform_loadPremiumStatus_tapUpgrade() async throws {
         vaultRepository.doesActiveAccountHavePremiumResult = false
@@ -106,7 +106,7 @@ class AttachmentsProcessorTests: BitwardenTestCase {
         XCTAssertEqual(subject.state.cipher, .fixture())
         XCTAssertNil(subject.state.fileName)
         XCTAssertNil(subject.state.fileData)
-        XCTAssertEqual(subject.state.toast, Toast(title: Localizations.attachementAdded))
+        XCTAssertEqual(subject.state.toast, Toast(title: Localizations.attachmentAdded))
     }
 
     /// `perform(_:)` with `.save` handles any errors.
@@ -124,7 +124,7 @@ class AttachmentsProcessorTests: BitwardenTestCase {
         XCTAssertEqual(errorReporter.errors.last as? BitwardenTestError, .example)
     }
 
-    /// `perform(_:)` with `.save` displays an error if the user doesn't have premium.
+    /// `perform(_:)` with `.save` displays an error if the user doesn't have Premium.
     @MainActor
     func test_perform_save_noFile() async throws {
         subject.state.hasPremium = false
@@ -137,7 +137,7 @@ class AttachmentsProcessorTests: BitwardenTestCase {
         )
     }
 
-    /// `perform(_:)` with `.save` shows the premium upgrade alert if the user doesn't have premium.
+    /// `perform(_:)` with `.save` shows the Premium upgrade alert if the user doesn't have Premium.
     @MainActor
     func test_perform_save_noPremium() async throws {
         subject.state.fileName = "only cool people can see this file.txt"

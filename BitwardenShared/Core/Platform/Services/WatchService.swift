@@ -159,7 +159,7 @@ class DefaultWatchService: NSObject, WatchService {
         // If the user isn't set up to use the watch, sync the invalid state to the watch.
         guard shouldConnect else { return (nil, .needSetup) }
 
-        // Ensure the user has access to premium features or sync the invalid state to the watch.
+        // Ensure the user has access to Premium features or sync the invalid state to the watch.
         if account.profile.hasPremiumPersonally != true {
             let organizations = try? await organizationService
                 .fetchAllOrganizations()

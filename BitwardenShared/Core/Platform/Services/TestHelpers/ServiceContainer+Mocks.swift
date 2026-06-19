@@ -3,6 +3,7 @@ import AuthenticatorBridgeKitMocks
 import BitwardenKit
 import BitwardenKitMocks
 import BitwardenSdk
+import BitwardenSdkMocks
 import Networking
 import TestHelpers
 
