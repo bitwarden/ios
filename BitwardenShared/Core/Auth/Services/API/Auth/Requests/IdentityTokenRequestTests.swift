@@ -23,6 +23,7 @@ class IdentityTokenRequestTests: BitwardenTestCase {
                     codeVerifier: "codeVerifier",
                     redirectUri: "redirectUri",
                 ),
+                deeplinkScheme: "https",
                 deviceInfo: .fixture(),
                 loginRequestId: nil,
             ),
@@ -31,6 +32,7 @@ class IdentityTokenRequestTests: BitwardenTestCase {
         subjectPassword = IdentityTokenRequest(
             requestModel: IdentityTokenRequestModel(
                 authenticationMethod: .password(username: "user@example.com", password: "password"),
+                deeplinkScheme: "https",
                 deviceInfo: .fixture(),
                 loginRequestId: nil,
             ),
@@ -51,7 +53,7 @@ class IdentityTokenRequestTests: BitwardenTestCase {
         let bodyData = try XCTUnwrap(subjectAuthorizationCode.body?.encode())
         XCTAssertEqual(
             String(data: bodyData, encoding: .utf8),
-            "scope=api%20offline%5Faccess&client%5Fid=mobile&deviceIdentifier=1234&" +
+            "scope=api%20offline%5Faccess&client%5Fid=mobile&deeplinkScheme=https&deviceIdentifier=1234&" +
                 "deviceName=iPhone%2014&deviceType=1&grant%5Ftype=authorization%5Fcode&code=code&" +
                 "code%5Fverifier=codeVerifier&redirect%5Furi=redirectUri",
         )
@@ -62,7 +64,7 @@ class IdentityTokenRequestTests: BitwardenTestCase {
         let bodyData = try XCTUnwrap(subjectPassword.body?.encode())
         XCTAssertEqual(
             String(data: bodyData, encoding: .utf8),
-            "scope=api%20offline%5Faccess&client%5Fid=mobile&deviceIdentifier=1234&" +
+            "scope=api%20offline%5Faccess&client%5Fid=mobile&deeplinkScheme=https&deviceIdentifier=1234&" +
                 "deviceName=iPhone%2014&deviceType=1&grant%5Ftype=password&" +
                 "username=user%40example%2Ecom&password=password",
         )

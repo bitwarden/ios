@@ -395,6 +395,7 @@ class AuthServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
                 username: "email@example.com",
                 password: "accessCode",
             ),
+            deeplinkScheme: "bitwarden",
             deviceInfo: DeviceInfo(
                 identifier: "App ID",
                 name: "Model id",
@@ -438,6 +439,7 @@ class AuthServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
         )
         let tokenRequest = IdentityTokenRequestModel(
             authenticationMethod: .password(username: "email@example.com", password: "hashed password"),
+            deeplinkScheme: "bitwarden",
             deviceInfo: DeviceInfo(
                 identifier: "App ID",
                 name: "Model id",
@@ -507,6 +509,7 @@ class AuthServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
         )
         let tokenRequest = IdentityTokenRequestModel(
             authenticationMethod: .password(username: "email@example.com", password: "hashed password"),
+            deeplinkScheme: "bitwarden",
             deviceInfo: DeviceInfo(
                 identifier: "App ID",
                 name: "Model id",
@@ -637,6 +640,7 @@ class AuthServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
                 username: "email@example.com",
                 password: "hashed password",
             ),
+            deeplinkScheme: "bitwarden",
             deviceInfo: DeviceInfo(
                 identifier: "App ID",
                 name: "Model id",
@@ -772,6 +776,7 @@ class AuthServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
                 codeVerifier: "",
                 redirectUri: "bitwarden://sso-callback",
             ),
+            deeplinkScheme: "bitwarden",
             deviceInfo: DeviceInfo(
                 identifier: "App ID",
                 name: "Model id",

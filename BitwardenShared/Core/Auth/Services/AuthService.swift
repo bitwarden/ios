@@ -372,6 +372,21 @@ class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_leng
     /// complete the login process after the request is approved.
     private var loginWithDeviceData: AuthRequestResponse?
 
+    // MARK: Computed Properties
+
+    /// The deeplink scheme (`https` or `bitwarden`) the server should use when building auth
+    /// connector callback URLs for this client, based on the current environment and OS.
+    private var deeplinkScheme: String {
+        supportsHttpsAuthCallback ? "https" : callbackUrlScheme
+    }
+
+    /// Whether the current environment and OS support the HTTPS auth connector callback — Cloud
+    /// regions (those exposing an `authCallbackHost`) on iOS 17.4+.
+    private var supportsHttpsAuthCallback: Bool {
+        guard #available(iOS 17.4, *) else { return false }
+        return environmentService.region.authCallbackHost != nil
+    }
+
     // MARK: Initialization
 
     /// Creates a new `DefaultSingleSignOnService`.
@@ -946,6 +961,7 @@ class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_leng
             // Form the token request.
             request = IdentityTokenRequestModel(
                 authenticationMethod: authenticationMethod,
+                deeplinkScheme: deeplinkScheme,
                 deviceInfo: DeviceInfo(
                     identifier: appID,
                     name: systemDevice.modelIdentifier,
@@ -1056,7 +1072,7 @@ class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_leng
     ///
     private func resolveCallback(for kind: AuthWebSessionCallbackKind) -> AuthWebSessionCallback {
         guard kind.supportsHttpsCallback,
-              #available(iOS 17.4, *),
+              supportsHttpsAuthCallback,
               let host = environmentService.region.authCallbackHost
         else {
             return .customScheme(callbackUrlScheme)
