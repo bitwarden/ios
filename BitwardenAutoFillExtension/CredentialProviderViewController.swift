@@ -339,6 +339,7 @@ extension CredentialProviderViewController {
         }
     }
 
+    @available(iOSApplicationExtension 26.2, *)
     override func prepareInterface(for savePasswordRequest: ASSavePasswordRequest) {
         initializeApp(with: DefaultCredentialProviderContext(
             .savePasswordCredential(savePasswordRequest, userInteraction: true),
