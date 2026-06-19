@@ -334,6 +334,26 @@ extension CredentialProviderViewController {
         }
     }
 
+    @available(iOSApplicationExtension 26.2, *)
+    override func performWithoutUserInteractionIfPossible(savePasswordRequest: ASSavePasswordRequest) {
+        Task {
+            await initializeAppWithoutUserInteraction(
+                with: DefaultCredentialProviderContext(
+                    .savePasswordCredential(savePasswordRequest, userInteraction: false),
+                ),
+            )
+            await savePassword(savePasswordRequest: savePasswordRequest)
+        }
+    }
+
+    override func prepareInterface(for savePasswordRequest: ASSavePasswordRequest) {
+        initializeApp(with: DefaultCredentialProviderContext(
+            .savePasswordCredential(savePasswordRequest, userInteraction: true),
+        ))
+    }
+
+    // MARK: Private methods
+
     /// Generates a password for the requesting app using the developer-specified rules in the request.
     ///
     /// - Parameter request: The generate-password request containing developer-specified rules.
@@ -358,18 +378,6 @@ extension CredentialProviderViewController {
         }
     }
 
-    @available(iOSApplicationExtension 26.2, *)
-    override func performWithoutUserInteractionIfPossible(savePasswordRequest: ASSavePasswordRequest) {
-        Task {
-            await initializeAppWithoutUserInteraction(
-                with: DefaultCredentialProviderContext(
-                    .savePasswordWithoutUserInteraction(savePasswordRequest),
-                ),
-            )
-            await savePassword(savePasswordRequest: savePasswordRequest)
-        }
-    }
-
     /// Handles a save-password request from the AutoFill extension, persisting the credential to the vault.
     ///
     /// - Parameter savePasswordRequest: The `ASSavePasswordRequest` containing the credential and service info to save.
@@ -390,7 +398,7 @@ extension CredentialProviderViewController {
             extensionContext.completeSavePasswordRequest(completionHandler: nil)
         } catch {
             Logger.appExtension.error("Error saving password credential without user interaction: \(error)")
-            cancel(error: error)
+            cancel(error: ASExtensionError(.userInteractionRequired))
         }
     }
 }
@@ -532,6 +540,11 @@ extension CredentialProviderViewController: CredentialProviderExtensionDelegate 
     @available(iOSApplicationExtension 18.0, *)
     func completeOTPRequest(code: String) {
         extensionContext.completeOneTimeCodeRequest(using: ASOneTimeCodeCredential(code: code))
+    }
+
+    func completeSavePasswordRequest() {
+        guard #available(iOSApplicationExtension 26.2, *) else { return }
+        extensionContext.completeSavePasswordRequest(completionHandler: nil)
     }
 
     @available(iOSApplicationExtension 17.0, *)

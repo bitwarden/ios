@@ -78,9 +78,9 @@ public protocol VaultRepository: AnyObject {
     ///
     func deleteCipher(_ id: String) async throws
 
-    /// Validates the user's active account has access to premium features.
+    /// Validates the user's active account has access to Premium features.
     ///
-    /// - Returns: Whether the active account has premium.
+    /// - Returns: Whether the active account has Premium.
     ///
     func doesActiveAccountHavePremium() async -> Bool
 

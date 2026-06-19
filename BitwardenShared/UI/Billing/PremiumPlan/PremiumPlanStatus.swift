@@ -4,7 +4,7 @@ import Foundation
 
 // MARK: - PremiumPlanStatus
 
-/// The status of the user's premium plan.
+/// The status of the user's Premium plan.
 ///
 public enum PremiumPlanStatus: Equatable, Hashable {
     /// The plan is active.

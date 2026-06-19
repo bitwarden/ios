@@ -76,8 +76,8 @@ class SendListProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         XCTAssertEqual(coordinator.routes.last, .addItem(type: .file))
     }
 
-    /// `perform(_:)` with `.addItemPressed` shows a premium required alert with an upgrade action
-    /// if attempting to add a file send and the user doesn't have premium.
+    /// `perform(_:)` with `.addItemPressed` shows a Premium required alert with an upgrade action
+    /// if attempting to add a file send and the user doesn't have Premium.
     @MainActor
     func test_perform_addItemPressed_fileType_withoutPremium() async throws {
         sendRepository.doesActivateAccountHavePremiumResult = false
@@ -88,8 +88,8 @@ class SendListProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         XCTAssertTrue(coordinator.routes.isEmpty)
     }
 
-    /// `perform(_:)` with `.addItemPressed` tapping "Upgrade to Premium" in the premium required
-    /// alert triggers the premium upgrade flow.
+    /// `perform(_:)` with `.addItemPressed` tapping "Upgrade to Premium" in the Premium required
+    /// alert triggers the Premium upgrade flow.
     @MainActor
     func test_perform_addItemPressed_fileType_withoutPremium_upgradeAction() async throws {
         sendRepository.doesActivateAccountHavePremiumResult = false

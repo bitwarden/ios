@@ -7,6 +7,7 @@ import XCTest
 @testable import BitwardenShared
 @testable import BitwardenSharedMocks
 
+@MainActor
 class PolicyServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_length
     // MARK: Properties
 
@@ -95,8 +96,8 @@ class PolicyServiceTests: BitwardenTestCase { // swiftlint:disable:this type_bod
         )
     }
 
-    override func tearDown() {
-        super.tearDown()
+    override func tearDown() async throws {
+        try await super.tearDown()
 
         clientService = nil
         configService = nil
@@ -912,6 +913,122 @@ class PolicyServiceTests: BitwardenTestCase { // swiftlint:disable:this type_bod
         let policies = await subject.getOrganizationIdsForRestricItemTypesPolicy()
         XCTAssertTrue(policies.isEmpty)
     }
+
+    // MARK: - getOrganizationUserNotificationBannerData Tests
+
+    /// `getOrganizationUserNotificationBannerData()` returns `nil` when the feature flag is off.
+    func test_getOrganizationUserNotificationBannerData_featureFlagOff() async {
+        configService.featureFlagsBool[.organizationUserNotificationBanner] = false
+        stateService.activeAccount = .fixture()
+        organizationService.fetchAllOrganizationsResult = .success([.fixture()])
+        policyDataStore.fetchPoliciesResult = .success([
+            .fixture(
+                data: [PolicyOptionType.description.rawValue: .string("Test message")],
+                type: .organizationUserNotification,
+            ),
+        ])
+
+        let result = await subject.getOrganizationUserNotificationBannerData()
+        XCTAssertNil(result)
+    }
+
+    /// `getOrganizationUserNotificationBannerData()` returns `nil` when the policy has no `description` field.
+    func test_getOrganizationUserNotificationBannerData_missingDescription() async {
+        configService.featureFlagsBool[.organizationUserNotificationBanner] = true
+        stateService.activeAccount = .fixture()
+        organizationService.fetchAllOrganizationsResult = .success([.fixture()])
+        policyDataStore.fetchPoliciesResult = .success([
+            .fixture(data: nil, type: .organizationUserNotification),
+        ])
+
+        let result = await subject.getOrganizationUserNotificationBannerData()
+        XCTAssertNil(result)
+    }
+
+    /// `getOrganizationUserNotificationBannerData()` uses the policy with the earliest revision date
+    /// when multiple organizations apply the policy.
+    func test_getOrganizationUserNotificationBannerData_multipleOrgs_usesEarliestRevisionDate() async {
+        configService.featureFlagsBool[.organizationUserNotificationBanner] = true
+        stateService.activeAccount = .fixture()
+        organizationService.fetchAllOrganizationsResult = .success([
+            .fixture(id: "org-1"),
+            .fixture(id: "org-2"),
+        ])
+        policyDataStore.fetchPoliciesResult = .success([
+            .fixture(
+                data: [PolicyOptionType.description.rawValue: .string("Later org message.")],
+                organizationId: "org-1",
+                revisionDate: Date(year: 2024, month: 6, day: 1),
+                type: .organizationUserNotification,
+            ),
+            .fixture(
+                data: [PolicyOptionType.description.rawValue: .string("Earlier org message.")],
+                organizationId: "org-2",
+                revisionDate: Date(year: 2024, month: 1, day: 1),
+                type: .organizationUserNotification,
+            ),
+        ])
+
+        let result = await subject.getOrganizationUserNotificationBannerData()
+        XCTAssertEqual(result?.description, "Earlier org message.")
+    }
+
+    /// `getOrganizationUserNotificationBannerData()` returns `nil` when no matching policy applies.
+    func test_getOrganizationUserNotificationBannerData_noPolicy() async {
+        configService.featureFlagsBool[.organizationUserNotificationBanner] = true
+        stateService.activeAccount = .fixture()
+        organizationService.fetchAllOrganizationsResult = .success([.fixture()])
+        policyDataStore.fetchPoliciesResult = .success([])
+
+        let result = await subject.getOrganizationUserNotificationBannerData()
+        XCTAssertNil(result)
+    }
+
+    /// `getOrganizationUserNotificationBannerData()` returns the correct data when the policy is valid.
+    func test_getOrganizationUserNotificationBannerData_validPolicy() async {
+        configService.featureFlagsBool[.organizationUserNotificationBanner] = true
+        stateService.activeAccount = .fixture()
+        organizationService.fetchAllOrganizationsResult = .success([.fixture()])
+        policyDataStore.fetchPoliciesResult = .success([
+            .fixture(
+                data: [
+                    PolicyOptionType.header.rawValue: .string("Important Notice"),
+                    PolicyOptionType.description.rawValue: .string("Please review your settings."),
+                    PolicyOptionType.buttonText.rawValue: .string("I understand"),
+                    PolicyOptionType.showAfterEveryLogin.rawValue: .bool(true),
+                ],
+                type: .organizationUserNotification,
+            ),
+        ])
+
+        let result = await subject.getOrganizationUserNotificationBannerData()
+        XCTAssertEqual(result?.headerText, "Important Notice")
+        XCTAssertEqual(result?.description, "Please review your settings.")
+        XCTAssertEqual(result?.buttonText, "I understand")
+        XCTAssertTrue(result?.showAfterEveryLogin == true)
+    }
+
+    /// `getOrganizationUserNotificationBannerData()` returns `nil` optional fields and
+    /// `showAfterEveryLogin` defaults to `false` when those fields are absent.
+    func test_getOrganizationUserNotificationBannerData_validPolicy_minimalFields() async {
+        configService.featureFlagsBool[.organizationUserNotificationBanner] = true
+        stateService.activeAccount = .fixture()
+        organizationService.fetchAllOrganizationsResult = .success([.fixture()])
+        policyDataStore.fetchPoliciesResult = .success([
+            .fixture(
+                data: [PolicyOptionType.description.rawValue: .string("Minimal message.")],
+                type: .organizationUserNotification,
+            ),
+        ])
+
+        let result = await subject.getOrganizationUserNotificationBannerData()
+        XCTAssertNil(result?.headerText)
+        XCTAssertEqual(result?.description, "Minimal message.")
+        XCTAssertNil(result?.buttonText)
+        XCTAssertFalse(result?.showAfterEveryLogin == true)
+    }
+
+    // MARK: - getRestrictedItemCipherTypes Tests
 
     /// `getRestrictedItemCipherTypes()` returns the restricted cipher types that apply to the user.
     func test_getRestrictedItemCipherTypes() async {

@@ -10,23 +10,23 @@ protocol BillingService: AnyObject { // sourcery: AutoMockable
     /// The callback URL scheme used by the Stripe checkout web authentication session.
     var checkoutCallbackUrlScheme: String { get }
 
-    /// Creates a checkout session for premium upgrade and returns the checkout URL.
+    /// Creates a checkout session for Premium upgrade and returns the checkout URL.
     ///
     /// - Returns: A validated HTTPS URL for the checkout session.
     /// - Throws: `BillingError.invalidCheckoutUrl` if the URL is invalid or not HTTPS.
     ///
     func createCheckoutSession() async throws -> URL
 
-    /// Creates a customer portal session for managing the premium subscription.
+    /// Creates a customer portal session for managing the Premium subscription.
     ///
     /// - Returns: A validated HTTPS URL for the customer portal.
     /// - Throws: `BillingError.invalidPortalUrl` if the URL is not HTTPS.
     ///
     func getPortalUrl() async throws -> URL
 
-    /// Gets the premium subscription plan details.
+    /// Gets the Premium subscription plan details.
     ///
-    /// - Returns: A `PremiumPlanResponseModel` containing the premium plan details.
+    /// - Returns: A `PremiumPlanResponseModel` containing the Premium plan details.
     ///
     func getPremiumPlan() async throws -> PremiumPlanResponseModel
 
@@ -41,16 +41,16 @@ protocol BillingService: AnyObject { // sourcery: AutoMockable
     ///
     func premiumCheckoutCanceled()
 
-    /// A publisher that emits the status of the premium checkout sync process.
+    /// A publisher that emits the status of the Premium checkout sync process.
     ///
     func premiumCheckoutStatusPublisher() -> AnyPublisher<PremiumCheckoutStatus, Never>
 
-    /// Returns whether the current environment is effectively self-hosted for premium upgrade checks.
+    /// Returns whether the current environment is effectively self-hosted for Premium upgrade checks.
     /// Returns `false` when the debug override flag is enabled, regardless of the actual region.
     ///
     func isSelfHosted() async -> Bool
 
-    /// Notifies that a premium status change was detected (via deep link or push notification),
+    /// Notifies that a Premium status change was detected (via deep link or push notification),
     /// triggers a sync, and publishes status updates.
     ///
     func premiumStatusChanged() async
@@ -87,10 +87,10 @@ class DefaultBillingService: BillingService {
     /// The service used by the application to report non-fatal errors.
     private let errorReporter: ErrorReporter
 
-    /// The debounce interval applied to the premium checkout status publisher.
+    /// The debounce interval applied to the Premium checkout status publisher.
     private let debounceInterval: DispatchQueue.SchedulerTimeType.Stride
 
-    /// Subject that emits the premium checkout sync status.
+    /// Subject that emits the Premium checkout sync status.
     private let premiumCheckoutStatusSubject = CurrentValueSubject<PremiumCheckoutStatus?, Never>(nil)
 
     /// The service used to manage the app's state.

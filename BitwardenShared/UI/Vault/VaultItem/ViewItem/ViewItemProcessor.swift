@@ -62,7 +62,7 @@ final class ViewItemProcessor: StateProcessor<ViewItemState, ViewItemAction, Vie
     /// The services used by this processor.
     private let services: Services
 
-    /// The helper used to navigate to the premium upgrade flow.
+    /// The helper used to navigate to the Premium upgrade flow.
     lazy var premiumUpgradeHelper: PremiumUpgradeHelper = DefaultPremiumUpgradeHelper(
         services: services,
         coordinator: coordinator,
@@ -244,7 +244,7 @@ private extension ViewItemProcessor {
         }
     }
 
-    /// Navigates to the premium upgrade flow. Uses the in-app upgrade path when available;
+    /// Navigates to the Premium upgrade flow. Uses the in-app upgrade path when available;
     /// otherwise opens the web vault upgrade URL as a fallback.
     ///
     private func navigateToPremiumUpgrade() async {
@@ -650,7 +650,7 @@ private extension ViewItemProcessor {
 private extension ViewItemProcessor {
     /// Updates the TOTP code for the view.
     func updateTOTPCode() async {
-        // Only update the code if the user has premium and there is a valid TOTP key model.
+        // Only update the code if the user has Premium and there is a valid TOTP key model.
         guard state.hasPremiumFeatures,
               case let .data(cipherItemState) = state.loadingState,
               let calculationKey = cipherItemState.loginState.totpState.authKeyModel

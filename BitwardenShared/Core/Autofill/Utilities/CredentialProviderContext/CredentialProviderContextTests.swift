@@ -1,3 +1,4 @@
+// swiftlint:disable file_length
 import AuthenticationServices
 import Testing
 
@@ -55,6 +56,52 @@ struct CredentialProviderContextTests { // swiftlint:disable:this type_body_leng
         )
     }
 
+    /// `authCompletionRoute` returns nil for save password credential when proxy cannot be cast.
+    @Test
+    func authCompletionRoute_savePasswordCredential() {
+        #expect(
+            DefaultCredentialProviderContext(.savePasswordCredential(MockSavePasswordRequest(), userInteraction: true))
+                .authCompletionRoute == nil,
+        )
+        #expect(
+            DefaultCredentialProviderContext(.savePasswordCredential(MockSavePasswordRequest(), userInteraction: false))
+                .authCompletionRoute == nil,
+        )
+    }
+
+    /// `authCompletionRoute` returns the add item route for a save password request
+    /// with user interaction on iOS 26.2+.
+    @Test
+    func authCompletionRoute_savePasswordCredential_iOS26() {
+        guard #available(iOS 26.2, *) else { return }
+        let credential = ASPasswordCredential(user: "user@example.com", password: "p@ssw0rd")
+        let serviceIdentifier = ASCredentialServiceIdentifier(
+            identifier: "https://example.com",
+            type: .URL,
+        )
+        let request = ASSavePasswordRequest(
+            serviceIdentifier: serviceIdentifier,
+            credential: credential,
+            title: "Example",
+            sessionID: "session-1",
+            event: .userInitiated,
+        )
+        #expect(
+            DefaultCredentialProviderContext(.savePasswordCredential(request, userInteraction: true))
+                .authCompletionRoute ==
+                AppRoute.vault(.addItem(
+                    group: .login,
+                    newCipherOptions: NewCipherOptions(
+                        name: "Example",
+                        password: "p@ssw0rd",
+                        uri: "https://example.com",
+                        username: "user@example.com",
+                    ),
+                    type: .login,
+                )),
+        )
+    }
+
     /// `configuring` returns `true` if configuring, `false` otherwise.
     @Test
     func configuring() {
@@ -84,6 +131,11 @@ struct CredentialProviderContextTests { // swiftlint:disable:this type_body_leng
         )
         #expect(
             !DefaultCredentialProviderContext(.registerFido2Credential(MockPasskeyCredentialRequest())).configuring,
+        )
+        #expect(
+            !DefaultCredentialProviderContext(
+                .savePasswordCredential(MockSavePasswordRequest(), userInteraction: true),
+            ).configuring,
         )
     }
 
@@ -123,6 +175,11 @@ struct CredentialProviderContextTests { // swiftlint:disable:this type_body_leng
 
         let context8 = DefaultCredentialProviderContext(.autofillText)
         if case .autofillText = context8.extensionMode {} else { Issue.record("ExtensionMode doesn't match") }
+
+        let context9 = DefaultCredentialProviderContext(
+            .savePasswordCredential(MockSavePasswordRequest(), userInteraction: true),
+        )
+        if case .savePasswordCredential = context9.extensionMode {} else { Issue.record("ExtensionMode doesn't match") }
     }
 
     /// `passwordCredentialIdentity` returns the identity of the `autofillCredential` mode.
@@ -156,6 +213,10 @@ struct CredentialProviderContextTests { // swiftlint:disable:this type_body_leng
                 .registerFido2Credential(MockPasskeyCredentialRequest()),
             ).passwordCredentialIdentity == nil,
         )
+        #expect(
+            DefaultCredentialProviderContext(.savePasswordCredential(MockSavePasswordRequest(), userInteraction: true))
+                .passwordCredentialIdentity == nil,
+        )
     }
 
     /// `flowFailedBecauseUserInteractionRequired` returns `false` as the default value.
@@ -168,7 +229,7 @@ struct CredentialProviderContextTests { // swiftlint:disable:this type_body_leng
     }
 
     /// `flowWithUserInteraction` returns `true` if the flow has user interaction, `false` otherwise.
-    @Test
+    @Test // swiftlint:disable:next function_body_length
     func flowWithUserInteraction() {
         #expect(DefaultCredentialProviderContext(.autofillVaultList([])).flowWithUserInteraction)
 
@@ -218,6 +279,16 @@ struct CredentialProviderContextTests { // swiftlint:disable:this type_body_leng
         #expect(
             DefaultCredentialProviderContext(
                 .generatePasswordCredential(MockGeneratePasswordRequest(), userInteraction: true),
+            ).flowWithUserInteraction,
+        )
+        #expect(
+            DefaultCredentialProviderContext(
+                .savePasswordCredential(MockSavePasswordRequest(), userInteraction: true),
+            ).flowWithUserInteraction,
+        )
+        #expect(
+            !DefaultCredentialProviderContext(
+                .savePasswordCredential(MockSavePasswordRequest(), userInteraction: false),
             ).flowWithUserInteraction,
         )
     }
@@ -274,6 +345,11 @@ struct CredentialProviderContextTests { // swiftlint:disable:this type_body_leng
 
         let subject6 = DefaultCredentialProviderContext(.autofillText)
         #expect(subject6.serviceIdentifiers == expectedIdentifiers)
+
+        let subject7 = DefaultCredentialProviderContext(
+            .savePasswordCredential(MockSavePasswordRequest(), userInteraction: true),
+        )
+        #expect(subject7.serviceIdentifiers == expectedIdentifiers)
     }
 
     /// `uri` resolves a single service identifier to a URI, normalizing domain-type identifiers
@@ -363,6 +439,11 @@ struct CredentialProviderContextTests { // swiftlint:disable:this type_body_leng
 
         let subject6 = DefaultCredentialProviderContext(.autofillText)
         #expect(subject6.uri == nil)
+
+        let subject7 = DefaultCredentialProviderContext(
+            .savePasswordCredential(MockSavePasswordRequest(), userInteraction: false),
+        )
+        #expect(subject7.uri == nil)
     }
 
     /// `uri` returns `nil` when service identifiers are empty for `autofillVaultList`.
@@ -378,3 +459,5 @@ class MockPasskeyCredentialRequest: PasskeyCredentialRequest {}
 class MockOneTimeCodeCredentialIdentity: OneTimeCodeCredentialIdentityProxy {}
 
 class MockGeneratePasswordRequest: GeneratePasswordRequestProxy {}
+
+class MockSavePasswordRequest: SavePasswordRequestProxy {}
