@@ -455,6 +455,27 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         task.cancel()
     }
 
+    /// `perform(_:)` with `.appeared` loads organization user notification banner data from the policy service.
+    @MainActor
+    func test_perform_appeared_organizationUserNotificationBannerData() async {
+        policyService.getOrganizationUserNotificationBannerDataResult = .fixture()
+
+        await subject.perform(.appeared)
+
+        XCTAssertEqual(subject.state.organizationUserNotificationBannerData, .fixture())
+    }
+
+    /// `perform(_:)` with `.appeared` sets organization user notification banner data to `nil`
+    /// when the policy does not apply.
+    @MainActor
+    func test_perform_appeared_organizationUserNotificationBannerData_nil() async {
+        policyService.getOrganizationUserNotificationBannerDataResult = nil
+
+        await subject.perform(.appeared)
+
+        XCTAssertNil(subject.state.organizationUserNotificationBannerData)
+    }
+
     /// `perform(_:)` with `.appeared` updates the state depending on if the
     /// personal ownership policy is enabled.
     @MainActor
@@ -668,6 +689,16 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
 
         XCTAssertFalse(subject.state.shouldShowArchiveOnboardingActionCard)
         XCTAssertTrue(stateService.archiveOnboardingShown)
+    }
+
+    /// `perform(_:)` with `.dismissOrganizationBanner` clears the organization user notification banner data.
+    @MainActor
+    func test_perform_dismissOrganizationBanner() async {
+        subject.state.organizationUserNotificationBannerData = .fixture()
+
+        await subject.perform(.dismissOrganizationBanner)
+
+        XCTAssertNil(subject.state.organizationUserNotificationBannerData)
     }
 
     /// `perform(_:)` with `.dismissPremiumUpgradeActionCard` dismisses the Premium upgrade card
