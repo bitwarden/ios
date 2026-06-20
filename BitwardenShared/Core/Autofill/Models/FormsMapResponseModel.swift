@@ -36,11 +36,29 @@ struct FormsMapResponseModel: Equatable, JSONResponse {
 /// Form descriptions for a specific host.
 ///
 struct FormsMapHostEntry: Codable, Equatable {
+    // MARK: Types
+
+    private enum CodingKeys: String, CodingKey {
+        case forms
+        case pathnames
+    }
+
+    // MARK: Properties
+
     /// Site-wide fallback form descriptions used when no pathname-specific entry matches.
     let forms: [FormsMapContent]?
 
-    /// Pathname-specific form descriptions.
+    /// Pathname-specific form descriptions. Null-valued entries are excluded during decoding.
     let pathnames: [String: FormsMapPathnameEntry]?
+
+    // MARK: Codable
+
+    init(from decoder: any Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        forms = try container.decodeIfPresent([FormsMapContent].self, forKey: .forms)
+        pathnames = try container.decodeIfPresent([String: FormsMapPathnameEntry?].self, forKey: .pathnames)?
+            .compactMapValues { $0 }
+    }
 }
 
 // MARK: - FormsMapPathnameEntry
