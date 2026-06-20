@@ -113,8 +113,12 @@ class APIService {
         identityService = httpServiceBuilder.makeService(
             baseURLGetter: { environmentService.identityURL },
         )
-        fillAssistService = httpServiceBuilder.makeService(
+        // Fill-Assist requests target an external CDN (GitHub Releases) that uses multi-hop 302
+        // redirects. CertificateHTTPClient deliberately blocks 302s for SSO, so we construct
+        // a plain HTTPService with URLSession.shared which follows all redirects.
+        fillAssistService = HTTPService(
             baseURLGetter: { environmentService.fillAssistRulesURL },
+            client: URLSession.shared,
         )
     }
 

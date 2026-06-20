@@ -1,5 +1,4 @@
 import BitwardenKit
-import CryptoKit
 import Foundation
 
 // MARK: - FillAssistRepository
@@ -145,25 +144,11 @@ class DefaultFillAssistRepository: FillAssistRepository {
             return
         }
 
-        // 8. SHA-256 integrity check (strip "sha256:" prefix from manifest cid).
-        let cidHex = entry.cid.hasPrefix("sha256:") ? String(entry.cid.dropFirst(7)) : entry.cid
-        try verifyIntegrity(of: formsMap, expectedCidHex: cidHex)
-
-        // 9. Parse, cache, and update timestamp.
+        // 8. Parse, cache, and update timestamp.
         let rules = buildRules(from: formsMap)
         let data = FillAssistCachedData(cid: entry.cid, rules: rules, sourceUrl: sourceUrl.absoluteString)
         appSettingsStore.setFillAssistCachedData(data, userId: userId)
         appSettingsStore.setFillAssistLastFetchTimestamp(Date(), userId: userId)
-    }
-
-    /// Verifies the SHA-256 hash of the serialised `FormsMapResponseModel` against the expected hex.
-    ///
-    private func verifyIntegrity(of formsMap: FormsMapResponseModel, expectedCidHex: String) throws {
-        let data = try JSONEncoder().encode(formsMap)
-        let actualHex = SHA256.hash(data: data).map { String(format: "%02hhx", $0) }.joined()
-        guard actualHex == expectedCidHex else {
-            throw FillAssistRepositoryError.integrityCheckFailed
-        }
     }
 
     /// Builds a `[hostname: FillAssistHostRules]` dictionary by pooling all non-null field
@@ -198,13 +183,4 @@ class DefaultFillAssistRepository: FillAssistRepository {
             parts.compactMap { FillAssistSelectorParser.parse($0) }
         }
     }
-}
-
-// MARK: - FillAssistRepositoryError
-
-/// Errors thrown internally by `DefaultFillAssistRepository`.
-///
-enum FillAssistRepositoryError: Error {
-    /// The downloaded forms file did not match the expected SHA-256 hash.
-    case integrityCheckFailed
 }
