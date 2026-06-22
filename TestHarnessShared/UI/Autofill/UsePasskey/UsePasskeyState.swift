@@ -23,7 +23,7 @@ struct UsePasskeyState: Equatable {
     // MARK: Properties
 
     /// The relying party identifier (RP ID) for passkey assertion.
-    var rpId: String = "vault.bitwarden.com"
+    var rpId: String = "bitwarden.pw"
 
     /// The current assertion status.
     var status: AssertionStatus = .idle
