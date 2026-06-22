@@ -19,7 +19,7 @@ struct VaultListState: Equatable {
     /// The state for the flight recorder toast banner displayed in the item list.
     var flightRecorderToastBanner = FlightRecorderToastBannerState()
 
-    /// Whether the user has premium subscription.
+    /// Whether the user has Premium subscription.
     var hasPremium: Bool = false
 
     /// The base url used to fetch icons.
@@ -42,6 +42,9 @@ struct VaultListState: Equatable {
 
     /// The list of organizations the user is a member of.
     var organizations = [Organization]()
+
+    /// The data for the organization user notification banner, or `nil` if the banner should not be shown.
+    var organizationUserNotificationBannerData: OrganizationUserNotificationBannerData?
 
     /// The user's current account profile state and alternative accounts.
     var profileSwitcherState: ProfileSwitcherState = .empty()

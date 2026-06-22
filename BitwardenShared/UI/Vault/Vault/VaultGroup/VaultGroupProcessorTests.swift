@@ -200,7 +200,7 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
         XCTAssertEqual(errorReporter.errors.last as? BitwardenTestError, .example)
     }
 
-    /// `perform(_:)` with `.appeared` updates the state depending on if the user has premium account.
+    /// `perform(_:)` with `.appeared` updates the state depending on if the user has Premium account.
     @MainActor
     func test_perform_appeared_hasPremiumAccount() {
         stateService.doesActiveAccountHavePremiumResult = true
@@ -297,7 +297,7 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
         XCTAssertEqual(subject.state.url, url)
     }
 
-    /// `perform(_:)` with `.morePressed` delegates to the premium upgrade helper when the
+    /// `perform(_:)` with `.morePressed` delegates to the Premium upgrade helper when the
     /// upgrade action is triggered.
     @MainActor
     func test_perform_morePressed_navigateToPremiumUpgrade() async throws {

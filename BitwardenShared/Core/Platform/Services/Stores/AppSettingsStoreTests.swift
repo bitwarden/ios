@@ -995,6 +995,7 @@ class AppSettingsStoreTests: BitwardenTestCase { // swiftlint:disable:this type_
                 environment: EnvironmentServerConfigResponseModel(
                     api: "https://vault.bitwarden.com",
                     cloudRegion: "US",
+                    fillAssistRules: nil,
                     identity: "https://vault.bitwarden.com",
                     notifications: "https://vault.bitwarden.com",
                     sso: "https://vault.bitwarden.com",
@@ -1071,6 +1072,7 @@ class AppSettingsStoreTests: BitwardenTestCase { // swiftlint:disable:this type_
                 environment: EnvironmentServerConfigResponseModel(
                     api: "https://vault.bitwarden.com",
                     cloudRegion: "US",
+                    fillAssistRules: nil,
                     identity: "https://vault.bitwarden.com",
                     notifications: "https://vault.bitwarden.com",
                     sso: "https://vault.bitwarden.com",

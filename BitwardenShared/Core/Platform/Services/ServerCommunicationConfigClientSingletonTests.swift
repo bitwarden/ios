@@ -351,6 +351,7 @@ class ServerCommunicationConfigClientSingletonTests: BitwardenTestCase { // swif
                         EnvironmentServerConfigResponseModel(
                             api: nil,
                             cloudRegion: nil,
+                            fillAssistRules: nil,
                             identity: nil,
                             notifications: nil,
                             sso: nil,

@@ -23,12 +23,7 @@ struct ErrorReportBuilderTests {
 
     // MARK: Setup
 
-    @MainActor
     init() {
-        UI.applyDefaultAppearances()
-        UI.animated = false
-        UI.sizeCategory = .large
-
         activeAccountStateProvider = MockActiveAccountStateProvider()
         appInfoService = MockAppInfoService()
         timeProvider = MockTimeProvider(.mockTime(Date(year: 2024, month: 11, day: 5, hour: 9, minute: 41, second: 0)))

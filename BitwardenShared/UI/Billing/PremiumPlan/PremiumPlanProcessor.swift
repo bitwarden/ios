@@ -4,7 +4,7 @@ import Foundation
 
 // MARK: - PremiumPlanProcessor
 
-/// The processor used to manage state and handle actions for the premium plan screen.
+/// The processor used to manage state and handle actions for the Premium plan screen.
 ///
 final class PremiumPlanProcessor: StateProcessor<
     PremiumPlanState,
@@ -91,7 +91,7 @@ final class PremiumPlanProcessor: StateProcessor<
         }
     }
 
-    /// Shows the cancel premium confirmation alert.
+    /// Shows the cancel Premium confirmation alert.
     ///
     private func showCancelConfirmation() {
         coordinator.showAlert(
@@ -109,7 +109,7 @@ final class PremiumPlanProcessor: StateProcessor<
         )
     }
 
-    /// Loads the premium plan details from the billing service and updates the state.
+    /// Loads the Premium plan details from the billing service and updates the state.
     ///
     private func loadPremiumPlan() async {
         defer { coordinator.hideLoadingOverlay() }

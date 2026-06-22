@@ -245,11 +245,15 @@ final class TwoFactorAuthProcessor: StateProcessor<TwoFactorAuthState, TwoFactor
                     ),
                 )
                 coordinator.navigate(to: .dismiss)
-            case let .keyConnector(keyConnectorUrl):
+            case let .keyConnector(keyConnectorKeyWrappedUserKey, keyConnectorUrl):
                 guard let orgIdentifier = state.orgIdentifier else {
                     throw TwoFactorAuthError.missingOrgIdentifier
                 }
+                guard let keyConnectorKeyWrappedUserKey else {
+                    throw StateServiceError.noEncUserKey
+                }
                 try await services.authRepository.unlockVaultWithKeyConnectorKey(
+                    keyConnectorKeyWrappedUserKey: keyConnectorKeyWrappedUserKey,
                     keyConnectorURL: keyConnectorUrl,
                     orgIdentifier: orgIdentifier,
                 )

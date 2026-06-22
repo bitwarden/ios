@@ -17,6 +17,9 @@ public struct EnvironmentURLs: Equatable {
     /// The URL for the events API.
     public let eventsURL: URL
 
+    /// The URL for fetching Fill-Assist targeting rules.
+    public let fillAssistRulesURL: URL
+
     /// The URL for the icons API.
     public let iconsURL: URL
 
@@ -44,7 +47,7 @@ public struct EnvironmentURLs: Equatable {
     /// The URL for setting up two-factor login.
     public let setUpTwoFactorURL: URL
 
-    /// The URL for upgrading to premium.
+    /// The URL for upgrading to Premium.
     public let upgradeToPremiumURL: URL
 
     /// The URL for the web vault.
@@ -57,6 +60,7 @@ public struct EnvironmentURLs: Equatable {
     ///   - baseURL: The base URL.
     ///   - changeEmailURL: The URL for changing email address.
     ///   - eventsURL: The URL for the events API.
+    ///   - fillAssistRulesURL: The URL for fetching Fill-Assist targeting rules.
     ///   - iconsURL: The URL for the icons API.
     ///   - identityURL: The URL for the identity API.
     ///   - importItemsURL: The URL for importing items.
@@ -66,13 +70,14 @@ public struct EnvironmentURLs: Equatable {
     ///   - sendShareURL: The URL for sharing a send.
     ///   - settingsURL: The URL for vault settings.
     ///   - setUpTwoFactorURL: The URL for setting up two-factor login.
-    ///   - upgradeToPremiumURL: The URL for upgrading to premium.
+    ///   - upgradeToPremiumURL: The URL for upgrading to Premium.
     ///   - webVaultURL: The URL for the web vault.
     public init(
         apiURL: URL,
         baseURL: URL,
         changeEmailURL: URL,
         eventsURL: URL,
+        fillAssistRulesURL: URL,
         iconsURL: URL,
         identityURL: URL,
         importItemsURL: URL,
@@ -89,6 +94,7 @@ public struct EnvironmentURLs: Equatable {
         self.baseURL = baseURL
         self.changeEmailURL = changeEmailURL
         self.eventsURL = eventsURL
+        self.fillAssistRulesURL = fillAssistRulesURL
         self.iconsURL = iconsURL
         self.identityURL = identityURL
         self.importItemsURL = importItemsURL
@@ -109,6 +115,10 @@ public extension EnvironmentURLs {
     /// - Parameter environmentURLData: The environment URLs used to initialize `EnvironmentURLs`.
     ///
     init(environmentURLData: EnvironmentURLData) {
+        // Capture fillAssistRulesUrl before the region switch may replace environmentURLData with a
+        // default that has fillAssistRulesUrl = nil, which would discard the server-config override.
+        let fillAssistRulesUrl = environmentURLData.fillAssistRulesUrl
+
         // Use the default URLs if the region matches US or EU.
         let environmentURLData: EnvironmentURLData = switch environmentURLData.region {
         case .europe: .defaultEU
@@ -131,6 +141,8 @@ public extension EnvironmentURLs {
             identityURL = environmentURLData.identity ?? URL(string: "https://identity.bitwarden.com")!
             webVaultURL = environmentURLData.webVault ?? URL(string: "https://vault.bitwarden.com")!
         }
+        fillAssistRulesURL = fillAssistRulesUrl
+            ?? URL(string: "https://github.com/bitwarden/map-the-web/releases/latest/download")!
         importItemsURL = environmentURLData.importItemsURL ?? URL(string: "https://vault.bitwarden.com/#/tools/import")!
         recoveryCodeURL = environmentURLData.recoveryCodeURL ?? URL(
             string: "https://vault.bitwarden.com/#/recover-2fa",
