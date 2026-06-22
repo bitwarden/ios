@@ -114,4 +114,28 @@ final class ServerConfigTests: BitwardenTestCase {
             ServerCommunicationSettings(bootstrap: bootstrapB),
         )
     }
+
+    /// `init(date:responseModel:)` maps `fillAssistRules` from the environment response model.
+    func test_init_environmentServerConfig_fillAssistRules() {
+        let model = ConfigResponseModel(
+            communication: nil,
+            environment: EnvironmentServerConfigResponseModel(
+                api: nil,
+                cloudRegion: nil,
+                fillAssistRules: "https://custom.example.com/fill-assist",
+                identity: nil,
+                notifications: nil,
+                sso: nil,
+                vault: nil,
+            ),
+            featureStates: [:],
+            gitHash: nil,
+            server: nil,
+            version: "2025.1.0",
+        )
+
+        let subject = ServerConfig(date: Date(), responseModel: model)
+
+        XCTAssertEqual(subject.environment?.fillAssistRules, "https://custom.example.com/fill-assist")
+    }
 }

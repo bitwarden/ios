@@ -17,6 +17,9 @@ enum VaultListEffect: Equatable {
     /// The user tapped the dismiss button on the import logins action card.
     case dismissImportLoginsActionCard
 
+    /// The user dismissed the organization user notification banner.
+    case dismissOrganizationBanner
+
     /// The user tapped the dismiss button on the Premium Upgrade action card.
     case dismissPremiumUpgradeActionCard
 

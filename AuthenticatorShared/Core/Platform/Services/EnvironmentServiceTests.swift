@@ -42,6 +42,8 @@ class EnvironmentServiceTests: XCTestCase {
         XCTAssertEqual(subject.settingsURL, URL(string: "https://vault.bitwarden.com/#/settings"))
         // swiftlint:disable:next line_length
         XCTAssertEqual(subject.setUpTwoFactorURL, URL(string: "https://vault.bitwarden.com/#/settings/security/two-factor"))
+        // swiftlint:disable:next line_length
+        XCTAssertEqual(subject.fillAssistRulesURL, URL(string: "https://github.com/bitwarden/map-the-web/releases/latest/download"))
         XCTAssertEqual(subject.webVaultURL, URL(string: "https://vault.bitwarden.com"))
     }
 }

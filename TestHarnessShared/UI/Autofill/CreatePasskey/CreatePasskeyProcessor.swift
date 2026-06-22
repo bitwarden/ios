@@ -158,7 +158,7 @@ enum PasskeyRegistrationError: Error, LocalizedError {
     var errorDescription: String? {
         switch self {
         case .notAvailable:
-            Localizations.passkeyRegistrationNotAvailable
+            Localizations.passkeyRegistrationRequiresIOS17OrLater
         case .unexpectedCredentialType:
             "Unexpected credential type received from the authorization controller."
         }

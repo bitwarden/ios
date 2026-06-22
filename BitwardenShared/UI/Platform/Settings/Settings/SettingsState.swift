@@ -8,7 +8,7 @@ struct SettingsState: Equatable {
     /// The state of the badges in the settings tab.
     var badgeState: SettingsBadgeState?
 
-    /// Whether the active account has a premium subscription.
+    /// Whether the active account has a Premium subscription.
     var hasPremium = false
 
     /// The presentation mode based on where the settings view is displayed from. This determines
@@ -18,10 +18,10 @@ struct SettingsState: Equatable {
     /// Whether the "Upgraded to Premium" action card should be shown.
     var shouldShowUpgradedToPremiumActionCard: Bool = false
 
-    /// Whether the premium plan row should be shown.
+    /// Whether the Premium plan row should be shown.
     var showPlanRow = false
 
-    /// The URL to open externally (e.g. learn more about premium).
+    /// The URL to open externally (e.g. learn more about Premium).
     var url: URL?
 
     // MARK: Computed Properties

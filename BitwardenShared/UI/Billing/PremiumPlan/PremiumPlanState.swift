@@ -9,13 +9,13 @@ import Foundation
 struct PremiumPlanState: Equatable {
     // MARK: Properties
 
-    /// The current status of the premium plan.
+    /// The current status of the Premium plan.
     var planStatus: PremiumPlanStatus = .active
 
     /// The subscription details.
     var subscription: PremiumSubscription?
 
-    /// The URL to open externally (manage plan or cancel premium).
+    /// The URL to open externally (manage plan or cancel Premium).
     var urlToOpen: URL?
 
     // MARK: Computed Properties
@@ -128,7 +128,7 @@ struct PremiumPlanState: Equatable {
         planStatus != .canceled && planStatus != .expired && planStatus != .unknown
     }
 
-    /// Whether the cancel premium button should be shown.
+    /// Whether the cancel Premium button should be shown.
     var showCancelButton: Bool {
         planStatus != .canceled
             && planStatus != .expired

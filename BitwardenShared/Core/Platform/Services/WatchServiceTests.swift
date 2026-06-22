@@ -221,7 +221,7 @@ struct WatchServiceTests { // swiftlint:disable:this type_body_length
         #expect(dto.state == .needSetup)
     }
 
-    /// `syncWithWatch()` sends a `.needPremium` state when the user has no premium personally and
+    /// `syncWithWatch()` sends a `.needPremium` state when the user has no Premium personally and
     /// no qualifying org.
     @Test
     func syncWithWatch_noPremium_sendsNeedPremium() async throws {
@@ -239,7 +239,7 @@ struct WatchServiceTests { // swiftlint:disable:this type_body_length
         #expect(dto.state == .needPremium)
     }
 
-    /// `syncWithWatch()` proceeds past the premium gate with sync when the user has premium via org.
+    /// `syncWithWatch()` proceeds past the Premium gate with sync when the user has Premium via org.
     @Test
     func syncWithWatch_premiumViaOrg_proceedsToSync() async throws {
         stateService.activeAccount = .fixture(profile: .fixture(hasPremiumPersonally: false))
@@ -255,7 +255,7 @@ struct WatchServiceTests { // swiftlint:disable:this type_body_length
         }
 
         let dto = try decodedDTO(from: watchSession.updateApplicationContextReceivedApplicationContext)
-        // Passed premium gate; empty TOTP list results in need2FAItem.
+        // Passed Premium gate; empty TOTP list results in need2FAItem.
         #expect(dto.state == .need2FAItem)
     }
 
@@ -273,7 +273,7 @@ struct WatchServiceTests { // swiftlint:disable:this type_body_length
         #expect(dto.state == .need2FAItem)
     }
 
-    /// `syncWithWatch()` sends a `.valid` state and a list of ciphers if the user has premium and
+    /// `syncWithWatch()` sends a `.valid` state and a list of ciphers if the user has Premium and
     /// connect to watch enabled.
     @Test
     func syncWithWatch_validState_sendsWatchData() async throws {
