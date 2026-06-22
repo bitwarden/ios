@@ -40,7 +40,7 @@ struct UsePasskeyView: View {
             .textInputAutocapitalization(.never)
             .autocorrectionDisabled()
         } footer: {
-            Text(Localizations.usePasskeyFormDescription)
+            Text(Localizations.usePasskeyFormDescriptionLong)
         }
     }
 
