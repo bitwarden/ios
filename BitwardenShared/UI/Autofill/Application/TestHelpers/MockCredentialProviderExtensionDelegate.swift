@@ -10,6 +10,7 @@ class MockCredentialProviderExtensionDelegate: MockAppExtensionDelegate, Credent
     var completeAssertionRequestMocker = InvocationMocker<ASPasskeyAssertionCredential>()
     var completeOTPRequestCodeCalled: String?
     var completeRegistrationRequestMocker = InvocationMocker<ASPasskeyRegistrationCredential>()
+    var completeSavePasswordRequestCalled = false
     var completeTextRequestTextToInsert: String?
     var extensionMode: CredentialProviderMode = .configureAutofill
     var didAppearPublisher = CurrentValueSubject<Bool, Never>(false)
@@ -23,6 +24,10 @@ class MockCredentialProviderExtensionDelegate: MockAppExtensionDelegate, Credent
 
     func completeOTPRequest(code: String) {
         completeOTPRequestCodeCalled = code
+    }
+
+    func completeSavePasswordRequest() {
+        completeSavePasswordRequestCalled = true
     }
 
     func completeRegistrationRequest(asPasskeyRegistrationCredential: ASPasskeyRegistrationCredential) {

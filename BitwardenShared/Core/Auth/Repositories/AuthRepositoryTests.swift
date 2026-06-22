@@ -2613,17 +2613,17 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
 
     /// `unlockVaultWithKeyConnectorKey()` unlocks the user's vault with their key connector key.
     func test_unlockVaultWithKeyConnectorKey() async {
-        keyConnectorService.getMasterKeyFromKeyConnectorResult = .success("key")
         stateService.accountEncryptionKeys = [
             "1": AccountEncryptionKeys(
                 cryptographicState: .v1(privateKey: "private"),
-                encryptedUserKey: "user",
+                encryptedUserKey: nil,
             ),
         ]
         stateService.activeAccount = .fixture()
 
         await assertAsyncDoesNotThrow {
             try await subject.unlockVaultWithKeyConnectorKey(
+                keyConnectorKeyWrappedUserKey: "user",
                 keyConnectorURL: URL(string: "https://example.com")!,
                 orgIdentifier: "org-id",
             )
@@ -2636,7 +2636,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
                 kdfParams: KdfConfig().sdkKdf,
                 email: "user@bitwarden.com",
                 accountCryptographicState: .v1(privateKey: "private"),
-                method: .keyConnector(masterKey: "key", userKey: "user"),
+                method: .keyConnectorUrl(url: "https://example.com", keyConnectorKeyWrappedUserKey: "user"),
                 upgradeToken: nil,
             ),
         )
@@ -2645,18 +2645,15 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         XCTAssertEqual(stateService.manuallyLockedAccounts["1"], false)
     }
 
-    /// `unlockVaultWithKeyConnectorKey()` throws an error if the user is missing an encrypted user key.
-    func test_unlockVaultWithKeyConnectorKey_missingEncryptedUserKey() async {
+    /// `unlockVaultWithKeyConnectorKey()` throws an error if the account has no cryptographic state
+    /// (e.g. a new user who hasn't been migrated to key connector yet).
+    func test_unlockVaultWithKeyConnectorKey_noAccountCryptographicState() async {
         stateService.activeAccount = .fixture()
-        stateService.accountEncryptionKeys = [
-            "1": AccountEncryptionKeys(
-                cryptographicState: .v1(privateKey: "private"),
-                encryptedUserKey: nil,
-            ),
-        ]
+        stateService.getAccountEncryptionKeysError = StateServiceError.noAccountCryptographicState
 
-        await assertAsyncThrows(error: StateServiceError.noEncUserKey) {
+        await assertAsyncThrows(error: StateServiceError.noAccountCryptographicState) {
             try await subject.unlockVaultWithKeyConnectorKey(
+                keyConnectorKeyWrappedUserKey: "user",
                 keyConnectorURL: URL(string: "https://example.com")!,
                 orgIdentifier: "org-id",
             )
@@ -2667,6 +2664,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
     func test_unlockVaultWithKeyConnectorKey_noActiveAccount() async {
         await assertAsyncThrows(error: StateServiceError.noActiveAccount) {
             try await subject.unlockVaultWithKeyConnectorKey(
+                keyConnectorKeyWrappedUserKey: "user",
                 keyConnectorURL: URL(string: "https://example.com")!,
                 orgIdentifier: "org-id",
             )
@@ -2685,7 +2683,6 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
                 trustedDeviceOption: nil,
             ),
         ))
-        configService.featureFlagsBool[.forceUpdateKdfSettings] = false
         changeKdfService.needsKdfUpdateToMinimumsResult = true
         stateService.activeAccount = account
         stateService.accountEncryptionKeys = [
@@ -2737,7 +2734,6 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
                 trustedDeviceOption: nil,
             ),
         ))
-        configService.featureFlagsBool[.forceUpdateKdfSettings] = false
         changeKdfService.needsKdfUpdateToMinimumsResult = true
         changeKdfService.updateKdfToMinimumsResult = .failure(BitwardenTestError.example)
         stateService.activeAccount = account

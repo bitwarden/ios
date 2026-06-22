@@ -16,7 +16,7 @@ struct PremiumUpgradeState: Equatable {
     /// Whether the user is on a self-hosted server.
     var isSelfHosted = false
 
-    /// The raw premium seat price. `nil` until successfully fetched from the API.
+    /// The raw Premium seat price. `nil` until successfully fetched from the API.
     var premiumSeatPrice: Decimal?
 
     /// Whether the cancel (X) toolbar button should be shown.
@@ -27,7 +27,7 @@ struct PremiumUpgradeState: Equatable {
 
     // MARK: Computed Properties
 
-    /// The formatted monthly premium price string, or `nil` if the price hasn't been fetched yet.
+    /// The formatted monthly Premium price string, or `nil` if the price hasn't been fetched yet.
     var premiumPrice: String? {
         premiumSeatPrice.flatMap { NumberFormatter.usdCurrency.string(from: NSDecimalNumber(decimal: $0 / 12)) }
     }

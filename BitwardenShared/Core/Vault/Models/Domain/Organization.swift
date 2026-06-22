@@ -48,7 +48,7 @@ public struct Organization: Equatable, Hashable, Sendable {
     /// matches one of the verified domains of that organization, and the user is a member of it.
     @DefaultFalse var userIsManagedByOrganization: Bool
 
-    /// Whether the profile organization's users get premium.
+    /// Whether the profile organization's users get Premium.
     let usersGetPremium: Bool
 }
 

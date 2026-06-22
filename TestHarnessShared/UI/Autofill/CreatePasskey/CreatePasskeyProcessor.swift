@@ -14,8 +14,6 @@ class CreatePasskeyProcessor: StateProcessor<
 > {
     // MARK: Types
 
-    typealias Services = HasErrorReporter
-
     typealias PerformRegistration = (_ rpId: String, _ userName: String, _ displayName: String) async throws -> Void
 
     // MARK: Private Properties
@@ -68,10 +66,13 @@ class CreatePasskeyProcessor: StateProcessor<
         switch action {
         case let .displayNameChanged(newValue):
             state.displayName = newValue
+            state.status = .idle
         case let .rpIdChanged(newValue):
             state.rpId = newValue
+            state.status = .idle
         case let .userNameChanged(newValue):
             state.userName = newValue
+            state.status = .idle
         }
     }
 
@@ -90,6 +91,8 @@ class CreatePasskeyProcessor: StateProcessor<
         do {
             try await performRegistration(state.rpId, state.userName, state.displayName)
             state.status = .success
+        } catch let error as ASAuthorizationError where error.code == .canceled {
+            state.status = .idle
         } catch {
             state.status = .failure(error.localizedDescription)
         }
@@ -158,9 +161,9 @@ enum PasskeyRegistrationError: Error, LocalizedError {
     var errorDescription: String? {
         switch self {
         case .notAvailable:
-            Localizations.passkeyRegistrationNotAvailable
+            Localizations.passkeyRegistrationRequiresIOS17OrLater
         case .unexpectedCredentialType:
-            "Unexpected credential type received from the authorization controller."
+            Localizations.unexpectedCredentialTypeReceived
         }
     }
 }
@@ -189,8 +192,12 @@ private class PasskeyRegistrationHandler: NSObject,
 
     func authorizationController(
         controller _: ASAuthorizationController,
-        didCompleteWithAuthorization _: ASAuthorization,
+        didCompleteWithAuthorization authorization: ASAuthorization,
     ) {
+        guard authorization.credential is ASAuthorizationPublicKeyCredentialRegistration else {
+            continuation.resume(throwing: PasskeyRegistrationError.unexpectedCredentialType)
+            return
+        }
         continuation.resume()
     }
 

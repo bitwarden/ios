@@ -62,7 +62,7 @@ struct CreatePasskeyView: View {
         } header: {
             Text(Localizations.credentials)
         } footer: {
-            Text(Localizations.relyingPartyIdFooter)
+            Text(Localizations.relyingPartyIdFooterDescriptionLong)
         }
     }
 
@@ -81,7 +81,7 @@ struct CreatePasskeyView: View {
             }
             .disabled(store.state.status == .inProgress || store.state.rpId.isEmpty || store.state.userName.isEmpty)
         } footer: {
-            Text(Localizations.createPasskeyFormDescription)
+            Text(Localizations.createPasskeyFormDescriptionLong)
         }
     }
 

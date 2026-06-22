@@ -26,13 +26,13 @@ struct CreatePasskeyState: Equatable {
     var displayName: String = ""
 
     /// The relying party identifier (RP ID) for passkey registration.
-    var rpId: String = "vault.bitwarden.com"
+    var rpId: String = "bitwarden.pw"
 
     /// The current registration status.
     var status: RegistrationStatus = .idle
 
     /// The title of the screen.
-    var title: String = "Create Passkey"
+    var title: String = Localizations.createPasskey
 
     /// The username for the passkey credential.
     var userName: String = ""

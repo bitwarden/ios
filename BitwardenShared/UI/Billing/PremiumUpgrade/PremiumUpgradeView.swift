@@ -4,7 +4,7 @@ import SwiftUI
 
 // MARK: - PremiumUpgradeView
 
-/// A view that displays the premium upgrade information and allows users to upgrade.
+/// A view that displays the Premium upgrade information and allows users to upgrade.
 ///
 struct PremiumUpgradeView: View {
     // MARK: Properties
@@ -55,7 +55,7 @@ struct PremiumUpgradeView: View {
         }
     }
 
-    /// The premium upgrade card containing price, description, and features.
+    /// The Premium upgrade card containing price, description, and features.
     private var premiumCard: some View {
         VStack(alignment: .leading, spacing: 0) {
             if store.state.isSelfHosted {
@@ -96,7 +96,7 @@ struct PremiumUpgradeView: View {
         }
     }
 
-    /// The pricing error banner shown when the premium price cannot be fetched.
+    /// The pricing error banner shown when the Premium price cannot be fetched.
     private var pricingErrorBanner: some View {
         ActionCard(
             title: Localizations.pricingUnavailable,
@@ -113,7 +113,7 @@ struct PremiumUpgradeView: View {
         }
     }
 
-    /// The self-hosted info banner displayed above the premium card.
+    /// The self-hosted info banner displayed above the Premium card.
     private var selfHostedBanner: some View {
         ActionCard(
             message: Localizations.toManageYourPremiumSubscriptionDescriptionLong,

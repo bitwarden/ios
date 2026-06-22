@@ -750,7 +750,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
         XCTAssertEqual(vaultItemActionHelper.archiveReceivedArguments?.cipher.id, "123")
     }
 
-    /// `perform(_:)` with `.archivedPressed` delegates to the premium upgrade helper.
+    /// `perform(_:)` with `.archivedPressed` delegates to the Premium upgrade helper.
     @MainActor
     func test_perform_archivedPressed_navigateToPremiumUpgrade() async {
         subject.state = CipherItemState(
