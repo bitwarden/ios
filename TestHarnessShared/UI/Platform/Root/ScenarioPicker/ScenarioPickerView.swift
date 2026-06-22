@@ -38,10 +38,10 @@ struct ScenarioPickerView: View {
                     .accessibilityIdentifier({
                         switch scenario.title {
                         case Localizations.simpleLoginForm: "ScenarioButton_LoginForm"
-                        case Localizations.totpAutofillForm: "ScenarioButton_CardForm"
-                        case Localizations.registerPasskey: "ScenarioButton_FileShare"
-                        case Localizations.cardAutofillForm: "ScenarioButton_Passkey"
-                        case Localizations.fileShare: "ScenarioButton_Passkey"
+                        case Localizations.totpAutofillForm: "ScenarioButton_TOTPForm"
+                        case Localizations.cardAutofillForm: "ScenarioButton_CardForm"
+                        case Localizations.fileShare: "ScenarioButton_FileShare"
+                        case Localizations.registerPasskey: "ScenarioButton_RegisterPasskey"
                         default: "ScenarioButton_\(scenario.title)"
                         }
                     }())

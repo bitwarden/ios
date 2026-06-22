@@ -34,6 +34,7 @@
 "TOTPAutofillForm" = "TOTP Autofill Form";
 "TapTheTOTPCodeFieldAndSelectDescriptionLong" = "Tap the TOTP Code field and select a code from Bitwarden. Requires Bitwarden PM as AutoFill provider and a saved Login with a TOTP seed.";
 "TOTPCode" = "TOTP Code";
+"UnexpectedCredentialTypeReceived" = "Unexpected credential type received.";
 "Username" = "Username";
 "UseThisLoginFormToTestAutofillFunctionality" = "Use this login form to test autofill functionality.";
 "XColonY" = "%@: %@";
