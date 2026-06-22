@@ -6,6 +6,9 @@ import BitwardenResources
 
 /// Actions that can be processed by a `ViewItemProcessor`.
 enum ViewItemAction: Equatable, Sendable {
+    /// A bank account item action.
+    case bankAccountItemAction(ViewBankAccountItemAction)
+
     /// A card item action
     case cardItemAction(ViewCardItemAction)
 
@@ -62,6 +65,32 @@ enum ViewItemAction: Equatable, Sendable {
 /// The text fields within the `ViewItemView` that can be copied.
 ///
 enum CopyableField {
+    // MARK: Bank Account Fields
+
+    /// The bank account number field.
+    case accountNumber
+
+    /// The bank contact phone field.
+    case bankContactPhone
+
+    /// The bank account branch number field.
+    case branchNumber
+
+    /// The bank account IBAN field.
+    case iban
+
+    /// The name on the bank account field.
+    case nameOnAccount
+
+    /// The bank account PIN field.
+    case pin
+
+    /// The bank account routing number field.
+    case routingNumber
+
+    /// The bank account SWIFT/BIC code field.
+    case swiftCode
+
     /// The card number field.
     case cardNumber
 
@@ -149,6 +178,22 @@ enum CopyableField {
     /// The localized name for each field.
     var localizedName: String? {
         switch self {
+        case .accountNumber:
+            Localizations.accountNumber
+        case .bankContactPhone:
+            Localizations.bankContactPhone
+        case .branchNumber:
+            Localizations.branchNumber
+        case .iban:
+            Localizations.iban
+        case .nameOnAccount:
+            Localizations.nameOnAccount
+        case .pin:
+            Localizations.pin
+        case .routingNumber:
+            Localizations.routingNumber
+        case .swiftCode:
+            Localizations.swiftCode
         case .cardNumber:
             Localizations.number
         case .customHiddenField,
