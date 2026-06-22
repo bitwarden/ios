@@ -261,6 +261,7 @@ extension CipherView {
         collectionIds: [String] = [],
         creationDate: DateTime = Date(year: 2023, month: 11, day: 5, hour: 9, minute: 41),
         deletedDate: Date? = nil,
+        driversLicense: DriversLicenseView? = nil,
         edit: Bool = true,
         favorite: Bool = false,
         fields: [FieldView]? = nil,
@@ -299,7 +300,7 @@ extension CipherView {
             secureNote: secureNote,
             sshKey: sshKey,
             bankAccount: bankAccount,
-            driversLicense: nil, // TODO: PM-32807
+            driversLicense: driversLicense,
             passport: passport,
             favorite: favorite,
             reprompt: reprompt,
@@ -928,6 +929,36 @@ extension Passport {
             issuingAuthority: issuingAuthority,
             issueDate: issueDate,
             expirationDate: expirationDate,
+        )
+    }
+}
+
+extension BitwardenSdk.DriversLicenseView {
+    static func fixture(
+        firstName: String? = nil,
+        middleName: String? = nil,
+        lastName: String? = nil,
+        dateOfBirth: String? = nil,
+        licenseNumber: String? = "D1234567",
+        issuingCountry: String? = nil,
+        issuingState: String? = nil,
+        issueDate: String? = nil,
+        expirationDate: String? = nil,
+        issuingAuthority: String? = nil,
+        licenseClass: String? = nil,
+    ) -> BitwardenSdk.DriversLicenseView {
+        BitwardenSdk.DriversLicenseView(
+            firstName: firstName,
+            middleName: middleName,
+            lastName: lastName,
+            dateOfBirth: dateOfBirth,
+            licenseNumber: licenseNumber,
+            issuingCountry: issuingCountry,
+            issuingState: issuingState,
+            issueDate: issueDate,
+            expirationDate: expirationDate,
+            issuingAuthority: issuingAuthority,
+            licenseClass: licenseClass,
         )
     }
 }

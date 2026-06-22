@@ -482,8 +482,17 @@ extension Alert {
                 })
             }
         case .driversLicense:
-            // TODO: PM-32807
-            break
+            if let licenseNumber = context.cipherView.driversLicense?.licenseNumber {
+                alertActions.append(AlertAction(title: Localizations.copyLicenseNumber, style: .default) { _, _ in
+                    await action(.copy(
+                        toast: Localizations.licenseNumber,
+                        value: licenseNumber,
+                        requiresMasterPasswordReprompt: true,
+                        logEvent: nil,
+                        cipherId: context.cipherView.id,
+                    ))
+                })
+            }
         case .passport:
             if let passportNumber = context.cipherView.passport?.passportNumber {
                 alertActions.append(AlertAction(title: Localizations.copyPassportNumber, style: .default) { _, _ in
