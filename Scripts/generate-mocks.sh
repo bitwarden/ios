@@ -57,11 +57,13 @@ if [ -z "${BITWARDEN_SDK_PATH:-}" ]; then
         fi
         _search_dir="$(dirname "$_search_dir")"
     done
-fi
 
-if [ -z "$BITWARDEN_SDK_PATH" ]; then
-    echo "error: Could not locate sdk-swift checkout under SourcePackages/ — ensure SPM packages are resolved before running Sourcery."
-    exit 1
+    if [ -z "$BITWARDEN_SDK_PATH" ]; then
+        echo "error: Could not locate sdk-swift."
+        echo "  Remote SDK: checkout under SourcePackages/ — ensure SPM packages are resolved before running Sourcery."
+        echo "  Local SDK:  expected at ../sdk-internal/crates/bitwarden-uniffi/swift — ensure the SDK is built (run build.sh) before running Sourcery."
+        exit 1
+    fi
 fi
 
 echo "BITWARDEN_SDK_PATH: $BITWARDEN_SDK_PATH"
