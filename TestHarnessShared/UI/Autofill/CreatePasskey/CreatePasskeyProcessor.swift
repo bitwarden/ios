@@ -91,6 +91,8 @@ class CreatePasskeyProcessor: StateProcessor<
         do {
             try await performRegistration(state.rpId, state.userName, state.displayName)
             state.status = .success
+        } catch let error as ASAuthorizationError where error.code == .canceled {
+            state.status = .idle
         } catch {
             state.status = .failure(error.localizedDescription)
         }
