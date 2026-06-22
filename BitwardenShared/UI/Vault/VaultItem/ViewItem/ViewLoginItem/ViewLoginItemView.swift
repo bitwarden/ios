@@ -89,7 +89,7 @@ struct ViewLoginItemView: View {
         .accessibilityElement(children: .contain)
     }
 
-    /// Row signifying that premium subscription is required for TOTP.
+    /// Row signifying that Premium subscription is required for TOTP.
     ///
     @ViewBuilder private var premiumSubscriptionRequired: some View {
         BitwardenField(

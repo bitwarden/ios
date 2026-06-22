@@ -69,7 +69,7 @@ extension Constants {
     /// The minimum length when setting a pin.
     static let minimumPinLength = 4
 
-    /// The minimum number of cipher items required to show the premium upgrade banner.
+    /// The minimum number of cipher items required to show the Premium upgrade banner.
     static let minimumPremiumUpgradeBannerCipherCount = 5
 
     /// The minimum number of minutes before allowing the vault to sync again.
@@ -84,10 +84,10 @@ extension Constants {
     /// The default number of KDF iterations to perform.
     static let pbkdf2Iterations = 600_000
 
-    /// The premium checkout status publisher debounce interval.
+    /// The Premium checkout status publisher debounce interval.
     static let premiumCheckoutStatusDebounceInterval: DispatchQueue.SchedulerTimeType.Stride = .milliseconds(300)
 
-    /// The minimum account age required to show the premium upgrade banner.
+    /// The minimum account age required to show the Premium upgrade banner.
     static let premiumUpgradeBannerAccountAge: TimeInterval = 7 * 24 * 60 * 60
 
     /// The path component appended to a vault URL to reach the SSO cookie redirect page.

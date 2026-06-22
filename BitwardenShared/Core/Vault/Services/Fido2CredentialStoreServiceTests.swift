@@ -508,7 +508,7 @@ class DebuggingFido2CredentialStoreServiceTests: BitwardenTestCase {
 
     /// `.allCredentials()` returns all credentials and reports it.
     func test_allCredentials() async throws {
-        fido2CredentialStore.allCredentialsResult = .success([.fixture()])
+        fido2CredentialStore.allCredentialsReturnValue = [.fixture()]
         let result = try await subject.allCredentials()
         XCTAssert(result.count == 1)
         XCTAssertFalse(
@@ -519,7 +519,7 @@ class DebuggingFido2CredentialStoreServiceTests: BitwardenTestCase {
 
     /// `.allCredentials()` throws and reports it.
     func test_allCredentials_throws() async throws {
-        fido2CredentialStore.allCredentialsResult = .failure(BitwardenTestError.example)
+        fido2CredentialStore.allCredentialsThrowableError = BitwardenTestError.example
         await assertAsyncThrows(error: BitwardenTestError.example) {
             _ = try await subject.allCredentials()
         }
@@ -529,7 +529,7 @@ class DebuggingFido2CredentialStoreServiceTests: BitwardenTestCase {
 
     /// `.findCredentials(ids:ripId:)` returns found credentials and reports it.
     func test_findCredentials() async throws {
-        fido2CredentialStore.findCredentialsResult = .success([.fixture()])
+        fido2CredentialStore.findCredentialsReturnValue = [.fixture()]
         let result = try await subject.findCredentials(ids: nil, ripId: "something", userHandle: nil)
         XCTAssert(result.count == 1)
         XCTAssertFalse(
@@ -540,7 +540,7 @@ class DebuggingFido2CredentialStoreServiceTests: BitwardenTestCase {
 
     /// `.findCredentials(ids:ripId:)` throws and reports it.
     func test_findCredentialsthrows() async throws {
-        fido2CredentialStore.findCredentialsResult = .failure(BitwardenTestError.example)
+        fido2CredentialStore.findCredentialsThrowableError = BitwardenTestError.example
         await assertAsyncThrows(error: BitwardenTestError.example) {
             _ = try await subject.findCredentials(ids: nil, ripId: "something", userHandle: nil)
         }
@@ -560,7 +560,7 @@ class DebuggingFido2CredentialStoreServiceTests: BitwardenTestCase {
 
     /// `.saveCredential(cred:)` throws and reports it.
     func test_saveCredential_throws() async throws {
-        fido2CredentialStore.saveCredentialError = BitwardenTestError.example
+        fido2CredentialStore.saveCredentialThrowableError = BitwardenTestError.example
         await assertAsyncThrows(error: BitwardenTestError.example) {
             try await subject.saveCredential(cred: EncryptionContext(encryptedFor: "1", cipher: .fixture(id: "1")))
         }

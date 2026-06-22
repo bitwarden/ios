@@ -193,6 +193,43 @@ class VaultListViewTests: BitwardenTestCase {
         XCTAssertEqual(processor.dispatchedActions, [.showImportLogins])
     }
 
+    /// The organization banner action card is hidden when `organizationUserNotificationBannerData` is `nil`.
+    @MainActor
+    func test_orgBannerActionCard_hidden() {
+        processor.state.loadingState = .data([])
+        XCTAssertThrowsError(try subject.inspect().find(actionCard: "Upcoming Maintenance"))
+    }
+
+    /// The organization banner action card is visible when `organizationUserNotificationBannerData` is set.
+    @MainActor
+    func test_orgBannerActionCard_visible() {
+        processor.state.loadingState = .data([])
+        processor.state.organizationUserNotificationBannerData = .fixture()
+        XCTAssertNoThrow(try subject.inspect().find(actionCard: "Upcoming Maintenance"))
+    }
+
+    /// Tapping the dismiss button on the organization banner dispatches the `.dismissOrganizationBanner` effect.
+    @MainActor
+    func test_orgBannerActionCard_tapDismiss() async throws {
+        processor.state.loadingState = .data([])
+        processor.state.organizationUserNotificationBannerData = .fixture(buttonText: nil)
+        let actionCard = try subject.inspect().find(actionCard: "Upcoming Maintenance")
+        let button = try actionCard.find(asyncButton: Localizations.dismiss)
+        try await button.tap()
+        XCTAssertEqual(processor.effects, [.dismissOrganizationBanner])
+    }
+
+    /// Tapping the action button on the organization banner dispatches the `.dismissOrganizationBanner` effect.
+    @MainActor
+    func test_orgBannerActionCard_tapActionButton() async throws {
+        processor.state.loadingState = .data([])
+        processor.state.organizationUserNotificationBannerData = .fixture()
+        let actionCard = try subject.inspect().find(actionCard: "Upcoming Maintenance")
+        let button = try actionCard.find(asyncButton: "I understand")
+        try await button.tap()
+        XCTAssertEqual(processor.effects, [.dismissOrganizationBanner])
+    }
+
     /// Tapping the profile button dispatches the `.requestedProfileSwitcher` effect.
     @MainActor
     func test_profileButton_tap_withProfilesViewNotVisible() async throws {

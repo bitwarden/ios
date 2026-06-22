@@ -11,7 +11,7 @@ extension Alert {
     /// Returns an alert for when archive is unavailable.
     ///
     /// - Parameters:
-    ///   - action: A closure to execute on upgrading to premium.
+    ///   - action: A closure to execute on upgrading to Premium.
     /// - Returns: The alert when archive is unavailable.
     static func archiveUnavailable(
         action: @escaping () async -> Void,
@@ -34,7 +34,7 @@ extension Alert {
     /// Returns an alert for when attachments are unavailable.
     ///
     /// - Parameters:
-    ///   - action: A closure to execute on upgrading to premium.
+    ///   - action: A closure to execute on upgrading to Premium.
     /// - Returns: The alert when attachments are unavailable.
     static func attachmentsUnavailable(
         action: @escaping () async -> Void,
@@ -54,12 +54,12 @@ extension Alert {
         return alert
     }
 
-    /// Returns an alert notifying the user that a premium subscription is required to send files,
+    /// Returns an alert notifying the user that a Premium subscription is required to send files,
     /// with an option to upgrade.
     ///
     /// - Parameters:
-    ///   - action: A closure to execute on upgrading to premium.
-    /// - Returns: The alert shown when a non-premium user tries to send a file.
+    ///   - action: A closure to execute on upgrading to Premium.
+    /// - Returns: The alert shown when a non-Premium user tries to send a file.
     static func fileSendPremiumRequired(
         action: @escaping () -> Void,
     ) -> Alert {
@@ -77,10 +77,10 @@ extension Alert {
     }
 
     /// Returns an alert for when the "Specific People" Send feature is unavailable due to
-    /// lack of premium subscription.
+    /// lack of Premium subscription.
     ///
     /// - Parameters:
-    ///   - action: A closure to execute on upgrading to premium.
+    ///   - action: A closure to execute on upgrading to Premium.
     /// - Returns: The alert when "Specific People" is unavailable.
     static func specificPeopleUnavailable(
         action: @escaping () -> Void,
@@ -592,7 +592,7 @@ struct MoreOptionsAlertContext {
     /// Whether the cipher can be archived.
     let canArchive: Bool
 
-    /// Whether the user can copy the TOTP code (because they have premium or the organization uses TOTP).
+    /// Whether the user can copy the TOTP code (because they have Premium or the organization uses TOTP).
     let canCopyTotp: Bool
 
     /// Whether the cipher can be unarchived.

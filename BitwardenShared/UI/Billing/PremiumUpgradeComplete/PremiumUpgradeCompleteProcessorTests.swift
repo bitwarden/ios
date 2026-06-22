@@ -29,7 +29,7 @@ struct PremiumUpgradeCompleteProcessorTests {
 
     // MARK: Tests
 
-    /// `perform(_:)` with `.appeared` dismisses the upgraded to premium action card.
+    /// `perform(_:)` with `.appeared` dismisses the upgraded to Premium action card.
     @Test
     func perform_appeared_dismissesUpgradedToPremiumActionCard() async {
         await subject.perform(.appeared)
