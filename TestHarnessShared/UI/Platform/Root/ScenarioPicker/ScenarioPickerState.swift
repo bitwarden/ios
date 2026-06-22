@@ -39,10 +39,7 @@ struct ScenarioPickerState: Equatable {
                 ScenarioItem(id: "cardAutofillForm", title: Localizations.cardAutofillForm, route: .cardAutofillForm),
             )
             items.append(
-                ScenarioItem(id: "createPasskey", title: Localizations.createPasskey, route: .registerPasskey),
-            )
-            items.append(
-                ScenarioItem(id: "passkeyAutofill", title: Localizations.registerPasskey, route: .usePasskey),
+                ScenarioItem(id: "passkeyAutofill", title: Localizations.usePasskey, route: .usePasskey),
             )
             items.append(
                 ScenarioItem(id: "fileShare", title: Localizations.fileShare, route: .fileShare),

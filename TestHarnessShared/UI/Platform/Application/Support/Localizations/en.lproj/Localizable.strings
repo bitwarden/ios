@@ -1,11 +1,9 @@
 "AssertionResult" = "Assertion Result";
 "CardAutofillForm" = "Card Autofill Form";
-"CreatePasskey" = "Create Passkey";
 "CardAutofillFormDescriptionLong" = "Long press a field, then select Autofill and Password to autofill with Bitwarden. Requires Bitwarden PM as AutoFill provider and a saved Card cipher.";
 "CardDetails" = "Card Details";
 "CardholderName" = "Cardholder Name";
 "CardNumber" = "Card Number";
-"CreatePasskey" = "Create Passkey";
 "CreatePasskeyFormDescriptionLong" = "Fill in the fields above, then tap Register Passkey. The Bitwarden AutoFill sheet will appear to save the credential.";
 "Credentials" = "Credentials";
 "DisplayName" = "Display Name";
@@ -41,6 +39,7 @@
 "TOTPCode" = "TOTP Code";
 "UnexpectedCredentialTypeReceived" = "Unexpected credential type received.";
 "Username" = "Username";
+"UsePasskey" = "Use passkey";
 "UsePasskeyFormDescriptionLong" = "Enter a relying party ID above, then tap Sign In with Passkey. The Bitwarden AutoFill sheet will appear to select a credential.";
 "UseThisLoginFormToTestAutofillFunctionality" = "Use this login form to test autofill functionality.";
 "XColonY" = "%@: %@";

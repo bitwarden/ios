@@ -111,6 +111,8 @@ class RootCoordinator: Coordinator, HasStackNavigator {
     private func showUsePasskey() {
         let processor = UsePasskeyProcessor(coordinator: asAnyCoordinator(), delegate: self)
         let view = UsePasskeyView(store: Store(processor: processor))
+        let viewController = UIHostingController(rootView: view)
+        stackNavigator?.push(viewController)
     }
 
     /// Shows the TOTP autofill form test screen.

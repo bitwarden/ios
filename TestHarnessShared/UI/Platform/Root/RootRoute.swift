@@ -3,7 +3,6 @@ import Foundation
 /// The routes for navigating within the home flow.
 ///
 public enum RootRoute {
-
     /// A route to the card autofill form test screen.
     case cardAutofillForm
 
