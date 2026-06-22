@@ -187,6 +187,8 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
     /// The service used by the application to manage account state.
     let stateService: StateService
 
+    public var debugStateService: any DebugStateService { stateService }
+
     /// The service used by the application to retrieve App Store storefront information.
     let storefrontService: StorefrontService
 

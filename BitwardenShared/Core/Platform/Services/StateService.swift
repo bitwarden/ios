@@ -10,7 +10,7 @@ import Foundation
 
 /// A protocol for a `StateService` which manages the state of the accounts in the app.
 ///
-protocol StateService: AnyObject, BillingStateService {
+protocol StateService: AnyObject, BillingStateService, DebugStateService {
     /// The language option currently selected for the app.
     var appLanguage: LanguageOption { get set }
 
@@ -22,6 +22,11 @@ protocol StateService: AnyObject, BillingStateService {
     /// - Parameter account: The `Account` to add.
     ///
     func addAccount(_ account: Account) async
+
+    /// Clears `userDecryptionOptions.masterPasswordUnlock` on the active account's
+    /// cached profile to reproduce the pre-server-2025.11 state for PM-31723 testing.
+    ///
+    func clearMasterPasswordUnlockForActiveAccount() async throws
 
     /// Clears the pins stored on device and in memory.
     ///
@@ -1561,6 +1566,12 @@ actor DefaultStateService: StateService, ActiveAccountStateProvider, ConfigState
 
         state.accounts[account.profile.userId] = account
         state.activeUserId = account.profile.userId
+    }
+
+    func clearMasterPasswordUnlockForActiveAccount() async throws {
+        var account = try await getActiveAccount()
+        account.profile.userDecryptionOptions?.masterPasswordUnlock = nil
+        await addAccount(account)
     }
 
     func clearPins() async throws {

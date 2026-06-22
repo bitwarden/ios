@@ -26,6 +26,12 @@ public struct DebugMenuView: View {
                 Text("SSO cookies")
             }
 
+            Section {
+                accountDecryptionSection
+            } header: {
+                Text("Account decryption")
+            }
+
             userIDSection
 
             Section {
@@ -103,6 +109,17 @@ public struct DebugMenuView: View {
             }
             .accessibilityLabel("RefreshFeatureFlagsButton")
         }
+    }
+
+    /// Debug-only actions that mutate cached account-decryption state to support manual testing
+    /// of edge cases (e.g. PM-31723: profile cached before the server added `masterPasswordUnlock`).
+    private var accountDecryptionSection: some View {
+        AsyncButton {
+            await store.perform(.clearMasterPasswordUnlock)
+        } label: {
+            Text("Clear masterPasswordUnlock (PM-31723)")
+        }
+        .accessibilityIdentifier("ClearMasterPasswordUnlockButton")
     }
 
     /// The SSO cookies section.

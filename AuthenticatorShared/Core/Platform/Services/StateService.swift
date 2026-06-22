@@ -6,7 +6,7 @@ import Foundation
 
 /// A protocol for a `StateService` which manages the saved state of the app
 ///
-protocol StateService: AnyObject {
+protocol StateService: AnyObject, DebugStateService {
     /// The language option currently selected for the app.
     var appLanguage: LanguageOption { get set }
 
@@ -84,6 +84,10 @@ protocol StateService: AnyObject {
     /// - Returns: A publisher for the app theme.
     ///
     func appThemePublisher() async -> AnyPublisher<AppTheme, Never>
+}
+
+extension StateService {
+    func clearMasterPasswordUnlockForActiveAccount() async throws {}
 }
 
 // MARK: - StateServiceError

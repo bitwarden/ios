@@ -1,5 +1,19 @@
 // swiftlint:disable:this file_name
 
+/// A service providing debug-only account state mutations for manual testing.
+///
+public protocol DebugStateService: AnyObject {
+    /// Clears `userDecryptionOptions.masterPasswordUnlock` on the active account's cached profile.
+    func clearMasterPasswordUnlockForActiveAccount() async throws
+}
+
+/// Protocol for an object that provides a `DebugStateService`.
+///
+public protocol HasDebugStateService {
+    /// The service used for account state mutations.
+    var debugStateService: any DebugStateService { get }
+}
+
 /// Protocol for an object that provides a `ConfigService`.
 ///
 public protocol HasConfigService {
