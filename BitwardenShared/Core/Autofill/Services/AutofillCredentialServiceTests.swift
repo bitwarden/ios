@@ -299,7 +299,7 @@ class AutofillCredentialServiceTests: BitwardenTestCase { // swiftlint:disable:t
     }
 
     /// `provideCredential(for:)` attempting to copy the cipher's TOTP code when returning the credential
-    /// throws when gettning if active account has premium thus it gets logged by the reporter
+    /// throws when gettning if active account has Premium thus it gets logged by the reporter
     /// but the credential is still returned.
     func test_provideCredential_totpCopyThrows() async throws {
         cipherService.fetchCipherResult = .success(
@@ -383,7 +383,7 @@ class AutofillCredentialServiceTests: BitwardenTestCase { // swiftlint:disable:t
 
     /// `provideFido2Credential(for:autofillCredentialServiceDelegate:fido2UserVerificationMediatorDelegate:)`
     /// attempting to copy the cipher's TOTP code when returning the credential
-    /// throws when gettning if active account has premium thus it gets logged by the reporter
+    /// throws when gettning if active account has Premium thus it gets logged by the reporter
     /// but the credential is still returned.
     @available(iOS 17.0, *)
     func test_provideFido2Credential_totpCopyThrows() async throws {

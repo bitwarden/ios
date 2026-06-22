@@ -395,7 +395,7 @@ class VaultCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this type_
         XCTAssertFalse(userInitiated)
     }
 
-    /// `navigate(to:)` with `.premiumUpgrade` presents the premium upgrade view via the billing coordinator.
+    /// `navigate(to:)` with `.premiumUpgrade` presents the Premium upgrade view via the billing coordinator.
     @MainActor
     func test_navigateTo_premiumUpgrade() throws {
         subject.navigate(to: .premiumUpgrade)

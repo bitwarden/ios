@@ -174,6 +174,31 @@ class VaultListViewTests: BitwardenTestCase {
     }
 
     @MainActor
+    func disabletest_snapshot_orgBanner_descriptionOnly() {
+        processor.state.loadingState = .data([])
+        processor.state.organizationUserNotificationBannerData = .fixture(
+            buttonText: nil,
+            description: "Bitwarden is intended for business use only. Do not store personal items here.",
+            headerText: nil,
+        )
+        assertSnapshots(of: subject, as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5])
+    }
+
+    @MainActor
+    func disabletest_snapshot_orgBanner_emptyVault() {
+        processor.state.loadingState = .data([])
+        processor.state.organizationUserNotificationBannerData = .fixture()
+        assertSnapshots(of: subject, as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5])
+    }
+
+    @MainActor
+    func disabletest_snapshot_orgBanner_populatedVault() {
+        processor.state.loadingState = .data(VaultListViewTests.defaultVaultData)
+        processor.state.organizationUserNotificationBannerData = .fixture()
+        assertSnapshots(of: subject, as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5])
+    }
+
+    @MainActor
     func disabletest_snapshot_withSearchResult() {
         processor.state.searchText = "Exam"
         processor.state.searchResults = [

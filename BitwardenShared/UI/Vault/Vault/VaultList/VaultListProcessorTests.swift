@@ -455,6 +455,27 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         task.cancel()
     }
 
+    /// `perform(_:)` with `.appeared` loads organization user notification banner data from the policy service.
+    @MainActor
+    func test_perform_appeared_organizationUserNotificationBannerData() async {
+        policyService.getOrganizationUserNotificationBannerDataResult = .fixture()
+
+        await subject.perform(.appeared)
+
+        XCTAssertEqual(subject.state.organizationUserNotificationBannerData, .fixture())
+    }
+
+    /// `perform(_:)` with `.appeared` sets organization user notification banner data to `nil`
+    /// when the policy does not apply.
+    @MainActor
+    func test_perform_appeared_organizationUserNotificationBannerData_nil() async {
+        policyService.getOrganizationUserNotificationBannerDataResult = nil
+
+        await subject.perform(.appeared)
+
+        XCTAssertNil(subject.state.organizationUserNotificationBannerData)
+    }
+
     /// `perform(_:)` with `.appeared` updates the state depending on if the
     /// personal ownership policy is enabled.
     @MainActor
@@ -591,7 +612,7 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         XCTAssertTrue(subject.state.shouldShowArchiveOnboardingActionCard)
     }
 
-    /// `perform(_:)` with `.appeared` loads hasPremium state when user has premium.
+    /// `perform(_:)` with `.appeared` loads hasPremium state when user has Premium.
     @MainActor
     func test_perform_appeared_hasPremium_true() async {
         stateService.doesActiveAccountHavePremiumResult = true
@@ -601,7 +622,7 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         XCTAssertTrue(subject.state.hasPremium)
     }
 
-    /// `perform(_:)` with `.appeared` loads hasPremium state when user doesn't have premium.
+    /// `perform(_:)` with `.appeared` loads hasPremium state when user doesn't have Premium.
     @MainActor
     func test_perform_appeared_hasPremium_false() async {
         stateService.doesActiveAccountHavePremiumResult = false
@@ -611,7 +632,7 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         XCTAssertFalse(subject.state.hasPremium)
     }
 
-    /// `perform(_:)` with `.appeared` shows the premium upgrade action card when all conditions are met.
+    /// `perform(_:)` with `.appeared` shows the Premium upgrade action card when all conditions are met.
     @MainActor
     func test_perform_appeared_loadPremiumUpgradeBanner_shown() async {
         billingRepository.isInAppUpgradeAvailableReturnValue = true
@@ -622,7 +643,7 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         XCTAssertTrue(subject.state.shouldShowPremiumUpgradeActionCard)
     }
 
-    /// `perform(_:)` with `.appeared` hides the premium upgrade action card when the banner has been dismissed.
+    /// `perform(_:)` with `.appeared` hides the Premium upgrade action card when the banner has been dismissed.
     @MainActor
     func test_perform_appeared_loadPremiumUpgradeBanner_bannerDismissed() async {
         billingRepository.isInAppUpgradeAvailableReturnValue = true
@@ -633,7 +654,7 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         XCTAssertFalse(subject.state.shouldShowPremiumUpgradeActionCard)
     }
 
-    /// `perform(_:)` with `.appeared` still shows the upgraded-to-premium card even when the
+    /// `perform(_:)` with `.appeared` still shows the upgraded-to-Premium card even when the
     /// upgrade banner was previously dismissed.
     @MainActor
     func test_perform_appeared_loadPremiumUpgradeBanner_bannerDismissed_stillShowsUpgradedCard() async {
@@ -646,7 +667,7 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         XCTAssertTrue(subject.state.shouldShowUpgradedToPremiumActionCard)
     }
 
-    /// `perform(_:)` with `.appeared` hides the premium upgrade action card when the in-app upgrade
+    /// `perform(_:)` with `.appeared` hides the Premium upgrade action card when the in-app upgrade
     /// is not available.
     @MainActor
     func test_perform_appeared_loadPremiumUpgradeBanner_upgradeNotAvailable() async {
@@ -670,8 +691,18 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         XCTAssertTrue(stateService.archiveOnboardingShown)
     }
 
-    /// `perform(_:)` with `.dismissPremiumUpgradeActionCard` dismisses the premium upgrade card
-    /// and sets the premium upgrade banner dismissed property to true.
+    /// `perform(_:)` with `.dismissOrganizationBanner` clears the organization user notification banner data.
+    @MainActor
+    func test_perform_dismissOrganizationBanner() async {
+        subject.state.organizationUserNotificationBannerData = .fixture()
+
+        await subject.perform(.dismissOrganizationBanner)
+
+        XCTAssertNil(subject.state.organizationUserNotificationBannerData)
+    }
+
+    /// `perform(_:)` with `.dismissPremiumUpgradeActionCard` dismisses the Premium upgrade card
+    /// and sets the Premium upgrade banner dismissed property to true.
     @MainActor
     func test_perform_dismissPremiumUpgradeActionCard() async {
         stateService.activeAccount = .fixture()
@@ -683,7 +714,7 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         XCTAssertTrue(stateService.premiumUpgradeBannerDismissedByUserId["1"] ?? false)
     }
 
-    /// `perform(_:)` with `.dismissUpgradedToPremiumActionCard` hides the upgraded to premium card
+    /// `perform(_:)` with `.dismissUpgradedToPremiumActionCard` hides the upgraded to Premium card
     /// and persists the dismissal.
     @MainActor
     func test_perform_dismissUpgradedToPremiumActionCard() async {
@@ -695,7 +726,7 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         XCTAssertEqual(billingService.setUpgradedToPremiumActionCardDismissedCallsCount, 1)
     }
 
-    /// `receive(_:)` with `.learnMoreAboutPremium` opens the learn more about premium URL, hides the
+    /// `receive(_:)` with `.learnMoreAboutPremium` opens the learn more about Premium URL, hides the
     /// card, and persists the dismissal.
     @MainActor
     func test_receive_learnMoreAboutPremium() {
@@ -1302,6 +1333,32 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         task.cancel()
 
         XCTAssertEqual(errorReporter.errors.last as? BitwardenTestError, .example)
+    }
+
+    /// `perform(_:)` with `.streamVaultList` loads the persisted collapsed section IDs into the
+    /// state.
+    @MainActor
+    func test_perform_streamVaultList_loadsCollapsedSectionIds() throws {
+        stateService.activeAccount = .fixture()
+        stateService.collapsedVaultListSectionIds["1"] = ["1", "2"]
+        vaultRepository.vaultListSubject.send(VaultListData(
+            sections: [
+                VaultListSection(
+                    id: "1",
+                    items: [VaultListItem.fixture()],
+                    name: "Name",
+                ),
+            ],
+        ))
+
+        let task = Task {
+            await subject.perform(.streamVaultList)
+        }
+
+        waitFor(!subject.state.collapsedSectionIds.isEmpty)
+        task.cancel()
+
+        XCTAssertEqual(subject.state.collapsedSectionIds, ["1", "2"])
     }
 
     /// `perform(_:)` with `.streamVaultList` updates the state's vault list whenever it changes.
@@ -2041,7 +2098,7 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         XCTAssertEqual(coordinator.routes.last, .group(.card, filter: .allVaults))
     }
 
-    /// `receive(_:)` with `.itemPressed` shows archive unavailable alert when user doesn't have premium
+    /// `receive(_:)` with `.itemPressed` shows archive unavailable alert when user doesn't have Premium
     /// and archive has no items.
     @MainActor
     func test_receive_itemPressed_archiveGroup_noPremium_noItems() {
@@ -2055,7 +2112,7 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
     }
 
     /// `receive(_:)` with `.itemPressed` shows archive unavailable alert and delegates to the
-    /// premium upgrade helper when the action is tapped.
+    /// Premium upgrade helper when the action is tapped.
     @MainActor
     func test_receive_itemPressed_archiveGroup_noPremium_noItems_actionTapped() async throws {
         subject.state.hasPremium = false
@@ -2073,7 +2130,7 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         XCTAssertTrue(premiumUpgradeHelper.navigateToPremiumUpgradeCalled)
     }
 
-    /// `receive(_:)` with `.itemPressed` navigates to archive when user has premium.
+    /// `receive(_:)` with `.itemPressed` navigates to archive when user has Premium.
     @MainActor
     func test_receive_itemPressed_archiveGroup_hasPremium() {
         subject.state.hasPremium = true
@@ -2085,7 +2142,7 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         XCTAssertTrue(coordinator.alertShown.isEmpty)
     }
 
-    /// `receive(_:)` with `.itemPressed` navigates to archive when user doesn't have premium
+    /// `receive(_:)` with `.itemPressed` navigates to archive when user doesn't have Premium
     /// but has archived items.
     @MainActor
     func test_receive_itemPressed_archiveGroup_noPremium_hasItems() {
@@ -2200,6 +2257,33 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         )
     }
 
+    /// `receive(_:)` with `.sectionExpandToggled` collapsing a section adds its ID to the state's
+    /// collapsed section IDs and persists the updated set.
+    @MainActor
+    func test_receive_sectionExpandToggled_collapse() {
+        stateService.activeAccount = .fixture()
+
+        subject.receive(.sectionExpandToggled(sectionId: "1", isExpanded: false))
+
+        XCTAssertEqual(subject.state.collapsedSectionIds, ["1"])
+        waitFor(stateService.collapsedVaultListSectionIds["1"] != nil)
+        XCTAssertEqual(stateService.collapsedVaultListSectionIds["1"], ["1"])
+    }
+
+    /// `receive(_:)` with `.sectionExpandToggled` expanding a section removes its ID from the
+    /// state's collapsed section IDs and persists the updated set.
+    @MainActor
+    func test_receive_sectionExpandToggled_expand() {
+        stateService.activeAccount = .fixture()
+        subject.state.collapsedSectionIds = ["1", "2"]
+
+        subject.receive(.sectionExpandToggled(sectionId: "1", isExpanded: true))
+
+        XCTAssertEqual(subject.state.collapsedSectionIds, ["2"])
+        waitFor(stateService.collapsedVaultListSectionIds["1"] != nil)
+        XCTAssertEqual(stateService.collapsedVaultListSectionIds["1"], ["2"])
+    }
+
     /// `receive(_:)` with `showImportLogins(:)` has the coordinator navigate to the import logins
     /// screen.
     @MainActor
@@ -2230,7 +2314,7 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         XCTAssertEqual(subject.state, initialState)
     }
 
-    /// `receive(_:)` with `.upgradeToPremium` delegates to the premium upgrade helper.
+    /// `receive(_:)` with `.upgradeToPremium` delegates to the Premium upgrade helper.
     @MainActor
     func test_receive_upgradeToPremium() {
         subject.receive(.upgradeToPremium)

@@ -104,7 +104,7 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
     /// The delegate that is notified when delete cipher item have occurred.
     private weak var delegate: CipherItemOperationDelegate?
 
-    /// The helper used to navigate to the premium upgrade flow.
+    /// The helper used to navigate to the Premium upgrade flow.
     lazy var premiumUpgradeHelper: PremiumUpgradeHelper = DefaultPremiumUpgradeHelper(
         services: services,
         coordinator: coordinator,
@@ -335,7 +335,7 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
         }
     }
 
-    /// Navigates to the premium upgrade flow. Uses the in-app upgrade path when available;
+    /// Navigates to the Premium upgrade flow. Uses the in-app upgrade path when available;
     /// otherwise opens the web vault upgrade URL as a fallback.
     ///
     private func navigateToPremiumUpgrade() async {
@@ -891,6 +891,13 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
 
         try await services.vaultRepository.addCipher(state.cipher)
         coordinator.hideLoadingOverlay()
+
+        if let credentialProviderExtensionDelegate = appExtensionDelegate as? CredentialProviderExtensionDelegate,
+           credentialProviderExtensionDelegate.isSavingPasswordCredential {
+            credentialProviderExtensionDelegate.completeSavePasswordRequest()
+            return
+        }
+
         handleDismiss(didAddItem: true)
         await services.reviewPromptService.trackUserAction(.addedNewItem)
     }

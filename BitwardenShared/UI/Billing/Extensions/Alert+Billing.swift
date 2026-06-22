@@ -60,7 +60,7 @@ extension Alert {
         )
     }
 
-    /// An alert shown when a premium upgrade is still being processed.
+    /// An alert shown when a Premium upgrade is still being processed.
     ///
     /// - Parameter syncNowHandler: A closure called when the user taps "Sync now".
     /// - Returns: An `Alert` with "Continue" and "Sync now" actions.

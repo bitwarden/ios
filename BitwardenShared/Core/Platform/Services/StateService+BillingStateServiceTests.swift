@@ -53,7 +53,7 @@ struct StateServiceBillingStateServiceTests {
         #expect(isEligible)
     }
 
-    /// `isPremiumUpgradeEligible()` returns `false` when user has premium.
+    /// `isPremiumUpgradeEligible()` returns `false` when user has Premium.
     @Test
     func isPremiumUpgradeEligible_hasPremium() async {
         let fixedDate = Date(timeIntervalSince1970: 1_000_000_000)

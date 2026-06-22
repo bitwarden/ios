@@ -7,11 +7,11 @@ import Foundation
 /// needed by the UI layer.
 ///
 protocol BillingRepository { // sourcery: AutoMockable
-    /// Returns `true` when the in-app premium upgrade path is available for the active user.
+    /// Returns `true` when the in-app Premium upgrade path is available for the active user.
     ///
     /// Does **not** check banner dismissal -- callers that need that check must do so separately.
     ///
-    /// - Returns: Whether the in-app premium upgrade path is available.
+    /// - Returns: Whether the in-app Premium upgrade path is available.
     ///
     func isInAppUpgradeAvailable() async -> Bool
 }

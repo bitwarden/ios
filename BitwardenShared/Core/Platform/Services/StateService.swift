@@ -38,16 +38,16 @@ protocol StateService: AnyObject, BillingStateService {
     ///
     func didAccountSwitchInExtension() async throws -> Bool
 
-    /// Returns whether the active user account has access to premium features.
+    /// Returns whether the active user account has access to Premium features.
     ///
-    /// - Returns: Whether the active account has access to premium features.
+    /// - Returns: Whether the active account has access to Premium features.
     ///
     func doesActiveAccountHavePremium() async -> Bool
 
-    /// Returns whether the active user account has premium personally (i.e. premium that the user
-    /// purchased themselves), as opposed to premium granted by an organization.
+    /// Returns whether the active user account has Premium personally (i.e. Premium that the user
+    /// purchased themselves), as opposed to Premium granted by an organization.
     ///
-    /// - Returns: Whether the active account has premium personally.
+    /// - Returns: Whether the active account has Premium personally.
     ///
     func doesActiveAccountHavePremiumPersonally() async -> Bool
 
@@ -166,6 +166,14 @@ protocol StateService: AnyObject, BillingStateService {
     /// - Returns: The time after which the clipboard should clear.
     ///
     func getClearClipboardValue(userId: String?) async throws -> ClearClipboardValue
+
+    /// Gets the IDs of the collapsed vault list sections for the user ID.
+    ///
+    /// - Parameter userId: The user ID associated with the collapsed vault list section IDs. Defaults
+    ///   to the active account if `nil`.
+    /// - Returns: The IDs of the vault list sections that are currently collapsed.
+    ///
+    func getCollapsedVaultListSectionIds(userId: String?) async throws -> [String]
 
     /// Gets the connect to watch value for an account.
     ///
@@ -300,11 +308,11 @@ protocol StateService: AnyObject, BillingStateService {
     ///
     func getPreAuthEnvironmentURLs() async -> EnvironmentURLData?
 
-    /// Gets whether the premium upgrade banner has been dismissed.
+    /// Gets whether the Premium upgrade banner has been dismissed.
     ///
-    /// - Parameter userId: The user ID associated with the premium upgrade banner dismissed value.
+    /// - Parameter userId: The user ID associated with the Premium upgrade banner dismissed value.
     ///   Defaults to the active account if `nil`.
-    /// - Returns: Whether the premium upgrade banner has been dismissed.
+    /// - Returns: Whether the Premium upgrade banner has been dismissed.
     ///
     func getPremiumUpgradeBannerDismissed(userId: String?) async throws -> Bool
 
@@ -551,11 +559,11 @@ protocol StateService: AnyObject, BillingStateService {
     ///
     func setArchiveOnboardingShown(_ shown: Bool) async
 
-    /// Sets whether the premium upgrade banner has been dismissed.
+    /// Sets whether the Premium upgrade banner has been dismissed.
     ///
     /// - Parameters:
-    ///   - dismissed: Whether the premium upgrade banner has been dismissed.
-    ///   - userId: The user ID associated with the premium upgrade banner dismissed value.
+    ///   - dismissed: Whether the Premium upgrade banner has been dismissed.
+    ///   - userId: The user ID associated with the Premium upgrade banner dismissed value.
     ///     Defaults to the active account if `nil`.
     ///
     func setPremiumUpgradeBannerDismissed(_ dismissed: Bool, userId: String?) async throws
@@ -573,6 +581,15 @@ protocol StateService: AnyObject, BillingStateService {
     ///   - userId: The user ID of the account. Defaults to the active account if `nil`.
     ///
     func setClearClipboardValue(_ clearClipboardValue: ClearClipboardValue?, userId: String?) async throws
+
+    /// Sets the IDs of the collapsed vault list sections for the user ID.
+    ///
+    /// - Parameters:
+    ///   - ids: The IDs of the vault list sections that are currently collapsed.
+    ///   - userId: The user ID associated with the collapsed vault list section IDs. Defaults to the
+    ///     active account if `nil`.
+    ///
+    func setCollapsedVaultListSectionIds(_ ids: [String], userId: String?) async throws
 
     /// Sets the connect to watch value for an account.
     ///
@@ -984,6 +1001,14 @@ extension StateService {
         try await getClearClipboardValue(userId: nil)
     }
 
+    /// Gets the IDs of the collapsed vault list sections for the active account.
+    ///
+    /// - Returns: The IDs of the vault list sections that are currently collapsed.
+    ///
+    func getCollapsedVaultListSectionIds() async throws -> [String] {
+        try await getCollapsedVaultListSectionIds(userId: nil)
+    }
+
     /// Gets the connect to watch value for the active account.
     ///
     /// - Returns: Whether to connect to the watch app.
@@ -1066,9 +1091,9 @@ extension StateService {
         try await getPasswordGenerationOptions(userId: nil)
     }
 
-    /// Gets whether the premium upgrade banner has been dismissed for the active account.
+    /// Gets whether the Premium upgrade banner has been dismissed for the active account.
     ///
-    /// - Returns: Whether the premium upgrade banner has been dismissed.
+    /// - Returns: Whether the Premium upgrade banner has been dismissed.
     ///
     func getPremiumUpgradeBannerDismissed() async throws -> Bool {
         try await getPremiumUpgradeBannerDismissed(userId: nil)
@@ -1248,6 +1273,14 @@ extension StateService {
         try await setClearClipboardValue(clearClipboardValue, userId: nil)
     }
 
+    /// Sets the IDs of the collapsed vault list sections for the active account.
+    ///
+    /// - Parameter ids: The IDs of the vault list sections that are currently collapsed.
+    ///
+    func setCollapsedVaultListSectionIds(_ ids: [String]) async throws {
+        try await setCollapsedVaultListSectionIds(ids, userId: nil)
+    }
+
     /// Sets the connect to watch value for the active account.
     ///
     /// - Parameter connectToWatch: Whether to connect to the watch app.
@@ -1322,9 +1355,9 @@ extension StateService {
         try await setPasswordGenerationOptions(options, userId: nil)
     }
 
-    /// Sets whether the premium upgrade banner has been dismissed for the active account.
+    /// Sets whether the Premium upgrade banner has been dismissed for the active account.
     ///
-    /// - Parameter dismissed: Whether the premium upgrade banner has been dismissed.
+    /// - Parameter dismissed: Whether the Premium upgrade banner has been dismissed.
     ///
     func setPremiumUpgradeBannerDismissed(_ dismissed: Bool) async throws {
         try await setPremiumUpgradeBannerDismissed(dismissed, userId: nil)
@@ -1687,6 +1720,11 @@ actor DefaultStateService: StateService, ActiveAccountStateProvider, ConfigState
         return appSettingsStore.clearClipboardValue(userId: userId)
     }
 
+    func getCollapsedVaultListSectionIds(userId: String?) async throws -> [String] {
+        let userId = try userId ?? getActiveAccountUserId()
+        return appSettingsStore.collapsedVaultListSectionIds(userId: userId)
+    }
+
     func getConnectToWatch(userId: String?) async throws -> Bool {
         let userId = try userId ?? getActiveAccountUserId()
         return appSettingsStore.connectToWatch(userId: userId)
@@ -2046,6 +2084,11 @@ actor DefaultStateService: StateService, ActiveAccountStateProvider, ConfigState
         appSettingsStore.setClearClipboardValue(clearClipboardValue, userId: userId)
     }
 
+    func setCollapsedVaultListSectionIds(_ ids: [String], userId: String?) async throws {
+        let userId = try userId ?? getActiveAccountUserId()
+        appSettingsStore.setCollapsedVaultListSectionIds(ids, userId: userId)
+    }
+
     func setConnectToWatch(_ connectToWatch: Bool, userId: String?) async throws {
         let userId = try userId ?? getActiveAccountUserId()
         appSettingsStore.setConnectToWatch(connectToWatch, userId: userId)
@@ -2200,6 +2243,11 @@ actor DefaultStateService: StateService, ActiveAccountStateProvider, ConfigState
     func setServerConfig(_ config: ServerConfig?, userId: String?) async throws {
         let userId = try userId ?? getActiveAccountUserId()
         appSettingsStore.setServerConfig(config, userId: userId)
+        if let fillAssistRulesUrl = config?.environment?.fillAssistRules.flatMap(URL.init) {
+            guard var state = appSettingsStore.state else { return }
+            state.accounts[userId]?.settings.environmentUrls?.fillAssistRulesUrl = fillAssistRulesUrl
+            appSettingsStore.state = state
+        }
     }
 
     func setShouldTrustDevice(_ shouldTrustDevice: Bool?, userId: String) {
