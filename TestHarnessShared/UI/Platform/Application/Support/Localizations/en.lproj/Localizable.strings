@@ -5,7 +5,6 @@
 "AuthDataTooShort" = "Authenticator data too short";
 "AuthDataTooShortReceived" = "The authenticator data was too short to contain the expected fields.";
 "CardAutofillForm" = "Card Autofill Form";
-"CreatePasskey" = "Create Passkey";
 "CardAutofillFormDescriptionLong" = "Long press a field, then select Autofill and Password to autofill with Bitwarden. Requires Bitwarden PM as AutoFill provider and a saved Card cipher.";
 "CardDetails" = "Card Details";
 "CardholderName" = "Cardholder Name";
