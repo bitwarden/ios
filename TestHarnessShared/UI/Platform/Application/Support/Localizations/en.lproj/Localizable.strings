@@ -4,7 +4,7 @@
 "CardholderName" = "Cardholder Name";
 "CardNumber" = "Card Number";
 "CreatePasskey" = "Create Passkey";
-"CreatePasskeyFormDescriptionLong" = "Fill in the fields below, then tap Register Passkey. The Bitwarden AutoFill sheet will appear to save the credential.";
+"CreatePasskeyFormDescriptionLong" = "Fill in the fields above, then tap Register Passkey. The Bitwarden AutoFill sheet will appear to save the credential.";
 "Credentials" = "Credentials";
 "DisplayName" = "Display Name";
 "EnterCardDetailsAbove" = "Enter card details above";
