@@ -58,6 +58,7 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         billingRepository = MockBillingRepository()
         billingRepository.isInAppUpgradeAvailableReturnValue = false
         billingService = MockBillingService()
+        billingService.getSubscriptionReturnValue = .fixture()
         billingService.shouldShowUpgradedToPremiumActionCardReturnValue = false
         errorReporter = MockErrorReporter()
         changeKdfService = MockChangeKdfService()
@@ -676,6 +677,55 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         await subject.perform(.appeared)
 
         XCTAssertFalse(subject.state.shouldShowPremiumUpgradeActionCard)
+    }
+
+    /// `perform(_:)` with `.appeared` shows the subscription needs attention card when the user
+    /// has premium personally and a past-due subscription.
+    @MainActor
+    func test_perform_appeared_subscriptionNeedsAttentionCard_pastDue_shown() async {
+        stateService.doesActiveAccountHavePremiumPersonallyResult = true
+        billingService.getSubscriptionReturnValue = .fixture(status: .pastDue)
+
+        await subject.perform(.appeared)
+
+        XCTAssertTrue(subject.state.shouldShowSubscriptionAttentionCard)
+    }
+
+    /// `perform(_:)` with `.appeared` hides the subscription needs attention card when the user's
+    /// subscription is active (not past due).
+    @MainActor
+    func test_perform_appeared_subscriptionNeedsAttentionCard_active_hidden() async {
+        stateService.doesActiveAccountHavePremiumPersonallyResult = true
+        billingService.getSubscriptionReturnValue = .fixture(status: .active)
+
+        await subject.perform(.appeared)
+
+        XCTAssertFalse(subject.state.shouldShowSubscriptionAttentionCard)
+    }
+
+    /// `perform(_:)` with `.appeared` hides the subscription needs attention card when the user
+    /// does not have premium personally.
+    @MainActor
+    func test_perform_appeared_subscriptionNeedsAttentionCard_noPremiumPersonally_hidden() async {
+        stateService.doesActiveAccountHavePremiumPersonallyResult = false
+
+        await subject.perform(.appeared)
+
+        XCTAssertFalse(subject.state.shouldShowSubscriptionAttentionCard)
+        XCTAssertFalse(billingService.getSubscriptionCalled)
+    }
+
+    /// `perform(_:)` with `.appeared` hides the subscription needs attention card and logs the
+    /// error when `getSubscription()` throws.
+    @MainActor
+    func test_perform_appeared_subscriptionNeedsAttentionCard_fetchError_hidden() async {
+        stateService.doesActiveAccountHavePremiumPersonallyResult = true
+        billingService.getSubscriptionThrowableError = BitwardenTestError.example
+
+        await subject.perform(.appeared)
+
+        XCTAssertFalse(subject.state.shouldShowSubscriptionAttentionCard)
+        XCTAssertEqual(errorReporter.errors.last as? BitwardenTestError, .example)
     }
 
     /// `perform(_:)` with `.dismissArchiveOnboardingActionCard` dismisses the archive onboarding card
@@ -2320,6 +2370,14 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         subject.receive(.upgradeToPremium)
 
         XCTAssertTrue(premiumUpgradeHelper.startInAppPremiumUpgradeCalled)
+    }
+
+    /// `receive(_:)` with `.viewPlan` navigates to the Premium plan screen.
+    @MainActor
+    func test_receive_viewPlan() {
+        subject.receive(.viewPlan)
+
+        XCTAssertEqual(coordinator.routes.last, .premiumPlan)
     }
 
     /// `receive(_:)` with `.vaultFilterChanged` updates the state correctly.

@@ -264,6 +264,8 @@ final class VaultCoordinator: Coordinator, HasStackNavigator { // swiftlint:disa
             showList()
         case let .loginRequest(loginRequest):
             delegate?.presentLoginRequest(loginRequest)
+        case .premiumPlan:
+            showPremiumPlan()
         case .premiumUpgrade:
             showPremiumUpgrade()
         case let .vaultItemSelection(totpKeyModel):
@@ -416,6 +418,15 @@ final class VaultCoordinator: Coordinator, HasStackNavigator { // swiftlint:disa
         )
         coordinator.start()
         coordinator.navigate(to: .importLogins(.vault))
+        stackNavigator?.present(navigationController)
+    }
+
+    /// Shows the Premium plan screen directly, bypassing the upgrade flow.
+    ///
+    private func showPremiumPlan() {
+        let navigationController = module.makeNavigationController()
+        let coordinator = module.makeBillingCoordinator(stackNavigator: navigationController)
+        coordinator.navigate(to: .premiumPlan(nil))
         stackNavigator?.present(navigationController)
     }
 

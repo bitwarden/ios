@@ -241,6 +241,8 @@ private struct SearchableVaultListView: View {
 
             premiumUpgradeActionCard
 
+            subscriptionNeedsAttentionActionCard
+
             upgradedToPremiumActionCard
 
             archiveOnboardingActionCard
@@ -375,6 +377,19 @@ extension SearchableVaultListView {
                 },
                 dismissButtonState: ActionCard.ButtonState(title: Localizations.dismiss) {
                     await store.perform(.dismissPremiumUpgradeActionCard)
+                },
+            )
+        }
+    }
+
+    /// The action card shown to users whose personal Premium subscription needs attention (past due).
+    @ViewBuilder private var subscriptionNeedsAttentionActionCard: some View {
+        if store.state.shouldShowSubscriptionAttentionCard {
+            ActionCard(
+                title: Localizations.subscriptionNeedsAttention,
+                message: Localizations.checkYourPlanForDetails,
+                actionButtonState: ActionCard.ButtonState(title: Localizations.viewPlan) {
+                    store.send(.viewPlan)
                 },
             )
         }

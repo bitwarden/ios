@@ -193,6 +193,8 @@ final class VaultListProcessor: StateProcessor<
             upgradeToPremium()
         case let .vaultFilterChanged(newValue):
             state.vaultFilterType = newValue
+        case .viewPlan:
+            coordinator.navigate(to: .premiumPlan)
         }
     }
 }
@@ -245,6 +247,8 @@ extension VaultListProcessor {
 
         state.shouldShowUpgradedToPremiumActionCard = await services.billingService
             .shouldShowUpgradedToPremiumActionCard()
+
+        state.shouldShowSubscriptionAttentionCard = await loadSubscriptionNeedsAttentionCardVisibility()
 
         let isBannerDismissed = await services.stateService.isPremiumUpgradeBannerDismissed()
         guard !isBannerDismissed else {
@@ -348,6 +352,22 @@ extension VaultListProcessor {
             state.shouldShowPremiumUpgradeActionCard = false
         } catch {
             services.errorReporter.log(error: error)
+        }
+    }
+
+    /// Returns `true` when the user has a past-due personal subscription and should see the
+    /// "subscription needs attention" action card.
+    ///
+    /// Only makes the network call when the user has premium personally; returns `false` on error.
+    ///
+    private func loadSubscriptionNeedsAttentionCardVisibility() async -> Bool {
+        guard await services.stateService.doesActiveAccountHavePremiumPersonally() else { return false }
+        do {
+            let subscription = try await services.billingService.getSubscription()
+            return subscription.status == .pastDue
+        } catch {
+            services.errorReporter.log(error: error)
+            return false
         }
     }
 
