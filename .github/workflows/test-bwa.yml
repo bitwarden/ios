@@ -134,9 +134,9 @@ jobs:
         uses: actions/cache/restore@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
         with:
           path: build/DerivedData
-          key: ${{ runner.os }}-deriveddata-testbwa-${{ github.sha }}
+          key: ${{ runner.os }}-deriveddata-testbwa-${{ env._XCODE_VERSION }}-${{ github.sha }}
           restore-keys: |
-            ${{ runner.os }}-deriveddata-testbwa-
+            ${{ runner.os }}-deriveddata-testbwa-${{ env._XCODE_VERSION }}-
 
       # src: https://stackoverflow.com/questions/53753511/is-it-possible-to-copy-an-xcode-derived-data-cache
       - name: Set IgnoreFileSystemDeviceInodeChanges flag
@@ -197,7 +197,7 @@ jobs:
         uses: actions/cache/save@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
         with:
           path: build/DerivedData
-          key: ${{ runner.os }}-deriveddata-testbwa-${{ github.sha }}
+          key: ${{ runner.os }}-deriveddata-testbwa-${{ env._XCODE_VERSION }}-${{ github.sha }}
 
       - name: Test
         id: test
