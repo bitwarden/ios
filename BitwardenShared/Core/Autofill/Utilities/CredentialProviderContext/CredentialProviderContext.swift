@@ -88,8 +88,6 @@ public struct DefaultCredentialProviderContext: CredentialProviderContext {
             userInteraction
         case let .generatePasswordCredential(_, userInteraction):
             userInteraction
-        case .savePasswordWithoutUserInteraction:
-            false
         case let .savePasswordCredential(_, userInteraction):
             userInteraction
         default:
