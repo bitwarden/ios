@@ -5,10 +5,10 @@ import Foundation
 
 // MARK: - PremiumUpgradeRoute
 
-/// A route type that supports premium upgrade navigation.
+/// A route type that supports Premium upgrade navigation.
 ///
 protocol PremiumUpgradeRoute {
-    /// The route to the premium upgrade screen.
+    /// The route to the Premium upgrade screen.
     static var premiumUpgrade: Self { get }
 
     /// The route to dismiss the current screen with an optional action.
@@ -25,7 +25,7 @@ extension VaultRoute: PremiumUpgradeRoute {}
 
 // MARK: - PremiumUpgradeHelper
 
-/// A helper that centralizes the premium upgrade navigation flow.
+/// A helper that centralizes the Premium upgrade navigation flow.
 ///
 protocol PremiumUpgradeHelper { // sourcery: AutoMockable
     /// Checks if in-app upgrade is available and navigates accordingly: to the upgrade screen
@@ -35,7 +35,7 @@ protocol PremiumUpgradeHelper { // sourcery: AutoMockable
     ///
     func navigateToPremiumUpgrade(onConfirmed: (() async -> Void)?) async
 
-    /// Subscribes to checkout status and navigates directly to the premium upgrade screen,
+    /// Subscribes to checkout status and navigates directly to the Premium upgrade screen,
     /// skipping the availability check. Use when availability is already known (e.g., action card tap).
     ///
     /// - Parameter onConfirmed: An optional closure called when the upgrade is confirmed.
@@ -64,7 +64,7 @@ class DefaultPremiumUpgradeHelper<Route: PremiumUpgradeRoute, Event>: PremiumUpg
 
     // MARK: Private Properties
 
-    /// A cancellable for the premium checkout status subscription.
+    /// A cancellable for the Premium checkout status subscription.
     private var premiumStatusChangedCancellable: AnyCancellable?
 
     /// The coordinator used for navigation.

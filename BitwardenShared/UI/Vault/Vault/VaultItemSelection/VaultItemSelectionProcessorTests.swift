@@ -179,7 +179,7 @@ class VaultItemSelectionProcessorTests: BitwardenTestCase { // swiftlint:disable
         XCTAssertEqual(subject.state.url, url)
     }
 
-    /// `perform(_:)` with `.morePressed` delegates to the premium upgrade helper when the
+    /// `perform(_:)` with `.morePressed` delegates to the Premium upgrade helper when the
     /// upgrade action is triggered.
     @MainActor
     func test_perform_morePressed_navigateToPremiumUpgrade() async throws {

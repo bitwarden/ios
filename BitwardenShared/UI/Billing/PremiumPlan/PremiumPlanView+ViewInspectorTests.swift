@@ -62,14 +62,14 @@ class PremiumPlanViewTests: BitwardenTestCase {
         XCTAssertThrowsError(try subject.inspect().find(text: Localizations.billingAmount))
     }
 
-    /// The cancel premium button is hidden when status is `.canceled`.
+    /// The cancel Premium button is hidden when status is `.canceled`.
     @MainActor
     func test_cancelPremiumButton_hidden_whenCanceled() throws {
         processor.state.planStatus = .canceled
         XCTAssertThrowsError(try subject.inspect().find(button: Localizations.cancelPremium))
     }
 
-    /// Tapping the cancel premium button dispatches the `.cancelPremiumTapped` action.
+    /// Tapping the cancel Premium button dispatches the `.cancelPremiumTapped` action.
     @MainActor
     func test_cancelPremiumButton_tap() throws {
         processor.state.planStatus = .active
@@ -78,7 +78,7 @@ class PremiumPlanViewTests: BitwardenTestCase {
         XCTAssertEqual(processor.dispatchedActions.last, .cancelPremiumTapped)
     }
 
-    /// The cancel premium button is visible when status is `.active`.
+    /// The cancel Premium button is visible when status is `.active`.
     @MainActor
     func test_cancelPremiumButton_visible_whenActive() throws {
         processor.state.planStatus = .active

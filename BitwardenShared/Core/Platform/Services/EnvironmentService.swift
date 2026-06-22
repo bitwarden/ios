@@ -135,6 +135,10 @@ extension DefaultEnvironmentService {
         environmentURLs.eventsURL
     }
 
+    var fillAssistRulesURL: URL {
+        environmentURLs.fillAssistRulesURL
+    }
+
     var iconsURL: URL {
         environmentURLs.iconsURL
     }

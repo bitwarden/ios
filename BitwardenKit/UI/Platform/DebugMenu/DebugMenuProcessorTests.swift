@@ -211,7 +211,7 @@ class DebugMenuProcessorTests: BitwardenTestCase {
         subject.receive(.generateSdkErrorReport)
         XCTAssertEqual(
             errorReporter.errors[safeIndex: 0] as? BitwardenSdk.BitwardenError,
-            BitwardenSdk.BitwardenError.Api(ApiError.ResponseContent(
+            BitwardenSdk.BitwardenError.Api(ApiError.Response(
                 message: "Generated SDK error report from debug view.",
             )),
         )

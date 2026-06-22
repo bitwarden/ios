@@ -73,6 +73,10 @@ class APIServiceTests: BitwardenTestCase {
             subject.identityService.requestHandlers.contains(where: { $0 is DefaultHeadersRequestHandler }),
         )
         XCTAssertNil(subject.identityService.tokenProvider)
+
+        let fillAssistServiceBaseURL = subject.fillAssistService.baseURL
+        XCTAssertEqual(fillAssistServiceBaseURL, URL(string: "https://example.com/fill-assist-rules")!)
+        XCTAssertNil(subject.fillAssistService.tokenProvider)
     }
 
     /// `setupAccountTokenProviderDelegate(:)` sets up the delegate in the account token provider.

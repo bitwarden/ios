@@ -77,6 +77,9 @@ public struct EnvironmentServerConfig: Equatable, Codable, Sendable {
     /// The Cloud Region (e.g. "US")
     public let cloudRegion: String?
 
+    /// The Fill-Assist rules URL.
+    public let fillAssistRules: String?
+
     /// The Identity URL.
     public let identity: String?
 
@@ -92,6 +95,7 @@ public struct EnvironmentServerConfig: Equatable, Codable, Sendable {
     public init(responseModel: EnvironmentServerConfigResponseModel) {
         api = responseModel.api
         cloudRegion = responseModel.cloudRegion
+        fillAssistRules = responseModel.fillAssistRules
         identity = responseModel.identity
         notifications = responseModel.notifications
         sso = responseModel.sso

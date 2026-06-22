@@ -119,7 +119,7 @@ struct GeneratorState: Equatable {
     /// A toast message to show in the view.
     var toast: Toast?
 
-    /// The URL to open externally (e.g. learn more about premium).
+    /// The URL to open externally (e.g. learn more about Premium).
     var url: URL?
 
     /// The options used to generate a username.

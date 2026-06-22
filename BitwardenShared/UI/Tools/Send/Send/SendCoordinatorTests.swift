@@ -155,7 +155,7 @@ class SendCoordinatorTests: BitwardenTestCase {
         XCTAssertTrue(action.view is BitwardenShared.SendListView)
     }
 
-    /// `navigate(to:)` with `.premiumUpgrade` presents the premium upgrade screen.
+    /// `navigate(to:)` with `.premiumUpgrade` presents the Premium upgrade screen.
     @MainActor
     func test_navigateTo_premiumUpgrade() throws {
         subject.navigate(to: .premiumUpgrade)
