@@ -3,7 +3,6 @@
 "AssertionResult" = "Assertion Result";
 "AuthDataTooShortReceived" = "The authenticator data was too short to contain the expected fields.";
 "CardAutofillForm" = "Card Autofill Form";
-"CreatePasskey" = "Create Passkey";
 "CardAutofillFormDescriptionLong" = "Long press a field, then select Autofill and Password to autofill with Bitwarden. Requires Bitwarden PM as AutoFill provider and a saved Card cipher.";
 "CardDetails" = "Card Details";
 "CardholderName" = "Cardholder Name";
@@ -70,7 +69,9 @@
 "UnsupportedAlgorithmReceived" = "The credential's public key algorithm (%@) is not supported; expected ES256.";
 "UnsupportedCurveReceived" = "The credential's public key curve (%@) is not supported; expected P-256.";
 "UnsupportedKeyTypeReceived" = "The credential's public key type (%@) is not supported; expected EC2.";
-"UsePasskeyFormDescription" = "Enter a relying party ID below, then tap Sign In with Passkey. The Bitwarden AutoFill sheet will appear to select a credential.";
+"Username" = "Username";
+"UsePasskey" = "Use passkey";
+"UsePasskeyFormDescriptionLong" = "Enter a relying party ID above, then tap Sign In with Passkey. The Bitwarden AutoFill sheet will appear to select a credential.";
 "UseThisLoginFormToTestAutofillFunctionality" = "Use this login form to test autofill functionality.";
 "Username" = "Username";
 "UsernameValue" = "Username: %@";
