@@ -111,7 +111,7 @@ public struct DebugMenuView: View {
         }
     }
 
-    /// Debug-only actions that mutate cached account-decryption state to support manual testing
+    /// Actions that allow to manipulate cached account-decryption state to support testing
     /// of edge cases (e.g. PM-31723: profile cached before the server added `masterPasswordUnlock`).
     private var accountDecryptionSection: some View {
         AsyncButton {

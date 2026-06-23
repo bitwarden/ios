@@ -86,6 +86,8 @@ protocol StateService: AnyObject, DebugStateService {
     func appThemePublisher() async -> AnyPublisher<AppTheme, Never>
 }
 
+// MARK: - DebugStateService
+
 extension StateService {
     func clearMasterPasswordUnlockForActiveAccount() async throws {}
 }

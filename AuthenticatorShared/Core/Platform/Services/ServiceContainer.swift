@@ -84,6 +84,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
     /// The service used by the application to manage account state.
     let stateService: StateService
 
+    /// The service used for account state manipulation to support testing scenarios.
     public var debugStateService: any DebugStateService { stateService }
 
     /// Provides the present time for TOTP Code Calculation.

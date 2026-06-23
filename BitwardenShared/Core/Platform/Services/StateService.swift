@@ -23,11 +23,6 @@ protocol StateService: AnyObject, BillingStateService, DebugStateService {
     ///
     func addAccount(_ account: Account) async
 
-    /// Clears `userDecryptionOptions.masterPasswordUnlock` on the active account's
-    /// cached profile to reproduce the pre-server-2025.11 state for PM-31723 testing.
-    ///
-    func clearMasterPasswordUnlockForActiveAccount() async throws
-
     /// Clears the pins stored on device and in memory.
     ///
     func clearPins() async throws
@@ -1568,12 +1563,6 @@ actor DefaultStateService: StateService, ActiveAccountStateProvider, ConfigState
         state.activeUserId = account.profile.userId
     }
 
-    func clearMasterPasswordUnlockForActiveAccount() async throws {
-        var account = try await getActiveAccount()
-        account.profile.userDecryptionOptions?.masterPasswordUnlock = nil
-        await addAccount(account)
-    }
-
     func clearPins() async throws {
         let userId = try getActiveAccountUserId()
         accountVolatileData[userId]?.pinProtectedUserKey = nil
@@ -2454,6 +2443,17 @@ struct AccountVolatileData {
 
     /// Whether the account has been unlocked with user interaction.
     var hasBeenUnlockedInteractively = false
+}
+
+// MARK: - DebugStateService
+
+extension DefaultStateService {
+    func clearMasterPasswordUnlockForActiveAccount() async throws {
+        let userId = try getActiveAccountUserId()
+        try updateAccountProfile(userId: userId) { profile in
+            profile.userDecryptionOptions?.masterPasswordUnlock = nil
+        }
+    }
 }
 
 // MARK: BiometricsStateService

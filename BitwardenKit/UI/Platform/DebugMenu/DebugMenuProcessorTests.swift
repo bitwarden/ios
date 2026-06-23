@@ -106,7 +106,7 @@ class DebugMenuProcessorTests: BitwardenTestCase {
     /// `perform(.clearMasterPasswordUnlock)` logs an error when the clear operation fails.
     @MainActor
     func test_perform_clearMasterPasswordUnlock_error() async {
-        debugStateService.clearMasterPasswordUnlockForActiveAccountResult = .failure(BitwardenTestError.example)
+        debugStateService.clearMasterPasswordUnlockForActiveAccountThrowableError = BitwardenTestError.example
 
         await subject.perform(.clearMasterPasswordUnlock)
 
