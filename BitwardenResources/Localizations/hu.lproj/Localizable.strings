@@ -1137,3 +1137,28 @@
 "IssueDate" = "Kiállítási dátum";
 "ExpirationDate" = "Lejárati dátum";
 "LicenseClass" = "Engedély osztály";
+"PassportDetails" = "Útlevél adatok";
+/* Label for the sex/gender field as printed on a passport (e.g. "M", "F", "X"). */
+"Sex" = "Nem";
+"BirthPlace" = "Születési hely";
+/* Label for the nationality field on a passport (the country a person is a national of). */
+"Nationality" = "Állampolgárság";
+/* Label for the category of passport (e.g. "Regular/Tourist", "Diplomatic", "Official"). */
+"PassportType" = "Útlevél típus";
+"NationalIdentificationNumber" = "Nemzeti azonosító szám";
+/* Label for the government authority or office that issued the passport. */
+"IssuingAuthorityOffice" = "Issuing authority/office";
+"AccountDetails" = "Fiók adatok";
+"BankName" = "Bank neve";
+"NameOnAccount" = "Számlatulajdonos neve";
+"AccountType" = "Számlatípus";
+"BranchNumber" = "Fióktelep/intézmény szám";
+"SwiftCode" = "SWIFT-kód";
+"IBAN" = "IBAN";
+"BankContactPhone" = "Banki kapcsolati telefon";
+"CertificateOfDeposit" = "Áthelyezési igazolás";
+"Checking" = "Ellenőrzés";
+"InvestmentBrokerage" = "Befektetés/brókerügylet";
+"LineOfCredit" = "Hitelkeret";
+"MoneyMarket" = "Pénzpiac";
+"Savings" = "Megtakarítások";
