@@ -14,8 +14,6 @@ class UsePasskeyProcessor: StateProcessor<
 > {
     // MARK: Types
 
-    typealias Services = HasErrorReporter
-
     typealias PerformAssertion = (_ rpId: String) async throws -> Void
 
     // MARK: Private Properties
@@ -68,6 +66,8 @@ class UsePasskeyProcessor: StateProcessor<
         do {
             try await performAssertion(state.rpId)
             state.status = .success
+        } catch let error as ASAuthorizationError where error.code == .canceled {
+            state.status = .idle
         } catch {
             state.status = .failure(error.localizedDescription)
         }
@@ -111,7 +111,7 @@ enum PasskeyAssertionError: Error, LocalizedError {
     var errorDescription: String? {
         switch self {
         case .notAvailable: Localizations.passkeyAssertionNotAvailable
-        case .unexpectedCredentialType: "Unexpected credential type received from the authorization controller."
+        case .unexpectedCredentialType: Localizations.unexpectedCredentialTypeReceived
         }
     }
 }

@@ -29,5 +29,5 @@ struct UsePasskeyState: Equatable {
     var status: AssertionStatus = .idle
 
     /// The title of the screen.
-    var title: String = "Use Passkey"
+    var title: String = Localizations.usePasskey
 }

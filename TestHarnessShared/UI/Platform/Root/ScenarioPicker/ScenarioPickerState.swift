@@ -35,6 +35,7 @@ struct ScenarioPickerState: Equatable {
             ScenarioItem(id: "totpAutofillForm", title: Localizations.totpAutofillForm, route: .totpAutofillForm),
             ScenarioItem(id: "dateFieldPicker", title: Localizations.dateFieldPicker, route: .dateFieldPickerShowcase),
         ]
+
         if #available(iOS 17, *) {
             items.append(contentsOf: [
                 ScenarioItem(id: "registerPasskey", title: Localizations.registerPasskey, route: .registerPasskey),
