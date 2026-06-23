@@ -448,6 +448,56 @@ extension CipherView {
         )
     }
 
+    static func passportFixture() -> CipherView {
+        CipherView(
+            id: "1",
+            organizationId: nil,
+            folderId: nil,
+            collectionIds: [],
+            key: nil,
+            name: "Bitwarden",
+            notes: nil,
+            type: .passport,
+            login: nil,
+            identity: nil,
+            card: nil,
+            secureNote: nil,
+            sshKey: nil,
+            bankAccount: nil,
+            driversLicense: nil,
+            passport: PassportView(
+                surname: "Warden",
+                givenName: "Bit",
+                dateOfBirth: "1989-08-01",
+                sex: "Male",
+                birthPlace: "San Francisco, USA",
+                nationality: "USA",
+                issuingCountry: "United States",
+                passportNumber: "X12345678",
+                passportType: "Regular/Tourist",
+                nationalIdentificationNumber: "123456789",
+                issuingAuthority: "U.S. Department of State",
+                issueDate: "2019-08-01",
+                expirationDate: "2029-08-01",
+            ),
+            favorite: false,
+            reprompt: .none,
+            organizationUseTotp: false,
+            edit: true,
+            permissions: nil,
+            viewPassword: true,
+            localData: nil,
+            attachments: nil,
+            attachmentDecryptionFailures: nil,
+            fields: nil,
+            passwordHistory: nil,
+            creationDate: Date(year: 2023, month: 11, day: 5),
+            deletedDate: nil,
+            revisionDate: Date(year: 2023, month: 11, day: 5),
+            archivedDate: nil,
+        )
+    }
+
     static func loginFixture(
         archivedDate: Date? = nil,
         attachments: [AttachmentView]? = nil,
