@@ -7,6 +7,7 @@ import XCTest
 
 // MARK: - FillAssistRepositoryTests
 
+@MainActor
 class FillAssistRepositoryTests: BitwardenTestCase {
     // MARK: Properties
 
@@ -40,8 +41,8 @@ class FillAssistRepositoryTests: BitwardenTestCase {
         )
     }
 
-    override func tearDown() {
-        super.tearDown()
+    override func tearDown() async throws {
+        try await super.tearDown()
 
         appSettingsStore = nil
         configService = nil
