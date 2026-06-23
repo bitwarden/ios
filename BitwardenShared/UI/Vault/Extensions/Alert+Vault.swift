@@ -20,7 +20,7 @@ extension Alert {
             await action()
         }
         let alert = Alert(
-            title: Localizations.archiveUnavailable,
+            title: Localizations.premiumSubscriptionRequired,
             message: Localizations.archivingItemsIsAPremiumFeatureDescriptionLong,
             alertActions: [
                 preferredAction,
@@ -43,7 +43,7 @@ extension Alert {
             await action()
         }
         let alert = Alert(
-            title: Localizations.attachmentsUnavailable,
+            title: Localizations.premiumSubscriptionRequired,
             message: Localizations.addingAttachmentsIsAPremiumFeatureDescriptionLong,
             alertActions: [
                 preferredAction,
