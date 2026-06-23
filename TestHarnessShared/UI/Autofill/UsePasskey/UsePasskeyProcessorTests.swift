@@ -62,6 +62,16 @@ class UsePasskeyProcessorTests: BitwardenTestCase {
         XCTAssertEqual(subject.state.status, .failure(testError.localizedDescription))
     }
 
+    /// `perform(.assertPasskey)` resets status to `.idle` when the user cancels.
+    @MainActor
+    func test_perform_assertPasskey_canceledResetsToIdle() async {
+        subject.performAssertion = { _ in
+            throw ASAuthorizationError(.canceled)
+        }
+        await subject.perform(.assertPasskey)
+        XCTAssertEqual(subject.state.status, .idle)
+    }
+
     /// `perform(.assertPasskey)` passes the current RP ID to the assertion closure.
     @MainActor
     func test_perform_assertPasskey_passesRpId() async {
