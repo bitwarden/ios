@@ -11,6 +11,7 @@ class DebugMenuProcessorTests: BitwardenTestCase {
 
     var configService: MockConfigService!
     var coordinator: MockCoordinator<DebugMenuRoute, Void>!
+    var debugStateService: MockDebugStateService!
     var environmentService: MockEnvironmentService!
     var errorReportBuilder: MockErrorReportBuilder!
     var errorReporter: MockErrorReporter!
@@ -24,6 +25,7 @@ class DebugMenuProcessorTests: BitwardenTestCase {
 
         configService = MockConfigService()
         coordinator = MockCoordinator<DebugMenuRoute, Void>()
+        debugStateService = MockDebugStateService()
         environmentService = MockEnvironmentService()
         errorReportBuilder = MockErrorReportBuilder()
         errorReporter = MockErrorReporter()
@@ -32,6 +34,7 @@ class DebugMenuProcessorTests: BitwardenTestCase {
             coordinator: coordinator.asAnyCoordinator(),
             services: ServiceContainer.withMocks(
                 configService: configService,
+                debugStateService: debugStateService,
                 errorReportBuilder: errorReportBuilder,
                 environmentService: environmentService,
                 errorReporter: errorReporter,
@@ -46,6 +49,7 @@ class DebugMenuProcessorTests: BitwardenTestCase {
 
         configService = nil
         coordinator = nil
+        debugStateService = nil
         environmentService = nil
         errorReportBuilder = nil
         errorReporter = nil
@@ -88,6 +92,27 @@ class DebugMenuProcessorTests: BitwardenTestCase {
         await subject.perform(.viewAppeared)
 
         XCTAssertEqual(subject.state.userID, "12345")
+    }
+
+    /// `perform(.clearMasterPasswordUnlock)` clears masterPasswordUnlock and shows a success toast.
+    @MainActor
+    func test_perform_clearMasterPasswordUnlock_success() async {
+        await subject.perform(.clearMasterPasswordUnlock)
+
+        XCTAssertTrue(debugStateService.clearMasterPasswordUnlockForActiveAccountCalled)
+        XCTAssertEqual(subject.state.toast?.title, Localizations.masterPasswordUnlockCleared)
+    }
+
+    /// `perform(.clearMasterPasswordUnlock)` logs an error when the clear operation fails.
+    @MainActor
+    func test_perform_clearMasterPasswordUnlock_error() async {
+        debugStateService.clearMasterPasswordUnlockForActiveAccountResult = .failure(BitwardenTestError.example)
+
+        await subject.perform(.clearMasterPasswordUnlock)
+
+        XCTAssertTrue(debugStateService.clearMasterPasswordUnlockForActiveAccountCalled)
+        XCTAssertEqual(errorReporter.errors.last as? BitwardenTestError, .example)
+        XCTAssertEqual(subject.state.toast?.title, Localizations.somethingWentWrong)
     }
 
     /// `perform(.clearSsoCookies)` clears the SSO cookie and shows a success toast.

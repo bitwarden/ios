@@ -117,7 +117,7 @@ public struct DebugMenuView: View {
         AsyncButton {
             await store.perform(.clearMasterPasswordUnlock)
         } label: {
-            Text("Clear masterPasswordUnlock (PM-31723)")
+            Text(Localizations.clearMasterPasswordUnlock)
         }
         .accessibilityIdentifier("ClearMasterPasswordUnlockButton")
     }

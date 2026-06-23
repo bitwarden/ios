@@ -114,7 +114,7 @@ final class DebugMenuProcessor: StateProcessor<DebugMenuState, DebugMenuAction, 
     private func clearMasterPasswordUnlock() async {
         do {
             try await services.debugStateService.clearMasterPasswordUnlockForActiveAccount()
-            state.toast = Toast(title: "masterPasswordUnlock cleared.")
+            state.toast = Toast(title: Localizations.masterPasswordUnlockCleared)
         } catch {
             services.errorReporter.log(error: error)
             state.toast = Toast(title: Localizations.somethingWentWrong)
