@@ -115,7 +115,7 @@ final class PremiumPlanProcessor: StateProcessor<
     ///
     private func loadPremiumPlan() async {
         let existingSubscription = state.loadingState.data
-        state.loadingState = .loading(nil)
+        state.loadingState = .loading(existingSubscription)
 
         do {
             let plan = try await services.billingService.getPremiumPlan()
