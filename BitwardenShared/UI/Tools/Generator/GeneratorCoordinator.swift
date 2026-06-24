@@ -89,8 +89,8 @@ final class GeneratorCoordinator: Coordinator, HasStackNavigator {
             delegate?.didCompleteGenerator(for: type, with: value)
         case .dismiss:
             stackNavigator?.dismiss()
-        case let .generator(type, emailWebsite):
-            showGenerator(for: type, emailWebsite: emailWebsite)
+        case let .generator(type, emailWebsite, passwordRules):
+            showGenerator(for: type, emailWebsite: emailWebsite, passwordRules: passwordRules)
         case .generatorHistory:
             showGeneratorHistory()
         }
@@ -108,9 +108,10 @@ final class GeneratorCoordinator: Coordinator, HasStackNavigator {
     ///   then the type field in the generator screen will be hidden, to eliminate the ability to
     ///   switch between the various types.
     ///
-    private func showGenerator(for type: GeneratorType?, emailWebsite: String?) {
+    private func showGenerator(for type: GeneratorType?, emailWebsite: String?, passwordRules: String?) {
         let state = GeneratorState(
             generatorType: type ?? .password,
+            forcedPasswordRules: passwordRules,
             presentationMode: type == nil ? .tab : .inPlace,
             usernameState: GeneratorState.UsernameState(emailWebsite: emailWebsite),
         )

@@ -82,6 +82,10 @@ struct GeneratorState: Equatable {
     /// The type of value to generate.
     var generatorType = GeneratorType.password
 
+    /// Password rules from an `ASGeneratePasswordsRequest` applied when loading generator options.
+    /// When non-nil, forces password mode and constrains the initial password settings.
+    var forcedPasswordRules: String?
+
     /// The generated value (password, passphrase or username).
     var generatedValue: String = ""
 

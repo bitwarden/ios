@@ -47,12 +47,30 @@ protocol GeneratorRepository: AnyObject {
     ///
     func generatePassword(settings: PasswordGeneratorRequest) async throws -> String
 
+    /// Converts a password-rules string (from `ASGeneratePasswordsRequest`) into a
+    /// `PasswordGeneratorRequest` via the SDK.
+    ///
+    /// - Parameter rules: The password-rules string to parse.
+    /// - Returns: A `PasswordGeneratorRequest` reflecting the rules or `nil` if an error happens.
+    ///
+    func passwordRulesRequest(rules: String) async -> PasswordGeneratorRequest?
+
     /// Generates a username based on the username settings.
     ///
     /// - Parameter settings: The settings used to generate the username.
     /// - Returns: The generated username.
     ///
     func generateUsername(settings: UsernameGeneratorRequest) async throws -> String
+
+    /// Returns the user's password generation options with the org policy and any
+    /// credential-provider password rules already applied.
+    ///
+    /// - Parameter rules: An optional password-rules string (from `ASGeneratePasswordsRequest`).
+    /// - Returns: The resolved options and whether any policy or rules constraint is in effect.
+    ///
+    func getEffectivePasswordGenerationOptions(
+        rules: String?,
+    ) async throws -> (options: PasswordGenerationOptions, isPolicyInEffect: Bool)
 
     /// Gets the password generation options for the active account.
     ///
@@ -103,6 +121,12 @@ class DefaultGeneratorRepository {
     /// The data store that handles performing data requests for the generator.
     let dataStore: GeneratorDataStore
 
+    /// The service used by the application to report non-fatal errors.
+    let errorReporter: ErrorReporter
+
+    /// The service used by the application to manage policy.
+    let policyService: PolicyService
+
     /// The service used by the application to manage account state.
     let stateService: StateService
 
@@ -113,15 +137,21 @@ class DefaultGeneratorRepository {
     /// - Parameters:
     ///   - clientService: The service that handles common client functionality such as encryption and decryption.
     ///   - dataStore: The data store that handles performing data requests for the generator.
+    ///   - errorReporter: The service used by the application to report non-fatal errors.
+    ///   - policyService: The service used by the application to manage policy.
     ///   - stateService: The service used by the application to manage account state.
     ///
     init(
         clientService: ClientService,
         dataStore: GeneratorDataStore,
+        errorReporter: ErrorReporter,
+        policyService: PolicyService,
         stateService: StateService,
     ) {
         self.clientService = clientService
         self.dataStore = dataStore
+        self.errorReporter = errorReporter
+        self.policyService = policyService
         self.stateService = stateService
     }
 
@@ -202,8 +232,40 @@ extension DefaultGeneratorRepository: GeneratorRepository {
         try await clientService.generators(isPreAuth: false).password(settings: settings)
     }
 
+    func passwordRulesRequest(rules: String) async -> PasswordGeneratorRequest? {
+        do {
+            return try await clientService.generators(isPreAuth: false)
+                .passwordRules(rules: rules)
+        } catch {
+            errorReporter.log(error: error)
+            return nil
+        }
+    }
+
     func generateUsername(settings: UsernameGeneratorRequest) async throws -> String {
         try await clientService.generators(isPreAuth: false).username(settings: settings)
+    }
+
+    func getEffectivePasswordGenerationOptions(
+        rules: String?,
+    ) async throws -> (options: PasswordGenerationOptions, isPolicyInEffect: Bool) {
+        var options = try await getPasswordGenerationOptions()
+        var isPolicyInEffect = false
+        do {
+            isPolicyInEffect = try await policyService.applyPasswordGenerationPolicy(options: &options)
+        } catch {
+            errorReporter.log(error: error)
+        }
+
+        if let rules,
+           let rulesRequest = await passwordRulesRequest(rules: rules) {
+            options.type = .password
+            options.overridePasswordType = false
+            options.apply(rulesRequest)
+            return (options, true)
+        }
+
+        return (options, isPolicyInEffect)
     }
 
     func getPasswordGenerationOptions() async throws -> PasswordGenerationOptions {

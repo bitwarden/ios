@@ -1024,6 +1024,89 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
         }
     }
 
+    /// `generatePasswordCredential(request:)` passes `passwordFieldPasswordRules` to the SDK.
+    @available(iOS 26.2, *)
+    func test_generatePasswordCredential_usesPasswordFieldRules() async throws {
+        let request = MockPasswordRulesRequest(passwordFieldPasswordRules: "minlength: 20;")
+        generatorRepository.passwordResult = .success("rules-password")
+
+        let result = try await subject.generatePasswordCredential(request: request)
+
+        XCTAssertEqual(generatorRepository.getEffectivePasswordGenerationOptionsRules, "minlength: 20;")
+        XCTAssertNotNil(generatorRepository.passwordGeneratorRequest)
+        XCTAssertEqual(result, "rules-password")
+    }
+
+    /// `generatePasswordCredential(request:)` falls back to `passwordRulesFromQuirks` when
+    /// `passwordFieldPasswordRules` is nil.
+    @available(iOS 26.2, *)
+    func test_generatePasswordCredential_fallsBackToQuirks() async throws {
+        let request = MockPasswordRulesRequest(passwordRulesFromQuirks: "minlength: 16;")
+        generatorRepository.passwordResult = .success("quirks-password")
+
+        let result = try await subject.generatePasswordCredential(request: request)
+
+        XCTAssertEqual(generatorRepository.getEffectivePasswordGenerationOptionsRules, "minlength: 16;")
+        XCTAssertNotNil(generatorRepository.passwordGeneratorRequest)
+        XCTAssertEqual(result, "quirks-password")
+    }
+
+    /// `generatePasswordCredential(request:)` passes nil rules to the repository when no rules are present.
+    @available(iOS 26.2, *)
+    func test_generatePasswordCredential_noRules_skipsSDKCall() async throws {
+        generatorRepository.passwordResult = .success("no-rules-password")
+
+        _ = try await subject.generatePasswordCredential(request: MockGeneratePasswordRequest())
+
+        XCTAssertNil(generatorRepository.getEffectivePasswordGenerationOptionsRules)
+    }
+
+    /// `generatePasswordCredential(request:)` uses whatever options the repository returns,
+    /// even if rules couldn't be applied (SDK error handled inside repository).
+    @available(iOS 26.2, *)
+    func test_generatePasswordCredential_sdkThrows_fallsBack() async throws {
+        let request = MockPasswordRulesRequest(passwordFieldPasswordRules: "minlength: 20;")
+        generatorRepository.passwordResult = .success("fallback-password")
+
+        let result = try await subject.generatePasswordCredential(request: request)
+
+        XCTAssertEqual(result, "fallback-password")
+        XCTAssertNotNil(generatorRepository.passwordGeneratorRequest)
+    }
+
+    /// `generatePasswordCredential(request:)` forces password mode when rules are present,
+    /// even if the active policy would otherwise produce a passphrase.
+    @available(iOS 26.2, *)
+    func test_generatePasswordCredential_rulesOverridePolicyPassphrase() async throws {
+        generatorRepository.getEffectivePasswordGenerationOptionsResult = .success(
+            PasswordGenerationOptions(type: .password),
+        )
+        let request = MockPasswordRulesRequest(passwordFieldPasswordRules: "minlength: 20;")
+        generatorRepository.passwordResult = .success("rules-override-password")
+
+        let result = try await subject.generatePasswordCredential(request: request)
+
+        XCTAssertNotNil(generatorRepository.passwordGeneratorRequest)
+        XCTAssertNil(generatorRepository.passphraseGeneratorRequest)
+        XCTAssertEqual(result, "rules-override-password")
+    }
+
+    /// `generatePasswordCredential(request:)` generates a passphrase when the repository returns
+    /// passphrase type (e.g. when org policy requires it).
+    @available(iOS 26.2, *)
+    func test_generatePasswordCredential_noPolicyPassphrase_generatesPassphrase() async throws {
+        generatorRepository.getEffectivePasswordGenerationOptionsResult = .success(
+            PasswordGenerationOptions(type: .passphrase),
+        )
+        generatorRepository.passphraseResult = .success("policy-passphrase")
+
+        let result = try await subject.generatePasswordCredential(request: MockGeneratePasswordRequest())
+
+        XCTAssertNotNil(generatorRepository.passphraseGeneratorRequest)
+        XCTAssertNil(generatorRepository.passwordGeneratorRequest)
+        XCTAssertEqual(result, "policy-passphrase")
+    }
+
     /// `repromptForCredentialIfNecessary(for:)` reprompts the user for their master password if
     /// reprompt is enabled for the cipher.
     @MainActor
@@ -1636,4 +1719,12 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
         XCTAssertFalse(coordinator.isLoadingOverlayShowing)
         XCTAssertEqual(coordinator.routes, [.migrateToMyItems(organizationId: "org-123")])
     }
+}
+
+// MARK: - Test Helpers
+
+/// A `GeneratePasswordRequestProxy` stub with configurable rules properties.
+private struct MockPasswordRulesRequest: GeneratePasswordRequestProxy {
+    var passwordFieldPasswordRules: String?
+    var passwordRulesFromQuirks: String?
 }

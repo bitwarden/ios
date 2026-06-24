@@ -314,10 +314,10 @@ final class GeneratorProcessor: StateProcessor<GeneratorState, GeneratorAction, 
     /// Fetches the user's saved generator options and updates the state with the previous selections.
     ///
     func loadGeneratorOptions() async throws {
-        var passwordOptions = try await services.generatorRepository.getPasswordGenerationOptions()
-        state.isPolicyInEffect = try await services.policyService.applyPasswordGenerationPolicy(
-            options: &passwordOptions,
-        )
+        let (passwordOptions, isPolicyInEffect) = try await services.generatorRepository
+            .getEffectivePasswordGenerationOptions(rules: state.forcedPasswordRules)
+        state.isPolicyInEffect = isPolicyInEffect
+
         state.setGeneratorType(passwordGeneratorType: passwordOptions.type)
         state.passwordState.update(with: passwordOptions)
 

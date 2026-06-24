@@ -1,3 +1,4 @@
+import BitwardenSdk
 import XCTest
 
 @testable import BitwardenShared
@@ -111,5 +112,202 @@ class PasswordGenerationOptionsTests: BitwardenTestCase {
 
         subject.setMinSpecial(5)
         XCTAssertEqual(subject.minSpecial, 5)
+    }
+
+    /// `setMinLowercase(_:)` sets the minimum lowercase, if it isn't already greater.
+    func test_setMinLowercase() {
+        var subject = PasswordGenerationOptions()
+        subject.setMinLowercase(3)
+        XCTAssertEqual(subject.minLowercase, 3)
+
+        subject.setMinLowercase(1)
+        XCTAssertEqual(subject.minLowercase, 3)
+
+        subject.setMinLowercase(5)
+        XCTAssertEqual(subject.minLowercase, 5)
+    }
+
+    /// `setMinUppercase(_:)` sets the minimum uppercase, if it isn't already greater.
+    func test_setMinUppercase() {
+        var subject = PasswordGenerationOptions()
+        subject.setMinUppercase(2)
+        XCTAssertEqual(subject.minUppercase, 2)
+
+        subject.setMinUppercase(1)
+        XCTAssertEqual(subject.minUppercase, 2)
+
+        subject.setMinUppercase(4)
+        XCTAssertEqual(subject.minUppercase, 4)
+    }
+
+    // MARK: apply(_:)
+
+    /// `apply(_:)` enables character sets required by the request when they are not already set.
+    func test_apply_enablesCharacterSets_fromRequest() {
+        var subject = PasswordGenerationOptions()
+        let request = PasswordGeneratorRequest(
+            lowercase: true,
+            uppercase: true,
+            numbers: true,
+            special: true,
+            length: 20,
+            avoidAmbiguous: true,
+            minLowercase: 2,
+            minUppercase: 2,
+            minNumber: 2,
+            minSpecial: 2,
+        )
+        subject.apply(request)
+
+        XCTAssertTrue(subject.lowercase == true)
+        XCTAssertTrue(subject.uppercase == true)
+        XCTAssertTrue(subject.number == true)
+        XCTAssertTrue(subject.special == true)
+        XCTAssertEqual(subject.length, 20)
+        XCTAssertEqual(subject.allowAmbiguousChar, false)
+        XCTAssertEqual(subject.minLowercase, 2)
+        XCTAssertEqual(subject.minUppercase, 2)
+        XCTAssertEqual(subject.minNumber, 2)
+        XCTAssertEqual(subject.minSpecial, 2)
+    }
+
+    /// `apply(_:)` preserves existing minimums when they are already higher than the request.
+    func test_apply_preservesHigherMinimums() {
+        var subject = PasswordGenerationOptions(
+            length: 30,
+            minNumber: 5,
+            minSpecial: 4,
+        )
+        let request = PasswordGeneratorRequest(
+            lowercase: true,
+            uppercase: true,
+            numbers: true,
+            special: true,
+            length: 14,
+            avoidAmbiguous: false,
+            minLowercase: nil,
+            minUppercase: nil,
+            minNumber: 1,
+            minSpecial: 1,
+        )
+        subject.apply(request)
+
+        XCTAssertEqual(subject.length, 30)
+        XCTAssertEqual(subject.minNumber, 5)
+        XCTAssertEqual(subject.minSpecial, 4)
+    }
+
+    /// `apply(_:)` raises the length when the request specifies a longer minimum.
+    func test_apply_raisesLength() {
+        var subject = PasswordGenerationOptions(length: 14)
+        let request = PasswordGeneratorRequest(
+            lowercase: true,
+            uppercase: true,
+            numbers: true,
+            special: false,
+            length: 20,
+            avoidAmbiguous: false,
+            minLowercase: nil,
+            minUppercase: nil,
+            minNumber: nil,
+            minSpecial: nil,
+        )
+        subject.apply(request)
+
+        XCTAssertEqual(subject.length, 20)
+    }
+
+    /// `apply(_:)` sets `avoidAmbiguous` when either source requires it.
+    func test_apply_avoidAmbiguous_eitherSourceTrue() {
+        var subject = PasswordGenerationOptions(allowAmbiguousChar: true)
+        let request = PasswordGeneratorRequest(
+            lowercase: true,
+            uppercase: true,
+            numbers: true,
+            special: false,
+            length: 14,
+            avoidAmbiguous: true,
+            minLowercase: nil,
+            minUppercase: nil,
+            minNumber: nil,
+            minSpecial: nil,
+        )
+        subject.apply(request)
+
+        XCTAssertEqual(subject.allowAmbiguousChar, false)
+    }
+
+    // MARK: passwordGeneratorRequest
+
+    /// `passwordGeneratorRequest` uses sensible defaults for an empty `PasswordGenerationOptions`.
+    func test_passwordGeneratorRequest_defaults() {
+        let subject = PasswordGenerationOptions()
+        let request = subject.passwordGeneratorRequest
+
+        XCTAssertTrue(request.lowercase)
+        XCTAssertTrue(request.uppercase)
+        XCTAssertTrue(request.numbers)
+        XCTAssertFalse(request.special)
+        XCTAssertEqual(request.length, 14)
+        XCTAssertFalse(request.avoidAmbiguous)
+        XCTAssertEqual(request.minLowercase, 1)
+        XCTAssertEqual(request.minUppercase, 1)
+        XCTAssertEqual(request.minNumber, 1)
+        XCTAssertNil(request.minSpecial)
+    }
+
+    /// `passwordGeneratorRequest` reflects explicit options correctly.
+    func test_passwordGeneratorRequest_explicitValues() {
+        let subject = PasswordGenerationOptions(
+            allowAmbiguousChar: false,
+            length: 20,
+            lowercase: false,
+            minNumber: 3,
+            minSpecial: 2,
+            number: true,
+            special: true,
+            uppercase: true,
+        )
+        let request = subject.passwordGeneratorRequest
+
+        XCTAssertFalse(request.lowercase)
+        XCTAssertTrue(request.uppercase)
+        XCTAssertTrue(request.numbers)
+        XCTAssertTrue(request.special)
+        XCTAssertEqual(request.length, 20)
+        XCTAssertTrue(request.avoidAmbiguous)
+        XCTAssertNil(request.minLowercase)
+        XCTAssertEqual(request.minUppercase, 1)
+        XCTAssertEqual(request.minNumber, 3)
+        XCTAssertEqual(request.minSpecial, 2)
+    }
+
+    // MARK: passphraseGeneratorRequest
+
+    /// `passphraseGeneratorRequest` uses sensible defaults for an empty `PasswordGenerationOptions`.
+    func test_passphraseGeneratorRequest_defaults() {
+        let subject = PasswordGenerationOptions()
+        let request = subject.passphraseGeneratorRequest
+
+        XCTAssertEqual(request.numWords, 3)
+        XCTAssertEqual(request.wordSeparator, "-")
+        XCTAssertFalse(request.capitalize)
+        XCTAssertFalse(request.includeNumber)
+    }
+
+    /// `passphraseGeneratorRequest` reflects explicit options correctly.
+    func test_passphraseGeneratorRequest_explicitValues() {
+        let subject = PasswordGenerationOptions(
+            capitalize: true,
+            includeNumber: true,
+            numWords: 5,
+            wordSeparator: "_",
+        )
+        let request = subject.passphraseGeneratorRequest
+
+        XCTAssertEqual(request.numWords, 5)
+        XCTAssertEqual(request.wordSeparator, "_")
+        XCTAssertTrue(request.capitalize)
+        XCTAssertTrue(request.includeNumber)
     }
 }

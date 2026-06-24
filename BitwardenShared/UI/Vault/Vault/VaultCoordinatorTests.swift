@@ -279,9 +279,8 @@ class VaultCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this type_
     /// `navigate(to:)` with `.generatePassword` starts a generator coordinator and navigates to
     /// the generator scoped to password type.
     @MainActor
-    @available(iOS 26.2, *)
     func test_navigateTo_generatePassword() throws {
-        guard #available(iOS 26.2, iOSApplicationExtension 26.2, *) else {
+        guard #available(iOS 26.2, *) else {
             throw XCTSkip("Test requires iOS 26.2")
         }
         subject = VaultCoordinator(
@@ -305,9 +304,8 @@ class VaultCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this type_
     /// `navigate(to:)` with `.generatePassword` does nothing when the extension delegate is not a
     /// `CredentialProviderExtensionDelegate`.
     @MainActor
-    @available(iOS 26.2, *)
     func test_navigateTo_generatePassword_withoutExtensionDelegate() throws {
-        guard #available(iOS 26.2, iOSApplicationExtension 26.2, *) else {
+        guard #available(iOS 26.2, *) else {
             throw XCTSkip("Test requires iOS 26.2")
         }
         // subject is already initialised with a plain MockAppExtensionDelegate, not a
