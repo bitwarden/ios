@@ -679,8 +679,57 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         XCTAssertFalse(subject.state.shouldShowPremiumUpgradeActionCard)
     }
 
-    /// `perform(_:)` with `.streamVaultList` shows the subscription needs attention card once,
-    /// on the first confirmed-data emission, when the user has a past-due subscription.
+    /// `perform(_:)` with `.appeared` shows the subscription needs attention card when the user
+    /// has premium personally and a past-due subscription.
+    @MainActor
+    func test_perform_appeared_subscriptionNeedsAttentionCard_pastDue_shown() async {
+        stateService.doesActiveAccountHavePremiumPersonallyResult = true
+        billingService.getSubscriptionReturnValue = .fixture(status: .pastDue)
+
+        await subject.perform(.appeared)
+
+        XCTAssertTrue(subject.state.shouldShowSubscriptionAttentionCard)
+    }
+
+    /// `perform(_:)` with `.appeared` hides the subscription needs attention card when the user's
+    /// subscription is active (not past due).
+    @MainActor
+    func test_perform_appeared_subscriptionNeedsAttentionCard_active_hidden() async {
+        stateService.doesActiveAccountHavePremiumPersonallyResult = true
+        billingService.getSubscriptionReturnValue = .fixture(status: .active)
+
+        await subject.perform(.appeared)
+
+        XCTAssertFalse(subject.state.shouldShowSubscriptionAttentionCard)
+    }
+
+    /// `perform(_:)` with `.appeared` hides the subscription needs attention card when the user
+    /// does not have premium personally.
+    @MainActor
+    func test_perform_appeared_subscriptionNeedsAttentionCard_noPremiumPersonally_hidden() async {
+        stateService.doesActiveAccountHavePremiumPersonallyResult = false
+
+        await subject.perform(.appeared)
+
+        XCTAssertFalse(subject.state.shouldShowSubscriptionAttentionCard)
+        XCTAssertFalse(billingService.getSubscriptionCalled)
+    }
+
+    /// `perform(_:)` with `.appeared` hides the subscription needs attention card and logs the
+    /// error when `getSubscription()` throws.
+    @MainActor
+    func test_perform_appeared_subscriptionNeedsAttentionCard_fetchError_hidden() async {
+        stateService.doesActiveAccountHavePremiumPersonallyResult = true
+        billingService.getSubscriptionThrowableError = BitwardenTestError.example
+
+        await subject.perform(.appeared)
+
+        XCTAssertFalse(subject.state.shouldShowSubscriptionAttentionCard)
+        XCTAssertEqual(errorReporter.errors.last as? BitwardenTestError, .example)
+    }
+
+    /// `perform(_:)` with `.streamVaultList` shows the subscription needs attention card on the
+    /// first confirmed-data emission when `appeared()` has not already set it (first-unlock path).
     @MainActor
     func test_perform_streamVaultList_subscriptionNeedsAttentionCard_pastDue_shown() async throws {
         stateService.doesActiveAccountHavePremiumPersonallyResult = true
@@ -694,6 +743,22 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         try await waitForAsync { self.subject.state.shouldShowSubscriptionAttentionCard }
 
         XCTAssertTrue(subject.state.shouldShowSubscriptionAttentionCard)
+    }
+
+    /// `perform(_:)` with `.streamVaultList` skips the subscription check when `appeared()`
+    /// has already set the card, avoiding a redundant network call.
+    @MainActor
+    func test_perform_streamVaultList_subscriptionNeedsAttentionCard_skippedIfAlreadyShowing() async throws {
+        subject.state.shouldShowSubscriptionAttentionCard = true
+        let section = VaultListSection(id: "1", items: [.fixture()], name: "Section")
+
+        let task = Task { await subject.perform(.streamVaultList) }
+        defer { task.cancel() }
+
+        vaultRepository.vaultListSubject.send(VaultListData(sections: [section]))
+        try await waitForAsync { self.subject.state.loadingState == .data([section]) }
+
+        XCTAssertFalse(billingService.getSubscriptionCalled)
     }
 
     /// `perform(_:)` with `.streamVaultList` hides the subscription needs attention card when

@@ -248,6 +248,8 @@ extension VaultListProcessor {
         state.shouldShowUpgradedToPremiumActionCard = await services.billingService
             .shouldShowUpgradedToPremiumActionCard()
 
+        state.shouldShowSubscriptionAttentionCard = await loadSubscriptionNeedsAttentionCardVisibility()
+
         let isBannerDismissed = await services.stateService.isPremiumUpgradeBannerDismissed()
         guard !isBannerDismissed else {
             state.shouldShowPremiumUpgradeActionCard = false
@@ -723,12 +725,12 @@ extension VaultListProcessor {
         do {
             let collapsedSectionIds = await (try? services.stateService.getCollapsedVaultListSectionIds()) ?? []
             state.collapsedSectionIds = Set(collapsedSectionIds)
-            // Check subscription attention card visibility once, on the first confirmed-data
-            // emission. Doing it here (rather than in `appeared()`) ensures the auth session
-            // is stable after sync — the billing API call in `appeared()` can race against
-            // token initialization on first unlock. The card is not updated mid-session if
-            // the subscription goes past-due while the app is open; it appears on next unlock
-            // or vault filter change when this stream restarts.
+            // First-unlock fallback: `appeared()` is the primary path for the subscription
+            // attention card, but on first unlock the billing API call can race against token
+            // initialization and fail. This flag triggers a one-time retry on the first
+            // confirmed-data emission (when the auth session is stable after sync). If
+            // `appeared()` already succeeded, the card is already showing and the guard
+            // prevents a redundant network call.
             var hasCheckedSubscriptionCard = false
             for try await vaultList in try await services.vaultRepository
                 .vaultListPublisher(
@@ -749,7 +751,7 @@ extension VaultListProcessor {
                     state.toast = nil
                     // If the data is not empty or if a sync is not needed, set the data.
                     state.loadingState = .data(value)
-                    if !hasCheckedSubscriptionCard {
+                    if !hasCheckedSubscriptionCard, !state.shouldShowSubscriptionAttentionCard {
                         hasCheckedSubscriptionCard = true
                         state.shouldShowSubscriptionAttentionCard =
                             await loadSubscriptionNeedsAttentionCardVisibility()
