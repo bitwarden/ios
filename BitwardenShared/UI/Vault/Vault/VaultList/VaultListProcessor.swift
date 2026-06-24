@@ -236,7 +236,12 @@ extension VaultListProcessor {
     private func appeared() async {
         // Run the subscription attention card check immediately so the card appears
         // as soon as the billing API responds, without waiting for the vault sync below.
-        state.shouldShowSubscriptionAttentionCard = await loadSubscriptionNeedsAttentionCardVisibility()
+        // Guard on Task.isCancelled before writing state: if the user switches tabs while
+        // the billing call is in flight, the task is cancelled and the call returns false —
+        // but we don't want that to hide a card that was already showing.
+        let subscriptionAttentionCardVisible = await loadSubscriptionNeedsAttentionCardVisibility()
+        guard !Task.isCancelled else { return }
+        state.shouldShowSubscriptionAttentionCard = subscriptionAttentionCardVisible
 
         await refreshVault(syncWithPeriodicCheck: true)
         await handleNotifications()
@@ -368,6 +373,8 @@ extension VaultListProcessor {
         do {
             let subscription = try await services.billingService.getSubscription()
             return subscription.status == .pastDue || subscription.status == .updatePayment
+        } catch is CancellationError {
+            return false
         } catch {
             services.errorReporter.log(error: error)
             return false
