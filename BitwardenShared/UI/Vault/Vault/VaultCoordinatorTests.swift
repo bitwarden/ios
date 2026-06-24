@@ -284,8 +284,9 @@ class VaultCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this type_
         guard #available(iOS 26.2, iOSApplicationExtension 26.2, *) else {
             throw XCTSkip("Test requires iOS 26.2")
         }
+        let extensionDelegate = MockCredentialProviderExtensionDelegate()
         subject = VaultCoordinator(
-            appExtensionDelegate: MockCredentialProviderExtensionDelegate(),
+            appExtensionDelegate: extensionDelegate,
             delegate: delegate,
             masterPasswordRepromptHelper: masterPasswordRepromptHelper,
             module: module,
