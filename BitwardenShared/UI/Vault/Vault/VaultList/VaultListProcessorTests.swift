@@ -691,6 +691,18 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         XCTAssertTrue(subject.state.shouldShowSubscriptionAttentionCard)
     }
 
+    /// `perform(_:)` with `.appeared` shows the subscription needs attention card when the user
+    /// has premium personally and an update-payment subscription.
+    @MainActor
+    func test_perform_appeared_subscriptionNeedsAttentionCard_updatePayment_shown() async {
+        stateService.doesActiveAccountHavePremiumPersonallyResult = true
+        billingService.getSubscriptionReturnValue = .fixture(status: .updatePayment)
+
+        await subject.perform(.appeared)
+
+        XCTAssertTrue(subject.state.shouldShowSubscriptionAttentionCard)
+    }
+
     /// `perform(_:)` with `.appeared` hides the subscription needs attention card when the user's
     /// subscription is active (not past due).
     @MainActor

@@ -357,8 +357,9 @@ extension VaultListProcessor {
         }
     }
 
-    /// Returns `true` when the user has a past-due personal subscription and should see the
-    /// "subscription needs attention" action card.
+    /// Returns `true` when the user has a personal subscription that needs payment attention
+    /// (past due or update payment required) and should see the "subscription needs attention"
+    /// action card.
     ///
     /// Only makes the network call when the user has premium personally; returns `false` on error.
     ///
@@ -366,7 +367,7 @@ extension VaultListProcessor {
         guard await services.stateService.doesActiveAccountHavePremiumPersonally() else { return false }
         do {
             let subscription = try await services.billingService.getSubscription()
-            return subscription.status == .pastDue
+            return subscription.status == .pastDue || subscription.status == .updatePayment
         } catch {
             services.errorReporter.log(error: error)
             return false
