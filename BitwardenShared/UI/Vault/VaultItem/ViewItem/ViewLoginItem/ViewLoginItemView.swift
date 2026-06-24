@@ -96,12 +96,15 @@ struct ViewLoginItemView: View {
             title: Localizations.authenticatorKey,
             titleAccessibilityIdentifier: "ItemName",
         ) {
-            Text(Localizations.premiumSubscriptionRequired)
-                .styleGuide(.footnote)
-                .foregroundColor(SharedAsset.Colors.textSecondary.swiftUIColor)
-                .accessibilityIdentifier("ItemValue")
+            EmptyView()
+        } footer: {
+            Button(Localizations.premiumSubscriptionRequired) {
+                store.send(.premiumSubscriptionRequiredTapped)
+            }
+            .buttonStyle(.bitwardenBorderless)
+            .padding(.vertical, 14)
+            .accessibilityIdentifier("PremiumSubscriptionRequiredButton")
         }
-        .accessibilityElement(children: .contain)
     }
 
     /// The username field.

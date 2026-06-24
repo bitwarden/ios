@@ -93,6 +93,36 @@ class AlertVaultTests: BitwardenTestCase { // swiftlint:disable:this type_body_l
         XCTAssertFalse(called)
     }
 
+    /// `totpPremiumRequired(action:)` returns an `Alert` notifying the user that a Premium
+    /// subscription is required to view TOTP codes.
+    func test_totpPremiumRequired() async throws {
+        var called = false
+        let subject = Alert.totpPremiumRequired { called = true }
+
+        XCTAssertEqual(subject.title, Localizations.premiumSubscriptionRequired)
+        XCTAssertEqual(subject.message, Localizations.premiumRequired)
+        XCTAssertEqual(subject.alertActions.count, 2)
+        XCTAssertEqual(subject.alertActions[0].title, Localizations.upgradeToPremium)
+        XCTAssertEqual(subject.alertActions[0].style, .default)
+        XCTAssertEqual(subject.alertActions[1].title, Localizations.cancel)
+        XCTAssertEqual(subject.alertActions[1].style, .cancel)
+
+        let preferredAction = try XCTUnwrap(subject.preferredAction)
+        XCTAssertTrue(preferredAction === subject.alertActions[0])
+
+        try await subject.tapAction(title: Localizations.upgradeToPremium)
+        XCTAssertTrue(called)
+    }
+
+    /// `totpPremiumRequired(action:)` doesn't call action when cancel is tapped.
+    func test_totpPremiumRequired_cancel() async throws {
+        var called = false
+        let subject = Alert.totpPremiumRequired { called = true }
+
+        try await subject.tapCancel()
+        XCTAssertFalse(called)
+    }
+
     /// `cipherDecryptionFailure()` returns an `Alert` to notify the user that an item in their
     /// vault was unable to be decrypted for when a cipher which failed to decrypt is tapped.
     func test_cipherDecryptionFailure() async throws {
