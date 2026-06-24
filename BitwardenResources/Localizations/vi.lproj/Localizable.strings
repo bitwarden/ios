@@ -992,7 +992,7 @@
 "DefaultX" = "Mặc định (%1$@)";
 "UpdateYourEncryptionSettings" = "Cập nhật cài đặt mã hóa của bạn";
 "TheNewRecommendedEncryptionSettingsDescriptionLong" = "Cài đặt mã hóa được khuyến nghị sẽ cải thiện bảo mật cho tài khoản của bạn. Nhập mật khẩu chính để cập nhật ngay.";
-"Updating" = "Đang cập nhật...";
+"Updating" = "Đang cập nhật…";
 "EncryptionSettingsUpdated" = "Cài đặt mã hóa đã được cập nhật";
 "IntroducingArchive" = "Introducing Archive";
 "KeepYtemsYouDontNeedRightNowSafeButOutOfSight" = "Keep items you don’t need right now safe but out of sight.";
@@ -1095,7 +1095,7 @@
 "NegativeX" = "-%1$@";
 "UnknownStatus" = "Unknown";
 "YourSubscriptionStatusIsUnknownVisitTheWebAppDescriptionLong" = "Your subscription status could not be determined. Please visit the web app for more details or update to the latest version.";
-"AtTheMomentPremiumPlanIsNotAvailableDescriptionLong" = "At the moment premium plan is not available, please try again later.";
+"AtTheMomentPremiumPlanIsNotAvailableDescriptionLong" = "At the moment Premium plan is not available, please try again later.";
 "UnlockMoreAdvancedFeaturesWithPremiumPlan" = "Mở khoá các tính năng nâng cao với gói Cao cấp";
 "BuiltInAuthenticator" = "Trình xác thực tích hợp";
 "EmergencyAccess" = "Truy cập khẩn cấp";
@@ -1137,3 +1137,28 @@
 "IssueDate" = "Issue date";
 "ExpirationDate" = "Expiration date";
 "LicenseClass" = "License class";
+"PassportDetails" = "Passport details";
+/* Label for the sex/gender field as printed on a passport (e.g. "M", "F", "X"). */
+"Sex" = "Sex";
+"BirthPlace" = "Birth place";
+/* Label for the nationality field on a passport (the country a person is a national of). */
+"Nationality" = "Nationality";
+/* Label for the category of passport (e.g. "Regular/Tourist", "Diplomatic", "Official"). */
+"PassportType" = "Passport type";
+"NationalIdentificationNumber" = "National identification number";
+/* Label for the government authority or office that issued the passport. */
+"IssuingAuthorityOffice" = "Issuing authority/office";
+"AccountDetails" = "Account details";
+"BankName" = "Bank name";
+"NameOnAccount" = "Name on account";
+"AccountType" = "Account type";
+"BranchNumber" = "Branch number";
+"SwiftCode" = "SWIFT code";
+"IBAN" = "IBAN";
+"BankContactPhone" = "Bank contact phone";
+"CertificateOfDeposit" = "Certificate of deposit";
+"Checking" = "Checking";
+"InvestmentBrokerage" = "Investment/brokerage";
+"LineOfCredit" = "Line of credit";
+"MoneyMarket" = "Money market";
+"Savings" = "Savings";

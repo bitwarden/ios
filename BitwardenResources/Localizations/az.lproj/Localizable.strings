@@ -127,7 +127,7 @@
 "ItemUpdated" = "Element saxlanıldı";
 "Submitting" = "Təqdim olunur…";
 "Syncing" = "Sinxronlaşdırılır…";
-"SyncingLogins" = "Girişlər sinxronlaşdırılır...";
+"SyncingLogins" = "Girişlər sinxronlaşdırılır…";
 "SyncingComplete" = "Sinxr tamamlandı";
 "TouchID" = "Touch ID";
 "TwoStepLogin" = "İki mərhələli giriş";
@@ -1137,3 +1137,28 @@
 "IssueDate" = "Təqdim edilmə tarixi";
 "ExpirationDate" = "Bitmə tarixi";
 "LicenseClass" = "Sür. vəs. sinifi";
+"PassportDetails" = "Pasport məlumatları";
+/* Label for the sex/gender field as printed on a passport (e.g. "M", "F", "X"). */
+"Sex" = "Cinsi";
+"BirthPlace" = "Doğum yeri";
+/* Label for the nationality field on a passport (the country a person is a national of). */
+"Nationality" = "Milliyəti";
+/* Label for the category of passport (e.g. "Regular/Tourist", "Diplomatic", "Official"). */
+"PassportType" = "Pasport növü";
+"NationalIdentificationNumber" = "Şəxsiyyət vəsiqəsi nömrəsi";
+/* Label for the government authority or office that issued the passport. */
+"IssuingAuthorityOffice" = "Issuing authority/office";
+"AccountDetails" = "Hesab məlumatları";
+"BankName" = "Bank adı";
+"NameOnAccount" = "Hesabdakı ad";
+"AccountType" = "Hesab növü";
+"BranchNumber" = "Filial nömrəsi";
+"SwiftCode" = "SWIFT kodu";
+"IBAN" = "IBAN";
+"BankContactPhone" = "Bankın əlaqə nömrəsi";
+"CertificateOfDeposit" = "Depozit sertifikatı";
+"Checking" = "Yoxlanılır";
+"InvestmentBrokerage" = "İnvestisiya/brokerlik";
+"LineOfCredit" = "Kredit xətti";
+"MoneyMarket" = "Pul bazarı";
+"Savings" = "YIğımlar";

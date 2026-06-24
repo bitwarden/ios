@@ -127,7 +127,7 @@
 "ItemUpdated" = "Objektet uppdaterades";
 "Submitting" = "Skickar in…";
 "Syncing" = "Synkroniserar…";
-"SyncingLogins" = "Synkroniserar inloggningar...";
+"SyncingLogins" = "Synkroniserar inloggningar…";
 "SyncingComplete" = "Synkronisering slutförd";
 "TouchID" = "Touch ID";
 "TwoStepLogin" = "Tvåfaktorsautentisering";
@@ -807,7 +807,7 @@
 "YouMayNeedToEnableDevicePasscodeOrBiometrics" = "Du kan behöva aktivera enhetens lösenkod eller biometri.";
 "StartImportCXFDescriptionLong" = "Importera lösenord, lösenordsnycklar, kreditkort och annan personlig identitetsinformation från en annan lösenordshanterare.\n\nDina uppgifter kommer **inte** att raderas från din tidigare leverantör.";
 "ImportPasswords" = "Importera lösenord";
-"ImportingEllipsis" = "Importerar...";
+"ImportingEllipsis" = "Importerar…";
 "AreYouSureYouWantToCancelTheImportProcessQuestionMark" = "Är du säker på att du vill avbryta importprocessen?";
 "ImportFailed" = "Importen misslyckades";
 "ThereWasAnIssueImportingAllOfYourPasswordsNoDataWasDeleted" = "Det uppstod ett problem med att importera alla dina lösenord.\n\nInga uppgifter raderades.";
@@ -992,7 +992,7 @@
 "DefaultX" = "Standard (%1$@)";
 "UpdateYourEncryptionSettings" = "Uppdatera dina krypteringsinställningar";
 "TheNewRecommendedEncryptionSettingsDescriptionLong" = "De nya rekommenderade krypteringsinställningarna kommer att förbättra ditt kontos säkerhet. Ange ditt huvudlösenord för att uppdatera nu.";
-"Updating" = "Uppdaterar...";
+"Updating" = "Uppdaterar…";
 "EncryptionSettingsUpdated" = "Krypteringsinställningar uppdaterade";
 "IntroducingArchive" = "Introducerar arkiv";
 "KeepYtemsYouDontNeedRightNowSafeButOutOfSight" = "Håll objekt som du inte behöver just nu är säkra, men utom synhåll.";
@@ -1095,7 +1095,7 @@
 "NegativeX" = "-%1$@";
 "UnknownStatus" = "Unknown";
 "YourSubscriptionStatusIsUnknownVisitTheWebAppDescriptionLong" = "Your subscription status could not be determined. Please visit the web app for more details or update to the latest version.";
-"AtTheMomentPremiumPlanIsNotAvailableDescriptionLong" = "At the moment premium plan is not available, please try again later.";
+"AtTheMomentPremiumPlanIsNotAvailableDescriptionLong" = "At the moment Premium plan is not available, please try again later.";
 "UnlockMoreAdvancedFeaturesWithPremiumPlan" = "Unlock more advanced features with a Premium plan.";
 "BuiltInAuthenticator" = "Inbyggd autenticator";
 "EmergencyAccess" = "Nödåtkomst";
@@ -1137,3 +1137,28 @@
 "IssueDate" = "Issue date";
 "ExpirationDate" = "Expiration date";
 "LicenseClass" = "License class";
+"PassportDetails" = "Passport details";
+/* Label for the sex/gender field as printed on a passport (e.g. "M", "F", "X"). */
+"Sex" = "Sex";
+"BirthPlace" = "Birth place";
+/* Label for the nationality field on a passport (the country a person is a national of). */
+"Nationality" = "Nationality";
+/* Label for the category of passport (e.g. "Regular/Tourist", "Diplomatic", "Official"). */
+"PassportType" = "Passport type";
+"NationalIdentificationNumber" = "National identification number";
+/* Label for the government authority or office that issued the passport. */
+"IssuingAuthorityOffice" = "Issuing authority/office";
+"AccountDetails" = "Account details";
+"BankName" = "Bank name";
+"NameOnAccount" = "Name on account";
+"AccountType" = "Account type";
+"BranchNumber" = "Branch number";
+"SwiftCode" = "SWIFT code";
+"IBAN" = "IBAN";
+"BankContactPhone" = "Bank contact phone";
+"CertificateOfDeposit" = "Certificate of deposit";
+"Checking" = "Checking";
+"InvestmentBrokerage" = "Investment/brokerage";
+"LineOfCredit" = "Line of credit";
+"MoneyMarket" = "Money market";
+"Savings" = "Savings";

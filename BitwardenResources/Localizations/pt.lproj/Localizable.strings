@@ -390,7 +390,7 @@
 "MasterPasswordPolicyValidationTitle" = "Palavra-passe inválida";
 "MasterPasswordPolicyValidationMessage" = "A palavra-passe não corresponde aos requisitos da organização. Verifique as informações da política e tente novamente.";
 "Loading" = "A carregar";
-"LoadingSubscription" = "A carregar subscrição...";
+"LoadingSubscription" = "A carregar subscrição…";
 "AcceptPoliciesError" = "Os Termos de utilização e a Política de privacidade não foram aceites.";
 "PrivacyPolicy" = "Política de privacidade";
 "PersonalOwnershipPolicyInEffect" = "Uma política da organização está a afetar as suas opções de propriedade.";
@@ -1137,3 +1137,28 @@
 "IssueDate" = "Data de emissão";
 "ExpirationDate" = "Prazo de validade";
 "LicenseClass" = "Categoria da carta de condução";
+"PassportDetails" = "Detalhes do passaporte";
+/* Label for the sex/gender field as printed on a passport (e.g. "M", "F", "X"). */
+"Sex" = "Género";
+"BirthPlace" = "Local de nascimento";
+/* Label for the nationality field on a passport (the country a person is a national of). */
+"Nationality" = "Nacionalidade";
+/* Label for the category of passport (e.g. "Regular/Tourist", "Diplomatic", "Official"). */
+"PassportType" = "Tipo de passaporte";
+"NationalIdentificationNumber" = "Número do cartão de cidadão";
+/* Label for the government authority or office that issued the passport. */
+"IssuingAuthorityOffice" = "Autoridade/entidade emissora";
+"AccountDetails" = "Detalhes da conta";
+"BankName" = "Nome do banco";
+"NameOnAccount" = "Nome do titular da conta";
+"AccountType" = "Tipo de conta";
+"BranchNumber" = "Número da agência";
+"SwiftCode" = "Código SWIFT";
+"IBAN" = "IBAN";
+"BankContactPhone" = "Telefone de contacto do banco";
+"CertificateOfDeposit" = "Depósito a prazo";
+"Checking" = "Conta à ordem";
+"InvestmentBrokerage" = "Investimento/corretora";
+"LineOfCredit" = "Linha de crédito";
+"MoneyMarket" = "Mercado monetário";
+"Savings" = "Poupança";

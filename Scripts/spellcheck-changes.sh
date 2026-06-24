@@ -59,6 +59,15 @@ fi
 LOCALIZABLE_FILES=()
 REGULAR_FILES=()
 for file in "${FILTERED_FILES[@]}"; do
+    # Skip non-English lproj files (excluded in .typos.toml via "**/*.lproj/*")
+    if [[ "$file" == *".lproj/"* ]] && [[ "$file" != *"/en.lproj/"* ]]; then
+        continue
+    fi
+    # Skip public_suffix_list.dat (excluded in .typos.toml but exclusion doesn't apply
+    # when the file is passed explicitly as an argument rather than via directory traversal)
+    if [[ "$(basename "$file")" == "public_suffix_list.dat" ]]; then
+        continue
+    fi
     basename=$(basename "$file")
     if [[ "$basename" == Localizable.* ]]; then
         LOCALIZABLE_FILES+=("$file")

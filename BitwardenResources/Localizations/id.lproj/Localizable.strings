@@ -127,7 +127,7 @@
 "ItemUpdated" = "Item disimpan";
 "Submitting" = "Mengirim…";
 "Syncing" = "Menyinkronkan…";
-"SyncingLogins" = "Menyinkronkan login...";
+"SyncingLogins" = "Menyinkronkan login…";
 "SyncingComplete" = "Sinkronisasi selesai";
 "TouchID" = "Touch ID";
 "TwoStepLogin" = "Login dua langkah";
@@ -406,7 +406,7 @@
 "CurrentAccessCount" = "Hitungan akses saat ini";
 "RemovePassword" = "Hapus Kata Sandi";
 "AreYouSureRemoveSendPassword" = "Anda yakin ingin menghapus kata sandi?";
-"RemovingSendPassword" = "Menghapus kata sandi...";
+"RemovingSendPassword" = "Menghapus kata sandi…";
 "SendPasswordRemoved" = "Sandi dihapus";
 "CopyLink" = "Salin Tautan";
 "ShareLink" = "Membagikan tautan";
@@ -454,7 +454,7 @@
 "InvalidVerificationCode" = "Kode verifikasi tidak valid.";
 "SendCode" = "Kirim Kode";
 "SendingCode" = "Mengirim kode";
-"Verifying" = "Memverifikasi...";
+"Verifying" = "Memverifikasi…";
 "ResendCode" = "Kirim ulang kode";
 "EnterTheVerificationCodeThatWasSentToYourEmail" = "Masukkan kode verifikasi yang dikirim ke email anda";
 "SubmitCrashLogs" = "Kirim catatan kerusakan";
@@ -807,7 +807,7 @@
 "YouMayNeedToEnableDevicePasscodeOrBiometrics" = "Anda mungkin perlu mengaktifkan kode sandi atau biometrik perangkat.";
 "StartImportCXFDescriptionLong" = "Impor sandi, kunci sandi, kartu kredit, dan informasi identitas pribadi apa pun dari pengelola sandi lain.\n\nData Anda **tidak** akan dihapus dari penyedia sebelumnya.";
 "ImportPasswords" = "Impor sandi";
-"ImportingEllipsis" = "Mengimpor...";
+"ImportingEllipsis" = "Mengimpor…";
 "AreYouSureYouWantToCancelTheImportProcessQuestionMark" = "Anda yakin ingin membatalkan proses impor?";
 "ImportFailed" = "Impor gagal";
 "ThereWasAnIssueImportingAllOfYourPasswordsNoDataWasDeleted" = "Terjadi masalah saat mengimpor semua sandi Anda.\n\nTidak ada data yang dihapus.";
@@ -992,7 +992,7 @@
 "DefaultX" = "Standar (%1$@)";
 "UpdateYourEncryptionSettings" = "Perbarui pengaturan enkripsi Anda";
 "TheNewRecommendedEncryptionSettingsDescriptionLong" = "Rekomendasi pengaturan enkripsi baru akan meningkatkan keamanan akun Anda. Masukkan sandi utama untuk memperbarui sekarang.";
-"Updating" = "Memperbarui...";
+"Updating" = "Memperbarui…";
 "EncryptionSettingsUpdated" = "Pengaturan enkripsi diperbarui";
 "IntroducingArchive" = "Memperkenalkan Arsip";
 "KeepYtemsYouDontNeedRightNowSafeButOutOfSight" = "Simpan item yang belum Anda perlukan dengan aman tanpa terlihat.";
@@ -1095,7 +1095,7 @@
 "NegativeX" = "-%1$@";
 "UnknownStatus" = "Unknown";
 "YourSubscriptionStatusIsUnknownVisitTheWebAppDescriptionLong" = "Your subscription status could not be determined. Please visit the web app for more details or update to the latest version.";
-"AtTheMomentPremiumPlanIsNotAvailableDescriptionLong" = "At the moment premium plan is not available, please try again later.";
+"AtTheMomentPremiumPlanIsNotAvailableDescriptionLong" = "At the moment Premium plan is not available, please try again later.";
 "UnlockMoreAdvancedFeaturesWithPremiumPlan" = "Unlock more advanced features with a Premium plan.";
 "BuiltInAuthenticator" = "Built-in authenticator";
 "EmergencyAccess" = "Emergency access";
@@ -1137,3 +1137,28 @@
 "IssueDate" = "Issue date";
 "ExpirationDate" = "Expiration date";
 "LicenseClass" = "License class";
+"PassportDetails" = "Passport details";
+/* Label for the sex/gender field as printed on a passport (e.g. "M", "F", "X"). */
+"Sex" = "Sex";
+"BirthPlace" = "Birth place";
+/* Label for the nationality field on a passport (the country a person is a national of). */
+"Nationality" = "Nationality";
+/* Label for the category of passport (e.g. "Regular/Tourist", "Diplomatic", "Official"). */
+"PassportType" = "Passport type";
+"NationalIdentificationNumber" = "National identification number";
+/* Label for the government authority or office that issued the passport. */
+"IssuingAuthorityOffice" = "Issuing authority/office";
+"AccountDetails" = "Account details";
+"BankName" = "Bank name";
+"NameOnAccount" = "Name on account";
+"AccountType" = "Account type";
+"BranchNumber" = "Branch number";
+"SwiftCode" = "SWIFT code";
+"IBAN" = "IBAN";
+"BankContactPhone" = "Bank contact phone";
+"CertificateOfDeposit" = "Certificate of deposit";
+"Checking" = "Checking";
+"InvestmentBrokerage" = "Investment/brokerage";
+"LineOfCredit" = "Line of credit";
+"MoneyMarket" = "Money market";
+"Savings" = "Savings";

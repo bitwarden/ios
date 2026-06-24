@@ -127,7 +127,7 @@
 "ItemUpdated" = "Eintrag gespeichert";
 "Submitting" = "Wird übermittelt…";
 "Syncing" = "Wird synchronisiert…";
-"SyncingLogins" = "Synchronisiere Zugangsdaten...";
+"SyncingLogins" = "Synchronisiere Zugangsdaten…";
 "SyncingComplete" = "Synchronisierung abgeschlossen";
 "TouchID" = "Touch ID";
 "TwoStepLogin" = "Zwei-Faktor-Authentifizierung";
@@ -176,7 +176,7 @@
 "CopyTotp" = "TOTP kopieren";
 "CopyTotpAutomaticallyDescription" = "Ist ein Authentifizierungsschlüssel mit deinen Zugangsdaten verknüpft, wird der TOTP-Verifizierungscode in die Zwischenablage kopiert, wenn du die Zugangsdaten automatisch ausfüllen lässt.";
 "CopyTotpAutomatically" = "TOTP automatisch kopieren";
-"PremiumRequired" = "Für diese Funktion benötigst du eine Premiummitgliedschaft.";
+"PremiumRequired" = "Für diese Funktion benötigen Sie eine Premiummitgliedschaft.";
 "AttachementAdded" = "Anhang hinzugefügt";
 "AttachmentDeleted" = "Anhang entfernt";
 "ChooseFile" = "Datei auswählen";
@@ -390,7 +390,7 @@
 "MasterPasswordPolicyValidationTitle" = "Ungültiges Passwort";
 "MasterPasswordPolicyValidationMessage" = "Passwort entspricht nicht den Anforderungen der Organisation. Bitte überprüfe die Richtlinien-Informationen und versuche es erneut.";
 "Loading" = "Wird geladen";
-"LoadingSubscription" = "Abonnement wird geladen...";
+"LoadingSubscription" = "Abonnement wird geladen…";
 "AcceptPoliciesError" = "Die Nutzungsbedingungen und Datenschutzerklärung wurden nicht akzeptiert.";
 "PrivacyPolicy" = "Datenschutzbestimmungen";
 "PersonalOwnershipPolicyInEffect" = "Eine Organisationsrichtlinie beeinflusst deine Eigentümer-Optionen.";
@@ -807,7 +807,7 @@
 "YouMayNeedToEnableDevicePasscodeOrBiometrics" = "Möglicherweise musst du Gerätecodes oder Biometrie aktivieren.";
 "StartImportCXFDescriptionLong" = "Importiere Passwörter, Passkeys, Kreditkarten und sämtliche persönlichen Informationen zur Identität von einem anderen Passwort-Manager.\n\nDeine Daten werden von deinem vorherigen Anbieter **nicht** gelöscht.";
 "ImportPasswords" = "Passwörter importieren";
-"ImportingEllipsis" = "Wird importiert...";
+"ImportingEllipsis" = "Wird importiert…";
 "AreYouSureYouWantToCancelTheImportProcessQuestionMark" = "Bist du sicher, dass du den Importvorgang abbrechen möchtest?";
 "ImportFailed" = "Import fehlgeschlagen";
 "ThereWasAnIssueImportingAllOfYourPasswordsNoDataWasDeleted" = "Es gab ein Problem beim Importieren aller Passwörter.\n\nEs wurden keine Daten gelöscht.";
@@ -992,7 +992,7 @@
 "DefaultX" = "Standard (%1$@)";
 "UpdateYourEncryptionSettings" = "Aktualisiere deine Verschlüsselungseinstellungen";
 "TheNewRecommendedEncryptionSettingsDescriptionLong" = "Die neuen empfohlenen Verschlüsselungseinstellungen verbessern deine Kontosicherheit. Gib dein Master-Passwort ein, um sie zu aktualisieren.";
-"Updating" = "Wird aktualisiert...";
+"Updating" = "Wird aktualisiert…";
 "EncryptionSettingsUpdated" = "Verschlüsselungseinstellungen aktualisiert";
 "IntroducingArchive" = "Einführung des Archivs";
 "KeepYtemsYouDontNeedRightNowSafeButOutOfSight" = "Bewahre Einträge, die du derzeit nicht benötigst, sicher, aber außer Sichtweite auf.";
@@ -1036,7 +1036,7 @@
 "YourPremiumSubscriptionEndedArchiveDescriptionLong" = "Starte dein Premium-Abonnement neu, um den Zugriff auf dein Archiv wiederherzustellen. Wenn du die Details für einen archivierten Eintrag vor dem Neustart bearbeitest, wird er wieder zurück in deinen Tresor verschoben.";
 "RestartPremium" = "Premium neu starten";
 "ThisItemIsArchivedSavingChangesWillRestoreItToYourVault" = "Dieser Eintrag ist archiviert. Wenn du Änderungen speicherst, wird er in deinem Tresor wiederhergestellt.";
-"SettingUpAutofill" = "Auto-Ausfüllen wird eingerichtet...";
+"SettingUpAutofill" = "Auto-Ausfüllen wird eingerichtet…";
 "AddEmail" = "E-Mail hinzufügen";
 "AnyoneWithPasswordSetByYou" = "Alle mit einem von dir festgelegtem Passwort";
 "AnyoneWithTheLink" = "Alle mit dem Link";
@@ -1137,3 +1137,28 @@
 "IssueDate" = "Ausstellungsdatum";
 "ExpirationDate" = "Ablaufdatum";
 "LicenseClass" = "Führerscheinklasse";
+"PassportDetails" = "Reisepassdetails";
+/* Label for the sex/gender field as printed on a passport (e.g. "M", "F", "X"). */
+"Sex" = "Geschlecht";
+"BirthPlace" = "Geburtsort";
+/* Label for the nationality field on a passport (the country a person is a national of). */
+"Nationality" = "Nationalität";
+/* Label for the category of passport (e.g. "Regular/Tourist", "Diplomatic", "Official"). */
+"PassportType" = "Reisepasstyp";
+"NationalIdentificationNumber" = "Nationale Identifikationsnummer";
+/* Label for the government authority or office that issued the passport. */
+"IssuingAuthorityOffice" = "Ausstellende Behörde/Stelle";
+"AccountDetails" = "Kontodetails";
+"BankName" = "Bankname";
+"NameOnAccount" = "Name des Kontoinhabers";
+"AccountType" = "Kontoart";
+"BranchNumber" = "Filial-/Institutionsnummer";
+"SwiftCode" = "SWIFT-Code";
+"IBAN" = "IBAN";
+"BankContactPhone" = "Telefonnummer der Bank";
+"CertificateOfDeposit" = "Einlagenzertifikat";
+"Checking" = "Wird überprüft";
+"InvestmentBrokerage" = "Anlage/Wertpapierhandel";
+"LineOfCredit" = "Kreditrahmen";
+"MoneyMarket" = "Finanzmarkt";
+"Savings" = "Ersparnisse";

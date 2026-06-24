@@ -127,7 +127,7 @@
 "ItemUpdated" = "Ставка ажурирана.";
 "Submitting" = "Постављање…";
 "Syncing" = "Синхронизација…";
-"SyncingLogins" = "Синхронизовање пријављивања...";
+"SyncingLogins" = "Синхронизовање пријављивања…";
 "SyncingComplete" = "Синхронизација је завршена.";
 "TouchID" = "Додирни ИД";
 "TwoStepLogin" = "Дво-коракна лозинка";
@@ -807,7 +807,7 @@
 "YouMayNeedToEnableDevicePasscodeOrBiometrics" = "Можда ћете морати да омогућите шифру или биометрију уређаја.";
 "StartImportCXFDescriptionLong" = "Увезите лозинке, фразе, кредитне картице и сваки други вид идентификације из другог менаџера лозинки.\n\nВаши подаци **неће** бити обрисани из вашег ранијег провајдера.";
 "ImportPasswords" = "Увези лозинке";
-"ImportingEllipsis" = "Увожење...";
+"ImportingEllipsis" = "Увожење…";
 "AreYouSureYouWantToCancelTheImportProcessQuestionMark" = "Да ли заиста желите да прекинете процес увожења?";
 "ImportFailed" = "Увоз није успео";
 "ThereWasAnIssueImportingAllOfYourPasswordsNoDataWasDeleted" = "Дошло је до проблема у увозу свих ваших лозинки.\n\nНиједан податак није избрисан.";
@@ -992,7 +992,7 @@
 "DefaultX" = "Подразумевано (%1$@)";
 "UpdateYourEncryptionSettings" = "Ажурирајте своје поставке за шифровање";
 "TheNewRecommendedEncryptionSettingsDescriptionLong" = "Нова препоручена подешавања шифрирања побољшаће вашу сигурност налога. Унесите своју главну лозинку за ажурирање.";
-"Updating" = "Ажурирање...";
+"Updating" = "Ажурирање…";
 "EncryptionSettingsUpdated" = "Подешавања шифровања су ажурирани";
 "IntroducingArchive" = "Представљамо Архиву";
 "KeepYtemsYouDontNeedRightNowSafeButOutOfSight" = "Држите ставке које вам тренутно нису потребне на сигурном, али ван видокруга.";
@@ -1095,7 +1095,7 @@
 "NegativeX" = "-%1$@";
 "UnknownStatus" = "Unknown";
 "YourSubscriptionStatusIsUnknownVisitTheWebAppDescriptionLong" = "Your subscription status could not be determined. Please visit the web app for more details or update to the latest version.";
-"AtTheMomentPremiumPlanIsNotAvailableDescriptionLong" = "At the moment premium plan is not available, please try again later.";
+"AtTheMomentPremiumPlanIsNotAvailableDescriptionLong" = "At the moment Premium plan is not available, please try again later.";
 "UnlockMoreAdvancedFeaturesWithPremiumPlan" = "Откључајте више напредних функција уз Премијум план.";
 "BuiltInAuthenticator" = "Уграђени аутентификатор";
 "EmergencyAccess" = "Хитан приступ";
@@ -1137,3 +1137,28 @@
 "IssueDate" = "Issue date";
 "ExpirationDate" = "Expiration date";
 "LicenseClass" = "License class";
+"PassportDetails" = "Passport details";
+/* Label for the sex/gender field as printed on a passport (e.g. "M", "F", "X"). */
+"Sex" = "Sex";
+"BirthPlace" = "Birth place";
+/* Label for the nationality field on a passport (the country a person is a national of). */
+"Nationality" = "Nationality";
+/* Label for the category of passport (e.g. "Regular/Tourist", "Diplomatic", "Official"). */
+"PassportType" = "Passport type";
+"NationalIdentificationNumber" = "National identification number";
+/* Label for the government authority or office that issued the passport. */
+"IssuingAuthorityOffice" = "Issuing authority/office";
+"AccountDetails" = "Account details";
+"BankName" = "Bank name";
+"NameOnAccount" = "Name on account";
+"AccountType" = "Account type";
+"BranchNumber" = "Branch number";
+"SwiftCode" = "SWIFT code";
+"IBAN" = "IBAN";
+"BankContactPhone" = "Bank contact phone";
+"CertificateOfDeposit" = "Certificate of deposit";
+"Checking" = "Checking";
+"InvestmentBrokerage" = "Investment/brokerage";
+"LineOfCredit" = "Line of credit";
+"MoneyMarket" = "Money market";
+"Savings" = "Savings";

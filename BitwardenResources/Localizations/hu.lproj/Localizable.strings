@@ -127,7 +127,7 @@
 "ItemUpdated" = "Az elem frissítésre került.";
 "Submitting" = "Beküldés…";
 "Syncing" = "Syncing…";
-"SyncingLogins" = "Bejelentkezések szinkronizálása...";
+"SyncingLogins" = "Bejelentkezések szinkronizálása…";
 "SyncingComplete" = "A szinkronizálás kész.";
 "TouchID" = "Touch ID";
 "TwoStepLogin" = "Kétlépcsős bejelentkezés";
@@ -390,7 +390,7 @@
 "MasterPasswordPolicyValidationTitle" = "Érvénytelen jelszó.";
 "MasterPasswordPolicyValidationMessage" = "A jelszó nem egyezik a szervezeti követelményekhez. Ellenőrizzük a szabály információt és próbáljuk újra.";
 "Loading" = "A betöltés folyamatban van.";
-"LoadingSubscription" = "Előfizetés betöltése...";
+"LoadingSubscription" = "Előfizetés betöltése…";
 "AcceptPoliciesError" = "A szolgáltatási feltételeket és az adatvédelmi irányelveket nem vették figyelembe.";
 "PrivacyPolicy" = "Adatvédelmi Irányelvek";
 "PersonalOwnershipPolicyInEffect" = "Egy szervezeti házirend befolyásolja a tulajdonjog beállításait.";
@@ -807,7 +807,7 @@
 "YouMayNeedToEnableDevicePasscodeOrBiometrics" = "Lehetséges, hogy engedélyezni kell az eszköz jelkódot vagy a biometrikus adatokat.";
 "StartImportCXFDescriptionLong" = "Importáljunk jelszavakat, belépőkulcsokat, hitelkártyákat és bármilyen személyes azonosító információt egy másik jelszókezelőből.\n\nAz adatok **nem** kerülnek törlésre a korábbi szolgáltatónál.";
 "ImportPasswords" = "Jelszavak importálása";
-"ImportingEllipsis" = "Importálás...";
+"ImportingEllipsis" = "Importálás…";
 "AreYouSureYouWantToCancelTheImportProcessQuestionMark" = "Biztosan megszakításra kerüljön az importálási folyamat?";
 "ImportFailed" = "Az importálás sikertelen volt.";
 "ThereWasAnIssueImportingAllOfYourPasswordsNoDataWasDeleted" = "Hiba történt az összes jelszó importálásakor.\n\nNem lett adat törölve.";
@@ -992,7 +992,7 @@
 "DefaultX" = "Alapértelmezés (%1$@)";
 "UpdateYourEncryptionSettings" = "A titkosítási beállítások frissítése";
 "TheNewRecommendedEncryptionSettingsDescriptionLong" = "Az új ajánlott titkosítási beállítások javítják a fiók biztonságát. Adjuk meg a mesterjelszót a frissítéshez most.";
-"Updating" = "Frissítés...";
+"Updating" = "Frissítés…";
 "EncryptionSettingsUpdated" = "A titkosítási beállítások frissítésre kerültek.";
 "IntroducingArchive" = "Archívum bemutatása";
 "KeepYtemsYouDontNeedRightNowSafeButOutOfSight" = "Tartsuk biztonságban azokat az elemeket, amelyekre jelenleg nincs szükség, de ne lássuk azokat.";
@@ -1106,7 +1106,7 @@
 "SecureFileStorage" = "Biztonságos fájl tárolás";
 "BreachMonitoring" = "Adatszivárgás figyelés";
 "UpgradeNow" = "Áttérés most";
-"ConfirmingYourUpgrade" = "A frissítés megerősítése...";
+"ConfirmingYourUpgrade" = "A frissítés megerősítése…";
 "OpeningCheckout" = "Pénztár megnyitása…";
 "UpgradePending" = "Függő áttérés";
 "YourUpgradeIsBeingProcessedDescriptionLong" = "Az áttérés feldolgozása folyamatban van. Az ingyenes csomag marad, amíg az be nem fejeződik. Szinkronizáljunk most az ellenőrzéshez vagy a folytatáshoz, és az áttérés automatikus.";
@@ -1137,3 +1137,28 @@
 "IssueDate" = "Kiállítási dátum";
 "ExpirationDate" = "Lejárati dátum";
 "LicenseClass" = "Engedély osztály";
+"PassportDetails" = "Útlevél adatok";
+/* Label for the sex/gender field as printed on a passport (e.g. "M", "F", "X"). */
+"Sex" = "Nem";
+"BirthPlace" = "Születési hely";
+/* Label for the nationality field on a passport (the country a person is a national of). */
+"Nationality" = "Állampolgárság";
+/* Label for the category of passport (e.g. "Regular/Tourist", "Diplomatic", "Official"). */
+"PassportType" = "Útlevél típus";
+"NationalIdentificationNumber" = "Nemzeti azonosító szám";
+/* Label for the government authority or office that issued the passport. */
+"IssuingAuthorityOffice" = "Issuing authority/office";
+"AccountDetails" = "Fiók adatok";
+"BankName" = "Bank neve";
+"NameOnAccount" = "Számlatulajdonos neve";
+"AccountType" = "Számlatípus";
+"BranchNumber" = "Fióktelep/intézmény szám";
+"SwiftCode" = "SWIFT-kód";
+"IBAN" = "IBAN";
+"BankContactPhone" = "Banki kapcsolati telefon";
+"CertificateOfDeposit" = "Áthelyezési igazolás";
+"Checking" = "Ellenőrzés";
+"InvestmentBrokerage" = "Befektetés/brókerügylet";
+"LineOfCredit" = "Hitelkeret";
+"MoneyMarket" = "Pénzpiac";
+"Savings" = "Megtakarítások";

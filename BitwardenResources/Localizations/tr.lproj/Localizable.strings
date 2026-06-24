@@ -127,7 +127,7 @@
 "ItemUpdated" = "Kayıt kaydedildi";
 "Submitting" = "Gönderiliyor…";
 "Syncing" = "Eşitleniyor…";
-"SyncingLogins" = "Hesaplar eşitleniyor...";
+"SyncingLogins" = "Hesaplar eşitleniyor…";
 "SyncingComplete" = "Eşitleme tamamlandı";
 "TouchID" = "Touch ID";
 "TwoStepLogin" = "İki aşamalı giriş";
@@ -390,7 +390,7 @@
 "MasterPasswordPolicyValidationTitle" = "Geçersiz parola";
 "MasterPasswordPolicyValidationMessage" = "Parolanız kuruluş gereksinimlerini karşılamıyor.  Lütfen parola politikasını kontrol edip yeniden deneyin.";
 "Loading" = "Yükleniyor";
-"LoadingSubscription" = "Abonelik yükleniyor...";
+"LoadingSubscription" = "Abonelik yükleniyor…";
 "AcceptPoliciesError" = "Hizmet Koşulları ve Gizlilik Politikası kabul edilmemiş.";
 "PrivacyPolicy" = "Gizlilik Politikası";
 "PersonalOwnershipPolicyInEffect" = "Bir kuruluş ilkesi sahiplik seçeneklerinizi etkiliyor.";
@@ -1095,7 +1095,7 @@
 "NegativeX" = "-%1$@";
 "UnknownStatus" = "Bilinmiyor";
 "YourSubscriptionStatusIsUnknownVisitTheWebAppDescriptionLong" = "Your subscription status could not be determined. Please visit the web app for more details or update to the latest version.";
-"AtTheMomentPremiumPlanIsNotAvailableDescriptionLong" = "At the moment premium plan is not available, please try again later.";
+"AtTheMomentPremiumPlanIsNotAvailableDescriptionLong" = "At the moment Premium plan is not available, please try again later.";
 "UnlockMoreAdvancedFeaturesWithPremiumPlan" = "Unlock more advanced features with a Premium plan.";
 "BuiltInAuthenticator" = "Built-in authenticator";
 "EmergencyAccess" = "Emergency access";
@@ -1137,3 +1137,28 @@
 "IssueDate" = "Veriliş tarihi";
 "ExpirationDate" = "Son kullanma tarihi";
 "LicenseClass" = "Ehliyet sınıfı";
+"PassportDetails" = "Pasaport bilgileri";
+/* Label for the sex/gender field as printed on a passport (e.g. "M", "F", "X"). */
+"Sex" = "Cinsiyet";
+"BirthPlace" = "Doğum yeri";
+/* Label for the nationality field on a passport (the country a person is a national of). */
+"Nationality" = "Uyruk";
+/* Label for the category of passport (e.g. "Regular/Tourist", "Diplomatic", "Official"). */
+"PassportType" = "Pasaport türü";
+"NationalIdentificationNumber" = "Kimlik numarası";
+/* Label for the government authority or office that issued the passport. */
+"IssuingAuthorityOffice" = "Veren makam";
+"AccountDetails" = "Hesap bilgileri";
+"BankName" = "Banka adı";
+"NameOnAccount" = "Hesaptaki ad";
+"AccountType" = "Hesap türü";
+"BranchNumber" = "Şube numarası";
+"SwiftCode" = "SWIFT kodu";
+"IBAN" = "IBAN";
+"BankContactPhone" = "Banka telefonu";
+"CertificateOfDeposit" = "Bono";
+"Checking" = "Vadesiz";
+"InvestmentBrokerage" = "Yatırım/aracılık";
+"LineOfCredit" = "Kredi limiti";
+"MoneyMarket" = "Para piyasası";
+"Savings" = "Mevduat";

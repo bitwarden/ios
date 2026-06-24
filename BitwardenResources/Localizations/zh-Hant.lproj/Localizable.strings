@@ -127,7 +127,7 @@
 "ItemUpdated" = "項目已儲存";
 "Submitting" = "提交中…";
 "Syncing" = "正在同步…";
-"SyncingLogins" = "正在同步登入資訊...";
+"SyncingLogins" = "正在同步登入資訊…";
 "SyncingComplete" = "同步完成";
 "TouchID" = "Touch ID";
 "TwoStepLogin" = "兩步驟登入";
@@ -163,7 +163,7 @@
 "AddNewAttachment" = "新增附件";
 "Attachments" = "附件";
 "UnableToDownloadFile" = "無法下載檔案。";
-"Downloading" = "下載中...";
+"Downloading" = "下載中…";
 "AttachmentLargeWarning" = "這個附件大小為 %1$@ 。確定要下載至您的裝置嗎？";
 "AuthenticatorKey" = "驗證器金鑰";
 "VerificationCodeTotp" = "驗證碼 (TOTP)";
@@ -300,7 +300,7 @@
 "Identities" = "身分";
 "Logins" = "登入資料";
 "SecureNotes" = "安全筆記";
-"CheckingPassword" = "正在驗證...";
+"CheckingPassword" = "正在驗證…";
 "CheckPassword" = "檢查密碼是否已暴露。";
 "PasswordSafe" = "任何已知的外洩密碼資料庫中都沒有此密碼，它目前是安全的。";
 "IdentityName" = "身分名稱";
@@ -368,7 +368,7 @@
 "SoftDeleting" = "正在傳送至垃圾桶…";
 "ItemSoftDeleted" = "已將項目傳送至垃圾桶。";
 "Restore" = "還原";
-"Restoring" = "還原中...";
+"Restoring" = "還原中…";
 "ItemRestored" = "項目已還原";
 "Trash" = "垃圾桶";
 "DoYouReallyWantToPermanentlyDeleteCipher" = "您確定要永久刪除嗎？刪除後將無法復原。";
@@ -421,7 +421,7 @@
 "AboutSend" = "關於 Send";
 "HideEmail" = "對收件人隱藏我的電子郵件地址";
 "SendOptionsPolicyInEffect" = "一個或多個組織原則正影響您的 Send 選項。";
-"SendFilePremiumRequired" = "免費帳戶僅限於共用文字。若想使用檔案 Send，需要進階會員資格。";
+"SendFilePremiumRequired" = "免費帳戶僅限於共用文字。若想使用檔案傳送，需要進階會員資格。";
 "SendFileEmailVerificationRequired" = "您必須驗證電子郵件才能夠使用檔案 Send。您可以在網頁版密碼庫中驗證您的電子郵件。";
 "PasswordPrompt" = "重新詢問主密碼";
 "PasswordConfirmation" = "確認主密碼";
@@ -1138,3 +1138,28 @@
 "IssueDate" = "簽發日期";
 "ExpirationDate" = "到期日期";
 "LicenseClass" = "駕照類別";
+"PassportDetails" = "護照詳細資訊";
+/* Label for the sex/gender field as printed on a passport (e.g. "M", "F", "X"). */
+"Sex" = "性別";
+"BirthPlace" = "出生地";
+/* Label for the nationality field on a passport (the country a person is a national of). */
+"Nationality" = "國籍";
+/* Label for the category of passport (e.g. "Regular/Tourist", "Diplomatic", "Official"). */
+"PassportType" = "護照類型";
+"NationalIdentificationNumber" = "身分證字號";
+/* Label for the government authority or office that issued the passport. */
+"IssuingAuthorityOffice" = "Issuing authority/office";
+"AccountDetails" = "帳戶詳細資訊";
+"BankName" = "銀行名稱";
+"NameOnAccount" = "帳戶名稱";
+"AccountType" = "帳戶類型";
+"BranchNumber" = "分行代碼";
+"SwiftCode" = "SWIFT 代碼";
+"IBAN" = "IBAN";
+"BankContactPhone" = "銀行聯絡電話";
+"CertificateOfDeposit" = "定期存款";
+"Checking" = "支票帳戶";
+"InvestmentBrokerage" = "投資／券商帳戶";
+"LineOfCredit" = "信用額度";
+"MoneyMarket" = "貨幣市場帳戶";
+"Savings" = "儲蓄帳戶";

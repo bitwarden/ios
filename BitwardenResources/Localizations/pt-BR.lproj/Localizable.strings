@@ -176,7 +176,7 @@
 "CopyTotp" = "Copiar TOTP";
 "CopyTotpAutomaticallyDescription" = "Se uma credencial tiver uma chave de autenticador, copie o código de verificação TOTP para sua área de transferência ao preenchê-la.";
 "CopyTotpAutomatically" = "Copiar TOTP automaticamente";
-"PremiumRequired" = "Uma assinatura Premium é necessária para usar esse recurso.";
+"PremiumRequired" = "Uma conta premium é necessária para usar esse recurso.";
 "AttachementAdded" = "Anexo adicionado";
 "AttachmentDeleted" = "Anexo apagado";
 "ChooseFile" = "Escolher arquivo";
@@ -390,7 +390,7 @@
 "MasterPasswordPolicyValidationTitle" = "Senha inválida";
 "MasterPasswordPolicyValidationMessage" = "A senha não atende aos requisitos da organização. Confira as informações da política e tente novamente.";
 "Loading" = "Carregando";
-"LoadingSubscription" = "Carregando assinatura...";
+"LoadingSubscription" = "Carregando assinatura…";
 "AcceptPoliciesError" = "Os Termos de Serviço e a Política de Privacidade não foram reconhecidos.";
 "PrivacyPolicy" = "Política de Privacidade";
 "PersonalOwnershipPolicyInEffect" = "Uma política de organização está afetando suas opções de propriedade.";
@@ -421,7 +421,7 @@
 "AboutSend" = "Sobre o Send";
 "HideEmail" = "Ocultar meu endereço de e-mail dos destinatários";
 "SendOptionsPolicyInEffect" = "Uma ou mais políticas da organização estão afetando as suas opções de Send.";
-"SendFilePremiumRequired" = "Contas gratuitas são limitadas para compartilhar apenas texto. É necessário um plano Premium para usar arquivos com o Send.";
+"SendFilePremiumRequired" = "Contas gratuitas só podem compartilhar texto. É necessário um plano Premium para usar arquivos com o Send.";
 "SendFileEmailVerificationRequired" = "Você precisa verificar o seu e-mail para usar arquivos com o Send. Você pode verificar seu e-mail no cofre web.";
 "PasswordPrompt" = "Resolicitar senha principal";
 "PasswordConfirmation" = "Confirmação de senha principal";
@@ -557,7 +557,7 @@
 "ThereAreNoCardsInYourVault" = "Não há cartões no seu cofre";
 "ThereAreNoNotesInYourVault" = "Não há anotações no seu cofre";
 "ThereAreNoIdentitiesInYourVault" = "Não há identidades no seu cofre";
-"ThereAreNoPassportsInYourVault" = "There are no passports in your vault";
+"ThereAreNoPassportsInYourVault" = "Não há passaportes no seu cofre";
 "ThereAreNoSSHKeysInYourVault" = "Não há chaves SSH no seu cofre";
 "ThereAreNoBankAccountsInYourVault" = "Não há contas de banco no seu cofre";
 "US" = "EUA";
@@ -1030,7 +1030,7 @@
 "ArchivingItemsIsAPremiumFeatureDescriptionLong" = "O arquivamento de itens é um recurso do Premium. O seu plano atual não inclui o acesso a este recurso.";
 "AddingAttachmentsIsAPremiumFeatureDescriptionLong" = "A adição de anexos é um recurso Premium. O seu plano atual não inclui acesso a este recurso.";
 "AttachmentsUnavailable" = "Anexos indisponíveis";
-"UpgradeToPremium" = "Fazer upgrade ao Premium";
+"UpgradeToPremium" = "Fazer upgrade para o Premium";
 "ThisItemIsArchived" = "Este item está arquivado.";
 "YourPremiumSubscriptionEnded" = "Sua assinatura Premium terminou";
 "YourPremiumSubscriptionEndedArchiveDescriptionLong" = "Para recuperar o seu acesso ao seu arquivo, retoma sua assinatura Premium. Se editar detalhes de um item arquivado antes de retomar, ele será movido de volta para o seu cofre.";
@@ -1137,3 +1137,28 @@
 "IssueDate" = "Data de emissão";
 "ExpirationDate" = "Data de validade";
 "LicenseClass" = "Classe da carteira de habilitação";
+"PassportDetails" = "Detalhes do passaporte";
+/* Label for the sex/gender field as printed on a passport (e.g. "M", "F", "X"). */
+"Sex" = "Sexo";
+"BirthPlace" = "Local de nascimento";
+/* Label for the nationality field on a passport (the country a person is a national of). */
+"Nationality" = "Nacionalidade";
+/* Label for the category of passport (e.g. "Regular/Tourist", "Diplomatic", "Official"). */
+"PassportType" = "Tipo do passaporte";
+"NationalIdentificationNumber" = "Número da carteira de identidade nacional";
+/* Label for the government authority or office that issued the passport. */
+"IssuingAuthorityOffice" = "Autoridade de emissão";
+"AccountDetails" = "Detalhes da conta";
+"BankName" = "Nome do banco";
+"NameOnAccount" = "Nome na conta";
+"AccountType" = "Tipo da conta";
+"BranchNumber" = "Número da agência";
+"SwiftCode" = "Código SWIFT";
+"IBAN" = "IBAN";
+"BankContactPhone" = "Número de contato do banco";
+"CertificateOfDeposit" = "Certificado de depósito";
+"Checking" = "Corrente";
+"InvestmentBrokerage" = "Investimento/corretagem";
+"LineOfCredit" = "Linha de crédito";
+"MoneyMarket" = "Mercado monetário";
+"Savings" = "Poupança";

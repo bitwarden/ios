@@ -11,7 +11,7 @@
 "CopyUsername" = "Kopier brukernavn";
 "Delete" = "Slett";
 "DeleteAll" = "Delete all";
-"Deleting" = "Sletter...";
+"Deleting" = "Sletter…";
 "DoYouReallyWantToDelete" = "Vil du virkelig slette den? Dette kan ikke angres på.";
 "Edit" = "Rediger";
 "EditFolder" = "Rediger mappe";
@@ -49,7 +49,7 @@
 "Password" = "Passord";
 "Save" = "Lagre";
 "Move" = "Flytt";
-"Saving" = "Lagrer...";
+"Saving" = "Lagrer…";
 "Settings" = "Innstillinger";
 "ShowNextCode" = "Show next code";
 "ItemDeleted" = "Elementet har blitt slettet.";
@@ -80,7 +80,7 @@
 "Close" = "Lukk";
 "Continue" = "Fortsett";
 "CreateAccount" = "Opprett konto";
-"CreatingAccount" = "Lager konto...";
+"CreatingAccount" = "Lager konto…";
 "EditItem" = "Rediger elementet";
 "EnableAutomaticSyncing" = "Aktiver automatisk synkronisering";
 "EnterEmailForHint" = "Skriv inn kontoens e-postadresse for å motta hint om hovedpassordet ditt.";
@@ -103,7 +103,7 @@
 "Lock" = "Lås";
 "Immediately" = "Umiddelbart";
 "VaultTimeoutLogOutConfirmation" = "Dersom du logger ut vil all tilgang til hvelvet fjernes og du må autentisere online etter tidsavbruddet. Er du sikker på at du vil bruke denne innstillingen?";
-"LoggingIn" = "Logger inn...";
+"LoggingIn" = "Logger inn…";
 "LogInToBitwarden" = "Logg inn på Bitwarden";
 "MasterPasswordConfirmationValMessage" = "Passordbekreftelsen er ikke riktig.";
 "TheMasterPasswordIsThePasswordYouUseToAccessYourVault" = "Hovedpassordet er det passordet du bruker for å få tilgang til hvelvet ditt.";
@@ -126,8 +126,8 @@
 "Select" = "Velg";
 "ItemUpdated" = "Element oppdatert.";
 "Submitting" = "Submitting…";
-"Syncing" = "Synkroniserer...";
-"SyncingLogins" = "Syncing logins...";
+"Syncing" = "Synkroniserer…";
+"SyncingLogins" = "Syncing logins…";
 "SyncingComplete" = "Synkronisering fullført.";
 "TouchID" = "Touch ID";
 "TwoStepLogin" = "2-trinnsinnlogging";
@@ -300,7 +300,7 @@
 "Identities" = "Identiteter";
 "Logins" = "Innlogginger";
 "SecureNotes" = "Sikre notater";
-"CheckingPassword" = "Sjekker passord...";
+"CheckingPassword" = "Sjekker passord…";
 "CheckPassword" = "Sjekk om passordet har blitt eksponert.";
 "PasswordSafe" = "Dette passordet ble ikke funnet i noen kjente datalekkasjer. Det bør være trygt å bruke.";
 "IdentityName" = "Identitetsnavn";
@@ -992,7 +992,7 @@
 "DefaultX" = "Standard (%1$@)";
 "UpdateYourEncryptionSettings" = "Update your encryption settings";
 "TheNewRecommendedEncryptionSettingsDescriptionLong" = "The new recommended encryption settings will improve your account security. Enter your master password to update now.";
-"Updating" = "Oppdaterer...";
+"Updating" = "Oppdaterer…";
 "EncryptionSettingsUpdated" = "Encryption settings updated";
 "IntroducingArchive" = "Introducing Archive";
 "KeepYtemsYouDontNeedRightNowSafeButOutOfSight" = "Keep items you don’t need right now safe but out of sight.";
@@ -1030,7 +1030,7 @@
 "ArchivingItemsIsAPremiumFeatureDescriptionLong" = "Archiving items is a Premium feature. Your current plan does not include access to this feature.";
 "AddingAttachmentsIsAPremiumFeatureDescriptionLong" = "Adding attachments is a Premium feature. Your current plan does not include access to this feature.";
 "AttachmentsUnavailable" = "Attachments unavailable";
-"UpgradeToPremium" = "Upgrade to premium";
+"UpgradeToPremium" = "Upgrade to Premium";
 "ThisItemIsArchived" = "This item is archived.";
 "YourPremiumSubscriptionEnded" = "Your Premium subscription ended";
 "YourPremiumSubscriptionEndedArchiveDescriptionLong" = "To regain access to your archive, restart your Premium subscription. If you edit details for an archived item before restarting, it’ll be moved back into your vault.";
@@ -1095,7 +1095,7 @@
 "NegativeX" = "-%1$@";
 "UnknownStatus" = "Unknown";
 "YourSubscriptionStatusIsUnknownVisitTheWebAppDescriptionLong" = "Your subscription status could not be determined. Please visit the web app for more details or update to the latest version.";
-"AtTheMomentPremiumPlanIsNotAvailableDescriptionLong" = "At the moment premium plan is not available, please try again later.";
+"AtTheMomentPremiumPlanIsNotAvailableDescriptionLong" = "At the moment Premium plan is not available, please try again later.";
 "UnlockMoreAdvancedFeaturesWithPremiumPlan" = "Unlock more advanced features with a Premium plan.";
 "BuiltInAuthenticator" = "Built-in authenticator";
 "EmergencyAccess" = "Emergency access";
@@ -1137,3 +1137,28 @@
 "IssueDate" = "Issue date";
 "ExpirationDate" = "Expiration date";
 "LicenseClass" = "License class";
+"PassportDetails" = "Passport details";
+/* Label for the sex/gender field as printed on a passport (e.g. "M", "F", "X"). */
+"Sex" = "Sex";
+"BirthPlace" = "Birth place";
+/* Label for the nationality field on a passport (the country a person is a national of). */
+"Nationality" = "Nationality";
+/* Label for the category of passport (e.g. "Regular/Tourist", "Diplomatic", "Official"). */
+"PassportType" = "Passport type";
+"NationalIdentificationNumber" = "National identification number";
+/* Label for the government authority or office that issued the passport. */
+"IssuingAuthorityOffice" = "Issuing authority/office";
+"AccountDetails" = "Account details";
+"BankName" = "Bank name";
+"NameOnAccount" = "Name on account";
+"AccountType" = "Account type";
+"BranchNumber" = "Branch number";
+"SwiftCode" = "SWIFT code";
+"IBAN" = "IBAN";
+"BankContactPhone" = "Bank contact phone";
+"CertificateOfDeposit" = "Certificate of deposit";
+"Checking" = "Checking";
+"InvestmentBrokerage" = "Investment/brokerage";
+"LineOfCredit" = "Line of credit";
+"MoneyMarket" = "Money market";
+"Savings" = "Savings";

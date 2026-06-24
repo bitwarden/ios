@@ -421,7 +421,7 @@
 "AboutSend" = "Ynghylch Send";
 "HideEmail" = "Cuddio fy nghyfeiriad ebost rhag derbynwyr";
 "SendOptionsPolicyInEffect" = "One or more organization policies are affecting your Send options.";
-"SendFilePremiumRequired" = "Free accounts are restricted to sharing text only. A premium membership is required to use files with Send.";
+"SendFilePremiumRequired" = "Free accounts are restricted to sharing text only. A Premium membership is required to use files with Send.";
 "SendFileEmailVerificationRequired" = "You must verify your email to use files with Send. You can verify your email in the web vault.";
 "PasswordPrompt" = "Ailofyn am y prif gyfrinair";
 "PasswordConfirmation" = "Master password confirmation";
@@ -807,7 +807,7 @@
 "YouMayNeedToEnableDevicePasscodeOrBiometrics" = "You may need to enable device passcode or biometrics.";
 "StartImportCXFDescriptionLong" = "Import passwords, passkeys, credit cards, and any personal identity information from another password manager.\n\nYour data will **not** be deleted from your previous provider.";
 "ImportPasswords" = "Import passwords";
-"ImportingEllipsis" = "Yn mewnforio...";
+"ImportingEllipsis" = "Yn mewnforio…";
 "AreYouSureYouWantToCancelTheImportProcessQuestionMark" = "Are you sure you want to cancel the import process?";
 "ImportFailed" = "Import failed";
 "ThereWasAnIssueImportingAllOfYourPasswordsNoDataWasDeleted" = "There was an issue importing all of your passwords.\n\nNo data was deleted.";
@@ -1030,7 +1030,7 @@
 "ArchivingItemsIsAPremiumFeatureDescriptionLong" = "Archiving items is a Premium feature. Your current plan does not include access to this feature.";
 "AddingAttachmentsIsAPremiumFeatureDescriptionLong" = "Adding attachments is a Premium feature. Your current plan does not include access to this feature.";
 "AttachmentsUnavailable" = "Attachments unavailable";
-"UpgradeToPremium" = "Upgrade to premium";
+"UpgradeToPremium" = "Upgrade to Premium";
 "ThisItemIsArchived" = "Mae'r eitem hon wedi'i harchifo.";
 "YourPremiumSubscriptionEnded" = "Your Premium subscription ended";
 "YourPremiumSubscriptionEndedArchiveDescriptionLong" = "To regain access to your archive, restart your Premium subscription. If you edit details for an archived item before restarting, it’ll be moved back into your vault.";
@@ -1095,7 +1095,7 @@
 "NegativeX" = "-%1$@";
 "UnknownStatus" = "Unknown";
 "YourSubscriptionStatusIsUnknownVisitTheWebAppDescriptionLong" = "Your subscription status could not be determined. Please visit the web app for more details or update to the latest version.";
-"AtTheMomentPremiumPlanIsNotAvailableDescriptionLong" = "At the moment premium plan is not available, please try again later.";
+"AtTheMomentPremiumPlanIsNotAvailableDescriptionLong" = "At the moment Premium plan is not available, please try again later.";
 "UnlockMoreAdvancedFeaturesWithPremiumPlan" = "Unlock more advanced features with a Premium plan.";
 "BuiltInAuthenticator" = "Built-in authenticator";
 "EmergencyAccess" = "Emergency access";
@@ -1137,3 +1137,28 @@
 "IssueDate" = "Issue date";
 "ExpirationDate" = "Expiration date";
 "LicenseClass" = "License class";
+"PassportDetails" = "Passport details";
+/* Label for the sex/gender field as printed on a passport (e.g. "M", "F", "X"). */
+"Sex" = "Sex";
+"BirthPlace" = "Birth place";
+/* Label for the nationality field on a passport (the country a person is a national of). */
+"Nationality" = "Nationality";
+/* Label for the category of passport (e.g. "Regular/Tourist", "Diplomatic", "Official"). */
+"PassportType" = "Passport type";
+"NationalIdentificationNumber" = "National identification number";
+/* Label for the government authority or office that issued the passport. */
+"IssuingAuthorityOffice" = "Issuing authority/office";
+"AccountDetails" = "Account details";
+"BankName" = "Bank name";
+"NameOnAccount" = "Name on account";
+"AccountType" = "Account type";
+"BranchNumber" = "Branch number";
+"SwiftCode" = "SWIFT code";
+"IBAN" = "IBAN";
+"BankContactPhone" = "Bank contact phone";
+"CertificateOfDeposit" = "Certificate of deposit";
+"Checking" = "Checking";
+"InvestmentBrokerage" = "Investment/brokerage";
+"LineOfCredit" = "Line of credit";
+"MoneyMarket" = "Money market";
+"Savings" = "Savings";
