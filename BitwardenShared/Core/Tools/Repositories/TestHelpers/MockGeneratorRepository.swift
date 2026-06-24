@@ -20,8 +20,32 @@ class MockGeneratorRepository: GeneratorRepository {
     var passwordGeneratorRequest: PasswordGeneratorRequest?
     var passwordResult: Result<String, Error> = .success("PASSWORD")
 
+    var passwordRulesRequestRules: String?
+    var passwordRulesRequestResult: Result<PasswordGeneratorRequest, Error> = .success(
+        PasswordGeneratorRequest(
+            lowercase: true,
+            uppercase: true,
+            numbers: true,
+            special: false,
+            length: 14,
+            avoidAmbiguous: false,
+            minLowercase: nil,
+            minUppercase: nil,
+            minNumber: nil,
+            minSpecial: nil,
+        ),
+    )
+
     var usernameGeneratorRequest: UsernameGeneratorRequest?
     var usernameResult: Result<String, Error> = .success("USERNAME")
+
+    // swiftlint:disable identifier_name
+    var getEffectivePasswordGenerationOptionsCalled = false
+    var getEffectivePasswordGenerationOptionsRules: String?
+    var getEffectivePasswordGenerationOptionsResult: Result<PasswordGenerationOptions, Error> =
+        .success(PasswordGenerationOptions())
+    var getEffectivePasswordGenerationOptionsIsPolicyInEffect = false
+    // swiftlint:enable identifier_name
 
     var getPasswordGenerationOptionsCalled = false
     var getPasswordGenerationOptionsResult: Result<PasswordGenerationOptions, Error> =
@@ -72,6 +96,11 @@ class MockGeneratorRepository: GeneratorRepository {
         return try passwordResult.get()
     }
 
+    func passwordRulesRequest(rules: String) async -> PasswordGeneratorRequest? {
+        passwordRulesRequestRules = rules
+        return try? passwordRulesRequestResult.get()
+    }
+
     func generateUsername(settings: UsernameGeneratorRequest) async throws -> String {
         usernameGeneratorRequest = settings
         return try usernameResult.get()
@@ -80,6 +109,15 @@ class MockGeneratorRepository: GeneratorRepository {
     func generateUsernamePlusAddressedEmail(email: String) async throws -> String {
         usernamePlusAddressEmail = email
         return try usernamePlusAddressEmailResult.get()
+    }
+
+    func getEffectivePasswordGenerationOptions(
+        rules: String?,
+    ) async throws -> (options: PasswordGenerationOptions, isPolicyInEffect: Bool) {
+        defer { getEffectivePasswordGenerationOptionsCalled = true }
+        getEffectivePasswordGenerationOptionsRules = rules
+        let options = try getEffectivePasswordGenerationOptionsResult.get()
+        return (options, getEffectivePasswordGenerationOptionsIsPolicyInEffect)
     }
 
     func getPasswordGenerationOptions() async throws -> PasswordGenerationOptions {

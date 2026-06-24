@@ -40,10 +40,6 @@ final class GeneratePasswordExtensionDelegate: GeneratorCoordinatorDelegate {
         case .passphrase:
             kind = .passphrase
         case .password, .username:
-            // TODO: PM-29569 Derive kind from request rules once SDK exposes the mapping API.
-            // Heuristic: a password that contains any non-alphanumeric character is "strong".
-            // The Bitwarden generator guarantees at least one special character when the option
-            // is enabled, so this reliably distinguishes .strong from .alphanumeric.
             let hasSpecialCharacter = value.unicodeScalars.contains { scalar in
                 !CharacterSet.alphanumerics.contains(scalar)
             }

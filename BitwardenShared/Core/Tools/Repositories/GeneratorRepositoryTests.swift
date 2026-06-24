@@ -10,7 +10,9 @@ class GeneratorRepositoryTests: BitwardenTestCase { // swiftlint:disable:this ty
     // MARK: Properties
 
     var clientService: MockClientService!
+    var errorReporter: MockErrorReporter!
     var generatorDataStore: DataStore!
+    var policyService: MockPolicyService!
     var subject: GeneratorRepository!
     var stateService: MockStateService!
 
@@ -20,12 +22,16 @@ class GeneratorRepositoryTests: BitwardenTestCase { // swiftlint:disable:this ty
         super.setUp()
 
         clientService = MockClientService()
-        generatorDataStore = DataStore(errorReporter: MockErrorReporter(), storeType: .memory)
+        errorReporter = MockErrorReporter()
+        generatorDataStore = DataStore(errorReporter: errorReporter, storeType: .memory)
+        policyService = MockPolicyService()
         stateService = MockStateService()
 
         subject = DefaultGeneratorRepository(
             clientService: clientService,
             dataStore: generatorDataStore,
+            errorReporter: errorReporter,
+            policyService: policyService,
             stateService: stateService,
         )
     }
@@ -34,7 +40,9 @@ class GeneratorRepositoryTests: BitwardenTestCase { // swiftlint:disable:this ty
         super.tearDown()
 
         clientService = nil
+        errorReporter = nil
         generatorDataStore = nil
+        policyService = nil
         subject = nil
         stateService = nil
     }
@@ -300,6 +308,108 @@ class GeneratorRepositoryTests: BitwardenTestCase { // swiftlint:disable:this ty
         XCTAssertEqual(fetchedOptions, PasswordGenerationOptions())
     }
 
+    /// `getEffectivePasswordGenerationOptions(rules:)` returns the saved options unchanged when
+    /// no policy is in effect and no rules are provided.
+    func test_getEffectivePasswordGenerationOptions_noPolicyNoRules() async throws {
+        let options = PasswordGenerationOptions(length: 20)
+        let account = Account.fixture()
+        stateService.activeAccount = account
+        stateService.passwordGenerationOptions = [account.profile.userId: options]
+        policyService.applyPasswordGenerationOptionsResult = false
+
+        let result = try await subject.getEffectivePasswordGenerationOptions(rules: nil)
+
+        XCTAssertEqual(result.options, options)
+        XCTAssertFalse(result.isPolicyInEffect)
+        XCTAssertTrue(policyService.applyPasswordGenerationOptionsCalled)
+    }
+
+    /// `getEffectivePasswordGenerationOptions(rules:)` returns `isPolicyInEffect = true` when the
+    /// org policy applies.
+    func test_getEffectivePasswordGenerationOptions_policyInEffect() async throws {
+        let account = Account.fixture()
+        stateService.activeAccount = account
+        policyService.applyPasswordGenerationOptionsResult = true
+        policyService.applyPasswordGenerationOptionsTransform = { options in
+            options.length = 20
+        }
+
+        let result = try await subject.getEffectivePasswordGenerationOptions(rules: nil)
+
+        XCTAssertTrue(result.isPolicyInEffect)
+        XCTAssertEqual(result.options.length, 20)
+    }
+
+    /// `getEffectivePasswordGenerationOptions(rules:)` applies developer-supplied password rules
+    /// on top of the policy-constrained options and returns `isPolicyInEffect = true`.
+    func test_getEffectivePasswordGenerationOptions_rulesApplied() async throws {
+        let account = Account.fixture()
+        stateService.activeAccount = account
+        policyService.applyPasswordGenerationOptionsResult = false
+        clientService.mockGenerators.passwordRulesReturnValue = PasswordGeneratorRequest(
+            lowercase: true,
+            uppercase: true,
+            numbers: true,
+            special: true,
+            length: 16,
+            avoidAmbiguous: false,
+            minLowercase: nil,
+            minUppercase: nil,
+            minNumber: nil,
+            minSpecial: 1,
+        )
+
+        let result = try await subject.getEffectivePasswordGenerationOptions(rules: "minlength: 16;")
+
+        XCTAssertTrue(result.isPolicyInEffect)
+        XCTAssertEqual(result.options.type, .password)
+        XCTAssertFalse(result.options.overridePasswordType ?? true)
+    }
+
+    /// `getEffectivePasswordGenerationOptions(rules:)` logs a policy-service error and returns
+    /// `isPolicyInEffect = false` without propagating the throw.
+    func test_getEffectivePasswordGenerationOptions_policyError() async throws {
+        struct PolicyError: Error, Equatable {}
+
+        let account = Account.fixture()
+        stateService.activeAccount = account
+        policyService.applyPasswordGenerationOptionsError = PolicyError()
+
+        let result = try await subject.getEffectivePasswordGenerationOptions(rules: nil)
+
+        XCTAssertFalse(result.isPolicyInEffect)
+        XCTAssertEqual(errorReporter.errors.count, 1)
+        XCTAssertTrue(errorReporter.errors.first is PolicyError)
+    }
+
+    /// `getEffectivePasswordGenerationOptions(rules:)` applies policy first then layers developer
+    /// password rules on top, always returning `isPolicyInEffect = true` when rules are present.
+    func test_getEffectivePasswordGenerationOptions_policyAndRules() async throws {
+        let account = Account.fixture()
+        stateService.activeAccount = account
+        policyService.applyPasswordGenerationOptionsResult = true
+        policyService.applyPasswordGenerationOptionsTransform = { options in
+            options.length = 14
+        }
+        clientService.mockGenerators.passwordRulesReturnValue = PasswordGeneratorRequest(
+            lowercase: true,
+            uppercase: true,
+            numbers: true,
+            special: true,
+            length: 20,
+            avoidAmbiguous: false,
+            minLowercase: nil,
+            minUppercase: nil,
+            minNumber: nil,
+            minSpecial: 1,
+        )
+
+        let result = try await subject.getEffectivePasswordGenerationOptions(rules: "minlength: 20;")
+
+        XCTAssertTrue(result.isPolicyInEffect)
+        XCTAssertEqual(result.options.type, .password)
+    }
+
     /// `getUsernameGenerationOptions` returns the saved username generation options for the active account.
     func test_getUsernameGenerationOptions() async throws {
         let options = UsernameGenerationOptions(plusAddressedEmail: "user@bitwarden.com")
@@ -391,4 +501,4 @@ class GeneratorRepositoryTests: BitwardenTestCase { // swiftlint:disable:this ty
 
         XCTAssertEqual(stateService.usernameGenerationOptions, [account.profile.userId: options])
     }
-}
+} // swiftlint:disable:this file_length

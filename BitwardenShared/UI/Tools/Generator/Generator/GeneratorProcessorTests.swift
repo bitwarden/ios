@@ -83,7 +83,7 @@ class GeneratorProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
     @MainActor
     func test_init_loadsPasswordOptions_empty() {
         waitFor { subject.didLoadGeneratorOptions }
-        XCTAssertTrue(generatorRepository.getPasswordGenerationOptionsCalled)
+        XCTAssertNil(generatorRepository.getEffectivePasswordGenerationOptionsRules)
 
         XCTAssertEqual(
             subject.state.passwordState,
@@ -102,7 +102,6 @@ class GeneratorProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
                 wordSeparator: "-",
             ),
         )
-        XCTAssertTrue(policyService.applyPasswordGenerationOptionsCalled)
         XCTAssertFalse(subject.state.isPolicyInEffect)
     }
 
@@ -110,7 +109,7 @@ class GeneratorProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
     /// based on the previously selected options.
     @MainActor
     func test_init_loadsPasswordOptions_withValues() {
-        generatorRepository.getPasswordGenerationOptionsResult = .success(PasswordGenerationOptions(
+        generatorRepository.getEffectivePasswordGenerationOptionsResult = .success(PasswordGenerationOptions(
             allowAmbiguousChar: false,
             capitalize: true,
             includeNumber: true,
@@ -149,7 +148,6 @@ class GeneratorProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
                 wordSeparator: "*",
             ),
         )
-        XCTAssertTrue(policyService.applyPasswordGenerationOptionsCalled)
         XCTAssertFalse(subject.state.isPolicyInEffect)
     }
 
@@ -157,26 +155,18 @@ class GeneratorProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
     /// state based on the options.
     @MainActor
     func test_init_loadsPasswordOptions_withPolicy() {
-        generatorRepository.getPasswordGenerationOptionsResult = .success(PasswordGenerationOptions(
-            capitalize: false,
-            length: 10,
-            lowercase: false,
+        generatorRepository.getEffectivePasswordGenerationOptionsResult = .success(PasswordGenerationOptions(
+            capitalize: true,
+            length: 40,
+            lowercase: true,
             minNumber: 5,
-            minSpecial: 1,
-            uppercase: false,
+            minSpecial: 3,
+            number: true,
+            special: true,
+            type: .passphrase,
+            uppercase: true,
         ))
-        policyService.applyPasswordGenerationOptionsResult = true
-        policyService.applyPasswordGenerationOptionsTransform = { options in
-            options.capitalize = true
-            options.length = 40
-            options.lowercase = true
-            options.number = true
-            options.minNumber = 5
-            options.minSpecial = 3
-            options.special = true
-            options.type = .passphrase
-            options.uppercase = true
-        }
+        generatorRepository.getEffectivePasswordGenerationOptionsIsPolicyInEffect = true
 
         setUpSubject()
         waitFor { subject.didLoadGeneratorOptions }
@@ -199,8 +189,86 @@ class GeneratorProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
                 wordSeparator: "-",
             ),
         )
-        XCTAssertTrue(policyService.applyPasswordGenerationOptionsCalled)
         XCTAssertTrue(subject.state.isPolicyInEffect)
+    }
+
+    /// `init` applies forced password rules from `forcedPasswordRules`, constraining the state.
+    @MainActor
+    func test_init_loadsPasswordOptions_withForcedRules() {
+        generatorRepository.getEffectivePasswordGenerationOptionsResult = .success(
+            PasswordGenerationOptions(type: .password),
+        )
+        generatorRepository.getEffectivePasswordGenerationOptionsIsPolicyInEffect = true
+        subject = GeneratorProcessor(
+            coordinator: coordinator.asAnyCoordinator(),
+            services: ServiceContainer.withMocks(
+                billingService: billingService,
+                configService: configService,
+                errorReporter: errorReporter,
+                generatorRepository: generatorRepository,
+                pasteboardService: pasteboardService,
+                policyService: policyService,
+                reviewPromptService: reviewPromptService,
+                stateService: stateService,
+            ),
+            state: GeneratorState(forcedPasswordRules: "minlength: 20;"),
+        )
+        waitFor { subject.didLoadGeneratorOptions }
+
+        XCTAssertEqual(generatorRepository.getEffectivePasswordGenerationOptionsRules, "minlength: 20;")
+        XCTAssertEqual(subject.state.generatorType, .password)
+        XCTAssertTrue(subject.state.isPolicyInEffect)
+    }
+
+    /// `init` forces password mode when forced rules are present, even when policy would produce
+    /// a passphrase.
+    @MainActor
+    func test_init_loadsPasswordOptions_withForcedRules_overridesPassphrasePolicy() {
+        generatorRepository.getEffectivePasswordGenerationOptionsResult = .success(
+            PasswordGenerationOptions(type: .password),
+        )
+        generatorRepository.getEffectivePasswordGenerationOptionsIsPolicyInEffect = true
+        subject = GeneratorProcessor(
+            coordinator: coordinator.asAnyCoordinator(),
+            services: ServiceContainer.withMocks(
+                billingService: billingService,
+                configService: configService,
+                errorReporter: errorReporter,
+                generatorRepository: generatorRepository,
+                pasteboardService: pasteboardService,
+                policyService: policyService,
+                reviewPromptService: reviewPromptService,
+                stateService: stateService,
+            ),
+            state: GeneratorState(forcedPasswordRules: "minlength: 20;"),
+        )
+        waitFor { subject.didLoadGeneratorOptions }
+
+        XCTAssertEqual(subject.state.generatorType, .password)
+        XCTAssertTrue(subject.state.isPolicyInEffect)
+    }
+
+    /// `init` passes forced rules to the repository and uses whatever options it returns.
+    @MainActor
+    func test_init_loadsPasswordOptions_withForcedRules_passesRulesToRepository() {
+        subject = GeneratorProcessor(
+            coordinator: coordinator.asAnyCoordinator(),
+            services: ServiceContainer.withMocks(
+                billingService: billingService,
+                configService: configService,
+                errorReporter: errorReporter,
+                generatorRepository: generatorRepository,
+                pasteboardService: pasteboardService,
+                policyService: policyService,
+                reviewPromptService: reviewPromptService,
+                stateService: stateService,
+            ),
+            state: GeneratorState(forcedPasswordRules: "invalid-rules;"),
+        )
+        waitFor { subject.didLoadGeneratorOptions }
+
+        XCTAssertEqual(generatorRepository.getEffectivePasswordGenerationOptionsRules, "invalid-rules;")
+        XCTAssertFalse(subject.state.isPolicyInEffect)
     }
 
     /// If an error occurs generating a password, an alert is shown.
@@ -300,7 +368,7 @@ class GeneratorProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
     /// If an error occurs loading the generator options, an alert is shown and a new value isn't generated.
     @MainActor
     func test_generateValue_loadGeneratorOptionsError() async {
-        generatorRepository.getPasswordGenerationOptionsResult = .failure(StateServiceError.noActiveAccount)
+        generatorRepository.getEffectivePasswordGenerationOptionsResult = .failure(StateServiceError.noActiveAccount)
         setUpSubject()
 
         await subject.perform(.appeared)
@@ -414,7 +482,7 @@ class GeneratorProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
     /// `perform(_:)` with `.appeared` generates a new generated value after the options have loaded.
     @MainActor
     func test_perform_appear_generatesValueAfterLoadingOptions() {
-        generatorRepository.getPasswordGenerationOptionsResult = .success(
+        generatorRepository.getEffectivePasswordGenerationOptionsResult = .success(
             PasswordGenerationOptions(length: 50),
         )
         setUpSubject()
@@ -433,14 +501,14 @@ class GeneratorProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
     func test_perform_appeared_reloadGeneratorOptions() {
         waitFor(subject.didLoadGeneratorOptions)
 
-        XCTAssertTrue(generatorRepository.getPasswordGenerationOptionsCalled)
-        generatorRepository.getPasswordGenerationOptionsCalled = false
+        XCTAssertTrue(generatorRepository.getEffectivePasswordGenerationOptionsCalled)
+        generatorRepository.getEffectivePasswordGenerationOptionsCalled = false
 
         Task {
             await subject.perform(.appeared)
         }
         waitFor(generatorRepository.passwordGeneratorRequest != nil)
-        XCTAssertTrue(generatorRepository.getPasswordGenerationOptionsCalled)
+        XCTAssertTrue(generatorRepository.getEffectivePasswordGenerationOptionsCalled)
     }
 
     /// `perform(_:)` with `.appeared` logs an error when `loadGeneratorOptions` throws an error.
@@ -448,9 +516,9 @@ class GeneratorProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
     func test_perform_appear_reloadGeneratorOptions_logsError() {
         waitFor(subject.didLoadGeneratorOptions)
 
-        XCTAssertTrue(generatorRepository.getPasswordGenerationOptionsCalled)
-        generatorRepository.getPasswordGenerationOptionsCalled = false
-        generatorRepository.getPasswordGenerationOptionsResult = .failure(
+        XCTAssertTrue(generatorRepository.getEffectivePasswordGenerationOptionsCalled)
+        generatorRepository.getEffectivePasswordGenerationOptionsCalled = false
+        generatorRepository.getEffectivePasswordGenerationOptionsResult = .failure(
             BitwardenTestError.example,
         )
         Task {

@@ -1,3 +1,4 @@
+// swiftlint:disable file_length
 import AuthenticationServices
 import Testing
 
@@ -71,8 +72,8 @@ struct CredentialProviderContextTests { // swiftlint:disable:this type_body_leng
     /// `authCompletionRoute` returns the add item route for a save password request
     /// with user interaction on iOS 26.2+.
     @Test
-    @available(iOS 26.2, *)
     func authCompletionRoute_savePasswordCredential_iOS26() {
+        guard #available(iOS 26.2, *) else { return }
         let credential = ASPasswordCredential(user: "user@example.com", password: "p@ssw0rd")
         let serviceIdentifier = ASCredentialServiceIdentifier(
             identifier: "https://example.com",
@@ -87,7 +88,8 @@ struct CredentialProviderContextTests { // swiftlint:disable:this type_body_leng
         )
         #expect(
             DefaultCredentialProviderContext(.savePasswordCredential(request, userInteraction: true))
-                .authCompletionRoute == AppRoute.vault(.addItem(
+                .authCompletionRoute ==
+                AppRoute.vault(.addItem(
                     group: .login,
                     newCipherOptions: NewCipherOptions(
                         name: "Example",
@@ -131,8 +133,9 @@ struct CredentialProviderContextTests { // swiftlint:disable:this type_body_leng
             !DefaultCredentialProviderContext(.registerFido2Credential(MockPasskeyCredentialRequest())).configuring,
         )
         #expect(
-            !DefaultCredentialProviderContext(.savePasswordCredential(MockSavePasswordRequest(), userInteraction: true))
-                .configuring,
+            !DefaultCredentialProviderContext(
+                .savePasswordCredential(MockSavePasswordRequest(), userInteraction: true),
+            ).configuring,
         )
     }
 
@@ -226,7 +229,7 @@ struct CredentialProviderContextTests { // swiftlint:disable:this type_body_leng
     }
 
     /// `flowWithUserInteraction` returns `true` if the flow has user interaction, `false` otherwise.
-    @Test
+    @Test // swiftlint:disable:next function_body_length
     func flowWithUserInteraction() {
         #expect(DefaultCredentialProviderContext(.autofillVaultList([])).flowWithUserInteraction)
 

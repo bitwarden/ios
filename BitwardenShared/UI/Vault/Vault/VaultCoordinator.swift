@@ -368,6 +368,14 @@ final class VaultCoordinator: Coordinator, HasStackNavigator { // swiftlint:disa
               let stackNavigator else {
             return
         }
+
+        let extensionMode = extensionDelegate.extensionMode
+        let passwordRules: String? = if case let .generatePasswordCredential(proxy, _) = extensionMode {
+            proxy.passwordFieldPasswordRules ?? proxy.passwordRulesFromQuirks
+        } else {
+            nil
+        }
+
         let delegate = GeneratePasswordExtensionDelegate(extensionDelegate: extensionDelegate)
         generatePasswordExtensionDelegate = delegate
         // Use the vault coordinator's own stack navigator so the generator view is set as the
@@ -378,7 +386,7 @@ final class VaultCoordinator: Coordinator, HasStackNavigator { // swiftlint:disa
             stackNavigator: stackNavigator,
         ).asAnyCoordinator()
         coordinator.start()
-        coordinator.navigate(to: .generator(staticType: .password))
+        coordinator.navigate(to: .generator(staticType: .password, passwordRules: passwordRules))
     }
 
     /// Shows the vault group screen.
