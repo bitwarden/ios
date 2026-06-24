@@ -41,7 +41,7 @@ struct PremiumPlanProcessorTests {
 
     // MARK: Tests
 
-    /// `perform(_:)` with `.appeared` logs the error and shows an alert on failure.
+    /// `perform(_:)` with `.appeared` sets the error state and logs on failure.
     @Test
     func perform_appeared_failure() async {
         billingService.getPremiumPlanThrowableError = BitwardenTestError.example
@@ -50,11 +50,11 @@ struct PremiumPlanProcessorTests {
 
         #expect(billingService.getPremiumPlanCallsCount == 1)
         #expect(errorReporter.errors.first as? BitwardenTestError == .example)
-        #expect(coordinator.errorAlertsShown.count == 1)
-        #expect(subject.state.subscription == nil)
+        #expect(coordinator.errorAlertsShown.isEmpty)
+        #expect(subject.state.loadingState == .error(errorMessage: BitwardenTestError.example.localizedDescription))
     }
 
-    /// `perform(_:)` with `.appeared` shows an alert and dismisses when the plan is not available.
+    /// `perform(_:)` with `.appeared` sets the error state when the plan is not available.
     @Test
     func perform_appeared_planNotAvailable() async {
         billingService.getPremiumPlanReturnValue = PremiumPlanResponseModel(
@@ -68,14 +68,9 @@ struct PremiumPlanProcessorTests {
         await subject.perform(.appeared)
 
         #expect(billingService.getPremiumPlanCallsCount == 1)
-        #expect(coordinator.alertShown.count == 1)
-        #expect(
-            coordinator.alertShown.first?.message == Localizations.atTheMomentPremiumPlanIsNotAvailableDescriptionLong,
-        )
-        #expect(subject.state.subscription == nil)
-
-        coordinator.alertOnDismissed?()
-        #expect(coordinator.routes.last == .dismiss)
+        #expect(coordinator.alertShown.isEmpty)
+        #expect(coordinator.routes.isEmpty)
+        #expect(subject.state.loadingState == .error(errorMessage: ""))
     }
 
     /// `perform(_:)` with `.appeared` skips `getSubscription()` when a subscription is pre-loaded in state.
@@ -96,10 +91,10 @@ struct PremiumPlanProcessorTests {
         #expect(billingService.getPremiumPlanCallsCount == 1)
         #expect(billingService.getSubscriptionCallsCount == 0)
         #expect(subject.state.planStatus == .canceled)
-        #expect(subject.state.subscription == preloaded)
+        #expect(subject.state.loadingState == .data(preloaded))
     }
 
-    /// `perform(_:)` with `.appeared` loads the subscription and updates state.
+    /// `perform(_:)` with `.appeared` loads the subscription and transitions to the data state.
     @Test
     func perform_appeared_success() async {
         billingService.getPremiumPlanReturnValue = PremiumPlanResponseModel(
@@ -119,12 +114,16 @@ struct PremiumPlanProcessorTests {
         #expect(billingService.getPremiumPlanCallsCount == 1)
         #expect(billingService.getSubscriptionCallsCount == 1)
         #expect(subject.state.planStatus == .active)
-        #expect(subject.state.subscription != nil)
+        guard case let .data(subscription) = subject.state.loadingState else {
+            Issue.record("Expected .data loadingState")
+            return
+        }
         #expect(subject.state.billingAmount.contains("$19.80"))
         #expect(subject.state.nextChargeAmount.contains("USD"))
         #expect(subject.state.nextChargeAmount.contains("24.35"))
         #expect(!subject.state.nextChargeDate.isEmpty)
         #expect(subject.state.storageCostLabel.contains("$0.00"))
+        _ = subscription
     }
 
     /// `receive(_:)` with `.cancelPremiumTapped` shows the confirmation alert.
@@ -199,5 +198,38 @@ struct PremiumPlanProcessorTests {
         await continueAction.handler?(continueAction, [])
 
         #expect(subject.state.urlToOpen == environmentService.manageSubscriptionURL)
+    }
+
+    /// `perform(_:)` with `.tryAgainTapped` retries loading and transitions to the data state on success.
+    @Test
+    func perform_tryAgainTapped_success() async {
+        billingService.getPremiumPlanReturnValue = PremiumPlanResponseModel(
+            available: true,
+            legacyYear: nil,
+            name: "Premium",
+            seat: PlanPricingResponseModel(price: 12, provided: 1, stripePriceId: "seat"),
+            storage: PlanPricingResponseModel(price: 4.80, provided: 1, stripePriceId: "storage"),
+        )
+        billingService.getSubscriptionReturnValue = .fixture()
+        subject.state.loadingState = .error(errorMessage: "previous error")
+
+        await subject.perform(.tryAgainTapped)
+
+        #expect(billingService.getPremiumPlanCallsCount == 1)
+        #expect(billingService.getSubscriptionCallsCount == 1)
+        #expect(subject.state.loadingState == .data(.fixture()))
+    }
+
+    /// `perform(_:)` with `.tryAgainTapped` sets the error state and logs on failure.
+    @Test
+    func perform_tryAgainTapped_failure() async {
+        billingService.getPremiumPlanThrowableError = BitwardenTestError.example
+        subject.state.loadingState = .error(errorMessage: "previous error")
+
+        await subject.perform(.tryAgainTapped)
+
+        #expect(billingService.getPremiumPlanCallsCount == 1)
+        #expect(errorReporter.errors.first as? BitwardenTestError == .example)
+        #expect(subject.state.loadingState == .error(errorMessage: BitwardenTestError.example.localizedDescription))
     }
 }

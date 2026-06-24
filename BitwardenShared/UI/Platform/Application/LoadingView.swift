@@ -1,4 +1,5 @@
 import BitwardenKit
+import BitwardenResources
 import SwiftUI
 
 // MARK: - LoadingView
@@ -7,6 +8,9 @@ import SwiftUI
 struct LoadingView<T: Equatable & Sendable, Contents: View, ErrorView: View>: View {
     /// The state of this view.
     var state: LoadingState<T>
+
+    /// An optional message displayed below the loading indicator while in the loading state.
+    var loadingMessage: String?
 
     /// A view builder for displaying the loaded contents of this view.
     @ViewBuilder var contents: (T) -> Contents
@@ -17,8 +21,15 @@ struct LoadingView<T: Equatable & Sendable, Contents: View, ErrorView: View>: Vi
     var body: some View {
         switch state {
         case .loading:
-            CircularActivityIndicator()
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
+            VStack(spacing: 12) {
+                CircularActivityIndicator()
+                if let loadingMessage {
+                    Text(loadingMessage)
+                        .styleGuide(.body)
+                        .foregroundColor(Color(asset: SharedAsset.Colors.textPrimary))
+                }
+            }
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
         case let .data(data):
             contents(data)
         case let .error(errorMessage):
@@ -26,34 +37,40 @@ struct LoadingView<T: Equatable & Sendable, Contents: View, ErrorView: View>: Vi
         }
     }
 
-    /// Custom initializer for when ErrorView is EmptyView
+    /// Initializer for when no error view is needed.
     ///
     /// - Parameters:
     ///   - state: The state of this view.
+    ///   - loadingMessage: An optional message to display below the loading indicator.
     ///   - contents: A view builder for displaying the loaded contents of this view.
     ///
     init(
         state: LoadingState<T>,
+        loadingMessage: String? = nil,
         @ViewBuilder contents: @escaping (T) -> Contents,
     ) where ErrorView == EmptyView {
         self.state = state
+        self.loadingMessage = loadingMessage
         self.contents = contents
         errorView = { _ in EmptyView() }
     }
 
-    /// Default initializer
+    /// Initializer for when both a content view and an error view are needed.
     ///
     /// - Parameters:
     ///   - state: The state of this view.
+    ///   - loadingMessage: An optional message to display below the loading indicator.
     ///   - contents: A view builder for displaying the loaded contents of this view.
-    ///   - error: A view builder for displaying the error view with an error message.
+    ///   - errorView: A view builder for displaying the error view with an error message.
     ///
     init(
         state: LoadingState<T>,
+        loadingMessage: String? = nil,
         @ViewBuilder contents: @escaping (T) -> Contents,
         @ViewBuilder errorView: @escaping (String) -> ErrorView,
     ) {
         self.state = state
+        self.loadingMessage = loadingMessage
         self.contents = contents
         self.errorView = errorView
     }
