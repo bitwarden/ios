@@ -92,11 +92,27 @@ struct ViewLoginItemView: View {
     /// Row signifying that Premium subscription is required for TOTP.
     ///
     @ViewBuilder private var premiumSubscriptionRequired: some View {
-        BitwardenField(
-            title: Localizations.authenticatorKey,
-            titleAccessibilityIdentifier: "ItemName",
-        ) {
-            EmptyView()
+        BitwardenField {
+            HStack(spacing: 8) {
+                Text(Localizations.authenticatorKey)
+                    .styleGuide(
+                        .body,
+                        weight: .regular,
+                        includeLinePadding: false,
+                        includeLineSpacing: false,
+                    )
+                    .foregroundColor(SharedAsset.Colors.textSecondary.swiftUIColor)
+                    .accessibilityIdentifier("ItemName")
+
+                Button {
+                    openURL(ExternalLinksConstants.authenticatorHelp)
+                } label: {
+                    SharedAsset.Icons.questionCircle16.swiftUIImage
+                        .scaledFrame(width: 16, height: 16)
+                        .accessibilityLabel(Localizations.learnMore)
+                }
+                .buttonStyle(.fieldLabelIcon)
+            }
         } footer: {
             Button(Localizations.premiumSubscriptionRequired) {
                 store.send(.premiumSubscriptionRequiredTapped)
@@ -105,6 +121,7 @@ struct ViewLoginItemView: View {
             .padding(.vertical, 14)
             .accessibilityIdentifier("PremiumSubscriptionRequiredButton")
         }
+        .accessibilityElement(children: .contain)
     }
 
     /// The username field.
