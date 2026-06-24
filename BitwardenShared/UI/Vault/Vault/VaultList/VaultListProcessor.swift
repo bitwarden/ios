@@ -248,8 +248,6 @@ extension VaultListProcessor {
         state.shouldShowUpgradedToPremiumActionCard = await services.billingService
             .shouldShowUpgradedToPremiumActionCard()
 
-        state.shouldShowSubscriptionAttentionCard = await loadSubscriptionNeedsAttentionCardVisibility()
-
         let isBannerDismissed = await services.stateService.isPremiumUpgradeBannerDismissed()
         guard !isBannerDismissed else {
             state.shouldShowPremiumUpgradeActionCard = false
@@ -725,6 +723,12 @@ extension VaultListProcessor {
         do {
             let collapsedSectionIds = await (try? services.stateService.getCollapsedVaultListSectionIds()) ?? []
             state.collapsedSectionIds = Set(collapsedSectionIds)
+            // Check subscription attention card visibility once, on the first confirmed-data
+            // emission. Doing it here (rather than in `appeared()`) ensures the auth session
+            // is stable after sync — the billing API call in `appeared()` can race against
+            // token initialization on first unlock. Billing status changes mid-session are
+            // handled separately via push notifications (`premiumStatusChanged()`).
+            var hasCheckedSubscriptionCard = false
             for try await vaultList in try await services.vaultRepository
                 .vaultListPublisher(
                     filter: VaultListFilter(
@@ -744,6 +748,11 @@ extension VaultListProcessor {
                     state.toast = nil
                     // If the data is not empty or if a sync is not needed, set the data.
                     state.loadingState = .data(value)
+                    if !hasCheckedSubscriptionCard {
+                        hasCheckedSubscriptionCard = true
+                        state.shouldShowSubscriptionAttentionCard =
+                            await loadSubscriptionNeedsAttentionCardVisibility()
+                    }
                 } else {
                     // Otherwise mark the state as `.loading` until the sync is complete.
                     state.loadingState = .loading(value)
