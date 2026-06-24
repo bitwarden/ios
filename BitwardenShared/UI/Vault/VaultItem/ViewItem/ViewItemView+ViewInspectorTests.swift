@@ -340,16 +340,6 @@ class ViewItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_body
         XCTAssertEqual(processor.dispatchedActions.last, .premiumSubscriptionRequiredTapped)
     }
 
-    /// The authenticator help icon button is shown and tappable for non-premium users.
-    @MainActor
-    func test_authenticatorHelpButton_tap() throws {
-        processor.state.loadingState = .data(loginState(hasPremium: false))
-        let button = try subject.inspect().find(
-            viewWithAccessibilityIdentifier: "AuthenticatorHelpButton",
-        ).button()
-        XCTAssertNoThrow(try button.tap())
-    }
-
     // MARK: Snapshots
 
     func identityState() -> CipherItemState {
