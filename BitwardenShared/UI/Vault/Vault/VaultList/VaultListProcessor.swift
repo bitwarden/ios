@@ -234,6 +234,10 @@ extension VaultListProcessor {
 
     /// Called when the vault list appears on screen.
     private func appeared() async {
+        // Run the subscription attention card check immediately so the card appears
+        // as soon as the billing API responds, without waiting for the vault sync below.
+        state.shouldShowSubscriptionAttentionCard = await loadSubscriptionNeedsAttentionCardVisibility()
+
         await refreshVault(syncWithPeriodicCheck: true)
         await handleNotifications()
         await checkPendingLoginRequests()
@@ -247,8 +251,6 @@ extension VaultListProcessor {
 
         state.shouldShowUpgradedToPremiumActionCard = await services.billingService
             .shouldShowUpgradedToPremiumActionCard()
-
-        state.shouldShowSubscriptionAttentionCard = await loadSubscriptionNeedsAttentionCardVisibility()
 
         let isBannerDismissed = await services.stateService.isPremiumUpgradeBannerDismissed()
         guard !isBannerDismissed else {
