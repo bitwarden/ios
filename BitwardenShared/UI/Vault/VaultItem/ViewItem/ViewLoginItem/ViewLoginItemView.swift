@@ -112,6 +112,7 @@ struct ViewLoginItemView: View {
                         .accessibilityLabel(Localizations.learnMore)
                 }
                 .buttonStyle(.fieldLabelIcon)
+                .accessibilityIdentifier("AuthenticatorHelpButton")
             }
         } footer: {
             Button(Localizations.premiumSubscriptionRequired) {
