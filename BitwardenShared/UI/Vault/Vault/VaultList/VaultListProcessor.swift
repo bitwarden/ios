@@ -726,8 +726,9 @@ extension VaultListProcessor {
             // Check subscription attention card visibility once, on the first confirmed-data
             // emission. Doing it here (rather than in `appeared()`) ensures the auth session
             // is stable after sync — the billing API call in `appeared()` can race against
-            // token initialization on first unlock. Billing status changes mid-session are
-            // handled separately via push notifications (`premiumStatusChanged()`).
+            // token initialization on first unlock. The card is not updated mid-session if
+            // the subscription goes past-due while the app is open; it appears on next unlock
+            // or vault filter change when this stream restarts.
             var hasCheckedSubscriptionCard = false
             for try await vaultList in try await services.vaultRepository
                 .vaultListPublisher(
