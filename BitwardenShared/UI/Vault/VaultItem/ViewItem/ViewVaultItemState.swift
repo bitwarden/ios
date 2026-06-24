@@ -10,6 +10,9 @@ protocol ViewVaultItemState: Sendable, VaultItemWithDecorativeIcon {
     /// The item's attachments.
     var attachments: [AttachmentView]? { get }
 
+    /// The bank account item state.
+    var bankAccountItemState: BankAccountItemState { get set }
+
     /// Whether the item belongs to multiple collections.
     var belongsToMultipleCollections: Bool { get }
 
@@ -27,6 +30,9 @@ protocol ViewVaultItemState: Sendable, VaultItemWithDecorativeIcon {
 
     /// The custom fields state.
     var customFieldsState: AddEditCustomFieldsState { get set }
+
+    /// The driver's license item state.
+    var driversLicenseItemState: DriversLicenseItemState { get set }
 
     /// The name of the folder the cipher belongs to, if any.
     var folderName: String? { get }

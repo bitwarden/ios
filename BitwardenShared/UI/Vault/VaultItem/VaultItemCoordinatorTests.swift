@@ -446,7 +446,7 @@ class VaultItemCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this t
         XCTAssertEqual(module.passwordHistoryCoordinator.routes.last, .passwordHistoryList(.item([.fixture()])))
     }
 
-    /// `navigate(to:)` with `.premiumUpgrade` presents the billing coordinator at the premium upgrade route.
+    /// `navigate(to:)` with `.premiumUpgrade` presents the billing coordinator at the Premium upgrade route.
     @MainActor
     func test_navigateTo_premiumUpgrade() throws {
         subject.navigate(to: .premiumUpgrade)

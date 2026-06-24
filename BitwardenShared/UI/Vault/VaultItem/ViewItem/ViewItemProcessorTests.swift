@@ -299,7 +299,7 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         XCTAssertFalse(vaultRepository.fetchSyncCalled)
     }
 
-    /// `perform(_:)` with `.appeared` observe the premium status of a user.
+    /// `perform(_:)` with `.appeared` observe the Premium status of a user.
     @MainActor
     func test_perform_appeared_nonPremium() {
         let account = Account.fixture()
@@ -638,6 +638,137 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         XCTAssertEqual(subject.state.loadingState, .data(cipherState))
     }
 
+    /// `receive` with `.driversLicenseItemAction` toggles the license number visibility.
+    @MainActor
+    func test_receive_driversLicenseItemAction_toggleLicenseNumberVisibility() throws {
+        let cipherView = CipherView.driversLicenseFixture()
+        var cipherState = CipherItemState(
+            existing: cipherView,
+            hasPremium: true,
+        )!
+        subject.state.loadingState = .data(cipherState)
+        subject.receive(.driversLicenseItemAction(.toggleLicenseNumberVisibilityChanged))
+
+        cipherState.driversLicenseItemState.isLicenseNumberVisible = true
+        XCTAssertEqual(subject.state.loadingState, .data(cipherState))
+    }
+
+    /// `receive` with `.driversLicenseItemAction` while loading logs an error.
+    @MainActor
+    func test_receive_driversLicenseItemAction_impossible_loading() throws {
+        subject.state.loadingState = .loading(nil)
+        subject.receive(.driversLicenseItemAction(.toggleLicenseNumberVisibilityChanged))
+        XCTAssertEqual(
+            errorReporter.errors.first as? ViewItemProcessor.ActionError,
+            ViewItemProcessor.ActionError.dataNotLoaded("Cannot handle driver's license action without loaded data"),
+        )
+    }
+
+    /// `receive` with `.driversLicenseItemAction` throws if the cipher is not of driver's license type.
+    @MainActor
+    func test_receive_driversLicenseItemAction_impossible_nonDriversLicense() throws {
+        let cipherView = CipherView.fixture(
+            id: "123",
+            login: nil,
+            name: "name",
+            revisionDate: Date(),
+            type: .login,
+        )
+        let cipherState = CipherItemState(
+            existing: cipherView,
+            hasPremium: true,
+        )!
+        subject.state.loadingState = .data(cipherState)
+        subject.receive(.driversLicenseItemAction(.toggleLicenseNumberVisibilityChanged))
+        XCTAssertEqual(
+            errorReporter.errors.first as? ViewItemProcessor.ActionError,
+            ViewItemProcessor.ActionError.nonDriversLicenseTypeToggle(
+                "Cannot handle driver's license action on non-driver's license type",
+            ),
+        )
+    }
+
+    /// `receive` with `.bankAccountItemAction` while loading logs an error.
+    @MainActor
+    func test_receive_bankAccountItemAction_impossible_loading() throws {
+        subject.state.loadingState = .loading(nil)
+        subject.receive(.bankAccountItemAction(.toggleAccountNumberVisibilityChanged(true)))
+        XCTAssertEqual(
+            errorReporter.errors.first as? ViewItemProcessor.ActionError,
+            ViewItemProcessor.ActionError.dataNotLoaded("Cannot handle bank account action without loaded data"),
+        )
+    }
+
+    /// `receive` with `.bankAccountItemAction` logs an error if the cipher is not of bank account type.
+    @MainActor
+    func test_receive_bankAccountItemAction_impossible_nonBankAccount() throws {
+        let cipherView = CipherView.fixture(
+            id: "123",
+            login: nil,
+            name: "name",
+            revisionDate: Date(),
+            type: .login,
+        )
+        let cipherState = CipherItemState(
+            existing: cipherView,
+            hasPremium: true,
+        )!
+        subject.state.loadingState = .data(cipherState)
+        subject.receive(.bankAccountItemAction(.toggleAccountNumberVisibilityChanged(true)))
+        XCTAssertEqual(
+            errorReporter.errors.first as? ViewItemProcessor.ActionError,
+            ViewItemProcessor.ActionError.nonBankAccountTypeToggle(
+                "Cannot handle bank account action on non-bank account type",
+            ),
+        )
+    }
+
+    /// `receive` with `.bankAccountItemAction(.toggleAccountNumberVisibilityChanged)` toggles the account number
+    /// visibility.
+    @MainActor
+    func test_receive_bankAccountItemAction_accountNumber() throws {
+        let cipherView = CipherView.bankAccountFixture()
+        var cipherState = CipherItemState(
+            existing: cipherView,
+            hasPremium: true,
+        )!
+        subject.state.loadingState = .data(cipherState)
+        subject.receive(.bankAccountItemAction(.toggleAccountNumberVisibilityChanged(true)))
+
+        cipherState.bankAccountItemState.isAccountNumberVisible = true
+        XCTAssertEqual(subject.state.loadingState, .data(cipherState))
+    }
+
+    /// `receive` with `.bankAccountItemAction(.togglePinVisibilityChanged)` toggles the PIN visibility.
+    @MainActor
+    func test_receive_bankAccountItemAction_pin() throws {
+        let cipherView = CipherView.bankAccountFixture()
+        var cipherState = CipherItemState(
+            existing: cipherView,
+            hasPremium: true,
+        )!
+        subject.state.loadingState = .data(cipherState)
+        subject.receive(.bankAccountItemAction(.togglePinVisibilityChanged(true)))
+
+        cipherState.bankAccountItemState.isPinVisible = true
+        XCTAssertEqual(subject.state.loadingState, .data(cipherState))
+    }
+
+    /// `receive` with `.bankAccountItemAction(.toggleIbanVisibilityChanged)` toggles the IBAN visibility.
+    @MainActor
+    func test_receive_bankAccountItemAction_iban() throws {
+        let cipherView = CipherView.bankAccountFixture()
+        var cipherState = CipherItemState(
+            existing: cipherView,
+            hasPremium: true,
+        )!
+        subject.state.loadingState = .data(cipherState)
+        subject.receive(.bankAccountItemAction(.toggleIbanVisibilityChanged(true)))
+
+        cipherState.bankAccountItemState.isIbanVisible = true
+        XCTAssertEqual(subject.state.loadingState, .data(cipherState))
+    }
+
     /// `receive` with `.copyPressed` copies the value with the pasteboard service and shows a toast.
     @MainActor
     func test_receive_copyPressed() {
@@ -806,7 +937,7 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         XCTAssertEqual(vaultItemActionHelper.archiveReceivedArguments?.cipher.id, "123")
     }
 
-    /// `perform(_:)` with `.archivedPressed` delegates to the premium upgrade helper.
+    /// `perform(_:)` with `.archivedPressed` delegates to the Premium upgrade helper.
     @MainActor
     func test_perform_archivedPressed_navigateToPremiumUpgrade() async {
         let cipherState = CipherItemState(

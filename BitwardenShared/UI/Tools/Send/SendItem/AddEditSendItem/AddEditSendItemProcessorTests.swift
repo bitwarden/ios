@@ -309,7 +309,7 @@ class AddEditSendItemProcessorTests: BitwardenTestCase { // swiftlint:disable:th
         ])
     }
 
-    /// `perform(_:)` with `.savePressed` and no premium shows a premium required alert with
+    /// `perform(_:)` with `.savePressed` and no Premium shows a Premium required alert with
     /// an upgrade action.
     @MainActor
     func test_perform_savePressed_add_file_noPremium() async {
@@ -325,8 +325,8 @@ class AddEditSendItemProcessorTests: BitwardenTestCase { // swiftlint:disable:th
         XCTAssertEqual(coordinator.alertShown, [.fileSendPremiumRequired {}])
     }
 
-    /// `perform(_:)` with `.savePressed` tapping "Upgrade to Premium" in the premium required
-    /// alert triggers the premium upgrade flow.
+    /// `perform(_:)` with `.savePressed` tapping "Upgrade to Premium" in the Premium required
+    /// alert triggers the Premium upgrade flow.
     @MainActor
     func test_perform_savePressed_add_file_noPremium_upgradeAction() async throws {
         sendRepository.doesActivateAccountHavePremiumResult = false
@@ -754,7 +754,7 @@ class AddEditSendItemProcessorTests: BitwardenTestCase { // swiftlint:disable:th
         XCTAssertEqual(subject.state.accessType, .anyoneWithPassword)
     }
 
-    /// `receive(_:)` with `.accessTypeChanged` to specific people adds an empty email row for premium users.
+    /// `receive(_:)` with `.accessTypeChanged` to specific people adds an empty email row for Premium users.
     @MainActor
     func test_receive_accessTypeChanged_specificPeople_addsEmptyEmail() {
         subject.state.hasPremium = true
@@ -776,7 +776,7 @@ class AddEditSendItemProcessorTests: BitwardenTestCase { // swiftlint:disable:th
         XCTAssertEqual(subject.state.recipientEmails, ["test@example.com"])
     }
 
-    /// `receive(_:)` with `.accessTypeChanged` to specific people shows premium alert for non-premium users.
+    /// `receive(_:)` with `.accessTypeChanged` to specific people shows Premium alert for non-Premium users.
     @MainActor
     func test_receive_accessTypeChanged_specificPeople_nonPremium_showsAlert() async throws {
         subject.state.hasPremium = false
@@ -792,7 +792,7 @@ class AddEditSendItemProcessorTests: BitwardenTestCase { // swiftlint:disable:th
         XCTAssertEqual(alert.message, Localizations.sharingWithSpecificPeopleIsPremiumFeatureDescriptionLong)
     }
 
-    /// `receive(_:)` with `.accessTypeChanged` to specific people triggers the premium upgrade
+    /// `receive(_:)` with `.accessTypeChanged` to specific people triggers the Premium upgrade
     /// helper when user taps "Upgrade to Premium" in the alert.
     @MainActor
     func test_receive_accessTypeChanged_specificPeople_nonPremium_upgradeAction() async throws {
@@ -970,7 +970,7 @@ class AddEditSendItemProcessorTests: BitwardenTestCase { // swiftlint:disable:th
 
     // MARK: LoadData Tests
 
-    /// `perform(_:)` with `loadData` loads the premium status.
+    /// `perform(_:)` with `loadData` loads the Premium status.
     @MainActor
     func test_perform_loadData_premium() async {
         sendRepository.doesActivateAccountHavePremiumResult = true
@@ -980,7 +980,7 @@ class AddEditSendItemProcessorTests: BitwardenTestCase { // swiftlint:disable:th
         XCTAssertTrue(subject.state.hasPremium)
     }
 
-    /// `perform(_:)` with `loadData` loads false for premium when not available.
+    /// `perform(_:)` with `loadData` loads false for Premium when not available.
     @MainActor
     func test_perform_loadData_noPremium() async {
         sendRepository.doesActivateAccountHavePremiumResult = false

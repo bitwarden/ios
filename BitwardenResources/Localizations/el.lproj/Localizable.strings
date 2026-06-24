@@ -6,6 +6,7 @@
 "Bitwarden" = "Bitwarden";
 "Cancel" = "Ακύρωση";
 "Copy" = "Αντιγραφή";
+"CopyPassportNumber" = "Αντιγραφή αριθμού διαβατηρίου";
 "CopyPassword" = "Αντιγραφή κωδικού";
 "CopyUsername" = "Αντιγραφή ονόματος χρήστη";
 "Delete" = "Διαγραφή";
@@ -196,11 +197,18 @@
 "CustomFields" = "Προσαρμοσμένα πεδία";
 "CopyNumber" = "Αντιγραφή αριθμού";
 "CopySecurityCode" = "Αντιγραφή κωδικού ασφαλείας";
+"CopyAccountNumber" = "Αντιγραφή αριθμού λογαριασμού";
+"CopyRoutingNumber" = "Αντιγραφή αριθμού υποκαταστήματος";
 "Number" = "Αριθμός";
 "SecurityCode" = "Κωδικός ασφαλείας";
+"AccountNumber" = "Αριθμός λογαριασμού";
+"RoutingNumber" = "Routing number";
+"TypeBankAccount" = "Τραπεζικός λογαριασμός";
 "TypeCard" = "Κάρτα";
 "TypeIdentity" = "Ταυτότητα";
+"TypeLicense" = "License";
 "TypeLogin" = "Σύνδεση";
+"TypePassport" = "Διαβατήριο";
 "TypeSecureNote" = "Ασφαλής σημείωση";
 "Address1" = "Διεύθυνση 1";
 "Address2" = "Διεύθυνση 2";
@@ -549,7 +557,9 @@
 "ThereAreNoCardsInYourVault" = "Δεν υπάρχουν κάρτες στην κρύπτη σας";
 "ThereAreNoNotesInYourVault" = "Δεν υπάρχουν σημειώσεις στην κρύπτη σας";
 "ThereAreNoIdentitiesInYourVault" = "Δεν υπάρχουν ταυτότητες στην κρύπτη σας";
+"ThereAreNoPassportsInYourVault" = "There are no passports in your vault";
 "ThereAreNoSSHKeysInYourVault" = "Δεν υπάρχουν SSH κλειδιά στην κρύπτη σας";
+"ThereAreNoBankAccountsInYourVault" = "There are no bank accounts in your vault";
 "US" = "ΗΠΑ";
 "EU" = "ΕΕ";
 "SelfHosted" = "Αυτο-φιλοξενούμενο";
@@ -1020,7 +1030,7 @@
 "ArchivingItemsIsAPremiumFeatureDescriptionLong" = "Archiving items is a Premium feature. Your current plan does not include access to this feature.";
 "AddingAttachmentsIsAPremiumFeatureDescriptionLong" = "Adding attachments is a Premium feature. Your current plan does not include access to this feature.";
 "AttachmentsUnavailable" = "Μη διαθέσιμα συνημμένα";
-"UpgradeToPremium" = "Upgrade to premium";
+"UpgradeToPremium" = "Upgrade to Premium";
 "ThisItemIsArchived" = "This item is archived.";
 "YourPremiumSubscriptionEnded" = "Your Premium subscription ended";
 "YourPremiumSubscriptionEndedArchiveDescriptionLong" = "To regain access to your archive, restart your Premium subscription. If you edit details for an archived item before restarting, it’ll be moved back into your vault.";
@@ -1085,7 +1095,7 @@
 "NegativeX" = "-%1$@";
 "UnknownStatus" = "Άγνωστο";
 "YourSubscriptionStatusIsUnknownVisitTheWebAppDescriptionLong" = "Your subscription status could not be determined. Please visit the web app for more details or update to the latest version.";
-"AtTheMomentPremiumPlanIsNotAvailableDescriptionLong" = "At the moment premium plan is not available, please try again later.";
+"AtTheMomentPremiumPlanIsNotAvailableDescriptionLong" = "At the moment Premium plan is not available, please try again later.";
 "UnlockMoreAdvancedFeaturesWithPremiumPlan" = "Unlock more advanced features with a Premium plan.";
 "BuiltInAuthenticator" = "Built-in authenticator";
 "EmergencyAccess" = "Πρόσβαση έκτακτης ανάγκης";
@@ -1114,5 +1124,41 @@
 "CheckYourConnectionAndTryAgain" = "Check your connection and try again.";
 "PricingUnavailable" = "Μη διαθέσιμη τιμολόγηση";
 "BankAccount" = "Τραπεζικός λογαριασμός";
+"BankAccounts" = "Bank accounts";
 "License" = "License";
+"Licenses" = "Licenses";
 "Passport" = "Διαβατήριο";
+"Passports" = "Passports";
+"LicenseDetails" = "License details";
+"DateOfBirth" = "Ημερομηνία γέννησης";
+"IssuingCountry" = "Χώρα έκδοσης";
+"IssuingStateProvince" = "Issuing state / province";
+"IssuingAuthority" = "Εκδούσα αρχή/γραφείο";
+"IssueDate" = "Ημερομηνία έκδοσης";
+"ExpirationDate" = "Ημερομηνία λήξης";
+"LicenseClass" = "License class";
+"PassportDetails" = "Passport details";
+/* Label for the sex/gender field as printed on a passport (e.g. "M", "F", "X"). */
+"Sex" = "Sex";
+"BirthPlace" = "Birth place";
+/* Label for the nationality field on a passport (the country a person is a national of). */
+"Nationality" = "Εθνικότητα";
+/* Label for the category of passport (e.g. "Regular/Tourist", "Diplomatic", "Official"). */
+"PassportType" = "Τύπος διαβατηρίου";
+"NationalIdentificationNumber" = "National identification number";
+/* Label for the government authority or office that issued the passport. */
+"IssuingAuthorityOffice" = "Issuing authority/office";
+"AccountDetails" = "Account details";
+"BankName" = "Bank name";
+"NameOnAccount" = "Name on account";
+"AccountType" = "Τύπος λογαριασμού";
+"BranchNumber" = "Αριθμός υποκαταστήματος/ιδρύματος";
+"SwiftCode" = "Κωδικός SWIFT";
+"IBAN" = "IBAN";
+"BankContactPhone" = "Τηλέφωνο επικοινωνίας τράπεζας";
+"CertificateOfDeposit" = "Αποδεικτικό κατάθεσης";
+"Checking" = "Τρεχούμενος";
+"InvestmentBrokerage" = "Investment/brokerage";
+"LineOfCredit" = "Πιστωτικό όριο";
+"MoneyMarket" = "Χρηματαγορά";
+"Savings" = "Ταμιευτηρίου";

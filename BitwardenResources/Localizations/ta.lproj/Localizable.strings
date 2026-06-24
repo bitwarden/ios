@@ -6,6 +6,7 @@
 "Bitwarden" = "Bitwarden";
 "Cancel" = "ரத்துசெய்";
 "Copy" = "நகலெடு";
+"CopyPassportNumber" = "கடவுச்சீட்டு எண்ணை நகலெடு";
 "CopyPassword" = "கடவுச்சொல்லை நகலெடு";
 "CopyUsername" = "பயனர்பெயரை நகலெடு";
 "Delete" = "அழி";
@@ -197,11 +198,18 @@
 "CustomFields" = "தனிப்பயன் புலங்கள்";
 "CopyNumber" = "எண்ணை நகலெடு";
 "CopySecurityCode" = "பாதுகாப்பு குறியீட்டை நகலெடு";
+"CopyAccountNumber" = "Copy account number";
+"CopyRoutingNumber" = "Copy routing number";
 "Number" = "எண்";
 "SecurityCode" = "பாதுகாப்பு குறியீடு";
+"AccountNumber" = "Account number";
+"RoutingNumber" = "Routing number";
+"TypeBankAccount" = "Bank account";
 "TypeCard" = "அட்டை";
 "TypeIdentity" = "அடையாளம்";
+"TypeLicense" = "License";
 "TypeLogin" = "உள்நுழைவு";
+"TypePassport" = "Passport";
 "TypeSecureNote" = "பாதுகாப்பான குறிப்பு";
 "Address1" = "முகவரி ௧";
 "Address2" = "முகவரி ௨";
@@ -550,7 +558,9 @@
 "ThereAreNoCardsInYourVault" = "உங்கள் பெட்டகத்தில் எந்த அட்டைகளும் இல்லை";
 "ThereAreNoNotesInYourVault" = "உங்கள் பெட்டகத்தில் எந்த குறிப்புகளும் இல்லை";
 "ThereAreNoIdentitiesInYourVault" = "உங்கள் பெட்டகத்தில் எந்த அடையாளங்களும் இல்லை";
+"ThereAreNoPassportsInYourVault" = "There are no passports in your vault";
 "ThereAreNoSSHKeysInYourVault" = "உங்கள் பெட்டகத்தில் எந்த SSH விசைகளும் இல்லை";
+"ThereAreNoBankAccountsInYourVault" = "There are no bank accounts in your vault";
 "US" = "அமெரிக்க ஐக்கிய நாடுகள்";
 "EU" = "ஐரோப்பிய ஒன்றியம்";
 "SelfHosted" = "சுய-ஹோஸ்ட்";
@@ -1021,7 +1031,7 @@
 "ArchivingItemsIsAPremiumFeatureDescriptionLong" = "Archiving items is a Premium feature. Your current plan does not include access to this feature.";
 "AddingAttachmentsIsAPremiumFeatureDescriptionLong" = "Adding attachments is a Premium feature. Your current plan does not include access to this feature.";
 "AttachmentsUnavailable" = "Attachments unavailable";
-"UpgradeToPremium" = "Upgrade to premium";
+"UpgradeToPremium" = "Upgrade to Premium";
 "ThisItemIsArchived" = "This item is archived.";
 "YourPremiumSubscriptionEnded" = "Your Premium subscription ended";
 "YourPremiumSubscriptionEndedArchiveDescriptionLong" = "To regain access to your archive, restart your Premium subscription. If you edit details for an archived item before restarting, it’ll be moved back into your vault.";
@@ -1086,7 +1096,7 @@
 "NegativeX" = "-%1$@";
 "UnknownStatus" = "Unknown";
 "YourSubscriptionStatusIsUnknownVisitTheWebAppDescriptionLong" = "Your subscription status could not be determined. Please visit the web app for more details or update to the latest version.";
-"AtTheMomentPremiumPlanIsNotAvailableDescriptionLong" = "At the moment premium plan is not available, please try again later.";
+"AtTheMomentPremiumPlanIsNotAvailableDescriptionLong" = "At the moment Premium plan is not available, please try again later.";
 "UnlockMoreAdvancedFeaturesWithPremiumPlan" = "Unlock more advanced features with a Premium plan.";
 "BuiltInAuthenticator" = "Built-in authenticator";
 "EmergencyAccess" = "Emergency access";
@@ -1115,5 +1125,41 @@
 "CheckYourConnectionAndTryAgain" = "Check your connection and try again.";
 "PricingUnavailable" = "Pricing unavailable";
 "BankAccount" = "Bank account";
+"BankAccounts" = "Bank accounts";
 "License" = "License";
+"Licenses" = "Licenses";
 "Passport" = "Passport";
+"Passports" = "Passports";
+"LicenseDetails" = "License details";
+"DateOfBirth" = "Date of birth";
+"IssuingCountry" = "Issuing country";
+"IssuingStateProvince" = "Issuing state / province";
+"IssuingAuthority" = "Issuing authority";
+"IssueDate" = "Issue date";
+"ExpirationDate" = "Expiration date";
+"LicenseClass" = "License class";
+"PassportDetails" = "Passport details";
+/* Label for the sex/gender field as printed on a passport (e.g. "M", "F", "X"). */
+"Sex" = "Sex";
+"BirthPlace" = "Birth place";
+/* Label for the nationality field on a passport (the country a person is a national of). */
+"Nationality" = "Nationality";
+/* Label for the category of passport (e.g. "Regular/Tourist", "Diplomatic", "Official"). */
+"PassportType" = "Passport type";
+"NationalIdentificationNumber" = "National identification number";
+/* Label for the government authority or office that issued the passport. */
+"IssuingAuthorityOffice" = "Issuing authority/office";
+"AccountDetails" = "Account details";
+"BankName" = "Bank name";
+"NameOnAccount" = "Name on account";
+"AccountType" = "Account type";
+"BranchNumber" = "Branch number";
+"SwiftCode" = "SWIFT code";
+"IBAN" = "IBAN";
+"BankContactPhone" = "Bank contact phone";
+"CertificateOfDeposit" = "Certificate of deposit";
+"Checking" = "Checking";
+"InvestmentBrokerage" = "Investment/brokerage";
+"LineOfCredit" = "Line of credit";
+"MoneyMarket" = "Money market";
+"Savings" = "Savings";

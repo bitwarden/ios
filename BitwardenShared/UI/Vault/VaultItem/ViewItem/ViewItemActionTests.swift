@@ -8,6 +8,14 @@ class ViewItemActionTests: BitwardenTestCase {
 
     /// `eventOnCopy` returns the event to collect for the field.
     func test_eventOnCopy() {
+        XCTAssertNil(CopyableField.accountNumber.eventOnCopy)
+        XCTAssertNil(CopyableField.bankContactPhone.eventOnCopy)
+        XCTAssertNil(CopyableField.branchNumber.eventOnCopy)
+        XCTAssertNil(CopyableField.iban.eventOnCopy)
+        XCTAssertNil(CopyableField.nameOnAccount.eventOnCopy)
+        XCTAssertNil(CopyableField.pin.eventOnCopy)
+        XCTAssertNil(CopyableField.routingNumber.eventOnCopy)
+        XCTAssertNil(CopyableField.swiftCode.eventOnCopy)
         XCTAssertNil(CopyableField.cardNumber.eventOnCopy)
         XCTAssertEqual(CopyableField.customHiddenField.eventOnCopy, .cipherClientCopiedHiddenField)
         XCTAssertNil(CopyableField.customTextField.eventOnCopy)
@@ -29,6 +37,14 @@ class ViewItemActionTests: BitwardenTestCase {
 
     /// `getter:localizedName` returns the correct localized name for each action.
     func test_localizedName() {
+        XCTAssertEqual(CopyableField.accountNumber.localizedName, Localizations.accountNumber)
+        XCTAssertEqual(CopyableField.bankContactPhone.localizedName, Localizations.bankContactPhone)
+        XCTAssertEqual(CopyableField.branchNumber.localizedName, Localizations.branchNumber)
+        XCTAssertEqual(CopyableField.iban.localizedName, Localizations.iban)
+        XCTAssertEqual(CopyableField.nameOnAccount.localizedName, Localizations.nameOnAccount)
+        XCTAssertEqual(CopyableField.pin.localizedName, Localizations.pin)
+        XCTAssertEqual(CopyableField.routingNumber.localizedName, Localizations.routingNumber)
+        XCTAssertEqual(CopyableField.swiftCode.localizedName, Localizations.swiftCode)
         XCTAssertEqual(CopyableField.cardNumber.localizedName, Localizations.number)
         XCTAssertNil(CopyableField.customHiddenField.localizedName)
         XCTAssertNil(CopyableField.customTextField.localizedName)
@@ -41,6 +57,9 @@ class ViewItemActionTests: BitwardenTestCase {
         XCTAssertEqual(CopyableField.uri.localizedName, Localizations.websiteURI)
         XCTAssertEqual(CopyableField.username.localizedName, Localizations.username)
         XCTAssertEqual(CopyableField.identityName.localizedName, Localizations.identityName)
+        XCTAssertEqual(CopyableField.firstName.localizedName, Localizations.firstName)
+        XCTAssertEqual(CopyableField.middleName.localizedName, Localizations.middleName)
+        XCTAssertEqual(CopyableField.lastName.localizedName, Localizations.lastName)
         XCTAssertEqual(CopyableField.company.localizedName, Localizations.company)
         XCTAssertEqual(CopyableField.socialSecurityNumber.localizedName, Localizations.ssn)
         XCTAssertEqual(CopyableField.passportNumber.localizedName, Localizations.passportNumber)

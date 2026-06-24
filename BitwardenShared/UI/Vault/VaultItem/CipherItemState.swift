@@ -33,8 +33,11 @@ struct CipherItemState: Equatable { // swiftlint:disable:this type_body_length
 
     // MARK: Properties
 
-    /// A flag indicating if this account has premium features.
+    /// A flag indicating if this account has Premium features.
     var accountHasPremium: Bool
+
+    /// The bank account item state.
+    var bankAccountItemState = BankAccountItemState()
 
     /// The card item state.
     var cardItemState = CardItemState()
@@ -50,6 +53,9 @@ struct CipherItemState: Equatable { // swiftlint:disable:this type_body_length
 
     /// The custom fields state.
     var customFieldsState: AddEditCustomFieldsState
+
+    /// The driver's license item state.
+    var driversLicenseItemState = DriversLicenseItemState()
 
     /// The identifier of the folder for this item.
     var folderId: String?
@@ -113,6 +119,9 @@ struct CipherItemState: Equatable { // swiftlint:disable:this type_body_length
 
     /// The list of ownership options that can be selected for the cipher.
     var ownershipOptions = [CipherOwner]()
+
+    /// The passport item state.
+    var passportItemState = PassportItemState()
 
     /// If master password reprompt toggle should be shown
     var showMasterPasswordReprompt = true
@@ -441,7 +450,9 @@ struct CipherItemState: Equatable { // swiftlint:disable:this type_body_length
             configuration = .existing(cipherView: cipherView)
         }
 
+        bankAccountItemState = cipherView.bankAccountItemState()
         cardItemState = cipherView.cardItemState()
+        driversLicenseItemState = cipherView.driversLicenseItemState()
         collectionIds = cipherView.collectionIds
         customFieldsState = AddEditCustomFieldsState(cipherType: type, customFields: cipherView.customFields)
         folderId = cipherView.folderId
@@ -457,6 +468,7 @@ struct CipherItemState: Equatable { // swiftlint:disable:this type_body_length
         name = overrideName ?? cipherView.name
         notes = cipherView.notes ?? ""
         organizationId = cipherView.organizationId
+        passportItemState = cipherView.passportItemState()
         sshKeyState = cipherView.sshKeyItemState()
         self.type = type
         updatedDate = cipherView.revisionDate
@@ -570,8 +582,7 @@ extension CipherItemState: ViewVaultItemState {
         case .driversLicense:
             return SharedAsset.Icons.idCard24
         case .passport:
-            // TODO: PM-32805
-            return SharedAsset.Icons.stickyNote24
+            return SharedAsset.Icons.idCard24
         }
     }
 
@@ -650,9 +661,9 @@ extension CipherItemState {
             card: type == .card ? cardItemState.cardView : nil,
             secureNote: type == .secureNote ? .init(type: .generic) : nil,
             sshKey: type == .sshKey ? sshKeyState.sshKeyView : nil,
-            bankAccount: nil, // TODO: PM-32809
-            driversLicense: nil, // TODO: PM-32807
-            passport: nil, // TODO: PM-32805
+            bankAccount: type == .bankAccount ? bankAccountItemState.bankAccountView : nil,
+            driversLicense: type == .driversLicense ? driversLicenseItemState.driversLicenseView : nil,
+            passport: type == .passport ? passportItemState.passportView : nil,
             favorite: isFavoriteOn,
             reprompt: isMasterPasswordRePromptOn ? .password : .none,
             organizationUseTotp: false,

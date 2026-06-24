@@ -365,7 +365,7 @@ class VaultListSectionsBuilderTests: BitwardenTestCase { // swiftlint:disable:th
         }
     }
 
-    /// `addHiddenItemsSection()` adds the hidden items section with archive when the user has premium.
+    /// `addHiddenItemsSection()` adds the hidden items section with archive when the user has Premium.
     @MainActor
     func test_addHiddenItemsSection_hasPremium() async {
         stateService.doesActiveAccountHavePremiumResult = true
@@ -389,8 +389,8 @@ class VaultListSectionsBuilderTests: BitwardenTestCase { // swiftlint:disable:th
         XCTAssertEqual(archiveItem?.hasPremium, true)
     }
 
-    /// `addHiddenItemsSection()` adds archive if the user does not have premium and there are no
-    /// archived items, showing premium required UI.
+    /// `addHiddenItemsSection()` adds archive if the user does not have Premium and there are no
+    /// archived items, showing Premium required UI.
     @MainActor
     func test_addHiddenItemsSection_noPremium_noArchivedItems() async {
         stateService.doesActiveAccountHavePremiumResult = false
@@ -413,12 +413,12 @@ class VaultListSectionsBuilderTests: BitwardenTestCase { // swiftlint:disable:th
         let archiveItem = vaultListData.sections.first?.items.first { $0.id == "Archive" }
         XCTAssertEqual(archiveItem?.hasPremium, false)
 
-        // Verify that premium subscription is required (should show locked icon and subtitle)
+        // Verify that Premium subscription is required (should show locked icon and subtitle)
         XCTAssertEqual(archiveItem?.subtitle, Localizations.premiumSubscriptionRequired)
         XCTAssertEqual(archiveItem?.accessoryIcon?.name, SharedAsset.Icons.locked24.name)
     }
 
-    /// `addHiddenItemsSection()` adds archive when the user does not have premium but there are
+    /// `addHiddenItemsSection()` adds archive when the user does not have Premium but there are
     /// archived items.
     @MainActor
     func test_addHiddenItemsSection_noPremium_hasArchivedItems() async {
@@ -442,7 +442,7 @@ class VaultListSectionsBuilderTests: BitwardenTestCase { // swiftlint:disable:th
         let archiveItem = vaultListData.sections.first?.items.first { $0.id == "Archive" }
         XCTAssertEqual(archiveItem?.hasPremium, false)
 
-        // Verify that premium subscription is NOT required since there are archived items
+        // Verify that Premium subscription is NOT required since there are archived items
         XCTAssertNil(archiveItem?.subtitle)
         XCTAssertNil(archiveItem?.accessoryIcon)
     }
@@ -509,7 +509,7 @@ class VaultListSectionsBuilderTests: BitwardenTestCase { // swiftlint:disable:th
     }
 
     /// `addTypesSection()` adds the Bank Accounts row between Cards and Identities and the Driver's
-    /// License row after Identities when the `.newItemTypes` flag is enabled, using their counts.
+    /// License and Passport rows after Identities when the `.newItemTypes` flag is enabled, using their counts.
     func test_addTypesSection_newItemTypesEnabled() {
         setUpSubject(
             withData: VaultListPreparedData(
@@ -519,6 +519,7 @@ class VaultListSectionsBuilderTests: BitwardenTestCase { // swiftlint:disable:th
                     .driversLicense: 4,
                     .identity: 1,
                     .login: 15,
+                    .passport: 3,
                     .secureNote: 2,
                 ],
                 isNewItemTypesEnabled: true,
@@ -535,6 +536,7 @@ class VaultListSectionsBuilderTests: BitwardenTestCase { // swiftlint:disable:th
               - Group[Types.BankAccounts]: Bank account (3)
               - Group[Types.Identities]: Identity (1)
               - Group[Types.DriversLicense]: License (4)
+              - Group[Types.Passport]: Passport (3)
               - Group[Types.SecureNotes]: Secure note (2)
               - Group[Types.SSHKeys]: SSH key (0)
             """
@@ -570,7 +572,8 @@ class VaultListSectionsBuilderTests: BitwardenTestCase { // swiftlint:disable:th
         }
     }
 
-    /// `addTypesSection()` does not add the Driver's License row when the `.newItemTypes` flag is disabled.
+    /// `addTypesSection()` does not add the Driver's License or Passport rows when the `.newItemTypes`
+    /// flag is disabled.
     func test_addTypesSection_newItemTypesDisabled() {
         setUpSubject(
             withData: VaultListPreparedData(
@@ -579,6 +582,7 @@ class VaultListSectionsBuilderTests: BitwardenTestCase { // swiftlint:disable:th
                     .driversLicense: 4,
                     .identity: 1,
                     .login: 15,
+                    .passport: 3,
                     .secureNote: 2,
                 ],
                 isNewItemTypesEnabled: false,

@@ -6,6 +6,7 @@
 "Bitwarden" = "Bitwarden";
 "Cancel" = "キャンセル";
 "Copy" = "コピー";
+"CopyPassportNumber" = "パスポート番号をコピー";
 "CopyPassword" = "パスワードをコピー";
 "CopyUsername" = "ユーザー名をコピー";
 "Delete" = "削除";
@@ -196,11 +197,18 @@
 "CustomFields" = "カスタムフィールド";
 "CopyNumber" = "番号のコピー";
 "CopySecurityCode" = "セキュリティコードのコピー";
+"CopyAccountNumber" = "口座番号をコピー";
+"CopyRoutingNumber" = "ルーティングナンバーをコピー";
 "Number" = "番号";
 "SecurityCode" = "セキュリティコード";
+"AccountNumber" = "口座番号";
+"RoutingNumber" = "ルーティング/トランジット番号";
+"TypeBankAccount" = "銀行口座";
 "TypeCard" = "カード";
 "TypeIdentity" = "ID";
+"TypeLicense" = "免許証";
 "TypeLogin" = "ログイン";
+"TypePassport" = "パスポート";
 "TypeSecureNote" = "セキュアメモ";
 "Address1" = "住所1";
 "Address2" = "住所2";
@@ -549,7 +557,9 @@
 "ThereAreNoCardsInYourVault" = "保管庫にカードがありません";
 "ThereAreNoNotesInYourVault" = "保管庫にメモがありません";
 "ThereAreNoIdentitiesInYourVault" = "保管庫にIDがありません";
+"ThereAreNoPassportsInYourVault" = "保管庫にパスポートはありません";
 "ThereAreNoSSHKeysInYourVault" = "保管庫に SSH キーがありません";
+"ThereAreNoBankAccountsInYourVault" = "保管庫に銀行口座がありません";
 "US" = "米国";
 "EU" = "EU";
 "SelfHosted" = "自己ホスト型";
@@ -1020,7 +1030,7 @@
 "ArchivingItemsIsAPremiumFeatureDescriptionLong" = "Archiving items is a Premium feature. Your current plan does not include access to this feature.";
 "AddingAttachmentsIsAPremiumFeatureDescriptionLong" = "添付ファイルはプレミアム機能です。現在のプランにはこの機能へのアクセス権が含まれていません。";
 "AttachmentsUnavailable" = "添付ファイルは利用できません";
-"UpgradeToPremium" = "Upgrade to premium";
+"UpgradeToPremium" = "Upgrade to Premium";
 "ThisItemIsArchived" = "This item is archived.";
 "YourPremiumSubscriptionEnded" = "Your Premium subscription ended";
 "YourPremiumSubscriptionEndedArchiveDescriptionLong" = "To regain access to your archive, restart your Premium subscription. If you edit details for an archived item before restarting, it’ll be moved back into your vault.";
@@ -1114,5 +1124,41 @@
 "CheckYourConnectionAndTryAgain" = "接続を確認して再試行してください。";
 "PricingUnavailable" = "料金が利用できません";
 "BankAccount" = "銀行口座";
+"BankAccounts" = "銀行口座";
 "License" = "免許証";
+"Licenses" = "免許証";
 "Passport" = "パスポート";
+"Passports" = "パスポート";
+"LicenseDetails" = "免許証の詳細";
+"DateOfBirth" = "生年月日";
+"IssuingCountry" = "発行国";
+"IssuingStateProvince" = "発行都道府県";
+"IssuingAuthority" = "発行機関/事務所";
+"IssueDate" = "発行日";
+"ExpirationDate" = "有効期限日";
+"LicenseClass" = "免許種別";
+"PassportDetails" = "パスポートの詳細";
+/* Label for the sex/gender field as printed on a passport (e.g. "M", "F", "X"). */
+"Sex" = "性別";
+"BirthPlace" = "出生地";
+/* Label for the nationality field on a passport (the country a person is a national of). */
+"Nationality" = "国籍";
+/* Label for the category of passport (e.g. "Regular/Tourist", "Diplomatic", "Official"). */
+"PassportType" = "パスポートの種類";
+"NationalIdentificationNumber" = "国民識別番号";
+/* Label for the government authority or office that issued the passport. */
+"IssuingAuthorityOffice" = "発行機関/事務所";
+"AccountDetails" = "口座の詳細";
+"BankName" = "銀行名";
+"NameOnAccount" = "口座名義";
+"AccountType" = "口座種別";
+"BranchNumber" = "支店/機関番号";
+"SwiftCode" = "SWIFT コード";
+"IBAN" = "IBAN";
+"BankContactPhone" = "銀行の連絡先";
+"CertificateOfDeposit" = "入金証明書";
+"Checking" = "当座";
+"InvestmentBrokerage" = "投資/証券取引";
+"LineOfCredit" = "限度額";
+"MoneyMarket" = "短期市場";
+"Savings" = "普通";

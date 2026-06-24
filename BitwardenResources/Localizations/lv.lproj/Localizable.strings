@@ -6,6 +6,7 @@
 "Bitwarden" = "Bitwarden";
 "Cancel" = "Atcelt";
 "Copy" = "Ievietot starpliktuvē";
+"CopyPassportNumber" = "Ievietot pases numuru starpliktuvē";
 "CopyPassword" = "Ievietot paroli starpliktuvē";
 "CopyUsername" = "Ievietot lietotājvārdu starpliktuvē";
 "Delete" = "Izdzēst";
@@ -196,11 +197,18 @@
 "CustomFields" = "Pielāgoti lauki";
 "CopyNumber" = "Ievietot numuru starpliktuvē";
 "CopySecurityCode" = "Ievietot drošības kodu starpliktuvē";
+"CopyAccountNumber" = "Copy account number";
+"CopyRoutingNumber" = "Copy routing number";
 "Number" = "Numurs";
 "SecurityCode" = "Drošības kods";
+"AccountNumber" = "Account number";
+"RoutingNumber" = "Routing number";
+"TypeBankAccount" = "Bank account";
 "TypeCard" = "Karte";
 "TypeIdentity" = "Identitāte";
+"TypeLicense" = "Licence";
 "TypeLogin" = "Pieteikšanās vienums";
+"TypePassport" = "Passport";
 "TypeSecureNote" = "Droša piezīme";
 "Address1" = "Adrese 1";
 "Address2" = "Adrese 2";
@@ -549,7 +557,9 @@
 "ThereAreNoCardsInYourVault" = "Glabātavā nav karšu.";
 "ThereAreNoNotesInYourVault" = "Glabātavā nav piezīmju.";
 "ThereAreNoIdentitiesInYourVault" = "Glabātavā nav identitāšu.";
+"ThereAreNoPassportsInYourVault" = "There are no passports in your vault";
 "ThereAreNoSSHKeysInYourVault" = "Glabātavā nav SSH atslēgu";
+"ThereAreNoBankAccountsInYourVault" = "Glabātavā nav bankas kontu";
 "US" = "ASV";
 "EU" = "ES";
 "SelfHosted" = "Pašizvietots";
@@ -1085,7 +1095,7 @@
 "NegativeX" = "-%1$@";
 "UnknownStatus" = "Unknown";
 "YourSubscriptionStatusIsUnknownVisitTheWebAppDescriptionLong" = "Your subscription status could not be determined. Please visit the web app for more details or update to the latest version.";
-"AtTheMomentPremiumPlanIsNotAvailableDescriptionLong" = "At the moment premium plan is not available, please try again later.";
+"AtTheMomentPremiumPlanIsNotAvailableDescriptionLong" = "At the moment Premium plan is not available, please try again later.";
 "UnlockMoreAdvancedFeaturesWithPremiumPlan" = "Atslēdz vairāk papildu iespēju ar Premium plānu!";
 "BuiltInAuthenticator" = "Iebūvēts autentificētājs";
 "EmergencyAccess" = "Ārkārtas piekļuve";
@@ -1114,5 +1124,41 @@
 "CheckYourConnectionAndTryAgain" = "Check your connection and try again.";
 "PricingUnavailable" = "Pricing unavailable";
 "BankAccount" = "Bank account";
+"BankAccounts" = "Bank accounts";
 "License" = "Licence";
+"Licenses" = "Licenses";
 "Passport" = "Passport";
+"Passports" = "Passports";
+"LicenseDetails" = "Informācija par licenci";
+"DateOfBirth" = "Date of birth";
+"IssuingCountry" = "Issuing country";
+"IssuingStateProvince" = "Issuing state / province";
+"IssuingAuthority" = "Issuing authority";
+"IssueDate" = "Issue date";
+"ExpirationDate" = "Expiration date";
+"LicenseClass" = "License class";
+"PassportDetails" = "Pases informācija";
+/* Label for the sex/gender field as printed on a passport (e.g. "M", "F", "X"). */
+"Sex" = "Dzimums";
+"BirthPlace" = "Dzimšanas vieta";
+/* Label for the nationality field on a passport (the country a person is a national of). */
+"Nationality" = "Nationality";
+/* Label for the category of passport (e.g. "Regular/Tourist", "Diplomatic", "Official"). */
+"PassportType" = "Passport type";
+"NationalIdentificationNumber" = "Nacionālais identificēšanas numurs";
+/* Label for the government authority or office that issued the passport. */
+"IssuingAuthorityOffice" = "Izdevējiestāde";
+"AccountDetails" = "Account details";
+"BankName" = "Bank name";
+"NameOnAccount" = "Name on account";
+"AccountType" = "Account type";
+"BranchNumber" = "Branch number";
+"SwiftCode" = "SWIFT code";
+"IBAN" = "IBAN";
+"BankContactPhone" = "Bank contact phone";
+"CertificateOfDeposit" = "Certificate of deposit";
+"Checking" = "Checking";
+"InvestmentBrokerage" = "Investment/brokerage";
+"LineOfCredit" = "Line of credit";
+"MoneyMarket" = "Money market";
+"Savings" = "Savings";

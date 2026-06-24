@@ -7,69 +7,6 @@ import XCTest
 final class ServerConfigTests: BitwardenTestCase {
     // MARK: Tests
 
-    /// `supportsCipherKeyEncryption()` returns `true` when the server version is equal
-    /// to the minimum version that supports cipher key encryption.
-    func test_supportsCipherKeyEncryption_equalValidVersion() {
-        let model = ConfigResponseModel(
-            communication: nil,
-            environment: nil,
-            featureStates: [:],
-            gitHash: "123",
-            server: nil,
-            version: "2024.2.0",
-        )
-
-        let subject = ServerConfig(date: Date(), responseModel: model)
-        XCTAssertTrue(subject.supportsCipherKeyEncryption())
-    }
-
-    /// `supportsCipherKeyEncryption()` returns `true` when the server version is greater
-    /// than the minimum version that supports cipher key encryption.
-    func test_supportsCipherKeyEncryption_greaterValidVersion() {
-        let model = ConfigResponseModel(
-            communication: nil,
-            environment: nil,
-            featureStates: [:],
-            gitHash: "123",
-            server: nil,
-            version: "2024.3.15",
-        )
-
-        let subject = ServerConfig(date: Date(), responseModel: model)
-        XCTAssertTrue(subject.supportsCipherKeyEncryption())
-    }
-
-    /// `supportsCipherKeyEncryption()` returns `false` when the server version is lesser
-    /// than the minimum version that supports cipher key encryption.
-    func test_supportsCipherKeyEncryption_lesserThanVersion() {
-        let model = ConfigResponseModel(
-            communication: nil,
-            environment: nil,
-            featureStates: [:],
-            gitHash: "123",
-            server: nil,
-            version: "2023.1.28",
-        )
-
-        let subject = ServerConfig(date: Date(), responseModel: model)
-        XCTAssertFalse(subject.supportsCipherKeyEncryption())
-    }
-
-    /// `supportsCipherKeyEncryption()` returns `false` when the server version has wrong format.
-    func test_supportsCipherKeyEncryption_wrongFormat() {
-        let model = ConfigResponseModel(
-            communication: nil,
-            environment: nil,
-            featureStates: [:],
-            gitHash: "123",
-            server: nil,
-            version: "20asdfasdf24.2.0",
-        )
-
-        let subject = ServerConfig(date: Date(), responseModel: model)
-        XCTAssertFalse(subject.supportsCipherKeyEncryption())
-    }
-
     /// `init(date:responseModel:)` maps `communication` to `ServerCommunicationSettings` when present.
     func test_init_withCommunicationSettings_ssoCookieVendor() {
         let bootstrap = CommunicationBootstrapSettingsResponseModel(
@@ -176,5 +113,29 @@ final class ServerConfigTests: BitwardenTestCase {
             ServerCommunicationSettings(bootstrap: bootstrapA),
             ServerCommunicationSettings(bootstrap: bootstrapB),
         )
+    }
+
+    /// `init(date:responseModel:)` maps `fillAssistRules` from the environment response model.
+    func test_init_environmentServerConfig_fillAssistRules() {
+        let model = ConfigResponseModel(
+            communication: nil,
+            environment: EnvironmentServerConfigResponseModel(
+                api: nil,
+                cloudRegion: nil,
+                fillAssistRules: "https://custom.example.com/fill-assist",
+                identity: nil,
+                notifications: nil,
+                sso: nil,
+                vault: nil,
+            ),
+            featureStates: [:],
+            gitHash: nil,
+            server: nil,
+            version: "2025.1.0",
+        )
+
+        let subject = ServerConfig(date: Date(), responseModel: model)
+
+        XCTAssertEqual(subject.environment?.fillAssistRules, "https://custom.example.com/fill-assist")
     }
 }

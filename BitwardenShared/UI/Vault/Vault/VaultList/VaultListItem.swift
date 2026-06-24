@@ -41,7 +41,7 @@ public struct VaultListItem: Equatable, Identifiable, Sendable, VaultItemWithDec
     /// The identifier for the item.
     public let id: String
 
-    /// Whether the user has premium subscription.
+    /// Whether the user has Premium subscription.
     /// This is only used on Archive group for now, so it's not being set for any other occasions.
     public let hasPremium: Bool
 
@@ -140,8 +140,7 @@ extension VaultListItem {
             case .driversLicense:
                 SharedAsset.Icons.idCard24
             case .passport:
-                // TODO: PM-32805
-                SharedAsset.Icons.stickyNote24
+                SharedAsset.Icons.idCard24
             }
         case let .group(group, _):
             switch group {
@@ -160,6 +159,8 @@ extension VaultListItem {
                 SharedAsset.Icons.idCard24
             case .login:
                 SharedAsset.Icons.globe24
+            case .passport:
+                SharedAsset.Icons.idCard24
             case .secureNote:
                 SharedAsset.Icons.file24
             case .sshKey:
@@ -196,7 +197,6 @@ extension VaultListItem {
             case .driversLicense:
                 "DriverLicenseCipherIcon"
             case .passport:
-                // TODO: PM-32805
                 "PassportCipherIcon"
             }
         default:
@@ -227,6 +227,8 @@ extension VaultListItem {
                 "IdentityCell"
             case .login:
                 "LoginCell"
+            case .passport:
+                "PassportCell"
             case .secureNote:
                 "SecureNoteCell"
             case .sshKey:
@@ -286,7 +288,7 @@ extension VaultListItem {
 
     // MARK: Private methods
 
-    /// Whether premium subscription is required
+    /// Whether Premium subscription is required
     /// - Parameters:
     ///   - group: The vault list group to check.
     ///   - count: The count of the group to check.

@@ -7,12 +7,12 @@ import XCTest
 
 class AlertVaultTests: BitwardenTestCase { // swiftlint:disable:this type_body_length
     /// `archiveUnavailable(baseURL:handleOpenURL:)` returns an `Alert` notifying the user that
-    /// archiving is unavailable and requires premium.
+    /// archiving is unavailable and requires Premium.
     func test_archiveUnavailable() async throws {
         var called = false
         let subject = Alert.archiveUnavailable { called = true }
 
-        XCTAssertEqual(subject.title, Localizations.archiveUnavailable)
+        XCTAssertEqual(subject.title, Localizations.premiumSubscriptionRequired)
         XCTAssertEqual(subject.message, Localizations.archivingItemsIsAPremiumFeatureDescriptionLong)
         XCTAssertEqual(subject.alertActions.count, 2)
         XCTAssertEqual(subject.alertActions[0].title, Localizations.upgradeToPremium)
@@ -64,7 +64,7 @@ class AlertVaultTests: BitwardenTestCase { // swiftlint:disable:this type_body_l
     }
 
     /// `specificPeopleUnavailable(action:)` returns an `Alert` notifying the user that the
-    /// "Specific People" Send feature requires premium.
+    /// "Specific People" Send feature requires Premium.
     func test_specificPeopleUnavailable() async throws {
         var called = false
         let subject = Alert.specificPeopleUnavailable { called = true }
@@ -376,6 +376,65 @@ class AlertVaultTests: BitwardenTestCase { // swiftlint:disable:this type_body_l
         )
 
         XCTAssertFalse(alert.alertActions.contains(where: { $0.title == Localizations.unarchive }))
+    }
+
+    /// `static moreOptions(canCopyTotp:cipherView:hasMasterPassword:id:showEdit:action:)` returns
+    /// the appropriate options for `.passport` type
+    @MainActor
+    func test_moreOptions_passport() async throws {
+        var capturedAction: MoreOptionsAction?
+        let action: (MoreOptionsAction) -> Void = { action in
+            capturedAction = action
+        }
+        let cipher = CipherView.fixture(
+            edit: false,
+            id: "123",
+            name: "Test Cipher",
+            passport: .fixture(),
+            type: .passport,
+            viewPassword: true,
+        )
+        let alert = Alert.moreOptions(
+            context: MoreOptionsAlertContext(
+                canArchive: false,
+                canCopyTotp: false,
+                canUnarchive: false,
+                cipherView: cipher,
+                id: cipher.id!,
+                showEdit: true,
+            ),
+            action: action,
+        )
+        XCTAssertEqual(alert.title, cipher.name)
+        XCTAssertEqual(alert.preferredStyle, .actionSheet)
+        XCTAssertEqual(alert.alertActions.count, 4)
+
+        try await alert.tapAction(byIndex: 0, withTitle: Localizations.view)
+        XCTAssertEqual(capturedAction, .view(id: "123"))
+        capturedAction = nil
+
+        try await alert.tapAction(byIndex: 1, withTitle: Localizations.edit)
+        XCTAssertEqual(
+            capturedAction,
+            .edit(cipherView: cipher),
+        )
+        capturedAction = nil
+
+        try await alert.tapAction(byIndex: 2, withTitle: Localizations.copyPassportNumber)
+        XCTAssertEqual(
+            capturedAction,
+            .copy(
+                toast: Localizations.passportNumber,
+                value: "P1234567",
+                requiresMasterPasswordReprompt: true,
+                logEvent: nil,
+                cipherId: "123",
+            ),
+        )
+        capturedAction = nil
+
+        try await alert.tapAction(byIndex: 3, withTitle: Localizations.cancel)
+        XCTAssertNil(capturedAction)
     }
 
     /// `static moreOptions(canCopyTotp:cipherView:hasMasterPassword:id:showEdit:action:)` returns

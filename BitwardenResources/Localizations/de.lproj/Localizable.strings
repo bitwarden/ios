@@ -6,6 +6,7 @@
 "Bitwarden" = "Bitwarden";
 "Cancel" = "Abbrechen";
 "Copy" = "Kopieren";
+"CopyPassportNumber" = "Reisepassnummer kopieren";
 "CopyPassword" = "Passwort kopieren";
 "CopyUsername" = "Benutzername kopieren";
 "Delete" = "Löschen";
@@ -175,7 +176,7 @@
 "CopyTotp" = "TOTP kopieren";
 "CopyTotpAutomaticallyDescription" = "Ist ein Authentifizierungsschlüssel mit deinen Zugangsdaten verknüpft, wird der TOTP-Verifizierungscode in die Zwischenablage kopiert, wenn du die Zugangsdaten automatisch ausfüllen lässt.";
 "CopyTotpAutomatically" = "TOTP automatisch kopieren";
-"PremiumRequired" = "Für diese Funktion benötigst du eine Premiummitgliedschaft.";
+"PremiumRequired" = "Für diese Funktion benötigen Sie eine Premiummitgliedschaft.";
 "AttachementAdded" = "Anhang hinzugefügt";
 "AttachmentDeleted" = "Anhang entfernt";
 "ChooseFile" = "Datei auswählen";
@@ -196,11 +197,18 @@
 "CustomFields" = "Benutzerdefinierte Felder";
 "CopyNumber" = "Nummer kopieren";
 "CopySecurityCode" = "Sicherheitscode kopieren";
+"CopyAccountNumber" = "Kontonummer kopieren";
+"CopyRoutingNumber" = "Bankleitzahl kopieren";
 "Number" = "Nummer";
 "SecurityCode" = "Sicherheitscode";
+"AccountNumber" = "Kontonummer";
+"RoutingNumber" = "Bankleitzahl";
+"TypeBankAccount" = "Bankkonto";
 "TypeCard" = "Karte";
 "TypeIdentity" = "Identität";
+"TypeLicense" = "Führerschein";
 "TypeLogin" = "Zugangsdaten";
+"TypePassport" = "Reisepass";
 "TypeSecureNote" = "Sichere Notiz";
 "Address1" = "Adresse 1";
 "Address2" = "Adresse 2";
@@ -549,7 +557,9 @@
 "ThereAreNoCardsInYourVault" = "Du hast keine Karten in deinem Tresor.";
 "ThereAreNoNotesInYourVault" = "Du hast keine Notizen in deinem Tresor.";
 "ThereAreNoIdentitiesInYourVault" = "Du hast keine Identitäten in deinem Tresor.";
+"ThereAreNoPassportsInYourVault" = "Es gibt keine Reisepässe in deinem Tresor";
 "ThereAreNoSSHKeysInYourVault" = "Es gibt keine SSH-Schlüssel in deinem Tresor";
+"ThereAreNoBankAccountsInYourVault" = "Es gibt keine Bankkonten in deinem Tresor";
 "US" = "US";
 "EU" = "EU";
 "SelfHosted" = "Selbst gehostet";
@@ -830,7 +840,7 @@
 "AddWebsite" = "Website hinzufügen";
 "CannotDeleteAccount" = "Konto kann nicht gelöscht werden";
 "CannotDeleteAccountDescriptionLong" = "Diese Aktion kann nicht abgeschlossen werden, da dein Konto im Besitz einer Organisation ist. Kontaktiere deinen Organisationsadministrator für weitere Details.";
-"AddItem" = "Neuer Eintrag";
+"AddItem" = "Eintrag hinzufügen";
 "SetUpAuthenticatorKey" = "Authenticator-Schlüssel einrichten";
 "ItemDetails" = "Eintrag-Details";
 "CardDetails" = "Kartendetails";
@@ -1114,5 +1124,41 @@
 "CheckYourConnectionAndTryAgain" = "Prüfe deine Verbindung und versuche es erneut.";
 "PricingUnavailable" = "Preise nicht verfügbar";
 "BankAccount" = "Bankkonto";
+"BankAccounts" = "Bankkonten";
 "License" = "Führerschein";
+"Licenses" = "Führerscheine";
 "Passport" = "Reisepass";
+"Passports" = "Reisepässe";
+"LicenseDetails" = "Führerscheindetails";
+"DateOfBirth" = "Geburtsdatum";
+"IssuingCountry" = "Ausstellendes Land";
+"IssuingStateProvince" = "Ausstellendes Bundesland/Stadt/Landkreis";
+"IssuingAuthority" = "Ausstellende Behörde/Stelle";
+"IssueDate" = "Ausstellungsdatum";
+"ExpirationDate" = "Ablaufdatum";
+"LicenseClass" = "Führerscheinklasse";
+"PassportDetails" = "Reisepassdetails";
+/* Label for the sex/gender field as printed on a passport (e.g. "M", "F", "X"). */
+"Sex" = "Geschlecht";
+"BirthPlace" = "Geburtsort";
+/* Label for the nationality field on a passport (the country a person is a national of). */
+"Nationality" = "Nationalität";
+/* Label for the category of passport (e.g. "Regular/Tourist", "Diplomatic", "Official"). */
+"PassportType" = "Reisepasstyp";
+"NationalIdentificationNumber" = "Nationale Identifikationsnummer";
+/* Label for the government authority or office that issued the passport. */
+"IssuingAuthorityOffice" = "Ausstellende Behörde/Stelle";
+"AccountDetails" = "Kontodetails";
+"BankName" = "Bankname";
+"NameOnAccount" = "Name des Kontoinhabers";
+"AccountType" = "Kontoart";
+"BranchNumber" = "Filial-/Institutionsnummer";
+"SwiftCode" = "SWIFT-Code";
+"IBAN" = "IBAN";
+"BankContactPhone" = "Telefonnummer der Bank";
+"CertificateOfDeposit" = "Einlagenzertifikat";
+"Checking" = "Wird überprüft";
+"InvestmentBrokerage" = "Anlage/Wertpapierhandel";
+"LineOfCredit" = "Kreditrahmen";
+"MoneyMarket" = "Finanzmarkt";
+"Savings" = "Ersparnisse";

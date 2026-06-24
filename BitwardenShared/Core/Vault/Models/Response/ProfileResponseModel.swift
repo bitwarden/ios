@@ -46,15 +46,18 @@ struct ProfileResponseModel: Codable, Equatable, AccountKeysResponseModelProtoco
     /// Falls back to `organizations` when absent.
     let organizationsNew: [ProfileOrganizationResponseModel]?
 
-    /// Whether the user has a premium account.
+    /// Whether the user has a Premium account.
     let premium: Bool
 
-    /// Whether the user has a premium account from their organization.
+    /// Whether the user has a Premium account from their organization.
     @DefaultFalse var premiumFromOrganization: Bool
 
     /// The user's private key.
     @available(*, deprecated, message: "Use accountKeys instead when possible") // TODO: PM-24659 remove
     let privateKey: String?
+
+    /// A list of organizations that the user has access to via a provider relationship.
+    let providerOrganizations: [ProfileProviderOrganizationResponseModel]?
 
     /// The user's security stamp.
     let securityStamp: String?
@@ -64,4 +67,24 @@ struct ProfileResponseModel: Codable, Equatable, AccountKeysResponseModelProtoco
 
     /// Whether the user uses key connector.
     @DefaultFalse var usesKeyConnector: Bool
+
+    // MARK: Computed Properties
+
+    /// The effective list of organizations for this profile.
+    ///
+    /// Prefers `organizationsNew` (accepted-state members) over the legacy `organizations` list,
+    /// and coalesces `isProviderUser` by checking membership in `providerOrganizations`.
+    /// Returns `nil` when neither list is present.
+    var effectiveOrganizations: [ProfileOrganizationResponseModel]? {
+        guard let rawOrganizations = organizationsNew ?? organizations else { return nil }
+
+        let providerOrgIds = Set(providerOrganizations?.map(\.id) ?? [])
+        guard !providerOrgIds.isEmpty else { return rawOrganizations }
+        return rawOrganizations.map { org in
+            guard providerOrgIds.contains(org.id) else { return org }
+            var mutable = org
+            mutable.isProviderUser = true
+            return mutable
+        }
+    }
 }

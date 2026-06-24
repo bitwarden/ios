@@ -29,8 +29,14 @@ final class ViewItemProcessor: StateProcessor<ViewItemState, ViewItemAction, Vie
         /// An action that requires data has been performed while loading.
         case dataNotLoaded(String)
 
+        /// An error for bank account action handling
+        case nonBankAccountTypeToggle(String)
+
         /// An error for card action handling
         case nonCardTypeToggle(String)
+
+        /// An error for driver's license action handling
+        case nonDriversLicenseTypeToggle(String)
 
         /// A password visibility toggle occurred when not possible.
         case nonLoginPasswordToggle(String)
@@ -59,7 +65,7 @@ final class ViewItemProcessor: StateProcessor<ViewItemState, ViewItemAction, Vie
     /// The services used by this processor.
     private let services: Services
 
-    /// The helper used to navigate to the premium upgrade flow.
+    /// The helper used to navigate to the Premium upgrade flow.
     lazy var premiumUpgradeHelper: PremiumUpgradeHelper = DefaultPremiumUpgradeHelper(
         services: services,
         coordinator: coordinator,
@@ -147,6 +153,8 @@ final class ViewItemProcessor: StateProcessor<ViewItemState, ViewItemAction, Vie
 
     override func receive(_ action: ViewItemAction) { // swiftlint:disable:this function_body_length
         switch action {
+        case let .bankAccountItemAction(bankAccountAction):
+            handleBankAccountAction(bankAccountAction)
         case let .cardItemAction(cardAction):
             handleCardAction(cardAction)
         case .clearURL:
@@ -177,6 +185,8 @@ final class ViewItemProcessor: StateProcessor<ViewItemState, ViewItemAction, Vie
             coordinator.navigate(to: .dismiss())
         case let .downloadAttachment(attachment):
             confirmDownload(attachment)
+        case let .driversLicenseItemAction(action):
+            handleDriversLicenseAction(action)
         case .editPressed:
             editItem()
         case let .morePressed(menuAction):
@@ -239,7 +249,7 @@ private extension ViewItemProcessor {
         }
     }
 
-    /// Navigates to the premium upgrade flow. Uses the in-app upgrade path when available;
+    /// Navigates to the Premium upgrade flow. Uses the in-app upgrade path when available;
     /// otherwise opens the web vault upgrade URL as a fallback.
     ///
     private func navigateToPremiumUpgrade() async {
@@ -371,6 +381,38 @@ private extension ViewItemProcessor {
         )
     }
 
+    /// Handles `ViewBankAccountItemAction` events.
+    ///
+    /// - Parameter action: The action to handle.
+    ///
+    private func handleBankAccountAction(_ action: ViewBankAccountItemAction) {
+        guard case var .data(cipherState) = state.loadingState else {
+            services.errorReporter.log(
+                error: ActionError.dataNotLoaded("Cannot handle bank account action without loaded data"),
+            )
+            return
+        }
+        guard case .bankAccount = cipherState.type else {
+            services.errorReporter.log(
+                error: ActionError.nonBankAccountTypeToggle(
+                    "Cannot handle bank account action on non-bank account type",
+                ),
+            )
+            return
+        }
+        switch action {
+        case let .toggleAccountNumberVisibilityChanged(isVisible):
+            cipherState.bankAccountItemState.isAccountNumberVisible = isVisible
+            state.loadingState = .data(cipherState)
+        case let .toggleIbanVisibilityChanged(isVisible):
+            cipherState.bankAccountItemState.isIbanVisible = isVisible
+            state.loadingState = .data(cipherState)
+        case let .togglePinVisibilityChanged(isVisible):
+            cipherState.bankAccountItemState.isPinVisible = isVisible
+            state.loadingState = .data(cipherState)
+        }
+    }
+
     /// Handles `ViewCardItemAction` events.
     ///
     /// - Parameter cardAction: The action to handle.
@@ -411,6 +453,32 @@ private extension ViewItemProcessor {
                     )
                 }
             }
+        }
+    }
+
+    /// Handles `ViewDriversLicenseItemAction` events.
+    ///
+    /// - Parameter action: The action to handle.
+    ///
+    private func handleDriversLicenseAction(_ action: ViewDriversLicenseItemAction) {
+        guard case var .data(cipherState) = state.loadingState else {
+            services.errorReporter.log(
+                error: ActionError.dataNotLoaded("Cannot handle driver's license action without loaded data"),
+            )
+            return
+        }
+        guard case .driversLicense = cipherState.type else {
+            services.errorReporter.log(
+                error: ActionError.nonDriversLicenseTypeToggle(
+                    "Cannot handle driver's license action on non-driver's license type",
+                ),
+            )
+            return
+        }
+        switch action {
+        case .toggleLicenseNumberVisibilityChanged:
+            cipherState.driversLicenseItemState.isLicenseNumberVisible.toggle()
+            state.loadingState = .data(cipherState)
         }
     }
 
@@ -619,7 +687,7 @@ private extension ViewItemProcessor {
 private extension ViewItemProcessor {
     /// Updates the TOTP code for the view.
     func updateTOTPCode() async {
-        // Only update the code if the user has premium and there is a valid TOTP key model.
+        // Only update the code if the user has Premium and there is a valid TOTP key model.
         guard state.hasPremiumFeatures,
               case let .data(cipherItemState) = state.loadingState,
               let calculationKey = cipherItemState.loginState.totpState.authKeyModel

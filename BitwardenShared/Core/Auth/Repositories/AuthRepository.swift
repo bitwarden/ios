@@ -267,10 +267,15 @@ protocol AuthRepository: AnyObject {
     /// Attempts to unlock the user's vault with the user's Key Connector key.
     ///
     /// - Parameters:
-    ///   - keyConnectorUrl: The URL to the Key Connector API.
+    ///   - keyConnectorKeyWrappedUserKey: The user key encrypted (wrapped) by the Key Connector key.
+    ///   - keyConnectorURL: The URL to the Key Connector API.
     ///   - orgIdentifier: The text identifier for the organization.
     ///
-    func unlockVaultWithKeyConnectorKey(keyConnectorURL: URL, orgIdentifier: String) async throws
+    func unlockVaultWithKeyConnectorKey(
+        keyConnectorKeyWrappedUserKey: String,
+        keyConnectorURL: URL,
+        orgIdentifier: String,
+    ) async throws
 
     /// Attempts to unlock the user's vault with the stored neverlock key.
     ///
@@ -493,6 +498,9 @@ class DefaultAuthRepository {
     /// The service used by the application to manage account state.
     private let stateService: StateService
 
+    /// The service used by the application to handle syncing vault data with the API.
+    private let syncService: SyncService
+
     /// The service used by the application to manage trust device information.
     private let trustDeviceService: TrustDeviceService
 
@@ -527,6 +535,7 @@ class DefaultAuthRepository {
     ///     user-related API requests.
     ///   - policyService: The service used by the application to manage the policy.
     ///   - stateService: The service used by the application to manage account state.
+    ///   - syncService: The service used by the application to handle syncing vault data with the API.
     ///   - trustDeviceService: The service used by the application to manage trust device information.
     ///   - userSessionStateService: The service used by the application to manage user session state.
     ///   - vaultTimeoutService: The service used by the application to manage vault access.
@@ -551,6 +560,7 @@ class DefaultAuthRepository {
         organizationUserAPIService: OrganizationUserAPIService,
         policyService: PolicyService,
         stateService: StateService,
+        syncService: SyncService,
         trustDeviceService: TrustDeviceService,
         userSessionStateService: UserSessionStateService,
         vaultTimeoutService: VaultTimeoutService,
@@ -574,6 +584,7 @@ class DefaultAuthRepository {
         self.organizationUserAPIService = organizationUserAPIService
         self.policyService = policyService
         self.stateService = stateService
+        self.syncService = syncService
         self.trustDeviceService = trustDeviceService
         self.userSessionStateService = userSessionStateService
         self.vaultTimeoutService = vaultTimeoutService
@@ -1092,17 +1103,15 @@ extension DefaultAuthRepository: AuthRepository {
         ))
     }
 
-    func unlockVaultWithKeyConnectorKey(keyConnectorURL: URL, orgIdentifier: String) async throws {
-        let account = try await stateService.getActiveAccount()
-
-        let encryptionKeys = try await stateService.getAccountEncryptionKeys(userId: account.profile.userId)
-
-        guard let encryptedUserKey = encryptionKeys.encryptedUserKey else { throw StateServiceError.noEncUserKey }
-
-        let masterKey = try await keyConnectorService.getMasterKeyFromKeyConnector(
-            keyConnectorUrl: keyConnectorURL,
-        )
-        try await unlockVault(method: .keyConnector(masterKey: masterKey, userKey: encryptedUserKey))
+    func unlockVaultWithKeyConnectorKey(
+        keyConnectorKeyWrappedUserKey: String,
+        keyConnectorURL: URL,
+        orgIdentifier: String,
+    ) async throws {
+        try await unlockVault(method: .keyConnectorUrl(
+            url: keyConnectorURL.absoluteString,
+            keyConnectorKeyWrappedUserKey: keyConnectorKeyWrappedUserKey,
+        ))
     }
 
     func unlockVaultWithNeverlockKey() async throws {
@@ -1113,7 +1122,15 @@ extension DefaultAuthRepository: AuthRepository {
     }
 
     func unlockVaultWithPassword(password: String) async throws {
-        let account = try await stateService.getActiveAccount()
+        var account = try await stateService.getActiveAccount()
+
+        if account.profile.userDecryptionOptions?.masterPasswordUnlock == nil {
+            // masterPasswordUnlock can be missing if the account data was stored before the server
+            // added it. Force a sync to refresh it.
+            // TODO: PM-37535 Investigate if this check is still needed.
+            try await syncService.fetchSync(forceSync: true)
+            account = try await stateService.getActiveAccount()
+        }
 
         guard let masterPasswordUnlock = account.profile.userDecryptionOptions?.masterPasswordUnlock else {
             throw AuthError.missingMasterPasswordUnlockData

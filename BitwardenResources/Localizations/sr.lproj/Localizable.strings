@@ -6,6 +6,7 @@
 "Bitwarden" = "Bitwarden";
 "Cancel" = "Откажи";
 "Copy" = "Копирај";
+"CopyPassportNumber" = "Копирати број пасоша";
 "CopyPassword" = "Копирај лозинку";
 "CopyUsername" = "Копирај име";
 "Delete" = "Обриши";
@@ -196,11 +197,18 @@
 "CustomFields" = "Прилагођена Поља";
 "CopyNumber" = "Копирај број";
 "CopySecurityCode" = "Копирај сигурносни код";
+"CopyAccountNumber" = "Copy account number";
+"CopyRoutingNumber" = "Copy routing number";
 "Number" = "Број";
 "SecurityCode" = "Сигурносни код";
+"AccountNumber" = "Account number";
+"RoutingNumber" = "Routing number";
+"TypeBankAccount" = "Bank account";
 "TypeCard" = "Кредитна Картица";
 "TypeIdentity" = "Идентитет";
+"TypeLicense" = "License";
 "TypeLogin" = "Пријава";
+"TypePassport" = "Passport";
 "TypeSecureNote" = "Сигурносна белешка";
 "Address1" = "Адреса 1";
 "Address2" = "Адреса 2";
@@ -549,7 +557,9 @@
 "ThereAreNoCardsInYourVault" = "У вашем сефу нема картице";
 "ThereAreNoNotesInYourVault" = "У вашем сефу нема белешке";
 "ThereAreNoIdentitiesInYourVault" = "У вашем сефу нема идентитета";
+"ThereAreNoPassportsInYourVault" = "There are no passports in your vault";
 "ThereAreNoSSHKeysInYourVault" = "У вашем сефу нема SSH кључева";
+"ThereAreNoBankAccountsInYourVault" = "There are no bank accounts in your vault";
 "US" = "US";
 "EU" = "EU";
 "SelfHosted" = "Личан хостинг";
@@ -1085,7 +1095,7 @@
 "NegativeX" = "-%1$@";
 "UnknownStatus" = "Unknown";
 "YourSubscriptionStatusIsUnknownVisitTheWebAppDescriptionLong" = "Your subscription status could not be determined. Please visit the web app for more details or update to the latest version.";
-"AtTheMomentPremiumPlanIsNotAvailableDescriptionLong" = "At the moment premium plan is not available, please try again later.";
+"AtTheMomentPremiumPlanIsNotAvailableDescriptionLong" = "At the moment Premium plan is not available, please try again later.";
 "UnlockMoreAdvancedFeaturesWithPremiumPlan" = "Откључајте више напредних функција уз Премијум план.";
 "BuiltInAuthenticator" = "Уграђени аутентификатор";
 "EmergencyAccess" = "Хитан приступ";
@@ -1114,5 +1124,41 @@
 "CheckYourConnectionAndTryAgain" = "Check your connection and try again.";
 "PricingUnavailable" = "Pricing unavailable";
 "BankAccount" = "Bank account";
+"BankAccounts" = "Bank accounts";
 "License" = "License";
+"Licenses" = "Licenses";
 "Passport" = "Passport";
+"Passports" = "Passports";
+"LicenseDetails" = "License details";
+"DateOfBirth" = "Date of birth";
+"IssuingCountry" = "Issuing country";
+"IssuingStateProvince" = "Issuing state / province";
+"IssuingAuthority" = "Issuing authority";
+"IssueDate" = "Issue date";
+"ExpirationDate" = "Expiration date";
+"LicenseClass" = "License class";
+"PassportDetails" = "Passport details";
+/* Label for the sex/gender field as printed on a passport (e.g. "M", "F", "X"). */
+"Sex" = "Sex";
+"BirthPlace" = "Birth place";
+/* Label for the nationality field on a passport (the country a person is a national of). */
+"Nationality" = "Nationality";
+/* Label for the category of passport (e.g. "Regular/Tourist", "Diplomatic", "Official"). */
+"PassportType" = "Passport type";
+"NationalIdentificationNumber" = "National identification number";
+/* Label for the government authority or office that issued the passport. */
+"IssuingAuthorityOffice" = "Issuing authority/office";
+"AccountDetails" = "Account details";
+"BankName" = "Bank name";
+"NameOnAccount" = "Name on account";
+"AccountType" = "Account type";
+"BranchNumber" = "Branch number";
+"SwiftCode" = "SWIFT code";
+"IBAN" = "IBAN";
+"BankContactPhone" = "Bank contact phone";
+"CertificateOfDeposit" = "Certificate of deposit";
+"Checking" = "Checking";
+"InvestmentBrokerage" = "Investment/brokerage";
+"LineOfCredit" = "Line of credit";
+"MoneyMarket" = "Money market";
+"Savings" = "Savings";

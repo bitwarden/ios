@@ -6,6 +6,7 @@
 "Bitwarden" = "Bitwarden";
 "Cancel" = "Annulla";
 "Copy" = "Copia";
+"CopyPassportNumber" = "Copia numero passaporto";
 "CopyPassword" = "Copia password";
 "CopyUsername" = "Copia nome utente";
 "Delete" = "Elimina";
@@ -175,7 +176,7 @@
 "CopyTotp" = "Copia TOTP";
 "CopyTotpAutomaticallyDescription" = "Se un login ha una chiave di autenticazione, copia il codice di verifica TOTP negli appunti quando riempi automaticamente il login.";
 "CopyTotpAutomatically" = "Copia TOTP automaticamente";
-"PremiumRequired" = "Un abbonamento premium è richiesto per utilizzare questa funzionalità.";
+"PremiumRequired" = "Un abbonamento Premium è richiesto per utilizzare questa funzionalità.";
 "AttachementAdded" = "Allegato aggiunto";
 "AttachmentDeleted" = "Allegato eliminato";
 "ChooseFile" = "Seleziona file";
@@ -196,11 +197,18 @@
 "CustomFields" = "Campi personalizzati";
 "CopyNumber" = "Copia numero";
 "CopySecurityCode" = "Copia codice di sicurezza";
+"CopyAccountNumber" = "Copy account number";
+"CopyRoutingNumber" = "Copy routing number";
 "Number" = "Numero";
 "SecurityCode" = "Codice di sicurezza";
+"AccountNumber" = "Account number";
+"RoutingNumber" = "Routing number";
+"TypeBankAccount" = "Bank account";
 "TypeCard" = "Carta";
 "TypeIdentity" = "Identità";
+"TypeLicense" = "License";
 "TypeLogin" = "Login";
+"TypePassport" = "Passport";
 "TypeSecureNote" = "Nota sicura";
 "Address1" = "Indirizzo 1";
 "Address2" = "Indirizzo 2";
@@ -549,7 +557,9 @@
 "ThereAreNoCardsInYourVault" = "La cassaforte non contiene carte";
 "ThereAreNoNotesInYourVault" = "La cassaforte non contiene note";
 "ThereAreNoIdentitiesInYourVault" = "La cassaforte non contiene identità";
+"ThereAreNoPassportsInYourVault" = "There are no passports in your vault";
 "ThereAreNoSSHKeysInYourVault" = "Non ci sono chiavi SSH nella cassaforte";
+"ThereAreNoBankAccountsInYourVault" = "There are no bank accounts in your vault";
 "US" = "US";
 "EU" = "EU";
 "SelfHosted" = "Self-hosted";
@@ -1085,7 +1095,7 @@
 "NegativeX" = "-%1$@";
 "UnknownStatus" = "Unknown";
 "YourSubscriptionStatusIsUnknownVisitTheWebAppDescriptionLong" = "Your subscription status could not be determined. Please visit the web app for more details or update to the latest version.";
-"AtTheMomentPremiumPlanIsNotAvailableDescriptionLong" = "At the moment premium plan is not available, please try again later.";
+"AtTheMomentPremiumPlanIsNotAvailableDescriptionLong" = "At the moment Premium plan is not available, please try again later.";
 "UnlockMoreAdvancedFeaturesWithPremiumPlan" = "Unlock more advanced features with a Premium plan.";
 "BuiltInAuthenticator" = "Built-in authenticator";
 "EmergencyAccess" = "Emergency access";
@@ -1114,5 +1124,41 @@
 "CheckYourConnectionAndTryAgain" = "Check your connection and try again.";
 "PricingUnavailable" = "Pricing unavailable";
 "BankAccount" = "Bank account";
+"BankAccounts" = "Bank accounts";
 "License" = "License";
+"Licenses" = "Licenses";
 "Passport" = "Passport";
+"Passports" = "Passports";
+"LicenseDetails" = "License details";
+"DateOfBirth" = "Date of birth";
+"IssuingCountry" = "Issuing country";
+"IssuingStateProvince" = "Issuing state / province";
+"IssuingAuthority" = "Issuing authority";
+"IssueDate" = "Issue date";
+"ExpirationDate" = "Expiration date";
+"LicenseClass" = "License class";
+"PassportDetails" = "Passport details";
+/* Label for the sex/gender field as printed on a passport (e.g. "M", "F", "X"). */
+"Sex" = "Sex";
+"BirthPlace" = "Birth place";
+/* Label for the nationality field on a passport (the country a person is a national of). */
+"Nationality" = "Nationality";
+/* Label for the category of passport (e.g. "Regular/Tourist", "Diplomatic", "Official"). */
+"PassportType" = "Passport type";
+"NationalIdentificationNumber" = "National identification number";
+/* Label for the government authority or office that issued the passport. */
+"IssuingAuthorityOffice" = "Issuing authority/office";
+"AccountDetails" = "Account details";
+"BankName" = "Bank name";
+"NameOnAccount" = "Name on account";
+"AccountType" = "Account type";
+"BranchNumber" = "Branch number";
+"SwiftCode" = "SWIFT code";
+"IBAN" = "IBAN";
+"BankContactPhone" = "Bank contact phone";
+"CertificateOfDeposit" = "Certificate of deposit";
+"Checking" = "Checking";
+"InvestmentBrokerage" = "Investment/brokerage";
+"LineOfCredit" = "Line of credit";
+"MoneyMarket" = "Money market";
+"Savings" = "Savings";

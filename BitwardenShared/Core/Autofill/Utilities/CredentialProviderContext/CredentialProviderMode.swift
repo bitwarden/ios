@@ -30,6 +30,9 @@ public enum CredentialProviderMode {
 
     /// The extension is being configured to register a Fido2 credential.
     case registerFido2Credential(any PasskeyCredentialRequest)
+
+    /// The extension is saving a password credential.
+    case savePasswordCredential(any SavePasswordRequestProxy, userInteraction: Bool)
 }
 
 /// Protocol to bypass using @available for passkey requests.
@@ -38,8 +41,14 @@ public protocol PasskeyCredentialRequest {}
 /// Protocol to bypass using @available for OTP credential identities.
 public protocol OneTimeCodeCredentialIdentityProxy {}
 
+/// Protocol to bypass using @available for save password requests (iOS 26.2+).
+public protocol SavePasswordRequestProxy {}
+
 @available(iOSApplicationExtension 17.0, *)
 extension ASPasskeyCredentialRequest: PasskeyCredentialRequest {}
 
 @available(iOSApplicationExtension 18.0, *)
 extension ASOneTimeCodeCredentialIdentity: OneTimeCodeCredentialIdentityProxy {}
+
+@available(iOSApplicationExtension 26.2, *)
+extension ASSavePasswordRequest: SavePasswordRequestProxy {}

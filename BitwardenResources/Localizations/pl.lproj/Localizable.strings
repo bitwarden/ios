@@ -6,6 +6,7 @@
 "Bitwarden" = "Bitwarden";
 "Cancel" = "Anuluj";
 "Copy" = "Kopiuj";
+"CopyPassportNumber" = "Kopiuj numer paszportu";
 "CopyPassword" = "Kopiuj hasło";
 "CopyUsername" = "Kopiuj nazwę użytkownika";
 "Delete" = "Usuń";
@@ -196,11 +197,18 @@
 "CustomFields" = "Pola niestandardowe";
 "CopyNumber" = "Kopiuj numer";
 "CopySecurityCode" = "Kopiuj kod zabezpieczający";
+"CopyAccountNumber" = "Kopiuj numer konta";
+"CopyRoutingNumber" = "Kopiuj numer rozliczeniowy";
 "Number" = "Numer";
 "SecurityCode" = "Kod zabezpieczający";
+"AccountNumber" = "Numer konta";
+"RoutingNumber" = "Numer rozliczeniowy";
+"TypeBankAccount" = "Konto bankowe";
 "TypeCard" = "Karta";
 "TypeIdentity" = "Tożsamość";
+"TypeLicense" = "Prawo jazdy";
 "TypeLogin" = "Dane logowania";
+"TypePassport" = "Paszport";
 "TypeSecureNote" = "Bezpieczna notatka";
 "Address1" = "Adres 1";
 "Address2" = "Adres 2";
@@ -549,7 +557,9 @@
 "ThereAreNoCardsInYourVault" = "Brak kart w sejfie";
 "ThereAreNoNotesInYourVault" = "Brak notatek w sejfie";
 "ThereAreNoIdentitiesInYourVault" = "Brak tożsamości w sejfie";
+"ThereAreNoPassportsInYourVault" = "Brak paszportów w sejfie";
 "ThereAreNoSSHKeysInYourVault" = "Brak kluczy SSH w sejfie";
+"ThereAreNoBankAccountsInYourVault" = "Brak kont bankowych w sejfie";
 "US" = "US";
 "EU" = "UE";
 "SelfHosted" = "Samodzielnie hostowany";
@@ -1114,5 +1124,41 @@
 "CheckYourConnectionAndTryAgain" = "Sprawdź połączenie i spróbuj ponownie.";
 "PricingUnavailable" = "Cennik jest niedostępny";
 "BankAccount" = "Konto bankowe";
+"BankAccounts" = "Konta bankowe";
 "License" = "Prawo jazdy";
+"Licenses" = "Prawa jazdy";
 "Passport" = "Paszport";
+"Passports" = "Paszporty";
+"LicenseDetails" = "Szczegóły prawa jazdy";
+"DateOfBirth" = "Data urodzenia";
+"IssuingCountry" = "Kraj wydający";
+"IssuingStateProvince" = "Rejon wydający";
+"IssuingAuthority" = "Organ wydający";
+"IssueDate" = "Data wydania";
+"ExpirationDate" = "Data wygaśnięcia";
+"LicenseClass" = "Kategoria prawa jazdy";
+"PassportDetails" = "Szczegóły paszportu";
+/* Label for the sex/gender field as printed on a passport (e.g. "M", "F", "X"). */
+"Sex" = "Płeć";
+"BirthPlace" = "Miejsce urodzenia";
+/* Label for the nationality field on a passport (the country a person is a national of). */
+"Nationality" = "Narodowość";
+/* Label for the category of passport (e.g. "Regular/Tourist", "Diplomatic", "Official"). */
+"PassportType" = "Rodzaj paszportu";
+"NationalIdentificationNumber" = "Numer PESEL";
+/* Label for the government authority or office that issued the passport. */
+"IssuingAuthorityOffice" = "Issuing authority/office";
+"AccountDetails" = "Szczegóły konta";
+"BankName" = "Nazwa banku";
+"NameOnAccount" = "Nazwa konta";
+"AccountType" = "Rodzaj konta";
+"BranchNumber" = "Identyfikator banku";
+"SwiftCode" = "Kod SWIFT";
+"IBAN" = "Numer IBAN";
+"BankContactPhone" = "Numer kontaktowy do banku";
+"CertificateOfDeposit" = "Lokata";
+"Checking" = "Standardowe";
+"InvestmentBrokerage" = "Maklerskie";
+"LineOfCredit" = "Kredytowe";
+"MoneyMarket" = "Kapitałowe";
+"Savings" = "Oszczędnościowe";

@@ -1,3 +1,5 @@
+// swiftlint:disable file_length
+
 import BitwardenKit
 import BitwardenSdk
 
@@ -51,6 +53,13 @@ protocol ClientService {
     ///
     func platform(for userId: String?, isPreAuth: Bool) async throws -> PlatformClientService
 
+    /// Returns a `PoliciesClientProtocol` for policy data tasks.
+    ///
+    /// - Parameter userId: The user ID mapped to the client instance.
+    /// - Returns: A `PoliciesClientProtocol` for policy data tasks.
+    ///
+    func policies(for userId: String?) async throws -> PoliciesClientProtocol
+
     /// Removes the user's client from memory.
     ///
     /// - Parameter userId: The user's ID.
@@ -103,6 +112,12 @@ extension ClientService {
     ///
     func generators(isPreAuth: Bool = false) async throws -> GeneratorClientsProtocol {
         try await generators(for: nil, isPreAuth: isPreAuth)
+    }
+
+    /// Returns a `PoliciesClientProtocol` for policy data tasks.
+    ///
+    func policies() async throws -> PoliciesClientProtocol {
+        try await policies(for: nil)
     }
 
     /// Returns a `PlatformClientService` for client platform tasks.
@@ -217,6 +232,10 @@ actor DefaultClientService: ClientService {
         try await client(for: userId, isPreAuth: isPreAuth).platform()
     }
 
+    func policies(for userId: String?) async throws -> PoliciesClientProtocol {
+        try await client(for: userId).policies()
+    }
+
     func removeClient(for userId: String?) async throws {
         let userId = try await stateService.getAccountIdOrActiveId(userId: userId)
         userClientArray.removeValue(forKey: userId)
@@ -307,17 +326,12 @@ actor DefaultClientService: ClientService {
     /// - Parameter config: Config to update the flags.
     private func loadFlags(_ config: ServerConfig?, for client: BitwardenSdkClient) async {
         do {
-            guard let config else {
+            guard config != nil else {
                 return
             }
 
-            let cipherKeyEncryptionFlagEnabled: Bool = await configService.getFeatureFlag(
-                .cipherKeyEncryption,
-            )
-            let enableCipherKeyEncryption = cipherKeyEncryptionFlagEnabled && config.supportsCipherKeyEncryption()
-
             try await client.platform().loadFlags(flags: [
-                FeatureFlag.enableCipherKeyEncryption.rawValue: enableCipherKeyEncryption,
+                FeatureFlag.enableCipherKeyEncryption.rawValue: true,
             ])
         } catch {
             errorReporter.log(error: error)
@@ -344,6 +358,9 @@ protocol BitwardenSdkClient {
 
     /// Returns platform operations.
     func platform() -> PlatformClientService
+
+    /// Returns policy operations.
+    func policies() -> PoliciesClientProtocol
 
     /// Returns sends operations.
     func sends() -> SendClientProtocol
@@ -373,6 +390,10 @@ extension Client: BitwardenSdkClient {
 
     func platform() -> PlatformClientService {
         platform() as PlatformClient
+    }
+
+    func policies() -> PoliciesClientProtocol {
+        policies() as PoliciesClient
     }
 
     func sends() -> SendClientProtocol {

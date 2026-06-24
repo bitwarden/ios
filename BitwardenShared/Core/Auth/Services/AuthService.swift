@@ -67,7 +67,7 @@ enum LoginUnlockMethod: Equatable {
     case masterPassword(Account)
 
     /// The user uses key connector to unlock the vault.
-    case keyConnector(keyConnectorURL: URL)
+    case keyConnector(keyConnectorKeyWrappedUserKey: String?, keyConnectorURL: URL)
 }
 
 // MARK: - AuthService
@@ -340,7 +340,7 @@ class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_leng
         authAPIService: AuthAPIService,
         clientService: ClientService,
         configService: ConfigService,
-        credentialIdentityStore: CredentialIdentityStore = ASCredentialIdentityStore.shared,
+        credentialIdentityStore: CredentialIdentityStore = SafeCredentialIdentityStore(),
         environmentService: EnvironmentService,
         errorReporter: ErrorReporter,
         keychainRepository: KeychainRepository,
@@ -947,7 +947,7 @@ class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_leng
         }
 
         if let keyConnectorUrl = keyConnectorUrlForUnlock(response) {
-            return .keyConnector(keyConnectorURL: keyConnectorUrl)
+            return .keyConnector(keyConnectorKeyWrappedUserKey: response.key, keyConnectorURL: keyConnectorUrl)
         }
 
         return try await .masterPassword(stateService.getActiveAccount())

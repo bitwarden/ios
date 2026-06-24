@@ -6,6 +6,7 @@
 "Bitwarden" = "Bitwarden";
 "Cancel" = "Mégse";
 "Copy" = "Másolás";
+"CopyPassportNumber" = "Útlevélszám másolása";
 "CopyPassword" = "Jelszó másolása";
 "CopyUsername" = "Felhasználónév másolása";
 "Delete" = "Törlés";
@@ -196,11 +197,18 @@
 "CustomFields" = "Egyedi mezők";
 "CopyNumber" = "Szám másolása";
 "CopySecurityCode" = "Biztonsági kód másolása";
+"CopyAccountNumber" = "Számlaszám másolása";
+"CopyRoutingNumber" = "Banki azonosító másolása";
 "Number" = "Szám";
 "SecurityCode" = "Biztonsági Kód";
+"AccountNumber" = "Számlaszám";
+"RoutingNumber" = "Banki azonosító";
+"TypeBankAccount" = "Bankszámla";
 "TypeCard" = "Kártya";
 "TypeIdentity" = "Azonosság";
+"TypeLicense" = "Licensz";
 "TypeLogin" = "Bejelentkezés";
+"TypePassport" = "Útlevél";
 "TypeSecureNote" = "Védett jegyzet";
 "Address1" = "Cím 1";
 "Address2" = "Cím 2";
@@ -549,7 +557,9 @@
 "ThereAreNoCardsInYourVault" = "Nincsenek kártyák a széfben.";
 "ThereAreNoNotesInYourVault" = "Nincsenek jegyzetek a széfben.";
 "ThereAreNoIdentitiesInYourVault" = "Nincsenek azonosítások a széfben.";
+"ThereAreNoPassportsInYourVault" = "Nincsenek útlevelek a széfben.";
 "ThereAreNoSSHKeysInYourVault" = "Nincsenek SSH kulcsok a széfben.";
+"ThereAreNoBankAccountsInYourVault" = "Nincsenek bankszámlák a széfben.";
 "US" = "US";
 "EU" = "EU";
 "SelfHosted" = "Saját kiszolgáló";
@@ -1114,5 +1124,41 @@
 "CheckYourConnectionAndTryAgain" = "Ellenőrizzük a hálózati kapcsolatot és próbáljuk újra.";
 "PricingUnavailable" = "Az árazás nem érhető el.";
 "BankAccount" = "Bankszámla";
+"BankAccounts" = "Bankszámlák";
 "License" = "Licensz";
+"Licenses" = "Licenszek";
 "Passport" = "Útlevél";
+"Passports" = "Útlevelek";
+"LicenseDetails" = "Licensz részletek";
+"DateOfBirth" = "Születési dátum";
+"IssuingCountry" = "Kiállító ország";
+"IssuingStateProvince" = "Kiállító állam/tartomány";
+"IssuingAuthority" = "Kiállító hatóság/hivatal";
+"IssueDate" = "Kiállítási dátum";
+"ExpirationDate" = "Lejárati dátum";
+"LicenseClass" = "Engedély osztály";
+"PassportDetails" = "Útlevél adatok";
+/* Label for the sex/gender field as printed on a passport (e.g. "M", "F", "X"). */
+"Sex" = "Nem";
+"BirthPlace" = "Születési hely";
+/* Label for the nationality field on a passport (the country a person is a national of). */
+"Nationality" = "Állampolgárság";
+/* Label for the category of passport (e.g. "Regular/Tourist", "Diplomatic", "Official"). */
+"PassportType" = "Útlevél típus";
+"NationalIdentificationNumber" = "Nemzeti azonosító szám";
+/* Label for the government authority or office that issued the passport. */
+"IssuingAuthorityOffice" = "Issuing authority/office";
+"AccountDetails" = "Fiók adatok";
+"BankName" = "Bank neve";
+"NameOnAccount" = "Számlatulajdonos neve";
+"AccountType" = "Számlatípus";
+"BranchNumber" = "Fióktelep/intézmény szám";
+"SwiftCode" = "SWIFT-kód";
+"IBAN" = "IBAN";
+"BankContactPhone" = "Banki kapcsolati telefon";
+"CertificateOfDeposit" = "Áthelyezési igazolás";
+"Checking" = "Ellenőrzés";
+"InvestmentBrokerage" = "Befektetés/brókerügylet";
+"LineOfCredit" = "Hitelkeret";
+"MoneyMarket" = "Pénzpiac";
+"Savings" = "Megtakarítások";

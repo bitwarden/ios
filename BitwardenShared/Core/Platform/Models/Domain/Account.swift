@@ -103,7 +103,7 @@ extension Account {
         /// The reasoning for why a forced password reset may be required.
         var forcePasswordResetReason: ForcePasswordResetReason?
 
-        /// Whether the account has premium
+        /// Whether the account has Premium
         var hasPremiumPersonally: Bool?
 
         /// The number of iterations to use when calculating a password hash.

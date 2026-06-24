@@ -128,7 +128,7 @@ struct BillingServiceTests { // swiftlint:disable:this type_body_length
         #expect(billingAPIService.getPortalUrlCallsCount == 1)
     }
 
-    /// `getPremiumPlan()` returns the premium plan from the API service.
+    /// `getPremiumPlan()` returns the Premium plan from the API service.
     @Test
     func getPremiumPlan_success() async throws {
         let expectedPlan = PremiumPlanResponseModel(
@@ -327,7 +327,7 @@ struct BillingServiceTests { // swiftlint:disable:this type_body_length
         _ = lateCancellable
     }
 
-    /// `premiumStatusChanged()` returns early without syncing when the user already has premium.
+    /// `premiumStatusChanged()` returns early without syncing when the user already has Premium.
     @Test
     func premiumStatusChanged_alreadyHasPremium() async throws {
         stateService.doesActiveAccountHavePremiumResult = true
@@ -342,10 +342,10 @@ struct BillingServiceTests { // swiftlint:disable:this type_body_length
         #expect(!syncService.didFetchSync)
     }
 
-    /// `premiumStatusChanged()` publishes `.confirmed` when the user gains premium after sync.
+    /// `premiumStatusChanged()` publishes `.confirmed` when the user gains Premium after sync.
     @Test
     func premiumStatusChanged_confirmed() async throws {
-        // Start as non-premium so the guard passes, then switch to premium after sync.
+        // Start as non-Premium so the guard passes, then switch to Premium after sync.
         stateService.doesActiveAccountHavePremiumResult = false
         syncService.fetchSyncHandler = {
             stateService.doesActiveAccountHavePremiumResult = true
@@ -405,7 +405,7 @@ struct BillingServiceTests { // swiftlint:disable:this type_body_length
         #expect(!syncService.didFetchSync)
     }
 
-    /// `premiumStatusChanged()` publishes `.pending` when the user does not have premium after sync.
+    /// `premiumStatusChanged()` publishes `.pending` when the user does not have Premium after sync.
     @Test
     func premiumStatusChanged_pending() async throws {
         stateService.doesActiveAccountHavePremiumResult = false

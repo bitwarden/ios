@@ -22,6 +22,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
     var clientService: MockClientService!
     var collectionHelper: MockCollectionHelper!
     var collectionService: MockCollectionService!
+    var configService: MockConfigService!
     var environmentService: MockEnvironmentService!
     var errorReporter: MockErrorReporter!
     var fido2UserInterfaceHelper: MockFido2UserInterfaceHelper!
@@ -43,7 +44,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
 
     // MARK: Setup & Teardown
 
-    override func setUp() {
+    override func setUp() { // swiftlint:disable:this function_body_length
         super.setUp()
 
         cipherEncryptionMediator = MockCipherEncryptionMediator()
@@ -59,6 +60,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         clientService = MockClientService()
         collectionHelper = MockCollectionHelper()
         collectionService = MockCollectionService()
+        configService = MockConfigService()
         environmentService = MockEnvironmentService()
         errorReporter = MockErrorReporter()
         fido2UserInterfaceHelper = MockFido2UserInterfaceHelper()
@@ -86,6 +88,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
             clientService: clientService,
             collectionHelper: collectionHelper,
             collectionService: collectionService,
+            configService: configService,
             environmentService: environmentService,
             errorReporter: errorReporter,
             folderService: folderService,
@@ -111,6 +114,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         clientService = nil
         collectionHelper = nil
         collectionService = nil
+        configService = nil
         environmentService = nil
         errorReporter = nil
         fido2UserInterfaceHelper = nil
@@ -695,7 +699,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         XCTAssertEqual(cipherService.deleteCipherId, "123")
     }
 
-    /// `doesActiveAccountHavePremium()` returns whether the active account has access to premium features.
+    /// `doesActiveAccountHavePremium()` returns whether the active account has access to Premium features.
     func test_doesActiveAccountHavePremium() async throws {
         stateService.doesActiveAccountHavePremiumResult = true
         var hasPremium = await subject.doesActiveAccountHavePremium()
@@ -1016,6 +1020,77 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
 
         let result = await subject.getItemTypesUserCanCreate()
         XCTAssertEqual(result, [.secureNote, .identity, .card, .login])
+    }
+
+    /// `getItemTypesUserCanCreate()` includes the gated `.bankAccount` and `.driversLicense` types
+    /// when the `.newItemTypes` feature flag is enabled.
+    @MainActor
+    func test_getItemTypesUserCanCreate_newItemTypesEnabled() async throws {
+        stateService.activeAccount = .fixture()
+        policyService.policyAppliesToUserPolicies = []
+        configService.featureFlagsBool[.newItemTypes] = true
+
+        let result = await subject.getItemTypesUserCanCreate()
+        XCTAssertTrue(result.contains(.bankAccount))
+        XCTAssertTrue(result.contains(.driversLicense))
+    }
+
+    /// `getItemTypesUserCanCreate()` excludes the gated `.bankAccount` and `.driversLicense` types
+    /// when the `.newItemTypes` feature flag is disabled.
+    @MainActor
+    func test_getItemTypesUserCanCreate_newItemTypesDisabled() async throws {
+        stateService.activeAccount = .fixture()
+        policyService.policyAppliesToUserPolicies = []
+        configService.featureFlagsBool[.newItemTypes] = false
+
+        let result = await subject.getItemTypesUserCanCreate()
+        XCTAssertFalse(result.contains(.bankAccount))
+        XCTAssertFalse(result.contains(.driversLicense))
+    }
+
+    /// `getItemTypesUserCanCreate()` still excludes `.card` under the restrict-item-types policy even
+    /// when the `.newItemTypes` feature flag is enabled.
+    @MainActor
+    func test_getItemTypesUserCanCreate_newItemTypesEnabled_restrictPolicy_excludesCard() async throws {
+        stateService.activeAccount = .fixture()
+        policyService.policyAppliesToUserPolicies = [
+            .fixture(
+                enabled: true,
+                id: "restrict_item_type",
+                organizationId: "org1",
+                type: .restrictItemTypes,
+            ),
+        ]
+        configService.featureFlagsBool[.newItemTypes] = true
+
+        let result = await subject.getItemTypesUserCanCreate()
+        XCTAssertFalse(result.contains(.card))
+        XCTAssertTrue(result.contains(.bankAccount))
+        XCTAssertTrue(result.contains(.driversLicense))
+    }
+
+    /// `getItemTypesUserCanCreate()` includes the gated `.passport` type when the `.newItemTypes`
+    /// feature flag is enabled.
+    @MainActor
+    func test_getItemTypesUserCanCreate_newItemTypesEnabled_includesPassport() async throws {
+        stateService.activeAccount = .fixture()
+        policyService.policyAppliesToUserPolicies = []
+        configService.featureFlagsBool[.newItemTypes] = true
+
+        let result = await subject.getItemTypesUserCanCreate()
+        XCTAssertTrue(result.contains(.passport))
+    }
+
+    /// `getItemTypesUserCanCreate()` excludes the gated `.passport` type when the `.newItemTypes`
+    /// feature flag is disabled.
+    @MainActor
+    func test_getItemTypesUserCanCreate_newItemTypesDisabled_excludesPassport() async throws {
+        stateService.activeAccount = .fixture()
+        policyService.policyAppliesToUserPolicies = []
+        configService.featureFlagsBool[.newItemTypes] = false
+
+        let result = await subject.getItemTypesUserCanCreate()
+        XCTAssertFalse(result.contains(.passport))
     }
 
     /// `getTOTPKeyIfAllowedToCopy(cipher:)` return the TOTP key when cipher has TOTP key,
@@ -1479,7 +1554,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         XCTAssertEqual(cipherEncryptionMediator.encryptAndUpdateCipherReceivedCipherView, cipher)
     }
 
-    /// `updateCipherCollections()` unarchives the cipher when it's updated and user doesn't have premium.
+    /// `updateCipherCollections()` unarchives the cipher when it's updated and user doesn't have Premium.
     @MainActor
     func test_updateCipherCollections_unarchivesNonPremiumUser() async throws {
         stateService.activeAccount = nonPremiumAccount
@@ -1497,7 +1572,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         )
     }
 
-    /// `updateCipherCollections()` does NOT unarchive the cipher when user has premium.
+    /// `updateCipherCollections()` does NOT unarchive the cipher when user has Premium.
     @MainActor
     func test_updateCipherCollections_doesNotUnarchivePremiumUser() async throws {
         stateService.activeAccount = premiumAccount
@@ -1552,7 +1627,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         XCTAssertEqual(cipherService.updateCipherWithServerEncryptedFor, "1")
     }
 
-    /// `updateCipher()` unarchives the cipher when it's updated and user doesn't have premium.
+    /// `updateCipher()` unarchives the cipher when it's updated and user doesn't have Premium.
     @MainActor
     func test_updateCipher_unarchivesNonPremiumUser() async throws {
         stateService.activeAccount = nonPremiumAccount
@@ -1568,7 +1643,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         XCTAssertEqual(cipherService.updateCipherWithServerEncryptedFor, "1")
     }
 
-    /// `updateCipher()` does NOT unarchive the cipher when user has premium.
+    /// `updateCipher()` does NOT unarchive the cipher when user has Premium.
     @MainActor
     func test_updateCipher_doesNotUnarchivePremiumUser() async throws {
         stateService.activeAccount = premiumAccount

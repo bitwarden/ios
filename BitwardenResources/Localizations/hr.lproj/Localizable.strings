@@ -6,6 +6,7 @@
 "Bitwarden" = "Bitwarden";
 "Cancel" = "Odustani";
 "Copy" = "Kopiraj";
+"CopyPassportNumber" = "Kopiraj broj putovnice";
 "CopyPassword" = "Kopiraj lozinku";
 "CopyUsername" = "Kopiraj korisničko ime";
 "Delete" = "Izbriši";
@@ -175,7 +176,7 @@
 "CopyTotp" = "Kopiraj TOTP";
 "CopyTotpAutomaticallyDescription" = "Ako za prijavu postoji ključ autentifikatora, kopiraj TOTP kôd za provjeru u međuspremnik nakon auto-ispune prijave.";
 "CopyTotpAutomatically" = "Automatski kopiraj TOTP";
-"PremiumRequired" = "Za korištenje ove značajke potrebno je premium članstvo.";
+"PremiumRequired" = "Za korištenje ove značajke potrebna je premium pretplata.";
 "AttachementAdded" = "Privitak dodan";
 "AttachmentDeleted" = "Privitak izbrisan";
 "ChooseFile" = "Odaberi datoteku";
@@ -196,11 +197,18 @@
 "CustomFields" = "Prilagođena polja";
 "CopyNumber" = "Kopiraj broj";
 "CopySecurityCode" = "Kopiraj kontrolni broj";
+"CopyAccountNumber" = "Kopiraj broj računa";
+"CopyRoutingNumber" = "Kopiraj routing number (SAD)";
 "Number" = "Broj";
 "SecurityCode" = "Kontrolni broj";
+"AccountNumber" = "Broj računa";
+"RoutingNumber" = "Routing Number (SAD)";
+"TypeBankAccount" = "Broj računa";
 "TypeCard" = "Platna kartica";
 "TypeIdentity" = "Identitet";
+"TypeLicense" = "Dozvola";
 "TypeLogin" = "Prijava";
+"TypePassport" = "Putovnica";
 "TypeSecureNote" = "Sigurna bilješka";
 "Address1" = "Adresa 1";
 "Address2" = "Adresa 2";
@@ -549,7 +557,9 @@
 "ThereAreNoCardsInYourVault" = "U tvom trezoru nema kartica";
 "ThereAreNoNotesInYourVault" = "U tvom trezoru nema bilješki";
 "ThereAreNoIdentitiesInYourVault" = "U tvom trezoru nema identiteta";
+"ThereAreNoPassportsInYourVault" = "There are no passports in your vault";
 "ThereAreNoSSHKeysInYourVault" = "U tvom trezoru nema SSH ključeva";
+"ThereAreNoBankAccountsInYourVault" = "There are no bank accounts in your vault";
 "US" = "SAD";
 "EU" = "EU";
 "SelfHosted" = "Vlastiti poslužitelj";
@@ -1114,5 +1124,41 @@
 "CheckYourConnectionAndTryAgain" = "Provjeri vezu i pokušaj ponovno.";
 "PricingUnavailable" = "Cijene nisu dostupne";
 "BankAccount" = "Broj računa";
+"BankAccounts" = "Bankovni računi";
 "License" = "Dozvola";
+"Licenses" = "Osobne";
 "Passport" = "Putovnica";
+"Passports" = "Putovnice";
+"LicenseDetails" = "Detalji dozvole";
+"DateOfBirth" = "Datum rođenja";
+"IssuingCountry" = "Država izdavanja";
+"IssuingStateProvince" = "Pokrajina izdavatelj";
+"IssuingAuthority" = "Izdao";
+"IssueDate" = "Datum izdavanja";
+"ExpirationDate" = "Datum isteka";
+"LicenseClass" = "Vrsta dozvole";
+"PassportDetails" = "Detalji putovnice";
+/* Label for the sex/gender field as printed on a passport (e.g. "M", "F", "X"). */
+"Sex" = "Spol";
+"BirthPlace" = "Mjesto rođenja";
+/* Label for the nationality field on a passport (the country a person is a national of). */
+"Nationality" = "Državljanstvo";
+/* Label for the category of passport (e.g. "Regular/Tourist", "Diplomatic", "Official"). */
+"PassportType" = "Vrsta putovnice";
+"NationalIdentificationNumber" = "OIB";
+/* Label for the government authority or office that issued the passport. */
+"IssuingAuthorityOffice" = "Issuing authority/office";
+"AccountDetails" = "Detalji računa";
+"BankName" = "Naziv banke";
+"NameOnAccount" = "Nositelj računa";
+"AccountType" = "Vrsta računa";
+"BranchNumber" = "Broj podružnice";
+"SwiftCode" = "SWIFT";
+"IBAN" = "IBAN";
+"BankContactPhone" = "Telefonski broj banke";
+"CertificateOfDeposit" = "Potvrda depozita";
+"Checking" = "Tekući račun";
+"InvestmentBrokerage" = "Investicijski/brokerski";
+"LineOfCredit" = "Kreditna linija";
+"MoneyMarket" = "Tržište novca";
+"Savings" = "Štedni račun";

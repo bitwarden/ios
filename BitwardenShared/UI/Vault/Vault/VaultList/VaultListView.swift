@@ -8,7 +8,7 @@ import SwiftUI
 // MARK: - SearchableVaultListView
 
 /// The main view of the vault.
-private struct SearchableVaultListView: View { // swiftlint:disable:this type_body_length
+private struct SearchableVaultListView: View {
     // MARK: Properties
 
     /// A flag indicating if the search bar is focused.
@@ -43,6 +43,7 @@ private struct SearchableVaultListView: View { // swiftlint:disable:this type_bo
             search
                 .hidden(!isSearching)
         }
+        .animation(.easeInOut, value: store.state.organizationUserNotificationBannerData)
         .background(SharedAsset.Colors.backgroundPrimary.swiftUIColor.ignoresSafeArea())
         .toast(
             store.binding(
@@ -75,54 +76,12 @@ private struct SearchableVaultListView: View { // swiftlint:disable:this type_bo
 
     // MARK: Private Properties
 
-    /// The action card for archive onboarding.
-    @ViewBuilder private var archiveOnboardingActionCard: some View {
-        if store.state.shouldShowArchiveOnboardingActionCard {
-            ActionCard(
-                title: Localizations.introducingArchive,
-                message: Localizations.keepYtemsYouDontNeedRightNowSafeButOutOfSight,
-                actionButtonState: ActionCard.ButtonState(title: Localizations.goToArchive) {
-                    store.send(.goToArchive)
-                },
-                dismissButtonState: ActionCard.ButtonState(title: Localizations.dismiss) {
-                    await store.perform(.dismissArchiveOnboardingActionCard)
-                },
-            ) {
-                SharedAsset.Icons.archive24.swiftUIImage.foregroundStyle(SharedAsset.Colors.iconSecondary.swiftUIColor)
-            }
-        }
-    }
-
-    /// The action card for premium upgrade.
-    @ViewBuilder private var premiumUpgradeActionCard: some View {
-        if store.state.shouldShowPremiumUpgradeActionCard {
-            ActionCard(
-                title: Localizations.unlockAdvancedSecurityFeatures,
-                message: Localizations.aPremiumPlanGivesYouMoreToolsDescriptionLong,
-                actionButtonState: ActionCard.ButtonState(title: Localizations.upgradeToPremium) {
-                    store.send(.upgradeToPremium)
-                },
-                dismissButtonState: ActionCard.ButtonState(title: Localizations.dismiss) {
-                    await store.perform(.dismissPremiumUpgradeActionCard)
-                },
-            )
-        }
-    }
-
-    /// The action card for the upgraded to premium confirmation.
-    @ViewBuilder private var upgradedToPremiumActionCard: some View {
-        if store.state.shouldShowUpgradedToPremiumActionCard {
-            UpgradedToPremiumActionCardView(
-                onDismiss: { await store.perform(.dismissUpgradedToPremiumActionCard) },
-                onLearnMore: { store.send(.learnMoreAboutPremium) },
-            )
-        }
-    }
-
     /// A view that displays the empty vault interface.
     @ViewBuilder private var emptyVault: some View {
         VStack(spacing: 24) {
             Group {
+                organizationBannerActionCard
+
                 importLoginsActionCard
 
                 vaultFilterRow
@@ -155,22 +114,6 @@ private struct SearchableVaultListView: View { // swiftlint:disable:this type_bo
         .animation(.easeInOut, value: store.state.importLoginsSetupProgress == .setUpLater)
         .animation(.easeInOut, value: store.state.importLoginsSetupProgress == .complete)
         .scrollView(centerContentVertically: true)
-    }
-
-    /// The action card for importing login items.
-    @ViewBuilder private var importLoginsActionCard: some View {
-        if store.state.shouldShowImportLoginsActionCard {
-            ActionCard(
-                title: Localizations.importSavedLogins,
-                message: Localizations.importSavedLoginsDescriptionLong,
-                actionButtonState: ActionCard.ButtonState(title: Localizations.getStarted) {
-                    store.send(.showImportLogins)
-                },
-                dismissButtonState: ActionCard.ButtonState(title: Localizations.dismiss) {
-                    await store.perform(.dismissImportLoginsActionCard)
-                },
-            )
-        }
     }
 
     /// A view that displays the search interface, including search results, an empty search
@@ -294,6 +237,8 @@ private struct SearchableVaultListView: View { // swiftlint:disable:this type_bo
     @ViewBuilder
     private func vaultContents(with sections: [VaultListSection]) -> some View {
         VStack(spacing: 20) {
+            organizationBannerActionCard
+
             premiumUpgradeActionCard
 
             upgradedToPremiumActionCard
@@ -303,7 +248,13 @@ private struct SearchableVaultListView: View { // swiftlint:disable:this type_bo
             vaultFilterRow
 
             ForEach(sections) { section in
-                VaultListSectionView(section: section) { item in
+                VaultListSectionView(
+                    section: section,
+                    isExpanded: store.binding(
+                        get: { !$0.collapsedSectionIds.contains(section.id) },
+                        send: { .sectionExpandToggled(sectionId: section.id, isExpanded: $0) },
+                    ),
+                ) { item in
                     Button {
                         store.send(.itemPressed(item: item))
                     } label: {
@@ -350,6 +301,93 @@ private struct SearchableVaultListView: View { // swiftlint:disable:this type_bo
             ),
             timeProvider: timeProvider,
         )
+    }
+}
+
+// MARK: - Action Cards
+
+extension SearchableVaultListView {
+    /// The action card for archive onboarding.
+    @ViewBuilder private var archiveOnboardingActionCard: some View {
+        if store.state.shouldShowArchiveOnboardingActionCard {
+            ActionCard(
+                title: Localizations.introducingArchive,
+                message: Localizations.keepYtemsYouDontNeedRightNowSafeButOutOfSight,
+                actionButtonState: ActionCard.ButtonState(title: Localizations.goToArchive) {
+                    store.send(.goToArchive)
+                },
+                dismissButtonState: ActionCard.ButtonState(title: Localizations.dismiss) {
+                    await store.perform(.dismissArchiveOnboardingActionCard)
+                },
+            ) {
+                SharedAsset.Icons.archive24.swiftUIImage.foregroundStyle(SharedAsset.Colors.iconSecondary.swiftUIColor)
+            }
+        }
+    }
+
+    /// The action card for importing login items.
+    @ViewBuilder private var importLoginsActionCard: some View {
+        if store.state.shouldShowImportLoginsActionCard {
+            ActionCard(
+                title: Localizations.importSavedLogins,
+                message: Localizations.importSavedLoginsDescriptionLong,
+                actionButtonState: ActionCard.ButtonState(title: Localizations.getStarted) {
+                    store.send(.showImportLogins)
+                },
+                dismissButtonState: ActionCard.ButtonState(title: Localizations.dismiss) {
+                    await store.perform(.dismissImportLoginsActionCard)
+                },
+            )
+        }
+    }
+
+    /// The action card for the organization user notification banner.
+    @ViewBuilder private var organizationBannerActionCard: some View {
+        if let data = store.state.organizationUserNotificationBannerData {
+            ActionCard(
+                title: data.headerText,
+                message: data.description,
+                actionButtonState: data.buttonText.map { text in
+                    ActionCard.ButtonState(title: text) {
+                        await store.perform(.dismissOrganizationBanner)
+                    }
+                },
+                dismissButtonState: data.buttonText == nil
+                    ? ActionCard.ButtonState(title: Localizations.dismiss) {
+                        await store.perform(.dismissOrganizationBanner)
+                    }
+                    : nil,
+            ) {
+                SharedAsset.Icons.informationCircle24.swiftUIImage
+                    .foregroundStyle(SharedAsset.Colors.iconSecondary.swiftUIColor)
+            }
+        }
+    }
+
+    /// The action card for Premium upgrade.
+    @ViewBuilder private var premiumUpgradeActionCard: some View {
+        if store.state.shouldShowPremiumUpgradeActionCard {
+            ActionCard(
+                title: Localizations.unlockAdvancedSecurityFeatures,
+                message: Localizations.aPremiumPlanGivesYouMoreToolsDescriptionLong,
+                actionButtonState: ActionCard.ButtonState(title: Localizations.upgradeToPremium) {
+                    store.send(.upgradeToPremium)
+                },
+                dismissButtonState: ActionCard.ButtonState(title: Localizations.dismiss) {
+                    await store.perform(.dismissPremiumUpgradeActionCard)
+                },
+            )
+        }
+    }
+
+    /// The action card for the upgraded to Premium confirmation.
+    @ViewBuilder private var upgradedToPremiumActionCard: some View {
+        if store.state.shouldShowUpgradedToPremiumActionCard {
+            UpgradedToPremiumActionCardView(
+                onDismiss: { await store.perform(.dismissUpgradedToPremiumActionCard) },
+                onLearnMore: { store.send(.learnMoreAboutPremium) },
+            )
+        }
     }
 }
 
@@ -710,6 +748,7 @@ struct VaultListView_Previews: PreviewProvider {
                                 Organization(
                                     enabled: true,
                                     id: "",
+                                    isProviderUser: false,
                                     key: nil,
                                     keyConnectorEnabled: false,
                                     keyConnectorUrl: nil,

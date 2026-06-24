@@ -30,7 +30,7 @@ struct TokenPayload: Codable, Equatable {
     /// The expiration time, as the number of seconds since Unix epoch.
     let expirationTimeIntervalSince1970: Int
 
-    /// Whether the user has a premium account.
+    /// Whether the user has a Premium account.
     let hasPremium: Bool
 
     /// The user's name.
