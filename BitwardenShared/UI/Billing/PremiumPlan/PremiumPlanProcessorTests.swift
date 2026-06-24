@@ -114,16 +114,12 @@ struct PremiumPlanProcessorTests {
         #expect(billingService.getPremiumPlanCallsCount == 1)
         #expect(billingService.getSubscriptionCallsCount == 1)
         #expect(subject.state.planStatus == .active)
-        guard case let .data(subscription) = subject.state.loadingState else {
-            Issue.record("Expected .data loadingState")
-            return
-        }
+        #expect(subject.state.loadingState.data != nil)
         #expect(subject.state.billingAmount.contains("$19.80"))
         #expect(subject.state.nextChargeAmount.contains("USD"))
         #expect(subject.state.nextChargeAmount.contains("24.35"))
         #expect(!subject.state.nextChargeDate.isEmpty)
         #expect(subject.state.storageCostLabel.contains("$0.00"))
-        _ = subscription
     }
 
     /// `receive(_:)` with `.cancelPremiumTapped` shows the confirmation alert.
