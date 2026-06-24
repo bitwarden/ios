@@ -992,7 +992,7 @@
 "DefaultX" = "Mặc định (%1$@)";
 "UpdateYourEncryptionSettings" = "Cập nhật cài đặt mã hóa của bạn";
 "TheNewRecommendedEncryptionSettingsDescriptionLong" = "Cài đặt mã hóa được khuyến nghị sẽ cải thiện bảo mật cho tài khoản của bạn. Nhập mật khẩu chính để cập nhật ngay.";
-"Updating" = "Đang cập nhật…";
+"Updating" = "Đang cập nhật...";
 "EncryptionSettingsUpdated" = "Cài đặt mã hóa đã được cập nhật";
 "IntroducingArchive" = "Introducing Archive";
 "KeepYtemsYouDontNeedRightNowSafeButOutOfSight" = "Keep items you don’t need right now safe but out of sight.";

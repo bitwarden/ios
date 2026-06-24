@@ -390,7 +390,7 @@
 "MasterPasswordPolicyValidationTitle" = "Hasło jest nieprawidłowe";
 "MasterPasswordPolicyValidationMessage" = "Hasło nie spełnia wymogów organizacji. Sprawdź wymaganą zasadę i spróbuj ponownie.";
 "Loading" = "Ładowanie";
-"LoadingSubscription" = "Ładowanie subskrypcji…";
+"LoadingSubscription" = "Ładowanie subskrypcji...";
 "AcceptPoliciesError" = "Regulamin i polityka prywatności nie zostały zaakceptowane.";
 "PrivacyPolicy" = "Polityka prywatności";
 "PersonalOwnershipPolicyInEffect" = "Zasada organizacji ma wpływ na opcję własności elementów.";

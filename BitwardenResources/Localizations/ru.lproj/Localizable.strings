@@ -127,7 +127,7 @@
 "ItemUpdated" = "Элемент сохранен";
 "Submitting" = "Отправка…";
 "Syncing" = "Синхронизация…";
-"SyncingLogins" = "Синхронизация логинов…";
+"SyncingLogins" = "Синхронизация логинов...";
 "SyncingComplete" = "Синхронизация выполнена";
 "TouchID" = "Touch ID";
 "TwoStepLogin" = "Двухэтапная аутентификация";
@@ -390,7 +390,7 @@
 "MasterPasswordPolicyValidationTitle" = "Неверный пароль";
 "MasterPasswordPolicyValidationMessage" = "Пароль не соответствует требованиям организации. Пожалуйста, проверьте информацию о политике и попробуйте еще раз.";
 "Loading" = "Загрузка";
-"LoadingSubscription" = "Загрузка подписки…";
+"LoadingSubscription" = "Загрузка подписки...";
 "AcceptPoliciesError" = "Условия предоставления услуг и Политика конфиденциальности не были подтверждены.";
 "PrivacyPolicy" = "Политика конфиденциальности";
 "PersonalOwnershipPolicyInEffect" = "Политика организации влияет на ваши варианты владения.";

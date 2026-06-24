@@ -127,7 +127,7 @@
 "ItemUpdated" = "Kohde tallennettiin";
 "Submitting" = "Lähetetään…";
 "Syncing" = "Synkronoidaan…";
-"SyncingLogins" = "Kirjautumistietoja synkronoidaan…";
+"SyncingLogins" = "Kirjautumistietoja synkronoidaan...";
 "SyncingComplete" = "Synkronointi suoritettiin";
 "TouchID" = "Touch ID:llä";
 "TwoStepLogin" = "Kaksivaiheinen kirjautuminen";
@@ -365,10 +365,10 @@
 "ExportVaultFailure" = "There was a problem exporting your vault.  If the problem persists, you’ll need to export from the web vault.";
 "Clone" = "Kloonaa";
 "PasswordGeneratorPolicyInEffect" = "Yksi tai useampi organisaatiokäytäntö vaikuttaa generaattorisi asetuksiin";
-"SoftDeleting" = "Siirretään roskakoriin…";
+"SoftDeleting" = "Siirretään roskakoriin...";
 "ItemSoftDeleted" = "Kohde siirrettiin roskakoriin.";
 "Restore" = "Palauta";
-"Restoring" = "Palautetaan…";
+"Restoring" = "Palautetaan...";
 "ItemRestored" = "Kohde palautettiin";
 "Trash" = "Roskakori";
 "DoYouReallyWantToPermanentlyDeleteCipher" = "Haluatko varmasti poistaa pysyvästi? Toiminnon peruminen ei ole mahdollista.";
@@ -807,7 +807,7 @@
 "YouMayNeedToEnableDevicePasscodeOrBiometrics" = "Saatat joutua ottamaan laitesalasanan tai biometrian käyttöön.";
 "StartImportCXFDescriptionLong" = "Tuo salasanat, pääsyavaimet, luottokortit ja kaikki henkilökohtaiset henkilötiedot toisesta salasananhallinnasta.\n\nTietosi **ei** poistu aiemmasta palveluntarjoajastasi.";
 "ImportPasswords" = "Tuo salasanat";
-"ImportingEllipsis" = "Tuodaan…";
+"ImportingEllipsis" = "Tuodaan...";
 "AreYouSureYouWantToCancelTheImportProcessQuestionMark" = "Haluatko varmasti peruuttaa tuontiprosessin?";
 "ImportFailed" = "Tuonti epäonnistui";
 "ThereWasAnIssueImportingAllOfYourPasswordsNoDataWasDeleted" = "Kaikkien salasanojesi tuonnissa tapahtui virhe.\n\nTietoja ei poistettu.";
