@@ -110,19 +110,16 @@ class AutofillHelper {
         guard await services.configService.getFeatureFlag(.fillAssistTargetingRules) else { return [] }
         guard let uri,
               let url = URL(string: uri),
-              let host = url.host else { return [] }
-        let lookupHost = DomainName.parseBaseDomain(url: url) ?? host
+              let lookupHost = url.domain else { return [] }
         guard let rules = await services.fillAssistRepository.fillAssistRules(for: lookupHost) else { return [] }
 
         var result: [(String, String)] = []
 
-        if let attrs = rules.fields["username"]?.first,
-           let selector = attrs.id ?? attrs.name {
+        if let selector = rules.fields["username"]?.lazy.compactMap({ $0.id ?? $0.name }).first {
             result.append((selector, username))
         }
 
-        if let attrs = rules.fields["password"]?.first,
-           let selector = attrs.id ?? attrs.name {
+        if let selector = rules.fields["password"]?.lazy.compactMap({ $0.id ?? $0.name }).first {
             result.append((selector, password))
         }
 
