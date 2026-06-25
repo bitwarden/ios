@@ -37,12 +37,12 @@ struct BillingServiceTests { // swiftlint:disable:this type_body_length
         syncService = MockSyncService()
         subject = DefaultBillingService(
             billingAPIService: billingAPIService,
+            billingStateService: stateService,
             configService: configService,
-            debounceInterval: .milliseconds(100),
             environmentService: environmentService,
             errorReporter: errorReporter,
-            billingStateService: stateService,
             syncService: syncService,
+            debounceInterval: .milliseconds(100),
         )
     }
 

@@ -90,10 +90,16 @@ class DefaultBillingService: BillingService {
     /// The API service used for billing requests.
     private let billingAPIService: BillingAPIService
 
+    /// The service used to manage the app's billing state.
+    private let billingStateService: BillingStateService
+
     let checkoutCallbackUrlScheme = "bitwarden"
 
     /// The service used to manage feature flags.
     private let configService: ConfigService
+
+    /// The debounce interval applied to the Premium checkout status publisher.
+    private let debounceInterval: DispatchQueue.SchedulerTimeType.Stride
 
     /// The service used to manage the app's environment URLs.
     private let environmentService: EnvironmentService
@@ -101,14 +107,8 @@ class DefaultBillingService: BillingService {
     /// The service used by the application to report non-fatal errors.
     private let errorReporter: ErrorReporter
 
-    /// The debounce interval applied to the Premium checkout status publisher.
-    private let debounceInterval: DispatchQueue.SchedulerTimeType.Stride
-
     /// Subject that emits the Premium checkout sync status.
     private let premiumCheckoutStatusSubject = CurrentValueSubject<PremiumCheckoutStatus?, Never>(nil)
-
-    /// The service used to manage the app's state.
-    private let billingStateService: BillingStateService
 
     /// The service used to handle syncing vault data with the API.
     private let syncService: SyncService
@@ -119,30 +119,30 @@ class DefaultBillingService: BillingService {
     ///
     /// - Parameters:
     ///   - billingAPIService: The API service used for billing requests.
+    ///   - billingStateService: The service used to manage the app's billing state.
     ///   - configService: The service used to manage feature flags.
-    ///   - debounceInterval: The debounce interval for the status publisher. Defaults to
-    ///     `Constants.premiumCheckoutStatusDebounceInterval`.
     ///   - environmentService: The service used to manage the app's environment URLs.
     ///   - errorReporter: The service used to report non-fatal errors.
-    ///   - billingStateService: The service used to manage the app's state.
     ///   - syncService: The service used to handle syncing vault data with the API.
+    ///   - debounceInterval: The debounce interval for the status publisher. Defaults to
+    ///     `Constants.premiumCheckoutStatusDebounceInterval`.
     ///
     init(
         billingAPIService: BillingAPIService,
+        billingStateService: BillingStateService,
         configService: ConfigService,
-        debounceInterval: DispatchQueue.SchedulerTimeType.Stride = Constants.premiumCheckoutStatusDebounceInterval,
         environmentService: EnvironmentService,
         errorReporter: ErrorReporter,
-        billingStateService: BillingStateService,
         syncService: SyncService,
+        debounceInterval: DispatchQueue.SchedulerTimeType.Stride = Constants.premiumCheckoutStatusDebounceInterval,
     ) {
         self.billingAPIService = billingAPIService
+        self.billingStateService = billingStateService
         self.configService = configService
-        self.debounceInterval = debounceInterval
         self.environmentService = environmentService
         self.errorReporter = errorReporter
-        self.billingStateService = billingStateService
         self.syncService = syncService
+        self.debounceInterval = debounceInterval
     }
 
     // MARK: Methods
