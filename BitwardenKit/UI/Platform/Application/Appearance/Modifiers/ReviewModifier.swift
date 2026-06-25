@@ -16,17 +16,19 @@ struct ReviewModifier: ViewModifier {
     func body(content: Content) -> some View {
         content
             .task {
-                if isEligible {
-                    requestReview()
-                    afterClosure()
-                }
+                guard isEligible else { return }
+                performReview()
             }
             .onChange(of: isEligible) { newValue in
-                if newValue {
-                    requestReview()
-                    afterClosure()
-                }
+                guard newValue else { return }
+                performReview()
             }
+    }
+
+    /// Triggers the App Store review prompt and executes the after-review closure.
+    private func performReview() {
+        requestReview()
+        afterClosure()
     }
 }
 
@@ -44,17 +46,19 @@ struct RequestReviewLegacyModifier: ViewModifier {
     func body(content: Content) -> some View {
         content
             .task {
-                if isEligible {
-                    SKStoreReviewController.requestReview(in: windowScene)
-                    afterClosure()
-                }
+                guard isEligible else { return }
+                performReview()
             }
             .onChange(of: isEligible) { newValue in
-                if newValue {
-                    SKStoreReviewController.requestReview(in: windowScene)
-                    afterClosure()
-                }
+                guard newValue else { return }
+                performReview()
             }
+    }
+
+    /// Triggers the legacy App Store review prompt and executes the after-review closure.
+    private func performReview() {
+        SKStoreReviewController.requestReview(in: windowScene)
+        afterClosure()
     }
 }
 

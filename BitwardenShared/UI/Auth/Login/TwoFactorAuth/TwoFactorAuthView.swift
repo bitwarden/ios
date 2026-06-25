@@ -15,6 +15,9 @@ struct TwoFactorAuthView: View {
     /// The `Store` for this view.
     @ObservedObject var store: Store<TwoFactorAuthState, TwoFactorAuthAction, TwoFactorAuthEffect>
 
+    /// The task running NFC listening, managed manually to allow cancellation when the auth method changes.
+    @State private var nfcTask: Task<Void, Never>?
+
     /// The text field configuration for the verification field.
     var verificationTextFieldConfiguration: TextFieldConfiguration {
         switch store.state.authMethod {
@@ -51,9 +54,13 @@ struct TwoFactorAuthView: View {
             .task {
                 await store.perform(.appeared)
             }
-            .task(id: store.state.authMethod) {
-                guard store.state.authMethod == .yubiKey else { return }
-                await store.perform(.listenForNFC)
+            .onAppear { updateNFCTask(isYubiKey: store.state.authMethod == .yubiKey) }
+            .onChange(of: store.state.authMethod) { newValue in
+                updateNFCTask(isYubiKey: newValue == .yubiKey)
+            }
+            .onDisappear {
+                nfcTask?.cancel()
+                nfcTask = nil
             }
             .toolbar {
                 ToolbarItem(placement: .navigationBarLeading) {
@@ -231,6 +238,17 @@ struct TwoFactorAuthView: View {
             ),
         )
         .textFieldConfiguration(verificationTextFieldConfiguration)
+    }
+
+    // MARK: Private Methods
+
+    /// Cancels any in-flight NFC listening task and starts a new one when the YubiKey method is active.
+    ///
+    /// - Parameter isYubiKey: Whether the current auth method is YubiKey.
+    private func updateNFCTask(isYubiKey: Bool) {
+        nfcTask?.cancel()
+        guard isYubiKey else { return }
+        nfcTask = Task { await store.perform(.listenForNFC) }
     }
 }
 
