@@ -30,10 +30,10 @@ class MockStateService: StateService, ActiveAccountStateProvider, AutofillStateS
     var archiveOnboardingShown = false
     var premiumUpgradeBannerDismissedByUserId = [String: Bool]()
     var premiumUpgradeBannerDismissedResult: Result<Void, Error> = .success(())
-    var subscriptionAttentionCardVisibleResult: Bool = false
     var setSubscriptionAttentionCardResult: Result<Void, Error> = .success(())
-    var upgradedToPremiumActionCardVisibleResult: Bool = false
     var setUpgradedToPremiumActionCardResult: Result<Void, Error> = .success(())
+    var subscriptionAttentionCardVisibleResult: Bool = false
+    var upgradedToPremiumActionCardVisibleResult: Bool = false
     var biometricsEnabled = [String: Bool]()
     var capturedUserId: String?
     var clearClipboardValues = [String: ClearClipboardValue]()
