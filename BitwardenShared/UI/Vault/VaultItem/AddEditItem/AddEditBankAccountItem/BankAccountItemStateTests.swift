@@ -56,4 +56,26 @@ struct BankAccountItemStateTests {
         #expect(view.iban == nil)
         #expect(view.bankContactPhone == nil)
     }
+
+    /// `isBankAccountDetailsSectionEmpty` is `true` when every field is empty and no account type is selected.
+    @Test
+    func isBankAccountDetailsSectionEmpty_empty() {
+        #expect(BankAccountItemState().isBankAccountDetailsSectionEmpty)
+    }
+
+    /// `isBankAccountDetailsSectionEmpty` is `false` when any string field has a value.
+    @Test
+    func isBankAccountDetailsSectionEmpty_populatedField() {
+        var subject = BankAccountItemState()
+        subject.bankName = "Bank of America"
+        #expect(!subject.isBankAccountDetailsSectionEmpty)
+    }
+
+    /// `isBankAccountDetailsSectionEmpty` is `false` when only an account type is selected and all fields are empty.
+    @Test
+    func isBankAccountDetailsSectionEmpty_accountTypeOnly() {
+        var subject = BankAccountItemState()
+        subject.accountType = .custom(.checking)
+        #expect(!subject.isBankAccountDetailsSectionEmpty)
+    }
 }

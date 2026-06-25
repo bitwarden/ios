@@ -52,6 +52,25 @@ struct PassportItemState: Equatable {
 }
 
 extension PassportItemState {
+    /// Whether the passport details section has no values to display.
+    var isPassportDetailsSectionEmpty: Bool {
+        [
+            birthPlace,
+            dateOfBirth,
+            expirationDate,
+            givenName,
+            issueDate,
+            issuingAuthority,
+            issuingCountry,
+            nationalIdentificationNumber,
+            nationality,
+            passportNumber,
+            passportType,
+            sex,
+            surname,
+        ].allSatisfy(\.isEmpty)
+    }
+
     /// The `PassportView` representation of this state, mapping empty fields to `nil` and passing the
     /// raw ISO date strings through verbatim.
     var passportView: PassportView {
