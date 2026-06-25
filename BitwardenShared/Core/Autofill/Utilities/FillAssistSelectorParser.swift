@@ -8,9 +8,10 @@ import Foundation
 enum FillAssistSelectorParser {
     // MARK: Private Constants
 
-    /// Matches `[attr='value']` and `[attr="value"]` attribute selector syntax.
+    /// Matches `[attr='value']`, `[attr="value"]`, and `[attr=value]` attribute selector syntax,
+    /// including hyphenated attribute names (e.g. `data-type`).
     private static let attributeRegex = try? NSRegularExpression(
-        pattern: #"\[(\w+)=['"]([^'"]+)['"]\]"#,
+        pattern: #"\[([-\w]+)\s*=\s*['"]?([^'"\]]+)['"]?\]"#,
         options: [],
     )
 
