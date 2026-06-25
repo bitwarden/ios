@@ -49,6 +49,8 @@ protocol BillingStateService { // sourcery: AutoMockable
 // MARK: - DefaultStateService
 
 extension DefaultStateService: BillingStateService {
+    // MARK: Premium Upgrade Banner
+
     func isPremiumUpgradeBannerDismissed() async -> Bool {
         do {
             return try await getPremiumUpgradeBannerDismissed()
