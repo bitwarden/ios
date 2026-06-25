@@ -838,8 +838,8 @@ extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore {
         case siriAndShortcutsAccess(userId: String)
         case syncToAuthenticator(userId: String)
         case state
-        case twoFactorToken(email: String)
         case subscriptionAttentionCardVisible(userId: String)
+        case twoFactorToken(email: String)
         case upgradedToPremiumActionCardVisible(userId: String)
         case usernameGenerationOptions(userId: String)
         case usesKeyConnector(userId: String)
@@ -954,12 +954,12 @@ extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore {
                 "state"
             case let .siriAndShortcutsAccess(userId):
                 "siriAndShortcutsAccess_\(userId)"
+            case let .subscriptionAttentionCardVisible(userId):
+                "subscriptionAttentionCardVisible_\(userId)"
             case let .syncToAuthenticator(userId):
                 "shouldSyncToAuthenticator_\(userId)"
             case let .twoFactorToken(email):
                 "twoFactorToken_\(email)"
-            case let .subscriptionAttentionCardVisible(userId):
-                "subscriptionAttentionCardVisible_\(userId)"
             case let .upgradedToPremiumActionCardVisible(userId):
                 "upgradedToPremiumActionCardVisible_\(userId)"
             case let .usernameGenerationOptions(userId):
