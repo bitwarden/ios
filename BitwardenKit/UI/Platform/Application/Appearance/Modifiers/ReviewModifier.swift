@@ -15,8 +15,14 @@ struct ReviewModifier: ViewModifier {
 
     func body(content: Content) -> some View {
         content
-            .task(id: isEligible) {
+            .task {
                 if isEligible {
+                    requestReview()
+                    afterClosure()
+                }
+            }
+            .onChange(of: isEligible) { newValue in
+                if newValue {
                     requestReview()
                     afterClosure()
                 }
@@ -37,8 +43,14 @@ struct RequestReviewLegacyModifier: ViewModifier {
 
     func body(content: Content) -> some View {
         content
-            .task(id: isEligible) {
+            .task {
                 if isEligible {
+                    SKStoreReviewController.requestReview(in: windowScene)
+                    afterClosure()
+                }
+            }
+            .onChange(of: isEligible) { newValue in
+                if newValue {
                     SKStoreReviewController.requestReview(in: windowScene)
                     afterClosure()
                 }
