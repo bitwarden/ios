@@ -60,6 +60,7 @@ class MockAppSettingsStore: AppSettingsStore { // swiftlint:disable:this type_bo
     var pinProtectedUserKey = [String: String]()
     var pinProtectedUserKeyEnvelope = [String: String]()
     var premiumUpgradeBannerDismissedByUserId = [String: Bool]()
+    var subscriptionAttentionCardVisibleByUserId = [String: Bool]()
     var upgradedToPremiumCardVisibleByUserId = [String: Bool]()
     var accountCreationEnvironmentURLs = [String: EnvironmentURLData]()
     var serverConfig = [String: ServerConfig]()
@@ -200,6 +201,10 @@ class MockAppSettingsStore: AppSettingsStore { // swiftlint:disable:this type_bo
 
     func premiumUpgradeBannerDismissed(userId: String) -> Bool {
         premiumUpgradeBannerDismissedByUserId[userId] ?? false
+    }
+
+    func subscriptionAttentionCardVisible(userId: String) -> Bool {
+        subscriptionAttentionCardVisibleByUserId[userId] ?? false
     }
 
     func upgradedToPremiumActionCardVisible(userId: String) -> Bool {
@@ -348,6 +353,10 @@ class MockAppSettingsStore: AppSettingsStore { // swiftlint:disable:this type_bo
 
     func setPremiumUpgradeBannerDismissed(_ dismissed: Bool, userId: String) {
         premiumUpgradeBannerDismissedByUserId[userId] = dismissed
+    }
+
+    func setSubscriptionAttentionCardVisible(_ visible: Bool, userId: String) {
+        subscriptionAttentionCardVisibleByUserId[userId] = visible
     }
 
     func setUpgradedToPremiumActionCardVisible(_ visible: Bool, userId: String) {

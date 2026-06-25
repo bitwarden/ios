@@ -137,6 +137,9 @@ final class PremiumPlanProcessor: StateProcessor<
             }
             state.subscription = subscription
             state.planStatus = subscription.status
+            // Update the cached attention card visibility so the vault list reflects the
+            // current status if the user returns after fixing their subscription.
+            await services.billingService.refreshSubscriptionAttentionCard(subscription: subscription)
         } catch {
             services.errorReporter.log(error: error)
             await coordinator.showErrorAlert(error: error)

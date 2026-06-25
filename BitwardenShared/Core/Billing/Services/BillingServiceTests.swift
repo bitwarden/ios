@@ -27,6 +27,7 @@ struct BillingServiceTests { // swiftlint:disable:this type_body_length
 
     init() {
         billingAPIService = MockBillingAPIService()
+        billingAPIService.getSubscriptionReturnValue = .fixture()
         configService = MockConfigService()
         configService.featureFlagsBool[.premiumUpgradePath] = true
         environmentService = MockEnvironmentService()
@@ -541,5 +542,119 @@ struct BillingServiceTests { // swiftlint:disable:this type_body_length
         try await waitForAsync { !statuses.isEmpty }
         #expect(statuses == [.pending])
         #expect(errorReporter.errors.first is URLError)
+    }
+
+    // MARK: refreshSubscriptionAttentionCard
+
+    /// `refreshSubscriptionAttentionCard(subscription:)` sets the cached visibility to `true`
+    /// for a past-due subscription.
+    @Test
+    func refreshSubscriptionAttentionCard_pastDue() async {
+        stateService.doesActiveAccountHavePremiumPersonallyResult = true
+        billingAPIService.getSubscriptionReturnValue = .fixture(status: .pastDue)
+
+        await subject.refreshSubscriptionAttentionCard(subscription: nil)
+
+        #expect(stateService.subscriptionAttentionCardVisibleResult == true)
+    }
+
+    /// `refreshSubscriptionAttentionCard(subscription:)` sets the cached visibility to `true`
+    /// for an update-payment subscription.
+    @Test
+    func refreshSubscriptionAttentionCard_updatePayment() async {
+        stateService.doesActiveAccountHavePremiumPersonallyResult = true
+        billingAPIService.getSubscriptionReturnValue = .fixture(status: .unpaid)
+
+        await subject.refreshSubscriptionAttentionCard(subscription: nil)
+
+        #expect(stateService.subscriptionAttentionCardVisibleResult == true)
+    }
+
+    /// `refreshSubscriptionAttentionCard(subscription:)` sets the cached visibility to `false`
+    /// for an active subscription.
+    @Test
+    func refreshSubscriptionAttentionCard_active() async {
+        stateService.doesActiveAccountHavePremiumPersonallyResult = true
+        billingAPIService.getSubscriptionReturnValue = .fixture(status: .active)
+
+        await subject.refreshSubscriptionAttentionCard(subscription: nil)
+
+        #expect(stateService.subscriptionAttentionCardVisibleResult == false)
+    }
+
+    /// `refreshSubscriptionAttentionCard(subscription:)` sets the cached visibility to `false`
+    /// and skips the API call when the user is self-hosted.
+    @Test
+    func refreshSubscriptionAttentionCard_selfHosted() async {
+        environmentService.region = .selfHosted
+        stateService.doesActiveAccountHavePremiumPersonallyResult = true
+
+        await subject.refreshSubscriptionAttentionCard(subscription: nil)
+
+        #expect(stateService.subscriptionAttentionCardVisibleResult == false)
+        #expect(!billingAPIService.getSubscriptionCalled)
+    }
+
+    /// `refreshSubscriptionAttentionCard(subscription:)` sets the cached visibility to `false`
+    /// and skips the API call when the feature flag is disabled.
+    @Test
+    func refreshSubscriptionAttentionCard_featureFlagDisabled() async {
+        configService.featureFlagsBool[.premiumUpgradePath] = false
+        stateService.doesActiveAccountHavePremiumPersonallyResult = true
+
+        await subject.refreshSubscriptionAttentionCard(subscription: nil)
+
+        #expect(stateService.subscriptionAttentionCardVisibleResult == false)
+        #expect(!billingAPIService.getSubscriptionCalled)
+    }
+
+    /// `refreshSubscriptionAttentionCard(subscription:)` sets the cached visibility to `false`
+    /// and skips the API call when the user does not have premium personally.
+    @Test
+    func refreshSubscriptionAttentionCard_noPremiumPersonally() async {
+        stateService.doesActiveAccountHavePremiumPersonallyResult = false
+
+        await subject.refreshSubscriptionAttentionCard(subscription: nil)
+
+        #expect(stateService.subscriptionAttentionCardVisibleResult == false)
+        #expect(!billingAPIService.getSubscriptionCalled)
+    }
+
+    /// `refreshSubscriptionAttentionCard(subscription:)` uses an already-fetched subscription
+    /// instead of making a new API call when one is provided.
+    @Test
+    func refreshSubscriptionAttentionCard_usesProvidedSubscription() async {
+        stateService.doesActiveAccountHavePremiumPersonallyResult = true
+
+        await subject.refreshSubscriptionAttentionCard(subscription: .fixture(status: .pastDue))
+
+        #expect(stateService.subscriptionAttentionCardVisibleResult == true)
+        #expect(!billingAPIService.getSubscriptionCalled)
+    }
+
+    /// `refreshSubscriptionAttentionCard(subscription:)` logs the error and does not update
+    /// the cache when the API call fails.
+    @Test
+    func refreshSubscriptionAttentionCard_apiError() async {
+        stateService.doesActiveAccountHavePremiumPersonallyResult = true
+        billingAPIService.getSubscriptionThrowableError = URLError(.notConnectedToInternet)
+
+        await subject.refreshSubscriptionAttentionCard(subscription: nil)
+
+        #expect(stateService.subscriptionAttentionCardVisibleResult == false)
+        #expect(errorReporter.errors.first is URLError)
+    }
+
+    // MARK: shouldShowSubscriptionAttentionCard
+
+    /// `shouldShowSubscriptionAttentionCard()` returns the cached value without making an API call.
+    @Test
+    func shouldShowSubscriptionAttentionCard_returnsFromCache() async {
+        stateService.subscriptionAttentionCardVisibleResult = true
+
+        let result = await subject.shouldShowSubscriptionAttentionCard()
+
+        #expect(result)
+        #expect(!billingAPIService.getSubscriptionCalled)
     }
 }

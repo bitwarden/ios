@@ -55,9 +55,23 @@ protocol BillingService: AnyObject { // sourcery: AutoMockable
     ///
     func premiumStatusChanged() async
 
+    /// Fetches the subscription status from the API and updates the cached subscription attention
+    /// card visibility. Pass an already-fetched `PremiumSubscription` to avoid a redundant API
+    /// call (e.g. when called from `PremiumPlanProcessor` which fetches it anyway).
+    ///
+    /// - Parameter subscription: An already-fetched subscription, or `nil` to fetch fresh.
+    ///
+    func refreshSubscriptionAttentionCard(subscription: PremiumSubscription?) async
+
     /// Sets the "Upgraded to Premium" action card as dismissed and clears its visibility flag.
     ///
     func setUpgradedToPremiumActionCardDismissed() async
+
+    /// Returns the cached subscription attention card visibility. No network call.
+    ///
+    /// - Returns: Whether the card should be shown.
+    ///
+    func shouldShowSubscriptionAttentionCard() async -> Bool
 
     /// Gets whether the "Upgraded to Premium" action card should be shown for the active account.
     ///
@@ -180,6 +194,10 @@ class DefaultBillingService: BillingService {
     }
 
     func premiumStatusChanged() async {
+        // Refresh the attention card cache regardless of premium status — past-due and
+        // update-payment users still have premium, so they would be excluded by the guard below.
+        await refreshSubscriptionAttentionCard(subscription: nil)
+
         guard await !isSelfHosted(),
               await configService.getFeatureFlag(.premiumUpgradePath),
               await !stateService.doesActiveAccountHavePremium()
@@ -205,12 +223,41 @@ class DefaultBillingService: BillingService {
         }
     }
 
+    func refreshSubscriptionAttentionCard(subscription: PremiumSubscription?) async {
+        guard await !isSelfHosted(),
+              await configService.getFeatureFlag(.premiumUpgradePath),
+              await stateService.doesActiveAccountHavePremiumPersonally()
+        else {
+            do {
+                try await stateService.setSubscriptionAttentionCardVisible(false)
+            } catch {
+                errorReporter.log(error: error)
+            }
+            return
+        }
+        do {
+            let sub: PremiumSubscription = if let subscription {
+                subscription
+            } else {
+                try await getSubscription()
+            }
+            let visible = sub.status == .pastDue || sub.status == .updatePayment
+            try await stateService.setSubscriptionAttentionCardVisible(visible)
+        } catch {
+            errorReporter.log(error: error)
+        }
+    }
+
     func setUpgradedToPremiumActionCardDismissed() async {
         do {
             try await stateService.setUpgradedToPremiumActionCardVisible(false)
         } catch {
             errorReporter.log(error: error)
         }
+    }
+
+    func shouldShowSubscriptionAttentionCard() async -> Bool {
+        await stateService.getSubscriptionAttentionCardVisible()
     }
 
     func shouldShowUpgradedToPremiumActionCard() async -> Bool {

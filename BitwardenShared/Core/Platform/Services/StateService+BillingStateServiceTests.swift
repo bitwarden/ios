@@ -131,4 +131,35 @@ struct StateServiceBillingStateServiceTests {
         let isEligible = await subject.isPremiumUpgradeEligible()
         #expect(!isEligible)
     }
+
+    // MARK: getSubscriptionAttentionCardVisible / setSubscriptionAttentionCardVisible
+
+    /// `getSubscriptionAttentionCardVisible()` returns `true` after `setSubscriptionAttentionCardVisible(true)`.
+    @Test
+    func getSubscriptionAttentionCardVisible_true() async throws {
+        await subject.addAccount(.fixture())
+        try await subject.setSubscriptionAttentionCardVisible(true)
+
+        let result = await subject.getSubscriptionAttentionCardVisible()
+        #expect(result)
+    }
+
+    /// `getSubscriptionAttentionCardVisible()` returns `false` after `setSubscriptionAttentionCardVisible(false)`.
+    @Test
+    func getSubscriptionAttentionCardVisible_false() async throws {
+        await subject.addAccount(.fixture())
+        try await subject.setSubscriptionAttentionCardVisible(false)
+
+        let result = await subject.getSubscriptionAttentionCardVisible()
+        #expect(!result)
+    }
+
+    /// `getSubscriptionAttentionCardVisible()` returns `false` when no value has been set.
+    @Test
+    func getSubscriptionAttentionCardVisible_defaultsFalse() async throws {
+        await subject.addAccount(.fixture())
+
+        let result = await subject.getSubscriptionAttentionCardVisible()
+        #expect(!result)
+    }
 }

@@ -273,6 +273,13 @@ protocol AppSettingsStore: AnyObject {
     ///
     func premiumUpgradeBannerDismissed(userId: String) -> Bool
 
+    /// Gets whether the "subscription needs attention" action card should be shown for the given user.
+    ///
+    /// - Parameter userId: The user ID.
+    /// - Returns: Whether the action card should be shown.
+    ///
+    func subscriptionAttentionCardVisible(userId: String) -> Bool
+
     /// Gets whether the "Upgraded to Premium" action card should be shown for the given user.
     ///
     /// - Parameter userId: The user ID.
@@ -517,6 +524,14 @@ protocol AppSettingsStore: AnyObject {
     ///   - userId: The user ID associated with the Premium upgrade banner dismissed value.
     ///
     func setPremiumUpgradeBannerDismissed(_ dismissed: Bool, userId: String)
+
+    /// Sets whether the "subscription needs attention" action card should be shown for the given user.
+    ///
+    /// - Parameters:
+    ///   - visible: Whether the action card should be shown.
+    ///   - userId: The user ID.
+    ///
+    func setSubscriptionAttentionCardVisible(_ visible: Bool, userId: String)
 
     /// Sets whether the "Upgraded to Premium" action card should be shown for the given user.
     ///
@@ -824,6 +839,7 @@ extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore {
         case syncToAuthenticator(userId: String)
         case state
         case twoFactorToken(email: String)
+        case subscriptionAttentionCardVisible(userId: String)
         case upgradedToPremiumActionCardVisible(userId: String)
         case usernameGenerationOptions(userId: String)
         case usesKeyConnector(userId: String)
@@ -942,6 +958,8 @@ extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore {
                 "shouldSyncToAuthenticator_\(userId)"
             case let .twoFactorToken(email):
                 "twoFactorToken_\(email)"
+            case let .subscriptionAttentionCardVisible(userId):
+                "subscriptionAttentionCardVisible_\(userId)"
             case let .upgradedToPremiumActionCardVisible(userId):
                 "upgradedToPremiumActionCardVisible_\(userId)"
             case let .usernameGenerationOptions(userId):
@@ -1181,6 +1199,10 @@ extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore {
         fetch(for: .premiumUpgradeBannerDismissed(userId: userId))
     }
 
+    func subscriptionAttentionCardVisible(userId: String) -> Bool {
+        fetch(for: .subscriptionAttentionCardVisible(userId: userId))
+    }
+
     func upgradedToPremiumActionCardVisible(userId: String) -> Bool {
         fetch(for: .upgradedToPremiumActionCardVisible(userId: userId))
     }
@@ -1305,6 +1327,10 @@ extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore {
 
     func setPremiumUpgradeBannerDismissed(_ dismissed: Bool, userId: String) {
         store(dismissed, for: .premiumUpgradeBannerDismissed(userId: userId))
+    }
+
+    func setSubscriptionAttentionCardVisible(_ visible: Bool, userId: String) {
+        store(visible, for: .subscriptionAttentionCardVisible(userId: userId))
     }
 
     func setUpgradedToPremiumActionCardVisible(_ visible: Bool, userId: String) {

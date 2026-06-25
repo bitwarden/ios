@@ -18,11 +18,25 @@ protocol BillingStateService { // sourcery: AutoMockable
     ///
     func isPremiumUpgradeEligible() async -> Bool
 
+    /// Returns whether the "subscription needs attention" action card should be shown for the
+    /// active account. Reads from persisted state — no network call.
+    ///
+    /// - Returns: `true` if the card should be shown.
+    ///
+    func getSubscriptionAttentionCardVisible() async -> Bool
+
     /// Returns whether the "Upgraded to Premium" action card should be shown for the active account.
     ///
     /// - Returns: `true` if the card should be shown.
     ///
     func getUpgradedToPremiumActionCardVisible() async -> Bool
+
+    /// Persists whether the "subscription needs attention" action card should be shown for the
+    /// active account.
+    ///
+    /// - Parameter visible: Whether the card should be shown.
+    ///
+    func setSubscriptionAttentionCardVisible(_ visible: Bool) async throws
 }
 
 // MARK: - DefaultStateService

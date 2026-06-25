@@ -46,11 +46,6 @@ final class VaultListProcessor: StateProcessor<
     /// ciphers which failed to decrypt.
     private(set) var hasShownCipherDecryptionFailureAlert = false
 
-    /// Whether `appeared()` has ever completed a subscription attention card check that produced
-    /// a definitive result (true or false). Used to suppress the `streamVaultList` fallback check
-    /// once the primary path has succeeded, avoiding a redundant billing API call.
-    private var subscriptionCheckSucceeded = false
-
     /// The helper to handle master password reprompts.
     private let masterPasswordRepromptHelper: MasterPasswordRepromptHelper
 
@@ -239,16 +234,8 @@ extension VaultListProcessor {
 
     /// Called when the vault list appears on screen.
     private func appeared() async {
-        // Run the subscription attention card check immediately so the card appears
-        // as soon as the billing API responds, without waiting for the vault sync below.
-        // `nil` means the check was interrupted (cancelled or API error) — leave state as-is
-        // and let the streamVaultList fallback retry. A real Bool result sets the flag so
-        // the fallback knows not to make a redundant billing call.
-        if let visible = await loadSubscriptionNeedsAttentionCardVisibility() {
-            guard !Task.isCancelled else { return }
-            subscriptionCheckSucceeded = true
-            state.shouldShowSubscriptionAttentionCard = visible
-        }
+        state.shouldShowSubscriptionAttentionCard =
+            await services.billingService.shouldShowSubscriptionAttentionCard()
 
         await refreshVault(syncWithPeriodicCheck: true)
         await handleNotifications()
@@ -366,27 +353,6 @@ extension VaultListProcessor {
             state.shouldShowPremiumUpgradeActionCard = false
         } catch {
             services.errorReporter.log(error: error)
-        }
-    }
-
-    /// Returns whether the user should see the "subscription needs attention" action card.
-    ///
-    /// Returns `true`/`false` when a definitive answer is available, or `nil` when the check
-    /// was interrupted (cancellation or API error) — callers should leave state unchanged on `nil`
-    /// and allow the `streamVaultList` fallback to retry once the session is stable.
-    ///
-    /// Only makes the network call when the user has premium personally.
-    ///
-    private func loadSubscriptionNeedsAttentionCardVisibility() async -> Bool? {
-        guard await services.stateService.doesActiveAccountHavePremiumPersonally() else { return false }
-        do {
-            let subscription = try await services.billingService.getSubscription()
-            return subscription.status == .pastDue || subscription.status == .updatePayment
-        } catch is CancellationError {
-            return nil
-        } catch {
-            services.errorReporter.log(error: error)
-            return nil
         }
     }
 
@@ -744,13 +710,6 @@ extension VaultListProcessor {
         do {
             let collapsedSectionIds = await (try? services.stateService.getCollapsedVaultListSectionIds()) ?? []
             state.collapsedSectionIds = Set(collapsedSectionIds)
-            // First-unlock fallback: `appeared()` is the primary path for the subscription
-            // attention card, but on first unlock the billing API call can race against token
-            // initialization and fail. This flag triggers a one-time retry on the first
-            // confirmed-data emission (when the auth session is stable after sync). If
-            // `appeared()` already succeeded, the card is already showing and the guard
-            // prevents a redundant network call.
-            var hasCheckedSubscriptionCard = false
             for try await vaultList in try await services.vaultRepository
                 .vaultListPublisher(
                     filter: VaultListFilter(
@@ -770,13 +729,6 @@ extension VaultListProcessor {
                     state.toast = nil
                     // If the data is not empty or if a sync is not needed, set the data.
                     state.loadingState = .data(value)
-                    if !hasCheckedSubscriptionCard, !subscriptionCheckSucceeded {
-                        hasCheckedSubscriptionCard = true
-                        if let visible = await loadSubscriptionNeedsAttentionCardVisibility() {
-                            subscriptionCheckSucceeded = true
-                            state.shouldShowSubscriptionAttentionCard = visible
-                        }
-                    }
                 } else {
                     // Otherwise mark the state as `.loading` until the sync is complete.
                     state.loadingState = .loading(value)

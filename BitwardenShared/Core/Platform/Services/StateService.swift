@@ -316,6 +316,13 @@ protocol StateService: AnyObject, BillingStateService {
     ///
     func getPremiumUpgradeBannerDismissed(userId: String?) async throws -> Bool
 
+    /// Gets whether the "subscription needs attention" action card should be shown for the active
+    /// account. Reads from persisted state — no network call.
+    ///
+    /// - Returns: Whether the action card should be shown.
+    ///
+    func getSubscriptionAttentionCardVisible() async -> Bool
+
     /// Gets whether the "Upgraded to Premium" action card should be shown for the active account.
     ///
     /// - Returns: Whether the action card should be shown.
@@ -572,6 +579,13 @@ protocol StateService: AnyObject, BillingStateService {
     ///
     /// - Parameter visible: Whether the action card should be shown.
     ///
+    /// Persists whether the "subscription needs attention" action card should be shown for the
+    /// active account.
+    ///
+    /// - Parameter visible: Whether the card should be shown.
+    ///
+    func setSubscriptionAttentionCardVisible(_ visible: Bool) async throws
+
     func setUpgradedToPremiumActionCardVisible(_ visible: Bool) async throws
 
     /// Sets the clear clipboard value for an account.
@@ -1705,6 +1719,16 @@ actor DefaultStateService: StateService, ActiveAccountStateProvider, ConfigState
         return appSettingsStore.premiumUpgradeBannerDismissed(userId: userId)
     }
 
+    func getSubscriptionAttentionCardVisible() async -> Bool {
+        do {
+            let userId = try getActiveAccountUserId()
+            return appSettingsStore.subscriptionAttentionCardVisible(userId: userId)
+        } catch {
+            errorReporter.log(error: error)
+            return false
+        }
+    }
+
     func getUpgradedToPremiumActionCardVisible() async -> Bool {
         do {
             let userId = try getActiveAccountUserId()
@@ -2072,6 +2096,11 @@ actor DefaultStateService: StateService, ActiveAccountStateProvider, ConfigState
     func setPremiumUpgradeBannerDismissed(_ dismissed: Bool, userId: String?) async throws {
         let userId = try userId ?? getActiveAccountUserId()
         appSettingsStore.setPremiumUpgradeBannerDismissed(dismissed, userId: userId)
+    }
+
+    func setSubscriptionAttentionCardVisible(_ visible: Bool) async throws {
+        let userId = try getActiveAccountUserId()
+        appSettingsStore.setSubscriptionAttentionCardVisible(visible, userId: userId)
     }
 
     func setUpgradedToPremiumActionCardVisible(_ visible: Bool) async throws {
