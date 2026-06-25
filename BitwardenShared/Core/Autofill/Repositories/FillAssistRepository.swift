@@ -107,10 +107,9 @@ class DefaultFillAssistRepository: FillAssistRepository {
     /// Runs the full sync pipeline if sync conditions are met
     ///
     private func performSync() async throws {
-        // 1. Feature flag guard.
-        guard await configService.getFeatureFlag(.fillAssistTargetingRules) else { return }
+        guard await configService.getFeatureFlag(.fillAssistTargetingRules),
+              try await stateService.getFillAssistEnabled() else { return }
 
-        // 2. Time-interval guard — skip if last fetch was less than fillAssistUpdateInterval ago.
         let sourceUrl = environmentService.fillAssistRulesURL
         let userId = try await stateService.getActiveAccountId()
         let lastFetch = appSettingsStore.fillAssistLastFetchTimestamp(userId: userId)
@@ -118,7 +117,6 @@ class DefaultFillAssistRepository: FillAssistRepository {
             return
         }
 
-        // 3. Fetch manifest.
         let manifest = try await fillAssistAPIService.getManifest()
 
         // 4. Resolve the non-deprecated entry for the current forms version.
@@ -126,24 +124,20 @@ class DefaultFillAssistRepository: FillAssistRepository {
               !entry.deprecated
         else { return }
 
-        // 5. If cid and source URL are unchanged, update timestamp and skip download.
         let cached = appSettingsStore.fillAssistCachedData(userId: userId)
         if cached?.cid == entry.cid, cached?.sourceUrl == sourceUrl.absoluteString {
             appSettingsStore.setFillAssistLastFetchTimestamp(timeProvider.presentTime, userId: userId)
             return
         }
 
-        // 6. Download forms file.
         let formsMap = try await fillAssistAPIService.getFormsMap(filename: entry.filename)
 
-        // 7. Validate schema major version; update timestamp and skip if unsupported.
         let schemaMajor = formsMap.schemaVersion.split(separator: ".").first.map(String.init) ?? ""
         guard schemaMajor == Constants.FillAssist.expectedSchemaMajor else {
             appSettingsStore.setFillAssistLastFetchTimestamp(timeProvider.presentTime, userId: userId)
             return
         }
 
-        // 8. Parse, cache, and update timestamp.
         let rules = buildRules(from: formsMap)
         let data = FillAssistCachedData(cid: entry.cid, rules: rules, sourceUrl: sourceUrl.absoluteString)
         appSettingsStore.setFillAssistCachedData(data, userId: userId)

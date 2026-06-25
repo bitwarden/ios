@@ -15,6 +15,7 @@ class AutofillHelper {
         & HasEventService
         & HasFillAssistRepository
         & HasPasteboardService
+        & HasStateService
         & HasVaultRepository
 
     // MARK: Properties
@@ -107,7 +108,8 @@ class AutofillHelper {
     /// - Returns: An array of `(selector, value)` tuples, or an empty array if unavailable.
     ///
     private func fillAssistFields(for uri: String?, username: String, password: String) async -> [(String, String)] {
-        guard await services.configService.getFeatureFlag(.fillAssistTargetingRules) else { return [] }
+        guard await services.configService.getFeatureFlag(.fillAssistTargetingRules),
+              await (try? services.stateService.getFillAssistEnabled()) == true else { return [] }
         guard let uri,
               let url = URL(string: uri),
               let lookupHost = url.domain else { return [] }
