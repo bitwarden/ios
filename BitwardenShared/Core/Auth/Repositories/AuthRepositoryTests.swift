@@ -2616,13 +2616,14 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         stateService.accountEncryptionKeys = [
             "1": AccountEncryptionKeys(
                 cryptographicState: .v1(privateKey: "private"),
-                encryptedUserKey: "user",
+                encryptedUserKey: nil,
             ),
         ]
         stateService.activeAccount = .fixture()
 
         await assertAsyncDoesNotThrow {
             try await subject.unlockVaultWithKeyConnectorKey(
+                keyConnectorKeyWrappedUserKey: "user",
                 keyConnectorURL: URL(string: "https://example.com")!,
                 orgIdentifier: "org-id",
             )
@@ -2644,18 +2645,15 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         XCTAssertEqual(stateService.manuallyLockedAccounts["1"], false)
     }
 
-    /// `unlockVaultWithKeyConnectorKey()` throws an error if the user is missing an encrypted user key.
-    func test_unlockVaultWithKeyConnectorKey_missingEncryptedUserKey() async {
+    /// `unlockVaultWithKeyConnectorKey()` throws an error if the account has no cryptographic state
+    /// (e.g. a new user who hasn't been migrated to key connector yet).
+    func test_unlockVaultWithKeyConnectorKey_noAccountCryptographicState() async {
         stateService.activeAccount = .fixture()
-        stateService.accountEncryptionKeys = [
-            "1": AccountEncryptionKeys(
-                cryptographicState: .v1(privateKey: "private"),
-                encryptedUserKey: nil,
-            ),
-        ]
+        stateService.getAccountEncryptionKeysError = StateServiceError.noAccountCryptographicState
 
-        await assertAsyncThrows(error: StateServiceError.noEncUserKey) {
+        await assertAsyncThrows(error: StateServiceError.noAccountCryptographicState) {
             try await subject.unlockVaultWithKeyConnectorKey(
+                keyConnectorKeyWrappedUserKey: "user",
                 keyConnectorURL: URL(string: "https://example.com")!,
                 orgIdentifier: "org-id",
             )
@@ -2666,6 +2664,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
     func test_unlockVaultWithKeyConnectorKey_noActiveAccount() async {
         await assertAsyncThrows(error: StateServiceError.noActiveAccount) {
             try await subject.unlockVaultWithKeyConnectorKey(
+                keyConnectorKeyWrappedUserKey: "user",
                 keyConnectorURL: URL(string: "https://example.com")!,
                 orgIdentifier: "org-id",
             )

@@ -65,6 +65,22 @@ extension BankAccountItemState {
             bankContactPhone: bankContactPhone.nilIfEmpty,
         )
     }
+
+    /// Whether the bank account details section has no values to display.
+    var isBankAccountDetailsSectionEmpty: Bool {
+        guard accountType == .default else { return false }
+        return [
+            accountNumber,
+            bankContactPhone,
+            bankName,
+            branchNumber,
+            iban,
+            nameOnAccount,
+            pin,
+            routingNumber,
+            swiftCode,
+        ].allSatisfy(\.isEmpty)
+    }
 }
 
 // MARK: AddEditBankAccountItemState

@@ -53,7 +53,7 @@ struct VaultItemActionHelperTests {
         )
 
         let alert = try #require(coordinator.alertShown.last)
-        #expect(alert.title == Localizations.archiveUnavailable)
+        #expect(alert.title == Localizations.premiumSubscriptionRequired)
         #expect(alert.message == Localizations.archivingItemsIsAPremiumFeatureDescriptionLong)
         #expect(vaultRepository.archiveCipher.isEmpty)
         #expect(!completionCalled)
