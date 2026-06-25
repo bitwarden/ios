@@ -46,6 +46,11 @@ final class VaultListProcessor: StateProcessor<
     /// ciphers which failed to decrypt.
     private(set) var hasShownCipherDecryptionFailureAlert = false
 
+    /// Whether `appeared()` has ever completed a subscription attention card check that produced
+    /// a definitive result (true or false). Used to suppress the `streamVaultList` fallback check
+    /// once the primary path has succeeded, avoiding a redundant billing API call.
+    private var subscriptionCheckSucceeded = false
+
     /// The helper to handle master password reprompts.
     private let masterPasswordRepromptHelper: MasterPasswordRepromptHelper
 
@@ -236,12 +241,14 @@ extension VaultListProcessor {
     private func appeared() async {
         // Run the subscription attention card check immediately so the card appears
         // as soon as the billing API responds, without waiting for the vault sync below.
-        // Guard on Task.isCancelled before writing state: if the user switches tabs while
-        // the billing call is in flight, the task is cancelled and the call returns false —
-        // but we don't want that to hide a card that was already showing.
-        let subscriptionAttentionCardVisible = await loadSubscriptionNeedsAttentionCardVisibility()
-        guard !Task.isCancelled else { return }
-        state.shouldShowSubscriptionAttentionCard = subscriptionAttentionCardVisible
+        // `nil` means the check was interrupted (cancelled or API error) — leave state as-is
+        // and let the streamVaultList fallback retry. A real Bool result sets the flag so
+        // the fallback knows not to make a redundant billing call.
+        if let visible = await loadSubscriptionNeedsAttentionCardVisibility() {
+            guard !Task.isCancelled else { return }
+            subscriptionCheckSucceeded = true
+            state.shouldShowSubscriptionAttentionCard = visible
+        }
 
         await refreshVault(syncWithPeriodicCheck: true)
         await handleNotifications()
@@ -362,22 +369,24 @@ extension VaultListProcessor {
         }
     }
 
-    /// Returns `true` when the user has a personal subscription that needs payment attention
-    /// (past due or update payment required) and should see the "subscription needs attention"
-    /// action card.
+    /// Returns whether the user should see the "subscription needs attention" action card.
     ///
-    /// Only makes the network call when the user has premium personally; returns `false` on error.
+    /// Returns `true`/`false` when a definitive answer is available, or `nil` when the check
+    /// was interrupted (cancellation or API error) — callers should leave state unchanged on `nil`
+    /// and allow the `streamVaultList` fallback to retry once the session is stable.
     ///
-    private func loadSubscriptionNeedsAttentionCardVisibility() async -> Bool {
+    /// Only makes the network call when the user has premium personally.
+    ///
+    private func loadSubscriptionNeedsAttentionCardVisibility() async -> Bool? {
         guard await services.stateService.doesActiveAccountHavePremiumPersonally() else { return false }
         do {
             let subscription = try await services.billingService.getSubscription()
             return subscription.status == .pastDue || subscription.status == .updatePayment
         } catch is CancellationError {
-            return false
+            return nil
         } catch {
             services.errorReporter.log(error: error)
-            return false
+            return nil
         }
     }
 
@@ -761,10 +770,12 @@ extension VaultListProcessor {
                     state.toast = nil
                     // If the data is not empty or if a sync is not needed, set the data.
                     state.loadingState = .data(value)
-                    if !hasCheckedSubscriptionCard, !state.shouldShowSubscriptionAttentionCard {
+                    if !hasCheckedSubscriptionCard, !subscriptionCheckSucceeded {
                         hasCheckedSubscriptionCard = true
-                        state.shouldShowSubscriptionAttentionCard =
-                            await loadSubscriptionNeedsAttentionCardVisibility()
+                        if let visible = await loadSubscriptionNeedsAttentionCardVisibility() {
+                            subscriptionCheckSucceeded = true
+                            state.shouldShowSubscriptionAttentionCard = visible
+                        }
                     }
                 } else {
                     // Otherwise mark the state as `.loading` until the sync is complete.

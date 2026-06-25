@@ -727,8 +727,8 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         XCTAssertFalse(billingService.getSubscriptionCalled)
     }
 
-    /// `perform(_:)` with `.appeared` hides the subscription needs attention card and logs the
-    /// error when `getSubscription()` throws.
+    /// `perform(_:)` with `.appeared` leaves the subscription needs attention card hidden and
+    /// logs the error when `getSubscription()` throws.
     @MainActor
     func test_perform_appeared_subscriptionNeedsAttentionCard_fetchError_hidden() async {
         stateService.doesActiveAccountHavePremiumPersonallyResult = true
@@ -737,7 +737,7 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         await subject.perform(.appeared)
 
         XCTAssertFalse(subject.state.shouldShowSubscriptionAttentionCard)
-        XCTAssertEqual(errorReporter.errors.last as? BitwardenTestError, .example)
+        XCTAssertTrue(errorReporter.errors.contains { $0 as? BitwardenTestError == .example })
     }
 
     /// `perform(_:)` with `.streamVaultList` shows the subscription needs attention card on the
@@ -757,20 +757,24 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         XCTAssertTrue(subject.state.shouldShowSubscriptionAttentionCard)
     }
 
-    /// `perform(_:)` with `.streamVaultList` skips the subscription check when `appeared()`
-    /// has already set the card, avoiding a redundant network call.
+    /// `perform(_:)` with `.streamVaultList` skips the subscription check once `appeared()` has
+    /// produced a definitive result, avoiding a redundant billing API call.
     @MainActor
-    func test_perform_streamVaultList_subscriptionNeedsAttentionCard_skippedIfAlreadyShowing() async throws {
-        subject.state.shouldShowSubscriptionAttentionCard = true
-        let section = VaultListSection(id: "1", items: [.fixture()], name: "Section")
+    func test_perform_streamVaultList_subscriptionNeedsAttentionCard_skippedAfterAppearedSucceeded() async throws {
+        stateService.doesActiveAccountHavePremiumPersonallyResult = true
+        billingService.getSubscriptionReturnValue = .fixture(status: .pastDue)
 
+        await subject.perform(.appeared)
+        XCTAssertEqual(billingService.getSubscriptionCallsCount, 1)
+
+        let section = VaultListSection(id: "1", items: [.fixture()], name: "Section")
         let task = Task { await subject.perform(.streamVaultList) }
         defer { task.cancel() }
 
         vaultRepository.vaultListSubject.send(VaultListData(sections: [section]))
         try await waitForAsync { self.subject.state.loadingState == .data([section]) }
 
-        XCTAssertFalse(billingService.getSubscriptionCalled)
+        XCTAssertEqual(billingService.getSubscriptionCallsCount, 1)
     }
 
     /// `perform(_:)` with `.streamVaultList` hides the subscription needs attention card when
