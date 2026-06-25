@@ -316,19 +316,6 @@ protocol StateService: AnyObject, BillingStateService {
     ///
     func getPremiumUpgradeBannerDismissed(userId: String?) async throws -> Bool
 
-    /// Gets whether the "subscription needs attention" action card should be shown for the active
-    /// account. Reads from persisted state — no network call.
-    ///
-    /// - Returns: Whether the action card should be shown.
-    ///
-    func getSubscriptionAttentionCardVisible() async -> Bool
-
-    /// Gets whether the "Upgraded to Premium" action card should be shown for the active account.
-    ///
-    /// - Returns: Whether the action card should be shown.
-    ///
-    func getUpgradedToPremiumActionCardVisible() async -> Bool
-
     /// Gets the environment URLs for a given email during account creation.
     ///
     /// - Parameter email: The email used to start the account creation.
@@ -574,19 +561,6 @@ protocol StateService: AnyObject, BillingStateService {
     ///     Defaults to the active account if `nil`.
     ///
     func setPremiumUpgradeBannerDismissed(_ dismissed: Bool, userId: String?) async throws
-
-    /// Persists whether the "subscription needs attention" action card should be shown for the
-    /// active account.
-    ///
-    /// - Parameter visible: Whether the card should be shown.
-    ///
-    func setSubscriptionAttentionCardVisible(_ visible: Bool) async throws
-
-    /// Sets whether the "Upgraded to Premium" action card should be shown for the active account.
-    ///
-    /// - Parameter visible: Whether the action card should be shown.
-    ///
-    func setUpgradedToPremiumActionCardVisible(_ visible: Bool) async throws
 
     /// Sets the clear clipboard value for an account.
     ///

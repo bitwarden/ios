@@ -108,7 +108,7 @@ class DefaultBillingService: BillingService {
     private let premiumCheckoutStatusSubject = CurrentValueSubject<PremiumCheckoutStatus?, Never>(nil)
 
     /// The service used to manage the app's state.
-    private let stateService: StateService
+    private let billingStateService: BillingStateService
 
     /// The service used to handle syncing vault data with the API.
     private let syncService: SyncService
@@ -124,7 +124,7 @@ class DefaultBillingService: BillingService {
     ///     `Constants.premiumCheckoutStatusDebounceInterval`.
     ///   - environmentService: The service used to manage the app's environment URLs.
     ///   - errorReporter: The service used to report non-fatal errors.
-    ///   - stateService: The service used to manage the app's state.
+    ///   - billingStateService: The service used to manage the app's state.
     ///   - syncService: The service used to handle syncing vault data with the API.
     ///
     init(
@@ -133,7 +133,7 @@ class DefaultBillingService: BillingService {
         debounceInterval: DispatchQueue.SchedulerTimeType.Stride = Constants.premiumCheckoutStatusDebounceInterval,
         environmentService: EnvironmentService,
         errorReporter: ErrorReporter,
-        stateService: StateService,
+        billingStateService: BillingStateService,
         syncService: SyncService,
     ) {
         self.billingAPIService = billingAPIService
@@ -141,7 +141,7 @@ class DefaultBillingService: BillingService {
         self.debounceInterval = debounceInterval
         self.environmentService = environmentService
         self.errorReporter = errorReporter
-        self.stateService = stateService
+        self.billingStateService = billingStateService
         self.syncService = syncService
     }
 
@@ -200,7 +200,7 @@ class DefaultBillingService: BillingService {
 
         guard await !isSelfHosted(),
               await configService.getFeatureFlag(.premiumUpgradePath),
-              await !stateService.doesActiveAccountHavePremium()
+              await !billingStateService.doesActiveAccountHavePremium()
         else {
             return
         }
@@ -211,12 +211,12 @@ class DefaultBillingService: BillingService {
         } catch {
             errorReporter.log(error: error)
         }
-        let hasPremium = await stateService.doesActiveAccountHavePremium()
+        let hasPremium = await billingStateService.doesActiveAccountHavePremium()
         premiumCheckoutStatusSubject.send(hasPremium ? .confirmed : .pending)
         if hasPremium {
             premiumCheckoutStatusSubject.send(nil)
             do {
-                try await stateService.setUpgradedToPremiumActionCardVisible(true)
+                try await billingStateService.setUpgradedToPremiumActionCardVisible(true)
             } catch {
                 errorReporter.log(error: error)
             }
@@ -226,10 +226,10 @@ class DefaultBillingService: BillingService {
     func refreshSubscriptionAttentionCard(subscription: PremiumSubscription?) async {
         guard await !isSelfHosted(),
               await configService.getFeatureFlag(.premiumUpgradePath),
-              await stateService.doesActiveAccountHavePremiumPersonally()
+              await billingStateService.doesActiveAccountHavePremiumPersonally()
         else {
             do {
-                try await stateService.setSubscriptionAttentionCardVisible(false)
+                try await billingStateService.setSubscriptionAttentionCardVisible(false)
             } catch {
                 errorReporter.log(error: error)
             }
@@ -242,7 +242,7 @@ class DefaultBillingService: BillingService {
                 try await getSubscription()
             }
             let visible = sub.status == .pastDue || sub.status == .updatePayment
-            try await stateService.setSubscriptionAttentionCardVisible(visible)
+            try await billingStateService.setSubscriptionAttentionCardVisible(visible)
         } catch {
             errorReporter.log(error: error)
         }
@@ -250,17 +250,17 @@ class DefaultBillingService: BillingService {
 
     func setUpgradedToPremiumActionCardDismissed() async {
         do {
-            try await stateService.setUpgradedToPremiumActionCardVisible(false)
+            try await billingStateService.setUpgradedToPremiumActionCardVisible(false)
         } catch {
             errorReporter.log(error: error)
         }
     }
 
     func shouldShowSubscriptionAttentionCard() async -> Bool {
-        await stateService.getSubscriptionAttentionCardVisible()
+        await billingStateService.getSubscriptionAttentionCardVisible()
     }
 
     func shouldShowUpgradedToPremiumActionCard() async -> Bool {
-        await stateService.getUpgradedToPremiumActionCardVisible()
+        await billingStateService.getUpgradedToPremiumActionCardVisible()
     }
 }
