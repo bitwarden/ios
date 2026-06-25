@@ -68,4 +68,28 @@ extension DefaultStateService: BillingStateService {
               let creationDate = account.profile.creationDate else { return false }
         return timeProvider.timeSince(creationDate) >= Constants.premiumUpgradeBannerAccountAge
     }
+
+    // MARK: Subscription Attention Card
+
+    func getSubscriptionAttentionCardVisible() async -> Bool {
+        guard let account = try? await getActiveAccount() else { return false }
+        return appSettingsStore.subscriptionAttentionCardVisible(userId: account.profile.userId)
+    }
+
+    func setSubscriptionAttentionCardVisible(_ visible: Bool) async throws {
+        let account = try await getActiveAccount()
+        appSettingsStore.setSubscriptionAttentionCardVisible(visible, userId: account.profile.userId)
+    }
+
+    // MARK: Upgraded to Premium Card
+
+    func getUpgradedToPremiumActionCardVisible() async -> Bool {
+        guard let account = try? await getActiveAccount() else { return false }
+        return appSettingsStore.upgradedToPremiumActionCardVisible(userId: account.profile.userId)
+    }
+
+    func setUpgradedToPremiumActionCardVisible(_ visible: Bool) async throws {
+        let account = try await getActiveAccount()
+        appSettingsStore.setUpgradedToPremiumActionCardVisible(visible, userId: account.profile.userId)
+    }
 }

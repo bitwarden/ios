@@ -1719,26 +1719,6 @@ actor DefaultStateService: StateService, ActiveAccountStateProvider, ConfigState
         return appSettingsStore.premiumUpgradeBannerDismissed(userId: userId)
     }
 
-    func getSubscriptionAttentionCardVisible() async -> Bool {
-        do {
-            let userId = try getActiveAccountUserId()
-            return appSettingsStore.subscriptionAttentionCardVisible(userId: userId)
-        } catch {
-            errorReporter.log(error: error)
-            return false
-        }
-    }
-
-    func getUpgradedToPremiumActionCardVisible() async -> Bool {
-        do {
-            let userId = try getActiveAccountUserId()
-            return appSettingsStore.upgradedToPremiumActionCardVisible(userId: userId)
-        } catch {
-            errorReporter.log(error: error)
-            return false
-        }
-    }
-
     func getClearClipboardValue(userId: String?) async throws -> ClearClipboardValue {
         let userId = try userId ?? getActiveAccountUserId()
         return appSettingsStore.clearClipboardValue(userId: userId)
@@ -2096,16 +2076,6 @@ actor DefaultStateService: StateService, ActiveAccountStateProvider, ConfigState
     func setPremiumUpgradeBannerDismissed(_ dismissed: Bool, userId: String?) async throws {
         let userId = try userId ?? getActiveAccountUserId()
         appSettingsStore.setPremiumUpgradeBannerDismissed(dismissed, userId: userId)
-    }
-
-    func setSubscriptionAttentionCardVisible(_ visible: Bool) async throws {
-        let userId = try getActiveAccountUserId()
-        appSettingsStore.setSubscriptionAttentionCardVisible(visible, userId: userId)
-    }
-
-    func setUpgradedToPremiumActionCardVisible(_ visible: Bool) async throws {
-        let userId = try getActiveAccountUserId()
-        appSettingsStore.setUpgradedToPremiumActionCardVisible(visible, userId: userId)
     }
 
     func setClearClipboardValue(_ clearClipboardValue: ClearClipboardValue?, userId: String?) async throws {
