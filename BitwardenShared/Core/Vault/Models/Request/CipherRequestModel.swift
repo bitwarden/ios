@@ -111,7 +111,7 @@ extension CipherRequestModel {
             lastKnownRevisionDate: cipher.revisionDate,
             login: cipher.login.map(CipherLoginModel.init),
             key: cipher.key,
-            name: cipher.name,
+            name: cipher.name ?? "",
             notes: cipher.notes,
             organizationID: cipher.organizationId,
             passport: cipher.passport.map(CipherPassportModel.init),
