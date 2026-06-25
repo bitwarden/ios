@@ -55,11 +55,11 @@ protocol BillingService: AnyObject { // sourcery: AutoMockable
     ///
     func premiumStatusChanged() async
 
-    /// Fetches the subscription status from the API and updates the cached subscription attention
-    /// card visibility. Pass an already-fetched `PremiumSubscription` to avoid a redundant API
-    /// call (e.g. when called from `PremiumPlanProcessor` which fetches it anyway).
+    /// Fetches the current subscription status and updates the visibility of the subscription
+    /// attention action card.
     ///
-    /// - Parameter subscription: An already-fetched subscription, or `nil` to fetch fresh.
+    /// - Parameters:
+    ///   - subscription: A previously fetched subscription to use, or `nil` to fetch fresh.
     ///
     func refreshSubscriptionAttentionCard(subscription: PremiumSubscription?) async
 
@@ -67,9 +67,9 @@ protocol BillingService: AnyObject { // sourcery: AutoMockable
     ///
     func setUpgradedToPremiumActionCardDismissed() async
 
-    /// Returns the cached subscription attention card visibility. No network call.
+    /// Gets whether the subscription attention action card should be shown for the active account.
     ///
-    /// - Returns: Whether the card should be shown.
+    /// - Returns: Whether the action card should be shown.
     ///
     func shouldShowSubscriptionAttentionCard() async -> Bool
 
