@@ -589,4 +589,28 @@ class AutofillHelperTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         XCTAssertEqual(fields[2].0, "custom")
         XCTAssertEqual(fields[2].1, "val")
     }
+
+    /// `handleCipherForAutofill` strips the subdomain when looking up FillAssist rules so that a
+    /// URI like `https://www.example.com` matches rules stored under `example.com`.
+    func test_handleCipherForAutofill_fillAssist_stripsSubdomain() async throws {
+        configService.featureFlagsBool[.fillAssistTargetingRules] = true
+        appExtensionDelegate.uri = "https://www.example.com/login"
+        fillAssistRepository.fillAssistRulesReturnValue = FillAssistHostRules(fields: [
+            "username": [.init(id: "login-email", name: nil, role: nil, tagName: nil, type: nil)],
+            "password": [.init(id: "login-pwd", name: nil, role: nil, tagName: nil, type: nil)],
+        ])
+        vaultRepository.fetchCipherResult = .success(.fixture(
+            login: .fixture(password: "PASSWORD", username: "user@bitwarden.com"),
+        ))
+
+        await subject.handleCipherForAutofill(cipherListView: .fixture(id: "1")) { _ in }
+
+        // Rules should be looked up under the registered domain, not the full host.
+        XCTAssertEqual(fillAssistRepository.fillAssistRulesReceivedHostname, "example.com")
+        let fields = try XCTUnwrap(appExtensionDelegate.didCompleteAutofillRequestFields)
+        XCTAssertEqual(fields[0].0, "login-email")
+        XCTAssertEqual(fields[0].1, "user@bitwarden.com")
+        XCTAssertEqual(fields[1].0, "login-pwd")
+        XCTAssertEqual(fields[1].1, "PASSWORD")
+    }
 } // swiftlint:disable:this file_length
