@@ -129,6 +129,40 @@ class FillAssistRepositoryTests: BitwardenTestCase {
         XCTAssertNotNil(appSettingsStore.fillAssistLastFetchTimestampByUserId["1"])
     }
 
+    /// `syncFillAssistRules()` parses CSS selectors from the forms map into `FillAssistFieldAttributes`
+    /// and stores them in the cached rules (selector pooling).
+    func test_syncFillAssistRules_parsesSelectorsIntoRules() async throws {
+        configService.featureFlagsBool[.fillAssistTargetingRules] = true
+        stateService.activeAccount = .fixture()
+
+        fillAssistAPIService.getManifestReturnValue = try makeManifest(cid: "sha256:newcid")
+        fillAssistAPIService.getFormsMapReturnValue = try makeFormsMap()
+
+        await subject.syncFillAssistRules()
+
+        let hostRules = appSettingsStore.fillAssistCachedDataByUserId["1"]?.rules["example.com"]
+        let usernameAttrs = try XCTUnwrap(hostRules?.fields["username"]?.first)
+        XCTAssertEqual(usernameAttrs.id, "user")
+        XCTAssertEqual(usernameAttrs.tagName, "input")
+    }
+
+    /// `syncFillAssistRules()` pools selectors from multiple pathname entries into a single
+    /// `FillAssistHostRules` for the same host.
+    func test_syncFillAssistRules_poolsSelectorsAcrossPathnames() async throws {
+        configService.featureFlagsBool[.fillAssistTargetingRules] = true
+        stateService.activeAccount = .fixture()
+
+        fillAssistAPIService.getManifestReturnValue = try makeManifest(cid: "sha256:newcid")
+        fillAssistAPIService.getFormsMapReturnValue = try makeFormsMapWithPathnames()
+
+        await subject.syncFillAssistRules()
+
+        let hostRules = appSettingsStore.fillAssistCachedDataByUserId["1"]?.rules["example.com"]
+        // Both the top-level form and the pathname-specific form contribute username selectors.
+        let usernameAttrs = try XCTUnwrap(hostRules?.fields["username"])
+        XCTAssertEqual(usernameAttrs.count, 2)
+    }
+
     /// `syncFillAssistRules()` logs errors but does not rethrow them.
     func test_syncFillAssistRules_failure_logsError() async {
         configService.featureFlagsBool[.fillAssistTargetingRules] = true
@@ -205,6 +239,28 @@ class FillAssistRepositoryTests: BitwardenTestCase {
         """
         return try JSONDecoder.pascalOrSnakeCaseDecoder.decode(
             FillAssistManifestResponseModel.self,
+            from: Data(json.utf8),
+        )
+    }
+
+    private func makeFormsMapWithPathnames() throws -> FormsMapResponseModel {
+        let json = """
+        {
+            "schemaVersion": "1.0.0",
+            "hosts": {
+                "example.com": {
+                    "forms": [{ "category": "account-login", "fields": { "username": ["input#user1"] } }],
+                    "pathnames": {
+                        "/login": {
+                            "forms": [{ "category": "account-login", "fields": { "username": ["input#user2"] } }]
+                        }
+                    }
+                }
+            }
+        }
+        """
+        return try JSONDecoder.pascalOrSnakeCaseDecoder.decode(
+            FormsMapResponseModel.self,
             from: Data(json.utf8),
         )
     }

@@ -27,13 +27,6 @@ protocol FillAssistRepository { // sourcery: AutoMockable
 /// The default implementation of `FillAssistRepository`.
 ///
 class DefaultFillAssistRepository: FillAssistRepository {
-    // MARK: Types
-
-    typealias Services = HasConfigService
-        & HasEnvironmentService
-        & HasFillAssistAPIService
-        & HasStateService
-
     // MARK: Private Properties
 
     /// The store for persisting fill-assist cached data.
