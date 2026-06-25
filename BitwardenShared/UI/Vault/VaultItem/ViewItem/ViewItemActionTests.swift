@@ -60,9 +60,15 @@ class ViewItemActionTests: BitwardenTestCase {
         XCTAssertEqual(CopyableField.firstName.localizedName, Localizations.firstName)
         XCTAssertEqual(CopyableField.middleName.localizedName, Localizations.middleName)
         XCTAssertEqual(CopyableField.lastName.localizedName, Localizations.lastName)
+        XCTAssertEqual(CopyableField.givenName.localizedName, Localizations.firstName)
+        XCTAssertEqual(CopyableField.surname.localizedName, Localizations.lastName)
         XCTAssertEqual(CopyableField.company.localizedName, Localizations.company)
         XCTAssertEqual(CopyableField.socialSecurityNumber.localizedName, Localizations.ssn)
         XCTAssertEqual(CopyableField.passportNumber.localizedName, Localizations.passportNumber)
+        XCTAssertEqual(
+            CopyableField.nationalIdentificationNumber.localizedName,
+            Localizations.nationalIdentificationNumber,
+        )
         XCTAssertEqual(CopyableField.licenseNumber.localizedName, Localizations.licenseNumber)
         XCTAssertEqual(CopyableField.email.localizedName, Localizations.email)
         XCTAssertEqual(CopyableField.phone.localizedName, Localizations.phone)

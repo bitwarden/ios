@@ -44,6 +44,9 @@ enum ViewItemAction: Equatable, Sendable {
     /// The more button was pressed.
     case morePressed(VaultItemManagementMenuAction)
 
+    /// A passport item action.
+    case passportItemAction(ViewPassportItemAction)
+
     /// The password history button was pressed.
     case passwordHistoryPressed
 
@@ -136,6 +139,12 @@ enum CopyableField {
     /// The last name field.
     case lastName
 
+    /// The given name (first name) field.
+    case givenName
+
+    /// The surname (last name) field.
+    case surname
+
     /// The company field.
     case company
 
@@ -144,6 +153,9 @@ enum CopyableField {
 
     /// The passport number field.
     case passportNumber
+
+    /// The national identification number field.
+    case nationalIdentificationNumber
 
     /// The license number field.
     case licenseNumber
@@ -223,12 +235,18 @@ enum CopyableField {
             Localizations.middleName
         case .lastName:
             Localizations.lastName
+        case .givenName:
+            Localizations.firstName
+        case .surname:
+            Localizations.lastName
         case .company:
             Localizations.company
         case .socialSecurityNumber:
             Localizations.ssn
         case .passportNumber:
             Localizations.passportNumber
+        case .nationalIdentificationNumber:
+            Localizations.nationalIdentificationNumber
         case .licenseNumber:
             Localizations.licenseNumber
         case .email:
