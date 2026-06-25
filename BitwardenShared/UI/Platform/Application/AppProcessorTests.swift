@@ -1438,7 +1438,6 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
     func test_onFetchSyncSucceeded_refreshesSubscriptionAttentionCard() async {
         await subject.onFetchSyncSucceeded(userId: "1")
 
-        waitFor(billingService.refreshSubscriptionAttentionCardCalled)
         XCTAssertTrue(billingService.refreshSubscriptionAttentionCardCalled)
     }
 

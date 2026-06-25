@@ -685,7 +685,9 @@ extension AppProcessor: SyncServiceDelegate {
     func onFetchSyncSucceeded(userId: String) async {
         // Refresh the subscription attention card cache on every sync so the vault list
         // always reflects current subscription status without making a live API call there.
-        Task { await services.billingService.refreshSubscriptionAttentionCard(subscription: nil) }
+        // Awaited inline (not wrapped in a Task) so the cache is populated before fetchSync
+        // returns in VaultListProcessor.appeared(), where the single cache read happens.
+        await services.billingService.refreshSubscriptionAttentionCard(subscription: nil)
 
         do {
             let hasPerformedSyncAfterLogin = try await services.stateService.getHasPerformedSyncAfterLogin(
