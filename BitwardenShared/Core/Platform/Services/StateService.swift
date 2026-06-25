@@ -1575,34 +1575,6 @@ actor DefaultStateService: StateService, ActiveAccountStateProvider, ConfigState
         }
     }
 
-    func doesActiveAccountHavePremium() async -> Bool {
-        do {
-            let account = try await getActiveAccount()
-            let hasPremiumPersonally = account.profile.hasPremiumPersonally ?? false
-            guard !hasPremiumPersonally else {
-                return true
-            }
-
-            let organizations = try await dataStore
-                .fetchAllOrganizations(userId: account.profile.userId)
-                .filter { $0.enabled && $0.usersGetPremium }
-            return !organizations.isEmpty
-        } catch {
-            errorReporter.log(error: error)
-            return false
-        }
-    }
-
-    func doesActiveAccountHavePremiumPersonally() async -> Bool {
-        do {
-            let account = try await getActiveAccount()
-            return account.profile.hasPremiumPersonally ?? false
-        } catch {
-            errorReporter.log(error: error)
-            return false
-        }
-    }
-
     func getAccessTokenExpirationDate(userId: String) -> Date? {
         appSettingsStore.accessTokenExpirationDate(userId: userId)
     }
@@ -2416,6 +2388,84 @@ struct AccountVolatileData {
 
     /// Whether the account has been unlocked with user interaction.
     var hasBeenUnlockedInteractively = false
+}
+
+// MARK: BillingStateService
+
+extension DefaultStateService: BillingStateService {
+    // MARK: Account Premium Status
+
+    func doesActiveAccountHavePremium() async -> Bool {
+        do {
+            let account = try await getActiveAccount()
+            let hasPremiumPersonally = account.profile.hasPremiumPersonally ?? false
+            guard !hasPremiumPersonally else {
+                return true
+            }
+
+            let organizations = try await dataStore
+                .fetchAllOrganizations(userId: account.profile.userId)
+                .filter { $0.enabled && $0.usersGetPremium }
+            return !organizations.isEmpty
+        } catch {
+            errorReporter.log(error: error)
+            return false
+        }
+    }
+
+    func doesActiveAccountHavePremiumPersonally() async -> Bool {
+        do {
+            let account = try await getActiveAccount()
+            return account.profile.hasPremiumPersonally ?? false
+        } catch {
+            errorReporter.log(error: error)
+            return false
+        }
+    }
+
+    // MARK: Premium Upgrade Banner
+
+    func isPremiumUpgradeBannerDismissed() async -> Bool {
+        do {
+            return try await getPremiumUpgradeBannerDismissed()
+        } catch {
+            errorReporter.log(error: error)
+            return false
+        }
+    }
+
+    func isPremiumUpgradeEligible() async -> Bool {
+        guard await !doesActiveAccountHavePremium() else { return false }
+
+        // Check account age >= 7 days
+        guard let account = try? await getActiveAccount(),
+              let creationDate = account.profile.creationDate else { return false }
+        return timeProvider.timeSince(creationDate) >= Constants.premiumUpgradeBannerAccountAge
+    }
+
+    // MARK: Subscription Attention Card
+
+    func getSubscriptionAttentionCardVisible() async -> Bool {
+        let userId = try? getActiveAccountUserId()
+        return userId.map { appSettingsStore.subscriptionAttentionCardVisible(userId: $0) } ?? false
+    }
+
+    func setSubscriptionAttentionCardVisible(_ visible: Bool) async throws {
+        let userId = try getActiveAccountUserId()
+        appSettingsStore.setSubscriptionAttentionCardVisible(visible, userId: userId)
+    }
+
+    // MARK: Upgraded to Premium Card
+
+    func getUpgradedToPremiumActionCardVisible() async -> Bool {
+        let userId = try? getActiveAccountUserId()
+        return userId.map { appSettingsStore.upgradedToPremiumActionCardVisible(userId: $0) } ?? false
+    }
+
+    func setUpgradedToPremiumActionCardVisible(_ visible: Bool) async throws {
+        let userId = try getActiveAccountUserId()
+        appSettingsStore.setUpgradedToPremiumActionCardVisible(visible, userId: userId)
+    }
 }
 
 // MARK: BiometricsStateService

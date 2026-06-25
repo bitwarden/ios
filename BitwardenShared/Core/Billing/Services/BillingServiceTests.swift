@@ -41,7 +41,7 @@ struct BillingServiceTests { // swiftlint:disable:this type_body_length
             debounceInterval: .milliseconds(100),
             environmentService: environmentService,
             errorReporter: errorReporter,
-            stateService: stateService,
+            billingStateService: stateService,
             syncService: syncService,
         )
     }
