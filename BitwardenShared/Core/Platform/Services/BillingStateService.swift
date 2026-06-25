@@ -72,24 +72,24 @@ extension DefaultStateService: BillingStateService {
     // MARK: Subscription Attention Card
 
     func getSubscriptionAttentionCardVisible() async -> Bool {
-        guard let account = try? await getActiveAccount() else { return false }
-        return appSettingsStore.subscriptionAttentionCardVisible(userId: account.profile.userId)
+        guard let userId = try? await getActiveAccountId() else { return false }
+        return appSettingsStore.subscriptionAttentionCardVisible(userId: userId)
     }
 
     func setSubscriptionAttentionCardVisible(_ visible: Bool) async throws {
-        let account = try await getActiveAccount()
-        appSettingsStore.setSubscriptionAttentionCardVisible(visible, userId: account.profile.userId)
+        let userId = try await getActiveAccountId()
+        appSettingsStore.setSubscriptionAttentionCardVisible(visible, userId: userId)
     }
 
     // MARK: Upgraded to Premium Card
 
     func getUpgradedToPremiumActionCardVisible() async -> Bool {
-        guard let account = try? await getActiveAccount() else { return false }
-        return appSettingsStore.upgradedToPremiumActionCardVisible(userId: account.profile.userId)
+        guard let userId = try? await getActiveAccountId() else { return false }
+        return appSettingsStore.upgradedToPremiumActionCardVisible(userId: userId)
     }
 
     func setUpgradedToPremiumActionCardVisible(_ visible: Bool) async throws {
-        let account = try await getActiveAccount()
-        appSettingsStore.setUpgradedToPremiumActionCardVisible(visible, userId: account.profile.userId)
+        let userId = try await getActiveAccountId()
+        appSettingsStore.setUpgradedToPremiumActionCardVisible(visible, userId: userId)
     }
 }
