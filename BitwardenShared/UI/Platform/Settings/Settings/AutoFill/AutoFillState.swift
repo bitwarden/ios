@@ -18,6 +18,12 @@ struct AutoFillState {
     /// Whether or not the copy TOTP automatically toggle is on.
     var isCopyTOTPToggleOn: Bool = false
 
+    /// Whether the fill assist toggle is on.
+    var isFillAssistEnabled: Bool = false
+
+    /// Whether the fill assist row should be shown (feature flag is on).
+    var isFillAssistFeatureFlagEnabled: Bool = false
+
     /// Whether to show the password autofill row.
     var shouldShowPasswordAutofill: Bool = false
 

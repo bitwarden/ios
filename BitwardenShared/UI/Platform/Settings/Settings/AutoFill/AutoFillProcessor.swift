@@ -12,6 +12,7 @@ final class AutoFillProcessor: StateProcessor<AutoFillState, AutoFillAction, Aut
         & HasAutofillCredentialService
         & HasConfigService
         & HasErrorReporter
+        & HasFillAssistRepository
         & HasSettingsRepository
         & HasStateService
         & HasTimeProvider
@@ -72,6 +73,11 @@ final class AutoFillProcessor: StateProcessor<AutoFillState, AutoFillAction, Aut
             state.url = ExternalLinksConstants.autofillHelp
         case .passwordAutoFillTapped:
             coordinator.navigate(to: .passwordAutoFill, context: self)
+        case let .toggleFillAssist(isOn):
+            state.isFillAssistEnabled = isOn
+            Task {
+                await updateFillAssistEnabled(isOn)
+            }
         case let .toggleCopyTOTPToggle(isOn):
             state.isCopyTOTPToggleOn = isOn
             Task {
@@ -132,8 +138,10 @@ final class AutoFillProcessor: StateProcessor<AutoFillState, AutoFillAction, Aut
     private func fetchSettingValues() async {
         state.defaultUriMatchType = await services.settingsRepository.getDefaultUriMatchType()
         state.shouldShowPasswordAutofill = await !services.autofillCredentialService.isAutofillCredentialsEnabled()
+        state.isFillAssistFeatureFlagEnabled = await services.configService.getFeatureFlag(.fillAssistTargetingRules)
         do {
             state.isCopyTOTPToggleOn = try await !services.settingsRepository.getDisableAutoTotpCopy()
+            state.isFillAssistEnabled = try await services.stateService.getFillAssistEnabled()
         } catch {
             coordinator.showAlert(.defaultAlert(title: Localizations.anErrorHasOccurred))
             services.errorReporter.log(error: error)
@@ -201,6 +209,18 @@ final class AutoFillProcessor: StateProcessor<AutoFillState, AutoFillAction, Aut
     private func updateDisableAutoTotpCopy(_ disableAutoTotpCopy: Bool) async {
         do {
             try await services.settingsRepository.updateDisableAutoTotpCopy(disableAutoTotpCopy)
+        } catch {
+            coordinator.showAlert(.defaultAlert(title: Localizations.anErrorHasOccurred))
+            services.errorReporter.log(error: error)
+        }
+    }
+
+    private func updateFillAssistEnabled(_ fillAssistEnabled: Bool) async {
+        do {
+            try await services.stateService.setFillAssistEnabled(fillAssistEnabled)
+            if fillAssistEnabled {
+                await services.fillAssistRepository.syncFillAssistRules()
+            }
         } catch {
             coordinator.showAlert(.defaultAlert(title: Localizations.anErrorHasOccurred))
             services.errorReporter.log(error: error)

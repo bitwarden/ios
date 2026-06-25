@@ -23,6 +23,9 @@ enum AutoFillAction: Equatable {
     /// The copy TOTP automatically toggle value changed.
     case toggleCopyTOTPToggle(Bool)
 
+    /// The fill assist toggle value changed.
+    case toggleFillAssist(Bool)
+
     /// A toast was shown or hidden.
     case toastShown(Toast?)
 }
