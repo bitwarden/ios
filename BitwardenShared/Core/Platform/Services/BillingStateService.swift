@@ -6,6 +6,8 @@ import Foundation
 /// A service that provides state management functionality around billing.
 ///
 protocol BillingStateService { // sourcery: AutoMockable
+    // MARK: Premium Upgrade Banner
+
     /// Returns whether the Premium upgrade banner has been permanently dismissed by the user.
     ///
     /// - Returns: `true` if the user has dismissed the banner.
@@ -18,25 +20,30 @@ protocol BillingStateService { // sourcery: AutoMockable
     ///
     func isPremiumUpgradeEligible() async -> Bool
 
+    // MARK: Subscription Attention Card
+
     /// Returns whether the "subscription needs attention" action card should be shown for the
-    /// active account. Reads from persisted state — no network call.
+    /// active account.
     ///
     /// - Returns: `true` if the card should be shown.
     ///
     func getSubscriptionAttentionCardVisible() async -> Bool
+
+    /// Persists whether the "subscription needs attention" action card should be shown for the
+    /// active account.
+    ///
+    /// - Parameters:
+    ///   - visible: Whether the card should be shown.
+    ///
+    func setSubscriptionAttentionCardVisible(_ visible: Bool) async throws
+
+    // MARK: Upgraded to Premium Card
 
     /// Returns whether the "Upgraded to Premium" action card should be shown for the active account.
     ///
     /// - Returns: `true` if the card should be shown.
     ///
     func getUpgradedToPremiumActionCardVisible() async -> Bool
-
-    /// Persists whether the "subscription needs attention" action card should be shown for the
-    /// active account.
-    ///
-    /// - Parameter visible: Whether the card should be shown.
-    ///
-    func setSubscriptionAttentionCardVisible(_ visible: Bool) async throws
 }
 
 // MARK: - DefaultStateService
