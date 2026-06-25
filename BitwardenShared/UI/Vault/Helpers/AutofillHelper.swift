@@ -109,8 +109,8 @@ class AutofillHelper {
     ///
     private func fillAssistFields(for uri: String?, username: String, password: String) async -> [(String, String)] {
         guard await services.configService.getFeatureFlag(.fillAssistTargetingRules),
-              await (try? services.stateService.getFillAssistEnabled()) == true else { return [] }
-        guard let uri,
+              await (try? services.stateService.getFillAssistEnabled()) == true,
+              let uri,
               let url = URL(string: uri),
               let lookupHost = url.domain else { return [] }
         guard let rules = await services.fillAssistRepository.rules(for: lookupHost) else { return [] }
