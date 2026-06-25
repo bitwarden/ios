@@ -575,10 +575,6 @@ protocol StateService: AnyObject, BillingStateService {
     ///
     func setPremiumUpgradeBannerDismissed(_ dismissed: Bool, userId: String?) async throws
 
-    /// Sets whether the "Upgraded to Premium" action card should be shown for the active account.
-    ///
-    /// - Parameter visible: Whether the action card should be shown.
-    ///
     /// Persists whether the "subscription needs attention" action card should be shown for the
     /// active account.
     ///
@@ -586,6 +582,10 @@ protocol StateService: AnyObject, BillingStateService {
     ///
     func setSubscriptionAttentionCardVisible(_ visible: Bool) async throws
 
+    /// Sets whether the "Upgraded to Premium" action card should be shown for the active account.
+    ///
+    /// - Parameter visible: Whether the action card should be shown.
+    ///
     func setUpgradedToPremiumActionCardVisible(_ visible: Bool) async throws
 
     /// Sets the clear clipboard value for an account.
