@@ -4,6 +4,7 @@ import XCTest
 @testable import BitwardenShared
 @testable import BitwardenSharedMocks
 
+// swiftlint:disable file_length
 class CredentialProviderContextTests: BitwardenTestCase { // swiftlint:disable:this type_body_length
     // MARK: Tests
 
@@ -42,11 +43,20 @@ class CredentialProviderContextTests: BitwardenTestCase { // swiftlint:disable:t
                 .authCompletionRoute,
             AppRoute.extensionSetup(.extensionActivation(type: .autofillExtension)),
         )
+        XCTAssertNil(
+            DefaultCredentialProviderContext(
+                .generatePasswordCredential(MockGeneratePasswordRequest(), userInteraction: false),
+            ).authCompletionRoute,
+        )
         XCTAssertEqual(
             DefaultCredentialProviderContext(.registerFido2Credential(MockPasskeyCredentialRequest()))
                 .authCompletionRoute,
             AppRoute.vault(.autofillList),
         )
+    }
+
+    /// `getter:authCompletionRoute` returns nil for save password credential when proxy cannot be cast.
+    func test_authCompletionRoute_savePasswordCredential() {
         XCTAssertNil(
             DefaultCredentialProviderContext(.savePasswordCredential(MockSavePasswordRequest(), userInteraction: true))
                 .authCompletionRoute,
@@ -122,6 +132,11 @@ class CredentialProviderContextTests: BitwardenTestCase { // swiftlint:disable:t
                     MockOneTimeCodeCredentialIdentity(),
                     userInteraction: false,
                 ),
+            ).configuring,
+        )
+        XCTAssertFalse(
+            DefaultCredentialProviderContext(
+                .generatePasswordCredential(MockGeneratePasswordRequest(), userInteraction: false),
             ).configuring,
         )
         XCTAssertFalse(
@@ -298,6 +313,16 @@ class CredentialProviderContextTests: BitwardenTestCase { // swiftlint:disable:t
 
         let subject4 = DefaultCredentialProviderContext(.registerFido2Credential(MockPasskeyCredentialRequest()))
         XCTAssertTrue(subject4.flowWithUserInteraction)
+
+        let subjectGenPwFalse = DefaultCredentialProviderContext(
+            .generatePasswordCredential(MockGeneratePasswordRequest(), userInteraction: false),
+        )
+        XCTAssertFalse(subjectGenPwFalse.flowWithUserInteraction)
+
+        let subjectGenPwTrue = DefaultCredentialProviderContext(
+            .generatePasswordCredential(MockGeneratePasswordRequest(), userInteraction: true),
+        )
+        XCTAssertTrue(subjectGenPwTrue.flowWithUserInteraction)
 
         let subjectSavePassword = DefaultCredentialProviderContext(
             .savePasswordCredential(MockSavePasswordRequest(), userInteraction: true),
@@ -476,4 +501,6 @@ class MockPasskeyCredentialRequest: PasskeyCredentialRequest {}
 
 class MockOneTimeCodeCredentialIdentity: OneTimeCodeCredentialIdentityProxy {}
 
-class MockSavePasswordRequest: SavePasswordRequestProxy {} // swiftlint:disable:this file_length
+class MockGeneratePasswordRequest: GeneratePasswordRequestProxy {}
+
+class MockSavePasswordRequest: SavePasswordRequestProxy {}
