@@ -479,8 +479,7 @@ extension DefaultSyncService {
             )
         }
 
-        // Sync fill-assist rules alongside vault data. Failures must not block vault sync.
-        await fillAssistRepository.syncFillAssistRules()
+        await fillAssistRepository.syncRules()
 
         await delegate?.onFetchSyncSucceeded(userId: userId)
     }

@@ -8,18 +8,18 @@ import Foundation
 protocol FillAssistRepository { // sourcery: AutoMockable
     /// Fetches and caches fill-assist rules for the active account.
     ///
-    func syncFillAssistRules() async
+    func syncRules() async
 
     /// Returns the cached fill-assist rules for a given hostname, or `nil` if unavailable.
     ///
     /// - Parameter hostname: The hostname to look up.
     /// - Returns: The cached `FillAssistHostRules`, or `nil`.
     ///
-    func fillAssistRules(for hostname: String) async -> FillAssistHostRules?
+    func rules(for hostname: String) async -> FillAssistHostRules?
 
     /// Clears all cached fill-assist data for the active account.
     ///
-    func clearFillAssistRules() async throws
+    func clearRules() async throws
 }
 
 // MARK: - DefaultFillAssistRepository
@@ -47,6 +47,9 @@ class DefaultFillAssistRepository: FillAssistRepository {
     /// The service for accessing account state.
     private let stateService: StateService
 
+    /// The provider of the current time, used for interval checks.
+    private let timeProvider: TimeProvider
+
     // MARK: Initialization
 
     /// Creates a `DefaultFillAssistRepository`.
@@ -58,6 +61,7 @@ class DefaultFillAssistRepository: FillAssistRepository {
     ///   - errorReporter: The service for reporting non-fatal errors.
     ///   - fillAssistAPIService: The API service for fetching fill-assist data.
     ///   - stateService: The service for accessing account state.
+    ///   - timeProvider: The provider of the current time.
     ///
     init(
         appSettingsStore: AppSettingsStore,
@@ -66,6 +70,7 @@ class DefaultFillAssistRepository: FillAssistRepository {
         errorReporter: ErrorReporter,
         fillAssistAPIService: FillAssistAPIService,
         stateService: StateService,
+        timeProvider: TimeProvider,
     ) {
         self.appSettingsStore = appSettingsStore
         self.configService = configService
@@ -73,11 +78,12 @@ class DefaultFillAssistRepository: FillAssistRepository {
         self.errorReporter = errorReporter
         self.fillAssistAPIService = fillAssistAPIService
         self.stateService = stateService
+        self.timeProvider = timeProvider
     }
 
     // MARK: FillAssistRepository
 
-    func syncFillAssistRules() async {
+    func syncRules() async {
         do {
             try await performSync()
         } catch {
@@ -86,12 +92,12 @@ class DefaultFillAssistRepository: FillAssistRepository {
         }
     }
 
-    func fillAssistRules(for hostname: String) async -> FillAssistHostRules? {
+    func rules(for hostname: String) async -> FillAssistHostRules? {
         guard let userId = try? await stateService.getActiveAccountId() else { return nil }
         return appSettingsStore.fillAssistCachedData(userId: userId)?.rules[hostname]
     }
 
-    func clearFillAssistRules() async throws {
+    func clearRules() async throws {
         let userId = try await stateService.getActiveAccountId()
         appSettingsStore.setFillAssistCachedData(nil, userId: userId)
     }
@@ -108,7 +114,7 @@ class DefaultFillAssistRepository: FillAssistRepository {
         let sourceUrl = environmentService.fillAssistRulesURL
         let userId = try await stateService.getActiveAccountId()
         let lastFetch = appSettingsStore.fillAssistLastFetchTimestamp(userId: userId)
-        if let lastFetch, Date().timeIntervalSince(lastFetch) < Constants.FillAssist.updateInterval {
+        if let lastFetch, timeProvider.presentTime.timeIntervalSince(lastFetch) < Constants.FillAssist.updateInterval {
             return
         }
 
@@ -123,7 +129,7 @@ class DefaultFillAssistRepository: FillAssistRepository {
         // 5. If cid and source URL are unchanged, update timestamp and skip download.
         let cached = appSettingsStore.fillAssistCachedData(userId: userId)
         if cached?.cid == entry.cid, cached?.sourceUrl == sourceUrl.absoluteString {
-            appSettingsStore.setFillAssistLastFetchTimestamp(Date(), userId: userId)
+            appSettingsStore.setFillAssistLastFetchTimestamp(timeProvider.presentTime, userId: userId)
             return
         }
 
@@ -133,7 +139,7 @@ class DefaultFillAssistRepository: FillAssistRepository {
         // 7. Validate schema major version; update timestamp and skip if unsupported.
         let schemaMajor = formsMap.schemaVersion.split(separator: ".").first.map(String.init) ?? ""
         guard schemaMajor == Constants.FillAssist.expectedSchemaMajor else {
-            appSettingsStore.setFillAssistLastFetchTimestamp(Date(), userId: userId)
+            appSettingsStore.setFillAssistLastFetchTimestamp(timeProvider.presentTime, userId: userId)
             return
         }
 
@@ -141,7 +147,7 @@ class DefaultFillAssistRepository: FillAssistRepository {
         let rules = buildRules(from: formsMap)
         let data = FillAssistCachedData(cid: entry.cid, rules: rules, sourceUrl: sourceUrl.absoluteString)
         appSettingsStore.setFillAssistCachedData(data, userId: userId)
-        appSettingsStore.setFillAssistLastFetchTimestamp(Date(), userId: userId)
+        appSettingsStore.setFillAssistLastFetchTimestamp(timeProvider.presentTime, userId: userId)
     }
 
     /// Builds a `[hostname: FillAssistHostRules]` dictionary by pooling all non-null field
@@ -151,11 +157,10 @@ class DefaultFillAssistRepository: FillAssistRepository {
         var result = [String: FillAssistHostRules]()
         for (hostname, hostEntry) in formsMap.hosts {
             var pooled = [String: [FillAssistFieldAttributes]]()
-            let allForms = (hostEntry.forms ?? [])
-                + (hostEntry.pathnames?.values.compactMap(\.self).flatMap(\.forms) ?? [])
+            let allForms = hostEntry.allForms
             for form in allForms {
                 for (fieldKey, selectors) in form.fields {
-                    let attrs = selectors.flatMap { parseSelector($0) }
+                    let attrs = selectors.flatMap(\.attributes)
                     pooled[fieldKey, default: []].append(contentsOf: attrs)
                 }
             }
@@ -164,16 +169,5 @@ class DefaultFillAssistRepository: FillAssistRepository {
             }
         }
         return result
-    }
-
-    /// Converts a `FormsMapSelector` into zero or more `FillAssistFieldAttributes`.
-    ///
-    private func parseSelector(_ selector: FormsMapSelector) -> [FillAssistFieldAttributes] {
-        switch selector {
-        case let .single(css):
-            FillAssistSelectorParser.parse(css).map { [$0] } ?? []
-        case let .sequence(parts):
-            parts.compactMap { FillAssistSelectorParser.parse($0) }
-        }
     }
 }

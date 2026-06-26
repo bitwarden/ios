@@ -779,6 +779,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
             errorReporter: errorReporter,
             fillAssistAPIService: apiService,
             stateService: stateService,
+            timeProvider: timeProvider,
         )
 
         let syncService = DefaultSyncService(
