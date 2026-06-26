@@ -47,6 +47,9 @@ extension FeatureFlag: @retroactive CaseIterable {
     /// Flag to enable/disable not logging out when a user's KDF settings are changed.
     static let noLogoutOnKdfChange = FeatureFlag(rawValue: "pm-23995-no-logout-on-kdf-change")
 
+    /// Flag to enable/disable the organization user notification banner policy.
+    static let organizationUserNotificationBanner = FeatureFlag(rawValue: "pm-31948-org-user-notification-banner")
+
     /// Flag to enable/disable accepted-state organization policy enforcement via the SDK.
     ///
     /// When enabled, `PolicyService.policiesApplyingToUser` routes through the Bitwarden SDK
@@ -70,6 +73,7 @@ extension FeatureFlag: @retroactive CaseIterable {
             .migrateMyVaultToMyItems,
             .newItemTypes,
             .noLogoutOnKdfChange,
+            .organizationUserNotificationBanner,
             .policiesInAcceptedState,
             .premiumUpgradePath,
         ]

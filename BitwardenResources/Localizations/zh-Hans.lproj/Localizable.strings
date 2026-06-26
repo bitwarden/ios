@@ -232,7 +232,7 @@
 "June" = "六月";
 "LastName" = "姓氏";
 "FullName" = "全名";
-"LicenseNumber" = "许可证编号";
+"LicenseNumber" = "驾驶证号码";
 "March" = "三月";
 "May" = "五月";
 "MiddleName" = "中间名";
@@ -1137,3 +1137,28 @@
 "IssueDate" = "签发日期";
 "ExpirationDate" = "到期日期";
 "LicenseClass" = "驾驶证类别";
+"PassportDetails" = "护照详细信息";
+/* Label for the sex/gender field as printed on a passport (e.g. "M", "F", "X"). */
+"Sex" = "性别";
+"BirthPlace" = "出生地点";
+/* Label for the nationality field on a passport (the country a person is a national of). */
+"Nationality" = "国籍";
+/* Label for the category of passport (e.g. "Regular/Tourist", "Diplomatic", "Official"). */
+"PassportType" = "护照类型";
+"NationalIdentificationNumber" = "居民身份证号码";
+/* Label for the government authority or office that issued the passport. */
+"IssuingAuthorityOffice" = "签发机构 / 部门";
+"AccountDetails" = "账户详细信息";
+"BankName" = "银行名称";
+"NameOnAccount" = "账户名称";
+"AccountType" = "账户类型";
+"BranchNumber" = "分行号码";
+"SwiftCode" = "SWIFT 代码";
+"IBAN" = "IBAN";
+"BankContactPhone" = "银行联系电话";
+"CertificateOfDeposit" = "定期存款";
+"Checking" = "支票";
+"InvestmentBrokerage" = "投资/证券";
+"LineOfCredit" = "信用额度";
+"MoneyMarket" = "货币市场";
+"Savings" = "储蓄";
