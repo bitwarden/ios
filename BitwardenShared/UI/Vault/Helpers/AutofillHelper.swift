@@ -115,11 +115,11 @@ class AutofillHelper {
 
         var result: [(String, String)] = []
 
-        if let selector = rules.fields["username"]?.lazy.compactMap({ $0.id ?? $0.name }).first {
+        if let selector = rules.fields["username"]?.compactMap({ $0.id ?? $0.name }).first {
             result.append((selector, username))
         }
 
-        if let selector = rules.fields["password"]?.lazy.compactMap({ $0.id ?? $0.name }).first {
+        if let selector = rules.fields["password"]?.compactMap({ $0.id ?? $0.name }).first {
             result.append((selector, password))
         }
 
@@ -169,9 +169,7 @@ class AutofillHelper {
                 password: password,
             )
 
-            let combinedFields: [(String, String)]? = assistFields.isEmpty && cipherFields.isEmpty
-                ? nil
-                : assistFields + cipherFields
+            let combinedFields = (assistFields + cipherFields).nilIfEmpty
 
             await services.eventService.collect(
                 eventType: .cipherClientAutofilled,

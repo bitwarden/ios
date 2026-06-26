@@ -526,10 +526,10 @@ class AutofillHelperTests: BitwardenTestCase { // swiftlint:disable:this type_bo
 
         XCTAssertEqual(fillAssistRepository.fillAssistRulesReceivedHostname, "example.com")
         let fields = try XCTUnwrap(appExtensionDelegate.didCompleteAutofillRequestFields)
-        XCTAssertEqual(fields[0].0, "login-email")
-        XCTAssertEqual(fields[0].1, "user@bitwarden.com")
-        XCTAssertEqual(fields[1].0, "login-pwd")
-        XCTAssertEqual(fields[1].1, "PASSWORD")
+        XCTAssertEqual(fields[0].selector, "login-email")
+        XCTAssertEqual(fields[0].value, "user@bitwarden.com")
+        XCTAssertEqual(fields[1].selector, "login-pwd")
+        XCTAssertEqual(fields[1].value, "PASSWORD")
     }
 
     /// `handleCipherForAutofill` falls back to the `name` attribute when `id` is nil.
@@ -546,10 +546,10 @@ class AutofillHelperTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         await subject.handleCipherForAutofill(cipherListView: .fixture(id: "1")) { _ in }
 
         let fields = try XCTUnwrap(appExtensionDelegate.didCompleteAutofillRequestFields)
-        XCTAssertEqual(fields[0].0, "email")
-        XCTAssertEqual(fields[0].1, "user@bitwarden.com")
-        XCTAssertEqual(fields[1].0, "pass")
-        XCTAssertEqual(fields[1].1, "PASSWORD")
+        XCTAssertEqual(fields[0].selector, "email")
+        XCTAssertEqual(fields[0].value, "user@bitwarden.com")
+        XCTAssertEqual(fields[1].selector, "pass")
+        XCTAssertEqual(fields[1].value, "PASSWORD")
     }
 
     /// `handleCipherForAutofill` does not call `fillAssistRepository` when the URI is nil.
@@ -582,12 +582,12 @@ class AutofillHelperTests: BitwardenTestCase { // swiftlint:disable:this type_bo
 
         let fields = try XCTUnwrap(appExtensionDelegate.didCompleteAutofillRequestFields)
         XCTAssertEqual(fields.count, 3)
-        XCTAssertEqual(fields[0].0, "login-email")
-        XCTAssertEqual(fields[0].1, "user@bitwarden.com")
-        XCTAssertEqual(fields[1].0, "login-pwd")
-        XCTAssertEqual(fields[1].1, "PASSWORD")
-        XCTAssertEqual(fields[2].0, "custom")
-        XCTAssertEqual(fields[2].1, "val")
+        XCTAssertEqual(fields[0].selector, "login-email")
+        XCTAssertEqual(fields[0].value, "user@bitwarden.com")
+        XCTAssertEqual(fields[1].selector, "login-pwd")
+        XCTAssertEqual(fields[1].value, "PASSWORD")
+        XCTAssertEqual(fields[2].selector, "custom")
+        XCTAssertEqual(fields[2].value, "val")
     }
 
     /// `handleCipherForAutofill` strips the subdomain when looking up FillAssist rules so that a
@@ -608,9 +608,62 @@ class AutofillHelperTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         // Rules should be looked up under the registered domain, not the full host.
         XCTAssertEqual(fillAssistRepository.fillAssistRulesReceivedHostname, "example.com")
         let fields = try XCTUnwrap(appExtensionDelegate.didCompleteAutofillRequestFields)
-        XCTAssertEqual(fields[0].0, "login-email")
-        XCTAssertEqual(fields[0].1, "user@bitwarden.com")
-        XCTAssertEqual(fields[1].0, "login-pwd")
-        XCTAssertEqual(fields[1].1, "PASSWORD")
+        XCTAssertEqual(fields[0].selector, "login-email")
+        XCTAssertEqual(fields[0].value, "user@bitwarden.com")
+        XCTAssertEqual(fields[1].selector, "login-pwd")
+        XCTAssertEqual(fields[1].value, "PASSWORD")
+    }
+
+    /// `handleCipherForAutofill` appends only a username selector when rules have no password entry.
+    func test_handleCipherForAutofill_fillAssist_usernameOnlyRule() async throws {
+        configService.featureFlagsBool[.fillAssistTargetingRules] = true
+        fillAssistRepository.fillAssistRulesReturnValue = FillAssistHostRules(fields: [
+            "username": [.init(id: "login-email", name: nil, role: nil, tagName: nil, type: nil)],
+        ])
+        vaultRepository.fetchCipherResult = .success(.fixture(
+            login: .fixture(password: "PASSWORD", username: "user@bitwarden.com"),
+        ))
+
+        await subject.handleCipherForAutofill(cipherListView: .fixture(id: "1")) { _ in }
+
+        let fields = try XCTUnwrap(appExtensionDelegate.didCompleteAutofillRequestFields)
+        XCTAssertEqual(fields.count, 1)
+        XCTAssertEqual(fields[0].selector, "login-email")
+        XCTAssertEqual(fields[0].value, "user@bitwarden.com")
+    }
+
+    /// `handleCipherForAutofill` appends only a password selector when rules have no username entry.
+    func test_handleCipherForAutofill_fillAssist_passwordOnlyRule() async throws {
+        configService.featureFlagsBool[.fillAssistTargetingRules] = true
+        fillAssistRepository.fillAssistRulesReturnValue = FillAssistHostRules(fields: [
+            "password": [.init(id: "login-pwd", name: nil, role: nil, tagName: nil, type: nil)],
+        ])
+        vaultRepository.fetchCipherResult = .success(.fixture(
+            login: .fixture(password: "PASSWORD", username: "user@bitwarden.com"),
+        ))
+
+        await subject.handleCipherForAutofill(cipherListView: .fixture(id: "1")) { _ in }
+
+        let fields = try XCTUnwrap(appExtensionDelegate.didCompleteAutofillRequestFields)
+        XCTAssertEqual(fields.count, 1)
+        XCTAssertEqual(fields[0].selector, "login-pwd")
+        XCTAssertEqual(fields[0].value, "PASSWORD")
+    }
+
+    /// `handleCipherForAutofill` produces no FillAssist fields when rules only contain
+    /// keys other than "username" and "password".
+    func test_handleCipherForAutofill_fillAssist_unknownFieldKeys_noFields() async {
+        configService.featureFlagsBool[.fillAssistTargetingRules] = true
+        fillAssistRepository.fillAssistRulesReturnValue = FillAssistHostRules(fields: [
+            "email": [.init(id: "email-field", name: nil, role: nil, tagName: nil, type: nil)],
+            "newPassword": [.init(id: "pass-field", name: nil, role: nil, tagName: nil, type: nil)],
+        ])
+        vaultRepository.fetchCipherResult = .success(.fixture(
+            login: .fixture(password: "PASSWORD", username: "user@bitwarden.com"),
+        ))
+
+        await subject.handleCipherForAutofill(cipherListView: .fixture(id: "1")) { _ in }
+
+        XCTAssertNil(appExtensionDelegate.didCompleteAutofillRequestFields)
     }
 } // swiftlint:disable:this file_length
