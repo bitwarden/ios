@@ -1137,3 +1137,28 @@
 "IssueDate" = "Дата выдачи";
 "ExpirationDate" = "Дата истечения";
 "LicenseClass" = "Категории водительского удостоверения";
+"PassportDetails" = "Паспортные данные";
+/* Label for the sex/gender field as printed on a passport (e.g. "M", "F", "X"). */
+"Sex" = "Пол";
+"BirthPlace" = "Место рождения";
+/* Label for the nationality field on a passport (the country a person is a national of). */
+"Nationality" = "Гражданство";
+/* Label for the category of passport (e.g. "Regular/Tourist", "Diplomatic", "Official"). */
+"PassportType" = "Тип паспорта";
+"NationalIdentificationNumber" = "Национальный идентификационный номер";
+/* Label for the government authority or office that issued the passport. */
+"IssuingAuthorityOffice" = "Выдавший орган/учреждение";
+"AccountDetails" = "Реквизиты счета";
+"BankName" = "Название банка";
+"NameOnAccount" = "Имя держателя счета";
+"AccountType" = "Тип счета";
+"BranchNumber" = "Номер филиала";
+"SwiftCode" = "Код SWIFT";
+"IBAN" = "IBAN";
+"BankContactPhone" = "Контактный телефон банка";
+"CertificateOfDeposit" = "Справка о пополнении";
+"Checking" = "Проверка";
+"InvestmentBrokerage" = "Инвестиции/брокерство";
+"LineOfCredit" = "Кредитная линия";
+"MoneyMarket" = "Денежный рынок";
+"Savings" = "Сбережения";

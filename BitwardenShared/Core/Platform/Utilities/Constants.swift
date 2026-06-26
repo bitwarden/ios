@@ -158,12 +158,15 @@ extension Constants {
 
     // MARK: Fill-Assist
 
+    /// The expected major component of the forms schema version (e.g. `"1"` for `"1.0.0"`).
+    static let fillAssistExpectedSchemaMajor = "1"
+
     /// The forms map major version key requested from the manifest (e.g. `"v1"`).
     static let fillAssistFormsVersion = "v1"
 
+    /// The filename of the Fill-Assist manifest on the CDN.
+    static let fillAssistManifestFilename = "manifest.json"
+
     /// The minimum interval between fill-assist manifest checks (6 hours, matching the browser implementation).
     static let fillAssistUpdateInterval: TimeInterval = 6 * 60 * 60
-
-    /// The expected major component of the forms schema version (e.g. `"1"` for `"1.0.0"`).
-    static let fillAssistExpectedSchemaMajor = "1"
 }

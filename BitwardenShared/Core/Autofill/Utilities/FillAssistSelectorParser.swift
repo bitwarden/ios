@@ -57,7 +57,7 @@ enum FillAssistSelectorParser {
             let attr = String(selector[attrRange])
             let val = String(selector[valRange])
             switch attr {
-            case "id": if id == nil { id = val }
+            case "id": id = id ?? val
             case "name": name = val
             case "role": role = val
             case "type": type = val

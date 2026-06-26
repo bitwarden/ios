@@ -228,20 +228,21 @@ extension SingleSignOnProcessor: SingleSignOnFlowDelegate {
                         ),
                     )
                     coordinator.navigate(to: .dismiss)
-                case let .keyConnector(keyConnectorUrl):
-                    do {
-                        try await services.authRepository.unlockVaultWithKeyConnectorKey(
-                            keyConnectorURL: keyConnectorUrl,
-                            orgIdentifier: state.identifierText,
-                        )
-                        coordinator.hideLoadingOverlay()
-                        await coordinator.handleEvent(.didCompleteAuth)
-                    } catch StateServiceError.noAccountCryptographicState {
+                case let .keyConnector(keyConnectorKeyWrappedUserKey, keyConnectorUrl):
+                    guard let keyConnectorKeyWrappedUserKey else {
                         coordinator.hideLoadingOverlay()
                         coordinator.showAlert(Alert.keyConnectorConfirmation(keyConnectorUrl: keyConnectorUrl) {
                             await self.migrateUserKeyConnector(keyConnectorUrl: keyConnectorUrl)
                         })
+                        return
                     }
+                    try await services.authRepository.unlockVaultWithKeyConnectorKey(
+                        keyConnectorKeyWrappedUserKey: keyConnectorKeyWrappedUserKey,
+                        keyConnectorURL: keyConnectorUrl,
+                        orgIdentifier: state.identifierText,
+                    )
+                    coordinator.hideLoadingOverlay()
+                    await coordinator.handleEvent(.didCompleteAuth)
                 }
             } catch {
                 await self.handleError(error)

@@ -1,3 +1,4 @@
+import BitwardenKit
 import Foundation
 
 // MARK: - FillAssistAPIService
@@ -29,7 +30,7 @@ extension APIService: FillAssistAPIService {
     }
 
     func getManifest() async throws -> FillAssistManifestResponseModel {
-        let fileURL = try await fillAssistService.download(filename: "manifest.json")
+        let fileURL = try await fillAssistService.download(filename: Constants.fillAssistManifestFilename)
         let data = try Data(contentsOf: fileURL)
         return try JSONDecoder.pascalOrSnakeCaseDecoder.decode(FillAssistManifestResponseModel.self, from: data)
     }
