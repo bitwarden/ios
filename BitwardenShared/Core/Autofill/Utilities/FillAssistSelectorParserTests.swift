@@ -7,6 +7,17 @@ import Testing
 struct FillAssistSelectorParserTests {
     // MARK: Tests - Tag Extraction
 
+    /// `parse(_:)` returns the tag name when the selector contains only a bare tag with no attributes.
+    @Test
+    func parse_tagName_bareTagOnly() {
+        let result = FillAssistSelectorParser.parse("input")
+        #expect(result?.tagName == "input")
+        #expect(result?.id == nil)
+        #expect(result?.name == nil)
+        #expect(result?.role == nil)
+        #expect(result?.type == nil)
+    }
+
     /// `parse(_:)` extracts the leading tag name from a selector.
     @Test
     func parse_tagName() {
