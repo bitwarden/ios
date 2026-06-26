@@ -4,6 +4,7 @@
 "CardDetails" = "Card Details";
 "CardholderName" = "Cardholder Name";
 "CardNumber" = "Card Number";
+"ClearAll" = "Clear All";
 "CreatePasskeyFormDescriptionLong" = "Fill in the fields above, then tap Register Passkey. The Bitwarden AutoFill sheet will appear to save the credential.";
 "Credentials" = "Credentials";
 "DisplayName" = "Display Name";
@@ -14,12 +15,17 @@
 "ExpirationYear" = "Expiration Year";
 "FileShare" = "File Share";
 "FormValues" = "Form Values";
+"ManagePasskeys" = "Manage Passkeys";
+"ManagePasskeysFooterNote" = "Removing an entry clears it from this list only. To delete the passkey from iCloud Keychain, go to iOS Settings > Passwords.";
+"NoPasskeys" = "No Passkeys";
+"NoPasskeysRegisteredDescription" = "No passkeys have been registered via the Test Harness.";
 "PasskeyAssertionNotAvailable" = "Passkey assertion requires iOS 17 or later.";
 "PasskeyAssertedSuccessfully" = "Passkey sign-in succeeded.";
 "PasskeyRegisteredSuccessfully" = "Passkey registered successfully.";
 "PasskeyRegistrationRequiresIOS17OrLater" = "Passkey registration requires iOS 17 or later.";
 "Password" = "Password";
 "RegisterPasskey" = "Register Passkey";
+"RegisteredPasskeys" = "Registered Passkeys";
 "RegistrationResult" = "Registration Result";
 "RelyingPartyId" = "Relying Party ID";
 "RelyingPartyIdFooterDescriptionLong" = "Must match a webcredentials associated domain configured in the app entitlements.";

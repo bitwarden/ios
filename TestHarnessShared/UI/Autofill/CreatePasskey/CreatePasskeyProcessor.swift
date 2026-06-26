@@ -24,6 +24,9 @@ class CreatePasskeyProcessor: StateProcessor<
     /// A delegate used to obtain a presentation anchor for the passkey sheet.
     private weak var delegate: CreatePasskeyProcessorDelegate?
 
+    /// The service used to persist passkey registration metadata.
+    private let passkeyRegistryService: PasskeyRegistryService
+
     // MARK: Internal for Testability
 
     /// Performs the passkey registration flow. Overridable in tests.
@@ -41,13 +44,16 @@ class CreatePasskeyProcessor: StateProcessor<
     /// - Parameters:
     ///   - coordinator: The coordinator that handles navigation.
     ///   - delegate: The delegate used to obtain the presentation anchor.
+    ///   - passkeyRegistryService: The service used to persist passkey registration metadata.
     ///
     init(
         coordinator: AnyCoordinator<RootRoute, Void>,
         delegate: CreatePasskeyProcessorDelegate?,
+        passkeyRegistryService: PasskeyRegistryService,
     ) {
         self.coordinator = coordinator
         self.delegate = delegate
+        self.passkeyRegistryService = passkeyRegistryService
         performRegistration = { _, _, _ in throw PasskeyRegistrationError.notAvailable }
         super.init(state: CreatePasskeyState())
 
@@ -90,6 +96,15 @@ class CreatePasskeyProcessor: StateProcessor<
         state.status = .inProgress
         do {
             try await performRegistration(state.rpId, state.userName, state.displayName)
+            passkeyRegistryService.savePasskey(
+                PasskeyEntry(
+                    id: UUID(),
+                    rpId: state.rpId,
+                    userName: state.userName,
+                    displayName: state.displayName,
+                    createdAt: Date(),
+                ),
+            )
             state.status = .success
         } catch let error as ASAuthorizationError where error.code == .canceled {
             state.status = .idle

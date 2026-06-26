@@ -24,7 +24,11 @@ class CreatePasskeyProcessorTests: BitwardenTestCase {
         super.setUp()
         coordinator = MockCoordinator()
         delegate = MockCreatePasskeyProcessorDelegate()
-        subject = CreatePasskeyProcessor(coordinator: coordinator.asAnyCoordinator(), delegate: delegate)
+        subject = CreatePasskeyProcessor(
+            coordinator: coordinator.asAnyCoordinator(),
+            delegate: delegate,
+            passkeyRegistryService: DefaultPasskeyRegistryService(),
+        )
     }
 
     override func tearDown() {

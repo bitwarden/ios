@@ -43,6 +43,8 @@ class RootCoordinator: Coordinator, HasStackNavigator {
             showCardAutofillForm()
         case .fileShare:
             showFileShare()
+        case .managePasskeys:
+            showManagePasskeys()
         case .scenarioPicker:
             showScenarioPicker()
         case .simpleLoginForm:
@@ -63,8 +65,24 @@ class RootCoordinator: Coordinator, HasStackNavigator {
     /// Shows the create passkey test screen.
     ///
     private func showCreatePasskey() {
-        let processor = CreatePasskeyProcessor(coordinator: asAnyCoordinator(), delegate: self)
+        let processor = CreatePasskeyProcessor(
+            coordinator: asAnyCoordinator(),
+            delegate: self,
+            passkeyRegistryService: services.passkeyRegistryService,
+        )
         let view = CreatePasskeyView(store: Store(processor: processor))
+        let viewController = UIHostingController(rootView: view)
+        stackNavigator?.push(viewController)
+    }
+
+    /// Shows the manage passkeys screen.
+    ///
+    private func showManagePasskeys() {
+        let processor = ManagePasskeysProcessor(
+            coordinator: asAnyCoordinator(),
+            passkeyRegistryService: services.passkeyRegistryService,
+        )
+        let view = ManagePasskeysView(store: Store(processor: processor))
         let viewController = UIHostingController(rootView: view)
         stackNavigator?.push(viewController)
     }
