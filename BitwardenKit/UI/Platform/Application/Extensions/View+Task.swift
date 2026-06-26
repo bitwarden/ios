@@ -18,7 +18,6 @@ public extension View {
     ///
     /// - Returns: A view that runs the specified action asynchronously before
     ///   the view appears, or restarts the task when the `id` value changes.
-    @inlinable
     nonisolated func debouncedTask<T>(
         id value: T,
         debounceIntervalInNS: UInt64,
@@ -47,7 +46,6 @@ public extension View {
     ///
     /// - Returns: A view that runs the specified action asynchronously before
     ///   the view appears, or restarts the task when the `id` value changes.
-    @inlinable
     nonisolated func searchDebouncedTask<T>(
         id value: T,
         _ action: @escaping @Sendable () async -> Void,

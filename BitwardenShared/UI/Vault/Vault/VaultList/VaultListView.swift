@@ -409,7 +409,7 @@ struct VaultListView: View {
 
     /// Task running the vault list stream, managed manually so it is cancelled and restarted when
     /// the vault filter type changes.
-    @State private var vaultListTask: Task<Void, Never>?
+    @SwiftUI.State private var vaultListTask: Task<Void, Never>?
 
     var body: some View {
         ZStack {

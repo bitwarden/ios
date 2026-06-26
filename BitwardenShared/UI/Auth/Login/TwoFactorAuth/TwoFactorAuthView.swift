@@ -16,7 +16,7 @@ struct TwoFactorAuthView: View {
     @ObservedObject var store: Store<TwoFactorAuthState, TwoFactorAuthAction, TwoFactorAuthEffect>
 
     /// The task running NFC listening, managed manually to allow cancellation when the auth method changes.
-    @State private var nfcTask: Task<Void, Never>?
+    @SwiftUI.State private var nfcTask: Task<Void, Never>?
 
     /// The text field configuration for the verification field.
     var verificationTextFieldConfiguration: TextFieldConfiguration {
