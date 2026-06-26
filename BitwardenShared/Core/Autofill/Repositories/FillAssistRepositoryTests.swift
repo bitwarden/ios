@@ -1,35 +1,36 @@
 import BitwardenKit
 import BitwardenKitMocks
-import XCTest
+import Foundation
+import Testing
 
 @testable import BitwardenShared
 @testable import BitwardenSharedMocks
 
 // MARK: - FillAssistRepositoryTests
 
-@MainActor
-class FillAssistRepositoryTests: BitwardenTestCase {
+struct FillAssistRepositoryTests {
     // MARK: Properties
 
-    var appSettingsStore: MockAppSettingsStore!
-    var configService: MockConfigService!
-    var environmentService: MockEnvironmentService!
-    var errorReporter: MockErrorReporter!
-    var fillAssistAPIService: MockFillAssistAPIService!
-    var stateService: MockStateService!
-    var subject: DefaultFillAssistRepository!
+    let appSettingsStore: MockAppSettingsStore
+    let configService: MockConfigService
+    let environmentService: MockEnvironmentService
+    let errorReporter: MockErrorReporter
+    let fillAssistAPIService: MockFillAssistAPIService
+    let stateService: MockStateService
+    let subject: DefaultFillAssistRepository
+    let timeProvider: MockTimeProvider
 
-    // MARK: Setup & Teardown
+    // MARK: Initialization
 
-    override func setUp() {
-        super.setUp()
-
+    init() {
         appSettingsStore = MockAppSettingsStore()
         configService = MockConfigService()
         environmentService = MockEnvironmentService()
         errorReporter = MockErrorReporter()
         fillAssistAPIService = MockFillAssistAPIService()
         stateService = MockStateService()
+        stateService.activeAccount = .fixture()
+        timeProvider = MockTimeProvider(.currentTime)
 
         subject = DefaultFillAssistRepository(
             appSettingsStore: appSettingsStore,
@@ -38,48 +39,37 @@ class FillAssistRepositoryTests: BitwardenTestCase {
             errorReporter: errorReporter,
             fillAssistAPIService: fillAssistAPIService,
             stateService: stateService,
+            timeProvider: timeProvider,
         )
     }
 
-    override func tearDown() async throws {
-        try await super.tearDown()
+    // MARK: Tests - syncRules
 
-        appSettingsStore = nil
-        configService = nil
-        environmentService = nil
-        errorReporter = nil
-        fillAssistAPIService = nil
-        stateService = nil
-        subject = nil
-    }
-
-    // MARK: Tests - syncFillAssistRules
-
-    /// `syncFillAssistRules()` makes no network calls when the feature flag is disabled.
-    func test_syncFillAssistRules_featureFlagDisabled() async {
+    /// `syncRules()` makes no network calls when the feature flag is disabled.
+    @Test
+    func syncRules_featureFlagDisabled() async {
         configService.featureFlagsBool[.fillAssistTargetingRules] = false
-        stateService.activeAccount = .fixture()
 
-        await subject.syncFillAssistRules()
+        await subject.syncRules()
 
-        XCTAssertFalse(fillAssistAPIService.getManifestCalled)
+        #expect(!fillAssistAPIService.getManifestCalled)
     }
 
-    /// `syncFillAssistRules()` makes no network calls when the update interval has not elapsed.
-    func test_syncFillAssistRules_withinUpdateInterval() async {
+    /// `syncRules()` makes no network calls when the update interval has not elapsed.
+    @Test
+    func syncRules_withinUpdateInterval() async {
         configService.featureFlagsBool[.fillAssistTargetingRules] = true
-        stateService.activeAccount = .fixture()
-        appSettingsStore.fillAssistLastFetchTimestampByUserId["1"] = Date()
+        appSettingsStore.fillAssistLastFetchTimestampByUserId["1"] = timeProvider.presentTime
 
-        await subject.syncFillAssistRules()
+        await subject.syncRules()
 
-        XCTAssertFalse(fillAssistAPIService.getManifestCalled)
+        #expect(!fillAssistAPIService.getManifestCalled)
     }
 
-    /// `syncFillAssistRules()` skips download and updates the timestamp when cid and source URL are unchanged.
-    func test_syncFillAssistRules_cidUnchanged_updatesTimestampOnly() async throws {
+    /// `syncRules()` skips download and updates the timestamp when cid and source URL are unchanged.
+    @Test
+    func syncRules_cidUnchanged_updatesTimestampOnly() async {
         configService.featureFlagsBool[.fillAssistTargetingRules] = true
-        stateService.activeAccount = .fixture()
         let sourceUrl = environmentService.fillAssistRulesURL.absoluteString
 
         appSettingsStore.fillAssistCachedDataByUserId["1"] = FillAssistCachedData(
@@ -87,99 +77,146 @@ class FillAssistRepositoryTests: BitwardenTestCase {
             rules: [:],
             sourceUrl: sourceUrl,
         )
-        fillAssistAPIService.getManifestReturnValue = try makeManifest(cid: "sha256:abc123")
+        fillAssistAPIService.getManifestReturnValue = makeManifest(cid: "sha256:abc123")
 
-        await subject.syncFillAssistRules()
+        await subject.syncRules()
 
-        XCTAssertTrue(fillAssistAPIService.getManifestCalled)
-        XCTAssertFalse(fillAssistAPIService.getFormsMapCalled)
-        XCTAssertNotNil(appSettingsStore.fillAssistLastFetchTimestampByUserId["1"])
+        #expect(fillAssistAPIService.getManifestCalled)
+        #expect(!fillAssistAPIService.getFormsMapCalled)
+        #expect(appSettingsStore.fillAssistLastFetchTimestampByUserId["1"] != nil)
     }
 
-    /// `syncFillAssistRules()` downloads, parses, and caches rules when cid changes.
-    func test_syncFillAssistRules_cidChanged_downloadsAndCaches() async throws {
+    /// `syncRules()` downloads, parses, and caches rules when cid changes.
+    @Test
+    func syncRules_cidChanged_downloadsAndCaches() async throws {
         configService.featureFlagsBool[.fillAssistTargetingRules] = true
-        stateService.activeAccount = .fixture()
 
-        fillAssistAPIService.getManifestReturnValue = try makeManifest(cid: "sha256:newcid")
+        fillAssistAPIService.getManifestReturnValue = makeManifest(cid: "sha256:newcid")
         fillAssistAPIService.getFormsMapReturnValue = try makeFormsMap()
 
-        await subject.syncFillAssistRules()
+        await subject.syncRules()
 
-        XCTAssertTrue(fillAssistAPIService.getManifestCalled)
-        XCTAssertTrue(fillAssistAPIService.getFormsMapCalled)
-        XCTAssertEqual(fillAssistAPIService.getFormsMapReceivedFilename, "forms.v1.json")
+        #expect(fillAssistAPIService.getManifestCalled)
+        #expect(fillAssistAPIService.getFormsMapCalled)
+        #expect(fillAssistAPIService.getFormsMapReceivedFilename == "forms.v1.json")
         let cached = appSettingsStore.fillAssistCachedDataByUserId["1"]
-        XCTAssertNotNil(cached)
-        XCTAssertEqual(cached?.cid, "sha256:newcid")
-        XCTAssertNotNil(appSettingsStore.fillAssistLastFetchTimestampByUserId["1"])
+        #expect(cached != nil)
+        #expect(cached?.cid == "sha256:newcid")
+        #expect(appSettingsStore.fillAssistLastFetchTimestampByUserId["1"] != nil)
     }
 
-    /// `syncFillAssistRules()` skips storing when the schema major version is unsupported.
-    func test_syncFillAssistRules_unsupportedSchema_skipsCache() async throws {
+    /// `syncRules()` skips storing when the schema major version is unsupported.
+    @Test
+    func syncRules_unsupportedSchema_skipsCache() async throws {
         configService.featureFlagsBool[.fillAssistTargetingRules] = true
-        stateService.activeAccount = .fixture()
 
-        fillAssistAPIService.getManifestReturnValue = try makeManifest(cid: "sha256:newcid")
+        fillAssistAPIService.getManifestReturnValue = makeManifest(cid: "sha256:newcid")
         fillAssistAPIService.getFormsMapReturnValue = try makeFormsMap(schemaVersion: "2.0.0")
 
-        await subject.syncFillAssistRules()
+        await subject.syncRules()
 
-        XCTAssertNil(appSettingsStore.fillAssistCachedDataByUserId["1"])
-        XCTAssertNotNil(appSettingsStore.fillAssistLastFetchTimestampByUserId["1"])
+        #expect(appSettingsStore.fillAssistCachedDataByUserId["1"] == nil)
+        #expect(appSettingsStore.fillAssistLastFetchTimestampByUserId["1"] != nil)
     }
 
-    /// `syncFillAssistRules()` parses CSS selectors from the forms map into `FillAssistFieldAttributes`
-    /// and stores them in the cached rules (selector pooling).
-    func test_syncFillAssistRules_parsesSelectorsIntoRules() async throws {
+    /// `syncRules()` parses CSS selectors into `FillAssistFieldAttributes` (selector pooling).
+    @Test
+    func syncRules_parsesSelectorsIntoRules() async throws {
         configService.featureFlagsBool[.fillAssistTargetingRules] = true
-        stateService.activeAccount = .fixture()
 
-        fillAssistAPIService.getManifestReturnValue = try makeManifest(cid: "sha256:newcid")
+        fillAssistAPIService.getManifestReturnValue = makeManifest(cid: "sha256:newcid")
         fillAssistAPIService.getFormsMapReturnValue = try makeFormsMap()
 
-        await subject.syncFillAssistRules()
+        await subject.syncRules()
 
         let hostRules = appSettingsStore.fillAssistCachedDataByUserId["1"]?.rules["example.com"]
-        let usernameAttrs = try XCTUnwrap(hostRules?.fields["username"]?.first)
-        XCTAssertEqual(usernameAttrs.id, "user")
-        XCTAssertEqual(usernameAttrs.tagName, "input")
+        let usernameAttrs = try #require(hostRules?.fields["username"]?.first)
+        #expect(usernameAttrs.id == "user")
+        #expect(usernameAttrs.tagName == "input")
     }
 
-    /// `syncFillAssistRules()` pools selectors from multiple pathname entries into a single
-    /// `FillAssistHostRules` for the same host.
-    func test_syncFillAssistRules_poolsSelectorsAcrossPathnames() async throws {
+    /// `syncRules()` pools selectors from multiple pathname entries into a single host entry.
+    @Test
+    func syncRules_poolsSelectorsAcrossPathnames() async throws {
         configService.featureFlagsBool[.fillAssistTargetingRules] = true
-        stateService.activeAccount = .fixture()
 
-        fillAssistAPIService.getManifestReturnValue = try makeManifest(cid: "sha256:newcid")
+        fillAssistAPIService.getManifestReturnValue = makeManifest(cid: "sha256:newcid")
         fillAssistAPIService.getFormsMapReturnValue = try makeFormsMapWithPathnames()
 
-        await subject.syncFillAssistRules()
+        await subject.syncRules()
 
-        let hostRules = appSettingsStore.fillAssistCachedDataByUserId["1"]?.rules["example.com"]
-        // Both the top-level form and the pathname-specific form contribute username selectors.
-        let usernameAttrs = try XCTUnwrap(hostRules?.fields["username"])
-        XCTAssertEqual(usernameAttrs.count, 2)
+        let usernameAttrs = appSettingsStore.fillAssistCachedDataByUserId["1"]?
+            .rules["example.com"]?.fields["username"]
+        let count = try #require(usernameAttrs).count
+        #expect(count == 2)
     }
 
-    /// `syncFillAssistRules()` logs errors but does not rethrow them.
-    func test_syncFillAssistRules_failure_logsError() async {
+    /// `syncRules()` produces no rules entry when a host has no parseable selectors.
+    @Test
+    func syncRules_emptyPooled_excludesHost() async throws {
         configService.featureFlagsBool[.fillAssistTargetingRules] = true
-        stateService.activeAccount = .fixture()
+
+        fillAssistAPIService.getManifestReturnValue = makeManifest(cid: "sha256:newcid")
+        // Shadow DOM selectors are excluded by the parser → pooled stays empty.
+        fillAssistAPIService.getFormsMapReturnValue = try makeFormsMap(
+            usernameSelector: "div#app >>> input#user",
+        )
+
+        await subject.syncRules()
+
+        let rules = appSettingsStore.fillAssistCachedDataByUserId["1"]?.rules
+        #expect(rules?["example.com"] == nil)
+    }
+
+    /// `syncRules()` returns an empty rules dict when the forms map has no hosts.
+    @Test
+    func syncRules_noHosts_emptyRules() async throws {
+        configService.featureFlagsBool[.fillAssistTargetingRules] = true
+
+        fillAssistAPIService.getManifestReturnValue = makeManifest(cid: "sha256:newcid")
+        fillAssistAPIService.getFormsMapReturnValue = try makeFormsMap(hosts: [:])
+
+        await subject.syncRules()
+
+        let rules = appSettingsStore.fillAssistCachedDataByUserId["1"]?.rules
+        #expect(rules?.isEmpty == true)
+    }
+
+    /// `syncRules()` caches rules for multiple hosts independently.
+    @Test
+    func syncRules_multipleHosts_allCached() async throws {
+        configService.featureFlagsBool[.fillAssistTargetingRules] = true
+
+        fillAssistAPIService.getManifestReturnValue = makeManifest(cid: "sha256:newcid")
+        fillAssistAPIService.getFormsMapReturnValue = try makeFormsMap(
+            hosts: ["example.com": "input#user1", "other.com": "input#user2"],
+        )
+
+        await subject.syncRules()
+
+        let rules = appSettingsStore.fillAssistCachedDataByUserId["1"]?.rules
+        #expect(rules?["example.com"] != nil)
+        #expect(rules?["other.com"] != nil)
+        #expect(rules?.count == 2)
+    }
+
+    /// `syncRules()` logs errors but does not rethrow them.
+    @Test
+    func syncRules_failure_logsError() async {
+        configService.featureFlagsBool[.fillAssistTargetingRules] = true
         fillAssistAPIService.getManifestThrowableError = URLError(.notConnectedToInternet)
 
-        await subject.syncFillAssistRules()
+        await subject.syncRules()
 
-        XCTAssertEqual(errorReporter.errors.count, 1)
-        XCTAssertNil(appSettingsStore.fillAssistCachedDataByUserId["1"])
+        #expect(errorReporter.errors.count == 1)
+        #expect(appSettingsStore.fillAssistCachedDataByUserId["1"] == nil)
     }
 
-    // MARK: Tests - fillAssistRules(for:)
+    // MARK: Tests - rules(for:)
 
-    /// `fillAssistRules(for:)` returns rules for a cached hostname.
-    func test_fillAssistRules_returnsRulesForHostname() async {
-        stateService.activeAccount = .fixture()
+    /// `rules(for:)` returns cached rules for a known hostname.
+    @Test
+    func rules_returnsRulesForHostname() async {
         let hostRules = FillAssistHostRules(fields: ["username": []])
         appSettingsStore.fillAssistCachedDataByUserId["1"] = FillAssistCachedData(
             cid: "sha256:abc",
@@ -187,58 +224,108 @@ class FillAssistRepositoryTests: BitwardenTestCase {
             sourceUrl: "https://example.com",
         )
 
-        let result = await subject.fillAssistRules(for: "example.com")
+        let result = await subject.rules(for: "example.com")
 
-        XCTAssertEqual(result, hostRules)
+        #expect(result == hostRules)
     }
 
-    /// `fillAssistRules(for:)` returns nil for an unknown hostname.
-    func test_fillAssistRules_returnsNilForUnknownHostname() async {
-        stateService.activeAccount = .fixture()
+    /// `rules(for:)` returns `nil` for an unknown hostname.
+    @Test
+    func rules_returnsNilForUnknownHostname() async {
         appSettingsStore.fillAssistCachedDataByUserId["1"] = FillAssistCachedData(
             cid: "sha256:abc",
             rules: [:],
             sourceUrl: "https://example.com",
         )
 
-        let result = await subject.fillAssistRules(for: "unknown.com")
+        let result = await subject.rules(for: "unknown.com")
 
-        XCTAssertNil(result)
+        #expect(result == nil)
     }
 
-    // MARK: Tests - clearFillAssistRules()
+    // MARK: Tests - clearRules()
 
-    /// `clearFillAssistRules()` removes cached data for the active account.
-    func test_clearFillAssistRules_removesCachedData() async throws {
-        stateService.activeAccount = .fixture()
+    /// `clearRules()` removes cached data for the active account.
+    @Test
+    func clearRules_removesCachedData() async throws {
         appSettingsStore.fillAssistCachedDataByUserId["1"] = FillAssistCachedData(
             cid: "sha256:abc",
             rules: [:],
             sourceUrl: "https://example.com",
         )
 
-        try await subject.clearFillAssistRules()
+        try await subject.clearRules()
 
-        XCTAssertNil(appSettingsStore.fillAssistCachedDataByUserId["1"])
+        #expect(appSettingsStore.fillAssistCachedDataByUserId["1"] == nil)
+    }
+
+    // MARK: Tests - FormsMapSelector.attributes
+
+    /// `FormsMapSelector.attributes` parses a single CSS selector.
+    @Test
+    func formsMapSelector_single_returnsAttributes() {
+        let attrs = FormsMapSelector.single("input#user").attributes
+        #expect(attrs.count == 1)
+        #expect(attrs.first?.id == "user")
+        #expect(attrs.first?.tagName == "input")
+    }
+
+    /// `FormsMapSelector.attributes` parses each selector in a sequence.
+    @Test
+    func formsMapSelector_sequence_returnsAttributesForEach() {
+        let attrs = FormsMapSelector.sequence(["input#user", "input#email"]).attributes
+        #expect(attrs.count == 2)
+        #expect(attrs.first?.id == "user")
+        #expect(attrs.last?.id == "email")
+    }
+
+    /// `FormsMapSelector.attributes` returns empty for an unsupported selector (shadow DOM).
+    @Test
+    func formsMapSelector_unsupportedSelector_returnsEmpty() {
+        let attrs = FormsMapSelector.single("div >>> input#user").attributes
+        #expect(attrs.isEmpty)
     }
 
     // MARK: Helpers
 
-    private func makeManifest(cid: String) throws -> FillAssistManifestResponseModel {
-        let json = """
-        {
-            "buildId": "v1",
-            "gitSha": "abc",
-            "maps": { "forms": { "v1": {
-                "cid": "\(cid)",
-                "filename": "forms.v1.json",
-                "schema": "forms.v1.schema.json"
-            }}},
-            "timestamp": "2026-06-11T14:29:32.184Z"
+    private func makeManifest(cid: String) -> FillAssistManifestResponseModel {
+        let entry = FillAssistManifestEntryModel(
+            cid: cid,
+            deprecated: false,
+            filename: "forms.v1.json",
+            schema: "forms.v1.schema.json",
+        )
+        return FillAssistManifestResponseModel(
+            buildId: "v1",
+            gitSha: "abc",
+            maps: ["forms": ["v1": entry]],
+            timestamp: Date(timeIntervalSinceReferenceDate: 0),
+        )
+    }
+
+    private func makeFormsMap(
+        schemaVersion: String = "1.0.0",
+        usernameSelector: String = "input#user",
+        hosts: [String: String]? = nil,
+    ) throws -> FormsMapResponseModel {
+        let hostsJSON: String
+        if let hosts {
+            let entries = hosts.map { hostname, selector in
+                """
+                "\(hostname)": {"forms": [{"category": "account-login", "fields": {"username": ["\(selector)"]}}]}
+                """
+            }.joined(separator: ",")
+            hostsJSON = "{\(entries)}"
+        } else {
+            hostsJSON = """
+            {"example.com": {"forms": [{"category": "account-login", "fields": {"username": ["\(usernameSelector)"]}}]}}
+            """
         }
+        let json = """
+        {"schemaVersion": "\(schemaVersion)", "hosts": \(hostsJSON)}
         """
         return try JSONDecoder.pascalOrSnakeCaseDecoder.decode(
-            FillAssistManifestResponseModel.self,
+            FormsMapResponseModel.self,
             from: Data(json.utf8),
         )
     }
@@ -249,29 +336,10 @@ class FillAssistRepositoryTests: BitwardenTestCase {
             "schemaVersion": "1.0.0",
             "hosts": {
                 "example.com": {
-                    "forms": [{ "category": "account-login", "fields": { "username": ["input#user1"] } }],
+                    "forms": [{"category": "account-login", "fields": {"username": ["input#user1"]}}],
                     "pathnames": {
-                        "/login": {
-                            "forms": [{ "category": "account-login", "fields": { "username": ["input#user2"] } }]
-                        }
+                        "/login": {"forms": [{"category": "account-login", "fields": {"username": ["input#user2"]}}]}
                     }
-                }
-            }
-        }
-        """
-        return try JSONDecoder.pascalOrSnakeCaseDecoder.decode(
-            FormsMapResponseModel.self,
-            from: Data(json.utf8),
-        )
-    }
-
-    private func makeFormsMap(schemaVersion: String = "1.0.0") throws -> FormsMapResponseModel {
-        let json = """
-        {
-            "schemaVersion": "\(schemaVersion)",
-            "hosts": {
-                "example.com": {
-                    "forms": [{ "category": "account-login", "fields": { "username": ["input#user"] } }]
                 }
             }
         }

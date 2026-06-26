@@ -371,6 +371,16 @@ class SyncServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
         )
     }
 
+    /// `fetchSync()` calls `syncRules()` on the fill-assist repository alongside vault sync.
+    func test_fetchSync_syncsFillAssistRules() async throws {
+        client.result = .httpSuccess(testData: .syncWithCiphers)
+        stateService.activeAccount = .fixture()
+
+        try await subject.fetchSync(forceSync: false)
+
+        XCTAssertTrue(fillAssistRepository.syncRulesCalled)
+    }
+
     /// `fetchSync()` with `forceSync: true` performs the sync API request regardless of the
     /// account revision or sync interval.
     func test_fetchSync_failedParse() async throws {
