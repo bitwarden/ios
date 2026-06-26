@@ -108,7 +108,7 @@ class DefaultFillAssistRepository: FillAssistRepository {
         let sourceUrl = environmentService.fillAssistRulesURL
         let userId = try await stateService.getActiveAccountId()
         let lastFetch = appSettingsStore.fillAssistLastFetchTimestamp(userId: userId)
-        if let lastFetch, Date().timeIntervalSince(lastFetch) < Constants.fillAssistUpdateInterval {
+        if let lastFetch, Date().timeIntervalSince(lastFetch) < Constants.FillAssist.updateInterval {
             return
         }
 
@@ -116,7 +116,7 @@ class DefaultFillAssistRepository: FillAssistRepository {
         let manifest = try await fillAssistAPIService.getManifest()
 
         // 4. Resolve the non-deprecated entry for the current forms version.
-        guard let entry = manifest.maps["forms"]?[Constants.fillAssistFormsVersion],
+        guard let entry = manifest.maps["forms"]?[Constants.FillAssist.formsVersion],
               !entry.deprecated
         else { return }
 
@@ -132,7 +132,7 @@ class DefaultFillAssistRepository: FillAssistRepository {
 
         // 7. Validate schema major version; update timestamp and skip if unsupported.
         let schemaMajor = formsMap.schemaVersion.split(separator: ".").first.map(String.init) ?? ""
-        guard schemaMajor == Constants.fillAssistExpectedSchemaMajor else {
+        guard schemaMajor == Constants.FillAssist.expectedSchemaMajor else {
             appSettingsStore.setFillAssistLastFetchTimestamp(Date(), userId: userId)
             return
         }
