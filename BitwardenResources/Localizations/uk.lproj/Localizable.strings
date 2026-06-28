@@ -6,6 +6,7 @@
 "Bitwarden" = "Bitwarden";
 "Cancel" = "Скасувати";
 "Copy" = "Копіювати";
+"CopyLicenseNumber" = "Копіювати номер ліцензії";
 "CopyPassportNumber" = "Копіювати номер паспорта";
 "CopyPassword" = "Копіювати пароль";
 "CopyUsername" = "Копіювати ім'я користувача";
@@ -1026,10 +1027,8 @@
 "ArchiveEmptyDescriptionLong" = "Заповніть архів записами, які ви не хочете бачити в результатах пошуку і пропозиціях автозаповнення, але які можуть колись знадобитися.";
 "ArchiveItem" = "Архівувати запис";
 "OnceArchivedThisItemWillBeExcludedDescriptionLong" = "Після архівації цей запис буде виключено з результатів пошуку і пропозицій автозаповнення.";
-"ArchiveUnavailable" = "Архів недоступний";
 "ArchivingItemsIsAPremiumFeatureDescriptionLong" = "Архівування записів є функцією Premium. Ваш поточний тарифний план не передбачає доступ до цієї функції.";
 "AddingAttachmentsIsAPremiumFeatureDescriptionLong" = "Adding attachments is a Premium feature. Your current plan does not include access to this feature.";
-"AttachmentsUnavailable" = "Вкладення недоступні";
 "UpgradeToPremium" = "Покращити до Premium";
 "ThisItemIsArchived" = "Цей запис архівовано.";
 "YourPremiumSubscriptionEnded" = "Ваша передплата Premium завершилася";

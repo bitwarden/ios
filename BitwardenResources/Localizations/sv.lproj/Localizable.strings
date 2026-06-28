@@ -6,6 +6,7 @@
 "Bitwarden" = "Bitwarden";
 "Cancel" = "Avbryt";
 "Copy" = "Kopiera";
+"CopyLicenseNumber" = "Kopiera licensnummer";
 "CopyPassportNumber" = "Kopiera passnummer";
 "CopyPassword" = "Kopiera lösenord";
 "CopyUsername" = "Kopiera användarnamn";
@@ -1026,10 +1027,8 @@
 "ArchiveEmptyDescriptionLong" = "Fyll i ditt arkiv med objekt som du inte vill se i sökresultat och förslag på autofyll men kanske behöver en dag.";
 "ArchiveItem" = "Archive item";
 "OnceArchivedThisItemWillBeExcludedDescriptionLong" = "Once archived, this item will be excluded from search results and autofill suggestions.";
-"ArchiveUnavailable" = "Arkivet inte tillgängligt";
 "ArchivingItemsIsAPremiumFeatureDescriptionLong" = "Arkivering av objekt är en Premium-funktion. Din nuvarande plan inkluderar inte tillgång till denna funktion.";
 "AddingAttachmentsIsAPremiumFeatureDescriptionLong" = "Lägga till bilagor är en Premiumfunktion. Din nuvarande plan inkluderar inte tillgång till denna funktion.";
-"AttachmentsUnavailable" = "Attachments unavailable";
 "UpgradeToPremium" = "Uppgradera till premium";
 "ThisItemIsArchived" = "Detta objekt är arkiverat.";
 "YourPremiumSubscriptionEnded" = "Ditt Premium-abonnemang avslutades";
