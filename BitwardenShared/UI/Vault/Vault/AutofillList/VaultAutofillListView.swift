@@ -186,7 +186,7 @@ private struct VaultAutofillListSearchableView: View {
 
     /// Tracks the long-running excluded-credential stream task so it can be cancelled when the id
     /// changes or the view disappears, preventing concurrent tasks from racing on state.
-    @State private var excludedCredentialTask: Task<Void, Never>?
+    @SwiftUI.State private var excludedCredentialTask: Task<Void, Never>?
 
     // MARK: View
 
