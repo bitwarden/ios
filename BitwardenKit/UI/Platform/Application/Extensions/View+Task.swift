@@ -1,5 +1,43 @@
 import SwiftUI
 
+/// A `ViewModifier` that debounces an async action and restarts it when a tracked value changes,
+/// without using `.task(id:)` — which triggers a linker error at iOS 15 deployment target when
+/// built against the iOS 26 SDK because of a new `@isolated(any)` overload in SwiftUICore.
+private struct DebouncedTaskModifier<T: Equatable>: ViewModifier {
+    /// The value to observe for changes; triggers a task restart when it changes.
+    let id: T
+
+    /// The minimum quiet interval (in nanoseconds) that must elapse before the action fires.
+    let debounceIntervalInNS: UInt64
+
+    /// The async action to execute after the debounce interval elapses.
+    let action: @Sendable () async -> Void
+
+    /// The currently running debounced task, cancelled and replaced on each restart.
+    @SwiftUI.State private var currentTask: Task<Void, Never>?
+
+    func body(content: Content) -> some View {
+        content
+            .onAppear { restart() }
+            .onChange(of: id) { _ in restart() }
+            .onDisappear {
+                currentTask?.cancel()
+                currentTask = nil
+            }
+    }
+
+    private func restart() {
+        currentTask?.cancel()
+        let interval = debounceIntervalInNS
+        let work = action
+        currentTask = Task {
+            try? await Task.sleep(nanoseconds: interval)
+            guard !Task.isCancelled else { return }
+            await work()
+        }
+    }
+}
+
 public extension View {
     /// Adds a debounced task to perform before this view appears or when a specified
     /// value changes.
@@ -23,13 +61,7 @@ public extension View {
         debounceIntervalInNS: UInt64,
         _ action: @escaping @Sendable () async -> Void,
     ) -> some View where T: Equatable {
-        task(id: value) {
-            try? await Task.sleep(nanoseconds: debounceIntervalInNS)
-            guard !Task.isCancelled else {
-                return
-            }
-            await action()
-        }
+        modifier(DebouncedTaskModifier(id: value, debounceIntervalInNS: debounceIntervalInNS, action: action))
     }
 
     /// Adds a task to perform before this view appears or when a specified
