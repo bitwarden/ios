@@ -235,9 +235,10 @@ extension VaultListProcessor {
     /// Called when the vault list appears on screen.
     private func appeared() async {
         await refreshVault(syncWithPeriodicCheck: true)
-        // Read after sync: onFetchSyncSucceeded runs synchronously inside fetchSync and
-        // awaits refreshSubscriptionAttentionCard(), so the cache is guaranteed to be
-        // populated by the time refreshVault() returns.
+        // Read after sync: when a sync occurs, onFetchSyncSucceeded runs inside fetchSync
+        // and awaits refreshSubscriptionAttentionCard(), so the cache reflects the latest
+        // subscription status. When no sync runs (periodic check skipped or sync errors),
+        // the read falls back to the last persisted value.
         state.shouldShowSubscriptionAttentionCard =
             await services.billingService.shouldShowSubscriptionAttentionCard()
         await handleNotifications()
