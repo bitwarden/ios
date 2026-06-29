@@ -1575,6 +1575,34 @@ actor DefaultStateService: StateService, ActiveAccountStateProvider, ConfigState
         }
     }
 
+    func doesActiveAccountHavePremium() async -> Bool {
+        do {
+            let account = try await getActiveAccount()
+            let hasPremiumPersonally = account.profile.hasPremiumPersonally ?? false
+            guard !hasPremiumPersonally else {
+                return true
+            }
+
+            let organizations = try await dataStore
+                .fetchAllOrganizations(userId: account.profile.userId)
+                .filter { $0.enabled && $0.usersGetPremium }
+            return !organizations.isEmpty
+        } catch {
+            errorReporter.log(error: error)
+            return false
+        }
+    }
+
+    func doesActiveAccountHavePremiumPersonally() async -> Bool {
+        do {
+            let account = try await getActiveAccount()
+            return account.profile.hasPremiumPersonally ?? false
+        } catch {
+            errorReporter.log(error: error)
+            return false
+        }
+    }
+
     func getAccessTokenExpirationDate(userId: String) -> Date? {
         appSettingsStore.accessTokenExpirationDate(userId: userId)
     }
@@ -2393,36 +2421,6 @@ struct AccountVolatileData {
 // MARK: BillingStateService
 
 extension DefaultStateService: BillingStateService {
-    // MARK: Account Premium Status
-
-    func doesActiveAccountHavePremium() async -> Bool {
-        do {
-            let account = try await getActiveAccount()
-            let hasPremiumPersonally = account.profile.hasPremiumPersonally ?? false
-            guard !hasPremiumPersonally else {
-                return true
-            }
-
-            let organizations = try await dataStore
-                .fetchAllOrganizations(userId: account.profile.userId)
-                .filter { $0.enabled && $0.usersGetPremium }
-            return !organizations.isEmpty
-        } catch {
-            errorReporter.log(error: error)
-            return false
-        }
-    }
-
-    func doesActiveAccountHavePremiumPersonally() async -> Bool {
-        do {
-            let account = try await getActiveAccount()
-            return account.profile.hasPremiumPersonally ?? false
-        } catch {
-            errorReporter.log(error: error)
-            return false
-        }
-    }
-
     // MARK: Premium Upgrade Banner
 
     func isPremiumUpgradeBannerDismissed() async -> Bool {
