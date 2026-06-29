@@ -96,7 +96,7 @@ class CreatePasskeyProcessor: StateProcessor<
         state.status = .inProgress
         do {
             try await performRegistration(state.rpId, state.userName, state.displayName)
-            passkeyRegistryService.savePasskey(
+            await passkeyRegistryService.savePasskey(
                 PasskeyEntry(
                     id: UUID(),
                     rpId: state.rpId,

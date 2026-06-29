@@ -6,6 +6,8 @@ import SwiftUI
 struct ManagePasskeysView: View {
     // MARK: Properties
 
+    @Environment(\.openURL) private var openURL
+
     /// The store used to render the view.
     @ObservedObject var store: Store<ManagePasskeysState, ManagePasskeysAction, ManagePasskeysEffect>
 
@@ -23,7 +25,9 @@ struct ManagePasskeysView: View {
                     .disabled(store.state.passkeys.isEmpty)
                 }
             }
-            .task { await store.perform(.loadPasskeys) }
+            .task {
+                await store.perform(.loadPasskeys)
+            }
     }
 
     // MARK: Private Views
@@ -53,7 +57,14 @@ struct ManagePasskeysView: View {
         List {
             Section {
                 ForEach(store.state.passkeys) { entry in
-                    passkeyRow(entry)
+                    Button {
+                        if let url = URL(string: "bitwarden://") {
+                            openURL(url)
+                        }
+                    } label: {
+                        passkeyRow(entry)
+                    }
+                    .tint(.primary)
                 }
                 .onDelete { indexSet in
                     for index in indexSet {

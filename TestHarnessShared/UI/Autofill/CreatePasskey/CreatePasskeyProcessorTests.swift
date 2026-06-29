@@ -27,7 +27,7 @@ class CreatePasskeyProcessorTests: BitwardenTestCase {
         subject = CreatePasskeyProcessor(
             coordinator: coordinator.asAnyCoordinator(),
             delegate: delegate,
-            passkeyRegistryService: DefaultPasskeyRegistryService(),
+            passkeyRegistryService: MockPasskeyRegistryService(),
         )
     }
 
@@ -102,6 +102,18 @@ class CreatePasskeyProcessorTests: BitwardenTestCase {
         XCTAssertEqual(capturedUserName, "alice")
         XCTAssertEqual(capturedDisplayName, "Alice Smith")
     }
+}
+
+// MARK: - MockPasskeyRegistryService
+
+class MockPasskeyRegistryService: PasskeyRegistryService {
+    var savedPasskeys: [PasskeyEntry] = []
+    var passkeys: [PasskeyEntry] = []
+
+    func savePasskey(_ entry: PasskeyEntry) async { savedPasskeys.append(entry) }
+    func loadPasskeys() async -> [PasskeyEntry] { passkeys }
+    func deletePasskey(_ entry: PasskeyEntry) async { passkeys.removeAll { $0.id == entry.id } }
+    func clearAll() async { passkeys = [] }
 }
 
 // MARK: - MockCreatePasskeyProcessorDelegate

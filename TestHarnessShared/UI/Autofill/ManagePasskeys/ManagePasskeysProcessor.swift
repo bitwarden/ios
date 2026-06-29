@@ -42,13 +42,13 @@ class ManagePasskeysProcessor: StateProcessor<
     override func perform(_ effect: ManagePasskeysEffect) async {
         switch effect {
         case .clearAll:
-            passkeyRegistryService.clearAll()
+            await passkeyRegistryService.clearAll()
             state.passkeys = []
         case let .deletePasskey(entry):
-            passkeyRegistryService.deletePasskey(entry)
-            state.passkeys = passkeyRegistryService.loadPasskeys()
+            await passkeyRegistryService.deletePasskey(entry)
+            state.passkeys = await passkeyRegistryService.loadPasskeys()
         case .loadPasskeys:
-            state.passkeys = passkeyRegistryService.loadPasskeys()
+            state.passkeys = await passkeyRegistryService.loadPasskeys()
         }
     }
 }
