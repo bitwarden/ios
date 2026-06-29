@@ -269,12 +269,10 @@ protocol AuthRepository: AnyObject {
     /// - Parameters:
     ///   - keyConnectorKeyWrappedUserKey: The user key encrypted (wrapped) by the Key Connector key.
     ///   - keyConnectorURL: The URL to the Key Connector API.
-    ///   - orgIdentifier: The text identifier for the organization.
     ///
     func unlockVaultWithKeyConnectorKey(
         keyConnectorKeyWrappedUserKey: String,
         keyConnectorURL: URL,
-        orgIdentifier: String,
     ) async throws
 
     /// Attempts to unlock the user's vault with the stored neverlock key.
@@ -1106,7 +1104,6 @@ extension DefaultAuthRepository: AuthRepository {
     func unlockVaultWithKeyConnectorKey(
         keyConnectorKeyWrappedUserKey: String,
         keyConnectorURL: URL,
-        orgIdentifier: String,
     ) async throws {
         try await unlockVault(method: .keyConnectorUrl(
             url: keyConnectorURL.absoluteString,

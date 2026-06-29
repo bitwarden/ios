@@ -239,7 +239,6 @@ extension SingleSignOnProcessor: SingleSignOnFlowDelegate {
                     try await services.authRepository.unlockVaultWithKeyConnectorKey(
                         keyConnectorKeyWrappedUserKey: keyConnectorKeyWrappedUserKey,
                         keyConnectorURL: keyConnectorUrl,
-                        orgIdentifier: state.identifierText,
                     )
                     coordinator.hideLoadingOverlay()
                     await coordinator.handleEvent(.didCompleteAuth)

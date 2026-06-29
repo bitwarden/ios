@@ -2625,7 +2625,6 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
             try await subject.unlockVaultWithKeyConnectorKey(
                 keyConnectorKeyWrappedUserKey: "user",
                 keyConnectorURL: URL(string: "https://example.com")!,
-                orgIdentifier: "org-id",
             )
         }
 
@@ -2655,7 +2654,6 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
             try await subject.unlockVaultWithKeyConnectorKey(
                 keyConnectorKeyWrappedUserKey: "user",
                 keyConnectorURL: URL(string: "https://example.com")!,
-                orgIdentifier: "org-id",
             )
         }
     }
@@ -2666,7 +2664,6 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
             try await subject.unlockVaultWithKeyConnectorKey(
                 keyConnectorKeyWrappedUserKey: "user",
                 keyConnectorURL: URL(string: "https://example.com")!,
-                orgIdentifier: "org-id",
             )
         }
     }
