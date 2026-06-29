@@ -8,6 +8,7 @@ import Testing
 
 // MARK: - FillAssistRepositoryTests
 
+@MainActor
 struct FillAssistRepositoryTests {
     // MARK: Properties
 
@@ -285,10 +286,12 @@ struct FillAssistRepositoryTests {
         let attrs = FormsMapSelector.single("div >>> input#user").attributes
         #expect(attrs.isEmpty)
     }
+}
 
-    // MARK: Helpers
+// MARK: - Helpers
 
-    private func makeManifest(cid: String) -> FillAssistManifestResponseModel {
+private extension FillAssistRepositoryTests {
+    func makeManifest(cid: String) -> FillAssistManifestResponseModel {
         let entry = FillAssistManifestEntryModel(
             cid: cid,
             deprecated: false,
