@@ -59,7 +59,7 @@ struct CompactDecodableTests {
     /// `@CompactDecodable` encodes a populated dictionary as a JSON object.
     @Test
     func encode_populatedEntries() throws {
-        let subject = Model(entries: ["a": 1])
+        let subject = try JSONDecoder().decode(Model.self, from: Data(#"{"entries": {"a": 1}}"#.utf8))
         let data = try JSONEncoder().encode(subject)
         let decoded = try JSONDecoder().decode(Model.self, from: data)
         #expect(decoded.entries == ["a": 1])
@@ -68,7 +68,7 @@ struct CompactDecodableTests {
     /// `@CompactDecodable` encodes `nil` entries as `null` in JSON.
     @Test
     func encode_nilEntries() throws {
-        let subject = Model(entries: nil)
+        let subject = try JSONDecoder().decode(Model.self, from: Data(#"{}"#.utf8))
         let data = try JSONEncoder().encode(subject)
         let decoded = try JSONDecoder().decode(Model.self, from: data)
         #expect(decoded.entries == nil)
