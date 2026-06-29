@@ -1096,7 +1096,7 @@
 "NegativeX" = "-%1$@";
 "UnknownStatus" = "Unknown";
 "YourSubscriptionStatusIsUnknownVisitTheWebAppDescriptionLong" = "Your subscription status could not be determined. Please visit the web app for more details or update to the latest version.";
-"AtTheMomentPremiumPlanIsNotAvailableDescriptionLong" = "At the moment premium plan is not available, please try again later.";
+"AtTheMomentPremiumPlanIsNotAvailableDescriptionLong" = "At the moment Premium plan is not available, please try again later.";
 "UnlockMoreAdvancedFeaturesWithPremiumPlan" = "Desbloquea funciones más avanzadas con un plan Premium.";
 "BuiltInAuthenticator" = "Autenticador integrado";
 "EmergencyAccess" = "Acceso de emergencia";
@@ -1138,3 +1138,28 @@
 "IssueDate" = "Fecha de emisión";
 "ExpirationDate" = "Fecha de caducidad";
 "LicenseClass" = "Clase de licencia";
+"PassportDetails" = "Datos del pasaporte";
+/* Label for the sex/gender field as printed on a passport (e.g. "M", "F", "X"). */
+"Sex" = "Sexo";
+"BirthPlace" = "Lugar de nacimiento";
+/* Label for the nationality field on a passport (the country a person is a national of). */
+"Nationality" = "Nacionalidad";
+/* Label for the category of passport (e.g. "Regular/Tourist", "Diplomatic", "Official"). */
+"PassportType" = "Tipo de pasaporte";
+"NationalIdentificationNumber" = "Número de identificación nacional";
+/* Label for the government authority or office that issued the passport. */
+"IssuingAuthorityOffice" = "Issuing authority/office";
+"AccountDetails" = "Datos de la cuenta";
+"BankName" = "Nombre del banco";
+"NameOnAccount" = "Nombre en la cuenta";
+"AccountType" = "Tipo de cuenta";
+"BranchNumber" = "Número de sucursal";
+"SwiftCode" = "Código SWIFT";
+"IBAN" = "IBAN";
+"BankContactPhone" = "Teléfono de contacto bancario";
+"CertificateOfDeposit" = "Certificado del depósito";
+"Checking" = "Comprobando";
+"InvestmentBrokerage" = "Inversiones/correduría";
+"LineOfCredit" = "Línea de crédito";
+"MoneyMarket" = "Mercados monetarios";
+"Savings" = "Ahorros";

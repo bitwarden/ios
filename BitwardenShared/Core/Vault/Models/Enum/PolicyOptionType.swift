@@ -1,6 +1,20 @@
 /// An enumeration of policy options.
 ///
 enum PolicyOptionType: String {
+    // MARK: Organization User Notification Options
+
+    /// A policy option for the dismiss button text of the notification banner.
+    case buttonText
+
+    /// A policy option for the body text of the notification banner.
+    case description
+
+    /// A policy option for the header text of the notification banner.
+    case header
+
+    /// A policy option for whether to show the notification banner after every login.
+    case showAfterEveryLogin
+
     // MARK: Password Generation Options
 
     /// A policy option for the vault timeout action.

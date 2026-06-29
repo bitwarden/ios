@@ -137,7 +137,7 @@ extension DefaultKeyConnectorService: KeyConnectorService {
             try await stateService.setAccountEncryptionKeys(
                 AccountEncryptionKeys(
                     cryptographicState: .v1(privateKey: keyConnectorResponse.keys.private),
-                    encryptedUserKey: keyConnectorResponse.encryptedUserKey,
+                    encryptedUserKey: nil,
                 ),
             )
             return KeyConnectorConversionResult(
@@ -154,7 +154,7 @@ extension DefaultKeyConnectorService: KeyConnectorService {
         try await stateService.setAccountEncryptionKeys(
             AccountEncryptionKeys(
                 cryptographicState: result.accountCryptographicState,
-                encryptedUserKey: result.keyConnectorKeyWrappedUserKey,
+                encryptedUserKey: nil,
             ),
         )
 

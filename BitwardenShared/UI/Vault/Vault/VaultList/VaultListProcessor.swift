@@ -116,6 +116,8 @@ final class VaultListProcessor: StateProcessor<
             await dismissFlightRecorderToastBanner()
         case .dismissImportLoginsActionCard:
             await setImportLoginsProgress(.setUpLater)
+        case .dismissOrganizationBanner:
+            await dismissOrganizationBanner()
         case .dismissPremiumUpgradeActionCard:
             await dismissPremiumUpgradeActionCard()
         case .dismissUpgradedToPremiumActionCard:
@@ -235,6 +237,7 @@ extension VaultListProcessor {
         await checkPendingLoginRequests()
         await checkPersonalOwnershipPolicy()
         await loadItemTypesUserCanCreate()
+        await loadOrganizationUserNotificationBannerData()
 
         state.hasPremium = await services.stateService.doesActiveAccountHavePremium()
 
@@ -331,6 +334,13 @@ extension VaultListProcessor {
         await services.flightRecorder.setFlightRecorderBannerDismissed()
     }
 
+    /// Dismisses the organization user notification banner.
+    ///
+    private func dismissOrganizationBanner() async {
+        // TODO: PM-33861 Persist banner dismissal data
+        state.organizationUserNotificationBannerData = nil
+    }
+
     /// Dismisses the Premium upgrade action card and persists the banner-dismissed preference.
     private func dismissPremiumUpgradeActionCard() async {
         do {
@@ -395,6 +405,12 @@ extension VaultListProcessor {
         default:
             break
         }
+    }
+
+    /// Loads the organization user notification banner data.
+    private func loadOrganizationUserNotificationBannerData() async {
+        state.organizationUserNotificationBannerData = await services.policyService
+            .getOrganizationUserNotificationBannerData()
     }
 
     /// Navigates to the view item view for the specified cipher. If the cipher requires master
