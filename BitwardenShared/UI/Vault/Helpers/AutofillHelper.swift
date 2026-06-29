@@ -111,7 +111,7 @@ class AutofillHelper {
         guard let uri,
               let url = URL(string: uri),
               let lookupHost = url.domain else { return [] }
-        guard let rules = await services.fillAssistRepository.fillAssistRules(for: lookupHost) else { return [] }
+        guard let rules = await services.fillAssistRepository.rules(for: lookupHost) else { return [] }
 
         var result: [(String, String)] = []
 

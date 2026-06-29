@@ -483,7 +483,7 @@ class AutofillHelperTests: BitwardenTestCase { // swiftlint:disable:this type_bo
     /// `handleCipherForAutofill` does not call `fillAssistRepository` when the feature flag is off.
     func test_handleCipherForAutofill_fillAssist_flagOff() async {
         configService.featureFlagsBool[.fillAssistTargetingRules] = false
-        fillAssistRepository.fillAssistRulesReturnValue = FillAssistHostRules(
+        fillAssistRepository.rulesReturnValue = FillAssistHostRules(
             fields: ["username": [.init(id: "login-email", name: nil, role: nil, tagName: nil, type: nil)]],
         )
         vaultRepository.fetchCipherResult = .success(.fixture(
@@ -492,7 +492,7 @@ class AutofillHelperTests: BitwardenTestCase { // swiftlint:disable:this type_bo
 
         await subject.handleCipherForAutofill(cipherListView: .fixture(id: "1")) { _ in }
 
-        XCTAssertFalse(fillAssistRepository.fillAssistRulesCalled)
+        XCTAssertFalse(fillAssistRepository.rulesCalled)
         XCTAssertNil(appExtensionDelegate.didCompleteAutofillRequestFields)
     }
 
@@ -500,21 +500,21 @@ class AutofillHelperTests: BitwardenTestCase { // swiftlint:disable:this type_bo
     /// exist for the host.
     func test_handleCipherForAutofill_fillAssist_noRulesForHost() async {
         configService.featureFlagsBool[.fillAssistTargetingRules] = true
-        fillAssistRepository.fillAssistRulesReturnValue = nil
+        fillAssistRepository.rulesReturnValue = nil
         vaultRepository.fetchCipherResult = .success(.fixture(
             login: .fixture(password: "PASSWORD", username: "user@bitwarden.com"),
         ))
 
         await subject.handleCipherForAutofill(cipherListView: .fixture(id: "1")) { _ in }
 
-        XCTAssertTrue(fillAssistRepository.fillAssistRulesCalled)
+        XCTAssertTrue(fillAssistRepository.rulesCalled)
         XCTAssertNil(appExtensionDelegate.didCompleteAutofillRequestFields)
     }
 
     /// `handleCipherForAutofill` prepends FillAssist id-based selectors before cipher custom fields.
     func test_handleCipherForAutofill_fillAssist_rulesFound_idSelector() async throws {
         configService.featureFlagsBool[.fillAssistTargetingRules] = true
-        fillAssistRepository.fillAssistRulesReturnValue = FillAssistHostRules(fields: [
+        fillAssistRepository.rulesReturnValue = FillAssistHostRules(fields: [
             "username": [.init(id: "login-email", name: nil, role: nil, tagName: nil, type: nil)],
             "password": [.init(id: "login-pwd", name: nil, role: nil, tagName: nil, type: nil)],
         ])
@@ -524,7 +524,7 @@ class AutofillHelperTests: BitwardenTestCase { // swiftlint:disable:this type_bo
 
         await subject.handleCipherForAutofill(cipherListView: .fixture(id: "1")) { _ in }
 
-        XCTAssertEqual(fillAssistRepository.fillAssistRulesReceivedHostname, "example.com")
+        XCTAssertEqual(fillAssistRepository.rulesReceivedHostname, "example.com")
         let fields = try XCTUnwrap(appExtensionDelegate.didCompleteAutofillRequestFields)
         XCTAssertEqual(fields[0].selector, "login-email")
         XCTAssertEqual(fields[0].value, "user@bitwarden.com")
@@ -535,7 +535,7 @@ class AutofillHelperTests: BitwardenTestCase { // swiftlint:disable:this type_bo
     /// `handleCipherForAutofill` falls back to the `name` attribute when `id` is nil.
     func test_handleCipherForAutofill_fillAssist_rulesFound_nameFallback() async throws {
         configService.featureFlagsBool[.fillAssistTargetingRules] = true
-        fillAssistRepository.fillAssistRulesReturnValue = FillAssistHostRules(fields: [
+        fillAssistRepository.rulesReturnValue = FillAssistHostRules(fields: [
             "username": [.init(id: nil, name: "email", role: nil, tagName: nil, type: nil)],
             "password": [.init(id: nil, name: "pass", role: nil, tagName: nil, type: nil)],
         ])
@@ -562,14 +562,14 @@ class AutofillHelperTests: BitwardenTestCase { // swiftlint:disable:this type_bo
 
         await subject.handleCipherForAutofill(cipherListView: .fixture(id: "1")) { _ in }
 
-        XCTAssertFalse(fillAssistRepository.fillAssistRulesCalled)
+        XCTAssertFalse(fillAssistRepository.rulesCalled)
         XCTAssertNil(appExtensionDelegate.didCompleteAutofillRequestFields)
     }
 
     /// `handleCipherForAutofill` prepends FillAssist selectors before cipher custom fields.
     func test_handleCipherForAutofill_fillAssist_prependsBeforeCipherFields() async throws {
         configService.featureFlagsBool[.fillAssistTargetingRules] = true
-        fillAssistRepository.fillAssistRulesReturnValue = FillAssistHostRules(fields: [
+        fillAssistRepository.rulesReturnValue = FillAssistHostRules(fields: [
             "username": [.init(id: "login-email", name: nil, role: nil, tagName: nil, type: nil)],
             "password": [.init(id: "login-pwd", name: nil, role: nil, tagName: nil, type: nil)],
         ])
@@ -595,7 +595,7 @@ class AutofillHelperTests: BitwardenTestCase { // swiftlint:disable:this type_bo
     func test_handleCipherForAutofill_fillAssist_stripsSubdomain() async throws {
         configService.featureFlagsBool[.fillAssistTargetingRules] = true
         appExtensionDelegate.uri = "https://www.example.com/login"
-        fillAssistRepository.fillAssistRulesReturnValue = FillAssistHostRules(fields: [
+        fillAssistRepository.rulesReturnValue = FillAssistHostRules(fields: [
             "username": [.init(id: "login-email", name: nil, role: nil, tagName: nil, type: nil)],
             "password": [.init(id: "login-pwd", name: nil, role: nil, tagName: nil, type: nil)],
         ])
@@ -606,7 +606,7 @@ class AutofillHelperTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         await subject.handleCipherForAutofill(cipherListView: .fixture(id: "1")) { _ in }
 
         // Rules should be looked up under the registered domain, not the full host.
-        XCTAssertEqual(fillAssistRepository.fillAssistRulesReceivedHostname, "example.com")
+        XCTAssertEqual(fillAssistRepository.rulesReceivedHostname, "example.com")
         let fields = try XCTUnwrap(appExtensionDelegate.didCompleteAutofillRequestFields)
         XCTAssertEqual(fields[0].selector, "login-email")
         XCTAssertEqual(fields[0].value, "user@bitwarden.com")
@@ -617,7 +617,7 @@ class AutofillHelperTests: BitwardenTestCase { // swiftlint:disable:this type_bo
     /// `handleCipherForAutofill` appends only a username selector when rules have no password entry.
     func test_handleCipherForAutofill_fillAssist_usernameOnlyRule() async throws {
         configService.featureFlagsBool[.fillAssistTargetingRules] = true
-        fillAssistRepository.fillAssistRulesReturnValue = FillAssistHostRules(fields: [
+        fillAssistRepository.rulesReturnValue = FillAssistHostRules(fields: [
             "username": [.init(id: "login-email", name: nil, role: nil, tagName: nil, type: nil)],
         ])
         vaultRepository.fetchCipherResult = .success(.fixture(
@@ -635,7 +635,7 @@ class AutofillHelperTests: BitwardenTestCase { // swiftlint:disable:this type_bo
     /// `handleCipherForAutofill` appends only a password selector when rules have no username entry.
     func test_handleCipherForAutofill_fillAssist_passwordOnlyRule() async throws {
         configService.featureFlagsBool[.fillAssistTargetingRules] = true
-        fillAssistRepository.fillAssistRulesReturnValue = FillAssistHostRules(fields: [
+        fillAssistRepository.rulesReturnValue = FillAssistHostRules(fields: [
             "password": [.init(id: "login-pwd", name: nil, role: nil, tagName: nil, type: nil)],
         ])
         vaultRepository.fetchCipherResult = .success(.fixture(
@@ -654,7 +654,7 @@ class AutofillHelperTests: BitwardenTestCase { // swiftlint:disable:this type_bo
     /// keys other than "username" and "password".
     func test_handleCipherForAutofill_fillAssist_unknownFieldKeys_noFields() async {
         configService.featureFlagsBool[.fillAssistTargetingRules] = true
-        fillAssistRepository.fillAssistRulesReturnValue = FillAssistHostRules(fields: [
+        fillAssistRepository.rulesReturnValue = FillAssistHostRules(fields: [
             "email": [.init(id: "email-field", name: nil, role: nil, tagName: nil, type: nil)],
             "newPassword": [.init(id: "pass-field", name: nil, role: nil, tagName: nil, type: nil)],
         ])
