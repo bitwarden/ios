@@ -93,7 +93,7 @@ public struct ToastView: View {
             .accessibilityIdentifier("ToastElement")
             .accessibilityElement(children: .combine)
             .padding(.horizontal, 12)
-            .task(id: toast.id) {
+            .task {
                 guard self.toast?.mode == .automaticDismiss else { return }
                 do {
                     try await Task.sleep(nanoseconds: 3 * NSEC_PER_SEC)
