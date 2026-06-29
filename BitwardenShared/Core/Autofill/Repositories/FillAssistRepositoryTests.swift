@@ -354,34 +354,33 @@ private extension FillAssistRepositoryTests {
 
     // MARK: Tests - user toggle guard
 
-    /// `syncFillAssistRules()` makes no network calls when the feature flag is on but the user
-    /// toggle is off.
-    func test_syncFillAssistRules_userToggleOff() async {
+    /// `syncRules()` makes no network calls when the feature flag is on but the user toggle is off.
+    @Test
+    func syncRules_userToggleOff_skipsSync() async {
         configService.featureFlagsBool[.fillAssistTargetingRules] = true
         stateService.fillAssistEnabledByUserId["1"] = false
 
-        await subject.syncFillAssistRules()
+        await subject.syncRules()
 
-        XCTAssertFalse(fillAssistAPIService.getManifestCalled)
+        #expect(!fillAssistAPIService.getManifestCalled)
     }
 
-    /// `syncFillAssistRules()` proceeds past the user-toggle guard and fetches the manifest when
-    /// both feature flag and user toggle are on.
-    func test_syncFillAssistRules_userToggleOn_proceeds() async throws {
+    /// `syncRules()` proceeds past the user-toggle guard and fetches the manifest when both
+    /// feature flag and user toggle are on.
+    @Test
+    func syncRules_userToggleOn_fetchesManifest() async throws {
         configService.featureFlagsBool[.fillAssistTargetingRules] = true
         stateService.fillAssistEnabledByUserId["1"] = true
-        let manifest = try makeManifest(cid: "sha256:abc")
-        fillAssistAPIService.getManifestReturnValue = manifest
-        // Pre-cache matching cid so sync stops at the "no changes" short-circuit,
-        // avoiding a nil getFormsMapReturnValue crash.
+        fillAssistAPIService.getManifestReturnValue = makeManifest(cid: "sha256:abc")
+        // Pre-cache matching cid so sync stops at the "no changes" short-circuit.
         appSettingsStore.fillAssistCachedDataByUserId["1"] = FillAssistCachedData(
             cid: "sha256:abc",
             rules: [:],
             sourceUrl: environmentService.fillAssistRulesURL.absoluteString,
         )
 
-        await subject.syncFillAssistRules()
+        await subject.syncRules()
 
-        XCTAssertTrue(fillAssistAPIService.getManifestCalled)
+        #expect(fillAssistAPIService.getManifestCalled)
     }
 }
