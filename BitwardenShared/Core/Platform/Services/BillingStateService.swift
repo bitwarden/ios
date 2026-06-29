@@ -6,22 +6,6 @@ import Foundation
 /// A service that provides state management functionality around billing.
 ///
 protocol BillingStateService { // sourcery: AutoMockable
-    // MARK: Account Premium Status
-
-    /// Returns whether the active account has access to Premium features, either personally or
-    /// via an organization.
-    ///
-    /// - Returns: Whether the active account has access to Premium features.
-    ///
-    func doesActiveAccountHavePremium() async -> Bool
-
-    /// Returns whether the active user account has Premium personally (i.e. Premium that the user
-    /// purchased themselves), as opposed to Premium granted by an organization.
-    ///
-    /// - Returns: Whether the active account has Premium personally.
-    ///
-    func doesActiveAccountHavePremiumPersonally() async -> Bool
-
     // MARK: Premium Upgrade Banner
 
     /// Returns whether the Premium upgrade banner has been permanently dismissed by the user.
