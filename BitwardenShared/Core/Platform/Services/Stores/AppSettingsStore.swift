@@ -186,6 +186,20 @@ protocol AppSettingsStore: AnyObject {
     ///
     func encryptedUserKey(userId: String) -> String?
 
+    /// Gets the cached Fill-Assist rules data for the user ID.
+    ///
+    /// - Parameter userId: The user ID associated with the cached data.
+    /// - Returns: The cached `FillAssistCachedData`, or `nil` if not cached.
+    ///
+    func fillAssistCachedData(userId: String) -> FillAssistCachedData?
+
+    /// Gets the timestamp of the last successful fill-assist manifest check for the user ID.
+    ///
+    /// - Parameter userId: The user ID associated with the timestamp.
+    /// - Returns: The `Date` of the last fetch, or `nil` if never fetched.
+    ///
+    func fillAssistLastFetchTimestamp(userId: String) -> Date?
+
     /// Gets whether a sync has been done successfully after login. This is particular useful to trigger logic that
     /// needs to be executed right after login in and after the first successful sync.
     ///
@@ -438,6 +452,22 @@ protocol AppSettingsStore: AnyObject {
     ///   - userId: The user ID associated with the events.
     ///
     func setEvents(_ events: [EventData], userId: String)
+
+    /// Sets the cached Fill-Assist rules data for the user ID.
+    ///
+    /// - Parameters:
+    ///   - data: The `FillAssistCachedData` to cache, or `nil` to clear.
+    ///   - userId: The user ID associated with the cached data.
+    ///
+    func setFillAssistCachedData(_ data: FillAssistCachedData?, userId: String)
+
+    /// Sets the timestamp of the last successful fill-assist manifest check for the user ID.
+    ///
+    /// - Parameters:
+    ///   - timestamp: The `Date` to store, or `nil` to clear.
+    ///   - userId: The user ID associated with the timestamp.
+    ///
+    func setFillAssistLastFetchTimestamp(_ timestamp: Date?, userId: String)
 
     /// Sets whether a sync has been done successfully after login. This is particular useful to trigger logic that
     /// needs to be executed right after login in and after the first successful sync.
@@ -808,6 +838,8 @@ extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore {
         case encryptedPin(userId: String)
         case encryptedUserKey(userId: String)
         case events(userId: String)
+        case fillAssistCachedData(userId: String)
+        case fillAssistLastFetchTimestamp(userId: String)
         case flightRecorderData
         case hasPerformedSyncAfterLogin(userId: String)
         case introCarouselShown
@@ -896,6 +928,10 @@ extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore {
                 "protectedPin_\(userId)"
             case let .events(userId):
                 "events_\(userId)"
+            case let .fillAssistCachedData(userId):
+                "fillAssistCachedData_\(userId)"
+            case let .fillAssistLastFetchTimestamp(userId):
+                "fillAssistLastFetchTimestamp_\(userId)"
             case .flightRecorderData:
                 "flightRecorderData"
             case let .hasPerformedSyncAfterLogin(userId):
@@ -1147,6 +1183,14 @@ extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore {
         fetch(for: .events(userId: userId)) ?? []
     }
 
+    func fillAssistCachedData(userId: String) -> FillAssistCachedData? {
+        fetch(for: .fillAssistCachedData(userId: userId))
+    }
+
+    func fillAssistLastFetchTimestamp(userId: String) -> Date? {
+        fetch(for: .fillAssistLastFetchTimestamp(userId: userId))
+    }
+
     func hasPerformedSyncAfterLogin(userId: String) -> Bool {
         fetch(for: .hasPerformedSyncAfterLogin(userId: userId))
     }
@@ -1283,6 +1327,14 @@ extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore {
 
     func setEvents(_ events: [EventData], userId: String) {
         store(events, for: .events(userId: userId))
+    }
+
+    func setFillAssistCachedData(_ data: FillAssistCachedData?, userId: String) {
+        store(data, for: .fillAssistCachedData(userId: userId))
+    }
+
+    func setFillAssistLastFetchTimestamp(_ timestamp: Date?, userId: String) {
+        store(timestamp, for: .fillAssistLastFetchTimestamp(userId: userId))
     }
 
     func setHasPerformedSyncAfterLogin(_ hasBeenPerformed: Bool?, userId: String) {

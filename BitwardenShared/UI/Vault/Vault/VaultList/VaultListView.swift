@@ -372,7 +372,7 @@ extension SearchableVaultListView {
             ActionCard(
                 title: Localizations.unlockAdvancedSecurityFeatures,
                 message: Localizations.aPremiumPlanGivesYouMoreToolsDescriptionLong,
-                actionButtonState: ActionCard.ButtonState(title: Localizations.upgradeToPremium) {
+                actionButtonState: ActionCard.ButtonState(title: Localizations.learnMore) {
                     store.send(.upgradeToPremium)
                 },
                 dismissButtonState: ActionCard.ButtonState(title: Localizations.dismiss) {
@@ -422,6 +422,10 @@ struct VaultListView: View {
     /// The window scene for requesting a review.
     var windowScene: UIWindowScene?
 
+    /// Task running the vault list stream, managed manually so it is cancelled and restarted when
+    /// the vault filter type changes.
+    @SwiftUI.State private var vaultListTask: Task<Void, Never>?
+
     var body: some View {
         ZStack {
             SearchableVaultListView(
@@ -440,8 +444,11 @@ struct VaultListView: View {
             .searchDebouncedTask(id: store.state.searchText) {
                 await store.perform(.search(store.state.searchText))
             }
-            .task(id: store.state.searchVaultFilterType) {
+            .task {
                 await store.perform(.search(store.state.searchText))
+            }
+            .onChange(of: store.state.searchVaultFilterType) { _ in
+                Task { await store.perform(.search(store.state.searchText)) }
             }
             .refreshable { [weak store] in
                 await store?.perform(.refreshVault)
@@ -488,8 +495,11 @@ struct VaultListView: View {
         .task {
             await store.perform(.streamShowWebIcons)
         }
-        .task(id: store.state.vaultFilterType) {
-            await store.perform(.streamVaultList)
+        .onAppear { restartVaultListStream() }
+        .onChange(of: store.state.vaultFilterType) { _ in restartVaultListStream() }
+        .onDisappear {
+            vaultListTask?.cancel()
+            vaultListTask = nil
         }
         .onAppear {
             Task {
@@ -521,6 +531,14 @@ struct VaultListView: View {
                 },
             ),
         )
+    }
+
+    // MARK: Private Methods
+
+    /// Cancels the current vault list stream task and starts a new one for the active vault filter.
+    private func restartVaultListStream() {
+        vaultListTask?.cancel()
+        vaultListTask = Task { await store.perform(.streamVaultList) }
     }
 }
 
