@@ -678,7 +678,7 @@ class AutofillHelperTests: BitwardenTestCase { // swiftlint:disable:this type_bo
     func test_handleCipherForAutofill_fillAssist_userToggleOff() async {
         configService.featureFlagsBool[.fillAssistTargetingRules] = true
         stateService.fillAssistEnabledByUserId["1"] = false
-        fillAssistRepository.fillAssistRulesReturnValue = FillAssistHostRules(fields: [
+        fillAssistRepository.rulesReturnValue = FillAssistHostRules(fields: [
             "username": [.init(id: "login-email", name: nil, role: nil, tagName: nil, type: nil)],
             "password": [.init(id: "login-pwd", name: nil, role: nil, tagName: nil, type: nil)],
         ])
@@ -688,7 +688,7 @@ class AutofillHelperTests: BitwardenTestCase { // swiftlint:disable:this type_bo
 
         await subject.handleCipherForAutofill(cipherListView: .fixture(id: "1")) { _ in }
 
-        XCTAssertFalse(fillAssistRepository.fillAssistRulesCalled)
+        XCTAssertFalse(fillAssistRepository.rulesCalled)
         XCTAssertNil(appExtensionDelegate.didCompleteAutofillRequestFields)
     }
 } // swiftlint:disable:this file_length

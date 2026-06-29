@@ -271,8 +271,8 @@ class AutoFillProcessorTests: BitwardenTestCase {
         XCTAssertTrue(subject.state.isFillAssistEnabled)
         waitFor(stateService.fillAssistEnabledByUserId["1"] == true)
         XCTAssertEqual(stateService.fillAssistEnabledByUserId["1"], true)
-        waitFor(fillAssistRepository.syncFillAssistRulesCalled)
-        XCTAssertTrue(fillAssistRepository.syncFillAssistRulesCalled)
+        waitFor(fillAssistRepository.syncRulesCalled)
+        XCTAssertTrue(fillAssistRepository.syncRulesCalled)
     }
 
     /// `.receive(_:)` with `.toggleFillAssist(false)` persists the value and does NOT sync rules.
@@ -284,7 +284,7 @@ class AutoFillProcessorTests: BitwardenTestCase {
         XCTAssertFalse(subject.state.isFillAssistEnabled)
         waitFor(stateService.fillAssistEnabledByUserId["1"] == false)
         XCTAssertEqual(stateService.fillAssistEnabledByUserId["1"], false)
-        XCTAssertFalse(fillAssistRepository.syncFillAssistRulesCalled)
+        XCTAssertFalse(fillAssistRepository.syncRulesCalled)
     }
 
     /// `.receive(_:)` with  `.toggleCopyTOTPToggle` updates the state.

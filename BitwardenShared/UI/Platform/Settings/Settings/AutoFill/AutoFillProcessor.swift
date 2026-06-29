@@ -219,7 +219,7 @@ final class AutoFillProcessor: StateProcessor<AutoFillState, AutoFillAction, Aut
         do {
             try await services.stateService.setFillAssistEnabled(fillAssistEnabled)
             if fillAssistEnabled {
-                await services.fillAssistRepository.syncFillAssistRules()
+                await services.fillAssistRepository.syncRules()
             }
         } catch {
             coordinator.showAlert(.defaultAlert(title: Localizations.anErrorHasOccurred))
