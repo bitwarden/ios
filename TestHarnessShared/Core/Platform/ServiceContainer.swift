@@ -26,11 +26,7 @@ public class ServiceContainer: Services {
         errorReportBuilder: ErrorReportBuilder,
     ) {
         self.errorReportBuilder = errorReportBuilder
-        if #available(iOS 17.4, *) {
-            passkeyRegistryService = DefaultPasskeyRegistryService()
-        } else {
-            passkeyRegistryService = UnavailablePasskeyRegistryService()
-        }
+        passkeyRegistryService = DefaultPasskeyRegistryService()
     }
 
     public convenience init() {
@@ -48,16 +44,4 @@ public class ServiceContainer: Services {
             errorReportBuilder: errorReportBuilder,
         )
     }
-}
-
-// MARK: - UnavailablePasskeyRegistryService
-
-/// No-op registry used when the device OS is below the iOS 17.4 minimum required by
-/// `ASCredentialIdentityStore`. Passkey features are also unavailable below iOS 17, so this
-/// implementation is never meaningfully exercised at runtime.
-private struct UnavailablePasskeyRegistryService: PasskeyRegistryService {
-    func savePasskey(_: PasskeyEntry) async {}
-    func loadPasskeys() async -> [PasskeyEntry] { [] }
-    func deletePasskey(_: PasskeyEntry) async {}
-    func clearAll() async {}
 }

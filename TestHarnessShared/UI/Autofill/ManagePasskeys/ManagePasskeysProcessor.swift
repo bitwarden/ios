@@ -37,8 +37,6 @@ class ManagePasskeysProcessor: StateProcessor<
 
     // MARK: Methods
 
-//    override func receive(_ action: Void) {}
-
     override func perform(_ effect: ManagePasskeysEffect) async {
         switch effect {
         case .clearAll:

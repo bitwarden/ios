@@ -1,4 +1,3 @@
-import AuthenticationServices
 import Foundation
 
 // MARK: - PasskeyEntry
@@ -39,24 +38,13 @@ protocol HasPasskeyRegistryService {
 
 // MARK: - DefaultPasskeyRegistryService
 
-/// Passkey registry backed by `ASCredentialIdentityStore` (iOS 17.4+).
+/// Passkey registry backed by `UserDefaults`.
 ///
-/// Each entry is stored as an `ASPasskeyCredentialIdentity`. Supplemental metadata
-/// (displayName, createdAt) that has no corresponding field on the system type is
-/// JSON-encoded and stored in the identity's `recordIdentifier` field.
-///
-@available(iOS 17.4, *)
 class DefaultPasskeyRegistryService: PasskeyRegistryService {
-    // MARK: Private Types
-
-    /// Metadata stored in the identity's `recordIdentifier` field.
-    private struct EntryMetadata: Codable {
-        let createdAt: Date
-        let displayName: String
-        let id: UUID
-    }
-
     // MARK: Private Properties
+
+    private let defaults: UserDefaults
+    private let storageKey = "passkeyRegistry"
 
     private let decoder: JSONDecoder = {
         let jsonDecoder = JSONDecoder()
@@ -70,69 +58,42 @@ class DefaultPasskeyRegistryService: PasskeyRegistryService {
         return jsonEncoder
     }()
 
-    private let store = ASCredentialIdentityStore.shared
+    // MARK: Initialization
+
+    init(defaults: UserDefaults = .standard) {
+        self.defaults = defaults
+    }
 
     // MARK: PasskeyRegistryService
 
     func savePasskey(_ entry: PasskeyEntry) async {
-        guard let identity = makeIdentity(for: entry) else { return }
-        try? await store.saveCredentialIdentities([identity])
+        var entries = await loadPasskeys()
+        entries.append(entry)
+        persist(entries)
     }
 
     func loadPasskeys() async -> [PasskeyEntry] {
-        await store.credentialIdentities()
-            .compactMap { identity -> PasskeyEntry? in
-                guard let passkey = identity as? ASPasskeyCredentialIdentity else { return nil }
-                return passkeyEntry(from: passkey)
-            }
+        guard
+            let data = defaults.data(forKey: storageKey),
+            let entries = try? decoder.decode([PasskeyEntry].self, from: data)
+        else { return [] }
+        return entries
     }
 
     func deletePasskey(_ entry: PasskeyEntry) async {
-        guard let identity = makeIdentity(for: entry) else { return }
-        try? await store.removeCredentialIdentities([identity])
+        var entries = await loadPasskeys()
+        entries.removeAll { $0.id == entry.id }
+        persist(entries)
     }
 
     func clearAll() async {
-        let all = await store.credentialIdentities()
-        guard !all.isEmpty else { return }
-        try? await store.removeCredentialIdentities(all)
+        defaults.removeObject(forKey: storageKey)
     }
 
     // MARK: Private
 
-    private func credentialID(for entry: PasskeyEntry) -> Data {
-        Data(entry.id.uuidString.utf8)
-    }
-
-    private func makeIdentity(for entry: PasskeyEntry) -> ASPasskeyCredentialIdentity? {
-        let idData = credentialID(for: entry)
-        let metadata = EntryMetadata(
-            createdAt: entry.createdAt,
-            displayName: entry.displayName,
-            id: entry.id,
-        )
-        let recordIdentifier = (try? encoder.encode(metadata)).flatMap { String(data: $0, encoding: .utf8) }
-        return ASPasskeyCredentialIdentity(
-            relyingPartyIdentifier: entry.rpId,
-            userName: entry.userName,
-            credentialID: idData,
-            userHandle: idData,
-            recordIdentifier: recordIdentifier,
-        )
-    }
-
-    private func passkeyEntry(from identity: ASPasskeyCredentialIdentity) -> PasskeyEntry? {
-        guard
-            let recordIdentifier = identity.recordIdentifier,
-            let data = recordIdentifier.data(using: .utf8),
-            let metadata = try? decoder.decode(EntryMetadata.self, from: data)
-        else { return nil }
-        return PasskeyEntry(
-            id: metadata.id,
-            rpId: identity.relyingPartyIdentifier,
-            userName: identity.userName,
-            displayName: metadata.displayName,
-            createdAt: metadata.createdAt,
-        )
+    private func persist(_ entries: [PasskeyEntry]) {
+        guard let data = try? encoder.encode(entries) else { return }
+        defaults.set(data, forKey: storageKey)
     }
 }

@@ -16,8 +16,7 @@
 "FileShare" = "File Share";
 "FormValues" = "Form Values";
 "ManagePasskeys" = "Manage Passkeys";
-"ManagePasskeysFooterNote" = "Removing an entry clears it from this list only. To delete the passkey from iCloud Keychain, go to iOS Settings > Passwords.";
-"NoPasskeys" = "No Passkeys";
+"ManagePasskeysFooterNote" = "Tap a passkey to open Bitwarden, where you can delete the credential. Removing an entry from this list only clears it from the Test Harness registry.";
 "NoPasskeysRegisteredDescription" = "No passkeys have been registered via the Test Harness.";
 "PasskeyAssertionNotAvailable" = "Passkey assertion requires iOS 17 or later.";
 "PasskeyAssertedSuccessfully" = "Passkey sign-in succeeded.";
