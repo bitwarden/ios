@@ -93,7 +93,7 @@ struct FillAssistRepositoryTests {
         configService.featureFlagsBool[.fillAssistTargetingRules] = true
 
         fillAssistAPIService.getManifestReturnValue = makeManifest(cid: "sha256:newcid")
-        fillAssistAPIService.getFormsMapReturnValue = try makeFormsMap()
+        fillAssistAPIService.getFormsMapReturnValue = makeFormsMap()
 
         await subject.syncRules()
 
@@ -112,7 +112,7 @@ struct FillAssistRepositoryTests {
         configService.featureFlagsBool[.fillAssistTargetingRules] = true
 
         fillAssistAPIService.getManifestReturnValue = makeManifest(cid: "sha256:newcid")
-        fillAssistAPIService.getFormsMapReturnValue = try makeFormsMap(schemaVersion: "2.0.0")
+        fillAssistAPIService.getFormsMapReturnValue = makeFormsMap(schemaVersion: "2.0.0")
 
         await subject.syncRules()
 
@@ -126,7 +126,7 @@ struct FillAssistRepositoryTests {
         configService.featureFlagsBool[.fillAssistTargetingRules] = true
 
         fillAssistAPIService.getManifestReturnValue = makeManifest(cid: "sha256:newcid")
-        fillAssistAPIService.getFormsMapReturnValue = try makeFormsMap()
+        fillAssistAPIService.getFormsMapReturnValue = makeFormsMap()
 
         await subject.syncRules()
 
@@ -142,7 +142,7 @@ struct FillAssistRepositoryTests {
         configService.featureFlagsBool[.fillAssistTargetingRules] = true
 
         fillAssistAPIService.getManifestReturnValue = makeManifest(cid: "sha256:newcid")
-        fillAssistAPIService.getFormsMapReturnValue = try makeFormsMapWithPathnames()
+        fillAssistAPIService.getFormsMapReturnValue = makeFormsMapWithPathnames()
 
         await subject.syncRules()
 
@@ -159,7 +159,7 @@ struct FillAssistRepositoryTests {
 
         fillAssistAPIService.getManifestReturnValue = makeManifest(cid: "sha256:newcid")
         // Shadow DOM selectors are excluded by the parser → pooled stays empty.
-        fillAssistAPIService.getFormsMapReturnValue = try makeFormsMap(
+        fillAssistAPIService.getFormsMapReturnValue = makeFormsMap(
             usernameSelector: "div#app >>> input#user",
         )
 
@@ -175,7 +175,7 @@ struct FillAssistRepositoryTests {
         configService.featureFlagsBool[.fillAssistTargetingRules] = true
 
         fillAssistAPIService.getManifestReturnValue = makeManifest(cid: "sha256:newcid")
-        fillAssistAPIService.getFormsMapReturnValue = try makeFormsMap(hosts: [:])
+        fillAssistAPIService.getFormsMapReturnValue = makeFormsMap(hosts: [:])
 
         await subject.syncRules()
 
@@ -189,7 +189,7 @@ struct FillAssistRepositoryTests {
         configService.featureFlagsBool[.fillAssistTargetingRules] = true
 
         fillAssistAPIService.getManifestReturnValue = makeManifest(cid: "sha256:newcid")
-        fillAssistAPIService.getFormsMapReturnValue = try makeFormsMap(
+        fillAssistAPIService.getFormsMapReturnValue = makeFormsMap(
             hosts: ["example.com": "input#user1", "other.com": "input#user2"],
         )
 
@@ -310,46 +310,44 @@ private extension FillAssistRepositoryTests {
         schemaVersion: String = "1.0.0",
         usernameSelector: String = "input#user",
         hosts: [String: String]? = nil,
-    ) throws -> FormsMapResponseModel {
-        let hostsJSON: String
-        if let hosts {
-            let entries = hosts.map { hostname, selector in
-                """
-                "\(hostname)": {"forms": [{"category": "account-login", "fields": {"username": ["\(selector)"]}}]}
-                """
-            }.joined(separator: ",")
-            hostsJSON = "{\(entries)}"
-        } else {
-            hostsJSON = """
-            {"example.com": {"forms": [{"category": "account-login", "fields": {"username": ["\(usernameSelector)"]}}]}}
-            """
+    ) -> FormsMapResponseModel {
+        let content = { (selector: String) in
+            FormsMapContent(
+                category: "account-login",
+                container: nil,
+                fields: ["username": [.single(selector)]],
+                actions: nil,
+            )
         }
-        let json = """
-        {"schemaVersion": "\(schemaVersion)", "hosts": \(hostsJSON)}
-        """
-        return try JSONDecoder.pascalOrSnakeCaseDecoder.decode(
-            FormsMapResponseModel.self,
-            from: Data(json.utf8),
-        )
+        let resolvedHosts: [String: FormsMapHostEntry] = if let hosts {
+            hosts.mapValues { FormsMapHostEntry(forms: [content($0)]) }
+        } else {
+            ["example.com": FormsMapHostEntry(forms: [content(usernameSelector)])]
+        }
+        return FormsMapResponseModel(hosts: resolvedHosts, schemaVersion: schemaVersion)
     }
 
-    private func makeFormsMapWithPathnames() throws -> FormsMapResponseModel {
-        let json = """
-        {
-            "schemaVersion": "1.0.0",
-            "hosts": {
-                "example.com": {
-                    "forms": [{"category": "account-login", "fields": {"username": ["input#user1"]}}],
-                    "pathnames": {
-                        "/login": {"forms": [{"category": "account-login", "fields": {"username": ["input#user2"]}}]}
-                    }
-                }
-            }
-        }
-        """
-        return try JSONDecoder.pascalOrSnakeCaseDecoder.decode(
-            FormsMapResponseModel.self,
-            from: Data(json.utf8),
+    private func makeFormsMapWithPathnames() -> FormsMapResponseModel {
+        let loginContent = FormsMapContent(
+            category: "account-login",
+            container: nil,
+            fields: ["username": [.single("input#user1")]],
+            actions: nil,
+        )
+        let pathnameContent = FormsMapContent(
+            category: "account-login",
+            container: nil,
+            fields: ["username": [.single("input#user2")]],
+            actions: nil,
+        )
+        return FormsMapResponseModel(
+            hosts: [
+                "example.com": FormsMapHostEntry(
+                    forms: [loginContent],
+                    pathnames: ["/login": FormsMapPathnameEntry(forms: [pathnameContent])],
+                ),
+            ],
+            schemaVersion: "1.0.0",
         )
     }
 }

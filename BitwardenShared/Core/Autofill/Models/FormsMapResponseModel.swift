@@ -21,6 +21,13 @@ struct FormsMapResponseModel: Equatable, JSONResponse {
     /// The schema version of the map.
     let schemaVersion: String
 
+    // MARK: Initialization
+
+    init(hosts: [String: FormsMapHostEntry], schemaVersion: String) {
+        self.hosts = hosts
+        self.schemaVersion = schemaVersion
+    }
+
     // MARK: Codable
 
     init(from decoder: any Decoder) throws {
@@ -44,11 +51,16 @@ struct FormsMapHostEntry: Codable, Equatable {
     /// Pathname-specific form descriptions. Null-valued entries are excluded during decoding.
     @CompactDecodable var pathnames: [String: FormsMapPathnameEntry]?
 
-    // MARK: Computed Properties
-
     /// All form descriptions for this host, pooling top-level and pathname-specific entries.
     var allForms: [FormsMapContent] {
         (forms ?? []) + (pathnames?.values.flatMap(\.forms) ?? [])
+    }
+
+    // MARK: Initialization
+
+    init(forms: [FormsMapContent]?, pathnames: [String: FormsMapPathnameEntry]? = nil) {
+        self.forms = forms
+        _pathnames = CompactDecodable(wrappedValue: pathnames)
     }
 }
 
