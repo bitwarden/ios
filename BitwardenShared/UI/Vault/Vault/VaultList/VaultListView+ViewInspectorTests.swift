@@ -196,7 +196,7 @@ class VaultListViewTests: BitwardenTestCase { // swiftlint:disable:this type_bod
     /// The subscription attention action card is hidden when `shouldShowSubscriptionAttentionCard` is false.
     @MainActor
     func test_subscriptionAttentionActionCard_hidden() {
-        processor.state.loadingState = .data([])
+        processor.state.loadingState = .data([VaultListSection(id: "1", items: [.fixture()], name: "")])
         processor.state.shouldShowSubscriptionAttentionCard = false
         XCTAssertThrowsError(
             try subject.inspect().find(actionCard: Localizations.subscriptionNeedsAttention),
@@ -206,7 +206,7 @@ class VaultListViewTests: BitwardenTestCase { // swiftlint:disable:this type_bod
     /// The subscription attention action card is visible when `shouldShowSubscriptionAttentionCard` is true.
     @MainActor
     func test_subscriptionAttentionActionCard_visible() {
-        processor.state.loadingState = .data([])
+        processor.state.loadingState = .data([VaultListSection(id: "1", items: [.fixture()], name: "")])
         processor.state.shouldShowSubscriptionAttentionCard = true
         XCTAssertNoThrow(
             try subject.inspect().find(actionCard: Localizations.subscriptionNeedsAttention),
@@ -216,7 +216,7 @@ class VaultListViewTests: BitwardenTestCase { // swiftlint:disable:this type_bod
     /// Tapping the "View plan" button on the subscription attention action card dispatches `.viewPlan`.
     @MainActor
     func test_subscriptionAttentionActionCard_tapViewPlan() async throws {
-        processor.state.loadingState = .data([])
+        processor.state.loadingState = .data([VaultListSection(id: "1", items: [.fixture()], name: "")])
         processor.state.shouldShowSubscriptionAttentionCard = true
         let actionCard = try subject.inspect().find(actionCard: Localizations.subscriptionNeedsAttention)
         let button = try actionCard.find(asyncButton: Localizations.viewPlan)
