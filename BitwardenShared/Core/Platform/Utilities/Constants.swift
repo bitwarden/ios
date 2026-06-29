@@ -155,4 +155,7 @@ extension Constants {
 
     /// An app extension key for the fill script JSON.
     static let appExtensionWebViewPageFillScript = "fillScript"
+
+    /// The filename of the Fill-Assist manifest on the CDN.
+    static let fillAssistManifestFilename = "manifest.json"
 }
