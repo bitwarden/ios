@@ -42,7 +42,7 @@ struct FillAssistAPIServiceTests {
     @Test
     func getManifest() async throws {
         let tempFile = FileManager.default.temporaryDirectory
-            .appendingPathComponent(Constants.fillAssistManifestFilename)
+            .appendingPathComponent(Constants.FillAssist.manifestFilename)
         try APITestData.fillAssistManifest.data.write(to: tempFile)
         client.downloadResults = [.success(tempFile)]
 
@@ -52,7 +52,7 @@ struct FillAssistAPIServiceTests {
         #expect(request.httpMethod == "GET")
         #expect(
             request.url?.absoluteString
-                == "https://example.com/fill-assist-rules/\(Constants.fillAssistManifestFilename)",
+                == "https://example.com/fill-assist-rules/\(Constants.FillAssist.manifestFilename)",
         )
     }
 }

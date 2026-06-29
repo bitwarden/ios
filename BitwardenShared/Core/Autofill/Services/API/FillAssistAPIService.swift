@@ -30,7 +30,7 @@ extension APIService: FillAssistAPIService {
     }
 
     func getManifest() async throws -> FillAssistManifestResponseModel {
-        let fileURL = try await fillAssistService.download(filename: Constants.fillAssistManifestFilename)
+        let fileURL = try await fillAssistService.download(filename: Constants.FillAssist.manifestFilename)
         let data = try Data(contentsOf: fileURL)
         return try JSONDecoder.pascalOrSnakeCaseDecoder.decode(FillAssistManifestResponseModel.self, from: data)
     }
