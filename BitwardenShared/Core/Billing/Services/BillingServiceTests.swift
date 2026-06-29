@@ -546,40 +546,23 @@ struct BillingServiceTests { // swiftlint:disable:this type_body_length
 
     // MARK: refreshSubscriptionAttentionCard
 
-    /// `refreshSubscriptionAttentionCard(subscription:)` sets the cached visibility to `true`
-    /// for a past-due subscription.
-    @Test
-    func refreshSubscriptionAttentionCard_pastDue() async {
+    /// `refreshSubscriptionAttentionCard(subscription:)` sets the cached visibility based on
+    /// whether the subscription status requires payment attention.
+    @Test(arguments: [
+        (SubscriptionStatus.pastDue, true),
+        (SubscriptionStatus.unpaid, true), // maps to PremiumPlanStatus.updatePayment
+        (SubscriptionStatus.active, false),
+    ])
+    func refreshSubscriptionAttentionCard_statusVisibility(
+        status: SubscriptionStatus,
+        expectedVisible: Bool,
+    ) async {
         stateService.doesActiveAccountHavePremiumPersonallyResult = true
-        billingAPIService.getSubscriptionReturnValue = .fixture(status: .pastDue)
+        billingAPIService.getSubscriptionReturnValue = .fixture(status: status)
 
         await subject.refreshSubscriptionAttentionCard(subscription: nil)
 
-        #expect(stateService.subscriptionAttentionCardVisibleResult == true)
-    }
-
-    /// `refreshSubscriptionAttentionCard(subscription:)` sets the cached visibility to `true`
-    /// for an update-payment subscription.
-    @Test
-    func refreshSubscriptionAttentionCard_updatePayment() async {
-        stateService.doesActiveAccountHavePremiumPersonallyResult = true
-        billingAPIService.getSubscriptionReturnValue = .fixture(status: .unpaid)
-
-        await subject.refreshSubscriptionAttentionCard(subscription: nil)
-
-        #expect(stateService.subscriptionAttentionCardVisibleResult == true)
-    }
-
-    /// `refreshSubscriptionAttentionCard(subscription:)` sets the cached visibility to `false`
-    /// for an active subscription.
-    @Test
-    func refreshSubscriptionAttentionCard_active() async {
-        stateService.doesActiveAccountHavePremiumPersonallyResult = true
-        billingAPIService.getSubscriptionReturnValue = .fixture(status: .active)
-
-        await subject.refreshSubscriptionAttentionCard(subscription: nil)
-
-        #expect(stateService.subscriptionAttentionCardVisibleResult == false)
+        #expect(stateService.subscriptionAttentionCardVisibleResult == expectedVisible)
     }
 
     /// `refreshSubscriptionAttentionCard(subscription:)` sets the cached visibility to `false`
