@@ -5,6 +5,10 @@ import Foundation
 struct CreateAccountFormState: Equatable {
     // MARK: Properties
 
+    /// Increments on each successful account creation. Observed by the view to resign focus and
+    /// trigger the credential-provider save prompt on every submission, not just the first.
+    var accountCreationCount: Int = 0
+
     /// The confirm password field value.
     var confirmPassword: String = ""
 
@@ -13,10 +17,6 @@ struct CreateAccountFormState: Equatable {
 
     /// An error message to display when form validation fails.
     var errorMessage: String?
-
-    /// Increments on each successful account creation. Observed by the view to resign focus and
-    /// trigger the credential-provider save prompt on every submission, not just the first.
-    var accountCreationCount: Int = 0
 
     /// Whether the account has been successfully created at least once.
     var isAccountCreated: Bool { accountCreationCount > 0 }
