@@ -43,7 +43,7 @@ protocol BillingStateService { // sourcery: AutoMockable
     ///
     /// - Returns: `true` if the card should be shown.
     ///
-    func getSubscriptionAttentionCardVisible() async -> Bool
+    func getSubscriptionAttentionCardVisible() async throws -> Bool
 
     /// Persists whether the "subscription needs attention" action card should be shown for the
     /// active account.
@@ -59,7 +59,7 @@ protocol BillingStateService { // sourcery: AutoMockable
     ///
     /// - Returns: `true` if the card should be shown.
     ///
-    func getUpgradedToPremiumActionCardVisible() async -> Bool
+    func getUpgradedToPremiumActionCardVisible() async throws -> Bool
 
     /// Sets whether the "Upgraded to Premium" action card should be shown for the active account.
     ///

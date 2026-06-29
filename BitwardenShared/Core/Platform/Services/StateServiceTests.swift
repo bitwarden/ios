@@ -1948,21 +1948,21 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
     }
 
     /// `getUpgradedToPremiumActionCardVisible()` returns the stored value for the active account.
-    func test_getUpgradedToPremiumActionCardVisible() async {
+    func test_getUpgradedToPremiumActionCardVisible() async throws {
         await subject.addAccount(.fixture())
-        var isVisible = await subject.getUpgradedToPremiumActionCardVisible()
+        var isVisible = try await subject.getUpgradedToPremiumActionCardVisible()
         XCTAssertFalse(isVisible)
 
         appSettingsStore.upgradedToPremiumCardVisibleByUserId["1"] = true
-        isVisible = await subject.getUpgradedToPremiumActionCardVisible()
+        isVisible = try await subject.getUpgradedToPremiumActionCardVisible()
         XCTAssertTrue(isVisible)
     }
 
-    /// `getUpgradedToPremiumActionCardVisible()` returns `false` and logs an error when there is no active account.
-    func test_getUpgradedToPremiumActionCardVisible_noActiveAccount() async {
-        let isVisible = await subject.getUpgradedToPremiumActionCardVisible()
-        XCTAssertFalse(isVisible)
-        XCTAssertEqual(errorReporter.errors as? [StateServiceError], [.noActiveAccount])
+    /// `getUpgradedToPremiumActionCardVisible()` throws when there is no active account.
+    func test_getUpgradedToPremiumActionCardVisible_noActiveAccount() async throws {
+        await assertAsyncThrows(error: StateServiceError.noActiveAccount) {
+            _ = try await self.subject.getUpgradedToPremiumActionCardVisible()
+        }
     }
 
     /// `setUpgradedToPremiumActionCardVisible(_:)` sets the stored value for the active account.

@@ -139,7 +139,7 @@ struct StateServiceBillingStateServiceTests {
     func getSubscriptionAttentionCardVisible_defaultsFalse() async throws {
         await subject.addAccount(.fixture())
 
-        let result = await subject.getSubscriptionAttentionCardVisible()
+        let result = try await subject.getSubscriptionAttentionCardVisible()
         #expect(!result)
     }
 
@@ -149,7 +149,7 @@ struct StateServiceBillingStateServiceTests {
         await subject.addAccount(.fixture())
         try await subject.setSubscriptionAttentionCardVisible(true)
 
-        let result = await subject.getSubscriptionAttentionCardVisible()
+        let result = try await subject.getSubscriptionAttentionCardVisible()
         #expect(result)
     }
 
@@ -159,7 +159,7 @@ struct StateServiceBillingStateServiceTests {
         await subject.addAccount(.fixture())
         try await subject.setSubscriptionAttentionCardVisible(false)
 
-        let result = await subject.getSubscriptionAttentionCardVisible()
+        let result = try await subject.getSubscriptionAttentionCardVisible()
         #expect(!result)
     }
 }

@@ -2445,9 +2445,9 @@ extension DefaultStateService: BillingStateService {
 
     // MARK: Subscription Attention Card
 
-    func getSubscriptionAttentionCardVisible() async -> Bool {
-        let userId = try? getActiveAccountUserId()
-        return userId.map { appSettingsStore.subscriptionAttentionCardVisible(userId: $0) } ?? false
+    func getSubscriptionAttentionCardVisible() async throws -> Bool {
+        let userId = try getActiveAccountUserId()
+        return appSettingsStore.subscriptionAttentionCardVisible(userId: userId)
     }
 
     func setSubscriptionAttentionCardVisible(_ visible: Bool) async throws {
@@ -2457,9 +2457,9 @@ extension DefaultStateService: BillingStateService {
 
     // MARK: Upgraded to Premium Card
 
-    func getUpgradedToPremiumActionCardVisible() async -> Bool {
-        let userId = try? getActiveAccountUserId()
-        return userId.map { appSettingsStore.upgradedToPremiumActionCardVisible(userId: $0) } ?? false
+    func getUpgradedToPremiumActionCardVisible() async throws -> Bool {
+        let userId = try getActiveAccountUserId()
+        return appSettingsStore.upgradedToPremiumActionCardVisible(userId: userId)
     }
 
     func setUpgradedToPremiumActionCardVisible(_ visible: Bool) async throws {

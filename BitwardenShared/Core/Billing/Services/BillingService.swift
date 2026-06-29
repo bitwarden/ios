@@ -257,10 +257,20 @@ class DefaultBillingService: BillingService {
     }
 
     func shouldShowSubscriptionAttentionCard() async -> Bool {
-        await billingStateService.getSubscriptionAttentionCardVisible()
+        do {
+            return try await billingStateService.getSubscriptionAttentionCardVisible()
+        } catch {
+            errorReporter.log(error: error)
+            return false
+        }
     }
 
     func shouldShowUpgradedToPremiumActionCard() async -> Bool {
-        await billingStateService.getUpgradedToPremiumActionCardVisible()
+        do {
+            return try await billingStateService.getUpgradedToPremiumActionCardVisible()
+        } catch {
+            errorReporter.log(error: error)
+            return false
+        }
     }
 }
