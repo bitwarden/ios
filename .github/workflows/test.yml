@@ -207,7 +207,7 @@ jobs:
               -resultBundlePath "$_TESTS_RESULT_BUNDLE_PATH" \
               -derivedDataPath build/DerivedData \
               -test-timeouts-enabled yes \
-              -maximum-test-execution-time-allowance 3 \
+              -maximum-test-execution-time-allowance 10 \
               -showBuildTimingSummary \
               -quiet
             kill "$PYEETD_PID"

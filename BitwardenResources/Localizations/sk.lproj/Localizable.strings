@@ -1137,3 +1137,28 @@
 "IssueDate" = "Dátum vydania";
 "ExpirationDate" = "Dátum platnosti";
 "LicenseClass" = "Skupina vodičského preukazu";
+"PassportDetails" = "Podrobnosti o pase";
+/* Label for the sex/gender field as printed on a passport (e.g. "M", "F", "X"). */
+"Sex" = "Pohlavie";
+"BirthPlace" = "Miesto narodenia";
+/* Label for the nationality field on a passport (the country a person is a national of). */
+"Nationality" = "Národnosť";
+/* Label for the category of passport (e.g. "Regular/Tourist", "Diplomatic", "Official"). */
+"PassportType" = "Typ pasu";
+"NationalIdentificationNumber" = "Rodné číslo";
+/* Label for the government authority or office that issued the passport. */
+"IssuingAuthorityOffice" = "Vydávajúci orgán/úrad";
+"AccountDetails" = "Podrobnosti o účte";
+"BankName" = "Názov banky";
+"NameOnAccount" = "Meno na účte";
+"AccountType" = "Typ účtu";
+"BranchNumber" = "Číslo pobočky/inštitúcie";
+"SwiftCode" = "SWIFT kód";
+"IBAN" = "IBAN";
+"BankContactPhone" = "Kontaktný telefón banky";
+"CertificateOfDeposit" = "Termínovaný účet";
+"Checking" = "Bežný účet";
+"InvestmentBrokerage" = "Investičný/brokerský";
+"LineOfCredit" = "Úverový rámec";
+"MoneyMarket" = "Peňažný trh";
+"Savings" = "Sporiaci účet";

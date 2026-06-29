@@ -1137,3 +1137,28 @@
 "IssueDate" = "Дата на издаване";
 "ExpirationDate" = "Дата на валидност";
 "LicenseClass" = "Клас на лиценза";
+"PassportDetails" = "Подробности за паспорта";
+/* Label for the sex/gender field as printed on a passport (e.g. "M", "F", "X"). */
+"Sex" = "Пол";
+"BirthPlace" = "Място на раждане";
+/* Label for the nationality field on a passport (the country a person is a national of). */
+"Nationality" = "Националност";
+/* Label for the category of passport (e.g. "Regular/Tourist", "Diplomatic", "Official"). */
+"PassportType" = "Вид на паспорта";
+"NationalIdentificationNumber" = "Национален идентификационен номер";
+/* Label for the government authority or office that issued the passport. */
+"IssuingAuthorityOffice" = "Институция/офис издател";
+"AccountDetails" = "Подробности за акаунта";
+"BankName" = "Име на банката";
+"NameOnAccount" = "Име на титуляра";
+"AccountType" = "Вид на сметката";
+"BranchNumber" = "Номер на клон/институция";
+"SwiftCode" = "Код SWIFT";
+"IBAN" = "IBAN";
+"BankContactPhone" = "Телефон за връзка с банката";
+"CertificateOfDeposit" = "Депозит";
+"Checking" = "Разплащателна";
+"InvestmentBrokerage" = "Инвестиционна/брокерска";
+"LineOfCredit" = "Кредитна";
+"MoneyMarket" = "Паричен пазар";
+"Savings" = "Спестовна";
