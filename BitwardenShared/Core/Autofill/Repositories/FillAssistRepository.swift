@@ -164,6 +164,7 @@ class DefaultFillAssistRepository: FillAssistRepository {
                     pooled[fieldKey, default: []].append(contentsOf: attrs)
                 }
             }
+            pooled = pooled.filter { !$0.value.isEmpty }
             if !pooled.isEmpty {
                 result[hostname] = FillAssistHostRules(fields: pooled)
             }
