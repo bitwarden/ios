@@ -32,7 +32,6 @@ jobs:
           webhook: ${{ secrets.TEMP_SLACK_WEBHOOK_URL }}
           webhook-type: incoming-webhook
           payload: |
-            channel: "#automations-test-channel"
             text: "*GitHub Action test message*: ${{ job.status }}\nBranch: ${{ github.ref_name }}\n${{ steps.pr.outputs.url }}"
         # env:
           # SLACK_WEBHOOK_URL: ${{ env.SLACK_WEBHOOK_URL }}
