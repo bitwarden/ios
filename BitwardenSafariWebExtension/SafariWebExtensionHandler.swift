@@ -49,9 +49,11 @@ final class SafariWebExtensionHandler: NSObject, NSExtensionRequestHandling {
     @MainActor
     func makeResponseItem(from userInfo: [String: Any]) async -> NSExtensionItem? {
         let rawMessage = userInfo[bridgeMessageUserInfoKey] ?? userInfo[SafariWebExtensionBridge.legacyMessageUserInfoKey]
+        NSLog("BW Safari native raw message type: %@", String(describing: type(of: rawMessage as Any)))
         let fallbackRequestID = (rawMessage as? [String: Any]).flatMap { $0["id"] as? String } ?? "invalid-request"
 
         guard let bridgeRequest = SafariExtensionBridgeCodec.decodeRequest(from: rawMessage) else {
+            NSLog("BW Safari native decode failed")
             return makeBridgeItem(from: try? SafariExtensionBridgeCodec.encodeErrorResponse(
                 requestID: fallbackRequestID,
                 errorMessage: "Invalid native request payload.",
@@ -59,11 +61,18 @@ final class SafariWebExtensionHandler: NSObject, NSExtensionRequestHandling {
         }
 
         guard let response = await responseProvider(bridgeRequest.request) else {
+            NSLog("BW Safari native response nil for kind: %@", bridgeRequest.request.kind.rawValue)
             return makeBridgeItem(from: try? SafariExtensionBridgeCodec.encodeErrorResponse(
                 requestID: bridgeRequest.id,
                 errorMessage: "Couldn’t process Safari extension request.",
             ))
         }
+        NSLog(
+            "BW Safari native response kind=%@ canFinalize=%@ hasGenerated=%@",
+            bridgeRequest.request.kind.rawValue,
+            response.canFinalizeWithScript ? "true" : "false",
+            response.hasGeneratedPassword ? "true" : "false"
+        )
 
         return makeBridgeItem(from: try? SafariExtensionBridgeCodec.encodeResponse(
             requestID: bridgeRequest.id,

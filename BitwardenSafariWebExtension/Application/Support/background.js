@@ -3,6 +3,18 @@ browser.runtime.onInstalled.addListener(() => {
 });
 
 function bitwardenParseNativeResponse(nativeResponse) {
+  if (typeof nativeResponse === "string") {
+    try {
+      return JSON.parse(nativeResponse);
+    } catch {
+      return {
+        errorMessage: "Invalid native response payload",
+        id: null,
+        response: null,
+      };
+    }
+  }
+
   const message = nativeResponse?.message;
   if (typeof message !== "string") {
     return nativeResponse;

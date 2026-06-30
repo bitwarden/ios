@@ -126,6 +126,7 @@ schemes:
         "-testing": true
       environmentVariables:
         TZ: UTC
+        BITWARDEN_MASTER_PASSWORD_B64: $(BITWARDEN_MASTER_PASSWORD_B64)
       gatherCoverageData: false
       language: en
       region: US
@@ -372,10 +373,25 @@ targets:
       base:
         INFOPLIST_FILE: BitwardenSafariWebExtension/Application/Support/Info.plist
         CODE_SIGN_ENTITLEMENTS: BitwardenSafariWebExtension/Application/Support/BitwardenSafariWebExtension.entitlements
-    templates:
-      - CommonTarget
-    templateAttributes:
-      sourcesPath: BitwardenSafariWebExtension
+    sources:
+      - path: BitwardenSafariWebExtension/SafariWebExtensionBridge.swift
+      - path: BitwardenSafariWebExtension/SafariWebExtensionHandler.swift
+      - path: BitwardenSafariWebExtension/Application/Support/manifest.json
+        buildPhase: resources
+      - path: BitwardenSafariWebExtension/Application/Support/background.js
+        buildPhase: resources
+      - path: BitwardenSafariWebExtension/Application/Support/content.js
+        buildPhase: resources
+      - path: BitwardenSafariWebExtension/Application/Support/icon-48.png
+        buildPhase: resources
+      - path: BitwardenSafariWebExtension/Application/Support/icon-96.png
+        buildPhase: resources
+      - path: BitwardenSafariWebExtension/Application/Support/_locales
+        type: folder
+        buildPhase: resources
+      - path: BitwardenSafariWebExtension/Application/Support/ja.lproj
+        type: folder
+        buildPhase: resources
     dependencies:
       - target: BitwardenShared
   BitwardenSafariWebExtensionTests:

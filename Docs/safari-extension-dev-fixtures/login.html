@@ -125,6 +125,19 @@
         loginResult.hidden = false;
         loginResult.textContent = `Login fixture intercepted submit locally for ${username}. Password length: ${passwordLength}.`;
       });
+      if (new URLSearchParams(window.location.search).has('autofocus')) {
+        let attempts = 0;
+        const focusPassword = () => {
+          const password = document.getElementById('password');
+          password?.focus();
+          password?.dispatchEvent(new FocusEvent('focusin', { bubbles: true }));
+          attempts += 1;
+          if (attempts < 8) {
+            setTimeout(focusPassword, 600);
+          }
+        };
+        setTimeout(focusPassword, 600);
+      }
     </script>
   </body>
 </html>

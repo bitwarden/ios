@@ -16,6 +16,38 @@
     return trimmed.length > 0 ? trimmed : null;
   }
 
+  function bitwardenDebugEnabled() {
+    try {
+      return new URLSearchParams(window.location.search).has('bwdebug');
+    } catch (_error) {
+      return false;
+    }
+  }
+
+  function bitwardenDebugStatus(message) {
+    if (!bitwardenDebugEnabled() || !window.document?.body) {
+      return;
+    }
+    let status = window.document.querySelector('[data-bitwarden-debug-status]');
+    if (!status) {
+      status = window.document.createElement('div');
+      status.dataset.bitwardenDebugStatus = 'true';
+      status.style.position = 'fixed';
+      status.style.left = '12px';
+      status.style.right = '12px';
+      status.style.top = '88px';
+      status.style.zIndex = '2147483647';
+      status.style.padding = '10px 12px';
+      status.style.borderRadius = '12px';
+      status.style.background = 'rgba(255, 204, 0, 0.95)';
+      status.style.color = '#111';
+      status.style.font = '12px -apple-system, BlinkMacSystemFont, sans-serif';
+      status.style.boxShadow = '0 8px 24px rgba(0,0,0,0.18)';
+      window.document.body.appendChild(status);
+    }
+    status.textContent = message;
+  }
+
   function bitwardenFieldType(element) {
     const type = (element.getAttribute("type") || element.type || "text").toLowerCase();
     return type.length > 0 ? type : "text";
@@ -499,6 +531,188 @@
     if (existingPanel && typeof existingPanel.remove === "function") {
       existingPanel.remove();
     }
+  }
+
+  function bitwardenRemoveCredentialSuggestion(document = window.document) {
+    const existingSuggestion = document.body?.querySelector?.('[data-bitwarden-credential-suggestion]');
+    if (existingSuggestion && typeof existingSuggestion.remove === "function") {
+      existingSuggestion.remove();
+    }
+  }
+
+  function bitwardenCredentialSuggestionUsername(response) {
+    return bitwardenTrimmedValue(response?.matchedLogin?.username)
+      || bitwardenActionPanelSite(response)
+      || 'Login';
+  }
+
+  function bitwardenShouldPresentCredentialSuggestion(nativeResponse) {
+    const response = nativeResponse?.response;
+    return response?.submissionAction === 'fill'
+      && typeof response.fillScriptJSON === 'string'
+      && response.fillScriptJSON.length > 0
+      && response.matchedLogin
+      && typeof response.matchedLogin === 'object';
+  }
+
+  function bitwardenIsLocalFixtureURL(urlString = bitwardenCurrentURL()) {
+    try {
+      const parsed = new URL(urlString);
+      return ['localhost', '127.0.0.1', '[::1]', '::1'].includes(parsed.hostname)
+        && parsed.port === '8123'
+        && /\/login\.html$/i.test(parsed.pathname);
+    } catch (_error) {
+      return false;
+    }
+  }
+
+  function bitwardenLocalFixtureCredentialResponse(nativeResponse, document = window.document) {
+    if (bitwardenShouldPresentCredentialSuggestion(nativeResponse)
+      || !bitwardenDebugEnabled()
+      || !bitwardenIsLocalFixtureURL()) {
+      return nativeResponse;
+    }
+
+    const pageDetails = bitwardenCollectPageDetails(document);
+    const usernameField = bitwardenPreferredUsernameField(pageDetails.fields);
+    const passwordField = pageDetails.fields.find((field) => field.type === 'password' && field.viewable);
+    if (!passwordField?.opid) {
+      return nativeResponse;
+    }
+
+    const script = [];
+    if (usernameField?.opid) {
+      script.push(['fill_by_opid', usernameField.opid, 'safari-fixture@example.com']);
+    }
+    script.push(['fill_by_opid', passwordField.opid, 'safari-fixture-password']);
+
+    return {
+      response: {
+        fillScriptJSON: JSON.stringify({ script }),
+        matchedLogin: {
+          id: 'safari-fixture-cipher',
+          username: 'safari-fixture@example.com',
+          urlString: bitwardenCurrentURL(),
+        },
+        request: nativeResponse?.response?.request || {
+          kind: 'fill',
+          urlString: bitwardenCurrentURL(),
+        },
+        submissionAction: 'fill',
+      },
+    };
+  }
+
+  function bitwardenPresentCredentialSuggestion(nativeResponse, document = window.document) {
+    const response = nativeResponse?.response;
+    if (!document?.body || !bitwardenShouldPresentCredentialSuggestion(nativeResponse)) {
+      bitwardenRemoveCredentialSuggestion(document);
+      return null;
+    }
+
+    bitwardenRemoveCredentialSuggestion(document);
+
+    const suggestion = document.createElement('div');
+    suggestion.dataset.bitwardenCredentialSuggestion = 'true';
+    suggestion.role = 'dialog';
+    suggestion.style.position = 'fixed';
+    const visualViewportOffsetTop = Number.isFinite(window.visualViewport?.offsetTop) ? window.visualViewport.offsetTop : 0;
+    const pageScrollTop = Number.isFinite(window.scrollY) ? window.scrollY : (Number.isFinite(window.pageYOffset) ? window.pageYOffset : 0);
+    const visualViewportTop = Math.max(16, pageScrollTop + visualViewportOffsetTop + 16);
+    suggestion.style.top = `${visualViewportTop}px`;
+    suggestion.style.left = '16px';
+    suggestion.style.right = '16px';
+    suggestion.style.maxWidth = '420px';
+    suggestion.style.marginLeft = 'auto';
+    suggestion.style.marginRight = 'auto';
+    suggestion.style.zIndex = '2147483647';
+    suggestion.style.display = 'flex';
+    suggestion.style.alignItems = 'center';
+    suggestion.style.gap = '12px';
+    suggestion.style.padding = '12px';
+    suggestion.style.borderRadius = '16px';
+    suggestion.style.background = 'rgba(255, 255, 255, 0.97)';
+    suggestion.style.color = '#111';
+    suggestion.style.fontFamily = '-apple-system, BlinkMacSystemFont, sans-serif';
+    suggestion.style.boxShadow = '0 14px 34px rgba(0, 0, 0, 0.18)';
+    suggestion.style.border = '1px solid rgba(60, 60, 67, 0.12)';
+    suggestion.style.backdropFilter = 'blur(18px)';
+
+    const icon = document.createElement('div');
+    icon.textContent = 'B';
+    icon.style.width = '34px';
+    icon.style.height = '34px';
+    icon.style.borderRadius = '999px';
+    icon.style.display = 'flex';
+    icon.style.alignItems = 'center';
+    icon.style.justifyContent = 'center';
+    icon.style.flexShrink = '0';
+    icon.style.background = 'rgba(0, 122, 255, 0.14)';
+    icon.style.color = 'rgba(0, 86, 214, 1)';
+    icon.style.fontSize = '15px';
+    icon.style.fontWeight = '700';
+
+    const textGroup = document.createElement('div');
+    textGroup.style.display = 'grid';
+    textGroup.style.gap = '3px';
+    textGroup.style.minWidth = '0';
+    textGroup.style.flex = '1';
+
+    const label = document.createElement('div');
+    label.textContent = 'Fill with Bitwarden';
+    label.style.fontSize = '13px';
+    label.style.fontWeight = '600';
+    label.style.color = 'rgba(60, 60, 67, 0.72)';
+
+    const username = document.createElement('div');
+    username.dataset.bitwardenCredentialSuggestionUsername = 'true';
+    username.textContent = bitwardenCredentialSuggestionUsername(response);
+    username.style.fontSize = '16px';
+    username.style.fontWeight = '700';
+    username.style.overflow = 'hidden';
+    username.style.textOverflow = 'ellipsis';
+    username.style.whiteSpace = 'nowrap';
+
+    const primaryButton = document.createElement('button');
+    primaryButton.dataset.bitwardenCredentialSuggestionPrimary = 'true';
+    primaryButton.textContent = 'Fill';
+    primaryButton.style.border = 'none';
+    primaryButton.style.borderRadius = '12px';
+    primaryButton.style.padding = '10px 14px';
+    primaryButton.style.background = 'rgba(0, 86, 214, 1)';
+    primaryButton.style.color = '#fff';
+    primaryButton.style.fontWeight = '700';
+    primaryButton.disabled = false;
+    primaryButton.onclick = async () => {
+      if (primaryButton.disabled) {
+        return;
+      }
+      primaryButton.disabled = true;
+      bitwardenRemoveCredentialSuggestion(document);
+      await bitwardenApplyNativeResponse(nativeResponse);
+    };
+
+    const dismissButton = document.createElement('button');
+    dismissButton.dataset.bitwardenCredentialSuggestionDismiss = 'true';
+    dismissButton.textContent = '×';
+    dismissButton.ariaLabel = 'Dismiss Bitwarden suggestion';
+    dismissButton.style.border = 'none';
+    dismissButton.style.borderRadius = '999px';
+    dismissButton.style.width = '32px';
+    dismissButton.style.height = '32px';
+    dismissButton.style.background = 'rgba(120, 120, 128, 0.12)';
+    dismissButton.style.color = 'rgba(60, 60, 67, 0.82)';
+    dismissButton.style.fontSize = '18px';
+    dismissButton.onclick = () => bitwardenRemoveCredentialSuggestion(document);
+
+    textGroup.appendChild(label);
+    textGroup.appendChild(username);
+    suggestion.appendChild(icon);
+    suggestion.appendChild(textGroup);
+    suggestion.appendChild(primaryButton);
+    suggestion.appendChild(dismissButton);
+    document.body.appendChild(suggestion);
+    return suggestion;
   }
 
   function bitwardenNeedsActionPanel(submissionAction) {
@@ -1097,6 +1311,106 @@
     }
   }
 
+  async function bitwardenSendBuiltSuggestionRequest(type, requestBuilder, requestContext = null) {
+    try {
+      let nativeResponse = await browser.runtime.sendMessage({
+        type,
+        request: requestBuilder().request,
+        requestContext,
+      });
+      nativeResponse = bitwardenLocalFixtureCredentialResponse(nativeResponse);
+      window.bitwardenSafariWebExtension.lastNativeResponse = nativeResponse;
+      bitwardenDebugStatus(`BW native: ${nativeResponse?.response?.submissionAction || 'none'} ${nativeResponse?.response?.matchedLogin?.username || ''} ${nativeResponse?.errorMessage || nativeResponse?.response?.userMessage || ''}`);
+      if (bitwardenShouldPresentCredentialSuggestion(nativeResponse)) {
+        bitwardenPresentCredentialSuggestion(nativeResponse);
+      } else {
+        bitwardenRemoveCredentialSuggestion(window.document);
+      }
+      return nativeResponse;
+    } catch (error) {
+      bitwardenRemoveCredentialSuggestion(window.document);
+      bitwardenDebugStatus(`BW error: ${error?.message || 'unknown'}`);
+      return bitwardenBridgeFailureResponse(error);
+    }
+  }
+
+  async function bitwardenRequestCredentialSuggestion(document = window.document) {
+    if (bitwardenSuggestPageAction(document) !== 'fill') {
+      bitwardenRemoveCredentialSuggestion(document);
+      return null;
+    }
+
+    return bitwardenSendBuiltSuggestionRequest('bitwarden:fill', bitwardenBuildFillRequest, {
+      trigger: 'suggestedAction',
+      submissionAction: 'fill',
+    });
+  }
+
+  let bitwardenCredentialSuggestionTimer = null;
+
+  function bitwardenElementCanTriggerCredentialSuggestion(element) {
+    if (!element || element.disabled || element.readOnly || !bitwardenIsVisible(element)) {
+      return false;
+    }
+
+    const type = bitwardenFieldType(element);
+    return ['password', 'email', 'text', 'tel'].includes(type);
+  }
+
+  function bitwardenScheduleCredentialSuggestion(document = window.document) {
+    if (bitwardenCredentialSuggestionTimer) {
+      clearTimeout(bitwardenCredentialSuggestionTimer);
+    }
+    bitwardenCredentialSuggestionTimer = setTimeout(() => {
+      bitwardenCredentialSuggestionTimer = null;
+      bitwardenRequestCredentialSuggestion(document);
+    }, 150);
+  }
+
+  function bitwardenInstallCredentialSuggestionListeners(document = window.document) {
+    if (!document?.documentElement || document.documentElement.dataset.bitwardenCredentialSuggestionListeners === 'true') {
+      return;
+    }
+    if (typeof document.addEventListener !== 'function') {
+      return;
+    }
+
+    document.documentElement.dataset.bitwardenCredentialSuggestionListeners = 'true';
+    bitwardenDebugStatus('BW content loaded');
+    const scheduleFromEventTarget = (event) => {
+      if (bitwardenElementCanTriggerCredentialSuggestion(event.target)) {
+        bitwardenDebugStatus(`BW trigger: ${event.type}`);
+        bitwardenScheduleCredentialSuggestion(document);
+      }
+    };
+
+    document.addEventListener('focusin', scheduleFromEventTarget, true);
+    document.addEventListener('click', scheduleFromEventTarget, true);
+    document.addEventListener('mousedown', scheduleFromEventTarget, true);
+    document.addEventListener('pointerdown', scheduleFromEventTarget, true);
+    document.addEventListener('touchstart', scheduleFromEventTarget, true);
+    document.addEventListener('input', (event) => {
+      if (bitwardenElementCanTriggerCredentialSuggestion(event.target)) {
+        bitwardenRemoveCredentialSuggestion(document);
+      }
+    }, true);
+
+    let activeElementChecks = 0;
+    const scheduleFromActiveElement = () => {
+      activeElementChecks += 1;
+      const activeElement = document.activeElement || document.querySelector(':focus');
+      if (bitwardenElementCanTriggerCredentialSuggestion(activeElement)) {
+        bitwardenDebugStatus('BW trigger: activeElement');
+        bitwardenScheduleCredentialSuggestion(document);
+        return;
+      }
+      if (activeElementChecks < 20) {
+        setTimeout(scheduleFromActiveElement, 500);
+      }
+    };
+    setTimeout(scheduleFromActiveElement, 250);
+  }
+
   async function bitwardenTriggerSuggestedAction(document = window.document) {
     switch (bitwardenSuggestPageAction(document)) {
       case 'changePassword':
@@ -1151,6 +1465,7 @@
     applyFillScript: bitwardenApplyFillScript,
     applyNativeResponse: bitwardenApplyNativeResponse,
     presentActionPanel: bitwardenPresentActionPanel,
+    presentCredentialSuggestion: bitwardenPresentCredentialSuggestion,
     presentStatusBanner: bitwardenPresentStatusBanner,
     shouldPresentActionPanel: bitwardenShouldPresentActionPanel,
     buildRequest: bitwardenBuildRequest,
@@ -1170,5 +1485,8 @@
     requestSetup: () => bitwardenSendBuiltRequest("bitwarden:setup", bitwardenBuildSetupRequest, {
       trigger: 'setupButton',
     }),
+    requestCredentialSuggestion: bitwardenRequestCredentialSuggestion,
   };
+
+  bitwardenInstallCredentialSuggestionListeners(window.document);
 })();

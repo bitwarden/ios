@@ -64,6 +64,9 @@ function makeEnvironment(elements, options = {}) {
       if (selector === '[data-bitwarden-action-panel]') {
         return this.children.find((child) => child.dataset?.bitwardenActionPanel === 'true') || null;
       }
+      if (selector === '[data-bitwarden-credential-suggestion]') {
+        return this.children.find((child) => child.dataset?.bitwardenCredentialSuggestion === 'true') || null;
+      }
       return null;
     },
   };
@@ -147,6 +150,18 @@ function makeEnvironment(elements, options = {}) {
           if (selector === '[data-bitwarden-action-detail-generated-password]') {
             return findChild((child) => child.dataset?.bitwardenActionDetailGeneratedPassword === 'true');
           }
+          if (selector === '[data-bitwarden-credential-suggestion]') {
+            return findChild((child) => child.dataset?.bitwardenCredentialSuggestion === 'true');
+          }
+          if (selector === '[data-bitwarden-credential-suggestion-primary]') {
+            return findChild((child) => child.dataset?.bitwardenCredentialSuggestionPrimary === 'true');
+          }
+          if (selector === '[data-bitwarden-credential-suggestion-username]') {
+            return findChild((child) => child.dataset?.bitwardenCredentialSuggestionUsername === 'true');
+          }
+          if (selector === '[data-bitwarden-credential-suggestion-dismiss]') {
+            return findChild((child) => child.dataset?.bitwardenCredentialSuggestionDismiss === 'true');
+          }
           return null;
         },
         remove() {
@@ -167,6 +182,9 @@ function makeEnvironment(elements, options = {}) {
     location: { href },
     document,
     dispatchedEvents,
+    visualViewport: options.visualViewport,
+    scrollY: options.scrollY,
+    pageYOffset: options.pageYOffset,
     dispatchEvent(event) {
       dispatchedEvents.push(event);
       return true;
@@ -1187,6 +1205,102 @@ async function testRequestSetup_sendsSetupRequestContext() {
   assert.equal(response.response.request.requestContext.trigger, 'setupButton');
 }
 
+async function testRequestCredentialSuggestion_presentsMatchedCredentialWithoutAutofilling() {
+  const username = createInput({ id: 'username', name: 'username', type: 'email', value: '' });
+  const password = createInput({ id: 'password', name: 'password', type: 'password', value: '' });
+  const fillScriptJSON = JSON.stringify({
+    script: [
+      ['fill_by_opid', 'field__0', 'fixture-user'],
+      ['fill_by_opid', 'field__1', 'old-secret'],
+    ],
+  });
+  const ctx = makeEnvironment([username, password], {
+    href: 'http://localhost:8123/login.html',
+    sendMessage: async (message) => ({
+      response: {
+        request: message.request,
+        suggestionAction: 'fill',
+        submissionAction: 'fill',
+        matchedLogin: {
+          id: 'cipher-1',
+          username: 'fixture-user',
+          password: 'old-secret',
+          urlString: 'http://localhost:8123/login.html',
+        },
+        fillScriptJSON,
+        userMessage: 'Filled fixture-user from Bitwarden.',
+      },
+    }),
+  });
+
+  const response = await ctx.window.bitwardenSafariWebExtension.requestCredentialSuggestion();
+
+  assert.equal(ctx.browser.runtime.sentMessages.at(-1).type, 'bitwarden:fill');
+  assert.equal(ctx.browser.runtime.sentMessages.at(-1).requestContext.trigger, 'suggestedAction');
+  assert.equal(response.response.matchedLogin.username, 'fixture-user');
+  assert.equal(username.value, '');
+  assert.equal(password.value, '');
+  const suggestion = ctx.document.body.querySelector('[data-bitwarden-credential-suggestion]');
+  assert.ok(suggestion);
+  const usernameLabel = suggestion.querySelector('[data-bitwarden-credential-suggestion-username]');
+  assert.equal(usernameLabel.textContent, 'fixture-user');
+
+  const primaryButton = suggestion.querySelector('[data-bitwarden-credential-suggestion-primary]');
+  await primaryButton.onclick();
+  assert.equal(username.value, 'fixture-user');
+  assert.equal(password.value, 'old-secret');
+}
+
+async function testRequestCredentialSuggestion_offsetsForVisualViewport() {
+  const username = createInput({ id: 'username', name: 'username', type: 'email', value: '' });
+  const password = createInput({ id: 'password', name: 'password', type: 'password', value: '' });
+  const ctx = makeEnvironment([username, password], {
+    href: 'http://localhost:8123/login.html',
+    visualViewport: { offsetTop: 220 },
+    scrollY: 500,
+    sendMessage: async (message) => ({
+      response: {
+        request: message.request,
+        submissionAction: 'fill',
+        matchedLogin: {
+          id: 'cipher-1',
+          username: 'fixture-user',
+          urlString: 'http://localhost:8123/login.html',
+        },
+        fillScriptJSON: JSON.stringify({ script: [['fill_by_opid', 'field__1', 'old-secret']] }),
+      },
+    }),
+  });
+
+  await ctx.window.bitwardenSafariWebExtension.requestCredentialSuggestion();
+
+  const suggestion = ctx.document.body.querySelector('[data-bitwarden-credential-suggestion]');
+  assert.ok(suggestion);
+  assert.equal(suggestion.style.top, '736px');
+}
+
+async function testRequestCredentialSuggestion_withoutMatchedLoginDoesNotShowSuggestion() {
+  const username = createInput({ id: 'username', name: 'username', type: 'email', value: '' });
+  const password = createInput({ id: 'password', name: 'password', type: 'password', value: '' });
+  const ctx = makeEnvironment([username, password], {
+    sendMessage: async (message) => ({
+      response: {
+        request: message.request,
+        suggestionAction: 'fill',
+        submissionAction: 'none',
+        matchedLogin: null,
+        fillScriptJSON: null,
+        userMessage: 'No matching Bitwarden login found for this page.',
+      },
+    }),
+  });
+
+  await ctx.window.bitwardenSafariWebExtension.requestCredentialSuggestion();
+
+  assert.equal(ctx.document.body.querySelector('[data-bitwarden-credential-suggestion]'), null);
+  assert.equal(ctx.document.body.querySelector('[data-bitwarden-status-banner]'), null);
+}
+
 async function testActionPanelPrimaryErrorEnvelope_restoresPanelInteractivity() {
   const password = createInput({ id: 'password', name: 'password', type: 'password', value: 'secret' });
   const ctx = makeEnvironment([password], {
@@ -1257,6 +1371,9 @@ async function testActionPanelPrimaryFailure_restoresPanelInteractivity() {
   await testApplyFillScript();
   await testRequestFill_sendMessageFailure_showsWarningBanner();
   await testRequestSetup_sendsSetupRequestContext();
+  await testRequestCredentialSuggestion_presentsMatchedCredentialWithoutAutofilling();
+  await testRequestCredentialSuggestion_offsetsForVisualViewport();
+  await testRequestCredentialSuggestion_withoutMatchedLoginDoesNotShowSuggestion();
   await testApplyStatusEvent();
   await testApplyFillResponse_showsCompletionBannerWithoutPanel();
   await testApplyFillResponse_withoutUsername_usesSiteHostCopy();

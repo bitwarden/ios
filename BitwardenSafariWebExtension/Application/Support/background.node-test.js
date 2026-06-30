@@ -70,9 +70,29 @@ async function testOnMessage_invalidNativePayload_returnsParseErrorEnvelope() {
   assert.equal(response.errorMessage, 'Invalid native response payload');
 }
 
+async function testOnMessage_nativeStringPayload_parsesBridgeResponse() {
+  const { listeners } = makeEnvironment({
+    sendNativeMessage: async () => JSON.stringify({
+      id: 'req-string',
+      response: { submissionAction: 'fill' },
+      errorMessage: null,
+    }),
+  });
+
+  const response = await listeners.onMessage({
+    type: 'bitwarden:fill',
+    request: { kind: 'fill' },
+  });
+
+  assert.equal(response.id, 'req-string');
+  assert.equal(response.response.submissionAction, 'fill');
+  assert.equal(response.errorMessage, null);
+}
+
 (async () => {
   await testOnMessage_nativeFailure_returnsErrorEnvelope();
   await testOnMessage_invalidNativePayload_returnsParseErrorEnvelope();
+  await testOnMessage_nativeStringPayload_parsesBridgeResponse();
   console.log('background node tests passed');
 })().catch((error) => {
   console.error(error);

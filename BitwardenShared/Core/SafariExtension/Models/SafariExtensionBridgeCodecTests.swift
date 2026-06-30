@@ -3,19 +3,21 @@ import XCTest
 @testable import BitwardenShared
 
 class SafariExtensionBridgeCodecTests: BitwardenTestCase {
-    func test_decodeRequestFromLegacyWrappedDictionary_parsesBridgeEnvelope() throws {
+    func test_decodeRequestFromMessageWrappedDictionary_parsesBridgeEnvelope() throws {
         let message: [String: Any] = [
-            "message": [
-                "id": "req-legacy",
-                "request": [
-                    "kind": "setup",
-                ],
-            ],
+            "message": """
+            {
+              \"id\": \"req-wrapped\",
+              \"request\": {
+                \"kind\": \"setup\"
+              }
+            }
+            """
         ]
 
-        let subject = try XCTUnwrap(SafariExtensionBridgeCodec.decodeRequest(from: message["message"]))
+        let subject = try XCTUnwrap(SafariExtensionBridgeCodec.decodeRequest(from: message))
 
-        XCTAssertEqual(subject.id, "req-legacy")
+        XCTAssertEqual(subject.id, "req-wrapped")
         XCTAssertEqual(subject.request, SafariExtensionRequest(kind: .setup))
     }
 
@@ -69,6 +71,62 @@ class SafariExtensionBridgeCodecTests: BitwardenTestCase {
         XCTAssertEqual(subject.request.kind, .saveLogin)
         XCTAssertEqual(subject.request.requestContext?.trigger, .actionPanelPrimary)
         XCTAssertEqual(subject.request.requestContext?.submissionAction, .saveNewLogin)
+    }
+
+    func test_decodeRequestFromJSONString_withPageDetailsISODate_parsesAutofillEnvelope() throws {
+        let message = """
+        {
+          "id": "req-fill",
+          "request": {
+            "kind": "fill",
+            "urlString": "http://localhost:8123/login.html",
+            "pageDetails": {
+              "collectedTimestamp": "2026-06-26T10:00:00.123Z",
+              "documentUUID": "doc-1",
+              "documentUrl": "http://localhost:8123/login.html",
+              "fields": [
+                {
+                  "disabled": false,
+                  "elementNumber": 0,
+                  "form": "form__0",
+                  "htmlClass": "",
+                  "htmlID": "password",
+                  "htmlName": "password",
+                  "label-left": "Password",
+                  "label-right": null,
+                  "label-tag": "Password",
+                  "onepasswordFieldType": "password",
+                  "opid": "field__0",
+                  "placeholder": "Enter password",
+                  "readOnly": false,
+                  "type": "password",
+                  "value": "",
+                  "viewable": true,
+                  "visible": true
+                }
+              ],
+              "forms": {
+                "form__0": {
+                  "htmlAction": "http://localhost:8123/login.html",
+                  "htmlID": "login-form",
+                  "htmlMethod": "post",
+                  "htmlName": "login-form",
+                  "opid": "form__0"
+                }
+              },
+              "tabUrl": "http://localhost:8123/login.html",
+              "title": "Bitwarden Safari Dev Fixture — Login",
+              "url": "http://localhost:8123/login.html"
+            }
+          }
+        }
+        """
+
+        let subject = try XCTUnwrap(SafariExtensionBridgeCodec.decodeRequest(from: message))
+
+        XCTAssertEqual(subject.id, "req-fill")
+        XCTAssertEqual(subject.request.kind, .fill)
+        XCTAssertTrue(subject.request.canAutofill)
     }
 
     func test_decodeRequestFromDictionary_withSetupRequestContext_parsesBridgeEnvelope() throws {
