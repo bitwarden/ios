@@ -316,10 +316,15 @@ extension CredentialProviderViewController {
 
 extension CredentialProviderViewController {
     @available(iOSApplicationExtension 26.2, *)
-    override func prepareInterface(for savePasswordRequest: ASSavePasswordRequest) {
-        initializeApp(with: DefaultCredentialProviderContext(
-            .savePasswordCredential(savePasswordRequest, userInteraction: true),
-        ))
+    override func performWithoutUserInteraction(generatePasswordsRequest: ASGeneratePasswordsRequest) {
+        Task {
+            await initializeAppWithoutUserInteraction(
+                with: DefaultCredentialProviderContext(
+                    .generatePasswordCredential(generatePasswordsRequest, userInteraction: false),
+                ),
+            )
+            await generatePassword(request: generatePasswordsRequest)
+        }
     }
 
     @available(iOSApplicationExtension 26.2, *)
@@ -331,6 +336,39 @@ extension CredentialProviderViewController {
                 ),
             )
             await savePassword(savePasswordRequest: savePasswordRequest)
+        }
+    }
+
+    @available(iOSApplicationExtension 26.2, *)
+    override func prepareInterface(for savePasswordRequest: ASSavePasswordRequest) {
+        initializeApp(with: DefaultCredentialProviderContext(
+            .savePasswordCredential(savePasswordRequest, userInteraction: true),
+        ))
+    }
+
+    // MARK: Private methods
+
+    /// Generates a password for the requesting app using the developer-specified rules in the request.
+    ///
+    /// - Parameter request: The generate-password request containing developer-specified rules.
+    ///
+    @available(iOSApplicationExtension 26.2, *)
+    private func generatePassword(request: ASGeneratePasswordsRequest) async {
+        guard let appProcessor else {
+            cancel(error: ASExtensionError(.failed))
+            return
+        }
+
+        do {
+            let password = try await appProcessor.generatePasswordCredential(request: request)
+            // TODO: PM-29569 Derive kind from request rules once SDK exposes the mapping API.
+            extensionContext.completeGeneratePasswordRequest(
+                results: [ASGeneratedPassword(kind: .alphanumeric, value: password)],
+                completionHandler: nil,
+            )
+        } catch {
+            Logger.appExtension.error("Error generating password without user interaction: \(error)")
+            cancel(error: error)
         }
     }
 

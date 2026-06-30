@@ -256,6 +256,31 @@ public class AppProcessor {
         )
     }
 
+    /// Generates a password for a credential provider generate-password request without showing UI.
+    ///
+    /// - Parameter request: The generate-password request containing developer-specified rules.
+    /// - Returns: The generated password string.
+    ///
+    @available(iOSApplicationExtension 26.2, *)
+    public func generatePasswordCredential(request: any GeneratePasswordRequestProxy) async throws -> String {
+        try await unlockVaultWithNeverlockKey()
+
+        // TODO: PM-29569 Map ASGeneratePasswordsRequest rules to PasswordGeneratorRequest once SDK exposes the API.
+        let passwordRequest = PasswordGeneratorRequest(
+            lowercase: true,
+            uppercase: true,
+            numbers: true,
+            special: false,
+            length: 14,
+            avoidAmbiguous: false,
+            minLowercase: 1,
+            minUppercase: 1,
+            minNumber: 1,
+            minSpecial: nil,
+        )
+        return try await services.generatorRepository.generatePassword(settings: passwordRequest)
+    }
+
     /// Saves a password credential to the vault without showing UI.
     ///
     /// - Parameters:

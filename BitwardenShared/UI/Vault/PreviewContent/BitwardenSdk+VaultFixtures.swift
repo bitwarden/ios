@@ -261,6 +261,7 @@ extension CipherView {
         collectionIds: [String] = [],
         creationDate: DateTime = Date(year: 2023, month: 11, day: 5, hour: 9, minute: 41),
         deletedDate: Date? = nil,
+        driversLicense: DriversLicenseView? = nil,
         edit: Bool = true,
         favorite: Bool = false,
         fields: [FieldView]? = nil,
@@ -299,7 +300,7 @@ extension CipherView {
             secureNote: secureNote,
             sshKey: sshKey,
             bankAccount: bankAccount,
-            driversLicense: nil, // TODO: PM-32807
+            driversLicense: driversLicense,
             passport: passport,
             favorite: favorite,
             reprompt: reprompt,
@@ -430,6 +431,56 @@ extension CipherView {
                 licenseClass: "C",
             ),
             passport: nil,
+            favorite: false,
+            reprompt: .none,
+            organizationUseTotp: false,
+            edit: true,
+            permissions: nil,
+            viewPassword: true,
+            localData: nil,
+            attachments: nil,
+            attachmentDecryptionFailures: nil,
+            fields: nil,
+            passwordHistory: nil,
+            creationDate: Date(year: 2023, month: 11, day: 5),
+            deletedDate: nil,
+            revisionDate: Date(year: 2023, month: 11, day: 5),
+            archivedDate: nil,
+        )
+    }
+
+    static func passportFixture() -> CipherView {
+        CipherView(
+            id: "1",
+            organizationId: nil,
+            folderId: nil,
+            collectionIds: [],
+            key: nil,
+            name: "Bitwarden",
+            notes: nil,
+            type: .passport,
+            login: nil,
+            identity: nil,
+            card: nil,
+            secureNote: nil,
+            sshKey: nil,
+            bankAccount: nil,
+            driversLicense: nil,
+            passport: PassportView(
+                surname: "Warden",
+                givenName: "Bit",
+                dateOfBirth: "1989-08-01",
+                sex: "Male",
+                birthPlace: "San Francisco, USA",
+                nationality: "USA",
+                issuingCountry: "United States",
+                passportNumber: "X12345678",
+                passportType: "Regular/Tourist",
+                nationalIdentificationNumber: "123456789",
+                issuingAuthority: "U.S. Department of State",
+                issueDate: "2019-08-01",
+                expirationDate: "2029-08-01",
+            ),
             favorite: false,
             reprompt: .none,
             organizationUseTotp: false,
@@ -928,6 +979,36 @@ extension Passport {
             issuingAuthority: issuingAuthority,
             issueDate: issueDate,
             expirationDate: expirationDate,
+        )
+    }
+}
+
+extension BitwardenSdk.DriversLicenseView {
+    static func fixture(
+        firstName: String? = nil,
+        middleName: String? = nil,
+        lastName: String? = nil,
+        dateOfBirth: String? = nil,
+        licenseNumber: String? = "D1234567",
+        issuingCountry: String? = nil,
+        issuingState: String? = nil,
+        issueDate: String? = nil,
+        expirationDate: String? = nil,
+        issuingAuthority: String? = nil,
+        licenseClass: String? = nil,
+    ) -> BitwardenSdk.DriversLicenseView {
+        BitwardenSdk.DriversLicenseView(
+            firstName: firstName,
+            middleName: middleName,
+            lastName: lastName,
+            dateOfBirth: dateOfBirth,
+            licenseNumber: licenseNumber,
+            issuingCountry: issuingCountry,
+            issuingState: issuingState,
+            issueDate: issueDate,
+            expirationDate: expirationDate,
+            issuingAuthority: issuingAuthority,
+            licenseClass: licenseClass,
         )
     }
 }
