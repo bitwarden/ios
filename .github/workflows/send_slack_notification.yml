@@ -29,10 +29,10 @@ jobs:
       - name: Send slack notification
         uses: slackapi/slack-github-action@af78098f536edbc4de71162a307590698245be95 # v3.0.1
         with:
+          webhook: ${{ secrets.TEMP_SLACK_WEBHOOK_URL }}
           webhook-type: incoming-webhook
           payload: |
             channel: "#automations-test-channel"
             text: "*GitHub Action test message*: ${{ job.status }}\nBranch: ${{ github.ref_name }}\n${{ steps.pr.outputs.url }}"
-        env:
+        # env:
           # SLACK_WEBHOOK_URL: ${{ env.SLACK_WEBHOOK_URL }}
-          SLACK_WEBHOOK_URL: ${{ secrets.TEMP_SLACK_WEBHOOK_URL }}
