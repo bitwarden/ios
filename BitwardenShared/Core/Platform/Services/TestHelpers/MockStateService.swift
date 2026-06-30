@@ -46,6 +46,7 @@ class MockStateService: StateService, ActiveAccountStateProvider, AutofillStateS
     var disableAutoTotpCopyByUserId = [String: Bool]()
     var doesActiveAccountHavePremiumCalled = false
     var fillAssistEnabledByUserId = [String: Bool]()
+    var getFillAssistEnabledError: Error?
     var doesActiveAccountHavePremiumResult: Bool = true
     var doesActiveAccountHavePremiumPersonallyCalled = false // swiftlint:disable:this identifier_name
     var doesActiveAccountHavePremiumPersonallyResult: Bool = true // swiftlint:disable:this identifier_name
@@ -315,6 +316,9 @@ class MockStateService: StateService, ActiveAccountStateProvider, AutofillStateS
     }
 
     func getFillAssistEnabled(userId: String?) async throws -> Bool {
+        if let getFillAssistEnabledError {
+            throw getFillAssistEnabledError
+        }
         let userId = try unwrapUserId(userId)
         return fillAssistEnabledByUserId[userId] ?? false
     }

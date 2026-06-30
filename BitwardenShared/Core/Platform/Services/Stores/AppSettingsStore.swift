@@ -193,9 +193,9 @@ protocol AppSettingsStore: AnyObject {
     ///
     func fillAssistCachedData(userId: String) -> FillAssistCachedData?
 
-    /// Gets whether the fill assist feature is enabled for the user ID.
+    /// Gets whether the Fill Assist feature is enabled for the user ID.
     ///
-    /// - Parameter userId: The user ID associated with the fill assist enabled value.
+    /// - Parameter userId: The user ID associated with the Fill Assist enabled value.
     ///
     func fillAssistEnabled(userId: String) -> Bool
 
@@ -460,11 +460,11 @@ protocol AppSettingsStore: AnyObject {
     ///
     func setFillAssistCachedData(_ data: FillAssistCachedData?, userId: String)
 
-    /// Sets whether the fill assist feature is enabled for the user ID.
+    /// Sets whether the Fill Assist feature is enabled for the user ID.
     ///
     /// - Parameters:
     ///   - fillAssistEnabled: The value to set, or `nil` to clear.
-    ///   - userId: The user ID associated with the fill assist enabled value.
+    ///   - userId: The user ID associated with the Fill Assist enabled value.
     ///
     func setFillAssistEnabled(_ fillAssistEnabled: Bool?, userId: String)
 

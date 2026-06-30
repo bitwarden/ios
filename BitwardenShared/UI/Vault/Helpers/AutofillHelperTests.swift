@@ -691,4 +691,23 @@ class AutofillHelperTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         XCTAssertFalse(fillAssistRepository.rulesCalled)
         XCTAssertNil(appExtensionDelegate.didCompleteAutofillRequestFields)
     }
+
+    /// `handleCipherForAutofill` does not use Fill Assist when `getFillAssistEnabled` throws,
+    /// treating it the same as the toggle being off.
+    func test_handleCipherForAutofill_fillAssist_getFillAssistEnabledThrows() async {
+        configService.featureFlagsBool[.fillAssistTargetingRules] = true
+        stateService.getFillAssistEnabledError = BitwardenTestError.example
+        fillAssistRepository.rulesReturnValue = FillAssistHostRules(fields: [
+            "username": [.init(id: "login-email", name: nil, role: nil, tagName: nil, type: nil)],
+            "password": [.init(id: "login-pwd", name: nil, role: nil, tagName: nil, type: nil)],
+        ])
+        vaultRepository.fetchCipherResult = .success(.fixture(
+            login: .fixture(password: "PASSWORD", username: "user@bitwarden.com"),
+        ))
+
+        await subject.handleCipherForAutofill(cipherListView: .fixture(id: "1")) { _ in }
+
+        XCTAssertFalse(fillAssistRepository.rulesCalled)
+        XCTAssertNil(appExtensionDelegate.didCompleteAutofillRequestFields)
+    }
 } // swiftlint:disable:this file_length

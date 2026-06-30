@@ -215,6 +215,10 @@ final class AutoFillProcessor: StateProcessor<AutoFillState, AutoFillAction, Aut
         }
     }
 
+    /// Updates the Fill Assist enabled preference and triggers a rules sync if enabled.
+    ///
+    /// - Parameter fillAssistEnabled: Whether Fill Assist should be enabled.
+    ///
     private func updateFillAssistEnabled(_ fillAssistEnabled: Bool) async {
         do {
             try await services.stateService.setFillAssistEnabled(fillAssistEnabled)
@@ -222,7 +226,8 @@ final class AutoFillProcessor: StateProcessor<AutoFillState, AutoFillAction, Aut
                 await services.fillAssistRepository.syncRules()
             }
         } catch {
-            coordinator.showAlert(.defaultAlert(title: Localizations.anErrorHasOccurred))
+            state.isFillAssistEnabled = !fillAssistEnabled
+            await coordinator.showErrorAlert(error: error)
             services.errorReporter.log(error: error)
         }
     }

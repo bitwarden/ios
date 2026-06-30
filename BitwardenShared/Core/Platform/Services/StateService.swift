@@ -219,10 +219,10 @@ protocol StateService: AnyObject, BillingStateService {
     ///
     func getEvents(userId: String?) async throws -> [EventData]
 
-    /// Gets whether the fill assist feature is enabled for the specified user.
+    /// Gets whether the Fill Assist feature is enabled for the specified user.
     ///
     /// - Parameter userId: The user ID, or `nil` for the active account.
-    /// - Returns: Whether fill assist is enabled.
+    /// - Returns: Whether Fill Assist is enabled.
     ///
     func getFillAssistEnabled(userId: String?) async throws -> Bool
 
@@ -630,10 +630,10 @@ protocol StateService: AnyObject, BillingStateService {
     ///
     func setEvents(_ events: [EventData], userId: String?) async throws
 
-    /// Sets whether the fill assist feature is enabled for the specified user.
+    /// Sets whether the Fill Assist feature is enabled for the specified user.
     ///
     /// - Parameters:
-    ///   - fillAssistEnabled: Whether fill assist is enabled.
+    ///   - fillAssistEnabled: Whether Fill Assist is enabled.
     ///   - userId: The user ID of the account. Defaults to the active account if `nil`.
     ///
     func setFillAssistEnabled(_ fillAssistEnabled: Bool, userId: String?) async throws
@@ -1064,9 +1064,9 @@ extension StateService {
         try await getEnvironmentURLs(userId: nil)
     }
 
-    /// Gets whether fill assist is enabled for the active account.
+    /// Gets whether Fill Assist is enabled for the active account.
     ///
-    /// - Returns: Whether fill assist is enabled.
+    /// - Returns: Whether Fill Assist is enabled.
     ///
     func getFillAssistEnabled() async throws -> Bool {
         try await getFillAssistEnabled(userId: nil)
@@ -1328,9 +1328,9 @@ extension StateService {
         try await setDisableAutoTotpCopy(disableAutoTotpCopy, userId: nil)
     }
 
-    /// Sets whether fill assist is enabled for the active account.
+    /// Sets whether Fill Assist is enabled for the active account.
     ///
-    /// - Parameter fillAssistEnabled: Whether fill assist is enabled.
+    /// - Parameter fillAssistEnabled: Whether Fill Assist is enabled.
     ///
     func setFillAssistEnabled(_ fillAssistEnabled: Bool) async throws {
         try await setFillAssistEnabled(fillAssistEnabled, userId: nil)
