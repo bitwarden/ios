@@ -2240,9 +2240,8 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         await assertAsyncThrows(error: StateServiceError.noActiveAccount) {
             try await subject.setAccountMasterPasswordUnlock(
                 MasterPasswordUnlockResponseModel(
-                    kdf: KdfConfig(kdfType: .pbkdf2sha256, iterations: Constants.pbkdf2Iterations),
+                    account: .fixture(),
                     masterKeyEncryptedUserKey: "MASTER_KEY_ENCRYPTED_USER_KEY",
-                    salt: "SALT",
                 ),
             )
         }
