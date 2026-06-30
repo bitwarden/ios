@@ -2,6 +2,7 @@ name: Send RC Merge Slack Notification
 
 on:
   workflow_dispatch:
+  pull_request:
   push:
     branches:
       - "**-rc[0-9]*"
