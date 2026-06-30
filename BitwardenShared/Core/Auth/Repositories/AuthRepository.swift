@@ -997,9 +997,8 @@ extension DefaultAuthRepository: AuthRepository {
         try await accountAPIService.setPassword(requestModel)
         try await stateService.setAccountMasterPasswordUnlock(
             MasterPasswordUnlockResponseModel(
-                kdf: account.kdf,
+                account: account,
                 masterKeyEncryptedUserKey: requestUserKey,
-                salt: account.profile.email,
             ),
         )
         try await stateService.setAccountEncryptionKeys(AccountEncryptionKeys(
@@ -1354,9 +1353,8 @@ extension DefaultAuthRepository: AuthRepository {
 
         try await stateService.setAccountMasterPasswordUnlock(
             MasterPasswordUnlockResponseModel(
-                kdf: account.kdf,
+                account: account,
                 masterKeyEncryptedUserKey: updatePasswordResponse.newKey,
-                salt: account.profile.email,
             ),
         )
         try await stateService.setMasterPasswordHash(updatePasswordResponse.passwordHash)
