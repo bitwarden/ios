@@ -231,9 +231,10 @@ final class AutoFillProcessor: StateProcessor<AutoFillState, AutoFillAction, Aut
                 await services.fillAssistRepository.syncRules()
             }
         } catch {
+            services.errorReporter.log(error: error)
+            guard state.isFillAssistEnabled == fillAssistEnabled else { return }
             state.isFillAssistEnabled = !fillAssistEnabled
             await coordinator.showErrorAlert(error: error)
-            services.errorReporter.log(error: error)
         }
     }
 
