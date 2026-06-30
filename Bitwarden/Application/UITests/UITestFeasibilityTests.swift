@@ -1,6 +1,21 @@
+import UIKit
 import XCTest
 
+// swiftlint:disable type_body_length
 final class UITestFeasibilityTests: XCTestCase {
+    private var masterPassword: String {
+        if let encoded = ProcessInfo.processInfo.environment["BITWARDEN_MASTER_PASSWORD_B64"],
+           let data = Data(base64Encoded: encoded),
+           let password = String(data: data, encoding: .utf8),
+           !password.isEmpty {
+            return password
+        }
+        guard let password = ProcessInfo.processInfo.environment["BITWARDEN_MASTER_PASSWORD"], !password.isEmpty else {
+            fatalError("BITWARDEN_MASTER_PASSWORD_B64 is required for live Bitwarden UI tests")
+        }
+        return password
+    }
+
     @MainActor
     private func dismissKeyboardIfPresent(_ app: XCUIApplication) {
         if app.keyboards.element.exists {
@@ -12,6 +27,24 @@ final class UITestFeasibilityTests: XCTestCase {
                 app.tapCoordinate(horizontalOffset: 200, verticalOffset: 200)
             }
         }
+    }
+
+    @MainActor
+    private func replaceText(in element: XCUIElement, with text: String) {
+        element.tap()
+        element.tap(withNumberOfTaps: 3, numberOfTouches: 1)
+        element.typeText(String(repeating: XCUIKeyboardKey.delete.rawValue, count: 128))
+        element.typeText(text)
+    }
+
+    @MainActor
+    private func pasteText(_ text: String, into element: XCUIElement, in app: XCUIApplication) {
+        UIPasteboard.general.string = text
+        element.tap()
+        element.press(forDuration: 1.0)
+        let paste = app.menuItems["Paste"]
+        XCTAssertTrue(paste.waitForExistence(timeout: 5))
+        paste.tap()
     }
 
     @MainActor
@@ -61,7 +94,7 @@ final class UITestFeasibilityTests: XCTestCase {
         }
 
         passwordField.tap()
-        passwordField.typeText("Yoshiki20010920")
+        pasteText(masterPassword, into: passwordField, in: app)
         dismissKeyboardIfPresent(app)
 
         if app.buttons["OK, got it!"].waitForExistence(timeout: 3) || app.buttons["Settings"].exists {
@@ -74,12 +107,18 @@ final class UITestFeasibilityTests: XCTestCase {
         let loginWithMasterPasswordButton = app.buttons["LogInWithMasterPasswordButton"]
         if loginWithMasterPasswordButton.waitForExistence(timeout: 8) {
             loginWithMasterPasswordButton.tap()
+            if app.buttons["OK, got it!"].waitForExistence(timeout: 30) || app.buttons["Settings"].waitForExistence(timeout: 1) || app.navigationBars["MainHeaderBar"].waitForExistence(timeout: 1) {
+                if app.buttons["OK, got it!"].exists {
+                    app.buttons["OK, got it!"].tap()
+                }
+                return
+            }
         }
 
         let unlockPasswordField = app.secureTextFields["MasterPasswordEntry"]
         if unlockPasswordField.waitForExistence(timeout: 8), app.buttons["UnlockVaultButton"].exists {
             unlockPasswordField.tap()
-            unlockPasswordField.typeText("Yoshiki20010920")
+            pasteText(masterPassword, into: unlockPasswordField, in: app)
             dismissKeyboardIfPresent(app)
             app.buttons["UnlockVaultButton"].tap()
         }
@@ -147,7 +186,7 @@ final class UITestFeasibilityTests: XCTestCase {
             let unlockPasswordField = safari.secureTextFields["MasterPasswordEntry"]
             XCTAssertTrue(unlockPasswordField.waitForExistence(timeout: 5))
             unlockPasswordField.tap()
-            unlockPasswordField.typeText("Yoshiki20010920")
+            pasteText(masterPassword, into: unlockPasswordField, in: safari)
             dismissKeyboardIfPresent(safari)
 
             if safari.navigationBars["New login"].waitForExistence(timeout: 2)
@@ -227,8 +266,40 @@ final class UITestFeasibilityTests: XCTestCase {
     }
 
     @MainActor
+    func test_safariSeededCredentialSuggestionVisible() {
+        let safari = XCUIApplication(bundleIdentifier: "com.apple.mobilesafari")
+        safari.activate()
+        XCTAssertTrue(safari.wait(for: .runningForeground, timeout: 8))
+
+        // Dismiss the iOS 27 start-page customization card if it is covering the page.
+        safari.coordinate(withNormalizedOffset: CGVector(dx: 0.89, dy: 0.20)).tap()
+        sleep(1)
+
+        // Navigate explicitly; simctl openurl can leave Safari on a cached start-page overlay.
+        safari.coordinate(withNormalizedOffset: CGVector(dx: 0.50, dy: 0.94)).tap()
+        sleep(1)
+        safari.typeText("http://localhost:8123/login.html?autofocus=1&v=uitest-native-suggestion")
+        safari.typeText(XCUIKeyboardKey.return.rawValue)
+        sleep(5)
+
+        // Dismiss again in case the card returned, then focus the visible password field.
+        safari.coordinate(withNormalizedOffset: CGVector(dx: 0.89, dy: 0.20)).tap()
+        sleep(1)
+        safari.coordinate(withNormalizedOffset: CGVector(dx: 0.50, dy: 0.56)).tap()
+        sleep(4)
+
+        print(safari.debugDescription)
+        let fillWithBitwarden = safari.staticTexts["Fill with Bitwarden"]
+        let fillButton = safari.buttons["Fill"]
+        XCTAssertTrue(
+            fillWithBitwarden.exists || fillButton.exists,
+            "Expected Bitwarden-specific credential suggestion to be visible after focusing the password field."
+        )
+    }
+
+    @MainActor
     func test_directSelfHostedLoginFlow() {
-        let app = XCUIApplication(bundleIdentifier: "com.8bit.bitwarden")
+        let app = XCUIApplication(bundleIdentifier: "nz.tam.bitwarden")
         app.launchArguments += ["-AppleLanguages", "(en)", "-AppleLocale", "en_US"]
         app.launch()
 
@@ -238,8 +309,20 @@ final class UITestFeasibilityTests: XCTestCase {
     }
 
     @MainActor
+    func test_loginAndActivateSafariExtensionForSuggestionQA() {
+        let app = XCUIApplication(bundleIdentifier: "nz.tam.bitwarden")
+        app.launchArguments += ["-AppleLanguages", "(en)", "-AppleLocale", "en_US"]
+        app.launch()
+
+        loginToVault(app)
+        activateSafariExtension(app)
+        XCTAssertTrue(app.buttons["Settings"].waitForExistence(timeout: 8))
+        print(app.debugDescription)
+    }
+
+    @MainActor
     func test_signupFixtureSaveNewLogin() {
-        let app = XCUIApplication(bundleIdentifier: "com.8bit.bitwarden")
+        let app = XCUIApplication(bundleIdentifier: "nz.tam.bitwarden")
         let safari = XCUIApplication(bundleIdentifier: "com.apple.mobilesafari")
         app.launchArguments += ["-AppleLanguages", "(en)", "-AppleLocale", "en_US"]
         app.launch()
@@ -271,7 +354,7 @@ final class UITestFeasibilityTests: XCTestCase {
 
     @MainActor
     func test_loginFixtureFillMatchedCredential() {
-        let app = XCUIApplication(bundleIdentifier: "com.8bit.bitwarden")
+        let app = XCUIApplication(bundleIdentifier: "nz.tam.bitwarden")
         let safari = XCUIApplication(bundleIdentifier: "com.apple.mobilesafari")
         app.launchArguments += ["-AppleLanguages", "(en)", "-AppleLocale", "en_US"]
         app.launch()
@@ -298,7 +381,7 @@ final class UITestFeasibilityTests: XCTestCase {
 
     @MainActor
     func test_signupFixtureGeneratePasswordFollowUp() {
-        let app = XCUIApplication(bundleIdentifier: "com.8bit.bitwarden")
+        let app = XCUIApplication(bundleIdentifier: "nz.tam.bitwarden")
         let safari = XCUIApplication(bundleIdentifier: "com.apple.mobilesafari")
         app.launchArguments += ["-AppleLanguages", "(en)", "-AppleLocale", "en_US"]
         app.launch()
@@ -326,7 +409,7 @@ final class UITestFeasibilityTests: XCTestCase {
 
     @MainActor
     func test_changePasswordFixtureMatchedItemSelection() {
-        let app = XCUIApplication(bundleIdentifier: "com.8bit.bitwarden")
+        let app = XCUIApplication(bundleIdentifier: "nz.tam.bitwarden")
         let safari = XCUIApplication(bundleIdentifier: "com.apple.mobilesafari")
         app.launchArguments += ["-AppleLanguages", "(en)", "-AppleLocale", "en_US"]
         app.launch()
@@ -350,6 +433,141 @@ final class UITestFeasibilityTests: XCTestCase {
 
         XCTAssertTrue(safari.buttons["Copy password"].waitForExistence(timeout: 8))
         print(safari.debugDescription)
+    }
+
+    @MainActor
+    func test_focusLoginFixturePasswordFieldForManualSuggestionQA() {
+        let safari = XCUIApplication(bundleIdentifier: "com.apple.mobilesafari")
+        safari.launch()
+
+        let passwordField = safari.secureTextFields["Password"].firstMatch
+        XCTAssertTrue(passwordField.waitForExistence(timeout: 12))
+        passwordField.tap()
+        sleep(2)
+        print(safari.debugDescription)
+    }
+
+    @MainActor
+    func test_tapPasswordsSuggestionBarForManualQA() {
+        let safari = XCUIApplication(bundleIdentifier: "com.apple.mobilesafari")
+        safari.launch()
+
+        let passwordField = safari.secureTextFields["Password"].firstMatch
+        XCTAssertTrue(passwordField.waitForExistence(timeout: 12))
+        passwordField.tap()
+
+        let passwordsButton = safari.buttons["パスワード"].exists
+            ? safari.buttons["パスワード"]
+            : safari.buttons["Passwords"]
+        XCTAssertTrue(passwordsButton.waitForExistence(timeout: 8))
+        passwordsButton.tap()
+        sleep(3)
+        print(safari.debugDescription)
+    }
+
+    @MainActor
+    func test_openSafariWebExtensionManagementForManualQA() {
+        let safari = XCUIApplication(bundleIdentifier: "com.apple.mobilesafari")
+        safari.activate()
+        sleep(1)
+
+        let manageExtensions = safari.descendants(matching: .any)
+            .matching(NSPredicate(format: "label CONTAINS[c] %@", "機能拡張を管理"))
+            .firstMatch
+        if manageExtensions.waitForExistence(timeout: 3) {
+            manageExtensions.tap()
+        } else {
+            let moreButton = safari.buttons["MoreMenuButton"]
+            XCTAssertTrue(moreButton.waitForExistence(timeout: 8))
+            moreButton.tap()
+            let menuManageExtensions = safari.descendants(matching: .any)
+                .matching(NSPredicate(format: "label CONTAINS[c] %@", "機能拡張を管理"))
+                .firstMatch
+            XCTAssertTrue(menuManageExtensions.waitForExistence(timeout: 8))
+            menuManageExtensions.tap()
+        }
+        sleep(2)
+        print(safari.debugDescription)
+    }
+
+    @MainActor
+    func test_allowBitwardenSafariForCurrentSiteManualQA() {
+        let safari = XCUIApplication(bundleIdentifier: "com.apple.mobilesafari")
+        safari.activate()
+        sleep(1)
+
+        var bitwardenAction = safari.descendants(matching: .any)
+            .matching(NSPredicate(format: "label CONTAINS[c] %@", "Bitwarden Safari"))
+            .firstMatch
+        if !bitwardenAction.waitForExistence(timeout: 2) {
+            let moreButton = safari.buttons["MoreMenuButton"]
+            XCTAssertTrue(moreButton.waitForExistence(timeout: 8))
+            moreButton.tap()
+            bitwardenAction = safari.descendants(matching: .any)
+                .matching(NSPredicate(format: "label CONTAINS[c] %@", "Bitwarden Safari"))
+                .firstMatch
+        }
+        XCTAssertTrue(bitwardenAction.waitForExistence(timeout: 8))
+        bitwardenAction.tap()
+
+        let alwaysAllowEverywhere = safari.buttons["Always Allow on Every Website"]
+        if alwaysAllowEverywhere.waitForExistence(timeout: 5) {
+            alwaysAllowEverywhere.tap()
+        } else {
+            let alwaysAllowThisSite = safari.buttons["Always Allow on This Website"]
+            if alwaysAllowThisSite.waitForExistence(timeout: 5) {
+                alwaysAllowThisSite.tap()
+            }
+        }
+        sleep(3)
+        print(safari.debugDescription)
+    }
+
+    @MainActor
+    func test_confirmAlwaysAllowEveryWebsiteManualQA() {
+        let safari = XCUIApplication(bundleIdentifier: "com.apple.mobilesafari")
+        safari.activate()
+        let alwaysAllowEverywhere = safari.buttons["Always Allow on Every Website"]
+        if alwaysAllowEverywhere.waitForExistence(timeout: 8) {
+            alwaysAllowEverywhere.tap()
+        } else {
+            let alwaysAllowThisSite = safari.buttons["Always Allow on This Website"]
+            XCTAssertTrue(alwaysAllowThisSite.waitForExistence(timeout: 8))
+            alwaysAllowThisSite.tap()
+        }
+        sleep(2)
+        print(safari.debugDescription)
+    }
+
+    @MainActor
+    func test_enableSafariWebExtensionForManualQA() {
+        let safari = XCUIApplication(bundleIdentifier: "com.apple.mobilesafari")
+        safari.activate()
+        sleep(1)
+
+        if !safari.navigationBars["機能拡張を管理"].waitForExistence(timeout: 2) {
+            let moreButton = safari.buttons["MoreMenuButton"]
+            XCTAssertTrue(moreButton.waitForExistence(timeout: 8))
+            moreButton.tap()
+            let manageExtensions = safari.descendants(matching: .any)
+                .matching(NSPredicate(format: "label CONTAINS[c] %@", "機能拡張を管理"))
+                .firstMatch
+            XCTAssertTrue(manageExtensions.waitForExistence(timeout: 8))
+            manageExtensions.tap()
+        }
+
+        let bitwardenSwitch = safari.switches["Bitwarden Safari機能拡張"]
+        XCTAssertTrue(bitwardenSwitch.waitForExistence(timeout: 8))
+        if (bitwardenSwitch.value as? String) == "0" {
+            bitwardenSwitch.tap()
+        }
+        sleep(1)
+        print(safari.debugDescription)
+
+        let doneButton = safari.buttons["完了"]
+        if doneButton.waitForExistence(timeout: 3) {
+            doneButton.tap()
+        }
     }
 }
 

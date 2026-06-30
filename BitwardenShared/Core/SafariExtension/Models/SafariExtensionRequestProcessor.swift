@@ -23,7 +23,7 @@ public struct SafariExtensionRequestProcessor {
 
     @MainActor
     static func live(services: ServiceContainer) -> Self {
-        let matchedLoginResolver = SafariExtensionMatchedLoginResolver(
+        let liveMatchedLoginResolver = SafariExtensionMatchedLoginResolver(
             cipherMatchingHelperFactory: DefaultCipherMatchingHelperFactory(
                 settingsService: services.settingsService,
                 stateService: services.stateService,
@@ -35,6 +35,14 @@ public struct SafariExtensionRequestProcessor {
             cipherService: services.cipherService,
             stateService: services.stateService,
         )
+        #if DEBUG && targetEnvironment(simulator)
+        let matchedLoginResolver = SafariExtensionSimulatorLocalVaultResolver(
+            cipherService: services.cipherService,
+            fallbackResolver: liveMatchedLoginResolver
+        )
+        #else
+        let matchedLoginResolver = liveMatchedLoginResolver
+        #endif
         let credentialStore = SafariExtensionCredentialStoreService(
             cipherService: services.cipherService,
             clientService: services.clientService,

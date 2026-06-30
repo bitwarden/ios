@@ -1,0 +1,10 @@
+{
+  "extensionName": {
+    "message": "Bitwarden Safari",
+    "description": "Extension name shown by Safari."
+  },
+  "extensionDescription": {
+    "message": "Bitwarden Safari Web Extension for iOS and iPadOS.",
+    "description": "Extension description shown by Safari."
+  }
+}
