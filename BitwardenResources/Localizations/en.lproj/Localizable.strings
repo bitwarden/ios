@@ -572,7 +572,7 @@
 "ApproveWithMasterPassword" = "Approve with master password";
 "TurnOffUsingPublicDevice" = "Turn off using a public device";
 "TurnOnFillAssist" = "Turn on fill assist";
-"TurnOnFillAssistDescriptionLong" = "Fill assist improves autofill accuracy on supported sites by using site specific rules.";
+"TurnOnFillAssistDescriptionLong" = "Fill Assist improves autofill accuracy on supported sites by using site-specific rules.";
 "RememberThisDevice" = "Remember this device";
 "Passkey" = "Passkey";
 "Passkeys" = "Passkeys";

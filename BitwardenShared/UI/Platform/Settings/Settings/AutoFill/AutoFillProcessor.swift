@@ -220,8 +220,10 @@ final class AutoFillProcessor: StateProcessor<AutoFillState, AutoFillAction, Aut
     /// - Parameter fillAssistEnabled: Whether Fill Assist should be enabled.
     ///
     private func updateFillAssistEnabled(_ fillAssistEnabled: Bool) async {
+        guard state.isFillAssistEnabled == fillAssistEnabled else { return }
         do {
             try await services.stateService.setFillAssistEnabled(fillAssistEnabled)
+            guard state.isFillAssistEnabled == fillAssistEnabled else { return }
             if fillAssistEnabled {
                 await services.fillAssistRepository.syncRules()
             }
