@@ -25,7 +25,7 @@ struct LoadingView<T: Equatable & Sendable, Contents: View, ErrorView: View>: Vi
                 CircularActivityIndicator()
                 if let loadingMessage {
                     Text(loadingMessage)
-                        .styleGuide(.body)
+                        .styleGuide(.headline, weight: .semibold)
                         .foregroundColor(Color(asset: SharedAsset.Colors.textPrimary))
                 }
             }
