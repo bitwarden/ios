@@ -92,6 +92,7 @@ final class DefaultCardTextParser: CardTextParser {
         guard digits.count >= 13, digits.count <= 19 else { return nil }
         // Reject sequences that look like dates or years (e.g. 8-digit numbers that match no Luhn prefix)
         guard !looksLikeDateOrYear(digits) else { return nil }
+        guard isLuhnValid(digits), hasValidLength(digits) else { return nil }
         return digits
     }
 
@@ -166,5 +167,24 @@ final class DefaultCardTextParser: CardTextParser {
             return true
         }
         return false
+    }
+
+    /// Returns `true` if `digits` satisfies the Luhn mod-10 checksum.
+    private func isLuhnValid(_ digits: String) -> Bool {
+        var sum = 0
+        for (index, char) in digits.reversed().enumerated() {
+            guard var digit = char.wholeNumberValue else { return false }
+            if !index.isMultiple(of: 2) {
+                digit *= 2
+                if digit > 9 { digit -= 9 }
+            }
+            sum += digit
+        }
+        return sum.isMultiple(of: 10)
+    }
+
+    /// Returns `true` if `digits` has a length valid for the brand detected from its leading digits.
+    private func hasValidLength(_ digits: String) -> Bool {
+        CardComponent.Brand.detect(from: digits).validDigitLengths.contains(digits.count)
     }
 }
