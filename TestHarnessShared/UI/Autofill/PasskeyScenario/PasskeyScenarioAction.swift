@@ -1,10 +1,13 @@
 import Foundation
 
-/// Actions that can be processed by a `CreatePasskeyProcessor`.
+/// Actions that can be processed by a `PasskeyScenarioProcessor`.
 ///
-enum CreatePasskeyAction: Equatable {
+enum PasskeyScenarioAction: Equatable {
     /// The display name field was updated.
     case displayNameChanged(String)
+
+    /// The mode picker selection changed.
+    case modeChanged(PasskeyScenarioState.Mode)
 
     /// The relying party ID field was updated.
     case rpIdChanged(String)

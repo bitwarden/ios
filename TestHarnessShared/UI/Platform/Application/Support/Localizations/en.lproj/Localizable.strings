@@ -1,10 +1,12 @@
 "AssertionResult" = "Assertion Result";
+"Authenticate" = "Authenticate";
 "CardAutofillForm" = "Card Autofill Form";
 "CardAutofillFormDescriptionLong" = "Long press a field, then select Autofill and Password to autofill with Bitwarden. Requires Bitwarden PM as AutoFill provider and a saved Card cipher.";
 "CardDetails" = "Card Details";
 "CardholderName" = "Cardholder Name";
 "CardNumber" = "Card Number";
 "ClearAll" = "Clear All";
+"Create" = "Create";
 "CreatePasskeyFormDescriptionLong" = "Fill in the fields above, then tap Register Passkey. The Bitwarden AutoFill sheet will appear to save the credential.";
 "Credentials" = "Credentials";
 "DisplayName" = "Display Name";
@@ -15,11 +17,13 @@
 "ExpirationYear" = "Expiration Year";
 "FileShare" = "File Share";
 "FormValues" = "Form Values";
+"Manage" = "Manage";
 "ManagePasskeys" = "Manage Passkeys";
 "ManagePasskeysFooterNote" = "Tap a passkey to open Bitwarden, where you can delete the credential. Removing an entry from this list only clears it from the Test Harness registry.";
 "NoPasskeysRegisteredDescription" = "No passkeys have been registered via the Test Harness.";
 "PasskeyAssertionNotAvailable" = "Passkey assertion requires iOS 17 or later.";
 "PasskeyAssertedSuccessfully" = "Passkey sign-in succeeded.";
+"Passkeys" = "Passkeys";
 "PasskeyRegisteredSuccessfully" = "Passkey registered successfully.";
 "PasskeyRegistrationRequiresIOS17OrLater" = "Passkey registration requires iOS 17 or later.";
 "Password" = "Password";
@@ -27,7 +31,7 @@
 "RegisteredPasskeys" = "Registered Passkeys";
 "RegistrationResult" = "Registration Result";
 "RelyingPartyId" = "Relying Party ID";
-"RelyingPartyIdFooterDescriptionLong" = "Must match a webcredentials associated domain configured in the app entitlements.";
+"RelyingPartyIdFooterDescriptionLong" = "Relying Party Id must match a webcredentials associated domain configured in the app entitlements.";
 "SecurityCode" = "Security Code";
 "ShareFile" = "Share File";
 "SharesASamplePDFDescriptionLong" = "Shares a sample PDF containing the text \"Hello World\". Exercises the UTType.data → URL → file Send path in the share extension.";

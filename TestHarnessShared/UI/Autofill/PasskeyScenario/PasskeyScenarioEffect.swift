@@ -1,8 +1,11 @@
 import Foundation
 
-/// Effects that can be processed by a `ManagePasskeysProcessor`.
+/// Effects that can be processed by a `PasskeyScenarioProcessor`.
 ///
-enum ManagePasskeysEffect: Equatable {
+enum PasskeyScenarioEffect: Equatable {
+    /// The user tapped Sign In with Passkey.
+    case assertPasskey
+
     /// Remove all passkey entries from the registry.
     case clearAll
 
@@ -11,4 +14,7 @@ enum ManagePasskeysEffect: Equatable {
 
     /// Load the list of registered passkeys from the registry.
     case loadPasskeys
+
+    /// The user tapped Register Passkey.
+    case registerPasskey
 }

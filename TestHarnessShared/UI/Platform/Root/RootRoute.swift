@@ -9,11 +9,8 @@ public enum RootRoute {
     /// A route to the file share test screen.
     case fileShare
 
-    /// A route to the manage passkeys screen.
-    case managePasskeys
-
-    /// A route to the create passkey test screen.
-    case registerPasskey
+    /// A route to the unified passkey scenario screen (create, authenticate, manage).
+    case passkeys
 
     /// A route to the scenario picker home screen.
     case scenarioPicker
@@ -23,7 +20,4 @@ public enum RootRoute {
 
     /// A route to the TOTP autofill form test screen.
     case totpAutofillForm
-
-    /// A route to the use passkey test screen.
-    case usePasskey
 }
