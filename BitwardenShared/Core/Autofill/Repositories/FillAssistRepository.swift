@@ -119,7 +119,6 @@ class DefaultFillAssistRepository: FillAssistRepository {
 
         let manifest = try await fillAssistAPIService.getManifest()
 
-        // 4. Resolve the non-deprecated entry for the current forms version.
         guard let entry = manifest.maps["forms"]?[Constants.FillAssist.formsVersion],
               !entry.deprecated
         else { return }
