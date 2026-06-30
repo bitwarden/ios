@@ -1,0 +1,37 @@
+name: Send RC Merge Slack Notification
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - "**-rc[0-9]*"
+
+permissions:
+  contents: read
+  # id-token: write
+  pull-requests: read
+
+jobs:
+  send_notification:
+    name: Send Slack Notification
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Resolve merged PR
+        id: pr
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          url=$(gh api "repos/${{ github.repository }}/commits/${{ github.sha }}/pulls" \
+            --jq '.[0].html_url // empty')
+          echo "url=${url:-${{ github.event.head_commit.url }}}" >> "$GITHUB_OUTPUT"
+
+      - name: Send slack notification
+        uses: slackapi/slack-github-action@af78098f536edbc4de71162a307590698245be95 # v3.0.1
+        with:
+          webhook-type: incoming-webhook
+          payload: |
+            channel: "#automations-test-channel"
+            text: "*GitHub Action test message*: ${{ job.status }}\nBranch: ${{ github.ref_name }}\n${{ steps.pr.outputs.url }}"
+        env:
+          # SLACK_WEBHOOK_URL: ${{ env.SLACK_WEBHOOK_URL }}
+          SLACK_WEBHOOK_URL: ${{ secrets.TEMP_SLACK_WEBHOOK_URL }}
