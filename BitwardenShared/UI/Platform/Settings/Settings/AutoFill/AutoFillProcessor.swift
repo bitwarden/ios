@@ -219,7 +219,10 @@ final class AutoFillProcessor: StateProcessor<AutoFillState, AutoFillAction, Aut
     ///
     /// - Parameter fillAssistEnabled: Whether Fill Assist should be enabled.
     ///
+    @MainActor
     private func updateFillAssistEnabled(_ fillAssistEnabled: Bool) async {
+        // Guard against stale tasks: rapid toggling fires multiple concurrent tasks; bail out if
+        // the state has already moved past this task's intended value.
         guard state.isFillAssistEnabled == fillAssistEnabled else { return }
         do {
             try await services.stateService.setFillAssistEnabled(fillAssistEnabled)
