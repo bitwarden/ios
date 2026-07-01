@@ -92,6 +92,7 @@ class CreatePasskeyProcessor: StateProcessor<
             name: userName,
             userID: userId,
         )
+
         let resolvedDisplayName = displayName.isEmpty ? userName : displayName
         request.displayName = resolvedDisplayName
 
