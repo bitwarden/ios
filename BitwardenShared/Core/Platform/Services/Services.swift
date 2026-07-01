@@ -26,6 +26,7 @@ typealias Services = HasAPIService
     & HasClientCertificateService
     & HasClientService
     & HasConfigService
+    & HasDebugStateService
     & HasDeviceAPIService
     & HasDeviceAuthKeyService
     & HasEnvironmentService

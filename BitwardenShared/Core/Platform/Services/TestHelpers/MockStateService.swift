@@ -36,6 +36,10 @@ class MockStateService: StateService, ActiveAccountStateProvider, AutofillStateS
     var capturedUserId: String?
     var clearClipboardValues = [String: ClearClipboardValue]()
     var clearClipboardResult: Result<Void, Error> = .success(())
+    // swiftlint:disable:next identifier_name
+    var clearMasterPasswordUnlockForActiveAccountCalled = false
+    // swiftlint:disable:next identifier_name
+    var clearMasterPasswordUnlockForActiveAccountResult: Result<Void, Error> = .success(())
     var collapsedVaultListSectionIds = [String: [String]]()
     var connectToWatchByUserId = [String: Bool]()
     var connectToWatchResult: Result<Void, Error> = .success(())
@@ -132,6 +136,11 @@ class MockStateService: StateService, ActiveAccountStateProvider, AutofillStateS
     func addAccount(_ account: Account) async {
         accountsAdded.append(account)
         activeAccount = account
+    }
+
+    func clearMasterPasswordUnlockForActiveAccount() async throws {
+        clearMasterPasswordUnlockForActiveAccountCalled = true
+        try clearMasterPasswordUnlockForActiveAccountResult.get()
     }
 
     func clearPins() async throws {
