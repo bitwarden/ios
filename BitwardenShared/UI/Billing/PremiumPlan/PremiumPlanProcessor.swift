@@ -133,6 +133,7 @@ final class PremiumPlanProcessor: StateProcessor<
             state.loadingState = .data(subscription)
             state.planStatus = subscription.status
         } catch {
+            guard !(error is CancellationError) else { return }
             services.errorReporter.log(error: error)
             state.loadingState = .error(
                 errorMessage: Localizations.weCouldntLoadYourSubscriptionDetailsPleaseRetry,

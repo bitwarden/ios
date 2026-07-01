@@ -41,6 +41,18 @@ struct PremiumPlanProcessorTests {
 
     // MARK: Tests
 
+    /// `perform(_:)` with `.appeared` silently ignores task cancellation.
+    @Test
+    func perform_appeared_cancellation() async {
+        billingService.getPremiumPlanThrowableError = CancellationError()
+
+        await subject.perform(.appeared)
+
+        #expect(billingService.getPremiumPlanCallsCount == 1)
+        #expect(errorReporter.errors.isEmpty)
+        #expect(subject.state.loadingState == .loading(nil))
+    }
+
     /// `perform(_:)` with `.appeared` sets the error state and logs on failure.
     @Test
     func perform_appeared_failure() async {
