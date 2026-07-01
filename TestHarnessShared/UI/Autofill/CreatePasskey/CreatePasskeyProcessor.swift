@@ -1,6 +1,7 @@
 import AuthenticationServices
 import BitwardenKit
 import Combine
+import CryptoKit
 import UIKit
 
 // MARK: - CreatePasskeyProcessor
@@ -81,7 +82,7 @@ class CreatePasskeyProcessor: StateProcessor<
         let window = await presentationAnchor()
 
         let provider = ASAuthorizationPlatformPublicKeyCredentialProvider(relyingPartyIdentifier: rpId)
-        let challenge = Data((0 ..< 32).map { _ in UInt8.random(in: 0 ... 255) })
+        let challenge = SymmetricKey(size: .bits256).withUnsafeBytes { Data($0) }
         let userId = Data(UUID().uuidString.utf8)
         let request = provider.createCredentialRegistrationRequest(
             challenge: challenge,
