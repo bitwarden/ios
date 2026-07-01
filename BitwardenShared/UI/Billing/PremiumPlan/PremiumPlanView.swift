@@ -32,8 +32,8 @@ struct PremiumPlanView: View {
                 }
             }
             .scrollView()
-        } errorView: { _ in
-            subscriptionLoadErrorView
+        } errorView: { message in
+            subscriptionLoadErrorView(message: message)
         }
         .navigationBar(title: Localizations.plan, titleDisplayMode: .inline)
         .task {
@@ -158,12 +158,15 @@ struct PremiumPlanView: View {
     }
 
     /// The full-screen error view shown when subscription data fails to load.
-    private var subscriptionLoadErrorView: some View {
+    ///
+    /// - Parameter message: The error message to display.
+    ///
+    private func subscriptionLoadErrorView(message: String) -> some View {
         VStack(spacing: 16) {
             IllustratedMessageView(
                 image: Asset.Images.Illustrations.dataBreach,
                 style: .smallImage,
-                message: Localizations.weCouldntLoadYourSubscriptionDetailsPleaseRetry,
+                message: message,
             )
             AsyncButton(Localizations.tryAgain) {
                 await store.perform(.tryAgainTapped)

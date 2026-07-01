@@ -120,7 +120,9 @@ final class PremiumPlanProcessor: StateProcessor<
         do {
             let plan = try await services.billingService.getPremiumPlan()
             guard plan.available else {
-                state.loadingState = .error(errorMessage: "")
+                state.loadingState = .error(
+                    errorMessage: Localizations.weCouldntLoadYourSubscriptionDetailsPleaseRetry,
+                )
                 return
             }
             let subscription: PremiumSubscription = if let existing = existingSubscription {
@@ -132,7 +134,9 @@ final class PremiumPlanProcessor: StateProcessor<
             state.planStatus = subscription.status
         } catch {
             services.errorReporter.log(error: error)
-            state.loadingState = .error(errorMessage: error.localizedDescription)
+            state.loadingState = .error(
+                errorMessage: Localizations.weCouldntLoadYourSubscriptionDetailsPleaseRetry,
+            )
         }
     }
 }

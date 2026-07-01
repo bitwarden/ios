@@ -51,7 +51,9 @@ struct PremiumPlanProcessorTests {
         #expect(billingService.getPremiumPlanCallsCount == 1)
         #expect(errorReporter.errors.first as? BitwardenTestError == .example)
         #expect(coordinator.errorAlertsShown.isEmpty)
-        #expect(subject.state.loadingState == .error(errorMessage: BitwardenTestError.example.localizedDescription))
+        #expect(subject.state.loadingState == .error(
+            errorMessage: Localizations.weCouldntLoadYourSubscriptionDetailsPleaseRetry,
+        ))
     }
 
     /// `perform(_:)` with `.appeared` sets the error state when the plan is not available.
@@ -70,7 +72,9 @@ struct PremiumPlanProcessorTests {
         #expect(billingService.getPremiumPlanCallsCount == 1)
         #expect(coordinator.alertShown.isEmpty)
         #expect(coordinator.routes.isEmpty)
-        #expect(subject.state.loadingState == .error(errorMessage: ""))
+        #expect(subject.state.loadingState == .error(
+            errorMessage: Localizations.weCouldntLoadYourSubscriptionDetailsPleaseRetry,
+        ))
     }
 
     /// `perform(_:)` with `.appeared` skips `getSubscription()` when a subscription is pre-loaded in state.
@@ -226,6 +230,8 @@ struct PremiumPlanProcessorTests {
 
         #expect(billingService.getPremiumPlanCallsCount == 1)
         #expect(errorReporter.errors.first as? BitwardenTestError == .example)
-        #expect(subject.state.loadingState == .error(errorMessage: BitwardenTestError.example.localizedDescription))
+        #expect(subject.state.loadingState == .error(
+            errorMessage: Localizations.weCouldntLoadYourSubscriptionDetailsPleaseRetry,
+        ))
     }
 }
