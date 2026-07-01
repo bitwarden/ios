@@ -10,6 +10,7 @@ import XCTest
 
 /// Tests for `CreatePasskeyProcessor`.
 ///
+@available(iOS 17, *)
 class CreatePasskeyProcessorTests: BitwardenTestCase {
     // MARK: Properties
 
@@ -62,7 +63,11 @@ class CreatePasskeyProcessorTests: BitwardenTestCase {
     /// `perform(.registerPasskey)` sets status to `.success` when registration succeeds.
     @MainActor
     func test_perform_registerPasskey_success() async {
-        subject.performRegistration = { _, _, _ in }
+        let subject = CreatePasskeyProcessor(
+            coordinator: coordinator.asAnyCoordinator(),
+            delegate: delegate,
+            performRegistration: { _, _, _, _ in },
+        )
         await subject.perform(.registerPasskey)
         XCTAssertEqual(subject.state.status, .success)
     }
@@ -71,7 +76,11 @@ class CreatePasskeyProcessorTests: BitwardenTestCase {
     @MainActor
     func test_perform_registerPasskey_failure() async {
         let testError = BitwardenTestError.example
-        subject.performRegistration = { _, _, _ in throw testError }
+        let subject = CreatePasskeyProcessor(
+            coordinator: coordinator.asAnyCoordinator(),
+            delegate: delegate,
+            performRegistration: { _, _, _, _ in throw testError },
+        )
         await subject.perform(.registerPasskey)
         XCTAssertEqual(subject.state.status, .failure(testError.localizedDescription))
     }
@@ -79,18 +88,22 @@ class CreatePasskeyProcessorTests: BitwardenTestCase {
     /// `perform(.registerPasskey)` passes the current state values to the registration closure.
     @MainActor
     func test_perform_registerPasskey_passesStateValues() async {
-        subject.receive(.rpIdChanged("example.com"))
-        subject.receive(.userNameChanged("alice"))
-        subject.receive(.displayNameChanged("Alice Smith"))
-
         var capturedRpId: String?
         var capturedUserName: String?
         var capturedDisplayName: String?
-        subject.performRegistration = { rpId, userName, displayName in
-            capturedRpId = rpId
-            capturedUserName = userName
-            capturedDisplayName = displayName
-        }
+        let subject = CreatePasskeyProcessor(
+            coordinator: coordinator.asAnyCoordinator(),
+            delegate: delegate,
+            performRegistration: { rpId, userName, displayName, _ in
+                capturedRpId = rpId
+                capturedUserName = userName
+                capturedDisplayName = displayName
+            },
+        )
+
+        subject.receive(.rpIdChanged("example.com"))
+        subject.receive(.userNameChanged("alice"))
+        subject.receive(.displayNameChanged("Alice Smith"))
 
         await subject.perform(.registerPasskey)
 
