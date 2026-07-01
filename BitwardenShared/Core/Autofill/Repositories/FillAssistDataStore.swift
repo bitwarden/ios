@@ -46,6 +46,9 @@ class DefaultFillAssistDataStore: FillAssistDataStore {
     /// The Keychain repository for storing and retrieving the encryption key.
     private let keychainRepository: KeychainRepository
 
+    /// An optional directory override used in tests to avoid writing to the real app container.
+    private let overrideBaseURL: URL?
+
     // MARK: Initialization
 
     /// Creates a `DefaultFillAssistDataStore`.
@@ -53,13 +56,16 @@ class DefaultFillAssistDataStore: FillAssistDataStore {
     /// - Parameters:
     ///   - fileManager: The file manager to use for file I/O. Defaults to `.default`.
     ///   - keychainRepository: The Keychain repository for key storage.
+    ///   - overrideBaseURL: Base directory override for tests. Production callers omit this.
     ///
     init(
         fileManager: FileManager = .default,
         keychainRepository: KeychainRepository,
+        overrideBaseURL: URL? = nil,
     ) {
         self.fileManager = fileManager
         self.keychainRepository = keychainRepository
+        self.overrideBaseURL = overrideBaseURL
     }
 
     // MARK: FillAssistDataStore
@@ -94,30 +100,35 @@ class DefaultFillAssistDataStore: FillAssistDataStore {
         if fileManager.fileExists(atPath: fileURL.path) {
             try fileManager.removeItem(at: fileURL)
         }
-        try? await keychainRepository.deleteUserAuthKey(for: .fillAssistEncryptionKey(userId: userId))
+        try await keychainRepository.deleteUserAuthKey(for: .fillAssistEncryptionKey(userId: userId))
     }
 
     // MARK: Private
 
-    /// Returns the file URL for a user's encrypted rules file.
-    ///
     private func rulesFileURL(for userId: String) throws -> URL {
-        guard let base = fileManager.urls(for: .applicationSupportDirectory, in: .userDomainMask).first else {
-            throw FillAssistDataStoreError.missingApplicationSupportDirectory
+        if let base = overrideBaseURL {
+            return base.appendingPathComponent("\(userId).bin")
         }
-        return base
-            .appendingPathComponent("FillAssistRules", isDirectory: true)
-            .appendingPathComponent("\(userId).bin")
+        return try fileManager.fillAssistRulesURL(for: userId)
     }
 
     /// Returns the AES-256 encryption key for a user, creating and storing it if it does not exist.
     ///
+    /// Propagates any Keychain error (e.g. locked device) so callers can retry rather than
+    /// silently generating a new key and making existing encrypted data permanently unreadable.
+    ///
     private func encryptionKey(for userId: String) async throws -> SymmetricKey {
-        if let stored = try? await keychainRepository.getUserAuthKeyValue(
-            for: .fillAssistEncryptionKey(userId: userId)
-        ), let key = SymmetricKey(base64EncodedString: stored) {
-            return key
+        do {
+            let stored = try await keychainRepository.getUserAuthKeyValue(
+                for: .fillAssistEncryptionKey(userId: userId),
+            )
+            if let key = SymmetricKey(base64EncodedString: stored) {
+                return key
+            }
+        } catch KeychainServiceError.keyNotFound {
+            // Key genuinely absent — fall through to generate a new one.
         }
+        // stored == nil or key was not found: generate, persist, and return a fresh key.
         let key = SymmetricKey(size: .bits256)
         try await keychainRepository.setUserAuthKey(
             for: .fillAssistEncryptionKey(userId: userId),
@@ -131,7 +142,6 @@ class DefaultFillAssistDataStore: FillAssistDataStore {
 
 enum FillAssistDataStoreError: Error {
     case encryptionFailed
-    case missingApplicationSupportDirectory
 }
 
 // MARK: - SymmetricKey + Base64
