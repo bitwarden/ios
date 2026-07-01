@@ -146,8 +146,10 @@ jobs:
             cp "$local_profile_path" "$profiles_dir_path/$profile_uuid.mobileprovision"
           done
 
-          echo "⌛️ Downloading Google-Services.plist..."
-          az_download mobile "$_AZ_CRASHLYTICS_FILE_NAME" "$_CRASHLYTICS_PATH"
+          if [[ "$_USES_CRASHLYTICS" != "false" ]]; then
+            echo "⌛️ Downloading Google-Services.plist..."
+            az_download mobile "$_AZ_CRASHLYTICS_FILE_NAME" "$_CRASHLYTICS_PATH"
+          fi
 
           if [[ "$_APP" == "password_manager" ]]; then
             echo "⌛️ Downloading Google-Services.plist for watchOS..."
@@ -270,7 +272,7 @@ jobs:
             --apiIssuer "$_ISSUER"
 
       - name: Upload dSYM files to Crashlytics
-        if: ${{ env._BUILD_MODE == 'Device' }}
+        if: ${{ env._BUILD_MODE == 'Device' && env._USES_CRASHLYTICS != 'false' }}
         continue-on-error: true
         run: |
           find "$_EXPORT_PATH/dSYMs" -name "*.dSYM" \

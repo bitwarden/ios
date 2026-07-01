@@ -27,6 +27,13 @@ APP_CONFIG_MAP = {
     build_app_path: "build/DerivedData/Build/Products/Debug-iphonesimulator/Authenticator.app",
     ci_build_info_filepath: "BitwardenKit/Core/Platform/Utilities/CIBuildInfo.swift",
   },
+  "test_harness" => {
+    project_filepath: "project-bwth.yml",
+    build_ipa_path: "build/TestHarness/TestHarness.ipa",
+    build_dsyms_path: "build/TestHarness.xcarchive/dSYMs",
+    build_app_path: "build/DerivedData/Build/Products/Debug-iphonesimulator/TestHarness.app",
+    ci_build_info_filepath: "BitwardenKit/Core/Platform/Utilities/CIBuildInfo.swift",
+  },
 }
 
 ARTIFACT_EXTENSION = {
@@ -255,6 +262,8 @@ platform :ios do |options|
                 generate_xcconfig_content_bwpm(bundle_id, bundle_display, shared_app_group_id, app_icon, profile_prefix, compiler_flags)
             when "authenticator"
                 generate_xcconfig_content_bwa(bundle_id, shared_app_group_id, app_icon, profile_prefix, compiler_flags)
+            when "test_harness"
+                generate_xcconfig_content_bwth(bundle_id, shared_app_group_id, app_icon, profile_prefix, compiler_flags)
         end
     end
 
@@ -264,6 +273,8 @@ platform :ios do |options|
                 generate_export_options_plist_content_bwpm(bundle_id, profile_prefix)
             when "authenticator"
                 generate_export_options_plist_content_bwa(bundle_id, profile_prefix)
+            when "test_harness"
+                generate_export_options_plist_content_bwth(bundle_id, profile_prefix)
         end
     end
 
@@ -346,6 +357,40 @@ platform :ios do |options|
           <dict>
               <key>#{bundle_id}</key>
               <string>#{profile_prefix} Bitwarden Authenticator</string>
+          </dict>
+          <key>manageAppVersionAndBuildNumber</key>
+          <false/>
+      </dict>
+      </plist>
+      PLIST
+    end
+
+    def generate_xcconfig_content_bwth(bundle_id, shared_app_group_id, app_icon, profile_prefix, compiler_flags = "")
+      {
+        "CODE_SIGN_STYLE" => "Manual",
+        "CODE_SIGN_IDENTITY" => "Apple Distribution",
+        "DEVELOPMENT_TEAM" => "LTZ2PFU5D6",
+        "ORGANIZATION_IDENTIFIER" => "com.bitwarden",
+        "BASE_BUNDLE_ID" => bundle_id,
+        "SHARED_APP_GROUP_IDENTIFIER" => shared_app_group_id,
+        "APPICON_NAME" => app_icon,
+        "PROVISIONING_PROFILE_SPECIFIER" => "#{profile_prefix} TestHarness",
+        "SWIFT_ACTIVE_COMPILATION_CONDITIONS" => "$(inherited) #{compiler_flags}"
+      }
+    end
+
+    def generate_export_options_plist_content_bwth(bundle_id, profile_prefix)
+      <<~PLIST
+      <?xml version="1.0" encoding="UTF-8"?>
+      <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+      <plist version="1.0">
+      <dict>
+          <key>method</key>
+          <string>app-store-connect</string>
+          <key>provisioningProfiles</key>
+          <dict>
+              <key>#{bundle_id}</key>
+              <string>#{profile_prefix} TestHarness</string>
           </dict>
           <key>manageAppVersionAndBuildNumber</key>
           <false/>
