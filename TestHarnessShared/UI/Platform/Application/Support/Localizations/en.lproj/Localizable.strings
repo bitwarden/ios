@@ -1,9 +1,9 @@
+"AssertionResult" = "Assertion Result";
 "CardAutofillForm" = "Card Autofill Form";
 "CardAutofillFormDescriptionLong" = "Long press a field, then select Autofill and Password to autofill with Bitwarden. Requires Bitwarden PM as AutoFill provider and a saved Card cipher.";
 "CardDetails" = "Card Details";
 "CardholderName" = "Cardholder Name";
 "CardNumber" = "Card Number";
-"CreatePasskey" = "Create Passkey";
 "CreatePasskeyFormDescriptionLong" = "Fill in the fields above, then tap Register Passkey. The Bitwarden AutoFill sheet will appear to save the credential.";
 "Credentials" = "Credentials";
 "DisplayName" = "Display Name";
@@ -14,6 +14,8 @@
 "ExpirationYear" = "Expiration Year";
 "FileShare" = "File Share";
 "FormValues" = "Form Values";
+"PasskeyAssertionNotAvailable" = "Passkey assertion requires iOS 17 or later.";
+"PasskeyAssertedSuccessfully" = "Passkey sign-in succeeded.";
 "PasskeyRegisteredSuccessfully" = "Passkey registered successfully.";
 "PasskeyRegistrationRequiresIOS17OrLater" = "Passkey registration requires iOS 17 or later.";
 "Password" = "Password";
@@ -28,6 +30,7 @@
 "SharesAGeneratedPNGImageDescriptionLong" = "Shares a generated PNG image. Exercises the UTType.data → UIImage → file Send path in the share extension.";
 "ShareText" = "Share Text";
 "SharesTheTextAboveDescriptionLong" = "Shares the text above. Exercises the UTType.plainText → text Send path in the share extension.";
+"SignInWithPasskey" = "Sign In with Passkey";
 "SimpleLoginForm" = "Simple Login Form";
 "TestHarness" = "Test Harness";
 "TestScenarios" = "Test Scenarios";
@@ -36,5 +39,7 @@
 "TOTPCode" = "TOTP Code";
 "UnexpectedCredentialTypeReceived" = "Unexpected credential type received.";
 "Username" = "Username";
+"UsePasskey" = "Use passkey";
+"UsePasskeyFormDescriptionLong" = "Enter a relying party ID above, then tap Sign In with Passkey. The Bitwarden AutoFill sheet will appear to select a credential.";
 "UseThisLoginFormToTestAutofillFunctionality" = "Use this login form to test autofill functionality.";
 "XColonY" = "%@: %@";

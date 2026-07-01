@@ -8,7 +8,7 @@
         <string>webcredentials:*.bitwarden.eu</string>
         <string>webcredentials:*.bitwarden.pw</string>
     </array>
-	<key>com.apple.security.application-groups</key>
+  <key>com.apple.security.application-groups</key>
 	<array>
 		<string>group.${BASE_BUNDLE_ID}</string>
 		<string>$(SHARED_APP_GROUP_IDENTIFIER)</string>
