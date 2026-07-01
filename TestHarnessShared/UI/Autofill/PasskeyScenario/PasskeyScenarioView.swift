@@ -33,6 +33,7 @@ struct PasskeyScenarioView: View {
                 Button(Localizations.clearAll) {
                     Task { await store.perform(.clearAll) }
                 }
+                .accessibilityIdentifier("ClearAllPasskeysButton")
                 .disabled(store.state.mode != .manage || store.state.passkeys.isEmpty)
             }
         }
@@ -207,6 +208,7 @@ struct PasskeyScenarioView: View {
                 Text(Localizations.noPasskeysRegisteredDescription)
                     .styleGuide(.subheadline)
                     .foregroundColor(.secondary)
+                    .accessibilityIdentifier("NoPasskeysRegisteredLabel")
             } header: {
                 Text(Localizations.registeredPasskeys)
             }
@@ -221,6 +223,7 @@ struct PasskeyScenarioView: View {
                         passkeyRow(entry)
                     }
                     .tint(.primary)
+                    .accessibilityIdentifier("PasskeyRow")
                 }
                 .onDelete { indexSet in
                     for index in indexSet {
@@ -240,15 +243,18 @@ struct PasskeyScenarioView: View {
         VStack(alignment: .leading, spacing: 2) {
             Text(entry.userName)
                 .styleGuide(.body)
+                .accessibilityIdentifier("PasskeyUserNameLabel")
             Text(entry.rpId)
                 .styleGuide(.subheadline)
                 .foregroundColor(.secondary)
+                .accessibilityIdentifier("PasskeyRelyingPartyIdLabel")
             HStack(spacing: 4) {
                 Text(entry.createdAt, style: .date)
                 Text(entry.createdAt, style: .time)
             }
             .styleGuide(.caption1)
             .foregroundColor(.secondary)
+            .accessibilityIdentifier("PasskeyCreatedAtLabel")
         }
         .padding(.vertical, 2)
     }
