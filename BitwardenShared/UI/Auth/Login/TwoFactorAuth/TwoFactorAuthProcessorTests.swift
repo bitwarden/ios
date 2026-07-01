@@ -467,8 +467,8 @@ class TwoFactorAuthProcessorTests: BitwardenTestCase { // swiftlint:disable:this
         XCTAssertEqual(coordinator.events.last, .didCompleteAuth)
     }
 
-    /// `perform(_:)` with `.continueTapped` throws `noEncUserKey` when the key connector wrapped
-    /// user key is missing (e.g. new user not yet migrated to key connector).
+    /// `perform(_:)` with `.continueTapped` throws `missingKeyConnectorKey` when the key connector
+    /// wrapped user key is missing (e.g. new user not yet migrated to key connector).
     @MainActor
     func test_perform_continueTapped_loginWithKeyConnectorKey_noEncryptedUserKey() async {
         authService.loginWithTwoFactorCodeResult = .success(.keyConnector(
@@ -481,7 +481,7 @@ class TwoFactorAuthProcessorTests: BitwardenTestCase { // swiftlint:disable:this
         await subject.perform(.continueTapped)
 
         XCTAssertFalse(authRepository.unlockVaultWithKeyConnectorKeyCalled)
-        XCTAssertEqual(coordinator.errorAlertsShown.last as? StateServiceError, .noEncUserKey)
+        XCTAssertEqual(coordinator.errorAlertsShown.last as? TwoFactorAuthError, .missingKeyConnectorKey)
     }
 
     /// `perform(_:)` with `.continueTapped` handles a two-factor error correctly.

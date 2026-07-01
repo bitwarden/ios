@@ -4,6 +4,13 @@ import BitwardenResources
 import CryptoKit
 import Foundation
 
+/// Errors thrown by `TwoFactorAuthProcessor`.
+///
+enum TwoFactorAuthError: Error {
+    /// The key connector wrapped user key is missing, but required for Key Connector unlock.
+    case missingKeyConnectorKey
+}
+
 // MARK: - TwoFactorAuthProcessor
 
 /// The processor used to manage state and handle actions for the `TwoFactorAuthView`.
@@ -240,7 +247,7 @@ final class TwoFactorAuthProcessor: StateProcessor<TwoFactorAuthState, TwoFactor
                 coordinator.navigate(to: .dismiss)
             case let .keyConnector(keyConnectorKeyWrappedUserKey, keyConnectorUrl):
                 guard let keyConnectorKeyWrappedUserKey else {
-                    throw StateServiceError.noEncUserKey
+                    throw TwoFactorAuthError.missingKeyConnectorKey
                 }
                 try await services.authRepository.unlockVaultWithKeyConnectorKey(
                     keyConnectorKeyWrappedUserKey: keyConnectorKeyWrappedUserKey,
