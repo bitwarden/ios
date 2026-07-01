@@ -93,6 +93,7 @@ class RootCoordinator: Coordinator, HasStackNavigator {
     /// Shows the create passkey test screen.
     ///
     private func showCreatePasskey() {
+        guard #available(iOS 17, *) else { return }
         let processor = CreatePasskeyProcessor(coordinator: asAnyCoordinator(), delegate: self)
         let view = CreatePasskeyView(store: Store(processor: processor))
         let viewController = UIHostingController(rootView: view)
