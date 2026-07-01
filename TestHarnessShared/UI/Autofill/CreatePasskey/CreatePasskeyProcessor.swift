@@ -7,6 +7,7 @@ import UIKit
 
 /// The processor for the create passkey test screen.
 ///
+@available(iOS 17, *)
 class CreatePasskeyProcessor: StateProcessor<
     CreatePasskeyState,
     CreatePasskeyAction,
@@ -14,7 +15,12 @@ class CreatePasskeyProcessor: StateProcessor<
 > {
     // MARK: Types
 
-    typealias PerformRegistration = (_ rpId: String, _ userName: String, _ displayName: String) async throws -> Void
+    typealias PerformRegistration = (
+        _ rpId: String,
+        _ userName: String,
+        _ displayName: String,
+        _ presentationAnchor: () async -> ASPresentationAnchor,
+    ) async throws -> Void
 
     // MARK: Private Properties
 
@@ -26,13 +32,14 @@ class CreatePasskeyProcessor: StateProcessor<
 
     // MARK: Internal for Testability
 
-    /// Performs the passkey registration flow. Overridable in tests.
+    /// Performs the passkey registration flow. Injected for testability.
     ///
     /// - Parameters:
     ///   - rpId: The relying party identifier.
     ///   - userName: The username for the credential.
     ///   - displayName: The display name for the credential.
-    var performRegistration: PerformRegistration
+    ///   - presentationAnchor: Provides the window used to present the passkey sheet.
+    let performRegistration: PerformRegistration
 
     // MARK: Initialization
 
@@ -41,23 +48,49 @@ class CreatePasskeyProcessor: StateProcessor<
     /// - Parameters:
     ///   - coordinator: The coordinator that handles navigation.
     ///   - delegate: The delegate used to obtain the presentation anchor.
+    ///   - performRegistration: Performs the passkey registration flow. Defaults to the real
+    ///     `ASAuthorizationController`-based implementation; overridable in tests.
     ///
     init(
         coordinator: AnyCoordinator<RootRoute, Void>,
         delegate: CreatePasskeyProcessorDelegate?,
+        performRegistration: @escaping PerformRegistration = CreatePasskeyProcessor.performPasskeyRegistration,
     ) {
         self.coordinator = coordinator
         self.delegate = delegate
-        performRegistration = { _, _, _ in throw PasskeyRegistrationError.notAvailable }
+        self.performRegistration = performRegistration
         super.init(state: CreatePasskeyState())
+    }
 
-        performRegistration = { [weak self] rpId, userName, displayName in
-            try await self?.performPasskeyRegistration(
-                rpId: rpId,
-                userName: userName,
-                displayName: displayName,
-            )
-        }
+    // MARK: Static Methods
+
+    /// The real passkey registration implementation using `ASAuthorizationController`.
+    ///
+    /// - Parameters:
+    ///   - rpId: The relying party identifier.
+    ///   - userName: The username for the credential.
+    ///   - displayName: The display name for the credential.
+    ///   - presentationAnchor: Provides the window used to present the passkey sheet.
+    ///
+    private static func performPasskeyRegistration(
+        rpId: String,
+        userName: String,
+        displayName: String,
+        presentationAnchor: () async -> ASPresentationAnchor,
+    ) async throws {
+        let window = await presentationAnchor()
+
+        let provider = ASAuthorizationPlatformPublicKeyCredentialProvider(relyingPartyIdentifier: rpId)
+        let challenge = Data((0 ..< 32).map { _ in UInt8.random(in: 0 ... 255) })
+        let userId = Data(UUID().uuidString.utf8)
+        let request = provider.createCredentialRegistrationRequest(
+            challenge: challenge,
+            name: userName,
+            userID: userId,
+        )
+        request.displayName = displayName.isEmpty ? userName : displayName
+
+        try await PasskeyRegistrationCoordinator(window: window).register(request: request)
     }
 
     // MARK: Methods
@@ -89,50 +122,14 @@ class CreatePasskeyProcessor: StateProcessor<
     private func registerPasskey() async {
         state.status = .inProgress
         do {
-            try await performRegistration(state.rpId, state.userName, state.displayName)
+            try await performRegistration(state.rpId, state.userName, state.displayName) { [weak self] in
+                await self?.delegate?.presentationAnchorForPasskeyRegistration() ?? UIWindow()
+            }
             state.status = .success
         } catch let error as ASAuthorizationError where error.code == .canceled {
             state.status = .idle
         } catch {
             state.status = .failure(error.localizedDescription)
-        }
-    }
-
-    /// The real passkey registration implementation using `ASAuthorizationController`.
-    private func performPasskeyRegistration(
-        rpId: String,
-        userName: String,
-        displayName: String,
-    ) async throws {
-        guard #available(iOS 17, *) else {
-            throw PasskeyRegistrationError.notAvailable
-        }
-
-        let window = await delegate?.presentationAnchorForPasskeyRegistration() ?? UIWindow()
-
-        let provider = ASAuthorizationPlatformPublicKeyCredentialProvider(relyingPartyIdentifier: rpId)
-        let challenge = Data((0 ..< 32).map { _ in UInt8.random(in: 0 ... 255) })
-        let userId = Data(UUID().uuidString.utf8)
-        let request = provider.createCredentialRegistrationRequest(
-            challenge: challenge,
-            name: userName,
-            userID: userId,
-        )
-        request.displayName = displayName.isEmpty ? userName : displayName
-
-        try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Error>) in
-            let handler = PasskeyRegistrationHandler(continuation: continuation, window: window)
-            let controller = ASAuthorizationController(authorizationRequests: [request])
-            controller.delegate = handler
-            controller.presentationContextProvider = handler
-            // Retain the handler for the lifetime of the controller sheet.
-            objc_setAssociatedObject(
-                controller,
-                &passkeyContinuationKey,
-                handler,
-                .OBJC_ASSOCIATION_RETAIN_NONATOMIC,
-            )
-            controller.performRequests()
         }
     }
 }
@@ -152,40 +149,54 @@ protocol CreatePasskeyProcessorDelegate: AnyObject {
 /// Errors that can occur during passkey registration.
 ///
 enum PasskeyRegistrationError: Error, LocalizedError {
-    /// Passkey registration is not available on this OS version.
-    case notAvailable
-
     /// The credential returned by the authorization controller was not the expected type.
     case unexpectedCredentialType
 
     var errorDescription: String? {
         switch self {
-        case .notAvailable:
-            Localizations.passkeyRegistrationRequiresIOS17OrLater
         case .unexpectedCredentialType:
             Localizations.unexpectedCredentialTypeReceived
         }
     }
 }
 
-// MARK: - PasskeyRegistrationHandler
+// MARK: - PasskeyRegistrationCoordinator
 
-/// Bridges `ASAuthorizationControllerDelegate` callbacks to a Swift concurrency continuation.
+/// Drives an `ASAuthorizationController` request and bridges its delegate callbacks to a Swift
+/// concurrency continuation. Since the controller's `delegate` and `presentationContextProvider`
+/// are weak references, this object owns the continuation itself so that calling `register(request:)`
+/// as an async instance method keeps it alive (via the caller's `await`) for the life of the request,
+/// without needing `objc_setAssociatedObject` to retain a separate delegate object.
 ///
 @available(iOS 17, *)
-private class PasskeyRegistrationHandler: NSObject,
+private class PasskeyRegistrationCoordinator: NSObject,
     ASAuthorizationControllerDelegate,
     ASAuthorizationControllerPresentationContextProviding {
     // MARK: Private Properties
 
-    private let continuation: CheckedContinuation<Void, Error>
+    private var continuation: CheckedContinuation<Void, Error>?
     private let window: ASPresentationAnchor
 
     // MARK: Initialization
 
-    init(continuation: CheckedContinuation<Void, Error>, window: ASPresentationAnchor) {
-        self.continuation = continuation
+    init(window: ASPresentationAnchor) {
         self.window = window
+    }
+
+    // MARK: Methods
+
+    /// Performs the authorization request and suspends until the delegate receives a result.
+    ///
+    /// - Parameter request: The credential registration request to perform.
+    ///
+    func register(request: ASAuthorizationRequest) async throws {
+        try await withCheckedThrowingContinuation { continuation in
+            self.continuation = continuation
+            let controller = ASAuthorizationController(authorizationRequests: [request])
+            controller.delegate = self
+            controller.presentationContextProvider = self
+            controller.performRequests()
+        }
     }
 
     // MARK: ASAuthorizationControllerDelegate
@@ -194,18 +205,20 @@ private class PasskeyRegistrationHandler: NSObject,
         controller _: ASAuthorizationController,
         didCompleteWithAuthorization authorization: ASAuthorization,
     ) {
+        defer { continuation = nil }
         guard authorization.credential is ASAuthorizationPublicKeyCredentialRegistration else {
-            continuation.resume(throwing: PasskeyRegistrationError.unexpectedCredentialType)
+            continuation?.resume(throwing: PasskeyRegistrationError.unexpectedCredentialType)
             return
         }
-        continuation.resume()
+        continuation?.resume()
     }
 
     func authorizationController(
         controller _: ASAuthorizationController,
         didCompleteWithError error: Error,
     ) {
-        continuation.resume(throwing: error)
+        defer { continuation = nil }
+        continuation?.resume(throwing: error)
     }
 
     // MARK: ASAuthorizationControllerPresentationContextProviding
@@ -214,8 +227,3 @@ private class PasskeyRegistrationHandler: NSObject,
         window
     }
 }
-
-// MARK: - Private Globals
-
-/// Key for the `objc_setAssociatedObject` used to retain `PasskeyRegistrationHandler`.
-private var passkeyContinuationKey: UInt8 = 0
