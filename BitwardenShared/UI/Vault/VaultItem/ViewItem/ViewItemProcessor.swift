@@ -41,6 +41,9 @@ final class ViewItemProcessor: StateProcessor<ViewItemState, ViewItemAction, Vie
         /// A password visibility toggle occurred when not possible.
         case nonLoginPasswordToggle(String)
 
+        /// An error for passport action handling
+        case nonPassportTypeToggle(String)
+
         /// An error for ssh key action handling
         case nonSshKeyTypeToggle(String)
     }
@@ -191,6 +194,8 @@ final class ViewItemProcessor: StateProcessor<ViewItemState, ViewItemAction, Vie
             editItem()
         case let .morePressed(menuAction):
             handleMenuAction(menuAction)
+        case let .passportItemAction(action):
+            handlePassportAction(action)
         case .passwordVisibilityPressed:
             guard case var .data(cipherState) = state.loadingState else {
                 services.errorReporter.log(
@@ -217,6 +222,10 @@ final class ViewItemProcessor: StateProcessor<ViewItemState, ViewItemAction, Vie
         case .passwordHistoryPressed:
             guard let passwordHistory = state.passwordHistory else { return }
             coordinator.navigate(to: .passwordHistory(passwordHistory))
+        case .premiumSubscriptionRequiredTapped:
+            coordinator.showAlert(.totpPremiumRequired { [weak self] in
+                await self?.navigateToPremiumUpgrade()
+            })
         case let .sshKeyItemAction(sshKeyAction):
             handleSSHKeyAction(sshKeyAction)
         case let .toastShown(newValue):
@@ -508,6 +517,33 @@ private extension ViewItemProcessor {
             coordinator.navigate(to: .moveToOrganization(cipher), context: self)
         case .restore:
             showRestoreItemConfirmation()
+        }
+    }
+
+    /// Handles `ViewPassportItemAction` events.
+    ///
+    /// - Parameter action: The action to handle.
+    ///
+    private func handlePassportAction(_ action: ViewPassportItemAction) {
+        guard case var .data(cipherState) = state.loadingState else {
+            services.errorReporter.log(
+                error: ActionError.dataNotLoaded("Cannot handle passport action without loaded data"),
+            )
+            return
+        }
+        guard case .passport = cipherState.type else {
+            services.errorReporter.log(
+                error: ActionError.nonPassportTypeToggle("Cannot handle passport action on non-passport type"),
+            )
+            return
+        }
+        switch action {
+        case let .toggleNationalIdentificationNumberVisibilityChanged(isVisible):
+            cipherState.passportItemState.isNationalIdentificationNumberVisible = isVisible
+            state.loadingState = .data(cipherState)
+        case let .togglePassportNumberVisibilityChanged(isVisible):
+            cipherState.passportItemState.isPassportNumberVisible = isVisible
+            state.loadingState = .data(cipherState)
         }
     }
 

@@ -1137,3 +1137,28 @@
 "IssueDate" = "Uitgiftedatum";
 "ExpirationDate" = "Vervaldatum";
 "LicenseClass" = "Rijbewijsklasse";
+"PassportDetails" = "Paspoortgegevens";
+/* Label for the sex/gender field as printed on a passport (e.g. "M", "F", "X"). */
+"Sex" = "Geslacht";
+"BirthPlace" = "Geboorteplaats";
+/* Label for the nationality field on a passport (the country a person is a national of). */
+"Nationality" = "Nationaliteit";
+/* Label for the category of passport (e.g. "Regular/Tourist", "Diplomatic", "Official"). */
+"PassportType" = "Soort paspoort";
+"NationalIdentificationNumber" = "Nationaal identificatienummer";
+/* Label for the government authority or office that issued the passport. */
+"IssuingAuthorityOffice" = "Autoriteit/kantoor van uitgifte";
+"AccountDetails" = "Accountgegevens";
+"BankName" = "Banknaam";
+"NameOnAccount" = "Naam op rekening";
+"AccountType" = "Soort rekening";
+"BranchNumber" = "Vestiging/instituutnummer";
+"SwiftCode" = "SWIFT-code";
+"IBAN" = "IBAN";
+"BankContactPhone" = "Telefoonnummer bank";
+"CertificateOfDeposit" = "Bewijs van storting";
+"Checking" = "Controleren";
+"InvestmentBrokerage" = "Investering/makelaar";
+"LineOfCredit" = "Kredietlijn";
+"MoneyMarket" = "Geldmarkt";
+"Savings" = "Spaargeld";

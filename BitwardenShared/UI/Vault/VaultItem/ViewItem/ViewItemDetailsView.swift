@@ -317,8 +317,13 @@ struct ViewItemDetailsView: View { // swiftlint:disable:this type_body_length
                 ),
             )
         case .passport:
-            // TODO: PM-38154 - render ViewPassportItemView once the Passport view UI lands.
-            EmptyView()
+            ViewPassportItemView(
+                store: store.child(
+                    state: { _ in store.state.passportItemState },
+                    mapAction: { $0 },
+                    mapEffect: nil,
+                ),
+            )
         case .card:
             ViewCardItemView(
                 store: store.child(

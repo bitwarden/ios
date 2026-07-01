@@ -182,6 +182,12 @@ private struct VaultAutofillListSearchableView: View {
     /// The `TimeProvider` used to calculate TOTP expiration.
     var timeProvider: any TimeProvider
 
+    // MARK: Private properties
+
+    /// Tracks the long-running excluded-credential stream task so it can be cancelled when the id
+    /// changes or the view disappears, preventing concurrent tasks from racing on state.
+    @SwiftUI.State private var excludedCredentialTask: Task<Void, Never>?
+
     // MARK: View
 
     var body: some View {
@@ -204,8 +210,15 @@ private struct VaultAutofillListSearchableView: View {
             .searchDebouncedTask(id: store.state.searchText) {
                 await store.perform(.search(store.state.searchText))
             }
-            .task(id: store.state.excludedCredentialIdFound) {
-                await store.perform(.excludedCredentialFoundChanged)
+            .onAppear {
+                restartExcludedCredentialTask()
+            }
+            .onChange(of: store.state.excludedCredentialIdFound) { _ in
+                restartExcludedCredentialTask()
+            }
+            .onDisappear {
+                excludedCredentialTask?.cancel()
+                excludedCredentialTask = nil
             }
             .toast(
                 store.binding(
@@ -214,6 +227,17 @@ private struct VaultAutofillListSearchableView: View {
                 ),
                 additionalBottomPadding: FloatingActionButton.bottomOffsetPadding,
             )
+    }
+
+    // MARK: Private methods
+
+    /// Cancels any running excluded-credential stream and starts a fresh one.
+    ///
+    /// Storing the `Task` and cancelling before restarting prevents concurrent tasks from racing on
+    /// `loadingState` when `excludedCredentialIdFound` changes between two non-nil values.
+    private func restartExcludedCredentialTask() {
+        excludedCredentialTask?.cancel()
+        excludedCredentialTask = Task { await store.perform(.excludedCredentialFoundChanged) }
     }
 
     // MARK: Private Views
