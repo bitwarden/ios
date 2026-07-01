@@ -2,21 +2,24 @@ name: CI / TestHarness
 run-name: ${{ github.event_name == 'workflow_dispatch' && inputs.build-mode != 'CI' && format('Manual - TestHarness ({0}) {1}', inputs.build-mode, inputs.xcode-version) || 'CI - TestHarness' }}
 
 on:
-  push:
-    branches:
-      - main
-      - release/**/*
-    paths-ignore:
-      - Bitwarden/**
-      - BitwardenActionExtension/**
-      - BitwardenAutoFillExtension/**
-      - BitwardenNotificationExtension/**
-      - BitwardenShared/**
-      - BitwardenShareExtension/**
-      - BitwardenWatchApp/**
-      - BitwardenWatchWidgetExtension/**
-      - Authenticator/**
-      - AuthenticatorShared/**
+  # Push trigger is disabled until the TestFlight distribution prerequisites (App ID,
+  # provisioning profile in Azure storage, App Store Connect app record, Apple ID mapping in
+  # _build-any.yml) are in place — until then this would fail on every relevant push to main.
+  # push:
+  #   branches:
+  #     - main
+  #     - release/**/*
+  #   paths-ignore:
+  #     - Bitwarden/**
+  #     - BitwardenActionExtension/**
+  #     - BitwardenAutoFillExtension/**
+  #     - BitwardenNotificationExtension/**
+  #     - BitwardenShared/**
+  #     - BitwardenShareExtension/**
+  #     - BitwardenWatchApp/**
+  #     - BitwardenWatchWidgetExtension/**
+  #     - Authenticator/**
+  #     - AuthenticatorShared/**
   workflow_dispatch:
     inputs:
       build-mode:
