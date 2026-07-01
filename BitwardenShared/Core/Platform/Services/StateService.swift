@@ -1428,9 +1428,6 @@ enum StateServiceError: LocalizedError {
     /// The user has no pin protected user key.
     case noPinProtectedUserKey
 
-    /// The user has no user key.
-    case noEncUserKey
-
     var errorDescription: String? {
         switch self {
         case .noActiveAccount:
