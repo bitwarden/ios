@@ -162,4 +162,44 @@ struct StateServiceBillingStateServiceTests {
         let result = try await subject.getSubscriptionAttentionCardVisible()
         #expect(!result)
     }
+
+    // MARK: Upgraded to Premium Card
+
+    /// `getUpgradedToPremiumActionCardVisible()` returns `false` when no value has been set.
+    @Test
+    func getUpgradedToPremiumActionCardVisible_defaultsFalse() async throws {
+        await subject.addAccount(.fixture())
+        let result = try await subject.getUpgradedToPremiumActionCardVisible()
+        #expect(!result)
+    }
+
+    /// `getUpgradedToPremiumActionCardVisible()` returns the stored value for the active account.
+    @Test
+    func getUpgradedToPremiumActionCardVisible_storedValue() async throws {
+        await subject.addAccount(.fixture())
+        appSettingsStore.upgradedToPremiumCardVisibleByUserId["1"] = true
+
+        let result = try await subject.getUpgradedToPremiumActionCardVisible()
+        #expect(result)
+    }
+
+    /// `getUpgradedToPremiumActionCardVisible()` throws when there is no active account.
+    @Test
+    func getUpgradedToPremiumActionCardVisible_noActiveAccount() async {
+        await #expect(throws: StateServiceError.noActiveAccount) {
+            _ = try await subject.getUpgradedToPremiumActionCardVisible()
+        }
+    }
+
+    /// `setUpgradedToPremiumActionCardVisible(_:)` persists the value for the active account.
+    @Test
+    func setUpgradedToPremiumActionCardVisible() async throws {
+        await subject.addAccount(.fixture())
+
+        try await subject.setUpgradedToPremiumActionCardVisible(true)
+        #expect(appSettingsStore.upgradedToPremiumCardVisibleByUserId["1"] == true)
+
+        try await subject.setUpgradedToPremiumActionCardVisible(false)
+        #expect(appSettingsStore.upgradedToPremiumCardVisibleByUserId["1"] == false)
+    }
 }
