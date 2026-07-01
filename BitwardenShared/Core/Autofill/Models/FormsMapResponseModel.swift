@@ -36,11 +36,13 @@ struct FormsMapResponseModel: Equatable, JSONResponse {
 /// Form descriptions for a specific host.
 ///
 struct FormsMapHostEntry: Codable, Equatable {
+    // MARK: Properties
+
     /// Site-wide fallback form descriptions used when no pathname-specific entry matches.
     let forms: [FormsMapContent]?
 
-    /// Pathname-specific form descriptions.
-    let pathnames: [String: FormsMapPathnameEntry]?
+    /// Pathname-specific form descriptions. Null-valued entries are excluded during decoding.
+    @CompactDecodable var pathnames: [String: FormsMapPathnameEntry]?
 }
 
 // MARK: - FormsMapPathnameEntry
