@@ -291,6 +291,7 @@ struct FillAssistRepositoryTests {
 // MARK: - Helpers
 
 private extension FillAssistRepositoryTests {
+    /// Returns a `FillAssistManifestResponseModel` fixture with the given content ID.
     func makeManifest(cid: String) -> FillAssistManifestResponseModel {
         let entry = FillAssistManifestEntryModel(
             cid: cid,
@@ -306,6 +307,13 @@ private extension FillAssistRepositoryTests {
         )
     }
 
+    /// Returns a `FormsMapResponseModel` fixture with a single `example.com` host.
+    ///
+    /// - Parameters:
+    ///   - schemaVersion: The schema version string. Defaults to `"1.0.0"`.
+    ///   - usernameSelector: The CSS selector for the username field. Defaults to `"input#user"`.
+    ///   - hosts: Optional map of hostname to selector string overriding the default host.
+    ///
     private func makeFormsMap(
         schemaVersion: String = "1.0.0",
         usernameSelector: String = "input#user",
@@ -327,6 +335,8 @@ private extension FillAssistRepositoryTests {
         return FormsMapResponseModel(hosts: resolvedHosts, schemaVersion: schemaVersion)
     }
 
+    /// Returns a `FormsMapResponseModel` fixture with both top-level and pathname-specific forms
+    /// for `example.com`, used to test selector pooling across multiple entry points.
     private func makeFormsMapWithPathnames() -> FormsMapResponseModel {
         let loginContent = FormsMapContent(
             category: "account-login",

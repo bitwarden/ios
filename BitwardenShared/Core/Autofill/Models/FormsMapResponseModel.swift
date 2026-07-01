@@ -23,6 +23,12 @@ struct FormsMapResponseModel: Equatable, JSONResponse {
 
     // MARK: Initialization
 
+    /// Creates a `FormsMapResponseModel`.
+    ///
+    /// - Parameters:
+    ///   - hosts: The host entries keyed by hostname.
+    ///   - schemaVersion: The schema version of the map.
+    ///
     init(hosts: [String: FormsMapHostEntry], schemaVersion: String) {
         self.hosts = hosts
         self.schemaVersion = schemaVersion
@@ -58,6 +64,12 @@ struct FormsMapHostEntry: Codable, Equatable {
 
     // MARK: Initialization
 
+    /// Creates a `FormsMapHostEntry`.
+    ///
+    /// - Parameters:
+    ///   - forms: Site-wide fallback form descriptions.
+    ///   - pathnames: Pathname-specific form descriptions. Defaults to `nil`.
+    ///
     init(forms: [FormsMapContent]?, pathnames: [String: FormsMapPathnameEntry]? = nil) {
         self.forms = forms
         _pathnames = CompactDecodable(wrappedValue: pathnames)
