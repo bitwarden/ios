@@ -1974,6 +1974,7 @@ actor DefaultStateService: StateService, ActiveAccountStateProvider, ConfigState
         appSettingsStore.setDisableAutoTotpCopy(nil, userId: knownUserId)
         appSettingsStore.setEncryptedUserKey(key: nil, userId: knownUserId)
         appSettingsStore.setFillAssistLastFetchTimestamp(nil, userId: knownUserId)
+        deleteFillAssistRulesFile(userId: knownUserId)
         appSettingsStore.setHasPerformedSyncAfterLogin(nil, userId: knownUserId)
         appSettingsStore.setLastSyncTime(nil, userId: knownUserId)
         appSettingsStore.setMasterPasswordHash(nil, userId: knownUserId)
@@ -1981,6 +1982,15 @@ actor DefaultStateService: StateService, ActiveAccountStateProvider, ConfigState
         try await keychainRepository.clearLocalUserDataKeyStates(userId: knownUserId)
 
         try await dataStore.deleteDataForUser(userId: knownUserId)
+    }
+
+    /// Deletes the Fill Assist encrypted rules file for a user if it exists.
+    /// Errors are swallowed — the Keychain key deletion in `deleteItems(for:)` already ensures
+    /// the file is permanently unreadable even if the file deletion itself fails.
+    ///
+    private func deleteFillAssistRulesFile(userId: String) {
+        guard let fileURL = try? FileManager.default.fillAssistRulesURL(for: userId) else { return }
+        try? FileManager.default.removeItem(at: fileURL)
     }
 
     func pinProtectedUserKey(userId: String?) async throws -> String? {
