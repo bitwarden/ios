@@ -6,17 +6,17 @@ import SwiftUI
 
 /// A view that displays either a loading indicator or the content view for a set of loaded data.
 struct LoadingView<T: Equatable & Sendable, Contents: View, ErrorView: View>: View {
-    /// The state of this view.
-    var state: LoadingState<T>
-
-    /// An optional message displayed below the loading indicator while in the loading state.
-    var loadingMessage: String?
-
     /// A view builder for displaying the loaded contents of this view.
     @ViewBuilder var contents: (T) -> Contents
 
     /// A view builder for displaying the error view with an error message.
     @ViewBuilder var errorView: (String) -> ErrorView
+
+    /// An optional message displayed below the loading indicator while in the loading state.
+    var loadingMessage: String?
+
+    /// The state of this view.
+    var state: LoadingState<T>
 
     var body: some View {
         switch state {
