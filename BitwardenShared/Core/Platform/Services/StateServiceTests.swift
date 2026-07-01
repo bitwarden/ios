@@ -764,6 +764,15 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         XCTAssertEqual(errorReporter.errors as? [StateServiceError], [.noActiveAccount])
     }
 
+    /// `getFillAssistEnabled()` returns the Fill Assist enabled value for the active account.
+    func test_getFillAssistEnabled() async throws {
+        await subject.addAccount(.fixture())
+        appSettingsStore.fillAssistEnabledByUserId["1"] = true
+
+        let value = try await subject.getFillAssistEnabled()
+        XCTAssertTrue(value)
+    }
+
     /// `getDisableAutoTotpCopy()` returns the disable auto-copy TOTP value for the active account.
     func test_getDisableAutoTotpCopy() async throws {
         await subject.addAccount(.fixture())
@@ -2095,6 +2104,17 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
 
         try await subject.setDefaultUriMatchType(.regularExpression, userId: "1")
         XCTAssertEqual(appSettingsStore.defaultUriMatchTypeByUserId["1"], .regularExpression)
+    }
+
+    /// `setFillAssistEnabled(_:userId:)` sets the Fill Assist enabled value for a user.
+    func test_setFillAssistEnabled() async throws {
+        await subject.addAccount(.fixture(profile: .fixture(userId: "1")))
+
+        try await subject.setFillAssistEnabled(true, userId: "1")
+        XCTAssertEqual(appSettingsStore.fillAssistEnabledByUserId["1"], true)
+
+        try await subject.setFillAssistEnabled(false, userId: "1")
+        XCTAssertEqual(appSettingsStore.fillAssistEnabledByUserId["1"], false)
     }
 
     /// `setDisableAutoTotpCopy(_:userId:)` sets the disable auto-copy TOTP value for a user.

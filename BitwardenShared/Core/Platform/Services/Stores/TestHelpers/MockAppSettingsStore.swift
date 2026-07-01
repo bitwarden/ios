@@ -49,6 +49,7 @@ class MockAppSettingsStore: AppSettingsStore { // swiftlint:disable:this type_bo
     var eventsByUserId = [String: [EventData]]()
     var featureFlags = [String: Bool]()
     var fillAssistCachedDataByUserId = [String: FillAssistCachedData]()
+    var fillAssistEnabledByUserId = [String: Bool]()
     var fillAssistLastFetchTimestampByUserId = [String: Date]()
     var hasPerformedSyncAfterLogin = [String: Bool]()
     var lastActiveTime = [String: Date]()
@@ -153,6 +154,10 @@ class MockAppSettingsStore: AppSettingsStore { // swiftlint:disable:this type_bo
 
     func fillAssistCachedData(userId: String) -> FillAssistCachedData? {
         fillAssistCachedDataByUserId[userId]
+    }
+
+    func fillAssistEnabled(userId: String) -> Bool {
+        fillAssistEnabledByUserId[userId] ?? false
     }
 
     func fillAssistLastFetchTimestamp(userId: String) -> Date? {
@@ -306,6 +311,10 @@ class MockAppSettingsStore: AppSettingsStore { // swiftlint:disable:this type_bo
 
     func setFillAssistCachedData(_ data: FillAssistCachedData?, userId: String) {
         fillAssistCachedDataByUserId[userId] = data
+    }
+
+    func setFillAssistEnabled(_ fillAssistEnabled: Bool?, userId: String) {
+        fillAssistEnabledByUserId[userId] = fillAssistEnabled
     }
 
     func setFillAssistLastFetchTimestamp(_ timestamp: Date?, userId: String) {
