@@ -48,11 +48,13 @@ struct PremiumPlanView: View {
             value: store.state.billingAmount,
             valueColor: Color(asset: SharedAsset.Colors.textPrimary),
         )
-        billingRow(
-            label: Localizations.storageCost,
-            value: store.state.storageCostLabel,
-            valueColor: Color(asset: SharedAsset.Colors.textPrimary),
-        )
+        if store.state.showStorageCost {
+            billingRow(
+                label: Localizations.storageCost,
+                value: store.state.storageCostLabel,
+                valueColor: Color(asset: SharedAsset.Colors.textPrimary),
+            )
+        }
         if store.state.showDiscount {
             billingRow(
                 label: Localizations.discount,
@@ -255,6 +257,20 @@ private extension PremiumSubscription {
         suspension: nil,
     )
 
+    static let previewActiveNoStorage = PremiumSubscription(
+        cadence: .annually,
+        cancelAt: nil,
+        canceled: nil,
+        discount: 0,
+        estimatedTax: 4.55,
+        gracePeriod: nil,
+        nextCharge: Date().addingTimeInterval(60 * 60 * 24 * 30),
+        seatsCost: 19.8,
+        status: .active,
+        storageCost: 0,
+        suspension: nil,
+    )
+
     static let previewUpdatePayment = PremiumSubscription(
         cadence: .annually,
         cancelAt: Date().addingTimeInterval(60 * 60 * 24 * 14),
@@ -353,6 +369,21 @@ private extension PremiumSubscription {
                     state: PremiumPlanState(
                         planStatus: .pendingCancellation,
                         subscription: .previewPendingCancellation,
+                    ),
+                ),
+            ),
+        )
+    }
+}
+
+#Preview("Active - No Storage") {
+    NavigationView {
+        PremiumPlanView(
+            store: Store(
+                processor: StateProcessor(
+                    state: PremiumPlanState(
+                        planStatus: .active,
+                        subscription: .previewActiveNoStorage,
                     ),
                 ),
             ),
