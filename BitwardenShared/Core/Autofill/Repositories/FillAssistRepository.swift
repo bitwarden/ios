@@ -29,7 +29,7 @@ protocol FillAssistRepository { // sourcery: AutoMockable
 class DefaultFillAssistRepository: FillAssistRepository {
     // MARK: Private Properties
 
-    /// The store for persisting fill-assist cached data.
+    /// The store for persisting fill-assist metadata (timestamps, toggle state).
     private let appSettingsStore: AppSettingsStore
 
     /// The service for checking feature flags and configuration.
@@ -44,6 +44,9 @@ class DefaultFillAssistRepository: FillAssistRepository {
     /// The API service for fetching fill-assist data.
     private let fillAssistAPIService: FillAssistAPIService
 
+    /// The encrypted file store for persisting fill-assist cached rules.
+    private let fillAssistDataStore: FillAssistDataStore
+
     /// The service for accessing account state.
     private let stateService: StateService
 
@@ -55,11 +58,12 @@ class DefaultFillAssistRepository: FillAssistRepository {
     /// Creates a `DefaultFillAssistRepository`.
     ///
     /// - Parameters:
-    ///   - appSettingsStore: The store for persisting fill-assist cached data.
+    ///   - appSettingsStore: The store for persisting fill-assist metadata.
     ///   - configService: The service for checking feature flags and configuration.
     ///   - environmentService: The service for accessing environment URLs.
     ///   - errorReporter: The service for reporting non-fatal errors.
     ///   - fillAssistAPIService: The API service for fetching fill-assist data.
+    ///   - fillAssistDataStore: The encrypted file store for cached rules.
     ///   - stateService: The service for accessing account state.
     ///   - timeProvider: The provider of the current time.
     ///
@@ -69,6 +73,7 @@ class DefaultFillAssistRepository: FillAssistRepository {
         environmentService: EnvironmentService,
         errorReporter: ErrorReporter,
         fillAssistAPIService: FillAssistAPIService,
+        fillAssistDataStore: FillAssistDataStore,
         stateService: StateService,
         timeProvider: TimeProvider,
     ) {
@@ -77,6 +82,7 @@ class DefaultFillAssistRepository: FillAssistRepository {
         self.environmentService = environmentService
         self.errorReporter = errorReporter
         self.fillAssistAPIService = fillAssistAPIService
+        self.fillAssistDataStore = fillAssistDataStore
         self.stateService = stateService
         self.timeProvider = timeProvider
     }
@@ -94,12 +100,12 @@ class DefaultFillAssistRepository: FillAssistRepository {
 
     func rules(for hostname: String) async -> FillAssistHostRules? {
         guard let userId = try? await stateService.getActiveAccountId() else { return nil }
-        return appSettingsStore.fillAssistCachedData(userId: userId)?.rules[hostname]
+        return try? await fillAssistDataStore.load(userId: userId)?.rules[hostname]
     }
 
     func clearRules() async throws {
         let userId = try await stateService.getActiveAccountId()
-        appSettingsStore.setFillAssistCachedData(nil, userId: userId)
+        try await fillAssistDataStore.delete(userId: userId)
     }
 
     // MARK: Private
@@ -123,7 +129,7 @@ class DefaultFillAssistRepository: FillAssistRepository {
               !entry.deprecated
         else { return }
 
-        let cached = appSettingsStore.fillAssistCachedData(userId: userId)
+        let cached = try? await fillAssistDataStore.load(userId: userId)
         if cached?.cid == entry.cid, cached?.sourceUrl == sourceUrl.absoluteString {
             appSettingsStore.setFillAssistLastFetchTimestamp(timeProvider.presentTime, userId: userId)
             return
@@ -139,7 +145,7 @@ class DefaultFillAssistRepository: FillAssistRepository {
 
         let rules = buildRules(from: formsMap)
         let data = FillAssistCachedData(cid: entry.cid, rules: rules, sourceUrl: sourceUrl.absoluteString)
-        appSettingsStore.setFillAssistCachedData(data, userId: userId)
+        try await fillAssistDataStore.save(data, userId: userId)
         appSettingsStore.setFillAssistLastFetchTimestamp(timeProvider.presentTime, userId: userId)
     }
 

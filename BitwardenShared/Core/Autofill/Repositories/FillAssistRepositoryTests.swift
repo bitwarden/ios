@@ -17,6 +17,7 @@ struct FillAssistRepositoryTests {
     let environmentService: MockEnvironmentService
     let errorReporter: MockErrorReporter
     let fillAssistAPIService: MockFillAssistAPIService
+    let fillAssistDataStore: MockFillAssistDataStore
     let stateService: MockStateService
     let subject: DefaultFillAssistRepository
     let timeProvider: MockTimeProvider
@@ -29,6 +30,7 @@ struct FillAssistRepositoryTests {
         environmentService = MockEnvironmentService()
         errorReporter = MockErrorReporter()
         fillAssistAPIService = MockFillAssistAPIService()
+        fillAssistDataStore = MockFillAssistDataStore()
         stateService = MockStateService()
         stateService.activeAccount = .fixture()
         stateService.fillAssistEnabledByUserId["1"] = true
@@ -40,6 +42,7 @@ struct FillAssistRepositoryTests {
             environmentService: environmentService,
             errorReporter: errorReporter,
             fillAssistAPIService: fillAssistAPIService,
+            fillAssistDataStore: fillAssistDataStore,
             stateService: stateService,
             timeProvider: timeProvider,
         )
@@ -74,7 +77,7 @@ struct FillAssistRepositoryTests {
         configService.featureFlagsBool[.fillAssistTargetingRules] = true
         let sourceUrl = environmentService.fillAssistRulesURL.absoluteString
 
-        appSettingsStore.fillAssistCachedDataByUserId["1"] = FillAssistCachedData(
+        fillAssistDataStore.loadReturnValue = FillAssistCachedData(
             cid: "sha256:abc123",
             rules: [:],
             sourceUrl: sourceUrl,
@@ -101,7 +104,7 @@ struct FillAssistRepositoryTests {
         #expect(fillAssistAPIService.getManifestCalled)
         #expect(fillAssistAPIService.getFormsMapCalled)
         #expect(fillAssistAPIService.getFormsMapReceivedFilename == "forms.v1.json")
-        let cached = appSettingsStore.fillAssistCachedDataByUserId["1"]
+        let cached = fillAssistDataStore.saveReceivedArguments?.data
         #expect(cached != nil)
         #expect(cached?.cid == "sha256:newcid")
         #expect(appSettingsStore.fillAssistLastFetchTimestampByUserId["1"] != nil)
@@ -117,7 +120,7 @@ struct FillAssistRepositoryTests {
 
         await subject.syncRules()
 
-        #expect(appSettingsStore.fillAssistCachedDataByUserId["1"] == nil)
+        #expect(!fillAssistDataStore.saveCalled)
         #expect(appSettingsStore.fillAssistLastFetchTimestampByUserId["1"] != nil)
     }
 
@@ -131,7 +134,7 @@ struct FillAssistRepositoryTests {
 
         await subject.syncRules()
 
-        let hostRules = appSettingsStore.fillAssistCachedDataByUserId["1"]?.rules["example.com"]
+        let hostRules = fillAssistDataStore.saveReceivedArguments?.data.rules["example.com"]
         let usernameAttrs = try #require(hostRules?.fields["username"]?.first)
         #expect(usernameAttrs.id == "user")
         #expect(usernameAttrs.tagName == "input")
@@ -147,7 +150,7 @@ struct FillAssistRepositoryTests {
 
         await subject.syncRules()
 
-        let usernameAttrs = appSettingsStore.fillAssistCachedDataByUserId["1"]?
+        let usernameAttrs = fillAssistDataStore.saveReceivedArguments?.data
             .rules["example.com"]?.fields["username"]
         let count = try #require(usernameAttrs).count
         #expect(count == 2)
@@ -166,7 +169,7 @@ struct FillAssistRepositoryTests {
 
         await subject.syncRules()
 
-        let rules = appSettingsStore.fillAssistCachedDataByUserId["1"]?.rules
+        let rules = fillAssistDataStore.saveReceivedArguments?.data.rules
         #expect(rules?["example.com"] == nil)
     }
 
@@ -180,7 +183,7 @@ struct FillAssistRepositoryTests {
 
         await subject.syncRules()
 
-        let rules = appSettingsStore.fillAssistCachedDataByUserId["1"]?.rules
+        let rules = fillAssistDataStore.saveReceivedArguments?.data.rules
         #expect(rules?.isEmpty == true)
     }
 
@@ -196,7 +199,7 @@ struct FillAssistRepositoryTests {
 
         await subject.syncRules()
 
-        let rules = appSettingsStore.fillAssistCachedDataByUserId["1"]?.rules
+        let rules = fillAssistDataStore.saveReceivedArguments?.data.rules
         #expect(rules?["example.com"] != nil)
         #expect(rules?["other.com"] != nil)
         #expect(rules?.count == 2)
@@ -211,7 +214,7 @@ struct FillAssistRepositoryTests {
         await subject.syncRules()
 
         #expect(errorReporter.errors.count == 1)
-        #expect(appSettingsStore.fillAssistCachedDataByUserId["1"] == nil)
+        #expect(!fillAssistDataStore.saveCalled)
     }
 
     // MARK: Tests - rules(for:)
@@ -220,7 +223,7 @@ struct FillAssistRepositoryTests {
     @Test
     func rules_returnsRulesForHostname() async {
         let hostRules = FillAssistHostRules(fields: ["username": []])
-        appSettingsStore.fillAssistCachedDataByUserId["1"] = FillAssistCachedData(
+        fillAssistDataStore.loadReturnValue = FillAssistCachedData(
             cid: "sha256:abc",
             rules: ["example.com": hostRules],
             sourceUrl: "https://example.com",
@@ -234,7 +237,7 @@ struct FillAssistRepositoryTests {
     /// `rules(for:)` returns `nil` for an unknown hostname.
     @Test
     func rules_returnsNilForUnknownHostname() async {
-        appSettingsStore.fillAssistCachedDataByUserId["1"] = FillAssistCachedData(
+        fillAssistDataStore.loadReturnValue = FillAssistCachedData(
             cid: "sha256:abc",
             rules: [:],
             sourceUrl: "https://example.com",
@@ -250,15 +253,9 @@ struct FillAssistRepositoryTests {
     /// `clearRules()` removes cached data for the active account.
     @Test
     func clearRules_removesCachedData() async throws {
-        appSettingsStore.fillAssistCachedDataByUserId["1"] = FillAssistCachedData(
-            cid: "sha256:abc",
-            rules: [:],
-            sourceUrl: "https://example.com",
-        )
-
         try await subject.clearRules()
 
-        #expect(appSettingsStore.fillAssistCachedDataByUserId["1"] == nil)
+        #expect(fillAssistDataStore.deleteCalled)
     }
 
     // MARK: Tests - FormsMapSelector.attributes
@@ -383,7 +380,7 @@ private extension FillAssistRepositoryTests {
         stateService.fillAssistEnabledByUserId["1"] = true
         fillAssistAPIService.getManifestReturnValue = makeManifest(cid: "sha256:abc")
         // Pre-cache matching cid so sync stops at the "no changes" short-circuit.
-        appSettingsStore.fillAssistCachedDataByUserId["1"] = FillAssistCachedData(
+        fillAssistDataStore.loadReturnValue = FillAssistCachedData(
             cid: "sha256:abc",
             rules: [:],
             sourceUrl: environmentService.fillAssistRulesURL.absoluteString,

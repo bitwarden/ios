@@ -186,13 +186,6 @@ protocol AppSettingsStore: AnyObject {
     ///
     func encryptedUserKey(userId: String) -> String?
 
-    /// Gets the cached Fill-Assist rules data for the user ID.
-    ///
-    /// - Parameter userId: The user ID associated with the cached data.
-    /// - Returns: The cached `FillAssistCachedData`, or `nil` if not cached.
-    ///
-    func fillAssistCachedData(userId: String) -> FillAssistCachedData?
-
     /// Gets whether the Fill Assist feature is enabled for the user ID.
     ///
     /// - Parameter userId: The user ID associated with the Fill Assist enabled value.
@@ -451,14 +444,6 @@ protocol AppSettingsStore: AnyObject {
     ///   - userId: The user ID associated with the events.
     ///
     func setEvents(_ events: [EventData], userId: String)
-
-    /// Sets the cached Fill-Assist rules data for the user ID.
-    ///
-    /// - Parameters:
-    ///   - data: The `FillAssistCachedData` to cache, or `nil` to clear.
-    ///   - userId: The user ID associated with the cached data.
-    ///
-    func setFillAssistCachedData(_ data: FillAssistCachedData?, userId: String)
 
     /// Sets whether the Fill Assist feature is enabled for the user ID.
     ///
@@ -837,7 +822,6 @@ extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore {
         case encryptedPin(userId: String)
         case encryptedUserKey(userId: String)
         case events(userId: String)
-        case fillAssistCachedData(userId: String)
         case fillAssistEnabled(userId: String)
         case fillAssistLastFetchTimestamp(userId: String)
         case flightRecorderData
@@ -927,8 +911,6 @@ extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore {
                 "protectedPin_\(userId)"
             case let .events(userId):
                 "events_\(userId)"
-            case let .fillAssistCachedData(userId):
-                "fillAssistCachedData_\(userId)"
             case let .fillAssistEnabled(userId):
                 "fillAssistEnabled_\(userId)"
             case let .fillAssistLastFetchTimestamp(userId):
@@ -1182,10 +1164,6 @@ extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore {
         fetch(for: .events(userId: userId)) ?? []
     }
 
-    func fillAssistCachedData(userId: String) -> FillAssistCachedData? {
-        fetch(for: .fillAssistCachedData(userId: userId))
-    }
-
     func fillAssistEnabled(userId: String) -> Bool {
         fetch(for: .fillAssistEnabled(userId: userId))
     }
@@ -1326,10 +1304,6 @@ extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore {
 
     func setEvents(_ events: [EventData], userId: String) {
         store(events, for: .events(userId: userId))
-    }
-
-    func setFillAssistCachedData(_ data: FillAssistCachedData?, userId: String) {
-        store(data, for: .fillAssistCachedData(userId: userId))
     }
 
     func setFillAssistEnabled(_ fillAssistEnabled: Bool?, userId: String) {

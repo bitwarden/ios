@@ -772,12 +772,14 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
             stateService: stateService,
         )
 
+        let fillAssistDataStore = DefaultFillAssistDataStore(keychainRepository: keychainRepository)
         let fillAssistRepository = DefaultFillAssistRepository(
             appSettingsStore: appSettingsStore,
             configService: configService,
             environmentService: environmentService,
             errorReporter: errorReporter,
             fillAssistAPIService: apiService,
+            fillAssistDataStore: fillAssistDataStore,
             stateService: stateService,
             timeProvider: timeProvider,
         )

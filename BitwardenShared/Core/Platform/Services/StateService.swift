@@ -1973,7 +1973,6 @@ actor DefaultStateService: StateService, ActiveAccountStateProvider, ConfigState
         appSettingsStore.setDefaultUriMatchType(nil, userId: knownUserId)
         appSettingsStore.setDisableAutoTotpCopy(nil, userId: knownUserId)
         appSettingsStore.setEncryptedUserKey(key: nil, userId: knownUserId)
-        appSettingsStore.setFillAssistCachedData(nil, userId: knownUserId)
         appSettingsStore.setFillAssistLastFetchTimestamp(nil, userId: knownUserId)
         appSettingsStore.setHasPerformedSyncAfterLogin(nil, userId: knownUserId)
         appSettingsStore.setLastSyncTime(nil, userId: knownUserId)

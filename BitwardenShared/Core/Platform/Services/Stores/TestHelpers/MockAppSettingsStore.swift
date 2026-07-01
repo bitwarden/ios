@@ -48,7 +48,6 @@ class MockAppSettingsStore: AppSettingsStore { // swiftlint:disable:this type_bo
     var encryptedUserKeys = [String: String]()
     var eventsByUserId = [String: [EventData]]()
     var featureFlags = [String: Bool]()
-    var fillAssistCachedDataByUserId = [String: FillAssistCachedData]()
     var fillAssistEnabledByUserId = [String: Bool]()
     var fillAssistLastFetchTimestampByUserId = [String: Date]()
     var hasPerformedSyncAfterLogin = [String: Bool]()
@@ -150,10 +149,6 @@ class MockAppSettingsStore: AppSettingsStore { // swiftlint:disable:this type_bo
 
     func events(userId: String) -> [EventData] {
         eventsByUserId[userId] ?? []
-    }
-
-    func fillAssistCachedData(userId: String) -> FillAssistCachedData? {
-        fillAssistCachedDataByUserId[userId]
     }
 
     func fillAssistEnabled(userId: String) -> Bool {
@@ -307,10 +302,6 @@ class MockAppSettingsStore: AppSettingsStore { // swiftlint:disable:this type_bo
 
     func setEvents(_ events: [EventData], userId: String) {
         eventsByUserId[userId] = events
-    }
-
-    func setFillAssistCachedData(_ data: FillAssistCachedData?, userId: String) {
-        fillAssistCachedDataByUserId[userId] = data
     }
 
     func setFillAssistEnabled(_ fillAssistEnabled: Bool?, userId: String) {
