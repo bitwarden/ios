@@ -21,7 +21,7 @@ struct LoadingView<T: Equatable & Sendable, Contents: View, ErrorView: View>: Vi
     var body: some View {
         switch state {
         case .loading:
-            VStack(spacing: 12) {
+            VStack(spacing: 24) {
                 CircularActivityIndicator()
                 if let loadingMessage {
                     Text(loadingMessage)
@@ -37,7 +37,7 @@ struct LoadingView<T: Equatable & Sendable, Contents: View, ErrorView: View>: Vi
         }
     }
 
-    /// Initializer for when no error view is needed.
+    /// Initializer that shows nothing for the error state.
     ///
     /// - Parameters:
     ///   - state: The state of this view.
