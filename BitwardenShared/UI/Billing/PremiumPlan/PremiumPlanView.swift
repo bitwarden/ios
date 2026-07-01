@@ -159,7 +159,8 @@ struct PremiumPlanView: View {
 
     /// The full-screen error view shown when subscription data fails to load.
     ///
-    /// - Parameter message: The error message to display.
+    /// - Parameters:
+    ///   - message: The error message to display.
     ///
     private func subscriptionLoadErrorView(message: String) -> some View {
         VStack(spacing: 16) {
