@@ -31,6 +31,7 @@ struct FillAssistRepositoryTests {
         fillAssistAPIService = MockFillAssistAPIService()
         stateService = MockStateService()
         stateService.activeAccount = .fixture()
+        stateService.fillAssistEnabledByUserId["1"] = true
         timeProvider = MockTimeProvider(.currentTime)
 
         subject = DefaultFillAssistRepository(
@@ -359,5 +360,37 @@ private extension FillAssistRepositoryTests {
             ],
             schemaVersion: "1.0.0",
         )
+    }
+
+    // MARK: Tests - user toggle guard
+
+    /// `syncRules()` makes no network calls when the feature flag is on but the user toggle is off.
+    @Test
+    func syncRules_userToggleOff_skipsSync() async {
+        configService.featureFlagsBool[.fillAssistTargetingRules] = true
+        stateService.fillAssistEnabledByUserId["1"] = false
+
+        await subject.syncRules()
+
+        #expect(!fillAssistAPIService.getManifestCalled)
+    }
+
+    /// `syncRules()` proceeds past the user-toggle guard and fetches the manifest when both
+    /// feature flag and user toggle are on.
+    @Test
+    func syncRules_userToggleOn_fetchesManifest() async throws {
+        configService.featureFlagsBool[.fillAssistTargetingRules] = true
+        stateService.fillAssistEnabledByUserId["1"] = true
+        fillAssistAPIService.getManifestReturnValue = makeManifest(cid: "sha256:abc")
+        // Pre-cache matching cid so sync stops at the "no changes" short-circuit.
+        appSettingsStore.fillAssistCachedDataByUserId["1"] = FillAssistCachedData(
+            cid: "sha256:abc",
+            rules: [:],
+            sourceUrl: environmentService.fillAssistRulesURL.absoluteString,
+        )
+
+        await subject.syncRules()
+
+        #expect(fillAssistAPIService.getManifestCalled)
     }
 }

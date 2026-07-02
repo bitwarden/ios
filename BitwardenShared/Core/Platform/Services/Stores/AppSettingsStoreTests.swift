@@ -512,6 +512,23 @@ class AppSettingsStoreTests: BitwardenTestCase { // swiftlint:disable:this type_
         XCTAssertNotNil(userDefaults.object(forKey: "bwPreferencesStorage:fillAssistLastFetchTimestamp_2"))
     }
 
+    /// `fillAssistEnabled(userId:)` returns `false` when no value has been set.
+    func test_fillAssistEnabled_isInitiallyFalse() {
+        XCTAssertFalse(subject.fillAssistEnabled(userId: "-1"))
+    }
+
+    /// `fillAssistEnabled(userId:)` and `setFillAssistEnabled(_:userId:)` get and set the value
+    /// per user and persist under the expected UserDefaults key.
+    func test_fillAssistEnabled_withValue() {
+        subject.setFillAssistEnabled(true, userId: "1")
+        subject.setFillAssistEnabled(false, userId: "2")
+
+        XCTAssertTrue(subject.fillAssistEnabled(userId: "1"))
+        XCTAssertFalse(subject.fillAssistEnabled(userId: "2"))
+        XCTAssertNotNil(userDefaults.object(forKey: "bwPreferencesStorage:fillAssistEnabled_1"))
+        XCTAssertNotNil(userDefaults.object(forKey: "bwPreferencesStorage:fillAssistEnabled_2"))
+    }
+
     /// `overrideDebugFeatureFlag(name:value:)` and `debugFeatureFlag(name:)` work as expected with correct values.
     func test_featureFlags() {
         let featureFlags: [FeatureFlag] = [.testFeatureFlag]

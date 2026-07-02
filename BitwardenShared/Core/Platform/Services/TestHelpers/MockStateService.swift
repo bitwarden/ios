@@ -45,6 +45,8 @@ class MockStateService: StateService, ActiveAccountStateProvider, AutofillStateS
     var didAccountSwitchInExtensionResult: Result<Bool, Error> = .success(false)
     var disableAutoTotpCopyByUserId = [String: Bool]()
     var doesActiveAccountHavePremiumCalled = false
+    var fillAssistEnabledByUserId = [String: Bool]()
+    var getFillAssistEnabledError: Error?
     var doesActiveAccountHavePremiumResult: Bool = true
     var doesActiveAccountHavePremiumPersonallyCalled = false // swiftlint:disable:this identifier_name
     var doesActiveAccountHavePremiumPersonallyResult: Bool = true // swiftlint:disable:this identifier_name
@@ -311,6 +313,14 @@ class MockStateService: StateService, ActiveAccountStateProvider, AutofillStateS
         try eventsResult.get()
         let userId = try unwrapUserId(userId)
         return events[userId] ?? []
+    }
+
+    func getFillAssistEnabled(userId: String?) async throws -> Bool {
+        if let getFillAssistEnabledError {
+            throw getFillAssistEnabledError
+        }
+        let userId = try unwrapUserId(userId)
+        return fillAssistEnabledByUserId[userId] ?? false
     }
 
     func getFlightRecorderData() async -> FlightRecorderData? {
@@ -644,6 +654,11 @@ class MockStateService: StateService, ActiveAccountStateProvider, AutofillStateS
     func setEvents(_ events: [EventData], userId: String?) async throws {
         let userId = try unwrapUserId(userId)
         self.events[userId] = events
+    }
+
+    func setFillAssistEnabled(_ fillAssistEnabled: Bool, userId: String?) async throws {
+        let userId = try unwrapUserId(userId)
+        fillAssistEnabledByUserId[userId] = fillAssistEnabled
     }
 
     func setFlightRecorderData(_ data: FlightRecorderData?) async {

@@ -15,6 +15,7 @@ class AutoFillProcessorTests: BitwardenTestCase {
     var configService: MockConfigService!
     var coordinator: MockCoordinator<SettingsRoute, SettingsEvent>!
     var errorReporter: MockErrorReporter!
+    var fillAssistRepository: MockFillAssistRepository!
     var settingsRepository: MockSettingsRepository!
     var stateService: MockStateService!
     var subject: AutoFillProcessor!
@@ -29,8 +30,10 @@ class AutoFillProcessorTests: BitwardenTestCase {
         configService = MockConfigService()
         coordinator = MockCoordinator<SettingsRoute, SettingsEvent>()
         errorReporter = MockErrorReporter()
+        fillAssistRepository = MockFillAssistRepository()
         settingsRepository = MockSettingsRepository()
         stateService = MockStateService()
+        stateService.activeAccount = .fixture()
 
         subject = AutoFillProcessor(
             coordinator: coordinator.asAnyCoordinator(),
@@ -39,6 +42,7 @@ class AutoFillProcessorTests: BitwardenTestCase {
                 autofillCredentialService: autofillCredentialService,
                 configService: configService,
                 errorReporter: errorReporter,
+                fillAssistRepository: fillAssistRepository,
                 settingsRepository: settingsRepository,
                 stateService: stateService,
             ),
@@ -54,6 +58,7 @@ class AutoFillProcessorTests: BitwardenTestCase {
         configService = nil
         coordinator = nil
         errorReporter = nil
+        fillAssistRepository = nil
         settingsRepository = nil
         stateService = nil
         subject = nil
@@ -77,6 +82,8 @@ class AutoFillProcessorTests: BitwardenTestCase {
     /// error occurs.
     @MainActor
     func test_perform_dismissSetUpAutofillActionCard_error() async {
+        stateService.activeAccount = nil
+
         await subject.perform(.dismissSetUpAutofillActionCard)
 
         XCTAssertEqual(coordinator.alertShown, [.defaultAlert(title: Localizations.anErrorHasOccurred)])
@@ -89,18 +96,36 @@ class AutoFillProcessorTests: BitwardenTestCase {
         autofillCredentialService.isAutofillCredentialsEnabled = false
         settingsRepository.getDefaultUriMatchTypeResult = .exact
         settingsRepository.getDisableAutoTotpCopyResult = .success(false)
+        stateService.fillAssistEnabledByUserId["1"] = false
         await subject.perform(.fetchSettingValues)
         XCTAssertEqual(subject.state.defaultUriMatchType, .exact)
         XCTAssertTrue(subject.state.isCopyTOTPToggleOn)
         XCTAssertTrue(subject.state.shouldShowPasswordAutofill)
+        XCTAssertFalse(subject.state.isFillAssistEnabled)
 
         autofillCredentialService.isAutofillCredentialsEnabled = true
         settingsRepository.getDefaultUriMatchTypeResult = .regularExpression
         settingsRepository.getDisableAutoTotpCopyResult = .success(true)
+        stateService.fillAssistEnabledByUserId["1"] = true
         await subject.perform(.fetchSettingValues)
         XCTAssertEqual(subject.state.defaultUriMatchType, .regularExpression)
         XCTAssertFalse(subject.state.isCopyTOTPToggleOn)
         XCTAssertFalse(subject.state.shouldShowPasswordAutofill)
+        XCTAssertTrue(subject.state.isFillAssistEnabled)
+    }
+
+    /// `perform(_:)` with `.fetchSettingValues` loads fill assist feature flag state.
+    @MainActor
+    func test_perform_fetchSettingValues_fillAssistFeatureFlag() async {
+        settingsRepository.getDisableAutoTotpCopyResult = .success(false)
+
+        configService.featureFlagsBool[.fillAssistTargetingRules] = true
+        await subject.perform(.fetchSettingValues)
+        XCTAssertTrue(subject.state.isFillAssistFeatureFlagEnabled)
+
+        configService.featureFlagsBool[.fillAssistTargetingRules] = false
+        await subject.perform(.fetchSettingValues)
+        XCTAssertFalse(subject.state.isFillAssistFeatureFlagEnabled)
     }
 
     /// `perform(_:)` with `.fetchSettingValues` logs an error and shows an alert if fetching the values fails.
@@ -187,6 +212,8 @@ class AutoFillProcessorTests: BitwardenTestCase {
     /// `perform(_:)` with `.streamSettingsBadge` logs an error if streaming the settings badge state fails.
     @MainActor
     func test_perform_streamSettingsBadge_error() async {
+        stateService.activeAccount = nil
+
         await subject.perform(.streamSettingsBadge)
 
         XCTAssertEqual(errorReporter.errors as? [StateServiceError], [.noActiveAccount])
@@ -233,6 +260,31 @@ class AutoFillProcessorTests: BitwardenTestCase {
 
         subject.receive(.toastShown(nil))
         XCTAssertNil(subject.state.toast)
+    }
+
+    /// `.receive(_:)` with `.toggleFillAssist(true)` persists the value and triggers a rules sync.
+    @MainActor
+    func test_receive_toggleFillAssist_on() {
+        subject.state.isFillAssistEnabled = false
+        subject.receive(.toggleFillAssist(true))
+
+        XCTAssertTrue(subject.state.isFillAssistEnabled)
+        waitFor(stateService.fillAssistEnabledByUserId["1"] == true)
+        XCTAssertEqual(stateService.fillAssistEnabledByUserId["1"], true)
+        waitFor(fillAssistRepository.syncRulesCalled)
+        XCTAssertTrue(fillAssistRepository.syncRulesCalled)
+    }
+
+    /// `.receive(_:)` with `.toggleFillAssist(false)` persists the value and does NOT sync rules.
+    @MainActor
+    func test_receive_toggleFillAssist_off() {
+        subject.state.isFillAssistEnabled = true
+        subject.receive(.toggleFillAssist(false))
+
+        XCTAssertFalse(subject.state.isFillAssistEnabled)
+        waitFor(stateService.fillAssistEnabledByUserId["1"] == false)
+        XCTAssertEqual(stateService.fillAssistEnabledByUserId["1"], false)
+        XCTAssertFalse(fillAssistRepository.syncRulesCalled)
     }
 
     /// `.receive(_:)` with  `.toggleCopyTOTPToggle` updates the state.
