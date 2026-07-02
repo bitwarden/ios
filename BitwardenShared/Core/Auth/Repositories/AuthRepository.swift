@@ -252,9 +252,8 @@ protocol AuthRepository: AnyObject {
     /// - Parameters:
     ///   - privateKey: The private key from the login with device response.
     ///   - key: The returned key from the approved auth request.
-    ///   - masterPasswordHash: The master password hash from the approved auth request.
     ///
-    func unlockVaultFromLoginWithDevice(privateKey: String, key: String, masterPasswordHash: String?) async throws
+    func unlockVaultFromLoginWithDevice(privateKey: String, key: String) async throws
 
     /// Attempts to unlock the user's vault with biometrics.
     ///
@@ -1062,20 +1061,11 @@ extension DefaultAuthRepository: AuthRepository {
         )
     }
 
-    func unlockVaultFromLoginWithDevice(privateKey: String, key: String, masterPasswordHash: String?) async throws {
-        let account = try await stateService.getActiveAccount()
-        let method =
-            if masterPasswordHash != nil,
-            let encUserKey = account.profile.userDecryptionOptions?.masterPasswordUnlock?.masterKeyEncryptedUserKey {
-                AuthRequestMethod.masterKey(protectedMasterKey: key, authRequestKey: encUserKey)
-            } else {
-                AuthRequestMethod.userKey(protectedUserKey: key)
-            }
-
+    func unlockVaultFromLoginWithDevice(privateKey: String, key: String) async throws {
         try await unlockVault(
             method: .authRequest(
                 requestPrivateKey: privateKey,
-                method: method,
+                method: .userKey(protectedUserKey: key),
             ),
         )
 
