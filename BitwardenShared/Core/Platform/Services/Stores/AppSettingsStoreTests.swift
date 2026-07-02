@@ -903,6 +903,30 @@ class AppSettingsStoreTests: BitwardenTestCase { // swiftlint:disable:this type_
         XCTAssertEqual(subject.passwordGenerationOptions(userId: "2"), options2)
     }
 
+    /// `organizationUserNotificationBannerDismissal(userId:)` is initially `nil`.
+    func test_organizationUserNotificationBannerDismissal_isInitiallyNil() {
+        XCTAssertNil(subject.organizationUserNotificationBannerDismissal(userId: "-1"))
+    }
+
+    /// `organizationUserNotificationBannerDismissal(userId:)` gets and sets the dismissal record per user, and
+    /// clears it when set to `nil`.
+    func test_organizationUserNotificationBannerDismissal_withValue() {
+        let dismissal1 = OrganizationUserNotificationBannerDismissal(
+            revisionDate: Date(year: 2024, month: 6, day: 1),
+            showAfterEveryLogin: true,
+        )
+        let dismissal2 = OrganizationUserNotificationBannerDismissal(revisionDate: nil, showAfterEveryLogin: false)
+
+        subject.setOrganizationUserNotificationBannerDismissal(dismissal1, userId: "1")
+        subject.setOrganizationUserNotificationBannerDismissal(dismissal2, userId: "2")
+
+        XCTAssertEqual(subject.organizationUserNotificationBannerDismissal(userId: "1"), dismissal1)
+        XCTAssertEqual(subject.organizationUserNotificationBannerDismissal(userId: "2"), dismissal2)
+
+        subject.setOrganizationUserNotificationBannerDismissal(nil, userId: "1")
+        XCTAssertNil(subject.organizationUserNotificationBannerDismissal(userId: "1"))
+    }
+
     /// `pendingAppIntentActions`is initially `nil`.
     func test_pendingAppIntentActions_isInitiallyNil() {
         XCTAssertNil(subject.pendingAppIntentActions)

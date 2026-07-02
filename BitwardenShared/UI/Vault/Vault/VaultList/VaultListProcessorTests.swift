@@ -27,6 +27,7 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
     var coordinator: MockCoordinator<VaultRoute, AuthAction>!
     var environmentService: MockEnvironmentService!
     var errorReporter: MockErrorReporter!
+    var eventService: MockEventService!
     var flightRecorder: MockFlightRecorder!
     var masterPasswordRepromptHelper: MockMasterPasswordRepromptHelper!
     var notificationService: MockNotificationService!
@@ -66,6 +67,7 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         coordinator = MockCoordinator()
         environmentService = MockEnvironmentService()
         errorReporter = MockErrorReporter()
+        eventService = MockEventService()
         flightRecorder = MockFlightRecorder()
         masterPasswordRepromptHelper = MockMasterPasswordRepromptHelper()
         notificationService = MockNotificationService()
@@ -93,6 +95,7 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
             changeKdfService: changeKdfService,
             configService: configService,
             errorReporter: errorReporter,
+            eventService: eventService,
             flightRecorder: flightRecorder,
             notificationService: notificationService,
             pasteboardService: pasteboardService,
@@ -128,6 +131,7 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         coordinator = nil
         environmentService = nil
         errorReporter = nil
+        eventService = nil
         flightRecorder = nil
         masterPasswordRepromptHelper = nil
         pasteboardService = nil
@@ -459,6 +463,7 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
     /// `perform(_:)` with `.appeared` loads organization user notification banner data from the policy service.
     @MainActor
     func test_perform_appeared_organizationUserNotificationBannerData() async {
+        stateService.activeAccount = .fixture()
         policyService.getOrganizationUserNotificationBannerDataResult = .fixture()
 
         await subject.perform(.appeared)
@@ -470,11 +475,42 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
     /// when the policy does not apply.
     @MainActor
     func test_perform_appeared_organizationUserNotificationBannerData_nil() async {
+        stateService.activeAccount = .fixture()
         policyService.getOrganizationUserNotificationBannerDataResult = nil
 
         await subject.perform(.appeared)
 
         XCTAssertNil(subject.state.organizationUserNotificationBannerData)
+    }
+
+    /// `perform(_:)` with `.appeared` suppresses the organization user notification banner when the user has
+    /// already dismissed the banner for the current policy revision.
+    @MainActor
+    func test_perform_appeared_organizationUserNotificationBannerData_dismissedSameRevision() async {
+        let revisionDate = Date(year: 2024, month: 6, day: 1)
+        stateService.activeAccount = .fixture()
+        stateService.organizationUserNotificationBannerDismissals["1"] = .fixture(revisionDate: revisionDate)
+        policyService.getOrganizationUserNotificationBannerDataResult = .fixture(revisionDate: revisionDate)
+
+        await subject.perform(.appeared)
+
+        XCTAssertNil(subject.state.organizationUserNotificationBannerData)
+    }
+
+    /// `perform(_:)` with `.appeared` shows the organization user notification banner when a dismissal exists
+    /// but for a different (older) policy revision, indicating a newly published banner.
+    @MainActor
+    func test_perform_appeared_organizationUserNotificationBannerData_dismissedDifferentRevision() async {
+        stateService.activeAccount = .fixture()
+        stateService.organizationUserNotificationBannerDismissals["1"] = .fixture(
+            revisionDate: Date(year: 2024, month: 1, day: 1),
+        )
+        let data = OrganizationUserNotificationBannerData.fixture(revisionDate: Date(year: 2024, month: 6, day: 1))
+        policyService.getOrganizationUserNotificationBannerDataResult = data
+
+        await subject.perform(.appeared)
+
+        XCTAssertEqual(subject.state.organizationUserNotificationBannerData, data)
     }
 
     /// `perform(_:)` with `.appeared` updates the state depending on if the
@@ -716,14 +752,75 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         XCTAssertTrue(stateService.archiveOnboardingShown)
     }
 
-    /// `perform(_:)` with `.dismissOrganizationBanner` clears the organization user notification banner data.
+    /// `perform(_:)` with `.dismissOrganizationBanner(fromActionButton: true)` clears the banner data,
+    /// persists a dismissal record mirroring the banner's revision date and `showAfterEveryLogin` value,
+    /// and logs an organization event scoped to the banner's organization.
     @MainActor
-    func test_perform_dismissOrganizationBanner() async {
-        subject.state.organizationUserNotificationBannerData = .fixture()
+    func test_perform_dismissOrganizationBanner_actionButton() async {
+        let revisionDate = Date(year: 2024, month: 6, day: 1)
+        stateService.activeAccount = .fixture()
+        subject.state.organizationUserNotificationBannerData = .fixture(
+            organizationId: "org-1",
+            revisionDate: revisionDate,
+            showAfterEveryLogin: true,
+        )
 
-        await subject.perform(.dismissOrganizationBanner)
+        await subject.perform(.dismissOrganizationBanner(fromActionButton: true))
 
         XCTAssertNil(subject.state.organizationUserNotificationBannerData)
+        XCTAssertEqual(
+            stateService.organizationUserNotificationBannerDismissals["1"],
+            .fixture(revisionDate: revisionDate, showAfterEveryLogin: true),
+        )
+        XCTAssertEqual(eventService.collectEventType, .organizationUserNotificationBannerActionClicked)
+        XCTAssertEqual(eventService.collectOrganizationId, "org-1")
+    }
+
+    /// `perform(_:)` with `.dismissOrganizationBanner(fromActionButton: false)` clears the banner data and
+    /// persists a dismissal record, but does not log an organization event.
+    @MainActor
+    func test_perform_dismissOrganizationBanner_dismissButton() async {
+        let revisionDate = Date(year: 2024, month: 6, day: 1)
+        stateService.activeAccount = .fixture()
+        subject.state.organizationUserNotificationBannerData = .fixture(
+            revisionDate: revisionDate,
+            showAfterEveryLogin: false,
+        )
+
+        await subject.perform(.dismissOrganizationBanner(fromActionButton: false))
+
+        XCTAssertNil(subject.state.organizationUserNotificationBannerData)
+        XCTAssertEqual(
+            stateService.organizationUserNotificationBannerDismissals["1"],
+            .fixture(revisionDate: revisionDate, showAfterEveryLogin: false),
+        )
+        XCTAssertNil(eventService.collectEventType)
+    }
+
+    /// `perform(_:)` with `.dismissOrganizationBanner` does nothing when no banner is shown.
+    @MainActor
+    func test_perform_dismissOrganizationBanner_noBanner() async {
+        stateService.activeAccount = .fixture()
+        subject.state.organizationUserNotificationBannerData = nil
+
+        await subject.perform(.dismissOrganizationBanner(fromActionButton: true))
+
+        XCTAssertNil(subject.state.organizationUserNotificationBannerData)
+        XCTAssertNil(stateService.organizationUserNotificationBannerDismissals["1"])
+        XCTAssertNil(eventService.collectEventType)
+    }
+
+    /// `perform(_:)` with `.dismissOrganizationBanner` logs an error when persisting the dismissal fails.
+    @MainActor
+    func test_perform_dismissOrganizationBanner_persistError() async {
+        // No active account causes the state service to throw when persisting the dismissal.
+        stateService.activeAccount = nil
+        subject.state.organizationUserNotificationBannerData = .fixture()
+
+        await subject.perform(.dismissOrganizationBanner(fromActionButton: false))
+
+        XCTAssertNil(subject.state.organizationUserNotificationBannerData)
+        XCTAssertEqual(errorReporter.errors as? [StateServiceError], [.noActiveAccount])
     }
 
     /// `perform(_:)` with `.dismissPremiumUpgradeActionCard` dismisses the Premium upgrade card

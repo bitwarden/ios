@@ -257,6 +257,13 @@ protocol AppSettingsStore: AnyObject {
     ///
     func notificationsLastRegistrationDate(userId: String) -> Date?
 
+    /// Gets the organization user notification banner dismissal record for a user ID.
+    ///
+    /// - Parameter userId: The user ID associated with the dismissal record.
+    /// - Returns: The organization user notification banner dismissal record for the user ID.
+    ///
+    func organizationUserNotificationBannerDismissal(userId: String) -> OrganizationUserNotificationBannerDismissal?
+
     /// Gets the password generation options for a user ID.
     ///
     /// - Parameter userId: The user ID associated with the password generation options.
@@ -520,6 +527,17 @@ protocol AppSettingsStore: AnyObject {
     ///   - userId: The user ID associated with the last notifications registration date.
     ///
     func setNotificationsLastRegistrationDate(_ date: Date?, userId: String)
+
+    /// Sets the organization user notification banner dismissal record for a user ID.
+    ///
+    /// - Parameters:
+    ///   - dismissal: The dismissal record to store, or `nil` to clear it.
+    ///   - userId: The user ID associated with the dismissal record.
+    ///
+    func setOrganizationUserNotificationBannerDismissal(
+        _ dismissal: OrganizationUserNotificationBannerDismissal?,
+        userId: String,
+    )
 
     /// Sets the password generation options for a user ID.
     ///
@@ -854,6 +872,8 @@ extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore {
         case masterPasswordHash(userId: String)
         case migrationVersion
         case notificationsLastRegistrationDate(userId: String)
+        // swiftlint:disable:next identifier_name
+        case organizationUserNotificationBannerDismissal(userId: String)
         case passwordGenerationOptions(userId: String)
         case pendingAppIntentActions
         case pinProtectedUserKey(userId: String) // Replaced by `pinProtectedUserKeyEnvelope`.
@@ -960,6 +980,8 @@ extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore {
                 "migrationVersion"
             case let .notificationsLastRegistrationDate(userId):
                 "pushLastRegistrationDate_\(userId)"
+            case let .organizationUserNotificationBannerDismissal(userId):
+                "organizationUserNotificationBannerDismissal_\(userId)"
             case let .passwordGenerationOptions(userId):
                 "passwordGenerationOptions_\(userId)"
             case .pendingAppIntentActions:
@@ -1223,6 +1245,12 @@ extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore {
         fetch(for: .notificationsLastRegistrationDate(userId: userId)).map { Date(timeIntervalSince1970: $0) }
     }
 
+    func organizationUserNotificationBannerDismissal(
+        userId: String,
+    ) -> OrganizationUserNotificationBannerDismissal? {
+        fetch(for: .organizationUserNotificationBannerDismissal(userId: userId))
+    }
+
     func overrideDebugFeatureFlag(name: String, value: Bool?) {
         store(value, for: .debugFeatureFlag(name: name))
     }
@@ -1363,6 +1391,13 @@ extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore {
 
     func setNotificationsLastRegistrationDate(_ date: Date?, userId: String) {
         store(date?.timeIntervalSince1970, for: .notificationsLastRegistrationDate(userId: userId))
+    }
+
+    func setOrganizationUserNotificationBannerDismissal(
+        _ dismissal: OrganizationUserNotificationBannerDismissal?,
+        userId: String,
+    ) {
+        store(dismissal, for: .organizationUserNotificationBannerDismissal(userId: userId))
     }
 
     func setPasswordGenerationOptions(_ options: PasswordGenerationOptions?, userId: String) {

@@ -84,6 +84,8 @@ class MockStateService: StateService, ActiveAccountStateProvider, AutofillStateS
     var masterPasswordUnlockByUserId = [String: MasterPasswordUnlockResponseModel]()
     var notificationsLastRegistrationDates = [String: Date]()
     var notificationsLastRegistrationError: Error?
+    // swiftlint:disable:next identifier_name
+    var organizationUserNotificationBannerDismissals = [String: OrganizationUserNotificationBannerDismissal]()
     var passwordGenerationOptions = [String: PasswordGenerationOptions]()
     var pendingAppIntentActions: [PendingAppIntentAction]?
     var pendingAppIntentActionsSubject = CurrentValueSubject<[PendingAppIntentAction]?, Never>(nil)
@@ -373,6 +375,13 @@ class MockStateService: StateService, ActiveAccountStateProvider, AutofillStateS
         }
         let userId = try unwrapUserId(userId)
         return notificationsLastRegistrationDates[userId]
+    }
+
+    func getOrganizationUserNotificationBannerDismissal(
+        userId: String?,
+    ) async throws -> OrganizationUserNotificationBannerDismissal? {
+        let userId = try unwrapUserId(userId)
+        return organizationUserNotificationBannerDismissals[userId]
     }
 
     func getPasswordGenerationOptions(userId: String?) async throws -> PasswordGenerationOptions? {
@@ -731,6 +740,14 @@ class MockStateService: StateService, ActiveAccountStateProvider, AutofillStateS
     func setNotificationsLastRegistrationDate(_ date: Date?, userId: String?) async throws {
         let userId = try unwrapUserId(userId)
         notificationsLastRegistrationDates[userId] = date
+    }
+
+    func setOrganizationUserNotificationBannerDismissal(
+        _ dismissal: OrganizationUserNotificationBannerDismissal?,
+        userId: String?,
+    ) async throws {
+        let userId = try unwrapUserId(userId)
+        organizationUserNotificationBannerDismissals[userId] = dismissal
     }
 
     func setPasswordGenerationOptions(_ options: PasswordGenerationOptions?, userId: String?) async throws {
