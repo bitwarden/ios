@@ -5,7 +5,7 @@ class MockAppExtensionDelegate: AppExtensionDelegate {
     var canAutofill = true
     var didCancelCalled = false
     var didCompleteAuthCalled = false
-    var didCompleteAutofillRequestFields: [(String, String)]?
+    var didCompleteAutofillRequestFields: [(selector: String, value: String)]?
     var didCompleteAutofillRequestPassword: String?
     var didCompleteAutofillRequestUsername: String?
     var isInAppExtension = false

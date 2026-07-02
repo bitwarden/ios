@@ -219,6 +219,13 @@ protocol StateService: AnyObject, BillingStateService {
     ///
     func getEvents(userId: String?) async throws -> [EventData]
 
+    /// Gets whether the Fill Assist feature is enabled for the specified user.
+    ///
+    /// - Parameter userId: The user ID, or `nil` for the active account.
+    /// - Returns: Whether Fill Assist is enabled.
+    ///
+    func getFillAssistEnabled(userId: String?) async throws -> Bool
+
     /// Gets the data for the flight recorder.
     ///
     /// - Returns: The flight recorder data.
@@ -622,6 +629,14 @@ protocol StateService: AnyObject, BillingStateService {
     ///   - userId: The user ID of the account. Defaults to the active account if `nil`.
     ///
     func setEvents(_ events: [EventData], userId: String?) async throws
+
+    /// Sets whether the Fill Assist feature is enabled for the specified user.
+    ///
+    /// - Parameters:
+    ///   - fillAssistEnabled: Whether Fill Assist is enabled.
+    ///   - userId: The user ID of the account. Defaults to the active account if `nil`.
+    ///
+    func setFillAssistEnabled(_ fillAssistEnabled: Bool, userId: String?) async throws
 
     /// Sets the force password reset reason for an account.
     ///
@@ -1049,6 +1064,14 @@ extension StateService {
         try await getEnvironmentURLs(userId: nil)
     }
 
+    /// Gets whether Fill Assist is enabled for the active account.
+    ///
+    /// - Returns: Whether Fill Assist is enabled.
+    ///
+    func getFillAssistEnabled() async throws -> Bool {
+        try await getFillAssistEnabled(userId: nil)
+    }
+
     /// Gets whether a sync has been done successfully after login for the current user.
     /// This is particular useful to trigger logic that needs to be executed right after login in
     /// and after the first successful sync.
@@ -1303,6 +1326,14 @@ extension StateService {
     ///
     func setDisableAutoTotpCopy(_ disableAutoTotpCopy: Bool) async throws {
         try await setDisableAutoTotpCopy(disableAutoTotpCopy, userId: nil)
+    }
+
+    /// Sets whether Fill Assist is enabled for the active account.
+    ///
+    /// - Parameter fillAssistEnabled: Whether Fill Assist is enabled.
+    ///
+    func setFillAssistEnabled(_ fillAssistEnabled: Bool) async throws {
+        try await setFillAssistEnabled(fillAssistEnabled, userId: nil)
     }
 
     /// Sets the force password reset reason for the active account.
@@ -1757,6 +1788,11 @@ actor DefaultStateService: StateService, ActiveAccountStateProvider, ConfigState
         return appSettingsStore.events(userId: userId)
     }
 
+    func getFillAssistEnabled(userId: String?) async throws -> Bool {
+        let userId = try userId ?? getActiveAccountUserId()
+        return appSettingsStore.fillAssistEnabled(userId: userId)
+    }
+
     func getFlightRecorderData() async -> FlightRecorderData? {
         appSettingsStore.flightRecorderData
     }
@@ -2111,6 +2147,11 @@ actor DefaultStateService: StateService, ActiveAccountStateProvider, ConfigState
     func setEvents(_ events: [EventData], userId: String?) async throws {
         let userId = try userId ?? getActiveAccountUserId()
         appSettingsStore.setEvents(events, userId: userId)
+    }
+
+    func setFillAssistEnabled(_ fillAssistEnabled: Bool, userId: String?) async throws {
+        let userId = try userId ?? getActiveAccountUserId()
+        appSettingsStore.setFillAssistEnabled(fillAssistEnabled, userId: userId)
     }
 
     func setFlightRecorderData(_ data: FlightRecorderData?) async {
