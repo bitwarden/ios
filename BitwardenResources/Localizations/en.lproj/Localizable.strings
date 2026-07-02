@@ -1085,6 +1085,8 @@
 "ExternalLink" = "External link";
 "YourNextChargeIsForXDueOnY" = "Your next charge is for **%1$@**, due on **%2$@**.";
 "WeCouldNotProcessYourPaymentUpdateYourPaymentMethodDescriptionLong" = "We could not process your payment. Update your payment method before your subscription ends on **%1$@**.";
+/* Error message shown when the Premium Plan screen fails to load subscription data, with a prompt to retry. */
+"WeCouldntLoadYourSubscriptionDetailsPleaseRetry" = "We couldn't load your subscription details. Please try again.";
 "YourSubscriptionWasCanceledOnXDescriptionLong" = "Your subscription was canceled on **%1$@**. Resubscribe to continue using Premium features.";
 "YourSubscriptionExpiredOnXDescriptionLong" = "Your subscription expired on **%1$@**. Resubscribe to continue using Premium features.";
 "YourSubscriptionIsScheduledToCancelOnXDescriptionLong" = "Your subscription is scheduled to cancel on **%1$@**. You can reinstate it anytime before then.";
@@ -1094,7 +1096,6 @@
 "NegativeX" = "-%1$@";
 "UnknownStatus" = "Unknown";
 "YourSubscriptionStatusIsUnknownVisitTheWebAppDescriptionLong" = "Your subscription status could not be determined. Please visit the web app for more details or update to the latest version.";
-"AtTheMomentPremiumPlanIsNotAvailableDescriptionLong" = "At the moment Premium plan is not available, please try again later.";
 "UnlockMoreAdvancedFeaturesWithPremiumPlan" = "Unlock more advanced features with a Premium plan.";
 "BuiltInAuthenticator" = "Built-in authenticator";
 "EmergencyAccess" = "Emergency access";
