@@ -81,11 +81,10 @@ final class CipherIconImageLoader: NSObject, @unchecked Sendable {
     ) async -> (URLSession.AuthChallengeDisposition, URLCredential?) {
         switch challenge.protectionSpace.authenticationMethod {
         case NSURLAuthenticationMethodClientCertificate:
-            guard let identity = await certificateService?.getClientCertificateIdentity() else {
+            guard let clientCertificate = await certificateService?.getClientCertificate() else {
                 return (.performDefaultHandling, nil)
             }
-            let credential = URLCredential(identity: identity, certificates: nil, persistence: .forSession)
-            return (.useCredential, credential)
+            return (.useCredential, clientCertificate.urlCredential)
 
         default:
             return (.performDefaultHandling, nil)
