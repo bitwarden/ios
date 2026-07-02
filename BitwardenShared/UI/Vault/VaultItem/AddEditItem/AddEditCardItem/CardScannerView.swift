@@ -21,7 +21,14 @@ struct CardScannerWrapperView: View {
     /// Drives `startScanning()`/`stopScanning()` via the SwiftUI view lifecycle.
     @SwiftUI.State private var isScanning = false
 
+    /// Counts how many stop-then-restart cycles have been attempted this session.
+    /// Capped at 2 to avoid infinite loops; resets on each `.onAppear`.
+    @SwiftUI.State private var scannerRetryCount = 0
+
+    /// Dismisses the sheet when the scanner gives up after exhausting retries.
     @Environment(\.dismiss) private var dismiss
+    /// Used to restart scanning when the app returns to the foreground after a camera interruption.
+    @Environment(\.scenePhase) private var scenePhase
 
     var body: some View {
         NavigationView {
@@ -35,11 +42,15 @@ struct CardScannerWrapperView: View {
                     scanner: scanner,
                     onLinesUpdated: onLinesUpdated,
                     isScanning: $isScanning,
+                    onScannerUnavailable: restartScanning,
                 )
                 .padding(.horizontal, 12)
                 .padding(.top, 12)
                 .padding(.bottom, 35)
-                .onAppear { isScanning = true }
+                .onAppear {
+                    scannerRetryCount = 0
+                    isScanning = true
+                }
                 .onDisappear { isScanning = false }
             }
             .navigationTitle(Localizations.scanCard)
@@ -51,6 +62,28 @@ struct CardScannerWrapperView: View {
             }
         }
         .navigationViewStyle(.stack)
+        .onChange(of: scenePhase) { newPhase in
+            if newPhase == .active, isScanning {
+                restartScanning()
+            }
+        }
+    }
+
+    // MARK: Private
+
+    /// Stops scanning, waits 300 ms for the camera to fully release, then restarts.
+    /// After two retries the sheet is dismissed so the user is never left with a blank screen.
+    private func restartScanning() {
+        guard scannerRetryCount < 2 else {
+            dismiss()
+            return
+        }
+        scannerRetryCount += 1
+        isScanning = false
+        Task { @MainActor in
+            try? await Task.sleep(for: .milliseconds(300))
+            isScanning = true
+        }
     }
 }
 
@@ -74,6 +107,10 @@ struct CardScannerView: UIViewControllerRepresentable {
 
     /// When `true`, scanning is active; when `false`, scanning is stopped.
     @Binding var isScanning: Bool
+
+    /// Called when `startScanning()` throws or the scanner becomes unavailable at runtime
+    /// (e.g. camera interrupted). The wrapper uses this to schedule a stop-then-restart cycle.
+    var onScannerUnavailable: (() -> Void)?
 
     // MARK: Static methods for UIViewControllerRepresentable
 
@@ -103,7 +140,7 @@ struct CardScannerView: UIViewControllerRepresentable {
     // MARK: UIViewControllerRepresentable
 
     func makeCoordinator() -> Coordinator {
-        Coordinator(onLinesUpdated: onLinesUpdated)
+        Coordinator(onLinesUpdated: onLinesUpdated, onScannerUnavailable: onScannerUnavailable)
     }
 
     func makeUIViewController(context: Context) -> DataScannerViewController {
@@ -114,7 +151,11 @@ struct CardScannerView: UIViewControllerRepresentable {
 
     func updateUIViewController(_ uiViewController: DataScannerViewController, context: Context) {
         if isScanning {
-            try? uiViewController.startScanning()
+            do {
+                try uiViewController.startScanning()
+            } catch {
+                DispatchQueue.main.async { context.coordinator.onScannerUnavailable?() }
+            }
         } else {
             uiViewController.stopScanning()
         }
@@ -139,10 +180,15 @@ extension CardScannerView {
 
         let onLinesUpdated: ([String]) -> Void
 
+        /// Forwarded from `CardScannerView.onScannerUnavailable`; called when `startScanning()`
+        /// fails or the camera is interrupted at runtime.
+        var onScannerUnavailable: (() -> Void)?
+
         // MARK: Initialization
 
-        init(onLinesUpdated: @escaping ([String]) -> Void) {
+        init(onLinesUpdated: @escaping ([String]) -> Void, onScannerUnavailable: (() -> Void)?) {
             self.onLinesUpdated = onLinesUpdated
+            self.onScannerUnavailable = onScannerUnavailable
         }
 
         // MARK: DataScannerViewControllerDelegate
@@ -171,6 +217,13 @@ extension CardScannerView {
             allItems: [RecognizedItem],
         ) {
             updateLines(from: allItems)
+        }
+
+        func dataScanner(
+            _ dataScanner: DataScannerViewController,
+            becameUnavailableWithError error: DataScannerViewController.ScanningUnavailable,
+        ) {
+            onScannerUnavailable?()
         }
 
         // MARK: Private Helpers
