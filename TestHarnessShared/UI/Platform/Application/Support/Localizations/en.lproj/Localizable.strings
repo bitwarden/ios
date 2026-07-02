@@ -4,7 +4,9 @@
 "CardholderName" = "Cardholder Name";
 "CardNumber" = "Card Number";
 "CreatePasskey" = "Create Passkey";
+"CreatePasskeyFormDescriptionLong" = "Fill in the fields above, then tap Register Passkey. The Bitwarden AutoFill sheet will appear to save the credential.";
 "Credentials" = "Credentials";
+"DisplayName" = "Display Name";
 "EnterCardDetailsAbove" = "Enter card details above";
 "EnterCredentialsAbove" = "Enter credentials above";
 "EnterTOTPCodeAbove" = "Enter TOTP code above";
@@ -12,8 +14,13 @@
 "ExpirationYear" = "Expiration Year";
 "FileShare" = "File Share";
 "FormValues" = "Form Values";
-"PasskeyAutofill" = "Passkey Autofill";
+"PasskeyRegisteredSuccessfully" = "Passkey registered successfully.";
+"PasskeyRegistrationRequiresIOS17OrLater" = "Passkey registration requires iOS 17 or later.";
 "Password" = "Password";
+"RegisterPasskey" = "Register Passkey";
+"RegistrationResult" = "Registration Result";
+"RelyingPartyId" = "Relying Party ID";
+"RelyingPartyIdFooterDescriptionLong" = "Must match a webcredentials associated domain configured in the app entitlements.";
 "SecurityCode" = "Security Code";
 "ShareFile" = "Share File";
 "SharesASamplePDFDescriptionLong" = "Shares a sample PDF containing the text \"Hello World\". Exercises the UTType.data → URL → file Send path in the share extension.";
@@ -27,6 +34,7 @@
 "TOTPAutofillForm" = "TOTP Autofill Form";
 "TapTheTOTPCodeFieldAndSelectDescriptionLong" = "Tap the TOTP Code field and select a code from Bitwarden. Requires Bitwarden PM as AutoFill provider and a saved Login with a TOTP seed.";
 "TOTPCode" = "TOTP Code";
+"UnexpectedCredentialTypeReceived" = "Unexpected credential type received.";
 "Username" = "Username";
 "UseThisLoginFormToTestAutofillFunctionality" = "Use this login form to test autofill functionality.";
 "XColonY" = "%@: %@";
