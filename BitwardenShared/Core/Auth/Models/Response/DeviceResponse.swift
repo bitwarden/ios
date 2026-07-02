@@ -6,8 +6,8 @@ import Networking
 
 /// A data structure representing a device response from the API.
 ///
-public struct DeviceResponse: JSONResponse, Equatable, Sendable, Identifiable, Hashable {
-    public static let decoder = JSONDecoder.defaultDecoder
+struct DeviceResponse: JSONResponse, Equatable, Sendable, Identifiable, Hashable {
+    static let decoder = JSONDecoder.defaultDecoder
 
     // MARK: Properties
 
@@ -15,7 +15,7 @@ public struct DeviceResponse: JSONResponse, Equatable, Sendable, Identifiable, H
     let creationDate: Date
 
     /// The unique identifier of the device.
-    public let id: String
+    let id: String
 
     /// The unique identifier for this device instance.
     let identifier: String
@@ -29,6 +29,6 @@ public struct DeviceResponse: JSONResponse, Equatable, Sendable, Identifiable, H
     /// The name of the device.
     let name: String?
 
-    /// The numeric type of the device (maps to DeviceType).
-    let type: Int
+    /// The numeric type of the device.
+    let type: DeviceType
 }

@@ -5,7 +5,7 @@ import BitwardenResources
 
 /// The category of a device type.
 ///
-enum DeviceTypeCategory: String, Sendable {
+enum DeviceTypeCategory: Sendable {
     case cli
     case desktop
     case `extension`
@@ -33,7 +33,7 @@ enum DeviceTypeCategory: String, Sendable {
         case .unknown:
             Localizations.unknown
         case .webApp:
-            Localizations.webVault
+            Localizations.webVaultDeviceType
         }
     }
 }

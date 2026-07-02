@@ -21,12 +21,15 @@ struct DeviceListItem: Equatable, Identifiable, Sendable {
     let firstLogin: Date
 
     /// Whether the device has a pending login request.
-    var hasPendingRequest: Bool
+    ///
+    /// Computed from `pendingRequest` — `true` when a pending request is present.
+    var hasPendingRequest: Bool { pendingRequest != nil }
 
-    /// The unique identifier of the device.
+    /// The server-assigned UUID that uniquely identifies this device record across all users.
     let id: String
 
-    /// The unique identifier for this device instance.
+    /// The client-generated UUID embedded in the app on this device, used for push notifications
+    /// and device recognition.
     let identifier: String
 
     /// Whether this is the current session's device.
@@ -50,9 +53,8 @@ struct DeviceListItem: Equatable, Identifiable, Sendable {
     ///   - deviceType: The type of the device.
     ///   - displayName: The display name of the device.
     ///   - firstLogin: The date of the first login on this device.
-    ///   - hasPendingRequest: Whether the device has a pending login request.
-    ///   - id: The unique identifier of the device.
-    ///   - identifier: The unique identifier for this device instance.
+    ///   - id: The server-assigned UUID for this device record.
+    ///   - identifier: The client-generated UUID identifying the app installation.
     ///   - isCurrentSession: Whether this is the current session's device.
     ///   - isTrusted: Whether the device is trusted.
     ///   - lastActivityDate: The date of the last activity on this device.
@@ -63,7 +65,6 @@ struct DeviceListItem: Equatable, Identifiable, Sendable {
         deviceType: DeviceType,
         displayName: String,
         firstLogin: Date,
-        hasPendingRequest: Bool,
         id: String,
         identifier: String,
         isCurrentSession: Bool,
@@ -75,7 +76,6 @@ struct DeviceListItem: Equatable, Identifiable, Sendable {
         self.deviceType = deviceType
         self.displayName = displayName
         self.firstLogin = firstLogin
-        self.hasPendingRequest = hasPendingRequest
         self.id = id
         self.identifier = identifier
         self.isCurrentSession = isCurrentSession
@@ -94,12 +94,10 @@ struct DeviceListItem: Equatable, Identifiable, Sendable {
         device: DeviceResponse,
         timeProvider: TimeProvider,
     ) {
-        let type = DeviceType(device.type)
         activityStatus = DeviceActivityStatus(from: device.lastActivityDate, timeProvider: timeProvider)
-        deviceType = type
-        displayName = type.displayName
+        deviceType = device.type
+        displayName = device.type.displayName
         firstLogin = device.creationDate
-        hasPendingRequest = false
         id = device.id
         identifier = device.identifier
         isCurrentSession = false

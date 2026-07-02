@@ -7,7 +7,7 @@ import Testing
 
 // MARK: - DeviceActivityStatusTests
 
-class DeviceActivityStatusTests {
+struct DeviceActivityStatusTests {
     // MARK: Properties
 
     var timeProvider: MockTimeProvider

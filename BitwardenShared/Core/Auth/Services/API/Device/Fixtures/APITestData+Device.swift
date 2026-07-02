@@ -11,48 +11,11 @@ public extension APITestData {
 
     // MARK: Current Device
 
-    static let currentDevice = APITestData(data: Data(
-        """
-        {
-            "id": "device-id-1",
-            "name": "iPhone 15 Pro",
-            "identifier": "device-identifier-1",
-            "type": 1,
-            "creationDate": "2024-01-01T00:00:00.000Z",
-            "isTrusted": true,
-            "lastActivityDate": "2024-06-15T10:30:00.000Z"
-        }
-        """.utf8,
-    ))
+    static let currentDevice = loadFromJsonBundle(resource: "CurrentDevice")
 
     // MARK: Devices List
 
-    static let devicesList = APITestData(data: Data(
-        """
-        {
-            "data": [
-                {
-                    "id": "device-id-1",
-                    "name": "iPhone 15 Pro",
-                    "identifier": "device-identifier-1",
-                    "type": 1,
-                    "creationDate": "2024-01-01T00:00:00.000Z",
-                    "isTrusted": true,
-                    "lastActivityDate": "2024-06-15T10:30:00.000Z"
-                },
-                {
-                    "id": "device-id-2",
-                    "name": "Chrome Extension",
-                    "identifier": "device-identifier-2",
-                    "type": 2,
-                    "creationDate": "2024-02-01T00:00:00.000Z",
-                    "isTrusted": false,
-                    "lastActivityDate": null
-                }
-            ]
-        }
-        """.utf8,
-    ))
+    static let devicesList = loadFromJsonBundle(resource: "DevicesList")
 }
 
 // swiftlint:enable missing_docs

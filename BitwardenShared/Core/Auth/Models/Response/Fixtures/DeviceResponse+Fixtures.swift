@@ -1,3 +1,4 @@
+import BitwardenKit
 import Foundation
 
 @testable import BitwardenShared
@@ -10,7 +11,7 @@ extension DeviceResponse {
         isTrusted: Bool = true,
         lastActivityDate: Date? = Date(timeIntervalSince1970: 1_718_452_200),
         name: String? = "iPhone 15 Pro",
-        type: Int = 1,
+        type: DeviceType = .iOS,
     ) -> DeviceResponse {
         DeviceResponse(
             creationDate: creationDate,
