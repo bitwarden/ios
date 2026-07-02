@@ -92,7 +92,7 @@ actor DefaultFillAssistDataStore: FillAssistDataStore {
         guard let combined = sealedBox.combined else {
             throw FillAssistDataStoreError.encryptionFailed
         }
-        try combined.write(to: fileURL, options: .completeFileProtectionUntilFirstUserAuthentication)
+        try combined.write(to: fileURL, options: [.atomic, .completeFileProtectionUntilFirstUserAuthentication])
     }
 
     func delete(userId: String) async throws {
@@ -122,9 +122,10 @@ actor DefaultFillAssistDataStore: FillAssistDataStore {
             let stored = try await keychainRepository.getUserAuthKeyValue(
                 for: .fillAssistEncryptionKey(userId: userId),
             )
-            if let key = SymmetricKey(base64EncodedString: stored) {
-                return key
+            guard let key = SymmetricKey(base64EncodedString: stored) else {
+                throw FillAssistDataStoreError.invalidKeyMaterial
             }
+            return key
         } catch KeychainServiceError.keyNotFound {
             // Key genuinely absent — fall through to generate a new one.
         }
@@ -142,6 +143,7 @@ actor DefaultFillAssistDataStore: FillAssistDataStore {
 
 enum FillAssistDataStoreError: Error {
     case encryptionFailed
+    case invalidKeyMaterial
 }
 
 // MARK: - SymmetricKey + Base64
