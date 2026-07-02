@@ -23,14 +23,12 @@ extension FileManager {
     /// - Returns: A URL for the user's encrypted Fill Assist rules file.
     ///
     func fillAssistRulesURL(for userId: String) throws -> URL {
-        try url(
-            for: .applicationSupportDirectory,
-            in: .userDomainMask,
-            appropriateFor: nil,
-            create: true,
-        )
-        .appendingPathComponent("FillAssistRules", isDirectory: true)
-        .appendingPathComponent("\(userId).bin")
+        guard let containerURL = containerURL(forSecurityApplicationGroupIdentifier: Bundle.main.groupIdentifier) else {
+            throw CocoaError(.fileNoSuchFile)
+        }
+        return containerURL
+            .appendingPathComponent("FillAssistRules", isDirectory: true)
+            .appendingPathComponent("\(userId).bin")
     }
 
     /// Returns a URL for an exported vault directory.
