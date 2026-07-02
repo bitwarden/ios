@@ -34,10 +34,10 @@ protocol FillAssistDataStore { // sourcery: AutoMockable
 /// The default implementation of `FillAssistDataStore`.
 ///
 /// Data is AES-GCM encrypted with a per-user 256-bit key stored in the Keychain,
-/// and written to `{applicationSupportDirectory}/FillAssistRules/{userId}.bin` with
-/// `.completeUntilFirstUserAuthentication` file protection.
+/// and written to `{appGroupContainer}/FillAssistRules/{userId}.bin` with
+/// `.completeFileProtectionUntilFirstUserAuthentication` file protection.
 ///
-class DefaultFillAssistDataStore: FillAssistDataStore {
+actor DefaultFillAssistDataStore: FillAssistDataStore {
     // MARK: Properties
 
     /// The file manager used for file I/O.
