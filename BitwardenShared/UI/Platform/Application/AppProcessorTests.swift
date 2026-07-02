@@ -1478,6 +1478,13 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
         XCTAssertEqual(errorReporter.errors as? [StateServiceError], [.noActiveAccount])
     }
 
+    /// `onFetchSyncSucceeded(userId:)` triggers a subscription attention card refresh on every sync.
+    func test_onFetchSyncSucceeded_refreshesSubscriptionAttentionCard() async {
+        await subject.onFetchSyncSucceeded(userId: "1")
+
+        XCTAssertTrue(billingService.refreshSubscriptionAttentionCardCalled)
+    }
+
     /// `removeMasterPassword(organizationName:)` notifies the coordinator to show the remove
     /// master password screen.
     @MainActor
