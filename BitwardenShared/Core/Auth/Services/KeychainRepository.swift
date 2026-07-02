@@ -27,6 +27,9 @@ enum BitwardenKeychainItem: Equatable, KeychainItem {
     /// The keychain item for device key.
     case deviceKey(userId: String)
 
+    /// The keychain item for the Fill Assist encrypted rules encryption key.
+    case fillAssistEncryptionKey(userId: String)
+
     /// The keychain item for a user's last active boot epoch.
     ///
     /// The boot epoch is `wallTime − monotonicTime` and is used to detect the reboot-timing attack.
@@ -69,6 +72,7 @@ enum BitwardenKeychainItem: Equatable, KeychainItem {
              .clientCertificateIdentity,
              .deviceAuthKeyMetadata,
              .deviceKey,
+             .fillAssistEncryptionKey,
              .lastActiveBootEpoch,
              .lastActiveMonotonicTime,
              .lastActiveTime,
@@ -104,6 +108,7 @@ enum BitwardenKeychainItem: Equatable, KeychainItem {
         case .accessToken,
              .authenticatorVaultKey,
              .clientCertificateIdentity,
+             .fillAssistEncryptionKey,
              .localUserDataKeyStates,
              .refreshToken,
              .serverCommunicationConfig:
@@ -129,6 +134,8 @@ enum BitwardenKeychainItem: Equatable, KeychainItem {
             "deviceAuthKey_" + id
         case let .deviceAuthKeyMetadata(userId: id):
             "deviceAuthKeyMetadata_" + id
+        case let .fillAssistEncryptionKey(userId):
+            "fillAssistEncryptionKey_\(userId)"
         case let .lastActiveBootEpoch(userId):
             "lastActiveBootEpoch_\(userId)"
         case let .lastActiveMonotonicTime(userId):
@@ -359,6 +366,7 @@ extension DefaultKeychainRepository {
             .accessToken(userId: userId),
             .authenticatorVaultKey(userId: userId),
             .biometrics(userId: userId),
+            .fillAssistEncryptionKey(userId: userId),
             // Exclude `deviceKey` since it is used to log back into an account.
             // Also exclude `deviceAuthKey` and `deviceAuthKeyMetadata` since they are used to log back into an account.
             .lastActiveBootEpoch(userId: userId),

@@ -474,25 +474,6 @@ class AppSettingsStoreTests: BitwardenTestCase { // swiftlint:disable:this type_
         XCTAssertEqual(subject.events(userId: "1"), [])
     }
 
-    /// `fillAssistCachedData(userId:)` returns `nil` if there is no previously stored value.
-    func test_fillAssistCachedData_isInitiallyNil() {
-        XCTAssertNil(subject.fillAssistCachedData(userId: "-1"))
-    }
-
-    /// `fillAssistCachedData(userId:)` can be used to get and set the cached data per user,
-    /// and persists under the expected UserDefaults key.
-    func test_fillAssistCachedData_withValue() {
-        let data1 = FillAssistCachedData(cid: "sha256:abc", rules: [:], sourceUrl: "https://a.example.com")
-        let data2 = FillAssistCachedData(cid: "sha256:def", rules: [:], sourceUrl: "https://b.example.com")
-        subject.setFillAssistCachedData(data1, userId: "1")
-        subject.setFillAssistCachedData(data2, userId: "2")
-
-        XCTAssertEqual(subject.fillAssistCachedData(userId: "1"), data1)
-        XCTAssertEqual(subject.fillAssistCachedData(userId: "2"), data2)
-        XCTAssertNotNil(userDefaults.string(forKey: "bwPreferencesStorage:fillAssistCachedData_1"))
-        XCTAssertNotNil(userDefaults.string(forKey: "bwPreferencesStorage:fillAssistCachedData_2"))
-    }
-
     /// `fillAssistLastFetchTimestamp(userId:)` returns `nil` if there is no previously stored value.
     func test_fillAssistLastFetchTimestamp_isInitiallyNil() {
         XCTAssertNil(subject.fillAssistLastFetchTimestamp(userId: "-1"))

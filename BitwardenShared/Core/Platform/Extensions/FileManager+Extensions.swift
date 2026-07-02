@@ -17,6 +17,20 @@ extension FileManager {
         .appendingPathComponent("Attachments", isDirectory: true)
     }
 
+    /// Returns a URL for the encrypted Fill Assist rules file for a user.
+    ///
+    /// - Parameter userId: The user ID of the active account.
+    /// - Returns: A URL for the user's encrypted Fill Assist rules file.
+    ///
+    func fillAssistRulesURL(for userId: String) throws -> URL {
+        guard let containerURL = containerURL(forSecurityApplicationGroupIdentifier: Bundle.main.groupIdentifier) else {
+            throw CocoaError(.fileNoSuchFile)
+        }
+        return containerURL
+            .appendingPathComponent("FillAssistRules", isDirectory: true)
+            .appendingPathComponent("\(userId).bin")
+    }
+
     /// Returns a URL for an exported vault directory.
     ///
     /// - Returns: A URL for storing a vault export file.
