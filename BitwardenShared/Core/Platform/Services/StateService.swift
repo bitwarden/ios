@@ -1985,8 +1985,8 @@ actor DefaultStateService: StateService, ActiveAccountStateProvider, ConfigState
     }
 
     /// Deletes the Fill Assist encrypted rules file for a user if it exists.
-    /// Errors are swallowed — the Keychain key deletion in `deleteItems(for:)` already ensures
-    /// the file is permanently unreadable even if the file deletion itself fails.
+    /// Errors are swallowed — the Keychain key is deleted by the logout caller before this helper
+    /// is invoked, so the file is already permanently unreadable even if deletion fails here.
     ///
     private func deleteFillAssistRulesFile(userId: String) {
         guard let fileURL = try? FileManager.default.fillAssistRulesURL(for: userId) else { return }
