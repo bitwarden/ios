@@ -879,6 +879,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
 
         let billingService = DefaultBillingService(
             billingAPIService: apiService,
+            billingStateService: stateService,
             configService: configService,
             environmentService: environmentService,
             errorReporter: errorReporter,

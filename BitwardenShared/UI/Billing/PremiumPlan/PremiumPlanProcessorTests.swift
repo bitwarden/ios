@@ -190,6 +190,26 @@ struct PremiumPlanProcessorTests {
         #expect(coordinator.alertShown.first?.alertActions.last?.title == Localizations.continue)
     }
 
+    /// `perform(_:)` with `.appeared` calls `refreshSubscriptionAttentionCard(subscription:)` after
+    /// loading the subscription, passing the fetched subscription to avoid a redundant API call.
+    @Test
+    func perform_appeared_refreshesSubscriptionAttentionCard() async throws {
+        let subscription = PremiumSubscription.fixture(status: .pastDue)
+        billingService.getPremiumPlanReturnValue = PremiumPlanResponseModel(
+            available: true,
+            legacyYear: nil,
+            name: "Premium",
+            seat: PlanPricingResponseModel(price: 10, provided: 1, stripePriceId: "seat"),
+            storage: PlanPricingResponseModel(price: 0, provided: 0, stripePriceId: "storage"),
+        )
+        billingService.getSubscriptionReturnValue = .fixture(status: .pastDue)
+
+        await subject.perform(.appeared)
+
+        let received = billingService.refreshSubscriptionAttentionCardReceivedSubscription
+        #expect(received?.status == subscription.status)
+    }
+
     /// `perform(_:)` with `.managePlanTapped`, after confirming, sets `urlToOpen` to the subscription URL.
     @Test
     func perform_managePlanTapped_continue_setsSubscriptionUrl() async throws {

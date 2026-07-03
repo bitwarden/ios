@@ -67,7 +67,7 @@ struct ErrorReportBuilderTests {
             🍏 System: iOS 16.4
             👤 User ID: 1
 
-            Swift.DecodingError.keyNotFound(TestKeys(stringValue: "ciphers", intValue: nil), Swift.DecodingError.Context(codingPath: [], debugDescription: "No value associated with key CodingKeys(stringValue: \"ciphers\", intValue: nil).", underlyingError: nil))
+            DecodingError.keyNotFound: Key 'ciphers' not found in keyed decoding container. Debug description: No value associated with key CodingKeys(stringValue: "ciphers", intValue: nil).
             The data couldn’t be read because it is missing.
 
             Stack trace:

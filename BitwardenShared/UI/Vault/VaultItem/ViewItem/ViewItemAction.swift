@@ -50,6 +50,9 @@ enum ViewItemAction: Equatable, Sendable {
     /// The password history button was pressed.
     case passwordHistoryPressed
 
+    /// The "Premium subscription required" TOTP field was tapped.
+    case premiumSubscriptionRequiredTapped
+
     /// The password visibility button was pressed.
     case passwordVisibilityPressed
 

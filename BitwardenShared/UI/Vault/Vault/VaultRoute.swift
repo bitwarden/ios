@@ -71,6 +71,9 @@ public enum VaultRoute: Equatable, Hashable {
     ///
     case loginRequest(_ loginRequest: LoginRequest)
 
+    /// A route to the Premium plan screen, bypassing the upgrade flow.
+    case premiumPlan
+
     /// A route to the Premium upgrade view.
     case premiumUpgrade
 
