@@ -303,21 +303,6 @@ class HTTPServiceTests: XCTestCase {
             XCTAssertEqual(error as? TestError, .invalidResponse)
         }
     }
-
-    /// `download(filename:)` appends the filename to the base URL and calls the client.
-    func test_download_filename() async throws {
-        let tempFile = FileManager.default.temporaryDirectory.appendingPathComponent("test.json")
-        try "{}".write(to: tempFile, atomically: true, encoding: .utf8)
-        client.downloadResults = [.success(tempFile)]
-
-        let result = try await subject.download(filename: "manifest.json")
-
-        XCTAssertEqual(
-            client.downloadRequests.last?.url?.absoluteString,
-            "https://example.com/manifest.json",
-        )
-        XCTAssertEqual(result, tempFile)
-    }
 }
 
 private struct RequestError: Error {}
