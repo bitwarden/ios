@@ -97,8 +97,12 @@ actor DefaultFillAssistDataStore: FillAssistDataStore {
 
     func delete(userId: String) async throws {
         // Delete the Keychain key first so the data becomes permanently unreadable even if
-        // file removal fails below.
-        try await keychainRepository.deleteUserAuthKey(for: .fillAssistEncryptionKey(userId: userId))
+        // file removal fails below. Treat a missing key as success — delete is idempotent.
+        do {
+            try await keychainRepository.deleteUserAuthKey(for: .fillAssistEncryptionKey(userId: userId))
+        } catch KeychainServiceError.keyNotFound {
+            // Key already absent — nothing to delete.
+        }
         let fileURL = try rulesFileURL(for: userId)
         if fileManager.fileExists(atPath: fileURL.path) {
             try fileManager.removeItem(at: fileURL)

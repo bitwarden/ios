@@ -114,10 +114,13 @@ struct FillAssistDataStoreTests {
         #expect(keychainRepository.deleteUserAuthKeyCalled)
     }
 
-    /// `delete(userId:)` succeeds even if no file exists.
+    /// `delete(userId:)` succeeds even if no file or Keychain key exists.
     @Test
     func delete_noFile_succeeds() async throws {
         defer { try? FileManager.default.removeItem(at: tempDirectory) }
+        keychainRepository.deleteUserAuthKeyThrowableError = KeychainServiceError
+            .keyNotFound(BitwardenKeychainItem.fillAssistEncryptionKey(userId: "nonexistent"))
+
         await #expect(throws: Never.self) {
             try await subject.delete(userId: "nonexistent")
         }
