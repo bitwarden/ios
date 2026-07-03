@@ -371,13 +371,28 @@ class SyncServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
         )
     }
 
-    /// `fetchSync()` calls `syncRules()` on the fill-assist repository alongside vault sync.
+    /// `fetchSync()` calls `syncRules()` on the fill-assist repository independently of vault sync.
     func test_fetchSync_syncsFillAssistRules() async throws {
         client.result = .httpSuccess(testData: .syncWithCiphers)
         stateService.activeAccount = .fixture()
 
         try await subject.fetchSync(forceSync: false)
 
+        XCTAssertTrue(fillAssistRepository.syncRulesCalled)
+    }
+
+    /// `fetchSync()` calls `syncRules()` even when the vault does not need syncing.
+    func test_fetchSync_syncsFillAssistRules_evenWhenVaultSyncSkipped() async throws {
+        client.result = .httpSuccess(testData: .syncWithCipher)
+        stateService.activeAccount = .fixture()
+        stateService.lastSyncTimeByUserId["1"] = try XCTUnwrap(
+            timeProvider.presentTime.addingTimeInterval(-(Constants.minimumSyncInterval - 1)),
+        )
+        keyConnectorService.userNeedsMigrationResult = .success(false)
+
+        try await subject.fetchSync(forceSync: false, isPeriodic: true)
+
+        XCTAssertTrue(client.requests.isEmpty)
         XCTAssertTrue(fillAssistRepository.syncRulesCalled)
     }
 

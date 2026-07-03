@@ -427,6 +427,8 @@ extension DefaultSyncService {
         let account = try await stateService.getActiveAccount()
         let userId = account.profile.userId
 
+        await fillAssistRepository.syncRules()
+
         guard try await needsSync(forceSync: forceSync, isPeriodic: isPeriodic, userId: userId) else {
             return
         }
@@ -478,8 +480,6 @@ extension DefaultSyncService {
                 keyConnectorUrl: keyConnectorUrl,
             )
         }
-
-        await fillAssistRepository.syncRules()
 
         await delegate?.onFetchSyncSucceeded(userId: userId)
     }
