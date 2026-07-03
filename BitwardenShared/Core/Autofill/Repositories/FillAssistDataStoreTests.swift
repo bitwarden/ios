@@ -61,6 +61,7 @@ struct FillAssistDataStoreTests {
     /// `load(userId:)` returns `nil` when no file exists for the user.
     @Test
     func load_noFile_returnsNil() async throws {
+        defer { try? FileManager.default.removeItem(at: tempDirectory) }
         let result = try await subject.load(userId: "nonexistent")
         #expect(result == nil)
     }
@@ -116,6 +117,7 @@ struct FillAssistDataStoreTests {
     /// `delete(userId:)` succeeds even if no file exists.
     @Test
     func delete_noFile_succeeds() async throws {
+        defer { try? FileManager.default.removeItem(at: tempDirectory) }
         await #expect(throws: Never.self) {
             try await subject.delete(userId: "nonexistent")
         }
