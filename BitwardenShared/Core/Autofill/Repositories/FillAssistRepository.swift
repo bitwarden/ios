@@ -112,10 +112,12 @@ class DefaultFillAssistRepository: FillAssistRepository {
 
         let sourceUrl = environmentService.fillAssistRulesURL
         let userId = try await stateService.getActiveAccountId()
+        let cached = appSettingsStore.fillAssistCachedData(userId: userId)
         let lastFetch = appSettingsStore.fillAssistLastFetchTimestamp(userId: userId)
-        if let lastFetch, timeProvider.presentTime.timeIntervalSince(lastFetch) < Constants.FillAssist.updateInterval {
-            return
-        }
+        let cacheIsStale = lastFetch.map { timestamp in
+            timeProvider.presentTime.timeIntervalSince(timestamp) >= Constants.FillAssist.updateInterval
+        } ?? true
+        guard cached == nil || cacheIsStale else { return }
 
         let manifest = try await fillAssistAPIService.getManifest()
 
@@ -123,7 +125,6 @@ class DefaultFillAssistRepository: FillAssistRepository {
               !entry.deprecated
         else { return }
 
-        let cached = appSettingsStore.fillAssistCachedData(userId: userId)
         if cached?.cid == entry.cid, cached?.sourceUrl == sourceUrl.absoluteString {
             appSettingsStore.setFillAssistLastFetchTimestamp(timeProvider.presentTime, userId: userId)
             return
