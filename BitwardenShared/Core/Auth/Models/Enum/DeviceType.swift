@@ -41,58 +41,28 @@ enum DeviceTypeCategory: Sendable {
 // MARK: - DeviceType Extension
 
 extension DeviceType {
-    // MARK: Known Device Type Values
-
-    static let android: DeviceType = 0
-    static let iOS: DeviceType = 1
-    static let chromeExtension: DeviceType = 2
-    static let firefoxExtension: DeviceType = 3
-    static let operaExtension: DeviceType = 4
-    static let edgeExtension: DeviceType = 5
-    static let windowsDesktop: DeviceType = 6
-    static let macOsDesktop: DeviceType = 7
-    static let linuxDesktop: DeviceType = 8
-    static let chromeBrowser: DeviceType = 9
-    static let firefoxBrowser: DeviceType = 10
-    static let operaBrowser: DeviceType = 11
-    static let edgeBrowser: DeviceType = 12
-    static let ieBrowser: DeviceType = 13
-    static let unknownBrowser: DeviceType = 14
-    static let androidAmazon: DeviceType = 15
-    static let uwp: DeviceType = 16
-    static let safariBrowser: DeviceType = 17
-    static let vivaldiBrowser: DeviceType = 18
-    static let vivaldiExtension: DeviceType = 19
-    static let safariExtension: DeviceType = 20
-    static let sdk: DeviceType = 21
-    static let server: DeviceType = 22
-    static let windowsCLI: DeviceType = 23
-    static let macOsCLI: DeviceType = 24
-    static let linuxCLI: DeviceType = 25
-    static let duckDuckGoBrowser: DeviceType = 26
-
     // MARK: Properties
 
     /// The category of the device type.
     var category: DeviceTypeCategory {
         switch self {
-        case Self.android, Self.androidAmazon, Self.iOS:
+        case .android, .androidAmazon, .iOS:
             .mobile
-        case Self.chromeExtension, Self.edgeExtension, Self.firefoxExtension, Self.operaExtension,
-             Self.safariExtension, Self.vivaldiExtension:
+        case .chromeExtension, .edgeExtension, .firefoxExtension, .operaExtension,
+             .safariExtension, .vivaldiExtension:
             .extension
-        case Self.chromeBrowser, Self.duckDuckGoBrowser, Self.edgeBrowser, Self.firefoxBrowser,
-             Self.ieBrowser, Self.operaBrowser, Self.safariBrowser, Self.unknownBrowser, Self.vivaldiBrowser:
+        case .chromeBrowser, .duckDuckGoBrowser, .edgeBrowser, .firefoxBrowser,
+             .ieBrowser, .operaBrowser, .safariBrowser, .vivaldiBrowser:
             .webApp
-        case Self.linuxDesktop, Self.macOsDesktop, Self.uwp, Self.windowsDesktop:
+        case .linuxDesktop, .macOsDesktop, .uwp, .windowsDesktop:
             .desktop
-        case Self.linuxCLI, Self.macOsCLI, Self.windowsCLI:
+        case .linuxCLI, .macOsCLI, .windowsCLI:
             .cli
-        case Self.sdk:
+        case .sdk:
             .sdk
-        case Self.server:
+        case .server:
             .server
-        default:
+        case .unknownBrowser:
             .unknown
         }
     }
@@ -100,50 +70,48 @@ extension DeviceType {
     /// The platform name for the device type.
     var platform: String {
         switch self {
-        case Self.android:
+        case .android:
             "Android"
-        case Self.iOS:
+        case .iOS:
             "iOS"
-        case Self.androidAmazon:
+        case .androidAmazon:
             "Amazon"
-        case Self.chromeBrowser, Self.chromeExtension:
+        case .chromeBrowser, .chromeExtension:
             "Chrome"
-        case Self.firefoxBrowser, Self.firefoxExtension:
+        case .firefoxBrowser, .firefoxExtension:
             "Firefox"
-        case Self.operaBrowser, Self.operaExtension:
+        case .operaBrowser, .operaExtension:
             "Opera"
-        case Self.edgeBrowser, Self.edgeExtension:
+        case .edgeBrowser, .edgeExtension:
             "Edge"
-        case Self.vivaldiBrowser, Self.vivaldiExtension:
+        case .vivaldiBrowser, .vivaldiExtension:
             "Vivaldi"
-        case Self.safariBrowser, Self.safariExtension:
+        case .safariBrowser, .safariExtension:
             "Safari"
-        case Self.ieBrowser:
-            "IE"
-        case Self.duckDuckGoBrowser:
+        case .ieBrowser:
+            "Internet Explorer"
+        case .duckDuckGoBrowser:
             "DuckDuckGo"
-        case Self.unknownBrowser:
-            Localizations.unknown
-        case Self.windowsCLI, Self.windowsDesktop:
-            "Windows"
-        case Self.macOsCLI, Self.macOsDesktop:
-            "macOS"
-        case Self.linuxCLI, Self.linuxDesktop:
-            "Linux"
-        case Self.uwp:
-            "Windows UWP"
-        case Self.sdk, Self.server:
+        case .unknownBrowser:
             ""
-        default:
-            Localizations.unknown
+        case .windowsCLI, .windowsDesktop:
+            "Windows"
+        case .macOsCLI, .macOsDesktop:
+            "macOS"
+        case .linuxCLI, .linuxDesktop:
+            "Linux"
+        case .uwp:
+            "Windows UWP"
+        case .sdk, .server:
+            ""
         }
     }
 
     /// The display name for the device type, combining category and platform.
     var displayName: String {
-        if platform.isEmpty {
+        guard !platform.isEmpty else {
             return category.displayName
         }
-        return "\(category.displayName) - \(platform)"
+        return Localizations.deviceDisplayName(category.displayName, platform)
     }
 }

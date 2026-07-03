@@ -41,7 +41,7 @@ class DeviceAPIServiceTests: BitwardenTestCase {
 
         XCTAssertEqual(device.id, "device-id-1")
         XCTAssertEqual(device.identifier, "device-identifier-1")
-        XCTAssertEqual(device.type, 1)
+        XCTAssertEqual(device.type, .iOS)
         XCTAssertTrue(device.isTrusted)
     }
 

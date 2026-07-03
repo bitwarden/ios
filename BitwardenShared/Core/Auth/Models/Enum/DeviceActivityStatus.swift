@@ -67,10 +67,12 @@ enum DeviceActivityStatus: Equatable, Sendable {
         }
 
         let calendar = Calendar.current
+        let startOfDate = calendar.startOfDay(for: date)
+        let startOfToday = calendar.startOfDay(for: now)
 
         // `.day` is always non-nil when explicitly requested via `dateComponents([.day]:)`;
         // the guard is defensive.
-        guard let daysDifference = calendar.dateComponents([.day], from: date, to: now).day else {
+        guard let daysDifference = calendar.dateComponents([.day], from: startOfDate, to: startOfToday).day else {
             self = .unknown
             return
         }

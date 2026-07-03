@@ -96,7 +96,7 @@ struct DeviceListItem: Equatable, Identifiable, Sendable {
     ) {
         activityStatus = DeviceActivityStatus(from: device.lastActivityDate, timeProvider: timeProvider)
         deviceType = device.type
-        displayName = device.type.displayName
+        displayName = device.name ?? device.type.displayName
         firstLogin = device.creationDate
         id = device.id
         identifier = device.identifier

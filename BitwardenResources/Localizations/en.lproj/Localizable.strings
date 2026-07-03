@@ -1180,6 +1180,8 @@
 "RemoveDevice" = "Remove device";
 "AreYouSureYouWantToRemoveX" = "Are you sure you want to remove %1$@?";
 "AreYouSureYouWantToLogOutX" = "Are you sure you want to log out %1$@?";
+/* Device display name. %1$@ = category (e.g. "Mobile"), %2$@ = platform (e.g. "iOS"). */
+"DeviceDisplayName" = "%1$@ - %2$@";
 "Mobile" = "Mobile";
 "BrowserExtension" = "Browser extension";
 "WebVaultDeviceType" = "Web vault";
