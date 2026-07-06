@@ -1074,6 +1074,7 @@
 "Canceled" = "Canceled";
 "PastDue" = "Past due";
 "PendingCancellation" = "Pending cancellation";
+"Unpaid" = "Unpaid";
 "UpdatePayment" = "Update payment";
 "BillingAmount" = "Billing amount";
 "StorageCost" = "Storage cost";
@@ -1086,6 +1087,7 @@
 "YourNextChargeIsForXDueOnY" = "Your next charge is for **%1$@**, due on **%2$@**.";
 "WeCouldNotProcessYourPaymentUpdateYourPaymentMethodDescriptionLong" = "We could not process your payment. Update your payment method before your subscription ends on **%1$@**.";
 "YourSubscriptionWasCanceledOnXDescriptionLong" = "Your subscription was canceled on **%1$@**. Resubscribe to continue using Premium features.";
+"YourSubscriptionWasSuspendedOnXDescriptionLong" = "Your subscription was suspended on **%1$@**. To reactivate, please resolve your past due invoices.";
 "YourSubscriptionExpiredOnXDescriptionLong" = "Your subscription expired on **%1$@**. Resubscribe to continue using Premium features.";
 "YourSubscriptionIsScheduledToCancelOnXDescriptionLong" = "Your subscription is scheduled to cancel on **%1$@**. You can reinstate it anytime before then.";
 "PerMonth" = "/ month";

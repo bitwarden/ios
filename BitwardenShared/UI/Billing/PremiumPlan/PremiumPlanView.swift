@@ -1,3 +1,4 @@
+// swiftlint:disable file_length
 import BitwardenKit
 import BitwardenResources
 import SwiftUI
@@ -271,6 +272,20 @@ private extension PremiumSubscription {
         suspension: nil,
     )
 
+    static let previewUnpaid = PremiumSubscription(
+        cadence: .annually,
+        cancelAt: nil,
+        canceled: nil,
+        discount: 2.10,
+        estimatedTax: 3.85,
+        gracePeriod: nil,
+        nextCharge: nil,
+        seatsCost: 19.8,
+        status: .unpaid,
+        storageCost: 0,
+        suspension: Date().addingTimeInterval(-60 * 60 * 24 * 30),
+    )
+
     static let previewUpdatePayment = PremiumSubscription(
         cadence: .annually,
         cancelAt: Date().addingTimeInterval(60 * 60 * 24 * 14),
@@ -369,6 +384,21 @@ private extension PremiumSubscription {
                     state: PremiumPlanState(
                         planStatus: .pendingCancellation,
                         subscription: .previewPendingCancellation,
+                    ),
+                ),
+            ),
+        )
+    }
+}
+
+#Preview("Unpaid") {
+    NavigationView {
+        PremiumPlanView(
+            store: Store(
+                processor: StateProcessor(
+                    state: PremiumPlanState(
+                        planStatus: .unpaid,
+                        subscription: .previewUnpaid,
                     ),
                 ),
             ),

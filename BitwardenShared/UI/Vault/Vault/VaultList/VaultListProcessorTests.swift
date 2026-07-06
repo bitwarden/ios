@@ -703,6 +703,34 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         XCTAssertFalse(billingService.getSubscriptionCalled)
     }
 
+    /// `refreshPremiumActionCards()` hides the upgrade card when the subscription attention
+    /// card is visible — the two cards are mutually exclusive.
+    @MainActor
+    func test_refreshPremiumActionCards_attentionCardVisible_hidesUpgradeCard() async {
+        billingService.shouldShowSubscriptionAttentionCardReturnValue = true
+        billingRepository.isInAppUpgradeAvailableReturnValue = true
+        stateService.isPremiumUpgradeBannerDismissedResult = false
+
+        await subject.perform(.appeared)
+
+        XCTAssertTrue(subject.state.shouldShowSubscriptionAttentionCard)
+        XCTAssertFalse(subject.state.shouldShowPremiumUpgradeActionCard)
+    }
+
+    /// `refreshPremiumActionCards()` sets the upgrade card from `isInAppUpgradeAvailable()`
+    /// when the attention card is hidden and the banner has not been dismissed.
+    @MainActor
+    func test_refreshPremiumActionCards_attentionCardHidden_bannerNotDismissed_setsUpgradeCard() async {
+        billingService.shouldShowSubscriptionAttentionCardReturnValue = false
+        billingRepository.isInAppUpgradeAvailableReturnValue = true
+        stateService.isPremiumUpgradeBannerDismissedResult = false
+
+        await subject.perform(.appeared)
+
+        XCTAssertFalse(subject.state.shouldShowSubscriptionAttentionCard)
+        XCTAssertTrue(subject.state.shouldShowPremiumUpgradeActionCard)
+    }
+
     /// `perform(_:)` with `.dismissArchiveOnboardingActionCard` dismisses the archive onboarding card
     /// and sets the archive onboarding shown property to true.
     @MainActor
