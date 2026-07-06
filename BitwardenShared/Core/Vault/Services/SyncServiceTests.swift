@@ -859,7 +859,6 @@ class SyncServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
                 culture: "en-US",
                 email: "user@bitwarden.com",
                 id: "c8aa1e36-4427-11ee-be56-0242ac120002",
-                key: "key",
                 organizations: [],
                 privateKey: "private key",
                 providerOrganizations: [],
@@ -868,13 +867,7 @@ class SyncServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
         )
         XCTAssertEqual(stateService.updateProfileUserId, "1")
         XCTAssertEqual(stateService.usesKeyConnector["1"], false)
-        XCTAssertEqual(
-            stateService.accountEncryptionKeys["1"],
-            AccountEncryptionKeys(
-                cryptographicState: .v1(privateKey: "private key"),
-                encryptedUserKey: "key",
-            ),
-        )
+        XCTAssertEqual(stateService.accountCryptographicStates["1"], .v1(privateKey: "private key"))
     }
 
     /// `fetchSync()` updates the user's profile when it has account keys.
@@ -891,7 +884,6 @@ class SyncServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
                 culture: "en-US",
                 email: "user@bitwarden.com",
                 id: "c8aa1e36-4427-11ee-be56-0242ac120002",
-                key: "key",
                 organizations: [],
                 privateKey: "private key",
                 providerOrganizations: [],
@@ -900,13 +892,7 @@ class SyncServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
         )
         XCTAssertEqual(stateService.updateProfileUserId, "1")
         XCTAssertEqual(stateService.usesKeyConnector["1"], false)
-        XCTAssertEqual(
-            stateService.accountEncryptionKeys["1"],
-            AccountEncryptionKeys(
-                cryptographicState: .fixtureV2(),
-                encryptedUserKey: "key",
-            ),
-        )
+        XCTAssertEqual(stateService.accountCryptographicStates["1"], .fixtureV2())
     }
 
     /// `fetchSync()` notifies the sync service delegate if the user needs to be migrated to Key

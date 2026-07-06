@@ -45,7 +45,6 @@ class MockAppSettingsStore: AppSettingsStore { // swiftlint:disable:this type_bo
     var defaultUriMatchTypeByUserId = [String: BitwardenShared.UriMatchType]()
     var disableAutoTotpCopyByUserId = [String: Bool]()
     var encryptedPinByUserId = [String: String]()
-    var encryptedUserKeys = [String: String]()
     var eventsByUserId = [String: [EventData]]()
     var featureFlags = [String: Bool]()
     var fillAssistCachedDataByUserId = [String: FillAssistCachedData]()
@@ -142,10 +141,6 @@ class MockAppSettingsStore: AppSettingsStore { // swiftlint:disable:this type_bo
 
     func encryptedPin(userId: String) -> String? {
         encryptedPinByUserId[userId]
-    }
-
-    func encryptedUserKey(userId: String) -> String? {
-        encryptedUserKeys[userId]
     }
 
     func events(userId: String) -> [EventData] {
@@ -295,14 +290,6 @@ class MockAppSettingsStore: AppSettingsStore { // swiftlint:disable:this type_bo
 
     func setEncryptedPin(_ encryptedPin: String?, userId: String) {
         encryptedPinByUserId[userId] = encryptedPin
-    }
-
-    func setEncryptedUserKey(key: String?, userId: String) {
-        guard let key else {
-            encryptedUserKeys.removeValue(forKey: userId)
-            return
-        }
-        encryptedUserKeys[userId] = key
     }
 
     func setEvents(_ events: [EventData], userId: String) {
