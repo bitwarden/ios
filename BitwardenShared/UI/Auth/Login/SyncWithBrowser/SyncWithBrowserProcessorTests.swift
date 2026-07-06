@@ -67,9 +67,9 @@ class SyncWithBrowserProcessorTests: BitwardenTestCase {
 
         dismissAction.action()
 
-        try await waitForAsync { self.serverCommunicationConfigAPIService.cookiesAcquiredFromCalled }
+        try await waitForAsync { self.serverCommunicationConfigAPIService.cookiesAcquiredCalled }
 
-        XCTAssertEqual(serverCommunicationConfigAPIService.cookiesAcquiredFromURL, callbackURL)
+        XCTAssertEqual(serverCommunicationConfigAPIService.cookiesAcquiredReceivedCallbackURL, callbackURL)
     }
 
     /// `perform(_:)` with `.launchBrowserTapped` starts an ASWA session and, when the user cancels
@@ -89,9 +89,9 @@ class SyncWithBrowserProcessorTests: BitwardenTestCase {
 
         dismissAction.action()
 
-        try await waitForAsync { self.serverCommunicationConfigAPIService.cookiesAcquiredFromCalled }
+        try await waitForAsync { self.serverCommunicationConfigAPIService.cookiesAcquiredCalled }
 
-        XCTAssertNil(serverCommunicationConfigAPIService.cookiesAcquiredFromURL)
+        XCTAssertNil(serverCommunicationConfigAPIService.cookiesAcquiredReceivedCallbackURL)
     }
 
     /// `perform(_:)` with `.launchBrowserTapped` logs an error and shows an alert when the vault URL
@@ -123,9 +123,9 @@ class SyncWithBrowserProcessorTests: BitwardenTestCase {
 
         dismissAction.action()
 
-        try await waitForAsync { self.serverCommunicationConfigAPIService.cookiesAcquiredFromCalled }
+        try await waitForAsync { self.serverCommunicationConfigAPIService.cookiesAcquiredCalled }
 
-        XCTAssertNil(serverCommunicationConfigAPIService.cookiesAcquiredFromURL)
+        XCTAssertNil(serverCommunicationConfigAPIService.cookiesAcquiredReceivedCallbackURL)
     }
 }
 

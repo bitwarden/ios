@@ -6,6 +6,7 @@
 "Bitwarden" = "Bitwarden";
 "Cancel" = "ยกเลิก";
 "Copy" = "คัดลอก";
+"CopyLicenseNumber" = "คัดลอกหมายเลขใบอนุญาต";
 "CopyPassportNumber" = "คัดลอกหมายเลขหนังสือเดินทาง";
 "CopyPassword" = "คัดลอกรหัสผ่าน";
 "CopyUsername" = "คัดลอกชื่อผู้ใช้";
@@ -1026,10 +1027,8 @@
 "ArchiveEmptyDescriptionLong" = "ย้ายรายการที่คุณไม่อยากให้เห็นในผลการค้นหาและคำแนะนำป้อนอัตโนมัติ แต่เผื่อต้องใช้ในอนาคต มาไว้ในรายการเก็บถาวร";
 "ArchiveItem" = "Archive item";
 "OnceArchivedThisItemWillBeExcludedDescriptionLong" = "Once archived, this item will be excluded from search results and autofill suggestions.";
-"ArchiveUnavailable" = "รายการเก็บถาวรไม่พร้อมใช้งาน";
 "ArchivingItemsIsAPremiumFeatureDescriptionLong" = "การเก็บถาวรรายการเป็นฟีเจอร์พรีเมียม แผนปัจจุบันของคุณไม่สามารถใช้งานฟีเจอร์นี้ได้";
 "AddingAttachmentsIsAPremiumFeatureDescriptionLong" = "Adding attachments is a Premium feature. Your current plan does not include access to this feature.";
-"AttachmentsUnavailable" = "ไฟล์แนบไม่พร้อมใช้งาน";
 "UpgradeToPremium" = "อัปเกรดเป็นพรีเมียม";
 "ThisItemIsArchived" = "รายการนี้เก็บถาวรอยู่";
 "YourPremiumSubscriptionEnded" = "สมาชิกพรีเมียมสิ้นสุดลงแล้ว";

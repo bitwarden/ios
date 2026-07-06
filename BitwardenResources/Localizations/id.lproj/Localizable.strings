@@ -6,6 +6,7 @@
 "Bitwarden" = "Bitwarden";
 "Cancel" = "Batal";
 "Copy" = "Salin";
+"CopyLicenseNumber" = "Salin nomor lisensi";
 "CopyPassportNumber" = "Salin nomor paspor";
 "CopyPassword" = "Salin sandi";
 "CopyUsername" = "Salin nama pengguna";
@@ -1026,10 +1027,8 @@
 "ArchiveEmptyDescriptionLong" = "Simpan item ke arsip agar tidak muncul di pencarian dan saran isi otomatis, namun tetap tersedia jika dibutuhkan nanti.";
 "ArchiveItem" = "Archive item";
 "OnceArchivedThisItemWillBeExcludedDescriptionLong" = "Once archived, this item will be excluded from search results and autofill suggestions.";
-"ArchiveUnavailable" = "Arsip tidak tersedia";
 "ArchivingItemsIsAPremiumFeatureDescriptionLong" = "Mengarsipkan item adalah fitur Premium. Paket Anda saat ini tidak termasuk akses ke fitur ini.";
 "AddingAttachmentsIsAPremiumFeatureDescriptionLong" = "Adding attachments is a Premium feature. Your current plan does not include access to this feature.";
-"AttachmentsUnavailable" = "Attachments unavailable";
 "UpgradeToPremium" = "Tingkatkan ke premium";
 "ThisItemIsArchived" = "Item ini diarsipkan.";
 "YourPremiumSubscriptionEnded" = "Langganan Premium Anda telah berakhir";
