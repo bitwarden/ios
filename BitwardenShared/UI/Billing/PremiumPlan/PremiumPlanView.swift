@@ -175,7 +175,6 @@ struct PremiumPlanView: View {
             .buttonStyle(.primary())
             .accessibilityIdentifier("TryAgainButton")
         }
-        .padding(.horizontal, 12)
         .scrollView(centerContentVertically: true)
     }
 
@@ -316,7 +315,11 @@ private extension PremiumSubscription {
         PremiumPlanView(
             store: Store(
                 processor: StateProcessor(
-                    state: PremiumPlanState(loadingState: .error(errorMessage: "")),
+                    state: PremiumPlanState(
+                        loadingState: .error(
+                            errorMessage: Localizations.weCouldntLoadYourSubscriptionDetailsPleaseRetry,
+                        ),
+                    ),
                 ),
             ),
         )
