@@ -123,6 +123,7 @@ public extension EnvironmentURLs {
         let environmentURLData: EnvironmentURLData = switch environmentURLData.region {
         case .europe: .defaultEU
         case .unitedStates: .defaultUS
+        case .gov: .defaultGov
         case .selfHosted: environmentURLData
         }
 

@@ -168,6 +168,8 @@ extension DefaultEnvironmentService {
             .unitedStates
         } else if environmentURLs.baseURL == EnvironmentURLData.defaultEU.base {
             .europe
+        } else if environmentURLs.baseURL == EnvironmentURLData.defaultGov.base {
+            .gov
         } else {
             .selfHosted
         }

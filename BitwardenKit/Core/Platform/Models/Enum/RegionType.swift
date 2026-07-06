@@ -8,6 +8,9 @@ public enum RegionType: CaseIterable, Sendable {
     /// The European region.
     case europe
 
+    /// The government cloud (FedRAMP) region.
+    case gov
+
     /// A self-hosted instance.
     case selfHosted
 }

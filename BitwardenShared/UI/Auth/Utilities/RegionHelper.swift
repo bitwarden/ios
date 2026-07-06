@@ -70,6 +70,8 @@ class RegionHelper {
             await delegate?.setRegion(.unitedStates, urls)
         } else if urls.base == EnvironmentURLData.defaultEU.base {
             await delegate?.setRegion(.europe, urls)
+        } else if urls.base == EnvironmentURLData.defaultGov.base {
+            await delegate?.setRegion(.gov, urls)
         } else {
             await delegate?.setRegion(.selfHosted, urls)
         }
