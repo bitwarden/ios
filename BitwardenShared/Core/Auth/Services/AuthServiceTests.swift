@@ -118,6 +118,21 @@ class AuthServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
         XCTAssertEqual(client.requests.last?.url.absoluteString, "https://example.com/api/auth-requests/1")
     }
 
+    /// `AuthWebSessionCallbackKind.callbackPath` returns the expected path for each connector.
+    func test_authWebSessionCallbackKind_callbackPath() {
+        XCTAssertEqual(AuthWebSessionCallbackKind.singleSignOn.callbackPath, "sso-callback")
+        XCTAssertEqual(AuthWebSessionCallbackKind.duo.callbackPath, "duo-callback")
+        XCTAssertEqual(AuthWebSessionCallbackKind.webAuthnSelfHosted.callbackPath, "webauthn-callback")
+    }
+
+    /// `AuthWebSessionCallbackKind.supportsHttpsCallback` is true only for the SSO and Duo connectors;
+    /// WebAuthn always uses the `bitwarden://` custom scheme on iOS regardless of region or OS.
+    func test_authWebSessionCallbackKind_supportsHttpsCallback() {
+        XCTAssertTrue(AuthWebSessionCallbackKind.singleSignOn.supportsHttpsCallback)
+        XCTAssertTrue(AuthWebSessionCallbackKind.duo.supportsHttpsCallback)
+        XCTAssertFalse(AuthWebSessionCallbackKind.webAuthnSelfHosted.supportsHttpsCallback)
+    }
+
     /// `callbackUrlScheme` has the expected value.
     func test_callbackUrlScheme() {
         XCTAssertEqual(subject.callbackUrlScheme, "bitwarden")
@@ -199,6 +214,77 @@ class AuthServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
         ]
         XCTAssertEqual(expectedUrlComponents?.url, result.0)
         XCTAssertEqual("PASSWORD", result.1)
+    }
+
+    /// `generateSingleSignOnUrl(from:)` uses the HTTPS callback at the region's apex host as the
+    /// `redirect_uri` for Cloud (US) users on iOS 17.4+, and the `bitwarden://` custom scheme on
+    /// earlier OS versions.
+    func test_generateSingleSignOnUrl_unitedStatesUsesHttpsCallback() async throws {
+        client.result = .httpSuccess(testData: .preValidateSingleSignOn)
+        clientService.mockGenerators.passwordReturnValue = "PASSWORD"
+        environmentService.region = .unitedStates
+
+        let result = try await subject.generateSingleSignOnUrl(from: "Org123")
+
+        let redirectUri = URLComponents(url: result.url, resolvingAgainstBaseURL: false)?
+            .queryItems?.first { $0.name == "redirect_uri" }?.value
+        if #available(iOS 17.4, *) {
+            XCTAssertEqual(redirectUri, "https://bitwarden.com/sso-callback")
+        } else {
+            XCTAssertEqual(redirectUri, "bitwarden://sso-callback")
+        }
+    }
+
+    /// `generateSingleSignOnUrl(from:)` uses the HTTPS callback at the region's apex host as the
+    /// `redirect_uri` for Cloud (EU) users on iOS 17.4+, and the `bitwarden://` custom scheme on
+    /// earlier OS versions.
+    func test_generateSingleSignOnUrl_europeUsesHttpsCallback() async throws {
+        client.result = .httpSuccess(testData: .preValidateSingleSignOn)
+        clientService.mockGenerators.passwordReturnValue = "PASSWORD"
+        environmentService.region = .europe
+
+        let result = try await subject.generateSingleSignOnUrl(from: "Org123")
+
+        let redirectUri = URLComponents(url: result.url, resolvingAgainstBaseURL: false)?
+            .queryItems?.first { $0.name == "redirect_uri" }?.value
+        if #available(iOS 17.4, *) {
+            XCTAssertEqual(redirectUri, "https://bitwarden.eu/sso-callback")
+        } else {
+            XCTAssertEqual(redirectUri, "bitwarden://sso-callback")
+        }
+    }
+
+    /// `generateSingleSignOnUrl(from:)` uses the HTTPS callback at the `bitwarden.pw` apex for
+    /// Internal (`bitwarden.pw`) environments on iOS 17.4+, and the `bitwarden://` custom scheme
+    /// on earlier OS versions.
+    func test_generateSingleSignOnUrl_internalUsesHttpsCallback() async throws {
+        client.result = .httpSuccess(testData: .preValidateSingleSignOn)
+        clientService.mockGenerators.passwordReturnValue = "PASSWORD"
+        environmentService.region = .internal
+
+        let result = try await subject.generateSingleSignOnUrl(from: "Org123")
+
+        let redirectUri = URLComponents(url: result.url, resolvingAgainstBaseURL: false)?
+            .queryItems?.first { $0.name == "redirect_uri" }?.value
+        if #available(iOS 17.4, *) {
+            XCTAssertEqual(redirectUri, "https://bitwarden.pw/sso-callback")
+        } else {
+            XCTAssertEqual(redirectUri, "bitwarden://sso-callback")
+        }
+    }
+
+    /// `generateSingleSignOnUrl(from:)` keeps the `bitwarden://` custom scheme `redirect_uri` for
+    /// self-hosted users regardless of OS version.
+    func test_generateSingleSignOnUrl_selfHostedUsesCustomScheme() async throws {
+        client.result = .httpSuccess(testData: .preValidateSingleSignOn)
+        clientService.mockGenerators.passwordReturnValue = "PASSWORD"
+        environmentService.region = .selfHosted
+
+        let result = try await subject.generateSingleSignOnUrl(from: "Org123")
+
+        let redirectUri = URLComponents(url: result.url, resolvingAgainstBaseURL: false)?
+            .queryItems?.first { $0.name == "redirect_uri" }?.value
+        XCTAssertEqual(redirectUri, "bitwarden://sso-callback")
     }
 
     /// `getPendingAdminLoginRequest(userId:)` returns the specific admin pending login request.
@@ -309,6 +395,7 @@ class AuthServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
                 username: "email@example.com",
                 password: "accessCode",
             ),
+            deeplinkScheme: "bitwarden",
             deviceInfo: DeviceInfo(
                 identifier: "App ID",
                 name: "Model id",
@@ -352,6 +439,7 @@ class AuthServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
         )
         let tokenRequest = IdentityTokenRequestModel(
             authenticationMethod: .password(username: "email@example.com", password: "hashed password"),
+            deeplinkScheme: "bitwarden",
             deviceInfo: DeviceInfo(
                 identifier: "App ID",
                 name: "Model id",
@@ -421,6 +509,7 @@ class AuthServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
         )
         let tokenRequest = IdentityTokenRequestModel(
             authenticationMethod: .password(username: "email@example.com", password: "hashed password"),
+            deeplinkScheme: "bitwarden",
             deviceInfo: DeviceInfo(
                 identifier: "App ID",
                 name: "Model id",
@@ -551,6 +640,7 @@ class AuthServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
                 username: "email@example.com",
                 password: "hashed password",
             ),
+            deeplinkScheme: "bitwarden",
             deviceInfo: DeviceInfo(
                 identifier: "App ID",
                 name: "Model id",
@@ -686,6 +776,7 @@ class AuthServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
                 codeVerifier: "",
                 redirectUri: "bitwarden://sso-callback",
             ),
+            deeplinkScheme: "bitwarden",
             deviceInfo: DeviceInfo(
                 identifier: "App ID",
                 name: "Model id",
