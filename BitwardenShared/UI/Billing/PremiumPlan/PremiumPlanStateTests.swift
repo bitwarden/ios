@@ -264,7 +264,7 @@ struct PremiumPlanStateTests { // swiftlint:disable:this type_body_length
     @Test
     func showStorageCost_true() {
         var state = PremiumPlanState()
-        state.subscription = .fixture(storageCost: 4)
+        state.loadingState = .data(.fixture(storageCost: 4))
         #expect(state.showStorageCost)
     }
 
@@ -272,7 +272,7 @@ struct PremiumPlanStateTests { // swiftlint:disable:this type_body_length
     @Test
     func showStorageCost_false() {
         var state = PremiumPlanState()
-        state.subscription = .fixture(storageCost: 0)
+        state.loadingState = .data(.fixture(storageCost: 0))
         #expect(!state.showStorageCost)
     }
 
