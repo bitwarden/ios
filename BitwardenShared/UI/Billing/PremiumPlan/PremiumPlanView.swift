@@ -1,3 +1,4 @@
+// swiftlint:disable file_length
 import BitwardenKit
 import BitwardenResources
 import SwiftUI
@@ -418,10 +419,7 @@ private extension PremiumSubscription {
         PremiumPlanView(
             store: Store(
                 processor: StateProcessor(
-                    state: PremiumPlanState(
-                        planStatus: .active,
-                        subscription: .previewActiveNoStorage,
-                    ),
+                    state: PremiumPlanState(subscription: .previewActiveNoStorage),
                 ),
             ),
         )
