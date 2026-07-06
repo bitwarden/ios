@@ -147,6 +147,11 @@ struct PremiumPlanState: Equatable {
         !discount.isEmpty
     }
 
+    /// Whether the storage cost row should be shown.
+    var showStorageCost: Bool {
+        (subscription?.storageCost ?? 0) > 0
+    }
+
     /// The storage cost label (e.g. "$4.00" or "$0.00").
     var storageCostLabel: String {
         guard let subscription else { return "" }

@@ -34,6 +34,46 @@ class PremiumPlanViewSnapshotTests: BitwardenTestCase {
 
     // MARK: Snapshots
 
+    /// Check the snapshot for the active state with additional storage.
+    @MainActor
+    func disabletest_snapshot_activeWithStorage() {
+        processor.state.planStatus = .active
+        processor.state.subscription = PremiumSubscription(
+            cadence: .annually,
+            cancelAt: nil,
+            canceled: nil,
+            discount: 0,
+            estimatedTax: 4.55,
+            gracePeriod: nil,
+            nextCharge: Date(timeIntervalSince1970: 1_775_304_000),
+            seatsCost: 19.8,
+            status: .active,
+            storageCost: 4,
+            suspension: nil,
+        )
+        assertSnapshots(of: subject, as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5])
+    }
+
+    /// Check the snapshot for the active state with no additional storage.
+    @MainActor
+    func disabletest_snapshot_activeNoStorage() {
+        processor.state.planStatus = .active
+        processor.state.subscription = PremiumSubscription(
+            cadence: .annually,
+            cancelAt: nil,
+            canceled: nil,
+            discount: 0,
+            estimatedTax: 4.55,
+            gracePeriod: nil,
+            nextCharge: Date(timeIntervalSince1970: 1_775_304_000),
+            seatsCost: 19.8,
+            status: .active,
+            storageCost: 0,
+            suspension: nil,
+        )
+        assertSnapshots(of: subject, as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5])
+    }
+
     /// Check the snapshot for the active state.
     @MainActor
     func disabletest_snapshot_active() {

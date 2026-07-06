@@ -6,6 +6,7 @@
 "Bitwarden" = "Bitwarden";
 "Cancel" = "Zrušit";
 "Copy" = "Kopírovat";
+"CopyLicenseNumber" = "Kopírovat číslo řidičského průkazu";
 "CopyPassportNumber" = "Kopírovat číslo pasu";
 "CopyPassword" = "Kopírovat heslo";
 "CopyUsername" = "Kopírovat uživatelské jméno";
@@ -56,7 +57,7 @@
 "Submit" = "Odeslat";
 "UseFingerprintToUnlock" = "Pro odemknutí použít otisk prstu";
 "UseThisButtonToGenerateANewUniquePassword" = "Použijte toto tlačítko pro vytvoření nového jedinečného hesla.";
-"YouWillOnlyNeedToSetUpAnAuthenticatorKeyDescriptionLong" = "Budete jen muset nastavit Authenticator pro přihlášení, která vyžadují dvoufaktorové ověření s kódem. Klíč průběžně generuje šestimístné kódy, které můžete použít pro přihlášení.";
+"YouWillOnlyNeedToSetUpAnAuthenticatorKeyDescriptionLong" = "Budete jen muset nastavit ověřovací klíč pro přihlášení, která vyžadují dvoufaktorové ověření s kódem. Klíč průběžně generuje šestimístné kódy, které můžete použít pro přihlášení.";
 "UseTheGeneratorToCreateASecurePasswordPassphrasesAndUsernames" = "Použijte generátor k vytvoření bezpečných hesel, heslových frází a uživatelských jmen.";
 "PassphrasesAreOftenEasierToRememberDescriptionLong" = "Heslové fráze jsou často jednodušší pro zapamatování a zápis než náhodná hesla. Jsou užitečné pro přihlášení do účtů, kde není automatické vyplňování k dispozici (např. streamovací služba ve Vašem televizoru).";
 "UniqueUsernamesAddAnExtraLayerOfSecurityAndCanHelpPreventHackersFromFindingYourAccounts" = "Jedinečná uživatelská jména přidávají další bezpečnostní vrstvu a mohou hackerům ztížit hledání účtů.";
@@ -421,7 +422,7 @@
 "AboutSend" = "O Send";
 "HideEmail" = "Skrýt mou e-mailovou adresu před příjemci";
 "SendOptionsPolicyInEffect" = "Jedna nebo více zásad organizace ovlivňuje nastavení Send.";
-"SendFilePremiumRequired" = "Bezplatné účty jsou omezeny pouze na sdílení textu. K používání souborů pomocí Send je vyžadováno prémiové členství.";
+"SendFilePremiumRequired" = "Bezplatné účty jsou omezeny jen na sdílení textu. K používání souborů pomocí Send je vyžadováno členství Premium.";
 "SendFileEmailVerificationRequired" = "Abyste mohli tuto funkci používat, musíte ověřit svůj e-mail. Svůj e-mail můžete ověřit ve webovém trezoru.";
 "PasswordPrompt" = "Zeptat se znovu na hlavní heslo";
 "PasswordConfirmation" = "Potvrzení hlavního hesla";
@@ -1026,10 +1027,8 @@
 "ArchiveEmptyDescriptionLong" = "Naplňte archiv položkami, které nechcete vidět ve výsledcích vyhledávání a v návrzích automatického vyplňování, ale možná je jednou budete potřebovat.";
 "ArchiveItem" = "Archivovat položku";
 "OnceArchivedThisItemWillBeExcludedDescriptionLong" = "Jakmile bude tato položka archivována, bude vyloučena z výsledků vyhledávání a z návrhů automatického vyplňování.";
-"ArchiveUnavailable" = "Archiv je nedostupný";
 "ArchivingItemsIsAPremiumFeatureDescriptionLong" = "Archivace položek je prémiová funkce. Váš aktuální plán nezahrnuje přístup k této funkci.";
 "AddingAttachmentsIsAPremiumFeatureDescriptionLong" = "Přidávání příloh je funkce Premium. Váš aktuální plán nezahrnuje přístup k této funkci.";
-"AttachmentsUnavailable" = "Přílohy nejsou k dispozici";
 "UpgradeToPremium" = "Aktualizovat na Premium";
 "ThisItemIsArchived" = "Tato položka je archivována.";
 "YourPremiumSubscriptionEnded" = "Vaše předplatné Premium skončilo";
@@ -1095,7 +1094,7 @@
 "NegativeX" = "-%1$@";
 "UnknownStatus" = "Neznámý";
 "YourSubscriptionStatusIsUnknownVisitTheWebAppDescriptionLong" = "Stav Vašeho předplatného nelze určit. Pro více informací navštivte webovou aplikaci nebo aktualizujte na nejnovější verzi.";
-"AtTheMomentPremiumPlanIsNotAvailableDescriptionLong" = "V tuto chvíli není prémiový plán k dispozici, opakujte akci později.";
+"AtTheMomentPremiumPlanIsNotAvailableDescriptionLong" = "V tuto chvíli není členství Premium k dispozici, opakujte akci později.";
 "UnlockMoreAdvancedFeaturesWithPremiumPlan" = "Odemkněte pokročilejší funkce s předplatným Premium.";
 "BuiltInAuthenticator" = "Vestavěný autentifikátor";
 "EmergencyAccess" = "Nouzový přístup";

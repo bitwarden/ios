@@ -6,6 +6,7 @@
 "Bitwarden" = "Bitwarden";
 "Cancel" = "Отказ";
 "Copy" = "Копиране";
+"CopyLicenseNumber" = "Копиране на номера на свидетелството";
 "CopyPassportNumber" = "Копиране на номера на паспорта";
 "CopyPassword" = "Копиране на паролата";
 "CopyUsername" = "Копиране на потребителското име";
@@ -1026,10 +1027,8 @@
 "ArchiveEmptyDescriptionLong" = "Попълнете архива си с елементи, които не искате да виждате в резултатите от търсене и в предложенията за автоматично попълване, но може все пак да Ви потрябват в бъдеще.";
 "ArchiveItem" = "Архивиране на елемента";
 "OnceArchivedThisItemWillBeExcludedDescriptionLong" = "След като бъде архивиран, този елемент няма да се показва в резултатите при търсене, нито в предложенията за автоматично попълване.";
-"ArchiveUnavailable" = "Архивирането не е налично";
 "ArchivingItemsIsAPremiumFeatureDescriptionLong" = "Архивирането на елементи е платена функционалност. Текущият Ви план не включва достъп до нея.";
 "AddingAttachmentsIsAPremiumFeatureDescriptionLong" = "Прикачването на файлове е платена функционалност. Текущият Ви план не включва достъп до нея.";
-"AttachmentsUnavailable" = "Прикачването на файлове не е налично";
 "UpgradeToPremium" = "Надградете до Платения план";
 "ThisItemIsArchived" = "Този елемент е архивиран.";
 "YourPremiumSubscriptionEnded" = "Вашият абонамент за платения план е приключил";
