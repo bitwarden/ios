@@ -3,6 +3,10 @@
 /// Effects that can be processed by a `DebugMenuProcessor`.
 ///
 enum DebugMenuEffect: Equatable {
+    /// Clears `userDecryptionOptions.masterPasswordUnlock` on the active account's
+    /// cached profile to reproduce the pre-server-2025.11 state for PM-31723 testing.
+    case clearMasterPasswordUnlock
+
     /// Clears the SSO server communication cookie value.
     case clearSsoCookies
 
