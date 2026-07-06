@@ -36,7 +36,7 @@ class RegionHelper {
     /// Builds an alert for region selection and navigates to the alert.
     ///
     func presentRegionSelectorAlert(title: String, currentRegion: RegionType?) async {
-        let actions = RegionType.allCases.map { region in
+        let actions = RegionType.userSelectableCases.map { region in
             AlertAction(title: region.baseURLDescription, style: .default) { _ in
                 if let urls = region.defaultURLs {
                     await self.delegate?.setRegion(region, urls)
@@ -66,15 +66,7 @@ class RegionHelper {
             return
         }
 
-        if urls.base == EnvironmentURLData.defaultUS.base {
-            await delegate?.setRegion(.unitedStates, urls)
-        } else if urls.base == EnvironmentURLData.defaultEU.base {
-            await delegate?.setRegion(.europe, urls)
-        } else if urls.base == EnvironmentURLData.defaultGov.base {
-            await delegate?.setRegion(.gov, urls)
-        } else {
-            await delegate?.setRegion(.selfHosted, urls)
-        }
+        await delegate?.setRegion(urls.region, urls)
     }
 }
 

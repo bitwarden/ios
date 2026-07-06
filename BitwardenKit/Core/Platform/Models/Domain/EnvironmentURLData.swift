@@ -119,16 +119,7 @@ public extension EnvironmentURLData {
 
     /// Gets the region depending on the base url.
     var region: RegionType {
-        switch base {
-        case EnvironmentURLData.defaultUS.base:
-            .unitedStates
-        case EnvironmentURLData.defaultEU.base:
-            .europe
-        case EnvironmentURLData.defaultGov.base:
-            .gov
-        default:
-            .selfHosted
-        }
+        RegionType(baseURL: base)
     }
 
     /// The base url for send sharing.

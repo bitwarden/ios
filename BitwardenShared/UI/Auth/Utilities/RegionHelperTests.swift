@@ -120,6 +120,18 @@ class RegionHelperTests: BitwardenTestCase {
         XCTAssertEqual(coordinator.routes.last, .selfHosted(currentRegion: .unitedStates))
     }
 
+    /// `presentRegionSelectorAlert(title:currentRegion:)` offers exactly the user-selectable regions
+    /// (US, EU, self-hosted) plus cancel — the internal (`bitwarden.pw`) region is detected
+    /// automatically and must never appear in the picker.
+    @MainActor
+    func test_presentRegionSelectorAlert_excludesInternal() async throws {
+        await subject.presentRegionSelectorAlert(title: Localizations.creatingOn, currentRegion: .unitedStates)
+
+        let alert = try XCTUnwrap(coordinator.alertShown.last)
+        let actionTitles = alert.alertActions.map(\.title)
+        XCTAssertEqual(actionTitles, ["bitwarden.com", "bitwarden.eu", Localizations.selfHosted, Localizations.cancel])
+    }
+
     /// `loadRegion()` with pre auth region as nil default to us
     func test_loadRegion_nil() async throws {
         stateService.preAuthEnvironmentURLs = nil
@@ -163,6 +175,17 @@ class RegionHelperTests: BitwardenTestCase {
         XCTAssertTrue(regionDelegate.setRegionCalled)
         XCTAssertEqual(regionDelegate.setRegionType, .selfHosted)
         XCTAssertEqual(regionDelegate.setRegionUrls, EnvironmentURLData(base: URL(string: "https://selfhosted.com")))
+    }
+
+    /// `loadRegion()` resolves a `bitwarden.pw` pre-auth environment (including subdomains) to
+    /// `.internal` rather than treating it as self-hosted.
+    func test_loadRegion_internal() async throws {
+        let urls = EnvironmentURLData(base: URL(string: "https://qa-team.sh.bitwarden.pw"))
+        stateService.preAuthEnvironmentURLs = urls
+        await subject.loadRegion()
+        XCTAssertTrue(regionDelegate.setRegionCalled)
+        XCTAssertEqual(regionDelegate.setRegionType, .internal)
+        XCTAssertEqual(regionDelegate.setRegionUrls, urls)
     }
 }
 

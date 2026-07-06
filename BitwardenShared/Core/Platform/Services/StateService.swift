@@ -10,7 +10,7 @@ import Foundation
 
 /// A protocol for a `StateService` which manages the state of the accounts in the app.
 ///
-protocol StateService: AnyObject, BillingStateService {
+protocol StateService: AnyObject, BillingStateService, DebugStateService {
     /// The language option currently selected for the app.
     var appLanguage: LanguageOption { get set }
 
@@ -2476,6 +2476,17 @@ extension DefaultStateService: BiometricsStateService {
     func setBiometricAuthenticationEnabled(_ isEnabled: Bool?, userId: String?) async throws {
         let userId = try userId ?? getActiveAccountUserId()
         appSettingsStore.setBiometricAuthenticationEnabled(isEnabled, for: userId)
+    }
+}
+
+// MARK: - DebugStateService
+
+extension DefaultStateService {
+    func clearMasterPasswordUnlockForActiveAccount() async throws {
+        let userId = try getActiveAccountUserId()
+        try updateAccountProfile(userId: userId) { profile in
+            profile.userDecryptionOptions?.masterPasswordUnlock = nil
+        }
     }
 }
 
