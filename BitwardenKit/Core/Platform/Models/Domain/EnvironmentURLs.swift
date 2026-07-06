@@ -128,6 +128,7 @@ public extension EnvironmentURLs {
         // use their entered URLs, like self-hosted.
         let environmentURLData: EnvironmentURLData = switch environmentURLData.region {
         case .europe: .defaultEU
+        case .gov: .defaultGov
         case .unitedStates: .defaultUS
         case .internal, .selfHosted: environmentURLData
         }
