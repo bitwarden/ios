@@ -35,6 +35,7 @@ struct PremiumPlanView: View {
         } errorView: { message in
             subscriptionLoadErrorView(message: message)
         }
+        .background(SharedAsset.Colors.backgroundPrimary.swiftUIColor.ignoresSafeArea())
         .navigationBar(title: Localizations.plan, titleDisplayMode: .inline)
         .task {
             await store.perform(.appeared)
@@ -315,11 +316,9 @@ private extension PremiumSubscription {
         PremiumPlanView(
             store: Store(
                 processor: StateProcessor(
-                    state: PremiumPlanState(
-                        loadingState: .error(
-                            errorMessage: Localizations.weCouldntLoadYourSubscriptionDetailsPleaseRetry,
-                        ),
-                    ),
+                    state: PremiumPlanState(loadingState: .error(
+                        errorMessage: Localizations.weCouldntLoadYourSubscriptionDetailsPleaseRetry,
+                    )),
                 ),
             ),
         )
