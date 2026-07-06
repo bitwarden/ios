@@ -6,6 +6,8 @@
 "Bitwarden" = "Bitwarden";
 "Cancel" = "ยกเลิก";
 "Copy" = "คัดลอก";
+"CopyLicenseNumber" = "คัดลอกหมายเลขใบอนุญาต";
+"CopyPassportNumber" = "คัดลอกหมายเลขหนังสือเดินทาง";
 "CopyPassword" = "คัดลอกรหัสผ่าน";
 "CopyUsername" = "คัดลอกชื่อผู้ใช้";
 "Delete" = "ลบ";
@@ -207,6 +209,7 @@
 "TypeIdentity" = "ข้อมูลระบุตัวตน";
 "TypeLicense" = "License";
 "TypeLogin" = "เข้าสู่ระบบ";
+"TypePassport" = "Passport";
 "TypeSecureNote" = "โน้ตความปลอดภัย";
 "Address1" = "ที่อยู่ 1";
 "Address2" = "ที่อยู่ 2";
@@ -555,6 +558,7 @@
 "ThereAreNoCardsInYourVault" = "ไม่มีบัตรในตู้นิรภัย";
 "ThereAreNoNotesInYourVault" = "ไม่มีโน้ตในตู้นิรภัย";
 "ThereAreNoIdentitiesInYourVault" = "ไม่มีข้อมูลระบุตัวตนในตู้นิรภัย";
+"ThereAreNoPassportsInYourVault" = "There are no passports in your vault";
 "ThereAreNoSSHKeysInYourVault" = "ไม่มีคีย์ SSH ในตู้นิรภัย";
 "ThereAreNoBankAccountsInYourVault" = "There are no bank accounts in your vault";
 "US" = "สหรัฐอเมริกา";
@@ -1023,10 +1027,8 @@
 "ArchiveEmptyDescriptionLong" = "ย้ายรายการที่คุณไม่อยากให้เห็นในผลการค้นหาและคำแนะนำป้อนอัตโนมัติ แต่เผื่อต้องใช้ในอนาคต มาไว้ในรายการเก็บถาวร";
 "ArchiveItem" = "Archive item";
 "OnceArchivedThisItemWillBeExcludedDescriptionLong" = "Once archived, this item will be excluded from search results and autofill suggestions.";
-"ArchiveUnavailable" = "รายการเก็บถาวรไม่พร้อมใช้งาน";
 "ArchivingItemsIsAPremiumFeatureDescriptionLong" = "การเก็บถาวรรายการเป็นฟีเจอร์พรีเมียม แผนปัจจุบันของคุณไม่สามารถใช้งานฟีเจอร์นี้ได้";
 "AddingAttachmentsIsAPremiumFeatureDescriptionLong" = "Adding attachments is a Premium feature. Your current plan does not include access to this feature.";
-"AttachmentsUnavailable" = "ไฟล์แนบไม่พร้อมใช้งาน";
 "UpgradeToPremium" = "อัปเกรดเป็นพรีเมียม";
 "ThisItemIsArchived" = "รายการนี้เก็บถาวรอยู่";
 "YourPremiumSubscriptionEnded" = "สมาชิกพรีเมียมสิ้นสุดลงแล้ว";
@@ -1092,7 +1094,7 @@
 "NegativeX" = "-%1$@";
 "UnknownStatus" = "Unknown";
 "YourSubscriptionStatusIsUnknownVisitTheWebAppDescriptionLong" = "Your subscription status could not be determined. Please visit the web app for more details or update to the latest version.";
-"AtTheMomentPremiumPlanIsNotAvailableDescriptionLong" = "At the moment premium plan is not available, please try again later.";
+"AtTheMomentPremiumPlanIsNotAvailableDescriptionLong" = "At the moment Premium plan is not available, please try again later.";
 "UnlockMoreAdvancedFeaturesWithPremiumPlan" = "Unlock more advanced features with a Premium plan.";
 "BuiltInAuthenticator" = "Built-in authenticator";
 "EmergencyAccess" = "Emergency access";
@@ -1125,6 +1127,7 @@
 "License" = "License";
 "Licenses" = "Licenses";
 "Passport" = "Passport";
+"Passports" = "Passports";
 "LicenseDetails" = "License details";
 "DateOfBirth" = "Date of birth";
 "IssuingCountry" = "Issuing country";
@@ -1133,3 +1136,28 @@
 "IssueDate" = "Issue date";
 "ExpirationDate" = "Expiration date";
 "LicenseClass" = "License class";
+"PassportDetails" = "Passport details";
+/* Label for the sex/gender field as printed on a passport (e.g. "M", "F", "X"). */
+"Sex" = "Sex";
+"BirthPlace" = "Birth place";
+/* Label for the nationality field on a passport (the country a person is a national of). */
+"Nationality" = "Nationality";
+/* Label for the category of passport (e.g. "Regular/Tourist", "Diplomatic", "Official"). */
+"PassportType" = "Passport type";
+"NationalIdentificationNumber" = "National identification number";
+/* Label for the government authority or office that issued the passport. */
+"IssuingAuthorityOffice" = "Issuing authority/office";
+"AccountDetails" = "Account details";
+"BankName" = "Bank name";
+"NameOnAccount" = "Name on account";
+"AccountType" = "Account type";
+"BranchNumber" = "Branch number";
+"SwiftCode" = "SWIFT code";
+"IBAN" = "IBAN";
+"BankContactPhone" = "Bank contact phone";
+"CertificateOfDeposit" = "Certificate of deposit";
+"Checking" = "Checking";
+"InvestmentBrokerage" = "Investment/brokerage";
+"LineOfCredit" = "Line of credit";
+"MoneyMarket" = "Money market";
+"Savings" = "Savings";

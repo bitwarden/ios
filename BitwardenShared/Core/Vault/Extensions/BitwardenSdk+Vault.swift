@@ -132,7 +132,7 @@ extension CipherDetailsResponseModel {
             identity: cipher.identity.map(CipherIdentityModel.init),
             key: cipher.key,
             login: cipher.login.map(CipherLoginModel.init),
-            name: cipher.name,
+            name: cipher.name ?? "",
             notes: cipher.notes,
             organizationId: cipher.organizationId,
             organizationUseTotp: cipher.organizationUseTotp,
@@ -424,6 +424,26 @@ extension BitwardenSdk.DriversLicense {
     }
 }
 
+extension BitwardenSdk.Passport {
+    init(cipherPassportModel model: CipherPassportModel) {
+        self.init(
+            surname: model.surname,
+            givenName: model.givenName,
+            dateOfBirth: model.dateOfBirth,
+            sex: model.sex,
+            birthPlace: model.birthPlace,
+            nationality: model.nationality,
+            issuingCountry: model.issuingCountry,
+            passportNumber: model.passportNumber,
+            passportType: model.passportType,
+            nationalIdentificationNumber: model.nationalIdentificationNumber,
+            issuingAuthority: model.issuingAuthority,
+            issueDate: model.issueDate,
+            expirationDate: model.expirationDate,
+        )
+    }
+}
+
 extension BitwardenSdk.Cipher {
     init(cipherData: CipherData) throws {
         guard let model = cipherData.model else {
@@ -449,7 +469,7 @@ extension BitwardenSdk.Cipher {
             sshKey: model.sshKey.map(SshKey.init),
             bankAccount: model.bankAccount.map(BankAccount.init),
             driversLicense: model.driversLicense.map(DriversLicense.init),
-            passport: nil, // TODO: PM-32805
+            passport: model.passport.map(Passport.init),
             favorite: model.favorite,
             reprompt: BitwardenSdk.CipherRepromptType(model.reprompt),
             organizationUseTotp: model.organizationUseTotp,
@@ -497,7 +517,7 @@ extension BitwardenSdk.Cipher {
             sshKey: model.sshKey.map(SshKey.init),
             bankAccount: model.bankAccount.map(BankAccount.init),
             driversLicense: model.driversLicense.map(DriversLicense.init),
-            passport: nil, // TODO: PM-32805
+            passport: model.passport.map(Passport.init),
             favorite: originalCipher?.favorite ?? false,
             reprompt: BitwardenSdk.CipherRepromptType(model.reprompt),
             organizationUseTotp: model.organizationUseTotp,

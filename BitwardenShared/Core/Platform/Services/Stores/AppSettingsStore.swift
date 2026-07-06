@@ -137,6 +137,13 @@ protocol AppSettingsStore: AnyObject {
     ///
     func clearClipboardValue(userId: String) -> ClearClipboardValue
 
+    /// Gets the IDs of the collapsed vault list sections for a user ID.
+    ///
+    /// - Parameter userId: The user ID associated with the collapsed vault list section IDs.
+    /// - Returns: The IDs of the vault list sections that are currently collapsed.
+    ///
+    func collapsedVaultListSectionIds(userId: String) -> [String]
+
     /// Gets the connect to watch setting for the user.
     ///
     /// - Parameter userId: The user ID associated with the connect to watch value.
@@ -178,6 +185,20 @@ protocol AppSettingsStore: AnyObject {
     /// - Parameter userId: The user ID associated with the encrypted user key.
     ///
     func encryptedUserKey(userId: String) -> String?
+
+    /// Gets the cached Fill-Assist rules data for the user ID.
+    ///
+    /// - Parameter userId: The user ID associated with the cached data.
+    /// - Returns: The cached `FillAssistCachedData`, or `nil` if not cached.
+    ///
+    func fillAssistCachedData(userId: String) -> FillAssistCachedData?
+
+    /// Gets the timestamp of the last successful fill-assist manifest check for the user ID.
+    ///
+    /// - Parameter userId: The user ID associated with the timestamp.
+    /// - Returns: The `Date` of the last fetch, or `nil` if never fetched.
+    ///
+    func fillAssistLastFetchTimestamp(userId: String) -> Date?
 
     /// Gets whether a sync has been done successfully after login. This is particular useful to trigger logic that
     /// needs to be executed right after login in and after the first successful sync.
@@ -259,12 +280,19 @@ protocol AppSettingsStore: AnyObject {
     ///
     func pinProtectedUserKeyEnvelope(userId: String) -> String?
 
-    /// Whether the premium upgrade banner has been dismissed for the user.
+    /// Whether the Premium upgrade banner has been dismissed for the user.
     ///
-    /// - Parameter userId: The user ID associated with the premium upgrade banner dismissed value.
-    /// - Returns: Whether the premium upgrade banner has been dismissed.
+    /// - Parameter userId: The user ID associated with the Premium upgrade banner dismissed value.
+    /// - Returns: Whether the Premium upgrade banner has been dismissed.
     ///
     func premiumUpgradeBannerDismissed(userId: String) -> Bool
+
+    /// Gets whether the "subscription needs attention" action card should be shown for the given user.
+    ///
+    /// - Parameter userId: The user ID.
+    /// - Returns: Whether the action card should be shown.
+    ///
+    func subscriptionAttentionCardVisible(userId: String) -> Bool
 
     /// Gets whether the "Upgraded to Premium" action card should be shown for the given user.
     ///
@@ -369,6 +397,14 @@ protocol AppSettingsStore: AnyObject {
     ///
     func setClearClipboardValue(_ clearClipboardValue: ClearClipboardValue?, userId: String)
 
+    /// Sets the IDs of the collapsed vault list sections for a user ID.
+    ///
+    /// - Parameters:
+    ///   - ids: The IDs of the vault list sections that are currently collapsed.
+    ///   - userId: The user ID associated with the collapsed vault list section IDs.
+    ///
+    func setCollapsedVaultListSectionIds(_ ids: [String], userId: String)
+
     /// Sets the connect to watch setting for the user.
     ///
     /// - Parameters:
@@ -416,6 +452,22 @@ protocol AppSettingsStore: AnyObject {
     ///   - userId: The user ID associated with the events.
     ///
     func setEvents(_ events: [EventData], userId: String)
+
+    /// Sets the cached Fill-Assist rules data for the user ID.
+    ///
+    /// - Parameters:
+    ///   - data: The `FillAssistCachedData` to cache, or `nil` to clear.
+    ///   - userId: The user ID associated with the cached data.
+    ///
+    func setFillAssistCachedData(_ data: FillAssistCachedData?, userId: String)
+
+    /// Sets the timestamp of the last successful fill-assist manifest check for the user ID.
+    ///
+    /// - Parameters:
+    ///   - timestamp: The `Date` to store, or `nil` to clear.
+    ///   - userId: The user ID associated with the timestamp.
+    ///
+    func setFillAssistLastFetchTimestamp(_ timestamp: Date?, userId: String)
 
     /// Sets whether a sync has been done successfully after login. This is particular useful to trigger logic that
     /// needs to be executed right after login in and after the first successful sync.
@@ -495,13 +547,21 @@ protocol AppSettingsStore: AnyObject {
     ///
     func setPinProtectedUserKeyEnvelope(key: String?, userId: String)
 
-    /// Sets whether the premium upgrade banner has been dismissed for the user.
+    /// Sets whether the Premium upgrade banner has been dismissed for the user.
     ///
     /// - Parameters:
-    ///   - dismissed: Whether the premium upgrade banner has been dismissed.
-    ///   - userId: The user ID associated with the premium upgrade banner dismissed value.
+    ///   - dismissed: Whether the Premium upgrade banner has been dismissed.
+    ///   - userId: The user ID associated with the Premium upgrade banner dismissed value.
     ///
     func setPremiumUpgradeBannerDismissed(_ dismissed: Bool, userId: String)
+
+    /// Sets whether the "subscription needs attention" action card should be shown for the given user.
+    ///
+    /// - Parameters:
+    ///   - visible: Whether the action card should be shown.
+    ///   - userId: The user ID.
+    ///
+    func setSubscriptionAttentionCardVisible(_ visible: Bool, userId: String)
 
     /// Sets whether the "Upgraded to Premium" action card should be shown for the given user.
     ///
@@ -769,6 +829,7 @@ extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore {
         case archiveOnboardingShown
         case biometricAuthEnabled(userId: String)
         case clearClipboardValue(userId: String)
+        case collapsedVaultListSectionIds(userId: String)
         case connectToWatch(userId: String)
         case debugFeatureFlag(name: String)
         case defaultUriMatch(userId: String)
@@ -777,6 +838,8 @@ extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore {
         case encryptedPin(userId: String)
         case encryptedUserKey(userId: String)
         case events(userId: String)
+        case fillAssistCachedData(userId: String)
+        case fillAssistLastFetchTimestamp(userId: String)
         case flightRecorderData
         case hasPerformedSyncAfterLogin(userId: String)
         case introCarouselShown
@@ -807,6 +870,7 @@ extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore {
         case siriAndShortcutsAccess(userId: String)
         case syncToAuthenticator(userId: String)
         case state
+        case subscriptionAttentionCardVisible(userId: String)
         case twoFactorToken(email: String)
         case upgradedToPremiumActionCardVisible(userId: String)
         case usernameGenerationOptions(userId: String)
@@ -846,6 +910,8 @@ extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore {
                 "biometricUnlock_\(userId)"
             case let .clearClipboardValue(userId):
                 "clearClipboard_\(userId)"
+            case let .collapsedVaultListSectionIds(userId):
+                "collapsedVaultListSectionIds_\(userId)"
             case let .connectToWatch(userId):
                 "shouldConnectToWatch_\(userId)"
             case let .debugFeatureFlag(name):
@@ -862,6 +928,10 @@ extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore {
                 "protectedPin_\(userId)"
             case let .events(userId):
                 "events_\(userId)"
+            case let .fillAssistCachedData(userId):
+                "fillAssistCachedData_\(userId)"
+            case let .fillAssistLastFetchTimestamp(userId):
+                "fillAssistLastFetchTimestamp_\(userId)"
             case .flightRecorderData:
                 "flightRecorderData"
             case let .hasPerformedSyncAfterLogin(userId):
@@ -920,6 +990,8 @@ extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore {
                 "state"
             case let .siriAndShortcutsAccess(userId):
                 "siriAndShortcutsAccess_\(userId)"
+            case let .subscriptionAttentionCardVisible(userId):
+                "subscriptionAttentionCardVisible_\(userId)"
             case let .syncToAuthenticator(userId):
                 "shouldSyncToAuthenticator_\(userId)"
             case let .twoFactorToken(email):
@@ -1079,6 +1151,10 @@ extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore {
         return .never
     }
 
+    func collapsedVaultListSectionIds(userId: String) -> [String] {
+        fetch(for: .collapsedVaultListSectionIds(userId: userId)) ?? []
+    }
+
     func connectToWatch(userId: String) -> Bool {
         fetch(for: .connectToWatch(userId: userId))
     }
@@ -1105,6 +1181,14 @@ extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore {
 
     func events(userId: String) -> [EventData] {
         fetch(for: .events(userId: userId)) ?? []
+    }
+
+    func fillAssistCachedData(userId: String) -> FillAssistCachedData? {
+        fetch(for: .fillAssistCachedData(userId: userId))
+    }
+
+    func fillAssistLastFetchTimestamp(userId: String) -> Date? {
+        fetch(for: .fillAssistLastFetchTimestamp(userId: userId))
     }
 
     func hasPerformedSyncAfterLogin(userId: String) -> Bool {
@@ -1157,6 +1241,10 @@ extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore {
 
     func premiumUpgradeBannerDismissed(userId: String) -> Bool {
         fetch(for: .premiumUpgradeBannerDismissed(userId: userId))
+    }
+
+    func subscriptionAttentionCardVisible(userId: String) -> Bool {
+        fetch(for: .subscriptionAttentionCardVisible(userId: userId))
     }
 
     func upgradedToPremiumActionCardVisible(userId: String) -> Bool {
@@ -1213,6 +1301,10 @@ extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore {
         store(clearClipboardValue?.rawValue, for: .clearClipboardValue(userId: userId))
     }
 
+    func setCollapsedVaultListSectionIds(_ ids: [String], userId: String) {
+        store(ids, for: .collapsedVaultListSectionIds(userId: userId))
+    }
+
     func setConnectToWatch(_ connectToWatch: Bool, userId: String) {
         store(connectToWatch, for: .connectToWatch(userId: userId))
     }
@@ -1235,6 +1327,14 @@ extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore {
 
     func setEvents(_ events: [EventData], userId: String) {
         store(events, for: .events(userId: userId))
+    }
+
+    func setFillAssistCachedData(_ data: FillAssistCachedData?, userId: String) {
+        store(data, for: .fillAssistCachedData(userId: userId))
+    }
+
+    func setFillAssistLastFetchTimestamp(_ timestamp: Date?, userId: String) {
+        store(timestamp, for: .fillAssistLastFetchTimestamp(userId: userId))
     }
 
     func setHasPerformedSyncAfterLogin(_ hasBeenPerformed: Bool?, userId: String) {
@@ -1279,6 +1379,10 @@ extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore {
 
     func setPremiumUpgradeBannerDismissed(_ dismissed: Bool, userId: String) {
         store(dismissed, for: .premiumUpgradeBannerDismissed(userId: userId))
+    }
+
+    func setSubscriptionAttentionCardVisible(_ visible: Bool, userId: String) {
+        store(visible, for: .subscriptionAttentionCardVisible(userId: userId))
     }
 
     func setUpgradedToPremiumActionCardVisible(_ visible: Bool, userId: String) {

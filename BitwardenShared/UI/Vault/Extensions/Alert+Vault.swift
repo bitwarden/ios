@@ -11,7 +11,7 @@ extension Alert {
     /// Returns an alert for when archive is unavailable.
     ///
     /// - Parameters:
-    ///   - action: A closure to execute on upgrading to premium.
+    ///   - action: A closure to execute on upgrading to Premium.
     /// - Returns: The alert when archive is unavailable.
     static func archiveUnavailable(
         action: @escaping () async -> Void,
@@ -20,7 +20,7 @@ extension Alert {
             await action()
         }
         let alert = Alert(
-            title: Localizations.archiveUnavailable,
+            title: Localizations.premiumSubscriptionRequired,
             message: Localizations.archivingItemsIsAPremiumFeatureDescriptionLong,
             alertActions: [
                 preferredAction,
@@ -34,7 +34,7 @@ extension Alert {
     /// Returns an alert for when attachments are unavailable.
     ///
     /// - Parameters:
-    ///   - action: A closure to execute on upgrading to premium.
+    ///   - action: A closure to execute on upgrading to Premium.
     /// - Returns: The alert when attachments are unavailable.
     static func attachmentsUnavailable(
         action: @escaping () async -> Void,
@@ -43,52 +43,8 @@ extension Alert {
             await action()
         }
         let alert = Alert(
-            title: Localizations.attachmentsUnavailable,
+            title: Localizations.premiumSubscriptionRequired,
             message: Localizations.addingAttachmentsIsAPremiumFeatureDescriptionLong,
-            alertActions: [
-                preferredAction,
-                AlertAction(title: Localizations.cancel, style: .cancel),
-            ],
-        )
-        alert.preferredAction = preferredAction
-        return alert
-    }
-
-    /// Returns an alert notifying the user that a premium subscription is required to send files,
-    /// with an option to upgrade.
-    ///
-    /// - Parameters:
-    ///   - action: A closure to execute on upgrading to premium.
-    /// - Returns: The alert shown when a non-premium user tries to send a file.
-    static func fileSendPremiumRequired(
-        action: @escaping () -> Void,
-    ) -> Alert {
-        let preferredAction = AlertAction(title: Localizations.upgradeToPremium, style: .default) { _, _ in action() }
-        let alert = Alert(
-            title: Localizations.premiumSubscriptionRequired,
-            message: Localizations.sendFilePremiumRequired,
-            alertActions: [
-                preferredAction,
-                AlertAction(title: Localizations.cancel, style: .cancel),
-            ],
-        )
-        alert.preferredAction = preferredAction
-        return alert
-    }
-
-    /// Returns an alert for when the "Specific People" Send feature is unavailable due to
-    /// lack of premium subscription.
-    ///
-    /// - Parameters:
-    ///   - action: A closure to execute on upgrading to premium.
-    /// - Returns: The alert when "Specific People" is unavailable.
-    static func specificPeopleUnavailable(
-        action: @escaping () -> Void,
-    ) -> Alert {
-        let preferredAction = AlertAction(title: Localizations.upgradeToPremium, style: .default) { _, _ in action() }
-        let alert = Alert(
-            title: Localizations.premiumSubscriptionRequired,
-            message: Localizations.sharingWithSpecificPeopleIsPremiumFeatureDescriptionLong,
             alertActions: [
                 preferredAction,
                 AlertAction(title: Localizations.cancel, style: .cancel),
@@ -265,6 +221,28 @@ extension Alert {
                 ),
             ],
         )
+    }
+
+    /// Returns an alert notifying the user that a Premium subscription is required to send files,
+    /// with an option to upgrade.
+    ///
+    /// - Parameters:
+    ///   - action: A closure to execute on upgrading to Premium.
+    /// - Returns: The alert shown when a non-Premium user tries to send a file.
+    static func fileSendPremiumRequired(
+        action: @escaping () -> Void,
+    ) -> Alert {
+        let preferredAction = AlertAction(title: Localizations.upgradeToPremium, style: .default) { _, _ in action() }
+        let alert = Alert(
+            title: Localizations.premiumSubscriptionRequired,
+            message: Localizations.sendFilePremiumRequired,
+            alertActions: [
+                preferredAction,
+                AlertAction(title: Localizations.cancel, style: .cancel),
+            ],
+        )
+        alert.preferredAction = preferredAction
+        return alert
     }
 
     /// An alert asking the user if they have a computer available to import logins.
@@ -482,8 +460,17 @@ extension Alert {
                 })
             }
         case .driversLicense:
-            // TODO: PM-32807
-            break
+            if let licenseNumber = context.cipherView.driversLicense?.licenseNumber {
+                alertActions.append(AlertAction(title: Localizations.copyLicenseNumber, style: .default) { _, _ in
+                    await action(.copy(
+                        toast: Localizations.licenseNumber,
+                        value: licenseNumber,
+                        requiresMasterPasswordReprompt: true,
+                        logEvent: nil,
+                        cipherId: context.cipherView.id,
+                    ))
+                })
+            }
         case .passport:
             if let passportNumber = context.cipherView.passport?.passportNumber {
                 alertActions.append(AlertAction(title: Localizations.copyPassportNumber, style: .default) { _, _ in
@@ -549,6 +536,52 @@ extension Alert {
         )
     }
 
+    /// Returns an alert for when the "Specific People" Send feature is unavailable due to
+    /// lack of Premium subscription.
+    ///
+    /// - Parameters:
+    ///   - action: A closure to execute on upgrading to Premium.
+    /// - Returns: The alert when "Specific People" is unavailable.
+    static func specificPeopleUnavailable(
+        action: @escaping () -> Void,
+    ) -> Alert {
+        let preferredAction = AlertAction(title: Localizations.upgradeToPremium, style: .default) { _, _ in action() }
+        let alert = Alert(
+            title: Localizations.premiumSubscriptionRequired,
+            message: Localizations.sharingWithSpecificPeopleIsPremiumFeatureDescriptionLong,
+            alertActions: [
+                preferredAction,
+                AlertAction(title: Localizations.cancel, style: .cancel),
+            ],
+        )
+        alert.preferredAction = preferredAction
+        return alert
+    }
+
+    /// Returns an alert notifying the user that a Premium subscription is required to view TOTP
+    /// codes, with an option to upgrade.
+    ///
+    /// - Parameters:
+    ///   - action: A closure to execute on upgrading to Premium.
+    /// - Returns: The alert shown when a non-Premium user taps the TOTP premium required field.
+    static func totpPremiumRequired(
+        action: @escaping () async -> Void,
+    ) -> Alert {
+        let preferredAction = AlertAction(title: Localizations.upgradeToPremium, style: .default) { _ in
+            await action()
+        }
+        let alert = Alert(
+            title: Localizations.premiumSubscriptionRequired,
+            message: Localizations.premiumRequired,
+            alertActions: [
+                preferredAction,
+                AlertAction(title: Localizations.cancel, style: .cancel),
+            ],
+        )
+        alert.preferredAction = preferredAction
+        return alert
+    }
+
     /// An alert notifying the user to update their encryption settings.
     ///
     /// - Parameter completion: A closure that's executed when the user has entered their password.
@@ -592,7 +625,7 @@ struct MoreOptionsAlertContext {
     /// Whether the cipher can be archived.
     let canArchive: Bool
 
-    /// Whether the user can copy the TOTP code (because they have premium or the organization uses TOTP).
+    /// Whether the user can copy the TOTP code (because they have Premium or the organization uses TOTP).
     let canCopyTotp: Bool
 
     /// Whether the cipher can be unarchived.

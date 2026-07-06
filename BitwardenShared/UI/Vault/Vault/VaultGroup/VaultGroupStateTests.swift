@@ -53,7 +53,7 @@ class VaultGroupStateTests: BitwardenTestCase {
         XCTAssertEqual(subjectDriversLicense.newItemButtonType, .button)
 
         let subjectPassport = VaultGroupState(group: .passport, vaultFilterType: .myVault)
-        XCTAssertNil(subjectPassport.newItemButtonType)
+        XCTAssertEqual(subjectPassport.newItemButtonType, .button)
 
         let subjectSSHKey = VaultGroupState(group: .sshKey, vaultFilterType: .myVault)
         XCTAssertNil(subjectSSHKey.newItemButtonType)
@@ -74,6 +74,18 @@ class VaultGroupStateTests: BitwardenTestCase {
         let subject = VaultGroupState(
             group: .driversLicense,
             itemTypesUserCanCreate: [.login],
+            vaultFilterType: .myVault,
+        )
+        XCTAssertNil(subject.newItemButtonType)
+    }
+
+    /// `newItemButtonType` returns nil for the passport group when passport creation is gated off
+    /// (i.e. the `newItemTypes` feature flag is disabled, so `.passport` is absent from
+    /// `itemTypesUserCanCreate`).
+    func test_newItemButtonType_passportGatedOff() {
+        let subject = VaultGroupState(
+            group: .passport,
+            itemTypesUserCanCreate: [.login, .card, .identity, .secureNote],
             vaultFilterType: .myVault,
         )
         XCTAssertNil(subject.newItemButtonType)
@@ -169,7 +181,7 @@ class VaultGroupStateTests: BitwardenTestCase {
         XCTAssertNil(subjectTotp.noItemsTitle)
     }
 
-    /// `showArchivePremiumSubscriptionEndedCard` returns `true` when the user doesn't have premium
+    /// `showArchivePremiumSubscriptionEndedCard` returns `true` when the user doesn't have Premium
     /// and is viewing the archive group.
     func test_showArchivePremiumSubscriptionEndedCard() {
         let subjectNoPremiumArchive = VaultGroupState(

@@ -6,6 +6,8 @@
 "Bitwarden" = "Bitwarden";
 "Cancel" = "取消";
 "Copy" = "复制";
+"CopyLicenseNumber" = "复制驾驶证号码";
+"CopyPassportNumber" = "复制护照号码";
 "CopyPassword" = "复制密码";
 "CopyUsername" = "复制用户名";
 "Delete" = "删除";
@@ -89,7 +91,7 @@
 "ExtensionInSafari" = "在 Safari 中，使用分享图标找到 Bitwarden（提示：滚动到菜单最下面一行的右边）。";
 "ExtensionInstantAccess" = "即时访问您的密码！";
 "ExtensionReady" = "您已经准备好登录了！";
-"ExtensionSetup" = "现在可以在 Safari、Chrome 以及其他支持的 App 中方便地访问您的登录项目了。";
+"ExtensionSetup" = "现在，可以从 Safari、Chrome 以及其他支持的 App 轻松访问您的登录。";
 "ExtensionSetup2" = "在 Safari 和 Chrome 中，使用分享图标找到 Bitwarden（提示：滚动到菜单最下面一行的右边）。";
 "ExtensionTapIcon" = "点击菜单中的 Bitwarden 图标以启动此扩展。";
 "ExtensionTurnOn" = "要在 Safari 和其他 App 中打开 Bitwarden ，请点击菜单底部的「更多」图标。";
@@ -207,6 +209,7 @@
 "TypeIdentity" = "身份";
 "TypeLicense" = "驾驶证";
 "TypeLogin" = "登录";
+"TypePassport" = "护照";
 "TypeSecureNote" = "安全笔记";
 "Address1" = "地址 1";
 "Address2" = "地址 2";
@@ -230,7 +233,7 @@
 "June" = "六月";
 "LastName" = "姓氏";
 "FullName" = "全名";
-"LicenseNumber" = "许可证编号";
+"LicenseNumber" = "驾驶证号码";
 "March" = "三月";
 "May" = "五月";
 "MiddleName" = "中间名";
@@ -374,8 +377,8 @@
 "DoYouReallyWantToSoftDeleteCipher" = "确定要将其发送到回收站吗？";
 "EnableSyncOnRefresh" = "允许刷新时同步";
 "EnableSyncOnRefreshDescription" = "使用下拉手势同步密码库。";
-"LogInSso" = "企业单点登录";
-"LogInSsoSummary" = "使用您组织的单点登录门户快速登录。请输入您组织的标识符以开始。";
+"LogInSso" = "企业单点登录 (SSO)";
+"LogInSsoSummary" = "使用您组织的单点登录 (SSO) 门户快速登录。请输入您组织的标识符以开始。";
 "OrgIdentifier" = "组织标识符";
 "SetMasterPassword" = "设置主密码";
 "MasterPasswordPolicyInEffect" = "一个或多个组织策略要求您的主密码满足下列要求：";
@@ -421,7 +424,7 @@
 "SendOptionsPolicyInEffect" = "一个或多个组织策略正在影响您的 Send 设置。";
 "SendFilePremiumRequired" = "免费账户仅限于共享文本。需要高级版成员资格才能使用文件 Send。";
 "SendFileEmailVerificationRequired" = "您必须验证电子邮箱才能使用文件 Send。您可以在网页密码库中验证您的电子邮箱。";
-"PasswordPrompt" = "主密码重新提示";
+"PasswordPrompt" = "主密码二次验证";
 "PasswordConfirmation" = "确认主密码";
 "PasswordConfirmationDesc" = "此操作受到保护。要继续，请重新输入主密码以验证您的身份。";
 "UpdateMasterPassword" = "更新主密码";
@@ -555,6 +558,7 @@
 "ThereAreNoCardsInYourVault" = "您的密码库中没有支付卡";
 "ThereAreNoNotesInYourVault" = "您的密码库中没有笔记";
 "ThereAreNoIdentitiesInYourVault" = "您的密码库中没有身份信息";
+"ThereAreNoPassportsInYourVault" = "您的密码库中没有护照";
 "ThereAreNoSSHKeysInYourVault" = "您的密码库中没有 SSH 密钥";
 "ThereAreNoBankAccountsInYourVault" = "您的密码库中没有银行账户";
 "US" = "美国";
@@ -572,7 +576,7 @@
 "Passkeys" = "通行密钥";
 "PasskeyWillNotBeCopied" = "通行密钥不会被复制";
 "ThePasskeyWillNotBeCopiedToTheClonedItemDoYouWantToContinueCloningThisItem" = "通行密钥将不会被复制到克隆的项目。要继续克隆这个项目吗？";
-"MasterPasswordRePromptHelp" = "主密码重新提示帮助";
+"MasterPasswordRePromptHelp" = "主密码二次验证帮助";
 "UnlockingMayFailDueToInsufficientMemoryDecreaseYourKDFMemorySettingsToResolve" = "由于内存不足，解锁可能会失败。请减少您的 KDF 内存设置或设置生物识别解锁来解决此问题。";
 "AdminApprovalRequested" = "已请求管理员批准";
 "YourRequestHasBeenSentToYourAdmin" = "您的请求已发送给您的管理员。";
@@ -804,7 +808,7 @@
 "YouMayNeedToEnableDevicePasscodeOrBiometrics" = "您可能需要启用设备通行代码或生物识别。";
 "StartImportCXFDescriptionLong" = "从其他密码管理器导入密码、通行密钥、信用卡以及任何个人身份信息。\n\n您的数据**不会**从之前的提供程序中删除。";
 "ImportPasswords" = "导入密码";
-"ImportingEllipsis" = "正在导入…";
+"ImportingEllipsis" = "正在导入...";
 "AreYouSureYouWantToCancelTheImportProcessQuestionMark" = "确定要取消导入过程吗？";
 "ImportFailed" = "导入失败";
 "ThereWasAnIssueImportingAllOfYourPasswordsNoDataWasDeleted" = "导入您的所有密码时出现问题。\n\n未删除任何数据。";
@@ -1023,10 +1027,8 @@
 "ArchiveEmptyDescriptionLong" = "将您不希望在搜索结果和自动填充建议中看到，但将来可能需要的项目添加到您的归档中。";
 "ArchiveItem" = "归档项目";
 "OnceArchivedThisItemWillBeExcludedDescriptionLong" = "归档后，此项目将被排除在一般搜索结果和自动填充建议之外。";
-"ArchiveUnavailable" = "归档功能不可用";
 "ArchivingItemsIsAPremiumFeatureDescriptionLong" = "归档项目是高级版功能。您的当前方案不包含对此功能的访问权限。";
 "AddingAttachmentsIsAPremiumFeatureDescriptionLong" = "添加附件是高级版功能。您的当前方案不包含对此功能的访问权限。";
-"AttachmentsUnavailable" = "附件功能不可用";
 "UpgradeToPremium" = "升级到高级版";
 "ThisItemIsArchived" = "此项目已归档。";
 "YourPremiumSubscriptionEnded" = "您的高级版订阅已结束";
@@ -1125,6 +1127,7 @@
 "License" = "驾驶证";
 "Licenses" = "驾驶证";
 "Passport" = "护照";
+"Passports" = "护照";
 "LicenseDetails" = "驾驶证详细信息";
 "DateOfBirth" = "出生日期";
 "IssuingCountry" = "签发国家 / 地区";
@@ -1133,3 +1136,28 @@
 "IssueDate" = "签发日期";
 "ExpirationDate" = "到期日期";
 "LicenseClass" = "驾驶证类别";
+"PassportDetails" = "护照详细信息";
+/* Label for the sex/gender field as printed on a passport (e.g. "M", "F", "X"). */
+"Sex" = "性别";
+"BirthPlace" = "出生地点";
+/* Label for the nationality field on a passport (the country a person is a national of). */
+"Nationality" = "国籍";
+/* Label for the category of passport (e.g. "Regular/Tourist", "Diplomatic", "Official"). */
+"PassportType" = "护照类型";
+"NationalIdentificationNumber" = "居民身份证号码";
+/* Label for the government authority or office that issued the passport. */
+"IssuingAuthorityOffice" = "签发机构 / 部门";
+"AccountDetails" = "账户详细信息";
+"BankName" = "银行名称";
+"NameOnAccount" = "账户名称";
+"AccountType" = "账户类型";
+"BranchNumber" = "分行号码";
+"SwiftCode" = "SWIFT 代码";
+"IBAN" = "IBAN";
+"BankContactPhone" = "银行联系电话";
+"CertificateOfDeposit" = "定期存款";
+"Checking" = "支票";
+"InvestmentBrokerage" = "投资/证券";
+"LineOfCredit" = "信用额度";
+"MoneyMarket" = "货币市场";
+"Savings" = "储蓄";

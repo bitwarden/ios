@@ -7,12 +7,12 @@ import XCTest
 
 class AlertVaultTests: BitwardenTestCase { // swiftlint:disable:this type_body_length
     /// `archiveUnavailable(baseURL:handleOpenURL:)` returns an `Alert` notifying the user that
-    /// archiving is unavailable and requires premium.
+    /// archiving is unavailable and requires Premium.
     func test_archiveUnavailable() async throws {
         var called = false
         let subject = Alert.archiveUnavailable { called = true }
 
-        XCTAssertEqual(subject.title, Localizations.archiveUnavailable)
+        XCTAssertEqual(subject.title, Localizations.premiumSubscriptionRequired)
         XCTAssertEqual(subject.message, Localizations.archivingItemsIsAPremiumFeatureDescriptionLong)
         XCTAssertEqual(subject.alertActions.count, 2)
         XCTAssertEqual(subject.alertActions[0].title, Localizations.upgradeToPremium)
@@ -31,63 +31,6 @@ class AlertVaultTests: BitwardenTestCase { // swiftlint:disable:this type_body_l
     func test_archiveUnavailable_cancel() async throws {
         var called = false
         let subject = Alert.archiveUnavailable { called = true }
-
-        try await subject.tapCancel()
-        XCTAssertFalse(called)
-    }
-
-    /// `confirmArchiveItem(action:)` returns an `Alert` asking the user to confirm archiving a
-    /// vault item.
-    func test_confirmArchiveItem() async throws {
-        var actionCalled = false
-        let subject = Alert.confirmArchiveItem { actionCalled = true }
-
-        XCTAssertEqual(subject.title, Localizations.archiveItem)
-        XCTAssertEqual(subject.message, Localizations.onceArchivedThisItemWillBeExcludedDescriptionLong)
-        XCTAssertEqual(subject.alertActions.count, 2)
-        XCTAssertEqual(subject.alertActions[0].title, Localizations.archive)
-        XCTAssertEqual(subject.alertActions[0].style, .default)
-        XCTAssertEqual(subject.alertActions[1].title, Localizations.cancel)
-        XCTAssertEqual(subject.alertActions[1].style, .cancel)
-
-        try await subject.tapAction(title: Localizations.archive)
-        XCTAssertTrue(actionCalled)
-    }
-
-    /// `confirmArchiveItem(action:)` does not invoke the action when cancel is tapped.
-    func test_confirmArchiveItem_cancel() async throws {
-        var actionCalled = false
-        let subject = Alert.confirmArchiveItem { actionCalled = true }
-
-        try await subject.tapCancel()
-        XCTAssertFalse(actionCalled)
-    }
-
-    /// `specificPeopleUnavailable(action:)` returns an `Alert` notifying the user that the
-    /// "Specific People" Send feature requires premium.
-    func test_specificPeopleUnavailable() async throws {
-        var called = false
-        let subject = Alert.specificPeopleUnavailable { called = true }
-
-        XCTAssertEqual(subject.title, Localizations.premiumSubscriptionRequired)
-        XCTAssertEqual(subject.message, Localizations.sharingWithSpecificPeopleIsPremiumFeatureDescriptionLong)
-        XCTAssertEqual(subject.alertActions.count, 2)
-        XCTAssertEqual(subject.alertActions[0].title, Localizations.upgradeToPremium)
-        XCTAssertEqual(subject.alertActions[0].style, .default)
-        XCTAssertEqual(subject.alertActions[1].title, Localizations.cancel)
-        XCTAssertEqual(subject.alertActions[1].style, .cancel)
-
-        let preferredAction = try XCTUnwrap(subject.preferredAction)
-        XCTAssertTrue(preferredAction === subject.alertActions[0])
-
-        try await subject.tapAction(title: Localizations.upgradeToPremium)
-        XCTAssertTrue(called)
-    }
-
-    /// `specificPeopleUnavailable(action:)` doesn't call action when cancel is tapped.
-    func test_specificPeopleUnavailable_cancel() async throws {
-        var called = false
-        let subject = Alert.specificPeopleUnavailable { called = true }
 
         try await subject.tapCancel()
         XCTAssertFalse(called)
@@ -189,6 +132,33 @@ class AlertVaultTests: BitwardenTestCase { // swiftlint:disable:this type_body_l
             789xyz
             """,
         )
+    }
+
+    /// `confirmArchiveItem(action:)` returns an `Alert` asking the user to confirm archiving a
+    /// vault item.
+    func test_confirmArchiveItem() async throws {
+        var actionCalled = false
+        let subject = Alert.confirmArchiveItem { actionCalled = true }
+
+        XCTAssertEqual(subject.title, Localizations.archiveItem)
+        XCTAssertEqual(subject.message, Localizations.onceArchivedThisItemWillBeExcludedDescriptionLong)
+        XCTAssertEqual(subject.alertActions.count, 2)
+        XCTAssertEqual(subject.alertActions[0].title, Localizations.archive)
+        XCTAssertEqual(subject.alertActions[0].style, .default)
+        XCTAssertEqual(subject.alertActions[1].title, Localizations.cancel)
+        XCTAssertEqual(subject.alertActions[1].style, .cancel)
+
+        try await subject.tapAction(title: Localizations.archive)
+        XCTAssertTrue(actionCalled)
+    }
+
+    /// `confirmArchiveItem(action:)` does not invoke the action when cancel is tapped.
+    func test_confirmArchiveItem_cancel() async throws {
+        var actionCalled = false
+        let subject = Alert.confirmArchiveItem { actionCalled = true }
+
+        try await subject.tapCancel()
+        XCTAssertFalse(actionCalled)
     }
 
     /// `confirmCloneExcludesFido2Credential(action:)` constructs an alert to confirm whether to
@@ -336,6 +306,133 @@ class AlertVaultTests: BitwardenTestCase { // swiftlint:disable:this type_body_l
 
         try await alert.tapAction(title: Localizations.archive)
         XCTAssertEqual(capturedAction, .archive(cipherView: cipher))
+    }
+
+    /// `moreOptions(context:action:)` for a bank account includes copy actions for the
+    /// account number and routing number.
+    @MainActor
+    func test_moreOptions_bankAccount() async throws { // swiftlint:disable:this function_body_length
+        var capturedAction: MoreOptionsAction?
+        let action: (MoreOptionsAction) -> Void = { action in
+            capturedAction = action
+        }
+        let cipher = CipherView.fixture(
+            bankAccount: .fixture(accountNumber: "1234567890", routingNumber: "021000021"),
+            edit: false,
+            id: "123",
+            name: "Test Cipher",
+            type: .bankAccount,
+        )
+        let alert = Alert.moreOptions(
+            context: MoreOptionsAlertContext(
+                canArchive: false,
+                canCopyTotp: false,
+                canUnarchive: false,
+                cipherView: cipher,
+                id: cipher.id!,
+                showEdit: true,
+            ),
+            action: action,
+        )
+        XCTAssertEqual(alert.title, cipher.name)
+        XCTAssertEqual(alert.preferredStyle, .actionSheet)
+        XCTAssertEqual(alert.alertActions.count, 5)
+
+        try await alert.tapAction(byIndex: 0, withTitle: Localizations.view)
+        XCTAssertEqual(capturedAction, .view(id: "123"))
+        capturedAction = nil
+
+        try await alert.tapAction(byIndex: 1, withTitle: Localizations.edit)
+        XCTAssertEqual(capturedAction, .edit(cipherView: cipher))
+        capturedAction = nil
+
+        try await alert.tapAction(byIndex: 2, withTitle: Localizations.copyAccountNumber)
+        XCTAssertEqual(
+            capturedAction,
+            .copy(
+                toast: Localizations.accountNumber,
+                value: "1234567890",
+                requiresMasterPasswordReprompt: true,
+                logEvent: nil,
+                cipherId: nil,
+            ),
+        )
+        capturedAction = nil
+
+        try await alert.tapAction(byIndex: 3, withTitle: Localizations.copyRoutingNumber)
+        XCTAssertEqual(
+            capturedAction,
+            .copy(
+                toast: Localizations.routingNumber,
+                value: "021000021",
+                requiresMasterPasswordReprompt: true,
+                logEvent: nil,
+                cipherId: nil,
+            ),
+        )
+        capturedAction = nil
+
+        try await alert.tapAction(byIndex: 4, withTitle: Localizations.cancel)
+        XCTAssertNil(capturedAction)
+    }
+
+    /// `static moreOptions(canCopyTotp:cipherView:hasMasterPassword:id:showEdit:action:)` returns
+    /// the appropriate options for `.driversLicense` type
+    @MainActor
+    func test_moreOptions_driversLicense() async throws {
+        var capturedAction: MoreOptionsAction?
+        let action: (MoreOptionsAction) -> Void = { action in
+            capturedAction = action
+        }
+        let cipher = CipherView.fixture(
+            driversLicense: .fixture(),
+            edit: false,
+            id: "123",
+            name: "Test Cipher",
+            type: .driversLicense,
+            viewPassword: true,
+        )
+        let alert = Alert.moreOptions(
+            context: MoreOptionsAlertContext(
+                canArchive: false,
+                canCopyTotp: false,
+                canUnarchive: false,
+                cipherView: cipher,
+                id: cipher.id!,
+                showEdit: true,
+            ),
+            action: action,
+        )
+        XCTAssertEqual(alert.title, cipher.name)
+        XCTAssertEqual(alert.preferredStyle, .actionSheet)
+        XCTAssertEqual(alert.alertActions.count, 4)
+
+        try await alert.tapAction(byIndex: 0, withTitle: Localizations.view)
+        XCTAssertEqual(capturedAction, .view(id: "123"))
+        capturedAction = nil
+
+        try await alert.tapAction(byIndex: 1, withTitle: Localizations.edit)
+        XCTAssertEqual(
+            capturedAction,
+            .edit(cipherView: cipher),
+        )
+        capturedAction = nil
+
+        try await alert.tapAction(byIndex: 2, withTitle: Localizations.copyLicenseNumber)
+        XCTAssertEqual(
+            capturedAction,
+            .copy(
+                toast: Localizations.licenseNumber,
+                value: "D1234567",
+                requiresMasterPasswordReprompt: true,
+                logEvent: nil,
+                cipherId: "123",
+            ),
+        )
+        capturedAction = nil
+
+        try await alert.tapAction(byIndex: 3, withTitle: Localizations.cancel)
+        XCTAssertNil(capturedAction)
     }
 
     /// `moreOptions(context:action:)` does not
@@ -522,74 +619,6 @@ class AlertVaultTests: BitwardenTestCase { // swiftlint:disable:this type_body_l
         XCTAssertNil(capturedAction)
     }
 
-    /// `moreOptions(context:action:)` for a bank account includes copy actions for the
-    /// account number and routing number.
-    @MainActor
-    func test_moreOptions_bankAccount() async throws { // swiftlint:disable:this function_body_length
-        var capturedAction: MoreOptionsAction?
-        let action: (MoreOptionsAction) -> Void = { action in
-            capturedAction = action
-        }
-        let cipher = CipherView.fixture(
-            bankAccount: .fixture(accountNumber: "1234567890", routingNumber: "021000021"),
-            edit: false,
-            id: "123",
-            name: "Test Cipher",
-            type: .bankAccount,
-        )
-        let alert = Alert.moreOptions(
-            context: MoreOptionsAlertContext(
-                canArchive: false,
-                canCopyTotp: false,
-                canUnarchive: false,
-                cipherView: cipher,
-                id: cipher.id!,
-                showEdit: true,
-            ),
-            action: action,
-        )
-        XCTAssertEqual(alert.title, cipher.name)
-        XCTAssertEqual(alert.preferredStyle, .actionSheet)
-        XCTAssertEqual(alert.alertActions.count, 5)
-
-        try await alert.tapAction(byIndex: 0, withTitle: Localizations.view)
-        XCTAssertEqual(capturedAction, .view(id: "123"))
-        capturedAction = nil
-
-        try await alert.tapAction(byIndex: 1, withTitle: Localizations.edit)
-        XCTAssertEqual(capturedAction, .edit(cipherView: cipher))
-        capturedAction = nil
-
-        try await alert.tapAction(byIndex: 2, withTitle: Localizations.copyAccountNumber)
-        XCTAssertEqual(
-            capturedAction,
-            .copy(
-                toast: Localizations.accountNumber,
-                value: "1234567890",
-                requiresMasterPasswordReprompt: true,
-                logEvent: nil,
-                cipherId: nil,
-            ),
-        )
-        capturedAction = nil
-
-        try await alert.tapAction(byIndex: 3, withTitle: Localizations.copyRoutingNumber)
-        XCTAssertEqual(
-            capturedAction,
-            .copy(
-                toast: Localizations.routingNumber,
-                value: "021000021",
-                requiresMasterPasswordReprompt: true,
-                logEvent: nil,
-                cipherId: nil,
-            ),
-        )
-        capturedAction = nil
-
-        try await alert.tapAction(byIndex: 4, withTitle: Localizations.cancel)
-        XCTAssertNil(capturedAction)
-    }
-
     /// `moreOptions(context:action:)` includes
     /// unarchive option when `canUnarchive` is `true`.
     @MainActor
@@ -639,6 +668,66 @@ class AlertVaultTests: BitwardenTestCase { // swiftlint:disable:this type_body_l
         XCTAssertEqual(subject.message, Localizations.pushNotificationAlert)
         XCTAssertEqual(subject.alertActions.first?.title, Localizations.okGotIt)
         XCTAssertEqual(subject.alertActions.first?.style, .default)
+    }
+
+    /// `specificPeopleUnavailable(action:)` returns an `Alert` notifying the user that the
+    /// "Specific People" Send feature requires Premium.
+    func test_specificPeopleUnavailable() async throws {
+        var called = false
+        let subject = Alert.specificPeopleUnavailable { called = true }
+
+        XCTAssertEqual(subject.title, Localizations.premiumSubscriptionRequired)
+        XCTAssertEqual(subject.message, Localizations.sharingWithSpecificPeopleIsPremiumFeatureDescriptionLong)
+        XCTAssertEqual(subject.alertActions.count, 2)
+        XCTAssertEqual(subject.alertActions[0].title, Localizations.upgradeToPremium)
+        XCTAssertEqual(subject.alertActions[0].style, .default)
+        XCTAssertEqual(subject.alertActions[1].title, Localizations.cancel)
+        XCTAssertEqual(subject.alertActions[1].style, .cancel)
+
+        let preferredAction = try XCTUnwrap(subject.preferredAction)
+        XCTAssertTrue(preferredAction === subject.alertActions[0])
+
+        try await subject.tapAction(title: Localizations.upgradeToPremium)
+        XCTAssertTrue(called)
+    }
+
+    /// `specificPeopleUnavailable(action:)` doesn't call action when cancel is tapped.
+    func test_specificPeopleUnavailable_cancel() async throws {
+        var called = false
+        let subject = Alert.specificPeopleUnavailable { called = true }
+
+        try await subject.tapCancel()
+        XCTAssertFalse(called)
+    }
+
+    /// `totpPremiumRequired(action:)` returns an `Alert` notifying the user that a Premium
+    /// subscription is required to view TOTP codes.
+    func test_totpPremiumRequired() async throws {
+        var called = false
+        let subject = Alert.totpPremiumRequired { called = true }
+
+        XCTAssertEqual(subject.title, Localizations.premiumSubscriptionRequired)
+        XCTAssertEqual(subject.message, Localizations.premiumRequired)
+        XCTAssertEqual(subject.alertActions.count, 2)
+        XCTAssertEqual(subject.alertActions[0].title, Localizations.upgradeToPremium)
+        XCTAssertEqual(subject.alertActions[0].style, .default)
+        XCTAssertEqual(subject.alertActions[1].title, Localizations.cancel)
+        XCTAssertEqual(subject.alertActions[1].style, .cancel)
+
+        let preferredAction = try XCTUnwrap(subject.preferredAction)
+        XCTAssertTrue(preferredAction === subject.alertActions[0])
+
+        try await subject.tapAction(title: Localizations.upgradeToPremium)
+        XCTAssertTrue(called)
+    }
+
+    /// `totpPremiumRequired(action:)` doesn't call action when cancel is tapped.
+    func test_totpPremiumRequired_cancel() async throws {
+        var called = false
+        let subject = Alert.totpPremiumRequired { called = true }
+
+        try await subject.tapCancel()
+        XCTAssertFalse(called)
     }
 
     /// `updateEncryptionSettings(_:)` constructs an `Alert` notifying the user to update their

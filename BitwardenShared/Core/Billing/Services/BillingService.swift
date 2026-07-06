@@ -10,23 +10,23 @@ protocol BillingService: AnyObject { // sourcery: AutoMockable
     /// The callback URL scheme used by the Stripe checkout web authentication session.
     var checkoutCallbackUrlScheme: String { get }
 
-    /// Creates a checkout session for premium upgrade and returns the checkout URL.
+    /// Creates a checkout session for Premium upgrade and returns the checkout URL.
     ///
     /// - Returns: A validated HTTPS URL for the checkout session.
     /// - Throws: `BillingError.invalidCheckoutUrl` if the URL is invalid or not HTTPS.
     ///
     func createCheckoutSession() async throws -> URL
 
-    /// Creates a customer portal session for managing the premium subscription.
+    /// Creates a customer portal session for managing the Premium subscription.
     ///
     /// - Returns: A validated HTTPS URL for the customer portal.
     /// - Throws: `BillingError.invalidPortalUrl` if the URL is not HTTPS.
     ///
     func getPortalUrl() async throws -> URL
 
-    /// Gets the premium subscription plan details.
+    /// Gets the Premium subscription plan details.
     ///
-    /// - Returns: A `PremiumPlanResponseModel` containing the premium plan details.
+    /// - Returns: A `PremiumPlanResponseModel` containing the Premium plan details.
     ///
     func getPremiumPlan() async throws -> PremiumPlanResponseModel
 
@@ -41,23 +41,37 @@ protocol BillingService: AnyObject { // sourcery: AutoMockable
     ///
     func premiumCheckoutCanceled()
 
-    /// A publisher that emits the status of the premium checkout sync process.
+    /// A publisher that emits the status of the Premium checkout sync process.
     ///
     func premiumCheckoutStatusPublisher() -> AnyPublisher<PremiumCheckoutStatus, Never>
 
-    /// Returns whether the current environment is effectively self-hosted for premium upgrade checks.
+    /// Returns whether the current environment is effectively self-hosted for Premium upgrade checks.
     /// Returns `false` when the debug override flag is enabled, regardless of the actual region.
     ///
     func isSelfHosted() async -> Bool
 
-    /// Notifies that a premium status change was detected (via deep link or push notification),
+    /// Notifies that a Premium status change was detected (via deep link or push notification),
     /// triggers a sync, and publishes status updates.
     ///
     func premiumStatusChanged() async
 
+    /// Fetches the current subscription status and updates the visibility of the subscription
+    /// attention action card.
+    ///
+    /// - Parameters:
+    ///   - subscription: A previously fetched subscription to use, or `nil` to fetch fresh.
+    ///
+    func refreshSubscriptionAttentionCard(subscription: PremiumSubscription?) async
+
     /// Sets the "Upgraded to Premium" action card as dismissed and clears its visibility flag.
     ///
     func setUpgradedToPremiumActionCardDismissed() async
+
+    /// Gets whether the subscription attention action card should be shown for the active account.
+    ///
+    /// - Returns: Whether the action card should be shown.
+    ///
+    func shouldShowSubscriptionAttentionCard() async -> Bool
 
     /// Gets whether the "Upgraded to Premium" action card should be shown for the active account.
     ///
@@ -76,10 +90,16 @@ class DefaultBillingService: BillingService {
     /// The API service used for billing requests.
     private let billingAPIService: BillingAPIService
 
+    /// The service used to manage the app's billing state.
+    private let billingStateService: BillingStateService
+
     let checkoutCallbackUrlScheme = "bitwarden"
 
     /// The service used to manage feature flags.
     private let configService: ConfigService
+
+    /// The debounce interval applied to the Premium checkout status publisher.
+    private let debounceInterval: DispatchQueue.SchedulerTimeType.Stride
 
     /// The service used to manage the app's environment URLs.
     private let environmentService: EnvironmentService
@@ -87,10 +107,7 @@ class DefaultBillingService: BillingService {
     /// The service used by the application to report non-fatal errors.
     private let errorReporter: ErrorReporter
 
-    /// The debounce interval applied to the premium checkout status publisher.
-    private let debounceInterval: DispatchQueue.SchedulerTimeType.Stride
-
-    /// Subject that emits the premium checkout sync status.
+    /// Subject that emits the Premium checkout sync status.
     private let premiumCheckoutStatusSubject = CurrentValueSubject<PremiumCheckoutStatus?, Never>(nil)
 
     /// The service used to manage the app's state.
@@ -105,30 +122,33 @@ class DefaultBillingService: BillingService {
     ///
     /// - Parameters:
     ///   - billingAPIService: The API service used for billing requests.
+    ///   - billingStateService: The service used to manage the app's billing state.
     ///   - configService: The service used to manage feature flags.
-    ///   - debounceInterval: The debounce interval for the status publisher. Defaults to
-    ///     `Constants.premiumCheckoutStatusDebounceInterval`.
     ///   - environmentService: The service used to manage the app's environment URLs.
     ///   - errorReporter: The service used to report non-fatal errors.
-    ///   - stateService: The service used to manage the app's state.
+    ///   - stateService: The service used to query premium account status.
     ///   - syncService: The service used to handle syncing vault data with the API.
+    ///   - debounceInterval: The debounce interval for the status publisher. Defaults to
+    ///     `Constants.premiumCheckoutStatusDebounceInterval`.
     ///
     init(
         billingAPIService: BillingAPIService,
+        billingStateService: BillingStateService,
         configService: ConfigService,
-        debounceInterval: DispatchQueue.SchedulerTimeType.Stride = Constants.premiumCheckoutStatusDebounceInterval,
         environmentService: EnvironmentService,
         errorReporter: ErrorReporter,
         stateService: StateService,
         syncService: SyncService,
+        debounceInterval: DispatchQueue.SchedulerTimeType.Stride = Constants.premiumCheckoutStatusDebounceInterval,
     ) {
         self.billingAPIService = billingAPIService
+        self.billingStateService = billingStateService
         self.configService = configService
-        self.debounceInterval = debounceInterval
         self.environmentService = environmentService
         self.errorReporter = errorReporter
         self.stateService = stateService
         self.syncService = syncService
+        self.debounceInterval = debounceInterval
     }
 
     // MARK: Methods
@@ -180,6 +200,10 @@ class DefaultBillingService: BillingService {
     }
 
     func premiumStatusChanged() async {
+        // Refresh the attention card cache regardless of premium status — past-due and
+        // update-payment users still have premium, so they would be excluded by the guard below.
+        await refreshSubscriptionAttentionCard(subscription: nil)
+
         guard await !isSelfHosted(),
               await configService.getFeatureFlag(.premiumUpgradePath),
               await !stateService.doesActiveAccountHavePremium()
@@ -198,22 +222,61 @@ class DefaultBillingService: BillingService {
         if hasPremium {
             premiumCheckoutStatusSubject.send(nil)
             do {
-                try await stateService.setUpgradedToPremiumActionCardVisible(true)
+                try await billingStateService.setUpgradedToPremiumActionCardVisible(true)
             } catch {
                 errorReporter.log(error: error)
             }
         }
     }
 
-    func setUpgradedToPremiumActionCardDismissed() async {
+    func refreshSubscriptionAttentionCard(subscription: PremiumSubscription?) async {
+        guard await !isSelfHosted(),
+              await configService.getFeatureFlag(.premiumUpgradePath),
+              await stateService.doesActiveAccountHavePremiumPersonally()
+        else {
+            do {
+                try await billingStateService.setSubscriptionAttentionCardVisible(false)
+            } catch {
+                errorReporter.log(error: error)
+            }
+            return
+        }
         do {
-            try await stateService.setUpgradedToPremiumActionCardVisible(false)
+            let sub: PremiumSubscription = if let subscription {
+                subscription
+            } else {
+                try await getSubscription()
+            }
+            let visible = sub.status == .pastDue || sub.status == .updatePayment
+            try await billingStateService.setSubscriptionAttentionCardVisible(visible)
         } catch {
             errorReporter.log(error: error)
         }
     }
 
+    func setUpgradedToPremiumActionCardDismissed() async {
+        do {
+            try await billingStateService.setUpgradedToPremiumActionCardVisible(false)
+        } catch {
+            errorReporter.log(error: error)
+        }
+    }
+
+    func shouldShowSubscriptionAttentionCard() async -> Bool {
+        do {
+            return try await billingStateService.getSubscriptionAttentionCardVisible()
+        } catch {
+            errorReporter.log(error: error)
+            return false
+        }
+    }
+
     func shouldShowUpgradedToPremiumActionCard() async -> Bool {
-        await stateService.getUpgradedToPremiumActionCardVisible()
+        do {
+            return try await billingStateService.getUpgradedToPremiumActionCardVisible()
+        } catch {
+            errorReporter.log(error: error)
+            return false
+        }
     }
 }

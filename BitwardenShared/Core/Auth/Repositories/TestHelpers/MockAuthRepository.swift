@@ -94,7 +94,7 @@ class MockAuthRepository: AuthRepository { // swiftlint:disable:this type_body_l
     var unlockVaultWithDeviceKeyResult: Result<Void, Error> = .success(())
     var unlockVaultWithKeyConnectorKeyCalled = false
     var unlockVaultWithKeyConnectorKeyConnectorURL: URL? // swiftlint:disable:this identifier_name
-    var unlockVaultWithKeyConnectorOrgIdentifier: String?
+    var unlockVaultWithKeyConnectorKeyWrappedUserKey: String? // swiftlint:disable:this identifier_name
     var unlockVaultWithKeyConnectorKeyResult: Result<Void, Error> = .success(())
 
     var convertNewUserToKeyConnectorKeyCalled = false
@@ -387,10 +387,13 @@ class MockAuthRepository: AuthRepository { // swiftlint:disable:this type_body_l
         try unlockVaultWithDeviceKeyResult.get()
     }
 
-    func unlockVaultWithKeyConnectorKey(keyConnectorURL: URL, orgIdentifier: String) async throws {
+    func unlockVaultWithKeyConnectorKey(
+        keyConnectorKeyWrappedUserKey: String,
+        keyConnectorURL: URL,
+    ) async throws {
         unlockVaultWithKeyConnectorKeyCalled = true
         unlockVaultWithKeyConnectorKeyConnectorURL = keyConnectorURL
-        unlockVaultWithKeyConnectorOrgIdentifier = orgIdentifier
+        unlockVaultWithKeyConnectorKeyWrappedUserKey = keyConnectorKeyWrappedUserKey
         try unlockVaultWithKeyConnectorKeyResult.get()
     }
 

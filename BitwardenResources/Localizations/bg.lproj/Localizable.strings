@@ -6,6 +6,8 @@
 "Bitwarden" = "Bitwarden";
 "Cancel" = "Отказ";
 "Copy" = "Копиране";
+"CopyLicenseNumber" = "Копиране на номера на свидетелството";
+"CopyPassportNumber" = "Копиране на номера на паспорта";
 "CopyPassword" = "Копиране на паролата";
 "CopyUsername" = "Копиране на потребителското име";
 "Delete" = "Изтриване";
@@ -207,6 +209,7 @@
 "TypeIdentity" = "Самоличност";
 "TypeLicense" = "Лиценз";
 "TypeLogin" = "Запис";
+"TypePassport" = "Паспорт";
 "TypeSecureNote" = "Защитена бележка";
 "Address1" = "Адрес 1";
 "Address2" = "Адрес 2";
@@ -555,6 +558,7 @@
 "ThereAreNoCardsInYourVault" = "Няма карти в трезора.";
 "ThereAreNoNotesInYourVault" = "Няма бележки в трезора.";
 "ThereAreNoIdentitiesInYourVault" = "Няма самоличности в трезора.";
+"ThereAreNoPassportsInYourVault" = "Няма паспорти в трезора";
 "ThereAreNoSSHKeysInYourVault" = "Няма SSH ключове в трезора";
 "ThereAreNoBankAccountsInYourVault" = "Няма банкови сметки в трезора";
 "US" = "САЩ";
@@ -1023,10 +1027,8 @@
 "ArchiveEmptyDescriptionLong" = "Попълнете архива си с елементи, които не искате да виждате в резултатите от търсене и в предложенията за автоматично попълване, но може все пак да Ви потрябват в бъдеще.";
 "ArchiveItem" = "Архивиране на елемента";
 "OnceArchivedThisItemWillBeExcludedDescriptionLong" = "След като бъде архивиран, този елемент няма да се показва в резултатите при търсене, нито в предложенията за автоматично попълване.";
-"ArchiveUnavailable" = "Архивирането не е налично";
 "ArchivingItemsIsAPremiumFeatureDescriptionLong" = "Архивирането на елементи е платена функционалност. Текущият Ви план не включва достъп до нея.";
 "AddingAttachmentsIsAPremiumFeatureDescriptionLong" = "Прикачването на файлове е платена функционалност. Текущият Ви план не включва достъп до нея.";
-"AttachmentsUnavailable" = "Прикачването на файлове не е налично";
 "UpgradeToPremium" = "Надградете до Платения план";
 "ThisItemIsArchived" = "Този елемент е архивиран.";
 "YourPremiumSubscriptionEnded" = "Вашият абонамент за платения план е приключил";
@@ -1125,6 +1127,7 @@
 "License" = "Лиценз";
 "Licenses" = "Лицензи";
 "Passport" = "Паспорт";
+"Passports" = "Паспорти";
 "LicenseDetails" = "Подробности за лиценза";
 "DateOfBirth" = "Дата на раждане";
 "IssuingCountry" = "Страна издател";
@@ -1133,3 +1136,28 @@
 "IssueDate" = "Дата на издаване";
 "ExpirationDate" = "Дата на валидност";
 "LicenseClass" = "Клас на лиценза";
+"PassportDetails" = "Подробности за паспорта";
+/* Label for the sex/gender field as printed on a passport (e.g. "M", "F", "X"). */
+"Sex" = "Пол";
+"BirthPlace" = "Място на раждане";
+/* Label for the nationality field on a passport (the country a person is a national of). */
+"Nationality" = "Националност";
+/* Label for the category of passport (e.g. "Regular/Tourist", "Diplomatic", "Official"). */
+"PassportType" = "Вид на паспорта";
+"NationalIdentificationNumber" = "Национален идентификационен номер";
+/* Label for the government authority or office that issued the passport. */
+"IssuingAuthorityOffice" = "Институция/офис издател";
+"AccountDetails" = "Подробности за акаунта";
+"BankName" = "Име на банката";
+"NameOnAccount" = "Име на титуляра";
+"AccountType" = "Вид на сметката";
+"BranchNumber" = "Номер на клон/институция";
+"SwiftCode" = "Код SWIFT";
+"IBAN" = "IBAN";
+"BankContactPhone" = "Телефон за връзка с банката";
+"CertificateOfDeposit" = "Депозит";
+"Checking" = "Разплащателна";
+"InvestmentBrokerage" = "Инвестиционна/брокерска";
+"LineOfCredit" = "Кредитна";
+"MoneyMarket" = "Паричен пазар";
+"Savings" = "Спестовна";

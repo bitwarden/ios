@@ -1,6 +1,7 @@
 import BitwardenKit
 import BitwardenKitMocks
 import BitwardenSdk
+import BitwardenSdkMocks
 import TestHelpers
 import XCTest
 
@@ -350,6 +351,7 @@ class ServerCommunicationConfigClientSingletonTests: BitwardenTestCase { // swif
                         EnvironmentServerConfigResponseModel(
                             api: nil,
                             cloudRegion: nil,
+                            fillAssistRules: nil,
                             identity: nil,
                             notifications: nil,
                             sso: nil,

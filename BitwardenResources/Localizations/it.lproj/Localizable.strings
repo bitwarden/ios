@@ -6,6 +6,8 @@
 "Bitwarden" = "Bitwarden";
 "Cancel" = "Annulla";
 "Copy" = "Copia";
+"CopyLicenseNumber" = "Copia numero licenza";
+"CopyPassportNumber" = "Copia numero passaporto";
 "CopyPassword" = "Copia password";
 "CopyUsername" = "Copia nome utente";
 "Delete" = "Elimina";
@@ -175,7 +177,7 @@
 "CopyTotp" = "Copia TOTP";
 "CopyTotpAutomaticallyDescription" = "Se un login ha una chiave di autenticazione, copia il codice di verifica TOTP negli appunti quando riempi automaticamente il login.";
 "CopyTotpAutomatically" = "Copia TOTP automaticamente";
-"PremiumRequired" = "Un abbonamento premium è richiesto per utilizzare questa funzionalità.";
+"PremiumRequired" = "Un abbonamento Premium è richiesto per utilizzare questa funzionalità.";
 "AttachementAdded" = "Allegato aggiunto";
 "AttachmentDeleted" = "Allegato eliminato";
 "ChooseFile" = "Seleziona file";
@@ -207,6 +209,7 @@
 "TypeIdentity" = "Identità";
 "TypeLicense" = "License";
 "TypeLogin" = "Login";
+"TypePassport" = "Passport";
 "TypeSecureNote" = "Nota sicura";
 "Address1" = "Indirizzo 1";
 "Address2" = "Indirizzo 2";
@@ -451,7 +454,7 @@
 "YourAccountHasBeenPermanentlyDeleted" = "Il tuo account è stato eliminato definitivamente";
 "InvalidVerificationCode" = "Codice di verifica non valido";
 "SendCode" = "Invia codice";
-"SendingCode" = "Invio codice in corso…";
+"SendingCode" = "Invio codice in corso...";
 "Verifying" = "Verifica";
 "ResendCode" = "Invia codice di nuovo";
 "EnterTheVerificationCodeThatWasSentToYourEmail" = "Inserisci il codice di verifica che è stato inviato alla tua email";
@@ -555,6 +558,7 @@
 "ThereAreNoCardsInYourVault" = "La cassaforte non contiene carte";
 "ThereAreNoNotesInYourVault" = "La cassaforte non contiene note";
 "ThereAreNoIdentitiesInYourVault" = "La cassaforte non contiene identità";
+"ThereAreNoPassportsInYourVault" = "There are no passports in your vault";
 "ThereAreNoSSHKeysInYourVault" = "Non ci sono chiavi SSH nella cassaforte";
 "ThereAreNoBankAccountsInYourVault" = "There are no bank accounts in your vault";
 "US" = "US";
@@ -804,7 +808,7 @@
 "YouMayNeedToEnableDevicePasscodeOrBiometrics" = "Potrebbe essere necessario abilitare il codice di accesso del dispositivo o l'autenticazione biometrica.";
 "StartImportCXFDescriptionLong" = "Importa parole d'accesso, chiavi d'accesso, carte di credito e qualsiasi informazione di identità personale da un altro gestore di credenziali.\n\nI tuoi dati **non** saranno cancellati dal tuo fornitore precedente.";
 "ImportPasswords" = "Importa password";
-"ImportingEllipsis" = "Importazione…";
+"ImportingEllipsis" = "Importazione...";
 "AreYouSureYouWantToCancelTheImportProcessQuestionMark" = "Vuoi davvero annullare il processo di importazione?";
 "ImportFailed" = "Importazione fallita";
 "ThereWasAnIssueImportingAllOfYourPasswordsNoDataWasDeleted" = "Si è verificato un problema durante l'importazione delle tue password.\n\nNessun dato è stato eliminato.";
@@ -1023,10 +1027,8 @@
 "ArchiveEmptyDescriptionLong" = "Sposta in Archivio gli elementi che non vuoi vedere nei risultati di ricerca e nei suggerimenti, ma potrebbero servirti in seguito.";
 "ArchiveItem" = "Archive item";
 "OnceArchivedThisItemWillBeExcludedDescriptionLong" = "Once archived, this item will be excluded from search results and autofill suggestions.";
-"ArchiveUnavailable" = "Archivio non disponibile";
 "ArchivingItemsIsAPremiumFeatureDescriptionLong" = "L'archiviazione è una funzionalità Premium. Il tuo piano attuale non include questa funzionalità.";
 "AddingAttachmentsIsAPremiumFeatureDescriptionLong" = "Adding attachments is a Premium feature. Your current plan does not include access to this feature.";
-"AttachmentsUnavailable" = "Allegati non disponibili";
 "UpgradeToPremium" = "Passa a Premium";
 "ThisItemIsArchived" = "Questo elemento è archiviato.";
 "YourPremiumSubscriptionEnded" = "Il tuo abbonamento Premium è terminato";
@@ -1092,7 +1094,7 @@
 "NegativeX" = "-%1$@";
 "UnknownStatus" = "Unknown";
 "YourSubscriptionStatusIsUnknownVisitTheWebAppDescriptionLong" = "Your subscription status could not be determined. Please visit the web app for more details or update to the latest version.";
-"AtTheMomentPremiumPlanIsNotAvailableDescriptionLong" = "At the moment premium plan is not available, please try again later.";
+"AtTheMomentPremiumPlanIsNotAvailableDescriptionLong" = "At the moment Premium plan is not available, please try again later.";
 "UnlockMoreAdvancedFeaturesWithPremiumPlan" = "Unlock more advanced features with a Premium plan.";
 "BuiltInAuthenticator" = "Built-in authenticator";
 "EmergencyAccess" = "Emergency access";
@@ -1125,6 +1127,7 @@
 "License" = "License";
 "Licenses" = "Licenses";
 "Passport" = "Passport";
+"Passports" = "Passports";
 "LicenseDetails" = "License details";
 "DateOfBirth" = "Date of birth";
 "IssuingCountry" = "Issuing country";
@@ -1133,3 +1136,28 @@
 "IssueDate" = "Issue date";
 "ExpirationDate" = "Expiration date";
 "LicenseClass" = "License class";
+"PassportDetails" = "Passport details";
+/* Label for the sex/gender field as printed on a passport (e.g. "M", "F", "X"). */
+"Sex" = "Sex";
+"BirthPlace" = "Birth place";
+/* Label for the nationality field on a passport (the country a person is a national of). */
+"Nationality" = "Nationality";
+/* Label for the category of passport (e.g. "Regular/Tourist", "Diplomatic", "Official"). */
+"PassportType" = "Passport type";
+"NationalIdentificationNumber" = "National identification number";
+/* Label for the government authority or office that issued the passport. */
+"IssuingAuthorityOffice" = "Issuing authority/office";
+"AccountDetails" = "Account details";
+"BankName" = "Bank name";
+"NameOnAccount" = "Name on account";
+"AccountType" = "Account type";
+"BranchNumber" = "Branch number";
+"SwiftCode" = "SWIFT code";
+"IBAN" = "IBAN";
+"BankContactPhone" = "Bank contact phone";
+"CertificateOfDeposit" = "Certificate of deposit";
+"Checking" = "Checking";
+"InvestmentBrokerage" = "Investment/brokerage";
+"LineOfCredit" = "Line of credit";
+"MoneyMarket" = "Money market";
+"Savings" = "Savings";

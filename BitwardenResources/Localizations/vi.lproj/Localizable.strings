@@ -6,6 +6,8 @@
 "Bitwarden" = "Bitwarden";
 "Cancel" = "Hủy bỏ";
 "Copy" = "Sao chép";
+"CopyLicenseNumber" = "Sao chép số giấy phép";
+"CopyPassportNumber" = "Sao chép số hộ chiếu";
 "CopyPassword" = "Sao chép mật khẩu";
 "CopyUsername" = "Sao chép tên đăng nhập";
 "Delete" = "Xóa";
@@ -207,6 +209,7 @@
 "TypeIdentity" = "Danh tính";
 "TypeLicense" = "License";
 "TypeLogin" = "Đăng nhập";
+"TypePassport" = "Passport";
 "TypeSecureNote" = "Ghi chú bảo mật";
 "Address1" = "Địa chỉ 1";
 "Address2" = "Địa chỉ 2";
@@ -555,6 +558,7 @@
 "ThereAreNoCardsInYourVault" = "Không có thẻ nào trong kho của bạn";
 "ThereAreNoNotesInYourVault" = "Không có ghi chú nào trong kho của bạn";
 "ThereAreNoIdentitiesInYourVault" = "Không có danh tính nào trong kho của bạn";
+"ThereAreNoPassportsInYourVault" = "There are no passports in your vault";
 "ThereAreNoSSHKeysInYourVault" = "Không có khóa SSH nào trong kho của bạn";
 "ThereAreNoBankAccountsInYourVault" = "There are no bank accounts in your vault";
 "US" = "Hoa Kỳ";
@@ -989,7 +993,7 @@
 "DefaultX" = "Mặc định (%1$@)";
 "UpdateYourEncryptionSettings" = "Cập nhật cài đặt mã hóa của bạn";
 "TheNewRecommendedEncryptionSettingsDescriptionLong" = "Cài đặt mã hóa được khuyến nghị sẽ cải thiện bảo mật cho tài khoản của bạn. Nhập mật khẩu chính để cập nhật ngay.";
-"Updating" = "Đang cập nhật…";
+"Updating" = "Đang cập nhật...";
 "EncryptionSettingsUpdated" = "Cài đặt mã hóa đã được cập nhật";
 "IntroducingArchive" = "Introducing Archive";
 "KeepYtemsYouDontNeedRightNowSafeButOutOfSight" = "Keep items you don’t need right now safe but out of sight.";
@@ -1023,10 +1027,8 @@
 "ArchiveEmptyDescriptionLong" = "Thêm vào kho lưu trữ các mục bạn không muốn thấy trong kết quả tìm kiếm và gợi ý tự động điền nhưng có thể cần dùng sau này.";
 "ArchiveItem" = "Lưu trữ mục";
 "OnceArchivedThisItemWillBeExcludedDescriptionLong" = "Khi đã lưu trữ, mục này sẽ bị loại khỏi kết quả tìm kiếm và gợi ý tự động điền.";
-"ArchiveUnavailable" = "Lưu trữ không khả dụng";
 "ArchivingItemsIsAPremiumFeatureDescriptionLong" = "Lưu trữ mục là một tính năng Cao cấp. Gói hiện tại của bạn không bao gồm quyền truy cập tính năng này.";
 "AddingAttachmentsIsAPremiumFeatureDescriptionLong" = "Adding attachments is a Premium feature. Your current plan does not include access to this feature.";
-"AttachmentsUnavailable" = "Attachments unavailable";
 "UpgradeToPremium" = "Nâng cấp lên bản cao cấp";
 "ThisItemIsArchived" = "Mục này đã được lưu trữ.";
 "YourPremiumSubscriptionEnded" = "Gói đăng ký Cao cấp của bạn đã kết thúc";
@@ -1092,7 +1094,7 @@
 "NegativeX" = "-%1$@";
 "UnknownStatus" = "Unknown";
 "YourSubscriptionStatusIsUnknownVisitTheWebAppDescriptionLong" = "Your subscription status could not be determined. Please visit the web app for more details or update to the latest version.";
-"AtTheMomentPremiumPlanIsNotAvailableDescriptionLong" = "At the moment premium plan is not available, please try again later.";
+"AtTheMomentPremiumPlanIsNotAvailableDescriptionLong" = "At the moment Premium plan is not available, please try again later.";
 "UnlockMoreAdvancedFeaturesWithPremiumPlan" = "Mở khoá các tính năng nâng cao với gói Cao cấp";
 "BuiltInAuthenticator" = "Trình xác thực tích hợp";
 "EmergencyAccess" = "Truy cập khẩn cấp";
@@ -1125,6 +1127,7 @@
 "License" = "License";
 "Licenses" = "Licenses";
 "Passport" = "Passport";
+"Passports" = "Passports";
 "LicenseDetails" = "License details";
 "DateOfBirth" = "Date of birth";
 "IssuingCountry" = "Issuing country";
@@ -1133,3 +1136,28 @@
 "IssueDate" = "Issue date";
 "ExpirationDate" = "Expiration date";
 "LicenseClass" = "License class";
+"PassportDetails" = "Passport details";
+/* Label for the sex/gender field as printed on a passport (e.g. "M", "F", "X"). */
+"Sex" = "Sex";
+"BirthPlace" = "Birth place";
+/* Label for the nationality field on a passport (the country a person is a national of). */
+"Nationality" = "Nationality";
+/* Label for the category of passport (e.g. "Regular/Tourist", "Diplomatic", "Official"). */
+"PassportType" = "Passport type";
+"NationalIdentificationNumber" = "National identification number";
+/* Label for the government authority or office that issued the passport. */
+"IssuingAuthorityOffice" = "Issuing authority/office";
+"AccountDetails" = "Account details";
+"BankName" = "Bank name";
+"NameOnAccount" = "Name on account";
+"AccountType" = "Account type";
+"BranchNumber" = "Branch number";
+"SwiftCode" = "SWIFT code";
+"IBAN" = "IBAN";
+"BankContactPhone" = "Bank contact phone";
+"CertificateOfDeposit" = "Certificate of deposit";
+"Checking" = "Checking";
+"InvestmentBrokerage" = "Investment/brokerage";
+"LineOfCredit" = "Line of credit";
+"MoneyMarket" = "Money market";
+"Savings" = "Savings";

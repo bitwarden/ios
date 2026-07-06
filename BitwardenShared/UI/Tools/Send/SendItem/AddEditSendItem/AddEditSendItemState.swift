@@ -71,7 +71,7 @@ struct AddEditSendItemState: Equatable, Sendable {
     /// A flag indicating if the password is visible.
     var isPasswordVisible = false
 
-    /// Whether the user has a premium account.
+    /// Whether the user has a Premium account.
     var hasPremium = false
 
     /// Whether sends are disabled via a policy.
@@ -126,7 +126,7 @@ struct AddEditSendItemState: Equatable, Sendable {
             .filter { !$0.isEmpty }
     }
 
-    /// The URL to open in Safari (e.g., upgrade to premium page).
+    /// The URL to open in Safari (e.g., upgrade to Premium page).
     var url: URL?
 
     /// The deletion date options available in the menu.

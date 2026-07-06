@@ -827,7 +827,6 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
         let changeKdfService = DefaultChangeKdfService(
             accountAPIService: apiService,
             clientService: clientService,
-            configService: configService,
             errorReporter: errorReporter,
             flightRecorder: flightRecorder,
             stateService: stateService,
@@ -877,6 +876,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
 
         let billingService = DefaultBillingService(
             billingAPIService: apiService,
+            billingStateService: stateService,
             configService: configService,
             environmentService: environmentService,
             errorReporter: errorReporter,
@@ -1276,6 +1276,10 @@ extension ServiceContainer {
     }
 
     var fileAPIService: FileAPIService {
+        apiService
+    }
+
+    var fillAssistAPIService: FillAssistAPIService {
         apiService
     }
 

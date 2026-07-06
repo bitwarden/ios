@@ -6,6 +6,8 @@
 "Bitwarden" = "Bitwarden";
 "Cancel" = "Annuler";
 "Copy" = "Copier";
+"CopyLicenseNumber" = "Copier le numéro de permis de conduire";
+"CopyPassportNumber" = "Copier le numéro de passeport";
 "CopyPassword" = "Copier le mot de passe";
 "CopyUsername" = "Copier le nom d'utilisateur";
 "Delete" = "Supprimer";
@@ -207,6 +209,7 @@
 "TypeIdentity" = "Identité";
 "TypeLicense" = "Permis de conduire";
 "TypeLogin" = "Identifiant";
+"TypePassport" = "Passeport";
 "TypeSecureNote" = "Note sécurisée";
 "Address1" = "Adresse 1";
 "Address2" = "Adresse 2";
@@ -484,7 +487,7 @@
 "LogInAttemptByXOnY" = "Tentative de connexion par %1$@ le %2$@";
 "DeviceType" = "Type d'appareil";
 "IpAddress" = "Adresse IP";
-"Time" = "Heure";
+"Time" = "Temps";
 "ConfirmLogIn" = "Confirmer la connexion";
 "DenyLogIn" = "Refuser la connexion";
 "LogInDenied" = "Connexion refusée";
@@ -555,6 +558,7 @@
 "ThereAreNoCardsInYourVault" = "Il n'y a pas de carte de paiement dans votre coffre";
 "ThereAreNoNotesInYourVault" = "Il n'y a pas de note dans votre coffre";
 "ThereAreNoIdentitiesInYourVault" = "Il n'y a pas d'identité dans votre coffre";
+"ThereAreNoPassportsInYourVault" = "Il n'y a pas de passeport dans votre coffre";
 "ThereAreNoSSHKeysInYourVault" = "Il n'y a pas de clé SSH dans votre coffre";
 "ThereAreNoBankAccountsInYourVault" = "Il n'y a pas de compte bancaire dans votre coffre";
 "US" = "US";
@@ -661,7 +665,7 @@
 "ChooseThreeOrFourRandomWordsDescriptionLong" = "Choisissez trois ou quatre mots aléatoires, sans rapport entre eux, que vous pouvez facilement mémoriser. Pensez à des **objets, des lieux ou des choses** que vous aimez.";
 "CombineThoseWordsTogether" = "Combinez ces mots ensemble";
 "CombineThoseWordsTogetherDescriptionLong" = "Assemblez les mots dans n'importe quel ordre pour former votre phrase secrète. **Utilisez des tirets, des espaces ou laissez-les tels quels pour former un seul mot long**, c'est vous qui choisissez !";
-"MakeItYours" = "Appropriez-vous la";
+"MakeItYours" = "Personnalisez-le";
 "MakeItYoursDescriptionLong" = "**Ajoutez un nombre ou un symbole** pour la rendre encore plus forte. Vous disposez désormais d'une phrase de passe unique, sécurisée et facile à mémoriser !";
 "NeedSomeInspiration?" = "Besoin d'inspiration ?";
 "CheckOutThePassphraseGenerator" = "Découvrez le générateur de phrases de passe";
@@ -829,7 +833,7 @@
 "CheckPasswordForDataBreaches" = "Chercher si ce mot de passe a été retrouvé dans des fuites de données";
 "PrivateNote" = "Note privée";
 "CannotDeleteUserSoleOwnerDescriptionLong" = "Impossible de supprimer cet utilisateur car il est le seul propriétaire d'au moins une organisation. Veuillez supprimer ces organisations ou promouvoir un autre utilisateur.";
-"APasskeyAlreadyExistsForThisApplication" = "Une clé d'accès (passkey) existe déjà pour cette application.";
+"APasskeyAlreadyExistsForThisApplication" = "Une clé d'accès existe déjà pour cette application.";
 "APasskeyAlreadyExistsForThisApplicationButAnErrorOccurredWhileLoadingIt" = "Une clé d'accès existe déjà pour cette application mais une erreur est survenue lors de son chargement.";
 "ItemNameRequired" = "Nom de l'élément (requis)";
 "AutofillOptions" = "Options de saisie automatique";
@@ -991,7 +995,7 @@
 "TheNewRecommendedEncryptionSettingsDescriptionLong" = "Les nouveaux paramètres de chiffrement recommandés amélioreront la sécurité de votre compte. Entrez votre mot de passe principal pour faire la mise à jour maintenant.";
 "Updating" = "Mise à jour…";
 "EncryptionSettingsUpdated" = "Paramètres de chiffrement mis à jour";
-"IntroducingArchive" = "Ajout aux archives";
+"IntroducingArchive" = "Introduction de l'archive";
 "KeepYtemsYouDontNeedRightNowSafeButOutOfSight" = "Gardez les éléments dont vous n'avez pas besoin pour le moment en sécurité mais hors de vue.";
 "GoToArchive" = "Accéder aux archives";
 "ItemTransfer" = "Transfert d'élément";
@@ -1023,10 +1027,8 @@
 "ArchiveEmptyDescriptionLong" = "Remplissez votre archive avec des éléments que vous ne voulez pas voir dans les résultats de recherche et les suggestions de saisie automatique, mais qui pourraient avoir besoin d'un jour.";
 "ArchiveItem" = "Archiver l'élément";
 "OnceArchivedThisItemWillBeExcludedDescriptionLong" = "Une fois archivé, cet élément sera exclu des résultats de recherche et des suggestions de remplissage automatique.";
-"ArchiveUnavailable" = "Archive indisponible";
 "ArchivingItemsIsAPremiumFeatureDescriptionLong" = "L'archivage est une fonctionnalité Premium. Votre abonnement actuel n'inclut pas l'accès à cette fonctionnalité.";
 "AddingAttachmentsIsAPremiumFeatureDescriptionLong" = "L'ajout de pièces jointes est une fonctionnalité Premium. Votre plan actuel n'inclut pas l'accès à cette fonctionnalité.";
-"AttachmentsUnavailable" = "Pièces jointes non disponibles";
 "UpgradeToPremium" = "Passer à la version premium";
 "ThisItemIsArchived" = "Cet élément est archivé.";
 "YourPremiumSubscriptionEnded" = "Votre abonnement Premium a expiré";
@@ -1125,6 +1127,7 @@
 "License" = "Permis de conduire";
 "Licenses" = "Permis";
 "Passport" = "Passeport";
+"Passports" = "Passeports";
 "LicenseDetails" = "Détails du permis";
 "DateOfBirth" = "Date de naissance";
 "IssuingCountry" = "Pays émetteur";
@@ -1133,3 +1136,28 @@
 "IssueDate" = "Date d'émission";
 "ExpirationDate" = "Date d'expiration";
 "LicenseClass" = "Classe de permis";
+"PassportDetails" = "Détails du passeport";
+/* Label for the sex/gender field as printed on a passport (e.g. "M", "F", "X"). */
+"Sex" = "Sexe";
+"BirthPlace" = "Lieu de naissance";
+/* Label for the nationality field on a passport (the country a person is a national of). */
+"Nationality" = "Nationalité";
+/* Label for the category of passport (e.g. "Regular/Tourist", "Diplomatic", "Official"). */
+"PassportType" = "Type de passeport";
+"NationalIdentificationNumber" = "Numéro d'identification national";
+/* Label for the government authority or office that issued the passport. */
+"IssuingAuthorityOffice" = "Autorité émettrice/bureau";
+"AccountDetails" = "Détails du compte";
+"BankName" = "Nom de la banque";
+"NameOnAccount" = "Nom sur le compte";
+"AccountType" = "Type de compte";
+"BranchNumber" = "Numéro de branche";
+"SwiftCode" = "Code SWIFT";
+"IBAN" = "IBAN";
+"BankContactPhone" = "Téléphone du contact de la banque";
+"CertificateOfDeposit" = "Compte à terme";
+"Checking" = "Compte courant";
+"InvestmentBrokerage" = "Compte titres";
+"LineOfCredit" = "Ligne de crédit";
+"MoneyMarket" = "Compte du marché monétaire";
+"Savings" = "Compte épargne";

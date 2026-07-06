@@ -41,7 +41,7 @@ public struct VaultListItem: Equatable, Identifiable, Sendable, VaultItemWithDec
     /// The identifier for the item.
     public let id: String
 
-    /// Whether the user has premium subscription.
+    /// Whether the user has Premium subscription.
     /// This is only used on Archive group for now, so it's not being set for any other occasions.
     public let hasPremium: Bool
 
@@ -288,7 +288,7 @@ extension VaultListItem {
 
     // MARK: Private methods
 
-    /// Whether premium subscription is required
+    /// Whether Premium subscription is required
     /// - Parameters:
     ///   - group: The vault list group to check.
     ///   - count: The count of the group to check.

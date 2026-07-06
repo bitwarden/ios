@@ -26,6 +26,7 @@ class AddEditItemProcessorFido2Tests: BitwardenTestCase {
     var fido2UserInterfaceHelper: MockFido2UserInterfaceHelper!
     var pasteboardService: MockPasteboardService!
     var policyService: MockPolicyService!
+    var reviewPromptService: MockReviewPromptService!
     var stateService: MockStateService!
     var totpService: MockTOTPService!
     var subject: AddEditItemProcessor!
@@ -47,6 +48,7 @@ class AddEditItemProcessorFido2Tests: BitwardenTestCase {
         fido2UserInterfaceHelper = MockFido2UserInterfaceHelper()
         pasteboardService = MockPasteboardService()
         policyService = MockPolicyService()
+        reviewPromptService = MockReviewPromptService()
         stateService = MockStateService()
         totpService = MockTOTPService()
         vaultItemActionHelper = MockVaultItemActionHelper()
@@ -64,6 +66,7 @@ class AddEditItemProcessorFido2Tests: BitwardenTestCase {
                 httpClient: client,
                 pasteboardService: pasteboardService,
                 policyService: policyService,
+                reviewPromptService: reviewPromptService,
                 stateService: stateService,
                 totpService: totpService,
                 vaultRepository: vaultRepository,
@@ -91,6 +94,7 @@ class AddEditItemProcessorFido2Tests: BitwardenTestCase {
         coordinator = nil
         errorReporter = nil
         pasteboardService = nil
+        reviewPromptService = nil
         stateService = nil
         subject = nil
         totpService = nil
@@ -213,4 +217,46 @@ class AddEditItemProcessorFido2Tests: BitwardenTestCase {
         XCTAssertTrue(vaultRepository.addCipherCiphers.isEmpty)
         XCTAssertEqual(errorReporter.errors.first as? BitwardenTestError, .example)
     }
+
+    /// `perform(_:)` with `.savePressed` in the save-password-credential extension flow adds
+    /// the cipher and completes the save password request without navigating away.
+    @MainActor
+    func test_perform_savePressed_savePasswordCredential() async {
+        subject.state.name = "example.com"
+        subject.state.loginState.username = "user@example.com"
+        subject.state.loginState.password = "s3cr3t"
+        appExtensionDelegate.extensionMode = .savePasswordCredential(
+            MockSavePasswordRequestProxy(),
+            userInteraction: true,
+        )
+
+        await subject.perform(.savePressed)
+
+        XCTAssertFalse(vaultRepository.addCipherCiphers.isEmpty)
+        XCTAssertTrue(appExtensionDelegate.completeSavePasswordRequestCalled)
+        XCTAssertTrue(coordinator.routes.isEmpty)
+        XCTAssertTrue(reviewPromptService.userActions.isEmpty)
+    }
+
+    /// `perform(_:)` with `.savePressed` in the save-password-credential flow shows an error alert
+    /// and stays on screen when the vault save fails.
+    @MainActor
+    func test_perform_savePressed_savePasswordCredential_saveError() async {
+        subject.state.name = "example.com"
+        appExtensionDelegate.extensionMode = .savePasswordCredential(
+            MockSavePasswordRequestProxy(),
+            userInteraction: true,
+        )
+        vaultRepository.addCipherResult = .failure(BitwardenTestError.example)
+
+        await subject.perform(.savePressed)
+
+        XCTAssertFalse(appExtensionDelegate.completeSavePasswordRequestCalled)
+        XCTAssertEqual(coordinator.errorAlertsShown.last as? BitwardenTestError, .example)
+        XCTAssertTrue(coordinator.routes.isEmpty)
+    }
 }
+
+// MARK: - MockSavePasswordRequestProxy
+
+private class MockSavePasswordRequestProxy: SavePasswordRequestProxy {}

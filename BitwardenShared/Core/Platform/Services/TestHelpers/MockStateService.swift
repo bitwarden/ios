@@ -30,12 +30,15 @@ class MockStateService: StateService, ActiveAccountStateProvider, AutofillStateS
     var archiveOnboardingShown = false
     var premiumUpgradeBannerDismissedByUserId = [String: Bool]()
     var premiumUpgradeBannerDismissedResult: Result<Void, Error> = .success(())
-    var upgradedToPremiumActionCardVisibleResult: Bool = false
+    var setSubscriptionAttentionCardResult: Result<Void, Error> = .success(())
     var setUpgradedToPremiumActionCardResult: Result<Void, Error> = .success(())
+    var subscriptionAttentionCardVisibleResult: Bool = false
+    var upgradedToPremiumActionCardVisibleResult: Bool = false
     var biometricsEnabled = [String: Bool]()
     var capturedUserId: String?
     var clearClipboardValues = [String: ClearClipboardValue]()
     var clearClipboardResult: Result<Void, Error> = .success(())
+    var collapsedVaultListSectionIds = [String: [String]]()
     var connectToWatchByUserId = [String: Bool]()
     var connectToWatchResult: Result<Void, Error> = .success(())
     var connectToWatchSubject = CurrentValueSubject<(String?, Bool), Never>((nil, false))
@@ -270,6 +273,11 @@ class MockStateService: StateService, ActiveAccountStateProvider, AutofillStateS
         return clearClipboardValues[userId] ?? .never
     }
 
+    func getCollapsedVaultListSectionIds(userId: String?) async throws -> [String] {
+        let userId = try unwrapUserId(userId)
+        return collapsedVaultListSectionIds[userId] ?? []
+    }
+
     func getConnectToWatch(userId: String?) async throws -> Bool {
         try connectToWatchResult.get()
         let userId = try unwrapUserId(userId)
@@ -428,6 +436,10 @@ class MockStateService: StateService, ActiveAccountStateProvider, AutofillStateS
 
     func getTwoFactorToken(email: String) async -> String? {
         twoFactorTokens[email]
+    }
+
+    func getSubscriptionAttentionCardVisible() async -> Bool {
+        subscriptionAttentionCardVisibleResult
     }
 
     func getUpgradedToPremiumActionCardVisible() async -> Bool {
@@ -593,6 +605,11 @@ class MockStateService: StateService, ActiveAccountStateProvider, AutofillStateS
         premiumUpgradeBannerDismissedByUserId[userId] = dismissed
     }
 
+    func setSubscriptionAttentionCardVisible(_ visible: Bool) async throws {
+        try setSubscriptionAttentionCardResult.get()
+        subscriptionAttentionCardVisibleResult = visible
+    }
+
     func setUpgradedToPremiumActionCardVisible(_ visible: Bool) async throws {
         try setUpgradedToPremiumActionCardResult.get()
         upgradedToPremiumActionCardVisibleResult = visible
@@ -602,6 +619,11 @@ class MockStateService: StateService, ActiveAccountStateProvider, AutofillStateS
         try clearClipboardResult.get()
         let userId = try unwrapUserId(userId)
         clearClipboardValues[userId] = clearClipboardValue
+    }
+
+    func setCollapsedVaultListSectionIds(_ ids: [String], userId: String?) async throws {
+        let userId = try unwrapUserId(userId)
+        collapsedVaultListSectionIds[userId] = ids
     }
 
     func setConnectToWatch(_ connectToWatch: Bool, userId: String?) async throws {

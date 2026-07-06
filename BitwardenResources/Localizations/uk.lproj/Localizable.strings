@@ -6,6 +6,8 @@
 "Bitwarden" = "Bitwarden";
 "Cancel" = "Скасувати";
 "Copy" = "Копіювати";
+"CopyLicenseNumber" = "Копіювати номер ліцензії";
+"CopyPassportNumber" = "Копіювати номер паспорта";
 "CopyPassword" = "Копіювати пароль";
 "CopyUsername" = "Копіювати ім'я користувача";
 "Delete" = "Видалити";
@@ -207,6 +209,7 @@
 "TypeIdentity" = "Посвідчення";
 "TypeLicense" = "License";
 "TypeLogin" = "Вхід";
+"TypePassport" = "Passport";
 "TypeSecureNote" = "Захищена нотатка";
 "Address1" = "Адреса 1";
 "Address2" = "Адреса 2";
@@ -555,6 +558,7 @@
 "ThereAreNoCardsInYourVault" = "У вашому сховищі немає карток";
 "ThereAreNoNotesInYourVault" = "У вашому сховищі немає нотаток";
 "ThereAreNoIdentitiesInYourVault" = "У вашому сховищі немає посвідчень";
+"ThereAreNoPassportsInYourVault" = "There are no passports in your vault";
 "ThereAreNoSSHKeysInYourVault" = "У вашому сховищі немає ключів SSH";
 "ThereAreNoBankAccountsInYourVault" = "There are no bank accounts in your vault";
 "US" = "США";
@@ -1023,10 +1027,8 @@
 "ArchiveEmptyDescriptionLong" = "Заповніть архів записами, які ви не хочете бачити в результатах пошуку і пропозиціях автозаповнення, але які можуть колись знадобитися.";
 "ArchiveItem" = "Архівувати запис";
 "OnceArchivedThisItemWillBeExcludedDescriptionLong" = "Після архівації цей запис буде виключено з результатів пошуку і пропозицій автозаповнення.";
-"ArchiveUnavailable" = "Архів недоступний";
 "ArchivingItemsIsAPremiumFeatureDescriptionLong" = "Архівування записів є функцією Premium. Ваш поточний тарифний план не передбачає доступ до цієї функції.";
 "AddingAttachmentsIsAPremiumFeatureDescriptionLong" = "Adding attachments is a Premium feature. Your current plan does not include access to this feature.";
-"AttachmentsUnavailable" = "Вкладення недоступні";
 "UpgradeToPremium" = "Покращити до Premium";
 "ThisItemIsArchived" = "Цей запис архівовано.";
 "YourPremiumSubscriptionEnded" = "Ваша передплата Premium завершилася";
@@ -1058,23 +1060,23 @@
 "RemoveCertificate" = "Вилучити сертифікат";
 "ReplaceCertificate" = "Замінити сертифікат";
 "ReplaceExistingCertificate" = "Замінити наявний сертифікат";
-"UnableToReadCertificateFile" = "Не вдалося прочитати файл сертифікату.";
+"UnableToReadCertificateFile" = "Не вдалося прочитати файл сертифіката.";
 "SsoCookiesCleared" = "SSO cookies очищено";
 "YourRequestWasInterruptedBecauseTheAppNeededToReAuthenticatePleaseTryAgain" = "Ваш запит перервано, оскільки програма потребувала повторної автентифікації. Повторіть спробу.";
 "AutofillWithBitwardenDescriptionLong" = "Bitwarden може пропонувати ваші паролі та інші облікові дані під час входу в програмах і на вебсайтах.";
 "LearnMoreAboutAutofill" = "Докладніше про автозаповнення";
 "TurnOnNow" = "Увімкнути";
 "AcceptTransfer" = "Схвалити переміщення";
-"YourPasswordAndHintCannotBeTheSamePleaseChooseADifferentHint" = "Ваш пароль та підказка не можуть бути однаковими. Оберіть іншу підказку.";
+"YourPasswordAndHintCannotBeTheSamePleaseChooseADifferentHint" = "Підказка повинна відрізнятися від пароля. Оберіть іншу підказку.";
 "Plan" = "План";
 "Premium" = "Premium";
 "Active" = "Активний";
-"Canceled" = "Скасований";
+"Canceled" = "Скасовано";
 "PastDue" = "Протерміновано";
 "PendingCancellation" = "Pending cancellation";
 "UpdatePayment" = "Оновити платіж";
-"BillingAmount" = "Сума для оплати";
-"StorageCost" = "Вартість зберігання";
+"BillingAmount" = "Сума до сплати";
+"StorageCost" = "Вартість сховища";
 "Discount" = "Знижка";
 "EstimatedTax" = "Estimated tax";
 "Total" = "Total";
@@ -1092,7 +1094,7 @@
 "NegativeX" = "-%1$@";
 "UnknownStatus" = "Unknown";
 "YourSubscriptionStatusIsUnknownVisitTheWebAppDescriptionLong" = "Your subscription status could not be determined. Please visit the web app for more details or update to the latest version.";
-"AtTheMomentPremiumPlanIsNotAvailableDescriptionLong" = "At the moment premium plan is not available, please try again later.";
+"AtTheMomentPremiumPlanIsNotAvailableDescriptionLong" = "At the moment Premium plan is not available, please try again later.";
 "UnlockMoreAdvancedFeaturesWithPremiumPlan" = "Розблокувати розширені функції з планом Premium.";
 "BuiltInAuthenticator" = "Вбудований автентифікатор";
 "EmergencyAccess" = "Екстрений доступ";
@@ -1117,7 +1119,7 @@
 "UserID" = "ID користувача";
 "CopyUserID" = "Копіювати ID користувача";
 "UserIDUnavailable" = "ID користувача недоступний";
-"ToManageYourPremiumSubscriptionDescriptionLong" = "Для керувати вашою передплатою Premium, увійдіть у своє сховище на комп'ютері.";
+"ToManageYourPremiumSubscriptionDescriptionLong" = "Щоб керувати передплатою Premium, увійдіть до свого вебсховища на комп'ютері.";
 "CheckYourConnectionAndTryAgain" = "Check your connection and try again.";
 "PricingUnavailable" = "Ціни недоступні";
 "BankAccount" = "Bank account";
@@ -1125,6 +1127,7 @@
 "License" = "License";
 "Licenses" = "Licenses";
 "Passport" = "Passport";
+"Passports" = "Passports";
 "LicenseDetails" = "License details";
 "DateOfBirth" = "Date of birth";
 "IssuingCountry" = "Issuing country";
@@ -1133,3 +1136,28 @@
 "IssueDate" = "Issue date";
 "ExpirationDate" = "Expiration date";
 "LicenseClass" = "License class";
+"PassportDetails" = "Passport details";
+/* Label for the sex/gender field as printed on a passport (e.g. "M", "F", "X"). */
+"Sex" = "Sex";
+"BirthPlace" = "Birth place";
+/* Label for the nationality field on a passport (the country a person is a national of). */
+"Nationality" = "Nationality";
+/* Label for the category of passport (e.g. "Regular/Tourist", "Diplomatic", "Official"). */
+"PassportType" = "Passport type";
+"NationalIdentificationNumber" = "National identification number";
+/* Label for the government authority or office that issued the passport. */
+"IssuingAuthorityOffice" = "Issuing authority/office";
+"AccountDetails" = "Account details";
+"BankName" = "Bank name";
+"NameOnAccount" = "Name on account";
+"AccountType" = "Account type";
+"BranchNumber" = "Branch number";
+"SwiftCode" = "SWIFT code";
+"IBAN" = "IBAN";
+"BankContactPhone" = "Bank contact phone";
+"CertificateOfDeposit" = "Certificate of deposit";
+"Checking" = "Checking";
+"InvestmentBrokerage" = "Investment/brokerage";
+"LineOfCredit" = "Line of credit";
+"MoneyMarket" = "Money market";
+"Savings" = "Savings";

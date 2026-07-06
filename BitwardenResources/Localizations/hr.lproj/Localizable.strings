@@ -6,6 +6,8 @@
 "Bitwarden" = "Bitwarden";
 "Cancel" = "Odustani";
 "Copy" = "Kopiraj";
+"CopyLicenseNumber" = "Kopiraj broj osobne";
+"CopyPassportNumber" = "Kopiraj broj putovnice";
 "CopyPassword" = "Kopiraj lozinku";
 "CopyUsername" = "Kopiraj korisničko ime";
 "Delete" = "Izbriši";
@@ -126,7 +128,7 @@
 "ItemUpdated" = "Stavka spremljena";
 "Submitting" = "Slanje…";
 "Syncing" = "Sinkronizacija…";
-"SyncingLogins" = "Sinkronizacija prijava…";
+"SyncingLogins" = "Sinkronizacija prijava...";
 "SyncingComplete" = "Sinkronizacija dovršena.";
 "TouchID" = "Touch ID";
 "TwoStepLogin" = "Prijava dvostrukom autentifikacijom";
@@ -175,7 +177,7 @@
 "CopyTotp" = "Kopiraj TOTP";
 "CopyTotpAutomaticallyDescription" = "Ako za prijavu postoji ključ autentifikatora, kopiraj TOTP kôd za provjeru u međuspremnik nakon auto-ispune prijave.";
 "CopyTotpAutomatically" = "Automatski kopiraj TOTP";
-"PremiumRequired" = "Za korištenje ove značajke potrebno je premium članstvo.";
+"PremiumRequired" = "Za korištenje ove značajke potrebna je premium pretplata.";
 "AttachementAdded" = "Privitak dodan";
 "AttachmentDeleted" = "Privitak izbrisan";
 "ChooseFile" = "Odaberi datoteku";
@@ -207,6 +209,7 @@
 "TypeIdentity" = "Identitet";
 "TypeLicense" = "Dozvola";
 "TypeLogin" = "Prijava";
+"TypePassport" = "Putovnica";
 "TypeSecureNote" = "Sigurna bilješka";
 "Address1" = "Adresa 1";
 "Address2" = "Adresa 2";
@@ -555,6 +558,7 @@
 "ThereAreNoCardsInYourVault" = "U tvom trezoru nema kartica";
 "ThereAreNoNotesInYourVault" = "U tvom trezoru nema bilješki";
 "ThereAreNoIdentitiesInYourVault" = "U tvom trezoru nema identiteta";
+"ThereAreNoPassportsInYourVault" = "There are no passports in your vault";
 "ThereAreNoSSHKeysInYourVault" = "U tvom trezoru nema SSH ključeva";
 "ThereAreNoBankAccountsInYourVault" = "There are no bank accounts in your vault";
 "US" = "SAD";
@@ -804,7 +808,7 @@
 "YouMayNeedToEnableDevicePasscodeOrBiometrics" = "Možda ćeš trebati omogućiti lozinku uređaja ili biometriju.";
 "StartImportCXFDescriptionLong" = "Uvezi lozinke, pristupne ključeve, kreditne kartice i sve podatke o osobnom identitetu iz drugog upravitelja zaporki.\n\nTvoji podaci **neće** biti izbrisani kod tvog prethodnog pružatelja usluga.";
 "ImportPasswords" = "Uvezi lozinke";
-"ImportingEllipsis" = "Uvoz…";
+"ImportingEllipsis" = "Uvoz...";
 "AreYouSureYouWantToCancelTheImportProcessQuestionMark" = "Sigurno želiš prekinuti proces uvoza?";
 "ImportFailed" = "Uvoz nije uspio!";
 "ThereWasAnIssueImportingAllOfYourPasswordsNoDataWasDeleted" = "Došlo je do problema s uvozom svih tvojih lozinki.\n\nNijedan podatak nije izbrisan.";
@@ -989,7 +993,7 @@
 "DefaultX" = "Zadano (%1$@)";
 "UpdateYourEncryptionSettings" = "Ažuriraj svoje postakve šifriranja";
 "TheNewRecommendedEncryptionSettingsDescriptionLong" = "Nove preporučene postavke šifriranja poboljšat će sigurnost tvojeg računa. Za ažuriranje, unesi svoju glavnu lozinku.";
-"Updating" = "Ažuriranje…";
+"Updating" = "Ažuriranje...";
 "EncryptionSettingsUpdated" = "Postavke šifriranje su ažurirane";
 "IntroducingArchive" = "Predstavljamo Arhivu";
 "KeepYtemsYouDontNeedRightNowSafeButOutOfSight" = "Čuvaj stavke koje ti trenutno ne trebaju sigurne, ali izvan vidokruga.";
@@ -1023,10 +1027,8 @@
 "ArchiveEmptyDescriptionLong" = "Ispuni svoju arhivu stavkama koje ne želiš vidjeti u rezultatima pretraživanja i prijedlozima auto-ispune, ali bi ti jednog dana ipak mogle zatrebati.";
 "ArchiveItem" = "Arhiviraj stavki";
 "OnceArchivedThisItemWillBeExcludedDescriptionLong" = "Nakon arhiviranja, stavka će biti izuzeta iz rezultata pretrage i prijedloga auto-ispune.";
-"ArchiveUnavailable" = "Arhiva nedostupna";
 "ArchivingItemsIsAPremiumFeatureDescriptionLong" = "Arhiviranje je Premium značajka. Tvoj trenutni paket ne uključuje pristup ovoj značajki.";
 "AddingAttachmentsIsAPremiumFeatureDescriptionLong" = "Adding attachments is a Premium feature. Your current plan does not include access to this feature.";
-"AttachmentsUnavailable" = "Privici nisu dostupni";
 "UpgradeToPremium" = "Nadogradnja na premium";
 "ThisItemIsArchived" = "Ova stavka je arhivirana.";
 "YourPremiumSubscriptionEnded" = "Toja Premium pretplata je završila";
@@ -1125,6 +1127,7 @@
 "License" = "Dozvola";
 "Licenses" = "Osobne";
 "Passport" = "Putovnica";
+"Passports" = "Putovnice";
 "LicenseDetails" = "Detalji dozvole";
 "DateOfBirth" = "Datum rođenja";
 "IssuingCountry" = "Država izdavanja";
@@ -1133,3 +1136,28 @@
 "IssueDate" = "Datum izdavanja";
 "ExpirationDate" = "Datum isteka";
 "LicenseClass" = "Vrsta dozvole";
+"PassportDetails" = "Detalji putovnice";
+/* Label for the sex/gender field as printed on a passport (e.g. "M", "F", "X"). */
+"Sex" = "Spol";
+"BirthPlace" = "Mjesto rođenja";
+/* Label for the nationality field on a passport (the country a person is a national of). */
+"Nationality" = "Državljanstvo";
+/* Label for the category of passport (e.g. "Regular/Tourist", "Diplomatic", "Official"). */
+"PassportType" = "Vrsta putovnice";
+"NationalIdentificationNumber" = "OIB";
+/* Label for the government authority or office that issued the passport. */
+"IssuingAuthorityOffice" = "Issuing authority/office";
+"AccountDetails" = "Detalji računa";
+"BankName" = "Naziv banke";
+"NameOnAccount" = "Nositelj računa";
+"AccountType" = "Vrsta računa";
+"BranchNumber" = "Broj podružnice";
+"SwiftCode" = "SWIFT";
+"IBAN" = "IBAN";
+"BankContactPhone" = "Telefonski broj banke";
+"CertificateOfDeposit" = "Potvrda depozita";
+"Checking" = "Tekući račun";
+"InvestmentBrokerage" = "Investicijski/brokerski";
+"LineOfCredit" = "Kreditna linija";
+"MoneyMarket" = "Tržište novca";
+"Savings" = "Štedni račun";

@@ -3,6 +3,7 @@ import AuthenticatorBridgeKitMocks
 import BitwardenKit
 import BitwardenKitMocks
 import BitwardenSdk
+import BitwardenSdkMocks
 import Networking
 import TestHelpers
 
@@ -62,7 +63,7 @@ extension ServiceContainer {
         searchProcessorMediatorFactory: SearchProcessorMediatorFactory? = nil,
         sendRepository: SendRepository = MockSendRepository(),
         // swiftlint:disable:next line_length
-        serverCommunicationConfigAPIService: ServerCommunicationConfigAPIService = MockServerCommunicationConfigAPIService(),
+        serverCommunicationConfigAPIService: ServerCommunicationConfigAPIService = MockServerCommunicationConfigAPIService.withDefaults(),
         // swiftlint:disable:next line_length
         serverCommunicationConfigClientSingleton: ServerCommunicationConfigClientSingleton = MockServerCommunicationConfigClientSingleton(),
         settingsRepository: SettingsRepository = MockSettingsRepository(),

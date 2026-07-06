@@ -7,8 +7,8 @@ import Foundation
 /// Errors thrown by `TwoFactorAuthProcessor`.
 ///
 enum TwoFactorAuthError: Error {
-    /// The organization's identifier is missing, but required for Key Connector unlock.
-    case missingOrgIdentifier
+    /// The key connector wrapped user key is missing, but required for Key Connector unlock.
+    case missingKeyConnectorKey
 }
 
 // MARK: - TwoFactorAuthProcessor
@@ -245,13 +245,13 @@ final class TwoFactorAuthProcessor: StateProcessor<TwoFactorAuthState, TwoFactor
                     ),
                 )
                 coordinator.navigate(to: .dismiss)
-            case let .keyConnector(keyConnectorUrl):
-                guard let orgIdentifier = state.orgIdentifier else {
-                    throw TwoFactorAuthError.missingOrgIdentifier
+            case let .keyConnector(keyConnectorKeyWrappedUserKey, keyConnectorUrl):
+                guard let keyConnectorKeyWrappedUserKey else {
+                    throw TwoFactorAuthError.missingKeyConnectorKey
                 }
                 try await services.authRepository.unlockVaultWithKeyConnectorKey(
+                    keyConnectorKeyWrappedUserKey: keyConnectorKeyWrappedUserKey,
                     keyConnectorURL: keyConnectorUrl,
-                    orgIdentifier: orgIdentifier,
                 )
                 await coordinator.handleEvent(.didCompleteAuth)
             }

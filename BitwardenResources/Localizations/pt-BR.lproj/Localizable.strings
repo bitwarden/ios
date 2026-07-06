@@ -1,11 +1,13 @@
 "About" = "Sobre";
 "Add" = "Adicionar";
-"AddFolder" = "Adicionar Pasta";
+"AddFolder" = "Adicionar pasta";
 "AnErrorHasOccurred" = "Ocorreu um erro.";
 "Back" = "Voltar";
 "Bitwarden" = "Bitwarden";
 "Cancel" = "Cancelar";
 "Copy" = "Copiar";
+"CopyLicenseNumber" = "Copiar número da licença";
+"CopyPassportNumber" = "Copiar número do passaporte";
 "CopyPassword" = "Copiar senha";
 "CopyUsername" = "Copiar nome de usuário";
 "Delete" = "Apagar";
@@ -175,7 +177,7 @@
 "CopyTotp" = "Copiar TOTP";
 "CopyTotpAutomaticallyDescription" = "Se uma credencial tiver uma chave de autenticador, copie o código de verificação TOTP para sua área de transferência ao preenchê-la.";
 "CopyTotpAutomatically" = "Copiar TOTP automaticamente";
-"PremiumRequired" = "Uma assinatura Premium é necessária para usar esse recurso.";
+"PremiumRequired" = "Uma conta premium é necessária para usar esse recurso.";
 "AttachementAdded" = "Anexo adicionado";
 "AttachmentDeleted" = "Anexo apagado";
 "ChooseFile" = "Escolher arquivo";
@@ -207,6 +209,7 @@
 "TypeIdentity" = "Identidade";
 "TypeLicense" = "Carteira de habilitação";
 "TypeLogin" = "Credencial";
+"TypePassport" = "Passaporte";
 "TypeSecureNote" = "Anotação segura";
 "Address1" = "Endereço 1";
 "Address2" = "Endereço 2";
@@ -388,7 +391,7 @@
 "MasterPasswordPolicyValidationTitle" = "Senha inválida";
 "MasterPasswordPolicyValidationMessage" = "A senha não atende aos requisitos da organização. Confira as informações da política e tente novamente.";
 "Loading" = "Carregando";
-"LoadingSubscription" = "Carregando assinatura…";
+"LoadingSubscription" = "Carregando assinatura...";
 "AcceptPoliciesError" = "Os Termos de Serviço e a Política de Privacidade não foram reconhecidos.";
 "PrivacyPolicy" = "Política de Privacidade";
 "PersonalOwnershipPolicyInEffect" = "Uma política de organização está afetando suas opções de propriedade.";
@@ -419,7 +422,7 @@
 "AboutSend" = "Sobre o Send";
 "HideEmail" = "Ocultar meu endereço de e-mail dos destinatários";
 "SendOptionsPolicyInEffect" = "Uma ou mais políticas da organização estão afetando as suas opções de Send.";
-"SendFilePremiumRequired" = "Contas gratuitas são limitadas para compartilhar apenas texto. É necessário um plano Premium para usar arquivos com o Send.";
+"SendFilePremiumRequired" = "Contas gratuitas só podem compartilhar texto. É necessário um plano Premium para usar arquivos com o Send.";
 "SendFileEmailVerificationRequired" = "Você precisa verificar o seu e-mail para usar arquivos com o Send. Você pode verificar seu e-mail no cofre web.";
 "PasswordPrompt" = "Resolicitar senha principal";
 "PasswordConfirmation" = "Confirmação de senha principal";
@@ -555,8 +558,9 @@
 "ThereAreNoCardsInYourVault" = "Não há cartões no seu cofre";
 "ThereAreNoNotesInYourVault" = "Não há anotações no seu cofre";
 "ThereAreNoIdentitiesInYourVault" = "Não há identidades no seu cofre";
+"ThereAreNoPassportsInYourVault" = "Não há passaportes no seu cofre";
 "ThereAreNoSSHKeysInYourVault" = "Não há chaves SSH no seu cofre";
-"ThereAreNoBankAccountsInYourVault" = "There are no bank accounts in your vault";
+"ThereAreNoBankAccountsInYourVault" = "Não há contas de banco no seu cofre";
 "US" = "EUA";
 "EU" = "União Europeia";
 "SelfHosted" = "Auto-hospedado";
@@ -717,8 +721,8 @@
 "AddLogin" = "Adicionar credencial";
 "AddCard" = "Adicionar cartão";
 "AddIdentity" = "Adicionar identidade";
-"AddNote" = "Adicionar nota";
-"AddSSHKey" = "Adicionar Chave SSH";
+"AddNote" = "Adicionar anotação";
+"AddSSHKey" = "Adicionar chave SSH";
 "AddBankAccount" = "Adicionar conta bancária";
 "AddLicense" = "Adicionar licença";
 "AddPassport" = "Adicionar passaporte";
@@ -790,7 +794,7 @@
 "UnableToMoveTheSelectedItemPleaseTryAgain" = "Não é possível mover o item selecionado. Tente novamente.";
 "Done" = "Pronto";
 "Next" = "Avançar";
-"NextCode" = "Next code";
+"NextCode" = "Próximo código";
 "CopyPublicKey" = "Copiar chave pública";
 "CopyPrivateKey" = "Copiar chave privada";
 "CopyFingerprint" = "Copiar impressão digital";
@@ -837,7 +841,7 @@
 "AddWebsite" = "Adicionar site";
 "CannotDeleteAccount" = "Não é possível apagar a conta";
 "CannotDeleteAccountDescriptionLong" = "Esta ação não pode ser concluída porque sua conta pertence a uma organização. Entre em contato com o administrador da sua organização para obter mais detalhes.";
-"AddItem" = "Adicionar Item";
+"AddItem" = "Adicionar item";
 "SetUpAuthenticatorKey" = "Configurar chave de autenticador";
 "ItemDetails" = "Detalhes do item";
 "CardDetails" = "Detalhes do cartão";
@@ -950,7 +954,7 @@
 "SaveToBitwarden" = "Salvar no Bitwarden";
 "ScanCard" = "Ler cartão";
 "PositionYourCardInTheFrameToScanIt" = "Posicione seu cartão na caixa para digitalizá-lo";
-"EnableCameraPermissionInSettingsToScanYourCard" = "Enable camera access in Settings to scan your card.";
+"EnableCameraPermissionInSettingsToScanYourCard" = "Ative o acesso à câmera nas Configurações para ler seu cartão.";
 "ScanComplete" = "Busca concluída";
 "ScanTheQRCodeInYourSettings" = "Escaneie o código QR nas configurações de verificação em duas etapas de qualquer conta.";
 "SecureYourAssetsWithBitwardenAuthenticator" = "Proteja suas contas com o Bitwarden Authenticator";
@@ -1023,11 +1027,9 @@
 "ArchiveEmptyDescriptionLong" = "Encha seu arquivo com itens que não deseja ver nos resultados de busca ou sugestões de preenchimento, mas que possa precisar algum dia.";
 "ArchiveItem" = "Arquivar item";
 "OnceArchivedThisItemWillBeExcludedDescriptionLong" = "Ao arquivar, o item será excluído dos resultados de busca e das sugestões de preenchimento automático.";
-"ArchiveUnavailable" = "Arquivo indisponível";
 "ArchivingItemsIsAPremiumFeatureDescriptionLong" = "O arquivamento de itens é um recurso do Premium. O seu plano atual não inclui o acesso a este recurso.";
-"AddingAttachmentsIsAPremiumFeatureDescriptionLong" = "Adding attachments is a Premium feature. Your current plan does not include access to this feature.";
-"AttachmentsUnavailable" = "Anexos indisponíveis";
-"UpgradeToPremium" = "Fazer upgrade ao Premium";
+"AddingAttachmentsIsAPremiumFeatureDescriptionLong" = "A adição de anexos é um recurso Premium. O seu plano atual não inclui acesso a este recurso.";
+"UpgradeToPremium" = "Fazer upgrade para o Premium";
 "ThisItemIsArchived" = "Este item está arquivado.";
 "YourPremiumSubscriptionEnded" = "Sua assinatura Premium terminou";
 "YourPremiumSubscriptionEndedArchiveDescriptionLong" = "Para recuperar o seu acesso ao seu arquivo, retoma sua assinatura Premium. Se editar detalhes de um item arquivado antes de retomar, ele será movido de volta para o seu cofre.";
@@ -1083,9 +1085,9 @@
 "ExternalLink" = "Link externo";
 "YourNextChargeIsForXDueOnY" = "Sua próxima cobrança é de **%1$@**, para até **%2$@**.";
 "WeCouldNotProcessYourPaymentUpdateYourPaymentMethodDescriptionLong" = "Não foi possível processar seu pagamento. Atualize o seu método de pagamento antes que sua assinatura expire em **%1$@**.";
-"YourSubscriptionWasCanceledOnXDescriptionLong" = "Your subscription was canceled on **%1$@**. Resubscribe to continue using Premium features.";
-"YourSubscriptionExpiredOnXDescriptionLong" = "Your subscription expired on **%1$@**. Resubscribe to continue using Premium features.";
-"YourSubscriptionIsScheduledToCancelOnXDescriptionLong" = "Your subscription is scheduled to cancel on **%1$@**. You can reinstate it anytime before then.";
+"YourSubscriptionWasCanceledOnXDescriptionLong" = "Sua assinatura foi cancelada em **%1$@**. Reinscreva-se para continuar usando os recursos do Premium.";
+"YourSubscriptionExpiredOnXDescriptionLong" = "Sua assinatura expirou em **%1$@**. Reinscreva-se para continuar usando os recursos do Premium.";
+"YourSubscriptionIsScheduledToCancelOnXDescriptionLong" = "Sua assinatura está agendada para ser cancelada em **%1$@**. Você pode restabelecê-la a qualquer momento antes disso.";
 "PerMonth" = "/ mês";
 "PerYear" = "/ ano";
 "XAmountPerCadence" = "%1$@ %2$@";
@@ -1111,8 +1113,8 @@
 "YouNowHaveAccessToAdvancedSecurityDescriptionLong" = "Agora você tem acesso a todos os recursos avançados de segurança. Saiba mais sobre o que está incluso com o Premium.";
 "YouNowHaveAccessToAllAdvancedSecurityFeatures" = "Agora você tem acesso a todos os recursos avançados de segurança.";
 "YoullGoToStripeSecureCheckoutToCompleteYourPurchase" = "Você irá ao pagamento seguro do Stripe para concluir sua compra.";
-"ContinueToStripe" = "Continue to Stripe?";
-"YoullBeTakenToStripeToManageYourSubscriptionCancellation" = "You'll be taken to Stripe to manage your subscription cancellation.";
+"ContinueToStripe" = "Continuar para o Stripe?";
+"YoullBeTakenToStripeToManageYourSubscriptionCancellation" = "Você será levado para o Stripe para gerenciar o cancelamento de sua assinatura.";
 "UserIDCopiedToTheClipboard" = "ID de usuário copiado para área de transferência";
 "UserID" = "ID do usuário";
 "CopyUserID" = "Copiar ID do usuário";
@@ -1125,6 +1127,7 @@
 "License" = "Carteira de habilitação";
 "Licenses" = "Carteiras de habilitação";
 "Passport" = "Passaporte";
+"Passports" = "Passaportes";
 "LicenseDetails" = "Detalhes da habilitação";
 "DateOfBirth" = "Data de nascimento";
 "IssuingCountry" = "País de emissão";
@@ -1133,3 +1136,28 @@
 "IssueDate" = "Data de emissão";
 "ExpirationDate" = "Data de validade";
 "LicenseClass" = "Classe da carteira de habilitação";
+"PassportDetails" = "Detalhes do passaporte";
+/* Label for the sex/gender field as printed on a passport (e.g. "M", "F", "X"). */
+"Sex" = "Sexo";
+"BirthPlace" = "Local de nascimento";
+/* Label for the nationality field on a passport (the country a person is a national of). */
+"Nationality" = "Nacionalidade";
+/* Label for the category of passport (e.g. "Regular/Tourist", "Diplomatic", "Official"). */
+"PassportType" = "Tipo do passaporte";
+"NationalIdentificationNumber" = "Número da carteira de identidade nacional";
+/* Label for the government authority or office that issued the passport. */
+"IssuingAuthorityOffice" = "Autoridade de emissão";
+"AccountDetails" = "Detalhes da conta";
+"BankName" = "Nome do banco";
+"NameOnAccount" = "Nome na conta";
+"AccountType" = "Tipo da conta";
+"BranchNumber" = "Número da agência";
+"SwiftCode" = "Código SWIFT";
+"IBAN" = "IBAN";
+"BankContactPhone" = "Número de contato do banco";
+"CertificateOfDeposit" = "Certificado de depósito";
+"Checking" = "Corrente";
+"InvestmentBrokerage" = "Investimento/corretagem";
+"LineOfCredit" = "Linha de crédito";
+"MoneyMarket" = "Mercado monetário";
+"Savings" = "Poupança";

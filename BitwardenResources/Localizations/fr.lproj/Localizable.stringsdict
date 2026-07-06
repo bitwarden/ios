@@ -14,9 +14,9 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>d</string>
         <key>one</key>
-        <string>Bitwarden n'a pas pu déchiffrer %d éléments du coffre</string>
+        <string>Bitwarden n'a pas pu déchiffrer %d éléments du coffre.</string>
         <key>other</key>
-        <string>Bitwarden n'a pas pu déchiffrer %d éléments du coffre</string>
+        <string>Bitwarden n'a pas pu déchiffrer %d éléments du coffre.</string>
       </dict>
     </dict>
     <!-- A message indicating the minimum length of a master password in characters. -->
@@ -65,7 +65,7 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>d</string>
         <key>one</key>
-        <string>%d caractères</string>
+        <string>%d caractère</string>
         <key>other</key>
         <string>%d caractères</string>
       </dict>

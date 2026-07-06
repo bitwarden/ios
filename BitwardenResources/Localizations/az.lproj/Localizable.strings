@@ -6,6 +6,8 @@
 "Bitwarden" = "Bitwarden";
 "Cancel" = "Ləğv et";
 "Copy" = "Kopyala";
+"CopyLicenseNumber" = "Sür. vəsiqəsi nömrəsini kopyala";
+"CopyPassportNumber" = "Pasport nömrəsini kopyala";
 "CopyPassword" = "Parolu kopyala";
 "CopyUsername" = "İstifadəçi adını kopyala";
 "Delete" = "Sil";
@@ -126,7 +128,7 @@
 "ItemUpdated" = "Element saxlanıldı";
 "Submitting" = "Təqdim olunur…";
 "Syncing" = "Sinxronlaşdırılır…";
-"SyncingLogins" = "Girişlər sinxronlaşdırılır…";
+"SyncingLogins" = "Girişlər sinxronlaşdırılır...";
 "SyncingComplete" = "Sinxr tamamlandı";
 "TouchID" = "Touch ID";
 "TwoStepLogin" = "İki mərhələli giriş";
@@ -207,6 +209,7 @@
 "TypeIdentity" = "Kimlik";
 "TypeLicense" = "Sür. vəsiqəsi";
 "TypeLogin" = "Giriş";
+"TypePassport" = "Pasport";
 "TypeSecureNote" = "Güvənli qeyd";
 "Address1" = "Ünvan 1";
 "Address2" = "Ünvan 2";
@@ -555,6 +558,7 @@
 "ThereAreNoCardsInYourVault" = "Seyfinizdə heç bir kart yoxdur";
 "ThereAreNoNotesInYourVault" = "Seyfinizdə heç bir not yoxdur";
 "ThereAreNoIdentitiesInYourVault" = "Seyfinizdə heç bir kimlik məlumatı yoxdur";
+"ThereAreNoPassportsInYourVault" = "Seyfinizdə heç bir pasport yoxdur";
 "ThereAreNoSSHKeysInYourVault" = "Seyfinizdə heç bir SSH açarı yoxdur";
 "ThereAreNoBankAccountsInYourVault" = "Seyfinizdə heç bir bank hesabı yoxdur";
 "US" = "ABŞ";
@@ -1023,10 +1027,8 @@
 "ArchiveEmptyDescriptionLong" = "Axtarış nəticələrində və avto-doldurma təkliflərində görmək istəmədiyiniz, ancaq bir gün ehtiyacınız olacaq elementləri arxivinizə əlavə edin.";
 "ArchiveItem" = "Elementi arxivlə";
 "OnceArchivedThisItemWillBeExcludedDescriptionLong" = "Arxivləndikdən sonra, bu element axtarış nəticələrindən və avto-doldurma təkliflərindən xaric ediləcək.";
-"ArchiveUnavailable" = "Arxiv əlçatmazdır";
 "ArchivingItemsIsAPremiumFeatureDescriptionLong" = "Elementləri arxivləmə, Premium bir özəllikdir. Hazırkı planınızda bu özəlliyə erişim yoxdur.";
 "AddingAttachmentsIsAPremiumFeatureDescriptionLong" = "Qoşmaların əlavə olunması, Premium bir özəllikdir. Hazırkı planınızda bu özəlliyə erişim yoxdur.";
-"AttachmentsUnavailable" = "Qoşma mövcud deyil";
 "UpgradeToPremium" = "\"Premium\"a yüksəlt";
 "ThisItemIsArchived" = "Bu element arxivləndi.";
 "YourPremiumSubscriptionEnded" = "Premium abunəliyiniz bitdi";
@@ -1125,6 +1127,7 @@
 "License" = "Sür. vəsiqəsi";
 "Licenses" = "Sür. vəsiqələri";
 "Passport" = "Pasport";
+"Passports" = "Pasportlar";
 "LicenseDetails" = "Sür. vəs. məlumatları";
 "DateOfBirth" = "Doğum tarixi";
 "IssuingCountry" = "Təqdim edən ölkə";
@@ -1133,3 +1136,28 @@
 "IssueDate" = "Təqdim edilmə tarixi";
 "ExpirationDate" = "Bitmə tarixi";
 "LicenseClass" = "Sür. vəs. sinifi";
+"PassportDetails" = "Pasport məlumatları";
+/* Label for the sex/gender field as printed on a passport (e.g. "M", "F", "X"). */
+"Sex" = "Cinsi";
+"BirthPlace" = "Doğum yeri";
+/* Label for the nationality field on a passport (the country a person is a national of). */
+"Nationality" = "Milliyəti";
+/* Label for the category of passport (e.g. "Regular/Tourist", "Diplomatic", "Official"). */
+"PassportType" = "Pasport növü";
+"NationalIdentificationNumber" = "Şəxsiyyət vəsiqəsi nömrəsi";
+/* Label for the government authority or office that issued the passport. */
+"IssuingAuthorityOffice" = "Təqdim edən orqan/ofis";
+"AccountDetails" = "Hesab məlumatları";
+"BankName" = "Bank adı";
+"NameOnAccount" = "Hesabdakı ad";
+"AccountType" = "Hesab növü";
+"BranchNumber" = "Filial nömrəsi";
+"SwiftCode" = "SWIFT kodu";
+"IBAN" = "IBAN";
+"BankContactPhone" = "Bankın əlaqə nömrəsi";
+"CertificateOfDeposit" = "Depozit sertifikatı";
+"Checking" = "Yoxlanılır";
+"InvestmentBrokerage" = "İnvestisiya/brokerlik";
+"LineOfCredit" = "Kredit xətti";
+"MoneyMarket" = "Pul bazarı";
+"Savings" = "YIğımlar";
