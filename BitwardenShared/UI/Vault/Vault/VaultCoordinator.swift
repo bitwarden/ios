@@ -116,9 +116,6 @@ final class VaultCoordinator: Coordinator, HasStackNavigator { // swiftlint:disa
     /// A delegate used to communicate with the app extension.
     private weak var appExtensionDelegate: AppExtensionDelegate?
 
-    /// Retains the generate-password extension delegate for the lifetime of the generator flow.
-    private var generatePasswordExtensionDelegate: AnyObject?
-
     /// The helper to handle master password reprompts.
     private let _masterPasswordRepromptHelper: MasterPasswordRepromptHelper?
 
@@ -257,10 +254,6 @@ final class VaultCoordinator: Coordinator, HasStackNavigator { // swiftlint:disa
             }
         case .flightRecorderSettings:
             delegate?.switchToSettingsTab(route: .about)
-        case .generatePassword:
-            if #available(iOS 26.2, iOSApplicationExtension 26.2, *) {
-                showGeneratePassword()
-            }
         case let .group(group, filter):
             showGroup(group, filter: filter)
         case let .importCXF(cxfRoute):
@@ -356,31 +349,6 @@ final class VaultCoordinator: Coordinator, HasStackNavigator { // swiftlint:disa
             navigationTitle: group.navigationTitle,
             searchController: searchController,
         )
-    }
-
-    /// Presents the password generator for the generate-password autofill extension flow.
-    ///
-    /// The generator is shown with `staticType: .password`, allowing the user to choose between
-    /// password and passphrase sub-types. A `GeneratePasswordExtensionDelegate` bridges the
-    /// generator result back to the credential provider extension context.
-    ///
-    @available(iOS 26.2, iOSApplicationExtension 26.2, *)
-    private func showGeneratePassword() {
-        guard let extensionDelegate = appExtensionDelegate as? CredentialProviderExtensionDelegate,
-              let stackNavigator else {
-            return
-        }
-        let delegate = GeneratePasswordExtensionDelegate(extensionDelegate: extensionDelegate)
-        generatePasswordExtensionDelegate = delegate
-        // Use the vault coordinator's own stack navigator so the generator view is set as the
-        // root via `replace` rather than presented modally. At auth-completion time the stack
-        // navigator is not yet in the window hierarchy, so `present` would fail.
-        let coordinator = module.makeGeneratorCoordinator(
-            delegate: delegate,
-            stackNavigator: stackNavigator,
-        ).asAnyCoordinator()
-        coordinator.start()
-        coordinator.navigate(to: .generator(staticType: .password))
     }
 
     /// Shows the vault group screen.

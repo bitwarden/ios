@@ -1,3 +1,5 @@
+// swiftlint:disable file_length
+
 import AuthenticationServices
 import Testing
 
@@ -44,11 +46,13 @@ struct CredentialProviderContextTests { // swiftlint:disable:this type_body_leng
                 .generatePasswordCredential(MockGeneratePasswordRequest(), userInteraction: false),
             ).authCompletionRoute == nil,
         )
-        #expect(
-            DefaultCredentialProviderContext(
-                .generatePasswordCredential(MockGeneratePasswordRequest(), userInteraction: true),
-            ).authCompletionRoute == AppRoute.vault(.generatePassword),
-        )
+        if #available(iOS 26.2, iOSApplicationExtension 26.2, *) {
+            #expect(
+                DefaultCredentialProviderContext(
+                    .generatePasswordCredential(MockGeneratePasswordRequest(), userInteraction: true),
+                ).authCompletionRoute == AppRoute.generatePasswordCredential,
+            )
+        }
         #expect(
             DefaultCredentialProviderContext(.registerFido2Credential(MockPasskeyCredentialRequest()))
                 .authCompletionRoute == AppRoute.vault(.autofillList),
@@ -227,7 +231,7 @@ struct CredentialProviderContextTests { // swiftlint:disable:this type_body_leng
 
     /// `flowWithUserInteraction` returns `true` if the flow has user interaction, `false` otherwise.
     @Test
-    func flowWithUserInteraction() {
+    func flowWithUserInteraction() { // swiftlint:disable:this function_body_length
         #expect(DefaultCredentialProviderContext(.autofillVaultList([])).flowWithUserInteraction)
 
         #expect(
