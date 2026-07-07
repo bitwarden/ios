@@ -27,6 +27,9 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
     /// The service used by the application to make API requests.
     let apiService: APIService
 
+    /// Overrides `deviceAPIService` for testing. Set via `ServiceContainer.withMocks(deviceAPIService:)`.
+    var deviceAPIServiceOverride: DeviceAPIService?
+
     /// Helper used to know app context.
     let appContextHelper: AppContextHelper
 
@@ -1271,7 +1274,7 @@ extension ServiceContainer {
     }
 
     var deviceAPIService: DeviceAPIService {
-        apiService
+        deviceAPIServiceOverride ?? apiService
     }
 
     var fileAPIService: FileAPIService {

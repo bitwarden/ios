@@ -12,7 +12,4 @@ struct DeviceManagementState: Equatable, Sendable {
 
     /// A toast message to show in the view.
     var toast: Toast?
-
-    /// The ID of the current device.
-    var currentDeviceId: String?
 }

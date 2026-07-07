@@ -15,7 +15,6 @@ final class DeviceManagementProcessor: StateProcessor<
 
     typealias Services = HasAppIDService
         & HasAuthService
-        & HasConfigService
         & HasDeviceAPIService
         & HasErrorReporter
         & HasTimeProvider
@@ -96,8 +95,6 @@ final class DeviceManagementProcessor: StateProcessor<
                 currentDeviceTask,
                 pendingRequestsTask,
             )
-
-            state.currentDeviceId = currentDevice.id
 
             // Create device list items and mark current session.
             var deviceItems = devices.map { device in

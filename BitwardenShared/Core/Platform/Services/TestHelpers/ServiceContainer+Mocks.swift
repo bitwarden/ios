@@ -34,6 +34,7 @@ extension ServiceContainer {
         clientCertificateService: ClientCertificateService = MockClientCertificateService(),
         clientService: ClientService = MockClientService(),
         configService: ConfigService = MockConfigService(),
+        deviceAPIService: DeviceAPIService = MockDeviceAPIService(),
         deviceAuthKeyService: DeviceAuthKeyService = MockDeviceAuthKeyService(),
         environmentService: EnvironmentService = MockEnvironmentService(),
         errorReportBuilder: ErrorReportBuilder = MockErrorReportBuilder(),
@@ -96,7 +97,7 @@ extension ServiceContainer {
             actualSearchProcessorMediatorFactory = factoryMock
         }
 
-        return ServiceContainer(
+        let container = ServiceContainer(
             apiService: APIService(
                 client: httpClient,
                 environmentService: environmentService,
@@ -170,5 +171,7 @@ extension ServiceContainer {
             vaultTimeoutService: vaultTimeoutService,
             watchService: watchService,
         )
+        container.deviceAPIServiceOverride = deviceAPIService
+        return container
     }
 }
