@@ -6,6 +6,7 @@
 "Bitwarden" = "Bitwarden";
 "Cancel" = "Annulla";
 "Copy" = "Copia";
+"CopyLicenseNumber" = "Copia numero licenza";
 "CopyPassportNumber" = "Copia numero passaporto";
 "CopyPassword" = "Copia password";
 "CopyUsername" = "Copia nome utente";
@@ -453,7 +454,7 @@
 "YourAccountHasBeenPermanentlyDeleted" = "Il tuo account è stato eliminato definitivamente";
 "InvalidVerificationCode" = "Codice di verifica non valido";
 "SendCode" = "Invia codice";
-"SendingCode" = "Invio codice in corso...";
+"SendingCode" = "Invio codice in corso…";
 "Verifying" = "Verifica";
 "ResendCode" = "Invia codice di nuovo";
 "EnterTheVerificationCodeThatWasSentToYourEmail" = "Inserisci il codice di verifica che è stato inviato alla tua email";
@@ -807,7 +808,7 @@
 "YouMayNeedToEnableDevicePasscodeOrBiometrics" = "Potrebbe essere necessario abilitare il codice di accesso del dispositivo o l'autenticazione biometrica.";
 "StartImportCXFDescriptionLong" = "Importa parole d'accesso, chiavi d'accesso, carte di credito e qualsiasi informazione di identità personale da un altro gestore di credenziali.\n\nI tuoi dati **non** saranno cancellati dal tuo fornitore precedente.";
 "ImportPasswords" = "Importa password";
-"ImportingEllipsis" = "Importazione...";
+"ImportingEllipsis" = "Importazione…";
 "AreYouSureYouWantToCancelTheImportProcessQuestionMark" = "Vuoi davvero annullare il processo di importazione?";
 "ImportFailed" = "Importazione fallita";
 "ThereWasAnIssueImportingAllOfYourPasswordsNoDataWasDeleted" = "Si è verificato un problema durante l'importazione delle tue password.\n\nNessun dato è stato eliminato.";
@@ -1026,10 +1027,8 @@
 "ArchiveEmptyDescriptionLong" = "Sposta in Archivio gli elementi che non vuoi vedere nei risultati di ricerca e nei suggerimenti, ma potrebbero servirti in seguito.";
 "ArchiveItem" = "Archive item";
 "OnceArchivedThisItemWillBeExcludedDescriptionLong" = "Once archived, this item will be excluded from search results and autofill suggestions.";
-"ArchiveUnavailable" = "Archivio non disponibile";
 "ArchivingItemsIsAPremiumFeatureDescriptionLong" = "L'archiviazione è una funzionalità Premium. Il tuo piano attuale non include questa funzionalità.";
 "AddingAttachmentsIsAPremiumFeatureDescriptionLong" = "Adding attachments is a Premium feature. Your current plan does not include access to this feature.";
-"AttachmentsUnavailable" = "Allegati non disponibili";
 "UpgradeToPremium" = "Passa a Premium";
 "ThisItemIsArchived" = "Questo elemento è archiviato.";
 "YourPremiumSubscriptionEnded" = "Il tuo abbonamento Premium è terminato";

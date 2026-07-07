@@ -6,6 +6,7 @@
 "Bitwarden" = "Bitwarden";
 "Cancel" = "Ləğv et";
 "Copy" = "Kopyala";
+"CopyLicenseNumber" = "Sür. vəsiqəsi nömrəsini kopyala";
 "CopyPassportNumber" = "Pasport nömrəsini kopyala";
 "CopyPassword" = "Parolu kopyala";
 "CopyUsername" = "İstifadəçi adını kopyala";
@@ -127,7 +128,7 @@
 "ItemUpdated" = "Element saxlanıldı";
 "Submitting" = "Təqdim olunur…";
 "Syncing" = "Sinxronlaşdırılır…";
-"SyncingLogins" = "Girişlər sinxronlaşdırılır...";
+"SyncingLogins" = "Girişlər sinxronlaşdırılır…";
 "SyncingComplete" = "Sinxr tamamlandı";
 "TouchID" = "Touch ID";
 "TwoStepLogin" = "İki mərhələli giriş";
@@ -1026,10 +1027,8 @@
 "ArchiveEmptyDescriptionLong" = "Axtarış nəticələrində və avto-doldurma təkliflərində görmək istəmədiyiniz, ancaq bir gün ehtiyacınız olacaq elementləri arxivinizə əlavə edin.";
 "ArchiveItem" = "Elementi arxivlə";
 "OnceArchivedThisItemWillBeExcludedDescriptionLong" = "Arxivləndikdən sonra, bu element axtarış nəticələrindən və avto-doldurma təkliflərindən xaric ediləcək.";
-"ArchiveUnavailable" = "Arxiv əlçatmazdır";
 "ArchivingItemsIsAPremiumFeatureDescriptionLong" = "Elementləri arxivləmə, Premium bir özəllikdir. Hazırkı planınızda bu özəlliyə erişim yoxdur.";
 "AddingAttachmentsIsAPremiumFeatureDescriptionLong" = "Qoşmaların əlavə olunması, Premium bir özəllikdir. Hazırkı planınızda bu özəlliyə erişim yoxdur.";
-"AttachmentsUnavailable" = "Qoşma mövcud deyil";
 "UpgradeToPremium" = "\"Premium\"a yüksəlt";
 "ThisItemIsArchived" = "Bu element arxivləndi.";
 "YourPremiumSubscriptionEnded" = "Premium abunəliyiniz bitdi";
@@ -1147,7 +1146,7 @@
 "PassportType" = "Pasport növü";
 "NationalIdentificationNumber" = "Şəxsiyyət vəsiqəsi nömrəsi";
 /* Label for the government authority or office that issued the passport. */
-"IssuingAuthorityOffice" = "Issuing authority/office";
+"IssuingAuthorityOffice" = "Təqdim edən orqan/ofis";
 "AccountDetails" = "Hesab məlumatları";
 "BankName" = "Bank adı";
 "NameOnAccount" = "Hesabdakı ad";

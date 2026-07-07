@@ -6,6 +6,7 @@
 "Bitwarden" = "Bitwarden";
 "Cancel" = "Hủy bỏ";
 "Copy" = "Sao chép";
+"CopyLicenseNumber" = "Sao chép số giấy phép";
 "CopyPassportNumber" = "Sao chép số hộ chiếu";
 "CopyPassword" = "Sao chép mật khẩu";
 "CopyUsername" = "Sao chép tên đăng nhập";
@@ -992,7 +993,7 @@
 "DefaultX" = "Mặc định (%1$@)";
 "UpdateYourEncryptionSettings" = "Cập nhật cài đặt mã hóa của bạn";
 "TheNewRecommendedEncryptionSettingsDescriptionLong" = "Cài đặt mã hóa được khuyến nghị sẽ cải thiện bảo mật cho tài khoản của bạn. Nhập mật khẩu chính để cập nhật ngay.";
-"Updating" = "Đang cập nhật...";
+"Updating" = "Đang cập nhật…";
 "EncryptionSettingsUpdated" = "Cài đặt mã hóa đã được cập nhật";
 "IntroducingArchive" = "Introducing Archive";
 "KeepYtemsYouDontNeedRightNowSafeButOutOfSight" = "Keep items you don’t need right now safe but out of sight.";
@@ -1026,10 +1027,8 @@
 "ArchiveEmptyDescriptionLong" = "Thêm vào kho lưu trữ các mục bạn không muốn thấy trong kết quả tìm kiếm và gợi ý tự động điền nhưng có thể cần dùng sau này.";
 "ArchiveItem" = "Lưu trữ mục";
 "OnceArchivedThisItemWillBeExcludedDescriptionLong" = "Khi đã lưu trữ, mục này sẽ bị loại khỏi kết quả tìm kiếm và gợi ý tự động điền.";
-"ArchiveUnavailable" = "Lưu trữ không khả dụng";
 "ArchivingItemsIsAPremiumFeatureDescriptionLong" = "Lưu trữ mục là một tính năng Cao cấp. Gói hiện tại của bạn không bao gồm quyền truy cập tính năng này.";
 "AddingAttachmentsIsAPremiumFeatureDescriptionLong" = "Adding attachments is a Premium feature. Your current plan does not include access to this feature.";
-"AttachmentsUnavailable" = "Attachments unavailable";
 "UpgradeToPremium" = "Nâng cấp lên bản cao cấp";
 "ThisItemIsArchived" = "Mục này đã được lưu trữ.";
 "YourPremiumSubscriptionEnded" = "Gói đăng ký Cao cấp của bạn đã kết thúc";

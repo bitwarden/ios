@@ -6,6 +6,7 @@
 "Bitwarden" = "Bitwarden";
 "Cancel" = "Anuluj";
 "Copy" = "Kopiuj";
+"CopyLicenseNumber" = "Kopiuj numer prawa jazdy";
 "CopyPassportNumber" = "Kopiuj numer paszportu";
 "CopyPassword" = "Kopiuj hasło";
 "CopyUsername" = "Kopiuj nazwę użytkownika";
@@ -390,7 +391,7 @@
 "MasterPasswordPolicyValidationTitle" = "Hasło jest nieprawidłowe";
 "MasterPasswordPolicyValidationMessage" = "Hasło nie spełnia wymogów organizacji. Sprawdź wymaganą zasadę i spróbuj ponownie.";
 "Loading" = "Ładowanie";
-"LoadingSubscription" = "Ładowanie subskrypcji...";
+"LoadingSubscription" = "Ładowanie subskrypcji…";
 "AcceptPoliciesError" = "Regulamin i polityka prywatności nie zostały zaakceptowane.";
 "PrivacyPolicy" = "Polityka prywatności";
 "PersonalOwnershipPolicyInEffect" = "Zasada organizacji ma wpływ na opcję własności elementów.";
@@ -421,7 +422,7 @@
 "AboutSend" = "O wysyłce";
 "HideEmail" = "Ukryj mój adres e-mail przed odbiorcami";
 "SendOptionsPolicyInEffect" = "Co najmniej jedna zasada organizacji wpływa na ustawienia wysyłek.";
-"SendFilePremiumRequired" = "Darmowe konto jest ograniczone do udostępniania tylko tekstu. Konto Premium jest wymagane do udostępniania plików.";
+"SendFilePremiumRequired" = "Darmowe konta są ograniczone do udostępniania tylko tekstu. Konto Premium jest wymagane do udostępniania plików.";
 "SendFileEmailVerificationRequired" = "Musisz zweryfikować adres e-mail, aby wysyłać pliki za pomocą wysyłek.";
 "PasswordPrompt" = "Potwierdź hasłem głównym";
 "PasswordConfirmation" = "Potwierdź hasło główne";
@@ -1026,10 +1027,8 @@
 "ArchiveEmptyDescriptionLong" = "Przenieś do archiwum elementy, których nie chcesz widzieć w wynikach wyszukiwania i sugestiach autouzupełniania, ale które mogą Ci się kiedyś przydać.";
 "ArchiveItem" = "Archiwizuj element";
 "OnceArchivedThisItemWillBeExcludedDescriptionLong" = "Zarchiwizowany element zostanie wykluczony z wyników wyszukiwania i sugestii autouzupełniania.";
-"ArchiveUnavailable" = "Archiwum jest niedostępne";
 "ArchivingItemsIsAPremiumFeatureDescriptionLong" = "Archiwizowanie elementów jest funkcją Premium. Twój obecny plan nie zawiera tej funkcji.";
 "AddingAttachmentsIsAPremiumFeatureDescriptionLong" = "Dodawanie załączników jest funkcją Premium. Twój obecny plan nie zawiera tej funkcji.";
-"AttachmentsUnavailable" = "Załączniki są niedostępne";
 "UpgradeToPremium" = "Kup konto Premium";
 "ThisItemIsArchived" = "Element jest zarchiwizowany.";
 "YourPremiumSubscriptionEnded" = "Subskrypcja Premium wygasła";
@@ -1147,7 +1146,7 @@
 "PassportType" = "Rodzaj paszportu";
 "NationalIdentificationNumber" = "Numer PESEL";
 /* Label for the government authority or office that issued the passport. */
-"IssuingAuthorityOffice" = "Issuing authority/office";
+"IssuingAuthorityOffice" = "Organ wydający";
 "AccountDetails" = "Szczegóły konta";
 "BankName" = "Nazwa banku";
 "NameOnAccount" = "Nazwa konta";

@@ -255,6 +255,22 @@ class VaultCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this type_
         XCTAssertFalse(mockNavController.dismissCalled)
     }
 
+    /// `navigate(to:)` with `.flightRecorderSettings` notifies the delegate to switch to the about
+    /// screen in the settings tab.
+    @MainActor
+    func test_navigateTo_flightRecorderSettings() throws {
+        subject.navigate(to: .flightRecorderSettings)
+        XCTAssertEqual(delegate.switchToSettingsTabRoute, .about)
+    }
+
+    /// `navigate(to:)` with `.premiumPlan` notifies the delegate to switch to the premium plan
+    /// screen in the settings tab.
+    @MainActor
+    func test_navigateTo_premiumPlan() throws {
+        subject.navigate(to: .premiumPlan)
+        XCTAssertEqual(delegate.switchToSettingsTabRoute, .premiumPlan(nil))
+    }
+
     /// `navigate(to:)` with `.autofillListForGroup` pushes the vault autofill list view
     /// onto the stack navigator filtered by a group.
     @MainActor

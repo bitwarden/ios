@@ -6,6 +6,7 @@
 "Bitwarden" = "Bitwarden";
 "Cancel" = "Atšaukti";
 "Copy" = "Kopijuoti";
+"CopyLicenseNumber" = "Copy license number";
 "CopyPassportNumber" = "Copy passport number";
 "CopyPassword" = "Kopijuoti slaptažodį";
 "CopyUsername" = "Kopijuoti vartotojo vardą";
@@ -807,7 +808,7 @@
 "YouMayNeedToEnableDevicePasscodeOrBiometrics" = "You may need to enable device passcode or biometrics.";
 "StartImportCXFDescriptionLong" = "Import passwords, passkeys, credit cards, and any personal identity information from another password manager.\n\nYour data will **not** be deleted from your previous provider.";
 "ImportPasswords" = "Import passwords";
-"ImportingEllipsis" = "Importuojama...";
+"ImportingEllipsis" = "Importuojama…";
 "AreYouSureYouWantToCancelTheImportProcessQuestionMark" = "Are you sure you want to cancel the import process?";
 "ImportFailed" = "Import failed";
 "ThereWasAnIssueImportingAllOfYourPasswordsNoDataWasDeleted" = "There was an issue importing all of your passwords.\n\nNo data was deleted.";
@@ -1026,10 +1027,8 @@
 "ArchiveEmptyDescriptionLong" = "Fill your archive with items you don’t want to see in search results and autofill suggestions but might need someday.";
 "ArchiveItem" = "Archive item";
 "OnceArchivedThisItemWillBeExcludedDescriptionLong" = "Once archived, this item will be excluded from search results and autofill suggestions.";
-"ArchiveUnavailable" = "Archive unavailable";
 "ArchivingItemsIsAPremiumFeatureDescriptionLong" = "Archiving items is a Premium feature. Your current plan does not include access to this feature.";
 "AddingAttachmentsIsAPremiumFeatureDescriptionLong" = "Adding attachments is a Premium feature. Your current plan does not include access to this feature.";
-"AttachmentsUnavailable" = "Attachments unavailable";
 "UpgradeToPremium" = "Upgrade to Premium";
 "ThisItemIsArchived" = "This item is archived.";
 "YourPremiumSubscriptionEnded" = "Your Premium subscription ended";

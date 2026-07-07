@@ -6,6 +6,7 @@
 "Bitwarden" = "Bitwarden";
 "Cancel" = "Cancelar";
 "Copy" = "Copiar";
+"CopyLicenseNumber" = "Copiar número de matrícula";
 "CopyPassportNumber" = "Copiar número de pasaporte";
 "CopyPassword" = "Copiar contrasinal";
 "CopyUsername" = "Copiar nome de usuario";
@@ -127,7 +128,7 @@
 "ItemUpdated" = "Entrada gardada";
 "Submitting" = "Submitting…";
 "Syncing" = "Syncing…";
-"SyncingLogins" = "Sincronizando credenciais...";
+"SyncingLogins" = "Sincronizando credenciais…";
 "SyncingComplete" = "Sincronización completa";
 "TouchID" = "Touch ID";
 "TwoStepLogin" = "Verificación en dous pasos";
@@ -807,7 +808,7 @@
 "YouMayNeedToEnableDevicePasscodeOrBiometrics" = "Pode que precises activar un método de bloqueo no dispositivo.";
 "StartImportCXFDescriptionLong" = "Importar contrasinais, Claves de acceso, tarxetas e calquera información persoal dende outro xestor de contrasinais.\n\nOs teus datos **non** se borrarán do teu provedor previo.";
 "ImportPasswords" = "Importar contrasinais";
-"ImportingEllipsis" = "Importando...";
+"ImportingEllipsis" = "Importando…";
 "AreYouSureYouWantToCancelTheImportProcessQuestionMark" = "Seguro que queres cancelar o proceso de importado?";
 "ImportFailed" = "Importación falida";
 "ThereWasAnIssueImportingAllOfYourPasswordsNoDataWasDeleted" = "Houbo un problema ó importar os contrasinais.\n\nNon se eliminou ningún dato.";
@@ -1026,10 +1027,8 @@
 "ArchiveEmptyDescriptionLong" = "Fill your archive with items you don’t want to see in search results and autofill suggestions but might need someday.";
 "ArchiveItem" = "Archive item";
 "OnceArchivedThisItemWillBeExcludedDescriptionLong" = "Once archived, this item will be excluded from search results and autofill suggestions.";
-"ArchiveUnavailable" = "Archive unavailable";
 "ArchivingItemsIsAPremiumFeatureDescriptionLong" = "Archiving items is a Premium feature. Your current plan does not include access to this feature.";
 "AddingAttachmentsIsAPremiumFeatureDescriptionLong" = "Adding attachments is a Premium feature. Your current plan does not include access to this feature.";
-"AttachmentsUnavailable" = "Attachments unavailable";
 "UpgradeToPremium" = "Upgrade to Premium";
 "ThisItemIsArchived" = "This item is archived.";
 "YourPremiumSubscriptionEnded" = "Your Premium subscription ended";

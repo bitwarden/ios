@@ -6,6 +6,7 @@
 "Bitwarden" = "Bitwarden";
 "Cancel" = "取消";
 "Copy" = "复制";
+"CopyLicenseNumber" = "复制驾驶证号码";
 "CopyPassportNumber" = "复制护照号码";
 "CopyPassword" = "复制密码";
 "CopyUsername" = "复制用户名";
@@ -807,7 +808,7 @@
 "YouMayNeedToEnableDevicePasscodeOrBiometrics" = "您可能需要启用设备通行代码或生物识别。";
 "StartImportCXFDescriptionLong" = "从其他密码管理器导入密码、通行密钥、信用卡以及任何个人身份信息。\n\n您的数据**不会**从之前的提供程序中删除。";
 "ImportPasswords" = "导入密码";
-"ImportingEllipsis" = "正在导入...";
+"ImportingEllipsis" = "正在导入…";
 "AreYouSureYouWantToCancelTheImportProcessQuestionMark" = "确定要取消导入过程吗？";
 "ImportFailed" = "导入失败";
 "ThereWasAnIssueImportingAllOfYourPasswordsNoDataWasDeleted" = "导入您的所有密码时出现问题。\n\n未删除任何数据。";
@@ -1026,10 +1027,8 @@
 "ArchiveEmptyDescriptionLong" = "将您不希望在搜索结果和自动填充建议中看到，但将来可能需要的项目添加到您的归档中。";
 "ArchiveItem" = "归档项目";
 "OnceArchivedThisItemWillBeExcludedDescriptionLong" = "归档后，此项目将被排除在一般搜索结果和自动填充建议之外。";
-"ArchiveUnavailable" = "归档功能不可用";
 "ArchivingItemsIsAPremiumFeatureDescriptionLong" = "归档项目是高级版功能。您的当前方案不包含对此功能的访问权限。";
 "AddingAttachmentsIsAPremiumFeatureDescriptionLong" = "添加附件是高级版功能。您的当前方案不包含对此功能的访问权限。";
-"AttachmentsUnavailable" = "附件功能不可用";
 "UpgradeToPremium" = "升级到高级版";
 "ThisItemIsArchived" = "此项目已归档。";
 "YourPremiumSubscriptionEnded" = "您的高级版订阅已结束";

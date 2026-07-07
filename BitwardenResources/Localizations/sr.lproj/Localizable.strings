@@ -6,6 +6,7 @@
 "Bitwarden" = "Bitwarden";
 "Cancel" = "Откажи";
 "Copy" = "Копирај";
+"CopyLicenseNumber" = "Копирати број дозволе";
 "CopyPassportNumber" = "Копирати број пасоша";
 "CopyPassword" = "Копирај лозинку";
 "CopyUsername" = "Копирај име";
@@ -127,7 +128,7 @@
 "ItemUpdated" = "Ставка ажурирана.";
 "Submitting" = "Постављање…";
 "Syncing" = "Синхронизација…";
-"SyncingLogins" = "Синхронизовање пријављивања...";
+"SyncingLogins" = "Синхронизовање пријављивања…";
 "SyncingComplete" = "Синхронизација је завршена.";
 "TouchID" = "Додирни ИД";
 "TwoStepLogin" = "Дво-коракна лозинка";
@@ -807,7 +808,7 @@
 "YouMayNeedToEnableDevicePasscodeOrBiometrics" = "Можда ћете морати да омогућите шифру или биометрију уређаја.";
 "StartImportCXFDescriptionLong" = "Увезите лозинке, фразе, кредитне картице и сваки други вид идентификације из другог менаџера лозинки.\n\nВаши подаци **неће** бити обрисани из вашег ранијег провајдера.";
 "ImportPasswords" = "Увези лозинке";
-"ImportingEllipsis" = "Увожење...";
+"ImportingEllipsis" = "Увожење…";
 "AreYouSureYouWantToCancelTheImportProcessQuestionMark" = "Да ли заиста желите да прекинете процес увожења?";
 "ImportFailed" = "Увоз није успео";
 "ThereWasAnIssueImportingAllOfYourPasswordsNoDataWasDeleted" = "Дошло је до проблема у увозу свих ваших лозинки.\n\nНиједан податак није избрисан.";
@@ -992,7 +993,7 @@
 "DefaultX" = "Подразумевано (%1$@)";
 "UpdateYourEncryptionSettings" = "Ажурирајте своје поставке за шифровање";
 "TheNewRecommendedEncryptionSettingsDescriptionLong" = "Нова препоручена подешавања шифрирања побољшаће вашу сигурност налога. Унесите своју главну лозинку за ажурирање.";
-"Updating" = "Ажурирање...";
+"Updating" = "Ажурирање…";
 "EncryptionSettingsUpdated" = "Подешавања шифровања су ажурирани";
 "IntroducingArchive" = "Представљамо Архиву";
 "KeepYtemsYouDontNeedRightNowSafeButOutOfSight" = "Држите ставке које вам тренутно нису потребне на сигурном, али ван видокруга.";
@@ -1026,10 +1027,8 @@
 "ArchiveEmptyDescriptionLong" = "Напуните своју архиву ставкама које не желите да видите у резултатима претраге и предлозима за аутоматско попуњавање, али које вам можда једног дана затребају.";
 "ArchiveItem" = "Archive item";
 "OnceArchivedThisItemWillBeExcludedDescriptionLong" = "Once archived, this item will be excluded from search results and autofill suggestions.";
-"ArchiveUnavailable" = "Archive unavailable";
 "ArchivingItemsIsAPremiumFeatureDescriptionLong" = "Archiving items is a Premium feature. Your current plan does not include access to this feature.";
 "AddingAttachmentsIsAPremiumFeatureDescriptionLong" = "Adding attachments is a Premium feature. Your current plan does not include access to this feature.";
-"AttachmentsUnavailable" = "Прилози нису доступни";
 "UpgradeToPremium" = "Пређите на Премијум";
 "ThisItemIsArchived" = "This item is archived.";
 "YourPremiumSubscriptionEnded" = "Your Premium subscription ended";

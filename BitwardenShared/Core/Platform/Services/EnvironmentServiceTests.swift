@@ -271,6 +271,15 @@ class EnvironmentServiceTests: XCTestCase {
         XCTAssertEqual(errorReporter.region?.isPreAuth, false)
     }
 
+    /// `region` resolves a `bitwarden.pw` environment (including subdomains) to `.internal`.
+    func test_region_internal() async {
+        await subject.setPreAuthURLs(urls: EnvironmentURLData(base: URL(string: "https://qa-team.sh.bitwarden.pw")!))
+
+        XCTAssertEqual(subject.region, .internal)
+        XCTAssertEqual(errorReporter.region?.region, "Internal")
+        XCTAssertEqual(errorReporter.region?.isPreAuth, true)
+    }
+
     /// `setPreAuthURLs(urls:)` sets the pre-auth URLs.
     func test_setPreAuthURLs() async {
         let urls = EnvironmentURLData(base: .example)

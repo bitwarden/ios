@@ -14,3 +14,19 @@ struct MasterPasswordUnlockResponseModel: Codable, Equatable, Hashable {
     /// The cryptographic salt used in key derivation.
     let salt: String
 }
+
+extension MasterPasswordUnlockResponseModel {
+    /// Creates a `MasterPasswordUnlockResponseModel` from an `Account` and an encrypted user key.
+    ///
+    /// - Parameters:
+    ///   - account: The account whose KDF configuration and email are used.
+    ///   - masterKeyEncryptedUserKey: The user key encrypted with the master key.
+    ///
+    init(account: Account, masterKeyEncryptedUserKey: String) {
+        self.init(
+            kdf: account.kdf,
+            masterKeyEncryptedUserKey: masterKeyEncryptedUserKey,
+            salt: account.profile.email,
+        )
+    }
+}
