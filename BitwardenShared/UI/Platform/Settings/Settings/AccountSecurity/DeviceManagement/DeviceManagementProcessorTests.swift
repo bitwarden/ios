@@ -1,29 +1,29 @@
 import BitwardenKit
 import BitwardenKitMocks
 import BitwardenResources
+import Foundation
 import TestHelpers
-import XCTest
+import Testing
 
 @testable import BitwardenShared
 @testable import BitwardenSharedMocks
 
 // MARK: - DeviceManagementProcessorTests
 
-class DeviceManagementProcessorTests: BitwardenTestCase {
+@MainActor
+struct DeviceManagementProcessorTests {
     // MARK: Properties
 
-    var authService: MockAuthService!
-    var coordinator: MockCoordinator<SettingsRoute, SettingsEvent>!
-    var deviceAPIService: MockDeviceAPIService!
-    var errorReporter: MockErrorReporter!
-    var timeProvider: MockTimeProvider!
-    var subject: DeviceManagementProcessor!
+    let authService: MockAuthService
+    let coordinator: MockCoordinator<SettingsRoute, SettingsEvent>
+    let deviceAPIService: MockDeviceAPIService
+    let errorReporter: MockErrorReporter
+    let timeProvider: MockTimeProvider
+    let subject: DeviceManagementProcessor
 
-    // MARK: Setup & Teardown
+    // MARK: Initialization
 
-    override func setUp() {
-        super.setUp()
-
+    init() {
         authService = MockAuthService()
         coordinator = MockCoordinator<SettingsRoute, SettingsEvent>()
         deviceAPIService = MockDeviceAPIService()
@@ -42,22 +42,11 @@ class DeviceManagementProcessorTests: BitwardenTestCase {
         )
     }
 
-    override func tearDown() {
-        super.tearDown()
-
-        authService = nil
-        coordinator = nil
-        deviceAPIService = nil
-        errorReporter = nil
-        timeProvider = nil
-        subject = nil
-    }
-
     // MARK: Tests
 
-    /// `perform(.loadData)` loads devices and marks the current session correctly.
-    @MainActor
-    func test_perform_loadData_success() async throws {
+    /// `perform(_:)` loads devices and marks the current session correctly.
+    @Test
+    func perform_loadData_success() async throws {
         let currentDevice = DeviceResponse.fixture(id: "device-id-1")
         let otherDevice = DeviceResponse.fixture(id: "device-id-2", isTrusted: false)
         deviceAPIService.getDevicesReturnValue = [currentDevice, otherDevice]
@@ -66,15 +55,15 @@ class DeviceManagementProcessorTests: BitwardenTestCase {
 
         await subject.perform(.loadData)
 
-        let items = try XCTUnwrap(subject.state.loadingState.data)
-        XCTAssertEqual(items.count, 2)
-        XCTAssertTrue(items.first(where: { $0.id == "device-id-1" })?.isCurrentSession == true)
-        XCTAssertFalse(items.first(where: { $0.id == "device-id-2" })?.isCurrentSession == true)
+        let items = try #require(subject.state.loadingState.data)
+        #expect(items.count == 2)
+        #expect(items.first(where: { $0.id == "device-id-1" })?.isCurrentSession == true)
+        #expect(items.first(where: { $0.id == "device-id-2" })?.isCurrentSession == false)
     }
 
-    /// `perform(.loadData)` sorts devices: current session first, then pending requests, then by activity.
-    @MainActor
-    func test_perform_loadData_sorting() async throws {
+    /// `perform(_:)` sorts devices: current session first, then pending requests, then by activity.
+    @Test
+    func perform_loadData_sorting() async throws {
         let currentDevice = DeviceResponse.fixture(
             id: "current",
             lastActivityDate: Date(timeIntervalSince1970: 1_717_900_000),
@@ -99,16 +88,16 @@ class DeviceManagementProcessorTests: BitwardenTestCase {
 
         await subject.perform(.loadData)
 
-        let items = try XCTUnwrap(subject.state.loadingState.data)
-        XCTAssertEqual(items.count, 3)
-        XCTAssertEqual(items[0].id, "current") // current session first
-        XCTAssertEqual(items[1].id, "pending") // pending request second
-        XCTAssertEqual(items[2].id, "old") // oldest last
+        let items = try #require(subject.state.loadingState.data)
+        #expect(items.count == 3)
+        #expect(items[0].id == "current") // current session first
+        #expect(items[1].id == "pending") // pending request second
+        #expect(items[2].id == "old") // oldest last
     }
 
-    /// `perform(.loadData)` assigns the most recent pending request when multiple exist for the same platform.
-    @MainActor
-    func test_perform_loadData_matchesMostRecentPendingRequest() async throws {
+    /// `perform(_:)` assigns the most recent pending request when multiple exist for the same platform.
+    @Test
+    func perform_loadData_matchesMostRecentPendingRequest() async throws {
         let chromeDevice = DeviceResponse.fixture(id: "chrome", type: .chromeExtension)
         let currentDevice = DeviceResponse.fixture(id: "current")
         let olderRequest = LoginRequest.fixture(
@@ -128,89 +117,87 @@ class DeviceManagementProcessorTests: BitwardenTestCase {
 
         await subject.perform(.loadData)
 
-        let items = try XCTUnwrap(subject.state.loadingState.data)
-        let chromeItem = try XCTUnwrap(items.first(where: { $0.id == "chrome" }))
-        XCTAssertEqual(chromeItem.pendingRequest?.id, "newer")
+        let items = try #require(subject.state.loadingState.data)
+        let chromeItem = try #require(items.first(where: { $0.id == "chrome" }))
+        #expect(chromeItem.pendingRequest?.id == "newer")
     }
 
-    /// `perform(.loadData)` sets loading state to empty and reports the error on failure.
-    @MainActor
-    func test_perform_loadData_error() async {
+    /// `perform(_:)` sets loading state to empty and reports the error on failure.
+    @Test
+    func perform_loadData_error() async {
         deviceAPIService.getDevicesThrowableError = BitwardenTestError.example
         deviceAPIService.getCurrentDeviceThrowableError = BitwardenTestError.example
         authService.getPendingLoginRequestResult = .success([])
 
         await subject.perform(.loadData)
 
-        XCTAssertEqual(subject.state.loadingState, .data([]))
-        XCTAssertEqual(coordinator.errorAlertsShown.last as? BitwardenTestError, .example)
-        XCTAssertEqual(errorReporter.errors.last as? BitwardenTestError, .example)
+        #expect(subject.state.loadingState == .data([]))
+        #expect(coordinator.errorAlertsShown.last as? BitwardenTestError == .example)
+        #expect(errorReporter.errors.last as? BitwardenTestError == .example)
     }
 
-    /// `receive(.deviceTapped)` navigates to the login request when the device has a pending request.
-    @MainActor
-    func test_receive_deviceTapped_withPendingRequest() {
+    /// `receive(_:)` navigates to the login request when the device has a pending request.
+    @Test
+    func receive_deviceTapped_withPendingRequest() {
         let request = LoginRequest.fixture()
         var device = DeviceListItem.fixture()
         device.pendingRequest = request
 
         subject.receive(.deviceTapped(device))
 
-        XCTAssertEqual(coordinator.routes.last, .loginRequest(request))
-        XCTAssertNotNil(coordinator.contexts.last as? DeviceManagementProcessor)
+        #expect(coordinator.routes.last == .loginRequest(request))
+        #expect(coordinator.contexts.last is DeviceManagementProcessor)
     }
 
-    /// `receive(.deviceTapped)` does nothing when the device has no pending request.
-    @MainActor
-    func test_receive_deviceTapped_noPendingRequest() {
+    /// `receive(_:)` does nothing when the device has no pending request.
+    @Test
+    func receive_deviceTapped_noPendingRequest() {
         subject.receive(.deviceTapped(.fixture()))
 
-        XCTAssertTrue(coordinator.routes.isEmpty)
+        #expect(coordinator.routes.isEmpty)
     }
 
-    /// `receive(.dismiss)` dismisses the view.
-    @MainActor
-    func test_receive_dismiss() {
+    /// `receive(_:)` dismisses the view.
+    @Test
+    func receive_dismiss() {
         subject.receive(.dismiss)
 
-        XCTAssertEqual(coordinator.routes.last, .dismiss)
+        #expect(coordinator.routes.last == .dismiss)
     }
 
-    /// `receive(.toastShown)` updates and clears the toast state.
-    @MainActor
-    func test_receive_toastShown() {
+    /// `receive(_:)` updates and clears the toast state.
+    @Test
+    func receive_toastShown() {
         subject.receive(.toastShown(Toast(title: "test")))
-        XCTAssertEqual(subject.state.toast, Toast(title: "test"))
+        #expect(subject.state.toast == Toast(title: "test"))
 
         subject.receive(.toastShown(nil))
-        XCTAssertNil(subject.state.toast)
+        #expect(subject.state.toast == nil)
     }
 
-    /// `loginRequestAnswered(approved: true)` shows the approved toast and reloads.
-    @MainActor
-    func test_loginRequestAnswered_approved() {
+    /// `loginRequestAnswered(approved:)` shows the approved toast and triggers a reload.
+    @Test
+    func loginRequestAnswered_approved() async throws {
         deviceAPIService.getDevicesReturnValue = []
         deviceAPIService.getCurrentDeviceReturnValue = .fixture()
         authService.getPendingLoginRequestResult = .success([])
 
-        let task = Task { subject.loginRequestAnswered(approved: true) }
-        waitFor(deviceAPIService.getDevicesCalled)
-        task.cancel()
+        subject.loginRequestAnswered(approved: true)
 
-        XCTAssertEqual(subject.state.toast, Toast(title: Localizations.loginApproved))
+        #expect(subject.state.toast == Toast(title: Localizations.loginApproved))
+        try await waitForAsync { deviceAPIService.getDevicesCalled }
     }
 
-    /// `loginRequestAnswered(approved: false)` shows the denied toast and reloads.
-    @MainActor
-    func test_loginRequestAnswered_denied() {
+    /// `loginRequestAnswered(approved:)` shows the denied toast and triggers a reload.
+    @Test
+    func loginRequestAnswered_denied() async throws {
         deviceAPIService.getDevicesReturnValue = []
         deviceAPIService.getCurrentDeviceReturnValue = .fixture()
         authService.getPendingLoginRequestResult = .success([])
 
-        let task = Task { subject.loginRequestAnswered(approved: false) }
-        waitFor(deviceAPIService.getDevicesCalled)
-        task.cancel()
+        subject.loginRequestAnswered(approved: false)
 
-        XCTAssertEqual(subject.state.toast, Toast(title: Localizations.logInDenied))
+        #expect(subject.state.toast == Toast(title: Localizations.logInDenied))
+        try await waitForAsync { deviceAPIService.getDevicesCalled }
     }
 }
