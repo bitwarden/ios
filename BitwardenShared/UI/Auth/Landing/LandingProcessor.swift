@@ -274,7 +274,7 @@ extension LandingProcessor: RegionDelegate {
         await services.environmentService.setPreAuthURLs(urls: urls)
         state.region = region
 
-        // - Using `Task` for `refreshConfig` ensures that this call doesn’t delay other operations,
+        // - Using `Task` for `refreshConfig` ensures that this call doesn't delay other operations,
         //   such as closing the Self-host settings view or triggering `.appeared` events. These issues
         //   arose because `refreshConfig` was awaited directly, leading to delays when internet speed
         //   was low.
