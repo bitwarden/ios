@@ -6,6 +6,7 @@
 "Bitwarden" = "Bitwarden";
 "Cancel" = "Annuleren";
 "Copy" = "Kopiëren";
+"CopyLicenseNumber" = "Kenteken kopiëren";
 "CopyPassportNumber" = "Paspoortnummer kopiëren";
 "CopyPassword" = "Wachtwoord kopiëren";
 "CopyUsername" = "Gebruikersnaam kopiëren";
@@ -994,8 +995,8 @@
 "TheNewRecommendedEncryptionSettingsDescriptionLong" = "De nieuwe aanbevolen versleutelingsinstellingen verbeteren de beveiliging van je account. Voer je hoofdwachtwoord in om nu bij te werken.";
 "Updating" = "Bijwerken...";
 "EncryptionSettingsUpdated" = "Versleutelingsinstellingen bijgewerkt";
-"IntroducingArchive" = "Archief introduceren";
-"KeepYtemsYouDontNeedRightNowSafeButOutOfSight" = "Houd voorwerpen die je nu niet nodig hebt, veilig maar uit zicht.";
+"IntroducingArchive" = "Kennismaken met archiven";
+"KeepYtemsYouDontNeedRightNowSafeButOutOfSight" = "Houd voorwerpen die je nu niet nodig hebt veilig, maar uit zicht.";
 "GoToArchive" = "Ga naar archief";
 "ItemTransfer" = "Items overdragen";
 "TransferItemsToX" = "Items overdragen naar %1$@";
@@ -1026,10 +1027,8 @@
 "ArchiveEmptyDescriptionLong" = "Vul je archief in met items die je niet wilt zien in de zoekresultaten en suggesties voor automatisch invullen maar op een gegeven moment nodig kunt hebben.";
 "ArchiveItem" = "Item archiveren";
 "OnceArchivedThisItemWillBeExcludedDescriptionLong" = "Eenmaal gearchiveerd wordt dit item uitgesloten van zoekresultaten en suggesties voor automatisch invullen.";
-"ArchiveUnavailable" = "Archief niet beschikbaar";
 "ArchivingItemsIsAPremiumFeatureDescriptionLong" = "Het archiveren van items is een Premium-functie. Toegang tot deze functie is niet inbegrepen in je huidige abonnement.";
 "AddingAttachmentsIsAPremiumFeatureDescriptionLong" = "Bijlagen toevoegen is een Premium-functionaliteit. Toegang tot deze functionaliteit is niet inbegrepen in je huidige abonnement.";
-"AttachmentsUnavailable" = "Bijlagen niet beschikbaar";
 "UpgradeToPremium" = "Naar Premium upgraden";
 "ThisItemIsArchived" = "Dit item is gearchiveerd.";
 "YourPremiumSubscriptionEnded" = "Je Premium-abonnement is afgelopen";
@@ -1137,3 +1136,28 @@
 "IssueDate" = "Uitgiftedatum";
 "ExpirationDate" = "Vervaldatum";
 "LicenseClass" = "Rijbewijsklasse";
+"PassportDetails" = "Paspoortgegevens";
+/* Label for the sex/gender field as printed on a passport (e.g. "M", "F", "X"). */
+"Sex" = "Geslacht";
+"BirthPlace" = "Geboorteplaats";
+/* Label for the nationality field on a passport (the country a person is a national of). */
+"Nationality" = "Nationaliteit";
+/* Label for the category of passport (e.g. "Regular/Tourist", "Diplomatic", "Official"). */
+"PassportType" = "Soort paspoort";
+"NationalIdentificationNumber" = "Nationaal identificatienummer";
+/* Label for the government authority or office that issued the passport. */
+"IssuingAuthorityOffice" = "Autoriteit/kantoor van uitgifte";
+"AccountDetails" = "Accountgegevens";
+"BankName" = "Banknaam";
+"NameOnAccount" = "Naam op rekening";
+"AccountType" = "Soort rekening";
+"BranchNumber" = "Vestiging/instituutnummer";
+"SwiftCode" = "SWIFT-code";
+"IBAN" = "IBAN";
+"BankContactPhone" = "Telefoonnummer bank";
+"CertificateOfDeposit" = "Bewijs van storting";
+"Checking" = "Controleren";
+"InvestmentBrokerage" = "Investering/makelaar";
+"LineOfCredit" = "Kredietlijn";
+"MoneyMarket" = "Geldmarkt";
+"Savings" = "Spaargeld";

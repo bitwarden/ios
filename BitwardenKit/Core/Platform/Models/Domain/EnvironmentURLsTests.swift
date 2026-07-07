@@ -275,4 +275,20 @@ class EnvironmentURLsTests: BitwardenTestCase {
 
         XCTAssertEqual(subject.fillAssistRulesURL, customFillAssistURL)
     }
+
+    /// `region` resolves the base URL to the matching region.
+    func test_region() {
+        XCTAssertEqual(EnvironmentURLs(environmentURLData: .defaultUS).region, .unitedStates)
+        XCTAssertEqual(EnvironmentURLs(environmentURLData: .defaultEU).region, .europe)
+        XCTAssertEqual(
+            EnvironmentURLs(environmentURLData: EnvironmentURLData(base: URL(string: "https://bitwarden.pw")!)).region,
+            .internal,
+        )
+        XCTAssertEqual(
+            EnvironmentURLs(
+                environmentURLData: EnvironmentURLData(base: URL(string: "https://selfhosted.com")!),
+            ).region,
+            .selfHosted,
+        )
+    }
 }

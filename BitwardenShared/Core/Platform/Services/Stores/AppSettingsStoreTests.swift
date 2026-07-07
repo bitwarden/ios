@@ -474,6 +474,44 @@ class AppSettingsStoreTests: BitwardenTestCase { // swiftlint:disable:this type_
         XCTAssertEqual(subject.events(userId: "1"), [])
     }
 
+    /// `fillAssistCachedData(userId:)` returns `nil` if there is no previously stored value.
+    func test_fillAssistCachedData_isInitiallyNil() {
+        XCTAssertNil(subject.fillAssistCachedData(userId: "-1"))
+    }
+
+    /// `fillAssistCachedData(userId:)` can be used to get and set the cached data per user,
+    /// and persists under the expected UserDefaults key.
+    func test_fillAssistCachedData_withValue() {
+        let data1 = FillAssistCachedData(cid: "sha256:abc", rules: [:], sourceUrl: "https://a.example.com")
+        let data2 = FillAssistCachedData(cid: "sha256:def", rules: [:], sourceUrl: "https://b.example.com")
+        subject.setFillAssistCachedData(data1, userId: "1")
+        subject.setFillAssistCachedData(data2, userId: "2")
+
+        XCTAssertEqual(subject.fillAssistCachedData(userId: "1"), data1)
+        XCTAssertEqual(subject.fillAssistCachedData(userId: "2"), data2)
+        XCTAssertNotNil(userDefaults.string(forKey: "bwPreferencesStorage:fillAssistCachedData_1"))
+        XCTAssertNotNil(userDefaults.string(forKey: "bwPreferencesStorage:fillAssistCachedData_2"))
+    }
+
+    /// `fillAssistLastFetchTimestamp(userId:)` returns `nil` if there is no previously stored value.
+    func test_fillAssistLastFetchTimestamp_isInitiallyNil() {
+        XCTAssertNil(subject.fillAssistLastFetchTimestamp(userId: "-1"))
+    }
+
+    /// `fillAssistLastFetchTimestamp(userId:)` can be used to get and set the timestamp per user,
+    /// and persists under the expected UserDefaults key.
+    func test_fillAssistLastFetchTimestamp_withValue() {
+        let date1 = Date(year: 2025, month: 1, day: 1)
+        let date2 = Date(year: 2026, month: 6, day: 15)
+        subject.setFillAssistLastFetchTimestamp(date1, userId: "1")
+        subject.setFillAssistLastFetchTimestamp(date2, userId: "2")
+
+        XCTAssertEqual(subject.fillAssistLastFetchTimestamp(userId: "1"), date1)
+        XCTAssertEqual(subject.fillAssistLastFetchTimestamp(userId: "2"), date2)
+        XCTAssertNotNil(userDefaults.object(forKey: "bwPreferencesStorage:fillAssistLastFetchTimestamp_1"))
+        XCTAssertNotNil(userDefaults.object(forKey: "bwPreferencesStorage:fillAssistLastFetchTimestamp_2"))
+    }
+
     /// `overrideDebugFeatureFlag(name:value:)` and `debugFeatureFlag(name:)` work as expected with correct values.
     func test_featureFlags() {
         let featureFlags: [FeatureFlag] = [.testFeatureFlag]

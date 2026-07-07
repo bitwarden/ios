@@ -6,6 +6,7 @@
 "Bitwarden" = "Bitwarden";
 "Cancel" = "Abbrechen";
 "Copy" = "Kopieren";
+"CopyLicenseNumber" = "Lizenznummer kopieren";
 "CopyPassportNumber" = "Reisepassnummer kopieren";
 "CopyPassword" = "Passwort kopieren";
 "CopyUsername" = "Benutzername kopieren";
@@ -176,7 +177,7 @@
 "CopyTotp" = "TOTP kopieren";
 "CopyTotpAutomaticallyDescription" = "Ist ein Authentifizierungsschlüssel mit deinen Zugangsdaten verknüpft, wird der TOTP-Verifizierungscode in die Zwischenablage kopiert, wenn du die Zugangsdaten automatisch ausfüllen lässt.";
 "CopyTotpAutomatically" = "TOTP automatisch kopieren";
-"PremiumRequired" = "Für diese Funktion benötigst du eine Premiummitgliedschaft.";
+"PremiumRequired" = "Für diese Funktion benötigen Sie eine Premiummitgliedschaft.";
 "AttachementAdded" = "Anhang hinzugefügt";
 "AttachmentDeleted" = "Anhang entfernt";
 "ChooseFile" = "Datei auswählen";
@@ -1026,10 +1027,8 @@
 "ArchiveEmptyDescriptionLong" = "Fülle dein Archiv mit Einträgen, die du nicht in Suchergebnissen und Auto-Ausfüllen-Vorschlägen sehen möchtest, aber möglicherweise eines Tages benötigst.";
 "ArchiveItem" = "Eintrag archivieren";
 "OnceArchivedThisItemWillBeExcludedDescriptionLong" = "Nach der Archivierung wird dieser Eintrag aus den Suchergebnissen und Auto-Ausfüllen-Vorschlägen ausgeschlossen.";
-"ArchiveUnavailable" = "Archiv nicht verfügbar";
 "ArchivingItemsIsAPremiumFeatureDescriptionLong" = "Das Archivieren von Einträgen ist eine Premium-Funktion. Dein aktueller Tarif umfasst keinen Zugriff auf diese Funktion.";
 "AddingAttachmentsIsAPremiumFeatureDescriptionLong" = "Das Hinzufügen von Anhängen ist eine Premium-Funktion. Dein aktueller Tarif umfasst keinen Zugriff auf diese Funktion.";
-"AttachmentsUnavailable" = "Anhänge sind nicht verfügbar";
 "UpgradeToPremium" = "Auf Premium upgraden";
 "ThisItemIsArchived" = "Dieser Eintrag ist archiviert.";
 "YourPremiumSubscriptionEnded" = "Dein Premium-Abonnement ist abgelaufen";
@@ -1137,3 +1136,28 @@
 "IssueDate" = "Ausstellungsdatum";
 "ExpirationDate" = "Ablaufdatum";
 "LicenseClass" = "Führerscheinklasse";
+"PassportDetails" = "Reisepassdetails";
+/* Label for the sex/gender field as printed on a passport (e.g. "M", "F", "X"). */
+"Sex" = "Geschlecht";
+"BirthPlace" = "Geburtsort";
+/* Label for the nationality field on a passport (the country a person is a national of). */
+"Nationality" = "Nationalität";
+/* Label for the category of passport (e.g. "Regular/Tourist", "Diplomatic", "Official"). */
+"PassportType" = "Reisepasstyp";
+"NationalIdentificationNumber" = "Nationale Identifikationsnummer";
+/* Label for the government authority or office that issued the passport. */
+"IssuingAuthorityOffice" = "Ausstellende Behörde/Stelle";
+"AccountDetails" = "Kontodetails";
+"BankName" = "Bankname";
+"NameOnAccount" = "Name des Kontoinhabers";
+"AccountType" = "Kontoart";
+"BranchNumber" = "Filial-/Institutionsnummer";
+"SwiftCode" = "SWIFT-Code";
+"IBAN" = "IBAN";
+"BankContactPhone" = "Telefonnummer der Bank";
+"CertificateOfDeposit" = "Einlagenzertifikat";
+"Checking" = "Wird überprüft";
+"InvestmentBrokerage" = "Anlage/Wertpapierhandel";
+"LineOfCredit" = "Kreditrahmen";
+"MoneyMarket" = "Finanzmarkt";
+"Savings" = "Ersparnisse";

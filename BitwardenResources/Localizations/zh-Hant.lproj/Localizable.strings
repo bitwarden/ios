@@ -6,6 +6,7 @@
 "Bitwarden" = "Bitwarden";
 "Cancel" = "取消";
 "Copy" = "複製";
+"CopyLicenseNumber" = "複製駕照號碼";
 "CopyPassportNumber" = "複製護照號碼";
 "CopyPassword" = "複製密碼";
 "CopyUsername" = "複製使用者名稱";
@@ -421,7 +422,7 @@
 "AboutSend" = "關於 Send";
 "HideEmail" = "對收件人隱藏我的電子郵件地址";
 "SendOptionsPolicyInEffect" = "一個或多個組織原則正影響您的 Send 選項。";
-"SendFilePremiumRequired" = "免費帳戶僅限於共用文字。若想使用檔案 Send，需要進階會員資格。";
+"SendFilePremiumRequired" = "免費帳戶僅限於共用文字。若想使用檔案傳送，需要進階會員資格。";
 "SendFileEmailVerificationRequired" = "您必須驗證電子郵件才能夠使用檔案 Send。您可以在網頁版密碼庫中驗證您的電子郵件。";
 "PasswordPrompt" = "重新詢問主密碼";
 "PasswordConfirmation" = "確認主密碼";
@@ -1027,10 +1028,8 @@
 "ArchiveEmptyDescriptionLong" = "將您不希望出現在搜尋結果與自動填入建議中、但日後可能需要的項目加入封存。";
 "ArchiveItem" = "封存項目";
 "OnceArchivedThisItemWillBeExcludedDescriptionLong" = "封存後，此項目將不會顯示在搜尋結果與自動填入建議中。";
-"ArchiveUnavailable" = "封存不可用";
 "ArchivingItemsIsAPremiumFeatureDescriptionLong" = "封存項目為進階版功能。您目前的方案不包含此功能。";
 "AddingAttachmentsIsAPremiumFeatureDescriptionLong" = "新增附件為 Premium 功能。您目前的方案不包含此功能。";
-"AttachmentsUnavailable" = "附件不可用";
 "UpgradeToPremium" = "升級到 Premium";
 "ThisItemIsArchived" = "此項目已被封存。";
 "YourPremiumSubscriptionEnded" = "您的進階版訂閱已到期";
@@ -1138,3 +1137,28 @@
 "IssueDate" = "簽發日期";
 "ExpirationDate" = "到期日期";
 "LicenseClass" = "駕照類別";
+"PassportDetails" = "護照詳細資訊";
+/* Label for the sex/gender field as printed on a passport (e.g. "M", "F", "X"). */
+"Sex" = "性別";
+"BirthPlace" = "出生地";
+/* Label for the nationality field on a passport (the country a person is a national of). */
+"Nationality" = "國籍";
+/* Label for the category of passport (e.g. "Regular/Tourist", "Diplomatic", "Official"). */
+"PassportType" = "護照類型";
+"NationalIdentificationNumber" = "身分證字號";
+/* Label for the government authority or office that issued the passport. */
+"IssuingAuthorityOffice" = "Issuing authority/office";
+"AccountDetails" = "帳戶詳細資訊";
+"BankName" = "銀行名稱";
+"NameOnAccount" = "帳戶名稱";
+"AccountType" = "帳戶類型";
+"BranchNumber" = "分行代碼";
+"SwiftCode" = "SWIFT 代碼";
+"IBAN" = "IBAN";
+"BankContactPhone" = "銀行聯絡電話";
+"CertificateOfDeposit" = "定期存款";
+"Checking" = "支票帳戶";
+"InvestmentBrokerage" = "投資／券商帳戶";
+"LineOfCredit" = "信用額度";
+"MoneyMarket" = "貨幣市場帳戶";
+"Savings" = "儲蓄帳戶";

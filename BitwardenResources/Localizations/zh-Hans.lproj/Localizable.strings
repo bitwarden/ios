@@ -6,6 +6,7 @@
 "Bitwarden" = "Bitwarden";
 "Cancel" = "取消";
 "Copy" = "复制";
+"CopyLicenseNumber" = "复制驾驶证号码";
 "CopyPassportNumber" = "复制护照号码";
 "CopyPassword" = "复制密码";
 "CopyUsername" = "复制用户名";
@@ -232,7 +233,7 @@
 "June" = "六月";
 "LastName" = "姓氏";
 "FullName" = "全名";
-"LicenseNumber" = "许可证编号";
+"LicenseNumber" = "驾驶证号码";
 "March" = "三月";
 "May" = "五月";
 "MiddleName" = "中间名";
@@ -1026,10 +1027,8 @@
 "ArchiveEmptyDescriptionLong" = "将您不希望在搜索结果和自动填充建议中看到，但将来可能需要的项目添加到您的归档中。";
 "ArchiveItem" = "归档项目";
 "OnceArchivedThisItemWillBeExcludedDescriptionLong" = "归档后，此项目将被排除在一般搜索结果和自动填充建议之外。";
-"ArchiveUnavailable" = "归档功能不可用";
 "ArchivingItemsIsAPremiumFeatureDescriptionLong" = "归档项目是高级版功能。您的当前方案不包含对此功能的访问权限。";
 "AddingAttachmentsIsAPremiumFeatureDescriptionLong" = "添加附件是高级版功能。您的当前方案不包含对此功能的访问权限。";
-"AttachmentsUnavailable" = "附件功能不可用";
 "UpgradeToPremium" = "升级到高级版";
 "ThisItemIsArchived" = "此项目已归档。";
 "YourPremiumSubscriptionEnded" = "您的高级版订阅已结束";
@@ -1137,3 +1136,28 @@
 "IssueDate" = "签发日期";
 "ExpirationDate" = "到期日期";
 "LicenseClass" = "驾驶证类别";
+"PassportDetails" = "护照详细信息";
+/* Label for the sex/gender field as printed on a passport (e.g. "M", "F", "X"). */
+"Sex" = "性别";
+"BirthPlace" = "出生地点";
+/* Label for the nationality field on a passport (the country a person is a national of). */
+"Nationality" = "国籍";
+/* Label for the category of passport (e.g. "Regular/Tourist", "Diplomatic", "Official"). */
+"PassportType" = "护照类型";
+"NationalIdentificationNumber" = "居民身份证号码";
+/* Label for the government authority or office that issued the passport. */
+"IssuingAuthorityOffice" = "签发机构 / 部门";
+"AccountDetails" = "账户详细信息";
+"BankName" = "银行名称";
+"NameOnAccount" = "账户名称";
+"AccountType" = "账户类型";
+"BranchNumber" = "分行号码";
+"SwiftCode" = "SWIFT 代码";
+"IBAN" = "IBAN";
+"BankContactPhone" = "银行联系电话";
+"CertificateOfDeposit" = "定期存款";
+"Checking" = "支票";
+"InvestmentBrokerage" = "投资/证券";
+"LineOfCredit" = "信用额度";
+"MoneyMarket" = "货币市场";
+"Savings" = "储蓄";

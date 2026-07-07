@@ -193,6 +193,8 @@ final class VaultListProcessor: StateProcessor<
             upgradeToPremium()
         case let .vaultFilterChanged(newValue):
             state.vaultFilterType = newValue
+        case .viewPlan:
+            coordinator.navigate(to: .premiumPlan)
         }
     }
 }
@@ -233,6 +235,9 @@ extension VaultListProcessor {
     /// Called when the vault list appears on screen.
     private func appeared() async {
         await refreshVault(syncWithPeriodicCheck: true)
+        // Read after sync so the cache has been refreshed by onFetchSyncSucceeded if a sync ran.
+        state.shouldShowSubscriptionAttentionCard =
+            await services.billingService.shouldShowSubscriptionAttentionCard()
         await handleNotifications()
         await checkPendingLoginRequests()
         await checkPersonalOwnershipPolicy()

@@ -21,6 +21,10 @@ struct IdentityTokenRequestModel {
     /// The type of authentication method used.
     let authenticationMethod: AuthenticationMethod
 
+    /// The URL scheme (`https` or `bitwarden`) the server should use when building auth connector
+    /// callback URLs for this client.
+    let deeplinkScheme: String
+
     /// The device's details.
     let deviceInfo: DeviceInfo
 
@@ -50,6 +54,7 @@ extension IdentityTokenRequestModel: FormURLEncodedRequestBody {
         queryItems.append(contentsOf: [
             URLQueryItem(name: "scope", value: "api offline_access"),
             URLQueryItem(name: "client_id", value: Constants.clientType),
+            URLQueryItem(name: "deeplinkScheme", value: deeplinkScheme),
 
             URLQueryItem(name: "deviceIdentifier", value: deviceInfo.identifier),
             URLQueryItem(name: "deviceName", value: deviceInfo.name),

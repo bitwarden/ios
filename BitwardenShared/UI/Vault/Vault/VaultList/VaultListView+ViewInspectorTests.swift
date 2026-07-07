@@ -13,7 +13,7 @@ import XCTest
 
 // MARK: - VaultListViewTests
 
-class VaultListViewTests: BitwardenTestCase {
+class VaultListViewTests: BitwardenTestCase { // swiftlint:disable:this type_body_length
     // MARK: Properties
 
     var processor: MockProcessor<VaultListState, VaultListAction, VaultListEffect>!
@@ -191,6 +191,37 @@ class VaultListViewTests: BitwardenTestCase {
         let button = try actionCard.find(asyncButton: Localizations.getStarted)
         try await button.tap()
         XCTAssertEqual(processor.dispatchedActions, [.showImportLogins])
+    }
+
+    /// The subscription attention action card is hidden when `shouldShowSubscriptionAttentionCard` is false.
+    @MainActor
+    func test_subscriptionAttentionActionCard_hidden() {
+        processor.state.loadingState = .data([VaultListSection(id: "1", items: [.fixture()], name: "")])
+        processor.state.shouldShowSubscriptionAttentionCard = false
+        XCTAssertThrowsError(
+            try subject.inspect().find(actionCard: Localizations.subscriptionNeedsAttention),
+        )
+    }
+
+    /// The subscription attention action card is visible when `shouldShowSubscriptionAttentionCard` is true.
+    @MainActor
+    func test_subscriptionAttentionActionCard_visible() {
+        processor.state.loadingState = .data([VaultListSection(id: "1", items: [.fixture()], name: "")])
+        processor.state.shouldShowSubscriptionAttentionCard = true
+        XCTAssertNoThrow(
+            try subject.inspect().find(actionCard: Localizations.subscriptionNeedsAttention),
+        )
+    }
+
+    /// Tapping the "View plan" button on the subscription attention action card dispatches `.viewPlan`.
+    @MainActor
+    func test_subscriptionAttentionActionCard_tapViewPlan() async throws {
+        processor.state.loadingState = .data([VaultListSection(id: "1", items: [.fixture()], name: "")])
+        processor.state.shouldShowSubscriptionAttentionCard = true
+        let actionCard = try subject.inspect().find(actionCard: Localizations.subscriptionNeedsAttention)
+        let button = try actionCard.find(asyncButton: Localizations.viewPlan)
+        try await button.tap()
+        XCTAssertEqual(processor.dispatchedActions, [.viewPlan])
     }
 
     /// The organization banner action card is hidden when `organizationUserNotificationBannerData` is `nil`.

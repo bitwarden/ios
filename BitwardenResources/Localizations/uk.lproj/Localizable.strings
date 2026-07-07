@@ -6,6 +6,7 @@
 "Bitwarden" = "Bitwarden";
 "Cancel" = "Скасувати";
 "Copy" = "Копіювати";
+"CopyLicenseNumber" = "Копіювати номер ліцензії";
 "CopyPassportNumber" = "Копіювати номер паспорта";
 "CopyPassword" = "Копіювати пароль";
 "CopyUsername" = "Копіювати ім'я користувача";
@@ -1026,10 +1027,8 @@
 "ArchiveEmptyDescriptionLong" = "Заповніть архів записами, які ви не хочете бачити в результатах пошуку і пропозиціях автозаповнення, але які можуть колись знадобитися.";
 "ArchiveItem" = "Архівувати запис";
 "OnceArchivedThisItemWillBeExcludedDescriptionLong" = "Після архівації цей запис буде виключено з результатів пошуку і пропозицій автозаповнення.";
-"ArchiveUnavailable" = "Архів недоступний";
 "ArchivingItemsIsAPremiumFeatureDescriptionLong" = "Архівування записів є функцією Premium. Ваш поточний тарифний план не передбачає доступ до цієї функції.";
 "AddingAttachmentsIsAPremiumFeatureDescriptionLong" = "Adding attachments is a Premium feature. Your current plan does not include access to this feature.";
-"AttachmentsUnavailable" = "Вкладення недоступні";
 "UpgradeToPremium" = "Покращити до Premium";
 "ThisItemIsArchived" = "Цей запис архівовано.";
 "YourPremiumSubscriptionEnded" = "Ваша передплата Premium завершилася";
@@ -1095,7 +1094,7 @@
 "NegativeX" = "-%1$@";
 "UnknownStatus" = "Unknown";
 "YourSubscriptionStatusIsUnknownVisitTheWebAppDescriptionLong" = "Your subscription status could not be determined. Please visit the web app for more details or update to the latest version.";
-"AtTheMomentPremiumPlanIsNotAvailableDescriptionLong" = "At the moment premium plan is not available, please try again later.";
+"AtTheMomentPremiumPlanIsNotAvailableDescriptionLong" = "At the moment Premium plan is not available, please try again later.";
 "UnlockMoreAdvancedFeaturesWithPremiumPlan" = "Розблокувати розширені функції з планом Premium.";
 "BuiltInAuthenticator" = "Вбудований автентифікатор";
 "EmergencyAccess" = "Екстрений доступ";
@@ -1137,3 +1136,28 @@
 "IssueDate" = "Issue date";
 "ExpirationDate" = "Expiration date";
 "LicenseClass" = "License class";
+"PassportDetails" = "Passport details";
+/* Label for the sex/gender field as printed on a passport (e.g. "M", "F", "X"). */
+"Sex" = "Sex";
+"BirthPlace" = "Birth place";
+/* Label for the nationality field on a passport (the country a person is a national of). */
+"Nationality" = "Nationality";
+/* Label for the category of passport (e.g. "Regular/Tourist", "Diplomatic", "Official"). */
+"PassportType" = "Passport type";
+"NationalIdentificationNumber" = "National identification number";
+/* Label for the government authority or office that issued the passport. */
+"IssuingAuthorityOffice" = "Issuing authority/office";
+"AccountDetails" = "Account details";
+"BankName" = "Bank name";
+"NameOnAccount" = "Name on account";
+"AccountType" = "Account type";
+"BranchNumber" = "Branch number";
+"SwiftCode" = "SWIFT code";
+"IBAN" = "IBAN";
+"BankContactPhone" = "Bank contact phone";
+"CertificateOfDeposit" = "Certificate of deposit";
+"Checking" = "Checking";
+"InvestmentBrokerage" = "Investment/brokerage";
+"LineOfCredit" = "Line of credit";
+"MoneyMarket" = "Money market";
+"Savings" = "Savings";

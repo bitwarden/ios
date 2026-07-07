@@ -6,6 +6,7 @@
 "Bitwarden" = "Bitwarden";
 "Cancel" = "Annuler";
 "Copy" = "Copier";
+"CopyLicenseNumber" = "Copier le numéro de permis de conduire";
 "CopyPassportNumber" = "Copier le numéro de passeport";
 "CopyPassword" = "Copier le mot de passe";
 "CopyUsername" = "Copier le nom d'utilisateur";
@@ -486,7 +487,7 @@
 "LogInAttemptByXOnY" = "Tentative de connexion par %1$@ le %2$@";
 "DeviceType" = "Type d'appareil";
 "IpAddress" = "Adresse IP";
-"Time" = "Heure";
+"Time" = "Temps";
 "ConfirmLogIn" = "Confirmer la connexion";
 "DenyLogIn" = "Refuser la connexion";
 "LogInDenied" = "Connexion refusée";
@@ -994,7 +995,7 @@
 "TheNewRecommendedEncryptionSettingsDescriptionLong" = "Les nouveaux paramètres de chiffrement recommandés amélioreront la sécurité de votre compte. Entrez votre mot de passe principal pour faire la mise à jour maintenant.";
 "Updating" = "Mise à jour…";
 "EncryptionSettingsUpdated" = "Paramètres de chiffrement mis à jour";
-"IntroducingArchive" = "Ajout aux archives";
+"IntroducingArchive" = "Introduction de l'archive";
 "KeepYtemsYouDontNeedRightNowSafeButOutOfSight" = "Gardez les éléments dont vous n'avez pas besoin pour le moment en sécurité mais hors de vue.";
 "GoToArchive" = "Accéder aux archives";
 "ItemTransfer" = "Transfert d'élément";
@@ -1026,10 +1027,8 @@
 "ArchiveEmptyDescriptionLong" = "Remplissez votre archive avec des éléments que vous ne voulez pas voir dans les résultats de recherche et les suggestions de saisie automatique, mais qui pourraient avoir besoin d'un jour.";
 "ArchiveItem" = "Archiver l'élément";
 "OnceArchivedThisItemWillBeExcludedDescriptionLong" = "Une fois archivé, cet élément sera exclu des résultats de recherche et des suggestions de remplissage automatique.";
-"ArchiveUnavailable" = "Archive indisponible";
 "ArchivingItemsIsAPremiumFeatureDescriptionLong" = "L'archivage est une fonctionnalité Premium. Votre abonnement actuel n'inclut pas l'accès à cette fonctionnalité.";
 "AddingAttachmentsIsAPremiumFeatureDescriptionLong" = "L'ajout de pièces jointes est une fonctionnalité Premium. Votre plan actuel n'inclut pas l'accès à cette fonctionnalité.";
-"AttachmentsUnavailable" = "Pièces jointes non disponibles";
 "UpgradeToPremium" = "Passer à la version premium";
 "ThisItemIsArchived" = "Cet élément est archivé.";
 "YourPremiumSubscriptionEnded" = "Votre abonnement Premium a expiré";
@@ -1137,3 +1136,28 @@
 "IssueDate" = "Date d'émission";
 "ExpirationDate" = "Date d'expiration";
 "LicenseClass" = "Classe de permis";
+"PassportDetails" = "Détails du passeport";
+/* Label for the sex/gender field as printed on a passport (e.g. "M", "F", "X"). */
+"Sex" = "Sexe";
+"BirthPlace" = "Lieu de naissance";
+/* Label for the nationality field on a passport (the country a person is a national of). */
+"Nationality" = "Nationalité";
+/* Label for the category of passport (e.g. "Regular/Tourist", "Diplomatic", "Official"). */
+"PassportType" = "Type de passeport";
+"NationalIdentificationNumber" = "Numéro d'identification national";
+/* Label for the government authority or office that issued the passport. */
+"IssuingAuthorityOffice" = "Autorité émettrice/bureau";
+"AccountDetails" = "Détails du compte";
+"BankName" = "Nom de la banque";
+"NameOnAccount" = "Nom sur le compte";
+"AccountType" = "Type de compte";
+"BranchNumber" = "Numéro de branche";
+"SwiftCode" = "Code SWIFT";
+"IBAN" = "IBAN";
+"BankContactPhone" = "Téléphone du contact de la banque";
+"CertificateOfDeposit" = "Compte à terme";
+"Checking" = "Compte courant";
+"InvestmentBrokerage" = "Compte titres";
+"LineOfCredit" = "Ligne de crédit";
+"MoneyMarket" = "Compte du marché monétaire";
+"Savings" = "Compte épargne";

@@ -101,7 +101,7 @@ class SingleSignOnProcessorTests: BitwardenTestCase { // swiftlint:disable:this 
         XCTAssertEqual(coordinator.loadingOverlaysShown.last, LoadingOverlayState(title: Localizations.loggingIn))
         XCTAssertEqual(
             coordinator.routes.last,
-            .singleSignOn(callbackUrlScheme: "callback", state: "state", url: .example),
+            .singleSignOn(state: "state", url: .example),
         )
         XCTAssertEqual(subject.state.identifierText, "OrgId")
     }
@@ -119,7 +119,7 @@ class SingleSignOnProcessorTests: BitwardenTestCase { // swiftlint:disable:this 
         XCTAssertNotEqual(coordinator.loadingOverlaysShown.last, LoadingOverlayState(title: Localizations.loggingIn))
         XCTAssertNotEqual(
             coordinator.routes.last,
-            .singleSignOn(callbackUrlScheme: "callback", state: "state", url: .example),
+            .singleSignOn(state: "state", url: .example),
         )
         XCTAssertEqual(subject.state.identifierText, "")
     }
@@ -139,7 +139,7 @@ class SingleSignOnProcessorTests: BitwardenTestCase { // swiftlint:disable:this 
         XCTAssertNotEqual(coordinator.loadingOverlaysShown.last, LoadingOverlayState(title: Localizations.loggingIn))
         XCTAssertNotEqual(
             coordinator.routes.last,
-            .singleSignOn(callbackUrlScheme: "callback", state: "state", url: .example),
+            .singleSignOn(state: "state", url: .example),
         )
         XCTAssertEqual(subject.state.identifierText, "BestOrganization")
     }
@@ -162,7 +162,7 @@ class SingleSignOnProcessorTests: BitwardenTestCase { // swiftlint:disable:this 
         )
         XCTAssertEqual(
             coordinator.routes.last,
-            .singleSignOn(callbackUrlScheme: "callback", state: "state", url: .example),
+            .singleSignOn(state: "state", url: .example),
         )
         XCTAssertEqual(subject.state.identifierText, "OrgId")
     }
@@ -216,7 +216,7 @@ class SingleSignOnProcessorTests: BitwardenTestCase { // swiftlint:disable:this 
         XCTAssertEqual(coordinator.loadingOverlaysShown.last, LoadingOverlayState(title: Localizations.loggingIn))
         XCTAssertEqual(
             coordinator.routes.last,
-            .singleSignOn(callbackUrlScheme: "callback", state: "state", url: .example),
+            .singleSignOn(state: "state", url: .example),
         )
     }
 

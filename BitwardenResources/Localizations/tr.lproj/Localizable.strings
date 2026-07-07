@@ -6,6 +6,7 @@
 "Bitwarden" = "Bitwarden";
 "Cancel" = "İptal";
 "Copy" = "Kopyala";
+"CopyLicenseNumber" = "Ruhsat numarasını kopyala";
 "CopyPassportNumber" = "Pasaport numarasını kopyala";
 "CopyPassword" = "Parolayı kopyala";
 "CopyUsername" = "Kullanıcı adını kopyala";
@@ -1026,10 +1027,8 @@
 "ArchiveEmptyDescriptionLong" = "Fill your archive with items you don’t want to see in search results and autofill suggestions but might need someday.";
 "ArchiveItem" = "Kaydı arşivle";
 "OnceArchivedThisItemWillBeExcludedDescriptionLong" = "Once archived, this item will be excluded from search results and autofill suggestions.";
-"ArchiveUnavailable" = "Arşiv kullanılamıyor";
 "ArchivingItemsIsAPremiumFeatureDescriptionLong" = "Archiving items is a Premium feature. Your current plan does not include access to this feature.";
 "AddingAttachmentsIsAPremiumFeatureDescriptionLong" = "Adding attachments is a Premium feature. Your current plan does not include access to this feature.";
-"AttachmentsUnavailable" = "Ekler kullanılamıyor";
 "UpgradeToPremium" = "Premium’a yükselt";
 "ThisItemIsArchived" = "Bu kayıt arşivlendi.";
 "YourPremiumSubscriptionEnded" = "Premium aboneliğiniz sona erdi";
@@ -1095,7 +1094,7 @@
 "NegativeX" = "-%1$@";
 "UnknownStatus" = "Bilinmiyor";
 "YourSubscriptionStatusIsUnknownVisitTheWebAppDescriptionLong" = "Your subscription status could not be determined. Please visit the web app for more details or update to the latest version.";
-"AtTheMomentPremiumPlanIsNotAvailableDescriptionLong" = "At the moment premium plan is not available, please try again later.";
+"AtTheMomentPremiumPlanIsNotAvailableDescriptionLong" = "At the moment Premium plan is not available, please try again later.";
 "UnlockMoreAdvancedFeaturesWithPremiumPlan" = "Unlock more advanced features with a Premium plan.";
 "BuiltInAuthenticator" = "Built-in authenticator";
 "EmergencyAccess" = "Emergency access";
@@ -1137,3 +1136,28 @@
 "IssueDate" = "Veriliş tarihi";
 "ExpirationDate" = "Son kullanma tarihi";
 "LicenseClass" = "Ehliyet sınıfı";
+"PassportDetails" = "Pasaport bilgileri";
+/* Label for the sex/gender field as printed on a passport (e.g. "M", "F", "X"). */
+"Sex" = "Cinsiyet";
+"BirthPlace" = "Doğum yeri";
+/* Label for the nationality field on a passport (the country a person is a national of). */
+"Nationality" = "Uyruk";
+/* Label for the category of passport (e.g. "Regular/Tourist", "Diplomatic", "Official"). */
+"PassportType" = "Pasaport türü";
+"NationalIdentificationNumber" = "Kimlik numarası";
+/* Label for the government authority or office that issued the passport. */
+"IssuingAuthorityOffice" = "Veren makam";
+"AccountDetails" = "Hesap bilgileri";
+"BankName" = "Banka adı";
+"NameOnAccount" = "Hesaptaki ad";
+"AccountType" = "Hesap türü";
+"BranchNumber" = "Şube numarası";
+"SwiftCode" = "SWIFT kodu";
+"IBAN" = "IBAN";
+"BankContactPhone" = "Banka telefonu";
+"CertificateOfDeposit" = "Bono";
+"Checking" = "Vadesiz";
+"InvestmentBrokerage" = "Yatırım/aracılık";
+"LineOfCredit" = "Kredi limiti";
+"MoneyMarket" = "Para piyasası";
+"Savings" = "Mevduat";

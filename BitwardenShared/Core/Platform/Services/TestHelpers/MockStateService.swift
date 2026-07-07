@@ -30,12 +30,18 @@ class MockStateService: StateService, ActiveAccountStateProvider, AutofillStateS
     var archiveOnboardingShown = false
     var premiumUpgradeBannerDismissedByUserId = [String: Bool]()
     var premiumUpgradeBannerDismissedResult: Result<Void, Error> = .success(())
-    var upgradedToPremiumActionCardVisibleResult: Bool = false
+    var setSubscriptionAttentionCardResult: Result<Void, Error> = .success(())
     var setUpgradedToPremiumActionCardResult: Result<Void, Error> = .success(())
+    var subscriptionAttentionCardVisibleResult: Bool = false
+    var upgradedToPremiumActionCardVisibleResult: Bool = false
     var biometricsEnabled = [String: Bool]()
     var capturedUserId: String?
     var clearClipboardValues = [String: ClearClipboardValue]()
     var clearClipboardResult: Result<Void, Error> = .success(())
+    // swiftlint:disable:next identifier_name
+    var clearMasterPasswordUnlockForActiveAccountCalled = false
+    // swiftlint:disable:next identifier_name
+    var clearMasterPasswordUnlockForActiveAccountResult: Result<Void, Error> = .success(())
     var collapsedVaultListSectionIds = [String: [String]]()
     var connectToWatchByUserId = [String: Bool]()
     var connectToWatchResult: Result<Void, Error> = .success(())
@@ -134,6 +140,11 @@ class MockStateService: StateService, ActiveAccountStateProvider, AutofillStateS
     func addAccount(_ account: Account) async {
         accountsAdded.append(account)
         activeAccount = account
+    }
+
+    func clearMasterPasswordUnlockForActiveAccount() async throws {
+        clearMasterPasswordUnlockForActiveAccountCalled = true
+        try clearMasterPasswordUnlockForActiveAccountResult.get()
     }
 
     func clearPins() async throws {
@@ -445,6 +456,10 @@ class MockStateService: StateService, ActiveAccountStateProvider, AutofillStateS
         twoFactorTokens[email]
     }
 
+    func getSubscriptionAttentionCardVisible() async -> Bool {
+        subscriptionAttentionCardVisibleResult
+    }
+
     func getUpgradedToPremiumActionCardVisible() async -> Bool {
         upgradedToPremiumActionCardVisibleResult
     }
@@ -606,6 +621,11 @@ class MockStateService: StateService, ActiveAccountStateProvider, AutofillStateS
         try premiumUpgradeBannerDismissedResult.get()
         let userId = try unwrapUserId(userId)
         premiumUpgradeBannerDismissedByUserId[userId] = dismissed
+    }
+
+    func setSubscriptionAttentionCardVisible(_ visible: Bool) async throws {
+        try setSubscriptionAttentionCardResult.get()
+        subscriptionAttentionCardVisibleResult = visible
     }
 
     func setUpgradedToPremiumActionCardVisible(_ visible: Bool) async throws {

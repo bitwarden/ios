@@ -10,7 +10,7 @@ import Foundation
 
 /// A protocol for a `StateService` which manages the state of the accounts in the app.
 ///
-protocol StateService: AnyObject, BillingStateService {
+protocol StateService: AnyObject, BillingStateService, DebugStateService {
     /// The language option currently selected for the app.
     var appLanguage: LanguageOption { get set }
 
@@ -325,12 +325,6 @@ protocol StateService: AnyObject, BillingStateService {
     ///
     func getPremiumUpgradeBannerDismissed(userId: String?) async throws -> Bool
 
-    /// Gets whether the "Upgraded to Premium" action card should be shown for the active account.
-    ///
-    /// - Returns: Whether the action card should be shown.
-    ///
-    func getUpgradedToPremiumActionCardVisible() async -> Bool
-
     /// Gets the environment URLs for a given email during account creation.
     ///
     /// - Parameter email: The email used to start the account creation.
@@ -576,12 +570,6 @@ protocol StateService: AnyObject, BillingStateService {
     ///     Defaults to the active account if `nil`.
     ///
     func setPremiumUpgradeBannerDismissed(_ dismissed: Bool, userId: String?) async throws
-
-    /// Sets whether the "Upgraded to Premium" action card should be shown for the active account.
-    ///
-    /// - Parameter visible: Whether the action card should be shown.
-    ///
-    func setUpgradedToPremiumActionCardVisible(_ visible: Bool) async throws
 
     /// Sets the clear clipboard value for an account.
     ///
@@ -1478,9 +1466,6 @@ enum StateServiceError: LocalizedError {
     /// The user has no pin protected user key.
     case noPinProtectedUserKey
 
-    /// The user has no user key.
-    case noEncUserKey
-
     var errorDescription: String? {
         switch self {
         case .noActiveAccount:
@@ -1743,16 +1728,6 @@ actor DefaultStateService: StateService, ActiveAccountStateProvider, ConfigState
         return appSettingsStore.premiumUpgradeBannerDismissed(userId: userId)
     }
 
-    func getUpgradedToPremiumActionCardVisible() async -> Bool {
-        do {
-            let userId = try getActiveAccountUserId()
-            return appSettingsStore.upgradedToPremiumActionCardVisible(userId: userId)
-        } catch {
-            errorReporter.log(error: error)
-            return false
-        }
-    }
-
     func getClearClipboardValue(userId: String?) async throws -> ClearClipboardValue {
         let userId = try userId ?? getActiveAccountUserId()
         return appSettingsStore.clearClipboardValue(userId: userId)
@@ -1982,6 +1957,8 @@ actor DefaultStateService: StateService, ActiveAccountStateProvider, ConfigState
         appSettingsStore.setDefaultUriMatchType(nil, userId: knownUserId)
         appSettingsStore.setDisableAutoTotpCopy(nil, userId: knownUserId)
         appSettingsStore.setEncryptedUserKey(key: nil, userId: knownUserId)
+        appSettingsStore.setFillAssistCachedData(nil, userId: knownUserId)
+        appSettingsStore.setFillAssistLastFetchTimestamp(nil, userId: knownUserId)
         appSettingsStore.setHasPerformedSyncAfterLogin(nil, userId: knownUserId)
         appSettingsStore.setLastSyncTime(nil, userId: knownUserId)
         appSettingsStore.setMasterPasswordHash(nil, userId: knownUserId)
@@ -2126,11 +2103,6 @@ actor DefaultStateService: StateService, ActiveAccountStateProvider, ConfigState
     func setPremiumUpgradeBannerDismissed(_ dismissed: Bool, userId: String?) async throws {
         let userId = try userId ?? getActiveAccountUserId()
         appSettingsStore.setPremiumUpgradeBannerDismissed(dismissed, userId: userId)
-    }
-
-    func setUpgradedToPremiumActionCardVisible(_ visible: Bool) async throws {
-        let userId = try getActiveAccountUserId()
-        appSettingsStore.setUpgradedToPremiumActionCardVisible(visible, userId: userId)
     }
 
     func setClearClipboardValue(_ clearClipboardValue: ClearClipboardValue?, userId: String?) async throws {
@@ -2507,6 +2479,54 @@ struct AccountVolatileData {
     var hasBeenUnlockedInteractively = false
 }
 
+// MARK: BillingStateService
+
+extension DefaultStateService: BillingStateService {
+    // MARK: Premium Upgrade Banner
+
+    func isPremiumUpgradeBannerDismissed() async -> Bool {
+        do {
+            return try await getPremiumUpgradeBannerDismissed()
+        } catch {
+            errorReporter.log(error: error)
+            return false
+        }
+    }
+
+    func isPremiumUpgradeEligible() async -> Bool {
+        guard await !doesActiveAccountHavePremium() else { return false }
+
+        // Check account age >= 7 days
+        guard let account = try? await getActiveAccount(),
+              let creationDate = account.profile.creationDate else { return false }
+        return timeProvider.timeSince(creationDate) >= Constants.premiumUpgradeBannerAccountAge
+    }
+
+    // MARK: Subscription Attention Card
+
+    func getSubscriptionAttentionCardVisible() async throws -> Bool {
+        let userId = try getActiveAccountUserId()
+        return appSettingsStore.subscriptionAttentionCardVisible(userId: userId)
+    }
+
+    func setSubscriptionAttentionCardVisible(_ visible: Bool) async throws {
+        let userId = try getActiveAccountUserId()
+        appSettingsStore.setSubscriptionAttentionCardVisible(visible, userId: userId)
+    }
+
+    // MARK: Upgraded to Premium Card
+
+    func getUpgradedToPremiumActionCardVisible() async throws -> Bool {
+        let userId = try getActiveAccountUserId()
+        return appSettingsStore.upgradedToPremiumActionCardVisible(userId: userId)
+    }
+
+    func setUpgradedToPremiumActionCardVisible(_ visible: Bool) async throws {
+        let userId = try getActiveAccountUserId()
+        appSettingsStore.setUpgradedToPremiumActionCardVisible(visible, userId: userId)
+    }
+}
+
 // MARK: BiometricsStateService
 
 extension DefaultStateService: BiometricsStateService {
@@ -2518,6 +2538,17 @@ extension DefaultStateService: BiometricsStateService {
     func setBiometricAuthenticationEnabled(_ isEnabled: Bool?, userId: String?) async throws {
         let userId = try userId ?? getActiveAccountUserId()
         appSettingsStore.setBiometricAuthenticationEnabled(isEnabled, for: userId)
+    }
+}
+
+// MARK: - DebugStateService
+
+extension DefaultStateService {
+    func clearMasterPasswordUnlockForActiveAccount() async throws {
+        let userId = try getActiveAccountUserId()
+        try updateAccountProfile(userId: userId) { profile in
+            profile.userDecryptionOptions?.masterPasswordUnlock = nil
+        }
     }
 }
 
