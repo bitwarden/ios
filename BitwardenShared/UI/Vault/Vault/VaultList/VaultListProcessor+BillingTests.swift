@@ -231,7 +231,7 @@ struct VaultListProcessorBillingTests {
 // MARK: - PremiumActionCardTestCase
 
 /// Input/output data for the `perform_appeared_premiumActionCards` parameterized test.
-private struct PremiumActionCardTestCase: Sendable {
+struct PremiumActionCardTestCase: Sendable {
     let attentionCardVisible: Bool
     let bannerDismissed: Bool
     let upgradeAvailable: Bool
