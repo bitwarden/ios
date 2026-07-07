@@ -353,61 +353,50 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         }
     }
 
-    /// `getAccountEncryptionKeys(_:)` returns the encryption keys for the user account.
-    func test_getAccountEncryptionKeys() async throws {
+    /// `getAccountCryptographicState(_:)` returns the cryptographic state for the user account.
+    func test_getAccountCryptographicState() async throws {
         appSettingsStore.accountCryptographicStates["1"] = .v1(privateKey: "1:PRIVATE_KEY")
         appSettingsStore.accountCryptographicStates["2"] = .fixtureV2()
-        appSettingsStore.encryptedUserKeys["1"] = "1:USER_KEY"
-        appSettingsStore.encryptedUserKeys["2"] = "2:USER_KEY"
 
         appSettingsStore.state?.activeUserId = nil
         await assertAsyncThrows(error: StateServiceError.noActiveAccount) {
-            _ = try await subject.getAccountEncryptionKeys()
+            _ = try await subject.getAccountCryptographicState()
         }
 
         await subject.addAccount(.fixture(profile: .fixture(userId: "1")))
-        let accountKeys = try await subject.getAccountEncryptionKeys()
+        let accountKeys = try await subject.getAccountCryptographicState()
         XCTAssertEqual(
             accountKeys,
-            AccountEncryptionKeys(
-                cryptographicState: .v1(privateKey: "1:PRIVATE_KEY"),
-                encryptedUserKey: "1:USER_KEY",
-            ),
+            .v1(privateKey: "1:PRIVATE_KEY"),
         )
 
         await subject.addAccount(.fixture(profile: .fixture(userId: "2")))
-        let otherAccountKeys = try await subject.getAccountEncryptionKeys()
+        let otherAccountKeys = try await subject.getAccountCryptographicState()
         XCTAssertEqual(
             otherAccountKeys,
-            AccountEncryptionKeys(
-                cryptographicState: .fixtureV2(),
-                encryptedUserKey: "2:USER_KEY",
-            ),
+            .fixtureV2(),
         )
 
-        let accountKeysForUserId = try await subject.getAccountEncryptionKeys(userId: "1")
+        let accountKeysForUserId = try await subject.getAccountCryptographicState(userId: "1")
         XCTAssertEqual(
             accountKeysForUserId,
-            AccountEncryptionKeys(
-                cryptographicState: .v1(privateKey: "1:PRIVATE_KEY"),
-                encryptedUserKey: "1:USER_KEY",
-            ),
+            .v1(privateKey: "1:PRIVATE_KEY"),
         )
     }
 
-    /// `getAccountEncryptionKeys(_:)` throws an error if there's no active account.
-    func test_getAccountEncryptionKeys_noAccount() async throws {
+    /// `getAccountCryptographicState(_:)` throws an error if there's no active account.
+    func test_getAccountCryptographicState_noAccount() async throws {
         await assertAsyncThrows(error: StateServiceError.noActiveAccount) {
-            _ = try await subject.getAccountEncryptionKeys()
+            _ = try await subject.getAccountCryptographicState()
         }
     }
 
-    /// `getAccountEncryptionKeys(_:)` throws an error if there's no cryptographic state.
-    func test_getAccountEncryptionKeys_noCryptographicState() async throws {
+    /// `getAccountCryptographicState(_:)` throws an error if there's no cryptographic state.
+    func test_getAccountCryptographicState_noCryptographicState() async throws {
         await subject.addAccount(.fixture(profile: .fixture(userId: "1")))
 
         await assertAsyncThrows(error: StateServiceError.noAccountCryptographicState) {
-            _ = try await subject.getAccountEncryptionKeys()
+            _ = try await subject.getAccountCryptographicState()
         }
     }
 
@@ -1520,10 +1509,7 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
     func test_logoutAccount_clearAccountData() async throws { // swiftlint:disable:this function_body_length
         let account = Account.fixture(profile: Account.AccountProfile.fixture(userId: "1"))
         await subject.addAccount(account)
-        try await subject.setAccountEncryptionKeys(AccountEncryptionKeys(
-            cryptographicState: .fixtureV2(),
-            encryptedUserKey: "USER_KEY",
-        ))
+        try await subject.setAccountCryptographicState(.fixtureV2())
         try await subject.setBiometricAuthenticationEnabled(true, userId: "1")
         try await subject.setDefaultUriMatchType(.never)
         try await subject.setDisableAutoTotpCopy(true)
@@ -1564,7 +1550,6 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
 
         XCTAssertEqual(appSettingsStore.biometricAuthenticationEnabled, ["1": true])
         XCTAssertEqual(appSettingsStore.accountCryptographicStates, [:])
-        XCTAssertEqual(appSettingsStore.encryptedUserKeys, [:])
         XCTAssertEqual(appSettingsStore.defaultUriMatchTypeByUserId, [:])
         XCTAssertEqual(appSettingsStore.disableAutoTotpCopyByUserId, [:])
         XCTAssertEqual(appSettingsStore.passwordGenerationOptions, [:])
@@ -1589,10 +1574,7 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
     func test_logoutAccount_singleAccount() async throws {
         let account = Account.fixture(profile: Account.AccountProfile.fixture(userId: "1"))
         await subject.addAccount(account)
-        try await subject.setAccountEncryptionKeys(AccountEncryptionKeys(
-            cryptographicState: .fixtureV2(),
-            encryptedUserKey: "USER_KEY",
-        ))
+        try await subject.setAccountCryptographicState(.fixtureV2())
 
         try await subject.logoutAccount(userId: "1", userInitiated: true)
 
@@ -1603,7 +1585,6 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
 
         // Additional user keys are removed.
         XCTAssertEqual(appSettingsStore.accountCryptographicStates, [:])
-        XCTAssertEqual(appSettingsStore.encryptedUserKeys, [:])
     }
 
     /// `logoutAccount(_:)` removes the account from the account list and updates the active account
@@ -1611,17 +1592,11 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
     func test_logoutAccount_multipleAccounts() async throws {
         let firstAccount = Account.fixture(profile: Account.AccountProfile.fixture(userId: "1"))
         await subject.addAccount(firstAccount)
-        try await subject.setAccountEncryptionKeys(AccountEncryptionKeys(
-            cryptographicState: .v1(privateKey: "1:PRIVATE_KEY"),
-            encryptedUserKey: "1:USER_KEY",
-        ))
+        try await subject.setAccountCryptographicState(.v1(privateKey: "1:PRIVATE_KEY"))
 
         let secondAccount = Account.fixture(profile: Account.AccountProfile.fixture(userId: "2"))
         await subject.addAccount(secondAccount)
-        try await subject.setAccountEncryptionKeys(AccountEncryptionKeys(
-            cryptographicState: .v1(privateKey: "2:PRIVATE_KEY"),
-            encryptedUserKey: "2:USER_KEY",
-        ))
+        try await subject.setAccountCryptographicState(.v1(privateKey: "2:PRIVATE_KEY"))
 
         try await subject.logoutAccount(userId: "2", userInitiated: true)
 
@@ -1632,7 +1607,6 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
 
         // Additional user keys are removed.
         XCTAssertEqual(appSettingsStore.accountCryptographicStates, ["1": .v1(privateKey: "1:PRIVATE_KEY")])
-        XCTAssertEqual(appSettingsStore.encryptedUserKeys, ["1": "1:USER_KEY"])
     }
 
     /// `logoutAccount(_:)` removes an inactive account from the account list and doesn't change
@@ -1640,17 +1614,11 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
     func test_logoutAccount_inactiveAccount() async throws {
         let firstAccount = Account.fixture(profile: Account.AccountProfile.fixture(userId: "1"))
         await subject.addAccount(firstAccount)
-        try await subject.setAccountEncryptionKeys(AccountEncryptionKeys(
-            cryptographicState: .v1(privateKey: "1:PRIVATE_KEY"),
-            encryptedUserKey: "1:USER_KEY",
-        ))
+        try await subject.setAccountCryptographicState(.v1(privateKey: "1:PRIVATE_KEY"))
 
         let secondAccount = Account.fixture(profile: Account.AccountProfile.fixture(userId: "2"))
         await subject.addAccount(secondAccount)
-        try await subject.setAccountEncryptionKeys(AccountEncryptionKeys(
-            cryptographicState: .v1(privateKey: "2:PRIVATE_KEY"),
-            encryptedUserKey: "2:USER_KEY",
-        ))
+        try await subject.setAccountCryptographicState(.v1(privateKey: "2:PRIVATE_KEY"))
 
         try await subject.logoutAccount(userId: "1", userInitiated: true)
 
@@ -1661,22 +1629,17 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
 
         // Additional user keys are removed.
         XCTAssertEqual(appSettingsStore.accountCryptographicStates, ["2": .v1(privateKey: "2:PRIVATE_KEY")])
-        XCTAssertEqual(appSettingsStore.encryptedUserKeys, ["2": "2:USER_KEY"])
     }
 
     /// `logoutAccount(_:)` removes all account data, but leaves the account if the logout wasn't user initiated.
     func test_logoutAccount_timeout() async throws {
         let account = Account.fixture(profile: .fixture(userId: "1"))
         await subject.addAccount(account)
-        try await subject.setAccountEncryptionKeys(AccountEncryptionKeys(
-            cryptographicState: .v1(privateKey: "1:PRIVATE_KEY"),
-            encryptedUserKey: "1:USER_KEY",
-        ))
+        try await subject.setAccountCryptographicState(.v1(privateKey: "1:PRIVATE_KEY"))
 
         try await subject.logoutAccount(userInitiated: false)
 
         XCTAssertNil(appSettingsStore.accountCryptographicStates["1"])
-        XCTAssertNil(appSettingsStore.encryptedUserKeys["1"])
         XCTAssertEqual(appSettingsStore.state?.accounts, ["1": account])
         XCTAssertEqual(appSettingsStore.state?.activeUserId, "1")
     }
@@ -1823,35 +1786,19 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         }
     }
 
-    /// `setAccountEncryptionKeys(_:userId:)` sets the encryption keys for the user account.
-    func test_setAccountEncryptionKeys() async throws {
+    /// `setAccountCryptographicState(_:userId:)` sets the cryptographic state for the user account.
+    func test_setAccountCryptographicState() async throws {
         await subject.addAccount(.fixture(profile: .fixture(userId: "1")))
         await subject.addAccount(.fixture(profile: .fixture(userId: "2")))
 
-        let encryptionKeys = AccountEncryptionKeys(
-            cryptographicState: .v1(privateKey: "1:PRIVATE_KEY"),
-            encryptedUserKey: "1:USER_KEY",
-        )
-        try await subject.setAccountEncryptionKeys(encryptionKeys, userId: "1")
-
-        let otherEncryptionKeys = AccountEncryptionKeys(
-            cryptographicState: .v1(privateKey: "2:PRIVATE_KEY"),
-            encryptedUserKey: "2:USER_KEY",
-        )
-        try await subject.setAccountEncryptionKeys(otherEncryptionKeys)
+        try await subject.setAccountCryptographicState(.v1(privateKey: "1:PRIVATE_KEY"), userId: "1")
+        try await subject.setAccountCryptographicState(.v1(privateKey: "2:PRIVATE_KEY"))
 
         XCTAssertEqual(
             appSettingsStore.accountCryptographicStates,
             [
                 "1": .v1(privateKey: "1:PRIVATE_KEY"),
                 "2": .v1(privateKey: "2:PRIVATE_KEY"),
-            ],
-        )
-        XCTAssertEqual(
-            appSettingsStore.encryptedUserKeys,
-            [
-                "1": "1:USER_KEY",
-                "2": "2:USER_KEY",
             ],
         )
     }

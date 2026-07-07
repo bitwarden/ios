@@ -423,42 +423,6 @@ class AppSettingsStoreTests: BitwardenTestCase { // swiftlint:disable:this type_
         XCTAssertEqual(userDefaults.string(forKey: "bwPreferencesStorage:protectedPin_1"), pin)
     }
 
-    /// `encryptedUserKey(userId:)` returns `nil` if there isn't a previously stored value.
-    func test_encryptedUserKey_isInitiallyNil() {
-        XCTAssertNil(subject.encryptedUserKey(userId: "-1"))
-    }
-
-    /// `encryptedUserKey(userId:)` can be used to get the encrypted user key for a user.
-    func test_encryptedUserKey_withValue() {
-        subject.setEncryptedUserKey(key: "1:USER_KEY", userId: "1")
-        subject.setEncryptedUserKey(key: "2:USER_KEY", userId: "2")
-
-        XCTAssertEqual(subject.encryptedUserKey(userId: "1"), "1:USER_KEY")
-        XCTAssertEqual(subject.encryptedUserKey(userId: "2"), "2:USER_KEY")
-        XCTAssertEqual(
-            userDefaults.string(forKey: "bwPreferencesStorage:masterKeyEncryptedUserKey_1"),
-            "1:USER_KEY",
-        )
-        XCTAssertEqual(
-            userDefaults.string(forKey: "bwPreferencesStorage:masterKeyEncryptedUserKey_2"),
-            "2:USER_KEY",
-        )
-
-        subject.setEncryptedUserKey(key: "1:USER_KEY_NEW", userId: "1")
-        subject.setEncryptedUserKey(key: "2:USER_KEY_NEW", userId: "2")
-
-        XCTAssertEqual(subject.encryptedUserKey(userId: "1"), "1:USER_KEY_NEW")
-        XCTAssertEqual(subject.encryptedUserKey(userId: "2"), "2:USER_KEY_NEW")
-        XCTAssertEqual(
-            userDefaults.string(forKey: "bwPreferencesStorage:masterKeyEncryptedUserKey_1"),
-            "1:USER_KEY_NEW",
-        )
-        XCTAssertEqual(
-            userDefaults.string(forKey: "bwPreferencesStorage:masterKeyEncryptedUserKey_2"),
-            "2:USER_KEY_NEW",
-        )
-    }
-
     /// `events(userId:)` can be used to get the events for a user.
     func test_events() {
         let events = [

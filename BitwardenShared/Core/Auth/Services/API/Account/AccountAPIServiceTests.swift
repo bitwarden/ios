@@ -262,7 +262,6 @@ class AccountAPIServiceTests: BitwardenTestCase { // swiftlint:disable:this type
             ),
         )
 
-        XCTAssertEqual(response.key, "mockKey")
         XCTAssertEqual(response.publicKey, "mockPublicKey")
         XCTAssertEqual(response.privateKey, "mockPrivateKey")
         XCTAssertNotNil(response.accountKeys)
