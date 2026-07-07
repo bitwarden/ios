@@ -9,14 +9,19 @@ import Foundation
 struct PremiumPlanState: Equatable {
     // MARK: Properties
 
+    /// The loading state for the subscription data.
+    var loadingState: LoadingState<PremiumSubscription> = .loading(nil)
+
     /// The current status of the Premium plan.
     var planStatus: PremiumPlanStatus = .active
 
-    /// The subscription details.
-    var subscription: PremiumSubscription?
-
     /// The URL to open externally (manage plan or cancel Premium).
     var urlToOpen: URL?
+
+    // MARK: Private Properties
+
+    /// The subscription details, derived from `loadingState`.
+    private var subscription: PremiumSubscription? { loadingState.data }
 
     // MARK: Computed Properties
 
@@ -211,6 +216,6 @@ extension PremiumPlanState {
     /// - Parameter subscription: The already-fetched subscription.
     ///
     init(subscription: PremiumSubscription) {
-        self.init(planStatus: subscription.status, subscription: subscription)
+        self.init(loadingState: .data(subscription), planStatus: subscription.status)
     }
 }

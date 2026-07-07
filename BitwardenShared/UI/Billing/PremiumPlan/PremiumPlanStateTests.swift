@@ -20,7 +20,7 @@ struct PremiumPlanStateTests { // swiftlint:disable:this type_body_length
     @Test
     func billingAmount() {
         var state = PremiumPlanState()
-        state.subscription = .fixture(seatsCost: 19.8)
+        state.loadingState = .data(.fixture(seatsCost: 19.8))
         #expect(state.billingAmount.contains("$19.80"))
         #expect(state.billingAmount.contains(Localizations.perYear))
     }
@@ -39,10 +39,10 @@ struct PremiumPlanStateTests { // swiftlint:disable:this type_body_length
     func descriptionAccessibilityLabel_active() {
         var state = PremiumPlanState()
         state.planStatus = .active
-        state.subscription = .fixture(
+        state.loadingState = .data(.fixture(
             estimatedTax: 4.55,
             nextCharge: testDate,
-        )
+        ))
         let label = state.descriptionAccessibilityLabel
         #expect(label.contains("USD $"))
         #expect(label.contains(state.nextChargeDate))
@@ -54,13 +54,13 @@ struct PremiumPlanStateTests { // swiftlint:disable:this type_body_length
     func descriptionAccessibilityLabel_nonActive(planStatus: PremiumPlanStatus) {
         var state = PremiumPlanState()
         state.planStatus = planStatus
-        state.subscription = .fixture(
+        state.loadingState = .data(.fixture(
             cancelAt: testDate,
             canceled: testDate,
             gracePeriod: 14,
             status: planStatus,
             suspension: testDate,
-        )
+        ))
         #expect(!state.descriptionAccessibilityLabel.contains("**"))
         #expect(state.descriptionAccessibilityLabel == state.descriptionText.removingMarkdownForVoiceOver())
     }
@@ -72,10 +72,10 @@ struct PremiumPlanStateTests { // swiftlint:disable:this type_body_length
     func descriptionText_active() {
         var state = PremiumPlanState()
         state.planStatus = .active
-        state.subscription = .fixture(
+        state.loadingState = .data(.fixture(
             estimatedTax: 4.55,
             nextCharge: testDate,
-        )
+        ))
         let expectedAmount = state.nextChargeAmount
         let expectedDate = state.nextChargeDate
         #expect(state.descriptionText == Localizations.yourNextChargeIsForXDueOnY(
@@ -89,7 +89,7 @@ struct PremiumPlanStateTests { // swiftlint:disable:this type_body_length
     func descriptionText_canceled() {
         var state = PremiumPlanState()
         state.planStatus = .canceled
-        state.subscription = .fixture(canceled: testDate, status: .canceled)
+        state.loadingState = .data(.fixture(canceled: testDate, status: .canceled))
         let localization = Localizations.yourSubscriptionWasCanceledOnXDescriptionLong
         #expect(state.descriptionText == localization(state.canceledDate))
     }
@@ -98,7 +98,7 @@ struct PremiumPlanStateTests { // swiftlint:disable:this type_body_length
     @Test
     func descriptionText_expired() {
         var state = PremiumPlanState(planStatus: .expired)
-        state.subscription = .fixture(status: .expired, suspension: testDate)
+        state.loadingState = .data(.fixture(status: .expired, suspension: testDate))
         let localization = Localizations.yourSubscriptionExpiredOnXDescriptionLong
         #expect(state.descriptionText == localization(state.expiredDate))
     }
@@ -107,7 +107,7 @@ struct PremiumPlanStateTests { // swiftlint:disable:this type_body_length
     @Test
     func descriptionText_pendingCancellation() {
         var state = PremiumPlanState(planStatus: .pendingCancellation)
-        state.subscription = .fixture(cancelAt: testDate, status: .pendingCancellation)
+        state.loadingState = .data(.fixture(cancelAt: testDate, status: .pendingCancellation))
         let localization = Localizations.yourSubscriptionIsScheduledToCancelOnXDescriptionLong
         #expect(state.descriptionText == localization(state.pendingCancellationDate))
     }
@@ -117,14 +117,14 @@ struct PremiumPlanStateTests { // swiftlint:disable:this type_body_length
     func descriptionText_pastDue() {
         var state = PremiumPlanState()
         state.planStatus = .pastDue
-        state.subscription = .fixture(
+        state.loadingState = .data(.fixture(
             gracePeriod: 14,
             status: .pastDue,
             suspension: testDate,
-        )
+        ))
         #expect(state.descriptionText == Localizations
             .youHaveAGracePeriodOfXDaysFromYourSubscriptionDescriptionLong(
-                state.subscription?.gracePeriod ?? 0,
+                state.loadingState.data?.gracePeriod ?? 0,
                 state.subscriptionEndDate,
             ))
     }
@@ -134,7 +134,7 @@ struct PremiumPlanStateTests { // swiftlint:disable:this type_body_length
     func descriptionText_updatePayment() {
         var state = PremiumPlanState()
         state.planStatus = .updatePayment
-        state.subscription = .fixture(cancelAt: testDate, status: .updatePayment)
+        state.loadingState = .data(.fixture(cancelAt: testDate, status: .updatePayment))
         #expect(state.descriptionText == Localizations
             .weCouldNotProcessYourPaymentUpdateYourPaymentMethodDescriptionLong(
                 state.subscriptionEndDate,
@@ -147,7 +147,7 @@ struct PremiumPlanStateTests { // swiftlint:disable:this type_body_length
     @Test
     func discount_withDiscount() {
         var state = PremiumPlanState()
-        state.subscription = .fixture(discount: 2)
+        state.loadingState = .data(.fixture(discount: 2))
         #expect(state.discount == Localizations.negativeX("$2.00"))
     }
 
@@ -155,7 +155,7 @@ struct PremiumPlanStateTests { // swiftlint:disable:this type_body_length
     @Test
     func discount_noDiscount() {
         var state = PremiumPlanState()
-        state.subscription = .fixture(discount: 0)
+        state.loadingState = .data(.fixture(discount: 0))
         #expect(state.discount.isEmpty)
     }
 
@@ -165,7 +165,7 @@ struct PremiumPlanStateTests { // swiftlint:disable:this type_body_length
     @Test
     func estimatedTax_withTax() {
         var state = PremiumPlanState()
-        state.subscription = .fixture(estimatedTax: 4.55)
+        state.loadingState = .data(.fixture(estimatedTax: 4.55))
         #expect(state.estimatedTax == "$4.55")
     }
 
@@ -173,7 +173,7 @@ struct PremiumPlanStateTests { // swiftlint:disable:this type_body_length
     @Test
     func estimatedTax_zero() {
         var state = PremiumPlanState()
-        state.subscription = .fixture(estimatedTax: 0)
+        state.loadingState = .data(.fixture(estimatedTax: 0))
         #expect(state.estimatedTax == "$0.00")
     }
 
@@ -190,10 +190,10 @@ struct PremiumPlanStateTests { // swiftlint:disable:this type_body_length
     @Test
     func nextChargeAmountAccessibilityLabel() {
         var state = PremiumPlanState()
-        state.subscription = .fixture(
+        state.loadingState = .data(.fixture(
             estimatedTax: 4.55,
             nextCharge: testDate,
-        )
+        ))
         #expect(state.nextChargeAmountAccessibilityLabel.hasPrefix("USD $"))
     }
 
@@ -246,7 +246,7 @@ struct PremiumPlanStateTests { // swiftlint:disable:this type_body_length
     @Test
     func showDiscount_true() {
         var state = PremiumPlanState()
-        state.subscription = .fixture(discount: 5)
+        state.loadingState = .data(.fixture(discount: 5))
         #expect(state.showDiscount)
     }
 
@@ -254,7 +254,7 @@ struct PremiumPlanStateTests { // swiftlint:disable:this type_body_length
     @Test
     func showDiscount_false() {
         var state = PremiumPlanState()
-        state.subscription = .fixture(discount: 0)
+        state.loadingState = .data(.fixture(discount: 0))
         #expect(!state.showDiscount)
     }
 
@@ -264,7 +264,7 @@ struct PremiumPlanStateTests { // swiftlint:disable:this type_body_length
     @Test
     func showStorageCost_true() {
         var state = PremiumPlanState()
-        state.subscription = .fixture(storageCost: 4)
+        state.loadingState = .data(.fixture(storageCost: 4))
         #expect(state.showStorageCost)
     }
 
@@ -272,7 +272,7 @@ struct PremiumPlanStateTests { // swiftlint:disable:this type_body_length
     @Test
     func showStorageCost_false() {
         var state = PremiumPlanState()
-        state.subscription = .fixture(storageCost: 0)
+        state.loadingState = .data(.fixture(storageCost: 0))
         #expect(!state.showStorageCost)
     }
 
@@ -289,7 +289,7 @@ struct PremiumPlanStateTests { // swiftlint:disable:this type_body_length
     @Test
     func storageCostLabel_withStorage() {
         var state = PremiumPlanState()
-        state.subscription = .fixture(storageCost: 8)
+        state.loadingState = .data(.fixture(storageCost: 8))
         #expect(state.storageCostLabel == "$8.00")
     }
 
@@ -297,7 +297,7 @@ struct PremiumPlanStateTests { // swiftlint:disable:this type_body_length
     @Test
     func storageCostLabel_zero() {
         var state = PremiumPlanState()
-        state.subscription = .fixture(storageCost: 0)
+        state.loadingState = .data(.fixture(storageCost: 0))
         #expect(state.storageCostLabel == "$0.00")
     }
 
@@ -314,7 +314,7 @@ struct PremiumPlanStateTests { // swiftlint:disable:this type_body_length
     @Test
     func subscriptionEndDate_suspension() {
         var state = PremiumPlanState()
-        state.subscription = .fixture(suspension: testDate)
+        state.loadingState = .data(.fixture(suspension: testDate))
         #expect(!state.subscriptionEndDate.isEmpty)
     }
 
@@ -322,7 +322,7 @@ struct PremiumPlanStateTests { // swiftlint:disable:this type_body_length
     @Test
     func subscriptionEndDate_cancelAt() {
         var state = PremiumPlanState()
-        state.subscription = .fixture(cancelAt: testDate)
+        state.loadingState = .data(.fixture(cancelAt: testDate))
         #expect(!state.subscriptionEndDate.isEmpty)
     }
 
@@ -330,7 +330,7 @@ struct PremiumPlanStateTests { // swiftlint:disable:this type_body_length
     @Test
     func subscriptionEndDate_empty() {
         var state = PremiumPlanState()
-        state.subscription = .fixture()
+        state.loadingState = .data(.fixture())
         #expect(state.subscriptionEndDate.isEmpty)
     }
 
@@ -340,13 +340,13 @@ struct PremiumPlanStateTests { // swiftlint:disable:this type_body_length
     @Test
     func totalLabel() {
         var state = PremiumPlanState()
-        state.subscription = .fixture(
+        state.loadingState = .data(.fixture(
             cadence: .annually,
             discount: 0,
             estimatedTax: 4.55,
             seatsCost: 19.80,
             storageCost: 1.20,
-        )
+        ))
         #expect(state.totalLabel.contains("$25.55"))
         #expect(state.totalLabel.contains(Localizations.perYear))
     }
@@ -355,12 +355,12 @@ struct PremiumPlanStateTests { // swiftlint:disable:this type_body_length
     @Test
     func totalLabel_flooredAtZero() {
         var state = PremiumPlanState()
-        state.subscription = .fixture(
+        state.loadingState = .data(.fixture(
             discount: 100,
             estimatedTax: 0,
             seatsCost: 10,
             storageCost: 0,
-        )
+        ))
         #expect(state.totalLabel.contains("$0.00"))
     }
 

@@ -281,7 +281,7 @@ final class TwoFactorAuthProcessor: StateProcessor<TwoFactorAuthState, TwoFactor
 /// An object that is signaled when specific circumstances in the web authentication on flow have been encountered.
 ///
 @MainActor
-protocol DuoAuthenticationFlowDelegate: AnyObject {
+protocol DuoAuthenticationFlowDelegate: AnyObject { // sourcery: AutoMockable
     /// Called when the web auth flow has been completed successfully.
     ///
     /// - Parameter code: The code that was returned by the single sign on web auth process.
