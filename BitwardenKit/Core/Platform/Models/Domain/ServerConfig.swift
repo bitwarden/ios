@@ -26,6 +26,9 @@ public struct ServerConfig: Equatable, Codable, Sendable {
     /// Third party server information.
     public let server: ThirdPartyServerConfig?
 
+    /// Server-level settings.
+    public let settings: ServerSettings?
+
     /// The version of the server.
     public let version: String
 
@@ -36,6 +39,7 @@ public struct ServerConfig: Equatable, Codable, Sendable {
         featureStates = responseModel.featureStates ?? [:]
         gitHash = responseModel.gitHash
         server = responseModel.server.map(ThirdPartyServerConfig.init)
+        settings = responseModel.settings.map(ServerSettings.init)
         version = responseModel.version
     }
 
@@ -175,5 +179,29 @@ public struct ServerCommunicationBootstrapSettings: Equatable, Codable, Sendable
         idpLoginUrl = responseModel.idpLoginUrl
         cookieName = responseModel.cookieName
         cookieDomain = responseModel.cookieDomain
+    }
+}
+
+// MARK: - ServerSettings
+
+/// Domain model for server-level settings.
+public struct ServerSettings: Equatable, Codable, Sendable {
+    // MARK: Properties
+
+    /// Whether user registration is disabled on this server.
+    public let disableUserRegistration: Bool
+
+    // MARK: Initialization
+
+    /// Creates a new `ServerSettings`.
+    ///
+    /// - Parameter disableUserRegistration: Whether user registration is disabled on this server.
+    ///
+    public init(disableUserRegistration: Bool) {
+        self.disableUserRegistration = disableUserRegistration
+    }
+
+    public init(responseModel: ServerSettingsResponseModel) {
+        disableUserRegistration = responseModel.disableUserRegistration
     }
 }
