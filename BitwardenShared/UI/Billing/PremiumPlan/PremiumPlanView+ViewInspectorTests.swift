@@ -7,6 +7,7 @@ import ViewInspector
 import XCTest
 
 @testable import BitwardenShared
+@testable import BitwardenSharedMocks
 
 // MARK: - PremiumPlanViewTests
 
@@ -33,38 +34,28 @@ class PremiumPlanViewTests: BitwardenTestCase {
 
     // MARK: Tests
 
-    /// The billing amount text is visible when status is `.active`.
+    /// The billing amount text is visible when status is `.active` and data is loaded.
     @MainActor
     func test_billingAmount_visible_whenActive() throws {
         processor.state.planStatus = .active
-        processor.state.subscription = PremiumSubscription(
-            cadence: .monthly,
-            cancelAt: nil,
-            canceled: nil,
-            discount: 0,
-            estimatedTax: 0,
-            gracePeriod: nil,
-            nextCharge: nil,
-            seatsCost: Decimal(string: "1.65")!,
-            status: .active,
-            storageCost: 0,
-            suspension: nil,
-        )
+        processor.state.loadingState = .data(.fixture(cadence: .monthly, seatsCost: Decimal(string: "1.65")!))
         let billingAmount = processor.state.billingAmount
         let text = try subject.inspect().find(text: billingAmount)
         XCTAssertNotNil(text)
     }
 
-    /// The billing amount text is hidden when status is `.canceled`.
+    /// The billing amount text is hidden when status is `.canceled` and data is loaded.
     @MainActor
     func test_billingSection_hidden_whenCanceled() throws {
+        processor.state.loadingState = .data(.fixture(cadence: .monthly, canceled: Date(), status: .canceled))
         processor.state.planStatus = .canceled
         XCTAssertThrowsError(try subject.inspect().find(text: Localizations.billingAmount))
     }
 
-    /// The cancel Premium button is hidden when status is `.canceled`.
+    /// The cancel Premium button is hidden when status is `.canceled` and data is loaded.
     @MainActor
     func test_cancelPremiumButton_hidden_whenCanceled() throws {
+        processor.state.loadingState = .data(.fixture(cadence: .monthly, canceled: Date(), status: .canceled))
         processor.state.planStatus = .canceled
         XCTAssertThrowsError(try subject.inspect().find(button: Localizations.cancelPremium))
     }
@@ -73,15 +64,17 @@ class PremiumPlanViewTests: BitwardenTestCase {
     @MainActor
     func test_cancelPremiumButton_tap() throws {
         processor.state.planStatus = .active
+        processor.state.loadingState = .data(.fixture(cadence: .monthly, seatsCost: Decimal(string: "1.65")!))
         let button = try subject.inspect().find(button: Localizations.cancelPremium)
         try button.tap()
         XCTAssertEqual(processor.dispatchedActions.last, .cancelPremiumTapped)
     }
 
-    /// The cancel Premium button is visible when status is `.active`.
+    /// The cancel Premium button is visible when status is `.active` and data is loaded.
     @MainActor
     func test_cancelPremiumButton_visible_whenActive() throws {
         processor.state.planStatus = .active
+        processor.state.loadingState = .data(.fixture(cadence: .monthly, seatsCost: Decimal(string: "1.65")!))
         let button = try subject.inspect().find(button: Localizations.cancelPremium)
         XCTAssertNotNil(button)
     }
@@ -90,19 +83,7 @@ class PremiumPlanViewTests: BitwardenTestCase {
     @MainActor
     func test_estimatedTax_visible_whenZero() throws {
         processor.state.planStatus = .active
-        processor.state.subscription = PremiumSubscription(
-            cadence: .monthly,
-            cancelAt: nil,
-            canceled: nil,
-            discount: 0,
-            estimatedTax: 0,
-            gracePeriod: nil,
-            nextCharge: nil,
-            seatsCost: Decimal(string: "1.65")!,
-            status: .active,
-            storageCost: 0,
-            suspension: nil,
-        )
+        processor.state.loadingState = .data(.fixture(cadence: .monthly, seatsCost: Decimal(string: "1.65")!))
         XCTAssertNotNil(try subject.inspect().find(text: Localizations.estimatedTax))
         XCTAssertNotNil(try subject.inspect().find(text: processor.state.estimatedTax))
     }
@@ -110,36 +91,36 @@ class PremiumPlanViewTests: BitwardenTestCase {
     /// Tapping the manage plan button dispatches the `.managePlanTapped` effect.
     @MainActor
     func test_managePlanButton_tap() async throws {
+        processor.state.loadingState = .data(.fixture(cadence: .monthly))
+        processor.state.planStatus = .active
         let button = try subject.inspect().find(asyncButton: Localizations.managePlan)
         try await button.tap()
         XCTAssertEqual(processor.effects.last, .managePlanTapped)
     }
 
-    /// The Total row is hidden when the plan is canceled.
+    /// The Total row is hidden when the plan is canceled and data is loaded.
     @MainActor
     func test_totalRow_hidden_whenCanceled() throws {
+        processor.state.loadingState = .data(.fixture(cadence: .monthly, canceled: Date(), status: .canceled))
         processor.state.planStatus = .canceled
         XCTAssertThrowsError(try subject.inspect().find(text: Localizations.total))
     }
 
-    /// The Total row renders with cadence suffix when the plan is active.
+    /// The Total row renders with cadence suffix when the plan is active and data is loaded.
     @MainActor
     func test_totalRow_visible_whenActive() throws {
         processor.state.planStatus = .active
-        processor.state.subscription = PremiumSubscription(
-            cadence: .monthly,
-            cancelAt: nil,
-            canceled: nil,
-            discount: 0,
-            estimatedTax: 0,
-            gracePeriod: nil,
-            nextCharge: nil,
-            seatsCost: Decimal(string: "1.65")!,
-            status: .active,
-            storageCost: 0,
-            suspension: nil,
-        )
+        processor.state.loadingState = .data(.fixture(cadence: .monthly, seatsCost: Decimal(string: "1.65")!))
         XCTAssertNotNil(try subject.inspect().find(text: Localizations.total))
         XCTAssertNotNil(try subject.inspect().find(text: processor.state.totalLabel))
+    }
+
+    /// Tapping the "Try again" button on the error view dispatches the `.tryAgainTapped` effect.
+    @MainActor
+    func test_tryAgainButton_tap() async throws {
+        processor.state.loadingState = .error(errorMessage: "")
+        let button = try subject.inspect().find(asyncButton: Localizations.tryAgain)
+        try await button.tap()
+        XCTAssertEqual(processor.effects.last, .tryAgainTapped)
     }
 }
