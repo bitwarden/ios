@@ -679,10 +679,24 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         XCTAssertFalse(subject.state.shouldShowPremiumUpgradeActionCard)
     }
 
-    /// `perform(_:)` with `.appeared` sets the upgrade card when the subscription attention
-    /// card is hidden and the banner has not been dismissed.
+    /// `perform(_:)` with `.appeared` hides the upgrade card when the attention card is hidden
+    /// but the banner has been dismissed and no upgrade is available.
     @MainActor
-    func test_perform_appeared_subscriptionAttentionCardHidden_setsUpgradeCard() async {
+    func test_perform_appeared_attentionCardHidden_bannerDismissed_upgradeNotAvailable() async {
+        billingService.shouldShowSubscriptionAttentionCardReturnValue = false
+        billingRepository.isInAppUpgradeAvailableReturnValue = false
+        stateService.isPremiumUpgradeBannerDismissedResult = true
+
+        await subject.perform(.appeared)
+
+        XCTAssertFalse(subject.state.shouldShowSubscriptionAttentionCard)
+        XCTAssertFalse(subject.state.shouldShowPremiumUpgradeActionCard)
+    }
+
+    /// `perform(_:)` with `.appeared` sets the upgrade card when the attention card is hidden,
+    /// the banner has not been dismissed, and an upgrade is available.
+    @MainActor
+    func test_perform_appeared_attentionCardHidden_setsUpgradeCard() async {
         billingService.shouldShowSubscriptionAttentionCardReturnValue = false
         billingRepository.isInAppUpgradeAvailableReturnValue = true
         stateService.isPremiumUpgradeBannerDismissedResult = false
@@ -693,12 +707,54 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         XCTAssertTrue(subject.state.shouldShowPremiumUpgradeActionCard)
     }
 
-    /// `perform(_:)` with `.appeared` hides the upgrade card when the subscription attention
-    /// card is visible — the two cards are mutually exclusive.
+    /// `perform(_:)` with `.appeared` hides the upgrade card when the attention card is visible,
+    /// the banner has been dismissed, and an upgrade is available.
     @MainActor
-    func test_perform_appeared_subscriptionAttentionCardVisible_hidesUpgradeCard() async {
+    func test_perform_appeared_attentionCardVisible_bannerDismissed_upgradeAvailable() async {
         billingService.shouldShowSubscriptionAttentionCardReturnValue = true
         billingRepository.isInAppUpgradeAvailableReturnValue = true
+        stateService.isPremiumUpgradeBannerDismissedResult = true
+
+        await subject.perform(.appeared)
+
+        XCTAssertTrue(subject.state.shouldShowSubscriptionAttentionCard)
+        XCTAssertFalse(subject.state.shouldShowPremiumUpgradeActionCard)
+    }
+
+    /// `perform(_:)` with `.appeared` hides the upgrade card when the attention card is visible,
+    /// the banner has been dismissed, and no upgrade is available.
+    @MainActor
+    func test_perform_appeared_attentionCardVisible_bannerDismissed_upgradeNotAvailable() async {
+        billingService.shouldShowSubscriptionAttentionCardReturnValue = true
+        billingRepository.isInAppUpgradeAvailableReturnValue = false
+        stateService.isPremiumUpgradeBannerDismissedResult = true
+
+        await subject.perform(.appeared)
+
+        XCTAssertTrue(subject.state.shouldShowSubscriptionAttentionCard)
+        XCTAssertFalse(subject.state.shouldShowPremiumUpgradeActionCard)
+    }
+
+    /// `perform(_:)` with `.appeared` hides the upgrade card when the attention card is visible,
+    /// even when an upgrade is available — the two cards are mutually exclusive.
+    @MainActor
+    func test_perform_appeared_attentionCardVisible_hidesUpgradeCard() async {
+        billingService.shouldShowSubscriptionAttentionCardReturnValue = true
+        billingRepository.isInAppUpgradeAvailableReturnValue = true
+        stateService.isPremiumUpgradeBannerDismissedResult = false
+
+        await subject.perform(.appeared)
+
+        XCTAssertTrue(subject.state.shouldShowSubscriptionAttentionCard)
+        XCTAssertFalse(subject.state.shouldShowPremiumUpgradeActionCard)
+    }
+
+    /// `perform(_:)` with `.appeared` hides the upgrade card when the attention card is visible
+    /// and no upgrade is available.
+    @MainActor
+    func test_perform_appeared_attentionCardVisible_upgradeNotAvailable() async {
+        billingService.shouldShowSubscriptionAttentionCardReturnValue = true
+        billingRepository.isInAppUpgradeAvailableReturnValue = false
         stateService.isPremiumUpgradeBannerDismissedResult = false
 
         await subject.perform(.appeared)
