@@ -129,7 +129,7 @@ public extension EnvironmentURLData {
             URL(string: "https://send.bitwarden.com/#")!
         case .gov:
             URL(string: "https://send.bitwarden-gov.com/#")!
-        case .europe, .selfHosted:
+        case .europe, .internal, .selfHosted:
             subpageURL(additionalPath: "send")
         }
     }
