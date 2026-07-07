@@ -69,7 +69,7 @@ public enum PremiumPlanStatus: Equatable, Hashable {
     /// This is the narrower subset of `isTroubleState` that drives the "subscription needs
     /// attention" action card. It covers all three payment-problem states regardless of whether
     /// premium access is currently active: past due and update payment retain premium during
-    /// the dunning grace period, while unpaid has already lapsed.
+    /// the payment retry grace period, while unpaid has already lapsed.
     var isPaymentProblemState: Bool {
         switch self {
         case .pastDue, .unpaid, .updatePayment:
