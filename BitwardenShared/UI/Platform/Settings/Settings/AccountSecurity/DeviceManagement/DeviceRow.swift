@@ -54,6 +54,7 @@ struct DeviceRow: View {
 
                     Image(asset: SharedAsset.Icons.chevronRight16)
                         .imageStyle(.accessoryIcon16)
+                        .accessibilityHidden(true)
                 }
             }
             .padding(16)
@@ -70,6 +71,8 @@ struct DeviceRow: View {
                 onTap()
             }
         }
+        .accessibilityElement(children: .combine)
+        .accessibilityAddTraits(device.hasPendingRequest ? .isButton : [])
         .accessibilityIdentifier("DeviceRowCell")
     }
 
