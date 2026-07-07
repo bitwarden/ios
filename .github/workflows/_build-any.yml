@@ -301,7 +301,8 @@ jobs:
         run: |
           ALTOOL_OUTPUT=$(xcrun altool --upload-app \
             --type ios \
-            --file "$_EXPORT_FILEPATH" \
+            --file "$_EXPORT_FILEPATH" \ \
+            --verbose \
             --apiKey "$_KEY_ID" \
             --apiIssuer "$_ISSUER" \
             --apple-id "$APPLE_ID" 2>&1)
