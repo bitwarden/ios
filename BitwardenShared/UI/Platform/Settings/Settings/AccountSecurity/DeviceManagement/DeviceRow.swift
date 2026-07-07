@@ -138,11 +138,20 @@ struct DeviceRow: View {
     /// Formats a date for display with date and time.
     private func formattedDateTime(_ date: Date?) -> String {
         guard let date else { return Localizations.unknown }
+        return DeviceRow.dateTimeFormatter.string(from: date)
+    }
+}
+
+// MARK: - Private Static Helpers
+
+private extension DeviceRow {
+    /// Shared formatter for device activity dates.
+    static let dateTimeFormatter: DateFormatter = {
         let formatter = DateFormatter()
         formatter.dateStyle = .medium
         formatter.timeStyle = .short
-        return formatter.string(from: date)
-    }
+        return formatter
+    }()
 }
 
 // MARK: - Previews
