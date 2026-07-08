@@ -105,19 +105,9 @@ class VaultListViewTests: BitwardenTestCase { // swiftlint:disable:this type_bod
     // MARK: Snapshots
 
     @MainActor
-    func disabletest_snapshot_empty() {
-        processor.state.profileSwitcherState.isVisible = false
-        processor.state.loadingState = .data([])
-
-        assertSnapshots(of: subject, as: [.defaultPortrait, .defaultPortraitDark, .defaultLandscape])
-    }
-
-    @MainActor
-    func disabletest_snapshot_empty_singleAccountProfileSwitcher() {
-        processor.state.profileSwitcherState.isVisible = true
-        processor.state.loadingState = .data([])
-
-        assertSnapshots(of: subject, as: [.defaultPortrait, .defaultPortraitDark])
+    func disabletest_snapshot_loading() {
+        processor.state.loadingState = .loading(nil)
+        assertSnapshot(of: subject, as: .defaultPortrait)
     }
 
     @MainActor
@@ -129,19 +119,25 @@ class VaultListViewTests: BitwardenTestCase { // swiftlint:disable:this type_bod
     }
 
     @MainActor
-    func disabletest_snapshot_flightRecorderToastBanner() {
+    func disabletest_snapshot_empty() {
+        processor.state.profileSwitcherState.isVisible = false
         processor.state.loadingState = .data([])
-        processor.state.flightRecorderToastBanner.activeLog = FlightRecorderData.LogMetadata(
-            duration: .twentyFourHours,
-            startDate: Date(year: 2025, month: 4, day: 3),
-        )
-        assertSnapshot(of: subject, as: .defaultPortrait)
+
+        assertSnapshots(of: subject, as: [.defaultPortrait, .defaultPortraitDark, .defaultLandscape])
     }
 
     @MainActor
-    func disabletest_snapshot_loading() {
-        processor.state.loadingState = .loading(nil)
-        assertSnapshot(of: subject, as: .defaultPortrait)
+    func disabletest_snapshot_emptyImportLogins() {
+        processor.state.importLoginsSetupProgress = .incomplete
+        processor.state.loadingState = .data([])
+        assertSnapshots(of: subject, as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5])
+    }
+
+    @MainActor
+    func disabletest_snapshot_emptySubscriptionAttention() {
+        processor.state.loadingState = .data([])
+        processor.state.shouldShowSubscriptionAttentionCard = true
+        assertSnapshots(of: subject, as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5])
     }
 
     @MainActor
@@ -164,47 +160,49 @@ class VaultListViewTests: BitwardenTestCase { // swiftlint:disable:this type_bod
     }
 
     @MainActor
-    func disabletest_snapshot_myVaultUpgradedToPremium() {
-        processor.state.shouldShowUpgradedToPremiumActionCard = true
-        processor.state.loadingState = .data(VaultListViewTests.defaultVaultData)
-        assertSnapshots(
-            of: subject,
-            as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5],
-        )
+    func disabletest_snapshot_myVaultCollections() {
+        processor.state.loadingState = .data([
+            VaultListSection(
+                id: "Collections",
+                items: [
+                    VaultListItem(
+                        id: "31",
+                        itemType: .group(.collection(id: "", name: "Design", organizationId: "1"), 0),
+                    ),
+                    VaultListItem(
+                        id: "32",
+                        itemType: .group(.collection(id: "", name: "Engineering", organizationId: "1"), 2),
+                    ),
+                ],
+                name: "Collections",
+            ),
+        ])
+        processor.state.organizations = [
+            Organization(
+                enabled: true,
+                id: "",
+                isProviderUser: false,
+                key: nil,
+                keyConnectorEnabled: false,
+                keyConnectorUrl: nil,
+                name: "Org",
+                permissions: Permissions(),
+                status: .confirmed,
+                type: .user,
+                useEvents: false,
+                usePolicies: true,
+                userIsManagedByOrganization: false,
+                usersGetPremium: false,
+            ),
+        ]
+        assertSnapshot(of: subject, as: .defaultPortrait)
     }
 
     @MainActor
-    func disabletest_snapshot_myVaultSubscriptionAttention() {
+    func disabletest_snapshot_myVaultSubscriptionAttentionWithArchive() {
+        processor.state.shouldShowArchiveOnboardingActionCard = true
+        processor.state.loadingState = .data(VaultListViewTests.defaultVaultData)
         processor.state.shouldShowSubscriptionAttentionCard = true
-        processor.state.loadingState = .data(VaultListViewTests.defaultVaultData)
-        assertSnapshots(
-            of: subject,
-            as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5],
-        )
-    }
-
-    @MainActor
-    func disabletest_snapshot_orgBanner_descriptionOnly() {
-        processor.state.loadingState = .data([])
-        processor.state.organizationUserNotificationBannerData = .fixture(
-            buttonText: nil,
-            description: "Bitwarden is intended for business use only. Do not store personal items here.",
-            headerText: nil,
-        )
-        assertSnapshots(of: subject, as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5])
-    }
-
-    @MainActor
-    func disabletest_snapshot_orgBanner_emptyVault() {
-        processor.state.loadingState = .data([])
-        processor.state.organizationUserNotificationBannerData = .fixture()
-        assertSnapshots(of: subject, as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5])
-    }
-
-    @MainActor
-    func disabletest_snapshot_orgBanner_populatedVault() {
-        processor.state.loadingState = .data(VaultListViewTests.defaultVaultData)
-        processor.state.organizationUserNotificationBannerData = .fixture()
         assertSnapshots(of: subject, as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5])
     }
 
@@ -256,64 +254,11 @@ class VaultListViewTests: BitwardenTestCase { // swiftlint:disable:this type_bod
     }
 
     @MainActor
-    func disabletest_snapshot_emptyImportLogins() {
-        processor.state.importLoginsSetupProgress = .incomplete
+    func disabletest_snapshot_empty_singleAccountProfileSwitcher() {
+        processor.state.profileSwitcherState.isVisible = true
         processor.state.loadingState = .data([])
-        assertSnapshots(of: subject, as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5])
-    }
 
-    @MainActor
-    func disabletest_snapshot_emptySubscriptionAttention() {
-        processor.state.loadingState = .data([])
-        processor.state.shouldShowSubscriptionAttentionCard = true
-        assertSnapshots(of: subject, as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5])
-    }
-
-    @MainActor
-    func disabletest_snapshot_myVaultSubscriptionAttentionWithArchive() {
-        processor.state.shouldShowArchiveOnboardingActionCard = true
-        processor.state.loadingState = .data(VaultListViewTests.defaultVaultData)
-        processor.state.shouldShowSubscriptionAttentionCard = true
-        assertSnapshots(of: subject, as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5])
-    }
-
-    @MainActor
-    func disabletest_snapshot_myVaultCollections() {
-        processor.state.loadingState = .data([
-            VaultListSection(
-                id: "Collections",
-                items: [
-                    VaultListItem(
-                        id: "31",
-                        itemType: .group(.collection(id: "", name: "Design", organizationId: "1"), 0),
-                    ),
-                    VaultListItem(
-                        id: "32",
-                        itemType: .group(.collection(id: "", name: "Engineering", organizationId: "1"), 2),
-                    ),
-                ],
-                name: "Collections",
-            ),
-        ])
-        processor.state.organizations = [
-            Organization(
-                enabled: true,
-                id: "",
-                isProviderUser: false,
-                key: nil,
-                keyConnectorEnabled: false,
-                keyConnectorUrl: nil,
-                name: "Org",
-                permissions: Permissions(),
-                status: .confirmed,
-                type: .user,
-                useEvents: false,
-                usePolicies: true,
-                userIsManagedByOrganization: false,
-                usersGetPremium: false,
-            ),
-        ]
-        assertSnapshot(of: subject, as: .defaultPortrait)
+        assertSnapshots(of: subject, as: [.defaultPortrait, .defaultPortraitDark])
     }
 
     @MainActor
@@ -321,5 +266,62 @@ class VaultListViewTests: BitwardenTestCase { // swiftlint:disable:this type_bod
         processor.state.loadingState = .data([])
         processor.state.profileSwitcherState = .dualAccounts
         assertSnapshots(of: subject, as: [.defaultPortrait, .defaultPortraitDark])
+    }
+
+    // The following tests have no direct preview counterpart.
+
+    @MainActor
+    func disabletest_snapshot_flightRecorderToastBanner() {
+        processor.state.loadingState = .data([])
+        processor.state.flightRecorderToastBanner.activeLog = FlightRecorderData.LogMetadata(
+            duration: .twentyFourHours,
+            startDate: Date(year: 2025, month: 4, day: 3),
+        )
+        assertSnapshot(of: subject, as: .defaultPortrait)
+    }
+
+    @MainActor
+    func disabletest_snapshot_myVaultSubscriptionAttention() {
+        processor.state.shouldShowSubscriptionAttentionCard = true
+        processor.state.loadingState = .data(VaultListViewTests.defaultVaultData)
+        assertSnapshots(
+            of: subject,
+            as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5],
+        )
+    }
+
+    @MainActor
+    func disabletest_snapshot_myVaultUpgradedToPremium() {
+        processor.state.shouldShowUpgradedToPremiumActionCard = true
+        processor.state.loadingState = .data(VaultListViewTests.defaultVaultData)
+        assertSnapshots(
+            of: subject,
+            as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5],
+        )
+    }
+
+    @MainActor
+    func disabletest_snapshot_orgBanner_descriptionOnly() {
+        processor.state.loadingState = .data([])
+        processor.state.organizationUserNotificationBannerData = .fixture(
+            buttonText: nil,
+            description: "Bitwarden is intended for business use only. Do not store personal items here.",
+            headerText: nil,
+        )
+        assertSnapshots(of: subject, as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5])
+    }
+
+    @MainActor
+    func disabletest_snapshot_orgBanner_emptyVault() {
+        processor.state.loadingState = .data([])
+        processor.state.organizationUserNotificationBannerData = .fixture()
+        assertSnapshots(of: subject, as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5])
+    }
+
+    @MainActor
+    func disabletest_snapshot_orgBanner_populatedVault() {
+        processor.state.loadingState = .data(VaultListViewTests.defaultVaultData)
+        processor.state.organizationUserNotificationBannerData = .fixture()
+        assertSnapshots(of: subject, as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5])
     }
 }
