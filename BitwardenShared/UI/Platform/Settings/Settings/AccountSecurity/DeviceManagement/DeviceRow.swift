@@ -24,29 +24,33 @@ struct DeviceRow: View {
         VStack(spacing: 0) {
             HStack(alignment: .center) {
                 VStack(alignment: .leading, spacing: 4) {
-                    VStack(alignment: .leading, spacing: 0) {
-                        // Device name
-                        Text(device.displayName)
-                            .foregroundStyle(SharedAsset.Colors.textPrimary.swiftUIColor)
-                            .styleGuide(.bodySemibold)
-                            .accessibilityIdentifier("DeviceNameLabel")
+                    if device.isCurrentSession {
+                        PillBadgeView(text: Localizations.currentSession, style: .success)
+                    }
 
-                        if device.isTrusted {
-                            Text(Localizations.trusted)
-                                .foregroundStyle(SharedAsset.Colors.textSecondary.swiftUIColor)
-                                .styleGuide(.subheadline)
-                                .accessibilityIdentifier("TrustedLabel")
+                    if device.hasPendingRequest {
+                        PillBadgeView(text: Localizations.pendingRequest, style: .warning)
+                    }
+
+                    Text(device.displayName)
+                        .foregroundStyle(SharedAsset.Colors.textPrimary.swiftUIColor)
+                        .styleGuide(.bodySemibold)
+                        .accessibilityIdentifier("DeviceNameLabel")
+
+                    if device.isTrusted {
+                        Text(Localizations.trusted)
+                            .foregroundStyle(SharedAsset.Colors.textSecondary.swiftUIColor)
+                            .styleGuide(.subheadline)
+                            .accessibilityIdentifier("TrustedLabel")
+                    }
+
+                    VStack(alignment: .leading, spacing: 2) {
+                        if device.lastActivityDate != nil {
+                            recentlyActiveRow
                         }
+
+                        firstLoginRow
                     }
-                    .padding(.bottom, 4)
-
-                    badgeRow
-
-                    if device.lastActivityDate != nil {
-                        recentlyActiveRow
-                    }
-
-                    firstLoginRow
                 }
 
                 if device.hasPendingRequest {
@@ -78,24 +82,7 @@ struct DeviceRow: View {
 
     // MARK: Private Views
 
-    /// The badge row showing current session or pending request.
-    @ViewBuilder private var badgeRow: some View {
-        if device.isCurrentSession {
-            statusIndicator(
-                text: Localizations.currentSession,
-                color: SharedAsset.Colors.badgeSuccessForeground.swiftUIColor,
-            )
-        }
-
-        if device.hasPendingRequest {
-            statusIndicator(
-                text: Localizations.pendingRequest,
-                color: SharedAsset.Colors.badgeWarningForeground.swiftUIColor,
-            )
-        }
-    }
-
-    /// The recently active row with bold label and regular date.
+    /// The recently active row with bold label and regular status.
     private var recentlyActiveRow: some View {
         HStack(spacing: 4) {
             Text(Localizations.recentlyActiveLabel)
@@ -125,19 +112,6 @@ struct DeviceRow: View {
 
     // MARK: Private Methods
 
-    /// Creates a status indicator with a colored dot and label.
-    private func statusIndicator(text: String, color: Color) -> some View {
-        HStack(spacing: 6) {
-            Circle()
-                .fill(color)
-                .frame(width: 8, height: 8)
-
-            Text(text)
-                .styleGuide(.subheadline)
-                .foregroundStyle(color)
-        }
-    }
-
     /// Formats a date for display with date and time.
     private func formattedDateTime(_ date: Date?) -> String {
         guard let date else { return Localizations.unknown }
@@ -165,7 +139,7 @@ private extension DeviceRow {
         device: DeviceListItem(
             activityStatus: .today,
             deviceType: .iOS,
-            displayName: "iPhone 15 Pro",
+            displayName: "Mobile - iOS",
             firstLogin: Date(),
             id: "1",
             identifier: "abc123",
@@ -184,7 +158,7 @@ private extension DeviceRow {
         device: DeviceListItem(
             activityStatus: .thisWeek,
             deviceType: .chromeExtension,
-            displayName: "Chrome Extension",
+            displayName: "Web vault - Chrome",
             firstLogin: Date().addingTimeInterval(-86400 * 30),
             id: "2",
             identifier: "def456",
@@ -203,7 +177,7 @@ private extension DeviceRow {
         device: DeviceListItem(
             activityStatus: .lastWeek,
             deviceType: .macOsDesktop,
-            displayName: "macOS Desktop",
+            displayName: "Desktop - macOS",
             firstLogin: Date().addingTimeInterval(-86400 * 60),
             id: "3",
             identifier: "ghi789",
