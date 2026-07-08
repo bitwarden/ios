@@ -6,6 +6,7 @@
 "Bitwarden" = "Bitwarden";
 "Cancel" = "Annulla";
 "Copy" = "Copia";
+"CopyLicenseNumber" = "Copia numero licenza";
 "CopyPassportNumber" = "Copia numero passaporto";
 "CopyPassword" = "Copia password";
 "CopyUsername" = "Copia nome utente";
@@ -1026,10 +1027,8 @@
 "ArchiveEmptyDescriptionLong" = "Sposta in Archivio gli elementi che non vuoi vedere nei risultati di ricerca e nei suggerimenti, ma potrebbero servirti in seguito.";
 "ArchiveItem" = "Archive item";
 "OnceArchivedThisItemWillBeExcludedDescriptionLong" = "Once archived, this item will be excluded from search results and autofill suggestions.";
-"ArchiveUnavailable" = "Archivio non disponibile";
 "ArchivingItemsIsAPremiumFeatureDescriptionLong" = "L'archiviazione è una funzionalità Premium. Il tuo piano attuale non include questa funzionalità.";
 "AddingAttachmentsIsAPremiumFeatureDescriptionLong" = "Adding attachments is a Premium feature. Your current plan does not include access to this feature.";
-"AttachmentsUnavailable" = "Allegati non disponibili";
 "UpgradeToPremium" = "Passa a Premium";
 "ThisItemIsArchived" = "Questo elemento è archiviato.";
 "YourPremiumSubscriptionEnded" = "Il tuo abbonamento Premium è terminato";

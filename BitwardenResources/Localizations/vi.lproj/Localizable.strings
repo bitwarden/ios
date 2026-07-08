@@ -6,6 +6,7 @@
 "Bitwarden" = "Bitwarden";
 "Cancel" = "Hủy bỏ";
 "Copy" = "Sao chép";
+"CopyLicenseNumber" = "Sao chép số giấy phép";
 "CopyPassportNumber" = "Sao chép số hộ chiếu";
 "CopyPassword" = "Sao chép mật khẩu";
 "CopyUsername" = "Sao chép tên đăng nhập";
@@ -1026,10 +1027,8 @@
 "ArchiveEmptyDescriptionLong" = "Thêm vào kho lưu trữ các mục bạn không muốn thấy trong kết quả tìm kiếm và gợi ý tự động điền nhưng có thể cần dùng sau này.";
 "ArchiveItem" = "Lưu trữ mục";
 "OnceArchivedThisItemWillBeExcludedDescriptionLong" = "Khi đã lưu trữ, mục này sẽ bị loại khỏi kết quả tìm kiếm và gợi ý tự động điền.";
-"ArchiveUnavailable" = "Lưu trữ không khả dụng";
 "ArchivingItemsIsAPremiumFeatureDescriptionLong" = "Lưu trữ mục là một tính năng Cao cấp. Gói hiện tại của bạn không bao gồm quyền truy cập tính năng này.";
 "AddingAttachmentsIsAPremiumFeatureDescriptionLong" = "Adding attachments is a Premium feature. Your current plan does not include access to this feature.";
-"AttachmentsUnavailable" = "Attachments unavailable";
 "UpgradeToPremium" = "Nâng cấp lên bản cao cấp";
 "ThisItemIsArchived" = "Mục này đã được lưu trữ.";
 "YourPremiumSubscriptionEnded" = "Gói đăng ký Cao cấp của bạn đã kết thúc";
