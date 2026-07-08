@@ -96,19 +96,19 @@ mint run swiftgen config run --config swiftgen-bwr.yml   # BitwardenResources (m
 # Run the appropriate swiftgen-*.yml if strings landed in a different target
 ```
 
-**Then lint and format:**
+**Then run the pre-commit checks:**
 ```bash
-mint run swiftlint                        # Fix all violations before continuing
-mint run swiftformat --lint --lenient .   # Fix all violations before continuing
-typos                                     # Flag any new spell-check errors
+./Scripts/pre-commit
 ```
 
-For SwiftLint violations, prefer fixing the root cause over suppressing with `// swiftlint:disable` comments. Suppression is appropriate when the violation is structural and fixing it would require an artificial or non-idiomatic refactor. Common cases:
+This runs spell-check, SwiftFormat, and SwiftLint on changed files — the same checks that run at commit time. If violations are reported, fix them and re-run until it passes cleanly.
+
+For SwiftLint violations that require manual fixes, prefer fixing the root cause over suppressing with `// swiftlint:disable` comments. Suppression is appropriate when the violation is structural and fixing it would require an artificial or non-idiomatic refactor. Common cases:
 - **`line_length`** — wrap long lines using Xcode's ⌃M style (each argument on its own indented line); fix rather than suppress
 - **`file_length`** — if a `#if DEBUG` preview section pushed a file over the limit, add `// swiftlint:disable file_length` at the top of the file (this is the established pattern — do NOT move previews to a separate file)
 - **`type_body_length`** — split large types using `// MARK:` extensions in separate files if needed; suppress only if the type is inherently large and splitting would hurt readability
 
-Only hand back once `swiftlint` and `swiftformat --lint --lenient` both produce zero violations for files touched in this session.
+Only hand back once `./Scripts/pre-commit` passes cleanly for files touched in this session.
 
 ## Conventions
 
