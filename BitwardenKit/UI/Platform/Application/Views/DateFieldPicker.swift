@@ -42,6 +42,10 @@ public struct DateFieldPicker: View {
     /// VoiceOver, so a wheel picker is substituted when it is active.
     @Environment(\.accessibilityVoiceOverEnabled) var voiceOverEnabled: Bool
 
+    /// Whether the wheel-style date picker should have accessibility focus. This is used to give the date
+    /// picker immediate focus after expanding in VoiceOver mode.
+    @AccessibilityFocusState private var isPickerFocused: Bool
+
     // MARK: View
 
     public var body: some View {
@@ -114,8 +118,10 @@ public struct DateFieldPicker: View {
         let picker = Group {
             if let range {
                 DatePicker("", selection: selection(), in: range, displayedComponents: [.date])
+                    .accessibilityFocused($isPickerFocused)
             } else {
                 DatePicker("", selection: selection(), displayedComponents: [.date])
+                    .accessibilityFocused($isPickerFocused)
             }
         }
         .labelsHidden()
@@ -220,7 +226,10 @@ public struct DateFieldPicker: View {
 
     /// Toggles the inline calendar's expanded state.
     private func toggleExpanded() {
-        withAnimation { isExpanded.toggle() }
+        withAnimation {
+            isExpanded.toggle()
+            isPickerFocused = isExpanded && voiceOverEnabled
+        }
     }
 }
 
