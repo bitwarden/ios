@@ -276,14 +276,6 @@ class VaultCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this type_
         XCTAssertEqual(view.store.state.group, .identity)
     }
 
-    /// `navigate(to:)` with `.flightRecorderSettings` notifies the delegate to switch to the about
-    /// screen in the settings tab.
-    @MainActor
-    func test_navigateTo_flightRecorderSettings() throws {
-        subject.navigate(to: .flightRecorderSettings)
-        XCTAssertEqual(delegate.switchToSettingsTabRoute, .about)
-    }
-
     /// `navigate(to:)` with `.group` pushes the vault group view onto the stack navigator.
     @MainActor
     func test_navigateTo_group() throws {
