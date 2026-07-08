@@ -24,13 +24,13 @@ struct DeviceRow: View {
             }
         } label: {
             HStack(alignment: .center) {
-                VStack(alignment: .leading, spacing: 4) {
+                VStack(alignment: .leading, spacing: 0) {
                     if device.isCurrentSession {
-                        PillBadgeView(text: Localizations.currentSession, style: .success)
-                    }
-
-                    if device.hasPendingRequest {
+                        PillBadgeView(text: Localizations.currentSession, style: .info)
+                            .padding(.bottom, 14)
+                    } else if device.hasPendingRequest {
                         PillBadgeView(text: Localizations.pendingRequest, style: .warning)
+                            .padding(.bottom, 14)
                     }
 
                     Text(device.displayName)
@@ -42,6 +42,7 @@ struct DeviceRow: View {
                         Text(Localizations.trusted)
                             .foregroundStyle(SharedAsset.Colors.textSecondary.swiftUIColor)
                             .styleGuide(.subheadline)
+                            .padding(.top, 2)
                             .accessibilityIdentifier("TrustedLabel")
                     }
 
@@ -52,6 +53,7 @@ struct DeviceRow: View {
 
                         firstLoginRow
                     }
+                    .padding(.top, 2)
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
 
