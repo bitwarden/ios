@@ -24,7 +24,7 @@ struct DeviceManagementView: View {
                     .scrollView()
             }
         }
-        .navigationBar(title: Localizations.manageDevices, titleDisplayMode: .inline)
+        .navigationBar(title: Localizations.devices, titleDisplayMode: .inline)
         .toolbar {
             cancelToolbarItem {
                 store.send(.dismiss)

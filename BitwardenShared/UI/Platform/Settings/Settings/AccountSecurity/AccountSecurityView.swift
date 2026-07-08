@@ -82,12 +82,12 @@ struct AccountSecurityView: View {
     private var otherSection: some View {
         SectionView(Localizations.other) {
             ContentBlock(dividerLeadingPadding: 16) {
-                if store.state.isManageDevicesEnabled {
-                    SettingsListItem(
-                        Localizations.devices,
-                        accessibilityIdentifier: "ManageDevicesLabel",
-                    ) {
-                        store.send(.manageDevicesTapped)
+                SettingsListItem(
+                    Localizations.accountFingerprintPhrase,
+                    accessibilityIdentifier: "AccountFingerprintPhraseLabel",
+                ) {
+                    Task {
+                        await store.perform(.accountFingerprintPhrasePressed)
                     }
                 }
 
@@ -101,12 +101,12 @@ struct AccountSecurityView: View {
                         .imageStyle(.rowIcon)
                 }
 
-                SettingsListItem(
-                    Localizations.accountFingerprintPhrase,
-                    accessibilityIdentifier: "AccountFingerprintPhraseLabel",
-                ) {
-                    Task {
-                        await store.perform(.accountFingerprintPhrasePressed)
+                if store.state.isManageDevicesEnabled {
+                    SettingsListItem(
+                        Localizations.devices,
+                        accessibilityIdentifier: "ManageDevicesLabel",
+                    ) {
+                        store.send(.manageDevicesTapped)
                     }
                 }
 
