@@ -14,8 +14,8 @@
 "ExpirationYear" = "Expiration Year";
 "FileShare" = "File Share";
 "FormValues" = "Form Values";
+"MissingAttestationObjectReceived" = "The authorization response did not include an attestation object.";
 "PasskeyRegisteredSuccessfully" = "Passkey registered successfully.";
-"PasskeyRegistrationRequiresIOS17OrLater" = "Passkey registration requires iOS 17 or later.";
 "Password" = "Password";
 "RegisterPasskey" = "Register Passkey";
 "RegistrationResult" = "Registration Result";
