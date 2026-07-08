@@ -8,7 +8,7 @@ import CryptoKit
 /// without needing `objc_setAssociatedObject` to retain a separate delegate object.
 ///
 @available(iOS 17, *)
-public class CreatePasskeyCoordinator: NSObject,
+class PasskeyAuthorizationBridge: NSObject,
     ASAuthorizationControllerDelegate,
     ASAuthorizationControllerPresentationContextProviding {
     // MARK: Private Properties
@@ -43,7 +43,7 @@ public class CreatePasskeyCoordinator: NSObject,
 
     // MARK: ASAuthorizationControllerDelegate
 
-    public func authorizationController(
+    func authorizationController(
         controller _: ASAuthorizationController,
         didCompleteWithAuthorization authorization: ASAuthorization,
     ) {
@@ -56,7 +56,7 @@ public class CreatePasskeyCoordinator: NSObject,
         continuation?.resume(returning: registration)
     }
 
-    public func authorizationController(
+    func authorizationController(
         controller _: ASAuthorizationController,
         didCompleteWithError error: Error,
     ) {
@@ -66,7 +66,7 @@ public class CreatePasskeyCoordinator: NSObject,
 
     // MARK: ASAuthorizationControllerPresentationContextProviding
 
-    public func presentationAnchor(for _: ASAuthorizationController) -> ASPresentationAnchor {
+    func presentationAnchor(for _: ASAuthorizationController) -> ASPresentationAnchor {
         window
     }
 }
