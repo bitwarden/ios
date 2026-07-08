@@ -84,19 +84,16 @@ struct AccountSecurityView: View {
             ContentBlock(dividerLeadingPadding: 16) {
                 if store.state.isManageDevicesEnabled {
                     SettingsListItem(
-                        Localizations.manageDevices,
-                        accessibilityIdentifier: "ManageDevicesLabel"
+                        Localizations.devices,
+                        accessibilityIdentifier: "ManageDevicesLabel",
                     ) {
                         store.send(.manageDevicesTapped)
-                    } trailingContent: {
-                        Image(asset: SharedAsset.Icons.chevronRight16)
-                            .imageStyle(.accessoryIcon16)
                     }
                 }
 
                 SettingsListItem(
                     Localizations.twoStepLogin,
-                    accessibilityIdentifier: "TwoStepLoginLinkItemView"
+                    accessibilityIdentifier: "TwoStepLoginLinkItemView",
                 ) {
                     store.send(.twoStepLoginPressed)
                 } trailingContent: {
@@ -106,7 +103,7 @@ struct AccountSecurityView: View {
 
                 SettingsListItem(
                     Localizations.accountFingerprintPhrase,
-                    accessibilityIdentifier: "AccountFingerprintPhraseLabel"
+                    accessibilityIdentifier: "AccountFingerprintPhraseLabel",
                 ) {
                     Task {
                         await store.perform(.accountFingerprintPhrasePressed)

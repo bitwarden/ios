@@ -1169,6 +1169,7 @@
 "LineOfCredit" = "Line of credit";
 "MoneyMarket" = "Money market";
 "Savings" = "Savings";
+"Devices" = "Devices";
 "ManageDevices" = "Manage devices";
 "NoDevicesFound" = "No devices found";
 "CurrentSession" = "Current session";
