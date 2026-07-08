@@ -58,6 +58,45 @@ class COSEKeyParserTests: BitwardenTestCase {
         }
     }
 
+    /// `parseCredential(fromAttestationObject:)` throws when the COSE key's `kty` isn't EC2.
+    func test_parseCredential_wrongKeyType_throwsUnsupportedKeyType() {
+        XCTAssertThrowsError(
+            try COSEKeyParser.parseCredential(fromAttestationObject: .fixtureWrongKeyType),
+        ) { error in
+            XCTAssertEqual(error as? COSEKeyParser.ParsingError, .unsupportedKeyType(3))
+        }
+    }
+
+    /// `parseCredential(fromAttestationObject:)` throws when the declared credential ID length
+    /// doesn't fit within the remaining `authData` bytes.
+    func test_parseCredential_malformedCredentialIdLength_throwsError() {
+        XCTAssertThrowsError(
+            try COSEKeyParser.parseCredential(fromAttestationObject: .fixtureMalformedCredentialIdLength),
+        ) { error in
+            XCTAssertEqual(error as? COSEKeyParser.ParsingError, .malformedCredentialIdLength)
+        }
+    }
+
+    /// `parseCredential(fromAttestationObject:)` throws when the COSE key is missing a required
+    /// field (here, `crv`).
+    func test_parseCredential_missingRequiredCOSEField_throwsMalformedCOSEKey() {
+        XCTAssertThrowsError(
+            try COSEKeyParser.parseCredential(fromAttestationObject: .fixtureMissingRequiredCOSEField),
+        ) { error in
+            XCTAssertEqual(error as? COSEKeyParser.ParsingError, .malformedCOSEKey)
+        }
+    }
+
+    /// `parseCredential(fromAttestationObject:)` throws when `authData`'s flags don't have the
+    /// "attested credential data included" bit set.
+    func test_parseCredential_missingAttestedCredentialDataFlag_throwsError() {
+        XCTAssertThrowsError(
+            try COSEKeyParser.parseCredential(fromAttestationObject: .fixtureMissingAttestedCredentialData),
+        ) { error in
+            XCTAssertEqual(error as? COSEKeyParser.ParsingError, .missingAttestedCredentialData)
+        }
+    }
+
     /// `parseCredential(fromAttestationObject:)` throws rather than crashing on malformed
     /// top-level CBOR.
     func test_parseCredential_malformedTopLevelCBOR_throwsError() {
@@ -120,6 +159,36 @@ private extension Data {
     /// A well-formed top-level attestation object map with no `authData` key.
     static let fixtureMissingAuthData = Data(
         base64Encoded: "omNmbXRkbm9uZWdhdHRTdG10oA==",
+    )!
+
+    /// An attestation object whose COSE key declares `kty = 3` instead of `2` (EC2).
+    static let fixtureWrongKeyType = Data(
+        base64Encoded: "o2NmbXRkbm9uZWdhdHRTdG10oGhhdXRoRGF0YViko3mm9u6vuaVeN4wRgDTidR5oL6ufLTCrE9IS" +
+            "VYbOGUdBAAAAAAAAAAAAAAAAAAAAAAAAAAAAIGRlZmdoaWprbG1ub3BxcnN0dXZ3eHl6e3x9fn+A" +
+            "gYKDpQEDAyYgASFYIAECAwQFBgcICQoLDA0ODxAREhMUFRYXGBkaGxwdHh8gIlggISIjJCUmJygp" +
+            "KissLS4vMDEyMzQ1Njc4OTo7PD0+P0A=",
+    )!
+
+    /// An attestation object that declares a credential ID length (40 bytes) longer than the
+    /// remaining `authData` bytes actually contain.
+    static let fixtureMalformedCredentialIdLength = Data(
+        base64Encoded: "o2NmbXRkbm9uZWdhdHRTdG10oGhhdXRoRGF0YVg8o3mm9u6vuaVeN4wRgDTidR5oL6ufLTCrE9IS" +
+            "VYbOGUdBAAAAAAAAAAAAAAAAAAAAAAAAAAAAKAABAgME",
+    )!
+
+    /// An attestation object whose COSE key map is missing the required `crv` (curve) field.
+    static let fixtureMissingRequiredCOSEField = Data(
+        base64Encoded: "o2NmbXRkbm9uZWdhdHRTdG10oGhhdXRoRGF0YViio3mm9u6vuaVeN4wRgDTidR5oL6ufLTCrE9IS" +
+            "VYbOGUdBAAAAAAAAAAAAAAAAAAAAAAAAAAAAIGRlZmdoaWprbG1ub3BxcnN0dXZ3eHl6e3x9fn+A" +
+            "gYKDpAECAyYhWCCqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqiJYILu7u7u7u7u7u7u7" +
+            "u7u7u7u7u7u7u7u7u7u7u7u7u7u7",
+    )!
+
+    /// An attestation object whose `authData` flags don't have the "attested credential data
+    /// included" bit (`0x40`) set, even though the data is otherwise a valid length.
+    static let fixtureMissingAttestedCredentialData = Data(
+        base64Encoded: "o2NmbXRkbm9uZWdhdHRTdG10oGhhdXRoRGF0YVglo3mm9u6vuaVeN4wRgDTidR5oL6ufLTCrE9IS" +
+            "VYbOGUcBAAAAAA==",
     )!
 
     /// An attestation object with 2 extra bytes appended after an otherwise-valid COSE key.
