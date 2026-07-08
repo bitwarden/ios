@@ -98,7 +98,8 @@ class CreatePasskeyProcessorTests: BitwardenTestCase {
         XCTAssertTrue(credentialStore.savedCredentials.isEmpty)
     }
 
-    /// `perform(.registerPasskey)` sets status to `.failure` when persisting the credential throws.
+    /// `perform(.registerPasskey)` sets status to `.persistenceFailure` when the credential was
+    /// registered but persisting it throws, rather than reporting the whole operation as failed.
     @MainActor
     func test_perform_registerPasskey_credentialStoreSaveThrows() async {
         let testError = BitwardenTestError.example
@@ -110,7 +111,10 @@ class CreatePasskeyProcessorTests: BitwardenTestCase {
             credentialStore: credentialStore,
         )
         await subject.perform(.registerPasskey)
-        XCTAssertEqual(subject.state.status, .failure(testError.localizedDescription))
+        XCTAssertEqual(
+            subject.state.status,
+            .persistenceFailure(credential: .fixture(), message: testError.localizedDescription),
+        )
     }
 
     /// `perform(.registerPasskey)` passes the current state values to the registration closure.

@@ -88,7 +88,7 @@ struct CreatePasskeyView: View {
             .disabled(store.state.status == .inProgress || store.state.rpId.isEmpty || store.state.userName.isEmpty)
             .accessibilityIdentifier("RegisterPasskeyButton")
         } footer: {
-            Text(Localizations.createPasskeyFormDescription)
+            Text(Localizations.createPasskeyFormDescriptionLong)
         }
     }
 
@@ -110,6 +110,18 @@ struct CreatePasskeyView: View {
                 Label(message, systemImage: "xmark.circle.fill")
                     .foregroundStyle(.red)
                     .accessibilityIdentifier("RegistrationFailureLabel")
+            } header: {
+                Text(Localizations.registrationResult)
+            }
+        case let .persistenceFailure(credential, message):
+            Section {
+                Label(Localizations.passkeyCreatedButNotSaved, systemImage: "exclamationmark.triangle.fill")
+                    .foregroundStyle(.orange)
+                    .accessibilityIdentifier("RegistrationPersistenceFailureLabel")
+                Text(Localizations.xColonY(Localizations.credentialId, credential.credentialId.base64EncodedString()))
+                    .font(.footnote)
+                Text(Localizations.xColonY(Localizations.error, message))
+                    .font(.footnote)
             } header: {
                 Text(Localizations.registrationResult)
             }
@@ -144,6 +156,28 @@ struct CreatePasskeyView: View {
             store: Store(processor: StateProcessor(state: {
                 var state = CreatePasskeyState()
                 state.status = .failure("Associated domain not configured in entitlements.")
+                return state
+            }())),
+        )
+    }
+}
+
+#Preview("Persistence Failure") {
+    NavigationView {
+        CreatePasskeyView(
+            store: Store(processor: StateProcessor(state: {
+                var state = CreatePasskeyState()
+                state.status = .persistenceFailure(
+                    credential: StoredPasskeyCredential(
+                        rpId: "bitwarden.com",
+                        userName: "user",
+                        displayName: "User",
+                        credentialId: Data([0x01, 0x02, 0x03]),
+                        publicKeyX963: Data(repeating: 0x04, count: 65),
+                        createdAt: Date(),
+                    ),
+                    message: "The disk is full.",
+                )
                 return state
             }())),
         )
