@@ -82,9 +82,7 @@ private struct SearchableVaultListView: View {
             Group {
                 organizationBannerActionCard
 
-                subscriptionNeedsAttentionActionCard
-
-                importLoginsActionCard
+                actionCard
 
                 vaultFilterRow
             }
@@ -241,13 +239,7 @@ private struct SearchableVaultListView: View {
         VStack(spacing: 20) {
             organizationBannerActionCard
 
-            premiumUpgradeActionCard
-
-            subscriptionNeedsAttentionActionCard
-
-            upgradedToPremiumActionCard
-
-            archiveOnboardingActionCard
+            actionCard
 
             vaultFilterRow
 
@@ -311,10 +303,34 @@ private struct SearchableVaultListView: View {
 // MARK: - Action Cards
 
 extension SearchableVaultListView {
-    /// The action card for archive onboarding.
-    @ViewBuilder private var archiveOnboardingActionCard: some View {
-        if store.state.shouldShowArchiveOnboardingActionCard,
-           !store.state.shouldShowSubscriptionAttentionCard {
+    /// The active action card, rendered based on priority. Only one card is shown at a time.
+    @ViewBuilder private var actionCard: some View {
+        switch store.state.activeActionCard {
+        case .upgradedToPremium:
+            UpgradedToPremiumActionCardView(
+                onDismiss: { await store.perform(.dismissUpgradedToPremiumActionCard) },
+                onLearnMore: { store.send(.learnMoreAboutPremium) },
+            )
+        case .upgradeNeeded:
+            ActionCard(
+                title: Localizations.unlockAdvancedSecurityFeatures,
+                message: Localizations.aPremiumPlanGivesYouMoreToolsDescriptionLong,
+                actionButtonState: ActionCard.ButtonState(title: Localizations.learnMore) {
+                    store.send(.upgradeToPremium)
+                },
+                dismissButtonState: ActionCard.ButtonState(title: Localizations.dismiss) {
+                    await store.perform(.dismissPremiumUpgradeActionCard)
+                },
+            )
+        case .subscriptionNeedsAttention:
+            ActionCard(
+                title: Localizations.subscriptionNeedsAttention,
+                message: Localizations.checkYourPlanForDetails,
+                actionButtonState: ActionCard.ButtonState(title: Localizations.viewPlan) {
+                    store.send(.viewPlan)
+                },
+            )
+        case .introducingArchive:
             ActionCard(
                 title: Localizations.introducingArchive,
                 message: Localizations.keepYtemsYouDontNeedRightNowSafeButOutOfSight,
@@ -325,15 +341,10 @@ extension SearchableVaultListView {
                     await store.perform(.dismissArchiveOnboardingActionCard)
                 },
             ) {
-                SharedAsset.Icons.archive24.swiftUIImage.foregroundStyle(SharedAsset.Colors.iconSecondary.swiftUIColor)
+                SharedAsset.Icons.archive24.swiftUIImage
+                    .foregroundStyle(SharedAsset.Colors.iconSecondary.swiftUIColor)
             }
-        }
-    }
-
-    /// The action card for importing login items.
-    @ViewBuilder private var importLoginsActionCard: some View {
-        if store.state.shouldShowImportLoginsActionCard,
-           !store.state.shouldShowSubscriptionAttentionCard {
+        case .importItems:
             ActionCard(
                 title: Localizations.importSavedLogins,
                 message: Localizations.importSavedLoginsDescriptionLong,
@@ -344,6 +355,8 @@ extension SearchableVaultListView {
                     await store.perform(.dismissImportLoginsActionCard)
                 },
             )
+        case nil:
+            EmptyView()
         }
     }
 
@@ -367,45 +380,6 @@ extension SearchableVaultListView {
                 SharedAsset.Icons.informationCircle24.swiftUIImage
                     .foregroundStyle(SharedAsset.Colors.iconSecondary.swiftUIColor)
             }
-        }
-    }
-
-    /// The action card for Premium upgrade.
-    @ViewBuilder private var premiumUpgradeActionCard: some View {
-        if store.state.shouldShowPremiumUpgradeActionCard {
-            ActionCard(
-                title: Localizations.unlockAdvancedSecurityFeatures,
-                message: Localizations.aPremiumPlanGivesYouMoreToolsDescriptionLong,
-                actionButtonState: ActionCard.ButtonState(title: Localizations.learnMore) {
-                    store.send(.upgradeToPremium)
-                },
-                dismissButtonState: ActionCard.ButtonState(title: Localizations.dismiss) {
-                    await store.perform(.dismissPremiumUpgradeActionCard)
-                },
-            )
-        }
-    }
-
-    /// The action card shown to users whose personal Premium subscription needs attention (past due).
-    @ViewBuilder private var subscriptionNeedsAttentionActionCard: some View {
-        if store.state.shouldShowSubscriptionAttentionCard {
-            ActionCard(
-                title: Localizations.subscriptionNeedsAttention,
-                message: Localizations.checkYourPlanForDetails,
-                actionButtonState: ActionCard.ButtonState(title: Localizations.viewPlan) {
-                    store.send(.viewPlan)
-                },
-            )
-        }
-    }
-
-    /// The action card for the upgraded to Premium confirmation.
-    @ViewBuilder private var upgradedToPremiumActionCard: some View {
-        if store.state.shouldShowUpgradedToPremiumActionCard {
-            UpgradedToPremiumActionCardView(
-                onDismiss: { await store.perform(.dismissUpgradedToPremiumActionCard) },
-                onLearnMore: { store.send(.learnMoreAboutPremium) },
-            )
         }
     }
 }
