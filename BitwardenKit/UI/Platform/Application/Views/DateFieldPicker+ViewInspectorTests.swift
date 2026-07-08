@@ -1,9 +1,10 @@
 // swiftlint:disable:this file_name
-import BitwardenKit
 import BitwardenResources
 import SwiftUI
 import ViewInspector
 import XCTest
+
+@testable import BitwardenKit
 
 class DateFieldPickerTests: BitwardenTestCase {
     // MARK: Properties
@@ -110,5 +111,20 @@ class DateFieldPickerTests: BitwardenTestCase {
             defaultDate: defaultDate,
         )
         XCTAssertNoThrow(try subject.inspect().find(viewWithAccessibilityIdentifier: "DateOfBirthField"))
+    }
+
+    /// The wheel picker should be focused when the field is expanded with VoiceOver on.
+    func test_shouldFocusPicker_returnsTrue_whenExpandedAndVoiceOverOn() {
+        XCTAssertTrue(subject.shouldFocusPicker(isExpanded: true, voiceOverEnabled: true))
+    }
+
+    /// The wheel picker should not be focused when the field is expanded without VoiceOver.
+    func test_shouldFocusPicker_returnsFalse_whenExpandedAndVoiceOverOff() {
+        XCTAssertFalse(subject.shouldFocusPicker(isExpanded: true, voiceOverEnabled: false))
+    }
+
+    /// The wheel picker should never be focused when the field is collapsed, regardless of VoiceOver.
+    func test_shouldFocusPicker_returnsFalse_whenCollapsed() {
+        XCTAssertFalse(subject.shouldFocusPicker(isExpanded: false, voiceOverEnabled: true))
     }
 }

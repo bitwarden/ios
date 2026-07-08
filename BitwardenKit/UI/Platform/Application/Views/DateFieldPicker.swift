@@ -118,13 +118,12 @@ public struct DateFieldPicker: View {
         let picker = Group {
             if let range {
                 DatePicker("", selection: selection(), in: range, displayedComponents: [.date])
-                    .accessibilityFocused($isPickerFocused)
             } else {
                 DatePicker("", selection: selection(), displayedComponents: [.date])
-                    .accessibilityFocused($isPickerFocused)
             }
         }
         .labelsHidden()
+        .accessibilityFocused($isPickerFocused)
 
         if voiceOverEnabled {
             picker.datePickerStyle(.wheel)
@@ -221,6 +220,7 @@ public struct DateFieldPicker: View {
         withAnimation {
             date = nil
             isExpanded = false
+            isPickerFocused = shouldFocusPicker(isExpanded: isExpanded, voiceOverEnabled: voiceOverEnabled)
         }
     }
 
@@ -228,8 +228,15 @@ public struct DateFieldPicker: View {
     private func toggleExpanded() {
         withAnimation {
             isExpanded.toggle()
-            isPickerFocused = isExpanded && voiceOverEnabled
+            isPickerFocused = shouldFocusPicker(isExpanded: isExpanded, voiceOverEnabled: voiceOverEnabled)
         }
+    }
+
+    /// Determines whether the wheel-style picker should receive accessibility focus for the given
+    /// expanded/VoiceOver state. Takes both inputs explicitly (rather than reading the environment
+    /// property internally) so the decision logic can be unit tested without a real SwiftUI render pass.
+    func shouldFocusPicker(isExpanded: Bool, voiceOverEnabled: Bool) -> Bool {
+        isExpanded && voiceOverEnabled
     }
 }
 
