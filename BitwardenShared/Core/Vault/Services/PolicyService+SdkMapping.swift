@@ -86,6 +86,7 @@ extension BitwardenSdk.PolicyType {
         case .requireSSO: self = .requireSso
         case .resetPassword: self = .resetPassword
         case .restrictItemTypes: self = .restrictedItemTypes
+        case .sendControls: self = .sendControls
         case .sendOptions: self = .sendOptions
         case .twoFactorAuthentication: self = .twoFactorAuthentication
         // TODO: PM-39144 Add SDK mapping for `organizationUserNotification` PolicyType
@@ -113,6 +114,7 @@ extension PolicyType {
         case .requireSso: self = .requireSSO
         case .resetPassword: self = .resetPassword
         case .restrictedItemTypes: self = .restrictItemTypes
+        case .sendControls: self = .sendControls
         case .sendOptions: self = .sendOptions
         case .singleOrg: self = .onlyOrg
         case .twoFactorAuthentication: self = .twoFactorAuthentication
@@ -122,7 +124,6 @@ extension PolicyType {
              .blockClaimedDomainAccountCreation,
              .freeFamiliesSponsorship,
              .organizationUserNotification,
-             .sendControls,
              .uriMatchDefaults: self = .unknown
         }
     }
