@@ -45,7 +45,30 @@ public protocol PasskeyCredentialRequest {}
 public protocol OneTimeCodeCredentialIdentityProxy {}
 
 /// Protocol to bypass using @available for generate password requests (iOS 26.2+).
-public protocol GeneratePasswordRequestProxy {}
+public protocol GeneratePasswordRequestProxy {
+    /// Developer-provided password rules for the password field.
+    var passwordFieldPasswordRules: String? { get }
+
+    /// Password rules sourced from the quirks database.
+    var passwordRulesFromQuirks: String? { get }
+}
+
+public extension CredentialProviderMode {
+    /// The password rules string for the `generatePasswordCredential` mode, or `nil` for all other modes.
+    /// Prefers developer-provided `passwordFieldPasswordRules` over quirks-database rules.
+    var generatePasswordRules: String? {
+        guard case let .generatePasswordCredential(proxy, _) = self else { return nil }
+        return proxy.passwordFieldPasswordRules ?? proxy.passwordRulesFromQuirks
+    }
+}
+
+public extension GeneratePasswordRequestProxy {
+    /// Default implementation returns `nil`.
+    var passwordFieldPasswordRules: String? { nil }
+
+    /// Default implementation returns `nil`.
+    var passwordRulesFromQuirks: String? { nil }
+}
 
 /// Protocol to bypass using @available for save password requests (iOS 26.2+).
 public protocol SavePasswordRequestProxy {}

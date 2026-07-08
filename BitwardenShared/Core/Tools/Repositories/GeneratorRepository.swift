@@ -199,11 +199,21 @@ extension DefaultGeneratorRepository: GeneratorRepository {
     }
 
     func generatePassword(settings: PasswordGeneratorRequest) async throws -> String {
-        try await clientService.generators(isPreAuth: false).password(settings: settings)
+        try await clientService.generators().password(settings: settings)
+    }
+
+    func passwordRulesRequest(rules: String) async -> PasswordGeneratorRequest? {
+        do {
+            return try await clientService.generators()
+                .passwordRules(rules: rules)
+        } catch {
+            errorReporter.log(error: error)
+            return nil
+        }
     }
 
     func generateUsername(settings: UsernameGeneratorRequest) async throws -> String {
-        try await clientService.generators(isPreAuth: false).username(settings: settings)
+        try await clientService.generators().username(settings: settings)
     }
 
     func getPasswordGenerationOptions() async throws -> PasswordGenerationOptions {

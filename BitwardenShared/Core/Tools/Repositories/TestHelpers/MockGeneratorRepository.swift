@@ -20,6 +20,20 @@ class MockGeneratorRepository: GeneratorRepository {
     var passwordGeneratorRequest: PasswordGeneratorRequest?
     var passwordResult: Result<String, Error> = .success("PASSWORD")
 
+    var passwordRulesRequestRules: String?
+    var passwordRulesRequestResult: PasswordGeneratorRequest? = PasswordGeneratorRequest(
+        lowercase: true,
+        uppercase: true,
+        numbers: true,
+        special: false,
+        length: 14,
+        avoidAmbiguous: false,
+        minLowercase: nil,
+        minUppercase: nil,
+        minNumber: nil,
+        minSpecial: nil,
+    )
+
     var usernameGeneratorRequest: UsernameGeneratorRequest?
     var usernameResult: Result<String, Error> = .success("USERNAME")
 
@@ -70,6 +84,11 @@ class MockGeneratorRepository: GeneratorRepository {
     func generatePassword(settings: PasswordGeneratorRequest) async throws -> String {
         passwordGeneratorRequest = settings
         return try passwordResult.get()
+    }
+
+    func passwordRulesRequest(rules: String) async -> PasswordGeneratorRequest? {
+        passwordRulesRequestRules = rules
+        return passwordRulesRequestResult
     }
 
     func generateUsername(settings: UsernameGeneratorRequest) async throws -> String {

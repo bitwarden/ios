@@ -228,6 +228,7 @@ class AppCoordinator: Coordinator, HasRootNavigator { // swiftlint:disable:this 
         guard let extensionDelegate = appExtensionDelegate as? CredentialProviderExtensionDelegate else {
             return
         }
+
         let delegate = GeneratePasswordExtensionDelegate(extensionDelegate: extensionDelegate)
         generatePasswordExtensionDelegate = delegate
         let stackNavigator = module.makeNavigationController()
@@ -238,7 +239,7 @@ class AppCoordinator: Coordinator, HasRootNavigator { // swiftlint:disable:this 
         coordinator.start()
         coordinator.navigate(to: .generator(
             staticType: .password,
-            passwordRules: passwordRules,
+            passwordRules: extensionDelegate.extensionMode.generatePasswordRules,
             savePasswordHistory: false,
         ))
         rootNavigator?.show(child: stackNavigator)
