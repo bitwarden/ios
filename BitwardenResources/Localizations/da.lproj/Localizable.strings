@@ -128,7 +128,7 @@
 "ItemUpdated" = "Element gemt";
 "Submitting" = "Submitting…";
 "Syncing" = "Syncing…";
-"SyncingLogins" = "Synker logins…";
+"SyncingLogins" = "Synker logins...";
 "SyncingComplete" = "Synkronisering fuldført.";
 "TouchID" = "Touch ID";
 "TwoStepLogin" = "To-trins login";
@@ -808,7 +808,7 @@
 "YouMayNeedToEnableDevicePasscodeOrBiometrics" = "Enhedens adgangskode eller biometri skal muligvis aktiveres.";
 "StartImportCXFDescriptionLong" = "Importér adgangskoder, adgangsnøgler, betalingskort og alle personlige identitetsoplysninger fra en anden adgangskodehåndtering.\n\nData slettes ** ikke** fra/hos den tidligere udbyder.";
 "ImportPasswords" = "Importér adgangskoder";
-"ImportingEllipsis" = "Importerer…";
+"ImportingEllipsis" = "Importerer...";
 "AreYouSureYouWantToCancelTheImportProcessQuestionMark" = "Sikker på, at importprocessen skal afbrydes?";
 "ImportFailed" = "Import mislykkedes";
 "ThereWasAnIssueImportingAllOfYourPasswordsNoDataWasDeleted" = "Der opstod et problem ved import af alle adgangskoderne.\n\nIngen data blev slettet.";

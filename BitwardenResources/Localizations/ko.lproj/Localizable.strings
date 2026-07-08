@@ -12,7 +12,7 @@
 "CopyUsername" = "사용자 이름 복사";
 "Delete" = "삭제";
 "DeleteAll" = "모두 삭제";
-"Deleting" = "삭제 중…";
+"Deleting" = "삭제 중...";
 "DoYouReallyWantToDelete" = "정말 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.";
 "Edit" = "편집";
 "EditFolder" = "폴더 편집";
@@ -50,7 +50,7 @@
 "Password" = "비밀번호";
 "Save" = "저장";
 "Move" = "이동";
-"Saving" = "저장중…";
+"Saving" = "저장중...";
 "Settings" = "설정";
 "ShowNextCode" = "Show next code";
 "ItemDeleted" = "항목을 삭제했습니다.";
@@ -81,7 +81,7 @@
 "Close" = "닫기";
 "Continue" = "계속";
 "CreateAccount" = "계정 만들기";
-"CreatingAccount" = "계정 생성 중…";
+"CreatingAccount" = "계정 생성 중...";
 "EditItem" = "항목 편집";
 "EnableAutomaticSyncing" = "자동 동기화 사용";
 "EnterEmailForHint" = "마스터 비밀번호 힌트를 받으려면 계정의 이메일 주소를 입력하세요.";
@@ -127,8 +127,8 @@
 "Select" = "선택";
 "ItemUpdated" = "항목을 업데이트했습니다.";
 "Submitting" = "제출 중";
-"Syncing" = "동기화 중…";
-"SyncingLogins" = "로그인 동기화 중…";
+"Syncing" = "동기화 중...";
+"SyncingLogins" = "로그인 동기화 중...";
 "SyncingComplete" = "동기화를 완료했습니다.";
 "TouchID" = "Touch ID";
 "TwoStepLogin" = "2단계 인증";
@@ -164,7 +164,7 @@
 "AddNewAttachment" = "새 첨부 파일 추가";
 "Attachments" = "첨부 파일";
 "UnableToDownloadFile" = "파일을 다운로드할 수 없습니다.";
-"Downloading" = "다운로드 중…";
+"Downloading" = "다운로드 중...";
 "AttachmentLargeWarning" = "이 첨부 파일의 크기는 %1$@입니다. 정말 이 파일을 기기에 다운로드하시겠습니까?";
 "AuthenticatorKey" = "인증 키";
 "VerificationCodeTotp" = "인증 코드 (TOTP)";
@@ -275,7 +275,7 @@
 "Exact" = "정확히 일치";
 "Host" = "호스트";
 "RegEx" = "정규 표현식";
-"StartsWith" = "…으로 시작";
+"StartsWith" = "...으로 시작";
 "MatchDetection" = "일치 인식";
 "Organization" = "조직";
 "HoldYubikeyNearTop" = "기기의 위쪽에 Yubikey를 가져다 대세요.";
@@ -366,7 +366,7 @@
 "ExportVaultFailure" = "There was a problem exporting your vault.  If the problem persists, you’ll need to export from the web vault.";
 "Clone" = "복제";
 "PasswordGeneratorPolicyInEffect" = "하나 이상의 단체 정책이 생성기 규칙에 영항을 미치고 있습니다.";
-"SoftDeleting" = "휴지통으로 보내는 중…";
+"SoftDeleting" = "휴지통으로 보내는 중...";
 "ItemSoftDeleted" = "항목이 휴지통으로 이동되었습니다.";
 "Restore" = "복원";
 "Restoring" = "복구 중…";
@@ -808,7 +808,7 @@
 "YouMayNeedToEnableDevicePasscodeOrBiometrics" = "You may need to enable device passcode or biometrics.";
 "StartImportCXFDescriptionLong" = "Import passwords, passkeys, credit cards, and any personal identity information from another password manager.\n\nYour data will **not** be deleted from your previous provider.";
 "ImportPasswords" = "Import passwords";
-"ImportingEllipsis" = "가져오는 중…";
+"ImportingEllipsis" = "가져오는 중...";
 "AreYouSureYouWantToCancelTheImportProcessQuestionMark" = "Are you sure you want to cancel the import process?";
 "ImportFailed" = "Import failed";
 "ThereWasAnIssueImportingAllOfYourPasswordsNoDataWasDeleted" = "There was an issue importing all of your passwords.\n\nNo data was deleted.";

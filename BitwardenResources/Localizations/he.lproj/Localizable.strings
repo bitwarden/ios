@@ -128,7 +128,7 @@
 "ItemUpdated" = "הפריט נשמר";
 "Submitting" = "שולח…";
 "Syncing" = "מסנכרן…";
-"SyncingLogins" = "מסנכרן כניסות…";
+"SyncingLogins" = "מסנכרן כניסות...";
 "SyncingComplete" = "הסנכרון הושלם";
 "TouchID" = "טביעת אצבע Touch ID";
 "TwoStepLogin" = "התחברות בשני-שלבים";
@@ -809,7 +809,7 @@
 "YouMayNeedToEnableDevicePasscodeOrBiometrics" = "ייתכן שאתה צריך לאפשר קוד גישה למכשיר או זיהוי ביומטרי.";
 "StartImportCXFDescriptionLong" = "ייבא סיסמאות, מפתחות גישה, כרטיסי אשראי, וכל מידע אישי של זהות ממנהל סיסמאות אחר.\n\nהמידע שלך **לא** יימחק מהספק הקודם שלך.";
 "ImportPasswords" = "ייבא סיסמאות";
-"ImportingEllipsis" = "מייבא…";
+"ImportingEllipsis" = "מייבא...";
 "AreYouSureYouWantToCancelTheImportProcessQuestionMark" = "האם אתה בטוח שברצונך לבטל את תהליך הייבוא?";
 "ImportFailed" = "הייבוא נכשל";
 "ThereWasAnIssueImportingAllOfYourPasswordsNoDataWasDeleted" = "הייתה בעיה בייבוא של כל הסיסמאות שלך.\n\nלא נמחקו נתונים.";

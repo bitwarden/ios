@@ -128,7 +128,7 @@
 "ItemUpdated" = "Το στοιχείο αποθηκεύτηκε";
 "Submitting" = "Υποβολή…";
 "Syncing" = "Συγχρονισμός…";
-"SyncingLogins" = "Συγχρονισμός συνδέσεων…";
+"SyncingLogins" = "Συγχρονισμός συνδέσεων...";
 "SyncingComplete" = "Ο συγχρονισμός ολοκληρώθηκε";
 "TouchID" = "Touch ID";
 "TwoStepLogin" = "Σύνδεση δύο βημάτων";
@@ -407,7 +407,7 @@
 "CurrentAccessCount" = "Τρέχων Αριθμός Πρόσβασης";
 "RemovePassword" = "Αφαίρεση κωδικού πρόσβασης";
 "AreYouSureRemoveSendPassword" = "Είστε βέβαιοι ότι θέλετε να καταργήσετε τον κωδικό πρόσβασης;";
-"RemovingSendPassword" = "Αφαίρεση κωδικού…";
+"RemovingSendPassword" = "Αφαίρεση κωδικού...";
 "SendPasswordRemoved" = "Ο κωδικός πρόσβασης αφαιρέθηκε";
 "CopyLink" = "Αντιγραφή συνδέσμου";
 "ShareLink" = "Κοινοποίηση συνδέσμου";
@@ -808,7 +808,7 @@
 "YouMayNeedToEnableDevicePasscodeOrBiometrics" = "You may need to enable device passcode or biometrics.";
 "StartImportCXFDescriptionLong" = "Import passwords, passkeys, credit cards, and any personal identity information from another password manager.\n\nYour data will **not** be deleted from your previous provider.";
 "ImportPasswords" = "Εισαγωγή κωδικών πρόσβασης";
-"ImportingEllipsis" = "Εισαγωγή…";
+"ImportingEllipsis" = "Εισαγωγή...";
 "AreYouSureYouWantToCancelTheImportProcessQuestionMark" = "Are you sure you want to cancel the import process?";
 "ImportFailed" = "Αποτυχία εισαγωγής";
 "ThereWasAnIssueImportingAllOfYourPasswordsNoDataWasDeleted" = "There was an issue importing all of your passwords.\n\nNo data was deleted.";
