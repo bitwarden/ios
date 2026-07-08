@@ -49,7 +49,7 @@ class DeviceManagementViewTests: BitwardenTestCase {
         device.pendingRequest = request
         processor.state.loadingState = .data([device])
 
-        let button = try subject.inspect().find(button: "DeviceRowCell")
+        let button = try subject.inspect().find(viewWithAccessibilityIdentifier: "DeviceRowCell").button()
         try button.tap()
 
         XCTAssertEqual(processor.dispatchedActions.last, .deviceTapped(device))
