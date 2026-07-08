@@ -22,7 +22,7 @@ enum COSEKeyParser {
     }
 
     /// Errors that can occur while parsing an attestation object.
-    enum ParsingError: Error, Equatable {
+    enum ParsingError: Error, Equatable, LocalizedError {
         /// The top-level CBOR structure could not be decoded.
         case malformedTopLevelCBOR
 
@@ -31,6 +31,9 @@ enum COSEKeyParser {
 
         /// `authData` was too short to contain the expected fields.
         case authDataTooShort
+
+        /// `authData`'s flags did not have the "attested credential data included" bit set.
+        case missingAttestedCredentialData
 
         /// The credential ID length did not fit within the remaining `authData` bytes.
         case malformedCredentialIdLength
@@ -46,6 +49,29 @@ enum COSEKeyParser {
 
         /// The COSE key's `crv` field was not `1` (P-256).
         case unsupportedCurve(Int)
+
+        var errorDescription: String? {
+            switch self {
+            case .malformedTopLevelCBOR:
+                Localizations.malformedTopLevelCBORReceived
+            case .missingAuthData:
+                Localizations.missingAuthDataReceived
+            case .authDataTooShort:
+                Localizations.authDataTooShortReceived
+            case .missingAttestedCredentialData:
+                Localizations.missingAttestedCredentialDataReceived
+            case .malformedCredentialIdLength:
+                Localizations.malformedCredentialIdLengthReceived
+            case .malformedCOSEKey:
+                Localizations.malformedCOSEKeyReceived
+            case let .unsupportedKeyType(keyType):
+                Localizations.unsupportedKeyTypeReceived(keyType)
+            case let .unsupportedAlgorithm(algorithm):
+                Localizations.unsupportedAlgorithmReceived(algorithm)
+            case let .unsupportedCurve(curve):
+                Localizations.unsupportedCurveReceived(curve)
+            }
+        }
     }
 
     // MARK: Methods
@@ -86,7 +112,7 @@ enum COSEKeyParser {
         guard bytes.count >= 37 else { throw ParsingError.authDataTooShort }
 
         let flags = bytes[32]
-        guard flags & 0x40 != 0 else { throw ParsingError.authDataTooShort }
+        guard flags & 0x40 != 0 else { throw ParsingError.missingAttestedCredentialData }
 
         guard bytes.count >= 55 else { throw ParsingError.authDataTooShort }
         let credentialIdLength = Int(bytes[53]) << 8 | Int(bytes[54])

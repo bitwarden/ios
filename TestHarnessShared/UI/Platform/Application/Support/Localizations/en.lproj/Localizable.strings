@@ -1,7 +1,7 @@
 "AccountCreatedSuccessfully" = "Account created successfully";
 "AccountDetails" = "Account Details";
-"AssertionResult" = "Assertion Result";
 "AuthDataTooShortReceived" = "The authenticator data was too short to contain the expected fields.";
+"AssertionResult" = "Assertion Result";
 "CardAutofillForm" = "Card Autofill Form";
 "CardAutofillFormDescriptionLong" = "Long press a field, then select Autofill and Password to autofill with Bitwarden. Requires Bitwarden PM as AutoFill provider and a saved Card cipher.";
 "CardDetails" = "Card Details";
