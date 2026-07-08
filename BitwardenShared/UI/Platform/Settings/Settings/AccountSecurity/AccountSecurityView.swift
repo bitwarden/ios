@@ -21,7 +21,9 @@ struct AccountSecurityView: View {
         VStack(spacing: 16) {
             setUpUnlockActionCard
 
-            pendingLoginRequests
+            if !store.state.isManageDevicesEnabled {
+                pendingLoginRequests
+            }
 
             if store.state.showUnlockOptions {
                 unlockOptionsSection
@@ -80,23 +82,35 @@ struct AccountSecurityView: View {
     private var otherSection: some View {
         SectionView(Localizations.other) {
             ContentBlock(dividerLeadingPadding: 16) {
-                SettingsListItem(
-                    Localizations.accountFingerprintPhrase,
-                    accessibilityIdentifier: "AccountFingerprintPhraseLabel",
-                ) {
-                    Task {
-                        await store.perform(.accountFingerprintPhrasePressed)
+                if store.state.isManageDevicesEnabled {
+                    SettingsListItem(
+                        Localizations.manageDevices,
+                        accessibilityIdentifier: "ManageDevicesLabel"
+                    ) {
+                        store.send(.manageDevicesTapped)
+                    } trailingContent: {
+                        Image(asset: SharedAsset.Icons.chevronRight16)
+                            .imageStyle(.accessoryIcon16)
                     }
                 }
 
                 SettingsListItem(
                     Localizations.twoStepLogin,
-                    accessibilityIdentifier: "TwoStepLoginLinkItemView",
+                    accessibilityIdentifier: "TwoStepLoginLinkItemView"
                 ) {
                     store.send(.twoStepLoginPressed)
                 } trailingContent: {
                     Image(asset: SharedAsset.Icons.externalLink24)
                         .imageStyle(.rowIcon)
+                }
+
+                SettingsListItem(
+                    Localizations.accountFingerprintPhrase,
+                    accessibilityIdentifier: "AccountFingerprintPhraseLabel"
+                ) {
+                    Task {
+                        await store.perform(.accountFingerprintPhrasePressed)
+                    }
                 }
 
                 if store.state.isLockNowVisible {

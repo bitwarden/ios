@@ -2,7 +2,7 @@
 
 /// A protocol for an API service used to make device requests.
 ///
-protocol DeviceAPIService {
+protocol DeviceAPIService { // sourcery: AutoMockable
     /// Retrieves the current device by its app identifier.
     ///
     /// - Parameter appId: The unique app identifier for this device.
