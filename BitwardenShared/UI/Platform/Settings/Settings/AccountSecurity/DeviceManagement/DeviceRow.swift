@@ -46,7 +46,7 @@ struct DeviceRow: View {
                             .accessibilityIdentifier("TrustedLabel")
                     }
 
-                    VStack(alignment: .leading, spacing: 2) {
+                    VStack(alignment: .leading, spacing: 0) {
                         if device.lastActivityDate != nil {
                             recentlyActiveRow
                         }
@@ -64,6 +64,7 @@ struct DeviceRow: View {
                 }
             }
             .padding(16)
+            .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
         .accessibilityElement(children: .combine)
