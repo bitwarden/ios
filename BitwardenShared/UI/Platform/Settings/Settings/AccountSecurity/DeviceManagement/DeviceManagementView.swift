@@ -69,7 +69,6 @@ struct DeviceManagementView: View {
                 ForEach(devices) { device in
                     DeviceRow(
                         device: device,
-                        hasDivider: device != devices.last,
                         onTap: {
                             store.send(.deviceTapped(device))
                         },

@@ -12,16 +12,17 @@ struct DeviceRow: View {
     /// The device to display.
     let device: DeviceListItem
 
-    /// Whether to show a divider below the row.
-    let hasDivider: Bool
-
     /// The action to perform when the device is tapped (for pending requests).
     let onTap: () -> Void
 
     // MARK: View
 
     var body: some View {
-        VStack(spacing: 0) {
+        Button {
+            if device.hasPendingRequest {
+                onTap()
+            }
+        } label: {
             HStack(alignment: .center) {
                 VStack(alignment: .leading, spacing: 4) {
                     if device.isCurrentSession {
@@ -52,29 +53,17 @@ struct DeviceRow: View {
                         firstLoginRow
                     }
                 }
+                .frame(maxWidth: .infinity, alignment: .leading)
 
                 if device.hasPendingRequest {
-                    Spacer()
-
                     Image(asset: SharedAsset.Icons.chevronRight16)
                         .imageStyle(.accessoryIcon16)
                         .accessibilityHidden(true)
                 }
             }
             .padding(16)
-            .frame(maxWidth: .infinity, alignment: .leading)
-
-            if hasDivider {
-                Divider().padding(.leading, 16)
-            }
         }
-        .background(SharedAsset.Colors.backgroundSecondary.swiftUIColor)
-        .contentShape(Rectangle())
-        .onTapGesture {
-            if device.hasPendingRequest {
-                onTap()
-            }
-        }
+        .buttonStyle(.plain)
         .accessibilityElement(children: .combine)
         .accessibilityAddTraits(device.hasPendingRequest ? .isButton : [])
         .accessibilityIdentifier("DeviceRowCell")
@@ -148,9 +137,11 @@ private extension DeviceRow {
             lastActivityDate: Date(),
             pendingRequest: nil,
         ),
-        hasDivider: true,
         onTap: {},
     )
+    .contentBlock()
+    .padding()
+    .background(SharedAsset.Colors.backgroundPrimary.swiftUIColor)
 }
 
 #Preview("Device Row - Pending Request") {
@@ -167,9 +158,11 @@ private extension DeviceRow {
             lastActivityDate: Date().addingTimeInterval(-86400 * 3),
             pendingRequest: nil,
         ),
-        hasDivider: false,
         onTap: {},
     )
+    .contentBlock()
+    .padding()
+    .background(SharedAsset.Colors.backgroundPrimary.swiftUIColor)
 }
 
 #Preview("Device Row - Trusted Not Current") {
@@ -186,8 +179,10 @@ private extension DeviceRow {
             lastActivityDate: Date().addingTimeInterval(-86400 * 10),
             pendingRequest: nil,
         ),
-        hasDivider: true,
         onTap: {},
     )
+    .contentBlock()
+    .padding()
+    .background(SharedAsset.Colors.backgroundPrimary.swiftUIColor)
 }
 #endif
