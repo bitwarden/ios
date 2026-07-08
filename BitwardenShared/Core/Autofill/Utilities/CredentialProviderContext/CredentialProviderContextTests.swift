@@ -104,6 +104,26 @@ struct CredentialProviderContextTests { // swiftlint:disable:this type_body_leng
         )
     }
 
+    /// `initialRoute` returns `.generatePasswordCredential` on iOS 26.2+ with user interaction,
+    /// and `nil` for all other modes or when `userInteraction` is `false`.
+    @Test
+    func initialRoute() {
+        #expect(
+            DefaultCredentialProviderContext(
+                .generatePasswordCredential(MockGeneratePasswordRequest(), userInteraction: false),
+            ).initialRoute == nil,
+        )
+        #expect(DefaultCredentialProviderContext(.autofillVaultList([])).initialRoute == nil)
+        #expect(DefaultCredentialProviderContext(.configureAutofill).initialRoute == nil)
+        if #available(iOS 26.2, iOSApplicationExtension 26.2, *) {
+            #expect(
+                DefaultCredentialProviderContext(
+                    .generatePasswordCredential(MockGeneratePasswordRequest(), userInteraction: true),
+                ).initialRoute == AppRoute.generatePasswordCredential,
+            )
+        }
+    }
+
     /// `configuring` returns `true` if configuring, `false` otherwise.
     @Test
     func configuring() {

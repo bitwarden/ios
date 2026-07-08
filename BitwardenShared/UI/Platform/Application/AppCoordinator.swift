@@ -236,7 +236,11 @@ class AppCoordinator: Coordinator, HasRootNavigator { // swiftlint:disable:this 
             stackNavigator: stackNavigator,
         ).asAnyCoordinator()
         coordinator.start()
-        coordinator.navigate(to: .generator(staticType: .password))
+        coordinator.navigate(to: .generator(
+            staticType: .password,
+            passwordRules: passwordRules,
+            savePasswordHistory: false,
+        ))
         rootNavigator?.show(child: stackNavigator)
     }
 

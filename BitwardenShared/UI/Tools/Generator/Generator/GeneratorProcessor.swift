@@ -357,6 +357,7 @@ final class GeneratorProcessor: StateProcessor<GeneratorState, GeneratorAction, 
     /// - Parameter value: The generated value to save to the user's password history.
     ///
     func saveGeneratedValue(_ value: String) async throws {
+        guard state.savePasswordHistory else { return }
         try await services.generatorRepository.addPasswordHistory(
             PasswordHistoryView(
                 password: value,

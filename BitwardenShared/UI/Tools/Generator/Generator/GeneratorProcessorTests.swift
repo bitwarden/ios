@@ -957,6 +957,22 @@ class GeneratorProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         XCTAssertEqual(subject.state.usernameState.usernameGeneratorType, .catchAllEmail)
     }
 
+    /// `saveGeneratedValue(_:)` skips adding to password history when `savePasswordHistory` is `false`.
+    @MainActor
+    func test_saveGeneratedValue_skipsHistoryWhenDisabled() async throws {
+        subject = GeneratorProcessor(
+            coordinator: coordinator.asAnyCoordinator(),
+            services: ServiceContainer.withMocks(
+                generatorRepository: generatorRepository,
+            ),
+            state: GeneratorState(savePasswordHistory: false),
+        )
+
+        try await subject.saveGeneratedValue("test-password")
+
+        XCTAssertFalse(generatorRepository.addPasswordHistoryCalled)
+    }
+
     /// The user's password options are saved when any of the password options are changed.
     @MainActor
     func test_saveGeneratorOptions_password() {

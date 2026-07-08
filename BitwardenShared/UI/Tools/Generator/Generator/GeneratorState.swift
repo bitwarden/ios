@@ -113,6 +113,10 @@ struct GeneratorState: Equatable {
     /// elements.
     var presentationMode: PresentationMode = .tab
 
+    /// Whether generated passwords should be saved to password history.
+    /// Set to `false` when the vault is not unlocked (e.g. the generate-password credential extension flow).
+    var savePasswordHistory: Bool = true
+
     /// Whether the "Upgraded to Premium" action card should be shown.
     var shouldShowUpgradedToPremiumActionCard: Bool = false
 
