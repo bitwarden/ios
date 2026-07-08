@@ -1,8 +1,14 @@
+"AccountCreatedSuccessfully" = "Account created successfully";
+"AccountDetails" = "Account Details";
 "CardAutofillForm" = "Card Autofill Form";
 "CardAutofillFormDescriptionLong" = "Long press a field, then select Autofill and Password to autofill with Bitwarden. Requires Bitwarden PM as AutoFill provider and a saved Card cipher.";
 "CardDetails" = "Card Details";
 "CardholderName" = "Cardholder Name";
 "CardNumber" = "Card Number";
+"ConfirmPassword" = "Confirm Password";
+"CreateAccount" = "Create Account";
+"CreateAccountForm" = "Create Account Form";
+"CreateAccountFormDescriptionLong" = "Fill in the form and tap Create Account. On supported devices, iOS will prompt to save the credential via the active password provider.";
 "CreatePasskey" = "Create Passkey";
 "Credentials" = "Credentials";
 "EnterCardDetailsAbove" = "Enter card details above";
@@ -13,7 +19,9 @@
 "FileShare" = "File Share";
 "FormValues" = "Form Values";
 "PasskeyAutofill" = "Passkey Autofill";
+"Result" = "Result";
 "Password" = "Password";
+"PasswordsDoNotMatch" = "Passwords do not match";
 "SecurityCode" = "Security Code";
 "ShareFile" = "Share File";
 "SharesASamplePDFDescriptionLong" = "Shares a sample PDF containing the text \"Hello World\". Exercises the UTType.data → URL → file Send path in the share extension.";

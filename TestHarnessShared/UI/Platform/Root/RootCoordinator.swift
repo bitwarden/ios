@@ -38,6 +38,8 @@ class RootCoordinator: Coordinator, HasStackNavigator {
         switch route {
         case .cardAutofillForm:
             showCardAutofillForm()
+        case .createAccountForm:
+            showCreateAccountForm()
         case .dateFieldPickerShowcase:
             showDateFieldPickerShowcase()
         case .fileShare:
@@ -67,6 +69,15 @@ class RootCoordinator: Coordinator, HasStackNavigator {
         stackNavigator?.push(viewController)
     }
 
+    /// Shows the create account form test screen.
+    ///
+    private func showCreateAccountForm() {
+        let processor = CreateAccountFormProcessor(coordinator: asAnyCoordinator())
+        let view = CreateAccountFormView(store: Store(processor: processor))
+        let viewController = UIHostingController(rootView: view)
+        stackNavigator?.push(viewController)
+    }
+  
     /// Shows the date field picker showcase screen.
     ///
     private func showDateFieldPickerShowcase() {
