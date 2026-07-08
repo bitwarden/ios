@@ -189,15 +189,15 @@ protocol CreatePasskeyProcessorDelegate: AnyObject {
 /// Errors that can occur during passkey registration.
 ///
 enum PasskeyRegistrationError: Error, LocalizedError {
+    /// The challenge in the client data did not match the challenge sent to the authenticator.
+    case challengeMismatch
+
     /// The authorization response did not include an attestation object.
     case missingAttestationObject
 
     /// The client data's `type` was not `"webauthn.create"`.
     case unexpectedClientDataType(String)
-
-    /// The challenge in the client data did not match the challenge sent to the authenticator.
-    case challengeMismatch
-
+    
     var errorDescription: String? {
         switch self {
         case .challengeMismatch:
