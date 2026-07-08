@@ -6,6 +6,7 @@
 "Bitwarden" = "Bitwarden";
 "Cancel" = "İptal";
 "Copy" = "Kopyala";
+"CopyLicenseNumber" = "Ruhsat numarasını kopyala";
 "CopyPassportNumber" = "Pasaport numarasını kopyala";
 "CopyPassword" = "Parolayı kopyala";
 "CopyUsername" = "Kullanıcı adını kopyala";
@@ -1026,10 +1027,8 @@
 "ArchiveEmptyDescriptionLong" = "Fill your archive with items you don’t want to see in search results and autofill suggestions but might need someday.";
 "ArchiveItem" = "Kaydı arşivle";
 "OnceArchivedThisItemWillBeExcludedDescriptionLong" = "Once archived, this item will be excluded from search results and autofill suggestions.";
-"ArchiveUnavailable" = "Arşiv kullanılamıyor";
 "ArchivingItemsIsAPremiumFeatureDescriptionLong" = "Archiving items is a Premium feature. Your current plan does not include access to this feature.";
 "AddingAttachmentsIsAPremiumFeatureDescriptionLong" = "Adding attachments is a Premium feature. Your current plan does not include access to this feature.";
-"AttachmentsUnavailable" = "Ekler kullanılamıyor";
 "UpgradeToPremium" = "Premium’a yükselt";
 "ThisItemIsArchived" = "Bu kayıt arşivlendi.";
 "YourPremiumSubscriptionEnded" = "Premium aboneliğiniz sona erdi";

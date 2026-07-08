@@ -1947,34 +1947,6 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         }
     }
 
-    /// `getUpgradedToPremiumActionCardVisible()` returns the stored value for the active account.
-    func test_getUpgradedToPremiumActionCardVisible() async {
-        await subject.addAccount(.fixture())
-        var isVisible = await subject.getUpgradedToPremiumActionCardVisible()
-        XCTAssertFalse(isVisible)
-
-        appSettingsStore.upgradedToPremiumCardVisibleByUserId["1"] = true
-        isVisible = await subject.getUpgradedToPremiumActionCardVisible()
-        XCTAssertTrue(isVisible)
-    }
-
-    /// `getUpgradedToPremiumActionCardVisible()` returns `false` and logs an error when there is no active account.
-    func test_getUpgradedToPremiumActionCardVisible_noActiveAccount() async {
-        let isVisible = await subject.getUpgradedToPremiumActionCardVisible()
-        XCTAssertFalse(isVisible)
-        XCTAssertEqual(errorReporter.errors as? [StateServiceError], [.noActiveAccount])
-    }
-
-    /// `setUpgradedToPremiumActionCardVisible(_:)` sets the stored value for the active account.
-    func test_setUpgradedToPremiumActionCardVisible() async throws {
-        await subject.addAccount(.fixture())
-        try await subject.setUpgradedToPremiumActionCardVisible(true)
-        XCTAssertTrue(appSettingsStore.upgradedToPremiumCardVisibleByUserId["1"] ?? false)
-
-        try await subject.setUpgradedToPremiumActionCardVisible(false)
-        XCTAssertFalse(appSettingsStore.upgradedToPremiumCardVisibleByUserId["1"] ?? true)
-    }
-
     /// `setUpgradedToPremiumActionCardVisible(_:)` throws errors if no user exists.
     func test_setUpgradedToPremiumActionCardVisible_error() async throws {
         await assertAsyncThrows(error: StateServiceError.noActiveAccount) {
@@ -2240,9 +2212,8 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         await assertAsyncThrows(error: StateServiceError.noActiveAccount) {
             try await subject.setAccountMasterPasswordUnlock(
                 MasterPasswordUnlockResponseModel(
-                    kdf: KdfConfig(kdfType: .pbkdf2sha256, iterations: Constants.pbkdf2Iterations),
+                    account: .fixture(),
                     masterKeyEncryptedUserKey: "MASTER_KEY_ENCRYPTED_USER_KEY",
-                    salt: "SALT",
                 ),
             )
         }

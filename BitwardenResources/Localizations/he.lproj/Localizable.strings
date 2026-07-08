@@ -6,6 +6,7 @@
 "Bitwarden" = "Bitwarden";
 "Cancel" = "ביטול";
 "Copy" = "העתק";
+"CopyLicenseNumber" = "העתק מספר רישיון";
 "CopyPassportNumber" = "העתק מספר דרכון";
 "CopyPassword" = "העתק סיסמה";
 "CopyUsername" = "העתק שם משתמש";
@@ -1027,10 +1028,8 @@
 "ArchiveEmptyDescriptionLong" = "מלאו את הארכיב שלכם בפריטים שאינכם רוצים לראות בתוצאות החיפוש ובהצעות המילוי האוטומטי אבל עשויים להזדקק להם מתישהו.";
 "ArchiveItem" = "Archive item";
 "OnceArchivedThisItemWillBeExcludedDescriptionLong" = "Once archived, this item will be excluded from search results and autofill suggestions.";
-"ArchiveUnavailable" = "הארכיב אינו זמין";
 "ArchivingItemsIsAPremiumFeatureDescriptionLong" = "ארכוב פריטים היא תכולת פרמיום. התכנית הנוכחית שלך אינה כוללת גישה לתכולה זו.";
 "AddingAttachmentsIsAPremiumFeatureDescriptionLong" = "Adding attachments is a Premium feature. Your current plan does not include access to this feature.";
-"AttachmentsUnavailable" = "Attachments unavailable";
 "UpgradeToPremium" = "שדרוג לפרמיום";
 "ThisItemIsArchived" = "פריט זה בארכיב.";
 "YourPremiumSubscriptionEnded" = "Your Premium subscription ended";
