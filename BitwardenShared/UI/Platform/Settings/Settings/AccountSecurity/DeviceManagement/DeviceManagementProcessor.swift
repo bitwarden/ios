@@ -155,9 +155,13 @@ final class DeviceManagementProcessor: StateProcessor<
         let sortedRequests = pendingRequests.sorted { $0.creationDate > $1.creationDate }
 
         for request in sortedRequests {
-            // Try to match by device platform name.
+            guard !request.requestDeviceType.isEmpty else { continue }
+            // Match by the device's pending-request key, which distinguishes browser from
+            // extension variants that share the same display platform name (e.g. "Chrome").
             if let index = updatedDevices.firstIndex(where: { device in
-                device.deviceType.platform.lowercased() == request.requestDeviceType.lowercased()
+                !device.deviceType.pendingRequestMatchKey.isEmpty &&
+                    device.deviceType.pendingRequestMatchKey.lowercased()
+                    == request.requestDeviceType.lowercased()
             }) {
                 // Only set if no pending request has been set yet (keeps the most recent).
                 if updatedDevices[index].pendingRequest == nil {

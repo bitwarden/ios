@@ -105,9 +105,8 @@ struct DeviceRow: View {
     // MARK: Private Methods
 
     /// Formats a date for display with date and time.
-    private func formattedDateTime(_ date: Date?) -> String {
-        guard let date else { return Localizations.unknown }
-        return DeviceRow.dateTimeFormatter.string(from: date)
+    private func formattedDateTime(_ date: Date) -> String {
+        DeviceRow.dateTimeFormatter.string(from: date)
     }
 }
 
@@ -159,7 +158,7 @@ private extension DeviceRow {
             isCurrentSession: false,
             isTrusted: false,
             lastActivityDate: Date().addingTimeInterval(-86400 * 3),
-            pendingRequest: nil,
+            pendingRequest: .fixture(),
         ),
         onTap: {},
     )

@@ -34,7 +34,7 @@ extension ServiceContainer {
         clientCertificateService: ClientCertificateService = MockClientCertificateService(),
         clientService: ClientService = MockClientService(),
         configService: ConfigService = MockConfigService(),
-        deviceAPIService: DeviceAPIService? = nil,
+        deviceAPIService: DeviceAPIService = MockDeviceAPIService(),
         deviceAuthKeyService: DeviceAuthKeyService = MockDeviceAuthKeyService(),
         environmentService: EnvironmentService = MockEnvironmentService(),
         errorReportBuilder: ErrorReportBuilder = MockErrorReportBuilder(),
@@ -97,12 +97,11 @@ extension ServiceContainer {
             actualSearchProcessorMediatorFactory = factoryMock
         }
 
-        let apiService = APIService(
-            client: httpClient,
-            environmentService: environmentService,
-        )
         return ServiceContainer(
-            apiService: apiService,
+            apiService: APIService(
+                client: httpClient,
+                environmentService: environmentService,
+            ),
             appContextHelper: appContextHelper,
             appIDService: AppIDService(appIDSettingsStore: appIDSettingsStore),
             appInfoService: appInfoService,
@@ -124,7 +123,7 @@ extension ServiceContainer {
             clientCertificateService: clientCertificateService,
             clientService: clientService,
             configService: configService,
-            deviceAPIService: deviceAPIService ?? apiService,
+            deviceAPIService: deviceAPIService,
             deviceAuthKeyService: deviceAuthKeyService,
             environmentService: environmentService,
             errorReportBuilder: errorReportBuilder,
