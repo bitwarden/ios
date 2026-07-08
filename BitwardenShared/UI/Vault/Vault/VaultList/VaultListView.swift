@@ -82,6 +82,8 @@ private struct SearchableVaultListView: View {
             Group {
                 organizationBannerActionCard
 
+                subscriptionNeedsAttentionActionCard
+
                 importLoginsActionCard
 
                 vaultFilterRow
@@ -311,7 +313,8 @@ private struct SearchableVaultListView: View {
 extension SearchableVaultListView {
     /// The action card for archive onboarding.
     @ViewBuilder private var archiveOnboardingActionCard: some View {
-        if store.state.shouldShowArchiveOnboardingActionCard {
+        if store.state.shouldShowArchiveOnboardingActionCard,
+           !store.state.shouldShowSubscriptionAttentionCard {
             ActionCard(
                 title: Localizations.introducingArchive,
                 message: Localizations.keepYtemsYouDontNeedRightNowSafeButOutOfSight,
@@ -329,7 +332,8 @@ extension SearchableVaultListView {
 
     /// The action card for importing login items.
     @ViewBuilder private var importLoginsActionCard: some View {
-        if store.state.shouldShowImportLoginsActionCard {
+        if store.state.shouldShowImportLoginsActionCard,
+           !store.state.shouldShowSubscriptionAttentionCard {
             ActionCard(
                 title: Localizations.importSavedLogins,
                 message: Localizations.importSavedLoginsDescriptionLong,
