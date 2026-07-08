@@ -99,7 +99,7 @@ extension BitwardenSdk.PolicyType {
 extension PolicyType {
     /// Converts an SDK `BitwardenSdk.PolicyType` to the iOS `PolicyType`.
     ///
-    /// SDK-only cases (e.g., `sendControls`) with no iOS equivalent map to `.unknown`.
+    /// SDK-only cases with no iOS equivalent map to `.unknown`.
     ///
     init(_ sdkType: BitwardenSdk.PolicyType) {
         switch sdkType {
