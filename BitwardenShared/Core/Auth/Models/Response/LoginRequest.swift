@@ -23,9 +23,6 @@ public struct LoginRequest: JSONResponse, Equatable, Sendable {
     /// The key of the login request.
     let key: String?
 
-    /// The master password hash of the login request.
-    let masterPasswordHash: String?
-
     /// The origin of the login request.
     let origin: String
 
