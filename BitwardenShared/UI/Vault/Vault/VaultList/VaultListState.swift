@@ -58,6 +58,18 @@ struct VaultListState: Equatable {
     /// The search vault filter used to display a single or all vaults for the user.
     var searchVaultFilterType: VaultFilterType = .allVaults
 
+    /// Whether the Archive Onboarding action card should be shown.
+    var shouldShowArchiveOnboardingActionCard: Bool = false
+
+    /// Whether the Premium Upgrade action card should be shown.
+    var shouldShowPremiumUpgradeActionCard: Bool = false
+
+    /// Whether the "subscription needs attention" action card should be shown.
+    var shouldShowSubscriptionAttentionCard: Bool = false
+
+    /// Whether the Upgraded to Premium action card should be shown.
+    var shouldShowUpgradedToPremiumActionCard: Bool = false
+
     /// Whether to show the special web icons.
     var showWebIcons = true
 
@@ -71,6 +83,16 @@ struct VaultListState: Equatable {
     var vaultFilterType: VaultFilterType = .allVaults
 
     // MARK: Computed Properties
+
+    /// The active action card to show, determined by priority. Only one card is shown at a time.
+    var activeActionCard: VaultListActionCard? {
+        if shouldShowUpgradedToPremiumActionCard { return .upgradedToPremium }
+        if shouldShowPremiumUpgradeActionCard { return .upgradeNeeded }
+        if shouldShowSubscriptionAttentionCard { return .subscriptionNeedsAttention }
+        if shouldShowArchiveOnboardingActionCard { return .introducingArchive }
+        if shouldShowImportLoginsActionCard { return .importItems }
+        return nil
+    }
 
     /// The navigation title for the view.
     var navigationTitle: String {
@@ -91,31 +113,9 @@ struct VaultListState: Equatable {
         )
     }
 
-    /// Whether the Archive Onboarding action card should be shown.
-    var shouldShowArchiveOnboardingActionCard: Bool = false
-
     /// Whether the import logins action card should be shown.
     var shouldShowImportLoginsActionCard: Bool {
         importLoginsSetupProgress == .incomplete
-    }
-
-    /// Whether the Premium Upgrade action card should be shown.
-    var shouldShowPremiumUpgradeActionCard: Bool = false
-
-    /// Whether the "subscription needs attention" action card should be shown.
-    var shouldShowSubscriptionAttentionCard: Bool = false
-
-    /// Whether the Upgraded to Premium action card should be shown.
-    var shouldShowUpgradedToPremiumActionCard: Bool = false
-
-    /// The active action card to show, determined by priority. Only one card is shown at a time.
-    var activeActionCard: VaultListActionCard? {
-        if shouldShowUpgradedToPremiumActionCard { return .upgradedToPremium }
-        if shouldShowPremiumUpgradeActionCard { return .upgradeNeeded }
-        if shouldShowSubscriptionAttentionCard { return .subscriptionNeedsAttention }
-        if shouldShowArchiveOnboardingActionCard { return .introducingArchive }
-        if shouldShowImportLoginsActionCard { return .importItems }
-        return nil
     }
 
     /// The user's initials.
@@ -138,18 +138,18 @@ struct VaultListState: Equatable {
 
 /// The action card to show on the vault list, determined by priority. Only one is shown at a time.
 enum VaultListActionCard {
-    /// The archive onboarding card.
-    case introducingArchive
-
     /// The import saved logins card.
     case importItems
+
+    /// The archive onboarding card.
+    case introducingArchive
 
     /// The subscription needs attention card for past-due or update-payment users.
     case subscriptionNeedsAttention
 
-    /// The upgrade-to-premium banner for free users.
-    case upgradeNeeded
-
     /// The post-upgrade confirmation card (highest priority).
     case upgradedToPremium
+
+    /// The upgrade-to-premium banner for free users.
+    case upgradeNeeded
 }
