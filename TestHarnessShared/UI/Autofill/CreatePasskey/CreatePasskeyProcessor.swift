@@ -100,18 +100,21 @@ class CreatePasskeyProcessor: StateProcessor<
         let resolvedDisplayName = displayName.isEmpty ? userName : displayName
         request.displayName = resolvedDisplayName
 
-        let registration = try await CreatePasskeyCoordinator(window: window).register(request: request)
+        let registration = try await PasskeyAuthorizationBridge(window: window).register(request: request)
 
         guard let attestationObject = registration.rawAttestationObject else {
             throw PasskeyRegistrationError.missingAttestationObject
         }
         let parsed = try COSEKeyParser.parseCredential(fromAttestationObject: attestationObject)
 
+        // Uses the parser's own extracted credential ID (rather than `registration.credentialID`)
+        // so this path continuously exercises the same CBOR parsing the future verify flow will
+        // depend on.
         return StoredPasskeyCredential(
             rpId: rpId,
             userName: userName,
             displayName: resolvedDisplayName,
-            credentialId: registration.credentialID,
+            credentialId: parsed.credentialId,
             publicKeyX963: parsed.publicKeyX963,
             createdAt: Date(),
         )
@@ -153,8 +156,12 @@ class CreatePasskeyProcessor: StateProcessor<
             ) { [weak self] in
                 await self?.delegate?.presentationAnchorForPasskeyRegistration() ?? UIWindow()
             }
-            try credentialStore.save(credential)
-            state.status = .success
+            do {
+                try credentialStore.save(credential)
+                state.status = .success
+            } catch {
+                state.status = .persistenceFailure(credential: credential, message: error.localizedDescription)
+            }
         } catch let error as ASAuthorizationError where error.code == .canceled {
             state.status = .idle
         } catch {

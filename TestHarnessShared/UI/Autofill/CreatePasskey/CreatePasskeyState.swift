@@ -18,6 +18,10 @@ struct CreatePasskeyState: Equatable {
 
         /// Registration failed with the associated error description.
         case failure(String)
+
+        /// The passkey was created by the authenticator, but persisting it for later use in the
+        /// verify flow failed with the associated error description.
+        case persistenceFailure(credential: StoredPasskeyCredential, message: String)
     }
 
     // MARK: Properties
