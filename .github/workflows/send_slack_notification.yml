@@ -1,37 +1,49 @@
-name: Send RC Merge Slack Notification
+name: Send Slack Notification
 
 on:
   workflow_dispatch:
-  pull_request:
   push:
     branches:
-      - "**-rc[0-9]*"
+      - release/**/*
 
 permissions:
   contents: read
-  # id-token: write
-  pull-requests: read
+  id-token: write
 
 jobs:
   send_notification:
     name: Send Slack Notification
     runs-on: ubuntu-22.04
     steps:
-      - name: Resolve merged PR
-        id: pr
+      - name: Log in to Azure
+        uses: bitwarden/gh-actions/azure-login@main
+        with:
+          subscription_id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          tenant_id: ${{ secrets.AZURE_TENANT_ID }}
+          client_id: ${{ secrets.AZURE_CLIENT_ID }}
+
+      - name: Retrieve Slack secrets
+        id: retrieve-slack-secrets
+        uses: bitwarden/gh-actions/get-keyvault-secrets@main
+        with:
+          keyvault: gh-ios
+          secrets: "SLACK-WEBHOOK-TEAM-ENG-MOBILE"
+
+      - name: Log out from Azure
+        uses: bitwarden/gh-actions/azure-logout@main
+
+      - name: Build message
+        id: msg
         env:
-          GH_TOKEN: ${{ github.token }}
+          COMMIT_URL: ${{ github.event.head_commit.url }}
+          COMMIT_SHA: ${{ github.event.head_commit.id }}
         run: |
-          url=$(gh api "repos/${{ github.repository }}/commits/${{ github.sha }}/pulls" \
-            --jq '.[0].html_url // empty')
-          echo "url=${url:-${{ github.event.head_commit.url }}}" >> "$GITHUB_OUTPUT"
+          echo "text=:cherry-pick: <${COMMIT_URL}|${COMMIT_SHA}> into *${GITHUB_REF_NAME}*\ncc <!subteam^S022CDR7W2Z> <@U06538MSPJP>" >> "$GITHUB_OUTPUT"
 
       - name: Send slack notification
         uses: slackapi/slack-github-action@af78098f536edbc4de71162a307590698245be95 # v3.0.1
         with:
-          webhook: ${{ secrets.TEMP_SLACK_WEBHOOK_URL }}
+          webhook: ${{ steps.retrieve-slack-secrets.outputs.SLACK-WEBHOOK-TEAM-ENG-MOBILE }}
           webhook-type: incoming-webhook
           payload: |
-            text: "*GitHub Action test message*: ${{ job.status }}\nBranch: ${{ github.ref_name }}\n${{ steps.pr.outputs.url }}"
-        # env:
-          # SLACK_WEBHOOK_URL: ${{ env.SLACK_WEBHOOK_URL }}
+            text: "${{ steps.msg.outputs.text }}"
