@@ -12,7 +12,7 @@ permissions:
 jobs:
   send_notification:
     name: Send Slack Notification
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     # Only run on pushes that carry new commits (or a manual dispatch);
     # skip bare branch-creation pushes that have no commits
     if: ${{ github.event_name != 'push' || github.event.head_commit != null }}
