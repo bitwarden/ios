@@ -639,6 +639,56 @@ struct VaultListView: View {
     }
 }
 
+#Preview("My Vault - Upgraded to Premium") {
+    NavigationView {
+        VaultListView(
+            store: Store(
+                processor: StateProcessor(
+                    state: VaultListState(
+                        loadingState: .data([
+                            VaultListSection(
+                                id: "1",
+                                items: [
+                                    VaultListItem(id: "11", itemType: .group(.login, 42)),
+                                    VaultListItem(id: "12", itemType: .group(.card, 5)),
+                                ],
+                                name: "Types",
+                            ),
+                        ]),
+                        shouldShowUpgradedToPremiumActionCard: true,
+                    ),
+                ),
+            ),
+            timeProvider: PreviewTimeProvider(),
+        )
+    }
+}
+
+#Preview("My Vault - Upgrade to Premium") {
+    NavigationView {
+        VaultListView(
+            store: Store(
+                processor: StateProcessor(
+                    state: VaultListState(
+                        loadingState: .data([
+                            VaultListSection(
+                                id: "1",
+                                items: [
+                                    VaultListItem(id: "11", itemType: .group(.login, 42)),
+                                    VaultListItem(id: "12", itemType: .group(.card, 5)),
+                                ],
+                                name: "Types",
+                            ),
+                        ]),
+                        shouldShowPremiumUpgradeActionCard: true,
+                    ),
+                ),
+            ),
+            timeProvider: PreviewTimeProvider(),
+        )
+    }
+}
+
 #Preview("My Vault - Introducing Archive") {
     NavigationView {
         VaultListView(
@@ -664,7 +714,7 @@ struct VaultListView: View {
     }
 }
 
-#Preview("My Vault - Subscription Attention With Archive") {
+#Preview("My Vault - Subscription Attention") {
     NavigationView {
         VaultListView(
             store: Store(
