@@ -1,19 +1,22 @@
 import AuthenticationServices
-import CryptoKit
 
 /// Drives an `ASAuthorizationController` request and bridges its delegate callbacks to a Swift
 /// concurrency continuation. Since the controller's `delegate` and `presentationContextProvider`
-/// are weak references, this object owns the continuation itself so that calling `register(request:)`
+/// are weak references, this object owns the continuation itself so that calling `perform(request:)`
 /// as an async instance method keeps it alive (via the caller's `await`) for the life of the request,
 /// without needing `objc_setAssociatedObject` to retain a separate delegate object.
 ///
+/// Generic over the expected credential type so it can bridge both passkey registration
+/// (`ASAuthorizationPlatformPublicKeyCredentialRegistration`) and assertion
+/// (`ASAuthorizationPlatformPublicKeyCredentialAssertion`) requests.
+///
 @available(iOS 17, *)
-class PasskeyAuthorizationBridge: NSObject,
+class PasskeyAuthorizationBridge<Credential: ASAuthorizationCredential>: NSObject,
     ASAuthorizationControllerDelegate,
     ASAuthorizationControllerPresentationContextProviding {
     // MARK: Private Properties
 
-    private var continuation: CheckedContinuation<ASAuthorizationPlatformPublicKeyCredentialRegistration, Error>?
+    private var continuation: CheckedContinuation<Credential, Error>?
     private let window: ASPresentationAnchor
 
     // MARK: Initialization
@@ -26,12 +29,10 @@ class PasskeyAuthorizationBridge: NSObject,
 
     /// Performs the authorization request and suspends until the delegate receives a result.
     ///
-    /// - Parameter request: The credential registration request to perform.
-    /// - Returns: The completed passkey registration.
+    /// - Parameter request: The credential request to perform.
+    /// - Returns: The completed passkey credential.
     ///
-    func register(
-        request: ASAuthorizationRequest,
-    ) async throws -> ASAuthorizationPlatformPublicKeyCredentialRegistration {
+    func perform(request: ASAuthorizationRequest) async throws -> Credential {
         try await withCheckedThrowingContinuation { continuation in
             self.continuation = continuation
             let controller = ASAuthorizationController(authorizationRequests: [request])
@@ -48,12 +49,17 @@ class PasskeyAuthorizationBridge: NSObject,
         didCompleteWithAuthorization authorization: ASAuthorization,
     ) {
         defer { continuation = nil }
-        guard let registration = authorization.credential as? ASAuthorizationPlatformPublicKeyCredentialRegistration
-        else {
-            continuation?.resume(throwing: PasskeyRegistrationError.missingAttestationObject)
+//<<<<<<< HEAD
+//        guard let registration = authorization.credential as? ASAuthorizationPlatformPublicKeyCredentialRegistration
+//        else {
+//            continuation?.resume(throwing: PasskeyRegistrationError.missingAttestationObject)
+//=======
+        guard let credential = authorization.credential as? Credential else {
+            continuation?.resume(throwing: PasskeyAuthorizationBridgeError.unexpectedCredentialType)
+//>>>>>>> 5908eb03d ([PM-27135] feat: Verify passkey assertions against stored registration data)
             return
         }
-        continuation?.resume(returning: registration)
+        continuation?.resume(returning: credential)
     }
 
     func authorizationController(
@@ -68,5 +74,21 @@ class PasskeyAuthorizationBridge: NSObject,
 
     func presentationAnchor(for _: ASAuthorizationController) -> ASPresentationAnchor {
         window
+    }
+}
+
+// MARK: - PasskeyAuthorizationBridgeError
+
+/// Errors that can occur while bridging an `ASAuthorizationController` request.
+///
+enum PasskeyAuthorizationBridgeError: Error, LocalizedError {
+    /// The credential returned by the authorization controller was not the expected type.
+    case unexpectedCredentialType
+
+    var errorDescription: String? {
+        switch self {
+        case .unexpectedCredentialType:
+            Localizations.unexpectedCredentialTypeReceived
+        }
     }
 }

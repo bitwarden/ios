@@ -16,8 +16,12 @@ struct UsePasskeyState: Equatable {
         /// An assertion request is in progress.
         case inProgress
 
-        /// Assertion completed successfully.
-        case success
+        /// The authenticator returned an assertion, but it did not verify against any stored
+        /// credential, with the associated error description.
+        case verificationFailure(String)
+
+        /// Assertion completed successfully and was verified against the associated stored credential.
+        case success(credential: StoredPasskeyCredential)
     }
 
     // MARK: Properties

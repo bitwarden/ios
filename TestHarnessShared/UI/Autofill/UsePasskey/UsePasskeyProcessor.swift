@@ -1,12 +1,14 @@
 import AuthenticationServices
 import BitwardenKit
 import Combine
+import CryptoKit
 import UIKit
 
 // MARK: - UsePasskeyProcessor
 
 /// The processor for the use passkey test screen.
 ///
+@available(iOS 17, *)
 class UsePasskeyProcessor: StateProcessor<
     UsePasskeyState,
     UsePasskeyAction,
@@ -14,7 +16,11 @@ class UsePasskeyProcessor: StateProcessor<
 > {
     // MARK: Types
 
-    typealias PerformAssertion = (_ rpId: String) async throws -> Void
+    typealias PerformAssertion = (
+        _ rpId: String,
+        _ allowedCredentials: [StoredPasskeyCredential],
+        _ presentationAnchor: () async -> ASPresentationAnchor,
+    ) async throws -> StoredPasskeyCredential
 
     // MARK: Private Properties
 
@@ -26,23 +32,83 @@ class UsePasskeyProcessor: StateProcessor<
 
     // MARK: Internal for Testability
 
-    /// Performs the passkey assertion flow. Overridable in tests.
-    var performAssertion: PerformAssertion
+    /// Performs the passkey assertion flow. Injected for testability.
+    ///
+    /// - Parameters:
+    ///   - rpId: The relying party identifier.
+    ///   - allowedCredentials: The previously stored credentials to scope the request to and
+    ///     verify the resulting assertion against.
+    ///   - presentationAnchor: Provides the window used to present the passkey sheet.
+    let performAssertion: PerformAssertion
+
+    /// Reads previously created passkey credentials to verify assertions against.
+    let credentialStore: PasskeyCredentialStore
 
     // MARK: Initialization
 
+    /// Initializes a `UsePasskeyProcessor`.
+    ///
+    /// - Parameters:
+    ///   - coordinator: The coordinator that handles navigation.
+    ///   - delegate: The delegate used to obtain the presentation anchor.
+    ///   - performAssertion: Performs the passkey assertion flow. Defaults to the real
+    ///     `ASAuthorizationController`-based implementation; overridable in tests.
+    ///   - credentialStore: Reads previously created passkey credentials. Defaults to a
+    ///     `UserDefaults`-backed store; overridable in tests.
+    ///
     init(
         coordinator: AnyCoordinator<RootRoute, Void>,
         delegate: UsePasskeyProcessorDelegate?,
+        performAssertion: @escaping PerformAssertion = UsePasskeyProcessor.performPasskeyAssertion,
+        credentialStore: PasskeyCredentialStore = DefaultPasskeyCredentialStore(),
     ) {
         self.coordinator = coordinator
         self.delegate = delegate
-        performAssertion = { _ in throw PasskeyAssertionError.notAvailable }
+        self.performAssertion = performAssertion
+        self.credentialStore = credentialStore
         super.init(state: UsePasskeyState())
+    }
 
-        performAssertion = { [weak self] rpId in
-            try await self?.performPasskeyAssertion(rpId: rpId)
+    // MARK: Static Methods
+
+    /// The real passkey assertion implementation using `ASAuthorizationController`.
+    ///
+    /// - Parameters:
+    ///   - rpId: The relying party identifier.
+    ///   - allowedCredentials: The previously stored credentials to scope the request to and
+    ///     verify the resulting assertion against.
+    ///   - presentationAnchor: Provides the window used to present the passkey sheet.
+    /// - Returns: The stored credential the assertion was verified against.
+    ///
+    private static func performPasskeyAssertion(
+        rpId: String,
+        allowedCredentials: [StoredPasskeyCredential],
+        presentationAnchor: () async -> ASPresentationAnchor,
+    ) async throws -> StoredPasskeyCredential {
+        let window = await presentationAnchor()
+
+        let provider = ASAuthorizationPlatformPublicKeyCredentialProvider(relyingPartyIdentifier: rpId)
+        let challenge = SymmetricKey(size: .bits256).withUnsafeBytes { Data($0) }
+        let request = provider.createCredentialAssertionRequest(challenge: challenge)
+        request.allowedCredentials = allowedCredentials.map { credential in
+            ASAuthorizationPlatformPublicKeyCredentialDescriptor(credentialID: credential.credentialId)
         }
+
+        let assertion = try await PasskeyAuthorizationBridge<ASAuthorizationPlatformPublicKeyCredentialAssertion>(
+            window: window,
+        ).perform(request: request)
+
+        return try PasskeyAssertionVerifier.verify(
+            rpId: rpId,
+            assertion: PasskeyAssertionVerifier.RawAssertion(
+                credentialId: assertion.credentialID,
+                rawAuthenticatorData: assertion.rawAuthenticatorData,
+                signature: assertion.signature,
+                rawClientDataJSON: assertion.rawClientDataJSON,
+            ),
+            expectedChallenge: challenge,
+            candidates: allowedCredentials,
+        )
     }
 
     // MARK: Methods
@@ -61,33 +127,21 @@ class UsePasskeyProcessor: StateProcessor<
 
     // MARK: Private
 
+    /// Orchestrates state transitions and calls `performAssertion`.
     private func assertPasskey() async {
         state.status = .inProgress
         do {
-            try await performAssertion(state.rpId)
-            state.status = .success
+            let storedCredentials = try credentialStore.fetchAll().filter { $0.rpId == state.rpId }
+            let credential = try await performAssertion(state.rpId, storedCredentials) { [weak self] in
+                await self?.delegate?.presentationAnchorForPasskeyAssertion() ?? UIWindow()
+            }
+            state.status = .success(credential: credential)
+        } catch let error as PasskeyAssertionVerifier.VerificationError {
+            state.status = .verificationFailure(error.localizedDescription)
         } catch let error as ASAuthorizationError where error.code == .canceled {
             state.status = .idle
         } catch {
             state.status = .failure(error.localizedDescription)
-        }
-    }
-
-    private func performPasskeyAssertion(rpId: String) async throws {
-        guard #available(iOS 17, *) else { throw PasskeyAssertionError.notAvailable }
-
-        let window = await delegate?.presentationAnchorForPasskeyAssertion() ?? UIWindow()
-        let provider = ASAuthorizationPlatformPublicKeyCredentialProvider(relyingPartyIdentifier: rpId)
-        let challenge = Data((0 ..< 32).map { _ in UInt8.random(in: 0 ... 255) })
-        let request = provider.createCredentialAssertionRequest(challenge: challenge)
-
-        try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Error>) in
-            let handler = PasskeyAssertionHandler(continuation: continuation, window: window)
-            let controller = ASAuthorizationController(authorizationRequests: [request])
-            controller.delegate = handler
-            controller.presentationContextProvider = handler
-            objc_setAssociatedObject(controller, &passkeyContinuationKey, handler, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
-            controller.performRequests()
         }
     }
 }
@@ -101,51 +155,3 @@ protocol UsePasskeyProcessorDelegate: AnyObject {
     @MainActor
     func presentationAnchorForPasskeyAssertion() async -> ASPresentationAnchor
 }
-
-// MARK: - PasskeyAssertionError
-
-enum PasskeyAssertionError: Error, LocalizedError {
-    case notAvailable
-    case unexpectedCredentialType
-
-    var errorDescription: String? {
-        switch self {
-        case .notAvailable: Localizations.passkeyAssertionNotAvailable
-        case .unexpectedCredentialType: Localizations.unexpectedCredentialTypeReceived
-        }
-    }
-}
-
-// MARK: - PasskeyAssertionHandler
-
-@available(iOS 17, *)
-private class PasskeyAssertionHandler: NSObject,
-    ASAuthorizationControllerDelegate,
-    ASAuthorizationControllerPresentationContextProviding {
-    private let continuation: CheckedContinuation<Void, Error>
-    private let window: ASPresentationAnchor
-
-    init(continuation: CheckedContinuation<Void, Error>, window: ASPresentationAnchor) {
-        self.continuation = continuation
-        self.window = window
-    }
-
-    func authorizationController(
-        controller _: ASAuthorizationController,
-        didCompleteWithAuthorization _: ASAuthorization,
-    ) {
-        continuation.resume()
-    }
-
-    func authorizationController(controller _: ASAuthorizationController, didCompleteWithError error: Error) {
-        continuation.resume(throwing: error)
-    }
-
-    func presentationAnchor(for _: ASAuthorizationController) -> ASPresentationAnchor {
-        window
-    }
-}
-
-// MARK: - Private Globals
-
-private var passkeyContinuationKey: UInt8 = 0
