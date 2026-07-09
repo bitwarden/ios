@@ -2999,50 +2999,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
     }
 
     /// `unlockVaultFromLoginWithDevice()` unlocks the vault using the key returned by an approved auth request.
-    func test_unlockVaultFromLoginWithDevice_withMasterPasswordHash() async throws {
-        stateService.activeAccount = Account.fixture(
-            profile: .fixture(
-                userDecryptionOptions: UserDecryptionOptions(
-                    hasMasterPassword: true,
-                    masterPasswordUnlock: .fixture(masterKeyEncryptedUserKey: "USER_KEY"),
-                    keyConnectorOption: nil,
-                    trustedDeviceOption: nil,
-                ),
-            ),
-        )
-        stateService.accountEncryptionKeys = [
-            "1": AccountEncryptionKeys(
-                cryptographicState: .fixtureV2(),
-                encryptedUserKey: nil,
-            ),
-        ]
-
-        try await subject.unlockVaultFromLoginWithDevice(
-            privateKey: "AUTH_REQUEST_PRIVATE_KEY",
-            key: "KEY",
-            masterPasswordHash: "MASTER_PASSWORD_HASH",
-        )
-
-        XCTAssertEqual(
-            clientService.mockCrypto.initializeUserCryptoReceivedReq,
-            InitUserCryptoRequest(
-                userId: "1",
-                kdfParams: .pbkdf2(iterations: UInt32(Constants.pbkdf2Iterations)),
-                email: "user@bitwarden.com",
-                accountCryptographicState: .fixtureV2(),
-                method: .authRequest(
-                    requestPrivateKey: "AUTH_REQUEST_PRIVATE_KEY",
-                    method: .masterKey(protectedMasterKey: "KEY", authRequestKey: "USER_KEY"),
-                ),
-                upgradeToken: nil,
-            ),
-        )
-        XCTAssertTrue(vaultTimeoutService.unlockVaultHadUserInteraction)
-    }
-
-    /// `unlockVaultFromLoginWithDevice()` unlocks the vault using the key returned by an approved
-    /// auth request without a master password hash.
-    func test_unlockVaultFromLoginWithDevice_withoutMasterPasswordHash() async throws {
+    func test_unlockVaultFromLoginWithDevice() async throws {
         stateService.activeAccount = Account.fixture()
         stateService.accountEncryptionKeys = [
             "1": AccountEncryptionKeys(
@@ -3054,7 +3011,6 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         try await subject.unlockVaultFromLoginWithDevice(
             privateKey: "AUTH_REQUEST_PRIVATE_KEY",
             key: "KEY",
-            masterPasswordHash: nil,
         )
 
         XCTAssertEqual(
@@ -3091,7 +3047,6 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         try await subject.unlockVaultFromLoginWithDevice(
             privateKey: "AUTH_REQUEST_PRIVATE_KEY",
             key: "KEY",
-            masterPasswordHash: nil,
         )
 
         XCTAssertTrue(biometricsRepository.restoreBiometricUnlockKeyCalled)

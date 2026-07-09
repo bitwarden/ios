@@ -263,8 +263,6 @@ public class AppProcessor {
     ///
     @available(iOSApplicationExtension 26.2, *)
     public func generatePasswordCredential(request: any GeneratePasswordRequestProxy) async throws -> String {
-        try await unlockVaultWithNeverlockKey()
-
         // TODO: PM-29569 Map ASGeneratePasswordsRequest rules to PasswordGeneratorRequest once SDK exposes the API.
         let passwordRequest = PasswordGeneratorRequest(
             lowercase: true,

@@ -141,11 +141,10 @@ public enum AuthRoute: Equatable {
     /// A route to the single sign on WebAuth screen.
     ///
     /// - Parameters:
-    ///   - callbackUrlScheme: The callback url scheme for this application.
     ///   - state: The string that the result will have to match.
     ///   - url: The url to present to the web auth session.
     ///
-    case singleSignOn(callbackUrlScheme: String, state: String, url: URL)
+    case singleSignOn(state: String, url: URL)
 
     /// A route to the two-factor authentication screen.
     ///
