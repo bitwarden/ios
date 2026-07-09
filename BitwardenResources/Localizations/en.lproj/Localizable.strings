@@ -1169,6 +1169,15 @@
 "LineOfCredit" = "Line of credit";
 "MoneyMarket" = "Money market";
 "Savings" = "Savings";
+"Devices" = "Devices";
+"NoDevicesFound" = "No devices found";
+"CurrentSession" = "Current session";
+"PendingRequest" = "Pending request";
+"Trusted" = "Trusted";
+"RecentlyActiveLabel" = "Recently active:";
+"RecentlyActiveX" = "Recently active: %1$@";
+"FirstLoginLabel" = "First login:";
+"FirstLoginX" = "First login: %1$@";
 "Today" = "Today";
 "ThisWeek" = "This week";
 "LastWeek" = "Last week";

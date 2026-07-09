@@ -32,6 +32,9 @@ public enum SettingsRoute: Equatable, Hashable {
     /// A route to the delete account screen.
     case deleteAccount
 
+    /// A route to the device management screen.
+    case deviceManagement
+
     /// A route that dismisses the current view.
     case dismiss
 
