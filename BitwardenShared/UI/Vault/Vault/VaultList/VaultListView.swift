@@ -306,28 +306,15 @@ extension SearchableVaultListView {
     /// The active action card, rendered based on priority. Only one card is shown at a time.
     @ViewBuilder private var actionCard: some View {
         switch store.state.activeActionCard {
-        case .upgradedToPremium:
-            UpgradedToPremiumActionCardView(
-                onDismiss: { await store.perform(.dismissUpgradedToPremiumActionCard) },
-                onLearnMore: { store.send(.learnMoreAboutPremium) },
-            )
-        case .upgradeNeeded:
+        case .importItems:
             ActionCard(
-                title: Localizations.unlockAdvancedSecurityFeatures,
-                message: Localizations.aPremiumPlanGivesYouMoreToolsDescriptionLong,
-                actionButtonState: ActionCard.ButtonState(title: Localizations.learnMore) {
-                    store.send(.upgradeToPremium)
+                title: Localizations.importSavedLogins,
+                message: Localizations.importSavedLoginsDescriptionLong,
+                actionButtonState: ActionCard.ButtonState(title: Localizations.getStarted) {
+                    store.send(.showImportLogins)
                 },
                 dismissButtonState: ActionCard.ButtonState(title: Localizations.dismiss) {
-                    await store.perform(.dismissPremiumUpgradeActionCard)
-                },
-            )
-        case .subscriptionNeedsAttention:
-            ActionCard(
-                title: Localizations.subscriptionNeedsAttention,
-                message: Localizations.checkYourPlanForDetails,
-                actionButtonState: ActionCard.ButtonState(title: Localizations.viewPlan) {
-                    store.send(.viewPlan)
+                    await store.perform(.dismissImportLoginsActionCard)
                 },
             )
         case .introducingArchive:
@@ -344,15 +331,28 @@ extension SearchableVaultListView {
                 SharedAsset.Icons.archive24.swiftUIImage
                     .foregroundStyle(SharedAsset.Colors.iconSecondary.swiftUIColor)
             }
-        case .importItems:
+        case .subscriptionNeedsAttention:
             ActionCard(
-                title: Localizations.importSavedLogins,
-                message: Localizations.importSavedLoginsDescriptionLong,
-                actionButtonState: ActionCard.ButtonState(title: Localizations.getStarted) {
-                    store.send(.showImportLogins)
+                title: Localizations.subscriptionNeedsAttention,
+                message: Localizations.checkYourPlanForDetails,
+                actionButtonState: ActionCard.ButtonState(title: Localizations.viewPlan) {
+                    store.send(.viewPlan)
+                },
+            )
+        case .upgradedToPremium:
+            UpgradedToPremiumActionCardView(
+                onDismiss: { await store.perform(.dismissUpgradedToPremiumActionCard) },
+                onLearnMore: { store.send(.learnMoreAboutPremium) },
+            )
+        case .upgradeNeeded:
+            ActionCard(
+                title: Localizations.unlockAdvancedSecurityFeatures,
+                message: Localizations.aPremiumPlanGivesYouMoreToolsDescriptionLong,
+                actionButtonState: ActionCard.ButtonState(title: Localizations.learnMore) {
+                    store.send(.upgradeToPremium)
                 },
                 dismissButtonState: ActionCard.ButtonState(title: Localizations.dismiss) {
-                    await store.perform(.dismissImportLoginsActionCard)
+                    await store.perform(.dismissPremiumUpgradeActionCard)
                 },
             )
         case nil:
