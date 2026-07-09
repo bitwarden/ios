@@ -73,6 +73,7 @@ extension FeatureFlag: @retroactive CaseIterable {
             .deviceAuthKey,
             .enableCipherKeyEncryption,
             .fillAssistTargetingRules,
+            .manageDevices,
             .migrateMyVaultToMyItems,
             .newItemTypes,
             .noLogoutOnKdfChange,

@@ -2,6 +2,7 @@
 import BitwardenKit
 import BitwardenKitMocks
 import BitwardenResources
+import ViewInspector
 import XCTest
 
 @testable import BitwardenShared
@@ -49,8 +50,8 @@ class DeviceManagementViewTests: BitwardenTestCase {
         device.pendingRequest = request
         processor.state.loadingState = .data([device])
 
-        let button = try subject.inspect().find(viewWithAccessibilityIdentifier: "DeviceRowCell").button()
-        try button.tap()
+        let button = try subject.inspect().find(viewWithAccessibilityIdentifier: "DeviceRowCell")
+        try button.button().tap()
 
         XCTAssertEqual(processor.dispatchedActions.last, .deviceTapped(device))
     }

@@ -18,61 +18,68 @@ struct DeviceRow: View {
     // MARK: View
 
     var body: some View {
-        Button {
-            if device.hasPendingRequest {
-                onTap()
+        if device.hasPendingRequest {
+            Button(action: onTap) {
+                rowContent
             }
-        } label: {
-            HStack(alignment: .center) {
-                VStack(alignment: .leading, spacing: 0) {
-                    if device.isCurrentSession {
-                        PillBadgeView(text: Localizations.currentSession, style: .info)
-                            .padding(.bottom, 14)
-                    } else if device.hasPendingRequest {
-                        PillBadgeView(text: Localizations.pendingRequest, style: .warning)
-                            .padding(.bottom, 14)
-                    }
-
-                    Text(device.displayName)
-                        .foregroundStyle(SharedAsset.Colors.textPrimary.swiftUIColor)
-                        .styleGuide(.bodySemibold)
-                        .accessibilityIdentifier("DeviceNameLabel")
-
-                    if device.isTrusted {
-                        Text(Localizations.trusted)
-                            .foregroundStyle(SharedAsset.Colors.textSecondary.swiftUIColor)
-                            .styleGuide(.subheadline)
-                            .padding(.top, 2)
-                            .accessibilityIdentifier("TrustedLabel")
-                    }
-
-                    VStack(alignment: .leading, spacing: 0) {
-                        if device.lastActivityDate != nil {
-                            recentlyActiveRow
-                        }
-
-                        firstLoginRow
-                    }
-                    .padding(.top, 2)
-                }
-                .frame(maxWidth: .infinity, alignment: .leading)
-
-                if device.hasPendingRequest {
-                    Image(asset: SharedAsset.Icons.chevronRight16)
-                        .imageStyle(.accessoryIcon16)
-                        .accessibilityHidden(true)
-                }
-            }
-            .padding(16)
-            .contentShape(Rectangle())
+            .buttonStyle(.plain)
+            .accessibilityElement(children: .combine)
+            .accessibilityAddTraits(.isButton)
+            .accessibilityIdentifier("DeviceRowCell")
+        } else {
+            rowContent
+                .accessibilityElement(children: .combine)
+                .accessibilityIdentifier("DeviceRowCell")
         }
-        .buttonStyle(.plain)
-        .accessibilityElement(children: .combine)
-        .accessibilityAddTraits(device.hasPendingRequest ? .isButton : [])
-        .accessibilityIdentifier("DeviceRowCell")
     }
 
     // MARK: Private Views
+
+    /// The row content shared between actionable and non-actionable states.
+    @ViewBuilder private var rowContent: some View {
+        HStack(alignment: .center) {
+            VStack(alignment: .leading, spacing: 0) {
+                if device.isCurrentSession {
+                    PillBadgeView(text: Localizations.currentSession, style: .info)
+                        .padding(.bottom, 14)
+                } else if device.hasPendingRequest {
+                    PillBadgeView(text: Localizations.pendingRequest, style: .warning)
+                        .padding(.bottom, 14)
+                }
+
+                Text(device.displayName)
+                    .foregroundStyle(SharedAsset.Colors.textPrimary.swiftUIColor)
+                    .styleGuide(.bodySemibold)
+                    .accessibilityIdentifier("DeviceNameLabel")
+
+                if device.isTrusted {
+                    Text(Localizations.trusted)
+                        .foregroundStyle(SharedAsset.Colors.textSecondary.swiftUIColor)
+                        .styleGuide(.subheadline)
+                        .padding(.top, 2)
+                        .accessibilityIdentifier("TrustedLabel")
+                }
+
+                VStack(alignment: .leading, spacing: 0) {
+                    if device.lastActivityDate != nil {
+                        recentlyActiveRow
+                    }
+
+                    firstLoginRow
+                }
+                .padding(.top, 2)
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+
+            if device.hasPendingRequest {
+                Image(asset: SharedAsset.Icons.chevronRight16)
+                    .imageStyle(.accessoryIcon16)
+                    .accessibilityHidden(true)
+            }
+        }
+        .padding(16)
+        .contentShape(Rectangle())
+    }
 
     /// The recently active row with bold label and regular status.
     private var recentlyActiveRow: some View {
