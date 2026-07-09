@@ -66,7 +66,7 @@ struct CreatePasskeyView: View {
         } header: {
             Text(Localizations.credentials)
         } footer: {
-            Text(Localizations.relyingPartyIdFooter)
+            Text(Localizations.relyingPartyIdFooterDescriptionLong)
         }
     }
 

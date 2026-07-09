@@ -96,7 +96,9 @@ class CreatePasskeyProcessor: StateProcessor<
         let resolvedDisplayName = displayName.isEmpty ? userName : displayName
         request.displayName = resolvedDisplayName
 
-        let registration = try await PasskeyAuthorizationBridge(window: window).register(request: request)
+        let registration = try await PasskeyAuthorizationBridge<ASAuthorizationPlatformPublicKeyCredentialRegistration>(
+            window: window,
+        ).perform(request: request)
 
         let clientData = try ClientDataJSONParser.parse(fromClientDataJSON: registration.rawClientDataJSON)
         guard clientData.type == "webauthn.create" else {
@@ -197,11 +199,11 @@ enum PasskeyRegistrationError: Error, LocalizedError {
 
     /// The client data's `type` was not `"webauthn.create"`.
     case unexpectedClientDataType(String)
-    
+
     var errorDescription: String? {
         switch self {
         case .challengeMismatch:
-            Localizations.challengeMismatchReceived
+            Localizations.malformedClientDataChallengeReceived
         case .missingAttestationObject:
             Localizations.missingAttestationObjectReceived
         case let .unexpectedClientDataType(type):

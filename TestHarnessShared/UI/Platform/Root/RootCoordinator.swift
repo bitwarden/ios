@@ -141,6 +141,7 @@ class RootCoordinator: Coordinator, HasStackNavigator {
     /// Shows the use passkey test screen.
     ///
     private func showUsePasskey() {
+        guard #available(iOS 17, *) else { return }
         let processor = UsePasskeyProcessor(coordinator: asAnyCoordinator(), delegate: self)
         let view = UsePasskeyView(store: Store(processor: processor))
         let viewController = UIHostingController(rootView: view)
