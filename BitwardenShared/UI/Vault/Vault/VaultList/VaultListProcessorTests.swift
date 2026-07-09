@@ -58,6 +58,7 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         billingRepository = MockBillingRepository()
         billingRepository.isInAppUpgradeAvailableReturnValue = false
         billingService = MockBillingService()
+        billingService.shouldShowSubscriptionAttentionCardReturnValue = false
         billingService.shouldShowUpgradedToPremiumActionCardReturnValue = false
         errorReporter = MockErrorReporter()
         changeKdfService = MockChangeKdfService()
@@ -676,6 +677,30 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         await subject.perform(.appeared)
 
         XCTAssertFalse(subject.state.shouldShowPremiumUpgradeActionCard)
+    }
+
+    /// `perform(_:)` with `.appeared` shows the subscription needs attention card when the
+    /// cached state indicates it should be shown.
+    @MainActor
+    func test_perform_appeared_subscriptionNeedsAttentionCard_shown() async {
+        billingService.shouldShowSubscriptionAttentionCardReturnValue = true
+
+        await subject.perform(.appeared)
+
+        XCTAssertTrue(subject.state.shouldShowSubscriptionAttentionCard)
+        XCTAssertFalse(billingService.getSubscriptionCalled)
+    }
+
+    /// `perform(_:)` with `.appeared` hides the subscription needs attention card when the
+    /// cached state indicates it should not be shown.
+    @MainActor
+    func test_perform_appeared_subscriptionNeedsAttentionCard_hidden() async {
+        billingService.shouldShowSubscriptionAttentionCardReturnValue = false
+
+        await subject.perform(.appeared)
+
+        XCTAssertFalse(subject.state.shouldShowSubscriptionAttentionCard)
+        XCTAssertFalse(billingService.getSubscriptionCalled)
     }
 
     /// `perform(_:)` with `.dismissArchiveOnboardingActionCard` dismisses the archive onboarding card
@@ -2320,6 +2345,14 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         subject.receive(.upgradeToPremium)
 
         XCTAssertTrue(premiumUpgradeHelper.startInAppPremiumUpgradeCalled)
+    }
+
+    /// `receive(_:)` with `.viewPlan` navigates to the Premium plan screen.
+    @MainActor
+    func test_receive_viewPlan() {
+        subject.receive(.viewPlan)
+
+        XCTAssertEqual(coordinator.routes.last, .premiumPlan)
     }
 
     /// `receive(_:)` with `.vaultFilterChanged` updates the state correctly.

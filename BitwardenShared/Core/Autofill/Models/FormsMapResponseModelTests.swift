@@ -31,6 +31,36 @@ struct FormsMapResponseModelTests {
         #expect(model.hosts.count == 1)
     }
 
+    // MARK: Tests - FormsMapHostEntry
+
+    /// `init(from:)` excludes null-valued pathname entries during decoding.
+    @Test
+    func decode_nullPathnamesExcluded() throws {
+        let json = """
+        {
+            "schemaVersion": "1.0.0",
+            "hosts": {
+                "example.com": {
+                    "pathnames": {
+                        "/login": {
+                            "forms": [{
+                                "category": "account-login",
+                                "fields": { "username": ["input#user"] }
+                            }]
+                        },
+                        "/irrelevant": null
+                    }
+                }
+            }
+        }
+        """
+        let model = try JSONDecoder().decode(FormsMapResponseModel.self, from: Data(json.utf8))
+        let pathnames = try #require(model.hosts["example.com"]?.pathnames)
+        #expect(pathnames.keys.contains("/login"))
+        #expect(!pathnames.keys.contains("/irrelevant"))
+        #expect(pathnames.count == 1)
+    }
+
     // MARK: Tests - FormsMapSelector
 
     /// `init(from:)` decodes a JSON string as `.single`.

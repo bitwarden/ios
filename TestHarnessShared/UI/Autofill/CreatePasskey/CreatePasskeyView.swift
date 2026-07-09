@@ -19,6 +19,7 @@ struct CreatePasskeyView: View {
 
     // MARK: Private Views
 
+    /// The main content view.
     private var content: some View {
         Form {
             credentialsSection
@@ -27,6 +28,7 @@ struct CreatePasskeyView: View {
         }
     }
 
+    /// The section containing the relying party ID, username, and display name fields.
     private var credentialsSection: some View {
         Section {
             TextField(
@@ -36,6 +38,7 @@ struct CreatePasskeyView: View {
                     send: CreatePasskeyAction.rpIdChanged,
                 ),
             )
+            .accessibilityIdentifier("RelyingPartyIdEntry")
             .textContentType(.URL)
             .textInputAutocapitalization(.never)
             .autocorrectionDisabled()
@@ -47,6 +50,7 @@ struct CreatePasskeyView: View {
                     send: CreatePasskeyAction.userNameChanged,
                 ),
             )
+            .accessibilityIdentifier("UsernameEntry")
             .textContentType(.username)
             .textInputAutocapitalization(.never)
             .autocorrectionDisabled()
@@ -58,6 +62,7 @@ struct CreatePasskeyView: View {
                     send: CreatePasskeyAction.displayNameChanged,
                 ),
             )
+            .accessibilityIdentifier("DisplayNameEntry")
             .textContentType(.name)
         } header: {
             Text(Localizations.credentials)
@@ -66,6 +71,7 @@ struct CreatePasskeyView: View {
         }
     }
 
+    /// The section containing the button that triggers passkey registration.
     private var registerButtonSection: some View {
         Section {
             Button {
@@ -80,11 +86,13 @@ struct CreatePasskeyView: View {
                 }
             }
             .disabled(store.state.status == .inProgress || store.state.rpId.isEmpty || store.state.userName.isEmpty)
+            .accessibilityIdentifier("RegisterPasskeyButton")
         } footer: {
             Text(Localizations.createPasskeyFormDescriptionLong)
         }
     }
 
+    /// The section displaying the result of the most recent registration attempt, if any.
     @ViewBuilder private var statusSection: some View {
         switch store.state.status {
         case .idle, .inProgress:
@@ -93,6 +101,7 @@ struct CreatePasskeyView: View {
             Section {
                 Label(Localizations.passkeyRegisteredSuccessfully, systemImage: "checkmark.circle.fill")
                     .foregroundStyle(.green)
+                    .accessibilityIdentifier("RegistrationSuccessLabel")
             } header: {
                 Text(Localizations.registrationResult)
             }
@@ -100,6 +109,19 @@ struct CreatePasskeyView: View {
             Section {
                 Label(message, systemImage: "xmark.circle.fill")
                     .foregroundStyle(.red)
+                    .accessibilityIdentifier("RegistrationFailureLabel")
+            } header: {
+                Text(Localizations.registrationResult)
+            }
+        case let .persistenceFailure(credential, message):
+            Section {
+                Label(Localizations.passkeyCreatedButNotSaved, systemImage: "exclamationmark.triangle.fill")
+                    .foregroundStyle(.orange)
+                    .accessibilityIdentifier("RegistrationPersistenceFailureLabel")
+                Text(Localizations.xColonY(Localizations.credentialId, credential.credentialId.base64EncodedString()))
+                    .font(.footnote)
+                Text(Localizations.xColonY(Localizations.error, message))
+                    .font(.footnote)
             } header: {
                 Text(Localizations.registrationResult)
             }
@@ -134,6 +156,28 @@ struct CreatePasskeyView: View {
             store: Store(processor: StateProcessor(state: {
                 var state = CreatePasskeyState()
                 state.status = .failure("Associated domain not configured in entitlements.")
+                return state
+            }())),
+        )
+    }
+}
+
+#Preview("Persistence Failure") {
+    NavigationView {
+        CreatePasskeyView(
+            store: Store(processor: StateProcessor(state: {
+                var state = CreatePasskeyState()
+                state.status = .persistenceFailure(
+                    credential: StoredPasskeyCredential(
+                        rpId: "bitwarden.com",
+                        userName: "user",
+                        displayName: "User",
+                        credentialId: Data([0x01, 0x02, 0x03]),
+                        publicKeyX963: Data(repeating: 0x04, count: 65),
+                        createdAt: Date(),
+                    ),
+                    message: "The disk is full.",
+                )
                 return state
             }())),
         )

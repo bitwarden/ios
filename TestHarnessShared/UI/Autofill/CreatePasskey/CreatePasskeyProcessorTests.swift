@@ -10,10 +10,12 @@ import XCTest
 
 /// Tests for `CreatePasskeyProcessor`.
 ///
+@available(iOS 17, *)
 class CreatePasskeyProcessorTests: BitwardenTestCase {
     // MARK: Properties
 
     var coordinator: MockCoordinator<RootRoute, Void>!
+    var credentialStore: MockPasskeyCredentialStore!
     var delegate: MockCreatePasskeyProcessorDelegate!
     var subject: CreatePasskeyProcessor!
 
@@ -23,13 +25,19 @@ class CreatePasskeyProcessorTests: BitwardenTestCase {
     override func setUp() {
         super.setUp()
         coordinator = MockCoordinator()
+        credentialStore = MockPasskeyCredentialStore()
         delegate = MockCreatePasskeyProcessorDelegate()
-        subject = CreatePasskeyProcessor(coordinator: coordinator.asAnyCoordinator(), delegate: delegate)
+        subject = CreatePasskeyProcessor(
+            coordinator: coordinator.asAnyCoordinator(),
+            delegate: delegate,
+            credentialStore: credentialStore,
+        )
     }
 
     override func tearDown() {
         super.tearDown()
         coordinator = nil
+        credentialStore = nil
         delegate = nil
         subject = nil
     }
@@ -59,38 +67,77 @@ class CreatePasskeyProcessorTests: BitwardenTestCase {
 
     // MARK: Effect Tests
 
-    /// `perform(.registerPasskey)` sets status to `.success` when registration succeeds.
+    /// `perform(.registerPasskey)` sets status to `.success` and persists the credential when
+    /// registration succeeds.
     @MainActor
     func test_perform_registerPasskey_success() async {
-        subject.performRegistration = { _, _, _ in }
+        let subject = CreatePasskeyProcessor(
+            coordinator: coordinator.asAnyCoordinator(),
+            delegate: delegate,
+            performRegistration: { _, _, _, _ in .fixture() },
+            credentialStore: credentialStore,
+        )
         await subject.perform(.registerPasskey)
         XCTAssertEqual(subject.state.status, .success)
+        XCTAssertEqual(credentialStore.savedCredentials, [.fixture()])
     }
 
-    /// `perform(.registerPasskey)` sets status to `.failure` when registration throws.
+    /// `perform(.registerPasskey)` sets status to `.failure` and does not persist a credential
+    /// when registration throws.
     @MainActor
     func test_perform_registerPasskey_failure() async {
         let testError = BitwardenTestError.example
-        subject.performRegistration = { _, _, _ in throw testError }
+        let subject = CreatePasskeyProcessor(
+            coordinator: coordinator.asAnyCoordinator(),
+            delegate: delegate,
+            performRegistration: { _, _, _, _ in throw testError },
+            credentialStore: credentialStore,
+        )
         await subject.perform(.registerPasskey)
         XCTAssertEqual(subject.state.status, .failure(testError.localizedDescription))
+        XCTAssertTrue(credentialStore.savedCredentials.isEmpty)
+    }
+
+    /// `perform(.registerPasskey)` sets status to `.persistenceFailure` when the credential was
+    /// registered but persisting it throws, rather than reporting the whole operation as failed.
+    @MainActor
+    func test_perform_registerPasskey_credentialStoreSaveThrows() async {
+        let testError = BitwardenTestError.example
+        credentialStore.saveError = testError
+        let subject = CreatePasskeyProcessor(
+            coordinator: coordinator.asAnyCoordinator(),
+            delegate: delegate,
+            performRegistration: { _, _, _, _ in .fixture() },
+            credentialStore: credentialStore,
+        )
+        await subject.perform(.registerPasskey)
+        XCTAssertEqual(
+            subject.state.status,
+            .persistenceFailure(credential: .fixture(), message: testError.localizedDescription),
+        )
     }
 
     /// `perform(.registerPasskey)` passes the current state values to the registration closure.
     @MainActor
     func test_perform_registerPasskey_passesStateValues() async {
-        subject.receive(.rpIdChanged("example.com"))
-        subject.receive(.userNameChanged("alice"))
-        subject.receive(.displayNameChanged("Alice Smith"))
-
         var capturedRpId: String?
         var capturedUserName: String?
         var capturedDisplayName: String?
-        subject.performRegistration = { rpId, userName, displayName in
-            capturedRpId = rpId
-            capturedUserName = userName
-            capturedDisplayName = displayName
-        }
+        let subject = CreatePasskeyProcessor(
+            coordinator: coordinator.asAnyCoordinator(),
+            delegate: delegate,
+            performRegistration: { rpId, userName, displayName, _ in
+                capturedRpId = rpId
+                capturedUserName = userName
+                capturedDisplayName = displayName
+                return .fixture(rpId: rpId, userName: userName, displayName: displayName)
+            },
+            credentialStore: credentialStore,
+        )
+
+        subject.receive(.rpIdChanged("example.com"))
+        subject.receive(.userNameChanged("alice"))
+        subject.receive(.displayNameChanged("Alice Smith"))
 
         await subject.perform(.registerPasskey)
 
@@ -109,5 +156,50 @@ class MockCreatePasskeyProcessorDelegate: CreatePasskeyProcessorDelegate {
     func presentationAnchorForPasskeyRegistration() async -> ASPresentationAnchor {
         presentationAnchorCalled = true
         return presentationAnchorResult
+    }
+}
+
+// MARK: - MockPasskeyCredentialStore
+
+class MockPasskeyCredentialStore: PasskeyCredentialStore {
+    var savedCredentials: [StoredPasskeyCredential] = []
+    var saveError: Error?
+    var fetchAllResult: [StoredPasskeyCredential] = []
+    var fetchAllError: Error?
+
+    func save(_ credential: StoredPasskeyCredential) throws {
+        if let saveError {
+            throw saveError
+        }
+        savedCredentials.append(credential)
+    }
+
+    func fetchAll() throws -> [StoredPasskeyCredential] {
+        if let fetchAllError {
+            throw fetchAllError
+        }
+        return fetchAllResult
+    }
+}
+
+// MARK: - StoredPasskeyCredential+Fixtures
+
+private extension StoredPasskeyCredential {
+    static func fixture(
+        rpId: String = "bitwarden.com",
+        userName: String = "user",
+        displayName: String = "User",
+        credentialId: Data = Data([0x01, 0x02, 0x03]),
+        publicKeyX963: Data = Data(repeating: 0x04, count: 65),
+        createdAt: Date = Date(timeIntervalSince1970: 0),
+    ) -> StoredPasskeyCredential {
+        StoredPasskeyCredential(
+            rpId: rpId,
+            userName: userName,
+            displayName: displayName,
+            credentialId: credentialId,
+            publicKeyX963: publicKeyX963,
+            createdAt: createdAt,
+        )
     }
 }
