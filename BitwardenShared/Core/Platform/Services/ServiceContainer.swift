@@ -90,6 +90,9 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
     /// The service to get server-specified configuration
     public let configService: ConfigService
 
+    /// The service used by the application to make device API requests.
+    let deviceAPIService: DeviceAPIService
+
     /// The service to make and use the device auth key.
     let deviceAuthKeyService: DeviceAuthKeyService
 
@@ -266,6 +269,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
     ///     for mTLS authentication.
     ///   - clientService: The service used by the application to handle encryption and decryption tasks.
     ///   - configService: The service to get server-specified configuration.
+    ///   - deviceAPIService: The service used by the application to make device API requests.
     ///   - deviceAuthKeyService: The service to make and use the device auth key.
     ///   - environmentService: The service used by the application to manage the environment settings.
     ///   - errorReportBuilder: A helper for building an error report containing the details of an
@@ -342,6 +346,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
         clientCertificateService: ClientCertificateService,
         clientService: ClientService,
         configService: ConfigService,
+        deviceAPIService: DeviceAPIService,
         deviceAuthKeyService: DeviceAuthKeyService,
         environmentService: EnvironmentService,
         errorReportBuilder: ErrorReportBuilder,
@@ -412,6 +417,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
         self.clientCertificateService = clientCertificateService
         self.clientService = clientService
         self.configService = configService
+        self.deviceAPIService = deviceAPIService
         self.deviceAuthKeyService = deviceAuthKeyService
         self.environmentService = environmentService
         self.errorReportBuilder = errorReportBuilder
@@ -1174,6 +1180,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
             clientCertificateService: clientCertificateService,
             clientService: clientService,
             configService: configService,
+            deviceAPIService: apiService,
             deviceAuthKeyService: deviceAuthKeyService,
             environmentService: environmentService,
             errorReportBuilder: errorReportBuilder,
@@ -1271,10 +1278,6 @@ extension ServiceContainer {
     }
 
     var configAPIService: ConfigAPIService {
-        apiService
-    }
-
-    var deviceAPIService: DeviceAPIService {
         apiService
     }
 

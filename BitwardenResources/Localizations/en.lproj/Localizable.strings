@@ -1169,3 +1169,18 @@
 "LineOfCredit" = "Line of credit";
 "MoneyMarket" = "Money market";
 "Savings" = "Savings";
+"Today" = "Today";
+"ThisWeek" = "This week";
+"LastWeek" = "Last week";
+"ThisMonth" = "This month";
+"OverThirtyDaysAgo" = "Over 30 days ago";
+"Unknown" = "Unknown";
+/* Device display name. %1$@ = category (e.g. "Mobile"), %2$@ = platform (e.g. "iOS"). */
+"DeviceDisplayName" = "%1$@ - %2$@";
+"Mobile" = "Mobile";
+"BrowserExtension" = "Browser extension";
+"WebVaultDeviceType" = "Web vault";
+"Desktop" = "Desktop";
+"Cli" = "CLI";
+"Sdk" = "SDK";
+"Server" = "Server";

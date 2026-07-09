@@ -58,7 +58,7 @@ extension IdentityTokenRequestModel: FormURLEncodedRequestBody {
 
             URLQueryItem(name: "deviceIdentifier", value: deviceInfo.identifier),
             URLQueryItem(name: "deviceName", value: deviceInfo.name),
-            URLQueryItem(name: "deviceType", value: String(deviceInfo.type)),
+            URLQueryItem(name: "deviceType", value: String(deviceInfo.type.rawValue)),
         ])
 
         switch authenticationMethod {
