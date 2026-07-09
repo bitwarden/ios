@@ -42,8 +42,12 @@ public struct DefaultCredentialProviderContext: CredentialProviderContext {
             AppRoute.vault(.autofillList)
         case .configureAutofill:
             AppRoute.extensionSetup(.extensionActivation(type: .autofillExtension))
-        case .generatePasswordCredential:
-            nil
+        case let .generatePasswordCredential(_, userInteraction):
+            if #available(iOS 26.2, iOSApplicationExtension 26.2, *) {
+                userInteraction ? AppRoute.generatePasswordCredential : nil
+            } else {
+                nil
+            }
         case .registerFido2Credential:
             AppRoute.vault(.autofillList)
         case let .savePasswordCredential(request, userInteraction: true):
