@@ -266,11 +266,10 @@ final class TwoFactorAuthProcessor: StateProcessor<TwoFactorAuthState, TwoFactor
         switch unlockMethod {
         case let .password(password):
             try await services.authRepository.unlockVaultWithPassword(password: password)
-        case let .loginWithDevice(key, masterPasswordHash, privateKey):
+        case let .loginWithDevice(key, privateKey):
             try await services.authRepository.unlockVaultFromLoginWithDevice(
                 privateKey: privateKey,
                 key: key,
-                masterPasswordHash: masterPasswordHash,
             )
         }
     }

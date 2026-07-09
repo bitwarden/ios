@@ -77,7 +77,6 @@ class MockAuthRepository: AuthRepository { // swiftlint:disable:this type_body_l
     var setPinsResult: Result<Void, Error> = .success(())
     var setVaultTimeoutError: Error?
     var unlockVaultFromLoginWithDeviceKey: String?
-    var unlockVaultFromLoginWithDeviceMasterPasswordHash: String? // swiftlint:disable:this identifier_name
     var unlockVaultFromLoginWithDevicePrivateKey: String?
     var unlockVaultFromLoginWithDeviceResult: Result<Void, Error> = .success(())
     var unlockVaultPassword: String?
@@ -370,10 +369,9 @@ class MockAuthRepository: AuthRepository { // swiftlint:disable:this type_body_l
         }
     }
 
-    func unlockVaultFromLoginWithDevice(privateKey: String, key: String, masterPasswordHash: String?) async throws {
+    func unlockVaultFromLoginWithDevice(privateKey: String, key: String) async throws {
         unlockVaultFromLoginWithDeviceKey = key
         unlockVaultFromLoginWithDevicePrivateKey = privateKey
-        unlockVaultFromLoginWithDeviceMasterPasswordHash = masterPasswordHash
         try unlockVaultFromLoginWithDeviceResult.get()
     }
 
