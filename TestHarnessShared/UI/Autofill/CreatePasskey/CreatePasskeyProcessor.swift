@@ -100,7 +100,9 @@ class CreatePasskeyProcessor: StateProcessor<
         let resolvedDisplayName = displayName.isEmpty ? userName : displayName
         request.displayName = resolvedDisplayName
 
-        let registration = try await PasskeyAuthorizationBridge(window: window).register(request: request)
+        let registration = try await PasskeyAuthorizationBridge<ASAuthorizationPlatformPublicKeyCredentialRegistration>(
+            window: window,
+        ).perform(request: request)
 
         guard let attestationObject = registration.rawAttestationObject else {
             throw PasskeyRegistrationError.missingAttestationObject
@@ -111,12 +113,12 @@ class CreatePasskeyProcessor: StateProcessor<
         // so this path continuously exercises the same CBOR parsing the future verify flow will
         // depend on.
         return StoredPasskeyCredential(
+            createdAt: Date(),
+            credentialId: parsed.credentialId,
+            displayName: resolvedDisplayName,
+            publicKeyX963: parsed.publicKeyX963,
             rpId: rpId,
             userName: userName,
-            displayName: resolvedDisplayName,
-            credentialId: parsed.credentialId,
-            publicKeyX963: parsed.publicKeyX963,
-            createdAt: Date(),
         )
     }
 
@@ -185,16 +187,11 @@ protocol CreatePasskeyProcessorDelegate: AnyObject {
 /// Errors that can occur during passkey registration.
 ///
 enum PasskeyRegistrationError: Error, LocalizedError {
-    /// The credential returned by the authorization controller was not the expected type.
-    case unexpectedCredentialType
-
     /// The authorization response did not include an attestation object.
     case missingAttestationObject
 
     var errorDescription: String? {
         switch self {
-        case .unexpectedCredentialType:
-            Localizations.unexpectedCredentialTypeReceived
         case .missingAttestationObject:
             Localizations.missingAttestationObjectReceived
         }

@@ -65,10 +65,17 @@ struct UsePasskeyView: View {
         switch store.state.status {
         case .idle, .inProgress:
             EmptyView()
-        case .success:
+        case let .success(credential):
             Section {
                 Label(Localizations.passkeyAssertedSuccessfully, systemImage: "checkmark.circle.fill")
                     .foregroundStyle(.green)
+                    .accessibilityIdentifier("AssertionSuccessLabel")
+                Text(Localizations.xColonY(Localizations.username, credential.userName))
+                    .font(.footnote)
+                Text(Localizations.xColonY(Localizations.displayName, credential.displayName))
+                    .font(.footnote)
+                Text(Localizations.xColonY(Localizations.credentialId, credential.credentialId.base64EncodedString()))
+                    .font(.footnote)
             } header: {
                 Text(Localizations.assertionResult)
             }
@@ -76,6 +83,17 @@ struct UsePasskeyView: View {
             Section {
                 Label(message, systemImage: "xmark.circle.fill")
                     .foregroundStyle(.red)
+                    .accessibilityIdentifier("AssertionFailureLabel")
+            } header: {
+                Text(Localizations.assertionResult)
+            }
+        case let .verificationFailure(message):
+            Section {
+                Label(Localizations.passkeyVerificationFailed, systemImage: "exclamationmark.shield.fill")
+                    .foregroundStyle(.orange)
+                    .accessibilityIdentifier("AssertionVerificationFailureLabel")
+                Text(Localizations.xColonY(Localizations.error, message))
+                    .font(.footnote)
             } header: {
                 Text(Localizations.assertionResult)
             }
@@ -97,7 +115,14 @@ struct UsePasskeyView: View {
         UsePasskeyView(
             store: Store(processor: StateProcessor(state: {
                 var state = UsePasskeyState()
-                state.status = .success
+                state.status = .success(credential: StoredPasskeyCredential(
+                    createdAt: Date(),
+                    credentialId: Data([0x01, 0x02, 0x03]),
+                    displayName: "User",
+                    publicKeyX963: Data(repeating: 0x04, count: 65),
+                    rpId: "bitwarden.pw",
+                    userName: "user",
+                ))
                 return state
             }())),
         )
@@ -110,6 +135,18 @@ struct UsePasskeyView: View {
             store: Store(processor: StateProcessor(state: {
                 var state = UsePasskeyState()
                 state.status = .failure("No passkey found for the given relying party.")
+                return state
+            }())),
+        )
+    }
+}
+
+#Preview("Verification Failure") {
+    NavigationView {
+        UsePasskeyView(
+            store: Store(processor: StateProcessor(state: {
+                var state = UsePasskeyState()
+                state.status = .verificationFailure("The assertion signature could not be verified.")
                 return state
             }())),
         )

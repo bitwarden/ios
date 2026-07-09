@@ -7,6 +7,7 @@
 "CardDetails" = "Card Details";
 "CardholderName" = "Cardholder Name";
 "CardNumber" = "Card Number";
+"ClientDataMismatchReceived" = "The client data's type or challenge did not match the request.";
 "ConfirmPassword" = "Confirm Password";
 "CreateAccount" = "Create Account";
 "CreateAccountForm" = "Create Account Form";
@@ -14,6 +15,7 @@
 "CreatePasskey" = "Create Passkey";
 "CreatePasskeyFormDescriptionLong" = "Fill in the fields above, then tap Register Passkey. The Bitwarden AutoFill sheet will appear to save the credential.";
 "CredentialId" = "Credential ID";
+"CredentialNotFoundReceived" = "No stored passkey credential matches the one returned by the authenticator.";
 "Credentials" = "Credentials";
 "DisplayName" = "Display Name";
 "EnterCardDetailsAbove" = "Enter card details above";
@@ -35,6 +37,7 @@
 "PasskeyAutofill" = "Passkey Autofill";
 "PasskeyCreatedButNotSaved" = "Passkey created, but not saved for later verification.";
 "PasskeyRegisteredSuccessfully" = "Passkey registered successfully.";
+"PasskeyVerificationFailed" = "Passkey verification failed.";
 "Password" = "Password";
 "PasswordsDoNotMatch" = "Passwords do not match";
 "RegisterPasskey" = "Register Passkey";
@@ -42,6 +45,7 @@
 "RelyingPartyId" = "Relying Party ID";
 "RelyingPartyIdFooterDescriptionLong" = "Must match a webcredentials associated domain configured in the app entitlements.";
 "Result" = "Result";
+"RpIdHashMismatchReceived" = "The authenticator data's relying party hash did not match the expected relying party.";
 "SecurityCode" = "Security Code";
 "ShareFile" = "Share File";
 "SharesASamplePDFDescriptionLong" = "Shares a sample PDF containing the text \"Hello World\". Exercises the UTType.data → URL → file Send path in the share extension.";
@@ -49,6 +53,7 @@
 "SharesAGeneratedPNGImageDescriptionLong" = "Shares a generated PNG image. Exercises the UTType.data → UIImage → file Send path in the share extension.";
 "ShareText" = "Share Text";
 "SharesTheTextAboveDescriptionLong" = "Shares the text above. Exercises the UTType.plainText → text Send path in the share extension.";
+"SignatureInvalidReceived" = "The assertion signature could not be verified against the stored public key.";
 "SignInWithPasskey" = "Sign In with Passkey";
 "SimpleLoginForm" = "Simple Login Form";
 "TestHarness" = "Test Harness";
@@ -61,6 +66,7 @@
 "UnsupportedCurveReceived" = "The credential's public key curve (%@) is not supported; expected P-256.";
 "UnsupportedKeyTypeReceived" = "The credential's public key type (%@) is not supported; expected EC2.";
 "Username" = "Username";
+"UserPresenceNotAssertedReceived" = "The authenticator did not assert user presence.";
 "UsePasskey" = "Use passkey";
 "UsePasskeyFormDescriptionLong" = "Enter a relying party ID above, then tap Sign In with Passkey. The Bitwarden AutoFill sheet will appear to select a credential.";
 "UseThisLoginFormToTestAutofillFunctionality" = "Use this login form to test autofill functionality.";
