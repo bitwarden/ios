@@ -156,11 +156,12 @@ final class DeviceManagementProcessor: StateProcessor<
 
         for request in sortedRequests {
             guard !request.requestDeviceType.isEmpty else { continue }
-            // Match by the device's pending-request key, which distinguishes browser from
-            // extension variants that share the same display platform name (e.g. "Chrome").
+            // Match by platform name. Note: browser and extension variants of the same
+            // browser (e.g. chromeExtension and chromeBrowser) both map to "Chrome", so
+            // the match is best-effort when both device types are active simultaneously.
             if let index = updatedDevices.firstIndex(where: { device in
-                !device.deviceType.pendingRequestMatchKey.isEmpty &&
-                    device.deviceType.pendingRequestMatchKey.lowercased()
+                !device.deviceType.platform.isEmpty &&
+                    device.deviceType.platform.lowercased()
                     == request.requestDeviceType.lowercased()
             }) {
                 // Only set if no pending request has been set yet (keeps the most recent).
