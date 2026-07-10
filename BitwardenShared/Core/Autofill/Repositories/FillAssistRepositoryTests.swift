@@ -57,15 +57,35 @@ struct FillAssistRepositoryTests {
         #expect(!fillAssistAPIService.getManifestCalled)
     }
 
-    /// `syncRules()` makes no network calls when the update interval has not elapsed.
+    /// `syncRules()` makes no network calls when the update interval has not elapsed and the
+    /// cache is readable.
     @Test
     func syncRules_withinUpdateInterval() async {
         configService.featureFlagsBool[.fillAssistTargetingRules] = true
+        appSettingsStore.fillAssistCachedDataByUserId["1"] = FillAssistCachedData(
+            cid: "sha256:abc123",
+            rules: [:],
+            sourceUrl: environmentService.fillAssistRulesURL.absoluteString,
+        )
         appSettingsStore.fillAssistLastFetchTimestampByUserId["1"] = timeProvider.presentTime
 
         await subject.syncRules()
 
         #expect(!fillAssistAPIService.getManifestCalled)
+    }
+
+    /// `syncRules()` still fetches the manifest when the update interval has not elapsed but the
+    /// cache is unreadable, since a fresh timestamp alone shouldn't mask a missing cache.
+    @Test
+    func syncRules_withinUpdateInterval_cacheUnreadable_fetchesManifest() async {
+        configService.featureFlagsBool[.fillAssistTargetingRules] = true
+        appSettingsStore.fillAssistLastFetchTimestampByUserId["1"] = timeProvider.presentTime
+        fillAssistAPIService.getManifestReturnValue = makeManifest(cid: "sha256:abc123")
+        fillAssistAPIService.getFormsMapReturnValue = makeFormsMap()
+
+        await subject.syncRules()
+
+        #expect(fillAssistAPIService.getManifestCalled)
     }
 
     /// `syncRules()` skips download and updates the timestamp when cid and source URL are unchanged.
@@ -291,77 +311,7 @@ struct FillAssistRepositoryTests {
 
 // MARK: - Helpers
 
-private extension FillAssistRepositoryTests {
-    /// Returns a `FillAssistManifestResponseModel` fixture with the given content ID.
-    func makeManifest(cid: String) -> FillAssistManifestResponseModel {
-        let entry = FillAssistManifestEntryModel(
-            cid: cid,
-            deprecated: false,
-            filename: "forms.v1.json",
-            schema: "forms.v1.schema.json",
-        )
-        return FillAssistManifestResponseModel(
-            buildId: "v1",
-            gitSha: "abc",
-            maps: ["forms": ["v1": entry]],
-            timestamp: Date(timeIntervalSinceReferenceDate: 0),
-        )
-    }
-
-    /// Returns a `FormsMapResponseModel` fixture with a single `example.com` host.
-    ///
-    /// - Parameters:
-    ///   - schemaVersion: The schema version string. Defaults to `"1.0.0"`.
-    ///   - usernameSelector: The CSS selector for the username field. Defaults to `"input#user"`.
-    ///   - hosts: Optional map of hostname to selector string overriding the default host.
-    ///
-    private func makeFormsMap(
-        schemaVersion: String = "1.0.0",
-        usernameSelector: String = "input#user",
-        hosts: [String: String]? = nil,
-    ) -> FormsMapResponseModel {
-        let content = { (selector: String) in
-            FormsMapContent(
-                category: "account-login",
-                container: nil,
-                fields: ["username": [.single(selector)]],
-                actions: nil,
-            )
-        }
-        let resolvedHosts: [String: FormsMapHostEntry] = if let hosts {
-            hosts.mapValues { FormsMapHostEntry(forms: [content($0)]) }
-        } else {
-            ["example.com": FormsMapHostEntry(forms: [content(usernameSelector)])]
-        }
-        return FormsMapResponseModel(hosts: resolvedHosts, schemaVersion: schemaVersion)
-    }
-
-    /// Returns a `FormsMapResponseModel` fixture with both top-level and pathname-specific forms
-    /// for `example.com`, used to test selector pooling across multiple entry points.
-    private func makeFormsMapWithPathnames() -> FormsMapResponseModel {
-        let loginContent = FormsMapContent(
-            category: "account-login",
-            container: nil,
-            fields: ["username": [.single("input#user1")]],
-            actions: nil,
-        )
-        let pathnameContent = FormsMapContent(
-            category: "account-login",
-            container: nil,
-            fields: ["username": [.single("input#user2")]],
-            actions: nil,
-        )
-        return FormsMapResponseModel(
-            hosts: [
-                "example.com": FormsMapHostEntry(
-                    forms: [loginContent],
-                    pathnames: ["/login": FormsMapPathnameEntry(forms: [pathnameContent])],
-                ),
-            ],
-            schemaVersion: "1.0.0",
-        )
-    }
-
+extension FillAssistRepositoryTests {
     // MARK: Tests - user toggle guard
 
     /// `syncRules()` makes no network calls when the feature flag is on but the user toggle is off.
