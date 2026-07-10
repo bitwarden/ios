@@ -53,6 +53,7 @@ class MockStateService: StateService, ActiveAccountStateProvider, AutofillStateS
     var doesActiveAccountHavePremiumCalled = false
     var fillAssistEnabledByUserId = [String: Bool]()
     var getFillAssistEnabledError: Error?
+    var setFillAssistEnabledError: Error?
     var doesActiveAccountHavePremiumResult: Bool = true
     var doesActiveAccountHavePremiumPersonallyCalled = false // swiftlint:disable:this identifier_name
     var doesActiveAccountHavePremiumPersonallyResult: Bool = true // swiftlint:disable:this identifier_name
@@ -677,6 +678,9 @@ class MockStateService: StateService, ActiveAccountStateProvider, AutofillStateS
     }
 
     func setFillAssistEnabled(_ fillAssistEnabled: Bool, userId: String?) async throws {
+        if let setFillAssistEnabledError {
+            throw setFillAssistEnabledError
+        }
         let userId = try unwrapUserId(userId)
         fillAssistEnabledByUserId[userId] = fillAssistEnabled
     }

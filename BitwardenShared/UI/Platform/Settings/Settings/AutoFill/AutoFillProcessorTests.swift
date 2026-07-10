@@ -1,6 +1,7 @@
 import BitwardenKit
 import BitwardenKitMocks
 import BitwardenResources
+import TestHelpers
 import XCTest
 
 @testable import BitwardenShared
@@ -285,6 +286,22 @@ class AutoFillProcessorTests: BitwardenTestCase {
         waitFor(stateService.fillAssistEnabledByUserId["1"] == false)
         XCTAssertEqual(stateService.fillAssistEnabledByUserId["1"], false)
         XCTAssertFalse(fillAssistRepository.syncRulesCalled)
+    }
+
+    /// `.receive(_:)` with `.toggleFillAssist` reverts the toggle and shows an alert if persisting
+    /// the value fails.
+    @MainActor
+    func test_receive_toggleFillAssist_persistFails() {
+        subject.state.isFillAssistEnabled = false
+        stateService.setFillAssistEnabledError = BitwardenTestError.example
+
+        subject.receive(.toggleFillAssist(true))
+
+        waitFor(subject.state.isFillAssistEnabled == false)
+        XCTAssertFalse(subject.state.isFillAssistEnabled)
+        XCTAssertFalse(fillAssistRepository.syncRulesCalled)
+        XCTAssertEqual(errorReporter.errors.last as? BitwardenTestError, .example)
+        XCTAssertEqual(coordinator.errorAlertsShown.last as? BitwardenTestError, .example)
     }
 
     /// `.receive(_:)` with  `.toggleCopyTOTPToggle` updates the state.
