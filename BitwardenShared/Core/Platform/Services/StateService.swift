@@ -1950,6 +1950,7 @@ actor DefaultStateService: StateService, ActiveAccountStateProvider, ConfigState
         appSettingsStore.setEncryptedUserKey(key: nil, userId: knownUserId)
         appSettingsStore.setFillAssistCachedData(nil, userId: knownUserId)
         appSettingsStore.setFillAssistLastFetchTimestamp(nil, userId: knownUserId)
+        try await keychainRepository.deleteUserAuthKey(for: .fillAssistRulesFingerprint(userId: knownUserId))
         appSettingsStore.setHasPerformedSyncAfterLogin(nil, userId: knownUserId)
         appSettingsStore.setLastSyncTime(nil, userId: knownUserId)
         appSettingsStore.setMasterPasswordHash(nil, userId: knownUserId)

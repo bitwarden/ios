@@ -1,4 +1,5 @@
 import BitwardenKit
+import CryptoKit
 import Foundation
 
 // MARK: - FillAssistRepository
@@ -22,11 +23,30 @@ protocol FillAssistRepository { // sourcery: AutoMockable
     func clearRules() async throws
 }
 
+// MARK: - FillAssistFingerprintError
+
+/// Errors thrown while computing the fill-assist cached-rules integrity fingerprint.
+///
+private enum FillAssistFingerprintError: Error {
+    /// The cached data could not be encoded to compute its fingerprint.
+    case encodingFailed
+}
+
 // MARK: - DefaultFillAssistRepository
 
 /// The default implementation of `FillAssistRepository`.
 ///
 class DefaultFillAssistRepository: FillAssistRepository {
+    // MARK: Private Static Properties
+
+    /// The JSON encoder used to compute the integrity fingerprint. Sorted keys ensure the
+    /// encoded bytes are deterministic regardless of dictionary iteration order.
+    private static let fingerprintEncoder: JSONEncoder = {
+        let encoder = JSONEncoder()
+        encoder.outputFormatting = [.sortedKeys]
+        return encoder
+    }()
+
     // MARK: Private Properties
 
     /// The store for persisting fill-assist cached data.
@@ -44,6 +64,9 @@ class DefaultFillAssistRepository: FillAssistRepository {
     /// The API service for fetching fill-assist data.
     private let fillAssistAPIService: FillAssistAPIService
 
+    /// The repository for storing the cached-rules integrity fingerprint.
+    private let keychainRepository: KeychainRepository
+
     /// The service for accessing account state.
     private let stateService: StateService
 
@@ -60,6 +83,7 @@ class DefaultFillAssistRepository: FillAssistRepository {
     ///   - environmentService: The service for accessing environment URLs.
     ///   - errorReporter: The service for reporting non-fatal errors.
     ///   - fillAssistAPIService: The API service for fetching fill-assist data.
+    ///   - keychainRepository: The repository for storing the cached-rules integrity fingerprint.
     ///   - stateService: The service for accessing account state.
     ///   - timeProvider: The provider of the current time.
     ///
@@ -69,6 +93,7 @@ class DefaultFillAssistRepository: FillAssistRepository {
         environmentService: EnvironmentService,
         errorReporter: ErrorReporter,
         fillAssistAPIService: FillAssistAPIService,
+        keychainRepository: KeychainRepository,
         stateService: StateService,
         timeProvider: TimeProvider,
     ) {
@@ -77,6 +102,7 @@ class DefaultFillAssistRepository: FillAssistRepository {
         self.environmentService = environmentService
         self.errorReporter = errorReporter
         self.fillAssistAPIService = fillAssistAPIService
+        self.keychainRepository = keychainRepository
         self.stateService = stateService
         self.timeProvider = timeProvider
     }
@@ -94,12 +120,13 @@ class DefaultFillAssistRepository: FillAssistRepository {
 
     func rules(for hostname: String) async -> FillAssistHostRules? {
         guard let userId = try? await stateService.getActiveAccountId() else { return nil }
-        return appSettingsStore.fillAssistCachedData(userId: userId)?.rules[hostname]
+        return await loadVerifiedCachedData(userId: userId)?.rules[hostname]
     }
 
     func clearRules() async throws {
         let userId = try await stateService.getActiveAccountId()
         appSettingsStore.setFillAssistCachedData(nil, userId: userId)
+        try await keychainRepository.deleteUserAuthKey(for: .fillAssistRulesFingerprint(userId: userId))
     }
 
     // MARK: Private
@@ -112,7 +139,7 @@ class DefaultFillAssistRepository: FillAssistRepository {
 
         let sourceUrl = environmentService.fillAssistRulesURL
         let userId = try await stateService.getActiveAccountId()
-        let cached = appSettingsStore.fillAssistCachedData(userId: userId)
+        let cached = await loadVerifiedCachedData(userId: userId)
         let lastFetch = appSettingsStore.fillAssistLastFetchTimestamp(userId: userId)
         if let lastFetch,
            cached != nil,
@@ -143,6 +170,55 @@ class DefaultFillAssistRepository: FillAssistRepository {
         let data = FillAssistCachedData(cid: entry.cid, rules: rules, sourceUrl: sourceUrl.absoluteString)
         appSettingsStore.setFillAssistCachedData(data, userId: userId)
         appSettingsStore.setFillAssistLastFetchTimestamp(timeProvider.presentTime, userId: userId)
+
+        if let newFingerprint = try? fingerprint(for: data) {
+            try? await keychainRepository.setUserAuthKey(
+                for: .fillAssistRulesFingerprint(userId: userId),
+                value: newFingerprint,
+            )
+        } else {
+            errorReporter.log(error: FillAssistFingerprintError.encodingFailed)
+        }
+    }
+
+    /// Loads the cached fill-assist data for `userId` and verifies its integrity fingerprint,
+    /// clearing both the cached data and its fingerprint if they're missing, inconsistent, or
+    /// tampered.
+    ///
+    /// - Parameter userId: The user ID whose cache to load and verify.
+    /// - Returns: The verified `FillAssistCachedData`, or `nil` if absent or tampered.
+    ///
+    private func loadVerifiedCachedData(userId: String) async -> FillAssistCachedData? {
+        guard let cached = appSettingsStore.fillAssistCachedData(userId: userId) else {
+            // No cached data — clear any stray fingerprint left from an inconsistent prior state.
+            try? await keychainRepository.deleteUserAuthKey(for: .fillAssistRulesFingerprint(userId: userId))
+            return nil
+        }
+
+        let storedFingerprint = try? await keychainRepository.getUserAuthKeyValue(
+            for: .fillAssistRulesFingerprint(userId: userId),
+        )
+
+        guard let storedFingerprint,
+              let computed = try? fingerprint(for: cached),
+              storedFingerprint == computed
+        else {
+            appSettingsStore.setFillAssistCachedData(nil, userId: userId)
+            try? await keychainRepository.deleteUserAuthKey(for: .fillAssistRulesFingerprint(userId: userId))
+            return nil
+        }
+
+        return cached
+    }
+
+    /// Computes a SHA-256 integrity fingerprint for the given cached data, using a sorted-keys
+    /// JSON encoding so the result is deterministic regardless of dictionary iteration order.
+    ///
+    /// - Parameter data: The cached data to fingerprint.
+    /// - Returns: A lowercase hexadecimal SHA-256 digest of the encoded data.
+    ///
+    private func fingerprint(for data: FillAssistCachedData) throws -> String {
+        try Self.fingerprintEncoder.encode(data).generatedHash(using: SHA256.self)
     }
 
     /// Builds a `[hostname: FillAssistHostRules]` dictionary by pooling all non-null field
