@@ -150,8 +150,38 @@ class VaultListViewTests: BitwardenTestCase { // swiftlint:disable:this type_bod
     }
 
     @MainActor
+    func disabletest_snapshot_myVaultUpgradedToPremium() {
+        processor.state.shouldShowUpgradedToPremiumActionCard = true
+        processor.state.loadingState = .data(VaultListViewTests.defaultVaultData)
+        assertSnapshots(
+            of: subject,
+            as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5],
+        )
+    }
+
+    @MainActor
+    func disabletest_snapshot_myVaultUpgradeToPremium() {
+        processor.state.shouldShowPremiumUpgradeActionCard = true
+        processor.state.loadingState = .data(VaultListViewTests.defaultVaultData)
+        assertSnapshots(
+            of: subject,
+            as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5],
+        )
+    }
+
+    @MainActor
     func disabletest_snapshot_myVaultArchiveOnboarding() {
         processor.state.shouldShowArchiveOnboardingActionCard = true
+        processor.state.loadingState = .data(VaultListViewTests.defaultVaultData)
+        assertSnapshots(
+            of: subject,
+            as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5],
+        )
+    }
+
+    @MainActor
+    func disabletest_snapshot_myVaultSubscriptionAttention() {
+        processor.state.shouldShowSubscriptionAttentionCard = true
         processor.state.loadingState = .data(VaultListViewTests.defaultVaultData)
         assertSnapshots(
             of: subject,
@@ -196,14 +226,6 @@ class VaultListViewTests: BitwardenTestCase { // swiftlint:disable:this type_bod
             ),
         ]
         assertSnapshot(of: subject, as: .defaultPortrait)
-    }
-
-    @MainActor
-    func disabletest_snapshot_myVaultSubscriptionAttentionWithArchive() {
-        processor.state.shouldShowArchiveOnboardingActionCard = true
-        processor.state.loadingState = .data(VaultListViewTests.defaultVaultData)
-        processor.state.shouldShowSubscriptionAttentionCard = true
-        assertSnapshots(of: subject, as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5])
     }
 
     @MainActor
@@ -281,23 +303,11 @@ class VaultListViewTests: BitwardenTestCase { // swiftlint:disable:this type_bod
     }
 
     @MainActor
-    func disabletest_snapshot_myVaultSubscriptionAttention() {
+    func disabletest_snapshot_myVaultSubscriptionAttentionWithArchive() {
+        processor.state.shouldShowArchiveOnboardingActionCard = true
+        processor.state.loadingState = .data(VaultListViewTests.defaultVaultData)
         processor.state.shouldShowSubscriptionAttentionCard = true
-        processor.state.loadingState = .data(VaultListViewTests.defaultVaultData)
-        assertSnapshots(
-            of: subject,
-            as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5],
-        )
-    }
-
-    @MainActor
-    func disabletest_snapshot_myVaultUpgradedToPremium() {
-        processor.state.shouldShowUpgradedToPremiumActionCard = true
-        processor.state.loadingState = .data(VaultListViewTests.defaultVaultData)
-        assertSnapshots(
-            of: subject,
-            as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5],
-        )
+        assertSnapshots(of: subject, as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5])
     }
 
     @MainActor
