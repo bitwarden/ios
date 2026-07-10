@@ -7,6 +7,7 @@ import SwiftUI
 import XCTest
 
 @testable import BitwardenShared
+@testable import BitwardenSharedMocks
 
 // MARK: - PremiumPlanViewSnapshotTests
 
@@ -33,9 +34,33 @@ class PremiumPlanViewSnapshotTests: BitwardenTestCase {
 
     // MARK: Snapshots
 
+    /// Check the snapshot for the active state with additional storage.
+    @MainActor
+    func disabletest_snapshot_activeWithStorage() {
+        processor.state.loadingState = .data(.fixture(
+            estimatedTax: 4.55,
+            nextCharge: Date(timeIntervalSince1970: 1_775_304_000),
+            storageCost: 4,
+        ))
+        processor.state.planStatus = .active
+        assertSnapshots(of: subject, as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5])
+    }
+
+    /// Check the snapshot for the active state with no additional storage.
+    @MainActor
+    func disabletest_snapshot_activeNoStorage() {
+        processor.state.loadingState = .data(.fixture(
+            estimatedTax: 4.55,
+            nextCharge: Date(timeIntervalSince1970: 1_775_304_000),
+        ))
+        processor.state.planStatus = .active
+        assertSnapshots(of: subject, as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5])
+    }
+
     /// Check the snapshot for the active state.
     @MainActor
     func disabletest_snapshot_active() {
+        processor.state.loadingState = .data(.fixture())
         processor.state.planStatus = .active
         assertSnapshots(of: subject, as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5])
     }
@@ -43,6 +68,7 @@ class PremiumPlanViewSnapshotTests: BitwardenTestCase {
     /// Check the snapshot for the canceled state.
     @MainActor
     func disabletest_snapshot_canceled() {
+        processor.state.loadingState = .data(.fixture(canceled: Date(), status: .canceled))
         processor.state.planStatus = .canceled
         assertSnapshots(of: subject, as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5])
     }
@@ -50,6 +76,7 @@ class PremiumPlanViewSnapshotTests: BitwardenTestCase {
     /// Check the snapshot for the past due state.
     @MainActor
     func disabletest_snapshot_pastDue() {
+        processor.state.loadingState = .data(.fixture(status: .pastDue))
         processor.state.planStatus = .pastDue
         assertSnapshots(of: subject, as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5])
     }
@@ -57,6 +84,7 @@ class PremiumPlanViewSnapshotTests: BitwardenTestCase {
     /// Check the snapshot for the update payment state.
     @MainActor
     func disabletest_snapshot_updatePayment() {
+        processor.state.loadingState = .data(.fixture(status: .updatePayment))
         processor.state.planStatus = .updatePayment
         assertSnapshots(of: subject, as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5])
     }
