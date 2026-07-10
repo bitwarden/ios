@@ -20,6 +20,8 @@ class MockPolicyService: PolicyService {
         ),
     )
 
+    var isSendDisabledByPolicy = false
+
     var isSendHideEmailDisabledByPolicy = false
 
     var fetchTimeoutPolicyValuesResult: Result<SessionTimeoutPolicy?, Error> = .success(nil)
@@ -67,6 +69,10 @@ class MockPolicyService: PolicyService {
 
     func getMasterPasswordPolicyOptions() async throws -> MasterPasswordPolicyOptions? {
         try getMasterPasswordPolicyOptionsResult.get()
+    }
+
+    func isSendDisabledByPolicy() async -> Bool {
+        isSendDisabledByPolicy
     }
 
     func isSendHideEmailDisabledByPolicy() async -> Bool {

@@ -190,7 +190,7 @@ final class TabCoordinator: Coordinator, HasTabNavigator {
         updateTabs(isSendEnabled: true)
 
         Task { [weak self, policyService] in
-            let isSendDisabled = await policyService.policyAppliesToUser(.disableSend)
+            let isSendDisabled = await policyService.isSendDisabledByPolicy()
             await MainActor.run { self?.updateTabs(isSendEnabled: !isSendDisabled) }
         }
         streamOrganizations()
@@ -226,7 +226,7 @@ final class TabCoordinator: Coordinator, HasTabNavigator {
                         navigator.rootViewController?.title = Localizations.vaults
                     }
 
-                    let isSendDisabled = await policyService.policyAppliesToUser(.disableSend)
+                    let isSendDisabled = await policyService.isSendDisabledByPolicy()
                     await MainActor.run { [weak self] in
                         self?.updateTabs(isSendEnabled: !isSendDisabled)
                     }

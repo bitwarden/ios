@@ -47,6 +47,12 @@ protocol PolicyService: AnyObject {
     ///
     func getRestrictedItemCipherTypes() async -> [CipherType]
 
+    /// Returns whether creating and editing Sends is disabled because of a policy.
+    ///
+    /// - Returns: Whether Sends are disabled.
+    ///
+    func isSendDisabledByPolicy() async -> Bool
+
     /// Returns whether the send hide email option is disabled because of a policy.
     ///
     /// - Returns: Whether the send hide email option is disabled.
@@ -522,8 +528,21 @@ extension DefaultPolicyService {
         return policyWithEarliestRevisionDate(from: policies)?.organizationId
     }
 
+    func isSendDisabledByPolicy() async -> Bool {
+        if await configService.getFeatureFlag(.sendControls) {
+            await policyAppliesToUser(.sendControls) { policy in
+                policy[.disableSend]?.boolValue == true
+            }
+        } else {
+            await policyAppliesToUser(.disableSend)
+        }
+    }
+
     func isSendHideEmailDisabledByPolicy() async -> Bool {
-        await policyAppliesToUser(.sendOptions) { policy in
+        let policyType: PolicyType = await configService.getFeatureFlag(.sendControls)
+            ? .sendControls
+            : .sendOptions
+        return await policyAppliesToUser(policyType) { policy in
             policy[.disableHideEmail]?.boolValue == true
         }
     }
