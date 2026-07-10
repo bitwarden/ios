@@ -136,7 +136,7 @@ struct PremiumPlanStateTests { // swiftlint:disable:this type_body_length
     func descriptionText_unpaid() {
         var state = PremiumPlanState()
         state.planStatus = .unpaid
-        state.subscription = .fixture(status: .unpaid, suspension: testDate)
+        state.loadingState = .data(.fixture(status: .unpaid, suspension: testDate))
         #expect(state.descriptionText == Localizations
             .yourSubscriptionWasSuspendedOnXDescriptionLong(state.subscriptionEndDate))
     }
