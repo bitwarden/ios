@@ -40,23 +40,24 @@ final class DeviceAuthKeyServiceTests: BitwardenTestCase {
 
     // MARK: Tests - assertDeviceAuthKey
 
-    /// `assertDeviceAuthKey(for:recordIdentifier:userId:)` throws notImplemented error.
-    ///
-    func test_assertDeviceAuthKey_throwsNotImplemented() async throws {
+    /// `assertDeviceAuthKey(for:recordIdentifier:userId:)` returns nil when key is unavailable.
+    func test_assertDeviceAuthKey_returnsNilWhenRecordMissing() async throws {
         let allowedCredentials = [
             Data(repeating: 2, count: 32),
             Data(repeating: 5, count: 32),
         ]
         let passkeyParameters = MockPasskeyCredentialRequestParameters(allowedCredentials: allowedCredentials)
         let request = GetAssertionRequest(fido2RequestParameters: passkeyParameters)
+        deviceAuthKeychainRepository.getDeviceAuthKeyReturnValue = nil
 
-        await assertAsyncThrows(error: DeviceAuthKeyError.notImplemented) {
-            _ = try await subject.assertDeviceAuthKey(
-                for: request,
-                recordIdentifier: "record123",
-                userId: "userId123",
-            )
-        }
+        let result = try await subject.assertDeviceAuthKey(
+            for: request,
+            recordIdentifier: "record123",
+            userId: "userId123",
+        )
+        XCTAssertNil(result)
+        XCTAssertEqual(deviceAuthKeychainRepository.getDeviceAuthKeyCallsCount, 1)
+        XCTAssertEqual(deviceAuthKeychainRepository.getDeviceAuthKeyReceivedUserId, "userId123")
     }
 
     // MARK: Tests - createDeviceAuthKey
