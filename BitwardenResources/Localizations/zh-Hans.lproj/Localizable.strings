@@ -248,7 +248,7 @@
 "September" = "九月";
 "SSN" = "社会保障号码";
 "StateProvince" = "州 / 省";
-"Title" = "称呼";
+"Title" = "称谓";
 "ZipPostalCode" = "ZIP / 邮政编码";
 "Address" = "地址";
 "Expiration" = "有效期";
@@ -778,6 +778,8 @@
 "SetUpAutofillOnAllYourDevicesToLoginWithASingleTapAnywhere" = "在所有设备上设置自动填充，随时随地只需点击一下即可登录。";
 "GoBack" = "返回";
 "GotIt" = "知道了";
+/* masterPasswordUnlock is the name of some data we want to delete, so there's no need to localize it. */
+"ClearMasterPasswordUnlock" = "清除 masterPasswordUnlock";
 "ClearSsoCookies" = "清除 SSO Cookie";
 "GenerateCrash" = "生成崩溃报告";
 "GenerateErrorReport" = "生成错误报告";
@@ -1026,7 +1028,7 @@
 "ArchiveIsEmpty" = "归档为空";
 "ArchiveEmptyDescriptionLong" = "将您不希望在搜索结果和自动填充建议中看到，但将来可能需要的项目添加到您的归档中。";
 "ArchiveItem" = "归档项目";
-"OnceArchivedThisItemWillBeExcludedDescriptionLong" = "归档后，此项目将被排除在一般搜索结果和自动填充建议之外。";
+"OnceArchivedThisItemWillBeExcludedDescriptionLong" = "归档后，此项目将被排除在搜索结果和自动填充建议之外。";
 "ArchivingItemsIsAPremiumFeatureDescriptionLong" = "归档项目是高级版功能。您的当前方案不包含对此功能的访问权限。";
 "AddingAttachmentsIsAPremiumFeatureDescriptionLong" = "添加附件是高级版功能。您的当前方案不包含对此功能的访问权限。";
 "UpgradeToPremium" = "升级到高级版";
@@ -1061,6 +1063,8 @@
 "ReplaceCertificate" = "替换证书";
 "ReplaceExistingCertificate" = "替换现有证书";
 "UnableToReadCertificateFile" = "无法读取证书文件。";
+/* masterPasswordUnlock is the name of some data we want to delete, so there's no need to localize it. */
+"MasterPasswordUnlockCleared" = "masterPasswordUnlock 已清除。";
 "SsoCookiesCleared" = "SSO Cookie 已清除";
 "YourRequestWasInterruptedBecauseTheAppNeededToReAuthenticatePleaseTryAgain" = "由于 App 需要重新验证身份，您的请求被中断。请重试。";
 "AutofillWithBitwardenDescriptionLong" = "当您登录到 App 和网站时，Bitwarden 可以建议要使用的密码和其他凭据。";
@@ -1085,6 +1089,8 @@
 "ExternalLink" = "外部链接";
 "YourNextChargeIsForXDueOnY" = "您的下一笔费用为 **%1$@**，到期日期为 **%2$@**。";
 "WeCouldNotProcessYourPaymentUpdateYourPaymentMethodDescriptionLong" = "我们无法处理您的付款。请在 **%1$@** 您的订阅结束前更新您的付款方式。";
+/* Error message shown when the Premium Plan screen fails to load subscription data, with a prompt to retry. */
+"WeCouldntLoadYourSubscriptionDetailsPleaseRetry" = "我们无法加载您的订阅详细信息。请重试。";
 "YourSubscriptionWasCanceledOnXDescriptionLong" = "您的订阅被取消于 **%1$@**。重新订阅以继续使用高级版功能。";
 "YourSubscriptionExpiredOnXDescriptionLong" = "您的订阅到期于 **%1$@**。重新订阅以继续使用高级版功能。";
 "YourSubscriptionIsScheduledToCancelOnXDescriptionLong" = "您的订阅将于 **%1$@** 取消。在此日期之前，您可以随时恢复订阅。";
@@ -1094,7 +1100,6 @@
 "NegativeX" = "-%1$@";
 "UnknownStatus" = "未知";
 "YourSubscriptionStatusIsUnknownVisitTheWebAppDescriptionLong" = "您的订阅状态无法确定。请访问网页 App 了解更多详细信息或更新到最新版本。";
-"AtTheMomentPremiumPlanIsNotAvailableDescriptionLong" = "高级版方案当前不可用，请稍后再试。";
 "UnlockMoreAdvancedFeaturesWithPremiumPlan" = "使用高级版方案解锁更多高级功能。";
 "BuiltInAuthenticator" = "内置身份验证器";
 "EmergencyAccess" = "紧急访问";
@@ -1110,6 +1115,9 @@
 "UpgradePending" = "升级待处理";
 "YourUpgradeIsBeingProcessedDescriptionLong" = "您的升级正在处理中。完成之前，您将继续使用免费版方案。立即同步以检查升级进度，或继续操作，它将自动更新。";
 "UpgradedToPremium" = "升级到高级版";
+"SubscriptionNeedsAttention" = "您的订阅需要关注";
+"CheckYourPlanForDetails" = "检查您的方案以了解详细信息。";
+"ViewPlan" = "查看方案";
 "YouNowHaveAccessToAdvancedSecurityDescriptionLong" = "您现在拥有高级安全功能访问权限了。进一步了解高级版包含的内容。";
 "YouNowHaveAccessToAllAdvancedSecurityFeatures" = "您现在拥有所有高级安全功能访问权限了。";
 "YoullGoToStripeSecureCheckoutToCompleteYourPurchase" = "您将前往 Stripe 的安全结账页面完成购买。";

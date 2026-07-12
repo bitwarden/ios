@@ -778,6 +778,8 @@
 "SetUpAutofillOnAllYourDevicesToLoginWithASingleTapAnywhere" = "Подесите ауто-попуњавање на свим својим уређајима да бисте се пријавили једним додиром било где.";
 "GoBack" = "Ићи назад";
 "GotIt" = "Разумем";
+/* masterPasswordUnlock is the name of some data we want to delete, so there's no need to localize it. */
+"ClearMasterPasswordUnlock" = "Clear masterPasswordUnlock";
 "ClearSsoCookies" = "Обриши SSO колачиће";
 "GenerateCrash" = "Генерирај извештај пада";
 "GenerateErrorReport" = "Генеришите извештај о грешци";
@@ -1061,6 +1063,8 @@
 "ReplaceCertificate" = "Преписати сертификат";
 "ReplaceExistingCertificate" = "Замените постојећи сертификат";
 "UnableToReadCertificateFile" = "Није могуће прочитати датотеку сертификата.";
+/* masterPasswordUnlock is the name of some data we want to delete, so there's no need to localize it. */
+"MasterPasswordUnlockCleared" = "masterPasswordUnlock cleared.";
 "SsoCookiesCleared" = "SSO колачићи обрисани";
 "YourRequestWasInterruptedBecauseTheAppNeededToReAuthenticatePleaseTryAgain" = "Ваш захтев је прекинут јер је апликација морала поново да се аутентификује. Молимо вас, покушајте поново.";
 "AutofillWithBitwardenDescriptionLong" = "Bitwarden може да предлаже ваше лозинке и друге акредитиве када се пријављујете у апликације и на веб-сајтове.";
@@ -1085,6 +1089,8 @@
 "ExternalLink" = "Екстерни линк";
 "YourNextChargeIsForXDueOnY" = "Your next charge is for **%1$@**, due on **%2$@**.";
 "WeCouldNotProcessYourPaymentUpdateYourPaymentMethodDescriptionLong" = "We could not process your payment. Update your payment method before your subscription ends on **%1$@**.";
+/* Error message shown when the Premium Plan screen fails to load subscription data, with a prompt to retry. */
+"WeCouldntLoadYourSubscriptionDetailsPleaseRetry" = "We couldn't load your subscription details. Please try again.";
 "YourSubscriptionWasCanceledOnXDescriptionLong" = "Your subscription was canceled on **%1$@**. Resubscribe to continue using Premium features.";
 "YourSubscriptionExpiredOnXDescriptionLong" = "Your subscription expired on **%1$@**. Resubscribe to continue using Premium features.";
 "YourSubscriptionIsScheduledToCancelOnXDescriptionLong" = "Your subscription is scheduled to cancel on **%1$@**. You can reinstate it anytime before then.";
@@ -1094,7 +1100,6 @@
 "NegativeX" = "-%1$@";
 "UnknownStatus" = "Unknown";
 "YourSubscriptionStatusIsUnknownVisitTheWebAppDescriptionLong" = "Your subscription status could not be determined. Please visit the web app for more details or update to the latest version.";
-"AtTheMomentPremiumPlanIsNotAvailableDescriptionLong" = "At the moment Premium plan is not available, please try again later.";
 "UnlockMoreAdvancedFeaturesWithPremiumPlan" = "Откључајте више напредних функција уз Премијум план.";
 "BuiltInAuthenticator" = "Уграђени аутентификатор";
 "EmergencyAccess" = "Хитан приступ";
@@ -1110,6 +1115,9 @@
 "UpgradePending" = "Upgrade pending";
 "YourUpgradeIsBeingProcessedDescriptionLong" = "Your upgrade is being processed. You'll remain on the free plan until it's complete. Sync now to check, or continue and it will update automatically.";
 "UpgradedToPremium" = "Надограђено на премијум";
+"SubscriptionNeedsAttention" = "Your subscription needs attention";
+"CheckYourPlanForDetails" = "Check your plan for details.";
+"ViewPlan" = "View plan";
 "YouNowHaveAccessToAdvancedSecurityDescriptionLong" = "You now have access to advanced security features. Learn more about what's included with Premium.";
 "YouNowHaveAccessToAllAdvancedSecurityFeatures" = "You now have access to all advanced security features.";
 "YoullGoToStripeSecureCheckoutToCompleteYourPurchase" = "Ићи ћете на Stripe-ову сигурну наплату да бисте довршили своју куповину.";
