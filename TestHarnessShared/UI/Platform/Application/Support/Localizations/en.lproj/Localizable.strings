@@ -6,6 +6,7 @@
 "CardDetails" = "Card Details";
 "CardholderName" = "Cardholder Name";
 "CardNumber" = "Card Number";
+"ChallengeMismatchReceived" = "The challenge in the client data did not match the challenge sent to the authenticator.";
 "ConfirmPassword" = "Confirm Password";
 "CreateAccount" = "Create Account";
 "CreateAccountForm" = "Create Account Form";
@@ -23,12 +24,16 @@
 "ExpirationYear" = "Expiration Year";
 "FileShare" = "File Share";
 "FormValues" = "Form Values";
+"MalformedClientDataChallengeReceived" = "The client data's challenge was not valid base64url.";
+"MalformedClientDataJSONReceived" = "The client data JSON could not be decoded.";
 "MalformedCOSEKeyReceived" = "The credential's public key could not be decoded.";
 "MalformedCredentialIdLengthReceived" = "The credential ID length did not fit within the authenticator data.";
 "MalformedTopLevelCBORReceived" = "The attestation object's top-level CBOR structure could not be decoded.";
 "MissingAttestationObjectReceived" = "The authorization response did not include an attestation object.";
 "MissingAttestedCredentialDataReceived" = "The authenticator data did not include attested credential data.";
 "MissingAuthDataReceived" = "The attestation object did not contain authenticator data.";
+"MissingClientDataChallengeReceived" = "The client data JSON did not contain a challenge field.";
+"MissingClientDataTypeReceived" = "The client data JSON did not contain a type field.";
 "PasskeyAutofill" = "Passkey Autofill";
 "PasskeyCreatedButNotSaved" = "Passkey created, but not saved for later verification.";
 "PasskeyRegisteredSuccessfully" = "Passkey registered successfully.";
@@ -52,6 +57,7 @@
 "TOTPAutofillForm" = "TOTP Autofill Form";
 "TapTheTOTPCodeFieldAndSelectDescriptionLong" = "Tap the TOTP Code field and select a code from Bitwarden. Requires Bitwarden PM as AutoFill provider and a saved Login with a TOTP seed.";
 "TOTPCode" = "TOTP Code";
+"UnexpectedClientDataTypeReceived" = "The client data type (%@) was not \"webauthn.create\".";
 "UnexpectedCredentialTypeReceived" = "Unexpected credential type received.";
 "UnsupportedAlgorithmReceived" = "The credential's public key algorithm (%@) is not supported; expected ES256.";
 "UnsupportedCurveReceived" = "The credential's public key curve (%@) is not supported; expected P-256.";
