@@ -246,9 +246,6 @@ extension VaultListProcessor {
         state.hasPremium = await services.stateService.doesActiveAccountHavePremium()
 
         state.shouldShowArchiveOnboardingActionCard = await services.stateService.shouldDoArchiveOnboarding()
-
-        state.shouldShowUpgradedToPremiumActionCard = await services.billingService
-            .shouldShowUpgradedToPremiumActionCard()
     }
 
     /// Checks if the user is eligible for an app review prompt and schedules one if so.
@@ -435,6 +432,8 @@ extension VaultListProcessor {
     private func refreshPremiumActionCards() async {
         state.shouldShowSubscriptionAttentionCard =
             await services.billingService.shouldShowSubscriptionAttentionCard()
+        state.shouldShowUpgradedToPremiumActionCard =
+            await services.billingService.shouldShowUpgradedToPremiumActionCard()
 
         let isBannerDismissed = await services.stateService.isPremiumUpgradeBannerDismissed()
         guard !isBannerDismissed, !state.shouldShowSubscriptionAttentionCard else {
