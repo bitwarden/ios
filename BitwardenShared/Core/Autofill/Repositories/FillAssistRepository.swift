@@ -1,5 +1,4 @@
 import BitwardenKit
-import CryptoKit
 import Foundation
 
 // MARK: - FillAssistRepository
@@ -37,16 +36,6 @@ private enum FillAssistFingerprintError: Error {
 /// The default implementation of `FillAssistRepository`.
 ///
 class DefaultFillAssistRepository: FillAssistRepository {
-    // MARK: Private Static Properties
-
-    /// The JSON encoder used to compute the integrity fingerprint. Sorted keys ensure the
-    /// encoded bytes are deterministic regardless of dictionary iteration order.
-    private static let fingerprintEncoder: JSONEncoder = {
-        let encoder = JSONEncoder()
-        encoder.outputFormatting = [.sortedKeys]
-        return encoder
-    }()
-
     // MARK: Private Properties
 
     /// The store for persisting fill-assist cached data.
@@ -171,7 +160,7 @@ class DefaultFillAssistRepository: FillAssistRepository {
         appSettingsStore.setFillAssistCachedData(data, userId: userId)
         appSettingsStore.setFillAssistLastFetchTimestamp(timeProvider.presentTime, userId: userId)
 
-        if let newFingerprint = try? fingerprint(for: data) {
+        if let newFingerprint = try? data.integrityFingerprint() {
             try? await keychainRepository.setUserAuthKey(
                 for: .fillAssistRulesFingerprint(userId: userId),
                 value: newFingerprint,
@@ -200,7 +189,7 @@ class DefaultFillAssistRepository: FillAssistRepository {
         )
 
         guard let storedFingerprint,
-              let computed = try? fingerprint(for: cached),
+              let computed = try? cached.integrityFingerprint(),
               storedFingerprint == computed
         else {
             appSettingsStore.setFillAssistCachedData(nil, userId: userId)
@@ -209,16 +198,6 @@ class DefaultFillAssistRepository: FillAssistRepository {
         }
 
         return cached
-    }
-
-    /// Computes a SHA-256 integrity fingerprint for the given cached data, using a sorted-keys
-    /// JSON encoding so the result is deterministic regardless of dictionary iteration order.
-    ///
-    /// - Parameter data: The cached data to fingerprint.
-    /// - Returns: A lowercase hexadecimal SHA-256 digest of the encoded data.
-    ///
-    private func fingerprint(for data: FillAssistCachedData) throws -> String {
-        try Self.fingerprintEncoder.encode(data).generatedHash(using: SHA256.self)
     }
 
     /// Builds a `[hostname: FillAssistHostRules]` dictionary by pooling all non-null field

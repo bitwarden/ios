@@ -1,3 +1,5 @@
+import BitwardenKit
+import CryptoKit
 import Foundation
 
 // MARK: - FillAssistCachedData
@@ -13,6 +15,27 @@ struct FillAssistCachedData: Codable, Equatable {
 
     /// The fill-assist base URL at the time of caching.
     let sourceUrl: String
+}
+
+// MARK: - FillAssistCachedData Fingerprint
+
+extension FillAssistCachedData {
+    /// The JSON encoder used to compute the integrity fingerprint. Sorted keys ensure the
+    /// encoded bytes are deterministic regardless of dictionary iteration order.
+    private static let fingerprintEncoder: JSONEncoder = {
+        let encoder = JSONEncoder()
+        encoder.outputFormatting = [.sortedKeys]
+        return encoder
+    }()
+
+    /// Computes a SHA-256 integrity fingerprint for this cached data, using a sorted-keys
+    /// JSON encoding so the result is deterministic regardless of dictionary iteration order.
+    ///
+    /// - Returns: A lowercase hexadecimal SHA-256 digest of the encoded data.
+    ///
+    func integrityFingerprint() throws -> String {
+        try Self.fingerprintEncoder.encode(self).generatedHash(using: SHA256.self)
+    }
 }
 
 // MARK: - FillAssistHostRules
