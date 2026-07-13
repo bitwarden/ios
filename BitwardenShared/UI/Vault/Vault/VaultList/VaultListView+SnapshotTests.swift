@@ -290,8 +290,6 @@ class VaultListViewTests: BitwardenTestCase { // swiftlint:disable:this type_bod
         assertSnapshots(of: subject, as: [.defaultPortrait, .defaultPortraitDark])
     }
 
-    // The following tests have no direct preview counterpart.
-
     @MainActor
     func disabletest_snapshot_flightRecorderToastBanner() {
         processor.state.loadingState = .data([])
