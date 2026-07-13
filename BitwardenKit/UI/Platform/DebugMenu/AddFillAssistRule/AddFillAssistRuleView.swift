@@ -24,6 +24,7 @@ struct AddFillAssistRuleView: View {
                 footer: "The bare host to match, e.g. \"bitwarden.com\"",
                 accessibilityIdentifier: "AddFillAssistRuleDomainField",
             )
+            .textFieldConfiguration(.organizationIdentifier)
 
             BitwardenTextField(
                 title: "Username field id",
@@ -34,6 +35,7 @@ struct AddFillAssistRuleView: View {
                 footer: "The username field's \"id\" attribute, e.g. \"username\"",
                 accessibilityIdentifier: "AddFillAssistRuleUsernameIdField",
             )
+            .textFieldConfiguration(.organizationIdentifier)
 
             BitwardenTextField(
                 title: "Password field id",
@@ -44,6 +46,7 @@ struct AddFillAssistRuleView: View {
                 footer: "The password field's \"id\" attribute, e.g. \"password\"",
                 accessibilityIdentifier: "AddFillAssistRulePasswordIdField",
             )
+            .textFieldConfiguration(.organizationIdentifier)
         }
         .navigationBar(title: "Add Fill Assist Rule", titleDisplayMode: .inline)
         .scrollView()
