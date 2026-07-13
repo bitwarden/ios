@@ -169,6 +169,11 @@ final class DefaultCardTextParser: CardTextParser {
         return false
     }
 
+    /// Returns `true` if `digits` has a length valid for the brand detected from its leading digits.
+    private func hasValidLength(_ digits: String) -> Bool {
+        CardComponent.Brand.detect(from: digits).validDigitLengths.contains(digits.count)
+    }
+
     /// Returns `true` if `digits` satisfies the Luhn mod-10 checksum.
     private func isLuhnValid(_ digits: String) -> Bool {
         var sum = 0
@@ -181,10 +186,5 @@ final class DefaultCardTextParser: CardTextParser {
             sum += digit
         }
         return sum.isMultiple(of: 10)
-    }
-
-    /// Returns `true` if `digits` has a length valid for the brand detected from its leading digits.
-    private func hasValidLength(_ digits: String) -> Bool {
-        CardComponent.Brand.detect(from: digits).validDigitLengths.contains(digits.count)
     }
 }
