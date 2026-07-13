@@ -33,10 +33,11 @@ struct VaultListStateTests {
     // MARK: Tests
 
     /// `activeActionCard` returns the highest-priority active card across all 32 flag combinations,
-    /// or `nil` when no flags are set.
+    /// or `nil` when no flags are set. Tests use an empty vault so the import logins card is eligible.
     @Test(arguments: allCardSubsets)
     func activeActionCard(activeCards: [VaultListActionCard]) {
         var state = VaultListState()
+        state.loadingState = .data([])
         for card in activeCards {
             switch card {
             case .importItems:
@@ -53,6 +54,16 @@ struct VaultListStateTests {
         }
         let expected = Self.priorityOrder.first { activeCards.contains($0) }
         #expect(state.activeActionCard == expected)
+    }
+
+    /// `activeActionCard` returns `nil` for the import logins card when the vault is populated,
+    /// preserving the original behavior where the card only appeared on an empty vault.
+    @Test
+    func activeActionCard_importItems_hiddenInPopulatedVault() {
+        var state = VaultListState()
+        state.importLoginsSetupProgress = .incomplete
+        state.loadingState = .data([VaultListSection(id: "1", items: [VaultListItem.fixture()], name: "")])
+        #expect(state.activeActionCard == nil)
     }
 
     /// `navigationTitle` returns "My Vault" when no organizations are present, and "Vaults"

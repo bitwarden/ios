@@ -85,13 +85,21 @@ struct VaultListState: Equatable {
     // MARK: Computed Properties
 
     /// The active action card to show, determined by priority. Only one card is shown at a time.
+    /// The import logins card is additionally gated on the vault being empty, since it is only
+    /// relevant to users who have not yet added any items.
     var activeActionCard: VaultListActionCard? {
         if shouldShowUpgradedToPremiumActionCard { return .upgradedToPremium }
         if shouldShowPremiumUpgradeActionCard { return .upgradeNeeded }
         if shouldShowSubscriptionAttentionCard { return .subscriptionNeedsAttention }
         if shouldShowArchiveOnboardingActionCard { return .introducingArchive }
-        if shouldShowImportLoginsActionCard { return .importItems }
+        if shouldShowImportLoginsActionCard, isVaultEmpty { return .importItems }
         return nil
+    }
+
+    /// Whether the vault is in an empty data state (loaded successfully with no sections).
+    var isVaultEmpty: Bool {
+        guard case let .data(sections) = loadingState else { return false }
+        return sections.isEmpty
     }
 
     /// The navigation title for the view.
