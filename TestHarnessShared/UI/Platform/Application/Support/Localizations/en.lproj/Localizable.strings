@@ -7,6 +7,7 @@
 "CardDetails" = "Card Details";
 "CardholderName" = "Cardholder Name";
 "CardNumber" = "Card Number";
+"ChallengeMismatchReceived" = "The challenge in the client data did not match the challenge sent to the authenticator.";
 "ClientDataMismatchReceived" = "The client data's type or challenge did not match the request.";
 "ConfirmPassword" = "Confirm Password";
 "CreateAccount" = "Create Account";
