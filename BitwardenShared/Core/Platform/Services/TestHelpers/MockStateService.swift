@@ -21,6 +21,11 @@ class MockStateService: StateService, ActiveAccountStateProvider, AutofillStateS
     var accountsLoggedOut = [String]()
     var activeAccount: Account?
     var accounts: [Account]?
+    var addFillAssistDebugRuleCalled = false
+    var addFillAssistDebugRuleDomain: String?
+    var addFillAssistDebugRulePasswordId: String?
+    var addFillAssistDebugRuleResult: Result<Void, Error> = .success(())
+    var addFillAssistDebugRuleUsernameId: String?
     var addSitePromptShown = false
     var allowSyncOnRefresh = [String: Bool]()
     var allowUniversalClipboard = [String: Bool]()
@@ -141,6 +146,18 @@ class MockStateService: StateService, ActiveAccountStateProvider, AutofillStateS
     func addAccount(_ account: Account) async {
         accountsAdded.append(account)
         activeAccount = account
+    }
+
+    func addFillAssistDebugRule(
+        domain: String,
+        usernameFieldId: String,
+        passwordFieldId: String,
+    ) async throws {
+        addFillAssistDebugRuleCalled = true
+        addFillAssistDebugRuleDomain = domain
+        addFillAssistDebugRuleUsernameId = usernameFieldId
+        addFillAssistDebugRulePasswordId = passwordFieldId
+        try addFillAssistDebugRuleResult.get()
     }
 
     func clearMasterPasswordUnlockForActiveAccount() async throws {
