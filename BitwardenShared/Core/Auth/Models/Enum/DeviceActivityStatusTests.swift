@@ -68,18 +68,25 @@ struct DeviceActivityStatusTests {
         #expect(DeviceActivityStatus(from: date, timeProvider: timeProvider) == .lastWeek)
     }
 
-    /// `init(from:timeProvider:)` returns `.thisMonth` at the 15-day boundary.
+    /// `init(from:timeProvider:)` returns `.thisMonth` when the date is more than two weeks ago
+    /// but still falls within the current calendar month.
     @Test
-    func init_thisMonth_lowerBound() throws {
-        let date = try #require(Calendar.current.date(byAdding: .day, value: -15, to: timeProvider.presentTime))
-        #expect(DeviceActivityStatus(from: date, timeProvider: timeProvider) == .thisMonth)
+    func init_thisMonth_sameCalendarMonth() throws {
+        let present = try #require(DateComponents(calendar: .current, year: 2024, month: 6, day: 30).date)
+        let date = try #require(DateComponents(calendar: .current, year: 2024, month: 6, day: 15).date)
+        let provider = MockTimeProvider(.mockTime(present))
+        #expect(DeviceActivityStatus(from: date, timeProvider: provider) == .thisMonth)
     }
 
-    /// `init(from:timeProvider:)` returns `.thisMonth` at the 30-day boundary.
+    /// `init(from:timeProvider:)` returns `.overThirtyDaysAgo`, not `.thisMonth`, when the date is
+    /// more than two weeks ago and falls in a previous calendar month, even if fewer than 30 days
+    /// have elapsed.
     @Test
-    func init_thisMonth_upperBound() throws {
-        let date = try #require(Calendar.current.date(byAdding: .day, value: -30, to: timeProvider.presentTime))
-        #expect(DeviceActivityStatus(from: date, timeProvider: timeProvider) == .thisMonth)
+    func init_notThisMonth_previousCalendarMonth() throws {
+        let present = try #require(DateComponents(calendar: .current, year: 2024, month: 7, day: 15).date)
+        let date = try #require(DateComponents(calendar: .current, year: 2024, month: 6, day: 20).date)
+        let provider = MockTimeProvider(.mockTime(present))
+        #expect(DeviceActivityStatus(from: date, timeProvider: provider) == .overThirtyDaysAgo)
     }
 
     /// `init(from:timeProvider:)` returns `.overThirtyDaysAgo` when the date is 31 days ago.

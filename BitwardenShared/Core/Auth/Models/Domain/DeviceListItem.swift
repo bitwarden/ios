@@ -43,46 +43,12 @@ struct DeviceListItem: Equatable, Identifiable, Sendable {
 
     /// The most recent pending login request for this device, if any.
     var pendingRequest: LoginRequest?
+}
 
+// MARK: - DeviceListItem Extension
+
+extension DeviceListItem {
     // MARK: Initialization
-
-    /// Initializes a `DeviceListItem` with all properties.
-    ///
-    /// - Parameters:
-    ///   - activityStatus: The activity status of the device.
-    ///   - deviceType: The type of the device.
-    ///   - displayName: The display name of the device.
-    ///   - firstLogin: The date of the first login on this device.
-    ///   - id: The server-assigned UUID for this device record.
-    ///   - identifier: The client-generated UUID identifying the app installation.
-    ///   - isCurrentSession: Whether this is the current session's device.
-    ///   - isTrusted: Whether the device is trusted.
-    ///   - lastActivityDate: The date of the last activity on this device.
-    ///   - pendingRequest: The most recent pending login request for this device.
-    ///
-    init(
-        activityStatus: DeviceActivityStatus,
-        deviceType: DeviceType,
-        displayName: String,
-        firstLogin: Date,
-        id: String,
-        identifier: String,
-        isCurrentSession: Bool,
-        isTrusted: Bool,
-        lastActivityDate: Date?,
-        pendingRequest: LoginRequest?,
-    ) {
-        self.activityStatus = activityStatus
-        self.deviceType = deviceType
-        self.displayName = displayName
-        self.firstLogin = firstLogin
-        self.id = id
-        self.identifier = identifier
-        self.isCurrentSession = isCurrentSession
-        self.isTrusted = isTrusted
-        self.lastActivityDate = lastActivityDate
-        self.pendingRequest = pendingRequest
-    }
 
     /// Initializes a `DeviceListItem` from a `DeviceResponse`.
     ///

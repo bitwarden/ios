@@ -30,5 +30,5 @@ struct DeviceResponse: JSONResponse, Equatable, Sendable, Identifiable, Hashable
     let name: String?
 
     /// The numeric type of the device.
-    let type: DeviceType
+    @DefaultValue var type: DeviceType
 }
