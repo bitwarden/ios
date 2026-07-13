@@ -32,6 +32,12 @@ public struct DebugMenuView: View {
                 Text("Account decryption")
             }
 
+            Section {
+                fillAssistSection
+            } header: {
+                Text("Fill Assist")
+            }
+
             userIDSection
 
             Section {
@@ -120,6 +126,17 @@ public struct DebugMenuView: View {
             Text(Localizations.clearMasterPasswordUnlock)
         }
         .accessibilityIdentifier("ClearMasterPasswordUnlockButton")
+    }
+
+    /// The section for adding a Fill Assist debug rule, to support testing Fill Assist against
+    /// custom pages without waiting for a real forms-map sync.
+    private var fillAssistSection: some View {
+        Button {
+            store.send(.addFillAssistRuleTapped)
+        } label: {
+            Text("Add fill assist rule")
+        }
+        .accessibilityIdentifier("AddFillAssistRuleButton")
     }
 
     /// The SSO cookies section.

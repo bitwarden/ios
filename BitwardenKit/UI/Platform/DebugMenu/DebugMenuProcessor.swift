@@ -60,6 +60,8 @@ final class DebugMenuProcessor: StateProcessor<DebugMenuState, DebugMenuAction, 
 
     override func receive(_ action: DebugMenuAction) {
         switch action {
+        case .addFillAssistRuleTapped:
+            coordinator.navigate(to: .addFillAssistRule)
         case .copyUserID:
             copyUserID()
         case .dismissTapped:
