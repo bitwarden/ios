@@ -12,6 +12,10 @@ public enum AppRoute: Equatable {
     /// A route to the extension setup interface.
     case extensionSetup(ExtensionSetupRoute)
 
+    /// A route to the generate password credential screen in the autofill extension.
+    @available(iOS 26.2, iOSApplicationExtension 26.2, *)
+    case generatePasswordCredential
+
     /// A route to show a login request.
     case loginRequest(LoginRequest)
 

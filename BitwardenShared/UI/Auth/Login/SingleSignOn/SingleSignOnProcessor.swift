@@ -8,7 +8,7 @@ import Foundation
 /// An object that is signaled when specific circumstances in the single sign on flow have been encountered.
 ///
 @MainActor
-protocol SingleSignOnFlowDelegate: AnyObject {
+protocol SingleSignOnFlowDelegate: AnyObject { // sourcery: AutoMockable
     /// Called when the single sign on flow has been completed successfully.
     ///
     /// - Parameter code: The code that was returned by the single sign on web auth process.
@@ -117,7 +117,6 @@ final class SingleSignOnProcessor: StateProcessor<SingleSignOnState, SingleSignO
             let result = try await services.authService.generateSingleSignOnUrl(from: state.identifierText)
             coordinator.navigate(
                 to: .singleSignOn(
-                    callbackUrlScheme: services.authService.callbackUrlScheme,
                     state: result.state,
                     url: result.url,
                 ),
@@ -239,7 +238,6 @@ extension SingleSignOnProcessor: SingleSignOnFlowDelegate {
                     try await services.authRepository.unlockVaultWithKeyConnectorKey(
                         keyConnectorKeyWrappedUserKey: keyConnectorKeyWrappedUserKey,
                         keyConnectorURL: keyConnectorUrl,
-                        orgIdentifier: state.identifierText,
                     )
                     coordinator.hideLoadingOverlay()
                     await coordinator.handleEvent(.didCompleteAuth)

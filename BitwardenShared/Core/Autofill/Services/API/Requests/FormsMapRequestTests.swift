@@ -7,15 +7,15 @@ import Testing
 struct FormsMapRequestTests {
     // MARK: Tests
 
-    /// `path` returns the path for the forms map JSON file.
-    @Test
-    func path() {
-        #expect(FormsMapRequest().path == "/forms.v0.json")
-    }
-
     /// `method` returns the correct HTTP method for the request.
     @Test
     func method() {
-        #expect(FormsMapRequest().method == .get)
+        #expect(FormsMapRequest(filename: "forms.v1.json").method == .get)
+    }
+
+    /// `path` returns a path built from the given filename.
+    @Test
+    func path() {
+        #expect(FormsMapRequest(filename: "forms.v1.json").path == "/forms.v1.json")
     }
 }

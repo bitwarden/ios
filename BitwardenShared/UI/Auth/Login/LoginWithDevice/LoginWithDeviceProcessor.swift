@@ -117,7 +117,6 @@ final class LoginWithDeviceProcessor: StateProcessor<
             try await services.authRepository.unlockVaultFromLoginWithDevice(
                 privateKey: privateKey,
                 key: key,
-                masterPasswordHash: request.masterPasswordHash,
             )
 
             // If login was successful, navigate to the vault.
@@ -181,7 +180,6 @@ final class LoginWithDeviceProcessor: StateProcessor<
                 let unlockMethod: TwoFactorUnlockMethod? = if let key = request?.key, let authRequestResponse {
                     TwoFactorUnlockMethod.loginWithDevice(
                         key: key,
-                        masterPasswordHash: request?.masterPasswordHash,
                         privateKey: authRequestResponse.privateKey,
                     )
                 } else {
