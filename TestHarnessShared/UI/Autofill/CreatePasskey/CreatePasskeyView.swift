@@ -169,12 +169,12 @@ struct CreatePasskeyView: View {
                 var state = CreatePasskeyState()
                 state.status = .persistenceFailure(
                     credential: StoredPasskeyCredential(
+                        createdAt: Date(),
+                        credentialId: Data([0x01, 0x02, 0x03]),
+                        displayName: "User",
+                        publicKeyX963: Data(repeating: 0x04, count: 65),
                         rpId: "bitwarden.com",
                         userName: "user",
-                        displayName: "User",
-                        credentialId: Data([0x01, 0x02, 0x03]),
-                        publicKeyX963: Data(repeating: 0x04, count: 65),
-                        createdAt: Date(),
                     ),
                     message: "The disk is full.",
                 )

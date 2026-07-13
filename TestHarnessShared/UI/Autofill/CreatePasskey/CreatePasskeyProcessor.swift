@@ -102,6 +102,14 @@ class CreatePasskeyProcessor: StateProcessor<
 
         let registration = try await PasskeyAuthorizationBridge(window: window).register(request: request)
 
+        let clientData = try ClientDataJSONParser.parse(fromClientDataJSON: registration.rawClientDataJSON)
+        guard clientData.type == "webauthn.create" else {
+            throw PasskeyRegistrationError.unexpectedClientDataType(clientData.type)
+        }
+        guard clientData.challenge == challenge else {
+            throw PasskeyRegistrationError.challengeMismatch
+        }
+
         guard let attestationObject = registration.rawAttestationObject else {
             throw PasskeyRegistrationError.missingAttestationObject
         }
@@ -111,12 +119,12 @@ class CreatePasskeyProcessor: StateProcessor<
         // so this path continuously exercises the same CBOR parsing the future verify flow will
         // depend on.
         return StoredPasskeyCredential(
+            createdAt: Date(),
+            credentialId: parsed.credentialId,
+            displayName: resolvedDisplayName,
+            publicKeyX963: parsed.publicKeyX963,
             rpId: rpId,
             userName: userName,
-            displayName: resolvedDisplayName,
-            credentialId: parsed.credentialId,
-            publicKeyX963: parsed.publicKeyX963,
-            createdAt: Date(),
         )
     }
 
@@ -188,10 +196,20 @@ enum PasskeyRegistrationError: Error, LocalizedError {
     /// The authorization response did not include an attestation object.
     case missingAttestationObject
 
+    /// The client data's `type` was not `"webauthn.create"`.
+    case unexpectedClientDataType(String)
+
+    /// The challenge in the client data did not match the challenge sent to the authenticator.
+    case challengeMismatch
+
     var errorDescription: String? {
         switch self {
         case .missingAttestationObject:
             Localizations.missingAttestationObjectReceived
+        case let .unexpectedClientDataType(type):
+            Localizations.unexpectedClientDataTypeReceived(type)
+        case .challengeMismatch:
+            Localizations.challengeMismatchReceived
         }
     }
 }

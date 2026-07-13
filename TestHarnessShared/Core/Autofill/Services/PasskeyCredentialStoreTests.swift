@@ -93,12 +93,12 @@ private extension StoredPasskeyCredential {
         createdAt: Date = Date(timeIntervalSince1970: 0),
     ) -> StoredPasskeyCredential {
         StoredPasskeyCredential(
+            createdAt: createdAt,
+            credentialId: credentialId,
+            displayName: displayName,
+            publicKeyX963: publicKeyX963,
             rpId: rpId,
             userName: userName,
-            displayName: displayName,
-            credentialId: credentialId,
-            publicKeyX963: publicKeyX963,
-            createdAt: createdAt,
         )
     }
 }
