@@ -433,10 +433,7 @@ private extension PremiumSubscription {
         PremiumPlanView(
             store: Store(
                 processor: StateProcessor(
-                    state: PremiumPlanState(
-                        planStatus: .unpaid,
-                        subscription: .previewUnpaid,
-                    ),
+                    state: PremiumPlanState(subscription: .previewUnpaid),
                 ),
             ),
         )
