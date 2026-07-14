@@ -89,6 +89,12 @@ protocol StateService: AnyObject, DebugStateService {
 // MARK: - DebugStateService
 
 extension StateService {
+    func addFillAssistDebugRule(
+        domain: String,
+        usernameFieldId: String,
+        passwordFieldId: String,
+    ) async throws {}
+
     func clearMasterPasswordUnlockForActiveAccount() async throws {}
 }
 
