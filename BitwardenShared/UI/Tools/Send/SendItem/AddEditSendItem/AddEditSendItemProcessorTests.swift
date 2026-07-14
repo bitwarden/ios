@@ -145,13 +145,13 @@ class AddEditSendItemProcessorTests: BitwardenTestCase { // swiftlint:disable:th
         XCTAssertFalse(subject.state.isSendDisabled)
         XCTAssertFalse(subject.state.isSendHideEmailDisabled)
 
-        policyService.isSendDisabledByPolicy = true
+        policyService.getSendPolicyOptionsResult.isSendDisabled = true
         await subject.perform(.loadData)
         XCTAssertTrue(subject.state.isSendDisabled)
         XCTAssertFalse(subject.state.isSendHideEmailDisabled)
 
-        policyService.isSendDisabledByPolicy = false
-        policyService.isSendHideEmailDisabledByPolicy = true
+        policyService.getSendPolicyOptionsResult.isSendDisabled = false
+        policyService.getSendPolicyOptionsResult.isHideEmailDisabled = true
         await subject.perform(.loadData)
         XCTAssertFalse(subject.state.isSendDisabled)
         XCTAssertTrue(subject.state.isSendHideEmailDisabled)

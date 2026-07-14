@@ -47,24 +47,18 @@ protocol PolicyService: AnyObject {
     ///
     func getRestrictedItemCipherTypes() async -> [CipherType]
 
-    /// Returns whether creating and editing Sends is disabled because of a policy.
-    ///
-    /// - Returns: Whether Sends are disabled.
-    ///
-    func isSendDisabledByPolicy() async -> Bool
-
-    /// Returns whether the send hide email option is disabled because of a policy.
-    ///
-    /// - Returns: Whether the send hide email option is disabled.
-    ///
-    func isSendHideEmailDisabledByPolicy() async -> Bool
-
     /// Gets the organization ID with the earliest revision date that is applying a policy to the active user.
     ///
     /// - Parameter policyType: The policy to check.
     /// - Returns: The organization ID with the earliest revision date applying the policy, or `nil` if none.
     ///
     func getEarliestOrganizationApplyingPolicy(_ policyType: PolicyType) async -> String?
+
+    /// Returns the Send restrictions enforced by policy for the active user.
+    ///
+    /// - Returns: A `SendPolicyOptions` describing the Send restrictions that apply to the user.
+    ///
+    func getSendPolicyOptions() async -> SendPolicyOptions
 
     /// Gets the organizations IDs that are applying the policy to the active user.
     ///
@@ -528,23 +522,18 @@ extension DefaultPolicyService {
         return policyWithEarliestRevisionDate(from: policies)?.organizationId
     }
 
-    func isSendDisabledByPolicy() async -> Bool {
-        if await configService.getFeatureFlag(.sendControls) {
-            await policyAppliesToUser(.sendControls) { policy in
-                policy[.disableSend]?.boolValue == true
-            }
-        } else {
-            await policyAppliesToUser(.disableSend)
+    func getSendPolicyOptions() async -> SendPolicyOptions {
+        guard await configService.getFeatureFlag(.sendControls) else {
+            return await SendPolicyOptions(
+                isHideEmailDisabled: policyAppliesToUser(.sendOptions) { policy in
+                    policy[.disableHideEmail]?.boolValue == true
+                },
+                isSendDisabled: policyAppliesToUser(.disableSend),
+            )
         }
-    }
 
-    func isSendHideEmailDisabledByPolicy() async -> Bool {
-        let policyType: PolicyType = await configService.getFeatureFlag(.sendControls)
-            ? .sendControls
-            : .sendOptions
-        return await policyAppliesToUser(policyType) { policy in
-            policy[.disableHideEmail]?.boolValue == true
-        }
+        let policies = await policiesApplyingToUser(.sendControls)
+        return SendPolicyOptions(sendControlsPolicies: policies)
     }
 
     func organizationsApplyingPolicyToUser(_ policyType: PolicyType) async -> [String] {

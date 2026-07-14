@@ -117,7 +117,7 @@ class SendListProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         await subject.perform(.loadData)
         XCTAssertFalse(subject.state.isSendDisabled)
 
-        policyService.isSendDisabledByPolicy = true
+        policyService.getSendPolicyOptionsResult.isSendDisabled = true
         await subject.perform(.loadData)
         XCTAssertTrue(subject.state.isSendDisabled)
     }

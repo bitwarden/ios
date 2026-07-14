@@ -230,8 +230,9 @@ class AddEditSendItemProcessor: // swiftlint:disable:this type_body_length
     /// Load any initial data for the view.
     ///
     private func loadData() async {
-        state.isSendDisabled = await services.policyService.isSendDisabledByPolicy()
-        state.isSendHideEmailDisabled = await services.policyService.isSendHideEmailDisabledByPolicy()
+        let sendPolicyOptions = await services.policyService.getSendPolicyOptions()
+        state.isSendDisabled = sendPolicyOptions.isSendDisabled
+        state.isSendHideEmailDisabled = sendPolicyOptions.isHideEmailDisabled
         state.hasPremium = await services.sendRepository.doesActiveAccountHavePremium()
         await refreshProfileState()
 
