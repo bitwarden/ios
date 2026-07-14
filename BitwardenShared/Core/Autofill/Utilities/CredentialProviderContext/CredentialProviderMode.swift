@@ -38,21 +38,6 @@ public enum CredentialProviderMode {
     case savePasswordCredential(any SavePasswordRequestProxy, userInteraction: Bool)
 }
 
-/// Protocol to bypass using @available for passkey requests.
-public protocol PasskeyCredentialRequest {}
-
-/// Protocol to bypass using @available for OTP credential identities.
-public protocol OneTimeCodeCredentialIdentityProxy {}
-
-/// Protocol to bypass using @available for generate password requests (iOS 26.2+).
-public protocol GeneratePasswordRequestProxy {
-    /// Developer-provided password rules for the password field.
-    var passwordFieldPasswordRules: String? { get }
-
-    /// Password rules sourced from the quirks database.
-    var passwordRulesFromQuirks: String? { get }
-}
-
 public extension CredentialProviderMode {
     /// The password rules string for the `generatePasswordCredential` mode, or `nil` for all other modes.
     /// Prefers developer-provided `passwordFieldPasswordRules` over quirks-database rules.
@@ -60,6 +45,21 @@ public extension CredentialProviderMode {
         guard case let .generatePasswordCredential(proxy, _) = self else { return nil }
         return proxy.passwordFieldPasswordRules ?? proxy.passwordRulesFromQuirks
     }
+}
+
+/// Protocol to bypass using @available for passkey requests.
+public protocol PasskeyCredentialRequest {}
+
+/// Protocol to bypass using @available for OTP credential identities.
+public protocol OneTimeCodeCredentialIdentityProxy {}
+
+/// Protocol to bypass using @available for generate password requests (iOS 26.2+).
+public protocol GeneratePasswordRequestProxy { // sourcery: AutoMockable
+    /// Developer-provided password rules for the password field.
+    var passwordFieldPasswordRules: String? { get }
+
+    /// Password rules sourced from the quirks database.
+    var passwordRulesFromQuirks: String? { get }
 }
 
 public extension GeneratePasswordRequestProxy {

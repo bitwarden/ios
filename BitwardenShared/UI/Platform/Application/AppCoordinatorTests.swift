@@ -522,7 +522,8 @@ class AppCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         guard #available(iOS 26.2, iOSApplicationExtension 26.2, *) else {
             throw XCTSkip("Test requires iOS 26.2")
         }
-        let request = MockPasswordRulesRequest(passwordFieldPasswordRules: "minlength: 20;")
+        let request = MockGeneratePasswordRequestProxy()
+        request.passwordFieldPasswordRules = "minlength: 20;"
         let extensionDelegate = MockCredentialProviderExtensionDelegate()
         extensionDelegate.extensionMode = .generatePasswordCredential(request, userInteraction: true)
         subject = AppCoordinator(
@@ -541,7 +542,6 @@ class AppCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this type_bo
             [.generator(staticType: .password, passwordRules: "minlength: 20;", savePasswordHistory: false)],
         )
     }
-
 
     /// `navigate(to:)` with `.generatePasswordCredential` does nothing when the extension delegate
     /// is not a `CredentialProviderExtensionDelegate`.
