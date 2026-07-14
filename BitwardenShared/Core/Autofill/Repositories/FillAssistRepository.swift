@@ -162,10 +162,14 @@ class DefaultFillAssistRepository: FillAssistRepository {
         appSettingsStore.setFillAssistLastFetchTimestamp(timeProvider.presentTime, userId: userId)
 
         if let newFingerprint = try? fingerprint(for: data) {
-            try? await keychainRepository.setUserAuthKey(
-                for: .fillAssistRulesFingerprint(userId: userId),
-                value: newFingerprint,
-            )
+            do {
+                try await keychainRepository.setUserAuthKey(
+                    for: .fillAssistRulesFingerprint(userId: userId),
+                    value: newFingerprint,
+                )
+            } catch {
+                errorReporter.log(error: error)
+            }
         } else {
             errorReporter.log(error: FillAssistFingerprintError.encodingFailed)
         }
