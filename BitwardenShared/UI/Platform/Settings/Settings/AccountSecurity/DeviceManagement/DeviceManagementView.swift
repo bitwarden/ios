@@ -46,16 +46,10 @@ struct DeviceManagementView: View {
 
     /// The empty view.
     private var empty: some View {
-        VStack(spacing: 20) {
-            Image(decorative: Asset.Images.Illustrations.devices)
-                .resizable()
-                .frame(width: 100, height: 100)
-
-            Text(Localizations.noDevicesFound)
-                .styleGuide(.body)
-                .foregroundStyle(SharedAsset.Colors.textPrimary.swiftUIColor)
-                .multilineTextAlignment(.center)
-        }
+        IllustratedMessageView(
+            image: Asset.Images.Illustrations.devices,
+            message: Localizations.noDevicesFound,
+        )
         .frame(maxWidth: .infinity)
     }
 
@@ -64,16 +58,14 @@ struct DeviceManagementView: View {
     /// - Parameter devices: The devices to display.
     ///
     private func devicesList(_ devices: [DeviceListItem]) -> some View {
-        VStack(spacing: 24) {
-            ContentBlock(dividerLeadingPadding: 16) {
-                ForEach(devices) { device in
-                    DeviceRow(
-                        device: device,
-                        onTap: {
-                            store.send(.deviceTapped(device))
-                        },
-                    )
-                }
+        ContentBlock(dividerLeadingPadding: 16) {
+            ForEach(devices) { device in
+                DeviceRow(
+                    device: device,
+                    onTap: {
+                        store.send(.deviceTapped(device))
+                    },
+                )
             }
         }
     }

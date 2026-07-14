@@ -156,18 +156,16 @@ final class DeviceManagementProcessor: StateProcessor<
 
         for request in sortedRequests {
             guard !request.requestDeviceType.isEmpty else { continue }
-            // Match by platform name. Note: browser and extension variants of the same
-            // browser (e.g. chromeExtension and chromeBrowser) both map to "Chrome", so
-            // the match is best-effort when both device types are active simultaneously.
+            // Match by platform name, skipping devices that already have a pending request
+            // assigned so that multiple requests for the same platform (e.g. browser and
+            // extension variants that both map to "Chrome") can match distinct devices.
             if let index = updatedDevices.firstIndex(where: { device in
-                !device.deviceType.platform.isEmpty &&
+                device.pendingRequest == nil &&
+                    !device.deviceType.platform.isEmpty &&
                     device.deviceType.platform.lowercased()
                     == request.requestDeviceType.lowercased()
             }) {
-                // Only set if no pending request has been set yet (keeps the most recent).
-                if updatedDevices[index].pendingRequest == nil {
-                    updatedDevices[index].pendingRequest = request
-                }
+                updatedDevices[index].pendingRequest = request
             }
         }
 
