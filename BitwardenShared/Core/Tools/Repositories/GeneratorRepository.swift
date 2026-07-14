@@ -58,11 +58,19 @@ protocol GeneratorRepository: AnyObject {
     ///
     /// - Parameter rules: An optional password rules string (from the AutoFill credential API) to
     ///   apply on top of saved options.
-    /// - Returns: The effective options and whether a policy is in effect.
+    /// - Returns: The effective options and whether an org policy is in effect.
     ///
     func getEffectivePasswordGenerationOptions(
         rules: String?,
     ) async throws -> (options: PasswordGenerationOptions, isPolicyInEffect: Bool)
+
+    /// Parses a password rules string into a `PasswordGeneratorRequest` that encodes the
+    /// site-specific constraints (minimum length, required character classes, etc.).
+    ///
+    /// - Parameter rules: The password rules string from the AutoFill credential API.
+    /// - Returns: The parsed request, or `nil` if the string is absent or unparsable.
+    ///
+    func passwordRulesRequest(rules: String) async -> PasswordGeneratorRequest?
 
     /// Gets the password generation options for the active account.
     ///
@@ -254,7 +262,6 @@ extension DefaultGeneratorRepository: GeneratorRepository {
             options.type = .password
             options.overridePasswordType = false
             options.apply(rulesRequest)
-            return (options, true)
         }
 
         return (options, isPolicyInEffect)

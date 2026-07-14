@@ -40,8 +40,6 @@ class MockGeneratorRepository: GeneratorRepository {
     // swiftlint:disable identifier_name
     var getEffectivePasswordGenerationOptionsCalled = false
     var getEffectivePasswordGenerationOptionsRules: String?
-    var getEffectivePasswordGenerationOptionsResult: Result<PasswordGenerationOptions, Error> =
-        .success(PasswordGenerationOptions())
     var getEffectivePasswordGenerationOptionsIsPolicyInEffect = false
     // swiftlint:enable identifier_name
 
@@ -114,7 +112,7 @@ class MockGeneratorRepository: GeneratorRepository {
     ) async throws -> (options: PasswordGenerationOptions, isPolicyInEffect: Bool) {
         defer { getEffectivePasswordGenerationOptionsCalled = true }
         getEffectivePasswordGenerationOptionsRules = rules
-        let options = try getEffectivePasswordGenerationOptionsResult.get()
+        let options = try await getPasswordGenerationOptions()
         return (options, getEffectivePasswordGenerationOptionsIsPolicyInEffect)
     }
 
