@@ -7,4 +7,8 @@ public enum DebugMenuRoute: Equatable, Hashable {
 
     /// A route to dismiss the screen currently presented modally.
     case dismiss
+
+    /// A route to dismiss the Add Fill Assist debug rule screen without signaling that the
+    /// debug menu itself was dismissed.
+    case dismissAddFillAssistRule
 }

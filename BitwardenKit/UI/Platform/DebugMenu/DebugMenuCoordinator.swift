@@ -65,6 +65,8 @@ public final class DebugMenuCoordinator: Coordinator, HasStackNavigator {
             stackNavigator?.dismiss {
                 self.delegate?.didDismissDebugMenu()
             }
+        case .dismissAddFillAssistRule:
+            stackNavigator?.dismiss()
         }
     }
 

@@ -52,7 +52,7 @@ final class AddFillAssistRuleProcessor: StateProcessor<
     override func receive(_ action: AddFillAssistRuleAction) {
         switch action {
         case .dismiss:
-            coordinator.navigate(to: .dismiss)
+            coordinator.navigate(to: .dismissAddFillAssistRule)
         case let .domainChanged(domain):
             state.domain = domain
         case let .passwordFieldIdChanged(id):
@@ -78,7 +78,7 @@ final class AddFillAssistRuleProcessor: StateProcessor<
                 usernameFieldId: state.usernameFieldId,
                 passwordFieldId: state.passwordFieldId,
             )
-            coordinator.navigate(to: .dismiss)
+            coordinator.navigate(to: .dismissAddFillAssistRule)
         } catch let error as InputValidationError {
             coordinator.showAlert(Alert.inputValidationAlert(error: error))
         } catch {
