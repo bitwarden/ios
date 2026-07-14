@@ -104,6 +104,14 @@ class CreatePasskeyProcessor: StateProcessor<
             window: window,
         ).perform(request: request)
 
+        let clientData = try ClientDataJSONParser.parse(fromClientDataJSON: registration.rawClientDataJSON)
+        guard clientData.type == "webauthn.create" else {
+            throw PasskeyRegistrationError.unexpectedClientDataType(clientData.type)
+        }
+        guard clientData.challenge == challenge else {
+            throw PasskeyRegistrationError.challengeMismatch
+        }
+
         guard let attestationObject = registration.rawAttestationObject else {
             throw PasskeyRegistrationError.missingAttestationObject
         }
@@ -190,10 +198,20 @@ enum PasskeyRegistrationError: Error, LocalizedError {
     /// The authorization response did not include an attestation object.
     case missingAttestationObject
 
+    /// The client data's `type` was not `"webauthn.create"`.
+    case unexpectedClientDataType(String)
+
+    /// The challenge in the client data did not match the challenge sent to the authenticator.
+    case challengeMismatch
+
     var errorDescription: String? {
         switch self {
         case .missingAttestationObject:
             Localizations.missingAttestationObjectReceived
+        case let .unexpectedClientDataType(type):
+            Localizations.unexpectedClientDataTypeReceived(type)
+        case .challengeMismatch:
+            Localizations.challengeMismatchReceived
         }
     }
 }
