@@ -54,6 +54,16 @@ protocol GeneratorRepository: AnyObject {
     ///
     func generateUsername(settings: UsernameGeneratorRequest) async throws -> String
 
+    /// Gets the user's saved password generation options with policy and password rules applied.
+    ///
+    /// - Parameter rules: An optional password rules string (from the AutoFill credential API) to
+    ///   apply on top of saved options.
+    /// - Returns: The effective options and whether a policy is in effect.
+    ///
+    func getEffectivePasswordGenerationOptions(
+        rules: String?,
+    ) async throws -> (options: PasswordGenerationOptions, isPolicyInEffect: Bool)
+
     /// Gets the password generation options for the active account.
     ///
     /// - Returns: The password generation options for the account.
@@ -103,6 +113,12 @@ class DefaultGeneratorRepository {
     /// The data store that handles performing data requests for the generator.
     let dataStore: GeneratorDataStore
 
+    /// The service used by the application to report non-fatal errors.
+    let errorReporter: ErrorReporter
+
+    /// The service used for evaluating policy.
+    let policyService: PolicyService
+
     /// The service used by the application to manage account state.
     let stateService: StateService
 
@@ -113,15 +129,21 @@ class DefaultGeneratorRepository {
     /// - Parameters:
     ///   - clientService: The service that handles common client functionality such as encryption and decryption.
     ///   - dataStore: The data store that handles performing data requests for the generator.
+    ///   - errorReporter: The service used by the application to report non-fatal errors.
+    ///   - policyService: The service used for evaluating policy.
     ///   - stateService: The service used by the application to manage account state.
     ///
     init(
         clientService: ClientService,
         dataStore: GeneratorDataStore,
+        errorReporter: ErrorReporter,
+        policyService: PolicyService,
         stateService: StateService,
     ) {
         self.clientService = clientService
         self.dataStore = dataStore
+        self.errorReporter = errorReporter
+        self.policyService = policyService
         self.stateService = stateService
     }
 
@@ -214,6 +236,28 @@ extension DefaultGeneratorRepository: GeneratorRepository {
 
     func generateUsername(settings: UsernameGeneratorRequest) async throws -> String {
         try await clientService.generators().username(settings: settings)
+    }
+
+    func getEffectivePasswordGenerationOptions(
+        rules: String?,
+    ) async throws -> (options: PasswordGenerationOptions, isPolicyInEffect: Bool) {
+        var options = try await getPasswordGenerationOptions()
+        var isPolicyInEffect = false
+        do {
+            isPolicyInEffect = try await policyService.applyPasswordGenerationPolicy(options: &options)
+        } catch {
+            errorReporter.log(error: error)
+        }
+
+        if let rules,
+           let rulesRequest = await passwordRulesRequest(rules: rules) {
+            options.type = .password
+            options.overridePasswordType = false
+            options.apply(rulesRequest)
+            return (options, true)
+        }
+
+        return (options, isPolicyInEffect)
     }
 
     func getPasswordGenerationOptions() async throws -> PasswordGenerationOptions {

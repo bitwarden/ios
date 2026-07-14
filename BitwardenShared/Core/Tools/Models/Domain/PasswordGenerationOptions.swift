@@ -1,3 +1,5 @@
+import BitwardenSdk
+
 /// A data model containing the options used to generate a password, which is persisted between app
 /// launches to maintain the user's selected options.
 ///
@@ -54,6 +56,38 @@ struct PasswordGenerationOptions: Codable, Equatable {
 }
 
 extension PasswordGenerationOptions {
+    /// Returns a `PassphraseGeneratorRequest` built from the stored passphrase options.
+    var passphraseGeneratorRequest: PassphraseGeneratorRequest {
+        PassphraseGeneratorRequest(
+            numWords: UInt8(numWords ?? 3),
+            wordSeparator: wordSeparator ?? "-",
+            capitalize: capitalize ?? false,
+            includeNumber: includeNumber ?? false,
+        )
+    }
+
+    /// Returns a `PasswordGeneratorRequest` built from the stored password options.
+    var passwordGeneratorRequest: PasswordGeneratorRequest {
+        let useLowercase = lowercase ?? true
+        let useUppercase = uppercase ?? true
+        let useNumbers = number ?? true
+        let useSpecial = special ?? false
+        return PasswordGeneratorRequest(
+            lowercase: useLowercase,
+            uppercase: useUppercase,
+            numbers: useNumbers,
+            special: useSpecial,
+            length: UInt8(length ?? 14),
+            avoidAmbiguous: !(allowAmbiguousChar ?? true),
+            minLowercase: minLowercase.map(UInt8.init),
+            minUppercase: minUppercase.map(UInt8.init),
+            minNumber: useNumbers ? UInt8(minNumber ?? 1) : nil,
+            minSpecial: useSpecial ? UInt8(minSpecial ?? 1) : nil,
+        )
+    }
+}
+
+extension PasswordGenerationOptions {
     /// Sets the password's minimum length.
     ///
     /// - Parameter minimumLength: The password's minimum length.
@@ -69,7 +103,6 @@ extension PasswordGenerationOptions {
     mutating func setMinLowercase(_ minimum: Int) {
         minLowercase = max(minLowercase ?? minimum, minimum)
     }
-
 
     /// Sets the password's minimum number of numbers.
     ///

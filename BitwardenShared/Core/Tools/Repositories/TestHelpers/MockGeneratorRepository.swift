@@ -37,6 +37,14 @@ class MockGeneratorRepository: GeneratorRepository {
     var usernameGeneratorRequest: UsernameGeneratorRequest?
     var usernameResult: Result<String, Error> = .success("USERNAME")
 
+    // swiftlint:disable identifier_name
+    var getEffectivePasswordGenerationOptionsCalled = false
+    var getEffectivePasswordGenerationOptionsRules: String?
+    var getEffectivePasswordGenerationOptionsResult: Result<PasswordGenerationOptions, Error> =
+        .success(PasswordGenerationOptions())
+    var getEffectivePasswordGenerationOptionsIsPolicyInEffect = false
+    // swiftlint:enable identifier_name
+
     var getPasswordGenerationOptionsCalled = false
     var getPasswordGenerationOptionsResult: Result<PasswordGenerationOptions, Error> =
         .success(PasswordGenerationOptions())
@@ -99,6 +107,15 @@ class MockGeneratorRepository: GeneratorRepository {
     func generateUsernamePlusAddressedEmail(email: String) async throws -> String {
         usernamePlusAddressEmail = email
         return try usernamePlusAddressEmailResult.get()
+    }
+
+    func getEffectivePasswordGenerationOptions(
+        rules: String?,
+    ) async throws -> (options: PasswordGenerationOptions, isPolicyInEffect: Bool) {
+        defer { getEffectivePasswordGenerationOptionsCalled = true }
+        getEffectivePasswordGenerationOptionsRules = rules
+        let options = try getEffectivePasswordGenerationOptionsResult.get()
+        return (options, getEffectivePasswordGenerationOptionsIsPolicyInEffect)
     }
 
     func getPasswordGenerationOptions() async throws -> PasswordGenerationOptions {

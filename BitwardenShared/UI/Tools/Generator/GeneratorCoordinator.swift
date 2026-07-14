@@ -121,6 +121,7 @@ final class GeneratorCoordinator: Coordinator, HasStackNavigator {
     ) {
         let state = GeneratorState(
             generatorType: type ?? .password,
+            forcedPasswordRules: passwordRules,
             presentationMode: type == nil ? .tab : .inPlace,
             savePasswordHistory: savePasswordHistory,
             usernameState: GeneratorState.UsernameState(emailWebsite: emailWebsite),
