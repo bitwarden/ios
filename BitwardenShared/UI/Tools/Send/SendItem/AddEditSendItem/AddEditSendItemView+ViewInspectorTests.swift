@@ -128,7 +128,7 @@ class AddEditSendItemViewTests: BitwardenTestCase {
     /// Setting `isSendDisabled` disables the controls within the view.
     @MainActor
     func test_sendDisabled() async throws {
-        processor.state.isSendDisabled = true
+        processor.state.sendPolicyOptions.isSendDisabled = true
 
         let infoContainer = try subject.inspect().find(InfoContainer<Text>.self)
         try XCTAssertEqual(infoContainer.text().string(), Localizations.sendDisabledWarning)
@@ -144,7 +144,7 @@ class AddEditSendItemViewTests: BitwardenTestCase {
     /// Setting `isSendHideEmailDisabled` disables the hide email control within the view.
     @MainActor
     func test_sendHideEmailDisabled() async throws {
-        processor.state.isSendHideEmailDisabled = true
+        processor.state.sendPolicyOptions.isHideEmailDisabled = true
 
         let infoContainer = try subject.inspect().find(InfoContainer<Text>.self)
         try XCTAssertEqual(infoContainer.text().string(), Localizations.sendOptionsPolicyInEffect)
@@ -169,6 +169,17 @@ class AddEditSendItemViewTests: BitwardenTestCase {
         let menuField = try subject.inspect().find(bitwardenMenuField: Localizations.whoCanView)
         try menuField.select(newValue: SendAccessType.anyoneWithPassword)
         XCTAssertEqual(processor.dispatchedActions.last, .accessTypeChanged(.anyoneWithPassword))
+    }
+
+    /// The access type menu remains visible but is disabled when the access type is enforced by policy.
+    @MainActor
+    func test_accessTypeMenu_disabledWhenEnforcedByPolicy() throws {
+        var menuField = try subject.inspect().find(bitwardenMenuField: Localizations.whoCanView)
+        XCTAssertFalse(menuField.isDisabled())
+
+        processor.state.sendPolicyOptions.enforcedAccessType = .anyoneWithPassword
+        menuField = try subject.inspect().find(bitwardenMenuField: Localizations.whoCanView)
+        XCTAssertTrue(menuField.isDisabled())
     }
 
     /// Updating the password textfield when "Anyone with password" is selected sends the `.passwordChanged` action.
