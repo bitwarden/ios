@@ -53,7 +53,6 @@ jobs:
           SHORT_SHA="${COMMIT_SHA:0:8}"
           COMMIT_LINE="<${COMMIT_URL}|ios/${GITHUB_REF_NAME}@${SHORT_SHA}>"
           CC_LINE="<!subteam^S0BG74ZATUM> <@U06538MSPJP>"
-
           echo "text=:cherry-pick: ${PR_LINE}\n:bricks: commit: ${COMMIT_LINE}\n:bitwarden-love: ${CC_LINE}" >> "$GITHUB_OUTPUT"
 
       - name: Send slack notification
