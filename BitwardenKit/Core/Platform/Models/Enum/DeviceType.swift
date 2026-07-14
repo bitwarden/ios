@@ -30,18 +30,10 @@ public enum DeviceType: Int, Codable, Hashable, Sendable {
     case macOsCLI = 24
     case linuxCLI = 25
     case duckDuckGoBrowser = 26
+}
 
-    // MARK: Initialization
+// MARK: - DefaultValueProvider
 
-    /// Initializes a `DeviceType` from a raw integer value, falling back to `.unknownBrowser`
-    /// for values not yet recognized by the client.
-    public init(_ rawValue: Int) {
-        self = DeviceType(rawValue: rawValue) ?? .unknownBrowser
-    }
-
-    public init(from decoder: any Decoder) throws {
-        let container = try decoder.singleValueContainer()
-        let rawValue = try container.decode(Int.self)
-        self = DeviceType(rawValue: rawValue) ?? .unknownBrowser
-    }
+extension DeviceType: DefaultValueProvider {
+    public static var defaultValue: DeviceType { .unknownBrowser }
 }

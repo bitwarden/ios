@@ -13,7 +13,7 @@ enum DeviceActivityStatus: Equatable, Sendable {
     /// The device was active over 30 days ago.
     case overThirtyDaysAgo
 
-    /// The device was active this month (but not this or last week).
+    /// The device was active this calendar month (but not this or last week).
     case thisMonth
 
     /// The device was active this week (but not today).
@@ -84,10 +84,11 @@ enum DeviceActivityStatus: Equatable, Sendable {
             self = .thisWeek
         case 8 ... 14:
             self = .lastWeek
-        case 15 ... 30:
-            self = .thisMonth
         default:
-            self = .overThirtyDaysAgo
+            // Beyond the last two weeks, only classify as `.thisMonth` if the date actually
+            // falls within the current calendar month; a day count alone can't tell June 20
+            // apart from July 20 relative to a July 15 "now".
+            self = calendar.isDate(date, equalTo: now, toGranularity: .month) ? .thisMonth : .overThirtyDaysAgo
         }
     }
 }
