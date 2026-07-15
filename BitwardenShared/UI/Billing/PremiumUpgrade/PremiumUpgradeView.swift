@@ -87,7 +87,8 @@ struct PremiumUpgradeView: View {
         .padding(.bottom, 24)
         .background(
             Asset.Images.Illustrations.premiumUpgradeCardBackground.swiftUIImage
-                .resizable(),
+                .resizable()
+                .accessibilityHidden(true),
         )
     }
 
