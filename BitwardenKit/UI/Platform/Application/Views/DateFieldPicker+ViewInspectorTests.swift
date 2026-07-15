@@ -55,7 +55,7 @@ class DateFieldPickerTests: BitwardenTestCase {
     /// When a date is selected, the collapsed field shows the formatted date.
     func test_collapsedSelected_showsFormattedDate() throws {
         date = defaultDate
-        let expected = defaultDate.formatted(date: .long, time: .omitted)
+        let expected = defaultDate.longCalendarDateDisplay
         XCTAssertNoThrow(try subject.inspect().find(text: expected))
     }
 

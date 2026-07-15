@@ -24,6 +24,15 @@ public extension Date {
         Date.iso8601DateOnlyFormatter().string(from: self)
     }
 
+    /// The date formatted as a long localized calendar-date string (e.g. `June 23, 2023`), pinned to
+    /// UTC so a UTC-anchored stored date reads back as the same calendar day regardless of device
+    /// time zone.
+    var longCalendarDateDisplay: String {
+        var style = Date.FormatStyle(date: .long, time: .omitted)
+        style.timeZone = TimeZone(identifier: "UTC")!
+        return formatted(style)
+    }
+
     /// A convenience initializer for `Date` to specify a specific point in time.
     init(
         year: Int,
@@ -72,6 +81,32 @@ public extension Date {
         guard let date = calendar.date(bySettingHour: 0, minute: 0, second: 0, of: date) else { return nil }
         return date
     }
+
+    /// Returns the local-midnight `Date` for the same calendar day as `self`, where `self` is
+    /// interpreted as a UTC calendar day. Use this to seed a UI control (such as `DatePicker`) that
+    /// reads/writes calendar days in the device's local time zone, from a UTC-anchored stored date,
+    /// so the day shown to the user matches the day that was stored.
+    ///
+    /// - Parameter timeZone: The time zone whose local midnight the day is expressed in. Defaults
+    ///   to the device's current time zone.
+    func asLocalCalendarDay(in timeZone: TimeZone = .current) -> Date {
+        let components = Date.gregorianCalendar(timeZone: TimeZone(identifier: "UTC")!)
+            .dateComponents([.year, .month, .day], from: self)
+        return Date(year: components.year!, month: components.month!, day: components.day!, timeZone: timeZone)
+    }
+
+    /// Returns the UTC-midnight `Date` for the same calendar day as `self`, where `self` is
+    /// interpreted as a calendar day in the given time zone. Use this to convert a day picked in a
+    /// local-time UI control (such as `DatePicker`) back into the UTC-anchored form used for storage
+    /// via `iso8601DateOnlyString`.
+    ///
+    /// - Parameter timeZone: The time zone whose calendar day `self` is expressed in. Defaults to
+    ///   the device's current time zone.
+    func asUTCCalendarDay(from timeZone: TimeZone = .current) -> Date {
+        let components = Date.gregorianCalendar(timeZone: timeZone)
+            .dateComponents([.year, .month, .day], from: self)
+        return Date(year: components.year!, month: components.month!, day: components.day!)
+    }
 }
 
 private extension Date {
@@ -88,5 +123,13 @@ private extension Date {
         formatter.dateFormat = "yyyy-MM-dd"
         formatter.isLenient = false
         return formatter
+    }
+
+    /// Builds a Gregorian calendar pinned to the given time zone, used to extract or construct
+    /// calendar-day (year/month/day) components independent of the device's calendar preference.
+    static func gregorianCalendar(timeZone: TimeZone) -> Calendar {
+        var calendar = Calendar(identifier: .gregorian)
+        calendar.timeZone = timeZone
+        return calendar
     }
 }

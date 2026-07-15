@@ -113,11 +113,15 @@ public struct DateFieldPicker: View {
     /// default, falling back to the wheel style under VoiceOver where the calendar is hard to navigate.
     /// In the graphical style, selecting a day commits the value and collapses the calendar via
     /// `selection()`; the wheel style stays expanded so the user can scrub freely.
+    ///
+    /// `range`'s bounds are UTC-anchored, like `date`, so they're converted to the same local-day
+    /// domain the picker operates in (see `selection()`) before being applied.
     @ViewBuilder
     private func datePicker() -> some View {
         let picker = Group {
             if let range {
-                DatePicker("", selection: selection(), in: range, displayedComponents: [.date])
+                let localRange = range.lowerBound.asLocalCalendarDay() ... range.upperBound.asLocalCalendarDay()
+                DatePicker("", selection: selection(), in: localRange, displayedComponents: [.date])
             } else {
                 DatePicker("", selection: selection(), displayedComponents: [.date])
             }
@@ -152,7 +156,7 @@ public struct DateFieldPicker: View {
             }
 
             if let date {
-                Text(date.formatted(date: .long, time: .omitted))
+                Text(date.longCalendarDateDisplay)
                     .styleGuide(.body)
                     .foregroundColor(SharedAsset.Colors.textPrimary.swiftUIColor)
             }
@@ -204,11 +208,15 @@ public struct DateFieldPicker: View {
     /// empty) and, on selection, commits the value. With the graphical calendar, a selection also
     /// collapses the calendar; under VoiceOver the wheel stays expanded so continuous scrubbing does
     /// not dismiss it on the first change — the user collapses it via the header instead.
+    ///
+    /// `date` is UTC-anchored (see `iso8601DateOnlyString`), but the `DatePicker` reads/writes
+    /// calendar days in the device's local time zone. The get/set here convert at that boundary so
+    /// the day the user sees selected, and the day they pick, always match the day that gets stored.
     private func selection() -> Binding<Date> {
         Binding(
-            get: { date ?? defaultDate },
+            get: { (date ?? defaultDate).asLocalCalendarDay() },
             set: { newValue in
-                date = newValue
+                date = newValue.asUTCCalendarDay()
                 guard !voiceOverEnabled else { return }
                 withAnimation { isExpanded = false }
             },
