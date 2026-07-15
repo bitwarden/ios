@@ -96,8 +96,8 @@ class PasskeyAssertionVerifierTests: BitwardenTestCase {
         }
     }
 
-    /// `verify` throws `.clientDataMismatch` when the client data's `type` isn't `webauthn.get`.
-    func test_verify_wrongClientDataType_throwsClientDataMismatch() throws {
+    /// `verify` throws `.unexpectedClientDataType` when the client data's `type` isn't `webauthn.get`.
+    func test_verify_wrongClientDataType_throwsUnexpectedClientDataType() throws {
         let fixture = try AssertionFixture.valid(clientDataType: "webauthn.create")
 
         XCTAssertThrowsError(
@@ -108,13 +108,16 @@ class PasskeyAssertionVerifierTests: BitwardenTestCase {
                 candidates: [fixture.storedCredential],
             ),
         ) { error in
-            XCTAssertEqual(error as? PasskeyAssertionVerifier.VerificationError, .clientDataMismatch)
+            XCTAssertEqual(
+                error as? PasskeyAssertionVerifier.VerificationError,
+                .unexpectedClientDataType("webauthn.create"),
+            )
         }
     }
 
-    /// `verify` throws `.clientDataMismatch` when the client data's challenge doesn't match the
+    /// `verify` throws `.challengeMismatch` when the client data's challenge doesn't match the
     /// challenge that was sent with the request.
-    func test_verify_mismatchedChallenge_throwsClientDataMismatch() throws {
+    func test_verify_mismatchedChallenge_throwsChallengeMismatch() throws {
         let fixture = try AssertionFixture.valid()
 
         XCTAssertThrowsError(
@@ -125,7 +128,7 @@ class PasskeyAssertionVerifierTests: BitwardenTestCase {
                 candidates: [fixture.storedCredential],
             ),
         ) { error in
-            XCTAssertEqual(error as? PasskeyAssertionVerifier.VerificationError, .clientDataMismatch)
+            XCTAssertEqual(error as? PasskeyAssertionVerifier.VerificationError, .challengeMismatch)
         }
     }
 

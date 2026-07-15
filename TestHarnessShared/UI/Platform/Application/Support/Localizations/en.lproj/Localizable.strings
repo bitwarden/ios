@@ -71,6 +71,7 @@
 "TOTPAutofillForm" = "TOTP Autofill Form";
 "TapTheTOTPCodeFieldAndSelectDescriptionLong" = "Tap the TOTP Code field and select a code from Bitwarden. Requires Bitwarden PM as AutoFill provider and a saved Login with a TOTP seed.";
 "TOTPCode" = "TOTP Code";
+"UnexpectedAssertionClientDataTypeReceived" = "The client data type (%@) was not \"webauthn.get\".";
 "UnexpectedClientDataTypeReceived" = "The client data type (%@) was not \"webauthn.create\".";
 "UnexpectedCredentialTypeReceived" = "Unexpected credential type received.";
 "UnsupportedAlgorithmReceived" = "The credential's public key algorithm (%@) is not supported; expected ES256.";
