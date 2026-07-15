@@ -25,8 +25,11 @@ enum PasskeyAssertionVerifier {
         /// The authenticator data's flags did not have the "user present" bit set.
         case userPresenceNotAsserted
 
-        /// The client data's type or challenge did not match what was expected.
-        case clientDataMismatch
+        /// The client data's `type` was not `"webauthn.get"`.
+        case unexpectedClientDataType(String)
+
+        /// The challenge in the client data did not match the challenge sent to the authenticator.
+        case challengeMismatch
 
         /// The assertion signature did not verify against the stored credential's public key.
         case signatureInvalid
@@ -41,8 +44,10 @@ enum PasskeyAssertionVerifier {
                 Localizations.rpIdHashMismatchReceived
             case .userPresenceNotAsserted:
                 Localizations.userPresenceNotAssertedReceived
-            case .clientDataMismatch:
-                Localizations.clientDataMismatchReceived
+            case let .unexpectedClientDataType(type):
+                Localizations.unexpectedAssertionClientDataTypeReceived(type)
+            case .challengeMismatch:
+                Localizations.challengeMismatchReceived
             case .signatureInvalid:
                 Localizations.signatureInvalidReceived
             }
@@ -62,12 +67,6 @@ enum PasskeyAssertionVerifier {
 
         /// The raw `clientDataJSON` returned by the authenticator.
         var rawClientDataJSON: Data
-    }
-
-    /// The JSON shape of a WebAuthn assertion's `clientDataJSON`.
-    private struct ClientData: Decodable {
-        let type: String
-        let challenge: String
     }
 
     // MARK: Methods
@@ -100,12 +99,12 @@ enum PasskeyAssertionVerifier {
         let flags = authDataBytes[32]
         guard flags & 0x01 != 0 else { throw VerificationError.userPresenceNotAsserted }
 
-        guard let clientData = try? JSONDecoder().decode(ClientData.self, from: assertion.rawClientDataJSON),
-              clientData.type == "webauthn.get",
-              let challengeData = base64URLDecodedData(clientData.challenge),
-              challengeData == expectedChallenge
-        else {
-            throw VerificationError.clientDataMismatch
+        let clientData = try ClientDataJSONParser.parse(fromClientDataJSON: assertion.rawClientDataJSON)
+        guard clientData.type == "webauthn.get" else {
+            throw VerificationError.unexpectedClientDataType(clientData.type)
+        }
+        guard clientData.challenge == expectedChallenge else {
+            throw VerificationError.challengeMismatch
         }
 
         let clientDataHash = Data(SHA256.hash(data: assertion.rawClientDataJSON))
@@ -119,18 +118,5 @@ enum PasskeyAssertionVerifier {
         }
 
         return credential
-    }
-
-    // MARK: Private
-
-    /// Decodes a base64url-encoded string (no padding, `-`/`_` in place of `+`/`/`) as used by
-    /// WebAuthn's `clientDataJSON.challenge` field.
-    private static func base64URLDecodedData(_ string: String) -> Data? {
-        var base64 = string
-            .replacingOccurrences(of: "-", with: "+")
-            .replacingOccurrences(of: "_", with: "/")
-        let paddingLength = (4 - base64.count % 4) % 4
-        base64 += String(repeating: "=", count: paddingLength)
-        return Data(base64Encoded: base64)
     }
 }
