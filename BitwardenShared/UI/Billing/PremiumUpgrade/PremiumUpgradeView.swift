@@ -16,7 +16,7 @@ struct PremiumUpgradeView: View {
 
     var body: some View {
         content
-            .navigationBar(title: Localizations.upgradeToPremium, titleDisplayMode: .inline)
+            .navigationBar(title: Localizations.premium, titleDisplayMode: .inline)
             .toolbar {
                 cancelToolbarItem(hidden: !store.state.showCancelButton) {
                     store.send(.cancelTapped)
