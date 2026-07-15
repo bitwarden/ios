@@ -2564,6 +2564,13 @@ extension DefaultStateService {
         )
     }
 
+    func clearFillAssistCache() async throws {
+        let userId = try getActiveAccountUserId()
+        appSettingsStore.setFillAssistCachedData(nil, userId: userId)
+        appSettingsStore.setFillAssistLastFetchTimestamp(nil, userId: userId)
+        try await keychainRepository.deleteUserAuthKey(for: .fillAssistRulesFingerprint(userId: userId))
+    }
+
     func clearMasterPasswordUnlockForActiveAccount() async throws {
         let userId = try getActiveAccountUserId()
         try updateAccountProfile(userId: userId) { profile in

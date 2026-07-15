@@ -95,6 +95,8 @@ extension StateService {
         passwordFieldId: String,
     ) async throws {}
 
+    func clearFillAssistCache() async throws {}
+
     func clearMasterPasswordUnlockForActiveAccount() async throws {}
 }
 

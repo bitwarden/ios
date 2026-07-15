@@ -17,6 +17,10 @@ public protocol DebugStateService: AnyObject { // sourcery: AutoMockable
         passwordFieldId: String,
     ) async throws
 
+    /// Clears the active account's cached Fill Assist rules and their integrity fingerprint,
+    /// the same cleanup that runs automatically on logout.
+    func clearFillAssistCache() async throws
+
     /// Clears `userDecryptionOptions.masterPasswordUnlock` on the active account's cached profile.
     func clearMasterPasswordUnlockForActiveAccount() async throws
 }

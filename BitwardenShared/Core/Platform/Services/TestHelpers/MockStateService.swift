@@ -43,6 +43,8 @@ class MockStateService: StateService, ActiveAccountStateProvider, AutofillStateS
     var capturedUserId: String?
     var clearClipboardValues = [String: ClearClipboardValue]()
     var clearClipboardResult: Result<Void, Error> = .success(())
+    var clearFillAssistCacheCalled = false
+    var clearFillAssistCacheResult: Result<Void, Error> = .success(())
     // swiftlint:disable:next identifier_name
     var clearMasterPasswordUnlockForActiveAccountCalled = false
     // swiftlint:disable:next identifier_name
@@ -158,6 +160,11 @@ class MockStateService: StateService, ActiveAccountStateProvider, AutofillStateS
         addFillAssistDebugRuleUsernameId = usernameFieldId
         addFillAssistDebugRulePasswordId = passwordFieldId
         try addFillAssistDebugRuleResult.get()
+    }
+
+    func clearFillAssistCache() async throws {
+        clearFillAssistCacheCalled = true
+        try clearFillAssistCacheResult.get()
     }
 
     func clearMasterPasswordUnlockForActiveAccount() async throws {
