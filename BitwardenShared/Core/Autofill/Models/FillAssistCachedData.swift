@@ -20,21 +20,17 @@ struct FillAssistCachedData: Codable, Equatable {
 // MARK: - FillAssistCachedData Fingerprint
 
 extension FillAssistCachedData {
-    /// The JSON encoder used to compute the integrity fingerprint. Sorted keys ensure the
-    /// encoded bytes are deterministic regardless of dictionary iteration order.
-    private static let fingerprintEncoder: JSONEncoder = {
-        let encoder = JSONEncoder()
-        encoder.outputFormatting = [.sortedKeys]
-        return encoder
-    }()
-
     /// Computes a SHA-256 integrity fingerprint for this cached data, using a sorted-keys
     /// JSON encoding so the result is deterministic regardless of dictionary iteration order.
+    /// A fresh encoder is created per call since `JSONEncoder` isn't documented as safe for
+    /// concurrent use across calls on a shared instance.
     ///
     /// - Returns: A lowercase hexadecimal SHA-256 digest of the encoded data.
     ///
     func integrityFingerprint() throws -> String {
-        try Self.fingerprintEncoder.encode(self).generatedHash(using: SHA256.self)
+        let encoder = JSONEncoder()
+        encoder.outputFormatting = [.sortedKeys]
+        return try encoder.encode(self).generatedHash(using: SHA256.self)
     }
 }
 

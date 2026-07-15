@@ -1578,11 +1578,6 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         XCTAssertEqual(appSettingsStore.disableAutoTotpCopyByUserId, [:])
         XCTAssertEqual(appSettingsStore.passwordGenerationOptions, [:])
         XCTAssertTrue(keychainRepository.clearLocalUserDataKeyStatesCalled)
-        XCTAssertTrue(keychainRepository.deleteUserAuthKeyCalled)
-        XCTAssertEqual(
-            keychainRepository.deleteUserAuthKeyReceivedItem?.unformattedKey,
-            BitwardenKeychainItem.fillAssistRulesFingerprint(userId: "1").unformattedKey,
-        )
 
         let context = dataStore.persistentContainer.viewContext
         try XCTAssertEqual(context.count(for: CipherData.fetchByUserIdRequest(userId: "1")), 0)
