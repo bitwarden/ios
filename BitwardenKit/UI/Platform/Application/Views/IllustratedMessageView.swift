@@ -270,12 +270,6 @@ private extension IllustratedMessageStyle {
     /// The height and width of a square medium image
     static let mediumSquareImageDimension: CGFloat = 124
 
-    /// The maximum width of the premium hero illustration in a landscape orientation.
-    static let premiumHeroImageMaxWidthLandscape: CGFloat = 220
-
-    /// The maximum width of the premium hero illustration in a portrait orientation.
-    static let premiumHeroImageMaxWidthPortrait: CGFloat = 319
-
     /// The height and width of a square small image
     static let smallSquareImageDimension: CGFloat = 100
 }
@@ -308,22 +302,6 @@ public extension IllustratedMessageStyle {
         spaceBetweenImageAndText: OrientationBasedValue(
             portrait: 24,
             landscape: 32,
-        ),
-        spaceBetweenTitleAndMessage: 12,
-        titleTextStyle: .title2,
-    )
-
-    /// A style with a wide, card-width hero illustration and no message text.
-    static let premiumHero = IllustratedMessageStyle(
-        imageColor: nil,
-        imageSize: OrientationBasedValue(
-            portrait: premiumHeroImageMaxWidthPortrait,
-            landscape: premiumHeroImageMaxWidthLandscape,
-        ),
-        messageTextStyle: .body,
-        spaceBetweenImageAndText: OrientationBasedValue(
-            portrait: 16,
-            landscape: 24,
         ),
         spaceBetweenTitleAndMessage: 12,
         titleTextStyle: .title2,

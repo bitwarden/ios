@@ -7,6 +7,11 @@ import SwiftUI
 /// A view that displays the Premium upgrade information and allows users to upgrade.
 ///
 struct PremiumUpgradeView: View {
+    // MARK: Private Properties
+
+    /// The maximum width of the hero illustration.
+    private static let heroImageMaxWidth: CGFloat = 319
+
     // MARK: Properties
 
     /// The store that renders the view.
@@ -62,11 +67,19 @@ struct PremiumUpgradeView: View {
 
     /// The Premium upgrade card containing the hero illustration, headline, and benefits.
     private var premiumCard: some View {
-        IllustratedMessageView(
-            image: Asset.Images.Illustrations.premiumUpgradeHero,
-            style: .premiumHero,
-            title: Localizations.unlockAdvancedProtection,
-        ) {
+        VStack(spacing: 16) {
+            Asset.Images.Illustrations.premiumUpgradeHero.swiftUIImage
+                .resizable()
+                .aspectRatio(contentMode: .fit)
+                .frame(maxWidth: Self.heroImageMaxWidth)
+                .accessibilityHidden(true)
+
+            Text(Localizations.unlockAdvancedProtection)
+                .styleGuide(.title2, weight: .bold)
+                .foregroundColor(Color(asset: SharedAsset.Colors.textPrimary))
+                .multilineTextAlignment(.center)
+                .frame(maxWidth: .infinity, alignment: .center)
+
             PremiumUpgradeBenefitsList()
         }
         .padding(.top, 16)
