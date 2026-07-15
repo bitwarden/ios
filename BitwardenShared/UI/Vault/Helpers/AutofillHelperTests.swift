@@ -93,6 +93,7 @@ class AutofillHelperTests: BitwardenTestCase { // swiftlint:disable:this type_bo
     @MainActor
     func test_handleCipherForAutofill_autofillNotSupported() async throws {
         appExtensionDelegate.canAutofill = false
+        stateService.fillAssistEnabledByUserId["1"] = false
 
         vaultRepository.fetchCipherResult = .success(.fixture(
             login: .fixture(password: "PASSWORD", username: "user@bitwarden.com"),

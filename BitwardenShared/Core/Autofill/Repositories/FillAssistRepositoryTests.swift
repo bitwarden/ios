@@ -275,7 +275,8 @@ struct FillAssistRepositoryTests {
 
     // MARK: Tests - clearRules()
 
-    /// `clearRules()` removes cached data and its integrity fingerprint for the active account.
+    /// `clearRules()` removes cached data, the last-fetch timestamp, and the integrity
+    /// fingerprint for the active account.
     @Test
     func clearRules_removesCachedData() async throws {
         try cacheVerifiedData(FillAssistCachedData(
@@ -283,12 +284,33 @@ struct FillAssistRepositoryTests {
             rules: [:],
             sourceUrl: "https://example.com",
         ))
+        appSettingsStore.fillAssistLastFetchTimestampByUserId["1"] = timeProvider.presentTime
 
-        try await subject.clearRules()
+        try await subject.clearRules(userId: nil)
 
         #expect(appSettingsStore.fillAssistCachedDataByUserId["1"] == nil)
+        #expect(appSettingsStore.fillAssistLastFetchTimestampByUserId["1"] == nil)
         #expect(keychainRepository.deleteUserAuthKeyCalled)
         #expect(keychainRepository.deleteUserAuthKeyReceivedItem?.unformattedKey == "fillAssistRulesFingerprint_1")
+    }
+
+    /// `clearRules(userId:)` removes cached data, the last-fetch timestamp, and the integrity
+    /// fingerprint for a specific, non-active account.
+    @Test
+    func clearRules_removesCachedData_forSpecificUser() async throws {
+        try cacheVerifiedData(FillAssistCachedData(
+            cid: "sha256:abc",
+            rules: [:],
+            sourceUrl: "https://example.com",
+        ), userId: "2")
+        appSettingsStore.fillAssistLastFetchTimestampByUserId["2"] = timeProvider.presentTime
+
+        try await subject.clearRules(userId: "2")
+
+        #expect(appSettingsStore.fillAssistCachedDataByUserId["2"] == nil)
+        #expect(appSettingsStore.fillAssistLastFetchTimestampByUserId["2"] == nil)
+        #expect(keychainRepository.deleteUserAuthKeyCalled)
+        #expect(keychainRepository.deleteUserAuthKeyReceivedItem?.unformattedKey == "fillAssistRulesFingerprint_2")
     }
 
     // MARK: Tests - FormsMapSelector.attributes

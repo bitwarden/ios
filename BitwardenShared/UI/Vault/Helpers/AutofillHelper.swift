@@ -151,7 +151,9 @@ class AutofillHelper {
                 return
             }
 
-            guard appExtensionDelegate?.canAutofill ?? false,
+            let fillAssistEnabled = await (try? services.stateService.getFillAssistEnabled()) == true
+            let canAutofill = appExtensionDelegate?.canAutofill ?? false
+            guard fillAssistEnabled || canAutofill,
                   let username = cipherView.login?.username, !username.isEmpty,
                   let password = cipherView.login?.password, !password.isEmpty else {
                 await handleMissingValueForAutofill(cipherView: cipherView, showToast: showToast)
