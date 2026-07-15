@@ -107,21 +107,26 @@ class PremiumUpgradeViewTests: BitwardenTestCase {
         XCTAssertEqual(processor.effects.last, .retryFetchPriceTapped)
     }
 
-    /// The Premium price text displays the value from state.
+    /// The price section displays the price and the "Cancel anytime" suffix together, formatted
+    /// from state.
     @MainActor
-    func test_premiumPrice_displaysStateValue() throws {
+    func test_priceSection_displaysStateValue() throws {
         processor.state.premiumSeatPrice = 19.80
-        let text = try subject.inspect().find(text: "$1.65")
+        let expectedText = Localizations.xCancelAnytime(
+            Localizations.xAmountPerCadence("**$1.65**", Localizations.perMonth),
+        )
+        let text = try subject.inspect().find(text: expectedText)
         XCTAssertNotNil(text)
     }
 
-    /// The Premium price section is hidden when `premiumPrice` is `nil`.
+    /// The price section is hidden when `premiumPrice` is `nil`.
     @MainActor
-    func test_premiumPrice_hiddenWhenNil() throws {
+    func test_priceSection_hiddenWhenNil() throws {
         processor.state.premiumSeatPrice = nil
-        XCTAssertThrowsError(
-            try subject.inspect().find(text: Localizations.perMonthCancelAnytime),
+        let expectedText = Localizations.xCancelAnytime(
+            Localizations.xAmountPerCadence("**$1.65**", Localizations.perMonth),
         )
+        XCTAssertThrowsError(try subject.inspect().find(text: expectedText))
     }
 
     /// The headline is displayed.
@@ -142,14 +147,6 @@ class PremiumUpgradeViewTests: BitwardenTestCase {
         XCTAssertNotNil(try subject.inspect().find(text: Localizations.flagAccountsWithInactive2fa))
         XCTAssertNotNil(try subject.inspect().find(text: Localizations.shareFilesSecurelyWithAnyoneUsingSend))
         XCTAssertNotNil(try subject.inspect().find(text: Localizations.receive247PrioritySupport))
-    }
-
-    /// The price section shows the price and the "Cancel anytime" suffix together.
-    @MainActor
-    func test_priceSection_displaysSuffix() throws {
-        processor.state.premiumSeatPrice = 19.80
-        let text = try subject.inspect().find(text: Localizations.perMonthCancelAnytime)
-        XCTAssertNotNil(text)
     }
 
     /// The self-hosted banner is visible when the user is on a self-hosted server.

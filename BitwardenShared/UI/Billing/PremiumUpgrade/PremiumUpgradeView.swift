@@ -46,7 +46,7 @@ struct PremiumUpgradeView: View {
                 upgradeButton
                     .padding(.bottom, 12)
 
-                if store.state.premiumPrice != nil {
+                if store.state.priceCancelAnytimeText != nil {
                     priceSection
                         .padding(.bottom, 12)
                 }
@@ -80,16 +80,10 @@ struct PremiumUpgradeView: View {
 
     /// The price display section.
     private var priceSection: some View {
-        HStack(alignment: .firstTextBaseline, spacing: 0) {
-            Text(store.state.premiumPrice ?? "")
-                .styleGuide(.subheadline, weight: .semibold)
-                .foregroundColor(Color(asset: SharedAsset.Colors.textPrimary))
-
-            Text(Localizations.perMonthCancelAnytime)
-                .styleGuide(.subheadline)
-                .foregroundColor(Color(asset: SharedAsset.Colors.textPrimary))
-        }
-        .frame(maxWidth: .infinity)
+        Text(LocalizedStringKey(store.state.priceCancelAnytimeText ?? ""))
+            .styleGuide(.subheadline)
+            .foregroundColor(Color(asset: SharedAsset.Colors.textPrimary))
+            .frame(maxWidth: .infinity)
     }
 
     /// The pricing error banner shown when the Premium price cannot be fetched.

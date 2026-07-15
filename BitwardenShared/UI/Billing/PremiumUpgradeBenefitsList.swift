@@ -38,6 +38,7 @@ struct PremiumUpgradeBenefitsList: View {
             Text(text)
                 .styleGuide(.body)
                 .foregroundColor(Color(asset: SharedAsset.Colors.textPrimary))
+                .multilineTextAlignment(.leading)
         }
     }
 }

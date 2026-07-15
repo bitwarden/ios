@@ -1,3 +1,4 @@
+import BitwardenResources
 import Foundation
 
 // MARK: - PremiumUpgradeState
@@ -30,6 +31,15 @@ struct PremiumUpgradeState: Equatable {
     /// The formatted monthly Premium price string, or `nil` if the price hasn't been fetched yet.
     var premiumPrice: String? {
         premiumSeatPrice.flatMap { NumberFormatter.usdCurrency.string(from: NSDecimalNumber(decimal: $0 / 12)) }
+    }
+
+    /// The formatted monthly price (bolded) with the "Cancel anytime" suffix, or `nil` if the
+    /// price hasn't been fetched yet. Render with `Text(LocalizedStringKey:)` so the markdown
+    /// bold around the price is applied.
+    var priceCancelAnytimeText: String? {
+        premiumPrice.map { price in
+            Localizations.xCancelAnytime(Localizations.xAmountPerCadence("**\(price)**", Localizations.perMonth))
+        }
     }
 
     /// Whether the self-hosted info banner should be shown.

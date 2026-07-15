@@ -1097,6 +1097,7 @@
 "PerMonth" = "/ month";
 "PerYear" = "/ year";
 "XAmountPerCadence" = "%1$@ %2$@";
+"XCancelAnytime" = "%1$@ · Cancel anytime";
 "NegativeX" = "-%1$@";
 "UnknownStatus" = "Unknown";
 "YourSubscriptionStatusIsUnknownVisitTheWebAppDescriptionLong" = "Your subscription status could not be determined. Please visit the web app for more details or update to the latest version.";
@@ -1117,7 +1118,6 @@
 "WeHadTroubleOpeningThePaymentPageDescriptionLong" = "We had trouble opening the payment page, so try again.";
 "SecureFileStorage" = "Secure file storage";
 "BreachMonitoring" = "Breach monitoring";
-"PerMonthCancelAnytime" = "/ month · Cancel anytime";
 "ConfirmingYourUpgrade" = "Confirming your upgrade…";
 "OpeningCheckout" = "Opening checkout…";
 "UpgradePending" = "Upgrade pending";
