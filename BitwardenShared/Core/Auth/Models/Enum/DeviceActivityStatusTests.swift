@@ -93,9 +93,9 @@ struct DeviceActivityStatusTests {
     @Test
     func localizedString() {
         #expect(DeviceActivityStatus.today.localizedString == Localizations.today)
-        #expect(DeviceActivityStatus.thisWeek.localizedString == Localizations.thisWeek)
-        #expect(DeviceActivityStatus.lastWeek.localizedString == Localizations.lastWeek)
-        #expect(DeviceActivityStatus.thisMonth.localizedString == Localizations.thisMonth)
+        #expect(DeviceActivityStatus.thisWeek.localizedString == Localizations.pastSevenDays)
+        #expect(DeviceActivityStatus.lastWeek.localizedString == Localizations.pastFourteenDays)
+        #expect(DeviceActivityStatus.thisMonth.localizedString == Localizations.pastThirtyDays)
         #expect(DeviceActivityStatus.overThirtyDaysAgo.localizedString == Localizations.overThirtyDaysAgo)
         #expect(DeviceActivityStatus.unknown.localizedString == Localizations.unknown)
     }

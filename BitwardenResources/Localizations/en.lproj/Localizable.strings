@@ -1170,9 +1170,9 @@
 "MoneyMarket" = "Money market";
 "Savings" = "Savings";
 "Today" = "Today";
-"ThisWeek" = "This week";
-"LastWeek" = "Last week";
-"ThisMonth" = "This month";
+"PastSevenDays" = "Past 7 days";
+"PastFourteenDays" = "Past 14 days";
+"PastThirtyDays" = "Past 30 days";
 "OverThirtyDaysAgo" = "Over 30 days ago";
 "Unknown" = "Unknown";
 /* Device display name. %1$@ = category (e.g. "Mobile"), %2$@ = platform (e.g. "iOS"). */

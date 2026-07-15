@@ -31,13 +31,13 @@ enum DeviceActivityStatus: Equatable, Sendable {
     var localizedString: String {
         switch self {
         case .lastWeek:
-            Localizations.lastWeek
+            Localizations.pastFourteenDays
         case .overThirtyDaysAgo:
             Localizations.overThirtyDaysAgo
         case .thisMonth:
-            Localizations.thisMonth
+            Localizations.pastThirtyDays
         case .thisWeek:
-            Localizations.thisWeek
+            Localizations.pastSevenDays
         case .today:
             Localizations.today
         case .unknown:
