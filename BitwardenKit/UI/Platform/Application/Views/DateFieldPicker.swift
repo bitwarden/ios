@@ -95,7 +95,7 @@ public struct DateFieldPicker: View {
         title: String? = nil,
         accessibilityIdentifier: String? = nil,
         date: Binding<Date?>,
-        defaultDate: Date = Date(),
+        defaultDate: Date = Date().asUTCCalendarDay(),
         in range: ClosedRange<Date>? = nil,
         footer: String? = nil,
     ) {
