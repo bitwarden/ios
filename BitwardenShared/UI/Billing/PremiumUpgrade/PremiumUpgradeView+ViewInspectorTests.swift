@@ -51,7 +51,7 @@ class PremiumUpgradeViewTests: BitwardenTestCase {
     /// Tapping the upgrade now button dispatches the `.upgradeNowTapped` effect.
     @MainActor
     func test_upgradeNowButton_tap() async throws {
-        let button = try subject.inspect().find(asyncButton: Localizations.upgradeNow)
+        let button = try subject.inspect().find(asyncButton: Localizations.upgradeToPremium)
         try await button.tap()
         XCTAssertEqual(processor.effects.last, .upgradeNowTapped)
     }
@@ -60,7 +60,7 @@ class PremiumUpgradeViewTests: BitwardenTestCase {
     @MainActor
     func test_upgradeNowButton_disabled_whenLoading() throws {
         processor.state.isLoading = true
-        let button = try subject.inspect().find(asyncButton: Localizations.upgradeNow)
+        let button = try subject.inspect().find(asyncButton: Localizations.upgradeToPremium)
         XCTAssertTrue(button.isDisabled())
     }
 
@@ -68,7 +68,7 @@ class PremiumUpgradeViewTests: BitwardenTestCase {
     @MainActor
     func test_upgradeNowButton_enabled_whenNotLoading() throws {
         processor.state.isLoading = false
-        let button = try subject.inspect().find(asyncButton: Localizations.upgradeNow)
+        let button = try subject.inspect().find(asyncButton: Localizations.upgradeToPremium)
         XCTAssertFalse(button.isDisabled())
     }
 
@@ -120,8 +120,36 @@ class PremiumUpgradeViewTests: BitwardenTestCase {
     func test_premiumPrice_hiddenWhenNil() throws {
         processor.state.premiumSeatPrice = nil
         XCTAssertThrowsError(
-            try subject.inspect().find(text: Localizations.perMonth),
+            try subject.inspect().find(text: Localizations.perMonthCancelAnytime),
         )
+    }
+
+    /// The headline is displayed.
+    @MainActor
+    func test_headline_displayed() throws {
+        let text = try subject.inspect().find(text: Localizations.unlockAdvancedProtection)
+        XCTAssertNotNil(text)
+    }
+
+    /// All 8 benefit rows are displayed.
+    @MainActor
+    func test_benefitRows_displayed() throws {
+        XCTAssertNotNil(try subject.inspect().find(text: Localizations.breezeThrough2faWithBuiltInCodes))
+        XCTAssertNotNil(try subject.inspect().find(text: Localizations.runReportsToFindRiskyPasswords))
+        XCTAssertNotNil(try subject.inspect().find(text: Localizations.keepDocumentsSafeAndEncrypted))
+        XCTAssertNotNil(try subject.inspect().find(text: Localizations.addATrustedEmergencyContact))
+        XCTAssertNotNil(try subject.inspect().find(text: Localizations.identifyUnsecureWebsites))
+        XCTAssertNotNil(try subject.inspect().find(text: Localizations.flagAccountsWithInactive2fa))
+        XCTAssertNotNil(try subject.inspect().find(text: Localizations.shareFilesSecurelyWithAnyoneUsingSend))
+        XCTAssertNotNil(try subject.inspect().find(text: Localizations.receive247PrioritySupport))
+    }
+
+    /// The price section shows the price and the "Cancel anytime" suffix together.
+    @MainActor
+    func test_priceSection_displaysSuffix() throws {
+        processor.state.premiumSeatPrice = 19.80
+        let text = try subject.inspect().find(text: Localizations.perMonthCancelAnytime)
+        XCTAssertNotNil(text)
     }
 
     /// The self-hosted banner is visible when the user is on a self-hosted server.
@@ -151,7 +179,7 @@ class PremiumUpgradeViewTests: BitwardenTestCase {
     func test_upgradeButton_hidden_whenPricingErrorBannerShowing() throws {
         processor.state.showPricingErrorBanner = true
         XCTAssertThrowsError(
-            try subject.inspect().find(asyncButton: Localizations.upgradeNow),
+            try subject.inspect().find(asyncButton: Localizations.upgradeToPremium),
         )
     }
 
@@ -160,7 +188,7 @@ class PremiumUpgradeViewTests: BitwardenTestCase {
     func test_upgradeButton_hidden_whenSelfHosted() throws {
         processor.state.isSelfHosted = true
         XCTAssertThrowsError(
-            try subject.inspect().find(asyncButton: Localizations.upgradeNow),
+            try subject.inspect().find(asyncButton: Localizations.upgradeToPremium),
         )
     }
 }
