@@ -267,7 +267,7 @@ struct FillAssistRepositoryTests {
 
     // MARK: Tests - clearRules()
 
-    /// `clearRules()` removes cached data for the active account.
+    /// `clearRules()` removes cached data and the last-fetch timestamp for the active account.
     @Test
     func clearRules_removesCachedData() async throws {
         appSettingsStore.fillAssistCachedDataByUserId["1"] = FillAssistCachedData(
@@ -275,10 +275,28 @@ struct FillAssistRepositoryTests {
             rules: [:],
             sourceUrl: "https://example.com",
         )
+        appSettingsStore.fillAssistLastFetchTimestampByUserId["1"] = timeProvider.presentTime
 
-        try await subject.clearRules()
+        try await subject.clearRules(userId: nil)
 
         #expect(appSettingsStore.fillAssistCachedDataByUserId["1"] == nil)
+        #expect(appSettingsStore.fillAssistLastFetchTimestampByUserId["1"] == nil)
+    }
+
+    /// `clearRules(userId:)` removes cached data for a specific, non-active account.
+    @Test
+    func clearRules_removesCachedData_forSpecificUser() async throws {
+        appSettingsStore.fillAssistCachedDataByUserId["2"] = FillAssistCachedData(
+            cid: "sha256:abc",
+            rules: [:],
+            sourceUrl: "https://example.com",
+        )
+        appSettingsStore.fillAssistLastFetchTimestampByUserId["2"] = timeProvider.presentTime
+
+        try await subject.clearRules(userId: "2")
+
+        #expect(appSettingsStore.fillAssistCachedDataByUserId["2"] == nil)
+        #expect(appSettingsStore.fillAssistLastFetchTimestampByUserId["2"] == nil)
     }
 
     // MARK: Tests - FormsMapSelector.attributes

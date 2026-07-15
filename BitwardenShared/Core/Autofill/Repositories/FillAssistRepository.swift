@@ -17,9 +17,11 @@ protocol FillAssistRepository { // sourcery: AutoMockable
     ///
     func rules(for hostname: String) async -> FillAssistHostRules?
 
-    /// Clears all cached fill-assist data for the active account.
+    /// Clears all cached fill-assist data for an account.
     ///
-    func clearRules() async throws
+    /// - Parameter userId: The user ID of the account to clear. Defaults to the active account if `nil`.
+    ///
+    func clearRules(userId: String?) async throws
 }
 
 // MARK: - DefaultFillAssistRepository
@@ -97,9 +99,14 @@ class DefaultFillAssistRepository: FillAssistRepository {
         return appSettingsStore.fillAssistCachedData(userId: userId)?.rules[hostname]
     }
 
-    func clearRules() async throws {
-        let userId = try await stateService.getActiveAccountId()
-        appSettingsStore.setFillAssistCachedData(nil, userId: userId)
+    func clearRules(userId: String?) async throws {
+        let resolvedUserId: String = if let userId {
+            userId
+        } else {
+            try await stateService.getActiveAccountId()
+        }
+        appSettingsStore.setFillAssistCachedData(nil, userId: resolvedUserId)
+        appSettingsStore.setFillAssistLastFetchTimestamp(nil, userId: resolvedUserId)
     }
 
     // MARK: Private
