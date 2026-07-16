@@ -187,6 +187,16 @@ struct PremiumPlanState: Equatable {
         )
     }
 
+    /// The VoiceOver-friendly version of `totalLabel` (e.g. "$25.55 per year"), so VoiceOver
+    /// doesn't read the raw "/" character.
+    var totalLabelAccessibilityLabel: String {
+        guard let subscription else { return "" }
+        return Localizations.xAmountPerCadence(
+            formatCurrency(subscription.totalAmount),
+            subscription.cadence.accessibilityLabel,
+        )
+    }
+
     // MARK: Private Methods
 
     /// Formats a decimal price as a US dollar currency string using the currency symbol.

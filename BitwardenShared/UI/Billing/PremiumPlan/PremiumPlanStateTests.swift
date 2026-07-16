@@ -6,6 +6,8 @@ import Testing
 @testable import BitwardenShared
 @testable import BitwardenSharedMocks
 
+// swiftlint:disable file_length
+
 // MARK: - PremiumPlanStateTests
 
 struct PremiumPlanStateTests { // swiftlint:disable:this type_body_length
@@ -388,5 +390,30 @@ struct PremiumPlanStateTests { // swiftlint:disable:this type_body_length
     func totalLabel_nil() {
         let state = PremiumPlanState()
         #expect(state.totalLabel.isEmpty)
+    }
+
+    // MARK: Tests - totalLabelAccessibilityLabel
+
+    /// `totalLabelAccessibilityLabel` returns the formatted total with a VoiceOver-friendly
+    /// cadence label instead of the raw "/" character.
+    @Test
+    func totalLabelAccessibilityLabel() {
+        var state = PremiumPlanState()
+        state.loadingState = .data(.fixture(
+            cadence: .annually,
+            discount: 0,
+            estimatedTax: 4.55,
+            seatsCost: 19.80,
+            storageCost: 1.20,
+        ))
+        #expect(state.totalLabelAccessibilityLabel.contains("$25.55"))
+        #expect(state.totalLabelAccessibilityLabel.contains(Localizations.perYearVoiceOver))
+    }
+
+    /// `totalLabelAccessibilityLabel` returns empty when subscription is nil.
+    @Test
+    func totalLabelAccessibilityLabel_nil() {
+        let state = PremiumPlanState()
+        #expect(state.totalLabelAccessibilityLabel.isEmpty)
     }
 }
