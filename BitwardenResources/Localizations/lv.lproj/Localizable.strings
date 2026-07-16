@@ -6,6 +6,7 @@
 "Bitwarden" = "Bitwarden";
 "Cancel" = "Atcelt";
 "Copy" = "Ievietot starpliktuvē";
+"CopyLicenseNumber" = "Ievietot licences numuru starpliktuvē";
 "CopyPassportNumber" = "Ievietot pases numuru starpliktuvē";
 "CopyPassword" = "Ievietot paroli starpliktuvē";
 "CopyUsername" = "Ievietot lietotājvārdu starpliktuvē";
@@ -1026,10 +1027,8 @@
 "ArchiveEmptyDescriptionLong" = "Arhīvs ir aizpildāms ar vienumiem, kurus nav vēlēšanās redzēt meklēšanas iznākumā un automātiskās aizpildes ieteikumos, bet kaut kad varētu būt nepieciešami.";
 "ArchiveItem" = "Archive item";
 "OnceArchivedThisItemWillBeExcludedDescriptionLong" = "Once archived, this item will be excluded from search results and autofill suggestions.";
-"ArchiveUnavailable" = "Arhīvs nav pieejams";
 "ArchivingItemsIsAPremiumFeatureDescriptionLong" = "Vienumu ievietošana arhīvā ir Premium iespēja. Pašreizējais plāns neiekļauj piekļuvi tai.";
 "AddingAttachmentsIsAPremiumFeatureDescriptionLong" = "Pielikumu pievienošana ir Premium iespēja. Pašreizējais plāns neiekļauj piekļuvi tai.";
-"AttachmentsUnavailable" = "Attachments unavailable";
 "UpgradeToPremium" = "Uzlabot uz Premium";
 "ThisItemIsArchived" = "Šis vienums ir ievietots arhīvā.";
 "YourPremiumSubscriptionEnded" = "Your Premium subscription ended";

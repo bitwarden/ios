@@ -3,6 +3,7 @@ import AuthenticatorBridgeKit
 import BitwardenKit
 import BitwardenKitMocks
 import BitwardenResources
+import Combine
 import Foundation
 import TestHelpers
 import XCTest
@@ -15,6 +16,7 @@ import XCTest
 class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body_length
     // MARK: Properties
 
+    var acquireCookiesSubject: CurrentValueSubject<String?, Never>!
     var appIntentMediator: MockAppIntentMediator!
     var appModule: MockAppModule!
     var authRepository: MockAuthRepository!
@@ -52,6 +54,7 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
         super.setUp()
 
         router = MockRouter(routeForEvent: { _ in .landing })
+        acquireCookiesSubject = CurrentValueSubject<String?, Never>(nil)
         appIntentMediator = MockAppIntentMediator()
         appModule = MockAppModule()
         authRepository = MockAuthRepository()
@@ -79,6 +82,9 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
         timeProvider = MockTimeProvider(.currentTime)
         vaultRepository = MockVaultRepository()
         vaultTimeoutService = MockVaultTimeoutService()
+
+        serverCommunicationConfigAPIService.acquireCookiesPublisherReturnValue =
+            acquireCookiesSubject.eraseToAnyPublisher()
 
         subject = AppProcessor(
             appIntentMediator: appIntentMediator,
@@ -115,6 +121,7 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
     override func tearDown() {
         super.tearDown()
 
+        acquireCookiesSubject = nil
         appModule = nil
         authRepository = nil
         autofillCredentialService = nil
@@ -991,27 +998,16 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
         XCTAssertTrue(vaultRepository.addCipherCiphers.isEmpty)
     }
 
-    /// `generatePasswordCredential(request:)` unlocks the vault, generates, and returns a password.
+    /// `generatePasswordCredential(request:)` generates and returns a password.
     @available(iOS 26.2, *)
     func test_generatePasswordCredential() async throws {
         generatorRepository.passwordResult = .success("generated-password")
 
         let result = try await subject.generatePasswordCredential(request: MockGeneratePasswordRequest())
 
-        XCTAssertTrue(authRepository.unlockVaultWithNeverlockKeyCalled)
+        XCTAssertFalse(authRepository.unlockVaultWithNeverlockKeyCalled)
         XCTAssertNotNil(generatorRepository.passwordGeneratorRequest)
         XCTAssertEqual(result, "generated-password")
-    }
-
-    /// `generatePasswordCredential(request:)` throws when vault unlock fails.
-    @available(iOS 26.2, *)
-    func test_generatePasswordCredential_unlockError() async throws {
-        authRepository.unlockVaultWithNeverlockResult = .failure(BitwardenTestError.example)
-
-        await assertAsyncThrows(error: BitwardenTestError.example) {
-            _ = try await subject.generatePasswordCredential(request: MockGeneratePasswordRequest())
-        }
-        XCTAssertNil(generatorRepository.passwordGeneratorRequest)
     }
 
     /// `generatePasswordCredential(request:)` throws when the generator fails.
@@ -1278,7 +1274,7 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
         let rootNavigator = MockRootNavigator()
         await subject.start(appContext: .mainApp, navigator: rootNavigator, window: nil)
 
-        serverCommunicationConfigAPIService.acquireCookiesSubject.send("https://example.com")
+        acquireCookiesSubject.send("https://example.com")
 
         try await waitForAsync { [weak self] in
             self?.coordinator.routes.contains(.syncWithBrowser(vaultUrl: "https://example.com")) == true
@@ -1294,7 +1290,7 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
         let rootNavigator = MockRootNavigator()
         await subject.start(appContext: .mainApp, navigator: rootNavigator, window: nil)
 
-        serverCommunicationConfigAPIService.acquireCookiesSubject.send(nil)
+        acquireCookiesSubject.send(nil)
 
         XCTAssertFalse(coordinator.routes.contains(.syncWithBrowser(vaultUrl: "https://example.com")))
     }
@@ -1469,6 +1465,13 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
         XCTAssertNotNil(stateService.encryptedPinByUserId["1"])
         XCTAssertNotNil(stateService.accountVolatileData["1"])
         XCTAssertEqual(errorReporter.errors as? [StateServiceError], [.noActiveAccount])
+    }
+
+    /// `onFetchSyncSucceeded(userId:)` triggers a subscription attention card refresh on every sync.
+    func test_onFetchSyncSucceeded_refreshesSubscriptionAttentionCard() async {
+        await subject.onFetchSyncSucceeded(userId: "1")
+
+        XCTAssertTrue(billingService.refreshSubscriptionAttentionCardCalled)
     }
 
     /// `removeMasterPassword(organizationName:)` notifies the coordinator to show the remove

@@ -6,6 +6,7 @@
 "Bitwarden" = "Bitwarden";
 "Cancel" = "Отмена";
 "Copy" = "Скопировать";
+"CopyLicenseNumber" = "Скопировать номер водительского удостоверения";
 "CopyPassportNumber" = "Скопировать номер паспорта";
 "CopyPassword" = "Скопировать пароль";
 "CopyUsername" = "Скопировать имя пользователя";
@@ -1026,10 +1027,8 @@
 "ArchiveEmptyDescriptionLong" = "Заполните архив элементами, которые вы не хотите видеть в результатах поиска и автозаполнения, но которые когда-нибудь могут понадобиться.";
 "ArchiveItem" = "Архивировать элемент";
 "OnceArchivedThisItemWillBeExcludedDescriptionLong" = "После архивации этот элемент будет исключен из результатов поиска и предложений по автозаполнению.";
-"ArchiveUnavailable" = "Архив недоступен";
 "ArchivingItemsIsAPremiumFeatureDescriptionLong" = "Архивирование элементов является Премиум функцией. Она не входит в ваш текущий тарифный план.";
 "AddingAttachmentsIsAPremiumFeatureDescriptionLong" = "Добавление вложений - это функция, доступная только в плане Премиум. Она не входит в ваш текущий тарифный план.";
-"AttachmentsUnavailable" = "Вложения недоступны";
 "UpgradeToPremium" = "Обновить до Премиум";
 "ThisItemIsArchived" = "Этот элемент архивирован.";
 "YourPremiumSubscriptionEnded" = "Ваша подписка Премиум закончилась";
