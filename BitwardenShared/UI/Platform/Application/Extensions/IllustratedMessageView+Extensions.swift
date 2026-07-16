@@ -15,7 +15,7 @@ extension IllustratedMessageView {
         image: ImageAsset,
         style: IllustratedMessageStyle = .smallImage,
         title: String? = nil,
-        message: String? = nil,
+        message: String,
         @ViewBuilder accessory: () -> Accessory,
     ) {
         self.init(
@@ -41,7 +41,7 @@ extension IllustratedMessageView where Accessory == EmptyView {
         image: ImageAsset,
         style: IllustratedMessageStyle = .smallImage,
         title: String? = nil,
-        message: String? = nil,
+        message: String,
     ) {
         self.init(
             image: image.swiftUIImage,

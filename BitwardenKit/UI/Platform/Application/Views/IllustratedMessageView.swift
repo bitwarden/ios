@@ -3,9 +3,8 @@ import SwiftUI
 
 // MARK: - IllustratedMessageView
 
-/// A view that renders a message view with an image on top. This supports displaying an image,
-/// title, and message. The image is sized to fit within `IllustratedMessageStyle.imageSize` while
-/// preserving its own aspect ratio, so it need not be square.
+/// A view that renders a message view with an image on top. This support displaying a square image,
+/// title, and message.
 ///
 public struct IllustratedMessageView<Accessory: View>: View {
     // MARK: Properties
@@ -16,8 +15,8 @@ public struct IllustratedMessageView<Accessory: View>: View {
     /// The image to display in the message view.
     let image: Image
 
-    /// The message to display in the message view, or `nil` to omit it.
-    let message: String?
+    /// The message to display in the message view.
+    let message: String
 
     /// The style for rendering the message view.
     let style: IllustratedMessageStyle
@@ -34,10 +33,9 @@ public struct IllustratedMessageView<Accessory: View>: View {
         dynamicStackView {
             image
                 .resizable()
-                .aspectRatio(contentMode: .fit)
                 .frame(
-                    maxWidth: style.imageSize(verticalSizeClass ?? .regular),
-                    maxHeight: style.imageSize(verticalSizeClass ?? .regular),
+                    width: style.imageSize(verticalSizeClass ?? .regular),
+                    height: style.imageSize(verticalSizeClass ?? .regular),
                 )
                 .if(style.imageColor != nil) { view in
                     view.foregroundStyle(style.imageColor!)
@@ -51,11 +49,9 @@ public struct IllustratedMessageView<Accessory: View>: View {
                         .accessibilityIdentifier("HeaderTitle")
                 }
 
-                if let message {
-                    Text(LocalizedStringKey(message))
-                        .styleGuide(style.messageTextStyle)
-                        .accessibilityIdentifier("HeaderMessage")
-                }
+                Text(LocalizedStringKey(message))
+                    .styleGuide(style.messageTextStyle)
+                    .accessibilityIdentifier("HeaderMessage")
 
                 if let accessory {
                     accessory
@@ -81,7 +77,7 @@ public struct IllustratedMessageView<Accessory: View>: View {
         image: Image,
         style: IllustratedMessageStyle = .smallImage,
         title: String? = nil,
-        message: String? = nil,
+        message: String,
         @ViewBuilder accessory: () -> Accessory,
     ) {
         self.accessory = accessory()
@@ -104,7 +100,7 @@ public struct IllustratedMessageView<Accessory: View>: View {
         image: SharedImageAsset,
         style: IllustratedMessageStyle = .smallImage,
         title: String? = nil,
-        message: String? = nil,
+        message: String,
         @ViewBuilder accessory: () -> Accessory,
     ) {
         self.accessory = accessory()
@@ -142,7 +138,7 @@ public extension IllustratedMessageView where Accessory == EmptyView {
         image: Image,
         style: IllustratedMessageStyle = .smallImage,
         title: String? = nil,
-        message: String? = nil,
+        message: String,
     ) {
         accessory = nil
         self.image = image
@@ -163,7 +159,7 @@ public extension IllustratedMessageView where Accessory == EmptyView {
         image: SharedImageAsset,
         style: IllustratedMessageStyle = .smallImage,
         title: String? = nil,
-        message: String? = nil,
+        message: String,
     ) {
         accessory = nil
         self.image = image.swiftUIImage
@@ -229,8 +225,8 @@ public struct IllustratedMessageStyle: Sendable {
     /// A foreground tint to apply to the image. Only applied if this has a value.
     let imageColor: Color?
 
-    /// The maximum width and height the image is allowed to render at; the image's own aspect
-    /// ratio determines its final rendered size within that bound.
+    /// The size of the image. Because the image is square, this value can be used for both
+    /// the height and the width.
     let imageSize: OrientationBasedValue<CGFloat>
 
     /// The text style applied to the message.
@@ -249,7 +245,8 @@ public struct IllustratedMessageStyle: Sendable {
 
     // MARK: Functions
 
-    /// Convenience function for getting the maximum image size based on the orientation.
+    /// Convenience function for getting the image size based on the orientation.
+    /// Because the image is square, this value can be used for both the height and the width.
     func imageSize(_ verticalSizeClass: UserInterfaceSizeClass) -> CGFloat {
         imageSize.value(verticalSizeClass)
     }
