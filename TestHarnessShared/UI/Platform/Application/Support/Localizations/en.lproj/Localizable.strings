@@ -8,6 +8,7 @@
 "CardholderName" = "Cardholder Name";
 "CardNumber" = "Card Number";
 "ChallengeMismatchReceived" = "The challenge in the client data did not match the challenge sent to the authenticator.";
+"ClientDataErrors" = "Client Data Errors";
 "ConfirmPassword" = "Confirm Password";
 "CreateAccount" = "Create Account";
 "CreateAccountForm" = "Create Account Form";
@@ -26,6 +27,7 @@
 "ExpirationYear" = "Expiration Year";
 "FileShare" = "File Share";
 "FormValues" = "Form Values";
+"Help" = "Help";
 "MalformedClientDataChallengeReceived" = "The client data's challenge was not valid base64url.";
 "MalformedClientDataJSONReceived" = "The client data JSON could not be decoded.";
 "MalformedCOSEKeyReceived" = "The credential's public key could not be decoded.";
@@ -40,6 +42,7 @@
 "PasskeyAssertedSuccessfully" = "Passkey sign-in succeeded.";
 "PasskeyAutofill" = "Passkey Autofill";
 "PasskeyCreatedButNotSaved" = "Passkey created, but not saved for later verification.";
+"PasskeyErrorReference" = "Passkey Error Reference";
 "PasskeyRegisteredSuccessfully" = "Passkey registered successfully.";
 "PasskeyVerificationFailed" = "Passkey verification failed.";
 "Password" = "Password";
@@ -76,4 +79,5 @@
 "UsePasskey" = "Use passkey";
 "UsePasskeyFormDescriptionLong" = "Enter a relying party ID above, then tap Sign In with Passkey. The Bitwarden AutoFill sheet will appear to select a credential.";
 "UseThisLoginFormToTestAutofillFunctionality" = "Use this login form to test autofill functionality.";
+"VerificationErrors" = "Verification Errors";
 "XColonY" = "%@: %@";
