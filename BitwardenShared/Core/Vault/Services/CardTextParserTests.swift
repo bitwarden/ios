@@ -155,8 +155,8 @@ struct CardTextParserTests {
     /// provided its length falls within the generic 13–19 digit range.
     @Test
     func parseCard_unknownBrandLuhnValid_extractsCardNumber() {
-        // 9400000000007: 13 digits, prefix 94 → .other, Luhn sum = 20 ✓.
-        let result = subject.parseCard(lines: ["9400000000007"])
-        #expect(result.cardNumber == "9400000000007")
+        // 9400000000003: 13 digits, prefix 94 → .other, Luhn sum = 20 ✓.
+        let result = subject.parseCard(lines: ["9400000000003"])
+        #expect(result.cardNumber == "9400000000003")
     }
 }
