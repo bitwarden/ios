@@ -41,7 +41,9 @@ For each test:
 |---|---|---|
 | `BitwardenSharedTests`, `BitwardenTests`, `BitwardenAutoFillExtensionTests`, `BitwardenActionExtensionTests`, `BitwardenShareExtensionTests` | `Bitwarden` | `Bitwarden-Unit` |
 | `AuthenticatorSharedTests`, `AuthenticatorTests`, `AuthenticatorBridgeKitTests` | `Authenticator` | `Authenticator-Unit` |
-| `BitwardenKitTests`, `BitwardenKitViewInspectorTests`, `NetworkingTests` | `BitwardenKit` | `BitwardenKit-Unit` |
+| `BitwardenKitTests` | `BitwardenKit` | `BitwardenKit-Unit` |
+| `BitwardenKitViewInspectorTests` | `BitwardenKit` | `BitwardenKit-ViewInspector` |
+| `NetworkingTests` | `BitwardenKit` | `BitwardenKit-Default` |
 
 When in doubt, search `TestPlans/` for the test class name to confirm the plan (and therefore scheme):
 
@@ -77,8 +79,7 @@ Signs: test passes during the day but fails near midnight, or fails only under h
 wall-clock timing drifts.
 
 **Order dependence**
-Test execution order is randomized (`randomExecutionOrder: true` in test plans). A test that
-mutates global state can break a later test.
+Test execution order is randomized in the -Default test plans ("testExecutionOrdering" : "random"), but the -Unit plans used for verification here run sequentially. To reproduce order-dependent flakiness, run against the -Default plan rather than -Unit.
 
 **Resource contention**
 CoreData, Keychain, or file system state left behind by a previous run.
@@ -95,7 +96,7 @@ Use the project's test helpers instead of a fixed sleep. These are available to 
   - `waitForAsync { condition }` — polls asynchronously; use for Swift Concurrency-based SUT code
 
 - **Swift Testing** (`SwiftTestingHelpers.swift`):
-  - `await waitForAsync { condition }` — polls asynchronously in `@Test` functions
+  - `try await waitForAsync { condition }` — polls asynchronously in `@Test` functions
   - `waitFor(condition)` — spins the run loop in `@Test` functions using `@MainActor`
   - `await withContinuationTimeout { resume in … }` — wraps callback-based async code so the
     test fails cleanly rather than hanging if the callback is never called
