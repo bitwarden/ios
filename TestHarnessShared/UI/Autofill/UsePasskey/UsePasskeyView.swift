@@ -15,6 +15,25 @@ struct UsePasskeyView: View {
         content
             .navigationTitle(store.state.title)
             .navigationBarTitleDisplayMode(.large)
+            .toolbar {
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button {
+                        store.send(.helpSheetPresentedChanged(true))
+                    } label: {
+                        Image(systemName: "questionmark.circle")
+                    }
+                    .accessibilityIdentifier("HelpButton")
+                    .accessibilityLabel(Localizations.help)
+                }
+            }
+            .sheet(isPresented: store.binding(
+                get: \.isHelpSheetPresented,
+                send: UsePasskeyAction.helpSheetPresentedChanged,
+            )) {
+                PasskeyErrorReferenceView {
+                    store.send(.helpSheetPresentedChanged(false))
+                }
+            }
     }
 
     // MARK: Private Views

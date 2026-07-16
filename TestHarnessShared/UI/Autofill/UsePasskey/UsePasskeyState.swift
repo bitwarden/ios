@@ -26,6 +26,9 @@ struct UsePasskeyState: Equatable {
 
     // MARK: Properties
 
+    /// Whether the passkey error reference sheet is presented.
+    var isHelpSheetPresented: Bool = false
+
     /// The relying party identifier (RP ID) for passkey assertion.
     var rpId: String = "bitwarden.pw"
 
