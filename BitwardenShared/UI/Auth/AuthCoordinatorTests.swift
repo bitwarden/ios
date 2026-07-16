@@ -263,6 +263,38 @@ class AuthCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this type_b
         XCTAssertTrue(didRun)
     }
 
+    /// `navigate(to:)` with `.duoAuthenticationFlow` starts a web auth session built for the Duo
+    /// connector and completes with the combined `code|state` token.
+    @MainActor
+    func test_navigate_duoAuthenticationFlow() throws {
+        let delegate = MockDuoAuthenticationFlowDelegate()
+
+        subject.navigate(to: .duoAuthenticationFlow(URL.example), context: delegate)
+
+        let mockSession = try XCTUnwrap(authService.webAuthenticationSession as? MockWebAuthenticationSession)
+        XCTAssertEqual(authService.webAuthenticationSessionCallbackKind, .duo)
+        XCTAssertEqual(authService.webAuthenticationSessionUrl, .example)
+        XCTAssertEqual(mockSession.initUrl, .example)
+        XCTAssertTrue(mockSession.startCalled)
+
+        mockSession.initCompletionHandler(URL(string: "bitwarden://?code=duo_code&state=duo_state"), nil)
+
+        XCTAssertEqual(delegate.didCompleteReceivedCode, "duo_code|duo_state")
+    }
+
+    /// `navigate(to:)` with `.duoAuthenticationFlow` surfaces errors from the web auth session.
+    @MainActor
+    func test_navigate_duoAuthenticationFlow_error() throws {
+        let delegate = MockDuoAuthenticationFlowDelegate()
+
+        subject.navigate(to: .duoAuthenticationFlow(URL.example), context: delegate)
+
+        let mockSession = try XCTUnwrap(authService.webAuthenticationSession as? MockWebAuthenticationSession)
+        mockSession.initCompletionHandler(nil, BitwardenTestError.example)
+
+        XCTAssertEqual(delegate.duoErroredReceivedError as? BitwardenTestError, BitwardenTestError.example)
+    }
+
     /// `navigate(to:)` with `.expiredLink` pushes the expired link view onto the stack navigator.
     @MainActor
     func test_navigate_expiredLink() throws {
@@ -478,6 +510,28 @@ class AuthCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this type_b
         XCTAssertEqual(action.embedInNavigationController, true)
     }
 
+    /// `navigate(to:)` with `.selfHosted` pre-fills the self-hosted view with the stored URLs when
+    /// the current region is internal, mirroring self-hosted behavior.
+    @MainActor
+    func test_navigate_selfHosted_prefillsURLsForInternalRegion() throws {
+        appSettingsStore.preAuthEnvironmentURLs = EnvironmentURLData(base: URL(string: "https://bitwarden.pw")!)
+        subject.navigate(to: .selfHosted(currentRegion: .internal))
+
+        let view = try XCTUnwrap(stackNavigator.actions.last?.view as? SelfHostedView)
+        XCTAssertEqual(view.store.state.serverUrl, "https://bitwarden.pw")
+    }
+
+    /// `navigate(to:)` with `.selfHosted` pre-fills the self-hosted view with the stored URLs when
+    /// the current region is self-hosted.
+    @MainActor
+    func test_navigate_selfHosted_prefillsURLsForSelfHostedRegion() throws {
+        appSettingsStore.preAuthEnvironmentURLs = EnvironmentURLData(base: URL(string: "https://example.com")!)
+        subject.navigate(to: .selfHosted(currentRegion: .selfHosted))
+
+        let view = try XCTUnwrap(stackNavigator.actions.last?.view as? SelfHostedView)
+        XCTAssertEqual(view.store.state.serverUrl, "https://example.com")
+    }
+
     /// `navigate(to:)` with `.removeMasterPassword` pushes the remove master password view onto the stack navigator.
     @MainActor
     func test_navigate_removeMasterPassword() throws {
@@ -518,6 +572,38 @@ class AuthCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this type_b
         let view = viewController.rootView
         let state = view.store.state
         XCTAssertEqual(state.orgIdentifier, "Bitwarden")
+    }
+
+    /// `navigate(to:)` with `.singleSignOn` starts a web auth session built for the SSO connector and
+    /// completes with the returned code when the callback's state matches.
+    @MainActor
+    func test_navigate_singleSignOn() throws {
+        let delegate = MockSingleSignOnFlowDelegate()
+
+        subject.navigate(to: .singleSignOn(state: "state", url: .example), context: delegate)
+
+        let mockSession = try XCTUnwrap(authService.webAuthenticationSession as? MockWebAuthenticationSession)
+        XCTAssertEqual(authService.webAuthenticationSessionCallbackKind, .singleSignOn)
+        XCTAssertEqual(authService.webAuthenticationSessionUrl, .example)
+        XCTAssertEqual(mockSession.initUrl, .example)
+        XCTAssertTrue(mockSession.startCalled)
+
+        mockSession.initCompletionHandler(URL(string: "bitwarden://sso-callback?state=state&code=super_code"), nil)
+
+        XCTAssertEqual(delegate.singleSignOnCompletedReceivedCode, "super_code")
+    }
+
+    /// `navigate(to:)` with `.singleSignOn` surfaces errors from the web auth session.
+    @MainActor
+    func test_navigate_singleSignOn_error() throws {
+        let delegate = MockSingleSignOnFlowDelegate()
+
+        subject.navigate(to: .singleSignOn(state: "state", url: .example), context: delegate)
+
+        let mockSession = try XCTUnwrap(authService.webAuthenticationSession as? MockWebAuthenticationSession)
+        mockSession.initCompletionHandler(nil, BitwardenTestError.example)
+
+        XCTAssertEqual(delegate.singleSignOnErroredReceivedError as? BitwardenTestError, BitwardenTestError.example)
     }
 
     /// `handleEvent()` with `.switchAccount` with an locked account navigates to vault unlock

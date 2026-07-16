@@ -43,6 +43,14 @@ class DebugMenuViewTests: BitwardenTestCase {
 
     // MARK: Tests
 
+    /// Tapping the clear masterPasswordUnlock button sends the correct effect.
+    @MainActor
+    func test_clearMasterPasswordUnlock_tapped() async throws {
+        let button = try subject.inspect().find(asyncButton: Localizations.clearMasterPasswordUnlock)
+        try await button.tap()
+        XCTAssertEqual(processor.effects.last, .clearMasterPasswordUnlock)
+    }
+
     /// Test that the clear SSO Cookies button sends the correct effect.
     @MainActor
     func test_clearSSOCookies_tapped() async throws {

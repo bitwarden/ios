@@ -1,11 +1,12 @@
 import BitwardenSdk
+import BitwardenSdkMocks
 import TestHelpers
 
 @testable import BitwardenKit
 
 public final class MockServerCommunicationConfigClientSingleton: ServerCommunicationConfigClientSingleton {
     public var clientResult: Result<ServerCommunicationConfigClientProtocol, Error> =
-        .success(MockServerCommunicationConfigClient())
+        .success(MockServerCommunicationConfigClientProtocol.withDefaults())
 
     public var resolveHostnameReceivedHostname: String?
     public var resolveHostnameResult: String?

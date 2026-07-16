@@ -2,7 +2,7 @@ import XCTest
 
 @testable import BitwardenKit
 
-class EnvironmentURLsTests: BitwardenTestCase {
+class EnvironmentURLsTests: BitwardenTestCase { // swiftlint:disable:this type_body_length
     // MARK: Tests
 
     /// `init(environmentURLData:)` sets the URLs from the passed data when such data is the default US.
@@ -274,5 +274,21 @@ class EnvironmentURLsTests: BitwardenTestCase {
         let subject = EnvironmentURLs(environmentURLData: usData)
 
         XCTAssertEqual(subject.fillAssistRulesURL, customFillAssistURL)
+    }
+
+    /// `region` resolves the base URL to the matching region.
+    func test_region() {
+        XCTAssertEqual(EnvironmentURLs(environmentURLData: .defaultUS).region, .unitedStates)
+        XCTAssertEqual(EnvironmentURLs(environmentURLData: .defaultEU).region, .europe)
+        XCTAssertEqual(
+            EnvironmentURLs(environmentURLData: EnvironmentURLData(base: URL(string: "https://bitwarden.pw")!)).region,
+            .internal,
+        )
+        XCTAssertEqual(
+            EnvironmentURLs(
+                environmentURLData: EnvironmentURLData(base: URL(string: "https://selfhosted.com")!),
+            ).region,
+            .selfHosted,
+        )
     }
 }

@@ -73,4 +73,7 @@ enum VaultListAction: Equatable {
 
     /// The selected vault filter changed.
     case vaultFilterChanged(VaultFilterType)
+
+    /// The "View plan" button on the subscription needs attention action card was tapped.
+    case viewPlan
 }

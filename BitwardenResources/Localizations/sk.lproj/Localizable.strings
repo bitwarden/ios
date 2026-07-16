@@ -6,6 +6,7 @@
 "Bitwarden" = "Bitwarden";
 "Cancel" = "Zrušiť";
 "Copy" = "Kopírovať";
+"CopyLicenseNumber" = "Kopírovať číslo licencie";
 "CopyPassportNumber" = "Kopírovať číslo pasu";
 "CopyPassword" = "Kopírovať heslo";
 "CopyUsername" = "Kopírovať používateľské meno";
@@ -1026,10 +1027,8 @@
 "ArchiveEmptyDescriptionLong" = "Naplňte svoj archív položkami, ktoré nechcete vidieť vo výsledkoch vyhľadávania a automatických návrhoch, ale ktoré budete možno niekedy potrebovať.";
 "ArchiveItem" = "Archivovať položku";
 "OnceArchivedThisItemWillBeExcludedDescriptionLong" = "Po archivácii bude táto položka vylúčená z výsledkov vyhľadávania a návrhov automatického vypĺňania.";
-"ArchiveUnavailable" = "Archív je nedostupný";
 "ArchivingItemsIsAPremiumFeatureDescriptionLong" = "Archivovanie položiek je prémiová funkcia. Váš aktuálny plán nezahŕňa prístup k tejto funkcii.";
 "AddingAttachmentsIsAPremiumFeatureDescriptionLong" = "Pridávanie príloh je prémiová funkcia. Váš aktuálny plán nezahŕňa prístup k tejto funkcii.";
-"AttachmentsUnavailable" = "Prílohy nie sú k dispozícii";
 "UpgradeToPremium" = "Upgradovať na Prémium";
 "ThisItemIsArchived" = "Táto položka je archivovaná.";
 "YourPremiumSubscriptionEnded" = "Vaše predplatné Prémium skončilo";
