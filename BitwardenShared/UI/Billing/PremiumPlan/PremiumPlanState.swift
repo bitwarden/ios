@@ -34,8 +34,7 @@ struct PremiumPlanState: Equatable {
         )
     }
 
-    /// The VoiceOver-friendly version of `billingAmount` (e.g. "$19.80 per year"), so VoiceOver
-    /// doesn't read the raw "/" character.
+    /// The VoiceOver-friendly version of `billingAmount` (e.g. "$19.80 per year").
     var billingAmountAccessibilityLabel: String {
         guard let subscription else { return "" }
         return Localizations.xAmountPerCadence(
@@ -187,8 +186,7 @@ struct PremiumPlanState: Equatable {
         )
     }
 
-    /// The VoiceOver-friendly version of `totalLabel` (e.g. "$25.55 per year"), so VoiceOver
-    /// doesn't read the raw "/" character.
+    /// The VoiceOver-friendly version of `totalLabel` (e.g. "$25.55 per year").
     var totalLabelAccessibilityLabel: String {
         guard let subscription else { return "" }
         return Localizations.xAmountPerCadence(
