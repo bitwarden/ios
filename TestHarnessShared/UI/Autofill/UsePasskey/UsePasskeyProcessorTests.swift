@@ -44,6 +44,16 @@ class UsePasskeyProcessorTests: BitwardenTestCase {
 
     // MARK: Action Tests
 
+    /// `receive(.helpSheetPresentedChanged)` updates whether the help sheet is presented in state.
+    @MainActor
+    func test_receive_helpSheetPresentedChanged() {
+        subject.receive(.helpSheetPresentedChanged(true))
+        XCTAssertTrue(subject.state.isHelpSheetPresented)
+
+        subject.receive(.helpSheetPresentedChanged(false))
+        XCTAssertFalse(subject.state.isHelpSheetPresented)
+    }
+
     /// `receive(.rpIdChanged)` updates the RP ID in state.
     @MainActor
     func test_receive_rpIdChanged() {
