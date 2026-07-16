@@ -29,7 +29,10 @@ public extension Date {
     /// time zone.
     var longCalendarDateDisplay: String {
         var style = Date.FormatStyle(date: .long, time: .omitted)
-        style.timeZone = TimeZone(identifier: "UTC")!
+        guard let timezone = TimeZone(identifier: "UTC") else {
+            return formatted(style)
+        }
+        style.timeZone = timezone
         return formatted(style)
     }
 
@@ -105,7 +108,14 @@ public extension Date {
     func asUTCCalendarDay(from timeZone: TimeZone = .current) -> Date {
         let components = Date.gregorianCalendar(timeZone: timeZone)
             .dateComponents([.year, .month, .day], from: self)
-        return Date(year: components.year!, month: components.month!, day: components.day!)
+
+        guard let year = components.year,
+              let month = components.month,
+              let day = components.day else {
+            return self
+        }
+
+        return Date(year: year, month: month, day: day)
     }
 }
 
