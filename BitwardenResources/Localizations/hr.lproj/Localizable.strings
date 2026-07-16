@@ -6,6 +6,7 @@
 "Bitwarden" = "Bitwarden";
 "Cancel" = "Odustani";
 "Copy" = "Kopiraj";
+"CopyLicenseNumber" = "Kopiraj broj osobne";
 "CopyPassportNumber" = "Kopiraj broj putovnice";
 "CopyPassword" = "Kopiraj lozinku";
 "CopyUsername" = "Kopiraj korisničko ime";
@@ -1026,10 +1027,8 @@
 "ArchiveEmptyDescriptionLong" = "Ispuni svoju arhivu stavkama koje ne želiš vidjeti u rezultatima pretraživanja i prijedlozima auto-ispune, ali bi ti jednog dana ipak mogle zatrebati.";
 "ArchiveItem" = "Arhiviraj stavki";
 "OnceArchivedThisItemWillBeExcludedDescriptionLong" = "Nakon arhiviranja, stavka će biti izuzeta iz rezultata pretrage i prijedloga auto-ispune.";
-"ArchiveUnavailable" = "Arhiva nedostupna";
 "ArchivingItemsIsAPremiumFeatureDescriptionLong" = "Arhiviranje je Premium značajka. Tvoj trenutni paket ne uključuje pristup ovoj značajki.";
 "AddingAttachmentsIsAPremiumFeatureDescriptionLong" = "Adding attachments is a Premium feature. Your current plan does not include access to this feature.";
-"AttachmentsUnavailable" = "Privici nisu dostupni";
 "UpgradeToPremium" = "Nadogradnja na premium";
 "ThisItemIsArchived" = "Ova stavka je arhivirana.";
 "YourPremiumSubscriptionEnded" = "Toja Premium pretplata je završila";

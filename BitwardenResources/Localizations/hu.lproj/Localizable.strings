@@ -6,6 +6,7 @@
 "Bitwarden" = "Bitwarden";
 "Cancel" = "Mégse";
 "Copy" = "Másolás";
+"CopyLicenseNumber" = "Vezetői engedély szám másolása";
 "CopyPassportNumber" = "Útlevélszám másolása";
 "CopyPassword" = "Jelszó másolása";
 "CopyUsername" = "Felhasználónév másolása";
@@ -1026,10 +1027,8 @@
 "ArchiveEmptyDescriptionLong" = "Töltsük ki az archívumot olyan elemekkel, amelyeket nem szeretnénk látni a keresési eredményekben és az automatikus kitöltési javaslatokban, de egy nap szükség lehet rá.";
 "ArchiveItem" = "Elem archiválása";
 "OnceArchivedThisItemWillBeExcludedDescriptionLong" = "Az archiválás után ez az elem kizárásra kerül a keresési eredményekből és az automatikus kitöltési javaslatokból.";
-"ArchiveUnavailable" = "Az archívum nem elérhető.";
 "ArchivingItemsIsAPremiumFeatureDescriptionLong" = "Az elemek archiválása prémium funkció. A jelenlegi csomag nem tartalmazza a hozzáférést ehhez a funkcióhoz.";
 "AddingAttachmentsIsAPremiumFeatureDescriptionLong" = "A mellékletek hozzáadása prémium funkció. A jelenlegi csomag nem tartalmazza a hozzáférést ehhez a funkcióhoz.";
-"AttachmentsUnavailable" = "A mellékletek nem érhetők el.";
 "UpgradeToPremium" = "Áttérés Prémium csomagra";
 "ThisItemIsArchived" = "Ez az elem archiválva van.";
 "YourPremiumSubscriptionEnded" = "A Prémium előfizetés véget ért.";
@@ -1147,7 +1146,7 @@
 "PassportType" = "Útlevél típus";
 "NationalIdentificationNumber" = "Nemzeti azonosító szám";
 /* Label for the government authority or office that issued the passport. */
-"IssuingAuthorityOffice" = "Issuing authority/office";
+"IssuingAuthorityOffice" = "Kibocsátó hatóság/hivatal";
 "AccountDetails" = "Fiók adatok";
 "BankName" = "Bank neve";
 "NameOnAccount" = "Számlatulajdonos neve";

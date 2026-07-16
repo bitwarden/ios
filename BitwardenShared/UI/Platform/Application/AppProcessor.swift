@@ -263,8 +263,6 @@ public class AppProcessor {
     ///
     @available(iOSApplicationExtension 26.2, *)
     public func generatePasswordCredential(request: any GeneratePasswordRequestProxy) async throws -> String {
-        try await unlockVaultWithNeverlockKey()
-
         // TODO: PM-29569 Map ASGeneratePasswordsRequest rules to PasswordGeneratorRequest once SDK exposes the API.
         let passwordRequest = PasswordGeneratorRequest(
             lowercase: true,
@@ -708,6 +706,10 @@ extension AppProcessor: NotificationServiceDelegate {
 
 extension AppProcessor: SyncServiceDelegate {
     func onFetchSyncSucceeded(userId: String) async {
+        // Refresh the subscription attention card cache on every sync so the vault list
+        // always reflects current subscription status without making a live API call there.
+        await services.billingService.refreshSubscriptionAttentionCard(subscription: nil)
+
         do {
             let hasPerformedSyncAfterLogin = try await services.stateService.getHasPerformedSyncAfterLogin(
                 userId: userId,

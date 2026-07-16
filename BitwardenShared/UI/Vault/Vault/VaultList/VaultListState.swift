@@ -102,6 +102,9 @@ struct VaultListState: Equatable {
     /// Whether the Premium Upgrade action card should be shown.
     var shouldShowPremiumUpgradeActionCard: Bool = false
 
+    /// Whether the "subscription needs attention" action card should be shown.
+    var shouldShowSubscriptionAttentionCard: Bool = false
+
     /// Whether the Upgraded to Premium action card should be shown.
     var shouldShowUpgradedToPremiumActionCard: Bool = false
 

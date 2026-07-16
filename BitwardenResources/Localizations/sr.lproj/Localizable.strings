@@ -6,6 +6,7 @@
 "Bitwarden" = "Bitwarden";
 "Cancel" = "Откажи";
 "Copy" = "Копирај";
+"CopyLicenseNumber" = "Копирати број дозволе";
 "CopyPassportNumber" = "Копирати број пасоша";
 "CopyPassword" = "Копирај лозинку";
 "CopyUsername" = "Копирај име";
@@ -1026,10 +1027,8 @@
 "ArchiveEmptyDescriptionLong" = "Напуните своју архиву ставкама које не желите да видите у резултатима претраге и предлозима за аутоматско попуњавање, али које вам можда једног дана затребају.";
 "ArchiveItem" = "Archive item";
 "OnceArchivedThisItemWillBeExcludedDescriptionLong" = "Once archived, this item will be excluded from search results and autofill suggestions.";
-"ArchiveUnavailable" = "Archive unavailable";
 "ArchivingItemsIsAPremiumFeatureDescriptionLong" = "Archiving items is a Premium feature. Your current plan does not include access to this feature.";
 "AddingAttachmentsIsAPremiumFeatureDescriptionLong" = "Adding attachments is a Premium feature. Your current plan does not include access to this feature.";
-"AttachmentsUnavailable" = "Прилози нису доступни";
 "UpgradeToPremium" = "Пређите на Премијум";
 "ThisItemIsArchived" = "This item is archived.";
 "YourPremiumSubscriptionEnded" = "Your Premium subscription ended";
