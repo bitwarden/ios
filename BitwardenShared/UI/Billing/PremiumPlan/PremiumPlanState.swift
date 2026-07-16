@@ -34,6 +34,16 @@ struct PremiumPlanState: Equatable {
         )
     }
 
+    /// The VoiceOver-friendly version of `billingAmount` (e.g. "$19.80 per year"), so VoiceOver
+    /// doesn't read the raw "/" character.
+    var billingAmountAccessibilityLabel: String {
+        guard let subscription else { return "" }
+        return Localizations.xAmountPerCadence(
+            formatCurrency(subscription.seatsCost),
+            subscription.cadence.accessibilityLabel,
+        )
+    }
+
     /// The date the subscription was canceled, formatted for display.
     var canceledDate: String {
         guard let canceled = subscription?.canceled else { return "" }

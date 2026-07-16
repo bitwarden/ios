@@ -32,6 +32,25 @@ struct PremiumPlanStateTests { // swiftlint:disable:this type_body_length
         #expect(state.billingAmount.isEmpty)
     }
 
+    // MARK: Tests - billingAmountAccessibilityLabel
+
+    /// `billingAmountAccessibilityLabel` returns the formatted seat cost with a VoiceOver-friendly
+    /// cadence label instead of the raw "/" character.
+    @Test
+    func billingAmountAccessibilityLabel() {
+        var state = PremiumPlanState()
+        state.loadingState = .data(.fixture(seatsCost: 19.8))
+        #expect(state.billingAmountAccessibilityLabel.contains("$19.80"))
+        #expect(state.billingAmountAccessibilityLabel.contains(Localizations.perYearAccessibilityLabel))
+    }
+
+    /// `billingAmountAccessibilityLabel` returns empty when subscription is nil.
+    @Test
+    func billingAmountAccessibilityLabel_nil() {
+        let state = PremiumPlanState()
+        #expect(state.billingAmountAccessibilityLabel.isEmpty)
+    }
+
     // MARK: Tests - descriptionAccessibilityLabel
 
     /// `descriptionAccessibilityLabel` returns a screen-reader-friendly description for the active plan status.

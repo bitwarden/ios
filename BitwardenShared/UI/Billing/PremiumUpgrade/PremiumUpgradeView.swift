@@ -98,6 +98,7 @@ struct PremiumUpgradeView: View {
             .styleGuide(.subheadline)
             .foregroundColor(Color(asset: SharedAsset.Colors.textPrimary))
             .frame(maxWidth: .infinity)
+            .accessibilityLabel(store.state.priceCancelAnytimeAccessibilityLabel ?? "")
     }
 
     /// The pricing error banner shown when the Premium price cannot be fetched.

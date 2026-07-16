@@ -1095,9 +1095,12 @@
 "YourSubscriptionExpiredOnXDescriptionLong" = "Your subscription expired on **%1$@**. Resubscribe to continue using Premium features.";
 "YourSubscriptionIsScheduledToCancelOnXDescriptionLong" = "Your subscription is scheduled to cancel on **%1$@**. You can reinstate it anytime before then.";
 "PerMonth" = "/ month";
+"PerMonthAccessibilityLabel" = "per month";
 "PerYear" = "/ year";
+"PerYearAccessibilityLabel" = "per year";
 "XAmountPerCadence" = "%1$@ %2$@";
 "XCancelAnytime" = "%1$@ · Cancel anytime";
+"XCancelAnytimeAccessibilityLabel" = "%1$@, Cancel anytime";
 "NegativeX" = "-%1$@";
 "UnknownStatus" = "Unknown";
 "YourSubscriptionStatusIsUnknownVisitTheWebAppDescriptionLong" = "Your subscription status could not be determined. Please visit the web app for more details or update to the latest version.";

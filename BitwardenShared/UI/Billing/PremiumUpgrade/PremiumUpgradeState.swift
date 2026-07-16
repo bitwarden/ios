@@ -33,6 +33,17 @@ struct PremiumUpgradeState: Equatable {
         premiumSeatPrice.flatMap { NumberFormatter.usdCurrency.string(from: NSDecimalNumber(decimal: $0 / 12)) }
     }
 
+    /// The VoiceOver-friendly version of `priceCancelAnytimeText`, or `nil` if the price hasn't
+    /// been fetched yet. Uses "per month" instead of "/ month" and a comma instead of "·" so
+    /// VoiceOver doesn't read the raw punctuation.
+    var priceCancelAnytimeAccessibilityLabel: String? {
+        premiumPrice.map { price in
+            Localizations.xCancelAnytimeAccessibilityLabel(
+                Localizations.xAmountPerCadence(price, Localizations.perMonthAccessibilityLabel),
+            )
+        }
+    }
+
     /// The formatted monthly price (bolded) with the "Cancel anytime" suffix, or `nil` if the
     /// price hasn't been fetched yet. Render with `Text(LocalizedStringKey:)` so the markdown
     /// bold around the price is applied.
