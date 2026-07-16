@@ -1,6 +1,7 @@
 import BitwardenKit
 import BitwardenKitMocks
 import BitwardenSdk
+import BitwardenSdkMocks
 import Networking
 import TestHelpers
 import XCTest
@@ -13,7 +14,7 @@ class SSOCookieVendorRequestHandlerTests: BitwardenTestCase {
     // MARK: Properties
 
     var serverCommunicationConfigClientSingleton: MockServerCommunicationConfigClientSingleton!
-    var serverCommunicationConfigClient: MockServerCommunicationConfigClient!
+    var serverCommunicationConfigClient: MockServerCommunicationConfigClientProtocol!
     var subject: SSOCookieVendorRequestHandler!
 
     // MARK: Setup & Teardown
@@ -22,7 +23,7 @@ class SSOCookieVendorRequestHandlerTests: BitwardenTestCase {
         super.setUp()
 
         serverCommunicationConfigClientSingleton = MockServerCommunicationConfigClientSingleton()
-        serverCommunicationConfigClient = MockServerCommunicationConfigClient()
+        serverCommunicationConfigClient = MockServerCommunicationConfigClientProtocol()
         serverCommunicationConfigClientSingleton.clientResult = .success(serverCommunicationConfigClient)
 
         subject = SSOCookieVendorRequestHandler(
@@ -59,7 +60,7 @@ class SSOCookieVendorRequestHandlerTests: BitwardenTestCase {
 
     /// `handle(_:)` returns the request unchanged when the server config bootstrap is `.direct`.
     func test_handle_directBootstrap_returnsUnchanged() async throws {
-        serverCommunicationConfigClient.getConfigResult = .success(ServerCommunicationConfig(bootstrap: .direct))
+        serverCommunicationConfigClient.getConfigReturnValue = ServerCommunicationConfig(bootstrap: .direct)
         var request = HTTPRequest(url: URL(string: "https://example.com/api")!)
 
         let result = try await subject.handle(&request)
@@ -77,10 +78,10 @@ class SSOCookieVendorRequestHandlerTests: BitwardenTestCase {
             vaultUrl: "https://example.com",
             cookieValue: nil,
         )
-        serverCommunicationConfigClient.getConfigResult = .success(
-            ServerCommunicationConfig(bootstrap: .ssoCookieVendor(ssoConfig)),
+        serverCommunicationConfigClient.getConfigReturnValue = ServerCommunicationConfig(
+            bootstrap: .ssoCookieVendor(ssoConfig),
         )
-        serverCommunicationConfigClient.cookiesResult = []
+        serverCommunicationConfigClient.cookiesReturnValue = []
         var request = HTTPRequest(url: URL(string: "https://example.com/api")!)
 
         let result = try await subject.handle(&request)
@@ -98,10 +99,10 @@ class SSOCookieVendorRequestHandlerTests: BitwardenTestCase {
             vaultUrl: "https://example.com",
             cookieValue: nil,
         )
-        serverCommunicationConfigClient.getConfigResult = .success(
-            ServerCommunicationConfig(bootstrap: .ssoCookieVendor(ssoConfig)),
+        serverCommunicationConfigClient.getConfigReturnValue = ServerCommunicationConfig(
+            bootstrap: .ssoCookieVendor(ssoConfig),
         )
-        serverCommunicationConfigClient.cookiesResult = [AcquiredCookie(name: "auth", value: "token123")]
+        serverCommunicationConfigClient.cookiesReturnValue = [AcquiredCookie(name: "auth", value: "token123")]
         var request = HTTPRequest(url: URL(string: "https://example.com/api")!)
 
         let result = try await subject.handle(&request)
@@ -120,10 +121,10 @@ class SSOCookieVendorRequestHandlerTests: BitwardenTestCase {
             vaultUrl: "https://example.com",
             cookieValue: nil,
         )
-        serverCommunicationConfigClient.getConfigResult = .success(
-            ServerCommunicationConfig(bootstrap: .ssoCookieVendor(ssoConfig)),
+        serverCommunicationConfigClient.getConfigReturnValue = ServerCommunicationConfig(
+            bootstrap: .ssoCookieVendor(ssoConfig),
         )
-        serverCommunicationConfigClient.cookiesResult = [AcquiredCookie(name: "auth", value: "abc")]
+        serverCommunicationConfigClient.cookiesReturnValue = [AcquiredCookie(name: "auth", value: "abc")]
         var request = HTTPRequest(url: URL(string: "https://api.example.com/endpoint")!)
 
         _ = try await subject.handle(&request)
