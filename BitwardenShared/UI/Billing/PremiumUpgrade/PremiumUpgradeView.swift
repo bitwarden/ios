@@ -9,8 +9,8 @@ import SwiftUI
 struct PremiumUpgradeView: View {
     // MARK: Private Properties
 
-    /// The maximum width of the hero illustration.
-    private static let heroImageMaxWidth: CGFloat = 319
+    /// The height of the hero illustration; its width follows from its aspect ratio.
+    private static let heroImageHeight: CGFloat = 180
 
     // MARK: Properties
 
@@ -71,7 +71,7 @@ struct PremiumUpgradeView: View {
             Asset.Images.Illustrations.premiumUpgradeHero.swiftUIImage
                 .resizable()
                 .aspectRatio(contentMode: .fit)
-                .frame(maxWidth: Self.heroImageMaxWidth)
+                .frame(height: Self.heroImageHeight)
                 .accessibilityHidden(true)
 
             Text(Localizations.unlockAdvancedProtection)
