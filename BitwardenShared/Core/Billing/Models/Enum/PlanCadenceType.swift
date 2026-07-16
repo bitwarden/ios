@@ -15,9 +15,9 @@ public enum PlanCadenceType: String, Codable, Equatable, Hashable, Sendable {
     var accessibilityLabel: String {
         switch self {
         case .annually:
-            Localizations.perYearAccessibilityLabel
+            Localizations.perYearVoiceOver
         case .monthly:
-            Localizations.perMonthAccessibilityLabel
+            Localizations.perMonthVoiceOver
         }
     }
 

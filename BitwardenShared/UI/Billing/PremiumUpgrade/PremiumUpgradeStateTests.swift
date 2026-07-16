@@ -33,7 +33,7 @@ struct PremiumUpgradeStateTests {
         state.premiumSeatPrice = 19.80
         let label = state.priceCancelAnytimeAccessibilityLabel
         #expect(label?.contains("$1.65") == true)
-        #expect(label?.contains(Localizations.perMonthAccessibilityLabel) == true)
+        #expect(label?.contains(Localizations.perMonthVoiceOver) == true)
         #expect(label?.contains("/") == false)
         #expect(label?.contains("·") == false)
     }

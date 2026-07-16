@@ -41,7 +41,7 @@ struct PremiumPlanStateTests { // swiftlint:disable:this type_body_length
         var state = PremiumPlanState()
         state.loadingState = .data(.fixture(seatsCost: 19.8))
         #expect(state.billingAmountAccessibilityLabel.contains("$19.80"))
-        #expect(state.billingAmountAccessibilityLabel.contains(Localizations.perYearAccessibilityLabel))
+        #expect(state.billingAmountAccessibilityLabel.contains(Localizations.perYearVoiceOver))
     }
 
     /// `billingAmountAccessibilityLabel` returns empty when subscription is nil.

@@ -38,8 +38,8 @@ struct PremiumUpgradeState: Equatable {
     /// VoiceOver doesn't read the raw punctuation.
     var priceCancelAnytimeAccessibilityLabel: String? {
         premiumPrice.map { price in
-            Localizations.xCancelAnytimeAccessibilityLabel(
-                Localizations.xAmountPerCadence(price, Localizations.perMonthAccessibilityLabel),
+            Localizations.xCancelAnytimeVoiceOver(
+                Localizations.xAmountPerCadence(price, Localizations.perMonthVoiceOver),
             )
         }
     }
