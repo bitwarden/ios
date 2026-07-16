@@ -82,7 +82,7 @@ struct PremiumPlanView: View {
             value: store.state.totalLabel,
             valueColor: Color(asset: SharedAsset.Colors.textPrimary),
             labelWeight: .bold,
-            valueAccessibilityLabel: store.state.totalLabelAccessibilityLabel,
+            valueAccessibilityLabel: store.state.totalAccessibilityLabel,
         )
     }
 

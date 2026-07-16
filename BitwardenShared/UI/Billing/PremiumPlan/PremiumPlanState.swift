@@ -187,7 +187,7 @@ struct PremiumPlanState: Equatable {
     }
 
     /// The VoiceOver-friendly version of `totalLabel` (e.g. "$25.55 per year").
-    var totalLabelAccessibilityLabel: String {
+    var totalAccessibilityLabel: String {
         guard let subscription else { return "" }
         return Localizations.xAmountPerCadence(
             formatCurrency(subscription.totalAmount),

@@ -392,12 +392,12 @@ struct PremiumPlanStateTests { // swiftlint:disable:this type_body_length
         #expect(state.totalLabel.isEmpty)
     }
 
-    // MARK: Tests - totalLabelAccessibilityLabel
+    // MARK: Tests - totalAccessibilityLabel
 
-    /// `totalLabelAccessibilityLabel` returns the formatted total with a VoiceOver-friendly
+    /// `totalAccessibilityLabel` returns the formatted total with a VoiceOver-friendly
     /// cadence label instead of the raw "/" character.
     @Test
-    func totalLabelAccessibilityLabel() {
+    func totalAccessibilityLabel() {
         var state = PremiumPlanState()
         state.loadingState = .data(.fixture(
             cadence: .annually,
@@ -406,14 +406,14 @@ struct PremiumPlanStateTests { // swiftlint:disable:this type_body_length
             seatsCost: 19.80,
             storageCost: 1.20,
         ))
-        #expect(state.totalLabelAccessibilityLabel.contains("$25.55"))
-        #expect(state.totalLabelAccessibilityLabel.contains(Localizations.perYearVoiceOver))
+        #expect(state.totalAccessibilityLabel.contains("$25.55"))
+        #expect(state.totalAccessibilityLabel.contains(Localizations.perYearVoiceOver))
     }
 
-    /// `totalLabelAccessibilityLabel` returns empty when subscription is nil.
+    /// `totalAccessibilityLabel` returns empty when subscription is nil.
     @Test
-    func totalLabelAccessibilityLabel_nil() {
+    func totalAccessibilityLabel_nil() {
         let state = PremiumPlanState()
-        #expect(state.totalLabelAccessibilityLabel.isEmpty)
+        #expect(state.totalAccessibilityLabel.isEmpty)
     }
 }
