@@ -73,6 +73,7 @@ class ManagePasskeysProcessorTests: BitwardenTestCase {
 
         let alert = try XCTUnwrap(coordinator.alertShown.last)
         XCTAssertEqual(alert.title, Localizations.areYouSureDeleteThisPasskey)
+        XCTAssertEqual(alert.message, Localizations.deletePasskeyDescriptionLong)
 
         try await alert.tapCancel()
         XCTAssertTrue(credentialStore.deletedIds.isEmpty)
@@ -105,6 +106,7 @@ class ManagePasskeysProcessorTests: BitwardenTestCase {
 
         let alert = try XCTUnwrap(coordinator.alertShown.last)
         XCTAssertEqual(alert.title, Localizations.areYouSureDeleteAllPasskeys)
+        XCTAssertEqual(alert.message, Localizations.deletePasskeyDescriptionLong)
 
         try await alert.tapCancel()
         XCTAssertFalse(credentialStore.deleteAllCalled)

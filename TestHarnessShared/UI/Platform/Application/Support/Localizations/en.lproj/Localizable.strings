@@ -31,6 +31,7 @@
 "Credentials" = "Credentials";
 "Delete" = "Delete";
 "DeleteAll" = "Delete All";
+"DeletePasskeyDescriptionLong" = "This only removes the local test record used to verify sign-in attempts. It does not delete the underlying passkey from your AutoFill provider.";
 "DisplayName" = "Display Name";
 "EnterCardDetailsAbove" = "Enter card details above";
 "EnterCredentialsAbove" = "Enter credentials above";
