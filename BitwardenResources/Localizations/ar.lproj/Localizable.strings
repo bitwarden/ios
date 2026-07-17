@@ -152,7 +152,7 @@
 "LearnAboutNewLogins" = "تعرف على تسجيلات الدخول الجديدة";
 "WeWillWalkYouThroughTheKeyFeaturesToAddANewLogin" = "سوف نمشي عليك من خلال الميزات الرئيسية لإضافة تسجيل دخول جديد.";
 "LearnOrg" = "تعرف على المؤسسات";
-"AuthenticatorAppTitle" = "تطبيق المُصادَقة";
+"AuthenticatorAppTitle" = "تطبيق المصادقة";
 "EnterVerificationCodeApp" = "أدخل رمز التحقق من 6 أرقام من تطبيق المصادقة الخاص بك.";
 "EnterVerificationCodeEmail" = "أدخل رمز التحقق المكون من 6 أرقام الذي تم ارساله إلى %1$@.";
 "RecoveryCodeTitle" = "رمز الاسترداد";
@@ -290,7 +290,7 @@
 "AutofillTurnOn3" = "3. اضغط على \"ملء تلقائي لكلمات المرور\"";
 "AutofillTurnOn4" = "4. تفعيل الملء التلقائي";
 "AutofillTurnOn5" = "5. اختر \"Bitwarden\"";
-"PasswordAutofill" = "التعبئة التلقائية لكلمة المرور";
+"PasswordAutofill" = "الملء التلقائي لكلمات المرور";
 "BitwardenAutofillAlert2" = "الطريقة الأسهل لإضافة تسجيلات دخول جديدة إلى خزنتك هي استخدام إضافة Bitwarden للتعبئة التلقائية لكلمات السر. لمعرفة المزيد حول استخدام إضافة Bitwarden للتعبئة التلقائية لكلمات السر، انتقل إلى شاشة \"الإعدادات\".";
 "InvalidEmail" = "عنوان البريد الإلكتروني غير صالح.";
 "InvalidEmailAddresses" = "عناوين البريد الإلكتروني غير صالحة";
@@ -461,7 +461,7 @@
 "SubmitCrashLogs" = "إرسال سجلات الأعطال";
 "UppercaseAtoZ" = "أحرف كبيرة (من A إلى Z)";
 "LowercaseAtoZ" = "أحرف صغيرة (من A إلى Z)";
-"NumbersZeroToNine" = "الأعداد (من 0 حتى 9)";
+"NumbersZeroToNine" = "الأرقام (من 0 حتى 9)";
 "SpecialCharacters" = "أحرف خاصة (!@#$%^&*)";
 "PasswordIsVisibleTapToHide" = "كلمة المرور مرئية، انقر للإخفاء.";
 "PasswordIsNotVisibleTapToShow" = "كلمة المرور مخفية، انقر للإظهار.";
@@ -508,18 +508,18 @@
 "DuckDuckGo" = "DuckDuckGo";
 "Fastmail" = "Fastmail";
 "ForwardEmail" = "ForwardEmail";
-"APIAccessToken" = "رمز الوصول API";
+"APIAccessToken" = "رمز الوصول للـ API";
 "AreYouSureYouWantToOverwriteTheCurrentUsername" = "هل أنت متأكد من أنك تريد الكتابة فوق اسم المستخدم الحالي؟";
-"GenerateUsername" = "إنشاء اسم المستخدم";
+"GenerateUsername" = "توليد اسم المستخدم";
 "EmailType" = "نوع البريد الإلكتروني";
 "PlusAddressedEmailDescription" = "استخدم قدرات العنوان الفرعي لمزود البريد الإلكتروني الخاص بك";
 "CatchAllEmailDescription" = "استخدم علبة البريد الإلكتروني الشاملة التي تم إعدادها في نطاقك.";
 "ForwardedEmailDescription" = "إنشاء بريد إلكتروني مستعار مع خدمة إعادة توجيه خارجية.";
 "Random" = "عشوائي";
-"ConnectToWatch" = "متّصل بالسّاعة";
+"ConnectToWatch" = "الاتصال بالساعة";
 "LoginRequestHasAlreadyExpired" = "انتهت صلاحية طلب تسجيل الدخول.";
 "LoginAttemptFromXDoYouWantToSwitchToThisAccount" = "محاولة تسجيل الدخول من:\n%1$@\nهل تريد التبديل إلى هذا الحساب؟";
-"NewAroundHere" = "جديد هنا؟";
+"NewAroundHere" = "هل أنت جديد هنا؟";
 "GetMasterPasswordwordHint" = "احصل على تلميح كلمة المرور الرئيسية";
 "NotYou" = "ليس أنت؟";
 "LogInWithMasterPassword" = "تسجيل الدخول باستخدام كلمة المرور الرئيسية";
@@ -533,7 +533,7 @@
 "PendingLogInRequests" = "طلبات تسجيل الدخول المعلقة";
 "DeclineAllRequests" = "رفض جميع الطلبات";
 "AreYouSureYouWantToDeclineAllPendingLogInRequests" = "هل أنت متأكد من أنك تريد رفض جميع طلبات تسجيل الدخول المعلقة؟";
-"RequestsDeclined" = "تم رفض الطلبات";
+"RequestsDeclined" = "الطلبات المرفوضة";
 "NoPendingRequests" = "لا توجد طلبات معلقة";
 "Language" = "اللغة";
 "LanguageChangeXDescription" = "تم تغيير اللغة إلى %1$@. الرجاء إعادة تشغيل التطبيق لرؤية التغيير";
@@ -778,6 +778,8 @@
 "SetUpAutofillOnAllYourDevicesToLoginWithASingleTapAnywhere" = "إعداد التعبئة التلقائية على جميع الأجهزة الخاصة بك لتسجيل الدخول بنقرة واحدة في أي مكان.";
 "GoBack" = "الرجوع إلى الخلف";
 "GotIt" = "فهمت";
+/* masterPasswordUnlock is the name of some data we want to delete, so there's no need to localize it. */
+"ClearMasterPasswordUnlock" = "مسح masterPasswordUnlock";
 "ClearSsoCookies" = "مسح ملفات تعريف الارتباط SSO";
 "GenerateCrash" = "توليد تحطم";
 "GenerateErrorReport" = "إنشاء تقرير الخطأ";
@@ -836,7 +838,7 @@
 "APasskeyAlreadyExistsForThisApplication" = "يوجد بالفعل مفتاح مرور لهذا التطبيق.";
 "APasskeyAlreadyExistsForThisApplicationButAnErrorOccurredWhileLoadingIt" = "يوجد بالفعل مفتاح مرور لهذا التطبيق ولكن حدث خطأ أثناء تحميله.";
 "ItemNameRequired" = "اسم العنصر (مطلوب)";
-"AutofillOptions" = "خيارات التعبئة التلقائية";
+"AutofillOptions" = "خيارات الملء التلقائي";
 "WebsiteURI" = "(URI) الموقع";
 "AddWebsite" = "إضافة موقع";
 "CannotDeleteAccount" = "لا يمكن حذف الحساب";
@@ -856,7 +858,7 @@
 "ExperiencingAnIssue" = "تجربة مشكلة؟";
 "EnableTemporaryLoggingDescriptionLong" = "تمكين التسجيل المؤقت لجمع السجلات وفحصها محليا. عند التمكين، قد يتم تسجيل حالات التطبيق والمكالمات الشبكية - لا يتم أبدا تسجيل معلومات المخزن الحساسة.";
 "ToGetStartedSetALoggingDurationDescriptionLong" = "للبدء، قم بتعيين مدة تسجيل السجلات. سيتم إيقاف التسجيل تلقائيا بعد هذه الفترة، مما يتيح لك الوقت لالتقاط النشاط في حالة تكرر حدوث أي مشاكل.";
-"LoggingDuration" = "مدة التسجيل";
+"LoggingDuration" = "مدة تسجيل الأخطاء";
 "LogsWillBeAutomaticallyDeletedAfter30DaysDescriptionLong" = "سيتم حذف السجلات تلقائيًا بعد 30 يومًا. Bitwarden قادر على الوصول إلى بيانات السجل الخاص بك فقط عند مشاركته.";
 "ForDetailsOnWhatIsAndIsntLoggedVisitTheBitwardenHelpCenter" = "للحصول على تفاصيل حول ما هو ولا يتم تسجيله، قم بزيارة **[مركز مساعدة Bitwarden](%1$@)**.";
 "ShowMore" = "إظهار المزيد";
@@ -869,8 +871,8 @@
 "ViewRecordedLogs" = "عرض السجلات المسجلة";
 "RecordedLogs" = "السجلات المسجلة";
 "NoLogsRecorded" = "لا توجد سجلات مسجلة";
-"ExpiresAtXTime" = "تنتهي عند %1$@";
-"ExpiresOnXDate" = "تنتهي في %1$@";
+"ExpiresAtXTime" = "تنتهي الصلاحية في %1$@";
+"ExpiresOnXDate" = "تنتهي الصلاحية بتاريخ %1$@";
 "ExpiresTomorrow" = "تنتهي غدا";
 "DateRangeXToY" = "%1$@ إلى %2$@";
 "SelfHostServerURL" = "رابط خادم الاستضافة الذاتية";
@@ -905,7 +907,7 @@
 "Created" = "تم إنشاء: %1$@";
 "LastEdited" = "آخر تعديل: %1$@";
 "PasswordLastUpdated" = "آخر تحديث لكلمة المرور: %1$@";
-"DecryptionError" = "خطأ فك التشفير";
+"DecryptionError" = "خطأ في فك التشفير";
 "BitwardenCouldNotDecryptThisVaultItemDescriptionLong" = "تعذر على Bitwarden فك تشفير عنصر الخزنة هذا. انسخ تقرير الخطأ هذا وشاركه مع دعم العملاء لتجنب خسارة إضافية للبيانات.";
 "CopyErrorReport" = "نسخ تقرير الخطأ";
 "ErrorCannotDecrypt" = "[خطأ: لا يمكن فك التشفير]";
@@ -935,7 +937,7 @@
 "ItemsExported" = "أُنشئَ رمز التحقق";
 "ItemsImported" = "تم استيراد رموز التحقق";
 "Key" = "مفتاح";
-"KeyReadError" = "لا يمكن قراءة المفتاح.";
+"KeyReadError" = "تعذر قراءة المفتاح.";
 "LaunchTutorial" = "تشغيل البرنامج التعليمي";
 "LearnMoreLink" = "معرفة المزيد (%1$@)";
 "LocalCodes" = "الرموز المحلية";
@@ -1031,9 +1033,9 @@
 "AddingAttachmentsIsAPremiumFeatureDescriptionLong" = "إضافة المرفقات ميزة في الباقة Premium. باقتك الحالية لا تتضمن الوصول إليها.";
 "UpgradeToPremium" = "الترقية إلى النسخة المميزة";
 "ThisItemIsArchived" = "تم أرشفة هذا العنصر.";
-"YourPremiumSubscriptionEnded" = "إنتهاء اشتراكك Premium";
+"YourPremiumSubscriptionEnded" = "انتهى اشتراكك في الباقة Premium";
 "YourPremiumSubscriptionEndedArchiveDescriptionLong" = "لاستعادة الوصول إلى الأرشيف الخاص بك، أعد تشغيل باقة Premium. إذا قمت بتعديل تفاصيل عنصر أرشيف قبل إعادة التشغيل، فسيتم نقله مرة أخرى إلى خزانك.";
-"RestartPremium" = "إعادة تشغيل Premium";
+"RestartPremium" = "إعادة تشغيل باقة Premium";
 "ThisItemIsArchivedSavingChangesWillRestoreItToYourVault" = "تم أرشفة هذا العنصر. حفظ التغييرات سيتم استعادته إلى المخزن الخاص بك.";
 "SettingUpAutofill" = "إعداد الملء التلقائي.";
 "AddEmail" = "إضافة بريد إلكتروني";
@@ -1061,6 +1063,8 @@
 "ReplaceCertificate" = "استبدال الشهادة";
 "ReplaceExistingCertificate" = "استبدال الشهادة الحالية";
 "UnableToReadCertificateFile" = "تعذر قراءة ملف الشهادة.";
+/* masterPasswordUnlock is the name of some data we want to delete, so there's no need to localize it. */
+"MasterPasswordUnlockCleared" = "تم مسح masterPasswordUnlock.";
 "SsoCookiesCleared" = "تم مسح ملفات تعريف الارتباط SSO";
 "YourRequestWasInterruptedBecauseTheAppNeededToReAuthenticatePleaseTryAgain" = "تعذر إكمال طلبك بسبب حاجة التطبيق إلى إعادة تسجيل الدخول لتأكيد الهوية. يرجى المحاولة مجددا.";
 "AutofillWithBitwardenDescriptionLong" = "بإمكان Bitwarden اقتراح كلمات المرور ومعلومات حساباتك الأخرى عند الدخول إلى المواقع والتطبيقات المختلفة.";
@@ -1085,6 +1089,8 @@
 "ExternalLink" = "رابط خارجي";
 "YourNextChargeIsForXDueOnY" = "سيتم تحصيل **%1$@** بتاريخ **%2$@**.";
 "WeCouldNotProcessYourPaymentUpdateYourPaymentMethodDescriptionLong" = "تعذر معالجة دفعتك. يرجى تحديث طريقة الدفع قبل انتهاء اشتراكك في **%1$@**.";
+/* Error message shown when the Premium Plan screen fails to load subscription data, with a prompt to retry. */
+"WeCouldntLoadYourSubscriptionDetailsPleaseRetry" = "تعذر تحميل تفاصيل اشتراكك. يرجى المحاولة مجددا.";
 "YourSubscriptionWasCanceledOnXDescriptionLong" = "تم إلغاء اشتراكك في **%1$@**. جدد اشتراكك الآن لمتابعة استخدام الميزات المدفوعة.";
 "YourSubscriptionExpiredOnXDescriptionLong" = "انتهت صلاحية اشتراكك في **%1$@**. جدد اشتراكك الآن لمتابعة استخدام الميزات المدفوعة.";
 "YourSubscriptionIsScheduledToCancelOnXDescriptionLong" = "تمت جدولة إلغاء اشتراكك في **%1$@**. يمكنك استعادته في أي وقت قبل ذلك.";
@@ -1094,7 +1100,6 @@
 "NegativeX" = "-%1$@";
 "UnknownStatus" = "غير معروف";
 "YourSubscriptionStatusIsUnknownVisitTheWebAppDescriptionLong" = "تعذر تحديد حالة اشتراكك. يرجى زيارة تطبيق الويب لمزيد من التفاصيل أو التحديث إلى أحدث إصدار.";
-"AtTheMomentPremiumPlanIsNotAvailableDescriptionLong" = "الباقة Premium غير متاحة في الوقت الحالي، يرجى المحاولة مجددا لاحقا.";
 "UnlockMoreAdvancedFeaturesWithPremiumPlan" = "احصل على المزيد من الميزات المتقدمة مع باقة Premium.";
 "BuiltInAuthenticator" = "المصادقة المدمجة";
 "EmergencyAccess" = "الوصول في حالات الطوارئ";
@@ -1110,6 +1115,9 @@
 "UpgradePending" = "الترقية قيد الانتظار";
 "YourUpgradeIsBeingProcessedDescriptionLong" = "طلب الترقية الخاص بك قيد المعالجة حاليا. ستواصل استخدام الباقة المجانية حتى إتمام العملية. قم بالمزامنة الآن للفحص، أو استمر وسيجري التحديث ذاتيا.";
 "UpgradedToPremium" = "تمت الترقية إلى الباقة Premium";
+"SubscriptionNeedsAttention" = "اشتراكك يحتاج إلى مراجعة";
+"CheckYourPlanForDetails" = "تحقق من باقتك لمعرفة التفاصيل.";
+"ViewPlan" = "عرض الباقة";
 "YouNowHaveAccessToAdvancedSecurityDescriptionLong" = "أصبح بإمكانك الآن الوصول إلى ميزات الأمان المتقدمة. تعرف على المزيد حول ما تتضمنه الباقة Premium.";
 "YouNowHaveAccessToAllAdvancedSecurityFeatures" = "أصبح بإمكانك الآن الوصول إلى جميع ميزات الأمان المتقدمة.";
 "YoullGoToStripeSecureCheckoutToCompleteYourPurchase" = "سيتم توجيهك إلى صفحة الدفع الآمن في Stripe لإتمام عملية الشراء.";
