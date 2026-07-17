@@ -1,5 +1,6 @@
 "AccountCreatedSuccessfully" = "Account created successfully";
 "AccountDetails" = "Account Details";
+"AssertionResult" = "Assertion Result";
 "AuthDataTooShortExplanationLong" = "The raw authenticator data was shorter than the fixed 37-byte prefix (32-byte relying party hash, 1-byte flags, 4-byte signature counter), so the relying party hash and flags could not be read.";
 "AssertionResult" = "Assertion Result";
 "AuthDataTooShort" = "Authenticator data too short";
