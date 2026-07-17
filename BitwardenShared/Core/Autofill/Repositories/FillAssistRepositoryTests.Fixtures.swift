@@ -1,6 +1,5 @@
 // swiftlint:disable:this file_name
 
-import CryptoKit
 import Foundation
 
 @testable import BitwardenShared
@@ -9,19 +8,12 @@ import Foundation
 // MARK: - FillAssistRepositoryTests Fixtures
 
 extension FillAssistRepositoryTests {
-    /// Computes the same sorted-keys SHA-256 fingerprint the production code uses, so tests can
-    /// pre-populate `keychainRepository` with a value that will pass integrity verification.
-    func fingerprint(for data: FillAssistCachedData) throws -> String {
-        let encoder = JSONEncoder()
-        encoder.outputFormatting = [.sortedKeys]
-        return try encoder.encode(data).generatedHash(using: SHA256.self)
-    }
-
-    /// Pre-populates `appSettingsStore` with `data` and stores its matching fingerprint in
-    /// `keychainRepository`, so the cache will pass integrity verification when read.
+    /// Pre-populates `appSettingsStore` with `data` and stores the mocked fingerprint service's
+    /// stubbed return value in `keychainRepository`, so the cache will pass integrity
+    /// verification when read.
     func cacheVerifiedData(_ data: FillAssistCachedData, userId: String = "1") throws {
         appSettingsStore.fillAssistCachedDataByUserId[userId] = data
-        keychainRepository.getUserAuthKeyValueReturnValue = try fingerprint(for: data)
+        keychainRepository.getUserAuthKeyValueReturnValue = fillAssistFingerprintService.fingerprintReturnValue
     }
 
     /// Returns a `FillAssistManifestResponseModel` fixture with the given content ID.
