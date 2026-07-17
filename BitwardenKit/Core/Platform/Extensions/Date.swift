@@ -95,7 +95,14 @@ public extension Date {
     func asLocalCalendarDay(in timeZone: TimeZone = .current) -> Date {
         let components = Date.gregorianCalendar(timeZone: TimeZone(identifier: "UTC")!)
             .dateComponents([.year, .month, .day], from: self)
-        return Date(year: components.year!, month: components.month!, day: components.day!, timeZone: timeZone)
+
+        guard let year = components.year,
+              let month = components.month,
+              let day = components.day else {
+            return self
+        }
+
+        return Date(year: year, month: month, day: day, timeZone: timeZone)
     }
 
     /// Returns the UTC-midnight `Date` for the same calendar day as `self`, where `self` is
