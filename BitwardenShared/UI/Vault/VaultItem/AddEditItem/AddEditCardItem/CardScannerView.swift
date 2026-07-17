@@ -1,5 +1,6 @@
 import BitwardenResources
 import SwiftUI
+import UIKit
 import VisionKit
 
 // MARK: - CardScannerWrapperView
@@ -21,14 +22,13 @@ struct CardScannerWrapperView: View {
     /// Drives `startScanning()`/`stopScanning()` via the SwiftUI view lifecycle.
     @SwiftUI.State private var isScanning = false
 
-    /// Counts how many stop-then-restart cycles have been attempted this session.
-    /// Capped at 2 to avoid infinite loops; resets on each `.onAppear`.
+    /// Counts how many stop-then-restart cycles have been attempted this session in response to
+    /// genuine scanner failures (`onScannerUnavailable`). Capped at 2 to avoid infinite loops;
+    /// resets on each `.onAppear`. Foreground-triggered restarts do not count against this budget.
     @SwiftUI.State private var scannerRetryCount = 0
 
     /// Dismisses the sheet when the scanner gives up after exhausting retries.
     @Environment(\.dismiss) private var dismiss
-    /// Used to restart scanning when the app returns to the foreground after a camera interruption.
-    @Environment(\.scenePhase) private var scenePhase
 
     var body: some View {
         NavigationView {
@@ -62,9 +62,12 @@ struct CardScannerWrapperView: View {
             }
         }
         .navigationViewStyle(.stack)
-        .onChange(of: scenePhase) { newPhase in
-            if newPhase == .active, isScanning {
-                restartScanning()
+        .onReceive(NotificationCenter.default.publisher(for: UIApplication.willEnterForegroundNotification)) { _ in
+            // `scenePhase` is driven by SwiftUI's own `Scene`/`App` lifecycle and is unreliable
+            // for views hosted in a UIKit app via `UIHostingController`, so foreground transitions
+            // are observed directly via `UIApplication` notifications instead.
+            if isScanning {
+                resumeScanningAfterForeground()
             }
         }
     }
@@ -79,6 +82,18 @@ struct CardScannerWrapperView: View {
             return
         }
         scannerRetryCount += 1
+        isScanning = false
+        Task { @MainActor in
+            try? await Task.sleep(for: .milliseconds(300))
+            isScanning = true
+        }
+    }
+
+    /// Stops scanning, waits 300 ms for the camera to fully release, then restarts, in response to
+    /// the app returning to the foreground. Unlike `restartScanning()`, this does not consume the
+    /// failure retry budget, since a foreground transition is a routine occurrence rather than a
+    /// scanner failure and would otherwise exhaust the budget after a couple of normal app switches.
+    private func resumeScanningAfterForeground() {
         isScanning = false
         Task { @MainActor in
             try? await Task.sleep(for: .milliseconds(300))

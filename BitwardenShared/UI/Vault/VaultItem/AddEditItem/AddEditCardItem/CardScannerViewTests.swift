@@ -7,7 +7,7 @@ import XCTest
 
 /// Tests for `CardScannerView.Coordinator`.
 ///
-/// `CardScannerWrapperView`'s retry/scene-phase logic is driven by SwiftUI `@State` and cannot
+/// `CardScannerWrapperView`'s retry/foreground-resume logic is driven by SwiftUI `@State` and cannot
 /// be meaningfully exercised without a live view host, so it is not covered here.
 ///
 @available(iOS 16.0, *)
