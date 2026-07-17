@@ -7,7 +7,7 @@ import Testing
 struct VaultListStateTests {
     // MARK: Static Properties
 
-    /// All 32 subsets of `VaultListActionCard` cases, used for exhaustive priority testing.
+    /// All subsets of `VaultListActionCard` cases, used for exhaustive priority testing.
     static let allCardSubsets: [[VaultListActionCard]] = VaultListActionCard.allCases
         .reduce([[]]) { subsets, card in subsets + subsets.map { $0 + [card] } }
 
@@ -23,7 +23,7 @@ struct VaultListStateTests {
 
     // MARK: Tests
 
-    /// `activeActionCard` returns the highest-priority active card across all 32 flag combinations,
+    /// `activeActionCard` returns the highest-priority active card across all flag combinations,
     /// or `nil` when no flags are set. Tests use an empty vault so the import logins card is eligible.
     @Test(arguments: allCardSubsets)
     func activeActionCard(activeCards: [VaultListActionCard]) {
