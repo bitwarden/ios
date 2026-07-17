@@ -58,6 +58,12 @@ protocol BillingService: AnyObject { // sourcery: AutoMockable
     /// Fetches the current subscription status and updates the visibility of the subscription
     /// attention action card.
     ///
+    /// This runs for all non-self-hosted accounts regardless of their current premium status.
+    /// A user whose subscription has lapsed (e.g. unpaid after repeated payment failures) still
+    /// needs their payment-problem state surfaced even though the server reports them as
+    /// non-premium. Accounts with no personal subscription (free users) receive a
+    /// `GetSubscriptionRequestError` and are handled silently — the card is hidden for them.
+    ///
     /// - Parameters:
     ///   - subscription: A previously fetched subscription to use, or `nil` to fetch fresh.
     ///
@@ -231,8 +237,7 @@ class DefaultBillingService: BillingService {
 
     func refreshSubscriptionAttentionCard(subscription: PremiumSubscription?) async {
         guard await !isSelfHosted(),
-              await configService.getFeatureFlag(.premiumUpgradePath),
-              await stateService.doesActiveAccountHavePremiumPersonally()
+              await configService.getFeatureFlag(.premiumUpgradePath)
         else {
             do {
                 try await billingStateService.setSubscriptionAttentionCardVisible(false)
@@ -247,8 +252,14 @@ class DefaultBillingService: BillingService {
             } else {
                 try await getSubscription()
             }
-            let visible = sub.status == .pastDue || sub.status == .updatePayment
-            try await billingStateService.setSubscriptionAttentionCardVisible(visible)
+            try await billingStateService.setSubscriptionAttentionCardVisible(sub.status.isPaymentProblemState)
+        } catch is GetSubscriptionRequestError {
+            // No personal subscription — free user or subscription fully gone. Card not shown.
+            do {
+                try await billingStateService.setSubscriptionAttentionCardVisible(false)
+            } catch {
+                errorReporter.log(error: error)
+            }
         } catch {
             errorReporter.log(error: error)
         }

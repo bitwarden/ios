@@ -50,7 +50,9 @@ struct PremiumPlanStateTests { // swiftlint:disable:this type_body_length
     }
 
     /// `descriptionAccessibilityLabel` returns `descriptionText` with markdown stripped for non-active plan statuses.
-    @Test(arguments: [PremiumPlanStatus.canceled, .expired, .pastDue, .pendingCancellation, .unknown, .updatePayment])
+    @Test(arguments: [
+        PremiumPlanStatus.canceled, .expired, .pastDue, .pendingCancellation, .unknown, .unpaid, .updatePayment,
+    ])
     func descriptionAccessibilityLabel_nonActive(planStatus: PremiumPlanStatus) {
         var state = PremiumPlanState()
         state.planStatus = planStatus
@@ -127,6 +129,16 @@ struct PremiumPlanStateTests { // swiftlint:disable:this type_body_length
                 state.loadingState.data?.gracePeriod ?? 0,
                 state.subscriptionEndDate,
             ))
+    }
+
+    /// `descriptionText` returns the correct text for the unpaid plan status.
+    @Test
+    func descriptionText_unpaid() {
+        var state = PremiumPlanState()
+        state.planStatus = .unpaid
+        state.loadingState = .data(.fixture(status: .unpaid, suspension: testDate))
+        #expect(state.descriptionText == Localizations
+            .yourSubscriptionWasSuspendedOnXDescriptionLong(state.subscriptionEndDate))
     }
 
     /// `descriptionText` returns the correct text for the update payment plan status.
@@ -214,6 +226,7 @@ struct PremiumPlanStateTests { // swiftlint:disable:this type_body_length
         (PremiumPlanStatus.pastDue, true),
         (PremiumPlanStatus.pendingCancellation, true),
         (PremiumPlanStatus.unknown, false),
+        (PremiumPlanStatus.unpaid, true),
         (PremiumPlanStatus.updatePayment, true),
     ])
     func showBillingDetails(planStatus: PremiumPlanStatus, expected: Bool) {
@@ -232,6 +245,7 @@ struct PremiumPlanStateTests { // swiftlint:disable:this type_body_length
         (PremiumPlanStatus.pastDue, true),
         (PremiumPlanStatus.pendingCancellation, false),
         (PremiumPlanStatus.unknown, false),
+        (PremiumPlanStatus.unpaid, false),
         (PremiumPlanStatus.updatePayment, false),
     ])
     func showCancelButton(planStatus: PremiumPlanStatus, expected: Bool) {
