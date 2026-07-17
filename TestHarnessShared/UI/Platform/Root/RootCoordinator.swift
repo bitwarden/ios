@@ -45,6 +45,8 @@ class RootCoordinator: Coordinator, HasStackNavigator {
             showDateFieldPickerShowcase()
         case .fileShare:
             showFileShare()
+        case .managePasskeys:
+            showManagePasskeys()
         case .registerPasskey:
             showCreatePasskey()
         case .scenarioPicker:
@@ -112,6 +114,16 @@ class RootCoordinator: Coordinator, HasStackNavigator {
         stackNavigator?.push(viewController)
     }
 
+    /// Shows the manage passkeys test screen.
+    ///
+    private func showManagePasskeys() {
+        guard #available(iOS 17, *) else { return }
+        let processor = ManagePasskeysProcessor(coordinator: asAnyCoordinator())
+        let view = ManagePasskeysView(store: Store(processor: processor))
+        let viewController = UIHostingController(rootView: view)
+        stackNavigator?.push(viewController)
+    }
+
     /// Shows the scenario picker screen.
     ///
     private func showScenarioPicker() {
@@ -134,12 +146,6 @@ class RootCoordinator: Coordinator, HasStackNavigator {
     private func showTOTPAutofillForm() {
         let processor = TOTPAutofillFormProcessor(coordinator: asAnyCoordinator())
         let view = TOTPAutofillFormView(store: Store(processor: processor))
-
-    /// Shows the use passkey test screen.
-    ///
-    private func showUsePasskey() {
-        let processor = UsePasskeyProcessor(coordinator: asAnyCoordinator(), delegate: self)
-        let view = UsePasskeyView(store: Store(processor: processor))
         let viewController = UIHostingController(rootView: view)
         stackNavigator?.push(viewController)
     }

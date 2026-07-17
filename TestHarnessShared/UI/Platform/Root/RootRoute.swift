@@ -15,6 +15,9 @@ public enum RootRoute {
     /// A route to the file share test screen.
     case fileShare
 
+    /// A route to the manage passkeys test screen.
+    case managePasskeys
+
     /// A route to the register passkey test screen.
     case registerPasskey
 
