@@ -24,7 +24,8 @@ struct VaultListStateTests {
     // MARK: Tests
 
     /// `activeActionCard` returns the highest-priority active card across all flag combinations,
-    /// or `nil` when no flags are set. Tests use an empty vault so the import logins card is eligible.
+    /// or `nil` when no flags are set. Tests use an empty vault; cards ineligible in an empty vault
+    /// (`introducingArchive`) are excluded from the expected result.
     @Test(arguments: allCardSubsets)
     func activeActionCard(activeCards: [VaultListActionCard]) {
         var state = VaultListState()
@@ -43,8 +44,21 @@ struct VaultListStateTests {
                 state.shouldShowUpgradedToPremiumActionCard = true
             }
         }
-        let expected = VaultListActionCard.allCases.first { activeCards.contains($0) }
+        let emptyVaultIneligible: Set<VaultListActionCard> = [.introducingArchive]
+        let expected = VaultListActionCard.allCases.first { card in
+            activeCards.contains(card) && !emptyVaultIneligible.contains(card)
+        }
         #expect(state.activeActionCard == expected)
+    }
+
+    /// `activeActionCard` returns `nil` for the archive onboarding card when the vault is empty,
+    /// since the card is only relevant when the user has items to archive.
+    @Test
+    func activeActionCard_introducingArchive_hiddenInEmptyVault() {
+        var state = VaultListState()
+        state.shouldShowArchiveOnboardingActionCard = true
+        state.loadingState = .data([])
+        #expect(state.activeActionCard == nil)
     }
 
     /// `activeActionCard` returns `nil` for the import logins card when the vault is populated,

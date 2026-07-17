@@ -85,8 +85,8 @@ struct VaultListState: Equatable {
     // MARK: Computed Properties
 
     /// The active action card to show, determined by priority. Only one card is shown at a time.
-    /// The import logins card is additionally gated on the vault being empty, since it is only
-    /// relevant to users who have not yet added any items.
+    /// Some cards are additionally gated on vault state: import logins requires an empty vault,
+    /// and archive onboarding requires a populated vault.
     var activeActionCard: VaultListActionCard? {
         VaultListActionCard.allCases.first { shouldShow($0) }
     }
@@ -149,7 +149,7 @@ struct VaultListState: Equatable {
         case .upgradedToPremium: shouldShowUpgradedToPremiumActionCard
         case .upgradeNeeded: shouldShowPremiumUpgradeActionCard
         case .subscriptionNeedsAttention: shouldShowSubscriptionAttentionCard
-        case .introducingArchive: shouldShowArchiveOnboardingActionCard
+        case .introducingArchive: shouldShowArchiveOnboardingActionCard && !isVaultEmpty
         case .importItems: shouldShowImportLoginsActionCard && isVaultEmpty
         }
     }
