@@ -303,6 +303,52 @@ class HTTPServiceTests: XCTestCase {
             XCTAssertEqual(error as? TestError, .invalidResponse)
         }
     }
+}
+
+// MARK: - Download Tests
+
+extension HTTPServiceTests {
+    /// `download(from:)` applies request handlers to the URL request before downloading.
+    func test_download_fromURLRequest_appliesRequestHandlers() async throws {
+        let requestHandler = TestRequestHandler { request in
+            request.headers["Cookie"] = "sso=test-token"
+        }
+        subject = HTTPService(
+            baseURL: URL(string: "https://example.com")!,
+            client: client,
+            requestHandlers: [requestHandler],
+        )
+
+        let tempFile = FileManager.default.temporaryDirectory.appendingPathComponent("test.json")
+        try "{}".write(to: tempFile, atomically: true, encoding: .utf8)
+        client.downloadResults = [.success(tempFile)]
+
+        _ = try await subject.download(from: URLRequest(url: URL(string: "https://example.com/file.zip")!))
+
+        let downloadRequest = try XCTUnwrap(client.downloadRequests.last)
+        XCTAssertEqual(downloadRequest.allHTTPHeaderFields?["Cookie"], "sso=test-token")
+    }
+
+    /// `download(filename:)` applies request handlers to the URL request before downloading.
+    func test_download_filename_appliesRequestHandlers() async throws {
+        let requestHandler = TestRequestHandler { request in
+            request.headers["Cookie"] = "sso=test-token"
+        }
+        subject = HTTPService(
+            baseURL: URL(string: "https://example.com")!,
+            client: client,
+            requestHandlers: [requestHandler],
+        )
+
+        let tempFile = FileManager.default.temporaryDirectory.appendingPathComponent("test.json")
+        try "{}".write(to: tempFile, atomically: true, encoding: .utf8)
+        client.downloadResults = [.success(tempFile)]
+
+        _ = try await subject.download(filename: "manifest.json")
+
+        let downloadRequest = try XCTUnwrap(client.downloadRequests.last)
+        XCTAssertEqual(downloadRequest.allHTTPHeaderFields?["Cookie"], "sso=test-token")
+    }
 
     /// `download(filename:)` appends the filename to the base URL and calls the client.
     func test_download_filename() async throws {
@@ -321,37 +367,3 @@ class HTTPServiceTests: XCTestCase {
 }
 
 private struct RequestError: Error {}
-
-/// A `ResponseHandler` that captures the `retryWith` closure passed to it for inspection in tests.
-@MainActor
-private class CapturingRetryWithResponseHandler: ResponseHandler {
-    var onHandle: (((HTTPRequest) async throws -> HTTPResponse)?) -> Void
-
-    init(onHandle: @escaping (((HTTPRequest) async throws -> HTTPResponse)?) -> Void) {
-        self.onHandle = onHandle
-    }
-
-    func handle(
-        _ response: inout HTTPResponse,
-        for request: HTTPRequest,
-        retryWith: ((HTTPRequest) async throws -> HTTPResponse)?,
-    ) async throws -> HTTPResponse {
-        onHandle(retryWith)
-        return response
-    }
-}
-
-/// A `ResponseHandler` that follows a 302 redirect by calling `retryWith` with the original request.
-@MainActor
-private class RedirectFollowingResponseHandler: ResponseHandler {
-    func handle(
-        _ response: inout HTTPResponse,
-        for request: HTTPRequest,
-        retryWith: ((HTTPRequest) async throws -> HTTPResponse)?,
-    ) async throws -> HTTPResponse {
-        guard response.statusCode == 302, let retryWith else {
-            return response
-        }
-        return try await retryWith(request)
-    }
-}
