@@ -50,7 +50,7 @@ class ManagePasskeysProcessor: StateProcessor<
     private static func confirmationAlert(title: String, confirmationHandler: @escaping () async -> Void) -> Alert {
         Alert(
             title: title,
-            message: nil,
+            message: Localizations.deletePasskeyDescriptionLong,
             alertActions: [
                 AlertAction(title: Localizations.cancel, style: .cancel),
                 AlertAction(title: Localizations.delete, style: .destructive) { _ in
