@@ -62,6 +62,7 @@ struct SendPolicyOptionsTests {
         let subject = SendPolicyOptions(sendControlsPolicies: [])
         #expect(subject.allowedDomains.isEmpty)
         #expect(subject.enforcedAccessType == nil)
+        #expect(subject.enforcedSendType == nil)
         #expect(!subject.isHideEmailDisabled)
         #expect(!subject.isSendDisabled)
     }
@@ -146,5 +147,106 @@ struct SendPolicyOptionsTests {
         ])
         #expect(subject.enforcedAccessType == .specificPeople)
         #expect(subject.allowedDomains == ["earlier.com"])
+    }
+
+    /// `init(sendControlsPolicies:)` maps a single-element `allowedSendTypes` array to the enforced
+    /// Send type.
+    @Test
+    func init_sendControlsPolicies_enforcedSendType() {
+        #expect(
+            SendPolicyOptions(sendControlsPolicies: [
+                .fixture(data: [PolicyOptionType.allowedSendTypes.rawValue: .array([.int(0)])], type: .sendControls),
+            ]).enforcedSendType == .text,
+        )
+        #expect(
+            SendPolicyOptions(sendControlsPolicies: [
+                .fixture(data: [PolicyOptionType.allowedSendTypes.rawValue: .array([.int(1)])], type: .sendControls),
+            ]).enforcedSendType == .file,
+        )
+    }
+
+    /// `init(sendControlsPolicies:)` enforces no Send type when both types are allowed.
+    @Test
+    func init_sendControlsPolicies_enforcedSendType_bothAllowed() {
+        let subject = SendPolicyOptions(sendControlsPolicies: [
+            .fixture(
+                data: [PolicyOptionType.allowedSendTypes.rawValue: .array([.int(0), .int(1)])],
+                type: .sendControls,
+            ),
+        ])
+        #expect(subject.enforcedSendType == nil)
+    }
+
+    /// `init(sendControlsPolicies:)` enforces no Send type when no policy specifies `allowedSendTypes`.
+    @Test
+    func init_sendControlsPolicies_enforcedSendType_missing() {
+        let subject = SendPolicyOptions(sendControlsPolicies: [.fixture(type: .sendControls)])
+        #expect(subject.enforcedSendType == nil)
+    }
+
+    /// `init(sendControlsPolicies:)` enforces no Send type when the `allowedSendTypes` array is empty.
+    @Test
+    func init_sendControlsPolicies_enforcedSendType_emptyArray() {
+        let subject = SendPolicyOptions(sendControlsPolicies: [
+            .fixture(data: [PolicyOptionType.allowedSendTypes.rawValue: .array([])], type: .sendControls),
+        ])
+        #expect(subject.enforcedSendType == nil)
+    }
+
+    /// `init(sendControlsPolicies:)` enforces the most restrictive Send type across applying
+    /// policies (a single-type restriction wins over an unrestricted "both" policy).
+    @Test
+    func init_sendControlsPolicies_enforcedSendType_multiplePolicies_mostRestrictiveWins() {
+        let subject = SendPolicyOptions(sendControlsPolicies: [
+            .fixture(
+                data: [PolicyOptionType.allowedSendTypes.rawValue: .array([.int(0), .int(1)])],
+                id: "both",
+                type: .sendControls,
+            ),
+            .fixture(
+                data: [PolicyOptionType.allowedSendTypes.rawValue: .array([.int(0)])],
+                id: "text-only",
+                type: .sendControls,
+            ),
+        ])
+        #expect(subject.enforcedSendType == .text)
+    }
+
+    /// `init(sendControlsPolicies:)` enforces the file type when a file-only policy applies
+    /// alongside an unrestricted "both" policy.
+    @Test
+    func init_sendControlsPolicies_enforcedSendType_multiplePolicies_fileOnly() {
+        let subject = SendPolicyOptions(sendControlsPolicies: [
+            .fixture(
+                data: [PolicyOptionType.allowedSendTypes.rawValue: .array([.int(0), .int(1)])],
+                id: "both",
+                type: .sendControls,
+            ),
+            .fixture(
+                data: [PolicyOptionType.allowedSendTypes.rawValue: .array([.int(1)])],
+                id: "file-only",
+                type: .sendControls,
+            ),
+        ])
+        #expect(subject.enforcedSendType == .file)
+    }
+
+    /// `init(sendControlsPolicies:)` resolves a text-only vs file-only conflict to the most
+    /// restrictive type (text wins per the order text > file > both).
+    @Test
+    func init_sendControlsPolicies_enforcedSendType_multiplePolicies_conflictTextWins() {
+        let subject = SendPolicyOptions(sendControlsPolicies: [
+            .fixture(
+                data: [PolicyOptionType.allowedSendTypes.rawValue: .array([.int(0)])],
+                id: "text-only",
+                type: .sendControls,
+            ),
+            .fixture(
+                data: [PolicyOptionType.allowedSendTypes.rawValue: .array([.int(1)])],
+                id: "file-only",
+                type: .sendControls,
+            ),
+        ])
+        #expect(subject.enforcedSendType == .text)
     }
 }
