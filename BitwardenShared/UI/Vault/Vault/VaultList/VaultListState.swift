@@ -88,12 +88,7 @@ struct VaultListState: Equatable {
     /// The import logins card is additionally gated on the vault being empty, since it is only
     /// relevant to users who have not yet added any items.
     var activeActionCard: VaultListActionCard? {
-        if shouldShowUpgradedToPremiumActionCard { return .upgradedToPremium }
-        if shouldShowPremiumUpgradeActionCard { return .upgradeNeeded }
-        if shouldShowSubscriptionAttentionCard { return .subscriptionNeedsAttention }
-        if shouldShowArchiveOnboardingActionCard { return .introducingArchive }
-        if shouldShowImportLoginsActionCard, isVaultEmpty { return .importItems }
-        return nil
+        VaultListActionCard.allCases.first { shouldShow($0) }
     }
 
     /// Whether the vault is in an empty data state (loaded successfully with no sections).
@@ -140,24 +135,43 @@ struct VaultListState: Equatable {
             searchVaultFilterType: vaultFilterType,
         )
     }
+
+    // MARK: Private
+
+    /// Whether a given action card's eligibility conditions are met.
+    ///
+    /// - Parameters:
+    ///   - card: The action card to evaluate.
+    ///
+    /// - Returns: `true` if the card should be displayed; `false` otherwise.
+    private func shouldShow(_ card: VaultListActionCard) -> Bool {
+        switch card {
+        case .upgradedToPremium: shouldShowUpgradedToPremiumActionCard
+        case .upgradeNeeded: shouldShowPremiumUpgradeActionCard
+        case .subscriptionNeedsAttention: shouldShowSubscriptionAttentionCard
+        case .introducingArchive: shouldShowArchiveOnboardingActionCard
+        case .importItems: shouldShowImportLoginsActionCard && isVaultEmpty
+        }
+    }
 }
 
 // MARK: - VaultListActionCard
 
-/// The action card to show on the vault list, determined by priority. Only one is shown at a time.
-enum VaultListActionCard {
-    /// The import saved logins card.
-    case importItems
-
-    /// The archive onboarding card.
-    case introducingArchive
-
-    /// The subscription needs attention card for past-due or update-payment users.
-    case subscriptionNeedsAttention
-
-    /// The post-upgrade confirmation card (highest priority).
+/// The action card to show on the vault list. Only one is shown at a time.
+/// Cases are declared in priority order from highest to lowest.
+enum VaultListActionCard: CaseIterable, Equatable {
+    /// The post-upgrade confirmation card.
     case upgradedToPremium
 
     /// The upgrade-to-premium banner for free users.
     case upgradeNeeded
+
+    /// The subscription needs attention card for past-due or update-payment users.
+    case subscriptionNeedsAttention
+
+    /// The archive onboarding card.
+    case introducingArchive
+
+    /// The import saved logins card.
+    case importItems
 }

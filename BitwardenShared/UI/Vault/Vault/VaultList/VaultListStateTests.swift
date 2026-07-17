@@ -8,17 +8,8 @@ struct VaultListStateTests {
     // MARK: Static Properties
 
     /// All 32 subsets of `VaultListActionCard` cases, used for exhaustive priority testing.
-    static let allCardSubsets: [[VaultListActionCard]] = {
-        let allCards: [VaultListActionCard] = [
-            .importItems, .introducingArchive, .subscriptionNeedsAttention, .upgradeNeeded, .upgradedToPremium,
-        ]
-        return allCards.reduce([[]]) { subsets, card in subsets + subsets.map { $0 + [card] } }
-    }()
-
-    /// The expected priority order of `VaultListActionCard` cases, from highest to lowest.
-    static let priorityOrder: [VaultListActionCard] = [
-        .upgradedToPremium, .upgradeNeeded, .subscriptionNeedsAttention, .introducingArchive, .importItems,
-    ]
+    static let allCardSubsets: [[VaultListActionCard]] = VaultListActionCard.allCases
+        .reduce([[]]) { subsets, card in subsets + subsets.map { $0 + [card] } }
 
     // MARK: Properties
 
@@ -52,7 +43,7 @@ struct VaultListStateTests {
                 state.shouldShowUpgradedToPremiumActionCard = true
             }
         }
-        let expected = Self.priorityOrder.first { activeCards.contains($0) }
+        let expected = VaultListActionCard.allCases.first { activeCards.contains($0) }
         #expect(state.activeActionCard == expected)
     }
 
