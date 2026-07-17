@@ -420,6 +420,7 @@
 "NewSendCreated" = "Send created";
 "Custom" = "Custom";
 "SendDisabledWarning" = "Due to an enterprise policy, you are only able to delete an existing Send.";
+"SendDeletionDateEnforcedByOrganization" = "This date is enforced by your organization";
 "AboutSend" = "About Send";
 "HideEmail" = "Hide my email address from recipients";
 "SendOptionsPolicyInEffect" = "One or more organization policies are affecting your Send options.";
