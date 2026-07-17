@@ -17,6 +17,7 @@ struct FillAssistRepositoryTests {
     let environmentService: MockEnvironmentService
     let errorReporter: MockErrorReporter
     let fillAssistAPIService: MockFillAssistAPIService
+    let fillAssistFingerprintService: MockFillAssistFingerprintService
     let keychainRepository: MockKeychainRepository
     let stateService: MockStateService
     let subject: DefaultFillAssistRepository
@@ -30,6 +31,8 @@ struct FillAssistRepositoryTests {
         environmentService = MockEnvironmentService()
         errorReporter = MockErrorReporter()
         fillAssistAPIService = MockFillAssistAPIService()
+        fillAssistFingerprintService = MockFillAssistFingerprintService()
+        fillAssistFingerprintService.fingerprintReturnValue = "stub-fingerprint"
         keychainRepository = MockKeychainRepository()
         stateService = MockStateService()
         stateService.activeAccount = .fixture()
@@ -42,6 +45,7 @@ struct FillAssistRepositoryTests {
             environmentService: environmentService,
             errorReporter: errorReporter,
             fillAssistAPIService: fillAssistAPIService,
+            fillAssistFingerprintService: fillAssistFingerprintService,
             keychainRepository: keychainRepository,
             stateService: stateService,
             timeProvider: timeProvider,
@@ -131,8 +135,7 @@ struct FillAssistRepositoryTests {
 
         #expect(keychainRepository.setUserAuthKeyCalled)
         let storedFingerprint = keychainRepository.setUserAuthKeyReceivedArguments?.value
-        #expect(storedFingerprint?.count == 64)
-        #expect(try storedFingerprint == (cached.map(fingerprint(for:))))
+        #expect(storedFingerprint == fillAssistFingerprintService.fingerprintReturnValue)
     }
 
     /// `syncRules()` skips storing when the schema major version is unsupported.

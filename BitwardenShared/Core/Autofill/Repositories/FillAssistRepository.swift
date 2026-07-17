@@ -24,15 +24,6 @@ protocol FillAssistRepository { // sourcery: AutoMockable
     func clearRules(userId: String?) async throws
 }
 
-// MARK: - FillAssistFingerprintError
-
-/// Errors thrown while computing the fill-assist cached-rules integrity fingerprint.
-///
-private enum FillAssistFingerprintError: Error {
-    /// The cached data could not be encoded to compute its fingerprint.
-    case encodingFailed
-}
-
 // MARK: - DefaultFillAssistRepository
 
 /// The default implementation of `FillAssistRepository`.
@@ -55,6 +46,9 @@ class DefaultFillAssistRepository: FillAssistRepository {
     /// The API service for fetching fill-assist data.
     private let fillAssistAPIService: FillAssistAPIService
 
+    /// The service for computing the cached-rules integrity fingerprint.
+    private let fillAssistFingerprintService: FillAssistFingerprintService
+
     /// The repository for storing the cached-rules integrity fingerprint.
     private let keychainRepository: KeychainRepository
 
@@ -74,6 +68,8 @@ class DefaultFillAssistRepository: FillAssistRepository {
     ///   - environmentService: The service for accessing environment URLs.
     ///   - errorReporter: The service for reporting non-fatal errors.
     ///   - fillAssistAPIService: The API service for fetching fill-assist data.
+    ///   - fillAssistFingerprintService: The service for computing the cached-rules integrity
+    ///     fingerprint.
     ///   - keychainRepository: The repository for storing the cached-rules integrity fingerprint.
     ///   - stateService: The service for accessing account state.
     ///   - timeProvider: The provider of the current time.
@@ -84,6 +80,7 @@ class DefaultFillAssistRepository: FillAssistRepository {
         environmentService: EnvironmentService,
         errorReporter: ErrorReporter,
         fillAssistAPIService: FillAssistAPIService,
+        fillAssistFingerprintService: FillAssistFingerprintService,
         keychainRepository: KeychainRepository,
         stateService: StateService,
         timeProvider: TimeProvider,
@@ -93,6 +90,7 @@ class DefaultFillAssistRepository: FillAssistRepository {
         self.environmentService = environmentService
         self.errorReporter = errorReporter
         self.fillAssistAPIService = fillAssistAPIService
+        self.fillAssistFingerprintService = fillAssistFingerprintService
         self.keychainRepository = keychainRepository
         self.stateService = stateService
         self.timeProvider = timeProvider
@@ -167,17 +165,14 @@ class DefaultFillAssistRepository: FillAssistRepository {
         appSettingsStore.setFillAssistCachedData(data, userId: userId)
         appSettingsStore.setFillAssistLastFetchTimestamp(timeProvider.presentTime, userId: userId)
 
-        if let newFingerprint = try? data.integrityFingerprint() {
-            do {
-                try await keychainRepository.setUserAuthKey(
-                    for: .fillAssistRulesFingerprint(userId: userId),
-                    value: newFingerprint,
-                )
-            } catch {
-                errorReporter.log(error: error)
-            }
-        } else {
-            errorReporter.log(error: FillAssistFingerprintError.encodingFailed)
+        do {
+            let newFingerprint = try fillAssistFingerprintService.fingerprint(for: data)
+            try await keychainRepository.setUserAuthKey(
+                for: .fillAssistRulesFingerprint(userId: userId),
+                value: newFingerprint,
+            )
+        } catch {
+            errorReporter.log(error: error)
         }
     }
 
@@ -191,24 +186,50 @@ class DefaultFillAssistRepository: FillAssistRepository {
     private func loadVerifiedCachedData(userId: String) async -> FillAssistCachedData? {
         guard let cached = appSettingsStore.fillAssistCachedData(userId: userId) else {
             // No cached data — clear any stray fingerprint left from an inconsistent prior state.
-            try? await keychainRepository.deleteUserAuthKey(for: .fillAssistRulesFingerprint(userId: userId))
+            await deleteFingerprint(userId: userId)
             return nil
         }
 
-        let storedFingerprint = try? await keychainRepository.getUserAuthKeyValue(
-            for: .fillAssistRulesFingerprint(userId: userId),
-        )
+        let storedFingerprint: String?
+        do {
+            storedFingerprint = try await keychainRepository.getUserAuthKeyValue(
+                for: .fillAssistRulesFingerprint(userId: userId),
+            )
+        } catch KeychainServiceError.osStatusError(errSecItemNotFound), KeychainServiceError.keyNotFound {
+            storedFingerprint = nil
+        } catch {
+            errorReporter.log(error: error)
+            storedFingerprint = nil
+        }
 
-        guard let storedFingerprint,
-              let computed = try? cached.integrityFingerprint(),
-              storedFingerprint == computed
-        else {
+        let computed: String?
+        do {
+            computed = try fillAssistFingerprintService.fingerprint(for: cached)
+        } catch {
+            errorReporter.log(error: error)
+            computed = nil
+        }
+
+        guard let storedFingerprint, let computed, storedFingerprint == computed else {
             appSettingsStore.setFillAssistCachedData(nil, userId: userId)
-            try? await keychainRepository.deleteUserAuthKey(for: .fillAssistRulesFingerprint(userId: userId))
+            await deleteFingerprint(userId: userId)
             return nil
         }
 
         return cached
+    }
+
+    /// Deletes the Keychain-stored cached-rules integrity fingerprint for `userId`, logging any
+    /// failure. Deleting a non-existent item is not itself an error.
+    ///
+    /// - Parameter userId: The user ID whose fingerprint to delete.
+    ///
+    private func deleteFingerprint(userId: String) async {
+        do {
+            try await keychainRepository.deleteUserAuthKey(for: .fillAssistRulesFingerprint(userId: userId))
+        } catch {
+            errorReporter.log(error: error)
+        }
     }
 
     /// Builds a `[hostname: FillAssistHostRules]` dictionary by pooling all non-null field

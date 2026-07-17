@@ -2557,7 +2557,7 @@ extension DefaultStateService {
         )
         appSettingsStore.setFillAssistCachedData(data, userId: userId)
 
-        let newFingerprint = try data.integrityFingerprint()
+        let newFingerprint = try DefaultFillAssistFingerprintService().fingerprint(for: data)
         try await keychainRepository.setUserAuthKey(
             for: .fillAssistRulesFingerprint(userId: userId),
             value: newFingerprint,
