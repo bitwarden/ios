@@ -166,12 +166,23 @@ class MockPasskeyCredentialStore: PasskeyCredentialStore {
     var saveError: Error?
     var fetchAllResult: [StoredPasskeyCredential] = []
     var fetchAllError: Error?
+    var deletedIds: [String] = []
+    var deleteError: Error?
+    var deleteAllCalled = false
+    var deleteAllError: Error?
 
-    func save(_ credential: StoredPasskeyCredential) throws {
-        if let saveError {
-            throw saveError
+    func delete(id: String) throws {
+        if let deleteError {
+            throw deleteError
         }
-        savedCredentials.append(credential)
+        deletedIds.append(id)
+    }
+
+    func deleteAll() throws {
+        if let deleteAllError {
+            throw deleteAllError
+        }
+        deleteAllCalled = true
     }
 
     func fetchAll() throws -> [StoredPasskeyCredential] {
@@ -179,5 +190,12 @@ class MockPasskeyCredentialStore: PasskeyCredentialStore {
             throw fetchAllError
         }
         return fetchAllResult
+    }
+
+    func save(_ credential: StoredPasskeyCredential) throws {
+        if let saveError {
+            throw saveError
+        }
+        savedCredentials.append(credential)
     }
 }
