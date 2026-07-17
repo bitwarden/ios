@@ -8,7 +8,7 @@ struct ManagePasskeysView: View {
     // MARK: Properties
 
     /// The store used to render the view.
-    @ObservedObject var store: Store<ManagePasskeysState, ManagePasskeysAction, ManagePasskeysEffect>
+    @ObservedObject var store: Store<ManagePasskeysState, Void, ManagePasskeysEffect>
 
     // MARK: View
 

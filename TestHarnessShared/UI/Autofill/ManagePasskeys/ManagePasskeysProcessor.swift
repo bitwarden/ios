@@ -6,7 +6,7 @@ import BitwardenKit
 ///
 class ManagePasskeysProcessor: StateProcessor<
     ManagePasskeysState,
-    ManagePasskeysAction,
+    Void,
     ManagePasskeysEffect,
 > {
     // MARK: Private Properties
