@@ -707,7 +707,7 @@ class AlertVaultTests: BitwardenTestCase { // swiftlint:disable:this type_body_l
         let subject = Alert.totpPremiumRequired { called = true }
 
         XCTAssertEqual(subject.title, Localizations.premiumSubscriptionRequired)
-        XCTAssertEqual(subject.message, Localizations.premiumRequired)
+        XCTAssertEqual(subject.message, Localizations.premiumRequiredTOTPDescriptionLong)
         XCTAssertEqual(subject.alertActions.count, 2)
         XCTAssertEqual(subject.alertActions[0].title, Localizations.upgradeToPremium)
         XCTAssertEqual(subject.alertActions[0].style, .default)

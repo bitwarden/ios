@@ -6,6 +6,7 @@
 "Bitwarden" = "Bitwarden";
 "Cancel" = "取消";
 "Copy" = "複製";
+"CopyLicenseNumber" = "複製駕照號碼";
 "CopyPassportNumber" = "複製護照號碼";
 "CopyPassword" = "複製密碼";
 "CopyUsername" = "複製使用者名稱";
@@ -777,6 +778,8 @@
 "SetUpAutofillOnAllYourDevicesToLoginWithASingleTapAnywhere" = "在您所有裝置上設定一鍵自動填入登入";
 "GoBack" = "返回";
 "GotIt" = "知道了";
+/* masterPasswordUnlock is the name of some data we want to delete, so there's no need to localize it. */
+"ClearMasterPasswordUnlock" = "清除 masterPasswordUnlock";
 "ClearSsoCookies" = "SSO Cookie 已清除";
 "GenerateCrash" = "產生當機報告";
 "GenerateErrorReport" = "產生錯誤報告";
@@ -1027,10 +1030,8 @@
 "ArchiveEmptyDescriptionLong" = "將您不希望出現在搜尋結果與自動填入建議中、但日後可能需要的項目加入封存。";
 "ArchiveItem" = "封存項目";
 "OnceArchivedThisItemWillBeExcludedDescriptionLong" = "封存後，此項目將不會顯示在搜尋結果與自動填入建議中。";
-"ArchiveUnavailable" = "封存不可用";
 "ArchivingItemsIsAPremiumFeatureDescriptionLong" = "封存項目為進階版功能。您目前的方案不包含此功能。";
 "AddingAttachmentsIsAPremiumFeatureDescriptionLong" = "新增附件為 Premium 功能。您目前的方案不包含此功能。";
-"AttachmentsUnavailable" = "附件不可用";
 "UpgradeToPremium" = "升級到 Premium";
 "ThisItemIsArchived" = "此項目已被封存。";
 "YourPremiumSubscriptionEnded" = "您的進階版訂閱已到期";
@@ -1063,6 +1064,8 @@
 "ReplaceCertificate" = "更換憑證";
 "ReplaceExistingCertificate" = "取代現有憑證";
 "UnableToReadCertificateFile" = "無法讀取憑證檔案。";
+/* masterPasswordUnlock is the name of some data we want to delete, so there's no need to localize it. */
+"MasterPasswordUnlockCleared" = "已清除 masterPasswordUnlock。";
 "SsoCookiesCleared" = "SSO Cookie 已清除";
 "YourRequestWasInterruptedBecauseTheAppNeededToReAuthenticatePleaseTryAgain" = "您的請求已中斷，因為應用程式需要重新驗證。請再試一次。";
 "AutofillWithBitwardenDescriptionLong" = "當您登入應用程式與網站時，Bitwarden 可以建議您的密碼與其他憑證。";
@@ -1087,6 +1090,8 @@
 "ExternalLink" = "外部連結";
 "YourNextChargeIsForXDueOnY" = "下次收費為 **%1$@**，將於 **%2$@** 到期。";
 "WeCouldNotProcessYourPaymentUpdateYourPaymentMethodDescriptionLong" = "無法處理您的付款。請在訂閱於 **%1$@** 結束前更新付款方式。";
+/* Error message shown when the Premium Plan screen fails to load subscription data, with a prompt to retry. */
+"WeCouldntLoadYourSubscriptionDetailsPleaseRetry" = "無法載入您的訂閱詳細資訊。請再試一次。";
 "YourSubscriptionWasCanceledOnXDescriptionLong" = "您的訂閱已於 **%1$@** 取消。重新訂閱以繼續使用 Premium 功能。";
 "YourSubscriptionExpiredOnXDescriptionLong" = "您的訂閱已於 **%1$@** 到期。重新訂閱以繼續使用 Premium 功能。";
 "YourSubscriptionIsScheduledToCancelOnXDescriptionLong" = "您的訂閱預計將於 **%1$@** 取消。在此之前，您隨時都可以恢復訂閱。";
@@ -1096,7 +1101,6 @@
 "NegativeX" = "-%1$@";
 "UnknownStatus" = "不詳";
 "YourSubscriptionStatusIsUnknownVisitTheWebAppDescriptionLong" = "無法判斷您的訂閱狀態。請前往網頁版查看詳細資訊，或更新至最新版本。";
-"AtTheMomentPremiumPlanIsNotAvailableDescriptionLong" = "目前無法使用 Premium 方案，請稍後再試。";
 "UnlockMoreAdvancedFeaturesWithPremiumPlan" = "透過 Premium 方案解鎖更多進階功能。";
 "BuiltInAuthenticator" = "內建驗證器";
 "EmergencyAccess" = "緊急存取";
@@ -1112,6 +1116,9 @@
 "UpgradePending" = "升級處理中";
 "YourUpgradeIsBeingProcessedDescriptionLong" = "您的升級正在處理中。在完成之前，您將維持免費方案。立即同步以進行檢查，或繼續操作，系統將自動更新。";
 "UpgradedToPremium" = "升級到 Premium";
+"SubscriptionNeedsAttention" = "您的訂閱需要處理";
+"CheckYourPlanForDetails" = "請查看您的方案以了解詳情。";
+"ViewPlan" = "查看方案";
 "YouNowHaveAccessToAdvancedSecurityDescriptionLong" = "您現在可以使用進階安全功能。深入了解 Premium 包含的內容。";
 "YouNowHaveAccessToAllAdvancedSecurityFeatures" = "您現在可以使用所有進階安全功能。";
 "YoullGoToStripeSecureCheckoutToCompleteYourPurchase" = "您將前往 Stripe 的安全結帳頁面完成購買。";
@@ -1148,7 +1155,7 @@
 "PassportType" = "護照類型";
 "NationalIdentificationNumber" = "身分證字號";
 /* Label for the government authority or office that issued the passport. */
-"IssuingAuthorityOffice" = "Issuing authority/office";
+"IssuingAuthorityOffice" = "簽發機關／單位";
 "AccountDetails" = "帳戶詳細資訊";
 "BankName" = "銀行名稱";
 "NameOnAccount" = "帳戶名稱";

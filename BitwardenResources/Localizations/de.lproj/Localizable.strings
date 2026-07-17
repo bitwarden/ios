@@ -6,6 +6,7 @@
 "Bitwarden" = "Bitwarden";
 "Cancel" = "Abbrechen";
 "Copy" = "Kopieren";
+"CopyLicenseNumber" = "Lizenznummer kopieren";
 "CopyPassportNumber" = "Reisepassnummer kopieren";
 "CopyPassword" = "Passwort kopieren";
 "CopyUsername" = "Benutzername kopieren";
@@ -777,6 +778,8 @@
 "SetUpAutofillOnAllYourDevicesToLoginWithASingleTapAnywhere" = "Richte Auto-Ausfüllen auf all deinen Geräten ein, um dich mit einem einzigen Fingertipp überall anzumelden.";
 "GoBack" = "Geh zurück";
 "GotIt" = "Verstanden";
+/* masterPasswordUnlock is the name of some data we want to delete, so there's no need to localize it. */
+"ClearMasterPasswordUnlock" = "masterPasswordUnlock löschen";
 "ClearSsoCookies" = "SSO-Cookies löschen";
 "GenerateCrash" = "Absturz erzeugen";
 "GenerateErrorReport" = "Fehlerbericht generieren";
@@ -1026,10 +1029,8 @@
 "ArchiveEmptyDescriptionLong" = "Fülle dein Archiv mit Einträgen, die du nicht in Suchergebnissen und Auto-Ausfüllen-Vorschlägen sehen möchtest, aber möglicherweise eines Tages benötigst.";
 "ArchiveItem" = "Eintrag archivieren";
 "OnceArchivedThisItemWillBeExcludedDescriptionLong" = "Nach der Archivierung wird dieser Eintrag aus den Suchergebnissen und Auto-Ausfüllen-Vorschlägen ausgeschlossen.";
-"ArchiveUnavailable" = "Archiv nicht verfügbar";
 "ArchivingItemsIsAPremiumFeatureDescriptionLong" = "Das Archivieren von Einträgen ist eine Premium-Funktion. Dein aktueller Tarif umfasst keinen Zugriff auf diese Funktion.";
 "AddingAttachmentsIsAPremiumFeatureDescriptionLong" = "Das Hinzufügen von Anhängen ist eine Premium-Funktion. Dein aktueller Tarif umfasst keinen Zugriff auf diese Funktion.";
-"AttachmentsUnavailable" = "Anhänge sind nicht verfügbar";
 "UpgradeToPremium" = "Auf Premium upgraden";
 "ThisItemIsArchived" = "Dieser Eintrag ist archiviert.";
 "YourPremiumSubscriptionEnded" = "Dein Premium-Abonnement ist abgelaufen";
@@ -1062,6 +1063,8 @@
 "ReplaceCertificate" = "Zertifikat ersetzen";
 "ReplaceExistingCertificate" = "Existierendes Zertifikat ersetzen";
 "UnableToReadCertificateFile" = "Die Zertifikatsdatei konnte nicht gelesen werden.";
+/* masterPasswordUnlock is the name of some data we want to delete, so there's no need to localize it. */
+"MasterPasswordUnlockCleared" = "masterPasswordUnlock gelöscht.";
 "SsoCookiesCleared" = "SSO-Cookies gelöscht";
 "YourRequestWasInterruptedBecauseTheAppNeededToReAuthenticatePleaseTryAgain" = "Deine Anfrage wurde unterbrochen, weil die App erneut authentifiziert werden musste. Bitte versuche es erneut.";
 "AutofillWithBitwardenDescriptionLong" = "Bitwarden kann dir deine Passwörter und andere Zugangsdaten vorschlagen, wenn du dich bei Apps und Websites anmeldest.";
@@ -1086,6 +1089,8 @@
 "ExternalLink" = "Externer Link";
 "YourNextChargeIsForXDueOnY" = "Deine nächste Abrechnung beträgt **%1$@** und ist am **%2$@** fällig.";
 "WeCouldNotProcessYourPaymentUpdateYourPaymentMethodDescriptionLong" = "Deine Zahlung konnte nicht bearbeitet werden. Aktualisiere deine Zahlungsmethode, bevor dein Abonnement am **%1$@** endet.";
+/* Error message shown when the Premium Plan screen fails to load subscription data, with a prompt to retry. */
+"WeCouldntLoadYourSubscriptionDetailsPleaseRetry" = "Wir konnten deine Abonnementdetails nicht laden. Bitte versuche es erneut.";
 "YourSubscriptionWasCanceledOnXDescriptionLong" = "Dein Abonnement wurde am **%1$@** gekündigt. Abonniere erneut, um die Premium-Funktionen weiterhin nutzen zu können.";
 "YourSubscriptionExpiredOnXDescriptionLong" = "Dein Abonnement ist am **%1$@** abgelaufen. Abonniere erneut, um die Premium-Funktionen weiterhin nutzen zu können.";
 "YourSubscriptionIsScheduledToCancelOnXDescriptionLong" = "Dein Abonnement wird am **%1$@** gekündigt. Du kannst es davor jederzeit wieder reaktivieren.";
@@ -1095,7 +1100,6 @@
 "NegativeX" = "-%1$@";
 "UnknownStatus" = "Unbekannt";
 "YourSubscriptionStatusIsUnknownVisitTheWebAppDescriptionLong" = "Dein Abonnementstatus konnte nicht ermittelt werden. Bitte besuche die Web-App für weitere Details oder aktualisiere auf die neueste Version.";
-"AtTheMomentPremiumPlanIsNotAvailableDescriptionLong" = "Im Moment ist der Premium-Tarif nicht verfügbar. Bitte versuche es später erneut.";
 "UnlockMoreAdvancedFeaturesWithPremiumPlan" = "Schalte mehr erweiterte Funktionen mit einem Premium-Tarif frei.";
 "BuiltInAuthenticator" = "Integrierter Authenticator";
 "EmergencyAccess" = "Notfallzugriff";
@@ -1111,6 +1115,9 @@
 "UpgradePending" = "Upgrade ausstehend";
 "YourUpgradeIsBeingProcessedDescriptionLong" = "Dein Upgrade wird gerade bearbeitet. Bis zum Abschluss des Vorgangs bleibst du im kostenlosen Tarif. Führe jetzt eine Synchronisierung durch, um den Status zu überprüfen, oder fahre fort und die Aktualisierung erfolgt dann automatisch.";
 "UpgradedToPremium" = "Auf Premium upgraden";
+"SubscriptionNeedsAttention" = "Dein Abonnement benötigt Aufmerksamkeit";
+"CheckYourPlanForDetails" = "Überprüfe deinen Tarif für Details.";
+"ViewPlan" = "Tarif anzeigen";
 "YouNowHaveAccessToAdvancedSecurityDescriptionLong" = "Du hast nun Zugriff auf erweiterte Sicherheitsfunktionen. Erfahre mehr über das, was im Premium-Tarif enthalten ist.";
 "YouNowHaveAccessToAllAdvancedSecurityFeatures" = "Du hast nun Zugriff auf alle erweiterten Sicherheitsfunktionen.";
 "YoullGoToStripeSecureCheckoutToCompleteYourPurchase" = "Du wirst zur sicheren Kaufabwicklung von Stripe weitergeleitet, um deinen Kauf abzuschließen.";

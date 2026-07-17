@@ -6,6 +6,7 @@
 "Bitwarden" = "Bitwarden";
 "Cancel" = "Odustani";
 "Copy" = "Kopiraj";
+"CopyLicenseNumber" = "Kopiraj broj osobne";
 "CopyPassportNumber" = "Kopiraj broj putovnice";
 "CopyPassword" = "Kopiraj lozinku";
 "CopyUsername" = "Kopiraj korisničko ime";
@@ -777,6 +778,8 @@
 "SetUpAutofillOnAllYourDevicesToLoginWithASingleTapAnywhere" = "Na svim svojim uređajima uključi auto-ispunu za prijavu jednim dodirom.";
 "GoBack" = "Nazad";
 "GotIt" = "U redu";
+/* masterPasswordUnlock is the name of some data we want to delete, so there's no need to localize it. */
+"ClearMasterPasswordUnlock" = "Clear masterPasswordUnlock";
 "ClearSsoCookies" = "Očisti SSO kolačiće";
 "GenerateCrash" = "Generiraj crash";
 "GenerateErrorReport" = "Generiraj zapisnik o greškama";
@@ -1026,10 +1029,8 @@
 "ArchiveEmptyDescriptionLong" = "Ispuni svoju arhivu stavkama koje ne želiš vidjeti u rezultatima pretraživanja i prijedlozima auto-ispune, ali bi ti jednog dana ipak mogle zatrebati.";
 "ArchiveItem" = "Arhiviraj stavki";
 "OnceArchivedThisItemWillBeExcludedDescriptionLong" = "Nakon arhiviranja, stavka će biti izuzeta iz rezultata pretrage i prijedloga auto-ispune.";
-"ArchiveUnavailable" = "Arhiva nedostupna";
 "ArchivingItemsIsAPremiumFeatureDescriptionLong" = "Arhiviranje je Premium značajka. Tvoj trenutni paket ne uključuje pristup ovoj značajki.";
 "AddingAttachmentsIsAPremiumFeatureDescriptionLong" = "Adding attachments is a Premium feature. Your current plan does not include access to this feature.";
-"AttachmentsUnavailable" = "Privici nisu dostupni";
 "UpgradeToPremium" = "Nadogradnja na premium";
 "ThisItemIsArchived" = "Ova stavka je arhivirana.";
 "YourPremiumSubscriptionEnded" = "Toja Premium pretplata je završila";
@@ -1062,6 +1063,8 @@
 "ReplaceCertificate" = "Zamijeni certifikat";
 "ReplaceExistingCertificate" = "Zamijeni postojeći certifikat";
 "UnableToReadCertificateFile" = "Nije moguće učitati datoteku certifikata.";
+/* masterPasswordUnlock is the name of some data we want to delete, so there's no need to localize it. */
+"MasterPasswordUnlockCleared" = "masterPasswordUnlock cleared.";
 "SsoCookiesCleared" = "SSO kolačići očišćeni";
 "YourRequestWasInterruptedBecauseTheAppNeededToReAuthenticatePleaseTryAgain" = "Zahtjev je prekinut jer je aplikacija trebala ponovnu autentifikaciju. Pokušaj ponovno.";
 "AutofillWithBitwardenDescriptionLong" = "Bitwarden može predložiti lozinke i druge vjerodajnice kada se prijavljuješ u aplikacije i web-mjesta.";
@@ -1086,6 +1089,8 @@
 "ExternalLink" = "Vanjska poveznica";
 "YourNextChargeIsForXDueOnY" = "Tvoja sljedeća naplata je za **%1$@**, dospijeva na **%2$@**.";
 "WeCouldNotProcessYourPaymentUpdateYourPaymentMethodDescriptionLong" = "Nismo mogli obraditi tvoju uplatu. Ažuriraj način plaćanja prije nego pretplata završi **%1$@**.";
+/* Error message shown when the Premium Plan screen fails to load subscription data, with a prompt to retry. */
+"WeCouldntLoadYourSubscriptionDetailsPleaseRetry" = "We couldn't load your subscription details. Please try again.";
 "YourSubscriptionWasCanceledOnXDescriptionLong" = "Your subscription was canceled on **%1$@**. Resubscribe to continue using Premium features.";
 "YourSubscriptionExpiredOnXDescriptionLong" = "Your subscription expired on **%1$@**. Resubscribe to continue using Premium features.";
 "YourSubscriptionIsScheduledToCancelOnXDescriptionLong" = "Your subscription is scheduled to cancel on **%1$@**. You can reinstate it anytime before then.";
@@ -1095,7 +1100,6 @@
 "NegativeX" = "-%1$@";
 "UnknownStatus" = "Nepoznato";
 "YourSubscriptionStatusIsUnknownVisitTheWebAppDescriptionLong" = "Nismo mogli odrediti tvoju pretplatu. Za više detalja posjeti web aplikaciju ili ažuriraj na najnoviju verziju.";
-"AtTheMomentPremiumPlanIsNotAvailableDescriptionLong" = "Premium paket trenutno nije dostupan. Pokušaj ponovno kasnije.";
 "UnlockMoreAdvancedFeaturesWithPremiumPlan" = "Otključaj više naprednig mogućnosti s paketom Premium.";
 "BuiltInAuthenticator" = "Ugrađeni autentifikator";
 "EmergencyAccess" = "Pristup u nuždi";
@@ -1111,6 +1115,9 @@
 "UpgradePending" = "Nadogradnja čeka";
 "YourUpgradeIsBeingProcessedDescriptionLong" = "Tvoja se nadogradnja obrađuje. Dok se ne dovrši, ostat ćeš na besplatnom paketu. Sinkroniziraj sada za provjeru ili nastavi i nadogradnja će se izvršiti automatski.";
 "UpgradedToPremium" = " Nadogradi na Premium";
+"SubscriptionNeedsAttention" = "Your subscription needs attention";
+"CheckYourPlanForDetails" = "Check your plan for details.";
+"ViewPlan" = "View plan";
 "YouNowHaveAccessToAdvancedSecurityDescriptionLong" = "Sada imaš pristup naprednim sigurnosnim značajkama. Saznaj što je uključeno u Premium.";
 "YouNowHaveAccessToAllAdvancedSecurityFeatures" = "Sada imaš pristup svim naprednim sigurnosnim značajkama.";
 "YoullGoToStripeSecureCheckoutToCompleteYourPurchase" = "Kupnju ćeš dovršiti na sigurnoj blagajni Stripe-a.";

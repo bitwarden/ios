@@ -252,9 +252,8 @@ protocol AuthRepository: AnyObject {
     /// - Parameters:
     ///   - privateKey: The private key from the login with device response.
     ///   - key: The returned key from the approved auth request.
-    ///   - masterPasswordHash: The master password hash from the approved auth request.
     ///
-    func unlockVaultFromLoginWithDevice(privateKey: String, key: String, masterPasswordHash: String?) async throws
+    func unlockVaultFromLoginWithDevice(privateKey: String, key: String) async throws
 
     /// Attempts to unlock the user's vault with biometrics.
     ///
@@ -955,7 +954,7 @@ extension DefaultAuthRepository: AuthRepository {
             try await stateService.setAccountEncryptionKeys(
                 AccountEncryptionKeys(
                     cryptographicState: response.accountCryptographicState,
-                    encryptedUserKey: response.masterPasswordUnlock.masterKeyWrappedUserKey,
+                    encryptedUserKey: nil,
                 ),
             )
             try await stateService.setAccountMasterPasswordUnlock(
@@ -995,9 +994,15 @@ extension DefaultAuthRepository: AuthRepository {
         )
 
         try await accountAPIService.setPassword(requestModel)
+        try await stateService.setAccountMasterPasswordUnlock(
+            MasterPasswordUnlockResponseModel(
+                account: account,
+                masterKeyEncryptedUserKey: requestUserKey,
+            ),
+        )
         try await stateService.setAccountEncryptionKeys(AccountEncryptionKeys(
             cryptographicState: cryptographicState,
-            encryptedUserKey: requestUserKey,
+            encryptedUserKey: nil,
         ))
         try await stateService.setUserHasMasterPassword(true)
 
@@ -1056,19 +1061,11 @@ extension DefaultAuthRepository: AuthRepository {
         )
     }
 
-    func unlockVaultFromLoginWithDevice(privateKey: String, key: String, masterPasswordHash: String?) async throws {
-        let method =
-            if masterPasswordHash != nil,
-            let encUserKey = try await stateService.getAccountEncryptionKeys().encryptedUserKey {
-                AuthRequestMethod.masterKey(protectedMasterKey: key, authRequestKey: encUserKey)
-            } else {
-                AuthRequestMethod.userKey(protectedUserKey: key)
-            }
-
+    func unlockVaultFromLoginWithDevice(privateKey: String, key: String) async throws {
         try await unlockVault(
             method: .authRequest(
                 requestPrivateKey: privateKey,
-                method: method,
+                method: .userKey(protectedUserKey: key),
             ),
         )
 
@@ -1170,8 +1167,12 @@ extension DefaultAuthRepository: AuthRepository {
         if let passwordHash = try await stateService.getMasterPasswordHash() {
             return try await clientService.auth().validatePassword(password: password, passwordHash: passwordHash)
         } else {
-            let encryptionKeys = try await stateService.getAccountEncryptionKeys()
-            guard let encUserKey = encryptionKeys.encryptedUserKey else { throw StateServiceError.noEncUserKey }
+            let account = try await stateService.getActiveAccount()
+            guard let encUserKey = account.profile.userDecryptionOptions?
+                .masterPasswordUnlock?.masterKeyEncryptedUserKey
+            else {
+                throw AuthError.missingMasterPasswordUnlockData
+            }
             do {
                 let passwordHash = try await clientService.auth().validatePasswordUserKey(
                     password: password,
@@ -1320,12 +1321,6 @@ extension DefaultAuthRepository: AuthRepository {
             purpose: .serverAuthorization,
         )
 
-        let encryptionKeys = try await stateService.getAccountEncryptionKeys()
-        let newEncryptionKeys = AccountEncryptionKeys(
-            cryptographicState: encryptionKeys.cryptographicState,
-            encryptedUserKey: updatePasswordResponse.newKey,
-        )
-
         switch reason {
         case .adminForcePasswordReset:
             try await accountAPIService.updateTempPassword(
@@ -1346,7 +1341,12 @@ extension DefaultAuthRepository: AuthRepository {
             )
         }
 
-        try await stateService.setAccountEncryptionKeys(newEncryptionKeys)
+        try await stateService.setAccountMasterPasswordUnlock(
+            MasterPasswordUnlockResponseModel(
+                account: account,
+                masterKeyEncryptedUserKey: updatePasswordResponse.newKey,
+            ),
+        )
         try await stateService.setMasterPasswordHash(updatePasswordResponse.passwordHash)
         try await stateService.setForcePasswordResetReason(nil)
     }

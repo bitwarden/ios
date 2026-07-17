@@ -6,6 +6,7 @@
 "Bitwarden" = "Bitwarden";
 "Cancel" = "Cancelar";
 "Copy" = "Copiar";
+"CopyLicenseNumber" = "Copiar número de licencia";
 "CopyPassportNumber" = "Copiar número de pasaporte";
 "CopyPassword" = "Copiar contraseña";
 "CopyUsername" = "Copiar nombre de usuario";
@@ -778,6 +779,8 @@
 "SetUpAutofillOnAllYourDevicesToLoginWithASingleTapAnywhere" = "Configura el autocompletado en todos tus dispositivos para iniciar sesión con un solo toque en cualquier lugar.";
 "GoBack" = "Volver";
 "GotIt" = "Entendido";
+/* masterPasswordUnlock is the name of some data we want to delete, so there's no need to localize it. */
+"ClearMasterPasswordUnlock" = "Clear masterPasswordUnlock";
 "ClearSsoCookies" = "Clear SSO cookies";
 "GenerateCrash" = "Generate crash";
 "GenerateErrorReport" = "Generate error report";
@@ -1027,10 +1030,8 @@
 "ArchiveEmptyDescriptionLong" = "Llena tu archivo con elementos que no deseas ver en los resultados al buscar ni en las sugerencias de autocompletado, pero que podrías necesitar algún día.";
 "ArchiveItem" = "Archivar elemento";
 "OnceArchivedThisItemWillBeExcludedDescriptionLong" = "Una vez archivado, este elemento se excluirá de los resultados de búsqueda y de sugerencias de autocompletado.";
-"ArchiveUnavailable" = "Archivar no disponible";
 "ArchivingItemsIsAPremiumFeatureDescriptionLong" = "El archivado de elementos es una funcionalidad Premium. Tu plan actual no incluye acceso a esta función.";
 "AddingAttachmentsIsAPremiumFeatureDescriptionLong" = "Adding attachments is a Premium feature. Your current plan does not include access to this feature.";
-"AttachmentsUnavailable" = "Los archivos adjuntos no están disponibles";
 "UpgradeToPremium" = "Mejorar a premium";
 "ThisItemIsArchived" = "Este elemento está archivado.";
 "YourPremiumSubscriptionEnded" = "Tu suscripción Premium ha finalizado";
@@ -1063,6 +1064,8 @@
 "ReplaceCertificate" = "Reemplazar certificado";
 "ReplaceExistingCertificate" = "Replace existing certificate";
 "UnableToReadCertificateFile" = "Unable to read the certificate file.";
+/* masterPasswordUnlock is the name of some data we want to delete, so there's no need to localize it. */
+"MasterPasswordUnlockCleared" = "masterPasswordUnlock cleared.";
 "SsoCookiesCleared" = "SSO cookies cleared";
 "YourRequestWasInterruptedBecauseTheAppNeededToReAuthenticatePleaseTryAgain" = "Your request was interrupted because the app needed to re-authenticate. Please try again.";
 "AutofillWithBitwardenDescriptionLong" = "Bitwarden can suggest your passwords and other credentials when you sign in to apps and websites.";
@@ -1087,6 +1090,8 @@
 "ExternalLink" = "Enlace externo";
 "YourNextChargeIsForXDueOnY" = "Your next charge is for **%1$@**, due on **%2$@**.";
 "WeCouldNotProcessYourPaymentUpdateYourPaymentMethodDescriptionLong" = "We could not process your payment. Update your payment method before your subscription ends on **%1$@**.";
+/* Error message shown when the Premium Plan screen fails to load subscription data, with a prompt to retry. */
+"WeCouldntLoadYourSubscriptionDetailsPleaseRetry" = "We couldn't load your subscription details. Please try again.";
 "YourSubscriptionWasCanceledOnXDescriptionLong" = "Your subscription was canceled on **%1$@**. Resubscribe to continue using Premium features.";
 "YourSubscriptionExpiredOnXDescriptionLong" = "Your subscription expired on **%1$@**. Resubscribe to continue using Premium features.";
 "YourSubscriptionIsScheduledToCancelOnXDescriptionLong" = "Your subscription is scheduled to cancel on **%1$@**. You can reinstate it anytime before then.";
@@ -1096,7 +1101,6 @@
 "NegativeX" = "-%1$@";
 "UnknownStatus" = "Unknown";
 "YourSubscriptionStatusIsUnknownVisitTheWebAppDescriptionLong" = "Your subscription status could not be determined. Please visit the web app for more details or update to the latest version.";
-"AtTheMomentPremiumPlanIsNotAvailableDescriptionLong" = "At the moment Premium plan is not available, please try again later.";
 "UnlockMoreAdvancedFeaturesWithPremiumPlan" = "Desbloquea funciones más avanzadas con un plan Premium.";
 "BuiltInAuthenticator" = "Autenticador integrado";
 "EmergencyAccess" = "Acceso de emergencia";
@@ -1112,6 +1116,9 @@
 "UpgradePending" = "Actualización pendiente";
 "YourUpgradeIsBeingProcessedDescriptionLong" = "Your upgrade is being processed. You'll remain on the free plan until it's complete. Sync now to check, or continue and it will update automatically.";
 "UpgradedToPremium" = "Actualizar a Premium";
+"SubscriptionNeedsAttention" = "Your subscription needs attention";
+"CheckYourPlanForDetails" = "Check your plan for details.";
+"ViewPlan" = "View plan";
 "YouNowHaveAccessToAdvancedSecurityDescriptionLong" = "You now have access to advanced security features. Learn more about what's included with Premium.";
 "YouNowHaveAccessToAllAdvancedSecurityFeatures" = "Ahora tiene acceso a todas las funcionalidades de seguridad avanzadas.";
 "YoullGoToStripeSecureCheckoutToCompleteYourPurchase" = "You´ll go to Stripe´s secure checkout to complete your purchase.";

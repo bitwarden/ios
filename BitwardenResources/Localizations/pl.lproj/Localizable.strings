@@ -6,6 +6,7 @@
 "Bitwarden" = "Bitwarden";
 "Cancel" = "Anuluj";
 "Copy" = "Kopiuj";
+"CopyLicenseNumber" = "Kopiuj numer prawa jazdy";
 "CopyPassportNumber" = "Kopiuj numer paszportu";
 "CopyPassword" = "Kopiuj hasło";
 "CopyUsername" = "Kopiuj nazwę użytkownika";
@@ -421,7 +422,7 @@
 "AboutSend" = "O wysyłce";
 "HideEmail" = "Ukryj mój adres e-mail przed odbiorcami";
 "SendOptionsPolicyInEffect" = "Co najmniej jedna zasada organizacji wpływa na ustawienia wysyłek.";
-"SendFilePremiumRequired" = "Darmowe konto jest ograniczone do udostępniania tylko tekstu. Konto Premium jest wymagane do udostępniania plików.";
+"SendFilePremiumRequired" = "Darmowe konta są ograniczone do udostępniania tylko tekstu. Konto Premium jest wymagane do udostępniania plików.";
 "SendFileEmailVerificationRequired" = "Musisz zweryfikować adres e-mail, aby wysyłać pliki za pomocą wysyłek.";
 "PasswordPrompt" = "Potwierdź hasłem głównym";
 "PasswordConfirmation" = "Potwierdź hasło główne";
@@ -777,6 +778,8 @@
 "SetUpAutofillOnAllYourDevicesToLoginWithASingleTapAnywhere" = "Skonfiguruj autouzupełnianie na wszystkich swoich urządzeniach, aby logować się jednym kliknięciem.";
 "GoBack" = "Wróć";
 "GotIt" = "Ok";
+/* masterPasswordUnlock is the name of some data we want to delete, so there's no need to localize it. */
+"ClearMasterPasswordUnlock" = "Wyczyść masterPasswordUnlock";
 "ClearSsoCookies" = "Wyczyść pliki cookies SSO";
 "GenerateCrash" = "Wygeneruj awarię";
 "GenerateErrorReport" = "Wygeneruj raport błędu";
@@ -1026,10 +1029,8 @@
 "ArchiveEmptyDescriptionLong" = "Przenieś do archiwum elementy, których nie chcesz widzieć w wynikach wyszukiwania i sugestiach autouzupełniania, ale które mogą Ci się kiedyś przydać.";
 "ArchiveItem" = "Archiwizuj element";
 "OnceArchivedThisItemWillBeExcludedDescriptionLong" = "Zarchiwizowany element zostanie wykluczony z wyników wyszukiwania i sugestii autouzupełniania.";
-"ArchiveUnavailable" = "Archiwum jest niedostępne";
 "ArchivingItemsIsAPremiumFeatureDescriptionLong" = "Archiwizowanie elementów jest funkcją Premium. Twój obecny plan nie zawiera tej funkcji.";
 "AddingAttachmentsIsAPremiumFeatureDescriptionLong" = "Dodawanie załączników jest funkcją Premium. Twój obecny plan nie zawiera tej funkcji.";
-"AttachmentsUnavailable" = "Załączniki są niedostępne";
 "UpgradeToPremium" = "Kup konto Premium";
 "ThisItemIsArchived" = "Element jest zarchiwizowany.";
 "YourPremiumSubscriptionEnded" = "Subskrypcja Premium wygasła";
@@ -1062,6 +1063,8 @@
 "ReplaceCertificate" = "Zastąp certyfikat";
 "ReplaceExistingCertificate" = "Zastąp obecny certyfikat";
 "UnableToReadCertificateFile" = "Nie można odczytać certyfikatu.";
+/* masterPasswordUnlock is the name of some data we want to delete, so there's no need to localize it. */
+"MasterPasswordUnlockCleared" = "Wyczyszczono masterPasswordUnlock";
 "SsoCookiesCleared" = "Pliki cookies SSO zostały wyczyszczone";
 "YourRequestWasInterruptedBecauseTheAppNeededToReAuthenticatePleaseTryAgain" = "Żądanie zostało przerwane, ponieważ aplikacja wymagała ponownego uwierzytelniania. Spróbuj ponownie.";
 "AutofillWithBitwardenDescriptionLong" = "Bitwarden może sugerować hasła i inne poświadczenia podczas logowania do aplikacji i stron internetowych.";
@@ -1086,6 +1089,8 @@
 "ExternalLink" = "Link zewnętrzny";
 "YourNextChargeIsForXDueOnY" = "Następna płatność **%2$@** w kwocie **%1$@**.";
 "WeCouldNotProcessYourPaymentUpdateYourPaymentMethodDescriptionLong" = "Nie mogliśmy przetworzyć płatności. Zaktualizuj metodę płatności przed **%1$@**.";
+/* Error message shown when the Premium Plan screen fails to load subscription data, with a prompt to retry. */
+"WeCouldntLoadYourSubscriptionDetailsPleaseRetry" = "Nie mogliśmy załadować szczegółów subskrypcji. Spróbuj ponownie.";
 "YourSubscriptionWasCanceledOnXDescriptionLong" = "Twoja subskrypcja została anulowana **%1$@**. Zasubskrybuj ponownie, aby kontynuować korzystanie z funkcji Premium.";
 "YourSubscriptionExpiredOnXDescriptionLong" = "Twoja subskrypcja wygasła **%1$@**. Zasubskrybuj ponownie, aby kontynuować korzystanie z funkcji Premium.";
 "YourSubscriptionIsScheduledToCancelOnXDescriptionLong" = "Twoja subskrypcja zostanie anulowana **%1$@**. Możesz ją odnowić w dowolnym momencie.";
@@ -1095,7 +1100,6 @@
 "NegativeX" = "-%1$@";
 "UnknownStatus" = "Nieznany";
 "YourSubscriptionStatusIsUnknownVisitTheWebAppDescriptionLong" = "Status subskrypcji nie może zostać określony. Otwórz aplikację internetową, aby uzyskać więcej informacji lub zaktualizuj aplikację do najnowszej wersji.";
-"AtTheMomentPremiumPlanIsNotAvailableDescriptionLong" = "Plan Premium nie jest obecnie dostępny. Spróbuj ponownie później.";
 "UnlockMoreAdvancedFeaturesWithPremiumPlan" = "Odblokuj więcej zaawansowanych funkcji za pomocą planu Premium.";
 "BuiltInAuthenticator" = "Wbudowana aplikacja uwierzytelniająca";
 "EmergencyAccess" = "Dostęp awaryjny";
@@ -1111,6 +1115,9 @@
 "UpgradePending" = "Trwa ulepszanie";
 "YourUpgradeIsBeingProcessedDescriptionLong" = "Ulepszenie jest przetwarzane. Do czasu jego zakończenia będziesz korzystać z darmowego planu. Zsynchronizuj, aby sprawdzić status lub kontynuuj. Aktualizacja nastąpi automatycznie.";
 "UpgradedToPremium" = "Masz konto Premium";
+"SubscriptionNeedsAttention" = "Subskrypcja wymaga uwagi";
+"CheckYourPlanForDetails" = "Sprawdź plan, aby uzyskać szczegóły.";
+"ViewPlan" = "Pokaż plan";
 "YouNowHaveAccessToAdvancedSecurityDescriptionLong" = "Masz teraz dostęp do zaawansowanych funkcji bezpieczeństwa. Dowiedz się więcej o tym, co zawiera plan Premium.";
 "YouNowHaveAccessToAllAdvancedSecurityFeatures" = "Masz teraz dostęp do wszystkich zaawansowanych funkcji bezpieczeństwa.";
 "YoullGoToStripeSecureCheckoutToCompleteYourPurchase" = "Zostaniesz przekierowany do płatności Stripe, aby zakończyć zakup.";
@@ -1147,7 +1154,7 @@
 "PassportType" = "Rodzaj paszportu";
 "NationalIdentificationNumber" = "Numer PESEL";
 /* Label for the government authority or office that issued the passport. */
-"IssuingAuthorityOffice" = "Issuing authority/office";
+"IssuingAuthorityOffice" = "Organ wydający";
 "AccountDetails" = "Szczegóły konta";
 "BankName" = "Nazwa banku";
 "NameOnAccount" = "Nazwa konta";

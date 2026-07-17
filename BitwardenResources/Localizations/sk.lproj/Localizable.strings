@@ -6,6 +6,7 @@
 "Bitwarden" = "Bitwarden";
 "Cancel" = "Zrušiť";
 "Copy" = "Kopírovať";
+"CopyLicenseNumber" = "Kopírovať číslo licencie";
 "CopyPassportNumber" = "Kopírovať číslo pasu";
 "CopyPassword" = "Kopírovať heslo";
 "CopyUsername" = "Kopírovať používateľské meno";
@@ -271,7 +272,7 @@
 "Remove" = "Odstrániť";
 "BaseDomain" = "Základná doména";
 "Default" = "Predvolené";
-"Exact" = "Presný";
+"Exact" = "Presne";
 "Host" = "Hostiteľ";
 "RegEx" = "Regulárny výraz";
 "StartsWith" = "Začína na";
@@ -777,6 +778,8 @@
 "SetUpAutofillOnAllYourDevicesToLoginWithASingleTapAnywhere" = "Nastavte si automatické vypĺňanie na všetkých svojich zariadeniach a prihláste sa jediným ťuknutím kdekoľvek.";
 "GoBack" = "Prejsť späť";
 "GotIt" = "Chápem";
+/* masterPasswordUnlock is the name of some data we want to delete, so there's no need to localize it. */
+"ClearMasterPasswordUnlock" = "Vymazať masterPasswordUnlock";
 "ClearSsoCookies" = "Vymazať cookies SSO";
 "GenerateCrash" = "Generovať zlyhanie";
 "GenerateErrorReport" = "Generovať správu o zlyhaní";
@@ -1026,10 +1029,8 @@
 "ArchiveEmptyDescriptionLong" = "Naplňte svoj archív položkami, ktoré nechcete vidieť vo výsledkoch vyhľadávania a automatických návrhoch, ale ktoré budete možno niekedy potrebovať.";
 "ArchiveItem" = "Archivovať položku";
 "OnceArchivedThisItemWillBeExcludedDescriptionLong" = "Po archivácii bude táto položka vylúčená z výsledkov vyhľadávania a návrhov automatického vypĺňania.";
-"ArchiveUnavailable" = "Archív je nedostupný";
 "ArchivingItemsIsAPremiumFeatureDescriptionLong" = "Archivovanie položiek je prémiová funkcia. Váš aktuálny plán nezahŕňa prístup k tejto funkcii.";
 "AddingAttachmentsIsAPremiumFeatureDescriptionLong" = "Pridávanie príloh je prémiová funkcia. Váš aktuálny plán nezahŕňa prístup k tejto funkcii.";
-"AttachmentsUnavailable" = "Prílohy nie sú k dispozícii";
 "UpgradeToPremium" = "Upgradovať na Prémium";
 "ThisItemIsArchived" = "Táto položka je archivovaná.";
 "YourPremiumSubscriptionEnded" = "Vaše predplatné Prémium skončilo";
@@ -1062,6 +1063,8 @@
 "ReplaceCertificate" = "Nahradiť certifikát";
 "ReplaceExistingCertificate" = "Nahradiť existujúci certifikát";
 "UnableToReadCertificateFile" = "Nie je možné načítať súbor certifikátu.";
+/* masterPasswordUnlock is the name of some data we want to delete, so there's no need to localize it. */
+"MasterPasswordUnlockCleared" = "masterPasswordUnlock vymazané.";
 "SsoCookiesCleared" = "Cookies SSO vymazané";
 "YourRequestWasInterruptedBecauseTheAppNeededToReAuthenticatePleaseTryAgain" = "Vaša žiadosť bola prerušená, pretože aplikácia musela znovu overiť vašu identitu. Skúste to znova.";
 "AutofillWithBitwardenDescriptionLong" = "Bitwarden vám môže navrhovať heslá a ďalšie prihlasovacie údaje pri prihlasovaní do aplikácií a na webové stránky.";
@@ -1086,6 +1089,8 @@
 "ExternalLink" = "Externý odkaz";
 "YourNextChargeIsForXDueOnY" = "Vaša ďalšia platba vo výške **%1$@** je splatná dňa **%2$@**.";
 "WeCouldNotProcessYourPaymentUpdateYourPaymentMethodDescriptionLong" = "Vašu platbu sa nám nepodarilo spracovať. Aktualizujte spôsob platby ešte pred uplynutím platnosti vášho predplatného dňa **%1$@**.";
+/* Error message shown when the Premium Plan screen fails to load subscription data, with a prompt to retry. */
+"WeCouldntLoadYourSubscriptionDetailsPleaseRetry" = "Nepodarilo sa nám načítať údaje o vašom predplatnom. Skúste to znova.";
 "YourSubscriptionWasCanceledOnXDescriptionLong" = "Vaše predplatné bolo zrušené dňa **%1$@**. Obnovte si predplatné, ak chcete naďalej využívať prémiové funkcie.";
 "YourSubscriptionExpiredOnXDescriptionLong" = "Vaše predplatné vypršalo **%1$@**. Obnovte si predplatné, ak chcete naďalej využívať prémiové funkcie.";
 "YourSubscriptionIsScheduledToCancelOnXDescriptionLong" = "Vaše predplatné má naplánovaný koniec na **%1$@**. Kedykoľvek predtým ho môžete opätovne obnoviť.";
@@ -1095,7 +1100,6 @@
 "NegativeX" = "-%1$@";
 "UnknownStatus" = "Neznáme";
 "YourSubscriptionStatusIsUnknownVisitTheWebAppDescriptionLong" = "Nepodarilo sa zistiť stav vášho predplatného. Pre viac informácií navštívte webovú aplikáciu alebo si nainštalujte najnovšiu verziu.";
-"AtTheMomentPremiumPlanIsNotAvailableDescriptionLong" = "Momentálne nie je prémiový plán k dispozícii, skúste to neskôr.";
 "UnlockMoreAdvancedFeaturesWithPremiumPlan" = "S balíkom Prémium získate prístup k pokročilejším funkciám.";
 "BuiltInAuthenticator" = "Zabudovaný autentifikátor";
 "EmergencyAccess" = "Núdzový prístup";
@@ -1111,6 +1115,9 @@
 "UpgradePending" = "Čaká sa na upgrade";
 "YourUpgradeIsBeingProcessedDescriptionLong" = "Váš upgrade sa práve spracúva. Do dokončenia tohto procesu budete naďalej využívať bezplatný plán. Synchronizujte teraz, aby ste to skontrolovali, alebo pokračujte a aktualizácia prebehne automaticky.";
 "UpgradedToPremium" = "Upgradované na Prémium";
+"SubscriptionNeedsAttention" = "Vaše predplatné si vyžaduje pozornosť";
+"CheckYourPlanForDetails" = "Podrobnosti nájdete vo svojom pláne.";
+"ViewPlan" = "Zobraziť plán";
 "YouNowHaveAccessToAdvancedSecurityDescriptionLong" = "Teraz máte prístup ku všetkým pokročilým bezpečnostným funkciám. Zistite viac o tom, čo všetko zahŕňa Prémium.";
 "YouNowHaveAccessToAllAdvancedSecurityFeatures" = "Teraz máte prístup ku všetkým pokročilým bezpečnostným funkciám.";
 "YoullGoToStripeSecureCheckoutToCompleteYourPurchase" = "Budete presmerovaní na zabezpečenú platobnú stránku služby Stripe, kde dokončíte nákup.";

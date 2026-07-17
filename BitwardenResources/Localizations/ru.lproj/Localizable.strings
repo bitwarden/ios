@@ -6,6 +6,7 @@
 "Bitwarden" = "Bitwarden";
 "Cancel" = "Отмена";
 "Copy" = "Скопировать";
+"CopyLicenseNumber" = "Скопировать номер водительского удостоверения";
 "CopyPassportNumber" = "Скопировать номер паспорта";
 "CopyPassword" = "Скопировать пароль";
 "CopyUsername" = "Скопировать имя пользователя";
@@ -172,7 +173,7 @@
 "PointYourCameraAtTheQRCode" = "Наведите камеру на QR-код.\nСканирование произойдет автоматически.";
 "ScanQrTitle" = "Сканировать QR-код";
 "Camera" = "Камера";
-"Photos" = "Фотографии";
+"Photos" = "Фото";
 "CopyTotp" = "Скопировать TOTP";
 "CopyTotpAutomaticallyDescription" = "Если к вашему логину прикреплен ключ аутентификации, то код подтверждения TOTP будет скопирован при автозаполнении логина.";
 "CopyTotpAutomatically" = "Скопировать TOTP автоматически";
@@ -777,6 +778,8 @@
 "SetUpAutofillOnAllYourDevicesToLoginWithASingleTapAnywhere" = "Настройте автозаполнение на всех своих устройствах, чтобы авторизоваться одним кликом везде.";
 "GoBack" = "Вернуться";
 "GotIt" = "Понятно";
+/* masterPasswordUnlock is the name of some data we want to delete, so there's no need to localize it. */
+"ClearMasterPasswordUnlock" = "Очистить masterPasswordUnlock";
 "ClearSsoCookies" = "Очистить cookie SSO";
 "GenerateCrash" = "Сгенерировать отчет об ошибке";
 "GenerateErrorReport" = "Создать отчет об ошибке";
@@ -1026,10 +1029,8 @@
 "ArchiveEmptyDescriptionLong" = "Заполните архив элементами, которые вы не хотите видеть в результатах поиска и автозаполнения, но которые когда-нибудь могут понадобиться.";
 "ArchiveItem" = "Архивировать элемент";
 "OnceArchivedThisItemWillBeExcludedDescriptionLong" = "После архивации этот элемент будет исключен из результатов поиска и предложений по автозаполнению.";
-"ArchiveUnavailable" = "Архив недоступен";
 "ArchivingItemsIsAPremiumFeatureDescriptionLong" = "Архивирование элементов является Премиум функцией. Она не входит в ваш текущий тарифный план.";
 "AddingAttachmentsIsAPremiumFeatureDescriptionLong" = "Добавление вложений - это функция, доступная только в плане Премиум. Она не входит в ваш текущий тарифный план.";
-"AttachmentsUnavailable" = "Вложения недоступны";
 "UpgradeToPremium" = "Обновить до Премиум";
 "ThisItemIsArchived" = "Этот элемент архивирован.";
 "YourPremiumSubscriptionEnded" = "Ваша подписка Премиум закончилась";
@@ -1062,6 +1063,8 @@
 "ReplaceCertificate" = "Заменить сертификат";
 "ReplaceExistingCertificate" = "Заменить существующий сертификат";
 "UnableToReadCertificateFile" = "Не удалось прочитать файл сертификата.";
+/* masterPasswordUnlock is the name of some data we want to delete, so there's no need to localize it. */
+"MasterPasswordUnlockCleared" = "masterPasswordUnlock очищен.";
 "SsoCookiesCleared" = "Cookie SSO очищены";
 "YourRequestWasInterruptedBecauseTheAppNeededToReAuthenticatePleaseTryAgain" = "Ваш запрос был прерван, поскольку приложению потребовалась повторная аутентификация. Повторите попытку.";
 "AutofillWithBitwardenDescriptionLong" = "Bitwarden может предлагать ваши пароли и другие учетные данные при авторизации в приложениях и на сайтах.";
@@ -1086,6 +1089,8 @@
 "ExternalLink" = "Внешняя ссылка";
 "YourNextChargeIsForXDueOnY" = "Следующий платеж на сумму **%1$@** должен быть выполнен **%2$@**.";
 "WeCouldNotProcessYourPaymentUpdateYourPaymentMethodDescriptionLong" = "Нам не удалось обработать ваш платеж. Обновите способ оплаты до истечения срока подписки **%1$@**.";
+/* Error message shown when the Premium Plan screen fails to load subscription data, with a prompt to retry. */
+"WeCouldntLoadYourSubscriptionDetailsPleaseRetry" = "Не удалось загрузить данные вашей подписки. Попробуйте еще раз.";
 "YourSubscriptionWasCanceledOnXDescriptionLong" = "Ваша подписка была отменена **%1$@**. Подпишитесь заново, чтобы продолжить пользоваться возможностями Премиум.";
 "YourSubscriptionExpiredOnXDescriptionLong" = "Ваша подписка истекла **%1$@**. Подпишитесь заново, чтобы продолжить пользоваться возможностями Премиум.";
 "YourSubscriptionIsScheduledToCancelOnXDescriptionLong" = "Ваша подписка будет отменена **%1$@**. Вы сможете восстановить ее в любое время до этого момента.";
@@ -1095,7 +1100,6 @@
 "NegativeX" = "-%1$@";
 "UnknownStatus" = "Неизвестно";
 "YourSubscriptionStatusIsUnknownVisitTheWebAppDescriptionLong" = "Не удалось определить статус вашей подписки. Для получения дополнительной информации перейдите в веб-приложение или обновите его до последней версии.";
-"AtTheMomentPremiumPlanIsNotAvailableDescriptionLong" = "В настоящее время план Премиум недоступен. Пожалуйста, попробуйте позже.";
 "UnlockMoreAdvancedFeaturesWithPremiumPlan" = "Разблокировать дополнительные возможности с Премиум.";
 "BuiltInAuthenticator" = "Встроенный аутентификатор";
 "EmergencyAccess" = "Экстренный доступ";
@@ -1111,6 +1115,9 @@
 "UpgradePending" = "Ожидание перехода";
 "YourUpgradeIsBeingProcessedDescriptionLong" = "Ваш переход на платный тарифный план находится в процессе обработки. До завершения перехода вы будете пользоваться бесплатным тарифным планом. Вы можете синхронизировать данные прямо сейчас, чтобы проверить, или продолжить — обновление произойдет автоматически.";
 "UpgradedToPremium" = "Обновлено до Премиум";
+"SubscriptionNeedsAttention" = "Ваша подписка требует внимания";
+"CheckYourPlanForDetails" = "Для получения более подробной информации ознакомьтесь с вашим планом.";
+"ViewPlan" = "Посмотреть план";
 "YouNowHaveAccessToAdvancedSecurityDescriptionLong" = "Теперь у вас есть доступ к расширенным функциям безопасности. Узнайте больше о том, что включено в Премиум.";
 "YouNowHaveAccessToAllAdvancedSecurityFeatures" = "Теперь у вас есть доступ ко всем расширенным функциям безопасности.";
 "YoullGoToStripeSecureCheckoutToCompleteYourPurchase" = "Вы будете перенаправлены на защищенную страницу оформления заказа Stripe для завершения покупки.";
