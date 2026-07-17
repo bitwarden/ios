@@ -52,7 +52,7 @@ struct ManagePasskeysView: View {
                         } label: {
                             Label(Localizations.delete, systemImage: "trash")
                         }
-                        .accessibilityIdentifier("DeleteCredentialButton")
+                        .accessibilityIdentifier("DeleteCredentialButton_\(credential.id)")
                     }
             }
         }

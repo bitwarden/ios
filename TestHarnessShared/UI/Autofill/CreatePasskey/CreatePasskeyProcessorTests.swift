@@ -79,7 +79,7 @@ class CreatePasskeyProcessorTests: BitwardenTestCase {
         )
         await subject.perform(.registerPasskey)
         XCTAssertEqual(subject.state.status, .success)
-        XCTAssertEqual(credentialStore.savedCredentials, [.fixture()])
+        XCTAssertEqual(credentialStore.saveReceivedCredential, .fixture())
     }
 
     /// `perform(.registerPasskey)` sets status to `.failure` and does not persist a credential
@@ -95,7 +95,7 @@ class CreatePasskeyProcessorTests: BitwardenTestCase {
         )
         await subject.perform(.registerPasskey)
         XCTAssertEqual(subject.state.status, .failure(testError.localizedDescription))
-        XCTAssertTrue(credentialStore.savedCredentials.isEmpty)
+        XCTAssertFalse(credentialStore.saveCalled)
     }
 
     /// `perform(.registerPasskey)` sets status to `.persistenceFailure` when the credential was
@@ -103,7 +103,7 @@ class CreatePasskeyProcessorTests: BitwardenTestCase {
     @MainActor
     func test_perform_registerPasskey_credentialStoreSaveThrows() async {
         let testError = BitwardenTestError.example
-        credentialStore.saveError = testError
+        credentialStore.saveThrowableError = testError
         let subject = CreatePasskeyProcessor(
             coordinator: coordinator.asAnyCoordinator(),
             delegate: delegate,
@@ -156,46 +156,5 @@ class MockCreatePasskeyProcessorDelegate: CreatePasskeyProcessorDelegate {
     func presentationAnchorForPasskeyRegistration() async -> ASPresentationAnchor {
         presentationAnchorCalled = true
         return presentationAnchorResult
-    }
-}
-
-// MARK: - MockPasskeyCredentialStore
-
-class MockPasskeyCredentialStore: PasskeyCredentialStore {
-    var savedCredentials: [StoredPasskeyCredential] = []
-    var saveError: Error?
-    var fetchAllResult: [StoredPasskeyCredential] = []
-    var fetchAllError: Error?
-    var deletedIds: [String] = []
-    var deleteError: Error?
-    var deleteAllCalled = false
-    var deleteAllError: Error?
-
-    func delete(id: String) throws {
-        if let deleteError {
-            throw deleteError
-        }
-        deletedIds.append(id)
-    }
-
-    func deleteAll() throws {
-        if let deleteAllError {
-            throw deleteAllError
-        }
-        deleteAllCalled = true
-    }
-
-    func fetchAll() throws -> [StoredPasskeyCredential] {
-        if let fetchAllError {
-            throw fetchAllError
-        }
-        return fetchAllResult
-    }
-
-    func save(_ credential: StoredPasskeyCredential) throws {
-        if let saveError {
-            throw saveError
-        }
-        savedCredentials.append(credential)
     }
 }
