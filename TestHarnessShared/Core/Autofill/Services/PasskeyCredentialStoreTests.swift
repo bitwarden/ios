@@ -79,4 +79,53 @@ class PasskeyCredentialStoreTests: BitwardenTestCase {
         let secondInstance = DefaultPasskeyCredentialStore(userDefaults: userDefaults)
         XCTAssertEqual(try secondInstance.fetchAll(), [.fixture()])
     }
+
+    /// `delete(id:)` removes only the credential with the matching identifier, leaving the rest.
+    func test_delete_removesMatchingCredential() throws {
+        let first = StoredPasskeyCredential.fixture(rpId: "bitwarden.com", credentialId: Data([0x01]))
+        let second = StoredPasskeyCredential.fixture(rpId: "example.com", credentialId: Data([0x02]))
+        try subject.save(first)
+        try subject.save(second)
+
+        try subject.delete(id: first.id)
+
+        XCTAssertEqual(try subject.fetchAll(), [second])
+    }
+
+    /// `delete(id:)` is a no-op when no stored credential matches the given identifier.
+    func test_delete_nonexistentId_isNoOp() throws {
+        try subject.save(.fixture())
+
+        try subject.delete(id: "nonexistent")
+
+        XCTAssertEqual(try subject.fetchAll(), [.fixture()])
+    }
+
+    /// `deleteAll()` removes every stored credential.
+    func test_deleteAll_removesAllCredentials() throws {
+        try subject.save(.fixture(rpId: "bitwarden.com", credentialId: Data([0x01])))
+        try subject.save(.fixture(rpId: "example.com", credentialId: Data([0x02])))
+
+        try subject.deleteAll()
+
+        XCTAssertEqual(try subject.fetchAll(), [])
+    }
+
+    /// `deleteAll()` is a no-op when there are no stored credentials.
+    func test_deleteAll_whenAlreadyEmpty_isNoOp() throws {
+        try subject.deleteAll()
+
+        XCTAssertEqual(try subject.fetchAll(), [])
+    }
+
+    /// A credential deleted via one store instance is also gone for a second store instance
+    /// backed by the same `UserDefaults`.
+    func test_delete_persistsAcrossNewStoreInstance() throws {
+        try subject.save(.fixture())
+
+        try subject.delete(id: StoredPasskeyCredential.fixture().id)
+
+        let secondInstance = DefaultPasskeyCredentialStore(userDefaults: userDefaults)
+        XCTAssertEqual(try secondInstance.fetchAll(), [])
+    }
 }

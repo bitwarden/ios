@@ -1,7 +1,7 @@
 "AccountCreatedSuccessfully" = "Account created successfully";
 "AccountDetails" = "Account Details";
-"AreYouSureDeleteAllPasskeys" = "Are you sure you want to delete all passkeys?";
-"AreYouSureDeleteThisPasskey" = "Are you sure you want to delete this passkey?";
+"AreYouSureDeleteAllPasskeys" = "Are you sure you want to delete all stored test passkeys?";
+"AreYouSureDeleteThisPasskey" = "Are you sure you want to delete this stored test passkey?";
 "AssertionResult" = "Assertion Result";
 "AuthDataTooShortExplanationLong" = "The raw authenticator data was shorter than the fixed 37-byte prefix (32-byte relying party hash, 1-byte flags, 4-byte signature counter), so the relying party hash and flags could not be read.";
 "AuthDataTooShort" = "Authenticator data too short";

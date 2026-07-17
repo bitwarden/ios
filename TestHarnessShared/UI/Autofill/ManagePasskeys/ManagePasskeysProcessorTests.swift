@@ -44,7 +44,7 @@ class ManagePasskeysProcessorTests: BitwardenTestCase {
     func test_perform_loadCredentials() async {
         let older = StoredPasskeyCredential.fixture(rpId: "older.com", createdAt: Date(timeIntervalSince1970: 0))
         let newer = StoredPasskeyCredential.fixture(rpId: "newer.com", createdAt: Date(timeIntervalSince1970: 100))
-        credentialStore.fetchAllResult = [older, newer]
+        credentialStore.fetchAllReturnValue = [older, newer]
 
         await subject.perform(.loadCredentials)
 
@@ -54,7 +54,7 @@ class ManagePasskeysProcessorTests: BitwardenTestCase {
     /// `perform(.loadCredentials)` shows an error alert if fetching the stored credentials fails.
     @MainActor
     func test_perform_loadCredentials_error() async {
-        credentialStore.fetchAllError = BitwardenTestError.example
+        credentialStore.fetchAllThrowableError = BitwardenTestError.example
 
         await subject.perform(.loadCredentials)
 
@@ -67,7 +67,7 @@ class ManagePasskeysProcessorTests: BitwardenTestCase {
     @MainActor
     func test_perform_deleteCredential() async throws {
         let remaining = StoredPasskeyCredential.fixture(rpId: "remaining.com")
-        credentialStore.fetchAllResult = [remaining]
+        credentialStore.fetchAllReturnValue = [remaining]
 
         await subject.perform(.deleteCredential(id: "deleteMe"))
 
@@ -76,17 +76,17 @@ class ManagePasskeysProcessorTests: BitwardenTestCase {
         XCTAssertEqual(alert.message, Localizations.deletePasskeyDescriptionLong)
 
         try await alert.tapCancel()
-        XCTAssertTrue(credentialStore.deletedIds.isEmpty)
+        XCTAssertFalse(credentialStore.deleteCalled)
 
         try await alert.tapAction(title: Localizations.delete)
-        XCTAssertEqual(credentialStore.deletedIds, ["deleteMe"])
+        XCTAssertEqual(credentialStore.deleteReceivedId, "deleteMe")
         XCTAssertEqual(subject.state.credentials, [remaining])
     }
 
     /// `perform(.deleteCredential)` shows an error alert if deleting the credential fails.
     @MainActor
     func test_perform_deleteCredential_error() async throws {
-        credentialStore.deleteError = BitwardenTestError.example
+        credentialStore.deleteThrowableError = BitwardenTestError.example
 
         await subject.perform(.deleteCredential(id: "deleteMe"))
 
@@ -100,7 +100,7 @@ class ManagePasskeysProcessorTests: BitwardenTestCase {
     /// credentials and reloads the list.
     @MainActor
     func test_perform_deleteAll() async throws {
-        credentialStore.fetchAllResult = [.fixture()]
+        credentialStore.fetchAllReturnValue = [.fixture()]
 
         await subject.perform(.deleteAll)
 
@@ -111,7 +111,7 @@ class ManagePasskeysProcessorTests: BitwardenTestCase {
         try await alert.tapCancel()
         XCTAssertFalse(credentialStore.deleteAllCalled)
 
-        credentialStore.fetchAllResult = []
+        credentialStore.fetchAllReturnValue = []
         try await alert.tapAction(title: Localizations.delete)
         XCTAssertTrue(credentialStore.deleteAllCalled)
         XCTAssertTrue(subject.state.credentials.isEmpty)
@@ -120,7 +120,7 @@ class ManagePasskeysProcessorTests: BitwardenTestCase {
     /// `perform(.deleteAll)` shows an error alert if deleting all credentials fails.
     @MainActor
     func test_perform_deleteAll_error() async throws {
-        credentialStore.deleteAllError = BitwardenTestError.example
+        credentialStore.deleteAllThrowableError = BitwardenTestError.example
 
         await subject.perform(.deleteAll)
 

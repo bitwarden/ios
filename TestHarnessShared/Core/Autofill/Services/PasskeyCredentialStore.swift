@@ -5,7 +5,7 @@ import Foundation
 /// A store for passkey credentials created during Test Harness registration flows, so they can
 /// later be used to test the assertion/verification flow.
 ///
-protocol PasskeyCredentialStore {
+protocol PasskeyCredentialStore { // sourcery: AutoMockable
     /// Removes the previously saved passkey credential with the given identifier, if one exists.
     ///
     /// - Parameter id: The `StoredPasskeyCredential.id` of the credential to remove.

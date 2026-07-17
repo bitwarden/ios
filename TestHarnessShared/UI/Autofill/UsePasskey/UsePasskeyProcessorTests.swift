@@ -26,6 +26,7 @@ class UsePasskeyProcessorTests: BitwardenTestCase {
         super.setUp()
         coordinator = MockCoordinator()
         credentialStore = MockPasskeyCredentialStore()
+        credentialStore.fetchAllReturnValue = []
         delegate = MockUsePasskeyProcessorDelegate()
         subject = UsePasskeyProcessor(
             coordinator: coordinator.asAnyCoordinator(),
@@ -148,7 +149,7 @@ class UsePasskeyProcessorTests: BitwardenTestCase {
     func test_perform_assertPasskey_filtersStoredCredentialsByRpId() async {
         let matching = StoredPasskeyCredential.fixture(rpId: "example.com")
         let nonMatching = StoredPasskeyCredential.fixture(rpId: "other.com")
-        credentialStore.fetchAllResult = [matching, nonMatching]
+        credentialStore.fetchAllReturnValue = [matching, nonMatching]
 
         var capturedCredentials: [StoredPasskeyCredential]?
         let subject = UsePasskeyProcessor(
