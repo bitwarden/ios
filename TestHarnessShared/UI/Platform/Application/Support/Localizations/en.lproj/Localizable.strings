@@ -84,6 +84,7 @@
 "SignatureInvalidExplanationLong" = "The ECDSA signature over the authenticator data plus the SHA-256 hash of the client data JSON did not verify against the stored credential's public key — for example, the wrong key, a corrupted signature, or tampered data.";
 "SignatureInvalidReceived" = "The assertion signature could not be verified against the stored public key.";
 "SignatureInvalidTitle" = "Signature invalid";
+"SignInWithPasskey" = "Sign In with Passkey";
 "SimpleLoginForm" = "Simple Login Form";
 "SimpleLoginFormDescription" = "Use this simple login form to test autofill functionality.";
 "SignInWithPasskey" = "Sign In with Passkey";
@@ -96,10 +97,10 @@
 "UnexpectedAssertionClientDataTypeReceived" = "The client data type (%@) was not \"webauthn.get\".";
 "UnexpectedAssertionClientDataTypeTitle" = "Unexpected client data type";
 "UnexpectedClientDataTypeReceived" = "The client data type (%@) was not \"webauthn.create\".";
+"UnexpectedCredentialTypeReceived" = "Unexpected credential type received.";
 "UnsupportedAlgorithmReceived" = "The credential's public key algorithm (%d) is not supported; expected ES256.";
 "UnsupportedCurveReceived" = "The credential's public key curve (%d) is not supported; expected P-256.";
 "UnsupportedKeyTypeReceived" = "The credential's public key type (%d) is not supported; expected EC2.";
-"UnexpectedCredentialTypeReceived" = "Unexpected credential type received.";
 "Username" = "Username";
 "UserPresenceNotAssertedExplanationLong" = "The authenticator data's flags byte did not have the \"user present\" bit set.";
 "UserPresenceNotAssertedReceived" = "The authenticator did not assert user presence.";
@@ -110,7 +111,6 @@
 "UsernameValue" = "Username: %@";
 "VerificationErrors" = "Verification Errors";
 "VerificationErrorsDescriptionLong" = "Occur while matching the parsed assertion against a stored credential, in the order they are checked.";
-"UsernameValue" = "Username: %@";
 "XColonY" = "%@: %@";
 "DateFieldPicker" = "Date Field Picker";
 "DateFieldPickerDescription" = "Tap the field to expand the inline calendar and select a date.";
