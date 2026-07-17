@@ -778,6 +778,8 @@
 "SetUpAutofillOnAllYourDevicesToLoginWithASingleTapAnywhere" = "Stel automatisch invullen in op al je apparaten zodat je overal met enkele tik kunt inloggen.";
 "GoBack" = "Ga terug";
 "GotIt" = "Ik snap het";
+/* masterPasswordUnlock is the name of some data we want to delete, so there's no need to localize it. */
+"ClearMasterPasswordUnlock" = "HoofdwachtwoordOntgrendelen vrijgeven";
 "ClearSsoCookies" = "SSO-cookies wissen";
 "GenerateCrash" = "Crash genereren";
 "GenerateErrorReport" = "Foutenrapport genereren";
@@ -1061,6 +1063,8 @@
 "ReplaceCertificate" = "Certificaat vervangen";
 "ReplaceExistingCertificate" = "Bestaand certificaat vervangen";
 "UnableToReadCertificateFile" = "Kan certificaatbestand niet lezen.";
+/* masterPasswordUnlock is the name of some data we want to delete, so there's no need to localize it. */
+"MasterPasswordUnlockCleared" = "HoofdwachtwoordOntgrendelen vrijgegeven";
 "SsoCookiesCleared" = "SSO-cookies gewist";
 "YourRequestWasInterruptedBecauseTheAppNeededToReAuthenticatePleaseTryAgain" = "Je aanvraag werd onderbroken omdat de app opnieuw moet verifiëren. Probeer het opnieuw.";
 "AutofillWithBitwardenDescriptionLong" = "Bitwarden kan je wachtwoorden en andere inloggegevens suggereren wanneer je inlogt bij apps en websites.";
@@ -1085,6 +1089,8 @@
 "ExternalLink" = "Externe link";
 "YourNextChargeIsForXDueOnY" = "Je volgende factuur is voor **%1$@**, verloopt op **%2$@**.";
 "WeCouldNotProcessYourPaymentUpdateYourPaymentMethodDescriptionLong" = "We konden je betaling niet verwerken. Werk je betalingsmethode bij voordat je abonnement eindigt op **%1$@**.";
+/* Error message shown when the Premium Plan screen fails to load subscription data, with a prompt to retry. */
+"WeCouldntLoadYourSubscriptionDetailsPleaseRetry" = "We konden je abonnementsgegevens niet laden. Probeer het opnieuw.";
 "YourSubscriptionWasCanceledOnXDescriptionLong" = "Je abonnement is geannuleerd op **%1$@**. Heractiveer je abonnement om gebruik te blijven maken van Premium-functionaliteiten.";
 "YourSubscriptionExpiredOnXDescriptionLong" = "Je abonnement is verlopen op **%1$@**. Heractiveer je abonnement om gebruik te blijven maken van Premium-functionaliteiten.";
 "YourSubscriptionIsScheduledToCancelOnXDescriptionLong" = "Je abonnement verloopt op **%1$@**. Je kunt het op elk gewenst moment hervatten.";
@@ -1094,7 +1100,6 @@
 "NegativeX" = "-%1$@";
 "UnknownStatus" = "Onbekend";
 "YourSubscriptionStatusIsUnknownVisitTheWebAppDescriptionLong" = "Kon de status van je abonnement niet vaststellen. Bezoek de webapp voor meer informatie of werk bij naar de nieuwste versie.";
-"AtTheMomentPremiumPlanIsNotAvailableDescriptionLong" = "Op dit moment is het premiumplan niet beschikbaar, probeer het later opnieuw.";
 "UnlockMoreAdvancedFeaturesWithPremiumPlan" = "Ontgrendel meer geavanceerde functies met een Premium-abonnement.";
 "BuiltInAuthenticator" = "Ingebouwde authenticator";
 "EmergencyAccess" = "Noodtoegang";
@@ -1110,6 +1115,9 @@
 "UpgradePending" = "Upgrade in behandeling";
 "YourUpgradeIsBeingProcessedDescriptionLong" = "Je upgrade wordt verwerkt. Je werkt met het gratis abonnement totdat het is afgerond. Synchroniseer nu om te controleren, of ga door waarna de upgrade automatisch zal worden verwerkt.";
 "UpgradedToPremium" = "Naar Premium upgraden";
+"SubscriptionNeedsAttention" = "Je abonnement heeft aandacht nodig";
+"CheckYourPlanForDetails" = "Controleer je abonnement voor meer informatie.";
+"ViewPlan" = "Abonnement bekijken";
 "YouNowHaveAccessToAdvancedSecurityDescriptionLong" = "Je hebt nu toegang tot geavanceerde beveiligingsfuncties. Lees meer over wat bij Premium is inbegrepen.";
 "YouNowHaveAccessToAllAdvancedSecurityFeatures" = "Je hebt nu toegang tot alle geavanceerde beveiligingsfuncties.";
 "YoullGoToStripeSecureCheckoutToCompleteYourPurchase" = "Je gaat naar Stripe's beveiligde checkout voor het afronden van je aankoop.";
