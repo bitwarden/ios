@@ -781,6 +781,8 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
             environmentService: environmentService,
             errorReporter: errorReporter,
             fillAssistAPIService: apiService,
+            dataFingerprintService: DefaultDataFingerprintService(),
+            keychainRepository: keychainRepository,
             stateService: stateService,
             timeProvider: timeProvider,
         )

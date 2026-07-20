@@ -3,10 +3,19 @@
 import Foundation
 
 @testable import BitwardenShared
+@testable import BitwardenSharedMocks
 
 // MARK: - FillAssistRepositoryTests Fixtures
 
 extension FillAssistRepositoryTests {
+    /// Pre-populates `appSettingsStore` with `data` and stores the mocked fingerprint service's
+    /// stubbed return value in `keychainRepository`, so the cache will pass integrity
+    /// verification when read.
+    func cacheVerifiedData(_ data: FillAssistCachedData, userId: String = "1") throws {
+        appSettingsStore.fillAssistCachedDataByUserId[userId] = data
+        keychainRepository.getUserAuthKeyValueReturnValue = dataFingerprintService.fingerprintReturnValue
+    }
+
     /// Returns a `FillAssistManifestResponseModel` fixture with the given content ID.
     func makeManifest(cid: String) -> FillAssistManifestResponseModel {
         let entry = FillAssistManifestEntryModel(

@@ -17,6 +17,8 @@ struct FillAssistRepositoryTests {
     let environmentService: MockEnvironmentService
     let errorReporter: MockErrorReporter
     let fillAssistAPIService: MockFillAssistAPIService
+    let dataFingerprintService: MockDataFingerprintService
+    let keychainRepository: MockKeychainRepository
     let stateService: MockStateService
     let subject: DefaultFillAssistRepository
     let timeProvider: MockTimeProvider
@@ -29,6 +31,9 @@ struct FillAssistRepositoryTests {
         environmentService = MockEnvironmentService()
         errorReporter = MockErrorReporter()
         fillAssistAPIService = MockFillAssistAPIService()
+        dataFingerprintService = MockDataFingerprintService()
+        dataFingerprintService.fingerprintReturnValue = "stub-fingerprint"
+        keychainRepository = MockKeychainRepository()
         stateService = MockStateService()
         stateService.activeAccount = .fixture()
         stateService.fillAssistEnabledByUserId["1"] = true
@@ -40,6 +45,8 @@ struct FillAssistRepositoryTests {
             environmentService: environmentService,
             errorReporter: errorReporter,
             fillAssistAPIService: fillAssistAPIService,
+            dataFingerprintService: dataFingerprintService,
+            keychainRepository: keychainRepository,
             stateService: stateService,
             timeProvider: timeProvider,
         )
@@ -60,13 +67,13 @@ struct FillAssistRepositoryTests {
     /// `syncRules()` makes no network calls when the update interval has not elapsed and the
     /// cache is readable.
     @Test
-    func syncRules_withinUpdateInterval() async {
+    func syncRules_withinUpdateInterval() async throws {
         configService.featureFlagsBool[.fillAssistTargetingRules] = true
-        appSettingsStore.fillAssistCachedDataByUserId["1"] = FillAssistCachedData(
+        try cacheVerifiedData(FillAssistCachedData(
             cid: "sha256:abc123",
             rules: [:],
             sourceUrl: environmentService.fillAssistRulesURL.absoluteString,
-        )
+        ))
         appSettingsStore.fillAssistLastFetchTimestampByUserId["1"] = timeProvider.presentTime
 
         await subject.syncRules()
@@ -90,15 +97,15 @@ struct FillAssistRepositoryTests {
 
     /// `syncRules()` skips download and updates the timestamp when cid and source URL are unchanged.
     @Test
-    func syncRules_cidUnchanged_updatesTimestampOnly() async {
+    func syncRules_cidUnchanged_updatesTimestampOnly() async throws {
         configService.featureFlagsBool[.fillAssistTargetingRules] = true
         let sourceUrl = environmentService.fillAssistRulesURL.absoluteString
 
-        appSettingsStore.fillAssistCachedDataByUserId["1"] = FillAssistCachedData(
+        try cacheVerifiedData(FillAssistCachedData(
             cid: "sha256:abc123",
             rules: [:],
             sourceUrl: sourceUrl,
-        )
+        ))
         fillAssistAPIService.getManifestReturnValue = makeManifest(cid: "sha256:abc123")
 
         await subject.syncRules()
@@ -125,6 +132,10 @@ struct FillAssistRepositoryTests {
         #expect(cached != nil)
         #expect(cached?.cid == "sha256:newcid")
         #expect(appSettingsStore.fillAssistLastFetchTimestampByUserId["1"] != nil)
+
+        #expect(keychainRepository.setUserAuthKeyCalled)
+        let storedFingerprint = keychainRepository.setUserAuthKeyReceivedArguments?.value
+        #expect(storedFingerprint == dataFingerprintService.fingerprintReturnValue)
     }
 
     /// `syncRules()` skips storing when the schema major version is unsupported.
@@ -238,13 +249,13 @@ struct FillAssistRepositoryTests {
 
     /// `rules(for:)` returns cached rules for a known hostname.
     @Test
-    func rules_returnsRulesForHostname() async {
+    func rules_returnsRulesForHostname() async throws {
         let hostRules = FillAssistHostRules(fields: ["username": []])
-        appSettingsStore.fillAssistCachedDataByUserId["1"] = FillAssistCachedData(
+        try cacheVerifiedData(FillAssistCachedData(
             cid: "sha256:abc",
             rules: ["example.com": hostRules],
             sourceUrl: "https://example.com",
-        )
+        ))
 
         let result = await subject.rules(for: "example.com")
 
@@ -253,12 +264,12 @@ struct FillAssistRepositoryTests {
 
     /// `rules(for:)` returns `nil` for an unknown hostname.
     @Test
-    func rules_returnsNilForUnknownHostname() async {
-        appSettingsStore.fillAssistCachedDataByUserId["1"] = FillAssistCachedData(
+    func rules_returnsNilForUnknownHostname() async throws {
+        try cacheVerifiedData(FillAssistCachedData(
             cid: "sha256:abc",
             rules: [:],
             sourceUrl: "https://example.com",
-        )
+        ))
 
         let result = await subject.rules(for: "unknown.com")
 
@@ -267,36 +278,42 @@ struct FillAssistRepositoryTests {
 
     // MARK: Tests - clearRules()
 
-    /// `clearRules()` removes cached data and the last-fetch timestamp for the active account.
+    /// `clearRules()` removes cached data, the last-fetch timestamp, and the integrity
+    /// fingerprint for the active account.
     @Test
     func clearRules_removesCachedData() async throws {
-        appSettingsStore.fillAssistCachedDataByUserId["1"] = FillAssistCachedData(
+        try cacheVerifiedData(FillAssistCachedData(
             cid: "sha256:abc",
             rules: [:],
             sourceUrl: "https://example.com",
-        )
+        ))
         appSettingsStore.fillAssistLastFetchTimestampByUserId["1"] = timeProvider.presentTime
 
         try await subject.clearRules(userId: nil)
 
         #expect(appSettingsStore.fillAssistCachedDataByUserId["1"] == nil)
         #expect(appSettingsStore.fillAssistLastFetchTimestampByUserId["1"] == nil)
+        #expect(keychainRepository.deleteUserAuthKeyCalled)
+        #expect(keychainRepository.deleteUserAuthKeyReceivedItem?.unformattedKey == "fillAssistRulesFingerprint_1")
     }
 
-    /// `clearRules(userId:)` removes cached data for a specific, non-active account.
+    /// `clearRules(userId:)` removes cached data, the last-fetch timestamp, and the integrity
+    /// fingerprint for a specific, non-active account.
     @Test
     func clearRules_removesCachedData_forSpecificUser() async throws {
-        appSettingsStore.fillAssistCachedDataByUserId["2"] = FillAssistCachedData(
+        try cacheVerifiedData(FillAssistCachedData(
             cid: "sha256:abc",
             rules: [:],
             sourceUrl: "https://example.com",
-        )
+        ), userId: "2")
         appSettingsStore.fillAssistLastFetchTimestampByUserId["2"] = timeProvider.presentTime
 
         try await subject.clearRules(userId: "2")
 
         #expect(appSettingsStore.fillAssistCachedDataByUserId["2"] == nil)
         #expect(appSettingsStore.fillAssistLastFetchTimestampByUserId["2"] == nil)
+        #expect(keychainRepository.deleteUserAuthKeyCalled)
+        #expect(keychainRepository.deleteUserAuthKeyReceivedItem?.unformattedKey == "fillAssistRulesFingerprint_2")
     }
 
     // MARK: Tests - FormsMapSelector.attributes
@@ -351,11 +368,11 @@ extension FillAssistRepositoryTests {
         stateService.fillAssistEnabledByUserId["1"] = true
         fillAssistAPIService.getManifestReturnValue = makeManifest(cid: "sha256:abc")
         // Pre-cache matching cid so sync stops at the "no changes" short-circuit.
-        appSettingsStore.fillAssistCachedDataByUserId["1"] = FillAssistCachedData(
+        try cacheVerifiedData(FillAssistCachedData(
             cid: "sha256:abc",
             rules: [:],
             sourceUrl: environmentService.fillAssistRulesURL.absoluteString,
-        )
+        ))
 
         await subject.syncRules()
 
