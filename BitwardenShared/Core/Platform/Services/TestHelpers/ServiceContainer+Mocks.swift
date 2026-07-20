@@ -61,7 +61,7 @@ extension ServiceContainer {
         rehydrationHelper: RehydrationHelper = MockRehydrationHelper(),
         reviewPromptService: ReviewPromptService = MockReviewPromptService(),
         searchProcessorMediatorFactory: SearchProcessorMediatorFactory? = nil,
-        sendRepository: SendRepository = MockSendRepository(),
+        sendRepository: BitwardenShared.SendRepository = MockSendRepository(),
         // swiftlint:disable:next line_length
         serverCommunicationConfigAPIService: ServerCommunicationConfigAPIService = MockServerCommunicationConfigAPIService.withDefaults(),
         // swiftlint:disable:next line_length
