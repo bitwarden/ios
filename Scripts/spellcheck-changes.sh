@@ -39,8 +39,8 @@ fi
 #   - Files under *.xcassets/ folders
 #   - Files under AppIcon-*.icon/ folders
 #   - Files under BitwardenResources/Fonts/
-#   - File */public_suffix_list.dat
 #   - Files under *.lproj/ folders except */en.lproj/
+#   - File */public_suffix_list.dat
 FILTERED_FILES=()
 for file in "${FILE_ARRAY[@]}"; do
     if [[ "$file" == *.xcassets/* ]] || \
