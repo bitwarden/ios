@@ -1,7 +1,5 @@
 "AccountCreatedSuccessfully" = "Account created successfully";
 "AccountDetails" = "Account Details";
-"AreYouSureDeleteAllPasskeys" = "Are you sure you want to delete all stored test passkeys?";
-"AreYouSureDeleteThisPasskey" = "Are you sure you want to delete this stored test passkey?";
 "AssertionResult" = "Assertion Result";
 "AuthDataTooShortExplanationLong" = "The raw authenticator data was shorter than the fixed 37-byte prefix (32-byte relying party hash, 1-byte flags, 4-byte signature counter), so the relying party hash and flags could not be read.";
 "AuthDataTooShort" = "Authenticator data too short";
@@ -31,7 +29,7 @@
 "Credentials" = "Credentials";
 "Delete" = "Delete";
 "DeleteAll" = "Delete All";
-"DeletePasskeyDescriptionLong" = "This only removes the local test record used to verify sign-in attempts. It does not delete the underlying passkey from your AutoFill provider.";
+"DeletePasskeyDescriptionLong" = "Deleting only removes the local test record used to verify sign-in attempts. It does not delete the underlying passkey from your AutoFill provider.";
 "DisplayName" = "Display Name";
 "EnterCardDetailsAbove" = "Enter card details above";
 "EnterCredentialsAbove" = "Enter credentials above";

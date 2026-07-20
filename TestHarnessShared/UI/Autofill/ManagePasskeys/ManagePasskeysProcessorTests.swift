@@ -62,70 +62,47 @@ class ManagePasskeysProcessorTests: BitwardenTestCase {
         XCTAssertTrue(subject.state.credentials.isEmpty)
     }
 
-    /// `perform(.deleteCredential)` shows a confirmation alert and, once confirmed, deletes the
-    /// credential and reloads the list.
+    /// `perform(.deleteCredential)` deletes the credential and reloads the list.
     @MainActor
-    func test_perform_deleteCredential() async throws {
+    func test_perform_deleteCredential() async {
         let remaining = StoredPasskeyCredential.fixture(rpId: "remaining.com")
         credentialStore.fetchAllReturnValue = [remaining]
 
         await subject.perform(.deleteCredential(id: "deleteMe"))
 
-        let alert = try XCTUnwrap(coordinator.alertShown.last)
-        XCTAssertEqual(alert.title, Localizations.areYouSureDeleteThisPasskey)
-        XCTAssertEqual(alert.message, Localizations.deletePasskeyDescriptionLong)
-
-        try await alert.tapCancel()
-        XCTAssertFalse(credentialStore.deleteCalled)
-
-        try await alert.tapAction(title: Localizations.delete)
         XCTAssertEqual(credentialStore.deleteReceivedId, "deleteMe")
         XCTAssertEqual(subject.state.credentials, [remaining])
+        XCTAssertTrue(coordinator.alertShown.isEmpty)
     }
 
     /// `perform(.deleteCredential)` shows an error alert if deleting the credential fails.
     @MainActor
-    func test_perform_deleteCredential_error() async throws {
+    func test_perform_deleteCredential_error() async {
         credentialStore.deleteThrowableError = BitwardenTestError.example
 
         await subject.perform(.deleteCredential(id: "deleteMe"))
 
-        let alert = try XCTUnwrap(coordinator.alertShown.last)
-        try await alert.tapAction(title: Localizations.delete)
-
         XCTAssertEqual(coordinator.errorAlertsShown as? [BitwardenTestError], [.example])
     }
 
-    /// `perform(.deleteAll)` shows a confirmation alert and, once confirmed, deletes all
-    /// credentials and reloads the list.
+    /// `perform(.deleteAll)` deletes all credentials and reloads the list.
     @MainActor
-    func test_perform_deleteAll() async throws {
-        credentialStore.fetchAllReturnValue = [.fixture()]
+    func test_perform_deleteAll() async {
+        credentialStore.fetchAllReturnValue = []
 
         await subject.perform(.deleteAll)
 
-        let alert = try XCTUnwrap(coordinator.alertShown.last)
-        XCTAssertEqual(alert.title, Localizations.areYouSureDeleteAllPasskeys)
-        XCTAssertEqual(alert.message, Localizations.deletePasskeyDescriptionLong)
-
-        try await alert.tapCancel()
-        XCTAssertFalse(credentialStore.deleteAllCalled)
-
-        credentialStore.fetchAllReturnValue = []
-        try await alert.tapAction(title: Localizations.delete)
         XCTAssertTrue(credentialStore.deleteAllCalled)
         XCTAssertTrue(subject.state.credentials.isEmpty)
+        XCTAssertTrue(coordinator.alertShown.isEmpty)
     }
 
     /// `perform(.deleteAll)` shows an error alert if deleting all credentials fails.
     @MainActor
-    func test_perform_deleteAll_error() async throws {
+    func test_perform_deleteAll_error() async {
         credentialStore.deleteAllThrowableError = BitwardenTestError.example
 
         await subject.perform(.deleteAll)
-
-        let alert = try XCTUnwrap(coordinator.alertShown.last)
-        try await alert.tapAction(title: Localizations.delete)
 
         XCTAssertEqual(coordinator.errorAlertsShown as? [BitwardenTestError], [.example])
     }
