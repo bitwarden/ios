@@ -79,6 +79,8 @@ struct PremiumPlanState: Equatable {
             )
         case .unknown:
             Localizations.yourSubscriptionStatusIsUnknownVisitTheWebAppDescriptionLong
+        case .unpaid:
+            Localizations.yourSubscriptionWasSuspendedOnXDescriptionLong(subscriptionEndDate)
         case .updatePayment:
             Localizations.weCouldNotProcessYourPaymentUpdateYourPaymentMethodDescriptionLong(
                 subscriptionEndDate,
@@ -139,6 +141,7 @@ struct PremiumPlanState: Equatable {
             && planStatus != .expired
             && planStatus != .pendingCancellation
             && planStatus != .unknown
+            && planStatus != .unpaid
             && planStatus != .updatePayment
     }
 
