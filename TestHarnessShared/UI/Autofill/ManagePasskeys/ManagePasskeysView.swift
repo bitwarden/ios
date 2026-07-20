@@ -13,50 +13,50 @@ struct ManagePasskeysView: View {
     // MARK: View
 
     var body: some View {
-        content
-            .navigationTitle(store.state.title)
-            .navigationBarTitleDisplayMode(.large)
-            .toolbar {
-                ToolbarItem(placement: .topBarTrailing) {
-                    Button(Localizations.deleteAll, role: .destructive) {
-                        Task { await store.perform(.deleteAll) }
-                    }
-                    .accessibilityIdentifier("DeleteAllButton")
-                    .disabled(store.state.credentials.isEmpty)
+        List {
+            Section {} footer: {
+                Text(Localizations.deletePasskeyDescriptionLong)
+                    .accessibilityIdentifier("ManagePasskeysDisclaimerLabel")
+            }
+
+            if store.state.credentials.isEmpty {
+                emptyState
+            } else {
+                credentialRows
+            }
+        }
+        .listStyle(.insetGrouped)
+        .navigationTitle(store.state.title)
+        .navigationBarTitleDisplayMode(.large)
+        .toolbar {
+            ToolbarItem(placement: .topBarTrailing) {
+                Button(Localizations.deleteAll, role: .destructive) {
+                    Task { await store.perform(.deleteAll) }
                 }
+                .accessibilityIdentifier("DeleteAllButton")
+                .disabled(store.state.credentials.isEmpty)
             }
-            .task {
-                await store.perform(.loadCredentials)
-            }
+        }
+        .task {
+            await store.perform(.loadCredentials)
+        }
     }
 
     // MARK: Private Views
 
-    /// The main content view.
-    @ViewBuilder private var content: some View {
-        if store.state.credentials.isEmpty {
-            emptyState
-        } else {
-            credentialsList
-        }
-    }
-
-    /// The list of stored passkey credentials, each deletable via a swipe action.
-    private var credentialsList: some View {
-        List {
-            ForEach(store.state.credentials) { credential in
-                credentialRow(credential)
-                    .swipeActions(edge: .trailing) {
-                        Button(role: .destructive) {
-                            Task { await store.perform(.deleteCredential(id: credential.id)) }
-                        } label: {
-                            Label(Localizations.delete, systemImage: "trash")
-                        }
-                        .accessibilityIdentifier("DeleteCredentialButton_\(credential.id)")
+    /// The rows for each stored passkey credential, each deletable via a swipe action.
+    private var credentialRows: some View {
+        ForEach(store.state.credentials) { credential in
+            credentialRow(credential)
+                .swipeActions(edge: .trailing, allowsFullSwipe: false) {
+                    Button(role: .destructive) {
+                        Task { await store.perform(.deleteCredential(id: credential.id)) }
+                    } label: {
+                        Label(Localizations.delete, systemImage: "trash")
                     }
-            }
+                    .accessibilityIdentifier("DeleteCredentialButton_\(credential.id)")
+                }
         }
-        .listStyle(.insetGrouped)
     }
 
     /// The message shown when there are no stored passkey credentials.

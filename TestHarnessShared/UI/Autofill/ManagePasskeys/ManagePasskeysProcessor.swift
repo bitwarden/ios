@@ -38,40 +38,14 @@ class ManagePasskeysProcessor: StateProcessor<
         super.init(state: ManagePasskeysState())
     }
 
-    // MARK: Static Methods
-
-    /// Builds a destructive confirmation alert with the given title.
-    ///
-    /// - Parameters:
-    ///   - title: The alert's title.
-    ///   - confirmationHandler: Called if the user confirms the destructive action.
-    /// - Returns: The confirmation alert.
-    ///
-    private static func confirmationAlert(title: String, confirmationHandler: @escaping () async -> Void) -> Alert {
-        Alert(
-            title: title,
-            message: Localizations.deletePasskeyDescriptionLong,
-            alertActions: [
-                AlertAction(title: Localizations.cancel, style: .cancel),
-                AlertAction(title: Localizations.delete, style: .destructive) { _ in
-                    await confirmationHandler()
-                },
-            ],
-        )
-    }
-
     // MARK: Methods
 
     override func perform(_ effect: ManagePasskeysEffect) async {
         switch effect {
         case .deleteAll:
-            coordinator.showAlert(Self.confirmationAlert(title: Localizations.areYouSureDeleteAllPasskeys) {
-                await self.performDeleteAll()
-            })
+            await performDeleteAll()
         case let .deleteCredential(id):
-            coordinator.showAlert(Self.confirmationAlert(title: Localizations.areYouSureDeleteThisPasskey) {
-                await self.performDelete(id: id)
-            })
+            await performDelete(id: id)
         case .loadCredentials:
             await loadCredentials()
         }
