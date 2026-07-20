@@ -2521,6 +2521,56 @@ extension DefaultStateService: BiometricsStateService {
 // MARK: - DebugStateService
 
 extension DefaultStateService {
+    func addFillAssistDebugRule(
+        domain: String,
+        usernameFieldId: String,
+        passwordFieldId: String,
+    ) async throws {
+        let usernameAttributes = FillAssistFieldAttributes(
+            id: usernameFieldId,
+            name: nil,
+            role: nil,
+            tagName: nil,
+            type: nil,
+        )
+        let passwordAttributes = FillAssistFieldAttributes(
+            id: passwordFieldId,
+            name: nil,
+            role: nil,
+            tagName: nil,
+            type: nil,
+        )
+
+        let userId = try getActiveAccountUserId()
+        let existing = appSettingsStore.fillAssistCachedData(userId: userId)
+
+        var rules = existing?.rules ?? [:]
+        rules[domain] = FillAssistHostRules(fields: [
+            "username": [usernameAttributes],
+            "password": [passwordAttributes],
+        ])
+
+        let data = FillAssistCachedData(
+            cid: existing?.cid ?? "debug",
+            rules: rules,
+            sourceUrl: existing?.sourceUrl ?? "",
+        )
+        appSettingsStore.setFillAssistCachedData(data, userId: userId)
+
+        let newFingerprint = try DefaultDataFingerprintService().fingerprint(for: data)
+        try await keychainRepository.setUserAuthKey(
+            for: .fillAssistRulesFingerprint(userId: userId),
+            value: newFingerprint,
+        )
+    }
+
+    func clearFillAssistCache() async throws {
+        let userId = try getActiveAccountUserId()
+        appSettingsStore.setFillAssistCachedData(nil, userId: userId)
+        appSettingsStore.setFillAssistLastFetchTimestamp(nil, userId: userId)
+        try await keychainRepository.deleteUserAuthKey(for: .fillAssistRulesFingerprint(userId: userId))
+    }
+
     func clearMasterPasswordUnlockForActiveAccount() async throws {
         let userId = try getActiveAccountUserId()
         try updateAccountProfile(userId: userId) { profile in
