@@ -356,4 +356,71 @@ class AddEditSendItemStateTests: BitwardenTestCase { // swiftlint:disable:this t
         let subject = AddEditSendItemState(sendView: sendView)
         XCTAssertEqual(subject.accessType, .anyoneWithPassword)
     }
-}
+
+    // MARK: shouldShowHideEmailField
+
+    /// `shouldShowHideEmailField` is `true` when the hide-email option is not disabled by policy,
+    /// regardless of the Send Controls feature flag.
+    func test_shouldShowHideEmailField_notDisabled() {
+        var subject = AddEditSendItemState(isSendHideEmailDisabled: false)
+
+        subject.isSendControlsPolicyEnabled = false
+        XCTAssertTrue(subject.shouldShowHideEmailField)
+
+        subject.isSendControlsPolicyEnabled = true
+        XCTAssertTrue(subject.shouldShowHideEmailField)
+    }
+
+    /// `shouldShowHideEmailField` is `true` when hide-email is disabled by the legacy Send Options
+    /// policy (feature flag off) so the field remains visible but disabled.
+    func test_shouldShowHideEmailField_disabled_flagOff() {
+        let subject = AddEditSendItemState(
+            isSendControlsPolicyEnabled: false,
+            isSendHideEmailDisabled: true,
+        )
+        XCTAssertTrue(subject.shouldShowHideEmailField)
+    }
+
+    /// `shouldShowHideEmailField` is `false` when hide-email is disabled by the Send Controls policy
+    /// (feature flag on) so the field is hidden entirely.
+    func test_shouldShowHideEmailField_disabled_flagOn() {
+        let subject = AddEditSendItemState(
+            isSendControlsPolicyEnabled: true,
+            isSendHideEmailDisabled: true,
+        )
+        XCTAssertFalse(subject.shouldShowHideEmailField)
+    }
+
+    // MARK: shouldShowHideEmailPolicyBanner
+
+    /// `shouldShowHideEmailPolicyBanner` is `false` when the hide-email option is not disabled.
+    func test_shouldShowHideEmailPolicyBanner_notDisabled() {
+        var subject = AddEditSendItemState(isSendHideEmailDisabled: false)
+
+        subject.isSendControlsPolicyEnabled = false
+        XCTAssertFalse(subject.shouldShowHideEmailPolicyBanner)
+
+        subject.isSendControlsPolicyEnabled = true
+        XCTAssertFalse(subject.shouldShowHideEmailPolicyBanner)
+    }
+
+    /// `shouldShowHideEmailPolicyBanner` is `true` when hide-email is disabled by the legacy Send
+    /// Options policy (feature flag off).
+    func test_shouldShowHideEmailPolicyBanner_disabled_flagOff() {
+        let subject = AddEditSendItemState(
+            isSendControlsPolicyEnabled: false,
+            isSendHideEmailDisabled: true,
+        )
+        XCTAssertTrue(subject.shouldShowHideEmailPolicyBanner)
+    }
+
+    /// `shouldShowHideEmailPolicyBanner` is `false` when hide-email is disabled by the Send Controls
+    /// policy (feature flag on); the field is hidden instead of showing a banner.
+    func test_shouldShowHideEmailPolicyBanner_disabled_flagOn() {
+        let subject = AddEditSendItemState(
+            isSendControlsPolicyEnabled: true,
+            isSendHideEmailDisabled: true,
+        )
+        XCTAssertFalse(subject.shouldShowHideEmailPolicyBanner)
+    }
+} // swiftlint:disable:this file_length
