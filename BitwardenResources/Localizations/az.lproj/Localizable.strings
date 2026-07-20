@@ -778,6 +778,8 @@
 "SetUpAutofillOnAllYourDevicesToLoginWithASingleTapAnywhere" = "Bütün cihazlarınızda avto-doldurmanı quraraq tək toxunuşla istənilən yerdən giriş edin.";
 "GoBack" = "Geri qayıt";
 "GotIt" = "Anladım";
+/* masterPasswordUnlock is the name of some data we want to delete, so there's no need to localize it. */
+"ClearMasterPasswordUnlock" = "Təmizlə: masterPasswordUnlock";
 "ClearSsoCookies" = "SSO çərəzlərini təmizlə";
 "GenerateCrash" = "Çökmə yarat";
 "GenerateErrorReport" = "Xəta hesabatı yarat";
@@ -1061,6 +1063,8 @@
 "ReplaceCertificate" = "Sertifikatı əvəz et";
 "ReplaceExistingCertificate" = "Mövcud sertifikatla əvəz et";
 "UnableToReadCertificateFile" = "Sertifikat faylı oxuna bilmir.";
+/* masterPasswordUnlock is the name of some data we want to delete, so there's no need to localize it. */
+"MasterPasswordUnlockCleared" = "masterPasswordUnlock təmizləndi.";
 "SsoCookiesCleared" = "SSO çərəzləri təmizləndi";
 "YourRequestWasInterruptedBecauseTheAppNeededToReAuthenticatePleaseTryAgain" = "Sorğunuz yarımçıq dayandırıldı, çünki tətbiq yenidən kimlik doğrulaması etməlidir. Lütfən yenidən sınayın.";
 "AutofillWithBitwardenDescriptionLong" = "Bitwarden, tətbiqlərdə və veb saytlarda hesabınıza daxil olduğunuz zaman parollarınızı və kimlik məlumatlarınızı təklif edə bilər.";
@@ -1085,6 +1089,8 @@
 "ExternalLink" = "Xarici keçid";
 "YourNextChargeIsForXDueOnY" = " **%1$@** üçün növbəti ödənişiniz: **%2$@**.";
 "WeCouldNotProcessYourPaymentUpdateYourPaymentMethodDescriptionLong" = "Ödənişinizi emal edə bilmədik. Abunəliyiniz **%1$@** tarixində bitməzdən əvvəl ödəniş üsulunuzu güncəlləyin.";
+/* Error message shown when the Premium Plan screen fails to load subscription data, with a prompt to retry. */
+"WeCouldntLoadYourSubscriptionDetailsPleaseRetry" = "Abunəlik məlumatlarınızı yükləyə bilmədik. Lütfən yenidən sınayın.";
 "YourSubscriptionWasCanceledOnXDescriptionLong" = "Abunəliyiniz **%1$@** tarixində ləğv ediləcək. Premium özəllikləri istifadə etməyə davam etmək üçün yenidən abunə olun.";
 "YourSubscriptionExpiredOnXDescriptionLong" = "Abunəliyinizin müddəti **%1$@** tarixində bitir. Premium özəllikləri istifadə etməyə davam etmək üçün yenidən abunə olun.";
 "YourSubscriptionIsScheduledToCancelOnXDescriptionLong" = "Abunəliyiniz **%1$@** tarixində ləğv ediləcək. Abunəliyinizi bu tarixdən əvvəl təkrar aktivləşdirə bilərsiniz.";
@@ -1094,7 +1100,6 @@
 "NegativeX" = "-%1$@";
 "UnknownStatus" = "Bilinmir";
 "YourSubscriptionStatusIsUnknownVisitTheWebAppDescriptionLong" = "Abunəlik statusunuz müəyyən edilməyib. Daha çox məlumat üçün veb tətbiqi ziyarət edin, ya da ən son versiyaya güncəlləyin.";
-"AtTheMomentPremiumPlanIsNotAvailableDescriptionLong" = "Hazırda premium plan mövcud deyil, lütfən daha sonra yenidən sınayın.";
 "UnlockMoreAdvancedFeaturesWithPremiumPlan" = "Premium planla daha qabaqcıl özəlliklərin kilidini açın.";
 "BuiltInAuthenticator" = "Daxili kimlik doğrulayıcı";
 "EmergencyAccess" = "Fövqəladə hal erişimi";
@@ -1110,6 +1115,9 @@
 "UpgradePending" = "Yüksəltmə gözlənilir";
 "YourUpgradeIsBeingProcessedDescriptionLong" = "Yüksəltmə prosesiniz emal olunur. Tamamlanana qədər ödənişsiz planda qalacaqsınız. Yoxlamaq üçün indi sinxronlaşdırın və ya davam edin və özü avtomatik güncəllənəcək.";
 "UpgradedToPremium" = "\"Premium\"a yüksəldildi";
+"SubscriptionNeedsAttention" = "Abunəliyinizə nəzər salın";
+"CheckYourPlanForDetails" = "Detallar üçün planınızı yoxlayın.";
+"ViewPlan" = "Plana bax";
 "YouNowHaveAccessToAdvancedSecurityDescriptionLong" = "Artıq qabaqcıl təhlükəsizlik özəlliklərinə erişə bilərsiniz. Nələrin Premium-a daxil olduğunu öyrənin.";
 "YouNowHaveAccessToAllAdvancedSecurityFeatures" = "Artıq bütün qabaqcıl təhlükəsizlik özəlliklərinə erişiminiz var.";
 "YoullGoToStripeSecureCheckoutToCompleteYourPurchase" = "Satın almanı tamamlamaq üçün Stripe-ın güvənli ödəniş səhifəsinə yönləndiriləcəksiniz.";

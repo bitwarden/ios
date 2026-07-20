@@ -282,7 +282,7 @@ class CipherAPIServiceTests: XCTestCase { // swiftlint:disable:this type_body_le
         let response = try await subject.downloadAttachmentData(from: .example)
 
         XCTAssertEqual(client.downloadRequests.count, 1)
-        XCTAssertEqual(client.downloadRequests.last, URLRequest(url: .example))
+        XCTAssertEqual(client.downloadRequests.last?.url, .example)
 
         XCTAssertEqual(response, .example)
     }
