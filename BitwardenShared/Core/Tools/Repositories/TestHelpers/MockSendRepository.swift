@@ -6,7 +6,7 @@ import Foundation
 
 // MARK: - MockSendRepository
 
-class MockSendRepository: SendRepository {
+class MockSendRepository: BitwardenShared.SendRepository {
     // MARK: Properties
 
     var doesActivateAccountHavePremiumResult: Bool = true
