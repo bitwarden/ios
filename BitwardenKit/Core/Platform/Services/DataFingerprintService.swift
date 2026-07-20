@@ -1,13 +1,12 @@
-import BitwardenKit
 import CryptoKit
 import Foundation
 
-// MARK: - FillAssistFingerprintService
+// MARK: - DataFingerprintService
 
-/// A service that computes a deterministic integrity fingerprint for encodable data, used to
-/// detect tampering in cached fill-assist rules.
+/// A service that computes a deterministic integrity fingerprint for arbitrary encodable data,
+/// useful for detecting tampering in cached or persisted data.
 ///
-protocol FillAssistFingerprintService { // sourcery: AutoMockable
+public protocol DataFingerprintService { // sourcery: AutoMockable
     /// Computes a SHA-256 integrity fingerprint for the given data, using a sorted-keys JSON
     /// encoding so the result is deterministic regardless of dictionary iteration order.
     ///
@@ -17,12 +16,14 @@ protocol FillAssistFingerprintService { // sourcery: AutoMockable
     func fingerprint(for data: Encodable) throws -> String
 }
 
-// MARK: - DefaultFillAssistFingerprintService
+// MARK: - DefaultDataFingerprintService
 
-/// The default implementation of `FillAssistFingerprintService`.
+/// The default implementation of `DataFingerprintService`.
 ///
-struct DefaultFillAssistFingerprintService: FillAssistFingerprintService {
-    func fingerprint(for data: Encodable) throws -> String {
+public struct DefaultDataFingerprintService: DataFingerprintService {
+    public init() {}
+
+    public func fingerprint(for data: Encodable) throws -> String {
         let encoder = JSONEncoder()
         encoder.outputFormatting = [.sortedKeys]
         return try encoder.encode(data).generatedHash(using: SHA256.self)
