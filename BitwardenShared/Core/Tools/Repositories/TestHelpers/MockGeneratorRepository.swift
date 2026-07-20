@@ -92,11 +92,6 @@ class MockGeneratorRepository: GeneratorRepository {
         return try passwordResult.get()
     }
 
-    func passwordRulesRequest(rules: String) async -> PasswordGeneratorRequest? {
-        passwordRulesRequestRules = rules
-        return passwordRulesRequestResult
-    }
-
     func generateUsername(settings: UsernameGeneratorRequest) async throws -> String {
         usernameGeneratorRequest = settings
         return try usernameResult.get()
@@ -124,6 +119,11 @@ class MockGeneratorRepository: GeneratorRepository {
     func getUsernameGenerationOptions() async throws -> UsernameGenerationOptions {
         defer { getUsernameGenerationOptionsCalled = true }
         return try getUsernameGenerationOptionsResult.get()
+    }
+
+    func passwordRulesRequest(rules: String) async -> PasswordGeneratorRequest? {
+        passwordRulesRequestRules = rules
+        return passwordRulesRequestResult
     }
 
     func setPasswordGenerationOptions(_ options: PasswordGenerationOptions) async throws {

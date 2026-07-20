@@ -64,14 +64,6 @@ protocol GeneratorRepository: AnyObject {
         rules: String?,
     ) async throws -> (options: PasswordGenerationOptions, isPolicyInEffect: Bool)
 
-    /// Parses a password rules string into a `PasswordGeneratorRequest` that encodes the
-    /// site-specific constraints (minimum length, required character classes, etc.).
-    ///
-    /// - Parameter rules: The password rules string from the AutoFill credential API.
-    /// - Returns: The parsed request, or `nil` if the string is absent or unparsable.
-    ///
-    func passwordRulesRequest(rules: String) async -> PasswordGeneratorRequest?
-
     /// Gets the password generation options for the active account.
     ///
     /// - Returns: The password generation options for the account.
@@ -83,6 +75,14 @@ protocol GeneratorRepository: AnyObject {
     /// - Returns: The username generation options for the account.
     ///
     func getUsernameGenerationOptions() async throws -> UsernameGenerationOptions
+
+    /// Parses a password rules string into a `PasswordGeneratorRequest` that encodes the
+    /// site-specific constraints (minimum length, required character classes, etc.).
+    ///
+    /// - Parameter rules: The password rules string from the AutoFill credential API.
+    /// - Returns: The parsed request, or `nil` if the string is absent or unparsable.
+    ///
+    func passwordRulesRequest(rules: String) async -> PasswordGeneratorRequest?
 
     /// Sets the password generation options for the active account.
     ///
@@ -232,16 +232,6 @@ extension DefaultGeneratorRepository: GeneratorRepository {
         try await clientService.generators().password(settings: settings)
     }
 
-    func passwordRulesRequest(rules: String) async -> PasswordGeneratorRequest? {
-        do {
-            return try await clientService.generators()
-                .passwordRules(rules: rules)
-        } catch {
-            errorReporter.log(error: error)
-            return nil
-        }
-    }
-
     func generateUsername(settings: UsernameGeneratorRequest) async throws -> String {
         try await clientService.generators().username(settings: settings)
     }
@@ -277,6 +267,16 @@ extension DefaultGeneratorRepository: GeneratorRepository {
             options.plusAddressedEmail = try? await stateService.getActiveAccount().profile.email
         }
         return options
+    }
+
+    func passwordRulesRequest(rules: String) async -> PasswordGeneratorRequest? {
+        do {
+            return try await clientService.generators()
+                .passwordRules(rules: rules)
+        } catch {
+            errorReporter.log(error: error)
+            return nil
+        }
     }
 
     func setPasswordGenerationOptions(_ options: PasswordGenerationOptions) async throws {

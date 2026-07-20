@@ -75,14 +75,12 @@ public struct DefaultCredentialProviderContext: CredentialProviderContext {
     }
 
     public var initialRoute: AppRoute? {
-        guard case let .generatePasswordCredential(_, userInteraction) = extensionMode,
+        guard #available(iOS 26.2, iOSApplicationExtension 26.2, *),
+              case let .generatePasswordCredential(_, userInteraction) = extensionMode,
               userInteraction else {
             return nil
         }
-        if #available(iOS 26.2, iOSApplicationExtension 26.2, *) {
-            return .generatePasswordCredential
-        }
-        return nil
+        return .generatePasswordCredential
     }
 
     public var configuring: Bool {
