@@ -138,6 +138,7 @@ extension BitwardenSdk.OrganizationUserStatusType {
         case .accepted: self = .accepted
         case .confirmed: self = .confirmed
         case .invited: self = .invited
+        case .staged: self = .staged
         }
     }
 }

@@ -778,6 +778,8 @@
 "SetUpAutofillOnAllYourDevicesToLoginWithASingleTapAnywhere" = "Configurez le remplissage automatique sur tous vos appareils pour vous connecter de n'importe où en un seul clic.";
 "GoBack" = "Revenir en arrière";
 "GotIt" = "C'est compris";
+/* masterPasswordUnlock is the name of some data we want to delete, so there's no need to localize it. */
+"ClearMasterPasswordUnlock" = "Clear masterPasswordUnlock";
 "ClearSsoCookies" = "Effacer les cookies SSO";
 "GenerateCrash" = "Générer un plantage";
 "GenerateErrorReport" = "Générer un rapport d'erreur";
@@ -1061,6 +1063,8 @@
 "ReplaceCertificate" = "Remplacer le certificat";
 "ReplaceExistingCertificate" = "Remplacer le certificat existant";
 "UnableToReadCertificateFile" = "Impossible de lire le fichier de certificat.";
+/* masterPasswordUnlock is the name of some data we want to delete, so there's no need to localize it. */
+"MasterPasswordUnlockCleared" = "masterPasswordUnlock cleared.";
 "SsoCookiesCleared" = "Cookies SSO effacés";
 "YourRequestWasInterruptedBecauseTheAppNeededToReAuthenticatePleaseTryAgain" = "Votre demande a été interrompue car l'application est nécessaire pour se ré-authentifier. Veuillez réessayer.";
 "AutofillWithBitwardenDescriptionLong" = "Bitwarden peut suggérer vos mots de passe et autres identifiants lorsque vous vous connectez à des applications et sites Web.";
@@ -1085,6 +1089,8 @@
 "ExternalLink" = "Lien externe";
 "YourNextChargeIsForXDueOnY" = "Votre prochain prélèvement de **%1$@** sera effectué le **%2$@**.";
 "WeCouldNotProcessYourPaymentUpdateYourPaymentMethodDescriptionLong" = "Nous n'avons pas pu traiter votre paiement. Mettez à jour votre mode de paiement avant la fin de votre abonnement le **%1$@**.";
+/* Error message shown when the Premium Plan screen fails to load subscription data, with a prompt to retry. */
+"WeCouldntLoadYourSubscriptionDetailsPleaseRetry" = "We couldn't load your subscription details. Please try again.";
 "YourSubscriptionWasCanceledOnXDescriptionLong" = "Votre abonnement a été annulé le **%1$@**. Réabonnez-vous pour continuer à utiliser les fonctionnalités Premium.";
 "YourSubscriptionExpiredOnXDescriptionLong" = "Votre abonnement a expiré le **%1$@**. Réabonnez-vous pour continuer à utiliser les fonctionnalités Premium.";
 "YourSubscriptionIsScheduledToCancelOnXDescriptionLong" = "Votre abonnement est programmé pour être annulé le **%1$@**. Vous pouvez le rétablir à tout moment avant cette date.";
@@ -1094,7 +1100,6 @@
 "NegativeX" = "-%1$@";
 "UnknownStatus" = "Inconnu";
 "YourSubscriptionStatusIsUnknownVisitTheWebAppDescriptionLong" = "Le statut de votre abonnement n'a pas pu être déterminé. Veuillez visiter l'application web pour plus de détails ou mettre à jour vers la dernière version.";
-"AtTheMomentPremiumPlanIsNotAvailableDescriptionLong" = "Le plan Premium n'est pas disponible pour le moment, veuillez réessayer plus tard.";
 "UnlockMoreAdvancedFeaturesWithPremiumPlan" = "Débloquez des fonctionnalités plus avancées avec un abonnement Premium.";
 "BuiltInAuthenticator" = "Authentificateur intégré";
 "EmergencyAccess" = "Accès d'urgence";
@@ -1110,6 +1115,9 @@
 "UpgradePending" = "Mise à niveau en attente";
 "YourUpgradeIsBeingProcessedDescriptionLong" = "Votre mise à niveau est en cours de traitement. Vous resterez sur la formule gratuite jusqu'à ce qu'elle soit finalisée. Synchronisez maintenant pour vérifier, ou continuez — la mise à jour s'effectuera automatiquement.";
 "UpgradedToPremium" = "Passer à la version Premium";
+"SubscriptionNeedsAttention" = "Your subscription needs attention";
+"CheckYourPlanForDetails" = "Check your plan for details.";
+"ViewPlan" = "View plan";
 "YouNowHaveAccessToAdvancedSecurityDescriptionLong" = "Vous avez désormais accès aux fonctionnalités de sécurité avancées. Apprenez-en plus sur ce qui est inclus avec Premium.";
 "YouNowHaveAccessToAllAdvancedSecurityFeatures" = "Vous avez désormais accès à toutes les fonctionnalités de sécurité avancées.";
 "YoullGoToStripeSecureCheckoutToCompleteYourPurchase" = "Vous allez passer au paiement sécurisé Stripe pour compléter votre achat.";

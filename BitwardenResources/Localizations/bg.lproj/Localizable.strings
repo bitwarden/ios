@@ -778,6 +778,8 @@
 "SetUpAutofillOnAllYourDevicesToLoginWithASingleTapAnywhere" = "Настройте автоматичното попълвана на всички свои устройства, за да се вписвате навсякъде с едно докосване.";
 "GoBack" = "Връщане назад";
 "GotIt" = "Разбрано";
+/* masterPasswordUnlock is the name of some data we want to delete, so there's no need to localize it. */
+"ClearMasterPasswordUnlock" = "Изчистване на masterPasswordUnlock";
 "ClearSsoCookies" = "Изчистване на бисквитките за еднократно удостоверяване";
 "GenerateCrash" = "Създаване на срив";
 "GenerateErrorReport" = "Създаване на доклад за грешка";
@@ -1061,6 +1063,8 @@
 "ReplaceCertificate" = "Замяна на сертификата";
 "ReplaceExistingCertificate" = "Замяна на текущия сертификат";
 "UnableToReadCertificateFile" = "Файлът със сертификата не може да бъде прочетен.";
+/* masterPasswordUnlock is the name of some data we want to delete, so there's no need to localize it. */
+"MasterPasswordUnlockCleared" = "masterPasswordUnlock е изчистено.";
 "SsoCookiesCleared" = "Бисквитките за еднократното удостоверяване са изчистени";
 "YourRequestWasInterruptedBecauseTheAppNeededToReAuthenticatePleaseTryAgain" = "Заявката беше прекъсната, тъй като приложението трябваше да се удостовери отново. Моля, опитайте пак.";
 "AutofillWithBitwardenDescriptionLong" = "Битуорден може да предлага пароли и други данни за удостоверяване, когато се вписвате в приложения и уеб сайтове.";
@@ -1085,6 +1089,8 @@
 "ExternalLink" = "Външна връзка";
 "YourNextChargeIsForXDueOnY" = "Следващото плащане ще бъде **%1$@**, на дата **%2$@**.";
 "WeCouldNotProcessYourPaymentUpdateYourPaymentMethodDescriptionLong" = "Плащането не беше успешно. Обновете разплащателните си данни, преди абонаментът да бъде прекратен на **%1$@**.";
+/* Error message shown when the Premium Plan screen fails to load subscription data, with a prompt to retry. */
+"WeCouldntLoadYourSubscriptionDetailsPleaseRetry" = "Зареждането на подробностите за абонамента на беше успешно. Опитайте отново.";
 "YourSubscriptionWasCanceledOnXDescriptionLong" = "Абонаментът беше прекратен на **%1$@**. Ако искате да продължите да ползвате предимствата на платения план, ще трябва да се абонирате отново.";
 "YourSubscriptionExpiredOnXDescriptionLong" = "Абонаментът изтече на **%1$@**. Ако искате да продължите да ползвате предимствата на платения план, ще трябва да се абонирате отново.";
 "YourSubscriptionIsScheduledToCancelOnXDescriptionLong" = "Абонаментът Ви по план ще бъде преустановен на **%1$@**. Можете да го подновите по всяко време преди това.";
@@ -1094,7 +1100,6 @@
 "NegativeX" = "-%1$@";
 "UnknownStatus" = "Неизвестно";
 "YourSubscriptionStatusIsUnknownVisitTheWebAppDescriptionLong" = "Състоянието на абонамента не може да бъде определено. Моля, отворете приложението по уеб за повече подробности, или обновете до най-новата версия.";
-"AtTheMomentPremiumPlanIsNotAvailableDescriptionLong" = "В момента платеният план не е наличен. Опитайте отново по-късно.";
 "UnlockMoreAdvancedFeaturesWithPremiumPlan" = "Отключете още разширени функционалности с Платения план.";
 "BuiltInAuthenticator" = "Вграден удостоверител";
 "EmergencyAccess" = "Авариен достъп";
@@ -1110,6 +1115,9 @@
 "UpgradePending" = "Има чакащо надграждане";
 "YourUpgradeIsBeingProcessedDescriptionLong" = "Надграждането се обработва. Докато не бъде завършено, ще останете на безплатния план. Синхронизирайте сега, ако искате да направите проверка, или продължите и ще се опресни автоматично.";
 "UpgradedToPremium" = "Надградено до Платения план";
+"SubscriptionNeedsAttention" = "Абонаментът Ви се туждае от внимание";
+"CheckYourPlanForDetails" = "Проверете плана си за подробности.";
+"ViewPlan" = "Преглед на плана";
 "YouNowHaveAccessToAdvancedSecurityDescriptionLong" = "Вече имате достъп до разширени функционалности за сигурност. Научете повече относно това какво включва Платеният план.";
 "YouNowHaveAccessToAllAdvancedSecurityFeatures" = "Вече имате достъп до всички разширени функционалности за сигурност.";
 "YoullGoToStripeSecureCheckoutToCompleteYourPurchase" = "Ще бъдете прехвърлен(а) към страницата за сигурни разплащания на Stripe, за да завършите покупката си.";

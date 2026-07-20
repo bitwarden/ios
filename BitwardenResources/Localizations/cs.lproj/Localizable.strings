@@ -168,8 +168,8 @@
 "AttachmentLargeWarning" = "Tato příloha má velikost %1$@. Opravdu ji chcete stáhnout do Vašeho zařízení?";
 "AuthenticatorKey" = "Ověřovací klíč";
 "VerificationCodeTotp" = "Ověřovací kód (TOTP)";
-"AuthenticatorKeyAdded" = "Byl přidán autentizační klíč.";
-"AuthenticatorKeyReadError" = "Nelze přečíst autentizační klíč.";
+"AuthenticatorKeyAdded" = "Byl přidán ověřovací klíč.";
+"AuthenticatorKeyReadError" = "Nelze přečíst ověřovací klíč.";
 "PointYourCameraAtTheQRCode" = "Nasměrujte kameru na QR kód.\nNačtení proběhne automaticky.";
 "ScanQrTitle" = "Načíst QR kód";
 "Camera" = "Kamera";
@@ -778,6 +778,8 @@
 "SetUpAutofillOnAllYourDevicesToLoginWithASingleTapAnywhere" = "Nastavte automatické vyplňování na všech Vašich zařízeních pro přihlášení jedním klepnutím kdekoliv.";
 "GoBack" = "Vrátit se";
 "GotIt" = "Rozumím";
+/* masterPasswordUnlock is the name of some data we want to delete, so there's no need to localize it. */
+"ClearMasterPasswordUnlock" = "Vymazat masterPasswordUnlock";
 "ClearSsoCookies" = "Vymazat cookies SSO";
 "GenerateCrash" = "Vygenerovat pád";
 "GenerateErrorReport" = "Vygenerovat chybové hlášení";
@@ -1061,6 +1063,8 @@
 "ReplaceCertificate" = "Nahradit certifikát";
 "ReplaceExistingCertificate" = "Nahradit existující certifikát";
 "UnableToReadCertificateFile" = "Soubor s certifikátem nelze přečíst.";
+/* masterPasswordUnlock is the name of some data we want to delete, so there's no need to localize it. */
+"MasterPasswordUnlockCleared" = "masterPasswordUnlock byl vymazán.";
 "SsoCookiesCleared" = "Cookies SSO vymazány";
 "YourRequestWasInterruptedBecauseTheAppNeededToReAuthenticatePleaseTryAgain" = "Váš požadavek byl přerušen, protože aplikace musí být znovu ověřena. Zkuste to znovu.";
 "AutofillWithBitwardenDescriptionLong" = "Bitwarden může při přihlášení k aplikacím a webovým stránkám navrhnout Vaše hesla a další přihlašovací údaje.";
@@ -1085,6 +1089,8 @@
 "ExternalLink" = "Externí odkaz";
 "YourNextChargeIsForXDueOnY" = "Vaše další dobití je **%1$@**, se splaností **%2$@**.";
 "WeCouldNotProcessYourPaymentUpdateYourPaymentMethodDescriptionLong" = "Vaši platbu nelze zpracovat. Aktualizujte svou platební metodu před ukončením předplatného **%1$@**.";
+/* Error message shown when the Premium Plan screen fails to load subscription data, with a prompt to retry. */
+"WeCouldntLoadYourSubscriptionDetailsPleaseRetry" = "Nemohli jsme načíst údaje o předplatném. Zkuste to znovu.";
 "YourSubscriptionWasCanceledOnXDescriptionLong" = "Vaše předplatné bylo zrušeno **%1$@**. Chcete-li pokračovat v používání funkcí Premium, proveďte obnovení.";
 "YourSubscriptionExpiredOnXDescriptionLong" = "Vaše předplatné bylo zrušeno **%1$@**. Chcete-li pokračovat v používání funkcí Premium, proveďte obnovení.";
 "YourSubscriptionIsScheduledToCancelOnXDescriptionLong" = "Zrušení Vašeho předplatného je naplánováno na **%1$@**. Před tím ho můžete kdykoli obnovit.";
@@ -1094,7 +1100,6 @@
 "NegativeX" = "-%1$@";
 "UnknownStatus" = "Neznámý";
 "YourSubscriptionStatusIsUnknownVisitTheWebAppDescriptionLong" = "Stav Vašeho předplatného nelze určit. Pro více informací navštivte webovou aplikaci nebo aktualizujte na nejnovější verzi.";
-"AtTheMomentPremiumPlanIsNotAvailableDescriptionLong" = "V tuto chvíli není členství Premium k dispozici, opakujte akci později.";
 "UnlockMoreAdvancedFeaturesWithPremiumPlan" = "Odemkněte pokročilejší funkce s předplatným Premium.";
 "BuiltInAuthenticator" = "Vestavěný autentifikátor";
 "EmergencyAccess" = "Nouzový přístup";
@@ -1110,6 +1115,9 @@
 "UpgradePending" = "Nevyřízená aktualizace";
 "YourUpgradeIsBeingProcessedDescriptionLong" = "Vaše aktualizace je zpracovávána. Zůstanete na bezplatném tarifu, dokud nebude dokončena. Synchronizujte pro kontrolu, nebo pokračujte a aktualizace se provede automaticky.";
 "UpgradedToPremium" = "Aktualizováno na Premium";
+"SubscriptionNeedsAttention" = "Vaše předplatné vyžaduje pozornost";
+"CheckYourPlanForDetails" = "Podívejte se na svůj tarif pro podrobnosti.";
+"ViewPlan" = "Zobrazit tarif";
 "YouNowHaveAccessToAdvancedSecurityDescriptionLong" = "Nyní máte přístup k pokročilým bezpečnostním funkcím. Přečtěte si více o tom, co je zahrnuto v Premium.";
 "YouNowHaveAccessToAllAdvancedSecurityFeatures" = "Nyní máte přístup ke všem pokročilým bezpečnostním funkcím.";
 "YoullGoToStripeSecureCheckoutToCompleteYourPurchase" = "Pro dokončení nákupu přejdete do zabezpečené pokladny Stripe.";

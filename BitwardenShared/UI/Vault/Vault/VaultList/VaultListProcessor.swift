@@ -236,8 +236,7 @@ extension VaultListProcessor {
     private func appeared() async {
         await refreshVault(syncWithPeriodicCheck: true)
         // Read after sync so the cache has been refreshed by onFetchSyncSucceeded if a sync ran.
-        state.shouldShowSubscriptionAttentionCard =
-            await services.billingService.shouldShowSubscriptionAttentionCard()
+        await refreshPremiumActionCards()
         await handleNotifications()
         await checkPendingLoginRequests()
         await checkPersonalOwnershipPolicy()
@@ -247,16 +246,6 @@ extension VaultListProcessor {
         state.hasPremium = await services.stateService.doesActiveAccountHavePremium()
 
         state.shouldShowArchiveOnboardingActionCard = await services.stateService.shouldDoArchiveOnboarding()
-
-        state.shouldShowUpgradedToPremiumActionCard = await services.billingService
-            .shouldShowUpgradedToPremiumActionCard()
-
-        let isBannerDismissed = await services.stateService.isPremiumUpgradeBannerDismissed()
-        guard !isBannerDismissed else {
-            state.shouldShowPremiumUpgradeActionCard = false
-            return
-        }
-        state.shouldShowPremiumUpgradeActionCard = await services.billingRepository.isInAppUpgradeAvailable()
     }
 
     /// Checks if the user is eligible for an app review prompt and schedules one if so.
@@ -434,6 +423,25 @@ extension VaultListProcessor {
                 )
             }
         }
+    }
+
+    /// Refreshes the visibility of the premium-related action cards, ensuring the subscription
+    /// attention card and the upgrade card are mutually exclusive — the attention card takes
+    /// priority when a payment problem is detected.
+    ///
+    private func refreshPremiumActionCards() async {
+        state.shouldShowSubscriptionAttentionCard =
+            await services.billingService.shouldShowSubscriptionAttentionCard()
+        state.shouldShowUpgradedToPremiumActionCard =
+            await services.billingService.shouldShowUpgradedToPremiumActionCard()
+
+        let isBannerDismissed = await services.stateService.isPremiumUpgradeBannerDismissed()
+        guard !isBannerDismissed, !state.shouldShowSubscriptionAttentionCard else {
+            state.shouldShowPremiumUpgradeActionCard = false
+            return
+        }
+        state.shouldShowPremiumUpgradeActionCard =
+            await services.billingRepository.isInAppUpgradeAvailable()
     }
 
     /// Refreshes the vault's contents.

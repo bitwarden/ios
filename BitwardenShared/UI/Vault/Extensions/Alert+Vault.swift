@@ -572,7 +572,7 @@ extension Alert {
         }
         let alert = Alert(
             title: Localizations.premiumSubscriptionRequired,
-            message: Localizations.premiumRequired,
+            message: Localizations.premiumRequiredTOTPDescriptionLong,
             alertActions: [
                 preferredAction,
                 AlertAction(title: Localizations.cancel, style: .cancel),
