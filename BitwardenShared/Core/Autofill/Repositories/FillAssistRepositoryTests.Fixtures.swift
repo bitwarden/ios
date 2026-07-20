@@ -13,7 +13,7 @@ extension FillAssistRepositoryTests {
     /// verification when read.
     func cacheVerifiedData(_ data: FillAssistCachedData, userId: String = "1") throws {
         appSettingsStore.fillAssistCachedDataByUserId[userId] = data
-        keychainRepository.getUserAuthKeyValueReturnValue = fillAssistFingerprintService.fingerprintReturnValue
+        keychainRepository.getUserAuthKeyValueReturnValue = dataFingerprintService.fingerprintReturnValue
     }
 
     /// Returns a `FillAssistManifestResponseModel` fixture with the given content ID.

@@ -47,7 +47,7 @@ class DefaultFillAssistRepository: FillAssistRepository {
     private let fillAssistAPIService: FillAssistAPIService
 
     /// The service for computing the cached-rules integrity fingerprint.
-    private let fillAssistFingerprintService: FillAssistFingerprintService
+    private let dataFingerprintService: DataFingerprintService
 
     /// The repository for storing the cached-rules integrity fingerprint.
     private let keychainRepository: KeychainRepository
@@ -68,8 +68,7 @@ class DefaultFillAssistRepository: FillAssistRepository {
     ///   - environmentService: The service for accessing environment URLs.
     ///   - errorReporter: The service for reporting non-fatal errors.
     ///   - fillAssistAPIService: The API service for fetching fill-assist data.
-    ///   - fillAssistFingerprintService: The service for computing the cached-rules integrity
-    ///     fingerprint.
+    ///   - dataFingerprintService: The service for computing the cached-rules integrity fingerprint.
     ///   - keychainRepository: The repository for storing the cached-rules integrity fingerprint.
     ///   - stateService: The service for accessing account state.
     ///   - timeProvider: The provider of the current time.
@@ -80,7 +79,7 @@ class DefaultFillAssistRepository: FillAssistRepository {
         environmentService: EnvironmentService,
         errorReporter: ErrorReporter,
         fillAssistAPIService: FillAssistAPIService,
-        fillAssistFingerprintService: FillAssistFingerprintService,
+        dataFingerprintService: DataFingerprintService,
         keychainRepository: KeychainRepository,
         stateService: StateService,
         timeProvider: TimeProvider,
@@ -90,7 +89,7 @@ class DefaultFillAssistRepository: FillAssistRepository {
         self.environmentService = environmentService
         self.errorReporter = errorReporter
         self.fillAssistAPIService = fillAssistAPIService
-        self.fillAssistFingerprintService = fillAssistFingerprintService
+        self.dataFingerprintService = dataFingerprintService
         self.keychainRepository = keychainRepository
         self.stateService = stateService
         self.timeProvider = timeProvider
@@ -166,7 +165,7 @@ class DefaultFillAssistRepository: FillAssistRepository {
         appSettingsStore.setFillAssistLastFetchTimestamp(timeProvider.presentTime, userId: userId)
 
         do {
-            let newFingerprint = try fillAssistFingerprintService.fingerprint(for: data)
+            let newFingerprint = try dataFingerprintService.fingerprint(for: data)
             try await keychainRepository.setUserAuthKey(
                 for: .fillAssistRulesFingerprint(userId: userId),
                 value: newFingerprint,
@@ -204,7 +203,7 @@ class DefaultFillAssistRepository: FillAssistRepository {
 
         let computed: String?
         do {
-            computed = try fillAssistFingerprintService.fingerprint(for: cached)
+            computed = try dataFingerprintService.fingerprint(for: cached)
         } catch {
             errorReporter.log(error: error)
             computed = nil

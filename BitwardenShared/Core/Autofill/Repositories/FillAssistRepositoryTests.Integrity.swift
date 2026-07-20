@@ -85,7 +85,7 @@ extension FillAssistRepositoryTests {
         #expect(keychainRepository.setUserAuthKeyCalled)
         #expect(
             keychainRepository.setUserAuthKeyReceivedArguments?.value
-                == fillAssistFingerprintService.fingerprintReturnValue,
+                == dataFingerprintService.fingerprintReturnValue,
         )
     }
 }

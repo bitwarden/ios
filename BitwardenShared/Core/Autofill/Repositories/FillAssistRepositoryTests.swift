@@ -17,7 +17,7 @@ struct FillAssistRepositoryTests {
     let environmentService: MockEnvironmentService
     let errorReporter: MockErrorReporter
     let fillAssistAPIService: MockFillAssistAPIService
-    let fillAssistFingerprintService: MockFillAssistFingerprintService
+    let dataFingerprintService: MockDataFingerprintService
     let keychainRepository: MockKeychainRepository
     let stateService: MockStateService
     let subject: DefaultFillAssistRepository
@@ -31,8 +31,8 @@ struct FillAssistRepositoryTests {
         environmentService = MockEnvironmentService()
         errorReporter = MockErrorReporter()
         fillAssistAPIService = MockFillAssistAPIService()
-        fillAssistFingerprintService = MockFillAssistFingerprintService()
-        fillAssistFingerprintService.fingerprintReturnValue = "stub-fingerprint"
+        dataFingerprintService = MockDataFingerprintService()
+        dataFingerprintService.fingerprintReturnValue = "stub-fingerprint"
         keychainRepository = MockKeychainRepository()
         stateService = MockStateService()
         stateService.activeAccount = .fixture()
@@ -45,7 +45,7 @@ struct FillAssistRepositoryTests {
             environmentService: environmentService,
             errorReporter: errorReporter,
             fillAssistAPIService: fillAssistAPIService,
-            fillAssistFingerprintService: fillAssistFingerprintService,
+            dataFingerprintService: dataFingerprintService,
             keychainRepository: keychainRepository,
             stateService: stateService,
             timeProvider: timeProvider,
@@ -135,7 +135,7 @@ struct FillAssistRepositoryTests {
 
         #expect(keychainRepository.setUserAuthKeyCalled)
         let storedFingerprint = keychainRepository.setUserAuthKeyReceivedArguments?.value
-        #expect(storedFingerprint == fillAssistFingerprintService.fingerprintReturnValue)
+        #expect(storedFingerprint == dataFingerprintService.fingerprintReturnValue)
     }
 
     /// `syncRules()` skips storing when the schema major version is unsupported.
