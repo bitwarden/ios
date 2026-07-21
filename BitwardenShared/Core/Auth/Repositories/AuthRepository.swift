@@ -1188,11 +1188,14 @@ extension DefaultAuthRepository: AuthRepository {
     }
 
     func validatePin(pin: String) async throws -> Bool {
-        guard let pinProtectedUserKey = try? await stateService.pinProtectedUserKey() else {
+        guard let pinProtectedUserKeyEnvelope = try await stateService.pinProtectedUserKeyEnvelope() else {
             return false
         }
 
-        return try await clientService.auth().validatePin(pin: pin, pinProtectedUserKey: pinProtectedUserKey)
+        return try await clientService.auth().validatePinProtectedUserKeyEnvelope(
+            pin: pin,
+            pinProtectedUserKeyEnvelope: pinProtectedUserKeyEnvelope,
+        )
     }
 
     func verifyOtp(_ otp: String) async throws {
