@@ -1078,6 +1078,7 @@
 "Canceled" = "Megszakítva";
 "PastDue" = "Határidőn túl";
 "PendingCancellation" = "Függőben lévő lemondás";
+"Unpaid" = "Nincs fizetve";
 "UpdatePayment" = "Fizetés frissítése";
 "BillingAmount" = "Számlázott összeg";
 "StorageCost" = "Tárolási költség";
@@ -1092,6 +1093,7 @@
 /* Error message shown when the Premium Plan screen fails to load subscription data, with a prompt to retry. */
 "WeCouldntLoadYourSubscriptionDetailsPleaseRetry" = "Nem lehetett betölteni az előfizetési adatokat. Próbáljuk újra.";
 "YourSubscriptionWasCanceledOnXDescriptionLong" = "Az előfizetés törlésre került: **%1$@**. Iratkozzunk fel újra a prémium funkciók használatának folytatásához.";
+"YourSubscriptionWasSuspendedOnXDescriptionLong" = "Az előfizetés felfüggesztésre került: **%1$@**. Az újra aktiváláshoz rendezzük a múltbeli esedékes számlákat.";
 "YourSubscriptionExpiredOnXDescriptionLong" = "Az előfizetés lejárt: **%1$@**. Iratkozzunk fel újra a prémium funkciók használatának folytatásához.";
 "YourSubscriptionIsScheduledToCancelOnXDescriptionLong" = "Az előfizetés az időzítés szerint lejár: **%1$@**. Ezt megelőzően bármikor visszaállíthatjuk.";
 "PerMonth" = "/ hónap";
@@ -1169,3 +1171,4 @@
 "LineOfCredit" = "Hitelkeret";
 "MoneyMarket" = "Pénzpiac";
 "Savings" = "Megtakarítások";
+"PremiumRequiredTOTPDescriptionLong" = "A hitelesítési kulcs (TOTP) egy prémium funkció. A jelenlegi csomag nem tartalmazza a hozzáférést ehhez a funkcióhoz.";

@@ -479,7 +479,7 @@
 "CannotScanQRCode" = "无法扫描二维码吗？";
 "EnterKeyManually" = "手动输入密钥";
 "OnceTheKeyIsSuccessfullyEntered" = "成功输入密钥后，选择「保存」以安全地存储此密钥。";
-"NeverLockWarning" = "将锁定选项设置为「从不」可让任何能够访问您的设备的人都可以使用您的密码库。如果您使用此选项，则应确保您的设备得到妥善的保护。";
+"NeverLockWarning" = "将锁定选项设置为「从不」会让任何能够访问您的设备的人都可以使用您的密码库。如果使用此选项，您应确保您的设备已受到妥善保护。";
 "EnvironmentPageUrlsError" = "输入的一个或多个 URL 无效。请修改后再次尝试保存。";
 "GenericErrorMessage" = "我们无法处理您的请求。请重试或联系我们。";
 "LogInRequested" = "需要登录";
@@ -1074,10 +1074,11 @@
 "YourPasswordAndHintCannotBeTheSamePleaseChooseADifferentHint" = "您的密码和密码提示不能一样。请选择一个不同的提示。";
 "Plan" = "方案";
 "Premium" = "高级版";
-"Active" = "启用";
+"Active" = "激活";
 "Canceled" = "已取消";
 "PastDue" = "逾期未支付";
 "PendingCancellation" = "待取消";
+"Unpaid" = "未支付";
 "UpdatePayment" = "更新付款信息";
 "BillingAmount" = "计费金额";
 "StorageCost" = "存储空间成本";
@@ -1092,6 +1093,7 @@
 /* Error message shown when the Premium Plan screen fails to load subscription data, with a prompt to retry. */
 "WeCouldntLoadYourSubscriptionDetailsPleaseRetry" = "我们无法加载您的订阅详细信息。请重试。";
 "YourSubscriptionWasCanceledOnXDescriptionLong" = "您的订阅被取消于 **%1$@**。重新订阅以继续使用高级版功能。";
+"YourSubscriptionWasSuspendedOnXDescriptionLong" = "您的订阅被暂停于 **%1$@**。要重新激活，请处理逾期未支付的账单。";
 "YourSubscriptionExpiredOnXDescriptionLong" = "您的订阅到期于 **%1$@**。重新订阅以继续使用高级版功能。";
 "YourSubscriptionIsScheduledToCancelOnXDescriptionLong" = "您的订阅将于 **%1$@** 取消。在此日期之前，您可以随时恢复订阅。";
 "PerMonth" = "/月";
@@ -1169,3 +1171,4 @@
 "LineOfCredit" = "信用额度";
 "MoneyMarket" = "货币市场";
 "Savings" = "储蓄";
+"PremiumRequiredTOTPDescriptionLong" = "验证器密钥 (TOTP) 是高级版功能。您的当前方案不包含对此功能的访问权限。";
