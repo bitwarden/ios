@@ -3,6 +3,10 @@
 /// Effects that can be processed by a `DebugMenuProcessor`.
 ///
 enum DebugMenuEffect: Equatable {
+    /// Clears the active account's cached Fill Assist rules and their integrity fingerprint,
+    /// the same cleanup that runs automatically on logout.
+    case clearFillAssistCache
+
     /// Clears `userDecryptionOptions.masterPasswordUnlock` on the active account's
     /// cached profile to reproduce the pre-server-2025.11 state for PM-31723 testing.
     case clearMasterPasswordUnlock

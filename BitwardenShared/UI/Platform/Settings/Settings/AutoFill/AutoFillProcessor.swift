@@ -12,6 +12,7 @@ final class AutoFillProcessor: StateProcessor<AutoFillState, AutoFillAction, Aut
         & HasAutofillCredentialService
         & HasConfigService
         & HasErrorReporter
+        & HasFillAssistRepository
         & HasSettingsRepository
         & HasStateService
         & HasTimeProvider
@@ -72,6 +73,11 @@ final class AutoFillProcessor: StateProcessor<AutoFillState, AutoFillAction, Aut
             state.url = ExternalLinksConstants.autofillHelp
         case .passwordAutoFillTapped:
             coordinator.navigate(to: .passwordAutoFill, context: self)
+        case let .toggleFillAssist(isOn):
+            state.isFillAssistEnabled = isOn
+            Task {
+                await updateFillAssistEnabled(isOn)
+            }
         case let .toggleCopyTOTPToggle(isOn):
             state.isCopyTOTPToggleOn = isOn
             Task {
@@ -132,8 +138,10 @@ final class AutoFillProcessor: StateProcessor<AutoFillState, AutoFillAction, Aut
     private func fetchSettingValues() async {
         state.defaultUriMatchType = await services.settingsRepository.getDefaultUriMatchType()
         state.shouldShowPasswordAutofill = await !services.autofillCredentialService.isAutofillCredentialsEnabled()
+        state.isFillAssistFeatureFlagEnabled = await services.configService.getFeatureFlag(.fillAssistTargetingRules)
         do {
             state.isCopyTOTPToggleOn = try await !services.settingsRepository.getDisableAutoTotpCopy()
+            state.isFillAssistEnabled = try await services.stateService.getFillAssistEnabled()
         } catch {
             coordinator.showAlert(.defaultAlert(title: Localizations.anErrorHasOccurred))
             services.errorReporter.log(error: error)
@@ -204,6 +212,29 @@ final class AutoFillProcessor: StateProcessor<AutoFillState, AutoFillAction, Aut
         } catch {
             coordinator.showAlert(.defaultAlert(title: Localizations.anErrorHasOccurred))
             services.errorReporter.log(error: error)
+        }
+    }
+
+    /// Updates the Fill Assist enabled preference and triggers a rules sync if enabled.
+    ///
+    /// - Parameter fillAssistEnabled: Whether Fill Assist should be enabled.
+    ///
+    @MainActor
+    private func updateFillAssistEnabled(_ fillAssistEnabled: Bool) async {
+        // Guard against stale tasks: rapid toggling fires multiple concurrent tasks; bail out if
+        // the state has already moved past this task's intended value.
+        guard state.isFillAssistEnabled == fillAssistEnabled else { return }
+        do {
+            try await services.stateService.setFillAssistEnabled(fillAssistEnabled)
+            guard state.isFillAssistEnabled == fillAssistEnabled else { return }
+            if fillAssistEnabled {
+                await services.fillAssistRepository.syncRules()
+            }
+        } catch {
+            services.errorReporter.log(error: error)
+            guard state.isFillAssistEnabled == fillAssistEnabled else { return }
+            state.isFillAssistEnabled = !fillAssistEnabled
+            await coordinator.showErrorAlert(error: error)
         }
     }
 

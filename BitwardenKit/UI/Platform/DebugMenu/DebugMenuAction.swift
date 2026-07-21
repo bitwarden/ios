@@ -3,6 +3,9 @@
 /// Actions that can be processed by a `DebugMenuProcessor`.
 ///
 enum DebugMenuAction: Equatable {
+    /// The add Fill Assist rule button was tapped.
+    case addFillAssistRuleTapped
+
     /// The copy user ID button was tapped.
     case copyUserID
     /// The dismiss button was tapped.

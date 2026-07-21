@@ -166,7 +166,12 @@ class CredentialProviderViewController: ASCredentialProviderViewController {
 
         if context.flowWithUserInteraction {
             Task {
-                await appProcessor.start(appContext: .appExtension, navigator: self, window: nil)
+                await appProcessor.start(
+                    appContext: .appExtension,
+                    initialRoute: context.initialRoute,
+                    navigator: self,
+                    window: nil,
+                )
             }
         }
     }

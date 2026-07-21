@@ -1003,7 +1003,7 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
     func test_generatePasswordCredential() async throws {
         generatorRepository.passwordResult = .success("generated-password")
 
-        let result = try await subject.generatePasswordCredential(request: MockGeneratePasswordRequest())
+        let result = try await subject.generatePasswordCredential(request: MockGeneratePasswordRequestProxy())
 
         XCTAssertFalse(authRepository.unlockVaultWithNeverlockKeyCalled)
         XCTAssertNotNil(generatorRepository.passwordGeneratorRequest)
@@ -1016,7 +1016,7 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
         generatorRepository.passwordResult = .failure(BitwardenTestError.example)
 
         await assertAsyncThrows(error: BitwardenTestError.example) {
-            _ = try await subject.generatePasswordCredential(request: MockGeneratePasswordRequest())
+            _ = try await subject.generatePasswordCredential(request: MockGeneratePasswordRequestProxy())
         }
     }
 
