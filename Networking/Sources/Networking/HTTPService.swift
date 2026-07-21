@@ -101,20 +101,6 @@ public final class HTTPService: Sendable {
         return try await client.download(from: handledRequest)
     }
 
-    /// Downloads the file at `filename` appended to the service's base URL.
-    ///
-    /// Uses `URLSession` download tasks which follow HTTP redirects automatically, making this
-    /// suitable for external CDN URLs that redirect before serving the final content.
-    ///
-    /// - Parameter filename: The filename to append to the base URL (e.g. `"manifest.json"`).
-    /// - Returns: The temporary `URL` of the downloaded file.
-    ///
-    public func download(filename: String) async throws -> URL {
-        let url = baseURL.appendingPathComponent(filename)
-        let handledRequest = try await applyRequestHandlers(to: URLRequest(url: url))
-        return try await client.download(from: handledRequest)
-    }
-
     /// Performs a network request.
     ///
     /// - Parameter request: The request to perform.

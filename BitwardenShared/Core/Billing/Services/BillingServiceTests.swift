@@ -271,7 +271,7 @@ struct BillingServiceTests { // swiftlint:disable:this type_body_length
         #expect(result.nextCharge != nil)
     }
 
-    /// `getSubscription()` maps unpaid status to updatePayment.
+    /// `getSubscription()` maps unpaid status to its own `.unpaid` plan status.
     @Test
     func getSubscription_unpaid() async throws {
         billingAPIService.getSubscriptionReturnValue = .fixture(
@@ -281,7 +281,7 @@ struct BillingServiceTests { // swiftlint:disable:this type_body_length
 
         let result = try await subject.getSubscription()
 
-        #expect(result.status == .updatePayment)
+        #expect(result.status == .unpaid)
         #expect(result.cancelAt != nil)
     }
 
@@ -551,14 +551,13 @@ struct BillingServiceTests { // swiftlint:disable:this type_body_length
     /// whether the subscription status requires payment attention.
     @Test(arguments: [
         (SubscriptionStatus.pastDue, true),
-        (SubscriptionStatus.unpaid, true), // maps to PremiumPlanStatus.updatePayment
+        (SubscriptionStatus.unpaid, true),
         (SubscriptionStatus.active, false),
     ])
     func refreshSubscriptionAttentionCard_statusVisibility(
         status: SubscriptionStatus,
         expectedVisible: Bool,
     ) async {
-        stateService.doesActiveAccountHavePremiumPersonallyResult = true
         billingAPIService.getSubscriptionReturnValue = .fixture(status: status)
 
         await subject.refreshSubscriptionAttentionCard(subscription: nil)
@@ -571,7 +570,6 @@ struct BillingServiceTests { // swiftlint:disable:this type_body_length
     @Test
     func refreshSubscriptionAttentionCard_selfHosted() async {
         environmentService.region = .selfHosted
-        stateService.doesActiveAccountHavePremiumPersonallyResult = true
 
         await subject.refreshSubscriptionAttentionCard(subscription: nil)
 
@@ -584,7 +582,6 @@ struct BillingServiceTests { // swiftlint:disable:this type_body_length
     @Test
     func refreshSubscriptionAttentionCard_featureFlagDisabled() async {
         configService.featureFlagsBool[.premiumUpgradePath] = false
-        stateService.doesActiveAccountHavePremiumPersonallyResult = true
 
         await subject.refreshSubscriptionAttentionCard(subscription: nil)
 
@@ -593,24 +590,32 @@ struct BillingServiceTests { // swiftlint:disable:this type_body_length
     }
 
     /// `refreshSubscriptionAttentionCard(subscription:)` sets the cached visibility to `false`
-    /// and skips the API call when the user does not have premium personally.
+    /// and does not log an error when the user has no personal subscription (free user).
     @Test
-    func refreshSubscriptionAttentionCard_noPremiumPersonally() async {
-        stateService.doesActiveAccountHavePremiumPersonallyResult = false
+    func refreshSubscriptionAttentionCard_noSubscription() async {
+        billingAPIService.getSubscriptionThrowableError = GetSubscriptionRequestError.noSubscription
 
         await subject.refreshSubscriptionAttentionCard(subscription: nil)
 
         #expect(stateService.subscriptionAttentionCardVisibleResult == false)
-        #expect(!billingAPIService.getSubscriptionCalled)
+        #expect(errorReporter.errors.isEmpty)
     }
 
     /// `refreshSubscriptionAttentionCard(subscription:)` uses an already-fetched subscription
     /// instead of making a new API call when one is provided.
     @Test
     func refreshSubscriptionAttentionCard_usesProvidedSubscription() async {
-        stateService.doesActiveAccountHavePremiumPersonallyResult = true
-
         await subject.refreshSubscriptionAttentionCard(subscription: .fixture(status: .pastDue))
+
+        #expect(stateService.subscriptionAttentionCardVisibleResult == true)
+        #expect(!billingAPIService.getSubscriptionCalled)
+    }
+
+    /// `refreshSubscriptionAttentionCard(subscription:)` sets the cached visibility to `true`
+    /// when a subscription with `.unpaid` status is provided directly (Plan screen path).
+    @Test
+    func refreshSubscriptionAttentionCard_unpaid_providedSubscription() async {
+        await subject.refreshSubscriptionAttentionCard(subscription: .fixture(status: .unpaid))
 
         #expect(stateService.subscriptionAttentionCardVisibleResult == true)
         #expect(!billingAPIService.getSubscriptionCalled)
@@ -620,7 +625,6 @@ struct BillingServiceTests { // swiftlint:disable:this type_body_length
     /// the cache when the API call fails.
     @Test
     func refreshSubscriptionAttentionCard_apiError() async {
-        stateService.doesActiveAccountHavePremiumPersonallyResult = true
         billingAPIService.getSubscriptionThrowableError = URLError(.notConnectedToInternet)
 
         await subject.refreshSubscriptionAttentionCard(subscription: nil)
