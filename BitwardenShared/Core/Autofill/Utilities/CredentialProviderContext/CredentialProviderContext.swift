@@ -4,6 +4,9 @@ import AuthenticationServices
 public protocol CredentialProviderContext {
     /// The `AppRoute` depending on the `ExtensionMode`.
     var authCompletionRoute: AppRoute? { get }
+    /// The initial `AppRoute` to navigate to on app start, bypassing the standard auth/unlock flow.
+    /// `nil` means the standard `.didStart` flow runs (including vault unlock if needed).
+    var initialRoute: AppRoute? { get }
     /// Whether the provider is being configured.
     var configuring: Bool { get }
     /// The mode in which the autofill extension is running.
@@ -69,6 +72,15 @@ public struct DefaultCredentialProviderContext: CredentialProviderContext {
         case .savePasswordCredential:
             nil
         }
+    }
+
+    public var initialRoute: AppRoute? {
+        guard #available(iOS 26.2, iOSApplicationExtension 26.2, *),
+              case let .generatePasswordCredential(_, userInteraction) = extensionMode,
+              userInteraction else {
+            return nil
+        }
+        return .generatePasswordCredential
     }
 
     public var configuring: Bool {

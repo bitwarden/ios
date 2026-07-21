@@ -57,10 +57,6 @@ public protocol AuthClientService: AnyObject, Sendable { // sourcery: AutoMockab
     ///
     func validatePasswordUserKey(password: String, encryptedUserKey: String) async throws -> String
 
-    /// Validate the user PIN.
-    ///
-    func validatePin(pin: String, pinProtectedUserKey: EncString) async throws -> Bool
-
     /// Validates a PIN against a PIN-protected user key envelope.
     ///
     func validatePinProtectedUserKeyEnvelope(

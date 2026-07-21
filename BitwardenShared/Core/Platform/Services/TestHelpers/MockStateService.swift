@@ -21,6 +21,11 @@ class MockStateService: StateService, ActiveAccountStateProvider, AutofillStateS
     var accountsLoggedOut = [String]()
     var activeAccount: Account?
     var accounts: [Account]?
+    var addFillAssistDebugRuleCalled = false
+    var addFillAssistDebugRuleDomain: String?
+    var addFillAssistDebugRulePasswordId: String?
+    var addFillAssistDebugRuleResult: Result<Void, Error> = .success(())
+    var addFillAssistDebugRuleUsernameId: String?
     var addSitePromptShown = false
     var allowSyncOnRefresh = [String: Bool]()
     var allowUniversalClipboard = [String: Bool]()
@@ -38,6 +43,8 @@ class MockStateService: StateService, ActiveAccountStateProvider, AutofillStateS
     var capturedUserId: String?
     var clearClipboardValues = [String: ClearClipboardValue]()
     var clearClipboardResult: Result<Void, Error> = .success(())
+    var clearFillAssistCacheCalled = false
+    var clearFillAssistCacheResult: Result<Void, Error> = .success(())
     // swiftlint:disable:next identifier_name
     var clearMasterPasswordUnlockForActiveAccountCalled = false
     // swiftlint:disable:next identifier_name
@@ -51,6 +58,9 @@ class MockStateService: StateService, ActiveAccountStateProvider, AutofillStateS
     var didAccountSwitchInExtensionResult: Result<Bool, Error> = .success(false)
     var disableAutoTotpCopyByUserId = [String: Bool]()
     var doesActiveAccountHavePremiumCalled = false
+    var fillAssistEnabledByUserId = [String: Bool]()
+    var getFillAssistEnabledError: Error?
+    var setFillAssistEnabledError: Error?
     var doesActiveAccountHavePremiumResult: Bool = true
     var doesActiveAccountHavePremiumPersonallyCalled = false // swiftlint:disable:this identifier_name
     var doesActiveAccountHavePremiumPersonallyResult: Bool = true // swiftlint:disable:this identifier_name
@@ -138,6 +148,23 @@ class MockStateService: StateService, ActiveAccountStateProvider, AutofillStateS
     func addAccount(_ account: Account) async {
         accountsAdded.append(account)
         activeAccount = account
+    }
+
+    func addFillAssistDebugRule(
+        domain: String,
+        usernameFieldId: String,
+        passwordFieldId: String,
+    ) async throws {
+        addFillAssistDebugRuleCalled = true
+        addFillAssistDebugRuleDomain = domain
+        addFillAssistDebugRuleUsernameId = usernameFieldId
+        addFillAssistDebugRulePasswordId = passwordFieldId
+        try addFillAssistDebugRuleResult.get()
+    }
+
+    func clearFillAssistCache() async throws {
+        clearFillAssistCacheCalled = true
+        try clearFillAssistCacheResult.get()
     }
 
     func clearMasterPasswordUnlockForActiveAccount() async throws {
@@ -322,6 +349,14 @@ class MockStateService: StateService, ActiveAccountStateProvider, AutofillStateS
         try eventsResult.get()
         let userId = try unwrapUserId(userId)
         return events[userId] ?? []
+    }
+
+    func getFillAssistEnabled(userId: String?) async throws -> Bool {
+        if let getFillAssistEnabledError {
+            throw getFillAssistEnabledError
+        }
+        let userId = try unwrapUserId(userId)
+        return fillAssistEnabledByUserId[userId] ?? false
     }
 
     func getFlightRecorderData() async -> FlightRecorderData? {
@@ -664,6 +699,14 @@ class MockStateService: StateService, ActiveAccountStateProvider, AutofillStateS
     func setEvents(_ events: [EventData], userId: String?) async throws {
         let userId = try unwrapUserId(userId)
         self.events[userId] = events
+    }
+
+    func setFillAssistEnabled(_ fillAssistEnabled: Bool, userId: String?) async throws {
+        if let setFillAssistEnabledError {
+            throw setFillAssistEnabledError
+        }
+        let userId = try unwrapUserId(userId)
+        fillAssistEnabledByUserId[userId] = fillAssistEnabled
     }
 
     func setFlightRecorderData(_ data: FlightRecorderData?) async {

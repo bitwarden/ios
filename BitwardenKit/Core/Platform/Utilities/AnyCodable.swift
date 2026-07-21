@@ -3,8 +3,14 @@
 /// A custom codable type that can be used to encode/decode a variety of primitive types.
 ///
 public enum AnyCodable: Codable, Equatable, Sendable {
+    /// The wrapped value is an array of `AnyCodable` values.
+    case array([AnyCodable])
+
     /// The wrapped value is a bool value.
     case bool(Bool)
+
+    /// The wrapped value is a keyed dictionary of `AnyCodable` values.
+    case dictionary([String: AnyCodable])
 
     /// The wrapped value is a double value.
     case double(Double)
@@ -34,6 +40,10 @@ public enum AnyCodable: Codable, Equatable, Sendable {
             self = .null
         } else if let stringValue = try? container.decode(String.self) {
             self = .string(stringValue)
+        } else if let arrayValue = try? container.decode([AnyCodable].self) {
+            self = .array(arrayValue)
+        } else if let dictionaryValue = try? container.decode([String: AnyCodable].self) {
+            self = .dictionary(dictionaryValue)
         } else {
             throw DecodingError.dataCorruptedError(
                 in: container,
@@ -48,8 +58,12 @@ public enum AnyCodable: Codable, Equatable, Sendable {
         var container = encoder.singleValueContainer()
 
         switch self {
+        case let .array(arrayValue):
+            try container.encode(arrayValue)
         case let .bool(boolValue):
             try container.encode(boolValue)
+        case let .dictionary(dictionaryValue):
+            try container.encode(dictionaryValue)
         case let .double(doubleValue):
             try container.encode(doubleValue)
         case let .int(intValue):
@@ -63,15 +77,29 @@ public enum AnyCodable: Codable, Equatable, Sendable {
 }
 
 public extension AnyCodable {
+    /// Returns the associated array value if the type is `array`.
+    var arrayValue: [AnyCodable]? {
+        guard case let .array(arrayValue) = self else { return nil }
+        return arrayValue
+    }
+
     /// Returns the associated bool value if the type is `bool`.
     var boolValue: Bool? {
         guard case let .bool(boolValue) = self else { return nil }
         return boolValue
     }
 
+    /// Returns the associated dictionary value if the type is `dictionary`.
+    var dictionaryValue: [String: AnyCodable]? {
+        guard case let .dictionary(dictionaryValue) = self else { return nil }
+        return dictionaryValue
+    }
+
     /// Returns the associated double value if the type is `double` or could be converted to `Double`.
     var doubleValue: Double? {
         switch self {
+        case .array, .dictionary:
+            nil
         case let .bool(boolValue):
             boolValue ? 1 : 0
         case let .double(doubleValue):
@@ -88,6 +116,8 @@ public extension AnyCodable {
     /// Returns the associated int value if the type is `int` or could be converted to `Int`.
     var intValue: Int? {
         switch self {
+        case .array, .dictionary:
+            nil
         case let .bool(boolValue):
             boolValue ? 1 : 0
         case let .double(doubleValue):
