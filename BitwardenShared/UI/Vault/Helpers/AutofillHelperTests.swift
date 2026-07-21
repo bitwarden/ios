@@ -490,6 +490,8 @@ class AutofillHelperTests: BitwardenTestCase { // swiftlint:disable:this type_bo
     /// `handleCipherForAutofill` does not call `fillAssistRepository` when the feature flag is off.
     func test_handleCipherForAutofill_fillAssist_flagOff() async {
         configService.featureFlagsBool[.fillAssistTargetingRules] = false
+        appExtensionDelegate.canAutofill = false
+        stateService.fillAssistEnabledByUserId["1"] = true
         fillAssistRepository.rulesReturnValue = FillAssistHostRules(
             fields: ["username": [.init(id: "login-email", name: nil, role: nil, tagName: nil, type: nil)]],
         )
@@ -500,7 +502,9 @@ class AutofillHelperTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         await subject.handleCipherForAutofill(cipherListView: .fixture(id: "1")) { _ in }
 
         XCTAssertFalse(fillAssistRepository.rulesCalled)
+        XCTAssertNil(appExtensionDelegate.didCompleteAutofillRequestUsername)
         XCTAssertNil(appExtensionDelegate.didCompleteAutofillRequestFields)
+        XCTAssertFalse(coordinator.alertShown.isEmpty)
     }
 
     /// `handleCipherForAutofill` calls `completeAutofillRequest` with `nil` fields when no rules

@@ -151,9 +151,10 @@ class AutofillHelper {
                 return
             }
 
-            let fillAssistEnabled = await (try? services.stateService.getFillAssistEnabled()) == true
+            let fillAssistFlagEnabled: Bool = await services.configService.getFeatureFlag(.fillAssistTargetingRules)
+            let fillAssistSettingsEnabled = await (try? services.stateService.getFillAssistEnabled()) == true
             let canAutofill = appExtensionDelegate?.canAutofill ?? false
-            guard fillAssistEnabled || canAutofill,
+            guard (fillAssistFlagEnabled && fillAssistSettingsEnabled) || canAutofill,
                   let username = cipherView.login?.username, !username.isEmpty,
                   let password = cipherView.login?.password, !password.isEmpty else {
                 await handleMissingValueForAutofill(cipherView: cipherView, showToast: showToast)
