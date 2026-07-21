@@ -206,7 +206,7 @@ struct ViewItemDetailsView: View { // swiftlint:disable:this type_body_length
                 ForEachIndexed(store.state.cipherCollectionsToDisplay) { index, collection in
                     VStack(alignment: .leading, spacing: 0) {
                         belongingView(
-                            icon: SharedAsset.Icons.collections16,
+                            icon: SharedAsset.Icons.sharedFolder16,
                             name: collection.name,
                         )
                         .accessibilityLabel(Localizations.sharedFolderX(collection.name))
