@@ -17,7 +17,7 @@ struct EditCollectionsView: View {
 
     var body: some View {
         content
-            .navigationBar(title: Localizations.collections, titleDisplayMode: .inline)
+            .navigationBar(title: Localizations.sharedFolders, titleDisplayMode: .inline)
             .scrollView()
             .task { await store.perform(.fetchCipherOptions) }
             .toolbar {
@@ -36,7 +36,7 @@ struct EditCollectionsView: View {
     /// The content displayed in the view.
     @ViewBuilder private var content: some View {
         if store.state.collections.isEmpty {
-            Text(Localizations.noCollectionsToList)
+            Text(Localizations.thereAreNoSharedFoldersToList)
                 .styleGuide(.body)
                 .foregroundColor(SharedAsset.Colors.textPrimary.swiftUIColor)
                 .multilineTextAlignment(.center)

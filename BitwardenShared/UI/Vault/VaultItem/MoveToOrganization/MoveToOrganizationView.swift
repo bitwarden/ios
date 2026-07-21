@@ -38,7 +38,7 @@ struct MoveToOrganizationView: View {
 
     /// The section containing the collections for the organizations.
     private var collectionsSections: some View {
-        SectionView(Localizations.collections, contentSpacing: 8) {
+        SectionView(Localizations.sharedFolders, contentSpacing: 8) {
             ContentBlock {
                 ForEach(store.state.collectionsForOwner, id: \.id) { collection in
                     if let collectionId = collection.id {

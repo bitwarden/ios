@@ -256,8 +256,8 @@
 "ShowWebsiteIconsDescription" = "Show a recognizable image next to each login.";
 "IconsUrl" = "Icons server URL";
 "AutofillWithBitwarden" = "Autofill with Bitwarden";
-"Collections" = "Collections";
-"NoItemsCollection" = "There are no items in this collection";
+"SharedFolders" = "Shared folders";
+"ThereAreNoItemsInThisSharedFolder" = "There are no items in this shared folder";
 "NoItemsFolder" = "There are no items in this folder";
 "NoItemsTrash" = "There are no items in the trash.";
 "FaceID" = "Face ID";
@@ -312,9 +312,9 @@
 "NoItemsToList" = "There are no items to list.";
 "MoveDown" = "Move down";
 "MoveUp" = "Move Up";
-"NoCollectionsToList" = "There are no collections to list.";
+"ThereAreNoSharedFoldersToList" = "There are no shared folders to list.";
 "MovedItemToOrg" = "%1$@ moved to %2$@.";
-"SelectOneCollection" = "You must select at least one collection.";
+"YouMustSelectAtLeastOneSharedFolder" = "You must select at least one shared folder.";
 "Share" = "Share";
 "ShareAll" = "Share all";
 "MoveToOrganization" = "Move to Organization";
@@ -867,7 +867,7 @@
 "ShowLess" = "Show less";
 "ItemNameX" = "Item name, %1$@";
 "OwnerX" = "Owner, %1$@";
-"CollectionX" = "Collection, %1$@";
+"SharedFolderX" = "Shared folder, %1$@";
 "FolderX" = "Folder, %1$@";
 "ItemXOfY" = "Item %1$@ of %2$@";
 "ViewRecordedLogs" = "View recorded logs";

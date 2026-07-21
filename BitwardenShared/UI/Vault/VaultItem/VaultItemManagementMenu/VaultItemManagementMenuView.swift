@@ -53,7 +53,7 @@ struct VaultItemManagementMenuView: View {
             }
 
             if isCollectionsEnabled {
-                Button(Localizations.collections) {
+                Button(Localizations.sharedFolders) {
                     store.send(.editCollections)
                 }
             }
