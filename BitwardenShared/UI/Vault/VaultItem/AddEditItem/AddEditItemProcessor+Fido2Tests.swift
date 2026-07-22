@@ -255,6 +255,21 @@ class AddEditItemProcessorFido2Tests: BitwardenTestCase {
         XCTAssertEqual(coordinator.errorAlertsShown.last as? BitwardenTestError, .example)
         XCTAssertTrue(coordinator.routes.isEmpty)
     }
+
+    /// `receive(_:)` with `.dismissPressed` in the save-password-credential extension flow cancels
+    /// the extension instead of dismissing only the coordinator, which would leave a blank screen.
+    @MainActor
+    func test_receive_dismissPressed_savePasswordExtensionFlow_cancelsExtension() {
+        appExtensionDelegate.extensionMode = .savePasswordCredential(
+            MockSavePasswordRequestProxy(),
+            userInteraction: true,
+        )
+
+        subject.receive(.dismissPressed)
+
+        XCTAssertTrue(appExtensionDelegate.didCancelCalled)
+        XCTAssertTrue(coordinator.routes.isEmpty)
+    }
 }
 
 // MARK: - MockSavePasswordRequestProxy

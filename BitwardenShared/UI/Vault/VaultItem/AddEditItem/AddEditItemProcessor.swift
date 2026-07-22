@@ -355,6 +355,11 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
     ///
     private func handleDismiss(didAddItem: Bool = false) {
         guard let appExtensionDelegate, appExtensionDelegate.isInAppExtensionSaveLoginFlow else {
+            if let credentialProviderExtensionDelegate = appExtensionDelegate as? CredentialProviderExtensionDelegate,
+               credentialProviderExtensionDelegate.isSavingPasswordCredential {
+                credentialProviderExtensionDelegate.didCancel()
+                return
+            }
             let shouldDismiss = delegate?.itemAdded() ?? true
             if shouldDismiss {
                 coordinator.navigate(to: .dismiss())
