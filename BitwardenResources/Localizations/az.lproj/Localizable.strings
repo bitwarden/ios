@@ -1078,6 +1078,7 @@
 "Canceled" = "Ləğv edildi";
 "PastDue" = "Vaxtı keçmiş";
 "PendingCancellation" = "Ləğvi gözlənilir";
+"Unpaid" = "Ödənilməmiş";
 "UpdatePayment" = "Ödənişi güncəllə";
 "BillingAmount" = "Faktura məbləği";
 "StorageCost" = "Anbar xərci";
@@ -1092,6 +1093,7 @@
 /* Error message shown when the Premium Plan screen fails to load subscription data, with a prompt to retry. */
 "WeCouldntLoadYourSubscriptionDetailsPleaseRetry" = "Abunəlik məlumatlarınızı yükləyə bilmədik. Lütfən yenidən sınayın.";
 "YourSubscriptionWasCanceledOnXDescriptionLong" = "Abunəliyiniz **%1$@** tarixində ləğv ediləcək. Premium özəllikləri istifadə etməyə davam etmək üçün yenidən abunə olun.";
+"YourSubscriptionWasSuspendedOnXDescriptionLong" = "Abunəliyinizin fəaliyyəti **%1$@** tarixində dayandırılıb. Təkrar aktivləşdirmək üçün lütfən vaxtı keçmiş fakturaları ödəyin.";
 "YourSubscriptionExpiredOnXDescriptionLong" = "Abunəliyinizin müddəti **%1$@** tarixində bitir. Premium özəllikləri istifadə etməyə davam etmək üçün yenidən abunə olun.";
 "YourSubscriptionIsScheduledToCancelOnXDescriptionLong" = "Abunəliyiniz **%1$@** tarixində ləğv ediləcək. Abunəliyinizi bu tarixdən əvvəl təkrar aktivləşdirə bilərsiniz.";
 "PerMonth" = "/ ay";
@@ -1169,3 +1171,4 @@
 "LineOfCredit" = "Kredit xətti";
 "MoneyMarket" = "Pul bazarı";
 "Savings" = "YIğımlar";
+"PremiumRequiredTOTPDescriptionLong" = "Authenticator açarı (TOTP) Premium bir özəllikdir. Hazırkı planınızda bu özəlliyə erişim yoxdur.";

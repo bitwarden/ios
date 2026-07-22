@@ -1078,6 +1078,7 @@
 "Canceled" = "キャンセル済み";
 "PastDue" = "期限切れ";
 "PendingCancellation" = "キャンセル保留中";
+"Unpaid" = "未払い";
 "UpdatePayment" = "支払方法を更新";
 "BillingAmount" = "請求額";
 "StorageCost" = "ストレージコスト";
@@ -1092,6 +1093,7 @@
 /* Error message shown when the Premium Plan screen fails to load subscription data, with a prompt to retry. */
 "WeCouldntLoadYourSubscriptionDetailsPleaseRetry" = "サブスクリプション情報を読み込めませんでした。もう一度やり直してください。";
 "YourSubscriptionWasCanceledOnXDescriptionLong" = "**%1$@** でサブスクリプションがキャンセルされました。プレミアム機能を引き続き使用するには再加入してください。";
+"YourSubscriptionWasSuspendedOnXDescriptionLong" = "あなたのサブスクリプションは**%1$@**に一時停止されました。再度有効にするには、過去の未払いの請求を解決してください。";
 "YourSubscriptionExpiredOnXDescriptionLong" = "**%1$@** でサブスクリプションの有効期限が切れました。プレミアム機能を引き続き使用するには再加入してください。";
 "YourSubscriptionIsScheduledToCancelOnXDescriptionLong" = "あなたのサブスクリプションは **%1$@** でキャンセルされる予定です。その前にいつでも再開できます。";
 "PerMonth" = "/ 月";
@@ -1169,3 +1171,4 @@
 "LineOfCredit" = "限度額";
 "MoneyMarket" = "短期市場";
 "Savings" = "普通";
+"PremiumRequiredTOTPDescriptionLong" = "認証キー（TOTP）はプレミアム機能です。現在のプランにはこの機能へのアクセス権が含まれていません。";

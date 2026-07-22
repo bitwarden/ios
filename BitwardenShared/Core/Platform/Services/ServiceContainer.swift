@@ -923,6 +923,8 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
         let generatorRepository = DefaultGeneratorRepository(
             clientService: clientService,
             dataStore: dataStore,
+            errorReporter: errorReporter,
+            policyService: policyService,
             stateService: stateService,
         )
 

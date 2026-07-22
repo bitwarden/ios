@@ -1078,6 +1078,7 @@
 "Canceled" = "Gekündigt";
 "PastDue" = "Überfällig";
 "PendingCancellation" = "Ausstehende Kündigung";
+"Unpaid" = "Offen";
 "UpdatePayment" = "Zahlungsmethode aktualisieren";
 "BillingAmount" = "Rechnungsbetrag";
 "StorageCost" = "Speicherkosten";
@@ -1092,6 +1093,7 @@
 /* Error message shown when the Premium Plan screen fails to load subscription data, with a prompt to retry. */
 "WeCouldntLoadYourSubscriptionDetailsPleaseRetry" = "Wir konnten deine Abonnementdetails nicht laden. Bitte versuche es erneut.";
 "YourSubscriptionWasCanceledOnXDescriptionLong" = "Dein Abonnement wurde am **%1$@** gekündigt. Abonniere erneut, um die Premium-Funktionen weiterhin nutzen zu können.";
+"YourSubscriptionWasSuspendedOnXDescriptionLong" = "Your subscription was suspended on **%1$@**. To reactivate, please resolve your past due invoices.";
 "YourSubscriptionExpiredOnXDescriptionLong" = "Dein Abonnement ist am **%1$@** abgelaufen. Abonniere erneut, um die Premium-Funktionen weiterhin nutzen zu können.";
 "YourSubscriptionIsScheduledToCancelOnXDescriptionLong" = "Dein Abonnement wird am **%1$@** gekündigt. Du kannst es davor jederzeit wieder reaktivieren.";
 "PerMonth" = "/ Monat";
@@ -1169,3 +1171,4 @@
 "LineOfCredit" = "Kreditrahmen";
 "MoneyMarket" = "Finanzmarkt";
 "Savings" = "Ersparnisse";
+"PremiumRequiredTOTPDescriptionLong" = "Authentifizierungsschlüssel (TOTP) sind eine Premium-Funktion. Dein aktueller Tarif enthält keinen Zugriff auf diese Funktion.";

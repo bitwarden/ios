@@ -1078,6 +1078,7 @@
 "Canceled" = "Отказано";
 "PastDue" = "Просрочено";
 "PendingCancellation" = "Предстоящо прекратяване на абонамента";
+"Unpaid" = "Дължимо";
 "UpdatePayment" = "Актуализиране на плащанията";
 "BillingAmount" = "Сума за плащане";
 "StorageCost" = "Цена за съхранение";
@@ -1092,6 +1093,7 @@
 /* Error message shown when the Premium Plan screen fails to load subscription data, with a prompt to retry. */
 "WeCouldntLoadYourSubscriptionDetailsPleaseRetry" = "Зареждането на подробностите за абонамента на беше успешно. Опитайте отново.";
 "YourSubscriptionWasCanceledOnXDescriptionLong" = "Абонаментът беше прекратен на **%1$@**. Ако искате да продължите да ползвате предимствата на платения план, ще трябва да се абонирате отново.";
+"YourSubscriptionWasSuspendedOnXDescriptionLong" = "Вашият абонамент беше прекъснат на **%1$@**. За да го подновите, ще трябва да платите старите си задължения.";
 "YourSubscriptionExpiredOnXDescriptionLong" = "Абонаментът изтече на **%1$@**. Ако искате да продължите да ползвате предимствата на платения план, ще трябва да се абонирате отново.";
 "YourSubscriptionIsScheduledToCancelOnXDescriptionLong" = "Абонаментът Ви по план ще бъде преустановен на **%1$@**. Можете да го подновите по всяко време преди това.";
 "PerMonth" = "/ месец";
@@ -1169,3 +1171,4 @@
 "LineOfCredit" = "Кредитна";
 "MoneyMarket" = "Паричен пазар";
 "Savings" = "Спестовна";
+"PremiumRequiredTOTPDescriptionLong" = "Удостоверителният ключ (TOTP) е платена функционалност. Текущият Ви план не включва достъп до нея.";
