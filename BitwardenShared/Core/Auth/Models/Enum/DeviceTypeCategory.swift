@@ -112,7 +112,7 @@ extension DeviceType {
         guard !platform.isEmpty else {
             return category.displayName
         }
-        return Localizations.deviceDisplayName(category.displayName, platform)
+        return Localizations.deviceDisplayNameXHyphenY(category.displayName, platform)
     }
 
     /// A match key used to correlate this device type with a pending login request's

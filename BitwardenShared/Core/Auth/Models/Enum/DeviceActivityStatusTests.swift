@@ -40,46 +40,46 @@ struct DeviceActivityStatusTests {
         #expect(DeviceActivityStatus(from: date, timeProvider: timeProvider) == .today)
     }
 
-    /// `init(from:timeProvider:)` returns `.thisWeek` at the 1-day boundary.
+    /// `init(from:timeProvider:)` returns `.pastSevenDays` at the 1-day boundary.
     @Test
-    func init_thisWeek_lowerBound() throws {
+    func init_pastSevenDays_lowerBound() throws {
         let date = try #require(Calendar.current.date(byAdding: .day, value: -1, to: timeProvider.presentTime))
-        #expect(DeviceActivityStatus(from: date, timeProvider: timeProvider) == .thisWeek)
+        #expect(DeviceActivityStatus(from: date, timeProvider: timeProvider) == .pastSevenDays)
     }
 
-    /// `init(from:timeProvider:)` returns `.thisWeek` at the 6-day boundary.
+    /// `init(from:timeProvider:)` returns `.pastSevenDays` at the 6-day boundary.
     @Test
-    func init_thisWeek_upperBound() throws {
+    func init_pastSevenDays_upperBound() throws {
         let date = try #require(Calendar.current.date(byAdding: .day, value: -6, to: timeProvider.presentTime))
-        #expect(DeviceActivityStatus(from: date, timeProvider: timeProvider) == .thisWeek)
+        #expect(DeviceActivityStatus(from: date, timeProvider: timeProvider) == .pastSevenDays)
     }
 
-    /// `init(from:timeProvider:)` returns `.lastWeek` at the 7-day boundary.
+    /// `init(from:timeProvider:)` returns `.pastFourteenDays` at the 7-day boundary.
     @Test
-    func init_lastWeek_lowerBound() throws {
+    func init_pastFourteenDays_lowerBound() throws {
         let date = try #require(Calendar.current.date(byAdding: .day, value: -7, to: timeProvider.presentTime))
-        #expect(DeviceActivityStatus(from: date, timeProvider: timeProvider) == .lastWeek)
+        #expect(DeviceActivityStatus(from: date, timeProvider: timeProvider) == .pastFourteenDays)
     }
 
-    /// `init(from:timeProvider:)` returns `.lastWeek` at the 13-day boundary.
+    /// `init(from:timeProvider:)` returns `.pastFourteenDays` at the 13-day boundary.
     @Test
-    func init_lastWeek_upperBound() throws {
+    func init_pastFourteenDays_upperBound() throws {
         let date = try #require(Calendar.current.date(byAdding: .day, value: -13, to: timeProvider.presentTime))
-        #expect(DeviceActivityStatus(from: date, timeProvider: timeProvider) == .lastWeek)
+        #expect(DeviceActivityStatus(from: date, timeProvider: timeProvider) == .pastFourteenDays)
     }
 
-    /// `init(from:timeProvider:)` returns `.thisMonth` at the 14-day boundary.
+    /// `init(from:timeProvider:)` returns `.pastThirtyDays` at the 14-day boundary.
     @Test
-    func init_thisMonth_lowerBound() throws {
+    func init_pastThirtyDays_lowerBound() throws {
         let date = try #require(Calendar.current.date(byAdding: .day, value: -14, to: timeProvider.presentTime))
-        #expect(DeviceActivityStatus(from: date, timeProvider: timeProvider) == .thisMonth)
+        #expect(DeviceActivityStatus(from: date, timeProvider: timeProvider) == .pastThirtyDays)
     }
 
-    /// `init(from:timeProvider:)` returns `.thisMonth` at the 29-day boundary.
+    /// `init(from:timeProvider:)` returns `.pastThirtyDays` at the 29-day boundary.
     @Test
-    func init_thisMonth_upperBound() throws {
+    func init_pastThirtyDays_upperBound() throws {
         let date = try #require(Calendar.current.date(byAdding: .day, value: -29, to: timeProvider.presentTime))
-        #expect(DeviceActivityStatus(from: date, timeProvider: timeProvider) == .thisMonth)
+        #expect(DeviceActivityStatus(from: date, timeProvider: timeProvider) == .pastThirtyDays)
     }
 
     /// `init(from:timeProvider:)` returns `.overThirtyDaysAgo` at the 30-day boundary.
@@ -93,9 +93,9 @@ struct DeviceActivityStatusTests {
     @Test
     func localizedString() {
         #expect(DeviceActivityStatus.today.localizedString == Localizations.today)
-        #expect(DeviceActivityStatus.thisWeek.localizedString == Localizations.pastSevenDays)
-        #expect(DeviceActivityStatus.lastWeek.localizedString == Localizations.pastFourteenDays)
-        #expect(DeviceActivityStatus.thisMonth.localizedString == Localizations.pastThirtyDays)
+        #expect(DeviceActivityStatus.pastSevenDays.localizedString == Localizations.pastSevenDays)
+        #expect(DeviceActivityStatus.pastFourteenDays.localizedString == Localizations.pastFourteenDays)
+        #expect(DeviceActivityStatus.pastThirtyDays.localizedString == Localizations.pastThirtyDays)
         #expect(DeviceActivityStatus.overThirtyDaysAgo.localizedString == Localizations.overThirtyDaysAgo)
         #expect(DeviceActivityStatus.unknown.localizedString == Localizations.unknown)
     }

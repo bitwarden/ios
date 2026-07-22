@@ -7,17 +7,17 @@ import Foundation
 /// An enumeration representing the activity status of a device based on its last activity date.
 ///
 enum DeviceActivityStatus: Equatable, Sendable {
-    /// The device was active last week.
-    case lastWeek
-
     /// The device was active over 30 days ago.
     case overThirtyDaysAgo
 
-    /// The device was active 14 to 29 days ago (but not this or last week).
-    case thisMonth
+    /// The device was active 7 to 13 days ago.
+    case pastFourteenDays
 
-    /// The device was active this week (but not today).
-    case thisWeek
+    /// The device was active 1 to 6 days ago (but not today).
+    case pastSevenDays
+
+    /// The device was active 14 to 29 days ago.
+    case pastThirtyDays
 
     /// The device was active today.
     case today
@@ -30,14 +30,14 @@ enum DeviceActivityStatus: Equatable, Sendable {
     /// The localized display string for the activity status.
     var localizedString: String {
         switch self {
-        case .lastWeek:
-            Localizations.pastFourteenDays
         case .overThirtyDaysAgo:
             Localizations.overThirtyDaysAgo
-        case .thisMonth:
-            Localizations.pastThirtyDays
-        case .thisWeek:
+        case .pastFourteenDays:
+            Localizations.pastFourteenDays
+        case .pastSevenDays:
             Localizations.pastSevenDays
+        case .pastThirtyDays:
+            Localizations.pastThirtyDays
         case .today:
             Localizations.today
         case .unknown:
@@ -77,17 +77,15 @@ enum DeviceActivityStatus: Equatable, Sendable {
             return
         }
 
-        // Bucket boundaries mirror the Android app's day-count logic exactly, so both platforms
-        // show identical "last active" labels for the same date.
         switch daysDifference {
         case 0:
             self = .today
         case 1 ..< 7:
-            self = .thisWeek
+            self = .pastSevenDays
         case 7 ..< 14:
-            self = .lastWeek
+            self = .pastFourteenDays
         case 14 ..< 30:
-            self = .thisMonth
+            self = .pastThirtyDays
         default:
             self = .overThirtyDaysAgo
         }
