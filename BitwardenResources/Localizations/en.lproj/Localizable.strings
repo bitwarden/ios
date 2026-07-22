@@ -138,7 +138,7 @@
 "UnlockWithOpticID" = "Unlock with Optic ID";
 "UnlockWithPIN" = "Unlock with PIN code";
 "VerificationCode" = "Verification code";
-"WebVault" = "Bitwarden web vault";
+"BitwardenWebVault" = "Bitwarden web vault";
 "Items" = "Items";
 "ExtensionActivated" = "Extension activated!";
 "ItemsForUri" = "Items for %1$@";
@@ -1179,7 +1179,7 @@
 "DeviceDisplayNameXHyphenY" = "%1$@ - %2$@";
 "Mobile" = "Mobile";
 "BrowserExtension" = "Browser extension";
-"WebVaultDeviceType" = "Web vault";
+"WebVault" = "Web vault";
 "Desktop" = "Desktop";
 "Cli" = "CLI";
 "Sdk" = "SDK";

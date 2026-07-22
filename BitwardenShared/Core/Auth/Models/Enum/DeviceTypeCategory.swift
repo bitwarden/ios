@@ -33,7 +33,7 @@ enum DeviceTypeCategory: Sendable {
         case .unknown:
             Localizations.unknown
         case .webApp:
-            Localizations.webVaultDeviceType
+            Localizations.webVault
         }
     }
 }
