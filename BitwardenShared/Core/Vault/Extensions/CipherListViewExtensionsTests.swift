@@ -20,7 +20,7 @@ class CipherListViewExtensionsTests: BitwardenTestCase { // swiftlint:disable:th
     /// `belongsToGroup(_:)` returns `true` when the cipher is a bank account type and the group is
     /// `.bankAccount`.
     func test_belongsToGroup_bankAccount() {
-        let cipher = CipherListView.fixture(type: .bankAccount)
+        let cipher = CipherListView.fixture(type: .bankAccount(.init(accountNumber: nil, accountType: nil)))
         XCTAssertTrue(cipher.belongsToGroup(.bankAccount))
         XCTAssertFalse(cipher.belongsToGroup(.identity))
         XCTAssertFalse(cipher.belongsToGroup(.login))

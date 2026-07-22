@@ -362,7 +362,10 @@ class BitwardenSdkVaultCipherTypeTests: BitwardenTestCase {
         XCTAssertEqual(CipherType(CipherListViewType.identity), .identity)
         XCTAssertEqual(CipherType(CipherListViewType.secureNote), .secureNote)
         XCTAssertEqual(CipherType(CipherListViewType.sshKey), .sshKey)
-        XCTAssertEqual(CipherType(CipherListViewType.bankAccount), .bankAccount)
+        XCTAssertEqual(
+            CipherType(CipherListViewType.bankAccount(.init(accountNumber: nil, accountType: nil))),
+            .bankAccount,
+        )
         XCTAssertEqual(CipherType(CipherListViewType.driversLicense), .driversLicense)
         XCTAssertEqual(CipherType(CipherListViewType.passport), .passport)
     }
