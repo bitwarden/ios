@@ -21,6 +21,19 @@ struct FormsMapResponseModel: Equatable, JSONResponse {
     /// The schema version of the map.
     let schemaVersion: String
 
+    // MARK: Initialization
+
+    /// Creates a `FormsMapResponseModel`.
+    ///
+    /// - Parameters:
+    ///   - hosts: The host entries keyed by hostname.
+    ///   - schemaVersion: The schema version of the map.
+    ///
+    init(hosts: [String: FormsMapHostEntry], schemaVersion: String) {
+        self.hosts = hosts
+        self.schemaVersion = schemaVersion
+    }
+
     // MARK: Codable
 
     init(from decoder: any Decoder) throws {
@@ -43,6 +56,24 @@ struct FormsMapHostEntry: Codable, Equatable {
 
     /// Pathname-specific form descriptions. Null-valued entries are excluded during decoding.
     @CompactDecodable var pathnames: [String: FormsMapPathnameEntry]?
+
+    /// All form descriptions for this host, pooling top-level and pathname-specific entries.
+    var allForms: [FormsMapContent] {
+        (forms ?? []) + (pathnames?.values.flatMap(\.forms) ?? [])
+    }
+
+    // MARK: Initialization
+
+    /// Creates a `FormsMapHostEntry`.
+    ///
+    /// - Parameters:
+    ///   - forms: Site-wide fallback form descriptions.
+    ///   - pathnames: Pathname-specific form descriptions. Defaults to `nil`.
+    ///
+    init(forms: [FormsMapContent]?, pathnames: [String: FormsMapPathnameEntry]? = nil) {
+        self.forms = forms
+        _pathnames = CompactDecodable(wrappedValue: pathnames)
+    }
 }
 
 // MARK: - FormsMapPathnameEntry
@@ -83,6 +114,18 @@ enum FormsMapSelector: Codable, Equatable {
 
     /// An ordered sequence of CSS selectors composing a single field value.
     case sequence([String])
+
+    // MARK: Computed Properties
+
+    /// The `FillAssistFieldAttributes` derived from this selector, empty if the selector is unsupported.
+    var attributes: [FillAssistFieldAttributes] {
+        switch self {
+        case let .single(css):
+            FillAssistSelectorParser.parse(css).map { [$0] } ?? []
+        case let .sequence(parts):
+            parts.compactMap { FillAssistSelectorParser.parse($0) }
+        }
+    }
 
     // MARK: Codable
 

@@ -193,6 +193,12 @@ protocol AppSettingsStore: AnyObject {
     ///
     func fillAssistCachedData(userId: String) -> FillAssistCachedData?
 
+    /// Gets whether the Fill Assist feature is enabled for the user ID.
+    ///
+    /// - Parameter userId: The user ID associated with the Fill Assist enabled value.
+    ///
+    func fillAssistEnabled(userId: String) -> Bool
+
     /// Gets the timestamp of the last successful fill-assist manifest check for the user ID.
     ///
     /// - Parameter userId: The user ID associated with the timestamp.
@@ -460,6 +466,14 @@ protocol AppSettingsStore: AnyObject {
     ///   - userId: The user ID associated with the cached data.
     ///
     func setFillAssistCachedData(_ data: FillAssistCachedData?, userId: String)
+
+    /// Sets whether the Fill Assist feature is enabled for the user ID.
+    ///
+    /// - Parameters:
+    ///   - fillAssistEnabled: The value to set, or `nil` to clear.
+    ///   - userId: The user ID associated with the Fill Assist enabled value.
+    ///
+    func setFillAssistEnabled(_ fillAssistEnabled: Bool?, userId: String)
 
     /// Sets the timestamp of the last successful fill-assist manifest check for the user ID.
     ///
@@ -839,6 +853,7 @@ extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore {
         case encryptedUserKey(userId: String)
         case events(userId: String)
         case fillAssistCachedData(userId: String)
+        case fillAssistEnabled(userId: String)
         case fillAssistLastFetchTimestamp(userId: String)
         case flightRecorderData
         case hasPerformedSyncAfterLogin(userId: String)
@@ -930,6 +945,8 @@ extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore {
                 "events_\(userId)"
             case let .fillAssistCachedData(userId):
                 "fillAssistCachedData_\(userId)"
+            case let .fillAssistEnabled(userId):
+                "fillAssistEnabled_\(userId)"
             case let .fillAssistLastFetchTimestamp(userId):
                 "fillAssistLastFetchTimestamp_\(userId)"
             case .flightRecorderData:
@@ -1187,6 +1204,10 @@ extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore {
         fetch(for: .fillAssistCachedData(userId: userId))
     }
 
+    func fillAssistEnabled(userId: String) -> Bool {
+        fetch(for: .fillAssistEnabled(userId: userId))
+    }
+
     func fillAssistLastFetchTimestamp(userId: String) -> Date? {
         fetch(for: .fillAssistLastFetchTimestamp(userId: userId))
     }
@@ -1331,6 +1352,10 @@ extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore {
 
     func setFillAssistCachedData(_ data: FillAssistCachedData?, userId: String) {
         store(data, for: .fillAssistCachedData(userId: userId))
+    }
+
+    func setFillAssistEnabled(_ fillAssistEnabled: Bool?, userId: String) {
+        store(fillAssistEnabled, for: .fillAssistEnabled(userId: userId))
     }
 
     func setFillAssistLastFetchTimestamp(_ timestamp: Date?, userId: String) {

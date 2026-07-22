@@ -789,6 +789,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
             .fixture(enabled: false, id: "3", name: "Org Disabled"),
             .fixture(id: "4", name: "Org Invited", status: .invited),
             .fixture(id: "5", name: "Org Accepted", status: .accepted),
+            .fixture(id: "6", name: "Org Staged", status: .staged),
         ])
 
         let ownershipOptions = try await subject.fetchCipherOwnershipOptions(includePersonal: true)
@@ -813,6 +814,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
             .fixture(enabled: false, id: "3", name: "Org Disabled"),
             .fixture(id: "4", name: "Org Invited", status: .invited),
             .fixture(id: "5", name: "Org Accepted", status: .accepted),
+            .fixture(id: "6", name: "Org Staged", status: .staged),
         ])
 
         let ownershipOptions = try await subject.fetchCipherOwnershipOptions(includePersonal: false)

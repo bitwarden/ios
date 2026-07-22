@@ -18,6 +18,7 @@ class SyncServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
     var clientService: MockClientService!
     var collectionService: MockCollectionService!
     var configService: MockConfigService!
+    var fillAssistRepository: MockFillAssistRepository!
     var flightRecorder: MockFlightRecorder!
     var folderService: MockFolderService!
     var keyConnectorService: MockKeyConnectorService!
@@ -34,7 +35,7 @@ class SyncServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
 
     // MARK: Setup & Teardown
 
-    override func setUp() {
+    override func setUp() { // swiftlint:disable:this function_body_length
         super.setUp()
 
         appContextHelper = MockAppContextHelper()
@@ -43,6 +44,7 @@ class SyncServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
         clientService = MockClientService()
         collectionService = MockCollectionService()
         configService = MockConfigService()
+        fillAssistRepository = MockFillAssistRepository()
         flightRecorder = MockFlightRecorder()
         folderService = MockFolderService()
         keyConnectorService = MockKeyConnectorService()
@@ -73,6 +75,7 @@ class SyncServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
             clientService: clientService,
             collectionService: collectionService,
             configService: configService,
+            fillAssistRepository: fillAssistRepository,
             flightRecorder: flightRecorder,
             folderService: folderService,
             keyConnectorService: keyConnectorService,
@@ -98,6 +101,7 @@ class SyncServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
         clientService = nil
         collectionService = nil
         configService = nil
+        fillAssistRepository = nil
         flightRecorder = nil
         folderService = nil
         keyConnectorService = nil
@@ -365,6 +369,31 @@ class SyncServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
             XCTUnwrap(stateService.lastSyncTimeByUserId["1"]),
             timeProvider.presentTime,
         )
+    }
+
+    /// `fetchSync()` calls `syncRules()` on the fill-assist repository independently of vault sync.
+    func test_fetchSync_syncsFillAssistRules() async throws {
+        client.result = .httpSuccess(testData: .syncWithCiphers)
+        stateService.activeAccount = .fixture()
+
+        try await subject.fetchSync(forceSync: false)
+
+        XCTAssertTrue(fillAssistRepository.syncRulesCalled)
+    }
+
+    /// `fetchSync()` calls `syncRules()` even when the vault does not need syncing.
+    func test_fetchSync_syncsFillAssistRules_evenWhenVaultSyncSkipped() async throws {
+        client.result = .httpSuccess(testData: .syncWithCipher)
+        stateService.activeAccount = .fixture()
+        stateService.lastSyncTimeByUserId["1"] = try XCTUnwrap(
+            timeProvider.presentTime.addingTimeInterval(-(Constants.minimumSyncInterval - 1)),
+        )
+        keyConnectorService.userNeedsMigrationResult = .success(false)
+
+        try await subject.fetchSync(forceSync: false, isPeriodic: true)
+
+        XCTAssertTrue(client.requests.isEmpty)
+        XCTAssertTrue(fillAssistRepository.syncRulesCalled)
     }
 
     /// `fetchSync()` with `forceSync: true` performs the sync API request regardless of the

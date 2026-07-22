@@ -572,6 +572,8 @@
 "RequestAdminApproval" = "Request admin approval";
 "ApproveWithMasterPassword" = "Approve with master password";
 "TurnOffUsingPublicDevice" = "Turn off using a public device";
+"TurnOnFillAssist" = "Turn on fill assist";
+"TurnOnFillAssistDescriptionLong" = "Fill Assist improves autofill accuracy on supported sites by using site-specific rules.";
 "RememberThisDevice" = "Remember this device";
 "Passkey" = "Passkey";
 "Passkeys" = "Passkeys";
@@ -1079,6 +1081,7 @@
 "Canceled" = "Canceled";
 "PastDue" = "Past due";
 "PendingCancellation" = "Pending cancellation";
+"Unpaid" = "Unpaid";
 "UpdatePayment" = "Update payment";
 "BillingAmount" = "Billing amount";
 "StorageCost" = "Storage cost";
@@ -1093,15 +1096,41 @@
 /* Error message shown when the Premium Plan screen fails to load subscription data, with a prompt to retry. */
 "WeCouldntLoadYourSubscriptionDetailsPleaseRetry" = "We couldn't load your subscription details. Please try again.";
 "YourSubscriptionWasCanceledOnXDescriptionLong" = "Your subscription was canceled on **%1$@**. Resubscribe to continue using Premium features.";
+"YourSubscriptionWasSuspendedOnXDescriptionLong" = "Your subscription was suspended on **%1$@**. To reactivate, please resolve your past due invoices.";
 "YourSubscriptionExpiredOnXDescriptionLong" = "Your subscription expired on **%1$@**. Resubscribe to continue using Premium features.";
 "YourSubscriptionIsScheduledToCancelOnXDescriptionLong" = "Your subscription is scheduled to cancel on **%1$@**. You can reinstate it anytime before then.";
 "PerMonth" = "/ month";
+/* VoiceOver reading of "PerMonth", spoken instead of shown. */
+"PerMonthVoiceOver" = "per month";
 "PerYear" = "/ year";
+/* VoiceOver reading of "PerYear", spoken instead of shown. */
+"PerYearVoiceOver" = "per year";
 "XAmountPerCadence" = "%1$@ %2$@";
+/* %1$@ is an amount and cadence together, e.g. "$1.65 / month". */
+"XCancelAnytime" = "%1$@ · Cancel anytime";
+/* VoiceOver reading of "XCancelAnytime", spoken instead of shown. */
+"XCancelAnytimeVoiceOver" = "%1$@, Cancel anytime";
 "NegativeX" = "-%1$@";
 "UnknownStatus" = "Unknown";
 "YourSubscriptionStatusIsUnknownVisitTheWebAppDescriptionLong" = "Your subscription status could not be determined. Please visit the web app for more details or update to the latest version.";
-"UnlockMoreAdvancedFeaturesWithPremiumPlan" = "Unlock more advanced features with a Premium plan.";
+/* Headline on the Premium upgrade screen. */
+"UnlockAdvancedProtection" = "Unlock advanced protection";
+/* Premium benefit list item. */
+"BreezeThrough2faWithBuiltInCodes" = "Breeze through 2FA with built-in codes";
+/* Premium benefit list item. */
+"RunReportsToFindRiskyPasswords" = "Run reports to find risky passwords";
+/* Premium benefit list item. */
+"KeepDocumentsSafeAndEncrypted" = "Keep documents safe and encrypted";
+/* Premium benefit list item. */
+"AddATrustedEmergencyContact" = "Add a trusted emergency contact";
+/* Premium benefit list item. */
+"IdentifyUnsecureWebsites" = "Identify unsecure websites";
+/* Premium benefit list item. */
+"FlagAccountsWithInactive2fa" = "Flag accounts with inactive 2FA";
+/* Premium benefit list item; "Send" is the Bitwarden Send feature name and shouldn't be translated. */
+"ShareFilesSecurelyWithAnyoneUsingSend" = "Share files securely with anyone using Send";
+/* Premium benefit list item. */
+"Receive247PrioritySupport" = "Receive 24/7 priority support";
 "BuiltInAuthenticator" = "Built-in authenticator";
 "EmergencyAccess" = "Emergency access";
 "PaymentNotReceivedYet" = "Payment not received yet";
@@ -1110,7 +1139,6 @@
 "WeHadTroubleOpeningThePaymentPageDescriptionLong" = "We had trouble opening the payment page, so try again.";
 "SecureFileStorage" = "Secure file storage";
 "BreachMonitoring" = "Breach monitoring";
-"UpgradeNow" = "Upgrade now";
 "ConfirmingYourUpgrade" = "Confirming your upgrade…";
 "OpeningCheckout" = "Opening checkout…";
 "UpgradePending" = "Upgrade pending";
@@ -1121,7 +1149,8 @@
 "ViewPlan" = "View plan";
 "YouNowHaveAccessToAdvancedSecurityDescriptionLong" = "You now have access to advanced security features. Learn more about what's included with Premium.";
 "YouNowHaveAccessToAllAdvancedSecurityFeatures" = "You now have access to all advanced security features.";
-"YoullGoToStripeSecureCheckoutToCompleteYourPurchase" = "You´ll go to Stripe´s secure checkout to complete your purchase.";
+/* Footer on the Premium upgrade screen; "Stripe" is the payment processor's name and shouldn't be translated. */
+"YoullCompleteThePurchaseWithStripeSecureCheckout" = "You'll complete the purchase with Stripe secure checkout.";
 "ContinueToStripe" = "Continue to Stripe?";
 "YoullBeTakenToStripeToManageYourSubscriptionCancellation" = "You'll be taken to Stripe to manage your subscription cancellation.";
 "UserIDCopiedToTheClipboard" = "User ID copied to the clipboard";
@@ -1170,3 +1199,4 @@
 "LineOfCredit" = "Line of credit";
 "MoneyMarket" = "Money market";
 "Savings" = "Savings";
+"PremiumRequiredTOTPDescriptionLong" = "Authenticator key (TOTP) is a Premium feature. Your current plan does not include access to this feature.";

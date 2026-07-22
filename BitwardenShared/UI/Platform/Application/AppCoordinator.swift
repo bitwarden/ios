@@ -16,6 +16,7 @@ class AppCoordinator: Coordinator, HasRootNavigator { // swiftlint:disable:this 
         & DebugMenuModule
         & ExtensionSetupModule
         & FileSelectionModule
+        & GeneratorModule
         & GlobalModalModule
         & LoginRequestModule
         & NavigatorBuilderModule
@@ -37,6 +38,9 @@ class AppCoordinator: Coordinator, HasRootNavigator { // swiftlint:disable:this 
 
     /// The coordinator currently being displayed.
     private var childCoordinator: AnyObject?
+
+    /// Retains the generate-password extension delegate for the lifetime of the generator flow.
+    private var generatePasswordExtensionDelegate: AnyObject?
 
     /// Whether the debug menu is currently being shown.
     private(set) var isShowingDebugMenu = false
@@ -123,6 +127,10 @@ class AppCoordinator: Coordinator, HasRootNavigator { // swiftlint:disable:this 
             showDebugMenu()
         case let .extensionSetup(extensionSetupRoute):
             showExtensionSetup(route: extensionSetupRoute)
+        case .generatePasswordCredential:
+            if #available(iOS 26.2, iOSApplicationExtension 26.2, *) {
+                showGeneratePasswordCredential()
+            }
         case let .loginRequest(loginRequest):
             showLoginRequest(loginRequest)
         case let .migrateToMyItems(organizationId):
@@ -211,6 +219,30 @@ class AppCoordinator: Coordinator, HasRootNavigator { // swiftlint:disable:this 
             childCoordinator = coordinator
             rootNavigator?.show(child: stackNavigator)
         }
+    }
+
+    /// Shows the generate password credential screen in the autofill extension.
+    ///
+    @available(iOS 26.2, iOSApplicationExtension 26.2, *)
+    private func showGeneratePasswordCredential() {
+        guard let extensionDelegate = appExtensionDelegate as? CredentialProviderExtensionDelegate else {
+            return
+        }
+
+        let delegate = GeneratePasswordExtensionDelegate(extensionDelegate: extensionDelegate)
+        generatePasswordExtensionDelegate = delegate
+        let stackNavigator = module.makeNavigationController()
+        let coordinator = module.makeGeneratorCoordinator(
+            delegate: delegate,
+            stackNavigator: stackNavigator,
+        ).asAnyCoordinator()
+        coordinator.start()
+        coordinator.navigate(to: .generator(
+            staticType: .password,
+            passwordRules: extensionDelegate.extensionMode.generatePasswordRules,
+            savePasswordHistory: false,
+        ))
+        rootNavigator?.show(child: stackNavigator)
     }
 
     /// Shows the send item route (not in a tab). This is used within the app extensions.

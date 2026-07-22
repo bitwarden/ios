@@ -778,6 +778,8 @@
 "SetUpAutofillOnAllYourDevicesToLoginWithASingleTapAnywhere" = "Configure o preenchimento automático em todos os seus dispositivos para iniciar sessão com um simples toque em qualquer lugar.";
 "GoBack" = "Voltar atrás";
 "GotIt" = "Percebido";
+/* masterPasswordUnlock is the name of some data we want to delete, so there's no need to localize it. */
+"ClearMasterPasswordUnlock" = "Limpar masterPasswordUnlock";
 "ClearSsoCookies" = "Limpar cookies de SSO";
 "GenerateCrash" = "Falha na geração";
 "GenerateErrorReport" = "Gerar relatório de erros";
@@ -1061,6 +1063,8 @@
 "ReplaceCertificate" = "Substituir o certificado";
 "ReplaceExistingCertificate" = "Substituir certificado existente";
 "UnableToReadCertificateFile" = "Não foi possível ler o ficheiro do certificado.";
+/* masterPasswordUnlock is the name of some data we want to delete, so there's no need to localize it. */
+"MasterPasswordUnlockCleared" = "masterPasswordUnlock limpo.";
 "SsoCookiesCleared" = "Cookies de SSO limpos";
 "YourRequestWasInterruptedBecauseTheAppNeededToReAuthenticatePleaseTryAgain" = "O seu pedido foi interrompido porque a app precisou de voltar a autenticar. Por favor, tente novamente.";
 "AutofillWithBitwardenDescriptionLong" = "O Bitwarden pode sugerir as suas palavras-passe e outras credenciais quando inicia sessão em apps e sites.";
@@ -1074,6 +1078,7 @@
 "Canceled" = "Cancelado";
 "PastDue" = "Caducado";
 "PendingCancellation" = "Cancelamento pendente";
+"Unpaid" = "Por pagar";
 "UpdatePayment" = "Atualizar pagamento";
 "BillingAmount" = "Montante de faturação";
 "StorageCost" = "Custo de armazenamento";
@@ -1085,7 +1090,10 @@
 "ExternalLink" = "Link externo";
 "YourNextChargeIsForXDueOnY" = "O seu próximo pagamento será de **%1$@**, com vencimento em **%2$@**.";
 "WeCouldNotProcessYourPaymentUpdateYourPaymentMethodDescriptionLong" = "Não foi possível processar o seu pagamento. Atualize o seu método de pagamento antes de a sua subscrição terminar em **%1$@**.";
+/* Error message shown when the Premium Plan screen fails to load subscription data, with a prompt to retry. */
+"WeCouldntLoadYourSubscriptionDetailsPleaseRetry" = "Não foi possível carregar os detalhes da sua subscrição. Por favor, tente novamente.";
 "YourSubscriptionWasCanceledOnXDescriptionLong" = "A sua subscrição foi cancelada a **%1$@**. Volte a subscrever para continuar a utilizar funcionalidades Premium.";
+"YourSubscriptionWasSuspendedOnXDescriptionLong" = "Your subscription was suspended on **%1$@**. To reactivate, please resolve your past due invoices.";
 "YourSubscriptionExpiredOnXDescriptionLong" = "A sua subscrição expirou a **%1$@**. Volte a subscrever para continuar a utilizar funcionalidades Premium.";
 "YourSubscriptionIsScheduledToCancelOnXDescriptionLong" = "A sua subscrição está agendada para ser cancelada em **%1$@**. Pode reativá-la a qualquer momento até essa data.";
 "PerMonth" = "/ mês";
@@ -1094,7 +1102,6 @@
 "NegativeX" = "-%1$@";
 "UnknownStatus" = "Desconhecido";
 "YourSubscriptionStatusIsUnknownVisitTheWebAppDescriptionLong" = "Não foi possível determinar o estado da sua subscrição. Por favor, visite a aplicação web para mais detalhes ou atualize para a versão mais recente.";
-"AtTheMomentPremiumPlanIsNotAvailableDescriptionLong" = "De momento, o plano Premium não está disponível. Por favor, tente novamente mais tarde.";
 "UnlockMoreAdvancedFeaturesWithPremiumPlan" = "Desbloqueie funcionalidades mais avançadas com um plano Premium.";
 "BuiltInAuthenticator" = "Autenticador incorporado";
 "EmergencyAccess" = "Acesso de emergência";
@@ -1110,6 +1117,9 @@
 "UpgradePending" = "Atualização pendente";
 "YourUpgradeIsBeingProcessedDescriptionLong" = "A sua atualização está a ser processada. Permanecerá no plano gratuito até estar concluída. Sincronize agora para verificar ou continue e será atualizada automaticamente.";
 "UpgradedToPremium" = "Atualizado para o Premium";
+"SubscriptionNeedsAttention" = "A sua subscrição requer atenção";
+"CheckYourPlanForDetails" = "Consulte o seu plano para mais detalhes.";
+"ViewPlan" = "Ver plano";
 "YouNowHaveAccessToAdvancedSecurityDescriptionLong" = "Agora tem acesso a funcionalidades avançadas de segurança. Saiba mais sobre o que está incluído no Premium.";
 "YouNowHaveAccessToAllAdvancedSecurityFeatures" = "Agora tem acesso a todas as funcionalidades avançadas de segurança.";
 "YoullGoToStripeSecureCheckoutToCompleteYourPurchase" = "Será encaminhado para o checkout seguro da Stripe para concluir a sua compra.";
@@ -1161,3 +1171,4 @@
 "LineOfCredit" = "Linha de crédito";
 "MoneyMarket" = "Mercado monetário";
 "Savings" = "Poupança";
+"PremiumRequiredTOTPDescriptionLong" = "A chave de autenticação (TOTP) é uma funcionalidade Premium. O seu plano atual não inclui acesso a esta funcionalidade.";
