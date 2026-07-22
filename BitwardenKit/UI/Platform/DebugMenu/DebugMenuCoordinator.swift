@@ -59,10 +59,14 @@ public final class DebugMenuCoordinator: Coordinator, HasStackNavigator {
         context: AnyObject?,
     ) {
         switch route {
+        case .addFillAssistRule:
+            showAddFillAssistRule()
         case .dismiss:
             stackNavigator?.dismiss {
                 self.delegate?.didDismissDebugMenu()
             }
+        case .dismissAddFillAssistRule:
+            stackNavigator?.dismiss()
         }
     }
 
@@ -72,6 +76,16 @@ public final class DebugMenuCoordinator: Coordinator, HasStackNavigator {
     }
 
     // MARK: Private Methods
+
+    /// Shows the screen for adding a Fill Assist debug rule.
+    private func showAddFillAssistRule() {
+        let processor = AddFillAssistRuleProcessor(
+            coordinator: asAnyCoordinator(),
+            services: services,
+            state: AddFillAssistRuleState(),
+        )
+        stackNavigator?.present(AddFillAssistRuleView(store: Store(processor: processor)))
+    }
 
     /// Configures and displays the debug menu.
     private func showDebugMenu() {

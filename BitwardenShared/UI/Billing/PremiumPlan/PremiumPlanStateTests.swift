@@ -6,6 +6,8 @@ import Testing
 @testable import BitwardenShared
 @testable import BitwardenSharedMocks
 
+// swiftlint:disable file_length
+
 // MARK: - PremiumPlanStateTests
 
 struct PremiumPlanStateTests { // swiftlint:disable:this type_body_length
@@ -32,6 +34,25 @@ struct PremiumPlanStateTests { // swiftlint:disable:this type_body_length
         #expect(state.billingAmount.isEmpty)
     }
 
+    // MARK: Tests - billingAmountAccessibilityLabel
+
+    /// `billingAmountAccessibilityLabel` returns the formatted seat cost with a VoiceOver-friendly
+    /// cadence label instead of the raw "/" character.
+    @Test
+    func billingAmountAccessibilityLabel() {
+        var state = PremiumPlanState()
+        state.loadingState = .data(.fixture(seatsCost: 19.8))
+        #expect(state.billingAmountAccessibilityLabel.contains("$19.80"))
+        #expect(state.billingAmountAccessibilityLabel.contains(Localizations.perYearVoiceOver))
+    }
+
+    /// `billingAmountAccessibilityLabel` returns empty when subscription is nil.
+    @Test
+    func billingAmountAccessibilityLabel_nil() {
+        let state = PremiumPlanState()
+        #expect(state.billingAmountAccessibilityLabel.isEmpty)
+    }
+
     // MARK: Tests - descriptionAccessibilityLabel
 
     /// `descriptionAccessibilityLabel` returns a screen-reader-friendly description for the active plan status.
@@ -50,7 +71,9 @@ struct PremiumPlanStateTests { // swiftlint:disable:this type_body_length
     }
 
     /// `descriptionAccessibilityLabel` returns `descriptionText` with markdown stripped for non-active plan statuses.
-    @Test(arguments: [PremiumPlanStatus.canceled, .expired, .pastDue, .pendingCancellation, .unknown, .updatePayment])
+    @Test(arguments: [
+        PremiumPlanStatus.canceled, .expired, .pastDue, .pendingCancellation, .unknown, .unpaid, .updatePayment,
+    ])
     func descriptionAccessibilityLabel_nonActive(planStatus: PremiumPlanStatus) {
         var state = PremiumPlanState()
         state.planStatus = planStatus
@@ -127,6 +150,16 @@ struct PremiumPlanStateTests { // swiftlint:disable:this type_body_length
                 state.loadingState.data?.gracePeriod ?? 0,
                 state.subscriptionEndDate,
             ))
+    }
+
+    /// `descriptionText` returns the correct text for the unpaid plan status.
+    @Test
+    func descriptionText_unpaid() {
+        var state = PremiumPlanState()
+        state.planStatus = .unpaid
+        state.loadingState = .data(.fixture(status: .unpaid, suspension: testDate))
+        #expect(state.descriptionText == Localizations
+            .yourSubscriptionWasSuspendedOnXDescriptionLong(state.subscriptionEndDate))
     }
 
     /// `descriptionText` returns the correct text for the update payment plan status.
@@ -214,6 +247,7 @@ struct PremiumPlanStateTests { // swiftlint:disable:this type_body_length
         (PremiumPlanStatus.pastDue, true),
         (PremiumPlanStatus.pendingCancellation, true),
         (PremiumPlanStatus.unknown, false),
+        (PremiumPlanStatus.unpaid, true),
         (PremiumPlanStatus.updatePayment, true),
     ])
     func showBillingDetails(planStatus: PremiumPlanStatus, expected: Bool) {
@@ -232,6 +266,7 @@ struct PremiumPlanStateTests { // swiftlint:disable:this type_body_length
         (PremiumPlanStatus.pastDue, true),
         (PremiumPlanStatus.pendingCancellation, false),
         (PremiumPlanStatus.unknown, false),
+        (PremiumPlanStatus.unpaid, false),
         (PremiumPlanStatus.updatePayment, false),
     ])
     func showCancelButton(planStatus: PremiumPlanStatus, expected: Bool) {
@@ -369,5 +404,30 @@ struct PremiumPlanStateTests { // swiftlint:disable:this type_body_length
     func totalLabel_nil() {
         let state = PremiumPlanState()
         #expect(state.totalLabel.isEmpty)
+    }
+
+    // MARK: Tests - totalAccessibilityLabel
+
+    /// `totalAccessibilityLabel` returns the formatted total with a VoiceOver-friendly
+    /// cadence label instead of the raw "/" character.
+    @Test
+    func totalAccessibilityLabel() {
+        var state = PremiumPlanState()
+        state.loadingState = .data(.fixture(
+            cadence: .annually,
+            discount: 0,
+            estimatedTax: 4.55,
+            seatsCost: 19.80,
+            storageCost: 1.20,
+        ))
+        #expect(state.totalAccessibilityLabel.contains("$25.55"))
+        #expect(state.totalAccessibilityLabel.contains(Localizations.perYearVoiceOver))
+    }
+
+    /// `totalAccessibilityLabel` returns empty when subscription is nil.
+    @Test
+    func totalAccessibilityLabel_nil() {
+        let state = PremiumPlanState()
+        #expect(state.totalAccessibilityLabel.isEmpty)
     }
 }

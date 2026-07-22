@@ -772,6 +772,17 @@ class PolicyServiceTests: BitwardenTestCase { // swiftlint:disable:this type_bod
         XCTAssertFalse(policyApplies)
     }
 
+    /// `policyAppliesToUser(_:)` returns `false` when the user is staged, provisioned but not
+    /// yet invited, in the organization — staged members are not subject to org policies.
+    func test_policyAppliesToUser_organizationStaged() async {
+        stateService.activeAccount = .fixture()
+        organizationService.fetchAllOrganizationsResult = .success([.fixture(status: .staged)])
+        policyDataStore.fetchPoliciesResult = .success([.fixture(type: .twoFactorAuthentication)])
+
+        let policyApplies = await subject.policyAppliesToUser(.twoFactorAuthentication)
+        XCTAssertFalse(policyApplies)
+    }
+
     /// `replacePolicies(_:userId:)` replaces the persisted policies in the data store.
     func test_replacePolicies() async throws {
         try await subject.replacePolicies(policies, userId: "1")

@@ -17,6 +17,7 @@ struct PremiumPlanStatusTests {
         (.pastDue, .warning),
         (.pendingCancellation, .warning),
         (.unknown, .warning),
+        (.unpaid, .danger),
         (.updatePayment, .warning),
     ] as [(PremiumPlanStatus, PillBadgeStyle)])
     func badgeStyle(_ status: PremiumPlanStatus, expected: PillBadgeStyle) {
@@ -31,7 +32,7 @@ struct PremiumPlanStatusTests {
         (.incompleteExpired, .expired),
         (.pastDue, .pastDue),
         (.unknown, .unknown),
-        (.unpaid, .updatePayment),
+        (.unpaid, .unpaid),
     ] as [(SubscriptionStatus, PremiumPlanStatus)])
     func init_mapsSubscriptionStatus(_ status: SubscriptionStatus, expected: PremiumPlanStatus) {
         #expect(PremiumPlanStatus(subscriptionStatus: status) == expected)
@@ -52,10 +53,27 @@ struct PremiumPlanStatusTests {
         (.pastDue, true),
         (.pendingCancellation, true),
         (.unknown, false),
+        (.unpaid, true),
         (.updatePayment, true),
     ] as [(PremiumPlanStatus, Bool)])
     func isTroubleState(_ status: PremiumPlanStatus, expected: Bool) {
         #expect(status.isTroubleState == expected)
+    }
+
+    // MARK: Tests - isPaymentProblemState
+
+    @Test(arguments: [
+        (PremiumPlanStatus.active, false),
+        (.canceled, false),
+        (.expired, false),
+        (.pastDue, true),
+        (.pendingCancellation, false),
+        (.unknown, false),
+        (.unpaid, true),
+        (.updatePayment, true),
+    ] as [(PremiumPlanStatus, Bool)])
+    func isPaymentProblemState(_ status: PremiumPlanStatus, expected: Bool) {
+        #expect(status.isPaymentProblemState == expected)
     }
 
     // MARK: Tests - label
@@ -67,6 +85,7 @@ struct PremiumPlanStatusTests {
         (.pastDue, Localizations.pastDue),
         (.pendingCancellation, Localizations.pendingCancellation),
         (.unknown, Localizations.unknownStatus),
+        (.unpaid, Localizations.unpaid),
         (.updatePayment, Localizations.updatePayment),
     ] as [(PremiumPlanStatus, String)])
     func label(_ status: PremiumPlanStatus, expected: String) {
