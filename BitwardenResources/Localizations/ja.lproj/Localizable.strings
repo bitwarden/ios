@@ -778,6 +778,8 @@
 "SetUpAutofillOnAllYourDevicesToLoginWithASingleTapAnywhere" = "すべてのデバイスで自動入力を設定して、ワンタップでどこにでもログインできます。";
 "GoBack" = "戻る";
 "GotIt" = "了解";
+/* masterPasswordUnlock is the name of some data we want to delete, so there's no need to localize it. */
+"ClearMasterPasswordUnlock" = "MasterPasswordUnlock をクリア";
 "ClearSsoCookies" = "Clear SSO cookies";
 "GenerateCrash" = "Generate crash";
 "GenerateErrorReport" = "エラーレポートを生成する";
@@ -1061,6 +1063,8 @@
 "ReplaceCertificate" = "証明書を置き換え";
 "ReplaceExistingCertificate" = "既存の証明書を置き換える";
 "UnableToReadCertificateFile" = "証明書ファイルを読み込めません。";
+/* masterPasswordUnlock is the name of some data we want to delete, so there's no need to localize it. */
+"MasterPasswordUnlockCleared" = "MasterPasswordUnlock をクリアしました。";
 "SsoCookiesCleared" = "SSO Cookie をクリアしました";
 "YourRequestWasInterruptedBecauseTheAppNeededToReAuthenticatePleaseTryAgain" = "アプリを再認証する必要があるため、リクエストが中断されました。もう一度やり直してください。";
 "AutofillWithBitwardenDescriptionLong" = "Bitwarden can suggest your passwords and other credentials when you sign in to apps and websites.";
@@ -1074,6 +1078,7 @@
 "Canceled" = "キャンセル済み";
 "PastDue" = "期限切れ";
 "PendingCancellation" = "キャンセル保留中";
+"Unpaid" = "未払い";
 "UpdatePayment" = "支払方法を更新";
 "BillingAmount" = "請求額";
 "StorageCost" = "ストレージコスト";
@@ -1085,7 +1090,10 @@
 "ExternalLink" = "外部リンク";
 "YourNextChargeIsForXDueOnY" = "次のお支払いは**%1$@**で、期限は**%2$@**です。";
 "WeCouldNotProcessYourPaymentUpdateYourPaymentMethodDescriptionLong" = "お支払いを処理できませんでした。**%1$@** のサブスクリプションが終了する前に、お支払い方法を更新してください。";
+/* Error message shown when the Premium Plan screen fails to load subscription data, with a prompt to retry. */
+"WeCouldntLoadYourSubscriptionDetailsPleaseRetry" = "サブスクリプション情報を読み込めませんでした。もう一度やり直してください。";
 "YourSubscriptionWasCanceledOnXDescriptionLong" = "**%1$@** でサブスクリプションがキャンセルされました。プレミアム機能を引き続き使用するには再加入してください。";
+"YourSubscriptionWasSuspendedOnXDescriptionLong" = "あなたのサブスクリプションは**%1$@**に一時停止されました。再度有効にするには、過去の未払いの請求を解決してください。";
 "YourSubscriptionExpiredOnXDescriptionLong" = "**%1$@** でサブスクリプションの有効期限が切れました。プレミアム機能を引き続き使用するには再加入してください。";
 "YourSubscriptionIsScheduledToCancelOnXDescriptionLong" = "あなたのサブスクリプションは **%1$@** でキャンセルされる予定です。その前にいつでも再開できます。";
 "PerMonth" = "/ 月";
@@ -1094,7 +1102,6 @@
 "NegativeX" = "-%1$@";
 "UnknownStatus" = "不明";
 "YourSubscriptionStatusIsUnknownVisitTheWebAppDescriptionLong" = "サブスクリプションのステータスが確認できませんでした。詳細についてはウェブアプリをご覧いただくか、最新バージョンにアップデートしてください。";
-"AtTheMomentPremiumPlanIsNotAvailableDescriptionLong" = "現在プレミアムプランが利用できません。後でもう一度お試しください。";
 "UnlockMoreAdvancedFeaturesWithPremiumPlan" = "プレミアムプランでより高度な機能をアンロックしましょう。";
 "BuiltInAuthenticator" = "認証機能を内蔵";
 "EmergencyAccess" = "緊急アクセス";
@@ -1110,6 +1117,9 @@
 "UpgradePending" = "アップグレードを保留中";
 "YourUpgradeIsBeingProcessedDescriptionLong" = "アップグレードは現在処理中です。完了するまで無料プランのままになります。今すぐ同期して確認するか、続行して自動的に更新させてください。";
 "UpgradedToPremium" = "プレミアムにアップグレード";
+"SubscriptionNeedsAttention" = "サブスクリプションに注意が必要です";
+"CheckYourPlanForDetails" = "詳細はプランをご確認ください。";
+"ViewPlan" = "プランを表示";
 "YouNowHaveAccessToAdvancedSecurityDescriptionLong" = "高度なセキュリティ機能にアクセスできるようになりました。プレミアムに含まれる機能の詳細をご覧ください。";
 "YouNowHaveAccessToAllAdvancedSecurityFeatures" = "すべての高度なセキュリティ機能にアクセスできるようになりました。";
 "YoullGoToStripeSecureCheckoutToCompleteYourPurchase" = "Stripe の安全なチェックアウトで購入できます。";
@@ -1161,3 +1171,4 @@
 "LineOfCredit" = "限度額";
 "MoneyMarket" = "短期市場";
 "Savings" = "普通";
+"PremiumRequiredTOTPDescriptionLong" = "認証キー（TOTP）はプレミアム機能です。現在のプランにはこの機能へのアクセス権が含まれていません。";

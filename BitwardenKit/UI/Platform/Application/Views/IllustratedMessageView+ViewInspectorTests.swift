@@ -31,4 +31,45 @@ class IllustratedMessageViewTests: BitwardenTestCase {
         try button.tap()
         XCTAssertTrue(tapped)
     }
+
+    /// The image is hidden from VoiceOver.
+    @MainActor
+    func test_image_accessibilityHidden() throws {
+        let subject = IllustratedMessageView(
+            image: SharedAsset.Icons.unlocked24,
+            style: .mediumImage,
+            title: Localizations.setUpUnlock,
+            message: Localizations.setUpBiometricsOrChooseAPinCodeToQuicklyAccessYourVaultAndAutofillYourLogins,
+        )
+        let image = try subject.inspect().find(ViewType.Image.self)
+        XCTAssertTrue(try image.accessibilityHidden())
+    }
+
+    /// The message is displayed correctly.
+    @MainActor
+    func test_message_displayed() throws {
+        let subject = IllustratedMessageView(
+            image: SharedAsset.Icons.unlocked24,
+            style: .mediumImage,
+            title: Localizations.setUpUnlock,
+            message: Localizations.setUpBiometricsOrChooseAPinCodeToQuicklyAccessYourVaultAndAutofillYourLogins,
+        )
+        let text = try subject.inspect().find(
+            text: Localizations.setUpBiometricsOrChooseAPinCodeToQuicklyAccessYourVaultAndAutofillYourLogins,
+        )
+        XCTAssertNotNil(text)
+    }
+
+    /// The title is displayed correctly.
+    @MainActor
+    func test_title_displayed() throws {
+        let subject = IllustratedMessageView(
+            image: SharedAsset.Icons.unlocked24,
+            style: .mediumImage,
+            title: Localizations.setUpUnlock,
+            message: Localizations.setUpBiometricsOrChooseAPinCodeToQuicklyAccessYourVaultAndAutofillYourLogins,
+        )
+        let text = try subject.inspect().find(text: Localizations.setUpUnlock)
+        XCTAssertNotNil(text)
+    }
 }

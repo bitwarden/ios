@@ -39,6 +39,13 @@ class PremiumUpgradeViewSnapshotTests: BitwardenTestCase {
         assertSnapshots(of: subject, as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5])
     }
 
+    /// Check the snapshot for the default state in landscape. The layout stays vertical
+    /// (hero illustration above the headline and benefits) in both orientations.
+    @MainActor
+    func disabletest_snapshot_default_landscape() {
+        assertSnapshots(of: subject, as: [.defaultLandscape])
+    }
+
     /// Check the snapshot when the view is in a loading state.
     @MainActor
     func disabletest_snapshot_loading() {

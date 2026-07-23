@@ -219,6 +219,13 @@ protocol StateService: AnyObject, BillingStateService, DebugStateService {
     ///
     func getEvents(userId: String?) async throws -> [EventData]
 
+    /// Gets whether the Fill Assist feature is enabled for the specified user.
+    ///
+    /// - Parameter userId: The user ID, or `nil` for the active account.
+    /// - Returns: Whether Fill Assist is enabled.
+    ///
+    func getFillAssistEnabled(userId: String?) async throws -> Bool
+
     /// Gets the data for the flight recorder.
     ///
     /// - Returns: The flight recorder data.
@@ -610,6 +617,14 @@ protocol StateService: AnyObject, BillingStateService, DebugStateService {
     ///   - userId: The user ID of the account. Defaults to the active account if `nil`.
     ///
     func setEvents(_ events: [EventData], userId: String?) async throws
+
+    /// Sets whether the Fill Assist feature is enabled for the specified user.
+    ///
+    /// - Parameters:
+    ///   - fillAssistEnabled: Whether Fill Assist is enabled.
+    ///   - userId: The user ID of the account. Defaults to the active account if `nil`.
+    ///
+    func setFillAssistEnabled(_ fillAssistEnabled: Bool, userId: String?) async throws
 
     /// Sets the force password reset reason for an account.
     ///
@@ -1037,6 +1052,14 @@ extension StateService {
         try await getEnvironmentURLs(userId: nil)
     }
 
+    /// Gets whether Fill Assist is enabled for the active account.
+    ///
+    /// - Returns: Whether Fill Assist is enabled.
+    ///
+    func getFillAssistEnabled() async throws -> Bool {
+        try await getFillAssistEnabled(userId: nil)
+    }
+
     /// Gets whether a sync has been done successfully after login for the current user.
     /// This is particular useful to trigger logic that needs to be executed right after login in
     /// and after the first successful sync.
@@ -1291,6 +1314,14 @@ extension StateService {
     ///
     func setDisableAutoTotpCopy(_ disableAutoTotpCopy: Bool) async throws {
         try await setDisableAutoTotpCopy(disableAutoTotpCopy, userId: nil)
+    }
+
+    /// Sets whether Fill Assist is enabled for the active account.
+    ///
+    /// - Parameter fillAssistEnabled: Whether Fill Assist is enabled.
+    ///
+    func setFillAssistEnabled(_ fillAssistEnabled: Bool) async throws {
+        try await setFillAssistEnabled(fillAssistEnabled, userId: nil)
     }
 
     /// Sets the force password reset reason for the active account.
@@ -1735,6 +1766,11 @@ actor DefaultStateService: StateService, ActiveAccountStateProvider, ConfigState
         return appSettingsStore.events(userId: userId)
     }
 
+    func getFillAssistEnabled(userId: String?) async throws -> Bool {
+        let userId = try userId ?? getActiveAccountUserId()
+        return appSettingsStore.fillAssistEnabled(userId: userId)
+    }
+
     func getFlightRecorderData() async -> FlightRecorderData? {
         appSettingsStore.flightRecorderData
     }
@@ -1912,8 +1948,6 @@ actor DefaultStateService: StateService, ActiveAccountStateProvider, ConfigState
         appSettingsStore.setDefaultUriMatchType(nil, userId: knownUserId)
         appSettingsStore.setDisableAutoTotpCopy(nil, userId: knownUserId)
         appSettingsStore.setEncryptedUserKey(key: nil, userId: knownUserId)
-        appSettingsStore.setFillAssistCachedData(nil, userId: knownUserId)
-        appSettingsStore.setFillAssistLastFetchTimestamp(nil, userId: knownUserId)
         appSettingsStore.setHasPerformedSyncAfterLogin(nil, userId: knownUserId)
         appSettingsStore.setLastSyncTime(nil, userId: knownUserId)
         appSettingsStore.setMasterPasswordHash(nil, userId: knownUserId)
@@ -2084,6 +2118,11 @@ actor DefaultStateService: StateService, ActiveAccountStateProvider, ConfigState
     func setEvents(_ events: [EventData], userId: String?) async throws {
         let userId = try userId ?? getActiveAccountUserId()
         appSettingsStore.setEvents(events, userId: userId)
+    }
+
+    func setFillAssistEnabled(_ fillAssistEnabled: Bool, userId: String?) async throws {
+        let userId = try userId ?? getActiveAccountUserId()
+        appSettingsStore.setFillAssistEnabled(fillAssistEnabled, userId: userId)
     }
 
     func setFlightRecorderData(_ data: FlightRecorderData?) async {
@@ -2482,6 +2521,56 @@ extension DefaultStateService: BiometricsStateService {
 // MARK: - DebugStateService
 
 extension DefaultStateService {
+    func addFillAssistDebugRule(
+        domain: String,
+        usernameFieldId: String,
+        passwordFieldId: String,
+    ) async throws {
+        let usernameAttributes = FillAssistFieldAttributes(
+            id: usernameFieldId,
+            name: nil,
+            role: nil,
+            tagName: nil,
+            type: nil,
+        )
+        let passwordAttributes = FillAssistFieldAttributes(
+            id: passwordFieldId,
+            name: nil,
+            role: nil,
+            tagName: nil,
+            type: nil,
+        )
+
+        let userId = try getActiveAccountUserId()
+        let existing = appSettingsStore.fillAssistCachedData(userId: userId)
+
+        var rules = existing?.rules ?? [:]
+        rules[domain] = FillAssistHostRules(fields: [
+            "username": [usernameAttributes],
+            "password": [passwordAttributes],
+        ])
+
+        let data = FillAssistCachedData(
+            cid: existing?.cid ?? "debug",
+            rules: rules,
+            sourceUrl: existing?.sourceUrl ?? "",
+        )
+        appSettingsStore.setFillAssistCachedData(data, userId: userId)
+
+        let newFingerprint = try DefaultDataFingerprintService().fingerprint(for: data)
+        try await keychainRepository.setUserAuthKey(
+            for: .fillAssistRulesFingerprint(userId: userId),
+            value: newFingerprint,
+        )
+    }
+
+    func clearFillAssistCache() async throws {
+        let userId = try getActiveAccountUserId()
+        appSettingsStore.setFillAssistCachedData(nil, userId: userId)
+        appSettingsStore.setFillAssistLastFetchTimestamp(nil, userId: userId)
+        try await keychainRepository.deleteUserAuthKey(for: .fillAssistRulesFingerprint(userId: userId))
+    }
+
     func clearMasterPasswordUnlockForActiveAccount() async throws {
         let userId = try getActiveAccountUserId()
         try updateAccountProfile(userId: userId) { profile in
