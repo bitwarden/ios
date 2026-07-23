@@ -297,6 +297,7 @@
 "NoEmailAddressesEntered" = "No email addresses entered";
 "EnterAtLeastOneValidEmailToShareSend" = "Enter at least one valid email address to share this Send.";
 "OneOrMoreEmailAddressesIncorrect" = "One or more email addresses are incorrect. Please review and try again.";
+"OnlyIncludeTheFollowingDomainsDescriptionLong" = "Only include the following domains: %1$@. Please review and try again.";
 "Cards" = "Cards";
 "Identities" = "Identities";
 "Logins" = "Logins";

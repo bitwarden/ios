@@ -525,6 +525,7 @@ extension DefaultPolicyService {
     func getSendPolicyOptions() async -> SendPolicyOptions {
         guard await configService.getFeatureFlag(.sendControls) else {
             return await SendPolicyOptions(
+                enforcedAccessType: nil,
                 isHideEmailDisabled: policyAppliesToUser(.sendOptions) { policy in
                     policy[.disableHideEmail]?.boolValue == true
                 },

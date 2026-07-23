@@ -511,6 +511,153 @@ class PolicyServiceTests: BitwardenTestCase { // swiftlint:disable:this type_bod
         XCTAssertEqual(organizationId, "org-2")
     }
 
+    // MARK: - getSendPolicyOptions (allowedDomains) Tests
+
+    /// `getSendPolicyOptions()` surfaces the allowed domains from the Send Controls policy when
+    /// email verification is enforced.
+    func test_getSendPolicyOptions_allowedDomains() async {
+        configService.featureFlagsBool[.sendControls] = true
+        stateService.activeAccount = .fixture()
+        organizationService.fetchAllOrganizationsResult = .success([.fixture()])
+        policyDataStore.fetchPoliciesResult = .success(
+            [
+                .fixture(
+                    data: [
+                        PolicyOptionType.whoCanAccess.rawValue: .int(2),
+                        PolicyOptionType.allowedDomains.rawValue: .string("acme.com, acme.co"),
+                    ],
+                    type: .sendControls,
+                ),
+            ],
+        )
+
+        let options = await subject.getSendPolicyOptions()
+        XCTAssertEqual(options.allowedDomains, ["acme.com", "acme.co"])
+    }
+
+    /// When the Send Controls feature flag is disabled, `getSendPolicyOptions()` surfaces no allowed
+    /// domains.
+    func test_getSendPolicyOptions_allowedDomains_flagOff() async {
+        configService.featureFlagsBool[.sendControls] = false
+        stateService.activeAccount = .fixture()
+        organizationService.fetchAllOrganizationsResult = .success([.fixture()])
+        policyDataStore.fetchPoliciesResult = .success(
+            [
+                .fixture(
+                    data: [
+                        PolicyOptionType.whoCanAccess.rawValue: .int(2),
+                        PolicyOptionType.allowedDomains.rawValue: .string("acme.com"),
+                    ],
+                    type: .sendControls,
+                ),
+            ],
+        )
+
+        let options = await subject.getSendPolicyOptions()
+        XCTAssertTrue(options.allowedDomains.isEmpty)
+    }
+
+    // MARK: - getSendPolicyOptions (enforcedAccessType) Tests
+
+    /// `getSendPolicyOptions()` enforces the "anyone with password" access type when the Send
+    /// Controls policy's `whoCanAccess` is `1` (PasswordProtected).
+    func test_getSendPolicyOptions_enforcedAccessType_passwordProtected() async {
+        configService.featureFlagsBool[.sendControls] = true
+        stateService.activeAccount = .fixture()
+        organizationService.fetchAllOrganizationsResult = .success([.fixture()])
+        policyDataStore.fetchPoliciesResult = .success(
+            [
+                .fixture(
+                    data: [PolicyOptionType.whoCanAccess.rawValue: .int(1)],
+                    type: .sendControls,
+                ),
+            ],
+        )
+
+        let options = await subject.getSendPolicyOptions()
+        XCTAssertEqual(options.enforcedAccessType, .anyoneWithPassword)
+    }
+
+    /// `getSendPolicyOptions()` enforces the "specific people" access type when the Send Controls
+    /// policy's `whoCanAccess` is `2` (SpecificPeople).
+    func test_getSendPolicyOptions_enforcedAccessType_specificPeople() async {
+        configService.featureFlagsBool[.sendControls] = true
+        stateService.activeAccount = .fixture()
+        organizationService.fetchAllOrganizationsResult = .success([.fixture()])
+        policyDataStore.fetchPoliciesResult = .success(
+            [
+                .fixture(
+                    data: [PolicyOptionType.whoCanAccess.rawValue: .int(2)],
+                    type: .sendControls,
+                ),
+            ],
+        )
+
+        let options = await subject.getSendPolicyOptions()
+        XCTAssertEqual(options.enforcedAccessType, .specificPeople)
+    }
+
+    /// `getSendPolicyOptions()` enforces no access type when the Send Controls policy's `whoCanAccess`
+    /// is `0` (Any).
+    func test_getSendPolicyOptions_enforcedAccessType_any() async {
+        configService.featureFlagsBool[.sendControls] = true
+        stateService.activeAccount = .fixture()
+        organizationService.fetchAllOrganizationsResult = .success([.fixture()])
+        policyDataStore.fetchPoliciesResult = .success(
+            [
+                .fixture(
+                    data: [PolicyOptionType.whoCanAccess.rawValue: .int(0)],
+                    type: .sendControls,
+                ),
+            ],
+        )
+
+        let options = await subject.getSendPolicyOptions()
+        XCTAssertNil(options.enforcedAccessType)
+    }
+
+    /// `getSendPolicyOptions()` enforces no access type when the Send Controls policy doesn't contain
+    /// a `whoCanAccess` value.
+    func test_getSendPolicyOptions_enforcedAccessType_optionNoData() async {
+        configService.featureFlagsBool[.sendControls] = true
+        stateService.activeAccount = .fixture()
+        organizationService.fetchAllOrganizationsResult = .success([.fixture()])
+        policyDataStore.fetchPoliciesResult = .success([.fixture(type: .sendControls)])
+
+        let options = await subject.getSendPolicyOptions()
+        XCTAssertNil(options.enforcedAccessType)
+    }
+
+    /// `getSendPolicyOptions()` enforces no access type when there's no policies.
+    func test_getSendPolicyOptions_enforcedAccessType_noPolicies() async {
+        configService.featureFlagsBool[.sendControls] = true
+        stateService.activeAccount = .fixture()
+        organizationService.fetchAllOrganizationsResult = .success([.fixture()])
+        policyDataStore.fetchPoliciesResult = .success([])
+
+        let options = await subject.getSendPolicyOptions()
+        XCTAssertNil(options.enforcedAccessType)
+    }
+
+    /// When the Send Controls feature flag is disabled, `getSendPolicyOptions()` enforces no access
+    /// type even when a `sendControls` policy sets `whoCanAccess`.
+    func test_getSendPolicyOptions_enforcedAccessType_flagOff() async {
+        configService.featureFlagsBool[.sendControls] = false
+        stateService.activeAccount = .fixture()
+        organizationService.fetchAllOrganizationsResult = .success([.fixture()])
+        policyDataStore.fetchPoliciesResult = .success(
+            [
+                .fixture(
+                    data: [PolicyOptionType.whoCanAccess.rawValue: .int(1)],
+                    type: .sendControls,
+                ),
+            ],
+        )
+
+        let options = await subject.getSendPolicyOptions()
+        XCTAssertNil(options.enforcedAccessType)
+    }
+
     // MARK: - getSendPolicyOptions (isHideEmailDisabled) Tests
 
     /// `getSendPolicyOptions()` reports the hide email option disabled when the Send Controls policy
@@ -1444,6 +1591,7 @@ class PolicyServiceTests: BitwardenTestCase { // swiftlint:disable:this type_bod
         XCTAssertTrue(clientService.mockPolicies.filterByTypeCalled)
         XCTAssertFalse(options.isSendDisabled)
         XCTAssertFalse(options.isHideEmailDisabled)
+        XCTAssertNil(options.enforcedAccessType)
     }
 
     /// `getSendPolicyOptions()` parses the Send restrictions from the policies the SDK reports as
@@ -1460,7 +1608,7 @@ class PolicyServiceTests: BitwardenTestCase { // swiftlint:disable:this type_bod
                 id: "policy-1",
                 organizationId: "org-1",
                 type: .sendControls,
-                data: #"{"disableSend": true, "disableHideEmail": true}"#,
+                data: #"{"disableSend": true, "disableHideEmail": true, "whoCanAccess": 2}"#,
                 enabled: true,
                 revisionDate: nil,
             ),
@@ -1471,5 +1619,6 @@ class PolicyServiceTests: BitwardenTestCase { // swiftlint:disable:this type_bod
         XCTAssertTrue(clientService.mockPolicies.filterByTypeCalled)
         XCTAssertTrue(options.isSendDisabled)
         XCTAssertTrue(options.isHideEmailDisabled)
+        XCTAssertEqual(options.enforcedAccessType, .specificPeople)
     }
 } // swiftlint:disable:this file_length
