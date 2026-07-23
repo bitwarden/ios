@@ -22,40 +22,50 @@ struct ScenarioPickerView: View {
     /// The main content view.
     private var content: some View {
         List {
-            Section {
-                ForEach(store.state.scenarios) { scenario in
-                    Button {
-                        store.send(.scenarioTapped(scenario))
-                    } label: {
-                        HStack {
-                            Text(scenario.title)
-                                .styleGuide(.body)
-                            Spacer()
-                            Image(systemName: "chevron.right")
-                                .foregroundColor(.secondary)
+            ForEach(ScenarioSection.allCases, id: \.self) { section in
+                let scenarios = store.state.scenarios.filter { $0.section == section }
+                if !scenarios.isEmpty {
+                    Section {
+                        ForEach(scenarios) { scenario in
+                            scenarioRow(scenario)
                         }
+                    } header: {
+                        Text(section.title)
                     }
-                    .accessibilityIdentifier({
-                        switch scenario.title {
-                        case Localizations.cardAutofillForm: "ScenarioButton_CardForm"
-                        case Localizations.createAccountForm: "ScenarioButton_CreateAccountForm"
-                        case Localizations.fileShare: "ScenarioButton_FileShare"
-                        case Localizations.managePasskeys: "ScenarioButton_ManagePasskeys"
-                        case Localizations.passkeyAutofill: "ScenarioButton_Passkey"
-                        case Localizations.registerPasskey: "ScenarioButton_RegisterPasskey"
-                        case Localizations.simpleLoginForm: "ScenarioButton_LoginForm"
-                        case Localizations.totpAutofillForm: "ScenarioButton_TOTPForm"
-                        case Localizations.usePasskey: "ScenarioButton_UsePasskey"
-                        default: "ScenarioButton_\(scenario.title)"
-                        }
-                    }())
-                    .foregroundColor(.primary)
                 }
-            } header: {
-                Text(Localizations.testScenarios)
             }
         }
         .listStyle(.insetGrouped)
+    }
+
+    /// A row displaying a single scenario.
+    private func scenarioRow(_ scenario: ScenarioItem) -> some View {
+        Button {
+            store.send(.scenarioTapped(scenario))
+        } label: {
+            HStack {
+                Text(scenario.title)
+                    .styleGuide(.body)
+                Spacer()
+                Image(systemName: "chevron.right")
+                    .foregroundColor(.secondary)
+            }
+        }
+        .accessibilityIdentifier({
+            switch scenario.title {
+            case Localizations.cardAutofillForm: "ScenarioButton_CardForm"
+            case Localizations.createAccountForm: "ScenarioButton_CreateAccountForm"
+            case Localizations.fileShare: "ScenarioButton_FileShare"
+            case Localizations.managePasskeys: "ScenarioButton_ManagePasskeys"
+            case Localizations.passkeyAutofill: "ScenarioButton_Passkey"
+            case Localizations.registerPasskey: "ScenarioButton_RegisterPasskey"
+            case Localizations.simpleLoginForm: "ScenarioButton_LoginForm"
+            case Localizations.totpAutofillForm: "ScenarioButton_TOTPForm"
+            case Localizations.usePasskey: "ScenarioButton_UsePasskey"
+            default: "ScenarioButton_\(scenario.title)"
+            }
+        }())
+        .foregroundColor(.primary)
     }
 }
 
