@@ -1,8 +1,8 @@
 "AccountCreatedSuccessfully" = "Account created successfully";
 "AccountDetails" = "Account Details";
 "AssertionResult" = "Assertion Result";
-"AuthDataTooShortExplanationLong" = "The raw authenticator data was shorter than the fixed 37-byte prefix (32-byte relying party hash, 1-byte flags, 4-byte signature counter), so the relying party hash and flags could not be read.";
 "AuthDataTooShort" = "Authenticator data too short";
+"AuthDataTooShortExplanationLong" = "The raw authenticator data was shorter than the fixed 37-byte prefix (32-byte relying party hash, 1-byte flags, 4-byte signature counter), so the relying party hash and flags could not be read.";
 "AuthDataTooShortReceived" = "The authenticator data was too short to contain the expected fields.";
 "CardAutofillForm" = "Card Autofill Form";
 "CreatePasskey" = "Create Passkey";
@@ -84,7 +84,6 @@
 "SignatureInvalidExplanationLong" = "The ECDSA signature over the authenticator data plus the SHA-256 hash of the client data JSON did not verify against the stored credential's public key — for example, the wrong key, a corrupted signature, or tampered data.";
 "SignatureInvalidReceived" = "The assertion signature could not be verified against the stored public key.";
 "SignatureInvalidTitle" = "Signature invalid";
-"SignInWithPasskey" = "Sign In with Passkey";
 "SimpleLoginForm" = "Simple Login Form";
 "SimpleLoginFormDescription" = "Use this simple login form to test autofill functionality.";
 "SignInWithPasskey" = "Sign In with Passkey";
@@ -108,6 +107,7 @@
 "UsePasskey" = "Use passkey";
 "UsePasskeyFormDescriptionLong" = "Enter a relying party ID above, then tap Sign In with Passkey. The Bitwarden AutoFill sheet will appear to select a credential.";
 "UseThisLoginFormToTestAutofillFunctionality" = "Use this login form to test autofill functionality.";
+"Username" = "Username";
 "UsernameValue" = "Username: %@";
 "VerificationErrors" = "Verification Errors";
 "VerificationErrorsDescriptionLong" = "Occur while matching the parsed assertion against a stored credential, in the order they are checked.";
