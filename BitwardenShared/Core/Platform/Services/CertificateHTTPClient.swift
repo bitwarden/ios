@@ -61,17 +61,10 @@ final class CertificateHTTPClient: NSObject, HTTPClient, @unchecked Sendable {
             return (.performDefaultHandling, nil)
         }
 
-        guard let identity = await certificateService.getClientCertificateIdentity() else {
+        guard let clientCertificate = await certificateService.getClientCertificate() else {
             return (.performDefaultHandling, nil)
         }
-
-        // Create the credential with the identity
-        let credential = URLCredential(
-            identity: identity,
-            certificates: nil,
-            persistence: .forSession,
-        )
-        return (.useCredential, credential)
+        return (.useCredential, clientCertificate.urlCredential)
     }
 }
 
