@@ -49,14 +49,8 @@ class PasskeyAuthorizationBridge<Credential: ASAuthorizationCredential>: NSObjec
         didCompleteWithAuthorization authorization: ASAuthorization,
     ) {
         defer { continuation = nil }
-//<<<<<<< HEAD
-//        guard let registration = authorization.credential as? ASAuthorizationPlatformPublicKeyCredentialRegistration
-//        else {
-//            continuation?.resume(throwing: PasskeyRegistrationError.missingAttestationObject)
-//=======
         guard let credential = authorization.credential as? Credential else {
             continuation?.resume(throwing: PasskeyAuthorizationBridgeError.unexpectedCredentialType)
-//>>>>>>> 5908eb03d ([PM-27135] feat: Verify passkey assertions against stored registration data)
             return
         }
         continuation?.resume(returning: credential)
