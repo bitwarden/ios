@@ -8,11 +8,11 @@ protocol AddEditPassportItemState: Equatable, Sendable {
     /// The place of birth on the passport.
     var birthPlace: String { get set }
 
-    /// The date of birth on the passport, held as a raw ISO string.
-    var dateOfBirth: String { get set }
+    /// The date of birth on the passport.
+    var dateOfBirth: Date? { get set }
 
-    /// The expiration date of the passport, held as a raw ISO string.
-    var expirationDate: String { get set }
+    /// The expiration date of the passport.
+    var expirationDate: Date? { get set }
 
     /// The given name (first name) on the passport.
     var givenName: String { get set }
@@ -23,8 +23,8 @@ protocol AddEditPassportItemState: Equatable, Sendable {
     /// Whether the passport number is visible.
     var isPassportNumberVisible: Bool { get set }
 
-    /// The issue date of the passport, held as a raw ISO string.
-    var issueDate: String { get set }
+    /// The issue date of the passport.
+    var issueDate: Date? { get set }
 
     /// The authority/office that issued the passport.
     var issuingAuthority: String { get set }
@@ -65,18 +65,10 @@ extension AddEditPassportItemState {
     /// The issue date formatted as a long localized date (e.g. "August 10, 2026"); empty when unset.
     var issueDateDisplay: String { Self.displayDate(from: issueDate) }
 
-    /// Formats a raw ISO-8601 date-only string (`yyyy-MM-dd`) as a long localized date for display
-    /// (e.g. "August 10, 2026"), or returns an empty string when the value is unset or unparsable.
-    ///
-    /// Parses fixed to UTC so a stored date reads back as the same calendar day regardless of device
-    /// locale.
-    private static func displayDate(from isoString: String) -> String {
-        guard !isoString.isEmpty else { return "" }
-        let parser = DateFormatter()
-        parser.locale = Locale(identifier: "en_US_POSIX")
-        parser.timeZone = TimeZone(identifier: "UTC")
-        parser.dateFormat = "yyyy-MM-dd"
-        guard let date = parser.date(from: isoString) else { return "" }
+    /// Formats a `Date` as a long localized date (e.g. "August 10, 2026"), or returns an empty
+    /// string when the value is unset.
+    private static func displayDate(from date: Date?) -> String {
+        guard let date else { return "" }
         return date.formatted(date: .long, time: .omitted)
     }
 }
