@@ -74,6 +74,9 @@ struct AddEditSendItemState: Equatable, Sendable {
     /// Whether the user has a Premium account.
     var hasPremium = false
 
+    /// Whether the Send Controls policy feature flag is enabled.
+    var isSendControlsPolicyEnabled = false
+
     /// Whether sends are disabled via a policy.
     var isSendDisabled = false
 
@@ -158,6 +161,22 @@ struct AddEditSendItemState: Equatable, Sendable {
                 Localizations.editTextSend
             }
         }
+    }
+
+    /// Whether the hide-email field should be shown.
+    ///
+    /// When the Send Controls policy disables hiding the sender's email, the field is hidden
+    /// entirely; under the legacy Send Options policy it remains visible but disabled.
+    var shouldShowHideEmailField: Bool {
+        !(isSendHideEmailDisabled && isSendControlsPolicyEnabled)
+    }
+
+    /// Whether the banner noting that Send policies are in effect should be shown.
+    ///
+    /// Only shown when the hide-email restriction comes from the legacy Send Options policy. The
+    /// Send Controls policy hides the affected field entirely rather than showing a banner.
+    var shouldShowHideEmailPolicyBanner: Bool {
+        isSendHideEmailDisabled && !isSendControlsPolicyEnabled
     }
 }
 
