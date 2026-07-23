@@ -15,7 +15,9 @@ struct DeviceActivityStatusTests {
     // MARK: Initialization
 
     init() {
-        timeProvider = MockTimeProvider(.mockTime(Date(timeIntervalSince1970: 1_718_000_000)))
+        // Noon UTC keeps `init_today`'s ±1-hour arithmetic away from any real-world local
+        // midnight, so the test doesn't flake based on the machine's time zone.
+        timeProvider = MockTimeProvider(.mockTime(Date(timeIntervalSince1970: 1_718_020_800)))
     }
 
     // MARK: Tests

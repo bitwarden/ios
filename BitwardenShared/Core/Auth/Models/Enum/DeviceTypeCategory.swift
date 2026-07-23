@@ -92,8 +92,6 @@ extension DeviceType {
             "Internet Explorer"
         case .duckDuckGoBrowser:
             "DuckDuckGo"
-        case .unknownBrowser:
-            ""
         case .windowsCLI, .windowsDesktop:
             "Windows"
         case .macOsCLI, .macOsDesktop:
@@ -102,7 +100,7 @@ extension DeviceType {
             "Linux"
         case .uwp:
             "Windows UWP"
-        case .sdk, .server:
+        case .sdk, .server, .unknownBrowser:
             ""
         }
     }
