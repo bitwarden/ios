@@ -55,7 +55,7 @@ class MoveToOrganizationViewTests: BitwardenTestCase {
         processor.state.owner = CipherOwner.organization(id: "1", name: "Organization")
 
         let owner = CipherOwner.organization(id: "2", name: "Bitwarden")
-        let menuField = try subject.inspect().find(bitwardenMenuField: Localizations.organization)
+        let menuField = try subject.inspect().find(bitwardenMenuField: Localizations.vault)
         try menuField.select(newValue: owner)
         XCTAssertEqual(processor.dispatchedActions.last, .ownerChanged(owner))
     }

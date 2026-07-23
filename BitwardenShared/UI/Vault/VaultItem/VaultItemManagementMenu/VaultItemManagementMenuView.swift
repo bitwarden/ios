@@ -59,7 +59,7 @@ struct VaultItemManagementMenuView: View {
             }
 
             if isMoveToOrganizationEnabled {
-                Button(Localizations.moveToOrganization) {
+                Button(Localizations.move) {
                     store.send(.moveToOrganization)
                 }
             }

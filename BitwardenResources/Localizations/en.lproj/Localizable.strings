@@ -49,6 +49,7 @@
 "OK" = "OK";
 "Password" = "Password";
 "Save" = "Save";
+/* Action to move a vault item to another vault; used as a button label, menu item, and screen title. */
 "Move" = "Move";
 "Saving" = "Saving…";
 "Settings" = "Settings";
@@ -277,7 +278,6 @@
 "RegEx" = "Regular expression";
 "StartsWith" = "Starts with";
 "MatchDetection" = "Match detection";
-"Organization" = "Organization";
 "HoldYubikeyNearTop" = "Hold your Yubikey near the top of the device.";
 "TryAgain" = "Try again";
 "YubiKeyInstructionIos" = "To continue, hold your YubiKey NEO against the back of the device.";
@@ -317,9 +317,10 @@
 "SelectOneCollection" = "You must select at least one collection.";
 "Share" = "Share";
 "ShareAll" = "Share all";
-"MoveToOrganization" = "Move to Organization";
-"NoOrgsToList" = "No organizations to list.";
-"MoveToOrgDesc" = "Choose an organization that you wish to move this item to. Moving to an organization transfers ownership of the item to that organization. You will no longer be the direct owner of this item once it has been moved.";
+/* Empty state message shown when a user has no vaults available to move an item into. */
+"NoVaultsToList" = "No vaults to list.";
+/* Footer text on the Move screen explaining that moving an item transfers its ownership to the destination vault's organization. */
+"ChooseAVaultThatYouWishToMoveThisItemToDescriptionLong" = "Choose a vault that you wish to move this item to. Moving to another vault transfers ownership of the item to that organization. You will no longer be the direct owner of this item once it has been moved.";
 "NumberOfWords" = "Number of words";
 "Passphrase" = "Passphrase";
 "WordSeparator" = "Word separator";
@@ -586,6 +587,7 @@
 "LoginApproved" = "Login approved";
 "LogInWithDevice" = "Log in with device";
 "LoggingInOn" = "Logging in on";
+/* The word "Vault", used generically as a field label, screen title, and app-wide term for a user's or organization's item collection. */
 "Vault" = "Vault";
 "Appearance" = "Appearance";
 "AccountSecurity" = "Account security";

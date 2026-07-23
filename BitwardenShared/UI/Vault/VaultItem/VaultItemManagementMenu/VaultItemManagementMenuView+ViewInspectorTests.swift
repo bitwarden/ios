@@ -86,7 +86,7 @@ class VaultItemManagementMenuViewTests: BitwardenTestCase {
     /// Tapping the move to organization option dispatches the `.moveToOrganization` action.
     @MainActor
     func test_moveToOrgOption_tap() throws {
-        let button = try subject.inspect().find(button: Localizations.moveToOrganization)
+        let button = try subject.inspect().find(button: Localizations.move)
         try button.tap()
         XCTAssertEqual(processor.dispatchedActions.last, .moveToOrganization)
     }
