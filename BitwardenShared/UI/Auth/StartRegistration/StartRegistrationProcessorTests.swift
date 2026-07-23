@@ -16,6 +16,7 @@ class StartRegistrationProcessorTests: BitwardenTestCase { // swiftlint:disable:
 
     var authRepository: MockAuthRepository!
     var client: MockHTTPClient!
+    var configService: MockConfigService!
     var coordinator: MockCoordinator<AuthRoute, AuthEvent>!
     var delegate: MockStartRegistrationDelegate!
     var environmentService: MockEnvironmentService!
@@ -29,6 +30,7 @@ class StartRegistrationProcessorTests: BitwardenTestCase { // swiftlint:disable:
         super.setUp()
         authRepository = MockAuthRepository()
         client = MockHTTPClient()
+        configService = MockConfigService()
         coordinator = MockCoordinator<AuthRoute, AuthEvent>()
         delegate = MockStartRegistrationDelegate()
         environmentService = MockEnvironmentService()
@@ -40,6 +42,7 @@ class StartRegistrationProcessorTests: BitwardenTestCase { // swiftlint:disable:
             delegate: delegate,
             services: ServiceContainer.withMocks(
                 authRepository: authRepository,
+                configService: configService,
                 environmentService: environmentService,
                 errorReporter: errorReporter,
                 httpClient: client,
@@ -53,6 +56,7 @@ class StartRegistrationProcessorTests: BitwardenTestCase { // swiftlint:disable:
         super.tearDown()
         authRepository = nil
         client = nil
+        configService = nil
         coordinator = nil
         environmentService = nil
         errorReporter = nil
@@ -88,6 +92,70 @@ class StartRegistrationProcessorTests: BitwardenTestCase { // swiftlint:disable:
         XCTAssertEqual(alert.alertActions[2].title, Localizations.selfHosted)
         try await alert.tapAction(title: Localizations.selfHosted)
         XCTAssertEqual(coordinator.routes.last, .selfHosted(currentRegion: .europe))
+    }
+
+    /// When `disableUserRegistration` becomes true while the view is visible, an alert is shown
+    /// and tapping OK navigates back.
+    @MainActor
+    func test_configPublisher_disableUserRegistration_true_whileVisible() async throws {
+        await subject.perform(.appeared)
+
+        configService.configSubject.send(MetaServerConfig(
+            isPreAuth: true,
+            userId: nil,
+            serverConfig: ServerConfig(
+                date: Date(),
+                responseModel: ConfigResponseModel(
+                    communication: nil,
+                    environment: nil,
+                    featureStates: [:],
+                    gitHash: nil,
+                    server: nil,
+                    settings: ServerSettingsResponseModel(disableUserRegistration: true),
+                    version: "2024.4.0",
+                ),
+            ),
+        ))
+        waitFor(coordinator.alertShown.last?.message == Localizations.accountCreationNotAllowed)
+
+        let alert = try XCTUnwrap(coordinator.alertShown.last)
+        XCTAssertEqual(alert.title, Localizations.anErrorHasOccurred)
+        XCTAssertEqual(alert.alertActions.count, 1)
+        try await alert.tapAction(title: Localizations.ok)
+        XCTAssertEqual(coordinator.routes.last, .dismiss)
+    }
+
+    /// When `disableUserRegistration` becomes true but the view is not visible, no alert is shown.
+    @MainActor
+    func test_configPublisher_disableUserRegistration_viewNotVisible_noAlert() async throws {
+        // viewIsVisible is false — `.appeared` has not been called
+        configService.configSubject.send(MetaServerConfig(
+            isPreAuth: true,
+            userId: nil,
+            serverConfig: ServerConfig(
+                date: Date(),
+                responseModel: ConfigResponseModel(
+                    communication: nil,
+                    environment: nil,
+                    featureStates: [:],
+                    gitHash: nil,
+                    server: nil,
+                    settings: ServerSettingsResponseModel(disableUserRegistration: true),
+                    version: "2024.4.0",
+                ),
+            ),
+        ))
+        try await Task.sleep(nanoseconds: 10_000_000)
+        XCTAssertTrue(coordinator.alertShown.isEmpty)
+    }
+
+    /// `setRegion` triggers a config refresh so the processor can react to `disableUserRegistration`.
+    @MainActor
+    func test_setRegion_callsRefreshConfig() async {
+        await subject.setRegion(.europe, .defaultEU)
+        waitFor(configService.configMocker.called)
+        XCTAssertEqual(configService.configMocker.invokedParam?.forceRefresh, true)
+        XCTAssertEqual(configService.configMocker.invokedParam?.isPreAuth, true)
     }
 
     /// `perform(_:)` with `.startRegistration` sets preAuthUrls for the given email and navigates to check email.

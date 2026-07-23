@@ -382,4 +382,18 @@ class AlertAuthTests: BitwardenTestCase { // swiftlint:disable:this type_body_le
         try await subject.tapAction(title: Localizations.yes)
         XCTAssertTrue(actionCalled)
     }
+
+    /// `registrationDisabled(action:)` builds the correct alert and fires the action on OK.
+    func test_registrationDisabled() async throws {
+        var actionCalled = false
+        let subject = Alert.registrationDisabled { actionCalled = true }
+
+        XCTAssertEqual(subject.title, Localizations.anErrorHasOccurred)
+        XCTAssertEqual(subject.message, Localizations.accountCreationNotAllowed)
+        XCTAssertEqual(subject.alertActions.count, 1)
+        XCTAssertEqual(subject.alertActions[0].title, Localizations.ok)
+
+        try await subject.tapAction(title: Localizations.ok)
+        XCTAssertTrue(actionCalled)
+    }
 }

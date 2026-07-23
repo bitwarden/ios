@@ -93,6 +93,18 @@ class StartRegistrationProcessor: StateProcessor<
         self.delegate = delegate
         self.services = services
         super.init(state: state)
+
+        Task {
+            for await metaConfig in await services.configService.configPublisher() {
+                guard metaConfig?.isPreAuth == true,
+                      metaConfig?.serverConfig?.settings?.disableUserRegistration == true,
+                      viewIsVisible
+                else { continue }
+                await coordinator.showAlert(.registrationDisabled {
+                    coordinator.navigate(to: .dismiss)
+                })
+            }
+        }
     }
 
     // MARK: Methods
@@ -183,6 +195,15 @@ class StartRegistrationProcessor: StateProcessor<
         }
     }
 
+    /// Refreshes the server configuration for the current pre-auth environment.
+    ///
+    private func refreshConfig() async {
+        await services.configService.getConfig(
+            forceRefresh: true,
+            isPreAuth: true,
+        )
+    }
+
     /// Shows a `StartRegistrationError` alert.
     ///
     /// - Parameter error: The error that occurred.
@@ -228,5 +249,10 @@ extension StartRegistrationProcessor: RegionDelegate {
         state.region = region
         state.showReceiveMarketingToggle = state.region != .selfHosted
         await delegate?.didChangeRegion()
+        // Using Task avoids delaying region-change side effects (e.g. closing self-host sheet)
+        // when internet speed is low — mirrors LandingProcessor.setRegion.
+        Task {
+            await refreshConfig()
+        }
     }
 }
