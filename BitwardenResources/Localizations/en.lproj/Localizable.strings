@@ -138,7 +138,7 @@
 "UnlockWithOpticID" = "Unlock with Optic ID";
 "UnlockWithPIN" = "Unlock with PIN code";
 "VerificationCode" = "Verification code";
-"WebVault" = "Bitwarden web vault";
+"BitwardenWebVault" = "Bitwarden web vault";
 "Items" = "Items";
 "ExtensionActivated" = "Extension activated!";
 "ItemsForUri" = "Items for %1$@";
@@ -1198,6 +1198,21 @@
 "LineOfCredit" = "Line of credit";
 "MoneyMarket" = "Money market";
 "Savings" = "Savings";
+"Today" = "Today";
+"PastSevenDays" = "Past 7 days";
+"PastFourteenDays" = "Past 14 days";
+"PastThirtyDays" = "Past 30 days";
+"OverThirtyDaysAgo" = "Over 30 days ago";
+"Unknown" = "Unknown";
+/* Device display name. %1$@ = category (e.g. "Mobile"), %2$@ = platform (e.g. "iOS"). */
+"DeviceDisplayNameXHyphenY" = "%1$@ - %2$@";
+"Mobile" = "Mobile";
+"BrowserExtension" = "Browser extension";
+"WebVault" = "Web vault";
+"Desktop" = "Desktop";
+"Cli" = "CLI";
+"Sdk" = "SDK";
+"Server" = "Server";
 /* Accessibility label for the button that clears a field's value. %1$@ is the field's title (e.g. "Date of birth"), so the spoken label reads "Clear Date of birth". */
 "ClearFieldName" = "Clear %1$@";
 "SelectDate" = "Select date";
