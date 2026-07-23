@@ -48,7 +48,6 @@
 "MessageShown" = "Message shown";
 "MissingAttestationObjectReceived" = "The authorization response did not include an attestation object.";
 "MissingAttestedCredentialDataReceived" = "The authenticator data did not include attested credential data.";
-"MissingAttestationObjectReceived" = "The authorization response did not include an attestation object.";
 "MissingAuthDataReceived" = "The attestation object did not contain authenticator data.";
 "MissingClientDataChallengeExplanationLong" = "The decoded client data JSON did not contain a \"challenge\" field.";
 "MissingClientDataChallengeReceived" = "The client data JSON did not contain a challenge field.";
@@ -56,7 +55,6 @@
 "MissingClientDataTypeExplanationLong" = "The decoded client data JSON did not contain a \"type\" field.";
 "MissingClientDataTypeReceived" = "The client data JSON did not contain a type field.";
 "MissingClientDataTypeTitle" = "Missing type field";
-"PasskeyAssertionNotAvailable" = "Passkey assertion requires iOS 17 or later.";
 "PasskeyAssertedSuccessfully" = "Passkey sign-in succeeded.";
 "PasskeyAssertionNotAvailable" = "Passkey assertion requires iOS 17 or later.";
 "PasskeyAutofill" = "Passkey Autofill";
