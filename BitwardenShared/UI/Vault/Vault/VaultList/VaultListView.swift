@@ -82,7 +82,7 @@ private struct SearchableVaultListView: View {
             Group {
                 organizationBannerActionCard
 
-                importLoginsActionCard
+                actionCard
 
                 vaultFilterRow
             }
@@ -239,13 +239,7 @@ private struct SearchableVaultListView: View {
         VStack(spacing: 20) {
             organizationBannerActionCard
 
-            premiumUpgradeActionCard
-
-            subscriptionNeedsAttentionActionCard
-
-            upgradedToPremiumActionCard
-
-            archiveOnboardingActionCard
+            actionCard
 
             vaultFilterRow
 
@@ -309,27 +303,10 @@ private struct SearchableVaultListView: View {
 // MARK: - Action Cards
 
 extension SearchableVaultListView {
-    /// The action card for archive onboarding.
-    @ViewBuilder private var archiveOnboardingActionCard: some View {
-        if store.state.shouldShowArchiveOnboardingActionCard {
-            ActionCard(
-                title: Localizations.introducingArchive,
-                message: Localizations.keepYtemsYouDontNeedRightNowSafeButOutOfSight,
-                actionButtonState: ActionCard.ButtonState(title: Localizations.goToArchive) {
-                    store.send(.goToArchive)
-                },
-                dismissButtonState: ActionCard.ButtonState(title: Localizations.dismiss) {
-                    await store.perform(.dismissArchiveOnboardingActionCard)
-                },
-            ) {
-                SharedAsset.Icons.archive24.swiftUIImage.foregroundStyle(SharedAsset.Colors.iconSecondary.swiftUIColor)
-            }
-        }
-    }
-
-    /// The action card for importing login items.
-    @ViewBuilder private var importLoginsActionCard: some View {
-        if store.state.shouldShowImportLoginsActionCard {
+    /// The active action card, rendered based on priority. Only one card is shown at a time.
+    @ViewBuilder private var actionCard: some View {
+        switch store.state.activeActionCard {
+        case .importItems:
             ActionCard(
                 title: Localizations.importSavedLogins,
                 message: Localizations.importSavedLoginsDescriptionLong,
@@ -340,6 +317,46 @@ extension SearchableVaultListView {
                     await store.perform(.dismissImportLoginsActionCard)
                 },
             )
+        case .introducingArchive:
+            ActionCard(
+                title: Localizations.introducingArchive,
+                message: Localizations.keepYtemsYouDontNeedRightNowSafeButOutOfSight,
+                actionButtonState: ActionCard.ButtonState(title: Localizations.goToArchive) {
+                    store.send(.goToArchive)
+                },
+                dismissButtonState: ActionCard.ButtonState(title: Localizations.dismiss) {
+                    await store.perform(.dismissArchiveOnboardingActionCard)
+                },
+            ) {
+                SharedAsset.Icons.archive24.swiftUIImage
+                    .foregroundStyle(SharedAsset.Colors.iconSecondary.swiftUIColor)
+            }
+        case .subscriptionNeedsAttention:
+            ActionCard(
+                title: Localizations.subscriptionNeedsAttention,
+                message: Localizations.checkYourPlanForDetails,
+                actionButtonState: ActionCard.ButtonState(title: Localizations.viewPlan) {
+                    store.send(.viewPlan)
+                },
+            )
+        case .upgradedToPremium:
+            UpgradedToPremiumActionCardView(
+                onDismiss: { await store.perform(.dismissUpgradedToPremiumActionCard) },
+                onLearnMore: { store.send(.learnMoreAboutPremium) },
+            )
+        case .upgradeNeeded:
+            ActionCard(
+                title: Localizations.unlockAdvancedSecurityFeatures,
+                message: Localizations.aPremiumPlanGivesYouMoreToolsDescriptionLong,
+                actionButtonState: ActionCard.ButtonState(title: Localizations.learnMore) {
+                    store.send(.upgradeToPremium)
+                },
+                dismissButtonState: ActionCard.ButtonState(title: Localizations.dismiss) {
+                    await store.perform(.dismissPremiumUpgradeActionCard)
+                },
+            )
+        case nil:
+            EmptyView()
         }
     }
 
@@ -363,45 +380,6 @@ extension SearchableVaultListView {
                 SharedAsset.Icons.informationCircle24.swiftUIImage
                     .foregroundStyle(SharedAsset.Colors.iconSecondary.swiftUIColor)
             }
-        }
-    }
-
-    /// The action card for Premium upgrade.
-    @ViewBuilder private var premiumUpgradeActionCard: some View {
-        if store.state.shouldShowPremiumUpgradeActionCard {
-            ActionCard(
-                title: Localizations.unlockAdvancedSecurityFeatures,
-                message: Localizations.aPremiumPlanGivesYouMoreToolsDescriptionLong,
-                actionButtonState: ActionCard.ButtonState(title: Localizations.learnMore) {
-                    store.send(.upgradeToPremium)
-                },
-                dismissButtonState: ActionCard.ButtonState(title: Localizations.dismiss) {
-                    await store.perform(.dismissPremiumUpgradeActionCard)
-                },
-            )
-        }
-    }
-
-    /// The action card shown to users whose personal Premium subscription needs attention (past due).
-    @ViewBuilder private var subscriptionNeedsAttentionActionCard: some View {
-        if store.state.shouldShowSubscriptionAttentionCard {
-            ActionCard(
-                title: Localizations.subscriptionNeedsAttention,
-                message: Localizations.checkYourPlanForDetails,
-                actionButtonState: ActionCard.ButtonState(title: Localizations.viewPlan) {
-                    store.send(.viewPlan)
-                },
-            )
-        }
-    }
-
-    /// The action card for the upgraded to Premium confirmation.
-    @ViewBuilder private var upgradedToPremiumActionCard: some View {
-        if store.state.shouldShowUpgradedToPremiumActionCard {
-            UpgradedToPremiumActionCardView(
-                onDismiss: { await store.perform(.dismissUpgradedToPremiumActionCard) },
-                onLearnMore: { store.send(.learnMoreAboutPremium) },
-            )
         }
     }
 }
@@ -545,370 +523,441 @@ struct VaultListView: View {
 // MARK: Previews
 
 #if DEBUG
-// swiftlint:disable:next type_body_length
-struct VaultListView_Previews: PreviewProvider {
-    static let account1 = ProfileSwitcherItem.fixture(
-        color: .purple,
-        email: "Anne.Account@bitwarden.com",
-        isUnlocked: true,
-        userId: "1",
-        userInitials: "AA",
-        webVault: "vault.bitwarden.com",
-    )
 
-    static let account2 = ProfileSwitcherItem.fixture(
-        color: .green,
-        email: "bonus.bridge@bitwarden.com",
-        isUnlocked: true,
-        userId: "2",
-        userInitials: "BB",
-        webVault: "vault.bitwarden.com",
-    )
+#Preview("Loading") {
+    NavigationView {
+        VaultListView(
+            store: Store(processor: StateProcessor(state: VaultListState())),
+            timeProvider: PreviewTimeProvider(),
+        )
+    }
+}
 
-    static let singleAccountState = ProfileSwitcherState(
-        accounts: [account1],
-        activeAccountId: account1.userId,
-        allowLockAndLogout: true,
-        isVisible: true,
-    )
-
-    static let dualAccountState = ProfileSwitcherState(
-        accounts: [account1, account2],
-        activeAccountId: account1.userId,
-        allowLockAndLogout: true,
-        isVisible: true,
-    )
-
-    static var previews: some View {
-        NavigationView {
-            VaultListView(
-                store: Store(
-                    processor: StateProcessor(
-                        state: VaultListState(),
-                    ),
-                ),
-                timeProvider: PreviewTimeProvider(),
-            )
-        }
-        .previewDisplayName("Loading")
-
-        NavigationView {
-            VaultListView(
-                store: Store(
-                    processor: StateProcessor(
-                        state: VaultListState(
-                            loadingState: .data([]),
+#Preview("Error") {
+    NavigationView {
+        VaultListView(
+            store: Store(
+                processor: StateProcessor(
+                    state: VaultListState(
+                        loadingState: .error(
+                            errorMessage: Localizations.weAreUnableToProcessYourRequestPleaseTryAgainOrContactUs,
                         ),
                     ),
                 ),
-                timeProvider: PreviewTimeProvider(),
-            )
-        }
-        .previewDisplayName("Empty")
+            ),
+            timeProvider: PreviewTimeProvider(),
+        )
+    }
+}
 
-        NavigationView {
-            VaultListView(
-                store: Store(
-                    processor: StateProcessor(
-                        state: VaultListState(
-                            loadingState: .error(
-                                errorMessage: Localizations.weAreUnableToProcessYourRequestPleaseTryAgainOrContactUs,
+#Preview("Empty") {
+    NavigationView {
+        VaultListView(
+            store: Store(
+                processor: StateProcessor(
+                    state: VaultListState(loadingState: .data([])),
+                ),
+            ),
+            timeProvider: PreviewTimeProvider(),
+        )
+    }
+}
+
+#Preview("Empty - Import Logins") {
+    NavigationView {
+        VaultListView(
+            store: Store(
+                processor: StateProcessor(
+                    state: VaultListState(
+                        importLoginsSetupProgress: .incomplete,
+                        loadingState: .data([]),
+                    ),
+                ),
+            ),
+            timeProvider: PreviewTimeProvider(),
+        )
+    }
+}
+
+#Preview("Empty - Subscription Attention") {
+    NavigationView {
+        VaultListView(
+            store: Store(
+                processor: StateProcessor(
+                    state: VaultListState(
+                        loadingState: .data([]),
+                        shouldShowSubscriptionAttentionCard: true,
+                    ),
+                ),
+            ),
+            timeProvider: PreviewTimeProvider(),
+        )
+    }
+}
+
+#Preview("My Vault") {
+    NavigationView {
+        VaultListView(
+            store: Store(
+                processor: StateProcessor(
+                    state: VaultListState(
+                        loadingState: .data([
+                            VaultListSection(
+                                id: "1",
+                                items: [
+                                    .init(cipherListView: .fixture(
+                                        id: UUID().uuidString,
+                                        login: .fixture(username: "email@example.com"),
+                                        name: "Example",
+                                        subtitle: "email@example.com",
+                                    ))!,
+                                    .init(cipherListView: .fixture(
+                                        id: UUID().uuidString,
+                                        name: "Example 2",
+                                        type: .secureNote,
+                                    ))!,
+                                ],
+                                name: "Favorites",
                             ),
-                        ),
-                    ),
-                ),
-                timeProvider: PreviewTimeProvider(),
-            )
-        }
-        .previewDisplayName("Error")
-
-        NavigationView {
-            VaultListView(
-                store: Store(
-                    processor: StateProcessor(
-                        state: VaultListState(
-                            importLoginsSetupProgress: .incomplete,
-                            loadingState: .data([]),
-                        ),
-                    ),
-                ),
-                timeProvider: PreviewTimeProvider(),
-            )
-        }
-        .previewDisplayName("Empty - Import Logins")
-
-        NavigationView {
-            VaultListView(
-                store: Store(
-                    processor: StateProcessor(
-                        state: VaultListState(
-                            loadingState: .data([
-                                VaultListSection(
-                                    id: "1",
-                                    items: [
-                                        .init(cipherListView: .fixture(
-                                            id: UUID().uuidString,
-                                            login: .fixture(username: "email@example.com"),
-                                            name: "Example",
-                                            subtitle: "email@example.com",
-                                        ))!,
-                                        .init(cipherListView: .fixture(
-                                            id: UUID().uuidString,
-                                            name: "Example 2",
-                                            type: .secureNote,
-                                        ))!,
-                                    ],
-                                    name: "Favorites",
-                                ),
-                                VaultListSection(
-                                    id: "2",
-                                    items: [
-                                        VaultListItem(
-                                            id: "21",
-                                            itemType: .group(.login, 123),
-                                        ),
-                                        VaultListItem(
-                                            id: "22",
-                                            itemType: .group(.card, 25),
-                                        ),
-                                        VaultListItem(
-                                            id: "23",
-                                            itemType: .group(.identity, 1),
-                                        ),
-                                        VaultListItem(
-                                            id: "24",
-                                            itemType: .group(.secureNote, 0),
-                                        ),
-                                        VaultListItem(
-                                            id: "25",
-                                            itemType: .group(.sshKey, 4),
-                                        ),
-                                    ],
-                                    name: "Types",
-                                ),
-                            ]),
-                        ),
-                    ),
-                ),
-                timeProvider: PreviewTimeProvider(),
-            )
-        }
-        .previewDisplayName("My Vault")
-
-        NavigationView {
-            VaultListView(
-                store: Store(
-                    processor: StateProcessor(
-                        state: VaultListState(
-                            loadingState: .data([
-                                VaultListSection(
-                                    id: "Collections",
-                                    items: [
-                                        VaultListItem(
-                                            id: "31",
-                                            itemType: .group(
-                                                .collection(id: "", name: "Design", organizationId: "1"),
-                                                0,
-                                            ),
-                                        ),
-                                        VaultListItem(
-                                            id: "32",
-                                            itemType: .group(
-                                                .collection(id: "", name: "Engineering", organizationId: "1"),
-                                                2,
-                                            ),
-                                        ),
-                                    ],
-                                    name: "Collections",
-                                ),
-                                VaultListSection(
-                                    id: "CollectionItems",
-                                    items: [
-                                        .init(cipherListView: .fixture(
-                                            id: UUID().uuidString,
-                                            organizationId: "1",
-                                            login: .fixture(username: "email@example.com"),
-                                            name: "Example",
-                                            subtitle: "email@example.com",
-                                        ))!,
-                                        .init(cipherListView: .fixture(
-                                            id: UUID().uuidString,
-                                            organizationId: "1",
-                                            login: .fixture(username: "email@example.com"),
-                                            name: "Example",
-                                            subtitle: "email@example.com",
-                                        ))!,
-                                        .init(cipherListView: .fixture(
-                                            id: UUID().uuidString,
-                                            organizationId: "1",
-                                            login: .fixture(username: "email@example.com"),
-                                            name: "Example",
-                                            subtitle: "email@example.com",
-                                        ))!,
-                                        .init(cipherListView: .fixture(
-                                            id: UUID().uuidString,
-                                            organizationId: "1",
-                                            login: .fixture(username: "email@example.com"),
-                                            name: "Example",
-                                            subtitle: "email@example.com",
-                                        ))!,
-                                        .init(cipherListView: .fixture(
-                                            id: UUID().uuidString,
-                                            organizationId: "1",
-                                            login: .fixture(username: "email@example.com"),
-                                            name: "Example",
-                                            subtitle: "email@example.com",
-                                        ))!,
-                                        .init(cipherListView: .fixture(
-                                            id: UUID().uuidString,
-                                            organizationId: "1",
-                                            login: .fixture(username: "email@example.com"),
-                                            name: "Example",
-                                            subtitle: "email@example.com",
-                                        ))!,
-                                        .init(cipherListView: .fixture(
-                                            id: UUID().uuidString,
-                                            organizationId: "1",
-                                            login: .fixture(username: "email@example.com"),
-                                            name: "Example",
-                                            subtitle: "email@example.com",
-                                        ))!,
-                                    ],
-                                    name: "Items",
-                                ),
-                            ]),
-                            organizations: [
-                                Organization(
-                                    enabled: true,
-                                    id: "",
-                                    isProviderUser: false,
-                                    key: nil,
-                                    keyConnectorEnabled: false,
-                                    keyConnectorUrl: nil,
-                                    name: "Org",
-                                    permissions: Permissions(),
-                                    status: .confirmed,
-                                    type: .user,
-                                    useEvents: false,
-                                    usePolicies: true,
-                                    userIsManagedByOrganization: false,
-                                    usersGetPremium: false,
-                                ),
-                            ],
-                        ),
-                    ),
-                ),
-                timeProvider: PreviewTimeProvider(),
-            )
-        }
-        .previewDisplayName("My Vault - Collections")
-
-        NavigationView {
-            VaultListView(
-                store: Store(
-                    processor: StateProcessor(
-                        state: VaultListState(
-                            profileSwitcherState: ProfileSwitcherState(
-                                accounts: [],
-                                activeAccountId: nil,
-                                allowLockAndLogout: true,
-                                isVisible: false,
+                            VaultListSection(
+                                id: "2",
+                                items: [
+                                    VaultListItem(id: "21", itemType: .group(.login, 123)),
+                                    VaultListItem(id: "22", itemType: .group(.card, 25)),
+                                    VaultListItem(id: "23", itemType: .group(.identity, 1)),
+                                    VaultListItem(id: "24", itemType: .group(.secureNote, 0)),
+                                    VaultListItem(id: "25", itemType: .group(.sshKey, 4)),
+                                ],
+                                name: "Types",
                             ),
-                            searchResults: [
-                                .init(cipherListView: .fixture(
-                                    id: UUID().uuidString,
-                                    login: .fixture(username: "email@example.com"),
-                                    name: "Example",
-                                    subtitle: "email@example.com",
-                                ))!,
-                            ],
-                            searchText: "Exam",
-                        ),
+                        ]),
                     ),
                 ),
-                timeProvider: PreviewTimeProvider(),
-            )
-        }
-        .previewDisplayName("1 Search Result")
+            ),
+            timeProvider: PreviewTimeProvider(),
+        )
+    }
+}
 
-        NavigationView {
-            VaultListView(
-                store: Store(
-                    processor: StateProcessor(
-                        state: VaultListState(
-                            searchResults: [
-                                .init(cipherListView: .fixture(
-                                    id: UUID().uuidString,
-                                    login: .fixture(username: "email@example.com"),
-                                    name: "Example",
-                                    subtitle: "email@example.com",
-                                ))!,
-                                .init(cipherListView: .fixture(
-                                    id: UUID().uuidString,
-                                    login: .fixture(username: "email2@example.com"),
-                                    name: "Example 2",
-                                    subtitle: "email2@example.com",
-                                ))!,
-                                .init(cipherListView: .fixture(
-                                    id: UUID().uuidString,
-                                    login: .fixture(username: "email3@example.com"),
-                                    name: "Example 3",
-                                    subtitle: "email3@example.com",
-                                ))!,
-                            ],
-                            searchText: "Exam",
-                        ),
+#Preview("My Vault - Upgraded to Premium") {
+    NavigationView {
+        VaultListView(
+            store: Store(
+                processor: StateProcessor(
+                    state: VaultListState(
+                        loadingState: .data([
+                            VaultListSection(
+                                id: "1",
+                                items: [
+                                    VaultListItem(id: "11", itemType: .group(.login, 42)),
+                                    VaultListItem(id: "12", itemType: .group(.card, 5)),
+                                ],
+                                name: "Types",
+                            ),
+                        ]),
+                        shouldShowUpgradedToPremiumActionCard: true,
                     ),
                 ),
-                timeProvider: PreviewTimeProvider(),
-            )
-        }
-        .previewDisplayName("3 Search Results")
+            ),
+            timeProvider: PreviewTimeProvider(),
+        )
+    }
+}
 
-        NavigationView {
-            VaultListView(
-                store: Store(
-                    processor: StateProcessor(
-                        state: VaultListState(
-                            searchResults: [],
-                            searchText: "Exam",
-                        ),
+#Preview("My Vault - Upgrade to Premium") {
+    NavigationView {
+        VaultListView(
+            store: Store(
+                processor: StateProcessor(
+                    state: VaultListState(
+                        loadingState: .data([
+                            VaultListSection(
+                                id: "1",
+                                items: [
+                                    VaultListItem(id: "11", itemType: .group(.login, 42)),
+                                    VaultListItem(id: "12", itemType: .group(.card, 5)),
+                                ],
+                                name: "Types",
+                            ),
+                        ]),
+                        shouldShowPremiumUpgradeActionCard: true,
                     ),
                 ),
-                timeProvider: PreviewTimeProvider(),
-            )
-        }
-        .previewDisplayName("No Search Results")
+            ),
+            timeProvider: PreviewTimeProvider(),
+        )
+    }
+}
 
-        NavigationView {
-            VaultListView(
-                store: Store(
-                    processor: StateProcessor(
-                        state: VaultListState(
-                            loadingState: .data([]),
-                            profileSwitcherState: .singleAccount,
-                        ),
+#Preview("My Vault - Introducing Archive") {
+    NavigationView {
+        VaultListView(
+            store: Store(
+                processor: StateProcessor(
+                    state: VaultListState(
+                        loadingState: .data([
+                            VaultListSection(
+                                id: "1",
+                                items: [
+                                    VaultListItem(id: "11", itemType: .group(.login, 42)),
+                                    VaultListItem(id: "12", itemType: .group(.card, 5)),
+                                ],
+                                name: "Types",
+                            ),
+                        ]),
+                        shouldShowArchiveOnboardingActionCard: true,
                     ),
                 ),
-                timeProvider: PreviewTimeProvider(),
-            )
-        }
-        .previewDisplayName("Profile Switcher Visible: Single Account")
+            ),
+            timeProvider: PreviewTimeProvider(),
+        )
+    }
+}
 
-        NavigationView {
-            VaultListView(
-                store: Store(
-                    processor: StateProcessor(
-                        state: VaultListState(
-                            loadingState: .data([]),
-                            profileSwitcherState: .dualAccounts,
-                        ),
+#Preview("My Vault - Subscription Attention") {
+    NavigationView {
+        VaultListView(
+            store: Store(
+                processor: StateProcessor(
+                    state: VaultListState(
+                        loadingState: .data([
+                            VaultListSection(
+                                id: "1",
+                                items: [
+                                    VaultListItem(id: "11", itemType: .group(.login, 42)),
+                                    VaultListItem(id: "12", itemType: .group(.card, 5)),
+                                ],
+                                name: "Types",
+                            ),
+                        ]),
+                        shouldShowArchiveOnboardingActionCard: true,
+                        shouldShowSubscriptionAttentionCard: true,
                     ),
                 ),
-                timeProvider: PreviewTimeProvider(),
-            )
-        }
-        .previewDisplayName("Profile Switcher Visible: Multi Account")
+            ),
+            timeProvider: PreviewTimeProvider(),
+        )
+    }
+}
+
+#Preview("My Vault - Collections") {
+    NavigationView {
+        VaultListView(
+            store: Store(
+                processor: StateProcessor(
+                    state: VaultListState(
+                        loadingState: .data([
+                            VaultListSection(
+                                id: "Collections",
+                                items: [
+                                    VaultListItem(
+                                        id: "31",
+                                        itemType: .group(
+                                            .collection(id: "", name: "Design", organizationId: "1"),
+                                            0,
+                                        ),
+                                    ),
+                                    VaultListItem(
+                                        id: "32",
+                                        itemType: .group(
+                                            .collection(id: "", name: "Engineering", organizationId: "1"),
+                                            2,
+                                        ),
+                                    ),
+                                ],
+                                name: "Collections",
+                            ),
+                            VaultListSection(
+                                id: "CollectionItems",
+                                items: [
+                                    .init(cipherListView: .fixture(
+                                        id: UUID().uuidString,
+                                        organizationId: "1",
+                                        login: .fixture(username: "email@example.com"),
+                                        name: "Example",
+                                        subtitle: "email@example.com",
+                                    ))!,
+                                    .init(cipherListView: .fixture(
+                                        id: UUID().uuidString,
+                                        organizationId: "1",
+                                        login: .fixture(username: "email@example.com"),
+                                        name: "Example",
+                                        subtitle: "email@example.com",
+                                    ))!,
+                                    .init(cipherListView: .fixture(
+                                        id: UUID().uuidString,
+                                        organizationId: "1",
+                                        login: .fixture(username: "email@example.com"),
+                                        name: "Example",
+                                        subtitle: "email@example.com",
+                                    ))!,
+                                    .init(cipherListView: .fixture(
+                                        id: UUID().uuidString,
+                                        organizationId: "1",
+                                        login: .fixture(username: "email@example.com"),
+                                        name: "Example",
+                                        subtitle: "email@example.com",
+                                    ))!,
+                                    .init(cipherListView: .fixture(
+                                        id: UUID().uuidString,
+                                        organizationId: "1",
+                                        login: .fixture(username: "email@example.com"),
+                                        name: "Example",
+                                        subtitle: "email@example.com",
+                                    ))!,
+                                    .init(cipherListView: .fixture(
+                                        id: UUID().uuidString,
+                                        organizationId: "1",
+                                        login: .fixture(username: "email@example.com"),
+                                        name: "Example",
+                                        subtitle: "email@example.com",
+                                    ))!,
+                                    .init(cipherListView: .fixture(
+                                        id: UUID().uuidString,
+                                        organizationId: "1",
+                                        login: .fixture(username: "email@example.com"),
+                                        name: "Example",
+                                        subtitle: "email@example.com",
+                                    ))!,
+                                ],
+                                name: "Items",
+                            ),
+                        ]),
+                        organizations: [
+                            Organization(
+                                enabled: true,
+                                id: "",
+                                isProviderUser: false,
+                                key: nil,
+                                keyConnectorEnabled: false,
+                                keyConnectorUrl: nil,
+                                name: "Org",
+                                permissions: Permissions(),
+                                status: .confirmed,
+                                type: .user,
+                                useEvents: false,
+                                usePolicies: true,
+                                userIsManagedByOrganization: false,
+                                usersGetPremium: false,
+                            ),
+                        ],
+                    ),
+                ),
+            ),
+            timeProvider: PreviewTimeProvider(),
+        )
+    }
+}
+
+#Preview("1 Search Result") {
+    NavigationView {
+        VaultListView(
+            store: Store(
+                processor: StateProcessor(
+                    state: VaultListState(
+                        profileSwitcherState: ProfileSwitcherState(
+                            accounts: [],
+                            activeAccountId: nil,
+                            allowLockAndLogout: true,
+                            isVisible: false,
+                        ),
+                        searchResults: [
+                            .init(cipherListView: .fixture(
+                                id: UUID().uuidString,
+                                login: .fixture(username: "email@example.com"),
+                                name: "Example",
+                                subtitle: "email@example.com",
+                            ))!,
+                        ],
+                        searchText: "Exam",
+                    ),
+                ),
+            ),
+            timeProvider: PreviewTimeProvider(),
+        )
+    }
+}
+
+#Preview("3 Search Results") {
+    NavigationView {
+        VaultListView(
+            store: Store(
+                processor: StateProcessor(
+                    state: VaultListState(
+                        searchResults: [
+                            .init(cipherListView: .fixture(
+                                id: UUID().uuidString,
+                                login: .fixture(username: "email@example.com"),
+                                name: "Example",
+                                subtitle: "email@example.com",
+                            ))!,
+                            .init(cipherListView: .fixture(
+                                id: UUID().uuidString,
+                                login: .fixture(username: "email2@example.com"),
+                                name: "Example 2",
+                                subtitle: "email2@example.com",
+                            ))!,
+                            .init(cipherListView: .fixture(
+                                id: UUID().uuidString,
+                                login: .fixture(username: "email3@example.com"),
+                                name: "Example 3",
+                                subtitle: "email3@example.com",
+                            ))!,
+                        ],
+                        searchText: "Exam",
+                    ),
+                ),
+            ),
+            timeProvider: PreviewTimeProvider(),
+        )
+    }
+}
+
+#Preview("No Search Results") {
+    NavigationView {
+        VaultListView(
+            store: Store(
+                processor: StateProcessor(
+                    state: VaultListState(
+                        searchResults: [],
+                        searchText: "Exam",
+                    ),
+                ),
+            ),
+            timeProvider: PreviewTimeProvider(),
+        )
+    }
+}
+
+#Preview("Profile Switcher Visible: Single Account") {
+    NavigationView {
+        VaultListView(
+            store: Store(
+                processor: StateProcessor(
+                    state: VaultListState(
+                        loadingState: .data([]),
+                        profileSwitcherState: .singleAccount,
+                    ),
+                ),
+            ),
+            timeProvider: PreviewTimeProvider(),
+        )
+    }
+}
+
+#Preview("Profile Switcher Visible: Multi Account") {
+    NavigationView {
+        VaultListView(
+            store: Store(
+                processor: StateProcessor(
+                    state: VaultListState(
+                        loadingState: .data([]),
+                        profileSwitcherState: .dualAccounts,
+                    ),
+                ),
+            ),
+            timeProvider: PreviewTimeProvider(),
+        )
     }
 }
 #endif
