@@ -26,10 +26,9 @@ struct MoveToOrganizationView: View {
                 }
 
                 ToolbarItem(placement: .topBarTrailing) {
-                    toolbarButton(Localizations.move) {
+                    confirmToolbarButton(accessibilityIdentifier: "MoveButton", label: Localizations.move) {
                         await store.perform(.moveCipher)
                     }
-                    .accessibilityIdentifier("MoveButton")
                 }
             }
     }

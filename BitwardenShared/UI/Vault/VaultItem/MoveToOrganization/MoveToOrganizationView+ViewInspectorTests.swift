@@ -43,7 +43,12 @@ class MoveToOrganizationViewTests: BitwardenTestCase {
     /// Tapping the move button dispatches the `.moveCipher` action.
     @MainActor
     func test_moveButton_tap() async throws {
-        let button = try subject.inspect().find(asyncButton: Localizations.move)
+        guard #unavailable(iOS 26) else {
+            // TODO: PM-26079 Remove when toolbar AsyncButton is used.
+            throw XCTSkip("Remove this when the toolbar move button gets updated to use AsyncButton.")
+        }
+
+        let button = try subject.inspect().find(asyncButtonWithAccessibilityLabel: Localizations.move)
         try await button.tap()
         XCTAssertEqual(processor.effects.last, .moveCipher)
     }
