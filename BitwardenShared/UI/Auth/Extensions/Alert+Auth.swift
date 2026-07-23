@@ -79,6 +79,21 @@ extension Alert {
         )
     }
 
+    /// An alert notifying the user that account creation is not allowed for the current server.
+    ///
+    /// - Parameter action: The action to perform when the user dismisses the alert.
+    /// - Returns: An alert notifying the user that account creation is not allowed.
+    ///
+    static func registrationDisabled(action: @escaping () async -> Void) -> Alert {
+        Alert(
+            title: Localizations.anErrorHasOccurred,
+            message: Localizations.accountCreationNotAllowed,
+            alertActions: [
+                AlertAction(title: Localizations.ok, style: .default) { _ in await action() },
+            ],
+        )
+    }
+
     /// Display the options to log out of, lock, or remove the selected profile switcher item.
     ///
     /// - Parameters:
