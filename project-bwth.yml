@@ -65,6 +65,7 @@ targets:
     settings:
       base:
         INFOPLIST_FILE: TestHarness/Application/Support/Info.plist
+        CODE_SIGN_ENTITLEMENTS: TestHarness/Application/Support/Entitlements/TestHarness.entitlements
     sources:
       - path: TestHarness
         excludes:
