@@ -3,9 +3,8 @@ name: Test Password Manager
 on:
   push:
     branches:
-      - "main"
-      - "rc"
-      - "hotfix-rc"
+      - main
+      - release/**/*
   pull_request:
     types: [opened, synchronize]
     paths-ignore:
@@ -52,10 +51,20 @@ env:
   _COMPILER_FLAGS: ${{ inputs.compiler-flags }}
   _GITHUB_ACTION_RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}/attempts/${{ github.run_attempt }}
 
+  # xcode optimization flags
+  COMPILER_INDEX_STORE_ENABLE: "NO"
+  COMPILATION_CACHE_ENABLE_CACHING: "YES"
+  COMPILATION_CACHE_ENABLE_PLUGIN: "YES"
+  SWIFT_ENABLE_COMPILE_CACHE: "YES"
+  CLANG_ENABLE_COMPILE_CACHE: "YES"
+  SWIFT_ENABLE_EXPLICIT_MODULES: "YES"
+  SWIFT_USE_INTEGRATED_DRIVER: "YES"
+  CLANG_ENABLE_MODULES: "YES"
+
 jobs:
   test:
     name: Test
-    runs-on: macos-26
+    runs-on: macos-26-xlarge
     timeout-minutes: 50
     permissions:
       contents: read
@@ -96,21 +105,36 @@ jobs:
         with:
           bundler-cache: true
 
-      - name: Cache Mint packages
-        uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
+      - name: Restore Mint packages
+        id: restore-mint
+        uses: actions/cache/restore@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
         with:
           path: .mint
           key: ${{ runner.os }}-mint-${{ hashFiles('**/Mintfile') }}
           restore-keys: |
             ${{ runner.os }}-mint-
 
-      - name: Cache SPM packages
-        uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
+      - name: Restore SPM packages
+        id: restore-spm
+        uses: actions/cache/restore@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
         with:
           path: build/DerivedData/SourcePackages
           key: ${{ runner.os }}-spm-${{ hashFiles('**/Package.resolved') }}
           restore-keys: |
             ${{ runner.os }}-spm-
+
+      - name: Restore DerivedData
+        id: restore-deriveddata
+        uses: actions/cache/restore@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
+        with:
+          path: build/DerivedData
+          key: ${{ runner.os }}-deriveddata-testbwpm-${{ env._XCODE_VERSION }}-${{ github.sha }}
+          restore-keys: |
+            ${{ runner.os }}-deriveddata-testbwpm-${{ env._XCODE_VERSION }}-
+
+      # src: https://stackoverflow.com/questions/53753511/is-it-possible-to-copy-an-xcode-derived-data-cache
+      - name: Set IgnoreFileSystemDeviceInodeChanges flag
+        run: defaults write com.apple.dt.XCBuild IgnoreFileSystemDeviceInodeChanges -bool YES
 
       - name: Update local config
         run: |
@@ -141,8 +165,33 @@ jobs:
               -destination "platform=iOS Simulator,id=$_SIMULATOR_ID" \
               -derivedDataPath build/DerivedData \
               -resultBundlePath "$_BUILD_RESULT_BUNDLE_PATH" \
+              -parallelizeTargets \
+              -skipPackagePluginValidation \
+              -skipMacroValidation \
+              -showBuildTimingSummary \
               -quiet
             kill "$PYEETD_PID"
+
+      - name: Save Mint packages
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main' && steps.restore-mint.outputs.cache-hit != 'true'
+        uses: actions/cache/save@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
+        with:
+          path: .mint
+          key: ${{ runner.os }}-mint-${{ hashFiles('**/Mintfile') }}
+
+      - name: Save SPM packages
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main' && steps.restore-spm.outputs.cache-hit != 'true'
+        uses: actions/cache/save@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
+        with:
+          path: build/DerivedData/SourcePackages
+          key: ${{ runner.os }}-spm-${{ hashFiles('**/Package.resolved') }}
+
+      - name: Save DerivedData
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main' && steps.restore-deriveddata.outputs.cache-hit != 'true'
+        uses: actions/cache/save@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
+        with:
+          path: build/DerivedData
+          key: ${{ runner.os }}-deriveddata-testbwpm-${{ env._XCODE_VERSION }}-${{ github.sha }}
 
       - name: Test
         id: test
@@ -159,6 +208,7 @@ jobs:
               -derivedDataPath build/DerivedData \
               -test-timeouts-enabled yes \
               -maximum-test-execution-time-allowance 10 \
+              -showBuildTimingSummary \
               -quiet
             kill "$PYEETD_PID"
 
