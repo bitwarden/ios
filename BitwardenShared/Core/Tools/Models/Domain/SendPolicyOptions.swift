@@ -14,6 +14,9 @@ struct SendPolicyOptions: Equatable, Sendable {
     /// The access type the user is required to use, or `nil` if the access type is unrestricted.
     var enforcedAccessType: SendAccessType?
 
+    /// The Send type the user is required to use, or `nil` if both types are allowed (unrestricted).
+    var enforcedSendType: SendType?
+
     /// Whether the hide-email option is disabled.
     var isHideEmailDisabled = false
 
@@ -24,10 +27,12 @@ struct SendPolicyOptions: Equatable, Sendable {
 extension SendPolicyOptions {
     /// Creates the Send policy options from the Send Controls policies that apply to the user.
     ///
-    /// When multiple policies apply, a boolean restriction is enforced if *any* applying policy
-    /// enables it, and the access type is resolved to the most restrictive across all applying
-    /// policies: email verification > password protection > no access control. The `whoCanAccess`
-    /// values are ordered by restrictiveness, so the highest value wins.
+    /// When multiple policies apply, a restriction is enforced if *any* applying policy enables it.
+    /// The enforced access type is resolved to the most restrictive across all applying policies
+    /// (email verification > password protection > no access control, the `whoCanAccess` values are
+    /// ordered by restrictiveness and the highest value wins, and the enforced Send type is the
+    /// most restrictive across all applying policies (per the order text > file >
+    /// both/unrestricted).
     ///
     /// - Parameter sendControlsPolicies: The `sendControls` policies applying to the active user.
     ///
@@ -52,8 +57,30 @@ extension SendPolicyOptions {
         self.init(
             allowedDomains: allowedDomains,
             enforcedAccessType: enforcedAccessType,
+            enforcedSendType: Self.enforcedSendType(from: policies),
             isHideEmailDisabled: policies.contains { $0[.disableHideEmail]?.boolValue == true },
             isSendDisabled: policies.contains { $0[.disableSend]?.boolValue == true },
         )
+    }
+
+    /// Determines the Send type the user is restricted to from the applying `sendControls` policies.
+    ///
+    /// The server sends `allowedSendTypes` as an array of `SendType` raw values (`0` = text,
+    /// `1` = file); a policy restricts the type when it allows exactly one type. When multiple
+    /// policies apply, the most restrictive wins per the order text > file > both/unrestricted.
+    ///
+    /// - Parameter policies: The `sendControls` policies applying to the active user.
+    /// - Returns: The enforced `SendType`, or `nil` if both types are allowed (unrestricted).
+    ///
+    private static func enforcedSendType(from policies: [Policy]) -> SendType? {
+        let restrictedTypes = policies.compactMap { policy -> SendType? in
+            guard let rawTypes = policy[.allowedSendTypes]?.arrayValue else { return nil }
+            let allowedTypes = Set(rawTypes.compactMap(\.intValue).compactMap(SendType.init(rawValue:)))
+            return allowedTypes.count == 1 ? allowedTypes.first : nil
+        }
+
+        if restrictedTypes.contains(.text) { return .text }
+        if restrictedTypes.contains(.file) { return .file }
+        return nil
     }
 }

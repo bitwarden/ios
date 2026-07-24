@@ -85,6 +85,11 @@ enum PolicyOptionType: String {
     /// control is email verification ("Specific people"). Encoded as a comma-separated string.
     case allowedDomains
 
+    /// A policy option for the Send types users are allowed to create. Encoded as an array of
+    /// `SendType` raw values (`0` = text, `1` = file); `[0, 1]` or a missing key means both types
+    /// are allowed.
+    case allowedSendTypes
+
     /// A policy option for whether the send should disable the hide email option.
     case disableHideEmail
 
