@@ -14,7 +14,6 @@
 "ChallengeMismatchTitle" = "Challenge mismatch";
 "ClientDataErrors" = "Client Data Errors";
 "ClientDataErrorsDescriptionLong" = "Occur while decoding the authenticator's clientDataJSON payload, before the assertion is checked against a stored credential.";
-"ClientDataMismatchReceived" = "The client data's type or challenge did not match the request.";
 "ConfirmPassword" = "Confirm Password";
 "CreateAccount" = "Create Account";
 "CreateAccountForm" = "Create Account Form";
@@ -57,7 +56,6 @@
 "MissingClientDataTypeTitle" = "Missing type field";
 "PasskeyAssertedSuccessfully" = "Passkey sign-in succeeded.";
 "PasskeyAssertionNotAvailable" = "Passkey assertion requires iOS 17 or later.";
-"PasskeyAutofill" = "Passkey Autofill";
 "PasskeyCreatedButNotSaved" = "Passkey created, but not saved for later verification.";
 "PasskeyErrorReference" = "Passkey Error Reference";
 "PasskeyErrorReferenceDescriptionLong" = "Every error the client data parser and assertion verifier can produce for a passkey sign-in, in the order each is checked. Use this to see what a failure looks like without needing to trigger it.";
