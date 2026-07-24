@@ -201,7 +201,7 @@ struct AddEditItemView: View {
                 if store.state.configuration.isAdding, store.state.hasOrganizations, let owner = store.state.owner {
                     ContentBlock(dividerLeadingPadding: 16) {
                         BitwardenMenuField(
-                            title: Localizations.owner,
+                            title: Localizations.vault,
                             accessibilityIdentifier: "ItemOwnershipPicker",
                             options: store.state.ownershipOptions,
                             selection: store.binding(

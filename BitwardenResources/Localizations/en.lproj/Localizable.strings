@@ -852,7 +852,6 @@
 "PersonalDetails" = "Personal details";
 "ContactInfo" = "Contact info";
 "Identification" = "Identification";
-"Owner" = "Owner";
 "VerifyYourIdentity" = "Verify your identity";
 "ShareErrorDetails" = "Share error details";
 "FlightRecorder" = "Flight recorder";
@@ -866,7 +865,7 @@
 "ShowMore" = "Show more";
 "ShowLess" = "Show less";
 "ItemNameX" = "Item name, %1$@";
-"OwnerX" = "Owner, %1$@";
+"VaultX" = "Vault, %1$@";
 "CollectionX" = "Collection, %1$@";
 "FolderX" = "Folder, %1$@";
 "ItemXOfY" = "Item %1$@ of %2$@";
