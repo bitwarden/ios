@@ -107,6 +107,7 @@ class StartRegistrationProcessor: StateProcessor<
             await regionHelper.presentRegionSelectorAlert(
                 title: Localizations.creatingOn,
                 currentRegion: state.region,
+                excludingRegions: [.gov],
             )
         case .startRegistration:
             await startRegistration()
