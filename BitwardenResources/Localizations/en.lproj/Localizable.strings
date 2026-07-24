@@ -1204,9 +1204,7 @@
 "PendingRequest" = "Pending request";
 "Trusted" = "Trusted";
 "RecentlyActiveLabel" = "Recently active:";
-"RecentlyActiveX" = "Recently active: %1$@";
 "FirstLoginLabel" = "First login:";
-"FirstLoginX" = "First login: %1$@";
 "Today" = "Today";
 "PastSevenDays" = "Past 7 days";
 "PastFourteenDays" = "Past 14 days";

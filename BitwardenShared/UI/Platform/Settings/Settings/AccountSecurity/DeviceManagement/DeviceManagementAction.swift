@@ -5,8 +5,8 @@ import BitwardenKit
 /// Actions that can be processed by a `DeviceManagementProcessor`.
 ///
 enum DeviceManagementAction: Equatable {
-    /// A device was tapped.
-    case deviceTapped(DeviceListItem)
+    /// An action from a `DeviceRow`.
+    case deviceRow(DeviceRowAction)
 
     /// Dismiss the sheet.
     case dismiss

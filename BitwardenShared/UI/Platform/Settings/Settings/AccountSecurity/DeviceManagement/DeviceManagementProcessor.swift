@@ -58,8 +58,8 @@ final class DeviceManagementProcessor: StateProcessor<
 
     override func receive(_ action: DeviceManagementAction) {
         switch action {
-        case let .deviceTapped(device):
-            handleDeviceTapped(device)
+        case let .deviceRow(rowAction):
+            handleDeviceRowAction(rowAction)
         case .dismiss:
             coordinator.navigate(to: .dismiss(), context: self)
         case let .toastShown(newValue):
@@ -69,13 +69,16 @@ final class DeviceManagementProcessor: StateProcessor<
 
     // MARK: Private Methods
 
-    /// Handles when a device is tapped.
+    /// Handles an action from a `DeviceRow`.
     ///
-    /// - Parameter device: The device that was tapped.
+    /// - Parameter action: The action to handle.
     ///
-    private func handleDeviceTapped(_ device: DeviceListItem) {
-        guard let pendingRequest = device.pendingRequest else { return }
-        coordinator.navigate(to: .loginRequest(pendingRequest), context: self)
+    private func handleDeviceRowAction(_ action: DeviceRowAction) {
+        switch action {
+        case let .rowTapped(device):
+            guard let pendingRequest = device.pendingRequest else { return }
+            coordinator.navigate(to: .loginRequest(pendingRequest), context: self)
+        }
     }
 
     /// Loads the device data.
@@ -107,28 +110,7 @@ final class DeviceManagementProcessor: StateProcessor<
             deviceItems = matchPendingRequestsToDevices(deviceItems, pendingRequests: pendingRequests)
 
             // Sort devices: current session first, then pending requests, then by activity.
-            deviceItems.sort { lhs, rhs in
-                // Current session always first.
-                if lhs.isCurrentSession != rhs.isCurrentSession {
-                    return lhs.isCurrentSession
-                }
-                // Devices with pending requests second.
-                if lhs.hasPendingRequest != rhs.hasPendingRequest {
-                    return lhs.hasPendingRequest
-                }
-                // Sort by last activity date descending, with nil dates last.
-                switch (lhs.lastActivityDate, rhs.lastActivityDate) {
-                case let (lhsDate?, rhsDate?):
-                    return lhsDate > rhsDate
-                case (nil, _?):
-                    return false
-                case (_?, nil):
-                    return true
-                case (nil, nil):
-                    // Fall back to creation date.
-                    return lhs.firstLogin > rhs.firstLogin
-                }
-            }
+            deviceItems.sort()
 
             state.loadingState = .data(deviceItems)
         } catch {
@@ -162,8 +144,7 @@ final class DeviceManagementProcessor: StateProcessor<
             if let index = updatedDevices.firstIndex(where: { device in
                 device.pendingRequest == nil &&
                     !device.deviceType.platform.isEmpty &&
-                    device.deviceType.platform.lowercased()
-                    == request.requestDeviceType.lowercased()
+                    device.deviceType.platform.caseInsensitiveCompare(request.requestDeviceType) == .orderedSame
             }) {
                 updatedDevices[index].pendingRequest = request
             }

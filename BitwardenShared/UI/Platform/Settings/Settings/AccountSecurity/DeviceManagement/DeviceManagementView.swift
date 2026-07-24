@@ -61,10 +61,11 @@ struct DeviceManagementView: View {
         ContentBlock(dividerLeadingPadding: 16) {
             ForEach(devices) { device in
                 DeviceRow(
-                    device: device,
-                    onTap: {
-                        store.send(.deviceTapped(device))
-                    },
+                    store: store.child(
+                        state: { _ in DeviceRowState(device: device) },
+                        mapAction: DeviceManagementAction.deviceRow,
+                        mapEffect: nil,
+                    ),
                 )
             }
         }

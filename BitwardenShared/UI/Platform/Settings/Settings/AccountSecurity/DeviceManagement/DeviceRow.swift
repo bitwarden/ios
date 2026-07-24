@@ -2,6 +2,39 @@ import BitwardenKit
 import BitwardenResources
 import SwiftUI
 
+// MARK: - DeviceRowState
+
+/// An object representing the visual state of a `DeviceRow`.
+struct DeviceRowState: Equatable {
+    // MARK: Properties
+
+    /// The device to display.
+    let device: DeviceListItem
+
+    /// The formatted first-login date and time for display.
+    var formattedFirstLogin: String {
+        DeviceRowState.dateTimeFormatter.string(from: device.firstLogin)
+    }
+}
+
+extension DeviceRowState {
+    /// Shared formatter for device activity dates.
+    private static let dateTimeFormatter: DateFormatter = {
+        let formatter = DateFormatter()
+        formatter.dateStyle = .medium
+        formatter.timeStyle = .short
+        return formatter
+    }()
+}
+
+// MARK: - DeviceRowAction
+
+/// Actions that can be sent from a `DeviceRow`.
+enum DeviceRowAction: Equatable, Sendable {
+    /// The row was tapped (for devices with a pending request).
+    case rowTapped(DeviceListItem)
+}
+
 // MARK: - DeviceRow
 
 /// A row displaying device information in the device management list.
@@ -9,17 +42,16 @@ import SwiftUI
 struct DeviceRow: View {
     // MARK: Properties
 
-    /// The device to display.
-    let device: DeviceListItem
-
-    /// The action to perform when the device is tapped (for pending requests).
-    let onTap: () -> Void
+    /// The `Store` for this view.
+    @ObservedObject var store: Store<DeviceRowState, DeviceRowAction, Void>
 
     // MARK: View
 
     var body: some View {
-        if device.hasPendingRequest {
-            Button(action: onTap) {
+        if store.state.device.hasPendingRequest {
+            Button {
+                store.send(.rowTapped(store.state.device))
+            } label: {
                 rowContent
             }
             .buttonStyle(.plain)
@@ -39,20 +71,20 @@ struct DeviceRow: View {
     @ViewBuilder private var rowContent: some View {
         HStack(alignment: .center) {
             VStack(alignment: .leading, spacing: 0) {
-                if device.isCurrentSession {
+                if store.state.device.isCurrentSession {
                     PillBadgeView(text: Localizations.currentSession, style: .info)
                         .padding(.bottom, 14)
-                } else if device.hasPendingRequest {
+                } else if store.state.device.hasPendingRequest {
                     PillBadgeView(text: Localizations.pendingRequest, style: .warning)
                         .padding(.bottom, 14)
                 }
 
-                Text(device.displayName)
+                Text(store.state.device.displayName)
                     .foregroundStyle(SharedAsset.Colors.textPrimary.swiftUIColor)
                     .styleGuide(.bodySemibold)
                     .accessibilityIdentifier("DeviceNameLabel")
 
-                if device.isTrusted {
+                if store.state.device.isTrusted {
                     Text(Localizations.trusted)
                         .foregroundStyle(SharedAsset.Colors.textSecondary.swiftUIColor)
                         .styleGuide(.subheadline)
@@ -61,7 +93,7 @@ struct DeviceRow: View {
                 }
 
                 VStack(alignment: .leading, spacing: 0) {
-                    if device.lastActivityDate != nil {
+                    if store.state.device.lastActivityDate != nil {
                         recentlyActiveRow
                     }
 
@@ -71,7 +103,7 @@ struct DeviceRow: View {
             }
             .frame(maxWidth: .infinity, alignment: .leading)
 
-            if device.hasPendingRequest {
+            if store.state.device.hasPendingRequest {
                 Image(asset: SharedAsset.Icons.chevronRight16)
                     .imageStyle(.accessoryIcon16)
                     .accessibilityHidden(true)
@@ -88,7 +120,7 @@ struct DeviceRow: View {
                 .foregroundStyle(SharedAsset.Colors.textSecondary.swiftUIColor)
                 .styleGuide(.subheadlineSemibold)
 
-            Text(device.activityStatus.localizedString)
+            Text(store.state.device.activityStatus.localizedString)
                 .foregroundStyle(SharedAsset.Colors.textSecondary.swiftUIColor)
                 .styleGuide(.subheadline)
         }
@@ -102,31 +134,12 @@ struct DeviceRow: View {
                 .foregroundStyle(SharedAsset.Colors.textSecondary.swiftUIColor)
                 .styleGuide(.subheadlineSemibold)
 
-            Text(formattedDateTime(device.firstLogin))
+            Text(store.state.formattedFirstLogin)
                 .foregroundStyle(SharedAsset.Colors.textSecondary.swiftUIColor)
                 .styleGuide(.subheadline)
         }
         .accessibilityIdentifier("FirstLoginRow")
     }
-
-    // MARK: Private Methods
-
-    /// Formats a date for display with date and time.
-    private func formattedDateTime(_ date: Date) -> String {
-        DeviceRow.dateTimeFormatter.string(from: date)
-    }
-}
-
-// MARK: - Private Static Helpers
-
-private extension DeviceRow {
-    /// Shared formatter for device activity dates.
-    static let dateTimeFormatter: DateFormatter = {
-        let formatter = DateFormatter()
-        formatter.dateStyle = .medium
-        formatter.timeStyle = .short
-        return formatter
-    }()
 }
 
 // MARK: - Previews
@@ -134,7 +147,7 @@ private extension DeviceRow {
 #if DEBUG
 #Preview("Device Row - Current Session") {
     DeviceRow(
-        device: DeviceListItem(
+        store: Store(processor: StateProcessor(state: DeviceRowState(device: DeviceListItem(
             activityStatus: .today,
             deviceType: .iOS,
             displayName: "Mobile - iOS",
@@ -145,8 +158,7 @@ private extension DeviceRow {
             isTrusted: true,
             lastActivityDate: Date(),
             pendingRequest: nil,
-        ),
-        onTap: {},
+        )))),
     )
     .contentBlock()
     .padding()
@@ -155,7 +167,7 @@ private extension DeviceRow {
 
 #Preview("Device Row - Pending Request") {
     DeviceRow(
-        device: DeviceListItem(
+        store: Store(processor: StateProcessor(state: DeviceRowState(device: DeviceListItem(
             activityStatus: .pastSevenDays,
             deviceType: .chromeExtension,
             displayName: "Web vault - Chrome",
@@ -166,8 +178,7 @@ private extension DeviceRow {
             isTrusted: false,
             lastActivityDate: Date().addingTimeInterval(-86400 * 3),
             pendingRequest: .fixture(),
-        ),
-        onTap: {},
+        )))),
     )
     .contentBlock()
     .padding()
@@ -176,7 +187,7 @@ private extension DeviceRow {
 
 #Preview("Device Row - Trusted Not Current") {
     DeviceRow(
-        device: DeviceListItem(
+        store: Store(processor: StateProcessor(state: DeviceRowState(device: DeviceListItem(
             activityStatus: .pastFourteenDays,
             deviceType: .macOsDesktop,
             displayName: "Desktop - macOS",
@@ -187,8 +198,7 @@ private extension DeviceRow {
             isTrusted: true,
             lastActivityDate: Date().addingTimeInterval(-86400 * 10),
             pendingRequest: nil,
-        ),
-        onTap: {},
+        )))),
     )
     .contentBlock()
     .padding()

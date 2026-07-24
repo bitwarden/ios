@@ -42,7 +42,7 @@ class DeviceManagementViewTests: BitwardenTestCase {
         XCTAssertEqual(processor.dispatchedActions.last, .dismiss)
     }
 
-    /// Tapping a device row with a pending request dispatches the `.deviceTapped` action.
+    /// Tapping a device row with a pending request dispatches the `.deviceRow(.rowTapped)` action.
     @MainActor
     func test_deviceRow_tap_withPendingRequest() throws {
         let request = LoginRequest.fixture()
@@ -53,6 +53,6 @@ class DeviceManagementViewTests: BitwardenTestCase {
         let button = try subject.inspect().find(viewWithAccessibilityIdentifier: "DeviceRowCell")
         try button.button().tap()
 
-        XCTAssertEqual(processor.dispatchedActions.last, .deviceTapped(device))
+        XCTAssertEqual(processor.dispatchedActions.last, .deviceRow(.rowTapped(device)))
     }
 }

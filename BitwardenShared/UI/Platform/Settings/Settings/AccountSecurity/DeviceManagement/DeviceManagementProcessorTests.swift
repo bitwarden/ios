@@ -138,12 +138,12 @@ struct DeviceManagementProcessorTests {
 
     /// `receive(_:)` navigates to the login request when the device has a pending request.
     @Test
-    func receive_deviceTapped_withPendingRequest() {
+    func receive_deviceRow_rowTapped_withPendingRequest() {
         let request = LoginRequest.fixture()
         var device = DeviceListItem.fixture()
         device.pendingRequest = request
 
-        subject.receive(.deviceTapped(device))
+        subject.receive(.deviceRow(.rowTapped(device)))
 
         #expect(coordinator.routes.last == .loginRequest(request))
         #expect(coordinator.contexts.last is DeviceManagementProcessor)
@@ -151,8 +151,8 @@ struct DeviceManagementProcessorTests {
 
     /// `receive(_:)` does nothing when the device has no pending request.
     @Test
-    func receive_deviceTapped_noPendingRequest() {
-        subject.receive(.deviceTapped(.fixture()))
+    func receive_deviceRow_rowTapped_noPendingRequest() {
+        subject.receive(.deviceRow(.rowTapped(.fixture())))
 
         #expect(coordinator.routes.isEmpty)
     }
