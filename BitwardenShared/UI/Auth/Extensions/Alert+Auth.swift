@@ -79,17 +79,17 @@ extension Alert {
         )
     }
 
-    /// An alert notifying the user that account creation is not allowed for the current server.
+    /// An alert notifying the user that account creation is restricted for the current server.
     ///
-    /// - Parameter action: The action to perform when the user dismisses the alert.
-    /// - Returns: An alert notifying the user that account creation is not allowed.
+    /// - Parameter serverURL: The base URL of the server, shown in the message body.
+    /// - Returns: An alert notifying the user that account creation is restricted.
     ///
-    static func registrationDisabled(action: @escaping () async -> Void) -> Alert {
+    static func registrationDisabled(serverURL: String) -> Alert {
         Alert(
-            title: Localizations.anErrorHasOccurred,
-            message: Localizations.accountCreationNotAllowed,
+            title: Localizations.accountCreationRestricted,
+            message: Localizations.xOnlyAllowsInvitedUsersToCreateAccounts(serverURL),
             alertActions: [
-                AlertAction(title: Localizations.ok, style: .default) { _ in await action() },
+                AlertAction(title: Localizations.ok, style: .default),
             ],
         )
     }

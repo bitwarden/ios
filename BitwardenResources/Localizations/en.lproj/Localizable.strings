@@ -39,7 +39,8 @@
 "RemoveAccount" = "Remove account";
 "RemoveAccountConfirmation" = "Are you sure you want to remove this account?";
 "AccountAlreadyAdded" = "Account already added";
-"AccountCreationNotAllowed" = "Account creation is not allowed for this server.";
+"AccountCreationRestricted" = "Account creation restricted";
+"XOnlyAllowsInvitedUsersToCreateAccounts" = "%@ only allows invited users to create accounts.";
 "SwitchToAlreadyAddedAccountConfirmation" = "Would you like to switch to it now?";
 "MasterPassword" = "Master password";
 "MoreOptions" = "More options";
