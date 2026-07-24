@@ -96,7 +96,7 @@ struct DeviceManagementView: View {
                 pendingRequest: nil,
             ),
             DeviceListItem(
-                activityStatus: .thisWeek,
+                activityStatus: .pastSevenDays,
                 deviceType: .chromeExtension,
                 displayName: "Chrome Extension",
                 firstLogin: Date().addingTimeInterval(-86400 * 30),

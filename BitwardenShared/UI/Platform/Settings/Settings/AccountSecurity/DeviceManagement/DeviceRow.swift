@@ -156,7 +156,7 @@ private extension DeviceRow {
 #Preview("Device Row - Pending Request") {
     DeviceRow(
         device: DeviceListItem(
-            activityStatus: .thisWeek,
+            activityStatus: .pastSevenDays,
             deviceType: .chromeExtension,
             displayName: "Web vault - Chrome",
             firstLogin: Date().addingTimeInterval(-86400 * 30),
@@ -177,7 +177,7 @@ private extension DeviceRow {
 #Preview("Device Row - Trusted Not Current") {
     DeviceRow(
         device: DeviceListItem(
-            activityStatus: .lastWeek,
+            activityStatus: .pastFourteenDays,
             deviceType: .macOsDesktop,
             displayName: "Desktop - macOS",
             firstLogin: Date().addingTimeInterval(-86400 * 60),

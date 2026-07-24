@@ -6,7 +6,7 @@
 "Bitwarden" = "Bitwarden";
 "Cancel" = "Cancelar";
 "Copy" = "Copiar";
-"CopyLicenseNumber" = "Copiar número da licença";
+"CopyLicenseNumber" = "Copiar número da CNH";
 "CopyPassportNumber" = "Copiar número do passaporte";
 "CopyPassword" = "Copiar senha";
 "CopyUsername" = "Copiar nome de usuário";
@@ -177,7 +177,7 @@
 "CopyTotp" = "Copiar TOTP";
 "CopyTotpAutomaticallyDescription" = "Se uma credencial tiver uma chave de autenticador, copie o código de verificação TOTP para sua área de transferência ao preenchê-la.";
 "CopyTotpAutomatically" = "Copiar TOTP automaticamente";
-"PremiumRequired" = "Uma conta premium é necessária para usar esse recurso.";
+"PremiumRequired" = "Uma assinatura Premium é necessária para usar esse recurso.";
 "AttachementAdded" = "Anexo adicionado";
 "AttachmentDeleted" = "Anexo apagado";
 "ChooseFile" = "Escolher arquivo";
@@ -233,7 +233,7 @@
 "June" = "Junho";
 "LastName" = "Sobrenome";
 "FullName" = "Nome completo";
-"LicenseNumber" = "Número da licença";
+"LicenseNumber" = "Número da CNH";
 "March" = "Março";
 "May" = "Maio";
 "MiddleName" = "Nome do meio";
@@ -391,7 +391,7 @@
 "MasterPasswordPolicyValidationTitle" = "Senha inválida";
 "MasterPasswordPolicyValidationMessage" = "A senha não atende aos requisitos da organização. Confira as informações da política e tente novamente.";
 "Loading" = "Carregando";
-"LoadingSubscription" = "Carregando assinatura...";
+"LoadingSubscription" = "Carregando assinatura…";
 "AcceptPoliciesError" = "Os Termos de Serviço e a Política de Privacidade não foram reconhecidos.";
 "PrivacyPolicy" = "Política de Privacidade";
 "PersonalOwnershipPolicyInEffect" = "Uma política de organização está afetando suas opções de propriedade.";
@@ -560,7 +560,7 @@
 "ThereAreNoIdentitiesInYourVault" = "Não há identidades no seu cofre";
 "ThereAreNoPassportsInYourVault" = "Não há passaportes no seu cofre";
 "ThereAreNoSSHKeysInYourVault" = "Não há chaves SSH no seu cofre";
-"ThereAreNoBankAccountsInYourVault" = "Não há contas de banco no seu cofre";
+"ThereAreNoBankAccountsInYourVault" = "Não há contas bancárias no seu cofre";
 "US" = "EUA";
 "EU" = "União Europeia";
 "SelfHosted" = "Auto-hospedado";
@@ -724,7 +724,7 @@
 "AddNote" = "Adicionar anotação";
 "AddSSHKey" = "Adicionar chave SSH";
 "AddBankAccount" = "Adicionar conta bancária";
-"AddLicense" = "Adicionar licença";
+"AddLicense" = "Adicionar habilitação";
 "AddPassport" = "Adicionar passaporte";
 "EditBankAccount" = "Editar conta bancária";
 "EditLicense" = "Editar carteira de habilitação";
@@ -769,7 +769,7 @@
 "BitwardenTools" = "Ferramentas do Bitwarden";
 "ImportSuccessful" = "Importação bem-sucedida!";
 "ManageYourLoginsFromAnywhereWithBitwardenToolsForWebAndDesktop" = "Gerencie suas credenciais a partir de qualquer lugar com as ferramentas do Bitwarden para web e computador.";
-"ManageYourSubscriptionPlanInTheBitwardenWebApp" = "Gerencie seu plano de assinatura no aplicativo da web do Bitwarden.";
+"ManageYourSubscriptionPlanInTheBitwardenWebApp" = "Gerencie seu plano no aplicativo web do Bitwarden.";
 "DownloadTheBrowserExtension" = "Baixe a extensão para navegador";
 "GoToBitwardenToIntegrateBitwardenIntoYourFavoriteBrowserForASeamlessExperience" = "Acesse bitwarden.com/download para integrar o Bitwarden ao seu navegador favorito e ter uma experiência fluida.";
 "UseTheWebApp" = "Use o aplicativo web";
@@ -778,6 +778,8 @@
 "SetUpAutofillOnAllYourDevicesToLoginWithASingleTapAnywhere" = "Configure o preenchimento automático em todos os seus dispositivos para se conectar em qualquer lugar com um único toque.";
 "GoBack" = "Voltar";
 "GotIt" = "Entendi";
+/* masterPasswordUnlock is the name of some data we want to delete, so there's no need to localize it. */
+"ClearMasterPasswordUnlock" = "Limpar masterPasswordDesbloquear";
 "ClearSsoCookies" = "Limpar cookies de SSO";
 "GenerateCrash" = "Gerar travamento";
 "GenerateErrorReport" = "Gerar relatório de erros";
@@ -1061,6 +1063,8 @@
 "ReplaceCertificate" = "Substituir certificado";
 "ReplaceExistingCertificate" = "Substituir certificado existente";
 "UnableToReadCertificateFile" = "Não é possível ler o arquivo do certificado.";
+/* masterPasswordUnlock is the name of some data we want to delete, so there's no need to localize it. */
+"MasterPasswordUnlockCleared" = "masterPasswordDesbloqueado limpo.";
 "SsoCookiesCleared" = "Cookies de SSO limpos";
 "YourRequestWasInterruptedBecauseTheAppNeededToReAuthenticatePleaseTryAgain" = "Sua solicitação foi interrompida, pois o app precisou se reautenticar. Tente novamente.";
 "AutofillWithBitwardenDescriptionLong" = "O Bitwarden pode sugerir suas senhas e outras credenciais ao se conectar a apps e sites.";
@@ -1074,6 +1078,7 @@
 "Canceled" = "Cancelado";
 "PastDue" = "Atrasado";
 "PendingCancellation" = "Cancelamento pendente";
+"Unpaid" = "Não paga";
 "UpdatePayment" = "Atualizar pagamento";
 "BillingAmount" = "Valor de cobrança";
 "StorageCost" = "Preço do armazenamento";
@@ -1085,7 +1090,10 @@
 "ExternalLink" = "Link externo";
 "YourNextChargeIsForXDueOnY" = "Sua próxima cobrança é de **%1$@**, para até **%2$@**.";
 "WeCouldNotProcessYourPaymentUpdateYourPaymentMethodDescriptionLong" = "Não foi possível processar seu pagamento. Atualize o seu método de pagamento antes que sua assinatura expire em **%1$@**.";
+/* Error message shown when the Premium Plan screen fails to load subscription data, with a prompt to retry. */
+"WeCouldntLoadYourSubscriptionDetailsPleaseRetry" = "Não foi possível carregar os detalhes da sua assinatura. Tente novamente.";
 "YourSubscriptionWasCanceledOnXDescriptionLong" = "Sua assinatura foi cancelada em **%1$@**. Reinscreva-se para continuar usando os recursos do Premium.";
+"YourSubscriptionWasSuspendedOnXDescriptionLong" = "Sua assinatura foi suspensa em **%1$@**. Para reativá-la, resolva suas faturas pendentes.";
 "YourSubscriptionExpiredOnXDescriptionLong" = "Sua assinatura expirou em **%1$@**. Reinscreva-se para continuar usando os recursos do Premium.";
 "YourSubscriptionIsScheduledToCancelOnXDescriptionLong" = "Sua assinatura está agendada para ser cancelada em **%1$@**. Você pode restabelecê-la a qualquer momento antes disso.";
 "PerMonth" = "/ mês";
@@ -1094,7 +1102,6 @@
 "NegativeX" = "-%1$@";
 "UnknownStatus" = "Desconhecido";
 "YourSubscriptionStatusIsUnknownVisitTheWebAppDescriptionLong" = "O estado da sua assinatura não pôde ser determinado. Visite o aplicativo web para mais detalhes ou atualize para a versão mais recente.";
-"AtTheMomentPremiumPlanIsNotAvailableDescriptionLong" = "No momento, o plano Premium não está disponível, tente novamente mais tarde.";
 "UnlockMoreAdvancedFeaturesWithPremiumPlan" = "Desbloqueie recursos mais avançados com um plano Premium.";
 "BuiltInAuthenticator" = "Autenticador integrado";
 "EmergencyAccess" = "Acesso de emergência";
@@ -1110,10 +1117,13 @@
 "UpgradePending" = "Upgrade pendente";
 "YourUpgradeIsBeingProcessedDescriptionLong" = "Seu upgrade está sendo processado. Você continuará no plano grátis até que seja concluído. Sincronize agora para conferir, ou continue e será atualizado automaticamente.";
 "UpgradedToPremium" = "Upgrade para Premium realizado";
+"SubscriptionNeedsAttention" = "A sua assinatura requer atenção";
+"CheckYourPlanForDetails" = "Confira seu plano para mais detalhes.";
+"ViewPlan" = "Ver plano";
 "YouNowHaveAccessToAdvancedSecurityDescriptionLong" = "Agora você tem acesso a todos os recursos avançados de segurança. Saiba mais sobre o que está incluso com o Premium.";
 "YouNowHaveAccessToAllAdvancedSecurityFeatures" = "Agora você tem acesso a todos os recursos avançados de segurança.";
 "YoullGoToStripeSecureCheckoutToCompleteYourPurchase" = "Você irá ao pagamento seguro do Stripe para concluir sua compra.";
-"ContinueToStripe" = "Continuar para o Stripe?";
+"ContinueToStripe" = "Continuar no Stripe?";
 "YoullBeTakenToStripeToManageYourSubscriptionCancellation" = "Você será levado para o Stripe para gerenciar o cancelamento de sua assinatura.";
 "UserIDCopiedToTheClipboard" = "ID de usuário copiado para área de transferência";
 "UserID" = "ID do usuário";
@@ -1161,3 +1171,4 @@
 "LineOfCredit" = "Linha de crédito";
 "MoneyMarket" = "Mercado monetário";
 "Savings" = "Poupança";
+"PremiumRequiredTOTPDescriptionLong" = "A chave do autenticador (TOTP) é um recurso do Premium. O seu plano atual não inclui o acesso a este recurso.";

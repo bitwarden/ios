@@ -128,7 +128,7 @@
 "ItemUpdated" = "Stavka spremljena";
 "Submitting" = "Slanje…";
 "Syncing" = "Sinkronizacija…";
-"SyncingLogins" = "Sinkronizacija prijava...";
+"SyncingLogins" = "Sinkronizacija prijava…";
 "SyncingComplete" = "Sinkronizacija dovršena.";
 "TouchID" = "Touch ID";
 "TwoStepLogin" = "Prijava dvostrukom autentifikacijom";
@@ -778,6 +778,8 @@
 "SetUpAutofillOnAllYourDevicesToLoginWithASingleTapAnywhere" = "Na svim svojim uređajima uključi auto-ispunu za prijavu jednim dodirom.";
 "GoBack" = "Nazad";
 "GotIt" = "U redu";
+/* masterPasswordUnlock is the name of some data we want to delete, so there's no need to localize it. */
+"ClearMasterPasswordUnlock" = "Clear masterPasswordUnlock";
 "ClearSsoCookies" = "Očisti SSO kolačiće";
 "GenerateCrash" = "Generiraj crash";
 "GenerateErrorReport" = "Generiraj zapisnik o greškama";
@@ -808,7 +810,7 @@
 "YouMayNeedToEnableDevicePasscodeOrBiometrics" = "Možda ćeš trebati omogućiti lozinku uređaja ili biometriju.";
 "StartImportCXFDescriptionLong" = "Uvezi lozinke, pristupne ključeve, kreditne kartice i sve podatke o osobnom identitetu iz drugog upravitelja zaporki.\n\nTvoji podaci **neće** biti izbrisani kod tvog prethodnog pružatelja usluga.";
 "ImportPasswords" = "Uvezi lozinke";
-"ImportingEllipsis" = "Uvoz...";
+"ImportingEllipsis" = "Uvoz…";
 "AreYouSureYouWantToCancelTheImportProcessQuestionMark" = "Sigurno želiš prekinuti proces uvoza?";
 "ImportFailed" = "Uvoz nije uspio!";
 "ThereWasAnIssueImportingAllOfYourPasswordsNoDataWasDeleted" = "Došlo je do problema s uvozom svih tvojih lozinki.\n\nNijedan podatak nije izbrisan.";
@@ -993,7 +995,7 @@
 "DefaultX" = "Zadano (%1$@)";
 "UpdateYourEncryptionSettings" = "Ažuriraj svoje postakve šifriranja";
 "TheNewRecommendedEncryptionSettingsDescriptionLong" = "Nove preporučene postavke šifriranja poboljšat će sigurnost tvojeg računa. Za ažuriranje, unesi svoju glavnu lozinku.";
-"Updating" = "Ažuriranje...";
+"Updating" = "Ažuriranje…";
 "EncryptionSettingsUpdated" = "Postavke šifriranje su ažurirane";
 "IntroducingArchive" = "Predstavljamo Arhivu";
 "KeepYtemsYouDontNeedRightNowSafeButOutOfSight" = "Čuvaj stavke koje ti trenutno ne trebaju sigurne, ali izvan vidokruga.";
@@ -1061,6 +1063,8 @@
 "ReplaceCertificate" = "Zamijeni certifikat";
 "ReplaceExistingCertificate" = "Zamijeni postojeći certifikat";
 "UnableToReadCertificateFile" = "Nije moguće učitati datoteku certifikata.";
+/* masterPasswordUnlock is the name of some data we want to delete, so there's no need to localize it. */
+"MasterPasswordUnlockCleared" = "masterPasswordUnlock cleared.";
 "SsoCookiesCleared" = "SSO kolačići očišćeni";
 "YourRequestWasInterruptedBecauseTheAppNeededToReAuthenticatePleaseTryAgain" = "Zahtjev je prekinut jer je aplikacija trebala ponovnu autentifikaciju. Pokušaj ponovno.";
 "AutofillWithBitwardenDescriptionLong" = "Bitwarden može predložiti lozinke i druge vjerodajnice kada se prijavljuješ u aplikacije i web-mjesta.";
@@ -1074,6 +1078,7 @@
 "Canceled" = "Otkazano";
 "PastDue" = "Prekoračeno dospijeće";
 "PendingCancellation" = "Pending cancellation";
+"Unpaid" = "Unpaid";
 "UpdatePayment" = "Ažuriraj plaćanje";
 "BillingAmount" = "Iznos za naplatu";
 "StorageCost" = "Trošak pohrane";
@@ -1085,7 +1090,10 @@
 "ExternalLink" = "Vanjska poveznica";
 "YourNextChargeIsForXDueOnY" = "Tvoja sljedeća naplata je za **%1$@**, dospijeva na **%2$@**.";
 "WeCouldNotProcessYourPaymentUpdateYourPaymentMethodDescriptionLong" = "Nismo mogli obraditi tvoju uplatu. Ažuriraj način plaćanja prije nego pretplata završi **%1$@**.";
+/* Error message shown when the Premium Plan screen fails to load subscription data, with a prompt to retry. */
+"WeCouldntLoadYourSubscriptionDetailsPleaseRetry" = "We couldn't load your subscription details. Please try again.";
 "YourSubscriptionWasCanceledOnXDescriptionLong" = "Your subscription was canceled on **%1$@**. Resubscribe to continue using Premium features.";
+"YourSubscriptionWasSuspendedOnXDescriptionLong" = "Your subscription was suspended on **%1$@**. To reactivate, please resolve your past due invoices.";
 "YourSubscriptionExpiredOnXDescriptionLong" = "Your subscription expired on **%1$@**. Resubscribe to continue using Premium features.";
 "YourSubscriptionIsScheduledToCancelOnXDescriptionLong" = "Your subscription is scheduled to cancel on **%1$@**. You can reinstate it anytime before then.";
 "PerMonth" = "/ mj.";
@@ -1094,7 +1102,6 @@
 "NegativeX" = "-%1$@";
 "UnknownStatus" = "Nepoznato";
 "YourSubscriptionStatusIsUnknownVisitTheWebAppDescriptionLong" = "Nismo mogli odrediti tvoju pretplatu. Za više detalja posjeti web aplikaciju ili ažuriraj na najnoviju verziju.";
-"AtTheMomentPremiumPlanIsNotAvailableDescriptionLong" = "Premium paket trenutno nije dostupan. Pokušaj ponovno kasnije.";
 "UnlockMoreAdvancedFeaturesWithPremiumPlan" = "Otključaj više naprednig mogućnosti s paketom Premium.";
 "BuiltInAuthenticator" = "Ugrađeni autentifikator";
 "EmergencyAccess" = "Pristup u nuždi";
@@ -1110,6 +1117,9 @@
 "UpgradePending" = "Nadogradnja čeka";
 "YourUpgradeIsBeingProcessedDescriptionLong" = "Tvoja se nadogradnja obrađuje. Dok se ne dovrši, ostat ćeš na besplatnom paketu. Sinkroniziraj sada za provjeru ili nastavi i nadogradnja će se izvršiti automatski.";
 "UpgradedToPremium" = " Nadogradi na Premium";
+"SubscriptionNeedsAttention" = "Your subscription needs attention";
+"CheckYourPlanForDetails" = "Check your plan for details.";
+"ViewPlan" = "View plan";
 "YouNowHaveAccessToAdvancedSecurityDescriptionLong" = "Sada imaš pristup naprednim sigurnosnim značajkama. Saznaj što je uključeno u Premium.";
 "YouNowHaveAccessToAllAdvancedSecurityFeatures" = "Sada imaš pristup svim naprednim sigurnosnim značajkama.";
 "YoullGoToStripeSecureCheckoutToCompleteYourPurchase" = "Kupnju ćeš dovršiti na sigurnoj blagajni Stripe-a.";
@@ -1161,3 +1171,4 @@
 "LineOfCredit" = "Kreditna linija";
 "MoneyMarket" = "Tržište novca";
 "Savings" = "Štedni račun";
+"PremiumRequiredTOTPDescriptionLong" = "Authenticator key (TOTP) is a Premium feature. Your current plan does not include access to this feature.";

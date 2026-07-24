@@ -779,6 +779,8 @@
 "SetUpAutofillOnAllYourDevicesToLoginWithASingleTapAnywhere" = "எங்கிருந்தும் ஒற்றை தட்டலில் உள்நுழைய, உங்கள் எல்லா சாதனங்களிலும் தானாக நிரப்புதலை அமைக்கவும்.";
 "GoBack" = "Go back";
 "GotIt" = "புரிந்தது";
+/* masterPasswordUnlock is the name of some data we want to delete, so there's no need to localize it. */
+"ClearMasterPasswordUnlock" = "Clear masterPasswordUnlock";
 "ClearSsoCookies" = "Clear SSO cookies";
 "GenerateCrash" = "கிராஷ்-ஐ உருவாக்கு";
 "GenerateErrorReport" = "பிழை அறிக்கையை உருவாக்கு";
@@ -809,7 +811,7 @@
 "YouMayNeedToEnableDevicePasscodeOrBiometrics" = "நீங்கள் சாதன கடவுச்சொல் அல்லது பயோமெட்ரிக்ஸை இயக்க வேண்டியிருக்கலாம்.";
 "StartImportCXFDescriptionLong" = "மற்றொரு கடவுச்சொல் மேலாளரிடமிருந்து கடவுச்சொற்கள், பாஸ்கீகள், கிரெடிட் கார்டுகள் மற்றும் தனிப்பட்ட அடையாள தகவல்களை இறக்குமதி செய்யவும்.\n\nஉங்கள் தரவு உங்கள் முந்தைய வழங்குநரிடமிருந்து **நீக்கப்படாது**.";
 "ImportPasswords" = "கடவுச்சொற்களை இறக்குமதி செய்";
-"ImportingEllipsis" = "இறக்குமதி செய்கிறது...";
+"ImportingEllipsis" = "இறக்குமதி செய்கிறது…";
 "AreYouSureYouWantToCancelTheImportProcessQuestionMark" = "நீங்கள் இறக்குமதி செயல்முறையை ரத்துசெய்ய விரும்புகிறீர்களா?";
 "ImportFailed" = "இறக்குமதி தோல்வியடைந்தது";
 "ThereWasAnIssueImportingAllOfYourPasswordsNoDataWasDeleted" = "உங்கள் எல்லா கடவுச்சொற்களையும் இறக்குமதி செய்வதில் ஒரு சிக்கல் ஏற்பட்டது.\n\nதரவு எதுவும் நீக்கப்படவில்லை.";
@@ -1062,6 +1064,8 @@
 "ReplaceCertificate" = "சான்றிதழை மாற்று";
 "ReplaceExistingCertificate" = "Replace existing certificate";
 "UnableToReadCertificateFile" = "Unable to read the certificate file.";
+/* masterPasswordUnlock is the name of some data we want to delete, so there's no need to localize it. */
+"MasterPasswordUnlockCleared" = "masterPasswordUnlock cleared.";
 "SsoCookiesCleared" = "SSO cookies cleared";
 "YourRequestWasInterruptedBecauseTheAppNeededToReAuthenticatePleaseTryAgain" = "Your request was interrupted because the app needed to re-authenticate. Please try again.";
 "AutofillWithBitwardenDescriptionLong" = "Bitwarden can suggest your passwords and other credentials when you sign in to apps and websites.";
@@ -1075,6 +1079,7 @@
 "Canceled" = "Canceled";
 "PastDue" = "Past due";
 "PendingCancellation" = "Pending cancellation";
+"Unpaid" = "Unpaid";
 "UpdatePayment" = "Update payment";
 "BillingAmount" = "Billing amount";
 "StorageCost" = "Storage cost";
@@ -1086,7 +1091,10 @@
 "ExternalLink" = "External link";
 "YourNextChargeIsForXDueOnY" = "Your next charge is for **%1$@**, due on **%2$@**.";
 "WeCouldNotProcessYourPaymentUpdateYourPaymentMethodDescriptionLong" = "We could not process your payment. Update your payment method before your subscription ends on **%1$@**.";
+/* Error message shown when the Premium Plan screen fails to load subscription data, with a prompt to retry. */
+"WeCouldntLoadYourSubscriptionDetailsPleaseRetry" = "We couldn't load your subscription details. Please try again.";
 "YourSubscriptionWasCanceledOnXDescriptionLong" = "Your subscription was canceled on **%1$@**. Resubscribe to continue using Premium features.";
+"YourSubscriptionWasSuspendedOnXDescriptionLong" = "Your subscription was suspended on **%1$@**. To reactivate, please resolve your past due invoices.";
 "YourSubscriptionExpiredOnXDescriptionLong" = "Your subscription expired on **%1$@**. Resubscribe to continue using Premium features.";
 "YourSubscriptionIsScheduledToCancelOnXDescriptionLong" = "Your subscription is scheduled to cancel on **%1$@**. You can reinstate it anytime before then.";
 "PerMonth" = "/ month";
@@ -1095,7 +1103,6 @@
 "NegativeX" = "-%1$@";
 "UnknownStatus" = "Unknown";
 "YourSubscriptionStatusIsUnknownVisitTheWebAppDescriptionLong" = "Your subscription status could not be determined. Please visit the web app for more details or update to the latest version.";
-"AtTheMomentPremiumPlanIsNotAvailableDescriptionLong" = "At the moment Premium plan is not available, please try again later.";
 "UnlockMoreAdvancedFeaturesWithPremiumPlan" = "Unlock more advanced features with a Premium plan.";
 "BuiltInAuthenticator" = "Built-in authenticator";
 "EmergencyAccess" = "Emergency access";
@@ -1111,6 +1118,9 @@
 "UpgradePending" = "Upgrade pending";
 "YourUpgradeIsBeingProcessedDescriptionLong" = "Your upgrade is being processed. You'll remain on the free plan until it's complete. Sync now to check, or continue and it will update automatically.";
 "UpgradedToPremium" = "Upgraded to Premium";
+"SubscriptionNeedsAttention" = "Your subscription needs attention";
+"CheckYourPlanForDetails" = "Check your plan for details.";
+"ViewPlan" = "View plan";
 "YouNowHaveAccessToAdvancedSecurityDescriptionLong" = "You now have access to advanced security features. Learn more about what's included with Premium.";
 "YouNowHaveAccessToAllAdvancedSecurityFeatures" = "You now have access to all advanced security features.";
 "YoullGoToStripeSecureCheckoutToCompleteYourPurchase" = "You´ll go to Stripe´s secure checkout to complete your purchase.";
@@ -1162,3 +1172,4 @@
 "LineOfCredit" = "Line of credit";
 "MoneyMarket" = "Money market";
 "Savings" = "Savings";
+"PremiumRequiredTOTPDescriptionLong" = "Authenticator key (TOTP) is a Premium feature. Your current plan does not include access to this feature.";

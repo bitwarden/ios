@@ -33,7 +33,7 @@ enum DeviceTypeCategory: Sendable {
         case .unknown:
             Localizations.unknown
         case .webApp:
-            Localizations.webVaultDeviceType
+            Localizations.webVault
         }
     }
 }
@@ -92,8 +92,6 @@ extension DeviceType {
             "Internet Explorer"
         case .duckDuckGoBrowser:
             "DuckDuckGo"
-        case .unknownBrowser:
-            ""
         case .windowsCLI, .windowsDesktop:
             "Windows"
         case .macOsCLI, .macOsDesktop:
@@ -102,7 +100,7 @@ extension DeviceType {
             "Linux"
         case .uwp:
             "Windows UWP"
-        case .sdk, .server:
+        case .sdk, .server, .unknownBrowser:
             ""
         }
     }
@@ -112,6 +110,6 @@ extension DeviceType {
         guard !platform.isEmpty else {
             return category.displayName
         }
-        return Localizations.deviceDisplayName(category.displayName, platform)
+        return Localizations.deviceDisplayNameXHyphenY(category.displayName, platform)
     }
 }

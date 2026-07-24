@@ -61,7 +61,7 @@ final class DeviceManagementProcessor: StateProcessor<
         case let .deviceTapped(device):
             handleDeviceTapped(device)
         case .dismiss:
-            coordinator.navigate(to: .dismiss, context: self)
+            coordinator.navigate(to: .dismiss(), context: self)
         case let .toastShown(newValue):
             state.toast = newValue
         }

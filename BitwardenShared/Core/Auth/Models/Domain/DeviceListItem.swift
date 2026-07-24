@@ -21,8 +21,6 @@ struct DeviceListItem: Equatable, Identifiable, Sendable {
     let firstLogin: Date
 
     /// Whether the device has a pending login request.
-    ///
-    /// Computed from `pendingRequest` — `true` when a pending request is present.
     var hasPendingRequest: Bool { pendingRequest != nil }
 
     /// The server-assigned UUID that uniquely identifies this device record across all users.

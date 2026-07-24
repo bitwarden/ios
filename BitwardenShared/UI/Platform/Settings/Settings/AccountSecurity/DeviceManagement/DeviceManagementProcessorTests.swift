@@ -162,7 +162,7 @@ struct DeviceManagementProcessorTests {
     func receive_dismiss() {
         subject.receive(.dismiss)
 
-        #expect(coordinator.routes.last == .dismiss)
+        #expect(coordinator.routes.last == .dismiss())
     }
 
     /// `receive(_:)` updates and clears the toast state.

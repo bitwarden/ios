@@ -18,7 +18,7 @@ struct DeviceTypeCategoryTests {
         (DeviceTypeCategory.sdk, Localizations.sdk),
         (DeviceTypeCategory.server, Localizations.server),
         (DeviceTypeCategory.unknown, Localizations.unknown),
-        (DeviceTypeCategory.webApp, Localizations.webVaultDeviceType),
+        (DeviceTypeCategory.webApp, Localizations.webVault),
     ])
     func displayName(category: DeviceTypeCategory, expected: String) {
         #expect(category.displayName == expected)
@@ -101,7 +101,7 @@ struct DeviceTypeCategoryDeviceTypeExtensionTests {
     /// `displayName` combines the category and platform for types with a non-empty platform.
     @Test
     func displayName_withPlatform() {
-        #expect(DeviceType.iOS.displayName == Localizations.deviceDisplayName(Localizations.mobile, "iOS"))
+        #expect(DeviceType.iOS.displayName == Localizations.deviceDisplayNameXHyphenY(Localizations.mobile, "iOS"))
     }
 
     /// `displayName` falls back to the category's display name when the platform is empty.
