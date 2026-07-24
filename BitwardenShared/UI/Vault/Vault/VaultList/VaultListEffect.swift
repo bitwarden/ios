@@ -18,7 +18,11 @@ enum VaultListEffect: Equatable {
     case dismissImportLoginsActionCard
 
     /// The user dismissed the organization user notification banner.
-    case dismissOrganizationBanner
+    ///
+    /// - Parameter fromActionButton: Whether the dismissal came from tapping the banner's primary
+    ///   action button (`true`) rather than the dismiss button (`false`).
+    ///
+    case dismissOrganizationBanner(fromActionButton: Bool)
 
     /// The user tapped the dismiss button on the Premium Upgrade action card.
     case dismissPremiumUpgradeActionCard
