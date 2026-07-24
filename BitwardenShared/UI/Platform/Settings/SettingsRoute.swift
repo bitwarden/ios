@@ -86,6 +86,12 @@ public enum SettingsRoute: Equatable, Hashable {
     /// A route to the settings screen.
     case settings(SettingsPresentationMode)
 
+    /// A route to the Safari extension screen.
+    case safariExtension
+
+    /// A route to the Safari extension setup sheet.
+    case safariExtensionSetup
+
     /// A route to the share sheet to share a URL.
     case shareURL(URL)
 

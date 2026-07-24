@@ -1,0 +1,143 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Bitwarden Safari Dev Fixture — Login</title>
+    <style>
+      :root {
+        color-scheme: light dark;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      }
+      body {
+        margin: 0;
+        background: #f4f7fb;
+        color: #0f172a;
+      }
+      main {
+        max-width: 28rem;
+        margin: 2rem auto;
+        padding: 1.5rem;
+      }
+      .card {
+        background: rgba(255, 255, 255, 0.92);
+        border-radius: 20px;
+        padding: 1.5rem;
+        box-shadow: 0 16px 40px rgba(15, 23, 42, 0.08);
+      }
+      .eyebrow {
+        color: #2563eb;
+        font-weight: 600;
+        letter-spacing: 0.02em;
+        text-transform: uppercase;
+        font-size: 0.75rem;
+      }
+      h1 {
+        margin: 0.5rem 0 0.75rem;
+        font-size: 1.75rem;
+      }
+      p {
+        line-height: 1.5;
+      }
+      form {
+        display: grid;
+        gap: 1rem;
+        margin-top: 1.25rem;
+      }
+      label {
+        display: grid;
+        gap: 0.4rem;
+        font-weight: 600;
+      }
+      input {
+        font: inherit;
+        border: 1px solid #cbd5e1;
+        border-radius: 12px;
+        padding: 0.8rem 0.9rem;
+        background: white;
+      }
+      button {
+        font: inherit;
+        border: 0;
+        border-radius: 14px;
+        padding: 0.9rem 1rem;
+        background: #175ddc;
+        color: white;
+        font-weight: 700;
+      }
+      .note {
+        margin-top: 1rem;
+        padding: 0.9rem 1rem;
+        border-radius: 14px;
+        background: #e0ecff;
+        color: #1d4ed8;
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <section class="card">
+        <div class="eyebrow">Safari extension dev fixture</div>
+        <h1>Sign in to Example Cloud</h1>
+        <p>
+          Use this page to test login fill and update-existing-login flows for the
+          Bitwarden Safari Web Extension.
+        </p>
+
+        <form id="login-form" name="login" action="/login" method="post" autocomplete="on">
+          <label for="username">Email or username
+            <input
+              id="username"
+              name="username"
+              type="text"
+              autocomplete="username"
+              placeholder="you@example.com"
+            />
+          </label>
+
+          <label for="password">Password
+            <input
+              id="password"
+              name="password"
+              type="password"
+              autocomplete="current-password"
+              placeholder="Enter password"
+            />
+          </label>
+
+          <button id="sign-in" type="submit">Sign in</button>
+        </form>
+
+        <div id="fixture-result" class="note" hidden aria-live="polite"></div>
+
+        <div class="note">
+          Expected native interpretation: standard login surface with visible username + password fields.
+        </div>
+      </section>
+    </main>
+    <script>
+      const loginForm = document.getElementById('login-form');
+      const loginResult = document.getElementById('fixture-result');
+      loginForm?.addEventListener('submit', (event) => {
+        event.preventDefault();
+        const username = document.getElementById('username')?.value?.trim() || '(empty)';
+        const passwordLength = document.getElementById('password')?.value?.length || 0;
+        loginResult.hidden = false;
+        loginResult.textContent = `Login fixture intercepted submit locally for ${username}. Password length: ${passwordLength}.`;
+      });
+      if (new URLSearchParams(window.location.search).has('autofocus')) {
+        let attempts = 0;
+        const focusPassword = () => {
+          const password = document.getElementById('password');
+          password?.focus();
+          password?.dispatchEvent(new FocusEvent('focusin', { bubbles: true }));
+          attempts += 1;
+          if (attempts < 8) {
+            setTimeout(focusPassword, 600);
+          }
+        };
+        setTimeout(focusPassword, 600);
+      }
+    </script>
+  </body>
+</html>

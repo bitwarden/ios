@@ -6,12 +6,15 @@ public extension Error {
     /// networking or server errors may add noise instead of being actionable errors that need to
     /// be fixed in the app.
     var isNonLoggableError: Bool {
-        switch self {
-        case is NonLoggableError, // Any error marked as `NetworkingError`
-             is URLError: // URLSession errors.
-            true
-        default:
-            false
+        if self is NonLoggableError || self is URLError {
+            return true
         }
+
+        if let keychainError = self as? KeychainServiceError,
+           case let .osStatusError(status) = keychainError {
+            return status == errSecMissingEntitlement
+        }
+
+        return false
     }
 }

@@ -6,6 +6,7 @@
 - [Test File Naming and Location](#test-file-naming-and-location)
 - [Decision Tree: What Tests to Write](#decision-tree-what-tests-to-write)
 - [Testing Strategies](#testing-strategies)
+- [Safari Web Extension Fixture Pages](#safari-web-extension-fixture-pages)
 - [Testing by Component Type](#testing-by-component-type)
   - [Testing Processors](#testing-processors)
   - [Testing Services](#testing-services)
@@ -183,6 +184,38 @@ Use this decision tree to determine which tests to write for a new or modified c
 - iOS Version: [.test-simulator-ios-version](../.test-simulator-ios-version)
 
 Otherwise, tests will fail due to rendering differences between iOS versions.
+
+## Safari Web Extension Fixture Pages
+
+For Safari Web Extension work, prefer reproducible local fixture pages over third-party sites during inner-loop development.
+
+Fixture pages live in [`Docs/safari-extension-dev-fixtures/`](./safari-extension-dev-fixtures/):
+
+- `login.html`
+- `signup.html`
+- `change-password.html`
+
+Start a local server from repo root:
+
+```bash
+python3 -m http.server 8123 -d Docs/safari-extension-dev-fixtures
+```
+
+Open a fixture page in the booted simulator:
+
+```bash
+xcrun simctl openurl booted http://127.0.0.1:8123/login.html
+xcrun simctl openurl booted http://127.0.0.1:8123/signup.html
+xcrun simctl openurl booted http://127.0.0.1:8123/change-password.html
+```
+
+The `.maestro/` flows are page-level smoke checks. Use the `BitwardenUITests` feasibility flows and manual Safari/Web Inspector loop for authenticated extension behavior; those flows create the synthetic fixture login through the app UI instead of requiring a checked-in vault database.
+
+Use these pages when:
+- debugging field classification in Safari Web Inspector
+- checking generated-password follow-up flows
+- recording `serve-sim` sessions
+- running local Maestro smoke flows from `.maestro/`
 
 ## Testing by Component Type
 

@@ -32,6 +32,33 @@ class DataStore {
         return managedObjectModel
     }()
 
+    static func persistedStoreURL(
+        fileManager: FileManager = .default,
+        groupIdentifier: String = Bundle.main.groupIdentifier,
+        bundleIdentifier: String? = Bundle.main.bundleIdentifier,
+        bundlePath: String = Bundle.main.bundlePath,
+        containerURLProvider: (FileManager, String) -> URL? = { fileManager, groupIdentifier in
+            fileManager.containerURL(forSecurityApplicationGroupIdentifier: groupIdentifier)
+        }
+    ) -> URL {
+        #if targetEnvironment(simulator)
+            if bundlePath.contains(".appex") {
+                let applicationSupportURL = fileManager.urls(for: .applicationSupportDirectory, in: .userDomainMask).first
+                    ?? fileManager.temporaryDirectory
+                let directoryURL = applicationSupportURL
+                    .appendingPathComponent(bundleIdentifier ?? "BitwardenAppExtension", isDirectory: true)
+                try? fileManager.createDirectory(at: directoryURL, withIntermediateDirectories: true)
+                return directoryURL.appendingPathComponent("Bitwarden.sqlite")
+            }
+        #endif
+
+        if let containerURL = containerURLProvider(fileManager, groupIdentifier) {
+            return containerURL.appendingPathComponent("Bitwarden.sqlite")
+        }
+
+        return fileManager.temporaryDirectory.appendingPathComponent("Bitwarden.sqlite")
+    }
+
     // MARK: Properties
 
     /// A managed object context which executes on a background queue.
@@ -67,9 +94,7 @@ class DataStore {
         case .memory:
             storeDescription = NSPersistentStoreDescription(url: URL(fileURLWithPath: "/dev/null"))
         case .persisted:
-            let storeURL = FileManager.default
-                .containerURL(forSecurityApplicationGroupIdentifier: Bundle.main.groupIdentifier)!
-                .appendingPathComponent("Bitwarden.sqlite")
+            let storeURL = Self.persistedStoreURL()
             storeDescription = NSPersistentStoreDescription(url: storeURL)
         }
         persistentContainer.persistentStoreDescriptions = [storeDescription]
