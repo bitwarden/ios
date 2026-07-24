@@ -507,6 +507,7 @@ targets:
   BitwardenWatchApp:
     type: application
     platform: watchOS
+    deploymentTarget: 9.0
     configFiles:
       Debug: Configs/BitwardenWatchApp-Debug.xcconfig
       Release: Configs/BitwardenWatchApp-Release.xcconfig
