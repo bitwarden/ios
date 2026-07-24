@@ -58,6 +58,14 @@ class LandingProcessor: StateProcessor<LandingState, LandingAction, LandingEffec
             state.isRememberMeOn = rememberedEmail != nil
         }
         super.init(state: state)
+
+        Task {
+            for await metaConfig in await services.configService.configPublisher() {
+                guard metaConfig?.isPreAuth == true else { continue }
+                self.state.isCreateAccountButtonHidden = metaConfig?.serverConfig?
+                    .settings?.disableUserRegistration == true
+            }
+        }
     }
 
     // MARK: Methods

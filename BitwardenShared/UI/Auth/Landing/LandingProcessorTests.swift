@@ -169,6 +169,60 @@ class LandingProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_
         )
     }
 
+    /// `perform(.appeared)` with a config that disables registration hides the create account button.
+    @MainActor
+    func test_perform_appeared_disableUserRegistration_true() async {
+        configService.configSubject.send(MetaServerConfig(
+            isPreAuth: true,
+            userId: nil,
+            serverConfig: ServerConfig(
+                date: Date(),
+                responseModel: ConfigResponseModel(
+                    communication: nil,
+                    environment: nil,
+                    featureStates: [:],
+                    gitHash: nil,
+                    server: nil,
+                    settings: ServerSettingsResponseModel(disableUserRegistration: true),
+                    version: "2024.4.0",
+                ),
+            ),
+        ))
+        await subject.perform(.appeared)
+        waitFor(subject.state.isCreateAccountButtonHidden)
+    }
+
+    /// `perform(.appeared)` with a config that re-enables registration shows the create account button.
+    @MainActor
+    func test_perform_appeared_disableUserRegistration_false() async {
+        subject.state.isCreateAccountButtonHidden = true
+        configService.configSubject.send(MetaServerConfig(
+            isPreAuth: true,
+            userId: nil,
+            serverConfig: ServerConfig(
+                date: Date(),
+                responseModel: ConfigResponseModel(
+                    communication: nil,
+                    environment: nil,
+                    featureStates: [:],
+                    gitHash: nil,
+                    server: nil,
+                    settings: ServerSettingsResponseModel(disableUserRegistration: false),
+                    version: "2024.4.0",
+                ),
+            ),
+        ))
+        await subject.perform(.appeared)
+        waitFor(!subject.state.isCreateAccountButtonHidden)
+    }
+
+    /// `perform(.appeared)` with no config emitted leaves the create account button visible.
+    @MainActor
+    func test_perform_appeared_noConfig_showsCreateAccount() async {
+        await subject.perform(.appeared)
+        waitFor(!subject.state.isCreateAccountButtonHidden)
+    }
+
     /// `perform(.appeared)` with an active account and accounts should yield a profile switcher state.
     @MainActor
     func test_perform_appeared_single_active() async {
