@@ -204,8 +204,12 @@ python3 -m http.server 8123 -d Docs/safari-extension-dev-fixtures
 Open a fixture page in the booted simulator:
 
 ```bash
+xcrun simctl openurl booted http://127.0.0.1:8123/login.html
 xcrun simctl openurl booted http://127.0.0.1:8123/signup.html
+xcrun simctl openurl booted http://127.0.0.1:8123/change-password.html
 ```
+
+The `.maestro/` flows are page-level smoke checks. Use the `BitwardenUITests` feasibility flows and manual Safari/Web Inspector loop for authenticated extension behavior; those flows create the synthetic fixture login through the app UI instead of requiring a checked-in vault database.
 
 Use these pages when:
 - debugging field classification in Safari Web Inspector

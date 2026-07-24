@@ -14,6 +14,26 @@ These fixture pages make Safari Web Extension work reproducible without dependin
   - current + new/confirm password
   - for generated-password → update-password checks
 
+## Reproducible fixture data
+
+The live UI flows use a synthetic login item rather than a checked-in vault database:
+
+- fixture origin: `http://127.0.0.1:8123`
+- username: `fixture-user`
+- existing password: `old-secret`
+- item name: `Bitwarden Safari Dev Fixture — Signup`
+- generated-password flows: select a password from Bitwarden's generator during the test
+
+`Bitwarden/Application/UITests/UITestFeasibilityTests.swift` creates this item through the Bitwarden UI when needed and writes the fixture origin into the URI field. This keeps the test state reproducible without committing `Bitwarden.sqlite`, a real account, a master password, or Safari's local permission state.
+
+If setting up manually, sign in to the local Bitwarden server, enable the Safari extension, open `login.html`, and use **Autofill with Bitwarden** to create the synthetic login with the values above. The same item can then be used for fill and change-password selection checks. Keep any real credentials and simulator database outside the repository.
+
+## What each test layer proves
+
+- JS node tests and Swift tests verify the bridge, request classification, response schema, and page-side rendering with synthetic payloads.
+- Maestro smoke flows verify that Safari can open and submit each local fixture page.
+- `BitwardenUITests` and manual Safari/Web Inspector QA verify the authenticated Bitwarden-specific behavior: matching, suggestions, save/update flows, and Safari permission/extension state.
+
 ## Start a local fixture server
 
 From repo root:

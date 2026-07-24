@@ -29,9 +29,12 @@ brew install mobile-dev-inc/tap/maestro
 ## Run a smoke flow
 
 ```bash
+maestro test .maestro/safari-login-smoke.yaml
 maestro test .maestro/safari-signup-smoke.yaml
 maestro test .maestro/safari-change-password-smoke.yaml
 ```
+
+These Maestro flows verify the local page/fixture wiring only. Bitwarden-specific extension behavior (credential matching, suggestion display, save/update, and Safari permissions) is covered by the `BitwardenUITests` feasibility flows and manual Safari QA; those require a logged-in local environment and are not suitable for an unauthenticated page smoke.
 
 ## Intended use
 

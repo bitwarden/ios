@@ -3,6 +3,8 @@ import XCTest
 
 // swiftlint:disable type_body_length
 final class UITestFeasibilityTests: XCTestCase {
+    private let fixtureBaseURL = "http://127.0.0.1:8123"
+
     private var masterPassword: String {
         if let encoded = ProcessInfo.processInfo.environment["BITWARDEN_MASTER_PASSWORD_B64"],
            let data = Data(base64Encoded: encoded),
@@ -45,6 +47,23 @@ final class UITestFeasibilityTests: XCTestCase {
         let paste = app.menuItems["Paste"]
         XCTAssertTrue(paste.waitForExistence(timeout: 5))
         paste.tap()
+    }
+
+    @MainActor
+    private func openFixture(_ path: String, in safari: XCUIApplication) {
+        safari.activate()
+        XCTAssertTrue(safari.wait(for: .runningForeground, timeout: 8))
+
+        // Dismiss the iOS start-page customization card if it is covering the page.
+        safari.coordinate(withNormalizedOffset: CGVector(dx: 0.89, dy: 0.20)).tap()
+        sleep(1)
+
+        // Use Safari's address bar so every fixture test starts from a known page.
+        safari.coordinate(withNormalizedOffset: CGVector(dx: 0.50, dy: 0.94)).tap()
+        sleep(1)
+        safari.typeText("\(fixtureBaseURL)/\(path)")
+        safari.typeText(XCUIKeyboardKey.return.rawValue)
+        sleep(5)
     }
 
     @MainActor
@@ -202,7 +221,8 @@ final class UITestFeasibilityTests: XCTestCase {
     }
 
     @MainActor
-    private func ensureSignupFixtureLoginExists(_ app: XCUIApplication, safari: XCUIApplication) {
+    private func ensureFixtureLoginExists(_ app: XCUIApplication, safari: XCUIApplication) {
+        openFixture("login.html", in: safari)
         openAutofillFromSafari(safari)
 
         let newLoginBar = safari.navigationBars["New login"]
@@ -216,6 +236,13 @@ final class UITestFeasibilityTests: XCTestCase {
             XCTAssertTrue(passwordField.waitForExistence(timeout: 8))
             passwordField.tap()
             passwordField.typeText("old-secret")
+
+            let uriField = safari.textFields["LoginUriEntry"]
+            if uriField.waitForExistence(timeout: 2) {
+                uriField.tap()
+                uriField.clearText()
+                uriField.typeText("\(fixtureBaseURL)/login.html")
+            }
             dismissKeyboardIfPresent(safari)
 
             let saveButton = safari.buttons["SaveButton"]
@@ -267,20 +294,19 @@ final class UITestFeasibilityTests: XCTestCase {
 
     @MainActor
     func test_safariSeededCredentialSuggestionVisible() {
+        let app = XCUIApplication(bundleIdentifier: "nz.tam.bitwarden")
         let safari = XCUIApplication(bundleIdentifier: "com.apple.mobilesafari")
-        safari.activate()
-        XCTAssertTrue(safari.wait(for: .runningForeground, timeout: 8))
+        app.launchArguments += ["-AppleLanguages", "(en)", "-AppleLocale", "en_US"]
+        app.launch()
 
-        // Dismiss the iOS 27 start-page customization card if it is covering the page.
-        safari.coordinate(withNormalizedOffset: CGVector(dx: 0.89, dy: 0.20)).tap()
-        sleep(1)
+        loginToVault(app)
+        activateSafariExtension(app)
+        safari.launch()
+        ensureFixtureLoginExists(app, safari: safari)
 
-        // Navigate explicitly; simctl openurl can leave Safari on a cached start-page overlay.
-        safari.coordinate(withNormalizedOffset: CGVector(dx: 0.50, dy: 0.94)).tap()
-        sleep(1)
-        safari.typeText("http://localhost:8123/login.html?autofocus=1&v=uitest-native-suggestion")
-        safari.typeText(XCUIKeyboardKey.return.rawValue)
-        sleep(5)
+        safari.terminate()
+        safari.launch()
+        openFixture("login.html?autofocus=1&v=uitest-native-suggestion", in: safari)
 
         // Dismiss again in case the card returned, then focus the visible password field.
         safari.coordinate(withNormalizedOffset: CGVector(dx: 0.89, dy: 0.20)).tap()
@@ -331,6 +357,7 @@ final class UITestFeasibilityTests: XCTestCase {
         activateSafariExtension(app)
 
         safari.launch()
+        openFixture("signup.html", in: safari)
         openAutofillFromSafari(safari)
 
         XCTAssertTrue(safari.navigationBars["New login"].waitForExistence(timeout: 8))
@@ -363,10 +390,11 @@ final class UITestFeasibilityTests: XCTestCase {
         activateSafariExtension(app)
 
         safari.launch()
-        ensureSignupFixtureLoginExists(app, safari: safari)
+        ensureFixtureLoginExists(app, safari: safari)
 
         safari.terminate()
         safari.launch()
+        openFixture("login.html?autofocus=1&v=uitest-fill", in: safari)
         openAutofillFromSafari(safari)
 
         let cipherCell = safari.buttons["CipherCell"]
@@ -390,6 +418,7 @@ final class UITestFeasibilityTests: XCTestCase {
         activateSafariExtension(app)
 
         safari.launch()
+        openFixture("signup.html", in: safari)
         openAutofillFromSafari(safari)
 
         XCTAssertTrue(safari.navigationBars["New login"].waitForExistence(timeout: 8))
@@ -418,10 +447,11 @@ final class UITestFeasibilityTests: XCTestCase {
         activateSafariExtension(app)
 
         safari.launch()
-        ensureSignupFixtureLoginExists(app, safari: safari)
+        ensureFixtureLoginExists(app, safari: safari)
 
         safari.terminate()
         safari.launch()
+        openFixture("change-password.html", in: safari)
         openAutofillFromSafari(safari)
 
         let itemsBar = safari.navigationBars["Items"]
@@ -439,6 +469,7 @@ final class UITestFeasibilityTests: XCTestCase {
     func test_focusLoginFixturePasswordFieldForManualSuggestionQA() {
         let safari = XCUIApplication(bundleIdentifier: "com.apple.mobilesafari")
         safari.launch()
+        openFixture("login.html?autofocus=1&v=manual-suggestion", in: safari)
 
         let passwordField = safari.secureTextFields["Password"].firstMatch
         XCTAssertTrue(passwordField.waitForExistence(timeout: 12))
@@ -451,6 +482,7 @@ final class UITestFeasibilityTests: XCTestCase {
     func test_tapPasswordsSuggestionBarForManualQA() {
         let safari = XCUIApplication(bundleIdentifier: "com.apple.mobilesafari")
         safari.launch()
+        openFixture("login.html?autofocus=1&v=passwords-bar", in: safari)
 
         let passwordField = safari.secureTextFields["Password"].firstMatch
         XCTAssertTrue(passwordField.waitForExistence(timeout: 12))
