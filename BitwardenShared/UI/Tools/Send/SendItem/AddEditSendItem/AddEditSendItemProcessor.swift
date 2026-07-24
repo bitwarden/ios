@@ -232,6 +232,9 @@ class AddEditSendItemProcessor: // swiftlint:disable:this type_body_length
         if let enforcedAccessType = state.sendPolicyOptions.enforcedAccessType {
             state.accessType = enforcedAccessType
         }
+        if let enforcedDeletionDate = state.policyEnforcedDeletionDate {
+            state.deletionDate = enforcedDeletionDate
+        }
         state.hasPremium = await services.sendRepository.doesActiveAccountHavePremium()
         await refreshProfileState()
 

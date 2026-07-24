@@ -14,6 +14,10 @@ struct SendPolicyOptions: Equatable, Sendable {
     /// The access type the user is required to use, or `nil` if the access type is unrestricted.
     var enforcedAccessType: SendAccessType?
 
+    /// The number of hours from creation the user is required to use as the Send deletion date, or
+    /// `nil` if the deletion date is unrestricted.
+    var enforcedDeletionDateHours: Int?
+
     /// The Send type the user is required to use, or `nil` if both types are allowed (unrestricted).
     var enforcedSendType: SendType?
 
@@ -28,11 +32,15 @@ extension SendPolicyOptions {
     /// Creates the Send policy options from the Send Controls policies that apply to the user.
     ///
     /// When multiple policies apply, a restriction is enforced if *any* applying policy enables it.
-    /// The enforced access type is resolved to the most restrictive across all applying policies
-    /// (email verification > password protection > no access control, the `whoCanAccess` values are
-    /// ordered by restrictiveness and the highest value wins, and the enforced Send type is the
-    /// most restrictive across all applying policies (per the order text > file >
-    /// both/unrestricted).
+    /// Additionally:
+    /// - The enforced access type is resolved to the most restrictive across all applying policies
+    ///   (email verification > password protection > no access control).
+    /// - The enforced access control (`whoCanAccess`) values are ordered by restrictiveness and the
+    ///   highest value wins.
+    /// - The enforced Send type is the most restrictive across all applying policies (per the order
+    ///   text > file > both/unrestricted).
+    /// - The enforced deletion date is the most restrictive (shortest timeframe, i.e. the minimum
+    ///   number of hours) across all applying policies.
     ///
     /// - Parameter sendControlsPolicies: The `sendControls` policies applying to the active user.
     ///
@@ -57,6 +65,7 @@ extension SendPolicyOptions {
         self.init(
             allowedDomains: allowedDomains,
             enforcedAccessType: enforcedAccessType,
+            enforcedDeletionDateHours: policies.compactMap { $0[.deletionHours]?.intValue }.min(),
             enforcedSendType: Self.enforcedSendType(from: policies),
             isHideEmailDisabled: policies.contains { $0[.disableHideEmail]?.boolValue == true },
             isSendDisabled: policies.contains { $0[.disableSend]?.boolValue == true },

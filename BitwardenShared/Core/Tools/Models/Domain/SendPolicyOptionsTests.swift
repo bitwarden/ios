@@ -62,6 +62,7 @@ struct SendPolicyOptionsTests {
         let subject = SendPolicyOptions(sendControlsPolicies: [])
         #expect(subject.allowedDomains.isEmpty)
         #expect(subject.enforcedAccessType == nil)
+        #expect(subject.enforcedDeletionDateHours == nil)
         #expect(subject.enforcedSendType == nil)
         #expect(!subject.isHideEmailDisabled)
         #expect(!subject.isSendDisabled)
@@ -147,6 +148,43 @@ struct SendPolicyOptionsTests {
         ])
         #expect(subject.enforcedAccessType == .specificPeople)
         #expect(subject.allowedDomains == ["earlier.com"])
+    }
+
+    /// `init(sendControlsPolicies:)` reads the enforced deletion date hours from a policy's
+    /// `deletionHours` option.
+    @Test
+    func init_sendControlsPolicies_enforcedDeletionDateHours() {
+        let subject = SendPolicyOptions(sendControlsPolicies: [
+            .fixture(data: [PolicyOptionType.deletionHours.rawValue: .int(168)], type: .sendControls),
+        ])
+        #expect(subject.enforcedDeletionDateHours == 168)
+    }
+
+    /// `init(sendControlsPolicies:)` enforces no deletion date when no policy specifies
+    /// `deletionHours`.
+    @Test
+    func init_sendControlsPolicies_enforcedDeletionDateHours_missing() {
+        let subject = SendPolicyOptions(sendControlsPolicies: [.fixture(type: .sendControls)])
+        #expect(subject.enforcedDeletionDateHours == nil)
+    }
+
+    /// `init(sendControlsPolicies:)` enforces the most restrictive deletion date (the shortest
+    /// timeframe, i.e. the minimum hours) across applying policies.
+    @Test
+    func init_sendControlsPolicies_enforcedDeletionDateHours_multiplePolicies_shortestWins() {
+        let subject = SendPolicyOptions(sendControlsPolicies: [
+            .fixture(
+                data: [PolicyOptionType.deletionHours.rawValue: .int(720)],
+                id: "thirty-days",
+                type: .sendControls,
+            ),
+            .fixture(
+                data: [PolicyOptionType.deletionHours.rawValue: .int(168)],
+                id: "seven-days",
+                type: .sendControls,
+            ),
+        ])
+        #expect(subject.enforcedDeletionDateHours == 168)
     }
 
     /// `init(sendControlsPolicies:)` maps a single-element `allowedSendTypes` array to the enforced
