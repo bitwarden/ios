@@ -43,6 +43,11 @@ class MoveToOrganizationViewTests: BitwardenTestCase {
     /// Tapping the move button dispatches the `.moveCipher` action.
     @MainActor
     func test_moveButton_tap() async throws {
+        guard #unavailable(iOS 26) else {
+            // TODO: PM-26079 Remove when toolbar AsyncButton is used.
+            throw XCTSkip("Remove this when the toolbar move button gets updated to use AsyncButton.")
+        }
+
         let button = try subject.inspect().find(asyncButton: Localizations.move)
         try await button.tap()
         XCTAssertEqual(processor.effects.last, .moveCipher)
@@ -55,7 +60,7 @@ class MoveToOrganizationViewTests: BitwardenTestCase {
         processor.state.owner = CipherOwner.organization(id: "1", name: "Organization")
 
         let owner = CipherOwner.organization(id: "2", name: "Bitwarden")
-        let menuField = try subject.inspect().find(bitwardenMenuField: Localizations.organization)
+        let menuField = try subject.inspect().find(bitwardenMenuField: Localizations.vault)
         try menuField.select(newValue: owner)
         XCTAssertEqual(processor.dispatchedActions.last, .ownerChanged(owner))
     }
