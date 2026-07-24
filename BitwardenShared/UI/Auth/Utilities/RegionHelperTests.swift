@@ -47,7 +47,7 @@ class RegionHelperTests: BitwardenTestCase {
         let alert = try XCTUnwrap(coordinator.alertShown.last)
         XCTAssertEqual(alert.title, Localizations.creatingOn)
         XCTAssertNil(alert.message)
-        XCTAssertEqual(alert.alertActions.count, 4)
+        XCTAssertEqual(alert.alertActions.count, 5)
 
         XCTAssertEqual(alert.alertActions[0].title, "bitwarden.com")
         try await alert.tapAction(title: "bitwarden.com")
@@ -64,13 +64,30 @@ class RegionHelperTests: BitwardenTestCase {
         let alert = try XCTUnwrap(coordinator.alertShown.last)
         XCTAssertEqual(alert.title, Localizations.creatingOn)
         XCTAssertNil(alert.message)
-        XCTAssertEqual(alert.alertActions.count, 4)
+        XCTAssertEqual(alert.alertActions.count, 5)
 
         XCTAssertEqual(alert.alertActions[1].title, "bitwarden.eu")
         try await alert.tapAction(title: "bitwarden.eu")
         XCTAssertTrue(regionDelegate.setRegionCalled)
         XCTAssertEqual(regionDelegate.setRegionType, .europe)
         XCTAssertEqual(regionDelegate.setRegionUrls, RegionType.europe.defaultURLs)
+    }
+
+    /// `presentRegionSelectorAlert(title:currentRegion)` shows alert and tap bitwarden-gov.com.
+    @MainActor
+    func test_presentRegionSelectorAlert_gov() async throws {
+        await subject.presentRegionSelectorAlert(title: Localizations.creatingOn, currentRegion: .unitedStates)
+
+        let alert = try XCTUnwrap(coordinator.alertShown.last)
+        XCTAssertEqual(alert.title, Localizations.creatingOn)
+        XCTAssertNil(alert.message)
+        XCTAssertEqual(alert.alertActions.count, 5)
+
+        XCTAssertEqual(alert.alertActions[2].title, "bitwarden-gov.com")
+        try await alert.tapAction(title: "bitwarden-gov.com")
+        XCTAssertTrue(regionDelegate.setRegionCalled)
+        XCTAssertEqual(regionDelegate.setRegionType, .gov)
+        XCTAssertEqual(regionDelegate.setRegionUrls, RegionType.gov.defaultURLs)
     }
 
     /// `presentRegionSelectorAlert(title:currentRegion)` shows alert and tap selfhosted.
@@ -81,9 +98,9 @@ class RegionHelperTests: BitwardenTestCase {
         let alert = try XCTUnwrap(coordinator.alertShown.last)
         XCTAssertEqual(alert.title, Localizations.creatingOn)
         XCTAssertNil(alert.message)
-        XCTAssertEqual(alert.alertActions.count, 4)
+        XCTAssertEqual(alert.alertActions.count, 5)
 
-        XCTAssertEqual(alert.alertActions[2].title, Localizations.selfHosted)
+        XCTAssertEqual(alert.alertActions[3].title, Localizations.selfHosted)
         try await alert.tapAction(title: Localizations.selfHosted)
         XCTAssertEqual(coordinator.routes.last, .selfHosted(currentRegion: .europe))
     }
@@ -96,9 +113,9 @@ class RegionHelperTests: BitwardenTestCase {
         let alert = try XCTUnwrap(coordinator.alertShown.last)
         XCTAssertEqual(alert.title, Localizations.loggingInOn)
         XCTAssertNil(alert.message)
-        XCTAssertEqual(alert.alertActions.count, 4)
+        XCTAssertEqual(alert.alertActions.count, 5)
 
-        XCTAssertEqual(alert.alertActions[2].title, Localizations.selfHosted)
+        XCTAssertEqual(alert.alertActions[3].title, Localizations.selfHosted)
         try await alert.tapAction(title: Localizations.selfHosted)
         XCTAssertEqual(coordinator.routes.last, .selfHosted(currentRegion: .unitedStates))
     }
@@ -140,6 +157,15 @@ class RegionHelperTests: BitwardenTestCase {
         XCTAssertTrue(regionDelegate.setRegionCalled)
         XCTAssertEqual(regionDelegate.setRegionType, .europe)
         XCTAssertEqual(regionDelegate.setRegionUrls, RegionType.europe.defaultURLs)
+    }
+
+    /// `loadRegion()` with pre auth region
+    func test_loadRegion_gov() async throws {
+        stateService.preAuthEnvironmentURLs = .defaultGov
+        await subject.loadRegion()
+        XCTAssertTrue(regionDelegate.setRegionCalled)
+        XCTAssertEqual(regionDelegate.setRegionType, .gov)
+        XCTAssertEqual(regionDelegate.setRegionUrls, RegionType.gov.defaultURLs)
     }
 
     /// `loadRegion()` with pre auth region

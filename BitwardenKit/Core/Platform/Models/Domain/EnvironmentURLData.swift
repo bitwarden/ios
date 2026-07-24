@@ -124,10 +124,14 @@ public extension EnvironmentURLData {
 
     /// The base url for send sharing.
     var sendShareURL: URL? {
-        guard region != .unitedStates else {
-            return URL(string: "https://send.bitwarden.com/#")!
+        switch region {
+        case .unitedStates:
+            URL(string: "https://send.bitwarden.com/#")!
+        case .gov:
+            URL(string: "https://send.bitwarden-gov.com/#")!
+        case .europe, .internal, .selfHosted:
+            subpageURL(additionalPath: "send")
         }
-        return subpageURL(additionalPath: "send")
     }
 
     /// The base url for the settings screen.
@@ -195,5 +199,16 @@ public extension EnvironmentURLData {
         identity: URL(string: "https://identity.bitwarden.eu")!,
         notifications: URL(string: "https://notifications.bitwarden.eu")!,
         webVault: URL(string: "https://vault.bitwarden.eu")!,
+    )
+
+    /// The default URLs for the US government cloud (FedRAMP) region.
+    static let defaultGov = EnvironmentURLData(
+        api: URL(string: "https://api.bitwarden-gov.com")!,
+        base: URL(string: "https://vault.bitwarden-gov.com")!,
+        events: URL(string: "https://events.bitwarden-gov.com")!,
+        icons: URL(string: "https://icons.bitwarden-gov.com")!,
+        identity: URL(string: "https://identity.bitwarden-gov.com")!,
+        notifications: URL(string: "https://notifications.bitwarden-gov.com")!,
+        webVault: URL(string: "https://vault.bitwarden-gov.com")!,
     )
 }

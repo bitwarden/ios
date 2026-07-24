@@ -15,6 +15,7 @@ extension RegionType {
     var authCallbackHost: String? {
         switch self {
         case .europe: "bitwarden.eu"
+        case .gov: "bitwarden-gov.com"
         case .internal: "bitwarden.pw"
         case .selfHosted: nil
         case .unitedStates: "bitwarden.com"
@@ -25,6 +26,7 @@ extension RegionType {
     var localizedName: String {
         switch self {
         case .europe: Localizations.eu
+        case .gov: Localizations.gov
         case .internal: "Internal" // Internal only, hidden from the region picker and not user facing.
         case .selfHosted: Localizations.selfHosted
         case .unitedStates: Localizations.us
@@ -35,6 +37,7 @@ extension RegionType {
     var baseURLDescription: String {
         switch self {
         case .europe: "bitwarden.eu"
+        case .gov: "bitwarden-gov.com"
         // `.internal` is not user facing, so it mirrors self-hosted's description.
         case .internal, .selfHosted: Localizations.selfHosted
         case .unitedStates: "bitwarden.com"
@@ -46,6 +49,8 @@ extension RegionType {
         switch self {
         case .europe:
             .defaultEU
+        case .gov:
+            .defaultGov
         case .unitedStates:
             .defaultUS
         case .internal, .selfHosted:
@@ -57,6 +62,7 @@ extension RegionType {
     var errorReporterName: String {
         switch self {
         case .europe: "EU"
+        case .gov: "Gov"
         case .internal: "Internal"
         case .selfHosted: "Self-Hosted"
         case .unitedStates: "US"
@@ -68,7 +74,7 @@ extension RegionType {
     /// offered as a selectable option.
     var isUserSelectable: Bool {
         switch self {
-        case .europe, .selfHosted, .unitedStates: true
+        case .europe, .gov, .selfHosted, .unitedStates: true
         case .internal: false
         }
     }

@@ -10,6 +10,9 @@ public enum RegionType: CaseIterable, Sendable {
     /// The European region.
     case europe
 
+    /// The government cloud (FedRAMP) region.
+    case gov
+
     /// A self-hosted instance.
     case selfHosted
 
@@ -29,6 +32,8 @@ public extension RegionType {
             self = .unitedStates
         } else if baseURL == EnvironmentURLData.defaultEU.base {
             self = .europe
+        } else if baseURL == EnvironmentURLData.defaultGov.base {
+            self = .gov
         } else if let baseURL,
                   let host = URLComponents(url: baseURL, resolvingAgainstBaseURL: false)?.host,
                   host == "bitwarden.pw" || host.hasSuffix(".bitwarden.pw") {

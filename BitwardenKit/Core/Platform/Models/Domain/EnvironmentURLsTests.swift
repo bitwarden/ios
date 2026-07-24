@@ -1,18 +1,19 @@
-import XCTest
+import Foundation
+import Testing
 
 @testable import BitwardenKit
 
-class EnvironmentURLsTests: BitwardenTestCase { // swiftlint:disable:this type_body_length
+struct EnvironmentURLsTests { // swiftlint:disable:this type_body_length
     // MARK: Tests
 
     /// `init(environmentURLData:)` sets the URLs from the passed data when such data is the default US.
-    func test_init_environmentURLData_defaultUS() {
+    @Test
+    func init_environmentURLData_defaultUS() {
         let subject = EnvironmentURLs(
             environmentURLData: EnvironmentURLData.defaultUS,
         )
-        XCTAssertEqual(
-            subject,
-            EnvironmentURLs(
+        #expect(
+            subject == EnvironmentURLs(
                 apiURL: URL(string: "https://api.bitwarden.com")!,
                 baseURL: URL(string: "https://vault.bitwarden.com")!,
                 changeEmailURL: URL(string: "https://vault.bitwarden.com/#/settings/account")!,
@@ -38,13 +39,13 @@ class EnvironmentURLsTests: BitwardenTestCase { // swiftlint:disable:this type_b
     }
 
     /// `init(environmentURLData:)` sets the URLs from the passed data when such data is the default EU.
-    func test_init_environmentURLData_defaultEU() {
+    @Test
+    func init_environmentURLData_defaultEU() {
         let subject = EnvironmentURLs(
             environmentURLData: EnvironmentURLData.defaultEU,
         )
-        XCTAssertEqual(
-            subject,
-            EnvironmentURLs(
+        #expect(
+            subject == EnvironmentURLs(
                 apiURL: URL(string: "https://api.bitwarden.eu")!,
                 baseURL: URL(string: "https://vault.bitwarden.eu")!,
                 changeEmailURL: URL(string: "https://vault.bitwarden.eu/#/settings/account")!,
@@ -71,13 +72,13 @@ class EnvironmentURLsTests: BitwardenTestCase { // swiftlint:disable:this type_b
 
     /// `init(environmentURLData:)` sets the URLs from the base URL if one is set and is not
     /// `.unitedStates` nor `.europe` region type.
-    func test_init_environmentURLData_baseURL() {
+    @Test
+    func init_environmentURLData_baseURL() {
         let subject = EnvironmentURLs(
             environmentURLData: EnvironmentURLData(base: URL(string: "https://example.com")!),
         )
-        XCTAssertEqual(
-            subject,
-            EnvironmentURLs(
+        #expect(
+            subject == EnvironmentURLs(
                 apiURL: URL(string: "https://example.com/api")!,
                 baseURL: URL(string: "https://example.com")!,
                 changeEmailURL: URL(string: "https://example.com/#/settings/account")!,
@@ -103,13 +104,13 @@ class EnvironmentURLsTests: BitwardenTestCase { // swiftlint:disable:this type_b
     }
 
     /// `init(environmentURLData:)` defaults to the pre-defined EU URLs if the base URL matches the EU environment.
-    func test_init_environmentURLData_baseURL_europe() {
+    @Test
+    func init_environmentURLData_baseURL_europe() {
         let subject = EnvironmentURLs(
             environmentURLData: EnvironmentURLData(base: URL(string: "https://vault.bitwarden.eu")!),
         )
-        XCTAssertEqual(
-            subject,
-            EnvironmentURLs(
+        #expect(
+            subject == EnvironmentURLs(
                 apiURL: URL(string: "https://api.bitwarden.eu")!,
                 baseURL: URL(string: "https://vault.bitwarden.eu")!,
                 changeEmailURL: URL(string: "https://vault.bitwarden.eu/#/settings/account")!,
@@ -135,13 +136,13 @@ class EnvironmentURLsTests: BitwardenTestCase { // swiftlint:disable:this type_b
     }
 
     /// `init(environmentURLData:)` defaults to the pre-defined US URLs if the base URL matches the US environment.
-    func test_init_environmentURLData_baseURL_unitedStates() {
+    @Test
+    func init_environmentURLData_baseURL_unitedStates() {
         let subject = EnvironmentURLs(
             environmentURLData: EnvironmentURLData(base: URL(string: "https://vault.bitwarden.com")!),
         )
-        XCTAssertEqual(
-            subject,
-            EnvironmentURLs(
+        #expect(
+            subject == EnvironmentURLs(
                 apiURL: URL(string: "https://api.bitwarden.com")!,
                 baseURL: URL(string: "https://vault.bitwarden.com")!,
                 changeEmailURL: URL(string: "https://vault.bitwarden.com/#/settings/account")!,
@@ -167,13 +168,13 @@ class EnvironmentURLsTests: BitwardenTestCase { // swiftlint:disable:this type_b
     }
 
     /// `init(environmentURLData:)` sets the URLs from the base URL which includes a trailing slash.
-    func test_init_environmentURLData_baseURLWithTrailingSlash() {
+    @Test
+    func init_environmentURLData_baseURLWithTrailingSlash() {
         let subject = EnvironmentURLs(
             environmentURLData: EnvironmentURLData(base: URL(string: "https://example.com/")!),
         )
-        XCTAssertEqual(
-            subject,
-            EnvironmentURLs(
+        #expect(
+            subject == EnvironmentURLs(
                 apiURL: URL(string: "https://example.com/api")!,
                 baseURL: URL(string: "https://example.com/")!,
                 changeEmailURL: URL(string: "https://example.com/#/settings/account")!,
@@ -199,7 +200,8 @@ class EnvironmentURLsTests: BitwardenTestCase { // swiftlint:disable:this type_b
     }
 
     /// `init(environmentURLData:)` sets the URLs based on the corresponding URL if there isn't a base URL.
-    func test_init_environmentURLData_custom() {
+    @Test
+    func init_environmentURLData_custom() {
         let subject = EnvironmentURLs(
             environmentURLData: EnvironmentURLData(
                 api: URL(string: "https://api.example.com")!,
@@ -209,9 +211,8 @@ class EnvironmentURLsTests: BitwardenTestCase { // swiftlint:disable:this type_b
                 webVault: URL(string: "https://example.com")!,
             ),
         )
-        XCTAssertEqual(
-            subject,
-            EnvironmentURLs(
+        #expect(
+            subject == EnvironmentURLs(
                 apiURL: URL(string: "https://api.example.com")!,
                 baseURL: URL(string: "https://vault.bitwarden.com")!,
                 changeEmailURL: URL(string: "https://example.com/#/settings/account")!,
@@ -237,11 +238,11 @@ class EnvironmentURLsTests: BitwardenTestCase { // swiftlint:disable:this type_b
     }
 
     /// `init(environmentURLData:)` sets the URLs to default values if the URLs are empty.
-    func test_init_environmentURLData_empty() {
+    @Test
+    func init_environmentURLData_empty() {
         let subject = EnvironmentURLs(environmentURLData: EnvironmentURLData())
-        XCTAssertEqual(
-            subject,
-            EnvironmentURLs(
+        #expect(
+            subject == EnvironmentURLs(
                 apiURL: URL(string: "https://api.bitwarden.com")!,
                 baseURL: URL(string: "https://vault.bitwarden.com")!,
                 changeEmailURL: URL(string: "https://vault.bitwarden.com")!,
@@ -264,7 +265,8 @@ class EnvironmentURLsTests: BitwardenTestCase { // swiftlint:disable:this type_b
 
     /// `init(environmentURLData:)` preserves a server-provided `fillAssistRulesUrl` even when the
     /// region maps to a US/EU default (which has `fillAssistRulesUrl = nil`).
-    func test_init_environmentURLData_fillAssistRulesURL_preservedForCloudRegion() {
+    @Test
+    func init_environmentURLData_fillAssistRulesURL_preservedForCloudRegion() {
         let customFillAssistURL = URL(string: "https://custom.example.com/fill-assist")!
         let usData = EnvironmentURLData(
             base: URL(string: "https://vault.bitwarden.com")!,
@@ -273,22 +275,22 @@ class EnvironmentURLsTests: BitwardenTestCase { // swiftlint:disable:this type_b
 
         let subject = EnvironmentURLs(environmentURLData: usData)
 
-        XCTAssertEqual(subject.fillAssistRulesURL, customFillAssistURL)
+        #expect(subject.fillAssistRulesURL == customFillAssistURL)
     }
 
     /// `region` resolves the base URL to the matching region.
-    func test_region() {
-        XCTAssertEqual(EnvironmentURLs(environmentURLData: .defaultUS).region, .unitedStates)
-        XCTAssertEqual(EnvironmentURLs(environmentURLData: .defaultEU).region, .europe)
-        XCTAssertEqual(
-            EnvironmentURLs(environmentURLData: EnvironmentURLData(base: URL(string: "https://bitwarden.pw")!)).region,
-            .internal,
+    @Test
+    func region() {
+        #expect(EnvironmentURLs(environmentURLData: .defaultUS).region == .unitedStates)
+        #expect(EnvironmentURLs(environmentURLData: .defaultEU).region == .europe)
+        #expect(
+            EnvironmentURLs(environmentURLData: EnvironmentURLData(base: URL(string: "https://bitwarden.pw")!))
+                .region == .internal,
         )
-        XCTAssertEqual(
+        #expect(
             EnvironmentURLs(
                 environmentURLData: EnvironmentURLData(base: URL(string: "https://selfhosted.com")!),
-            ).region,
-            .selfHosted,
+            ).region == .selfHosted,
         )
     }
 }

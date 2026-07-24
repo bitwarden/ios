@@ -1,49 +1,49 @@
 import BitwardenKit
 import BitwardenKitMocks
-import XCTest
+import Foundation
+import Testing
 
 @testable import AuthenticatorShared
 
-class EnvironmentServiceTests: XCTestCase {
+struct EnvironmentServiceTests {
     // MARK: Properties
 
-    var subject: EnvironmentService!
+    let subject: EnvironmentService
 
     // MARK: Setup & Teardown
 
-    override func setUp() {
-        super.setUp()
-
+    init() {
         subject = DefaultEnvironmentService()
-    }
-
-    override func tearDown() {
-        super.tearDown()
-
-        subject = nil
     }
 
     // MARK: Tests
 
-    /// The default US URLs are returned.
-    func test_defaultUrls() {
-        XCTAssertEqual(subject.apiURL, URL(string: "https://api.bitwarden.com"))
-        XCTAssertEqual(subject.baseURL, URL(string: "https://vault.bitwarden.com"))
-        XCTAssertEqual(subject.changeEmailURL, URL(string: "https://vault.bitwarden.com/#/settings/account"))
-        XCTAssertEqual(subject.eventsURL, URL(string: "https://events.bitwarden.com"))
-        XCTAssertEqual(subject.iconsURL, URL(string: "https://icons.bitwarden.net"))
-        XCTAssertEqual(subject.identityURL, URL(string: "https://identity.bitwarden.com"))
-        XCTAssertEqual(subject.importItemsURL, URL(string: "https://vault.bitwarden.com/#/tools/import"))
-        // swiftlint:disable:next line_length
-        XCTAssertEqual(subject.proxyCookieRedirectConnectorURL, URL(string: "https://vault.bitwarden.com/proxy-cookie-redirect-connector.html"))
-        XCTAssertEqual(subject.recoveryCodeURL, URL(string: "https://vault.bitwarden.com/#/recover-2fa"))
-        XCTAssertEqual(subject.region, .unitedStates)
-        XCTAssertEqual(subject.sendShareURL, URL(string: "https://send.bitwarden.com/#"))
-        XCTAssertEqual(subject.settingsURL, URL(string: "https://vault.bitwarden.com/#/settings"))
-        // swiftlint:disable:next line_length
-        XCTAssertEqual(subject.setUpTwoFactorURL, URL(string: "https://vault.bitwarden.com/#/settings/security/two-factor"))
-        // swiftlint:disable:next line_length
-        XCTAssertEqual(subject.fillAssistRulesURL, URL(string: "https://github.com/bitwarden/map-the-web/releases/latest/download"))
-        XCTAssertEqual(subject.webVaultURL, URL(string: "https://vault.bitwarden.com"))
+    /// `apiURL` and other URL properties return US default values.
+    @Test
+    func defaultUrls() {
+        #expect(subject.apiURL == URL(string: "https://api.bitwarden.com"))
+        #expect(subject.baseURL == URL(string: "https://vault.bitwarden.com"))
+        #expect(subject.changeEmailURL == URL(string: "https://vault.bitwarden.com/#/settings/account"))
+        #expect(subject.eventsURL == URL(string: "https://events.bitwarden.com"))
+        #expect(subject.iconsURL == URL(string: "https://icons.bitwarden.net"))
+        #expect(subject.identityURL == URL(string: "https://identity.bitwarden.com"))
+        #expect(subject.importItemsURL == URL(string: "https://vault.bitwarden.com/#/tools/import"))
+        #expect(
+            subject.proxyCookieRedirectConnectorURL
+                == URL(string: "https://vault.bitwarden.com/proxy-cookie-redirect-connector.html"),
+        )
+        #expect(subject.recoveryCodeURL == URL(string: "https://vault.bitwarden.com/#/recover-2fa"))
+        #expect(subject.region == .unitedStates)
+        #expect(subject.sendShareURL == URL(string: "https://send.bitwarden.com/#"))
+        #expect(subject.settingsURL == URL(string: "https://vault.bitwarden.com/#/settings"))
+        #expect(
+            subject.setUpTwoFactorURL
+                == URL(string: "https://vault.bitwarden.com/#/settings/security/two-factor"),
+        )
+        #expect(
+            subject.fillAssistRulesURL
+                == URL(string: "https://github.com/bitwarden/map-the-web/releases/latest/download"),
+        )
+        #expect(subject.webVaultURL == URL(string: "https://vault.bitwarden.com"))
     }
 }
