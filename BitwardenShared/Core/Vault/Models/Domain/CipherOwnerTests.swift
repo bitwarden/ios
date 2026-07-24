@@ -1,3 +1,4 @@
+import BitwardenResources
 import XCTest
 
 @testable import BitwardenShared
@@ -9,7 +10,7 @@ class CipherOwnerTests: XCTestCase {
     func test_localizedName() {
         XCTAssertEqual(CipherOwner.organization(id: "1", name: "Organization").localizedName, "Organization")
         XCTAssertEqual(CipherOwner.organization(id: "2", name: "Org 2").localizedName, "Org 2")
-        XCTAssertEqual(CipherOwner.personal(email: "user@bitwarden").localizedName, "user@bitwarden")
+        XCTAssertEqual(CipherOwner.personal(email: "user@bitwarden").localizedName, Localizations.myVault)
     }
 
     /// `OwnerType.isPersonal` returns whether the owner type is a personal owner.

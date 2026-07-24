@@ -1,4 +1,5 @@
 import BitwardenKit
+import BitwardenResources
 
 // MARK: - CipherOwner
 
@@ -21,8 +22,8 @@ public enum CipherOwner: Equatable, Hashable, Menuable, Sendable {
         switch self {
         case let .organization(_, name):
             name
-        case let .personal(email):
-            email
+        case .personal:
+            Localizations.myVault
         }
     }
 
