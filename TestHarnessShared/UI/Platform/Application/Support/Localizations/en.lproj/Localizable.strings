@@ -4,6 +4,7 @@
 "AuthDataTooShortExplanationLong" = "The raw authenticator data was shorter than the fixed 37-byte prefix (32-byte relying party hash, 1-byte flags, 4-byte signature counter), so the relying party hash and flags could not be read.";
 "AuthDataTooShort" = "Authenticator data too short";
 "AuthDataTooShortReceived" = "The authenticator data was too short to contain the expected fields.";
+"Cancel" = "Cancel";
 "CardAutofillForm" = "Card Autofill Form";
 "CardAutofillFormDescriptionLong" = "Long press a field, then select Autofill and Password to autofill with Bitwarden. Requires Bitwarden PM as AutoFill provider and a saved Card cipher.";
 "CardDetails" = "Card Details";
@@ -20,11 +21,15 @@
 "CreateAccountFormDescriptionLong" = "Fill in the form and tap Create Account. On supported devices, iOS will prompt to save the credential via the active password provider.";
 "CreatePasskey" = "Create Passkey";
 "CreatePasskeyFormDescriptionLong" = "Fill in the fields above, then tap Register Passkey. The Bitwarden AutoFill sheet will appear to save the credential.";
+"CreatedAt" = "Created At";
 "CredentialId" = "Credential ID";
 "CredentialNotFoundExplanationLong" = "The assertion's credential ID did not match any credential stored for this relying party. This is the first check performed, before the authenticator or client data is inspected.";
 "CredentialNotFoundReceived" = "No stored passkey credential matches the one returned by the authenticator.";
 "CredentialNotFoundTitle" = "Credential not found";
 "Credentials" = "Credentials";
+"Delete" = "Delete";
+"DeleteAll" = "Delete All";
+"DeletePasskeyDescriptionLong" = "Deleting only removes the local test record used to verify sign-in attempts. It does not delete the underlying passkey from your AutoFill provider.";
 "DisplayName" = "Display Name";
 "EnterCardDetailsAbove" = "Enter card details above";
 "EnterCredentialsAbove" = "Enter credentials above";
@@ -44,6 +49,7 @@
 "MalformedCOSEKeyReceived" = "The credential's public key could not be decoded.";
 "MalformedCredentialIdLengthReceived" = "The credential ID length did not fit within the authenticator data.";
 "MalformedTopLevelCBORReceived" = "The attestation object's top-level CBOR structure could not be decoded.";
+"ManagePasskeys" = "Manage Passkeys";
 "MessageShown" = "Message shown";
 "MissingAttestationObjectReceived" = "The authorization response did not include an attestation object.";
 "MissingAttestedCredentialDataReceived" = "The authenticator data did not include attested credential data.";
@@ -54,6 +60,9 @@
 "MissingClientDataTypeExplanationLong" = "The decoded client data JSON did not contain a \"type\" field.";
 "MissingClientDataTypeReceived" = "The client data JSON did not contain a type field.";
 "MissingClientDataTypeTitle" = "Missing type field";
+"NoPasskeysStored" = "No passkeys stored.";
+"Other" = "Other";
+"PasskeyAssertionNotAvailable" = "Passkey assertion requires iOS 17 or later.";
 "PasskeyAssertedSuccessfully" = "Passkey sign-in succeeded.";
 "PasskeyAssertionNotAvailable" = "Passkey assertion requires iOS 17 or later.";
 "PasskeyCreatedButNotSaved" = "Passkey created, but not saved for later verification.";
@@ -61,6 +70,7 @@
 "PasskeyErrorReferenceDescriptionLong" = "Every error the client data parser and assertion verifier can produce for a passkey sign-in, in the order each is checked. Use this to see what a failure looks like without needing to trigger it.";
 "PasskeyRegistrationNotAvailable" = "Passkey registration requires iOS 17 or later.";
 "PasskeyRegisteredSuccessfully" = "Passkey registered successfully.";
+"Passkeys" = "Passkeys";
 "PasskeyVerificationFailed" = "Passkey verification failed.";
 "Password" = "Password";
 "PasswordValue" = "Password: %@";
@@ -92,6 +102,7 @@
 "TapTheTOTPCodeFieldAndSelectDescriptionLong" = "Tap the TOTP Code field and select a code from Bitwarden. Requires Bitwarden PM as AutoFill provider and a saved Login with a TOTP seed.";
 "TOTPCode" = "TOTP Code";
 "UnexpectedAssertionClientDataTypeExplanationLong" = "The client data's \"type\" field was something other than \"webauthn.get\" — for example, a registration ceremony's \"webauthn.create\" sent where an assertion was expected.";
+"UnexpectedCredentialTypeReceived" = "Unexpected credential type received.";
 "UnexpectedAssertionClientDataTypeReceived" = "The client data type (%@) was not \"webauthn.get\".";
 "UnexpectedAssertionClientDataTypeTitle" = "Unexpected client data type";
 "UnexpectedClientDataTypeReceived" = "The client data type (%@) was not \"webauthn.create\".";
