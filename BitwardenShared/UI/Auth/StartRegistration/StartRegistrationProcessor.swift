@@ -71,9 +71,6 @@ class StartRegistrationProcessor: StateProcessor<
         stateService: services.stateService,
     )
 
-    /// Whether the start registration view is visible in the view hierarchy.
-    private var viewIsVisible = false
-
     // MARK: Initialization
 
     /// Creates a new `StartRegistrationProcessor`.
@@ -93,18 +90,6 @@ class StartRegistrationProcessor: StateProcessor<
         self.delegate = delegate
         self.services = services
         super.init(state: state)
-
-        Task {
-            for await metaConfig in await services.configService.configPublisher() {
-                guard metaConfig?.isPreAuth == true,
-                      metaConfig?.serverConfig?.settings?.disableUserRegistration == true,
-                      viewIsVisible
-                else { continue }
-                await coordinator.showAlert(.registrationDisabled {
-                    coordinator.navigate(to: .dismiss)
-                })
-            }
-        }
     }
 
     // MARK: Methods
@@ -112,7 +97,6 @@ class StartRegistrationProcessor: StateProcessor<
     override func perform(_ effect: StartRegistrationEffect) async {
         switch effect {
         case .appeared:
-            viewIsVisible = true
             await regionHelper.loadRegion()
             state.isReceiveMarketingToggleOn = state.region == .unitedStates
         case .regionTapped:
@@ -131,7 +115,7 @@ class StartRegistrationProcessor: StateProcessor<
         case let .emailTextChanged(text):
             state.emailText = text
         case .disappeared:
-            viewIsVisible = false
+            break
         case .dismiss:
             coordinator.navigate(to: .dismiss)
         case let .nameTextChanged(text):
@@ -150,6 +134,20 @@ class StartRegistrationProcessor: StateProcessor<
     private func startRegistration() async {
         // Hide the loading overlay when exiting this method, in case it hasn't been hidden yet.
         defer { coordinator.hideLoadingOverlay() }
+
+        let serverConfig = await services.configService.getConfig(forceRefresh: false, isPreAuth: true)
+        if serverConfig?.settings?.disableUserRegistration == true {
+            // Guard against a race where the cached config belongs to a previously selected region:
+            // region changes refresh the config in a background Task, so the cache may lag behind.
+            // If hosts don't match, skip the check — the server will reject the request if needed.
+            let preAuthURLs = await services.stateService.getPreAuthEnvironmentURLs()
+            let configVaultHost = serverConfig?.environment?.vault.flatMap { URL(string: $0)?.host }
+            if let configVaultHost, configVaultHost == preAuthURLs?.webVaultHost {
+                let serverURL = serverConfig?.environment?.vault ?? state.region.baseURLDescription
+                await coordinator.showAlert(.registrationDisabled(serverURL: serverURL))
+                return
+            }
+        }
 
         do {
             let email = state.emailText.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
