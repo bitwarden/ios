@@ -79,6 +79,21 @@ extension Alert {
         )
     }
 
+    /// An alert notifying the user that account creation is restricted for the current server.
+    ///
+    /// - Parameter serverURL: The base URL of the server, shown in the message body.
+    /// - Returns: An alert notifying the user that account creation is restricted.
+    ///
+    static func registrationDisabled(serverURL: String) -> Alert {
+        Alert(
+            title: Localizations.accountCreationRestricted,
+            message: Localizations.xOnlyAllowsInvitedUsersToCreateAccounts(serverURL),
+            alertActions: [
+                AlertAction(title: Localizations.ok, style: .default),
+            ],
+        )
+    }
+
     /// Display the options to log out of, lock, or remove the selected profile switcher item.
     ///
     /// - Parameters:

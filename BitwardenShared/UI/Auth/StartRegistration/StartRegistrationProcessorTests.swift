@@ -16,6 +16,7 @@ class StartRegistrationProcessorTests: BitwardenTestCase { // swiftlint:disable:
 
     var authRepository: MockAuthRepository!
     var client: MockHTTPClient!
+    var configService: MockConfigService!
     var coordinator: MockCoordinator<AuthRoute, AuthEvent>!
     var delegate: MockStartRegistrationDelegate!
     var environmentService: MockEnvironmentService!
@@ -29,6 +30,7 @@ class StartRegistrationProcessorTests: BitwardenTestCase { // swiftlint:disable:
         super.setUp()
         authRepository = MockAuthRepository()
         client = MockHTTPClient()
+        configService = MockConfigService()
         coordinator = MockCoordinator<AuthRoute, AuthEvent>()
         delegate = MockStartRegistrationDelegate()
         environmentService = MockEnvironmentService()
@@ -40,6 +42,7 @@ class StartRegistrationProcessorTests: BitwardenTestCase { // swiftlint:disable:
             delegate: delegate,
             services: ServiceContainer.withMocks(
                 authRepository: authRepository,
+                configService: configService,
                 environmentService: environmentService,
                 errorReporter: errorReporter,
                 httpClient: client,
@@ -53,6 +56,7 @@ class StartRegistrationProcessorTests: BitwardenTestCase { // swiftlint:disable:
         super.tearDown()
         authRepository = nil
         client = nil
+        configService = nil
         coordinator = nil
         environmentService = nil
         errorReporter = nil
@@ -88,6 +92,115 @@ class StartRegistrationProcessorTests: BitwardenTestCase { // swiftlint:disable:
         XCTAssertEqual(alert.alertActions[2].title, Localizations.selfHosted)
         try await alert.tapAction(title: Localizations.selfHosted)
         XCTAssertEqual(coordinator.routes.last, .selfHosted(currentRegion: .europe))
+    }
+
+    /// `perform(.startRegistration)` skips the restricted alert when `environment.vault` is nil —
+    /// the host comparison cannot be made, so registration proceeds normally.
+    @MainActor
+    func test_startRegistration_registrationDisabled_vaultURLNil_skipsCheck() async throws {
+        subject.state = .fixture()
+        stateService.preAuthEnvironmentURLs = .defaultUS
+        client.result = .httpSuccess(testData: .nilResponse)
+        configService.configMocker.withResult(ServerConfig(
+            date: Date(),
+            responseModel: ConfigResponseModel(
+                communication: nil,
+                environment: nil,
+                featureStates: [:],
+                gitHash: nil,
+                server: nil,
+                settings: ServerSettingsResponseModel(disableUserRegistration: true),
+                version: "2024.4.0",
+            ),
+        ))
+
+        await subject.perform(.startRegistration)
+
+        XCTAssertNil(coordinator.alertShown.first(where: { $0.title == Localizations.accountCreationRestricted }))
+        XCTAssertEqual(coordinator.routes.last, .checkEmail(email: "example@email.com"))
+    }
+
+    /// `perform(.startRegistration)` shows the restricted alert when `environment.vault` host
+    /// matches the pre-auth environment's web vault host.
+    @MainActor
+    func test_startRegistration_registrationDisabled_vaultHostMatches() async {
+        subject.state = .fixture()
+        stateService.preAuthEnvironmentURLs = EnvironmentURLData(
+            webVault: URL(string: "https://vault.example.com"),
+        )
+        configService.configMocker.withResult(ServerConfig(
+            date: Date(),
+            responseModel: ConfigResponseModel(
+                communication: nil,
+                environment: EnvironmentServerConfigResponseModel(
+                    api: nil,
+                    cloudRegion: nil,
+                    fillAssistRules: nil,
+                    identity: nil,
+                    notifications: nil,
+                    sso: nil,
+                    vault: "https://vault.example.com",
+                ),
+                featureStates: [:],
+                gitHash: nil,
+                server: nil,
+                settings: ServerSettingsResponseModel(disableUserRegistration: true),
+                version: "2024.4.0",
+            ),
+        ))
+
+        await subject.perform(.startRegistration)
+
+        XCTAssertEqual(coordinator.alertShown.last?.title, Localizations.accountCreationRestricted)
+        XCTAssertEqual(
+            coordinator.alertShown.last?.message,
+            "https://vault.example.com only allows invited users to create accounts.",
+        )
+        XCTAssertTrue(coordinator.routes.isEmpty)
+        XCTAssertEqual(client.requests.count, 0)
+    }
+
+    /// `perform(.startRegistration)` skips the restricted alert when the config's vault host
+    /// does not match the pre-auth environment — the config is stale from a prior region.
+    @MainActor
+    func test_startRegistration_registrationDisabled_vaultHostMismatch_skipsCheck() async throws {
+        subject.state = .fixture()
+        stateService.preAuthEnvironmentURLs = .defaultEU
+        client.result = .httpSuccess(testData: .nilResponse)
+        configService.configMocker.withResult(ServerConfig(
+            date: Date(),
+            responseModel: ConfigResponseModel(
+                communication: nil,
+                environment: EnvironmentServerConfigResponseModel(
+                    api: nil,
+                    cloudRegion: nil,
+                    fillAssistRules: nil,
+                    identity: nil,
+                    notifications: nil,
+                    sso: nil,
+                    vault: "https://vault.bitwarden.com",
+                ),
+                featureStates: [:],
+                gitHash: nil,
+                server: nil,
+                settings: ServerSettingsResponseModel(disableUserRegistration: true),
+                version: "2024.4.0",
+            ),
+        ))
+
+        await subject.perform(.startRegistration)
+
+        XCTAssertNil(coordinator.alertShown.first(where: { $0.title == Localizations.accountCreationRestricted }))
+        XCTAssertEqual(coordinator.routes.last, .checkEmail(email: "example@email.com"))
+    }
+
+    /// `setRegion` triggers a config refresh so the processor can react to `disableUserRegistration`.
+    @MainActor
+    func test_setRegion_callsRefreshConfig() async {
+        await subject.setRegion(.europe, .defaultEU)
+        waitFor(configService.configMocker.called)
+        XCTAssertEqual(configService.configMocker.invokedParam?.forceRefresh, true)
+        XCTAssertEqual(configService.configMocker.invokedParam?.isPreAuth, true)
     }
 
     /// `perform(_:)` with `.startRegistration` sets preAuthUrls for the given email and navigates to check email.
