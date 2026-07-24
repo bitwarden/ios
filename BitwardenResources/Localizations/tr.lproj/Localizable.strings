@@ -128,7 +128,7 @@
 "ItemUpdated" = "Kayıt kaydedildi";
 "Submitting" = "Gönderiliyor…";
 "Syncing" = "Eşitleniyor…";
-"SyncingLogins" = "Hesaplar eşitleniyor...";
+"SyncingLogins" = "Hesaplar eşitleniyor…";
 "SyncingComplete" = "Eşitleme tamamlandı";
 "TouchID" = "Touch ID";
 "TwoStepLogin" = "İki aşamalı giriş";
@@ -391,7 +391,7 @@
 "MasterPasswordPolicyValidationTitle" = "Geçersiz parola";
 "MasterPasswordPolicyValidationMessage" = "Parolanız kuruluş gereksinimlerini karşılamıyor.  Lütfen parola politikasını kontrol edip yeniden deneyin.";
 "Loading" = "Yükleniyor";
-"LoadingSubscription" = "Abonelik yükleniyor...";
+"LoadingSubscription" = "Abonelik yükleniyor…";
 "AcceptPoliciesError" = "Hizmet Koşulları ve Gizlilik Politikası kabul edilmemiş.";
 "PrivacyPolicy" = "Gizlilik Politikası";
 "PersonalOwnershipPolicyInEffect" = "Bir kuruluş ilkesi sahiplik seçeneklerinizi etkiliyor.";
@@ -1113,7 +1113,7 @@
 "BreachMonitoring" = "İhlal izleme";
 "UpgradeNow" = "Şimdi yükselt";
 "ConfirmingYourUpgrade" = "Geliştirmen onaylanıyor…";
-"OpeningCheckout" = "Ödeme açılıyor...";
+"OpeningCheckout" = "Ödeme açılıyor…";
 "UpgradePending" = "Yükseltme beklemede";
 "YourUpgradeIsBeingProcessedDescriptionLong" = "Yükseltme işlemin işleniyor. Tamamlanana kadar ücretsiz planı kullanmaya devam edeceksin. Kontrol etmek için şimdi senkronize edebilir veya devam edebilirsin; tamamlandığında otomatik olarak güncellenecektir.";
 "UpgradedToPremium" = "Premium'a yükseltildi";

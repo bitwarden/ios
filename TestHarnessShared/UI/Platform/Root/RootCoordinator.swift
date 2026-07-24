@@ -77,7 +77,7 @@ class RootCoordinator: Coordinator, HasStackNavigator {
         let viewController = UIHostingController(rootView: view)
         stackNavigator?.push(viewController)
     }
-  
+
     /// Shows the date field picker showcase screen.
     ///
     private func showDateFieldPickerShowcase() {

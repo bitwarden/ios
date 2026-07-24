@@ -12,7 +12,7 @@
 "CopyUsername" = "Kopírovat uživatelské jméno";
 "Delete" = "Smazat";
 "DeleteAll" = "Smazat vše";
-"Deleting" = "Mazání...";
+"Deleting" = "Mazání…";
 "DoYouReallyWantToDelete" = "Opravdu chcete smazat tuto položku? Akce je nevratná.";
 "Edit" = "Upravit";
 "EditFolder" = "Upravit složku";
@@ -50,7 +50,7 @@
 "Password" = "Heslo";
 "Save" = "Uložit";
 "Move" = "Přesunout";
-"Saving" = "Ukládání...";
+"Saving" = "Ukládání…";
 "Settings" = "Nastavení";
 "ShowNextCode" = "Zobrazit další kód";
 "ItemDeleted" = "Položka byla smazána";
@@ -81,7 +81,7 @@
 "Close" = "Zavřít";
 "Continue" = "Pokračovat";
 "CreateAccount" = "Vytvořit účet";
-"CreatingAccount" = "Vytváření účtu...";
+"CreatingAccount" = "Vytváření účtu…";
 "EditItem" = "Upravit položku";
 "EnableAutomaticSyncing" = "Povolit automatickou synchronizaci";
 "EnterEmailForHint" = "Zadejte e-mailovou adresu pro zaslání nápovědy k hlavnímu heslu.";
@@ -104,7 +104,7 @@
 "Lock" = "Zamknout";
 "Immediately" = "Okamžitě";
 "VaultTimeoutLogOutConfirmation" = "Po vypršení časového limitu dojde k odhlášení. Přístup k trezoru bude odebrán a pro opětovné přihlášení bude vyžadováno online ověření. Opravdu chcete použít toto nastavení?";
-"LoggingIn" = "Přihlašování...";
+"LoggingIn" = "Přihlašování…";
 "LogInToBitwarden" = "Přihlásit se do Bitwardenu";
 "MasterPasswordConfirmationValMessage" = "Potvrzení hesla se neshoduje.";
 "TheMasterPasswordIsThePasswordYouUseToAccessYourVault" = "Hlavní heslo je heslo, které používáte pro přístup k trezoru.";
@@ -126,9 +126,9 @@
 "Security" = "Zabezpečení";
 "Select" = "Vybrat";
 "ItemUpdated" = "Položka byla uložena";
-"Submitting" = "Odesílání...";
-"Syncing" = "Synchronizování...";
-"SyncingLogins" = "Synchronizování přihlášení...";
+"Submitting" = "Odesílání…";
+"Syncing" = "Synchronizování…";
+"SyncingLogins" = "Synchronizování přihlášení…";
 "SyncingComplete" = "Synchronizace byla dokončena";
 "TouchID" = "Touch ID";
 "TwoStepLogin" = "Dvoufázové přihlášení";
@@ -164,7 +164,7 @@
 "AddNewAttachment" = "Přidat novou přílohu";
 "Attachments" = "Přílohy";
 "UnableToDownloadFile" = "Nelze stáhnout soubor.";
-"Downloading" = "Stahování...";
+"Downloading" = "Stahování…";
 "AttachmentLargeWarning" = "Tato příloha má velikost %1$@. Opravdu ji chcete stáhnout do Vašeho zařízení?";
 "AuthenticatorKey" = "Ověřovací klíč";
 "VerificationCodeTotp" = "Ověřovací kód (TOTP)";
@@ -301,7 +301,7 @@
 "Identities" = "Identity";
 "Logins" = "Přihlašovací údaje";
 "SecureNotes" = "Zabezpečené poznámky";
-"CheckingPassword" = "Kontrolování hesla...";
+"CheckingPassword" = "Kontrolování hesla…";
 "CheckPassword" = "Zkontrolujte, zda nedošlo k úniku hesla.";
 "PasswordSafe" = "V žádném ze známých případů nedošlo k úniku tohoto hesla. Mělo by být bezpečné používat jej i nadále.";
 "IdentityName" = "Název identity";
@@ -366,10 +366,10 @@
 "ExportVaultFailure" = "Při exportu Vašeho trezoru došlo k chybě. Pokud problém přetrvává, proveďte export z webového trezoru.";
 "Clone" = "Duplikovat";
 "PasswordGeneratorPolicyInEffect" = "Jedna nebo více zásad organizace ovlivňují nastavení generátoru";
-"SoftDeleting" = "Přesouvání do koše...";
+"SoftDeleting" = "Přesouvání do koše…";
 "ItemSoftDeleted" = "Položka byla přesunuta do koše.";
 "Restore" = "Obnovit";
-"Restoring" = "Obnovování...";
+"Restoring" = "Obnovování…";
 "ItemRestored" = "Položka byla obnovena";
 "Trash" = "Koš";
 "DoYouReallyWantToPermanentlyDeleteCipher" = "Opravdu chcete trvale tuto položku smazat? Akce je nevratná.";
@@ -391,7 +391,7 @@
 "MasterPasswordPolicyValidationTitle" = "Neplatné heslo";
 "MasterPasswordPolicyValidationMessage" = "Heslo nesplňuje požadavky organizace. Zkontrolujte požadavky a zkuste to znovu.";
 "Loading" = "Načítání";
-"LoadingSubscription" = "Načítání předplatného...";
+"LoadingSubscription" = "Načítání předplatného…";
 "AcceptPoliciesError" = "Podmínky použití a Zásady ochrany osobních údajů nebyly odsouhlaseny.";
 "PrivacyPolicy" = "Zásady ochrany osobních údajů";
 "PersonalOwnershipPolicyInEffect" = "Zásady organizace ovlivňují možnosti vlastnictví.";
@@ -810,7 +810,7 @@
 "YouMayNeedToEnableDevicePasscodeOrBiometrics" = "Možná budete muset povolit přístupový kód zařízení nebo biometriku.";
 "StartImportCXFDescriptionLong" = "Importuje hesla, heslové fráze, platební karty a jakékoli osobní údaje od jiného správce hesel.\n\nVaše data **nebudou** smazána od Vašeho předchozího poskytovatele.";
 "ImportPasswords" = "Importovat hesla";
-"ImportingEllipsis" = "Importování...";
+"ImportingEllipsis" = "Importování…";
 "AreYouSureYouWantToCancelTheImportProcessQuestionMark" = "Opravdu chcete zrušit proces importu?";
 "ImportFailed" = "Import selhal";
 "ThereWasAnIssueImportingAllOfYourPasswordsNoDataWasDeleted" = "Došlo k potížím při importu všech Vašich hesel.\n\nŽádná data nebyla smazána.";
@@ -995,7 +995,7 @@
 "DefaultX" = "Výchozí (%1$@)";
 "UpdateYourEncryptionSettings" = "Aktualizujte nastavení šifrování";
 "TheNewRecommendedEncryptionSettingsDescriptionLong" = "Nové doporučené nastavení šifrování zlepší bezpečnost Vašeho účtu. Pokud chcete aktualizovat nyní, zadejte hlavní heslo.";
-"Updating" = "Aktualizování...";
+"Updating" = "Aktualizování…";
 "EncryptionSettingsUpdated" = "Nastavení šifrování bylo aktualizováno";
 "IntroducingArchive" = "Představujeme Archiv";
 "KeepYtemsYouDontNeedRightNowSafeButOutOfSight" = "Uchovávejte položky, které momentálně nepotřebujete. V bezpečí, nepozorovaně.";
@@ -1021,7 +1021,7 @@
 "Unarchive" = "Odebrat z archivu";
 "ItemMovedToArchive" = "Položka byla přesunuta do archivu";
 "ItemMovedToVault" = "Položka byla přesunuta do trezoru";
-"SendingToArchive" = "Odesílání do archivu...";
+"SendingToArchive" = "Odesílání do archivu…";
 "MovingItemToVault" = "Přesouvání položky do trezoru";
 "OrganizationNotFound" = "Organizace nebyla nalezena.";
 "ItemsTransferred" = "Převedené položky";
@@ -1037,7 +1037,7 @@
 "YourPremiumSubscriptionEndedArchiveDescriptionLong" = "Chcete-li získat přístup k Vašemu archivu, restartujte předplatné Premium. Pokud upravíte detaily archivované položky před restartováním, bude přesunuta zpět do Vašeho trezoru.";
 "RestartPremium" = "Restartovat Premium";
 "ThisItemIsArchivedSavingChangesWillRestoreItToYourVault" = "Tato položka je archivována. Uložení změn ji obnoví do Vašeho trezoru.";
-"SettingUpAutofill" = "Nastavování automatického vyplňování...";
+"SettingUpAutofill" = "Nastavování automatického vyplňování…";
 "AddEmail" = "Přidat e-mail";
 "AnyoneWithPasswordSetByYou" = "Kdokoli s heslem od Vás";
 "AnyoneWithTheLink" = "Kdokoli s odkazem";
@@ -1112,8 +1112,8 @@
 "SecureFileStorage" = "Zabezpečené úložiště souborů";
 "BreachMonitoring" = "Sledování úniků";
 "UpgradeNow" = "Aktualizovat nyní";
-"ConfirmingYourUpgrade" = "Potvrzování Vaší aktualizace...";
-"OpeningCheckout" = "Otevírání pokladny...";
+"ConfirmingYourUpgrade" = "Potvrzování Vaší aktualizace…";
+"OpeningCheckout" = "Otevírání pokladny…";
 "UpgradePending" = "Nevyřízená aktualizace";
 "YourUpgradeIsBeingProcessedDescriptionLong" = "Vaše aktualizace je zpracovávána. Zůstanete na bezplatném tarifu, dokud nebude dokončena. Synchronizujte pro kontrolu, nebo pokračujte a aktualizace se provede automaticky.";
 "UpgradedToPremium" = "Aktualizováno na Premium";

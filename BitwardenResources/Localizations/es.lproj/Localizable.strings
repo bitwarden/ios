@@ -128,7 +128,7 @@
 "ItemUpdated" = "Elemento guardado";
 "Submitting" = "Enviando…";
 "Syncing" = "Sincronizando…";
-"SyncingLogins" = "Sincronizando inicios de sesión...";
+"SyncingLogins" = "Sincronizando inicios de sesión…";
 "SyncingComplete" = "Sincronización completada";
 "TouchID" = "Touch ID";
 "TwoStepLogin" = "Autenticación en dos pasos";
@@ -454,8 +454,8 @@
 "YourAccountHasBeenPermanentlyDeleted" = "Tu cuenta ha sido eliminada permanentemente";
 "InvalidVerificationCode" = "Código de verificación no válido.";
 "SendCode" = "Enviar código";
-"SendingCode" = "Enviando código...";
-"Verifying" = "Verificando...";
+"SendingCode" = "Enviando código…";
+"Verifying" = "Verificando…";
 "ResendCode" = "Reenviar código";
 "EnterTheVerificationCodeThatWasSentToYourEmail" = "Introduce el código de verificación enviado a tu correo electrónico";
 "SubmitCrashLogs" = "Enviar registros de fallos";
@@ -811,7 +811,7 @@
 "YouMayNeedToEnableDevicePasscodeOrBiometrics" = "You may need to enable device passcode or biometrics.";
 "StartImportCXFDescriptionLong" = "Import passwords, passkeys, credit cards, and any personal identity information from another password manager.\n\nYour data will **not** be deleted from your previous provider.";
 "ImportPasswords" = "Import passwords";
-"ImportingEllipsis" = "Importando...";
+"ImportingEllipsis" = "Importando…";
 "AreYouSureYouWantToCancelTheImportProcessQuestionMark" = "Are you sure you want to cancel the import process?";
 "ImportFailed" = "Import failed";
 "ThereWasAnIssueImportingAllOfYourPasswordsNoDataWasDeleted" = "There was an issue importing all of your passwords.\n\nNo data was deleted.";

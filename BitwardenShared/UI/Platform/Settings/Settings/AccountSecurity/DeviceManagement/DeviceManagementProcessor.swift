@@ -1,0 +1,165 @@
+import BitwardenKit
+import BitwardenResources
+import Foundation
+
+// MARK: - DeviceManagementProcessor
+
+/// The processor used to manage state and handle actions for the `DeviceManagementView`.
+///
+final class DeviceManagementProcessor: StateProcessor<
+    DeviceManagementState,
+    DeviceManagementAction,
+    DeviceManagementEffect,
+> {
+    // MARK: Types
+
+    typealias Services = HasAppIDService
+        & HasAuthService
+        & HasDeviceAPIService
+        & HasErrorReporter
+        & HasTimeProvider
+
+    // MARK: Properties
+
+    /// The `Coordinator` that handles navigation.
+    private let coordinator: AnyCoordinator<SettingsRoute, SettingsEvent>
+
+    /// The services used by the processor.
+    private let services: Services
+
+    // MARK: Initialization
+
+    /// Initializes a `DeviceManagementProcessor`.
+    ///
+    /// - Parameters:
+    ///   - coordinator: The coordinator used for navigation.
+    ///   - services: The services used by the processor.
+    ///   - state: The initial state of the processor.
+    ///
+    init(
+        coordinator: AnyCoordinator<SettingsRoute, SettingsEvent>,
+        services: Services,
+        state: DeviceManagementState,
+    ) {
+        self.coordinator = coordinator
+        self.services = services
+
+        super.init(state: state)
+    }
+
+    // MARK: Methods
+
+    override func perform(_ effect: DeviceManagementEffect) async {
+        switch effect {
+        case .loadData:
+            await loadData()
+        }
+    }
+
+    override func receive(_ action: DeviceManagementAction) {
+        switch action {
+        case let .deviceRow(rowAction):
+            handleDeviceRowAction(rowAction)
+        case .dismiss:
+            coordinator.navigate(to: .dismiss(), context: self)
+        case let .toastShown(newValue):
+            state.toast = newValue
+        }
+    }
+
+    // MARK: Private Methods
+
+    /// Handles an action from a `DeviceRow`.
+    ///
+    /// - Parameter action: The action to handle.
+    ///
+    private func handleDeviceRowAction(_ action: DeviceRowAction) {
+        switch action {
+        case let .rowTapped(device):
+            guard let pendingRequest = device.pendingRequest else { return }
+            coordinator.navigate(to: .loginRequest(pendingRequest), context: self)
+        }
+    }
+
+    /// Loads the device data.
+    ///
+    private func loadData() async {
+        do {
+            // Get the current device's app ID.
+            let appId = await services.appIDService.getOrCreateAppID()
+
+            // Fetch all devices and the current device in parallel.
+            async let devicesTask = services.deviceAPIService.getDevices()
+            async let currentDeviceTask = services.deviceAPIService.getCurrentDevice(appId: appId)
+            async let pendingRequestsTask = services.authService.getPendingLoginRequests()
+
+            let (devices, currentDevice, pendingRequests) = try await (
+                devicesTask,
+                currentDeviceTask,
+                pendingRequestsTask,
+            )
+
+            // Create device list items and mark current session.
+            var deviceItems = devices.map { device in
+                var item = DeviceListItem(device: device, timeProvider: services.timeProvider)
+                item.isCurrentSession = device.id == currentDevice.id
+                return item
+            }
+
+            // Match pending requests to devices.
+            deviceItems = matchPendingRequestsToDevices(deviceItems, pendingRequests: pendingRequests)
+
+            // Sort devices: current session first, then pending requests, then by activity.
+            deviceItems.sort()
+
+            state.loadingState = .data(deviceItems)
+        } catch {
+            state.loadingState = .data([])
+            await coordinator.showErrorAlert(error: error)
+            services.errorReporter.log(error: error)
+        }
+    }
+
+    /// Matches the most recent pending login request to its corresponding device.
+    ///
+    /// - Parameters:
+    ///   - devices: The list of device items.
+    ///   - pendingRequests: The list of pending login requests.
+    /// - Returns: The updated list of device items with the most recent pending request matched.
+    ///
+    private func matchPendingRequestsToDevices(
+        _ devices: [DeviceListItem],
+        pendingRequests: [LoginRequest],
+    ) -> [DeviceListItem] {
+        var updatedDevices = devices
+
+        // Sort pending requests by creation date descending to get most recent first.
+        let sortedRequests = pendingRequests.sorted { $0.creationDate > $1.creationDate }
+
+        for request in sortedRequests {
+            guard !request.requestDeviceType.isEmpty else { continue }
+            // Match by platform name, skipping devices that already have a pending request
+            // assigned so that multiple requests for the same platform (e.g. browser and
+            // extension variants that both map to "Chrome") can match distinct devices.
+            if let index = updatedDevices.firstIndex(where: { device in
+                device.pendingRequest == nil &&
+                    !device.deviceType.platform.isEmpty &&
+                    device.deviceType.platform.caseInsensitiveCompare(request.requestDeviceType) == .orderedSame
+            }) {
+                updatedDevices[index].pendingRequest = request
+            }
+        }
+
+        return updatedDevices
+    }
+}
+
+// MARK: - LoginRequestDelegate
+
+extension DeviceManagementProcessor: LoginRequestDelegate {
+    /// Update the data and display a success toast after a login request has been answered.
+    func loginRequestAnswered(approved: Bool) {
+        Task { await loadData() }
+        state.toast = Toast(title: approved ? Localizations.loginApproved : Localizations.logInDenied)
+    }
+}

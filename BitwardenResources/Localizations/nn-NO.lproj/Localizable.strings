@@ -810,7 +810,7 @@
 "YouMayNeedToEnableDevicePasscodeOrBiometrics" = "You may need to enable device passcode or biometrics.";
 "StartImportCXFDescriptionLong" = "Importer passord, passnøklar, kredittkort, og all personleg identitetsinformasjon frå ein annan passordbehandlar.\n\nDine data vil **ikkje** bli sletta frå din tidlegare leverandør.";
 "ImportPasswords" = "Importer passord";
-"ImportingEllipsis" = "Importerer...";
+"ImportingEllipsis" = "Importerer…";
 "AreYouSureYouWantToCancelTheImportProcessQuestionMark" = "Er du sikker på at du vil avbryte importprosessen?";
 "ImportFailed" = "Import feila";
 "ThereWasAnIssueImportingAllOfYourPasswordsNoDataWasDeleted" = "Det oppstod eit problem under importeringa av alle passorda dine.\n\nIngen data blei sletta.";

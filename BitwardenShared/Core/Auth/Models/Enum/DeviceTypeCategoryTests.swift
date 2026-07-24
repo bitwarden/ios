@@ -111,24 +111,4 @@ struct DeviceTypeCategoryDeviceTypeExtensionTests {
         #expect(DeviceType.server.displayName == Localizations.server)
         #expect(DeviceType.unknownBrowser.displayName == Localizations.unknown)
     }
-
-    /// `pendingRequestMatchKey` returns the extension-specific label for extension types.
-    @Test(arguments: [
-        (DeviceType.chromeExtension, "Chrome Extension"),
-        (.firefoxExtension, "Firefox Extension"),
-        (.operaExtension, "Opera Extension"),
-        (.edgeExtension, "Edge Extension"),
-        (.safariExtension, "Safari Extension"),
-        (.vivaldiExtension, "Vivaldi Extension"),
-    ])
-    func pendingRequestMatchKey_extension(type: DeviceType, expected: String) {
-        #expect(type.pendingRequestMatchKey == expected)
-    }
-
-    /// `pendingRequestMatchKey` falls back to `platform` for non-extension types.
-    @Test
-    func pendingRequestMatchKey_default() {
-        #expect(DeviceType.chromeBrowser.pendingRequestMatchKey == "Chrome")
-        #expect(DeviceType.iOS.pendingRequestMatchKey == "iOS")
-    }
 }

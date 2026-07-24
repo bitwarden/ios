@@ -810,7 +810,7 @@
 "YouMayNeedToEnableDevicePasscodeOrBiometrics" = "您可能需要启用设备通行代码或生物识别。";
 "StartImportCXFDescriptionLong" = "从其他密码管理器导入密码、通行密钥、信用卡以及任何个人身份信息。\n\n您的数据**不会**从之前的提供程序中删除。";
 "ImportPasswords" = "导入密码";
-"ImportingEllipsis" = "正在导入...";
+"ImportingEllipsis" = "正在导入…";
 "AreYouSureYouWantToCancelTheImportProcessQuestionMark" = "确定要取消导入过程吗？";
 "ImportFailed" = "导入失败";
 "ThereWasAnIssueImportingAllOfYourPasswordsNoDataWasDeleted" = "导入您的所有密码时出现问题。\n\n未删除任何数据。";

@@ -21,7 +21,9 @@ struct AccountSecurityView: View {
         VStack(spacing: 16) {
             setUpUnlockActionCard
 
-            pendingLoginRequests
+            if !store.state.isManageDevicesEnabled {
+                pendingLoginRequests
+            }
 
             if store.state.showUnlockOptions {
                 unlockOptionsSection
@@ -97,6 +99,15 @@ struct AccountSecurityView: View {
                 } trailingContent: {
                     Image(asset: SharedAsset.Icons.externalLink24)
                         .imageStyle(.rowIcon)
+                }
+
+                if store.state.isManageDevicesEnabled {
+                    SettingsListItem(
+                        Localizations.devices,
+                        accessibilityIdentifier: "ManageDevicesLabel",
+                    ) {
+                        store.send(.manageDevicesTapped)
+                    }
                 }
 
                 if store.state.isLockNowVisible {

@@ -1198,6 +1198,13 @@
 "LineOfCredit" = "Line of credit";
 "MoneyMarket" = "Money market";
 "Savings" = "Savings";
+"Devices" = "Devices";
+"NoDevicesFound" = "No devices found";
+"CurrentSession" = "Current session";
+"PendingRequest" = "Pending request";
+"Trusted" = "Trusted";
+"RecentlyActiveLabel" = "Recently active:";
+"FirstLoginLabel" = "First login:";
 "Today" = "Today";
 "PastSevenDays" = "Past 7 days";
 "PastFourteenDays" = "Past 14 days";

@@ -128,7 +128,7 @@
 "ItemUpdated" = "項目已儲存";
 "Submitting" = "提交中…";
 "Syncing" = "正在同步…";
-"SyncingLogins" = "正在同步登入資訊...";
+"SyncingLogins" = "正在同步登入資訊…";
 "SyncingComplete" = "同步完成";
 "TouchID" = "Touch ID";
 "TwoStepLogin" = "兩步驟登入";
@@ -164,7 +164,7 @@
 "AddNewAttachment" = "新增附件";
 "Attachments" = "附件";
 "UnableToDownloadFile" = "無法下載檔案。";
-"Downloading" = "下載中...";
+"Downloading" = "下載中…";
 "AttachmentLargeWarning" = "這個附件大小為 %1$@ 。確定要下載至您的裝置嗎？";
 "AuthenticatorKey" = "驗證器金鑰";
 "VerificationCodeTotp" = "驗證碼 (TOTP)";
@@ -301,7 +301,7 @@
 "Identities" = "身分";
 "Logins" = "登入資料";
 "SecureNotes" = "安全筆記";
-"CheckingPassword" = "正在驗證...";
+"CheckingPassword" = "正在驗證…";
 "CheckPassword" = "檢查密碼是否已暴露。";
 "PasswordSafe" = "任何已知的外洩密碼資料庫中都沒有此密碼，它目前是安全的。";
 "IdentityName" = "身分名稱";
@@ -369,7 +369,7 @@
 "SoftDeleting" = "正在傳送至垃圾桶…";
 "ItemSoftDeleted" = "已將項目傳送至垃圾桶。";
 "Restore" = "還原";
-"Restoring" = "還原中...";
+"Restoring" = "還原中…";
 "ItemRestored" = "項目已還原";
 "Trash" = "垃圾桶";
 "DoYouReallyWantToPermanentlyDeleteCipher" = "您確定要永久刪除嗎？刪除後將無法復原。";
