@@ -167,7 +167,7 @@ class EditCollectionsProcessorTests: BitwardenTestCase {
             coordinator.alertShown.last,
             .defaultAlert(
                 title: Localizations.anErrorHasOccurred,
-                message: Localizations.selectOneCollection,
+                message: Localizations.youMustSelectAtLeastOneSharedFolder,
             ),
         )
     }

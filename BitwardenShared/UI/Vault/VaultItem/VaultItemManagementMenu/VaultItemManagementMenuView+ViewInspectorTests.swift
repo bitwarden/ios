@@ -70,7 +70,7 @@ class VaultItemManagementMenuViewTests: BitwardenTestCase {
     /// Tapping the attachments option dispatches the `.clone` action.
     @MainActor
     func test_collectionsOption_tap() throws {
-        let button = try subject.inspect().find(button: Localizations.collections)
+        let button = try subject.inspect().find(button: Localizations.sharedFolders)
         try button.tap()
         XCTAssertEqual(processor.dispatchedActions.last, .editCollections)
     }

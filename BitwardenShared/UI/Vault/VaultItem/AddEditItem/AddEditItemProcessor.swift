@@ -833,7 +833,7 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
             coordinator.showAlert(
                 .defaultAlert(
                     title: Localizations.anErrorHasOccurred,
-                    message: Localizations.selectOneCollection,
+                    message: Localizations.youMustSelectAtLeastOneSharedFolder,
                 ),
             )
             return

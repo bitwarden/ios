@@ -888,7 +888,7 @@ class VaultListSectionsBuilderTests: BitwardenTestCase { // swiftlint:disable:th
             Section[HiddenItems]: Hidden items
               - Group[Archive]: Archive (0)
               - Group[Trash]: Trash (10)
-            Section[Collections]: Collections
+            Section[Collections]: Shared folders
               - Group[1]: Collection 1 (5)
             Section[Favorites]: Favorites
               - Cipher: Favorite 1

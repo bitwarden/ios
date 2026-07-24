@@ -149,7 +149,7 @@ extension VaultListItem {
             case .card:
                 SharedAsset.Icons.card24
             case .collection:
-                SharedAsset.Icons.collections24
+                SharedAsset.Icons.sharedFolder24
             case .driversLicense:
                 SharedAsset.Icons.idCard24
             case .folder,

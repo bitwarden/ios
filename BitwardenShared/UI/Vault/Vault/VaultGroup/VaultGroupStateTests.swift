@@ -106,7 +106,7 @@ class VaultGroupStateTests: BitwardenTestCase {
             group: .collection(id: "1", name: "Collection", organizationId: ""),
             vaultFilterType: .myVault,
         )
-        XCTAssertEqual(subjectCollection.noItemsString, Localizations.noItemsCollection)
+        XCTAssertEqual(subjectCollection.noItemsString, Localizations.thereAreNoItemsInThisSharedFolder)
 
         let subjectFolder = VaultGroupState(
             group: .folder(id: "1", name: "Folder"),

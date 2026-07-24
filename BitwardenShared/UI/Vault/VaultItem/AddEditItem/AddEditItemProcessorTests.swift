@@ -1387,7 +1387,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
             alert,
             Alert.defaultAlert(
                 title: Localizations.anErrorHasOccurred,
-                message: Localizations.selectOneCollection,
+                message: Localizations.youMustSelectAtLeastOneSharedFolder,
             ),
         )
     }

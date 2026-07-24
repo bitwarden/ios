@@ -105,7 +105,7 @@ class MoveToOrganizationProcessor: StateProcessor<
             coordinator.showAlert(
                 .defaultAlert(
                     title: Localizations.anErrorHasOccurred,
-                    message: Localizations.selectOneCollection,
+                    message: Localizations.youMustSelectAtLeastOneSharedFolder,
                 ),
             )
             return

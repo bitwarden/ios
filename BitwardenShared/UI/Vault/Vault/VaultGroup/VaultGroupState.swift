@@ -99,7 +99,7 @@ struct VaultGroupState: Equatable, Sendable {
         case .card:
             Localizations.thereAreNoCardsInYourVault
         case .collection:
-            Localizations.noItemsCollection
+            Localizations.thereAreNoItemsInThisSharedFolder
         case .folder:
             Localizations.noItemsFolder
         case .identity:
