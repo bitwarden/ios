@@ -35,11 +35,6 @@ class CreatePasskeyProcessor: StateProcessor<
 
     /// Performs the passkey registration flow. Injected for testability.
     ///
-    /// - Parameters:
-    ///   - rpId: The relying party identifier.
-    ///   - userName: The username for the credential.
-    ///   - displayName: The display name for the credential.
-    ///   - presentationAnchor: Provides the window used to present the passkey sheet.
     let performRegistration: PerformRegistration
 
     /// Persists successfully created passkey credentials for later use in the verify flow.
@@ -97,10 +92,13 @@ class CreatePasskeyProcessor: StateProcessor<
             name: userName,
             userID: userId,
         )
+
         let resolvedDisplayName = displayName.isEmpty ? userName : displayName
         request.displayName = resolvedDisplayName
 
-        let registration = try await PasskeyAuthorizationBridge(window: window).register(request: request)
+        let registration = try await PasskeyAuthorizationBridge<ASAuthorizationPlatformPublicKeyCredentialRegistration>(
+            window: window,
+        ).perform(request: request)
 
         let clientData = try ClientDataJSONParser.parse(fromClientDataJSON: registration.rawClientDataJSON)
         guard clientData.type == "webauthn.create" else {
@@ -115,7 +113,7 @@ class CreatePasskeyProcessor: StateProcessor<
         }
         let parsed = try COSEKeyParser.parseCredential(fromAttestationObject: attestationObject)
 
-        // Uses the parser's own extracted credential ID (rather than `registration.credentialID`)
+        // Uses the parser's extracted credential ID (rather than `registration.credentialID`)
         // so this path continuously exercises the same CBOR parsing the future verify flow will
         // depend on.
         return StoredPasskeyCredential(
@@ -193,23 +191,23 @@ protocol CreatePasskeyProcessorDelegate: AnyObject {
 /// Errors that can occur during passkey registration.
 ///
 enum PasskeyRegistrationError: Error, LocalizedError {
+    /// The challenge in the client data did not match the challenge sent to the authenticator.
+    case challengeMismatch
+
     /// The authorization response did not include an attestation object.
     case missingAttestationObject
 
     /// The client data's `type` was not `"webauthn.create"`.
     case unexpectedClientDataType(String)
 
-    /// The challenge in the client data did not match the challenge sent to the authenticator.
-    case challengeMismatch
-
     var errorDescription: String? {
         switch self {
+        case .challengeMismatch:
+            Localizations.malformedClientDataChallengeReceived
         case .missingAttestationObject:
             Localizations.missingAttestationObjectReceived
         case let .unexpectedClientDataType(type):
             Localizations.unexpectedClientDataTypeReceived(type)
-        case .challengeMismatch:
-            Localizations.challengeMismatchReceived
         }
     }
 }

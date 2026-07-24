@@ -53,6 +53,8 @@ class RootCoordinator: Coordinator, HasStackNavigator {
             showSimpleLoginForm()
         case .totpAutofillForm:
             showTOTPAutofillForm()
+        case .usePasskey:
+            showUsePasskey()
         }
     }
 
@@ -80,7 +82,7 @@ class RootCoordinator: Coordinator, HasStackNavigator {
         let viewController = UIHostingController(rootView: view)
         stackNavigator?.push(viewController)
     }
-  
+
     /// Shows the date field picker showcase screen.
     ///
     private func showDateFieldPickerShowcase() {
@@ -135,6 +137,16 @@ class RootCoordinator: Coordinator, HasStackNavigator {
         let viewController = UIHostingController(rootView: view)
         stackNavigator?.push(viewController)
     }
+
+    /// Shows the use passkey test screen.
+    ///
+    private func showUsePasskey() {
+        guard #available(iOS 17, *) else { return }
+        let processor = UsePasskeyProcessor(coordinator: asAnyCoordinator(), delegate: self)
+        let view = UsePasskeyView(store: Store(processor: processor))
+        let viewController = UIHostingController(rootView: view)
+        stackNavigator?.push(viewController)
+    }
 }
 
 // MARK: - HasErrorAlertServices
@@ -147,6 +159,14 @@ extension RootCoordinator: HasErrorAlertServices {
 
 extension RootCoordinator: CreatePasskeyProcessorDelegate {
     func presentationAnchorForPasskeyRegistration() async -> ASPresentationAnchor {
+        stackNavigator?.rootViewController?.view.window ?? UIWindow()
+    }
+}
+
+// MARK: - UsePasskeyProcessorDelegate
+
+extension RootCoordinator: UsePasskeyProcessorDelegate {
+    func presentationAnchorForPasskeyAssertion() async -> ASPresentationAnchor {
         stackNavigator?.rootViewController?.view.window ?? UIWindow()
     }
 }

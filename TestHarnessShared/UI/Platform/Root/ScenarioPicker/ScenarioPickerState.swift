@@ -35,13 +35,13 @@ struct ScenarioPickerState: Equatable {
             ScenarioItem(id: "totpAutofillForm", title: Localizations.totpAutofillForm, route: .totpAutofillForm),
             ScenarioItem(id: "dateFieldPicker", title: Localizations.dateFieldPicker, route: .dateFieldPickerShowcase),
         ]
+
         if #available(iOS 17, *) {
-            items.append(
+            items.append(contentsOf: [
                 ScenarioItem(id: "registerPasskey", title: Localizations.registerPasskey, route: .registerPasskey),
-            )
-            items.append(
+                ScenarioItem(id: "usePasskey", title: Localizations.usePasskey, route: .usePasskey),
                 ScenarioItem(id: "cardAutofillForm", title: Localizations.cardAutofillForm, route: .cardAutofillForm),
-            )
+            ])
         }
         if #available(iOS 16.0, *) {
             items.append(
