@@ -1079,6 +1079,7 @@
 "Canceled" = "لغو شد";
 "PastDue" = "بدهی معوق";
 "PendingCancellation" = "در انتظار لغو";
+"Unpaid" = "پرداخت نشده";
 "UpdatePayment" = "به‌روزرسانی پرداخت";
 "BillingAmount" = "مبلغ صورتحساب";
 "StorageCost" = "هزینه ذخیره‌سازی";
@@ -1093,6 +1094,7 @@
 /* Error message shown when the Premium Plan screen fails to load subscription data, with a prompt to retry. */
 "WeCouldntLoadYourSubscriptionDetailsPleaseRetry" = "ما نتوانستیم جزئیات اشتراک شما را بارگیری کنیم. لطفاً دوباره امتحان کنید.";
 "YourSubscriptionWasCanceledOnXDescriptionLong" = "اشتراک شما در تاریخ **%1$@** لغو شد. برای ادامه استفاده از ویژگی‌های ویژه، دوباره مشترک شوید.";
+"YourSubscriptionWasSuspendedOnXDescriptionLong" = "Your subscription was suspended on **%1$@**. To reactivate, please resolve your past due invoices.";
 "YourSubscriptionExpiredOnXDescriptionLong" = "اشتراک شما در تاریخ **%1$@** منقضی شد. برای ادامه استفاده از ویژگی‌های ویژه، دوباره مشترک شوید.";
 "YourSubscriptionIsScheduledToCancelOnXDescriptionLong" = "اشتراک شما قرار است در تاریخ **%1$@** لغو شود. می‌توانید قبل از آن، هر زمان که خواستید، اشتراک خود را دوباره برقرار کنید.";
 "PerMonth" = "/ ماه";
@@ -1170,3 +1172,4 @@
 "LineOfCredit" = "خط اعتباری";
 "MoneyMarket" = "بازار پول";
 "Savings" = "پس‌انداز";
+"PremiumRequiredTOTPDescriptionLong" = "کلید تولیدکننده رمز دوعاملی (TOTP) یک ویژگی پریمیوم هست. طرح فعلی شما شامل دسترسی به این قابلیت نیست.";

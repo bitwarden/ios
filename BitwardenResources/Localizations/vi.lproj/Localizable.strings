@@ -717,7 +717,7 @@
 "SaveAndProtectYourData" = "Lưu và bảo vệ dữ liệu của bạn";
 "TheVaultProtectsMoreThanJustPasswordsStoreSecureLoginsIdsCardsAndNotesSecurelyHere" = "Kho lưu trữ không chỉ bảo vệ mật khẩu của bạn. Bạn có thể lưu trữ an toàn các thông tin đăng nhập, ID, thẻ và ghi chú tại đây.";
 "SendSensitiveInformationSafely" = "Gửi thông tin nhạy cảm một cách an toàn";
-"ShareFilesAndDataSecurelyWithAnyoneOnAnyPlatformYourInformationWillRemainEndToEndEncrypted" = "Chia sẻ tệp tin và dữ liệu một cách an toàn với bất kỳ ai, trên bất kỳ nền tảng nào. Thông tin của bạn sẽ được mã hóa đầu cuối để hạn chế rủi ro bị lộ.";
+"ShareFilesAndDataSecurelyWithAnyoneOnAnyPlatformYourInformationWillRemainEndToEndEncrypted" = "Chia sẻ tệp tin và dữ liệu một cách an toàn với bất kỳ ai trên mọi nền tảng. Thông tin của bạn luôn được mã hóa đầu cuối để giảm nguy cơ bị lộ.";
 "AddLogin" = "Thêm đăng nhập";
 "AddCard" = "Thêm thẻ";
 "AddIdentity" = "Thêm danh tính";
@@ -1078,6 +1078,7 @@
 "Canceled" = "Đã hủy";
 "PastDue" = "Quá hạn";
 "PendingCancellation" = "Đang chờ hủy";
+"Unpaid" = "Chưa thanh toán";
 "UpdatePayment" = "Cập nhật thanh toán";
 "BillingAmount" = "Số tiền thanh toán";
 "StorageCost" = "Chi phí dung lượng lưu trữ";
@@ -1092,6 +1093,7 @@
 /* Error message shown when the Premium Plan screen fails to load subscription data, with a prompt to retry. */
 "WeCouldntLoadYourSubscriptionDetailsPleaseRetry" = "Chúng tôi không thể tải chi tiết gói đăng ký của bạn. Vui lòng thử lại.";
 "YourSubscriptionWasCanceledOnXDescriptionLong" = "Gói đăng ký của bạn đã bị hủy vào ngày **%1$@**. Vui lòng đăng ký lại để tiếp tục sử dụng các tính năng Cao cấp.";
+"YourSubscriptionWasSuspendedOnXDescriptionLong" = "Gói đăng ký của bạn đã bị tạm ngưng vào %1$@. Để kích hoạt lại, vui lòng thanh toán các hóa đơn quá hạn.";
 "YourSubscriptionExpiredOnXDescriptionLong" = "Gói đăng ký của bạn đã hết hạn vào ngày **%1$@**. Vui lòng đăng ký lại để tiếp tục sử dụng các tính năng Cao cấp.";
 "YourSubscriptionIsScheduledToCancelOnXDescriptionLong" = "Gói đăng ký của bạn được lịch hủy vào ngày **%1$@**. Bạn có thể khôi phục lại gói bất kỳ lúc nào trước thời điểm đó.";
 "PerMonth" = "/ tháng";
@@ -1169,3 +1171,4 @@
 "LineOfCredit" = "Hạn mức tín dụng";
 "MoneyMarket" = "Thị trường tiền tệ";
 "Savings" = "Tài khoản tiết kiệm";
+"PremiumRequiredTOTPDescriptionLong" = "Khóa xác thực (TOTP) là một tính năng Cao cấp. Gói hiện tại của bạn không bao gồm quyền truy cập tính năng này.";

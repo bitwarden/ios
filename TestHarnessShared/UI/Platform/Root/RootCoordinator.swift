@@ -40,6 +40,8 @@ class RootCoordinator: Coordinator, HasStackNavigator {
             showCardAutofillForm()
         case .createAccountForm:
             showCreateAccountForm()
+        case .dateFieldPickerShowcase:
+            showDateFieldPickerShowcase()
         case .fileShare:
             showFileShare()
         case .scenarioPicker:
@@ -72,6 +74,15 @@ class RootCoordinator: Coordinator, HasStackNavigator {
     private func showCreateAccountForm() {
         let processor = CreateAccountFormProcessor(coordinator: asAnyCoordinator())
         let view = CreateAccountFormView(store: Store(processor: processor))
+        let viewController = UIHostingController(rootView: view)
+        stackNavigator?.push(viewController)
+    }
+  
+    /// Shows the date field picker showcase screen.
+    ///
+    private func showDateFieldPickerShowcase() {
+        let processor = DateFieldPickerShowcaseProcessor(coordinator: asAnyCoordinator())
+        let view = DateFieldPickerShowcaseView(store: Store(processor: processor))
         let viewController = UIHostingController(rootView: view)
         stackNavigator?.push(viewController)
     }
