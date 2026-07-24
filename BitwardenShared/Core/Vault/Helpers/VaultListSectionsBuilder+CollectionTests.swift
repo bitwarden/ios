@@ -67,7 +67,7 @@ class VaultListSectionsBuilderCollectionTests: BitwardenTestCase {
 
         assertInlineSnapshot(of: vaultListData.sections.dump(), as: .lines) {
             """
-            Section[Collections]: Collections
+            Section[Collections]: Shared folders
               - Group[4]: zcollection9 (0)
               - Group[2]: acollection2 (5)
               - Group[1]: collection1 (20)
@@ -101,7 +101,7 @@ class VaultListSectionsBuilderCollectionTests: BitwardenTestCase {
 
         assertInlineSnapshot(of: vaultListData.sections.dump(), as: .lines) {
             """
-            Section[Collections]: Collections
+            Section[Collections]: Shared folders
               - Group[2]: acollection2 (5)
             """
         }
@@ -173,7 +173,7 @@ class VaultListSectionsBuilderCollectionTests: BitwardenTestCase {
 
         assertInlineSnapshot(of: vaultListData.sections.dump(), as: .lines) {
             """
-            Section[Collections]: Collections
+            Section[Collections]: Shared folders
               - Group[3]: sub1 (15)
               - Group[4]: sub2 (6)
             """
