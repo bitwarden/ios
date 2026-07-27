@@ -59,6 +59,10 @@ extension FeatureFlag: @retroactive CaseIterable {
     /// Flag to enable/disable Premium upgrade path.
     static let premiumUpgradePath = FeatureFlag(rawValue: "pm-31697-premium-upgrade-path")
 
+    /// Flag to enable/disable the Send Controls policy, which supersedes the `disableSend` and
+    /// `sendOptions` policies when active.
+    static let sendControls = FeatureFlag(rawValue: "pm-31885-send-controls")
+
     public static var allCases: [FeatureFlag] {
         [
             .accountEncryptionV2JITPassword,
@@ -76,6 +80,7 @@ extension FeatureFlag: @retroactive CaseIterable {
             .organizationUserNotificationBanner,
             .policiesInAcceptedState,
             .premiumUpgradePath,
+            .sendControls,
         ]
     }
 }

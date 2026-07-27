@@ -56,6 +56,7 @@ struct PremiumPlanView: View {
             label: Localizations.billingAmount,
             value: store.state.billingAmount,
             valueColor: Color(asset: SharedAsset.Colors.textPrimary),
+            valueAccessibilityLabel: store.state.billingAmountAccessibilityLabel,
         )
         if store.state.showStorageCost {
             billingRow(
@@ -81,6 +82,7 @@ struct PremiumPlanView: View {
             value: store.state.totalLabel,
             valueColor: Color(asset: SharedAsset.Colors.textPrimary),
             labelWeight: .bold,
+            valueAccessibilityLabel: store.state.totalAccessibilityLabel,
         )
     }
 
@@ -191,12 +193,15 @@ struct PremiumPlanView: View {
     ///   - value: The value text displayed on the right.
     ///   - valueColor: The color to use for the value text.
     ///   - labelWeight: The font weight applied to the label.
+    ///   - valueAccessibilityLabel: A VoiceOver-friendly override for `value`, or `nil` to read
+    ///     `value` as-is.
     ///
     private func billingRow(
         label: String,
         value: String,
         valueColor: Color,
         labelWeight: SwiftUI.Font.Weight = .regular,
+        valueAccessibilityLabel: String? = nil,
     ) -> some View {
         HStack {
             Text(label)
@@ -208,6 +213,7 @@ struct PremiumPlanView: View {
             Text(value)
                 .styleGuide(.body)
                 .foregroundColor(valueColor)
+                .accessibilityLabel(valueAccessibilityLabel ?? value)
         }
         .padding(.vertical, 20)
     }

@@ -1079,6 +1079,7 @@
 "Canceled" = "已取消";
 "PastDue" = "逾期";
 "PendingCancellation" = "待取消";
+"Unpaid" = "未付款";
 "UpdatePayment" = "更新付款方式";
 "BillingAmount" = "帳單金額";
 "StorageCost" = "儲存空間費用";
@@ -1093,6 +1094,7 @@
 /* Error message shown when the Premium Plan screen fails to load subscription data, with a prompt to retry. */
 "WeCouldntLoadYourSubscriptionDetailsPleaseRetry" = "無法載入您的訂閱詳細資訊。請再試一次。";
 "YourSubscriptionWasCanceledOnXDescriptionLong" = "您的訂閱已於 **%1$@** 取消。重新訂閱以繼續使用 Premium 功能。";
+"YourSubscriptionWasSuspendedOnXDescriptionLong" = "Your subscription was suspended on **%1$@**. To reactivate, please resolve your past due invoices.";
 "YourSubscriptionExpiredOnXDescriptionLong" = "您的訂閱已於 **%1$@** 到期。重新訂閱以繼續使用 Premium 功能。";
 "YourSubscriptionIsScheduledToCancelOnXDescriptionLong" = "您的訂閱預計將於 **%1$@** 取消。在此之前，您隨時都可以恢復訂閱。";
 "PerMonth" = "/ 月";
@@ -1170,3 +1172,4 @@
 "LineOfCredit" = "信用額度";
 "MoneyMarket" = "貨幣市場帳戶";
 "Savings" = "儲蓄帳戶";
+"PremiumRequiredTOTPDescriptionLong" = "驗證器金鑰（TOTP）為 Premium 功能。您目前的方案未包含此功能。";

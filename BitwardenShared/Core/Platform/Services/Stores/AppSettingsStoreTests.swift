@@ -512,6 +512,23 @@ class AppSettingsStoreTests: BitwardenTestCase { // swiftlint:disable:this type_
         XCTAssertNotNil(userDefaults.object(forKey: "bwPreferencesStorage:fillAssistLastFetchTimestamp_2"))
     }
 
+    /// `fillAssistEnabled(userId:)` returns `false` when no value has been set.
+    func test_fillAssistEnabled_isInitiallyFalse() {
+        XCTAssertFalse(subject.fillAssistEnabled(userId: "-1"))
+    }
+
+    /// `fillAssistEnabled(userId:)` and `setFillAssistEnabled(_:userId:)` get and set the value
+    /// per user and persist under the expected UserDefaults key.
+    func test_fillAssistEnabled_withValue() {
+        subject.setFillAssistEnabled(true, userId: "1")
+        subject.setFillAssistEnabled(false, userId: "2")
+
+        XCTAssertTrue(subject.fillAssistEnabled(userId: "1"))
+        XCTAssertFalse(subject.fillAssistEnabled(userId: "2"))
+        XCTAssertNotNil(userDefaults.object(forKey: "bwPreferencesStorage:fillAssistEnabled_1"))
+        XCTAssertNotNil(userDefaults.object(forKey: "bwPreferencesStorage:fillAssistEnabled_2"))
+    }
+
     /// `overrideDebugFeatureFlag(name:value:)` and `debugFeatureFlag(name:)` work as expected with correct values.
     func test_featureFlags() {
         let featureFlags: [FeatureFlag] = [.testFeatureFlag]
@@ -901,6 +918,30 @@ class AppSettingsStoreTests: BitwardenTestCase { // swiftlint:disable:this type_
 
         XCTAssertEqual(subject.passwordGenerationOptions(userId: "1"), options1)
         XCTAssertEqual(subject.passwordGenerationOptions(userId: "2"), options2)
+    }
+
+    /// `organizationUserNotificationBannerDismissal(userId:)` is initially `nil`.
+    func test_organizationUserNotificationBannerDismissal_isInitiallyNil() {
+        XCTAssertNil(subject.organizationUserNotificationBannerDismissal(userId: "-1"))
+    }
+
+    /// `organizationUserNotificationBannerDismissal(userId:)` gets and sets the dismissal record per user, and
+    /// clears it when set to `nil`.
+    func test_organizationUserNotificationBannerDismissal_withValue() {
+        let dismissal1 = OrganizationUserNotificationBannerDismissal(
+            revisionDate: Date(year: 2024, month: 6, day: 1),
+            showAfterEveryLogin: true,
+        )
+        let dismissal2 = OrganizationUserNotificationBannerDismissal(revisionDate: nil, showAfterEveryLogin: false)
+
+        subject.setOrganizationUserNotificationBannerDismissal(dismissal1, userId: "1")
+        subject.setOrganizationUserNotificationBannerDismissal(dismissal2, userId: "2")
+
+        XCTAssertEqual(subject.organizationUserNotificationBannerDismissal(userId: "1"), dismissal1)
+        XCTAssertEqual(subject.organizationUserNotificationBannerDismissal(userId: "2"), dismissal2)
+
+        subject.setOrganizationUserNotificationBannerDismissal(nil, userId: "1")
+        XCTAssertNil(subject.organizationUserNotificationBannerDismissal(userId: "1"))
     }
 
     /// `pendingAppIntentActions`is initially `nil`.
