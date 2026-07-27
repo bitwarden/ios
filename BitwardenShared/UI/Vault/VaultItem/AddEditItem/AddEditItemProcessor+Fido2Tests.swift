@@ -235,7 +235,7 @@ class AddEditItemProcessorFido2Tests: BitwardenTestCase {
         XCTAssertFalse(vaultRepository.addCipherCiphers.isEmpty)
         XCTAssertTrue(appExtensionDelegate.completeSavePasswordRequestCalled)
         XCTAssertTrue(coordinator.routes.isEmpty)
-        XCTAssertTrue(reviewPromptService.userActions.isEmpty)
+        XCTAssertEqual(reviewPromptService.userActions, [.addedNewItem])
     }
 
     /// `perform(_:)` with `.savePressed` in the save-password-credential flow shows an error alert
