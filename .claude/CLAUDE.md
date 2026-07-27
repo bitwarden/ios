@@ -144,6 +144,16 @@ someFunction(argumentOne: valueOne,
 
 See `build-test-verify` skill for project generation, build commands, test execution, lint, format, code generation, common failures, and debug tips.
 
+### Dependency errors troubleshooting
+
+If you hit package resolution conflicts, "file modified since module was built" errors, or unexplained compile failures, **clear the build folder before investigating further**:
+
+```bash
+xcodebuild clean -workspace Bitwarden.xcworkspace -scheme Bitwarden
+```
+
+Or in Xcode: **Product → Clean Build Folder** (⇧⌘K). Stale build outputs from a previous SDK or package revision are a common cause of these errors and clearing the folder resolves them without needing to touch `Package.resolved` or regenerate projects.
+
 ## Delivery Workflow
 
 **You MUST use the following skills for code delivery tasks** — invoke via the Skill tool:
