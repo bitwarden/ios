@@ -571,6 +571,8 @@
 "RequestAdminApproval" = "Yêu cầu quản trị viên phê duyệt";
 "ApproveWithMasterPassword" = "Phê duyệt bằng mật khẩu chính";
 "TurnOffUsingPublicDevice" = "Tắt nếu sử dụng thiết bị công cộng";
+"TurnOnFillAssist" = "Bật hỗ trợ điền";
+"TurnOnFillAssistDescriptionLong" = "Hỗ trợ điền cải thiện độ chính xác của tính năng tự động điền trên các trang web được hỗ trợ bằng cách sử dụng các quy tắc riêng cho từng trang web.";
 "RememberThisDevice" = "Lưu thiết bị này";
 "Passkey" = "Mã khóa";
 "Passkeys" = "Các mã khóa";
@@ -1097,12 +1099,37 @@
 "YourSubscriptionExpiredOnXDescriptionLong" = "Gói đăng ký của bạn đã hết hạn vào ngày **%1$@**. Vui lòng đăng ký lại để tiếp tục sử dụng các tính năng Cao cấp.";
 "YourSubscriptionIsScheduledToCancelOnXDescriptionLong" = "Gói đăng ký của bạn được lịch hủy vào ngày **%1$@**. Bạn có thể khôi phục lại gói bất kỳ lúc nào trước thời điểm đó.";
 "PerMonth" = "/ tháng";
+/* VoiceOver reading of "PerMonth", spoken instead of shown. */
+"PerMonthVoiceOver" = "mỗi tháng";
 "PerYear" = "/ năm";
+/* VoiceOver reading of "PerYear", spoken instead of shown. */
+"PerYearVoiceOver" = "mỗi năm";
 "XAmountPerCadence" = "%1$@ %2$@";
+/* %1$@ is an amount and cadence together, e.g. "$1.65 / month". */
+"XCancelAnytime" = "%1$@ · Có thể hủy bất cứ lúc nào";
+/* VoiceOver reading of "XCancelAnytime", spoken instead of shown. */
+"XCancelAnytimeVoiceOver" = "%1$@, Có thể hủy bất cứ lúc nào";
 "NegativeX" = "-%1$@";
 "UnknownStatus" = "Không xác định";
 "YourSubscriptionStatusIsUnknownVisitTheWebAppDescriptionLong" = "Không thể xác định trạng thái gói đăng ký của bạn. Vui lòng truy cập ứng dụng web để biết thêm chi tiết hoặc cập nhật lên phiên bản mới nhất.";
-"UnlockMoreAdvancedFeaturesWithPremiumPlan" = "Mở khoá các tính năng nâng cao với gói Cao cấp";
+/* Headline on the Premium upgrade screen. */
+"UnlockAdvancedProtection" = "Mở khóa các tính năng bảo vệ nâng cao";
+/* Premium benefit list item. */
+"BreezeThrough2faWithBuiltInCodes" = "Dễ dàng sử dụng xác thực hai yếu tố với mã tích hợp";
+/* Premium benefit list item. */
+"RunReportsToFindRiskyPasswords" = "Chạy báo cáo để tìm các mật khẩu có rủi ro";
+/* Premium benefit list item. */
+"KeepDocumentsSafeAndEncrypted" = "Giữ tài liệu an toàn và được mã hóa";
+/* Premium benefit list item. */
+"AddATrustedEmergencyContact" = "Thêm liên hệ khẩn cấp đáng tin cậy";
+/* Premium benefit list item. */
+"IdentifyUnsecureWebsites" = "Xác định các trang web không an toàn";
+/* Premium benefit list item. */
+"FlagAccountsWithInactive2fa" = "Đánh dấu các tài khoản chưa bật xác thực hai yếu tố";
+/* Premium benefit list item; "Send" is the Bitwarden Send feature name and shouldn't be translated. */
+"ShareFilesSecurelyWithAnyoneUsingSend" = "Chia sẻ tệp an toàn với mọi người bằng Send";
+/* Premium benefit list item. */
+"Receive247PrioritySupport" = "Nhận hỗ trợ ưu tiên 24/7";
 "BuiltInAuthenticator" = "Trình xác thực tích hợp";
 "EmergencyAccess" = "Truy cập khẩn cấp";
 "PaymentNotReceivedYet" = "Chưa nhận được thanh toán";
@@ -1111,7 +1138,6 @@
 "WeHadTroubleOpeningThePaymentPageDescriptionLong" = "Chúng tôi gặp vấn đề khi mở trang thanh toán, hãy thử lại.";
 "SecureFileStorage" = "Lưu trữ tệp an toàn";
 "BreachMonitoring" = "Giám sát vi phạm";
-"UpgradeNow" = "Nâng cấp ngay";
 "ConfirmingYourUpgrade" = "Xác nhận nâng cấp";
 "OpeningCheckout" = "Đang mở trang thanh toán…";
 "UpgradePending" = "Đang nâng cấp";
@@ -1122,7 +1148,8 @@
 "ViewPlan" = "Xem gói";
 "YouNowHaveAccessToAdvancedSecurityDescriptionLong" = "Hiện tại bạn đã có quyền truy cập vào các tính năng bảo mật nâng cao. Tìm hiểu thêm về những gì được bao gồm trong gói Cao cấp.";
 "YouNowHaveAccessToAllAdvancedSecurityFeatures" = "Hiện tại bạn đã có quyền truy cập vào tất cả các tính năng bảo mật nâng cao.";
-"YoullGoToStripeSecureCheckoutToCompleteYourPurchase" = "Bạn sẽ được chuyển đến trang thanh toán an toàn của Stripe để hoàn tất việc mua hàng.";
+/* Footer on the Premium upgrade screen; "Stripe" is the payment processor's name and shouldn't be translated. */
+"YoullCompleteThePurchaseWithStripeSecureCheckout" = "Bạn sẽ hoàn tất giao dịch mua bằng quy trình thanh toán bảo mật của Stripe.";
 "ContinueToStripe" = "Tiếp tục chuyển đến Stripe?";
 "YoullBeTakenToStripeToManageYourSubscriptionCancellation" = "Bạn sẽ được chuyển đến Stripe để quản lý việc hủy gói đăng ký của mình.";
 "UserIDCopiedToTheClipboard" = "Đã sao chép ID người dùng vào khay nhớ tạm";
@@ -1171,4 +1198,7 @@
 "LineOfCredit" = "Hạn mức tín dụng";
 "MoneyMarket" = "Thị trường tiền tệ";
 "Savings" = "Tài khoản tiết kiệm";
+/* Accessibility label for the button that clears a field's value. %1$@ is the field's title (e.g. "Date of birth"), so the spoken label reads "Clear Date of birth". */
+"ClearFieldName" = "Clear %1$@";
+"SelectDate" = "Select date";
 "PremiumRequiredTOTPDescriptionLong" = "Khóa xác thực (TOTP) là một tính năng Cao cấp. Gói hiện tại của bạn không bao gồm quyền truy cập tính năng này.";
