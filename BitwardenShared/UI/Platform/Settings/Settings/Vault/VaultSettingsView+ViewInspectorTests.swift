@@ -43,7 +43,7 @@ class VaultSettingsViewTests: BitwardenTestCase {
     /// Tapping the folders button dispatches the `.foldersTapped` action.
     @MainActor
     func test_foldersButton_tap() throws {
-        let button = try subject.inspect().find(button: Localizations.folders)
+        let button = try subject.inspect().find(button: Localizations.myFolders)
         try button.tap()
         XCTAssertEqual(processor.dispatchedActions.last, .foldersTapped)
     }

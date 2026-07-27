@@ -413,7 +413,7 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator { // swiftlint:d
         let view = FoldersView(store: Store(processor: processor))
         let viewController = UIHostingController(rootView: view)
         viewController.navigationItem.largeTitleDisplayMode = .never
-        stackNavigator?.push(viewController, navigationTitle: Localizations.folders)
+        stackNavigator?.push(viewController, navigationTitle: Localizations.myFolders)
     }
 
     /// Shows the import login items screen.

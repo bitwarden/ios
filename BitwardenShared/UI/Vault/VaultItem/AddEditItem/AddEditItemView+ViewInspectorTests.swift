@@ -151,7 +151,7 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
     @MainActor
     func test_folderTextField_updateValue() throws {
         let folder = FolderView.fixture(name: "Folder")
-        let menuField = try subject.inspect().find(bitwardenMenuField: Localizations.folder)
+        let menuField = try subject.inspect().find(bitwardenMenuField: Localizations.myFolder)
         try menuField.select(newValue: DefaultableType<FolderView>.custom(folder))
         XCTAssertEqual(processor.dispatchedActions.last, .folderChanged(.custom(folder)))
     }

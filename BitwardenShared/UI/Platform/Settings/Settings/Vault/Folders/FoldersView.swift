@@ -24,7 +24,7 @@ struct FoldersView: View {
                     .scrollView()
             }
         }
-        .navigationBar(title: Localizations.folders, titleDisplayMode: .inline)
+        .navigationBar(title: Localizations.myFolders, titleDisplayMode: .inline)
         .overlay(alignment: .bottomTrailing) {
             addItemFloatingActionButton {
                 store.send(.add)

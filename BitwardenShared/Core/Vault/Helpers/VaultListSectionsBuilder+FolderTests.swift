@@ -57,7 +57,7 @@ class VaultListSectionsBuilderFolderTests: BitwardenTestCase {
 
         assertInlineSnapshot(of: vaultListData.sections.dump(), as: .lines) {
             """
-            Section[Folders]: Folders
+            Section[Folders]: My folders
               - Group[2]: afolder2 (5)
               - Group[1]: folder1 (20)
               - Group[3]: folder3 (0)
@@ -87,7 +87,7 @@ class VaultListSectionsBuilderFolderTests: BitwardenTestCase {
 
         assertInlineSnapshot(of: vaultListData.sections.dump(), as: .lines) {
             """
-            Section[Folders]: Folders
+            Section[Folders]: My folders
               - Group[2]: afolder2 (5)
               - Group[3]: folder3 (0)
             """
@@ -121,7 +121,7 @@ class VaultListSectionsBuilderFolderTests: BitwardenTestCase {
 
         assertInlineSnapshot(of: vaultListData.sections.dump(), as: .lines) {
             """
-            Section[Folders]: Folders
+            Section[Folders]: My folders
               - Group[3]: sub1 (15)
               - Group[4]: sub2 (6)
             """
@@ -154,7 +154,7 @@ class VaultListSectionsBuilderFolderTests: BitwardenTestCase {
 
         assertInlineSnapshot(of: vaultListData.sections.dump(), as: .lines) {
             """
-            Section[Folders]: Folders
+            Section[Folders]: My folders
               - Group[2]: afolder2 (5)
               - Group[1]: folder1 (20)
               - Group[3]: folder3 (0)
@@ -219,7 +219,7 @@ class VaultListSectionsBuilderFolderTests: BitwardenTestCase {
 
         assertInlineSnapshot(of: vaultListData.sections.dump(), as: .lines) {
             """
-            Section[Folders]: Folders
+            Section[Folders]: My folders
               - Group[2]: afolder2 (5)
               - Group[1]: folder1 (20)
               - Group[3]: folder3 (0)
@@ -256,7 +256,7 @@ class VaultListSectionsBuilderFolderTests: BitwardenTestCase {
 
         assertInlineSnapshot(of: vaultListData.sections.dump(), as: .lines) {
             """
-            Section[Folders]: Folders
+            Section[Folders]: My folders
               - Group[2]: afolder2 (5)
               - Group[1]: folder1 (20)
               - Group[3]: folder3 (0)

@@ -296,7 +296,7 @@ class DefaultVaultListSectionsBuilder: VaultListSectionsBuilder { // swiftlint:d
 
         if !foldersVaultListItems.isEmpty {
             vaultListData.sections.append(
-                VaultListSection(id: "Folders", items: foldersVaultListItems, name: Localizations.folders),
+                VaultListSection(id: "Folders", items: foldersVaultListItems, name: Localizations.myFolders),
             )
         }
 

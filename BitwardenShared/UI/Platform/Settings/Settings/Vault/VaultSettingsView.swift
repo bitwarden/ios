@@ -59,7 +59,7 @@ struct VaultSettingsView: View {
     /// The vault settings section.
     private var vaultSettings: some View {
         ContentBlock(dividerLeadingPadding: 16) {
-            SettingsListItem(Localizations.folders) {
+            SettingsListItem(Localizations.myFolders) {
                 store.send(.foldersTapped)
             }
             .accessibilityIdentifier("FoldersLabel")
