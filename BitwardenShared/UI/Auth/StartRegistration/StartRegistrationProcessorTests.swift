@@ -85,9 +85,15 @@ class StartRegistrationProcessorTests: BitwardenTestCase { // swiftlint:disable:
 
         await subject.perform(.regionTapped)
         alert = try XCTUnwrap(coordinator.alertShown.last)
-        XCTAssertEqual(alert.alertActions[2].title, Localizations.selfHosted)
+        XCTAssertEqual(alert.alertActions[2].title, "bitwarden-gov.com")
+        try await alert.tapAction(title: "bitwarden-gov.com")
+        XCTAssertEqual(subject.state.region, .gov)
+
+        await subject.perform(.regionTapped)
+        alert = try XCTUnwrap(coordinator.alertShown.last)
+        XCTAssertEqual(alert.alertActions[3].title, Localizations.selfHosted)
         try await alert.tapAction(title: Localizations.selfHosted)
-        XCTAssertEqual(coordinator.routes.last, .selfHosted(currentRegion: .europe))
+        XCTAssertEqual(coordinator.routes.last, .selfHosted(currentRegion: .gov))
     }
 
     /// `perform(_:)` with `.startRegistration` sets preAuthUrls for the given email and navigates to check email.
