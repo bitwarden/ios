@@ -493,6 +493,9 @@ struct VaultListView: View {
             await store.perform(.streamOrganizations)
         }
         .task {
+            await store.perform(.streamPremiumUpgradePendingState)
+        }
+        .task {
             await store.perform(.streamShowWebIcons)
         }
         .onAppear { restartVaultListStream() }
