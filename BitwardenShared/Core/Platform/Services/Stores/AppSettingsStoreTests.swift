@@ -1097,6 +1097,38 @@ class AppSettingsStoreTests: BitwardenTestCase { // swiftlint:disable:this type_
         XCTAssertFalse(userDefaults.bool(forKey: "bwPreferencesStorage:premiumUpgradeBannerDismissed_1"))
     }
 
+    /// `premiumUpgradeLastSyncAttemptFailed(userId:)` returns `false` if there isn't a previously stored value.
+    func test_premiumUpgradeLastSyncAttemptFailed_isInitiallyFalse() {
+        XCTAssertFalse(subject.premiumUpgradeLastSyncAttemptFailed(userId: "1"))
+    }
+
+    /// `premiumUpgradeLastSyncAttemptFailed(userId:)` can be used to get and set the persisted value in user defaults.
+    func test_premiumUpgradeLastSyncAttemptFailed_withValue() {
+        subject.setPremiumUpgradeLastSyncAttemptFailed(true, userId: "1")
+        XCTAssertTrue(subject.premiumUpgradeLastSyncAttemptFailed(userId: "1"))
+        XCTAssertTrue(userDefaults.bool(forKey: "bwPreferencesStorage:premiumUpgradeLastSyncAttemptFailed_1"))
+
+        subject.setPremiumUpgradeLastSyncAttemptFailed(false, userId: "1")
+        XCTAssertFalse(subject.premiumUpgradeLastSyncAttemptFailed(userId: "1"))
+        XCTAssertFalse(userDefaults.bool(forKey: "bwPreferencesStorage:premiumUpgradeLastSyncAttemptFailed_1"))
+    }
+
+    /// `premiumUpgradePending(userId:)` returns `false` if there isn't a previously stored value.
+    func test_premiumUpgradePending_isInitiallyFalse() {
+        XCTAssertFalse(subject.premiumUpgradePending(userId: "1"))
+    }
+
+    /// `premiumUpgradePending(userId:)` can be used to get and set the persisted value in user defaults.
+    func test_premiumUpgradePending_withValue() {
+        subject.setPremiumUpgradePending(true, userId: "1")
+        XCTAssertTrue(subject.premiumUpgradePending(userId: "1"))
+        XCTAssertTrue(userDefaults.bool(forKey: "bwPreferencesStorage:premiumUpgradePending_1"))
+
+        subject.setPremiumUpgradePending(false, userId: "1")
+        XCTAssertFalse(subject.premiumUpgradePending(userId: "1"))
+        XCTAssertFalse(userDefaults.bool(forKey: "bwPreferencesStorage:premiumUpgradePending_1"))
+    }
+
     /// `upgradedToPremiumActionCardVisible(userId:)` returns `false` if there isn't a previously stored value.
     func test_upgradedToPremiumActionCardVisible_isInitiallyFalse() {
         XCTAssertFalse(subject.upgradedToPremiumActionCardVisible(userId: "1"))

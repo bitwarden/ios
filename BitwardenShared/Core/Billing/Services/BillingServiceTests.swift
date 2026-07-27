@@ -93,6 +93,20 @@ struct BillingServiceTests { // swiftlint:disable:this type_body_length
         #expect(billingAPIService.createCheckoutSessionCallsCount == 1)
     }
 
+    /// `createCheckoutSession()` clears a stale `lastAttemptFailed` flag left over from a prior
+    /// attempt before starting a new one.
+    @Test
+    func createCheckoutSession_clearsLastAttemptFailed() async throws {
+        stateService.premiumUpgradeLastSyncAttemptFailedResult = true
+        billingAPIService.createCheckoutSessionReturnValue = CheckoutSessionResponseModel(
+            checkoutSessionUrl: URL(string: "https://checkout.stripe.com/session")!,
+        )
+
+        _ = try await subject.createCheckoutSession()
+
+        #expect(stateService.premiumUpgradeLastSyncAttemptFailedResult == false)
+    }
+
     /// `createCheckoutSession()` propagates errors from the API service.
     @Test
     func createCheckoutSession_apiError() async throws {
@@ -543,6 +557,75 @@ struct BillingServiceTests { // swiftlint:disable:this type_body_length
         try await waitForAsync { !statuses.isEmpty }
         #expect(statuses == [.pending])
         #expect(errorReporter.errors.first is URLError)
+    }
+
+    /// `premiumStatusChanged()` records the sync failure and marks the upgrade pending when
+    /// `fetchSync` throws, and publishes the updated `PremiumUpgradePendingState`.
+    @Test
+    func premiumStatusChanged_syncError_recordsFailureAndPending() async throws {
+        stateService.doesActiveAccountHavePremiumResult = false
+        syncService.fetchSyncResult = .failure(URLError(.notConnectedToInternet))
+        var pendingStates = [PremiumUpgradePendingState]()
+        let cancellable = subject.premiumUpgradePendingStatePublisher()
+            .sink { pendingStates.append($0) }
+        defer { cancellable.cancel() }
+
+        await subject.premiumStatusChanged()
+
+        #expect(stateService.premiumUpgradeLastSyncAttemptFailedResult == true)
+        #expect(stateService.premiumUpgradePendingResult == true)
+        #expect(pendingStates.last == PremiumUpgradePendingState(isPending: true, lastAttemptFailed: true))
+    }
+
+    /// `premiumStatusChanged()` marks the upgrade pending without recording a failure when sync
+    /// succeeds but the user is still not Premium.
+    @Test
+    func premiumStatusChanged_pending_noFailureRecorded() async throws {
+        stateService.doesActiveAccountHavePremiumResult = false
+
+        await subject.premiumStatusChanged()
+
+        #expect(stateService.premiumUpgradeLastSyncAttemptFailedResult == false)
+        #expect(stateService.premiumUpgradePendingResult == true)
+    }
+
+    /// `premiumStatusChanged()` clears both the pending and failure flags once the user is
+    /// confirmed Premium.
+    @Test
+    func premiumStatusChanged_confirmed_clearsPendingState() async throws {
+        stateService.premiumUpgradePendingResult = true
+        stateService.premiumUpgradeLastSyncAttemptFailedResult = true
+        stateService.doesActiveAccountHavePremiumResult = false
+        syncService.fetchSyncHandler = {
+            stateService.doesActiveAccountHavePremiumResult = true
+        }
+
+        await subject.premiumStatusChanged()
+
+        #expect(stateService.premiumUpgradePendingResult == false)
+        #expect(stateService.premiumUpgradeLastSyncAttemptFailedResult == false)
+    }
+
+    // MARK: start()
+
+    /// `start()` resolves a pending Premium upgrade when a generic sync completes and the
+    /// active account has since become Premium, by any means (not just the original checkout
+    /// attempt's own subscription).
+    @Test
+    func start_resolvesPendingUpgradeOnGenericSync() async throws {
+        stateService.activeAccount = .fixture()
+        stateService.doesActiveAccountHavePremiumResult = false
+
+        await subject.start()
+
+        stateService.premiumUpgradePendingResult = true
+        stateService.premiumUpgradeLastSyncAttemptFailedResult = true
+        stateService.doesActiveAccountHavePremiumResult = true
+        stateService.lastSyncTimeSubject.send(Date())
+
+        try await waitForAsync { stateService.premiumUpgradePendingResult == false }
+        #expect(stateService.premiumUpgradeLastSyncAttemptFailedResult == false)
+        #expect(stateService.upgradedToPremiumActionCardVisibleResult == true)
     }
 
     // MARK: refreshSubscriptionAttentionCard

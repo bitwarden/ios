@@ -2,6 +2,8 @@ import BitwardenKit
 import Combine
 import Foundation
 
+// swiftlint:disable file_length
+
 // MARK: - BillingService
 
 /// A protocol for a service used to manage billing operations.
@@ -55,6 +57,16 @@ protocol BillingService: AnyObject { // sourcery: AutoMockable
     ///
     func premiumStatusChanged() async
 
+    /// Gets the current Premium upgrade pending state for the active account.
+    ///
+    /// - Returns: The current `PremiumUpgradePendingState`.
+    ///
+    func premiumUpgradePendingState() async -> PremiumUpgradePendingState
+
+    /// A publisher that emits the Premium upgrade pending state for the active account.
+    ///
+    func premiumUpgradePendingStatePublisher() -> AnyPublisher<PremiumUpgradePendingState, Never>
+
     /// Fetches the current subscription status and updates the visibility of the subscription
     /// attention action card.
     ///
@@ -84,6 +96,12 @@ protocol BillingService: AnyObject { // sourcery: AutoMockable
     /// - Returns: Whether the action card should be shown.
     ///
     func shouldShowUpgradedToPremiumActionCard() async -> Bool
+
+    /// Starts observing sync completions so a pending Premium upgrade can be resolved by any
+    /// successful sync, not just the one that originated the upgrade attempt. Should be called
+    /// once, for the lifetime of the app.
+    ///
+    func start() async
 }
 
 // MARK: - DefaultBillingService
@@ -104,6 +122,10 @@ class DefaultBillingService: BillingService {
     /// The service used to manage feature flags.
     private let configService: ConfigService
 
+    /// The task that watches for sync completions for the currently active account, to
+    /// reconcile a pending Premium upgrade if one exists.
+    private var currentSyncSubscriber: Task<Void, Never>?
+
     /// The debounce interval applied to the Premium checkout status publisher.
     private let debounceInterval: DispatchQueue.SchedulerTimeType.Stride
 
@@ -113,8 +135,20 @@ class DefaultBillingService: BillingService {
     /// The service used by the application to report non-fatal errors.
     private let errorReporter: ErrorReporter
 
+    /// The task that watches for active-account changes and re-subscribes
+    /// `currentSyncSubscriber` accordingly.
+    private var lastSyncSubscriber: Task<Void, Never>?
+
     /// Subject that emits the Premium checkout sync status.
     private let premiumCheckoutStatusSubject = CurrentValueSubject<PremiumCheckoutStatus?, Never>(nil)
+
+    /// Subject that emits the Premium upgrade pending state.
+    private let premiumUpgradePendingStateSubject = CurrentValueSubject<PremiumUpgradePendingState, Never>(
+        PremiumUpgradePendingState(isPending: false, lastAttemptFailed: false),
+    )
+
+    /// Whether `start()` has already been called, to guard against subscribing more than once.
+    private var started = false
 
     /// The service used to manage the app's state.
     private let stateService: StateService
@@ -160,6 +194,15 @@ class DefaultBillingService: BillingService {
     // MARK: Methods
 
     func createCheckoutSession() async throws -> URL {
+        // A new attempt is starting — clear any stale failure from a prior attempt so it
+        // can't incorrectly surface against this one before its own sync has run.
+        do {
+            try await billingStateService.setPremiumUpgradeLastSyncAttemptFailed(false)
+        } catch {
+            errorReporter.log(error: error)
+        }
+        await refreshPremiumUpgradePendingStateSubject()
+
         let response = try await billingAPIService.createCheckoutSession()
         let url = response.checkoutSessionUrl
         // Ensure the checkout URL uses HTTPS to prevent man-in-the-middle attacks
@@ -218,12 +261,25 @@ class DefaultBillingService: BillingService {
         }
 
         premiumCheckoutStatusSubject.send(.syncing)
+        var syncFailed = false
         do {
             try await syncService.fetchSync(forceSync: true)
         } catch {
             errorReporter.log(error: error)
+            syncFailed = true
         }
+        do {
+            try await billingStateService.setPremiumUpgradeLastSyncAttemptFailed(syncFailed)
+        } catch {
+            errorReporter.log(error: error)
+        }
+
         let hasPremium = await stateService.doesActiveAccountHavePremium()
+        do {
+            try await billingStateService.setPremiumUpgradePending(!hasPremium)
+        } catch {
+            errorReporter.log(error: error)
+        }
         premiumCheckoutStatusSubject.send(hasPremium ? .confirmed : .pending)
         if hasPremium {
             premiumCheckoutStatusSubject.send(nil)
@@ -233,6 +289,22 @@ class DefaultBillingService: BillingService {
                 errorReporter.log(error: error)
             }
         }
+        await refreshPremiumUpgradePendingStateSubject()
+    }
+
+    func premiumUpgradePendingState() async -> PremiumUpgradePendingState {
+        do {
+            let isPending = try await billingStateService.getPremiumUpgradePending()
+            let lastAttemptFailed = try await billingStateService.getPremiumUpgradeLastSyncAttemptFailed()
+            return PremiumUpgradePendingState(isPending: isPending, lastAttemptFailed: lastAttemptFailed)
+        } catch {
+            errorReporter.log(error: error)
+            return PremiumUpgradePendingState(isPending: false, lastAttemptFailed: false)
+        }
+    }
+
+    func premiumUpgradePendingStatePublisher() -> AnyPublisher<PremiumUpgradePendingState, Never> {
+        premiumUpgradePendingStateSubject.eraseToAnyPublisher()
     }
 
     func refreshSubscriptionAttentionCard(subscription: PremiumSubscription?) async {
@@ -289,5 +361,59 @@ class DefaultBillingService: BillingService {
             errorReporter.log(error: error)
             return false
         }
+    }
+
+    func start() async {
+        guard !started else { return }
+        started = true
+
+        lastSyncSubscriber = Task {
+            for await userId in await self.stateService.activeAccountIdPublisher().values {
+                self.currentSyncSubscriber?.cancel()
+                guard userId != nil else { continue }
+
+                await self.refreshPremiumUpgradePendingStateSubject()
+
+                self.currentSyncSubscriber = Task {
+                    guard let publisher = try? await self.stateService.lastSyncTimePublisher() else { return }
+                    for await _ in publisher.values {
+                        await self.reconcilePendingUpgradeIfNeeded()
+                    }
+                }
+            }
+        }
+    }
+
+    // MARK: Private Methods
+
+    /// Checks whether a pending Premium upgrade can now be resolved, and clears the pending
+    /// state if the active account has since become Premium (by any means — personal or
+    /// organization-granted).
+    ///
+    private func reconcilePendingUpgradeIfNeeded() async {
+        do {
+            guard try await billingStateService.getPremiumUpgradePending() else { return }
+        } catch {
+            errorReporter.log(error: error)
+            return
+        }
+
+        guard await stateService.doesActiveAccountHavePremium() else { return }
+
+        do {
+            try await billingStateService.setPremiumUpgradePending(false)
+            try await billingStateService.setPremiumUpgradeLastSyncAttemptFailed(false)
+            try await billingStateService.setUpgradedToPremiumActionCardVisible(true)
+        } catch {
+            errorReporter.log(error: error)
+        }
+        await refreshPremiumUpgradePendingStateSubject()
+    }
+
+    /// Re-reads the persisted Premium upgrade pending state for the active account and pushes
+    /// it into `premiumUpgradePendingStateSubject`.
+    ///
+    private func refreshPremiumUpgradePendingStateSubject() async {
+        await premiumUpgradePendingStateSubject.send(premiumUpgradePendingState())
     }
 }

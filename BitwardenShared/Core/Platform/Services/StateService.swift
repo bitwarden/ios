@@ -2479,6 +2479,28 @@ extension DefaultStateService: BillingStateService {
         return timeProvider.timeSince(creationDate) >= Constants.premiumUpgradeBannerAccountAge
     }
 
+    // MARK: Premium Upgrade Pending
+
+    func getPremiumUpgradeLastSyncAttemptFailed() async throws -> Bool {
+        let userId = try getActiveAccountUserId()
+        return appSettingsStore.premiumUpgradeLastSyncAttemptFailed(userId: userId)
+    }
+
+    func getPremiumUpgradePending() async throws -> Bool {
+        let userId = try getActiveAccountUserId()
+        return appSettingsStore.premiumUpgradePending(userId: userId)
+    }
+
+    func setPremiumUpgradeLastSyncAttemptFailed(_ failed: Bool) async throws {
+        let userId = try getActiveAccountUserId()
+        appSettingsStore.setPremiumUpgradeLastSyncAttemptFailed(failed, userId: userId)
+    }
+
+    func setPremiumUpgradePending(_ pending: Bool) async throws {
+        let userId = try getActiveAccountUserId()
+        appSettingsStore.setPremiumUpgradePending(pending, userId: userId)
+    }
+
     // MARK: Subscription Attention Card
 
     func getSubscriptionAttentionCardVisible() async throws -> Bool {
