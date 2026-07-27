@@ -1078,6 +1078,7 @@
 "Canceled" = "Geannuleerd";
 "PastDue" = "Verlopen";
 "PendingCancellation" = "In afwachting van opzegging";
+"Unpaid" = "Openstaand";
 "UpdatePayment" = "Betalingswijze bijwerken";
 "BillingAmount" = "Factuurbedrag";
 "StorageCost" = "Kosten voor opslag";
@@ -1092,6 +1093,7 @@
 /* Error message shown when the Premium Plan screen fails to load subscription data, with a prompt to retry. */
 "WeCouldntLoadYourSubscriptionDetailsPleaseRetry" = "We konden je abonnementsgegevens niet laden. Probeer het opnieuw.";
 "YourSubscriptionWasCanceledOnXDescriptionLong" = "Je abonnement is geannuleerd op **%1$@**. Heractiveer je abonnement om gebruik te blijven maken van Premium-functionaliteiten.";
+"YourSubscriptionWasSuspendedOnXDescriptionLong" = "Je abonnement is geschorst op **%1$@**. Om te reactiveren, moet je je achterstallige facturen betalen.";
 "YourSubscriptionExpiredOnXDescriptionLong" = "Je abonnement is verlopen op **%1$@**. Heractiveer je abonnement om gebruik te blijven maken van Premium-functionaliteiten.";
 "YourSubscriptionIsScheduledToCancelOnXDescriptionLong" = "Je abonnement verloopt op **%1$@**. Je kunt het op elk gewenst moment hervatten.";
 "PerMonth" = "/ maand";
@@ -1169,3 +1171,4 @@
 "LineOfCredit" = "Kredietlijn";
 "MoneyMarket" = "Geldmarkt";
 "Savings" = "Spaargeld";
+"PremiumRequiredTOTPDescriptionLong" = "Authenticatiesleutel (TOTP) is een Premium-functie. Toegang tot deze functie is niet inbegrepen in je huidige abonnement.";

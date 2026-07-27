@@ -193,6 +193,12 @@ protocol AppSettingsStore: AnyObject {
     ///
     func fillAssistCachedData(userId: String) -> FillAssistCachedData?
 
+    /// Gets whether the Fill Assist feature is enabled for the user ID.
+    ///
+    /// - Parameter userId: The user ID associated with the Fill Assist enabled value.
+    ///
+    func fillAssistEnabled(userId: String) -> Bool
+
     /// Gets the timestamp of the last successful fill-assist manifest check for the user ID.
     ///
     /// - Parameter userId: The user ID associated with the timestamp.
@@ -256,6 +262,13 @@ protocol AppSettingsStore: AnyObject {
     /// - Returns: The last notifications registration date for the user.
     ///
     func notificationsLastRegistrationDate(userId: String) -> Date?
+
+    /// Gets the organization user notification banner dismissal record for a user ID.
+    ///
+    /// - Parameter userId: The user ID associated with the dismissal record.
+    /// - Returns: The organization user notification banner dismissal record for the user ID.
+    ///
+    func organizationUserNotificationBannerDismissal(userId: String) -> OrganizationUserNotificationBannerDismissal?
 
     /// Gets the password generation options for a user ID.
     ///
@@ -461,6 +474,14 @@ protocol AppSettingsStore: AnyObject {
     ///
     func setFillAssistCachedData(_ data: FillAssistCachedData?, userId: String)
 
+    /// Sets whether the Fill Assist feature is enabled for the user ID.
+    ///
+    /// - Parameters:
+    ///   - fillAssistEnabled: The value to set, or `nil` to clear.
+    ///   - userId: The user ID associated with the Fill Assist enabled value.
+    ///
+    func setFillAssistEnabled(_ fillAssistEnabled: Bool?, userId: String)
+
     /// Sets the timestamp of the last successful fill-assist manifest check for the user ID.
     ///
     /// - Parameters:
@@ -520,6 +541,17 @@ protocol AppSettingsStore: AnyObject {
     ///   - userId: The user ID associated with the last notifications registration date.
     ///
     func setNotificationsLastRegistrationDate(_ date: Date?, userId: String)
+
+    /// Sets the organization user notification banner dismissal record for a user ID.
+    ///
+    /// - Parameters:
+    ///   - dismissal: The dismissal record to store, or `nil` to clear it.
+    ///   - userId: The user ID associated with the dismissal record.
+    ///
+    func setOrganizationUserNotificationBannerDismissal(
+        _ dismissal: OrganizationUserNotificationBannerDismissal?,
+        userId: String,
+    )
 
     /// Sets the password generation options for a user ID.
     ///
@@ -839,6 +871,7 @@ extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore {
         case encryptedUserKey(userId: String)
         case events(userId: String)
         case fillAssistCachedData(userId: String)
+        case fillAssistEnabled(userId: String)
         case fillAssistLastFetchTimestamp(userId: String)
         case flightRecorderData
         case hasPerformedSyncAfterLogin(userId: String)
@@ -854,6 +887,8 @@ extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore {
         case masterPasswordHash(userId: String)
         case migrationVersion
         case notificationsLastRegistrationDate(userId: String)
+        // swiftlint:disable:next identifier_name
+        case organizationUserNotificationBannerDismissal(userId: String)
         case passwordGenerationOptions(userId: String)
         case pendingAppIntentActions
         case pinProtectedUserKey(userId: String) // Replaced by `pinProtectedUserKeyEnvelope`.
@@ -930,6 +965,8 @@ extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore {
                 "events_\(userId)"
             case let .fillAssistCachedData(userId):
                 "fillAssistCachedData_\(userId)"
+            case let .fillAssistEnabled(userId):
+                "fillAssistEnabled_\(userId)"
             case let .fillAssistLastFetchTimestamp(userId):
                 "fillAssistLastFetchTimestamp_\(userId)"
             case .flightRecorderData:
@@ -960,6 +997,8 @@ extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore {
                 "migrationVersion"
             case let .notificationsLastRegistrationDate(userId):
                 "pushLastRegistrationDate_\(userId)"
+            case let .organizationUserNotificationBannerDismissal(userId):
+                "organizationUserNotificationBannerDismissal_\(userId)"
             case let .passwordGenerationOptions(userId):
                 "passwordGenerationOptions_\(userId)"
             case .pendingAppIntentActions:
@@ -1187,6 +1226,10 @@ extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore {
         fetch(for: .fillAssistCachedData(userId: userId))
     }
 
+    func fillAssistEnabled(userId: String) -> Bool {
+        fetch(for: .fillAssistEnabled(userId: userId))
+    }
+
     func fillAssistLastFetchTimestamp(userId: String) -> Date? {
         fetch(for: .fillAssistLastFetchTimestamp(userId: userId))
     }
@@ -1221,6 +1264,12 @@ extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore {
 
     func notificationsLastRegistrationDate(userId: String) -> Date? {
         fetch(for: .notificationsLastRegistrationDate(userId: userId)).map { Date(timeIntervalSince1970: $0) }
+    }
+
+    func organizationUserNotificationBannerDismissal(
+        userId: String,
+    ) -> OrganizationUserNotificationBannerDismissal? {
+        fetch(for: .organizationUserNotificationBannerDismissal(userId: userId))
     }
 
     func overrideDebugFeatureFlag(name: String, value: Bool?) {
@@ -1333,6 +1382,10 @@ extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore {
         store(data, for: .fillAssistCachedData(userId: userId))
     }
 
+    func setFillAssistEnabled(_ fillAssistEnabled: Bool?, userId: String) {
+        store(fillAssistEnabled, for: .fillAssistEnabled(userId: userId))
+    }
+
     func setFillAssistLastFetchTimestamp(_ timestamp: Date?, userId: String) {
         store(timestamp, for: .fillAssistLastFetchTimestamp(userId: userId))
     }
@@ -1363,6 +1416,13 @@ extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore {
 
     func setNotificationsLastRegistrationDate(_ date: Date?, userId: String) {
         store(date?.timeIntervalSince1970, for: .notificationsLastRegistrationDate(userId: userId))
+    }
+
+    func setOrganizationUserNotificationBannerDismissal(
+        _ dismissal: OrganizationUserNotificationBannerDismissal?,
+        userId: String,
+    ) {
+        store(dismissal, for: .organizationUserNotificationBannerDismissal(userId: userId))
     }
 
     func setPasswordGenerationOptions(_ options: PasswordGenerationOptions?, userId: String) {

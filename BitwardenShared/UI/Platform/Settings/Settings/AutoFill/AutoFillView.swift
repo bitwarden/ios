@@ -85,6 +85,30 @@ struct AutoFillView: View {
     /// The additional options section.
     private var additionalOptionsSection: some View {
         SectionView(Localizations.additionalOptions, contentSpacing: 8) {
+            if store.state.isFillAssistFeatureFlagEnabled {
+                BitwardenToggle(
+                    footer: Localizations.turnOnFillAssistDescriptionLong,
+                    isOn: store.binding(
+                        get: \.isFillAssistEnabled,
+                        send: AutoFillAction.toggleFillAssist,
+                    ),
+                    accessibilityIdentifier: "FillAssistSwitch",
+                ) {
+                    HStack(spacing: 8) {
+                        Text(Localizations.turnOnFillAssist)
+                        Button {
+                            openURL(ExternalLinksConstants.fillAssistHelp)
+                        } label: {
+                            SharedAsset.Icons.questionCircle16.swiftUIImage
+                                .scaledFrame(width: 16, height: 16)
+                                .accessibilityLabel(Localizations.learnMore)
+                        }
+                        .buttonStyle(.fieldLabelIcon)
+                    }
+                }
+                .contentBlock()
+            }
+
             BitwardenToggle(
                 Localizations.copyTotpAutomatically,
                 footer: Localizations.copyTotpAutomaticallyDescription,

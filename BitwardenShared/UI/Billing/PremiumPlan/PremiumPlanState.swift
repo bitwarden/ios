@@ -34,6 +34,15 @@ struct PremiumPlanState: Equatable {
         )
     }
 
+    /// The VoiceOver-friendly version of `billingAmount` (e.g. "$19.80 per year").
+    var billingAmountAccessibilityLabel: String {
+        guard let subscription else { return "" }
+        return Localizations.xAmountPerCadence(
+            formatCurrency(subscription.seatsCost),
+            subscription.cadence.accessibilityLabel,
+        )
+    }
+
     /// The date the subscription was canceled, formatted for display.
     var canceledDate: String {
         guard let canceled = subscription?.canceled else { return "" }
@@ -177,6 +186,15 @@ struct PremiumPlanState: Equatable {
         return Localizations.xAmountPerCadence(
             formatCurrency(subscription.totalAmount),
             subscription.cadence.label,
+        )
+    }
+
+    /// The VoiceOver-friendly version of `totalLabel` (e.g. "$25.55 per year").
+    var totalAccessibilityLabel: String {
+        guard let subscription else { return "" }
+        return Localizations.xAmountPerCadence(
+            formatCurrency(subscription.totalAmount),
+            subscription.cadence.accessibilityLabel,
         )
     }
 

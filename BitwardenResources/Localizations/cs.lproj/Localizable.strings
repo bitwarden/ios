@@ -1078,6 +1078,7 @@
 "Canceled" = "Zrušeno";
 "PastDue" = "Po splatnosti";
 "PendingCancellation" = "Čeká na zrušení";
+"Unpaid" = "Nezaplaceno";
 "UpdatePayment" = "Aktualizovat platbu";
 "BillingAmount" = "Fakturovaná částka";
 "StorageCost" = "Náklady na úložiště";
@@ -1092,6 +1093,7 @@
 /* Error message shown when the Premium Plan screen fails to load subscription data, with a prompt to retry. */
 "WeCouldntLoadYourSubscriptionDetailsPleaseRetry" = "Nemohli jsme načíst údaje o předplatném. Zkuste to znovu.";
 "YourSubscriptionWasCanceledOnXDescriptionLong" = "Vaše předplatné bylo zrušeno **%1$@**. Chcete-li pokračovat v používání funkcí Premium, proveďte obnovení.";
+"YourSubscriptionWasSuspendedOnXDescriptionLong" = "Vaše předplatné bylo pozastaveno dne **%1$@**. Chcete-li jej znovu aktivovat, uhraďte své nezaplacené faktury.";
 "YourSubscriptionExpiredOnXDescriptionLong" = "Vaše předplatné bylo zrušeno **%1$@**. Chcete-li pokračovat v používání funkcí Premium, proveďte obnovení.";
 "YourSubscriptionIsScheduledToCancelOnXDescriptionLong" = "Zrušení Vašeho předplatného je naplánováno na **%1$@**. Před tím ho můžete kdykoli obnovit.";
 "PerMonth" = "/ měsíčně";
@@ -1169,3 +1171,4 @@
 "LineOfCredit" = "Úvěrový rámec";
 "MoneyMarket" = "Peněžní trh";
 "Savings" = "Úspory";
+"PremiumRequiredTOTPDescriptionLong" = "Ověřovací klíč (TOTP) je funkce Premium. Váš aktuální plán nezahrnuje přístup k této funkci.";

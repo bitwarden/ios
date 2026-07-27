@@ -24,14 +24,10 @@ protocol FillAssistAPIService { // sourcery: AutoMockable
 
 extension APIService: FillAssistAPIService {
     func getFormsMap(filename: String) async throws -> FormsMapResponseModel {
-        let fileURL = try await fillAssistService.download(filename: filename)
-        let data = try Data(contentsOf: fileURL)
-        return try JSONDecoder.pascalOrSnakeCaseDecoder.decode(FormsMapResponseModel.self, from: data)
+        try await fillAssistService.send(FormsMapRequest(filename: filename))
     }
 
     func getManifest() async throws -> FillAssistManifestResponseModel {
-        let fileURL = try await fillAssistService.download(filename: Constants.FillAssist.manifestFilename)
-        let data = try Data(contentsOf: fileURL)
-        return try JSONDecoder.pascalOrSnakeCaseDecoder.decode(FillAssistManifestResponseModel.self, from: data)
+        try await fillAssistService.send(FillAssistManifestRequest())
     }
 }

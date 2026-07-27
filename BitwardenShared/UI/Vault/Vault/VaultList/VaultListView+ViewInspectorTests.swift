@@ -239,7 +239,21 @@ class VaultListViewTests: BitwardenTestCase { // swiftlint:disable:this type_bod
         XCTAssertNoThrow(try subject.inspect().find(actionCard: "Upcoming Maintenance"))
     }
 
-    /// Tapping the dismiss button on the organization banner dispatches the `.dismissOrganizationBanner` effect.
+    /// When the organization banner has a primary button (and a header), the close (X) button is not shown.
+    @MainActor
+    func test_orgBannerActionCard_primaryButtonHidesCloseButton() throws {
+        processor.state.loadingState = .data([])
+        processor.state.organizationUserNotificationBannerData = .fixture(
+            buttonText: "I understand",
+            headerText: "Upcoming Maintenance",
+        )
+        let actionCard = try subject.inspect().find(actionCard: "Upcoming Maintenance")
+        XCTAssertNoThrow(try actionCard.find(asyncButton: "I understand"))
+        XCTAssertThrowsError(try actionCard.find(asyncButton: Localizations.dismiss))
+    }
+
+    /// Tapping the dismiss button on the organization banner dispatches the
+    /// `.dismissOrganizationBanner(fromActionButton: false)` effect.
     @MainActor
     func test_orgBannerActionCard_tapDismiss() async throws {
         processor.state.loadingState = .data([])
@@ -247,10 +261,11 @@ class VaultListViewTests: BitwardenTestCase { // swiftlint:disable:this type_bod
         let actionCard = try subject.inspect().find(actionCard: "Upcoming Maintenance")
         let button = try actionCard.find(asyncButton: Localizations.dismiss)
         try await button.tap()
-        XCTAssertEqual(processor.effects, [.dismissOrganizationBanner])
+        XCTAssertEqual(processor.effects, [.dismissOrganizationBanner(fromActionButton: false)])
     }
 
-    /// Tapping the action button on the organization banner dispatches the `.dismissOrganizationBanner` effect.
+    /// Tapping the action button on the organization banner dispatches the
+    /// `.dismissOrganizationBanner(fromActionButton: true)` effect.
     @MainActor
     func test_orgBannerActionCard_tapActionButton() async throws {
         processor.state.loadingState = .data([])
@@ -258,7 +273,7 @@ class VaultListViewTests: BitwardenTestCase { // swiftlint:disable:this type_bod
         let actionCard = try subject.inspect().find(actionCard: "Upcoming Maintenance")
         let button = try actionCard.find(asyncButton: "I understand")
         try await button.tap()
-        XCTAssertEqual(processor.effects, [.dismissOrganizationBanner])
+        XCTAssertEqual(processor.effects, [.dismissOrganizationBanner(fromActionButton: true)])
     }
 
     /// Tapping the profile button dispatches the `.requestedProfileSwitcher` effect.
