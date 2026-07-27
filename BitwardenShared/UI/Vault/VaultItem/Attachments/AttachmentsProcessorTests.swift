@@ -106,7 +106,7 @@ class AttachmentsProcessorTests: BitwardenTestCase {
         XCTAssertEqual(subject.state.cipher, .fixture())
         XCTAssertNil(subject.state.fileName)
         XCTAssertNil(subject.state.fileData)
-        XCTAssertEqual(subject.state.toast, Toast(title: Localizations.attachementAdded))
+        XCTAssertEqual(subject.state.toast, Toast(title: Localizations.attachmentAdded))
     }
 
     /// `perform(_:)` with `.save` handles any errors.
