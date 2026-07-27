@@ -62,7 +62,6 @@
 "MissingClientDataTypeTitle" = "Missing type field";
 "NoPasskeysStored" = "No passkeys stored.";
 "Other" = "Other";
-"PasskeyAssertionNotAvailable" = "Passkey assertion requires iOS 17 or later.";
 "PasskeyAssertedSuccessfully" = "Passkey sign-in succeeded.";
 "PasskeyAssertionNotAvailable" = "Passkey assertion requires iOS 17 or later.";
 "PasskeyAutofill" = "Passkey Autofill";
@@ -102,7 +101,6 @@
 "TapTheTOTPCodeFieldAndSelectDescriptionLong" = "Tap the TOTP Code field and select a code from Bitwarden. Requires Bitwarden PM as AutoFill provider and a saved Login with a TOTP seed.";
 "TOTPCode" = "TOTP Code";
 "UnexpectedAssertionClientDataTypeExplanationLong" = "The client data's \"type\" field was something other than \"webauthn.get\" — for example, a registration ceremony's \"webauthn.create\" sent where an assertion was expected.";
-"UnexpectedCredentialTypeReceived" = "Unexpected credential type received.";
 "UnexpectedAssertionClientDataTypeReceived" = "The client data type (%@) was not \"webauthn.get\".";
 "UnexpectedAssertionClientDataTypeTitle" = "Unexpected client data type";
 "UnexpectedClientDataTypeReceived" = "The client data type (%@) was not \"webauthn.create\".";
