@@ -1,3 +1,4 @@
+// swiftlint:disable file_length
 import BitwardenKit
 import BitwardenResources
 import SwiftUI
@@ -18,16 +19,24 @@ struct PremiumPlanView: View {
     // MARK: View
 
     var body: some View {
-        VStack(spacing: 16) {
-            planContentBlock
+        LoadingView(
+            state: store.state.loadingState,
+            loadingMessage: Localizations.loadingSubscription,
+        ) { _ in
+            VStack(spacing: 16) {
+                planContentBlock
 
-            managePlanButton
+                managePlanButton
 
-            if store.state.showCancelButton {
-                cancelPremiumButton
+                if store.state.showCancelButton {
+                    cancelPremiumButton
+                }
             }
+            .scrollView()
+        } errorView: { message in
+            subscriptionLoadErrorView(message: message)
         }
-        .scrollView()
+        .background(SharedAsset.Colors.backgroundPrimary.swiftUIColor.ignoresSafeArea())
         .navigationBar(title: Localizations.plan, titleDisplayMode: .inline)
         .task {
             await store.perform(.appeared)
@@ -47,6 +56,7 @@ struct PremiumPlanView: View {
             label: Localizations.billingAmount,
             value: store.state.billingAmount,
             valueColor: Color(asset: SharedAsset.Colors.textPrimary),
+            valueAccessibilityLabel: store.state.billingAmountAccessibilityLabel,
         )
         if store.state.showStorageCost {
             billingRow(
@@ -72,6 +82,7 @@ struct PremiumPlanView: View {
             value: store.state.totalLabel,
             valueColor: Color(asset: SharedAsset.Colors.textPrimary),
             labelWeight: .bold,
+            valueAccessibilityLabel: store.state.totalAccessibilityLabel,
         )
     }
 
@@ -152,6 +163,27 @@ struct PremiumPlanView: View {
         }
     }
 
+    /// The full-screen error view shown when subscription data fails to load.
+    ///
+    /// - Parameters:
+    ///   - message: The error message to display.
+    ///
+    private func subscriptionLoadErrorView(message: String) -> some View {
+        VStack(spacing: 16) {
+            IllustratedMessageView(
+                image: Asset.Images.Illustrations.dataBreach,
+                style: .smallImage,
+                message: message,
+            )
+            AsyncButton(Localizations.tryAgain) {
+                await store.perform(.tryAgainTapped)
+            }
+            .buttonStyle(.primary())
+            .accessibilityIdentifier("TryAgainButton")
+        }
+        .scrollView(centerContentVertically: true)
+    }
+
     // MARK: Private Methods
 
     /// A single billing row with a label on the left and a value on the right.
@@ -161,12 +193,15 @@ struct PremiumPlanView: View {
     ///   - value: The value text displayed on the right.
     ///   - valueColor: The color to use for the value text.
     ///   - labelWeight: The font weight applied to the label.
+    ///   - valueAccessibilityLabel: A VoiceOver-friendly override for `value`, or `nil` to read
+    ///     `value` as-is.
     ///
     private func billingRow(
         label: String,
         value: String,
         valueColor: Color,
         labelWeight: SwiftUI.Font.Weight = .regular,
+        valueAccessibilityLabel: String? = nil,
     ) -> some View {
         HStack {
             Text(label)
@@ -178,6 +213,7 @@ struct PremiumPlanView: View {
             Text(value)
                 .styleGuide(.body)
                 .foregroundColor(valueColor)
+                .accessibilityLabel(valueAccessibilityLabel ?? value)
         }
         .padding(.vertical, 20)
     }
@@ -271,6 +307,20 @@ private extension PremiumSubscription {
         suspension: nil,
     )
 
+    static let previewUnpaid = PremiumSubscription(
+        cadence: .annually,
+        cancelAt: nil,
+        canceled: nil,
+        discount: 2.10,
+        estimatedTax: 3.85,
+        gracePeriod: nil,
+        nextCharge: nil,
+        seatsCost: 19.8,
+        status: .unpaid,
+        storageCost: 0,
+        suspension: Date().addingTimeInterval(-60 * 60 * 24 * 30),
+    )
+
     static let previewUpdatePayment = PremiumSubscription(
         cadence: .annually,
         cancelAt: Date().addingTimeInterval(60 * 60 * 24 * 14),
@@ -286,15 +336,38 @@ private extension PremiumSubscription {
     )
 }
 
+#Preview("Loading") {
+    NavigationView {
+        PremiumPlanView(
+            store: Store(
+                processor: StateProcessor(
+                    state: PremiumPlanState(),
+                ),
+            ),
+        )
+    }
+}
+
+#Preview("Error") {
+    NavigationView {
+        PremiumPlanView(
+            store: Store(
+                processor: StateProcessor(
+                    state: PremiumPlanState(loadingState: .error(
+                        errorMessage: Localizations.weCouldntLoadYourSubscriptionDetailsPleaseRetry,
+                    )),
+                ),
+            ),
+        )
+    }
+}
+
 #Preview("Active") {
     NavigationView {
         PremiumPlanView(
             store: Store(
                 processor: StateProcessor(
-                    state: PremiumPlanState(
-                        planStatus: .active,
-                        subscription: .previewActive,
-                    ),
+                    state: PremiumPlanState(subscription: .previewActive),
                 ),
             ),
         )
@@ -306,10 +379,7 @@ private extension PremiumSubscription {
         PremiumPlanView(
             store: Store(
                 processor: StateProcessor(
-                    state: PremiumPlanState(
-                        planStatus: .updatePayment,
-                        subscription: .previewUpdatePayment,
-                    ),
+                    state: PremiumPlanState(subscription: .previewUpdatePayment),
                 ),
             ),
         )
@@ -321,10 +391,7 @@ private extension PremiumSubscription {
         PremiumPlanView(
             store: Store(
                 processor: StateProcessor(
-                    state: PremiumPlanState(
-                        planStatus: .pastDue,
-                        subscription: .previewPastDue,
-                    ),
+                    state: PremiumPlanState(subscription: .previewPastDue),
                 ),
             ),
         )
@@ -336,10 +403,7 @@ private extension PremiumSubscription {
         PremiumPlanView(
             store: Store(
                 processor: StateProcessor(
-                    state: PremiumPlanState(
-                        planStatus: .canceled,
-                        subscription: .previewCanceled,
-                    ),
+                    state: PremiumPlanState(subscription: .previewCanceled),
                 ),
             ),
         )
@@ -351,10 +415,7 @@ private extension PremiumSubscription {
         PremiumPlanView(
             store: Store(
                 processor: StateProcessor(
-                    state: PremiumPlanState(
-                        planStatus: .expired,
-                        subscription: .previewExpired,
-                    ),
+                    state: PremiumPlanState(subscription: .previewExpired),
                 ),
             ),
         )
@@ -366,10 +427,19 @@ private extension PremiumSubscription {
         PremiumPlanView(
             store: Store(
                 processor: StateProcessor(
-                    state: PremiumPlanState(
-                        planStatus: .pendingCancellation,
-                        subscription: .previewPendingCancellation,
-                    ),
+                    state: PremiumPlanState(subscription: .previewPendingCancellation),
+                ),
+            ),
+        )
+    }
+}
+
+#Preview("Unpaid") {
+    NavigationView {
+        PremiumPlanView(
+            store: Store(
+                processor: StateProcessor(
+                    state: PremiumPlanState(subscription: .previewUnpaid),
                 ),
             ),
         )
@@ -381,10 +451,7 @@ private extension PremiumSubscription {
         PremiumPlanView(
             store: Store(
                 processor: StateProcessor(
-                    state: PremiumPlanState(
-                        planStatus: .active,
-                        subscription: .previewActiveNoStorage,
-                    ),
+                    state: PremiumPlanState(subscription: .previewActiveNoStorage),
                 ),
             ),
         )

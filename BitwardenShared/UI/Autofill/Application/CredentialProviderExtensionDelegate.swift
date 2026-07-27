@@ -15,6 +15,13 @@ public protocol CredentialProviderExtensionDelegate: AppExtensionDelegate {
     @available(iOSApplicationExtension 17.0, *)
     func completeAssertionRequest(assertionCredential: ASPasskeyAssertionCredential)
 
+    /// Completes the generate-password request with the user-selected password and kind.
+    /// - Parameters:
+    ///   - kind: The kind of generated password, derived from the user's generator selection.
+    ///   - password: The generated password string.
+    @available(iOS 26.2, iOSApplicationExtension 26.2, *)
+    func completeGeneratePasswordRequest(kind: ASGeneratedPassword.Kind, password: String)
+
     /// Completes the autofill OTP request with the specified code.
     /// - Parameter code: The code to autofill.
     @available(iOSApplicationExtension 18.0, *)

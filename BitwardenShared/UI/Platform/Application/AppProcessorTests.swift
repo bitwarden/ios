@@ -998,27 +998,16 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
         XCTAssertTrue(vaultRepository.addCipherCiphers.isEmpty)
     }
 
-    /// `generatePasswordCredential(request:)` unlocks the vault, generates, and returns a password.
+    /// `generatePasswordCredential(request:)` generates and returns a password.
     @available(iOS 26.2, *)
     func test_generatePasswordCredential() async throws {
         generatorRepository.passwordResult = .success("generated-password")
 
-        let result = try await subject.generatePasswordCredential(request: MockGeneratePasswordRequest())
+        let result = try await subject.generatePasswordCredential(request: MockGeneratePasswordRequestProxy())
 
-        XCTAssertTrue(authRepository.unlockVaultWithNeverlockKeyCalled)
+        XCTAssertFalse(authRepository.unlockVaultWithNeverlockKeyCalled)
         XCTAssertNotNil(generatorRepository.passwordGeneratorRequest)
         XCTAssertEqual(result, "generated-password")
-    }
-
-    /// `generatePasswordCredential(request:)` throws when vault unlock fails.
-    @available(iOS 26.2, *)
-    func test_generatePasswordCredential_unlockError() async throws {
-        authRepository.unlockVaultWithNeverlockResult = .failure(BitwardenTestError.example)
-
-        await assertAsyncThrows(error: BitwardenTestError.example) {
-            _ = try await subject.generatePasswordCredential(request: MockGeneratePasswordRequest())
-        }
-        XCTAssertNil(generatorRepository.passwordGeneratorRequest)
     }
 
     /// `generatePasswordCredential(request:)` throws when the generator fails.
@@ -1027,7 +1016,7 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
         generatorRepository.passwordResult = .failure(BitwardenTestError.example)
 
         await assertAsyncThrows(error: BitwardenTestError.example) {
-            _ = try await subject.generatePasswordCredential(request: MockGeneratePasswordRequest())
+            _ = try await subject.generatePasswordCredential(request: MockGeneratePasswordRequestProxy())
         }
     }
 

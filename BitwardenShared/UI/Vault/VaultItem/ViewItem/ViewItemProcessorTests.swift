@@ -1752,7 +1752,7 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
     func test_receive_premiumSubscriptionRequiredTapped_showsAlert() {
         subject.receive(.premiumSubscriptionRequiredTapped)
         XCTAssertEqual(coordinator.alertShown.last?.title, Localizations.premiumSubscriptionRequired)
-        XCTAssertEqual(coordinator.alertShown.last?.message, Localizations.premiumRequired)
+        XCTAssertEqual(coordinator.alertShown.last?.message, Localizations.premiumRequiredTOTPDescriptionLong)
     }
 
     /// `receive` with `.premiumSubscriptionRequiredTapped` navigates to Premium upgrade when

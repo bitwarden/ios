@@ -166,7 +166,12 @@ class CredentialProviderViewController: ASCredentialProviderViewController {
 
         if context.flowWithUserInteraction {
             Task {
-                await appProcessor.start(appContext: .appExtension, navigator: self, window: nil)
+                await appProcessor.start(
+                    appContext: .appExtension,
+                    initialRoute: context.initialRoute,
+                    navigator: self,
+                    window: nil,
+                )
             }
         }
     }
@@ -315,6 +320,13 @@ extension CredentialProviderViewController {
 // MARK: - iOS 26
 
 extension CredentialProviderViewController {
+    @available(iOSApplicationExtension 26.2, *)
+    override func prepareInterface(for generatePasswordsRequest: ASGeneratePasswordsRequest) {
+        initializeApp(with: DefaultCredentialProviderContext(
+            .generatePasswordCredential(generatePasswordsRequest, userInteraction: true),
+        ))
+    }
+
     @available(iOSApplicationExtension 26.2, *)
     override func performWithoutUserInteraction(generatePasswordsRequest: ASGeneratePasswordsRequest) {
         Task {
@@ -521,6 +533,14 @@ extension CredentialProviderViewController: CredentialProviderExtensionDelegate 
     @available(iOSApplicationExtension 17.0, *)
     func completeAssertionRequest(assertionCredential: ASPasskeyAssertionCredential) {
         extensionContext.completeAssertionRequest(using: assertionCredential)
+    }
+
+    @available(iOSApplicationExtension 26.2, *)
+    func completeGeneratePasswordRequest(kind: ASGeneratedPassword.Kind, password: String) {
+        extensionContext.completeGeneratePasswordRequest(
+            results: [ASGeneratedPassword(kind: kind, value: password)],
+            completionHandler: nil,
+        )
     }
 
     @available(iOSApplicationExtension 18.0, *)

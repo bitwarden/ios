@@ -169,10 +169,23 @@ class SettingsCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this ty
     /// `navigate(to:)` with `.dismiss` dismisses the view.
     @MainActor
     func test_navigate_dismiss() throws {
-        subject.navigate(to: .dismiss)
+        subject.navigate(to: .dismiss())
 
         let action = try XCTUnwrap(stackNavigator.actions.last)
-        XCTAssertEqual(action.type, .dismissed)
+        XCTAssertEqual(action.type, .dismissedWithCompletionHandler)
+    }
+
+    /// `navigate(to:)` with `.dismiss` and a `DismissAction` passes the completion to the
+    /// underlying dismiss call and invokes it when dismissal completes.
+    @MainActor
+    func test_navigate_dismiss_withDismissAction() throws {
+        var completionCalled = false
+
+        subject.navigate(to: .dismiss(DismissAction { completionCalled = true }))
+
+        XCTAssertTrue(completionCalled)
+        let action = try XCTUnwrap(stackNavigator.actions.last)
+        XCTAssertEqual(action.type, .dismissedWithCompletionHandler)
     }
 
     /// `navigate(to:)` with `.exportVault` pushes the export settings view.

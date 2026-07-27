@@ -252,9 +252,8 @@ protocol AuthRepository: AnyObject {
     /// - Parameters:
     ///   - privateKey: The private key from the login with device response.
     ///   - key: The returned key from the approved auth request.
-    ///   - masterPasswordHash: The master password hash from the approved auth request.
     ///
-    func unlockVaultFromLoginWithDevice(privateKey: String, key: String, masterPasswordHash: String?) async throws
+    func unlockVaultFromLoginWithDevice(privateKey: String, key: String) async throws
 
     /// Attempts to unlock the user's vault with biometrics.
     ///
@@ -472,6 +471,9 @@ class DefaultAuthRepository {
     /// The service used by the application to report non-fatal errors.
     private let errorReporter: ErrorReporter
 
+    /// The repository used to manage cached Fill Assist targeting rules.
+    private let fillAssistRepository: FillAssistRepository
+
     /// The service used by the application for recording temporary debug logs.
     private let flightRecorder: FlightRecorder
 
@@ -524,6 +526,7 @@ class DefaultAuthRepository {
     ///   - configService: The service to get server-specified configuration.
     ///   - environmentService: The service used by the application to manage the environment settings.
     ///   - errorReporter: The service used by the application to report non-fatal errors.
+    ///   - fillAssistRepository: The repository used to manage cached Fill Assist targeting rules.
     ///   - flightRecorder: The service used by the application for recording temporary debug logs.
     ///   - keychainService: The keychain service used by the application.
     ///   - keyConnectorService: The service used by the application to manage Key Connector.
@@ -550,6 +553,7 @@ class DefaultAuthRepository {
         configService: ConfigService,
         environmentService: EnvironmentService,
         errorReporter: ErrorReporter,
+        fillAssistRepository: FillAssistRepository,
         flightRecorder: FlightRecorder,
         keychainService: KeychainRepository,
         keyConnectorService: KeyConnectorService,
@@ -574,6 +578,7 @@ class DefaultAuthRepository {
         self.configService = configService
         self.environmentService = environmentService
         self.errorReporter = errorReporter
+        self.fillAssistRepository = fillAssistRepository
         self.flightRecorder = flightRecorder
         self.keychainService = keychainService
         self.keyConnectorService = keyConnectorService
@@ -864,6 +869,7 @@ extension DefaultAuthRepository: AuthRepository {
         try await stateService.setSyncToAuthenticator(false, userId: userId)
         try await keychainService.deleteItems(for: userId)
         try await clientCertificateService.removeCertificate(userId: userId)
+        try await fillAssistRepository.clearRules(userId: userId)
         await vaultTimeoutService.remove(userId: userId)
 
         if await policyService.policyAppliesToUser(.removeUnlockWithPin) {
@@ -1044,20 +1050,11 @@ extension DefaultAuthRepository: AuthRepository {
         )
     }
 
-    func unlockVaultFromLoginWithDevice(privateKey: String, key: String, masterPasswordHash: String?) async throws {
-        let account = try await stateService.getActiveAccount()
-        let method =
-            if masterPasswordHash != nil,
-            let encUserKey = account.profile.userDecryptionOptions?.masterPasswordUnlock?.masterKeyEncryptedUserKey {
-                AuthRequestMethod.masterKey(protectedMasterKey: key, authRequestKey: encUserKey)
-            } else {
-                AuthRequestMethod.userKey(protectedUserKey: key)
-            }
-
+    func unlockVaultFromLoginWithDevice(privateKey: String, key: String) async throws {
         try await unlockVault(
             method: .authRequest(
                 requestPrivateKey: privateKey,
-                method: method,
+                method: .userKey(protectedUserKey: key),
             ),
         )
 
@@ -1180,11 +1177,14 @@ extension DefaultAuthRepository: AuthRepository {
     }
 
     func validatePin(pin: String) async throws -> Bool {
-        guard let pinProtectedUserKey = try? await stateService.pinProtectedUserKey() else {
+        guard let pinProtectedUserKeyEnvelope = try await stateService.pinProtectedUserKeyEnvelope() else {
             return false
         }
 
-        return try await clientService.auth().validatePin(pin: pin, pinProtectedUserKey: pinProtectedUserKey)
+        return try await clientService.auth().validatePinProtectedUserKeyEnvelope(
+            pin: pin,
+            pinProtectedUserKeyEnvelope: pinProtectedUserKeyEnvelope,
+        )
     }
 
     func verifyOtp(_ otp: String) async throws {

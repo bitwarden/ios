@@ -170,6 +170,9 @@ class DefaultSyncService: SyncService {
     /// The service to get server-specified configuration.
     private let configService: ConfigService
 
+    /// The repository used by the application to manage fill-assist data.
+    private let fillAssistRepository: FillAssistRepository
+
     /// The service used by the application for recording temporary debug logs.
     private let flightRecorder: FlightRecorder
 
@@ -240,6 +243,7 @@ class DefaultSyncService: SyncService {
         clientService: ClientService,
         collectionService: CollectionService,
         configService: ConfigService,
+        fillAssistRepository: FillAssistRepository,
         flightRecorder: FlightRecorder,
         folderService: FolderService,
         keyConnectorService: KeyConnectorService,
@@ -259,6 +263,7 @@ class DefaultSyncService: SyncService {
         self.clientService = clientService
         self.collectionService = collectionService
         self.configService = configService
+        self.fillAssistRepository = fillAssistRepository
         self.flightRecorder = flightRecorder
         self.folderService = folderService
         self.keyConnectorService = keyConnectorService
@@ -421,6 +426,8 @@ extension DefaultSyncService {
     func fetchSync(forceSync: Bool, isPeriodic: Bool) async throws {
         let account = try await stateService.getActiveAccount()
         let userId = account.profile.userId
+
+        await fillAssistRepository.syncRules()
 
         guard try await needsSync(forceSync: forceSync, isPeriodic: isPeriodic, userId: userId) else {
             return

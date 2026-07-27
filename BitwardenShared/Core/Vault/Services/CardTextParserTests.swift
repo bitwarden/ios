@@ -27,7 +27,7 @@ struct CardTextParserTests {
             ["4111-1111-1111-1111"],
             ["378282246310005"],
             ["4012888888881"],
-            ["6011000990139424000"],
+            ["6011000000000000001"],
             ["4111", "1111", "1111", "1111"],
             ["3782", "822463", "10005"],
             ["4111111111111111", "1234"],
@@ -38,7 +38,7 @@ struct CardTextParserTests {
             "4111111111111111",
             "378282246310005",
             "4012888888881",
-            "6011000990139424000",
+            "6011000000000000001",
             "4111111111111111",
             "378282246310005",
             "4111111111111111",
@@ -122,5 +122,41 @@ struct CardTextParserTests {
         #expect(result.cardNumber == "4111111111111111")
         #expect(result.expirationMonth == 12)
         #expect(result.expirationYear == "2028")
+    }
+
+    // MARK: Tests – Luhn + Brand-Length Validation
+
+    /// `parseCard(lines:)` rejects a 16-digit Visa-length number that fails the Luhn checksum.
+    @Test
+    func parseCard_luhnInvalid_rejectsCardNumber() {
+        // 4111111111111112 differs from the valid test card by one digit — Luhn sum becomes 41.
+        let result = subject.parseCard(lines: ["4111111111111112"])
+        #expect(result.cardNumber == nil)
+    }
+
+    /// `parseCard(lines:)` rejects a 16-digit number whose leading digits identify it as Amex
+    /// (expected length 15), even though it passes the Luhn checksum.
+    @Test
+    func parseCard_brandLengthMismatch_rejectsAmexWith16Digits() {
+        // 3400000000000000: starts with 34 (Amex prefix), 16 digits, Luhn sum = 10 ✓.
+        let result = subject.parseCard(lines: ["3400000000000000"])
+        #expect(result.cardNumber == nil)
+    }
+
+    /// `parseCard(lines:)` accepts a valid 14-digit Diners Club number.
+    @Test
+    func parseCard_validDinersClub_extractsCardNumber() {
+        // 30569309025904: standard Diners test card, 14 digits, Luhn sum = 50 ✓.
+        let result = subject.parseCard(lines: ["30569309025904"])
+        #expect(result.cardNumber == "30569309025904")
+    }
+
+    /// `parseCard(lines:)` accepts a Luhn-valid number whose brand is unrecognised,
+    /// provided its length falls within the generic 13–19 digit range.
+    @Test
+    func parseCard_unknownBrandLuhnValid_extractsCardNumber() {
+        // 9400000000003: 13 digits, prefix 94 → .other, Luhn sum = 20 ✓.
+        let result = subject.parseCard(lines: ["9400000000003"])
+        #expect(result.cardNumber == "9400000000003")
     }
 }

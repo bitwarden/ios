@@ -503,4 +503,46 @@ platform :ios do |options|
         UI.message("version_name: #{latest_version_name}")
         UI.message("version_number: #{latest_version_number}")
     end
+
+    # Get the version that's actually live/published to users (READY_FOR_SALE state)
+    # This differs from get_latest_version which returns any submitted version
+    lane :get_live_version do |options|
+        require 'spaceship'
+
+        # Authenticate with App Store Connect using key file path
+        if options[:api_key_path]
+            key_content = JSON.parse(File.read(options[:api_key_path]))
+            Spaceship::ConnectAPI.login(
+                key_id: key_content['key_id'],
+                issuer_id: key_content['issuer_id'],
+                key: key_content['key'],
+                duration: key_content['duration'] || 1200,
+                in_house: key_content['in_house'] || false
+            )
+        end
+
+        # Find the app
+        app = Spaceship::ConnectAPI::App.find(options[:app_identifier])
+        UI.user_error!("Could not find app with identifier #{options[:app_identifier]}") unless app
+
+        # Get the live app store version (the one users can download)
+        live_version = app.get_live_app_store_version
+
+        if live_version
+            version_string = live_version.version_string
+            build = live_version.build
+            build_number = build.version if build
+
+            UI.message("Live version_name: #{version_string}")
+            UI.message("Live version_number: #{build_number}")
+
+            # Output in the same format as get_latest_version for compatibility
+            UI.message("version_name: #{version_string}")
+            UI.message("version_number: #{build_number}")
+        else
+            UI.message("No live version found on the App Store")
+            UI.message("version_name: ")
+            UI.message("version_number: ")
+        end
+    end
 end

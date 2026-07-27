@@ -753,6 +753,15 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         XCTAssertEqual(errorReporter.errors as? [StateServiceError], [.noActiveAccount])
     }
 
+    /// `getFillAssistEnabled()` returns the Fill Assist enabled value for the active account.
+    func test_getFillAssistEnabled() async throws {
+        await subject.addAccount(.fixture())
+        appSettingsStore.fillAssistEnabledByUserId["1"] = true
+
+        let value = try await subject.getFillAssistEnabled()
+        XCTAssertTrue(value)
+    }
+
     /// `getDisableAutoTotpCopy()` returns the disable auto-copy TOTP value for the active account.
     func test_getDisableAutoTotpCopy() async throws {
         await subject.addAccount(.fixture())
@@ -999,6 +1008,22 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         appSettingsStore.notificationsLastRegistrationDates["1"] = Date(year: 2024, month: 1, day: 1)
         let date = try await subject.getNotificationsLastRegistrationDate()
         XCTAssertEqual(date, Date(year: 2024, month: 1, day: 1))
+    }
+
+    /// `getOrganizationUserNotificationBannerDismissal()` gets the saved dismissal record for the active account.
+    func test_getOrganizationUserNotificationBannerDismissal() async throws {
+        await subject.addAccount(.fixture(profile: .fixture(userId: "1")))
+
+        let notSet = try await subject.getOrganizationUserNotificationBannerDismissal()
+        XCTAssertNil(notSet)
+
+        let dismissal = OrganizationUserNotificationBannerDismissal.fixture(
+            revisionDate: Date(year: 2024, month: 6, day: 1),
+            showAfterEveryLogin: true,
+        )
+        appSettingsStore.organizationUserNotificationBannerDismissals["1"] = dismissal
+        let result = try await subject.getOrganizationUserNotificationBannerDismissal()
+        XCTAssertEqual(result, dismissal)
     }
 
     /// `getPasswordGenerationOptions()` gets the saved password generation options for the account.
@@ -1644,6 +1669,47 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         XCTAssertEqual(appSettingsStore.state?.activeUserId, "1")
     }
 
+    /// `logoutAccount(userInitiated:)` for a hard (user-initiated) logout clears the organization user
+    /// notification banner dismissal regardless of the `showAfterEveryLogin` setting.
+    func test_logoutAccount_organizationUserNotificationBannerDismissal_hardLogout() async throws {
+        let account = Account.fixture(profile: .fixture(userId: "1"))
+        await subject.addAccount(account)
+        appSettingsStore.setOrganizationUserNotificationBannerDismissal(
+            .fixture(showAfterEveryLogin: false),
+            userId: "1",
+        )
+
+        try await subject.logoutAccount(userInitiated: true)
+
+        XCTAssertNil(appSettingsStore.organizationUserNotificationBannerDismissals["1"])
+    }
+
+    /// `logoutAccount(userInitiated:)` for a soft logout clears the organization user notification banner
+    /// dismissal only when the banner is configured to show after every login; otherwise it is retained.
+    func test_logoutAccount_organizationUserNotificationBannerDismissal_softLogout() async throws {
+        let account = Account.fixture(profile: .fixture(userId: "1"))
+        await subject.addAccount(account)
+
+        // Retained when not configured to show after every login.
+        appSettingsStore.setOrganizationUserNotificationBannerDismissal(
+            .fixture(showAfterEveryLogin: false),
+            userId: "1",
+        )
+        try await subject.logoutAccount(userInitiated: false)
+        XCTAssertEqual(
+            appSettingsStore.organizationUserNotificationBannerDismissals["1"],
+            .fixture(showAfterEveryLogin: false),
+        )
+
+        // Cleared when configured to show after every login.
+        appSettingsStore.setOrganizationUserNotificationBannerDismissal(
+            .fixture(showAfterEveryLogin: true),
+            userId: "1",
+        )
+        try await subject.logoutAccount(userInitiated: false)
+        XCTAssertNil(appSettingsStore.organizationUserNotificationBannerDismissals["1"])
+    }
+
     /// `pendingAppIntentActionsPublisher()` returns a publisher for the pending App Intent actions.
     func test_pendingAppIntentActionsPublisher() async throws {
         var publishedValues: [[PendingAppIntentAction]?] = []
@@ -2014,6 +2080,17 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
 
         try await subject.setDefaultUriMatchType(.regularExpression, userId: "1")
         XCTAssertEqual(appSettingsStore.defaultUriMatchTypeByUserId["1"], .regularExpression)
+    }
+
+    /// `setFillAssistEnabled(_:userId:)` sets the Fill Assist enabled value for a user.
+    func test_setFillAssistEnabled() async throws {
+        await subject.addAccount(.fixture(profile: .fixture(userId: "1")))
+
+        try await subject.setFillAssistEnabled(true, userId: "1")
+        XCTAssertEqual(appSettingsStore.fillAssistEnabledByUserId["1"], true)
+
+        try await subject.setFillAssistEnabled(false, userId: "1")
+        XCTAssertEqual(appSettingsStore.fillAssistEnabledByUserId["1"], false)
     }
 
     /// `setDisableAutoTotpCopy(_:userId:)` sets the disable auto-copy TOTP value for a user.
@@ -2425,6 +2502,21 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
 
         try await subject.setNotificationsLastRegistrationDate(Date(year: 2024, month: 1, day: 1))
         XCTAssertEqual(appSettingsStore.notificationsLastRegistrationDates["1"], Date(year: 2024, month: 1, day: 1))
+    }
+
+    /// `setOrganizationUserNotificationBannerDismissal(_:)` sets the dismissal record for the active account.
+    func test_setOrganizationUserNotificationBannerDismissal() async throws {
+        await subject.addAccount(.fixture(profile: .fixture(userId: "1")))
+
+        let dismissal = OrganizationUserNotificationBannerDismissal.fixture(
+            revisionDate: Date(year: 2024, month: 6, day: 1),
+            showAfterEveryLogin: false,
+        )
+        try await subject.setOrganizationUserNotificationBannerDismissal(dismissal)
+        XCTAssertEqual(appSettingsStore.organizationUserNotificationBannerDismissals["1"], dismissal)
+
+        try await subject.setOrganizationUserNotificationBannerDismissal(nil)
+        XCTAssertNil(appSettingsStore.organizationUserNotificationBannerDismissals["1"])
     }
 
     /// `setPasswordGenerationOptions` sets the password generation options for an account.

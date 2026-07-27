@@ -2,7 +2,7 @@ import XCTest
 
 @testable import BitwardenKit
 
-class EnvironmentURLsTests: BitwardenTestCase {
+class EnvironmentURLsTests: BitwardenTestCase { // swiftlint:disable:this type_body_length
     // MARK: Tests
 
     /// `init(environmentURLData:)` sets the URLs from the passed data when such data is the default US.

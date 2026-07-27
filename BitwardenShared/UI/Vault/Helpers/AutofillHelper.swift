@@ -1,6 +1,7 @@
 import BitwardenKit
 import BitwardenResources
 @preconcurrency import BitwardenSdk
+import Foundation
 
 /// A helper class to handle when a cipher is selected for autofill.
 ///
@@ -9,9 +10,12 @@ class AutofillHelper {
     // MARK: Types
 
     typealias Services = HasAuthRepository
+        & HasConfigService
         & HasErrorReporter
         & HasEventService
+        & HasFillAssistRepository
         & HasPasteboardService
+        & HasStateService
         & HasVaultRepository
 
     // MARK: Properties
@@ -94,6 +98,36 @@ class AutofillHelper {
         }
     }
 
+    /// Builds FillAssist-derived `(selector, value)` tuples for username and password fields when
+    /// the `fillAssistTargetingRules` feature flag is enabled and cached rules exist for the host.
+    ///
+    /// - Parameters:
+    ///   - uri: The URI string of the current page.
+    ///   - username: The username value to fill.
+    ///   - password: The password value to fill.
+    /// - Returns: An array of `(selector, value)` tuples, or an empty array if unavailable.
+    ///
+    private func fillAssistFields(for uri: String?, username: String, password: String) async -> [(String, String)] {
+        guard await services.configService.getFeatureFlag(.fillAssistTargetingRules),
+              await (try? services.stateService.getFillAssistEnabled()) == true,
+              let uri,
+              let url = URL(string: uri),
+              let lookupHost = url.domain,
+              let rules = await services.fillAssistRepository.rules(for: lookupHost) else { return [] }
+
+        var result: [(String, String)] = []
+
+        if let selector = rules.fields["username"]?.compactMap({ $0.id ?? $0.name }).first {
+            result.append((selector, username))
+        }
+
+        if let selector = rules.fields["password"]?.compactMap({ $0.id ?? $0.name }).first {
+            result.append((selector, password))
+        }
+
+        return result
+    }
+
     /// Handles autofill for a cipher after the master password reprompt has been confirmed, if it's
     /// required by the cipher.
     ///
@@ -117,7 +151,10 @@ class AutofillHelper {
                 return
             }
 
-            guard appExtensionDelegate?.canAutofill ?? false,
+            let fillAssistFlagEnabled: Bool = await services.configService.getFeatureFlag(.fillAssistTargetingRules)
+            let fillAssistSettingsEnabled = await (try? services.stateService.getFillAssistEnabled()) == true
+            let canAutofill = appExtensionDelegate?.canAutofill ?? false
+            guard (fillAssistFlagEnabled && fillAssistSettingsEnabled) || canAutofill,
                   let username = cipherView.login?.username, !username.isEmpty,
                   let password = cipherView.login?.password, !password.isEmpty else {
                 await handleMissingValueForAutofill(cipherView: cipherView, showToast: showToast)
@@ -126,10 +163,18 @@ class AutofillHelper {
 
             await copyTotpIfNeeded(cipherView: cipherView)
 
-            let fields: [(String, String)]? = cipherView.fields?.compactMap { field in
+            let cipherFields: [(String, String)] = cipherView.fields?.compactMap { field in
                 guard let name = field.name, let value = field.value else { return nil }
                 return (name, value)
-            }
+            } ?? []
+
+            let assistFields = await fillAssistFields(
+                for: appExtensionDelegate?.uri,
+                username: username,
+                password: password,
+            )
+
+            let combinedFields = (assistFields + cipherFields).nilIfEmpty
 
             await services.eventService.collect(
                 eventType: .cipherClientAutofilled,
@@ -139,7 +184,7 @@ class AutofillHelper {
             appExtensionDelegate?.completeAutofillRequest(
                 username: username,
                 password: password,
-                fields: fields,
+                fields: combinedFields,
             )
         } catch {
             services.errorReporter.log(error: error)

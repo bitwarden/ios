@@ -69,6 +69,7 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator { // swiftlint:d
         & HasAuthRepository
         & HasAuthService
         & HasAutofillCredentialService
+        & HasBillingRepository
         & HasBillingService
         & HasBiometricsRepository
         & HasConfigService
@@ -78,6 +79,7 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator { // swiftlint:d
         & HasEventService
         & HasExportCXFCiphersRepository
         & HasExportVaultService
+        & HasFillAssistRepository
         & HasFlightRecorder
         & HasLanguageStateService
         & HasNotificationCenterService
@@ -170,8 +172,16 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator { // swiftlint:d
             showAutoFill()
         case .deleteAccount:
             showDeleteAccount()
-        case .dismiss:
-            stackNavigator?.dismiss()
+        case let .dismiss(action):
+            // If we're presenting a more complicated stack of view controllers (in particular, this could happen
+            // if the user navigates to the Premium upgrade flow) then we only want to dismiss the presented one,
+            // not the full stack.
+            let completion = action?.action
+            if let presentedViewController = stackNavigator?.rootViewController?.presentedViewController {
+                presentedViewController.dismiss(animated: UI.animated, completion: completion)
+            } else {
+                stackNavigator?.dismiss(completion: completion)
+            }
         case .exportVault:
             showExportVault()
         case .exportVaultToApp:

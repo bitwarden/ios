@@ -173,7 +173,7 @@
 "PointYourCameraAtTheQRCode" = "Наведите камеру на QR-код.\nСканирование произойдет автоматически.";
 "ScanQrTitle" = "Сканировать QR-код";
 "Camera" = "Камера";
-"Photos" = "Фотографии";
+"Photos" = "Фото";
 "CopyTotp" = "Скопировать TOTP";
 "CopyTotpAutomaticallyDescription" = "Если к вашему логину прикреплен ключ аутентификации, то код подтверждения TOTP будет скопирован при автозаполнении логина.";
 "CopyTotpAutomatically" = "Скопировать TOTP автоматически";
@@ -571,6 +571,8 @@
 "RequestAdminApproval" = "Запросить одобрение администратора";
 "ApproveWithMasterPassword" = "Одобрить с мастер-паролем";
 "TurnOffUsingPublicDevice" = "Выключить с помощью публичного устройства";
+"TurnOnFillAssist" = "Включить помощник по заполнению";
+"TurnOnFillAssistDescriptionLong" = "С помощью ассистента заполнения можно повысить точность автозаполнения на поддерживаемых сайтах.";
 "RememberThisDevice" = "Запомнить это устройство";
 "Passkey" = "Passkey";
 "Passkeys" = "Passkeys";
@@ -778,6 +780,8 @@
 "SetUpAutofillOnAllYourDevicesToLoginWithASingleTapAnywhere" = "Настройте автозаполнение на всех своих устройствах, чтобы авторизоваться одним кликом везде.";
 "GoBack" = "Вернуться";
 "GotIt" = "Понятно";
+/* masterPasswordUnlock is the name of some data we want to delete, so there's no need to localize it. */
+"ClearMasterPasswordUnlock" = "Очистить masterPasswordUnlock";
 "ClearSsoCookies" = "Очистить cookie SSO";
 "GenerateCrash" = "Сгенерировать отчет об ошибке";
 "GenerateErrorReport" = "Создать отчет об ошибке";
@@ -1061,6 +1065,8 @@
 "ReplaceCertificate" = "Заменить сертификат";
 "ReplaceExistingCertificate" = "Заменить существующий сертификат";
 "UnableToReadCertificateFile" = "Не удалось прочитать файл сертификата.";
+/* masterPasswordUnlock is the name of some data we want to delete, so there's no need to localize it. */
+"MasterPasswordUnlockCleared" = "masterPasswordUnlock очищен.";
 "SsoCookiesCleared" = "Cookie SSO очищены";
 "YourRequestWasInterruptedBecauseTheAppNeededToReAuthenticatePleaseTryAgain" = "Ваш запрос был прерван, поскольку приложению потребовалась повторная аутентификация. Повторите попытку.";
 "AutofillWithBitwardenDescriptionLong" = "Bitwarden может предлагать ваши пароли и другие учетные данные при авторизации в приложениях и на сайтах.";
@@ -1074,6 +1080,7 @@
 "Canceled" = "Отменен";
 "PastDue" = "Просрочен";
 "PendingCancellation" = "Ожидание отмены";
+"Unpaid" = "Не оплачено";
 "UpdatePayment" = "Обновить платежную информацию";
 "BillingAmount" = "Сумма счета";
 "StorageCost" = "Стоимость хранилища";
@@ -1085,17 +1092,44 @@
 "ExternalLink" = "Внешняя ссылка";
 "YourNextChargeIsForXDueOnY" = "Следующий платеж на сумму **%1$@** должен быть выполнен **%2$@**.";
 "WeCouldNotProcessYourPaymentUpdateYourPaymentMethodDescriptionLong" = "Нам не удалось обработать ваш платеж. Обновите способ оплаты до истечения срока подписки **%1$@**.";
+/* Error message shown when the Premium Plan screen fails to load subscription data, with a prompt to retry. */
+"WeCouldntLoadYourSubscriptionDetailsPleaseRetry" = "Не удалось загрузить данные вашей подписки. Попробуйте еще раз.";
 "YourSubscriptionWasCanceledOnXDescriptionLong" = "Ваша подписка была отменена **%1$@**. Подпишитесь заново, чтобы продолжить пользоваться возможностями Премиум.";
+"YourSubscriptionWasSuspendedOnXDescriptionLong" = "Ваша подписка была приостановлена на **%1$@**. Чтобы ее возобновить, пожалуйста, оплатите просроченные счета.";
 "YourSubscriptionExpiredOnXDescriptionLong" = "Ваша подписка истекла **%1$@**. Подпишитесь заново, чтобы продолжить пользоваться возможностями Премиум.";
 "YourSubscriptionIsScheduledToCancelOnXDescriptionLong" = "Ваша подписка будет отменена **%1$@**. Вы сможете восстановить ее в любое время до этого момента.";
 "PerMonth" = "/ месяц";
+/* VoiceOver reading of "PerMonth", spoken instead of shown. */
+"PerMonthVoiceOver" = "в месяц";
 "PerYear" = "/ год";
+/* VoiceOver reading of "PerYear", spoken instead of shown. */
+"PerYearVoiceOver" = "в год";
 "XAmountPerCadence" = "%1$@ %2$@";
+/* %1$@ is an amount and cadence together, e.g. "$1.65 / month". */
+"XCancelAnytime" = "%1$@ · Отмена в любое время";
+/* VoiceOver reading of "XCancelAnytime", spoken instead of shown. */
+"XCancelAnytimeVoiceOver" = "%1$@, Отмена в любое время";
 "NegativeX" = "-%1$@";
 "UnknownStatus" = "Неизвестно";
 "YourSubscriptionStatusIsUnknownVisitTheWebAppDescriptionLong" = "Не удалось определить статус вашей подписки. Для получения дополнительной информации перейдите в веб-приложение или обновите его до последней версии.";
-"AtTheMomentPremiumPlanIsNotAvailableDescriptionLong" = "В настоящее время план Премиум недоступен. Пожалуйста, попробуйте позже.";
-"UnlockMoreAdvancedFeaturesWithPremiumPlan" = "Разблокировать дополнительные возможности с Премиум.";
+/* Headline on the Premium upgrade screen. */
+"UnlockAdvancedProtection" = "Разблокируйте продвинутую защиту";
+/* Premium benefit list item. */
+"BreezeThrough2faWithBuiltInCodes" = "С легкостью проходите двухэтапную аутентификацию с помощью встроенных кодов";
+/* Premium benefit list item. */
+"RunReportsToFindRiskyPasswords" = "Генерируйте отчеты о паролях, подверженных риску";
+/* Premium benefit list item. */
+"KeepDocumentsSafeAndEncrypted" = "Храните документы в безопасности и зашифрованном виде";
+/* Premium benefit list item. */
+"AddATrustedEmergencyContact" = "Добавляйте доверенный контакт для экстренных случаев";
+/* Premium benefit list item. */
+"IdentifyUnsecureWebsites" = "Выявляйте небезопасные сайты";
+/* Premium benefit list item. */
+"FlagAccountsWithInactive2fa" = "Помечайте аккаунты с неактивной двухэтапной аутентификацией";
+/* Premium benefit list item; "Send" is the Bitwarden Send feature name and shouldn't be translated. */
+"ShareFilesSecurelyWithAnyoneUsingSend" = "Делитесь файлами безопасно со всеми использующими Send";
+/* Premium benefit list item. */
+"Receive247PrioritySupport" = "Получите приоритетную поддержку 24/7";
 "BuiltInAuthenticator" = "Встроенный аутентификатор";
 "EmergencyAccess" = "Экстренный доступ";
 "PaymentNotReceivedYet" = "Оплата пока не поступила";
@@ -1104,15 +1138,18 @@
 "WeHadTroubleOpeningThePaymentPageDescriptionLong" = "У нас возникли проблемы с открытием страницы оплаты, поэтому попробуйте еще раз.";
 "SecureFileStorage" = "Защищенное хранилище файлов";
 "BreachMonitoring" = "Мониторинг нарушений";
-"UpgradeNow" = "Изменить сейчас";
 "ConfirmingYourUpgrade" = "Подтверждение перехода…";
 "OpeningCheckout" = "Начинается оформление заказа…";
 "UpgradePending" = "Ожидание перехода";
 "YourUpgradeIsBeingProcessedDescriptionLong" = "Ваш переход на платный тарифный план находится в процессе обработки. До завершения перехода вы будете пользоваться бесплатным тарифным планом. Вы можете синхронизировать данные прямо сейчас, чтобы проверить, или продолжить — обновление произойдет автоматически.";
 "UpgradedToPremium" = "Обновлено до Премиум";
+"SubscriptionNeedsAttention" = "Ваша подписка требует внимания";
+"CheckYourPlanForDetails" = "Для получения более подробной информации ознакомьтесь с вашим планом.";
+"ViewPlan" = "Посмотреть план";
 "YouNowHaveAccessToAdvancedSecurityDescriptionLong" = "Теперь у вас есть доступ к расширенным функциям безопасности. Узнайте больше о том, что включено в Премиум.";
 "YouNowHaveAccessToAllAdvancedSecurityFeatures" = "Теперь у вас есть доступ ко всем расширенным функциям безопасности.";
-"YoullGoToStripeSecureCheckoutToCompleteYourPurchase" = "Вы будете перенаправлены на защищенную страницу оформления заказа Stripe для завершения покупки.";
+/* Footer on the Premium upgrade screen; "Stripe" is the payment processor's name and shouldn't be translated. */
+"YoullCompleteThePurchaseWithStripeSecureCheckout" = "Вы сможете оформить покупку с помощью безопасной системы оплаты Stripe.";
 "ContinueToStripe" = "Продолжить на Stripe?";
 "YoullBeTakenToStripeToManageYourSubscriptionCancellation" = "Вы будете перенаправлены на сайт Stripe, где сможете отменить подписку.";
 "UserIDCopiedToTheClipboard" = "ID пользователя скопирован в буфер обмена";
@@ -1161,3 +1198,7 @@
 "LineOfCredit" = "Кредитная линия";
 "MoneyMarket" = "Денежный рынок";
 "Savings" = "Сбережения";
+/* Accessibility label for the button that clears a field's value. %1$@ is the field's title (e.g. "Date of birth"), so the spoken label reads "Clear Date of birth". */
+"ClearFieldName" = "Очищено %1$@";
+"SelectDate" = "Выберите дату";
+"PremiumRequiredTOTPDescriptionLong" = "Аутентификатор ключей (TOTP) - это функция, доступная только в плане Премиум. Она не входит в ваш текущий тарифный план.";

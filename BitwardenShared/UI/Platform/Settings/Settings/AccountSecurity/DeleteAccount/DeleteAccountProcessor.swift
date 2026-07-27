@@ -56,7 +56,7 @@ final class DeleteAccountProcessor: StateProcessor<DeleteAccountState, DeleteAcc
     override func receive(_ action: DeleteAccountAction) {
         switch action {
         case .dismiss:
-            coordinator.navigate(to: .dismiss)
+            coordinator.navigate(to: .dismiss())
         }
     }
 
@@ -158,7 +158,7 @@ final class DeleteAccountProcessor: StateProcessor<DeleteAccountState, DeleteAcc
                 try await services.authRepository.isUserManagedByOrganization()
         } catch {
             await coordinator.showErrorAlert(error: error, onDismissed: {
-                self.coordinator.navigate(to: .dismiss)
+                self.coordinator.navigate(to: .dismiss())
             })
             services.errorReporter.log(error: error)
         }

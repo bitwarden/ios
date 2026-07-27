@@ -43,6 +43,7 @@ extension ServiceContainer {
         exportVaultService: ExportVaultService = MockExportVaultService(),
         fido2CredentialStore: Fido2CredentialStore = MockFido2CredentialStore(),
         fido2UserInterfaceHelper: Fido2UserInterfaceHelper = MockFido2UserInterfaceHelper(),
+        fillAssistRepository: FillAssistRepository = MockFillAssistRepository(),
         flightRecorder: FlightRecorder = MockFlightRecorder(),
         generatorRepository: GeneratorRepository = MockGeneratorRepository(),
         importCiphersRepository: ImportCiphersRepository = MockImportCiphersRepository(),
@@ -61,7 +62,7 @@ extension ServiceContainer {
         rehydrationHelper: RehydrationHelper = MockRehydrationHelper(),
         reviewPromptService: ReviewPromptService = MockReviewPromptService(),
         searchProcessorMediatorFactory: SearchProcessorMediatorFactory? = nil,
-        sendRepository: SendRepository = MockSendRepository(),
+        sendRepository: BitwardenShared.SendRepository = MockSendRepository(),
         // swiftlint:disable:next line_length
         serverCommunicationConfigAPIService: ServerCommunicationConfigAPIService = MockServerCommunicationConfigAPIService.withDefaults(),
         // swiftlint:disable:next line_length
@@ -131,6 +132,7 @@ extension ServiceContainer {
             exportVaultService: exportVaultService,
             fido2CredentialStore: fido2CredentialStore,
             fido2UserInterfaceHelper: fido2UserInterfaceHelper,
+            fillAssistRepository: fillAssistRepository,
             flightRecorder: flightRecorder,
             generatorRepository: generatorRepository,
             importCiphersRepository: importCiphersRepository,
