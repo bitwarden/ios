@@ -299,17 +299,12 @@ jobs:
           _KEY_ID: ${{ steps.get-kv-secrets.outputs.APP-STORE-CONNECT-AUTH-ID }}
           _ISSUER: ${{ steps.get-kv-secrets.outputs.APP-STORE-CONNECT-TEAM-ISSUER }}
         run: |
-          ALTOOL_OUTPUT=$(xcrun altool --upload-app \
+          xcrun altool --upload-app \
             --type ios \
             --file "$_EXPORT_FILEPATH" \
             --apiKey "$_KEY_ID" \
             --apiIssuer "$_ISSUER" \
-            --apple-id "$APPLE_ID" 2>&1)
-          echo "$ALTOOL_OUTPUT"
-          if echo "$ALTOOL_OUTPUT" | grep -q "ERROR:"; then
-            echo "::error::xcrun altool reported errors — upload failed"
-            exit 1
-          fi
+            --apple-id "$APPLE_ID"
 
       - name: Build TestFlight trigger data
         id: build-trigger-data

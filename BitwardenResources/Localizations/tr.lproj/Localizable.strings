@@ -1078,6 +1078,7 @@
 "Canceled" = "İptal edildi";
 "PastDue" = "Gecikme";
 "PendingCancellation" = "İptal bekleniyor";
+"Unpaid" = "Ödenmedi";
 "UpdatePayment" = "Ödemeyi güncelle";
 "BillingAmount" = "Fatura tutarı";
 "StorageCost" = "Depolama maliyeti";
@@ -1092,6 +1093,7 @@
 /* Error message shown when the Premium Plan screen fails to load subscription data, with a prompt to retry. */
 "WeCouldntLoadYourSubscriptionDetailsPleaseRetry" = "Abonelik bilgilerini yükleyemiyoruz. Lütfen tekrar deneyin.";
 "YourSubscriptionWasCanceledOnXDescriptionLong" = "Aboneliğiniz **%1$@** tarihinde iptal edildi, yeniden abone olarak Premium özellikleri kullanmaya devam edebilirsiniz.";
+"YourSubscriptionWasSuspendedOnXDescriptionLong" = "Aboneliğiniz **%1$@** tarihinde askıya alındı. Yeniden etkinleştirmek için lütfen vadesi geçmiş faturalarınızı ödeyin.";
 "YourSubscriptionExpiredOnXDescriptionLong" = "Aboneliğiniz **%1$@** tarihinde bitti. Aboneliğinizi yenileyerek Premium özellikleri kullanmaya devam edebilirsiniz.";
 "YourSubscriptionIsScheduledToCancelOnXDescriptionLong" = "Aboneliğinin %1$@ tarihinde iptal edilmesi planlanıyor. Bu tarihten önce istediğin zaman yeniden etkinleştirebilirsin.";
 "PerMonth" = "/ ay";
@@ -1169,3 +1171,4 @@
 "LineOfCredit" = "Kredi limiti";
 "MoneyMarket" = "Para piyasası";
 "Savings" = "Mevduat";
+"PremiumRequiredTOTPDescriptionLong" = "Kimlik doğrulama anahtarı (TOTP) premium bir özelliktir. Mevcut paketiniz bu özelliği içermiyor.";

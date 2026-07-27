@@ -1078,6 +1078,7 @@
 "Canceled" = "Отменен";
 "PastDue" = "Просрочен";
 "PendingCancellation" = "Ожидание отмены";
+"Unpaid" = "Не оплачено";
 "UpdatePayment" = "Обновить платежную информацию";
 "BillingAmount" = "Сумма счета";
 "StorageCost" = "Стоимость хранилища";
@@ -1092,6 +1093,7 @@
 /* Error message shown when the Premium Plan screen fails to load subscription data, with a prompt to retry. */
 "WeCouldntLoadYourSubscriptionDetailsPleaseRetry" = "Не удалось загрузить данные вашей подписки. Попробуйте еще раз.";
 "YourSubscriptionWasCanceledOnXDescriptionLong" = "Ваша подписка была отменена **%1$@**. Подпишитесь заново, чтобы продолжить пользоваться возможностями Премиум.";
+"YourSubscriptionWasSuspendedOnXDescriptionLong" = "Ваша подписка была приостановлена на **%1$@**. Чтобы ее возобновить, пожалуйста, оплатите просроченные счета.";
 "YourSubscriptionExpiredOnXDescriptionLong" = "Ваша подписка истекла **%1$@**. Подпишитесь заново, чтобы продолжить пользоваться возможностями Премиум.";
 "YourSubscriptionIsScheduledToCancelOnXDescriptionLong" = "Ваша подписка будет отменена **%1$@**. Вы сможете восстановить ее в любое время до этого момента.";
 "PerMonth" = "/ месяц";
@@ -1169,3 +1171,4 @@
 "LineOfCredit" = "Кредитная линия";
 "MoneyMarket" = "Денежный рынок";
 "Savings" = "Сбережения";
+"PremiumRequiredTOTPDescriptionLong" = "Аутентификатор ключей (TOTP) - это функция, доступная только в плане Премиум. Она не входит в ваш текущий тарифный план.";

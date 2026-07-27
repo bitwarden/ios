@@ -1078,6 +1078,7 @@
 "Canceled" = "Otkazano";
 "PastDue" = "Prekoračeno dospijeće";
 "PendingCancellation" = "Pending cancellation";
+"Unpaid" = "Unpaid";
 "UpdatePayment" = "Ažuriraj plaćanje";
 "BillingAmount" = "Iznos za naplatu";
 "StorageCost" = "Trošak pohrane";
@@ -1092,6 +1093,7 @@
 /* Error message shown when the Premium Plan screen fails to load subscription data, with a prompt to retry. */
 "WeCouldntLoadYourSubscriptionDetailsPleaseRetry" = "We couldn't load your subscription details. Please try again.";
 "YourSubscriptionWasCanceledOnXDescriptionLong" = "Your subscription was canceled on **%1$@**. Resubscribe to continue using Premium features.";
+"YourSubscriptionWasSuspendedOnXDescriptionLong" = "Your subscription was suspended on **%1$@**. To reactivate, please resolve your past due invoices.";
 "YourSubscriptionExpiredOnXDescriptionLong" = "Your subscription expired on **%1$@**. Resubscribe to continue using Premium features.";
 "YourSubscriptionIsScheduledToCancelOnXDescriptionLong" = "Your subscription is scheduled to cancel on **%1$@**. You can reinstate it anytime before then.";
 "PerMonth" = "/ mj.";
@@ -1169,3 +1171,4 @@
 "LineOfCredit" = "Kreditna linija";
 "MoneyMarket" = "Tržište novca";
 "Savings" = "Štedni račun";
+"PremiumRequiredTOTPDescriptionLong" = "Authenticator key (TOTP) is a Premium feature. Your current plan does not include access to this feature.";
