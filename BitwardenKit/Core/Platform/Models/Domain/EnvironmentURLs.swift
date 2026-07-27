@@ -129,8 +129,8 @@ public extension EnvironmentURLs {
         let environmentURLData: EnvironmentURLData = switch environmentURLData.region {
         case .europe: .defaultEU
         case .gov: .defaultGov
-        case .unitedStates: .defaultUS
         case .internal, .selfHosted: environmentURLData
+        case .unitedStates: .defaultUS
         }
 
         if environmentURLData.region == .selfHosted || environmentURLData.region == .internal,

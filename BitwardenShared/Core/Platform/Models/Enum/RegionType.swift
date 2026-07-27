@@ -51,10 +51,10 @@ extension RegionType {
             .defaultEU
         case .gov:
             .defaultGov
-        case .unitedStates:
-            .defaultUS
         case .internal, .selfHosted:
             nil
+        case .unitedStates:
+            .defaultUS
         }
     }
 

@@ -125,12 +125,12 @@ public extension EnvironmentURLData {
     /// The base url for send sharing.
     var sendShareURL: URL? {
         switch region {
-        case .unitedStates:
-            URL(string: "https://send.bitwarden.com/#")!
-        case .gov:
-            URL(string: "https://send.bitwarden-gov.com/#")!
         case .europe, .internal, .selfHosted:
             subpageURL(additionalPath: "send")
+        case .gov:
+            URL(string: "https://send.bitwarden-gov.com/#")!
+        case .unitedStates:
+            URL(string: "https://send.bitwarden.com/#")!
         }
     }
 
