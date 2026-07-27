@@ -55,7 +55,6 @@
 "MissingClientDataTypeReceived" = "The client data JSON did not contain a type field.";
 "MissingClientDataTypeTitle" = "Missing type field";
 "PasskeyAssertedSuccessfully" = "Passkey sign-in succeeded.";
-"PasskeyAssertionNotAvailable" = "Passkey assertion requires iOS 17 or later.";
 "PasskeyCreatedButNotSaved" = "Passkey created, but not saved for later verification.";
 "PasskeyErrorReference" = "Passkey Error Reference";
 "PasskeyErrorReferenceDescriptionLong" = "Every error the client data parser and assertion verifier can produce for a passkey sign-in, in the order each is checked. Use this to see what a failure looks like without needing to trigger it.";
