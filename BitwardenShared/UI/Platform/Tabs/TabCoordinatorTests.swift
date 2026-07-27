@@ -10,7 +10,7 @@ import XCTest
 
 // MARK: - TabCoordinatorTests
 
-class TabCoordinatorTests: BitwardenTestCase {
+class TabCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this type_body_length
     // MARK: Properties
 
     var errorReporter: MockErrorReporter!
@@ -19,6 +19,7 @@ class TabCoordinatorTests: BitwardenTestCase {
     var rootNavigator: MockRootNavigator!
     var settingsDelegate: MockSettingsCoordinatorDelegate!
     var subject: TabCoordinator!
+    var syncService: MockSyncService!
     var tabNavigator: MockTabNavigator!
     var vaultDelegate: MockVaultCoordinatorDelegate!
     var vaultRepository: MockVaultRepository!
@@ -33,6 +34,7 @@ class TabCoordinatorTests: BitwardenTestCase {
         rootNavigator = MockRootNavigator()
         tabNavigator = MockTabNavigator()
         settingsDelegate = MockSettingsCoordinatorDelegate()
+        syncService = MockSyncService()
         vaultDelegate = MockVaultCoordinatorDelegate()
         vaultRepository = MockVaultRepository()
         subject = TabCoordinator(
@@ -41,6 +43,7 @@ class TabCoordinatorTests: BitwardenTestCase {
             policyService: policyService,
             rootNavigator: rootNavigator,
             settingsDelegate: settingsDelegate,
+            syncService: syncService,
             tabNavigator: tabNavigator,
             vaultDelegate: vaultDelegate,
             vaultRepository: vaultRepository,
@@ -54,6 +57,7 @@ class TabCoordinatorTests: BitwardenTestCase {
         policyService = nil
         rootNavigator = nil
         subject = nil
+        syncService = nil
         tabNavigator = nil
         vaultDelegate = nil
         vaultRepository = nil
@@ -150,6 +154,7 @@ class TabCoordinatorTests: BitwardenTestCase {
             policyService: policyService,
             rootNavigator: rootNavigator!,
             settingsDelegate: MockSettingsCoordinatorDelegate(),
+            syncService: syncService,
             tabNavigator: tabNavigator,
             vaultDelegate: MockVaultCoordinatorDelegate(),
             vaultRepository: vaultRepository,
@@ -301,6 +306,49 @@ class TabCoordinatorTests: BitwardenTestCase {
 
         waitFor { self.tabNavigator.navigators.count == 3 }
         XCTAssertEqual(tabNavigator.navigators.count, 3)
+    }
+
+    /// The sync-complete stream reactively hides the Send tab when the policy becomes active, even
+    /// without a corresponding organizations-publisher emission (simulating a sync where organizations
+    /// don't change but policies do — this is the scenario that previously required two syncs).
+    @MainActor
+    func test_start_syncCompleteStream_hidesSendTab_whenPolicyApplies() {
+        let mockRoot = MockRootNavigator()
+        mockRoot.rootViewController = UIViewController()
+        tabNavigator.navigatorForTabReturns = mockRoot
+        policyService.policyAppliesToUserResult[.disableSend] = false
+        vaultRepository.organizationsSubject = .init([])
+
+        subject.start()
+        waitFor { self.tabNavigator.navigators.count == 4 }
+
+        // Simulate the policy becoming active and a sync completing, signaled via the sync-complete
+        // publisher alone (no new organizations-publisher emission).
+        policyService.policyAppliesToUserResult[.disableSend] = true
+        syncService.syncCompleteSubject.send(())
+
+        waitFor { self.tabNavigator.navigators.count == 3 }
+        XCTAssertEqual(tabNavigator.navigators.count, 3)
+    }
+
+    /// The sync-complete stream reactively shows the Send tab again when the policy is no longer
+    /// active, signaled via the sync-complete publisher alone.
+    @MainActor
+    func test_start_syncCompleteStream_showsSendTab_whenPolicyNoLongerApplies() {
+        let mockRoot = MockRootNavigator()
+        mockRoot.rootViewController = UIViewController()
+        tabNavigator.navigatorForTabReturns = mockRoot
+        policyService.policyAppliesToUserResult[.disableSend] = true
+        vaultRepository.organizationsSubject = .init([])
+
+        subject.start()
+        waitFor { self.tabNavigator.navigators.count == 3 }
+
+        policyService.policyAppliesToUserResult[.disableSend] = false
+        syncService.syncCompleteSubject.send(())
+
+        waitFor { self.tabNavigator.navigators.count == 4 }
+        XCTAssertEqual(tabNavigator.navigators.count, 4)
     }
 
     /// `start()` shows all four tabs when `disableSend` policy does not apply.
