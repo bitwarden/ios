@@ -22,6 +22,10 @@ struct VaultAutofillListState: Equatable, Sendable {
     /// The excluded Fido2 credential id that was found when registering.
     var excludedCredentialIdFound: String?
 
+    /// A temporary message explaining that the found credential matches one in the relying
+    /// party's excluded credentials list, shown alongside `excludedCredentialIdFound`.
+    var excludedCredentialMessage: String?
+
     /// The group filter.
     var group: VaultListGroup?
 

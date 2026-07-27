@@ -262,6 +262,14 @@ private struct VaultAutofillListSearchableView: View {
     @ViewBuilder
     private func cipherCombinedListView(_ sections: [VaultListSection]) -> some View {
         VStack(spacing: 16) {
+            if let excludedCredentialMessage = store.state.excludedCredentialMessage {
+                Text(excludedCredentialMessage)
+                    .styleGuide(.subheadline)
+                    .foregroundStyle(SharedAsset.Colors.textSecondary.swiftUIColor)
+                    .multilineTextAlignment(.center)
+                    .padding(.horizontal, 16)
+            }
+
             ForEach(sections) { section in
                 VaultListSectionView(
                     section: section,

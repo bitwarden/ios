@@ -118,6 +118,34 @@ class VaultAutofillListProcessorFido2Tests: BitwardenTestCase { // swiftlint:dis
         let cipher = CipherView.fixture()
         await subject.informExcludedCredentialFound(cipherView: cipher)
         XCTAssertEqual(subject.state.excludedCredentialIdFound, "1")
+        XCTAssertEqual(
+            subject.state.excludedCredentialMessage,
+            Localizations.aPasskeyAlreadyExistsCancelingWillLetTheSiteKnowDescriptionLong,
+        )
+    }
+
+    /// `receive(_:)` with `.cancelTapped` notifies the delegate that a matched excluded credential
+    /// was found instead of a plain cancel when an excluded credential was found.
+    @MainActor
+    func test_receive_cancelTapped_withExcludedCredentialFound() throws {
+        guard #available(iOS 18.0, *) else { return }
+
+        subject.state.excludedCredentialIdFound = "1"
+
+        subject.receive(.cancelTapped)
+
+        XCTAssertTrue(appExtensionDelegate.setMatchedExcludedCredentialFoundCalled)
+        XCTAssertFalse(appExtensionDelegate.didCancelCalled)
+    }
+
+    /// `receive(_:)` with `.cancelTapped` notifies the delegate to cancel the extension when no
+    /// excluded credential was found.
+    @MainActor
+    func test_receive_cancelTapped_withoutExcludedCredentialFound() {
+        subject.receive(.cancelTapped)
+
+        XCTAssertTrue(appExtensionDelegate.didCancelCalled)
+        XCTAssertFalse(appExtensionDelegate.setMatchedExcludedCredentialFoundCalled)
     }
 
     /// `getter:isAutofillingFromList` returns `true` when delegate is autofilling from list.

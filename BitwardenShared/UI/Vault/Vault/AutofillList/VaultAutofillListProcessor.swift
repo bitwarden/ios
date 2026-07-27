@@ -200,7 +200,13 @@ class VaultAutofillListProcessor: StateProcessor<// swiftlint:disable:this type_
                 await saveFido2CredentialAsNewLogin()
             }
         case .cancelTapped:
-            appExtensionDelegate?.didCancel()
+            if #available(iOSApplicationExtension 18.0, *),
+               state.excludedCredentialIdFound != nil,
+               let credentialProviderExtensionDelegate {
+                credentialProviderExtensionDelegate.setMatchedExcludedCredentialFound()
+            } else {
+                appExtensionDelegate?.didCancel()
+            }
         case let .profileSwitcher(action):
             handle(action)
         case let .searchStateChanged(isSearching: isSearching):
@@ -569,6 +575,7 @@ extension VaultAutofillListProcessor: Fido2UserInterfaceHelperDelegate {
 
     func informExcludedCredentialFound(cipherView: CipherView) async {
         state.excludedCredentialIdFound = cipherView.id
+        state.excludedCredentialMessage = Localizations.aPasskeyAlreadyExistsCancelingWillLetTheSiteKnowDescriptionLong
     }
 
     func onNeedsUserInteraction() async throws {
