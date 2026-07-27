@@ -62,9 +62,9 @@
 "TOTPCode" = "TOTP Code";
 "UnexpectedClientDataTypeReceived" = "The client data type (%@) was not \"webauthn.create\".";
 "UnexpectedCredentialTypeReceived" = "Unexpected credential type received.";
-"UnsupportedAlgorithmReceived" = "The credential's public key algorithm (%@) is not supported; expected ES256.";
-"UnsupportedCurveReceived" = "The credential's public key curve (%@) is not supported; expected P-256.";
-"UnsupportedKeyTypeReceived" = "The credential's public key type (%@) is not supported; expected EC2.";
+"UnsupportedAlgorithmReceived" = "The credential's public key algorithm (%d) is not supported; expected ES256.";
+"UnsupportedCurveReceived" = "The credential's public key curve (%d) is not supported; expected P-256.";
+"UnsupportedKeyTypeReceived" = "The credential's public key type (%d) is not supported; expected EC2.";
 "Username" = "Username";
 "UsernameValue" = "Username: %@";
 "UseThisLoginFormToTestAutofillFunctionality" = "Use this login form to test autofill functionality.";
