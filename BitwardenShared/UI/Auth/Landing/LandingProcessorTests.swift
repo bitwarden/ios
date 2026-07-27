@@ -634,8 +634,7 @@ class LandingProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_
         var alert = try XCTUnwrap(coordinator.alertShown.last)
         XCTAssertEqual(alert.title, Localizations.loggingInOn)
         XCTAssertNil(alert.message)
-        XCTAssertEqual(alert.alertActions.count, 4) // US + EU + Self-Hosted + Cancel (no Gov)
-        XCTAssertNil(alert.alertActions.first(where: { $0.title == "bitwarden-gov.com" }))
+        XCTAssertEqual(alert.alertActions.count, 5)
 
         XCTAssertEqual(alert.alertActions[0].title, "bitwarden.com")
         try await alert.tapAction(title: "bitwarden.com")
@@ -649,9 +648,15 @@ class LandingProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_
 
         await subject.perform(.regionPressed)
         alert = try XCTUnwrap(coordinator.alertShown.last)
-        XCTAssertEqual(alert.alertActions[2].title, Localizations.selfHosted)
+        XCTAssertEqual(alert.alertActions[2].title, "bitwarden-gov.com")
+        try await alert.tapAction(title: "bitwarden-gov.com")
+        XCTAssertEqual(subject.state.region, .gov)
+
+        await subject.perform(.regionPressed)
+        alert = try XCTUnwrap(coordinator.alertShown.last)
+        XCTAssertEqual(alert.alertActions[3].title, Localizations.selfHosted)
         try await alert.tapAction(title: Localizations.selfHosted)
-        XCTAssertEqual(coordinator.routes.last, .selfHosted(currentRegion: .europe))
+        XCTAssertEqual(coordinator.routes.last, .selfHosted(currentRegion: .gov))
     }
 
     /// `perform(_:)` with `.regionPressed` includes Gov when `fedrampGovRegion` is enabled
