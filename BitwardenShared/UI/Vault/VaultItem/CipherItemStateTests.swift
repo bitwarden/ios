@@ -108,7 +108,7 @@ class CipherItemStateTests: BitwardenTestCase { // swiftlint:disable:this type_b
     func test_canAssignToCollection_noOrganizations() throws {
         let cipher = CipherView.fixture(organizationId: nil)
         var subject = try XCTUnwrap(CipherItemState(existing: cipher, hasPremium: false))
-        subject.ownershipOptions = [.personal(email: "user@bitwarden.com")]
+        subject.ownershipOptions = [.personal(displayName: "user@bitwarden.com")]
         XCTAssertFalse(subject.canAssignToCollection)
     }
 
@@ -118,7 +118,7 @@ class CipherItemStateTests: BitwardenTestCase { // swiftlint:disable:this type_b
         let cipher = CipherView.fixture(organizationId: nil)
         var subject = try XCTUnwrap(CipherItemState(existing: cipher, hasPremium: false))
         subject.ownershipOptions = [
-            .personal(email: "user@bitwarden.com"),
+            .personal(displayName: "user@bitwarden.com"),
             .organization(id: "1", name: "Test Organization"),
         ]
         XCTAssertFalse(subject.canAssignToCollection)
@@ -130,7 +130,7 @@ class CipherItemStateTests: BitwardenTestCase { // swiftlint:disable:this type_b
         let cipher = CipherView.fixture(organizationId: "1")
         var subject = try XCTUnwrap(CipherItemState(existing: cipher, hasPremium: false))
         subject.ownershipOptions = [
-            .personal(email: "user@bitwarden.com"),
+            .personal(displayName: "user@bitwarden.com"),
             .organization(id: "1", name: "Test Organization"),
         ]
         XCTAssertTrue(subject.canAssignToCollection)
@@ -315,7 +315,7 @@ class CipherItemStateTests: BitwardenTestCase { // swiftlint:disable:this type_b
         let cipher = CipherView.fixture(organizationId: "1")
         var subject = try XCTUnwrap(CipherItemState(existing: cipher, hasPremium: false))
         subject.ownershipOptions = [
-            .personal(email: "user@bitwarden.com"),
+            .personal(displayName: "user@bitwarden.com"),
             .organization(id: "1", name: "Test Organization"),
         ]
         XCTAssertFalse(subject.canMoveToOrganization)
@@ -325,7 +325,7 @@ class CipherItemStateTests: BitwardenTestCase { // swiftlint:disable:this type_b
     func test_canMoveToOrganization_noOrganizations() throws {
         let cipher = CipherView.fixture(organizationId: nil)
         var subject = try XCTUnwrap(CipherItemState(existing: cipher, hasPremium: false))
-        subject.ownershipOptions = [.personal(email: "user@bitwarden.com")]
+        subject.ownershipOptions = [.personal(displayName: "user@bitwarden.com")]
         XCTAssertFalse(subject.canMoveToOrganization)
     }
 
@@ -335,7 +335,7 @@ class CipherItemStateTests: BitwardenTestCase { // swiftlint:disable:this type_b
         let cipher = CipherView.fixture(organizationId: nil)
         var subject = try XCTUnwrap(CipherItemState(existing: cipher, hasPremium: false))
         subject.ownershipOptions = [
-            .personal(email: "user@bitwarden.com"),
+            .personal(displayName: "user@bitwarden.com"),
             .organization(id: "1", name: "Test Organization"),
         ]
         XCTAssertTrue(subject.canMoveToOrganization)
@@ -353,7 +353,7 @@ class CipherItemStateTests: BitwardenTestCase { // swiftlint:disable:this type_b
     func test_hasOrganizations_whenCipherBelongsToPersonal_returnsFalse() throws {
         let cipher = CipherView.fixture()
         var state = try XCTUnwrap(CipherItemState(existing: cipher, hasPremium: true))
-        state.ownershipOptions = [CipherOwner.personal(email: "user@bitwarden")]
+        state.ownershipOptions = [CipherOwner.personal(displayName: "user@bitwarden")]
 
         XCTAssertFalse(state.hasOrganizations)
     }

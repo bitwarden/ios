@@ -1,5 +1,4 @@
 import BitwardenKit
-import BitwardenResources
 
 // MARK: - CipherOwner
 
@@ -9,8 +8,10 @@ public enum CipherOwner: Equatable, Hashable, Menuable, Sendable {
     /// The cipher is owned by an organization.
     case organization(id: String, name: String)
 
-    /// The cipher is owned by the user.
-    case personal(email: String)
+    /// The cipher is owned by the user's personal vault. `displayName` is resolved by the
+    /// caller (the account email when the `vfo1-foundation` feature flag is disabled, or the
+    /// localized "My vault" string when enabled).
+    case personal(displayName: String)
 
     /// Whether the owner of the cipher is a personal account.
     var isPersonal: Bool {
@@ -22,8 +23,8 @@ public enum CipherOwner: Equatable, Hashable, Menuable, Sendable {
         switch self {
         case let .organization(_, name):
             name
-        case .personal:
-            Localizations.myVault
+        case let .personal(displayName):
+            displayName
         }
     }
 
