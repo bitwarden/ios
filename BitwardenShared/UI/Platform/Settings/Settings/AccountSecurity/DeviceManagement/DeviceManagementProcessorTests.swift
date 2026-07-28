@@ -140,6 +140,45 @@ struct DeviceManagementProcessorTests {
         #expect(chromeItem.pendingRequest?.id == request.id)
     }
 
+    /// `perform(_:)` does not assign a pending request to the current session's device, even if
+    /// its platform matches, and instead matches another device with the same platform.
+    @Test
+    func perform_loadData_skipsCurrentSessionDeviceForPendingRequest() async throws {
+        let currentDevice = DeviceResponse.fixture(id: "current", type: .chromeExtension)
+        let otherChromeDevice = DeviceResponse.fixture(id: "other-chrome", type: .chromeExtension)
+        let request = LoginRequest.fixture(requestDeviceType: "Chrome")
+
+        deviceAPIService.getDevicesReturnValue = [currentDevice, otherChromeDevice]
+        deviceAPIService.getCurrentDeviceReturnValue = currentDevice
+        authService.getPendingLoginRequestResult = .success([request])
+
+        await subject.perform(.loadData)
+
+        let items = try #require(subject.state.loadingState.data)
+        let currentItem = try #require(items.first(where: { $0.id == "current" }))
+        let otherItem = try #require(items.first(where: { $0.id == "other-chrome" }))
+        #expect(currentItem.pendingRequest == nil)
+        #expect(otherItem.pendingRequest?.id == request.id)
+    }
+
+    /// `perform(_:)` leaves a pending request unmatched when the current session's device is the
+    /// only one with a matching platform.
+    @Test
+    func perform_loadData_currentSessionOnlyMatch_leavesPendingRequestUnmatched() async throws {
+        let currentDevice = DeviceResponse.fixture(id: "current", type: .chromeExtension)
+        let otherDevice = DeviceResponse.fixture(id: "other", type: .macOsDesktop)
+        let request = LoginRequest.fixture(requestDeviceType: "Chrome")
+
+        deviceAPIService.getDevicesReturnValue = [currentDevice, otherDevice]
+        deviceAPIService.getCurrentDeviceReturnValue = currentDevice
+        authService.getPendingLoginRequestResult = .success([request])
+
+        await subject.perform(.loadData)
+
+        let items = try #require(subject.state.loadingState.data)
+        #expect(items.allSatisfy { $0.pendingRequest == nil })
+    }
+
     /// `perform(_:)` leaves every device without a pending request when none of their platforms
     /// match the request's device type.
     @Test
