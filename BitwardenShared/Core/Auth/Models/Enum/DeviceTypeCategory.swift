@@ -112,27 +112,4 @@ extension DeviceType {
         }
         return Localizations.deviceDisplayNameXHyphenY(category.displayName, platform)
     }
-
-    /// A match key used to correlate this device type with a pending login request's
-    /// `requestDeviceType` string. Differs from `platform` for extension types so that
-    /// e.g. `chromeExtension` ("Chrome Extension") is not confused with `chromeBrowser`
-    /// ("Chrome") when both are active simultaneously.
-    var pendingRequestMatchKey: String {
-        switch self {
-        case .chromeExtension:
-            "Chrome Extension"
-        case .firefoxExtension:
-            "Firefox Extension"
-        case .operaExtension:
-            "Opera Extension"
-        case .edgeExtension:
-            "Edge Extension"
-        case .safariExtension:
-            "Safari Extension"
-        case .vivaldiExtension:
-            "Vivaldi Extension"
-        default:
-            platform
-        }
-    }
 }

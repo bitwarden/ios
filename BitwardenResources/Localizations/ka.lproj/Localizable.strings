@@ -812,7 +812,7 @@
 "YouMayNeedToEnableDevicePasscodeOrBiometrics" = "შესაძლოა, დაგჭირდეთ მოწყობილობის პაროლის ან ბიომეტრიის ჩართვა.";
 "StartImportCXFDescriptionLong" = "შემოიტანეთ პაროლები, passkeys, საკრედიტო ბარათები და ნებისმიერი პირადი იდენტიფიკაციის ინფორმაცია სხვა პაროლების მენეჯერიდან.\n\nთქვენი მონაცემები **არ** წაიშლება თქვენი წინა პროვაიდერისგან.";
 "ImportPasswords" = "პაროლების იმპორტი";
-"ImportingEllipsis" = "შემოტანა...";
+"ImportingEllipsis" = "შემოტანა…";
 "AreYouSureYouWantToCancelTheImportProcessQuestionMark" = "დარწმუნებული ხართ, რომ გსურთ იმპორტის პროცესის გაუქმება?";
 "ImportFailed" = "იმპორტი ვერ მოხერხდა";
 "ThereWasAnIssueImportingAllOfYourPasswordsNoDataWasDeleted" = "ყველა თქვენი პაროლის იმპორტისას წარმოიშვა პრობლემა.\n\nმონაცემები არ წაშლილა.";
