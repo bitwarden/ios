@@ -99,6 +99,9 @@ struct CipherItemState: Equatable { // swiftlint:disable:this type_body_length
     /// Whether it's showing multiple collections or not.
     var isShowingMultipleCollections: Bool = false
 
+    /// Whether the `vfo1-foundation` feature flag is enabled.
+    var isVfo1FoundationFeatureFlagEnabled = false
+
     /// The state for a login type item.
     var loginState: LoginItemState
 

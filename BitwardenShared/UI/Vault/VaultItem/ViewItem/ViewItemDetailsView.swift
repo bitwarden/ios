@@ -198,7 +198,11 @@ struct ViewItemDetailsView: View { // swiftlint:disable:this type_body_length
                     icon: SharedAsset.Icons.business16,
                     name: organizationName,
                 )
-                .accessibilityLabel(Localizations.vaultX(organizationName))
+                .accessibilityLabel(
+                    store.state.isVfo1FoundationFeatureFlagEnabled
+                        ? Localizations.vaultX(organizationName)
+                        : Localizations.ownerX(organizationName),
+                )
                 .accessibilityHint(Localizations.itemXOfY(1, store.state.totalHeaderAdditionalItems))
             }
 

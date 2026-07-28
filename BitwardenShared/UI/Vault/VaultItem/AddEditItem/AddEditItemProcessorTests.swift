@@ -704,6 +704,14 @@ class AddEditItemProcessorTests: BitwardenTestCase {
         XCTAssertTrue(subject.state.cardItemState.cardScannerEnabled)
     }
 
+    /// `perform(_:)` with `.appeared` loads the vfo1-foundation feature flag.
+    @MainActor
+    func test_perform_appeared_featureFlags_vfo1Foundation() async {
+        configService.featureFlagsBool[.vfo1Foundation] = true
+        await subject.perform(.appeared)
+        XCTAssertTrue(subject.state.isVfo1FoundationFeatureFlagEnabled)
+    }
+
     /// `perform(_:)` with `.appeared` doesn't show the password autofill alert if it has already been shown.
     @MainActor
     func test_perform_appeared_showPasswordAutofill_alreadyShown() async {
