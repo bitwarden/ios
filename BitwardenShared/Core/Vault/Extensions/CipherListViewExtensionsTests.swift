@@ -291,6 +291,17 @@ class CipherListViewExtensionsTests: BitwardenTestCase { // swiftlint:disable:th
         )
     }
 
+    /// `init(cipherDecryptFailure:)` builds a `.bankAccount` cipher list view with `nil` account details
+    /// for a bank account cipher that failed to decrypt.
+    func test_init_cipherDecryptFailure_bankAccount() {
+        let cipher = Cipher.fixture(id: "1", type: .bankAccount)
+        let cipherListView = CipherListView(cipherDecryptFailure: cipher)
+
+        XCTAssertEqual(cipherListView.id, "1")
+        XCTAssertTrue(cipherListView.isDecryptionFailure)
+        XCTAssertEqual(cipherListView.type, .bankAccount(BankAccountListView(accountNumber: nil, accountType: nil)))
+    }
+
     /// `matchesSearchQuery(_:)` returns `.exact` when query matches cipher name.
     func test_matchesSearchQuery_exactMatchOnName() {
         let cipher = CipherListView.fixture(name: "Example Site")
