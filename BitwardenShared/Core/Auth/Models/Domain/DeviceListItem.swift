@@ -5,7 +5,7 @@ import Foundation
 
 /// A UI-friendly model representing a device in the device management list.
 ///
-struct DeviceListItem: Equatable, Identifiable, Sendable {
+struct DeviceListItem: Comparable, Identifiable, Sendable {
     // MARK: Properties
 
     /// The activity status of the device.
@@ -41,6 +41,32 @@ struct DeviceListItem: Equatable, Identifiable, Sendable {
 
     /// The most recent pending login request for this device, if any.
     var pendingRequest: LoginRequest?
+}
+
+// MARK: Comparable
+
+extension DeviceListItem {
+    /// Orders devices for display: current session first, then devices with a pending request,
+    /// then by most recent activity date descending (falling back to first-login date descending
+    /// when neither device has a known activity date).
+    static func < (lhs: DeviceListItem, rhs: DeviceListItem) -> Bool {
+        if lhs.isCurrentSession != rhs.isCurrentSession {
+            return lhs.isCurrentSession
+        }
+        if lhs.hasPendingRequest != rhs.hasPendingRequest {
+            return lhs.hasPendingRequest
+        }
+        switch (lhs.lastActivityDate, rhs.lastActivityDate) {
+        case let (lhsDate?, rhsDate?):
+            return lhsDate > rhsDate
+        case (nil, _?):
+            return false
+        case (_?, nil):
+            return true
+        case (nil, nil):
+            return lhs.firstLogin > rhs.firstLogin
+        }
+    }
 }
 
 // MARK: - DeviceListItem Extension
