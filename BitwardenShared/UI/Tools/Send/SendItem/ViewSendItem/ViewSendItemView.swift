@@ -19,8 +19,10 @@ struct ViewSendItemView: View {
             .scrollView()
             .navigationBar(title: store.state.navigationTitle, titleDisplayMode: .inline)
             .overlay(alignment: .bottomTrailing) {
-                editItemFloatingActionButton {
-                    store.send(.editItem)
+                if !store.state.isDisabled {
+                    editItemFloatingActionButton {
+                        store.send(.editItem)
+                    }
                 }
             }
             .task { await store.perform(.loadData) }
@@ -55,7 +57,11 @@ struct ViewSendItemView: View {
     /// The main content of the view.
     @ViewBuilder private var content: some View {
         VStack(spacing: 16) {
-            sendLink
+            restrictionBanner
+
+            if !store.state.isDisabled {
+                sendLink
+            }
 
             sendDetailsSection
 
@@ -100,6 +106,25 @@ struct ViewSendItemView: View {
                     .accessibilityIdentifier("ViewSendNotes")
                 }
             }
+        }
+    }
+
+    /// The banner shown when this Send is disabled due to a Send Controls policy violation.
+    @ViewBuilder private var restrictionBanner: some View {
+        if store.state.isDisabled, let message = store.state.restrictionBannerMessage {
+            ActionCard(
+                title: Localizations.organizationPolicyRestriction,
+                message: message,
+                actionButtonState: store.state.canMakeCopy
+                    ? ActionCard.ButtonState(title: Localizations.makeACopy) {
+                        store.send(.makeCopy)
+                    }
+                    : nil,
+            ) {
+                SharedAsset.Icons.informationCircle24.swiftUIImage
+                    .foregroundStyle(SharedAsset.Colors.iconSecondary.swiftUIColor)
+            }
+            .accessibilityIdentifier("ViewSendRestrictionBanner")
         }
     }
 

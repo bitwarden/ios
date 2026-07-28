@@ -1,3 +1,4 @@
+import BitwardenSdk
 import Foundation
 
 // MARK: - SendPolicyOptions
@@ -91,5 +92,15 @@ extension SendPolicyOptions {
         if restrictedTypes.contains(.text) { return .text }
         if restrictedTypes.contains(.file) { return .file }
         return nil
+    }
+
+    /// Determines whether the given `sendView`'s type is restricted by these Send policy options.
+    ///
+    /// - Parameter sendView: The `SendView` to check.
+    /// - Returns: `true` if the Send's type isn't the one enforced by policy.
+    ///
+    func isSendTypeRestricted(for sendView: SendView) -> Bool {
+        guard let enforcedSendType else { return false }
+        return SendType(sendType: sendView.type) != enforcedSendType
     }
 }

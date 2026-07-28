@@ -21,6 +21,44 @@ class ViewSendItemStateTests: BitwardenTestCase {
         XCTAssertNil(subject.displayShareURL)
     }
 
+    /// `isDisabled`, `restrictionBannerMessage`, and `canMakeCopy` reflect a non-disabled Send.
+    func test_isDisabled_notDisabled() {
+        let subject = ViewSendItemState(sendView: .fixture(disabled: false))
+        XCTAssertFalse(subject.isDisabled)
+        XCTAssertNil(subject.restrictionBannerMessage)
+        XCTAssertFalse(subject.canMakeCopy)
+    }
+
+    /// A disabled File Send shows the generic non-compliant message and offers no copy, regardless of
+    /// whether its type is restricted by policy.
+    func test_isDisabled_disabledFileSend() {
+        let subject = ViewSendItemState(sendView: .fixture(type: .file, disabled: true))
+
+        XCTAssertTrue(subject.isDisabled)
+        XCTAssertEqual(subject.restrictionBannerMessage, Localizations.thisSendIsNotCompliantDescriptionLong)
+        XCTAssertFalse(subject.canMakeCopy)
+    }
+
+    /// A disabled Text Send whose type is restricted by policy shows the text-restricted message and
+    /// offers no copy.
+    func test_isDisabled_disabledTextSend_typeRestricted() {
+        var subject = ViewSendItemState(sendView: .fixture(type: .text, disabled: true))
+        subject.sendPolicyOptions = SendPolicyOptions(enforcedSendType: .file)
+
+        XCTAssertTrue(subject.isDisabled)
+        XCTAssertEqual(subject.restrictionBannerMessage, Localizations.textSendsAreNotAllowedDescriptionLong)
+        XCTAssertFalse(subject.canMakeCopy)
+    }
+
+    /// A disabled Text Send whose type isn't restricted by policy offers the "Make a copy" action.
+    func test_isDisabled_disabledTextSend_typeNotRestricted() {
+        let subject = ViewSendItemState(sendView: .fixture(type: .text, disabled: true))
+
+        XCTAssertTrue(subject.isDisabled)
+        XCTAssertEqual(subject.restrictionBannerMessage, Localizations.toEditThisSendMakeACopyDescriptionLong)
+        XCTAssertTrue(subject.canMakeCopy)
+    }
+
     /// `navigationTitle` returns the navigation title based on the send's type.
     func test_navigationTitle() {
         let textSubject = ViewSendItemState(sendView: .fixture())

@@ -257,6 +257,36 @@ extension AddEditSendItemState {
         )
     }
 
+    /// Creates a new `AddEditSendItemState` for creating a policy-compliant copy of a restricted
+    /// `sendView`. Used when the user taps "Make a copy" from the View Send screen's restriction
+    /// banner; unlike `init(sendView:)`, this omits the id, access id, and key so that saving
+    /// creates a brand-new Send rather than updating the original, and defaults to `.add` mode.
+    /// Policy-enforced fields (access type, deletion date) are applied afterward by the existing
+    /// `loadData()` policy-override logic, the same as for any other new Send.
+    ///
+    /// - Parameter sendView: The restricted `SendView` to copy details from.
+    ///
+    init(copyingFrom sendView: SendView) {
+        let accessType: SendAccessType = if sendView.hasPassword {
+            .anyoneWithPassword
+        } else {
+            SendAccessType(authType: sendView.authType)
+        }
+
+        self.init(
+            accessType: accessType,
+            isHideMyEmailOn: sendView.hideEmail,
+            isHideTextByDefaultOn: sendView.text?.hidden ?? false,
+            maximumAccessCount: sendView.maxAccessCount.map(Int.init) ?? 0,
+            mode: .add,
+            name: sendView.name,
+            notes: sendView.notes ?? "",
+            recipientEmails: sendView.emails.isEmpty ? [""] : sendView.emails,
+            text: sendView.text?.text ?? "",
+            type: SendType(sendType: sendView.type),
+        )
+    }
+
     /// Returns a `SendView` based on the properties of the `AddEditSendItemState`.
     ///
     func newSendView() -> SendView {
