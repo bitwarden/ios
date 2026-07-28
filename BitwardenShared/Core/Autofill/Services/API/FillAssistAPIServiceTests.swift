@@ -23,35 +23,29 @@ struct FillAssistAPIServiceTests {
 
     // MARK: Tests
 
-    /// `getFormsMap(filename:)` downloads the file at the expected URL and decodes the response.
+    /// `getFormsMap(filename:)` sends a request to the expected URL and decodes the response.
     @Test
     func getFormsMap() async throws {
-        let tempFile = FileManager.default.temporaryDirectory
-            .appendingPathComponent("forms.v1.json")
-        try APITestData.formsMap.data.write(to: tempFile)
-        client.downloadResults = [.success(tempFile)]
+        client.results = [.httpSuccess(testData: .formsMap)]
 
         _ = try await subject.getFormsMap(filename: "forms.v1.json")
 
-        let request = try #require(client.downloadRequests.last)
-        #expect(request.httpMethod == "GET")
-        #expect(request.url?.absoluteString == "https://example.com/fill-assist-rules/forms.v1.json")
+        let request = try #require(client.requests.last)
+        #expect(request.method == .get)
+        #expect(request.url.absoluteString == "https://example.com/fill-assist-rules/forms.v1.json")
     }
 
-    /// `getManifest()` downloads the manifest at the constant filename and decodes the response.
+    /// `getManifest()` sends a request to the manifest URL and decodes the response.
     @Test
     func getManifest() async throws {
-        let tempFile = FileManager.default.temporaryDirectory
-            .appendingPathComponent(Constants.FillAssist.manifestFilename)
-        try APITestData.fillAssistManifest.data.write(to: tempFile)
-        client.downloadResults = [.success(tempFile)]
+        client.results = [.httpSuccess(testData: .fillAssistManifest)]
 
         _ = try await subject.getManifest()
 
-        let request = try #require(client.downloadRequests.last)
-        #expect(request.httpMethod == "GET")
+        let request = try #require(client.requests.last)
+        #expect(request.method == .get)
         #expect(
-            request.url?.absoluteString
+            request.url.absoluteString
                 == "https://example.com/fill-assist-rules/\(Constants.FillAssist.manifestFilename)",
         )
     }

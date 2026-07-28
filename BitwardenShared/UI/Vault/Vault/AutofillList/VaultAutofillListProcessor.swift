@@ -24,6 +24,7 @@ class VaultAutofillListProcessor: StateProcessor<// swiftlint:disable:this type_
         & HasEventService
         & HasFido2CredentialStore
         & HasFido2UserInterfaceHelper
+        & HasFillAssistRepository
         & HasPasteboardService
         & HasPolicyService
         & HasSearchProcessorMediatorFactory

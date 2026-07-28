@@ -43,6 +43,14 @@ class DebugMenuViewTests: BitwardenTestCase {
 
     // MARK: Tests
 
+    /// Tapping the add fill assist rule button dispatches the `.addFillAssistRuleTapped` action.
+    @MainActor
+    func test_addFillAssistRule_tap() throws {
+        let button = try subject.inspect().find(button: "Add fill assist rule")
+        try button.tap()
+        XCTAssertEqual(processor.dispatchedActions.last, .addFillAssistRuleTapped)
+    }
+
     /// Tapping the clear masterPasswordUnlock button sends the correct effect.
     @MainActor
     func test_clearMasterPasswordUnlock_tapped() async throws {

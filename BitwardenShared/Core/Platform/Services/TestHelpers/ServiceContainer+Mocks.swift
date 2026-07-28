@@ -34,6 +34,7 @@ extension ServiceContainer {
         clientCertificateService: ClientCertificateService = MockClientCertificateService(),
         clientService: ClientService = MockClientService(),
         configService: ConfigService = MockConfigService(),
+        deviceAPIService: DeviceAPIService? = nil,
         deviceAuthKeyService: DeviceAuthKeyService = MockDeviceAuthKeyService(),
         environmentService: EnvironmentService = MockEnvironmentService(),
         errorReportBuilder: ErrorReportBuilder = MockErrorReportBuilder(),
@@ -43,6 +44,7 @@ extension ServiceContainer {
         exportVaultService: ExportVaultService = MockExportVaultService(),
         fido2CredentialStore: Fido2CredentialStore = MockFido2CredentialStore(),
         fido2UserInterfaceHelper: Fido2UserInterfaceHelper = MockFido2UserInterfaceHelper(),
+        fillAssistRepository: FillAssistRepository = MockFillAssistRepository(),
         flightRecorder: FlightRecorder = MockFlightRecorder(),
         generatorRepository: GeneratorRepository = MockGeneratorRepository(),
         importCiphersRepository: ImportCiphersRepository = MockImportCiphersRepository(),
@@ -96,11 +98,12 @@ extension ServiceContainer {
             actualSearchProcessorMediatorFactory = factoryMock
         }
 
+        let apiService = APIService(
+            client: httpClient,
+            environmentService: environmentService,
+        )
         return ServiceContainer(
-            apiService: APIService(
-                client: httpClient,
-                environmentService: environmentService,
-            ),
+            apiService: apiService,
             appContextHelper: appContextHelper,
             appIDService: AppIDService(appIDSettingsStore: appIDSettingsStore),
             appInfoService: appInfoService,
@@ -122,6 +125,7 @@ extension ServiceContainer {
             clientCertificateService: clientCertificateService,
             clientService: clientService,
             configService: configService,
+            deviceAPIService: deviceAPIService ?? apiService,
             deviceAuthKeyService: deviceAuthKeyService,
             environmentService: environmentService,
             errorReportBuilder: errorReportBuilder,
@@ -131,6 +135,7 @@ extension ServiceContainer {
             exportVaultService: exportVaultService,
             fido2CredentialStore: fido2CredentialStore,
             fido2UserInterfaceHelper: fido2UserInterfaceHelper,
+            fillAssistRepository: fillAssistRepository,
             flightRecorder: flightRecorder,
             generatorRepository: generatorRepository,
             importCiphersRepository: importCiphersRepository,
