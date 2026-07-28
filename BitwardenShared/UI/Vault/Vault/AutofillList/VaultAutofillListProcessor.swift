@@ -575,7 +575,6 @@ extension VaultAutofillListProcessor: Fido2UserInterfaceHelperDelegate {
 
     func informExcludedCredentialFound(cipherView: CipherView) async {
         state.excludedCredentialIdFound = cipherView.id
-        state.excludedCredentialMessage = Localizations.aPasskeyAlreadyExistsCancelingWillLetTheSiteKnowDescriptionLong
     }
 
     func onNeedsUserInteraction() async throws {

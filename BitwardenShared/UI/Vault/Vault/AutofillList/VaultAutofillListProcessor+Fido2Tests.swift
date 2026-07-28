@@ -118,10 +118,6 @@ class VaultAutofillListProcessorFido2Tests: BitwardenTestCase { // swiftlint:dis
         let cipher = CipherView.fixture()
         await subject.informExcludedCredentialFound(cipherView: cipher)
         XCTAssertEqual(subject.state.excludedCredentialIdFound, "1")
-        XCTAssertEqual(
-            subject.state.excludedCredentialMessage,
-            Localizations.aPasskeyAlreadyExistsCancelingWillLetTheSiteKnowDescriptionLong,
-        )
     }
 
     /// `receive(_:)` with `.cancelTapped` notifies the delegate that a matched excluded credential
