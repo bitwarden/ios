@@ -457,7 +457,7 @@ struct AddEditItemView_Previews: PreviewProvider {
             ),
             hasPremium: true,
         )!
-        state.ownershipOptions = [.personal(email: "user@bitwarden.com")]
+        state.ownershipOptions = [.personal(displayName: "user@bitwarden.com")]
         return state
     }
 
@@ -527,7 +527,7 @@ struct AddEditItemView_Previews: PreviewProvider {
                             ]
                             copy.isFavoriteOn = false
                             copy.isMasterPasswordRePromptOn = true
-                            copy.owner = .personal(email: "security@bitwarden.com")
+                            copy.owner = .personal(displayName: "security@bitwarden.com")
                             return copy.addEditState
                         }(),
                     ),

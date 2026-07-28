@@ -214,7 +214,7 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         ]
         vaultRepository.fetchCollectionsResult = .success(collections)
         let cipherOwnershipOptions: [CipherOwner] = [
-            .personal(email: "user@bitwarden.com"),
+            .personal(displayName: "user@bitwarden.com"),
             .organization(id: "1", name: "Test Organization"),
         ]
         vaultRepository.fetchCipherOwnershipOptions = cipherOwnershipOptions
