@@ -122,6 +122,59 @@ struct DeviceManagementProcessorTests {
         #expect(chromeItem.pendingRequest?.id == "newer")
     }
 
+    /// `perform(_:)` matches a pending request to a device's platform regardless of case.
+    @Test
+    func perform_loadData_matchesPendingRequestCaseInsensitively() async throws {
+        let chromeDevice = DeviceResponse.fixture(id: "chrome", type: .chromeExtension)
+        let currentDevice = DeviceResponse.fixture(id: "current")
+        let request = LoginRequest.fixture(requestDeviceType: "chrome")
+
+        deviceAPIService.getDevicesReturnValue = [chromeDevice, currentDevice]
+        deviceAPIService.getCurrentDeviceReturnValue = currentDevice
+        authService.getPendingLoginRequestResult = .success([request])
+
+        await subject.perform(.loadData)
+
+        let items = try #require(subject.state.loadingState.data)
+        let chromeItem = try #require(items.first(where: { $0.id == "chrome" }))
+        #expect(chromeItem.pendingRequest?.id == request.id)
+    }
+
+    /// `perform(_:)` leaves every device without a pending request when none of their platforms
+    /// match the request's device type.
+    @Test
+    func perform_loadData_noMatchingDeviceForPendingRequest() async throws {
+        let chromeDevice = DeviceResponse.fixture(id: "chrome", type: .chromeExtension)
+        let currentDevice = DeviceResponse.fixture(id: "current")
+        let request = LoginRequest.fixture(requestDeviceType: "Firefox")
+
+        deviceAPIService.getDevicesReturnValue = [chromeDevice, currentDevice]
+        deviceAPIService.getCurrentDeviceReturnValue = currentDevice
+        authService.getPendingLoginRequestResult = .success([request])
+
+        await subject.perform(.loadData)
+
+        let items = try #require(subject.state.loadingState.data)
+        #expect(items.allSatisfy { $0.pendingRequest == nil })
+    }
+
+    /// `perform(_:)` skips a pending request that has an empty device type.
+    @Test
+    func perform_loadData_skipsPendingRequestWithEmptyDeviceType() async throws {
+        let chromeDevice = DeviceResponse.fixture(id: "chrome", type: .chromeExtension)
+        let currentDevice = DeviceResponse.fixture(id: "current")
+        let request = LoginRequest.fixture(requestDeviceType: "")
+
+        deviceAPIService.getDevicesReturnValue = [chromeDevice, currentDevice]
+        deviceAPIService.getCurrentDeviceReturnValue = currentDevice
+        authService.getPendingLoginRequestResult = .success([request])
+
+        await subject.perform(.loadData)
+
+        let items = try #require(subject.state.loadingState.data)
+        #expect(items.allSatisfy { $0.pendingRequest == nil })
+    }
+
     /// `perform(_:)` sets loading state to empty and reports the error on failure.
     @Test
     func perform_loadData_error() async {

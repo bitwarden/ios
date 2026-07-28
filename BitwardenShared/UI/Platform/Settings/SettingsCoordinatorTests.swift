@@ -151,6 +151,17 @@ class SettingsCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this ty
         XCTAssertEqual(action.embedInNavigationController, true)
     }
 
+    /// `navigate(to:)` with `.deviceManagement` presents the device management view.
+    @MainActor
+    func test_navigateTo_deviceManagement() throws {
+        subject.navigate(to: .deviceManagement)
+
+        let action = try XCTUnwrap(stackNavigator.actions.last)
+        XCTAssertEqual(action.type, .presented)
+        XCTAssertTrue(action.view is DeviceManagementView)
+        XCTAssertEqual(action.embedInNavigationController, true)
+    }
+
     /// `navigate(to:)` with `.didDeleteAccount(otherAccounts:)` calls the delegate method
     /// that performs navigation post-deletion.
     @MainActor
