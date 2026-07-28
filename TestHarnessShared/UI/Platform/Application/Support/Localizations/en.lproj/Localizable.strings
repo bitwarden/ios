@@ -97,9 +97,6 @@
 "UnsupportedCurveReceived" = "The credential's public key curve (%d) is not supported; expected P-256.";
 "UnsupportedKeyTypeReceived" = "The credential's public key type (%d) is not supported; expected EC2.";
 "UnexpectedCredentialTypeReceived" = "Unexpected credential type received.";
-"UnsupportedAlgorithmReceived" = "The credential's public key algorithm (%d) is not supported; expected ES256.";
-"UnsupportedCurveReceived" = "The credential's public key curve (%d) is not supported; expected P-256.";
-"UnsupportedKeyTypeReceived" = "The credential's public key type (%d) is not supported; expected EC2.";
 "Username" = "Username";
 "UserPresenceNotAssertedExplanationLong" = "The authenticator data's flags byte did not have the \"user present\" bit set.";
 "UserPresenceNotAssertedReceived" = "The authenticator did not assert user presence.";
