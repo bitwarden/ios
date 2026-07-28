@@ -13,6 +13,7 @@ class ViewSendItemProcessorTests: BitwardenTestCase {
     var coordinator: MockCoordinator<SendItemRoute, AuthAction>!
     var errorReporter: MockErrorReporter!
     var pasteboardService: MockPasteboardService!
+    var policyService: MockPolicyService!
     var sendRepository: MockSendRepository!
     var subject: ViewSendItemProcessor!
 
@@ -24,6 +25,7 @@ class ViewSendItemProcessorTests: BitwardenTestCase {
         coordinator = MockCoordinator()
         errorReporter = MockErrorReporter()
         pasteboardService = MockPasteboardService()
+        policyService = MockPolicyService()
         sendRepository = MockSendRepository()
 
         subject = ViewSendItemProcessor(
@@ -31,6 +33,7 @@ class ViewSendItemProcessorTests: BitwardenTestCase {
             services: ServiceContainer.withMocks(
                 errorReporter: errorReporter,
                 pasteboardService: pasteboardService,
+                policyService: policyService,
                 sendRepository: sendRepository,
             ),
             state: ViewSendItemState(sendView: .fixture()),
@@ -43,6 +46,7 @@ class ViewSendItemProcessorTests: BitwardenTestCase {
         coordinator = nil
         errorReporter = nil
         pasteboardService = nil
+        policyService = nil
         sendRepository = nil
         subject = nil
     }
@@ -91,6 +95,14 @@ class ViewSendItemProcessorTests: BitwardenTestCase {
 
         XCTAssertEqual(coordinator.loadingOverlaysShown.last?.title, Localizations.deleting)
         XCTAssertEqual(coordinator.routes.last, .deleted)
+    }
+
+    /// `perform(_:)` with `loadData` loads the Send policy options for the view.
+    @MainActor
+    func test_perform_loadData_sendPolicyOptions() async {
+        policyService.getSendPolicyOptionsResult.enforcedSendType = .file
+        await subject.perform(.loadData)
+        XCTAssertEqual(subject.state.sendPolicyOptions.enforcedSendType, .file)
     }
 
     /// `perform(_:)` with `loadData` loads the share URL for the view.
@@ -196,6 +208,18 @@ class ViewSendItemProcessorTests: BitwardenTestCase {
         subject.receive(.editItem)
 
         XCTAssertEqual(coordinator.routes.last, .edit(subject.state.sendView))
+    }
+
+    /// `receive(_:)` with `.makeCopy` navigates to the add item route pre-filled with a copy of the
+    /// send's details.
+    @MainActor
+    func test_receive_makeCopy() {
+        let sendView = SendView.fixture()
+        subject.state = ViewSendItemState(sendView: sendView)
+
+        subject.receive(.makeCopy)
+
+        XCTAssertEqual(coordinator.routes.last, .add(content: .copy(sendView)))
     }
 
     /// `receive(_:)` with `.shareSend` navigates to the share route.

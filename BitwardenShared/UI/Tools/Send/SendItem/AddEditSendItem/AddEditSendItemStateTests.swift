@@ -418,6 +418,49 @@ class AddEditSendItemStateTests: BitwardenTestCase { // swiftlint:disable:this t
         XCTAssertEqual(subject.accessType, .anyoneWithPassword)
     }
 
+    // MARK: init(copyingFrom:) Tests
+
+    /// `init(copyingFrom:)` sets `.add` mode and omits the id, access id, and key so saving creates
+    /// a new Send rather than updating the original.
+    func test_init_copyingFrom_addMode() {
+        let sendView = SendView.fixture(id: "original-id", accessId: "original-access-id", key: "original-key")
+        let subject = AddEditSendItemState(copyingFrom: sendView)
+
+        XCTAssertEqual(subject.mode, .add)
+        XCTAssertNil(subject.id)
+        XCTAssertNil(subject.accessId)
+        XCTAssertNil(subject.key)
+        XCTAssertNil(subject.originalSendView)
+    }
+
+    /// `init(copyingFrom:)` copies the name, notes, text, hide-email, and recipient emails from the
+    /// original Send.
+    func test_init_copyingFrom_copiesFields() {
+        let sendView = SendView.fixture(
+            name: "Original name",
+            notes: "Some notes",
+            text: .fixture(hidden: true, text: "Some text"),
+            hideEmail: true,
+            emails: ["test@example.com"],
+        )
+        let subject = AddEditSendItemState(copyingFrom: sendView)
+
+        XCTAssertEqual(subject.name, "Original name")
+        XCTAssertEqual(subject.notes, "Some notes")
+        XCTAssertEqual(subject.text, "Some text")
+        XCTAssertTrue(subject.isHideTextByDefaultOn)
+        XCTAssertTrue(subject.isHideMyEmailOn)
+        XCTAssertEqual(subject.recipientEmails, ["test@example.com"])
+    }
+
+    /// `init(copyingFrom:)` sets access type to "Anyone with password" when the original Send has a
+    /// password.
+    func test_init_copyingFrom_withPassword_setsAnyoneWithPassword() {
+        let sendView = SendView.fixture(hasPassword: true, authType: .none)
+        let subject = AddEditSendItemState(copyingFrom: sendView)
+        XCTAssertEqual(subject.accessType, .anyoneWithPassword)
+    }
+
     // MARK: shouldShowHideEmailField
 
     /// `shouldShowHideEmailField` is `true` when the hide-email option is not disabled by policy,
