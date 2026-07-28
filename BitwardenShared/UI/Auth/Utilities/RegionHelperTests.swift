@@ -129,7 +129,24 @@ class RegionHelperTests: BitwardenTestCase {
 
         let alert = try XCTUnwrap(coordinator.alertShown.last)
         let actionTitles = alert.alertActions.map(\.title)
-        XCTAssertEqual(actionTitles, ["bitwarden.com", "bitwarden.eu", "bitwarden-gov.com", Localizations.selfHosted, Localizations.cancel])
+        XCTAssertEqual(
+            actionTitles,
+            ["bitwarden.com", "bitwarden.eu", "bitwarden-gov.com", Localizations.selfHosted, Localizations.cancel],
+        )
+    }
+
+    /// `presentRegionSelectorAlert(title:currentRegion:excludingRegions:)` omits excluded regions.
+    @MainActor
+    func test_presentRegionSelectorAlert_excludingRegions() async throws {
+        await subject.presentRegionSelectorAlert(
+            title: Localizations.creatingOn,
+            currentRegion: .unitedStates,
+            excludingRegions: [.gov],
+        )
+
+        let alert = try XCTUnwrap(coordinator.alertShown.last)
+        XCTAssertEqual(alert.alertActions.count, 4) // US + EU + Self-Hosted + Cancel
+        XCTAssertNil(alert.alertActions.first(where: { $0.title == "bitwarden-gov.com" }))
     }
 
     /// `loadRegion()` with pre auth region as nil default to us
