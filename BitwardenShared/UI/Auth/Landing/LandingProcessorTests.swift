@@ -649,15 +649,81 @@ class LandingProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_
 
         await subject.perform(.regionPressed)
         alert = try XCTUnwrap(coordinator.alertShown.last)
+        XCTAssertEqual(alert.alertActions[2].title, Localizations.selfHosted)
+        try await alert.tapAction(title: Localizations.selfHosted)
+        XCTAssertEqual(coordinator.routes.last, .selfHosted(currentRegion: .europe))
+    }
+
+    /// `perform(_:)` with `.regionPressed` includes Gov when `fedrampGovRegion` is enabled
+    /// and the cached config matches the current region.
+    @MainActor
+    func test_perform_regionPressed_fedrampGovRegionEnabled() async throws {
+        stateService.preAuthEnvironmentURLs = .defaultUS
+        configService.configMocker.withResult(
+            ServerConfig(
+                date: Date(),
+                responseModel: ConfigResponseModel(
+                    communication: nil,
+                    environment: EnvironmentServerConfigResponseModel(
+                        api: nil,
+                        cloudRegion: nil,
+                        fillAssistRules: nil,
+                        identity: nil,
+                        notifications: nil,
+                        sso: nil,
+                        vault: "https://vault.bitwarden.com",
+                    ),
+                    featureStates: [:],
+                    gitHash: nil,
+                    server: nil,
+                    version: "2025.1.0",
+                ),
+            ),
+        )
+        configService.featureFlagsBoolPreAuth[.fedrampGovRegion] = true
+
+        await subject.perform(.regionPressed)
+
+        let alert = try XCTUnwrap(coordinator.alertShown.last)
+        XCTAssertEqual(alert.alertActions.count, 5)
         XCTAssertEqual(alert.alertActions[2].title, "bitwarden-gov.com")
         try await alert.tapAction(title: "bitwarden-gov.com")
         XCTAssertEqual(subject.state.region, .gov)
+    }
+
+    /// `perform(_:)` with `.regionPressed` excludes Gov when `fedrampGovRegion` is enabled
+    /// but the cached config belongs to a different region (stale cache).
+    @MainActor
+    func test_perform_regionPressed_fedrampGovRegionEnabled_staleConfig() async throws {
+        stateService.preAuthEnvironmentURLs = .defaultUS
+        configService.configMocker.withResult(
+            ServerConfig(
+                date: Date(),
+                responseModel: ConfigResponseModel(
+                    communication: nil,
+                    environment: EnvironmentServerConfigResponseModel(
+                        api: nil,
+                        cloudRegion: nil,
+                        fillAssistRules: nil,
+                        identity: nil,
+                        notifications: nil,
+                        sso: nil,
+                        vault: "https://vault.bitwarden.eu",
+                    ),
+                    featureStates: [:],
+                    gitHash: nil,
+                    server: nil,
+                    version: "2025.1.0",
+                ),
+            ),
+        )
+        configService.featureFlagsBoolPreAuth[.fedrampGovRegion] = true
 
         await subject.perform(.regionPressed)
-        alert = try XCTUnwrap(coordinator.alertShown.last)
-        XCTAssertEqual(alert.alertActions[3].title, Localizations.selfHosted)
-        try await alert.tapAction(title: Localizations.selfHosted)
-        XCTAssertEqual(coordinator.routes.last, .selfHosted(currentRegion: .gov))
+
+        let alert = try XCTUnwrap(coordinator.alertShown.last)
+        XCTAssertEqual(alert.alertActions.count, 4)
+        XCTAssertNil(alert.alertActions.first(where: { $0.title == "bitwarden-gov.com" }))
     }
 
     /// `perform(_:)` with `.regionPressed` includes Gov when `fedrampGovRegion` is enabled
