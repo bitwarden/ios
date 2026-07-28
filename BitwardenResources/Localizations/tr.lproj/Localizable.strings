@@ -571,6 +571,8 @@
 "RequestAdminApproval" = "Yönetici onayı iste";
 "ApproveWithMasterPassword" = "Ana parola ile onayla";
 "TurnOffUsingPublicDevice" = "Paylaşılan bir cihaz kullanıyorsanız işaretlemeyin";
+"TurnOnFillAssist" = "Doldurma yardımcısını etkinleştir";
+"TurnOnFillAssistDescriptionLong" = "Doldurma yardımcısı, desteklenen sitelere özel kurallarla otomatik doldurma netliğini artırır.";
 "RememberThisDevice" = "Bu cihazı hatırla";
 "Passkey" = "Geçiş anahtarı";
 "Passkeys" = "Geçiş anahtarları";
@@ -1097,12 +1099,37 @@
 "YourSubscriptionExpiredOnXDescriptionLong" = "Aboneliğiniz **%1$@** tarihinde bitti. Aboneliğinizi yenileyerek Premium özellikleri kullanmaya devam edebilirsiniz.";
 "YourSubscriptionIsScheduledToCancelOnXDescriptionLong" = "Aboneliğinin %1$@ tarihinde iptal edilmesi planlanıyor. Bu tarihten önce istediğin zaman yeniden etkinleştirebilirsin.";
 "PerMonth" = "/ ay";
+/* VoiceOver reading of "PerMonth", spoken instead of shown. */
+"PerMonthVoiceOver" = "aylık";
 "PerYear" = "/ yıl";
+/* VoiceOver reading of "PerYear", spoken instead of shown. */
+"PerYearVoiceOver" = "yıllık";
 "XAmountPerCadence" = "%1$@ %2$@";
+/* %1$@ is an amount and cadence together, e.g. "$1.65 / month". */
+"XCancelAnytime" = "%1$@ · Cancel anytime";
+/* VoiceOver reading of "XCancelAnytime", spoken instead of shown. */
+"XCancelAnytimeVoiceOver" = "%1$@, Cancel anytime";
 "NegativeX" = "-%1$@";
 "UnknownStatus" = "Bilinmiyor";
 "YourSubscriptionStatusIsUnknownVisitTheWebAppDescriptionLong" = "Abonelik durumun belirlenemiyor. Lütfen uygulamanın web sayfasına giderek daha fazla bilgiye ulaşabilirsiniz ya da uygulamayı en son sürüme güncelleyebilirsiniz.";
-"UnlockMoreAdvancedFeaturesWithPremiumPlan" = "Premium plan ile daha fazla gelişmiş özellikleri aç.";
+/* Headline on the Premium upgrade screen. */
+"UnlockAdvancedProtection" = "Unlock advanced protection";
+/* Premium benefit list item. */
+"BreezeThrough2faWithBuiltInCodes" = "Breeze through 2FA with built-in codes";
+/* Premium benefit list item. */
+"RunReportsToFindRiskyPasswords" = "Run reports to find risky passwords";
+/* Premium benefit list item. */
+"KeepDocumentsSafeAndEncrypted" = "Keep documents safe and encrypted";
+/* Premium benefit list item. */
+"AddATrustedEmergencyContact" = "Add a trusted emergency contact";
+/* Premium benefit list item. */
+"IdentifyUnsecureWebsites" = "Identify unsecure websites";
+/* Premium benefit list item. */
+"FlagAccountsWithInactive2fa" = "Flag accounts with inactive 2FA";
+/* Premium benefit list item; "Send" is the Bitwarden Send feature name and shouldn't be translated. */
+"ShareFilesSecurelyWithAnyoneUsingSend" = "Share files securely with anyone using Send";
+/* Premium benefit list item. */
+"Receive247PrioritySupport" = "Receive 24/7 priority support";
 "BuiltInAuthenticator" = "Dahili kimlik doğrulayıcı";
 "EmergencyAccess" = "Acil durum erişimi";
 "PaymentNotReceivedYet" = "Ödeme henüz alınmadı";
@@ -1111,7 +1138,6 @@
 "WeHadTroubleOpeningThePaymentPageDescriptionLong" = "Ödeme sayfasını açarken bir sorunla karşılaştık, tekrardan deneyin.";
 "SecureFileStorage" = "Güvenli dosya depolama";
 "BreachMonitoring" = "İhlal izleme";
-"UpgradeNow" = "Şimdi yükselt";
 "ConfirmingYourUpgrade" = "Geliştirmen onaylanıyor…";
 "OpeningCheckout" = "Ödeme açılıyor...";
 "UpgradePending" = "Yükseltme beklemede";
@@ -1122,7 +1148,8 @@
 "ViewPlan" = "Paketi göster";
 "YouNowHaveAccessToAdvancedSecurityDescriptionLong" = "Artık tüm gelişmiş güvenlik özelliklerine ulaşabilirsiniz. Premium pakete nelerin dahil olduğunu öğrenin.";
 "YouNowHaveAccessToAllAdvancedSecurityFeatures" = "Artık tüm gelişmiş güvenlik özelliklerine ulaşabilirsiniz.";
-"YoullGoToStripeSecureCheckoutToCompleteYourPurchase" = "Ödemeni tamamlamak için Stripe'ın güvenli ödeme sayfasına yönlendiriliceksin.";
+/* Footer on the Premium upgrade screen; "Stripe" is the payment processor's name and shouldn't be translated. */
+"YoullCompleteThePurchaseWithStripeSecureCheckout" = "You'll complete the purchase with Stripe secure checkout.";
 "ContinueToStripe" = "Stripe'a devam edilsin mi?";
 "YoullBeTakenToStripeToManageYourSubscriptionCancellation" = "Abonelik iptalini yönetmek için Stripe'a yönlendiriliceksin";
 "UserIDCopiedToTheClipboard" = "Kullanıcı kimliği panoya kopyalandı";
@@ -1171,4 +1198,7 @@
 "LineOfCredit" = "Kredi limiti";
 "MoneyMarket" = "Para piyasası";
 "Savings" = "Mevduat";
+/* Accessibility label for the button that clears a field's value. %1$@ is the field's title (e.g. "Date of birth"), so the spoken label reads "Clear Date of birth". */
+"ClearFieldName" = "%1$@ alanını temizle";
+"SelectDate" = "Tarih seçin";
 "PremiumRequiredTOTPDescriptionLong" = "Kimlik doğrulama anahtarı (TOTP) premium bir özelliktir. Mevcut paketiniz bu özelliği içermiyor.";
