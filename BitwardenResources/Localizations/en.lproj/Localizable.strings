@@ -839,7 +839,6 @@
 "CannotDeleteUserSoleOwnerDescriptionLong" = "Cannot delete this user because it is the sole owner of at least one organization. Please delete these organizations or upgrade another user.";
 "APasskeyAlreadyExistsForThisApplication" = "A passkey already exists for this application.";
 "APasskeyAlreadyExistsForThisApplicationButAnErrorOccurredWhileLoadingIt" = "A passkey already exists for this application but an error occurred while loading it.";
-"APasskeyAlreadyExistsCancelingWillLetTheSiteKnowDescriptionLong" = "A passkey already exists for this application. Canceling will let the site know so it can offer another way to sign in.";
 "ItemNameRequired" = "Item name (required)";
 "AutofillOptions" = "Autofill options";
 "WebsiteURI" = "Website (URI)";
