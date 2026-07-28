@@ -143,6 +143,7 @@ final class DeviceManagementProcessor: StateProcessor<
             // extension variants that both map to "Chrome") can match distinct devices.
             if let index = updatedDevices.firstIndex(where: { device in
                 device.pendingRequest == nil &&
+                    !device.isCurrentSession &&
                     !device.deviceType.platform.isEmpty &&
                     device.deviceType.platform.caseInsensitiveCompare(request.requestDeviceType) == .orderedSame
             }) {
