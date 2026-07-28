@@ -116,7 +116,9 @@ class UsePasskeyProcessor: StateProcessor<
     override func receive(_ action: UsePasskeyAction) {
         switch action {
         case let .helpSheetPresentedChanged(newValue): state.isHelpSheetPresented = newValue
-        case let .rpIdChanged(newValue): state.rpId = newValue
+        case let .rpIdChanged(newValue):
+            state.rpId = newValue
+            state.status = .idle
         }
     }
 

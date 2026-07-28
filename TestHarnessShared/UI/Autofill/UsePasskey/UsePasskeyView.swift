@@ -55,6 +55,7 @@ struct UsePasskeyView: View {
                     send: UsePasskeyAction.rpIdChanged,
                 ),
             )
+            .accessibilityIdentifier("RelyingPartyIdEntry")
             .textContentType(.URL)
             .textInputAutocapitalization(.never)
             .autocorrectionDisabled()
@@ -76,6 +77,7 @@ struct UsePasskeyView: View {
                     }
                 }
             }
+            .accessibilityIdentifier("SignInWithPasskeyButton")
             .disabled(store.state.status == .inProgress || store.state.rpId.isEmpty)
         }
     }
