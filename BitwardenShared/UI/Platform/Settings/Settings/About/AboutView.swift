@@ -78,7 +78,7 @@ struct AboutView: View {
 
             externalLinkRow(Localizations.privacyPolicy, action: .privacyPolicyTapped)
 
-            externalLinkRow(Localizations.bitwardenWebVault, action: .webVaultTapped)
+            externalLinkRow(Localizations.webVault, action: .webVaultTapped)
 
             externalLinkRow(Localizations.learnOrg, action: .learnAboutOrganizationsTapped)
 

@@ -18,7 +18,7 @@ struct DeviceTypeCategoryTests {
         (DeviceTypeCategory.sdk, Localizations.sdk),
         (DeviceTypeCategory.server, Localizations.server),
         (DeviceTypeCategory.unknown, Localizations.unknown),
-        (DeviceTypeCategory.webApp, Localizations.webVault),
+        (DeviceTypeCategory.webApp, Localizations.webVault2),
     ])
     func displayName(category: DeviceTypeCategory, expected: String) {
         #expect(category.displayName == expected)
