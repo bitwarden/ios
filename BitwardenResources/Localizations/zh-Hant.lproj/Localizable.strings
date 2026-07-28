@@ -571,6 +571,8 @@
 "RequestAdminApproval" = "要求管理員核准";
 "ApproveWithMasterPassword" = "使用主密碼核准";
 "TurnOffUsingPublicDevice" = "使用公用裝置來關閉";
+"TurnOnFillAssist" = "Turn on fill assist";
+"TurnOnFillAssistDescriptionLong" = "Fill Assist improves autofill accuracy on supported sites by using site-specific rules.";
 "RememberThisDevice" = "記住這個裝置";
 "Passkey" = "密碼金鑰";
 "Passkeys" = "密碼金鑰";
@@ -1098,12 +1100,37 @@
 "YourSubscriptionExpiredOnXDescriptionLong" = "您的訂閱已於 **%1$@** 到期。重新訂閱以繼續使用 Premium 功能。";
 "YourSubscriptionIsScheduledToCancelOnXDescriptionLong" = "您的訂閱預計將於 **%1$@** 取消。在此之前，您隨時都可以恢復訂閱。";
 "PerMonth" = "/ 月";
+/* VoiceOver reading of "PerMonth", spoken instead of shown. */
+"PerMonthVoiceOver" = "per month";
 "PerYear" = "/ 年";
+/* VoiceOver reading of "PerYear", spoken instead of shown. */
+"PerYearVoiceOver" = "per year";
 "XAmountPerCadence" = "%1$@ %2$@";
+/* %1$@ is an amount and cadence together, e.g. "$1.65 / month". */
+"XCancelAnytime" = "%1$@ · Cancel anytime";
+/* VoiceOver reading of "XCancelAnytime", spoken instead of shown. */
+"XCancelAnytimeVoiceOver" = "%1$@, Cancel anytime";
 "NegativeX" = "-%1$@";
 "UnknownStatus" = "不詳";
 "YourSubscriptionStatusIsUnknownVisitTheWebAppDescriptionLong" = "無法判斷您的訂閱狀態。請前往網頁版查看詳細資訊，或更新至最新版本。";
-"UnlockMoreAdvancedFeaturesWithPremiumPlan" = "透過 Premium 方案解鎖更多進階功能。";
+/* Headline on the Premium upgrade screen. */
+"UnlockAdvancedProtection" = "Unlock advanced protection";
+/* Premium benefit list item. */
+"BreezeThrough2faWithBuiltInCodes" = "Breeze through 2FA with built-in codes";
+/* Premium benefit list item. */
+"RunReportsToFindRiskyPasswords" = "Run reports to find risky passwords";
+/* Premium benefit list item. */
+"KeepDocumentsSafeAndEncrypted" = "Keep documents safe and encrypted";
+/* Premium benefit list item. */
+"AddATrustedEmergencyContact" = "Add a trusted emergency contact";
+/* Premium benefit list item. */
+"IdentifyUnsecureWebsites" = "Identify unsecure websites";
+/* Premium benefit list item. */
+"FlagAccountsWithInactive2fa" = "Flag accounts with inactive 2FA";
+/* Premium benefit list item; "Send" is the Bitwarden Send feature name and shouldn't be translated. */
+"ShareFilesSecurelyWithAnyoneUsingSend" = "Share files securely with anyone using Send";
+/* Premium benefit list item. */
+"Receive247PrioritySupport" = "Receive 24/7 priority support";
 "BuiltInAuthenticator" = "內建驗證器";
 "EmergencyAccess" = "緊急存取";
 "PaymentNotReceivedYet" = "尚未收到付款";
@@ -1112,7 +1139,6 @@
 "WeHadTroubleOpeningThePaymentPageDescriptionLong" = "開啟付款頁面時發生問題，請再試一次。";
 "SecureFileStorage" = "安全檔案儲存";
 "BreachMonitoring" = "外洩監控";
-"UpgradeNow" = "立即升級";
 "ConfirmingYourUpgrade" = "正在確認您的升級…";
 "OpeningCheckout" = "正在開啟結帳頁面…";
 "UpgradePending" = "升級處理中";
@@ -1123,7 +1149,8 @@
 "ViewPlan" = "查看方案";
 "YouNowHaveAccessToAdvancedSecurityDescriptionLong" = "您現在可以使用進階安全功能。深入了解 Premium 包含的內容。";
 "YouNowHaveAccessToAllAdvancedSecurityFeatures" = "您現在可以使用所有進階安全功能。";
-"YoullGoToStripeSecureCheckoutToCompleteYourPurchase" = "您將前往 Stripe 的安全結帳頁面完成購買。";
+/* Footer on the Premium upgrade screen; "Stripe" is the payment processor's name and shouldn't be translated. */
+"YoullCompleteThePurchaseWithStripeSecureCheckout" = "You'll complete the purchase with Stripe secure checkout.";
 "ContinueToStripe" = "要前往 Stripe 嗎？";
 "YoullBeTakenToStripeToManageYourSubscriptionCancellation" = "您將前往 Stripe 管理您的訂閱取消事宜。";
 "UserIDCopiedToTheClipboard" = "使用者 ID 已複製到剪貼簿";
@@ -1172,4 +1199,7 @@
 "LineOfCredit" = "信用額度";
 "MoneyMarket" = "貨幣市場帳戶";
 "Savings" = "儲蓄帳戶";
+/* Accessibility label for the button that clears a field's value. %1$@ is the field's title (e.g. "Date of birth"), so the spoken label reads "Clear Date of birth". */
+"ClearFieldName" = "Clear %1$@";
+"SelectDate" = "Select date";
 "PremiumRequiredTOTPDescriptionLong" = "驗證器金鑰（TOTP）為 Premium 功能。您目前的方案未包含此功能。";

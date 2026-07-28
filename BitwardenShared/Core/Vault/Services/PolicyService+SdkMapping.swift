@@ -80,6 +80,7 @@ extension BitwardenSdk.PolicyType {
         case .masterPassword: self = .masterPassword
         case .maximumVaultTimeout: self = .maximumVaultTimeout
         case .onlyOrg: self = .singleOrg
+        case .organizationUserNotification: self = .organizationUserNotification
         case .passwordGenerator: self = .passwordGenerator
         case .personalOwnership: self = .organizationDataOwnership
         case .removeUnlockWithPin: self = .removeUnlockWithPin
@@ -89,8 +90,6 @@ extension BitwardenSdk.PolicyType {
         case .sendControls: self = .sendControls
         case .sendOptions: self = .sendOptions
         case .twoFactorAuthentication: self = .twoFactorAuthentication
-        // TODO: PM-39144 Add SDK mapping for `organizationUserNotification` PolicyType
-        case .organizationUserNotification: return nil
         case .unknown: return nil
         }
     }
