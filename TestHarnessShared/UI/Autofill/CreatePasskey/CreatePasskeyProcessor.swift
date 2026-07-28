@@ -203,7 +203,7 @@ enum PasskeyRegistrationError: Error, LocalizedError {
     var errorDescription: String? {
         switch self {
         case .challengeMismatch:
-            Localizations.malformedClientDataChallengeReceived
+            Localizations.challengeMismatchReceived
         case .missingAttestationObject:
             Localizations.missingAttestationObjectReceived
         case let .unexpectedClientDataType(type):
