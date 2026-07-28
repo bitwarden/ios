@@ -351,12 +351,12 @@ extension SearchableVaultListView {
                 message: data.description,
                 actionButtonState: data.buttonText.map { text in
                     ActionCard.ButtonState(title: text) {
-                        await store.perform(.dismissOrganizationBanner)
+                        await store.perform(.dismissOrganizationBanner(fromActionButton: true))
                     }
                 },
                 dismissButtonState: data.buttonText == nil
                     ? ActionCard.ButtonState(title: Localizations.dismiss) {
-                        await store.perform(.dismissOrganizationBanner)
+                        await store.perform(.dismissOrganizationBanner(fromActionButton: false))
                     }
                     : nil,
             ) {

@@ -6,6 +6,8 @@ import Testing
 @testable import BitwardenShared
 @testable import BitwardenSharedMocks
 
+// swiftlint:disable file_length
+
 // MARK: - PremiumPlanStateTests
 
 struct PremiumPlanStateTests { // swiftlint:disable:this type_body_length
@@ -30,6 +32,25 @@ struct PremiumPlanStateTests { // swiftlint:disable:this type_body_length
     func billingAmount_nil() {
         let state = PremiumPlanState()
         #expect(state.billingAmount.isEmpty)
+    }
+
+    // MARK: Tests - billingAmountAccessibilityLabel
+
+    /// `billingAmountAccessibilityLabel` returns the formatted seat cost with a VoiceOver-friendly
+    /// cadence label instead of the raw "/" character.
+    @Test
+    func billingAmountAccessibilityLabel() {
+        var state = PremiumPlanState()
+        state.loadingState = .data(.fixture(seatsCost: 19.8))
+        #expect(state.billingAmountAccessibilityLabel.contains("$19.80"))
+        #expect(state.billingAmountAccessibilityLabel.contains(Localizations.perYearVoiceOver))
+    }
+
+    /// `billingAmountAccessibilityLabel` returns empty when subscription is nil.
+    @Test
+    func billingAmountAccessibilityLabel_nil() {
+        let state = PremiumPlanState()
+        #expect(state.billingAmountAccessibilityLabel.isEmpty)
     }
 
     // MARK: Tests - descriptionAccessibilityLabel
@@ -383,5 +404,30 @@ struct PremiumPlanStateTests { // swiftlint:disable:this type_body_length
     func totalLabel_nil() {
         let state = PremiumPlanState()
         #expect(state.totalLabel.isEmpty)
+    }
+
+    // MARK: Tests - totalAccessibilityLabel
+
+    /// `totalAccessibilityLabel` returns the formatted total with a VoiceOver-friendly
+    /// cadence label instead of the raw "/" character.
+    @Test
+    func totalAccessibilityLabel() {
+        var state = PremiumPlanState()
+        state.loadingState = .data(.fixture(
+            cadence: .annually,
+            discount: 0,
+            estimatedTax: 4.55,
+            seatsCost: 19.80,
+            storageCost: 1.20,
+        ))
+        #expect(state.totalAccessibilityLabel.contains("$25.55"))
+        #expect(state.totalAccessibilityLabel.contains(Localizations.perYearVoiceOver))
+    }
+
+    /// `totalAccessibilityLabel` returns empty when subscription is nil.
+    @Test
+    func totalAccessibilityLabel_nil() {
+        let state = PremiumPlanState()
+        #expect(state.totalAccessibilityLabel.isEmpty)
     }
 }

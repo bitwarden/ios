@@ -454,7 +454,7 @@
 "YourAccountHasBeenPermanentlyDeleted" = "Il tuo account è stato eliminato definitivamente";
 "InvalidVerificationCode" = "Codice di verifica non valido";
 "SendCode" = "Invia codice";
-"SendingCode" = "Invio codice in corso...";
+"SendingCode" = "Invio codice in corso…";
 "Verifying" = "Verifica";
 "ResendCode" = "Invia codice di nuovo";
 "EnterTheVerificationCodeThatWasSentToYourEmail" = "Inserisci il codice di verifica che è stato inviato alla tua email";
@@ -571,6 +571,8 @@
 "RequestAdminApproval" = "Richiedi approvazione dell'amministratore";
 "ApproveWithMasterPassword" = "Approva con password principale";
 "TurnOffUsingPublicDevice" = "Deseleziona se stai usando un dispositivo pubblico";
+"TurnOnFillAssist" = "Turn on fill assist";
+"TurnOnFillAssistDescriptionLong" = "Fill Assist improves autofill accuracy on supported sites by using site-specific rules.";
 "RememberThisDevice" = "Ricorda questo dispositivo";
 "Passkey" = "Passkey";
 "Passkeys" = "Passkey";
@@ -810,7 +812,7 @@
 "YouMayNeedToEnableDevicePasscodeOrBiometrics" = "Potrebbe essere necessario abilitare il codice di accesso del dispositivo o l'autenticazione biometrica.";
 "StartImportCXFDescriptionLong" = "Importa parole d'accesso, chiavi d'accesso, carte di credito e qualsiasi informazione di identità personale da un altro gestore di credenziali.\n\nI tuoi dati **non** saranno cancellati dal tuo fornitore precedente.";
 "ImportPasswords" = "Importa password";
-"ImportingEllipsis" = "Importazione...";
+"ImportingEllipsis" = "Importazione…";
 "AreYouSureYouWantToCancelTheImportProcessQuestionMark" = "Vuoi davvero annullare il processo di importazione?";
 "ImportFailed" = "Importazione fallita";
 "ThereWasAnIssueImportingAllOfYourPasswordsNoDataWasDeleted" = "Si è verificato un problema durante l'importazione delle tue password.\n\nNessun dato è stato eliminato.";
@@ -1078,6 +1080,7 @@
 "Canceled" = "Cancellato";
 "PastDue" = "Scaduto";
 "PendingCancellation" = "Pending cancellation";
+"Unpaid" = "Unpaid";
 "UpdatePayment" = "Aggiorna pagamento";
 "BillingAmount" = "Quantità di fattura";
 "StorageCost" = "Costo per immagazzinamento";
@@ -1092,15 +1095,41 @@
 /* Error message shown when the Premium Plan screen fails to load subscription data, with a prompt to retry. */
 "WeCouldntLoadYourSubscriptionDetailsPleaseRetry" = "We couldn't load your subscription details. Please try again.";
 "YourSubscriptionWasCanceledOnXDescriptionLong" = "Il tuo abbonamento è stato cancellato il **%1$@**. Riscriverti per continuare a usare funzionalità premium.";
+"YourSubscriptionWasSuspendedOnXDescriptionLong" = "Your subscription was suspended on **%1$@**. To reactivate, please resolve your past due invoices.";
 "YourSubscriptionExpiredOnXDescriptionLong" = "Il tuo abbonamento è finito il **%1$@**. Reiscriviti per continuare a usare funzionalità premium.";
 "YourSubscriptionIsScheduledToCancelOnXDescriptionLong" = "Il tuo abbonamento è pianificata per cancellazione il **%1$@**. Puoi reiscriverti a ogni momento prima di allora.";
 "PerMonth" = "/ month";
+/* VoiceOver reading of "PerMonth", spoken instead of shown. */
+"PerMonthVoiceOver" = "per month";
 "PerYear" = "/ anno";
+/* VoiceOver reading of "PerYear", spoken instead of shown. */
+"PerYearVoiceOver" = "per year";
 "XAmountPerCadence" = "%1$@ %2$@";
+/* %1$@ is an amount and cadence together, e.g. "$1.65 / month". */
+"XCancelAnytime" = "%1$@ · Cancel anytime";
+/* VoiceOver reading of "XCancelAnytime", spoken instead of shown. */
+"XCancelAnytimeVoiceOver" = "%1$@, Cancel anytime";
 "NegativeX" = "-%1$@";
 "UnknownStatus" = "Sconosciuto";
 "YourSubscriptionStatusIsUnknownVisitTheWebAppDescriptionLong" = "Lo stato dell tuo abbonamento non può essere determinato. Per favore visita il sito web per più informazioni o aggiorna alla versione più nuova.";
-"UnlockMoreAdvancedFeaturesWithPremiumPlan" = "Unlock more advanced features with a Premium plan.";
+/* Headline on the Premium upgrade screen. */
+"UnlockAdvancedProtection" = "Unlock advanced protection";
+/* Premium benefit list item. */
+"BreezeThrough2faWithBuiltInCodes" = "Breeze through 2FA with built-in codes";
+/* Premium benefit list item. */
+"RunReportsToFindRiskyPasswords" = "Run reports to find risky passwords";
+/* Premium benefit list item. */
+"KeepDocumentsSafeAndEncrypted" = "Keep documents safe and encrypted";
+/* Premium benefit list item. */
+"AddATrustedEmergencyContact" = "Add a trusted emergency contact";
+/* Premium benefit list item. */
+"IdentifyUnsecureWebsites" = "Identify unsecure websites";
+/* Premium benefit list item. */
+"FlagAccountsWithInactive2fa" = "Flag accounts with inactive 2FA";
+/* Premium benefit list item; "Send" is the Bitwarden Send feature name and shouldn't be translated. */
+"ShareFilesSecurelyWithAnyoneUsingSend" = "Share files securely with anyone using Send";
+/* Premium benefit list item. */
+"Receive247PrioritySupport" = "Receive 24/7 priority support";
 "BuiltInAuthenticator" = "Built-in authenticator";
 "EmergencyAccess" = "Emergency access";
 "PaymentNotReceivedYet" = "Payment not received yet";
@@ -1109,7 +1138,6 @@
 "WeHadTroubleOpeningThePaymentPageDescriptionLong" = "We had trouble opening the payment page, so try again.";
 "SecureFileStorage" = "Secure file storage";
 "BreachMonitoring" = "Breach monitoring";
-"UpgradeNow" = "Upgrade now";
 "ConfirmingYourUpgrade" = "Confirming your upgrade…";
 "OpeningCheckout" = "Opening checkout…";
 "UpgradePending" = "Upgrade pending";
@@ -1120,7 +1148,8 @@
 "ViewPlan" = "View plan";
 "YouNowHaveAccessToAdvancedSecurityDescriptionLong" = "You now have access to advanced security features. Learn more about what's included with Premium.";
 "YouNowHaveAccessToAllAdvancedSecurityFeatures" = "You now have access to all advanced security features.";
-"YoullGoToStripeSecureCheckoutToCompleteYourPurchase" = "You´ll go to Stripe´s secure checkout to complete your purchase.";
+/* Footer on the Premium upgrade screen; "Stripe" is the payment processor's name and shouldn't be translated. */
+"YoullCompleteThePurchaseWithStripeSecureCheckout" = "You'll complete the purchase with Stripe secure checkout.";
 "ContinueToStripe" = "Continue to Stripe?";
 "YoullBeTakenToStripeToManageYourSubscriptionCancellation" = "You'll be taken to Stripe to manage your subscription cancellation.";
 "UserIDCopiedToTheClipboard" = "User ID copied to the clipboard";
@@ -1169,3 +1198,7 @@
 "LineOfCredit" = "Line of credit";
 "MoneyMarket" = "Money market";
 "Savings" = "Savings";
+/* Accessibility label for the button that clears a field's value. %1$@ is the field's title (e.g. "Date of birth"), so the spoken label reads "Clear Date of birth". */
+"ClearFieldName" = "Clear %1$@";
+"SelectDate" = "Select date";
+"PremiumRequiredTOTPDescriptionLong" = "Authenticator key (TOTP) is a Premium feature. Your current plan does not include access to this feature.";
