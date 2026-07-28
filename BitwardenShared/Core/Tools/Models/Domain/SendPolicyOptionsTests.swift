@@ -1,4 +1,5 @@
 import BitwardenKit
+import BitwardenSdk
 import Foundation
 import TestHelpers
 import Testing
@@ -286,5 +287,30 @@ struct SendPolicyOptionsTests {
             ),
         ])
         #expect(subject.enforcedSendType == .text)
+    }
+
+    // MARK: isSendTypeRestricted(for:) Tests
+
+    /// `isSendTypeRestricted(for:)` returns `false` when no Send type is enforced.
+    @Test
+    func isSendTypeRestricted_unrestricted() {
+        let subject = SendPolicyOptions()
+        #expect(!subject.isSendTypeRestricted(for: .fixture(type: .text)))
+    }
+
+    /// `isSendTypeRestricted(for:)` returns `true` when the Send's type doesn't match the enforced
+    /// Send type.
+    @Test
+    func isSendTypeRestricted_mismatch() {
+        let subject = SendPolicyOptions(enforcedSendType: .file)
+        #expect(subject.isSendTypeRestricted(for: .fixture(type: .text)))
+    }
+
+    /// `isSendTypeRestricted(for:)` returns `false` when the Send's type matches the enforced Send
+    /// type.
+    @Test
+    func isSendTypeRestricted_matches() {
+        let subject = SendPolicyOptions(enforcedSendType: .file)
+        #expect(!subject.isSendTypeRestricted(for: .fixture(type: .file)))
     }
 }

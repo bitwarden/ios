@@ -17,6 +17,9 @@ enum ViewSendItemAction: Equatable {
     /// The edit item button was tapped.
     case editItem
 
+    /// The "Make a copy" restriction banner action was tapped.
+    case makeCopy
+
     /// The share button was tapped.
     case shareSend
 

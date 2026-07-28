@@ -426,6 +426,11 @@
 "SendOptionsPolicyInEffect" = "One or more organization policies are affecting your Send options.";
 "SendFilePremiumRequired" = "Free accounts are restricted to sharing text only. A Premium membership is required to use files with Send.";
 "SendFileEmailVerificationRequired" = "You must verify your email to use files with Send. You can verify your email in the web vault.";
+"OrganizationPolicyRestriction" = "Organization policy restriction";
+"TextSendsAreNotAllowedDescriptionLong" = "Text Sends are not allowed for your organization and this Send will automatically expire at the set deletion date.";
+"ThisSendIsNotCompliantDescriptionLong" = "This Send is not compliant with your organization's Send policy and will automatically expire at the set deletion date.";
+"ToEditThisSendMakeACopyDescriptionLong" = "To edit this Send, make a copy. If this Send can expire at the set deletion date, no action is needed.";
+"MakeACopy" = "Make a copy";
 "PasswordPrompt" = "Master password re-prompt";
 "PasswordConfirmation" = "Master password confirmation";
 "PasswordConfirmationDesc" = "This action is protected, to continue please re-enter your master password to verify your identity.";
