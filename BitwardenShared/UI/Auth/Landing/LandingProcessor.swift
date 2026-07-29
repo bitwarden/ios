@@ -73,6 +73,9 @@ class LandingProcessor: StateProcessor<LandingState, LandingAction, LandingEffec
     override func perform(_ effect: LandingEffect) async {
         switch effect {
         case .appeared:
+            if let serverConfig = await currentPreAuthServerConfig() {
+                state.isCreateAccountButtonHidden = serverConfig.settings?.disableUserRegistration == true
+            }
             await regionHelper.loadRegion()
             await refreshProfileState()
         case .continuePressed:
@@ -81,10 +84,8 @@ class LandingProcessor: StateProcessor<LandingState, LandingAction, LandingEffec
         case let .profileSwitcher(profileEffect):
             await handleProfileSwitcherEffect(profileEffect)
         case .regionPressed:
-            let serverConfig = await services.configService.getConfig(forceRefresh: false, isPreAuth: true)
-            let preAuthURLs = await services.stateService.getPreAuthEnvironmentURLs()
             var excludedRegions: [RegionType] = [.gov]
-            if serverConfig?.isCurrentConfig(for: preAuthURLs) == true,
+            if await currentPreAuthServerConfig() != nil,
                await services.configService.getFeatureFlag(.fedrampGovRegion, isPreAuth: true) {
                 excludedRegions = []
             }
@@ -117,6 +118,16 @@ class LandingProcessor: StateProcessor<LandingState, LandingAction, LandingEffec
     }
 
     // MARK: Private Methods
+
+    /// Returns the cached pre-auth server config when its vault host matches the current pre-auth
+    /// environment URLs, or `nil` when no config is available or the config belongs to a different region.
+    ///
+    private func currentPreAuthServerConfig() async -> ServerConfig? {
+        let serverConfig = await services.configService.getConfig(forceRefresh: false, isPreAuth: true)
+        let preAuthURLs = await services.stateService.getPreAuthEnvironmentURLs()
+        guard serverConfig?.isCurrentConfig(for: preAuthURLs) == true else { return nil }
+        return serverConfig
+    }
 
     /// Refreshes the configuration by forcing a refresh from the config service
     /// and loads the latest feature flags.

@@ -102,6 +102,72 @@ class LandingProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_
         XCTAssertNil(environmentService.setPreAuthEnvironmentURLsData)
     }
 
+    /// `perform(.appeared)` seeds `isCreateAccountButtonHidden` from the cached pre-auth config when
+    /// the config's vault host matches the current pre-auth URLs (no network round-trip required).
+    @MainActor
+    func test_perform_appeared_cachedConfig_disableUserRegistration_matchingURLs() async {
+        stateService.preAuthEnvironmentURLs = .defaultUS
+        configService.configMocker.withResult(
+            ServerConfig(
+                date: Date(),
+                responseModel: ConfigResponseModel(
+                    communication: nil,
+                    environment: EnvironmentServerConfigResponseModel(
+                        api: nil,
+                        cloudRegion: nil,
+                        fillAssistRules: nil,
+                        identity: nil,
+                        notifications: nil,
+                        sso: nil,
+                        vault: "https://vault.bitwarden.com",
+                    ),
+                    featureStates: [:],
+                    gitHash: nil,
+                    server: nil,
+                    settings: ServerSettingsResponseModel(disableUserRegistration: true),
+                    version: "2025.1.0",
+                ),
+            ),
+        )
+
+        await subject.perform(.appeared)
+
+        XCTAssertTrue(subject.state.isCreateAccountButtonHidden)
+    }
+
+    /// `perform(.appeared)` ignores a cached pre-auth config whose vault host does not match the
+    /// current pre-auth URLs (stale config from a previously selected region), leaving the button visible.
+    @MainActor
+    func test_perform_appeared_cachedConfig_disableUserRegistration_mismatchedURLs() async {
+        stateService.preAuthEnvironmentURLs = .defaultUS
+        configService.configMocker.withResult(
+            ServerConfig(
+                date: Date(),
+                responseModel: ConfigResponseModel(
+                    communication: nil,
+                    environment: EnvironmentServerConfigResponseModel(
+                        api: nil,
+                        cloudRegion: nil,
+                        fillAssistRules: nil,
+                        identity: nil,
+                        notifications: nil,
+                        sso: nil,
+                        vault: "https://vault.bitwarden.eu",
+                    ),
+                    featureStates: [:],
+                    gitHash: nil,
+                    server: nil,
+                    settings: ServerSettingsResponseModel(disableUserRegistration: true),
+                    version: "2025.1.0",
+                ),
+            ),
+        )
+
+        await subject.perform(.appeared)
+
+        XCTAssertFalse(subject.state.isCreateAccountButtonHidden)
+    }
+
     /// `perform(.appeared)` with no pre-auth URLs defaults the region and URLs to the US environment.
     @MainActor
     func test_perform_appeared_loadsRegion_noPreAuthUrls() async {
