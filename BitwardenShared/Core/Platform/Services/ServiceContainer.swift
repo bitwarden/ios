@@ -648,6 +648,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
             configService: configService,
             errorReporter: errorReporter,
             sdkRepositoryFactory: sdkRepositoryFactory,
+            sdkStateBridgeStateService: stateService,
             stateService: stateService,
         )
 
@@ -1163,6 +1164,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
                 serverCommunicationConfigStateService: stateService,
                 stateService: stateService,
             ),
+            sdkStateBridgeStateService: stateService,
             stateService: stateService,
         )
         let authenticatorSyncService = DefaultAuthenticatorSyncService(

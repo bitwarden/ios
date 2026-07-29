@@ -1422,4 +1422,27 @@ class AppSettingsStoreTests: BitwardenTestCase { // swiftlint:disable:this type_
             .logout,
         )
     }
+
+    /// `v2UpgradeToken(userId:)` returns `nil` if there isn't a previously stored value.
+    func test_v2UpgradeToken_isInitiallyNil() {
+        XCTAssertNil(subject.v2UpgradeToken(userId: "-1"))
+    }
+
+    /// `v2UpgradeToken(userId:)` can be used to get and set the V2 upgrade token for a user.
+    func test_v2UpgradeToken_withValue() {
+        let token1 = V2UpgradeToken(wrappedUserKey1: "1:WRAPPED_USER_KEY_1", wrappedUserKey2: "1:WRAPPED_USER_KEY_2")
+        let token2 = V2UpgradeToken(wrappedUserKey1: "2:WRAPPED_USER_KEY_1", wrappedUserKey2: "2:WRAPPED_USER_KEY_2")
+
+        subject.setV2UpgradeToken(token1, userId: "1")
+        subject.setV2UpgradeToken(token2, userId: "2")
+
+        XCTAssertEqual(subject.v2UpgradeToken(userId: "1"), token1)
+        XCTAssertEqual(subject.v2UpgradeToken(userId: "2"), token2)
+
+        XCTAssertNotNil(userDefaults.string(forKey: "bwPreferencesStorage:v2UpgradeToken_1"))
+        XCTAssertNotNil(userDefaults.string(forKey: "bwPreferencesStorage:v2UpgradeToken_2"))
+
+        subject.setV2UpgradeToken(nil, userId: "1")
+        XCTAssertNil(subject.v2UpgradeToken(userId: "1"))
+    }
 }

@@ -673,6 +673,14 @@ protocol AppSettingsStore: AnyObject {
     ///
     func setUsernameGenerationOptions(_ options: UsernameGenerationOptions?, userId: String)
 
+    /// Sets the user's V2 encryption upgrade token.
+    ///
+    /// - Parameters:
+    ///   - token: The user's V2 encryption upgrade token.
+    ///   - userId: The user ID.
+    ///
+    func setV2UpgradeToken(_ token: V2UpgradeToken?, userId: String)
+
     /// Get whether the device should be trusted.
     ///
     /// - Returns: Whether to trust the device.
@@ -721,6 +729,13 @@ protocol AppSettingsStore: AnyObject {
     /// - Returns: Whether the user uses key connector.
     ///
     func usesKeyConnector(userId: String) -> Bool
+
+    /// The user's V2 encryption upgrade token.
+    ///
+    /// - Parameter userId: The user ID associated with the V2 upgrade token.
+    /// - Returns: The user's V2 encryption upgrade token.
+    ///
+    func v2UpgradeToken(userId: String) -> V2UpgradeToken?
 
     // MARK: Publishers
 
@@ -910,6 +925,7 @@ extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore {
         case upgradedToPremiumActionCardVisible(userId: String)
         case usernameGenerationOptions(userId: String)
         case usesKeyConnector(userId: String)
+        case v2UpgradeToken(userId: String)
         case vaultTimeoutAction(userId: String)
 
         /// Returns the key used to store the data under for retrieving it later.
@@ -1041,6 +1057,8 @@ extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore {
                 "usernameGenerationOptions_\(userId)"
             case let .usesKeyConnector(userId):
                 "usesKeyConnector_\(userId)"
+            case let .v2UpgradeToken(userId):
+                "v2UpgradeToken_\(userId)"
             case let .vaultTimeoutAction(userId):
                 "vaultTimeoutAction_\(userId)"
             }
@@ -1481,6 +1499,10 @@ extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore {
         store(usesKeyConnector, for: .usesKeyConnector(userId: userId))
     }
 
+    func setV2UpgradeToken(_ token: V2UpgradeToken?, userId: String) {
+        store(token, for: .v2UpgradeToken(userId: userId))
+    }
+
     func setSiriAndShortcutsAccess(_ siriAndShortcutsAccess: Bool, userId: String) {
         store(siriAndShortcutsAccess, for: .siriAndShortcutsAccess(userId: userId))
     }
@@ -1507,6 +1529,10 @@ extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore {
 
     func usesKeyConnector(userId: String) -> Bool {
         fetch(for: .usesKeyConnector(userId: userId))
+    }
+
+    func v2UpgradeToken(userId: String) -> V2UpgradeToken? {
+        fetch(for: .v2UpgradeToken(userId: userId))
     }
 
     func activeAccountIdPublisher() -> AnyPublisher<String?, Never> {

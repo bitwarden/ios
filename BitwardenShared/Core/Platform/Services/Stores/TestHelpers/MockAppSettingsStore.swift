@@ -75,6 +75,7 @@ class MockAppSettingsStore: AppSettingsStore { // swiftlint:disable:this type_bo
     var timeoutAction = [String: Int]()
     var twoFactorTokens = [String: String]()
     var usesKeyConnector = [String: Bool]()
+    var v2UpgradeTokenByUserId = [String: V2UpgradeToken]()
     var vaultTimeout = [String: Int]()
     var state: State? {
         didSet {
@@ -453,6 +454,10 @@ class MockAppSettingsStore: AppSettingsStore { // swiftlint:disable:this type_bo
         self.usesKeyConnector[userId] = usesKeyConnector
     }
 
+    func setV2UpgradeToken(_ token: V2UpgradeToken?, userId: String) {
+        v2UpgradeTokenByUserId[userId] = token
+    }
+
     func setVaultTimeout(minutes: Int, userId: String) {
         vaultTimeout[userId] = minutes
     }
@@ -483,6 +488,10 @@ class MockAppSettingsStore: AppSettingsStore { // swiftlint:disable:this type_bo
 
     func usesKeyConnector(userId: String) -> Bool {
         usesKeyConnector[userId] ?? false
+    }
+
+    func v2UpgradeToken(userId: String) -> V2UpgradeToken? {
+        v2UpgradeTokenByUserId[userId]
     }
 
     func vaultTimeout(userId: String) -> Int? {
