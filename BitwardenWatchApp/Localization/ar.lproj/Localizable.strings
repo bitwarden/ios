@@ -1,10 +1,10 @@
-"ThereAreNoItemsToList" = "لا توجد أية عناصر في القائمة";
+"ThereAreNoItemsToList" = "لا توجد عناصر لعرضها";
 "ToViewVerificationCodesUpgradeToPremium" = "لعرض رموز التحقق، قم بترقية الباقة إلى Premium";
-"Add2FactorAutenticationToAnItemToViewVerificationCodes" = "إضافة عامل المصادقة الثنائية إلى عنصر لعرض رموز التحقق";
-"LogInToBitwardenOnYourIPhoneToViewVerificationCodes" = "تسجيل الدخول إلى Bitwarden على iPhone الخاص بك لعرض رموز التحقق";
-"SyncingItemsContainingVerificationCodes" = "مزامنة العناصر التي تحتوي على رموز التحقق";
-"UnlockBitwardenOnYourIPhoneToViewVerificationCodes" = "ألغ قفل Bitwarden على iPhone الخاص بك لعرض رموز التحقق";
+"Add2FactorAutenticationToAnItemToViewVerificationCodes" = "أضف المصادقة الثنائية إلى عنصر ما لعرض رموز التحقق";
+"LogInToBitwardenOnYourIPhoneToViewVerificationCodes" = "سجل الدخول إلى Bitwarden على جهاز iPhone الخاص بك لعرض رموز التحقق";
+"SyncingItemsContainingVerificationCodes" = "جاري مزامنة العناصر التي تحتوي على رموز التحقق";
+"UnlockBitwardenOnYourIPhoneToViewVerificationCodes" = "افتح قفل Bitwarden على جهاز iPhone الخاص بك لعرض رموز التحقق";
 "SetUpBitwardenToViewItemsContainingVerificationCodes" = "إعداد Bitwarden لعرض العناصر التي تحتوي على رموز التحقق";
 "Search" = "بحث";
 "NoItemsFound" = "لم يتم العثور على أي عنصر";
-"SetUpAppleWatchPasscodeInOrderToUseBitwarden" = "إعداد رمز مرور ساعة Apple من أجل استخدام Bitwarden";
+"SetUpAppleWatchPasscodeInOrderToUseBitwarden" = "قم بإعداد رمز المرور الخاص بـ Apple Watch لاستخدام Bitwarden";

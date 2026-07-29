@@ -128,7 +128,7 @@
 "ItemUpdated" = "مورد به‌روزرسانی شد";
 "Submitting" = "در حال ارائه…";
 "Syncing" = "در حال همگام سازی…";
-"SyncingLogins" = "همگام‌سازی ورودها...";
+"SyncingLogins" = "همگام‌سازی ورودها…";
 "SyncingComplete" = "همگام‌سازی کامل شد";
 "TouchID" = "Touch ID";
 "TwoStepLogin" = "ورود دو مرحله‌ای";
@@ -572,6 +572,8 @@
 "RequestAdminApproval" = "درخواست تأیید مدیر";
 "ApproveWithMasterPassword" = "تأیید با کلمه عبور اصلی";
 "TurnOffUsingPublicDevice" = "اگر از دستگاه عمومی استفاده می‌کنید خاموش کنید";
+"TurnOnFillAssist" = "Turn on fill assist";
+"TurnOnFillAssistDescriptionLong" = "Fill Assist improves autofill accuracy on supported sites by using site-specific rules.";
 "RememberThisDevice" = "این دستگاه را به خاطر بسپار";
 "Passkey" = "کلید عبور";
 "Passkeys" = "کلیدهای عبور";
@@ -1079,6 +1081,7 @@
 "Canceled" = "لغو شد";
 "PastDue" = "بدهی معوق";
 "PendingCancellation" = "در انتظار لغو";
+"Unpaid" = "پرداخت نشده";
 "UpdatePayment" = "به‌روزرسانی پرداخت";
 "BillingAmount" = "مبلغ صورتحساب";
 "StorageCost" = "هزینه ذخیره‌سازی";
@@ -1093,15 +1096,41 @@
 /* Error message shown when the Premium Plan screen fails to load subscription data, with a prompt to retry. */
 "WeCouldntLoadYourSubscriptionDetailsPleaseRetry" = "ما نتوانستیم جزئیات اشتراک شما را بارگیری کنیم. لطفاً دوباره امتحان کنید.";
 "YourSubscriptionWasCanceledOnXDescriptionLong" = "اشتراک شما در تاریخ **%1$@** لغو شد. برای ادامه استفاده از ویژگی‌های ویژه، دوباره مشترک شوید.";
+"YourSubscriptionWasSuspendedOnXDescriptionLong" = "Your subscription was suspended on **%1$@**. To reactivate, please resolve your past due invoices.";
 "YourSubscriptionExpiredOnXDescriptionLong" = "اشتراک شما در تاریخ **%1$@** منقضی شد. برای ادامه استفاده از ویژگی‌های ویژه، دوباره مشترک شوید.";
 "YourSubscriptionIsScheduledToCancelOnXDescriptionLong" = "اشتراک شما قرار است در تاریخ **%1$@** لغو شود. می‌توانید قبل از آن، هر زمان که خواستید، اشتراک خود را دوباره برقرار کنید.";
 "PerMonth" = "/ ماه";
+/* VoiceOver reading of "PerMonth", spoken instead of shown. */
+"PerMonthVoiceOver" = "per month";
 "PerYear" = "/ سال";
+/* VoiceOver reading of "PerYear", spoken instead of shown. */
+"PerYearVoiceOver" = "per year";
 "XAmountPerCadence" = "%1$@، %2$@";
+/* %1$@ is an amount and cadence together, e.g. "$1.65 / month". */
+"XCancelAnytime" = "%1$@ · Cancel anytime";
+/* VoiceOver reading of "XCancelAnytime", spoken instead of shown. */
+"XCancelAnytimeVoiceOver" = "%1$@, Cancel anytime";
 "NegativeX" = "-%1$@";
 "UnknownStatus" = "ناشناخته";
 "YourSubscriptionStatusIsUnknownVisitTheWebAppDescriptionLong" = "وضعیت اشتراک شما قابل تعیین نیست. لطفاً برای جزئیات بیشتر یا به‌روزرسانی به آخرین نسخه، از برنامه وب دیدن کنید.";
-"UnlockMoreAdvancedFeaturesWithPremiumPlan" = "با طرح پریمیوم، ویژگی‌های پیشرفته‌تری را باز کنید.";
+/* Headline on the Premium upgrade screen. */
+"UnlockAdvancedProtection" = "قفل محافظت پیشرفته را باز کنید";
+/* Premium benefit list item. */
+"BreezeThrough2faWithBuiltInCodes" = "با کدهای داخلی، از طریق احراز هویت دو مرحله‌ای به راحتی عبور کنید";
+/* Premium benefit list item. */
+"RunReportsToFindRiskyPasswords" = "اجرای گزارش‌ها برای یافتن کلمات عبور پرخطر";
+/* Premium benefit list item. */
+"KeepDocumentsSafeAndEncrypted" = "اسناد را ایمن و رمزگذاری شده نگه دارید";
+/* Premium benefit list item. */
+"AddATrustedEmergencyContact" = "یک مخاطب اضطراری مورد اعتماد اضافه کنید";
+/* Premium benefit list item. */
+"IdentifyUnsecureWebsites" = "شناسایی وب‌سایت‌های ناامن";
+/* Premium benefit list item. */
+"FlagAccountsWithInactive2fa" = "حساب‌های دارای 2FA غیرفعال را علامت‌گذاری کنید";
+/* Premium benefit list item; "Send" is the Bitwarden Send feature name and shouldn't be translated. */
+"ShareFilesSecurelyWithAnyoneUsingSend" = "پرونده‌ها را با استفاده از ارسال به صورت ایمن با هر کسی به اشتراک بگذارید";
+/* Premium benefit list item. */
+"Receive247PrioritySupport" = "پشتیبانی اولویت‌دار ۲۴ ساعته و ۷ روز هفته دریافت کنید";
 "BuiltInAuthenticator" = "تولیدکننده رمز دوعاملی داخلی";
 "EmergencyAccess" = "دسترسی اضطراری";
 "PaymentNotReceivedYet" = "هنوز وجهی دریافت نشده است";
@@ -1110,7 +1139,6 @@
 "WeHadTroubleOpeningThePaymentPageDescriptionLong" = "ما در باز کردن صفحه پرداخت مشکل داشتیم، بنابراین دوباره امتحان کنید.";
 "SecureFileStorage" = "ذخیره‌سازی امن پرونده";
 "BreachMonitoring" = "پایش نشت اطلاعات";
-"UpgradeNow" = "هم‌اکنون ارتقا دهید";
 "ConfirmingYourUpgrade" = "در حال تأیید ارتقاء شما…";
 "OpeningCheckout" = "افتتاح حساب…";
 "UpgradePending" = "ارتقا در انتظار انجام";
@@ -1121,7 +1149,8 @@
 "ViewPlan" = "مشاهده طرح";
 "YouNowHaveAccessToAdvancedSecurityDescriptionLong" = "اکنون به ویژگی‌های امنیتی پیشرفته دسترسی دارید. درباره آنچه در نسخه پریمیوم گنجانده شده است، بیشتر بدانید.";
 "YouNowHaveAccessToAllAdvancedSecurityFeatures" = "اکنون به تمام ویژگی‌های امنیتی پیشرفته دسترسی دارید.";
-"YoullGoToStripeSecureCheckoutToCompleteYourPurchase" = "برای خرید تکمیلی خود به صفحه پرداخت امن Stripe می‌رود.";
+/* Footer on the Premium upgrade screen; "Stripe" is the payment processor's name and shouldn't be translated. */
+"YoullCompleteThePurchaseWithStripeSecureCheckout" = "You'll complete the purchase with Stripe secure checkout.";
 "ContinueToStripe" = "ادامه دادن به Stripe؟";
 "YoullBeTakenToStripeToManageYourSubscriptionCancellation" = "برای مدیریت لغو اشتراک خود به Stripe منتقل خواهید شد.";
 "UserIDCopiedToTheClipboard" = "شناسه کاربری در حافظه موقت کپی شد";
@@ -1170,3 +1199,7 @@
 "LineOfCredit" = "خط اعتباری";
 "MoneyMarket" = "بازار پول";
 "Savings" = "پس‌انداز";
+/* Accessibility label for the button that clears a field's value. %1$@ is the field's title (e.g. "Date of birth"), so the spoken label reads "Clear Date of birth". */
+"ClearFieldName" = "Clear %1$@";
+"SelectDate" = "Select date";
+"PremiumRequiredTOTPDescriptionLong" = "کلید تولیدکننده رمز دوعاملی (TOTP) یک ویژگی پریمیوم هست. طرح فعلی شما شامل دسترسی به این قابلیت نیست.";

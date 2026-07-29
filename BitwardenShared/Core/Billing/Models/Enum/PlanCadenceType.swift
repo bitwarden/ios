@@ -11,6 +11,16 @@ public enum PlanCadenceType: String, Codable, Equatable, Hashable, Sendable {
     /// A monthly billing cadence.
     case monthly
 
+    /// The VoiceOver-friendly label for this cadence (e.g. "per month", "per year").
+    var accessibilityLabel: String {
+        switch self {
+        case .annually:
+            Localizations.perYearVoiceOver
+        case .monthly:
+            Localizations.perMonthVoiceOver
+        }
+    }
+
     /// The localized label for this cadence (e.g. "/ month", "/ year").
     var label: String {
         switch self {
