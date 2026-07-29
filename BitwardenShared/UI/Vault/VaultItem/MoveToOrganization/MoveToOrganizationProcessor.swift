@@ -66,6 +66,7 @@ class MoveToOrganizationProcessor: StateProcessor<
     override func perform(_ effect: MoveToOrganizationEffect) async {
         switch effect {
         case .fetchCipherOptions:
+            await loadFeatureFlags()
             await fetchCipherOptions()
         case .moveCipher:
             await moveCipher()
@@ -87,7 +88,6 @@ class MoveToOrganizationProcessor: StateProcessor<
 
     /// Fetches any additional data (e.g. organizations and collections) needed for moving the cipher.
     private func fetchCipherOptions() async {
-        state.isVfo1FoundationFeatureFlagEnabled = await services.configService.getFeatureFlag(.vfo1Foundation)
         do {
             state.collections = try await services.vaultRepository.fetchCollections(includeReadOnly: false)
             state.ownershipOptions = try await services.vaultRepository
@@ -95,6 +95,11 @@ class MoveToOrganizationProcessor: StateProcessor<
         } catch {
             services.errorReporter.log(error: error)
         }
+    }
+
+    /// Loads the feature flags required for this processor.
+    private func loadFeatureFlags() async {
+        state.isVfo1FoundationFeatureFlagEnabled = await services.configService.getFeatureFlag(.vfo1Foundation)
     }
 
     /// Performs the API request to move the cipher to the organization.

@@ -67,6 +67,7 @@ class EditCollectionsProcessor: StateProcessor<
     override func perform(_ effect: EditCollectionsEffect) async {
         switch effect {
         case .fetchCipherOptions:
+            await loadFeatureFlags()
             await fetchCipherOptions()
         case .save:
             await save()
@@ -87,7 +88,6 @@ class EditCollectionsProcessor: StateProcessor<
     /// Fetches any additional data (e.g. collections) needed for moving the cipher.
     ///
     private func fetchCipherOptions() async {
-        state.isVfo1FoundationFeatureFlagEnabled = await services.configService.getFeatureFlag(.vfo1Foundation)
         do {
             let collections = try await services.vaultRepository.fetchCollections(includeReadOnly: false)
                 .filter { $0.organizationId == state.cipher.organizationId }
@@ -101,6 +101,11 @@ class EditCollectionsProcessor: StateProcessor<
         } catch {
             services.errorReporter.log(error: error)
         }
+    }
+
+    /// Loads the feature flags required for this processor.
+    private func loadFeatureFlags() async {
+        state.isVfo1FoundationFeatureFlagEnabled = await services.configService.getFeatureFlag(.vfo1Foundation)
     }
 
     /// Saves the updated list of collections to the cipher.
