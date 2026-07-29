@@ -25,6 +25,9 @@ class LandingProcessor: StateProcessor<LandingState, LandingAction, LandingEffec
     /// The services required by this processor.
     private let services: Services
 
+    /// Task that observes `configPublisher()` for live `disableUserRegistration` updates.
+    private var configSubscriptionTask: Task<Void, Never>?
+
     /// Helper class with region specific functions
     private lazy var regionHelper = RegionHelper(
         coordinator: coordinator,
@@ -59,8 +62,10 @@ class LandingProcessor: StateProcessor<LandingState, LandingAction, LandingEffec
         }
         super.init(state: state)
 
-        Task {
+        configSubscriptionTask = Task { [weak self] in
+            guard let self else { return }
             for await metaConfig in await services.configService.configPublisher() {
+                guard let self else { return }
                 guard metaConfig?.isPreAuth == true,
                       await metaConfig?.serverConfig?.isCurrentConfig(
                           for: services.stateService.getPreAuthEnvironmentURLs(),
@@ -69,6 +74,10 @@ class LandingProcessor: StateProcessor<LandingState, LandingAction, LandingEffec
                     .settings?.disableUserRegistration == true
             }
         }
+    }
+
+    deinit {
+        configSubscriptionTask?.cancel()
     }
 
     // MARK: Methods
