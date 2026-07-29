@@ -141,8 +141,7 @@ class StartRegistrationProcessor: StateProcessor<
             // region changes refresh the config in a background Task, so the cache may lag behind.
             // If hosts don't match, skip the check — the server will reject the request if needed.
             let preAuthURLs = await services.stateService.getPreAuthEnvironmentURLs()
-            let configVaultHost = serverConfig?.environment?.vault.flatMap { URL(string: $0)?.host }
-            if let configVaultHost, configVaultHost == preAuthURLs?.webVaultHost {
+            if serverConfig?.isCurrentConfig(for: preAuthURLs) == true {
                 let serverURL = serverConfig?.environment?.vault ?? state.region.baseURLDescription
                 await coordinator.showAlert(.registrationDisabled(serverURL: serverURL))
                 return
