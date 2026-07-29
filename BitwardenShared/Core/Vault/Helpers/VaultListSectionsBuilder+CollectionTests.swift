@@ -15,6 +15,7 @@ class VaultListSectionsBuilderCollectionTests: BitwardenTestCase {
 
     var clientService: MockClientService!
     var collectionHelper: MockCollectionHelper!
+    var configService: MockConfigService!
     var errorReporter: MockErrorReporter!
     var subject: DefaultVaultListSectionsBuilder!
 
@@ -25,6 +26,7 @@ class VaultListSectionsBuilderCollectionTests: BitwardenTestCase {
 
         clientService = MockClientService()
         collectionHelper = MockCollectionHelper()
+        configService = MockConfigService()
         errorReporter = MockErrorReporter()
     }
 
@@ -33,6 +35,7 @@ class VaultListSectionsBuilderCollectionTests: BitwardenTestCase {
 
         clientService = nil
         collectionHelper = nil
+        configService = nil
         errorReporter = nil
         subject = nil
     }
@@ -67,7 +70,7 @@ class VaultListSectionsBuilderCollectionTests: BitwardenTestCase {
 
         assertInlineSnapshot(of: vaultListData.sections.dump(), as: .lines) {
             """
-            Section[Collections]: Shared folders
+            Section[Collections]: Collections
               - Group[4]: zcollection9 (0)
               - Group[2]: acollection2 (5)
               - Group[1]: collection1 (20)
@@ -101,7 +104,7 @@ class VaultListSectionsBuilderCollectionTests: BitwardenTestCase {
 
         assertInlineSnapshot(of: vaultListData.sections.dump(), as: .lines) {
             """
-            Section[Collections]: Shared folders
+            Section[Collections]: Collections
               - Group[2]: acollection2 (5)
             """
         }
@@ -143,6 +146,32 @@ class VaultListSectionsBuilderCollectionTests: BitwardenTestCase {
         )
     }
 
+    /// `addCollectionsSection(nestedCollectionId:)` names the section "Shared folders" when the
+    /// `vfo1-foundation` feature flag is enabled.
+    @MainActor
+    func test_addCollectionsSection_vfo1FoundationEnabled() async throws {
+        configService.featureFlagsBool[.vfo1Foundation] = true
+        setUpSubject(
+            withData: VaultListPreparedData(
+                collections: [
+                    .fixture(id: "1", organizationId: "1", name: "collection1"),
+                ],
+            ),
+        )
+        collectionHelper.orderReturnValue = [
+            .fixture(id: "1", name: "collection1", organizationId: "1"),
+        ]
+
+        let vaultListData = try await subject.addCollectionsSection().build()
+
+        assertInlineSnapshot(of: vaultListData.sections.dump(), as: .lines) {
+            """
+            Section[Collections]: Shared folders
+              - Group[1]: collection1 (0)
+            """
+        }
+    }
+
     /// `addCollectionsSection(nestedCollectionId:)` adds the collection section to the list of sections
     /// with the count of ciphers per collection under the nested collection ID.
     func test_addCollectionsSection_withNestedCollectionId() async throws {
@@ -173,7 +202,7 @@ class VaultListSectionsBuilderCollectionTests: BitwardenTestCase {
 
         assertInlineSnapshot(of: vaultListData.sections.dump(), as: .lines) {
             """
-            Section[Collections]: Shared folders
+            Section[Collections]: Collections
               - Group[3]: sub1 (15)
               - Group[4]: sub2 (6)
             """
@@ -187,6 +216,7 @@ class VaultListSectionsBuilderCollectionTests: BitwardenTestCase {
         subject = DefaultVaultListSectionsBuilder(
             clientService: clientService,
             collectionHelper: collectionHelper,
+            configService: configService,
             errorReporter: errorReporter,
             stateService: MockStateService(),
             withData: withData,

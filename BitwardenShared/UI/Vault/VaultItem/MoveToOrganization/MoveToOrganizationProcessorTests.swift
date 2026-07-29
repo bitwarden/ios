@@ -113,9 +113,27 @@ class MoveToOrganizationProcessorTests: BitwardenTestCase {
         XCTAssertEqual(errorReporter.errors.last as? ShareCipherError, ShareCipherError())
     }
 
-    /// `perform(_:)` with `.moveCipher` shows an alert if no collections have been selected.
+    /// `perform(_:)` with `.moveCipher` shows an alert if no collections have been selected when
+    /// the `vfo1-foundation` feature flag is disabled.
     @MainActor
-    func test_perform_moveCipher_errorNoCollections() async {
+    func test_perform_moveCipher_errorNoCollections_vfo1FoundationDisabled() async {
+        await subject.perform(.moveCipher)
+
+        XCTAssertEqual(
+            coordinator.alertShown.last,
+            .defaultAlert(
+                title: Localizations.anErrorHasOccurred,
+                message: Localizations.selectOneCollection,
+            ),
+        )
+    }
+
+    /// `perform(_:)` with `.moveCipher` shows an alert if there are no collections selected when
+    /// the `vfo1-foundation` feature flag is enabled.
+    @MainActor
+    func test_perform_moveCipher_errorNoCollections_vfo1FoundationEnabled() async {
+        subject.state.isVfo1FoundationFeatureFlagEnabled = true
+
         await subject.perform(.moveCipher)
 
         XCTAssertEqual(

@@ -12,6 +12,7 @@ class VaultListSectionsBuilderTests: BitwardenTestCase { // swiftlint:disable:th
     // MARK: Properties
 
     var clientService: MockClientService!
+    var configService: MockConfigService!
     var errorReporter: MockErrorReporter!
     var stateService: MockStateService!
     var subject: DefaultVaultListSectionsBuilder!
@@ -22,6 +23,7 @@ class VaultListSectionsBuilderTests: BitwardenTestCase { // swiftlint:disable:th
         super.setUp()
 
         clientService = MockClientService()
+        configService = MockConfigService()
         errorReporter = MockErrorReporter()
         stateService = MockStateService()
     }
@@ -30,6 +32,7 @@ class VaultListSectionsBuilderTests: BitwardenTestCase { // swiftlint:disable:th
         super.tearDown()
 
         clientService = nil
+        configService = nil
         errorReporter = nil
         stateService = nil
         subject = nil
@@ -888,7 +891,7 @@ class VaultListSectionsBuilderTests: BitwardenTestCase { // swiftlint:disable:th
             Section[HiddenItems]: Hidden items
               - Group[Archive]: Archive (0)
               - Group[Trash]: Trash (10)
-            Section[Collections]: Shared folders
+            Section[Collections]: Collections
               - Group[1]: Collection 1 (5)
             Section[Favorites]: Favorites
               - Cipher: Favorite 1
@@ -918,6 +921,7 @@ class VaultListSectionsBuilderTests: BitwardenTestCase { // swiftlint:disable:th
         subject = DefaultVaultListSectionsBuilder(
             clientService: clientService,
             collectionHelper: collectionHelper,
+            configService: configService,
             errorReporter: errorReporter,
             stateService: stateService,
             withData: withData,

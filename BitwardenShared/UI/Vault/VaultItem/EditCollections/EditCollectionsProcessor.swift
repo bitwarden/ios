@@ -87,6 +87,7 @@ class EditCollectionsProcessor: StateProcessor<
     /// Fetches any additional data (e.g. collections) needed for moving the cipher.
     ///
     private func fetchCipherOptions() async {
+        state.isVfo1FoundationFeatureFlagEnabled = await services.configService.getFeatureFlag(.vfo1Foundation)
         do {
             let collections = try await services.vaultRepository.fetchCollections(includeReadOnly: false)
                 .filter { $0.organizationId == state.cipher.organizationId }
@@ -109,7 +110,9 @@ class EditCollectionsProcessor: StateProcessor<
             coordinator.showAlert(
                 .defaultAlert(
                     title: Localizations.anErrorHasOccurred,
-                    message: Localizations.youMustSelectAtLeastOneSharedFolder,
+                    message: state.isVfo1FoundationFeatureFlagEnabled
+                        ? Localizations.youMustSelectAtLeastOneSharedFolder
+                        : Localizations.selectOneCollection,
                 ),
             )
             return

@@ -844,7 +844,9 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
             coordinator.showAlert(
                 .defaultAlert(
                     title: Localizations.anErrorHasOccurred,
-                    message: Localizations.youMustSelectAtLeastOneSharedFolder,
+                    message: state.isVfo1FoundationFeatureFlagEnabled
+                        ? Localizations.youMustSelectAtLeastOneSharedFolder
+                        : Localizations.selectOneCollection,
                 ),
             )
             return

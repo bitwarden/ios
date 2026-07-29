@@ -98,6 +98,8 @@ class DefaultVaultListSectionsBuilder: VaultListSectionsBuilder { // swiftlint:d
     let clientService: ClientService
     /// The helper functions for collections.
     let collectionHelper: CollectionHelper
+    /// The service used by the application to determine feature flag state.
+    let configService: ConfigService
     /// The service used by the application to report non-fatal errors.
     let errorReporter: ErrorReporter
     /// Vault list data prepared to  be used by the builder.
@@ -113,6 +115,7 @@ class DefaultVaultListSectionsBuilder: VaultListSectionsBuilder { // swiftlint:d
     /// - Parameters:
     ///   - clientService: The service used by the application to handle encryption and decryption tasks.
     ///   - collectionHelper: The helper functions for collections.
+    ///   - configService: The service used by the application to determine feature flag state.
     ///   - errorReporter: The service used by the application to report non-fatal errors.
     ///   - preparedData: `VaultListPreparedData` to be used as input to build the sections where the caller
     ///   decides which to include depending on the builder methods called.
@@ -120,12 +123,14 @@ class DefaultVaultListSectionsBuilder: VaultListSectionsBuilder { // swiftlint:d
     init(
         clientService: ClientService,
         collectionHelper: CollectionHelper,
+        configService: ConfigService,
         errorReporter: ErrorReporter,
         stateService: StateService,
         withData preparedData: VaultListPreparedData,
     ) {
         self.clientService = clientService
         self.collectionHelper = collectionHelper
+        self.configService = configService
         self.errorReporter = errorReporter
         self.preparedData = preparedData
         self.stateService = stateService
@@ -201,6 +206,8 @@ class DefaultVaultListSectionsBuilder: VaultListSectionsBuilder { // swiftlint:d
             return self
         }
 
+        let isVfo1FoundationEnabled: Bool = await configService.getFeatureFlag(.vfo1Foundation)
+
         let collections = try await clientService.vault().collections()
             .decryptList(collections: preparedData.collections)
 
@@ -225,6 +232,7 @@ class DefaultVaultListSectionsBuilder: VaultListSectionsBuilder { // swiftlint:d
             }
             return VaultListItem(
                 id: collectionId,
+                isVfo1FoundationFeatureFlagEnabled: isVfo1FoundationEnabled,
                 itemType: .group(
                     .collection(id: collectionId, name: collectionNode.name, organizationId: collection.organizationId),
                     preparedData.collectionsCount[collectionId, default: 0],
@@ -234,7 +242,11 @@ class DefaultVaultListSectionsBuilder: VaultListSectionsBuilder { // swiftlint:d
 
         if !collectionItems.isEmpty {
             vaultListData.sections.append(
-                VaultListSection(id: "Collections", items: collectionItems, name: Localizations.sharedFolders),
+                VaultListSection(
+                    id: "Collections",
+                    items: collectionItems,
+                    name: isVfo1FoundationEnabled ? Localizations.sharedFolders : Localizations.collections,
+                ),
             )
         }
         return self

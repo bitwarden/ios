@@ -158,9 +158,27 @@ class EditCollectionsProcessorTests: BitwardenTestCase {
         XCTAssertEqual(errorReporter.errors.last as? UpdateCipherError, UpdateCipherError())
     }
 
-    /// `perform(_:)` with `.save` shows an alert if no collections have been selected.
+    /// `perform(_:)` with `.save` shows an alert if no collections have been selected when the
+    /// `vfo1-foundation` feature flag is disabled.
     @MainActor
-    func test_perform_moveCipher_errorNoCollections() async {
+    func test_perform_moveCipher_errorNoCollections_vfo1FoundationDisabled() async {
+        await subject.perform(.save)
+
+        XCTAssertEqual(
+            coordinator.alertShown.last,
+            .defaultAlert(
+                title: Localizations.anErrorHasOccurred,
+                message: Localizations.selectOneCollection,
+            ),
+        )
+    }
+
+    /// `perform(_:)` with `.save` shows an alert if no collections have been selected when the
+    /// `vfo1-foundation` feature flag is enabled.
+    @MainActor
+    func test_perform_moveCipher_errorNoCollections_vfo1FoundationEnabled() async {
+        subject.state.isVfo1FoundationFeatureFlagEnabled = true
+
         await subject.perform(.save)
 
         XCTAssertEqual(

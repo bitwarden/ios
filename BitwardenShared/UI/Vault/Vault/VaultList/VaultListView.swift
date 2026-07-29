@@ -283,6 +283,7 @@ private struct SearchableVaultListView: View {
                     VaultListItemRowState(
                         iconBaseURL: state.iconBaseURL,
                         isFromExtension: false,
+                        isVfo1FoundationFeatureFlagEnabled: state.isVfo1FoundationFeatureFlagEnabled,
                         item: item,
                         hasDivider: !isLastInSection,
                         showWebIcons: state.showWebIcons,

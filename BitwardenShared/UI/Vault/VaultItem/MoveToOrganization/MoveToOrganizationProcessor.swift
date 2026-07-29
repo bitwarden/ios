@@ -87,6 +87,7 @@ class MoveToOrganizationProcessor: StateProcessor<
 
     /// Fetches any additional data (e.g. organizations and collections) needed for moving the cipher.
     private func fetchCipherOptions() async {
+        state.isVfo1FoundationFeatureFlagEnabled = await services.configService.getFeatureFlag(.vfo1Foundation)
         do {
             state.collections = try await services.vaultRepository.fetchCollections(includeReadOnly: false)
             state.ownershipOptions = try await services.vaultRepository
@@ -105,7 +106,9 @@ class MoveToOrganizationProcessor: StateProcessor<
             coordinator.showAlert(
                 .defaultAlert(
                     title: Localizations.anErrorHasOccurred,
-                    message: Localizations.youMustSelectAtLeastOneSharedFolder,
+                    message: state.isVfo1FoundationFeatureFlagEnabled
+                        ? Localizations.youMustSelectAtLeastOneSharedFolder
+                        : Localizations.selectOneCollection,
                 ),
             )
             return
