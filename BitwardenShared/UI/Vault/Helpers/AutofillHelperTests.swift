@@ -18,6 +18,7 @@ class AutofillHelperTests: BitwardenTestCase { // swiftlint:disable:this type_bo
     var coordinator: MockCoordinator<VaultRoute, AuthAction>!
     var errorReporter: MockErrorReporter!
     var fillAssistRepository: MockFillAssistRepository!
+    var flightRecorder: MockFlightRecorder!
     var pasteboardService: MockPasteboardService!
     var stateService: MockStateService!
     var subject: AutofillHelper!
@@ -35,6 +36,7 @@ class AutofillHelperTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         coordinator = MockCoordinator()
         errorReporter = MockErrorReporter()
         fillAssistRepository = MockFillAssistRepository()
+        flightRecorder = MockFlightRecorder()
         pasteboardService = MockPasteboardService()
         stateService = MockStateService()
         stateService.activeAccount = .fixture()
@@ -49,6 +51,7 @@ class AutofillHelperTests: BitwardenTestCase { // swiftlint:disable:this type_bo
                 configService: configService,
                 errorReporter: errorReporter,
                 fillAssistRepository: fillAssistRepository,
+                flightRecorder: flightRecorder,
                 pasteboardService: pasteboardService,
                 stateService: stateService,
                 vaultRepository: vaultRepository,
@@ -65,6 +68,7 @@ class AutofillHelperTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         coordinator = nil
         errorReporter = nil
         fillAssistRepository = nil
+        flightRecorder = nil
         pasteboardService = nil
         stateService = nil
         subject = nil
@@ -541,6 +545,36 @@ class AutofillHelperTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         XCTAssertEqual(fields[0].value, "user@bitwarden.com")
         XCTAssertEqual(fields[1].selector, "login-pwd")
         XCTAssertEqual(fields[1].value, "PASSWORD")
+    }
+
+    /// `handleCipherForAutofill` logs to the flight recorder when FillAssist selectors are found
+    /// and used for the autofill attempt.
+    func test_handleCipherForAutofill_fillAssist_rulesFound_logsToFlightRecorder() async {
+        configService.featureFlagsBool[.fillAssistTargetingRules] = true
+        fillAssistRepository.rulesReturnValue = FillAssistHostRules(fields: [
+            "username": [.init(id: "login-email", name: nil, role: nil, tagName: nil, type: nil)],
+        ])
+        vaultRepository.fetchCipherResult = .success(.fixture(
+            login: .fixture(password: "PASSWORD", username: "user@bitwarden.com"),
+        ))
+
+        await subject.handleCipherForAutofill(cipherListView: .fixture(id: "1")) { _ in }
+
+        XCTAssertEqual(flightRecorder.logMessages, ["[Autofill] Fill-Assist invoked for this autofill attempt"])
+    }
+
+    /// `handleCipherForAutofill` does not log to the flight recorder when no FillAssist selectors
+    /// are found for the host.
+    func test_handleCipherForAutofill_fillAssist_noRulesFound_doesNotLogToFlightRecorder() async {
+        configService.featureFlagsBool[.fillAssistTargetingRules] = true
+        fillAssistRepository.rulesReturnValue = nil
+        vaultRepository.fetchCipherResult = .success(.fixture(
+            login: .fixture(password: "PASSWORD", username: "user@bitwarden.com"),
+        ))
+
+        await subject.handleCipherForAutofill(cipherListView: .fixture(id: "1")) { _ in }
+
+        XCTAssertTrue(flightRecorder.logMessages.isEmpty)
     }
 
     /// `handleCipherForAutofill` falls back to the `name` attribute when `id` is nil.
