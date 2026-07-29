@@ -61,7 +61,10 @@ class LandingProcessor: StateProcessor<LandingState, LandingAction, LandingEffec
 
         Task {
             for await metaConfig in await services.configService.configPublisher() {
-                guard metaConfig?.isPreAuth == true else { continue }
+                guard metaConfig?.isPreAuth == true,
+                      await metaConfig?.serverConfig?.isCurrentConfig(
+                          for: services.stateService.getPreAuthEnvironmentURLs(),
+                      ) == true else { continue }
                 self.state.isCreateAccountButtonHidden = metaConfig?.serverConfig?
                     .settings?.disableUserRegistration == true
             }
@@ -73,9 +76,8 @@ class LandingProcessor: StateProcessor<LandingState, LandingAction, LandingEffec
     override func perform(_ effect: LandingEffect) async {
         switch effect {
         case .appeared:
-            if let serverConfig = await currentPreAuthServerConfig() {
-                state.isCreateAccountButtonHidden = serverConfig.settings?.disableUserRegistration == true
-            }
+            state.isCreateAccountButtonHidden = await currentPreAuthServerConfig()?
+                .settings?.disableUserRegistration == true
             await regionHelper.loadRegion()
             await refreshProfileState()
         case .continuePressed:

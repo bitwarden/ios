@@ -470,49 +470,73 @@ class LandingProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_
     }
 
     /// The `configPublisher` subscription in `init` hides the create account button when the
-    /// emitted config has `disableUserRegistration` set to `true`.
+    /// emitted config has `disableUserRegistration` set to `true` and its vault host matches the
+    /// current pre-auth environment.
     @MainActor
     func test_configPublisher_disableUserRegistration_true() async {
+        stateService.preAuthEnvironmentURLs = .defaultUS
+        let config = ServerConfig(
+            date: Date(),
+            responseModel: ConfigResponseModel(
+                communication: nil,
+                environment: EnvironmentServerConfigResponseModel(
+                    api: nil,
+                    cloudRegion: nil,
+                    fillAssistRules: nil,
+                    identity: nil,
+                    notifications: nil,
+                    sso: nil,
+                    vault: "https://vault.bitwarden.com",
+                ),
+                featureStates: [:],
+                gitHash: nil,
+                server: nil,
+                settings: ServerSettingsResponseModel(disableUserRegistration: true),
+                version: "2024.4.0",
+            ),
+        )
+        configService.configMocker.withResult(config)
         configService.configSubject.send(MetaServerConfig(
             isPreAuth: true,
             userId: nil,
-            serverConfig: ServerConfig(
-                date: Date(),
-                responseModel: ConfigResponseModel(
-                    communication: nil,
-                    environment: nil,
-                    featureStates: [:],
-                    gitHash: nil,
-                    server: nil,
-                    settings: ServerSettingsResponseModel(disableUserRegistration: true),
-                    version: "2024.4.0",
-                ),
-            ),
+            serverConfig: config,
         ))
         await subject.perform(.appeared)
         waitFor(subject.state.isCreateAccountButtonHidden)
     }
 
     /// The `configPublisher` subscription in `init` shows the create account button when the
-    /// emitted config has `disableUserRegistration` set to `false`.
+    /// emitted config has `disableUserRegistration` set to `false` and its vault host matches the
+    /// current pre-auth environment.
     @MainActor
     func test_configPublisher_disableUserRegistration_false() async {
+        stateService.preAuthEnvironmentURLs = .defaultUS
         subject.state.isCreateAccountButtonHidden = true
+        let config = ServerConfig(
+            date: Date(),
+            responseModel: ConfigResponseModel(
+                communication: nil,
+                environment: EnvironmentServerConfigResponseModel(
+                    api: nil,
+                    cloudRegion: nil,
+                    fillAssistRules: nil,
+                    identity: nil,
+                    notifications: nil,
+                    sso: nil,
+                    vault: "https://vault.bitwarden.com",
+                ),
+                featureStates: [:],
+                gitHash: nil,
+                server: nil,
+                settings: ServerSettingsResponseModel(disableUserRegistration: false),
+                version: "2024.4.0",
+            ),
+        )
+        configService.configMocker.withResult(config)
         configService.configSubject.send(MetaServerConfig(
             isPreAuth: true,
             userId: nil,
-            serverConfig: ServerConfig(
-                date: Date(),
-                responseModel: ConfigResponseModel(
-                    communication: nil,
-                    environment: nil,
-                    featureStates: [:],
-                    gitHash: nil,
-                    server: nil,
-                    settings: ServerSettingsResponseModel(disableUserRegistration: false),
-                    version: "2024.4.0",
-                ),
-            ),
+            serverConfig: config,
         ))
         await subject.perform(.appeared)
         waitFor(!subject.state.isCreateAccountButtonHidden)
@@ -524,6 +548,68 @@ class LandingProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_
     func test_configPublisher_noConfig_showsCreateAccount() async {
         await subject.perform(.appeared)
         XCTAssertFalse(subject.state.isCreateAccountButtonHidden)
+    }
+
+    /// The `configPublisher` subscription in `init` ignores a config whose vault host does not match
+    /// the current pre-auth environment (stale config from a previously selected region), leaving the
+    /// button state set by `.appeared` intact.
+    @MainActor
+    func test_configPublisher_staleConfig_doesNotUpdateButton() async {
+        stateService.preAuthEnvironmentURLs = .defaultUS
+        configService.configMocker.withResult(
+            ServerConfig(
+                date: Date(),
+                responseModel: ConfigResponseModel(
+                    communication: nil,
+                    environment: EnvironmentServerConfigResponseModel(
+                        api: nil,
+                        cloudRegion: nil,
+                        fillAssistRules: nil,
+                        identity: nil,
+                        notifications: nil,
+                        sso: nil,
+                        vault: "https://vault.bitwarden.com",
+                    ),
+                    featureStates: [:],
+                    gitHash: nil,
+                    server: nil,
+                    settings: ServerSettingsResponseModel(disableUserRegistration: true),
+                    version: "2025.1.0",
+                ),
+            ),
+        )
+
+        // A stale EU config (vault host doesn't match US pre-auth URLs) with disableUserRegistration:
+        // false should not flip the button to visible when the current server disables registration.
+        configService.configSubject.send(MetaServerConfig(
+            isPreAuth: true,
+            userId: nil,
+            serverConfig: ServerConfig(
+                date: Date(),
+                responseModel: ConfigResponseModel(
+                    communication: nil,
+                    environment: EnvironmentServerConfigResponseModel(
+                        api: nil,
+                        cloudRegion: nil,
+                        fillAssistRules: nil,
+                        identity: nil,
+                        notifications: nil,
+                        sso: nil,
+                        vault: "https://vault.bitwarden.eu",
+                    ),
+                    featureStates: [:],
+                    gitHash: nil,
+                    server: nil,
+                    settings: ServerSettingsResponseModel(disableUserRegistration: false),
+                    version: "2025.1.0",
+                ),
+            ),
+        ))
+
+        await subject.perform(.appeared)
+        await Task.yield()
+
+        XCTAssertTrue(subject.state.isCreateAccountButtonHidden)
     }
 
     /// `receive(_:)` with `.createAccountPressed` navigates to the start registration screen.
