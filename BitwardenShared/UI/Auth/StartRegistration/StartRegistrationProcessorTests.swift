@@ -160,7 +160,7 @@ class StartRegistrationProcessorTests: BitwardenTestCase { // swiftlint:disable:
         XCTAssertEqual(coordinator.alertShown.last?.title, Localizations.accountCreationRestricted)
         XCTAssertEqual(
             coordinator.alertShown.last?.message,
-            "https://vault.example.com only allows invited users to create accounts.",
+            "vault.example.com only allows invited users to create accounts.",
         )
         XCTAssertTrue(coordinator.routes.isEmpty)
         XCTAssertEqual(client.requests.count, 0)

@@ -114,8 +114,6 @@ class StartRegistrationProcessor: StateProcessor<
         switch action {
         case let .emailTextChanged(text):
             state.emailText = text
-        case .disappeared:
-            break
         case .dismiss:
             coordinator.navigate(to: .dismiss)
         case let .nameTextChanged(text):
@@ -141,9 +139,10 @@ class StartRegistrationProcessor: StateProcessor<
             // region changes refresh the config in a background Task, so the cache may lag behind.
             // If hosts don't match, skip the check — the server will reject the request if needed.
             let preAuthURLs = await services.stateService.getPreAuthEnvironmentURLs()
-            if serverConfig?.isCurrentConfig(for: preAuthURLs) == true {
-                let serverURL = serverConfig?.environment?.vault ?? state.region.baseURLDescription
-                await coordinator.showAlert(.registrationDisabled(serverURL: serverURL))
+            if serverConfig?.isCurrentConfig(for: preAuthURLs) == true,
+               let vaultString = serverConfig?.environment?.vault,
+               let configHost = URL(string: vaultString)?.host {
+                await coordinator.showAlert(.registrationDisabled(serverURL: configHost))
                 return
             }
         }
