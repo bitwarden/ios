@@ -34,7 +34,6 @@
 "MissingAuthDataReceived" = "The attestation object did not contain authenticator data.";
 "MissingClientDataChallengeReceived" = "The client data JSON did not contain a challenge field.";
 "MissingClientDataTypeReceived" = "The client data JSON did not contain a type field.";
-"PasskeyAutofill" = "Passkey Autofill";
 "PasskeyCreatedButNotSaved" = "Passkey created, but not saved for later verification.";
 "PasskeyRegisteredSuccessfully" = "Passkey registered successfully.";
 "Password" = "Password";
