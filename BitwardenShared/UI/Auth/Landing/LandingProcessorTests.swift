@@ -547,15 +547,36 @@ class LandingProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_
     }
 
     /// The `configPublisher` subscription in `init` ignores a config whose vault host does not match
-    /// the current pre-auth environment (stale config from a previously selected region).
+    /// the current pre-auth environment (stale config from a previously selected region), leaving the
+    /// button state set by `.appeared` intact.
     @MainActor
     func test_configPublisher_staleConfig_doesNotUpdateButton() async {
         stateService.preAuthEnvironmentURLs = .defaultUS
-        // Seed the button as hidden (as if the current US server disables registration).
-        subject.state.isCreateAccountButtonHidden = true
+        configService.configMocker.withResult(
+            ServerConfig(
+                date: Date(),
+                responseModel: ConfigResponseModel(
+                    communication: nil,
+                    environment: EnvironmentServerConfigResponseModel(
+                        api: nil,
+                        cloudRegion: nil,
+                        fillAssistRules: nil,
+                        identity: nil,
+                        notifications: nil,
+                        sso: nil,
+                        vault: "https://vault.bitwarden.com",
+                    ),
+                    featureStates: [:],
+                    gitHash: nil,
+                    server: nil,
+                    settings: ServerSettingsResponseModel(disableUserRegistration: true),
+                    version: "2025.1.0",
+                ),
+            ),
+        )
 
         // A stale EU config (vault host doesn't match US pre-auth URLs) with disableUserRegistration:
-        // false should not flip the button to visible.
+        // false should not flip the button to visible when the current server disables registration.
         configService.configSubject.send(MetaServerConfig(
             isPreAuth: true,
             userId: nil,
@@ -581,6 +602,7 @@ class LandingProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_
             ),
         ))
 
+        await subject.perform(.appeared)
         await Task.yield()
 
         XCTAssertTrue(subject.state.isCreateAccountButtonHidden)
