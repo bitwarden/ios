@@ -508,6 +508,7 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
     /// Loads the feature flags required for this processor.
     private func loadFeatureFlags() async {
         state.cardItemState.cardScannerEnabled = await services.configService.getFeatureFlag(.cardScanner)
+        state.isVfo1FoundationFeatureFlagEnabled = await services.configService.getFeatureFlag(.vfo1Foundation)
     }
 
     /// Updates the bank account state based on the action received.

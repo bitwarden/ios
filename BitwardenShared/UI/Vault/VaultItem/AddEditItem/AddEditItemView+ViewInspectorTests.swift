@@ -28,7 +28,7 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
                 hasPremium: true,
             ),
         )
-        processor.state.ownershipOptions = [.personal(email: "user@bitwarden.com")]
+        processor.state.ownershipOptions = [.personal(displayName: "user@bitwarden.com")]
         let store = Store(processor: processor)
         subject = AddEditItemView(store: store)
     }
@@ -225,15 +225,31 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
         XCTAssertEqual(processor.dispatchedActions.last, .notesChanged("text"))
     }
 
-    /// Updating the owner menu dispatches the `.ownerChanged()` action.
+    /// Updating the owner menu dispatches the `.ownerChanged()` action when the `vfo1-foundation`
+    /// feature flag is disabled.
     @MainActor
-    func test_ownerTextField_updateValue() throws {
+    func test_ownerTextField_updateValue_vfo1FoundationDisabled() throws {
         let organizationOwner = CipherOwner.organization(id: "1", name: "Bitwarden Organization")
         processor.state.ownershipOptions = [
-            CipherOwner.personal(email: "user@bitwarden.com"),
+            CipherOwner.personal(displayName: "user@bitwarden.com"),
             organizationOwner,
         ]
         let menu = try subject.inspect().find(bitwardenMenuField: Localizations.owner)
+        try menu.select(newValue: organizationOwner)
+        XCTAssertEqual(processor.dispatchedActions.last, .ownerChanged(organizationOwner))
+    }
+
+    /// Updating the vault menu dispatches the `.ownerChanged()` action when the `vfo1-foundation`
+    /// feature flag is enabled.
+    @MainActor
+    func test_ownerTextField_updateValue_vfo1FoundationEnabled() throws {
+        let organizationOwner = CipherOwner.organization(id: "1", name: "Bitwarden Organization")
+        processor.state.ownershipOptions = [
+            CipherOwner.personal(displayName: "user@bitwarden.com"),
+            organizationOwner,
+        ]
+        processor.state.isVfo1FoundationFeatureFlagEnabled = true
+        let menu = try subject.inspect().find(bitwardenMenuField: Localizations.vault)
         try menu.select(newValue: organizationOwner)
         XCTAssertEqual(processor.dispatchedActions.last, .ownerChanged(organizationOwner))
     }

@@ -49,6 +49,9 @@ protocol ViewVaultItemState: Sendable, VaultItemWithDecorativeIcon {
     /// A flag indicating if item was soft deleted.
     var isSoftDeleted: Bool { get }
 
+    /// Whether the `vfo1-foundation` feature flag is enabled.
+    var isVfo1FoundationFeatureFlagEnabled: Bool { get }
+
     /// The login item state.
     var loginState: LoginItemState { get set }
 

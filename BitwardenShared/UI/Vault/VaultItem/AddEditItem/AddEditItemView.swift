@@ -201,7 +201,9 @@ struct AddEditItemView: View {
                 if store.state.configuration.isAdding, store.state.hasOrganizations, let owner = store.state.owner {
                     ContentBlock(dividerLeadingPadding: 16) {
                         BitwardenMenuField(
-                            title: Localizations.owner,
+                            title: store.state.isVfo1FoundationFeatureFlagEnabled
+                                ? Localizations.vault
+                                : Localizations.owner,
                             accessibilityIdentifier: "ItemOwnershipPicker",
                             options: store.state.ownershipOptions,
                             selection: store.binding(
@@ -457,7 +459,7 @@ struct AddEditItemView_Previews: PreviewProvider {
             ),
             hasPremium: true,
         )!
-        state.ownershipOptions = [.personal(email: "user@bitwarden.com")]
+        state.ownershipOptions = [.personal(displayName: "user@bitwarden.com")]
         return state
     }
 
@@ -527,7 +529,7 @@ struct AddEditItemView_Previews: PreviewProvider {
                             ]
                             copy.isFavoriteOn = false
                             copy.isMasterPasswordRePromptOn = true
-                            copy.owner = .personal(email: "security@bitwarden.com")
+                            copy.owner = .personal(displayName: "security@bitwarden.com")
                             return copy.addEditState
                         }(),
                     ),
