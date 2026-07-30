@@ -42,12 +42,7 @@ public struct BitwardenToggle<TitleContent: View, FooterContent: View, Accessory
             if let accessoryContent {
                 HStack(spacing: 8) {
                     titleContent
-                        .styleGuide(.body)
-                        .foregroundColor(
-                            isEnabled
-                                ? SharedAsset.Colors.textPrimary.swiftUIColor
-                                : SharedAsset.Colors.buttonFilledDisabledForeground.swiftUIColor,
-                        )
+                        .bitwardenToggleLabelStyle(isEnabled: isEnabled)
                     accessoryContent
                     Spacer(minLength: 0)
                     Toggle(isOn: $isOn) { EmptyView() }
@@ -59,7 +54,10 @@ public struct BitwardenToggle<TitleContent: View, FooterContent: View, Accessory
                 .padding(.vertical, 12)
                 .padding(.horizontal, 16)
                 .contentShape(Rectangle())
-                .onTapGesture { isOn.toggle() }
+                .onTapGesture {
+                    guard isEnabled else { return }
+                    isOn.toggle()
+                }
             } else {
                 Toggle(isOn: $isOn) {
                     titleContent
