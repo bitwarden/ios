@@ -94,26 +94,21 @@ struct AutoFillView: View {
                     ),
                     accessibilityIdentifier: "FillAssistSwitch",
                     accessibilityLabel: Localizations.turnOnFillAssist,
-                ) {
-                    HStack(spacing: 8) {
+                    title: {
                         Text(Localizations.turnOnFillAssist)
+                    },
+                    accessory: {
                         Button {
                             openURL(ExternalLinksConstants.fillAssistHelp)
                         } label: {
                             SharedAsset.Icons.questionCircle16.swiftUIImage
                                 .scaledFrame(width: 16, height: 16)
-                                .accessibilityLabel(Localizations.learnMore)
                         }
                         .buttonStyle(.fieldLabelIcon)
+                        .accessibilityLabel(Localizations.learnMore)
                         .accessibilityHint(Localizations.externalLink)
-                    }
-                }
-                // The info button above is nested inside the toggle's custom label, which VoiceOver
-                // treats as part of the toggle's single accessibility element, so it can't be
-                // reached by swiping to it directly. Expose it as a custom action instead.
-                .accessibilityAction(named: "\(Localizations.learnMore), \(Localizations.externalLink)") {
-                    openURL(ExternalLinksConstants.fillAssistHelp)
-                }
+                    },
+                )
                 .contentBlock()
             }
 
