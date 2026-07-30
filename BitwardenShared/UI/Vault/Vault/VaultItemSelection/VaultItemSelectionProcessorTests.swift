@@ -18,6 +18,7 @@ class VaultItemSelectionProcessorTests: BitwardenTestCase { // swiftlint:disable
     var authRepository: MockAuthRepository!
     var billingRepository: MockBillingRepository!
     var billingService: MockBillingService!
+    var configService: MockConfigService!
     var coordinator: MockCoordinator<VaultRoute, AuthAction>!
     var errorReporter: MockErrorReporter!
     var pasteboardService: MockPasteboardService!
@@ -39,6 +40,7 @@ class VaultItemSelectionProcessorTests: BitwardenTestCase { // swiftlint:disable
         billingRepository = MockBillingRepository()
         billingRepository.isInAppUpgradeAvailableReturnValue = false
         billingService = MockBillingService()
+        configService = MockConfigService()
         coordinator = MockCoordinator()
         errorReporter = MockErrorReporter()
         pasteboardService = MockPasteboardService()
@@ -59,6 +61,7 @@ class VaultItemSelectionProcessorTests: BitwardenTestCase { // swiftlint:disable
                 authRepository: authRepository,
                 billingRepository: billingRepository,
                 billingService: billingService,
+                configService: configService,
                 errorReporter: errorReporter,
                 pasteboardService: pasteboardService,
                 searchProcessorMediatorFactory: searchProcessorMediatorFactory,
@@ -81,6 +84,7 @@ class VaultItemSelectionProcessorTests: BitwardenTestCase { // swiftlint:disable
         authRepository = nil
         billingRepository = nil
         billingService = nil
+        configService = nil
         coordinator = nil
         errorReporter = nil
         pasteboardService = nil
@@ -134,6 +138,14 @@ class VaultItemSelectionProcessorTests: BitwardenTestCase { // swiftlint:disable
 
         XCTAssertEqual(coordinator.routes, [.dismiss()])
         XCTAssertFalse(shouldDismiss)
+    }
+
+    /// `perform(_:)` with `.loadData` loads the vfo1-foundation feature flag.
+    @MainActor
+    func test_perform_loadData_featureFlags_vfo1Foundation() async {
+        configService.featureFlagsBool[.vfo1Foundation] = true
+        await subject.perform(.loadData)
+        XCTAssertTrue(subject.state.isVfo1FoundationFeatureFlagEnabled)
     }
 
     /// `perform(_:)` with `.loadData` loads the profile switcher state.

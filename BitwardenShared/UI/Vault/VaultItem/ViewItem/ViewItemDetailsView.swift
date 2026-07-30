@@ -198,7 +198,11 @@ struct ViewItemDetailsView: View { // swiftlint:disable:this type_body_length
                     icon: SharedAsset.Icons.business16,
                     name: organizationName,
                 )
-                .accessibilityLabel(Localizations.ownerX(organizationName))
+                .accessibilityLabel(
+                    store.state.isVfo1FoundationFeatureFlagEnabled
+                        ? Localizations.vaultX(organizationName)
+                        : Localizations.ownerX(organizationName),
+                )
                 .accessibilityHint(Localizations.itemXOfY(1, store.state.totalHeaderAdditionalItems))
             }
 
@@ -206,10 +210,16 @@ struct ViewItemDetailsView: View { // swiftlint:disable:this type_body_length
                 ForEachIndexed(store.state.cipherCollectionsToDisplay) { index, collection in
                     VStack(alignment: .leading, spacing: 0) {
                         belongingView(
-                            icon: SharedAsset.Icons.collections16,
+                            icon: store.state.isVfo1FoundationFeatureFlagEnabled
+                                ? SharedAsset.Icons.sharedFolder16
+                                : SharedAsset.Icons.collections16,
                             name: collection.name,
                         )
-                        .accessibilityLabel(Localizations.collectionX(collection.name))
+                        .accessibilityLabel(
+                            store.state.isVfo1FoundationFeatureFlagEnabled
+                                ? Localizations.sharedFolderX(collection.name)
+                                : Localizations.collectionX(collection.name),
+                        )
                         .accessibilityHint(Localizations.itemXOfY(index + 2, store.state.totalHeaderAdditionalItems))
                         .if(index == 1) { view in
                             view.accessibilityFocused($isSecondCollectionFocused)

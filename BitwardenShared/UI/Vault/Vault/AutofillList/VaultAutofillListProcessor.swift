@@ -138,37 +138,13 @@ class VaultAutofillListProcessor: StateProcessor<// swiftlint:disable:this type_
                 await updateExcludedCredentialSection(from: cipherIdFound)
             }
         case let .vaultItemTapped(vaultItem):
-            switch vaultItem.itemType {
-            case let .cipher(cipher, fido2CredentialAutofillView):
-                if cipher.isDecryptionFailure, let cipherId = cipher.id {
-                    coordinator.showAlert(.cipherDecryptionFailure(cipherIds: [cipherId]) { stringToCopy in
-                        self.services.pasteboardService.copy(stringToCopy)
-                    })
-                } else if #available(iOSApplicationExtension 17.0, *),
-                          let credentialProviderExtensionDelegate,
-                          fido2CredentialAutofillView != nil
-                          || credentialProviderExtensionDelegate.isCreatingFido2Credential {
-                    await onCipherForFido2CredentialPicked(cipher: cipher)
-                } else if autofillListMode == .all {
-                    await handleCipherForTextAutofill(cipher: cipher)
-                } else {
-                    await autofillHelper.handleCipherForAutofill(cipherListView: cipher) { [weak self] toastText in
-                        self?.state.toast = Toast(title: toastText)
-                    }
-                }
-            case let .group(group, _):
-                coordinator.navigate(to: .autofillListForGroup(group))
-            case let .totp(_, totpModel):
-                if #available(iOSApplicationExtension 18.0, *) {
-                    credentialProviderExtensionDelegate?.completeOTPRequest(code: totpModel.totpCode.code)
-                }
-                return
-            }
+            await vaultItemTapped(vaultItem)
         case .initFido2:
             if #available(iOSApplicationExtension 17.0, *) {
                 await initFido2State()
             }
         case .loadData:
+            await loadFeatureFlags()
             await refreshProfileState()
             await fetchInitialSyncIfNecessary()
         case let .profileSwitcher(profileEffect):
@@ -342,6 +318,11 @@ class VaultAutofillListProcessor: StateProcessor<// swiftlint:disable:this type_
         )
     }
 
+    /// Loads the feature flags required for this processor.
+    private func loadFeatureFlags() async {
+        state.isVfo1FoundationFeatureFlagEnabled = await services.configService.getFeatureFlag(.vfo1Foundation)
+    }
+
     /// Navigates to the add item screen to create a new login.
     private func navigateToAddNewLogin() {
         coordinator.navigate(to: .addItem(
@@ -497,6 +478,37 @@ class VaultAutofillListProcessor: StateProcessor<// swiftlint:disable:this type_
             ) { [weak self] in
                 guard let self else { return }
                 credentialProviderExtensionDelegate?.didCancel()
+            }
+        }
+    }
+
+    /// Handles the user tapping a vault item in the list.
+    ///
+    /// - Parameter vaultItem: The `VaultListItem` that was tapped.
+    private func vaultItemTapped(_ vaultItem: VaultListItem) async {
+        switch vaultItem.itemType {
+        case let .cipher(cipher, fido2CredentialAutofillView):
+            if cipher.isDecryptionFailure, let cipherId = cipher.id {
+                coordinator.showAlert(.cipherDecryptionFailure(cipherIds: [cipherId]) { stringToCopy in
+                    self.services.pasteboardService.copy(stringToCopy)
+                })
+            } else if #available(iOSApplicationExtension 17.0, *),
+                      let credentialProviderExtensionDelegate,
+                      fido2CredentialAutofillView != nil
+                      || credentialProviderExtensionDelegate.isCreatingFido2Credential {
+                await onCipherForFido2CredentialPicked(cipher: cipher)
+            } else if autofillListMode == .all {
+                await handleCipherForTextAutofill(cipher: cipher)
+            } else {
+                await autofillHelper.handleCipherForAutofill(cipherListView: cipher) { [weak self] toastText in
+                    self?.state.toast = Toast(title: toastText)
+                }
+            }
+        case let .group(group, _):
+            coordinator.navigate(to: .autofillListForGroup(group))
+        case let .totp(_, totpModel):
+            if #available(iOSApplicationExtension 18.0, *) {
+                credentialProviderExtensionDelegate?.completeOTPRequest(code: totpModel.totpCode.code)
             }
         }
     }

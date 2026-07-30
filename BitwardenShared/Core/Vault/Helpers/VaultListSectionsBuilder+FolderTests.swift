@@ -14,6 +14,7 @@ class VaultListSectionsBuilderFolderTests: BitwardenTestCase {
     // MARK: Properties
 
     var clientService: MockClientService!
+    var configService: MockConfigService!
     var errorReporter: MockErrorReporter!
     var subject: DefaultVaultListSectionsBuilder!
 
@@ -23,6 +24,7 @@ class VaultListSectionsBuilderFolderTests: BitwardenTestCase {
         super.setUp()
 
         clientService = MockClientService()
+        configService = MockConfigService()
         errorReporter = MockErrorReporter()
     }
 
@@ -30,6 +32,7 @@ class VaultListSectionsBuilderFolderTests: BitwardenTestCase {
         super.tearDown()
 
         clientService = nil
+        configService = nil
         errorReporter = nil
         subject = nil
     }
@@ -274,6 +277,7 @@ class VaultListSectionsBuilderFolderTests: BitwardenTestCase {
         subject = DefaultVaultListSectionsBuilder(
             clientService: clientService,
             collectionHelper: collectionHelper,
+            configService: configService,
             errorReporter: errorReporter,
             stateService: MockStateService(),
             withData: withData,

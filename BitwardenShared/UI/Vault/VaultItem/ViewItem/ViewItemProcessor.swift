@@ -14,6 +14,7 @@ final class ViewItemProcessor: StateProcessor<ViewItemState, ViewItemAction, Vie
         & HasAuthRepository
         & HasBillingRepository
         & HasBillingService
+        & HasConfigService
         & HasEnvironmentService
         & HasErrorReporter
         & HasEventService
@@ -61,6 +62,9 @@ final class ViewItemProcessor: StateProcessor<ViewItemState, ViewItemAction, Vie
 
     /// The delegate that is notified when delete cipher item have occurred.
     private weak var delegate: CipherItemOperationDelegate?
+
+    /// Whether the `vfo1-foundation` feature flag is enabled.
+    private var isVfo1FoundationFeatureFlagEnabled = false
 
     /// The ID of the item being viewed.
     private let itemId: String
@@ -124,6 +128,7 @@ final class ViewItemProcessor: StateProcessor<ViewItemState, ViewItemAction, Vie
     override func perform(_ effect: ViewItemEffect) async {
         switch effect {
         case .appeared:
+            await loadFeatureFlags()
             streamCipherDetailsTask?.cancel()
             streamCipherDetailsTask = Task {
                 await streamCipherDetails()
@@ -572,6 +577,11 @@ private extension ViewItemProcessor {
         }
     }
 
+    /// Loads the feature flags required for this processor.
+    private func loadFeatureFlags() async {
+        isVfo1FoundationFeatureFlagEnabled = await services.configService.getFeatureFlag(.vfo1Foundation)
+    }
+
     /// Performs an operation and dismisses the view with an action.
     /// - Parameters:
     ///   - loadingTitle: The title of the loading overlay.
@@ -683,6 +693,7 @@ private extension ViewItemProcessor {
                     itemState.loginState.totpState = totpState
                     itemState.allUserCollections = collections
                     itemState.folderName = folder?.name
+                    itemState.isVfo1FoundationFeatureFlagEnabled = isVfo1FoundationFeatureFlagEnabled
                     itemState.organizationName = organization?.name
                     itemState.ownershipOptions = ownershipOptions
                     itemState.showWebIcons = showWebIcons

@@ -168,6 +168,19 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
         XCTAssertTrue(searchProcessorMediatorFactory.makeCalled)
     }
 
+    /// `perform(_:)` with `.appeared` loads the vfo1-foundation feature flag.
+    @MainActor
+    func test_perform_appeared_featureFlags_vfo1Foundation() {
+        configService.featureFlagsBool[.vfo1Foundation] = true
+
+        let task = Task {
+            await subject.perform(.appeared)
+        }
+        defer { task.cancel() }
+
+        waitFor(subject.state.isVfo1FoundationFeatureFlagEnabled)
+    }
+
     /// `perform(_:)` with `.appeared` starts streaming vault items.
     @MainActor
     func test_perform_appeared() {
