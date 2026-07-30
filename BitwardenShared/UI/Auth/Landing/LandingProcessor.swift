@@ -62,13 +62,17 @@ class LandingProcessor: StateProcessor<LandingState, LandingAction, LandingEffec
         }
         super.init(state: state)
 
+        // Extract locals so `self` is never read through inside the Task body.
+        // A pre-loop `guard let self` would pin self strongly for the loop's lifetime,
+        // preventing deinit (and therefore cancellation) until the publisher completes.
+        let configService = services.configService
+        let stateService = services.stateService
         configSubscriptionTask = Task { [weak self] in
-            guard let self else { return }
-            for await metaConfig in await services.configService.configPublisher() {
+            for await metaConfig in await configService.configPublisher() {
                 guard let self else { return }
                 guard metaConfig?.isPreAuth == true,
                       await metaConfig?.serverConfig?.isCurrentConfig(
-                          for: services.stateService.getPreAuthEnvironmentURLs(),
+                          for: stateService.getPreAuthEnvironmentURLs(),
                       ) == true else { continue }
                 self.state.isCreateAccountButtonHidden = metaConfig?.serverConfig?
                     .settings?.disableUserRegistration == true

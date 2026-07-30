@@ -473,7 +473,7 @@ class LandingProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_
     /// emitted config has `disableUserRegistration` set to `true` and its vault host matches the
     /// current pre-auth environment.
     @MainActor
-    func test_configPublisher_disableUserRegistration_true() async {
+    func test_configPublisher_disableUserRegistration_true() async throws {
         stateService.preAuthEnvironmentURLs = .defaultUS
         let config = ServerConfig(
             date: Date(),
@@ -500,14 +500,14 @@ class LandingProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_
             userId: nil,
             serverConfig: config,
         ))
-        waitFor(subject.state.isCreateAccountButtonHidden)
+        try await waitForAsync { self.subject.state.isCreateAccountButtonHidden }
     }
 
     /// The `configPublisher` subscription in `init` shows the create account button when the
     /// emitted config has `disableUserRegistration` set to `false` and its vault host matches the
     /// current pre-auth environment.
     @MainActor
-    func test_configPublisher_disableUserRegistration_false() async {
+    func test_configPublisher_disableUserRegistration_false() async throws {
         stateService.preAuthEnvironmentURLs = .defaultUS
         subject.state.isCreateAccountButtonHidden = true
         let config = ServerConfig(
@@ -535,7 +535,7 @@ class LandingProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_
             userId: nil,
             serverConfig: config,
         ))
-        waitFor(!subject.state.isCreateAccountButtonHidden)
+        try await waitForAsync { !self.subject.state.isCreateAccountButtonHidden }
     }
 
     /// The `configPublisher` subscription in `init` leaves the create account button visible when
@@ -584,6 +584,19 @@ class LandingProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_
         await Task.yield()
 
         XCTAssertTrue(subject.state.isCreateAccountButtonHidden)
+    }
+
+    /// The `configPublisher` subscription in `init` does not retain `self`, so the processor can be
+    /// deinitialized while the publisher is still active. Prevents regression of the retain cycle
+    /// where `guard let self` before the `for await` loop would pin `self` for the loop's lifetime.
+    @MainActor
+    func test_configPublisher_doesNotRetainSelf() {
+        weak var weakSubject = subject
+        subject = nil
+        XCTAssertNil(
+            weakSubject,
+            "LandingProcessor was not deinitialized; configSubscriptionTask likely retains self.",
+        )
     }
 
     /// `receive(_:)` with `.createAccountPressed` navigates to the start registration screen.
