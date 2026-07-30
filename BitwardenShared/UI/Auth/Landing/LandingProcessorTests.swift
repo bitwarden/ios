@@ -500,7 +500,7 @@ class LandingProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_
             userId: nil,
             serverConfig: config,
         ))
-        waitFor(subject.state.isCreateAccountButtonHidden)
+        try await waitForAsync { self.subject.state.isCreateAccountButtonHidden }
     }
 
     /// The `configPublisher` subscription in `init` shows the create account button when the
@@ -535,7 +535,7 @@ class LandingProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_
             userId: nil,
             serverConfig: config,
         ))
-        waitFor(!subject.state.isCreateAccountButtonHidden)
+        try await waitForAsync { !self.subject.state.isCreateAccountButtonHidden }
     }
 
     /// The `configPublisher` subscription in `init` leaves the create account button visible when
