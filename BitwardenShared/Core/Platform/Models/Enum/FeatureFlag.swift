@@ -35,6 +35,9 @@ extension FeatureFlag: @retroactive CaseIterable {
     /// An SDK flag that enables individual cipher encryption.
     static let enableCipherKeyEncryption = FeatureFlag(rawValue: "enableCipherKeyEncryption")
 
+    /// A feature flag to enable/disable the FedRAMP (.gov) region in the region picker.
+    static let fedrampGovRegion = FeatureFlag(rawValue: "fedramp-gov-region")
+
     /// Flag to enable/disable Fill-Assist targeting rules.
     static let fillAssistTargetingRules = FeatureFlag(rawValue: "fill-assist-targeting-rules")
 
@@ -66,6 +69,9 @@ extension FeatureFlag: @retroactive CaseIterable {
     /// `sendOptions` policies when active.
     static let sendControls = FeatureFlag(rawValue: "pm-31885-send-controls")
 
+    /// Flag for the VFO1 terminology-alignment foundation work (vault/organization renames).
+    static let vfo1Foundation = FeatureFlag(rawValue: "vfo1-foundation")
+
     public static var allCases: [FeatureFlag] {
         [
             .accountEncryptionV2JITPassword,
@@ -76,6 +82,7 @@ extension FeatureFlag: @retroactive CaseIterable {
             .debugDisableSelfHostPremiumCheck,
             .deviceAuthKey,
             .enableCipherKeyEncryption,
+            .fedrampGovRegion,
             .fillAssistTargetingRules,
             .manageDevices,
             .migrateMyVaultToMyItems,
@@ -85,6 +92,7 @@ extension FeatureFlag: @retroactive CaseIterable {
             .policiesInAcceptedState,
             .premiumUpgradePath,
             .sendControls,
+            .vfo1Foundation,
         ]
     }
 }
