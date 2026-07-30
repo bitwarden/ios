@@ -93,6 +93,7 @@ struct AutoFillView: View {
                         send: AutoFillAction.toggleFillAssist,
                     ),
                     accessibilityIdentifier: "FillAssistSwitch",
+                    accessibilityLabel: Localizations.turnOnFillAssist,
                 ) {
                     HStack(spacing: 8) {
                         Text(Localizations.turnOnFillAssist)

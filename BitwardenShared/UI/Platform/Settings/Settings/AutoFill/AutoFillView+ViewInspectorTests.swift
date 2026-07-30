@@ -57,6 +57,13 @@ class AutoFillViewTests: BitwardenTestCase {
         XCTAssertEqual(processor.dispatchedActions.last, .passwordAutoFillTapped)
     }
 
+    /// The Fill Assist toggle announces its name to VoiceOver.
+    @MainActor
+    func test_fillAssistToggle_accessibilityLabel() throws {
+        processor.state.isFillAssistFeatureFlagEnabled = true
+        _ = try subject.inspect().find(toggleWithAccessibilityLabel: Localizations.turnOnFillAssist)
+    }
+
     /// The action card is hidden if the autofill setup progress is complete.
     @MainActor
     func test_setUpUnlockActionCard_hidden_complete() {
