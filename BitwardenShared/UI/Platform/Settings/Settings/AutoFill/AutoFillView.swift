@@ -105,7 +105,14 @@ struct AutoFillView: View {
                                 .accessibilityLabel(Localizations.learnMore)
                         }
                         .buttonStyle(.fieldLabelIcon)
+                        .accessibilityHint(Localizations.externalLink)
                     }
+                }
+                // The info button above is nested inside the toggle's custom label, which VoiceOver
+                // treats as part of the toggle's single accessibility element, so it can't be
+                // reached by swiping to it directly. Expose it as a custom action instead.
+                .accessibilityAction(named: "\(Localizations.learnMore), \(Localizations.externalLink)") {
+                    openURL(ExternalLinksConstants.fillAssistHelp)
                 }
                 .contentBlock()
             }
