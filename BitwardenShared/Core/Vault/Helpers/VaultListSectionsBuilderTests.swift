@@ -895,7 +895,7 @@ class VaultListSectionsBuilderTests: BitwardenTestCase { // swiftlint:disable:th
               - Group[1]: Collection 1 (5)
             Section[Favorites]: Favorites
               - Cipher: Favorite 1
-            Section[Folders]: My folders
+            Section[Folders]: Folders
               - Group[1]: Folder 1 (60)
               - Group[NoFolderFolderItem]: No Folder (1)
             Section[Items]: Items

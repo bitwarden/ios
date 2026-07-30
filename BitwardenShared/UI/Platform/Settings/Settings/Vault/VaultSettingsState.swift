@@ -10,6 +10,9 @@ struct VaultSettingsState {
     /// The state of the badges in the settings tab.
     var badgeState: SettingsBadgeState?
 
+    /// Whether the `vfo1-foundation` feature flag is enabled.
+    var isVfo1FoundationFeatureFlagEnabled = false
+
     /// The import items URL.
     var url: URL?
 

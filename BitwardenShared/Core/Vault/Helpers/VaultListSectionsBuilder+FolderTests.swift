@@ -60,10 +60,33 @@ class VaultListSectionsBuilderFolderTests: BitwardenTestCase {
 
         assertInlineSnapshot(of: vaultListData.sections.dump(), as: .lines) {
             """
-            Section[Folders]: My folders
+            Section[Folders]: Folders
               - Group[2]: afolder2 (5)
               - Group[1]: folder1 (20)
               - Group[3]: folder3 (0)
+            """
+        }
+    }
+
+    /// `addFoldersSection(nestedFolderId:)` names the section "My folders" when the
+    /// `vfo1-foundation` feature flag is enabled.
+    @MainActor
+    func test_addFoldersSection_vfo1FoundationEnabled() async throws {
+        configService.featureFlagsBool[.vfo1Foundation] = true
+        setUpSubject(
+            withData: VaultListPreparedData(
+                folders: [
+                    .fixture(id: "1", name: "folder1"),
+                ],
+            ),
+        )
+
+        let vaultListData = try await subject.addFoldersSection().build()
+
+        assertInlineSnapshot(of: vaultListData.sections.dump(), as: .lines) {
+            """
+            Section[Folders]: My folders
+              - Group[1]: folder1 (0)
             """
         }
     }
@@ -90,7 +113,7 @@ class VaultListSectionsBuilderFolderTests: BitwardenTestCase {
 
         assertInlineSnapshot(of: vaultListData.sections.dump(), as: .lines) {
             """
-            Section[Folders]: My folders
+            Section[Folders]: Folders
               - Group[2]: afolder2 (5)
               - Group[3]: folder3 (0)
             """
@@ -124,7 +147,7 @@ class VaultListSectionsBuilderFolderTests: BitwardenTestCase {
 
         assertInlineSnapshot(of: vaultListData.sections.dump(), as: .lines) {
             """
-            Section[Folders]: My folders
+            Section[Folders]: Folders
               - Group[3]: sub1 (15)
               - Group[4]: sub2 (6)
             """
@@ -157,7 +180,7 @@ class VaultListSectionsBuilderFolderTests: BitwardenTestCase {
 
         assertInlineSnapshot(of: vaultListData.sections.dump(), as: .lines) {
             """
-            Section[Folders]: My folders
+            Section[Folders]: Folders
               - Group[2]: afolder2 (5)
               - Group[1]: folder1 (20)
               - Group[3]: folder3 (0)
@@ -222,7 +245,7 @@ class VaultListSectionsBuilderFolderTests: BitwardenTestCase {
 
         assertInlineSnapshot(of: vaultListData.sections.dump(), as: .lines) {
             """
-            Section[Folders]: My folders
+            Section[Folders]: Folders
               - Group[2]: afolder2 (5)
               - Group[1]: folder1 (20)
               - Group[3]: folder3 (0)
@@ -259,7 +282,7 @@ class VaultListSectionsBuilderFolderTests: BitwardenTestCase {
 
         assertInlineSnapshot(of: vaultListData.sections.dump(), as: .lines) {
             """
-            Section[Folders]: My folders
+            Section[Folders]: Folders
               - Group[2]: afolder2 (5)
               - Group[1]: folder1 (20)
               - Group[3]: folder3 (0)

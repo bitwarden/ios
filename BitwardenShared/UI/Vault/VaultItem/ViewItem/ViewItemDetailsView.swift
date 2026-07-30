@@ -161,7 +161,11 @@ struct ViewItemDetailsView: View { // swiftlint:disable:this type_body_length
                     name: Localizations.folderNone,
                 )
                 .padding(.leading, 8)
-                .accessibilityLabel(Localizations.myFolderX(Localizations.folderNone))
+                .accessibilityLabel(
+                    store.state.isVfo1FoundationFeatureFlagEnabled
+                        ? Localizations.myFolderX(Localizations.folderNone)
+                        : Localizations.folderX(Localizations.folderNone),
+                )
             } else {
                 if store.state.shouldDisplayAsArchived {
                     belongingView(
@@ -234,7 +238,11 @@ struct ViewItemDetailsView: View { // swiftlint:disable:this type_body_length
                     icon: SharedAsset.Icons.folder16,
                     name: folderName,
                 )
-                .accessibilityLabel(Localizations.myFolderX(folderName))
+                .accessibilityLabel(
+                    store.state.isVfo1FoundationFeatureFlagEnabled
+                        ? Localizations.myFolderX(folderName)
+                        : Localizations.folderX(folderName),
+                )
                 .accessibilityHint(
                     Localizations.itemXOfY(
                         store.state.totalHeaderAdditionalItems,

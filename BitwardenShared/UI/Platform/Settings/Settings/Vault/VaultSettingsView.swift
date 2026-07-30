@@ -59,7 +59,9 @@ struct VaultSettingsView: View {
     /// The vault settings section.
     private var vaultSettings: some View {
         ContentBlock(dividerLeadingPadding: 16) {
-            SettingsListItem(Localizations.myFolders) {
+            SettingsListItem(
+                store.state.isVfo1FoundationFeatureFlagEnabled ? Localizations.myFolders : Localizations.folders,
+            ) {
                 store.send(.foldersTapped)
             }
             .accessibilityIdentifier("FoldersLabel")
