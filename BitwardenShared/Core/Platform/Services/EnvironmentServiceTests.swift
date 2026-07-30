@@ -1,26 +1,26 @@
 import BitwardenKit
 import BitwardenKitMocks
-import XCTest
+import Foundation
+import Testing
 
 @testable import BitwardenShared
 @testable import BitwardenSharedMocks
 
-class EnvironmentServiceTests: XCTestCase {
+@Suite(.serialized)
+struct EnvironmentServiceTests { // swiftlint:disable:this type_body_length
     // MARK: Properties
 
-    var errorReporter: MockErrorReporter!
-    var stateService: MockStateService!
-    var standardUserDefaults: UserDefaults!
-    var subject: EnvironmentService!
+    let errorReporter: MockErrorReporter
+    let stateService: MockStateService
+    let standardUserDefaults: UserDefaults
+    let subject: EnvironmentService
 
     // MARK: Setup & Teardown
 
-    override func setUp() {
-        super.setUp()
-
+    init() {
         errorReporter = MockErrorReporter()
         stateService = MockStateService()
-        standardUserDefaults = UserDefaults(suiteName: "test")
+        standardUserDefaults = UserDefaults(suiteName: "test")!
         standardUserDefaults.removeObject(forKey: "com.apple.configuration.managed")
 
         subject = DefaultEnvironmentService(
@@ -30,52 +30,50 @@ class EnvironmentServiceTests: XCTestCase {
         )
     }
 
-    override func tearDown() {
-        super.tearDown()
-
-        errorReporter = nil
-        stateService = nil
-        standardUserDefaults = nil
-        subject = nil
-    }
-
     // MARK: Tests
 
-    /// Concurrent reads and writes to environment properties should not produce a data race.
-    func test_concurrentReadWrite_noDataRace() async {
+    /// `setPreAuthURLs(urls:)` and property reads do not produce a data race under concurrent access.
+    @Test
+    func concurrentReadWrite_noDataRace() async {
         let urls = EnvironmentURLData(base: .example)
 
         await withTaskGroup(of: Void.self) { group in
             for _ in 0 ..< 50 {
-                group.addTask { await self.subject.setPreAuthURLs(urls: urls) }
-                group.addTask { _ = self.subject.apiURL }
-                group.addTask { _ = self.subject.clientCertificateFingerprint }
+                group.addTask { await subject.setPreAuthURLs(urls: urls) }
+                group.addTask { _ = subject.apiURL }
+                group.addTask { _ = subject.clientCertificateFingerprint }
             }
         }
     }
 
-    /// The default US URLs are returned if the URLs haven't been loaded.
-    func test_defaultUrls() {
-        XCTAssertEqual(subject.apiURL, URL(string: "https://api.bitwarden.com"))
-        XCTAssertEqual(subject.baseURL, URL(string: "https://vault.bitwarden.com"))
-        XCTAssertEqual(subject.changeEmailURL, URL(string: "https://vault.bitwarden.com/#/settings/account"))
-        XCTAssertEqual(subject.eventsURL, URL(string: "https://events.bitwarden.com"))
-        XCTAssertEqual(subject.iconsURL, URL(string: "https://icons.bitwarden.net"))
-        XCTAssertEqual(subject.identityURL, URL(string: "https://identity.bitwarden.com"))
-        XCTAssertEqual(subject.importItemsURL, URL(string: "https://vault.bitwarden.com/#/tools/import"))
-        // swiftlint:disable:next line_length
-        XCTAssertEqual(subject.proxyCookieRedirectConnectorURL, URL(string: "https://vault.bitwarden.com/proxy-cookie-redirect-connector.html"))
-        XCTAssertEqual(subject.recoveryCodeURL, URL(string: "https://vault.bitwarden.com/#/recover-2fa"))
-        XCTAssertEqual(subject.region, .unitedStates)
-        XCTAssertEqual(subject.sendShareURL, URL(string: "https://send.bitwarden.com/#"))
-        XCTAssertEqual(subject.settingsURL, URL(string: "https://vault.bitwarden.com/#/settings"))
-        // swiftlint:disable:next line_length
-        XCTAssertEqual(subject.setUpTwoFactorURL, URL(string: "https://vault.bitwarden.com/#/settings/security/two-factor"))
-        XCTAssertEqual(subject.webVaultURL, URL(string: "https://vault.bitwarden.com"))
+    /// `apiURL` and other URL properties return US default values before URLs are loaded.
+    @Test
+    func defaultUrls() {
+        #expect(subject.apiURL == URL(string: "https://api.bitwarden.com"))
+        #expect(subject.baseURL == URL(string: "https://vault.bitwarden.com"))
+        #expect(subject.changeEmailURL == URL(string: "https://vault.bitwarden.com/#/settings/account"))
+        #expect(subject.eventsURL == URL(string: "https://events.bitwarden.com"))
+        #expect(subject.iconsURL == URL(string: "https://icons.bitwarden.net"))
+        #expect(subject.identityURL == URL(string: "https://identity.bitwarden.com"))
+        #expect(subject.importItemsURL == URL(string: "https://vault.bitwarden.com/#/tools/import"))
+        #expect(
+            subject.proxyCookieRedirectConnectorURL
+                == URL(string: "https://vault.bitwarden.com/proxy-cookie-redirect-connector.html"),
+        )
+        #expect(subject.recoveryCodeURL == URL(string: "https://vault.bitwarden.com/#/recover-2fa"))
+        #expect(subject.region == .unitedStates)
+        #expect(subject.sendShareURL == URL(string: "https://send.bitwarden.com/#"))
+        #expect(subject.settingsURL == URL(string: "https://vault.bitwarden.com/#/settings"))
+        #expect(
+            subject.setUpTwoFactorURL
+                == URL(string: "https://vault.bitwarden.com/#/settings/security/two-factor"),
+        )
+        #expect(subject.webVaultURL == URL(string: "https://vault.bitwarden.com"))
     }
 
     /// `loadURLsForActiveAccount()` loads the URLs for the active account.
-    func test_loadURLsForActiveAccount() async {
+    @Test
+    func loadURLsForActiveAccount() async {
         let urls = EnvironmentURLData(base: .example)
         let account = Account.fixture(settings: .fixture(environmentURLs: urls))
         stateService.activeAccount = account
@@ -83,29 +81,32 @@ class EnvironmentServiceTests: XCTestCase {
 
         await subject.loadURLsForActiveAccount()
 
-        XCTAssertEqual(subject.apiURL, URL(string: "https://example.com/api"))
-        XCTAssertEqual(subject.baseURL, URL(string: "https://example.com"))
-        XCTAssertEqual(subject.changeEmailURL, URL(string: "https://example.com/#/settings/account"))
-        XCTAssertEqual(subject.eventsURL, URL(string: "https://example.com/events"))
-        XCTAssertEqual(subject.iconsURL, URL(string: "https://example.com/icons"))
-        XCTAssertEqual(subject.identityURL, URL(string: "https://example.com/identity"))
-        XCTAssertEqual(subject.importItemsURL, URL(string: "https://example.com/#/tools/import"))
-        // swiftlint:disable:next line_length
-        XCTAssertEqual(subject.proxyCookieRedirectConnectorURL, URL(string: "https://example.com/proxy-cookie-redirect-connector.html"))
-        XCTAssertEqual(subject.recoveryCodeURL, URL(string: "https://example.com/#/recover-2fa"))
-        XCTAssertEqual(subject.region, .selfHosted)
-        XCTAssertEqual(subject.sendShareURL, URL(string: "https://example.com/#/send"))
-        XCTAssertEqual(subject.settingsURL, URL(string: "https://example.com/#/settings"))
-        XCTAssertEqual(subject.setUpTwoFactorURL, URL(string: "https://example.com/#/settings/security/two-factor"))
-        XCTAssertEqual(subject.webVaultURL, URL(string: "https://example.com"))
-        XCTAssertEqual(stateService.preAuthEnvironmentURLs, urls)
+        #expect(subject.apiURL == URL(string: "https://example.com/api"))
+        #expect(subject.baseURL == URL(string: "https://example.com"))
+        #expect(subject.changeEmailURL == URL(string: "https://example.com/#/settings/account"))
+        #expect(subject.eventsURL == URL(string: "https://example.com/events"))
+        #expect(subject.iconsURL == URL(string: "https://example.com/icons"))
+        #expect(subject.identityURL == URL(string: "https://example.com/identity"))
+        #expect(subject.importItemsURL == URL(string: "https://example.com/#/tools/import"))
+        #expect(
+            subject.proxyCookieRedirectConnectorURL
+                == URL(string: "https://example.com/proxy-cookie-redirect-connector.html"),
+        )
+        #expect(subject.recoveryCodeURL == URL(string: "https://example.com/#/recover-2fa"))
+        #expect(subject.region == .selfHosted)
+        #expect(subject.sendShareURL == URL(string: "https://example.com/#/send"))
+        #expect(subject.settingsURL == URL(string: "https://example.com/#/settings"))
+        #expect(subject.setUpTwoFactorURL == URL(string: "https://example.com/#/settings/security/two-factor"))
+        #expect(subject.webVaultURL == URL(string: "https://example.com"))
+        #expect(stateService.preAuthEnvironmentURLs == urls)
 
-        XCTAssertEqual(errorReporter.region?.region, "Self-Hosted")
-        XCTAssertEqual(errorReporter.region?.isPreAuth, false)
+        #expect(errorReporter.region?.region == "Self-Hosted")
+        #expect(errorReporter.region?.isPreAuth == false)
     }
 
     /// `loadURLsForActiveAccount()` loads the client certificate fingerprint from the account URLs.
-    func test_loadURLsForActiveAccount_clientCertificateFingerprint() async {
+    @Test
+    func loadURLsForActiveAccount_clientCertificateFingerprint() async {
         let urls = EnvironmentURLData(base: .example, clientCertificateFingerprint: "test-fingerprint")
         let account = Account.fixture(settings: .fixture(environmentURLs: urls))
         stateService.activeAccount = account
@@ -113,11 +114,12 @@ class EnvironmentServiceTests: XCTestCase {
 
         await subject.loadURLsForActiveAccount()
 
-        XCTAssertEqual(subject.clientCertificateFingerprint, "test-fingerprint")
+        #expect(subject.clientCertificateFingerprint == "test-fingerprint")
     }
 
-    /// `loadURLsForActiveAccount()` handles EU URLs
-    func test_loadURLsForActiveAccount_europe() async {
+    /// `loadURLsForActiveAccount()` handles EU URLs.
+    @Test
+    func loadURLsForActiveAccount_europe() async {
         let urls = EnvironmentURLData.defaultEU
         let account = Account.fixture(settings: .fixture(environmentURLs: urls))
         stateService.activeAccount = account
@@ -125,30 +127,35 @@ class EnvironmentServiceTests: XCTestCase {
 
         await subject.loadURLsForActiveAccount()
 
-        XCTAssertEqual(subject.apiURL, URL(string: "https://api.bitwarden.eu"))
-        XCTAssertEqual(subject.baseURL, URL(string: "https://vault.bitwarden.eu"))
-        XCTAssertEqual(subject.changeEmailURL, URL(string: "https://vault.bitwarden.eu/#/settings/account"))
-        XCTAssertEqual(subject.eventsURL, URL(string: "https://events.bitwarden.eu"))
-        XCTAssertEqual(subject.iconsURL, URL(string: "https://icons.bitwarden.eu"))
-        XCTAssertEqual(subject.identityURL, URL(string: "https://identity.bitwarden.eu"))
-        XCTAssertEqual(subject.importItemsURL, URL(string: "https://vault.bitwarden.eu/#/tools/import"))
-        // swiftlint:disable:next line_length
-        XCTAssertEqual(subject.proxyCookieRedirectConnectorURL, URL(string: "https://vault.bitwarden.eu/proxy-cookie-redirect-connector.html"))
-        XCTAssertEqual(subject.recoveryCodeURL, URL(string: "https://vault.bitwarden.eu/#/recover-2fa"))
-        XCTAssertEqual(subject.region, .europe)
-        XCTAssertEqual(subject.sendShareURL, URL(string: "https://vault.bitwarden.eu/#/send"))
-        XCTAssertEqual(subject.settingsURL, URL(string: "https://vault.bitwarden.eu/#/settings"))
-        // swiftlint:disable:next line_length
-        XCTAssertEqual(subject.setUpTwoFactorURL, URL(string: "https://vault.bitwarden.eu/#/settings/security/two-factor"))
-        XCTAssertEqual(subject.webVaultURL, URL(string: "https://vault.bitwarden.eu"))
-        XCTAssertEqual(stateService.preAuthEnvironmentURLs, urls)
+        #expect(subject.apiURL == URL(string: "https://api.bitwarden.eu"))
+        #expect(subject.baseURL == URL(string: "https://vault.bitwarden.eu"))
+        #expect(subject.changeEmailURL == URL(string: "https://vault.bitwarden.eu/#/settings/account"))
+        #expect(subject.eventsURL == URL(string: "https://events.bitwarden.eu"))
+        #expect(subject.iconsURL == URL(string: "https://icons.bitwarden.eu"))
+        #expect(subject.identityURL == URL(string: "https://identity.bitwarden.eu"))
+        #expect(subject.importItemsURL == URL(string: "https://vault.bitwarden.eu/#/tools/import"))
+        #expect(
+            subject.proxyCookieRedirectConnectorURL
+                == URL(string: "https://vault.bitwarden.eu/proxy-cookie-redirect-connector.html"),
+        )
+        #expect(subject.recoveryCodeURL == URL(string: "https://vault.bitwarden.eu/#/recover-2fa"))
+        #expect(subject.region == .europe)
+        #expect(subject.sendShareURL == URL(string: "https://vault.bitwarden.eu/#/send"))
+        #expect(subject.settingsURL == URL(string: "https://vault.bitwarden.eu/#/settings"))
+        #expect(
+            subject.setUpTwoFactorURL
+                == URL(string: "https://vault.bitwarden.eu/#/settings/security/two-factor"),
+        )
+        #expect(subject.webVaultURL == URL(string: "https://vault.bitwarden.eu"))
+        #expect(stateService.preAuthEnvironmentURLs == urls)
 
-        XCTAssertEqual(errorReporter.region?.region, "EU")
-        XCTAssertEqual(errorReporter.region?.isPreAuth, false)
+        #expect(errorReporter.region?.region == "EU")
+        #expect(errorReporter.region?.isPreAuth == false)
     }
 
     /// `loadURLsForActiveAccount()` loads the managed config URLs.
-    func test_loadURLsForActiveAccount_managedConfig() async throws {
+    @Test
+    func loadURLsForActiveAccount_managedConfig() async throws {
         standardUserDefaults.setValue(
             ["baseEnvironmentUrl": "https://vault.example.com"],
             forKey: "com.apple.configuration.managed",
@@ -156,29 +163,34 @@ class EnvironmentServiceTests: XCTestCase {
 
         await subject.loadURLsForActiveAccount()
 
-        let urls = try EnvironmentURLData(base: XCTUnwrap(URL(string: "https://vault.example.com")))
-        XCTAssertEqual(subject.apiURL, URL(string: "https://vault.example.com/api"))
-        XCTAssertEqual(subject.baseURL, URL(string: "https://vault.example.com"))
-        XCTAssertEqual(subject.changeEmailURL, URL(string: "https://vault.example.com/#/settings/account"))
-        XCTAssertEqual(subject.eventsURL, URL(string: "https://vault.example.com/events"))
-        XCTAssertEqual(subject.iconsURL, URL(string: "https://vault.example.com/icons"))
-        XCTAssertEqual(subject.identityURL, URL(string: "https://vault.example.com/identity"))
-        XCTAssertEqual(subject.importItemsURL, URL(string: "https://vault.example.com/#/tools/import"))
-        // swiftlint:disable:next line_length
-        XCTAssertEqual(subject.proxyCookieRedirectConnectorURL, URL(string: "https://vault.example.com/proxy-cookie-redirect-connector.html"))
-        XCTAssertEqual(subject.recoveryCodeURL, URL(string: "https://vault.example.com/#/recover-2fa"))
-        XCTAssertEqual(subject.region, .selfHosted)
-        XCTAssertEqual(subject.sendShareURL, URL(string: "https://vault.example.com/#/send"))
-        XCTAssertEqual(subject.settingsURL, URL(string: "https://vault.example.com/#/settings"))
-        // swiftlint:disable:next line_length
-        XCTAssertEqual(subject.setUpTwoFactorURL, URL(string: "https://vault.example.com/#/settings/security/two-factor"))
-        XCTAssertEqual(subject.webVaultURL, URL(string: "https://vault.example.com"))
-        XCTAssertEqual(stateService.preAuthEnvironmentURLs, urls)
+        let urls = try EnvironmentURLData(base: #require(URL(string: "https://vault.example.com")))
+        #expect(subject.apiURL == URL(string: "https://vault.example.com/api"))
+        #expect(subject.baseURL == URL(string: "https://vault.example.com"))
+        #expect(subject.changeEmailURL == URL(string: "https://vault.example.com/#/settings/account"))
+        #expect(subject.eventsURL == URL(string: "https://vault.example.com/events"))
+        #expect(subject.iconsURL == URL(string: "https://vault.example.com/icons"))
+        #expect(subject.identityURL == URL(string: "https://vault.example.com/identity"))
+        #expect(subject.importItemsURL == URL(string: "https://vault.example.com/#/tools/import"))
+        #expect(
+            subject.proxyCookieRedirectConnectorURL
+                == URL(string: "https://vault.example.com/proxy-cookie-redirect-connector.html"),
+        )
+        #expect(subject.recoveryCodeURL == URL(string: "https://vault.example.com/#/recover-2fa"))
+        #expect(subject.region == .selfHosted)
+        #expect(subject.sendShareURL == URL(string: "https://vault.example.com/#/send"))
+        #expect(subject.settingsURL == URL(string: "https://vault.example.com/#/settings"))
+        #expect(
+            subject.setUpTwoFactorURL
+                == URL(string: "https://vault.example.com/#/settings/security/two-factor"),
+        )
+        #expect(subject.webVaultURL == URL(string: "https://vault.example.com"))
+        #expect(stateService.preAuthEnvironmentURLs == urls)
     }
 
     /// `loadURLsForActiveAccount()` doesn't load the managed config URLs if there's an active
     /// account, but sets the pre-auth URLs to the managed config URLs.
-    func test_loadURLsForActiveAccount_managedConfigActiveAccount() async throws {
+    @Test
+    func loadURLsForActiveAccount_managedConfigActiveAccount() async throws {
         let account = Account.fixture()
         stateService.activeAccount = account
         stateService.environmentURLs[account.profile.userId] = .defaultUS
@@ -189,129 +201,141 @@ class EnvironmentServiceTests: XCTestCase {
 
         await subject.loadURLsForActiveAccount()
 
-        XCTAssertEqual(subject.apiURL, URL(string: "https://api.bitwarden.com"))
-        XCTAssertEqual(subject.baseURL, URL(string: "https://vault.bitwarden.com"))
-        XCTAssertEqual(subject.changeEmailURL, URL(string: "https://vault.bitwarden.com/#/settings/account"))
-        XCTAssertEqual(subject.eventsURL, URL(string: "https://events.bitwarden.com"))
-        XCTAssertEqual(subject.iconsURL, URL(string: "https://icons.bitwarden.net"))
-        XCTAssertEqual(subject.identityURL, URL(string: "https://identity.bitwarden.com"))
-        XCTAssertEqual(subject.importItemsURL, URL(string: "https://vault.bitwarden.com/#/tools/import"))
-        // swiftlint:disable:next line_length
-        XCTAssertEqual(subject.proxyCookieRedirectConnectorURL, URL(string: "https://vault.bitwarden.com/proxy-cookie-redirect-connector.html"))
-        XCTAssertEqual(subject.recoveryCodeURL, URL(string: "https://vault.bitwarden.com/#/recover-2fa"))
-        XCTAssertEqual(subject.region, .unitedStates)
-        XCTAssertEqual(subject.sendShareURL, URL(string: "https://send.bitwarden.com/#"))
-        XCTAssertEqual(subject.settingsURL, URL(string: "https://vault.bitwarden.com/#/settings"))
-        // swiftlint:disable:next line_length
-        XCTAssertEqual(subject.setUpTwoFactorURL, URL(string: "https://vault.bitwarden.com/#/settings/security/two-factor"))
-        XCTAssertEqual(subject.webVaultURL, URL(string: "https://vault.bitwarden.com"))
+        #expect(subject.apiURL == URL(string: "https://api.bitwarden.com"))
+        #expect(subject.baseURL == URL(string: "https://vault.bitwarden.com"))
+        #expect(subject.changeEmailURL == URL(string: "https://vault.bitwarden.com/#/settings/account"))
+        #expect(subject.eventsURL == URL(string: "https://events.bitwarden.com"))
+        #expect(subject.iconsURL == URL(string: "https://icons.bitwarden.net"))
+        #expect(subject.identityURL == URL(string: "https://identity.bitwarden.com"))
+        #expect(subject.importItemsURL == URL(string: "https://vault.bitwarden.com/#/tools/import"))
+        #expect(
+            subject.proxyCookieRedirectConnectorURL
+                == URL(string: "https://vault.bitwarden.com/proxy-cookie-redirect-connector.html"),
+        )
+        #expect(subject.recoveryCodeURL == URL(string: "https://vault.bitwarden.com/#/recover-2fa"))
+        #expect(subject.region == .unitedStates)
+        #expect(subject.sendShareURL == URL(string: "https://send.bitwarden.com/#"))
+        #expect(subject.settingsURL == URL(string: "https://vault.bitwarden.com/#/settings"))
+        #expect(
+            subject.setUpTwoFactorURL
+                == URL(string: "https://vault.bitwarden.com/#/settings/security/two-factor"),
+        )
+        #expect(subject.webVaultURL == URL(string: "https://vault.bitwarden.com"))
 
-        let urls = try EnvironmentURLData(base: XCTUnwrap(URL(string: "https://vault.example.com")))
-        XCTAssertEqual(stateService.preAuthEnvironmentURLs, urls)
+        let urls = try EnvironmentURLData(base: #require(URL(string: "https://vault.example.com")))
+        #expect(stateService.preAuthEnvironmentURLs == urls)
     }
 
     /// `loadURLsForActiveAccount()` loads the default URLs if there's no active account
     /// and no preauth URLs.
-    func test_loadURLsForActiveAccount_noAccount() async {
+    @Test
+    func loadURLsForActiveAccount_noAccount() async {
         await subject.loadURLsForActiveAccount()
 
-        XCTAssertEqual(subject.apiURL, URL(string: "https://api.bitwarden.com"))
-        XCTAssertEqual(subject.baseURL, URL(string: "https://vault.bitwarden.com"))
-        XCTAssertEqual(subject.changeEmailURL, URL(string: "https://vault.bitwarden.com/#/settings/account"))
-        XCTAssertEqual(subject.eventsURL, URL(string: "https://events.bitwarden.com"))
-        XCTAssertEqual(subject.iconsURL, URL(string: "https://icons.bitwarden.net"))
-        XCTAssertEqual(subject.identityURL, URL(string: "https://identity.bitwarden.com"))
-        XCTAssertEqual(subject.importItemsURL, URL(string: "https://vault.bitwarden.com/#/tools/import"))
-        // swiftlint:disable:next line_length
-        XCTAssertEqual(subject.proxyCookieRedirectConnectorURL, URL(string: "https://vault.bitwarden.com/proxy-cookie-redirect-connector.html"))
-        XCTAssertEqual(subject.recoveryCodeURL, URL(string: "https://vault.bitwarden.com/#/recover-2fa"))
-        XCTAssertEqual(subject.region, .unitedStates)
-        XCTAssertEqual(subject.sendShareURL, URL(string: "https://send.bitwarden.com/#"))
-        XCTAssertEqual(subject.settingsURL, URL(string: "https://vault.bitwarden.com/#/settings"))
-        // swiftlint:disable:next line_length
-        XCTAssertEqual(subject.setUpTwoFactorURL, URL(string: "https://vault.bitwarden.com/#/settings/security/two-factor"))
-        XCTAssertEqual(subject.webVaultURL, URL(string: "https://vault.bitwarden.com"))
-        XCTAssertEqual(stateService.preAuthEnvironmentURLs, .defaultUS)
+        #expect(subject.apiURL == URL(string: "https://api.bitwarden.com"))
+        #expect(subject.baseURL == URL(string: "https://vault.bitwarden.com"))
+        #expect(subject.changeEmailURL == URL(string: "https://vault.bitwarden.com/#/settings/account"))
+        #expect(subject.eventsURL == URL(string: "https://events.bitwarden.com"))
+        #expect(subject.iconsURL == URL(string: "https://icons.bitwarden.net"))
+        #expect(subject.identityURL == URL(string: "https://identity.bitwarden.com"))
+        #expect(subject.importItemsURL == URL(string: "https://vault.bitwarden.com/#/tools/import"))
+        #expect(
+            subject.proxyCookieRedirectConnectorURL
+                == URL(string: "https://vault.bitwarden.com/proxy-cookie-redirect-connector.html"),
+        )
+        #expect(subject.recoveryCodeURL == URL(string: "https://vault.bitwarden.com/#/recover-2fa"))
+        #expect(subject.region == .unitedStates)
+        #expect(subject.sendShareURL == URL(string: "https://send.bitwarden.com/#"))
+        #expect(subject.settingsURL == URL(string: "https://vault.bitwarden.com/#/settings"))
+        #expect(
+            subject.setUpTwoFactorURL
+                == URL(string: "https://vault.bitwarden.com/#/settings/security/two-factor"),
+        )
+        #expect(subject.webVaultURL == URL(string: "https://vault.bitwarden.com"))
+        #expect(stateService.preAuthEnvironmentURLs == .defaultUS)
 
-        XCTAssertEqual(errorReporter.region?.region, "US")
-        XCTAssertEqual(errorReporter.region?.isPreAuth, false)
+        #expect(errorReporter.region?.region == "US")
+        #expect(errorReporter.region?.isPreAuth == false)
     }
 
     /// `loadURLsForActiveAccount()` loads the preAuth URLs if there's no active account
     /// and there are preauth URLs.
-    func test_loadURLsForActiveAccount_preAuth() async {
+    @Test
+    func loadURLsForActiveAccount_preAuth() async {
         let urls = EnvironmentURLData(base: .example)
         stateService.preAuthEnvironmentURLs = urls
 
         await subject.loadURLsForActiveAccount()
 
-        XCTAssertEqual(subject.apiURL, URL(string: "https://example.com/api"))
-        XCTAssertEqual(subject.baseURL, URL(string: "https://example.com"))
-        XCTAssertEqual(subject.changeEmailURL, URL(string: "https://example.com/#/settings/account"))
-        XCTAssertEqual(subject.eventsURL, URL(string: "https://example.com/events"))
-        XCTAssertEqual(subject.iconsURL, URL(string: "https://example.com/icons"))
-        XCTAssertEqual(subject.identityURL, URL(string: "https://example.com/identity"))
-        XCTAssertEqual(subject.importItemsURL, URL(string: "https://example.com/#/tools/import"))
-        // swiftlint:disable:next line_length
-        XCTAssertEqual(subject.proxyCookieRedirectConnectorURL, URL(string: "https://example.com/proxy-cookie-redirect-connector.html"))
-        XCTAssertEqual(subject.recoveryCodeURL, URL(string: "https://example.com/#/recover-2fa"))
-        XCTAssertEqual(subject.region, .selfHosted)
-        XCTAssertEqual(subject.sendShareURL, URL(string: "https://example.com/#/send"))
-        XCTAssertEqual(subject.settingsURL, URL(string: "https://example.com/#/settings"))
-        XCTAssertEqual(
-            subject.setUpTwoFactorURL,
-            URL(
-                string: "https://example.com/#/settings/security/two-factor",
-            ),
+        #expect(subject.apiURL == URL(string: "https://example.com/api"))
+        #expect(subject.baseURL == URL(string: "https://example.com"))
+        #expect(subject.changeEmailURL == URL(string: "https://example.com/#/settings/account"))
+        #expect(subject.eventsURL == URL(string: "https://example.com/events"))
+        #expect(subject.iconsURL == URL(string: "https://example.com/icons"))
+        #expect(subject.identityURL == URL(string: "https://example.com/identity"))
+        #expect(subject.importItemsURL == URL(string: "https://example.com/#/tools/import"))
+        #expect(
+            subject.proxyCookieRedirectConnectorURL
+                == URL(string: "https://example.com/proxy-cookie-redirect-connector.html"),
         )
-        XCTAssertEqual(subject.webVaultURL, URL(string: "https://example.com"))
-        XCTAssertEqual(stateService.preAuthEnvironmentURLs, urls)
+        #expect(subject.recoveryCodeURL == URL(string: "https://example.com/#/recover-2fa"))
+        #expect(subject.region == .selfHosted)
+        #expect(subject.sendShareURL == URL(string: "https://example.com/#/send"))
+        #expect(subject.settingsURL == URL(string: "https://example.com/#/settings"))
+        #expect(subject.setUpTwoFactorURL == URL(string: "https://example.com/#/settings/security/two-factor"))
+        #expect(subject.webVaultURL == URL(string: "https://example.com"))
+        #expect(stateService.preAuthEnvironmentURLs == urls)
 
-        XCTAssertEqual(errorReporter.region?.region, "Self-Hosted")
-        XCTAssertEqual(errorReporter.region?.isPreAuth, false)
+        #expect(errorReporter.region?.region == "Self-Hosted")
+        #expect(errorReporter.region?.isPreAuth == false)
     }
 
     /// `region` resolves a `bitwarden.pw` environment (including subdomains) to `.internal`.
-    func test_region_internal() async {
+    @Test
+    func region_internal() async {
         await subject.setPreAuthURLs(urls: EnvironmentURLData(base: URL(string: "https://qa-team.sh.bitwarden.pw")!))
 
-        XCTAssertEqual(subject.region, .internal)
-        XCTAssertEqual(errorReporter.region?.region, "Internal")
-        XCTAssertEqual(errorReporter.region?.isPreAuth, true)
+        #expect(subject.region == .internal)
+        #expect(errorReporter.region?.region == "Internal")
+        #expect(errorReporter.region?.isPreAuth == true)
     }
 
     /// `setPreAuthURLs(urls:)` sets the pre-auth URLs.
-    func test_setPreAuthURLs() async {
+    @Test
+    func setPreAuthURLs() async {
         let urls = EnvironmentURLData(base: .example)
 
         await subject.setPreAuthURLs(urls: urls)
 
-        XCTAssertEqual(subject.apiURL, URL(string: "https://example.com/api"))
-        XCTAssertEqual(subject.baseURL, URL(string: "https://example.com"))
-        XCTAssertEqual(subject.changeEmailURL, URL(string: "https://example.com/#/settings/account"))
-        XCTAssertEqual(subject.eventsURL, URL(string: "https://example.com/events"))
-        XCTAssertEqual(subject.iconsURL, URL(string: "https://example.com/icons"))
-        XCTAssertEqual(subject.identityURL, URL(string: "https://example.com/identity"))
-        XCTAssertEqual(subject.importItemsURL, URL(string: "https://example.com/#/tools/import"))
-        // swiftlint:disable:next line_length
-        XCTAssertEqual(subject.proxyCookieRedirectConnectorURL, URL(string: "https://example.com/proxy-cookie-redirect-connector.html"))
-        XCTAssertEqual(subject.recoveryCodeURL, URL(string: "https://example.com/#/recover-2fa"))
-        XCTAssertEqual(subject.region, .selfHosted)
-        XCTAssertEqual(subject.sendShareURL, URL(string: "https://example.com/#/send"))
-        XCTAssertEqual(subject.settingsURL, URL(string: "https://example.com/#/settings"))
-        XCTAssertEqual(subject.setUpTwoFactorURL, URL(string: "https://example.com/#/settings/security/two-factor"))
-        XCTAssertEqual(subject.webVaultURL, URL(string: "https://example.com"))
-        XCTAssertEqual(stateService.preAuthEnvironmentURLs, urls)
-        XCTAssertEqual(errorReporter.region?.region, "Self-Hosted")
-        XCTAssertEqual(errorReporter.region?.isPreAuth, true)
+        #expect(subject.apiURL == URL(string: "https://example.com/api"))
+        #expect(subject.baseURL == URL(string: "https://example.com"))
+        #expect(subject.changeEmailURL == URL(string: "https://example.com/#/settings/account"))
+        #expect(subject.eventsURL == URL(string: "https://example.com/events"))
+        #expect(subject.iconsURL == URL(string: "https://example.com/icons"))
+        #expect(subject.identityURL == URL(string: "https://example.com/identity"))
+        #expect(subject.importItemsURL == URL(string: "https://example.com/#/tools/import"))
+        #expect(
+            subject.proxyCookieRedirectConnectorURL
+                == URL(string: "https://example.com/proxy-cookie-redirect-connector.html"),
+        )
+        #expect(subject.recoveryCodeURL == URL(string: "https://example.com/#/recover-2fa"))
+        #expect(subject.region == .selfHosted)
+        #expect(subject.sendShareURL == URL(string: "https://example.com/#/send"))
+        #expect(subject.settingsURL == URL(string: "https://example.com/#/settings"))
+        #expect(subject.setUpTwoFactorURL == URL(string: "https://example.com/#/settings/security/two-factor"))
+        #expect(subject.webVaultURL == URL(string: "https://example.com"))
+        #expect(stateService.preAuthEnvironmentURLs == urls)
+        #expect(errorReporter.region?.region == "Self-Hosted")
+        #expect(errorReporter.region?.isPreAuth == true)
     }
 
     /// `setPreAuthURLs(urls:)` sets the client certificate fingerprint from the pre-auth URLs.
-    func test_setPreAuthURLs_clientCertificateFingerprint() async {
+    @Test
+    func setPreAuthURLs_clientCertificateFingerprint() async {
         let urls = EnvironmentURLData(base: .example, clientCertificateFingerprint: "test-fingerprint")
 
         await subject.setPreAuthURLs(urls: urls)
 
-        XCTAssertEqual(subject.clientCertificateFingerprint, "test-fingerprint")
+        #expect(subject.clientCertificateFingerprint == "test-fingerprint")
     }
 }

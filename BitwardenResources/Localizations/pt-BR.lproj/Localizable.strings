@@ -391,7 +391,7 @@
 "MasterPasswordPolicyValidationTitle" = "Senha inválida";
 "MasterPasswordPolicyValidationMessage" = "A senha não atende aos requisitos da organização. Confira as informações da política e tente novamente.";
 "Loading" = "Carregando";
-"LoadingSubscription" = "Carregando assinatura...";
+"LoadingSubscription" = "Carregando assinatura…";
 "AcceptPoliciesError" = "Os Termos de Serviço e a Política de Privacidade não foram reconhecidos.";
 "PrivacyPolicy" = "Política de Privacidade";
 "PersonalOwnershipPolicyInEffect" = "Uma política de organização está afetando suas opções de propriedade.";
@@ -571,6 +571,8 @@
 "RequestAdminApproval" = "Solicitar aprovação do administrador";
 "ApproveWithMasterPassword" = "Aprovar com senha principal";
 "TurnOffUsingPublicDevice" = "Desativar usando um dispositivo público";
+"TurnOnFillAssist" = "Turn on fill assist";
+"TurnOnFillAssistDescriptionLong" = "Fill Assist improves autofill accuracy on supported sites by using site-specific rules.";
 "RememberThisDevice" = "Lembrar deste dispositivo";
 "Passkey" = "Chave de acesso";
 "Passkeys" = "Chaves de acesso";
@@ -1097,12 +1099,37 @@
 "YourSubscriptionExpiredOnXDescriptionLong" = "Sua assinatura expirou em **%1$@**. Reinscreva-se para continuar usando os recursos do Premium.";
 "YourSubscriptionIsScheduledToCancelOnXDescriptionLong" = "Sua assinatura está agendada para ser cancelada em **%1$@**. Você pode restabelecê-la a qualquer momento antes disso.";
 "PerMonth" = "/ mês";
+/* VoiceOver reading of "PerMonth", spoken instead of shown. */
+"PerMonthVoiceOver" = "per month";
 "PerYear" = "/ ano";
+/* VoiceOver reading of "PerYear", spoken instead of shown. */
+"PerYearVoiceOver" = "per year";
 "XAmountPerCadence" = "%1$@ %2$@";
+/* %1$@ is an amount and cadence together, e.g. "$1.65 / month". */
+"XCancelAnytime" = "%1$@ · Cancel anytime";
+/* VoiceOver reading of "XCancelAnytime", spoken instead of shown. */
+"XCancelAnytimeVoiceOver" = "%1$@, Cancel anytime";
 "NegativeX" = "-%1$@";
 "UnknownStatus" = "Desconhecido";
 "YourSubscriptionStatusIsUnknownVisitTheWebAppDescriptionLong" = "O estado da sua assinatura não pôde ser determinado. Visite o aplicativo web para mais detalhes ou atualize para a versão mais recente.";
-"UnlockMoreAdvancedFeaturesWithPremiumPlan" = "Desbloqueie recursos mais avançados com um plano Premium.";
+/* Headline on the Premium upgrade screen. */
+"UnlockAdvancedProtection" = "Desbloquear proteção avançada";
+/* Premium benefit list item. */
+"BreezeThrough2faWithBuiltInCodes" = "Passe direto pela 2FA com códigos embutidos";
+/* Premium benefit list item. */
+"RunReportsToFindRiskyPasswords" = "Execute relatorios para encontrar senhas em risco";
+/* Premium benefit list item. */
+"KeepDocumentsSafeAndEncrypted" = "Mantenha documentos seguros e criptografados";
+/* Premium benefit list item. */
+"AddATrustedEmergencyContact" = "Adicione um contato confiado de emergência";
+/* Premium benefit list item. */
+"IdentifyUnsecureWebsites" = "Identifique sites inseguros";
+/* Premium benefit list item. */
+"FlagAccountsWithInactive2fa" = "Sinalize contas sem 2FA ativo";
+/* Premium benefit list item; "Send" is the Bitwarden Send feature name and shouldn't be translated. */
+"ShareFilesSecurelyWithAnyoneUsingSend" = "Compartilhe arquivos com segurança com qualquer um usando o Send";
+/* Premium benefit list item. */
+"Receive247PrioritySupport" = "Receba suporte 24h com prioridade";
 "BuiltInAuthenticator" = "Autenticador integrado";
 "EmergencyAccess" = "Acesso de emergência";
 "PaymentNotReceivedYet" = "Pagamento ainda não recebido";
@@ -1111,7 +1138,6 @@
 "WeHadTroubleOpeningThePaymentPageDescriptionLong" = "Tivemos problemas abrindo a página de pagamento, tente novamente.";
 "SecureFileStorage" = "Armazenamento seguro de arquivos";
 "BreachMonitoring" = "Monitoramento de vazamentos";
-"UpgradeNow" = "Atualizar agora";
 "ConfirmingYourUpgrade" = "Confirmando seu upgrade…";
 "OpeningCheckout" = "Abrindo checkout…";
 "UpgradePending" = "Upgrade pendente";
@@ -1122,7 +1148,8 @@
 "ViewPlan" = "Ver plano";
 "YouNowHaveAccessToAdvancedSecurityDescriptionLong" = "Agora você tem acesso a todos os recursos avançados de segurança. Saiba mais sobre o que está incluso com o Premium.";
 "YouNowHaveAccessToAllAdvancedSecurityFeatures" = "Agora você tem acesso a todos os recursos avançados de segurança.";
-"YoullGoToStripeSecureCheckoutToCompleteYourPurchase" = "Você irá ao pagamento seguro do Stripe para concluir sua compra.";
+/* Footer on the Premium upgrade screen; "Stripe" is the payment processor's name and shouldn't be translated. */
+"YoullCompleteThePurchaseWithStripeSecureCheckout" = "You'll complete the purchase with Stripe secure checkout.";
 "ContinueToStripe" = "Continuar no Stripe?";
 "YoullBeTakenToStripeToManageYourSubscriptionCancellation" = "Você será levado para o Stripe para gerenciar o cancelamento de sua assinatura.";
 "UserIDCopiedToTheClipboard" = "ID de usuário copiado para área de transferência";
@@ -1171,4 +1198,7 @@
 "LineOfCredit" = "Linha de crédito";
 "MoneyMarket" = "Mercado monetário";
 "Savings" = "Poupança";
+/* Accessibility label for the button that clears a field's value. %1$@ is the field's title (e.g. "Date of birth"), so the spoken label reads "Clear Date of birth". */
+"ClearFieldName" = "Clear %1$@";
+"SelectDate" = "Select date";
 "PremiumRequiredTOTPDescriptionLong" = "A chave do autenticador (TOTP) é um recurso do Premium. O seu plano atual não inclui o acesso a este recurso.";
