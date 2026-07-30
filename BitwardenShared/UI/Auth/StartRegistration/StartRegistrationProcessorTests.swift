@@ -89,15 +89,9 @@ class StartRegistrationProcessorTests: BitwardenTestCase { // swiftlint:disable:
 
         await subject.perform(.regionTapped)
         alert = try XCTUnwrap(coordinator.alertShown.last)
-        XCTAssertEqual(alert.alertActions[2].title, "bitwarden-gov.com")
-        try await alert.tapAction(title: "bitwarden-gov.com")
-        XCTAssertEqual(subject.state.region, .gov)
-
-        await subject.perform(.regionTapped)
-        alert = try XCTUnwrap(coordinator.alertShown.last)
-        XCTAssertEqual(alert.alertActions[3].title, Localizations.selfHosted)
+        XCTAssertEqual(alert.alertActions[2].title, Localizations.selfHosted)
         try await alert.tapAction(title: Localizations.selfHosted)
-        XCTAssertEqual(coordinator.routes.last, .selfHosted(currentRegion: .gov))
+        XCTAssertEqual(coordinator.routes.last, .selfHosted(currentRegion: .europe))
     }
 
     /// `perform(.startRegistration)` skips the restricted alert when `environment.vault` is nil —
@@ -202,9 +196,9 @@ class StartRegistrationProcessorTests: BitwardenTestCase { // swiftlint:disable:
 
     /// `setRegion` triggers a config refresh so the processor can react to `disableUserRegistration`.
     @MainActor
-    func test_setRegion_callsRefreshConfig() async {
+    func test_setRegion_callsRefreshConfig() async throws {
         await subject.setRegion(.europe, .defaultEU)
-        waitFor(configService.configMocker.called)
+        try await waitForAsync { self.configService.configMocker.called }
         XCTAssertEqual(configService.configMocker.invokedParam?.forceRefresh, true)
         XCTAssertEqual(configService.configMocker.invokedParam?.isPreAuth, true)
     }
