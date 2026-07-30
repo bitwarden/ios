@@ -128,7 +128,7 @@
 "ItemUpdated" = "アイテムを更新しました。";
 "Submitting" = "送信中…";
 "Syncing" = "同期中…";
-"SyncingLogins" = "ログインを同期...";
+"SyncingLogins" = "ログインを同期…";
 "SyncingComplete" = "同期が完了しました。";
 "TouchID" = "Touch ID";
 "TwoStepLogin" = "2段階認証";
@@ -391,7 +391,7 @@
 "MasterPasswordPolicyValidationTitle" = "無効なパスワード";
 "MasterPasswordPolicyValidationMessage" = "パスワードが組織の要件を満たしていません。ポリシー情報を確認して、もう一度やり直してください。";
 "Loading" = "読み込み中";
-"LoadingSubscription" = "サブスクリプションを読み込み中...";
+"LoadingSubscription" = "サブスクリプションを読み込み中…";
 "AcceptPoliciesError" = "利用規約とプライバシーポリシーが確認されていません。";
 "PrivacyPolicy" = "プライバシーポリシー";
 "PersonalOwnershipPolicyInEffect" = "組織のポリシーが所有者のオプションに影響を与えています。";
@@ -571,6 +571,8 @@
 "RequestAdminApproval" = "管理者の承認を要求する";
 "ApproveWithMasterPassword" = "マスターパスワードで承認する";
 "TurnOffUsingPublicDevice" = "パブリックデバイスを使用してオフにする";
+"TurnOnFillAssist" = "入力アシストをオンにする";
+"TurnOnFillAssistDescriptionLong" = "入力アシストは、サイト固有のルールを使用して対応サイトの自動入力の精度を向上させます。";
 "RememberThisDevice" = "このデバイスを記憶する";
 "Passkey" = "パスキー";
 "Passkeys" = "パスキー";
@@ -968,7 +970,7 @@
 "StoreAllOfYourLoginsAndSyncVerificationCodesDirectlyWithTheAuthenticatorApp" = "すべてのログイン情報を格納し、認証アプリに認証コードを直接同期します。";
 "SyncWithBrowserDescriptionLong" = "To connect to %1$@, sync your default browser with the Bitwarden mobile app. When your browser opens, complete sign-in if prompted. Once syncing is complete, you'll be returned to this app.";
 "SyncWithBitwardenApp" = "Bitwarden アプリと同期";
-"SyncWithBrowser" = "Sync with browser";
+"SyncWithBrowser" = "ブラウザーと同期";
 "SyncWithTheBitwardenApp" = "Bitwarden アプリと同期";
 "TakeMeToTheAppSettings" = "アプリの設定に移動";
 "TheDataFormatProvidedDoesntMatchWhatsExpected" = "提供されたデータ形式が想定と一致しません。ファイルを確認し、正しいデータ型が使用されているか確かめてください。";
@@ -1015,7 +1017,7 @@
 "YourOrganizationHasSetTheDefaultSessionTimeoutToNever" = "Your organization has set the default session timeout to never.";
 "YourOrganizationHasSetTheDefaultSessionTimeoutToAppRestart" = "Your organization has set the default session timeout to on app restart.";
 "YourOrganizationHasSetTheMaximumSessionTimeoutToXAndY" = "Your organization has set the maximum session timeout to %1$@ and %2$@.";
-"HiddenItems" = "Hidden items";
+"HiddenItems" = "隠しファイル";
 "Archive" = "アーカイブ";
 "Archived" = "Archived";
 "Unarchive" = "アーカイブ解除";
@@ -1097,12 +1099,37 @@
 "YourSubscriptionExpiredOnXDescriptionLong" = "**%1$@** でサブスクリプションの有効期限が切れました。プレミアム機能を引き続き使用するには再加入してください。";
 "YourSubscriptionIsScheduledToCancelOnXDescriptionLong" = "あなたのサブスクリプションは **%1$@** でキャンセルされる予定です。その前にいつでも再開できます。";
 "PerMonth" = "/ 月";
+/* VoiceOver reading of "PerMonth", spoken instead of shown. */
+"PerMonthVoiceOver" = "/月";
 "PerYear" = "/ 年";
+/* VoiceOver reading of "PerYear", spoken instead of shown. */
+"PerYearVoiceOver" = "/年";
 "XAmountPerCadence" = "%1$@ %2$@";
+/* %1$@ is an amount and cadence together, e.g. "$1.65 / month". */
+"XCancelAnytime" = "%1$@ · いつでもキャンセル可能";
+/* VoiceOver reading of "XCancelAnytime", spoken instead of shown. */
+"XCancelAnytimeVoiceOver" = "%1$@ · いつでもキャンセル可能";
 "NegativeX" = "-%1$@";
 "UnknownStatus" = "不明";
 "YourSubscriptionStatusIsUnknownVisitTheWebAppDescriptionLong" = "サブスクリプションのステータスが確認できませんでした。詳細についてはウェブアプリをご覧いただくか、最新バージョンにアップデートしてください。";
-"UnlockMoreAdvancedFeaturesWithPremiumPlan" = "プレミアムプランでより高度な機能をアンロックしましょう。";
+/* Headline on the Premium upgrade screen. */
+"UnlockAdvancedProtection" = "高度な保護をアンロックする";
+/* Premium benefit list item. */
+"BreezeThrough2faWithBuiltInCodes" = "内蔵コードで二要素認証もスムーズに";
+/* Premium benefit list item. */
+"RunReportsToFindRiskyPasswords" = "危険なパスワードを見つけるためのレポートを実行";
+/* Premium benefit list item. */
+"KeepDocumentsSafeAndEncrypted" = "ドキュメントを安全に暗号化する";
+/* Premium benefit list item. */
+"AddATrustedEmergencyContact" = "信頼できる緊急連絡先を追加";
+/* Premium benefit list item. */
+"IdentifyUnsecureWebsites" = "セキュリティ保護されていないウェブサイトを特定する";
+/* Premium benefit list item. */
+"FlagAccountsWithInactive2fa" = "非アクティブな二要素認証アカウントにフラグを付ける";
+/* Premium benefit list item; "Send" is the Bitwarden Send feature name and shouldn't be translated. */
+"ShareFilesSecurelyWithAnyoneUsingSend" = "Send を使用して誰でも安全にファイルを共有";
+/* Premium benefit list item. */
+"Receive247PrioritySupport" = "24時間年中無休の優先サポートを受ける";
 "BuiltInAuthenticator" = "認証機能を内蔵";
 "EmergencyAccess" = "緊急アクセス";
 "PaymentNotReceivedYet" = "支払いはまだ受信されていません";
@@ -1111,7 +1138,6 @@
 "WeHadTroubleOpeningThePaymentPageDescriptionLong" = "支払いページを開く際に問題がありました。もう一度やり直してください。";
 "SecureFileStorage" = "セキュアなファイルストレージ";
 "BreachMonitoring" = "情報漏洩の監視";
-"UpgradeNow" = "今すぐアップグレード";
 "ConfirmingYourUpgrade" = "アップグレードを確認中…";
 "OpeningCheckout" = "チェックアウトを開いています…";
 "UpgradePending" = "アップグレードを保留中";
@@ -1122,7 +1148,8 @@
 "ViewPlan" = "プランを表示";
 "YouNowHaveAccessToAdvancedSecurityDescriptionLong" = "高度なセキュリティ機能にアクセスできるようになりました。プレミアムに含まれる機能の詳細をご覧ください。";
 "YouNowHaveAccessToAllAdvancedSecurityFeatures" = "すべての高度なセキュリティ機能にアクセスできるようになりました。";
-"YoullGoToStripeSecureCheckoutToCompleteYourPurchase" = "Stripe の安全なチェックアウトで購入できます。";
+/* Footer on the Premium upgrade screen; "Stripe" is the payment processor's name and shouldn't be translated. */
+"YoullCompleteThePurchaseWithStripeSecureCheckout" = "Stripe の安全なチェックアウトで購入を完了します。";
 "ContinueToStripe" = "Stripe へ進みますか？";
 "YoullBeTakenToStripeToManageYourSubscriptionCancellation" = "サブスクリプションのキャンセルを管理するために Stripe に移動します。";
 "UserIDCopiedToTheClipboard" = "ユーザー ID をクリップボードにコピーしました";
@@ -1171,4 +1198,7 @@
 "LineOfCredit" = "限度額";
 "MoneyMarket" = "短期市場";
 "Savings" = "普通";
+/* Accessibility label for the button that clears a field's value. %1$@ is the field's title (e.g. "Date of birth"), so the spoken label reads "Clear Date of birth". */
+"ClearFieldName" = "%1$@ をクリア";
+"SelectDate" = "日付を選択";
 "PremiumRequiredTOTPDescriptionLong" = "認証キー（TOTP）はプレミアム機能です。現在のプランにはこの機能へのアクセス権が含まれていません。";

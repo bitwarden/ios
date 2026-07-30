@@ -128,7 +128,7 @@
 "ItemUpdated" = "Elemento guardado";
 "Submitting" = "Enviando…";
 "Syncing" = "Sincronizando…";
-"SyncingLogins" = "Sincronizando inicios de sesión...";
+"SyncingLogins" = "Sincronizando inicios de sesión…";
 "SyncingComplete" = "Sincronización completada";
 "TouchID" = "Touch ID";
 "TwoStepLogin" = "Autenticación en dos pasos";
@@ -454,8 +454,8 @@
 "YourAccountHasBeenPermanentlyDeleted" = "Tu cuenta ha sido eliminada permanentemente";
 "InvalidVerificationCode" = "Código de verificación no válido.";
 "SendCode" = "Enviar código";
-"SendingCode" = "Enviando código...";
-"Verifying" = "Verificando...";
+"SendingCode" = "Enviando código…";
+"Verifying" = "Verificando…";
 "ResendCode" = "Reenviar código";
 "EnterTheVerificationCodeThatWasSentToYourEmail" = "Introduce el código de verificación enviado a tu correo electrónico";
 "SubmitCrashLogs" = "Enviar registros de fallos";
@@ -571,6 +571,8 @@
 "RequestAdminApproval" = "Solicitar aprobación del administrador";
 "ApproveWithMasterPassword" = "Aprobar con contraseña maestra";
 "TurnOffUsingPublicDevice" = "Deshabilitar usando un dispositivo público";
+"TurnOnFillAssist" = "Turn on fill assist";
+"TurnOnFillAssistDescriptionLong" = "Fill Assist improves autofill accuracy on supported sites by using site-specific rules.";
 "RememberThisDevice" = "Recordar este dispositivo";
 "Passkey" = "Passkey";
 "Passkeys" = "Passkeys";
@@ -811,7 +813,7 @@
 "YouMayNeedToEnableDevicePasscodeOrBiometrics" = "You may need to enable device passcode or biometrics.";
 "StartImportCXFDescriptionLong" = "Import passwords, passkeys, credit cards, and any personal identity information from another password manager.\n\nYour data will **not** be deleted from your previous provider.";
 "ImportPasswords" = "Import passwords";
-"ImportingEllipsis" = "Importando...";
+"ImportingEllipsis" = "Importando…";
 "AreYouSureYouWantToCancelTheImportProcessQuestionMark" = "Are you sure you want to cancel the import process?";
 "ImportFailed" = "Import failed";
 "ThereWasAnIssueImportingAllOfYourPasswordsNoDataWasDeleted" = "There was an issue importing all of your passwords.\n\nNo data was deleted.";
@@ -1098,12 +1100,37 @@
 "YourSubscriptionExpiredOnXDescriptionLong" = "Your subscription expired on **%1$@**. Resubscribe to continue using Premium features.";
 "YourSubscriptionIsScheduledToCancelOnXDescriptionLong" = "Your subscription is scheduled to cancel on **%1$@**. You can reinstate it anytime before then.";
 "PerMonth" = "/ mes";
+/* VoiceOver reading of "PerMonth", spoken instead of shown. */
+"PerMonthVoiceOver" = "per month";
 "PerYear" = "/ year";
+/* VoiceOver reading of "PerYear", spoken instead of shown. */
+"PerYearVoiceOver" = "per year";
 "XAmountPerCadence" = "%1$@ %2$@";
+/* %1$@ is an amount and cadence together, e.g. "$1.65 / month". */
+"XCancelAnytime" = "%1$@ · Cancel anytime";
+/* VoiceOver reading of "XCancelAnytime", spoken instead of shown. */
+"XCancelAnytimeVoiceOver" = "%1$@, Cancel anytime";
 "NegativeX" = "-%1$@";
 "UnknownStatus" = "Unknown";
 "YourSubscriptionStatusIsUnknownVisitTheWebAppDescriptionLong" = "Your subscription status could not be determined. Please visit the web app for more details or update to the latest version.";
-"UnlockMoreAdvancedFeaturesWithPremiumPlan" = "Desbloquea funciones más avanzadas con un plan Premium.";
+/* Headline on the Premium upgrade screen. */
+"UnlockAdvancedProtection" = "Unlock advanced protection";
+/* Premium benefit list item. */
+"BreezeThrough2faWithBuiltInCodes" = "Breeze through 2FA with built-in codes";
+/* Premium benefit list item. */
+"RunReportsToFindRiskyPasswords" = "Run reports to find risky passwords";
+/* Premium benefit list item. */
+"KeepDocumentsSafeAndEncrypted" = "Keep documents safe and encrypted";
+/* Premium benefit list item. */
+"AddATrustedEmergencyContact" = "Add a trusted emergency contact";
+/* Premium benefit list item. */
+"IdentifyUnsecureWebsites" = "Identify unsecure websites";
+/* Premium benefit list item. */
+"FlagAccountsWithInactive2fa" = "Flag accounts with inactive 2FA";
+/* Premium benefit list item; "Send" is the Bitwarden Send feature name and shouldn't be translated. */
+"ShareFilesSecurelyWithAnyoneUsingSend" = "Share files securely with anyone using Send";
+/* Premium benefit list item. */
+"Receive247PrioritySupport" = "Receive 24/7 priority support";
 "BuiltInAuthenticator" = "Autenticador integrado";
 "EmergencyAccess" = "Acceso de emergencia";
 "PaymentNotReceivedYet" = "Pago no recibido aún";
@@ -1112,7 +1139,6 @@
 "WeHadTroubleOpeningThePaymentPageDescriptionLong" = "Tuvimos problemas al cargar el portal de gestión, así que inténtelo de nuevo.";
 "SecureFileStorage" = "Almacenamiento seguro de archivos";
 "BreachMonitoring" = "Supervisión de incidencias";
-"UpgradeNow" = "Actualizar ahora";
 "ConfirmingYourUpgrade" = "Confirmando su actualización…";
 "OpeningCheckout" = "Iniciando el proceso de pago…";
 "UpgradePending" = "Actualización pendiente";
@@ -1123,7 +1149,8 @@
 "ViewPlan" = "View plan";
 "YouNowHaveAccessToAdvancedSecurityDescriptionLong" = "You now have access to advanced security features. Learn more about what's included with Premium.";
 "YouNowHaveAccessToAllAdvancedSecurityFeatures" = "Ahora tiene acceso a todas las funcionalidades de seguridad avanzadas.";
-"YoullGoToStripeSecureCheckoutToCompleteYourPurchase" = "You´ll go to Stripe´s secure checkout to complete your purchase.";
+/* Footer on the Premium upgrade screen; "Stripe" is the payment processor's name and shouldn't be translated. */
+"YoullCompleteThePurchaseWithStripeSecureCheckout" = "You'll complete the purchase with Stripe secure checkout.";
 "ContinueToStripe" = "¿Quieres continuar con Stripe?";
 "YoullBeTakenToStripeToManageYourSubscriptionCancellation" = "You'll be taken to Stripe to manage your subscription cancellation.";
 "UserIDCopiedToTheClipboard" = "User ID copied to the clipboard";
@@ -1172,4 +1199,7 @@
 "LineOfCredit" = "Línea de crédito";
 "MoneyMarket" = "Mercados monetarios";
 "Savings" = "Ahorros";
+/* Accessibility label for the button that clears a field's value. %1$@ is the field's title (e.g. "Date of birth"), so the spoken label reads "Clear Date of birth". */
+"ClearFieldName" = "Clear %1$@";
+"SelectDate" = "Select date";
 "PremiumRequiredTOTPDescriptionLong" = "Authenticator key (TOTP) is a Premium feature. Your current plan does not include access to this feature.";
