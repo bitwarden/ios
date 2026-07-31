@@ -25,6 +25,9 @@ class LandingProcessor: StateProcessor<LandingState, LandingAction, LandingEffec
     /// The services required by this processor.
     private let services: Services
 
+    /// Task that observes `configPublisher()` for live `disableUserRegistration` updates.
+    private var configSubscriptionTask: Task<Void, Never>?
+
     /// Helper class with region specific functions
     private lazy var regionHelper = RegionHelper(
         coordinator: coordinator,
@@ -58,6 +61,27 @@ class LandingProcessor: StateProcessor<LandingState, LandingAction, LandingEffec
             state.isRememberMeOn = rememberedEmail != nil
         }
         super.init(state: state)
+
+        // Extract locals so `self` is never read through inside the Task body.
+        // A pre-loop `guard let self` would pin self strongly for the loop's lifetime,
+        // preventing deinit (and therefore cancellation) until the publisher completes.
+        let configService = services.configService
+        let stateService = services.stateService
+        configSubscriptionTask = Task { [weak self] in
+            for await metaConfig in await configService.configPublisher() {
+                guard let self else { return }
+                guard metaConfig?.isPreAuth == true,
+                      await metaConfig?.serverConfig?.isCurrentConfig(
+                          for: stateService.getPreAuthEnvironmentURLs(),
+                      ) == true else { continue }
+                self.state.isCreateAccountButtonHidden = metaConfig?.serverConfig?
+                    .settings?.disableUserRegistration == true
+            }
+        }
+    }
+
+    deinit {
+        configSubscriptionTask?.cancel()
     }
 
     // MARK: Methods
@@ -65,6 +89,8 @@ class LandingProcessor: StateProcessor<LandingState, LandingAction, LandingEffec
     override func perform(_ effect: LandingEffect) async {
         switch effect {
         case .appeared:
+            state.isCreateAccountButtonHidden = await currentPreAuthServerConfig()?
+                .settings?.disableUserRegistration == true
             await regionHelper.loadRegion()
             await refreshProfileState()
         case .continuePressed:
@@ -73,10 +99,8 @@ class LandingProcessor: StateProcessor<LandingState, LandingAction, LandingEffec
         case let .profileSwitcher(profileEffect):
             await handleProfileSwitcherEffect(profileEffect)
         case .regionPressed:
-            let serverConfig = await services.configService.getConfig(forceRefresh: false, isPreAuth: true)
-            let preAuthURLs = await services.stateService.getPreAuthEnvironmentURLs()
             var excludedRegions: [RegionType] = [.gov]
-            if serverConfig?.isCurrentConfig(for: preAuthURLs) == true,
+            if await currentPreAuthServerConfig() != nil,
                await services.configService.getFeatureFlag(.fedrampGovRegion, isPreAuth: true) {
                 excludedRegions = []
             }
@@ -109,6 +133,16 @@ class LandingProcessor: StateProcessor<LandingState, LandingAction, LandingEffec
     }
 
     // MARK: Private Methods
+
+    /// Returns the cached pre-auth server config when its vault host matches the current pre-auth
+    /// environment URLs, or `nil` when no config is available or the config belongs to a different region.
+    ///
+    private func currentPreAuthServerConfig() async -> ServerConfig? {
+        let serverConfig = await services.configService.getConfig(forceRefresh: false, isPreAuth: true)
+        let preAuthURLs = await services.stateService.getPreAuthEnvironmentURLs()
+        guard serverConfig?.isCurrentConfig(for: preAuthURLs) == true else { return nil }
+        return serverConfig
+    }
 
     /// Refreshes the configuration by forcing a refresh from the config service
     /// and loads the latest feature flags.
