@@ -18,10 +18,10 @@ class StartRegistrationProcessorTests: BitwardenTestCase { // swiftlint:disable:
     var client: MockHTTPClient!
     var coordinator: MockCoordinator<AuthRoute, AuthEvent>!
     var delegate: MockStartRegistrationDelegate!
-    var errorReporter: MockErrorReporter!
-    var subject: StartRegistrationProcessor!
-    var stateService: MockStateService!
     var environmentService: MockEnvironmentService!
+    var errorReporter: MockErrorReporter!
+    var stateService: MockStateService!
+    var subject: StartRegistrationProcessor!
 
     // MARK: Setup & Teardown
 
@@ -56,13 +56,13 @@ class StartRegistrationProcessorTests: BitwardenTestCase { // swiftlint:disable:
         coordinator = nil
         environmentService = nil
         errorReporter = nil
-        subject = nil
         stateService = nil
+        subject = nil
     }
 
     // MARK: Tests
 
-    /// `perform(_:)` with `.regionTapped` navigates to the region selection screen.
+    /// `perform(_:)` with `.regionTapped` shows US, EU, Self-Hosted — Gov is excluded.
     @MainActor
     func test_perform_regionTapped() async throws {
         await subject.perform(.regionTapped)
@@ -70,7 +70,8 @@ class StartRegistrationProcessorTests: BitwardenTestCase { // swiftlint:disable:
         var alert = try XCTUnwrap(coordinator.alertShown.last)
         XCTAssertEqual(alert.title, Localizations.creatingOn)
         XCTAssertNil(alert.message)
-        XCTAssertEqual(alert.alertActions.count, 5)
+        XCTAssertEqual(alert.alertActions.count, 4) // US + EU + Self-Hosted + Cancel (no Gov)
+        XCTAssertNil(alert.alertActions.first(where: { $0.title == "bitwarden-gov.com" }))
 
         XCTAssertEqual(alert.alertActions[0].title, "bitwarden.com")
         try await alert.tapAction(title: "bitwarden.com")
@@ -84,15 +85,9 @@ class StartRegistrationProcessorTests: BitwardenTestCase { // swiftlint:disable:
 
         await subject.perform(.regionTapped)
         alert = try XCTUnwrap(coordinator.alertShown.last)
-        XCTAssertEqual(alert.alertActions[2].title, "bitwarden-gov.com")
-        try await alert.tapAction(title: "bitwarden-gov.com")
-        XCTAssertEqual(subject.state.region, .gov)
-
-        await subject.perform(.regionTapped)
-        alert = try XCTUnwrap(coordinator.alertShown.last)
-        XCTAssertEqual(alert.alertActions[3].title, Localizations.selfHosted)
+        XCTAssertEqual(alert.alertActions[2].title, Localizations.selfHosted)
         try await alert.tapAction(title: Localizations.selfHosted)
-        XCTAssertEqual(coordinator.routes.last, .selfHosted(currentRegion: .gov))
+        XCTAssertEqual(coordinator.routes.last, .selfHosted(currentRegion: .europe))
     }
 
     /// `perform(_:)` with `.startRegistration` sets preAuthUrls for the given email and navigates to check email.

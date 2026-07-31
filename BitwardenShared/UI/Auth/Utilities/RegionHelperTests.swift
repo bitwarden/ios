@@ -121,7 +121,7 @@ class RegionHelperTests: BitwardenTestCase {
     }
 
     /// `presentRegionSelectorAlert(title:currentRegion:)` offers exactly the user-selectable regions
-    /// (US, EU, self-hosted) plus cancel — the internal (`bitwarden.pw`) region is detected
+    /// (US, EU, Gov, self-hosted) plus cancel — the internal (`bitwarden.pw`) region is detected
     /// automatically and must never appear in the picker.
     @MainActor
     func test_presentRegionSelectorAlert_excludesInternal() async throws {
