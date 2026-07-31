@@ -9,14 +9,19 @@ import Foundation
 struct PremiumPlanState: Equatable {
     // MARK: Properties
 
+    /// The loading state for the subscription data.
+    var loadingState: LoadingState<PremiumSubscription> = .loading(nil)
+
     /// The current status of the Premium plan.
     var planStatus: PremiumPlanStatus = .active
 
-    /// The subscription details.
-    var subscription: PremiumSubscription?
-
     /// The URL to open externally (manage plan or cancel Premium).
     var urlToOpen: URL?
+
+    // MARK: Private Properties
+
+    /// The subscription details, derived from `loadingState`.
+    private var subscription: PremiumSubscription? { loadingState.data }
 
     // MARK: Computed Properties
 
@@ -26,6 +31,15 @@ struct PremiumPlanState: Equatable {
         return Localizations.xAmountPerCadence(
             formatCurrency(subscription.seatsCost),
             subscription.cadence.label,
+        )
+    }
+
+    /// The VoiceOver-friendly version of `billingAmount` (e.g. "$19.80 per year").
+    var billingAmountAccessibilityLabel: String {
+        guard let subscription else { return "" }
+        return Localizations.xAmountPerCadence(
+            formatCurrency(subscription.seatsCost),
+            subscription.cadence.accessibilityLabel,
         )
     }
 
@@ -74,6 +88,8 @@ struct PremiumPlanState: Equatable {
             )
         case .unknown:
             Localizations.yourSubscriptionStatusIsUnknownVisitTheWebAppDescriptionLong
+        case .unpaid:
+            Localizations.yourSubscriptionWasSuspendedOnXDescriptionLong(subscriptionEndDate)
         case .updatePayment:
             Localizations.weCouldNotProcessYourPaymentUpdateYourPaymentMethodDescriptionLong(
                 subscriptionEndDate,
@@ -134,12 +150,18 @@ struct PremiumPlanState: Equatable {
             && planStatus != .expired
             && planStatus != .pendingCancellation
             && planStatus != .unknown
+            && planStatus != .unpaid
             && planStatus != .updatePayment
     }
 
     /// Whether the discount row should be shown.
     var showDiscount: Bool {
         !discount.isEmpty
+    }
+
+    /// Whether the storage cost row should be shown.
+    var showStorageCost: Bool {
+        (subscription?.storageCost ?? 0) > 0
     }
 
     /// The storage cost label (e.g. "$4.00" or "$0.00").
@@ -164,6 +186,15 @@ struct PremiumPlanState: Equatable {
         return Localizations.xAmountPerCadence(
             formatCurrency(subscription.totalAmount),
             subscription.cadence.label,
+        )
+    }
+
+    /// The VoiceOver-friendly version of `totalLabel` (e.g. "$25.55 per year").
+    var totalAccessibilityLabel: String {
+        guard let subscription else { return "" }
+        return Localizations.xAmountPerCadence(
+            formatCurrency(subscription.totalAmount),
+            subscription.cadence.accessibilityLabel,
         )
     }
 
@@ -206,6 +237,6 @@ extension PremiumPlanState {
     /// - Parameter subscription: The already-fetched subscription.
     ///
     init(subscription: PremiumSubscription) {
-        self.init(planStatus: subscription.status, subscription: subscription)
+        self.init(loadingState: .data(subscription), planStatus: subscription.status)
     }
 }

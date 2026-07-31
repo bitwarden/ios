@@ -31,6 +31,9 @@ enum BitwardenKeychainItem: Equatable, KeychainItem {
     /// The keychain item for device key.
     case deviceKey(userId: String)
 
+    /// The keychain item for the fill-assist cached-rules integrity fingerprint.
+    case fillAssistRulesFingerprint(userId: String)
+
     /// The keychain item for a user's last active boot epoch.
     ///
     /// The boot epoch is `wallTime − monotonicTime` and is used to detect the reboot-timing attack.
@@ -74,6 +77,7 @@ enum BitwardenKeychainItem: Equatable, KeychainItem {
              .clientCertificateIdentity,
              .deviceAuthKeyMetadata,
              .deviceKey,
+             .fillAssistRulesFingerprint,
              .lastActiveBootEpoch,
              .lastActiveMonotonicTime,
              .lastActiveTime,
@@ -110,6 +114,7 @@ enum BitwardenKeychainItem: Equatable, KeychainItem {
              .authenticatorVaultKey,
              .clientCertificateChain,
              .clientCertificateIdentity,
+             .fillAssistRulesFingerprint,
              .localUserDataKeyStates,
              .refreshToken,
              .serverCommunicationConfig:
@@ -137,6 +142,8 @@ enum BitwardenKeychainItem: Equatable, KeychainItem {
             "deviceAuthKey_" + id
         case let .deviceAuthKeyMetadata(userId: id):
             "deviceAuthKeyMetadata_" + id
+        case let .fillAssistRulesFingerprint(userId):
+            "fillAssistRulesFingerprint_\(userId)"
         case let .lastActiveBootEpoch(userId):
             "lastActiveBootEpoch_\(userId)"
         case let .lastActiveMonotonicTime(userId):

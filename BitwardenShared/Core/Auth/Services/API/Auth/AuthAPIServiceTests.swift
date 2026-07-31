@@ -63,6 +63,7 @@ class AuthAPIServiceTests: BitwardenTestCase {
         let response = try await subject.getIdentityToken(
             IdentityTokenRequestModel(
                 authenticationMethod: .password(username: "username", password: "password"),
+                deeplinkScheme: "https",
                 deviceInfo: .fixture(),
                 loginRequestId: nil,
             ),
@@ -86,6 +87,7 @@ class AuthAPIServiceTests: BitwardenTestCase {
             _ = try await subject.getIdentityToken(
                 IdentityTokenRequestModel(
                     authenticationMethod: .password(username: "username", password: "password"),
+                    deeplinkScheme: "https",
                     deviceInfo: .fixture(),
                     loginRequestId: nil,
                 ),

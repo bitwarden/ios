@@ -11,6 +11,7 @@ final class DebugMenuProcessor: StateProcessor<DebugMenuState, DebugMenuAction, 
     // MARK: Types
 
     typealias Services = HasConfigService
+        & HasDebugStateService
         & HasEnvironmentService
         & HasErrorAlertServices.ErrorAlertServices
         & HasErrorReporter
@@ -59,6 +60,8 @@ final class DebugMenuProcessor: StateProcessor<DebugMenuState, DebugMenuAction, 
 
     override func receive(_ action: DebugMenuAction) {
         switch action {
+        case .addFillAssistRuleTapped:
+            coordinator.navigate(to: .addFillAssistRule)
         case .copyUserID:
             copyUserID()
         case .dismissTapped:
@@ -88,6 +91,10 @@ final class DebugMenuProcessor: StateProcessor<DebugMenuState, DebugMenuAction, 
 
     override func perform(_ effect: DebugMenuEffect) async {
         switch effect {
+        case .clearFillAssistCache:
+            await clearFillAssistCache()
+        case .clearMasterPasswordUnlock:
+            await clearMasterPasswordUnlock()
         case .clearSsoCookies:
             await clearSsoCookies()
         case .refreshFeatureFlags:
@@ -105,6 +112,31 @@ final class DebugMenuProcessor: StateProcessor<DebugMenuState, DebugMenuAction, 
     }
 
     // MARK: Private Functions
+
+    /// Clears the active account's cached Fill Assist rules and integrity fingerprint, the same
+    /// cleanup that runs automatically on logout, to support re-testing sync/caching behavior
+    /// without a full logout/login cycle.
+    private func clearFillAssistCache() async {
+        do {
+            try await services.debugStateService.clearFillAssistCache()
+            state.toast = Toast(title: "Fill Assist cache cleared")
+        } catch {
+            services.errorReporter.log(error: error)
+            state.toast = Toast(title: Localizations.somethingWentWrong)
+        }
+    }
+
+    /// Clears the active account's cached `userDecryptionOptions.masterPasswordUnlock`
+    /// so PM-31723's unlock fallback can be re-tested without the multi-step server-downgrade repro.
+    private func clearMasterPasswordUnlock() async {
+        do {
+            try await services.debugStateService.clearMasterPasswordUnlockForActiveAccount()
+            state.toast = Toast(title: Localizations.masterPasswordUnlockCleared)
+        } catch {
+            services.errorReporter.log(error: error)
+            state.toast = Toast(title: Localizations.somethingWentWrong)
+        }
+    }
 
     /// Clears the SSO cookie value stored in the keychain for the current environment's hostname.
     private func clearSsoCookies() async {

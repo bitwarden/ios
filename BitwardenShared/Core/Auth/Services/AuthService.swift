@@ -55,6 +55,53 @@ enum AuthError: Error {
     case unableToResendNewDeviceOtp
 }
 
+// MARK: - AuthWebSessionCallback
+
+/// How an `ASWebAuthenticationSession` should match the redirect that ends an auth connector flow.
+///
+enum AuthWebSessionCallback: Equatable {
+    /// Matches a custom URL scheme redirect (e.g. `bitwarden://sso-callback`).
+    case customScheme(String)
+
+    /// Matches an HTTPS redirect (e.g. `https://vault.bitwarden.com/sso-callback`). Requires iOS 17.4+.
+    case https(host: String, path: String)
+}
+
+// MARK: - AuthWebSessionCallbackKind
+
+/// The auth connector flow that an `ASWebAuthenticationSession` is being created for. Determines the
+/// callback path and whether the HTTPS callback is eligible for Cloud users.
+///
+enum AuthWebSessionCallbackKind {
+    /// The Duo two-factor connector.
+    case duo
+
+    /// The single sign-on (SSO) connector.
+    case singleSignOn
+
+    /// The self-hosted WebAuthn connector.
+    case webAuthnSelfHosted
+
+    /// The callback path component, without a leading slash (e.g. `sso-callback`).
+    var callbackPath: String {
+        switch self {
+        case .duo: "duo-callback"
+        case .singleSignOn: "sso-callback"
+        case .webAuthnSelfHosted: "webauthn-callback"
+        }
+    }
+
+    /// Whether this connector supports the HTTPS callback for Cloud users. WebAuthn is excluded
+    /// because Cloud WebAuthn uses the native passkey API rather than a connector
+    /// callback URL; the self-hosted WebAuthn connector continues to use the custom scheme.
+    var supportsHttpsCallback: Bool {
+        switch self {
+        case .duo, .singleSignOn: true
+        case .webAuthnSelfHosted: false
+        }
+    }
+}
+
 // MARK: - LoginUnlockMethod
 
 /// An enumeration of vault unlock methods that can be used when a user is logging in.
@@ -224,11 +271,20 @@ protocol AuthService {
     ///
     func setPendingAdminLoginRequest(_ adminLoginRequest: PendingAdminLoginRequest?, userId: String?) async throws
 
-    /// Provides a web authentication session. In practice this is a passthrough
-    /// for `ASWebAuthenticationSession.init`.
+    /// Provides a web authentication session configured with the appropriate callback for the given
+    /// connector flow. The session matches an HTTPS redirect for Cloud users on iOS 17.4+ (SSO and
+    /// Duo only), otherwise the `bitwarden://` custom scheme.
+    ///
+    /// - Parameters:
+    ///   - url: The URL to load in the web authentication session.
+    ///   - callbackKind: The connector flow this session is for, which determines the callback.
+    ///   - completionHandler: Invoked with the callback URL or an error when the session completes.
+    /// - Returns: An unstarted, unconfigured `ASWebAuthenticationSession`. The caller is responsible
+    ///   for setting `prefersEphemeralWebBrowserSession`/`presentationContextProvider` and calling `start()`.
     ///
     func webAuthenticationSession(
         url: URL,
+        callbackKind: AuthWebSessionCallbackKind,
         completionHandler: @escaping ASWebAuthenticationSession.CompletionHandler,
     ) -> ASWebAuthenticationSession
 }
@@ -294,8 +350,10 @@ class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_leng
     /// The request model to resend the email with the new device verification code.
     private var resendNewDeviceOtpModel: ResendNewDeviceOtpRequestModel?
 
-    /// The single sign on callback url for this application.
-    private var singleSignOnCallbackUrl: String { "\(callbackUrlScheme)://sso-callback" }
+    /// The single sign on callback url for this application. Resolves to an HTTPS URL for Cloud
+    /// users on iOS 17.4+, otherwise the `bitwarden://` custom scheme. Must stay in sync with
+    /// the callback the `ASWebAuthenticationSession` is configured to match.
+    private var singleSignOnCallbackUrl: String { callbackUrl(for: .singleSignOn) }
 
     /// The service used by the application to manage account state.
     private let stateService: StateService
@@ -313,6 +371,21 @@ class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_leng
     /// The data generated when initiating a login with device request, which is used to
     /// complete the login process after the request is approved.
     private var loginWithDeviceData: AuthRequestResponse?
+
+    // MARK: Computed Properties
+
+    /// The deeplink scheme (`https` or `bitwarden`) the server should use when building auth
+    /// connector callback URLs for this client, based on the current environment and OS.
+    private var deeplinkScheme: String {
+        supportsHttpsAuthCallback ? "https" : callbackUrlScheme
+    }
+
+    /// Whether the current environment and OS support the HTTPS auth connector callback — Cloud
+    /// regions (those exposing an `authCallbackHost`) on iOS 17.4+.
+    private var supportsHttpsAuthCallback: Bool {
+        guard #available(iOS 17.4, *) else { return false }
+        return environmentService.region.authCallbackHost != nil
+    }
 
     // MARK: Initialization
 
@@ -780,16 +853,52 @@ class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_leng
 
     func webAuthenticationSession(
         url: URL,
+        callbackKind: AuthWebSessionCallbackKind,
         completionHandler: @escaping ASWebAuthenticationSession.CompletionHandler,
     ) -> ASWebAuthenticationSession {
-        ASWebAuthenticationSession(
-            url: url,
-            callbackURLScheme: callbackUrlScheme,
-            completionHandler: completionHandler,
-        )
+        switch resolveCallback(for: callbackKind) {
+        case let .customScheme(scheme):
+            ASWebAuthenticationSession(
+                url: url,
+                callbackURLScheme: scheme,
+                completionHandler: completionHandler,
+            )
+        case let .https(host, path):
+            if #available(iOS 17.4, *) {
+                ASWebAuthenticationSession(
+                    url: url,
+                    callback: .https(host: host, path: path),
+                    completionHandler: completionHandler,
+                )
+            } else {
+                // `resolveCallback` only returns `.https` on iOS 17.4+, so this branch is
+                // unreachable; fall back to the custom scheme to remain exhaustive for the compiler.
+                ASWebAuthenticationSession(
+                    url: url,
+                    callbackURLScheme: callbackUrlScheme,
+                    completionHandler: completionHandler,
+                )
+            }
+        }
     }
 
     // MARK: Private Methods
+
+    /// The redirect URL string for a connector flow, matching the callback that
+    /// `webAuthenticationSession(url:callbackKind:completionHandler:)` is configured to intercept.
+    ///
+    /// - Parameter kind: The connector flow the redirect is for.
+    /// - Returns: e.g. `https://vault.bitwarden.com/sso-callback` for Cloud/iOS 17.4+, otherwise
+    ///   `bitwarden://sso-callback`.
+    ///
+    private func callbackUrl(for kind: AuthWebSessionCallbackKind) -> String {
+        switch resolveCallback(for: kind) {
+        case let .customScheme(scheme):
+            "\(scheme)://\(kind.callbackPath)"
+        case let .https(host, path):
+            "https://\(host)\(path)"
+        }
+    }
 
     /// Returns the Key Connector URL if it exists in the identity token response and if it can be
     /// used to fetch the user's Key Connector key.
@@ -852,6 +961,7 @@ class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_leng
             // Form the token request.
             request = IdentityTokenRequestModel(
                 authenticationMethod: authenticationMethod,
+                deeplinkScheme: deeplinkScheme,
                 deviceInfo: DeviceInfo(
                     identifier: appID,
                     name: systemDevice.modelIdentifier,
@@ -951,6 +1061,23 @@ class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_leng
         }
 
         return try await .masterPassword(stateService.getActiveAccount())
+    }
+
+    /// Resolves which callback an auth connector session should match, based on the connector flow,
+    /// the active environment region, and OS availability of the HTTPS callback API.
+    ///
+    /// - Parameter kind: The connector flow the session is for.
+    /// - Returns: An HTTPS callback for Cloud users on iOS 17.4+ (SSO and Duo only), otherwise the
+    ///   `bitwarden://` custom scheme.
+    ///
+    private func resolveCallback(for kind: AuthWebSessionCallbackKind) -> AuthWebSessionCallback {
+        guard kind.supportsHttpsCallback,
+              supportsHttpsAuthCallback,
+              let host = environmentService.region.authCallbackHost
+        else {
+            return .customScheme(callbackUrlScheme)
+        }
+        return .https(host: host, path: "/\(kind.callbackPath)")
     }
 
     /// Saves the user's account information.

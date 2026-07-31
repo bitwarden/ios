@@ -52,6 +52,8 @@ final class PremiumPlanProcessor: StateProcessor<
             await loadPremiumPlan()
         case .managePlanTapped:
             showManageSubscriptionAlert()
+        case .tryAgainTapped:
+            await loadPremiumPlan()
         }
     }
 
@@ -112,34 +114,33 @@ final class PremiumPlanProcessor: StateProcessor<
     /// Loads the Premium plan details from the billing service and updates the state.
     ///
     private func loadPremiumPlan() async {
-        defer { coordinator.hideLoadingOverlay() }
-        coordinator.showLoadingOverlay(title: Localizations.loadingSubscription)
+        let existingSubscription = state.loadingState.data
+        state.loadingState = .loading(existingSubscription)
 
         do {
             let plan = try await services.billingService.getPremiumPlan()
             guard plan.available else {
-                coordinator.hideLoadingOverlay()
-                coordinator.showAlert(
-                    .defaultAlert(
-                        title: Localizations.anErrorHasOccurred,
-                        message: Localizations.atTheMomentPremiumPlanIsNotAvailableDescriptionLong,
-                    ),
-                    onDismissed: { [weak self] in
-                        self?.coordinator.navigate(to: .dismiss)
-                    },
+                state.loadingState = .error(
+                    errorMessage: Localizations.weCouldntLoadYourSubscriptionDetailsPleaseRetry,
                 )
                 return
             }
-            let subscription: PremiumSubscription = if let existing = state.subscription {
+            let subscription: PremiumSubscription = if let existing = existingSubscription {
                 existing
             } else {
                 try await services.billingService.getSubscription()
             }
-            state.subscription = subscription
+            state.loadingState = .data(subscription)
             state.planStatus = subscription.status
+            // Update the cached attention card visibility so the vault list reflects the
+            // current status if the user returns after fixing their subscription.
+            await services.billingService.refreshSubscriptionAttentionCard(subscription: subscription)
         } catch {
+            guard !(error is CancellationError) else { return }
             services.errorReporter.log(error: error)
-            await coordinator.showErrorAlert(error: error)
+            state.loadingState = .error(
+                errorMessage: Localizations.weCouldntLoadYourSubscriptionDetailsPleaseRetry,
+            )
         }
     }
 }

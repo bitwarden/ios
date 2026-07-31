@@ -20,6 +20,7 @@ class IdentityTokenRequestModelTests: BitwardenTestCase {
                 codeVerifier: "codeVerifier",
                 redirectUri: "redirectUri",
             ),
+            deeplinkScheme: "https",
             deviceInfo: .fixture(),
             loginRequestId: nil,
         )
@@ -29,6 +30,7 @@ class IdentityTokenRequestModelTests: BitwardenTestCase {
                 username: "ramen@delicious.com",
                 password: "password",
             ),
+            deeplinkScheme: "bitwarden",
             deviceInfo: .fixture(),
             loginRequestId: nil,
         )
@@ -47,10 +49,11 @@ class IdentityTokenRequestModelTests: BitwardenTestCase {
     func test_values_authorizationCode() {
         let valuesByKey = valuesByKey(subjectAuthorizationCode.values)
 
-        XCTAssertEqual(valuesByKey.count, 9)
+        XCTAssertEqual(valuesByKey.count, 10)
 
         XCTAssertEqual(valuesByKey["scope"], "api offline_access")
         XCTAssertEqual(valuesByKey["client_id"], "mobile")
+        XCTAssertEqual(valuesByKey["deeplinkScheme"], "https")
 
         XCTAssertEqual(valuesByKey["deviceIdentifier"], "1234")
         XCTAssertEqual(valuesByKey["deviceName"], "iPhone 14")
@@ -66,10 +69,11 @@ class IdentityTokenRequestModelTests: BitwardenTestCase {
     func test_values_password() {
         let valuesByKey = valuesByKey(subjectPassword.values)
 
-        XCTAssertEqual(valuesByKey.count, 8)
+        XCTAssertEqual(valuesByKey.count, 9)
 
         XCTAssertEqual(valuesByKey["scope"], "api offline_access")
         XCTAssertEqual(valuesByKey["client_id"], "mobile")
+        XCTAssertEqual(valuesByKey["deeplinkScheme"], "bitwarden")
 
         XCTAssertEqual(valuesByKey["deviceIdentifier"], "1234")
         XCTAssertEqual(valuesByKey["deviceName"], "iPhone 14")
@@ -87,6 +91,7 @@ class IdentityTokenRequestModelTests: BitwardenTestCase {
                 username: "user@example.com",
                 password: "password",
             ),
+            deeplinkScheme: "bitwarden",
             deviceInfo: .fixture(),
             loginRequestId: nil,
             twoFactorCode: "hi_im_a_lil_code",
@@ -107,6 +112,7 @@ class IdentityTokenRequestModelTests: BitwardenTestCase {
                 username: "user@example.com",
                 password: "password",
             ),
+            deeplinkScheme: "bitwarden",
             deviceInfo: .fixture(),
             loginRequestId: nil,
             newDeviceOtp: "onetimepass",

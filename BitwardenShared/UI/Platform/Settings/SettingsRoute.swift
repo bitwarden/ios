@@ -32,8 +32,14 @@ public enum SettingsRoute: Equatable, Hashable {
     /// A route to the delete account screen.
     case deleteAccount
 
+    /// A route to the device management screen.
+    case deviceManagement
+
     /// A route that dismisses the current view.
-    case dismiss
+    ///
+    /// - Parameter action: The action to perform on dismiss.
+    ///
+    case dismiss(_ action: DismissAction? = nil)
 
     /// A route to the export vault settings view or export to file view depending on feature flag.
     case exportVault

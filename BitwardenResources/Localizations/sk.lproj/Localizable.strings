@@ -6,6 +6,7 @@
 "Bitwarden" = "Bitwarden";
 "Cancel" = "Zrušiť";
 "Copy" = "Kopírovať";
+"CopyLicenseNumber" = "Kopírovať číslo licencie";
 "CopyPassportNumber" = "Kopírovať číslo pasu";
 "CopyPassword" = "Kopírovať heslo";
 "CopyUsername" = "Kopírovať používateľské meno";
@@ -271,7 +272,7 @@
 "Remove" = "Odstrániť";
 "BaseDomain" = "Základná doména";
 "Default" = "Predvolené";
-"Exact" = "Presný";
+"Exact" = "Presne";
 "Host" = "Hostiteľ";
 "RegEx" = "Regulárny výraz";
 "StartsWith" = "Začína na";
@@ -570,6 +571,8 @@
 "RequestAdminApproval" = "Žiadosť o schválenie správcom";
 "ApproveWithMasterPassword" = "Schváliť pomocou hlavného hesla";
 "TurnOffUsingPublicDevice" = "Vypnúť pomocou verejného zariadenia";
+"TurnOnFillAssist" = "Zapnúť pomoc pri vypĺňaní";
+"TurnOnFillAssistDescriptionLong" = "Pomoc pri vypĺňaní zvyšuje presnosť automatického vypĺňania na podporovaných webových stránkach pomocou špecifických pravidiel pre konkrétnu stránku.";
 "RememberThisDevice" = "Zapamätať si toto zariadenie";
 "Passkey" = "Prístupový kľúč";
 "Passkeys" = "Prístupové kľúče";
@@ -777,6 +780,8 @@
 "SetUpAutofillOnAllYourDevicesToLoginWithASingleTapAnywhere" = "Nastavte si automatické vypĺňanie na všetkých svojich zariadeniach a prihláste sa jediným ťuknutím kdekoľvek.";
 "GoBack" = "Prejsť späť";
 "GotIt" = "Chápem";
+/* masterPasswordUnlock is the name of some data we want to delete, so there's no need to localize it. */
+"ClearMasterPasswordUnlock" = "Vymazať masterPasswordUnlock";
 "ClearSsoCookies" = "Vymazať cookies SSO";
 "GenerateCrash" = "Generovať zlyhanie";
 "GenerateErrorReport" = "Generovať správu o zlyhaní";
@@ -1026,10 +1031,8 @@
 "ArchiveEmptyDescriptionLong" = "Naplňte svoj archív položkami, ktoré nechcete vidieť vo výsledkoch vyhľadávania a automatických návrhoch, ale ktoré budete možno niekedy potrebovať.";
 "ArchiveItem" = "Archivovať položku";
 "OnceArchivedThisItemWillBeExcludedDescriptionLong" = "Po archivácii bude táto položka vylúčená z výsledkov vyhľadávania a návrhov automatického vypĺňania.";
-"ArchiveUnavailable" = "Archív je nedostupný";
 "ArchivingItemsIsAPremiumFeatureDescriptionLong" = "Archivovanie položiek je prémiová funkcia. Váš aktuálny plán nezahŕňa prístup k tejto funkcii.";
 "AddingAttachmentsIsAPremiumFeatureDescriptionLong" = "Pridávanie príloh je prémiová funkcia. Váš aktuálny plán nezahŕňa prístup k tejto funkcii.";
-"AttachmentsUnavailable" = "Prílohy nie sú k dispozícii";
 "UpgradeToPremium" = "Upgradovať na Prémium";
 "ThisItemIsArchived" = "Táto položka je archivovaná.";
 "YourPremiumSubscriptionEnded" = "Vaše predplatné Prémium skončilo";
@@ -1062,6 +1065,8 @@
 "ReplaceCertificate" = "Nahradiť certifikát";
 "ReplaceExistingCertificate" = "Nahradiť existujúci certifikát";
 "UnableToReadCertificateFile" = "Nie je možné načítať súbor certifikátu.";
+/* masterPasswordUnlock is the name of some data we want to delete, so there's no need to localize it. */
+"MasterPasswordUnlockCleared" = "masterPasswordUnlock vymazané.";
 "SsoCookiesCleared" = "Cookies SSO vymazané";
 "YourRequestWasInterruptedBecauseTheAppNeededToReAuthenticatePleaseTryAgain" = "Vaša žiadosť bola prerušená, pretože aplikácia musela znovu overiť vašu identitu. Skúste to znova.";
 "AutofillWithBitwardenDescriptionLong" = "Bitwarden vám môže navrhovať heslá a ďalšie prihlasovacie údaje pri prihlasovaní do aplikácií a na webové stránky.";
@@ -1075,6 +1080,7 @@
 "Canceled" = "Zrušené";
 "PastDue" = "Po splatnosti";
 "PendingCancellation" = "Čaká na zrušenie";
+"Unpaid" = "Nezaplatené";
 "UpdatePayment" = "Aktualizovať platbu";
 "BillingAmount" = "Fakturačná suma";
 "StorageCost" = "Náklady na skladovanie";
@@ -1086,17 +1092,44 @@
 "ExternalLink" = "Externý odkaz";
 "YourNextChargeIsForXDueOnY" = "Vaša ďalšia platba vo výške **%1$@** je splatná dňa **%2$@**.";
 "WeCouldNotProcessYourPaymentUpdateYourPaymentMethodDescriptionLong" = "Vašu platbu sa nám nepodarilo spracovať. Aktualizujte spôsob platby ešte pred uplynutím platnosti vášho predplatného dňa **%1$@**.";
+/* Error message shown when the Premium Plan screen fails to load subscription data, with a prompt to retry. */
+"WeCouldntLoadYourSubscriptionDetailsPleaseRetry" = "Nepodarilo sa nám načítať údaje o vašom predplatnom. Skúste to znova.";
 "YourSubscriptionWasCanceledOnXDescriptionLong" = "Vaše predplatné bolo zrušené dňa **%1$@**. Obnovte si predplatné, ak chcete naďalej využívať prémiové funkcie.";
+"YourSubscriptionWasSuspendedOnXDescriptionLong" = "Vaše predplatné bolo pozastavené **%1$@**. Ak ho chcete opäť aktivovať, uhraďte nezaplatené faktúry.";
 "YourSubscriptionExpiredOnXDescriptionLong" = "Vaše predplatné vypršalo **%1$@**. Obnovte si predplatné, ak chcete naďalej využívať prémiové funkcie.";
 "YourSubscriptionIsScheduledToCancelOnXDescriptionLong" = "Vaše predplatné má naplánovaný koniec na **%1$@**. Kedykoľvek predtým ho môžete opätovne obnoviť.";
 "PerMonth" = "/mesiac";
+/* VoiceOver reading of "PerMonth", spoken instead of shown. */
+"PerMonthVoiceOver" = "mesačne";
 "PerYear" = "/rok";
+/* VoiceOver reading of "PerYear", spoken instead of shown. */
+"PerYearVoiceOver" = "ročne";
 "XAmountPerCadence" = "%1$@ %2$@";
+/* %1$@ is an amount and cadence together, e.g. "$1.65 / month". */
+"XCancelAnytime" = "%1$@ · Kedykoľvek môžete zrušiť";
+/* VoiceOver reading of "XCancelAnytime", spoken instead of shown. */
+"XCancelAnytimeVoiceOver" = "%1$@, Kedykoľvek môžete zrušiť";
 "NegativeX" = "-%1$@";
 "UnknownStatus" = "Neznáme";
 "YourSubscriptionStatusIsUnknownVisitTheWebAppDescriptionLong" = "Nepodarilo sa zistiť stav vášho predplatného. Pre viac informácií navštívte webovú aplikáciu alebo si nainštalujte najnovšiu verziu.";
-"AtTheMomentPremiumPlanIsNotAvailableDescriptionLong" = "Momentálne nie je prémiový plán k dispozícii, skúste to neskôr.";
-"UnlockMoreAdvancedFeaturesWithPremiumPlan" = "S balíkom Prémium získate prístup k pokročilejším funkciám.";
+/* Headline on the Premium upgrade screen. */
+"UnlockAdvancedProtection" = "Odomknúť pokročilú ochranu";
+/* Premium benefit list item. */
+"BreezeThrough2faWithBuiltInCodes" = "Prihlásenie pomocou 2FA je hračka vďaka integrovaným kódom";
+/* Premium benefit list item. */
+"RunReportsToFindRiskyPasswords" = "Spúšťajte reporty a nájdite rizikové heslá";
+/* Premium benefit list item. */
+"KeepDocumentsSafeAndEncrypted" = "Uchovávajte dokumenty v bezpečí a zašifrované";
+/* Premium benefit list item. */
+"AddATrustedEmergencyContact" = "Pridajte dôveryhodný núdzový kontakt";
+/* Premium benefit list item. */
+"IdentifyUnsecureWebsites" = "Identifikujte nezabezpečené webové stránky";
+/* Premium benefit list item. */
+"FlagAccountsWithInactive2fa" = "Označte účty s neaktívnym 2FA";
+/* Premium benefit list item; "Send" is the Bitwarden Send feature name and shouldn't be translated. */
+"ShareFilesSecurelyWithAnyoneUsingSend" = "Zdieľajte súbory bezpečne s kýmkoľvek pomocou Sendu";
+/* Premium benefit list item. */
+"Receive247PrioritySupport" = "Získajte nonstop prioritnú podporu";
 "BuiltInAuthenticator" = "Zabudovaný autentifikátor";
 "EmergencyAccess" = "Núdzový prístup";
 "PaymentNotReceivedYet" = "Platba ešte nebola prijatá";
@@ -1105,15 +1138,18 @@
 "WeHadTroubleOpeningThePaymentPageDescriptionLong" = "Mali sme problémy s otvorením platobnej stránky, skúste to znova.";
 "SecureFileStorage" = "Bezpečné ukladanie súborov";
 "BreachMonitoring" = "Sledovanie únikov";
-"UpgradeNow" = "Upgradovať teraz";
 "ConfirmingYourUpgrade" = "Potvrdenie upgradu…";
 "OpeningCheckout" = "Otvára sa pokladňa…";
 "UpgradePending" = "Čaká sa na upgrade";
 "YourUpgradeIsBeingProcessedDescriptionLong" = "Váš upgrade sa práve spracúva. Do dokončenia tohto procesu budete naďalej využívať bezplatný plán. Synchronizujte teraz, aby ste to skontrolovali, alebo pokračujte a aktualizácia prebehne automaticky.";
 "UpgradedToPremium" = "Upgradované na Prémium";
+"SubscriptionNeedsAttention" = "Vaše predplatné si vyžaduje pozornosť";
+"CheckYourPlanForDetails" = "Podrobnosti nájdete vo svojom pláne.";
+"ViewPlan" = "Zobraziť plán";
 "YouNowHaveAccessToAdvancedSecurityDescriptionLong" = "Teraz máte prístup ku všetkým pokročilým bezpečnostným funkciám. Zistite viac o tom, čo všetko zahŕňa Prémium.";
 "YouNowHaveAccessToAllAdvancedSecurityFeatures" = "Teraz máte prístup ku všetkým pokročilým bezpečnostným funkciám.";
-"YoullGoToStripeSecureCheckoutToCompleteYourPurchase" = "Budete presmerovaní na zabezpečenú platobnú stránku služby Stripe, kde dokončíte nákup.";
+/* Footer on the Premium upgrade screen; "Stripe" is the payment processor's name and shouldn't be translated. */
+"YoullCompleteThePurchaseWithStripeSecureCheckout" = "Nákup dokončíte prostredníctvom zabezpečenej platobnej brány Stripe.";
 "ContinueToStripe" = "Pokračovať na Stripe?";
 "YoullBeTakenToStripeToManageYourSubscriptionCancellation" = "Budete presmerovaní na stránku Stripe, kde môžete zrušiť svoje predplatné.";
 "UserIDCopiedToTheClipboard" = "ID používateľa skopírované do schránky";
@@ -1162,3 +1198,7 @@
 "LineOfCredit" = "Úverový rámec";
 "MoneyMarket" = "Peňažný trh";
 "Savings" = "Sporiaci účet";
+/* Accessibility label for the button that clears a field's value. %1$@ is the field's title (e.g. "Date of birth"), so the spoken label reads "Clear Date of birth". */
+"ClearFieldName" = "Vyčistiť %1$@";
+"SelectDate" = "Vyberte dátum";
+"PremiumRequiredTOTPDescriptionLong" = "Kľúč overovacej aplikácie (TOTP) je prémiová funkcia. Váš súčasný plán nezahŕňa prístup k tejto funkcii.";

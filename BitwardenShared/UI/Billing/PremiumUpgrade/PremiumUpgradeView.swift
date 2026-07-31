@@ -7,6 +7,11 @@ import SwiftUI
 /// A view that displays the Premium upgrade information and allows users to upgrade.
 ///
 struct PremiumUpgradeView: View {
+    // MARK: Private Properties
+
+    /// The height of the hero illustration; its width follows from its aspect ratio.
+    private static let heroImageHeight: CGFloat = 180
+
     // MARK: Properties
 
     /// The store that renders the view.
@@ -16,7 +21,7 @@ struct PremiumUpgradeView: View {
 
     var body: some View {
         content
-            .navigationBar(title: Localizations.upgradeToPremium, titleDisplayMode: .inline)
+            .navigationBar(title: Localizations.premium, titleDisplayMode: .inline)
             .toolbar {
                 cancelToolbarItem(hidden: !store.state.showCancelButton) {
                     store.send(.cancelTapped)
@@ -46,6 +51,11 @@ struct PremiumUpgradeView: View {
                 upgradeButton
                     .padding(.bottom, 12)
 
+                if store.state.priceCancelAnytimeText != nil {
+                    priceSection
+                        .padding(.bottom, 12)
+                }
+
                 stripeFooter
             }
         }
@@ -55,45 +65,40 @@ struct PremiumUpgradeView: View {
         }
     }
 
-    /// The Premium upgrade card containing price, description, and features.
+    /// The Premium upgrade card containing the hero illustration, headline, and benefits.
     private var premiumCard: some View {
-        VStack(alignment: .leading, spacing: 0) {
-            if store.state.isSelfHosted {
-                Text(Localizations.unlockMoreAdvancedFeaturesWithPremiumPlan)
-                    .styleGuide(.headline, weight: .semibold)
-                    .foregroundColor(Color(asset: SharedAsset.Colors.textPrimary))
-                    .padding(.bottom, 16)
-            } else {
-                if store.state.premiumPrice != nil {
-                    priceSection
-                        .padding(.bottom, 4)
-                }
+        VStack(spacing: 16) {
+            Asset.Images.Illustrations.premiumUpgradeHero.swiftUIImage
+                .resizable()
+                .aspectRatio(contentMode: .fit)
+                .frame(height: Self.heroImageHeight)
+                .accessibilityHidden(true)
 
-                Text(Localizations.unlockMoreAdvancedFeaturesWithPremiumPlan)
-                    .styleGuide(.body)
-                    .foregroundColor(Color(asset: SharedAsset.Colors.textSecondary))
-                    .padding(.bottom, 16)
-            }
+            Text(Localizations.unlockAdvancedProtection)
+                .styleGuide(.title2, weight: .bold)
+                .foregroundColor(Color(asset: SharedAsset.Colors.textPrimary))
+                .multilineTextAlignment(.center)
+                .frame(maxWidth: .infinity, alignment: .center)
 
-            PremiumFeaturesList()
+            PremiumUpgradeBenefitsList()
         }
         .padding(.top, 16)
         .padding(.horizontal, 16)
-        .background(Color(asset: SharedAsset.Colors.backgroundSecondary))
-        .clipShape(RoundedRectangle(cornerRadius: 12))
+        .padding(.bottom, 24)
+        .background(
+            Asset.Images.Illustrations.premiumUpgradeCardBackground.swiftUIImage
+                .resizable()
+                .accessibilityHidden(true),
+        )
     }
 
     /// The price display section.
     private var priceSection: some View {
-        HStack(alignment: .firstTextBaseline, spacing: 0) {
-            Text(store.state.premiumPrice ?? "")
-                .styleGuide(.largeTitle, weight: .semibold)
-                .foregroundColor(Color(asset: SharedAsset.Colors.textPrimary))
-
-            Text(Localizations.perMonth)
-                .styleGuide(.body)
-                .foregroundColor(Color(asset: SharedAsset.Colors.textSecondary))
-        }
+        Text(LocalizedStringKey(store.state.priceCancelAnytimeText ?? ""))
+            .styleGuide(.subheadline)
+            .foregroundColor(Color(asset: SharedAsset.Colors.textPrimary))
+            .frame(maxWidth: .infinity)
+            .accessibilityLabel(store.state.priceCancelAnytimeAccessibilityLabel ?? "")
     }
 
     /// The pricing error banner shown when the Premium price cannot be fetched.
@@ -128,7 +133,7 @@ struct PremiumUpgradeView: View {
 
     /// The footer text about Stripe checkout.
     private var stripeFooter: some View {
-        Text(Localizations.youllGoToStripeSecureCheckoutToCompleteYourPurchase)
+        Text(Localizations.youllCompleteThePurchaseWithStripeSecureCheckout)
             .styleGuide(.subheadline)
             .foregroundColor(Color(asset: SharedAsset.Colors.textPrimary))
             .multilineTextAlignment(.center)
@@ -144,7 +149,7 @@ struct PremiumUpgradeView: View {
                 SharedAsset.Icons.externalLink16.swiftUIImage
                     .accessibilityHidden(true)
 
-                Text(Localizations.upgradeNow)
+                Text(Localizations.upgradeToPremium)
             }
         }
         .buttonStyle(.primary())

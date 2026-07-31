@@ -35,8 +35,14 @@ extension FeatureFlag: @retroactive CaseIterable {
     /// An SDK flag that enables individual cipher encryption.
     static let enableCipherKeyEncryption = FeatureFlag(rawValue: "enableCipherKeyEncryption")
 
+    /// A feature flag to enable/disable the FedRAMP (.gov) region in the region picker.
+    static let fedrampGovRegion = FeatureFlag(rawValue: "fedramp-gov-region")
+
     /// Flag to enable/disable Fill-Assist targeting rules.
     static let fillAssistTargetingRules = FeatureFlag(rawValue: "fill-assist-targeting-rules")
+
+    /// Feature flag for device management screen.
+    static let manageDevices = FeatureFlag(rawValue: "pm-4516-manage-devices")
 
     /// Flag to enable/disable migration from My Vault Items to My Items.
     static let migrateMyVaultToMyItems = FeatureFlag(rawValue: "pm-20558-migrate-myvault-to-myitems")
@@ -59,6 +65,13 @@ extension FeatureFlag: @retroactive CaseIterable {
     /// Flag to enable/disable Premium upgrade path.
     static let premiumUpgradePath = FeatureFlag(rawValue: "pm-31697-premium-upgrade-path")
 
+    /// Flag to enable/disable the Send Controls policy, which supersedes the `disableSend` and
+    /// `sendOptions` policies when active.
+    static let sendControls = FeatureFlag(rawValue: "pm-31885-send-controls")
+
+    /// Flag for the VFO1 terminology-alignment foundation work (vault/organization renames).
+    static let vfo1Foundation = FeatureFlag(rawValue: "vfo1-foundation")
+
     public static var allCases: [FeatureFlag] {
         [
             .accountEncryptionV2JITPassword,
@@ -69,13 +82,17 @@ extension FeatureFlag: @retroactive CaseIterable {
             .debugDisableSelfHostPremiumCheck,
             .deviceAuthKey,
             .enableCipherKeyEncryption,
+            .fedrampGovRegion,
             .fillAssistTargetingRules,
+            .manageDevices,
             .migrateMyVaultToMyItems,
             .newItemTypes,
             .noLogoutOnKdfChange,
             .organizationUserNotificationBanner,
             .policiesInAcceptedState,
             .premiumUpgradePath,
+            .sendControls,
+            .vfo1Foundation,
         ]
     }
 }

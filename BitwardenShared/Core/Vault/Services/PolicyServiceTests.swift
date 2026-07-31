@@ -772,6 +772,17 @@ class PolicyServiceTests: BitwardenTestCase { // swiftlint:disable:this type_bod
         XCTAssertFalse(policyApplies)
     }
 
+    /// `policyAppliesToUser(_:)` returns `false` when the user is staged, provisioned but not
+    /// yet invited, in the organization — staged members are not subject to org policies.
+    func test_policyAppliesToUser_organizationStaged() async {
+        stateService.activeAccount = .fixture()
+        organizationService.fetchAllOrganizationsResult = .success([.fixture(status: .staged)])
+        policyDataStore.fetchPoliciesResult = .success([.fixture(type: .twoFactorAuthentication)])
+
+        let policyApplies = await subject.policyAppliesToUser(.twoFactorAuthentication)
+        XCTAssertFalse(policyApplies)
+    }
+
     /// `replacePolicies(_:userId:)` replaces the persisted policies in the data store.
     func test_replacePolicies() async throws {
         try await subject.replacePolicies(policies, userId: "1")
@@ -986,6 +997,7 @@ class PolicyServiceTests: BitwardenTestCase { // swiftlint:disable:this type_bod
 
     /// `getOrganizationUserNotificationBannerData()` returns the correct data when the policy is valid.
     func test_getOrganizationUserNotificationBannerData_validPolicy() async {
+        let revisionDate = Date(year: 2024, month: 6, day: 1)
         configService.featureFlagsBool[.organizationUserNotificationBanner] = true
         stateService.activeAccount = .fixture()
         organizationService.fetchAllOrganizationsResult = .success([.fixture()])
@@ -997,6 +1009,7 @@ class PolicyServiceTests: BitwardenTestCase { // swiftlint:disable:this type_bod
                     PolicyOptionType.buttonText.rawValue: .string("I understand"),
                     PolicyOptionType.showAfterEveryLogin.rawValue: .bool(true),
                 ],
+                revisionDate: revisionDate,
                 type: .organizationUserNotification,
             ),
         ])
@@ -1005,6 +1018,8 @@ class PolicyServiceTests: BitwardenTestCase { // swiftlint:disable:this type_bod
         XCTAssertEqual(result?.headerText, "Important Notice")
         XCTAssertEqual(result?.description, "Please review your settings.")
         XCTAssertEqual(result?.buttonText, "I understand")
+        XCTAssertEqual(result?.organizationId, "organization-1")
+        XCTAssertEqual(result?.revisionDate, revisionDate)
         XCTAssertTrue(result?.showAfterEveryLogin == true)
     }
 

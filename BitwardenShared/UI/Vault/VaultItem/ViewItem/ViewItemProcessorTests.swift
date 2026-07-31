@@ -214,7 +214,7 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         ]
         vaultRepository.fetchCollectionsResult = .success(collections)
         let cipherOwnershipOptions: [CipherOwner] = [
-            .personal(email: "user@bitwarden.com"),
+            .personal(displayName: "user@bitwarden.com"),
             .organization(id: "1", name: "Test Organization"),
         ]
         vaultRepository.fetchCipherOwnershipOptions = cipherOwnershipOptions
@@ -1745,6 +1745,34 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         subject.state.passwordHistory = nil
         subject.receive(.passwordHistoryPressed)
         XCTAssertTrue(coordinator.routes.isEmpty)
+    }
+
+    /// `receive` with `.premiumSubscriptionRequiredTapped` shows the TOTP premium required alert.
+    @MainActor
+    func test_receive_premiumSubscriptionRequiredTapped_showsAlert() {
+        subject.receive(.premiumSubscriptionRequiredTapped)
+        XCTAssertEqual(coordinator.alertShown.last?.title, Localizations.premiumSubscriptionRequired)
+        XCTAssertEqual(coordinator.alertShown.last?.message, Localizations.premiumRequiredTOTPDescriptionLong)
+    }
+
+    /// `receive` with `.premiumSubscriptionRequiredTapped` navigates to Premium upgrade when
+    /// "Upgrade to Premium" is tapped in the alert.
+    @MainActor
+    func test_receive_premiumSubscriptionRequiredTapped_upgradeToPremium() async throws {
+        subject.receive(.premiumSubscriptionRequiredTapped)
+        let alert = try XCTUnwrap(coordinator.alertShown.last)
+        try await alert.tapAction(title: Localizations.upgradeToPremium)
+        XCTAssertTrue(premiumUpgradeHelper.navigateToPremiumUpgradeCalled)
+    }
+
+    /// `receive` with `.premiumSubscriptionRequiredTapped` does not navigate to Premium upgrade
+    /// when Cancel is tapped.
+    @MainActor
+    func test_receive_premiumSubscriptionRequiredTapped_cancel() async throws {
+        subject.receive(.premiumSubscriptionRequiredTapped)
+        let alert = try XCTUnwrap(coordinator.alertShown.last)
+        try await alert.tapCancel()
+        XCTAssertFalse(premiumUpgradeHelper.navigateToPremiumUpgradeCalled)
     }
 
     /// `receive` with `.passwordVisibilityPressed` while loading logs an error.

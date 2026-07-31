@@ -178,8 +178,8 @@ extension DefaultKeyConnectorService: KeyConnectorService {
         }
 
         let account = try await stateService.getActiveAccount()
-        let encryptionKeys = try await stateService.getAccountEncryptionKeys(userId: account.profile.userId)
-        guard let encryptedUserKey = encryptionKeys.encryptedUserKey else {
+        let masterPasswordUnlock = account.profile.userDecryptionOptions?.masterPasswordUnlock
+        guard let encryptedUserKey = masterPasswordUnlock?.masterKeyEncryptedUserKey else {
             throw KeyConnectorServiceError.missingEncryptedUserKey
         }
 

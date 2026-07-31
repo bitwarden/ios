@@ -5,7 +5,7 @@ import Foundation
 
 /// A service that bridges server communication configuration requests from the SDK,
 /// allowing the app to acquire cookies on behalf of the SDK and deliver the results back.
-public protocol ServerCommunicationConfigAPIService: ServerCommunicationConfigPlatformApi {
+public protocol ServerCommunicationConfigAPIService: ServerCommunicationConfigPlatformApi { // sourcery: AutoMockable
     /// Returns a publisher that emits the vault URL whenever `acquireCookies(vaultUrl:)` is called,
     /// before the continuation is awaited. Starts with `nil`.
     func acquireCookiesPublisher() async -> AnyPublisher<String?, Never>

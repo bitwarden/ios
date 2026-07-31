@@ -1,3 +1,4 @@
+import BitwardenKit
 import Foundation
 import TestHelpers
 import Testing
@@ -10,8 +11,8 @@ import Testing
 struct FillAssistAPIServiceTests {
     // MARK: Properties
 
-    var client: MockHTTPClient!
-    var subject: FillAssistAPIService!
+    let client: MockHTTPClient
+    let subject: FillAssistAPIService
 
     // MARK: Initialization
 
@@ -22,29 +23,30 @@ struct FillAssistAPIServiceTests {
 
     // MARK: Tests
 
-    /// `getFormsMap()` performs the request with the correct method, URL, and no body.
+    /// `getFormsMap(filename:)` sends a request to the expected URL and decodes the response.
     @Test
     func getFormsMap() async throws {
-        client.result = .httpSuccess(testData: .formsMap)
+        client.results = [.httpSuccess(testData: .formsMap)]
 
-        _ = try await subject.getFormsMap()
+        _ = try await subject.getFormsMap(filename: "forms.v1.json")
 
         let request = try #require(client.requests.last)
         #expect(request.method == .get)
-        #expect(request.url.absoluteString == "https://example.com/fill-assist-rules/forms.v0.json")
-        #expect(request.body == nil)
+        #expect(request.url.absoluteString == "https://example.com/fill-assist-rules/forms.v1.json")
     }
 
-    /// `getManifest()` performs the request with the correct method, URL, and no body.
+    /// `getManifest()` sends a request to the manifest URL and decodes the response.
     @Test
     func getManifest() async throws {
-        client.result = .httpSuccess(testData: .fillAssistManifest)
+        client.results = [.httpSuccess(testData: .fillAssistManifest)]
 
         _ = try await subject.getManifest()
 
         let request = try #require(client.requests.last)
         #expect(request.method == .get)
-        #expect(request.url.absoluteString == "https://example.com/fill-assist-rules/manifest.json")
-        #expect(request.body == nil)
+        #expect(
+            request.url.absoluteString
+                == "https://example.com/fill-assist-rules/\(Constants.FillAssist.manifestFilename)",
+        )
     }
 }

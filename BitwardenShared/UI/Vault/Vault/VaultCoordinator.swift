@@ -91,6 +91,7 @@ final class VaultCoordinator: Coordinator, HasStackNavigator { // swiftlint:disa
         & HasFlightRecorder
         & HasFido2CredentialStore
         & HasFido2UserInterfaceHelper
+        & HasFillAssistRepository
         & HasLocalAuthService
         & HasNotificationService
         & HasReviewPromptService
@@ -264,6 +265,8 @@ final class VaultCoordinator: Coordinator, HasStackNavigator { // swiftlint:disa
             showList()
         case let .loginRequest(loginRequest):
             delegate?.presentLoginRequest(loginRequest)
+        case .premiumPlan:
+            delegate?.switchToSettingsTab(route: .premiumPlan(nil))
         case .premiumUpgrade:
             showPremiumUpgrade()
         case let .vaultItemSelection(totpKeyModel):

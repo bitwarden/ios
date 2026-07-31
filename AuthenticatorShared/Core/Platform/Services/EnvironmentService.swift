@@ -78,13 +78,7 @@ extension DefaultEnvironmentService {
     }
 
     var region: RegionType {
-        if environmentURLs.baseURL == EnvironmentURLData.defaultUS.base {
-            .unitedStates
-        } else if environmentURLs.baseURL == EnvironmentURLData.defaultEU.base {
-            .europe
-        } else {
-            .selfHosted
-        }
+        environmentURLs.region
     }
 
     var sendShareURL: URL {

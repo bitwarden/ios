@@ -8,6 +8,8 @@ import XCTest
 @testable import BitwardenShared
 @testable import BitwardenSharedMocks
 
+// swiftlint:disable file_length
+
 @MainActor
 class KeyConnectorServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_length
     // MARK: Properties
@@ -203,7 +205,16 @@ class KeyConnectorServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
 
     /// `migrateUser()` migrates the user keys and uploads them to the API and Key Connector.
     func test_migrateUser() async throws {
-        let account = Account.fixture()
+        let account = Account.fixture(
+            profile: .fixture(
+                userDecryptionOptions: UserDecryptionOptions(
+                    hasMasterPassword: true,
+                    masterPasswordUnlock: .fixture(masterKeyEncryptedUserKey: "encryptedUserKey"),
+                    keyConnectorOption: nil,
+                    trustedDeviceOption: nil,
+                ),
+            ),
+        )
         client.results = [
             .httpSuccess(testData: .emptyResponse),
             .httpSuccess(testData: .emptyResponse),
@@ -213,10 +224,6 @@ class KeyConnectorServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
             .fixture(keyConnectorEnabled: true, keyConnectorUrl: "https://example.com/key-connector"),
         ])
         stateService.activeAccount = account
-        stateService.accountEncryptionKeys["1"] = AccountEncryptionKeys(
-            cryptographicState: .v1(privateKey: "encryptedPrivateKey"),
-            encryptedUserKey: "encryptedUserKey",
-        )
 
         try await subject.migrateUser(
             password: "testPassword123",
@@ -259,10 +266,6 @@ class KeyConnectorServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
             .fixture(keyConnectorEnabled: true, keyConnectorUrl: "https://https://example.com/key-connector"),
         ])
         stateService.activeAccount = .fixture()
-        stateService.accountEncryptionKeys["1"] = AccountEncryptionKeys(
-            cryptographicState: .v1(privateKey: "encryptedPrivateKey"),
-            encryptedUserKey: nil,
-        )
 
         await assertAsyncThrows(error: KeyConnectorServiceError.missingEncryptedUserKey) {
             try await subject.migrateUser(
@@ -277,10 +280,15 @@ class KeyConnectorServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
         organizationService.fetchAllOrganizationsResult = .success([
             .fixture(keyConnectorEnabled: true, keyConnectorUrl: "https://https://example.com/key-connector"),
         ])
-        stateService.activeAccount = .fixture()
-        stateService.accountEncryptionKeys["1"] = AccountEncryptionKeys(
-            cryptographicState: .v1(privateKey: "encryptedPrivateKey"),
-            encryptedUserKey: "encryptedUserKey",
+        stateService.activeAccount = .fixture(
+            profile: .fixture(
+                userDecryptionOptions: UserDecryptionOptions(
+                    hasMasterPassword: true,
+                    masterPasswordUnlock: .fixture(masterKeyEncryptedUserKey: "encryptedUserKey"),
+                    keyConnectorOption: nil,
+                    trustedDeviceOption: nil,
+                ),
+            ),
         )
 
         await assertAsyncThrows(error: BitwardenTestError.example) {
@@ -300,10 +308,15 @@ class KeyConnectorServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
         organizationService.fetchAllOrganizationsResult = .success([
             .fixture(keyConnectorEnabled: true, keyConnectorUrl: "https://https://example.com/key-connector"),
         ])
-        stateService.activeAccount = .fixture()
-        stateService.accountEncryptionKeys["1"] = AccountEncryptionKeys(
-            cryptographicState: .v1(privateKey: "encryptedPrivateKey"),
-            encryptedUserKey: "encryptedUserKey",
+        stateService.activeAccount = .fixture(
+            profile: .fixture(
+                userDecryptionOptions: UserDecryptionOptions(
+                    hasMasterPassword: true,
+                    masterPasswordUnlock: .fixture(masterKeyEncryptedUserKey: "encryptedUserKey"),
+                    keyConnectorOption: nil,
+                    trustedDeviceOption: nil,
+                ),
+            ),
         )
 
         await assertAsyncThrows(error: URLError(.networkConnectionLost)) {

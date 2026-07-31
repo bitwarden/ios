@@ -160,7 +160,8 @@ final class TabCoordinator: Coordinator, HasTabNavigator {
         )
         vaultNavigator = vaultNav
 
-        sendNavigator = createSendNavigator()
+        let sendNav = createSendNavigator()
+        sendNavigator = sendNav
 
         let generatorNav = module.makeNavigationController()
         generatorNav.navigationBar.prefersLargeTitles = false
@@ -254,8 +255,10 @@ final class TabCoordinator: Coordinator, HasTabNavigator {
             return
         }
 
+        var sendNv: UINavigationController?
         if sendNavigator == nil, isSendEnabled {
-            sendNavigator = createSendNavigator()
+            sendNv = createSendNavigator()
+            sendNavigator = sendNv
         }
 
         var tabs: [TabRoute: Navigator] = [

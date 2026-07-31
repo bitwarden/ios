@@ -78,8 +78,11 @@ struct VaultGroupView: View {
             .searchDebouncedTask(id: store.state.searchText) {
                 await store.perform(.search(store.state.searchText))
             }
-            .task(id: store.state.searchVaultFilterType) {
+            .task {
                 await store.perform(.search(store.state.searchText))
+            }
+            .onChange(of: store.state.searchVaultFilterType) { _ in
+                Task { await store.perform(.search(store.state.searchText)) }
             }
             .animation(.default, value: store.state.isSearching)
     }

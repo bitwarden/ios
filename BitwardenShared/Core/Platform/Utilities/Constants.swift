@@ -156,3 +156,23 @@ extension Constants {
     /// An app extension key for the fill script JSON.
     static let appExtensionWebViewPageFillScript = "fillScript"
 }
+
+// MARK: - Fill-Assist Constants
+
+extension Constants {
+    /// Fill-Assist constants used by the app.
+    ///
+    enum FillAssist {
+        /// The expected major component of the forms schema version (e.g. `"1"` for `"1.0.0"`).
+        static let expectedSchemaMajor = "1"
+
+        /// The forms map major version key requested from the manifest (e.g. `"v1"`).
+        static let formsVersion = "v1"
+
+        /// The filename of the Fill-Assist manifest on the CDN.
+        static let manifestFilename = "manifest.json"
+
+        /// The minimum interval between fill-assist manifest checks (6 hours, matching the browser implementation).
+        static let updateInterval: TimeInterval = 6 * 60 * 60
+    }
+}

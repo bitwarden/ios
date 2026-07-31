@@ -6,6 +6,7 @@
 "Bitwarden" = "Bitwarden";
 "Cancel" = "Cancelar";
 "Copy" = "Copiar";
+"CopyLicenseNumber" = "Copiar número da carta de condução";
 "CopyPassportNumber" = "Copiar número do passaporte";
 "CopyPassword" = "Copiar palavra-passe";
 "CopyUsername" = "Copiar nome de utilizador";
@@ -307,24 +308,24 @@
 "Value" = "Valor";
 "PasswordHistory" = "Histórico de palavras-passe";
 "Types" = "Tipos";
-"NoPasswordsToList" = "Não há palavras-passe a enumerar.";
-"NoItemsToList" = "Não há itens a enumerar.";
+"NoPasswordsToList" = "Não existem palavras-passe para apresentar.";
+"NoItemsToList" = "Não existem itens para apresentar.";
 "MoveDown" = "Mover para baixo";
 "MoveUp" = "Mover para cima";
-"NoCollectionsToList" = "Não há coleções a enumerar.";
+"NoCollectionsToList" = "Não existem coleções para apresentar.";
 "MovedItemToOrg" = "%1$@ movido para %2$@.";
 "SelectOneCollection" = "Deve selecionar pelo menos uma coleção.";
 "Share" = "Partilhar";
 "ShareAll" = "Partilhar tudo";
 "MoveToOrganization" = "Mover para organização";
-"NoOrgsToList" = "Não há organizações a enumerar.";
-"MoveToOrgDesc" = "Escolha uma organização para a qual pretende mover este item. Mover para uma organização transfere a propriedade do item para essa organização. Deixará de ser o proprietário direto deste item depois de este ter sido movido.";
+"NoOrgsToList" = "Não existem organizações para apresentar.";
+"MoveToOrgDesc" = "Escolha a organização para a qual pretende mover este item. Ao movê-lo para uma organização, a propriedade do item será transferida para essa organização. Deixará de ser o proprietário direto deste item após a transferência.";
 "NumberOfWords" = "Número de palavras";
 "Passphrase" = "Frase de acesso";
 "WordSeparator" = "Separador de palavras";
 "Clear" = "Limpar";
 "Generator" = "Gerador";
-"NoFoldersToList" = "Não há pastas a enumerar.";
+"NoFoldersToList" = "Não existem pastas para apresentar.";
 "FingerprintPhrase" = "Frase de impressão digital";
 "YourAccountsFingerprint" = "Frase de impressão digital da sua conta";
 "WeAreUnableToProcessYourRequestPleaseTryAgainOrContactUs" = "Não é possível processar o seu pedido. Por favor, tente novamente ou contacte-nos.";
@@ -390,7 +391,7 @@
 "MasterPasswordPolicyValidationTitle" = "Palavra-passe inválida";
 "MasterPasswordPolicyValidationMessage" = "A palavra-passe não corresponde aos requisitos da organização. Verifique as informações da política e tente novamente.";
 "Loading" = "A carregar";
-"LoadingSubscription" = "A carregar subscrição...";
+"LoadingSubscription" = "A carregar subscrição…";
 "AcceptPoliciesError" = "Os Termos de utilização e a Política de privacidade não foram aceites.";
 "PrivacyPolicy" = "Política de privacidade";
 "PersonalOwnershipPolicyInEffect" = "Uma política da organização está a afetar as suas opções de propriedade.";
@@ -570,6 +571,8 @@
 "RequestAdminApproval" = "Pedir aprovação do administrador";
 "ApproveWithMasterPassword" = "Aprovar com a palavra-passe mestra";
 "TurnOffUsingPublicDevice" = "Desativar a utilização de um dispositivo público";
+"TurnOnFillAssist" = "Ativar assistência de preenchimento";
+"TurnOnFillAssistDescriptionLong" = "A assistência de preenchimento melhora a precisão do preenchimento automático em sites suportados através da utilização de regras específicas para cada site.";
 "RememberThisDevice" = "Lembrar este dispositivo";
 "Passkey" = "Chave de acesso";
 "Passkeys" = "Chaves de acesso";
@@ -777,6 +780,8 @@
 "SetUpAutofillOnAllYourDevicesToLoginWithASingleTapAnywhere" = "Configure o preenchimento automático em todos os seus dispositivos para iniciar sessão com um simples toque em qualquer lugar.";
 "GoBack" = "Voltar atrás";
 "GotIt" = "Percebido";
+/* masterPasswordUnlock is the name of some data we want to delete, so there's no need to localize it. */
+"ClearMasterPasswordUnlock" = "Limpar masterPasswordUnlock";
 "ClearSsoCookies" = "Limpar cookies de SSO";
 "GenerateCrash" = "Falha na geração";
 "GenerateErrorReport" = "Gerar relatório de erros";
@@ -1026,10 +1031,8 @@
 "ArchiveEmptyDescriptionLong" = "Preencha o seu arquivo com itens que não pretende ver nos resultados de pesquisa nem nas sugestões de preenchimento automático, mas que poderá precisar no futuro.";
 "ArchiveItem" = "Arquivar item";
 "OnceArchivedThisItemWillBeExcludedDescriptionLong" = "Depois de arquivado, este item será excluído dos resultados de pesquisa e das sugestões de preenchimento automático.";
-"ArchiveUnavailable" = "Arquivo indisponível";
 "ArchivingItemsIsAPremiumFeatureDescriptionLong" = "O arquivo de itens é uma funcionalidade Premium. O seu plano atual não inclui acesso a esta funcionalidade.";
 "AddingAttachmentsIsAPremiumFeatureDescriptionLong" = "Adicionar anexos é uma funcionalidade Premium. O seu plano atual não inclui acesso a esta funcionalidade.";
-"AttachmentsUnavailable" = "Anexos indisponíveis";
 "UpgradeToPremium" = "Atualize para o Premium";
 "ThisItemIsArchived" = "Este item está arquivado.";
 "YourPremiumSubscriptionEnded" = "A sua subscrição Premium terminou";
@@ -1062,6 +1065,8 @@
 "ReplaceCertificate" = "Substituir o certificado";
 "ReplaceExistingCertificate" = "Substituir certificado existente";
 "UnableToReadCertificateFile" = "Não foi possível ler o ficheiro do certificado.";
+/* masterPasswordUnlock is the name of some data we want to delete, so there's no need to localize it. */
+"MasterPasswordUnlockCleared" = "masterPasswordUnlock limpo.";
 "SsoCookiesCleared" = "Cookies de SSO limpos";
 "YourRequestWasInterruptedBecauseTheAppNeededToReAuthenticatePleaseTryAgain" = "O seu pedido foi interrompido porque a app precisou de voltar a autenticar. Por favor, tente novamente.";
 "AutofillWithBitwardenDescriptionLong" = "O Bitwarden pode sugerir as suas palavras-passe e outras credenciais quando inicia sessão em apps e sites.";
@@ -1075,6 +1080,7 @@
 "Canceled" = "Cancelado";
 "PastDue" = "Caducado";
 "PendingCancellation" = "Cancelamento pendente";
+"Unpaid" = "Por pagar";
 "UpdatePayment" = "Atualizar pagamento";
 "BillingAmount" = "Montante de faturação";
 "StorageCost" = "Custo de armazenamento";
@@ -1086,17 +1092,44 @@
 "ExternalLink" = "Link externo";
 "YourNextChargeIsForXDueOnY" = "O seu próximo pagamento será de **%1$@**, com vencimento em **%2$@**.";
 "WeCouldNotProcessYourPaymentUpdateYourPaymentMethodDescriptionLong" = "Não foi possível processar o seu pagamento. Atualize o seu método de pagamento antes de a sua subscrição terminar em **%1$@**.";
+/* Error message shown when the Premium Plan screen fails to load subscription data, with a prompt to retry. */
+"WeCouldntLoadYourSubscriptionDetailsPleaseRetry" = "Não foi possível carregar os detalhes da sua subscrição. Por favor, tente novamente.";
 "YourSubscriptionWasCanceledOnXDescriptionLong" = "A sua subscrição foi cancelada a **%1$@**. Volte a subscrever para continuar a utilizar funcionalidades Premium.";
+"YourSubscriptionWasSuspendedOnXDescriptionLong" = "A sua subscrição foi suspensa em **%1$@**. Para a reativar, regularize as faturas em atraso.";
 "YourSubscriptionExpiredOnXDescriptionLong" = "A sua subscrição expirou a **%1$@**. Volte a subscrever para continuar a utilizar funcionalidades Premium.";
 "YourSubscriptionIsScheduledToCancelOnXDescriptionLong" = "A sua subscrição está agendada para ser cancelada em **%1$@**. Pode reativá-la a qualquer momento até essa data.";
 "PerMonth" = "/ mês";
+/* VoiceOver reading of "PerMonth", spoken instead of shown. */
+"PerMonthVoiceOver" = "por mês";
 "PerYear" = "/ ano";
+/* VoiceOver reading of "PerYear", spoken instead of shown. */
+"PerYearVoiceOver" = "por ano";
 "XAmountPerCadence" = "%1$@ %2$@";
+/* %1$@ is an amount and cadence together, e.g. "$1.65 / month". */
+"XCancelAnytime" = "%1$@ · Cancele a qualquer momento";
+/* VoiceOver reading of "XCancelAnytime", spoken instead of shown. */
+"XCancelAnytimeVoiceOver" = "%1$@, Cancele a qualquer momento";
 "NegativeX" = "-%1$@";
 "UnknownStatus" = "Desconhecido";
 "YourSubscriptionStatusIsUnknownVisitTheWebAppDescriptionLong" = "Não foi possível determinar o estado da sua subscrição. Por favor, visite a aplicação web para mais detalhes ou atualize para a versão mais recente.";
-"AtTheMomentPremiumPlanIsNotAvailableDescriptionLong" = "De momento, o plano Premium não está disponível. Por favor, tente novamente mais tarde.";
-"UnlockMoreAdvancedFeaturesWithPremiumPlan" = "Desbloqueie funcionalidades mais avançadas com um plano Premium.";
+/* Headline on the Premium upgrade screen. */
+"UnlockAdvancedProtection" = "Desbloqueie proteção avançada";
+/* Premium benefit list item. */
+"BreezeThrough2faWithBuiltInCodes" = "Simplifique a autenticação de dois fatores com códigos integrados";
+/* Premium benefit list item. */
+"RunReportsToFindRiskyPasswords" = "Execute relatórios para encontrar palavras-passe de risco";
+/* Premium benefit list item. */
+"KeepDocumentsSafeAndEncrypted" = "Mantenha os documentos seguros e encriptados";
+/* Premium benefit list item. */
+"AddATrustedEmergencyContact" = "Adicione um contacto de emergência de confiança";
+/* Premium benefit list item. */
+"IdentifyUnsecureWebsites" = "Identifique sites inseguros";
+/* Premium benefit list item. */
+"FlagAccountsWithInactive2fa" = "Sinalize contas com autenticação de dois fatores inativa";
+/* Premium benefit list item; "Send" is the Bitwarden Send feature name and shouldn't be translated. */
+"ShareFilesSecurelyWithAnyoneUsingSend" = "Partilhe ficheiros de forma segura com qualquer pessoa através do Send";
+/* Premium benefit list item. */
+"Receive247PrioritySupport" = "Receba suporte prioritário 24/7";
 "BuiltInAuthenticator" = "Autenticador incorporado";
 "EmergencyAccess" = "Acesso de emergência";
 "PaymentNotReceivedYet" = "Pagamento ainda não recebido";
@@ -1105,15 +1138,18 @@
 "WeHadTroubleOpeningThePaymentPageDescriptionLong" = "Tivemos problemas ao abrir a página de pagamento, por isso tente novamente.";
 "SecureFileStorage" = "Armazenamento seguro de ficheiros";
 "BreachMonitoring" = "Monitorização de violações";
-"UpgradeNow" = "Atualizar agora";
 "ConfirmingYourUpgrade" = "A confirmar a sua atualização…";
 "OpeningCheckout" = "A abrir checkout…";
 "UpgradePending" = "Atualização pendente";
 "YourUpgradeIsBeingProcessedDescriptionLong" = "A sua atualização está a ser processada. Permanecerá no plano gratuito até estar concluída. Sincronize agora para verificar ou continue e será atualizada automaticamente.";
 "UpgradedToPremium" = "Atualizado para o Premium";
+"SubscriptionNeedsAttention" = "A sua subscrição requer atenção";
+"CheckYourPlanForDetails" = "Consulte o seu plano para mais detalhes.";
+"ViewPlan" = "Ver plano";
 "YouNowHaveAccessToAdvancedSecurityDescriptionLong" = "Agora tem acesso a funcionalidades avançadas de segurança. Saiba mais sobre o que está incluído no Premium.";
 "YouNowHaveAccessToAllAdvancedSecurityFeatures" = "Agora tem acesso a todas as funcionalidades avançadas de segurança.";
-"YoullGoToStripeSecureCheckoutToCompleteYourPurchase" = "Será encaminhado para o checkout seguro da Stripe para concluir a sua compra.";
+/* Footer on the Premium upgrade screen; "Stripe" is the payment processor's name and shouldn't be translated. */
+"YoullCompleteThePurchaseWithStripeSecureCheckout" = "Concluirá a compra através do pagamento seguro da Stripe.";
 "ContinueToStripe" = "Continuar para o Stripe?";
 "YoullBeTakenToStripeToManageYourSubscriptionCancellation" = "Será redirecionado para o Stripe para gerir o cancelamento da sua subscrição.";
 "UserIDCopiedToTheClipboard" = "ID de utilizador copiado para a área de transferência";
@@ -1162,3 +1198,7 @@
 "LineOfCredit" = "Linha de crédito";
 "MoneyMarket" = "Mercado monetário";
 "Savings" = "Poupança";
+/* Accessibility label for the button that clears a field's value. %1$@ is the field's title (e.g. "Date of birth"), so the spoken label reads "Clear Date of birth". */
+"ClearFieldName" = "Limpar %1$@";
+"SelectDate" = "Selecionar data";
+"PremiumRequiredTOTPDescriptionLong" = "A chave de autenticação (TOTP) é uma funcionalidade Premium. O seu plano atual não inclui acesso a esta funcionalidade.";

@@ -6,6 +6,7 @@
 "Bitwarden" = "Bitwarden";
 "Cancel" = "取消";
 "Copy" = "複製";
+"CopyLicenseNumber" = "複製駕照號碼";
 "CopyPassportNumber" = "複製護照號碼";
 "CopyPassword" = "複製密碼";
 "CopyUsername" = "複製使用者名稱";
@@ -127,7 +128,7 @@
 "ItemUpdated" = "項目已儲存";
 "Submitting" = "提交中…";
 "Syncing" = "正在同步…";
-"SyncingLogins" = "正在同步登入資訊...";
+"SyncingLogins" = "正在同步登入資訊…";
 "SyncingComplete" = "同步完成";
 "TouchID" = "Touch ID";
 "TwoStepLogin" = "兩步驟登入";
@@ -163,7 +164,7 @@
 "AddNewAttachment" = "新增附件";
 "Attachments" = "附件";
 "UnableToDownloadFile" = "無法下載檔案。";
-"Downloading" = "下載中...";
+"Downloading" = "下載中…";
 "AttachmentLargeWarning" = "這個附件大小為 %1$@ 。確定要下載至您的裝置嗎？";
 "AuthenticatorKey" = "驗證器金鑰";
 "VerificationCodeTotp" = "驗證碼 (TOTP)";
@@ -300,7 +301,7 @@
 "Identities" = "身分";
 "Logins" = "登入資料";
 "SecureNotes" = "安全筆記";
-"CheckingPassword" = "正在驗證...";
+"CheckingPassword" = "正在驗證…";
 "CheckPassword" = "檢查密碼是否已暴露。";
 "PasswordSafe" = "任何已知的外洩密碼資料庫中都沒有此密碼，它目前是安全的。";
 "IdentityName" = "身分名稱";
@@ -368,7 +369,7 @@
 "SoftDeleting" = "正在傳送至垃圾桶…";
 "ItemSoftDeleted" = "已將項目傳送至垃圾桶。";
 "Restore" = "還原";
-"Restoring" = "還原中...";
+"Restoring" = "還原中…";
 "ItemRestored" = "項目已還原";
 "Trash" = "垃圾桶";
 "DoYouReallyWantToPermanentlyDeleteCipher" = "您確定要永久刪除嗎？刪除後將無法復原。";
@@ -570,6 +571,8 @@
 "RequestAdminApproval" = "要求管理員核准";
 "ApproveWithMasterPassword" = "使用主密碼核准";
 "TurnOffUsingPublicDevice" = "使用公用裝置來關閉";
+"TurnOnFillAssist" = "Turn on fill assist";
+"TurnOnFillAssistDescriptionLong" = "Fill Assist improves autofill accuracy on supported sites by using site-specific rules.";
 "RememberThisDevice" = "記住這個裝置";
 "Passkey" = "密碼金鑰";
 "Passkeys" = "密碼金鑰";
@@ -777,6 +780,8 @@
 "SetUpAutofillOnAllYourDevicesToLoginWithASingleTapAnywhere" = "在您所有裝置上設定一鍵自動填入登入";
 "GoBack" = "返回";
 "GotIt" = "知道了";
+/* masterPasswordUnlock is the name of some data we want to delete, so there's no need to localize it. */
+"ClearMasterPasswordUnlock" = "清除 masterPasswordUnlock";
 "ClearSsoCookies" = "SSO Cookie 已清除";
 "GenerateCrash" = "產生當機報告";
 "GenerateErrorReport" = "產生錯誤報告";
@@ -1027,10 +1032,8 @@
 "ArchiveEmptyDescriptionLong" = "將您不希望出現在搜尋結果與自動填入建議中、但日後可能需要的項目加入封存。";
 "ArchiveItem" = "封存項目";
 "OnceArchivedThisItemWillBeExcludedDescriptionLong" = "封存後，此項目將不會顯示在搜尋結果與自動填入建議中。";
-"ArchiveUnavailable" = "封存不可用";
 "ArchivingItemsIsAPremiumFeatureDescriptionLong" = "封存項目為進階版功能。您目前的方案不包含此功能。";
 "AddingAttachmentsIsAPremiumFeatureDescriptionLong" = "新增附件為 Premium 功能。您目前的方案不包含此功能。";
-"AttachmentsUnavailable" = "附件不可用";
 "UpgradeToPremium" = "升級到 Premium";
 "ThisItemIsArchived" = "此項目已被封存。";
 "YourPremiumSubscriptionEnded" = "您的進階版訂閱已到期";
@@ -1063,6 +1066,8 @@
 "ReplaceCertificate" = "更換憑證";
 "ReplaceExistingCertificate" = "取代現有憑證";
 "UnableToReadCertificateFile" = "無法讀取憑證檔案。";
+/* masterPasswordUnlock is the name of some data we want to delete, so there's no need to localize it. */
+"MasterPasswordUnlockCleared" = "已清除 masterPasswordUnlock。";
 "SsoCookiesCleared" = "SSO Cookie 已清除";
 "YourRequestWasInterruptedBecauseTheAppNeededToReAuthenticatePleaseTryAgain" = "您的請求已中斷，因為應用程式需要重新驗證。請再試一次。";
 "AutofillWithBitwardenDescriptionLong" = "當您登入應用程式與網站時，Bitwarden 可以建議您的密碼與其他憑證。";
@@ -1076,6 +1081,7 @@
 "Canceled" = "已取消";
 "PastDue" = "逾期";
 "PendingCancellation" = "待取消";
+"Unpaid" = "未付款";
 "UpdatePayment" = "更新付款方式";
 "BillingAmount" = "帳單金額";
 "StorageCost" = "儲存空間費用";
@@ -1087,17 +1093,44 @@
 "ExternalLink" = "外部連結";
 "YourNextChargeIsForXDueOnY" = "下次收費為 **%1$@**，將於 **%2$@** 到期。";
 "WeCouldNotProcessYourPaymentUpdateYourPaymentMethodDescriptionLong" = "無法處理您的付款。請在訂閱於 **%1$@** 結束前更新付款方式。";
+/* Error message shown when the Premium Plan screen fails to load subscription data, with a prompt to retry. */
+"WeCouldntLoadYourSubscriptionDetailsPleaseRetry" = "無法載入您的訂閱詳細資訊。請再試一次。";
 "YourSubscriptionWasCanceledOnXDescriptionLong" = "您的訂閱已於 **%1$@** 取消。重新訂閱以繼續使用 Premium 功能。";
+"YourSubscriptionWasSuspendedOnXDescriptionLong" = "Your subscription was suspended on **%1$@**. To reactivate, please resolve your past due invoices.";
 "YourSubscriptionExpiredOnXDescriptionLong" = "您的訂閱已於 **%1$@** 到期。重新訂閱以繼續使用 Premium 功能。";
 "YourSubscriptionIsScheduledToCancelOnXDescriptionLong" = "您的訂閱預計將於 **%1$@** 取消。在此之前，您隨時都可以恢復訂閱。";
 "PerMonth" = "/ 月";
+/* VoiceOver reading of "PerMonth", spoken instead of shown. */
+"PerMonthVoiceOver" = "per month";
 "PerYear" = "/ 年";
+/* VoiceOver reading of "PerYear", spoken instead of shown. */
+"PerYearVoiceOver" = "per year";
 "XAmountPerCadence" = "%1$@ %2$@";
+/* %1$@ is an amount and cadence together, e.g. "$1.65 / month". */
+"XCancelAnytime" = "%1$@ · Cancel anytime";
+/* VoiceOver reading of "XCancelAnytime", spoken instead of shown. */
+"XCancelAnytimeVoiceOver" = "%1$@, Cancel anytime";
 "NegativeX" = "-%1$@";
 "UnknownStatus" = "不詳";
 "YourSubscriptionStatusIsUnknownVisitTheWebAppDescriptionLong" = "無法判斷您的訂閱狀態。請前往網頁版查看詳細資訊，或更新至最新版本。";
-"AtTheMomentPremiumPlanIsNotAvailableDescriptionLong" = "目前無法使用 Premium 方案，請稍後再試。";
-"UnlockMoreAdvancedFeaturesWithPremiumPlan" = "透過 Premium 方案解鎖更多進階功能。";
+/* Headline on the Premium upgrade screen. */
+"UnlockAdvancedProtection" = "Unlock advanced protection";
+/* Premium benefit list item. */
+"BreezeThrough2faWithBuiltInCodes" = "Breeze through 2FA with built-in codes";
+/* Premium benefit list item. */
+"RunReportsToFindRiskyPasswords" = "Run reports to find risky passwords";
+/* Premium benefit list item. */
+"KeepDocumentsSafeAndEncrypted" = "Keep documents safe and encrypted";
+/* Premium benefit list item. */
+"AddATrustedEmergencyContact" = "Add a trusted emergency contact";
+/* Premium benefit list item. */
+"IdentifyUnsecureWebsites" = "Identify unsecure websites";
+/* Premium benefit list item. */
+"FlagAccountsWithInactive2fa" = "Flag accounts with inactive 2FA";
+/* Premium benefit list item; "Send" is the Bitwarden Send feature name and shouldn't be translated. */
+"ShareFilesSecurelyWithAnyoneUsingSend" = "Share files securely with anyone using Send";
+/* Premium benefit list item. */
+"Receive247PrioritySupport" = "Receive 24/7 priority support";
 "BuiltInAuthenticator" = "內建驗證器";
 "EmergencyAccess" = "緊急存取";
 "PaymentNotReceivedYet" = "尚未收到付款";
@@ -1106,15 +1139,18 @@
 "WeHadTroubleOpeningThePaymentPageDescriptionLong" = "開啟付款頁面時發生問題，請再試一次。";
 "SecureFileStorage" = "安全檔案儲存";
 "BreachMonitoring" = "外洩監控";
-"UpgradeNow" = "立即升級";
 "ConfirmingYourUpgrade" = "正在確認您的升級…";
 "OpeningCheckout" = "正在開啟結帳頁面…";
 "UpgradePending" = "升級處理中";
 "YourUpgradeIsBeingProcessedDescriptionLong" = "您的升級正在處理中。在完成之前，您將維持免費方案。立即同步以進行檢查，或繼續操作，系統將自動更新。";
 "UpgradedToPremium" = "升級到 Premium";
+"SubscriptionNeedsAttention" = "您的訂閱需要處理";
+"CheckYourPlanForDetails" = "請查看您的方案以了解詳情。";
+"ViewPlan" = "查看方案";
 "YouNowHaveAccessToAdvancedSecurityDescriptionLong" = "您現在可以使用進階安全功能。深入了解 Premium 包含的內容。";
 "YouNowHaveAccessToAllAdvancedSecurityFeatures" = "您現在可以使用所有進階安全功能。";
-"YoullGoToStripeSecureCheckoutToCompleteYourPurchase" = "您將前往 Stripe 的安全結帳頁面完成購買。";
+/* Footer on the Premium upgrade screen; "Stripe" is the payment processor's name and shouldn't be translated. */
+"YoullCompleteThePurchaseWithStripeSecureCheckout" = "You'll complete the purchase with Stripe secure checkout.";
 "ContinueToStripe" = "要前往 Stripe 嗎？";
 "YoullBeTakenToStripeToManageYourSubscriptionCancellation" = "您將前往 Stripe 管理您的訂閱取消事宜。";
 "UserIDCopiedToTheClipboard" = "使用者 ID 已複製到剪貼簿";
@@ -1148,7 +1184,7 @@
 "PassportType" = "護照類型";
 "NationalIdentificationNumber" = "身分證字號";
 /* Label for the government authority or office that issued the passport. */
-"IssuingAuthorityOffice" = "Issuing authority/office";
+"IssuingAuthorityOffice" = "簽發機關／單位";
 "AccountDetails" = "帳戶詳細資訊";
 "BankName" = "銀行名稱";
 "NameOnAccount" = "帳戶名稱";
@@ -1163,3 +1199,7 @@
 "LineOfCredit" = "信用額度";
 "MoneyMarket" = "貨幣市場帳戶";
 "Savings" = "儲蓄帳戶";
+/* Accessibility label for the button that clears a field's value. %1$@ is the field's title (e.g. "Date of birth"), so the spoken label reads "Clear Date of birth". */
+"ClearFieldName" = "Clear %1$@";
+"SelectDate" = "Select date";
+"PremiumRequiredTOTPDescriptionLong" = "驗證器金鑰（TOTP）為 Premium 功能。您目前的方案未包含此功能。";

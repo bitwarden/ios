@@ -222,6 +222,10 @@ final class ViewItemProcessor: StateProcessor<ViewItemState, ViewItemAction, Vie
         case .passwordHistoryPressed:
             guard let passwordHistory = state.passwordHistory else { return }
             coordinator.navigate(to: .passwordHistory(passwordHistory))
+        case .premiumSubscriptionRequiredTapped:
+            coordinator.showAlert(.totpPremiumRequired { [weak self] in
+                await self?.navigateToPremiumUpgrade()
+            })
         case let .sshKeyItemAction(sshKeyAction):
             handleSSHKeyAction(sshKeyAction)
         case let .toastShown(newValue):
