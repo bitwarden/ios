@@ -526,9 +526,12 @@ class VaultAutofillListProcessorFido2Tests: BitwardenTestCase { // swiftlint:dis
     }
 
     /// `perform(_:)` with `.excludedCredentialFoundChanged` throws when getting the excluded credential cipher
-    /// from the publisher so it shows an error and cancels the extension flow.
+    /// from the publisher so it shows an error and notifies the delegate that a matched excluded credential
+    /// was found instead of a plain cancel.
     @MainActor
     func test_perform_excludedCredentialFoundChanged_cipherPublisherThrows() async throws {
+        guard #available(iOS 18.0, *) else { return }
+
         let cipher = CipherView.fixture()
         subject.state.excludedCredentialIdFound = cipher.id
         vaultRepository.cipherDetailsSubject.send(completion: .failure(BitwardenTestError.example))
@@ -562,13 +565,17 @@ class VaultAutofillListProcessorFido2Tests: BitwardenTestCase { // swiftlint:dis
         }
         onDismissed()
 
-        XCTAssertTrue(appExtensionDelegate.didCancelCalled)
+        XCTAssertTrue(appExtensionDelegate.setMatchedExcludedCredentialFoundCalled)
+        XCTAssertFalse(appExtensionDelegate.didCancelCalled)
     }
 
     /// `perform(_:)` with `.excludedCredentialFoundChanged` throws when creating the excluded credential cipher
-    /// section so it shows an error and cancels the extension flow.
+    /// section so it shows an error and notifies the delegate that a matched excluded credential was found
+    /// instead of a plain cancel.
     @MainActor
     func test_informExcludedCredentialFound_creatingExcludeCredentialSectionThrows() async throws {
+        guard #available(iOS 18.0, *) else { return }
+
         let cipher = CipherView.fixture(login: .fixture(fido2Credentials: [.fixture()]))
         subject.state.excludedCredentialIdFound = cipher.id
         vaultRepository.cipherDetailsSubject.send(cipher)
@@ -603,7 +610,8 @@ class VaultAutofillListProcessorFido2Tests: BitwardenTestCase { // swiftlint:dis
         }
         onDismissed()
 
-        XCTAssertTrue(appExtensionDelegate.didCancelCalled)
+        XCTAssertTrue(appExtensionDelegate.setMatchedExcludedCredentialFoundCalled)
+        XCTAssertFalse(appExtensionDelegate.didCancelCalled)
     }
 
     /// `vaultItemTapped(_:)` with Fido2 credential signals the `Fido2UserInterfaceHelper`
