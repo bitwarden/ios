@@ -16,17 +16,23 @@ struct LoginRequestView: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 24) {
-            titleText
+            VStack(alignment: .center, spacing: 12) {
+                titleText
 
-            explanationText
+                explanationText
+            }
+            .frame(maxWidth: .infinity, alignment: .center)
+            .multilineTextAlignment(.center)
 
-            fingerprintView
+            ContentBlock(dividerLeadingPadding: 16) {
+                fingerprintView
 
-            deviceTypeView
+                deviceTypeView
 
-            ipAddressView
+                ipAddressView
 
-            timeView
+                timeView
+            }
 
             VStack(spacing: 12) {
                 confirmButton
@@ -73,15 +79,17 @@ struct LoginRequestView: View {
     private var deviceTypeView: some View {
         VStack(alignment: .leading, spacing: 0) {
             Text(Localizations.deviceType)
-                .styleGuide(.body, weight: .semibold)
+                .styleGuide(.headline, weight: .semibold, includeLinePadding: false, includeLineSpacing: false)
                 .foregroundStyle(SharedAsset.Colors.textPrimary.swiftUIColor)
 
             Text(store.state.request.requestDeviceType)
                 .styleGuide(.body)
-                .foregroundStyle(SharedAsset.Colors.textPrimary.swiftUIColor)
+                .foregroundStyle(SharedAsset.Colors.textSecondary.swiftUIColor)
                 .multilineTextAlignment(.leading)
                 .accessibilityIdentifier("DeviceTypeValueLabel")
         }
+        .padding(.horizontal, 16)
+        .padding(.vertical, 12)
     }
 
     /// The explanation text.
@@ -94,60 +102,64 @@ struct LoginRequestView: View {
         )
         .styleGuide(.body)
         .foregroundStyle(SharedAsset.Colors.textPrimary.swiftUIColor)
-        .multilineTextAlignment(.leading)
         .accessibilityIdentifier("LogInAttemptByLabel")
     }
 
     /// The fingerprint phrase title and display.
     private var fingerprintView: some View {
-        VStack(alignment: .leading, spacing: 8) {
+        VStack(alignment: .leading, spacing: 0) {
             Text(Localizations.fingerprintPhrase)
-                .styleGuide(.body, weight: .semibold)
+                .styleGuide(.headline, weight: .semibold, includeLinePadding: false, includeLineSpacing: false)
                 .foregroundStyle(SharedAsset.Colors.textPrimary.swiftUIColor)
                 .accessibilityIdentifier("FingerprintValueLabel")
 
             Text(store.state.request.fingerprintPhrase ?? "")
-                .styleGuide(.bodyMonospaced)
+                .styleGuide(.sensitiveInfoSmall)
                 .foregroundStyle(SharedAsset.Colors.textCodePink.swiftUIColor)
                 .multilineTextAlignment(.leading)
                 .accessibilityIdentifier("FingerprintPhraseValue")
         }
+        .padding(.horizontal, 16)
+        .padding(.vertical, 12)
     }
 
     /// The IP address title and details.
     private var ipAddressView: some View {
         VStack(alignment: .leading, spacing: 0) {
             Text(Localizations.ipAddress)
-                .styleGuide(.body, weight: .semibold)
+                .styleGuide(.headline, weight: .semibold, includeLinePadding: false, includeLineSpacing: false)
                 .foregroundStyle(SharedAsset.Colors.textPrimary.swiftUIColor)
 
             Text(store.state.request.requestIpAddress)
                 .styleGuide(.body)
-                .foregroundStyle(SharedAsset.Colors.textPrimary.swiftUIColor)
+                .foregroundStyle(SharedAsset.Colors.textSecondary.swiftUIColor)
                 .multilineTextAlignment(.leading)
         }
+        .padding(.horizontal, 16)
+        .padding(.vertical, 12)
     }
 
     /// The time title and details.
     private var timeView: some View {
         VStack(alignment: .leading, spacing: 0) {
             Text(Localizations.time)
-                .styleGuide(.body, weight: .semibold)
+                .styleGuide(.headline, weight: .semibold, includeLinePadding: false, includeLineSpacing: false)
                 .foregroundStyle(SharedAsset.Colors.textPrimary.swiftUIColor)
 
             Text(RelativeDateTimeFormatter().localizedString(for: store.state.request.creationDate, relativeTo: Date()))
                 .styleGuide(.body)
-                .foregroundStyle(SharedAsset.Colors.textPrimary.swiftUIColor)
+                .foregroundStyle(SharedAsset.Colors.textSecondary.swiftUIColor)
                 .multilineTextAlignment(.leading)
         }
+        .padding(.horizontal, 16)
+        .padding(.vertical, 12)
     }
 
     /// The title text.
     private var titleText: some View {
         Text(Localizations.areYouTryingToLogIn)
-            .styleGuide(.title, weight: .bold)
+            .styleGuide(.title2, weight: .semibold)
             .foregroundStyle(SharedAsset.Colors.textPrimary.swiftUIColor)
-            .frame(maxWidth: .infinity, alignment: .leading)
     }
 }
 
