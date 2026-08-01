@@ -769,6 +769,15 @@ extension DefaultAuthRepository: AuthRepository {
         let userId = try await stateService.getActiveAccountId()
         await vaultTimeoutService.remove(userId: userId)
 
+        // Clean up the account's Keychain credentials. Non-fatal: the server-side deletion has
+        // already succeeded, so local account removal must proceed even if this cleanup fails.
+        do {
+            try await clientCertificateService.removeCertificate(userId: userId)
+            try await customHeadersService.removeCustomHeaders(userId: userId)
+        } catch {
+            errorReporter.log(error: error)
+        }
+
         // Delete the account last.
         try await stateService.deleteAccount()
     }

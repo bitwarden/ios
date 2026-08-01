@@ -23,6 +23,31 @@ public protocol HTTPLogger: Sendable {
 /// An object that handles logging HTTP requests and responses to OSLog.
 ///
 public final class OSLogHTTPLogger: HTTPLogger {
+    // MARK: Type Properties
+
+    /// Header names (lowercased) whose values are safe to log. The values of all other headers
+    /// are redacted, since headers may carry credentials — e.g. authorization tokens, cookies, or
+    /// user-configured custom headers for a reverse proxy.
+    static let unredactedHeaderNames: Set<String> = [
+        "accept",
+        "accept-encoding",
+        "accept-language",
+        "bitwarden-client-name",
+        "bitwarden-client-version",
+        "cache-control",
+        "connection",
+        "content-length",
+        "content-type",
+        "date",
+        "device-type",
+        "etag",
+        "last-modified",
+        "pragma",
+        "server",
+        "user-agent",
+        "vary",
+    ]
+
     // MARK: Initialization
 
     public init() {}
@@ -66,16 +91,22 @@ public final class OSLogHTTPLogger: HTTPLogger {
         return data.debugDescription
     }
 
-    /// Formats the headers of a request or response for logging.
+    /// Formats the headers of a request or response for logging, redacting the values of any
+    /// headers not known to be safe to log.
     ///
     /// - Parameter headers: The headers from the body of a request or response to format.
     /// - Returns: A string containing the formatted headers.
     ///
-    private func formattedHeaders(_ headers: [String: String]) -> String {
+    func formattedHeaders(_ headers: [String: String]) -> String {
         guard !headers.isEmpty else { return "(empty)" }
 
         let headersString = headers
-            .map { "  \($0): \($1)" }
+            .map { name, value in
+                let displayValue = Self.unredactedHeaderNames.contains(name.lowercased())
+                    ? value
+                    : "[REDACTED]"
+                return "  \(name): \(displayValue)"
+            }
             .joined(separator: "\n")
 
         return """

@@ -553,6 +553,29 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         XCTAssertEqual(client.requests.count, 1)
         XCTAssertEqual(client.requests[0].url, URL(string: "https://example.com/api/accounts"))
         XCTAssertEqual(vaultTimeoutService.removedIds, [anneAccount.profile.userId])
+        XCTAssertEqual(
+            clientCertificateService.removeCertificateUserIdReceivedUserId,
+            anneAccount.profile.userId,
+        )
+        XCTAssertEqual(
+            customHeadersService.removeCustomHeadersUserIdReceivedUserId,
+            anneAccount.profile.userId,
+        )
+    }
+
+    /// `deleteAccount()` still deletes the account when Keychain credential cleanup fails.
+    func test_deleteAccount_credentialCleanupError() async throws {
+        stateService.accounts = [anneAccount, beeAccount]
+        stateService.activeAccount = anneAccount
+        customHeadersService.removeCustomHeadersUserIdThrowableError = BitwardenTestError.example
+
+        client.result = .httpSuccess(testData: APITestData(data: Data()))
+
+        try await subject.deleteAccount(otp: nil, passwordText: "12345")
+        let accounts = try await stateService.getAccounts()
+
+        XCTAssertEqual(accounts, [beeAccount])
+        XCTAssertEqual(errorReporter.errors as? [BitwardenTestError], [.example])
     }
 
     /// `existingAccountUserId(email:)` returns the user ID of the existing account with the same
