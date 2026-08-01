@@ -47,6 +47,8 @@ class APIService {
     ///   - activeAccountStateProvider: The provider for the active account state.
     ///   - client: The underlying `HTTPClient` that performs the network request. Defaults
     ///     to `URLSession.shared`.
+    ///   - customHeadersService: The service used to get the user's custom headers for requests to
+    ///     the environment's hosts.
     ///   - environmentService: The service used by the application to retrieve the environment settings.
     ///   - errorReporter: The service used by the application to report non-fatal errors.
     ///   - flightRecorder: The service used by the application for recording temporary debug logs.
@@ -61,6 +63,7 @@ class APIService {
         accountTokenProvider: AccountTokenProvider? = nil,
         activeAccountStateProvider: ActiveAccountStateProvider,
         client: HTTPClient = URLSession.shared,
+        customHeadersService: CustomHeadersService,
         fillAssistClient: HTTPClient = URLSession.shared,
         environmentService: EnvironmentService,
         errorReporter: ErrorReporter,
@@ -72,7 +75,12 @@ class APIService {
     ) {
         self.stateService = stateService
 
+        let customHeadersRequestHandler = CustomHeadersRequestHandler(
+            customHeadersService: customHeadersService,
+            environmentService: environmentService,
+        )
         httpServiceBuilder = HTTPServiceBuilder(
+            additionalRequestHandlers: [customHeadersRequestHandler],
             client: client,
             defaultHeadersRequestHandler: DefaultHeadersRequestHandler(
                 appVersion: Bundle.main.appVersion,

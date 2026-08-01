@@ -25,6 +25,23 @@ enum SelfHostedAction: Equatable {
     /// The web vault server URL has changed.
     case webVaultUrlChanged(String)
 
+    // MARK: Custom Header Actions
+
+    /// The user tapped to add a custom header field.
+    case addHeaderTapped
+
+    /// The name of a custom header field has changed.
+    case headerNameChanged(id: UUID, name: String)
+
+    /// The value of a custom header field has changed.
+    case headerValueChanged(id: UUID, value: String)
+
+    /// The visibility of a custom header field's value has changed.
+    case headerValueVisibilityChanged(id: UUID, isVisible: Bool)
+
+    /// The user tapped to remove a custom header field.
+    case removeHeaderTapped(id: UUID)
+
     // MARK: Certificate Actions
 
     /// A certificate file was selected.
@@ -64,6 +81,19 @@ enum SelfHostedAction: Equatable {
             lhsUrl == rhsUrl
         case let (.webVaultUrlChanged(lhsUrl), .webVaultUrlChanged(rhsUrl)):
             lhsUrl == rhsUrl
+        case (.addHeaderTapped, .addHeaderTapped):
+            true
+        case let (.headerNameChanged(lhsId, lhsName), .headerNameChanged(rhsId, rhsName)):
+            lhsId == rhsId && lhsName == rhsName
+        case let (.headerValueChanged(lhsId, lhsValue), .headerValueChanged(rhsId, rhsValue)):
+            lhsId == rhsId && lhsValue == rhsValue
+        case let (
+            .headerValueVisibilityChanged(lhsId, lhsIsVisible),
+            .headerValueVisibilityChanged(rhsId, rhsIsVisible),
+        ):
+            lhsId == rhsId && lhsIsVisible == rhsIsVisible
+        case let (.removeHeaderTapped(lhsId), .removeHeaderTapped(rhsId)):
+            lhsId == rhsId
         case let (.certificateFileSelected(lhsResult), .certificateFileSelected(rhsResult)):
             switch (lhsResult, rhsResult) {
             case let (.success(lhsUrl), .success(rhsUrl)):

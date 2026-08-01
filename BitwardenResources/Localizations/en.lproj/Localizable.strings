@@ -1227,3 +1227,11 @@
 "ClearFieldName" = "Clear %1$@";
 "SelectDate" = "Select date";
 "PremiumRequiredTOTPDescriptionLong" = "Authenticator key (TOTP) is a Premium feature. Your current plan does not include access to this feature.";
+/* Section title on the self-hosted environment settings page for configuring custom HTTP headers. */
+"CustomHeaders" = "Custom headers";
+/* Button that adds a new custom header name/value row on the self-hosted environment settings page. */
+"AddHeader" = "Add header";
+/* Button that removes a custom header name/value row on the self-hosted environment settings page. */
+"RemoveHeader" = "Remove header";
+/* Footer describing the custom headers section on the self-hosted environment settings page. */
+"CustomHeadersFooter" = "Custom headers are sent with every request to your server. Use this if your server sits behind a proxy that requires additional headers, such as Cloudflare Access.";

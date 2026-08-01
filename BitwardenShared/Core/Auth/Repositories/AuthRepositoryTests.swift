@@ -24,6 +24,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
     var clientRegistration: MockRegistrationClientProtocol!
     var clientService: MockClientService!
     var configService: MockConfigService!
+    var customHeadersService: MockCustomHeadersService!
     var environmentService: MockEnvironmentService!
     var errorReporter: MockErrorReporter!
     var fillAssistRepository: MockFillAssistRepository!
@@ -111,6 +112,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         clientCertificateService = MockClientCertificateService()
         clientRegistration = MockRegistrationClientProtocol()
         configService = MockConfigService()
+        customHeadersService = MockCustomHeadersService()
         environmentService = MockEnvironmentService()
         errorReporter = MockErrorReporter()
         fillAssistRepository = MockFillAssistRepository()
@@ -149,6 +151,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
             clientCertificateService: clientCertificateService,
             clientService: clientService,
             configService: configService,
+            customHeadersService: customHeadersService,
             environmentService: environmentService,
             errorReporter: errorReporter,
             fillAssistRepository: fillAssistRepository,
@@ -181,6 +184,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         clientRegistration = nil
         clientService = nil
         configService = nil
+        customHeadersService = nil
         environmentService = nil
         errorReporter = nil
         fillAssistRepository = nil
@@ -2899,6 +2903,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         XCTAssertEqual(keychainService.deleteItemsCallsCount, 1)
         XCTAssertEqual(keychainService.deleteItemsReceivedUserId, "1")
         XCTAssertEqual(clientCertificateService.removeCertificateUserIdReceivedUserId, account.profile.userId)
+        XCTAssertEqual(customHeadersService.removeCustomHeadersUserIdReceivedUserId, account.profile.userId)
         XCTAssertTrue(fillAssistRepository.clearRulesCalled)
         XCTAssertEqual(fillAssistRepository.clearRulesReceivedUserId, account.profile.userId)
         XCTAssertTrue(stateService.logoutAccountUserInitiated)

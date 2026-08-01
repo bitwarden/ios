@@ -90,6 +90,10 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
     /// The service to get server-specified configuration
     public let configService: ConfigService
 
+    /// The service used by the application to manage custom headers sent with requests to a
+    /// self-hosted environment.
+    let customHeadersService: CustomHeadersService
+
     /// The service used by the application to make device API requests.
     let deviceAPIService: DeviceAPIService
 
@@ -272,6 +276,8 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
     ///     for mTLS authentication.
     ///   - clientService: The service used by the application to handle encryption and decryption tasks.
     ///   - configService: The service to get server-specified configuration.
+    ///   - customHeadersService: The service used by the application to manage custom headers sent
+    ///     with requests to a self-hosted environment.
     ///   - deviceAPIService: The service used by the application to make device API requests.
     ///   - deviceAuthKeyService: The service to make and use the device auth key.
     ///   - environmentService: The service used by the application to manage the environment settings.
@@ -349,6 +355,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
         clientCertificateService: ClientCertificateService,
         clientService: ClientService,
         configService: ConfigService,
+        customHeadersService: CustomHeadersService,
         deviceAPIService: DeviceAPIService,
         deviceAuthKeyService: DeviceAuthKeyService,
         environmentService: EnvironmentService,
@@ -421,6 +428,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
         self.clientCertificateService = clientCertificateService
         self.clientService = clientService
         self.configService = configService
+        self.customHeadersService = customHeadersService
         self.deviceAPIService = deviceAPIService
         self.deviceAuthKeyService = deviceAuthKeyService
         self.environmentService = environmentService
@@ -574,12 +582,19 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
             keychainRepository: keychainRepository,
             stateService: stateService,
         )
+        let customHeadersService = DefaultCustomHeadersService(
+            environmentService: environmentService,
+            errorReporter: errorReporter,
+            keychainRepository: keychainRepository,
+            stateService: stateService,
+        )
 
         // Create certificate-aware HTTP client
         let certificateHttpClient = CertificateHTTPClient(certificateService: clientCertificateService)
 
         CipherIconImageLoader.shared.configure(
             certificateService: clientCertificateService,
+            customHeadersService: customHeadersService,
             errorReporter: errorReporter,
         )
 
@@ -601,6 +616,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
         let apiService = APIService(
             activeAccountStateProvider: stateService,
             client: certificateHttpClient,
+            customHeadersService: customHeadersService,
             environmentService: environmentService,
             errorReporter: errorReporter,
             flightRecorder: flightRecorder,
@@ -870,6 +886,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
             clientCertificateService: clientCertificateService,
             clientService: clientService,
             configService: configService,
+            customHeadersService: customHeadersService,
             environmentService: environmentService,
             errorReporter: errorReporter,
             fillAssistRepository: fillAssistRepository,
@@ -1201,6 +1218,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
             clientCertificateService: clientCertificateService,
             clientService: clientService,
             configService: configService,
+            customHeadersService: customHeadersService,
             deviceAPIService: apiService,
             deviceAuthKeyService: deviceAuthKeyService,
             environmentService: environmentService,
