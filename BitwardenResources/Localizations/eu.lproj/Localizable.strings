@@ -39,6 +39,8 @@
 "RemoveAccount" = "Kendu kontua";
 "RemoveAccountConfirmation" = "Ziur al zaude kontu hau kendu nahi duzula?";
 "AccountAlreadyAdded" = "Kontua gehitu da";
+"AccountCreationRestricted" = "Kontu-sorkuntza mugatua";
+"XOnlyAllowsInvitedUsersToCreateAccounts" = "%1$@-ek gonbidatutako erabiltzaileei soilik uzten die kontuak sortzen.";
 "SwitchToAlreadyAddedAccountConfirmation" = "Orain aldatu nahi duzu?";
 "MasterPassword" = "Pasahitz nagusia";
 "MoreOptions" = "Aukera gehiago";
@@ -563,6 +565,7 @@
 "ThereAreNoBankAccountsInYourVault" = "Ez dago banku-konturik zure kutxan";
 "US" = "AEB";
 "EU" = "EU";
+"Gov" = "Gov";
 "SelfHosted" = "Norberak ostatatua";
 "UpdateWeakMasterPasswordWarning" = "Zure pasahitz nagusiak ez ditu zure erakundearen politika bat edo gehiago betetzen. Kutxara sartzeko, pasahitz nagusia eguneratu behar duzu orain. Jarraitzeak uneko saioa amaituko du, eta berriro saioa hastea eskatuko dizu. Beste gailu batzuetako saio aktiboek ordu bete arte jarraitu dezakete aktibo.";
 "CurrentMasterPasswordRequired" = "Uneko pasahitz nagusia (beharrezkoa)";
@@ -812,7 +815,7 @@
 "YouMayNeedToEnableDevicePasscodeOrBiometrics" = "Baliteke gailuaren pasakodea edo biometria gaitzea behar izatea.";
 "StartImportCXFDescriptionLong" = "Inportatu pasahitzak, pasagiltzak, kreditu-txartelak eta edozein identitate pertsonaleko informazioa beste pasahitz-kudeatzaile batetik.\n\nZure datuak **ez** dira ezabatuko zure aurreko hornitzailetik.";
 "ImportPasswords" = "Inportatu pasahitzak";
-"ImportingEllipsis" = "Inportatzen…";
+"ImportingEllipsis" = "Inportatzen...";
 "AreYouSureYouWantToCancelTheImportProcessQuestionMark" = "Ziur zaude inportazio-prozesua bertan behera utzi nahi duzula?";
 "ImportFailed" = "Inportazioak huts egin du";
 "ThereWasAnIssueImportingAllOfYourPasswordsNoDataWasDeleted" = "Arazo bat egon da zure pasahitz guztiak inportatzean.\n\nEz da daturik ezabatu.";
@@ -1198,6 +1201,28 @@
 "LineOfCredit" = "Kreditu-lerroa";
 "MoneyMarket" = "Diru-merkatua";
 "Savings" = "Aurrezki-kontua";
+"Devices" = "Gailuak";
+"NoDevicesFound" = "No devices found";
+"CurrentSession" = "Uneko saioa";
+"PendingRequest" = "Eskaera zain";
+"Trusted" = "Fidagarria";
+"RecentlyActiveLabel" = "Recently active:";
+"FirstLoginLabel" = "First login:";
+"Today" = "Gaur";
+"PastSevenDays" = "Azken 7 egunak";
+"PastFourteenDays" = "Azken 14 egunak";
+"PastThirtyDays" = "Azken 30 egunak";
+"OverThirtyDaysAgo" = "30 egun baino gehiago";
+"Unknown" = "Ezezaguna";
+/* Device display name. %1$@ = category (e.g. "Mobile"), %2$@ = platform (e.g. "iOS"). */
+"DeviceDisplayNameXHyphenY" = "%1$@ - %2$@";
+"Mobile" = "Mobile";
+"BrowserExtension" = "Browser extension";
+"WebVault2" = "Web vault";
+"Desktop" = "Desktop";
+"Cli" = "CLI";
+"Sdk" = "SDK";
+"Server" = "Zerbitzaria";
 /* Accessibility label for the button that clears a field's value. %1$@ is the field's title (e.g. "Date of birth"), so the spoken label reads "Clear Date of birth". */
 "ClearFieldName" = "Garbitu %1$@";
 "SelectDate" = "Hautatu data";

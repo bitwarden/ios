@@ -39,6 +39,8 @@
 "RemoveAccount" = "Вилучити обліковий запис";
 "RemoveAccountConfirmation" = "Ви дійсно хочете вилучити цей обліковий запис?";
 "AccountAlreadyAdded" = "Обліковий запис вже додано";
+"AccountCreationRestricted" = "Account creation restricted";
+"XOnlyAllowsInvitedUsersToCreateAccounts" = "%1$@ only allows invited users to create accounts.";
 "SwitchToAlreadyAddedAccountConfirmation" = "Бажаєте перемкнутися на нього зараз?";
 "MasterPassword" = "Головний пароль";
 "MoreOptions" = "Інші варіанти";
@@ -563,6 +565,7 @@
 "ThereAreNoBankAccountsInYourVault" = "У вашому сховищі немає банківських рахунків";
 "US" = "США";
 "EU" = "ЄС";
+"Gov" = "Gov";
 "SelfHosted" = "Власне розміщення";
 "UpdateWeakMasterPasswordWarning" = "Ваш головний пароль не відповідає одній або більше політикам вашої організації. Щоб отримати доступ до сховища, вам необхідно оновити свій головний пароль зараз. Продовживши, ви вийдете з поточного сеансу, після чого потрібно буде повторно виконати вхід. Сеанси на інших пристроях можуть залишатися активними протягом однієї години.";
 "CurrentMasterPasswordRequired" = "Чинний головний пароль (обов'язково)";
@@ -1198,6 +1201,28 @@
 "LineOfCredit" = "Кредитна лінія";
 "MoneyMarket" = "Грошовий ринок";
 "Savings" = "Заощадження";
+"Devices" = "Пристрої";
+"NoDevicesFound" = "No devices found";
+"CurrentSession" = "Поточний сеанс";
+"PendingRequest" = "Запит в очікуванні";
+"Trusted" = "Надійний";
+"RecentlyActiveLabel" = "Recently active:";
+"FirstLoginLabel" = "First login:";
+"Today" = "Сьогодні";
+"PastSevenDays" = "Минулі 7 днів";
+"PastFourteenDays" = "Минулі 14 днів";
+"PastThirtyDays" = "Минулі 30 днів";
+"OverThirtyDaysAgo" = "Понад 30 днів тому";
+"Unknown" = "Невідомо";
+/* Device display name. %1$@ = category (e.g. "Mobile"), %2$@ = platform (e.g. "iOS"). */
+"DeviceDisplayNameXHyphenY" = "%1$@ - %2$@";
+"Mobile" = "Mobile";
+"BrowserExtension" = "Browser extension";
+"WebVault2" = "Web vault";
+"Desktop" = "Desktop";
+"Cli" = "CLI";
+"Sdk" = "SDK";
+"Server" = "Сервер";
 /* Accessibility label for the button that clears a field's value. %1$@ is the field's title (e.g. "Date of birth"), so the spoken label reads "Clear Date of birth". */
 "ClearFieldName" = "Clear %1$@";
 "SelectDate" = "Select date";

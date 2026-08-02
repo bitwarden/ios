@@ -39,6 +39,8 @@
 "RemoveAccount" = "Verwyder rekening";
 "RemoveAccountConfirmation" = "Is u seker u wil hierdie rekening verwyder?";
 "AccountAlreadyAdded" = "Rekening reeds toegevoeg";
+"AccountCreationRestricted" = "Rekeningskepping beperk";
+"XOnlyAllowsInvitedUsersToCreateAccounts" = "%1$@ laat slegs genooide gebruikers toe om rekeninge te skep.";
 "SwitchToAlreadyAddedAccountConfirmation" = "Wil u nou daarheen wissel?";
 "MasterPassword" = "Hoofwagwoord";
 "MoreOptions" = "Meer opsies";
@@ -563,6 +565,7 @@
 "ThereAreNoBankAccountsInYourVault" = "Daar is geen bankrekeninge in u kluis nie";
 "US" = "VS";
 "EU" = "EU";
+"Gov" = "Gov";
 "SelfHosted" = "Selghehuisves";
 "UpdateWeakMasterPasswordWarning" = "U hoofwagwoord voldoen nie aan een of meer van die organisasiebeleide nie. Om toegang tot die kluis te kry, moet u nou u hoofwagwoord bywerk. Deur voort te gaan sal u van u huidige sessie afgeteken word, en u sal weer moet aanteken. Aktiewe sessies op ander toestelle kan vir tot een uur aktief bly.";
 "CurrentMasterPasswordRequired" = "Huidige hoofwagwoord (vereis)";
@@ -1198,6 +1201,28 @@
 "LineOfCredit" = "Kredietlyn";
 "MoneyMarket" = "Geldmark";
 "Savings" = "Spaar";
+"Devices" = "Toestelle";
+"NoDevicesFound" = "No devices found";
+"CurrentSession" = "Huidige sessie";
+"PendingRequest" = "Hangende versoek";
+"Trusted" = "Vertrou";
+"RecentlyActiveLabel" = "Recently active:";
+"FirstLoginLabel" = "First login:";
+"Today" = "Vandag";
+"PastSevenDays" = "Afgelope 7 dae";
+"PastFourteenDays" = "Afgelope 14 dae";
+"PastThirtyDays" = "Afgelope 30 dae";
+"OverThirtyDaysAgo" = "Meer as 30 dae gelede";
+"Unknown" = "Onbekend";
+/* Device display name. %1$@ = category (e.g. "Mobile"), %2$@ = platform (e.g. "iOS"). */
+"DeviceDisplayNameXHyphenY" = "%1$@ - %2$@";
+"Mobile" = "Mobile";
+"BrowserExtension" = "Browser extension";
+"WebVault2" = "Web vault";
+"Desktop" = "Desktop";
+"Cli" = "CLI";
+"Sdk" = "SDK";
+"Server" = "Bediener";
 /* Accessibility label for the button that clears a field's value. %1$@ is the field's title (e.g. "Date of birth"), so the spoken label reads "Clear Date of birth". */
 "ClearFieldName" = "Clear %1$@";
 "SelectDate" = "Select date";

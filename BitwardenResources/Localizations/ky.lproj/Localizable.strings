@@ -39,6 +39,8 @@
 "RemoveAccount" = "Аккаунтту алып салуу";
 "RemoveAccountConfirmation" = "Чын эле бул аккаунтту алып салгыңыз келеби?";
 "AccountAlreadyAdded" = "Аккаунт мурун эле кошулган";
+"AccountCreationRestricted" = "Каттоо эсебин түзүү чектелди";
+"XOnlyAllowsInvitedUsersToCreateAccounts" = "%1$@ чакырылган колдонуучуларга гана каттоо эсебин түзүүгө уруксат берет.";
 "SwitchToAlreadyAddedAccountConfirmation" = "Азыр ага өткүңүз келеби?";
 "MasterPassword" = "Башкы сырсөз";
 "MoreOptions" = "Көбүрөөк параметрлер";
@@ -563,6 +565,7 @@
 "ThereAreNoBankAccountsInYourVault" = "Сиздин купчулда банк эсептери жок";
 "US" = "АКШ";
 "EU" = "ЕБ";
+"Gov" = "Gov";
 "SelfHosted" = "Өзүн өзү камсыздоочу";
 "UpdateWeakMasterPasswordWarning" = "Башкы сырсөзүңүз бир же бир нече уюм саясатына жооп бербейт. Купчулга кирүү үчүн, сиз азыр башкы сырсөзүңүздү жаңыртышыңыз керек. Улантуу сизди учурдагы сессияңыздан чыгарып, кайра кирүүнү талап кылат. Башка түзмөктөрдөгү активдүү сессиялар бир саатка чейин активдүү бойдон калышы мүмкүн.";
 "CurrentMasterPasswordRequired" = "Учурдагы башкы сырсөз (талап кылынат)";
@@ -1198,6 +1201,28 @@
 "LineOfCredit" = "Кредит линиясы";
 "MoneyMarket" = "Акча рыногу";
 "Savings" = "Сактоо";
+"Devices" = "Түзмөктөр";
+"NoDevicesFound" = "No devices found";
+"CurrentSession" = "Учурдагы сессия";
+"PendingRequest" = "Күтүп жаткан сураныч";
+"Trusted" = "Ишенимдүү";
+"RecentlyActiveLabel" = "Recently active:";
+"FirstLoginLabel" = "First login:";
+"Today" = "Бүгүн";
+"PastSevenDays" = "Акыркы 7 күн";
+"PastFourteenDays" = "Акыркы 14 күн";
+"PastThirtyDays" = "Акыркы 30 күн";
+"OverThirtyDaysAgo" = "30 күндөн ашык мурун";
+"Unknown" = "Белгисиз";
+/* Device display name. %1$@ = category (e.g. "Mobile"), %2$@ = platform (e.g. "iOS"). */
+"DeviceDisplayNameXHyphenY" = "%1$@ - %2$@";
+"Mobile" = "Mobile";
+"BrowserExtension" = "Browser extension";
+"WebVault2" = "Web vault";
+"Desktop" = "Desktop";
+"Cli" = "CLI";
+"Sdk" = "SDK";
+"Server" = "Сервер";
 /* Accessibility label for the button that clears a field's value. %1$@ is the field's title (e.g. "Date of birth"), so the spoken label reads "Clear Date of birth". */
 "ClearFieldName" = "%1$@ тазалоо";
 "SelectDate" = "Датаны тандоо";

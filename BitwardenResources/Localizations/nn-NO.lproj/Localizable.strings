@@ -39,6 +39,8 @@
 "RemoveAccount" = "Fjerna konto";
 "RemoveAccountConfirmation" = "Er du trygg på at du vil fjerna denne kontoen?";
 "AccountAlreadyAdded" = "Kontoen er alt lagd til";
+"AccountCreationRestricted" = "Account creation restricted";
+"XOnlyAllowsInvitedUsersToCreateAccounts" = "%1$@ only allows invited users to create accounts.";
 "SwitchToAlreadyAddedAccountConfirmation" = "Vil du byta til det no?";
 "MasterPassword" = "Hovudpassord";
 "MoreOptions" = "More options";
@@ -563,6 +565,7 @@
 "ThereAreNoBankAccountsInYourVault" = "There are no bank accounts in your vault";
 "US" = "US";
 "EU" = "EU";
+"Gov" = "Gov";
 "SelfHosted" = "Self-hosted";
 "UpdateWeakMasterPasswordWarning" = "Your master password does not meet one or more of your organization policies. In order to access the vault, you must update your master password now. Proceeding will log you out of your current session, requiring you to log back in. Active sessions on other devices may continue to remain active for up to one hour.";
 "CurrentMasterPasswordRequired" = "Noverande hovudpassord (påkravd)";
@@ -812,7 +815,7 @@
 "YouMayNeedToEnableDevicePasscodeOrBiometrics" = "You may need to enable device passcode or biometrics.";
 "StartImportCXFDescriptionLong" = "Importer passord, passnøklar, kredittkort, og all personleg identitetsinformasjon frå ein annan passordbehandlar.\n\nDine data vil **ikkje** bli sletta frå din tidlegare leverandør.";
 "ImportPasswords" = "Importer passord";
-"ImportingEllipsis" = "Importerer…";
+"ImportingEllipsis" = "Importerer...";
 "AreYouSureYouWantToCancelTheImportProcessQuestionMark" = "Er du sikker på at du vil avbryte importprosessen?";
 "ImportFailed" = "Import feila";
 "ThereWasAnIssueImportingAllOfYourPasswordsNoDataWasDeleted" = "Det oppstod eit problem under importeringa av alle passorda dine.\n\nIngen data blei sletta.";
@@ -1198,6 +1201,28 @@
 "LineOfCredit" = "Line of credit";
 "MoneyMarket" = "Money market";
 "Savings" = "Savings";
+"Devices" = "Devices";
+"NoDevicesFound" = "No devices found";
+"CurrentSession" = "Current session";
+"PendingRequest" = "Pending request";
+"Trusted" = "Trusted";
+"RecentlyActiveLabel" = "Recently active:";
+"FirstLoginLabel" = "First login:";
+"Today" = "Today";
+"PastSevenDays" = "Past 7 days";
+"PastFourteenDays" = "Past 14 days";
+"PastThirtyDays" = "Past 30 days";
+"OverThirtyDaysAgo" = "Over 30 days ago";
+"Unknown" = "Unknown";
+/* Device display name. %1$@ = category (e.g. "Mobile"), %2$@ = platform (e.g. "iOS"). */
+"DeviceDisplayNameXHyphenY" = "%1$@ - %2$@";
+"Mobile" = "Mobile";
+"BrowserExtension" = "Browser extension";
+"WebVault2" = "Web vault";
+"Desktop" = "Desktop";
+"Cli" = "CLI";
+"Sdk" = "SDK";
+"Server" = "Server";
 /* Accessibility label for the button that clears a field's value. %1$@ is the field's title (e.g. "Date of birth"), so the spoken label reads "Clear Date of birth". */
 "ClearFieldName" = "Clear %1$@";
 "SelectDate" = "Select date";

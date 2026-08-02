@@ -39,6 +39,8 @@
 "RemoveAccount" = "حذف الحساب";
 "RemoveAccountConfirmation" = "هل أنت متأكد من حذف هذا الحساب؟";
 "AccountAlreadyAdded" = "الحساب مضاف مسبقا";
+"AccountCreationRestricted" = "Account creation restricted";
+"XOnlyAllowsInvitedUsersToCreateAccounts" = "%1$@ only allows invited users to create accounts.";
 "SwitchToAlreadyAddedAccountConfirmation" = "هل ترغب في الانتقال إليه الآن؟";
 "MasterPassword" = "كلمة المرور الرئيسية";
 "MoreOptions" = "المزيد من الخيارات";
@@ -563,6 +565,7 @@
 "ThereAreNoBankAccountsInYourVault" = "لا توجد حسابات بنكية في خزنتك";
 "US" = "الولايات المتحدة";
 "EU" = "الاتحاد الأوروبي";
+"Gov" = "Gov";
 "SelfHosted" = "استضافة ذاتية";
 "UpdateWeakMasterPasswordWarning" = "كلمة المرور الرئيسية الخاصة بك لا تفي بواحدة أو أكثر من سياسات مؤسستك. من أجل الوصول إلى الخزنة، يجب عليك تحديث كلمة المرور الرئيسية الآن. سيتم تسجيل خروجك من الجلسة الحالية، مما يتطلب منك تسجيل الدخول مرة أخرى. وقد تظل الجلسات النشطة على أجهزة أخرى نشطة لمدة تصل إلى ساعة واحدة.";
 "CurrentMasterPasswordRequired" = "كلمة المرور الرئيسية الحالية (مطلوب)";
@@ -1198,6 +1201,28 @@
 "LineOfCredit" = "خط ائتمان";
 "MoneyMarket" = "سوق النقد";
 "Savings" = "المدخرات";
+"Devices" = "الأجهزة";
+"NoDevicesFound" = "No devices found";
+"CurrentSession" = "الجلسة الحالية";
+"PendingRequest" = "طلب قيد الانتظار";
+"Trusted" = "موثوق";
+"RecentlyActiveLabel" = "Recently active:";
+"FirstLoginLabel" = "First login:";
+"Today" = "اليوم";
+"PastSevenDays" = "آخر 7 أيام";
+"PastFourteenDays" = "آخر 14 يوما";
+"PastThirtyDays" = "آخر 30 يوما";
+"OverThirtyDaysAgo" = "منذ أكثر من 30 يوما";
+"Unknown" = "غير معروف";
+/* Device display name. %1$@ = category (e.g. "Mobile"), %2$@ = platform (e.g. "iOS"). */
+"DeviceDisplayNameXHyphenY" = "%1$@ - %2$@";
+"Mobile" = "Mobile";
+"BrowserExtension" = "Browser extension";
+"WebVault2" = "Web vault";
+"Desktop" = "Desktop";
+"Cli" = "CLI";
+"Sdk" = "SDK";
+"Server" = "الخادم";
 /* Accessibility label for the button that clears a field's value. %1$@ is the field's title (e.g. "Date of birth"), so the spoken label reads "Clear Date of birth". */
 "ClearFieldName" = "Clear %1$@";
 "SelectDate" = "Select date";

@@ -39,6 +39,8 @@
 "RemoveAccount" = "移除账户";
 "RemoveAccountConfirmation" = "确定要移除此账户吗？";
 "AccountAlreadyAdded" = "账户已添加";
+"AccountCreationRestricted" = "账户创建受限";
+"XOnlyAllowsInvitedUsersToCreateAccounts" = "%1$@ 仅允许受邀用户创建账户。";
 "SwitchToAlreadyAddedAccountConfirmation" = "您想现在就切换过去吗？";
 "MasterPassword" = "主密码";
 "MoreOptions" = "更多选项";
@@ -563,6 +565,7 @@
 "ThereAreNoBankAccountsInYourVault" = "您的密码库中没有银行账户";
 "US" = "美国";
 "EU" = "欧盟";
+"Gov" = "Gov";
 "SelfHosted" = "自托管";
 "UpdateWeakMasterPasswordWarning" = "您的主密码不符合某一项或多项组织策略要求。要访问密码库，必须立即更新您的主密码。继续操作将使您注销当前会话，并要求您重新登录。他设备上的活动会话可能会继续保持活动状态长达一小时。";
 "CurrentMasterPasswordRequired" = "当前主密码（必填）";
@@ -571,8 +574,8 @@
 "RequestAdminApproval" = "请求管理员批准";
 "ApproveWithMasterPassword" = "使用主密码批准";
 "TurnOffUsingPublicDevice" = "不允许使用公共设备";
-"TurnOnFillAssist" = "启用填充辅助";
-"TurnOnFillAssistDescriptionLong" = "填充辅助通过使用站点特定的规则，提高在受支持站点上的自动填充的准确性。";
+"TurnOnFillAssist" = "启用填充助手";
+"TurnOnFillAssistDescriptionLong" = "填充助手通过使用站点特定的规则，提高在受支持站点上的自动填充的准确性。";
 "RememberThisDevice" = "记住此设备";
 "Passkey" = "通行密钥";
 "Passkeys" = "通行密钥";
@@ -812,7 +815,7 @@
 "YouMayNeedToEnableDevicePasscodeOrBiometrics" = "您可能需要启用设备通行代码或生物识别。";
 "StartImportCXFDescriptionLong" = "从其他密码管理器导入密码、通行密钥、信用卡以及任何个人身份信息。\n\n您的数据**不会**从之前的提供程序中删除。";
 "ImportPasswords" = "导入密码";
-"ImportingEllipsis" = "正在导入…";
+"ImportingEllipsis" = "正在导入...";
 "AreYouSureYouWantToCancelTheImportProcessQuestionMark" = "确定要取消导入过程吗？";
 "ImportFailed" = "导入失败";
 "ThereWasAnIssueImportingAllOfYourPasswordsNoDataWasDeleted" = "导入您的所有密码时出现问题。\n\n未删除任何数据。";
@@ -1198,7 +1201,29 @@
 "LineOfCredit" = "信用额度";
 "MoneyMarket" = "货币市场";
 "Savings" = "储蓄";
+"Devices" = "设备";
+"NoDevicesFound" = "未找到设备";
+"CurrentSession" = "当前会话";
+"PendingRequest" = "待处理的请求";
+"Trusted" = "已信任";
+"RecentlyActiveLabel" = "近期活动：";
+"FirstLoginLabel" = "首次登录：";
+"Today" = "今天";
+"PastSevenDays" = "过去 7 天";
+"PastFourteenDays" = "过去 14 天";
+"PastThirtyDays" = "过去 30 天";
+"OverThirtyDaysAgo" = "30 天以前";
+"Unknown" = "未知";
+/* Device display name. %1$@ = category (e.g. "Mobile"), %2$@ = platform (e.g. "iOS"). */
+"DeviceDisplayNameXHyphenY" = "%1$@ - %2$@";
+"Mobile" = "移动端";
+"BrowserExtension" = "浏览器扩展";
+"WebVault2" = "网页密码库";
+"Desktop" = "桌面端";
+"Cli" = "CLI";
+"Sdk" = "SDK";
+"Server" = "服务器";
 /* Accessibility label for the button that clears a field's value. %1$@ is the field's title (e.g. "Date of birth"), so the spoken label reads "Clear Date of birth". */
-"ClearFieldName" = "Clear %1$@";
-"SelectDate" = "Select date";
+"ClearFieldName" = "清除 %1$@";
+"SelectDate" = "选择日期";
 "PremiumRequiredTOTPDescriptionLong" = "验证器密钥 (TOTP) 是高级版功能。您的当前方案不包含对此功能的访问权限。";
