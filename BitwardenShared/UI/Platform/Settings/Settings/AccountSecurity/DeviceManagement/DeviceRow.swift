@@ -113,7 +113,7 @@ struct DeviceRow: View {
                 }
 
                 VStack(alignment: .leading, spacing: 0) {
-                    if store.state.device.lastActivityDate != nil {
+                    if shouldShowRecentlyActiveRow {
                         recentlyActiveRow
                     }
 
@@ -131,6 +131,15 @@ struct DeviceRow: View {
         }
         .padding(16)
         .contentShape(Rectangle())
+    }
+
+    /// Whether the recently active row should be shown. It's hidden for the current session and
+    /// for devices with a pending request, since those cases are already communicated by their
+    /// badge and don't need a separate activity timestamp.
+    private var shouldShowRecentlyActiveRow: Bool {
+        !store.state.device.isCurrentSession &&
+            !store.state.device.hasPendingRequest &&
+            store.state.device.lastActivityDate != nil
     }
 
     /// The recently active row with bold label and regular status.
