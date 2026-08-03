@@ -168,7 +168,6 @@ jobs:
               -parallelizeTargets \
               -skipPackagePluginValidation \
               -skipMacroValidation \
-              -showBuildTimingSummary \
               -quiet
             kill "$PYEETD_PID"
 
@@ -208,7 +207,6 @@ jobs:
               -derivedDataPath build/DerivedData \
               -test-timeouts-enabled yes \
               -maximum-test-execution-time-allowance 10 \
-              -showBuildTimingSummary \
               -quiet
             kill "$PYEETD_PID"
 
