@@ -56,6 +56,30 @@ class AddEditSendItemViewTests: BitwardenTestCase {
         XCTAssertEqual(processor.dispatchedActions.last, .deletionDateChanged(.thirtyDays))
     }
 
+    /// The deletion date menu remains visible but is disabled when the deletion date is enforced
+    /// by policy.
+    @MainActor
+    func test_deletionDateMenu_disabledWhenEnforcedByPolicy() throws {
+        processor.state.isOptionsExpanded = true
+        var menuField = try subject.inspect().find(bitwardenMenuField: Localizations.deletionDate)
+        XCTAssertFalse(menuField.isDisabled())
+
+        processor.state.sendPolicyOptions.enforcedDeletionDateHours = 168
+        menuField = try subject.inspect().find(bitwardenMenuField: Localizations.deletionDate)
+        XCTAssertTrue(menuField.isDisabled())
+    }
+
+    /// The deletion date field shows the policy helper text when the deletion date is enforced by
+    /// policy.
+    @MainActor
+    func test_deletionDate_helperTextWhenEnforcedByPolicy() throws {
+        processor.state.isOptionsExpanded = true
+        processor.state.sendPolicyOptions.enforcedDeletionDateHours = 168
+        XCTAssertNoThrow(
+            try subject.inspect().find(text: Localizations.sendDeletionDateEnforcedByOrganization),
+        )
+    }
+
     /// Updating the maximum access count stepper sends the `.maximumAccessCountChanged` action.
     @MainActor
     func test_maximumAccessCountStepper_updated() throws {

@@ -126,15 +126,23 @@ struct AddEditSendItemState: Equatable, Sendable {
     var availableDeletionDateTypes: [SendDeletionDateType] {
         switch mode {
         case .add, .shareExtension:
-            [.oneHour, .oneDay, .twoDays, .threeDays, .sevenDays, .thirtyDays]
+            [.oneHour, .oneDay, .twoDays, .threeDays, .sevenDays, .fourteenDays, .thirtyDays]
         case .edit:
-            [.oneHour, .oneDay, .twoDays, .threeDays, .sevenDays, .thirtyDays, .custom(customDeletionDate)]
+            [
+                .oneHour, .oneDay, .twoDays, .threeDays, .sevenDays, .fourteenDays, .thirtyDays,
+                .custom(customDeletionDate),
+            ]
         }
     }
 
     /// Whether the access type is enforced by policy, which hides the "who can view" menu.
     var isAccessTypeEnforcedByPolicy: Bool {
         sendPolicyOptions.enforcedAccessType != nil
+    }
+
+    /// Whether the deletion date is enforced by policy, which disables the deletion date menu.
+    var isDeletionDateEnforcedByPolicy: Bool {
+        sendPolicyOptions.enforcedDeletionDateHours != nil
     }
 
     /// Whether sends are disabled via a policy.
@@ -180,6 +188,12 @@ struct AddEditSendItemState: Equatable, Sendable {
     /// restricted by policy.
     var policyEnforcedAccessType: SendAccessType? {
         sendPolicyOptions.enforcedAccessType
+    }
+
+    /// The deletion date the user is required to use by policy, or `nil` if the deletion date is
+    /// not restricted by policy.
+    var policyEnforcedDeletionDate: SendDeletionDateType? {
+        sendPolicyOptions.enforcedDeletionDateHours.map { SendDeletionDateType.from(hours: $0) }
     }
 
     /// Whether the hide-email field should be shown.

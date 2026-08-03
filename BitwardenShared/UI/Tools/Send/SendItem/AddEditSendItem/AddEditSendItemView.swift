@@ -193,8 +193,11 @@ struct AddEditSendItemView: View { // swiftlint:disable:this type_body_length
                     send: AddEditSendItemAction.deletionDateChanged,
                 ),
             )
+            .disabled(store.state.isDeletionDateEnforcedByPolicy)
 
-            Text(Localizations.deletionDateInfo)
+            Text(store.state.isDeletionDateEnforcedByPolicy
+                ? Localizations.sendDeletionDateEnforcedByOrganization
+                : Localizations.deletionDateInfo)
                 .styleGuide(.footnote)
                 .foregroundColor(SharedAsset.Colors.textSecondary.swiftUIColor)
                 .padding(.horizontal, 16)
