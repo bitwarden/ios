@@ -42,7 +42,7 @@ extension SendPolicyOptions {
         let domainsPolicy = enforcedAccessType == .specificPeople
             ? policies
                 .filter { SendAccessType(whoCanAccessPolicyValue: $0[.whoCanAccess]?.intValue) == .specificPeople }
-                .min { ($0.revisionDate ?? .distantFuture) < ($1.revisionDate ?? .distantFuture) }
+                .earliestRevisionDate
             : nil
         let allowedDomains = (domainsPolicy?[.allowedDomains]?.stringValue ?? "")
             .split(separator: ",")
