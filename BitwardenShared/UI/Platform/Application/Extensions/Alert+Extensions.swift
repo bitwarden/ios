@@ -1,5 +1,6 @@
 import BitwardenKit
 import BitwardenResources
+import Foundation
 
 // MARK: - Alert
 
@@ -141,7 +142,7 @@ extension Alert {
         Alert(
             title: Localizations.invalidEmailAddresses,
             message: Localizations.onlyIncludeTheFollowingDomainsDescriptionLong(
-                allowedDomains.joined(separator: ", "),
+                allowedDomains.formatted(.list(type: .and, width: .narrow)),
             ),
             alertActions: [
                 AlertAction(title: Localizations.ok, style: .default),
