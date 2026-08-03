@@ -144,13 +144,13 @@ struct LoginRequestView: View {
             Text(title)
                 .styleGuide(.headline, weight: .semibold, includeLinePadding: false, includeLineSpacing: false)
                 .foregroundStyle(SharedAsset.Colors.textPrimary.swiftUIColor)
-                .if(titleAccessibilityIdentifier != nil) { $0.accessibilityIdentifier(titleAccessibilityIdentifier!) }
+                .accessibilityIdentifier(titleAccessibilityIdentifier ?? "")
 
             Text(value)
                 .styleGuide(valueStyle)
                 .foregroundStyle(valueColor)
                 .multilineTextAlignment(.leading)
-                .if(valueAccessibilityIdentifier != nil) { $0.accessibilityIdentifier(valueAccessibilityIdentifier!) }
+                .accessibilityIdentifier(valueAccessibilityIdentifier ?? "")
         }
         .padding(.horizontal, 16)
         .padding(.vertical, 12)
