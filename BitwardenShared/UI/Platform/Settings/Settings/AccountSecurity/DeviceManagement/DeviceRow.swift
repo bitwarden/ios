@@ -13,18 +13,38 @@ struct DeviceRowState: Equatable {
 
     /// The formatted first-login date and time for display.
     var formattedFirstLogin: String {
-        DeviceRowState.dateTimeFormatter.string(from: device.firstLogin)
+        DeviceRowState.formattedDateTime(from: device.firstLogin)
     }
 }
 
 extension DeviceRowState {
-    /// Shared formatter for device activity dates.
-    private static let dateTimeFormatter: DateFormatter = {
+    /// Locale-aware formatter for the date portion of a first-login timestamp, e.g. "Apr 1, 2026".
+    private static let dateFormatter: DateFormatter = {
         let formatter = DateFormatter()
-        formatter.dateStyle = .medium
-        formatter.timeStyle = .short
+        formatter.locale = Locale.current
+        formatter.setLocalizedDateFormatFromTemplate("MMM d, yyyy")
         return formatter
     }()
+
+    /// Locale-aware formatter for the time portion of a first-login timestamp, including seconds
+    /// and respecting the user's 12/24-hour preference, e.g. "5:29:54 PM".
+    private static let timeFormatter: DateFormatter = {
+        let formatter = DateFormatter()
+        formatter.locale = Locale.current
+        formatter.setLocalizedDateFormatFromTemplate("jj:mm:ss")
+        return formatter
+    }()
+
+    /// Formats a date as a localized "MMM d, yyyy, h:mm:ss a"-style string (e.g.
+    /// "Apr 1, 2026, 5:29:54 PM"), including seconds and respecting the user's 12/24-hour
+    /// preference.
+    ///
+    /// - Parameter date: The date to format.
+    /// - Returns: The formatted date and time string.
+    ///
+    private static func formattedDateTime(from date: Date) -> String {
+        "\(dateFormatter.string(from: date)), \(timeFormatter.string(from: date))"
+    }
 }
 
 // MARK: - DeviceRowAction
