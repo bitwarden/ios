@@ -77,6 +77,17 @@ targets:
       - target: BitwardenKit/BitwardenKit
       - target: BitwardenKit/BitwardenResources
       - target: BitwardenKit/Networking
+    postCompileScripts:
+      - script: |
+          if [[ -z "$CI" ]]; then
+            exit 0
+          fi
+          if [[ ! "$PATH" =~ "/opt/homebrew/bin" ]]; then
+            PATH="/opt/homebrew/bin:$PATH"
+          fi
+          ./Scripts/lint-changes.sh
+        name: Lint Changes
+        basedOnDependencyAnalysis: false
   TestHarnessTests:
     type: bundle.unit-test
     platform: iOS

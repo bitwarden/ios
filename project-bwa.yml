@@ -111,6 +111,17 @@ targets:
           - $(SRCROOT)/Authenticator/Application/Support/Settings.bundle/Acknowledgements.plist
           - $(SRCROOT)/Authenticator/Application/Support/Settings.bundle/Acknowledgements.latest_results.txt
           - $(SRCROOT)/Authenticator/Application/Support/Settings.bundle/Acknowledgements
+    postCompileScripts:
+      - script: |
+          if [[ -z "$CI" ]]; then
+            exit 0
+          fi
+          if [[ ! "$PATH" =~ "/opt/homebrew/bin" ]]; then
+            PATH="/opt/homebrew/bin:$PATH"
+          fi
+          ./Scripts/lint-changes.sh
+        name: Lint Changes
+        basedOnDependencyAnalysis: false
   AuthenticatorTests:
     type: bundle.unit-test
     platform: iOS
