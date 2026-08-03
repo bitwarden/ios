@@ -177,6 +177,7 @@ struct DeviceRow: View {
             isCurrentSession: true,
             isTrusted: true,
             lastActivityDate: Date(),
+            pendingAuthRequestId: nil,
             pendingRequest: nil,
         )))),
     )
@@ -197,6 +198,7 @@ struct DeviceRow: View {
             isCurrentSession: false,
             isTrusted: false,
             lastActivityDate: Date().addingTimeInterval(-86400 * 3),
+            pendingAuthRequestId: nil,
             pendingRequest: .fixture(),
         )))),
     )
@@ -217,6 +219,7 @@ struct DeviceRow: View {
             isCurrentSession: false,
             isTrusted: true,
             lastActivityDate: Date().addingTimeInterval(-86400 * 10),
+            pendingAuthRequestId: nil,
             pendingRequest: nil,
         )))),
     )
