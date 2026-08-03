@@ -239,6 +239,11 @@ protocol AuthRepository: AnyObject {
         resetPasswordAutoEnroll: Bool,
     ) async throws
 
+    /// Records the current timestamp as the active account's last-active time.
+    /// Call this before navigating away from the active account (e.g., to add a new account).
+    ///
+    func setLastActiveAccountTime() async throws
+
     /// Sets the SessionTimeoutValue.
     ///
     /// - Parameters:
@@ -1042,6 +1047,11 @@ extension DefaultAuthRepository: AuthRepository {
             enrollPinResponse: enrollPinResponse,
             requirePasswordAfterRestart: requirePasswordAfterRestart,
         )
+    }
+
+    func setLastActiveAccountTime() async throws {
+        let userId = try await stateService.getActiveAccountId()
+        try await vaultTimeoutService.setLastActiveTime(userId: userId)
     }
 
     func setVaultTimeout(value newValue: SessionTimeoutValue, userId: String?) async throws {
