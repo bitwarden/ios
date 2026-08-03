@@ -174,8 +174,7 @@ jobs:
             -parallelizeTargets \
             -skipPackagePluginValidation \
             -skipMacroValidation \
-            -showBuildTimingSummary \
-            -quiet
+            -showBuildTimingSummary
           kill "$PYEETD_PID"
 
       - name: Save Mint packages
