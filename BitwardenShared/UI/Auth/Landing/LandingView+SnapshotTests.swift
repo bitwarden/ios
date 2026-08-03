@@ -71,6 +71,13 @@ class LandingViewTests: BitwardenTestCase {
         assertSnapshots(of: subject, as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5])
     }
 
+    /// Check the snapshot when user registration is disabled (create account button hidden).
+    @MainActor
+    func disabletest_snapshot_createAccountHidden() {
+        processor.state.isCreateAccountButtonHidden = true
+        assertSnapshots(of: subject, as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5])
+    }
+
     /// Check the snapshot for the profiles closed
     @MainActor
     func disabletest_snapshot_profilesClosed() {
