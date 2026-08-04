@@ -422,18 +422,16 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator { // swiftlint:d
     /// - Parameter isVfo1FoundationFeatureFlagEnabled: Whether the `vfo1-foundation` feature flag is enabled.
     ///
     private func showFolders(isVfo1FoundationFeatureFlagEnabled: Bool) {
+        let state = FoldersState(isVfo1FoundationFeatureFlagEnabled: isVfo1FoundationFeatureFlagEnabled)
         let processor = FoldersProcessor(
             coordinator: asAnyCoordinator(),
             services: services,
-            state: FoldersState(isVfo1FoundationFeatureFlagEnabled: isVfo1FoundationFeatureFlagEnabled),
+            state: state,
         )
         let view = FoldersView(store: Store(processor: processor))
         let viewController = UIHostingController(rootView: view)
         viewController.navigationItem.largeTitleDisplayMode = .never
-        stackNavigator?.push(
-            viewController,
-            navigationTitle: isVfo1FoundationFeatureFlagEnabled ? Localizations.myFolders : Localizations.folders,
-        )
+        stackNavigator?.push(viewController, navigationTitle: state.navigationTitle)
     }
 
     /// Shows the import login items screen.
