@@ -569,6 +569,13 @@ extension CipherItemState: ViewVaultItemState {
         loginView
     }
 
+    var folderAccessibilityLabel: String? {
+        guard let folderName else { return nil }
+        return isVfo1FoundationFeatureFlagEnabled
+            ? Localizations.myFolderX(folderName)
+            : Localizations.folderX(folderName)
+    }
+
     var icon: SharedImageAsset {
         switch cipher.type {
         case .card:
@@ -613,6 +620,12 @@ extension CipherItemState: ViewVaultItemState {
             return Localizations.showLess
         }
         return Localizations.showMore
+    }
+
+    var noFolderAccessibilityLabel: String {
+        isVfo1FoundationFeatureFlagEnabled
+            ? Localizations.myFolderX(Localizations.folderNone)
+            : Localizations.folderX(Localizations.folderNone)
     }
 
     var shouldDisplayFolder: Bool {
