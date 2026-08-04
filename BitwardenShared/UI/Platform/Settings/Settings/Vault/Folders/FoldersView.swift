@@ -24,10 +24,7 @@ struct FoldersView: View {
                     .scrollView()
             }
         }
-        .navigationBar(
-            title: store.state.isVfo1FoundationFeatureFlagEnabled ? Localizations.myFolders : Localizations.folders,
-            titleDisplayMode: .inline,
-        )
+        .navigationBar(title: store.state.navigationTitle, titleDisplayMode: .inline)
         .overlay(alignment: .bottomTrailing) {
             addItemFloatingActionButton {
                 store.send(.add)

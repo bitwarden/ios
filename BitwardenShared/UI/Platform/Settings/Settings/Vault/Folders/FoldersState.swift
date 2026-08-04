@@ -1,4 +1,5 @@
 import BitwardenKit
+import BitwardenResources
 import BitwardenSdk
 
 // MARK: - FoldersState
@@ -14,4 +15,11 @@ struct FoldersState: Equatable {
 
     /// A toast message to show in the view.
     var toast: Toast?
+
+    // MARK: Computed Properties
+
+    /// The navigation bar title for this screen.
+    var navigationTitle: String {
+        isVfo1FoundationFeatureFlagEnabled ? Localizations.myFolders : Localizations.folders
+    }
 }
