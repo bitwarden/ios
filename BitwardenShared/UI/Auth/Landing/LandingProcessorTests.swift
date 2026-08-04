@@ -281,6 +281,34 @@ class LandingProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_
         XCTAssertNil(appSettingsStore.rememberedEmail)
     }
 
+    /// `perform(_:)` with `.continuePressed` and a valid email snapshots the current pre-auth
+    /// URLs for that email before navigating to the login screen, so a later sync to a different
+    /// active account can't clobber the URLs for this in-progress login.
+    @MainActor
+    func test_perform_continuePressed_withValidEmail_snapshotsPreAuthUrlsForEmail() async {
+        let urls = EnvironmentURLData(base: .example)
+        stateService.preAuthEnvironmentURLs = urls
+        subject.state.email = "email@example.com"
+
+        await subject.perform(.continuePressed)
+
+        XCTAssertEqual(stateService.accountCreationEnvironmentURLs["email@example.com"], urls)
+        XCTAssertEqual(coordinator.routes.last, .login(username: "email@example.com"))
+    }
+
+    /// `perform(_:)` with `.continuePressed` and a valid email doesn't snapshot any pre-auth URLs
+    /// if none have been set, and still navigates to the login screen.
+    @MainActor
+    func test_perform_continuePressed_withValidEmail_noPreAuthUrlsToSnapshot() async {
+        stateService.preAuthEnvironmentURLs = nil
+        subject.state.email = "email@example.com"
+
+        await subject.perform(.continuePressed)
+
+        XCTAssertTrue(stateService.accountCreationEnvironmentURLs.isEmpty)
+        XCTAssertEqual(coordinator.routes.last, .login(username: "email@example.com"))
+    }
+
     /// `perform(_:)` with `.continuePressed` and a valid email surrounded by whitespace trims the whitespace and
     /// navigates to the login screen.
     @MainActor
@@ -319,12 +347,14 @@ class LandingProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_
     func test_perform_continuePressed_matchingExistingAccount() async throws {
         appSettingsStore.rememberedEmail = nil
         authRepository.existingAccountUserIdResult = "1"
+        stateService.preAuthEnvironmentURLs = EnvironmentURLData(base: .example)
         subject.state.email = "email@example.com"
 
         await subject.perform(.continuePressed)
 
         XCTAssertEqual(authRepository.existingAccountUserIdEmail, "email@example.com")
         XCTAssertEqual(coordinator.alertShown, [.switchToExistingAccount {}])
+        XCTAssertTrue(stateService.accountCreationEnvironmentURLs.isEmpty)
         let alert = coordinator.alertShown[0]
 
         try await alert.tapAction(title: Localizations.cancel)

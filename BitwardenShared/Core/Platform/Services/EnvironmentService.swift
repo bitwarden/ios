@@ -80,6 +80,7 @@ class DefaultEnvironmentService: EnvironmentService {
             urls = .defaultUS
         }
 
+        await setPreAuthURLs(urls: managedSettingsURLs ?? urls)
         currentClientCertificateFingerprint = urls.clientCertificateFingerprint
         environmentURLs = EnvironmentURLs(environmentURLData: urls)
 

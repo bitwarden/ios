@@ -300,22 +300,6 @@ struct EnvironmentServiceTests { // swiftlint:disable:this type_body_length
         #expect(errorReporter.region?.isPreAuth == true)
     }
 
-    /// `loadURLsForActiveAccount()` never modifies pre-auth URLs, preserving any
-    /// in-progress new-account login flow regardless of context.
-    func test_loadURLsForActiveAccount_doesNotUpdatePreAuthURLs() async {
-        let cloudURLs = EnvironmentURLData.defaultUS
-        let account = Account.fixture(settings: .fixture(environmentURLs: cloudURLs))
-        stateService.activeAccount = account
-        stateService.environmentURLs = [account.profile.userId: cloudURLs]
-        let selfHostedURLs = EnvironmentURLData(base: .example)
-        stateService.preAuthEnvironmentURLs = selfHostedURLs
-
-        await subject.loadURLsForActiveAccount()
-
-        XCTAssertEqual(stateService.preAuthEnvironmentURLs, selfHostedURLs)
-        XCTAssertEqual(subject.baseURL, URL(string: "https://vault.bitwarden.com"))
-    }
-
     /// `setPreAuthURLs(urls:)` sets the pre-auth URLs.
     @Test
     func setPreAuthURLs() async {
