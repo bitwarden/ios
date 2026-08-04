@@ -195,7 +195,7 @@ final class SendListProcessor: StateProcessor<SendListState, SendListAction, Sen
     /// Load any initial data for the view.
     ///
     private func loadData() async {
-        state.isSendDisabled = await services.policyService.policyAppliesToUser(.disableSend)
+        state.isSendDisabled = await services.policyService.getSendPolicyOptions().isSendDisabled
     }
 
     /// Removes the password from the provided send.

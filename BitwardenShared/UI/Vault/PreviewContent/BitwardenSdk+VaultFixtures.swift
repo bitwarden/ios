@@ -33,6 +33,7 @@ extension Cipher {
         card: Card? = nil,
         collectionIds: [String] = [],
         creationDate: DateTime = Date(year: 2023, month: 11, day: 5, hour: 9, minute: 41),
+        data: String? = nil,
         deletedDate: Date? = nil,
         driversLicense: DriversLicense? = nil,
         edit: Bool = true,
@@ -44,7 +45,7 @@ extension Cipher {
         key: String? = nil,
         localData: LocalData? = nil,
         login: BitwardenSdk.Login? = nil,
-        name: String = "Bitwarden",
+        name: String? = "Bitwarden",
         notes: String? = nil,
         organizationId: String? = nil,
         organizationUseTotp: Bool = false,
@@ -89,7 +90,7 @@ extension Cipher {
             deletedDate: deletedDate,
             revisionDate: revisionDate,
             archivedDate: archivedDate,
-            data: nil,
+            data: data,
         )
     }
 }

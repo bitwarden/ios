@@ -128,7 +128,7 @@
 "ItemUpdated" = "Element saxlanıldı";
 "Submitting" = "Təqdim olunur…";
 "Syncing" = "Sinxronlaşdırılır…";
-"SyncingLogins" = "Girişlər sinxronlaşdırılır...";
+"SyncingLogins" = "Girişlər sinxronlaşdırılır…";
 "SyncingComplete" = "Sinxr tamamlandı";
 "TouchID" = "Touch ID";
 "TwoStepLogin" = "İki mərhələli giriş";
@@ -571,6 +571,8 @@
 "RequestAdminApproval" = "Admin təsdiqini tələb et";
 "ApproveWithMasterPassword" = "Ana parolla təsdiqlə";
 "TurnOffUsingPublicDevice" = "Hər kəsə açıq bir cihaz istifadə edərək söndür";
+"TurnOnFillAssist" = "Turn on fill assist";
+"TurnOnFillAssistDescriptionLong" = "Fill Assist improves autofill accuracy on supported sites by using site-specific rules.";
 "RememberThisDevice" = "Bu cihazı xatırla";
 "Passkey" = "Keçid açarı";
 "Passkeys" = "Keçid açarı";
@@ -1097,12 +1099,37 @@
 "YourSubscriptionExpiredOnXDescriptionLong" = "Abunəliyinizin müddəti **%1$@** tarixində bitir. Premium özəllikləri istifadə etməyə davam etmək üçün yenidən abunə olun.";
 "YourSubscriptionIsScheduledToCancelOnXDescriptionLong" = "Abunəliyiniz **%1$@** tarixində ləğv ediləcək. Abunəliyinizi bu tarixdən əvvəl təkrar aktivləşdirə bilərsiniz.";
 "PerMonth" = "/ ay";
+/* VoiceOver reading of "PerMonth", spoken instead of shown. */
+"PerMonthVoiceOver" = "per month";
 "PerYear" = "/ il";
+/* VoiceOver reading of "PerYear", spoken instead of shown. */
+"PerYearVoiceOver" = "per year";
 "XAmountPerCadence" = "%1$@ %2$@";
+/* %1$@ is an amount and cadence together, e.g. "$1.65 / month". */
+"XCancelAnytime" = "%1$@ · Cancel anytime";
+/* VoiceOver reading of "XCancelAnytime", spoken instead of shown. */
+"XCancelAnytimeVoiceOver" = "%1$@, Cancel anytime";
 "NegativeX" = "-%1$@";
 "UnknownStatus" = "Bilinmir";
 "YourSubscriptionStatusIsUnknownVisitTheWebAppDescriptionLong" = "Abunəlik statusunuz müəyyən edilməyib. Daha çox məlumat üçün veb tətbiqi ziyarət edin, ya da ən son versiyaya güncəlləyin.";
-"UnlockMoreAdvancedFeaturesWithPremiumPlan" = "Premium planla daha qabaqcıl özəlliklərin kilidini açın.";
+/* Headline on the Premium upgrade screen. */
+"UnlockAdvancedProtection" = "Qabaqcıl qorumanın kilidini aç";
+/* Premium benefit list item. */
+"BreezeThrough2faWithBuiltInCodes" = "Daxili kodlar vasitəsilə 2FA-nı icra et";
+/* Premium benefit list item. */
+"RunReportsToFindRiskyPasswords" = "Riskli parolları tapmaq üçün hesabatları çalışdır";
+/* Premium benefit list item. */
+"KeepDocumentsSafeAndEncrypted" = "Sənədləri əmniyyətdə və şifrələnmiş saxla";
+/* Premium benefit list item. */
+"AddATrustedEmergencyContact" = "Güvənilən fövqəladə hal kontaktı əlavə et";
+/* Premium benefit list item. */
+"IdentifyUnsecureWebsites" = "Güvənli olmayan veb saytları müəyyənləşdir";
+/* Premium benefit list item. */
+"FlagAccountsWithInactive2fa" = "2FA aktiv olmayan hesabları işarələ";
+/* Premium benefit list item; "Send" is the Bitwarden Send feature name and shouldn't be translated. */
+"ShareFilesSecurelyWithAnyoneUsingSend" = "Send istifadəsi ilə faylları istədiyiniz şəxslə təhlükəsiz formatda paylaşın";
+/* Premium benefit list item. */
+"Receive247PrioritySupport" = "24/7 prioritet dəstək alın";
 "BuiltInAuthenticator" = "Daxili kimlik doğrulayıcı";
 "EmergencyAccess" = "Fövqəladə hal erişimi";
 "PaymentNotReceivedYet" = "Ödəniş hələ alınmayıb";
@@ -1111,7 +1138,6 @@
 "WeHadTroubleOpeningThePaymentPageDescriptionLong" = "Ödəniş səhifəsini açmaqla bağlı çətinliyimiz var, yenidən sınayın.";
 "SecureFileStorage" = "Güvənli fayl anbarı";
 "BreachMonitoring" = "Pozuntu monitorinqi";
-"UpgradeNow" = "İndi yüksəlt";
 "ConfirmingYourUpgrade" = "Yüksəltmənizi təsdiqləyin…";
 "OpeningCheckout" = "Ödəmə səhifəsi açılır…";
 "UpgradePending" = "Yüksəltmə gözlənilir";
@@ -1122,7 +1148,8 @@
 "ViewPlan" = "Plana bax";
 "YouNowHaveAccessToAdvancedSecurityDescriptionLong" = "Artıq qabaqcıl təhlükəsizlik özəlliklərinə erişə bilərsiniz. Nələrin Premium-a daxil olduğunu öyrənin.";
 "YouNowHaveAccessToAllAdvancedSecurityFeatures" = "Artıq bütün qabaqcıl təhlükəsizlik özəlliklərinə erişiminiz var.";
-"YoullGoToStripeSecureCheckoutToCompleteYourPurchase" = "Satın almanı tamamlamaq üçün Stripe-ın güvənli ödəniş səhifəsinə yönləndiriləcəksiniz.";
+/* Footer on the Premium upgrade screen; "Stripe" is the payment processor's name and shouldn't be translated. */
+"YoullCompleteThePurchaseWithStripeSecureCheckout" = "You'll complete the purchase with Stripe secure checkout.";
 "ContinueToStripe" = "Stripe ilə davam edilsin?";
 "YoullBeTakenToStripeToManageYourSubscriptionCancellation" = "Abunəliyinizin ləğvi üçün Stripe-a yönləndiriləcəksiniz.";
 "UserIDCopiedToTheClipboard" = "İstifadəçi kimliyi lövhəyə kopyalandı";
@@ -1171,4 +1198,7 @@
 "LineOfCredit" = "Kredit xətti";
 "MoneyMarket" = "Pul bazarı";
 "Savings" = "YIğımlar";
+/* Accessibility label for the button that clears a field's value. %1$@ is the field's title (e.g. "Date of birth"), so the spoken label reads "Clear Date of birth". */
+"ClearFieldName" = "Clear %1$@";
+"SelectDate" = "Select date";
 "PremiumRequiredTOTPDescriptionLong" = "Authenticator açarı (TOTP) Premium bir özəllikdir. Hazırkı planınızda bu özəlliyə erişim yoxdur.";

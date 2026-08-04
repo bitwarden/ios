@@ -28,7 +28,7 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
                 hasPremium: true,
             ),
         )
-        processor.state.ownershipOptions = [.personal(email: "user@bitwarden.com")]
+        processor.state.ownershipOptions = [.personal(displayName: "user@bitwarden.com")]
         let store = Store(processor: processor)
         subject = AddEditItemView(store: store)
     }
@@ -230,7 +230,7 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
     func test_ownerTextField_updateValue() throws {
         let organizationOwner = CipherOwner.organization(id: "1", name: "Bitwarden Organization")
         processor.state.ownershipOptions = [
-            CipherOwner.personal(email: "user@bitwarden.com"),
+            CipherOwner.personal(displayName: "user@bitwarden.com"),
             organizationOwner,
         ]
         let menu = try subject.inspect().find(bitwardenMenuField: Localizations.owner)
