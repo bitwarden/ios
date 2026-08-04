@@ -39,6 +39,8 @@
 "RemoveAccount" = "Remove account";
 "RemoveAccountConfirmation" = "Are you sure you want to remove this account?";
 "AccountAlreadyAdded" = "Account already added";
+"AccountCreationRestricted" = "Account creation restricted";
+"XOnlyAllowsInvitedUsersToCreateAccounts" = "%1$@ only allows invited users to create accounts.";
 "SwitchToAlreadyAddedAccountConfirmation" = "Would you like to switch to it now?";
 "MasterPassword" = "Master password";
 "MoreOptions" = "More options";
@@ -1225,8 +1227,8 @@
 /* Device display name. %1$@ = category (e.g. "Mobile"), %2$@ = platform (e.g. "iOS"). */
 "DeviceDisplayNameXHyphenY" = "%1$@ - %2$@";
 "Mobile" = "Mobile";
-"BrowserExtension" = "Browser extension";
-"WebVault2" = "Web vault";
+"BrowserExtension" = "Extension";
+"WebVault2" = "Web app";
 "Desktop" = "Desktop";
 "Cli" = "CLI";
 "Sdk" = "SDK";

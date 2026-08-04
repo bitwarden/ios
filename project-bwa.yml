@@ -113,22 +113,14 @@ targets:
           - $(SRCROOT)/Authenticator/Application/Support/Settings.bundle/Acknowledgements
     postCompileScripts:
       - script: |
+          if [[ -z "$CI" ]]; then
+            exit 0
+          fi
           if [[ ! "$PATH" =~ "/opt/homebrew/bin" ]]; then
             PATH="/opt/homebrew/bin:$PATH"
           fi
-          mint run swiftlint
-        name: Swiftlint
-        basedOnDependencyAnalysis: false
-      - script: |
-          if [[ ! "$PATH" =~ "/opt/homebrew/bin" ]]; then
-            PATH="/opt/homebrew/bin:$PATH"
-          fi
-          mint run swiftformat --lint --lenient .
-        name: SwiftFormat Lint
-        basedOnDependencyAnalysis: false
-    postBuildScripts:
-      - path: Scripts-bwa/update_settings_version_number.sh
-        name: "Settings.bundle: Update Version Number"
+          ./Scripts/lint-changes.sh
+        name: Lint Changes
         basedOnDependencyAnalysis: false
   AuthenticatorTests:
     type: bundle.unit-test

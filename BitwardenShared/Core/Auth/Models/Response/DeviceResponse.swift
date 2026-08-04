@@ -14,6 +14,9 @@ struct DeviceResponse: JSONResponse, Equatable, Sendable, Identifiable, Hashable
     /// The date the device was first registered.
     let creationDate: Date
 
+    /// The pending authentication request currently associated with this device, if any.
+    let devicePendingAuthRequest: DevicePendingAuthRequest?
+
     /// The unique identifier of the device.
     let id: String
 

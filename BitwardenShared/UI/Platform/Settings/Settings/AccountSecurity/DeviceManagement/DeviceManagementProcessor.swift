@@ -120,37 +120,23 @@ final class DeviceManagementProcessor: StateProcessor<
         }
     }
 
-    /// Matches the most recent pending login request to its corresponding device.
+    /// Matches each device's authoritative pending authentication request id (reported directly
+    /// by the `/devices` endpoint) to its corresponding login request.
     ///
     /// - Parameters:
     ///   - devices: The list of device items.
     ///   - pendingRequests: The list of pending login requests.
-    /// - Returns: The updated list of device items with the most recent pending request matched.
+    /// - Returns: The updated list of device items with their pending request matched by id.
     ///
     private func matchPendingRequestsToDevices(
         _ devices: [DeviceListItem],
         pendingRequests: [LoginRequest],
     ) -> [DeviceListItem] {
         var updatedDevices = devices
-
-        // Sort pending requests by creation date descending to get most recent first.
-        let sortedRequests = pendingRequests.sorted { $0.creationDate > $1.creationDate }
-
-        for request in sortedRequests {
-            guard !request.requestDeviceType.isEmpty else { continue }
-            // Match by platform name, skipping devices that already have a pending request
-            // assigned so that multiple requests for the same platform (e.g. browser and
-            // extension variants that both map to "Chrome") can match distinct devices.
-            if let index = updatedDevices.firstIndex(where: { device in
-                device.pendingRequest == nil &&
-                    !device.isCurrentSession &&
-                    !device.deviceType.platform.isEmpty &&
-                    device.deviceType.platform.caseInsensitiveCompare(request.requestDeviceType) == .orderedSame
-            }) {
-                updatedDevices[index].pendingRequest = request
-            }
+        for index in updatedDevices.indices {
+            guard let pendingAuthRequestId = updatedDevices[index].pendingAuthRequestId else { continue }
+            updatedDevices[index].pendingRequest = pendingRequests.first { $0.id == pendingAuthRequestId }
         }
-
         return updatedDevices
     }
 }
