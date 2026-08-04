@@ -113,7 +113,8 @@ targets:
           - $(SRCROOT)/Authenticator/Application/Support/Settings.bundle/Acknowledgements
     postCompileScripts:
       - script: |
-          if [[ -z "$CI" ]]; then
+          if [[ -n "$CI" ]]; then
+            echo "[Lint Changes] skipping, CI detected"
             exit 0
           fi
           if [[ ! "$PATH" =~ "/opt/homebrew/bin" ]]; then
