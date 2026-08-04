@@ -1,3 +1,4 @@
+import BitwardenKit
 import BitwardenSdk
 import Foundation
 import Testing
@@ -74,7 +75,7 @@ struct PassportItemStateTests {
         #expect(subject.dateOfBirthDisplay.isEmpty)
 
         subject.dateOfBirth = Date(year: 2025, month: 4, day: 20)
-        #expect(subject.dateOfBirthDisplay == subject.dateOfBirth?.formatted(date: .long, time: .omitted))
+        #expect(subject.dateOfBirthDisplay == subject.dateOfBirth?.longCalendarDateDisplay)
         #expect(subject.dateOfBirthDisplay.contains("April"))
         #expect(subject.dateOfBirthDisplay.contains("2025"))
     }
@@ -88,7 +89,7 @@ struct PassportItemStateTests {
         #expect(subject.issueDateDisplay.isEmpty)
 
         subject.issueDate = Date(year: 2021, month: 8, day: 10)
-        #expect(subject.issueDateDisplay == subject.issueDate?.formatted(date: .long, time: .omitted))
+        #expect(subject.issueDateDisplay == subject.issueDate?.longCalendarDateDisplay)
         #expect(subject.issueDateDisplay.contains("August"))
     }
 
@@ -101,7 +102,7 @@ struct PassportItemStateTests {
         #expect(subject.expirationDateDisplay.isEmpty)
 
         subject.expirationDate = Date(year: 2026, month: 8, day: 10)
-        #expect(subject.expirationDateDisplay == subject.expirationDate?.formatted(date: .long, time: .omitted))
+        #expect(subject.expirationDateDisplay == subject.expirationDate?.longCalendarDateDisplay)
         #expect(subject.expirationDateDisplay.contains("August"))
     }
 }

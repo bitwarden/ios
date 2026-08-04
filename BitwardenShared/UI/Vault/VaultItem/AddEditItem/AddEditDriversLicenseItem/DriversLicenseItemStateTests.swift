@@ -1,3 +1,4 @@
+import BitwardenKit
 import BitwardenSdk
 import Foundation
 import Testing
@@ -68,7 +69,7 @@ struct DriversLicenseItemStateTests {
         #expect(subject.dateOfBirthDisplay.isEmpty)
 
         subject.dateOfBirth = Date(year: 2026, month: 8, day: 10)
-        #expect(subject.dateOfBirthDisplay == subject.dateOfBirth?.formatted(date: .long, time: .omitted))
+        #expect(subject.dateOfBirthDisplay == subject.dateOfBirth?.longCalendarDateDisplay)
         #expect(subject.dateOfBirthDisplay.contains("August"))
         #expect(subject.dateOfBirthDisplay.contains("2026"))
     }
@@ -82,7 +83,7 @@ struct DriversLicenseItemStateTests {
         #expect(subject.expirationDateDisplay.isEmpty)
 
         subject.expirationDate = Date(year: 2029, month: 1, day: 5)
-        #expect(subject.expirationDateDisplay == subject.expirationDate?.formatted(date: .long, time: .omitted))
+        #expect(subject.expirationDateDisplay == subject.expirationDate?.longCalendarDateDisplay)
         #expect(subject.expirationDateDisplay.contains("January"))
     }
 
@@ -95,7 +96,7 @@ struct DriversLicenseItemStateTests {
         #expect(subject.issueDateDisplay.isEmpty)
 
         subject.issueDate = Date(year: 2019, month: 8, day: 1)
-        #expect(subject.issueDateDisplay == subject.issueDate?.formatted(date: .long, time: .omitted))
+        #expect(subject.issueDateDisplay == subject.issueDate?.longCalendarDateDisplay)
         #expect(subject.issueDateDisplay.contains("August"))
     }
 }

@@ -1,3 +1,4 @@
+import BitwardenKit
 import Foundation
 
 // MARK: AddEditPassportItemState
@@ -66,9 +67,10 @@ extension AddEditPassportItemState {
     var issueDateDisplay: String { Self.displayDate(from: issueDate) }
 
     /// Formats a `Date` as a long localized date (e.g. "August 10, 2026"), or returns an empty
-    /// string when the value is unset.
+    /// string when the value is unset. Pinned to UTC so a UTC-anchored stored date reads back as
+    /// the same calendar day regardless of device time zone.
     private static func displayDate(from date: Date?) -> String {
         guard let date else { return "" }
-        return date.formatted(date: .long, time: .omitted)
+        return date.longCalendarDateDisplay
     }
 }
