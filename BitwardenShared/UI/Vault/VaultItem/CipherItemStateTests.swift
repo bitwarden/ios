@@ -341,6 +341,22 @@ class CipherItemStateTests: BitwardenTestCase { // swiftlint:disable:this type_b
         XCTAssertTrue(subject.canMoveToOrganization)
     }
 
+    /// `folderTitle` is "Folder" when the `vfo1-foundation` feature flag is disabled.
+    func test_folderTitle_vfo1FoundationDisabled() {
+        var subject = CipherItemState(addItem: .login, hasPremium: false)
+        subject.isVfo1FoundationFeatureFlagEnabled = false
+
+        XCTAssertEqual(subject.folderTitle, Localizations.folder)
+    }
+
+    /// `folderTitle` is "My folder" when the `vfo1-foundation` feature flag is enabled.
+    func test_folderTitle_vfo1FoundationEnabled() {
+        var subject = CipherItemState(addItem: .login, hasPremium: false)
+        subject.isVfo1FoundationFeatureFlagEnabled = true
+
+        XCTAssertEqual(subject.folderTitle, Localizations.myFolder)
+    }
+
     /// `hasOrganizations` is true when the cipher has a non-nil organizationId.
     func test_hasOrganizations_whenCipherBelongsToAnOrg_returnsTrue() throws {
         let cipher = CipherView.fixture(organizationId: "org123")

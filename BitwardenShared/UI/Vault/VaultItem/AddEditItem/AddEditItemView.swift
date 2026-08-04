@@ -185,9 +185,7 @@ struct AddEditItemView: View {
 
             ContentBlock {
                 BitwardenMenuField(
-                    title: store.state.isVfo1FoundationFeatureFlagEnabled
-                        ? Localizations.myFolder
-                        : Localizations.folder,
+                    title: store.state.folderTitle,
                     options: store.state.folders,
                     selection: store.binding(
                         get: \.folder,

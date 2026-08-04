@@ -481,6 +481,10 @@ struct CipherItemState: Equatable { // swiftlint:disable:this type_body_length
 extension CipherItemState: AddEditItemState {
     // MARK: Properties
 
+    var folderTitle: String {
+        isVfo1FoundationFeatureFlagEnabled ? Localizations.myFolder : Localizations.folder
+    }
+
     var navigationTitle: String {
         switch configuration {
         case .add:

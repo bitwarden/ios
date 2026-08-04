@@ -62,6 +62,9 @@ protocol AddEditItemState: Sendable {
     /// The list of all folders that the item could be added to.
     var folders: [DefaultableType<FolderView>] { get set }
 
+    /// The title of the folder-assignment field.
+    var folderTitle: String { get }
+
     /// The state for guided tour view.
     var guidedTourViewState: GuidedTourViewState { get set }
 
