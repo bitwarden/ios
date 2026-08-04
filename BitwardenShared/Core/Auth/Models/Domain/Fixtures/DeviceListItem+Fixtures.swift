@@ -14,6 +14,7 @@ extension DeviceListItem {
         isCurrentSession: Bool = false,
         isTrusted: Bool = true,
         lastActivityDate: Date? = Date(timeIntervalSince1970: 1_718_452_200),
+        pendingAuthRequestId: String? = nil,
         pendingRequest: LoginRequest? = nil,
     ) -> DeviceListItem {
         DeviceListItem(
@@ -26,6 +27,7 @@ extension DeviceListItem {
             isCurrentSession: isCurrentSession,
             isTrusted: isTrusted,
             lastActivityDate: lastActivityDate,
+            pendingAuthRequestId: pendingAuthRequestId,
             pendingRequest: pendingRequest,
         )
     }

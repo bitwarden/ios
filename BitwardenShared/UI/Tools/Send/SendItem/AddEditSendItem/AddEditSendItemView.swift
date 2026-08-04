@@ -28,7 +28,7 @@ struct AddEditSendItemView: View { // swiftlint:disable:this type_body_length
                 if store.state.isSendDisabled {
                     InfoContainer(Localizations.sendDisabledWarning)
                         .accessibilityIdentifier("DisabledSendPolicyLabel")
-                } else if store.state.isSendHideEmailDisabled {
+                } else if store.state.shouldShowHideEmailPolicyBanner {
                     InfoContainer(Localizations.sendOptionsPolicyInEffect)
                         .accessibilityIdentifier("HideEmailAddressPolicyLabel")
                 }
@@ -150,13 +150,15 @@ struct AddEditSendItemView: View { // swiftlint:disable:this type_body_length
                 ),
             )
 
-            ContentBlock(dividerLeadingPadding: 16) {
-                BitwardenToggle(Localizations.hideEmail, isOn: store.binding(
-                    get: \.isHideMyEmailOn,
-                    send: AddEditSendItemAction.hideMyEmailChanged,
-                ))
-                .accessibilityIdentifier("SendHideEmailSwitch")
-                .disabled(!store.state.isHideMyEmailOn && store.state.isSendHideEmailDisabled)
+            if store.state.shouldShowHideEmailField {
+                ContentBlock(dividerLeadingPadding: 16) {
+                    BitwardenToggle(Localizations.hideEmail, isOn: store.binding(
+                        get: \.isHideMyEmailOn,
+                        send: AddEditSendItemAction.hideMyEmailChanged,
+                    ))
+                    .accessibilityIdentifier("SendHideEmailSwitch")
+                    .disabled(!store.state.isHideMyEmailOn && store.state.isSendHideEmailDisabled)
+                }
             }
 
             BitwardenTextView(

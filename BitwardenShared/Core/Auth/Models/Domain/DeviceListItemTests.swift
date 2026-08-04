@@ -36,8 +36,22 @@ struct DeviceListItemTests {
         #expect(subject.isCurrentSession == false)
         #expect(subject.isTrusted == false)
         #expect(subject.lastActivityDate == device.lastActivityDate)
+        #expect(subject.pendingAuthRequestId == nil)
         #expect(subject.pendingRequest == nil)
         #expect(subject.hasPendingRequest == false)
+    }
+
+    /// `init(device:timeProvider:)` maps `pendingAuthRequestId` from the device's
+    /// `devicePendingAuthRequest`, when present.
+    @Test
+    func init_device_pendingAuthRequestId() {
+        let device = DeviceResponse.fixture(
+            devicePendingAuthRequest: .fixture(id: "auth-request-id"),
+        )
+
+        let subject = DeviceListItem(device: device, timeProvider: timeProvider)
+
+        #expect(subject.pendingAuthRequestId == "auth-request-id")
     }
 
     /// `init(device:timeProvider:)` computes `activityStatus` from the device's last activity

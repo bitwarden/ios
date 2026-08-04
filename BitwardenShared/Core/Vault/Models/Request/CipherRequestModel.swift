@@ -22,6 +22,12 @@ struct CipherRequestModel: JSONRequestBody {
     /// Card data if the cipher is a card.
     let card: CipherCardModel?
 
+    /// The cipher's encrypted data blob.
+    ///
+    /// - Note: For blob-encrypted ciphers, this contains the full sealed payload and the
+    ///   legacy per-type fields (`login`, `card`, `name`, etc.) are `nil`.
+    let data: String?
+
     /// Driver's license data if the cipher is a driver's license.
     let driversLicense: CipherDriversLicenseModel?
 
@@ -56,7 +62,10 @@ struct CipherRequestModel: JSONRequestBody {
     let key: String?
 
     /// The name of the cipher.
-    let name: String
+    ///
+    /// - Note: `nil` for blob-encrypted ciphers, where the name lives inside the sealed `data`
+    ///   blob; present on the legacy field-level format.
+    let name: String?
 
     /// Notes contained within the cipher.
     let notes: String?
@@ -101,6 +110,7 @@ extension CipherRequestModel {
             },
             bankAccount: cipher.bankAccount.map(CipherBankAccountModel.init),
             card: cipher.card.map(CipherCardModel.init),
+            data: cipher.data,
             driversLicense: cipher.driversLicense.map(CipherDriversLicenseModel.init),
             encryptedFor: encryptedFor,
             favorite: cipher.favorite,
@@ -111,7 +121,7 @@ extension CipherRequestModel {
             lastKnownRevisionDate: cipher.revisionDate,
             login: cipher.login.map(CipherLoginModel.init),
             key: cipher.key,
-            name: cipher.name ?? "",
+            name: cipher.name,
             notes: cipher.notes,
             organizationID: cipher.organizationId,
             passport: cipher.passport.map(CipherPassportModel.init),
