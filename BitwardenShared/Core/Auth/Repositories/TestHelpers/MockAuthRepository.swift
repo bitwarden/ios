@@ -67,6 +67,7 @@ class MockAuthRepository: AuthRepository { // swiftlint:disable:this type_body_l
     var sessionTimeoutAction = [String: SessionTimeoutAction]()
     var setActiveAccountId: String?
     var setActiveAccountError: Error?
+    var setLastActiveAccountTimeCalled = false
     var setMasterPasswordHint: String?
     var setMasterPasswordPassword: String?
     var setMasterPasswordOrganizationId: String?
@@ -75,7 +76,6 @@ class MockAuthRepository: AuthRepository { // swiftlint:disable:this type_body_l
     var setMasterPasswordResult: Result<Void, Error> = .success(())
     var setPinsRequirePasswordAfterRestart: Bool?
     var setPinsResult: Result<Void, Error> = .success(())
-    var setLastActiveAccountTimeCalled = false
     var setLastActiveAccountTimeError: Error?
     var setVaultTimeoutError: Error?
     var unlockVaultFromLoginWithDeviceKey: String?
@@ -328,6 +328,13 @@ class MockAuthRepository: AuthRepository { // swiftlint:disable:this type_body_l
         return match
     }
 
+    func setLastActiveAccountTime() async throws {
+        setLastActiveAccountTimeCalled = true
+        if let setLastActiveAccountTimeError {
+            throw setLastActiveAccountTimeError
+        }
+    }
+
     func setPins(_ pin: String, requirePasswordAfterRestart: Bool) async throws {
         encryptedPin = pin
         pinProtectedUserKey = pin
@@ -362,13 +369,6 @@ class MockAuthRepository: AuthRepository { // swiftlint:disable:this type_body_l
         setMasterPasswordOrganizationIdentifier = organizationIdentifier
         setMasterPasswordResetPasswordAutoEnroll = resetPasswordAutoEnroll
         try setMasterPasswordResult.get()
-    }
-
-    func setLastActiveAccountTime() async throws {
-        setLastActiveAccountTimeCalled = true
-        if let setLastActiveAccountTimeError {
-            throw setLastActiveAccountTimeError
-        }
     }
 
     func setVaultTimeout(value: SessionTimeoutValue, userId: String?) async throws {

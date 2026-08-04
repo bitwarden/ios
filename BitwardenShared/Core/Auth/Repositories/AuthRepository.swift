@@ -207,6 +207,10 @@ protocol AuthRepository: AnyObject {
     ///
     func sessionTimeoutValue(userId: String?) async throws -> SessionTimeoutValue
 
+    /// Records the current timestamp as the active account's last-active time.
+    ///
+    func setLastActiveAccountTime() async throws
+
     /// Sets the encrypted pin and the pin protected user key.
     ///
     /// - Parameters:
@@ -238,11 +242,6 @@ protocol AuthRepository: AnyObject {
         organizationIdentifier: String,
         resetPasswordAutoEnroll: Bool,
     ) async throws
-
-    /// Records the current timestamp as the active account's last-active time.
-    /// Call this before navigating away from the active account (e.g., to add a new account).
-    ///
-    func setLastActiveAccountTime() async throws
 
     /// Sets the SessionTimeoutValue.
     ///
