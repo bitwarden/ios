@@ -21,6 +21,9 @@ enum AccountSecurityAction: Equatable {
     /// The logout button was pressed.
     case logout
 
+    /// The manage devices button was tapped.
+    case manageDevicesTapped
+
     /// The pending login requests button was tapped.
     case pendingLoginRequestsTapped
 

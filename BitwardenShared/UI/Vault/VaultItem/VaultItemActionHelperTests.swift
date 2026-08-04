@@ -37,7 +37,7 @@ struct VaultItemActionHelperTests {
     // MARK: Tests
 
     /// `archive(cipher:handleNavigateToPremiumUpgrade:completionHandler:)` shows the archive
-    /// unavailable alert when the user does not have premium.
+    /// unavailable alert when the user does not have Premium.
     @Test
     func archive_noPremium() async throws {
         var navigatedToPremiumUpgrade = false
@@ -53,7 +53,7 @@ struct VaultItemActionHelperTests {
         )
 
         let alert = try #require(coordinator.alertShown.last)
-        #expect(alert.title == Localizations.archiveUnavailable)
+        #expect(alert.title == Localizations.premiumSubscriptionRequired)
         #expect(alert.message == Localizations.archivingItemsIsAPremiumFeatureDescriptionLong)
         #expect(vaultRepository.archiveCipher.isEmpty)
         #expect(!completionCalled)
@@ -63,7 +63,7 @@ struct VaultItemActionHelperTests {
     }
 
     /// `archive(cipher:handleNavigateToPremiumUpgrade:completionHandler:)` shows the confirmation
-    /// alert and archives the cipher when the user has premium and confirms.
+    /// alert and archives the cipher when the user has Premium and confirms.
     @Test
     func archive_success() async throws {
         var completionCalled = false

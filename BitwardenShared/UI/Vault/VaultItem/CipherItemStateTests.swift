@@ -47,14 +47,14 @@ class CipherItemStateTests: BitwardenTestCase { // swiftlint:disable:this type_b
     }
 
     /// `init(existing:hasPremium:)` sets `loginState.isTOTPAvailable` to false if the user doesn't
-    /// have premium and the organization doesn't use TOTP.
+    /// have Premium and the organization doesn't use TOTP.
     func test_init_existing_isTOTPAvailable_notAvailable() throws {
         let cipher = CipherView.loginFixture(login: .fixture())
         let state = try XCTUnwrap(CipherItemState(existing: cipher, hasPremium: false))
         XCTAssertFalse(state.loginState.isTOTPAvailable)
     }
 
-    /// `init(existing:hasPremium:)` sets `loginState.isTOTPAvailable` to true if the user has premium.
+    /// `init(existing:hasPremium:)` sets `loginState.isTOTPAvailable` to true if the user has Premium.
     func test_init_existing_isTOTPAvailable_premium() throws {
         let cipher = CipherView.loginFixture(login: .fixture())
         let state = try XCTUnwrap(CipherItemState(existing: cipher, hasPremium: true))
@@ -83,7 +83,7 @@ class CipherItemStateTests: BitwardenTestCase { // swiftlint:disable:this type_b
         XCTAssertEqual(state.archiveInfoText, "")
     }
 
-    /// `archiveInfoText` returns the premium text when the item is archived and user has premium.
+    /// `archiveInfoText` returns the Premium text when the item is archived and user has Premium.
     func test_archiveInfoText_archivedWithPremium() throws {
         let state = try CipherItemState.initForArchive(
             archivedDate: .now,
@@ -92,7 +92,7 @@ class CipherItemStateTests: BitwardenTestCase { // swiftlint:disable:this type_b
         XCTAssertEqual(state.archiveInfoText, Localizations.thisItemIsArchived)
     }
 
-    /// `archiveInfoText` returns the non-premium text when the item is archived and user lacks premium.
+    /// `archiveInfoText` returns the non-Premium text when the item is archived and user lacks Premium.
     func test_archiveInfoText_archivedWithoutPremium() throws {
         let state = try CipherItemState.initForArchive(
             archivedDate: .now,
@@ -108,7 +108,7 @@ class CipherItemStateTests: BitwardenTestCase { // swiftlint:disable:this type_b
     func test_canAssignToCollection_noOrganizations() throws {
         let cipher = CipherView.fixture(organizationId: nil)
         var subject = try XCTUnwrap(CipherItemState(existing: cipher, hasPremium: false))
-        subject.ownershipOptions = [.personal(email: "user@bitwarden.com")]
+        subject.ownershipOptions = [.personal(displayName: "user@bitwarden.com")]
         XCTAssertFalse(subject.canAssignToCollection)
     }
 
@@ -118,7 +118,7 @@ class CipherItemStateTests: BitwardenTestCase { // swiftlint:disable:this type_b
         let cipher = CipherView.fixture(organizationId: nil)
         var subject = try XCTUnwrap(CipherItemState(existing: cipher, hasPremium: false))
         subject.ownershipOptions = [
-            .personal(email: "user@bitwarden.com"),
+            .personal(displayName: "user@bitwarden.com"),
             .organization(id: "1", name: "Test Organization"),
         ]
         XCTAssertFalse(subject.canAssignToCollection)
@@ -130,7 +130,7 @@ class CipherItemStateTests: BitwardenTestCase { // swiftlint:disable:this type_b
         let cipher = CipherView.fixture(organizationId: "1")
         var subject = try XCTUnwrap(CipherItemState(existing: cipher, hasPremium: false))
         subject.ownershipOptions = [
-            .personal(email: "user@bitwarden.com"),
+            .personal(displayName: "user@bitwarden.com"),
             .organization(id: "1", name: "Test Organization"),
         ]
         XCTAssertTrue(subject.canAssignToCollection)
@@ -315,7 +315,7 @@ class CipherItemStateTests: BitwardenTestCase { // swiftlint:disable:this type_b
         let cipher = CipherView.fixture(organizationId: "1")
         var subject = try XCTUnwrap(CipherItemState(existing: cipher, hasPremium: false))
         subject.ownershipOptions = [
-            .personal(email: "user@bitwarden.com"),
+            .personal(displayName: "user@bitwarden.com"),
             .organization(id: "1", name: "Test Organization"),
         ]
         XCTAssertFalse(subject.canMoveToOrganization)
@@ -325,7 +325,7 @@ class CipherItemStateTests: BitwardenTestCase { // swiftlint:disable:this type_b
     func test_canMoveToOrganization_noOrganizations() throws {
         let cipher = CipherView.fixture(organizationId: nil)
         var subject = try XCTUnwrap(CipherItemState(existing: cipher, hasPremium: false))
-        subject.ownershipOptions = [.personal(email: "user@bitwarden.com")]
+        subject.ownershipOptions = [.personal(displayName: "user@bitwarden.com")]
         XCTAssertFalse(subject.canMoveToOrganization)
     }
 
@@ -335,7 +335,7 @@ class CipherItemStateTests: BitwardenTestCase { // swiftlint:disable:this type_b
         let cipher = CipherView.fixture(organizationId: nil)
         var subject = try XCTUnwrap(CipherItemState(existing: cipher, hasPremium: false))
         subject.ownershipOptions = [
-            .personal(email: "user@bitwarden.com"),
+            .personal(displayName: "user@bitwarden.com"),
             .organization(id: "1", name: "Test Organization"),
         ]
         XCTAssertTrue(subject.canMoveToOrganization)
@@ -353,7 +353,7 @@ class CipherItemStateTests: BitwardenTestCase { // swiftlint:disable:this type_b
     func test_hasOrganizations_whenCipherBelongsToPersonal_returnsFalse() throws {
         let cipher = CipherView.fixture()
         var state = try XCTUnwrap(CipherItemState(existing: cipher, hasPremium: true))
-        state.ownershipOptions = [CipherOwner.personal(email: "user@bitwarden")]
+        state.ownershipOptions = [CipherOwner.personal(displayName: "user@bitwarden")]
 
         XCTAssertFalse(state.hasOrganizations)
     }
@@ -998,7 +998,7 @@ private extension CipherItemState {
     /// - Parameters:
     ///   - archivedDate: The archived date.
     ///   - deletedDate: The deleted date.
-    ///   - hasPremium: Whether the user has premium account.
+    ///   - hasPremium: Whether the user has Premium account.
     static func initForArchive(
         archivedDate: Date?,
         deletedDate: Date? = nil,

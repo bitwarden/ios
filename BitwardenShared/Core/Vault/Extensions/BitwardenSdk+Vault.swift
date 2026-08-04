@@ -122,6 +122,7 @@ extension CipherDetailsResponseModel {
             card: cipher.card.map(CipherCardModel.init),
             collectionIds: cipher.collectionIds,
             creationDate: cipher.creationDate,
+            data: cipher.data,
             deletedDate: cipher.deletedDate,
             driversLicense: cipher.driversLicense.map(CipherDriversLicenseModel.init),
             edit: cipher.edit,
@@ -484,7 +485,7 @@ extension BitwardenSdk.Cipher {
             deletedDate: model.deletedDate,
             revisionDate: model.revisionDate,
             archivedDate: model.archivedDate,
-            data: nil,
+            data: model.data,
         )
     }
 
@@ -532,7 +533,7 @@ extension BitwardenSdk.Cipher {
             deletedDate: model.deletedDate,
             revisionDate: model.revisionDate,
             archivedDate: model.archivedDate,
-            data: nil,
+            data: model.data,
         )
     }
 }

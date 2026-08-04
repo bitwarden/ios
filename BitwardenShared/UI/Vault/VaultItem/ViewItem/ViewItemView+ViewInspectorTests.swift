@@ -329,6 +329,17 @@ class ViewItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_body
         XCTAssertTrue(processor.effects.contains(.toggleDisplayMultipleCollections))
     }
 
+    /// Tapping the "Premium subscription required" button dispatches the `.premiumSubscriptionRequiredTapped` action.
+    @MainActor
+    func test_premiumSubscriptionRequiredButton_tap() throws {
+        processor.state.loadingState = .data(loginState(hasPremium: false))
+        let button = try subject.inspect().find(
+            viewWithAccessibilityIdentifier: "PremiumSubscriptionRequiredButton",
+        ).button()
+        try button.tap()
+        XCTAssertEqual(processor.dispatchedActions.last, .premiumSubscriptionRequiredTapped)
+    }
+
     // MARK: Snapshots
 
     func identityState() -> CipherItemState {

@@ -3,6 +3,7 @@
 import BitwardenKitMocks
 import BitwardenResources
 import BitwardenSdk
+import BitwardenSdkMocks
 import TestHelpers
 import XCTest
 

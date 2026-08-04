@@ -55,7 +55,7 @@ struct VaultGroupView: View {
 
     // MARK: Private
 
-    /// The action card for premium subscription ended for archive.
+    /// The action card for Premium subscription ended for archive.
     @ViewBuilder private var archivePremiumSubscriptionEndedCard: some View {
         if store.state.showArchivePremiumSubscriptionEndedCard {
             ActionCard(
@@ -78,8 +78,11 @@ struct VaultGroupView: View {
             .searchDebouncedTask(id: store.state.searchText) {
                 await store.perform(.search(store.state.searchText))
             }
-            .task(id: store.state.searchVaultFilterType) {
+            .task {
                 await store.perform(.search(store.state.searchText))
+            }
+            .onChange(of: store.state.searchVaultFilterType) { _ in
+                Task { await store.perform(.search(store.state.searchText)) }
             }
             .animation(.default, value: store.state.isSearching)
     }

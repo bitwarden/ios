@@ -30,16 +30,26 @@ struct ScenarioPickerState: Equatable {
 
     init() {
         var items: [ScenarioItem] = [
+            ScenarioItem(id: "createAccountForm", title: Localizations.createAccountForm, route: .createAccountForm),
             ScenarioItem(id: "simpleLoginForm", title: Localizations.simpleLoginForm, route: .simpleLoginForm),
+            ScenarioItem(id: "totpAutofillForm", title: Localizations.totpAutofillForm, route: .totpAutofillForm),
+            ScenarioItem(id: "passkeyAutofill", title: Localizations.passkeyAutofill, route: nil),
+            ScenarioItem(
+                id: "dateFieldPicker",
+                title: Localizations.dateFieldPicker,
+                route: .dateFieldPickerShowcase,
+            ),
         ]
         if #available(iOS 17, *) {
             items.append(
                 ScenarioItem(id: "cardAutofillForm", title: Localizations.cardAutofillForm, route: .cardAutofillForm),
             )
         }
-        items.append(contentsOf: [
-            ScenarioItem(id: "passkeyAutofill", title: Localizations.passkeyAutofill, route: nil),
-        ])
+        if #available(iOS 16.0, *) {
+            items.append(
+                ScenarioItem(id: "fileShare", title: Localizations.fileShare, route: .fileShare),
+            )
+        }
         scenarios = items
     }
 }

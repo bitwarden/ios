@@ -80,12 +80,14 @@ extension BitwardenSdk.PolicyType {
         case .masterPassword: self = .masterPassword
         case .maximumVaultTimeout: self = .maximumVaultTimeout
         case .onlyOrg: self = .singleOrg
+        case .organizationUserNotification: self = .organizationUserNotification
         case .passwordGenerator: self = .passwordGenerator
         case .personalOwnership: self = .organizationDataOwnership
         case .removeUnlockWithPin: self = .removeUnlockWithPin
         case .requireSSO: self = .requireSso
         case .resetPassword: self = .resetPassword
         case .restrictItemTypes: self = .restrictedItemTypes
+        case .sendControls: self = .sendControls
         case .sendOptions: self = .sendOptions
         case .twoFactorAuthentication: self = .twoFactorAuthentication
         case .unknown: return nil
@@ -96,7 +98,7 @@ extension BitwardenSdk.PolicyType {
 extension PolicyType {
     /// Converts an SDK `BitwardenSdk.PolicyType` to the iOS `PolicyType`.
     ///
-    /// SDK-only cases (e.g., `sendControls`) with no iOS equivalent map to `.unknown`.
+    /// SDK-only cases with no iOS equivalent map to `.unknown`.
     ///
     init(_ sdkType: BitwardenSdk.PolicyType) {
         switch sdkType {
@@ -111,6 +113,7 @@ extension PolicyType {
         case .requireSso: self = .requireSSO
         case .resetPassword: self = .resetPassword
         case .restrictedItemTypes: self = .restrictItemTypes
+        case .sendControls: self = .sendControls
         case .sendOptions: self = .sendOptions
         case .singleOrg: self = .onlyOrg
         case .twoFactorAuthentication: self = .twoFactorAuthentication
@@ -120,7 +123,6 @@ extension PolicyType {
              .blockClaimedDomainAccountCreation,
              .freeFamiliesSponsorship,
              .organizationUserNotification,
-             .sendControls,
              .uriMatchDefaults: self = .unknown
         }
     }
@@ -136,6 +138,7 @@ extension BitwardenSdk.OrganizationUserStatusType {
         case .accepted: self = .accepted
         case .confirmed: self = .confirmed
         case .invited: self = .invited
+        case .staged: self = .staged
         }
     }
 }

@@ -48,7 +48,7 @@ struct PremiumUpgradeHelperTests {
 
     // MARK: Tests — navigateToPremiumUpgrade
 
-    /// `navigateToPremiumUpgrade(onConfirmed:)` navigates to the premium upgrade route when
+    /// `navigateToPremiumUpgrade(onConfirmed:)` navigates to the Premium upgrade route when
     /// in-app upgrade is available.
     @Test
     func navigateToPremiumUpgrade_inAppAvailable() async {

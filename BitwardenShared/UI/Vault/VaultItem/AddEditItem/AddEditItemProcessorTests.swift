@@ -750,7 +750,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
         XCTAssertEqual(vaultItemActionHelper.archiveReceivedArguments?.cipher.id, "123")
     }
 
-    /// `perform(_:)` with `.archivedPressed` delegates to the premium upgrade helper.
+    /// `perform(_:)` with `.archivedPressed` delegates to the Premium upgrade helper.
     @MainActor
     func test_perform_archivedPressed_navigateToPremiumUpgrade() async {
         subject.state = CipherItemState(
@@ -1014,13 +1014,13 @@ class AddEditItemProcessorTests: BitwardenTestCase {
             .fixture(id: "2", name: "Engineering"),
         ]
 
-        vaultRepository.fetchCipherOwnershipOptions = [.personal(email: "user@bitwarden.com")]
+        vaultRepository.fetchCipherOwnershipOptions = [.personal(displayName: "user@bitwarden.com")]
         vaultRepository.fetchCollectionsResult = .success(collections)
 
         await subject.perform(.fetchCipherOptions)
 
         XCTAssertEqual(subject.state.allUserCollections, collections)
-        XCTAssertEqual(subject.state.ownershipOptions, [.personal(email: "user@bitwarden.com")])
+        XCTAssertEqual(subject.state.ownershipOptions, [.personal(displayName: "user@bitwarden.com")])
         try XCTAssertTrue(XCTUnwrap(vaultRepository.fetchCollectionsIncludeReadOnly))
 
         XCTAssertNil(eventService.collectCipherId)
@@ -1030,7 +1030,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
     /// `perform(_:)` with `.fetchCipherOptions` handles errors.
     @MainActor
     func test_perform_fetchCipherOptions_error() async {
-        vaultRepository.fetchCipherOwnershipOptions = [.personal(email: "user@bitwarden.com")]
+        vaultRepository.fetchCipherOwnershipOptions = [.personal(displayName: "user@bitwarden.com")]
         vaultRepository.fetchCollectionsResult = .failure(BitwardenTestError.example)
         vaultRepository.fetchFoldersResult = .failure(BitwardenTestError.example)
 
@@ -1073,13 +1073,13 @@ class AddEditItemProcessorTests: BitwardenTestCase {
             .fixture(id: "2", name: "Engineering"),
         ]
 
-        vaultRepository.fetchCipherOwnershipOptions = [.personal(email: "user@bitwarden.com")]
+        vaultRepository.fetchCipherOwnershipOptions = [.personal(displayName: "user@bitwarden.com")]
         vaultRepository.fetchCollectionsResult = .success(collections)
 
         await subject.perform(.fetchCipherOptions)
 
         XCTAssertEqual(subject.state.allUserCollections, collections)
-        XCTAssertEqual(subject.state.ownershipOptions, [.personal(email: "user@bitwarden.com")])
+        XCTAssertEqual(subject.state.ownershipOptions, [.personal(displayName: "user@bitwarden.com")])
         try XCTAssertTrue(XCTUnwrap(vaultRepository.fetchCollectionsIncludeReadOnly))
 
         XCTAssertEqual(eventService.collectCipherId, "100")
@@ -2636,7 +2636,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
     /// `receive(_:)` with `.ownerChanged` updates the state correctly.
     @MainActor
     func test_receive_ownerChanged() {
-        let personalOwner = CipherOwner.personal(email: "user@bitwarden.com")
+        let personalOwner = CipherOwner.personal(displayName: "user@bitwarden.com")
         let organizationOwner = CipherOwner.organization(id: "1", name: "Organization")
         subject.state.ownershipOptions = [personalOwner, organizationOwner]
 

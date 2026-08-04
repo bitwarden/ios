@@ -115,6 +115,14 @@ public extension StyleGuideFont {
     /// The font for the bold semibody style.
     static let bodySemibold = body.with(font: FontFamily.DMSans.semiBold)
 
+    /// The font for the small sensitive info style (e.g. fingerprint phrases).
+    static let sensitiveInfoSmall = StyleGuideFont(
+        font: .custom("Menlo", size: 14, relativeTo: .footnote),
+        lineHeight: 18,
+        size: 14,
+        textStyle: .footnote,
+    )
+
     /// The font for the callout style.
     static let callout = StyleGuideFont.dmSans(lineHeight: 18, size: 13, textStyle: .callout)
 

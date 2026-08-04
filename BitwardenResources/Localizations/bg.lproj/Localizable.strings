@@ -6,6 +6,7 @@
 "Bitwarden" = "Bitwarden";
 "Cancel" = "Отказ";
 "Copy" = "Копиране";
+"CopyLicenseNumber" = "Копиране на номера на свидетелството";
 "CopyPassportNumber" = "Копиране на номера на паспорта";
 "CopyPassword" = "Копиране на паролата";
 "CopyUsername" = "Копиране на потребителското име";
@@ -570,6 +571,8 @@
 "RequestAdminApproval" = "Подаване на заявка за одобрение от администратор";
 "ApproveWithMasterPassword" = "Одобряване с главната парола";
 "TurnOffUsingPublicDevice" = "Изключване на използването на публично устройство";
+"TurnOnFillAssist" = "Включване на асистираното попълване";
+"TurnOnFillAssistDescriptionLong" = "Асистираното попълване подобрява точността на автоматичното попълване в поддържаните уеб сайтове, като използва специфични за конкретните уеб сайтове правила.";
 "RememberThisDevice" = "Запомняне на това устройство";
 "Passkey" = "Секретен ключ";
 "Passkeys" = "Секретни ключове";
@@ -777,6 +780,8 @@
 "SetUpAutofillOnAllYourDevicesToLoginWithASingleTapAnywhere" = "Настройте автоматичното попълвана на всички свои устройства, за да се вписвате навсякъде с едно докосване.";
 "GoBack" = "Връщане назад";
 "GotIt" = "Разбрано";
+/* masterPasswordUnlock is the name of some data we want to delete, so there's no need to localize it. */
+"ClearMasterPasswordUnlock" = "Изчистване на masterPasswordUnlock";
 "ClearSsoCookies" = "Изчистване на бисквитките за еднократно удостоверяване";
 "GenerateCrash" = "Създаване на срив";
 "GenerateErrorReport" = "Създаване на доклад за грешка";
@@ -1026,10 +1031,8 @@
 "ArchiveEmptyDescriptionLong" = "Попълнете архива си с елементи, които не искате да виждате в резултатите от търсене и в предложенията за автоматично попълване, но може все пак да Ви потрябват в бъдеще.";
 "ArchiveItem" = "Архивиране на елемента";
 "OnceArchivedThisItemWillBeExcludedDescriptionLong" = "След като бъде архивиран, този елемент няма да се показва в резултатите при търсене, нито в предложенията за автоматично попълване.";
-"ArchiveUnavailable" = "Архивирането не е налично";
 "ArchivingItemsIsAPremiumFeatureDescriptionLong" = "Архивирането на елементи е платена функционалност. Текущият Ви план не включва достъп до нея.";
 "AddingAttachmentsIsAPremiumFeatureDescriptionLong" = "Прикачването на файлове е платена функционалност. Текущият Ви план не включва достъп до нея.";
-"AttachmentsUnavailable" = "Прикачването на файлове не е налично";
 "UpgradeToPremium" = "Надградете до Платения план";
 "ThisItemIsArchived" = "Този елемент е архивиран.";
 "YourPremiumSubscriptionEnded" = "Вашият абонамент за платения план е приключил";
@@ -1062,6 +1065,8 @@
 "ReplaceCertificate" = "Замяна на сертификата";
 "ReplaceExistingCertificate" = "Замяна на текущия сертификат";
 "UnableToReadCertificateFile" = "Файлът със сертификата не може да бъде прочетен.";
+/* masterPasswordUnlock is the name of some data we want to delete, so there's no need to localize it. */
+"MasterPasswordUnlockCleared" = "masterPasswordUnlock е изчистено.";
 "SsoCookiesCleared" = "Бисквитките за еднократното удостоверяване са изчистени";
 "YourRequestWasInterruptedBecauseTheAppNeededToReAuthenticatePleaseTryAgain" = "Заявката беше прекъсната, тъй като приложението трябваше да се удостовери отново. Моля, опитайте пак.";
 "AutofillWithBitwardenDescriptionLong" = "Битуорден може да предлага пароли и други данни за удостоверяване, когато се вписвате в приложения и уеб сайтове.";
@@ -1075,6 +1080,7 @@
 "Canceled" = "Отказано";
 "PastDue" = "Просрочено";
 "PendingCancellation" = "Предстоящо прекратяване на абонамента";
+"Unpaid" = "Дължимо";
 "UpdatePayment" = "Актуализиране на плащанията";
 "BillingAmount" = "Сума за плащане";
 "StorageCost" = "Цена за съхранение";
@@ -1086,17 +1092,44 @@
 "ExternalLink" = "Външна връзка";
 "YourNextChargeIsForXDueOnY" = "Следващото плащане ще бъде **%1$@**, на дата **%2$@**.";
 "WeCouldNotProcessYourPaymentUpdateYourPaymentMethodDescriptionLong" = "Плащането не беше успешно. Обновете разплащателните си данни, преди абонаментът да бъде прекратен на **%1$@**.";
+/* Error message shown when the Premium Plan screen fails to load subscription data, with a prompt to retry. */
+"WeCouldntLoadYourSubscriptionDetailsPleaseRetry" = "Зареждането на подробностите за абонамента на беше успешно. Опитайте отново.";
 "YourSubscriptionWasCanceledOnXDescriptionLong" = "Абонаментът беше прекратен на **%1$@**. Ако искате да продължите да ползвате предимствата на платения план, ще трябва да се абонирате отново.";
+"YourSubscriptionWasSuspendedOnXDescriptionLong" = "Вашият абонамент беше прекъснат на **%1$@**. За да го подновите, ще трябва да платите старите си задължения.";
 "YourSubscriptionExpiredOnXDescriptionLong" = "Абонаментът изтече на **%1$@**. Ако искате да продължите да ползвате предимствата на платения план, ще трябва да се абонирате отново.";
 "YourSubscriptionIsScheduledToCancelOnXDescriptionLong" = "Абонаментът Ви по план ще бъде преустановен на **%1$@**. Можете да го подновите по всяко време преди това.";
 "PerMonth" = "/ месец";
+/* VoiceOver reading of "PerMonth", spoken instead of shown. */
+"PerMonthVoiceOver" = "на месец";
 "PerYear" = "/ година";
+/* VoiceOver reading of "PerYear", spoken instead of shown. */
+"PerYearVoiceOver" = "на година";
 "XAmountPerCadence" = "%1$@ %2$@";
+/* %1$@ is an amount and cadence together, e.g. "$1.65 / month". */
+"XCancelAnytime" = "%1$@ · Прекратяване по всяко време";
+/* VoiceOver reading of "XCancelAnytime", spoken instead of shown. */
+"XCancelAnytimeVoiceOver" = "%1$@, Прекратяване по всяко време";
 "NegativeX" = "-%1$@";
 "UnknownStatus" = "Неизвестно";
 "YourSubscriptionStatusIsUnknownVisitTheWebAppDescriptionLong" = "Състоянието на абонамента не може да бъде определено. Моля, отворете приложението по уеб за повече подробности, или обновете до най-новата версия.";
-"AtTheMomentPremiumPlanIsNotAvailableDescriptionLong" = "В момента платеният план не е наличен. Опитайте отново по-късно.";
-"UnlockMoreAdvancedFeaturesWithPremiumPlan" = "Отключете още разширени функционалности с Платения план.";
+/* Headline on the Premium upgrade screen. */
+"UnlockAdvancedProtection" = "Отключете допълнителна защита";
+/* Premium benefit list item. */
+"BreezeThrough2faWithBuiltInCodes" = "Безпроблемно двустепенно удостоверяване чрез вградените кодове";
+/* Premium benefit list item. */
+"RunReportsToFindRiskyPasswords" = "Създавайте доклади, за да намирате слабите пароли";
+/* Premium benefit list item. */
+"KeepDocumentsSafeAndEncrypted" = "Пазете документите си на сигурно място, шифровани";
+/* Premium benefit list item. */
+"AddATrustedEmergencyContact" = "Добавете доверен контакт за спешни случаи";
+/* Premium benefit list item. */
+"IdentifyUnsecureWebsites" = "Разпознавайте опасните уеб сайтове";
+/* Premium benefit list item. */
+"FlagAccountsWithInactive2fa" = "Отбелязвайте акаунтите с неактивно двустепенно удостоверяване";
+/* Premium benefit list item; "Send" is the Bitwarden Send feature name and shouldn't be translated. */
+"ShareFilesSecurelyWithAnyoneUsingSend" = "Споделяйте файлове сигурно с всеки чрез Изпращанията";
+/* Premium benefit list item. */
+"Receive247PrioritySupport" = "Получавайте 24-часова приоритетна поддръжка";
 "BuiltInAuthenticator" = "Вграден удостоверител";
 "EmergencyAccess" = "Авариен достъп";
 "PaymentNotReceivedYet" = "Плащането все още не е получено";
@@ -1105,15 +1138,18 @@
 "WeHadTroubleOpeningThePaymentPageDescriptionLong" = "Имаше проблем при отварянето на страницата за разплащания. Моля, опитайте отново.";
 "SecureFileStorage" = "Сигурно съхранение на файлове";
 "BreachMonitoring" = "Наблюдение за пробиви";
-"UpgradeNow" = "Надграждане сега";
 "ConfirmingYourUpgrade" = "Потвърждаване на надграждането…";
 "OpeningCheckout" = "Отваряне на страницата за разплащания…";
 "UpgradePending" = "Има чакащо надграждане";
 "YourUpgradeIsBeingProcessedDescriptionLong" = "Надграждането се обработва. Докато не бъде завършено, ще останете на безплатния план. Синхронизирайте сега, ако искате да направите проверка, или продължите и ще се опресни автоматично.";
 "UpgradedToPremium" = "Надградено до Платения план";
+"SubscriptionNeedsAttention" = "Абонаментът Ви се туждае от внимание";
+"CheckYourPlanForDetails" = "Проверете плана си за подробности.";
+"ViewPlan" = "Преглед на плана";
 "YouNowHaveAccessToAdvancedSecurityDescriptionLong" = "Вече имате достъп до разширени функционалности за сигурност. Научете повече относно това какво включва Платеният план.";
 "YouNowHaveAccessToAllAdvancedSecurityFeatures" = "Вече имате достъп до всички разширени функционалности за сигурност.";
-"YoullGoToStripeSecureCheckoutToCompleteYourPurchase" = "Ще бъдете прехвърлен(а) към страницата за сигурни разплащания на Stripe, за да завършите покупката си.";
+/* Footer on the Premium upgrade screen; "Stripe" is the payment processor's name and shouldn't be translated. */
+"YoullCompleteThePurchaseWithStripeSecureCheckout" = "Ще завършите покупката със защитената обработка на Stripe.";
 "ContinueToStripe" = "Продължаване към Stripe?";
 "YoullBeTakenToStripeToManageYourSubscriptionCancellation" = "Ще бъдете прехвърлен(а) към Stripe, където ще можете да прекратите абонамента си.";
 "UserIDCopiedToTheClipboard" = "Потребителският идентификатор е копиран в буфера";
@@ -1137,3 +1173,32 @@
 "IssueDate" = "Дата на издаване";
 "ExpirationDate" = "Дата на валидност";
 "LicenseClass" = "Клас на лиценза";
+"PassportDetails" = "Подробности за паспорта";
+/* Label for the sex/gender field as printed on a passport (e.g. "M", "F", "X"). */
+"Sex" = "Пол";
+"BirthPlace" = "Място на раждане";
+/* Label for the nationality field on a passport (the country a person is a national of). */
+"Nationality" = "Националност";
+/* Label for the category of passport (e.g. "Regular/Tourist", "Diplomatic", "Official"). */
+"PassportType" = "Вид на паспорта";
+"NationalIdentificationNumber" = "Национален идентификационен номер";
+/* Label for the government authority or office that issued the passport. */
+"IssuingAuthorityOffice" = "Институция/офис издател";
+"AccountDetails" = "Подробности за акаунта";
+"BankName" = "Име на банката";
+"NameOnAccount" = "Име на титуляра";
+"AccountType" = "Вид на сметката";
+"BranchNumber" = "Номер на клон/институция";
+"SwiftCode" = "Код SWIFT";
+"IBAN" = "IBAN";
+"BankContactPhone" = "Телефон за връзка с банката";
+"CertificateOfDeposit" = "Депозит";
+"Checking" = "Разплащателна";
+"InvestmentBrokerage" = "Инвестиционна/брокерска";
+"LineOfCredit" = "Кредитна";
+"MoneyMarket" = "Паричен пазар";
+"Savings" = "Спестовна";
+/* Accessibility label for the button that clears a field's value. %1$@ is the field's title (e.g. "Date of birth"), so the spoken label reads "Clear Date of birth". */
+"ClearFieldName" = "Изчистване на %1$@";
+"SelectDate" = "Изберете дата";
+"PremiumRequiredTOTPDescriptionLong" = "Удостоверителният ключ (TOTP) е платена функционалност. Текущият Ви план не включва достъп до нея.";

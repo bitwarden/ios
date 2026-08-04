@@ -6,12 +6,13 @@
 "Bitwarden" = "Bitwarden";
 "Cancel" = "Zrušit";
 "Copy" = "Kopírovat";
+"CopyLicenseNumber" = "Kopírovat číslo řidičského průkazu";
 "CopyPassportNumber" = "Kopírovat číslo pasu";
 "CopyPassword" = "Kopírovat heslo";
 "CopyUsername" = "Kopírovat uživatelské jméno";
 "Delete" = "Smazat";
 "DeleteAll" = "Smazat vše";
-"Deleting" = "Mazání...";
+"Deleting" = "Mazání…";
 "DoYouReallyWantToDelete" = "Opravdu chcete smazat tuto položku? Akce je nevratná.";
 "Edit" = "Upravit";
 "EditFolder" = "Upravit složku";
@@ -49,14 +50,14 @@
 "Password" = "Heslo";
 "Save" = "Uložit";
 "Move" = "Přesunout";
-"Saving" = "Ukládání...";
+"Saving" = "Ukládání…";
 "Settings" = "Nastavení";
 "ShowNextCode" = "Zobrazit další kód";
 "ItemDeleted" = "Položka byla smazána";
 "Submit" = "Odeslat";
 "UseFingerprintToUnlock" = "Pro odemknutí použít otisk prstu";
 "UseThisButtonToGenerateANewUniquePassword" = "Použijte toto tlačítko pro vytvoření nového jedinečného hesla.";
-"YouWillOnlyNeedToSetUpAnAuthenticatorKeyDescriptionLong" = "Budete jen muset nastavit Authenticator pro přihlášení, která vyžadují dvoufaktorové ověření s kódem. Klíč průběžně generuje šestimístné kódy, které můžete použít pro přihlášení.";
+"YouWillOnlyNeedToSetUpAnAuthenticatorKeyDescriptionLong" = "Budete jen muset nastavit ověřovací klíč pro přihlášení, která vyžadují dvoufaktorové ověření s kódem. Klíč průběžně generuje šestimístné kódy, které můžete použít pro přihlášení.";
 "UseTheGeneratorToCreateASecurePasswordPassphrasesAndUsernames" = "Použijte generátor k vytvoření bezpečných hesel, heslových frází a uživatelských jmen.";
 "PassphrasesAreOftenEasierToRememberDescriptionLong" = "Heslové fráze jsou často jednodušší pro zapamatování a zápis než náhodná hesla. Jsou užitečné pro přihlášení do účtů, kde není automatické vyplňování k dispozici (např. streamovací služba ve Vašem televizoru).";
 "UniqueUsernamesAddAnExtraLayerOfSecurityAndCanHelpPreventHackersFromFindingYourAccounts" = "Jedinečná uživatelská jména přidávají další bezpečnostní vrstvu a mohou hackerům ztížit hledání účtů.";
@@ -80,7 +81,7 @@
 "Close" = "Zavřít";
 "Continue" = "Pokračovat";
 "CreateAccount" = "Vytvořit účet";
-"CreatingAccount" = "Vytváření účtu...";
+"CreatingAccount" = "Vytváření účtu…";
 "EditItem" = "Upravit položku";
 "EnableAutomaticSyncing" = "Povolit automatickou synchronizaci";
 "EnterEmailForHint" = "Zadejte e-mailovou adresu pro zaslání nápovědy k hlavnímu heslu.";
@@ -103,7 +104,7 @@
 "Lock" = "Zamknout";
 "Immediately" = "Okamžitě";
 "VaultTimeoutLogOutConfirmation" = "Po vypršení časového limitu dojde k odhlášení. Přístup k trezoru bude odebrán a pro opětovné přihlášení bude vyžadováno online ověření. Opravdu chcete použít toto nastavení?";
-"LoggingIn" = "Přihlašování...";
+"LoggingIn" = "Přihlašování…";
 "LogInToBitwarden" = "Přihlásit se do Bitwardenu";
 "MasterPasswordConfirmationValMessage" = "Potvrzení hesla se neshoduje.";
 "TheMasterPasswordIsThePasswordYouUseToAccessYourVault" = "Hlavní heslo je heslo, které používáte pro přístup k trezoru.";
@@ -125,9 +126,9 @@
 "Security" = "Zabezpečení";
 "Select" = "Vybrat";
 "ItemUpdated" = "Položka byla uložena";
-"Submitting" = "Odesílání...";
-"Syncing" = "Synchronizování...";
-"SyncingLogins" = "Synchronizování přihlášení...";
+"Submitting" = "Odesílání…";
+"Syncing" = "Synchronizování…";
+"SyncingLogins" = "Synchronizování přihlášení…";
 "SyncingComplete" = "Synchronizace byla dokončena";
 "TouchID" = "Touch ID";
 "TwoStepLogin" = "Dvoufázové přihlášení";
@@ -163,12 +164,12 @@
 "AddNewAttachment" = "Přidat novou přílohu";
 "Attachments" = "Přílohy";
 "UnableToDownloadFile" = "Nelze stáhnout soubor.";
-"Downloading" = "Stahování...";
+"Downloading" = "Stahování…";
 "AttachmentLargeWarning" = "Tato příloha má velikost %1$@. Opravdu ji chcete stáhnout do Vašeho zařízení?";
 "AuthenticatorKey" = "Ověřovací klíč";
 "VerificationCodeTotp" = "Ověřovací kód (TOTP)";
-"AuthenticatorKeyAdded" = "Byl přidán autentizační klíč.";
-"AuthenticatorKeyReadError" = "Nelze přečíst autentizační klíč.";
+"AuthenticatorKeyAdded" = "Byl přidán ověřovací klíč.";
+"AuthenticatorKeyReadError" = "Nelze přečíst ověřovací klíč.";
 "PointYourCameraAtTheQRCode" = "Nasměrujte kameru na QR kód.\nNačtení proběhne automaticky.";
 "ScanQrTitle" = "Načíst QR kód";
 "Camera" = "Kamera";
@@ -300,7 +301,7 @@
 "Identities" = "Identity";
 "Logins" = "Přihlašovací údaje";
 "SecureNotes" = "Zabezpečené poznámky";
-"CheckingPassword" = "Kontrolování hesla...";
+"CheckingPassword" = "Kontrolování hesla…";
 "CheckPassword" = "Zkontrolujte, zda nedošlo k úniku hesla.";
 "PasswordSafe" = "V žádném ze známých případů nedošlo k úniku tohoto hesla. Mělo by být bezpečné používat jej i nadále.";
 "IdentityName" = "Název identity";
@@ -365,10 +366,10 @@
 "ExportVaultFailure" = "Při exportu Vašeho trezoru došlo k chybě. Pokud problém přetrvává, proveďte export z webového trezoru.";
 "Clone" = "Duplikovat";
 "PasswordGeneratorPolicyInEffect" = "Jedna nebo více zásad organizace ovlivňují nastavení generátoru";
-"SoftDeleting" = "Přesouvání do koše...";
+"SoftDeleting" = "Přesouvání do koše…";
 "ItemSoftDeleted" = "Položka byla přesunuta do koše.";
 "Restore" = "Obnovit";
-"Restoring" = "Obnovování...";
+"Restoring" = "Obnovování…";
 "ItemRestored" = "Položka byla obnovena";
 "Trash" = "Koš";
 "DoYouReallyWantToPermanentlyDeleteCipher" = "Opravdu chcete trvale tuto položku smazat? Akce je nevratná.";
@@ -390,7 +391,7 @@
 "MasterPasswordPolicyValidationTitle" = "Neplatné heslo";
 "MasterPasswordPolicyValidationMessage" = "Heslo nesplňuje požadavky organizace. Zkontrolujte požadavky a zkuste to znovu.";
 "Loading" = "Načítání";
-"LoadingSubscription" = "Načítání předplatného...";
+"LoadingSubscription" = "Načítání předplatného…";
 "AcceptPoliciesError" = "Podmínky použití a Zásady ochrany osobních údajů nebyly odsouhlaseny.";
 "PrivacyPolicy" = "Zásady ochrany osobních údajů";
 "PersonalOwnershipPolicyInEffect" = "Zásady organizace ovlivňují možnosti vlastnictví.";
@@ -421,7 +422,7 @@
 "AboutSend" = "O Send";
 "HideEmail" = "Skrýt mou e-mailovou adresu před příjemci";
 "SendOptionsPolicyInEffect" = "Jedna nebo více zásad organizace ovlivňuje nastavení Send.";
-"SendFilePremiumRequired" = "Bezplatné účty jsou omezeny pouze na sdílení textu. K používání souborů pomocí Send je vyžadováno prémiové členství.";
+"SendFilePremiumRequired" = "Bezplatné účty jsou omezeny jen na sdílení textu. K používání souborů pomocí Send je vyžadováno členství Premium.";
 "SendFileEmailVerificationRequired" = "Abyste mohli tuto funkci používat, musíte ověřit svůj e-mail. Svůj e-mail můžete ověřit ve webovém trezoru.";
 "PasswordPrompt" = "Zeptat se znovu na hlavní heslo";
 "PasswordConfirmation" = "Potvrzení hlavního hesla";
@@ -570,6 +571,8 @@
 "RequestAdminApproval" = "Žádost o schválení správcem";
 "ApproveWithMasterPassword" = "Schválit hlavním heslem";
 "TurnOffUsingPublicDevice" = "Vypnout pomocí veřejného zařízení";
+"TurnOnFillAssist" = "Zapnout Fill Assist";
+"TurnOnFillAssistDescriptionLong" = "Fill Assist zvyšuje přesnost automatického vyplňování na podporovaných webech pomocí pravidel specifických pro daný web.";
 "RememberThisDevice" = "Zapamatovat toto zařízení";
 "Passkey" = "Přístupový klíč";
 "Passkeys" = "Přístupové klíče";
@@ -777,6 +780,8 @@
 "SetUpAutofillOnAllYourDevicesToLoginWithASingleTapAnywhere" = "Nastavte automatické vyplňování na všech Vašich zařízeních pro přihlášení jedním klepnutím kdekoliv.";
 "GoBack" = "Vrátit se";
 "GotIt" = "Rozumím";
+/* masterPasswordUnlock is the name of some data we want to delete, so there's no need to localize it. */
+"ClearMasterPasswordUnlock" = "Vymazat masterPasswordUnlock";
 "ClearSsoCookies" = "Vymazat cookies SSO";
 "GenerateCrash" = "Vygenerovat pád";
 "GenerateErrorReport" = "Vygenerovat chybové hlášení";
@@ -807,7 +812,7 @@
 "YouMayNeedToEnableDevicePasscodeOrBiometrics" = "Možná budete muset povolit přístupový kód zařízení nebo biometriku.";
 "StartImportCXFDescriptionLong" = "Importuje hesla, heslové fráze, platební karty a jakékoli osobní údaje od jiného správce hesel.\n\nVaše data **nebudou** smazána od Vašeho předchozího poskytovatele.";
 "ImportPasswords" = "Importovat hesla";
-"ImportingEllipsis" = "Importování...";
+"ImportingEllipsis" = "Importování…";
 "AreYouSureYouWantToCancelTheImportProcessQuestionMark" = "Opravdu chcete zrušit proces importu?";
 "ImportFailed" = "Import selhal";
 "ThereWasAnIssueImportingAllOfYourPasswordsNoDataWasDeleted" = "Došlo k potížím při importu všech Vašich hesel.\n\nŽádná data nebyla smazána.";
@@ -992,7 +997,7 @@
 "DefaultX" = "Výchozí (%1$@)";
 "UpdateYourEncryptionSettings" = "Aktualizujte nastavení šifrování";
 "TheNewRecommendedEncryptionSettingsDescriptionLong" = "Nové doporučené nastavení šifrování zlepší bezpečnost Vašeho účtu. Pokud chcete aktualizovat nyní, zadejte hlavní heslo.";
-"Updating" = "Aktualizování...";
+"Updating" = "Aktualizování…";
 "EncryptionSettingsUpdated" = "Nastavení šifrování bylo aktualizováno";
 "IntroducingArchive" = "Představujeme Archiv";
 "KeepYtemsYouDontNeedRightNowSafeButOutOfSight" = "Uchovávejte položky, které momentálně nepotřebujete. V bezpečí, nepozorovaně.";
@@ -1018,7 +1023,7 @@
 "Unarchive" = "Odebrat z archivu";
 "ItemMovedToArchive" = "Položka byla přesunuta do archivu";
 "ItemMovedToVault" = "Položka byla přesunuta do trezoru";
-"SendingToArchive" = "Odesílání do archivu...";
+"SendingToArchive" = "Odesílání do archivu…";
 "MovingItemToVault" = "Přesouvání položky do trezoru";
 "OrganizationNotFound" = "Organizace nebyla nalezena.";
 "ItemsTransferred" = "Převedené položky";
@@ -1026,17 +1031,15 @@
 "ArchiveEmptyDescriptionLong" = "Naplňte archiv položkami, které nechcete vidět ve výsledcích vyhledávání a v návrzích automatického vyplňování, ale možná je jednou budete potřebovat.";
 "ArchiveItem" = "Archivovat položku";
 "OnceArchivedThisItemWillBeExcludedDescriptionLong" = "Jakmile bude tato položka archivována, bude vyloučena z výsledků vyhledávání a z návrhů automatického vyplňování.";
-"ArchiveUnavailable" = "Archiv je nedostupný";
 "ArchivingItemsIsAPremiumFeatureDescriptionLong" = "Archivace položek je prémiová funkce. Váš aktuální plán nezahrnuje přístup k této funkci.";
 "AddingAttachmentsIsAPremiumFeatureDescriptionLong" = "Přidávání příloh je funkce Premium. Váš aktuální plán nezahrnuje přístup k této funkci.";
-"AttachmentsUnavailable" = "Přílohy nejsou k dispozici";
 "UpgradeToPremium" = "Aktualizovat na Premium";
 "ThisItemIsArchived" = "Tato položka je archivována.";
 "YourPremiumSubscriptionEnded" = "Vaše předplatné Premium skončilo";
 "YourPremiumSubscriptionEndedArchiveDescriptionLong" = "Chcete-li získat přístup k Vašemu archivu, restartujte předplatné Premium. Pokud upravíte detaily archivované položky před restartováním, bude přesunuta zpět do Vašeho trezoru.";
 "RestartPremium" = "Restartovat Premium";
 "ThisItemIsArchivedSavingChangesWillRestoreItToYourVault" = "Tato položka je archivována. Uložení změn ji obnoví do Vašeho trezoru.";
-"SettingUpAutofill" = "Nastavování automatického vyplňování...";
+"SettingUpAutofill" = "Nastavování automatického vyplňování…";
 "AddEmail" = "Přidat e-mail";
 "AnyoneWithPasswordSetByYou" = "Kdokoli s heslem od Vás";
 "AnyoneWithTheLink" = "Kdokoli s odkazem";
@@ -1062,6 +1065,8 @@
 "ReplaceCertificate" = "Nahradit certifikát";
 "ReplaceExistingCertificate" = "Nahradit existující certifikát";
 "UnableToReadCertificateFile" = "Soubor s certifikátem nelze přečíst.";
+/* masterPasswordUnlock is the name of some data we want to delete, so there's no need to localize it. */
+"MasterPasswordUnlockCleared" = "masterPasswordUnlock byl vymazán.";
 "SsoCookiesCleared" = "Cookies SSO vymazány";
 "YourRequestWasInterruptedBecauseTheAppNeededToReAuthenticatePleaseTryAgain" = "Váš požadavek byl přerušen, protože aplikace musí být znovu ověřena. Zkuste to znovu.";
 "AutofillWithBitwardenDescriptionLong" = "Bitwarden může při přihlášení k aplikacím a webovým stránkám navrhnout Vaše hesla a další přihlašovací údaje.";
@@ -1075,6 +1080,7 @@
 "Canceled" = "Zrušeno";
 "PastDue" = "Po splatnosti";
 "PendingCancellation" = "Čeká na zrušení";
+"Unpaid" = "Nezaplaceno";
 "UpdatePayment" = "Aktualizovat platbu";
 "BillingAmount" = "Fakturovaná částka";
 "StorageCost" = "Náklady na úložiště";
@@ -1086,17 +1092,44 @@
 "ExternalLink" = "Externí odkaz";
 "YourNextChargeIsForXDueOnY" = "Vaše další dobití je **%1$@**, se splaností **%2$@**.";
 "WeCouldNotProcessYourPaymentUpdateYourPaymentMethodDescriptionLong" = "Vaši platbu nelze zpracovat. Aktualizujte svou platební metodu před ukončením předplatného **%1$@**.";
+/* Error message shown when the Premium Plan screen fails to load subscription data, with a prompt to retry. */
+"WeCouldntLoadYourSubscriptionDetailsPleaseRetry" = "Nemohli jsme načíst údaje o předplatném. Zkuste to znovu.";
 "YourSubscriptionWasCanceledOnXDescriptionLong" = "Vaše předplatné bylo zrušeno **%1$@**. Chcete-li pokračovat v používání funkcí Premium, proveďte obnovení.";
+"YourSubscriptionWasSuspendedOnXDescriptionLong" = "Vaše předplatné bylo pozastaveno dne **%1$@**. Chcete-li jej znovu aktivovat, uhraďte své nezaplacené faktury.";
 "YourSubscriptionExpiredOnXDescriptionLong" = "Vaše předplatné bylo zrušeno **%1$@**. Chcete-li pokračovat v používání funkcí Premium, proveďte obnovení.";
 "YourSubscriptionIsScheduledToCancelOnXDescriptionLong" = "Zrušení Vašeho předplatného je naplánováno na **%1$@**. Před tím ho můžete kdykoli obnovit.";
 "PerMonth" = "/ měsíčně";
+/* VoiceOver reading of "PerMonth", spoken instead of shown. */
+"PerMonthVoiceOver" = "měsíčně";
 "PerYear" = "/ ročně";
+/* VoiceOver reading of "PerYear", spoken instead of shown. */
+"PerYearVoiceOver" = "ročně";
 "XAmountPerCadence" = "%1$@ %2$@";
+/* %1$@ is an amount and cadence together, e.g. "$1.65 / month". */
+"XCancelAnytime" = "%1$@ · lze zrušit kdykoli";
+/* VoiceOver reading of "XCancelAnytime", spoken instead of shown. */
+"XCancelAnytimeVoiceOver" = "%1$@, lze zrušit kdykoli";
 "NegativeX" = "-%1$@";
 "UnknownStatus" = "Neznámý";
 "YourSubscriptionStatusIsUnknownVisitTheWebAppDescriptionLong" = "Stav Vašeho předplatného nelze určit. Pro více informací navštivte webovou aplikaci nebo aktualizujte na nejnovější verzi.";
-"AtTheMomentPremiumPlanIsNotAvailableDescriptionLong" = "V tuto chvíli není prémiový plán k dispozici, opakujte akci později.";
-"UnlockMoreAdvancedFeaturesWithPremiumPlan" = "Odemkněte pokročilejší funkce s předplatným Premium.";
+/* Headline on the Premium upgrade screen. */
+"UnlockAdvancedProtection" = "Odemknout pokročilou ochranu";
+/* Premium benefit list item. */
+"BreezeThrough2faWithBuiltInCodes" = "Díky integrovaným kódům hravě zvládnete dvoufaktorové ověření";
+/* Premium benefit list item. */
+"RunReportsToFindRiskyPasswords" = "Spouštějte přehledy a vyhledejte riziková hesla";
+/* Premium benefit list item. */
+"KeepDocumentsSafeAndEncrypted" = "Uchovávejte dokumenty v bezpečí a zašifrované";
+/* Premium benefit list item. */
+"AddATrustedEmergencyContact" = "Přidejte důvěryhodný nouzový kontakt";
+/* Premium benefit list item. */
+"IdentifyUnsecureWebsites" = "Identifikujte nezabezpečené webové stránky";
+/* Premium benefit list item. */
+"FlagAccountsWithInactive2fa" = "Označte účty s neaktivním 2FA";
+/* Premium benefit list item; "Send" is the Bitwarden Send feature name and shouldn't be translated. */
+"ShareFilesSecurelyWithAnyoneUsingSend" = "Sdílejte soubory bezpečně s kýmkoli pomocí funkce Send";
+/* Premium benefit list item. */
+"Receive247PrioritySupport" = "Získejte přednostní podporu 24/7";
 "BuiltInAuthenticator" = "Vestavěný autentifikátor";
 "EmergencyAccess" = "Nouzový přístup";
 "PaymentNotReceivedYet" = "Platba ještě nebyla přijata";
@@ -1105,15 +1138,18 @@
 "WeHadTroubleOpeningThePaymentPageDescriptionLong" = "Měli jsme potíže s otevřením platební stránky, zkuste to znovu.";
 "SecureFileStorage" = "Zabezpečené úložiště souborů";
 "BreachMonitoring" = "Sledování úniků";
-"UpgradeNow" = "Aktualizovat nyní";
-"ConfirmingYourUpgrade" = "Potvrzování Vaší aktualizace...";
-"OpeningCheckout" = "Otevírání pokladny...";
+"ConfirmingYourUpgrade" = "Potvrzování Vaší aktualizace…";
+"OpeningCheckout" = "Otevírání pokladny…";
 "UpgradePending" = "Nevyřízená aktualizace";
 "YourUpgradeIsBeingProcessedDescriptionLong" = "Vaše aktualizace je zpracovávána. Zůstanete na bezplatném tarifu, dokud nebude dokončena. Synchronizujte pro kontrolu, nebo pokračujte a aktualizace se provede automaticky.";
 "UpgradedToPremium" = "Aktualizováno na Premium";
+"SubscriptionNeedsAttention" = "Vaše předplatné vyžaduje pozornost";
+"CheckYourPlanForDetails" = "Podívejte se na svůj tarif pro podrobnosti.";
+"ViewPlan" = "Zobrazit tarif";
 "YouNowHaveAccessToAdvancedSecurityDescriptionLong" = "Nyní máte přístup k pokročilým bezpečnostním funkcím. Přečtěte si více o tom, co je zahrnuto v Premium.";
 "YouNowHaveAccessToAllAdvancedSecurityFeatures" = "Nyní máte přístup ke všem pokročilým bezpečnostním funkcím.";
-"YoullGoToStripeSecureCheckoutToCompleteYourPurchase" = "Pro dokončení nákupu přejdete do zabezpečené pokladny Stripe.";
+/* Footer on the Premium upgrade screen; "Stripe" is the payment processor's name and shouldn't be translated. */
+"YoullCompleteThePurchaseWithStripeSecureCheckout" = "Nákup dokončíte prostřednictvím zabezpečené platební brány Stripe.";
 "ContinueToStripe" = "Pokračovat do Stripe?";
 "YoullBeTakenToStripeToManageYourSubscriptionCancellation" = "Budete přesměrováni na Stripe ke správě zrušení předplatného.";
 "UserIDCopiedToTheClipboard" = "ID uživatele zkopírováno do schránky";
@@ -1137,3 +1173,32 @@
 "IssueDate" = "Datum vystavení";
 "ExpirationDate" = "Datum vypršení platnosti";
 "LicenseClass" = "Skupina řidičského průkazu";
+"PassportDetails" = "Údaje o pasu";
+/* Label for the sex/gender field as printed on a passport (e.g. "M", "F", "X"). */
+"Sex" = "Pohlaví";
+"BirthPlace" = "Místo narození";
+/* Label for the nationality field on a passport (the country a person is a national of). */
+"Nationality" = "Národnost";
+/* Label for the category of passport (e.g. "Regular/Tourist", "Diplomatic", "Official"). */
+"PassportType" = "Typ pasu";
+"NationalIdentificationNumber" = "Rodné číslo";
+/* Label for the government authority or office that issued the passport. */
+"IssuingAuthorityOffice" = "Vydávající orgán/úřad";
+"AccountDetails" = "Podrobnosti účtu";
+"BankName" = "Názov banky";
+"NameOnAccount" = "Jméno na účtu";
+"AccountType" = "Typ účtu";
+"BranchNumber" = "Číslo pobočky/Instituce";
+"SwiftCode" = "SWIFT kód";
+"IBAN" = "IBAN";
+"BankContactPhone" = "Kontaktní telefon banky";
+"CertificateOfDeposit" = "Vkladový list";
+"Checking" = "Kontrolování";
+"InvestmentBrokerage" = "Investice/Zprostředkování";
+"LineOfCredit" = "Úvěrový rámec";
+"MoneyMarket" = "Peněžní trh";
+"Savings" = "Úspory";
+/* Accessibility label for the button that clears a field's value. %1$@ is the field's title (e.g. "Date of birth"), so the spoken label reads "Clear Date of birth". */
+"ClearFieldName" = "Vymazat %1$@";
+"SelectDate" = "Vyber datum";
+"PremiumRequiredTOTPDescriptionLong" = "Ověřovací klíč (TOTP) je funkce Premium. Váš aktuální plán nezahrnuje přístup k této funkci.";

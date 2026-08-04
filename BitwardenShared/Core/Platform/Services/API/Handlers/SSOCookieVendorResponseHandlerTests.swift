@@ -2,6 +2,7 @@ import BitwardenKit
 import BitwardenKitMocks
 import BitwardenResources
 import BitwardenSdk
+import BitwardenSdkMocks
 import Networking
 import TestHelpers
 import XCTest
@@ -14,7 +15,7 @@ class SSOCookieVendorResponseHandlerTests: BitwardenTestCase {
     // MARK: Properties
 
     var serverCommunicationConfigClientSingleton: MockServerCommunicationConfigClientSingleton!
-    var serverCommunicationConfigClient: MockServerCommunicationConfigClient!
+    var serverCommunicationConfigClient: MockServerCommunicationConfigClientProtocol!
     var subject: SSOCookieVendorResponseHandler!
 
     // MARK: Setup & Teardown
@@ -23,7 +24,7 @@ class SSOCookieVendorResponseHandlerTests: BitwardenTestCase {
         super.setUp()
 
         serverCommunicationConfigClientSingleton = MockServerCommunicationConfigClientSingleton()
-        serverCommunicationConfigClient = MockServerCommunicationConfigClient()
+        serverCommunicationConfigClient = MockServerCommunicationConfigClientProtocol()
         serverCommunicationConfigClientSingleton.clientResult = .success(serverCommunicationConfigClient)
 
         subject = SSOCookieVendorResponseHandler(
@@ -96,7 +97,7 @@ class SSOCookieVendorResponseHandlerTests: BitwardenTestCase {
 
     /// `handle(_:for:retryWith:)` follows the redirect manually when the host does not need bootstrap.
     func test_handle_302_noBootstrapNeeded_followsRedirect() async throws {
-        serverCommunicationConfigClient.needsBootstrapResult = false
+        serverCommunicationConfigClient.needsBootstrapReturnValue = false
         var response = HTTPResponse.failure(
             statusCode: 302,
             headers: ["Location": "https://redirected.example.com"],
@@ -118,7 +119,7 @@ class SSOCookieVendorResponseHandlerTests: BitwardenTestCase {
     /// `handle(_:for:retryWith:)` calls `acquireCookie` and throws a "try again" `ServerError`
     /// when the host needs bootstrap.
     func test_handle_302_needsBootstrap_callsAcquireCookieAndThrows() async throws {
-        serverCommunicationConfigClient.needsBootstrapResult = true
+        serverCommunicationConfigClient.needsBootstrapReturnValue = true
         var response = HTTPResponse.failure(statusCode: 302)
         let request = HTTPRequest(url: URL(string: "https://example.com/api")!)
 
@@ -133,8 +134,8 @@ class SSOCookieVendorResponseHandlerTests: BitwardenTestCase {
     /// `handle(_:for:retryWith:)` calls `acquireCookie`, silently ignores a `Cancelled` error,
     /// and still throws a "try again" `ServerError`.
     func test_handle_302_needsBootstrap_acquireCookieCancelled_throwsTryAgain() async throws {
-        serverCommunicationConfigClient.needsBootstrapResult = true
-        serverCommunicationConfigClient.acquireCookieError = BitwardenSdk.BitwardenError.AcquireCookie(
+        serverCommunicationConfigClient.needsBootstrapReturnValue = true
+        serverCommunicationConfigClient.acquireCookieThrowableError = BitwardenSdk.BitwardenError.AcquireCookie(
             .Cancelled(message: "user cancelled"),
         )
         var response = HTTPResponse.failure(statusCode: 302)
@@ -162,8 +163,8 @@ class SSOCookieVendorResponseHandlerTests: BitwardenTestCase {
     /// `handle(_:for:retryWith:)` throws the underlying error when `acquireCookie` fails with
     /// a non-`Cancelled` error.
     func test_handle_302_needsBootstrap_acquireCookieNonCancelledError_throwsError() async throws {
-        serverCommunicationConfigClient.needsBootstrapResult = true
-        serverCommunicationConfigClient.acquireCookieError = BitwardenTestError.example
+        serverCommunicationConfigClient.needsBootstrapReturnValue = true
+        serverCommunicationConfigClient.acquireCookieThrowableError = BitwardenTestError.example
         var response = HTTPResponse.failure(statusCode: 302)
         let request = HTTPRequest(url: URL(string: "https://example.com/api")!)
 
@@ -175,7 +176,7 @@ class SSOCookieVendorResponseHandlerTests: BitwardenTestCase {
     /// `handle(_:for:retryWith:)` uses the resolved hostname from the singleton.
     func test_handle_302_usesResolvedHostname() async throws {
         serverCommunicationConfigClientSingleton.resolveHostnameResult = "example.com"
-        serverCommunicationConfigClient.needsBootstrapResult = true
+        serverCommunicationConfigClient.needsBootstrapReturnValue = true
         var response = HTTPResponse.failure(statusCode: 302)
         let request = HTTPRequest(url: URL(string: "https://api.example.com/endpoint")!)
 
@@ -190,7 +191,7 @@ class SSOCookieVendorResponseHandlerTests: BitwardenTestCase {
     /// `handle(_:for:retryWith:)` returns the 302 response when there is no `Location` header
     /// and no need to bootstrap.
     func test_handle_302_noLocationHeader_noBootstrap_returnsResponse() async throws {
-        serverCommunicationConfigClient.needsBootstrapResult = false
+        serverCommunicationConfigClient.needsBootstrapReturnValue = false
         var response = HTTPResponse.failure(statusCode: 302)
         let request = HTTPRequest(url: URL(string: "https://example.com/api")!)
 

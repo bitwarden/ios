@@ -252,9 +252,8 @@ protocol AuthRepository: AnyObject {
     /// - Parameters:
     ///   - privateKey: The private key from the login with device response.
     ///   - key: The returned key from the approved auth request.
-    ///   - masterPasswordHash: The master password hash from the approved auth request.
     ///
-    func unlockVaultFromLoginWithDevice(privateKey: String, key: String, masterPasswordHash: String?) async throws
+    func unlockVaultFromLoginWithDevice(privateKey: String, key: String) async throws
 
     /// Attempts to unlock the user's vault with biometrics.
     ///
@@ -267,10 +266,13 @@ protocol AuthRepository: AnyObject {
     /// Attempts to unlock the user's vault with the user's Key Connector key.
     ///
     /// - Parameters:
-    ///   - keyConnectorUrl: The URL to the Key Connector API.
-    ///   - orgIdentifier: The text identifier for the organization.
+    ///   - keyConnectorKeyWrappedUserKey: The user key encrypted (wrapped) by the Key Connector key.
+    ///   - keyConnectorURL: The URL to the Key Connector API.
     ///
-    func unlockVaultWithKeyConnectorKey(keyConnectorURL: URL, orgIdentifier: String) async throws
+    func unlockVaultWithKeyConnectorKey(
+        keyConnectorKeyWrappedUserKey: String,
+        keyConnectorURL: URL,
+    ) async throws
 
     /// Attempts to unlock the user's vault with the stored neverlock key.
     ///
@@ -469,6 +471,9 @@ class DefaultAuthRepository {
     /// The service used by the application to report non-fatal errors.
     private let errorReporter: ErrorReporter
 
+    /// The repository used to manage cached Fill Assist targeting rules.
+    private let fillAssistRepository: FillAssistRepository
+
     /// The service used by the application for recording temporary debug logs.
     private let flightRecorder: FlightRecorder
 
@@ -521,6 +526,7 @@ class DefaultAuthRepository {
     ///   - configService: The service to get server-specified configuration.
     ///   - environmentService: The service used by the application to manage the environment settings.
     ///   - errorReporter: The service used by the application to report non-fatal errors.
+    ///   - fillAssistRepository: The repository used to manage cached Fill Assist targeting rules.
     ///   - flightRecorder: The service used by the application for recording temporary debug logs.
     ///   - keychainService: The keychain service used by the application.
     ///   - keyConnectorService: The service used by the application to manage Key Connector.
@@ -547,6 +553,7 @@ class DefaultAuthRepository {
         configService: ConfigService,
         environmentService: EnvironmentService,
         errorReporter: ErrorReporter,
+        fillAssistRepository: FillAssistRepository,
         flightRecorder: FlightRecorder,
         keychainService: KeychainRepository,
         keyConnectorService: KeyConnectorService,
@@ -571,6 +578,7 @@ class DefaultAuthRepository {
         self.configService = configService
         self.environmentService = environmentService
         self.errorReporter = errorReporter
+        self.fillAssistRepository = fillAssistRepository
         self.flightRecorder = flightRecorder
         self.keychainService = keychainService
         self.keyConnectorService = keyConnectorService
@@ -870,6 +878,7 @@ extension DefaultAuthRepository: AuthRepository {
         try await stateService.setSyncToAuthenticator(false, userId: userId)
         try await keychainService.deleteItems(for: userId)
         try await clientCertificateService.removeCertificate(userId: userId)
+        try await fillAssistRepository.clearRules(userId: userId)
         await vaultTimeoutService.remove(userId: userId)
 
         if await policyService.policyAppliesToUser(.removeUnlockWithPin) {
@@ -952,7 +961,7 @@ extension DefaultAuthRepository: AuthRepository {
             try await stateService.setAccountEncryptionKeys(
                 AccountEncryptionKeys(
                     cryptographicState: response.accountCryptographicState,
-                    encryptedUserKey: response.masterPasswordUnlock.masterKeyWrappedUserKey,
+                    encryptedUserKey: nil,
                 ),
             )
             try await stateService.setAccountMasterPasswordUnlock(
@@ -992,9 +1001,15 @@ extension DefaultAuthRepository: AuthRepository {
         )
 
         try await accountAPIService.setPassword(requestModel)
+        try await stateService.setAccountMasterPasswordUnlock(
+            MasterPasswordUnlockResponseModel(
+                account: account,
+                masterKeyEncryptedUserKey: requestUserKey,
+            ),
+        )
         try await stateService.setAccountEncryptionKeys(AccountEncryptionKeys(
             cryptographicState: cryptographicState,
-            encryptedUserKey: requestUserKey,
+            encryptedUserKey: nil,
         ))
         try await stateService.setUserHasMasterPassword(true)
 
@@ -1053,19 +1068,11 @@ extension DefaultAuthRepository: AuthRepository {
         )
     }
 
-    func unlockVaultFromLoginWithDevice(privateKey: String, key: String, masterPasswordHash: String?) async throws {
-        let method =
-            if masterPasswordHash != nil,
-            let encUserKey = try await stateService.getAccountEncryptionKeys().encryptedUserKey {
-                AuthRequestMethod.masterKey(protectedMasterKey: key, authRequestKey: encUserKey)
-            } else {
-                AuthRequestMethod.userKey(protectedUserKey: key)
-            }
-
+    func unlockVaultFromLoginWithDevice(privateKey: String, key: String) async throws {
         try await unlockVault(
             method: .authRequest(
                 requestPrivateKey: privateKey,
-                method: method,
+                method: .userKey(protectedUserKey: key),
             ),
         )
 
@@ -1098,17 +1105,14 @@ extension DefaultAuthRepository: AuthRepository {
         ))
     }
 
-    func unlockVaultWithKeyConnectorKey(keyConnectorURL: URL, orgIdentifier: String) async throws {
-        let account = try await stateService.getActiveAccount()
-
-        let encryptionKeys = try await stateService.getAccountEncryptionKeys(userId: account.profile.userId)
-
-        guard let encryptedUserKey = encryptionKeys.encryptedUserKey else { throw StateServiceError.noEncUserKey }
-
-        let masterKey = try await keyConnectorService.getMasterKeyFromKeyConnector(
-            keyConnectorUrl: keyConnectorURL,
-        )
-        try await unlockVault(method: .keyConnector(masterKey: masterKey, userKey: encryptedUserKey))
+    func unlockVaultWithKeyConnectorKey(
+        keyConnectorKeyWrappedUserKey: String,
+        keyConnectorURL: URL,
+    ) async throws {
+        try await unlockVault(method: .keyConnectorUrl(
+            url: keyConnectorURL.absoluteString,
+            keyConnectorKeyWrappedUserKey: keyConnectorKeyWrappedUserKey,
+        ))
     }
 
     func unlockVaultWithNeverlockKey() async throws {
@@ -1170,8 +1174,12 @@ extension DefaultAuthRepository: AuthRepository {
         if let passwordHash = try await stateService.getMasterPasswordHash() {
             return try await clientService.auth().validatePassword(password: password, passwordHash: passwordHash)
         } else {
-            let encryptionKeys = try await stateService.getAccountEncryptionKeys()
-            guard let encUserKey = encryptionKeys.encryptedUserKey else { throw StateServiceError.noEncUserKey }
+            let account = try await stateService.getActiveAccount()
+            guard let encUserKey = account.profile.userDecryptionOptions?
+                .masterPasswordUnlock?.masterKeyEncryptedUserKey
+            else {
+                throw AuthError.missingMasterPasswordUnlockData
+            }
             do {
                 let passwordHash = try await clientService.auth().validatePasswordUserKey(
                     password: password,
@@ -1187,11 +1195,14 @@ extension DefaultAuthRepository: AuthRepository {
     }
 
     func validatePin(pin: String) async throws -> Bool {
-        guard let pinProtectedUserKey = try? await stateService.pinProtectedUserKey() else {
+        guard let pinProtectedUserKeyEnvelope = try await stateService.pinProtectedUserKeyEnvelope() else {
             return false
         }
 
-        return try await clientService.auth().validatePin(pin: pin, pinProtectedUserKey: pinProtectedUserKey)
+        return try await clientService.auth().validatePinProtectedUserKeyEnvelope(
+            pin: pin,
+            pinProtectedUserKeyEnvelope: pinProtectedUserKeyEnvelope,
+        )
     }
 
     func verifyOtp(_ otp: String) async throws {
@@ -1320,12 +1331,6 @@ extension DefaultAuthRepository: AuthRepository {
             purpose: .serverAuthorization,
         )
 
-        let encryptionKeys = try await stateService.getAccountEncryptionKeys()
-        let newEncryptionKeys = AccountEncryptionKeys(
-            cryptographicState: encryptionKeys.cryptographicState,
-            encryptedUserKey: updatePasswordResponse.newKey,
-        )
-
         switch reason {
         case .adminForcePasswordReset:
             try await accountAPIService.updateTempPassword(
@@ -1346,7 +1351,12 @@ extension DefaultAuthRepository: AuthRepository {
             )
         }
 
-        try await stateService.setAccountEncryptionKeys(newEncryptionKeys)
+        try await stateService.setAccountMasterPasswordUnlock(
+            MasterPasswordUnlockResponseModel(
+                account: account,
+                masterKeyEncryptedUserKey: updatePasswordResponse.newKey,
+            ),
+        )
         try await stateService.setMasterPasswordHash(updatePasswordResponse.passwordHash)
         try await stateService.setForcePasswordResetReason(nil)
     }

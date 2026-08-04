@@ -33,17 +33,19 @@ protocol PolicyService: AnyObject {
     ///
     func getOrganizationIdsForRestricItemTypesPolicy() async -> [String]
 
+    /// Returns the organization user notification banner data if the feature flag is enabled and the
+    /// policy applies to the active user, or `nil` otherwise.
+    ///
+    /// - Returns: The `OrganizationUserNotificationBannerData` for the earliest-revision policy that
+    ///   applies to the user, or `nil` if none applies or the policy has no `description` field.
+    ///
+    func getOrganizationUserNotificationBannerData() async -> OrganizationUserNotificationBannerData?
+
     /// Get the restricted types based on the organization's policies.
     ///
     /// - Returns: An array of restricted `CipherType`s.
     ///
     func getRestrictedItemCipherTypes() async -> [CipherType]
-
-    /// Returns whether the send hide email option is disabled because of a policy.
-    ///
-    /// - Returns: Whether the send hide email option is disabled.
-    ///
-    func isSendHideEmailDisabledByPolicy() async -> Bool
 
     /// Gets the organization ID with the earliest revision date that is applying a policy to the active user.
     ///
@@ -51,6 +53,12 @@ protocol PolicyService: AnyObject {
     /// - Returns: The organization ID with the earliest revision date applying the policy, or `nil` if none.
     ///
     func getEarliestOrganizationApplyingPolicy(_ policyType: PolicyType) async -> String?
+
+    /// Returns the Send restrictions enforced by policy for the active user.
+    ///
+    /// - Returns: A `SendPolicyOptions` describing the Send restrictions that apply to the user.
+    ///
+    func getSendPolicyOptions() async -> SendPolicyOptions
 
     /// Gets the organizations IDs that are applying the policy to the active user.
     ///
@@ -306,6 +314,15 @@ actor DefaultPolicyService: PolicyService {
 
         return filter.map { policies.filter($0) } ?? policies
     }
+
+    /// Returns the policy with the earliest revision date from the given list, or `nil` if the list is empty.
+    ///
+    /// - Parameter policies: The list of policies to search.
+    /// - Returns: The policy with the earliest revision date.
+    ///
+    private func policyWithEarliestRevisionDate(from policies: [Policy]) -> Policy? {
+        policies.min { ($0.revisionDate ?? .distantFuture) < ($1.revisionDate ?? .distantFuture) }
+    }
 }
 
 extension DefaultPolicyService {
@@ -411,6 +428,25 @@ extension DefaultPolicyService {
         return SessionTimeoutPolicy(timeoutAction: timeoutAction, timeoutType: timeoutType, timeoutValue: timeoutValue)
     }
 
+    func getOrganizationUserNotificationBannerData() async -> OrganizationUserNotificationBannerData? {
+        guard await configService.getFeatureFlag(.organizationUserNotificationBanner) else { return nil }
+
+        let policies = await policiesApplyingToUser(.organizationUserNotification)
+
+        guard let policy = policyWithEarliestRevisionDate(from: policies),
+              let description = policy[.description]?.stringValue
+        else { return nil }
+
+        return OrganizationUserNotificationBannerData(
+            buttonText: policy[.buttonText]?.stringValue,
+            description: description,
+            headerText: policy[.header]?.stringValue,
+            organizationId: policy.organizationId,
+            revisionDate: policy.revisionDate,
+            showAfterEveryLogin: policy[.showAfterEveryLogin]?.boolValue ?? false,
+        )
+    }
+
     func getMasterPasswordPolicyOptions() async throws -> MasterPasswordPolicyOptions? {
         let policies = await policiesApplyingToUser(.masterPassword) { $0.data != nil }
         guard !policies.isEmpty else { return nil }
@@ -485,17 +521,21 @@ extension DefaultPolicyService {
 
     func getEarliestOrganizationApplyingPolicy(_ policyType: PolicyType) async -> String? {
         let policies = await policiesApplyingToUser(policyType, filter: nil)
-        return policies
-            .min(by: { lhs, rhs in
-                (lhs.revisionDate ?? .distantFuture) < (rhs.revisionDate ?? .distantFuture)
-            })?
-            .organizationId
+        return policyWithEarliestRevisionDate(from: policies)?.organizationId
     }
 
-    func isSendHideEmailDisabledByPolicy() async -> Bool {
-        await policyAppliesToUser(.sendOptions) { policy in
-            policy[.disableHideEmail]?.boolValue == true
+    func getSendPolicyOptions() async -> SendPolicyOptions {
+        guard await configService.getFeatureFlag(.sendControls) else {
+            return await SendPolicyOptions(
+                isHideEmailDisabled: policyAppliesToUser(.sendOptions) { policy in
+                    policy[.disableHideEmail]?.boolValue == true
+                },
+                isSendDisabled: policyAppliesToUser(.disableSend),
+            )
         }
+
+        let policies = await policiesApplyingToUser(.sendControls)
+        return SendPolicyOptions(sendControlsPolicies: policies)
     }
 
     func organizationsApplyingPolicyToUser(_ policyType: PolicyType) async -> [String] {

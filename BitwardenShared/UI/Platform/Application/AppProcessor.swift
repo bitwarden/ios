@@ -256,6 +256,30 @@ public class AppProcessor {
         )
     }
 
+    /// Generates a password for a credential provider generate-password request without showing UI.
+    ///
+    /// - Parameter request: The generate-password request containing developer-specified rules.
+    /// - Returns: The generated password string.
+    ///
+    @available(iOSApplicationExtension 26.2, *)
+    public func generatePasswordCredential(request: any GeneratePasswordRequestProxy) async throws -> String {
+        let rulesString = request.passwordFieldPasswordRules ?? request.passwordRulesFromQuirks
+
+        let (passwordOptions, _) = try await services.generatorRepository
+            .getEffectivePasswordGenerationOptions(rules: rulesString)
+
+        switch passwordOptions.type ?? .password {
+        case .passphrase:
+            return try await services.generatorRepository.generatePassphrase(
+                settings: passwordOptions.passphraseGeneratorRequest,
+            )
+        case .password:
+            return try await services.generatorRepository.generatePassword(
+                settings: passwordOptions.passwordGeneratorRequest,
+            )
+        }
+    }
+
     /// Saves a password credential to the vault without showing UI.
     ///
     /// - Parameters:
@@ -683,6 +707,10 @@ extension AppProcessor: NotificationServiceDelegate {
 
 extension AppProcessor: SyncServiceDelegate {
     func onFetchSyncSucceeded(userId: String) async {
+        // Refresh the subscription attention card cache on every sync so the vault list
+        // always reflects current subscription status without making a live API call there.
+        await services.billingService.refreshSubscriptionAttentionCard(subscription: nil)
+
         do {
             let hasPerformedSyncAfterLogin = try await services.stateService.getHasPerformedSyncAfterLogin(
                 userId: userId,

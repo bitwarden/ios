@@ -47,7 +47,7 @@ class RegionHelperTests: BitwardenTestCase {
         let alert = try XCTUnwrap(coordinator.alertShown.last)
         XCTAssertEqual(alert.title, Localizations.creatingOn)
         XCTAssertNil(alert.message)
-        XCTAssertEqual(alert.alertActions.count, 4)
+        XCTAssertEqual(alert.alertActions.count, 5)
 
         XCTAssertEqual(alert.alertActions[0].title, "bitwarden.com")
         try await alert.tapAction(title: "bitwarden.com")
@@ -64,13 +64,30 @@ class RegionHelperTests: BitwardenTestCase {
         let alert = try XCTUnwrap(coordinator.alertShown.last)
         XCTAssertEqual(alert.title, Localizations.creatingOn)
         XCTAssertNil(alert.message)
-        XCTAssertEqual(alert.alertActions.count, 4)
+        XCTAssertEqual(alert.alertActions.count, 5)
 
         XCTAssertEqual(alert.alertActions[1].title, "bitwarden.eu")
         try await alert.tapAction(title: "bitwarden.eu")
         XCTAssertTrue(regionDelegate.setRegionCalled)
         XCTAssertEqual(regionDelegate.setRegionType, .europe)
         XCTAssertEqual(regionDelegate.setRegionUrls, RegionType.europe.defaultURLs)
+    }
+
+    /// `presentRegionSelectorAlert(title:currentRegion)` shows alert and tap bitwarden-gov.com.
+    @MainActor
+    func test_presentRegionSelectorAlert_gov() async throws {
+        await subject.presentRegionSelectorAlert(title: Localizations.creatingOn, currentRegion: .unitedStates)
+
+        let alert = try XCTUnwrap(coordinator.alertShown.last)
+        XCTAssertEqual(alert.title, Localizations.creatingOn)
+        XCTAssertNil(alert.message)
+        XCTAssertEqual(alert.alertActions.count, 5)
+
+        XCTAssertEqual(alert.alertActions[2].title, "bitwarden-gov.com")
+        try await alert.tapAction(title: "bitwarden-gov.com")
+        XCTAssertTrue(regionDelegate.setRegionCalled)
+        XCTAssertEqual(regionDelegate.setRegionType, .gov)
+        XCTAssertEqual(regionDelegate.setRegionUrls, RegionType.gov.defaultURLs)
     }
 
     /// `presentRegionSelectorAlert(title:currentRegion)` shows alert and tap selfhosted.
@@ -81,9 +98,9 @@ class RegionHelperTests: BitwardenTestCase {
         let alert = try XCTUnwrap(coordinator.alertShown.last)
         XCTAssertEqual(alert.title, Localizations.creatingOn)
         XCTAssertNil(alert.message)
-        XCTAssertEqual(alert.alertActions.count, 4)
+        XCTAssertEqual(alert.alertActions.count, 5)
 
-        XCTAssertEqual(alert.alertActions[2].title, Localizations.selfHosted)
+        XCTAssertEqual(alert.alertActions[3].title, Localizations.selfHosted)
         try await alert.tapAction(title: Localizations.selfHosted)
         XCTAssertEqual(coordinator.routes.last, .selfHosted(currentRegion: .europe))
     }
@@ -96,11 +113,40 @@ class RegionHelperTests: BitwardenTestCase {
         let alert = try XCTUnwrap(coordinator.alertShown.last)
         XCTAssertEqual(alert.title, Localizations.loggingInOn)
         XCTAssertNil(alert.message)
-        XCTAssertEqual(alert.alertActions.count, 4)
+        XCTAssertEqual(alert.alertActions.count, 5)
 
-        XCTAssertEqual(alert.alertActions[2].title, Localizations.selfHosted)
+        XCTAssertEqual(alert.alertActions[3].title, Localizations.selfHosted)
         try await alert.tapAction(title: Localizations.selfHosted)
         XCTAssertEqual(coordinator.routes.last, .selfHosted(currentRegion: .unitedStates))
+    }
+
+    /// `presentRegionSelectorAlert(title:currentRegion:)` offers exactly the user-selectable regions
+    /// (US, EU, Gov, self-hosted) plus cancel — the internal (`bitwarden.pw`) region is detected
+    /// automatically and must never appear in the picker.
+    @MainActor
+    func test_presentRegionSelectorAlert_excludesInternal() async throws {
+        await subject.presentRegionSelectorAlert(title: Localizations.creatingOn, currentRegion: .unitedStates)
+
+        let alert = try XCTUnwrap(coordinator.alertShown.last)
+        let actionTitles = alert.alertActions.map(\.title)
+        XCTAssertEqual(
+            actionTitles,
+            ["bitwarden.com", "bitwarden.eu", "bitwarden-gov.com", Localizations.selfHosted, Localizations.cancel],
+        )
+    }
+
+    /// `presentRegionSelectorAlert(title:currentRegion:excludingRegions:)` omits excluded regions.
+    @MainActor
+    func test_presentRegionSelectorAlert_excludingRegions() async throws {
+        await subject.presentRegionSelectorAlert(
+            title: Localizations.creatingOn,
+            currentRegion: .unitedStates,
+            excludingRegions: [.gov],
+        )
+
+        let alert = try XCTUnwrap(coordinator.alertShown.last)
+        XCTAssertEqual(alert.alertActions.count, 4) // US + EU + Self-Hosted + Cancel
+        XCTAssertNil(alert.alertActions.first(where: { $0.title == "bitwarden-gov.com" }))
     }
 
     /// `loadRegion()` with pre auth region as nil default to us
@@ -131,12 +177,32 @@ class RegionHelperTests: BitwardenTestCase {
     }
 
     /// `loadRegion()` with pre auth region
+    func test_loadRegion_gov() async throws {
+        stateService.preAuthEnvironmentURLs = .defaultGov
+        await subject.loadRegion()
+        XCTAssertTrue(regionDelegate.setRegionCalled)
+        XCTAssertEqual(regionDelegate.setRegionType, .gov)
+        XCTAssertEqual(regionDelegate.setRegionUrls, RegionType.gov.defaultURLs)
+    }
+
+    /// `loadRegion()` with pre auth region
     func test_loadRegion_selfHosted() async throws {
         stateService.preAuthEnvironmentURLs = EnvironmentURLData(base: URL(string: "https://selfhosted.com"))
         await subject.loadRegion()
         XCTAssertTrue(regionDelegate.setRegionCalled)
         XCTAssertEqual(regionDelegate.setRegionType, .selfHosted)
         XCTAssertEqual(regionDelegate.setRegionUrls, EnvironmentURLData(base: URL(string: "https://selfhosted.com")))
+    }
+
+    /// `loadRegion()` resolves a `bitwarden.pw` pre-auth environment (including subdomains) to
+    /// `.internal` rather than treating it as self-hosted.
+    func test_loadRegion_internal() async throws {
+        let urls = EnvironmentURLData(base: URL(string: "https://qa-team.sh.bitwarden.pw"))
+        stateService.preAuthEnvironmentURLs = urls
+        await subject.loadRegion()
+        XCTAssertTrue(regionDelegate.setRegionCalled)
+        XCTAssertEqual(regionDelegate.setRegionType, .internal)
+        XCTAssertEqual(regionDelegate.setRegionUrls, urls)
     }
 }
 

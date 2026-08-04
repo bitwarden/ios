@@ -17,7 +17,7 @@ protocol TOTPService {
 
     /// Returns whether the active account is authorized to use TOTP for the given cipher.
     /// - Parameter cipher: The cipher to check authorization for.
-    /// - Returns: `true` if the account has premium or the cipher's organization has TOTP enabled.
+    /// - Returns: `true` if the account has Premium or the cipher's organization has TOTP enabled.
     func isTotpAuthorized(for cipher: CipherWithOrgTOTPStatus) async -> Bool
 }
 

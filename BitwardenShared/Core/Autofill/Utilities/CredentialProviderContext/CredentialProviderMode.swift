@@ -28,11 +28,23 @@ public enum CredentialProviderMode {
     /// The extension is being configured to set up autofill.
     case configureAutofill
 
+    /// The extension is generating a password credential.
+    case generatePasswordCredential(any GeneratePasswordRequestProxy, userInteraction: Bool)
+
     /// The extension is being configured to register a Fido2 credential.
     case registerFido2Credential(any PasskeyCredentialRequest)
 
-    /// The extension is saving a password credential without user interaction.
-    case savePasswordWithoutUserInteraction(any SavePasswordRequestProxy)
+    /// The extension is saving a password credential.
+    case savePasswordCredential(any SavePasswordRequestProxy, userInteraction: Bool)
+}
+
+public extension CredentialProviderMode {
+    /// The password rules string for the `generatePasswordCredential` mode, or `nil` for all other modes.
+    /// Prefers developer-provided `passwordFieldPasswordRules` over quirks-database rules.
+    var generatePasswordRules: String? {
+        guard case let .generatePasswordCredential(proxy, _) = self else { return nil }
+        return proxy.passwordFieldPasswordRules ?? proxy.passwordRulesFromQuirks
+    }
 }
 
 /// Protocol to bypass using @available for passkey requests.
@@ -40,6 +52,23 @@ public protocol PasskeyCredentialRequest {}
 
 /// Protocol to bypass using @available for OTP credential identities.
 public protocol OneTimeCodeCredentialIdentityProxy {}
+
+/// Protocol to bypass using @available for generate password requests (iOS 26.2+).
+public protocol GeneratePasswordRequestProxy { // sourcery: AutoMockable
+    /// Developer-provided password rules for the password field.
+    var passwordFieldPasswordRules: String? { get }
+
+    /// Password rules sourced from the quirks database.
+    var passwordRulesFromQuirks: String? { get }
+}
+
+public extension GeneratePasswordRequestProxy {
+    /// Default implementation returns `nil`.
+    var passwordFieldPasswordRules: String? { nil }
+
+    /// Default implementation returns `nil`.
+    var passwordRulesFromQuirks: String? { nil }
+}
 
 /// Protocol to bypass using @available for save password requests (iOS 26.2+).
 public protocol SavePasswordRequestProxy {}
@@ -49,6 +78,9 @@ extension ASPasskeyCredentialRequest: PasskeyCredentialRequest {}
 
 @available(iOSApplicationExtension 18.0, *)
 extension ASOneTimeCodeCredentialIdentity: OneTimeCodeCredentialIdentityProxy {}
+
+@available(iOSApplicationExtension 26.2, *)
+extension ASGeneratePasswordsRequest: GeneratePasswordRequestProxy {}
 
 @available(iOSApplicationExtension 26.2, *)
 extension ASSavePasswordRequest: SavePasswordRequestProxy {}

@@ -326,7 +326,7 @@ actor DefaultClientService: ClientService {
     /// - Parameter config: Config to update the flags.
     private func loadFlags(_ config: ServerConfig?, for client: BitwardenSdkClient) async {
         do {
-            guard let config else {
+            guard config != nil else {
                 return
             }
 

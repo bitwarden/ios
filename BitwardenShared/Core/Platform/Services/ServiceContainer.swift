@@ -90,6 +90,9 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
     /// The service to get server-specified configuration
     public let configService: ConfigService
 
+    /// The service used by the application to make device API requests.
+    let deviceAPIService: DeviceAPIService
+
     /// The service to make and use the device auth key.
     let deviceAuthKeyService: DeviceAuthKeyService
 
@@ -117,6 +120,9 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
     /// A helper to be used on Fido2 flows that requires user interaction and extends the capabilities
     /// of the `Fido2UserInterface` from the SDK.
     let fido2UserInterfaceHelper: Fido2UserInterfaceHelper
+
+    /// The repository used by the application to manage fill-assist data.
+    let fillAssistRepository: FillAssistRepository
 
     /// The service used by the application for recording temporary debug logs.
     public let flightRecorder: FlightRecorder
@@ -186,6 +192,9 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
 
     /// The service used by the application to manage account state.
     let stateService: StateService
+
+    /// The service used for account state manipulation to support testing scenarios.
+    public var debugStateService: any DebugStateService { stateService }
 
     /// The service used by the application to retrieve App Store storefront information.
     let storefrontService: StorefrontService
@@ -263,6 +272,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
     ///     for mTLS authentication.
     ///   - clientService: The service used by the application to handle encryption and decryption tasks.
     ///   - configService: The service to get server-specified configuration.
+    ///   - deviceAPIService: The service used by the application to make device API requests.
     ///   - deviceAuthKeyService: The service to make and use the device auth key.
     ///   - environmentService: The service used by the application to manage the environment settings.
     ///   - errorReportBuilder: A helper for building an error report containing the details of an
@@ -339,6 +349,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
         clientCertificateService: ClientCertificateService,
         clientService: ClientService,
         configService: ConfigService,
+        deviceAPIService: DeviceAPIService,
         deviceAuthKeyService: DeviceAuthKeyService,
         environmentService: EnvironmentService,
         errorReportBuilder: ErrorReportBuilder,
@@ -348,6 +359,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
         exportVaultService: ExportVaultService,
         fido2CredentialStore: Fido2CredentialStore,
         fido2UserInterfaceHelper: Fido2UserInterfaceHelper,
+        fillAssistRepository: FillAssistRepository,
         flightRecorder: FlightRecorder,
         generatorRepository: GeneratorRepository,
         importCiphersRepository: ImportCiphersRepository,
@@ -409,6 +421,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
         self.clientCertificateService = clientCertificateService
         self.clientService = clientService
         self.configService = configService
+        self.deviceAPIService = deviceAPIService
         self.deviceAuthKeyService = deviceAuthKeyService
         self.environmentService = environmentService
         self.errorReportBuilder = errorReportBuilder
@@ -418,6 +431,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
         self.exportVaultService = exportVaultService
         self.fido2CredentialStore = fido2CredentialStore
         self.fido2UserInterfaceHelper = fido2UserInterfaceHelper
+        self.fillAssistRepository = fillAssistRepository
         self.flightRecorder = flightRecorder
         self.generatorRepository = generatorRepository
         self.importCiphersRepository = importCiphersRepository
@@ -767,6 +781,18 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
             stateService: stateService,
         )
 
+        let fillAssistRepository = DefaultFillAssistRepository(
+            appSettingsStore: appSettingsStore,
+            configService: configService,
+            environmentService: environmentService,
+            errorReporter: errorReporter,
+            fillAssistAPIService: apiService,
+            dataFingerprintService: DefaultDataFingerprintService(),
+            keychainRepository: keychainRepository,
+            stateService: stateService,
+            timeProvider: timeProvider,
+        )
+
         let syncService = DefaultSyncService(
             accountAPIService: apiService,
             appContextHelper: appContextHelper,
@@ -774,6 +800,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
             clientService: clientService,
             collectionService: collectionService,
             configService: configService,
+            fillAssistRepository: fillAssistRepository,
             flightRecorder: flightRecorder,
             folderService: folderService,
             keyConnectorService: keyConnectorService,
@@ -827,7 +854,6 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
         let changeKdfService = DefaultChangeKdfService(
             accountAPIService: apiService,
             clientService: clientService,
-            configService: configService,
             errorReporter: errorReporter,
             flightRecorder: flightRecorder,
             stateService: stateService,
@@ -846,6 +872,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
             configService: configService,
             environmentService: environmentService,
             errorReporter: errorReporter,
+            fillAssistRepository: fillAssistRepository,
             flightRecorder: flightRecorder,
             keychainService: keychainRepository,
             keyConnectorService: keyConnectorService,
@@ -877,6 +904,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
 
         let billingService = DefaultBillingService(
             billingAPIService: apiService,
+            billingStateService: stateService,
             configService: configService,
             environmentService: environmentService,
             errorReporter: errorReporter,
@@ -901,6 +929,8 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
         let generatorRepository = DefaultGeneratorRepository(
             clientService: clientService,
             dataStore: dataStore,
+            errorReporter: errorReporter,
+            policyService: policyService,
             stateService: stateService,
         )
 
@@ -1171,6 +1201,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
             clientCertificateService: clientCertificateService,
             clientService: clientService,
             configService: configService,
+            deviceAPIService: apiService,
             deviceAuthKeyService: deviceAuthKeyService,
             environmentService: environmentService,
             errorReportBuilder: errorReportBuilder,
@@ -1180,6 +1211,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
             exportVaultService: exportVaultService,
             fido2CredentialStore: fido2CredentialStore,
             fido2UserInterfaceHelper: fido2UserInterfaceHelper,
+            fillAssistRepository: fillAssistRepository,
             flightRecorder: flightRecorder,
             generatorRepository: generatorRepository,
             importCiphersRepository: importCiphersRepository,
@@ -1271,11 +1303,11 @@ extension ServiceContainer {
         apiService
     }
 
-    var deviceAPIService: DeviceAPIService {
+    var fileAPIService: FileAPIService {
         apiService
     }
 
-    var fileAPIService: FileAPIService {
+    var fillAssistAPIService: FillAssistAPIService {
         apiService
     }
 

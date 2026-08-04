@@ -699,7 +699,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         XCTAssertEqual(cipherService.deleteCipherId, "123")
     }
 
-    /// `doesActiveAccountHavePremium()` returns whether the active account has access to premium features.
+    /// `doesActiveAccountHavePremium()` returns whether the active account has access to Premium features.
     func test_doesActiveAccountHavePremium() async throws {
         stateService.doesActiveAccountHavePremiumResult = true
         var hasPremium = await subject.doesActiveAccountHavePremium()
@@ -789,6 +789,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
             .fixture(enabled: false, id: "3", name: "Org Disabled"),
             .fixture(id: "4", name: "Org Invited", status: .invited),
             .fixture(id: "5", name: "Org Accepted", status: .accepted),
+            .fixture(id: "6", name: "Org Staged", status: .staged),
         ])
 
         let ownershipOptions = try await subject.fetchCipherOwnershipOptions(includePersonal: true)
@@ -796,7 +797,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         XCTAssertEqual(
             ownershipOptions,
             [
-                .personal(email: "user@bitwarden.com"),
+                .personal(displayName: "user@bitwarden.com"),
                 .organization(id: "1", name: "Org1"),
                 .organization(id: "2", name: "Org2"),
             ],
@@ -813,6 +814,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
             .fixture(enabled: false, id: "3", name: "Org Disabled"),
             .fixture(id: "4", name: "Org Invited", status: .invited),
             .fixture(id: "5", name: "Org Accepted", status: .accepted),
+            .fixture(id: "6", name: "Org Staged", status: .staged),
         ])
 
         let ownershipOptions = try await subject.fetchCipherOwnershipOptions(includePersonal: false)
@@ -832,7 +834,29 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
 
         let ownershipOptions = try await subject.fetchCipherOwnershipOptions(includePersonal: true)
 
-        XCTAssertEqual(ownershipOptions, [.personal(email: "user@bitwarden.com")])
+        XCTAssertEqual(ownershipOptions, [.personal(displayName: "user@bitwarden.com")])
+    }
+
+    /// `fetchCipherOwnershipOptions()` shows the account email for the personal option when the
+    /// `.vfo1Foundation` feature flag is disabled.
+    func test_fetchCipherOwnershipOptions_personal_vfo1FoundationDisabled() async throws {
+        stateService.activeAccount = .fixture()
+        configService.featureFlagsBool[.vfo1Foundation] = false
+
+        let ownershipOptions = try await subject.fetchCipherOwnershipOptions(includePersonal: true)
+
+        XCTAssertEqual(ownershipOptions, [.personal(displayName: "user@bitwarden.com")])
+    }
+
+    /// `fetchCipherOwnershipOptions()` shows "My vault" for the personal option when the
+    /// `.vfo1Foundation` feature flag is enabled.
+    func test_fetchCipherOwnershipOptions_personal_vfo1FoundationEnabled() async throws {
+        stateService.activeAccount = .fixture()
+        configService.featureFlagsBool[.vfo1Foundation] = true
+
+        let ownershipOptions = try await subject.fetchCipherOwnershipOptions(includePersonal: true)
+
+        XCTAssertEqual(ownershipOptions, [.personal(displayName: Localizations.myVault)])
     }
 
     /// `fetchCollections(includeReadOnly:)` returns the collections for the user.
@@ -1554,7 +1578,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         XCTAssertEqual(cipherEncryptionMediator.encryptAndUpdateCipherReceivedCipherView, cipher)
     }
 
-    /// `updateCipherCollections()` unarchives the cipher when it's updated and user doesn't have premium.
+    /// `updateCipherCollections()` unarchives the cipher when it's updated and user doesn't have Premium.
     @MainActor
     func test_updateCipherCollections_unarchivesNonPremiumUser() async throws {
         stateService.activeAccount = nonPremiumAccount
@@ -1572,7 +1596,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         )
     }
 
-    /// `updateCipherCollections()` does NOT unarchive the cipher when user has premium.
+    /// `updateCipherCollections()` does NOT unarchive the cipher when user has Premium.
     @MainActor
     func test_updateCipherCollections_doesNotUnarchivePremiumUser() async throws {
         stateService.activeAccount = premiumAccount
@@ -1627,7 +1651,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         XCTAssertEqual(cipherService.updateCipherWithServerEncryptedFor, "1")
     }
 
-    /// `updateCipher()` unarchives the cipher when it's updated and user doesn't have premium.
+    /// `updateCipher()` unarchives the cipher when it's updated and user doesn't have Premium.
     @MainActor
     func test_updateCipher_unarchivesNonPremiumUser() async throws {
         stateService.activeAccount = nonPremiumAccount
@@ -1643,7 +1667,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         XCTAssertEqual(cipherService.updateCipherWithServerEncryptedFor, "1")
     }
 
-    /// `updateCipher()` does NOT unarchive the cipher when user has premium.
+    /// `updateCipher()` does NOT unarchive the cipher when user has Premium.
     @MainActor
     func test_updateCipher_doesNotUnarchivePremiumUser() async throws {
         stateService.activeAccount = premiumAccount

@@ -41,6 +41,6 @@ struct SendListState: Sendable {
     /// information should be displayed.
     var type: SendType?
 
-    /// The URL to open externally (e.g. learn more about premium).
+    /// The URL to open externally (e.g. learn more about Premium).
     var url: URL?
 }

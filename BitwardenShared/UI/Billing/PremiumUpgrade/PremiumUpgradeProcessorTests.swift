@@ -57,7 +57,7 @@ struct PremiumUpgradeProcessorTests {
 
     // MARK: Tests
 
-    /// `perform(_:)` with `.appeared` fetches the premium price and sets it in state on success.
+    /// `perform(_:)` with `.appeared` fetches the Premium price and sets it in state on success.
     @Test
     func perform_appeared_fetchesPremiumPrice_success() async {
         await subject.perform(.appeared)
@@ -83,7 +83,7 @@ struct PremiumUpgradeProcessorTests {
         #expect(coordinator.isLoadingOverlayShowing == false)
     }
 
-    /// `perform(_:)` with `.appeared` dismisses the view when the user already has premium.
+    /// `perform(_:)` with `.appeared` dismisses the view when the user already has Premium.
     @Test
     func perform_appeared_hasPremium_dismisses() async {
         stateService.doesActiveAccountHavePremiumResult = true
@@ -136,7 +136,7 @@ struct PremiumUpgradeProcessorTests {
         #expect(subject.state.showPricingErrorBanner == true)
     }
 
-    /// `perform(_:)` with `.retryFetchPriceTapped` dismisses the view when the user already has premium.
+    /// `perform(_:)` with `.retryFetchPriceTapped` dismisses the view when the user already has Premium.
     @Test
     func perform_retryFetchPriceTapped_hasPremium_dismisses() async {
         stateService.doesActiveAccountHavePremiumResult = true

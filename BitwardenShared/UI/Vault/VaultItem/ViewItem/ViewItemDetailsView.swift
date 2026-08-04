@@ -301,8 +301,13 @@ struct ViewItemDetailsView: View { // swiftlint:disable:this type_body_length
         // check for type
         switch store.state.type {
         case .bankAccount:
-            // TODO: PM-32809 - render ViewBankAccountItemView once the Bank Account view UI lands.
-            EmptyView()
+            ViewBankAccountItemView(
+                store: store.child(
+                    state: { _ in store.state.bankAccountItemState },
+                    mapAction: { $0 },
+                    mapEffect: nil,
+                ),
+            )
         case .driversLicense:
             ViewDriversLicenseItemView(
                 store: store.child(
@@ -312,8 +317,13 @@ struct ViewItemDetailsView: View { // swiftlint:disable:this type_body_length
                 ),
             )
         case .passport:
-            // TODO: PM-38154 - render ViewPassportItemView once the Passport view UI lands.
-            EmptyView()
+            ViewPassportItemView(
+                store: store.child(
+                    state: { _ in store.state.passportItemState },
+                    mapAction: { $0 },
+                    mapEffect: nil,
+                ),
+            )
         case .card:
             ViewCardItemView(
                 store: store.child(

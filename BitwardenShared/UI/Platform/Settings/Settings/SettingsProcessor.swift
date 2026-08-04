@@ -21,8 +21,10 @@ protocol SettingsProcessorDelegate: AnyObject {
 final class SettingsProcessor: StateProcessor<SettingsState, SettingsAction, SettingsEffect> {
     // MARK: Types
 
-    typealias Services = HasBillingService
+    typealias Services = HasBillingRepository
+        & HasBillingService
         & HasConfigService
+        & HasEnvironmentService
         & HasErrorReporter
         & HasStateService
         & HasStorefrontService
@@ -38,6 +40,13 @@ final class SettingsProcessor: StateProcessor<SettingsState, SettingsAction, Set
 
     /// A delegate of the processor that is notified when the settings tab badge needs to be updated.
     private weak var delegate: SettingsProcessorDelegate?
+
+    /// The helper used to navigate to the Premium upgrade flow.
+    lazy var premiumUpgradeHelper: PremiumUpgradeHelper = DefaultPremiumUpgradeHelper(
+        services: services,
+        coordinator: coordinator,
+        setURL: { [weak self] url in self?.state.url = url },
+    )
 
     /// The services used by this processor.
     private var services: Services
@@ -99,7 +108,7 @@ final class SettingsProcessor: StateProcessor<SettingsState, SettingsAction, Set
             let isSelfHosted = await services.billingService.isSelfHosted()
             let isUSStorefront = await services.storefrontService.isUSStorefront()
             state.hasPremium = hasPremium
-            // Users whose premium comes only from their organization (not purchased personally)
+            // Users whose Premium comes only from their organization (not purchased personally)
             // have no personal subscription to manage or upgrade, so the plan row is hidden for them.
             let hasPremiumFromOrganizationOnly = hasPremium && !hasPremiumPersonally
             state.showPlanRow = featureEnabled && !isSelfHosted && isUSStorefront && !hasPremiumFromOrganizationOnly
@@ -126,7 +135,7 @@ final class SettingsProcessor: StateProcessor<SettingsState, SettingsAction, Set
         case .clearUrl:
             state.url = nil
         case .dismiss:
-            coordinator.navigate(to: .dismiss)
+            coordinator.navigate(to: .dismiss())
         case .learnMoreAboutPremium:
             state.url = ExternalLinksConstants.learnMoreAboutPremium
             state.shouldShowUpgradedToPremiumActionCard = false
@@ -140,7 +149,7 @@ final class SettingsProcessor: StateProcessor<SettingsState, SettingsAction, Set
 
     // MARK: Private Methods
 
-    /// Navigates to the appropriate plan screen based on the user's premium and subscription status.
+    /// Navigates to the appropriate plan screen based on the user's Premium and subscription status.
     ///
     private func navigateToPlan() async {
         guard !state.hasPremium else {
@@ -156,10 +165,10 @@ final class SettingsProcessor: StateProcessor<SettingsState, SettingsAction, Set
             if subscription.status.isTroubleState {
                 coordinator.navigate(to: .premiumPlan(subscription))
             } else {
-                coordinator.navigate(to: .premiumUpgrade)
+                premiumUpgradeHelper.startInAppPremiumUpgrade(onConfirmed: nil)
             }
         } catch is GetSubscriptionRequestError {
-            coordinator.navigate(to: .premiumUpgrade)
+            premiumUpgradeHelper.startInAppPremiumUpgrade(onConfirmed: nil)
         } catch {
             services.errorReporter.log(error: error)
             await coordinator.showErrorAlert(error: error)

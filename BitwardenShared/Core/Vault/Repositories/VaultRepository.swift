@@ -78,9 +78,9 @@ public protocol VaultRepository: AnyObject {
     ///
     func deleteCipher(_ id: String) async throws
 
-    /// Validates the user's active account has access to premium features.
+    /// Validates the user's active account has access to Premium features.
     ///
-    /// - Returns: Whether the active account has premium.
+    /// - Returns: Whether the active account has Premium.
     ///
     func doesActiveAccountHavePremium() async -> Bool
 
@@ -607,7 +607,9 @@ extension DefaultVaultRepository: VaultRepository {
 
         if includePersonal {
             let email = try await stateService.getActiveAccount().profile.email
-            let personalOwner = CipherOwner.personal(email: email)
+            let isVfo1FoundationEnabled: Bool = await configService.getFeatureFlag(.vfo1Foundation)
+            let personalDisplayName = isVfo1FoundationEnabled ? Localizations.myVault : email
+            let personalOwner = CipherOwner.personal(displayName: personalDisplayName)
             return [personalOwner] + organizationOwners
         } else {
             return organizationOwners

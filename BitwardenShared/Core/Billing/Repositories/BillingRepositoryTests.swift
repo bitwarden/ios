@@ -75,7 +75,7 @@ struct BillingRepositoryTests {
         #expect(!result)
     }
 
-    /// `isInAppUpgradeAvailable()` returns `false` when the user is not eligible for premium upgrade.
+    /// `isInAppUpgradeAvailable()` returns `false` when the user is not eligible for Premium upgrade.
     @Test
     func isInAppUpgradeAvailable_notEligible() async {
         configService.featureFlagsBool[.premiumUpgradePath] = true

@@ -20,6 +20,11 @@ public struct EnvironmentURLData: Codable, Equatable, Hashable, Sendable {
     /// The URL for the events API.
     public let events: URL?
 
+    /// The base URL for fetching Fill-Assist targeting rules. Set from the server config.
+    /// Declared `var` because it is updated independently after initial construction, when the
+    /// server config is received, without replacing the entire struct.
+    public var fillAssistRulesUrl: URL?
+
     /// The URL for the icons API.
     public let icons: URL?
 
@@ -42,6 +47,7 @@ public struct EnvironmentURLData: Codable, Equatable, Hashable, Sendable {
     ///   - clientCertificateAlias: The human-readable alias for the client certificate.
     ///   - clientCertificateFingerprint: The SHA-256 fingerprint of the client certificate.
     ///   - events: The URL for the events API.
+    ///   - fillAssistRulesUrl: The base URL for fetching Fill-Assist targeting rules.
     ///   - icons: The URL for the icons API.
     ///   - identity: The URL for the identity API.
     ///   - notifications: The URL for the notifications API.
@@ -53,6 +59,7 @@ public struct EnvironmentURLData: Codable, Equatable, Hashable, Sendable {
         clientCertificateAlias: String? = nil,
         clientCertificateFingerprint: String? = nil,
         events: URL? = nil,
+        fillAssistRulesUrl: URL? = nil,
         icons: URL? = nil,
         identity: URL? = nil,
         notifications: URL? = nil,
@@ -63,6 +70,7 @@ public struct EnvironmentURLData: Codable, Equatable, Hashable, Sendable {
         self.clientCertificateAlias = clientCertificateAlias
         self.clientCertificateFingerprint = clientCertificateFingerprint
         self.events = events
+        self.fillAssistRulesUrl = fillAssistRulesUrl
         self.icons = icons
         self.identity = identity
         self.notifications = notifications
@@ -83,11 +91,6 @@ public extension EnvironmentURLData {
         subpageURL(additionalPath: "tools/import")
     }
 
-    /// The URL for managing the subscription plan.
-    var manageSubscriptionURL: URL? {
-        subpageURL(additionalPath: "settings/subscription")
-    }
-
     /// Whether all of the environment URLs are not set.
     var isEmpty: Bool {
         api == nil
@@ -97,6 +100,11 @@ public extension EnvironmentURLData {
             && identity == nil
             && notifications == nil
             && webVault == nil
+    }
+
+    /// The URL for managing the subscription plan.
+    var manageSubscriptionURL: URL? {
+        subpageURL(additionalPath: "settings/subscription")
     }
 
     /// The URL for a proxy on cookie redirect (used on SSO sync error).
@@ -111,22 +119,19 @@ public extension EnvironmentURLData {
 
     /// Gets the region depending on the base url.
     var region: RegionType {
-        switch base {
-        case EnvironmentURLData.defaultUS.base:
-            .unitedStates
-        case EnvironmentURLData.defaultEU.base:
-            .europe
-        default:
-            .selfHosted
-        }
+        RegionType(baseURL: base)
     }
 
     /// The base url for send sharing.
     var sendShareURL: URL? {
-        guard region != .unitedStates else {
-            return URL(string: "https://send.bitwarden.com/#")!
+        switch region {
+        case .europe, .internal, .selfHosted:
+            subpageURL(additionalPath: "send")
+        case .gov:
+            URL(string: "https://send.bitwarden-gov.com/#")!
+        case .unitedStates:
+            URL(string: "https://send.bitwarden.com/#")!
         }
-        return subpageURL(additionalPath: "send")
     }
 
     /// The base url for the settings screen.
@@ -139,7 +144,7 @@ public extension EnvironmentURLData {
         subpageURL(additionalPath: "settings/security/two-factor")
     }
 
-    /// The URL for upgrading to premium.
+    /// The URL for upgrading to Premium.
     var upgradeToPremiumURL: URL? {
         subpageURL(additionalPath: "settings/subscription/premium?callToAction=upgradeToPremium")
     }
@@ -194,5 +199,16 @@ public extension EnvironmentURLData {
         identity: URL(string: "https://identity.bitwarden.eu")!,
         notifications: URL(string: "https://notifications.bitwarden.eu")!,
         webVault: URL(string: "https://vault.bitwarden.eu")!,
+    )
+
+    /// The default URLs for the US government cloud (FedRAMP) region.
+    static let defaultGov = EnvironmentURLData(
+        api: URL(string: "https://api.bitwarden-gov.com")!,
+        base: URL(string: "https://vault.bitwarden-gov.com")!,
+        events: URL(string: "https://events.bitwarden-gov.com")!,
+        icons: URL(string: "https://icons.bitwarden-gov.com")!,
+        identity: URL(string: "https://identity.bitwarden-gov.com")!,
+        notifications: URL(string: "https://notifications.bitwarden-gov.com")!,
+        webVault: URL(string: "https://vault.bitwarden-gov.com")!,
     )
 }

@@ -151,6 +151,17 @@ class SettingsCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this ty
         XCTAssertEqual(action.embedInNavigationController, true)
     }
 
+    /// `navigate(to:)` with `.deviceManagement` presents the device management view.
+    @MainActor
+    func test_navigateTo_deviceManagement() throws {
+        subject.navigate(to: .deviceManagement)
+
+        let action = try XCTUnwrap(stackNavigator.actions.last)
+        XCTAssertEqual(action.type, .presented)
+        XCTAssertTrue(action.view is DeviceManagementView)
+        XCTAssertEqual(action.embedInNavigationController, true)
+    }
+
     /// `navigate(to:)` with `.didDeleteAccount(otherAccounts:)` calls the delegate method
     /// that performs navigation post-deletion.
     @MainActor
@@ -169,10 +180,23 @@ class SettingsCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this ty
     /// `navigate(to:)` with `.dismiss` dismisses the view.
     @MainActor
     func test_navigate_dismiss() throws {
-        subject.navigate(to: .dismiss)
+        subject.navigate(to: .dismiss())
 
         let action = try XCTUnwrap(stackNavigator.actions.last)
-        XCTAssertEqual(action.type, .dismissed)
+        XCTAssertEqual(action.type, .dismissedWithCompletionHandler)
+    }
+
+    /// `navigate(to:)` with `.dismiss` and a `DismissAction` passes the completion to the
+    /// underlying dismiss call and invokes it when dismissal completes.
+    @MainActor
+    func test_navigate_dismiss_withDismissAction() throws {
+        var completionCalled = false
+
+        subject.navigate(to: .dismiss(DismissAction { completionCalled = true }))
+
+        XCTAssertTrue(completionCalled)
+        let action = try XCTUnwrap(stackNavigator.actions.last)
+        XCTAssertEqual(action.type, .dismissedWithCompletionHandler)
     }
 
     /// `navigate(to:)` with `.exportVault` pushes the export settings view.
@@ -347,7 +371,7 @@ class SettingsCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this ty
         XCTAssertEqual(action.embedInNavigationController, true)
     }
 
-    /// `navigate(to:)` with `.premiumPlan` shows the premium plan via the billing coordinator.
+    /// `navigate(to:)` with `.premiumPlan` shows the Premium plan via the billing coordinator.
     @MainActor
     func test_navigateTo_premiumPlan() throws {
         subject.navigate(to: .premiumPlan(nil))
@@ -355,7 +379,7 @@ class SettingsCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this ty
         XCTAssertEqual(module.billingCoordinator.routes, [.premiumPlan(nil)])
     }
 
-    /// `navigate(to:)` with `.premiumUpgrade` shows the premium upgrade via the billing coordinator.
+    /// `navigate(to:)` with `.premiumUpgrade` shows the Premium upgrade via the billing coordinator.
     @MainActor
     func test_navigateTo_premiumUpgrade() throws {
         subject.navigate(to: .premiumUpgrade)

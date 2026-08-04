@@ -93,7 +93,7 @@ struct BillingCoordinatorTests {
     }
 
     /// `navigate(to:)` with `.dismiss` dismisses the navigator when it is the root (nothing to pop).
-    /// This handles the vault upsell flow where the premium upgrade view is the root of a presented
+    /// This handles the vault upsell flow where the Premium upgrade view is the root of a presented
     /// navigation controller.
     @Test
     func navigate_dismiss_dismisses_when_root() throws {
@@ -106,7 +106,7 @@ struct BillingCoordinatorTests {
         #expect(action.type == .dismissed)
     }
 
-    /// `navigate(to:)` with `.premiumUpgradeComplete` presents the premium upgrade complete view.
+    /// `navigate(to:)` with `.premiumUpgradeComplete` presents the Premium upgrade complete view.
     @Test
     func navigate_premiumUpgradeComplete() throws {
         subject.navigate(to: .premiumUpgradeComplete)
@@ -117,7 +117,7 @@ struct BillingCoordinatorTests {
         #expect(action.view is PremiumUpgradeCompleteView)
     }
 
-    /// `navigate(to:)` with `.premiumPlan` pushes the premium plan view.
+    /// `navigate(to:)` with `.premiumPlan` pushes the Premium plan view.
     @Test
     func navigate_premiumPlan() throws {
         subject.navigate(to: .premiumPlan(nil))
@@ -127,7 +127,7 @@ struct BillingCoordinatorTests {
         #expect(action.type == .pushed)
     }
 
-    /// `navigate(to:)` with `.premiumUpgrade` pushes the premium upgrade view when the stack is non-empty
+    /// `navigate(to:)` with `.premiumUpgrade` pushes the Premium upgrade view when the stack is non-empty
     /// (settings push flow) and hides the cancel button.
     @Test
     func navigate_premiumUpgrade_push() throws {

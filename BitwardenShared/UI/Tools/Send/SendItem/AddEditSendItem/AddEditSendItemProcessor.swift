@@ -14,6 +14,7 @@ class AddEditSendItemProcessor: // swiftlint:disable:this type_body_length
     typealias Services = HasAuthRepository
         & HasBillingRepository
         & HasBillingService
+        & HasConfigService
         & HasEnvironmentService
         & HasErrorReporter
         & HasPasteboardService
@@ -32,7 +33,7 @@ class AddEditSendItemProcessor: // swiftlint:disable:this type_body_length
     /// The `Coordinator` that handles navigation for this processor.
     let coordinator: AnyCoordinator<SendItemRoute, AuthAction>
 
-    /// The helper used to navigate to the premium upgrade flow.
+    /// The helper used to navigate to the Premium upgrade flow.
     lazy var premiumUpgradeHelper: PremiumUpgradeHelper = DefaultPremiumUpgradeHelper(
         services: services,
         coordinator: coordinator,
@@ -100,7 +101,7 @@ class AddEditSendItemProcessor: // swiftlint:disable:this type_body_length
     override func receive(_ action: AddEditSendItemAction) { // swiftlint:disable:this function_body_length
         switch action {
         case let .accessTypeChanged(newValue):
-            // Check if non-premium user is trying to select "Specific People"
+            // Check if non-Premium user is trying to select "Specific People"
             if newValue == .specificPeople, !state.hasPremium {
                 showSpecificPeoplePremiumRequiredAlert()
                 return
@@ -230,8 +231,10 @@ class AddEditSendItemProcessor: // swiftlint:disable:this type_body_length
     /// Load any initial data for the view.
     ///
     private func loadData() async {
-        state.isSendDisabled = await services.policyService.policyAppliesToUser(.disableSend)
-        state.isSendHideEmailDisabled = await services.policyService.isSendHideEmailDisabledByPolicy()
+        state.isSendControlsPolicyEnabled = await services.configService.getFeatureFlag(.sendControls)
+        let sendPolicyOptions = await services.policyService.getSendPolicyOptions()
+        state.isSendDisabled = sendPolicyOptions.isSendDisabled
+        state.isSendHideEmailDisabled = sendPolicyOptions.isHideEmailDisabled
         state.hasPremium = await services.sendRepository.doesActiveAccountHavePremium()
         await refreshProfileState()
 
@@ -429,7 +432,7 @@ class AddEditSendItemProcessor: // swiftlint:disable:this type_body_length
         return true
     }
 
-    /// Shows an alert indicating that the "Specific People" feature requires a premium subscription.
+    /// Shows an alert indicating that the "Specific People" feature requires a Premium subscription.
     ///
     private func showSpecificPeoplePremiumRequiredAlert() {
         let alert = Alert.specificPeopleUnavailable { [weak self] in

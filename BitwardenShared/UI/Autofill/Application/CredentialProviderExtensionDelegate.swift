@@ -15,6 +15,13 @@ public protocol CredentialProviderExtensionDelegate: AppExtensionDelegate {
     @available(iOSApplicationExtension 17.0, *)
     func completeAssertionRequest(assertionCredential: ASPasskeyAssertionCredential)
 
+    /// Completes the generate-password request with the user-selected password and kind.
+    /// - Parameters:
+    ///   - kind: The kind of generated password, derived from the user's generator selection.
+    ///   - password: The generated password string.
+    @available(iOS 26.2, iOSApplicationExtension 26.2, *)
+    func completeGeneratePasswordRequest(kind: ASGeneratedPassword.Kind, password: String)
+
     /// Completes the autofill OTP request with the specified code.
     /// - Parameter code: The code to autofill.
     @available(iOSApplicationExtension 18.0, *)
@@ -24,6 +31,9 @@ public protocol CredentialProviderExtensionDelegate: AppExtensionDelegate {
     /// - Parameter asPasskeyRegistrationCredential: The passkey credential to be used to complete the registration.
     @available(iOSApplicationExtension 17.0, *)
     func completeRegistrationRequest(asPasskeyRegistrationCredential: ASPasskeyRegistrationCredential)
+
+    /// Completes the save password request.
+    func completeSavePasswordRequest()
 
     /// Completes the text request with some text to insert.
     @available(iOSApplicationExtension 18.0, *)
@@ -51,6 +61,14 @@ extension CredentialProviderExtensionDelegate {
         default:
             .passwords
         }
+    }
+
+    /// Whether the autofill extension is in the save-password flow with user interaction.
+    var isSavingPasswordCredential: Bool {
+        guard case let .savePasswordCredential(_, userInteraction) = extensionMode else {
+            return false
+        }
+        return userInteraction
     }
 
     /// Whether the autofill extension is creating a Fido2 credential.
