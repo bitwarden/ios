@@ -14,6 +14,7 @@ class AutofillHelper {
         & HasErrorReporter
         & HasEventService
         & HasFillAssistRepository
+        & HasFlightRecorder
         & HasPasteboardService
         & HasStateService
         & HasVaultRepository
@@ -173,6 +174,10 @@ class AutofillHelper {
                 username: username,
                 password: password,
             )
+
+            if !assistFields.isEmpty {
+                await services.flightRecorder.log("[Autofill] Fill-Assist invoked for this autofill attempt")
+            }
 
             let combinedFields = (assistFields + cipherFields).nilIfEmpty
 

@@ -203,9 +203,19 @@ class VaultListViewTests: BitwardenTestCase { // swiftlint:disable:this type_bod
         )
     }
 
-    /// The subscription attention action card is visible when `shouldShowSubscriptionAttentionCard` is true.
+    /// The subscription attention action card is visible in the empty vault state.
     @MainActor
-    func test_subscriptionAttentionActionCard_visible() {
+    func test_subscriptionAttentionActionCard_visible_emptyVault() {
+        processor.state.loadingState = .data([])
+        processor.state.shouldShowSubscriptionAttentionCard = true
+        XCTAssertNoThrow(
+            try subject.inspect().find(actionCard: Localizations.subscriptionNeedsAttention),
+        )
+    }
+
+    /// The subscription attention action card is visible in the populated vault state.
+    @MainActor
+    func test_subscriptionAttentionActionCard_visible_populatedVault() {
         processor.state.loadingState = .data([VaultListSection(id: "1", items: [.fixture()], name: "")])
         processor.state.shouldShowSubscriptionAttentionCard = true
         XCTAssertNoThrow(
@@ -222,6 +232,28 @@ class VaultListViewTests: BitwardenTestCase { // swiftlint:disable:this type_bod
         let button = try actionCard.find(asyncButton: Localizations.viewPlan)
         try await button.tap()
         XCTAssertEqual(processor.dispatchedActions, [.viewPlan])
+    }
+
+    /// The import logins action card is hidden when the subscription attention card is showing.
+    @MainActor
+    func test_importLoginsActionCard_hidden_whenSubscriptionAttentionShowing() {
+        processor.state.importLoginsSetupProgress = .incomplete
+        processor.state.loadingState = .data([])
+        processor.state.shouldShowSubscriptionAttentionCard = true
+        XCTAssertThrowsError(
+            try subject.inspect().find(actionCard: Localizations.importSavedLogins),
+        )
+    }
+
+    /// The archive onboarding action card is hidden when the subscription attention card is showing.
+    @MainActor
+    func test_archiveOnboardingActionCard_hidden_whenSubscriptionAttentionShowing() {
+        processor.state.loadingState = .data([VaultListSection(id: "1", items: [.fixture()], name: "")])
+        processor.state.shouldShowArchiveOnboardingActionCard = true
+        processor.state.shouldShowSubscriptionAttentionCard = true
+        XCTAssertThrowsError(
+            try subject.inspect().find(actionCard: Localizations.introducingArchive),
+        )
     }
 
     /// The organization banner action card is hidden when `organizationUserNotificationBannerData` is `nil`.
