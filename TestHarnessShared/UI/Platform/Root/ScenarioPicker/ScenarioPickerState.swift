@@ -34,6 +34,8 @@ struct ScenarioPickerState: Equatable {
             ScenarioItem(id: "simpleLoginForm", title: Localizations.simpleLoginForm, route: .simpleLoginForm),
             ScenarioItem(id: "totpAutofillForm", title: Localizations.totpAutofillForm, route: .totpAutofillForm),
             ScenarioItem(id: "dateFieldPicker", title: Localizations.dateFieldPicker, route: .dateFieldPickerShowcase),
+            ScenarioItem(id: "sdkRegisterPasskey", title: Localizations.sdkRegisterPasskey, route: .sdkRegisterPasskey),
+            ScenarioItem(id: "sdkUsePasskey", title: Localizations.sdkUsePasskey, route: .sdkUsePasskey),
         ]
 
         if #available(iOS 17, *) {

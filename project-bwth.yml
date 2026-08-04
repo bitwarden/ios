@@ -78,6 +78,7 @@ targets:
       - target: BitwardenKit/BitwardenKit
       - target: BitwardenKit/BitwardenResources
       - target: BitwardenKit/Networking
+      - package: BitwardenSdk
     postCompileScripts:
       - script: |
           if [[ ! "$PATH" =~ "/opt/homebrew/bin" ]]; then
@@ -135,6 +136,7 @@ targets:
     dependencies:
       - target: BitwardenKit/BitwardenKit
       - target: BitwardenKit/BitwardenResources
+      - package: BitwardenSdk
     preBuildScripts:
       - name: Sourcery
         script: |
@@ -177,5 +179,7 @@ targets:
       - target: TestHarness
       - target: TestHarnessShared
       - target: BitwardenKit/BitwardenKitMocks
+      - target: BitwardenKit/BitwardenSdkMocks
       - target: BitwardenKit/TestHelpers
+      - package: BitwardenSdk
     randomExecutionOrder: true

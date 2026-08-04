@@ -49,6 +49,10 @@ class RootCoordinator: Coordinator, HasStackNavigator {
             showCreatePasskey()
         case .scenarioPicker:
             showScenarioPicker()
+        case .sdkRegisterPasskey:
+            showSDKRegisterPasskey()
+        case .sdkUsePasskey:
+            showSDKUsePasskey()
         case .simpleLoginForm:
             showSimpleLoginForm()
         case .totpAutofillForm:
@@ -118,6 +122,30 @@ class RootCoordinator: Coordinator, HasStackNavigator {
         let processor = ScenarioPickerProcessor(coordinator: asAnyCoordinator())
         let view = ScenarioPickerView(store: Store(processor: processor))
         stackNavigator?.replace(view)
+    }
+
+    /// Shows the SDK-backed register passkey test screen.
+    ///
+    private func showSDKRegisterPasskey() {
+        let processor = SDKRegisterPasskeyProcessor(
+            coordinator: asAnyCoordinator(),
+            sdkPasskeyService: services.sdkPasskeyService,
+        )
+        let view = SDKRegisterPasskeyView(store: Store(processor: processor))
+        let viewController = UIHostingController(rootView: view)
+        stackNavigator?.push(viewController)
+    }
+
+    /// Shows the SDK-backed use passkey test screen.
+    ///
+    private func showSDKUsePasskey() {
+        let processor = SDKUsePasskeyProcessor(
+            coordinator: asAnyCoordinator(),
+            sdkPasskeyService: services.sdkPasskeyService,
+        )
+        let view = SDKUsePasskeyView(store: Store(processor: processor))
+        let viewController = UIHostingController(rootView: view)
+        stackNavigator?.push(viewController)
     }
 
     /// Shows the simple login form test screen.

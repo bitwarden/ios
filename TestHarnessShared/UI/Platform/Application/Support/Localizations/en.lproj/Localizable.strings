@@ -71,6 +71,14 @@
 "RpIdHashMismatchExplanationLong" = "The SHA-256 hash of the relying party ID embedded in the authenticator data did not match the hash of the relying party ID the assertion was requested for.";
 "RpIdHashMismatchReceived" = "The authenticator data's relying party hash did not match the expected relying party.";
 "RpIdHashMismatchTitle" = "Relying party hash mismatch";
+"SDKAmbiguousCredentialReceived" = "Multiple stored credentials match this relying party ID; picking between them is not yet supported.";
+"SDKNoMatchingCredentialReceived" = "No stored credential matches this relying party ID.";
+"SDKPasskeyAssertedSuccessfully" = "Passkey sign-in succeeded via the Bitwarden SDK.";
+"SDKPasskeyRegisteredSuccessfully" = "Passkey registered successfully via the Bitwarden SDK.";
+"SDKRegisterPasskey" = "Register Passkey (SDK)";
+"SDKRegisterPasskeyFormDescriptionLong" = "Fill in the fields above, then tap Register Passkey. The credential is created directly through the Bitwarden SDK, with no OS passkey sheet or separate Bitwarden app involved.";
+"SDKUsePasskey" = "Use Passkey (SDK)";
+"SDKUsePasskeyFormDescriptionLong" = "Enter a relying party ID above, then tap Sign In with Passkey. The assertion is created directly through the Bitwarden SDK, with no OS passkey sheet or separate Bitwarden app involved.";
 "SecurityCode" = "Security Code";
 "ShareFile" = "Share File";
 "SharesASamplePDFDescriptionLong" = "Shares a sample PDF containing the text \"Hello World\". Exercises the UTType.data → URL → file Send path in the share extension.";
