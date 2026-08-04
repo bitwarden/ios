@@ -94,6 +94,7 @@ struct DeviceManagementView: View {
                 isCurrentSession: true,
                 isTrusted: true,
                 lastActivityDate: Date(),
+                pendingAuthRequestId: nil,
                 pendingRequest: nil,
             ),
             DeviceListItem(
@@ -106,6 +107,7 @@ struct DeviceManagementView: View {
                 isCurrentSession: false,
                 isTrusted: false,
                 lastActivityDate: Date().addingTimeInterval(-86400 * 3),
+                pendingAuthRequestId: nil,
                 pendingRequest: nil,
             ),
             DeviceListItem(
@@ -118,6 +120,7 @@ struct DeviceManagementView: View {
                 isCurrentSession: false,
                 isTrusted: true,
                 lastActivityDate: Date().addingTimeInterval(-86400 * 45),
+                pendingAuthRequestId: nil,
                 pendingRequest: nil,
             ),
         ]),

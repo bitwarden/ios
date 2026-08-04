@@ -79,18 +79,14 @@ targets:
       - target: BitwardenKit/Networking
     postCompileScripts:
       - script: |
+          if [[ -z "$CI" ]]; then
+            exit 0
+          fi
           if [[ ! "$PATH" =~ "/opt/homebrew/bin" ]]; then
             PATH="/opt/homebrew/bin:$PATH"
           fi
-          mint run swiftlint
-        name: Swiftlint
-        basedOnDependencyAnalysis: false
-      - script: |
-          if [[ ! "$PATH" =~ "/opt/homebrew/bin" ]]; then
-            PATH="/opt/homebrew/bin:$PATH"
-          fi
-          mint run swiftformat --lint --lenient .
-        name: SwiftFormat Lint
+          ./Scripts/lint-changes.sh
+        name: Lint Changes
         basedOnDependencyAnalysis: false
   TestHarnessTests:
     type: bundle.unit-test

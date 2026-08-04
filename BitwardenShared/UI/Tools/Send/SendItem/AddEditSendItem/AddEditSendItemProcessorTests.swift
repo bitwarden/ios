@@ -13,6 +13,7 @@ import XCTest
 class AddEditSendItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body_length
     // MARK: Properties
 
+    var configService: MockConfigService!
     var coordinator: MockCoordinator<SendItemRoute, AuthAction>!
     var errorReporter: MockErrorReporter!
     var pasteboardService: MockPasteboardService!
@@ -29,6 +30,7 @@ class AddEditSendItemProcessorTests: BitwardenTestCase { // swiftlint:disable:th
 
     override func setUp() {
         super.setUp()
+        configService = MockConfigService()
         coordinator = MockCoordinator()
         errorReporter = MockErrorReporter()
         pasteboardService = MockPasteboardService()
@@ -39,6 +41,7 @@ class AddEditSendItemProcessorTests: BitwardenTestCase { // swiftlint:disable:th
         subject = AddEditSendItemProcessor(
             coordinator: coordinator.asAnyCoordinator(),
             services: ServiceContainer.withMocks(
+                configService: configService,
                 errorReporter: errorReporter,
                 pasteboardService: pasteboardService,
                 policyService: policyService,
@@ -52,6 +55,7 @@ class AddEditSendItemProcessorTests: BitwardenTestCase { // swiftlint:disable:th
 
     override func tearDown() {
         super.tearDown()
+        configService = nil
         coordinator = nil
         errorReporter = nil
         pasteboardService = nil
@@ -145,16 +149,27 @@ class AddEditSendItemProcessorTests: BitwardenTestCase { // swiftlint:disable:th
         XCTAssertFalse(subject.state.isSendDisabled)
         XCTAssertFalse(subject.state.isSendHideEmailDisabled)
 
-        policyService.policyAppliesToUserResult[.disableSend] = true
+        policyService.getSendPolicyOptionsResult.isSendDisabled = true
         await subject.perform(.loadData)
         XCTAssertTrue(subject.state.isSendDisabled)
         XCTAssertFalse(subject.state.isSendHideEmailDisabled)
 
-        policyService.policyAppliesToUserResult[.disableSend] = false
-        policyService.isSendHideEmailDisabledByPolicy = true
+        policyService.getSendPolicyOptionsResult.isSendDisabled = false
+        policyService.getSendPolicyOptionsResult.isHideEmailDisabled = true
         await subject.perform(.loadData)
         XCTAssertFalse(subject.state.isSendDisabled)
         XCTAssertTrue(subject.state.isSendHideEmailDisabled)
+    }
+
+    /// `perform(_:)` with `loadData` loads whether the Send Controls policy feature flag is enabled.
+    @MainActor
+    func test_perform_loadData_sendControlsPolicyFlag() async {
+        await subject.perform(.loadData)
+        XCTAssertFalse(subject.state.isSendControlsPolicyEnabled)
+
+        configService.featureFlagsBool[.sendControls] = true
+        await subject.perform(.loadData)
+        XCTAssertTrue(subject.state.isSendControlsPolicyEnabled)
     }
 
     /// `perform(_:)` with `loadData` loads the correct maximum access count in the TextField.
