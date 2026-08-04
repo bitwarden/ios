@@ -20,6 +20,9 @@ enum AutoFillAction: Equatable {
     /// The password auto-fill button was tapped.
     case passwordAutoFillTapped
 
+    /// The Safari extension button was tapped.
+    case safariExtensionTapped
+
     /// The copy TOTP automatically toggle value changed.
     case toggleCopyTOTPToggle(Bool)
 

@@ -1,0 +1,11 @@
+appId: com.apple.mobilesafari
+---
+- launchApp
+- openLink: http://127.0.0.1:8123/login.html
+- assertVisible: Sign in to Example Cloud
+- tapOn: Email or username
+- inputText: user@example.com
+- tapOn: Password
+- inputText: old-secret
+- tapOn: Sign in
+- assertVisible: 'Login fixture intercepted submit locally for user@example.com. Password length: 10.'

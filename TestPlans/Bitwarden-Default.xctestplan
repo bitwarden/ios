@@ -102,6 +102,13 @@
         "identifier" : "65DAC3D69CB63D5E39AA4601",
         "name" : "BitwardenSharedViewInspectorTests"
       }
+    },
+    {
+      "target" : {
+        "containerPath" : "container:Bitwarden.xcodeproj",
+        "identifier" : "84FA207A5BE6667128A73C39",
+        "name" : "BitwardenSafariWebExtensionTests"
+      }
     }
   ],
   "version" : 1

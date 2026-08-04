@@ -1,0 +1,10 @@
+{
+  "extensionName": {
+    "message": "Bitwarden Safari機能拡張",
+    "description": "Safariに表示される機能拡張名。"
+  },
+  "extensionDescription": {
+    "message": "iOS/iPadOS用のBitwarden Safari Web拡張機能です。",
+    "description": "Safariに表示される機能拡張の説明。"
+  }
+}

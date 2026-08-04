@@ -57,6 +57,14 @@ class AutoFillViewTests: BitwardenTestCase {
         XCTAssertEqual(processor.dispatchedActions.last, .passwordAutoFillTapped)
     }
 
+    /// Tapping the Safari extension button dispatches the `.safariExtensionTapped` action.
+    @MainActor
+    func test_safariExtensionButton_tap() throws {
+        let button = try subject.inspect().find(button: "Safari Extension")
+        try button.tap()
+        XCTAssertEqual(processor.dispatchedActions.last, .safariExtensionTapped)
+    }
+
     /// The action card is hidden if the autofill setup progress is complete.
     @MainActor
     func test_setUpUnlockActionCard_hidden_complete() {

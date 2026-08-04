@@ -32,14 +32,19 @@ class ErrorNetworkingTests: BitwardenTestCase {
     }
 
     /// `isNetworkingError` returns `true` for `URLError`s.
-    func test_isNetworkingError_urlError() throws {
+    func test_isNonLoggableError_withURLSessionError() {
         XCTAssertTrue(URLError(.cancelled).isNonLoggableError)
         XCTAssertTrue(URLError(.networkConnectionLost).isNonLoggableError)
         XCTAssertTrue(URLError(.timedOut).isNonLoggableError)
     }
 
-    /// `isNetworkingError` returns `true` for custom `NetworkingError`.
-    func test_isNetworkingError_networkingError() throws {
+    func test_isNonLoggableError_withMissingEntitlementKeychainError() {
+        XCTAssertTrue(KeychainServiceError.osStatusError(errSecMissingEntitlement).isNonLoggableError)
+        XCTAssertFalse(KeychainServiceError.osStatusError(errSecParam).isNonLoggableError)
+    }
+
+    func test_isNonLoggableError_withCustomError() {
+
         XCTAssertTrue(TestNetworkingError.test.isNonLoggableError)
     }
 }

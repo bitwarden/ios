@@ -9,6 +9,9 @@ public protocol BundleProtocol {
     /// Return's the app's action extension identifier.
     var appExtensionIdentifier: String { get }
 
+    /// Return's the app's Safari web extension identifier.
+    var safariExtensionIdentifier: String { get }
+
     /// Return's the app's app identifier.
     var appIdentifier: String { get }
 
@@ -40,6 +43,10 @@ public protocol BundleProtocol {
 extension Bundle: BundleProtocol {
     public var appExtensionIdentifier: String {
         "\(bundleIdentifier!).find-login-action-extension"
+    }
+
+    public var safariExtensionIdentifier: String {
+        "\(bundleIdentifier!).safari-web-extension"
     }
 
     public var appIdentifier: String {

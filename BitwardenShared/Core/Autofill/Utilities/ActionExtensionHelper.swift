@@ -56,6 +56,11 @@ public class ActionExtensionHelper { // swiftlint:disable:this type_body_length
         context.providerType == Constants.UTType.appExtensionSaveLogin
     }
 
+    /// Whether the app extension change password provider was included or derived from the input items.
+    public var isProviderChangePassword: Bool {
+        context.providerType == Constants.UTType.appExtensionChangePasswordAction
+    }
+
     /// The URL of the page or app to determine matching ciphers.
     public var uri: String? {
         context.urlString
@@ -398,6 +403,7 @@ public class ActionExtensionHelper { // swiftlint:disable:this type_body_length
 
             self.context.urlString = result[Constants.appExtensionUrlStringKey]
             self.context.pageDetails = self.decodePageDetails(from: result)
+            self.deriveContextFromPageDetails()
 
             Logger.appExtension.debug(
                 """
@@ -405,5 +411,109 @@ public class ActionExtensionHelper { // swiftlint:disable:this type_body_length
                 """,
             )
         })
+    }
+
+    private func deriveContextFromPageDetails() {
+        guard let pageDetails = context.pageDetails else {
+            return
+        }
+
+        let passwordFields = pageDetails.fields.filter { $0.type == "password" && $0.viewable }
+        let hasCurrentPassword = passwordFields.contains { passwordFieldRole(for: $0) == .current }
+        let hasNewPassword = passwordFields.contains { passwordFieldRole(for: $0) == .new }
+        let hasConfirmPassword = passwordFields.contains { passwordFieldRole(for: $0) == .confirm }
+
+        if hasCurrentPassword && (hasNewPassword || hasConfirmPassword) {
+            context.providerType = Constants.UTType.appExtensionChangePasswordAction
+            context.loginTitle = normalizedText(pageDetails.title)
+            context.oldPassword = currentPasswordValue(from: pageDetails)
+            context.password = preferredSavePasswordValue(from: pageDetails)
+            context.username = preferredUsername(from: pageDetails, includeHiddenEmail: false)
+            return
+        }
+
+        if looksLikeSignupPage(pageDetails) {
+            context.providerType = Constants.UTType.appExtensionSaveLogin
+            context.loginTitle = normalizedText(pageDetails.title)
+            context.password = preferredSavePasswordValue(from: pageDetails)
+            context.username = preferredUsername(from: pageDetails, includeHiddenEmail: true)
+        }
+    }
+
+    private func currentPasswordValue(from pageDetails: PageDetails) -> String? {
+        let currentPasswordField = pageDetails.fields.first { passwordFieldRole(for: $0) == .current }
+        return normalizedText(currentPasswordField?.value)
+    }
+
+    private func preferredSavePasswordValue(from pageDetails: PageDetails) -> String? {
+        let passwordFields = pageDetails.fields.filter { $0.type == "password" && $0.viewable }
+        let preferredField = passwordFields.first { passwordFieldRole(for: $0) == .new }
+            ?? passwordFields.first { passwordFieldRole(for: $0) == .unknown }
+            ?? passwordFields.first { passwordFieldRole(for: $0) != .confirm }
+        return normalizedText(preferredField?.value)
+    }
+
+    private func preferredUsername(from pageDetails: PageDetails, includeHiddenEmail: Bool) -> String? {
+        let preferredField = pageDetails.fields.first { $0.type == "email" && $0.viewable }
+            ?? pageDetails.fields.first { $0.type == "text" && $0.viewable }
+            ?? pageDetails.fields.first { $0.type == "tel" && $0.viewable }
+            ?? (includeHiddenEmail ? pageDetails.fields.first { $0.type == "email" } : nil)
+        return normalizedText(preferredField?.value)
+    }
+
+    private func normalizedText(_ value: String?) -> String? {
+        guard let trimmed = value?.trimmingCharacters(in: .whitespacesAndNewlines), !trimmed.isEmpty else {
+            return nil
+        }
+        return trimmed
+    }
+
+    private func looksLikeSignupPage(_ pageDetails: PageDetails) -> Bool {
+        let passwordFields = pageDetails.fields.filter { $0.type == "password" && $0.viewable }
+        let hasConfirmPassword = passwordFields.contains { passwordFieldRole(for: $0) == .confirm }
+        let hasNewPassword = passwordFields.contains { passwordFieldRole(for: $0) == .new }
+        if hasConfirmPassword || hasNewPassword {
+            return true
+        }
+
+        let surfaceText = ([pageDetails.title]
+            + pageDetails.forms.values.flatMap { [$0.htmlAction, $0.htmlName, $0.htmlId] }
+            + pageDetails.fields.flatMap {
+                [$0.htmlId, $0.htmlName, $0.labelTag, $0.labelLeft, $0.placeholder, $0.value]
+            }.compactMap { $0 })
+            .joined(separator: " ")
+
+        return signupSurfaceTokens.contains { token in
+            surfaceText.localizedCaseInsensitiveContains(token)
+        }
+    }
+
+    private func passwordFieldRole(for field: PageDetails.Field) -> PasswordFieldRole {
+        let source = [field.htmlId, field.htmlName, field.labelTag, field.labelLeft, field.placeholder]
+            .compactMap { $0?.lowercased() }
+            .joined(separator: " ")
+
+        if source.contains("current") || source.contains("old") {
+            return .current
+        }
+        if source.contains("confirm") || source.contains("verification") || source.contains("verify")
+            || source.contains("repeat") || source.contains("again") {
+            return .confirm
+        }
+        if source.contains("new") || source.contains("create") || source.contains("choose") || source.contains("set") {
+            return .new
+        }
+        return .unknown
+    }
+
+    private var signupSurfaceTokens: [String] {
+        ["sign up", "signup", "create account", "create your account", "register", "join"]
+    }
+
+    private enum PasswordFieldRole {
+        case current
+        case new
+        case confirm
+        case unknown
     }
 }

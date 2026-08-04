@@ -158,6 +158,10 @@ struct AutoFillView: View {
                     }
                 }
 
+                SettingsListItem("Safari Extension") {
+                    store.send(.safariExtensionTapped)
+                }
+
                 SettingsListItem(Localizations.appExtension) {
                     store.send(.appExtensionTapped)
                 }

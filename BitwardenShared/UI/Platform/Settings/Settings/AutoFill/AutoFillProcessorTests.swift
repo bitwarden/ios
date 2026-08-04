@@ -252,6 +252,13 @@ class AutoFillProcessorTests: BitwardenTestCase {
         XCTAssertIdentical(coordinator.contexts.last as AnyObject, subject)
     }
 
+    /// `receive(_:)` with `.safariExtensionTapped` navigates to the Safari extension view.
+    @MainActor
+    func test_receive_safariExtensionTapped() {
+        subject.receive(.safariExtensionTapped)
+        XCTAssertEqual(coordinator.routes.last, .safariExtension)
+    }
+
     /// `receive(_:)` with `.toastShown` sets the toast on the state.
     @MainActor
     func test_receive_toastShown() {

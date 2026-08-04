@@ -1481,7 +1481,7 @@ extension StateService {
 
 /// The errors thrown from a `StateService`.
 ///
-enum StateServiceError: LocalizedError {
+enum StateServiceError: LocalizedError, NonLoggableError {
     /// There are no known accounts.
     case noAccounts
 
