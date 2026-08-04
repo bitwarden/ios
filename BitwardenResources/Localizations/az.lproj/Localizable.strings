@@ -39,6 +39,8 @@
 "RemoveAccount" = "Hesabı sil";
 "RemoveAccountConfirmation" = "Bu istifadəçini xaric etmək istədiyinizə əminsiniz?";
 "AccountAlreadyAdded" = "Hesab artıq əlavə edildi";
+"AccountCreationRestricted" = "Hesab yaratma məhdudlaşdırılıb";
+"XOnlyAllowsInvitedUsersToCreateAccounts" = "%1$@, yalnız dəvət edilən istifadəçilərin hesab yaratmasına icazə verir.";
 "SwitchToAlreadyAddedAccountConfirmation" = "Buna indi keçmək istəyirsiniz?";
 "MasterPassword" = "Ana parol";
 "MoreOptions" = "Daha çox seçim";
@@ -128,7 +130,7 @@
 "ItemUpdated" = "Element saxlanıldı";
 "Submitting" = "Təqdim olunur…";
 "Syncing" = "Sinxronlaşdırılır…";
-"SyncingLogins" = "Girişlər sinxronlaşdırılır…";
+"SyncingLogins" = "Girişlər sinxronlaşdırılır...";
 "SyncingComplete" = "Sinxr tamamlandı";
 "TouchID" = "Touch ID";
 "TwoStepLogin" = "İki mərhələli giriş";
@@ -563,6 +565,7 @@
 "ThereAreNoBankAccountsInYourVault" = "Seyfinizdə heç bir bank hesabı yoxdur";
 "US" = "ABŞ";
 "EU" = "AB";
+"Gov" = "Gov";
 "SelfHosted" = "Öz-özünə sahiblik edən";
 "UpdateWeakMasterPasswordWarning" = "Ana parolunuz təşkilatınızdakı siyasətlərdən birinə və ya bir neçəsinə uyğun gəlmir. Seyfə erişmək üçün ana parolunuzu indi güncəlləməlisiniz. Davam etsəniz, hazırkı seansdan çıxış etmiş və təkrar giriş etməli olacaqsınız. Digər cihazlardakı aktiv seanslar bir saata qədər aktiv qalmağa davam edə bilər.";
 "CurrentMasterPasswordRequired" = "Hazırkı ana parol (tələb olunur)";
@@ -571,8 +574,8 @@
 "RequestAdminApproval" = "Admin təsdiqini tələb et";
 "ApproveWithMasterPassword" = "Ana parolla təsdiqlə";
 "TurnOffUsingPublicDevice" = "Hər kəsə açıq bir cihaz istifadə edərək söndür";
-"TurnOnFillAssist" = "Turn on fill assist";
-"TurnOnFillAssistDescriptionLong" = "Fill Assist improves autofill accuracy on supported sites by using site-specific rules.";
+"TurnOnFillAssist" = "\"Doldurma Köməyi\"ni işə sal";
+"TurnOnFillAssistDescriptionLong" = "Doldurma Köməyi, sayta xas qaydaları istifadə edərək dəstəklənən saytlarda avto-doldurma dəqiqliyini artırır.";
 "RememberThisDevice" = "Bu cihazı xatırla";
 "Passkey" = "Keçid açarı";
 "Passkeys" = "Keçid açarı";
@@ -1100,15 +1103,15 @@
 "YourSubscriptionIsScheduledToCancelOnXDescriptionLong" = "Abunəliyiniz **%1$@** tarixində ləğv ediləcək. Abunəliyinizi bu tarixdən əvvəl təkrar aktivləşdirə bilərsiniz.";
 "PerMonth" = "/ ay";
 /* VoiceOver reading of "PerMonth", spoken instead of shown. */
-"PerMonthVoiceOver" = "per month";
+"PerMonthVoiceOver" = "aylıq";
 "PerYear" = "/ il";
 /* VoiceOver reading of "PerYear", spoken instead of shown. */
-"PerYearVoiceOver" = "per year";
+"PerYearVoiceOver" = "illik";
 "XAmountPerCadence" = "%1$@ %2$@";
 /* %1$@ is an amount and cadence together, e.g. "$1.65 / month". */
-"XCancelAnytime" = "%1$@ · Cancel anytime";
+"XCancelAnytime" = "%1$@ · İstənilən vaxt ləğv et";
 /* VoiceOver reading of "XCancelAnytime", spoken instead of shown. */
-"XCancelAnytimeVoiceOver" = "%1$@, Cancel anytime";
+"XCancelAnytimeVoiceOver" = "%1$@, İstənilən vaxt ləğv et";
 "NegativeX" = "-%1$@";
 "UnknownStatus" = "Bilinmir";
 "YourSubscriptionStatusIsUnknownVisitTheWebAppDescriptionLong" = "Abunəlik statusunuz müəyyən edilməyib. Daha çox məlumat üçün veb tətbiqi ziyarət edin, ya da ən son versiyaya güncəlləyin.";
@@ -1149,7 +1152,7 @@
 "YouNowHaveAccessToAdvancedSecurityDescriptionLong" = "Artıq qabaqcıl təhlükəsizlik özəlliklərinə erişə bilərsiniz. Nələrin Premium-a daxil olduğunu öyrənin.";
 "YouNowHaveAccessToAllAdvancedSecurityFeatures" = "Artıq bütün qabaqcıl təhlükəsizlik özəlliklərinə erişiminiz var.";
 /* Footer on the Premium upgrade screen; "Stripe" is the payment processor's name and shouldn't be translated. */
-"YoullCompleteThePurchaseWithStripeSecureCheckout" = "You'll complete the purchase with Stripe secure checkout.";
+"YoullCompleteThePurchaseWithStripeSecureCheckout" = "Satın alma prosesini Stripe təhlükəsiz ödəmə ilə tamamlayacaqsınız.";
 "ContinueToStripe" = "Stripe ilə davam edilsin?";
 "YoullBeTakenToStripeToManageYourSubscriptionCancellation" = "Abunəliyinizin ləğvi üçün Stripe-a yönləndiriləcəksiniz.";
 "UserIDCopiedToTheClipboard" = "İstifadəçi kimliyi lövhəyə kopyalandı";
@@ -1198,7 +1201,29 @@
 "LineOfCredit" = "Kredit xətti";
 "MoneyMarket" = "Pul bazarı";
 "Savings" = "YIğımlar";
+"Devices" = "Cihazlar";
+"NoDevicesFound" = "Cihaz tapılmadı";
+"CurrentSession" = "Hazırkı sessiya";
+"PendingRequest" = "Gözləyən tələb";
+"Trusted" = "Güvənilən";
+"RecentlyActiveLabel" = "Təzəlikcə aktiv:";
+"FirstLoginLabel" = "İlk giriş:";
+"Today" = "Bu gün";
+"PastSevenDays" = "Son 7 gün";
+"PastFourteenDays" = "Son 14 gün";
+"PastThirtyDays" = "Son 30 gün";
+"OverThirtyDaysAgo" = "30 gündən çox əvvəl";
+"Unknown" = "Bilinmir";
+/* Device display name. %1$@ = category (e.g. "Mobile"), %2$@ = platform (e.g. "iOS"). */
+"DeviceDisplayNameXHyphenY" = "%1$@ - %2$@";
+"Mobile" = "Mobil";
+"BrowserExtension" = "Brauzer uzantısı";
+"WebVault2" = "Veb seyf";
+"Desktop" = "Masaüstü";
+"Cli" = "CLI";
+"Sdk" = "SDK";
+"Server" = "Server";
 /* Accessibility label for the button that clears a field's value. %1$@ is the field's title (e.g. "Date of birth"), so the spoken label reads "Clear Date of birth". */
-"ClearFieldName" = "Clear %1$@";
-"SelectDate" = "Select date";
+"ClearFieldName" = "%1$@ - təmizlə";
+"SelectDate" = "Tarixi seç";
 "PremiumRequiredTOTPDescriptionLong" = "Authenticator açarı (TOTP) Premium bir özəllikdir. Hazırkı planınızda bu özəlliyə erişim yoxdur.";

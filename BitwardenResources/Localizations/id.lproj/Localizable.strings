@@ -39,6 +39,8 @@
 "RemoveAccount" = "Hapus akun";
 "RemoveAccountConfirmation" = "Anda yakin ingin menghapus akun ini?";
 "AccountAlreadyAdded" = "Akun sudah ditambahkan";
+"AccountCreationRestricted" = "Account creation restricted";
+"XOnlyAllowsInvitedUsersToCreateAccounts" = "%1$@ only allows invited users to create accounts.";
 "SwitchToAlreadyAddedAccountConfirmation" = "Apakah anda ingin beralih akun sekarang?";
 "MasterPassword" = "Sandi utama";
 "MoreOptions" = "More options";
@@ -128,7 +130,7 @@
 "ItemUpdated" = "Item disimpan";
 "Submitting" = "Mengirim…";
 "Syncing" = "Menyinkronkan…";
-"SyncingLogins" = "Menyinkronkan login…";
+"SyncingLogins" = "Menyinkronkan login...";
 "SyncingComplete" = "Sinkronisasi selesai";
 "TouchID" = "Touch ID";
 "TwoStepLogin" = "Login dua langkah";
@@ -407,7 +409,7 @@
 "CurrentAccessCount" = "Hitungan akses saat ini";
 "RemovePassword" = "Hapus Kata Sandi";
 "AreYouSureRemoveSendPassword" = "Anda yakin ingin menghapus kata sandi?";
-"RemovingSendPassword" = "Menghapus kata sandi…";
+"RemovingSendPassword" = "Menghapus kata sandi...";
 "SendPasswordRemoved" = "Sandi dihapus";
 "CopyLink" = "Salin Tautan";
 "ShareLink" = "Membagikan tautan";
@@ -455,7 +457,7 @@
 "InvalidVerificationCode" = "Kode verifikasi tidak valid.";
 "SendCode" = "Kirim Kode";
 "SendingCode" = "Mengirim kode";
-"Verifying" = "Memverifikasi…";
+"Verifying" = "Memverifikasi...";
 "ResendCode" = "Kirim ulang kode";
 "EnterTheVerificationCodeThatWasSentToYourEmail" = "Masukkan kode verifikasi yang dikirim ke email anda";
 "SubmitCrashLogs" = "Kirim catatan kerusakan";
@@ -563,6 +565,7 @@
 "ThereAreNoBankAccountsInYourVault" = "There are no bank accounts in your vault";
 "US" = "AS";
 "EU" = "EU";
+"Gov" = "Gov";
 "SelfHosted" = "Hosting mandiri";
 "UpdateWeakMasterPasswordWarning" = "Sandi utama Anda tidak memenuhi satu atau lebih kebijakan organisasi Anda. Untuk mengakses brankas, Anda harus memperbarui sandi utama sekarang. Melanjutkan akan mengeluarkan Anda dari sesi saat ini, dan Anda harus masuk kembali. Sesi aktif di perangkat lain mungkin tetap aktif hingga satu jam.";
 "CurrentMasterPasswordRequired" = "Sandi utama saat ini (wajib)";
@@ -812,7 +815,7 @@
 "YouMayNeedToEnableDevicePasscodeOrBiometrics" = "Anda mungkin perlu mengaktifkan kode sandi atau biometrik perangkat.";
 "StartImportCXFDescriptionLong" = "Impor sandi, kunci sandi, kartu kredit, dan informasi identitas pribadi apa pun dari pengelola sandi lain.\n\nData Anda **tidak** akan dihapus dari penyedia sebelumnya.";
 "ImportPasswords" = "Impor sandi";
-"ImportingEllipsis" = "Mengimpor…";
+"ImportingEllipsis" = "Mengimpor...";
 "AreYouSureYouWantToCancelTheImportProcessQuestionMark" = "Anda yakin ingin membatalkan proses impor?";
 "ImportFailed" = "Impor gagal";
 "ThereWasAnIssueImportingAllOfYourPasswordsNoDataWasDeleted" = "Terjadi masalah saat mengimpor semua sandi Anda.\n\nTidak ada data yang dihapus.";
@@ -997,7 +1000,7 @@
 "DefaultX" = "Standar (%1$@)";
 "UpdateYourEncryptionSettings" = "Perbarui pengaturan enkripsi Anda";
 "TheNewRecommendedEncryptionSettingsDescriptionLong" = "Rekomendasi pengaturan enkripsi baru akan meningkatkan keamanan akun Anda. Masukkan sandi utama untuk memperbarui sekarang.";
-"Updating" = "Memperbarui…";
+"Updating" = "Memperbarui...";
 "EncryptionSettingsUpdated" = "Pengaturan enkripsi diperbarui";
 "IntroducingArchive" = "Memperkenalkan Arsip";
 "KeepYtemsYouDontNeedRightNowSafeButOutOfSight" = "Simpan item yang belum Anda perlukan dengan aman tanpa terlihat.";
@@ -1198,6 +1201,28 @@
 "LineOfCredit" = "Line of credit";
 "MoneyMarket" = "Money market";
 "Savings" = "Savings";
+"Devices" = "Devices";
+"NoDevicesFound" = "No devices found";
+"CurrentSession" = "Current session";
+"PendingRequest" = "Pending request";
+"Trusted" = "Trusted";
+"RecentlyActiveLabel" = "Recently active:";
+"FirstLoginLabel" = "First login:";
+"Today" = "Today";
+"PastSevenDays" = "Past 7 days";
+"PastFourteenDays" = "Past 14 days";
+"PastThirtyDays" = "Past 30 days";
+"OverThirtyDaysAgo" = "Over 30 days ago";
+"Unknown" = "Unknown";
+/* Device display name. %1$@ = category (e.g. "Mobile"), %2$@ = platform (e.g. "iOS"). */
+"DeviceDisplayNameXHyphenY" = "%1$@ - %2$@";
+"Mobile" = "Mobile";
+"BrowserExtension" = "Browser extension";
+"WebVault2" = "Web vault";
+"Desktop" = "Desktop";
+"Cli" = "CLI";
+"Sdk" = "SDK";
+"Server" = "Server";
 /* Accessibility label for the button that clears a field's value. %1$@ is the field's title (e.g. "Date of birth"), so the spoken label reads "Clear Date of birth". */
 "ClearFieldName" = "Clear %1$@";
 "SelectDate" = "Select date";

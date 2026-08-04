@@ -39,6 +39,8 @@
 "RemoveAccount" = "Выдаліць уліковы запіс";
 "RemoveAccountConfirmation" = "Вы сапраўды хочаце выдаліць уліковы запіс?";
 "AccountAlreadyAdded" = "Уліковы запіс ужо дададзены";
+"AccountCreationRestricted" = "Стварэнне ўліковых запісаў абмежаванае";
+"XOnlyAllowsInvitedUsersToCreateAccounts" = "%1$@ дазваляе ствараць уліковыя запісы толькі запрошаным карыстальнікам.";
 "SwitchToAlreadyAddedAccountConfirmation" = "Хочаце пераключыцца на яго зараз?";
 "MasterPassword" = "Асноўны пароль";
 "MoreOptions" = "Дадатковыя параметры";
@@ -563,6 +565,7 @@
 "ThereAreNoBankAccountsInYourVault" = "У вашым сховішчы няма банкаўскіх рахункаў";
 "US" = "ЗША";
 "EU" = "ЕС";
+"Gov" = "Gov";
 "SelfHosted" = "Уласнае размяшчэнне";
 "UpdateWeakMasterPasswordWarning" = "Ваш асноўны пароль не адпавядае адной або некалькім палітыкам арганізацыі. Для атрымання доступу да сховішча, вы павінны абнавіць яго. Працягваючы, вы выйдзіце з бягучага сеанса і вам неабходна будзе ўвайсці паўторна. Актыўныя сеансы на іншых прыладах могуць заставацца актыўнымі на працягу адной гадзіны.";
 "CurrentMasterPasswordRequired" = "Бягучы галоўны пароль (абавязкова)";
@@ -812,7 +815,7 @@
 "YouMayNeedToEnableDevicePasscodeOrBiometrics" = "Магчыма, вам трэба ўключыць код-пароль прылады або біяметрыю.";
 "StartImportCXFDescriptionLong" = "Імпартуйце паролі, ключы доступу, крэдытныя карты і любыя асабістыя ідэнтыфікацыйныя даныя з іншага мэнэджара пароляў.\n\nВашы даныя **не будуць** выдалены ад вашага папярэдняга правайдэра.";
 "ImportPasswords" = "Імпартаваць паролі";
-"ImportingEllipsis" = "Імпартаванне…";
+"ImportingEllipsis" = "Імпартаванне...";
 "AreYouSureYouWantToCancelTheImportProcessQuestionMark" = "Вы ўпэўнены, што хочаце адмяніць працэс імпарту?";
 "ImportFailed" = "Імпарт не ўдаўся";
 "ThereWasAnIssueImportingAllOfYourPasswordsNoDataWasDeleted" = "Узнікла праблема пры імпарце ўсіх вашых пароляў.\n\nНіякія даныя не былі выдалены.";
@@ -1198,6 +1201,28 @@
 "LineOfCredit" = "Крэдытная лінія";
 "MoneyMarket" = "Грашовы рынак";
 "Savings" = "Ашчадны";
+"Devices" = "Прылады";
+"NoDevicesFound" = "No devices found";
+"CurrentSession" = "Бягучы сеанс";
+"PendingRequest" = "Запыт чакае";
+"Trusted" = "Давераны";
+"RecentlyActiveLabel" = "Recently active:";
+"FirstLoginLabel" = "First login:";
+"Today" = "Сёння";
+"PastSevenDays" = "Апошнія 7 дзён";
+"PastFourteenDays" = "Апошнія 14 дзён";
+"PastThirtyDays" = "Апошнія 30 дзён";
+"OverThirtyDaysAgo" = "Больш за 30 дзён таму";
+"Unknown" = "Невядома";
+/* Device display name. %1$@ = category (e.g. "Mobile"), %2$@ = platform (e.g. "iOS"). */
+"DeviceDisplayNameXHyphenY" = "%1$@ - %2$@";
+"Mobile" = "Mobile";
+"BrowserExtension" = "Browser extension";
+"WebVault2" = "Web vault";
+"Desktop" = "Desktop";
+"Cli" = "CLI";
+"Sdk" = "SDK";
+"Server" = "Сервер";
 /* Accessibility label for the button that clears a field's value. %1$@ is the field's title (e.g. "Date of birth"), so the spoken label reads "Clear Date of birth". */
 "ClearFieldName" = "Ачысціць %1$@";
 "SelectDate" = "Выбраць дату";

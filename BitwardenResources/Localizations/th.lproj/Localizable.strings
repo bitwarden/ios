@@ -39,6 +39,8 @@
 "RemoveAccount" = "ลบบัญชี";
 "RemoveAccountConfirmation" = "แน่ใจหรือไม่ว่าต้องการลบบัญชีนี้";
 "AccountAlreadyAdded" = "เพิ่มบัญชีแล้ว";
+"AccountCreationRestricted" = "Account creation restricted";
+"XOnlyAllowsInvitedUsersToCreateAccounts" = "%1$@ only allows invited users to create accounts.";
 "SwitchToAlreadyAddedAccountConfirmation" = "ต้องการสลับไปใช้บัญชีดังกล่าวตอนนี้หรือไม่";
 "MasterPassword" = "รหัสผ่านหลัก";
 "MoreOptions" = "ตัวเลือกเพิ่มเติม";
@@ -563,6 +565,7 @@
 "ThereAreNoBankAccountsInYourVault" = "There are no bank accounts in your vault";
 "US" = "สหรัฐอเมริกา";
 "EU" = "ยุโรป";
+"Gov" = "Gov";
 "SelfHosted" = "โฮสต์เอง";
 "UpdateWeakMasterPasswordWarning" = "รหัสผ่านหลักของคุณไม่ตรงตามนโยบายองค์กรอย่างน้อยหนึ่งข้อ ในการเข้าถึงตู้นิรภัย คุณต้องอัปเดตรหัสผ่านหลักตอนนี้ การดำเนินการต่อจะทำให้คุณออกจากระบบเซสชันปัจจุบัน และต้องเข้าสู่ระบบใหม่อีกครั้ง เซสชันที่ใช้งานอยู่บนอุปกรณ์อื่นอาจยังคงใช้งานได้นานถึงหนึ่งชั่วโมง";
 "CurrentMasterPasswordRequired" = "รหัสผ่านหลักปัจจุบัน (จำเป็น)";
@@ -1198,6 +1201,28 @@
 "LineOfCredit" = "Line of credit";
 "MoneyMarket" = "Money market";
 "Savings" = "Savings";
+"Devices" = "Devices";
+"NoDevicesFound" = "No devices found";
+"CurrentSession" = "Current session";
+"PendingRequest" = "Pending request";
+"Trusted" = "Trusted";
+"RecentlyActiveLabel" = "Recently active:";
+"FirstLoginLabel" = "First login:";
+"Today" = "Today";
+"PastSevenDays" = "Past 7 days";
+"PastFourteenDays" = "Past 14 days";
+"PastThirtyDays" = "Past 30 days";
+"OverThirtyDaysAgo" = "Over 30 days ago";
+"Unknown" = "Unknown";
+/* Device display name. %1$@ = category (e.g. "Mobile"), %2$@ = platform (e.g. "iOS"). */
+"DeviceDisplayNameXHyphenY" = "%1$@ - %2$@";
+"Mobile" = "Mobile";
+"BrowserExtension" = "Browser extension";
+"WebVault2" = "Web vault";
+"Desktop" = "Desktop";
+"Cli" = "CLI";
+"Sdk" = "SDK";
+"Server" = "Server";
 /* Accessibility label for the button that clears a field's value. %1$@ is the field's title (e.g. "Date of birth"), so the spoken label reads "Clear Date of birth". */
 "ClearFieldName" = "Clear %1$@";
 "SelectDate" = "Select date";

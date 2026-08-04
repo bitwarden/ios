@@ -39,6 +39,8 @@
 "RemoveAccount" = "Eliminar conta";
 "RemoveAccountConfirmation" = "Estás seguro de que queres eliminar a conta?";
 "AccountAlreadyAdded" = "Conta xa engadida";
+"AccountCreationRestricted" = "Account creation restricted";
+"XOnlyAllowsInvitedUsersToCreateAccounts" = "%1$@ only allows invited users to create accounts.";
 "SwitchToAlreadyAddedAccountConfirmation" = "Gustaríache cambiar a ela agora?";
 "MasterPassword" = "Contrasinal mestre";
 "MoreOptions" = "More options";
@@ -128,7 +130,7 @@
 "ItemUpdated" = "Entrada gardada";
 "Submitting" = "Submitting…";
 "Syncing" = "Syncing…";
-"SyncingLogins" = "Sincronizando credenciais…";
+"SyncingLogins" = "Sincronizando credenciais...";
 "SyncingComplete" = "Sincronización completa";
 "TouchID" = "Touch ID";
 "TwoStepLogin" = "Verificación en dous pasos";
@@ -563,6 +565,7 @@
 "ThereAreNoBankAccountsInYourVault" = "There are no bank accounts in your vault";
 "US" = "EUA";
 "EU" = "UE";
+"Gov" = "Gov";
 "SelfHosted" = "Autoaloxado";
 "UpdateWeakMasterPasswordWarning" = "O teu contrasinal mestre non cumpre algún dos requisitos das directivas da empresa. Para poder acceder a caixa forte debes actualizar o teu contrasinal mestre. A continuación cerrarase a túa sesión, requirindo volver iniciala. As sesións activas noutros dispositivos poden permanecer activas por unha hora.";
 "CurrentMasterPasswordRequired" = "Current master password (required)";
@@ -812,7 +815,7 @@
 "YouMayNeedToEnableDevicePasscodeOrBiometrics" = "Pode que precises activar un método de bloqueo no dispositivo.";
 "StartImportCXFDescriptionLong" = "Importar contrasinais, Claves de acceso, tarxetas e calquera información persoal dende outro xestor de contrasinais.\n\nOs teus datos **non** se borrarán do teu provedor previo.";
 "ImportPasswords" = "Importar contrasinais";
-"ImportingEllipsis" = "Importando…";
+"ImportingEllipsis" = "Importando...";
 "AreYouSureYouWantToCancelTheImportProcessQuestionMark" = "Seguro que queres cancelar o proceso de importado?";
 "ImportFailed" = "Importación falida";
 "ThereWasAnIssueImportingAllOfYourPasswordsNoDataWasDeleted" = "Houbo un problema ó importar os contrasinais.\n\nNon se eliminou ningún dato.";
@@ -1198,6 +1201,28 @@
 "LineOfCredit" = "Line of credit";
 "MoneyMarket" = "Money market";
 "Savings" = "Savings";
+"Devices" = "Devices";
+"NoDevicesFound" = "No devices found";
+"CurrentSession" = "Current session";
+"PendingRequest" = "Pending request";
+"Trusted" = "Trusted";
+"RecentlyActiveLabel" = "Recently active:";
+"FirstLoginLabel" = "First login:";
+"Today" = "Today";
+"PastSevenDays" = "Past 7 days";
+"PastFourteenDays" = "Past 14 days";
+"PastThirtyDays" = "Past 30 days";
+"OverThirtyDaysAgo" = "Over 30 days ago";
+"Unknown" = "Unknown";
+/* Device display name. %1$@ = category (e.g. "Mobile"), %2$@ = platform (e.g. "iOS"). */
+"DeviceDisplayNameXHyphenY" = "%1$@ - %2$@";
+"Mobile" = "Mobile";
+"BrowserExtension" = "Browser extension";
+"WebVault2" = "Web vault";
+"Desktop" = "Desktop";
+"Cli" = "CLI";
+"Sdk" = "SDK";
+"Server" = "Server";
 /* Accessibility label for the button that clears a field's value. %1$@ is the field's title (e.g. "Date of birth"), so the spoken label reads "Clear Date of birth". */
 "ClearFieldName" = "Clear %1$@";
 "SelectDate" = "Select date";
