@@ -1,3 +1,4 @@
+import BitwardenResources
 import Foundation
 
 // MARK: - VaultSettingsState
@@ -17,6 +18,11 @@ struct VaultSettingsState {
     var url: URL?
 
     // MARK: Computed Properties
+
+    /// The title of the folders settings list item.
+    var foldersTitle: String {
+        isVfo1FoundationFeatureFlagEnabled ? Localizations.myFolders : Localizations.folders
+    }
 
     /// Whether the import logins action card should be shown.
     var shouldShowImportLoginsActionCard: Bool {
