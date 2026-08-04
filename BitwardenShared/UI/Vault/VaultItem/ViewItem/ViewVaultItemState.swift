@@ -73,6 +73,9 @@ protocol ViewVaultItemState: Sendable, VaultItemWithDecorativeIcon {
     /// The notes of this item.
     var notes: String { get set }
 
+    /// The accessibility label describing the organization the item belongs to, if any.
+    var organizationAccessibilityLabel: String? { get }
+
     /// The name of the organization the item belongs to, if any.
     var organizationName: String? { get set }
 

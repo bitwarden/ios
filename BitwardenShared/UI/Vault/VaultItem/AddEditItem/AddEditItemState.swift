@@ -116,6 +116,9 @@ protocol AddEditItemState: Sendable {
     /// The owner of this item.
     var owner: CipherOwner? { get set }
 
+    /// The title to display for the ownership field.
+    var ownerFieldTitle: String { get }
+
     /// The list of ownership options to allow the user to select from.
     var ownershipOptions: [CipherOwner] { get set }
 
