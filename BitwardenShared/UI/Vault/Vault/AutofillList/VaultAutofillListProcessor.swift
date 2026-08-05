@@ -177,7 +177,7 @@ class VaultAutofillListProcessor: StateProcessor<// swiftlint:disable:this type_
                 await saveFido2CredentialAsNewLogin()
             }
         case .cancelTapped:
-            appExtensionDelegate?.didCancel()
+            cancelExtensionFlow()
         case let .profileSwitcher(action):
             handle(action)
         case let .searchStateChanged(isSearching: isSearching):
@@ -201,6 +201,18 @@ class VaultAutofillListProcessor: StateProcessor<// swiftlint:disable:this type_
     }
 
     // MARK: Private Methods
+
+    /// Ends the extension flow, disclosing a matched excluded credential to the relying party if
+    /// one was found or performing a plain cancel otherwise.
+    private func cancelExtensionFlow() {
+        if #available(iOSApplicationExtension 18.0, *),
+           state.excludedCredentialIdFound != nil,
+           let credentialProviderExtensionDelegate {
+            credentialProviderExtensionDelegate.setMatchedExcludedCredentialFound()
+        } else {
+            appExtensionDelegate?.didCancel()
+        }
+    }
 
     /// Creates a `NewCipherOptions` based on the context flow.
     func createNewCipherOptions() -> NewCipherOptions {
@@ -476,8 +488,7 @@ class VaultAutofillListProcessor: StateProcessor<// swiftlint:disable:this type_
                     message: Localizations.aPasskeyAlreadyExistsForThisApplicationButAnErrorOccurredWhileLoadingIt,
                 ),
             ) { [weak self] in
-                guard let self else { return }
-                credentialProviderExtensionDelegate?.didCancel()
+                self?.cancelExtensionFlow()
             }
         }
     }

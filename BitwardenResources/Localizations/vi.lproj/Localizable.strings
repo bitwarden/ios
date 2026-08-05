@@ -39,6 +39,8 @@
 "RemoveAccount" = "Xóa tài khoản";
 "RemoveAccountConfirmation" = "Bạn có chắc chắn muốn xóa tài khoản này không?";
 "AccountAlreadyAdded" = "Tài khoản đã được thêm";
+"AccountCreationRestricted" = "Hạn chế đăng ký tài khoản";
+"XOnlyAllowsInvitedUsersToCreateAccounts" = "%1$@ chỉ cho phép người được mời tạo tài khoản.";
 "SwitchToAlreadyAddedAccountConfirmation" = "Bạn muốn chuyển sang tài khoản này?";
 "MasterPassword" = "Mật khẩu chính";
 "MoreOptions" = "Thêm tuỳ chọn";
@@ -563,6 +565,7 @@
 "ThereAreNoBankAccountsInYourVault" = "Không có tài khoản ngân hàng nào trong kho lưu trữ của bạn";
 "US" = "Hoa Kỳ";
 "EU" = "Châu Âu";
+"Gov" = " Chính phủ";
 "SelfHosted" = "Tự lưu trữ";
 "UpdateWeakMasterPasswordWarning" = "Mật khẩu chính của bạn không đáp ứng chính sách của tổ chức của bạn. Để truy cập kho, bạn phải cập nhật mật khẩu chính của mình ngay bây giờ. Việc tiếp tục sẽ đăng xuất bạn khỏi phiên hiện tại và bắt buộc đăng nhập lại. Các phiên hoạt động trên các thiết bị khác có thể tiếp tục duy trì hoạt động trong tối đa một giờ.";
 "CurrentMasterPasswordRequired" = "Mật khẩu chính hiện tại (bắt buộc)";
@@ -1198,7 +1201,29 @@
 "LineOfCredit" = "Hạn mức tín dụng";
 "MoneyMarket" = "Thị trường tiền tệ";
 "Savings" = "Tài khoản tiết kiệm";
+"Devices" = "Thiết bị";
+"NoDevicesFound" = "Không tìm thấy thiết bị";
+"CurrentSession" = "Phiên hiện tại";
+"PendingRequest" = "Yêu cầu đang chờ xử lý";
+"Trusted" = "Đáng tin cậy";
+"RecentlyActiveLabel" = "Hoạt động gần đây:";
+"FirstLoginLabel" = "Đăng nhập lần đầu:";
+"Today" = "Hôm nay";
+"PastSevenDays" = "7 ngày qua";
+"PastFourteenDays" = "14 ngày qua";
+"PastThirtyDays" = "30 ngày qua";
+"OverThirtyDaysAgo" = "Hơn 30 ngày trước";
+"Unknown" = "Không xác định";
+/* Device display name. %1$@ = category (e.g. "Mobile"), %2$@ = platform (e.g. "iOS"). */
+"DeviceDisplayNameXHyphenY" = "%1$@ - %2$@";
+"Mobile" = "Di động";
+"BrowserExtension" = "Tiện ích mở rộng trình duyệt";
+"WebVault2" = "Kho lưu trữ web";
+"Desktop" = "Máy tính";
+"Cli" = "CLI";
+"Sdk" = "SDK";
+"Server" = "Máy chủ";
 /* Accessibility label for the button that clears a field's value. %1$@ is the field's title (e.g. "Date of birth"), so the spoken label reads "Clear Date of birth". */
-"ClearFieldName" = "Clear %1$@";
-"SelectDate" = "Select date";
+"ClearFieldName" = "Xóa %1$@";
+"SelectDate" = "Chọn ngày";
 "PremiumRequiredTOTPDescriptionLong" = "Khóa xác thực (TOTP) là một tính năng Cao cấp. Gói hiện tại của bạn không bao gồm quyền truy cập tính năng này.";

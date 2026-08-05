@@ -39,6 +39,8 @@
 "RemoveAccount" = "অ্যাকাউন্ট অপসারণ করুন";
 "RemoveAccountConfirmation" = "আপনি কি নিশ্চিত যে আপনি এই অ্যাকাউন্টটি সরাতে চান?";
 "AccountAlreadyAdded" = "অ্যাকাউন্ট ইতিমধ্যেই যোগ করা হয়েছে";
+"AccountCreationRestricted" = "অ্যাকাউন্ট তৈরি সীমাবদ্ধ";
+"XOnlyAllowsInvitedUsersToCreateAccounts" = "%1$@ শুধুমাত্র আমন্ত্রিত ব্যবহারকারীদের অ্যাকাউন্ট তৈরি করতে অনুমতি দেয়।";
 "SwitchToAlreadyAddedAccountConfirmation" = "আপনি কি এখন এটিতে স্যুইচ করতে চান?";
 "MasterPassword" = "প্রধান পাসওয়ার্ড";
 "MoreOptions" = "আরও বিকল্প";
@@ -563,6 +565,7 @@
 "ThereAreNoBankAccountsInYourVault" = "আপনার ভল্টে কোনও ব্যাঙ্ক অ্যাকাউন্ট নেই";
 "US" = "মার্কিন যুক্তরাষ্ট্র";
 "EU" = "ইইউ";
+"Gov" = "Gov";
 "SelfHosted" = "স্ব-হোস্টেড";
 "UpdateWeakMasterPasswordWarning" = "আপনার মাস্টার পাসওয়ার্ড আপনার সংগঠনের এক বা একাধিক নীতি পূরণ করে না। ভল্ট অ্যাক্সেস করতে, আপনাকে এখনই আপনার মাস্টার পাসওয়ার্ড আপডেট করতে হবে। এগিয়ে গেলে আপনি আপনার বর্তমান সেশন থেকে লগ আউট হবেন, আবার লগ ইন করতে হবে। অন্যান্য ডিভাইসে সক্রিয় সেশনগুলি এক ঘন্টা পর্যন্ত সক্রিয় থাকতে পারে।";
 "CurrentMasterPasswordRequired" = "বর্তমান মাস্টার পাসওয়ার্ড (প্রয়োজনীয়)";
@@ -1198,6 +1201,28 @@
 "LineOfCredit" = "ক্রেডিট লাইন";
 "MoneyMarket" = "মানি মার্কেট";
 "Savings" = "সঞ্চয়";
+"Devices" = "ডিভাইস";
+"NoDevicesFound" = "No devices found";
+"CurrentSession" = "বর্তমান সেশন";
+"PendingRequest" = "মুলতুবি অনুরোধ";
+"Trusted" = "বিশ্বস্ত";
+"RecentlyActiveLabel" = "Recently active:";
+"FirstLoginLabel" = "First login:";
+"Today" = "আজ";
+"PastSevenDays" = "গত 7 দিন";
+"PastFourteenDays" = "গত 14 দিন";
+"PastThirtyDays" = "গত 30 দিন";
+"OverThirtyDaysAgo" = "30 দিনের বেশি আগে";
+"Unknown" = "অজানা";
+/* Device display name. %1$@ = category (e.g. "Mobile"), %2$@ = platform (e.g. "iOS"). */
+"DeviceDisplayNameXHyphenY" = "%1$@ - %2$@";
+"Mobile" = "Mobile";
+"BrowserExtension" = "Browser extension";
+"WebVault2" = "Web vault";
+"Desktop" = "Desktop";
+"Cli" = "CLI";
+"Sdk" = "SDK";
+"Server" = "সার্ভার";
 /* Accessibility label for the button that clears a field's value. %1$@ is the field's title (e.g. "Date of birth"), so the spoken label reads "Clear Date of birth". */
 "ClearFieldName" = "%1$@ সাফ করুন";
 "SelectDate" = "তারিখ নির্বাচন করুন";
