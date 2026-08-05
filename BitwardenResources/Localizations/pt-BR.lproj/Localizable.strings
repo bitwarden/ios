@@ -39,6 +39,8 @@
 "RemoveAccount" = "Remover conta";
 "RemoveAccountConfirmation" = "Tem certeza de que deseja remover esta conta?";
 "AccountAlreadyAdded" = "Conta já adicionada";
+"AccountCreationRestricted" = "Criação de conta restrita";
+"XOnlyAllowsInvitedUsersToCreateAccounts" = "%1$@ permite apenas que usuários convidados criem contas.";
 "SwitchToAlreadyAddedAccountConfirmation" = "Deseja trocar para ela agora?";
 "MasterPassword" = "Senha principal";
 "MoreOptions" = "Mais opções";
@@ -563,6 +565,7 @@
 "ThereAreNoBankAccountsInYourVault" = "Não há contas bancárias no seu cofre";
 "US" = "EUA";
 "EU" = "União Europeia";
+"Gov" = "Gov";
 "SelfHosted" = "Auto-hospedado";
 "UpdateWeakMasterPasswordWarning" = "A sua senha principal não atende aos requisitos da política desta organização. Para poder acessar o cofre, você precisa atualizar sua senha principal agora. O processo te desconectará da sua sessão atual, exigindo que você se conecte novamente. Sessões ativas em outros dispositivos podem ficar ativas por até uma hora.";
 "CurrentMasterPasswordRequired" = "Senha principal atual (obrigatória)";
@@ -571,7 +574,7 @@
 "RequestAdminApproval" = "Solicitar aprovação do administrador";
 "ApproveWithMasterPassword" = "Aprovar com senha principal";
 "TurnOffUsingPublicDevice" = "Desativar usando um dispositivo público";
-"TurnOnFillAssist" = "Turn on fill assist";
+"TurnOnFillAssist" = "Ativar assistência de preenchimento";
 "TurnOnFillAssistDescriptionLong" = "Fill Assist improves autofill accuracy on supported sites by using site-specific rules.";
 "RememberThisDevice" = "Lembrar deste dispositivo";
 "Passkey" = "Chave de acesso";
@@ -1198,6 +1201,28 @@
 "LineOfCredit" = "Linha de crédito";
 "MoneyMarket" = "Mercado monetário";
 "Savings" = "Poupança";
+"Devices" = "Dispositivos";
+"NoDevicesFound" = "No devices found";
+"CurrentSession" = "Sessão atual";
+"PendingRequest" = "Solicitação pendente";
+"Trusted" = "Confiado";
+"RecentlyActiveLabel" = "Recently active:";
+"FirstLoginLabel" = "First login:";
+"Today" = "Hoje";
+"PastSevenDays" = "Últimos 7 dias";
+"PastFourteenDays" = "Últimos 14 dias";
+"PastThirtyDays" = "Últimos 30 dias";
+"OverThirtyDaysAgo" = "Há mais de 30 dias";
+"Unknown" = "Desconhecido";
+/* Device display name. %1$@ = category (e.g. "Mobile"), %2$@ = platform (e.g. "iOS"). */
+"DeviceDisplayNameXHyphenY" = "%1$@ - %2$@";
+"Mobile" = "Mobile";
+"BrowserExtension" = "Browser extension";
+"WebVault2" = "Web vault";
+"Desktop" = "Desktop";
+"Cli" = "CLI";
+"Sdk" = "SDK";
+"Server" = "Servidor";
 /* Accessibility label for the button that clears a field's value. %1$@ is the field's title (e.g. "Date of birth"), so the spoken label reads "Clear Date of birth". */
 "ClearFieldName" = "Clear %1$@";
 "SelectDate" = "Select date";

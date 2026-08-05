@@ -42,6 +42,11 @@ struct CipherItemState: Equatable { // swiftlint:disable:this type_body_length
     /// The card item state.
     var cardItemState = CardItemState()
 
+    /// The icon to use for a collection the item belongs to.
+    var collectionIcon: SharedImageAsset {
+        isVfo1FoundationFeatureFlagEnabled ? SharedAsset.Icons.sharedFolder16 : SharedAsset.Icons.collections16
+    }
+
     /// The list of collection IDs that the cipher is included in.
     var collectionIds: [String]
 
@@ -416,6 +421,15 @@ struct CipherItemState: Equatable { // swiftlint:disable:this type_body_length
     }
 
     // MARK: Methods
+
+    /// Returns the accessibility label describing a collection the item belongs to.
+    /// - Parameter collectionName: The name of the collection.
+    /// - Returns: The accessibility label.
+    func collectionAccessibilityLabel(_ collectionName: String) -> String {
+        isVfo1FoundationFeatureFlagEnabled
+            ? Localizations.sharedFolderX(collectionName)
+            : Localizations.collectionX(collectionName)
+    }
 
     /// Toggles the password visibility for the specified custom field.
     ///

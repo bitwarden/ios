@@ -39,6 +39,8 @@
 "RemoveAccount" = "Suprimeix el compte";
 "RemoveAccountConfirmation" = "Voleu suprimir el compte?";
 "AccountAlreadyAdded" = "El compte ja s'ha afegit";
+"AccountCreationRestricted" = "Account creation restricted";
+"XOnlyAllowsInvitedUsersToCreateAccounts" = "%1$@ only allows invited users to create accounts.";
 "SwitchToAlreadyAddedAccountConfirmation" = "T'agradaria canviar-lo ara?";
 "MasterPassword" = "Contrasenya mestra";
 "MoreOptions" = "More options";
@@ -563,6 +565,7 @@
 "ThereAreNoBankAccountsInYourVault" = "There are no bank accounts in your vault";
 "US" = "EUA";
 "EU" = "UE";
+"Gov" = "Gov";
 "SelfHosted" = "Autoallotjat";
 "UpdateWeakMasterPasswordWarning" = "La vostra contrasenya mestra no compleix una o més de les polítiques de l'organització. Per accedir a la caixa forta, heu d'actualitzar-la ara. Si continueu, es tancarà la sessió actual i us demanarà que torneu a iniciar-la. Les sessions en altres dispositius poden continuar romanent actives fins a una hora.";
 "CurrentMasterPasswordRequired" = "Current master password (required)";
@@ -1198,6 +1201,28 @@
 "LineOfCredit" = "Line of credit";
 "MoneyMarket" = "Money market";
 "Savings" = "Savings";
+"Devices" = "Devices";
+"NoDevicesFound" = "No devices found";
+"CurrentSession" = "Current session";
+"PendingRequest" = "Pending request";
+"Trusted" = "Trusted";
+"RecentlyActiveLabel" = "Recently active:";
+"FirstLoginLabel" = "First login:";
+"Today" = "Today";
+"PastSevenDays" = "Past 7 days";
+"PastFourteenDays" = "Past 14 days";
+"PastThirtyDays" = "Past 30 days";
+"OverThirtyDaysAgo" = "Over 30 days ago";
+"Unknown" = "Unknown";
+/* Device display name. %1$@ = category (e.g. "Mobile"), %2$@ = platform (e.g. "iOS"). */
+"DeviceDisplayNameXHyphenY" = "%1$@ - %2$@";
+"Mobile" = "Mobile";
+"BrowserExtension" = "Browser extension";
+"WebVault2" = "Web vault";
+"Desktop" = "Desktop";
+"Cli" = "CLI";
+"Sdk" = "SDK";
+"Server" = "Server";
 /* Accessibility label for the button that clears a field's value. %1$@ is the field's title (e.g. "Date of birth"), so the spoken label reads "Clear Date of birth". */
 "ClearFieldName" = "Clear %1$@";
 "SelectDate" = "Select date";

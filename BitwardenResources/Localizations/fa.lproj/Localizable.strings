@@ -39,6 +39,8 @@
 "RemoveAccount" = "حذف حساب کاربری";
 "RemoveAccountConfirmation" = "آیا از حذف این حساب کاربری اطمینان دارید؟";
 "AccountAlreadyAdded" = "حساب کاربری قبلاً اضافه شد";
+"AccountCreationRestricted" = "Account creation restricted";
+"XOnlyAllowsInvitedUsersToCreateAccounts" = "%1$@ only allows invited users to create accounts.";
 "SwitchToAlreadyAddedAccountConfirmation" = "آیا می‌خواهید همین الان تعویض کنید؟";
 "MasterPassword" = "کلمه عبور اصلی";
 "MoreOptions" = "گزینه‌های بیشتر";
@@ -564,6 +566,7 @@
 "ThereAreNoBankAccountsInYourVault" = "هیچ حساب بانکی در گاوصندوق شما وجود ندارد";
 "US" = "امریکا";
 "EU" = "اروپا";
+"Gov" = "Gov";
 "SelfHosted" = "خود میزبان";
 "UpdateWeakMasterPasswordWarning" = "کلمه عبور اصلی شما با یک یا چند سیاست سازمان‌تان مطابقت ندارد. برای دسترسی به گاوصندوق، باید همین حالا کلمه عبور اصلی خود را به‌روزرسانی کنید. در صورت ادامه، شما از نشست فعلی خود خارج می‌شوید و باید دوباره وارد سیستم شوید. نشست فعال در دستگاه‌های دیگر ممکن است تا یک ساعت همچنان فعال باقی بمانند.";
 "CurrentMasterPasswordRequired" = "کلمه عبور اصلی فعلی (الزامی)";
@@ -1199,6 +1202,28 @@
 "LineOfCredit" = "خط اعتباری";
 "MoneyMarket" = "بازار پول";
 "Savings" = "پس‌انداز";
+"Devices" = "دستگاه‌ها";
+"NoDevicesFound" = "No devices found";
+"CurrentSession" = "نشست فعلی";
+"PendingRequest" = "درخواست معلق";
+"Trusted" = "مورد اعتماد";
+"RecentlyActiveLabel" = "Recently active:";
+"FirstLoginLabel" = "First login:";
+"Today" = "امروز";
+"PastSevenDays" = "۷ روز گذشته";
+"PastFourteenDays" = "۱۴ روز گذشته";
+"PastThirtyDays" = "۳۰ روز گذشته";
+"OverThirtyDaysAgo" = "بیشتر از ۳۰ روز گذشته";
+"Unknown" = "ناشناخته";
+/* Device display name. %1$@ = category (e.g. "Mobile"), %2$@ = platform (e.g. "iOS"). */
+"DeviceDisplayNameXHyphenY" = "%1$@ - %2$@";
+"Mobile" = "Mobile";
+"BrowserExtension" = "Browser extension";
+"WebVault2" = "Web vault";
+"Desktop" = "Desktop";
+"Cli" = "CLI";
+"Sdk" = "SDK";
+"Server" = "سرور";
 /* Accessibility label for the button that clears a field's value. %1$@ is the field's title (e.g. "Date of birth"), so the spoken label reads "Clear Date of birth". */
 "ClearFieldName" = "Clear %1$@";
 "SelectDate" = "Select date";

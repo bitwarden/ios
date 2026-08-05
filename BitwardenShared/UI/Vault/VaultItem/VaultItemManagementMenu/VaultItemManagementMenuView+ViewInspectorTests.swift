@@ -105,10 +105,31 @@ class VaultItemManagementMenuViewTests: BitwardenTestCase {
         XCTAssertEqual(processor.effects.last, .deleteItem)
     }
 
-    /// Tapping the move to organization option dispatches the `.moveToOrganization` action.
+    /// Tapping the move to organization option dispatches the `.moveToOrganization` action when
+    /// the `vfo1-foundation` feature flag is disabled.
     @MainActor
-    func test_moveToOrgOption_tap() throws {
+    func test_moveToOrgOption_tap_vfo1FoundationDisabled() throws {
         let button = try subject.inspect().find(button: Localizations.moveToOrganization)
+        try button.tap()
+        XCTAssertEqual(processor.dispatchedActions.last, .moveToOrganization)
+    }
+
+    /// Tapping the move to organization option dispatches the `.moveToOrganization` action when
+    /// the `vfo1-foundation` feature flag is enabled.
+    @MainActor
+    func test_moveToOrgOption_tap_vfo1FoundationEnabled() throws {
+        subject = VaultItemManagementMenuView(
+            isArchiveEnabled: true,
+            isCloneEnabled: true,
+            isCollectionsEnabled: true,
+            isDeleteEnabled: true,
+            isMoveToOrganizationEnabled: true,
+            isRestoreEnabled: true,
+            isUnarchiveEnabled: false,
+            isVfo1FoundationFeatureFlagEnabled: true,
+            store: Store(processor: processor),
+        )
+        let button = try subject.inspect().find(button: Localizations.move)
         try button.tap()
         XCTAssertEqual(processor.dispatchedActions.last, .moveToOrganization)
     }

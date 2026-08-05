@@ -62,7 +62,7 @@ struct VaultItemManagementMenuView: View {
             }
 
             if isMoveToOrganizationEnabled {
-                Button(Localizations.moveToOrganization) {
+                Button(isVfo1FoundationFeatureFlagEnabled ? Localizations.move : Localizations.moveToOrganization) {
                     store.send(.moveToOrganization)
                 }
             }

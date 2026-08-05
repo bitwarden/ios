@@ -39,6 +39,8 @@
 "RemoveAccount" = "ანგარიშის წაშლა";
 "RemoveAccountConfirmation" = "დარწმუნებული ხართ, რომ გსურთ ამ ანგარიშის წაშლა?";
 "AccountAlreadyAdded" = "ანგარიში უკვე დამატებულია";
+"AccountCreationRestricted" = "Account creation restricted";
+"XOnlyAllowsInvitedUsersToCreateAccounts" = "%1$@ only allows invited users to create accounts.";
 "SwitchToAlreadyAddedAccountConfirmation" = "გსურთ მასზე ახლავე გადართვა?";
 "MasterPassword" = "მთავარი პაროლი";
 "MoreOptions" = "მეტი ვარიანტი";
@@ -563,6 +565,7 @@
 "ThereAreNoBankAccountsInYourVault" = "თქვენს სეიფში საბანკო ანგარიშები არ არის";
 "US" = "აშშ";
 "EU" = "ევროკავშირი";
+"Gov" = "Gov";
 "SelfHosted" = "საკუთარ სერვერზე განთავსებული";
 "UpdateWeakMasterPasswordWarning" = "თქვენი მთავარი პაროლი არ აკმაყოფილებს თქვენი ორგანიზაციის ერთ ან მეტ პოლიტიკას. სეიფზე წვდომისთვის, ახლავე უნდა განაახლოთ თქვენი მთავარი პაროლი. გაგრძელება გამოგიყვანთ ამჟამინდელი სესიიდან, რაც მოითხოვს ხელახლა შესვლას. აქტიური სესიები სხვა მოწყობილობებზე შეიძლება გაგრძელდეს ერთ საათამდე.";
 "CurrentMasterPasswordRequired" = "მიმდინარე მთავარი პაროლი (სავალდებულო)";
@@ -1198,6 +1201,28 @@
 "LineOfCredit" = "Line of credit";
 "MoneyMarket" = "Money market";
 "Savings" = "შემნახველი";
+"Devices" = "მოწყობილობები";
+"NoDevicesFound" = "No devices found";
+"CurrentSession" = "მიმდინარე სესია";
+"PendingRequest" = "მოლოდინში მყოფი მოთხოვნა";
+"Trusted" = "სანდო";
+"RecentlyActiveLabel" = "Recently active:";
+"FirstLoginLabel" = "First login:";
+"Today" = "დღეს";
+"PastSevenDays" = "ბოლო 7 დღე";
+"PastFourteenDays" = "ბოლო 14 დღე";
+"PastThirtyDays" = "ბოლო 30 დღე";
+"OverThirtyDaysAgo" = "30 დღეზე მეტი წინ";
+"Unknown" = "უცნობი";
+/* Device display name. %1$@ = category (e.g. "Mobile"), %2$@ = platform (e.g. "iOS"). */
+"DeviceDisplayNameXHyphenY" = "%1$@ - %2$@";
+"Mobile" = "Mobile";
+"BrowserExtension" = "Browser extension";
+"WebVault2" = "Web vault";
+"Desktop" = "Desktop";
+"Cli" = "CLI";
+"Sdk" = "SDK";
+"Server" = "სერვერი";
 /* Accessibility label for the button that clears a field's value. %1$@ is the field's title (e.g. "Date of birth"), so the spoken label reads "Clear Date of birth". */
 "ClearFieldName" = "%1$@-ის გასუფთავება";
 "SelectDate" = "აირჩიეთ თარიღი";
