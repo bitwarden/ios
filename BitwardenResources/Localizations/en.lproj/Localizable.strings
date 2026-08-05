@@ -51,6 +51,7 @@
 "OK" = "OK";
 "Password" = "Password";
 "Save" = "Save";
+/* Action to move a vault item to another vault; used as a button label, menu item, and screen title. */
 "Move" = "Move";
 "Saving" = "Saving…";
 "Settings" = "Settings";
@@ -279,6 +280,7 @@
 "RegEx" = "Regular expression";
 "StartsWith" = "Starts with";
 "MatchDetection" = "Match detection";
+/* Field label on the Move screen shown when the "vfo1-foundation" feature flag is disabled; superseded by "Vault" when enabled. */
 "Organization" = "Organization";
 "HoldYubikeyNearTop" = "Hold your Yubikey near the top of the device.";
 "TryAgain" = "Try again";
@@ -319,8 +321,15 @@
 "SelectOneCollection" = "You must select at least one collection.";
 "Share" = "Share";
 "ShareAll" = "Share all";
+/* Overflow menu item and screen title on the Move screen shown when the "vfo1-foundation" feature flag is disabled; superseded by "Move" when enabled. */
 "MoveToOrganization" = "Move to Organization";
+/* Empty state message shown when a user has no vaults available to move an item into, when the "vfo1-foundation" feature flag is enabled. */
+"NoVaultsToList" = "No vaults to list.";
+/* Empty state message shown when a user has no organizations available to move an item into, when the "vfo1-foundation" feature flag is disabled. */
 "NoOrgsToList" = "No organizations to list.";
+/* Footer text on the Move screen explaining that moving an item transfers its ownership to the destination vault's organization, when the "vfo1-foundation" feature flag is enabled. */
+"ChooseAVaultThatYouWishToMoveThisItemToDescriptionLong" = "Choose a vault that you wish to move this item to. Moving to another vault transfers ownership of the item to that organization. You will no longer be the direct owner of this item once it has been moved.";
+/* Footer text on the Move screen explaining that moving an item transfers its ownership to the destination organization, when the "vfo1-foundation" feature flag is disabled. */
 "MoveToOrgDesc" = "Choose an organization that you wish to move this item to. Moving to an organization transfers ownership of the item to that organization. You will no longer be the direct owner of this item once it has been moved.";
 "NumberOfWords" = "Number of words";
 "Passphrase" = "Passphrase";
@@ -589,6 +598,7 @@
 "LoginApproved" = "Login approved";
 "LogInWithDevice" = "Log in with device";
 "LoggingInOn" = "Logging in on";
+/* The word "Vault", used generically as a field label, screen title, and app-wide term for a user's or organization's item collection. */
 "Vault" = "Vault";
 "Appearance" = "Appearance";
 "AccountSecurity" = "Account security";

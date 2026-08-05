@@ -17,7 +17,12 @@ struct MoveToOrganizationView: View {
 
     var body: some View {
         content
-            .navigationBar(title: Localizations.moveToOrganization, titleDisplayMode: .inline)
+            .navigationBar(
+                title: store.state.isVfo1FoundationFeatureFlagEnabled
+                    ? Localizations.move
+                    : Localizations.moveToOrganization,
+                titleDisplayMode: .inline,
+            )
             .scrollView()
             .task { await store.perform(.fetchCipherOptions) }
             .toolbar {
@@ -26,10 +31,16 @@ struct MoveToOrganizationView: View {
                 }
 
                 ToolbarItem(placement: .topBarTrailing) {
-                    toolbarButton(Localizations.move) {
-                        await store.perform(.moveCipher)
+                    if store.state.isVfo1FoundationFeatureFlagEnabled {
+                        confirmToolbarButton(accessibilityIdentifier: "MoveButton", label: Localizations.move) {
+                            await store.perform(.moveCipher)
+                        }
+                    } else {
+                        toolbarButton(Localizations.move) {
+                            await store.perform(.moveCipher)
+                        }
+                        .accessibilityIdentifier("MoveButton")
                     }
-                    .accessibilityIdentifier("MoveButton")
                 }
             }
     }
@@ -59,12 +70,16 @@ struct MoveToOrganizationView: View {
     /// The content displayed in the view.
     @ViewBuilder private var content: some View {
         if store.state.ownershipOptions.isEmpty {
-            Text(Localizations.noOrgsToList)
-                .styleGuide(.body)
-                .foregroundColor(SharedAsset.Colors.textPrimary.swiftUIColor)
-                .multilineTextAlignment(.center)
-                .padding(16)
-                .frame(maxWidth: .infinity)
+            Text(
+                store.state.isVfo1FoundationFeatureFlagEnabled
+                    ? Localizations.noVaultsToList
+                    : Localizations.noOrgsToList,
+            )
+            .styleGuide(.body)
+            .foregroundColor(SharedAsset.Colors.textPrimary.swiftUIColor)
+            .multilineTextAlignment(.center)
+            .padding(16)
+            .frame(maxWidth: .infinity)
         } else {
             VStack(spacing: 16) {
                 organizationSection
@@ -78,8 +93,12 @@ struct MoveToOrganizationView: View {
     @ViewBuilder private var organizationSection: some View {
         if let owner = store.state.owner {
             BitwardenMenuField(
-                title: Localizations.organization,
-                footer: Localizations.moveToOrgDesc,
+                title: store.state.isVfo1FoundationFeatureFlagEnabled
+                    ? Localizations.vault
+                    : Localizations.organization,
+                footer: store.state.isVfo1FoundationFeatureFlagEnabled
+                    ? Localizations.chooseAVaultThatYouWishToMoveThisItemToDescriptionLong
+                    : Localizations.moveToOrgDesc,
                 accessibilityIdentifier: "OrganizationListDropdown",
                 options: store.state.ownershipOptions,
                 selection: store.binding(

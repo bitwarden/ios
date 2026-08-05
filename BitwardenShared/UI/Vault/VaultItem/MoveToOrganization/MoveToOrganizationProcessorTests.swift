@@ -9,6 +9,7 @@ import XCTest
 class MoveToOrganizationProcessorTests: BitwardenTestCase {
     // MARK: Properties
 
+    var configService: MockConfigService!
     var coordinator: MockCoordinator<VaultItemRoute, VaultItemEvent>!
     var delegate: MockMoveToOrganizationProcessorDelegate!
     var errorReporter: MockErrorReporter!
@@ -20,6 +21,7 @@ class MoveToOrganizationProcessorTests: BitwardenTestCase {
     override func setUp() {
         super.setUp()
 
+        configService = MockConfigService()
         coordinator = MockCoordinator()
         delegate = MockMoveToOrganizationProcessorDelegate()
         errorReporter = MockErrorReporter()
@@ -29,6 +31,7 @@ class MoveToOrganizationProcessorTests: BitwardenTestCase {
             coordinator: coordinator.asAnyCoordinator(),
             delegate: delegate,
             services: ServiceContainer.withMocks(
+                configService: configService,
                 errorReporter: errorReporter,
                 vaultRepository: vaultRepository,
             ),
@@ -39,6 +42,7 @@ class MoveToOrganizationProcessorTests: BitwardenTestCase {
     override func tearDown() {
         super.tearDown()
 
+        configService = nil
         coordinator = nil
         delegate = nil
         errorReporter = nil
@@ -74,6 +78,14 @@ class MoveToOrganizationProcessorTests: BitwardenTestCase {
         await subject.perform(.fetchCipherOptions)
 
         XCTAssertEqual(errorReporter.errors.last as? StateServiceError, .noActiveAccount)
+    }
+
+    /// `perform(_:)` with `.fetchCipherOptions` loads the vfo1-foundation feature flag.
+    @MainActor
+    func test_perform_fetchCipherOptions_featureFlags_vfo1Foundation() async {
+        configService.featureFlagsBool[.vfo1Foundation] = true
+        await subject.perform(.fetchCipherOptions)
+        XCTAssertTrue(subject.state.isVfo1FoundationFeatureFlagEnabled)
     }
 
     /// `perform(_:)` with `.moveCipher` shares the updated cipher.
