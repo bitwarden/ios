@@ -39,6 +39,8 @@
 "RemoveAccount" = "கணக்கை நீக்கு";
 "RemoveAccountConfirmation" = "இக்கணக்கை நிச்சயமாக நீக்க வேண்டுமா?";
 "AccountAlreadyAdded" = "கணக்கு ஏற்கனவே சேர்க்கப்பட்டது";
+"AccountCreationRestricted" = "Account creation restricted";
+"XOnlyAllowsInvitedUsersToCreateAccounts" = "%1$@ only allows invited users to create accounts.";
 "SwitchToAlreadyAddedAccountConfirmation" = "அதற்கு இப்போது நிலைமாற விரும்புகிறீரா?";
 "MasterPassword" = "பிரதான கடவுச்சொல்";
 "MoreOptions" = "More options";
@@ -564,6 +566,7 @@
 "ThereAreNoBankAccountsInYourVault" = "There are no bank accounts in your vault";
 "US" = "அமெரிக்க ஐக்கிய நாடுகள்";
 "EU" = "ஐரோப்பிய ஒன்றியம்";
+"Gov" = "Gov";
 "SelfHosted" = "சுய-ஹோஸ்ட்";
 "UpdateWeakMasterPasswordWarning" = "உங்கள் முதன்மை கடவுச்சொல் உங்கள் நிறுவனத்தின் ஒன்று அல்லது அதற்கு மேற்பட்ட கொள்கைகளைப் பூர்த்தி செய்யவில்லை.. பெட்டகத்தை அணுக, நீங்கள் இப்போது உங்கள் முதன்மை கடவுச்சொல்லைப் புதுப்பிக்க வேண்டும். தொடர்வது உங்கள் தற்போதைய அமர்விலிருந்து உங்களை வெளியேற்றும், மீண்டும் உள்நுழைய வேண்டும். மற்ற சாதனங்களில் செயலில் உள்ள அமர்வுகள் ஒரு மணிநேரம் வரை செயலில் இருக்கலாம்.";
 "CurrentMasterPasswordRequired" = "தற்போதைய மாஸ்டர் கடவுச்சொல் (தேவை)";
@@ -572,6 +575,8 @@
 "RequestAdminApproval" = "நிர்வாகி ஒப்புதல் கோரு";
 "ApproveWithMasterPassword" = "பிரதான கடவுச்சொலுடன் ஒப்புக்கொள்";
 "TurnOffUsingPublicDevice" = "பொது சாதனம் பயன்படுத்துவதை முடக்கு";
+"TurnOnFillAssist" = "Turn on fill assist";
+"TurnOnFillAssistDescriptionLong" = "Fill Assist improves autofill accuracy on supported sites by using site-specific rules.";
 "RememberThisDevice" = "இச்சாதனத்தை நினைவுகொள்";
 "Passkey" = "கடவுவிசை";
 "Passkeys" = "கடவுவிசைகள்";
@@ -1098,12 +1103,37 @@
 "YourSubscriptionExpiredOnXDescriptionLong" = "Your subscription expired on **%1$@**. Resubscribe to continue using Premium features.";
 "YourSubscriptionIsScheduledToCancelOnXDescriptionLong" = "Your subscription is scheduled to cancel on **%1$@**. You can reinstate it anytime before then.";
 "PerMonth" = "/ month";
+/* VoiceOver reading of "PerMonth", spoken instead of shown. */
+"PerMonthVoiceOver" = "per month";
 "PerYear" = "/ year";
+/* VoiceOver reading of "PerYear", spoken instead of shown. */
+"PerYearVoiceOver" = "per year";
 "XAmountPerCadence" = "%1$@ %2$@";
+/* %1$@ is an amount and cadence together, e.g. "$1.65 / month". */
+"XCancelAnytime" = "%1$@ · Cancel anytime";
+/* VoiceOver reading of "XCancelAnytime", spoken instead of shown. */
+"XCancelAnytimeVoiceOver" = "%1$@, Cancel anytime";
 "NegativeX" = "-%1$@";
 "UnknownStatus" = "Unknown";
 "YourSubscriptionStatusIsUnknownVisitTheWebAppDescriptionLong" = "Your subscription status could not be determined. Please visit the web app for more details or update to the latest version.";
-"UnlockMoreAdvancedFeaturesWithPremiumPlan" = "Unlock more advanced features with a Premium plan.";
+/* Headline on the Premium upgrade screen. */
+"UnlockAdvancedProtection" = "Unlock advanced protection";
+/* Premium benefit list item. */
+"BreezeThrough2faWithBuiltInCodes" = "Breeze through 2FA with built-in codes";
+/* Premium benefit list item. */
+"RunReportsToFindRiskyPasswords" = "Run reports to find risky passwords";
+/* Premium benefit list item. */
+"KeepDocumentsSafeAndEncrypted" = "Keep documents safe and encrypted";
+/* Premium benefit list item. */
+"AddATrustedEmergencyContact" = "Add a trusted emergency contact";
+/* Premium benefit list item. */
+"IdentifyUnsecureWebsites" = "Identify unsecure websites";
+/* Premium benefit list item. */
+"FlagAccountsWithInactive2fa" = "Flag accounts with inactive 2FA";
+/* Premium benefit list item; "Send" is the Bitwarden Send feature name and shouldn't be translated. */
+"ShareFilesSecurelyWithAnyoneUsingSend" = "Share files securely with anyone using Send";
+/* Premium benefit list item. */
+"Receive247PrioritySupport" = "Receive 24/7 priority support";
 "BuiltInAuthenticator" = "Built-in authenticator";
 "EmergencyAccess" = "Emergency access";
 "PaymentNotReceivedYet" = "Payment not received yet";
@@ -1112,7 +1142,6 @@
 "WeHadTroubleOpeningThePaymentPageDescriptionLong" = "We had trouble opening the payment page, so try again.";
 "SecureFileStorage" = "Secure file storage";
 "BreachMonitoring" = "Breach monitoring";
-"UpgradeNow" = "Upgrade now";
 "ConfirmingYourUpgrade" = "Confirming your upgrade…";
 "OpeningCheckout" = "Opening checkout…";
 "UpgradePending" = "Upgrade pending";
@@ -1123,7 +1152,8 @@
 "ViewPlan" = "View plan";
 "YouNowHaveAccessToAdvancedSecurityDescriptionLong" = "You now have access to advanced security features. Learn more about what's included with Premium.";
 "YouNowHaveAccessToAllAdvancedSecurityFeatures" = "You now have access to all advanced security features.";
-"YoullGoToStripeSecureCheckoutToCompleteYourPurchase" = "You´ll go to Stripe´s secure checkout to complete your purchase.";
+/* Footer on the Premium upgrade screen; "Stripe" is the payment processor's name and shouldn't be translated. */
+"YoullCompleteThePurchaseWithStripeSecureCheckout" = "You'll complete the purchase with Stripe secure checkout.";
 "ContinueToStripe" = "Continue to Stripe?";
 "YoullBeTakenToStripeToManageYourSubscriptionCancellation" = "You'll be taken to Stripe to manage your subscription cancellation.";
 "UserIDCopiedToTheClipboard" = "User ID copied to the clipboard";
@@ -1172,4 +1202,29 @@
 "LineOfCredit" = "Line of credit";
 "MoneyMarket" = "Money market";
 "Savings" = "Savings";
+"Devices" = "Devices";
+"NoDevicesFound" = "No devices found";
+"CurrentSession" = "Current session";
+"PendingRequest" = "Pending request";
+"Trusted" = "Trusted";
+"RecentlyActiveLabel" = "Recently active:";
+"FirstLoginLabel" = "First login:";
+"Today" = "Today";
+"PastSevenDays" = "Past 7 days";
+"PastFourteenDays" = "Past 14 days";
+"PastThirtyDays" = "Past 30 days";
+"OverThirtyDaysAgo" = "Over 30 days ago";
+"Unknown" = "Unknown";
+/* Device display name. %1$@ = category (e.g. "Mobile"), %2$@ = platform (e.g. "iOS"). */
+"DeviceDisplayNameXHyphenY" = "%1$@ - %2$@";
+"Mobile" = "Mobile";
+"BrowserExtension" = "Browser extension";
+"WebVault2" = "Web vault";
+"Desktop" = "Desktop";
+"Cli" = "CLI";
+"Sdk" = "SDK";
+"Server" = "Server";
+/* Accessibility label for the button that clears a field's value. %1$@ is the field's title (e.g. "Date of birth"), so the spoken label reads "Clear Date of birth". */
+"ClearFieldName" = "Clear %1$@";
+"SelectDate" = "Select date";
 "PremiumRequiredTOTPDescriptionLong" = "Authenticator key (TOTP) is a Premium feature. Your current plan does not include access to this feature.";

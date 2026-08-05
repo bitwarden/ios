@@ -99,6 +99,8 @@ final class AccountSecurityProcessor: StateProcessor<// swiftlint:disable:this t
             coordinator.navigate(to: .deleteAccount)
         case .logout:
             showLogoutConfirmation()
+        case .manageDevicesTapped:
+            coordinator.navigate(to: .deviceManagement)
         case .pendingLoginRequestsTapped:
             coordinator.navigate(to: .pendingLoginRequests)
         case let .sessionTimeoutActionChanged(newValue):
@@ -180,6 +182,8 @@ final class AccountSecurityProcessor: StateProcessor<// swiftlint:disable:this t
             }
 
             state.isAuthenticatorSyncEnabled = try await services.stateService.getSyncToAuthenticator()
+
+            state.isManageDevicesEnabled = await services.configService.getFeatureFlag(.manageDevices)
 
             if state.biometricUnlockStatus.isEnabled || state.isUnlockWithPINCodeOn {
                 await completeAccountSetupVaultUnlockIfNeeded()

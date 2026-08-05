@@ -35,19 +35,30 @@ class RegionHelper {
 
     /// Builds an alert for region selection and navigates to the alert.
     ///
-    func presentRegionSelectorAlert(title: String, currentRegion: RegionType?) async {
-        let actions = RegionType.userSelectableCases.map { region in
-            AlertAction(title: region.baseURLDescription, style: .default) { _ in
-                if let urls = region.defaultURLs {
-                    await self.delegate?.setRegion(region, urls)
-                } else {
-                    await self.coordinator.navigate(
-                        to: .selfHosted(currentRegion: currentRegion ?? .unitedStates),
-                        context: self.delegate,
-                    )
+    /// - Parameters:
+    ///   - title: The title of the alert.
+    ///   - currentRegion: The currently selected region.
+    ///   - excludingRegions: Regions to omit from the picker. Defaults to empty (all selectable regions shown).
+    ///
+    func presentRegionSelectorAlert(
+        title: String,
+        currentRegion: RegionType?,
+        excludingRegions: [RegionType] = [],
+    ) async {
+        let actions = RegionType.userSelectableCases
+            .filter { !excludingRegions.contains($0) }
+            .map { region in
+                AlertAction(title: region.baseURLDescription, style: .default) { _ in
+                    if let urls = region.defaultURLs {
+                        await self.delegate?.setRegion(region, urls)
+                    } else {
+                        await self.coordinator.navigate(
+                            to: .selfHosted(currentRegion: currentRegion ?? .unitedStates),
+                            context: self.delegate,
+                        )
+                    }
                 }
             }
-        }
         let cancelAction = AlertAction(title: Localizations.cancel, style: .cancel)
         let alert = Alert(
             title: title,

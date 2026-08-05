@@ -67,6 +67,7 @@ class MockAuthRepository: AuthRepository { // swiftlint:disable:this type_body_l
     var sessionTimeoutAction = [String: SessionTimeoutAction]()
     var setActiveAccountId: String?
     var setActiveAccountError: Error?
+    var setLastActiveAccountTimeCalled = false
     var setMasterPasswordHint: String?
     var setMasterPasswordPassword: String?
     var setMasterPasswordOrganizationId: String?
@@ -75,6 +76,7 @@ class MockAuthRepository: AuthRepository { // swiftlint:disable:this type_body_l
     var setMasterPasswordResult: Result<Void, Error> = .success(())
     var setPinsRequirePasswordAfterRestart: Bool?
     var setPinsResult: Result<Void, Error> = .success(())
+    var setLastActiveAccountTimeError: Error?
     var setVaultTimeoutError: Error?
     var unlockVaultFromLoginWithDeviceKey: String?
     var unlockVaultFromLoginWithDevicePrivateKey: String?
@@ -324,6 +326,13 @@ class MockAuthRepository: AuthRepository { // swiftlint:disable:this type_body_l
             .filter { $0.profile.userId == userId }
             + [priorActive].compactMap(\.self)
         return match
+    }
+
+    func setLastActiveAccountTime() async throws {
+        setLastActiveAccountTimeCalled = true
+        if let setLastActiveAccountTimeError {
+            throw setLastActiveAccountTimeError
+        }
     }
 
     func setPins(_ pin: String, requirePasswordAfterRestart: Bool) async throws {

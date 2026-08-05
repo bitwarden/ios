@@ -39,6 +39,8 @@
 "RemoveAccount" = "移除账户";
 "RemoveAccountConfirmation" = "确定要移除此账户吗？";
 "AccountAlreadyAdded" = "账户已添加";
+"AccountCreationRestricted" = "账户创建受限";
+"XOnlyAllowsInvitedUsersToCreateAccounts" = "%1$@ 仅允许受邀用户创建账户。";
 "SwitchToAlreadyAddedAccountConfirmation" = "您想现在就切换过去吗？";
 "MasterPassword" = "主密码";
 "MoreOptions" = "更多选项";
@@ -319,7 +321,7 @@
 "ShareAll" = "分享所有";
 "MoveToOrganization" = "移动到组织";
 "NoOrgsToList" = "没有可列出的组织。";
-"MoveToOrgDesc" = "选择一个您想将此项目移至的组织。移动到组织会将该项目的所有权转让给该组织。移动后，您将不再是此项目的直接所有者。";
+"MoveToOrgDesc" = "选择一个您想将此项目移至的组织。移动到组织会将该项目的所有权转移给该组织。移动后，您将不再是此项目的直接所有者。";
 "NumberOfWords" = "单词个数";
 "Passphrase" = "密码短语";
 "WordSeparator" = "单词分隔符";
@@ -563,6 +565,7 @@
 "ThereAreNoBankAccountsInYourVault" = "您的密码库中没有银行账户";
 "US" = "美国";
 "EU" = "欧盟";
+"Gov" = "Gov";
 "SelfHosted" = "自托管";
 "UpdateWeakMasterPasswordWarning" = "您的主密码不符合某一项或多项组织策略要求。要访问密码库，必须立即更新您的主密码。继续操作将使您注销当前会话，并要求您重新登录。他设备上的活动会话可能会继续保持活动状态长达一小时。";
 "CurrentMasterPasswordRequired" = "当前主密码（必填）";
@@ -571,6 +574,8 @@
 "RequestAdminApproval" = "请求管理员批准";
 "ApproveWithMasterPassword" = "使用主密码批准";
 "TurnOffUsingPublicDevice" = "不允许使用公共设备";
+"TurnOnFillAssist" = "启用填充助手";
+"TurnOnFillAssistDescriptionLong" = "填充助手通过使用站点特定的规则，提高在受支持站点上的自动填充的准确性。";
 "RememberThisDevice" = "记住此设备";
 "Passkey" = "通行密钥";
 "Passkeys" = "通行密钥";
@@ -1097,12 +1102,37 @@
 "YourSubscriptionExpiredOnXDescriptionLong" = "您的订阅到期于 **%1$@**。重新订阅以继续使用高级版功能。";
 "YourSubscriptionIsScheduledToCancelOnXDescriptionLong" = "您的订阅将于 **%1$@** 取消。在此日期之前，您可以随时恢复订阅。";
 "PerMonth" = "/月";
+/* VoiceOver reading of "PerMonth", spoken instead of shown. */
+"PerMonthVoiceOver" = "每月";
 "PerYear" = "/年";
+/* VoiceOver reading of "PerYear", spoken instead of shown. */
+"PerYearVoiceOver" = "每年";
 "XAmountPerCadence" = "%1$@ %2$@";
+/* %1$@ is an amount and cadence together, e.g. "$1.65 / month". */
+"XCancelAnytime" = "%1$@ · 随时取消";
+/* VoiceOver reading of "XCancelAnytime", spoken instead of shown. */
+"XCancelAnytimeVoiceOver" = "%1$@，随时取消";
 "NegativeX" = "-%1$@";
 "UnknownStatus" = "未知";
 "YourSubscriptionStatusIsUnknownVisitTheWebAppDescriptionLong" = "您的订阅状态无法确定。请访问网页 App 了解更多详细信息或更新到最新版本。";
-"UnlockMoreAdvancedFeaturesWithPremiumPlan" = "使用高级版方案解锁更多高级功能。";
+/* Headline on the Premium upgrade screen. */
+"UnlockAdvancedProtection" = "解锁高级保护";
+/* Premium benefit list item. */
+"BreezeThrough2faWithBuiltInCodes" = "使用内置验证码，轻松完成 2FA";
+/* Premium benefit list item. */
+"RunReportsToFindRiskyPasswords" = "运行报告以查找存在风险的密码";
+/* Premium benefit list item. */
+"KeepDocumentsSafeAndEncrypted" = "保持文档安全和加密";
+/* Premium benefit list item. */
+"AddATrustedEmergencyContact" = "添加信任的紧急联系人";
+/* Premium benefit list item. */
+"IdentifyUnsecureWebsites" = "识别不安全的网站";
+/* Premium benefit list item. */
+"FlagAccountsWithInactive2fa" = "标记未激活 2FA 的账户";
+/* Premium benefit list item; "Send" is the Bitwarden Send feature name and shouldn't be translated. */
+"ShareFilesSecurelyWithAnyoneUsingSend" = "使用 Send，与任何人安全地分享文件";
+/* Premium benefit list item. */
+"Receive247PrioritySupport" = "享受 7×24 小时优先支持";
 "BuiltInAuthenticator" = "内置身份验证器";
 "EmergencyAccess" = "紧急访问";
 "PaymentNotReceivedYet" = "尚未收到付款";
@@ -1111,7 +1141,6 @@
 "WeHadTroubleOpeningThePaymentPageDescriptionLong" = "打开付款页面时出现问题，请重试。";
 "SecureFileStorage" = "安全文件存储";
 "BreachMonitoring" = "数据泄露监测";
-"UpgradeNow" = "立即升级";
 "ConfirmingYourUpgrade" = "正在确认您的升级…";
 "OpeningCheckout" = "正在打开结账页面…";
 "UpgradePending" = "升级待处理";
@@ -1122,7 +1151,8 @@
 "ViewPlan" = "查看方案";
 "YouNowHaveAccessToAdvancedSecurityDescriptionLong" = "您现在拥有高级安全功能访问权限了。进一步了解高级版包含的内容。";
 "YouNowHaveAccessToAllAdvancedSecurityFeatures" = "您现在拥有所有高级安全功能访问权限了。";
-"YoullGoToStripeSecureCheckoutToCompleteYourPurchase" = "您将前往 Stripe 的安全结账页面完成购买。";
+/* Footer on the Premium upgrade screen; "Stripe" is the payment processor's name and shouldn't be translated. */
+"YoullCompleteThePurchaseWithStripeSecureCheckout" = "您将通过 Stripe 安全结账页面完成购买。";
 "ContinueToStripe" = "前往 Stripe 吗？";
 "YoullBeTakenToStripeToManageYourSubscriptionCancellation" = "您将被引导至 Stripe 以管理您的订阅取消操作。";
 "UserIDCopiedToTheClipboard" = "用户 ID 已复制到剪贴板";
@@ -1171,4 +1201,29 @@
 "LineOfCredit" = "信用额度";
 "MoneyMarket" = "货币市场";
 "Savings" = "储蓄";
+"Devices" = "设备";
+"NoDevicesFound" = "未找到设备";
+"CurrentSession" = "当前会话";
+"PendingRequest" = "待处理的请求";
+"Trusted" = "已信任";
+"RecentlyActiveLabel" = "近期活动：";
+"FirstLoginLabel" = "首次登录：";
+"Today" = "今天";
+"PastSevenDays" = "过去 7 天";
+"PastFourteenDays" = "过去 14 天";
+"PastThirtyDays" = "过去 30 天";
+"OverThirtyDaysAgo" = "30 天以前";
+"Unknown" = "未知";
+/* Device display name. %1$@ = category (e.g. "Mobile"), %2$@ = platform (e.g. "iOS"). */
+"DeviceDisplayNameXHyphenY" = "%1$@ - %2$@";
+"Mobile" = "移动端";
+"BrowserExtension" = "浏览器扩展";
+"WebVault2" = "网页密码库";
+"Desktop" = "桌面端";
+"Cli" = "CLI";
+"Sdk" = "SDK";
+"Server" = "服务器";
+/* Accessibility label for the button that clears a field's value. %1$@ is the field's title (e.g. "Date of birth"), so the spoken label reads "Clear Date of birth". */
+"ClearFieldName" = "清除 %1$@";
+"SelectDate" = "选择日期";
 "PremiumRequiredTOTPDescriptionLong" = "验证器密钥 (TOTP) 是高级版功能。您的当前方案不包含对此功能的访问权限。";
