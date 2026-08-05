@@ -130,7 +130,7 @@
 "ItemUpdated" = "הפריט נשמר";
 "Submitting" = "שולח…";
 "Syncing" = "מסנכרן…";
-"SyncingLogins" = "מסנכרן כניסות…";
+"SyncingLogins" = "מסנכרן כניסות...";
 "SyncingComplete" = "הסנכרון הושלם";
 "TouchID" = "טביעת אצבע Touch ID";
 "TwoStepLogin" = "התחברות בשני-שלבים";
@@ -393,7 +393,7 @@
 "MasterPasswordPolicyValidationTitle" = "סיסמה לא חוקית";
 "MasterPasswordPolicyValidationMessage" = "הסיסמה אינה עומדת בדרישות הארגון. אנא בדוק את פרטי מדיניות הסיסמאות ונסה שנית.";
 "Loading" = "טוען";
-"LoadingSubscription" = "טוען מנוי…";
+"LoadingSubscription" = "טוען מנוי...";
 "AcceptPoliciesError" = "לא הסכמת לתנאי השירות ומדיניות הפרטיות.";
 "PrivacyPolicy" = "מדיניות הפרטיות";
 "PersonalOwnershipPolicyInEffect" = "מדיניות ארגונית משפיעה על אפשרויות הבעלות שלך.";
@@ -816,7 +816,7 @@
 "YouMayNeedToEnableDevicePasscodeOrBiometrics" = "ייתכן שאתה צריך לאפשר קוד גישה למכשיר או זיהוי ביומטרי.";
 "StartImportCXFDescriptionLong" = "ייבא סיסמאות, מפתחות גישה, כרטיסי אשראי, וכל מידע אישי של זהות ממנהל סיסמאות אחר.\n\nהמידע שלך **לא** יימחק מהספק הקודם שלך.";
 "ImportPasswords" = "ייבא סיסמאות";
-"ImportingEllipsis" = "מייבא…";
+"ImportingEllipsis" = "מייבא...";
 "AreYouSureYouWantToCancelTheImportProcessQuestionMark" = "האם אתה בטוח שברצונך לבטל את תהליך הייבוא?";
 "ImportFailed" = "הייבוא נכשל";
 "ThereWasAnIssueImportingAllOfYourPasswordsNoDataWasDeleted" = "הייתה בעיה בייבוא של כל הסיסמאות שלך.\n\nלא נמחקו נתונים.";
@@ -1027,7 +1027,7 @@
 "Unarchive" = "הוצאה מהארכיב";
 "ItemMovedToArchive" = "הפריט הועבר לארכיון";
 "ItemMovedToVault" = "הפריט הועבר לכספת";
-"SendingToArchive" = "שולח לארכיון…";
+"SendingToArchive" = "שולח לארכיון...";
 "MovingItemToVault" = "מעביר פריט לכספת";
 "OrganizationNotFound" = "הארגון לא נמצא.";
 "ItemsTransferred" = "פריטים הועברו";
@@ -1043,7 +1043,7 @@
 "YourPremiumSubscriptionEndedArchiveDescriptionLong" = "כדי לקבל מחדש גישה לארכיון שלך, הפעל מחדש את מנוי הפרימיום שלך. אם תערוך פרטים עבור פריט בארכיון לפני ההפעלה מחדש, הוא יועבר חזרה לכספת שלך.";
 "RestartPremium" = "הפעל מחדש פרימיום";
 "ThisItemIsArchivedSavingChangesWillRestoreItToYourVault" = "פריט זה בארכיב. שמירת שינויים תשיב אותו לכספת שלך.";
-"SettingUpAutofill" = "מגדיר מילוי אוטומטי…";
+"SettingUpAutofill" = "מגדיר מילוי אוטומטי...";
 "AddEmail" = "הוסף אימייל";
 "AnyoneWithPasswordSetByYou" = "כל מי שיש לו סיסמה שהגדרת";
 "AnyoneWithTheLink" = "כל מי שיש לו את הקישור";
@@ -1142,8 +1142,8 @@
 "WeHadTroubleOpeningThePaymentPageDescriptionLong" = "הייתה לנו בעיה בפתיחת דף התשלום, אז נסה שוב.";
 "SecureFileStorage" = "אחסון קבצים מאובטח";
 "BreachMonitoring" = "ניטור פרצות אבטחה";
-"ConfirmingYourUpgrade" = "מאשר את השדרוג שלך…";
-"OpeningCheckout" = "פותח תשלום…";
+"ConfirmingYourUpgrade" = "מאשר את השדרוג שלך...";
+"OpeningCheckout" = "פותח תשלום...";
 "UpgradePending" = "שדרוג ממתין";
 "YourUpgradeIsBeingProcessedDescriptionLong" = "השדרוג שלך מעובד. תישאר בתוכנית החינמית עד להשלמתו. סנכרן עכשיו כדי לבדוק, או המשך והוא יתעדכן אוטומטית.";
 "UpgradedToPremium" = "שודרג לפרימיום";
