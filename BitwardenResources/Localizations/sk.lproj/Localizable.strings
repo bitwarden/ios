@@ -39,6 +39,8 @@
 "RemoveAccount" = "Odstrániť účet";
 "RemoveAccountConfirmation" = "Naozaj chcete odstrániť tento účet?";
 "AccountAlreadyAdded" = "Účet je už pridaný";
+"AccountCreationRestricted" = "Vytvorenie účtu je obmedzené";
+"XOnlyAllowsInvitedUsersToCreateAccounts" = "%1$@ umožňuje vytvárať účty iba pozvaným používateľom.";
 "SwitchToAlreadyAddedAccountConfirmation" = "Chceli by ste naň prejsť teraz?";
 "MasterPassword" = "Hlavné heslo";
 "MoreOptions" = "Ďalšie možnosti";
@@ -563,6 +565,7 @@
 "ThereAreNoBankAccountsInYourVault" = "V trezore sa nenachádzajú žiadne bankové účty";
 "US" = "USA";
 "EU" = "EÚ";
+"Gov" = "Gov";
 "SelfHosted" = "Vlastný hosting";
 "UpdateWeakMasterPasswordWarning" = "Vaše hlavné heslo nespĺňa jednu alebo viacero podmienok vašej organizácie. Ak chcete získať prístup k trezoru, musíte teraz aktualizovať svoje hlavné heslo. Pokračovaním sa odhlásite z aktuálnej relácie a budete sa musieť znova prihlásiť. Aktívne relácie na iných zariadeniach môžu zostať aktívne až jednu hodinu.";
 "CurrentMasterPasswordRequired" = "Súčasné hlavné heslo (povinné)";
@@ -1198,6 +1201,28 @@
 "LineOfCredit" = "Úverový rámec";
 "MoneyMarket" = "Peňažný trh";
 "Savings" = "Sporiaci účet";
+"Devices" = "Zariadenia";
+"NoDevicesFound" = "Žiadne zariadenia neboli nájdené";
+"CurrentSession" = "Aktuálna relácia";
+"PendingRequest" = "Čakajúca požiadavka";
+"Trusted" = "Dôveryhodné";
+"RecentlyActiveLabel" = "Nedávno aktívne:";
+"FirstLoginLabel" = "Prvé prihlásenie:";
+"Today" = "Dnes";
+"PastSevenDays" = "Posledných 7 dní";
+"PastFourteenDays" = "Posledných 14 dní";
+"PastThirtyDays" = "Posledných 30 dní";
+"OverThirtyDaysAgo" = "Pred viac ako 30 dňami";
+"Unknown" = "Neznáme";
+/* Device display name. %1$@ = category (e.g. "Mobile"), %2$@ = platform (e.g. "iOS"). */
+"DeviceDisplayNameXHyphenY" = "%1$@ – %2$@";
+"Mobile" = "Mobil";
+"BrowserExtension" = "Rozšírenie prehliadača";
+"WebVault2" = "Webový trezor";
+"Desktop" = "Počítač";
+"Cli" = "CLI";
+"Sdk" = "SDK";
+"Server" = "Server";
 /* Accessibility label for the button that clears a field's value. %1$@ is the field's title (e.g. "Date of birth"), so the spoken label reads "Clear Date of birth". */
 "ClearFieldName" = "Vyčistiť %1$@";
 "SelectDate" = "Vyberte dátum";

@@ -39,6 +39,8 @@
 "RemoveAccount" = "Noņemt kontu";
 "RemoveAccountConfirmation" = "Vai tiešām noņemt šo kontu?";
 "AccountAlreadyAdded" = "Konts jau ir pievienots";
+"AccountCreationRestricted" = "Account creation restricted";
+"XOnlyAllowsInvitedUsersToCreateAccounts" = "%1$@ only allows invited users to create accounts.";
 "SwitchToAlreadyAddedAccountConfirmation" = "Vai pārslēgties uz to?";
 "MasterPassword" = "Galvenā parole";
 "MoreOptions" = "More options";
@@ -128,7 +130,7 @@
 "ItemUpdated" = "Vienums atjaunināts.";
 "Submitting" = "Submitting…";
 "Syncing" = "Syncing…";
-"SyncingLogins" = "Sinhronizē pieteikšanās vienumus…";
+"SyncingLogins" = "Sinhronizē pieteikšanās vienumus...";
 "SyncingComplete" = "Sinhronizēšana pabeigta";
 "TouchID" = "Touch ID";
 "TwoStepLogin" = "Divpakāpju pieteikšanās";
@@ -563,6 +565,7 @@
 "ThereAreNoBankAccountsInYourVault" = "Glabātavā nav bankas kontu";
 "US" = "ASV";
 "EU" = "ES";
+"Gov" = "Gov";
 "SelfHosted" = "Pašizvietots";
 "UpdateWeakMasterPasswordWarning" = "Galvenā parole neatbilst vienam vai vairākiem apvienības nosacījumiem. Ir jāatjaunina galvenā parole, lai varētu piekļūt glabātavai. Turpinot notiks atteikšanās no pašreizējās sesijas, un būs nepieciešams pieteikties no jauna. Citās ierīcēs esošās sesijas var turpināt darboties līdz vienai stundai.";
 "CurrentMasterPasswordRequired" = "Pašreizējā galvenā parole (nepieciešama)";
@@ -812,7 +815,7 @@
 "YouMayNeedToEnableDevicePasscodeOrBiometrics" = "Var būt nepieciešams iespējot ierīces piekļuves kodu vai biometriju.";
 "StartImportCXFDescriptionLong" = "Paroļu, piekļuves atslēgu, kredītkaršu un jebkādas personīgās identitātes informācijas ievietošana no cita paroļu pārvaldnieka.\n\nIepriekšējā nodrošinātāja dati **netiks** izdzēsti.";
 "ImportPasswords" = "Ievietot paroles";
-"ImportingEllipsis" = "Ievieto…";
+"ImportingEllipsis" = "Ievieto...";
 "AreYouSureYouWantToCancelTheImportProcessQuestionMark" = "Vai tiešām atcelt ievietošanu?";
 "ImportFailed" = "Ievietošana neizdevās";
 "ThereWasAnIssueImportingAllOfYourPasswordsNoDataWasDeleted" = "Bija sarežģījums ar visu paroļu ievietošanu.\n\nNekādi dati netika izdzēsti.";
@@ -997,7 +1000,7 @@
 "DefaultX" = "Noklusējums (%1$@)";
 "UpdateYourEncryptionSettings" = "Atjaunini savus šifrēšanas iestatījumus";
 "TheNewRecommendedEncryptionSettingsDescriptionLong" = "Jaunie ieteicamie šifrēšanas iestatījumi uzlabos Tava konta drošību. Jāievada sava galvenā parole, lai atjauninātu tagad.";
-"Updating" = "Atjaunina…";
+"Updating" = "Atjaunina...";
 "EncryptionSettingsUpdated" = "Šifrēšanas iestatījumi ir atjaunināti";
 "IntroducingArchive" = "Introducing Archive";
 "KeepYtemsYouDontNeedRightNowSafeButOutOfSight" = "Keep items you don’t need right now safe but out of sight.";
@@ -1198,6 +1201,28 @@
 "LineOfCredit" = "Line of credit";
 "MoneyMarket" = "Money market";
 "Savings" = "Savings";
+"Devices" = "Devices";
+"NoDevicesFound" = "No devices found";
+"CurrentSession" = "Current session";
+"PendingRequest" = "Pending request";
+"Trusted" = "Trusted";
+"RecentlyActiveLabel" = "Recently active:";
+"FirstLoginLabel" = "First login:";
+"Today" = "Today";
+"PastSevenDays" = "Past 7 days";
+"PastFourteenDays" = "Past 14 days";
+"PastThirtyDays" = "Past 30 days";
+"OverThirtyDaysAgo" = "Over 30 days ago";
+"Unknown" = "Unknown";
+/* Device display name. %1$@ = category (e.g. "Mobile"), %2$@ = platform (e.g. "iOS"). */
+"DeviceDisplayNameXHyphenY" = "%1$@ - %2$@";
+"Mobile" = "Mobile";
+"BrowserExtension" = "Browser extension";
+"WebVault2" = "Web vault";
+"Desktop" = "Desktop";
+"Cli" = "CLI";
+"Sdk" = "SDK";
+"Server" = "Server";
 /* Accessibility label for the button that clears a field's value. %1$@ is the field's title (e.g. "Date of birth"), so the spoken label reads "Clear Date of birth". */
 "ClearFieldName" = "Clear %1$@";
 "SelectDate" = "Select date";

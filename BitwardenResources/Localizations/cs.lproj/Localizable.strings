@@ -39,6 +39,8 @@
 "RemoveAccount" = "Odebrat účet";
 "RemoveAccountConfirmation" = "Opravdu chcete odebrat tento účet?";
 "AccountAlreadyAdded" = "Účet byl již přidán";
+"AccountCreationRestricted" = "Vytvoření účtu omezeno";
+"XOnlyAllowsInvitedUsersToCreateAccounts" = "%1$@ umožňuje vytvářet účty jen pozvaným uživatelům.";
 "SwitchToAlreadyAddedAccountConfirmation" = "Chcete se na něj nyní přepnout?";
 "MasterPassword" = "Hlavní heslo";
 "MoreOptions" = "Více voleb";
@@ -563,6 +565,7 @@
 "ThereAreNoBankAccountsInYourVault" = "Ve vašem trezoru nejsou žádné bankovní účty";
 "US" = "US";
 "EU" = "EU";
+"Gov" = "Gov";
 "SelfHosted" = "Vlastní server";
 "UpdateWeakMasterPasswordWarning" = "Vaše hlavní heslo nesplňuje jednu nebo více zásad Vaší organizace. Pro přístup k trezoru musíte nyní aktualizovat své hlavní heslo. Pokračování Vás odhlásí z Vaší aktuální relace a bude nutné se přihlásit. Aktivní relace na jiných zařízeních mohou zůstat aktivní až po dobu jedné hodiny.";
 "CurrentMasterPasswordRequired" = "Aktuální hlavní heslo (vyžadováno)";
@@ -1198,6 +1201,28 @@
 "LineOfCredit" = "Úvěrový rámec";
 "MoneyMarket" = "Peněžní trh";
 "Savings" = "Úspory";
+"Devices" = "Zařízení";
+"NoDevicesFound" = "Nebyla nalezena žádná zařízení";
+"CurrentSession" = "Aktuální relace";
+"PendingRequest" = "Čekající požadavek";
+"Trusted" = "Důvěryhodný";
+"RecentlyActiveLabel" = "Nedávná aktivita:";
+"FirstLoginLabel" = "První přihlášení:";
+"Today" = "Dnes";
+"PastSevenDays" = "Posledních 7 dnů";
+"PastFourteenDays" = "Posledních 14 dnů";
+"PastThirtyDays" = "Posledních 30 dnů";
+"OverThirtyDaysAgo" = "Před více než 30 dny";
+"Unknown" = "Neznámý";
+/* Device display name. %1$@ = category (e.g. "Mobile"), %2$@ = platform (e.g. "iOS"). */
+"DeviceDisplayNameXHyphenY" = "%1$@ - %2$@";
+"Mobile" = "Mobil";
+"BrowserExtension" = "Rozšíření prohlížeče";
+"WebVault2" = "Webový trezor";
+"Desktop" = "Počítač";
+"Cli" = "CLI";
+"Sdk" = "SDK";
+"Server" = "Server";
 /* Accessibility label for the button that clears a field's value. %1$@ is the field's title (e.g. "Date of birth"), so the spoken label reads "Clear Date of birth". */
 "ClearFieldName" = "Vymazat %1$@";
 "SelectDate" = "Vyber datum";

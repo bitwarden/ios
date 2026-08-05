@@ -39,6 +39,8 @@
 "RemoveAccount" = "Удалить аккаунт";
 "RemoveAccountConfirmation" = "Вы действительно хотите удалить этот аккаунт?";
 "AccountAlreadyAdded" = "Аккаунт уже добавлен";
+"AccountCreationRestricted" = "Создание аккаунта запрещено";
+"XOnlyAllowsInvitedUsersToCreateAccounts" = "%1$@ позволяет создавать аккаунты только приглашенным пользователям.";
 "SwitchToAlreadyAddedAccountConfirmation" = "Хотите переключиться на него?";
 "MasterPassword" = "Мастер-пароль";
 "MoreOptions" = "Больше опций";
@@ -128,7 +130,7 @@
 "ItemUpdated" = "Элемент сохранен";
 "Submitting" = "Отправка…";
 "Syncing" = "Синхронизация…";
-"SyncingLogins" = "Синхронизация логинов…";
+"SyncingLogins" = "Синхронизация логинов...";
 "SyncingComplete" = "Синхронизация выполнена";
 "TouchID" = "Touch ID";
 "TwoStepLogin" = "Двухэтапная аутентификация";
@@ -391,7 +393,7 @@
 "MasterPasswordPolicyValidationTitle" = "Неверный пароль";
 "MasterPasswordPolicyValidationMessage" = "Пароль не соответствует требованиям организации. Пожалуйста, проверьте информацию о политике и попробуйте еще раз.";
 "Loading" = "Загрузка";
-"LoadingSubscription" = "Загрузка подписки…";
+"LoadingSubscription" = "Загрузка подписки...";
 "AcceptPoliciesError" = "Условия предоставления услуг и Политика конфиденциальности не были подтверждены.";
 "PrivacyPolicy" = "Политика конфиденциальности";
 "PersonalOwnershipPolicyInEffect" = "Политика организации влияет на ваши варианты владения.";
@@ -563,6 +565,7 @@
 "ThereAreNoBankAccountsInYourVault" = "В вашем хранилище нет банковских счетов.";
 "US" = "США";
 "EU" = "Европа";
+"Gov" = "Gov";
 "SelfHosted" = "Собственный хостинг";
 "UpdateWeakMasterPasswordWarning" = "Ваш мастер-пароль не соответствует требованиям политики вашей организации. Для доступа к хранилищу вы должны обновить свой мастер-пароль прямо сейчас. При этом текущая сессия будет завершена и потребуется повторная авторизация. Сессии на других устройствах могут оставаться активными в течение часа.";
 "CurrentMasterPasswordRequired" = "Текущий мастер-пароль (обязательно)";
@@ -1198,6 +1201,28 @@
 "LineOfCredit" = "Кредитная линия";
 "MoneyMarket" = "Денежный рынок";
 "Savings" = "Сбережения";
+"Devices" = "Устройства";
+"NoDevicesFound" = "Устройств не найдено";
+"CurrentSession" = "Текущая сессия";
+"PendingRequest" = "Ожидающий запрос";
+"Trusted" = "Доверенное";
+"RecentlyActiveLabel" = "Недавняя активность:";
+"FirstLoginLabel" = "Первый вход:";
+"Today" = "Сегодня";
+"PastSevenDays" = "Последние 7 дней";
+"PastFourteenDays" = "Последние 14 дней";
+"PastThirtyDays" = "Последние 30 дней";
+"OverThirtyDaysAgo" = "Более 30 дней назад";
+"Unknown" = "Неизвестно";
+/* Device display name. %1$@ = category (e.g. "Mobile"), %2$@ = platform (e.g. "iOS"). */
+"DeviceDisplayNameXHyphenY" = "%1$@ - %2$@";
+"Mobile" = "Мобильный";
+"BrowserExtension" = "Расширение браузера";
+"WebVault2" = "Веб-хранилище";
+"Desktop" = "Компьютер";
+"Cli" = "CLI";
+"Sdk" = "SDK";
+"Server" = "Сервер";
 /* Accessibility label for the button that clears a field's value. %1$@ is the field's title (e.g. "Date of birth"), so the spoken label reads "Clear Date of birth". */
 "ClearFieldName" = "Очищено %1$@";
 "SelectDate" = "Выберите дату";

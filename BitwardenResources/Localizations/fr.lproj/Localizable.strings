@@ -39,6 +39,8 @@
 "RemoveAccount" = "Supprimer le compte";
 "RemoveAccountConfirmation" = "Êtes-vous sûr de vouloir supprimer ce compte ?";
 "AccountAlreadyAdded" = "Compte déjà ajouté";
+"AccountCreationRestricted" = "Création de compte restreinte";
+"XOnlyAllowsInvitedUsersToCreateAccounts" = "%1$@ ne permet qu'aux utilisateurs invités de créer des comptes.";
 "SwitchToAlreadyAddedAccountConfirmation" = "Souhaitez-vous y passer maintenant ?";
 "MasterPassword" = "Mot de passe principal";
 "MoreOptions" = "Plus d'options";
@@ -563,6 +565,7 @@
 "ThereAreNoBankAccountsInYourVault" = "Il n'y a pas de compte bancaire dans votre coffre";
 "US" = "US";
 "EU" = "EU";
+"Gov" = "Gov";
 "SelfHosted" = "Auto-hébergé";
 "UpdateWeakMasterPasswordWarning" = "Votre mot de passe principal ne répond pas aux exigences de politique de sécurité de cette organisation. Pour accéder au coffre, vous devez mettre à jour votre mot de passe principal dès maintenant. En poursuivant, vous serez déconnecté de votre session actuelle et vous devrez vous reconnecter. Les sessions actives sur d'autres appareils peuver rester actives pendant encore une heure.";
 "CurrentMasterPasswordRequired" = "Mot de passe principal actuel (requis)";
@@ -571,8 +574,8 @@
 "RequestAdminApproval" = "Demander l'approbation de l'administrateur";
 "ApproveWithMasterPassword" = "Approuver avec le mot de passe principal";
 "TurnOffUsingPublicDevice" = "Décochez si vous utilisez un appareil public";
-"TurnOnFillAssist" = "Turn on fill assist";
-"TurnOnFillAssistDescriptionLong" = "Fill Assist improves autofill accuracy on supported sites by using site-specific rules.";
+"TurnOnFillAssist" = "Activer l'Aide de Remplissage";
+"TurnOnFillAssistDescriptionLong" = "L'Aide de Remplissage améliore la précision du remplissage automatique sur les sites pris en charge en utilisant des règles spécifiques au site.";
 "RememberThisDevice" = "Se souvenir de cet appareil";
 "Passkey" = "Clé d'accès";
 "Passkeys" = "Clés d'accès";
@@ -781,7 +784,7 @@
 "GoBack" = "Revenir en arrière";
 "GotIt" = "C'est compris";
 /* masterPasswordUnlock is the name of some data we want to delete, so there's no need to localize it. */
-"ClearMasterPasswordUnlock" = "Clear masterPasswordUnlock";
+"ClearMasterPasswordUnlock" = "Effacer masterPasswordUnlock";
 "ClearSsoCookies" = "Effacer les cookies SSO";
 "GenerateCrash" = "Générer un plantage";
 "GenerateErrorReport" = "Générer un rapport d'erreur";
@@ -1066,7 +1069,7 @@
 "ReplaceExistingCertificate" = "Remplacer le certificat existant";
 "UnableToReadCertificateFile" = "Impossible de lire le fichier de certificat.";
 /* masterPasswordUnlock is the name of some data we want to delete, so there's no need to localize it. */
-"MasterPasswordUnlockCleared" = "masterPasswordUnlock cleared.";
+"MasterPasswordUnlockCleared" = "masterPasswordUnlock effacé.";
 "SsoCookiesCleared" = "Cookies SSO effacés";
 "YourRequestWasInterruptedBecauseTheAppNeededToReAuthenticatePleaseTryAgain" = "Votre demande a été interrompue car l'application est nécessaire pour se ré-authentifier. Veuillez réessayer.";
 "AutofillWithBitwardenDescriptionLong" = "Bitwarden peut suggérer vos mots de passe et autres identifiants lorsque vous vous connectez à des applications et sites Web.";
@@ -1113,9 +1116,9 @@
 "UnknownStatus" = "Inconnu";
 "YourSubscriptionStatusIsUnknownVisitTheWebAppDescriptionLong" = "Le statut de votre abonnement n'a pas pu être déterminé. Veuillez visiter l'application web pour plus de détails ou mettre à jour vers la dernière version.";
 /* Headline on the Premium upgrade screen. */
-"UnlockAdvancedProtection" = "Unlock advanced protection";
+"UnlockAdvancedProtection" = "Déverrouillez une protection avancée";
 /* Premium benefit list item. */
-"BreezeThrough2faWithBuiltInCodes" = "Breeze through 2FA with built-in codes";
+"BreezeThrough2faWithBuiltInCodes" = "Simplifiez-vous la vie avec la 2FA grâce aux codes intégrés";
 /* Premium benefit list item. */
 "RunReportsToFindRiskyPasswords" = "Générer des rapports pour trouver les mots de passes à risque";
 /* Premium benefit list item. */
@@ -1143,9 +1146,9 @@
 "UpgradePending" = "Mise à niveau en attente";
 "YourUpgradeIsBeingProcessedDescriptionLong" = "Votre mise à niveau est en cours de traitement. Vous resterez sur la formule gratuite jusqu'à ce qu'elle soit finalisée. Synchronisez maintenant pour vérifier, ou continuez — la mise à jour s'effectuera automatiquement.";
 "UpgradedToPremium" = "Passer à la version Premium";
-"SubscriptionNeedsAttention" = "Your subscription needs attention";
-"CheckYourPlanForDetails" = "Check your plan for details.";
-"ViewPlan" = "View plan";
+"SubscriptionNeedsAttention" = "Votre abonnement nécessite de l'attention";
+"CheckYourPlanForDetails" = "Consultez votre abonnement pour plus d'informations.";
+"ViewPlan" = "Afficher l'abonnement";
 "YouNowHaveAccessToAdvancedSecurityDescriptionLong" = "Vous avez désormais accès aux fonctionnalités de sécurité avancées. Apprenez-en plus sur ce qui est inclus avec Premium.";
 "YouNowHaveAccessToAllAdvancedSecurityFeatures" = "Vous avez désormais accès à toutes les fonctionnalités de sécurité avancées.";
 /* Footer on the Premium upgrade screen; "Stripe" is the payment processor's name and shouldn't be translated. */
@@ -1198,7 +1201,29 @@
 "LineOfCredit" = "Ligne de crédit";
 "MoneyMarket" = "Compte du marché monétaire";
 "Savings" = "Compte épargne";
+"Devices" = "Appareils";
+"NoDevicesFound" = "No devices found";
+"CurrentSession" = "Session en cours";
+"PendingRequest" = "Demande en attente";
+"Trusted" = "Approuvé";
+"RecentlyActiveLabel" = "Recently active:";
+"FirstLoginLabel" = "First login:";
+"Today" = "Aujourd'hui";
+"PastSevenDays" = "7 derniers jours";
+"PastFourteenDays" = "14 derniers jours";
+"PastThirtyDays" = "30 derniers jours";
+"OverThirtyDaysAgo" = "Il y a plus de 30 jours";
+"Unknown" = "Inconnu";
+/* Device display name. %1$@ = category (e.g. "Mobile"), %2$@ = platform (e.g. "iOS"). */
+"DeviceDisplayNameXHyphenY" = "%1$@ - %2$@";
+"Mobile" = "Mobile";
+"BrowserExtension" = "Browser extension";
+"WebVault2" = "Web vault";
+"Desktop" = "Desktop";
+"Cli" = "CLI";
+"Sdk" = "SDK";
+"Server" = "Serveur";
 /* Accessibility label for the button that clears a field's value. %1$@ is the field's title (e.g. "Date of birth"), so the spoken label reads "Clear Date of birth". */
-"ClearFieldName" = "Clear %1$@";
+"ClearFieldName" = "Effacer %1$@";
 "SelectDate" = "Sélectionner la date";
-"PremiumRequiredTOTPDescriptionLong" = "Authenticator key (TOTP) is a Premium feature. Your current plan does not include access to this feature.";
+"PremiumRequiredTOTPDescriptionLong" = "La clé d'authentification (TOTP) est une fonctionnalité Premium. Votre plan actuel n'inclut pas l'accès à cette fonctionnalité.";

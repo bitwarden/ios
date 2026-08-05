@@ -39,6 +39,8 @@
 "RemoveAccount" = "Hesabı kaldır";
 "RemoveAccountConfirmation" = "Bu hesabı kaldırmak istediğinizden emin misiniz?";
 "AccountAlreadyAdded" = "Hesap zaten eklenmiş";
+"AccountCreationRestricted" = "Account creation restricted";
+"XOnlyAllowsInvitedUsersToCreateAccounts" = "%1$@ only allows invited users to create accounts.";
 "SwitchToAlreadyAddedAccountConfirmation" = "Bu hesaba geçmek ister misiniz?";
 "MasterPassword" = "Ana parola";
 "MoreOptions" = "Diğer seçenekler";
@@ -128,7 +130,7 @@
 "ItemUpdated" = "Kayıt kaydedildi";
 "Submitting" = "Gönderiliyor…";
 "Syncing" = "Eşitleniyor…";
-"SyncingLogins" = "Hesaplar eşitleniyor…";
+"SyncingLogins" = "Hesaplar eşitleniyor...";
 "SyncingComplete" = "Eşitleme tamamlandı";
 "TouchID" = "Touch ID";
 "TwoStepLogin" = "İki aşamalı giriş";
@@ -391,7 +393,7 @@
 "MasterPasswordPolicyValidationTitle" = "Geçersiz parola";
 "MasterPasswordPolicyValidationMessage" = "Parolanız kuruluş gereksinimlerini karşılamıyor.  Lütfen parola politikasını kontrol edip yeniden deneyin.";
 "Loading" = "Yükleniyor";
-"LoadingSubscription" = "Abonelik yükleniyor…";
+"LoadingSubscription" = "Abonelik yükleniyor...";
 "AcceptPoliciesError" = "Hizmet Koşulları ve Gizlilik Politikası kabul edilmemiş.";
 "PrivacyPolicy" = "Gizlilik Politikası";
 "PersonalOwnershipPolicyInEffect" = "Bir kuruluş ilkesi sahiplik seçeneklerinizi etkiliyor.";
@@ -563,6 +565,7 @@
 "ThereAreNoBankAccountsInYourVault" = "Kasanızda hiç banka hesabı yok";
 "US" = "ABD";
 "EU" = "AB";
+"Gov" = "Gov";
 "SelfHosted" = "Barındırılan";
 "UpdateWeakMasterPasswordWarning" = "Ana parolanız kuruluş ilkelerinizi karşılamıyor. Kasanıza erişmek için ana parolanızı güncellemelisiniz. Devam ettiğinizde oturumunuz kapanacak ve yeniden oturum açmanız gerekecektir. Diğer cihazlardaki aktif oturumlar bir saate kadar aktif kalabilir.";
 "CurrentMasterPasswordRequired" = "Mevcut ana parola (gerekli)";
@@ -1139,7 +1142,7 @@
 "SecureFileStorage" = "Güvenli dosya depolama";
 "BreachMonitoring" = "İhlal izleme";
 "ConfirmingYourUpgrade" = "Geliştirmen onaylanıyor…";
-"OpeningCheckout" = "Ödeme açılıyor…";
+"OpeningCheckout" = "Ödeme açılıyor...";
 "UpgradePending" = "Yükseltme beklemede";
 "YourUpgradeIsBeingProcessedDescriptionLong" = "Yükseltme işlemin işleniyor. Tamamlanana kadar ücretsiz planı kullanmaya devam edeceksin. Kontrol etmek için şimdi senkronize edebilir veya devam edebilirsin; tamamlandığında otomatik olarak güncellenecektir.";
 "UpgradedToPremium" = "Premium'a yükseltildi";
@@ -1198,6 +1201,28 @@
 "LineOfCredit" = "Kredi limiti";
 "MoneyMarket" = "Para piyasası";
 "Savings" = "Mevduat";
+"Devices" = "Cihazlar";
+"NoDevicesFound" = "Cihaz bulunamadı";
+"CurrentSession" = "Geçerli oturum";
+"PendingRequest" = "Bekleyen istek";
+"Trusted" = "Güvenilen";
+"RecentlyActiveLabel" = "Yakın zamanda aktif:";
+"FirstLoginLabel" = "İlk giriş:";
+"Today" = "Bugün";
+"PastSevenDays" = "Son 7 gün";
+"PastFourteenDays" = "Son 14 gün";
+"PastThirtyDays" = "Son 30 gün";
+"OverThirtyDaysAgo" = "30 günden önce";
+"Unknown" = "Bilinmiyor";
+/* Device display name. %1$@ = category (e.g. "Mobile"), %2$@ = platform (e.g. "iOS"). */
+"DeviceDisplayNameXHyphenY" = "%1$@ - %2$@";
+"Mobile" = "Mobil";
+"BrowserExtension" = "Tarayıcı uzantısı";
+"WebVault2" = "Web kasası";
+"Desktop" = "Masaüstü";
+"Cli" = "CLI";
+"Sdk" = "SDK";
+"Server" = "Sunucu";
 /* Accessibility label for the button that clears a field's value. %1$@ is the field's title (e.g. "Date of birth"), so the spoken label reads "Clear Date of birth". */
 "ClearFieldName" = "%1$@ alanını temizle";
 "SelectDate" = "Tarih seçin";
