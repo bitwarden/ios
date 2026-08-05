@@ -341,6 +341,34 @@ class CipherItemStateTests: BitwardenTestCase { // swiftlint:disable:this type_b
         XCTAssertTrue(subject.canMoveToOrganization)
     }
 
+    /// `collectionAccessibilityLabel(_:)` reads "Collection, <name>" when the `vfo1-foundation`
+    /// feature flag is disabled.
+    func test_collectionAccessibilityLabel_vfo1FoundationDisabled() {
+        let subject = CipherItemState(hasPremium: false)
+        XCTAssertEqual(subject.collectionAccessibilityLabel("Marketing"), Localizations.collectionX("Marketing"))
+    }
+
+    /// `collectionAccessibilityLabel(_:)` reads "Shared folder, <name>" when the `vfo1-foundation`
+    /// feature flag is enabled.
+    func test_collectionAccessibilityLabel_vfo1FoundationEnabled() {
+        var subject = CipherItemState(hasPremium: false)
+        subject.isVfo1FoundationFeatureFlagEnabled = true
+        XCTAssertEqual(subject.collectionAccessibilityLabel("Marketing"), Localizations.sharedFolderX("Marketing"))
+    }
+
+    /// `collectionIcon` is the collections icon when the `vfo1-foundation` feature flag is disabled.
+    func test_collectionIcon_vfo1FoundationDisabled() {
+        let subject = CipherItemState(hasPremium: false)
+        XCTAssertEqual(subject.collectionIcon.name, SharedAsset.Icons.collections16.name)
+    }
+
+    /// `collectionIcon` is the shared folder icon when the `vfo1-foundation` feature flag is enabled.
+    func test_collectionIcon_vfo1FoundationEnabled() {
+        var subject = CipherItemState(hasPremium: false)
+        subject.isVfo1FoundationFeatureFlagEnabled = true
+        XCTAssertEqual(subject.collectionIcon.name, SharedAsset.Icons.sharedFolder16.name)
+    }
+
     /// `hasOrganizations` is true when the cipher has a non-nil organizationId.
     func test_hasOrganizations_whenCipherBelongsToAnOrg_returnsTrue() throws {
         let cipher = CipherView.fixture(organizationId: "org123")

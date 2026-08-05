@@ -68,10 +68,31 @@ class VaultItemManagementMenuViewTests: BitwardenTestCase {
         XCTAssertEqual(processor.dispatchedActions.last, .clone)
     }
 
-    /// Tapping the attachments option dispatches the `.clone` action.
+    /// Tapping the collections option dispatches the `.editCollections` action when the
+    /// `vfo1-foundation` feature flag is disabled.
     @MainActor
-    func test_collectionsOption_tap() throws {
+    func test_collectionsOption_tap_vfo1FoundationDisabled() throws {
         let button = try subject.inspect().find(button: Localizations.collections)
+        try button.tap()
+        XCTAssertEqual(processor.dispatchedActions.last, .editCollections)
+    }
+
+    /// Tapping the shared folders option dispatches the `.editCollections` action when the
+    /// `vfo1-foundation` feature flag is enabled.
+    @MainActor
+    func test_collectionsOption_tap_vfo1FoundationEnabled() throws {
+        subject = VaultItemManagementMenuView(
+            isArchiveEnabled: true,
+            isCloneEnabled: true,
+            isCollectionsEnabled: true,
+            isDeleteEnabled: true,
+            isMoveToOrganizationEnabled: true,
+            isRestoreEnabled: true,
+            isUnarchiveEnabled: false,
+            isVfo1FoundationFeatureFlagEnabled: true,
+            store: Store(processor: processor),
+        )
+        let button = try subject.inspect().find(button: Localizations.sharedFolders)
         try button.tap()
         XCTAssertEqual(processor.dispatchedActions.last, .editCollections)
     }

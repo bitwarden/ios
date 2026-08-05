@@ -260,6 +260,19 @@ class VaultListItemTests: BitwardenTestCase { // swiftlint:disable:this type_bod
         )
     }
 
+    /// `getter:icon` returns the shared folder icon for a collection group when the
+    /// `vfo1-foundation` feature flag is enabled.
+    func test_icon_collection_vfo1FoundationEnabled() {
+        XCTAssertEqual(
+            VaultListItem(
+                id: "",
+                isVfo1FoundationFeatureFlagEnabled: true,
+                itemType: .group(.collection(id: "", name: "", organizationId: "1"), 1),
+            ).icon.name,
+            SharedAsset.Icons.sharedFolder24.name,
+        )
+    }
+
     /// `getter:iconAccessibilityId` gets the appropriate id for each icon.
     func test_iconAccessibilityId() {
         XCTAssertEqual(

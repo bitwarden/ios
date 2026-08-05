@@ -207,10 +207,10 @@ struct ViewItemDetailsView: View { // swiftlint:disable:this type_body_length
                 ForEachIndexed(store.state.cipherCollectionsToDisplay) { index, collection in
                     VStack(alignment: .leading, spacing: 0) {
                         belongingView(
-                            icon: SharedAsset.Icons.collections16,
+                            icon: store.state.collectionIcon,
                             name: collection.name,
                         )
-                        .accessibilityLabel(Localizations.collectionX(collection.name))
+                        .accessibilityLabel(store.state.collectionAccessibilityLabel(collection.name))
                         .accessibilityHint(Localizations.itemXOfY(index + 2, store.state.totalHeaderAdditionalItems))
                         .if(index == 1) { view in
                             view.accessibilityFocused($isSecondCollectionFocused)

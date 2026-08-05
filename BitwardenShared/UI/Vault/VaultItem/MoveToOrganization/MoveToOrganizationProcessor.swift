@@ -111,7 +111,9 @@ class MoveToOrganizationProcessor: StateProcessor<
             coordinator.showAlert(
                 .defaultAlert(
                     title: Localizations.anErrorHasOccurred,
-                    message: Localizations.selectOneCollection,
+                    message: state.isVfo1FoundationFeatureFlagEnabled
+                        ? Localizations.youMustSelectAtLeastOneSharedFolder
+                        : Localizations.selectOneCollection,
                 ),
             )
             return

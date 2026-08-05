@@ -56,7 +56,7 @@ struct VaultItemManagementMenuView: View {
             }
 
             if isCollectionsEnabled {
-                Button(Localizations.collections) {
+                Button(isVfo1FoundationFeatureFlagEnabled ? Localizations.sharedFolders : Localizations.collections) {
                     store.send(.editCollections)
                 }
             }
