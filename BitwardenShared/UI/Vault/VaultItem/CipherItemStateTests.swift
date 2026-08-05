@@ -516,6 +516,29 @@ class CipherItemStateTests: BitwardenTestCase { // swiftlint:disable:this type_b
         XCTAssertEqual(subjectSSHKey.navigationTitle, Localizations.addSSHKey)
     }
 
+    /// `organizationAccessibilityLabel` is `nil` when the cipher doesn't belong to an organization.
+    func test_organizationAccessibilityLabel_noOrganization() {
+        let subject = CipherItemState(hasPremium: false)
+        XCTAssertNil(subject.organizationAccessibilityLabel)
+    }
+
+    /// `organizationAccessibilityLabel` reads "Owner, <name>" when the `vfo1-foundation`
+    /// feature flag is disabled.
+    func test_organizationAccessibilityLabel_vfo1FoundationDisabled() {
+        var subject = CipherItemState(hasPremium: false)
+        subject.organizationName = "Organization"
+        XCTAssertEqual(subject.organizationAccessibilityLabel, Localizations.ownerX("Organization"))
+    }
+
+    /// `organizationAccessibilityLabel` reads "Vault, <name>" when the `vfo1-foundation`
+    /// feature flag is enabled.
+    func test_organizationAccessibilityLabel_vfo1FoundationEnabled() {
+        var subject = CipherItemState(hasPremium: false)
+        subject.organizationName = "Organization"
+        subject.isVfo1FoundationFeatureFlagEnabled = true
+        XCTAssertEqual(subject.organizationAccessibilityLabel, Localizations.vaultX("Organization"))
+    }
+
     /// `setter:owner` adds the default user collection to the collection IDs
     /// when it's adding, there's a default user collection for the owner organization and such
     /// organization has the `.personalOwnership` policy turned on.
@@ -538,6 +561,19 @@ class CipherItemStateTests: BitwardenTestCase { // swiftlint:disable:this type_b
 
         subject.owner = .organization(id: "1", name: "Org")
         XCTAssertEqual(subject.collectionIds, ["1"])
+    }
+
+    /// `ownerFieldTitle` reads "Owner" when the `vfo1-foundation` feature flag is disabled.
+    func test_ownerFieldTitle_vfo1FoundationDisabled() {
+        let subject = CipherItemState(hasPremium: false)
+        XCTAssertEqual(subject.ownerFieldTitle, Localizations.owner)
+    }
+
+    /// `ownerFieldTitle` reads "Vault" when the `vfo1-foundation` feature flag is enabled.
+    func test_ownerFieldTitle_vfo1FoundationEnabled() {
+        var subject = CipherItemState(hasPremium: false)
+        subject.isVfo1FoundationFeatureFlagEnabled = true
+        XCTAssertEqual(subject.ownerFieldTitle, Localizations.vault)
     }
 
     /// `selectDefaultCollectionIfNeeded()` adds the default user collection to the collection IDs

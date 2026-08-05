@@ -193,12 +193,13 @@ struct ViewItemDetailsView: View { // swiftlint:disable:this type_body_length
     /// A section displaying where the item belongs to, i.e. organization, collections and folder.
     @ViewBuilder private var itemHeaderBelongingToSection: some View {
         VStack(alignment: .leading, spacing: 8) {
-            if let organizationName = store.state.organizationName {
+            if let organizationName = store.state.organizationName,
+               let organizationAccessibilityLabel = store.state.organizationAccessibilityLabel {
                 belongingView(
                     icon: SharedAsset.Icons.business16,
                     name: organizationName,
                 )
-                .accessibilityLabel(Localizations.ownerX(organizationName))
+                .accessibilityLabel(organizationAccessibilityLabel)
                 .accessibilityHint(Localizations.itemXOfY(1, store.state.totalHeaderAdditionalItems))
             }
 

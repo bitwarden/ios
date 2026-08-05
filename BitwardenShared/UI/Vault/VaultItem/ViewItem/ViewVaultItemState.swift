@@ -49,6 +49,9 @@ protocol ViewVaultItemState: Sendable, VaultItemWithDecorativeIcon {
     /// A flag indicating if item was soft deleted.
     var isSoftDeleted: Bool { get }
 
+    /// Whether the `vfo1-foundation` feature flag is enabled.
+    var isVfo1FoundationFeatureFlagEnabled: Bool { get }
+
     /// The login item state.
     var loginState: LoginItemState { get set }
 
@@ -63,6 +66,9 @@ protocol ViewVaultItemState: Sendable, VaultItemWithDecorativeIcon {
 
     /// The notes of this item.
     var notes: String { get set }
+
+    /// The accessibility label describing the organization the item belongs to, if any.
+    var organizationAccessibilityLabel: String? { get }
 
     /// The name of the organization the item belongs to, if any.
     var organizationName: String? { get set }

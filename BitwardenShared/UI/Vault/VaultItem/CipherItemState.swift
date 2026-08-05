@@ -99,6 +99,9 @@ struct CipherItemState: Equatable { // swiftlint:disable:this type_body_length
     /// Whether it's showing multiple collections or not.
     var isShowingMultipleCollections: Bool = false
 
+    /// Whether the `vfo1-foundation` feature flag is enabled.
+    var isVfo1FoundationFeatureFlagEnabled = false
+
     /// The state for a login type item.
     var loginState: LoginItemState
 
@@ -108,6 +111,14 @@ struct CipherItemState: Equatable { // swiftlint:disable:this type_body_length
     /// The notes for this item.
     var notes = ""
 
+    /// The accessibility label describing the organization the cipher belongs to, if any.
+    var organizationAccessibilityLabel: String? {
+        guard let organizationName else { return nil }
+        return isVfo1FoundationFeatureFlagEnabled
+            ? Localizations.vaultX(organizationName)
+            : Localizations.ownerX(organizationName)
+    }
+
     /// The organization ID of the cipher, if the cipher is owned by an organization.
     var organizationId: String?
 
@@ -116,6 +127,11 @@ struct CipherItemState: Equatable { // swiftlint:disable:this type_body_length
 
     /// The organization IDs that have `.personalOwnership` policy applied.
     var organizationsWithPersonalOwnershipPolicy: [String] = []
+
+    /// The title to display for the ownership field.
+    var ownerFieldTitle: String {
+        isVfo1FoundationFeatureFlagEnabled ? Localizations.vault : Localizations.owner
+    }
 
     /// The list of ownership options that can be selected for the cipher.
     var ownershipOptions = [CipherOwner]()
