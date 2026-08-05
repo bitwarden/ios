@@ -375,6 +375,11 @@ private extension ViewItemProcessor {
         }
     }
 
+    /// Loads the feature flags required for this processor.
+    private func loadFeatureFlags() async {
+        isVfo1FoundationFeatureFlagEnabled = await services.configService.getFeatureFlag(.vfo1Foundation)
+    }
+
     /// Permanently deletes the item currently stored in `state`.
     ///
     private func permanentDeleteItem(id: String) async {
