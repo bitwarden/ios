@@ -1,3 +1,4 @@
+import BitwardenKitMocks
 import BitwardenSdk
 import TestHelpers
 import XCTest
@@ -12,6 +13,7 @@ class SendServiceTests: BitwardenTestCase {
     // MARK: Properties
 
     var client: MockHTTPClient!
+    var errorReporter: MockErrorReporter!
     var sendDataStore: MockSendDataStore!
     var stateService: MockStateService!
     var subject: SendService!
@@ -22,11 +24,13 @@ class SendServiceTests: BitwardenTestCase {
         super.setUp()
 
         client = MockHTTPClient()
+        errorReporter = MockErrorReporter()
         sendDataStore = MockSendDataStore()
         stateService = MockStateService()
         let apiService = APIService(client: client)
 
         subject = DefaultSendService(
+            errorReporter: errorReporter,
             fileAPIService: apiService,
             sendAPIService: apiService,
             sendDataStore: sendDataStore,
@@ -37,6 +41,7 @@ class SendServiceTests: BitwardenTestCase {
     override func tearDown() async throws {
         try await super.tearDown()
         client = nil
+        errorReporter = nil
         sendDataStore = nil
         stateService = nil
         subject = nil
@@ -345,8 +350,25 @@ class SendServiceTests: BitwardenTestCase {
 
         try await subject.replaceSends(sends, userId: "1")
 
-        XCTAssertEqual(sendDataStore.replaceSendsValue, sends.map(Send.init))
+        XCTAssertEqual(sendDataStore.replaceSendsValue, try sends.map(Send.init(sendResponseModel:)))
         XCTAssertEqual(sendDataStore.replaceSendsUserId, "1")
+    }
+
+    /// `replaceSends(_:userId:)` drops any send whose type isn't recognized by this version of
+    /// the app, rather than persisting it with an incorrect type.
+    func test_replaceSends_excludesUnknownType() async throws {
+        let sends: [SendResponseModel] = [
+            SendResponseModel.fixture(id: "1", name: "Send 1"),
+            SendResponseModel.fixture(id: "2", name: "Unknown Send", type: .unknown),
+        ]
+
+        try await subject.replaceSends(sends, userId: "1")
+
+        XCTAssertEqual(sendDataStore.replaceSendsValue, try [Send(sendResponseModel: sends[0])])
+        XCTAssertEqual(sendDataStore.replaceSendsUserId, "1")
+        XCTAssertEqual(errorReporter.errors.count, 1)
+        let generalError = try XCTUnwrap(errorReporter.errors.first as? NSError)
+        XCTAssertEqual(generalError.domain, "General Error: SendService: Dropped Send During Sync")
     }
 
     /// `sendPublisher()` throws an error if one occurs.

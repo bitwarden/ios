@@ -90,6 +90,9 @@ protocol SendService {
 class DefaultSendService: SendService {
     // MARK: Properties
 
+    /// The service used to report non-fatal errors.
+    private let errorReporter: ErrorReporter
+
     /// The service used to make file related API requests.
     private let fileAPIService: FileAPIService
 
@@ -107,17 +110,20 @@ class DefaultSendService: SendService {
     /// Initialize a `DefaultSendService`.
     ///
     /// - Parameters:
+    ///   - errorReporter: The service used to report non-fatal errors.
     ///   - fileAPIService: The service used to make file related API requests.
     ///   - sendAPIService: The service used to make send related API requests.
     ///   - sendDataStore: The data store for managing the persisted sends for the user.
     ///   - stateService: The service used by the application to manage account state.
     ///
     init(
+        errorReporter: ErrorReporter,
         fileAPIService: FileAPIService,
         sendAPIService: SendAPIService,
         sendDataStore: SendDataStore,
         stateService: StateService,
     ) {
+        self.errorReporter = errorReporter
         self.fileAPIService = fileAPIService
         self.sendAPIService = sendAPIService
         self.sendDataStore = sendDataStore
@@ -147,7 +153,7 @@ extension DefaultSendService {
             throw error
         }
 
-        let newSend = Send(sendResponseModel: response.sendResponse)
+        let newSend = try Send(sendResponseModel: response.sendResponse)
         try await sendDataStore.upsertSend(newSend, userId: userId)
         return newSend
     }
@@ -157,7 +163,7 @@ extension DefaultSendService {
 
         let response = try await sendAPIService.addTextSend(send)
 
-        let newSend = Send(sendResponseModel: response)
+        let newSend = try Send(sendResponseModel: response)
         try await sendDataStore.upsertSend(newSend, userId: userId)
         return newSend
     }
@@ -188,7 +194,7 @@ extension DefaultSendService {
 
         let response = try await sendAPIService.removePasswordFromSend(with: id)
 
-        let newSend = Send(sendResponseModel: response)
+        let newSend = try Send(sendResponseModel: response)
         try await sendDataStore.upsertSend(newSend, userId: userId)
         return newSend
     }
@@ -197,7 +203,7 @@ extension DefaultSendService {
         let userId = try await stateService.getActiveAccountId()
 
         let response = try await sendAPIService.getSend(with: id)
-        let send = Send(sendResponseModel: response)
+        let send = try Send(sendResponseModel: response)
         try await sendDataStore.upsertSend(send, userId: userId)
     }
 
@@ -205,13 +211,25 @@ extension DefaultSendService {
         let userId = try await stateService.getActiveAccountId()
         let response = try await sendAPIService.updateSend(send)
 
-        let newSend = Send(sendResponseModel: response)
+        let newSend = try Send(sendResponseModel: response)
         try await sendDataStore.upsertSend(newSend, userId: userId)
         return newSend
     }
 
     func replaceSends(_ sends: [SendResponseModel], userId: String) async throws {
-        try await sendDataStore.replaceSends(sends.map(Send.init), userId: userId)
+        let mappedSends = sends.compactMap { model -> Send? in
+            do {
+                return try Send(sendResponseModel: model)
+            } catch {
+                errorReporter.log(error: BitwardenError.generalError(
+                    type: "SendService: Dropped Send During Sync",
+                    message: "A send couldn't be converted and was excluded from the synced list of sends.",
+                    error: error,
+                ))
+                return nil
+            }
+        }
+        try await sendDataStore.replaceSends(mappedSends, userId: userId)
     }
 
     func sendPublisher(id: String) async throws -> AnyPublisher<Send?, Error> {

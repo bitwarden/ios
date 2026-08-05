@@ -721,6 +721,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
         )
 
         let sendService = DefaultSendService(
+            errorReporter: errorReporter,
             fileAPIService: apiService,
             sendAPIService: apiService,
             sendDataStore: dataStore,
