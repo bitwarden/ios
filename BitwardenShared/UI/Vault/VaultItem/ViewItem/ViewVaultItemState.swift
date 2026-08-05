@@ -1,3 +1,4 @@
+import BitwardenResources
 import BitwardenSdk
 import Foundation
 
@@ -27,6 +28,9 @@ protocol ViewVaultItemState: Sendable, VaultItemWithDecorativeIcon {
     /// show more/less for this to have one or more collections the cipher
     /// belongs to.
     var cipherCollectionsToDisplay: [CollectionView] { get }
+
+    /// The icon to use for a collection the item belongs to.
+    var collectionIcon: SharedImageAsset { get }
 
     /// The custom fields state.
     var customFieldsState: AddEditCustomFieldsState { get set }
@@ -101,4 +105,9 @@ protocol ViewVaultItemState: Sendable, VaultItemWithDecorativeIcon {
 
     /// What cipher type this item is.
     var type: CipherType { get }
+
+    /// Returns the accessibility label describing a collection the item belongs to.
+    /// - Parameter collectionName: The name of the collection.
+    /// - Returns: The accessibility label.
+    func collectionAccessibilityLabel(_ collectionName: String) -> String
 }
