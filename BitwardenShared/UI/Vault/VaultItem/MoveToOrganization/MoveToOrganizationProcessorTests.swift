@@ -88,14 +88,6 @@ class MoveToOrganizationProcessorTests: BitwardenTestCase {
         XCTAssertEqual(errorReporter.errors.last as? StateServiceError, .noActiveAccount)
     }
 
-    /// `perform(_:)` with `.fetchCipherOptions` loads the vfo1-foundation feature flag.
-    @MainActor
-    func test_perform_fetchCipherOptions_featureFlags_vfo1Foundation() async {
-        configService.featureFlagsBool[.vfo1Foundation] = true
-        await subject.perform(.fetchCipherOptions)
-        XCTAssertTrue(subject.state.isVfo1FoundationFeatureFlagEnabled)
-    }
-
     /// `perform(_:)` with `.moveCipher` shares the updated cipher.
     @MainActor
     func test_perform_moveCipher() async {

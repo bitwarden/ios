@@ -345,25 +345,6 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         XCTAssertFalse(vaultRepository.fetchSyncCalled)
     }
 
-    /// `perform(_:)` with `.appeared` loads the vfo1-foundation feature flag and applies it to the
-    /// loaded cipher state.
-    @MainActor
-    func test_perform_appeared_featureFlags_vfo1Foundation() {
-        configService.featureFlagsBool[.vfo1Foundation] = true
-
-        let cipherItem = CipherView.loginFixture(id: "id")
-        vaultRepository.cipherDetailsSubject.send(cipherItem)
-
-        let task = Task {
-            await subject.perform(.appeared)
-        }
-
-        waitFor(subject.state.loadingState != .loading(nil))
-        task.cancel()
-
-        XCTAssertTrue(subject.state.loadingState.data?.isVfo1FoundationFeatureFlagEnabled ?? false)
-    }
-
     /// `perform(_:)` with `.appeared` starts listening for updates with the vault repository when
     /// cipher belongs to a folder fetching such folder to set the folder name to the state.
     @MainActor
