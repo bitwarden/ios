@@ -9,8 +9,13 @@
     "github-actions",
     "mint",
     "custom.regex",
-    "swift"
+    "swift",
+    "xcodegen"
   ],
+  "ignoreDeps": ["bitwarden/sdk-swift"],
+  "xcodegen": {
+    "managerFilePatterns": ["/project(-[a-z]+)?\\.yml$/"]
+  },
   "customManagers": [
     {
       "customType": "regex",

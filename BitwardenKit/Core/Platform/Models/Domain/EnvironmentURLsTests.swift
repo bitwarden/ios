@@ -1,25 +1,28 @@
-import XCTest
+import Foundation
+import Testing
 
 @testable import BitwardenKit
 
-class EnvironmentURLsTests: BitwardenTestCase {
+struct EnvironmentURLsTests { // swiftlint:disable:this type_body_length
     // MARK: Tests
 
     /// `init(environmentURLData:)` sets the URLs from the passed data when such data is the default US.
-    func test_init_environmentURLData_defaultUS() {
+    @Test
+    func init_environmentURLData_defaultUS() {
         let subject = EnvironmentURLs(
             environmentURLData: EnvironmentURLData.defaultUS,
         )
-        XCTAssertEqual(
-            subject,
-            EnvironmentURLs(
+        #expect(
+            subject == EnvironmentURLs(
                 apiURL: URL(string: "https://api.bitwarden.com")!,
                 baseURL: URL(string: "https://vault.bitwarden.com")!,
                 changeEmailURL: URL(string: "https://vault.bitwarden.com/#/settings/account")!,
                 eventsURL: URL(string: "https://events.bitwarden.com")!,
+                fillAssistRulesURL: URL(string: "https://github.com/bitwarden/map-the-web/releases/latest/download")!,
                 iconsURL: URL(string: "https://icons.bitwarden.net")!,
                 identityURL: URL(string: "https://identity.bitwarden.com")!,
                 importItemsURL: URL(string: "https://vault.bitwarden.com/#/tools/import")!,
+                manageSubscriptionURL: URL(string: "https://vault.bitwarden.com/#/settings/subscription")!,
                 proxyCookieRedirectConnectorURL: URL(
                     string: "https://vault.bitwarden.com/proxy-cookie-redirect-connector.html",
                 )!,
@@ -36,20 +39,22 @@ class EnvironmentURLsTests: BitwardenTestCase {
     }
 
     /// `init(environmentURLData:)` sets the URLs from the passed data when such data is the default EU.
-    func test_init_environmentURLData_defaultEU() {
+    @Test
+    func init_environmentURLData_defaultEU() {
         let subject = EnvironmentURLs(
             environmentURLData: EnvironmentURLData.defaultEU,
         )
-        XCTAssertEqual(
-            subject,
-            EnvironmentURLs(
+        #expect(
+            subject == EnvironmentURLs(
                 apiURL: URL(string: "https://api.bitwarden.eu")!,
                 baseURL: URL(string: "https://vault.bitwarden.eu")!,
                 changeEmailURL: URL(string: "https://vault.bitwarden.eu/#/settings/account")!,
                 eventsURL: URL(string: "https://events.bitwarden.eu")!,
+                fillAssistRulesURL: URL(string: "https://github.com/bitwarden/map-the-web/releases/latest/download")!,
                 iconsURL: URL(string: "https://icons.bitwarden.eu")!,
                 identityURL: URL(string: "https://identity.bitwarden.eu")!,
                 importItemsURL: URL(string: "https://vault.bitwarden.eu/#/tools/import")!,
+                manageSubscriptionURL: URL(string: "https://vault.bitwarden.eu/#/settings/subscription")!,
                 proxyCookieRedirectConnectorURL: URL(
                     string: "https://vault.bitwarden.eu/proxy-cookie-redirect-connector.html",
                 )!,
@@ -67,20 +72,22 @@ class EnvironmentURLsTests: BitwardenTestCase {
 
     /// `init(environmentURLData:)` sets the URLs from the base URL if one is set and is not
     /// `.unitedStates` nor `.europe` region type.
-    func test_init_environmentURLData_baseURL() {
+    @Test
+    func init_environmentURLData_baseURL() {
         let subject = EnvironmentURLs(
             environmentURLData: EnvironmentURLData(base: URL(string: "https://example.com")!),
         )
-        XCTAssertEqual(
-            subject,
-            EnvironmentURLs(
+        #expect(
+            subject == EnvironmentURLs(
                 apiURL: URL(string: "https://example.com/api")!,
                 baseURL: URL(string: "https://example.com")!,
                 changeEmailURL: URL(string: "https://example.com/#/settings/account")!,
                 eventsURL: URL(string: "https://example.com/events")!,
+                fillAssistRulesURL: URL(string: "https://github.com/bitwarden/map-the-web/releases/latest/download")!,
                 iconsURL: URL(string: "https://example.com/icons")!,
                 identityURL: URL(string: "https://example.com/identity")!,
                 importItemsURL: URL(string: "https://example.com/#/tools/import")!,
+                manageSubscriptionURL: URL(string: "https://example.com/#/settings/subscription")!,
                 proxyCookieRedirectConnectorURL: URL(
                     string: "https://example.com/proxy-cookie-redirect-connector.html",
                 )!,
@@ -97,20 +104,22 @@ class EnvironmentURLsTests: BitwardenTestCase {
     }
 
     /// `init(environmentURLData:)` defaults to the pre-defined EU URLs if the base URL matches the EU environment.
-    func test_init_environmentURLData_baseURL_europe() {
+    @Test
+    func init_environmentURLData_baseURL_europe() {
         let subject = EnvironmentURLs(
             environmentURLData: EnvironmentURLData(base: URL(string: "https://vault.bitwarden.eu")!),
         )
-        XCTAssertEqual(
-            subject,
-            EnvironmentURLs(
+        #expect(
+            subject == EnvironmentURLs(
                 apiURL: URL(string: "https://api.bitwarden.eu")!,
                 baseURL: URL(string: "https://vault.bitwarden.eu")!,
                 changeEmailURL: URL(string: "https://vault.bitwarden.eu/#/settings/account")!,
                 eventsURL: URL(string: "https://events.bitwarden.eu")!,
+                fillAssistRulesURL: URL(string: "https://github.com/bitwarden/map-the-web/releases/latest/download")!,
                 iconsURL: URL(string: "https://icons.bitwarden.eu")!,
                 identityURL: URL(string: "https://identity.bitwarden.eu")!,
                 importItemsURL: URL(string: "https://vault.bitwarden.eu/#/tools/import")!,
+                manageSubscriptionURL: URL(string: "https://vault.bitwarden.eu/#/settings/subscription")!,
                 proxyCookieRedirectConnectorURL: URL(
                     string: "https://vault.bitwarden.eu/proxy-cookie-redirect-connector.html",
                 )!,
@@ -127,20 +136,22 @@ class EnvironmentURLsTests: BitwardenTestCase {
     }
 
     /// `init(environmentURLData:)` defaults to the pre-defined US URLs if the base URL matches the US environment.
-    func test_init_environmentURLData_baseURL_unitedStates() {
+    @Test
+    func init_environmentURLData_baseURL_unitedStates() {
         let subject = EnvironmentURLs(
             environmentURLData: EnvironmentURLData(base: URL(string: "https://vault.bitwarden.com")!),
         )
-        XCTAssertEqual(
-            subject,
-            EnvironmentURLs(
+        #expect(
+            subject == EnvironmentURLs(
                 apiURL: URL(string: "https://api.bitwarden.com")!,
                 baseURL: URL(string: "https://vault.bitwarden.com")!,
                 changeEmailURL: URL(string: "https://vault.bitwarden.com/#/settings/account")!,
                 eventsURL: URL(string: "https://events.bitwarden.com")!,
+                fillAssistRulesURL: URL(string: "https://github.com/bitwarden/map-the-web/releases/latest/download")!,
                 iconsURL: URL(string: "https://icons.bitwarden.net")!,
                 identityURL: URL(string: "https://identity.bitwarden.com")!,
                 importItemsURL: URL(string: "https://vault.bitwarden.com/#/tools/import")!,
+                manageSubscriptionURL: URL(string: "https://vault.bitwarden.com/#/settings/subscription")!,
                 proxyCookieRedirectConnectorURL: URL(
                     string: "https://vault.bitwarden.com/proxy-cookie-redirect-connector.html",
                 )!,
@@ -157,20 +168,22 @@ class EnvironmentURLsTests: BitwardenTestCase {
     }
 
     /// `init(environmentURLData:)` sets the URLs from the base URL which includes a trailing slash.
-    func test_init_environmentURLData_baseURLWithTrailingSlash() {
+    @Test
+    func init_environmentURLData_baseURLWithTrailingSlash() {
         let subject = EnvironmentURLs(
             environmentURLData: EnvironmentURLData(base: URL(string: "https://example.com/")!),
         )
-        XCTAssertEqual(
-            subject,
-            EnvironmentURLs(
+        #expect(
+            subject == EnvironmentURLs(
                 apiURL: URL(string: "https://example.com/api")!,
                 baseURL: URL(string: "https://example.com/")!,
                 changeEmailURL: URL(string: "https://example.com/#/settings/account")!,
                 eventsURL: URL(string: "https://example.com/events")!,
+                fillAssistRulesURL: URL(string: "https://github.com/bitwarden/map-the-web/releases/latest/download")!,
                 iconsURL: URL(string: "https://example.com/icons")!,
                 identityURL: URL(string: "https://example.com/identity")!,
                 importItemsURL: URL(string: "https://example.com/#/tools/import")!,
+                manageSubscriptionURL: URL(string: "https://example.com/#/settings/subscription")!,
                 proxyCookieRedirectConnectorURL: URL(
                     string: "https://example.com/proxy-cookie-redirect-connector.html",
                 )!,
@@ -187,7 +200,8 @@ class EnvironmentURLsTests: BitwardenTestCase {
     }
 
     /// `init(environmentURLData:)` sets the URLs based on the corresponding URL if there isn't a base URL.
-    func test_init_environmentURLData_custom() {
+    @Test
+    func init_environmentURLData_custom() {
         let subject = EnvironmentURLs(
             environmentURLData: EnvironmentURLData(
                 api: URL(string: "https://api.example.com")!,
@@ -197,16 +211,17 @@ class EnvironmentURLsTests: BitwardenTestCase {
                 webVault: URL(string: "https://example.com")!,
             ),
         )
-        XCTAssertEqual(
-            subject,
-            EnvironmentURLs(
+        #expect(
+            subject == EnvironmentURLs(
                 apiURL: URL(string: "https://api.example.com")!,
                 baseURL: URL(string: "https://vault.bitwarden.com")!,
                 changeEmailURL: URL(string: "https://example.com/#/settings/account")!,
                 eventsURL: URL(string: "https://events.example.com")!,
+                fillAssistRulesURL: URL(string: "https://github.com/bitwarden/map-the-web/releases/latest/download")!,
                 iconsURL: URL(string: "https://icons.example.com")!,
                 identityURL: URL(string: "https://identity.example.com")!,
                 importItemsURL: URL(string: "https://example.com/#/tools/import")!,
+                manageSubscriptionURL: URL(string: "https://example.com/#/settings/subscription")!,
                 proxyCookieRedirectConnectorURL: URL(
                     string: "https://example.com/proxy-cookie-redirect-connector.html",
                 )!,
@@ -223,18 +238,20 @@ class EnvironmentURLsTests: BitwardenTestCase {
     }
 
     /// `init(environmentURLData:)` sets the URLs to default values if the URLs are empty.
-    func test_init_environmentURLData_empty() {
+    @Test
+    func init_environmentURLData_empty() {
         let subject = EnvironmentURLs(environmentURLData: EnvironmentURLData())
-        XCTAssertEqual(
-            subject,
-            EnvironmentURLs(
+        #expect(
+            subject == EnvironmentURLs(
                 apiURL: URL(string: "https://api.bitwarden.com")!,
                 baseURL: URL(string: "https://vault.bitwarden.com")!,
                 changeEmailURL: URL(string: "https://vault.bitwarden.com")!,
                 eventsURL: URL(string: "https://events.bitwarden.com")!,
+                fillAssistRulesURL: URL(string: "https://github.com/bitwarden/map-the-web/releases/latest/download")!,
                 iconsURL: URL(string: "https://icons.bitwarden.net")!,
                 identityURL: URL(string: "https://identity.bitwarden.com")!,
                 importItemsURL: URL(string: "https://vault.bitwarden.com/#/tools/import")!,
+                manageSubscriptionURL: URL(string: "https://vault.bitwarden.com")!,
                 proxyCookieRedirectConnectorURL: URL(string: "https://vault.bitwarden.com")!,
                 recoveryCodeURL: URL(string: "https://vault.bitwarden.com/#/recover-2fa")!,
                 sendShareURL: URL(string: "https://send.bitwarden.com/#")!,
@@ -243,6 +260,37 @@ class EnvironmentURLsTests: BitwardenTestCase {
                 upgradeToPremiumURL: URL(string: "https://vault.bitwarden.com")!,
                 webVaultURL: URL(string: "https://vault.bitwarden.com")!,
             ),
+        )
+    }
+
+    /// `init(environmentURLData:)` preserves a server-provided `fillAssistRulesUrl` even when the
+    /// region maps to a US/EU default (which has `fillAssistRulesUrl = nil`).
+    @Test
+    func init_environmentURLData_fillAssistRulesURL_preservedForCloudRegion() {
+        let customFillAssistURL = URL(string: "https://custom.example.com/fill-assist")!
+        let usData = EnvironmentURLData(
+            base: URL(string: "https://vault.bitwarden.com")!,
+            fillAssistRulesUrl: customFillAssistURL,
+        )
+
+        let subject = EnvironmentURLs(environmentURLData: usData)
+
+        #expect(subject.fillAssistRulesURL == customFillAssistURL)
+    }
+
+    /// `region` resolves the base URL to the matching region.
+    @Test
+    func region() {
+        #expect(EnvironmentURLs(environmentURLData: .defaultUS).region == .unitedStates)
+        #expect(EnvironmentURLs(environmentURLData: .defaultEU).region == .europe)
+        #expect(
+            EnvironmentURLs(environmentURLData: EnvironmentURLData(base: URL(string: "https://bitwarden.pw")!))
+                .region == .internal,
+        )
+        #expect(
+            EnvironmentURLs(
+                environmentURLData: EnvironmentURLData(base: URL(string: "https://selfhosted.com")!),
+            ).region == .selfHosted,
         )
     }
 }

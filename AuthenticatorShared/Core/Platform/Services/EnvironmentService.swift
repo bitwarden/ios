@@ -49,6 +49,10 @@ extension DefaultEnvironmentService {
         environmentURLs.eventsURL
     }
 
+    var fillAssistRulesURL: URL {
+        environmentURLs.fillAssistRulesURL
+    }
+
     var iconsURL: URL {
         environmentURLs.iconsURL
     }
@@ -61,6 +65,10 @@ extension DefaultEnvironmentService {
         environmentURLs.importItemsURL
     }
 
+    var manageSubscriptionURL: URL {
+        environmentURLs.manageSubscriptionURL
+    }
+
     var proxyCookieRedirectConnectorURL: URL {
         environmentURLs.proxyCookieRedirectConnectorURL
     }
@@ -70,13 +78,7 @@ extension DefaultEnvironmentService {
     }
 
     var region: RegionType {
-        if environmentURLs.baseURL == EnvironmentURLData.defaultUS.base {
-            .unitedStates
-        } else if environmentURLs.baseURL == EnvironmentURLData.defaultEU.base {
-            .europe
-        } else {
-            .selfHosted
-        }
+        environmentURLs.region
     }
 
     var sendShareURL: URL {

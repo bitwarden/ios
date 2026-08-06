@@ -377,14 +377,35 @@ class CipherServiceTests: BitwardenTestCase { // swiftlint:disable:this type_bod
 
     /// `updateCipherCollectionsWithServer(_:)` updates the cipher's collections and updates the data store.
     func test_updateCipherCollections() async throws {
-        client.result = .success(.success())
+        client.result = .httpSuccess(testData: .updateCipherCollectionsResponse)
         stateService.activeAccount = .fixture()
 
-        let cipher = Cipher.fixture(collectionIds: ["1", "2"], id: "123")
+        let cipher = Cipher.fixture(
+            collectionIds: ["request-collection-1", "request-collection-2"],
+            id: "3792af7a-4441-11ee-be56-0242ac120002",
+        )
         try await subject.updateCipherCollectionsWithServer(cipher)
 
-        XCTAssertEqual(cipherDataStore.upsertCipherValue, cipher)
+        // The server-returned collectionIds should be used, not the ones from the request.
+        XCTAssertEqual(cipherDataStore.upsertCipherValue?.id, "3792af7a-4441-11ee-be56-0242ac120002")
+        XCTAssertEqual(cipherDataStore.upsertCipherValue?.collectionIds, ["collection-1", "collection-2"])
         XCTAssertEqual(cipherDataStore.upsertCipherUserId, "1")
+        XCTAssertNil(cipherDataStore.deleteCipherId)
+    }
+
+    /// `updateCipherCollectionsWithServer(_:)` deletes the cipher locally when the server returns a nil cipher.
+    func test_updateCipherCollections_nilCipher() async throws {
+        let nilCipherJson = APITestData(data: Data("""
+        {"cipher": null}
+        """.utf8))
+        client.result = .httpSuccess(testData: nilCipherJson)
+        stateService.activeAccount = .fixture()
+
+        let cipher = Cipher.fixture(collectionIds: ["1"], id: "cipher-id")
+        try await subject.updateCipherCollectionsWithServer(cipher)
+
+        XCTAssertEqual(cipherDataStore.deleteCipherId, "cipher-id")
+        XCTAssertNil(cipherDataStore.upsertCipherValue)
     }
 
     /// `updateCipherWithServer(_:)` updates the cipher in the backend and local storage.

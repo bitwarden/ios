@@ -149,6 +149,24 @@ extension Alert {
         )
     }
 
+    /// An alert that asks if the user wants to navigate to the subscription management page in the web app.
+    ///
+    /// - Parameter action: The action taken if they select continue.
+    /// - Returns: An alert that asks if the user wants to navigate to the subscription page in the web app.
+    ///
+    static func manageSubscriptionPlanAlert(action: @escaping () -> Void) -> Alert {
+        Alert(
+            title: Localizations.continueToWebApp,
+            message: Localizations.manageYourSubscriptionPlanInTheBitwardenWebApp,
+            alertActions: [
+                AlertAction(title: Localizations.cancel, style: .cancel),
+                AlertAction(title: Localizations.continue, style: .default) { _ in
+                    action()
+                },
+            ],
+        )
+    }
+
     /// Confirms that the user wants to set their vault timeout to never.
     ///
     /// - Parameter action: The action performed when they select `Yes`.

@@ -78,9 +78,9 @@ public protocol VaultRepository: AnyObject {
     ///
     func deleteCipher(_ id: String) async throws
 
-    /// Validates the user's active account has access to premium features.
+    /// Validates the user's active account has access to Premium features.
     ///
-    /// - Returns: Whether the active account has premium.
+    /// - Returns: Whether the active account has Premium.
     ///
     func doesActiveAccountHavePremium() async -> Bool
 
@@ -344,6 +344,9 @@ class DefaultVaultRepository {
     /// The service for managing the collections for the user.
     private let collectionService: CollectionService
 
+    /// The service to get server-specified configuration and feature flags.
+    private let configService: ConfigService
+
     /// The service used by the application to manage the environment settings.
     private let environmentService: EnvironmentService
 
@@ -390,6 +393,7 @@ class DefaultVaultRepository {
     ///   - clientService: The service that handles common client functionality such as encryption and decryption.
     ///   - collectionHelper: The helper functions for collections.
     ///   - collectionService: The service for managing the collections for the user.
+    ///   - configService: The service to get server-specified configuration and feature flags.
     ///   - environmentService: The service used by the application to manage the environment settings.
     ///   - errorReporter: The service used by the application to report non-fatal errors.
     ///   - folderService: The service used to manage syncing and updates to the user's folders.
@@ -409,6 +413,7 @@ class DefaultVaultRepository {
         clientService: ClientService,
         collectionHelper: CollectionHelper,
         collectionService: CollectionService,
+        configService: ConfigService,
         environmentService: EnvironmentService,
         errorReporter: ErrorReporter,
         folderService: FolderService,
@@ -427,6 +432,7 @@ class DefaultVaultRepository {
         self.clientService = clientService
         self.collectionHelper = collectionHelper
         self.collectionService = collectionService
+        self.configService = configService
         self.environmentService = environmentService
         self.errorReporter = errorReporter
         self.folderService = folderService
@@ -601,7 +607,9 @@ extension DefaultVaultRepository: VaultRepository {
 
         if includePersonal {
             let email = try await stateService.getActiveAccount().profile.email
-            let personalOwner = CipherOwner.personal(email: email)
+            let isVfo1FoundationEnabled: Bool = await configService.getFeatureFlag(.vfo1Foundation)
+            let personalDisplayName = isVfo1FoundationEnabled ? Localizations.myVault : email
+            let personalOwner = CipherOwner.personal(displayName: personalDisplayName)
             return [personalOwner] + organizationOwners
         } else {
             return organizationOwners
@@ -691,7 +699,13 @@ extension DefaultVaultRepository: VaultRepository {
     }
 
     func getItemTypesUserCanCreate() async -> [CipherType] {
-        let itemTypes: [CipherType] = CipherType.canCreateCases.reversed()
+        var itemTypes: [CipherType] = CipherType.canCreateCases.reversed()
+
+        let newItemTypesEnabled: Bool = await configService.getFeatureFlag(.newItemTypes)
+        if !newItemTypesEnabled {
+            itemTypes = itemTypes.filter { !CipherType.newItemTypesGatedCases.contains($0) }
+        }
+
         let restrictItemTypesOrgIds = await policyService.getOrganizationIdsForRestricItemTypesPolicy()
         if !restrictItemTypesOrgIds.isEmpty {
             return itemTypes.filter { $0 != .card }

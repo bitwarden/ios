@@ -77,22 +77,22 @@ class SsoCookieVendorConfigCodableTests: BitwardenTestCase {
         XCTAssertTrue(json.contains("\"vaultUrl\""))
     }
 
-    /// `encode(to:)` omits nil fields when using `encodeIfPresent`.
-    func test_encode_nilFields() throws {
+    /// `encode(to:)` omits optional nil fields (`idpLoginUrl`, `cookieValue`) when absent.
+    func test_encode_nilOptionalFields() throws {
         let config = SsoCookieVendorConfig(
             idpLoginUrl: nil,
-            cookieName: nil,
-            cookieDomain: nil,
-            vaultUrl: nil,
+            cookieName: "bwauth",
+            cookieDomain: "example.com",
+            vaultUrl: "https://example.com",
             cookieValue: nil,
         )
         let data = try encoder.encode(config)
         let json = try XCTUnwrap(String(data: data, encoding: .utf8))
         XCTAssertFalse(json.contains("\"idpLoginUrl\""))
-        XCTAssertFalse(json.contains("\"cookieName\""))
-        XCTAssertFalse(json.contains("\"cookieDomain\""))
         XCTAssertFalse(json.contains("\"cookieValue\""))
-        XCTAssertFalse(json.contains("\"vaultUrl\""))
+        XCTAssertTrue(json.contains("\"cookieName\""))
+        XCTAssertTrue(json.contains("\"cookieDomain\""))
+        XCTAssertTrue(json.contains("\"vaultUrl\""))
     }
 
     /// `init(from:)` decodes all fields from JSON.
@@ -117,15 +117,38 @@ class SsoCookieVendorConfigCodableTests: BitwardenTestCase {
         XCTAssertEqual(config.vaultUrl, "https://example.com")
     }
 
-    /// `init(from:)` sets all optional fields to `nil` when absent from JSON.
-    func test_decode_nilFields() throws {
-        let json = "{}".data(using: .utf8)!
+    /// `init(from:)` sets truly optional fields to `nil` when absent from JSON.
+    func test_decode_nilOptionalFields() throws {
+        let json = """
+        {
+            "cookieName": "bwauth",
+            "cookieDomain": "example.com",
+            "vaultUrl": "https://example.com"
+        }
+        """.data(using: .utf8)!
         let config = try decoder.decode(SsoCookieVendorConfig.self, from: json)
         XCTAssertNil(config.idpLoginUrl)
-        XCTAssertNil(config.cookieName)
-        XCTAssertNil(config.cookieDomain)
         XCTAssertNil(config.cookieValue)
-        XCTAssertNil(config.vaultUrl)
+        XCTAssertEqual(config.cookieName, "bwauth")
+        XCTAssertEqual(config.cookieDomain, "example.com")
+        XCTAssertEqual(config.vaultUrl, "https://example.com")
+    }
+
+    /// `init(from:)` decodes required fields as empty string when absent from JSON
+    /// (backward compatibility with legacy persisted payloads that predate the SDK
+    /// making `cookieName`, `cookieDomain`, and `vaultUrl` non-optional).
+    func test_decode_missingRequiredFields_defaultsToEmptyString() throws {
+        let json = """
+        {
+            "idpLoginUrl": "https://idp.example.com"
+        }
+        """.data(using: .utf8)!
+        let config = try decoder.decode(SsoCookieVendorConfig.self, from: json)
+        XCTAssertEqual(config.idpLoginUrl, "https://idp.example.com")
+        XCTAssertEqual(config.cookieName, "")
+        XCTAssertEqual(config.cookieDomain, "")
+        XCTAssertEqual(config.vaultUrl, "")
+        XCTAssertNil(config.cookieValue)
     }
 }
 
@@ -147,9 +170,9 @@ class BootstrapConfigCodableTests: BitwardenTestCase {
     func test_encode_ssoCookieVendor() throws {
         let config = SsoCookieVendorConfig(
             idpLoginUrl: "https://idp.example.com",
-            cookieName: nil,
-            cookieDomain: nil,
-            vaultUrl: nil,
+            cookieName: "bwauth",
+            cookieDomain: "example.com",
+            vaultUrl: "https://example.com",
             cookieValue: nil,
         )
         let data = try encoder.encode(BootstrapConfig.ssoCookieVendor(config))
@@ -175,7 +198,8 @@ class BootstrapConfigCodableTests: BitwardenTestCase {
             "ssoCookieVendor": {
                 "idpLoginUrl": "https://idp.example.com",
                 "cookieName": "bwauth",
-                "cookieDomain": "example.com"
+                "cookieDomain": "example.com",
+                "vaultUrl": "https://example.com"
             }
         }
         """.data(using: .utf8)!
@@ -242,9 +266,9 @@ class ServerCommunicationConfigCodableTests: BitwardenTestCase {
     func test_encode_ssoCookieVendor() throws {
         let config = SsoCookieVendorConfig(
             idpLoginUrl: "https://idp.example.com",
-            cookieName: nil,
-            cookieDomain: nil,
-            vaultUrl: nil,
+            cookieName: "bwauth",
+            cookieDomain: "example.com",
+            vaultUrl: "https://example.com",
             cookieValue: nil,
         )
         let subject = ServerCommunicationConfig(bootstrap: .ssoCookieVendor(config))
@@ -272,7 +296,8 @@ class ServerCommunicationConfigCodableTests: BitwardenTestCase {
                 "ssoCookieVendor": {
                     "idpLoginUrl": "https://idp.example.com",
                     "cookieName": "bwauth",
-                    "cookieDomain": "example.com"
+                    "cookieDomain": "example.com",
+                    "vaultUrl": "https://example.com"
                 }
             }
         }
@@ -327,9 +352,9 @@ class ServerCommunicationConfigCodableTests: BitwardenTestCase {
         let selfComm = ServerCommunicationConfig(bootstrap: .direct)
         let fromConfig = SsoCookieVendorConfig(
             idpLoginUrl: "https://from-idp.com",
-            cookieName: nil,
-            cookieDomain: nil,
-            vaultUrl: nil,
+            cookieName: "fromCookie",
+            cookieDomain: "from.com",
+            vaultUrl: "https://from.com",
             cookieValue: [AcquiredCookie(name: "n", value: "v")],
         )
         let fromComm = ServerCommunicationConfig(bootstrap: .ssoCookieVendor(fromConfig))
@@ -347,9 +372,9 @@ class ServerCommunicationConfigCodableTests: BitwardenTestCase {
     func test_updateCookieValue_fromDirect_returnsFromConfig() {
         let selfConfig = SsoCookieVendorConfig(
             idpLoginUrl: "https://self-idp.com",
-            cookieName: nil,
-            cookieDomain: nil,
-            vaultUrl: nil,
+            cookieName: "selfCookie",
+            cookieDomain: "self.com",
+            vaultUrl: "https://self.com",
             cookieValue: nil,
         )
         let selfComm = ServerCommunicationConfig(bootstrap: .ssoCookieVendor(selfConfig))
@@ -398,7 +423,7 @@ class ServerCommunicationConfigSSOCookieVendorConfigTests: BitwardenTestCase {
 // MARK: - SetCommunicationTypeRequestTests
 
 class SetCommunicationTypeRequestTests: BitwardenTestCase {
-    /// `init(communicationSettings:)` produces `.direct` when bootstrap type is `"direct"`.
+    /// `init(communicationSettings:vaultUrl:)` produces `.direct` when bootstrap type is `"direct"`.
     func test_init_communicationSettings_direct() {
         let settings = ServerCommunicationSettings(
             bootstrap: ServerCommunicationBootstrapSettings(
@@ -408,14 +433,14 @@ class SetCommunicationTypeRequestTests: BitwardenTestCase {
                 cookieDomain: nil,
             ),
         )
-        let subject = SetCommunicationTypeRequest(communicationSettings: settings)
+        let subject = SetCommunicationTypeRequest(communicationSettings: settings, vaultUrl: "https://example.com")
 
         if case .direct = subject.bootstrap {} else {
             XCTFail("Expected .direct bootstrap, got \(subject.bootstrap)")
         }
     }
 
-    /// `init(communicationSettings:)` produces `.ssoCookieVendor` when bootstrap type matches.
+    /// `init(communicationSettings:vaultUrl:)` produces `.ssoCookieVendor` when bootstrap type matches.
     func test_init_communicationSettings_ssoCookieVendor() {
         let settings = ServerCommunicationSettings(
             bootstrap: ServerCommunicationBootstrapSettings(
@@ -425,7 +450,10 @@ class SetCommunicationTypeRequestTests: BitwardenTestCase {
                 cookieDomain: "example.com",
             ),
         )
-        let subject = SetCommunicationTypeRequest(communicationSettings: settings)
+        let subject = SetCommunicationTypeRequest(
+            communicationSettings: settings,
+            vaultUrl: "https://example.com",
+        )
 
         guard case let .ssoCookieVendor(config) = subject.bootstrap else {
             XCTFail("Expected .ssoCookieVendor bootstrap, got \(subject.bootstrap)")
@@ -434,10 +462,10 @@ class SetCommunicationTypeRequestTests: BitwardenTestCase {
         XCTAssertEqual(config.idpLoginUrl, "https://idp.example.com")
         XCTAssertEqual(config.cookieName, "bwauth")
         XCTAssertEqual(config.cookieDomain, "example.com")
-        XCTAssertNil(config.vaultUrl)
+        XCTAssertEqual(config.vaultUrl, "https://example.com")
     }
 
-    /// `init(communicationSettings:)` falls back to `.direct` for unknown bootstrap types.
+    /// `init(communicationSettings:vaultUrl:)` falls back to `.direct` for unknown bootstrap types.
     func test_init_communicationSettings_unknownType_treatedAsDirect() {
         let settings = ServerCommunicationSettings(
             bootstrap: ServerCommunicationBootstrapSettings(
@@ -447,7 +475,7 @@ class SetCommunicationTypeRequestTests: BitwardenTestCase {
                 cookieDomain: nil,
             ),
         )
-        let subject = SetCommunicationTypeRequest(communicationSettings: settings)
+        let subject = SetCommunicationTypeRequest(communicationSettings: settings, vaultUrl: "https://example.com")
 
         if case .direct = subject.bootstrap {} else {
             XCTFail("Expected .direct fallback for unknown type, got \(subject.bootstrap)")

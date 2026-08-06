@@ -25,8 +25,17 @@ struct CipherMiniResponseModel: JSONResponse, Equatable {
     /// The date the cipher was created.
     let creationDate: Date
 
+    /// The cipher's encrypted data blob.
+    ///
+    /// - Note: For blob-encrypted ciphers, this contains the full sealed payload and the
+    ///   legacy per-type fields (`login`, `card`, `name`, etc.) are `nil`.
+    let data: String?
+
     /// The date the cipher was deleted.
     let deletedDate: Date?
+
+    /// Driver's license data if the cipher is a driver's license.
+    let driversLicense: CipherDriversLicenseModel?
 
     /// The cipher's list of user-defined fields.
     let fields: [CipherFieldModel]?
@@ -44,7 +53,10 @@ struct CipherMiniResponseModel: JSONResponse, Equatable {
     let login: CipherLoginModel?
 
     /// The name of the cipher.
-    let name: String
+    ///
+    /// - Note: `nil` for blob-encrypted ciphers, where the name lives inside the sealed `data`
+    ///   blob; present on the legacy field-level format.
+    let name: String?
 
     /// Notes contained within the cipher.
     let notes: String?
@@ -54,6 +66,9 @@ struct CipherMiniResponseModel: JSONResponse, Equatable {
 
     /// Whether the organization for the cipher supports TOTP.
     let organizationUseTotp: Bool
+
+    /// Passport data if the cipher is a passport.
+    let passport: CipherPassportModel?
 
     /// The password history for this cipher.
     let passwordHistory: [CipherPasswordHistoryModel]?

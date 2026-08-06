@@ -68,9 +68,12 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
 
     typealias Services = HasAPIService
         & HasAuthRepository
+        & HasBillingRepository
+        & HasBillingService
         & HasCameraService
         & HasCardTextParser
         & HasConfigService
+        & HasEnvironmentService
         & HasErrorReporter
         & HasEventService
         & HasFido2UserInterfaceHelper
@@ -100,6 +103,13 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
 
     /// The delegate that is notified when delete cipher item have occurred.
     private weak var delegate: CipherItemOperationDelegate?
+
+    /// The helper used to navigate to the Premium upgrade flow.
+    lazy var premiumUpgradeHelper: PremiumUpgradeHelper = DefaultPremiumUpgradeHelper(
+        services: services,
+        coordinator: coordinator,
+        setURL: { [weak self] url in self?.state.url = url },
+    )
 
     /// The services required by this processor.
     private let services: Services
@@ -166,6 +176,8 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
             await fetchCipherOptions()
         case .savePressed:
             await saveItem()
+        case .scanCardButtonTapped:
+            await openCardScanner()
         case .setupTotpPressed:
             await setupTotp()
         case .deletePressed:
@@ -190,6 +202,8 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
             coordinator.navigate(to: .addFolder, context: self)
         case let .authKeyVisibilityTapped(newValue):
             state.loginState.isAuthKeyVisible = newValue
+        case let .bankAccountFieldChanged(bankAccountFieldAction):
+            updateBankAccountState(&state, for: bankAccountFieldAction)
         case let .cardFieldChanged(cardFieldAction):
             updateCardState(&state, for: cardFieldAction)
         case .clearUrl:
@@ -200,6 +214,8 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
             handleCustomFieldAction(action)
         case .dismissPressed:
             handleDismiss()
+        case let .driversLicenseFieldChanged(driversLicenseFieldAction):
+            updateDriversLicenseState(&state, for: driversLicenseFieldAction)
         case let .favoriteChanged(newValue):
             state.isFavoriteOn = newValue
         case let .folderChanged(newValue):
@@ -235,6 +251,8 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
             state.notes = newValue
         case let .ownerChanged(newValue):
             state.owner = newValue
+        case let .passportFieldChanged(passportFieldAction):
+            updatePassportState(&state, for: passportFieldAction)
         case let .passwordChanged(newValue):
             state.loginState.password = newValue
         case .removePasskeyPressed:
@@ -310,11 +328,18 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
     /// Archives a cipher.
     ///
     private func archiveItem() async {
-        await vaultItemActionHelper.archive(cipher: state.cipher) { [weak self] url in
-            self?.state.url = url
+        await vaultItemActionHelper.archive(cipher: state.cipher) { [weak self] in
+            await self?.navigateToPremiumUpgrade()
         } completionHandler: { [weak self, delegate] in
             self?.dismiss { delegate?.itemArchived() }
         }
+    }
+
+    /// Navigates to the Premium upgrade flow. Uses the in-app upgrade path when available;
+    /// otherwise opens the web vault upgrade URL as a fallback.
+    ///
+    private func navigateToPremiumUpgrade() async {
+        await premiumUpgradeHelper.navigateToPremiumUpgrade()
     }
 
     /// Dismisses with an action.
@@ -329,18 +354,28 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
     ///     dismissing the view without saving.
     ///
     private func handleDismiss(didAddItem: Bool = false) {
-        guard let appExtensionDelegate, appExtensionDelegate.isInAppExtensionSaveLoginFlow else {
-            let shouldDismiss = delegate?.itemAdded() ?? true
-            if shouldDismiss {
-                coordinator.navigate(to: .dismiss())
+        if let appExtensionDelegate, appExtensionDelegate.isInAppExtensionSaveLoginFlow {
+            if didAddItem, let username = state.cipher.login?.username, let password = state.cipher.login?.password {
+                appExtensionDelegate.completeAutofillRequest(username: username, password: password, fields: nil)
+            } else {
+                appExtensionDelegate.didCancel()
             }
             return
         }
 
-        if didAddItem, let username = state.cipher.login?.username, let password = state.cipher.login?.password {
-            appExtensionDelegate.completeAutofillRequest(username: username, password: password, fields: nil)
-        } else {
-            appExtensionDelegate.didCancel()
+        if let credentialProviderExtensionDelegate = appExtensionDelegate as? CredentialProviderExtensionDelegate,
+           credentialProviderExtensionDelegate.isSavingPasswordCredential {
+            if didAddItem {
+                credentialProviderExtensionDelegate.completeSavePasswordRequest()
+            } else {
+                credentialProviderExtensionDelegate.didCancel()
+            }
+            return
+        }
+
+        let shouldDismiss = delegate?.itemAdded() ?? true
+        if shouldDismiss {
+            coordinator.navigate(to: .dismiss())
         }
     }
 
@@ -475,6 +510,45 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
         state.cardItemState.cardScannerEnabled = await services.configService.getFeatureFlag(.cardScanner)
     }
 
+    /// Updates the bank account state based on the action received.
+    ///
+    /// - Parameters:
+    ///   - state: The parent `AddEditItemState` to be updated.
+    ///   - action: The `AddEditBankAccountItemAction` received.
+    private func updateBankAccountState(
+        _ state: inout AddEditItemState,
+        for action: AddEditBankAccountItemAction,
+    ) {
+        switch action {
+        case let .accountNumberChanged(accountNumber):
+            state.bankAccountItemState.accountNumber = accountNumber
+        case let .accountTypeChanged(accountType):
+            state.bankAccountItemState.accountType = accountType
+        case let .bankContactPhoneChanged(bankContactPhone):
+            state.bankAccountItemState.bankContactPhone = bankContactPhone
+        case let .bankNameChanged(bankName):
+            state.bankAccountItemState.bankName = bankName
+        case let .branchNumberChanged(branchNumber):
+            state.bankAccountItemState.branchNumber = branchNumber
+        case let .ibanChanged(iban):
+            state.bankAccountItemState.iban = iban
+        case let .nameOnAccountChanged(nameOnAccount):
+            state.bankAccountItemState.nameOnAccount = nameOnAccount
+        case let .pinChanged(pin):
+            state.bankAccountItemState.pin = pin
+        case let .routingNumberChanged(routingNumber):
+            state.bankAccountItemState.routingNumber = routingNumber
+        case let .swiftCodeChanged(swiftCode):
+            state.bankAccountItemState.swiftCode = swiftCode
+        case let .toggleAccountNumberVisibilityChanged(isVisible):
+            state.bankAccountItemState.isAccountNumberVisible = isVisible
+        case let .toggleIbanVisibilityChanged(isVisible):
+            state.bankAccountItemState.isIbanVisible = isVisible
+        case let .togglePinVisibilityChanged(isVisible):
+            state.bankAccountItemState.isPinVisible = isVisible
+        }
+    }
+
     /// Receives an `AddEditCardItem` action from the `AddEditCardView` view's store, and updates
     /// the `AddEditCardState`.
     ///
@@ -488,7 +562,7 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
         case let .cardholderNameChanged(name):
             state.cardItemState.cardholderName = name
         case let .cardNumberChanged(number):
-            state.cardItemState.cardNumber = number
+            state.cardItemState.cardNumber = number.filter(\.isNumber)
         case .cardScannerDismissed:
             state.cardItemState.isCardScannerPresented = false
             state.cardItemState.shouldFocusCardholderNameAfterScan = false
@@ -500,8 +574,6 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
             state.cardItemState.expirationMonth = month
         case let .expirationYearChanged(year):
             state.cardItemState.expirationYear = year
-        case .scanCardButtonTapped:
-            state.cardItemState.isCardScannerPresented = true
         case let .toggleCodeVisibilityChanged(isVisible):
             state.cardItemState.isCodeVisible = isVisible
             if isVisible {
@@ -524,6 +596,38 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
                     )
                 }
             }
+        }
+    }
+
+    /// Receives an `AddEditDriversLicenseItem` action from the `AddEditDriversLicenseItemView` view's store, and
+    /// updates the `DriversLicenseItemState`.
+    ///
+    /// - Parameters:
+    ///   - state: The parent `AddEditItemState` to be updated.
+    ///   - action: The `AddEditDriversLicenseItemAction` received.
+    private func updateDriversLicenseState(
+        _ state: inout AddEditItemState,
+        for action: AddEditDriversLicenseItemAction,
+    ) {
+        switch action {
+        case let .firstNameChanged(firstName):
+            state.driversLicenseItemState.firstName = firstName
+        case let .issuingAuthorityChanged(issuingAuthority):
+            state.driversLicenseItemState.issuingAuthority = issuingAuthority
+        case let .issuingCountryChanged(issuingCountry):
+            state.driversLicenseItemState.issuingCountry = issuingCountry
+        case let .issuingStateChanged(issuingState):
+            state.driversLicenseItemState.issuingState = issuingState
+        case let .lastNameChanged(lastName):
+            state.driversLicenseItemState.lastName = lastName
+        case let .licenseClassChanged(licenseClass):
+            state.driversLicenseItemState.licenseClass = licenseClass
+        case let .licenseNumberChanged(licenseNumber):
+            state.driversLicenseItemState.licenseNumber = licenseNumber
+        case let .middleNameChanged(middleName):
+            state.driversLicenseItemState.middleName = middleName
+        case let .toggleLicenseNumberVisibilityChanged(isVisible):
+            state.driversLicenseItemState.isLicenseNumberVisible = isVisible
         }
     }
 
@@ -573,6 +677,41 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
             state.identityState.postalCode = postalCode
         case let .countryChanged(country):
             state.identityState.country = country
+        }
+    }
+
+    /// Receives an `AddEditPassportItem` action from the `AddEditPassportItemView` view's store, and
+    /// updates the `PassportItemState`.
+    ///
+    /// - Parameters:
+    ///   - state: The parent `AddEditItemState` to be updated.
+    ///   - action: The `AddEditPassportItemAction` received.
+    private func updatePassportState(_ state: inout AddEditItemState, for action: AddEditPassportItemAction) {
+        switch action {
+        case let .birthPlaceChanged(birthPlace):
+            state.passportItemState.birthPlace = birthPlace
+        case let .givenNameChanged(givenName):
+            state.passportItemState.givenName = givenName
+        case let .issuingAuthorityChanged(issuingAuthority):
+            state.passportItemState.issuingAuthority = issuingAuthority
+        case let .issuingCountryChanged(issuingCountry):
+            state.passportItemState.issuingCountry = issuingCountry
+        case let .nationalIdentificationNumberChanged(nationalIdentificationNumber):
+            state.passportItemState.nationalIdentificationNumber = nationalIdentificationNumber
+        case let .nationalityChanged(nationality):
+            state.passportItemState.nationality = nationality
+        case let .passportNumberChanged(passportNumber):
+            state.passportItemState.passportNumber = passportNumber
+        case let .passportTypeChanged(passportType):
+            state.passportItemState.passportType = passportType
+        case let .sexChanged(sex):
+            state.passportItemState.sex = sex
+        case let .surnameChanged(surname):
+            state.passportItemState.surname = surname
+        case let .toggleNationalIdentificationNumberVisibilityChanged(isVisible):
+            state.passportItemState.isNationalIdentificationNumberVisible = isVisible
+        case let .togglePassportNumberVisibilityChanged(isVisible):
+            state.passportItemState.isPassportNumberVisible = isVisible
         }
     }
 
@@ -747,8 +886,8 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
     /// Adds the item currently in `state`.
     ///
     private func addItem(fido2UserVerified: Bool) async throws {
-        if let autofillAppExtensionDelegate = appExtensionDelegate as? AutofillAppExtensionDelegate,
-           autofillAppExtensionDelegate.isCreatingFido2Credential {
+        if let credentialProviderExtensionDelegate = appExtensionDelegate as? CredentialProviderExtensionDelegate,
+           credentialProviderExtensionDelegate.isCreatingFido2Credential {
             services.fido2UserInterfaceHelper.pickedCredentialForCreation(
                 result: .success(
                     CheckUserAndPickCredentialForCreationResult(
@@ -762,14 +901,15 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
 
         try await services.vaultRepository.addCipher(state.cipher)
         coordinator.hideLoadingOverlay()
+
         handleDismiss(didAddItem: true)
         await services.reviewPromptService.trackUserAction(.addedNewItem)
     }
 
     /// Checks user verification if needed on Fido2 flows.
     private func fido2CheckUserIfNeeded() async throws -> Bool {
-        guard let autofillAppExtensionDelegate = appExtensionDelegate as? AutofillAppExtensionDelegate,
-              autofillAppExtensionDelegate.isCreatingFido2Credential,
+        guard let credentialProviderExtensionDelegate = appExtensionDelegate as? CredentialProviderExtensionDelegate,
+              credentialProviderExtensionDelegate.isCreatingFido2Credential,
               let fido2CreationOptions = services.fido2UserInterfaceHelper.fido2CreationOptions else {
             return false
         }
@@ -929,6 +1069,22 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
         let shouldDismissed = delegate?.itemUpdated() ?? true
         if shouldDismissed {
             coordinator.navigate(to: .dismiss())
+        }
+    }
+
+    /// Checks camera authorization and either opens the card scanner sheet or shows a
+    /// camera-permission-required alert with a link to iOS Settings.
+    ///
+    private func openCardScanner() async {
+        let status = await services.cameraService.checkStatusOrRequestCameraAuthorization()
+        guard status == .authorized else {
+            coordinator.showAlert(.cameraPermissionRequired { [weak self] in
+                self?.state.url = URL(string: UIApplication.openSettingsURLString)
+            })
+            return
+        }
+        await MainActor.run {
+            state.cardItemState.isCardScannerPresented = true
         }
     }
 

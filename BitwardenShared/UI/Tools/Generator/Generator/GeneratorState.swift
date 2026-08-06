@@ -1,5 +1,6 @@
 import BitwardenKit
 import BitwardenResources
+import Foundation
 
 // swiftlint:disable file_length
 
@@ -96,6 +97,10 @@ struct GeneratorState: Equatable {
         ],
     )
 
+    /// Password rules from an `ASGeneratePasswordsRequest` applied when loading generator options.
+    /// When non-nil, forces password mode and constrains the initial password settings.
+    var forcedPasswordRules: String?
+
     /// If account is eligible for learn generator action card.
     var isLearnGeneratorActionCardEligible: Bool = false
 
@@ -112,8 +117,18 @@ struct GeneratorState: Equatable {
     /// elements.
     var presentationMode: PresentationMode = .tab
 
+    /// Whether generated passwords should be saved to password history.
+    /// Set to `false` when the vault is not unlocked (e.g. the generate-password credential extension flow).
+    var savePasswordHistory: Bool = true
+
+    /// Whether the "Upgraded to Premium" action card should be shown.
+    var shouldShowUpgradedToPremiumActionCard: Bool = false
+
     /// A toast message to show in the view.
     var toast: Toast?
+
+    /// The URL to open externally (e.g. learn more about Premium).
+    var url: URL?
 
     /// The options used to generate a username.
     var usernameState = UsernameState()

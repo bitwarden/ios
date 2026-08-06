@@ -67,6 +67,7 @@ class MockAuthRepository: AuthRepository { // swiftlint:disable:this type_body_l
     var sessionTimeoutAction = [String: SessionTimeoutAction]()
     var setActiveAccountId: String?
     var setActiveAccountError: Error?
+    var setLastActiveAccountTimeCalled = false
     var setMasterPasswordHint: String?
     var setMasterPasswordPassword: String?
     var setMasterPasswordOrganizationId: String?
@@ -75,9 +76,9 @@ class MockAuthRepository: AuthRepository { // swiftlint:disable:this type_body_l
     var setMasterPasswordResult: Result<Void, Error> = .success(())
     var setPinsRequirePasswordAfterRestart: Bool?
     var setPinsResult: Result<Void, Error> = .success(())
+    var setLastActiveAccountTimeError: Error?
     var setVaultTimeoutError: Error?
     var unlockVaultFromLoginWithDeviceKey: String?
-    var unlockVaultFromLoginWithDeviceMasterPasswordHash: String? // swiftlint:disable:this identifier_name
     var unlockVaultFromLoginWithDevicePrivateKey: String?
     var unlockVaultFromLoginWithDeviceResult: Result<Void, Error> = .success(())
     var unlockVaultPassword: String?
@@ -94,7 +95,7 @@ class MockAuthRepository: AuthRepository { // swiftlint:disable:this type_body_l
     var unlockVaultWithDeviceKeyResult: Result<Void, Error> = .success(())
     var unlockVaultWithKeyConnectorKeyCalled = false
     var unlockVaultWithKeyConnectorKeyConnectorURL: URL? // swiftlint:disable:this identifier_name
-    var unlockVaultWithKeyConnectorOrgIdentifier: String?
+    var unlockVaultWithKeyConnectorKeyWrappedUserKey: String? // swiftlint:disable:this identifier_name
     var unlockVaultWithKeyConnectorKeyResult: Result<Void, Error> = .success(())
 
     var convertNewUserToKeyConnectorKeyCalled = false
@@ -329,6 +330,13 @@ class MockAuthRepository: AuthRepository { // swiftlint:disable:this type_body_l
         return match
     }
 
+    func setLastActiveAccountTime() async throws {
+        setLastActiveAccountTimeCalled = true
+        if let setLastActiveAccountTimeError {
+            throw setLastActiveAccountTimeError
+        }
+    }
+
     func setPins(_ pin: String, requirePasswordAfterRestart: Bool) async throws {
         encryptedPin = pin
         pinProtectedUserKey = pin
@@ -372,10 +380,9 @@ class MockAuthRepository: AuthRepository { // swiftlint:disable:this type_body_l
         }
     }
 
-    func unlockVaultFromLoginWithDevice(privateKey: String, key: String, masterPasswordHash: String?) async throws {
+    func unlockVaultFromLoginWithDevice(privateKey: String, key: String) async throws {
         unlockVaultFromLoginWithDeviceKey = key
         unlockVaultFromLoginWithDevicePrivateKey = privateKey
-        unlockVaultFromLoginWithDeviceMasterPasswordHash = masterPasswordHash
         try unlockVaultFromLoginWithDeviceResult.get()
     }
 
@@ -389,10 +396,13 @@ class MockAuthRepository: AuthRepository { // swiftlint:disable:this type_body_l
         try unlockVaultWithDeviceKeyResult.get()
     }
 
-    func unlockVaultWithKeyConnectorKey(keyConnectorURL: URL, orgIdentifier: String) async throws {
+    func unlockVaultWithKeyConnectorKey(
+        keyConnectorKeyWrappedUserKey: String,
+        keyConnectorURL: URL,
+    ) async throws {
         unlockVaultWithKeyConnectorKeyCalled = true
         unlockVaultWithKeyConnectorKeyConnectorURL = keyConnectorURL
-        unlockVaultWithKeyConnectorOrgIdentifier = orgIdentifier
+        unlockVaultWithKeyConnectorKeyWrappedUserKey = keyConnectorKeyWrappedUserKey
         try unlockVaultWithKeyConnectorKeyResult.get()
     }
 

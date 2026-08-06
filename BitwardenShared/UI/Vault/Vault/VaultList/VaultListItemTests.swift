@@ -37,25 +37,25 @@ class VaultListItemTests: BitwardenTestCase { // swiftlint:disable:this type_bod
         XCTAssertNil(item.accessoryIcon)
     }
 
-    /// `accessoryIcon` returns nil for group items that don't require premium.
+    /// `accessoryIcon` returns nil for group items that don't require Premium.
     func test_accessoryIcon_group_noPremiumRequired() {
         let item = VaultListItem(id: "test", hasPremium: false, itemType: .group(.login, 0))
         XCTAssertNil(item.accessoryIcon)
     }
 
-    /// `accessoryIcon` returns locked icon for archive group when premium is required.
+    /// `accessoryIcon` returns locked icon for archive group when Premium is required.
     func test_accessoryIcon_archiveGroup_premiumRequired() {
         let item = VaultListItem(id: "test", hasPremium: false, itemType: .group(.archive, 0))
         XCTAssertEqual(item.accessoryIcon?.name, SharedAsset.Icons.locked24.name)
     }
 
-    /// `accessoryIcon` returns nil for archive group when user has archived items (no premium required).
+    /// `accessoryIcon` returns nil for archive group when user has archived items (no Premium required).
     func test_accessoryIcon_archiveGroup_hasArchivedItems() {
         let item = VaultListItem(id: "test", hasPremium: false, itemType: .group(.archive, 3))
         XCTAssertNil(item.accessoryIcon)
     }
 
-    /// `accessoryIcon` returns nil for archive group when user has premium.
+    /// `accessoryIcon` returns nil for archive group when user has Premium.
     func test_accessoryIcon_archiveGroup_hasPremium() {
         let item = VaultListItem(id: "test", hasPremium: true, itemType: .group(.archive, 5))
         XCTAssertNil(item.accessoryIcon)
@@ -162,8 +162,16 @@ class VaultListItemTests: BitwardenTestCase { // swiftlint:disable:this type_bod
     /// `icon` returns the expected value.
     func test_icon() { // swiftlint:disable:this function_body_length
         XCTAssertEqual(
+            VaultListItem(cipherListView: .fixture(type: .bankAccount))?.icon.name,
+            SharedAsset.Icons.bankAccount24.name,
+        )
+        XCTAssertEqual(
             VaultListItem(cipherListView: .fixture(type: .card(.init(brand: nil))))?.icon.name,
             SharedAsset.Icons.card24.name,
+        )
+        XCTAssertEqual(
+            VaultListItem(cipherListView: .fixture(type: .driversLicense))?.icon.name,
+            SharedAsset.Icons.idCard24.name,
         )
         XCTAssertEqual(
             VaultListItem(cipherListView: .fixture(type: .identity))?.icon.name,
@@ -181,6 +189,10 @@ class VaultListItemTests: BitwardenTestCase { // swiftlint:disable:this type_bod
             SharedAsset.Icons.passkey24.name,
         )
         XCTAssertEqual(
+            VaultListItem(cipherListView: .fixture(type: .passport))?.icon.name,
+            SharedAsset.Icons.idCard24.name,
+        )
+        XCTAssertEqual(
             VaultListItem(cipherListView: .fixture(type: .secureNote))?.icon.name,
             SharedAsset.Icons.file24.name,
         )
@@ -189,6 +201,10 @@ class VaultListItemTests: BitwardenTestCase { // swiftlint:disable:this type_bod
             SharedAsset.Icons.key24.name,
         )
 
+        XCTAssertEqual(
+            VaultListItem(id: "", itemType: .group(.bankAccount, 1)).icon.name,
+            SharedAsset.Icons.bankAccount24.name,
+        )
         XCTAssertEqual(
             VaultListItem(id: "", itemType: .group(.card, 1)).icon.name,
             SharedAsset.Icons.card24.name,
@@ -202,12 +218,20 @@ class VaultListItemTests: BitwardenTestCase { // swiftlint:disable:this type_bod
             SharedAsset.Icons.folder24.name,
         )
         XCTAssertEqual(
+            VaultListItem(id: "", itemType: .group(.driversLicense, 1)).icon.name,
+            SharedAsset.Icons.idCard24.name,
+        )
+        XCTAssertEqual(
             VaultListItem(id: "", itemType: .group(.identity, 1)).icon.name,
             SharedAsset.Icons.idCard24.name,
         )
         XCTAssertEqual(
             VaultListItem(id: "", itemType: .group(.login, 1)).icon.name,
             SharedAsset.Icons.globe24.name,
+        )
+        XCTAssertEqual(
+            VaultListItem(id: "", itemType: .group(.passport, 1)).icon.name,
+            SharedAsset.Icons.idCard24.name,
         )
         XCTAssertEqual(
             VaultListItem(id: "", itemType: .group(.secureNote, 1)).icon.name,
@@ -239,8 +263,16 @@ class VaultListItemTests: BitwardenTestCase { // swiftlint:disable:this type_bod
     /// `getter:iconAccessibilityId` gets the appropriate id for each icon.
     func test_iconAccessibilityId() {
         XCTAssertEqual(
+            VaultListItem(cipherListView: .fixture(type: .bankAccount))?.iconAccessibilityId,
+            "BankAccountCipherIcon",
+        )
+        XCTAssertEqual(
             VaultListItem(cipherListView: .fixture(type: .card(.init(brand: nil))))?.iconAccessibilityId,
             "CardCipherIcon",
+        )
+        XCTAssertEqual(
+            VaultListItem(cipherListView: .fixture(type: .driversLicense))?.iconAccessibilityId,
+            "DriverLicenseCipherIcon",
         )
         XCTAssertEqual(
             VaultListItem(cipherListView: .fixture(type: .identity))?.iconAccessibilityId,
@@ -256,6 +288,10 @@ class VaultListItemTests: BitwardenTestCase { // swiftlint:disable:this type_bod
                 fido2CredentialAutofillView: .fixture(),
             )?.iconAccessibilityId,
             "LoginCipherIcon",
+        )
+        XCTAssertEqual(
+            VaultListItem(cipherListView: .fixture(type: .passport))?.iconAccessibilityId,
+            "PassportCipherIcon",
         )
         XCTAssertEqual(
             VaultListItem(cipherListView: .fixture(type: .secureNote))?.iconAccessibilityId,
@@ -317,27 +353,52 @@ class VaultListItemTests: BitwardenTestCase { // swiftlint:disable:this type_bod
 
         XCTAssertEqual(
             VaultListItem(id: "", itemType: .group(.login, 1)).vaultItemAccessibilityId,
-            "ItemFilterCell",
+            "LoginCell",
+        )
+        XCTAssertEqual(
+            VaultListItem(id: "", itemType: .group(.bankAccount, 1)).vaultItemAccessibilityId,
+            "BankAccountCell",
         )
         XCTAssertEqual(
             VaultListItem(id: "", itemType: .group(.card, 1)).vaultItemAccessibilityId,
-            "ItemFilterCell",
+            "CardCell",
+        )
+        XCTAssertEqual(
+            VaultListItem(id: "", itemType: .group(.driversLicense, 1)).vaultItemAccessibilityId,
+            "DriversLicenseCell",
         )
         XCTAssertEqual(
             VaultListItem(id: "", itemType: .group(.identity, 1)).vaultItemAccessibilityId,
-            "ItemFilterCell",
+            "IdentityCell",
+        )
+        XCTAssertEqual(
+            VaultListItem(id: "", itemType: .group(.passport, 1)).vaultItemAccessibilityId,
+            "PassportCell",
         )
         XCTAssertEqual(
             VaultListItem(id: "", itemType: .group(.secureNote, 1)).vaultItemAccessibilityId,
-            "ItemFilterCell",
+            "SecureNoteCell",
         )
         XCTAssertEqual(
             VaultListItem(id: "", itemType: .group(.sshKey, 1)).vaultItemAccessibilityId,
-            "ItemFilterCell",
+            "SSHKeyCell",
         )
         XCTAssertEqual(
             VaultListItem(id: "", itemType: .group(.totp, 1)).vaultItemAccessibilityId,
+            "TOTPCell",
+        )
+        XCTAssertEqual(
+            VaultListItem(id: "", itemType: .group(.noFolder, 1)).vaultItemAccessibilityId,
             "ItemFilterCell",
+        )
+
+        XCTAssertEqual(
+            VaultListItem(id: "", itemType: .group(.archive, 1)).vaultItemAccessibilityId,
+            "ArchiveCell",
+        )
+        XCTAssertEqual(
+            VaultListItem(id: "", itemType: .group(.trash, 1)).vaultItemAccessibilityId,
+            "TrashCell",
         )
     }
 
@@ -455,7 +516,7 @@ class VaultListItemTests: BitwardenTestCase { // swiftlint:disable:this type_bod
         )
     }
 
-    /// `subtitle` returns premium subscription required for archive group when premium is required.
+    /// `subtitle` returns Premium subscription required for archive group when Premium is required.
     func test_subtitle_archiveGroup_premiumRequired() {
         let item = VaultListItem(id: "test", hasPremium: false, itemType: .group(.archive, 0))
         XCTAssertEqual(item.subtitle, Localizations.premiumSubscriptionRequired)
@@ -467,7 +528,7 @@ class VaultListItemTests: BitwardenTestCase { // swiftlint:disable:this type_bod
         XCTAssertNil(item.subtitle)
     }
 
-    /// `subtitle` returns nil for archive group when user has premium.
+    /// `subtitle` returns nil for archive group when user has Premium.
     func test_subtitle_archiveGroup_hasPremium() {
         let item = VaultListItem(id: "test", hasPremium: true, itemType: .group(.archive, 5))
         XCTAssertNil(item.subtitle)

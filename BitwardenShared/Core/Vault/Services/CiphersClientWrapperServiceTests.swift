@@ -1,5 +1,6 @@
 import BitwardenKitMocks
 import BitwardenSdk
+import BitwardenSdkMocks
 import TestHelpers
 import XCTest
 
@@ -11,6 +12,7 @@ class CiphersClientWrapperServiceTests: BitwardenTestCase {
     // MARK: Properties
 
     var clientService: MockClientService!
+    var decryptListWithFailuresInvocations: [[Cipher]] = []
     var errorReporter: MockErrorReporter!
     var subject: CiphersClientWrapperService!
 
@@ -21,6 +23,12 @@ class CiphersClientWrapperServiceTests: BitwardenTestCase {
 
         clientService = MockClientService()
         errorReporter = MockErrorReporter()
+
+        clientService.mockVault.clientCiphers.decryptListWithFailuresClosure = { [weak self] ciphers in
+            self?.decryptListWithFailuresInvocations.append(ciphers)
+            return DecryptCipherListResult(successes: ciphers.map { CipherListView(cipher: $0) }, failures: [])
+        }
+
         subject = DefaultCiphersClientWrapperService(clientService: clientService, errorReporter: errorReporter)
     }
 
@@ -56,8 +64,6 @@ class CiphersClientWrapperServiceTests: BitwardenTestCase {
         )
 
         XCTAssertEqual(onCipherCallCount, 950)
-        let decryptListWithFailuresInvocations = clientService.mockVault.clientCiphers
-            .decryptListWithFailuresReceivedCiphersInvocations
         XCTAssertEqual(decryptListWithFailuresInvocations.count, 10)
         for invocationIndex in 0 ..< 9 {
             XCTAssertEqual(decryptListWithFailuresInvocations[invocationIndex].count, 100)
@@ -79,7 +85,8 @@ class CiphersClientWrapperServiceTests: BitwardenTestCase {
             onCipherCallCount += 1
             decryptedCiphers.append(decryptedCipher)
         }
-        clientService.mockVault.clientCiphers.decryptListWithFailuresResultClosure = { ciphers in
+        clientService.mockVault.clientCiphers.decryptListWithFailuresClosure = { [weak self] ciphers in
+            self?.decryptListWithFailuresInvocations.append(ciphers)
             let successes = ciphers.filter { $0.id != "240" }.map { CipherListView(cipher: $0) }
             let failures = ciphers.filter { $0.id == "240" }
             return DecryptCipherListResult(successes: successes, failures: failures)
@@ -93,8 +100,6 @@ class CiphersClientWrapperServiceTests: BitwardenTestCase {
         )
 
         XCTAssertEqual(onCipherCallCount, 950)
-        let decryptListWithFailuresInvocations = clientService.mockVault.clientCiphers
-            .decryptListWithFailuresReceivedCiphersInvocations
         XCTAssertEqual(decryptListWithFailuresInvocations.count, 10)
         for invocationIndex in 0 ..< 9 {
             XCTAssertEqual(decryptListWithFailuresInvocations[invocationIndex].count, 100)
@@ -135,8 +140,6 @@ class CiphersClientWrapperServiceTests: BitwardenTestCase {
         )
 
         XCTAssertEqual(onCipherCallCount, 850)
-        let decryptListWithFailuresInvocations = clientService.mockVault.clientCiphers
-            .decryptListWithFailuresReceivedCiphersInvocations
         XCTAssertEqual(decryptListWithFailuresInvocations.count, 10)
         for invocationIndex in 0 ..< 9 {
             XCTAssertEqual(decryptListWithFailuresInvocations[invocationIndex].count, 100)
@@ -181,8 +184,6 @@ class CiphersClientWrapperServiceTests: BitwardenTestCase {
         XCTAssertEqual(decryptedCiphers.count, 475)
 
         // Verify decryption was called 10 times (10 batches)
-        let decryptListWithFailuresInvocations = clientService.mockVault.clientCiphers
-            .decryptListWithFailuresReceivedCiphersInvocations
         XCTAssertEqual(decryptListWithFailuresInvocations.count, 10)
 
         // Verify batch sizes after filtering (each batch should have ~50 items instead of 100)

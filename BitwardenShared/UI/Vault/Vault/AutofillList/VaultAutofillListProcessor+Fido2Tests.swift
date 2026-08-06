@@ -5,6 +5,7 @@ import BitwardenKit
 import BitwardenKitMocks
 import BitwardenResources
 import BitwardenSdk
+import BitwardenSdkMocks
 import TestHelpers
 import XCTest
 
@@ -17,7 +18,7 @@ import XCTest
 class VaultAutofillListProcessorFido2Tests: BitwardenTestCase { // swiftlint:disable:this type_body_length
     // MARK: Properties
 
-    var appExtensionDelegate: MockAutofillAppExtensionDelegate!
+    var appExtensionDelegate: MockCredentialProviderExtensionDelegate!
     var authRepository: MockAuthRepository!
     var autofillCredentialService: MockAutofillCredentialService!
     var cipherOwnershipHelper: MockCipherOwnershipHelper!
@@ -33,12 +34,16 @@ class VaultAutofillListProcessorFido2Tests: BitwardenTestCase { // swiftlint:dis
     var timeProvider: MockTimeProvider!
     var vaultRepository: MockVaultRepository!
 
+    var fido2AuthenticatorMock: MockClientFido2AuthenticatorProtocol {
+        clientService.mockPlatform.mockFido2.mockAuthenticator
+    }
+
     // MARK: Setup & Teardown
 
     override func setUp() {
         super.setUp()
 
-        appExtensionDelegate = MockAutofillAppExtensionDelegate()
+        appExtensionDelegate = MockCredentialProviderExtensionDelegate()
         authRepository = MockAuthRepository()
         autofillCredentialService = MockAutofillCredentialService()
         cipherOwnershipHelper = MockCipherOwnershipHelper()
@@ -67,7 +72,6 @@ class VaultAutofillListProcessorFido2Tests: BitwardenTestCase { // swiftlint:dis
             ),
             name: "rpName",
         )
-
         subject = VaultAutofillListProcessor(
             appExtensionDelegate: appExtensionDelegate,
             coordinator: coordinator.asAnyCoordinator(),
@@ -114,6 +118,30 @@ class VaultAutofillListProcessorFido2Tests: BitwardenTestCase { // swiftlint:dis
         let cipher = CipherView.fixture()
         await subject.informExcludedCredentialFound(cipherView: cipher)
         XCTAssertEqual(subject.state.excludedCredentialIdFound, "1")
+    }
+
+    /// `receive(_:)` with `.cancelTapped` notifies the delegate that a matched excluded credential
+    /// was found instead of a plain cancel when an excluded credential was found.
+    @MainActor
+    func test_receive_cancelTapped_withExcludedCredentialFound() throws {
+        guard #available(iOS 18.0, *) else { return }
+
+        subject.state.excludedCredentialIdFound = "1"
+
+        subject.receive(.cancelTapped)
+
+        XCTAssertTrue(appExtensionDelegate.setMatchedExcludedCredentialFoundCalled)
+        XCTAssertFalse(appExtensionDelegate.didCancelCalled)
+    }
+
+    /// `receive(_:)` with `.cancelTapped` notifies the delegate to cancel the extension when no
+    /// excluded credential was found.
+    @MainActor
+    func test_receive_cancelTapped_withoutExcludedCredentialFound() {
+        subject.receive(.cancelTapped)
+
+        XCTAssertTrue(appExtensionDelegate.didCancelCalled)
+        XCTAssertFalse(appExtensionDelegate.setMatchedExcludedCredentialFoundCalled)
     }
 
     /// `getter:isAutofillingFromList` returns `true` when delegate is autofilling from list.
@@ -498,9 +526,12 @@ class VaultAutofillListProcessorFido2Tests: BitwardenTestCase { // swiftlint:dis
     }
 
     /// `perform(_:)` with `.excludedCredentialFoundChanged` throws when getting the excluded credential cipher
-    /// from the publisher so it shows an error and cancels the extension flow.
+    /// from the publisher so it shows an error and notifies the delegate that a matched excluded credential
+    /// was found instead of a plain cancel.
     @MainActor
     func test_perform_excludedCredentialFoundChanged_cipherPublisherThrows() async throws {
+        guard #available(iOS 18.0, *) else { return }
+
         let cipher = CipherView.fixture()
         subject.state.excludedCredentialIdFound = cipher.id
         vaultRepository.cipherDetailsSubject.send(completion: .failure(BitwardenTestError.example))
@@ -534,13 +565,17 @@ class VaultAutofillListProcessorFido2Tests: BitwardenTestCase { // swiftlint:dis
         }
         onDismissed()
 
-        XCTAssertTrue(appExtensionDelegate.didCancelCalled)
+        XCTAssertTrue(appExtensionDelegate.setMatchedExcludedCredentialFoundCalled)
+        XCTAssertFalse(appExtensionDelegate.didCancelCalled)
     }
 
     /// `perform(_:)` with `.excludedCredentialFoundChanged` throws when creating the excluded credential cipher
-    /// section so it shows an error and cancels the extension flow.
+    /// section so it shows an error and notifies the delegate that a matched excluded credential was found
+    /// instead of a plain cancel.
     @MainActor
     func test_informExcludedCredentialFound_creatingExcludeCredentialSectionThrows() async throws {
+        guard #available(iOS 18.0, *) else { return }
+
         let cipher = CipherView.fixture(login: .fixture(fido2Credentials: [.fixture()]))
         subject.state.excludedCredentialIdFound = cipher.id
         vaultRepository.cipherDetailsSubject.send(cipher)
@@ -575,7 +610,8 @@ class VaultAutofillListProcessorFido2Tests: BitwardenTestCase { // swiftlint:dis
         }
         onDismissed()
 
-        XCTAssertTrue(appExtensionDelegate.didCancelCalled)
+        XCTAssertTrue(appExtensionDelegate.setMatchedExcludedCredentialFoundCalled)
+        XCTAssertFalse(appExtensionDelegate.didCancelCalled)
     }
 
     /// `vaultItemTapped(_:)` with Fido2 credential signals the `Fido2UserInterfaceHelper`
@@ -942,26 +978,7 @@ class VaultAutofillListProcessorFido2Tests: BitwardenTestCase { // swiftlint:dis
         appExtensionDelegate.extensionMode = .registerFido2Credential(expectedRequest)
 
         let expectedResult = MakeCredentialResult.fixture()
-        clientService.mockPlatform.fido2Mock
-            .clientFido2AuthenticatorMock
-            .makeCredentialMocker
-            .withVerification { request in
-                request.clientDataHash == expectedRequest.clientDataHash
-                    && request.rp.id == expectedCredentialIdentity.relyingPartyIdentifier
-                    && request.rp.name == expectedCredentialIdentity.relyingPartyIdentifier
-                    && request.user.id == expectedCredentialIdentity.userHandle
-                    && request.user.name == expectedCredentialIdentity.userName
-                    && request.user.displayName == expectedCredentialIdentity.userName
-                    && request.pubKeyCredParams.contains(where: { credParams in
-                        credParams.ty == "public-key"
-                            && credParams.alg == PublicKeyCredentialParameters.es256Algorithm
-                    })
-                    && request.excludeList == nil
-                    && request.options.rk
-                    && request.options.uv == .discouraged
-                    && request.extensions == nil
-            }
-            .withResult(expectedResult)
+        fido2AuthenticatorMock.makeCredentialReturnValue = expectedResult
 
         await subject.perform(.initFido2)
 
@@ -986,6 +1003,23 @@ class VaultAutofillListProcessorFido2Tests: BitwardenTestCase { // swiftlint:dis
                 && credential.credentialID == expectedResult.credentialId
                 && credential.attestationObject == expectedResult.attestationObject
         }
+
+        let receivedRequest = fido2AuthenticatorMock.makeCredentialReceivedRequest
+        XCTAssertEqual(receivedRequest?.clientDataHash, expectedRequest.clientDataHash)
+        XCTAssertEqual(receivedRequest?.rp.id, expectedCredentialIdentity.relyingPartyIdentifier)
+        XCTAssertEqual(receivedRequest?.rp.name, expectedCredentialIdentity.relyingPartyIdentifier)
+        XCTAssertEqual(receivedRequest?.user.id, expectedCredentialIdentity.userHandle)
+        XCTAssertEqual(receivedRequest?.user.name, expectedCredentialIdentity.userName)
+        XCTAssertEqual(receivedRequest?.user.displayName, expectedCredentialIdentity.userName)
+        XCTAssertTrue(
+            receivedRequest?.pubKeyCredParams.contains(where: { credParams in
+                credParams.ty == "public-key" && credParams.alg == PublicKeyCredentialParameters.es256Algorithm
+            }) == true,
+        )
+        XCTAssertNil(receivedRequest?.excludeList)
+        XCTAssertTrue(receivedRequest?.options.rk == true)
+        XCTAssertEqual(receivedRequest?.options.uv, .discouraged)
+        XCTAssertNil(receivedRequest?.extensions)
     }
 
     /// `perform(_:)` with `.initFido2` calls `makeCredential` from the Fido2 authenticator when
@@ -995,10 +1029,7 @@ class VaultAutofillListProcessorFido2Tests: BitwardenTestCase { // swiftlint:dis
     func test_perform_initFido2_registerFido2CredentialThrows() async throws {
         appExtensionDelegate.extensionMode = .registerFido2Credential(ASPasskeyCredentialRequest.fixture())
 
-        clientService.mockPlatform.fido2Mock
-            .clientFido2AuthenticatorMock
-            .makeCredentialMocker
-            .throwing(BitwardenTestError.example)
+        fido2AuthenticatorMock.makeCredentialThrowableError = BitwardenTestError.example
 
         await subject.perform(.initFido2)
 
@@ -1019,10 +1050,7 @@ class VaultAutofillListProcessorFido2Tests: BitwardenTestCase { // swiftlint:dis
     func test_perform_initFido2_noRequestForFido2Creation() async throws {
         await subject.perform(.initFido2)
 
-        XCTAssertFalse(clientService.mockPlatform.fido2Mock
-            .clientFido2AuthenticatorMock
-            .makeCredentialMocker
-            .called)
+        XCTAssertFalse(fido2AuthenticatorMock.makeCredentialCalled)
 
         XCTAssertTrue(errorReporter.errors.isEmpty)
         XCTAssertFalse(appExtensionDelegate.completeRegistrationRequestMocker.called)
@@ -1037,10 +1065,7 @@ class VaultAutofillListProcessorFido2Tests: BitwardenTestCase { // swiftlint:dis
 
         await subject.perform(.initFido2)
 
-        XCTAssertFalse(clientService.mockPlatform.fido2Mock
-            .clientFido2AuthenticatorMock
-            .makeCredentialMocker
-            .called)
+        XCTAssertFalse(fido2AuthenticatorMock.makeCredentialCalled)
 
         XCTAssertTrue(errorReporter.errors.isEmpty)
         XCTAssertFalse(appExtensionDelegate.completeRegistrationRequestMocker.called)

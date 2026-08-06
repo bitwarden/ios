@@ -21,7 +21,10 @@ class BitwardenTabBarController: UITabBarController, TabNavigator {
     // MARK: TabNavigator
 
     func navigator<Tab: TabRepresentable>(for tab: Tab) -> Navigator? {
-        viewControllers?[tab.index] as? Navigator
+        if let tabRoute = tab as? TabRoute {
+            return tabsAndNavigators.first(where: { $0.key.index == tabRoute.index })?.value
+        }
+        return viewControllers?[tab.index] as? Navigator
     }
 
     func setNavigators<Tab: Hashable & TabRepresentable>(_ tabs: [Tab: Navigator]) {

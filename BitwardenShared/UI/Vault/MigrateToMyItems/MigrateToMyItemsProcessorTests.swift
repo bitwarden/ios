@@ -135,6 +135,7 @@ class MigrateToMyItemsProcessorTests: BitwardenTestCase {
         let organization = Organization(
             enabled: true,
             id: "org-123",
+            isProviderUser: false,
             key: nil,
             keyConnectorEnabled: false,
             keyConnectorUrl: nil,

@@ -237,7 +237,7 @@
     <key>YouHaveAGracePeriodOfXDaysFromYourSubscriptionDescriptionLong</key>
     <dict>
       <key>NSStringLocalizedFormatKey</key>
-      <string>**%1$#@YouHaveAGracePeriodOfXDaysFromYourSubscriptionExpirationDate@** Please resolve the past due invoices by **%2$@**.</string>
+      <string>%1$#@YouHaveAGracePeriodOfXDaysFromYourSubscriptionExpirationDate@ Будь ласка, сплатіть протерміновані рахунки до **%2$@**.</string>
       <key>YouHaveAGracePeriodOfXDaysFromYourSubscriptionExpirationDate</key>
       <dict>
         <key>NSStringFormatSpecTypeKey</key>
@@ -245,13 +245,13 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>d</string>
         <key>one</key>
-        <string>You have a grace period of %1$d day from your subscription expiration date.</string>
+        <string>Ви маєте пільговий період тривалістю %1$d день з дати завершення передплати.</string>
         <key>few</key>
-        <string>You have a grace period of %1$d days from your subscription expiration date.</string>
+        <string>Ви маєте пільговий період тривалістю %1$d дні з дати завершення передплати.</string>
         <key>many</key>
-        <string>You have a grace period of %1$d days from your subscription expiration date.</string>
+        <string>Ви маєте пільговий період тривалістю %1$d днів з дати завершення передплати.</string>
         <key>other</key>
-        <string>You have a grace period of %1$d days from your subscription expiration date.</string>
+        <string>Ви маєте пільговий період тривалістю %1$d днів з дати завершення передплати.</string>
       </dict>
     </dict>
     <!-- A message indicating the minimum length of a PIN in characters. -->

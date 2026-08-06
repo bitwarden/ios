@@ -42,9 +42,6 @@ class DefaultChangeKdfService: ChangeKdfService {
     /// The service that handles common client functionality such as encryption and decryption.
     private let clientService: ClientService
 
-    /// The service to get server-specified configuration.
-    private let configService: ConfigService
-
     /// The service used by the application to report non-fatal errors.
     private let errorReporter: ErrorReporter
 
@@ -64,7 +61,6 @@ class DefaultChangeKdfService: ChangeKdfService {
     /// - Parameters:
     ///   - accountAPIService: The services used by the application to make account related API requests.
     ///   - clientService: The service that handles common client functionality such as encryption and decryption.
-    ///   - configService: The service to get server-specified configuration.
     ///   - errorReporter: The service used by the application to report non-fatal errors.
     ///   - flightRecorder: The service used by the application for recording temporary debug logs.
     ///   - stateService: The service used by the application to manage account state.
@@ -73,7 +69,6 @@ class DefaultChangeKdfService: ChangeKdfService {
     init(
         accountAPIService: AccountAPIService,
         clientService: ClientService,
-        configService: ConfigService,
         errorReporter: ErrorReporter,
         flightRecorder: FlightRecorder,
         stateService: StateService,
@@ -81,7 +76,6 @@ class DefaultChangeKdfService: ChangeKdfService {
     ) {
         self.accountAPIService = accountAPIService
         self.clientService = clientService
-        self.configService = configService
         self.errorReporter = errorReporter
         self.flightRecorder = flightRecorder
         self.stateService = stateService
@@ -91,8 +85,6 @@ class DefaultChangeKdfService: ChangeKdfService {
     // MARK: Methods
 
     func needsKdfUpdateToMinimums() async -> Bool {
-        guard await configService.getFeatureFlag(.forceUpdateKdfSettings) else { return false }
-
         do {
             guard try await accountNeedsKdfUpdate() else { return false }
 
@@ -107,8 +99,6 @@ class DefaultChangeKdfService: ChangeKdfService {
     }
 
     func updateKdfToMinimums(password: String) async throws {
-        guard await configService.getFeatureFlag(.forceUpdateKdfSettings) else { return }
-
         let account = try await stateService.getActiveAccount()
 
         do {

@@ -170,6 +170,9 @@ class DefaultSyncService: SyncService {
     /// The service to get server-specified configuration.
     private let configService: ConfigService
 
+    /// The repository used by the application to manage fill-assist data.
+    private let fillAssistRepository: FillAssistRepository
+
     /// The service used by the application for recording temporary debug logs.
     private let flightRecorder: FlightRecorder
 
@@ -240,6 +243,7 @@ class DefaultSyncService: SyncService {
         clientService: ClientService,
         collectionService: CollectionService,
         configService: ConfigService,
+        fillAssistRepository: FillAssistRepository,
         flightRecorder: FlightRecorder,
         folderService: FolderService,
         keyConnectorService: KeyConnectorService,
@@ -259,6 +263,7 @@ class DefaultSyncService: SyncService {
         self.clientService = clientService
         self.collectionService = collectionService
         self.configService = configService
+        self.fillAssistRepository = fillAssistRepository
         self.flightRecorder = flightRecorder
         self.folderService = folderService
         self.keyConnectorService = keyConnectorService
@@ -422,6 +427,8 @@ extension DefaultSyncService {
         let account = try await stateService.getActiveAccount()
         let userId = account.profile.userId
 
+        await fillAssistRepository.syncRules()
+
         guard try await needsSync(forceSync: forceSync, isPeriodic: isPeriodic, userId: userId) else {
             return
         }
@@ -435,14 +442,14 @@ extension DefaultSyncService {
             return
         }
 
-        if let organizations = response.profile?.organizations {
+        if let effectiveOrganizations = response.profile?.effectiveOrganizations {
             if await !vaultTimeoutService.isLocked(userId: userId) {
                 try await organizationService.initializeOrganizationCrypto(
-                    organizations: organizations.compactMap(Organization.init),
+                    organizations: effectiveOrganizations.compactMap(Organization.init),
                 )
             }
-            try await organizationService.replaceOrganizations(organizations, userId: userId)
-            try await checkTdeUserNeedsToSetPassword(account, organizations)
+            try await organizationService.replaceOrganizations(effectiveOrganizations, userId: userId)
+            try await checkTdeUserNeedsToSetPassword(account, effectiveOrganizations)
         }
 
         if let profile = response.profile {
@@ -458,6 +465,7 @@ extension DefaultSyncService {
         try await sendService.replaceSends(response.sends, userId: userId)
         try await settingsService.replaceEquivalentDomains(response.domains, userId: userId)
         try await policyService.replacePolicies(response.policies, userId: userId)
+        try await policyService.replacePoliciesNew(response.policiesNew ?? [], userId: userId)
         try await stateService.setLastSyncTime(timeProvider.presentTime, userId: userId)
         try await stateService.setLastSyncMonotonicTime(timeProvider.monotonicTime, userId: userId)
         try await checkVaultTimeoutPolicy()

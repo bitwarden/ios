@@ -32,4 +32,25 @@ extension WrappedAccountCryptographicState {
             .v1(privateKey: privateKey)
         }
     }
+
+    /// Creates a `WrappedAccountCryptographicState` from V2 account keys and a fallback private key.
+    ///
+    /// Prefers the wrapped private key from `accountKeys` when available. Returns `.v2` if all V2
+    /// fields are present, otherwise `.v1`.
+    ///
+    /// - Parameters:
+    ///   - accountKeys: The user's V2 account keys, if available.
+    ///   - privateKey: The fallback wrapped private key used when `accountKeys` is `nil`.
+    /// - Returns: A `WrappedAccountCryptographicState` with either V1 or V2 data.
+    static func create(
+        accountKeys: PrivateKeysResponseModel?,
+        privateKey: String,
+    ) -> WrappedAccountCryptographicState {
+        create(
+            privateKey: accountKeys?.publicKeyEncryptionKeyPair.wrappedPrivateKey ?? privateKey,
+            securityState: accountKeys?.securityState?.securityState,
+            signedPublicKey: accountKeys?.publicKeyEncryptionKeyPair.signedPublicKey,
+            signingKey: accountKeys?.signatureKeyPair?.wrappedSigningKey,
+        )
+    }
 }

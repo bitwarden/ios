@@ -1,6 +1,7 @@
 import BitwardenKit
 import BitwardenKitMocks
 import BitwardenSdk
+import BitwardenSdkMocks
 import TestHelpers
 import XCTest
 
@@ -9,7 +10,7 @@ import XCTest
 
 // MARK: - ServerCommunicationConfigClientSingletonTests
 
-class ServerCommunicationConfigClientSingletonTests: BitwardenTestCase {
+class ServerCommunicationConfigClientSingletonTests: BitwardenTestCase { // swiftlint:disable:this type_body_length
     // MARK: Properties
 
     var clientService: MockClientService!
@@ -18,7 +19,7 @@ class ServerCommunicationConfigClientSingletonTests: BitwardenTestCase {
     var errorReporter: MockErrorReporter!
     var sdkRepositoryFactory: MockSdkRepositoryFactory!
     var serverCommunicationConfigAPIService: MockServerCommunicationConfigAPIService!
-    var serverCommunicationConfigClient: MockServerCommunicationConfigClient!
+    var serverCommunicationConfigClient: MockServerCommunicationConfigClientProtocol!
     var serverCommunicationConfigRepository: MockServerCommunicationConfigRepository!
     var stateService: MockStateService!
     var subject: DefaultServerCommunicationConfigClientSingleton!
@@ -35,8 +36,8 @@ class ServerCommunicationConfigClientSingletonTests: BitwardenTestCase {
         sdkRepositoryFactory = MockSdkRepositoryFactory()
         serverCommunicationConfigAPIService = MockServerCommunicationConfigAPIService()
 
-        serverCommunicationConfigClient = MockServerCommunicationConfigClient()
-        clientService.mockPlatform.serverCommunicationConfigResult = serverCommunicationConfigClient
+        serverCommunicationConfigClient = MockServerCommunicationConfigClientProtocol()
+        clientService.mockPlatform.serverCommunicationConfigReturnValue = serverCommunicationConfigClient
 
         serverCommunicationConfigRepository = MockServerCommunicationConfigRepository()
         sdkRepositoryFactory.makeServerCommunicationConfigRepositoryReturnValue = serverCommunicationConfigRepository
@@ -81,9 +82,9 @@ class ServerCommunicationConfigClientSingletonTests: BitwardenTestCase {
 
         try await waitForAsync { self.serverCommunicationConfigClient.setCommunicationTypeCallsCount > 0 }
 
-        XCTAssertEqual(serverCommunicationConfigClient.setCommunicationTypeReceivedHostname, hostname)
+        XCTAssertEqual(serverCommunicationConfigClient.setCommunicationTypeReceivedArguments?.domain, hostname)
         XCTAssertEqual(
-            serverCommunicationConfigClient.setCommunicationTypeReceivedRequest,
+            serverCommunicationConfigClient.setCommunicationTypeReceivedArguments?.request,
             SetCommunicationTypeRequest(bootstrap: .direct),
         )
         XCTAssertTrue(errorReporter.errors.isEmpty)
@@ -100,9 +101,9 @@ class ServerCommunicationConfigClientSingletonTests: BitwardenTestCase {
 
         try await waitForAsync { self.serverCommunicationConfigClient.setCommunicationTypeCallsCount > 0 }
 
-        XCTAssertEqual(serverCommunicationConfigClient.setCommunicationTypeReceivedHostname, hostname)
+        XCTAssertEqual(serverCommunicationConfigClient.setCommunicationTypeReceivedArguments?.domain, hostname)
         XCTAssertEqual(
-            serverCommunicationConfigClient.setCommunicationTypeReceivedRequest,
+            serverCommunicationConfigClient.setCommunicationTypeReceivedArguments?.request,
             SetCommunicationTypeRequest(bootstrap: .direct),
         )
         XCTAssertTrue(errorReporter.errors.isEmpty)
@@ -125,6 +126,17 @@ class ServerCommunicationConfigClientSingletonTests: BitwardenTestCase {
         environmentService.webVaultURL = URL(string: "data:text/plain")!
 
         configService.configSubject.send(makeMetaServerConfig())
+
+        await Task.yield()
+
+        XCTAssertTrue(errorReporter.errors.isEmpty)
+        XCTAssertEqual(clientService.platformCallCount, 0)
+    }
+
+    /// `configPublisher` does nothing when the server config has no environment vault URL.
+    @MainActor
+    func test_configPublisher_noServerVaultUrl() async throws {
+        configService.configSubject.send(makeMetaServerConfig(vaultUrl: nil))
 
         await Task.yield()
 
@@ -169,16 +181,16 @@ class ServerCommunicationConfigClientSingletonTests: BitwardenTestCase {
 
         try await waitForAsync { self.serverCommunicationConfigClient.setCommunicationTypeCallsCount > 0 }
 
-        XCTAssertEqual(serverCommunicationConfigClient.setCommunicationTypeReceivedHostname, hostname)
+        XCTAssertEqual(serverCommunicationConfigClient.setCommunicationTypeReceivedArguments?.domain, hostname)
         XCTAssertEqual(
-            serverCommunicationConfigClient.setCommunicationTypeReceivedRequest,
+            serverCommunicationConfigClient.setCommunicationTypeReceivedArguments?.request,
             SetCommunicationTypeRequest(
                 bootstrap: .ssoCookieVendor(
                     SsoCookieVendorConfigRequest(
                         idpLoginUrl: "https://idp.example.com",
                         cookieName: "sso_cookie",
                         cookieDomain: "example.com",
-                        vaultUrl: nil,
+                        vaultUrl: "https://example.com",
                     ),
                 ),
             ),
@@ -197,16 +209,16 @@ class ServerCommunicationConfigClientSingletonTests: BitwardenTestCase {
 
         try await waitForAsync { self.serverCommunicationConfigClient.setCommunicationTypeCallsCount > 0 }
 
-        XCTAssertEqual(serverCommunicationConfigClient.setCommunicationTypeReceivedHostname, hostname)
+        XCTAssertEqual(serverCommunicationConfigClient.setCommunicationTypeReceivedArguments?.domain, hostname)
         XCTAssertEqual(
-            serverCommunicationConfigClient.setCommunicationTypeReceivedRequest,
+            serverCommunicationConfigClient.setCommunicationTypeReceivedArguments?.request,
             SetCommunicationTypeRequest(
                 bootstrap: .ssoCookieVendor(
                     SsoCookieVendorConfigRequest(
                         idpLoginUrl: "https://idp.example.com",
                         cookieName: "sso_cookie",
                         cookieDomain: "example.com",
-                        vaultUrl: nil,
+                        vaultUrl: "https://example.com",
                     ),
                 ),
             ),
@@ -272,7 +284,7 @@ class ServerCommunicationConfigClientSingletonTests: BitwardenTestCase {
 
         try await waitForAsync { self.serverCommunicationConfigClient.setCommunicationTypeCallsCount > 0 }
 
-        XCTAssertEqual(serverCommunicationConfigClient.setCommunicationTypeReceivedHostname, hostname)
+        XCTAssertEqual(serverCommunicationConfigClient.setCommunicationTypeReceivedArguments?.domain, hostname)
         XCTAssertTrue(errorReporter.errors.isEmpty)
     }
 
@@ -289,7 +301,7 @@ class ServerCommunicationConfigClientSingletonTests: BitwardenTestCase {
 
         try await waitForAsync { self.serverCommunicationConfigClient.setCommunicationTypeCallsCount > 0 }
 
-        XCTAssertEqual(serverCommunicationConfigClient.setCommunicationTypeReceivedHostname, expectedHostname)
+        XCTAssertEqual(serverCommunicationConfigClient.setCommunicationTypeReceivedArguments?.domain, expectedHostname)
         XCTAssertTrue(errorReporter.errors.isEmpty)
     }
 
@@ -312,8 +324,11 @@ class ServerCommunicationConfigClientSingletonTests: BitwardenTestCase {
     }
 
     /// Creates a `MetaServerConfig` for use in tests.
-    /// - Parameter communication: The communication settings to include in the server config.
-    ///   Defaults to a `direct` bootstrap type. Pass `nil` to omit communication settings.
+    /// - Parameters:
+    ///   - communication: The communication settings to include in the server config.
+    ///     Defaults to a `direct` bootstrap type. Pass `nil` to omit communication settings.
+    ///   - vaultUrl: The server-provided vault URL. Defaults to `"https://example.com"`.
+    ///     Pass `nil` to simulate a config response without an environment vault URL.
     private func makeMetaServerConfig(
         communication: CommunicationSettingsResponseModel? = CommunicationSettingsResponseModel(
             bootstrap: CommunicationBootstrapSettingsResponseModel(
@@ -323,6 +338,7 @@ class ServerCommunicationConfigClientSingletonTests: BitwardenTestCase {
                 cookieDomain: nil,
             ),
         ),
+        vaultUrl: String? = "https://example.com",
     ) -> MetaServerConfig {
         MetaServerConfig(
             isPreAuth: false,
@@ -331,7 +347,17 @@ class ServerCommunicationConfigClientSingletonTests: BitwardenTestCase {
                 date: Date(),
                 responseModel: ConfigResponseModel(
                     communication: communication,
-                    environment: nil,
+                    environment: vaultUrl.map { url in
+                        EnvironmentServerConfigResponseModel(
+                            api: nil,
+                            cloudRegion: nil,
+                            fillAssistRules: nil,
+                            identity: nil,
+                            notifications: nil,
+                            sso: nil,
+                            vault: url,
+                        )
+                    },
                     featureStates: [:],
                     gitHash: "abc123",
                     server: nil,

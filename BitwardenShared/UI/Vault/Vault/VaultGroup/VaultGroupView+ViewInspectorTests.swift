@@ -47,7 +47,7 @@ class VaultGroupViewTests: BitwardenTestCase {
     @MainActor
     func test_addItemEmptyStateButton_tap() throws {
         processor.state.loadingState = .data([])
-        let button = try subject.inspect().find(button: Localizations.newLogin)
+        let button = try subject.inspect().find(button: Localizations.addLogin)
         try button.tap()
         XCTAssertEqual(processor.dispatchedActions.last, .addItemPressed(nil))
     }
@@ -58,7 +58,7 @@ class VaultGroupViewTests: BitwardenTestCase {
         processor.state.loadingState = .data([])
         processor.state.group = .card
         processor.state.itemTypesUserCanCreate = [.login, .identity, .secureNote]
-        XCTAssertThrowsError(try subject.inspect().find(button: Localizations.newCard))
+        XCTAssertThrowsError(try subject.inspect().find(button: Localizations.addCard))
     }
 
     /// Add item floating action button is hidden when in card group and restrict item policy is enabled.

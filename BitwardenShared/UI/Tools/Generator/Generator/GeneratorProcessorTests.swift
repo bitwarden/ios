@@ -6,12 +6,14 @@ import TestHelpers
 import XCTest
 
 @testable import BitwardenShared
+@testable import BitwardenSharedMocks
 
 // swiftlint:disable file_length
 
 class GeneratorProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body_length
     // MARK: Properties
 
+    var billingService: MockBillingService!
     var configService: MockConfigService!
     var coordinator: MockCoordinator<GeneratorRoute, Void>!
     var errorReporter: MockErrorReporter!
@@ -27,6 +29,8 @@ class GeneratorProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
     override func setUp() {
         super.setUp()
 
+        billingService = MockBillingService()
+        billingService.shouldShowUpgradedToPremiumActionCardReturnValue = false
         configService = MockConfigService()
         coordinator = MockCoordinator()
         errorReporter = MockErrorReporter()
@@ -42,6 +46,7 @@ class GeneratorProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
     override func tearDown() {
         super.tearDown()
 
+        billingService = nil
         configService = nil
         coordinator = nil
         errorReporter = nil
@@ -54,10 +59,11 @@ class GeneratorProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
     }
 
     @MainActor
-    func setUpSubject() {
+    func setUpSubject(state: GeneratorState = GeneratorState()) {
         subject = GeneratorProcessor(
             coordinator: coordinator.asAnyCoordinator(),
             services: ServiceContainer.withMocks(
+                billingService: billingService,
                 configService: configService,
                 errorReporter: errorReporter,
                 generatorRepository: generatorRepository,
@@ -66,7 +72,7 @@ class GeneratorProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
                 reviewPromptService: reviewPromptService,
                 stateService: stateService,
             ),
-            state: GeneratorState(),
+            state: state,
         )
     }
 
@@ -96,7 +102,7 @@ class GeneratorProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
                 wordSeparator: "-",
             ),
         )
-        XCTAssertTrue(policyService.applyPasswordGenerationOptionsCalled)
+        XCTAssertTrue(generatorRepository.getEffectivePasswordGenerationOptionsCalled)
         XCTAssertFalse(subject.state.isPolicyInEffect)
     }
 
@@ -143,7 +149,7 @@ class GeneratorProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
                 wordSeparator: "*",
             ),
         )
-        XCTAssertTrue(policyService.applyPasswordGenerationOptionsCalled)
+        XCTAssertTrue(generatorRepository.getEffectivePasswordGenerationOptionsCalled)
         XCTAssertFalse(subject.state.isPolicyInEffect)
     }
 
@@ -151,26 +157,20 @@ class GeneratorProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
     /// state based on the options.
     @MainActor
     func test_init_loadsPasswordOptions_withPolicy() {
+        // Policy is applied inside the repository layer; supply the already-merged options and
+        // the isPolicyInEffect flag directly so the processor test stays focused on its own logic.
         generatorRepository.getPasswordGenerationOptionsResult = .success(PasswordGenerationOptions(
-            capitalize: false,
-            length: 10,
-            lowercase: false,
+            capitalize: true,
+            length: 40,
+            lowercase: true,
             minNumber: 5,
-            minSpecial: 1,
-            uppercase: false,
+            minSpecial: 3,
+            number: true,
+            special: true,
+            type: .passphrase,
+            uppercase: true,
         ))
-        policyService.applyPasswordGenerationOptionsResult = true
-        policyService.applyPasswordGenerationOptionsTransform = { options in
-            options.capitalize = true
-            options.length = 40
-            options.lowercase = true
-            options.number = true
-            options.minNumber = 5
-            options.minSpecial = 3
-            options.special = true
-            options.type = .passphrase
-            options.uppercase = true
-        }
+        generatorRepository.getEffectivePasswordGenerationOptionsIsPolicyInEffect = true
 
         setUpSubject()
         waitFor { subject.didLoadGeneratorOptions }
@@ -193,7 +193,7 @@ class GeneratorProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
                 wordSeparator: "-",
             ),
         )
-        XCTAssertTrue(policyService.applyPasswordGenerationOptionsCalled)
+        XCTAssertTrue(generatorRepository.getEffectivePasswordGenerationOptionsCalled)
         XCTAssertTrue(subject.state.isPolicyInEffect)
     }
 
@@ -951,6 +951,22 @@ class GeneratorProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         XCTAssertEqual(subject.state.usernameState.usernameGeneratorType, .catchAllEmail)
     }
 
+    /// `saveGeneratedValue(_:)` skips adding to password history when `savePasswordHistory` is `false`.
+    @MainActor
+    func test_saveGeneratedValue_skipsHistoryWhenDisabled() async throws {
+        subject = GeneratorProcessor(
+            coordinator: coordinator.asAnyCoordinator(),
+            services: ServiceContainer.withMocks(
+                generatorRepository: generatorRepository,
+            ),
+            state: GeneratorState(savePasswordHistory: false),
+        )
+
+        try await subject.saveGeneratedValue("test-password")
+
+        XCTAssertFalse(generatorRepository.addPasswordHistoryCalled)
+    }
+
     /// The user's password options are saved when any of the password options are changed.
     @MainActor
     func test_saveGeneratorOptions_password() {
@@ -1152,5 +1168,139 @@ class GeneratorProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
             keyPath: keyPath,
             title: "a-z",
         )
+    }
+
+    // MARK: Upgraded to Premium Action Card Tests
+
+    /// `perform(.appeared)` sets `shouldShowUpgradedToPremiumActionCard` to `true` when the
+    /// billing service returns `true`.
+    @MainActor
+    func test_perform_appeared_setsShowUpgradedToPremiumActionCard_true() async {
+        billingService.shouldShowUpgradedToPremiumActionCardReturnValue = true
+
+        await subject.perform(.appeared)
+
+        XCTAssertTrue(subject.state.shouldShowUpgradedToPremiumActionCard)
+    }
+
+    /// `perform(.appeared)` sets `shouldShowUpgradedToPremiumActionCard` to `false` when the
+    /// billing service returns `false`.
+    @MainActor
+    func test_perform_appeared_setsShowUpgradedToPremiumActionCard_false() async {
+        billingService.shouldShowUpgradedToPremiumActionCardReturnValue = false
+
+        await subject.perform(.appeared)
+
+        XCTAssertFalse(subject.state.shouldShowUpgradedToPremiumActionCard)
+    }
+
+    /// `perform(.dismissUpgradedToPremiumActionCard)` hides the card and persists the dismissal.
+    @MainActor
+    func test_perform_dismissUpgradedToPremiumActionCard() async {
+        subject.state.shouldShowUpgradedToPremiumActionCard = true
+
+        await subject.perform(.dismissUpgradedToPremiumActionCard)
+
+        XCTAssertFalse(subject.state.shouldShowUpgradedToPremiumActionCard)
+        XCTAssertEqual(billingService.setUpgradedToPremiumActionCardDismissedCallsCount, 1)
+    }
+
+    /// `receive(.learnMoreAboutPremium)` opens the learn more URL, hides the card, and persists
+    /// the dismissal.
+    @MainActor
+    func test_receive_learnMoreAboutPremium() {
+        subject.state.shouldShowUpgradedToPremiumActionCard = true
+        subject.receive(.learnMoreAboutPremium)
+
+        XCTAssertEqual(subject.state.url, ExternalLinksConstants.learnMoreAboutPremium)
+        XCTAssertFalse(subject.state.shouldShowUpgradedToPremiumActionCard)
+        waitFor { billingService.setUpgradedToPremiumActionCardDismissedCallsCount == 1 }
+        XCTAssertEqual(billingService.setUpgradedToPremiumActionCardDismissedCallsCount, 1)
+    }
+
+    /// `receive(.clearUrl)` clears the URL from state.
+    @MainActor
+    func test_receive_clearUrl() {
+        subject.state.url = .example
+        subject.receive(.clearUrl)
+
+        XCTAssertNil(subject.state.url)
+    }
+
+    /// `loadGeneratorOptions` with `forcedPasswordRules` does not set `isPolicyInEffect` when
+    /// no org policy is active — site rules are not org policies.
+    @MainActor
+    func test_loadGeneratorOptions_forcedPasswordRules_doesNotSetIsPolicyInEffect() {
+        generatorRepository.passwordRulesRequestResult = PasswordGeneratorRequest(
+            lowercase: true,
+            uppercase: true,
+            numbers: true,
+            special: true,
+            length: 20,
+            avoidAmbiguous: false,
+            minLowercase: nil,
+            minUppercase: nil,
+            minNumber: nil,
+            minSpecial: 2,
+        )
+        generatorRepository.getEffectivePasswordGenerationOptionsIsPolicyInEffect = false
+
+        var state = GeneratorState()
+        state.forcedPasswordRules = "minlength: 20;"
+        setUpSubject(state: state)
+        waitFor { subject.didLoadGeneratorOptions }
+
+        XCTAssertFalse(subject.state.isPolicyInEffect)
+    }
+
+    /// `loadGeneratorOptions` with `forcedPasswordRules` AND an active org policy correctly
+    /// reflects `isPolicyInEffect = true` from the org policy.
+    @MainActor
+    func test_loadGeneratorOptions_forcedPasswordRulesAndPolicy_setsIsPolicyInEffect() {
+        generatorRepository.getEffectivePasswordGenerationOptionsIsPolicyInEffect = true
+
+        var state = GeneratorState()
+        state.forcedPasswordRules = "minlength: 20;"
+        setUpSubject(state: state)
+        waitFor { subject.didLoadGeneratorOptions }
+
+        XCTAssertTrue(subject.state.isPolicyInEffect)
+    }
+
+    /// After `loadGeneratorOptions` caches a rules constraint, regeneration re-applies its floors
+    /// so a user cannot lower a slider below the site-rule minimum.
+    @MainActor
+    func test_generatePassword_appliesForcedPasswordRulesFloors() throws {
+        generatorRepository.passwordRulesRequestResult = PasswordGeneratorRequest(
+            lowercase: true,
+            uppercase: true,
+            numbers: true,
+            special: true,
+            length: 20,
+            avoidAmbiguous: false,
+            minLowercase: nil,
+            minUppercase: nil,
+            minNumber: nil,
+            minSpecial: 3,
+        )
+
+        var state = GeneratorState()
+        state.forcedPasswordRules = "minlength: 20; required: special;"
+        setUpSubject(state: state)
+        waitFor { subject.didLoadGeneratorOptions }
+
+        // Simulate the user dragging the length slider below the rules minimum.
+        subject.state.passwordState.length = 10
+        subject.state.passwordState.minimumSpecial = 1
+
+        subject.receive(.refreshGeneratedValue)
+        waitFor { generatorRepository.passwordGeneratorRequest != nil }
+
+        // The rules floor for length (20) must be re-enforced.
+        XCTAssertGreaterThanOrEqual(subject.state.passwordState.length, 20)
+        let request = try XCTUnwrap(generatorRepository.passwordGeneratorRequest)
+        XCTAssertGreaterThanOrEqual(Int(request.length), 20)
+        // Special must be enabled and its minimum raised to the rules floor.
+        XCTAssertTrue(subject.state.passwordState.containsSpecial)
     }
 }

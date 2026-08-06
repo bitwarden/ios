@@ -1,3 +1,5 @@
+// swiftlint:disable file_length
+
 import BitwardenKit
 import BitwardenSdk
 
@@ -7,15 +9,15 @@ import BitwardenSdk
 protocol ClientService {
     // MARK: Methods
 
-    /// Returns a `AuthClientProtocol` for auth data tasks.
+    /// Returns a `AuthClientService` for auth data tasks.
     ///
     /// - Parameters:
     ///   - userId: The user ID mapped to the client instance.
     ///   - isPreAuth: Whether the client is being used for a user prior to authentication (when
     ///     the user's ID doesn't yet exist).
-    /// - Returns: A `AuthClientProtocol` for auth data tasks.
+    /// - Returns: A `AuthClientService` for auth data tasks.
     ///
-    func auth(for userId: String?, isPreAuth: Bool) async throws -> AuthClientProtocol
+    func auth(for userId: String?, isPreAuth: Bool) async throws -> AuthClientService
 
     /// Returns a `CryptoClientProtocol` for crypto data tasks.
     ///
@@ -51,6 +53,13 @@ protocol ClientService {
     ///
     func platform(for userId: String?, isPreAuth: Bool) async throws -> PlatformClientService
 
+    /// Returns a `PoliciesClientProtocol` for policy data tasks.
+    ///
+    /// - Parameter userId: The user ID mapped to the client instance.
+    /// - Returns: A `PoliciesClientProtocol` for policy data tasks.
+    ///
+    func policies(for userId: String?) async throws -> PoliciesClientProtocol
+
     /// Removes the user's client from memory.
     ///
     /// - Parameter userId: The user's ID.
@@ -75,12 +84,12 @@ protocol ClientService {
 // MARK: Extension
 
 extension ClientService {
-    /// Returns a `AuthClientProtocol` for auth data tasks.
+    /// Returns a `AuthClientService` for auth data tasks.
     ///
     /// - Parameter isPreAuth: Whether the client is being used for a user prior to authentication
     ///     (when the user's ID doesn't yet exist).
     ///
-    func auth(isPreAuth: Bool = false) async throws -> AuthClientProtocol {
+    func auth(isPreAuth: Bool = false) async throws -> AuthClientService {
         try await auth(for: nil, isPreAuth: isPreAuth)
     }
 
@@ -103,6 +112,12 @@ extension ClientService {
     ///
     func generators(isPreAuth: Bool = false) async throws -> GeneratorClientsProtocol {
         try await generators(for: nil, isPreAuth: isPreAuth)
+    }
+
+    /// Returns a `PoliciesClientProtocol` for policy data tasks.
+    ///
+    func policies() async throws -> PoliciesClientProtocol {
+        try await policies(for: nil)
     }
 
     /// Returns a `PlatformClientService` for client platform tasks.
@@ -197,7 +212,7 @@ actor DefaultClientService: ClientService {
 
     // MARK: Methods
 
-    func auth(for userId: String?, isPreAuth: Bool = false) async throws -> AuthClientProtocol {
+    func auth(for userId: String?, isPreAuth: Bool = false) async throws -> AuthClientService {
         try await client(for: userId, isPreAuth: isPreAuth).auth()
     }
 
@@ -215,6 +230,10 @@ actor DefaultClientService: ClientService {
 
     func platform(for userId: String?, isPreAuth: Bool = false) async throws -> PlatformClientService {
         try await client(for: userId, isPreAuth: isPreAuth).platform()
+    }
+
+    func policies(for userId: String?) async throws -> PoliciesClientProtocol {
+        try await client(for: userId).policies()
     }
 
     func removeClient(for userId: String?) async throws {
@@ -307,17 +326,12 @@ actor DefaultClientService: ClientService {
     /// - Parameter config: Config to update the flags.
     private func loadFlags(_ config: ServerConfig?, for client: BitwardenSdkClient) async {
         do {
-            guard let config else {
+            guard config != nil else {
                 return
             }
 
-            let cipherKeyEncryptionFlagEnabled: Bool = await configService.getFeatureFlag(
-                .cipherKeyEncryption,
-            )
-            let enableCipherKeyEncryption = cipherKeyEncryptionFlagEnabled && config.supportsCipherKeyEncryption()
-
-            try await client.platform().loadFlags([
-                FeatureFlag.enableCipherKeyEncryption.rawValue: enableCipherKeyEncryption,
+            try await client.platform().loadFlags(flags: [
+                FeatureFlag.enableCipherKeyEncryption.rawValue: true,
             ])
         } catch {
             errorReporter.log(error: error)
@@ -331,7 +345,7 @@ actor DefaultClientService: ClientService {
 ///
 protocol BitwardenSdkClient {
     /// Returns auth operations.
-    func auth() -> AuthClientProtocol
+    func auth() -> AuthClientService
 
     /// Returns crypto operations.
     func crypto() -> CryptoClientProtocol
@@ -345,6 +359,9 @@ protocol BitwardenSdkClient {
     /// Returns platform operations.
     func platform() -> PlatformClientService
 
+    /// Returns policy operations.
+    func policies() -> PoliciesClientProtocol
+
     /// Returns sends operations.
     func sends() -> SendClientProtocol
 
@@ -355,7 +372,7 @@ protocol BitwardenSdkClient {
 // MARK: BitwardenSdkClient Extension
 
 extension Client: BitwardenSdkClient {
-    func auth() -> AuthClientProtocol {
+    func auth() -> AuthClientService {
         auth() as AuthClient
     }
 
@@ -373,6 +390,10 @@ extension Client: BitwardenSdkClient {
 
     func platform() -> PlatformClientService {
         platform() as PlatformClient
+    }
+
+    func policies() -> PoliciesClientProtocol {
+        policies() as PoliciesClient
     }
 
     func sends() -> SendClientProtocol {

@@ -2,7 +2,7 @@ import Networking
 
 // MARK: - CreateCheckoutSessionRequest
 
-/// A networking request to create a checkout session for premium upgrade.
+/// A networking request to create a checkout session for Premium upgrade.
 ///
 struct CreateCheckoutSessionRequest: Request {
     typealias Response = CheckoutSessionResponseModel

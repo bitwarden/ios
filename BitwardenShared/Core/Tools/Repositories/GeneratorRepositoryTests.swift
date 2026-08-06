@@ -10,7 +10,9 @@ class GeneratorRepositoryTests: BitwardenTestCase { // swiftlint:disable:this ty
     // MARK: Properties
 
     var clientService: MockClientService!
+    var errorReporter: MockErrorReporter!
     var generatorDataStore: DataStore!
+    var policyService: MockPolicyService!
     var subject: GeneratorRepository!
     var stateService: MockStateService!
 
@@ -20,12 +22,16 @@ class GeneratorRepositoryTests: BitwardenTestCase { // swiftlint:disable:this ty
         super.setUp()
 
         clientService = MockClientService()
-        generatorDataStore = DataStore(errorReporter: MockErrorReporter(), storeType: .memory)
+        errorReporter = MockErrorReporter()
+        generatorDataStore = DataStore(errorReporter: errorReporter, storeType: .memory)
+        policyService = MockPolicyService()
         stateService = MockStateService()
 
         subject = DefaultGeneratorRepository(
             clientService: clientService,
             dataStore: generatorDataStore,
+            errorReporter: errorReporter,
+            policyService: policyService,
             stateService: stateService,
         )
     }
@@ -34,7 +40,9 @@ class GeneratorRepositoryTests: BitwardenTestCase { // swiftlint:disable:this ty
         super.tearDown()
 
         clientService = nil
+        errorReporter = nil
         generatorDataStore = nil
+        policyService = nil
         subject = nil
         stateService = nil
     }
@@ -157,11 +165,12 @@ class GeneratorRepositoryTests: BitwardenTestCase { // swiftlint:disable:this ty
 
     /// `generateMasterPassword` returns the generated master password.
     func test_generateMasterPassword() async throws {
+        clientService.mockGenerators.passphraseReturnValue = "PASSPHRASE"
         let masterPassword = try await subject.generateMasterPassword()
         XCTAssertEqual(masterPassword, "PASSPHRASE")
         XCTAssertTrue(clientService.mockGeneratorsIsPreAuth)
         XCTAssertEqual(
-            clientService.mockGenerators.passphraseGeneratorRequest,
+            clientService.mockGenerators.passphraseReceivedSettings,
             PassphraseGeneratorRequest(
                 numWords: 3,
                 wordSeparator: "-",
@@ -173,6 +182,8 @@ class GeneratorRepositoryTests: BitwardenTestCase { // swiftlint:disable:this ty
 
     /// `generatePassphrase` returns the generated passphrase.
     func test_generatePassphrase() async throws {
+        clientService.mockGenerators.passphraseReturnValue = "PASSPHRASE"
+
         let passphrase = try await subject.generatePassphrase(
             settings: PassphraseGeneratorRequest(
                 numWords: 3,
@@ -189,7 +200,7 @@ class GeneratorRepositoryTests: BitwardenTestCase { // swiftlint:disable:this ty
     func test_generatePassphrase_error() async {
         struct GeneratePassphraseError: Error, Equatable {}
 
-        clientService.mockGenerators.passphraseResult = .failure(GeneratePassphraseError())
+        clientService.mockGenerators.passphraseThrowableError = GeneratePassphraseError()
 
         await assertAsyncThrows(error: GeneratePassphraseError()) {
             _ = try await subject.generatePassphrase(
@@ -205,6 +216,8 @@ class GeneratorRepositoryTests: BitwardenTestCase { // swiftlint:disable:this ty
 
     /// `generatePassword` returns the generated password.
     func test_generatePassword() async throws {
+        clientService.mockGenerators.passwordReturnValue = "PASSWORD"
+
         let password = try await subject.generatePassword(
             settings: PasswordGeneratorRequest(
                 lowercase: true,
@@ -227,7 +240,7 @@ class GeneratorRepositoryTests: BitwardenTestCase { // swiftlint:disable:this ty
     func test_generatePassword_error() async {
         struct GeneratePasswordError: Error, Equatable {}
 
-        clientService.mockGenerators.passwordResult = .failure(GeneratePasswordError())
+        clientService.mockGenerators.passwordThrowableError = GeneratePasswordError()
 
         await assertAsyncThrows(error: GeneratePasswordError()) {
             _ = try await subject.generatePassword(
@@ -249,6 +262,8 @@ class GeneratorRepositoryTests: BitwardenTestCase { // swiftlint:disable:this ty
 
     /// `generateUsername()` returns the generated username.
     func test_generateUsername() async throws {
+        clientService.mockGenerators.usernameReturnValue = "USERNAME"
+
         let username = try await subject.generateUsername(
             settings: UsernameGeneratorRequest.subaddress(type: .random, email: "user@bitwarden.com"),
         )
@@ -260,7 +275,7 @@ class GeneratorRepositoryTests: BitwardenTestCase { // swiftlint:disable:this ty
     func test_generateUsername_error() async {
         struct GenerateUsernameError: Error, Equatable {}
 
-        clientService.mockGenerators.usernameResult = .failure(GenerateUsernameError())
+        clientService.mockGenerators.usernameThrowableError = GenerateUsernameError()
 
         await assertAsyncThrows(error: GenerateUsernameError()) {
             _ = try await subject.generateUsername(
@@ -384,4 +399,4 @@ class GeneratorRepositoryTests: BitwardenTestCase { // swiftlint:disable:this ty
 
         XCTAssertEqual(stateService.usernameGenerationOptions, [account.profile.userId: options])
     }
-}
+} // swiftlint:disable:this file_length

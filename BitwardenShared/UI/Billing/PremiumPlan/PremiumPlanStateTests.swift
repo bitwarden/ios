@@ -6,9 +6,11 @@ import Testing
 @testable import BitwardenShared
 @testable import BitwardenSharedMocks
 
+// swiftlint:disable file_length
+
 // MARK: - PremiumPlanStateTests
 
-struct PremiumPlanStateTests {
+struct PremiumPlanStateTests { // swiftlint:disable:this type_body_length
     // MARK: Properties
 
     /// A date used for testing: April 2, 2026 at 12:00 UTC.
@@ -20,7 +22,7 @@ struct PremiumPlanStateTests {
     @Test
     func billingAmount() {
         var state = PremiumPlanState()
-        state.subscription = .fixture(seatsCost: 19.8)
+        state.loadingState = .data(.fixture(seatsCost: 19.8))
         #expect(state.billingAmount.contains("$19.80"))
         #expect(state.billingAmount.contains(Localizations.perYear))
     }
@@ -32,6 +34,60 @@ struct PremiumPlanStateTests {
         #expect(state.billingAmount.isEmpty)
     }
 
+    // MARK: Tests - billingAmountAccessibilityLabel
+
+    /// `billingAmountAccessibilityLabel` returns the formatted seat cost with a VoiceOver-friendly
+    /// cadence label instead of the raw "/" character.
+    @Test
+    func billingAmountAccessibilityLabel() {
+        var state = PremiumPlanState()
+        state.loadingState = .data(.fixture(seatsCost: 19.8))
+        #expect(state.billingAmountAccessibilityLabel.contains("$19.80"))
+        #expect(state.billingAmountAccessibilityLabel.contains(Localizations.perYearVoiceOver))
+    }
+
+    /// `billingAmountAccessibilityLabel` returns empty when subscription is nil.
+    @Test
+    func billingAmountAccessibilityLabel_nil() {
+        let state = PremiumPlanState()
+        #expect(state.billingAmountAccessibilityLabel.isEmpty)
+    }
+
+    // MARK: Tests - descriptionAccessibilityLabel
+
+    /// `descriptionAccessibilityLabel` returns a screen-reader-friendly description for the active plan status.
+    @Test
+    func descriptionAccessibilityLabel_active() {
+        var state = PremiumPlanState()
+        state.planStatus = .active
+        state.loadingState = .data(.fixture(
+            estimatedTax: 4.55,
+            nextCharge: testDate,
+        ))
+        let label = state.descriptionAccessibilityLabel
+        #expect(label.contains("USD $"))
+        #expect(label.contains(state.nextChargeDate))
+        #expect(!label.contains("**"))
+    }
+
+    /// `descriptionAccessibilityLabel` returns `descriptionText` with markdown stripped for non-active plan statuses.
+    @Test(arguments: [
+        PremiumPlanStatus.canceled, .expired, .pastDue, .pendingCancellation, .unknown, .unpaid, .updatePayment,
+    ])
+    func descriptionAccessibilityLabel_nonActive(planStatus: PremiumPlanStatus) {
+        var state = PremiumPlanState()
+        state.planStatus = planStatus
+        state.loadingState = .data(.fixture(
+            cancelAt: testDate,
+            canceled: testDate,
+            gracePeriod: 14,
+            status: planStatus,
+            suspension: testDate,
+        ))
+        #expect(!state.descriptionAccessibilityLabel.contains("**"))
+        #expect(state.descriptionAccessibilityLabel == state.descriptionText.removingMarkdownForVoiceOver())
+    }
+
     // MARK: Tests - descriptionText
 
     /// `descriptionText` returns the correct text for the active plan status.
@@ -39,10 +95,10 @@ struct PremiumPlanStateTests {
     func descriptionText_active() {
         var state = PremiumPlanState()
         state.planStatus = .active
-        state.subscription = .fixture(
+        state.loadingState = .data(.fixture(
             estimatedTax: 4.55,
             nextCharge: testDate,
-        )
+        ))
         let expectedAmount = state.nextChargeAmount
         let expectedDate = state.nextChargeDate
         #expect(state.descriptionText == Localizations.yourNextChargeIsForXDueOnY(
@@ -56,11 +112,27 @@ struct PremiumPlanStateTests {
     func descriptionText_canceled() {
         var state = PremiumPlanState()
         state.planStatus = .canceled
-        state.subscription = .fixture(canceled: testDate, status: .canceled)
-        #expect(state.descriptionText == Localizations
-            .yourSubscriptionWasCanceledOnXResubscribeToContinueUsingDescriptionLong(
-                state.canceledDate,
-            ))
+        state.loadingState = .data(.fixture(canceled: testDate, status: .canceled))
+        let localization = Localizations.yourSubscriptionWasCanceledOnXDescriptionLong
+        #expect(state.descriptionText == localization(state.canceledDate))
+    }
+
+    /// `descriptionText` returns the correct text for the expired plan status.
+    @Test
+    func descriptionText_expired() {
+        var state = PremiumPlanState(planStatus: .expired)
+        state.loadingState = .data(.fixture(status: .expired, suspension: testDate))
+        let localization = Localizations.yourSubscriptionExpiredOnXDescriptionLong
+        #expect(state.descriptionText == localization(state.expiredDate))
+    }
+
+    /// `descriptionText` returns the correct text for the pending cancellation plan status.
+    @Test
+    func descriptionText_pendingCancellation() {
+        var state = PremiumPlanState(planStatus: .pendingCancellation)
+        state.loadingState = .data(.fixture(cancelAt: testDate, status: .pendingCancellation))
+        let localization = Localizations.yourSubscriptionIsScheduledToCancelOnXDescriptionLong
+        #expect(state.descriptionText == localization(state.pendingCancellationDate))
     }
 
     /// `descriptionText` returns the correct text for the past due plan status.
@@ -68,16 +140,26 @@ struct PremiumPlanStateTests {
     func descriptionText_pastDue() {
         var state = PremiumPlanState()
         state.planStatus = .pastDue
-        state.subscription = .fixture(
+        state.loadingState = .data(.fixture(
             gracePeriod: 14,
             status: .pastDue,
             suspension: testDate,
-        )
+        ))
         #expect(state.descriptionText == Localizations
             .youHaveAGracePeriodOfXDaysFromYourSubscriptionDescriptionLong(
-                state.subscription?.gracePeriod ?? 0,
+                state.loadingState.data?.gracePeriod ?? 0,
                 state.subscriptionEndDate,
             ))
+    }
+
+    /// `descriptionText` returns the correct text for the unpaid plan status.
+    @Test
+    func descriptionText_unpaid() {
+        var state = PremiumPlanState()
+        state.planStatus = .unpaid
+        state.loadingState = .data(.fixture(status: .unpaid, suspension: testDate))
+        #expect(state.descriptionText == Localizations
+            .yourSubscriptionWasSuspendedOnXDescriptionLong(state.subscriptionEndDate))
     }
 
     /// `descriptionText` returns the correct text for the update payment plan status.
@@ -85,7 +167,7 @@ struct PremiumPlanStateTests {
     func descriptionText_updatePayment() {
         var state = PremiumPlanState()
         state.planStatus = .updatePayment
-        state.subscription = .fixture(cancelAt: testDate, status: .updatePayment)
+        state.loadingState = .data(.fixture(cancelAt: testDate, status: .updatePayment))
         #expect(state.descriptionText == Localizations
             .weCouldNotProcessYourPaymentUpdateYourPaymentMethodDescriptionLong(
                 state.subscriptionEndDate,
@@ -98,7 +180,7 @@ struct PremiumPlanStateTests {
     @Test
     func discount_withDiscount() {
         var state = PremiumPlanState()
-        state.subscription = .fixture(discount: 2)
+        state.loadingState = .data(.fixture(discount: 2))
         #expect(state.discount == Localizations.negativeX("$2.00"))
     }
 
@@ -106,7 +188,7 @@ struct PremiumPlanStateTests {
     @Test
     func discount_noDiscount() {
         var state = PremiumPlanState()
-        state.subscription = .fixture(discount: 0)
+        state.loadingState = .data(.fixture(discount: 0))
         #expect(state.discount.isEmpty)
     }
 
@@ -116,16 +198,43 @@ struct PremiumPlanStateTests {
     @Test
     func estimatedTax_withTax() {
         var state = PremiumPlanState()
-        state.subscription = .fixture(estimatedTax: 4.55)
+        state.loadingState = .data(.fixture(estimatedTax: 4.55))
         #expect(state.estimatedTax == "$4.55")
     }
 
-    /// `estimatedTax` returns empty when tax is zero.
+    /// `estimatedTax` returns the formatted zero amount when tax is zero.
     @Test
     func estimatedTax_zero() {
         var state = PremiumPlanState()
-        state.subscription = .fixture(estimatedTax: 0)
+        state.loadingState = .data(.fixture(estimatedTax: 0))
+        #expect(state.estimatedTax == "$0.00")
+    }
+
+    /// `estimatedTax` returns empty when subscription is nil.
+    @Test
+    func estimatedTax_nil() {
+        let state = PremiumPlanState()
         #expect(state.estimatedTax.isEmpty)
+    }
+
+    // MARK: Tests - nextChargeAmountAccessibilityLabel
+
+    /// `nextChargeAmountAccessibilityLabel` returns a screen-reader-friendly amount (e.g. "USD $24.35").
+    @Test
+    func nextChargeAmountAccessibilityLabel() {
+        var state = PremiumPlanState()
+        state.loadingState = .data(.fixture(
+            estimatedTax: 4.55,
+            nextCharge: testDate,
+        ))
+        #expect(state.nextChargeAmountAccessibilityLabel.hasPrefix("USD $"))
+    }
+
+    /// `nextChargeAmountAccessibilityLabel` returns empty when subscription is nil.
+    @Test
+    func nextChargeAmountAccessibilityLabel_nil() {
+        let state = PremiumPlanState()
+        #expect(state.nextChargeAmountAccessibilityLabel.isEmpty)
     }
 
     // MARK: Tests - showBillingDetails
@@ -134,8 +243,11 @@ struct PremiumPlanStateTests {
     @Test(arguments: [
         (PremiumPlanStatus.active, true),
         (PremiumPlanStatus.canceled, false),
+        (PremiumPlanStatus.expired, false),
         (PremiumPlanStatus.pastDue, true),
+        (PremiumPlanStatus.pendingCancellation, true),
         (PremiumPlanStatus.unknown, false),
+        (PremiumPlanStatus.unpaid, true),
         (PremiumPlanStatus.updatePayment, true),
     ])
     func showBillingDetails(planStatus: PremiumPlanStatus, expected: Bool) {
@@ -150,9 +262,12 @@ struct PremiumPlanStateTests {
     @Test(arguments: [
         (PremiumPlanStatus.active, true),
         (PremiumPlanStatus.canceled, false),
+        (PremiumPlanStatus.expired, false),
         (PremiumPlanStatus.pastDue, true),
+        (PremiumPlanStatus.pendingCancellation, false),
         (PremiumPlanStatus.unknown, false),
-        (PremiumPlanStatus.updatePayment, true),
+        (PremiumPlanStatus.unpaid, false),
+        (PremiumPlanStatus.updatePayment, false),
     ])
     func showCancelButton(planStatus: PremiumPlanStatus, expected: Bool) {
         var state = PremiumPlanState()
@@ -166,7 +281,7 @@ struct PremiumPlanStateTests {
     @Test
     func showDiscount_true() {
         var state = PremiumPlanState()
-        state.subscription = .fixture(discount: 5)
+        state.loadingState = .data(.fixture(discount: 5))
         #expect(state.showDiscount)
     }
 
@@ -174,35 +289,17 @@ struct PremiumPlanStateTests {
     @Test
     func showDiscount_false() {
         var state = PremiumPlanState()
-        state.subscription = .fixture(discount: 0)
+        state.loadingState = .data(.fixture(discount: 0))
         #expect(!state.showDiscount)
-    }
-
-    // MARK: Tests - showEstimatedTax
-
-    /// `showEstimatedTax` is true when estimated tax is greater than zero.
-    @Test
-    func showEstimatedTax_true() {
-        var state = PremiumPlanState()
-        state.subscription = .fixture(estimatedTax: 4.55)
-        #expect(state.showEstimatedTax)
-    }
-
-    /// `showEstimatedTax` is false when estimated tax is zero.
-    @Test
-    func showEstimatedTax_false() {
-        var state = PremiumPlanState()
-        state.subscription = .fixture(estimatedTax: 0)
-        #expect(!state.showEstimatedTax)
     }
 
     // MARK: Tests - showStorageCost
 
-    /// `showStorageCost` is true when storage cost is greater than zero.
+    /// `showStorageCost` is true when storage cost is positive.
     @Test
     func showStorageCost_true() {
         var state = PremiumPlanState()
-        state.subscription = .fixture(storageCost: 4)
+        state.loadingState = .data(.fixture(storageCost: 4))
         #expect(state.showStorageCost)
     }
 
@@ -210,7 +307,14 @@ struct PremiumPlanStateTests {
     @Test
     func showStorageCost_false() {
         var state = PremiumPlanState()
-        state.subscription = .fixture(storageCost: 0)
+        state.loadingState = .data(.fixture(storageCost: 0))
+        #expect(!state.showStorageCost)
+    }
+
+    /// `showStorageCost` is false when subscription is nil.
+    @Test
+    func showStorageCost_nil() {
+        let state = PremiumPlanState()
         #expect(!state.showStorageCost)
     }
 
@@ -220,15 +324,22 @@ struct PremiumPlanStateTests {
     @Test
     func storageCostLabel_withStorage() {
         var state = PremiumPlanState()
-        state.subscription = .fixture(storageCost: 8)
+        state.loadingState = .data(.fixture(storageCost: 8))
         #expect(state.storageCostLabel == "$8.00")
     }
 
-    /// `storageCostLabel` returns empty when storage cost is zero.
+    /// `storageCostLabel` returns the formatted zero amount when storage cost is zero.
     @Test
-    func storageCostLabel_noStorage() {
+    func storageCostLabel_zero() {
         var state = PremiumPlanState()
-        state.subscription = .fixture(storageCost: 0)
+        state.loadingState = .data(.fixture(storageCost: 0))
+        #expect(state.storageCostLabel == "$0.00")
+    }
+
+    /// `storageCostLabel` returns empty when subscription is nil.
+    @Test
+    func storageCostLabel_nil() {
+        let state = PremiumPlanState()
         #expect(state.storageCostLabel.isEmpty)
     }
 
@@ -238,7 +349,7 @@ struct PremiumPlanStateTests {
     @Test
     func subscriptionEndDate_suspension() {
         var state = PremiumPlanState()
-        state.subscription = .fixture(suspension: testDate)
+        state.loadingState = .data(.fixture(suspension: testDate))
         #expect(!state.subscriptionEndDate.isEmpty)
     }
 
@@ -246,7 +357,7 @@ struct PremiumPlanStateTests {
     @Test
     func subscriptionEndDate_cancelAt() {
         var state = PremiumPlanState()
-        state.subscription = .fixture(cancelAt: testDate)
+        state.loadingState = .data(.fixture(cancelAt: testDate))
         #expect(!state.subscriptionEndDate.isEmpty)
     }
 
@@ -254,7 +365,69 @@ struct PremiumPlanStateTests {
     @Test
     func subscriptionEndDate_empty() {
         var state = PremiumPlanState()
-        state.subscription = .fixture()
+        state.loadingState = .data(.fixture())
         #expect(state.subscriptionEndDate.isEmpty)
+    }
+
+    // MARK: Tests - totalLabel
+
+    /// `totalLabel` returns the formatted total with cadence suffix.
+    @Test
+    func totalLabel() {
+        var state = PremiumPlanState()
+        state.loadingState = .data(.fixture(
+            cadence: .annually,
+            discount: 0,
+            estimatedTax: 4.55,
+            seatsCost: 19.80,
+            storageCost: 1.20,
+        ))
+        #expect(state.totalLabel.contains("$25.55"))
+        #expect(state.totalLabel.contains(Localizations.perYear))
+    }
+
+    /// `totalLabel` floors at zero when discounts exceed costs.
+    @Test
+    func totalLabel_flooredAtZero() {
+        var state = PremiumPlanState()
+        state.loadingState = .data(.fixture(
+            discount: 100,
+            estimatedTax: 0,
+            seatsCost: 10,
+            storageCost: 0,
+        ))
+        #expect(state.totalLabel.contains("$0.00"))
+    }
+
+    /// `totalLabel` returns empty when subscription is nil.
+    @Test
+    func totalLabel_nil() {
+        let state = PremiumPlanState()
+        #expect(state.totalLabel.isEmpty)
+    }
+
+    // MARK: Tests - totalAccessibilityLabel
+
+    /// `totalAccessibilityLabel` returns the formatted total with a VoiceOver-friendly
+    /// cadence label instead of the raw "/" character.
+    @Test
+    func totalAccessibilityLabel() {
+        var state = PremiumPlanState()
+        state.loadingState = .data(.fixture(
+            cadence: .annually,
+            discount: 0,
+            estimatedTax: 4.55,
+            seatsCost: 19.80,
+            storageCost: 1.20,
+        ))
+        #expect(state.totalAccessibilityLabel.contains("$25.55"))
+        #expect(state.totalAccessibilityLabel.contains(Localizations.perYearVoiceOver))
+    }
+
+    /// `totalAccessibilityLabel` returns empty when subscription is nil.
+    @Test
+    func totalAccessibilityLabel_nil() {
+        let state = PremiumPlanState()
+        #expect(state.totalAccessibilityLabel.isEmpty)
     }
 }

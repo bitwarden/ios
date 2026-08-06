@@ -306,37 +306,3 @@ class HTTPServiceTests: XCTestCase {
 }
 
 private struct RequestError: Error {}
-
-/// A `ResponseHandler` that captures the `retryWith` closure passed to it for inspection in tests.
-@MainActor
-private class CapturingRetryWithResponseHandler: ResponseHandler {
-    var onHandle: (((HTTPRequest) async throws -> HTTPResponse)?) -> Void
-
-    init(onHandle: @escaping (((HTTPRequest) async throws -> HTTPResponse)?) -> Void) {
-        self.onHandle = onHandle
-    }
-
-    func handle(
-        _ response: inout HTTPResponse,
-        for request: HTTPRequest,
-        retryWith: ((HTTPRequest) async throws -> HTTPResponse)?,
-    ) async throws -> HTTPResponse {
-        onHandle(retryWith)
-        return response
-    }
-}
-
-/// A `ResponseHandler` that follows a 302 redirect by calling `retryWith` with the original request.
-@MainActor
-private class RedirectFollowingResponseHandler: ResponseHandler {
-    func handle(
-        _ response: inout HTTPResponse,
-        for request: HTTPRequest,
-        retryWith: ((HTTPRequest) async throws -> HTTPResponse)?,
-    ) async throws -> HTTPResponse {
-        guard response.statusCode == 302, let retryWith else {
-            return response
-        }
-        return try await retryWith(request)
-    }
-}

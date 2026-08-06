@@ -17,10 +17,14 @@ extension Cipher {
         switch group {
         case .archive:
             archivedDate != nil
+        case .bankAccount:
+            type == .bankAccount
         case .card:
             type == .card
         case let .collection(id, _, _):
             collectionIds.contains(id)
+        case .driversLicense:
+            type == .driversLicense
         case let .folder(id, _):
             folderId == id
         case .identity:
@@ -29,6 +33,8 @@ extension Cipher {
             type == .login
         case .noFolder:
             folderId == nil
+        case .passport:
+            type == .passport
         case .secureNote:
             type == .secureNote
         case .sshKey:

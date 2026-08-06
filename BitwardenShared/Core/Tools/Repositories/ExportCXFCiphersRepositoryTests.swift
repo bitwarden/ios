@@ -1,5 +1,6 @@
 import AuthenticationServices
 import BitwardenKitMocks
+import BitwardenSdkMocks
 import InlineSnapshotTesting
 import TestHelpers
 import XCTest
@@ -146,17 +147,16 @@ class ExportCXFCiphersRepositoryTests: BitwardenTestCase {
             ),
         )
 
-        clientService.mockExporters.exportCxfResult = .success(
+        clientService.mockExporters.exportCxfReturnValue =
             """
             {"items":[{"title":"Item 1","creationAt":1735689600,"credentials":[{"password":{"fieldType":"concealed-string","value":"pass"},"type":"basic-auth","username":{"fieldType":"string","value":"user"}}],"id":"","modifiedAt":1740787200},{"title":"Item 2","creationAt":1740009600,"credentials":[{"number":{"value":"4111111111111111","fieldType":"string"},"fullName":{"value":"John Doe","fieldType":"string"},"type":"credit-card","cardType":{"value":"type","fieldType":"string"}}],"id":"","modifiedAt":1743552000}],"collections":[],"username":"User1","id":"","email":"user1@example.com"}
-            """, // swiftlint:disable:previous line_length
-        )
+            """ // swiftlint:disable:previous line_length
 
         let result = try await subject.getExportVaultDataForCXF()
 
-        XCTAssertEqual(clientService.mockExporters.account?.email, "example@example.com")
-        XCTAssertEqual(clientService.mockExporters.account?.name, "Test")
-        XCTAssertEqual(clientService.mockExporters.account?.id, "1")
+        XCTAssertEqual(clientService.mockExporters.exportCxfReceivedArguments?.account.email, "example@example.com")
+        XCTAssertEqual(clientService.mockExporters.exportCxfReceivedArguments?.account.name, "Test")
+        XCTAssertEqual(clientService.mockExporters.exportCxfReceivedArguments?.account.id, "1")
         assertInlineSnapshot(of: result.dump(), as: .lines) {
             """
             Email: user1@example.com
@@ -228,7 +228,7 @@ class ExportCXFCiphersRepositoryTests: BitwardenTestCase {
                 userId: "1",
             ),
         )
-        clientService.mockExporters.exportCxfResult = .failure(BitwardenTestError.example)
+        clientService.mockExporters.exportCxfThrowableError = BitwardenTestError.example
 
         await assertAsyncThrows(error: BitwardenTestError.example) {
             _ = try await subject.getExportVaultDataForCXF()

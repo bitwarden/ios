@@ -4,7 +4,7 @@ import SwiftUI
 
 // MARK: - PremiumUpgradeCompleteView
 
-/// A view that informs the user that the premium upgrade was successful.
+/// A view that informs the user that the Premium upgrade was successful.
 ///
 struct PremiumUpgradeCompleteView: View {
     // MARK: Properties
@@ -13,7 +13,7 @@ struct PremiumUpgradeCompleteView: View {
     @Environment(\.openURL) private var openURL
 
     /// The `Store` for this view.
-    @ObservedObject var store: Store<Void, PremiumUpgradeCompleteAction, Void>
+    @ObservedObject var store: Store<Void, PremiumUpgradeCompleteAction, PremiumUpgradeCompleteEffect>
 
     // MARK: View
 
@@ -34,6 +34,9 @@ struct PremiumUpgradeCompleteView: View {
         .padding(.top, 12)
         .scrollView()
         .navigationBar(title: "", titleDisplayMode: .inline)
+        .task {
+            await store.perform(.appeared)
+        }
     }
 
     // MARK: Private Views
@@ -66,7 +69,7 @@ struct PremiumUpgradeCompleteView: View {
 
 #if DEBUG
 #Preview {
-    PremiumUpgradeCompleteView(store: Store(processor: StateProcessor()))
+    PremiumUpgradeCompleteView(store: Store(processor: StateProcessor(state: ())))
         .navStackWrapped
 }
 #endif

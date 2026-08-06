@@ -45,6 +45,9 @@ struct ItemListState: Equatable {
     /// Whether to show the Move to Bitwarden button on local items.
     var showMoveToBitwarden = false
 
+    /// Whether to show the next TOTP code preview.
+    var showNextTOTPCode = false
+
     /// Whether to show the special web icons.
     var showWebIcons = true
 

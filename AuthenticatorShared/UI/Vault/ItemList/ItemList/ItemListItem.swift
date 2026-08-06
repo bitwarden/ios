@@ -130,16 +130,20 @@ extension ItemListItem {
         )
     }
 
-    /// Make a new `ItemListItem` that is a copy of the existing one, but with an updated `TOTPCodeModel`.
+    /// Make a new `ItemListItem` that is a copy of the existing one, but with updated `TOTPCodeModel` values.
     ///
-    /// - Parameter newTotpModel: the new `TOTPCodeModel` to insert in this ItemListItem
+    /// - Parameters:
+    ///   - newTotpModel: The new `TOTPCodeModel` to insert in this `ItemListItem`.
+    ///   - nextTotpModel: The next-period `TOTPCodeModel` to store alongside the current code, or
+    ///     `nil` to clear it. Defaults to `nil`.
     /// - Returns: An exact copy of the data in the existing `ItemListItem`, but with the new
-    ///     `TOTPCodeModel` inserted into the itemType's model.
+    ///     `TOTPCodeModel` values inserted into the `itemType`'s model.
     ///
-    public func with(newTotpModel: TOTPCodeModel) -> ItemListItem {
+    public func with(newTotpModel: TOTPCodeModel, nextTotpModel: TOTPCodeModel? = nil) -> ItemListItem {
         switch itemType {
         case let .sharedTotp(oldModel):
             var updatedModel = oldModel
+            updatedModel.nextTotpCode = nextTotpModel
             updatedModel.totpCode = newTotpModel
             return ItemListItem(
                 id: id,
@@ -151,6 +155,7 @@ extension ItemListItem {
             return self
         case let .totp(oldModel):
             var updatedModel = oldModel
+            updatedModel.nextTotpCode = nextTotpModel
             updatedModel.totpCode = newTotpModel
             return ItemListItem(
                 id: id,
@@ -163,6 +168,20 @@ extension ItemListItem {
 }
 
 extension ItemListItem {
+    /// The associated next-period `TOTPCodeModel` if this item is an `itemType` with an associated
+    /// code (i.e. `.totp` and `.sharedTotp`) or `nil` if there is no associated code
+    /// (i.e. `.syncError`) or if the next code has not been generated yet.
+    var nextTotpCodeModel: TOTPCodeModel? {
+        switch itemType {
+        case let .sharedTotp(model):
+            model.nextTotpCode
+        case .syncError:
+            nil
+        case let .totp(model):
+            model.nextTotpCode
+        }
+    }
+
     /// A comparator to use for sorting that will sort based on the localized compare of the two item's names.
     /// If the name is blank (e.g. an otpauth style code with no issuer) it will fall back to account name.
     ///
@@ -192,6 +211,9 @@ public struct ItemListTotpItem: Equatable {
     /// The `AuthenticatorItemView` used to populate the view
     let itemView: AuthenticatorItemView
 
+    /// The next-period TOTP code for the item, used for the preview feature.
+    var nextTotpCode: TOTPCodeModel?
+
     /// The current TOTP code for the item
     var totpCode: TOTPCodeModel
 }
@@ -201,6 +223,9 @@ public struct ItemListTotpItem: Equatable {
 public struct ItemListSharedTotpItem: Equatable {
     /// The `AuthenticatorBridgeItemDataView` used to populate the view
     let itemView: AuthenticatorBridgeItemDataView
+
+    /// The next-period TOTP code for the item, used for the preview feature.
+    var nextTotpCode: TOTPCodeModel?
 
     /// The current TOTP code for the item
     var totpCode: TOTPCodeModel

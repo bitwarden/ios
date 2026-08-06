@@ -1,4 +1,5 @@
 import BitwardenKit
+import BitwardenKitMocks
 import XCTest
 
 @testable import TestHarnessShared
@@ -13,6 +14,7 @@ class AppProcessorTests: BitwardenTestCase {
 
     // MARK: Setup & Teardown
 
+    @MainActor
     override func setUp() {
         super.setUp()
         appModule = MockAppModule()
@@ -29,6 +31,7 @@ class AppProcessorTests: BitwardenTestCase {
     // MARK: Tests
 
     /// `start()` creates and starts the app coordinator.
+    @MainActor
     func test_start() async {
         let navigator = MockRootNavigator()
         await subject.start(navigator: navigator, window: nil)

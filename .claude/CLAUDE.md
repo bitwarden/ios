@@ -85,6 +85,20 @@ mint run swiftlint                      # Lint
 typos                                   # Spell check
 ```
 
+### Line Wrapping
+When a call exceeds the line length limit, use Xcode's ⌃M "Format to Multiple Lines" style — opening delimiter stays on the first line, each argument on its own indented line with a trailing comma, closing delimiter on its own line:
+```swift
+// ✅ Correct
+someFunction(
+    argumentOne: valueOne,
+    argumentTwo: valueTwo,
+)
+
+// ❌ Wrong — aligning to opening delimiter
+someFunction(argumentOne: valueOne,
+             argumentTwo: valueTwo)
+```
+
 ### Naming Conventions
 - `camelCase` for: variables, functions, properties
 - `PascalCase` for: types, protocols, enums, structs, classes
@@ -129,6 +143,16 @@ typos                                   # Spell check
 ## Build & Deploy
 
 See `build-test-verify` skill for project generation, build commands, test execution, lint, format, code generation, common failures, and debug tips.
+
+### Dependency errors troubleshooting
+
+If you hit package resolution conflicts, "file modified since module was built" errors, or unexplained compile failures, **clear the build folder before investigating further**:
+
+```bash
+xcodebuild clean -workspace Bitwarden.xcworkspace -scheme Bitwarden
+```
+
+Or in Xcode: **Product → Clean Build Folder** (⇧⌘K). Stale build outputs from a previous SDK or package revision are a common cause of these errors and clearing the folder resolves them without needing to touch `Package.resolved` or regenerate projects.
 
 ## Delivery Workflow
 

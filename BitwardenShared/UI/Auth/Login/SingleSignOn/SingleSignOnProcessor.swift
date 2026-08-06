@@ -8,7 +8,7 @@ import Foundation
 /// An object that is signaled when specific circumstances in the single sign on flow have been encountered.
 ///
 @MainActor
-protocol SingleSignOnFlowDelegate: AnyObject {
+protocol SingleSignOnFlowDelegate: AnyObject { // sourcery: AutoMockable
     /// Called when the single sign on flow has been completed successfully.
     ///
     /// - Parameter code: The code that was returned by the single sign on web auth process.
@@ -117,7 +117,6 @@ final class SingleSignOnProcessor: StateProcessor<SingleSignOnState, SingleSignO
             let result = try await services.authService.generateSingleSignOnUrl(from: state.identifierText)
             coordinator.navigate(
                 to: .singleSignOn(
-                    callbackUrlScheme: services.authService.callbackUrlScheme,
                     state: result.state,
                     url: result.url,
                 ),
@@ -173,17 +172,15 @@ final class SingleSignOnProcessor: StateProcessor<SingleSignOnState, SingleSignO
     /// - Parameter keyConnectorUrl: The organization's KeyConnector domain
     ///
     private func migrateUserKeyConnector(keyConnectorUrl: URL) async {
+        coordinator.showLoadingOverlay(title: Localizations.loggingIn)
+        defer { coordinator.hideLoadingOverlay() }
+
         do {
             try await services.authRepository.convertNewUserToKeyConnector(
                 keyConnectorURL: keyConnectorUrl,
                 orgIdentifier: state.identifierText,
             )
-
-            try await services.authRepository.unlockVaultWithKeyConnectorKey(
-                keyConnectorURL: keyConnectorUrl,
-                orgIdentifier: state.identifierText,
-            )
-
+            coordinator.hideLoadingOverlay()
             await coordinator.handleEvent(.didCompleteAuth)
             coordinator.navigate(to: .dismiss)
         } catch {
@@ -212,16 +209,15 @@ extension SingleSignOnProcessor: SingleSignOnFlowDelegate {
                 // Remember the organization identifier after successfully logging on.
                 services.stateService.rememberedOrgIdentifier = state.identifierText
 
-                // Dismiss the loading overlay.
-                coordinator.hideLoadingOverlay()
-
                 // Show the appropriate view and dismiss this sheet.
                 switch unlockMethod {
                 case .deviceKey:
                     // Attempt to unlock the vault with tde.
                     try await services.authRepository.unlockVaultWithDeviceKey()
+                    coordinator.hideLoadingOverlay()
                     await coordinator.handleEvent(.didCompleteAuth)
                 case let .masterPassword(account):
+                    coordinator.hideLoadingOverlay()
                     coordinator.navigate(
                         to: .vaultUnlock(
                             account,
@@ -231,18 +227,20 @@ extension SingleSignOnProcessor: SingleSignOnFlowDelegate {
                         ),
                     )
                     coordinator.navigate(to: .dismiss)
-                case let .keyConnector(keyConnectorUrl):
-                    do {
-                        try await services.authRepository.unlockVaultWithKeyConnectorKey(
-                            keyConnectorURL: keyConnectorUrl,
-                            orgIdentifier: state.identifierText,
-                        )
-                        await coordinator.handleEvent(.didCompleteAuth)
-                    } catch StateServiceError.noEncryptedPrivateKey {
+                case let .keyConnector(keyConnectorKeyWrappedUserKey, keyConnectorUrl):
+                    guard let keyConnectorKeyWrappedUserKey else {
+                        coordinator.hideLoadingOverlay()
                         coordinator.showAlert(Alert.keyConnectorConfirmation(keyConnectorUrl: keyConnectorUrl) {
                             await self.migrateUserKeyConnector(keyConnectorUrl: keyConnectorUrl)
                         })
+                        return
                     }
+                    try await services.authRepository.unlockVaultWithKeyConnectorKey(
+                        keyConnectorKeyWrappedUserKey: keyConnectorKeyWrappedUserKey,
+                        keyConnectorURL: keyConnectorUrl,
+                    )
+                    coordinator.hideLoadingOverlay()
+                    await coordinator.handleEvent(.didCompleteAuth)
                 }
             } catch {
                 await self.handleError(error)

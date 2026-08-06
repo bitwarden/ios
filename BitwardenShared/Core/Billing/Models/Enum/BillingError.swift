@@ -4,23 +4,10 @@ import Foundation
 
 /// Errors that can occur during billing operations.
 ///
-enum BillingError: LocalizedError {
+enum BillingError: Error {
     /// The checkout URL is invalid (e.g., not HTTPS).
     case invalidCheckoutUrl
 
     /// The portal URL is invalid (e.g., not HTTPS).
     case invalidPortalUrl
-
-    /// Unable to open the checkout URL in the browser.
-    case unableToOpenCheckout
-
-    var errorDescription: String? {
-        switch self {
-        case .invalidCheckoutUrl,
-             .invalidPortalUrl,
-             .unableToOpenCheckout:
-            // TODO: PM-33856 Handle payment errors
-            nil
-        }
-    }
 }

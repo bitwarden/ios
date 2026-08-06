@@ -97,7 +97,8 @@ public final class HTTPService: Sendable {
     /// - Returns: The `URL` temporary location of the file.
     ///
     public func download(from urlRequest: URLRequest) async throws -> URL {
-        try await client.download(from: urlRequest)
+        let handledRequest = try await applyRequestHandlers(to: urlRequest)
+        return try await client.download(from: handledRequest)
     }
 
     /// Performs a network request.
@@ -215,6 +216,25 @@ public final class HTTPService: Sendable {
         if let tokenProvider {
             try await httpRequest.headers["Authorization"] = "Bearer \(tokenProvider.getToken())"
         }
+    }
+
+    /// Applies any request handlers to a `URLRequest`, returning a modified copy.
+    ///
+    /// Converts the `URLRequest` to an `HTTPRequest`, runs it through the handler pipeline
+    /// (which may inject headers such as SSO cookies), then writes the resulting headers
+    /// back into the returned `URLRequest`.
+    ///
+    /// - Parameter urlRequest: The `URLRequest` to apply request handlers to.
+    /// - Returns: A copy of `urlRequest` with handler-modified headers applied.
+    ///
+    private func applyRequestHandlers(to urlRequest: URLRequest) async throws -> URLRequest {
+        guard var httpRequest = HTTPRequest(from: urlRequest) else {
+            return urlRequest
+        }
+        try await applyRequestHandlers(&httpRequest)
+        var modifiedRequest = urlRequest
+        modifiedRequest.allHTTPHeaderFields = httpRequest.headers
+        return modifiedRequest
     }
 
     /// Applies any response handlers to the response after it's been received.

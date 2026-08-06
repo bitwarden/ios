@@ -195,7 +195,7 @@ class DefaultAutofillCredentialService {
         fido2CredentialStore: Fido2CredentialStore,
         fido2UserInterfaceHelper: Fido2UserInterfaceHelper,
         flightRecorder: FlightRecorder,
-        identityStore: CredentialIdentityStore = ASCredentialIdentityStore.shared,
+        identityStore: CredentialIdentityStore = SafeCredentialIdentityStore(),
         notificationCenterService: NotificationCenterService,
         pasteboardService: PasteboardService,
         stateService: StateService,
@@ -813,7 +813,3 @@ extension CredentialIdentityStore {
         await state().isEnabled
     }
 }
-
-// MARK: - ASCredentialIdentityStore+CredentialIdentityStore
-
-extension ASCredentialIdentityStore: CredentialIdentityStore {}

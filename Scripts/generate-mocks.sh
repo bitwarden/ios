@@ -18,7 +18,8 @@
 #
 # BUILD_DIR = .../DerivedData/Bitwarden-<hash>/Build/Products (regular)
 #           = .../DerivedData/Bitwarden-<hash>/Build/Intermediates.noindex/ArchiveIntermediates/... (archive)
-# BITWARDEN_SDK_PATH = .../DerivedData/Bitwarden-<hash>/SourcePackages/checkouts/sdk-swift
+# BITWARDEN_SDK_PATH = .../DerivedData/Bitwarden-<hash>/SourcePackages/checkouts/sdk-swift (remote SDK)
+#                    = .../sdk-internal/crates/bitwarden-uniffi/swift (local SDK, when LOCAL_SDK=true bootstrap was run)
 
 set -euo pipefail
 
@@ -43,20 +44,26 @@ fi
 
 # BUILD_DIR nests at different depths for regular builds vs xcodebuild archive, so
 # walk up the directory tree until we find the DerivedData root (contains SourcePackages/).
+# When LOCAL_SDK=true bootstrap was run, BITWARDEN_SDK_PATH is injected as an Xcode build
+# setting via local-sdk.yml and is already set — skip the search entirely in that case.
 export BITWARDEN_SDK_PATH
-_search_dir="$BUILD_DIR"
-BITWARDEN_SDK_PATH=""
-while [ "$_search_dir" != "/" ]; do
-    if [ -d "$_search_dir/SourcePackages/checkouts/sdk-swift" ]; then
-        BITWARDEN_SDK_PATH="$_search_dir/SourcePackages/checkouts/sdk-swift"
-        break
-    fi
-    _search_dir="$(dirname "$_search_dir")"
-done
+if [ -z "${BITWARDEN_SDK_PATH:-}" ]; then
+    _search_dir="$BUILD_DIR"
+    BITWARDEN_SDK_PATH=""
+    while [ "$_search_dir" != "/" ]; do
+        if [ -d "$_search_dir/SourcePackages/checkouts/sdk-swift" ]; then
+            BITWARDEN_SDK_PATH="$_search_dir/SourcePackages/checkouts/sdk-swift"
+            break
+        fi
+        _search_dir="$(dirname "$_search_dir")"
+    done
 
-if [ -z "$BITWARDEN_SDK_PATH" ]; then
-    echo "error: Could not locate sdk-swift checkout under SourcePackages/ — ensure SPM packages are resolved before running Sourcery."
-    exit 1
+    if [ -z "$BITWARDEN_SDK_PATH" ]; then
+        echo "error: Could not locate sdk-swift. Resolve SPM packages (remote) or run build.sh in sdk-internal (local)."
+        echo "Remote SDK: checkout under SourcePackages/ — ensure SPM packages are resolved before running Sourcery."
+        echo "Local SDK: expected at ../sdk-internal/crates/bitwarden-uniffi/swift — ensure the SDK is built (run build.sh) before running Sourcery."
+        exit 1
+    fi
 fi
 
 echo "BITWARDEN_SDK_PATH: $BITWARDEN_SDK_PATH"

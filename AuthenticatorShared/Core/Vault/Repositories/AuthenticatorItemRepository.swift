@@ -132,6 +132,9 @@ class DefaultAuthenticatorItemRepository {
     /// A protocol wrapping the present time.
     private let timeProvider: TimeProvider
 
+    /// Service for managing TOTP item display state, used to read settings such as `showNextTOTPCode`.
+    private let totpItemDisplayStateService: TOTPItemDisplayStateService
+
     /// A service for refreshing TOTP codes.
     private let totpService: TOTPService
 
@@ -148,6 +151,7 @@ class DefaultAuthenticatorItemRepository {
     ///     the main Bitwarden PM app.
     ///   - errorReporter: Error Reporter for any errors encountered
     ///   - timeProvider: A protocol wrapping the present time.
+    ///   - totpItemDisplayStateService: Service for managing TOTP item display state.
     ///   - totpService: A service for refreshing TOTP codes.
     init(
         application: Application,
@@ -157,6 +161,7 @@ class DefaultAuthenticatorItemRepository {
         errorReporter: ErrorReporter,
         sharedItemService: AuthenticatorBridgeItemService,
         timeProvider: TimeProvider,
+        totpItemDisplayStateService: TOTPItemDisplayStateService,
         totpService: TOTPService,
     ) {
         self.application = application
@@ -164,9 +169,10 @@ class DefaultAuthenticatorItemRepository {
         self.configService = configService
         self.cryptographyService = cryptographyService
         self.errorReporter = errorReporter
-        self.timeProvider = timeProvider
-        self.totpService = totpService
         self.sharedItemService = sharedItemService
+        self.timeProvider = timeProvider
+        self.totpItemDisplayStateService = totpItemDisplayStateService
+        self.totpService = totpService
     }
 
     // MARK: Private Methods
@@ -331,7 +337,8 @@ extension DefaultAuthenticatorItemRepository: AuthenticatorItemRepository {
     }
 
     func refreshTotpCodes(for items: [ItemListItem]) async throws -> [ItemListItem] {
-        try await items.asyncMap { item in
+        let showNextTOTPCode = await totpItemDisplayStateService.getShowNextTOTPCode()
+        return try await items.asyncMap { item in
             let keyModel: TOTPKeyModel?
             switch item.itemType {
             case let .sharedTotp(model):
@@ -351,7 +358,10 @@ extension DefaultAuthenticatorItemRepository: AuthenticatorItemRepository {
                 return item
             }
             let code = try await totpService.getTotpCode(for: keyModel)
-            return item.with(newTotpModel: code)
+            let nextCode = showNextTOTPCode
+                ? try await totpService.getNextTOTPCode(for: keyModel)
+                : nil
+            return item.with(newTotpModel: code, nextTotpModel: nextCode)
         }
     }
 

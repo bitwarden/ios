@@ -130,7 +130,7 @@ class SendRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         XCTAssertEqual(clientService.mockSends.encryptReceivedSend, sendView)
     }
 
-    /// `doesActiveAccountHavePremium()` returns whether the active account has access to premium features.
+    /// `doesActiveAccountHavePremium()` returns whether the active account has access to Premium features.
     func test_doesActiveAccountHavePremium() async {
         stateService.doesActiveAccountHavePremiumResult = true
         var hasPremium = await subject.doesActiveAccountHavePremium()

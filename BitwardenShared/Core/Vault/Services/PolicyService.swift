@@ -33,17 +33,19 @@ protocol PolicyService: AnyObject {
     ///
     func getOrganizationIdsForRestricItemTypesPolicy() async -> [String]
 
+    /// Returns the organization user notification banner data if the feature flag is enabled and the
+    /// policy applies to the active user, or `nil` otherwise.
+    ///
+    /// - Returns: The `OrganizationUserNotificationBannerData` for the earliest-revision policy that
+    ///   applies to the user, or `nil` if none applies or the policy has no `description` field.
+    ///
+    func getOrganizationUserNotificationBannerData() async -> OrganizationUserNotificationBannerData?
+
     /// Get the restricted types based on the organization's policies.
     ///
     /// - Returns: An array of restricted `CipherType`s.
     ///
     func getRestrictedItemCipherTypes() async -> [CipherType]
-
-    /// Returns whether the send hide email option is disabled because of a policy.
-    ///
-    /// - Returns: Whether the send hide email option is disabled.
-    ///
-    func isSendHideEmailDisabledByPolicy() async -> Bool
 
     /// Gets the organization ID with the earliest revision date that is applying a policy to the active user.
     ///
@@ -51,6 +53,12 @@ protocol PolicyService: AnyObject {
     /// - Returns: The organization ID with the earliest revision date applying the policy, or `nil` if none.
     ///
     func getEarliestOrganizationApplyingPolicy(_ policyType: PolicyType) async -> String?
+
+    /// Returns the Send restrictions enforced by policy for the active user.
+    ///
+    /// - Returns: A `SendPolicyOptions` describing the Send restrictions that apply to the user.
+    ///
+    func getSendPolicyOptions() async -> SendPolicyOptions
 
     /// Gets the organizations IDs that are applying the policy to the active user.
     ///
@@ -69,10 +77,18 @@ protocol PolicyService: AnyObject {
     /// Replaces the list of policies for the user.
     ///
     /// - Parameters:
-    ///   - domains: The list of policies.
+    ///   - policies: The list of policies.
     ///   - userId: The user ID associated with the policies.
     ///
     func replacePolicies(_ policies: [PolicyResponseModel], userId: String) async throws
+
+    /// Replaces the list of accepted-state policies (from `policiesNew`) for the user.
+    ///
+    /// - Parameters:
+    ///   - policies: The list of accepted-state policies.
+    ///   - userId: The user ID associated with the policies.
+    ///
+    func replacePoliciesNew(_ policies: [PolicyResponseModel], userId: String) async throws
 }
 
 // MARK: - DefaultPolicyService
@@ -83,8 +99,14 @@ protocol PolicyService: AnyObject {
 actor DefaultPolicyService: PolicyService {
     // MARK: Properties
 
+    /// The service that handles common client functionality such as encryption and decryption.
+    let clientService: ClientService
+
     /// The service to get server-specified configuration.
     let configService: ConfigService
+
+    /// The service used by the application to report non-fatal errors.
+    let errorReporter: ErrorReporter
 
     /// The data store for managing the persisted policies for the user.
     let policyDataStore: PolicyDataStore
@@ -95,6 +117,9 @@ actor DefaultPolicyService: PolicyService {
     /// The list of policies, keyed by the user's ID.
     private var policiesByUserId = [String: [Policy]]()
 
+    /// The list of accepted-state policies (from `policiesNew`), keyed by the user's ID.
+    private var policiesNewByUserId = [String: [Policy]]()
+
     /// The service used by the application to manage account state.
     let stateService: StateService
 
@@ -103,18 +128,25 @@ actor DefaultPolicyService: PolicyService {
     /// Initialize a `DefaultPolicyService`.
     ///
     /// - Parameters:
+    ///   - clientService: The service that handles common client functionality such as encryption
+    ///     and decryption.
     ///   - configService: The service to get server-specified configuration.
+    ///   - errorReporter: The service used by the application to report non-fatal errors.
     ///   - organizationService: The service for managing the organizations for the user.
     ///   - policyDataStore: The data store for managing the persisted policies for the user.
     ///   - stateService: The service used by the application to manage account state.
     ///
     init(
+        clientService: ClientService,
         configService: ConfigService,
+        errorReporter: ErrorReporter,
         organizationService: OrganizationService,
         policyDataStore: PolicyDataStore,
         stateService: StateService,
     ) {
+        self.clientService = clientService
         self.configService = configService
+        self.errorReporter = errorReporter
         self.organizationService = organizationService
         self.policyDataStore = policyDataStore
         self.stateService = stateService
@@ -156,28 +188,83 @@ actor DefaultPolicyService: PolicyService {
 
     /// The list of policies for a policy type that apply to the active user.
     ///
+    /// When the `policiesInAcceptedState` feature flag is enabled, evaluation is delegated to the
+    /// Bitwarden SDK via `PoliciesClient.filterByType`. Otherwise, the legacy native filter is used.
+    ///
     /// - Parameters:
     ///   - policyType: The policy to check.
-    ///   - filter: An optional filter to apply to the list of policies.
+    ///   - filter: An optional filter to apply to the list of policies before SDK/native evaluation.
     /// - Returns: The list of policies that apply to the user.
     ///
     private func policiesApplyingToUser(_ policyType: PolicyType, filter: ((Policy) -> Bool)? = nil) async -> [Policy] {
         guard let userId = try? await stateService.getActiveAccountId(),
-              let policies = try? await policiesForUser(userId: userId, type: policyType, filter: filter),
               let organizations = try? await organizationService.fetchAllOrganizations()
         else {
             return []
         }
 
-        // The policy applies even if the organization is disabled, uses policies, has the policy enabled,
-        // and the user is not exempt from policies.
-        return policies.filter { policy in
-            guard let organization = organizations.first(where: { $0.id == policy.organizationId })
-            else { return false }
-            return (organization.status == .accepted || organization.status == .confirmed) &&
-                organization.usePolicies &&
-                !isOrganization(organization, exemptFrom: policyType)
+        guard await configService.getFeatureFlag(.policiesInAcceptedState) else {
+            guard let policies = try? await policiesForUser(userId: userId, type: policyType, filter: filter) else {
+                return []
+            }
+
+            // Legacy native filter: the policy applies when the organization is in accepted or confirmed
+            // state, uses policies, and the user is not exempt from the policy.
+            return policies.filter { policy in
+                guard let organization = organizations.first(where: { $0.id == policy.organizationId })
+                else { return false }
+                return (organization.status == .accepted || organization.status == .confirmed) &&
+                    organization.usePolicies &&
+                    !isOrganization(organization, exemptFrom: policyType)
+            }
         }
+
+        do {
+            return try await sdkFilterPolicies(
+                organizations: organizations,
+                policyType: policyType,
+                userId: userId,
+                filter: filter,
+            )
+        } catch {
+            errorReporter.log(error: error)
+            return []
+        }
+    }
+
+    /// Delegates policy filtering to the Bitwarden SDK.
+    ///
+    /// - Parameters:
+    ///   - organizations: All organizations for the active user.
+    ///   - policyType: The policy type being evaluated.
+    ///   - userId: The active user's ID.
+    ///   - filter: An optional filter to apply to the list of policies before SDK evaluation.
+    /// - Returns: The policies that the SDK determines apply to the user.
+    ///
+    private func sdkFilterPolicies(
+        organizations: [Organization],
+        policyType: PolicyType,
+        userId: String,
+        filter: ((Policy) -> Bool)? = nil,
+    ) async throws -> [Policy] {
+        guard let sdkPolicyType = BitwardenSdk.PolicyType(policyType) else {
+            return []
+        }
+
+        let policies = try await policiesNewForUser(userId: userId, filter: filter)
+        let sdkPolicies = policies.compactMap { BitwardenSdk.PolicyView($0) }
+        guard !sdkPolicies.isEmpty else {
+            return []
+        }
+
+        let filtered = try await clientService.policies(for: userId)
+            .filterByType(
+                policies: sdkPolicies,
+                organizationUserPolicyContexts: organizations.map { BitwardenSdk.OrganizationUserPolicyContext($0) },
+                policyType: sdkPolicyType,
+            )
+
+        return filtered.map { Policy($0) }
     }
 
     /// Returns the list of policies that are assigned to the user.
@@ -204,6 +291,37 @@ actor DefaultPolicyService: PolicyService {
         return policies.filter { policy in
             policy.enabled && policy.type == type && filter?(policy) ?? true
         }
+    }
+
+    /// Returns all accepted-state policies (`policiesNew`) for the user, using an in-memory cache.
+    ///
+    /// - Parameters:
+    ///   - userId: The user ID of the user.
+    ///   - filter: An optional filter to apply to the list of policies.
+    /// - Returns: All policies from the accepted-state store with the filter applied, if any.
+    ///
+    private func policiesNewForUser(
+        userId: String,
+        filter: ((Policy) -> Bool)? = nil,
+    ) async throws -> [Policy] {
+        let policies: [Policy]
+        if let cachedPolicies = policiesNewByUserId[userId] {
+            policies = cachedPolicies
+        } else {
+            policies = try await policyDataStore.fetchAllPoliciesNew(userId: userId)
+            policiesNewByUserId[userId] = policies
+        }
+
+        return filter.map { policies.filter($0) } ?? policies
+    }
+
+    /// Returns the policy with the earliest revision date from the given list, or `nil` if the list is empty.
+    ///
+    /// - Parameter policies: The list of policies to search.
+    /// - Returns: The policy with the earliest revision date.
+    ///
+    private func policyWithEarliestRevisionDate(from policies: [Policy]) -> Policy? {
+        policies.min { ($0.revisionDate ?? .distantFuture) < ($1.revisionDate ?? .distantFuture) }
     }
 }
 
@@ -310,6 +428,25 @@ extension DefaultPolicyService {
         return SessionTimeoutPolicy(timeoutAction: timeoutAction, timeoutType: timeoutType, timeoutValue: timeoutValue)
     }
 
+    func getOrganizationUserNotificationBannerData() async -> OrganizationUserNotificationBannerData? {
+        guard await configService.getFeatureFlag(.organizationUserNotificationBanner) else { return nil }
+
+        let policies = await policiesApplyingToUser(.organizationUserNotification)
+
+        guard let policy = policyWithEarliestRevisionDate(from: policies),
+              let description = policy[.description]?.stringValue
+        else { return nil }
+
+        return OrganizationUserNotificationBannerData(
+            buttonText: policy[.buttonText]?.stringValue,
+            description: description,
+            headerText: policy[.header]?.stringValue,
+            organizationId: policy.organizationId,
+            revisionDate: policy.revisionDate,
+            showAfterEveryLogin: policy[.showAfterEveryLogin]?.boolValue ?? false,
+        )
+    }
+
     func getMasterPasswordPolicyOptions() async throws -> MasterPasswordPolicyOptions? {
         let policies = await policiesApplyingToUser(.masterPassword) { $0.data != nil }
         guard !policies.isEmpty else { return nil }
@@ -384,17 +521,21 @@ extension DefaultPolicyService {
 
     func getEarliestOrganizationApplyingPolicy(_ policyType: PolicyType) async -> String? {
         let policies = await policiesApplyingToUser(policyType, filter: nil)
-        return policies
-            .min(by: { lhs, rhs in
-                (lhs.revisionDate ?? .distantFuture) < (rhs.revisionDate ?? .distantFuture)
-            })?
-            .organizationId
+        return policyWithEarliestRevisionDate(from: policies)?.organizationId
     }
 
-    func isSendHideEmailDisabledByPolicy() async -> Bool {
-        await policyAppliesToUser(.sendOptions) { policy in
-            policy[.disableHideEmail]?.boolValue == true
+    func getSendPolicyOptions() async -> SendPolicyOptions {
+        guard await configService.getFeatureFlag(.sendControls) else {
+            return await SendPolicyOptions(
+                isHideEmailDisabled: policyAppliesToUser(.sendOptions) { policy in
+                    policy[.disableHideEmail]?.boolValue == true
+                },
+                isSendDisabled: policyAppliesToUser(.disableSend),
+            )
         }
+
+        let policies = await policiesApplyingToUser(.sendControls)
+        return SendPolicyOptions(sendControlsPolicies: policies)
     }
 
     func organizationsApplyingPolicyToUser(_ policyType: PolicyType) async -> [String] {
@@ -409,5 +550,10 @@ extension DefaultPolicyService {
     func replacePolicies(_ policies: [PolicyResponseModel], userId: String) async throws {
         policiesByUserId[userId] = policies.map(Policy.init)
         try await policyDataStore.replacePolicies(policies, userId: userId)
+    }
+
+    func replacePoliciesNew(_ policies: [PolicyResponseModel], userId: String) async throws {
+        policiesNewByUserId[userId] = policies.map(Policy.init)
+        try await policyDataStore.replacePoliciesNew(policies, userId: userId)
     }
 }

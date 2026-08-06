@@ -10,14 +10,14 @@
 "${applicationName}, secure all profiles" = "${applicationName}, tüm profilleri güvenli hale getir";
 "Global lock for ${applicationName}" = "${applicationName} için global kilit";
 "Log out all ${applicationName} accounts" = "Tüm ${applicationName} hesaplarından çıkış yap";
-"Sign out of every ${applicationName} session" = "Her ${applicationName} hesabından çıkış yap";
+"Sign out of every ${applicationName} session" = "Tüm ${applicationName} oturumlarından çıkış yap";
 "${applicationName}, log out all users" = "${applicationName}, tüm kullanıcıları oturumdan çıkar";
 "Terminate all ${applicationName} logins" = "Tüm ${applicationName} hesaplarını sonlandır";
 "Disconnect all ${applicationName} accounts" = "Tüm ${applicationName} hesaplarının bağlantısını kes";
 "Remove every ${applicationName} session" = "Her ${applicationName} oturumunu kaldır";
 "End all ${applicationName} connections" = "Tüm ${applicationName} bağlantılarını sonlandır";
 "Close all ${applicationName} profiles" = "Tüm ${applicationName} profillerini kapat";
-"Full sign-out from ${applicationName}" = "${applicationName} uygulamasından tamamen çıkış yap";
+"Full sign-out from ${applicationName}" = "${applicationName}'dan tamamen çıkış yap";
 "Erase all ${applicationName} sessions" = "Tüm ${applicationName} oturumlarını sil";
 "Exit every ${applicationName} account" = "Her ${applicationName} hesabından çık";
 "Open password generator using ${applicationName}" = "${applicationName} kullanarak parola oluşturucuyu aç";

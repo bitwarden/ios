@@ -6,6 +6,8 @@
 "Bitwarden" = "Bitwarden";
 "Cancel" = "Odustani";
 "Copy" = "Kopiraj";
+"CopyLicenseNumber" = "Kopiraj broj osobne";
+"CopyPassportNumber" = "Kopiraj broj putovnice";
 "CopyPassword" = "Kopiraj lozinku";
 "CopyUsername" = "Kopiraj korisničko ime";
 "Delete" = "Izbriši";
@@ -37,6 +39,8 @@
 "RemoveAccount" = "Ukloni račun";
 "RemoveAccountConfirmation" = "Sigurno želiš ukoniti ovaj račun?";
 "AccountAlreadyAdded" = "Račun već postoji";
+"AccountCreationRestricted" = "Account creation restricted";
+"XOnlyAllowsInvitedUsersToCreateAccounts" = "%1$@ only allows invited users to create accounts.";
 "SwitchToAlreadyAddedAccountConfirmation" = "Želiš li se sada prebaciti na njega?";
 "MasterPassword" = "Glavna lozinka";
 "MoreOptions" = "Više mogućnosti";
@@ -50,6 +54,7 @@
 "Move" = "Premjesti";
 "Saving" = "Spremanje…";
 "Settings" = "Postavke";
+"ShowNextCode" = "Prikaži sljedeći kôd";
 "ItemDeleted" = "Stavka izbrisana";
 "Submit" = "Pošalji";
 "UseFingerprintToUnlock" = "Koristi otisak prsta za otključavanje";
@@ -125,7 +130,7 @@
 "ItemUpdated" = "Stavka spremljena";
 "Submitting" = "Slanje…";
 "Syncing" = "Sinkronizacija…";
-"SyncingLogins" = "Sinkronizacija prijava...";
+"SyncingLogins" = "Sinkronizacija prijava…";
 "SyncingComplete" = "Sinkronizacija dovršena.";
 "TouchID" = "Touch ID";
 "TwoStepLogin" = "Prijava dvostrukom autentifikacijom";
@@ -174,7 +179,7 @@
 "CopyTotp" = "Kopiraj TOTP";
 "CopyTotpAutomaticallyDescription" = "Ako za prijavu postoji ključ autentifikatora, kopiraj TOTP kôd za provjeru u međuspremnik nakon auto-ispune prijave.";
 "CopyTotpAutomatically" = "Automatski kopiraj TOTP";
-"PremiumRequired" = "Za korištenje ove značajke potrebno je premium članstvo.";
+"PremiumRequired" = "Za korištenje ove značajke potrebna je premium pretplata.";
 "AttachementAdded" = "Privitak dodan";
 "AttachmentDeleted" = "Privitak izbrisan";
 "ChooseFile" = "Odaberi datoteku";
@@ -195,11 +200,18 @@
 "CustomFields" = "Prilagođena polja";
 "CopyNumber" = "Kopiraj broj";
 "CopySecurityCode" = "Kopiraj kontrolni broj";
+"CopyAccountNumber" = "Kopiraj broj računa";
+"CopyRoutingNumber" = "Kopiraj routing number (SAD)";
 "Number" = "Broj";
 "SecurityCode" = "Kontrolni broj";
+"AccountNumber" = "Broj računa";
+"RoutingNumber" = "Routing Number (SAD)";
+"TypeBankAccount" = "Broj računa";
 "TypeCard" = "Platna kartica";
 "TypeIdentity" = "Identitet";
+"TypeLicense" = "Dozvola";
 "TypeLogin" = "Prijava";
+"TypePassport" = "Putovnica";
 "TypeSecureNote" = "Sigurna bilješka";
 "Address1" = "Adresa 1";
 "Address2" = "Adresa 2";
@@ -208,7 +220,7 @@
 "August" = "kolovoz";
 "Brand" = "Vrsta kartice";
 "CardholderName" = "Vlasnik kartice";
-"WeFoundMultipleMatchesChooseTheCorrectOne" = "We found multiple matches. Choose the correct one.";
+"WeFoundMultipleMatchesChooseTheCorrectOne" = "Pronašli smo više podudaranja. Odaberi ispravni.";
 "CityTown" = "Grad / Mjesto";
 "Company" = "Tvrtka";
 "Country" = "Zemlja";
@@ -223,7 +235,7 @@
 "June" = "lipanj";
 "LastName" = "Prezime";
 "FullName" = "Ime i prezime";
-"LicenseNumber" = "Broj vozačke dozvole";
+"LicenseNumber" = "Broj osobne iskaznice";
 "March" = "ožujak";
 "May" = "svibanj";
 "MiddleName" = "Srednje ime";
@@ -381,6 +393,7 @@
 "MasterPasswordPolicyValidationTitle" = "Neispravna lozinka";
 "MasterPasswordPolicyValidationMessage" = "Lozinka ne zadovoljava organizacijska pravila. Provjeri informacije o pravilima organizacije i pojušaj ponovno.";
 "Loading" = "Učitavanje";
+"LoadingSubscription" = "Učitavanje pretplate…";
 "AcceptPoliciesError" = "Uvjeti korištenja i Pravila privatnosti nisu prihvaćeni.";
 "PrivacyPolicy" = "Pravila privatnosti";
 "PersonalOwnershipPolicyInEffect" = "Pravila organizacije utječu na tvoje mogućnosti vlasništva.";
@@ -547,9 +560,12 @@
 "ThereAreNoCardsInYourVault" = "U tvom trezoru nema kartica";
 "ThereAreNoNotesInYourVault" = "U tvom trezoru nema bilješki";
 "ThereAreNoIdentitiesInYourVault" = "U tvom trezoru nema identiteta";
+"ThereAreNoPassportsInYourVault" = "There are no passports in your vault";
 "ThereAreNoSSHKeysInYourVault" = "U tvom trezoru nema SSH ključeva";
+"ThereAreNoBankAccountsInYourVault" = "There are no bank accounts in your vault";
 "US" = "SAD";
 "EU" = "EU";
+"Gov" = "Gov";
 "SelfHosted" = "Vlastiti poslužitelj";
 "UpdateWeakMasterPasswordWarning" = "Tvoja glavna lozinka ne zadovoljava pravila ove organizacije. Za pristup trezoru moraš odmah ažurirati svoju glavnu lozinku. Ako nastaviš, odjaviti ćeš se iz trenutne sesije te ćeš se morati ponovno prijaviti. Aktivne sesije na drugim uređajima mogu ostati aktivne do jedan sat.";
 "CurrentMasterPasswordRequired" = "Trenutna glavna lozinka (obavezno)";
@@ -558,6 +574,8 @@
 "RequestAdminApproval" = "Zatraži odobrenje administratora";
 "ApproveWithMasterPassword" = "Odobri glavnom lozinkom";
 "TurnOffUsingPublicDevice" = "Isključi ako koristiš javni uređaj";
+"TurnOnFillAssist" = "Turn on fill assist";
+"TurnOnFillAssistDescriptionLong" = "Fill Assist improves autofill accuracy on supported sites by using site-specific rules.";
 "RememberThisDevice" = "Zapamti ovaj uređaj";
 "Passkey" = "Pristupni ključ";
 "Passkeys" = "Pristupni ključevi";
@@ -606,7 +624,7 @@
 "SetUpAutofill" = "Podesi auto-ispunu";
 "AppInfo" = "Informacije o aplikaciji";
 "Browse" = "Pregledaj";
-"SelectCardholderName" = "Select cardholder name";
+"SelectCardholderName" = "Odaberi vlasnika kartice";
 "SelectLanguage" = "Odaberi jezik";
 "ContinueToCompleteWebAuthnVerification" = "Nastavi na dovršetak WebAuthn potvrde.";
 "ThereWasAnErrorStartingWebAuthnTwoFactorAuthentication" = "Došlo je do greške kod pokretanja WebAuthn dvostruke autentifikacije";
@@ -672,6 +690,7 @@
 "BitwardenCannotResetALostOrForgottenMasterPassword" = "Bitwarden ne može vratiti izgubljenu ili zaboravljenu glavnu lozinku.";
 "LearnAboutWaysToPreventAccountLockout" = "Saznaj više o drugim načinima za sprječavanje blokade računa";
 "RestartRegistration" = "Ponovno pokreni registraciju";
+"Expired" = "Isteklo";
 "ExpiredLink" = "Istekla poveznica";
 "PleaseRestartRegistrationOrTryLoggingInYouMayAlreadyHaveAnAccount" = "Ponovo pokreni registraciju ili se pokušaj prijaviti. Možda već imaš račun.";
 "RemovePasskey" = "Ukloni pristupni ključ";
@@ -704,16 +723,25 @@
 "TheVaultProtectsMoreThanJustPasswordsStoreSecureLoginsIdsCardsAndNotesSecurelyHere" = "Trezor štiti više od lozinki. Sigurno spremi prijave, identitete, kartice i bilješke.";
 "SendSensitiveInformationSafely" = "Sigurno pošalji osjetljive podatke";
 "ShareFilesAndDataSecurelyWithAnyoneOnAnyPlatformYourInformationWillRemainEndToEndEncrypted" = "Sigurno dijeli datoteke i podatke s bilo kime, na bilo kojoj platformi. Tvoji podaci ostaju kriptirani uz ograničenje izloženosti.";
-"NewLogin" = "Nova prijava";
-"NewCard" = "Nova kartica";
-"NewIdentity" = "Novi identitet";
-"NewNote" = "Nova bilješka";
-"NewSSHKey" = "Novi SSH ključ";
+"AddLogin" = "Add login";
+"AddCard" = "Add card";
+"AddIdentity" = "Add identity";
+"AddNote" = "Add note";
+"AddSSHKey" = "Add SSH key";
+"AddBankAccount" = "Add bank account";
+"AddLicense" = "Add license";
+"AddPassport" = "Add passport";
+"EditBankAccount" = "Uredi podatke o bankovnom računu";
+"EditLicense" = "Uredi osobnu iskaznicu";
+"EditPassport" = "Uredi putovnicu";
 "EditLogin" = "Uredi prijavu";
 "EditCard" = "Uredi karticu";
 "EditIdentity" = "Uredi identitet";
 "EditNote" = "Uredi bilješku";
 "EditSSHKey" = "Uredi SSH ključ";
+"ViewBankAccount" = "Pogledaj broj bankovnog računa";
+"ViewLicense" = "Pogledaj osobnu iskaznicu";
+"ViewPassport" = "Pogledaj putovnicu";
 "ViewLogin" = "Prikaži prijavu";
 "ViewCard" = "Prikaži karticu";
 "ViewIdentity" = "Prikaži identitet";
@@ -746,6 +774,7 @@
 "BitwardenTools" = "Bitwarden alati";
 "ImportSuccessful" = "Uvoz uspješan!";
 "ManageYourLoginsFromAnywhereWithBitwardenToolsForWebAndDesktop" = "Upravljaj svojim prijavama bilo gdje s Bitwarden alatima za web i stolna računala.";
+"ManageYourSubscriptionPlanInTheBitwardenWebApp" = "Manage your subscription plan in the Bitwarden web app.";
 "DownloadTheBrowserExtension" = "Preuzmi proširenje za preglednik";
 "GoToBitwardenToIntegrateBitwardenIntoYourFavoriteBrowserForASeamlessExperience" = "Posjeti bitwarden.com/download za integraciju Bitwardena u svoj omiljeni preglednik za besprijekorno iskustvo.";
 "UseTheWebApp" = "Koristi web aplikaciju";
@@ -754,6 +783,8 @@
 "SetUpAutofillOnAllYourDevicesToLoginWithASingleTapAnywhere" = "Na svim svojim uređajima uključi auto-ispunu za prijavu jednim dodirom.";
 "GoBack" = "Nazad";
 "GotIt" = "U redu";
+/* masterPasswordUnlock is the name of some data we want to delete, so there's no need to localize it. */
+"ClearMasterPasswordUnlock" = "Clear masterPasswordUnlock";
 "ClearSsoCookies" = "Očisti SSO kolačiće";
 "GenerateCrash" = "Generiraj crash";
 "GenerateErrorReport" = "Generiraj zapisnik o greškama";
@@ -770,6 +801,7 @@
 "UnableToMoveTheSelectedItemPleaseTryAgain" = "Nije moguće premjestiti odabranu stavku. Pokušaj ponovno.";
 "Done" = "Gotovo";
 "Next" = "Sljedeće";
+"NextCode" = "Next code";
 "CopyPublicKey" = "Kopiraj javni ključ";
 "CopyPrivateKey" = "Kopiraj privatni ključ";
 "CopyFingerprint" = "Kopiraj otisak prsta";
@@ -783,7 +815,7 @@
 "YouMayNeedToEnableDevicePasscodeOrBiometrics" = "Možda ćeš trebati omogućiti lozinku uređaja ili biometriju.";
 "StartImportCXFDescriptionLong" = "Uvezi lozinke, pristupne ključeve, kreditne kartice i sve podatke o osobnom identitetu iz drugog upravitelja zaporki.\n\nTvoji podaci **neće** biti izbrisani kod tvog prethodnog pružatelja usluga.";
 "ImportPasswords" = "Uvezi lozinke";
-"ImportingEllipsis" = "Uvoz...";
+"ImportingEllipsis" = "Uvoz…";
 "AreYouSureYouWantToCancelTheImportProcessQuestionMark" = "Sigurno želiš prekinuti proces uvoza?";
 "ImportFailed" = "Uvoz nije uspio!";
 "ThereWasAnIssueImportingAllOfYourPasswordsNoDataWasDeleted" = "Došlo je do problema s uvozom svih tvojih lozinki.\n\nNijedan podatak nije izbrisan.";
@@ -816,7 +848,7 @@
 "AddWebsite" = "Dodaj web stranicu";
 "CannotDeleteAccount" = "Nije moguće izbrisati račun";
 "CannotDeleteAccountDescriptionLong" = "Ova radnja ne može se završiti jer je tvoj račun u vlasništvu organizacije. Za detalje, kontaktiraj administratora organizacije.";
-"NewFolder" = "Nova mapa";
+"AddItem" = "Dodaj stavku";
 "SetUpAuthenticatorKey" = "Postavi ključ autentifikatora";
 "ItemDetails" = "Detalji stavke";
 "CardDetails" = "Detalji kartice";
@@ -918,7 +950,7 @@
 "NoAskMe" = "Ne, pitaj me";
 "NoCodes" = "Nema kodova za prikaz";
 "None" = "Nijedno";
-"NoneOfTheAbove" = "None of the above";
+"NoneOfTheAbove" = "Ništa od navedenog";
 "NumberOfDigits" = "Broj znamenki";
 "OtpType" = "Vrsta OTP-a";
 "RefreshPeriod" = "Vrijeme osvježavanja";
@@ -928,7 +960,8 @@
 "SaveThisAuthenticatorKeyHereOrAddItToALoginInYourBitwardenApp" = "Ovdje spremi autentifikatorski ključ ili ga dodaj prijavi u Bitwarden aplikaciji.";
 "SaveToBitwarden" = "Spremi u Bitwarden";
 "ScanCard" = "Skeniraj karticu";
-"PositionYourCardInTheFrameToScanIt" = "Position your card in the frame to scan it";
+"PositionYourCardInTheFrameToScanIt" = "Za skeniranje, postavi karticu unutar okvira";
+"EnableCameraPermissionInSettingsToScanYourCard" = "Enable camera access in Settings to scan your card.";
 "ScanComplete" = "Skeniranje završeno";
 "ScanTheQRCodeInYourSettings" = "Skeniraj QR kôd u postavkama dvostruke autentifikacije za bilo koji račun.";
 "SecureYourAssetsWithBitwardenAuthenticator" = "Osiguraj svoje račune Bitwarden Authenticatorom";
@@ -967,7 +1000,7 @@
 "DefaultX" = "Zadano (%1$@)";
 "UpdateYourEncryptionSettings" = "Ažuriraj svoje postakve šifriranja";
 "TheNewRecommendedEncryptionSettingsDescriptionLong" = "Nove preporučene postavke šifriranja poboljšat će sigurnost tvojeg računa. Za ažuriranje, unesi svoju glavnu lozinku.";
-"Updating" = "Ažuriranje...";
+"Updating" = "Ažuriranje…";
 "EncryptionSettingsUpdated" = "Postavke šifriranje su ažurirane";
 "IntroducingArchive" = "Predstavljamo Arhivu";
 "KeepYtemsYouDontNeedRightNowSafeButOutOfSight" = "Čuvaj stavke koje ti trenutno ne trebaju sigurne, ali izvan vidokruga.";
@@ -1001,8 +1034,8 @@
 "ArchiveEmptyDescriptionLong" = "Ispuni svoju arhivu stavkama koje ne želiš vidjeti u rezultatima pretraživanja i prijedlozima auto-ispune, ali bi ti jednog dana ipak mogle zatrebati.";
 "ArchiveItem" = "Arhiviraj stavki";
 "OnceArchivedThisItemWillBeExcludedDescriptionLong" = "Nakon arhiviranja, stavka će biti izuzeta iz rezultata pretrage i prijedloga auto-ispune.";
-"ArchiveUnavailable" = "Arhiva nedostupna";
 "ArchivingItemsIsAPremiumFeatureDescriptionLong" = "Arhiviranje je Premium značajka. Tvoj trenutni paket ne uključuje pristup ovoj značajki.";
+"AddingAttachmentsIsAPremiumFeatureDescriptionLong" = "Adding attachments is a Premium feature. Your current plan does not include access to this feature.";
 "UpgradeToPremium" = "Nadogradnja na premium";
 "ThisItemIsArchived" = "Ova stavka je arhivirana.";
 "YourPremiumSubscriptionEnded" = "Toja Premium pretplata je završila";
@@ -1035,6 +1068,8 @@
 "ReplaceCertificate" = "Zamijeni certifikat";
 "ReplaceExistingCertificate" = "Zamijeni postojeći certifikat";
 "UnableToReadCertificateFile" = "Nije moguće učitati datoteku certifikata.";
+/* masterPasswordUnlock is the name of some data we want to delete, so there's no need to localize it. */
+"MasterPasswordUnlockCleared" = "masterPasswordUnlock cleared.";
 "SsoCookiesCleared" = "SSO kolačići očišćeni";
 "YourRequestWasInterruptedBecauseTheAppNeededToReAuthenticatePleaseTryAgain" = "Zahtjev je prekinut jer je aplikacija trebala ponovnu autentifikaciju. Pokušaj ponovno.";
 "AutofillWithBitwardenDescriptionLong" = "Bitwarden može predložiti lozinke i druge vjerodajnice kada se prijavljuješ u aplikacije i web-mjesta.";
@@ -1047,48 +1082,148 @@
 "Active" = "Aktivno";
 "Canceled" = "Otkazano";
 "PastDue" = "Prekoračeno dospijeće";
+"PendingCancellation" = "Pending cancellation";
+"Unpaid" = "Unpaid";
 "UpdatePayment" = "Ažuriraj plaćanje";
 "BillingAmount" = "Iznos za naplatu";
 "StorageCost" = "Trošak pohrane";
 "Discount" = "Popust";
 "EstimatedTax" = "Procijenjeni porez";
+"Total" = "Total";
 "ManagePlan" = "Upravljaj paketom";
 "CancelPremium" = "Otkaži Premium";
-"CancelNow" = "Otkaži odmah";
+"ExternalLink" = "Vanjska poveznica";
 "YourNextChargeIsForXDueOnY" = "Tvoja sljedeća naplata je za **%1$@**, dospijeva na **%2$@**.";
 "WeCouldNotProcessYourPaymentUpdateYourPaymentMethodDescriptionLong" = "Nismo mogli obraditi tvoju uplatu. Ažuriraj način plaćanja prije nego pretplata završi **%1$@**.";
-"YourSubscriptionWasCanceledOnXResubscribeToContinueUsingDescriptionLong" = "Tvoja je preplata otkazana **%1$@**. Ponovno se pretplati za nastavak korištenja Premium značajki.";
+/* Error message shown when the Premium Plan screen fails to load subscription data, with a prompt to retry. */
+"WeCouldntLoadYourSubscriptionDetailsPleaseRetry" = "We couldn't load your subscription details. Please try again.";
+"YourSubscriptionWasCanceledOnXDescriptionLong" = "Your subscription was canceled on **%1$@**. Resubscribe to continue using Premium features.";
+"YourSubscriptionWasSuspendedOnXDescriptionLong" = "Your subscription was suspended on **%1$@**. To reactivate, please resolve your past due invoices.";
+"YourSubscriptionExpiredOnXDescriptionLong" = "Your subscription expired on **%1$@**. Resubscribe to continue using Premium features.";
+"YourSubscriptionIsScheduledToCancelOnXDescriptionLong" = "Your subscription is scheduled to cancel on **%1$@**. You can reinstate it anytime before then.";
 "PerMonth" = "/ mj.";
+/* VoiceOver reading of "PerMonth", spoken instead of shown. */
+"PerMonthVoiceOver" = "per month";
 "PerYear" = " godišnje";
+/* VoiceOver reading of "PerYear", spoken instead of shown. */
+"PerYearVoiceOver" = "per year";
 "XAmountPerCadence" = "%1$@%2$@";
+/* %1$@ is an amount and cadence together, e.g. "$1.65 / month". */
+"XCancelAnytime" = "%1$@ · Cancel anytime";
+/* VoiceOver reading of "XCancelAnytime", spoken instead of shown. */
+"XCancelAnytimeVoiceOver" = "%1$@, Cancel anytime";
 "NegativeX" = "-%1$@";
 "UnknownStatus" = "Nepoznato";
-"YourSubscriptionStatusIsUnknownVisitTheWebAppDescriptionLong" = "Your subscription status could not be determined. Please visit the web app for more details or update to the latest version.";
-"AtTheMomentPremiumPlanIsNotAvailableDescriptionLong" = "At the moment premium plan is not available, please try again later.";
-"UnlockMoreAdvancedFeaturesWithPremiumPlan" = "Otključaj više naprednig mogućnosti s paketom Premium.";
+"YourSubscriptionStatusIsUnknownVisitTheWebAppDescriptionLong" = "Nismo mogli odrediti tvoju pretplatu. Za više detalja posjeti web aplikaciju ili ažuriraj na najnoviju verziju.";
+/* Headline on the Premium upgrade screen. */
+"UnlockAdvancedProtection" = "Unlock advanced protection";
+/* Premium benefit list item. */
+"BreezeThrough2faWithBuiltInCodes" = "Breeze through 2FA with built-in codes";
+/* Premium benefit list item. */
+"RunReportsToFindRiskyPasswords" = "Run reports to find risky passwords";
+/* Premium benefit list item. */
+"KeepDocumentsSafeAndEncrypted" = "Keep documents safe and encrypted";
+/* Premium benefit list item. */
+"AddATrustedEmergencyContact" = "Add a trusted emergency contact";
+/* Premium benefit list item. */
+"IdentifyUnsecureWebsites" = "Identify unsecure websites";
+/* Premium benefit list item. */
+"FlagAccountsWithInactive2fa" = "Flag accounts with inactive 2FA";
+/* Premium benefit list item; "Send" is the Bitwarden Send feature name and shouldn't be translated. */
+"ShareFilesSecurelyWithAnyoneUsingSend" = "Share files securely with anyone using Send";
+/* Premium benefit list item. */
+"Receive247PrioritySupport" = "Receive 24/7 priority support";
 "BuiltInAuthenticator" = "Ugrađeni autentifikator";
 "EmergencyAccess" = "Pristup u nuždi";
 "PaymentNotReceivedYet" = "Uplata još nije primljena";
 "ReturnToStripeInYourBrowserToFinishYourUpgradeDescriptionLong" = "Za dovršetak kupnje, vrati se u Stripe.";
-"SecureCheckoutDidntLoad" = "Secure checkout didn't load";
+"SecureCheckoutDidntLoad" = "Sigurna blagajna nije učitana";
 "WeHadTroubleOpeningThePaymentPageDescriptionLong" = "Nismo mogli otvoriti stranicu za plaćanje, pokušaj ponovno.";
 "SecureFileStorage" = "Sigurna pohrana datoteka";
 "BreachMonitoring" = "Nadzor proboja";
-"UpgradeNow" = "Nadogradi sada";
 "ConfirmingYourUpgrade" = "Potvrda tvoje nadogradnje…";
 "OpeningCheckout" = "Otvaranje kupnje…";
 "UpgradePending" = "Nadogradnja čeka";
-"YourUpgradeIsBeingProcessedDescriptionLong" = "Your upgrade is being processed. You'll remain on the free plan until it's complete. Sync now to check, or continue and it will update automatically.";
+"YourUpgradeIsBeingProcessedDescriptionLong" = "Tvoja se nadogradnja obrađuje. Dok se ne dovrši, ostat ćeš na besplatnom paketu. Sinkroniziraj sada za provjeru ili nastavi i nadogradnja će se izvršiti automatski.";
 "UpgradedToPremium" = " Nadogradi na Premium";
-"ViewPlanDetails" = "View plan details";
-"WelcomeToPremiumYouNowHaveAccessDescriptionLong" = "Welcome to Premium! You now have access to all advanced security features.";
-"YoullGoToStripeSecureCheckoutToCompleteYourPurchase" = "Kupnju ćeš dovršiti na sigurnoj blagajni Stripe-a.";
-"YoullContinueToHavePremiumAccessUntilX" = "You'll continue to have Premium access until %1$@.";
+"SubscriptionNeedsAttention" = "Your subscription needs attention";
+"CheckYourPlanForDetails" = "Check your plan for details.";
+"ViewPlan" = "View plan";
+"YouNowHaveAccessToAdvancedSecurityDescriptionLong" = "Sada imaš pristup naprednim sigurnosnim značajkama. Saznaj što je uključeno u Premium.";
+"YouNowHaveAccessToAllAdvancedSecurityFeatures" = "Sada imaš pristup svim naprednim sigurnosnim značajkama.";
+/* Footer on the Premium upgrade screen; "Stripe" is the payment processor's name and shouldn't be translated. */
+"YoullCompleteThePurchaseWithStripeSecureCheckout" = "You'll complete the purchase with Stripe secure checkout.";
+"ContinueToStripe" = "Continue to Stripe?";
+"YoullBeTakenToStripeToManageYourSubscriptionCancellation" = "You'll be taken to Stripe to manage your subscription cancellation.";
 "UserIDCopiedToTheClipboard" = "Korisnički ID je kopiran u međuspremnik";
 "UserID" = "Korisnički ID";
 "CopyUserID" = "Kopiraj korisnički ID";
 "UserIDUnavailable" = "Korisnički ID nije dostupan";
 "ToManageYourPremiumSubscriptionDescriptionLong" = "Za upravljanje svojom Premium pretplatom, prijavi se u svoj web trezor na računalu.";
-"CheckYourConnectionAndTryAgain" = "Check your connection and try again.";
+"CheckYourConnectionAndTryAgain" = "Provjeri vezu i pokušaj ponovno.";
 "PricingUnavailable" = "Cijene nisu dostupne";
-"BankAccount" = "Bank account";
+"BankAccount" = "Broj računa";
+"BankAccounts" = "Bankovni računi";
+"License" = "Dozvola";
+"Licenses" = "Osobne";
+"Passport" = "Putovnica";
+"Passports" = "Putovnice";
+"LicenseDetails" = "Detalji dozvole";
+"DateOfBirth" = "Datum rođenja";
+"IssuingCountry" = "Država izdavanja";
+"IssuingStateProvince" = "Pokrajina izdavatelj";
+"IssuingAuthority" = "Izdao";
+"IssueDate" = "Datum izdavanja";
+"ExpirationDate" = "Datum isteka";
+"LicenseClass" = "Vrsta dozvole";
+"PassportDetails" = "Detalji putovnice";
+/* Label for the sex/gender field as printed on a passport (e.g. "M", "F", "X"). */
+"Sex" = "Spol";
+"BirthPlace" = "Mjesto rođenja";
+/* Label for the nationality field on a passport (the country a person is a national of). */
+"Nationality" = "Državljanstvo";
+/* Label for the category of passport (e.g. "Regular/Tourist", "Diplomatic", "Official"). */
+"PassportType" = "Vrsta putovnice";
+"NationalIdentificationNumber" = "OIB";
+/* Label for the government authority or office that issued the passport. */
+"IssuingAuthorityOffice" = "Issuing authority/office";
+"AccountDetails" = "Detalji računa";
+"BankName" = "Naziv banke";
+"NameOnAccount" = "Nositelj računa";
+"AccountType" = "Vrsta računa";
+"BranchNumber" = "Broj podružnice";
+"SwiftCode" = "SWIFT";
+"IBAN" = "IBAN";
+"BankContactPhone" = "Telefonski broj banke";
+"CertificateOfDeposit" = "Potvrda depozita";
+"Checking" = "Tekući račun";
+"InvestmentBrokerage" = "Investicijski/brokerski";
+"LineOfCredit" = "Kreditna linija";
+"MoneyMarket" = "Tržište novca";
+"Savings" = "Štedni račun";
+"Devices" = "Devices";
+"NoDevicesFound" = "No devices found";
+"CurrentSession" = "Current session";
+"PendingRequest" = "Pending request";
+"Trusted" = "Trusted";
+"RecentlyActiveLabel" = "Recently active:";
+"FirstLoginLabel" = "First login:";
+"Today" = "Today";
+"PastSevenDays" = "Past 7 days";
+"PastFourteenDays" = "Past 14 days";
+"PastThirtyDays" = "Past 30 days";
+"OverThirtyDaysAgo" = "Over 30 days ago";
+"Unknown" = "Nepoznato";
+/* Device display name. %1$@ = category (e.g. "Mobile"), %2$@ = platform (e.g. "iOS"). */
+"DeviceDisplayNameXHyphenY" = "%1$@ - %2$@";
+"Mobile" = "Mobile";
+"BrowserExtension" = "Browser extension";
+"WebVault2" = "Web vault";
+"Desktop" = "Desktop";
+"Cli" = "CLI";
+"Sdk" = "SDK";
+"Server" = "Server";
+/* Accessibility label for the button that clears a field's value. %1$@ is the field's title (e.g. "Date of birth"), so the spoken label reads "Clear Date of birth". */
+"ClearFieldName" = "Clear %1$@";
+"SelectDate" = "Select date";
+"PremiumRequiredTOTPDescriptionLong" = "Authenticator key (TOTP) is a Premium feature. Your current plan does not include access to this feature.";

@@ -4,6 +4,11 @@ import Foundation
 @testable import AuthenticatorShared
 
 class MockTOTPService: TOTPService {
+    var getNextTOTPCodeResult: Result<TOTPCodeModel, Error> = .success(
+        TOTPCodeModel(code: "654321", codeGenerationDate: .now, period: 30),
+    )
+    var getNextTOTPCodeKey: TOTPKeyModel?
+
     var getTotpCodeResult: Result<TOTPCodeModel, Error> = .success(
         TOTPCodeModel(code: "123456", codeGenerationDate: .now, period: 30),
     )
@@ -11,6 +16,11 @@ class MockTOTPService: TOTPService {
 
     var capturedKey: String?
     var getTOTPConfigResult: Result<TOTPKeyModel, Error> = .failure(TOTPKeyError.invalidKeyFormat)
+
+    func getNextTOTPCode(for key: TOTPKeyModel) async throws -> TOTPCodeModel {
+        getNextTOTPCodeKey = key
+        return try getNextTOTPCodeResult.get()
+    }
 
     func getTotpCode(for key: TOTPKeyModel) async throws -> TOTPCodeModel {
         getTotpCodeConfig = key

@@ -1,4 +1,5 @@
 import Foundation
+import LocalAuthentication
 import Security
 
 // MARK: - KeychainServiceFacade
@@ -32,6 +33,13 @@ public protocol KeychainServiceFacade { // sourcery: AutoMockable
     func setIdentity(_ identity: SecIdentity, for item: any KeychainItem) async throws
 
     // MARK: Value
+
+    /// Returns whether a value exists for the given keychain item without triggering a FaceID prompt.
+    ///
+    /// - Parameter item: The keychain item to check.
+    /// - Returns: `true` if the item exists in the keychain, `false` otherwise.
+    ///
+    func containsValue(for item: any KeychainItem) async -> Bool
 
     /// Deletes the value in the keychain for the given item.
     ///
@@ -220,6 +228,40 @@ public class DefaultKeychainServiceFacade: KeychainServiceFacade {
     }
 
     // MARK: Value
+
+    /// Returns whether a value exists for the given keychain item without triggering a FaceID prompt.
+    ///
+    /// Two query options work together to make this safe:
+    /// - `kSecUseAuthenticationContext` with `interactionNotAllowed = true`: suppresses the Face ID
+    ///   prompt. When a biometric-protected item is found, iOS returns `errSecInteractionNotAllowed`
+    ///   instead of prompting, which this method catches and treats as "item exists".
+    /// - `kSecReturnAttributes: true`: causes a successful match to return a non-nil attribute
+    ///   dictionary, confirming existence without reading the secret. Without any `kSecReturn*`
+    ///   key, `SecItemCopyMatching` returns `errSecSuccess` with a nil result even when an item exists.
+    ///
+    /// - Parameter item: The keychain item to check.
+    /// - Returns: `true` if the item exists in the keychain, `false` otherwise.
+    ///
+    public func containsValue(for item: any KeychainItem) async -> Bool {
+        let context = LAContext()
+        context.interactionNotAllowed = true
+        let query = await keychainQueryValues(
+            for: item,
+            adding: [
+                kSecMatchLimit: kSecMatchLimitOne,
+                kSecReturnAttributes: true,
+                kSecUseAuthenticationContext: context,
+            ],
+        )
+        do {
+            let result = try keychainService.search(query: query)
+            return result != nil
+        } catch KeychainServiceError.osStatusError(errSecInteractionNotAllowed) {
+            return true
+        } catch {
+            return false
+        }
+    }
 
     public func deleteValue(for item: any KeychainItem) async throws {
         try await keychainService.delete(

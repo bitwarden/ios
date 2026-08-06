@@ -101,7 +101,7 @@ class SingleSignOnProcessorTests: BitwardenTestCase { // swiftlint:disable:this 
         XCTAssertEqual(coordinator.loadingOverlaysShown.last, LoadingOverlayState(title: Localizations.loggingIn))
         XCTAssertEqual(
             coordinator.routes.last,
-            .singleSignOn(callbackUrlScheme: "callback", state: "state", url: .example),
+            .singleSignOn(state: "state", url: .example),
         )
         XCTAssertEqual(subject.state.identifierText, "OrgId")
     }
@@ -119,7 +119,7 @@ class SingleSignOnProcessorTests: BitwardenTestCase { // swiftlint:disable:this 
         XCTAssertNotEqual(coordinator.loadingOverlaysShown.last, LoadingOverlayState(title: Localizations.loggingIn))
         XCTAssertNotEqual(
             coordinator.routes.last,
-            .singleSignOn(callbackUrlScheme: "callback", state: "state", url: .example),
+            .singleSignOn(state: "state", url: .example),
         )
         XCTAssertEqual(subject.state.identifierText, "")
     }
@@ -139,7 +139,7 @@ class SingleSignOnProcessorTests: BitwardenTestCase { // swiftlint:disable:this 
         XCTAssertNotEqual(coordinator.loadingOverlaysShown.last, LoadingOverlayState(title: Localizations.loggingIn))
         XCTAssertNotEqual(
             coordinator.routes.last,
-            .singleSignOn(callbackUrlScheme: "callback", state: "state", url: .example),
+            .singleSignOn(state: "state", url: .example),
         )
         XCTAssertEqual(subject.state.identifierText, "BestOrganization")
     }
@@ -162,7 +162,7 @@ class SingleSignOnProcessorTests: BitwardenTestCase { // swiftlint:disable:this 
         )
         XCTAssertEqual(
             coordinator.routes.last,
-            .singleSignOn(callbackUrlScheme: "callback", state: "state", url: .example),
+            .singleSignOn(state: "state", url: .example),
         )
         XCTAssertEqual(subject.state.identifierText, "OrgId")
     }
@@ -216,7 +216,7 @@ class SingleSignOnProcessorTests: BitwardenTestCase { // swiftlint:disable:this 
         XCTAssertEqual(coordinator.loadingOverlaysShown.last, LoadingOverlayState(title: Localizations.loggingIn))
         XCTAssertEqual(
             coordinator.routes.last,
-            .singleSignOn(callbackUrlScheme: "callback", state: "state", url: .example),
+            .singleSignOn(state: "state", url: .example),
         )
     }
 
@@ -336,8 +336,10 @@ class SingleSignOnProcessorTests: BitwardenTestCase { // swiftlint:disable:this 
     func test_singleSignOnCompleted_vaultUnlockedKeyConnector() {
         // Set up the mock data.
         authService.loginWithSingleSignOnResult = .success(.keyConnector(
+            keyConnectorKeyWrappedUserKey: "KEY",
             keyConnectorURL: URL(string: "https://example.com")!,
         ))
+        coordinator.isLoadingOverlayShowing = true
         subject.state.identifierText = "BestOrganization"
 
         // Receive the completed code.
@@ -346,6 +348,7 @@ class SingleSignOnProcessorTests: BitwardenTestCase { // swiftlint:disable:this 
 
         // Verify the results.
         XCTAssertTrue(authRepository.unlockVaultWithKeyConnectorKeyCalled)
+        XCTAssertEqual(authRepository.unlockVaultWithKeyConnectorKeyWrappedUserKey, "KEY")
         XCTAssertEqual(authService.loginWithSingleSignOnCode, "super_cool_secret_code")
         XCTAssertEqual(stateService.rememberedOrgIdentifier, "BestOrganization")
         XCTAssertFalse(coordinator.isLoadingOverlayShowing)
@@ -353,25 +356,24 @@ class SingleSignOnProcessorTests: BitwardenTestCase { // swiftlint:disable:this 
         XCTAssertEqual(coordinator.routes, [])
     }
 
-    /// `singleSignOnCompleted(code:)` show confirm key connector dialog
-    /// if user has no private key and uses Key Connector.
+    /// `singleSignOnCompleted(code:)` shows the confirm key connector dialog directly
+    /// when the identity token response has no encrypted user key (new user not yet on key connector).
     @MainActor
-    func test_singleSignOnCompleted_vaultUnlockedKeyConnector_noPrivateKey() async throws {
+    func test_singleSignOnCompleted_vaultUnlockedKeyConnector_noEncryptedUserKey() async throws {
         // Set up the mock data.
         authService.loginWithSingleSignOnResult = .success(.keyConnector(
+            keyConnectorKeyWrappedUserKey: nil,
             keyConnectorURL: URL(string: "https://example.com")!,
         ))
         subject.state.identifierText = "BestOrganization"
-        authRepository.unlockVaultWithKeyConnectorKeyResult = .failure(StateServiceError.noEncryptedPrivateKey)
+        coordinator.isLoadingOverlayShowing = true
 
         // Receive the completed code.
         subject.singleSignOnCompleted(code: "super_cool_secret_code")
-        try await Task.sleep(nanoseconds: 100_000_000) // 0.1s
-        waitFor(!coordinator.alertShown.isEmpty)
-        authRepository.unlockVaultWithKeyConnectorKeyResult = .success(())
+        try await waitForAsync { !self.coordinator.alertShown.isEmpty }
 
-        // Verify the results.
-        XCTAssertTrue(authRepository.unlockVaultWithKeyConnectorKeyCalled)
+        // Verify the results — vault unlock is never attempted for a new user.
+        XCTAssertFalse(authRepository.unlockVaultWithKeyConnectorKeyCalled)
         XCTAssertEqual(authService.loginWithSingleSignOnCode, "super_cool_secret_code")
         XCTAssertEqual(stateService.rememberedOrgIdentifier, "BestOrganization")
         XCTAssertFalse(coordinator.isLoadingOverlayShowing)
@@ -390,27 +392,26 @@ class SingleSignOnProcessorTests: BitwardenTestCase { // swiftlint:disable:this 
         XCTAssertEqual(coordinator.routes, [.dismiss])
     }
 
-    /// `singleSignOnCompleted(code:)` show confirm key connector dialog
-    /// if user has no private key and uses Key Connector.
+    /// `singleSignOnCompleted(code:)` shows the confirm key connector dialog and surfaces an error
+    /// when migration fails for a new user.
     @MainActor
-    func test_singleSignOnCompleted_vaultUnlockedKeyConnector_noPrivateKey_error() async throws {
+    func test_singleSignOnCompleted_vaultUnlockedKeyConnector_noEncryptedUserKey_error() async throws {
         // Set up the mock data.
         let error = BitwardenTestError.example
         authService.loginWithSingleSignOnResult = .success(.keyConnector(
+            keyConnectorKeyWrappedUserKey: nil,
             keyConnectorURL: URL(string: "https://example.com")!,
         ))
         subject.state.identifierText = "BestOrganization"
-        authRepository.unlockVaultWithKeyConnectorKeyResult = .failure(StateServiceError.noEncryptedPrivateKey)
+        authRepository.convertNewUserToKeyConnectorKeyResult = .failure(error)
+        coordinator.isLoadingOverlayShowing = true
 
         // Receive the completed code.
         subject.singleSignOnCompleted(code: "super_cool_secret_code")
-        try await Task.sleep(nanoseconds: 100_000_000) // 0.1s
-        waitFor(!coordinator.alertShown.isEmpty)
-        authRepository.unlockVaultWithKeyConnectorKeyResult = .success(())
-        authRepository.convertNewUserToKeyConnectorKeyResult = .failure(error)
+        try await waitForAsync { !self.coordinator.alertShown.isEmpty }
 
-        // Verify the results.
-        XCTAssertTrue(authRepository.unlockVaultWithKeyConnectorKeyCalled)
+        // Verify the results — vault unlock is never attempted for a new user.
+        XCTAssertFalse(authRepository.unlockVaultWithKeyConnectorKeyCalled)
         XCTAssertEqual(authService.loginWithSingleSignOnCode, "super_cool_secret_code")
         XCTAssertEqual(stateService.rememberedOrgIdentifier, "BestOrganization")
         XCTAssertFalse(coordinator.isLoadingOverlayShowing)

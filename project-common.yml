@@ -14,13 +14,13 @@ include:
 packages:
   BitwardenSdk:
     url: https://github.com/bitwarden/sdk-swift
-    revision: 52edf0ac71d0ef0c890f5bd3d68fc72df3fa2798 # 2.0.0-5556-c3020a4
+    revision: d4ac79827da8d4f293cf1aaae4ffb3cf3883bd47 # 3.0.0-6989-a4fae39
   Firebase:
     url: https://github.com/firebase/firebase-ios-sdk
-    exactVersion: 11.14.0
+    exactVersion: 12.14.0
   SnapshotTesting:
     url: https://github.com/pointfreeco/swift-snapshot-testing
-    exactVersion: 1.18.4
+    exactVersion: 1.19.2
   ViewInspector:
     url: https://github.com/nalexn/ViewInspector
     exactVersion: 0.10.3

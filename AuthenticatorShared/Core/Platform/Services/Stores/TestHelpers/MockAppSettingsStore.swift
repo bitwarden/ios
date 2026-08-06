@@ -10,8 +10,8 @@ class MockAppSettingsStore: AppSettingsStore {
     var appId: String?
     var appLocale: String?
     var appTheme: String?
-    var disableWebIcons = false
     var defaultSaveOption: DefaultSaveOption = .none
+    var disableWebIcons = false
     var flightRecorderData: FlightRecorderData?
     var hasSeenDefaultSaveOptionPrompt = false
     var hasSeenWelcomeTutorial = false
@@ -22,6 +22,7 @@ class MockAppSettingsStore: AppSettingsStore {
     var preAuthServerConfig: ServerConfig?
     var rememberedEmail: String?
     var rememberedOrgIdentifier: String?
+    var showNextTOTPCode = false
 
     var approveLoginRequestsByUserId = [String: Bool]()
     var biometricAuthenticationEnabled = [String: Bool?]()

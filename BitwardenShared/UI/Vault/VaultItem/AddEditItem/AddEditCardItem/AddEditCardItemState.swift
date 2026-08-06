@@ -24,6 +24,9 @@ protocol AddEditCardItemState: Equatable, Sendable {
     /// The expiration year of the card.
     var expirationYear: String { get set }
 
+    /// The card number formatted with brand-appropriate digit grouping for display.
+    var formattedCardNumber: String { get }
+
     /// Whether the card scanner sheet is currently presented.
     var isCardScannerPresented: Bool { get set }
 

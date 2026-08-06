@@ -12,9 +12,11 @@ public class MockEnvironmentService: EnvironmentService {
     public var changeEmailURL = URL(string: "https://example.com/#/settings/account")!
     public var clientCertificateFingerprint: String?
     public var eventsURL = URL(string: "https://example.com/events")!
+    public var fillAssistRulesURL = URL(string: "https://example.com/fill-assist-rules")!
     public var iconsURL = URL(string: "https://example.com/icons")!
     public var identityURL = URL(string: "https://example.com/identity")!
     public var importItemsURL = URL(string: "https://example.com/#/tools/import")!
+    public var manageSubscriptionURL = URL(string: "https://example.com/#/settings/subscription")!
     public var proxyCookieRedirectConnectorURL = URL(string: "https://example.com/proxy-cookie-redirect-connector")!
     public var recoveryCodeURL = URL(string: "https://example.com/#/recover-2fa")!
     public var region = RegionType.selfHosted

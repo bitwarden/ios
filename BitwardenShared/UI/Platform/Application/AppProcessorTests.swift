@@ -3,6 +3,7 @@ import AuthenticatorBridgeKit
 import BitwardenKit
 import BitwardenKitMocks
 import BitwardenResources
+import Combine
 import Foundation
 import TestHelpers
 import XCTest
@@ -15,6 +16,7 @@ import XCTest
 class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body_length
     // MARK: Properties
 
+    var acquireCookiesSubject: CurrentValueSubject<String?, Never>!
     var appIntentMediator: MockAppIntentMediator!
     var appModule: MockAppModule!
     var authRepository: MockAuthRepository!
@@ -28,6 +30,7 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
     var errorReporter: MockErrorReporter!
     var fido2UserInterfaceHelper: MockFido2UserInterfaceHelper!
     var eventService: MockEventService!
+    var generatorRepository: MockGeneratorRepository!
     var migrationService: MockMigrationService!
     var notificationCenterService: MockNotificationCenterService!
     var notificationService: MockNotificationService!
@@ -51,6 +54,7 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
         super.setUp()
 
         router = MockRouter(routeForEvent: { _ in .landing })
+        acquireCookiesSubject = CurrentValueSubject<String?, Never>(nil)
         appIntentMediator = MockAppIntentMediator()
         appModule = MockAppModule()
         authRepository = MockAuthRepository()
@@ -66,6 +70,7 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
         errorReporter = MockErrorReporter()
         fido2UserInterfaceHelper = MockFido2UserInterfaceHelper()
         eventService = MockEventService()
+        generatorRepository = MockGeneratorRepository()
         migrationService = MockMigrationService()
         notificationCenterService = MockNotificationCenterService()
         notificationService = MockNotificationService()
@@ -77,6 +82,9 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
         timeProvider = MockTimeProvider(.currentTime)
         vaultRepository = MockVaultRepository()
         vaultTimeoutService = MockVaultTimeoutService()
+
+        serverCommunicationConfigAPIService.acquireCookiesPublisherReturnValue =
+            acquireCookiesSubject.eraseToAnyPublisher()
 
         subject = AppProcessor(
             appIntentMediator: appIntentMediator,
@@ -94,6 +102,7 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
                 errorReporter: errorReporter,
                 eventService: eventService,
                 fido2UserInterfaceHelper: fido2UserInterfaceHelper,
+                generatorRepository: generatorRepository,
                 migrationService: migrationService,
                 notificationService: notificationService,
                 pendingAppIntentActionMediator: pendingAppIntentActionMediator,
@@ -112,6 +121,7 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
     override func tearDown() {
         super.tearDown()
 
+        acquireCookiesSubject = nil
         appModule = nil
         authRepository = nil
         autofillCredentialService = nil
@@ -123,6 +133,7 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
         errorReporter = nil
         fido2UserInterfaceHelper = nil
         eventService = nil
+        generatorRepository = nil
         migrationService = nil
         notificationCenterService = nil
         notificationService = nil
@@ -898,38 +909,6 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
         XCTAssertEqual(coordinator.routes, [])
     }
 
-    /// `openUrl(_:)` with a premium checkout success URL calls `billingService.premiumStatusChanged()`.
-    @MainActor
-    func test_openUrl_premiumCheckoutResult_success() async throws {
-        let url = try XCTUnwrap(URL(string: "bitwarden://premium-checkout-result?result=success"))
-
-        await subject.openUrl(url)
-
-        XCTAssertEqual(billingService.premiumStatusChangedCallsCount, 1)
-    }
-
-    /// `openUrl(_:)` with a premium checkout canceled URL calls `premiumCheckoutCanceled()`.
-    @MainActor
-    func test_openUrl_premiumCheckoutResult_canceled() async throws {
-        let url = try XCTUnwrap(URL(string: "bitwarden://premium-checkout-result?result=canceled"))
-
-        await subject.openUrl(url)
-
-        XCTAssertEqual(billingService.premiumCheckoutCanceledCallsCount, 1)
-        XCTAssertEqual(billingService.premiumStatusChangedCallsCount, 0)
-    }
-
-    /// `openUrl(_:)` with a non-premium-checkout URL is not handled by `handlePremiumCheckoutResult`.
-    @MainActor
-    func test_openUrl_premiumCheckoutResult_unrelatedUrl() async throws {
-        let url = try XCTUnwrap(URL(string: "bitwarden://other-path"))
-
-        await subject.openUrl(url)
-
-        XCTAssertEqual(billingService.premiumStatusChangedCallsCount, 0)
-        XCTAssertEqual(billingService.premiumCheckoutCanceledCallsCount, 0)
-    }
-
     /// `provideCredential(for:)` returns the credential with the specified identifier.
     func test_provideCredential() async throws {
         let credential = ASPasswordCredential(user: "user@bitwarden.com", password: "password123")
@@ -966,6 +945,78 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
 
         await assertAsyncThrows(error: ASExtensionError(.userInteractionRequired)) {
             _ = try await subject.provideOTPCredential(for: "1")
+        }
+    }
+
+    /// `savePasswordCredential(username:password:uri:name:)` saves a new login cipher.
+    @available(iOS 26.2, *)
+    func test_savePasswordCredential() async throws {
+        try await subject.savePasswordCredential(
+            username: "user@example.com",
+            password: "password1234",
+            uri: "https://example.com",
+            name: "example.com",
+        )
+
+        XCTAssertTrue(authRepository.unlockVaultWithNeverlockKeyCalled)
+        XCTAssertEqual(vaultRepository.addCipherCiphers.count, 1)
+        let cipher = try XCTUnwrap(vaultRepository.addCipherCiphers.first)
+        XCTAssertEqual(cipher.login?.username, "user@example.com")
+        XCTAssertEqual(cipher.login?.password, "password1234")
+        XCTAssertEqual(cipher.login?.uris?.first?.uri, "https://example.com")
+        XCTAssertEqual(cipher.name, "example.com")
+    }
+
+    /// `savePasswordCredential(username:password:uri:name:)` derives the cipher name from the URI host
+    /// when name is nil.
+    @available(iOS 26.2, *)
+    func test_savePasswordCredential_nilName_derivesFromHost() async throws {
+        try await subject.savePasswordCredential(
+            username: "user",
+            password: "pass",
+            uri: "https://github.com",
+            name: nil,
+        )
+
+        let cipher = try XCTUnwrap(vaultRepository.addCipherCiphers.first)
+        XCTAssertEqual(cipher.name, "github.com")
+    }
+
+    /// `savePasswordCredential(username:password:uri:name:)` throws when vault unlock fails.
+    @available(iOS 26.2, *)
+    func test_savePasswordCredential_unlockError() async throws {
+        authRepository.unlockVaultWithNeverlockResult = .failure(BitwardenTestError.example)
+
+        await assertAsyncThrows(error: BitwardenTestError.example) {
+            try await subject.savePasswordCredential(
+                username: "user",
+                password: "pass",
+                uri: "https://example.com",
+                name: nil,
+            )
+        }
+        XCTAssertTrue(vaultRepository.addCipherCiphers.isEmpty)
+    }
+
+    /// `generatePasswordCredential(request:)` generates and returns a password.
+    @available(iOS 26.2, *)
+    func test_generatePasswordCredential() async throws {
+        generatorRepository.passwordResult = .success("generated-password")
+
+        let result = try await subject.generatePasswordCredential(request: MockGeneratePasswordRequestProxy())
+
+        XCTAssertFalse(authRepository.unlockVaultWithNeverlockKeyCalled)
+        XCTAssertNotNil(generatorRepository.passwordGeneratorRequest)
+        XCTAssertEqual(result, "generated-password")
+    }
+
+    /// `generatePasswordCredential(request:)` throws when the generator fails.
+    @available(iOS 26.2, *)
+    func test_generatePasswordCredential_generatorError() async throws {
+        generatorRepository.passwordResult = .failure(BitwardenTestError.example)
+
+        await assertAsyncThrows(error: BitwardenTestError.example) {
+            _ = try await subject.generatePasswordCredential(request: MockGeneratePasswordRequestProxy())
         }
     }
 
@@ -1223,7 +1274,7 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
         let rootNavigator = MockRootNavigator()
         await subject.start(appContext: .mainApp, navigator: rootNavigator, window: nil)
 
-        serverCommunicationConfigAPIService.acquireCookiesSubject.send("https://example.com")
+        acquireCookiesSubject.send("https://example.com")
 
         try await waitForAsync { [weak self] in
             self?.coordinator.routes.contains(.syncWithBrowser(vaultUrl: "https://example.com")) == true
@@ -1239,7 +1290,7 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
         let rootNavigator = MockRootNavigator()
         await subject.start(appContext: .mainApp, navigator: rootNavigator, window: nil)
 
-        serverCommunicationConfigAPIService.acquireCookiesSubject.send(nil)
+        acquireCookiesSubject.send(nil)
 
         XCTAssertFalse(coordinator.routes.contains(.syncWithBrowser(vaultUrl: "https://example.com")))
     }
@@ -1414,6 +1465,13 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
         XCTAssertNotNil(stateService.encryptedPinByUserId["1"])
         XCTAssertNotNil(stateService.accountVolatileData["1"])
         XCTAssertEqual(errorReporter.errors as? [StateServiceError], [.noActiveAccount])
+    }
+
+    /// `onFetchSyncSucceeded(userId:)` triggers a subscription attention card refresh on every sync.
+    func test_onFetchSyncSucceeded_refreshesSubscriptionAttentionCard() async {
+        await subject.onFetchSyncSucceeded(userId: "1")
+
+        XCTAssertTrue(billingService.refreshSubscriptionAttentionCardCalled)
     }
 
     /// `removeMasterPassword(organizationName:)` notifies the coordinator to show the remove

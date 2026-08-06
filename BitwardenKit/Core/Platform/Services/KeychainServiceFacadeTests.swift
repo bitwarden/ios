@@ -1,5 +1,6 @@
 import BitwardenKitMocks
 import Foundation
+import LocalAuthentication
 import Security
 import Testing
 
@@ -151,6 +152,56 @@ struct KeychainServiceFacadeTests { // swiftlint:disable:this type_body_length
         await #expect(throws: KeychainServiceError.osStatusError(errSecDuplicateItem)) {
             try await subject.setIdentity(identity, for: item)
         }
+    }
+
+    // MARK: Tests - containsValue(for:)
+
+    /// `containsValue(for:)` returns `true` when the item exists but requires biometric auth.
+    @Test
+    func containsValue_returnsTrueWhenItemExistsWithBiometricAuth() async {
+        let item = MockKeychainItem(unformattedKey: "biometric_key")
+        keychainService.searchThrowableError = KeychainServiceError.osStatusError(errSecInteractionNotAllowed)
+
+        let result = await subject.containsValue(for: item)
+
+        #expect(result == true)
+    }
+
+    /// `containsValue(for:)` returns `false` when the item is not found.
+    @Test
+    func containsValue_returnsFalseWhenItemNotFound() async {
+        let item = MockKeychainItem(unformattedKey: "biometric_key")
+        keychainService.searchReturnValue = nil
+
+        let result = await subject.containsValue(for: item)
+
+        #expect(result == false)
+    }
+
+    /// `containsValue(for:)` returns `false` on unrelated keychain errors.
+    @Test
+    func containsValue_returnsFalseOnOtherErrors() async {
+        let item = MockKeychainItem(unformattedKey: "biometric_key")
+        keychainService.searchThrowableError = KeychainServiceError.osStatusError(errSecNotAvailable)
+
+        let result = await subject.containsValue(for: item)
+
+        #expect(result == false)
+    }
+
+    /// `containsValue(for:)` uses an `LAContext` with `interactionNotAllowed` and omits `kSecReturnData`.
+    @Test
+    func containsValue_usesCorrectQuery() async throws {
+        let item = MockKeychainItem(unformattedKey: "biometric_key")
+        keychainService.searchReturnValue = nil
+
+        _ = await subject.containsValue(for: item)
+
+        let query = try #require(keychainService.searchReceivedQuery as? [String: Any])
+        let context = try #require(query[kSecUseAuthenticationContext as String] as? LAContext)
+        #expect(context.interactionNotAllowed == true)
+        #expect(query[kSecReturnAttributes as String] as? Bool == true)
+        #expect(query[kSecReturnData as String] == nil)
     }
 
     // MARK: Tests - deleteValue(for:)

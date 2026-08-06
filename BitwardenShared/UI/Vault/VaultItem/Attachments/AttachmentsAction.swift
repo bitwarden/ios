@@ -9,6 +9,9 @@ enum AttachmentsAction: Equatable, Sendable {
     /// The choose file button was pressed.
     case chooseFilePressed
 
+    /// The URL has been opened and should be cleared.
+    case clearURL
+
     /// The delete button was pressed for an attachment.
     case deletePressed(AttachmentView)
 

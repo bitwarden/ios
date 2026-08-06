@@ -4,7 +4,7 @@ import Foundation
 
 // MARK: - PremiumPlanProcessor
 
-/// The processor used to manage state and handle actions for the premium plan screen.
+/// The processor used to manage state and handle actions for the Premium plan screen.
 ///
 final class PremiumPlanProcessor: StateProcessor<
     PremiumPlanState,
@@ -14,6 +14,7 @@ final class PremiumPlanProcessor: StateProcessor<
     // MARK: Types
 
     typealias Services = HasBillingService
+        & HasEnvironmentService
         & HasErrorReporter
 
     // MARK: Private Properties
@@ -50,7 +51,9 @@ final class PremiumPlanProcessor: StateProcessor<
         case .appeared:
             await loadPremiumPlan()
         case .managePlanTapped:
-            await openPortalUrl()
+            showManageSubscriptionAlert()
+        case .tryAgainTapped:
+            await loadPremiumPlan()
         }
     }
 
@@ -64,6 +67,16 @@ final class PremiumPlanProcessor: StateProcessor<
     }
 
     // MARK: Private Methods
+
+    /// Shows the "Continue to web app?" alert for managing the subscription plan.
+    ///
+    private func showManageSubscriptionAlert() {
+        coordinator.showAlert(
+            .manageSubscriptionPlanAlert { [weak self] in
+                self?.state.urlToOpen = self?.services.environmentService.manageSubscriptionURL
+            },
+        )
+    }
 
     /// Fetches the portal URL from the billing service and sets it on state.
     ///
@@ -80,52 +93,54 @@ final class PremiumPlanProcessor: StateProcessor<
         }
     }
 
-    /// Shows the cancel premium confirmation alert.
+    /// Shows the cancel Premium confirmation alert.
     ///
     private func showCancelConfirmation() {
         coordinator.showAlert(
             Alert(
-                title: Localizations.cancelPremium,
-                message: Localizations.youllContinueToHavePremiumAccessUntilX(state.nextChargeDate),
+                title: Localizations.continueToStripe,
+                message: Localizations.youllBeTakenToStripeToManageYourSubscriptionCancellation,
                 alertActions: [
-                    AlertAction(title: Localizations.cancelNow, style: .destructive) { [weak self] _ in
+                    AlertAction(title: Localizations.cancel, style: .cancel),
+                    AlertAction(title: Localizations.continue, style: .default) { [weak self] _ in
                         guard let self else { return }
                         await openPortalUrl()
                     },
-                    AlertAction(title: Localizations.close, style: .cancel),
                 ],
             ),
         )
     }
 
-    /// Loads the premium plan details from the billing service and updates the state.
+    /// Loads the Premium plan details from the billing service and updates the state.
     ///
     private func loadPremiumPlan() async {
-        defer { coordinator.hideLoadingOverlay() }
-        coordinator.showLoadingOverlay(title: Localizations.loading)
+        let existingSubscription = state.loadingState.data
+        state.loadingState = .loading(existingSubscription)
 
         do {
             let plan = try await services.billingService.getPremiumPlan()
             guard plan.available else {
-                coordinator.hideLoadingOverlay()
-                coordinator.showAlert(
-                    .defaultAlert(
-                        title: Localizations.anErrorHasOccurred,
-                        message: Localizations.atTheMomentPremiumPlanIsNotAvailableDescriptionLong,
-                    ),
-                    onDismissed: { [weak self] in
-                        self?.coordinator.navigate(to: .dismiss)
-                    },
+                state.loadingState = .error(
+                    errorMessage: Localizations.weCouldntLoadYourSubscriptionDetailsPleaseRetry,
                 )
                 return
             }
-
-            let subscription = try await services.billingService.getSubscription()
-            state.subscription = subscription
+            let subscription: PremiumSubscription = if let existing = existingSubscription {
+                existing
+            } else {
+                try await services.billingService.getSubscription()
+            }
+            state.loadingState = .data(subscription)
             state.planStatus = subscription.status
+            // Update the cached attention card visibility so the vault list reflects the
+            // current status if the user returns after fixing their subscription.
+            await services.billingService.refreshSubscriptionAttentionCard(subscription: subscription)
         } catch {
+            guard !(error is CancellationError) else { return }
             services.errorReporter.log(error: error)
-            await coordinator.showErrorAlert(error: error)
+            state.loadingState = .error(
+                errorMessage: Localizations.weCouldntLoadYourSubscriptionDetailsPleaseRetry,
+            )
         }
     }
 }

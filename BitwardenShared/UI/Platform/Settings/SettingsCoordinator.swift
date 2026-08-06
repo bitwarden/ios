@@ -65,18 +65,23 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator { // swiftlint:d
 
     typealias Services = HasASSettingsMediator
         & HasAccountAPIService
+        & HasAppIDService
         & HasAppInfoService
         & HasAuthRepository
         & HasAuthService
         & HasAutofillCredentialService
+        & HasBillingRepository
+        & HasBillingService
         & HasBiometricsRepository
         & HasConfigService
+        & HasDeviceAPIService
         & HasEnvironmentService
         & HasErrorAlertServices.ErrorAlertServices
         & HasErrorReporter
         & HasEventService
         & HasExportCXFCiphersRepository
         & HasExportVaultService
+        & HasFillAssistRepository
         & HasFlightRecorder
         & HasLanguageStateService
         & HasNotificationCenterService
@@ -84,6 +89,7 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator { // swiftlint:d
         & HasPolicyService
         & HasSettingsRepository
         & HasStateService
+        & HasStorefrontService
         & HasSystemDevice
         & HasTimeProvider
         & HasTwoStepLoginService
@@ -168,8 +174,18 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator { // swiftlint:d
             showAutoFill()
         case .deleteAccount:
             showDeleteAccount()
-        case .dismiss:
-            stackNavigator?.dismiss()
+        case .deviceManagement:
+            showDeviceManagement()
+        case let .dismiss(action):
+            // If we're presenting a more complicated stack of view controllers (in particular, this could happen
+            // if the user navigates to the Premium upgrade flow) then we only want to dismiss the presented one,
+            // not the full stack.
+            let completion = action?.action
+            if let presentedViewController = stackNavigator?.rootViewController?.presentedViewController {
+                presentedViewController.dismiss(animated: UI.animated, completion: completion)
+            } else {
+                stackNavigator?.dismiss(completion: completion)
+            }
         case .exportVault:
             showExportVault()
         case .exportVaultToApp:
@@ -190,8 +206,8 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator { // swiftlint:d
             showPasswordAutoFill(delegate: context as? PasswordAutoFillProcessorDelegate)
         case .pendingLoginRequests:
             showPendingLoginRequests()
-        case .premiumPlan:
-            showPremiumPlan()
+        case let .premiumPlan(subscription):
+            showPremiumPlan(subscription: subscription)
         case .premiumUpgrade:
             showPremiumUpgrade()
         case let .selectLanguage(currentLanguage: currentLanguage):
@@ -347,6 +363,17 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator { // swiftlint:d
         stackNavigator?.present(DeleteAccountView(store: Store(processor: processor)))
     }
 
+    /// Shows the device management screen.
+    ///
+    private func showDeviceManagement() {
+        let processor = DeviceManagementProcessor(
+            coordinator: asAnyCoordinator(),
+            services: services,
+            state: DeviceManagementState(),
+        )
+        stackNavigator?.present(DeviceManagementView(store: Store(processor: processor)))
+    }
+
     /// Shows the export vault screen.
     ///
     @MainActor
@@ -470,15 +497,17 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator { // swiftlint:d
         stackNavigator?.present(PendingRequestsView(store: Store(processor: processor)))
     }
 
-    /// Shows the premium plan screen.
+    /// Shows the Premium plan screen.
     ///
-    private func showPremiumPlan() {
+    /// - Parameter subscription: An already-fetched subscription; pass `nil` to let the plan screen fetch it.
+    ///
+    private func showPremiumPlan(subscription: PremiumSubscription?) {
         guard let stackNavigator else { return }
         let coordinator = module.makeBillingCoordinator(stackNavigator: stackNavigator)
-        coordinator.navigate(to: .premiumPlan)
+        coordinator.navigate(to: .premiumPlan(subscription))
     }
 
-    /// Shows the premium upgrade screen.
+    /// Shows the Premium upgrade screen.
     ///
     private func showPremiumUpgrade() {
         guard let stackNavigator else { return }

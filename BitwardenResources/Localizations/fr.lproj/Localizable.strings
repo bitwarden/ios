@@ -6,6 +6,8 @@
 "Bitwarden" = "Bitwarden";
 "Cancel" = "Annuler";
 "Copy" = "Copier";
+"CopyLicenseNumber" = "Copier le numéro de permis de conduire";
+"CopyPassportNumber" = "Copier le numéro de passeport";
 "CopyPassword" = "Copier le mot de passe";
 "CopyUsername" = "Copier le nom d'utilisateur";
 "Delete" = "Supprimer";
@@ -37,6 +39,8 @@
 "RemoveAccount" = "Supprimer le compte";
 "RemoveAccountConfirmation" = "Êtes-vous sûr de vouloir supprimer ce compte ?";
 "AccountAlreadyAdded" = "Compte déjà ajouté";
+"AccountCreationRestricted" = "Création de compte restreinte";
+"XOnlyAllowsInvitedUsersToCreateAccounts" = "%1$@ ne permet qu'aux utilisateurs invités de créer des comptes.";
 "SwitchToAlreadyAddedAccountConfirmation" = "Souhaitez-vous y passer maintenant ?";
 "MasterPassword" = "Mot de passe principal";
 "MoreOptions" = "Plus d'options";
@@ -50,6 +54,7 @@
 "Move" = "Déplacer";
 "Saving" = "Enregistrement…";
 "Settings" = "Paramètres";
+"ShowNextCode" = "Afficher le code suivant";
 "ItemDeleted" = "Élément supprimé";
 "Submit" = "Soumettre";
 "UseFingerprintToUnlock" = "Utiliser l'empreinte pour déverrouiller";
@@ -87,11 +92,11 @@
 "ExtensionEnable" = "Activer l'extension de l'application";
 "ExtensionInSafari" = "Sur Safari, trouvez Bitwarden en utilisant l'icône de partage (aide : faire défiler sur la droite sur la ligne du bas du menu).";
 "ExtensionInstantAccess" = "Obtenez un accès instantané à vos mots de passe !";
-"ExtensionReady" = "Vous êtes prêt à vous connecter!";
+"ExtensionReady" = "Vous êtes prêt à vous connecter !";
 "ExtensionSetup" = "Vos identifiants sont désormais facilement accessibles depuis Safari, Chrome, et d'autres applications supportées.";
 "ExtensionSetup2" = "Sur Safari et Chrome, trouvez Bitwarden en utilisant l'icône de partage (aide : faire défiler sur la droite sur la ligne du bas du menu).";
 "ExtensionTapIcon" = "Appuyez sur l'icône Bitwarden dans le menu pour lancer l'extension.";
-"ExtensionTurnOn" = "Pour activer Bitwarden dans Safari et dans d'autres applications, appuyez sur l'icône « plus» sur la ligne inférieure du menu.";
+"ExtensionTurnOn" = "Pour activer Bitwarden dans Safari et dans d'autres applications, appuyez sur l'icône « plus » sur la ligne inférieure du menu.";
 "Favorite" = "Favori";
 "Fingerprint" = "Empreinte digitale";
 "GeneratePassword" = "Générer un mot de passe";
@@ -125,7 +130,7 @@
 "ItemUpdated" = "Élément sauvegardé";
 "Submitting" = "Soumission en cours…";
 "Syncing" = "Synchronisation…";
-"SyncingLogins" = "Synchronisation des identifiants...";
+"SyncingLogins" = "Synchronisation des identifiants…";
 "SyncingComplete" = "Synchronisation achevée";
 "TouchID" = "Touch ID";
 "TwoStepLogin" = "Authentification à deux facteurs";
@@ -157,7 +162,7 @@
 "UseAnotherTwoStepMethod" = "Utiliser une autre méthode d'authentification à deux facteurs";
 "VerificationEmailNotSent" = "Impossible d'envoyer le courriel de vérification. Essayez à nouveau.";
 "VerificationEmailSent" = "Courriel de vérification envoyé";
-"YubiKeyTitle" = "Clé de sécurité YubiKey NEO";
+"YubiKeyTitle" = "Clé de sécurité YubiKey Neo";
 "AddNewAttachment" = "Ajouter une nouvelle pièce jointe";
 "Attachments" = "Pièces jointes";
 "UnableToDownloadFile" = "Impossible de télécharger le fichier.";
@@ -195,11 +200,18 @@
 "CustomFields" = "Champs personnalisés";
 "CopyNumber" = "Copier le numéro";
 "CopySecurityCode" = "Copier le code de sécurité";
+"CopyAccountNumber" = "Copier le numéro de compte";
+"CopyRoutingNumber" = "Copier le numéro de routage";
 "Number" = "Numéro";
 "SecurityCode" = "Code de sécurité";
+"AccountNumber" = "Numéro de compte";
+"RoutingNumber" = "Numéro de routage";
+"TypeBankAccount" = "Compte bancaire";
 "TypeCard" = "Carte de paiement";
 "TypeIdentity" = "Identité";
+"TypeLicense" = "Permis de conduire";
 "TypeLogin" = "Identifiant";
+"TypePassport" = "Passeport";
 "TypeSecureNote" = "Note sécurisée";
 "Address1" = "Adresse 1";
 "Address2" = "Adresse 2";
@@ -208,7 +220,7 @@
 "August" = "Août";
 "Brand" = "Réseau de paiement";
 "CardholderName" = "Nom du titulaire de la carte";
-"WeFoundMultipleMatchesChooseTheCorrectOne" = "We found multiple matches. Choose the correct one.";
+"WeFoundMultipleMatchesChooseTheCorrectOne" = "Nous avons trouvé plusieurs correspondances. Choisissez la bonne.";
 "CityTown" = "Ville";
 "Company" = "Entreprise";
 "Country" = "Pays";
@@ -303,7 +315,7 @@
 "MoveDown" = "Déplacer vers le bas";
 "MoveUp" = "Déplacer vers le haut";
 "NoCollectionsToList" = "Il n'y a aucune collection à lister.";
-"MovedItemToOrg" = "%1$@ déplacé vers %2$@";
+"MovedItemToOrg" = "%1$@ déplacé vers %2$@.";
 "SelectOneCollection" = "Vous devez sélectionner au moins une collection.";
 "Share" = "Partager";
 "ShareAll" = "Partager tout";
@@ -381,6 +393,7 @@
 "MasterPasswordPolicyValidationTitle" = "Mot de passe invalide";
 "MasterPasswordPolicyValidationMessage" = "Le mot de passe ne répond pas aux exigences de l'organisation. Veuillez vérifier les restrictions et réessayer.";
 "Loading" = "Chargement";
+"LoadingSubscription" = "Chargement de l'abonnement…";
 "AcceptPoliciesError" = "Les conditions d'utilisation et la politique de confidentialité n'ont pas été acceptées.";
 "PrivacyPolicy" = "Politique de confidentialité";
 "PersonalOwnershipPolicyInEffect" = "Une politique d'organisation affecte vos options de Propriétaire.";
@@ -467,7 +480,7 @@
 "ScanQRCode" = "Scanner le QR code";
 "CannotScanQRCode" = "Impossible de scanner le QR Code ?";
 "EnterKeyManually" = "Saisir la clé manuellement";
-"OnceTheKeyIsSuccessfullyEntered" = "Une fois que la clé est entrée avec succès,\nsélectionnez Ajouter TOTP pour stocker la clé en toute sécurité";
+"OnceTheKeyIsSuccessfullyEntered" = "Une fois que la clé est entrée avec succès,\nsélectionnez Ajouter TOTP pour stocker la clé en toute sécurité.";
 "NeverLockWarning" = "Définir vos options de verrouillage sur \"Jamais\" garde votre coffre ouvert à n'importe qui ayant accès à votre appareil. Si vous utilisez cette option, vous devez vous assurer que votre appareil est bien protégé.";
 "EnvironmentPageUrlsError" = "Une ou plusieurs des URLs saisies ne sont pas valides. Veuillez les corriger puis essayez d'enregistrer à nouveau.";
 "GenericErrorMessage" = "Nous n'avons pas pu traiter votre requête. Veuillez réessayer ou nous contacter.";
@@ -476,7 +489,7 @@
 "LogInAttemptByXOnY" = "Tentative de connexion par %1$@ le %2$@";
 "DeviceType" = "Type d'appareil";
 "IpAddress" = "Adresse IP";
-"Time" = "Heure";
+"Time" = "Temps";
 "ConfirmLogIn" = "Confirmer la connexion";
 "DenyLogIn" = "Refuser la connexion";
 "LogInDenied" = "Connexion refusée";
@@ -547,9 +560,12 @@
 "ThereAreNoCardsInYourVault" = "Il n'y a pas de carte de paiement dans votre coffre";
 "ThereAreNoNotesInYourVault" = "Il n'y a pas de note dans votre coffre";
 "ThereAreNoIdentitiesInYourVault" = "Il n'y a pas d'identité dans votre coffre";
+"ThereAreNoPassportsInYourVault" = "Il n'y a pas de passeport dans votre coffre";
 "ThereAreNoSSHKeysInYourVault" = "Il n'y a pas de clé SSH dans votre coffre";
+"ThereAreNoBankAccountsInYourVault" = "Il n'y a pas de compte bancaire dans votre coffre";
 "US" = "US";
 "EU" = "EU";
+"Gov" = "Gov";
 "SelfHosted" = "Auto-hébergé";
 "UpdateWeakMasterPasswordWarning" = "Votre mot de passe principal ne répond pas aux exigences de politique de sécurité de cette organisation. Pour accéder au coffre, vous devez mettre à jour votre mot de passe principal dès maintenant. En poursuivant, vous serez déconnecté de votre session actuelle et vous devrez vous reconnecter. Les sessions actives sur d'autres appareils peuver rester actives pendant encore une heure.";
 "CurrentMasterPasswordRequired" = "Mot de passe principal actuel (requis)";
@@ -558,6 +574,8 @@
 "RequestAdminApproval" = "Demander l'approbation de l'administrateur";
 "ApproveWithMasterPassword" = "Approuver avec le mot de passe principal";
 "TurnOffUsingPublicDevice" = "Décochez si vous utilisez un appareil public";
+"TurnOnFillAssist" = "Activer l'Aide de Remplissage";
+"TurnOnFillAssistDescriptionLong" = "L'Aide de Remplissage améliore la précision du remplissage automatique sur les sites pris en charge en utilisant des règles spécifiques au site.";
 "RememberThisDevice" = "Se souvenir de cet appareil";
 "Passkey" = "Clé d'accès";
 "Passkeys" = "Clés d'accès";
@@ -606,7 +624,7 @@
 "SetUpAutofill" = "Configurer la saisie automatique";
 "AppInfo" = "Infos sur l'application";
 "Browse" = "Parcourir";
-"SelectCardholderName" = "Select cardholder name";
+"SelectCardholderName" = "Sélectionner le nom du titulaire de la carte";
 "SelectLanguage" = "Sélectionner la langue";
 "ContinueToCompleteWebAuthnVerification" = "Continuer pour compléter la vérification WebAuthn.";
 "ThereWasAnErrorStartingWebAuthnTwoFactorAuthentication" = "Une erreur s'est produite lors du démarrage de l'authentification en deux étapes WebAuthn";
@@ -652,7 +670,7 @@
 "ChooseThreeOrFourRandomWordsDescriptionLong" = "Choisissez trois ou quatre mots aléatoires, sans rapport entre eux, que vous pouvez facilement mémoriser. Pensez à des **objets, des lieux ou des choses** que vous aimez.";
 "CombineThoseWordsTogether" = "Combinez ces mots ensemble";
 "CombineThoseWordsTogetherDescriptionLong" = "Assemblez les mots dans n'importe quel ordre pour former votre phrase secrète. **Utilisez des tirets, des espaces ou laissez-les tels quels pour former un seul mot long**, c'est vous qui choisissez !";
-"MakeItYours" = "Appropriez-vous la";
+"MakeItYours" = "Personnalisez-le";
 "MakeItYoursDescriptionLong" = "**Ajoutez un nombre ou un symbole** pour la rendre encore plus forte. Vous disposez désormais d'une phrase de passe unique, sécurisée et facile à mémoriser !";
 "NeedSomeInspiration?" = "Besoin d'inspiration ?";
 "CheckOutThePassphraseGenerator" = "Découvrez le générateur de phrases de passe";
@@ -672,6 +690,7 @@
 "BitwardenCannotResetALostOrForgottenMasterPassword" = "Bitwarden ne peut pas réinitialiser un mot de passe principal perdu ou oublié.";
 "LearnAboutWaysToPreventAccountLockout" = "En savoir plus sur les moyens d'empêcher le verrouillage du compte";
 "RestartRegistration" = "Recommencer l'inscription";
+"Expired" = "Expiré";
 "ExpiredLink" = "Lien expiré";
 "PleaseRestartRegistrationOrTryLoggingInYouMayAlreadyHaveAnAccount" = "Veuillez recommencer l'inscription ou essayer de vous connecter. Vous avez peut-être déjà un compte.";
 "RemovePasskey" = "Supprimer la clé d'accès";
@@ -684,7 +703,7 @@
 "YouCanFinishSetupUnlockAnytimeDescriptionLong" = "Vous pouvez terminer la configuration à tout moment dans la section Sécurité du compte dans les Paramètres. Vous utiliserez votre mot de passe principal pour déverrouiller jusqu'à ce que vous ayez configuré une autre méthode.";
 "Confirm" = "Confirmer";
 "ErrorConnectingWithTheDuoServiceUseADifferentTwoStepLoginMethodOrContactDuoForAssistance" = "Erreur de connexion avec le service Duo. Utilisez une méthode de connexion différente en deux étapes ou contactez Duo pour obtenir de l'aide.";
-"ThePreAuthUrlsCouldNotBeLoadedToStartTheAccountCreation" = "Impossible de charger les URL de Pré-authentification pour démarrer la création du compte.";
+"ThePreAuthUrlsCouldNotBeLoadedToStartTheAccountCreation" = "Les URL s de pré-authentification n'ont pas pu être chargées pour démarrer la création du compte.";
 "FromYourDeviceSettingsToggleOnAutoFillPasswordsAndPasskeys" = "Depuis les paramètres de votre appareil, **activer/désactiver la saisie automatique des Mots de Passe et des Clés d'Accès.**";
 "ToggleOffICloudToMakeBitwardenYourDefaultAutoFillSource" = "**Désactiver le trousseau de clés iCloud** pour faire de Bitwarden votre source de saise automatique par défaut.";
 "ToggleOnBitwardenToUseYourSavedPasswordsToLogIntoYourAccounts" = "**Activer Bitwarden** pour utiliser vos mots de passe enregistrés pour vous connecter à vos comptes.";
@@ -697,23 +716,32 @@
 "ContinueToBitwarden" = "Continuer vers Bitwarden";
 "BackToSettings" = "Retour aux paramètres";
 "YoureAllSet" = "Vous êtes tous prêts !";
-"AutoFillActivatedDescriptionLong" = "Vous pouvez maintenant utiliser la saise automatique pour vous connecter à des applications et des sites Web en utilisant vos mots de passe enregistrés. Maintenant, vous pouvez explorer tout ce que Bitwarden a à offrir.";
+"AutoFillActivatedDescriptionLong" = "Vous pouvez maintenant utiliser la saisie automatique pour vous connecter à des applications et des sites Web grâce à vos mots de passe enregistrés. À présent, vous pouvez explorer tout ce que Bitwarden a à offrir.";
 "GetStarted" = "Commencer";
 "Dismiss" = "Rejeter";
 "SaveAndProtectYourData" = "Sauvegardez et protégez vos données";
 "TheVaultProtectsMoreThanJustPasswordsStoreSecureLoginsIdsCardsAndNotesSecurelyHere" = "Le coffre-fort protège bien plus que vos mots de passe. Stockez ici en toute sécurité des identifiants, des cartes d'identité, des cartes et des notes sécurisés.";
 "SendSensitiveInformationSafely" = "Envoyez des informations sensibles, en toute sécurité";
 "ShareFilesAndDataSecurelyWithAnyoneOnAnyPlatformYourInformationWillRemainEndToEndEncrypted" = "Partagez des fichiers et des données en toute sécurité avec n'importe qui, sur n'importe quelle plateforme. Vos informations resteront cryptées de bout en bout tout en limitant l'exposition.";
-"NewLogin" = "Nouvel identifiant";
-"NewCard" = "Nouvelle carte de paiement";
-"NewIdentity" = "Nouvelle identité";
-"NewNote" = "Nouvelle note";
-"NewSSHKey" = "Nouvelle clé SSH";
+"AddLogin" = "Ajouter un identifiant";
+"AddCard" = "Ajouter une carte de paiement";
+"AddIdentity" = "Ajouter une identité";
+"AddNote" = "Ajouter une note";
+"AddSSHKey" = "Ajouter une clé SSH";
+"AddBankAccount" = "Ajouter un compte bancaire";
+"AddLicense" = "Ajouter un permis";
+"AddPassport" = "Ajouter un passeport";
+"EditBankAccount" = "Modifier le compte bancaire";
+"EditLicense" = "Modifier le permis";
+"EditPassport" = "Modifier le passeport";
 "EditLogin" = "Modifier l'identifiant";
 "EditCard" = "Modifier la carte";
 "EditIdentity" = "Modifier l’identité";
 "EditNote" = "Modifier la note";
 "EditSSHKey" = "Modifier la clé SSH";
+"ViewBankAccount" = "Afficher le compte bancaire";
+"ViewLicense" = "Afficher le permis";
+"ViewPassport" = "Afficher le passeport";
 "ViewLogin" = "Voir les identifiants";
 "ViewCard" = "Voir la carte";
 "ViewIdentity" = "Voir l'identité";
@@ -746,6 +774,7 @@
 "BitwardenTools" = "Outils Bitwarden";
 "ImportSuccessful" = "Importation réussie !";
 "ManageYourLoginsFromAnywhereWithBitwardenToolsForWebAndDesktop" = "Gérez vos identifiants de n'importe où avec les outils Bitwarden pour bureau et internet.";
+"ManageYourSubscriptionPlanInTheBitwardenWebApp" = "Gérez votre plan d'abonnement dans l'application web Bitwarden.";
 "DownloadTheBrowserExtension" = "Téléchargez l'extension";
 "GoToBitwardenToIntegrateBitwardenIntoYourFavoriteBrowserForASeamlessExperience" = "Allez sur bitwarden.com/download afin d'intégrer Bitwarden dans votre navigateur favori pour une expérience fluide.";
 "UseTheWebApp" = "Utilisez l'application web";
@@ -754,6 +783,8 @@
 "SetUpAutofillOnAllYourDevicesToLoginWithASingleTapAnywhere" = "Configurez le remplissage automatique sur tous vos appareils pour vous connecter de n'importe où en un seul clic.";
 "GoBack" = "Revenir en arrière";
 "GotIt" = "C'est compris";
+/* masterPasswordUnlock is the name of some data we want to delete, so there's no need to localize it. */
+"ClearMasterPasswordUnlock" = "Effacer masterPasswordUnlock";
 "ClearSsoCookies" = "Effacer les cookies SSO";
 "GenerateCrash" = "Générer un plantage";
 "GenerateErrorReport" = "Générer un rapport d'erreur";
@@ -770,6 +801,7 @@
 "UnableToMoveTheSelectedItemPleaseTryAgain" = "Impossible de déplacer l'élément sélectionné. Veuillez réessayer.";
 "Done" = "Terminé";
 "Next" = "Suivant";
+"NextCode" = "Code suivant";
 "CopyPublicKey" = "Copier la clé publique";
 "CopyPrivateKey" = "Copier la clé privée";
 "CopyFingerprint" = "Copier l'empreinte digitale";
@@ -781,9 +813,9 @@
 "FailedToAutofillItem" = "Impossible de saisir automatiquement l'élément %1$@";
 "ExportingFailed" = "L'exportation a échoué";
 "YouMayNeedToEnableDevicePasscodeOrBiometrics" = "Vous devrez peut-être activer le code d'accès de l'appareil ou la biométrie.";
-"StartImportCXFDescriptionLong" = "Importez des mots de passe, des clé d'accès, des cartes de crédit et toute information d'identité personnelle depuis un autre gestionnaire de mots de passe.\n\nVos données ne seront **pas** supprimées de votre fournisseur précédent.";
+"StartImportCXFDescriptionLong" = "Importez des mots de passe, des clés d'accès, des cartes de crédit et toute information d'identité personnelle depuis un autre gestionnaire de mots de passe.\n\nVos données ne seront **pas** supprimées de votre fournisseur précédent.";
 "ImportPasswords" = "Importer vos mots de passe";
-"ImportingEllipsis" = "Importation en cours...";
+"ImportingEllipsis" = "Importation en cours…";
 "AreYouSureYouWantToCancelTheImportProcessQuestionMark" = "Êtes-vous sûr de vouloir annuler le processus d'importation ?";
 "ImportFailed" = "Échec de l'importation";
 "ThereWasAnIssueImportingAllOfYourPasswordsNoDataWasDeleted" = "Il y a eu un problème lors de l'importation de tous vos mots de passe.\n\nAucune donnée n'a été supprimée.";
@@ -794,7 +826,7 @@
 "ExportVaultToAFile" = "Exporter le coffre vers un fichier";
 "ExportVaultToAnotherApp" = "Exporter le coffre vers une autre application";
 "ExportItems" = "Exporter les éléments";
-"ExportPasswordsPasskeysCreditCardsAndAnyPersonalIdentityInformation" = "Exportez les mots de passe, les clé d'accès, les cartes de crédit et toutes les informations d'identification personnelles.";
+"ExportPasswordsPasskeysCreditCardsAndAnyPersonalIdentityInformation" = "Exportez les mots de passe, les clés d'accès, les cartes de crédit et toutes les informations d'identification personnelles.";
 "RetryExport" = "Réessayer l'exportation";
 "ExportFailed" = "L'exportation a échoué";
 "ThereHasBeenAnIssueExportingItems" = "Il y a eu un problème lors de l'exportation d'articles.";
@@ -808,7 +840,7 @@
 "CheckPasswordForDataBreaches" = "Chercher si ce mot de passe a été retrouvé dans des fuites de données";
 "PrivateNote" = "Note privée";
 "CannotDeleteUserSoleOwnerDescriptionLong" = "Impossible de supprimer cet utilisateur car il est le seul propriétaire d'au moins une organisation. Veuillez supprimer ces organisations ou promouvoir un autre utilisateur.";
-"APasskeyAlreadyExistsForThisApplication" = "Une clé d'identification (passkey) existe déjà pour cette application.";
+"APasskeyAlreadyExistsForThisApplication" = "Une clé d'accès existe déjà pour cette application.";
 "APasskeyAlreadyExistsForThisApplicationButAnErrorOccurredWhileLoadingIt" = "Une clé d'accès existe déjà pour cette application mais une erreur est survenue lors de son chargement.";
 "ItemNameRequired" = "Nom de l'élément (requis)";
 "AutofillOptions" = "Options de saisie automatique";
@@ -816,7 +848,7 @@
 "AddWebsite" = "Ajouter le site web";
 "CannotDeleteAccount" = "Impossible de supprimer le compte";
 "CannotDeleteAccountDescriptionLong" = "Cette action ne peut pas être complétée car votre compte appartient à une organisation. Contactez l'administrateur de votre organisation pour plus de détails.";
-"NewFolder" = "Nouveau dossier";
+"AddItem" = "Ajouter un élément";
 "SetUpAuthenticatorKey" = "Mettre en place une clé d'authentification";
 "ItemDetails" = "Détails de l’élément";
 "CardDetails" = "Détails de la carte de paiement";
@@ -849,8 +881,8 @@
 "ExpiresTomorrow" = "Expire demain";
 "DateRangeXToY" = "%1$@ à %2$@";
 "SelfHostServerURL" = "URL du serveur autohébergé";
-"AllowUniversalClipboard" = "Autoriser le Presse‑papiers universel";
-"UseUniversalClipboardToCopyDescriptionLong" = "Utilisez le Presse‑papiers universel pour copier ici et coller sur d’autres appareils connectés avec le même identifiant Apple.";
+"AllowUniversalClipboard" = "Autoriser le Presse-papiers universel";
+"UseUniversalClipboardToCopyDescriptionLong" = "Utilisez le Presse-papiers universel pour copier ici et coller sur d’autres appareils connectés avec le même identifiant Apple.";
 "RemoveMasterPasswordConfirmDomain" = "Un mot de passe principal n’est plus requis pour les membres de l’organisation suivante. Veuillez confirmer le domaine ci-dessous auprès de l'administrateur de votre organisation.";
 "ConfirmKeyConnectorDomain" = "Confirmer le domaine du Key Connector";
 "KeyConnectorDomain" = "Domaine du Key Connector :";
@@ -884,7 +916,7 @@
 "BitwardenCouldNotDecryptThisVaultItemDescriptionLong" = "Bitwarden n’a pas pu déchiffrer cet élément du coffre-fort. Copiez et partagez ce rapport d’erreur avec succès client afin d’éviter toute perte de données supplémentaire.";
 "CopyErrorReport" = "Copier le rapport d’erreur";
 "ErrorCannotDecrypt" = "[erreur : impossible de déchiffrer]";
-"AccountsSyncedFromBitwardenApp" = "Comptes synchronisés à partir de l'app Bitwarden";
+"AccountsSyncedFromBitwardenApp" = "Comptes synchronisés depuis l'application Bitwarden";
 "AddANewCodeToSecure" = "Ajouter un nouveau code pour sécuriser vos comptes.";
 "AddCode" = "Ajouter le code";
 "Advanced" = "Avancé";
@@ -902,7 +934,7 @@
 "ExportItemsConfirmationTitle" = "Confirmer l'export des éléments";
 "ExportItemsWarning" = "Cet export contient vos données des éléments dans un format non chiffré. Vous ne devriez pas stocker ou envoyer le fichier exporté par des canaux non sécurisés (comme le courriel). Supprimez-le immédiatement dès que vous avez fini de l'utiliser.";
 "FileCouldNotBeProcessed" = "Le fichier n'a pas pu être traité";
-"GetVerificationCodesForAllYourAccounts" = "Obtenez les codes de vérification pour tous vos comptes grâce à la vérification en deux étapes.";
+"GetVerificationCodesForAllYourAccounts" = "Obtenez les codes de vérification pour tous vos comptes grâce à la vérification en 2-étapes.";
 "Help" = "Aide";
 "Import" = "Importer";
 "ImportingFromTwoFasPasswordProtectedNotSupported" = "L'importation à partir de fichiers protégés par mot de passe 2FAS n'est pas prise en charge. Réessayez avec un fichier exporté qui n'est pas protégé par mot de passe.";
@@ -918,7 +950,7 @@
 "NoAskMe" = "Non, me demander";
 "NoCodes" = "Il n'y a aucun code à afficher";
 "None" = "Aucun";
-"NoneOfTheAbove" = "None of the above";
+"NoneOfTheAbove" = "Aucune de ces réponses";
 "NumberOfDigits" = "Nombre de chiffres";
 "OtpType" = "Type OTP";
 "RefreshPeriod" = "Fréquence de mise à jour";
@@ -928,7 +960,8 @@
 "SaveThisAuthenticatorKeyHereOrAddItToALoginInYourBitwardenApp" = "Enregistrez cette clé d'authentification ici ou ajoutez-la à une connexion dans votre application Bitwarden.";
 "SaveToBitwarden" = "Enregistrer sur Bitwarden";
 "ScanCard" = "Scanner la carte";
-"PositionYourCardInTheFrameToScanIt" = "Position your card in the frame to scan it";
+"PositionYourCardInTheFrameToScanIt" = "Positionnez votre carte dans le cadre pour la scanner";
+"EnableCameraPermissionInSettingsToScanYourCard" = "Activez l'accès à la caméra dans les Paramètres pour scanner votre carte.";
 "ScanComplete" = "Scan terminé";
 "ScanTheQRCodeInYourSettings" = "Scanner le code QR dans les paramètres de double authentification pour n'importe quel compte.";
 "SecureYourAssetsWithBitwardenAuthenticator" = "Sécurisez vos comptes avec Bitwarden Authenticator";
@@ -962,14 +995,14 @@
 "AreYouSureYouWantToUseX" = "Êtes-vous sûr de vouloir utiliser “%1$@”?";
 "KeepYourCredentialsSecure" = "Gardez vos identifiants sécurisés";
 "LearnMoreAboutHowToKeepCredentialsSecureWhenUsingX" = "En savoir plus sur la façon de sécuriser les identifiants en utilisant « %1$@».";
-"WarningStartsWithIsAnAdvancedOptionWithIncreasedRiskOfExposingCredentials" = "**Attention :** “Commence par” est une option avancée présentant un risque accru d’exposition des identifiants. ";
+"WarningStartsWithIsAnAdvancedOptionWithIncreasedRiskOfExposingCredentials" = "**Attention :** “Commence par” est une option avancée présentant un risque accru d’exposition des identifiants.";
 "WarningRegularExpressionIsAnAdvancedOptionWithIncreasedRiskOfExposingCredentials" = "**Attention :** “Expression régulière” est une option avancée présentant un risque accru d’exposition des identifiants si elle est mal utilisée.";
 "DefaultX" = "Par défaut (%1$@)";
 "UpdateYourEncryptionSettings" = "Mettre à jour vos paramètres de chiffrement";
 "TheNewRecommendedEncryptionSettingsDescriptionLong" = "Les nouveaux paramètres de chiffrement recommandés amélioreront la sécurité de votre compte. Entrez votre mot de passe principal pour faire la mise à jour maintenant.";
 "Updating" = "Mise à jour…";
 "EncryptionSettingsUpdated" = "Paramètres de chiffrement mis à jour";
-"IntroducingArchive" = "Ajout aux archives";
+"IntroducingArchive" = "Introduction de l'archive";
 "KeepYtemsYouDontNeedRightNowSafeButOutOfSight" = "Gardez les éléments dont vous n'avez pas besoin pour le moment en sécurité mais hors de vue.";
 "GoToArchive" = "Accéder aux archives";
 "ItemTransfer" = "Transfert d'élément";
@@ -999,10 +1032,10 @@
 "ItemsTransferred" = "Éléments transférés";
 "ArchiveIsEmpty" = "L'archive est vide";
 "ArchiveEmptyDescriptionLong" = "Remplissez votre archive avec des éléments que vous ne voulez pas voir dans les résultats de recherche et les suggestions de saisie automatique, mais qui pourraient avoir besoin d'un jour.";
-"ArchiveItem" = "Archive item";
-"OnceArchivedThisItemWillBeExcludedDescriptionLong" = "Once archived, this item will be excluded from search results and autofill suggestions.";
-"ArchiveUnavailable" = "Archive indisponible";
+"ArchiveItem" = "Archiver l'élément";
+"OnceArchivedThisItemWillBeExcludedDescriptionLong" = "Une fois archivé, cet élément sera exclu des résultats de recherche et des suggestions de remplissage automatique.";
 "ArchivingItemsIsAPremiumFeatureDescriptionLong" = "L'archivage est une fonctionnalité Premium. Votre abonnement actuel n'inclut pas l'accès à cette fonctionnalité.";
+"AddingAttachmentsIsAPremiumFeatureDescriptionLong" = "L'ajout de pièces jointes est une fonctionnalité Premium. Votre plan actuel n'inclut pas l'accès à cette fonctionnalité.";
 "UpgradeToPremium" = "Passer à la version premium";
 "ThisItemIsArchived" = "Cet élément est archivé.";
 "YourPremiumSubscriptionEnded" = "Votre abonnement Premium a expiré";
@@ -1013,17 +1046,17 @@
 "AddEmail" = "Ajouter un e-mail";
 "AnyoneWithPasswordSetByYou" = "N'importe qui avec un mot de passe défini par vous";
 "AnyoneWithTheLink" = "Toute personne disposant du lien";
-"AnyoneWithThisLinkCanViewThisSend" = "Toute personne disposant de ce lien peut afficher ce Send";
-"AfterSharingThisSendLinkDescriptionLong" = "Après avoir partagé ce lien Send, les individus devront vérifier leur courriel à l'aide d'un code afin de voir ce Send.";
+"AnyoneWithThisLinkCanViewThisSend" = "Toute personne disposant de ce lien peut afficher ce Send.";
+"AfterSharingThisSendLinkDescriptionLong" = "Après avoir partagé ce lien Send, les individus devront vérifier leur courriel à l'aide d'un code afin de voir le voir.";
 "SpecificPeople" = "Personnes spécifiques";
-"WhoCanView" = "Qui peut visionner";
+"WhoCanView" = "Qui peut consulter";
 "SharingWithSpecificPeopleIsPremiumFeatureDescriptionLong" = "Partager avec des personnes spécifiques est une fonctionnalité Premium. Votre abonnement actuel n'inclut pas l'accès à cette fonctionnalité.";
 "Alias" = "Alias";
 "CertificateAlias" = "Alias de certificat";
 "TheCertificateCouldNotBeInstalled" = "Le certificat n'a pas pu être installé.";
 "TheCertificateHasExpired" = "Le certificat a expiré.";
 "TheCertificateFileIsInvalidOrCorrupted" = "Le fichier de certificat est invalide ou corrompu.";
-"TheCertificatePasswordIsIncorrect" = "Mot de passe du certificat incorrect";
+"TheCertificatePasswordIsIncorrect" = "Mot de passe du certificat incorrect.";
 "CertificateUsedForClientAuthentication" = "Certificat utilisé pour l'authentification du client.";
 "ClientCertificateMtls" = "Certificat client (mTLS)";
 "ACertificateWithTheAliasAlreadyExistsDescriptionLong" = "Un certificat avec l'alias \"%1$@\" existe déjà. Voulez-vous le remplacer ?";
@@ -1035,6 +1068,8 @@
 "ReplaceCertificate" = "Remplacer le certificat";
 "ReplaceExistingCertificate" = "Remplacer le certificat existant";
 "UnableToReadCertificateFile" = "Impossible de lire le fichier de certificat.";
+/* masterPasswordUnlock is the name of some data we want to delete, so there's no need to localize it. */
+"MasterPasswordUnlockCleared" = "masterPasswordUnlock effacé.";
 "SsoCookiesCleared" = "Cookies SSO effacés";
 "YourRequestWasInterruptedBecauseTheAppNeededToReAuthenticatePleaseTryAgain" = "Votre demande a été interrompue car l'application est nécessaire pour se ré-authentifier. Veuillez réessayer.";
 "AutofillWithBitwardenDescriptionLong" = "Bitwarden peut suggérer vos mots de passe et autres identifiants lorsque vous vous connectez à des applications et sites Web.";
@@ -1042,53 +1077,153 @@
 "TurnOnNow" = "Activer maintenant";
 "AcceptTransfer" = "Accepter le transfert";
 "YourPasswordAndHintCannotBeTheSamePleaseChooseADifferentHint" = "Votre mot de passe et votre indice ne peuvent pas être identiques. Veuillez choisir un indice différent.";
-"Plan" = "Plan";
+"Plan" = "Abonnement";
 "Premium" = "Premium";
-"Active" = "Active";
-"Canceled" = "Canceled";
-"PastDue" = "Past due";
-"UpdatePayment" = "Update payment";
-"BillingAmount" = "Billing amount";
-"StorageCost" = "Storage cost";
-"Discount" = "Discount";
-"EstimatedTax" = "Estimated tax";
-"ManagePlan" = "Manage plan";
-"CancelPremium" = "Cancel Premium";
-"CancelNow" = "Cancel now";
-"YourNextChargeIsForXDueOnY" = "Your next charge is for **%1$@**, due on **%2$@**.";
-"WeCouldNotProcessYourPaymentUpdateYourPaymentMethodDescriptionLong" = "We could not process your payment. Update your payment method before your subscription ends on **%1$@**.";
-"YourSubscriptionWasCanceledOnXResubscribeToContinueUsingDescriptionLong" = "Your subscription was canceled on **%1$@**. Resubscribe to continue using premium features.";
+"Active" = "Actif";
+"Canceled" = "Annulé";
+"PastDue" = "Échéance dépassée";
+"PendingCancellation" = "Résiliation en attente";
+"Unpaid" = "Impayé";
+"UpdatePayment" = "Mettre à jour le paiement";
+"BillingAmount" = "Montant facturé";
+"StorageCost" = "Coût de stockage";
+"Discount" = "Réduction";
+"EstimatedTax" = "Taxe estimée";
+"Total" = "Total";
+"ManagePlan" = "Gérer l'abonnement";
+"CancelPremium" = "Annuler l'abonnement Premium";
+"ExternalLink" = "Lien externe";
+"YourNextChargeIsForXDueOnY" = "Votre prochain prélèvement de **%1$@** sera effectué le **%2$@**.";
+"WeCouldNotProcessYourPaymentUpdateYourPaymentMethodDescriptionLong" = "Nous n'avons pas pu traiter votre paiement. Mettez à jour votre mode de paiement avant la fin de votre abonnement le **%1$@**.";
+/* Error message shown when the Premium Plan screen fails to load subscription data, with a prompt to retry. */
+"WeCouldntLoadYourSubscriptionDetailsPleaseRetry" = "Nous n'avons pas pu charger les détails de votre abonnement. Veuillez réessayer.";
+"YourSubscriptionWasCanceledOnXDescriptionLong" = "Votre abonnement a été annulé le **%1$@**. Réabonnez-vous pour continuer à utiliser les fonctionnalités Premium.";
+"YourSubscriptionWasSuspendedOnXDescriptionLong" = "Votre abonnement a été suspendu le **%1$@**. Pour le réactiver, veuillez régler vos factures impayées.";
+"YourSubscriptionExpiredOnXDescriptionLong" = "Votre abonnement a expiré le **%1$@**. Réabonnez-vous pour continuer à utiliser les fonctionnalités Premium.";
+"YourSubscriptionIsScheduledToCancelOnXDescriptionLong" = "Votre abonnement est programmé pour être annulé le **%1$@**. Vous pouvez le rétablir à tout moment avant cette date.";
 "PerMonth" = "/ mois";
-"PerYear" = "/ year";
-"XAmountPerCadence" = "%1$@ %2$@";
+/* VoiceOver reading of "PerMonth", spoken instead of shown. */
+"PerMonthVoiceOver" = "par mois";
+"PerYear" = "/ an";
+/* VoiceOver reading of "PerYear", spoken instead of shown. */
+"PerYearVoiceOver" = "par an";
+"XAmountPerCadence" = "%1$@%2$@";
+/* %1$@ is an amount and cadence together, e.g. "$1.65 / month". */
+"XCancelAnytime" = "%1$@ · Annulation à tout moment";
+/* VoiceOver reading of "XCancelAnytime", spoken instead of shown. */
+"XCancelAnytimeVoiceOver" = "%1$@, Annulation à tout moment";
 "NegativeX" = "-%1$@";
-"UnknownStatus" = "Unknown";
-"YourSubscriptionStatusIsUnknownVisitTheWebAppDescriptionLong" = "Your subscription status could not be determined. Please visit the web app for more details or update to the latest version.";
-"AtTheMomentPremiumPlanIsNotAvailableDescriptionLong" = "At the moment premium plan is not available, please try again later.";
-"UnlockMoreAdvancedFeaturesWithPremiumPlan" = "Débloquez des fonctionnalités plus avancées avec un abonnement Premium.";
+"UnknownStatus" = "Inconnu";
+"YourSubscriptionStatusIsUnknownVisitTheWebAppDescriptionLong" = "Le statut de votre abonnement n'a pas pu être déterminé. Veuillez visiter l'application web pour plus de détails ou mettre à jour vers la dernière version.";
+/* Headline on the Premium upgrade screen. */
+"UnlockAdvancedProtection" = "Déverrouillez une protection avancée";
+/* Premium benefit list item. */
+"BreezeThrough2faWithBuiltInCodes" = "Simplifiez-vous la vie avec la 2FA grâce aux codes intégrés";
+/* Premium benefit list item. */
+"RunReportsToFindRiskyPasswords" = "Générer des rapports pour trouver les mots de passes à risque";
+/* Premium benefit list item. */
+"KeepDocumentsSafeAndEncrypted" = "Garder vos documents en sécurité et chiffrés";
+/* Premium benefit list item. */
+"AddATrustedEmergencyContact" = "Ajouter un contact d'urgence de confiance";
+/* Premium benefit list item. */
+"IdentifyUnsecureWebsites" = "Identifier les sites web non sécurisés";
+/* Premium benefit list item. */
+"FlagAccountsWithInactive2fa" = "Repérer les comptes sans double authentification";
+/* Premium benefit list item; "Send" is the Bitwarden Send feature name and shouldn't be translated. */
+"ShareFilesSecurelyWithAnyoneUsingSend" = "Partager des fichiers avec n'importe qui en toute sécurité avec Send";
+/* Premium benefit list item. */
+"Receive247PrioritySupport" = "Recevoir une assistance prioritaire 24/7";
 "BuiltInAuthenticator" = "Authentificateur intégré";
 "EmergencyAccess" = "Accès d'urgence";
 "PaymentNotReceivedYet" = "Le paiement n'a pas encore été reçu";
 "ReturnToStripeInYourBrowserToFinishYourUpgradeDescriptionLong" = "Retournez sur Stripe dans votre navigateur pour terminer votre mise à niveau.";
-"SecureCheckoutDidntLoad" = "Secure checkout didn't load";
+"SecureCheckoutDidntLoad" = "Le paiement sécurisé n'a pas pu être chargé";
 "WeHadTroubleOpeningThePaymentPageDescriptionLong" = "Nous avons eu des difficultés à ouvrir la page de paiement, essayez à nouveau.";
 "SecureFileStorage" = "Stockage sécurisé de fichier";
 "BreachMonitoring" = "Surveillance des fuites";
-"UpgradeNow" = "Mettre à niveau maintenant";
-"ConfirmingYourUpgrade" = "Confirming your upgrade…";
+"ConfirmingYourUpgrade" = "Confirmation de votre mise à niveau…";
 "OpeningCheckout" = "Lancement du paiement";
-"UpgradePending" = "Upgrade pending";
-"YourUpgradeIsBeingProcessedDescriptionLong" = "Your upgrade is being processed. You'll remain on the free plan until it's complete. Sync now to check, or continue and it will update automatically.";
+"UpgradePending" = "Mise à niveau en attente";
+"YourUpgradeIsBeingProcessedDescriptionLong" = "Votre mise à niveau est en cours de traitement. Vous resterez sur la formule gratuite jusqu'à ce qu'elle soit finalisée. Synchronisez maintenant pour vérifier, ou continuez — la mise à jour s'effectuera automatiquement.";
 "UpgradedToPremium" = "Passer à la version Premium";
-"ViewPlanDetails" = "View plan details";
-"WelcomeToPremiumYouNowHaveAccessDescriptionLong" = "Welcome to Premium! You now have access to all advanced security features.";
-"YoullGoToStripeSecureCheckoutToCompleteYourPurchase" = "Vous allez passer au paiement sécurisé Stripe pour compléter votre achat.";
-"YoullContinueToHavePremiumAccessUntilX" = "You'll continue to have Premium access until %1$@.";
-"UserIDCopiedToTheClipboard" = "User ID copied to the clipboard";
-"UserID" = "User ID";
-"CopyUserID" = "Copy user ID";
-"UserIDUnavailable" = "User ID unavailable";
-"ToManageYourPremiumSubscriptionDescriptionLong" = "To manage your Premium subscription, please log in to your web vault on a computer.";
-"CheckYourConnectionAndTryAgain" = "Check your connection and try again.";
-"PricingUnavailable" = "Pricing unavailable";
-"BankAccount" = "Bank account";
+"SubscriptionNeedsAttention" = "Votre abonnement nécessite de l'attention";
+"CheckYourPlanForDetails" = "Consultez votre abonnement pour plus d'informations.";
+"ViewPlan" = "Afficher l'abonnement";
+"YouNowHaveAccessToAdvancedSecurityDescriptionLong" = "Vous avez désormais accès aux fonctionnalités de sécurité avancées. Apprenez-en plus sur ce qui est inclus avec Premium.";
+"YouNowHaveAccessToAllAdvancedSecurityFeatures" = "Vous avez désormais accès à toutes les fonctionnalités de sécurité avancées.";
+/* Footer on the Premium upgrade screen; "Stripe" is the payment processor's name and shouldn't be translated. */
+"YoullCompleteThePurchaseWithStripeSecureCheckout" = "Vous allez terminer l'achat avec le paiement sécurisé Stripe.";
+"ContinueToStripe" = "Poursuivre vers Stripe ?";
+"YoullBeTakenToStripeToManageYourSubscriptionCancellation" = "Vous serez redirigé vers Stripe pour gérer l'annulation de votre abonnement.";
+"UserIDCopiedToTheClipboard" = "ID utilisateur copié dans le presse-papiers";
+"UserID" = "ID utilisateur";
+"CopyUserID" = "Copier l'ID utilisateur";
+"UserIDUnavailable" = "ID utilisateur indisponible";
+"ToManageYourPremiumSubscriptionDescriptionLong" = "Pour gérer votre abonnement Premium, veuillez vous connecter à votre coffre-fort web depuis un ordinateur.";
+"CheckYourConnectionAndTryAgain" = "Veuillez vérifier votre connexion puis réessayez.";
+"PricingUnavailable" = "Tarif indisponible";
+"BankAccount" = "Compte bancaire";
+"BankAccounts" = "Comptes bancaires";
+"License" = "Permis de conduire";
+"Licenses" = "Permis";
+"Passport" = "Passeport";
+"Passports" = "Passeports";
+"LicenseDetails" = "Détails du permis";
+"DateOfBirth" = "Date de naissance";
+"IssuingCountry" = "Pays émetteur";
+"IssuingStateProvince" = "État / province émetteur";
+"IssuingAuthority" = "Autorité émettrice";
+"IssueDate" = "Date d'émission";
+"ExpirationDate" = "Date d'expiration";
+"LicenseClass" = "Classe de permis";
+"PassportDetails" = "Détails du passeport";
+/* Label for the sex/gender field as printed on a passport (e.g. "M", "F", "X"). */
+"Sex" = "Sexe";
+"BirthPlace" = "Lieu de naissance";
+/* Label for the nationality field on a passport (the country a person is a national of). */
+"Nationality" = "Nationalité";
+/* Label for the category of passport (e.g. "Regular/Tourist", "Diplomatic", "Official"). */
+"PassportType" = "Type de passeport";
+"NationalIdentificationNumber" = "Numéro d'identification national";
+/* Label for the government authority or office that issued the passport. */
+"IssuingAuthorityOffice" = "Autorité émettrice/bureau";
+"AccountDetails" = "Détails du compte";
+"BankName" = "Nom de la banque";
+"NameOnAccount" = "Nom sur le compte";
+"AccountType" = "Type de compte";
+"BranchNumber" = "Numéro de branche";
+"SwiftCode" = "Code SWIFT";
+"IBAN" = "IBAN";
+"BankContactPhone" = "Téléphone du contact de la banque";
+"CertificateOfDeposit" = "Compte à terme";
+"Checking" = "Compte courant";
+"InvestmentBrokerage" = "Compte titres";
+"LineOfCredit" = "Ligne de crédit";
+"MoneyMarket" = "Compte du marché monétaire";
+"Savings" = "Compte épargne";
+"Devices" = "Appareils";
+"NoDevicesFound" = "No devices found";
+"CurrentSession" = "Session en cours";
+"PendingRequest" = "Demande en attente";
+"Trusted" = "Approuvé";
+"RecentlyActiveLabel" = "Recently active:";
+"FirstLoginLabel" = "First login:";
+"Today" = "Aujourd'hui";
+"PastSevenDays" = "7 derniers jours";
+"PastFourteenDays" = "14 derniers jours";
+"PastThirtyDays" = "30 derniers jours";
+"OverThirtyDaysAgo" = "Il y a plus de 30 jours";
+"Unknown" = "Inconnu";
+/* Device display name. %1$@ = category (e.g. "Mobile"), %2$@ = platform (e.g. "iOS"). */
+"DeviceDisplayNameXHyphenY" = "%1$@ - %2$@";
+"Mobile" = "Mobile";
+"BrowserExtension" = "Browser extension";
+"WebVault2" = "Web vault";
+"Desktop" = "Desktop";
+"Cli" = "CLI";
+"Sdk" = "SDK";
+"Server" = "Serveur";
+/* Accessibility label for the button that clears a field's value. %1$@ is the field's title (e.g. "Date of birth"), so the spoken label reads "Clear Date of birth". */
+"ClearFieldName" = "Effacer %1$@";
+"SelectDate" = "Sélectionner la date";
+"PremiumRequiredTOTPDescriptionLong" = "La clé d'authentification (TOTP) est une fonctionnalité Premium. Votre plan actuel n'inclut pas l'accès à cette fonctionnalité.";

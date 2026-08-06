@@ -15,6 +15,9 @@ struct LandingState: Equatable {
         !email.isEmpty
     }
 
+    /// A flag indicating if the create account button should be hidden.
+    var isCreateAccountButtonHidden: Bool
+
     /// A flag indicating if the "Remember Me" toggle is on.
     var isRememberMeOn: Bool
 
@@ -33,12 +36,14 @@ struct LandingState: Equatable {
     ///
     /// - Parameters:
     ///   - email: The email address provided by the user.
+    ///   - isCreateAccountButtonHidden: A flag indicating if the create account button should be hidden.
     ///   - isRememberMeOn: A flag indicating if the "Remember Me" toggle is on.
     ///   - profileSwitcherState: State for the profile switcher.
     ///   - region: The region selected by the user.
     ///
     init(
         email: String = "",
+        isCreateAccountButtonHidden: Bool = false,
         isRememberMeOn: Bool = false,
         profileSwitcherState: ProfileSwitcherState = .empty(
             shouldAlwaysHideAddAccount: true,
@@ -47,6 +52,7 @@ struct LandingState: Equatable {
         region: RegionType = .unitedStates,
     ) {
         self.email = email
+        self.isCreateAccountButtonHidden = isCreateAccountButtonHidden
         self.isRememberMeOn = isRememberMeOn
         self.profileSwitcherState = profileSwitcherState
         self.region = region

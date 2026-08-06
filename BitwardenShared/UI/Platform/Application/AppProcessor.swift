@@ -106,10 +106,6 @@ public class AppProcessor {
     /// - Parameter url: The deep link URL to handle.
     ///
     public func openUrl(_ url: URL) async {
-        if await handlePremiumCheckoutResult(url: url) {
-            return
-        }
-
         var route = await getBitwardenUrlRoute(url: url)
         if route == nil {
             route = await getOtpAuthUrlRoute(url: url)
@@ -258,6 +254,52 @@ public class AppProcessor {
             for: id,
             autofillCredentialServiceDelegate: self,
             repromptPasswordValidated: repromptPasswordValidated,
+        )
+    }
+
+    /// Generates a password for a credential provider generate-password request without showing UI.
+    ///
+    /// - Parameter request: The generate-password request containing developer-specified rules.
+    /// - Returns: The generated password string.
+    ///
+    @available(iOSApplicationExtension 26.2, *)
+    public func generatePasswordCredential(request: any GeneratePasswordRequestProxy) async throws -> String {
+        let rulesString = request.passwordFieldPasswordRules ?? request.passwordRulesFromQuirks
+
+        let (passwordOptions, _) = try await services.generatorRepository
+            .getEffectivePasswordGenerationOptions(rules: rulesString)
+
+        switch passwordOptions.type ?? .password {
+        case .passphrase:
+            return try await services.generatorRepository.generatePassphrase(
+                settings: passwordOptions.passphraseGeneratorRequest,
+            )
+        case .password:
+            return try await services.generatorRepository.generatePassword(
+                settings: passwordOptions.passwordGeneratorRequest,
+            )
+        }
+    }
+
+    /// Saves a password credential to the vault without showing UI.
+    ///
+    /// - Parameters:
+    ///   - username: The username to save.
+    ///   - password: The password to save.
+    ///   - uri: The URI associated with the credential.
+    ///   - name: An optional display name; falls back to the URI's hostname.
+    ///
+    @available(iOSApplicationExtension 26.2, *)
+    public func savePasswordCredential(
+        username: String,
+        password: String,
+        uri: String,
+        name: String?,
+    ) async throws {
+        try await unlockVaultWithNeverlockKey()
+
+        try await services.vaultRepository.addCipher(
+            CipherView(username: username, password: password, uri: uri, name: name),
         )
     }
 
@@ -434,28 +476,6 @@ extension AppProcessor {
         } catch {
             services.errorReporter.log(error: error)
         }
-    }
-
-    /// Handles the premium checkout result deep link.
-    ///
-    /// - Parameter url: The URL to check.
-    /// - Returns: `true` if the URL was a premium checkout result and was handled.
-    ///
-    private func handlePremiumCheckoutResult(url: URL) async -> Bool {
-        guard url.scheme?.isBitwardenAppScheme == true,
-              url.host == BitwardenDeepLinkConstants.premiumCheckoutResultHost else {
-            return false
-        }
-        let components = URLComponents(url: url, resolvingAgainstBaseURL: false)
-        let result = components?.queryItems?.first(where: { item in
-            item.name == BitwardenDeepLinkConstants.PremiumCheckoutResultQuery.parameterName
-        })?.value
-        if result == BitwardenDeepLinkConstants.PremiumCheckoutResultQuery.successValue {
-            await services.billingService.premiumStatusChanged()
-        } else {
-            services.billingService.premiumCheckoutCanceled()
-        }
-        return true
     }
 
     /// Attempt to create an `AppRoute` from an "bitwarden://" url.
@@ -707,6 +727,10 @@ extension AppProcessor: NotificationServiceDelegate {
 
 extension AppProcessor: SyncServiceDelegate {
     func onFetchSyncSucceeded(userId: String) async {
+        // Refresh the subscription attention card cache on every sync so the vault list
+        // always reflects current subscription status without making a live API call there.
+        await services.billingService.refreshSubscriptionAttentionCard(subscription: nil)
+
         do {
             let hasPerformedSyncAfterLogin = try await services.stateService.getHasPerformedSyncAfterLogin(
                 userId: userId,
@@ -799,8 +823,8 @@ extension AppProcessor: Fido2UserInterfaceHelperDelegate {
     // MARK: Properties
 
     var isAutofillingFromList: Bool {
-        guard let autofillAppExtensionDelegate = appExtensionDelegate as? AutofillAppExtensionDelegate,
-              autofillAppExtensionDelegate.isAutofillingFido2CredentialFromList else {
+        guard let credentialProviderExtensionDelegate = appExtensionDelegate as? CredentialProviderExtensionDelegate,
+              credentialProviderExtensionDelegate.isAutofillingFido2CredentialFromList else {
             return false
         }
         return true
@@ -813,12 +837,13 @@ extension AppProcessor: Fido2UserInterfaceHelperDelegate {
     }
 
     func onNeedsUserInteraction() async throws {
-        guard let autofillAppExtensionDelegate = appExtensionDelegate as? AutofillAppExtensionDelegate else {
+        guard let credentialProviderExtensionDelegate = appExtensionDelegate
+            as? CredentialProviderExtensionDelegate else {
             return
         }
 
-        if !autofillAppExtensionDelegate.flowWithUserInteraction {
-            autofillAppExtensionDelegate.setUserInteractionRequired()
+        if !credentialProviderExtensionDelegate.flowWithUserInteraction {
+            credentialProviderExtensionDelegate.setUserInteractionRequired()
             throw Fido2Error.userInteractionRequired
         }
 
@@ -826,7 +851,7 @@ extension AppProcessor: Fido2UserInterfaceHelperDelegate {
         // action that needs user interaction or it might not show the prompt to the user.
         // E.g. without this there are certain devices that don't show the FaceID prompt
         // and the user only sees the screen dimming a bit and failing the flow.
-        for await didAppear in autofillAppExtensionDelegate.getDidAppearPublisher() {
+        for await didAppear in credentialProviderExtensionDelegate.getDidAppearPublisher() {
             guard didAppear else { continue }
             return
         }

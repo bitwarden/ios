@@ -14,5 +14,5 @@ exclude:
   - Fixtures
 
 args:
-  autoMockableImports: ["Combine"]
+  autoMockableImports: ["BitwardenSdk", "Combine"]
   autoMockableTestableImports: ["BitwardenKit"]

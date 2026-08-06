@@ -12,7 +12,7 @@ settings:
 packages:
   SwiftUIIntrospect:
     url: https://github.com/siteline/SwiftUI-Introspect
-    exactVersion: 1.3.0
+    exactVersion: 26.0.1
 schemes:
   AuthenticatorBridgeKit:
     build:
@@ -163,6 +163,7 @@ targets:
     dependencies:
       - target: BitwardenKit
       - package: BitwardenSdk
+      - target: BitwardenSdkMocks
       - target: TestHelpers
   BitwardenKitTests:
     type: bundle.unit-test

@@ -18,6 +18,8 @@ class AddEditItemProcessorTests: BitwardenTestCase {
 
     var authRepository: MockAuthRepository!
     var appExtensionDelegate: MockAppExtensionDelegate!
+    var billingRepository: MockBillingRepository!
+    var billingService: MockBillingService!
     var cameraService: MockCameraService!
     var cardTextParser: MockCardTextParser!
     var client: MockHTTPClient!
@@ -30,6 +32,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
     var reviewPromptService: MockReviewPromptService!
     var pasteboardService: MockPasteboardService!
     var policyService: MockPolicyService!
+    var premiumUpgradeHelper: MockPremiumUpgradeHelper!
     var settingsRepository: MockSettingsRepository!
     var stateService: MockStateService!
     var totpService: MockTOTPService!
@@ -46,6 +49,8 @@ class AddEditItemProcessorTests: BitwardenTestCase {
 
         authRepository = MockAuthRepository()
         appExtensionDelegate = MockAppExtensionDelegate()
+        billingRepository = MockBillingRepository()
+        billingService = MockBillingService()
         cameraService = MockCameraService()
         cardTextParser = MockCardTextParser()
         client = MockHTTPClient()
@@ -61,6 +66,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
         settingsRepository = MockSettingsRepository()
         stateService = MockStateService()
         totpService = MockTOTPService()
+        premiumUpgradeHelper = MockPremiumUpgradeHelper()
         vaultItemActionHelper = MockVaultItemActionHelper()
         vaultRepository = MockVaultRepository()
         subject = AddEditItemProcessor(
@@ -69,6 +75,8 @@ class AddEditItemProcessorTests: BitwardenTestCase {
             delegate: delegate,
             services: ServiceContainer.withMocks(
                 authRepository: authRepository,
+                billingRepository: billingRepository,
+                billingService: billingService,
                 cameraService: cameraService,
                 cardTextParser: cardTextParser,
                 configService: configService,
@@ -96,12 +104,15 @@ class AddEditItemProcessorTests: BitwardenTestCase {
             ),
             vaultItemActionHelper: vaultItemActionHelper,
         )
+        subject.premiumUpgradeHelper = premiumUpgradeHelper
     }
 
     override func tearDown() {
         super.tearDown()
         authRepository = nil
         appExtensionDelegate = nil
+        billingRepository = nil
+        billingService = nil
         cameraService = nil
         cardTextParser = nil
         client = nil
@@ -739,9 +750,9 @@ class AddEditItemProcessorTests: BitwardenTestCase {
         XCTAssertEqual(vaultItemActionHelper.archiveReceivedArguments?.cipher.id, "123")
     }
 
-    /// `perform(_:)` with `.archivedPressed` handles URL opening and completion.
+    /// `perform(_:)` with `.archivedPressed` delegates to the Premium upgrade helper.
     @MainActor
-    func test_perform_archivedPressed_withURLAndCompletion() async {
+    func test_perform_archivedPressed_navigateToPremiumUpgrade() async {
         subject.state = CipherItemState(
             existing: .loginFixture(id: "123"),
             hasPremium: false,
@@ -750,12 +761,24 @@ class AddEditItemProcessorTests: BitwardenTestCase {
         await subject.perform(.archivedPressed)
 
         XCTAssertEqual(vaultItemActionHelper.archiveCalled, true)
-        XCTAssertNotNil(vaultItemActionHelper.archiveReceivedArguments?.handleOpenURL)
-        XCTAssertNotNil(vaultItemActionHelper.archiveReceivedArguments?.completionHandler)
+        XCTAssertNotNil(vaultItemActionHelper.archiveReceivedArguments?.handleNavigateToPremiumUpgrade)
 
-        let testURL = URL(string: "https://vault.bitwarden.com")!
-        vaultItemActionHelper.archiveReceivedArguments?.handleOpenURL(testURL)
-        XCTAssertEqual(subject.state.url, testURL)
+        await vaultItemActionHelper.archiveReceivedArguments?.handleNavigateToPremiumUpgrade()
+        XCTAssertTrue(premiumUpgradeHelper.navigateToPremiumUpgradeCalled)
+    }
+
+    /// `perform(_:)` with `.archivedPressed` handles completion.
+    @MainActor
+    func test_perform_archivedPressed_withCompletion() async {
+        subject.state = CipherItemState(
+            existing: .loginFixture(id: "123"),
+            hasPremium: false,
+        )!
+
+        await subject.perform(.archivedPressed)
+
+        XCTAssertEqual(vaultItemActionHelper.archiveCalled, true)
+        XCTAssertNotNil(vaultItemActionHelper.archiveReceivedArguments?.completionHandler)
 
         vaultItemActionHelper.archiveReceivedArguments?.completionHandler()
 
@@ -991,13 +1014,13 @@ class AddEditItemProcessorTests: BitwardenTestCase {
             .fixture(id: "2", name: "Engineering"),
         ]
 
-        vaultRepository.fetchCipherOwnershipOptions = [.personal(email: "user@bitwarden.com")]
+        vaultRepository.fetchCipherOwnershipOptions = [.personal(displayName: "user@bitwarden.com")]
         vaultRepository.fetchCollectionsResult = .success(collections)
 
         await subject.perform(.fetchCipherOptions)
 
         XCTAssertEqual(subject.state.allUserCollections, collections)
-        XCTAssertEqual(subject.state.ownershipOptions, [.personal(email: "user@bitwarden.com")])
+        XCTAssertEqual(subject.state.ownershipOptions, [.personal(displayName: "user@bitwarden.com")])
         try XCTAssertTrue(XCTUnwrap(vaultRepository.fetchCollectionsIncludeReadOnly))
 
         XCTAssertNil(eventService.collectCipherId)
@@ -1007,7 +1030,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
     /// `perform(_:)` with `.fetchCipherOptions` handles errors.
     @MainActor
     func test_perform_fetchCipherOptions_error() async {
-        vaultRepository.fetchCipherOwnershipOptions = [.personal(email: "user@bitwarden.com")]
+        vaultRepository.fetchCipherOwnershipOptions = [.personal(displayName: "user@bitwarden.com")]
         vaultRepository.fetchCollectionsResult = .failure(BitwardenTestError.example)
         vaultRepository.fetchFoldersResult = .failure(BitwardenTestError.example)
 
@@ -1050,13 +1073,13 @@ class AddEditItemProcessorTests: BitwardenTestCase {
             .fixture(id: "2", name: "Engineering"),
         ]
 
-        vaultRepository.fetchCipherOwnershipOptions = [.personal(email: "user@bitwarden.com")]
+        vaultRepository.fetchCipherOwnershipOptions = [.personal(displayName: "user@bitwarden.com")]
         vaultRepository.fetchCollectionsResult = .success(collections)
 
         await subject.perform(.fetchCipherOptions)
 
         XCTAssertEqual(subject.state.allUserCollections, collections)
-        XCTAssertEqual(subject.state.ownershipOptions, [.personal(email: "user@bitwarden.com")])
+        XCTAssertEqual(subject.state.ownershipOptions, [.personal(displayName: "user@bitwarden.com")])
         try XCTAssertTrue(XCTUnwrap(vaultRepository.fetchCollectionsIncludeReadOnly))
 
         XCTAssertEqual(eventService.collectCipherId, "100")
@@ -1694,6 +1717,78 @@ class AddEditItemProcessorTests: BitwardenTestCase {
         XCTAssertTrue(reviewPromptService.userActions.isEmpty)
     }
 
+    /// `perform(_:)` with `.scanCardButtonTapped` when camera access is authorized presents the
+    /// card scanner sheet.
+    @MainActor
+    func test_perform_scanCardButtonTapped_cameraAuthorizationAuthorized() async {
+        cameraService.cameraAuthorizationStatus = .authorized
+
+        await subject.perform(.scanCardButtonTapped)
+
+        XCTAssertTrue(subject.state.cardItemState.isCardScannerPresented)
+        XCTAssertTrue(coordinator.alertShown.isEmpty)
+    }
+
+    /// `perform(_:)` with `.scanCardButtonTapped` when camera access is denied shows the
+    /// camera-permission-required alert instead of opening the scanner.
+    @MainActor
+    func test_perform_scanCardButtonTapped_cameraAuthorizationDenied() async throws {
+        cameraService.cameraAuthorizationStatus = .denied
+
+        await subject.perform(.scanCardButtonTapped)
+
+        XCTAssertFalse(subject.state.cardItemState.isCardScannerPresented)
+        let alert = try XCTUnwrap(coordinator.alertShown.last)
+        XCTAssertEqual(alert.title, Localizations.camera)
+        XCTAssertEqual(alert.message, Localizations.enableCameraPermissionInSettingsToScanYourCard)
+        XCTAssertEqual(alert.alertActions.count, 2)
+        XCTAssertEqual(alert.alertActions[0].title, Localizations.settings)
+        XCTAssertEqual(alert.alertActions[1].title, Localizations.cancel)
+    }
+
+    /// `perform(_:)` with `.scanCardButtonTapped` when camera access is restricted shows the
+    /// camera-permission-required alert instead of opening the scanner.
+    @MainActor
+    func test_perform_scanCardButtonTapped_cameraAuthorizationRestricted() async throws {
+        cameraService.cameraAuthorizationStatus = .restricted
+
+        await subject.perform(.scanCardButtonTapped)
+
+        XCTAssertFalse(subject.state.cardItemState.isCardScannerPresented)
+        let alert = try XCTUnwrap(coordinator.alertShown.last)
+        XCTAssertEqual(alert.title, Localizations.camera)
+        XCTAssertEqual(alert.message, Localizations.enableCameraPermissionInSettingsToScanYourCard)
+        XCTAssertEqual(alert.alertActions.count, 2)
+        XCTAssertEqual(alert.alertActions[0].title, Localizations.settings)
+        XCTAssertEqual(alert.alertActions[1].title, Localizations.cancel)
+    }
+
+    /// `perform(_:)` with `.scanCardButtonTapped` when camera access is not yet determined and
+    /// the user allows it presents the card scanner sheet.
+    @MainActor
+    func test_perform_scanCardButtonTapped_cameraAuthorizationNotDetermined_authorized() async {
+        cameraService.cameraAuthorizationStatus = .authorized
+
+        await subject.perform(.scanCardButtonTapped)
+
+        XCTAssertTrue(subject.state.cardItemState.isCardScannerPresented)
+        XCTAssertTrue(coordinator.alertShown.isEmpty)
+    }
+
+    /// `perform(_:)` with `.scanCardButtonTapped` when camera access is not yet determined and
+    /// the user denies it shows the camera-permission-required alert.
+    @MainActor
+    func test_perform_scanCardButtonTapped_cameraAuthorizationNotDetermined_denied() async throws {
+        cameraService.cameraAuthorizationStatus = .denied
+
+        await subject.perform(.scanCardButtonTapped)
+
+        XCTAssertFalse(subject.state.cardItemState.isCardScannerPresented)
+        let alert = try XCTUnwrap(coordinator.alertShown.last)
+        XCTAssertEqual(alert.title, Localizations.camera)
+        XCTAssertEqual(alert.message, Localizations.enableCameraPermissionInSettingsToScanYourCard)
+    }
+
     /// `perform(_:)` with `.setupTotpPressed` with camera authorization authorized navigates to the
     /// `.setupTotpCamera` route.
     @MainActor
@@ -1974,6 +2069,22 @@ class AddEditItemProcessorTests: BitwardenTestCase {
         XCTAssertEqual(subject.state.cardItemState.cardNumber, "12345")
     }
 
+    /// `receive(_:)` with `.cardFieldChanged(.cardNumberChanged)` strips spaces from the formatted
+    /// display value before storing, keeping `cardNumber` as digits only.
+    @MainActor
+    func test_receive_cardFieldChanged_cardNumberChanged_stripsSpaces() {
+        subject.receive(.cardFieldChanged(.cardNumberChanged("4111 1111 1111 1111")))
+        XCTAssertEqual(subject.state.cardItemState.cardNumber, "4111111111111111")
+    }
+
+    /// `receive(_:)` with `.cardFieldChanged(.cardNumberChanged)` strips spaces from a partial
+    /// formatted number correctly.
+    @MainActor
+    func test_receive_cardFieldChanged_cardNumberChanged_stripsSpacesPartial() {
+        subject.receive(.cardFieldChanged(.cardNumberChanged("4111 11")))
+        XCTAssertEqual(subject.state.cardItemState.cardNumber, "411111")
+    }
+
     /// `receive(_:)` with `.cardFieldChanged(.cardSecurityCodeChanged)` with a value updates the state correctly.
     @MainActor
     func test_receive_cardFieldChanged_cardSecurityCodeChanged() {
@@ -2004,6 +2115,82 @@ class AddEditItemProcessorTests: BitwardenTestCase {
         subject.state.cardItemState.expirationYear = "2009"
         subject.receive(.cardFieldChanged(.expirationYearChanged("2029")))
         XCTAssertEqual(subject.state.cardItemState.expirationYear, "2029")
+    }
+
+    /// `receive(_:)` with `.driversLicenseFieldChanged(.firstNameChanged)` updates the state correctly.
+    @MainActor
+    func test_receive_driversLicenseFieldChanged_firstNameChanged() {
+        subject.state.driversLicenseItemState.firstName = "Bit"
+        subject.receive(.driversLicenseFieldChanged(.firstNameChanged("Warden")))
+        XCTAssertEqual(subject.state.driversLicenseItemState.firstName, "Warden")
+    }
+
+    /// `receive(_:)` with `.driversLicenseFieldChanged(.middleNameChanged)` updates the state correctly.
+    @MainActor
+    func test_receive_driversLicenseFieldChanged_middleNameChanged() {
+        subject.state.driversLicenseItemState.middleName = "A"
+        subject.receive(.driversLicenseFieldChanged(.middleNameChanged("W")))
+        XCTAssertEqual(subject.state.driversLicenseItemState.middleName, "W")
+    }
+
+    /// `receive(_:)` with `.driversLicenseFieldChanged(.lastNameChanged)` updates the state correctly.
+    @MainActor
+    func test_receive_driversLicenseFieldChanged_lastNameChanged() {
+        subject.state.driversLicenseItemState.lastName = "Doe"
+        subject.receive(.driversLicenseFieldChanged(.lastNameChanged("Warden")))
+        XCTAssertEqual(subject.state.driversLicenseItemState.lastName, "Warden")
+    }
+
+    /// `receive(_:)` with `.driversLicenseFieldChanged(.licenseNumberChanged)` updates the state correctly.
+    @MainActor
+    func test_receive_driversLicenseFieldChanged_licenseNumberChanged() {
+        subject.state.driversLicenseItemState.licenseNumber = "111"
+        subject.receive(.driversLicenseFieldChanged(.licenseNumberChanged("D1234567")))
+        XCTAssertEqual(subject.state.driversLicenseItemState.licenseNumber, "D1234567")
+    }
+
+    /// `receive(_:)` with `.driversLicenseFieldChanged(.issuingCountryChanged)` updates the state correctly.
+    @MainActor
+    func test_receive_driversLicenseFieldChanged_issuingCountryChanged() {
+        subject.state.driversLicenseItemState.issuingCountry = "Canada"
+        subject.receive(.driversLicenseFieldChanged(.issuingCountryChanged("United States")))
+        XCTAssertEqual(subject.state.driversLicenseItemState.issuingCountry, "United States")
+    }
+
+    /// `receive(_:)` with `.driversLicenseFieldChanged(.issuingStateChanged)` updates the state correctly.
+    @MainActor
+    func test_receive_driversLicenseFieldChanged_issuingStateChanged() {
+        subject.state.driversLicenseItemState.issuingState = "Nevada"
+        subject.receive(.driversLicenseFieldChanged(.issuingStateChanged("California")))
+        XCTAssertEqual(subject.state.driversLicenseItemState.issuingState, "California")
+    }
+
+    /// `receive(_:)` with `.driversLicenseFieldChanged(.issuingAuthorityChanged)` updates the state correctly.
+    @MainActor
+    func test_receive_driversLicenseFieldChanged_issuingAuthorityChanged() {
+        subject.state.driversLicenseItemState.issuingAuthority = "RMV"
+        subject.receive(.driversLicenseFieldChanged(.issuingAuthorityChanged("DMV")))
+        XCTAssertEqual(subject.state.driversLicenseItemState.issuingAuthority, "DMV")
+    }
+
+    /// `receive(_:)` with `.driversLicenseFieldChanged(.licenseClassChanged)` updates the state correctly.
+    @MainActor
+    func test_receive_driversLicenseFieldChanged_licenseClassChanged() {
+        subject.state.driversLicenseItemState.licenseClass = "A"
+        subject.receive(.driversLicenseFieldChanged(.licenseClassChanged("C")))
+        XCTAssertEqual(subject.state.driversLicenseItemState.licenseClass, "C")
+    }
+
+    /// `receive(_:)` with `.driversLicenseFieldChanged(.toggleLicenseNumberVisibilityChanged)` updates
+    /// the state correctly.
+    @MainActor
+    func test_receive_driversLicenseFieldChanged_toggleLicenseNumberVisibilityChanged() {
+        subject.state.driversLicenseItemState.isLicenseNumberVisible = false
+        subject.receive(.driversLicenseFieldChanged(.toggleLicenseNumberVisibilityChanged(true)))
+        XCTAssertTrue(subject.state.driversLicenseItemState.isLicenseNumberVisible)
+
+        subject.receive(.driversLicenseFieldChanged(.toggleLicenseNumberVisibilityChanged(false)))
+        XCTAssertFalse(subject.state.driversLicenseItemState.isLicenseNumberVisible)
     }
 
     /// `receive(_:)` with `.identityFieldChanged(.titleChanged)` with a value updates the state correctly.
@@ -2087,16 +2274,6 @@ class AddEditItemProcessorTests: BitwardenTestCase {
         subject.receive(.cardFieldChanged(.cardScannerLinesUpdated(["4111111111111111", "JANE DOE", "12/28"])))
 
         XCTAssertEqual(subject.state.cardItemState.brand, .custom(.visa))
-    }
-
-    /// `receive(_:)` with `.cardFieldChanged(.scanCardButtonTapped)` presents the card scanner.
-    @MainActor
-    func test_receive_cardFieldChanged_scanCardButtonTapped() {
-        subject.state.cardItemState.isCardScannerPresented = false
-
-        subject.receive(.cardFieldChanged(.scanCardButtonTapped))
-
-        XCTAssertTrue(subject.state.cardItemState.isCardScannerPresented)
     }
 
     /// `receive(_:)` with `.cardFieldChanged(.cardScannerDismissed)` hides the card scanner and
@@ -2459,7 +2636,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
     /// `receive(_:)` with `.ownerChanged` updates the state correctly.
     @MainActor
     func test_receive_ownerChanged() {
-        let personalOwner = CipherOwner.personal(email: "user@bitwarden.com")
+        let personalOwner = CipherOwner.personal(displayName: "user@bitwarden.com")
         let organizationOwner = CipherOwner.organization(id: "1", name: "Organization")
         subject.state.ownershipOptions = [personalOwner, organizationOwner]
 
@@ -3023,6 +3200,112 @@ class AddEditItemProcessorTests: BitwardenTestCase {
         subject.receive(.identityFieldChanged(.countryChanged("")))
 
         XCTAssertEqual(subject.state.identityState.country, "")
+    }
+
+    // MARK: Passport
+
+    /// `receive(_:)` with `.passportFieldChanged(.birthPlaceChanged)` updates the state correctly.
+    @MainActor
+    func test_receive_passportFieldChanged_birthPlaceChanged() {
+        subject.state.passportItemState.birthPlace = "Canada"
+        subject.receive(.passportFieldChanged(.birthPlaceChanged("USA")))
+        XCTAssertEqual(subject.state.passportItemState.birthPlace, "USA")
+    }
+
+    /// `receive(_:)` with `.passportFieldChanged(.givenNameChanged)` updates the state correctly.
+    @MainActor
+    func test_receive_passportFieldChanged_givenNameChanged() {
+        subject.state.passportItemState.givenName = "Bit"
+        subject.receive(.passportFieldChanged(.givenNameChanged("Mitchell")))
+        XCTAssertEqual(subject.state.passportItemState.givenName, "Mitchell")
+    }
+
+    /// `receive(_:)` with `.passportFieldChanged(.issuingAuthorityChanged)` updates the state correctly.
+    @MainActor
+    func test_receive_passportFieldChanged_issuingAuthorityChanged() {
+        subject.state.passportItemState.issuingAuthority = "Other"
+        subject.receive(.passportFieldChanged(.issuingAuthorityChanged("U.S. Department of State")))
+        XCTAssertEqual(subject.state.passportItemState.issuingAuthority, "U.S. Department of State")
+    }
+
+    /// `receive(_:)` with `.passportFieldChanged(.issuingCountryChanged)` updates the state correctly.
+    @MainActor
+    func test_receive_passportFieldChanged_issuingCountryChanged() {
+        subject.state.passportItemState.issuingCountry = "Canada"
+        subject.receive(.passportFieldChanged(.issuingCountryChanged("United States")))
+        XCTAssertEqual(subject.state.passportItemState.issuingCountry, "United States")
+    }
+
+    /// `receive(_:)` with `.passportFieldChanged(.nationalIdentificationNumberChanged)` updates the state correctly.
+    @MainActor
+    func test_receive_passportFieldChanged_nationalIdentificationNumberChanged() {
+        subject.state.passportItemState.nationalIdentificationNumber = "000"
+        subject.receive(.passportFieldChanged(.nationalIdentificationNumberChanged("123456789")))
+        XCTAssertEqual(subject.state.passportItemState.nationalIdentificationNumber, "123456789")
+    }
+
+    /// `receive(_:)` with `.passportFieldChanged(.nationalityChanged)` updates the state correctly.
+    @MainActor
+    func test_receive_passportFieldChanged_nationalityChanged() {
+        subject.state.passportItemState.nationality = "Canadian"
+        subject.receive(.passportFieldChanged(.nationalityChanged("USA")))
+        XCTAssertEqual(subject.state.passportItemState.nationality, "USA")
+    }
+
+    /// `receive(_:)` with `.passportFieldChanged(.passportNumberChanged)` updates the state correctly.
+    @MainActor
+    func test_receive_passportFieldChanged_passportNumberChanged() {
+        subject.state.passportItemState.passportNumber = "000"
+        subject.receive(.passportFieldChanged(.passportNumberChanged("X12345678")))
+        XCTAssertEqual(subject.state.passportItemState.passportNumber, "X12345678")
+    }
+
+    /// `receive(_:)` with `.passportFieldChanged(.passportTypeChanged)` updates the state correctly.
+    @MainActor
+    func test_receive_passportFieldChanged_passportTypeChanged() {
+        subject.state.passportItemState.passportType = "Other"
+        subject.receive(.passportFieldChanged(.passportTypeChanged("Regular/Tourist")))
+        XCTAssertEqual(subject.state.passportItemState.passportType, "Regular/Tourist")
+    }
+
+    /// `receive(_:)` with `.passportFieldChanged(.sexChanged)` updates the state correctly.
+    @MainActor
+    func test_receive_passportFieldChanged_sexChanged() {
+        subject.state.passportItemState.sex = "Female"
+        subject.receive(.passportFieldChanged(.sexChanged("Male")))
+        XCTAssertEqual(subject.state.passportItemState.sex, "Male")
+    }
+
+    /// `receive(_:)` with `.passportFieldChanged(.surnameChanged)` updates the state correctly.
+    @MainActor
+    func test_receive_passportFieldChanged_surnameChanged() {
+        subject.state.passportItemState.surname = "Warden"
+        subject.receive(.passportFieldChanged(.surnameChanged("Johnson")))
+        XCTAssertEqual(subject.state.passportItemState.surname, "Johnson")
+    }
+
+    /// `receive(_:)` with `.passportFieldChanged(.toggleNationalIdentificationNumberVisibilityChanged)` updates
+    /// the state correctly.
+    @MainActor
+    func test_receive_passportFieldChanged_toggleNationalIdentificationNumberVisibilityChanged() {
+        subject.state.passportItemState.isNationalIdentificationNumberVisible = false
+        subject.receive(.passportFieldChanged(.toggleNationalIdentificationNumberVisibilityChanged(true)))
+        XCTAssertTrue(subject.state.passportItemState.isNationalIdentificationNumberVisible)
+
+        subject.receive(.passportFieldChanged(.toggleNationalIdentificationNumberVisibilityChanged(false)))
+        XCTAssertFalse(subject.state.passportItemState.isNationalIdentificationNumberVisible)
+    }
+
+    /// `receive(_:)` with `.passportFieldChanged(.togglePassportNumberVisibilityChanged)` updates the state
+    /// correctly.
+    @MainActor
+    func test_receive_passportFieldChanged_togglePassportNumberVisibilityChanged() {
+        subject.state.passportItemState.isPassportNumberVisible = false
+        subject.receive(.passportFieldChanged(.togglePassportNumberVisibilityChanged(true)))
+        XCTAssertTrue(subject.state.passportItemState.isPassportNumberVisible)
+
+        subject.receive(.passportFieldChanged(.togglePassportNumberVisibilityChanged(false)))
+        XCTAssertFalse(subject.state.passportItemState.isPassportNumberVisible)
     }
 
     /// `getter:rehydrationState` returns the proper state with the cipher id.

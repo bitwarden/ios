@@ -3,21 +3,21 @@
 /// A protocol for an API service used to make billing requests.
 ///
 protocol BillingAPIService { // sourcery: AutoMockable
-    /// Creates a checkout session for premium upgrade.
+    /// Creates a checkout session for Premium upgrade.
     ///
     /// - Returns: A `CheckoutSessionResponseModel` containing the checkout URL.
     ///
     func createCheckoutSession() async throws -> CheckoutSessionResponseModel
 
-    /// Creates a customer portal session for managing the premium subscription.
+    /// Creates a customer portal session for managing the Premium subscription.
     ///
     /// - Returns: A `PortalUrlResponseModel` containing the portal URL.
     ///
     func getPortalUrl() async throws -> PortalUrlResponseModel
 
-    /// Gets the premium subscription plan.
+    /// Gets the Premium subscription plan.
     ///
-    /// - Returns: A `PremiumPlanResponseModel` containing the premium plan details.
+    /// - Returns: A `PremiumPlanResponseModel` containing the Premium plan details.
     ///
     func getPremiumPlan() async throws -> PremiumPlanResponseModel
 

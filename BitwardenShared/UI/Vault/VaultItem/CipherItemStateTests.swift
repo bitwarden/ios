@@ -47,14 +47,14 @@ class CipherItemStateTests: BitwardenTestCase { // swiftlint:disable:this type_b
     }
 
     /// `init(existing:hasPremium:)` sets `loginState.isTOTPAvailable` to false if the user doesn't
-    /// have premium and the organization doesn't use TOTP.
+    /// have Premium and the organization doesn't use TOTP.
     func test_init_existing_isTOTPAvailable_notAvailable() throws {
         let cipher = CipherView.loginFixture(login: .fixture())
         let state = try XCTUnwrap(CipherItemState(existing: cipher, hasPremium: false))
         XCTAssertFalse(state.loginState.isTOTPAvailable)
     }
 
-    /// `init(existing:hasPremium:)` sets `loginState.isTOTPAvailable` to true if the user has premium.
+    /// `init(existing:hasPremium:)` sets `loginState.isTOTPAvailable` to true if the user has Premium.
     func test_init_existing_isTOTPAvailable_premium() throws {
         let cipher = CipherView.loginFixture(login: .fixture())
         let state = try XCTUnwrap(CipherItemState(existing: cipher, hasPremium: true))
@@ -83,7 +83,7 @@ class CipherItemStateTests: BitwardenTestCase { // swiftlint:disable:this type_b
         XCTAssertEqual(state.archiveInfoText, "")
     }
 
-    /// `archiveInfoText` returns the premium text when the item is archived and user has premium.
+    /// `archiveInfoText` returns the Premium text when the item is archived and user has Premium.
     func test_archiveInfoText_archivedWithPremium() throws {
         let state = try CipherItemState.initForArchive(
             archivedDate: .now,
@@ -92,7 +92,7 @@ class CipherItemStateTests: BitwardenTestCase { // swiftlint:disable:this type_b
         XCTAssertEqual(state.archiveInfoText, Localizations.thisItemIsArchived)
     }
 
-    /// `archiveInfoText` returns the non-premium text when the item is archived and user lacks premium.
+    /// `archiveInfoText` returns the non-Premium text when the item is archived and user lacks Premium.
     func test_archiveInfoText_archivedWithoutPremium() throws {
         let state = try CipherItemState.initForArchive(
             archivedDate: .now,
@@ -108,7 +108,7 @@ class CipherItemStateTests: BitwardenTestCase { // swiftlint:disable:this type_b
     func test_canAssignToCollection_noOrganizations() throws {
         let cipher = CipherView.fixture(organizationId: nil)
         var subject = try XCTUnwrap(CipherItemState(existing: cipher, hasPremium: false))
-        subject.ownershipOptions = [.personal(email: "user@bitwarden.com")]
+        subject.ownershipOptions = [.personal(displayName: "user@bitwarden.com")]
         XCTAssertFalse(subject.canAssignToCollection)
     }
 
@@ -118,7 +118,7 @@ class CipherItemStateTests: BitwardenTestCase { // swiftlint:disable:this type_b
         let cipher = CipherView.fixture(organizationId: nil)
         var subject = try XCTUnwrap(CipherItemState(existing: cipher, hasPremium: false))
         subject.ownershipOptions = [
-            .personal(email: "user@bitwarden.com"),
+            .personal(displayName: "user@bitwarden.com"),
             .organization(id: "1", name: "Test Organization"),
         ]
         XCTAssertFalse(subject.canAssignToCollection)
@@ -130,7 +130,7 @@ class CipherItemStateTests: BitwardenTestCase { // swiftlint:disable:this type_b
         let cipher = CipherView.fixture(organizationId: "1")
         var subject = try XCTUnwrap(CipherItemState(existing: cipher, hasPremium: false))
         subject.ownershipOptions = [
-            .personal(email: "user@bitwarden.com"),
+            .personal(displayName: "user@bitwarden.com"),
             .organization(id: "1", name: "Test Organization"),
         ]
         XCTAssertTrue(subject.canAssignToCollection)
@@ -315,7 +315,7 @@ class CipherItemStateTests: BitwardenTestCase { // swiftlint:disable:this type_b
         let cipher = CipherView.fixture(organizationId: "1")
         var subject = try XCTUnwrap(CipherItemState(existing: cipher, hasPremium: false))
         subject.ownershipOptions = [
-            .personal(email: "user@bitwarden.com"),
+            .personal(displayName: "user@bitwarden.com"),
             .organization(id: "1", name: "Test Organization"),
         ]
         XCTAssertFalse(subject.canMoveToOrganization)
@@ -325,7 +325,7 @@ class CipherItemStateTests: BitwardenTestCase { // swiftlint:disable:this type_b
     func test_canMoveToOrganization_noOrganizations() throws {
         let cipher = CipherView.fixture(organizationId: nil)
         var subject = try XCTUnwrap(CipherItemState(existing: cipher, hasPremium: false))
-        subject.ownershipOptions = [.personal(email: "user@bitwarden.com")]
+        subject.ownershipOptions = [.personal(displayName: "user@bitwarden.com")]
         XCTAssertFalse(subject.canMoveToOrganization)
     }
 
@@ -335,7 +335,7 @@ class CipherItemStateTests: BitwardenTestCase { // swiftlint:disable:this type_b
         let cipher = CipherView.fixture(organizationId: nil)
         var subject = try XCTUnwrap(CipherItemState(existing: cipher, hasPremium: false))
         subject.ownershipOptions = [
-            .personal(email: "user@bitwarden.com"),
+            .personal(displayName: "user@bitwarden.com"),
             .organization(id: "1", name: "Test Organization"),
         ]
         XCTAssertTrue(subject.canMoveToOrganization)
@@ -353,7 +353,7 @@ class CipherItemStateTests: BitwardenTestCase { // swiftlint:disable:this type_b
     func test_hasOrganizations_whenCipherBelongsToPersonal_returnsFalse() throws {
         let cipher = CipherView.fixture()
         var state = try XCTUnwrap(CipherItemState(existing: cipher, hasPremium: true))
-        state.ownershipOptions = [CipherOwner.personal(email: "user@bitwarden")]
+        state.ownershipOptions = [CipherOwner.personal(displayName: "user@bitwarden")]
 
         XCTAssertFalse(state.hasOrganizations)
     }
@@ -374,6 +374,13 @@ class CipherItemStateTests: BitwardenTestCase { // swiftlint:disable:this type_b
         state.ownershipOptions = []
 
         XCTAssertFalse(state.hasOrganizations)
+    }
+
+    /// `getter:icon` returns the icon for a bank account cipher.
+    func test_icon_bankAccount() throws {
+        let cipher = CipherView.fixture(type: .bankAccount)
+        let state = try XCTUnwrap(CipherItemState(existing: cipher, hasPremium: true))
+        XCTAssertEqual(state.icon.name, SharedAsset.Icons.bankAccount24.name)
     }
 
     /// `getter:icon` returns the icon for a card cipher with a known brand.
@@ -397,6 +404,13 @@ class CipherItemStateTests: BitwardenTestCase { // swiftlint:disable:this type_b
         XCTAssertEqual(state.icon.name, SharedAsset.Icons.card24.name)
     }
 
+    /// `getter:icon` returns the icon for a driver's license cipher.
+    func test_icon_driversLicense() throws {
+        let cipher = CipherView.fixture(type: .driversLicense)
+        let state = try XCTUnwrap(CipherItemState(existing: cipher, hasPremium: true))
+        XCTAssertEqual(state.icon.name, SharedAsset.Icons.idCard24.name)
+    }
+
     /// `getter:icon` returns the icon for an identity cipher.
     func test_icon_identity() throws {
         let cipher = CipherView.fixture(type: .identity)
@@ -409,6 +423,13 @@ class CipherItemStateTests: BitwardenTestCase { // swiftlint:disable:this type_b
         let cipher = CipherView.loginFixture(login: .fixture())
         let state = try XCTUnwrap(CipherItemState(existing: cipher, hasPremium: true))
         XCTAssertEqual(state.icon.name, SharedAsset.Icons.globe24.name)
+    }
+
+    /// `getter:icon` returns the icon for a passport cipher.
+    func test_icon_passport() throws {
+        let cipher = CipherView.fixture(type: .passport)
+        let state = try XCTUnwrap(CipherItemState(existing: cipher, hasPremium: true))
+        XCTAssertEqual(state.icon.name, SharedAsset.Icons.idCard24.name)
     }
 
     /// `getter:icon` returns the icon for a secure note cipher.
@@ -480,19 +501,19 @@ class CipherItemStateTests: BitwardenTestCase { // swiftlint:disable:this type_b
     /// `navigationTitle` returns the navigation title for the view based on the cipher type being added.
     func test_navigationTitle_newItem() {
         let subjectCard = CipherItemState(addItem: .card, hasPremium: false)
-        XCTAssertEqual(subjectCard.navigationTitle, Localizations.newCard)
+        XCTAssertEqual(subjectCard.navigationTitle, Localizations.addCard)
 
         let subjectIdentity = CipherItemState(addItem: .identity, hasPremium: false)
-        XCTAssertEqual(subjectIdentity.navigationTitle, Localizations.newIdentity)
+        XCTAssertEqual(subjectIdentity.navigationTitle, Localizations.addIdentity)
 
         let subjectLogin = CipherItemState(addItem: .login, hasPremium: false)
-        XCTAssertEqual(subjectLogin.navigationTitle, Localizations.newLogin)
+        XCTAssertEqual(subjectLogin.navigationTitle, Localizations.addLogin)
 
         let subjectSecureNote = CipherItemState(addItem: .secureNote, hasPremium: false)
-        XCTAssertEqual(subjectSecureNote.navigationTitle, Localizations.newNote)
+        XCTAssertEqual(subjectSecureNote.navigationTitle, Localizations.addNote)
 
         let subjectSSHKey = CipherItemState(addItem: .sshKey, hasPremium: false)
-        XCTAssertEqual(subjectSSHKey.navigationTitle, Localizations.newSSHKey)
+        XCTAssertEqual(subjectSSHKey.navigationTitle, Localizations.addSSHKey)
     }
 
     /// `setter:owner` adds the default user collection to the collection IDs
@@ -806,6 +827,168 @@ class CipherItemStateTests: BitwardenTestCase { // swiftlint:disable:this type_b
 
         XCTAssertEqual(subject.loginState.totpState, originalLoginState.totpState)
     }
+
+    /// `init(existing:hasPremium:)` populates `driversLicenseItemState` from a cipher with a
+    /// driver's license, preserving all 11 fields including the raw date strings.
+    func test_init_existing_driversLicense() throws {
+        let cipher = CipherView.driversLicenseFixture()
+        let state = try XCTUnwrap(CipherItemState(existing: cipher, hasPremium: true))
+
+        XCTAssertEqual(state.driversLicenseItemState, cipher.driversLicenseItemState())
+        XCTAssertEqual(state.driversLicenseItemState.firstName, "Bit")
+        XCTAssertEqual(state.driversLicenseItemState.middleName, "W")
+        XCTAssertEqual(state.driversLicenseItemState.lastName, "Warden")
+        XCTAssertEqual(state.driversLicenseItemState.dateOfBirth, "1989-08-01")
+        XCTAssertEqual(state.driversLicenseItemState.licenseNumber, "D1234567")
+        XCTAssertEqual(state.driversLicenseItemState.issuingCountry, "United States")
+        XCTAssertEqual(state.driversLicenseItemState.issuingState, "California")
+        XCTAssertEqual(state.driversLicenseItemState.issueDate, "2019-08-01")
+        XCTAssertEqual(state.driversLicenseItemState.expirationDate, "2029-08-01")
+        XCTAssertEqual(state.driversLicenseItemState.issuingAuthority, "DMV")
+        XCTAssertEqual(state.driversLicenseItemState.licenseClass, "C")
+    }
+
+    /// `newCipherView()` emits the `driversLicense` view only when the cipher type is
+    /// `.driversLicense`, preserving all the state's fields.
+    func test_newCipherView_driversLicense() {
+        var subject = CipherItemState(hasPremium: true)
+        subject.type = .driversLicense
+        subject.driversLicenseItemState.firstName = "Bit"
+        subject.driversLicenseItemState.licenseNumber = "D1234567"
+        subject.driversLicenseItemState.dateOfBirth = "1989-08-01"
+        subject.driversLicenseItemState.expirationDate = "2029-08-01"
+
+        let cipher = subject.newCipherView()
+
+        XCTAssertEqual(cipher.driversLicense?.firstName, "Bit")
+        XCTAssertEqual(cipher.driversLicense?.licenseNumber, "D1234567")
+        XCTAssertEqual(cipher.driversLicense?.dateOfBirth, "1989-08-01")
+        XCTAssertEqual(cipher.driversLicense?.expirationDate, "2029-08-01")
+    }
+
+    /// `newCipherView()` emits a `nil` `driversLicense` view when the cipher type is not
+    /// `.driversLicense`, even if driver's license state happens to be populated.
+    func test_newCipherView_driversLicense_nilForOtherTypes() {
+        var subject = CipherItemState(hasPremium: true)
+        subject.type = .login
+        subject.driversLicenseItemState.firstName = "Bit"
+
+        let cipher = subject.newCipherView()
+
+        XCTAssertNil(cipher.driversLicense)
+    }
+
+    /// `init(existing:hasPremium:)` populates `passportItemState` from a cipher with a passport,
+    /// preserving all fields including the raw date strings.
+    func test_init_existing_passport() throws {
+        let cipher = CipherView.fixture(
+            passport: .fixture(
+                surname: "Johnson",
+                givenName: "Mitchell",
+                dateOfBirth: "2025-04-20",
+                sex: "Male",
+                birthPlace: "USA",
+                nationality: "USA",
+                issuingCountry: "United States",
+                passportNumber: "X12345678",
+                passportType: "Regular/Tourist",
+                nationalIdentificationNumber: "123456789",
+                issuingAuthority: "U.S. Department of State",
+                issueDate: "2021-08-10",
+                expirationDate: "2026-08-10",
+            ),
+            type: .passport,
+        )
+        let state = try XCTUnwrap(CipherItemState(existing: cipher, hasPremium: true))
+
+        XCTAssertEqual(state.passportItemState, cipher.passportItemState())
+        XCTAssertEqual(state.passportItemState.surname, "Johnson")
+        XCTAssertEqual(state.passportItemState.givenName, "Mitchell")
+        XCTAssertEqual(state.passportItemState.dateOfBirth, "2025-04-20")
+        XCTAssertEqual(state.passportItemState.passportNumber, "X12345678")
+        XCTAssertEqual(state.passportItemState.nationalIdentificationNumber, "123456789")
+        XCTAssertEqual(state.passportItemState.issueDate, "2021-08-10")
+        XCTAssertEqual(state.passportItemState.expirationDate, "2026-08-10")
+    }
+
+    /// `newCipherView()` emits the `passport` view only when the cipher type is `.passport`,
+    /// preserving the state's fields.
+    func test_newCipherView_passport() {
+        var subject = CipherItemState(hasPremium: true)
+        subject.type = .passport
+        subject.passportItemState.surname = "Johnson"
+        subject.passportItemState.passportNumber = "X12345678"
+        subject.passportItemState.dateOfBirth = "2025-04-20"
+        subject.passportItemState.expirationDate = "2026-08-10"
+
+        let cipher = subject.newCipherView()
+
+        XCTAssertEqual(cipher.passport?.surname, "Johnson")
+        XCTAssertEqual(cipher.passport?.passportNumber, "X12345678")
+        XCTAssertEqual(cipher.passport?.dateOfBirth, "2025-04-20")
+        XCTAssertEqual(cipher.passport?.expirationDate, "2026-08-10")
+    }
+
+    /// `newCipherView()` emits a `nil` `passport` view when the cipher type is not `.passport`, even
+    /// if passport state happens to be populated.
+    func test_newCipherView_passport_nilForOtherTypes() {
+        var subject = CipherItemState(hasPremium: true)
+        subject.type = .login
+        subject.passportItemState.surname = "Johnson"
+
+        let cipher = subject.newCipherView()
+
+        XCTAssertNil(cipher.passport)
+    }
+
+    /// `init(existing:hasPremium:)` populates `bankAccountItemState` from a cipher with a bank
+    /// account, preserving all 10 fields.
+    func test_init_existing_bankAccount() throws {
+        let cipher = CipherView.bankAccountFixture()
+        let state = try XCTUnwrap(CipherItemState(existing: cipher, hasPremium: true))
+
+        XCTAssertEqual(state.bankAccountItemState, cipher.bankAccountItemState())
+        XCTAssertEqual(state.bankAccountItemState.bankName, "Bank of America")
+        XCTAssertEqual(state.bankAccountItemState.nameOnAccount, "Personal Checking")
+        XCTAssertEqual(state.bankAccountItemState.accountType, .custom(.checking))
+        XCTAssertEqual(state.bankAccountItemState.accountNumber, "1234567890123456")
+        XCTAssertEqual(state.bankAccountItemState.routingNumber, "1234567890")
+        XCTAssertEqual(state.bankAccountItemState.branchNumber, "100")
+        XCTAssertEqual(state.bankAccountItemState.pin, "1234")
+        XCTAssertEqual(state.bankAccountItemState.swiftCode, "123234")
+        XCTAssertEqual(state.bankAccountItemState.iban, "23423434543")
+        XCTAssertEqual(state.bankAccountItemState.bankContactPhone, "123-456-7890")
+    }
+
+    /// `newCipherView()` emits the `bankAccount` view only when the cipher type is `.bankAccount`,
+    /// preserving the state's fields.
+    func test_newCipherView_bankAccount() {
+        var subject = CipherItemState(hasPremium: true)
+        subject.type = .bankAccount
+        subject.bankAccountItemState.bankName = "Bank of America"
+        subject.bankAccountItemState.accountType = .custom(.checking)
+        subject.bankAccountItemState.accountNumber = "1234567890123456"
+        subject.bankAccountItemState.pin = "1234"
+
+        let cipher = subject.newCipherView()
+
+        XCTAssertEqual(cipher.bankAccount?.bankName, "Bank of America")
+        XCTAssertEqual(cipher.bankAccount?.accountType, "checking")
+        XCTAssertEqual(cipher.bankAccount?.accountNumber, "1234567890123456")
+        XCTAssertEqual(cipher.bankAccount?.pin, "1234")
+    }
+
+    /// `newCipherView()` emits a `nil` `bankAccount` view when the cipher type is not
+    /// `.bankAccount`, even if bank account state happens to be populated.
+    func test_newCipherView_bankAccount_nilForOtherTypes() {
+        var subject = CipherItemState(hasPremium: true)
+        subject.type = .login
+        subject.bankAccountItemState.bankName = "Bank of America"
+
+        let cipher = subject.newCipherView()
+
+        XCTAssertNil(cipher.bankAccount)
+    }
 }
 
 // MARK: - CipherItemState
@@ -815,7 +998,7 @@ private extension CipherItemState {
     /// - Parameters:
     ///   - archivedDate: The archived date.
     ///   - deletedDate: The deleted date.
-    ///   - hasPremium: Whether the user has premium account.
+    ///   - hasPremium: Whether the user has Premium account.
     static func initForArchive(
         archivedDate: Date?,
         deletedDate: Date? = nil,

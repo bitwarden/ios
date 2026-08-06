@@ -60,3 +60,28 @@ func test_perform_appeared_loadsData() async {
 ```
 
 Service tests do NOT need `@MainActor` unless the service itself dispatches to main.
+
+## Don't Test Swift-Synthesized Conformances
+
+Tests should pin behavior the project owns — server contracts, custom encoding, branch logic, side effects. They should not exercise Swift's auto-synthesized conformances, which the language guarantees:
+
+- For a `String`-backed enum, `Codable` synthesis serializes each case as `"<rawValue>"`. Writing a `codable_roundTrip` test only verifies the language; it doesn't catch a bug we could realistically introduce.
+- `CaseIterable` synthesis populates `allCases` in declaration order. A test asserting `allCases == [.a, .b, .c]` is asserting against the language, not against project intent.
+
+When the on-wire shape matters (and it usually does for Codable enums), the test that earns its keep is the one that pins each case's `rawValue` to the **server contract**:
+
+```swift
+@Test
+func rawValues_matchServerContract() {
+    #expect(Status.active.rawValue == "active")
+    #expect(Status.archived.rawValue == "archived")
+    // ... one assertion per case
+}
+```
+
+If a case is renamed or its `rawValue` accidentally diverges from the server, this test fails and points the reader straight at the contract — without the noise of also re-testing `JSONEncoder`.
+
+**Carve-outs.** Write the round-trip test when:
+- The encoding is **not** synthesized (custom `encode(to:)`/`init(from:)`, custom `CodingKeys`, key-encoding strategies on the encoder).
+- The shape is non-obvious (nested types, polymorphic discriminators, `@DocumentID`-style wrappers).
+- The round-trip pins behavior across a serialization boundary the project actually controls.

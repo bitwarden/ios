@@ -106,6 +106,8 @@ struct DefaultVaultListDataPreparator: VaultListDataPreparator { // swiftlint:di
     let ciphersClientWrapperService: CiphersClientWrapperService
     /// The service used by the application to handle encryption and decryption tasks.
     let clientService: ClientService
+    /// The service to get server-specified configuration and feature flags.
+    let configService: ConfigService
     /// The service used by the application to report non-fatal errors.
     let errorReporter: ErrorReporter
     /// The service for managing the polices for the user.
@@ -416,13 +418,16 @@ struct DefaultVaultListDataPreparator: VaultListDataPreparator { // swiftlint:di
         onCipher: (CipherListView) async throws -> Void,
     ) async {
         let restrictedOrganizationIds: [String] = await prepareRestrictedOrganizationIds(builder: preparedDataBuilder)
+        let newItemTypesEnabled = await prepareNewItemTypesEnabled(builder: preparedDataBuilder)
 
         await ciphersClientWrapperService.decryptAndProcessCiphersInBatch(
             ciphers: ciphers,
             preFilter: preFilter,
             onCipher: { decryptedCipher in
+                let cipherType = CipherType(decryptedCipher.type)
                 guard filter.filterType.cipherFilter(decryptedCipher),
-                      decryptedCipher.passesRestrictItemTypesPolicy(restrictedOrganizationIds) else {
+                      decryptedCipher.passesRestrictItemTypesPolicy(restrictedOrganizationIds),
+                      newItemTypesEnabled || !CipherType.newItemTypesGatedCases.contains(cipherType) else {
                     return
                 }
 
@@ -452,6 +457,14 @@ struct DefaultVaultListDataPreparator: VaultListDataPreparator { // swiftlint:di
         }
 
         return true
+    }
+
+    /// Returns whether the `.newItemTypes` feature flag is enabled and adds it to the builder.
+    /// - Returns: Whether the `.newItemTypes` feature flag is enabled.
+    func prepareNewItemTypesEnabled(builder: VaultListPreparedDataBuilder) async -> Bool {
+        let newItemTypesEnabled: Bool = await configService.getFeatureFlag(.newItemTypes)
+        builder.prepareNewItemTypesEnabled(newItemTypesEnabled)
+        return newItemTypesEnabled
     }
 
     /// Returns the restricted organization IDs for the `.restrictItemTypes` policy and adds them

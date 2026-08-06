@@ -10,6 +10,9 @@ import SwiftUI
 struct AttachmentsView: View {
     // MARK: Properties
 
+    /// An environment variable used to open URLs.
+    @Environment(\.openURL) private var openURL
+
     /// The `Store` for this view.
     @ObservedObject var store: Store<AttachmentsState, AttachmentsAction, AttachmentsEffect>
 
@@ -34,6 +37,11 @@ struct AttachmentsView: View {
         }
         .task {
             await store.perform(.loadPremiumStatus)
+        }
+        .onChange(of: store.state.url) { newValue in
+            guard let url = newValue else { return }
+            openURL(url)
+            store.send(.clearURL)
         }
         .toast(store.binding(
             get: \.toast,

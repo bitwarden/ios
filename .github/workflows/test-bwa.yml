@@ -1,11 +1,10 @@
 name: Test Authenticator
 
 on:
-  # push:
-  #   branches:
-  #     - "main"
-  #     - "rc"
-  #     - "hotfix-rc"
+  push:
+    branches:
+      - main
+      - release/**/*
   pull_request:
     types: [opened, synchronize]
     paths-ignore:
@@ -58,10 +57,20 @@ env:
   _COMPILER_FLAGS: ${{ inputs.compiler-flags }}
   _GITHUB_ACTION_RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}/attempts/${{ github.run_attempt }}
 
+  # xcode optimization flags
+  COMPILER_INDEX_STORE_ENABLE: "NO"
+  COMPILATION_CACHE_ENABLE_CACHING: "YES"
+  COMPILATION_CACHE_ENABLE_PLUGIN: "YES"
+  SWIFT_ENABLE_COMPILE_CACHE: "YES"
+  CLANG_ENABLE_COMPILE_CACHE: "YES"
+  SWIFT_ENABLE_EXPLICIT_MODULES: "YES"
+  SWIFT_USE_INTEGRATED_DRIVER: "YES"
+  CLANG_ENABLE_MODULES: "YES"
+
 jobs:
   test:
     name: Test
-    runs-on: macos-26
+    runs-on: macos-26-xlarge
     timeout-minutes: 50
     permissions:
       contents: read
@@ -73,7 +82,7 @@ jobs:
           inputs: "${{ toJson(inputs) }}"
 
       - name: Check out repo
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
         with:
           persist-credentials: false
 
@@ -93,30 +102,45 @@ jobs:
           fi
 
       - name: Set Xcode version
-        uses: maxim-lobanov/setup-xcode@60606e260d2fc5762a71e64e74b2174e8ea3c8bd # v1.6.0
+        uses: maxim-lobanov/setup-xcode@ed7a3b1fda3918c0306d1b724322adc0b8cc0a90 # v1.7.0
         with:
           xcode-version: ${{ env._XCODE_VERSION }}
 
       - name: Configure Ruby
-        uses: ruby/setup-ruby@c984c1a20bb35a1cbda04477c816cea024418be9 # v1.294.0
+        uses: ruby/setup-ruby@12fd324f1d0b43274fdc8130f6980590a667c455 # v1.312.0
         with:
           bundler-cache: true
 
-      - name: Cache Mint packages
-        uses: actions/cache@cdf6c1fa76f9f475f3d7449005a359c84ca0f306 # v5.0.3
+      - name: Restore Mint packages
+        id: restore-mint
+        uses: actions/cache/restore@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
         with:
           path: .mint
           key: ${{ runner.os }}-mint-${{ hashFiles('**/Mintfile') }}
           restore-keys: |
             ${{ runner.os }}-mint-
 
-      - name: Cache SPM packages
-        uses: actions/cache@cdf6c1fa76f9f475f3d7449005a359c84ca0f306 # v5.0.3
+      - name: Restore SPM packages
+        id: restore-spm
+        uses: actions/cache/restore@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
         with:
           path: build/DerivedData/SourcePackages
           key: ${{ runner.os }}-spm-${{ hashFiles('**/Package.resolved') }}
           restore-keys: |
             ${{ runner.os }}-spm-
+
+      - name: Restore DerivedData
+        id: restore-deriveddata
+        uses: actions/cache/restore@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
+        with:
+          path: build/DerivedData
+          key: ${{ runner.os }}-deriveddata-testbwa-${{ env._XCODE_VERSION }}-${{ github.sha }}
+          restore-keys: |
+            ${{ runner.os }}-deriveddata-testbwa-${{ env._XCODE_VERSION }}-
+
+      # src: https://stackoverflow.com/questions/53753511/is-it-possible-to-copy-an-xcode-derived-data-cache
+      - name: Set IgnoreFileSystemDeviceInodeChanges flag
+        run: defaults write com.apple.dt.XCBuild IgnoreFileSystemDeviceInodeChanges -bool YES
 
       - name: Update local config
         run: |
@@ -147,8 +171,32 @@ jobs:
             -destination "platform=iOS Simulator,id=$_SIMULATOR_ID" \
             -derivedDataPath build/DerivedData \
             -resultBundlePath "$_BUILD_RESULT_BUNDLE_PATH" \
+            -parallelizeTargets \
+            -skipPackagePluginValidation \
+            -skipMacroValidation \
             -quiet
           kill "$PYEETD_PID"
+
+      - name: Save Mint packages
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main' && steps.restore-mint.outputs.cache-hit != 'true'
+        uses: actions/cache/save@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
+        with:
+          path: .mint
+          key: ${{ runner.os }}-mint-${{ hashFiles('**/Mintfile') }}
+
+      - name: Save SPM packages
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main' && steps.restore-spm.outputs.cache-hit != 'true'
+        uses: actions/cache/save@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
+        with:
+          path: build/DerivedData/SourcePackages
+          key: ${{ runner.os }}-spm-${{ hashFiles('**/Package.resolved') }}
+
+      - name: Save DerivedData
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main' && steps.restore-deriveddata.outputs.cache-hit != 'true'
+        uses: actions/cache/save@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
+        with:
+          path: build/DerivedData
+          key: ${{ runner.os }}-deriveddata-testbwa-${{ env._XCODE_VERSION }}-${{ github.sha }}
 
       - name: Test
         id: test
@@ -164,7 +212,7 @@ jobs:
             -resultBundlePath "$_TESTS_RESULT_BUNDLE_PATH" \
             -derivedDataPath build/DerivedData \
             -test-timeouts-enabled yes \
-            -maximum-test-execution-time-allowance 2 \
+            -maximum-test-execution-time-allowance 10 \
             -quiet
           kill "$PYEETD_PID"
 
@@ -181,7 +229,7 @@ jobs:
             "$_TESTS_RESULT_BUNDLE_PATH" > "$_COVERAGE_PATH"
 
       - name: Upload test reports
-        uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         if: always()
         with:
           name: test-reports
@@ -202,7 +250,7 @@ jobs:
 
     steps:
       - name: Check out repo
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
         with:
           sparse-checkout: .github/codecov.yml
           sparse-checkout-cone-mode: false
@@ -215,7 +263,7 @@ jobs:
 
       - name: Upload to codecov.io
         id: upload-to-codecov
-        uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de # v5.5.2
+        uses: codecov/codecov-action@fb8b3582c8e4def4969c97caa2f19720cb33a72f # v7.0.0
         continue-on-error: true
         with:
           files: coverage.xml

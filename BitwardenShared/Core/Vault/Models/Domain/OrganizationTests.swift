@@ -13,7 +13,7 @@ class OrganizationTests: XCTestCase {
         XCTAssertTrue(Organization.fixture(permissions: .fixture(managePolicies: true)).canManagePolicies)
         XCTAssertTrue(Organization.fixture(permissions: .fixture(managePolicies: true), type: .admin).canManagePolicies)
 
-        XCTAssertFalse(Organization.fixture(type: .manager).canManagePolicies)
+        XCTAssertFalse(Organization.fixture(type: .custom).canManagePolicies)
         XCTAssertFalse(Organization.fixture(type: .user).canManagePolicies)
     }
 
@@ -23,7 +23,6 @@ class OrganizationTests: XCTestCase {
         XCTAssertTrue(Organization.fixture(type: .owner).isAdmin)
 
         XCTAssertFalse(Organization.fixture(type: .user).isAdmin)
-        XCTAssertFalse(Organization.fixture(type: .manager).isAdmin)
         XCTAssertFalse(Organization.fixture(type: .custom).isAdmin)
     }
 
@@ -36,7 +35,7 @@ class OrganizationTests: XCTestCase {
             Organization.fixture(permissions: .fixture(managePolicies: true), type: .admin).isExemptFromPolicies,
         )
 
-        XCTAssertFalse(Organization.fixture(type: .manager).isExemptFromPolicies)
+        XCTAssertFalse(Organization.fixture(type: .custom).isExemptFromPolicies)
         XCTAssertFalse(Organization.fixture(type: .user).isExemptFromPolicies)
     }
 }

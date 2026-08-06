@@ -28,6 +28,9 @@ enum AddEditItemEffect {
     /// The save button was pressed.
     case savePressed
 
+    /// The scan card button was tapped.
+    case scanCardButtonTapped
+
     /// The setup totp button was pressed.
     case setupTotpPressed
 

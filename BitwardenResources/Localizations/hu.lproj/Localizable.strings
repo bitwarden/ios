@@ -6,11 +6,13 @@
 "Bitwarden" = "Bitwarden";
 "Cancel" = "Mégse";
 "Copy" = "Másolás";
+"CopyLicenseNumber" = "Vezetői engedély szám másolása";
+"CopyPassportNumber" = "Útlevélszám másolása";
 "CopyPassword" = "Jelszó másolása";
 "CopyUsername" = "Felhasználónév másolása";
 "Delete" = "Törlés";
 "DeleteAll" = "Összes törlése";
-"Deleting" = "Deleting…";
+"Deleting" = "Törlés…";
 "DoYouReallyWantToDelete" = "Tényleg törölni akarod? Ezt nem lehet visszavonni.";
 "Edit" = "Szerkesztés";
 "EditFolder" = "Mappa szerkesztése";
@@ -37,6 +39,8 @@
 "RemoveAccount" = "Fiók eltávolítása";
 "RemoveAccountConfirmation" = "Biztosan törlésre kerüljön ez a fiók?";
 "AccountAlreadyAdded" = "A fiók már hozzáadásra került.";
+"AccountCreationRestricted" = "A fiók létrehozása korlátozott.";
+"XOnlyAllowsInvitedUsersToCreateAccounts" = "%1$@ csak a meghívott felhasználók számára teszi lehetővé fiókok létrehozását.";
 "SwitchToAlreadyAddedAccountConfirmation" = "Szeretnénk most átkapcsolni erre?";
 "MasterPassword" = "Mesterjelszó";
 "MoreOptions" = "További opciók";
@@ -50,6 +54,7 @@
 "Move" = "Áthelyezés";
 "Saving" = "Mentés…";
 "Settings" = "Beállítások";
+"ShowNextCode" = "Következő kód megjelenítése";
 "ItemDeleted" = "Az elem törlésre került.";
 "Submit" = "Mehet";
 "UseFingerprintToUnlock" = "Ujjlenyomat használata feloldáshoz";
@@ -117,15 +122,15 @@
 "Options" = "Beállítások";
 "Other" = "Egyéb";
 "PasswordHint" = "Jelszó emlékeztető";
-"PasswordHintAlert" = "We’ve sent you an email with your master password hint.";
+"PasswordHintAlert" = "Elküldtünk neked egy mesterjelszó emlékeztetődet tartalmazó E-mailt.";
 "PasswordOverrideAlert" = "Biztosan felül akarod írni a jelenlegi jelszót?";
 "PushNotificationAlert" = "Bitwarden keeps your vault automatically synced by using push notifications. For the best possible experience, please select “Allow” on the following prompt when asked to allow push notifications.";
 "Security" = "Biztonság";
 "Select" = "Kijelölés";
 "ItemUpdated" = "Az elem frissítésre került.";
 "Submitting" = "Beküldés…";
-"Syncing" = "Syncing…";
-"SyncingLogins" = "Bejelentkezések szinkronizálása...";
+"Syncing" = "Szinkronizálás…";
+"SyncingLogins" = "Bejelentkezések szinkronizálása…";
 "SyncingComplete" = "A szinkronizálás kész.";
 "TouchID" = "Touch ID";
 "TwoStepLogin" = "Kétlépcsős bejelentkezés";
@@ -195,11 +200,18 @@
 "CustomFields" = "Egyedi mezők";
 "CopyNumber" = "Szám másolása";
 "CopySecurityCode" = "Biztonsági kód másolása";
+"CopyAccountNumber" = "Számlaszám másolása";
+"CopyRoutingNumber" = "Banki azonosító másolása";
 "Number" = "Szám";
 "SecurityCode" = "Biztonsági Kód";
+"AccountNumber" = "Számlaszám";
+"RoutingNumber" = "Banki azonosító";
+"TypeBankAccount" = "Bankszámla";
 "TypeCard" = "Kártya";
 "TypeIdentity" = "Azonosság";
+"TypeLicense" = "Licensz";
 "TypeLogin" = "Bejelentkezés";
+"TypePassport" = "Útlevél";
 "TypeSecureNote" = "Védett jegyzet";
 "Address1" = "Cím 1";
 "Address2" = "Cím 2";
@@ -275,11 +287,11 @@
 "AutofillSetup" = "Az alkalmazásokba és webhelyekre a belépési adatok most már könnyedén elérhető a billentyűzetről.";
 "AutofillSetup2" = "Célszerű kikapcsolni minden más automatikus kitöltő alkalmazást, ha nem tervezzük használni azokat.";
 "AutofillTurnOn" = "A következő képpen tudja beállítani a jelszó automata-kitöltést eszközén:";
-"AutofillTurnOn1" = "1. Go to the iOS “Settings” app";
+"AutofillTurnOn1" = "1. Lépjünk be az iOS \"Beállítások\" alkalmazásba";
 "AutofillTurnOn2" = "2. Tap “Passwords”";
 "AutofillTurnOn3" = "3. Tap “AutoFill Passwords”";
 "AutofillTurnOn4" = "4. Kapcsoljuk be az Automatikus kitöltést";
-"AutofillTurnOn5" = "5. Select “Bitwarden”";
+"AutofillTurnOn5" = "5. Válaszd ki a \"Bitwarden\"-t";
 "PasswordAutofill" = "Jelszó automata-kitöltés";
 "BitwardenAutofillAlert2" = "The easiest way to add new logins to your vault is by using the Bitwarden Password AutoFill extension. Learn more about using the Bitwarden Password AutoFill extension by navigating to the “Settings” screen.";
 "InvalidEmail" = "Az email cím érvénytelen.";
@@ -356,7 +368,7 @@
 "ExportVaultFailure" = "There was a problem exporting your vault.  If the problem persists, you’ll need to export from the web vault.";
 "Clone" = "Klónozás";
 "PasswordGeneratorPolicyInEffect" = "Egy vagy több szervezet szabályai érintik a generátor beállításokat.";
-"SoftDeleting" = "Sending to trash…";
+"SoftDeleting" = "A lomtárba küldés folyamatban van…";
 "ItemSoftDeleted" = "Az elem a lomtárba került.";
 "Restore" = "Visszaállítás";
 "Restoring" = "Visszaállítás…";
@@ -381,6 +393,7 @@
 "MasterPasswordPolicyValidationTitle" = "Érvénytelen jelszó.";
 "MasterPasswordPolicyValidationMessage" = "A jelszó nem egyezik a szervezeti követelményekhez. Ellenőrizzük a szabály információt és próbáljuk újra.";
 "Loading" = "A betöltés folyamatban van.";
+"LoadingSubscription" = "Előfizetés betöltése…";
 "AcceptPoliciesError" = "A szolgáltatási feltételeket és az adatvédelmi irányelveket nem vették figyelembe.";
 "PrivacyPolicy" = "Adatvédelmi Irányelvek";
 "PersonalOwnershipPolicyInEffect" = "Egy szervezeti házirend befolyásolja a tulajdonjog beállításait.";
@@ -547,9 +560,12 @@
 "ThereAreNoCardsInYourVault" = "Nincsenek kártyák a széfben.";
 "ThereAreNoNotesInYourVault" = "Nincsenek jegyzetek a széfben.";
 "ThereAreNoIdentitiesInYourVault" = "Nincsenek azonosítások a széfben.";
+"ThereAreNoPassportsInYourVault" = "Nincsenek útlevelek a széfben.";
 "ThereAreNoSSHKeysInYourVault" = "Nincsenek SSH kulcsok a széfben.";
+"ThereAreNoBankAccountsInYourVault" = "Nincsenek bankszámlák a széfben.";
 "US" = "US";
 "EU" = "EU";
+"Gov" = "Kormányzat";
 "SelfHosted" = "Saját kiszolgáló";
 "UpdateWeakMasterPasswordWarning" = "A mesterjelszó nem felel meg egy vagy több szervezeti szabályzatnak. A széf eléréséhez frissíteni kell a meszerjelszót. A továbblépés kijelentkeztet az aktuális munkamenetből és újra be kell jelentkezni. A többi eszközön lévő aktív munkamenetek akár egy óráig is aktívak maradhatnak.";
 "CurrentMasterPasswordRequired" = "Jelenlegi mesterjelszó (kötelező)";
@@ -558,6 +574,8 @@
 "RequestAdminApproval" = "Adminisztrátori jóváhagyás kérés";
 "ApproveWithMasterPassword" = "Jóváhagyás mesterjelszóval";
 "TurnOffUsingPublicDevice" = "Kikapcsolás nyilvános eszközzel";
+"TurnOnFillAssist" = "Kitöltési segéd bekapcsolása";
+"TurnOnFillAssistDescriptionLong" = "A Kitöltési segéd webhelyspecifikus szabályok használatával javítja az automatikus kitöltési pontosságot a támogatott webhelyeken.";
 "RememberThisDevice" = "Eszköz megjegyzése";
 "Passkey" = "Hozzáférési kulcs";
 "Passkeys" = "Hozzáférési kulcsok";
@@ -672,6 +690,7 @@
 "BitwardenCannotResetALostOrForgottenMasterPassword" = "A Bitward nem tudja visszaállítani az elveszett vagy elfelejtett mesterjelszót.";
 "LearnAboutWaysToPreventAccountLockout" = "További információ a fiókzárolás megelőzésének módjairól";
 "RestartRegistration" = "Regisztráció újra indítása";
+"Expired" = "Lejárt";
 "ExpiredLink" = "A hivatkozás lejárt.";
 "PleaseRestartRegistrationOrTryLoggingInYouMayAlreadyHaveAnAccount" = "Indítsuk újra a regisztrációt vagy próbáljunk meg bejelentkezni. Valószínűleg már létezik a fiók.";
 "RemovePasskey" = "Belépőkulcs eltávolítása";
@@ -704,16 +723,25 @@
 "TheVaultProtectsMoreThanJustPasswordsStoreSecureLoginsIdsCardsAndNotesSecurelyHere" = "A széf többre alkalmas, mint a jelszavak mentése. Menthet belépéseket, azonosítókat, kártyákat és feljegyzéseket teljes biztonságban.";
 "SendSensitiveInformationSafely" = "Bizalmas információk küldése biztonságosan";
 "ShareFilesAndDataSecurelyWithAnyoneOnAnyPlatformYourInformationWillRemainEndToEndEncrypted" = "Osszuk meg a fájlokat és adatokat biztonságosan bárkivel, bármilyen platformon. Az adatok a végpontokig titkosítva maradnak, miközben a kitettség korlátozva van.";
-"NewLogin" = "Új bejelentkezés";
-"NewCard" = "Új kártya";
-"NewIdentity" = "Új személyazonosság";
-"NewNote" = "Új jegyzet";
-"NewSSHKey" = "Új SSH kulcs";
+"AddLogin" = "Bejelentkezés hozzáadása";
+"AddCard" = "Kártya hozzáadása";
+"AddIdentity" = "Személyazonossság hozzáadása";
+"AddNote" = "Jegyzet hozzáadása";
+"AddSSHKey" = "SSH kulcs hozzáadása";
+"AddBankAccount" = "Bankszámla hozzáadása";
+"AddLicense" = "Licensz hozzáadása";
+"AddPassport" = "Útlevél hozzáadása";
+"EditBankAccount" = "Bankszámla szerkesztése";
+"EditLicense" = "Licensz szerkesztése";
+"EditPassport" = "Útlevél szerkesztése";
 "EditLogin" = "Bejelentkezés szerkesztése";
 "EditCard" = "Kártya szerkesztése";
 "EditIdentity" = "Személyazonossság szerkesztése";
 "EditNote" = "Jegyzet szerkesztése";
 "EditSSHKey" = "SSH kulcs szerkesztése";
+"ViewBankAccount" = "Bankszámla megtekintése";
+"ViewLicense" = "Licensz megtekintése";
+"ViewPassport" = "Útlevél megtekintése";
 "ViewLogin" = "Bejelentkezés megtekintése";
 "ViewCard" = "Kártya megtekintése";
 "ViewIdentity" = "Személyazonosság megtekintése";
@@ -746,6 +774,7 @@
 "BitwardenTools" = "Bitwarden eszközök";
 "ImportSuccessful" = "Sikeres importálás!";
 "ManageYourLoginsFromAnywhereWithBitwardenToolsForWebAndDesktop" = "Kezelje a belépéseit bárhonnan a Bitwarden eszközök webes vagy asztali verziójával.";
+"ManageYourSubscriptionPlanInTheBitwardenWebApp" = "Az előfizetési csomag kezelése a Bitwarden webalkalmazásban.";
 "DownloadTheBrowserExtension" = "Töltse le a böngésző bővítményt";
 "GoToBitwardenToIntegrateBitwardenIntoYourFavoriteBrowserForASeamlessExperience" = "Látogasson a bitwarden.com/download címre, hogy kifogástalan élményért kedvenc böngészőjébe integrálhassa a Bitwarden-t.";
 "UseTheWebApp" = "Használja a webes appot";
@@ -754,6 +783,8 @@
 "SetUpAutofillOnAllYourDevicesToLoginWithASingleTapAnywhere" = "Állítsa be az összes eszközén az automata-kitöltést, hogy egy koppintással be tudjon lépni bárhol.";
 "GoBack" = "Vissza";
 "GotIt" = "Rendben";
+/* masterPasswordUnlock is the name of some data we want to delete, so there's no need to localize it. */
+"ClearMasterPasswordUnlock" = "masterPasswordUnlock kiürítése";
 "ClearSsoCookies" = "SSO sütik törlése";
 "GenerateCrash" = "Összeomlás generálás";
 "GenerateErrorReport" = "Hibajelentés generálása";
@@ -770,6 +801,7 @@
 "UnableToMoveTheSelectedItemPleaseTryAgain" = "Nem helyezhető át a kijelölt elem. Próbálja újra.";
 "Done" = "Kész";
 "Next" = "Következő";
+"NextCode" = "Következő kód";
 "CopyPublicKey" = "Nyilvános kulcs másolása";
 "CopyPrivateKey" = "Személyes kulcs másolása";
 "CopyFingerprint" = "Ujjlenyomat másolása";
@@ -783,7 +815,7 @@
 "YouMayNeedToEnableDevicePasscodeOrBiometrics" = "Lehetséges, hogy engedélyezni kell az eszköz jelkódot vagy a biometrikus adatokat.";
 "StartImportCXFDescriptionLong" = "Importáljunk jelszavakat, belépőkulcsokat, hitelkártyákat és bármilyen személyes azonosító információt egy másik jelszókezelőből.\n\nAz adatok **nem** kerülnek törlésre a korábbi szolgáltatónál.";
 "ImportPasswords" = "Jelszavak importálása";
-"ImportingEllipsis" = "Importálás...";
+"ImportingEllipsis" = "Importálás…";
 "AreYouSureYouWantToCancelTheImportProcessQuestionMark" = "Biztosan megszakításra kerüljön az importálási folyamat?";
 "ImportFailed" = "Az importálás sikertelen volt.";
 "ThereWasAnIssueImportingAllOfYourPasswordsNoDataWasDeleted" = "Hiba történt az összes jelszó importálásakor.\n\nNem lett adat törölve.";
@@ -816,7 +848,7 @@
 "AddWebsite" = "Webhely hozzáadása";
 "CannotDeleteAccount" = "A fiók nem törölhető.";
 "CannotDeleteAccountDescriptionLong" = "Ez a művelet nem hajtható végre, mert a fiók egy szervezet tulajdonában van. További részletekért forduljunk a szervezet adminisztrátorához.";
-"NewFolder" = "Új mappa";
+"AddItem" = "Elem hozzáadása";
 "SetUpAuthenticatorKey" = "Hitelesítő kulcs beüzemelése";
 "ItemDetails" = "Elem részletek";
 "CardDetails" = "Kártyaadatok";
@@ -929,6 +961,7 @@
 "SaveToBitwarden" = "Mentés a Bitwardenbe";
 "ScanCard" = "Kártya átvizsgálása";
 "PositionYourCardInTheFrameToScanIt" = "Helyezzük a kártyát a keretbe az átvizsgáláshoz.";
+"EnableCameraPermissionInSettingsToScanYourCard" = "A kártya beszkenneléséhez engedélyezzük a kamera elérését a Beállításokban.";
 "ScanComplete" = "Az átvizsgálás befejeződött.";
 "ScanTheQRCodeInYourSettings" = "Olvassuk be a QR kódot a kétlépcsős ellenőrzési beállításokban bármely fiókhoz.";
 "SecureYourAssetsWithBitwardenAuthenticator" = "Biztosítsuk a fiókokat a Bitwarden Authenticator segítségével.";
@@ -967,7 +1000,7 @@
 "DefaultX" = "Alapértelmezés (%1$@)";
 "UpdateYourEncryptionSettings" = "A titkosítási beállítások frissítése";
 "TheNewRecommendedEncryptionSettingsDescriptionLong" = "Az új ajánlott titkosítási beállítások javítják a fiók biztonságát. Adjuk meg a mesterjelszót a frissítéshez most.";
-"Updating" = "Frissítés...";
+"Updating" = "Frissítés…";
 "EncryptionSettingsUpdated" = "A titkosítási beállítások frissítésre kerültek.";
 "IntroducingArchive" = "Archívum bemutatása";
 "KeepYtemsYouDontNeedRightNowSafeButOutOfSight" = "Tartsuk biztonságban azokat az elemeket, amelyekre jelenleg nincs szükség, de ne lássuk azokat.";
@@ -1001,8 +1034,8 @@
 "ArchiveEmptyDescriptionLong" = "Töltsük ki az archívumot olyan elemekkel, amelyeket nem szeretnénk látni a keresési eredményekben és az automatikus kitöltési javaslatokban, de egy nap szükség lehet rá.";
 "ArchiveItem" = "Elem archiválása";
 "OnceArchivedThisItemWillBeExcludedDescriptionLong" = "Az archiválás után ez az elem kizárásra kerül a keresési eredményekből és az automatikus kitöltési javaslatokból.";
-"ArchiveUnavailable" = "Az archívum nem elérhető.";
 "ArchivingItemsIsAPremiumFeatureDescriptionLong" = "Az elemek archiválása prémium funkció. A jelenlegi csomag nem tartalmazza a hozzáférést ehhez a funkcióhoz.";
+"AddingAttachmentsIsAPremiumFeatureDescriptionLong" = "A mellékletek hozzáadása prémium funkció. A jelenlegi csomag nem tartalmazza a hozzáférést ehhez a funkcióhoz.";
 "UpgradeToPremium" = "Áttérés Prémium csomagra";
 "ThisItemIsArchived" = "Ez az elem archiválva van.";
 "YourPremiumSubscriptionEnded" = "A Prémium előfizetés véget ért.";
@@ -1035,6 +1068,8 @@
 "ReplaceCertificate" = "Tanúsítvány csere";
 "ReplaceExistingCertificate" = "Létező tanúsítvány lecserélése";
 "UnableToReadCertificateFile" = "Nem sikerült beolvasni a tanúsítvány fájlt.";
+/* masterPasswordUnlock is the name of some data we want to delete, so there's no need to localize it. */
+"MasterPasswordUnlockCleared" = "A masterPasswordUnlock kiürítésre került.";
 "SsoCookiesCleared" = "Az SSO sütik törlésre kerültek.";
 "YourRequestWasInterruptedBecauseTheAppNeededToReAuthenticatePleaseTryAgain" = "A kérés megszakadt, mert az alkalmazásnak újra kellett azt hitelesíteni. Próbáljuk újra.";
 "AutofillWithBitwardenDescriptionLong" = "A Bitwarden javasolhat jelszavakat és egyéb hitelesítő adatokat az alkalmazásokba és webhelyekre bejelentkezéskor.";
@@ -1047,25 +1082,57 @@
 "Active" = "Bekapcsolva";
 "Canceled" = "Megszakítva";
 "PastDue" = "Határidőn túl";
+"PendingCancellation" = "Függőben lévő lemondás";
+"Unpaid" = "Nincs fizetve";
 "UpdatePayment" = "Fizetés frissítése";
 "BillingAmount" = "Számlázott összeg";
 "StorageCost" = "Tárolási költség";
 "Discount" = "Kedvezmény";
 "EstimatedTax" = "Becsült adó";
+"Total" = "Összesen";
 "ManagePlan" = "Csomag kezelés";
 "CancelPremium" = "Prémium lemondása";
-"CancelNow" = "Lemondás most";
+"ExternalLink" = "Külső hivatkozás";
 "YourNextChargeIsForXDueOnY" = "A következő díj **%1$@**, esedékessége **%2$@**.";
 "WeCouldNotProcessYourPaymentUpdateYourPaymentMethodDescriptionLong" = "Nem lehetett feldolgozni a fizetést. Frissítsük a fizetési módot, mielőtt az előfizetés lejár: **%1$@**.";
-"YourSubscriptionWasCanceledOnXResubscribeToContinueUsingDescriptionLong" = "Az előfizetés törlésre került: **%1$@**. Iratkozzunk fel újra a prémium funkciók használatának folytatásához.";
+/* Error message shown when the Premium Plan screen fails to load subscription data, with a prompt to retry. */
+"WeCouldntLoadYourSubscriptionDetailsPleaseRetry" = "Nem lehetett betölteni az előfizetési adatokat. Próbáljuk újra.";
+"YourSubscriptionWasCanceledOnXDescriptionLong" = "Az előfizetés törlésre került: **%1$@**. Iratkozzunk fel újra a prémium funkciók használatának folytatásához.";
+"YourSubscriptionWasSuspendedOnXDescriptionLong" = "Az előfizetés felfüggesztésre került: **%1$@**. Az újra aktiváláshoz rendezzük a múltbeli esedékes számlákat.";
+"YourSubscriptionExpiredOnXDescriptionLong" = "Az előfizetés lejárt: **%1$@**. Iratkozzunk fel újra a prémium funkciók használatának folytatásához.";
+"YourSubscriptionIsScheduledToCancelOnXDescriptionLong" = "Az előfizetés az időzítés szerint lejár: **%1$@**. Ezt megelőzően bármikor visszaállíthatjuk.";
 "PerMonth" = "/ hónap";
+/* VoiceOver reading of "PerMonth", spoken instead of shown. */
+"PerMonthVoiceOver" = "havonta";
 "PerYear" = "/ év";
+/* VoiceOver reading of "PerYear", spoken instead of shown. */
+"PerYearVoiceOver" = "évente";
 "XAmountPerCadence" = "%1$@ %2$@";
+/* %1$@ is an amount and cadence together, e.g. "$1.65 / month". */
+"XCancelAnytime" = "%1$@ hónap · Bármikor lemondható";
+/* VoiceOver reading of "XCancelAnytime", spoken instead of shown. */
+"XCancelAnytimeVoiceOver" = "%1$@, bármikor lemondható";
 "NegativeX" = "-%1$@";
 "UnknownStatus" = "Ismeretlen";
 "YourSubscriptionStatusIsUnknownVisitTheWebAppDescriptionLong" = "Az előfizetés állapotát nem sikerült meghatározni. Látogassunk el a webalkalmazásba további részletekért vagy frissítsünk a legújabb verzióra.";
-"AtTheMomentPremiumPlanIsNotAvailableDescriptionLong" = "Jelenleg a prémium csomag nem érhető el, próbálja újra később.";
-"UnlockMoreAdvancedFeaturesWithPremiumPlan" = "Fejlettebb funkciók feloldása Prémium csomaggal.";
+/* Headline on the Premium upgrade screen. */
+"UnlockAdvancedProtection" = "Fejlett védelem feloldása";
+/* Premium benefit list item. */
+"BreezeThrough2faWithBuiltInCodes" = "Könnyedén kezelhető a 2FA segítségével beépített kódokkal";
+/* Premium benefit list item. */
+"RunReportsToFindRiskyPasswords" = "Jelentések futtatása a kockázatos jelszavak megtalálásához";
+/* Premium benefit list item. */
+"KeepDocumentsSafeAndEncrypted" = "Dokumentumok biztonságban és titkosítva tartása";
+/* Premium benefit list item. */
+"AddATrustedEmergencyContact" = "Megbízható sürgősségi kapcsolat hozzáadása";
+/* Premium benefit list item. */
+"IdentifyUnsecureWebsites" = "Nem biztonságos webhelyek azonosítása";
+/* Premium benefit list item. */
+"FlagAccountsWithInactive2fa" = "Fiókok megjelölése inaktív 2FA-val";
+/* Premium benefit list item; "Send" is the Bitwarden Send feature name and shouldn't be translated. */
+"ShareFilesSecurelyWithAnyoneUsingSend" = "Fájlok biztonságos megosztása bárkivel, aki a Send elemet használja";
+/* Premium benefit list item. */
+"Receive247PrioritySupport" = "Kiemelt támogatás fogadása a teljes héten 24 órában";
 "BuiltInAuthenticator" = "Beépített hitelesítő";
 "EmergencyAccess" = "Sürgősségi hozzáférés";
 "PaymentNotReceivedYet" = "A fizetés még nem érkezett meg.";
@@ -1074,16 +1141,20 @@
 "WeHadTroubleOpeningThePaymentPageDescriptionLong" = "Problémák adódtak a fizetési oldal megnyitásával, úgyhogy próbáljuk újra.";
 "SecureFileStorage" = "Biztonságos fájl tárolás";
 "BreachMonitoring" = "Adatszivárgás figyelés";
-"UpgradeNow" = "Áttérés most";
-"ConfirmingYourUpgrade" = "A frissítés megerősítése...";
+"ConfirmingYourUpgrade" = "A frissítés megerősítése…";
 "OpeningCheckout" = "Pénztár megnyitása…";
 "UpgradePending" = "Függő áttérés";
 "YourUpgradeIsBeingProcessedDescriptionLong" = "Az áttérés feldolgozása folyamatban van. Az ingyenes csomag marad, amíg az be nem fejeződik. Szinkronizáljunk most az ellenőrzéshez vagy a folytatáshoz, és az áttérés automatikus.";
 "UpgradedToPremium" = "Áttérés Prémium csomagra";
-"ViewPlanDetails" = "Csomag részletek megtekintése";
-"WelcomeToPremiumYouNowHaveAccessDescriptionLong" = "Üdvözölet a Premiumban! Most már hozzáférhetünk az összes fejlett biztonsági funkcióhoz.";
-"YoullGoToStripeSecureCheckoutToCompleteYourPurchase" = "A vásárlás befejezéséhez keressük fel a Stripe biztonságos pénztárát.";
-"YoullContinueToHavePremiumAccessUntilX" = "Továbbra is prémium hozzáféréssel rendelkezünkk %1$@ időpontig.";
+"SubscriptionNeedsAttention" = "Az előfizetés figyelmet igényel.";
+"CheckYourPlanForDetails" = "A részletekért tekintsük meg csomagot.";
+"ViewPlan" = "Csomag megtekintése";
+"YouNowHaveAccessToAdvancedSecurityDescriptionLong" = "Most már hozzáférhetünk a fejlett biztonsági funkciókhoz. Tudjunk meg többet arról, hogy mit tartalmaz a Premium csomag.";
+"YouNowHaveAccessToAllAdvancedSecurityFeatures" = "Most már hozzáférhetünk az összes fejlett biztonsági funkcióhoz.";
+/* Footer on the Premium upgrade screen; "Stripe" is the payment processor's name and shouldn't be translated. */
+"YoullCompleteThePurchaseWithStripeSecureCheckout" = "A vásárlást a Stripe biztonságos pénztárral fejezzük be.";
+"ContinueToStripe" = "Tovább a Stripe-hoz?";
+"YoullBeTakenToStripeToManageYourSubscriptionCancellation" = "A Stripe-ba kerülünk át az előfizetés törlésének kezeléséhez.";
 "UserIDCopiedToTheClipboard" = "A felhasználói azonosító a vágólapra került.";
 "UserID" = "Felhasználói azonosító";
 "CopyUserID" = "Felhasználói azonosító másolása";
@@ -1092,3 +1163,67 @@
 "CheckYourConnectionAndTryAgain" = "Ellenőrizzük a hálózati kapcsolatot és próbáljuk újra.";
 "PricingUnavailable" = "Az árazás nem érhető el.";
 "BankAccount" = "Bankszámla";
+"BankAccounts" = "Bankszámlák";
+"License" = "Licensz";
+"Licenses" = "Licenszek";
+"Passport" = "Útlevél";
+"Passports" = "Útlevelek";
+"LicenseDetails" = "Licensz részletek";
+"DateOfBirth" = "Születési dátum";
+"IssuingCountry" = "Kiállító ország";
+"IssuingStateProvince" = "Kiállító állam/tartomány";
+"IssuingAuthority" = "Kiállító hatóság/hivatal";
+"IssueDate" = "Kiállítási dátum";
+"ExpirationDate" = "Lejárati dátum";
+"LicenseClass" = "Engedély osztály";
+"PassportDetails" = "Útlevél adatok";
+/* Label for the sex/gender field as printed on a passport (e.g. "M", "F", "X"). */
+"Sex" = "Nem";
+"BirthPlace" = "Születési hely";
+/* Label for the nationality field on a passport (the country a person is a national of). */
+"Nationality" = "Állampolgárság";
+/* Label for the category of passport (e.g. "Regular/Tourist", "Diplomatic", "Official"). */
+"PassportType" = "Útlevél típus";
+"NationalIdentificationNumber" = "Nemzeti azonosító szám";
+/* Label for the government authority or office that issued the passport. */
+"IssuingAuthorityOffice" = "Kibocsátó hatóság/hivatal";
+"AccountDetails" = "Fiók adatok";
+"BankName" = "Bank neve";
+"NameOnAccount" = "Számlatulajdonos neve";
+"AccountType" = "Számlatípus";
+"BranchNumber" = "Fióktelep/intézmény szám";
+"SwiftCode" = "SWIFT-kód";
+"IBAN" = "IBAN";
+"BankContactPhone" = "Banki kapcsolati telefon";
+"CertificateOfDeposit" = "Áthelyezési igazolás";
+"Checking" = "Ellenőrzés";
+"InvestmentBrokerage" = "Befektetés/brókerügylet";
+"LineOfCredit" = "Hitelkeret";
+"MoneyMarket" = "Pénzpiac";
+"Savings" = "Megtakarítások";
+"Devices" = "Eszközök";
+"NoDevicesFound" = "Nem található eszköz.";
+"CurrentSession" = "Jelenlegi munkamenet";
+"PendingRequest" = "Függő kérés";
+"Trusted" = "Megbízható";
+"RecentlyActiveLabel" = "Legutóbb aktív:";
+"FirstLoginLabel" = "Első bejelentkezés:";
+"Today" = "Ma";
+"PastSevenDays" = "Az elmúlt 7 nap";
+"PastFourteenDays" = "Az elmúlt 14 nap";
+"PastThirtyDays" = "Az elmúlt 30 nap";
+"OverThirtyDaysAgo" = "Több, mint 30 napja";
+"Unknown" = "Ismeretlen";
+/* Device display name. %1$@ = category (e.g. "Mobile"), %2$@ = platform (e.g. "iOS"). */
+"DeviceDisplayNameXHyphenY" = "%1$@ - %2$@";
+"Mobile" = "Mobil";
+"BrowserExtension" = "Böngésző bővítmény";
+"WebVault2" = "Webes széf";
+"Desktop" = "Asztali";
+"Cli" = "CLI";
+"Sdk" = "SDK";
+"Server" = "Szerver";
+/* Accessibility label for the button that clears a field's value. %1$@ is the field's title (e.g. "Date of birth"), so the spoken label reads "Clear Date of birth". */
+"ClearFieldName" = "%1$@ kiürítése";
+"SelectDate" = "Dátum kiválasztása";
+"PremiumRequiredTOTPDescriptionLong" = "A hitelesítési kulcs (TOTP) egy prémium funkció. A jelenlegi csomag nem tartalmazza a hozzáférést ehhez a funkcióhoz.";

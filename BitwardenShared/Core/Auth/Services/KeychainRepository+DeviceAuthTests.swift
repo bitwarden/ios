@@ -64,7 +64,7 @@ final class KeychainRepositoryDeviceAuthTests: BitwardenTestCase {
     /// `getDeviceAuthKey(userId:)` returns the stored device auth key.
     ///
     func test_getDeviceAuthKey() async throws {
-        let record = DeviceAuthKeyRecord.fixture()
+        let record = DeviceAuthKeyKeychainRecord.fixture()
         let recordData = try JSONEncoder.defaultEncoder.encode(record)
         keychainServiceFacade.getValueReturnValue = String(data: recordData, encoding: .utf8)!
 
@@ -112,7 +112,7 @@ final class KeychainRepositoryDeviceAuthTests: BitwardenTestCase {
     /// `getDeviceAuthKeyMetadata(userId:)` returns the stored device auth key metadata.
     ///
     func test_getDeviceAuthKeyMetadata() async throws {
-        let metadata = DeviceAuthKeyMetadata.fixture()
+        let metadata = DeviceAuthKeyKeychainMetadata.fixture()
         let metadataData = try JSONEncoder.defaultEncoder.encode(metadata)
         keychainServiceFacade.getValueReturnValue = String(data: metadataData, encoding: .utf8)!
 
@@ -165,8 +165,8 @@ final class KeychainRepositoryDeviceAuthTests: BitwardenTestCase {
             setArgs.append((value: value, key: item.unformattedKey))
         }
 
-        let record = DeviceAuthKeyRecord.fixture()
-        let metadata = DeviceAuthKeyMetadata.fixture()
+        let record = DeviceAuthKeyKeychainRecord.fixture()
+        let metadata = DeviceAuthKeyKeychainMetadata.fixture()
         try await subject.setDeviceAuthKey(record: record, metadata: metadata, userId: "1")
 
         XCTAssertEqual(setArgs.count, 2)
@@ -174,13 +174,13 @@ final class KeychainRepositoryDeviceAuthTests: BitwardenTestCase {
         XCTAssertEqual(setArgs[1].key, BitwardenKeychainItem.deviceAuthKeyMetadata(userId: "1").unformattedKey)
 
         let decodedRecord = try JSONDecoder.defaultDecoder.decode(
-            DeviceAuthKeyRecord.self,
+            DeviceAuthKeyKeychainRecord.self,
             from: XCTUnwrap(setArgs[0].value.data(using: .utf8)),
         )
         XCTAssertEqual(decodedRecord, record)
 
         let decodedMetadata = try JSONDecoder.defaultDecoder.decode(
-            DeviceAuthKeyMetadata.self,
+            DeviceAuthKeyKeychainMetadata.self,
             from: XCTUnwrap(setArgs[1].value.data(using: .utf8)),
         )
         XCTAssertEqual(decodedMetadata, metadata)
@@ -194,8 +194,8 @@ final class KeychainRepositoryDeviceAuthTests: BitwardenTestCase {
 
         await assertAsyncThrows(error: error) {
             try await subject.setDeviceAuthKey(
-                record: DeviceAuthKeyRecord.fixture(),
-                metadata: DeviceAuthKeyMetadata.fixture(),
+                record: DeviceAuthKeyKeychainRecord.fixture(),
+                metadata: DeviceAuthKeyKeychainMetadata.fixture(),
                 userId: "1",
             )
         }

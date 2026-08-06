@@ -3,6 +3,7 @@
 import BitwardenKitMocks
 import BitwardenResources
 import BitwardenSdk
+import BitwardenSdkMocks
 import TestHelpers
 import XCTest
 
@@ -13,7 +14,7 @@ import XCTest
 class VaultAutofillListProcessorAutofillModeAllTests: BitwardenTestCase {
     // MARK: Properties
 
-    var appExtensionDelegate: MockAutofillAppExtensionDelegate!
+    var appExtensionDelegate: MockCredentialProviderExtensionDelegate!
     var authRepository: MockAuthRepository!
     var clientService: MockClientService!
     var coordinator: MockCoordinator<VaultRoute, AuthAction>!
@@ -34,7 +35,7 @@ class VaultAutofillListProcessorAutofillModeAllTests: BitwardenTestCase {
     override func setUp() {
         super.setUp()
 
-        appExtensionDelegate = MockAutofillAppExtensionDelegate()
+        appExtensionDelegate = MockCredentialProviderExtensionDelegate()
         appExtensionDelegate.extensionMode = .autofillText
         authRepository = MockAuthRepository()
         clientService = MockClientService()

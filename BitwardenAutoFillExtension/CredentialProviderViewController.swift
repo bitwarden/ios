@@ -22,6 +22,10 @@ class CredentialProviderViewController: ASCredentialProviderViewController {
     /// The context of the credential provider to see how the extension is being used.
     private var context: CredentialProviderContext?
 
+    /// Zero-frame text field that holds first responder in `autofillText` mode to keep
+    /// InputUI's keyboard session alive across view-controller transitions and search dismissals.
+    private var keyboardAnchor: KeyboardAnchorTextField?
+
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
 
@@ -162,7 +166,12 @@ class CredentialProviderViewController: ASCredentialProviderViewController {
 
         if context.flowWithUserInteraction {
             Task {
-                await appProcessor.start(appContext: .appExtension, navigator: self, window: nil)
+                await appProcessor.start(
+                    appContext: .appExtension,
+                    initialRoute: context.initialRoute,
+                    navigator: self,
+                    window: nil,
+                )
             }
         }
     }
@@ -291,12 +300,112 @@ class CredentialProviderViewController: ASCredentialProviderViewController {
 extension CredentialProviderViewController {
     @available(iOSApplicationExtension 18.0, *)
     override func prepareInterfaceForUserChoosingTextToInsert() {
+        // Anchor here rather than inside initializeApp: initializeApp launches an async Task,
+        // so by the time it runs something else may have stolen focus. At this call site the view
+        // is already in the window with no child VCs, giving becomeFirstResponder a clean shot.
+        let anchor = KeyboardAnchorTextField(frame: .zero)
+        view.addSubview(anchor)
+        keyboardAnchor = anchor
+        anchor.becomeFirstResponder()
+
         initializeApp(with: DefaultCredentialProviderContext(.autofillText))
     }
 
     @available(iOSApplicationExtension 18.0, *)
     override func prepareOneTimeCodeCredentialList(for serviceIdentifiers: [ASCredentialServiceIdentifier]) {
         initializeApp(with: DefaultCredentialProviderContext(.autofillOTP(serviceIdentifiers)))
+    }
+}
+
+// MARK: - iOS 26
+
+extension CredentialProviderViewController {
+    @available(iOSApplicationExtension 26.2, *)
+    override func prepareInterface(for generatePasswordsRequest: ASGeneratePasswordsRequest) {
+        initializeApp(with: DefaultCredentialProviderContext(
+            .generatePasswordCredential(generatePasswordsRequest, userInteraction: true),
+        ))
+    }
+
+    @available(iOSApplicationExtension 26.2, *)
+    override func performWithoutUserInteraction(generatePasswordsRequest: ASGeneratePasswordsRequest) {
+        Task {
+            await initializeAppWithoutUserInteraction(
+                with: DefaultCredentialProviderContext(
+                    .generatePasswordCredential(generatePasswordsRequest, userInteraction: false),
+                ),
+            )
+            await generatePassword(request: generatePasswordsRequest)
+        }
+    }
+
+    @available(iOSApplicationExtension 26.2, *)
+    override func performWithoutUserInteractionIfPossible(savePasswordRequest: ASSavePasswordRequest) {
+        Task {
+            await initializeAppWithoutUserInteraction(
+                with: DefaultCredentialProviderContext(
+                    .savePasswordCredential(savePasswordRequest, userInteraction: false),
+                ),
+            )
+            await savePassword(savePasswordRequest: savePasswordRequest)
+        }
+    }
+
+    @available(iOSApplicationExtension 26.2, *)
+    override func prepareInterface(for savePasswordRequest: ASSavePasswordRequest) {
+        initializeApp(with: DefaultCredentialProviderContext(
+            .savePasswordCredential(savePasswordRequest, userInteraction: true),
+        ))
+    }
+
+    // MARK: Private methods
+
+    /// Generates a password for the requesting app using the developer-specified rules in the request.
+    ///
+    /// - Parameter request: The generate-password request containing developer-specified rules.
+    ///
+    @available(iOSApplicationExtension 26.2, *)
+    private func generatePassword(request: ASGeneratePasswordsRequest) async {
+        guard let appProcessor else {
+            cancel(error: ASExtensionError(.failed))
+            return
+        }
+
+        do {
+            let password = try await appProcessor.generatePasswordCredential(request: request)
+            // TODO: PM-29569 Derive kind from request rules once SDK exposes the mapping API.
+            extensionContext.completeGeneratePasswordRequest(
+                results: [ASGeneratedPassword(kind: .alphanumeric, value: password)],
+                completionHandler: nil,
+            )
+        } catch {
+            Logger.appExtension.error("Error generating password without user interaction: \(error)")
+            cancel(error: error)
+        }
+    }
+
+    /// Handles a save-password request from the AutoFill extension, persisting the credential to the vault.
+    ///
+    /// - Parameter savePasswordRequest: The `ASSavePasswordRequest` containing the credential and service info to save.
+    @available(iOSApplicationExtension 26.2, *)
+    private func savePassword(savePasswordRequest: ASSavePasswordRequest) async {
+        guard let appProcessor else {
+            cancel(error: ASExtensionError(.failed))
+            return
+        }
+
+        do {
+            try await appProcessor.savePasswordCredential(
+                username: savePasswordRequest.credential.user,
+                password: savePasswordRequest.credential.password,
+                uri: savePasswordRequest.serviceIdentifier.normalizedURI,
+                name: savePasswordRequest.title,
+            )
+            extensionContext.completeSavePasswordRequest(completionHandler: nil)
+        } catch {
+            Logger.appExtension.error("Error saving password credential without user interaction: \(error)")
+            cancel(error: ASExtensionError(.userInteractionRequired))
+        }
     }
 }
 
@@ -409,11 +518,11 @@ extension CredentialProviderViewController: AppExtensionDelegate {
     }
 }
 
-// MARK: - AutofillAppExtensionDelegate
+// MARK: - CredentialProviderExtensionDelegate
 
-extension CredentialProviderViewController: AutofillAppExtensionDelegate {
+extension CredentialProviderViewController: CredentialProviderExtensionDelegate {
     /// The mode in which the autofill extension is running.
-    var extensionMode: AutofillExtensionMode {
+    var extensionMode: CredentialProviderMode {
         context?.extensionMode ?? .configureAutofill
     }
 
@@ -426,9 +535,22 @@ extension CredentialProviderViewController: AutofillAppExtensionDelegate {
         extensionContext.completeAssertionRequest(using: assertionCredential)
     }
 
+    @available(iOSApplicationExtension 26.2, *)
+    func completeGeneratePasswordRequest(kind: ASGeneratedPassword.Kind, password: String) {
+        extensionContext.completeGeneratePasswordRequest(
+            results: [ASGeneratedPassword(kind: kind, value: password)],
+            completionHandler: nil,
+        )
+    }
+
     @available(iOSApplicationExtension 18.0, *)
     func completeOTPRequest(code: String) {
         extensionContext.completeOneTimeCodeRequest(using: ASOneTimeCodeCredential(code: code))
+    }
+
+    func completeSavePasswordRequest() {
+        guard #available(iOSApplicationExtension 26.2, *) else { return }
+        extensionContext.completeSavePasswordRequest(completionHandler: nil)
     }
 
     @available(iOSApplicationExtension 17.0, *)
@@ -447,6 +569,11 @@ extension CredentialProviderViewController: AutofillAppExtensionDelegate {
             .values
     }
 
+    @available(iOSApplicationExtension 18.0, *)
+    func setMatchedExcludedCredentialFound() {
+        cancel(error: ASExtensionError(.matchedExcludedCredential))
+    }
+
     func setUserInteractionRequired() {
         context?.flowFailedBecauseUserInteractionRequired = true
         cancel(error: ASExtensionError(.userInteractionRequired))
@@ -459,6 +586,10 @@ extension CredentialProviderViewController: RootNavigator {
     var rootViewController: UIViewController? { self }
 
     func show(child: Navigator) {
+        // In autofillText mode, reclaim the anchor before the transition to keep the keyboard
+        // session alive. In other modes keyboardAnchor is nil, so this is a no-op.
+        keyboardAnchor?.becomeFirstResponder()
+
         removeChildViewController()
 
         if let toViewController = child.rootViewController {
@@ -470,26 +601,58 @@ extension CredentialProviderViewController: RootNavigator {
 
     // MARK: Private methods
 
-    /// Removes the first child view controller taking into account some edge cases.
+    /// Removes the first child view controller.
     func removeChildViewController() {
-        let fromViewController = children.first
+        guard let fromViewController = children.first else { return }
+        fromViewController.willMove(toParent: nil)
+        fromViewController.view.removeFromSuperview()
+        fromViewController.removeFromParent()
+    }
+}
 
-        // HACK: [PM-28227] When opening this extension on mode `text to insert`
-        // We can't use `removeFromSuperview` or the extension closes afterwards after a few seconds.
-        // Therefore we have this hack to pop to root on navigation controller.
-        // iOS sometimes changes something on the navigation from `prepareInterfaceForUserChoosingTextToInsert`
-        // which needs this workaround.
-        if let context,
-           case .autofillText = context.extensionMode,
-           let navController = fromViewController as? UINavigationController {
-            navController.popToRoot(animated: true)
-            return
-        }
+// MARK: - KeyboardAnchorTextField
 
-        if let fromViewController {
-            fromViewController.willMove(toParent: nil)
-            fromViewController.view.removeFromSuperview()
-            fromViewController.removeFromParent()
-        }
+/// A zero-frame text field used in `autofillText` mode to hold first responder and keep
+/// the system keyboard session alive until the SwiftUI view hierarchy is ready.
+///
+/// `inputView` must remain `nil` (the default); a custom input view suppresses the system
+/// keyboard session, causing InputUI to end it after ~5 seconds. Once the SwiftUI view
+/// appears it takes over first responder via `@FocusState`.
+///
+/// Registers a `keyboardWillHide` safety net on init to reclaim first responder if something
+/// unexpectedly dismisses the keyboard mid-flow.
+private final class KeyboardAnchorTextField: UITextField {
+    @available(*, unavailable)
+    required init?(coder: NSCoder) { nil }
+
+    override init(frame: CGRect) {
+        super.init(frame: frame)
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(keyboardWillHide),
+            name: UIResponder.keyboardWillHideNotification,
+            object: nil,
+        )
+    }
+
+    @objc
+    private func keyboardWillHide() {
+        guard !isFirstResponder else { return }
+        Logger.appExtension.debug("KeyboardAnchorTextField: keyboard will hide without anchor as FR — reclaiming")
+        becomeFirstResponder()
+    }
+
+    @discardableResult
+    override func becomeFirstResponder() -> Bool {
+        let result = super.becomeFirstResponder()
+        Logger.appExtension.debug("KeyboardAnchorTextField: becomeFirstResponder → \(result)")
+        return result
+    }
+
+    @discardableResult
+    override func resignFirstResponder() -> Bool {
+        let result = super.resignFirstResponder()
+        Logger.appExtension.debug("KeyboardAnchorTextField: resignFirstResponder → \(result)")
+        return result
     }
 } // swiftlint:disable:this file_length

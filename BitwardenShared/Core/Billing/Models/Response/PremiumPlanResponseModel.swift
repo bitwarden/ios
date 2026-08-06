@@ -3,7 +3,7 @@ import Networking
 
 // MARK: - PremiumPlanResponseModel
 
-/// API response model for the premium subscription plan.
+/// API response model for the Premium subscription plan.
 ///
 struct PremiumPlanResponseModel: JSONResponse, Equatable, Sendable {
     // MARK: Properties

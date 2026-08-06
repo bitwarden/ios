@@ -1,0 +1,61 @@
+{
+  "profile": {
+    "id": "c8aa1e36-4427-11ee-be56-0242ac120002",
+    "name": null,
+    "email": "user@bitwarden.com",
+    "emailVerified": false,
+    "premium": false,
+    "premiumFromOrganization": false,
+    "masterPasswordHint": null,
+    "culture": "en-US",
+    "twoFactorEnabled": false,
+    "key": "key",
+    "privateKey": "private key",
+    "securityStamp": "stamp",
+    "forcePasswordReset": false,
+    "usesKeyConnector": false,
+    "avatarColor": null,
+    "organizations": [],
+    "organizationsNew": [
+      {
+        "accessSecretsManager": false,
+        "enabled": true,
+        "familySponsorshipAvailable": false,
+        "hasPublicAndPrivateKeys": false,
+        "id": "org-new-1",
+        "identifier": "org-new-1-identifier",
+        "key": null,
+        "keyConnectorEnabled": false,
+        "keyConnectorUrl": null,
+        "name": "New Org",
+        "permissions": null,
+        "status": 1,
+        "type": 0,
+        "useEvents": false,
+        "usePolicies": true,
+        "userIsManagedByOrganization": false,
+        "usersGetPremium": false
+      }
+    ],
+    "providers": [],
+    "providerOrganizations": [],
+    "object": "profile"
+  },
+  "folders": [],
+  "collections": [],
+  "ciphers": [],
+  "domains": null,
+  "policies": [],
+  "policiesNew": [
+    {
+      "id": "policy-new-1",
+      "organizationId": "org-1",
+      "type": 1,
+      "data": null,
+      "enabled": true,
+      "object": "policy"
+    }
+  ],
+  "sends": [],
+  "object": "sync"
+}

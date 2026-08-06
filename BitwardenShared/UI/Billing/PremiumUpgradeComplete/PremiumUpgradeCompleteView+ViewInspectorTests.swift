@@ -13,7 +13,7 @@ import XCTest
 class PremiumUpgradeCompleteViewTests: BitwardenTestCase {
     // MARK: Properties
 
-    var processor: MockProcessor<Void, PremiumUpgradeCompleteAction, Void>!
+    var processor: MockProcessor<Void, PremiumUpgradeCompleteAction, PremiumUpgradeCompleteEffect>!
     var subject: PremiumUpgradeCompleteView!
 
     // MARK: Setup & Teardown

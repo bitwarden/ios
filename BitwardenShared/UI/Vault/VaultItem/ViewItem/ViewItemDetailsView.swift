@@ -300,6 +300,30 @@ struct ViewItemDetailsView: View { // swiftlint:disable:this type_body_length
     @ViewBuilder private var itemInformationSection: some View {
         // check for type
         switch store.state.type {
+        case .bankAccount:
+            ViewBankAccountItemView(
+                store: store.child(
+                    state: { _ in store.state.bankAccountItemState },
+                    mapAction: { $0 },
+                    mapEffect: nil,
+                ),
+            )
+        case .driversLicense:
+            ViewDriversLicenseItemView(
+                store: store.child(
+                    state: { _ in store.state.driversLicenseItemState },
+                    mapAction: { $0 },
+                    mapEffect: nil,
+                ),
+            )
+        case .passport:
+            ViewPassportItemView(
+                store: store.child(
+                    state: { _ in store.state.passportItemState },
+                    mapAction: { $0 },
+                    mapEffect: nil,
+                ),
+            )
         case .card:
             ViewCardItemView(
                 store: store.child(

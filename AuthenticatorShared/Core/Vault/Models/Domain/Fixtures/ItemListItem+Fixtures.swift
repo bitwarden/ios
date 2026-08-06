@@ -51,6 +51,7 @@ public extension ItemListItem {
 public extension ItemListTotpItem {
     static func fixture(
         itemView: AuthenticatorItemView = .fixture(),
+        nextTotpCode: TOTPCodeModel? = nil,
         totpCode: TOTPCodeModel = TOTPCodeModel(
             code: "123456",
             codeGenerationDate: Date(),
@@ -59,6 +60,7 @@ public extension ItemListTotpItem {
     ) -> ItemListTotpItem {
         ItemListTotpItem(
             itemView: itemView,
+            nextTotpCode: nextTotpCode,
             totpCode: totpCode,
         )
     }
@@ -67,6 +69,7 @@ public extension ItemListTotpItem {
 public extension ItemListSharedTotpItem {
     static func fixture(
         itemView: AuthenticatorBridgeItemDataView = .fixtureFilled(),
+        nextTotpCode: TOTPCodeModel? = nil,
         totpCode: TOTPCodeModel = TOTPCodeModel(
             code: "123456",
             codeGenerationDate: Date(),
@@ -75,6 +78,7 @@ public extension ItemListSharedTotpItem {
     ) -> ItemListSharedTotpItem {
         ItemListSharedTotpItem(
             itemView: itemView,
+            nextTotpCode: nextTotpCode,
             totpCode: totpCode,
         )
     }

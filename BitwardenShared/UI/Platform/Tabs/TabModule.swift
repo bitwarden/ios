@@ -42,6 +42,7 @@ extension DefaultAppModule: TabModule {
         TabCoordinator(
             errorReporter: errorReporter,
             module: self,
+            policyService: services.policyService,
             rootNavigator: rootNavigator,
             settingsDelegate: settingsDelegate,
             tabNavigator: tabNavigator,

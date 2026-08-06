@@ -22,6 +22,8 @@ extension BitwardenSdk.InitUserCryptoMethod {
             "PIN"
         case .pinEnvelope:
             "PIN Envelope"
+        case .pinState:
+            "PIN State"
         }
     }
 }
@@ -32,6 +34,16 @@ extension BitwardenSdk.MasterPasswordUnlockData {
             kdf: model.kdf.sdkKdf,
             masterKeyWrappedUserKey: model.masterKeyEncryptedUserKey,
             salt: model.salt,
+        )
+    }
+}
+
+extension MasterPasswordUnlockResponseModel {
+    init(unlockData: BitwardenSdk.MasterPasswordUnlockData) {
+        self.init(
+            kdf: KdfConfig(kdf: unlockData.kdf),
+            masterKeyEncryptedUserKey: unlockData.masterKeyWrappedUserKey,
+            salt: unlockData.salt,
         )
     }
 }

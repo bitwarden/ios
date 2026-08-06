@@ -15,7 +15,7 @@ import XCTest
 class AppProcessorFido2Tests: BitwardenTestCase {
     // MARK: Properties
 
-    var appExtensionDelegate: MockAutofillAppExtensionDelegate!
+    var appExtensionDelegate: MockCredentialProviderExtensionDelegate!
     var appModule: MockAppModule!
     var authRepository: MockAuthRepository!
     var autofillCredentialService: MockAutofillCredentialService!
@@ -40,7 +40,7 @@ class AppProcessorFido2Tests: BitwardenTestCase {
         super.setUp()
 
         router = MockRouter(routeForEvent: { _ in .landing })
-        appExtensionDelegate = MockAutofillAppExtensionDelegate()
+        appExtensionDelegate = MockCredentialProviderExtensionDelegate()
         appModule = MockAppModule()
         authRepository = MockAuthRepository()
         autofillCredentialService = MockAutofillCredentialService()

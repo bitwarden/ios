@@ -33,4 +33,12 @@ public protocol BiometricsKeychainRepository { // sourcery: AutoMockable
     /// - Throws: An error if the storage operation fails or if biometric authentication is required but fails.
     ///
     func setUserBiometricAuthKey(userId: String, value: String) async throws
+
+    /// Returns whether a biometric-protected user auth key exists in the keychain for the specified
+    /// user, without triggering a biometric authentication prompt.
+    ///
+    /// - Parameter userId: The user ID to check.
+    /// - Returns: `true` if the key is present, `false` if absent or on error.
+    ///
+    func userBiometricAuthKeyExists(userId: String) async -> Bool
 }

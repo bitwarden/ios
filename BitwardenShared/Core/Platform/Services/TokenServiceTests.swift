@@ -60,7 +60,7 @@ class TokenServiceTests: BitwardenTestCase {
         stateService.activeAccount = nil
 
         await assertAsyncThrows(error: StateServiceError.noActiveAccount) {
-            let accessToken: String = try await subject.getAccessToken()
+            _ = try await subject.getAccessToken()
         }
     }
 

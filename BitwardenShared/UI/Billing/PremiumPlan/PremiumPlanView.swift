@@ -1,10 +1,11 @@
+// swiftlint:disable file_length
 import BitwardenKit
 import BitwardenResources
 import SwiftUI
 
 // MARK: - PremiumPlanView
 
-/// A view that displays the user's premium plan details and billing information.
+/// A view that displays the user's Premium plan details and billing information.
 ///
 struct PremiumPlanView: View {
     // MARK: Properties
@@ -18,16 +19,24 @@ struct PremiumPlanView: View {
     // MARK: View
 
     var body: some View {
-        VStack(spacing: 16) {
-            planContentBlock
+        LoadingView(
+            state: store.state.loadingState,
+            loadingMessage: Localizations.loadingSubscription,
+        ) { _ in
+            VStack(spacing: 16) {
+                planContentBlock
 
-            managePlanButton
+                managePlanButton
 
-            if store.state.showCancelButton {
-                cancelPremiumButton
+                if store.state.showCancelButton {
+                    cancelPremiumButton
+                }
             }
+            .scrollView()
+        } errorView: { message in
+            subscriptionLoadErrorView(message: message)
         }
-        .scrollView()
+        .background(SharedAsset.Colors.backgroundPrimary.swiftUIColor.ignoresSafeArea())
         .navigationBar(title: Localizations.plan, titleDisplayMode: .inline)
         .task {
             await store.perform(.appeared)
@@ -41,12 +50,13 @@ struct PremiumPlanView: View {
 
     // MARK: Private Views
 
-    /// The billing details section with rows for billing amount, storage cost, and discount.
+    /// The billing details section with rows for billing amount, storage cost, and discount
     @ViewBuilder private var billingSection: some View {
         billingRow(
             label: Localizations.billingAmount,
             value: store.state.billingAmount,
             valueColor: Color(asset: SharedAsset.Colors.textPrimary),
+            valueAccessibilityLabel: store.state.billingAmountAccessibilityLabel,
         )
         if store.state.showStorageCost {
             billingRow(
@@ -62,16 +72,21 @@ struct PremiumPlanView: View {
                 valueColor: SharedAsset.Colors.statusStrong.swiftUIColor,
             )
         }
-        if store.state.showEstimatedTax {
-            billingRow(
-                label: Localizations.estimatedTax,
-                value: store.state.estimatedTax,
-                valueColor: Color(asset: SharedAsset.Colors.textPrimary),
-            )
-        }
+        billingRow(
+            label: Localizations.estimatedTax,
+            value: store.state.estimatedTax,
+            valueColor: Color(asset: SharedAsset.Colors.textPrimary),
+        )
+        billingRow(
+            label: Localizations.total,
+            value: store.state.totalLabel,
+            valueColor: Color(asset: SharedAsset.Colors.textPrimary),
+            labelWeight: .bold,
+            valueAccessibilityLabel: store.state.totalAccessibilityLabel,
+        )
     }
 
-    /// The cancel premium button.
+    /// The cancel Premium button.
     private var cancelPremiumButton: some View {
         Button {
             store.send(.cancelPremiumTapped)
@@ -82,6 +97,7 @@ struct PremiumPlanView: View {
             }
         }
         .buttonStyle(.secondary())
+        .accessibilityHint(Localizations.externalLink)
         .accessibilityIdentifier("CancelPremiumButton")
     }
 
@@ -90,6 +106,7 @@ struct PremiumPlanView: View {
         Text(LocalizedStringKey(store.state.descriptionText))
             .styleGuide(.callout)
             .foregroundColor(Color(asset: SharedAsset.Colors.textSecondary))
+            .accessibilityLabel(store.state.descriptionAccessibilityLabel)
     }
 
     /// The header section with title, badge, and description.
@@ -124,6 +141,7 @@ struct PremiumPlanView: View {
             }
         }
         .buttonStyle(.primary())
+        .accessibilityHint(Localizations.externalLink)
         .accessibilityIdentifier("ManagePlanButton")
     }
 
@@ -138,11 +156,32 @@ struct PremiumPlanView: View {
                     .padding(.horizontal, 16)
             }
 
-            if store.state.planStatus == .canceled {
+            if store.state.planStatus == .canceled || store.state.planStatus == .expired {
                 PremiumFeaturesList()
                     .padding(.horizontal, 16)
             }
         }
+    }
+
+    /// The full-screen error view shown when subscription data fails to load.
+    ///
+    /// - Parameters:
+    ///   - message: The error message to display.
+    ///
+    private func subscriptionLoadErrorView(message: String) -> some View {
+        VStack(spacing: 16) {
+            IllustratedMessageView(
+                image: Asset.Images.Illustrations.dataBreach,
+                style: .smallImage,
+                message: message,
+            )
+            AsyncButton(Localizations.tryAgain) {
+                await store.perform(.tryAgainTapped)
+            }
+            .buttonStyle(.primary())
+            .accessibilityIdentifier("TryAgainButton")
+        }
+        .scrollView(centerContentVertically: true)
     }
 
     // MARK: Private Methods
@@ -153,15 +192,20 @@ struct PremiumPlanView: View {
     ///   - label: The label text displayed on the left.
     ///   - value: The value text displayed on the right.
     ///   - valueColor: The color to use for the value text.
+    ///   - labelWeight: The font weight applied to the label.
+    ///   - valueAccessibilityLabel: A VoiceOver-friendly override for `value`, or `nil` to read
+    ///     `value` as-is.
     ///
     private func billingRow(
         label: String,
         value: String,
         valueColor: Color,
+        labelWeight: SwiftUI.Font.Weight = .regular,
+        valueAccessibilityLabel: String? = nil,
     ) -> some View {
         HStack {
             Text(label)
-                .styleGuide(.body)
+                .styleGuide(.body, weight: labelWeight)
                 .foregroundColor(Color(asset: SharedAsset.Colors.textSecondary))
 
             Spacer()
@@ -169,6 +213,7 @@ struct PremiumPlanView: View {
             Text(value)
                 .styleGuide(.body)
                 .foregroundColor(valueColor)
+                .accessibilityLabel(valueAccessibilityLabel ?? value)
         }
         .padding(.vertical, 20)
     }
@@ -206,6 +251,20 @@ private extension PremiumSubscription {
         suspension: nil,
     )
 
+    static let previewExpired = PremiumSubscription(
+        cadence: .annually,
+        cancelAt: nil,
+        canceled: nil,
+        discount: 0,
+        estimatedTax: 0,
+        gracePeriod: 1,
+        nextCharge: nil,
+        seatsCost: 19.8,
+        status: .expired,
+        storageCost: 0,
+        suspension: Date().addingTimeInterval(-60 * 60 * 24 * 9),
+    )
+
     static let previewPastDue = PremiumSubscription(
         cadence: .annually,
         cancelAt: nil,
@@ -218,6 +277,48 @@ private extension PremiumSubscription {
         status: .pastDue,
         storageCost: 4,
         suspension: Date().addingTimeInterval(60 * 60 * 24 * 30),
+    )
+
+    static let previewPendingCancellation = PremiumSubscription(
+        cadence: .annually,
+        cancelAt: Date().addingTimeInterval(60 * 60 * 24 * 30),
+        canceled: nil,
+        discount: 2.10,
+        estimatedTax: 3.85,
+        gracePeriod: nil,
+        nextCharge: Date().addingTimeInterval(60 * 60 * 24 * 30),
+        seatsCost: 19.8,
+        status: .pendingCancellation,
+        storageCost: 8,
+        suspension: nil,
+    )
+
+    static let previewActiveNoStorage = PremiumSubscription(
+        cadence: .annually,
+        cancelAt: nil,
+        canceled: nil,
+        discount: 0,
+        estimatedTax: 4.55,
+        gracePeriod: nil,
+        nextCharge: Date().addingTimeInterval(60 * 60 * 24 * 30),
+        seatsCost: 19.8,
+        status: .active,
+        storageCost: 0,
+        suspension: nil,
+    )
+
+    static let previewUnpaid = PremiumSubscription(
+        cadence: .annually,
+        cancelAt: nil,
+        canceled: nil,
+        discount: 2.10,
+        estimatedTax: 3.85,
+        gracePeriod: nil,
+        nextCharge: nil,
+        seatsCost: 19.8,
+        status: .unpaid,
+        storageCost: 0,
+        suspension: Date().addingTimeInterval(-60 * 60 * 24 * 30),
     )
 
     static let previewUpdatePayment = PremiumSubscription(
@@ -235,15 +336,38 @@ private extension PremiumSubscription {
     )
 }
 
+#Preview("Loading") {
+    NavigationView {
+        PremiumPlanView(
+            store: Store(
+                processor: StateProcessor(
+                    state: PremiumPlanState(),
+                ),
+            ),
+        )
+    }
+}
+
+#Preview("Error") {
+    NavigationView {
+        PremiumPlanView(
+            store: Store(
+                processor: StateProcessor(
+                    state: PremiumPlanState(loadingState: .error(
+                        errorMessage: Localizations.weCouldntLoadYourSubscriptionDetailsPleaseRetry,
+                    )),
+                ),
+            ),
+        )
+    }
+}
+
 #Preview("Active") {
     NavigationView {
         PremiumPlanView(
             store: Store(
                 processor: StateProcessor(
-                    state: PremiumPlanState(
-                        planStatus: .active,
-                        subscription: .previewActive,
-                    ),
+                    state: PremiumPlanState(subscription: .previewActive),
                 ),
             ),
         )
@@ -255,10 +379,7 @@ private extension PremiumSubscription {
         PremiumPlanView(
             store: Store(
                 processor: StateProcessor(
-                    state: PremiumPlanState(
-                        planStatus: .updatePayment,
-                        subscription: .previewUpdatePayment,
-                    ),
+                    state: PremiumPlanState(subscription: .previewUpdatePayment),
                 ),
             ),
         )
@@ -270,10 +391,7 @@ private extension PremiumSubscription {
         PremiumPlanView(
             store: Store(
                 processor: StateProcessor(
-                    state: PremiumPlanState(
-                        planStatus: .pastDue,
-                        subscription: .previewPastDue,
-                    ),
+                    state: PremiumPlanState(subscription: .previewPastDue),
                 ),
             ),
         )
@@ -285,10 +403,55 @@ private extension PremiumSubscription {
         PremiumPlanView(
             store: Store(
                 processor: StateProcessor(
-                    state: PremiumPlanState(
-                        planStatus: .canceled,
-                        subscription: .previewCanceled,
-                    ),
+                    state: PremiumPlanState(subscription: .previewCanceled),
+                ),
+            ),
+        )
+    }
+}
+
+#Preview("Expired") {
+    NavigationView {
+        PremiumPlanView(
+            store: Store(
+                processor: StateProcessor(
+                    state: PremiumPlanState(subscription: .previewExpired),
+                ),
+            ),
+        )
+    }
+}
+
+#Preview("Pending Cancellation") {
+    NavigationView {
+        PremiumPlanView(
+            store: Store(
+                processor: StateProcessor(
+                    state: PremiumPlanState(subscription: .previewPendingCancellation),
+                ),
+            ),
+        )
+    }
+}
+
+#Preview("Unpaid") {
+    NavigationView {
+        PremiumPlanView(
+            store: Store(
+                processor: StateProcessor(
+                    state: PremiumPlanState(subscription: .previewUnpaid),
+                ),
+            ),
+        )
+    }
+}
+
+#Preview("Active - No Storage") {
+    NavigationView {
+        PremiumPlanView(
+            store: Store(
+                processor: StateProcessor(
+                    state: PremiumPlanState(subscription: .previewActiveNoStorage),
                 ),
             ),
         )

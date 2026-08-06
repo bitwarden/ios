@@ -33,12 +33,12 @@ struct SSOCookieVendorRequestHandler: RequestHandler {
         let hostname = await serverCommunicationConfigClientSingleton.resolveHostname(hostname: requestURLHost)
 
         let serverCommunicationConfigClient = try await serverCommunicationConfigClientSingleton.client()
-        let serverCommunicationConfig = try await serverCommunicationConfigClient.getConfig(hostname: hostname)
+        let serverCommunicationConfig = try await serverCommunicationConfigClient.getConfig(domain: hostname)
         guard case .ssoCookieVendor = serverCommunicationConfig.bootstrap else {
             return request
         }
 
-        let cookies = await serverCommunicationConfigClient.cookies(hostname: hostname)
+        let cookies = await serverCommunicationConfigClient.cookies(domain: hostname)
         guard !cookies.isEmpty else {
             return request
         }

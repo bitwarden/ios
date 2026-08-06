@@ -1,0 +1,68 @@
+import AuthenticationServices
+import Combine
+import Foundation
+import TestHelpers
+
+@testable import BitwardenShared
+
+@available(iOS 17.0, *)
+class MockCredentialProviderExtensionDelegate: MockAppExtensionDelegate, CredentialProviderExtensionDelegate {
+    var completeAssertionRequestMocker = InvocationMocker<ASPasskeyAssertionCredential>()
+    /// Stores the `ASGeneratedPassword.Kind` as `Any?` to avoid the iOS 26.2 type availability
+    /// requirement on the stored property, since this class is `@available(iOS 17.0, *)`.
+    /// Cast to `ASGeneratedPassword.Kind` inside `@available(iOS 26.2, *)` test code.
+    var completeGeneratePasswordRequestKind: Any?
+    var completeGeneratePasswordRequestPassword: String?
+    var completeOTPRequestCodeCalled: String?
+    var completeRegistrationRequestMocker = InvocationMocker<ASPasskeyRegistrationCredential>()
+    var completeSavePasswordRequestCalled = false
+    var completeTextRequestTextToInsert: String?
+    var extensionMode: CredentialProviderMode = .configureAutofill
+    var didAppearPublisher = CurrentValueSubject<Bool, Never>(false)
+    var setMatchedExcludedCredentialFoundCalled = false
+    var setUserInteractionRequiredCalled = false
+
+    var flowWithUserInteraction: Bool = true
+
+    func completeAssertionRequest(assertionCredential: ASPasskeyAssertionCredential) {
+        completeAssertionRequestMocker.invoke(param: assertionCredential)
+    }
+
+    @available(iOS 26.2, iOSApplicationExtension 26.2, *)
+    func completeGeneratePasswordRequest(kind: ASGeneratedPassword.Kind, password: String) {
+        completeGeneratePasswordRequestKind = kind
+        completeGeneratePasswordRequestPassword = password
+    }
+
+    func completeOTPRequest(code: String) {
+        completeOTPRequestCodeCalled = code
+    }
+
+    func completeSavePasswordRequest() {
+        completeSavePasswordRequestCalled = true
+    }
+
+    func completeRegistrationRequest(asPasskeyRegistrationCredential: ASPasskeyRegistrationCredential) {
+        completeRegistrationRequestMocker.invoke(param: asPasskeyRegistrationCredential)
+    }
+
+    @available(iOSApplicationExtension 18.0, *)
+    func completeTextRequest(text: String) {
+        completeTextRequestTextToInsert = text
+    }
+
+    func getDidAppearPublisher() -> AsyncPublisher<AnyPublisher<Bool, Never>> {
+        didAppearPublisher
+            .eraseToAnyPublisher()
+            .values
+    }
+
+    @available(iOSApplicationExtension 18.0, *)
+    func setMatchedExcludedCredentialFound() {
+        setMatchedExcludedCredentialFoundCalled = true
+    }
+
+    func setUserInteractionRequired() {
+        setUserInteractionRequiredCalled = true
+    }
+}

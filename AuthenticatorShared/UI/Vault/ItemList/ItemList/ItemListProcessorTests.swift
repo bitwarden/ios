@@ -7,6 +7,7 @@ import XCTest
 // swiftlint:disable file_length
 
 @testable import AuthenticatorShared
+@testable import AuthenticatorSharedMocks
 
 // MARK: - ItemListProcessorTests
 
@@ -23,6 +24,7 @@ class ItemListProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
     var flightRecorder: MockFlightRecorder!
     var notificationCenterService: MockNotificationCenterService!
     var pasteboardService: MockPasteboardService!
+    var totpItemDisplayStateService: MockTOTPItemDisplayStateService!
     var totpService: MockTOTPService!
     var subject: ItemListProcessor!
     var totpExpirationManagerForItems: MockTOTPExpirationManager!
@@ -44,6 +46,8 @@ class ItemListProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         flightRecorder = MockFlightRecorder()
         notificationCenterService = MockNotificationCenterService()
         pasteboardService = MockPasteboardService()
+        totpItemDisplayStateService = MockTOTPItemDisplayStateService()
+        totpItemDisplayStateService.getShowNextTOTPCodeReturnValue = false
         totpService = MockTOTPService()
 
         totpExpirationManagerForItems = MockTOTPExpirationManager()
@@ -65,6 +69,7 @@ class ItemListProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
             notificationCenterService: notificationCenterService,
             pasteboardService: pasteboardService,
             totpExpirationManagerFactory: totpExpirationManagerFactory,
+            totpItemDisplayStateService: totpItemDisplayStateService,
             totpService: totpService,
         )
 
@@ -87,6 +92,7 @@ class ItemListProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         flightRecorder = nil
         notificationCenterService = nil
         pasteboardService = nil
+        totpItemDisplayStateService = nil
         totpService = nil
         coordinator = nil
         subject = nil
@@ -170,6 +176,37 @@ class ItemListProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
 
         XCTAssertEqual(authItemRepository.refreshedTotpCodes, [result])
         XCTAssertEqual(subject.state.loadingState, .data([resultSection]))
+    }
+
+    /// `perform(_:)` with `.appeared` sets `showNextTOTPCode` from the state service when the value is `true`.
+    @MainActor
+    func test_perform_appeared_setsShowNextTOTPCode_true() {
+        totpItemDisplayStateService.getShowNextTOTPCodeReturnValue = true
+
+        let task = Task {
+            await subject.perform(.appeared)
+        }
+
+        waitFor(subject.state.showNextTOTPCode == true)
+        task.cancel()
+
+        XCTAssertTrue(subject.state.showNextTOTPCode)
+    }
+
+    /// `perform(_:)` with `.appeared` sets `showNextTOTPCode` from the state service when the value is `false`.
+    @MainActor
+    func test_perform_appeared_setsShowNextTOTPCode_false() {
+        subject.state.showNextTOTPCode = true
+        totpItemDisplayStateService.getShowNextTOTPCodeReturnValue = false
+
+        let task = Task {
+            await subject.perform(.appeared)
+        }
+
+        waitFor(subject.state.showNextTOTPCode == false)
+        task.cancel()
+
+        XCTAssertFalse(subject.state.showNextTOTPCode)
     }
 
     /// `perform(_:)` with `.appeared` records any errors.

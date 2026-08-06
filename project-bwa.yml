@@ -16,7 +16,7 @@ settings:
 packages:
   SwiftProtobuf:
     url: https://github.com/apple/swift-protobuf
-    exactVersion: 1.31.0
+    exactVersion: 1.38.0
 projectReferences:
   BitwardenKit:
     path: BitwardenKit.xcodeproj
@@ -113,22 +113,15 @@ targets:
           - $(SRCROOT)/Authenticator/Application/Support/Settings.bundle/Acknowledgements
     postCompileScripts:
       - script: |
+          if [[ -n "$CI" ]]; then
+            echo "[Lint Changes] skipping, CI detected"
+            exit 0
+          fi
           if [[ ! "$PATH" =~ "/opt/homebrew/bin" ]]; then
             PATH="/opt/homebrew/bin:$PATH"
           fi
-          mint run swiftlint
-        name: Swiftlint
-        basedOnDependencyAnalysis: false
-      - script: |
-          if [[ ! "$PATH" =~ "/opt/homebrew/bin" ]]; then
-            PATH="/opt/homebrew/bin:$PATH"
-          fi
-          mint run swiftformat --lint --lenient .
-        name: SwiftFormat Lint
-        basedOnDependencyAnalysis: false
-    postBuildScripts:
-      - path: Scripts-bwa/update_settings_version_number.sh
-        name: "Settings.bundle: Update Version Number"
+          ./Scripts/lint-changes.sh
+        name: Lint Changes
         basedOnDependencyAnalysis: false
   AuthenticatorTests:
     type: bundle.unit-test
@@ -145,6 +138,8 @@ targets:
     dependencies:
       - target: Authenticator
       - target: BitwardenKit/AuthenticatorBridgeKit
+      - target: BitwardenKit/BitwardenKitMocks
+      - target: BitwardenKit/BitwardenSdkMocks
       - target: BitwardenKit/TestHelpers
       - package: SnapshotTesting
     randomExecutionOrder: true

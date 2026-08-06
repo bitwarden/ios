@@ -42,44 +42,6 @@
       "AuthenticatorShared/",
       "project-bwa.yml",
       "swiftgen-bwa.yml"
-    ],
-    "t:feature": [
-      "TestHarness/",
-      "TestHarnessShared/",
-      "project-bwth.yml",
-      "swiftgen-bwth.yml"
-    ],
-    "t:ci": [
-      ".checkmarx/",
-      ".github/",
-      "Configs/",
-      "Configs-bwa/",
-      "Scripts/",
-      "Scripts-bwa/",
-      "fastlane/",
-      "crowdin.yml"
-    ],
-    "t:docs": [
-      "Docs/"
-    ],
-    "t:deps": [
-      "Brewfile",
-      "Gemfile",
-      "Gemfile.lock",
-      "Mintfile",
-      "Bitwarden.xcworkspace/xcshareddata/swiftpm/Package.resolved"
-    ],
-    "t:misc": [
-      "GlobalTestHelpers/",
-      "GlobalTestHelpers-bwa/",
-      "GlobalTestHelpers-bwth/",
-      "Sourcery/",
-      "TestHelpers/",
-      "TestPlans/",
-      "ViewInspectorTestHelpers/"
-    ],
-    "t:llm": [
-      ".claude/"
     ]
   }
 }

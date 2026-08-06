@@ -12,6 +12,7 @@ class VaultItemCoordinator: NSObject, Coordinator, HasStackNavigator { // swiftl
     // MARK: Types
 
     typealias Module = AddEditFolderModule
+        & BillingModule
         & FileSelectionModule
         & GeneratorModule
         & NavigatorBuilderModule
@@ -23,6 +24,8 @@ class VaultItemCoordinator: NSObject, Coordinator, HasStackNavigator { // swiftl
         & HasAPIService
         & HasAppContextHelper
         & HasAuthRepository
+        & HasBillingRepository
+        & HasBillingService
         & HasCardTextParser
         & HasConfigService
         & HasEnvironmentService
@@ -138,6 +141,8 @@ class VaultItemCoordinator: NSObject, Coordinator, HasStackNavigator { // swiftl
             showMoveToOrganization(cipher: cipher, delegate: context as? MoveToOrganizationProcessorDelegate)
         case let .passwordHistory(passwordHistory):
             showPasswordHistory(passwordHistory)
+        case .premiumUpgrade:
+            showPremiumUpgrade()
         case let .saveFile(temporaryUrl):
             showSaveFile(temporaryUrl)
         case .setupTotpManual:
@@ -186,7 +191,7 @@ class VaultItemCoordinator: NSObject, Coordinator, HasStackNavigator { // swiftl
     ///
     /// - Parameters:
     ///   - group: An optional `VaultListGroup` to initialize this view with.
-    ///   - hasPremium: Whether the user has premium,
+    ///   - hasPremium: Whether the user has Premium,
     ///   - newCipherOptions: Options that can be used to pre-populate the add item screen.
     ///   - organizationId: The organization id in case an organization was selected in the vault filter.
     ///   - type: The type of item to add.
@@ -261,7 +266,7 @@ class VaultItemCoordinator: NSObject, Coordinator, HasStackNavigator { // swiftl
     ///   - cipherView: A `CipherView` to initialize this view with.
     ///   - delegate: A `CipherItemOperationDelegate` delegate that is notified when specific circumstances
     ///     in the add/edit/delete item view have occurred.
-    ///   - hasPremium: Whether the user has premium.
+    ///   - hasPremium: Whether the user has Premium.
     ///
     private func showCloneItem(
         for cipherView: CipherView,
@@ -309,7 +314,7 @@ class VaultItemCoordinator: NSObject, Coordinator, HasStackNavigator { // swiftl
     /// .
     /// - Parameters:
     ///   - cipherView: The `CipherView` to edit.
-    ///   - hasPremium: Whether the user has premium.
+    ///   - hasPremium: Whether the user has Premium.
     ///   - delegate: The delegate for the view.
     ///
     private func showEditItem(for cipherView: CipherView, hasPremium: Bool, delegate: CipherItemOperationDelegate?) {
@@ -445,6 +450,15 @@ class VaultItemCoordinator: NSObject, Coordinator, HasStackNavigator { // swiftl
         let coordinator = module.makePasswordHistoryCoordinator(stackNavigator: navigationController)
         coordinator.start()
         coordinator.navigate(to: .passwordHistoryList(.item(passwordHistory)))
+        stackNavigator?.present(navigationController)
+    }
+
+    /// Shows the Premium upgrade screen.
+    ///
+    private func showPremiumUpgrade() {
+        let navigationController = module.makeNavigationController()
+        let coordinator = module.makeBillingCoordinator(stackNavigator: navigationController)
+        coordinator.navigate(to: .premiumUpgrade)
         stackNavigator?.present(navigationController)
     }
 

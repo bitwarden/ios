@@ -24,18 +24,22 @@ struct VaultGroupState: Equatable, Sendable {
     /// The title of the add item button.
     var addItemButtonTitle: String {
         switch group {
+        case .bankAccount:
+            Localizations.addBankAccount
         case .card:
-            Localizations.newCard
+            Localizations.addCard
+        case .driversLicense:
+            Localizations.addLicense
         case .collection, .folder:
-            Localizations.newItem
+            Localizations.addItem
         case .identity:
-            Localizations.newIdentity
+            Localizations.addIdentity
         case .login:
-            Localizations.newLogin
+            Localizations.addLogin
         case .secureNote:
-            Localizations.newNote
+            Localizations.addNote
         default:
-            Localizations.newItem
+            Localizations.addItem
         }
     }
 
@@ -55,7 +59,7 @@ struct VaultGroupState: Equatable, Sendable {
         }
 
         switch group {
-        case .card, .identity, .login, .secureNote:
+        case .bankAccount, .card, .driversLicense, .identity, .login, .passport, .secureNote:
             return .button
         case .collection, .folder, .noFolder:
             return .menu
@@ -67,7 +71,7 @@ struct VaultGroupState: Equatable, Sendable {
     /// The `VaultListGroup` being displayed.
     var group: VaultListGroup = .login
 
-    /// Whether the user has a premium account.
+    /// Whether the user has a Premium account.
     var hasPremium: Bool = false
 
     /// The base url used to fetch icons.
@@ -90,6 +94,8 @@ struct VaultGroupState: Equatable, Sendable {
         switch group {
         case .archive:
             Localizations.archiveEmptyDescriptionLong
+        case .bankAccount:
+            Localizations.thereAreNoBankAccountsInYourVault
         case .card:
             Localizations.thereAreNoCardsInYourVault
         case .collection:
@@ -100,6 +106,8 @@ struct VaultGroupState: Equatable, Sendable {
             Localizations.thereAreNoIdentitiesInYourVault
         case .login:
             Localizations.thereAreNoLoginsInYourVault
+        case .passport:
+            Localizations.thereAreNoPassportsInYourVault
         case .secureNote:
             Localizations.thereAreNoNotesInYourVault
         case .sshKey:
@@ -133,7 +141,7 @@ struct VaultGroupState: Equatable, Sendable {
     /// The search vault filter used to display a single or all vaults for the user.
     var searchVaultFilterType = VaultFilterType.allVaults
 
-    /// Whether the archive premium subscription ended card should be shown.
+    /// Whether the archive Premium subscription ended card should be shown.
     var showArchivePremiumSubscriptionEndedCard: Bool {
         !hasPremium && group == .archive
     }
