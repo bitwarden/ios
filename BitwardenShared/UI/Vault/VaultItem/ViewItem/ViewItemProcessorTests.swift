@@ -280,6 +280,23 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         XCTAssertEqual(errorReporter.errors.last as? BitwardenTestError, .example)
     }
 
+    /// `perform(_:)` with `.appeared` loads the vfo1-foundation feature flag.
+    @MainActor
+    func test_perform_appeared_featureFlags_vfo1Foundation() {
+        configService.featureFlagsBool[.vfo1Foundation] = true
+        let cipherItem = CipherView.fixture(id: "id")
+        vaultRepository.cipherDetailsSubject.send(cipherItem)
+
+        let task = Task {
+            await subject.perform(.appeared)
+        }
+
+        waitFor(subject.state.loadingState != .loading(nil))
+        task.cancel()
+
+        XCTAssertEqual(subject.state.loadingState.data?.isVfo1FoundationFeatureFlagEnabled, true)
+    }
+
     /// `perform(_:)` with `.appeared` starts listening for updates with the vault repository.
     @MainActor
     func test_perform_appeared_invalidFixture() {
