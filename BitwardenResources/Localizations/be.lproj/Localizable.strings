@@ -815,7 +815,7 @@
 "YouMayNeedToEnableDevicePasscodeOrBiometrics" = "Магчыма, вам трэба ўключыць код-пароль прылады або біяметрыю.";
 "StartImportCXFDescriptionLong" = "Імпартуйце паролі, ключы доступу, крэдытныя карты і любыя асабістыя ідэнтыфікацыйныя даныя з іншага мэнэджара пароляў.\n\nВашы даныя **не будуць** выдалены ад вашага папярэдняга правайдэра.";
 "ImportPasswords" = "Імпартаваць паролі";
-"ImportingEllipsis" = "Імпартаванне…";
+"ImportingEllipsis" = "Імпартаванне...";
 "AreYouSureYouWantToCancelTheImportProcessQuestionMark" = "Вы ўпэўнены, што хочаце адмяніць працэс імпарту?";
 "ImportFailed" = "Імпарт не ўдаўся";
 "ThereWasAnIssueImportingAllOfYourPasswordsNoDataWasDeleted" = "Узнікла праблема пры імпарце ўсіх вашых пароляў.\n\nНіякія даныя не былі выдалены.";

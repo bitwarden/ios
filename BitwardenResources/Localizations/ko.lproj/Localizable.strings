@@ -52,7 +52,7 @@
 "Password" = "비밀번호";
 "Save" = "저장";
 "Move" = "이동";
-"Saving" = "저장중…";
+"Saving" = "저장중...";
 "Settings" = "설정";
 "ShowNextCode" = "다음 코드 표시";
 "ItemDeleted" = "항목을 삭제했습니다.";
@@ -83,7 +83,7 @@
 "Close" = "닫기";
 "Continue" = "계속";
 "CreateAccount" = "계정 만들기";
-"CreatingAccount" = "계정 생성 중…";
+"CreatingAccount" = "계정 생성 중...";
 "EditItem" = "항목 편집";
 "EnableAutomaticSyncing" = "자동 동기화 사용";
 "EnterEmailForHint" = "마스터 비밀번호 힌트를 받으려면 계정의 이메일 주소를 입력하세요.";
@@ -129,8 +129,8 @@
 "Select" = "선택";
 "ItemUpdated" = "항목을 업데이트했습니다.";
 "Submitting" = "제출 중";
-"Syncing" = "동기화 중…";
-"SyncingLogins" = "로그인 동기화 중…";
+"Syncing" = "동기화 중...";
+"SyncingLogins" = "로그인 동기화 중...";
 "SyncingComplete" = "동기화를 완료했습니다.";
 "TouchID" = "Touch ID";
 "TwoStepLogin" = "2단계 인증";
@@ -166,7 +166,7 @@
 "AddNewAttachment" = "새 첨부 파일 추가";
 "Attachments" = "첨부 파일";
 "UnableToDownloadFile" = "파일을 다운로드할 수 없습니다.";
-"Downloading" = "다운로드 중…";
+"Downloading" = "다운로드 중...";
 "AttachmentLargeWarning" = "이 첨부 파일의 크기는 %1$@입니다. 정말 이 파일을 기기에 다운로드하시겠습니까?";
 "AuthenticatorKey" = "인증 키";
 "VerificationCodeTotp" = "인증 코드 (TOTP)";
@@ -277,7 +277,7 @@
 "Exact" = "정확히 일치";
 "Host" = "호스트";
 "RegEx" = "정규 표현식";
-"StartsWith" = "…으로 시작";
+"StartsWith" = "...으로 시작";
 "MatchDetection" = "일치 인식";
 "Organization" = "조직";
 "HoldYubikeyNearTop" = "기기의 위쪽에 Yubikey를 가져다 대세요.";
@@ -368,7 +368,7 @@
 "ExportVaultFailure" = "볼트 내보내기에 문제가 발생했습니다. 문제가 계속되면 웹 볼트에서 내보내기를 수행해야 합니다.";
 "Clone" = "복제";
 "PasswordGeneratorPolicyInEffect" = "하나 이상의 단체 정책이 생성기 규칙에 영항을 미치고 있습니다.";
-"SoftDeleting" = "휴지통으로 보내는 중…";
+"SoftDeleting" = "휴지통으로 보내는 중...";
 "ItemSoftDeleted" = "항목이 휴지통으로 이동되었습니다.";
 "Restore" = "복원";
 "Restoring" = "복구 중…";
@@ -815,7 +815,7 @@
 "YouMayNeedToEnableDevicePasscodeOrBiometrics" = "기기 암호 또는 생체 인식을 활성화해야 할 수 있습니다.";
 "StartImportCXFDescriptionLong" = "다른 비밀번호 관리자에서 비밀번호, 패스키, 신용 카드 및 개인 신분 정보를 가져옵니다.\n\n데이터는 이전 제공업체에서 **삭제되지 않습니다**.";
 "ImportPasswords" = "비밀번호 가져오기";
-"ImportingEllipsis" = "가져오는 중…";
+"ImportingEllipsis" = "가져오는 중...";
 "AreYouSureYouWantToCancelTheImportProcessQuestionMark" = "가져오기 프로세스를 취소하시겠습니까?";
 "ImportFailed" = "가져오기 실패";
 "ThereWasAnIssueImportingAllOfYourPasswordsNoDataWasDeleted" = "모든 비밀번호를 가져오는 중에 문제가 발생했습니다.\n\n삭제된 데이터는 없습니다.";

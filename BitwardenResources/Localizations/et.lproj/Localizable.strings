@@ -815,7 +815,7 @@
 "YouMayNeedToEnableDevicePasscodeOrBiometrics" = "Võimalik, et peate lubama seadme pääsukoodi või biomeetrilised andmed.";
 "StartImportCXFDescriptionLong" = "Importige paroolid, pääsukoodid, krediitkaardid ja isikuandmed teisest paroolihaldurist.\n\nTeie andmeid **ei** kustutata teie eelmiselt teenusepakkujalt.";
 "ImportPasswords" = "Impordi paroolid";
-"ImportingEllipsis" = "Importimine…";
+"ImportingEllipsis" = "Importimine...";
 "AreYouSureYouWantToCancelTheImportProcessQuestionMark" = "Kas olete kindel, et soovite importimise tühistada?";
 "ImportFailed" = "Importimine ebaõnnestus";
 "ThereWasAnIssueImportingAllOfYourPasswordsNoDataWasDeleted" = "Kõigi teie paroolide importimisel tekkis probleem.\n\nÜhtegi andmeid ei kustutatud.";

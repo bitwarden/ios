@@ -130,7 +130,7 @@
 "ItemUpdated" = "Elemento guardado";
 "Submitting" = "Enviando…";
 "Syncing" = "Sincronizando…";
-"SyncingLogins" = "Sincronizando inicios de sesión…";
+"SyncingLogins" = "Sincronizando inicios de sesión...";
 "SyncingComplete" = "Sincronización completada";
 "TouchID" = "Touch ID";
 "TwoStepLogin" = "Autenticación en dos pasos";
@@ -456,8 +456,8 @@
 "YourAccountHasBeenPermanentlyDeleted" = "Tu cuenta ha sido eliminada permanentemente";
 "InvalidVerificationCode" = "Código de verificación no válido.";
 "SendCode" = "Enviar código";
-"SendingCode" = "Enviando código…";
-"Verifying" = "Verificando…";
+"SendingCode" = "Enviando código...";
+"Verifying" = "Verificando...";
 "ResendCode" = "Reenviar código";
 "EnterTheVerificationCodeThatWasSentToYourEmail" = "Introduce el código de verificación enviado a tu correo electrónico";
 "SubmitCrashLogs" = "Enviar registros de fallos";
@@ -816,7 +816,7 @@
 "YouMayNeedToEnableDevicePasscodeOrBiometrics" = "Es posible que necesites activar el código de acceso del dispositivo o la biometría.";
 "StartImportCXFDescriptionLong" = "Importa contraseñas, claves de acceso, tarjetas de crédito y cualquier información de identidad personal desde otro gestor de contraseñas.\n\nTus datos **no** se eliminarán de tu proveedor anterior.";
 "ImportPasswords" = "Importar contraseñas";
-"ImportingEllipsis" = "Importando…";
+"ImportingEllipsis" = "Importando...";
 "AreYouSureYouWantToCancelTheImportProcessQuestionMark" = "¿Estás seguro de que quieres cancelar el proceso de importación?";
 "ImportFailed" = "Error en la importación";
 "ThereWasAnIssueImportingAllOfYourPasswordsNoDataWasDeleted" = "Hubo un problema al importar todas tus contraseñas.\n\nNo se eliminaron datos.";

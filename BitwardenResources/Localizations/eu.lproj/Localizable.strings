@@ -815,7 +815,7 @@
 "YouMayNeedToEnableDevicePasscodeOrBiometrics" = "Baliteke gailuaren pasakodea edo biometria gaitzea behar izatea.";
 "StartImportCXFDescriptionLong" = "Inportatu pasahitzak, pasagiltzak, kreditu-txartelak eta edozein identitate pertsonaleko informazioa beste pasahitz-kudeatzaile batetik.\n\nZure datuak **ez** dira ezabatuko zure aurreko hornitzailetik.";
 "ImportPasswords" = "Inportatu pasahitzak";
-"ImportingEllipsis" = "Inportatzen…";
+"ImportingEllipsis" = "Inportatzen...";
 "AreYouSureYouWantToCancelTheImportProcessQuestionMark" = "Ziur zaude inportazio-prozesua bertan behera utzi nahi duzula?";
 "ImportFailed" = "Inportazioak huts egin du";
 "ThereWasAnIssueImportingAllOfYourPasswordsNoDataWasDeleted" = "Arazo bat egon da zure pasahitz guztiak inportatzean.\n\nEz da daturik ezabatu.";
