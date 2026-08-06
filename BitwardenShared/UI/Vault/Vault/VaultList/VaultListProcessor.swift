@@ -743,11 +743,25 @@ extension VaultListProcessor {
     /// Streams live updates to the Premium upgrade pending state, hiding or re-evaluating the
     /// upsell action card immediately rather than waiting for the next screen appearance —
     /// needed because dismissing the "Upgrade Pending" alert returns to this same screen
-    /// without a fresh `.appeared`.
+    /// without a fresh `.appeared`. Also shows the "Sync Unsuccessful" alert the first time a
+    /// sync attempt for the pending upgrade fails.
     ///
     private func streamPremiumUpgradePendingState() async {
+        var lastAttemptFailed = false
         for await pendingState in services.billingService.premiumUpgradePendingStatePublisher().values {
             await updatePremiumUpgradeActionCardVisibility(isPending: pendingState.isPending)
+
+            // Only show the alert on a false-to-true transition — the publisher replays its
+            // current value to this subscription immediately (covering a stale failure still
+            // persisted from a previous app session), but without tracking the transition, any
+            // later emission that still has `lastAttemptFailed: true` (e.g. triggered by an
+            // unrelated `isPending` change) would incorrectly re-show the alert.
+            if pendingState.lastAttemptFailed, !lastAttemptFailed {
+                coordinator.showAlert(.syncUnsuccessful { [weak self] in
+                    await self?.services.billingService.premiumStatusChanged()
+                })
+            }
+            lastAttemptFailed = pendingState.lastAttemptFailed
         }
     }
 
