@@ -122,6 +122,7 @@ jobs:
 
       - name: Restore DerivedData
         id: restore-deriveddata
+        if: false # Disabled for now while we investigate build failures on partial cache hit
         uses: actions/cache/restore@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
         with:
           path: build/DerivedData
@@ -131,18 +132,13 @@ jobs:
 
       - name: Restore SPM packages
         id: restore-spm
+        if: false # Disabled for now while we investigate build failures on partial cache hit
         uses: actions/cache/restore@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
         with:
           path: build/DerivedData/SourcePackages
           key: ${{ runner.os }}-spm-${{ hashFiles('**/Package.resolved') }}
           restore-keys: |
             ${{ runner.os }}-spm-
-
-      # On dependency updates SPM cache key won't match and it'll fallback to an older cache.
-      # Removing workspace-state.json forces SPM to reconcile against Package.resolved, preserving old dependencies and downloading new ones.
-      - name: Reconcile SPM after partial cache hit
-        if: steps.restore-spm.outputs.cache-hit != 'true' && steps.restore-spm.outputs.cache-matched-key != ''
-        run: rm -f build/DerivedData/SourcePackages/workspace-state.json
 
       # src: https://stackoverflow.com/questions/53753511/is-it-possible-to-copy-an-xcode-derived-data-cache
       - name: Set IgnoreFileSystemDeviceInodeChanges flag
