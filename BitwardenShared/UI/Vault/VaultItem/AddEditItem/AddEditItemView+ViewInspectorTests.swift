@@ -233,7 +233,7 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
             CipherOwner.personal(displayName: "user@bitwarden.com"),
             organizationOwner,
         ]
-        let menu = try subject.inspect().find(bitwardenMenuField: Localizations.owner)
+        let menu = try subject.inspect().find(bitwardenMenuField: processor.state.ownerFieldTitle)
         try menu.select(newValue: organizationOwner)
         XCTAssertEqual(processor.dispatchedActions.last, .ownerChanged(organizationOwner))
     }

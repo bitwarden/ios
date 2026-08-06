@@ -17,6 +17,7 @@ class VaultItemSelectionProcessor: StateProcessor<
     typealias Services = HasAuthRepository
         & HasBillingRepository
         & HasBillingService
+        & HasConfigService
         & HasEnvironmentService
         & HasErrorReporter
         & HasEventService
@@ -81,6 +82,7 @@ class VaultItemSelectionProcessor: StateProcessor<
     override func perform(_ effect: VaultItemSelectionEffect) async {
         switch effect {
         case .loadData:
+            state.isVfo1FoundationFeatureFlagEnabled = await services.configService.getFeatureFlag(.vfo1Foundation)
             await refreshProfileState()
         case let .morePressed(item):
             await vaultItemMoreOptionsHelper.showMoreOptionsAlert(
