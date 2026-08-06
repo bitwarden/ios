@@ -116,7 +116,7 @@ jobs:
 
       - name: Restore DerivedData
         id: restore-deriveddata
-        if: false # Disabled for now while we investigate build failures on partial cache hit
+        if: ${{ contains(env._GITHUB_ACTION_RUN_URL, 'temp_disable_cache') }} # Disabled for now while we investigate build failures on partial cache hit
         uses: actions/cache/restore@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
         with:
           path: build/DerivedData
@@ -126,7 +126,7 @@ jobs:
 
       - name: Restore SPM packages
         id: restore-spm
-        if: false # Disabled for now while we investigate build failures on partial cache hit
+        if: ${{ contains(env._GITHUB_ACTION_RUN_URL, 'temp_disable_cache') }} # Disabled for now while we investigate build failures on partial cache hit
         uses: actions/cache/restore@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
         with:
           path: build/DerivedData/SourcePackages
