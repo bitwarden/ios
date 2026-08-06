@@ -398,11 +398,24 @@ class DefaultBillingService: BillingService {
             return
         }
 
-        guard await stateService.doesActiveAccountHavePremium() else { return }
+        // Reaching this point at all means a sync just completed successfully (this method
+        // is only invoked from a `lastSyncTimePublisher` emission, which never fires on
+        // failure), so the most recent attempt did not fail — clear that regardless of
+        // whether the account has become Premium yet, so a stale failure doesn't linger
+        // after a later, unrelated sync has actually succeeded.
+        do {
+            try await billingStateService.setPremiumUpgradeLastSyncAttemptFailed(false)
+        } catch {
+            errorReporter.log(error: error)
+        }
+
+        guard await stateService.doesActiveAccountHavePremium() else {
+            await refreshPremiumUpgradePendingStateSubject()
+            return
+        }
 
         do {
             try await billingStateService.setPremiumUpgradePending(false)
-            try await billingStateService.setPremiumUpgradeLastSyncAttemptFailed(false)
             try await billingStateService.setUpgradedToPremiumActionCardVisible(true)
         } catch {
             errorReporter.log(error: error)

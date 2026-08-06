@@ -608,6 +608,26 @@ struct BillingServiceTests { // swiftlint:disable:this type_body_length
 
     // MARK: start()
 
+    /// `start()` clears a stale `lastAttemptFailed` flag as soon as any sync succeeds, even
+    /// when the active account still isn't Premium yet — a later, unrelated sync succeeding
+    /// means the most recent attempt did not fail, regardless of whether Premium has been
+    /// granted.
+    @Test
+    func start_clearsLastAttemptFailedOnGenericSyncEvenWithoutPremium() async throws {
+        stateService.activeAccount = .fixture()
+        stateService.doesActiveAccountHavePremiumResult = false
+
+        await subject.start()
+
+        stateService.premiumUpgradePendingResult = true
+        stateService.premiumUpgradeLastSyncAttemptFailedResult = true
+        stateService.lastSyncTimeSubject.send(Date())
+
+        try await waitForAsync { stateService.premiumUpgradeLastSyncAttemptFailedResult == false }
+        #expect(stateService.premiumUpgradePendingResult == true)
+        #expect(stateService.upgradedToPremiumActionCardVisibleResult == false)
+    }
+
     /// `start()` resolves a pending Premium upgrade when a generic sync completes and the
     /// active account has since become Premium, by any means (not just the original checkout
     /// attempt's own subscription).
