@@ -514,6 +514,7 @@ platform :ios do |options|
         # Authenticate with App Store Connect using key file path
         if options[:api_key_path]
             key_content = JSON.parse(File.read(options[:api_key_path]))
+
             Spaceship::ConnectAPI.login(
                 key_id: key_content['key_id'],
                 issuer_id: key_content['issuer_id'],
