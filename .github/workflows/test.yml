@@ -114,23 +114,25 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-mint-
 
-      - name: Restore SPM packages
-        id: restore-spm
-        uses: actions/cache/restore@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
-        with:
-          path: build/DerivedData/SourcePackages
-          key: ${{ runner.os }}-spm-${{ hashFiles('**/Package.resolved') }}
-          restore-keys: |
-            ${{ runner.os }}-spm-
-
       - name: Restore DerivedData
         id: restore-deriveddata
+        if: ${{ contains(env._GITHUB_ACTION_RUN_URL, 'temp_disable_cache') }} # Disabled for now while we investigate build failures on partial cache hit
         uses: actions/cache/restore@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
         with:
           path: build/DerivedData
           key: ${{ runner.os }}-deriveddata-testbwpm-${{ env._XCODE_VERSION }}-${{ github.sha }}
           restore-keys: |
             ${{ runner.os }}-deriveddata-testbwpm-${{ env._XCODE_VERSION }}-
+
+      - name: Restore SPM packages
+        id: restore-spm
+        if: ${{ contains(env._GITHUB_ACTION_RUN_URL, 'temp_disable_cache') }} # Disabled for now while we investigate build failures on partial cache hit
+        uses: actions/cache/restore@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
+        with:
+          path: build/DerivedData/SourcePackages
+          key: ${{ runner.os }}-spm-${{ hashFiles('**/Package.resolved') }}
+          restore-keys: |
+            ${{ runner.os }}-spm-
 
       # src: https://stackoverflow.com/questions/53753511/is-it-possible-to-copy-an-xcode-derived-data-cache
       - name: Set IgnoreFileSystemDeviceInodeChanges flag

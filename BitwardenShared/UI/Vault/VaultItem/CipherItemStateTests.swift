@@ -893,7 +893,7 @@ class CipherItemStateTests: BitwardenTestCase { // swiftlint:disable:this type_b
     }
 
     /// `init(existing:hasPremium:)` populates `driversLicenseItemState` from a cipher with a
-    /// driver's license, preserving all 11 fields including the raw date strings.
+    /// driver's license, preserving all 11 fields.
     func test_init_existing_driversLicense() throws {
         let cipher = CipherView.driversLicenseFixture()
         let state = try XCTUnwrap(CipherItemState(existing: cipher, hasPremium: true))
@@ -902,12 +902,12 @@ class CipherItemStateTests: BitwardenTestCase { // swiftlint:disable:this type_b
         XCTAssertEqual(state.driversLicenseItemState.firstName, "Bit")
         XCTAssertEqual(state.driversLicenseItemState.middleName, "W")
         XCTAssertEqual(state.driversLicenseItemState.lastName, "Warden")
-        XCTAssertEqual(state.driversLicenseItemState.dateOfBirth, "1989-08-01")
+        XCTAssertEqual(state.driversLicenseItemState.dateOfBirth, Date(year: 1989, month: 8, day: 1))
         XCTAssertEqual(state.driversLicenseItemState.licenseNumber, "D1234567")
         XCTAssertEqual(state.driversLicenseItemState.issuingCountry, "United States")
         XCTAssertEqual(state.driversLicenseItemState.issuingState, "California")
-        XCTAssertEqual(state.driversLicenseItemState.issueDate, "2019-08-01")
-        XCTAssertEqual(state.driversLicenseItemState.expirationDate, "2029-08-01")
+        XCTAssertEqual(state.driversLicenseItemState.issueDate, Date(year: 2019, month: 8, day: 1))
+        XCTAssertEqual(state.driversLicenseItemState.expirationDate, Date(year: 2029, month: 8, day: 1))
         XCTAssertEqual(state.driversLicenseItemState.issuingAuthority, "DMV")
         XCTAssertEqual(state.driversLicenseItemState.licenseClass, "C")
     }
@@ -919,15 +919,15 @@ class CipherItemStateTests: BitwardenTestCase { // swiftlint:disable:this type_b
         subject.type = .driversLicense
         subject.driversLicenseItemState.firstName = "Bit"
         subject.driversLicenseItemState.licenseNumber = "D1234567"
-        subject.driversLicenseItemState.dateOfBirth = "1989-08-01"
-        subject.driversLicenseItemState.expirationDate = "2029-08-01"
+        subject.driversLicenseItemState.dateOfBirth = Date(year: 1989, month: 8, day: 1)
+        subject.driversLicenseItemState.expirationDate = Date(year: 2029, month: 8, day: 1)
 
         let cipher = subject.newCipherView()
 
         XCTAssertEqual(cipher.driversLicense?.firstName, "Bit")
         XCTAssertEqual(cipher.driversLicense?.licenseNumber, "D1234567")
-        XCTAssertEqual(cipher.driversLicense?.dateOfBirth, "1989-08-01")
-        XCTAssertEqual(cipher.driversLicense?.expirationDate, "2029-08-01")
+        XCTAssertEqual(cipher.driversLicense?.dateOfBirth, Date(year: 1989, month: 8, day: 1))
+        XCTAssertEqual(cipher.driversLicense?.expirationDate, Date(year: 2029, month: 8, day: 1))
     }
 
     /// `newCipherView()` emits a `nil` `driversLicense` view when the cipher type is not
@@ -943,13 +943,13 @@ class CipherItemStateTests: BitwardenTestCase { // swiftlint:disable:this type_b
     }
 
     /// `init(existing:hasPremium:)` populates `passportItemState` from a cipher with a passport,
-    /// preserving all fields including the raw date strings.
+    /// preserving all fields.
     func test_init_existing_passport() throws {
         let cipher = CipherView.fixture(
             passport: .fixture(
                 surname: "Johnson",
                 givenName: "Mitchell",
-                dateOfBirth: "2025-04-20",
+                dateOfBirth: Date(year: 2025, month: 4, day: 20),
                 sex: "Male",
                 birthPlace: "USA",
                 nationality: "USA",
@@ -958,8 +958,8 @@ class CipherItemStateTests: BitwardenTestCase { // swiftlint:disable:this type_b
                 passportType: "Regular/Tourist",
                 nationalIdentificationNumber: "123456789",
                 issuingAuthority: "U.S. Department of State",
-                issueDate: "2021-08-10",
-                expirationDate: "2026-08-10",
+                issueDate: Date(year: 2021, month: 8, day: 10),
+                expirationDate: Date(year: 2026, month: 8, day: 10),
             ),
             type: .passport,
         )
@@ -968,11 +968,11 @@ class CipherItemStateTests: BitwardenTestCase { // swiftlint:disable:this type_b
         XCTAssertEqual(state.passportItemState, cipher.passportItemState())
         XCTAssertEqual(state.passportItemState.surname, "Johnson")
         XCTAssertEqual(state.passportItemState.givenName, "Mitchell")
-        XCTAssertEqual(state.passportItemState.dateOfBirth, "2025-04-20")
+        XCTAssertEqual(state.passportItemState.dateOfBirth, Date(year: 2025, month: 4, day: 20))
         XCTAssertEqual(state.passportItemState.passportNumber, "X12345678")
         XCTAssertEqual(state.passportItemState.nationalIdentificationNumber, "123456789")
-        XCTAssertEqual(state.passportItemState.issueDate, "2021-08-10")
-        XCTAssertEqual(state.passportItemState.expirationDate, "2026-08-10")
+        XCTAssertEqual(state.passportItemState.issueDate, Date(year: 2021, month: 8, day: 10))
+        XCTAssertEqual(state.passportItemState.expirationDate, Date(year: 2026, month: 8, day: 10))
     }
 
     /// `newCipherView()` emits the `passport` view only when the cipher type is `.passport`,
@@ -982,15 +982,15 @@ class CipherItemStateTests: BitwardenTestCase { // swiftlint:disable:this type_b
         subject.type = .passport
         subject.passportItemState.surname = "Johnson"
         subject.passportItemState.passportNumber = "X12345678"
-        subject.passportItemState.dateOfBirth = "2025-04-20"
-        subject.passportItemState.expirationDate = "2026-08-10"
+        subject.passportItemState.dateOfBirth = Date(year: 2025, month: 4, day: 20)
+        subject.passportItemState.expirationDate = Date(year: 2026, month: 8, day: 10)
 
         let cipher = subject.newCipherView()
 
         XCTAssertEqual(cipher.passport?.surname, "Johnson")
         XCTAssertEqual(cipher.passport?.passportNumber, "X12345678")
-        XCTAssertEqual(cipher.passport?.dateOfBirth, "2025-04-20")
-        XCTAssertEqual(cipher.passport?.expirationDate, "2026-08-10")
+        XCTAssertEqual(cipher.passport?.dateOfBirth, Date(year: 2025, month: 4, day: 20))
+        XCTAssertEqual(cipher.passport?.expirationDate, Date(year: 2026, month: 8, day: 10))
     }
 
     /// `newCipherView()` emits a `nil` `passport` view when the cipher type is not `.passport`, even

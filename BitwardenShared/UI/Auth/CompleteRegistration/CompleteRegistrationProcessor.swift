@@ -227,6 +227,7 @@ class CompleteRegistrationProcessor: StateProcessor<
                     masterPassword: state.passwordText,
                     masterPasswordHint: state.passwordHintText.nilIfEmpty,
                     emailVerificationToken: state.emailVerificationToken,
+                    salesAssistedToken: nil,
                     organizationUserId: nil,
                     orgInviteToken: nil,
                     orgSponsoredFreeFamilyPlanToken: nil,
