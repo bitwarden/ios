@@ -54,6 +54,7 @@ class CipherAPIServiceTests: XCTestCase { // swiftlint:disable:this type_body_le
                 card: nil,
                 collectionIds: nil,
                 creationDate: Date(timeIntervalSince1970: 1_691_656_425.345),
+                data: nil,
                 deletedDate: nil,
                 driversLicense: nil,
                 edit: true,
@@ -112,6 +113,7 @@ class CipherAPIServiceTests: XCTestCase { // swiftlint:disable:this type_body_le
                 card: nil,
                 collectionIds: nil,
                 creationDate: Date(timeIntervalSince1970: 1_691_656_425.345),
+                data: nil,
                 deletedDate: nil,
                 driversLicense: nil,
                 edit: true,
@@ -167,6 +169,7 @@ class CipherAPIServiceTests: XCTestCase { // swiftlint:disable:this type_body_le
                 card: nil,
                 collectionIds: nil,
                 creationDate: Date(timeIntervalSince1970: 1_691_656_425.345),
+                data: nil,
                 deletedDate: nil,
                 driversLicense: nil,
                 edit: true,
@@ -282,7 +285,7 @@ class CipherAPIServiceTests: XCTestCase { // swiftlint:disable:this type_body_le
         let response = try await subject.downloadAttachmentData(from: .example)
 
         XCTAssertEqual(client.downloadRequests.count, 1)
-        XCTAssertEqual(client.downloadRequests.last, URLRequest(url: .example))
+        XCTAssertEqual(client.downloadRequests.last?.url, .example)
 
         XCTAssertEqual(response, .example)
     }
@@ -335,6 +338,7 @@ class CipherAPIServiceTests: XCTestCase { // swiftlint:disable:this type_body_le
                     card: nil,
                     collectionIds: nil,
                     creationDate: Date(timeIntervalSince1970: 1_691_656_425.345),
+                    data: nil,
                     deletedDate: nil,
                     driversLicense: nil,
                     edit: true,
@@ -396,6 +400,7 @@ class CipherAPIServiceTests: XCTestCase { // swiftlint:disable:this type_body_le
                 card: nil,
                 collectionIds: nil,
                 creationDate: Date(timeIntervalSince1970: 1_691_656_425.345),
+                data: nil,
                 deletedDate: nil,
                 driversLicense: nil,
                 edit: true,
@@ -463,6 +468,7 @@ class CipherAPIServiceTests: XCTestCase { // swiftlint:disable:this type_body_le
                 card: nil,
                 collectionIds: nil,
                 creationDate: Date(timeIntervalSince1970: 1_691_656_425.345),
+                data: nil,
                 deletedDate: nil,
                 driversLicense: nil,
                 edit: true,

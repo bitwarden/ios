@@ -81,6 +81,19 @@ class PremiumPlanViewSnapshotTests: BitwardenTestCase {
         assertSnapshots(of: subject, as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5])
     }
 
+    /// Check the snapshot for the unpaid state.
+    @MainActor
+    func disabletest_snapshot_unpaid() {
+        processor.state.planStatus = .unpaid
+        processor.state.loadingState = .data(.fixture(
+            discount: 2.10,
+            estimatedTax: 3.85,
+            status: .unpaid,
+            suspension: Date(timeIntervalSince1970: 1_748_822_400),
+        ))
+        assertSnapshots(of: subject, as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5])
+    }
+
     /// Check the snapshot for the update payment state.
     @MainActor
     func disabletest_snapshot_updatePayment() {

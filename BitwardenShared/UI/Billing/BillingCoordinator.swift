@@ -130,7 +130,7 @@ class BillingCoordinator: NSObject, Coordinator, HasStackNavigator {
         } else {
             let viewController = UIHostingController(rootView: view)
             viewController.navigationItem.largeTitleDisplayMode = .never
-            stackNavigator?.push(viewController, navigationTitle: Localizations.upgradeToPremium)
+            stackNavigator?.push(viewController, navigationTitle: Localizations.premium)
         }
     }
 }
