@@ -39,6 +39,30 @@ class SDKUsePasskeyProcessorTests: BitwardenTestCase {
 
     // MARK: Effect Tests
 
+    /// `perform(.deleteCredential)` deletes the credential's cipher and reloads the registered
+    /// credentials list.
+    @MainActor
+    func test_perform_deleteCredential_success() async {
+        let credential = Fido2CredentialAutofillView.fixture(cipherId: "cipher-1")
+        sdkPasskeyService.registeredCredentialsReturnValue = []
+
+        await subject.perform(.deleteCredential(credential))
+
+        XCTAssertEqual(sdkPasskeyService.deleteCredentialReceivedCipherId, "cipher-1")
+        XCTAssertEqual(subject.state.registeredCredentials, [])
+    }
+
+    /// `perform(.deleteCredential)` sets status to `.failure` when deletion throws.
+    @MainActor
+    func test_perform_deleteCredential_failure() async {
+        let credential = Fido2CredentialAutofillView.fixture(cipherId: "cipher-1")
+        sdkPasskeyService.deleteCredentialThrowableError = BitwardenTestError.example
+
+        await subject.perform(.deleteCredential(credential))
+
+        XCTAssertEqual(subject.state.status, .failure(BitwardenTestError.example.localizedDescription))
+    }
+
     /// `perform(.loadRegisteredCredentials)` populates the registered credentials list.
     @MainActor
     func test_perform_loadRegisteredCredentials_success() async {

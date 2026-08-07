@@ -41,6 +41,8 @@ final class SDKUsePasskeyProcessor: StateProcessor<
 
     override func perform(_ effect: SDKUsePasskeyEffect) async {
         switch effect {
+        case let .deleteCredential(credential):
+            await deleteCredential(credential)
         case .loadRegisteredCredentials:
             await loadRegisteredCredentials()
         case let .selectCredential(credential):
@@ -60,6 +62,16 @@ final class SDKUsePasskeyProcessor: StateProcessor<
                 rpId: rpId,
                 userName: result.selectedCredential.credential.userName,
             )
+        } catch {
+            state.status = .failure(error.localizedDescription)
+        }
+    }
+
+    /// Deletes the given credential, then reloads the registered credentials list.
+    private func deleteCredential(_ credential: Fido2CredentialAutofillView) async {
+        do {
+            try await sdkPasskeyService.deleteCredential(cipherId: credential.cipherId)
+            await loadRegisteredCredentials()
         } catch {
             state.status = .failure(error.localizedDescription)
         }

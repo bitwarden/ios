@@ -45,6 +45,33 @@ class SDKFido2CredentialStoreTests: BitwardenTestCase {
         XCTAssertTrue(result.isEmpty)
     }
 
+    /// `deleteCredential(cipherId:)` removes the matching cipher and persists the updated list via
+    /// the injected `SDKCipherStorageService`.
+    func test_deleteCredential_removesMatchingCipher() async throws {
+        let first = Cipher(cipherView: .fixture(id: "cipher-1", name: "First"))
+        let second = Cipher(cipherView: .fixture(id: "cipher-2", name: "Second"))
+        try await subject.saveCredential(cred: EncryptionContext(encryptedFor: "1", cipher: first))
+        try await subject.saveCredential(cred: EncryptionContext(encryptedFor: "1", cipher: second))
+
+        await subject.deleteCredential(cipherId: "cipher-1")
+
+        let result = try await subject.allCredentials()
+        XCTAssertEqual(result.map(\.name), ["Second"])
+        XCTAssertEqual(cipherStorageService.saveReceivedCiphers, [second])
+    }
+
+    /// `deleteCredential(cipherId:)` leaves the list unchanged when no cipher matches the given
+    /// ID.
+    func test_deleteCredential_noMatch_leavesListUnchanged() async throws {
+        let cipher = Cipher(cipherView: .fixture(id: "cipher-1", name: "Only"))
+        try await subject.saveCredential(cred: EncryptionContext(encryptedFor: "1", cipher: cipher))
+
+        await subject.deleteCredential(cipherId: "nonexistent")
+
+        let result = try await subject.allCredentials()
+        XCTAssertEqual(result.map(\.name), ["Only"])
+    }
+
     /// `findCredentials(ids:ripId:userHandle:)` excludes ciphers whose Fido2 credentials don't
     /// match the requested relying party.
     func test_findCredentials_noMatch_returnsEmpty() async throws {

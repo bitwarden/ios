@@ -77,6 +77,22 @@ class SDKPasskeyServiceTests: BitwardenTestCase {
         XCTAssertEqual(assertion.selectedCredential.credential.userName, "user2@example.com")
     }
 
+    /// `deleteCredential(cipherId:)` removes a registered credential so it's no longer listed.
+    func test_deleteCredential_removesRegisteredCredential() async throws {
+        _ = try await subject.registerPasskey(
+            rpId: "bitwarden.com",
+            userName: "user@example.com",
+            displayName: "User",
+        )
+        let registered = try await subject.registeredCredentials()
+        let cipherId = try XCTUnwrap(registered.first?.cipherId)
+
+        try await subject.deleteCredential(cipherId: cipherId)
+
+        let credentials = try await subject.registeredCredentials()
+        XCTAssertTrue(credentials.isEmpty)
+    }
+
     /// `registerPasskey(rpId:userName:displayName:)` returns a non-empty credential ID and
     /// attestation object.
     func test_registerPasskey_returnsCredential() async throws {
