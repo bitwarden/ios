@@ -1,4 +1,6 @@
 import BitwardenKit
+import BitwardenSdk
+import Foundation
 
 // MARK: - SDKUsePasskeyProcessor
 
@@ -39,30 +41,34 @@ final class SDKUsePasskeyProcessor: StateProcessor<
 
     override func perform(_ effect: SDKUsePasskeyEffect) async {
         switch effect {
-        case .assertPasskey:
-            await assertPasskey()
-        }
-    }
-
-    override func receive(_ action: SDKUsePasskeyAction) {
-        switch action {
-        case let .rpIdChanged(newValue):
-            state.rpId = newValue
-            state.status = .idle
+        case .loadRegisteredCredentials:
+            await loadRegisteredCredentials()
+        case let .selectCredential(credential):
+            await assertPasskey(credentialId: credential.credentialId, rpId: credential.rpId)
         }
     }
 
     // MARK: Private
 
     /// Orchestrates state transitions and calls `sdkPasskeyService.assertPasskey`.
-    private func assertPasskey() async {
+    private func assertPasskey(credentialId: Data?, rpId: String) async {
         state.status = .inProgress
         do {
-            let result = try await sdkPasskeyService.assertPasskey(rpId: state.rpId)
+            let result = try await sdkPasskeyService.assertPasskey(credentialId: credentialId, rpId: rpId)
             state.status = .success(
                 credentialId: result.credentialId.base64EncodedString(),
+                rpId: rpId,
                 userName: result.selectedCredential.credential.userName,
             )
+        } catch {
+            state.status = .failure(error.localizedDescription)
+        }
+    }
+
+    /// Loads the list of credentials registered so far, across app launches.
+    private func loadRegisteredCredentials() async {
+        do {
+            state.registeredCredentials = try await sdkPasskeyService.registeredCredentials()
         } catch {
             state.status = .failure(error.localizedDescription)
         }

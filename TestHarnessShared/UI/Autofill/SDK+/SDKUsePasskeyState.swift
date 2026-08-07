@@ -1,3 +1,4 @@
+import BitwardenSdk
 import Foundation
 
 // MARK: - SDKUsePasskeyState
@@ -19,13 +20,13 @@ struct SDKUsePasskeyState: Equatable {
         case inProgress
 
         /// Assertion completed successfully for the associated credential.
-        case success(credentialId: String, userName: String?)
+        case success(credentialId: String, rpId: String, userName: String?)
     }
 
     // MARK: Properties
 
-    /// The relying party identifier (RP ID) for passkey assertion.
-    var rpId: String = "bitwarden.pw"
+    /// The credentials registered so far, across app launches.
+    var registeredCredentials: [Fido2CredentialAutofillView] = []
 
     /// The current assertion status.
     var status: AssertionStatus = .idle

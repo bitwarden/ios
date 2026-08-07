@@ -37,52 +37,71 @@ class SDKUsePasskeyProcessorTests: BitwardenTestCase {
         subject = nil
     }
 
-    // MARK: Action Tests
-
-    /// `receive(.rpIdChanged)` updates the RP ID in state.
-    @MainActor
-    func test_receive_rpIdChanged() {
-        subject.receive(.rpIdChanged("bitwarden.com"))
-        XCTAssertEqual(subject.state.rpId, "bitwarden.com")
-    }
-
     // MARK: Effect Tests
 
-    /// `perform(.assertPasskey)` passes the current RP ID to the SDK passkey service.
+    /// `perform(.loadRegisteredCredentials)` populates the registered credentials list.
     @MainActor
-    func test_perform_assertPasskey_passesStateValues() async {
-        subject.receive(.rpIdChanged("example.com"))
-        sdkPasskeyService.assertPasskeyReturnValue = .fixture()
+    func test_perform_loadRegisteredCredentials_success() async {
+        sdkPasskeyService.registeredCredentialsReturnValue = [.fixture(rpId: "bitwarden.com")]
 
-        await subject.perform(.assertPasskey)
+        await subject.perform(.loadRegisteredCredentials)
 
-        XCTAssertEqual(sdkPasskeyService.assertPasskeyReceivedRpId, "example.com")
+        XCTAssertEqual(subject.state.registeredCredentials, [.fixture(rpId: "bitwarden.com")])
     }
 
-    /// `perform(.assertPasskey)` sets status to `.failure` when assertion throws.
+    /// `perform(.loadRegisteredCredentials)` sets status to `.failure` when loading throws.
     @MainActor
-    func test_perform_assertPasskey_failure() async {
-        sdkPasskeyService.assertPasskeyThrowableError = BitwardenTestError.example
+    func test_perform_loadRegisteredCredentials_failure() async {
+        sdkPasskeyService.registeredCredentialsThrowableError = BitwardenTestError.example
 
-        await subject.perform(.assertPasskey)
+        await subject.perform(.loadRegisteredCredentials)
 
         XCTAssertEqual(subject.state.status, .failure(BitwardenTestError.example.localizedDescription))
     }
 
-    /// `perform(.assertPasskey)` sets status to `.success` with the matched credential's
-    /// username when assertion succeeds.
+    /// `perform(.selectCredential)` asserts using the selected credential's specific credential
+    /// ID and RP ID.
     @MainActor
-    func test_perform_assertPasskey_success() async {
+    func test_perform_selectCredential_passesCredentialIdAndRpId() async {
+        let credential = Fido2CredentialAutofillView.fixture(credentialId: Data([0x09]), rpId: "example.com")
+        sdkPasskeyService.assertPasskeyReturnValue = .fixture()
+
+        await subject.perform(.selectCredential(credential))
+
+        XCTAssertEqual(sdkPasskeyService.assertPasskeyReceivedArguments?.credentialId, Data([0x09]))
+        XCTAssertEqual(sdkPasskeyService.assertPasskeyReceivedArguments?.rpId, "example.com")
+    }
+
+    /// `perform(.selectCredential)` sets status to `.success` with the matched credential's RP ID
+    /// and username when assertion succeeds.
+    @MainActor
+    func test_perform_selectCredential_success() async {
+        let credential = Fido2CredentialAutofillView.fixture(credentialId: Data([0x09]), rpId: "example.com")
         sdkPasskeyService.assertPasskeyReturnValue = .fixture(
             credentialId: Data([0x01, 0x02, 0x03]),
             selectedCredential: SelectedCredential(cipher: .fixture(), credential: .fixture(userName: "alice")),
         )
 
-        await subject.perform(.assertPasskey)
+        await subject.perform(.selectCredential(credential))
 
         XCTAssertEqual(
             subject.state.status,
-            .success(credentialId: Data([0x01, 0x02, 0x03]).base64EncodedString(), userName: "alice"),
+            .success(
+                credentialId: Data([0x01, 0x02, 0x03]).base64EncodedString(),
+                rpId: "example.com",
+                userName: "alice",
+            ),
         )
+    }
+
+    /// `perform(.selectCredential)` sets status to `.failure` when assertion throws.
+    @MainActor
+    func test_perform_selectCredential_failure() async {
+        let credential = Fido2CredentialAutofillView.fixture(credentialId: Data([0x09]), rpId: "example.com")
+        sdkPasskeyService.assertPasskeyThrowableError = BitwardenTestError.example
+
+        await subject.perform(.selectCredential(credential))
+
+        XCTAssertEqual(subject.state.status, .failure(BitwardenTestError.example.localizedDescription))
     }
 }

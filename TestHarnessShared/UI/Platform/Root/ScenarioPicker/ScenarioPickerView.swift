@@ -40,10 +40,8 @@ struct ScenarioPickerView: View {
                         case Localizations.cardAutofillForm: "ScenarioButton_CardForm"
                         case Localizations.createAccountForm: "ScenarioButton_CreateAccountForm"
                         case Localizations.fileShare: "ScenarioButton_FileShare"
-                        case Localizations.registerPasskey: "ScenarioButton_RegisterPasskey"
                         case Localizations.simpleLoginForm: "ScenarioButton_LoginForm"
                         case Localizations.totpAutofillForm: "ScenarioButton_TOTPForm"
-                        case Localizations.usePasskey: "ScenarioButton_UsePasskey"
                         default: "ScenarioButton_\(scenario.title)"
                         }
                     }())

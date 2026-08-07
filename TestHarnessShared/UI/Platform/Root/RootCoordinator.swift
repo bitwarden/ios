@@ -1,4 +1,3 @@
-import AuthenticationServices
 import BitwardenKit
 import SwiftUI
 import UIKit
@@ -45,8 +44,6 @@ class RootCoordinator: Coordinator, HasStackNavigator {
             showDateFieldPickerShowcase()
         case .fileShare:
             showFileShare()
-        case .registerPasskey:
-            showCreatePasskey()
         case .scenarioPicker:
             showScenarioPicker()
         case .sdkRegisterPasskey:
@@ -57,8 +54,6 @@ class RootCoordinator: Coordinator, HasStackNavigator {
             showSimpleLoginForm()
         case .totpAutofillForm:
             showTOTPAutofillForm()
-        case .usePasskey:
-            showUsePasskey()
         }
     }
 
@@ -92,16 +87,6 @@ class RootCoordinator: Coordinator, HasStackNavigator {
     private func showDateFieldPickerShowcase() {
         let processor = DateFieldPickerShowcaseProcessor(coordinator: asAnyCoordinator())
         let view = DateFieldPickerShowcaseView(store: Store(processor: processor))
-        let viewController = UIHostingController(rootView: view)
-        stackNavigator?.push(viewController)
-    }
-
-    /// Shows the create passkey test screen.
-    ///
-    private func showCreatePasskey() {
-        guard #available(iOS 17, *) else { return }
-        let processor = CreatePasskeyProcessor(coordinator: asAnyCoordinator(), delegate: self)
-        let view = CreatePasskeyView(store: Store(processor: processor))
         let viewController = UIHostingController(rootView: view)
         stackNavigator?.push(viewController)
     }
@@ -165,36 +150,10 @@ class RootCoordinator: Coordinator, HasStackNavigator {
         let viewController = UIHostingController(rootView: view)
         stackNavigator?.push(viewController)
     }
-
-    /// Shows the use passkey test screen.
-    ///
-    private func showUsePasskey() {
-        guard #available(iOS 17, *) else { return }
-        let processor = UsePasskeyProcessor(coordinator: asAnyCoordinator(), delegate: self)
-        let view = UsePasskeyView(store: Store(processor: processor))
-        let viewController = UIHostingController(rootView: view)
-        stackNavigator?.push(viewController)
-    }
 }
 
 // MARK: - HasErrorAlertServices
 
 extension RootCoordinator: HasErrorAlertServices {
     var errorAlertServices: ErrorAlertServices { services }
-}
-
-// MARK: - CreatePasskeyProcessorDelegate
-
-extension RootCoordinator: CreatePasskeyProcessorDelegate {
-    func presentationAnchorForPasskeyRegistration() async -> ASPresentationAnchor {
-        stackNavigator?.rootViewController?.view.window ?? UIWindow()
-    }
-}
-
-// MARK: - UsePasskeyProcessorDelegate
-
-extension RootCoordinator: UsePasskeyProcessorDelegate {
-    func presentationAnchorForPasskeyAssertion() async -> ASPresentationAnchor {
-        stackNavigator?.rootViewController?.view.window ?? UIWindow()
-    }
 }

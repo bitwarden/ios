@@ -4,16 +4,23 @@ import Foundation
 
 // MARK: - SDKFido2CredentialStore
 
-/// An in-memory `Fido2CredentialStore` for the SDK-backed passkey scenarios. Credentials exist
-/// only for the lifetime of the app process — there's no real vault to persist them in, and the
-/// SDK-encrypted `Cipher`s this stores can't be decrypted again once the ephemeral session's
-/// crypto keys are gone anyway, so persisting them across launches wouldn't help.
+/// A `Fido2CredentialStore` for the SDK-backed passkey scenarios, backed by an injected
+/// `SDKCipherStorageService` so credentials survive app relaunches as long as the same synthetic
+/// identity — and therefore the same crypto keys — is reconstructed alongside it.
 ///
 actor SDKFido2CredentialStore: Fido2CredentialStore {
     // MARK: Private Properties
 
+    /// Used to persist ciphers across app relaunches.
+    private let cipherStorageService: SDKCipherStorageService
+
     /// The SDK-encrypted ciphers created for this session, in the order they were saved.
-    private var ciphers: [Cipher] = []
+    private var ciphers: [Cipher]
+
+    /// When set, `findCredentials` only considers the credential with this ID, ignoring any
+    /// others registered for the same relying party. Set via `select(credentialId:)` before an
+    /// assertion that targets a specific credential.
+    private var selectedCredentialId: Data?
 
     /// Used to decrypt stored ciphers and their Fido2 credentials on read.
     private let vaultClientService: VaultClientService
@@ -22,11 +29,15 @@ actor SDKFido2CredentialStore: Fido2CredentialStore {
 
     /// Initializes an `SDKFido2CredentialStore`.
     ///
-    /// - Parameter vaultClientService: Used to decrypt stored ciphers and their Fido2
-    ///   credentials on read.
+    /// - Parameters:
+    ///   - cipherStorageService: Used to persist ciphers across app relaunches.
+    ///   - vaultClientService: Used to decrypt stored ciphers and their Fido2 credentials on
+    ///     read.
     ///
-    init(vaultClientService: VaultClientService) {
+    init(cipherStorageService: SDKCipherStorageService, vaultClientService: VaultClientService) {
+        self.cipherStorageService = cipherStorageService
         self.vaultClientService = vaultClientService
+        ciphers = cipherStorageService.loadCiphers()
     }
 
     // MARK: Methods
@@ -40,7 +51,16 @@ actor SDKFido2CredentialStore: Fido2CredentialStore {
         for cipher in ciphers {
             let cipherView = try await vaultClientService.ciphers().decrypt(cipher: cipher)
             let fido2Credentials = try vaultClientService.ciphers().decryptFido2Credentials(cipherView: cipherView)
-            guard fido2Credentials.contains(where: { $0.rpId == ripId }) else { continue }
+            let isMatch = fido2Credentials.contains { credential in
+                guard credential.rpId == ripId else { return false }
+                guard let selectedCredentialId else { return true }
+                let normalizedCredentialId = credential.credentialId
+                    .replacingOccurrences(of: "-", with: "")
+                    .lowercased()
+                let normalizedSelectedId = selectedCredentialId.asHexString()
+                return normalizedCredentialId == normalizedSelectedId
+            }
+            guard isMatch else { continue }
             matches.append(cipherView)
         }
         return matches
@@ -48,5 +68,16 @@ actor SDKFido2CredentialStore: Fido2CredentialStore {
 
     func saveCredential(cred: EncryptionContext) async throws {
         ciphers.append(cred.cipher)
+        cipherStorageService.save(ciphers: ciphers)
+    }
+
+    /// Restricts subsequent `findCredentials` calls to the credential with this ID, or clears
+    /// the restriction when `nil`.
+    ///
+    /// - Parameter credentialId: The credential ID to restrict to, or `nil` to consider every
+    ///   credential registered for the requested relying party.
+    ///
+    func select(credentialId: Data?) {
+        selectedCredentialId = credentialId
     }
 }

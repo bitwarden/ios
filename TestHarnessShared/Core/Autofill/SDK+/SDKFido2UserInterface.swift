@@ -19,7 +19,7 @@ final class SDKFido2UserInterface: Fido2UserInterface, Sendable {
         newCredential: Fido2CredentialNewView,
     ) async throws -> CheckUserAndPickCredentialForCreationResult {
         let cipherView = CipherView(
-            id: nil,
+            id: UUID().uuidString,
             organizationId: nil,
             folderId: nil,
             collectionIds: [],
