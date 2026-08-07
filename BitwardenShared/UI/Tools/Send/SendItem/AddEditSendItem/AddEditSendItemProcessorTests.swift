@@ -442,6 +442,25 @@ class AddEditSendItemProcessorTests: BitwardenTestCase { // swiftlint:disable:th
         ])
     }
 
+    /// `perform(_:)` with `.savePressed` and an unrecognized send type shows an error alert
+    /// instead of saving, since the type can't be mapped to an SDK `SendType`.
+    @MainActor
+    func test_perform_savePressed_add_unknownType_showsErrorAlert() async throws {
+        subject.state.name = "Name"
+        subject.state.type = .unknown
+
+        await subject.perform(.savePressed)
+
+        XCTAssertFalse(coordinator.isLoadingOverlayShowing)
+        XCTAssertNil(sendRepository.addTextSendSendView)
+        XCTAssertNil(sendRepository.addFileSendSendView)
+
+        let errorAlertWithRetry = try XCTUnwrap(coordinator.errorAlertsWithRetryShown.last)
+        guard case DataMappingError.invalidData = errorAlertWithRetry.error else {
+            return XCTFail("Expected DataMappingError.invalidData, got \(errorAlertWithRetry.error)")
+        }
+    }
+
     /// `perform(_:)` with `.savePressed` and valid input in the share extension saves the item and
     /// copies the share link to the clipboard.
     @MainActor
