@@ -105,4 +105,20 @@ struct PassportItemStateTests {
         #expect(subject.expirationDateDisplay == subject.expirationDate?.longCalendarDateDisplay)
         #expect(subject.expirationDateDisplay.contains("August"))
     }
+
+    /// `dateOfBirthDisplay` shows the same calendar day the user picked in `DateFieldPicker`, even
+    /// in a time zone behind UTC, where the UTC-anchored stored value falls on the previous day.
+    @Test
+    func dateOfBirthDisplay_matchesPickedDayInTimeZoneBehindUTC() {
+        let losAngeles = TimeZone(identifier: "America/Los_Angeles")!
+        let pickedLocalDay = Date(year: 2025, month: 4, day: 20, timeZone: losAngeles)
+
+        var subject = PassportItemState()
+        subject.dateOfBirth = pickedLocalDay.asUTCCalendarDay(from: losAngeles)
+
+        #expect(subject.dateOfBirthDisplay.contains("April"))
+        #expect(subject.dateOfBirthDisplay.contains("20"))
+        #expect(subject.dateOfBirthDisplay.contains("2025"))
+        #expect(!subject.dateOfBirthDisplay.contains("19"))
+    }
 }
