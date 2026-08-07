@@ -67,6 +67,7 @@ class EditCollectionsProcessor: StateProcessor<
     override func perform(_ effect: EditCollectionsEffect) async {
         switch effect {
         case .fetchCipherOptions:
+            await loadFeatureFlags()
             await fetchCipherOptions()
         case .save:
             await save()
@@ -102,6 +103,11 @@ class EditCollectionsProcessor: StateProcessor<
         }
     }
 
+    /// Loads the feature flags required for this processor.
+    private func loadFeatureFlags() async {
+        state.isVfo1FoundationFeatureFlagEnabled = await services.configService.getFeatureFlag(.vfo1Foundation)
+    }
+
     /// Saves the updated list of collections to the cipher.
     ///
     private func save() async {
@@ -109,7 +115,9 @@ class EditCollectionsProcessor: StateProcessor<
             coordinator.showAlert(
                 .defaultAlert(
                     title: Localizations.anErrorHasOccurred,
-                    message: Localizations.selectOneCollection,
+                    message: state.isVfo1FoundationFeatureFlagEnabled
+                        ? Localizations.youMustSelectAtLeastOneSharedFolder
+                        : Localizations.selectOneCollection,
                 ),
             )
             return

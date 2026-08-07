@@ -23,6 +23,9 @@ public struct ConfigResponseModel: Equatable, JSONResponse {
     /// Third party server information.
     public let server: ThirdPartyConfigResponseModel?
 
+    /// Server-level settings.
+    public let settings: ServerSettingsResponseModel?
+
     /// The version of the server.
     public let version: String
 
@@ -36,6 +39,7 @@ public struct ConfigResponseModel: Equatable, JSONResponse {
     ///   - featureStates: Feature flags to configure the client.
     ///   - gitHash: The git hash of the server.
     ///   - server: Third party server information.
+    ///   - settings: Server-level settings.
     ///   - version: The version of the server.
     public init(
         communication: CommunicationSettingsResponseModel?,
@@ -43,6 +47,7 @@ public struct ConfigResponseModel: Equatable, JSONResponse {
         featureStates: [String: AnyCodable]?,
         gitHash: String?,
         server: ThirdPartyConfigResponseModel?,
+        settings: ServerSettingsResponseModel? = nil,
         version: String,
     ) {
         self.communication = communication
@@ -50,6 +55,7 @@ public struct ConfigResponseModel: Equatable, JSONResponse {
         self.featureStates = featureStates
         self.gitHash = gitHash
         self.server = server
+        self.settings = settings
         self.version = version
     }
 }
@@ -141,6 +147,23 @@ public struct ThirdPartyConfigResponseModel: Equatable, JSONResponse {
     ) {
         self.name = name
         self.url = url
+    }
+}
+
+// MARK: - ServerSettingsResponseModel
+
+/// API response model for server-level settings in a configuration response.
+public struct ServerSettingsResponseModel: Equatable, JSONResponse {
+    /// Whether user registration is disabled on this server.
+    public let disableUserRegistration: Bool
+
+    // MARK: Initializers
+
+    /// Initializes a `ServerSettingsResponseModel`.
+    ///
+    /// - Parameter disableUserRegistration: Whether user registration is disabled on this server.
+    public init(disableUserRegistration: Bool) {
+        self.disableUserRegistration = disableUserRegistration
     }
 }
 

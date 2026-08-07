@@ -43,13 +43,13 @@ struct CredentialProviderContextTests { // swiftlint:disable:this type_body_leng
         )
         #expect(
             DefaultCredentialProviderContext(
-                .generatePasswordCredential(MockGeneratePasswordRequest(), userInteraction: false),
+                .generatePasswordCredential(MockGeneratePasswordRequestProxy(), userInteraction: false),
             ).authCompletionRoute == nil,
         )
         if #available(iOS 26.2, iOSApplicationExtension 26.2, *) {
             #expect(
                 DefaultCredentialProviderContext(
-                    .generatePasswordCredential(MockGeneratePasswordRequest(), userInteraction: true),
+                    .generatePasswordCredential(MockGeneratePasswordRequestProxy(), userInteraction: true),
                 ).authCompletionRoute == AppRoute.generatePasswordCredential,
             )
         }
@@ -128,7 +128,7 @@ struct CredentialProviderContextTests { // swiftlint:disable:this type_body_leng
         )
         #expect(
             !DefaultCredentialProviderContext(
-                .generatePasswordCredential(MockGeneratePasswordRequest(), userInteraction: false),
+                .generatePasswordCredential(MockGeneratePasswordRequestProxy(), userInteraction: false),
             ).configuring,
         )
         #expect(
@@ -181,6 +181,26 @@ struct CredentialProviderContextTests { // swiftlint:disable:this type_body_leng
             .savePasswordCredential(MockSavePasswordRequest(), userInteraction: true),
         )
         if case .savePasswordCredential = context9.extensionMode {} else { Issue.record("ExtensionMode doesn't match") }
+    }
+
+    /// `initialRoute` returns `.generatePasswordCredential` on iOS 26.2+ with user interaction,
+    /// and `nil` for all other modes or when `userInteraction` is `false`.
+    @Test
+    func initialRoute() {
+        #expect(
+            DefaultCredentialProviderContext(
+                .generatePasswordCredential(MockGeneratePasswordRequestProxy(), userInteraction: false),
+            ).initialRoute == nil,
+        )
+        #expect(DefaultCredentialProviderContext(.autofillVaultList([])).initialRoute == nil)
+        #expect(DefaultCredentialProviderContext(.configureAutofill).initialRoute == nil)
+        if #available(iOS 26.2, iOSApplicationExtension 26.2, *) {
+            #expect(
+                DefaultCredentialProviderContext(
+                    .generatePasswordCredential(MockGeneratePasswordRequestProxy(), userInteraction: true),
+                ).initialRoute == AppRoute.generatePasswordCredential,
+            )
+        }
     }
 
     /// `passwordCredentialIdentity` returns the identity of the `autofillCredential` mode.
@@ -274,12 +294,12 @@ struct CredentialProviderContextTests { // swiftlint:disable:this type_body_leng
 
         #expect(
             !DefaultCredentialProviderContext(
-                .generatePasswordCredential(MockGeneratePasswordRequest(), userInteraction: false),
+                .generatePasswordCredential(MockGeneratePasswordRequestProxy(), userInteraction: false),
             ).flowWithUserInteraction,
         )
         #expect(
             DefaultCredentialProviderContext(
-                .generatePasswordCredential(MockGeneratePasswordRequest(), userInteraction: true),
+                .generatePasswordCredential(MockGeneratePasswordRequestProxy(), userInteraction: true),
             ).flowWithUserInteraction,
         )
         #expect(
@@ -458,7 +478,5 @@ struct CredentialProviderContextTests { // swiftlint:disable:this type_body_leng
 class MockPasskeyCredentialRequest: PasskeyCredentialRequest {}
 
 class MockOneTimeCodeCredentialIdentity: OneTimeCodeCredentialIdentityProxy {}
-
-class MockGeneratePasswordRequest: GeneratePasswordRequestProxy {}
 
 class MockSavePasswordRequest: SavePasswordRequestProxy {}

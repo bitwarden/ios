@@ -789,6 +789,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
             .fixture(enabled: false, id: "3", name: "Org Disabled"),
             .fixture(id: "4", name: "Org Invited", status: .invited),
             .fixture(id: "5", name: "Org Accepted", status: .accepted),
+            .fixture(id: "6", name: "Org Staged", status: .staged),
         ])
 
         let ownershipOptions = try await subject.fetchCipherOwnershipOptions(includePersonal: true)
@@ -796,7 +797,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         XCTAssertEqual(
             ownershipOptions,
             [
-                .personal(email: "user@bitwarden.com"),
+                .personal(displayName: "user@bitwarden.com"),
                 .organization(id: "1", name: "Org1"),
                 .organization(id: "2", name: "Org2"),
             ],
@@ -813,6 +814,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
             .fixture(enabled: false, id: "3", name: "Org Disabled"),
             .fixture(id: "4", name: "Org Invited", status: .invited),
             .fixture(id: "5", name: "Org Accepted", status: .accepted),
+            .fixture(id: "6", name: "Org Staged", status: .staged),
         ])
 
         let ownershipOptions = try await subject.fetchCipherOwnershipOptions(includePersonal: false)
@@ -832,7 +834,29 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
 
         let ownershipOptions = try await subject.fetchCipherOwnershipOptions(includePersonal: true)
 
-        XCTAssertEqual(ownershipOptions, [.personal(email: "user@bitwarden.com")])
+        XCTAssertEqual(ownershipOptions, [.personal(displayName: "user@bitwarden.com")])
+    }
+
+    /// `fetchCipherOwnershipOptions()` shows the account email for the personal option when the
+    /// `.vfo1Foundation` feature flag is disabled.
+    func test_fetchCipherOwnershipOptions_personal_vfo1FoundationDisabled() async throws {
+        stateService.activeAccount = .fixture()
+        configService.featureFlagsBool[.vfo1Foundation] = false
+
+        let ownershipOptions = try await subject.fetchCipherOwnershipOptions(includePersonal: true)
+
+        XCTAssertEqual(ownershipOptions, [.personal(displayName: "user@bitwarden.com")])
+    }
+
+    /// `fetchCipherOwnershipOptions()` shows "My vault" for the personal option when the
+    /// `.vfo1Foundation` feature flag is enabled.
+    func test_fetchCipherOwnershipOptions_personal_vfo1FoundationEnabled() async throws {
+        stateService.activeAccount = .fixture()
+        configService.featureFlagsBool[.vfo1Foundation] = true
+
+        let ownershipOptions = try await subject.fetchCipherOwnershipOptions(includePersonal: true)
+
+        XCTAssertEqual(ownershipOptions, [.personal(displayName: Localizations.myVault)])
     }
 
     /// `fetchCollections(includeReadOnly:)` returns the collections for the user.

@@ -166,7 +166,12 @@ class CredentialProviderViewController: ASCredentialProviderViewController {
 
         if context.flowWithUserInteraction {
             Task {
-                await appProcessor.start(appContext: .appExtension, navigator: self, window: nil)
+                await appProcessor.start(
+                    appContext: .appExtension,
+                    initialRoute: context.initialRoute,
+                    navigator: self,
+                    window: nil,
+                )
             }
         }
     }
@@ -562,6 +567,11 @@ extension CredentialProviderViewController: CredentialProviderExtensionDelegate 
         didAppearSubject
             .eraseToAnyPublisher()
             .values
+    }
+
+    @available(iOSApplicationExtension 18.0, *)
+    func setMatchedExcludedCredentialFound() {
+        cancel(error: ASExtensionError(.matchedExcludedCredential))
     }
 
     func setUserInteractionRequired() {

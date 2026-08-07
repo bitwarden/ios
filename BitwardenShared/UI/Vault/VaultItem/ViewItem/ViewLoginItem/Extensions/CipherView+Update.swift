@@ -82,17 +82,17 @@ extension CipherView {
     ///
     /// This function converts the `driversLicense` information of the cipher into a
     /// `DriversLicenseItemState`, which is used to manage and display driver's license data in the
-    /// UI. Date fields are read as raw strings without any parsing.
+    /// UI.
     ///
     /// - Returns: A `DriversLicenseItemState` representing the driver's license information of the cipher.
     ///
     func driversLicenseItemState() -> DriversLicenseItemState {
         guard let driversLicense else { return DriversLicenseItemState() }
         return DriversLicenseItemState(
-            dateOfBirth: driversLicense.dateOfBirth ?? "",
-            expirationDate: driversLicense.expirationDate ?? "",
+            dateOfBirth: driversLicense.dateOfBirth,
+            expirationDate: driversLicense.expirationDate,
             firstName: driversLicense.firstName ?? "",
-            issueDate: driversLicense.issueDate ?? "",
+            issueDate: driversLicense.issueDate,
             issuingAuthority: driversLicense.issuingAuthority ?? "",
             issuingCountry: driversLicense.issuingCountry ?? "",
             issuingState: driversLicense.issuingState ?? "",
@@ -173,8 +173,7 @@ extension CipherView {
     /// Creates a `PassportItemState` representation of the cipher.
     ///
     /// This function converts the `passport` information of the cipher into a `PassportItemState`,
-    /// which is used to manage and display passport data in the UI. Date fields are read as raw
-    /// strings without any parsing.
+    /// which is used to manage and display passport data in the UI.
     ///
     /// - Returns: A `PassportItemState` representing the passport information of the cipher.
     ///
@@ -182,10 +181,10 @@ extension CipherView {
         guard let passport else { return PassportItemState() }
         return PassportItemState(
             birthPlace: passport.birthPlace ?? "",
-            dateOfBirth: passport.dateOfBirth ?? "",
-            expirationDate: passport.expirationDate ?? "",
+            dateOfBirth: passport.dateOfBirth,
+            expirationDate: passport.expirationDate,
             givenName: passport.givenName ?? "",
-            issueDate: passport.issueDate ?? "",
+            issueDate: passport.issueDate,
             issuingAuthority: passport.issuingAuthority ?? "",
             issuingCountry: passport.issuingCountry ?? "",
             nationalIdentificationNumber: passport.nationalIdentificationNumber ?? "",

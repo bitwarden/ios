@@ -28,7 +28,7 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
                 hasPremium: true,
             ),
         )
-        processor.state.ownershipOptions = [.personal(email: "user@bitwarden.com")]
+        processor.state.ownershipOptions = [.personal(displayName: "user@bitwarden.com")]
         let store = Store(processor: processor)
         subject = AddEditItemView(store: store)
     }
@@ -230,10 +230,10 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
     func test_ownerTextField_updateValue() throws {
         let organizationOwner = CipherOwner.organization(id: "1", name: "Bitwarden Organization")
         processor.state.ownershipOptions = [
-            CipherOwner.personal(email: "user@bitwarden.com"),
+            CipherOwner.personal(displayName: "user@bitwarden.com"),
             organizationOwner,
         ]
-        let menu = try subject.inspect().find(bitwardenMenuField: Localizations.owner)
+        let menu = try subject.inspect().find(bitwardenMenuField: processor.state.ownerFieldTitle)
         try menu.select(newValue: organizationOwner)
         XCTAssertEqual(processor.dispatchedActions.last, .ownerChanged(organizationOwner))
     }
@@ -653,7 +653,7 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
     @MainActor
     func test_driversLicense_dateOfBirthField_isDisabledAndShowsDisplayString() throws {
         processor.state.type = .driversLicense
-        processor.state.driversLicenseItemState.dateOfBirth = "1989-08-01"
+        processor.state.driversLicenseItemState.dateOfBirth = Date(year: 1989, month: 8, day: 1)
         let expected = processor.state.driversLicenseItemState.dateOfBirthDisplay
 
         let textField = try subject.inspect().find(bitwardenTextField: Localizations.dateOfBirth)
@@ -665,7 +665,7 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
     @MainActor
     func test_driversLicense_issueDateField_isDisabledAndShowsDisplayString() throws {
         processor.state.type = .driversLicense
-        processor.state.driversLicenseItemState.issueDate = "2019-08-01"
+        processor.state.driversLicenseItemState.issueDate = Date(year: 2019, month: 8, day: 1)
         let expected = processor.state.driversLicenseItemState.issueDateDisplay
 
         let textField = try subject.inspect().find(bitwardenTextField: Localizations.issueDate)
@@ -677,7 +677,7 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
     @MainActor
     func test_driversLicense_expirationDateField_isDisabledAndShowsDisplayString() throws {
         processor.state.type = .driversLicense
-        processor.state.driversLicenseItemState.expirationDate = "2029-08-01"
+        processor.state.driversLicenseItemState.expirationDate = Date(year: 2029, month: 8, day: 1)
         let expected = processor.state.driversLicenseItemState.expirationDateDisplay
 
         let textField = try subject.inspect().find(bitwardenTextField: Localizations.expirationDate)
@@ -850,7 +850,7 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
     @MainActor
     func test_passport_dateOfBirthField_isDisabledAndShowsDisplayString() throws {
         processor.state.type = .passport
-        processor.state.passportItemState.dateOfBirth = "2025-04-20"
+        processor.state.passportItemState.dateOfBirth = Date(year: 2025, month: 4, day: 20)
         let expected = processor.state.passportItemState.dateOfBirthDisplay
 
         let textField = try subject.inspect().find(bitwardenTextField: Localizations.dateOfBirth)
@@ -862,7 +862,7 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
     @MainActor
     func test_passport_issueDateField_isDisabledAndShowsDisplayString() throws {
         processor.state.type = .passport
-        processor.state.passportItemState.issueDate = "2021-08-10"
+        processor.state.passportItemState.issueDate = Date(year: 2021, month: 8, day: 10)
         let expected = processor.state.passportItemState.issueDateDisplay
 
         let textField = try subject.inspect().find(bitwardenTextField: Localizations.issueDate)
@@ -874,7 +874,7 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
     @MainActor
     func test_passport_expirationDateField_isDisabledAndShowsDisplayString() throws {
         processor.state.type = .passport
-        processor.state.passportItemState.expirationDate = "2026-08-10"
+        processor.state.passportItemState.expirationDate = Date(year: 2026, month: 8, day: 10)
         let expected = processor.state.passportItemState.expirationDateDisplay
 
         let textField = try subject.inspect().find(bitwardenTextField: Localizations.expirationDate)

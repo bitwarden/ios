@@ -60,6 +60,23 @@ class EnvironmentURLDataTests: XCTestCase {
         )
     }
 
+    /// `defaultGov` returns the properly configured `EnvironmentURLData`
+    /// with the default Urls for the government cloud (FedRAMP) region.
+    func test_defaultGov() {
+        XCTAssertEqual(
+            EnvironmentURLData.defaultGov,
+            EnvironmentURLData(
+                api: URL(string: "https://api.bitwarden-gov.com")!,
+                base: URL(string: "https://vault.bitwarden-gov.com")!,
+                events: URL(string: "https://events.bitwarden-gov.com")!,
+                icons: URL(string: "https://icons.bitwarden-gov.com")!,
+                identity: URL(string: "https://identity.bitwarden-gov.com")!,
+                notifications: URL(string: "https://notifications.bitwarden-gov.com")!,
+                webVault: URL(string: "https://vault.bitwarden-gov.com")!,
+            ),
+        )
+    }
+
     /// `importItemsURL` returns the import items URL for the base URL.
     func test_importItemsURL_baseURL() {
         let subject = EnvironmentURLData(base: URL(string: "https://vault.example.com"))
@@ -130,6 +147,12 @@ class EnvironmentURLDataTests: XCTestCase {
         XCTAssertTrue(subject.region == .europe)
     }
 
+    /// `region` returns `.gov` if base URL is the same as the default for the government cloud (FedRAMP) region.
+    func test_region_gov() {
+        let subject = EnvironmentURLData(base: URL(string: "https://vault.bitwarden-gov.com")!)
+        XCTAssertTrue(subject.region == .gov)
+    }
+
     /// `region` returns `.selfHosted` if base URL is neither the default for US nor for EU.
     func test_region_selfHost() {
         let subject = EnvironmentURLData(base: URL(string: "https://example.com")!)
@@ -146,6 +169,12 @@ class EnvironmentURLDataTests: XCTestCase {
     func test_sendShareURL_europe() {
         let subject = EnvironmentURLData.defaultEU
         XCTAssertEqual(subject.sendShareURL?.absoluteString, "https://vault.bitwarden.eu/#/send")
+    }
+
+    /// `sendShareURL` returns the send URL for the government cloud (FedRAMP) region.
+    func test_sendShareURL_gov() {
+        let subject = EnvironmentURLData.defaultGov
+        XCTAssertEqual(subject.sendShareURL?.absoluteString, "https://send.bitwarden-gov.com/#")
     }
 
     /// `sendShareURL` returns the send URL for the base URL.

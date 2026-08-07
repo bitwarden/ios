@@ -39,6 +39,8 @@
 "RemoveAccount" = "Supprimer le compte";
 "RemoveAccountConfirmation" = "Êtes-vous sûr de vouloir supprimer ce compte ?";
 "AccountAlreadyAdded" = "Compte déjà ajouté";
+"AccountCreationRestricted" = "Création de compte restreinte";
+"XOnlyAllowsInvitedUsersToCreateAccounts" = "%1$@ ne permet qu'aux utilisateurs invités de créer des comptes.";
 "SwitchToAlreadyAddedAccountConfirmation" = "Souhaitez-vous y passer maintenant ?";
 "MasterPassword" = "Mot de passe principal";
 "MoreOptions" = "Plus d'options";
@@ -563,6 +565,7 @@
 "ThereAreNoBankAccountsInYourVault" = "Il n'y a pas de compte bancaire dans votre coffre";
 "US" = "US";
 "EU" = "EU";
+"Gov" = "Gov";
 "SelfHosted" = "Auto-hébergé";
 "UpdateWeakMasterPasswordWarning" = "Votre mot de passe principal ne répond pas aux exigences de politique de sécurité de cette organisation. Pour accéder au coffre, vous devez mettre à jour votre mot de passe principal dès maintenant. En poursuivant, vous serez déconnecté de votre session actuelle et vous devrez vous reconnecter. Les sessions actives sur d'autres appareils peuver rester actives pendant encore une heure.";
 "CurrentMasterPasswordRequired" = "Mot de passe principal actuel (requis)";
@@ -571,6 +574,8 @@
 "RequestAdminApproval" = "Demander l'approbation de l'administrateur";
 "ApproveWithMasterPassword" = "Approuver avec le mot de passe principal";
 "TurnOffUsingPublicDevice" = "Décochez si vous utilisez un appareil public";
+"TurnOnFillAssist" = "Activer l'Aide de Remplissage";
+"TurnOnFillAssistDescriptionLong" = "L'Aide de Remplissage améliore la précision du remplissage automatique sur les sites pris en charge en utilisant des règles spécifiques au site.";
 "RememberThisDevice" = "Se souvenir de cet appareil";
 "Passkey" = "Clé d'accès";
 "Passkeys" = "Clés d'accès";
@@ -778,6 +783,8 @@
 "SetUpAutofillOnAllYourDevicesToLoginWithASingleTapAnywhere" = "Configurez le remplissage automatique sur tous vos appareils pour vous connecter de n'importe où en un seul clic.";
 "GoBack" = "Revenir en arrière";
 "GotIt" = "C'est compris";
+/* masterPasswordUnlock is the name of some data we want to delete, so there's no need to localize it. */
+"ClearMasterPasswordUnlock" = "Effacer masterPasswordUnlock";
 "ClearSsoCookies" = "Effacer les cookies SSO";
 "GenerateCrash" = "Générer un plantage";
 "GenerateErrorReport" = "Générer un rapport d'erreur";
@@ -1061,6 +1068,8 @@
 "ReplaceCertificate" = "Remplacer le certificat";
 "ReplaceExistingCertificate" = "Remplacer le certificat existant";
 "UnableToReadCertificateFile" = "Impossible de lire le fichier de certificat.";
+/* masterPasswordUnlock is the name of some data we want to delete, so there's no need to localize it. */
+"MasterPasswordUnlockCleared" = "masterPasswordUnlock effacé.";
 "SsoCookiesCleared" = "Cookies SSO effacés";
 "YourRequestWasInterruptedBecauseTheAppNeededToReAuthenticatePleaseTryAgain" = "Votre demande a été interrompue car l'application est nécessaire pour se ré-authentifier. Veuillez réessayer.";
 "AutofillWithBitwardenDescriptionLong" = "Bitwarden peut suggérer vos mots de passe et autres identifiants lorsque vous vous connectez à des applications et sites Web.";
@@ -1074,6 +1083,7 @@
 "Canceled" = "Annulé";
 "PastDue" = "Échéance dépassée";
 "PendingCancellation" = "Résiliation en attente";
+"Unpaid" = "Impayé";
 "UpdatePayment" = "Mettre à jour le paiement";
 "BillingAmount" = "Montant facturé";
 "StorageCost" = "Coût de stockage";
@@ -1085,17 +1095,44 @@
 "ExternalLink" = "Lien externe";
 "YourNextChargeIsForXDueOnY" = "Votre prochain prélèvement de **%1$@** sera effectué le **%2$@**.";
 "WeCouldNotProcessYourPaymentUpdateYourPaymentMethodDescriptionLong" = "Nous n'avons pas pu traiter votre paiement. Mettez à jour votre mode de paiement avant la fin de votre abonnement le **%1$@**.";
+/* Error message shown when the Premium Plan screen fails to load subscription data, with a prompt to retry. */
+"WeCouldntLoadYourSubscriptionDetailsPleaseRetry" = "Nous n'avons pas pu charger les détails de votre abonnement. Veuillez réessayer.";
 "YourSubscriptionWasCanceledOnXDescriptionLong" = "Votre abonnement a été annulé le **%1$@**. Réabonnez-vous pour continuer à utiliser les fonctionnalités Premium.";
+"YourSubscriptionWasSuspendedOnXDescriptionLong" = "Votre abonnement a été suspendu le **%1$@**. Pour le réactiver, veuillez régler vos factures impayées.";
 "YourSubscriptionExpiredOnXDescriptionLong" = "Votre abonnement a expiré le **%1$@**. Réabonnez-vous pour continuer à utiliser les fonctionnalités Premium.";
 "YourSubscriptionIsScheduledToCancelOnXDescriptionLong" = "Votre abonnement est programmé pour être annulé le **%1$@**. Vous pouvez le rétablir à tout moment avant cette date.";
 "PerMonth" = "/ mois";
+/* VoiceOver reading of "PerMonth", spoken instead of shown. */
+"PerMonthVoiceOver" = "par mois";
 "PerYear" = "/ an";
+/* VoiceOver reading of "PerYear", spoken instead of shown. */
+"PerYearVoiceOver" = "par an";
 "XAmountPerCadence" = "%1$@%2$@";
+/* %1$@ is an amount and cadence together, e.g. "$1.65 / month". */
+"XCancelAnytime" = "%1$@ · Annulation à tout moment";
+/* VoiceOver reading of "XCancelAnytime", spoken instead of shown. */
+"XCancelAnytimeVoiceOver" = "%1$@, Annulation à tout moment";
 "NegativeX" = "-%1$@";
 "UnknownStatus" = "Inconnu";
 "YourSubscriptionStatusIsUnknownVisitTheWebAppDescriptionLong" = "Le statut de votre abonnement n'a pas pu être déterminé. Veuillez visiter l'application web pour plus de détails ou mettre à jour vers la dernière version.";
-"AtTheMomentPremiumPlanIsNotAvailableDescriptionLong" = "Le plan Premium n'est pas disponible pour le moment, veuillez réessayer plus tard.";
-"UnlockMoreAdvancedFeaturesWithPremiumPlan" = "Débloquez des fonctionnalités plus avancées avec un abonnement Premium.";
+/* Headline on the Premium upgrade screen. */
+"UnlockAdvancedProtection" = "Déverrouillez une protection avancée";
+/* Premium benefit list item. */
+"BreezeThrough2faWithBuiltInCodes" = "Simplifiez-vous la vie avec la 2FA grâce aux codes intégrés";
+/* Premium benefit list item. */
+"RunReportsToFindRiskyPasswords" = "Générer des rapports pour trouver les mots de passes à risque";
+/* Premium benefit list item. */
+"KeepDocumentsSafeAndEncrypted" = "Garder vos documents en sécurité et chiffrés";
+/* Premium benefit list item. */
+"AddATrustedEmergencyContact" = "Ajouter un contact d'urgence de confiance";
+/* Premium benefit list item. */
+"IdentifyUnsecureWebsites" = "Identifier les sites web non sécurisés";
+/* Premium benefit list item. */
+"FlagAccountsWithInactive2fa" = "Repérer les comptes sans double authentification";
+/* Premium benefit list item; "Send" is the Bitwarden Send feature name and shouldn't be translated. */
+"ShareFilesSecurelyWithAnyoneUsingSend" = "Partager des fichiers avec n'importe qui en toute sécurité avec Send";
+/* Premium benefit list item. */
+"Receive247PrioritySupport" = "Recevoir une assistance prioritaire 24/7";
 "BuiltInAuthenticator" = "Authentificateur intégré";
 "EmergencyAccess" = "Accès d'urgence";
 "PaymentNotReceivedYet" = "Le paiement n'a pas encore été reçu";
@@ -1104,15 +1141,18 @@
 "WeHadTroubleOpeningThePaymentPageDescriptionLong" = "Nous avons eu des difficultés à ouvrir la page de paiement, essayez à nouveau.";
 "SecureFileStorage" = "Stockage sécurisé de fichier";
 "BreachMonitoring" = "Surveillance des fuites";
-"UpgradeNow" = "Mettre à niveau maintenant";
 "ConfirmingYourUpgrade" = "Confirmation de votre mise à niveau…";
 "OpeningCheckout" = "Lancement du paiement";
 "UpgradePending" = "Mise à niveau en attente";
 "YourUpgradeIsBeingProcessedDescriptionLong" = "Votre mise à niveau est en cours de traitement. Vous resterez sur la formule gratuite jusqu'à ce qu'elle soit finalisée. Synchronisez maintenant pour vérifier, ou continuez — la mise à jour s'effectuera automatiquement.";
 "UpgradedToPremium" = "Passer à la version Premium";
+"SubscriptionNeedsAttention" = "Votre abonnement nécessite de l'attention";
+"CheckYourPlanForDetails" = "Consultez votre abonnement pour plus d'informations.";
+"ViewPlan" = "Afficher l'abonnement";
 "YouNowHaveAccessToAdvancedSecurityDescriptionLong" = "Vous avez désormais accès aux fonctionnalités de sécurité avancées. Apprenez-en plus sur ce qui est inclus avec Premium.";
 "YouNowHaveAccessToAllAdvancedSecurityFeatures" = "Vous avez désormais accès à toutes les fonctionnalités de sécurité avancées.";
-"YoullGoToStripeSecureCheckoutToCompleteYourPurchase" = "Vous allez passer au paiement sécurisé Stripe pour compléter votre achat.";
+/* Footer on the Premium upgrade screen; "Stripe" is the payment processor's name and shouldn't be translated. */
+"YoullCompleteThePurchaseWithStripeSecureCheckout" = "Vous allez terminer l'achat avec le paiement sécurisé Stripe.";
 "ContinueToStripe" = "Poursuivre vers Stripe ?";
 "YoullBeTakenToStripeToManageYourSubscriptionCancellation" = "Vous serez redirigé vers Stripe pour gérer l'annulation de votre abonnement.";
 "UserIDCopiedToTheClipboard" = "ID utilisateur copié dans le presse-papiers";
@@ -1161,3 +1201,29 @@
 "LineOfCredit" = "Ligne de crédit";
 "MoneyMarket" = "Compte du marché monétaire";
 "Savings" = "Compte épargne";
+"Devices" = "Appareils";
+"NoDevicesFound" = "No devices found";
+"CurrentSession" = "Session en cours";
+"PendingRequest" = "Demande en attente";
+"Trusted" = "Approuvé";
+"RecentlyActiveLabel" = "Recently active:";
+"FirstLoginLabel" = "First login:";
+"Today" = "Aujourd'hui";
+"PastSevenDays" = "7 derniers jours";
+"PastFourteenDays" = "14 derniers jours";
+"PastThirtyDays" = "30 derniers jours";
+"OverThirtyDaysAgo" = "Il y a plus de 30 jours";
+"Unknown" = "Inconnu";
+/* Device display name. %1$@ = category (e.g. "Mobile"), %2$@ = platform (e.g. "iOS"). */
+"DeviceDisplayNameXHyphenY" = "%1$@ - %2$@";
+"Mobile" = "Mobile";
+"BrowserExtension" = "Browser extension";
+"WebVault2" = "Web vault";
+"Desktop" = "Desktop";
+"Cli" = "CLI";
+"Sdk" = "SDK";
+"Server" = "Serveur";
+/* Accessibility label for the button that clears a field's value. %1$@ is the field's title (e.g. "Date of birth"), so the spoken label reads "Clear Date of birth". */
+"ClearFieldName" = "Effacer %1$@";
+"SelectDate" = "Sélectionner la date";
+"PremiumRequiredTOTPDescriptionLong" = "La clé d'authentification (TOTP) est une fonctionnalité Premium. Votre plan actuel n'inclut pas l'accès à cette fonctionnalité.";

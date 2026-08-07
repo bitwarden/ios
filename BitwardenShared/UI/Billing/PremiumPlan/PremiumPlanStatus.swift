@@ -25,6 +25,9 @@ public enum PremiumPlanStatus: Equatable, Hashable {
     /// The plan has an unknown status not yet supported by the app.
     case unknown
 
+    /// The subscription is unpaid after repeated payment failures; premium access has lapsed.
+    case unpaid
+
     /// The plan requires a payment method update.
     case updatePayment
 
@@ -36,7 +39,8 @@ public enum PremiumPlanStatus: Equatable, Hashable {
         case .active:
             .success
         case .canceled,
-             .expired:
+             .expired,
+             .unpaid:
             .danger
         case .pastDue,
              .pendingCancellation,
@@ -46,12 +50,31 @@ public enum PremiumPlanStatus: Equatable, Hashable {
         }
     }
 
-    /// Whether the status represents a subscription in a troubled state (e.g. canceled, past due).
+    /// Whether the status represents a subscription in a troubled state that affects billing UI —
+    /// canceled, expired, past due, pending cancellation, unpaid, or update payment.
+    ///
+    /// This is broader than `isPaymentProblemState`: it covers every non-normal state, including
+    /// those caused by user action (cancellation) or plan expiry, not only payment failures.
     var isTroubleState: Bool {
         switch self {
-        case .canceled, .expired, .pastDue, .pendingCancellation, .updatePayment:
+        case .canceled, .expired, .pastDue, .pendingCancellation, .unpaid, .updatePayment:
             true
         case .active, .unknown:
+            false
+        }
+    }
+
+    /// Whether the status represents a payment failure — past due, unpaid, or update payment.
+    ///
+    /// This is the narrower subset of `isTroubleState` that drives the "subscription needs
+    /// attention" action card. It covers all three payment-problem states regardless of whether
+    /// premium access is currently active: past due and update payment retain premium during
+    /// the payment retry grace period, while unpaid has already lapsed.
+    var isPaymentProblemState: Bool {
+        switch self {
+        case .pastDue, .unpaid, .updatePayment:
+            true
+        case .active, .canceled, .expired, .pendingCancellation, .unknown:
             false
         }
     }
@@ -71,6 +94,8 @@ public enum PremiumPlanStatus: Equatable, Hashable {
             Localizations.pendingCancellation
         case .unknown:
             Localizations.unknownStatus
+        case .unpaid:
+            Localizations.unpaid
         case .updatePayment:
             Localizations.updatePayment
         }
@@ -94,13 +119,14 @@ public enum PremiumPlanStatus: Equatable, Hashable {
             self = .canceled
         case .incompleteExpired:
             self = .expired
-        case .incomplete,
-             .unpaid:
+        case .incomplete:
             self = .updatePayment
         case .pastDue:
             self = .pastDue
         case .unknown:
             self = .unknown
+        case .unpaid:
+            self = .unpaid
         }
     }
 }

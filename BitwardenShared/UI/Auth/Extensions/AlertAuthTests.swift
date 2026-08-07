@@ -382,4 +382,14 @@ class AlertAuthTests: BitwardenTestCase { // swiftlint:disable:this type_body_le
         try await subject.tapAction(title: Localizations.yes)
         XCTAssertTrue(actionCalled)
     }
+
+    /// `registrationDisabled(serverURL:)` builds the correct alert with the server URL in the message.
+    func test_registrationDisabled() async throws {
+        let subject = Alert.registrationDisabled(serverURL: "bitwarden.com")
+
+        XCTAssertEqual(subject.title, Localizations.accountCreationRestricted)
+        XCTAssertEqual(subject.message, "bitwarden.com only allows invited users to create accounts.")
+        XCTAssertEqual(subject.alertActions.count, 1)
+        XCTAssertEqual(subject.alertActions[0].title, Localizations.ok)
+    }
 }

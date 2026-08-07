@@ -4,6 +4,7 @@ import BitwardenSdk
 
 class MockPolicyService: PolicyService {
     var applyPasswordGenerationOptionsCalled = false
+    var applyPasswordGenerationOptionsError: Error?
     var applyPasswordGenerationOptionsResult = false
     var applyPasswordGenerationOptionsTransform = { (_: inout PasswordGenerationOptions) in }
 
@@ -19,7 +20,7 @@ class MockPolicyService: PolicyService {
         ),
     )
 
-    var isSendHideEmailDisabledByPolicy = false
+    var getSendPolicyOptionsResult = SendPolicyOptions()
 
     var fetchTimeoutPolicyValuesResult: Result<SessionTimeoutPolicy?, Error> = .success(nil)
 
@@ -45,6 +46,9 @@ class MockPolicyService: PolicyService {
 
     func applyPasswordGenerationPolicy(options: inout PasswordGenerationOptions) async throws -> Bool {
         applyPasswordGenerationOptionsCalled = true
+        if let applyPasswordGenerationOptionsError {
+            throw applyPasswordGenerationOptionsError
+        }
         applyPasswordGenerationOptionsTransform(&options)
         return applyPasswordGenerationOptionsResult
     }
@@ -65,8 +69,8 @@ class MockPolicyService: PolicyService {
         try getMasterPasswordPolicyOptionsResult.get()
     }
 
-    func isSendHideEmailDisabledByPolicy() async -> Bool {
-        isSendHideEmailDisabledByPolicy
+    func getSendPolicyOptions() async -> SendPolicyOptions {
+        getSendPolicyOptionsResult
     }
 
     func fetchTimeoutPolicyValues() async throws -> SessionTimeoutPolicy? {
