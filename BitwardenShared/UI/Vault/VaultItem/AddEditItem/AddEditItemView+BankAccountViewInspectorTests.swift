@@ -29,7 +29,7 @@ class AddEditItemViewBankAccountTests: BitwardenTestCase {
                 hasPremium: true,
             ),
         )
-        processor.state.ownershipOptions = [.personal(email: "user@bitwarden.com")]
+        processor.state.ownershipOptions = [.personal(displayName: "user@bitwarden.com")]
         let store = Store(processor: processor)
         subject = AddEditItemView(store: store)
     }

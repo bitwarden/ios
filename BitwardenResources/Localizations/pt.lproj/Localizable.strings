@@ -39,6 +39,8 @@
 "RemoveAccount" = "Remover conta";
 "RemoveAccountConfirmation" = "Tem a certeza de que deseja remover esta conta?";
 "AccountAlreadyAdded" = "Conta já adicionada";
+"AccountCreationRestricted" = "Criação de conta restringida";
+"XOnlyAllowsInvitedUsersToCreateAccounts" = "%1$@ apenas permite que utilizadores convidados criem contas.";
 "SwitchToAlreadyAddedAccountConfirmation" = "Gostaria de alterar para a adicionada agora?";
 "MasterPassword" = "Palavra-passe mestra";
 "MoreOptions" = "Mais opções";
@@ -563,6 +565,7 @@
 "ThereAreNoBankAccountsInYourVault" = "Não existem contas bancárias no seu cofre";
 "US" = "EUA";
 "EU" = "UE";
+"Gov" = "Gov";
 "SelfHosted" = "Auto-hospedado";
 "UpdateWeakMasterPasswordWarning" = "A sua palavra-passe mestra não cumpre uma ou mais políticas da sua organização. Para aceder ao cofre, tem de atualizar a sua palavra-passe mestra agora. Ao prosseguir, terminará a sua sessão atual e terá de iniciar sessão novamente. As sessões ativas noutros dispositivos poderão continuar ativas até uma hora.";
 "CurrentMasterPasswordRequired" = "Palavra-passe mestra atual (obrigatório)";
@@ -1198,6 +1201,28 @@
 "LineOfCredit" = "Linha de crédito";
 "MoneyMarket" = "Mercado monetário";
 "Savings" = "Poupança";
+"Devices" = "Dispositivos";
+"NoDevicesFound" = "Nenhum dispositivo encontrado";
+"CurrentSession" = "Sessão atual";
+"PendingRequest" = "Pedido pendente";
+"Trusted" = "Confiável";
+"RecentlyActiveLabel" = "Ativo recentemente:";
+"FirstLoginLabel" = "Primeiro início de sessão:";
+"Today" = "Hoje";
+"PastSevenDays" = "Últimos 7 dias";
+"PastFourteenDays" = "Últimos 14 dias";
+"PastThirtyDays" = "Últimos 30 dias";
+"OverThirtyDaysAgo" = "Há mais de 30 dias";
+"Unknown" = "Desconhecido";
+/* Device display name. %1$@ = category (e.g. "Mobile"), %2$@ = platform (e.g. "iOS"). */
+"DeviceDisplayNameXHyphenY" = "%1$@ - %2$@";
+"Mobile" = "Móvel";
+"BrowserExtension" = "Extensão do navegador";
+"WebVault2" = "Cofre web";
+"Desktop" = "Computador";
+"Cli" = "CLI";
+"Sdk" = "SDK";
+"Server" = "Servidor";
 /* Accessibility label for the button that clears a field's value. %1$@ is the field's title (e.g. "Date of birth"), so the spoken label reads "Clear Date of birth". */
 "ClearFieldName" = "Limpar %1$@";
 "SelectDate" = "Selecionar data";

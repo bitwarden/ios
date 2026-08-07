@@ -252,6 +252,14 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         XCTAssertTrue(searchProcessorMediatorFactory.makeCalled)
     }
 
+    /// `perform(_:)` with `.appeared` loads the vfo1-foundation feature flag.
+    @MainActor
+    func test_perform_appeared_featureFlags_vfo1Foundation() async {
+        configService.featureFlagsBool[.vfo1Foundation] = true
+        await subject.perform(.appeared)
+        XCTAssertTrue(subject.state.isVfo1FoundationFeatureFlagEnabled)
+    }
+
     /// `perform(_:)` with `.appeared` starts listening for updates with the vault repository.
     /// In this case sync is flagged as periodic.
     @MainActor

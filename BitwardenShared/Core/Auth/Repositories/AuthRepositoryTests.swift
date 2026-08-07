@@ -1884,6 +1884,21 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         )
     }
 
+    /// `setLastActiveAccountTime` throws when there is no active account.
+    func test_setLastActiveAccountTime_noUser() async {
+        await assertAsyncThrows(error: StateServiceError.noActiveAccount) {
+            try await subject.setLastActiveAccountTime()
+        }
+    }
+
+    /// `setLastActiveAccountTime` records the current time for the active account.
+    func test_setLastActiveAccountTime_success() async throws {
+        let active = Account.fixture()
+        stateService.activeAccount = active
+        try await subject.setLastActiveAccountTime()
+        XCTAssertNotNil(vaultTimeoutService.lastActiveTime[active.profile.userId])
+    }
+
     /// `setVaultTimeout` correctly configures the user's timeout value.
     func test_setVaultTimeout_noUser() async {
         await assertAsyncThrows(error: StateServiceError.noActiveAccount) {

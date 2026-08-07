@@ -207,6 +207,10 @@ protocol AuthRepository: AnyObject {
     ///
     func sessionTimeoutValue(userId: String?) async throws -> SessionTimeoutValue
 
+    /// Records the current timestamp as the active account's last-active time.
+    ///
+    func setLastActiveAccountTime() async throws
+
     /// Sets the encrypted pin and the pin protected user key.
     ///
     /// - Parameters:
@@ -1024,6 +1028,11 @@ extension DefaultAuthRepository: AuthRepository {
             enrollPinResponse: enrollPinResponse,
             requirePasswordAfterRestart: requirePasswordAfterRestart,
         )
+    }
+
+    func setLastActiveAccountTime() async throws {
+        let userId = try await stateService.getActiveAccountId()
+        try await vaultTimeoutService.setLastActiveTime(userId: userId)
     }
 
     func setVaultTimeout(value newValue: SessionTimeoutValue, userId: String?) async throws {

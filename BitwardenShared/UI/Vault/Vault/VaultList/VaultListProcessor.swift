@@ -23,6 +23,7 @@ final class VaultListProcessor: StateProcessor<
         & HasBillingRepository
         & HasBillingService
         & HasChangeKdfService
+        & HasConfigService
         & HasEnvironmentService
         & HasErrorReporter
         & HasEventService
@@ -234,6 +235,7 @@ extension VaultListProcessor {
 
     /// Called when the vault list appears on screen.
     private func appeared() async {
+        state.isVfo1FoundationFeatureFlagEnabled = await services.configService.getFeatureFlag(.vfo1Foundation)
         await refreshVault(syncWithPeriodicCheck: true)
         // Read after sync so the cache has been refreshed by onFetchSyncSucceeded if a sync ran.
         await refreshPremiumActionCards()

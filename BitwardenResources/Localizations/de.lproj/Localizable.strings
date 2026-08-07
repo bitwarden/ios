@@ -39,6 +39,8 @@
 "RemoveAccount" = "Konto entfernen";
 "RemoveAccountConfirmation" = "Möchtest du dieses Konto wirklich entfernen?";
 "AccountAlreadyAdded" = "Konto bereits hinzugefügt";
+"AccountCreationRestricted" = "Kontoerstellung eingeschränkt";
+"XOnlyAllowsInvitedUsersToCreateAccounts" = "%1$@ erlaubt es nur eingeladenen Benutzern Konten zu erstellen.";
 "SwitchToAlreadyAddedAccountConfirmation" = "Möchtest du jetzt dazu wechseln?";
 "MasterPassword" = "Master-Passwort";
 "MoreOptions" = "Weitere Optionen";
@@ -563,6 +565,7 @@
 "ThereAreNoBankAccountsInYourVault" = "Es gibt keine Bankkonten in deinem Tresor";
 "US" = "US";
 "EU" = "EU";
+"Gov" = "Gov";
 "SelfHosted" = "Selbst gehostet";
 "UpdateWeakMasterPasswordWarning" = "Dein Master-Passwort entspricht nicht einer oder mehreren Richtlinien deiner Organisation. Um auf den Tresor zugreifen zu können, musst du dein Master-Passwort jetzt aktualisieren. Wenn du fortfährst, wirst du von deiner aktuellen Sitzung abgemeldet und musst dich erneut anmelden. Aktive Sitzungen auf anderen Geräten können noch bis zu einer Stunde lang aktiv bleiben.";
 "CurrentMasterPasswordRequired" = "Aktuelles Master-Passwort (erforderlich)";
@@ -1100,13 +1103,13 @@
 "YourSubscriptionIsScheduledToCancelOnXDescriptionLong" = "Dein Abonnement wird am **%1$@** gekündigt. Du kannst es davor jederzeit wieder reaktivieren.";
 "PerMonth" = "/ Monat";
 /* VoiceOver reading of "PerMonth", spoken instead of shown. */
-"PerMonthVoiceOver" = "monatlich";
+"PerMonthVoiceOver" = "pro Monat";
 "PerYear" = "/ Jahr";
 /* VoiceOver reading of "PerYear", spoken instead of shown. */
-"PerYearVoiceOver" = "jährlich";
+"PerYearVoiceOver" = "pro Jahr";
 "XAmountPerCadence" = "%1$@ %2$@";
 /* %1$@ is an amount and cadence together, e.g. "$1.65 / month". */
-"XCancelAnytime" = "%1$@ jederzeit kündbar";
+"XCancelAnytime" = "%1$@ · Jederzeit kündbar";
 /* VoiceOver reading of "XCancelAnytime", spoken instead of shown. */
 "XCancelAnytimeVoiceOver" = "%1$@, jederzeit kündbar";
 "NegativeX" = "-%1$@";
@@ -1198,7 +1201,29 @@
 "LineOfCredit" = "Kreditrahmen";
 "MoneyMarket" = "Finanzmarkt";
 "Savings" = "Ersparnisse";
+"Devices" = "Geräte";
+"NoDevicesFound" = "Keine Geräte gefunden";
+"CurrentSession" = "Aktuelle Sitzung";
+"PendingRequest" = "Ausstehende Anfrage";
+"Trusted" = "Vertrauenswürdig";
+"RecentlyActiveLabel" = "Kürzlich aktiv:";
+"FirstLoginLabel" = "Erste Anmeldung:";
+"Today" = "Heute";
+"PastSevenDays" = "Letzte 7 Tage";
+"PastFourteenDays" = "Letzte 14 Tage";
+"PastThirtyDays" = "Letzte 30 Tage";
+"OverThirtyDaysAgo" = "Vor mehr als 30 Tagen";
+"Unknown" = "Unbekannt";
+/* Device display name. %1$@ = category (e.g. "Mobile"), %2$@ = platform (e.g. "iOS"). */
+"DeviceDisplayNameXHyphenY" = "%1$@ - %2$@";
+"Mobile" = "Mobile App";
+"BrowserExtension" = "Browser-Erweiterung";
+"WebVault2" = "Web-Tresor";
+"Desktop" = "Desktop";
+"Cli" = "CLI";
+"Sdk" = "SDK";
+"Server" = "Server";
 /* Accessibility label for the button that clears a field's value. %1$@ is the field's title (e.g. "Date of birth"), so the spoken label reads "Clear Date of birth". */
-"ClearFieldName" = "Leere %1$@";
-"SelectDate" = "Datum wählen";
+"ClearFieldName" = "%1$@ leeren";
+"SelectDate" = "Datum auswählen";
 "PremiumRequiredTOTPDescriptionLong" = "Authentifizierungsschlüssel (TOTP) sind eine Premium-Funktion. Dein aktueller Tarif enthält keinen Zugriff auf diese Funktion.";

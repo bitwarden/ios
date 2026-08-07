@@ -14,6 +14,7 @@ class AddEditSendItemProcessor: // swiftlint:disable:this type_body_length
     typealias Services = HasAuthRepository
         & HasBillingRepository
         & HasBillingService
+        & HasConfigService
         & HasEnvironmentService
         & HasErrorReporter
         & HasPasteboardService
@@ -230,8 +231,10 @@ class AddEditSendItemProcessor: // swiftlint:disable:this type_body_length
     /// Load any initial data for the view.
     ///
     private func loadData() async {
-        state.isSendDisabled = await services.policyService.policyAppliesToUser(.disableSend)
-        state.isSendHideEmailDisabled = await services.policyService.isSendHideEmailDisabledByPolicy()
+        state.isSendControlsPolicyEnabled = await services.configService.getFeatureFlag(.sendControls)
+        let sendPolicyOptions = await services.policyService.getSendPolicyOptions()
+        state.isSendDisabled = sendPolicyOptions.isSendDisabled
+        state.isSendHideEmailDisabled = sendPolicyOptions.isHideEmailDisabled
         state.hasPremium = await services.sendRepository.doesActiveAccountHavePremium()
         await refreshProfileState()
 
@@ -307,8 +310,8 @@ class AddEditSendItemProcessor: // swiftlint:disable:this type_body_length
         coordinator.showLoadingOverlay(LoadingOverlayState(title: Localizations.saving))
         defer { coordinator.hideLoadingOverlay() }
 
-        let sendView = state.newSendView()
         do {
+            let sendView = try state.newSendView()
             let newSendView: SendView
             switch state.mode {
             case .add, .shareExtension:
@@ -318,6 +321,8 @@ class AddEditSendItemProcessor: // swiftlint:disable:this type_body_length
                     newSendView = try await services.sendRepository.addFileSend(sendView, data: fileData)
                 case .text:
                     newSendView = try await services.sendRepository.addTextSend(sendView)
+                case .unknown:
+                    return
                 }
                 await services.reviewPromptService.trackUserAction(.createdNewSend)
             case .edit:

@@ -39,6 +39,8 @@
 "RemoveAccount" = "Fiók eltávolítása";
 "RemoveAccountConfirmation" = "Biztosan törlésre kerüljön ez a fiók?";
 "AccountAlreadyAdded" = "A fiók már hozzáadásra került.";
+"AccountCreationRestricted" = "A fiók létrehozása korlátozott.";
+"XOnlyAllowsInvitedUsersToCreateAccounts" = "%1$@ csak a meghívott felhasználók számára teszi lehetővé fiókok létrehozását.";
 "SwitchToAlreadyAddedAccountConfirmation" = "Szeretnénk most átkapcsolni erre?";
 "MasterPassword" = "Mesterjelszó";
 "MoreOptions" = "További opciók";
@@ -563,6 +565,7 @@
 "ThereAreNoBankAccountsInYourVault" = "Nincsenek bankszámlák a széfben.";
 "US" = "US";
 "EU" = "EU";
+"Gov" = "Kormányzat";
 "SelfHosted" = "Saját kiszolgáló";
 "UpdateWeakMasterPasswordWarning" = "A mesterjelszó nem felel meg egy vagy több szervezeti szabályzatnak. A széf eléréséhez frissíteni kell a meszerjelszót. A továbblépés kijelentkeztet az aktuális munkamenetből és újra be kell jelentkezni. A többi eszközön lévő aktív munkamenetek akár egy óráig is aktívak maradhatnak.";
 "CurrentMasterPasswordRequired" = "Jelenlegi mesterjelszó (kötelező)";
@@ -1198,6 +1201,28 @@
 "LineOfCredit" = "Hitelkeret";
 "MoneyMarket" = "Pénzpiac";
 "Savings" = "Megtakarítások";
+"Devices" = "Eszközök";
+"NoDevicesFound" = "Nem található eszköz.";
+"CurrentSession" = "Jelenlegi munkamenet";
+"PendingRequest" = "Függő kérés";
+"Trusted" = "Megbízható";
+"RecentlyActiveLabel" = "Legutóbb aktív:";
+"FirstLoginLabel" = "Első bejelentkezés:";
+"Today" = "Ma";
+"PastSevenDays" = "Az elmúlt 7 nap";
+"PastFourteenDays" = "Az elmúlt 14 nap";
+"PastThirtyDays" = "Az elmúlt 30 nap";
+"OverThirtyDaysAgo" = "Több, mint 30 napja";
+"Unknown" = "Ismeretlen";
+/* Device display name. %1$@ = category (e.g. "Mobile"), %2$@ = platform (e.g. "iOS"). */
+"DeviceDisplayNameXHyphenY" = "%1$@ - %2$@";
+"Mobile" = "Mobil";
+"BrowserExtension" = "Böngésző bővítmény";
+"WebVault2" = "Webes széf";
+"Desktop" = "Asztali";
+"Cli" = "CLI";
+"Sdk" = "SDK";
+"Server" = "Szerver";
 /* Accessibility label for the button that clears a field's value. %1$@ is the field's title (e.g. "Date of birth"), so the spoken label reads "Clear Date of birth". */
 "ClearFieldName" = "%1$@ kiürítése";
 "SelectDate" = "Dátum kiválasztása";

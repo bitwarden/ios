@@ -57,6 +57,31 @@ class AutoFillViewTests: BitwardenTestCase {
         XCTAssertEqual(processor.dispatchedActions.last, .passwordAutoFillTapped)
     }
 
+    /// The Fill Assist toggle announces its name to VoiceOver.
+    @MainActor
+    func test_fillAssistToggle_accessibilityLabel() throws {
+        processor.state.isFillAssistFeatureFlagEnabled = true
+        _ = try subject.inspect().find(toggleWithAccessibilityLabel: Localizations.turnOnFillAssist)
+    }
+
+    /// Tapping the Fill Assist toggle sends the `.toggleFillAssist` action.
+    @MainActor
+    func test_fillAssistToggle_tap() throws {
+        processor.state.isFillAssistFeatureFlagEnabled = true
+        let toggle = try subject.inspect().find(toggleWithAccessibilityLabel: Localizations.turnOnFillAssist)
+        try toggle.tap()
+        XCTAssertEqual(processor.dispatchedActions.last, .toggleFillAssist(true))
+    }
+
+    /// The Fill Assist info button is independently reachable by VoiceOver and is announced as
+    /// an external link.
+    @MainActor
+    func test_fillAssistToggle_learnMoreButton_accessibility() throws {
+        processor.state.isFillAssistFeatureFlagEnabled = true
+        let button = try subject.inspect().find(buttonWithAccessibilityLabel: Localizations.learnMore)
+        try XCTAssertEqual(button.accessibilityHint().string(), Localizations.externalLink)
+    }
+
     /// The action card is hidden if the autofill setup progress is complete.
     @MainActor
     func test_setUpUnlockActionCard_hidden_complete() {

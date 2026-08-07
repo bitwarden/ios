@@ -81,6 +81,34 @@ public extension View {
             .accessibilityIdentifier("CloseButton")
     }
 
+    /// Returns a toolbar button configured to confirm a primary action, using the system checkmark
+    /// on iOS 26 and a text label on earlier versions.
+    ///
+    /// - Parameters:
+    ///   - accessibilityIdentifier: The accessibility identifier for the button.
+    ///   - label: The label associated with the button, used as an accessibility label and, on
+    ///     iOS versions before 26, as the visible text.
+    ///   - action: The action to perform when the button is tapped.
+    /// - Returns: A `Button` configured to confirm a primary action.
+    ///
+    func confirmToolbarButton(
+        accessibilityIdentifier: String,
+        label: String,
+        action: @escaping () async -> Void,
+    ) -> some View {
+        if #available(iOS 26, *) {
+            return Button(role: .confirm) {
+                Task {
+                    await action()
+                }
+            }
+            .accessibilityIdentifier(accessibilityIdentifier)
+            .accessibilityLabel(label)
+        }
+        return toolbarButton(label, action: action)
+            .accessibilityIdentifier(accessibilityIdentifier)
+    }
+
     /// Returns a toolbar button configured for editing an item.
     ///
     /// - Parameter action: The action to perform when the button is tapped.
@@ -135,17 +163,7 @@ public extension View {
     /// - Returns: A `Button` configured for saving an item.
     ///
     func saveToolbarButton(action: @escaping () async -> Void) -> some View {
-        if #available(iOS 26, *) {
-            return Button(role: .confirm) {
-                Task {
-                    await action()
-                }
-            }
-            .accessibilityIdentifier("SaveButton")
-            .accessibilityLabel(Localizations.save)
-        }
-        return toolbarButton(Localizations.save, action: action)
-            .accessibilityIdentifier("SaveButton")
+        confirmToolbarButton(accessibilityIdentifier: "SaveButton", label: Localizations.save, action: action)
     }
 
     /// Returns a `Button` that displays an image for use in a toolbar.

@@ -39,6 +39,8 @@
 "RemoveAccount" = "Verwijder account";
 "RemoveAccountConfirmation" = "Weet je zeker dat je dit account wilt verwijderen?";
 "AccountAlreadyAdded" = "Account is al toegevoegd";
+"AccountCreationRestricted" = "Account aanmaken beperkt";
+"XOnlyAllowsInvitedUsersToCreateAccounts" = "%1$@ staat het aanmaken van accounts alleen toe aan uitgenodigde gebruikers.";
 "SwitchToAlreadyAddedAccountConfirmation" = "Wil je er nu naar overschakelen?";
 "MasterPassword" = "Hoofdwachtwoord";
 "MoreOptions" = "Meer opties";
@@ -563,6 +565,7 @@
 "ThereAreNoBankAccountsInYourVault" = "Er zijn geen bankrekeningen in je kluis";
 "US" = "US";
 "EU" = "EU";
+"Gov" = "Gov";
 "SelfHosted" = "Zelfgehost";
 "UpdateWeakMasterPasswordWarning" = "Je hoofdwachtwoord voldoet niet aan en of meerdere oganisatiebeleidsonderdelen. Om toegang te krijgen tot de kluis, moet je je hoofdwachtwoord nu bijwerken. Doorgaan zal je huidige sessie uitloggen, waarna je opnieuw moet inloggen. Actieve sessies op andere apparaten blijven mogelijk nog een uur actief.";
 "CurrentMasterPasswordRequired" = "Huidig hoofdwachtwoord (vereist)";
@@ -1198,6 +1201,28 @@
 "LineOfCredit" = "Kredietlijn";
 "MoneyMarket" = "Geldmarkt";
 "Savings" = "Spaargeld";
+"Devices" = "Apparaten";
+"NoDevicesFound" = "Geen apparaten gevonden";
+"CurrentSession" = "Huidige sessie";
+"PendingRequest" = "Verzoek in behandeling";
+"Trusted" = "Vertrouwd";
+"RecentlyActiveLabel" = "Recent actief:";
+"FirstLoginLabel" = "Eerste login:";
+"Today" = "Vandaag";
+"PastSevenDays" = "Afgelopen 7 dagen";
+"PastFourteenDays" = "Afgelopen 14 dagen";
+"PastThirtyDays" = "Afgelopen 30 dagen";
+"OverThirtyDaysAgo" = "Meer dan 30 dagen geleden";
+"Unknown" = "Onbekend";
+/* Device display name. %1$@ = category (e.g. "Mobile"), %2$@ = platform (e.g. "iOS"). */
+"DeviceDisplayNameXHyphenY" = "%1$@ - %2$@";
+"Mobile" = "Mobiel";
+"BrowserExtension" = "Browserextensie";
+"WebVault2" = "Webkluis";
+"Desktop" = "Desktop";
+"Cli" = "CLI";
+"Sdk" = "SDK";
+"Server" = "Server";
 /* Accessibility label for the button that clears a field's value. %1$@ is the field's title (e.g. "Date of birth"), so the spoken label reads "Clear Date of birth". */
 "ClearFieldName" = "Wis %1$@";
 "SelectDate" = "Datum selecteren";
