@@ -23,6 +23,13 @@ public protocol PasskeyService: AnyObject {
     ///
     func assertPasskey(credentialId: Data?, rpId: String) async throws -> GetAssertionResult
 
+    /// Deletes a previously registered credential.
+    ///
+    /// - Parameter cipherId: The ID of the cipher — from `Fido2CredentialAutofillView.cipherId` —
+    ///   backing the credential to delete.
+    ///
+    func deleteCredential(cipherId: String) async throws
+
     /// Lists the credentials registered so far, across app launches.
     ///
     /// - Returns: The registered credentials' autofill-ready metadata.
@@ -131,6 +138,11 @@ actor DefaultPasskeyService: PasskeyService {
         return try await client.platform().fido2()
             .vaultAuthenticator(userInterface: userInterface, credentialStore: credentialStore)
             .getAssertion(request: request)
+    }
+
+    func deleteCredential(cipherId: String) async throws {
+        let (_, credentialStore) = try await session()
+        await credentialStore.deleteCredential(cipherId: cipherId)
     }
 
     func registeredCredentials() async throws -> [Fido2CredentialAutofillView] {

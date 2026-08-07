@@ -45,22 +45,48 @@ struct UsePasskeyView: View {
                     Button {
                         Task { await store.perform(.selectCredential(credential)) }
                     } label: {
-                        VStack(alignment: .leading) {
+                        VStack(alignment: .leading, spacing: 2) {
                             Text(credential.rpId)
                             if let userName = credential.userNameForUi {
                                 Text(userName)
                                     .font(.footnote)
                                     .foregroundStyle(.secondary)
                             }
-                            Text(credential.credentialId.prefix(4).asHexString())
+                            Text(
+                                Localizations.xColonY(
+                                    Localizations.credentialId,
+                                    credential.credentialId.asHexString(),
+                                ),
+                            )
+                            .font(.caption2)
+                            .foregroundStyle(.secondary)
+                            Text(Localizations.xColonY(Localizations.cipherId, credential.cipherId))
                                 .font(.caption2)
                                 .foregroundStyle(.secondary)
+                            Text(Localizations.xColonY(Localizations.userHandle, credential.userHandle.asHexString()))
+                                .font(.caption2)
+                                .foregroundStyle(.secondary)
+                            if credential.hasCounter {
+                                Text(Localizations.usesSignatureCounter)
+                                    .font(.caption2)
+                                    .foregroundStyle(.secondary)
+                            }
                         }
                     }
                     .accessibilityIdentifier(
                         "RegisteredCredentialRow_\(credential.rpId)_\(credential.credentialId.asHexString())",
                     )
                     .disabled(store.state.status == .inProgress)
+                    .swipeActions {
+                        Button(role: .destructive) {
+                            Task { await store.perform(.deleteCredential(credential)) }
+                        } label: {
+                            Label(Localizations.delete, systemImage: "trash")
+                        }
+                        .accessibilityIdentifier(
+                            "DeleteCredentialButton_\(credential.rpId)_\(credential.credentialId.asHexString())",
+                        )
+                    }
                 }
             }
         } header: {
