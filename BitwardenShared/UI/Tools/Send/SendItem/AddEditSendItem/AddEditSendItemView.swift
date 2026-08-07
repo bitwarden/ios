@@ -302,6 +302,8 @@ struct AddEditSendItemView: View { // swiftlint:disable:this type_body_length
                 textSendAttributes
             case .file:
                 fileSendAttributes
+            case .unknown:
+                EmptyView()
             }
 
             if store.state.type == .text {

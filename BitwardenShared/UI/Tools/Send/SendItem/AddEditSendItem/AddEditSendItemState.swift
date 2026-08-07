@@ -152,6 +152,8 @@ struct AddEditSendItemState: Equatable, Sendable {
                 Localizations.newFileSend
             case .text:
                 Localizations.newTextSend
+            case .unknown:
+                ""
             }
         case .edit:
             switch type {
@@ -159,6 +161,8 @@ struct AddEditSendItemState: Equatable, Sendable {
                 Localizations.editFileSend
             case .text:
                 Localizations.editTextSend
+            case .unknown:
+                ""
             }
         }
     }
@@ -226,7 +230,14 @@ extension AddEditSendItemState {
 
     /// Returns a `SendView` based on the properties of the `AddEditSendItemState`.
     ///
-    func newSendView() -> SendView {
+    /// - Throws: `DataMappingError.invalidData` if `type` is `.unknown`. This shouldn't happen in
+    ///   practice, since the UI's type picker never offers `.unknown`.
+    ///
+    func newSendView() throws -> SendView {
+        guard let sdkType = BitwardenSdk.SendType(type: type) else {
+            throw DataMappingError.invalidData
+        }
+
         let deletionDate = deletionDate.calculateDate() ?? Date()
 
         // Determine if the send should have a password:
@@ -249,7 +260,7 @@ extension AddEditSendItemState {
             key: key,
             newPassword: accessType == .anyoneWithPassword ? password.nilIfEmpty : nil,
             hasPassword: hasPassword,
-            type: .init(type: type),
+            type: sdkType,
             file: type == .file ? newFileView() : nil,
             text: type == .text ? newTextView() : nil,
             maxAccessCount: maximumAccessCount == 0 ? nil : UInt32(maximumAccessCount),
