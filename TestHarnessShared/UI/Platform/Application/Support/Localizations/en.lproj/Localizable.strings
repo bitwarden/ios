@@ -1,6 +1,7 @@
 "AccountCreatedSuccessfully" = "Account created successfully";
 "AccountDetails" = "Account Details";
 "AmbiguousCredentialReceived" = "Multiple stored credentials match this relying party ID; picking between them is not yet supported.";
+"AssertionResult" = "Assertion Result";
 "CardAutofillForm" = "Card Autofill Form";
 "CardAutofillFormDescriptionLong" = "Long press a field, then select Autofill and Password to autofill with Bitwarden. Requires Bitwarden PM as AutoFill provider and a saved Card cipher.";
 "CardDetails" = "Card Details";
@@ -22,12 +23,16 @@
 "FileShare" = "File Share";
 "FormValues" = "Form Values";
 "NoMatchingCredentialReceived" = "No stored credential matches this relying party ID.";
+"NoRegisteredCredentials" = "No credentials registered yet. Use Register Passkey to create one.";
+"PasskeyAssertedSuccessfully" = "Passkey sign-in succeeded via the Bitwarden SDK.";
 "PasskeyAutofill" = "Passkey Autofill";
 "PasskeyRegisteredSuccessfully" = "Passkey registered successfully via the Bitwarden SDK.";
 "Password" = "Password";
 "PasswordsDoNotMatch" = "Passwords do not match";
 "RegisterPasskey" = "Register Passkey";
 "RegisterPasskeyFormDescriptionLong" = "Fill in the fields above, then tap Register Passkey. The credential is created directly through the Bitwarden SDK, with no OS passkey sheet or separate Bitwarden app involved.";
+"RegisteredCredentials" = "Registered Credentials";
+"RegisteredCredentialsFooterDescriptionLong" = "Tap a credential to sign in as that specific passkey through the Bitwarden SDK.";
 "RegistrationResult" = "Registration Result";
 "RelyingPartyId" = "Relying Party ID";
 "Result" = "Result";
@@ -45,6 +50,7 @@
 "TapTheTOTPCodeFieldAndSelectDescriptionLong" = "Tap the TOTP Code field and select a code from Bitwarden. Requires Bitwarden PM as AutoFill provider and a saved Login with a TOTP seed.";
 "TOTPCode" = "TOTP Code";
 "Username" = "Username";
+"UsePasskey" = "Use Passkey";
 "UseThisLoginFormToTestAutofillFunctionality" = "Use this login form to test autofill functionality.";
 "XColonY" = "%@: %@";
 "DateFieldPicker" = "Date Field Picker";
