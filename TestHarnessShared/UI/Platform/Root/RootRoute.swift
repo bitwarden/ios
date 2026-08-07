@@ -18,6 +18,9 @@ public enum RootRoute {
     /// A route to the scenario picker home screen.
     case scenarioPicker
 
+    /// A route to the SDK-backed register passkey test screen.
+    case registerPasskey
+
     /// A route to the simple login form test screen.
     case simpleLoginForm
 
