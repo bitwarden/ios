@@ -146,8 +146,8 @@ public struct DateFieldPicker: View {
             if let title {
                 Text(title)
                     .styleGuide(
-                        .subheadline,
-                        weight: .semibold,
+                        .headline,
+                        weight: .regular,
                         includeLinePadding: false,
                         includeLineSpacing: false,
                     )
