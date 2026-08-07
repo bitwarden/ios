@@ -46,6 +46,16 @@ actor DefaultFido2CredentialStore: Fido2CredentialStore {
         try await vaultClientService.ciphers().decryptList(ciphers: ciphers)
     }
 
+    /// Deletes the credential backed by the cipher with the given ID, if one exists, and persists
+    /// the updated list via the injected `CipherStorageService`.
+    ///
+    /// - Parameter cipherId: The ID of the cipher to delete.
+    ///
+    func deleteCredential(cipherId: String) {
+        ciphers.removeAll { $0.id == cipherId }
+        cipherStorageService.save(ciphers: ciphers)
+    }
+
     func findCredentials(ids: [Data]?, ripId: String, userHandle: Data?) async throws -> [CipherView] {
         var matches: [CipherView] = []
         for cipher in ciphers {
