@@ -44,6 +44,7 @@ struct AddEditPassportItemView: View {
                         get: \.dateOfBirth,
                         send: AddEditPassportItemAction.dateOfBirthChanged,
                     ),
+                    in: Date.distantPast ... Date().asUTCCalendarDay(),
                 )
 
                 BitwardenTextField(

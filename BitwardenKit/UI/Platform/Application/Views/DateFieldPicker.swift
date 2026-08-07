@@ -29,6 +29,11 @@ public struct DateFieldPicker: View {
     /// The (optional) range of selectable dates.
     let range: ClosedRange<Date>?
 
+    /// The identifier applied to the field, falling back to a generic default when the caller doesn't
+    /// supply one. Child elements (the header button, the clear button) derive their own identifiers
+    /// from this so multiple pickers on the same screen don't share child accessibility identifiers.
+    private var resolvedAccessibilityIdentifier: String { accessibilityIdentifier ?? "DateFieldPicker" }
+
     /// The (optional) title of the field.
     let title: String?
 
@@ -75,7 +80,7 @@ public struct DateFieldPicker: View {
                 : SharedAsset.Colors.backgroundSecondaryDisabled.swiftUIColor,
         )
         .clipShape(RoundedRectangle(cornerRadius: 8))
-        .accessibilityIdentifier(accessibilityIdentifier ?? "DateFieldPicker")
+        .accessibilityIdentifier(resolvedAccessibilityIdentifier)
     }
 
     // MARK: Initialization
@@ -179,14 +184,14 @@ public struct DateFieldPicker: View {
                 labelContent()
             }
             .buttonStyle(.plain)
-            .accessibilityIdentifier("DateFieldHeaderButton")
+            .accessibilityIdentifier("\(resolvedAccessibilityIdentifier)HeaderButton")
             .accessibilityHint(Localizations.selectDate)
 
             if date != nil {
                 AccessoryButton(
                     asset: SharedAsset.Icons.circleX24,
                     accessibilityLabel: title.map { Localizations.clearFieldName($0) } ?? Localizations.clear,
-                    accessibilityIdentifier: "DateFieldClearButton",
+                    accessibilityIdentifier: "\(resolvedAccessibilityIdentifier)ClearButton",
                 ) {
                     clearDate()
                 }
@@ -217,13 +222,30 @@ public struct DateFieldPicker: View {
     /// the day the user sees selected, and the day they pick, always match the day that gets stored.
     private func selection() -> Binding<Date> {
         Binding(
-            get: { (date ?? defaultDate).asLocalCalendarDay() },
-            set: { newValue in
-                date = newValue.asUTCCalendarDay()
-                guard !voiceOverEnabled else { return }
-                withAnimation { isExpanded = false }
-            },
+            get: { selectedLocalDay() },
+            set: { newValue in commitSelectedLocalDay(newValue) },
         )
+    }
+
+    /// The calendar day the `DatePicker` should currently show as selected: the stored date (or
+    /// `defaultDate` when unset), converted from its UTC-anchored storage form into the local
+    /// calendar day the `DatePicker` operates in.
+    ///
+    /// Not `private` so it can be exercised directly in tests without hosting the view: `isExpanded`
+    /// is `@State`, so the `DatePicker` this feeds is otherwise only reachable by first expanding the
+    /// calendar, which requires state mutations to survive a re-inspection — unavailable without
+    /// `ViewHosting`, which nothing else in this codebase uses.
+    func selectedLocalDay() -> Date {
+        (date ?? defaultDate).asLocalCalendarDay()
+    }
+
+    /// Commits a calendar day the user picked (in the `DatePicker`'s local-day domain) back into
+    /// `date`, converting it to the UTC-anchored form used for storage, and collapses the calendar
+    /// unless VoiceOver is active. See `selectedLocalDay()` for why this isn't `private`.
+    func commitSelectedLocalDay(_ localDay: Date) {
+        date = localDay.asUTCCalendarDay()
+        guard !voiceOverEnabled else { return }
+        withAnimation { isExpanded = false }
     }
 
     /// Clears the selected date.

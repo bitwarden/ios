@@ -67,6 +67,7 @@ struct AddEditDriversLicenseItemView: View {
                         get: \.dateOfBirth,
                         send: AddEditDriversLicenseItemAction.dateOfBirthChanged,
                     ),
+                    in: Date.distantPast ... Date().asUTCCalendarDay(),
                 )
 
                 BitwardenTextField(
