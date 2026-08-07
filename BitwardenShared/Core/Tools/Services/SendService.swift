@@ -217,17 +217,23 @@ extension DefaultSendService {
     }
 
     func replaceSends(_ sends: [SendResponseModel], userId: String) async throws {
+        var droppedCount = 0
+        var lastDroppedError: Error?
         let mappedSends = sends.compactMap { model -> Send? in
             do {
                 return try Send(sendResponseModel: model)
             } catch {
-                errorReporter.log(error: BitwardenError.generalError(
-                    type: "SendService: Dropped Send During Sync",
-                    message: "A send couldn't be converted and was excluded from the synced list of sends.",
-                    error: error,
-                ))
+                droppedCount += 1
+                lastDroppedError = error
                 return nil
             }
+        }
+        if droppedCount > 0 {
+            errorReporter.log(error: BitwardenError.generalError(
+                type: "SendService: Dropped Sends During Sync",
+                message: "\(droppedCount) send(s) couldn't be converted and were excluded from the synced list.",
+                error: lastDroppedError,
+            ))
         }
         try await sendDataStore.replaceSends(mappedSends, userId: userId)
     }

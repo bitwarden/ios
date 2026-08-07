@@ -354,12 +354,14 @@ class SendServiceTests: BitwardenTestCase {
         XCTAssertEqual(sendDataStore.replaceSendsUserId, "1")
     }
 
-    /// `replaceSends(_:userId:)` drops any send whose type isn't recognized by this version of
-    /// the app, rather than persisting it with an incorrect type.
+    /// `replaceSends(_:userId:)` drops any sends whose type isn't recognized by this version of
+    /// the app, rather than persisting them with an incorrect type, and reports a single
+    /// aggregated error regardless of how many sends were dropped.
     func test_replaceSends_excludesUnknownType() async throws {
         let sends: [SendResponseModel] = [
             SendResponseModel.fixture(id: "1", name: "Send 1"),
             SendResponseModel.fixture(id: "2", name: "Unknown Send", type: .unknown),
+            SendResponseModel.fixture(id: "3", name: "Another Unknown Send", type: .unknown),
         ]
 
         try await subject.replaceSends(sends, userId: "1")
@@ -368,7 +370,11 @@ class SendServiceTests: BitwardenTestCase {
         XCTAssertEqual(sendDataStore.replaceSendsUserId, "1")
         XCTAssertEqual(errorReporter.errors.count, 1)
         let generalError = try XCTUnwrap(errorReporter.errors.first as? NSError)
-        XCTAssertEqual(generalError.domain, "General Error: SendService: Dropped Send During Sync")
+        XCTAssertEqual(generalError.domain, "General Error: SendService: Dropped Sends During Sync")
+        let underlyingError = try XCTUnwrap(generalError.userInfo[NSUnderlyingErrorKey] as? Error)
+        guard case DataMappingError.invalidData = underlyingError else {
+            return XCTFail("Expected DataMappingError.invalidData, got \(underlyingError)")
+        }
     }
 
     /// `sendPublisher()` throws an error if one occurs.
