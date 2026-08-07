@@ -99,4 +99,20 @@ struct DriversLicenseItemStateTests {
         #expect(subject.issueDateDisplay == subject.issueDate?.longCalendarDateDisplay)
         #expect(subject.issueDateDisplay.contains("August"))
     }
+
+    /// `dateOfBirthDisplay` shows the same calendar day the user picked in `DateFieldPicker`, even
+    /// in a time zone behind UTC, where the UTC-anchored stored value falls on the previous day.
+    @Test
+    func dateOfBirthDisplay_matchesPickedDayInTimeZoneBehindUTC() {
+        let losAngeles = TimeZone(identifier: "America/Los_Angeles")!
+        let pickedLocalDay = Date(year: 2026, month: 8, day: 10, timeZone: losAngeles)
+
+        var subject = DriversLicenseItemState()
+        subject.dateOfBirth = pickedLocalDay.asUTCCalendarDay(from: losAngeles)
+
+        #expect(subject.dateOfBirthDisplay.contains("August"))
+        #expect(subject.dateOfBirthDisplay.contains("10"))
+        #expect(subject.dateOfBirthDisplay.contains("2026"))
+        #expect(!subject.dateOfBirthDisplay.contains(" 9,"))
+    }
 }
