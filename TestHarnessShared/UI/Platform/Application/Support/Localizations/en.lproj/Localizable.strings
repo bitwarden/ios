@@ -11,7 +11,9 @@
 "CreateAccountForm" = "Create Account Form";
 "CreateAccountFormDescriptionLong" = "Fill in the form and tap Create Account. On supported devices, iOS will prompt to save the credential via the active password provider.";
 "CreatePasskey" = "Create Passkey";
+"CredentialId" = "Credential ID";
 "Credentials" = "Credentials";
+"DisplayName" = "Display Name";
 "EnterCardDetailsAbove" = "Enter card details above";
 "EnterCredentialsAbove" = "Enter credentials above";
 "EnterTOTPCodeAbove" = "Enter TOTP code above";
@@ -21,9 +23,14 @@
 "FormValues" = "Form Values";
 "NoMatchingCredentialReceived" = "No stored credential matches this relying party ID.";
 "PasskeyAutofill" = "Passkey Autofill";
-"Result" = "Result";
+"PasskeyRegisteredSuccessfully" = "Passkey registered successfully via the Bitwarden SDK.";
 "Password" = "Password";
 "PasswordsDoNotMatch" = "Passwords do not match";
+"RegisterPasskey" = "Register Passkey";
+"RegisterPasskeyFormDescriptionLong" = "Fill in the fields above, then tap Register Passkey. The credential is created directly through the Bitwarden SDK, with no OS passkey sheet or separate Bitwarden app involved.";
+"RegistrationResult" = "Registration Result";
+"RelyingPartyId" = "Relying Party ID";
+"Result" = "Result";
 "SecurityCode" = "Security Code";
 "ShareFile" = "Share File";
 "SharesASamplePDFDescriptionLong" = "Shares a sample PDF containing the text \"Hello World\". Exercises the UTType.data → URL → file Send path in the share extension.";

@@ -46,6 +46,8 @@ class RootCoordinator: Coordinator, HasStackNavigator {
             showFileShare()
         case .scenarioPicker:
             showScenarioPicker()
+        case .registerPasskey:
+            showRegisterPasskey()
         case .simpleLoginForm:
             showSimpleLoginForm()
         case .totpAutofillForm:
@@ -103,6 +105,18 @@ class RootCoordinator: Coordinator, HasStackNavigator {
         let processor = ScenarioPickerProcessor(coordinator: asAnyCoordinator())
         let view = ScenarioPickerView(store: Store(processor: processor))
         stackNavigator?.replace(view)
+    }
+
+    /// Shows the SDK-backed register passkey test screen.
+    ///
+    private func showRegisterPasskey() {
+        let processor = RegisterPasskeyProcessor(
+            coordinator: asAnyCoordinator(),
+            passkeyService: services.passkeyService,
+        )
+        let view = RegisterPasskeyView(store: Store(processor: processor))
+        let viewController = UIHostingController(rootView: view)
+        stackNavigator?.push(viewController)
     }
 
     /// Shows the simple login form test screen.
