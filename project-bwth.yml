@@ -65,6 +65,7 @@ targets:
     settings:
       base:
         INFOPLIST_FILE: TestHarness/Application/Support/Info.plist
+        CODE_SIGN_ENTITLEMENTS: TestHarness/Application/Support/Entitlements/TestHarness.entitlements
     sources:
       - path: TestHarness
         excludes:
@@ -77,6 +78,7 @@ targets:
       - target: BitwardenKit/BitwardenKit
       - target: BitwardenKit/BitwardenResources
       - target: BitwardenKit/Networking
+      - package: BitwardenSdk
     postCompileScripts:
       - script: |
           if [[ -n "$CI" ]]; then
@@ -131,6 +133,7 @@ targets:
     dependencies:
       - target: BitwardenKit/BitwardenKit
       - target: BitwardenKit/BitwardenResources
+      - package: BitwardenSdk
     preBuildScripts:
       - name: Sourcery
         script: |
@@ -173,5 +176,7 @@ targets:
       - target: TestHarness
       - target: TestHarnessShared
       - target: BitwardenKit/BitwardenKitMocks
+      - target: BitwardenKit/BitwardenSdkMocks
       - target: BitwardenKit/TestHelpers
+      - package: BitwardenSdk
     randomExecutionOrder: true
