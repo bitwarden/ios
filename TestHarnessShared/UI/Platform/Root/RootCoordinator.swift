@@ -45,6 +45,8 @@ class RootCoordinator: Coordinator, HasStackNavigator {
             showDateFieldPickerShowcase()
         case .fileShare:
             showFileShare()
+        case .managePasskeys:
+            showManagePasskeys()
         case .registerPasskey:
             showCreatePasskey()
         case .scenarioPicker:
@@ -108,6 +110,16 @@ class RootCoordinator: Coordinator, HasStackNavigator {
         guard #available(iOS 16.0, *) else { return }
         let processor = FileShareProcessor(coordinator: asAnyCoordinator())
         let view = FileShareView(store: Store(processor: processor))
+        let viewController = UIHostingController(rootView: view)
+        stackNavigator?.push(viewController)
+    }
+
+    /// Shows the manage passkeys test screen.
+    ///
+    private func showManagePasskeys() {
+        guard #available(iOS 17, *) else { return }
+        let processor = ManagePasskeysProcessor(coordinator: asAnyCoordinator())
+        let view = ManagePasskeysView(store: Store(processor: processor))
         let viewController = UIHostingController(rootView: view)
         stackNavigator?.push(viewController)
     }
