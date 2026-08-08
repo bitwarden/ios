@@ -17,6 +17,8 @@ extend-exclude = [
 # Technical terms that are correctly spelled
 # Customer initials used in tests
 "BA" = "BA"
+# CBOR Object Signing and Encryption (RFC 9052/9053)
+"COSE" = "COSE"
 
 [default.extend-identifiers]
 # Brand names and technical identifiers
