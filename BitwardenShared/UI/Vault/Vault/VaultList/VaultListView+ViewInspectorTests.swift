@@ -401,4 +401,4 @@ class VaultListViewTests: BitwardenTestCase { // swiftlint:disable:this type_bod
         try await button.tap()
         XCTAssertEqual(processor.effects.last, .morePressed(item))
     }
-}
+} // swiftlint:disable:this file_length
