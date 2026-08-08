@@ -15,6 +15,10 @@ enum BitwardenKeychainItem: Equatable, KeychainItem {
     /// The keychain item for biometrics protected user auth key.
     case biometrics(userId: String)
 
+    /// The keychain item for the intermediate certificate chain (DER-encoded `SecCertificate`s,
+    /// excluding the leaf) associated with a client certificate, keyed by certificate fingerprint.
+    case clientCertificateChain(fingerprint: String)
+
     /// The keychain item for a client certificate identity (SecIdentity), keyed by certificate fingerprint.
     case clientCertificateIdentity(fingerprint: String)
 
@@ -69,6 +73,7 @@ enum BitwardenKeychainItem: Equatable, KeychainItem {
         switch self {
         case .accessToken,
              .authenticatorVaultKey,
+             .clientCertificateChain,
              .clientCertificateIdentity,
              .deviceAuthKeyMetadata,
              .deviceKey,
@@ -107,6 +112,7 @@ enum BitwardenKeychainItem: Equatable, KeychainItem {
             kSecAttrAccessibleWhenUnlockedThisDeviceOnly
         case .accessToken,
              .authenticatorVaultKey,
+             .clientCertificateChain,
              .clientCertificateIdentity,
              .fillAssistRulesFingerprint,
              .localUserDataKeyStates,
@@ -126,6 +132,8 @@ enum BitwardenKeychainItem: Equatable, KeychainItem {
             "authenticatorVaultKey_\(userId)"
         case let .biometrics(userId: id):
             "userKeyBiometricUnlock_" + id
+        case let .clientCertificateChain(fingerprint):
+            "clientCertificateChain_\(fingerprint)"
         case let .clientCertificateIdentity(fingerprint):
             "clientCertificateIdentity_\(fingerprint)"
         case let .deviceKey(userId: id):
@@ -174,6 +182,11 @@ protocol KeychainRepository: AnyObject, ServerCommunicationConfigKeychainReposit
     ///
     func deleteAuthenticatorVaultKey(userId: String) async throws
 
+    /// Deletes the intermediate certificate chain from the keychain by certificate fingerprint.
+    ///
+    /// - Parameter fingerprint: The SHA-256 fingerprint of the certificate whose chain to delete.
+    func deleteClientCertificateChain(fingerprint: String) async throws
+
     /// Deletes the client certificate identity from the keychain by certificate fingerprint.
     ///
     /// - Parameter fingerprint: The SHA-256 fingerprint of the certificate to delete.
@@ -216,6 +229,14 @@ protocol KeychainRepository: AnyObject, ServerCommunicationConfigKeychainReposit
     /// - Returns: The authenticator vault key.
     ///
     func getAuthenticatorVaultKey(userId: String) async throws -> String
+
+    /// Gets the intermediate certificate chain from the keychain by certificate fingerprint.
+    ///
+    /// - Parameter fingerprint: The SHA-256 fingerprint of the certificate.
+    /// - Returns: The DER-encoded intermediate certificates (excluding the leaf), or `nil` if none
+    ///   are stored.
+    ///
+    func getClientCertificateChain(fingerprint: String) async throws -> [Data]?
 
     /// Gets the client certificate identity from the keychain by certificate fingerprint.
     ///
@@ -267,6 +288,14 @@ protocol KeychainRepository: AnyObject, ServerCommunicationConfigKeychainReposit
     ///   - userId: The user ID associated with the authenticator vault key.
     ///
     func setAuthenticatorVaultKey(_ value: String, userId: String) async throws
+
+    /// Stores the intermediate certificate chain in the keychain, keyed by certificate fingerprint.
+    ///
+    /// - Parameters:
+    ///   - chain: The DER-encoded intermediate certificates (excluding the leaf) to store.
+    ///   - fingerprint: The SHA-256 fingerprint of the certificate used as the keychain label.
+    ///
+    func setClientCertificateChain(_ chain: [Data], fingerprint: String) async throws
 
     /// Stores the client certificate identity in the keychain, keyed by certificate fingerprint.
     ///
@@ -355,6 +384,12 @@ extension DefaultKeychainRepository {
         try await keychainServiceFacade.deleteValue(for: BitwardenKeychainItem.authenticatorVaultKey(userId: userId))
     }
 
+    func deleteClientCertificateChain(fingerprint: String) async throws {
+        try await keychainServiceFacade.deleteValue(
+            for: BitwardenKeychainItem.clientCertificateChain(fingerprint: fingerprint),
+        )
+    }
+
     func deleteClientCertificateIdentity(fingerprint: String) async throws {
         try await keychainServiceFacade.deleteIdentity(
             for: BitwardenKeychainItem.clientCertificateIdentity(fingerprint: fingerprint),
@@ -405,6 +440,17 @@ extension DefaultKeychainRepository {
         try await keychainServiceFacade.getValue(for: BitwardenKeychainItem.authenticatorVaultKey(userId: userId))
     }
 
+    func getClientCertificateChain(fingerprint: String) async throws -> [Data]? {
+        do {
+            let chain: [Data] = try await keychainServiceFacade.getValue(
+                for: BitwardenKeychainItem.clientCertificateChain(fingerprint: fingerprint),
+            )
+            return chain
+        } catch KeychainServiceError.osStatusError(errSecItemNotFound), KeychainServiceError.keyNotFound {
+            return nil
+        }
+    }
+
     func getClientCertificateIdentity(fingerprint: String) async throws -> SecIdentity? {
         try await keychainServiceFacade.getIdentity(
             for: BitwardenKeychainItem.clientCertificateIdentity(fingerprint: fingerprint),
@@ -449,6 +495,13 @@ extension DefaultKeychainRepository {
         try await keychainServiceFacade.setValue(
             value,
             for: BitwardenKeychainItem.authenticatorVaultKey(userId: userId),
+        )
+    }
+
+    func setClientCertificateChain(_ chain: [Data], fingerprint: String) async throws {
+        try await keychainServiceFacade.setValue(
+            chain,
+            for: BitwardenKeychainItem.clientCertificateChain(fingerprint: fingerprint),
         )
     }
 
