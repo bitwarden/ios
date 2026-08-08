@@ -36,7 +36,7 @@ struct CreatePasskeyState: Equatable {
     var status: RegistrationStatus = .idle
 
     /// The title of the screen.
-    var title: String = Localizations.createPasskey
+    var title: String = Localizations.registerPasskey
 
     /// The username for the passkey credential.
     var userName: String = ""
