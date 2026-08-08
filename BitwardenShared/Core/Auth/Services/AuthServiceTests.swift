@@ -552,6 +552,33 @@ class AuthServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
         assertGetConfig()
     }
 
+    /// `loginWithMasterPassword(_:username:)` saves the new account under the environment URLs
+    /// that were snapshotted for this email when the login flow started, even if the global
+    /// pre-auth URLs were since overwritten by an unrelated active-account sync (e.g. triggered
+    /// by the AutoFill extension launching mid-login). Regression test for PM-20012.
+    @MainActor
+    func test_loginWithMasterPassword_isNewAccount_prefersAccountCreationEnvironmentURLs() async throws {
+        client.results = [
+            .httpSuccess(testData: .preLoginSuccess),
+            .httpSuccess(testData: .identityTokenSuccess),
+        ]
+        appIDSettingsStore.appID = "App ID"
+        clientService.mockAuth.hashPasswordReturnValue = "hashed password"
+        credentialIdentityStore.state.mockIsEnabled = false
+        let selfHostedURLs = EnvironmentURLData(base: URL(string: "https://vault.example.com")!)
+        stateService.accountCreationEnvironmentURLs["email@example.com"] = selfHostedURLs
+        stateService.preAuthEnvironmentURLs = EnvironmentURLData(base: URL(string: "https://vault.bitwarden.com"))
+        systemDevice.modelIdentifier = "Model id"
+
+        try await subject.loginWithMasterPassword(
+            "Password1234!",
+            username: "email@example.com",
+            isNewAccount: true,
+        )
+
+        XCTAssertEqual(stateService.accountsAdded.last?.settings.environmentUrls, selfHostedURLs)
+    }
+
     /// `loginWithMasterPassword(_:username:)` logs the user in with the password for
     /// a newly created account and logs an error instead of throwing if setting the account setup
     /// progress fails.
