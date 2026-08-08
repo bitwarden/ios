@@ -20,6 +20,36 @@ protocol BillingStateService { // sourcery: AutoMockable
     ///
     func isPremiumUpgradeEligible() async -> Bool
 
+    // MARK: Premium Upgrade Pending
+
+    /// Returns whether the last sync attempt for a pending Premium upgrade failed for the
+    /// active account.
+    ///
+    /// - Returns: `true` if the last sync attempt failed.
+    ///
+    func getPremiumUpgradeLastSyncAttemptFailed() async throws -> Bool
+
+    /// Returns whether a Premium upgrade is pending for the active account.
+    ///
+    /// - Returns: `true` if a Premium upgrade is pending.
+    ///
+    func getPremiumUpgradePending() async throws -> Bool
+
+    /// Sets whether the last sync attempt for a pending Premium upgrade failed for the active
+    /// account.
+    ///
+    /// - Parameters:
+    ///   - failed: Whether the last sync attempt failed.
+    ///
+    func setPremiumUpgradeLastSyncAttemptFailed(_ failed: Bool) async throws
+
+    /// Sets whether a Premium upgrade is pending for the active account.
+    ///
+    /// - Parameters:
+    ///   - pending: Whether a Premium upgrade is pending.
+    ///
+    func setPremiumUpgradePending(_ pending: Bool) async throws
+
     // MARK: Subscription Attention Card
 
     /// Returns whether the "subscription needs attention" action card should be shown for the
