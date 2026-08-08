@@ -2635,9 +2635,7 @@ extension DefaultStateService {
 
     func clearMasterPasswordUnlockForActiveAccount() async throws {
         let userId = try getActiveAccountUserId()
-        try updateAccountProfile(userId: userId) { profile in
-            profile.userDecryptionOptions?.masterPasswordUnlock = nil
-        }
+        await clearAccountMasterPasswordUnlockData(userId: userId)
     }
 }
 
@@ -2727,5 +2725,80 @@ extension DefaultStateService: AutofillStateService {
 
     func setLastRequestToTurnOnCredentialProvider(_ date: Date?) async {
         appSettingsStore.setLastRequestToTurnOnCredentialProvider(date)
+    }
+}
+
+// MARK: SdkStateBridgeStateService
+
+extension DefaultStateService: SdkStateBridgeStateService {
+    // MARK: Account Cryptographic State
+
+    func getAccountCryptographicState(userId: String) async -> WrappedAccountCryptographicState? {
+        appSettingsStore.accountCryptographicState(userId: userId)
+    }
+
+    func setAccountCryptographicState(_ state: WrappedAccountCryptographicState?, userId: String) async {
+        appSettingsStore.setAccountCryptographicState(state, userId: userId)
+    }
+
+    // MARK: Encrypted Pin
+
+    func setEncryptedPin(_ encryptedPin: String?, userId: String) async {
+        appSettingsStore.setEncryptedPin(encryptedPin, userId: userId)
+    }
+
+    // MARK: Ephemeral Pin Envelope
+
+    func getEphemeralPinEnvelope(userId: String) async -> String? {
+        accountVolatileData[userId]?.pinProtectedUserKey
+    }
+
+    func setEphemeralPinEnvelope(_ envelope: String?, userId: String) async {
+        accountVolatileData[userId, default: AccountVolatileData()].pinProtectedUserKey = envelope
+    }
+
+    // MARK: Master Password Unlock Data
+
+    func clearAccountMasterPasswordUnlockData(userId: String) async {
+        do {
+            try updateAccountProfile(userId: userId) { profile in
+                profile.userDecryptionOptions?.masterPasswordUnlock = nil
+            }
+        } catch {
+            errorReporter.log(error: error)
+        }
+    }
+
+    func getAccountMasterPasswordUnlock(userId: String) async -> MasterPasswordUnlockData? {
+        do {
+            let account = try getAccount(userId: userId)
+            guard let responseModel = account.profile.userDecryptionOptions?.masterPasswordUnlock else {
+                return nil
+            }
+            return MasterPasswordUnlockData(responseModel: responseModel)
+        } catch {
+            errorReporter.log(error: error)
+            return nil
+        }
+    }
+
+    // MARK: Persistent Pin Envelope
+
+    func getPersistentPinEnvelope(userId: String) async -> String? {
+        appSettingsStore.pinProtectedUserKeyEnvelope(userId: userId)
+    }
+
+    func setPersistentPinEnvelope(_ envelope: String?, userId: String) async {
+        appSettingsStore.setPinProtectedUserKeyEnvelope(key: envelope, userId: userId)
+    }
+
+    // MARK: V2 Upgrade Token
+
+    func getV2UpgradeToken(userId: String) async -> V2UpgradeToken? {
+        appSettingsStore.v2UpgradeToken(userId: userId)
+    }
+
+    func setV2UpgradeToken(_ token: V2UpgradeToken?, userId: String) async {
+        appSettingsStore.setV2UpgradeToken(token, userId: userId)
     }
 }
