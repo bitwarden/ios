@@ -17,6 +17,9 @@ public struct EnvironmentURLData: Codable, Equatable, Hashable, Sendable {
     /// The SHA-256 fingerprint of the client certificate used for mTLS, if configured.
     public let clientCertificateFingerprint: String?
 
+    /// The identifier of the custom headers stored in the Keychain, if configured.
+    public let customHeadersId: String?
+
     /// The URL for the events API.
     public let events: URL?
 
@@ -46,6 +49,7 @@ public struct EnvironmentURLData: Codable, Equatable, Hashable, Sendable {
     ///   - base: The base URL.
     ///   - clientCertificateAlias: The human-readable alias for the client certificate.
     ///   - clientCertificateFingerprint: The SHA-256 fingerprint of the client certificate.
+    ///   - customHeadersId: The identifier of the custom headers stored in the Keychain.
     ///   - events: The URL for the events API.
     ///   - fillAssistRulesUrl: The base URL for fetching Fill-Assist targeting rules.
     ///   - icons: The URL for the icons API.
@@ -58,6 +62,7 @@ public struct EnvironmentURLData: Codable, Equatable, Hashable, Sendable {
         base: URL? = nil,
         clientCertificateAlias: String? = nil,
         clientCertificateFingerprint: String? = nil,
+        customHeadersId: String? = nil,
         events: URL? = nil,
         fillAssistRulesUrl: URL? = nil,
         icons: URL? = nil,
@@ -69,6 +74,7 @@ public struct EnvironmentURLData: Codable, Equatable, Hashable, Sendable {
         self.base = base
         self.clientCertificateAlias = clientCertificateAlias
         self.clientCertificateFingerprint = clientCertificateFingerprint
+        self.customHeadersId = customHeadersId
         self.events = events
         self.fillAssistRulesUrl = fillAssistRulesUrl
         self.icons = icons

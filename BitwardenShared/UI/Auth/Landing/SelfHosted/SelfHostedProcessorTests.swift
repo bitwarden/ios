@@ -14,6 +14,7 @@ class SelfHostedProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
 
     var clientCertificateService: MockClientCertificateService!
     var coordinator: MockCoordinator<AuthRoute, AuthEvent>!
+    var customHeadersService: MockCustomHeadersService!
     var delegate: MockSelfHostedProcessorDelegate!
     var errorReporter: MockErrorReporter!
     var services: ServiceContainer!
@@ -24,10 +25,12 @@ class SelfHostedProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
     override func setUp() {
         clientCertificateService = MockClientCertificateService()
         coordinator = MockCoordinator<AuthRoute, AuthEvent>()
+        customHeadersService = MockCustomHeadersService()
         delegate = MockSelfHostedProcessorDelegate()
         errorReporter = MockErrorReporter()
         services = ServiceContainer.withMocks(
             clientCertificateService: clientCertificateService,
+            customHeadersService: customHeadersService,
             errorReporter: errorReporter,
         )
         subject = SelfHostedProcessor(
@@ -43,6 +46,7 @@ class SelfHostedProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
     override func tearDown() {
         clientCertificateService = nil
         coordinator = nil
+        customHeadersService = nil
         delegate = nil
         errorReporter = nil
         services = nil
@@ -52,6 +56,40 @@ class SelfHostedProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
     }
 
     // MARK: Tests
+
+    /// `perform(_:)` with `.appeared` loads the stored custom headers into the state.
+    @MainActor
+    func test_perform_appeared_loadsCustomHeaders() async throws {
+        subject.state.customHeadersId = "headers-id"
+        customHeadersService.getCustomHeadersIdReturnValue = ["Header-B": "2", "Header-A": "1"]
+
+        await subject.perform(.appeared)
+
+        XCTAssertEqual(customHeadersService.getCustomHeadersIdReceivedId, "headers-id")
+        XCTAssertEqual(subject.state.customHeaders.map(\.name), ["Header-A", "Header-B"])
+        XCTAssertEqual(subject.state.customHeaders.map(\.value), ["1", "2"])
+    }
+
+    /// `perform(_:)` with `.appeared` logs an error if loading the stored custom headers fails.
+    @MainActor
+    func test_perform_appeared_loadCustomHeadersError() async throws {
+        subject.state.customHeadersId = "headers-id"
+        customHeadersService.getCustomHeadersIdThrowableError = BitwardenTestError.example
+
+        await subject.perform(.appeared)
+
+        XCTAssertTrue(subject.state.customHeaders.isEmpty)
+        XCTAssertEqual(errorReporter.errors as? [BitwardenTestError], [.example])
+    }
+
+    /// `perform(_:)` with `.appeared` doesn't read the keychain when no custom headers are stored.
+    @MainActor
+    func test_perform_appeared_noCustomHeaders() async throws {
+        await subject.perform(.appeared)
+
+        XCTAssertFalse(customHeadersService.getCustomHeadersIdCalled)
+        XCTAssertTrue(subject.state.customHeaders.isEmpty)
+    }
 
     /// `perform(_:)` with `.saveEnvironment` notifies the delegate that the user saved the URLs.
     @MainActor
@@ -112,6 +150,99 @@ class SelfHostedProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
         )
     }
 
+    /// `perform(_:)` with `.saveEnvironment` saves new custom headers and includes the returned
+    /// identifier in the saved URLs.
+    @MainActor
+    func test_perform_saveEnvironment_withCustomHeaders() async throws {
+        subject.state.serverUrl = "vault.bitwarden.com"
+        subject.state.customHeaders = [
+            SelfHostedState.CustomHeaderField(name: " CF-Access-Client-Id ", value: " client-id "),
+            SelfHostedState.CustomHeaderField(name: "", value: "ignored"),
+        ]
+        customHeadersService.saveCustomHeadersReturnValue = "new-headers-id"
+
+        await subject.perform(.saveEnvironment)
+
+        XCTAssertEqual(customHeadersService.saveCustomHeadersReceivedHeaders, ["CF-Access-Client-Id": "client-id"])
+        XCTAssertEqual(
+            delegate.savedUrls,
+            EnvironmentURLData(
+                base: URL(string: "https://vault.bitwarden.com")!,
+                customHeadersId: "new-headers-id",
+            ),
+        )
+        XCTAssertEqual(coordinator.routes.last, .dismissPresented)
+    }
+
+    /// `perform(_:)` with `.saveEnvironment` reuses the existing identifier when the custom
+    /// headers are unchanged.
+    @MainActor
+    func test_perform_saveEnvironment_customHeadersUnchanged_reusesId() async throws {
+        subject.state.serverUrl = "vault.bitwarden.com"
+        subject.state.customHeadersId = "existing-headers-id"
+        subject.state.customHeaders = [
+            SelfHostedState.CustomHeaderField(name: "Header-A", value: "1"),
+        ]
+        customHeadersService.getCustomHeadersIdReturnValue = ["Header-A": "1"]
+
+        await subject.perform(.saveEnvironment)
+
+        XCTAssertFalse(customHeadersService.saveCustomHeadersCalled)
+        XCTAssertFalse(customHeadersService.removeCustomHeadersIdCalled)
+        XCTAssertEqual(delegate.savedUrls?.customHeadersId, "existing-headers-id")
+    }
+
+    /// `perform(_:)` with `.saveEnvironment` saves changed custom headers under a new identifier
+    /// and removes the previously stored headers after the environment is saved.
+    @MainActor
+    func test_perform_saveEnvironment_customHeadersChanged_removesPreviousHeaders() async throws {
+        subject.state.serverUrl = "vault.bitwarden.com"
+        subject.state.customHeadersId = "old-headers-id"
+        subject.state.customHeaders = [
+            SelfHostedState.CustomHeaderField(name: "Header-A", value: "updated"),
+        ]
+        customHeadersService.getCustomHeadersIdReturnValue = ["Header-A": "1"]
+        customHeadersService.saveCustomHeadersReturnValue = "new-headers-id"
+
+        await subject.perform(.saveEnvironment)
+
+        XCTAssertEqual(customHeadersService.saveCustomHeadersReceivedHeaders, ["Header-A": "updated"])
+        XCTAssertEqual(customHeadersService.removeCustomHeadersIdReceivedId, "old-headers-id")
+        XCTAssertEqual(delegate.savedUrls?.customHeadersId, "new-headers-id")
+    }
+
+    /// `perform(_:)` with `.saveEnvironment` removes the stored headers and clears the identifier
+    /// when all custom header fields were removed.
+    @MainActor
+    func test_perform_saveEnvironment_customHeadersRemoved() async throws {
+        subject.state.serverUrl = "vault.bitwarden.com"
+        subject.state.customHeadersId = "old-headers-id"
+        subject.state.customHeaders = []
+
+        await subject.perform(.saveEnvironment)
+
+        XCTAssertFalse(customHeadersService.saveCustomHeadersCalled)
+        XCTAssertEqual(customHeadersService.removeCustomHeadersIdReceivedId, "old-headers-id")
+        XCTAssertEqual(delegate.savedUrls?.customHeadersId, nil)
+        XCTAssertEqual(coordinator.routes.last, .dismissPresented)
+    }
+
+    /// `perform(_:)` with `.saveEnvironment` shows an alert and doesn't notify the delegate when
+    /// saving the custom headers fails.
+    @MainActor
+    func test_perform_saveEnvironment_saveCustomHeadersError() async throws {
+        subject.state.serverUrl = "vault.bitwarden.com"
+        subject.state.customHeaders = [
+            SelfHostedState.CustomHeaderField(name: "Header-A", value: "1"),
+        ]
+        customHeadersService.saveCustomHeadersThrowableError = BitwardenTestError.example
+
+        await subject.perform(.saveEnvironment)
+
+        XCTAssertNil(delegate.savedUrls)
+        XCTAssertNotNil(coordinator.alertShown.first)
+    }
+
     /// `perform(_:)` with `.saveEnvironment` displays an alert if any of the URLs are invalid.
     @MainActor
     func test_perform_saveEnvironment_invalidURLs() async throws {
@@ -127,6 +258,68 @@ class SelfHostedProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
                 message: Localizations.environmentPageUrlsError,
             ),
         )
+    }
+
+    /// Receiving `.addHeaderTapped` appends an empty custom header field.
+    @MainActor
+    func test_receive_addHeaderTapped() {
+        subject.receive(.addHeaderTapped)
+
+        XCTAssertEqual(subject.state.customHeaders.count, 1)
+        XCTAssertEqual(subject.state.customHeaders.first?.name, "")
+        XCTAssertEqual(subject.state.customHeaders.first?.value, "")
+    }
+
+    /// Receiving `.headerNameChanged` updates the name of the matching custom header field.
+    @MainActor
+    func test_receive_headerNameChanged() {
+        let field = SelfHostedState.CustomHeaderField(name: "Old-Name", value: "1")
+        subject.state.customHeaders = [field]
+
+        subject.receive(.headerNameChanged(id: field.id, name: "New-Name"))
+
+        XCTAssertEqual(subject.state.customHeaders.first?.name, "New-Name")
+        XCTAssertEqual(subject.state.customHeaders.first?.value, "1")
+    }
+
+    /// Receiving `.headerValueChanged` updates the value of the matching custom header field.
+    @MainActor
+    func test_receive_headerValueChanged() {
+        let field = SelfHostedState.CustomHeaderField(name: "Header-A", value: "old")
+        subject.state.customHeaders = [field]
+
+        subject.receive(.headerValueChanged(id: field.id, value: "new"))
+
+        XCTAssertEqual(subject.state.customHeaders.first?.name, "Header-A")
+        XCTAssertEqual(subject.state.customHeaders.first?.value, "new")
+    }
+
+    /// Receiving `.headerValueVisibilityChanged` updates the visibility of the matching custom
+    /// header field's value.
+    @MainActor
+    func test_receive_headerValueVisibilityChanged() {
+        let field = SelfHostedState.CustomHeaderField(name: "Header-A", value: "secret")
+        subject.state.customHeaders = [field]
+
+        subject.receive(.headerValueVisibilityChanged(id: field.id, isVisible: true))
+
+        XCTAssertTrue(subject.state.customHeaders[0].isValueVisible)
+
+        subject.receive(.headerValueVisibilityChanged(id: field.id, isVisible: false))
+
+        XCTAssertFalse(subject.state.customHeaders[0].isValueVisible)
+    }
+
+    /// Receiving `.removeHeaderTapped` removes the matching custom header field.
+    @MainActor
+    func test_receive_removeHeaderTapped() {
+        let field1 = SelfHostedState.CustomHeaderField(name: "Header-A", value: "1")
+        let field2 = SelfHostedState.CustomHeaderField(name: "Header-B", value: "2")
+        subject.state.customHeaders = [field1, field2]
+
+        subject.receive(.removeHeaderTapped(id: field1.id))
+
+        XCTAssertEqual(subject.state.customHeaders, [field2])
     }
 
     /// Receiving `.apiUrlChanged` updates the state.

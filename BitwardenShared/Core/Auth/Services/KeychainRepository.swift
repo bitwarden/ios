@@ -18,6 +18,10 @@ enum BitwardenKeychainItem: Equatable, KeychainItem {
     /// The keychain item for a client certificate identity (SecIdentity), keyed by certificate fingerprint.
     case clientCertificateIdentity(fingerprint: String)
 
+    /// The keychain item for custom headers sent with requests to a self-hosted environment,
+    /// keyed by the identifier stored in the environment's URL data.
+    case customHeaders(id: String)
+
     /// The keychain item for the device auth key.
     case deviceAuthKey(userId: String)
 
@@ -70,6 +74,7 @@ enum BitwardenKeychainItem: Equatable, KeychainItem {
         case .accessToken,
              .authenticatorVaultKey,
              .clientCertificateIdentity,
+             .customHeaders,
              .deviceAuthKeyMetadata,
              .deviceKey,
              .fillAssistRulesFingerprint,
@@ -108,6 +113,7 @@ enum BitwardenKeychainItem: Equatable, KeychainItem {
         case .accessToken,
              .authenticatorVaultKey,
              .clientCertificateIdentity,
+             .customHeaders,
              .fillAssistRulesFingerprint,
              .localUserDataKeyStates,
              .refreshToken,
@@ -128,6 +134,8 @@ enum BitwardenKeychainItem: Equatable, KeychainItem {
             "userKeyBiometricUnlock_" + id
         case let .clientCertificateIdentity(fingerprint):
             "clientCertificateIdentity_\(fingerprint)"
+        case let .customHeaders(id):
+            "customHeaders_\(id)"
         case let .deviceKey(userId: id):
             "deviceKey_" + id
         case let .deviceAuthKey(userId: id):
@@ -179,6 +187,12 @@ protocol KeychainRepository: AnyObject, ServerCommunicationConfigKeychainReposit
     /// - Parameter fingerprint: The SHA-256 fingerprint of the certificate to delete.
     func deleteClientCertificateIdentity(fingerprint: String) async throws
 
+    /// Deletes the custom headers from the keychain by identifier.
+    ///
+    /// - Parameter id: The identifier of the custom headers to delete.
+    ///
+    func deleteCustomHeaders(id: String) async throws
+
     /// Deletes items stored in the keychain for a specific user.
     ///
     /// - Parameter userId: The user ID associated with the keychain items to delete.
@@ -223,6 +237,13 @@ protocol KeychainRepository: AnyObject, ServerCommunicationConfigKeychainReposit
     /// - Returns: The SecIdentity, or `nil` if not stored.
     ///
     func getClientCertificateIdentity(fingerprint: String) async throws -> SecIdentity?
+
+    /// Gets the custom headers from the keychain by identifier.
+    ///
+    /// - Parameter id: The identifier of the custom headers.
+    /// - Returns: The custom headers, or `nil` if not stored.
+    ///
+    func getCustomHeaders(id: String) async throws -> [String: String]?
 
     /// Gets the stored device key for a user from the keychain.
     ///
@@ -275,6 +296,14 @@ protocol KeychainRepository: AnyObject, ServerCommunicationConfigKeychainReposit
     ///   - fingerprint: The SHA-256 fingerprint of the certificate used as the keychain label.
     ///
     func setClientCertificateIdentity(_ identity: SecIdentity, fingerprint: String) async throws
+
+    /// Stores the custom headers in the keychain, keyed by identifier.
+    ///
+    /// - Parameters:
+    ///   - headers: The custom headers to store.
+    ///   - id: The identifier of the custom headers used as the keychain key.
+    ///
+    func setCustomHeaders(_ headers: [String: String], id: String) async throws
 
     /// Stores the device key for a user in the keychain.
     ///
@@ -361,6 +390,10 @@ extension DefaultKeychainRepository {
         )
     }
 
+    func deleteCustomHeaders(id: String) async throws {
+        try await keychainServiceFacade.deleteValue(for: BitwardenKeychainItem.customHeaders(id: id))
+    }
+
     func deleteItems(for userId: String) async throws {
         let keychainItems: [BitwardenKeychainItem] = [
             .accessToken(userId: userId),
@@ -411,6 +444,17 @@ extension DefaultKeychainRepository {
         )
     }
 
+    func getCustomHeaders(id: String) async throws -> [String: String]? {
+        do {
+            let value: [String: String] = try await keychainServiceFacade.getValue(
+                for: BitwardenKeychainItem.customHeaders(id: id),
+            )
+            return value
+        } catch KeychainServiceError.osStatusError(errSecItemNotFound), KeychainServiceError.keyNotFound {
+            return nil
+        }
+    }
+
     func getDeviceKey(userId: String) async throws -> String? {
         do {
             let value: String = try await keychainServiceFacade.getValue(
@@ -457,6 +501,10 @@ extension DefaultKeychainRepository {
             identity,
             for: BitwardenKeychainItem.clientCertificateIdentity(fingerprint: fingerprint),
         )
+    }
+
+    func setCustomHeaders(_ headers: [String: String], id: String) async throws {
+        try await keychainServiceFacade.setValue(headers, for: BitwardenKeychainItem.customHeaders(id: id))
     }
 
     func setDeviceKey(_ value: String, userId: String) async throws {
