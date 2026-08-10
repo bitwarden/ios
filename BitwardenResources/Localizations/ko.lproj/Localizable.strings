@@ -51,6 +51,7 @@
 "OK" = "확인";
 "Password" = "비밀번호";
 "Save" = "저장";
+/* Action to move a vault item to another vault; used as a button label, menu item, and screen title. */
 "Move" = "이동";
 "Saving" = "저장중...";
 "Settings" = "설정";
@@ -258,8 +259,14 @@
 "ShowWebsiteIconsDescription" = "로그인 정보 옆에 식별용 이미지를 표시합니다.";
 "IconsUrl" = "아이콘 서버 URL";
 "AutofillWithBitwarden" = "Bitwarden으로 자동 완성";
+/* Section header and screen title for viewing/managing a cipher's collections. */
 "Collections" = "컬렉션";
+/* Section header and screen title for viewing/managing a cipher's shared folders. */
+"SharedFolders" = "Shared folders";
+/* Empty state message shown when a collection has no items. */
 "NoItemsCollection" = "이 컬렉션에 항목이 없습니다.";
+/* Empty state message shown when a shared folder has no items. */
+"ThereAreNoItemsInThisSharedFolder" = "There are no items in this shared folder";
 "NoItemsFolder" = "이 폴더에 항목이 없습니다.";
 "NoItemsTrash" = "휴지통에 아무 항목도 없습니다.";
 "FaceID" = "Face ID";
@@ -279,6 +286,7 @@
 "RegEx" = "정규 표현식";
 "StartsWith" = "...으로 시작";
 "MatchDetection" = "일치 인식";
+/* Field label on the Move screen shown when the "vfo1-foundation" feature flag is disabled; superseded by "Vault" when enabled. */
 "Organization" = "조직";
 "HoldYubikeyNearTop" = "기기의 위쪽에 Yubikey를 가져다 대세요.";
 "TryAgain" = "다시 시도";
@@ -314,13 +322,26 @@
 "NoItemsToList" = "항목이 없습니다.";
 "MoveDown" = "아래로 옮기기";
 "MoveUp" = "위로 옮기기";
+/* Empty state message on the Collections screen shown when a user has no collections. */
 "NoCollectionsToList" = "컬렉션이 없습니다.";
+/* Empty state message on the Shared folders screen shown when a user has no shared folders. */
+"ThereAreNoSharedFoldersToList" = "There are no shared folders to list.";
 "MovedItemToOrg" = "%1$@ 항목이 %2$@ 조직으로 이동되었습니다.";
+/* Alert message shown when saving an item with no collection selected. */
 "SelectOneCollection" = "반드시 하나 이상의 컬렉션을 선택해야 합니다.";
+/* Alert message shown when saving an item with no shared folder selected. */
+"YouMustSelectAtLeastOneSharedFolder" = "You must select at least one shared folder.";
 "Share" = "공유";
 "ShareAll" = "모두 공유";
+/* Overflow menu item and screen title on the Move screen shown when the "vfo1-foundation" feature flag is disabled; superseded by "Move" when enabled. */
 "MoveToOrganization" = "조직으로 이동하기";
+/* Empty state message shown when a user has no vaults available to move an item into, when the "vfo1-foundation" feature flag is enabled. */
+"NoVaultsToList" = "No vaults to list.";
+/* Empty state message shown when a user has no organizations available to move an item into, when the "vfo1-foundation" feature flag is disabled. */
 "NoOrgsToList" = "조직이 없습니다.";
+/* Footer text on the Move screen explaining that moving an item transfers its ownership to the destination vault's organization, when the "vfo1-foundation" feature flag is enabled. */
+"ChooseAVaultThatYouWishToMoveThisItemToDescriptionLong" = "Choose a vault that you wish to move this item to. Moving to another vault transfers ownership of the item to that organization. You will no longer be the direct owner of this item once it has been moved.";
+/* Footer text on the Move screen explaining that moving an item transfers its ownership to the destination organization, when the "vfo1-foundation" feature flag is disabled. */
 "MoveToOrgDesc" = "이 항목을 이동할 조직을 선택하십시오. 항목이 조직으로 이동되면 소유권이 조직으로 이전됩니다. 일단 이동되면, 더는 이동된 항목의 직접적인 소유자가 아니게 됩니다.";
 "NumberOfWords" = "단어 수";
 "Passphrase" = "패스프레이즈";
@@ -589,6 +610,7 @@
 "LoginApproved" = "로그인 승인됨";
 "LogInWithDevice" = "기기로 로그인";
 "LoggingInOn" = "로그인 중인 기기";
+/* The word "Vault", used generically as a field label, screen title, and app-wide term for a user's or organization's item collection. */
 "Vault" = "보관함";
 "Appearance" = "외관";
 "AccountSecurity" = "계정 보안";
@@ -870,7 +892,11 @@
 "ShowLess" = "간략히 보기";
 "ItemNameX" = "항목 이름, %1$@";
 "OwnerX" = "소유자, %1$@";
+"VaultX" = "Vault, %1$@";
+/* VoiceOver accessibility label for a collection the item belongs to. */
 "CollectionX" = "컬렉션, %1$@";
+/* VoiceOver accessibility label for a shared folder the item belongs to. */
+"SharedFolderX" = "Shared folder, %1$@";
 "FolderX" = "폴더, %1$@";
 "ItemXOfY" = "%2$@개 중 %1$@번째 항목";
 "ViewRecordedLogs" = "기록된 로그 보기";
@@ -1217,8 +1243,8 @@
 /* Device display name. %1$@ = category (e.g. "Mobile"), %2$@ = platform (e.g. "iOS"). */
 "DeviceDisplayNameXHyphenY" = "%1$@ - %2$@";
 "Mobile" = "Mobile";
-"BrowserExtension" = "Browser extension";
-"WebVault2" = "Web vault";
+"BrowserExtension" = "Extension";
+"WebVault2" = "Web app";
 "Desktop" = "Desktop";
 "Cli" = "CLI";
 "Sdk" = "SDK";

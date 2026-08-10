@@ -156,6 +156,17 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
         XCTAssertEqual(processor.dispatchedActions.last, .folderChanged(.custom(folder)))
     }
 
+    /// Updating the folder text field dispatches the `.folderChanged()` action when the
+    /// `vfo1-foundation` feature flag is enabled.
+    @MainActor
+    func test_folderTextField_updateValue_vfo1FoundationEnabled() throws {
+        processor.state.isVfo1FoundationFeatureFlagEnabled = true
+        let folder = FolderView.fixture(name: "Folder")
+        let menuField = try subject.inspect().find(bitwardenMenuField: Localizations.myFolder)
+        try menuField.select(newValue: DefaultableType<FolderView>.custom(folder))
+        XCTAssertEqual(processor.dispatchedActions.last, .folderChanged(.custom(folder)))
+    }
+
     /// Tapping the generate password button dispatches the `.generatePasswordPressed` action.
     @MainActor
     func test_generatePasswordButton_tap() throws {
