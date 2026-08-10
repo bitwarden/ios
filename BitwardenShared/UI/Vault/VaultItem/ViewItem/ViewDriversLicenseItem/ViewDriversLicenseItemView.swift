@@ -201,14 +201,14 @@ extension DriversLicenseItemState {
             middleName,
             lastName,
             licenseNumber,
-            dateOfBirth,
             issuingCountry,
             issuingState,
             issuingAuthority,
-            issueDate,
-            expirationDate,
             licenseClass,
         ].allSatisfy(\.isEmpty)
+            && dateOfBirth == nil
+            && issueDate == nil
+            && expirationDate == nil
     }
 }
 
@@ -240,10 +240,10 @@ extension DriversLicenseItemState {
                     store: Store(
                         processor: StateProcessor(
                             state: DriversLicenseItemState(
-                                dateOfBirth: "2025-04-20",
-                                expirationDate: "2026-08-10",
+                                dateOfBirth: Date(year: 2025, month: 4, day: 20),
+                                expirationDate: Date(year: 2026, month: 8, day: 10),
                                 firstName: "Mitchell",
-                                issueDate: "2021-08-10",
+                                issueDate: Date(year: 2021, month: 8, day: 10),
                                 issuingAuthority: "DMV",
                                 issuingCountry: "United States",
                                 issuingState: "Wisconsin",

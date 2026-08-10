@@ -209,10 +209,10 @@ private extension PassportItemState {
     static var previewPopulated: PassportItemState {
         PassportItemState(
             birthPlace: "USA",
-            dateOfBirth: "2025-04-20",
-            expirationDate: "2026-08-10",
+            dateOfBirth: Date(year: 2025, month: 4, day: 20),
+            expirationDate: Date(year: 2026, month: 8, day: 10),
             givenName: "Mitchell",
-            issueDate: "2021-08-10",
+            issueDate: Date(year: 2021, month: 8, day: 10),
             issuingAuthority: "U.S. Department of State",
             issuingCountry: "United States",
             nationalIdentificationNumber: "123456789",

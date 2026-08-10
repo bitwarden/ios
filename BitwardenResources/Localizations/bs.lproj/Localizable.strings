@@ -51,6 +51,7 @@
 "OK" = "OK";
 "Password" = "Lozinka";
 "Save" = "Spremi";
+/* Action to move a vault item to another vault; used as a button label, menu item, and screen title. */
 "Move" = "Premjesti";
 "Saving" = "Saving…";
 "Settings" = "Postavke";
@@ -258,8 +259,14 @@
 "ShowWebsiteIconsDescription" = "Prikaži prepoznatljivu sliku pored svake prijave.";
 "IconsUrl" = "URL adresa servera ikona";
 "AutofillWithBitwarden" = "Autofill with Bitwarden";
+/* Section header and screen title for viewing/managing a cipher's collections. */
 "Collections" = "Zbirke";
+/* Section header and screen title for viewing/managing a cipher's shared folders. */
+"SharedFolders" = "Shared folders";
+/* Empty state message shown when a collection has no items. */
 "NoItemsCollection" = "There are no items in this collection";
+/* Empty state message shown when a shared folder has no items. */
+"ThereAreNoItemsInThisSharedFolder" = "There are no items in this shared folder";
 "NoItemsFolder" = "There are no items in this folder";
 "NoItemsTrash" = "U smeću nema predmeta.";
 "FaceID" = "Identifikacija licem";
@@ -279,6 +286,7 @@
 "RegEx" = "Regularni izraz";
 "StartsWith" = "Počinje sa";
 "MatchDetection" = "Otkrivanje podudaranja";
+/* Field label on the Move screen shown when the "vfo1-foundation" feature flag is disabled; superseded by "Vault" when enabled. */
 "Organization" = "Organizacija";
 "HoldYubikeyNearTop" = "Držite Vaš Yubikey pri vrhu uređaja.";
 "TryAgain" = "Pokušajte ponovo";
@@ -314,13 +322,26 @@
 "NoItemsToList" = "Nema podataka za prikazati.";
 "MoveDown" = "Pomjeri dole";
 "MoveUp" = "Pomjeri gore";
+/* Empty state message on the Collections screen shown when a user has no collections. */
 "NoCollectionsToList" = "Nema kolekcija za prikazati.";
+/* Empty state message on the Shared folders screen shown when a user has no shared folders. */
+"ThereAreNoSharedFoldersToList" = "There are no shared folders to list.";
 "MovedItemToOrg" = "%1$@ premješteno u %2$@.";
+/* Alert message shown when saving an item with no collection selected. */
 "SelectOneCollection" = "Morate odabrati barem jednu kategoriju";
+/* Alert message shown when saving an item with no shared folder selected. */
+"YouMustSelectAtLeastOneSharedFolder" = "You must select at least one shared folder.";
 "Share" = "Podijeli";
 "ShareAll" = "Share all";
+/* Overflow menu item and screen title on the Move screen shown when the "vfo1-foundation" feature flag is disabled; superseded by "Move" when enabled. */
 "MoveToOrganization" = "Premjesti u organizaciju";
+/* Empty state message shown when a user has no vaults available to move an item into, when the "vfo1-foundation" feature flag is enabled. */
+"NoVaultsToList" = "No vaults to list.";
+/* Empty state message shown when a user has no organizations available to move an item into, when the "vfo1-foundation" feature flag is disabled. */
 "NoOrgsToList" = "Nema organizacija za prikaz.";
+/* Footer text on the Move screen explaining that moving an item transfers its ownership to the destination vault's organization, when the "vfo1-foundation" feature flag is enabled. */
+"ChooseAVaultThatYouWishToMoveThisItemToDescriptionLong" = "Choose a vault that you wish to move this item to. Moving to another vault transfers ownership of the item to that organization. You will no longer be the direct owner of this item once it has been moved.";
+/* Footer text on the Move screen explaining that moving an item transfers its ownership to the destination organization, when the "vfo1-foundation" feature flag is disabled. */
 "MoveToOrgDesc" = "Odaberi organizaciju u koju želiš premjestiti ovu stavku. Premještanje prenosi vlasništvo stavke na organizaciju. Nakon premještanja više nećeš biti izravni vlasnik ove stavke.";
 "NumberOfWords" = "Broj riječi";
 "Passphrase" = "Šifra";
@@ -589,6 +610,7 @@
 "LoginApproved" = "Login approved";
 "LogInWithDevice" = "Prijava sa drugim uređajem";
 "LoggingInOn" = "Logging in on";
+/* The word "Vault", used generically as a field label, screen title, and app-wide term for a user's or organization's item collection. */
 "Vault" = "Vault";
 "Appearance" = "Appearance";
 "AccountSecurity" = "Account security";
@@ -870,7 +892,11 @@
 "ShowLess" = "Show less";
 "ItemNameX" = "Item name, %1$@";
 "OwnerX" = "Owner, %1$@";
+"VaultX" = "Vault, %1$@";
+/* VoiceOver accessibility label for a collection the item belongs to. */
 "CollectionX" = "Collection, %1$@";
+/* VoiceOver accessibility label for a shared folder the item belongs to. */
+"SharedFolderX" = "Shared folder, %1$@";
 "FolderX" = "Folder, %1$@";
 "ItemXOfY" = "Item %1$@ of %2$@";
 "ViewRecordedLogs" = "View recorded logs";
@@ -1217,8 +1243,8 @@
 /* Device display name. %1$@ = category (e.g. "Mobile"), %2$@ = platform (e.g. "iOS"). */
 "DeviceDisplayNameXHyphenY" = "%1$@ - %2$@";
 "Mobile" = "Mobile";
-"BrowserExtension" = "Browser extension";
-"WebVault2" = "Web vault";
+"BrowserExtension" = "Extension";
+"WebVault2" = "Web app";
 "Desktop" = "Desktop";
 "Cli" = "CLI";
 "Sdk" = "SDK";

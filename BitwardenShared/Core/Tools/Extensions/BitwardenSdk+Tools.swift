@@ -69,10 +69,13 @@ extension BitwardenSdk.Send {
         guard let model = sendData.model else {
             throw DataMappingError.invalidData
         }
-        self.init(sendResponseModel: model)
+        try self.init(sendResponseModel: model)
     }
 
-    init(sendResponseModel model: SendResponseModel) {
+    init(sendResponseModel model: SendResponseModel) throws {
+        guard let type = BitwardenSdk.SendType(type: model.type) else {
+            throw DataMappingError.invalidData
+        }
         self.init(
             id: model.id,
             accessId: model.accessId,
@@ -80,7 +83,7 @@ extension BitwardenSdk.Send {
             notes: model.notes,
             key: model.key,
             password: model.password,
-            type: BitwardenSdk.SendType(type: model.type),
+            type: type,
             file: model.file.map(SendFile.init),
             text: model.text.map(SendText.init),
             maxAccessCount: model.maxAccessCount,
@@ -97,12 +100,14 @@ extension BitwardenSdk.Send {
 }
 
 extension BitwardenSdk.SendType {
-    init(type: SendType) {
+    init?(type: SendType) {
         switch type {
         case .file:
             self = .file
         case .text:
             self = .text
+        case .unknown:
+            return nil
         }
     }
 }

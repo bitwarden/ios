@@ -51,6 +51,7 @@
 "OK" = "ठीक है";
 "Password" = "पासवर्ड";
 "Save" = "सेव करें";
+/* Action to move a vault item to another vault; used as a button label, menu item, and screen title. */
 "Move" = "स्थानांतरित करें";
 "Saving" = "सहेजा जा रहा है…";
 "Settings" = "सेटिंग";
@@ -258,8 +259,14 @@
 "ShowWebsiteIconsDescription" = "हर लॉगइन के बगल में आइकन की फोटो दिखाएं।";
 "IconsUrl" = "आइकन सर्वर यूआरएल";
 "AutofillWithBitwarden" = "Bitwarden के साथ ऑटोफिल करें";
+/* Section header and screen title for viewing/managing a cipher's collections. */
 "Collections" = "कलेक्शन";
+/* Section header and screen title for viewing/managing a cipher's shared folders. */
+"SharedFolders" = "Shared folders";
+/* Empty state message shown when a collection has no items. */
 "NoItemsCollection" = "इस संग्रह में कोई आइटम नहीं हैं";
+/* Empty state message shown when a shared folder has no items. */
+"ThereAreNoItemsInThisSharedFolder" = "There are no items in this shared folder";
 "NoItemsFolder" = "इस फ़ोल्डर में कोई आइटम नहीं हैं";
 "NoItemsTrash" = "कचरे में कोई आइटम नहीं है।";
 "FaceID" = "फेस आईडी";
@@ -279,6 +286,7 @@
 "RegEx" = "रेगुलर एक्सप्रेशन";
 "StartsWith" = "इससे शुरुआत";
 "MatchDetection" = "मैच डिटेक्शन";
+/* Field label on the Move screen shown when the "vfo1-foundation" feature flag is disabled; superseded by "Vault" when enabled. */
 "Organization" = "ग्रुप";
 "HoldYubikeyNearTop" = "अपनी Yubikey को डिवाइस के ऊपरी हिस्से के पास रखें।";
 "TryAgain" = "वापस कोशिश करें";
@@ -314,13 +322,26 @@
 "NoItemsToList" = "सूचीबद्ध करने के लिए कोई आइटम नहीं हैं।";
 "MoveDown" = "नीचे ले जाएं";
 "MoveUp" = "ऊपर ले जाएं";
+/* Empty state message on the Collections screen shown when a user has no collections. */
 "NoCollectionsToList" = "सूचीबद्ध करने के लिए कोई संग्रह नहीं हैं।";
+/* Empty state message on the Shared folders screen shown when a user has no shared folders. */
+"ThereAreNoSharedFoldersToList" = "There are no shared folders to list.";
 "MovedItemToOrg" = "%1$@ %2$@ पर ट्रांस्फर किया गया।";
+/* Alert message shown when saving an item with no collection selected. */
 "SelectOneCollection" = "आपको कम से कम एक संग्रह का चयन करना होगा।";
+/* Alert message shown when saving an item with no shared folder selected. */
+"YouMustSelectAtLeastOneSharedFolder" = "You must select at least one shared folder.";
 "Share" = "शेयर करें";
 "ShareAll" = "सभी साझा करें";
+/* Overflow menu item and screen title on the Move screen shown when the "vfo1-foundation" feature flag is disabled; superseded by "Move" when enabled. */
 "MoveToOrganization" = "संगठन में ले जाएँ";
+/* Empty state message shown when a user has no vaults available to move an item into, when the "vfo1-foundation" feature flag is enabled. */
+"NoVaultsToList" = "No vaults to list.";
+/* Empty state message shown when a user has no organizations available to move an item into, when the "vfo1-foundation" feature flag is disabled. */
 "NoOrgsToList" = "सूचीबद्ध करने के लिए कोई संगठन नहीं।";
+/* Footer text on the Move screen explaining that moving an item transfers its ownership to the destination vault's organization, when the "vfo1-foundation" feature flag is enabled. */
+"ChooseAVaultThatYouWishToMoveThisItemToDescriptionLong" = "Choose a vault that you wish to move this item to. Moving to another vault transfers ownership of the item to that organization. You will no longer be the direct owner of this item once it has been moved.";
+/* Footer text on the Move screen explaining that moving an item transfers its ownership to the destination organization, when the "vfo1-foundation" feature flag is disabled. */
 "MoveToOrgDesc" = "उस संगठन का चयन करें जिसमें आप इस आइटम को ले जाना चाहते हैं। किसी संगठन में ले जाने पर आइटम का स्वामित्व उस संगठन को स्थानांतरित हो जाता है। एक बार स्थानांतरित होने के बाद आप इस आइटम के प्रत्यक्ष स्वामी नहीं रहेंगे।";
 "NumberOfWords" = "टोटल शब्द";
 "Passphrase" = "पासफ्रेज़";
@@ -589,6 +610,7 @@
 "LoginApproved" = "लॉगइन का परमिशन मिला";
 "LogInWithDevice" = "डिवाइस से लॉग इन करें";
 "LoggingInOn" = "यहां लॉगइन कर रहे";
+/* The word "Vault", used generically as a field label, screen title, and app-wide term for a user's or organization's item collection. */
 "Vault" = "तिजोरी";
 "Appearance" = "दिखावट";
 "AccountSecurity" = "खाता सुरक्षा";
@@ -870,7 +892,11 @@
 "ShowLess" = "कम दिखाएँ";
 "ItemNameX" = "आइटम नाम, %1$@";
 "OwnerX" = "स्वामी, %1$@";
+"VaultX" = "Vault, %1$@";
+/* VoiceOver accessibility label for a collection the item belongs to. */
 "CollectionX" = "संग्रह, %1$@";
+/* VoiceOver accessibility label for a shared folder the item belongs to. */
+"SharedFolderX" = "Shared folder, %1$@";
 "FolderX" = "फ़ोल्डर, %1$@";
 "ItemXOfY" = "%2$@ में से आइटम %1$@";
 "ViewRecordedLogs" = "रिकॉर्ड किए गए लॉग देखें";
@@ -1217,8 +1243,8 @@
 /* Device display name. %1$@ = category (e.g. "Mobile"), %2$@ = platform (e.g. "iOS"). */
 "DeviceDisplayNameXHyphenY" = "%1$@ - %2$@";
 "Mobile" = "Mobile";
-"BrowserExtension" = "Browser extension";
-"WebVault2" = "Web vault";
+"BrowserExtension" = "Extension";
+"WebVault2" = "Web app";
 "Desktop" = "Desktop";
 "Cli" = "CLI";
 "Sdk" = "SDK";
