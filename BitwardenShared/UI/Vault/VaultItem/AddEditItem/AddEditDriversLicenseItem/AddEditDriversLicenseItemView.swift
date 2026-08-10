@@ -104,6 +104,7 @@ struct AddEditDriversLicenseItemView: View {
                         get: \.issueDate,
                         send: AddEditDriversLicenseItemAction.issueDateChanged,
                     ),
+                    in: Date.distantPast ... Date().asUTCCalendarDay(),
                 )
 
                 DateFieldPicker(

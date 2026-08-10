@@ -136,6 +136,7 @@ struct AddEditPassportItemView: View {
                         get: \.issueDate,
                         send: AddEditPassportItemAction.issueDateChanged,
                     ),
+                    in: Date.distantPast ... Date().asUTCCalendarDay(),
                 )
 
                 DateFieldPicker(

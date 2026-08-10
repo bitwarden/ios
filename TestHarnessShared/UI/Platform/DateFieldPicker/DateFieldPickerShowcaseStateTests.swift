@@ -1,5 +1,6 @@
 import BitwardenKit
-import XCTest
+import Foundation
+import Testing
 
 @testable import TestHarnessShared
 
@@ -7,20 +8,22 @@ import XCTest
 
 /// Tests for `DateFieldPickerShowcaseState`.
 ///
-class DateFieldPickerShowcaseStateTests: XCTestCase {
+struct DateFieldPickerShowcaseStateTests {
     // MARK: Tests
 
     /// `selectedDateDisplay` is an empty string when no date has been selected.
-    func test_selectedDateDisplay_isEmptyWhenUnset() {
+    @Test
+    func selectedDateDisplay_isEmptyWhenUnset() {
         let subject = DateFieldPickerShowcaseState()
-        XCTAssertEqual(subject.selectedDateDisplay, "")
+        #expect(subject.selectedDateDisplay.isEmpty)
     }
 
     /// `selectedDateDisplay` shows the same calendar day that was selected, even when the stored
     /// UTC-anchored date falls on the previous day in the device's local time zone. This guards
     /// against a regression where the showcase read the stored date back with an implicit local
     /// time zone and displayed the day before the one the user picked.
-    func test_selectedDateDisplay_matchesSelectedDayRegardlessOfDeviceTimeZone() {
+    @Test
+    func selectedDateDisplay_matchesSelectedDayRegardlessOfDeviceTimeZone() {
         let losAngeles = TimeZone(identifier: "America/Los_Angeles")!
         let selectedLocalDay = Date(year: 2026, month: 8, day: 7, timeZone: losAngeles)
         let storedDate = selectedLocalDay.asUTCCalendarDay(from: losAngeles)
@@ -28,13 +31,13 @@ class DateFieldPickerShowcaseStateTests: XCTestCase {
         var subject = DateFieldPickerShowcaseState()
         subject.selectedDate = storedDate
 
-        XCTAssertEqual(subject.selectedDateDisplay, storedDate.longCalendarDateDisplay)
-        XCTAssertTrue(subject.selectedDateDisplay.contains("August"))
-        XCTAssertTrue(subject.selectedDateDisplay.contains("7"))
-        XCTAssertTrue(subject.selectedDateDisplay.contains("2026"))
+        #expect(subject.selectedDateDisplay == storedDate.longCalendarDateDisplay)
+        #expect(subject.selectedDateDisplay.contains("August"))
+        #expect(subject.selectedDateDisplay.contains("7"))
+        #expect(subject.selectedDateDisplay.contains("2026"))
 
         var behindUTCStyle = Date.FormatStyle(date: .long, time: .omitted)
         behindUTCStyle.timeZone = losAngeles
-        XCTAssertNotEqual(subject.selectedDateDisplay, storedDate.formatted(behindUTCStyle))
+        #expect(subject.selectedDateDisplay != storedDate.formatted(behindUTCStyle))
     }
 }
