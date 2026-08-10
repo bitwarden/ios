@@ -9,6 +9,7 @@ import Testing
 struct BillingRepositoryTests {
     // MARK: Properties
 
+    let billingService: MockBillingService
     let configService: MockConfigService
     let errorReporter: MockErrorReporter
     let stateService: MockStateService
@@ -19,6 +20,8 @@ struct BillingRepositoryTests {
     // MARK: Setup
 
     init() {
+        billingService = MockBillingService()
+        billingService.isSelfHostedReturnValue = false
         configService = MockConfigService()
         errorReporter = MockErrorReporter()
         stateService = MockStateService()
@@ -26,6 +29,7 @@ struct BillingRepositoryTests {
         vaultRepository = MockVaultRepository()
 
         subject = DefaultBillingRepository(
+            billingService: billingService,
             configService: configService,
             errorReporter: errorReporter,
             stateService: stateService,
@@ -47,6 +51,20 @@ struct BillingRepositoryTests {
         let result = await subject.isInAppUpgradeAvailable()
 
         #expect(result)
+    }
+
+    /// `isInAppUpgradeAvailable()` returns `false` when the environment is self-hosted.
+    @Test
+    func isInAppUpgradeAvailable_selfHosted() async {
+        billingService.isSelfHostedReturnValue = true
+        configService.featureFlagsBool[.premiumUpgradePath] = true
+        storefrontService.isUSStorefrontReturnValue = true
+        stateService.isPremiumUpgradeEligibleResult = true
+        vaultRepository.hasMinimumCipherCountResult = .success(true)
+
+        let result = await subject.isInAppUpgradeAvailable()
+
+        #expect(!result)
     }
 
     /// `isInAppUpgradeAvailable()` returns `false` when the feature flag is disabled.

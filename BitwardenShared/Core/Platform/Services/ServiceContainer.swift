@@ -1033,6 +1033,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
         let storefrontService = DefaultStorefrontService()
 
         let billingRepository = DefaultBillingRepository(
+            billingService: billingService,
             configService: configService,
             errorReporter: errorReporter,
             stateService: stateService,
