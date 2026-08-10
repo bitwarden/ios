@@ -24,7 +24,7 @@ extension FeatureFlag: @retroactive CaseIterable {
     /// A feature flag to enable/disable scanning a card to autocomplete its details in add/edit cipher.
     static let cardScanner = FeatureFlag(rawValue: "pm-34171-card-scanner")
 
-    /// Debug flag to disable self-hosted checks in premium upgrade flows for QA testing.
+    /// Debug flag to disable self-hosted checks in Premium upgrade flows for QA testing.
     static let debugDisableSelfHostPremiumCheck = FeatureFlag(
         rawValue: "debug-disable-self-host-premium-check",
     )
@@ -35,11 +35,14 @@ extension FeatureFlag: @retroactive CaseIterable {
     /// An SDK flag that enables individual cipher encryption.
     static let enableCipherKeyEncryption = FeatureFlag(rawValue: "enableCipherKeyEncryption")
 
+    /// A feature flag to enable/disable the FedRAMP (.gov) region in the region picker.
+    static let fedrampGovRegion = FeatureFlag(rawValue: "fedramp-gov-region")
+
     /// Flag to enable/disable Fill-Assist targeting rules.
     static let fillAssistTargetingRules = FeatureFlag(rawValue: "fill-assist-targeting-rules")
 
-    /// Flag to enable/disable forced KDF updates.
-    static let forceUpdateKdfSettings = FeatureFlag(rawValue: "pm-18021-force-update-kdf-settings")
+    /// Feature flag for device management screen.
+    static let manageDevices = FeatureFlag(rawValue: "pm-4516-devices-add-last-activity-date")
 
     /// Flag to enable/disable migration from My Vault Items to My Items.
     static let migrateMyVaultToMyItems = FeatureFlag(rawValue: "pm-20558-migrate-myvault-to-myitems")
@@ -50,14 +53,24 @@ extension FeatureFlag: @retroactive CaseIterable {
     /// Flag to enable/disable not logging out when a user's KDF settings are changed.
     static let noLogoutOnKdfChange = FeatureFlag(rawValue: "pm-23995-no-logout-on-kdf-change")
 
+    /// Flag to enable/disable the organization user notification banner policy.
+    static let organizationUserNotificationBanner = FeatureFlag(rawValue: "pm-31948-org-user-notification-banner")
+
     /// Flag to enable/disable accepted-state organization policy enforcement via the SDK.
     ///
     /// When enabled, `PolicyService.policiesApplyingToUser` routes through the Bitwarden SDK
     /// so that policies are enforced against members in the accepted (not only confirmed) state.
     static let policiesInAcceptedState = FeatureFlag(rawValue: "pm-34145-policies-in-accepted-state")
 
-    /// Flag to enable/disable premium upgrade path.
+    /// Flag to enable/disable Premium upgrade path.
     static let premiumUpgradePath = FeatureFlag(rawValue: "pm-31697-premium-upgrade-path")
+
+    /// Flag to enable/disable the Send Controls policy, which supersedes the `disableSend` and
+    /// `sendOptions` policies when active.
+    static let sendControls = FeatureFlag(rawValue: "pm-31885-send-controls")
+
+    /// Flag for the VFO1 terminology-alignment foundation work (vault/organization renames).
+    static let vfo1Foundation = FeatureFlag(rawValue: "vfo1-foundation")
 
     public static var allCases: [FeatureFlag] {
         [
@@ -69,13 +82,17 @@ extension FeatureFlag: @retroactive CaseIterable {
             .debugDisableSelfHostPremiumCheck,
             .deviceAuthKey,
             .enableCipherKeyEncryption,
+            .fedrampGovRegion,
             .fillAssistTargetingRules,
-            .forceUpdateKdfSettings,
+            .manageDevices,
             .migrateMyVaultToMyItems,
             .newItemTypes,
             .noLogoutOnKdfChange,
+            .organizationUserNotificationBanner,
             .policiesInAcceptedState,
             .premiumUpgradePath,
+            .sendControls,
+            .vfo1Foundation,
         ]
     }
 }

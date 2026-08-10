@@ -9,7 +9,7 @@ protocol VaultItemActionHelper { // sourcery: AutoMockable
     ///
     /// - Parameters:
     ///   - cipher: The cipher to archive.
-    ///   - handleNavigateToPremiumUpgrade: A closure called to navigate to the premium upgrade flow.
+    ///   - handleNavigateToPremiumUpgrade: A closure called to navigate to the Premium upgrade flow.
     ///   - completionHandler: The closure to execute when completing the archive process.
     func archive(
         cipher: CipherView,

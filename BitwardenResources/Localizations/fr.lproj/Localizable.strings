@@ -6,6 +6,7 @@
 "Bitwarden" = "Bitwarden";
 "Cancel" = "Annuler";
 "Copy" = "Copier";
+"CopyLicenseNumber" = "Copier le numéro de permis de conduire";
 "CopyPassportNumber" = "Copier le numéro de passeport";
 "CopyPassword" = "Copier le mot de passe";
 "CopyUsername" = "Copier le nom d'utilisateur";
@@ -38,6 +39,8 @@
 "RemoveAccount" = "Supprimer le compte";
 "RemoveAccountConfirmation" = "Êtes-vous sûr de vouloir supprimer ce compte ?";
 "AccountAlreadyAdded" = "Compte déjà ajouté";
+"AccountCreationRestricted" = "Création de compte restreinte";
+"XOnlyAllowsInvitedUsersToCreateAccounts" = "%1$@ ne permet qu'aux utilisateurs invités de créer des comptes.";
 "SwitchToAlreadyAddedAccountConfirmation" = "Souhaitez-vous y passer maintenant ?";
 "MasterPassword" = "Mot de passe principal";
 "MoreOptions" = "Plus d'options";
@@ -48,6 +51,7 @@
 "OK" = "Ok";
 "Password" = "Mot de passe";
 "Save" = "Enregistrer";
+/* Action to move a vault item to another vault; used as a button label, menu item, and screen title. */
 "Move" = "Déplacer";
 "Saving" = "Enregistrement…";
 "Settings" = "Paramètres";
@@ -255,8 +259,14 @@
 "ShowWebsiteIconsDescription" = "Affichez une image reconnaissable à côté de chaque identifiant.";
 "IconsUrl" = "Icônes URL du serveur";
 "AutofillWithBitwarden" = "Saisie automatique avec Bitwarden";
+/* Section header and screen title for viewing/managing a cipher's collections. */
 "Collections" = "Collections";
+/* Section header and screen title for viewing/managing a cipher's shared folders. */
+"SharedFolders" = "Dossiers partagés";
+/* Empty state message shown when a collection has no items. */
 "NoItemsCollection" = "Il n'y a aucun élément dans cette collection";
+/* Empty state message shown when a shared folder has no items. */
+"ThereAreNoItemsInThisSharedFolder" = "Il n'y a aucun élément dans ce dossier partagé";
 "NoItemsFolder" = "Il n'y a aucun élément dans ce dossier";
 "NoItemsTrash" = "Il n'y a aucun élément dans la corbeille.";
 "FaceID" = "Face ID";
@@ -276,6 +286,7 @@
 "RegEx" = "Expression régulière";
 "StartsWith" = "Commence par";
 "MatchDetection" = "Détection de correspondance";
+/* Field label on the Move screen shown when the "vfo1-foundation" feature flag is disabled; superseded by "Vault" when enabled. */
 "Organization" = "Organisation";
 "HoldYubikeyNearTop" = "Gardez votre Yubikey près du haut de l'appareil.";
 "TryAgain" = "Réessayer";
@@ -311,13 +322,26 @@
 "NoItemsToList" = "Il n'y a aucun élément à lister.";
 "MoveDown" = "Déplacer vers le bas";
 "MoveUp" = "Déplacer vers le haut";
+/* Empty state message on the Collections screen shown when a user has no collections. */
 "NoCollectionsToList" = "Il n'y a aucune collection à lister.";
+/* Empty state message on the Shared folders screen shown when a user has no shared folders. */
+"ThereAreNoSharedFoldersToList" = "Aucun dossier partagé à lister.";
 "MovedItemToOrg" = "%1$@ déplacé vers %2$@.";
+/* Alert message shown when saving an item with no collection selected. */
 "SelectOneCollection" = "Vous devez sélectionner au moins une collection.";
+/* Alert message shown when saving an item with no shared folder selected. */
+"YouMustSelectAtLeastOneSharedFolder" = "Vous devez sélectionner au moins un dossier partagé.";
 "Share" = "Partager";
 "ShareAll" = "Partager tout";
+/* Overflow menu item and screen title on the Move screen shown when the "vfo1-foundation" feature flag is disabled; superseded by "Move" when enabled. */
 "MoveToOrganization" = "Déplacer vers l'organisation";
+/* Empty state message shown when a user has no vaults available to move an item into, when the "vfo1-foundation" feature flag is enabled. */
+"NoVaultsToList" = "Aucun coffre à afficher.";
+/* Empty state message shown when a user has no organizations available to move an item into, when the "vfo1-foundation" feature flag is disabled. */
 "NoOrgsToList" = "Aucune organisation à lister.";
+/* Footer text on the Move screen explaining that moving an item transfers its ownership to the destination vault's organization, when the "vfo1-foundation" feature flag is enabled. */
+"ChooseAVaultThatYouWishToMoveThisItemToDescriptionLong" = "Choisissez un coffre vers lequel vous souhaitez déplacer cet élément. Le déplacement vers un autre coffre transfère la propriété de l'élément à cette organisation. Vous ne serez plus le propriétaire direct de cet élément une fois qu'il aura été déplacé.";
+/* Footer text on the Move screen explaining that moving an item transfers its ownership to the destination organization, when the "vfo1-foundation" feature flag is disabled. */
 "MoveToOrgDesc" = "Choisissez une organisation vers laquelle vous souhaitez déplacer cet élément. Le déplacement vers une organisation transfère le Propriétaire de l'élément à cette organisation. Vous ne serez plus le propriétaire direct de cet élément une fois qu'il aura été déplacé.";
 "NumberOfWords" = "Nombre de mots";
 "Passphrase" = "Phrase de passe";
@@ -486,7 +510,7 @@
 "LogInAttemptByXOnY" = "Tentative de connexion par %1$@ le %2$@";
 "DeviceType" = "Type d'appareil";
 "IpAddress" = "Adresse IP";
-"Time" = "Heure";
+"Time" = "Temps";
 "ConfirmLogIn" = "Confirmer la connexion";
 "DenyLogIn" = "Refuser la connexion";
 "LogInDenied" = "Connexion refusée";
@@ -562,6 +586,7 @@
 "ThereAreNoBankAccountsInYourVault" = "Il n'y a pas de compte bancaire dans votre coffre";
 "US" = "US";
 "EU" = "EU";
+"Gov" = "Gouvernement";
 "SelfHosted" = "Auto-hébergé";
 "UpdateWeakMasterPasswordWarning" = "Votre mot de passe principal ne répond pas aux exigences de politique de sécurité de cette organisation. Pour accéder au coffre, vous devez mettre à jour votre mot de passe principal dès maintenant. En poursuivant, vous serez déconnecté de votre session actuelle et vous devrez vous reconnecter. Les sessions actives sur d'autres appareils peuver rester actives pendant encore une heure.";
 "CurrentMasterPasswordRequired" = "Mot de passe principal actuel (requis)";
@@ -570,6 +595,8 @@
 "RequestAdminApproval" = "Demander l'approbation de l'administrateur";
 "ApproveWithMasterPassword" = "Approuver avec le mot de passe principal";
 "TurnOffUsingPublicDevice" = "Décochez si vous utilisez un appareil public";
+"TurnOnFillAssist" = "Activer l'Aide de Remplissage";
+"TurnOnFillAssistDescriptionLong" = "L'Aide de Remplissage améliore la précision du remplissage automatique sur les sites pris en charge en utilisant des règles spécifiques au site.";
 "RememberThisDevice" = "Se souvenir de cet appareil";
 "Passkey" = "Clé d'accès";
 "Passkeys" = "Clés d'accès";
@@ -583,6 +610,7 @@
 "LoginApproved" = "Connexion approuvée";
 "LogInWithDevice" = "Se connecter avec l'appareil";
 "LoggingInOn" = "Connexion sur";
+/* The word "Vault", used generically as a field label, screen title, and app-wide term for a user's or organization's item collection. */
 "Vault" = "Coffre";
 "Appearance" = "Apparence";
 "AccountSecurity" = "Sécurité du compte";
@@ -777,6 +805,8 @@
 "SetUpAutofillOnAllYourDevicesToLoginWithASingleTapAnywhere" = "Configurez le remplissage automatique sur tous vos appareils pour vous connecter de n'importe où en un seul clic.";
 "GoBack" = "Revenir en arrière";
 "GotIt" = "C'est compris";
+/* masterPasswordUnlock is the name of some data we want to delete, so there's no need to localize it. */
+"ClearMasterPasswordUnlock" = "Effacer masterPasswordUnlock";
 "ClearSsoCookies" = "Effacer les cookies SSO";
 "GenerateCrash" = "Générer un plantage";
 "GenerateErrorReport" = "Générer un rapport d'erreur";
@@ -862,7 +892,11 @@
 "ShowLess" = "Afficher moins";
 "ItemNameX" = "Nom de l’élément, %1$@";
 "OwnerX" = "Propriétaire, %1$@";
+"VaultX" = "Coffre, %1$@";
+/* VoiceOver accessibility label for a collection the item belongs to. */
 "CollectionX" = "Collection, %1$@";
+/* VoiceOver accessibility label for a shared folder the item belongs to. */
+"SharedFolderX" = "Dossier partagé, %1$@";
 "FolderX" = "Dossier, %1$@";
 "ItemXOfY" = "Élément %1$@ sur %2$@";
 "ViewRecordedLogs" = "Voir les journaux enregistrés";
@@ -994,7 +1028,7 @@
 "TheNewRecommendedEncryptionSettingsDescriptionLong" = "Les nouveaux paramètres de chiffrement recommandés amélioreront la sécurité de votre compte. Entrez votre mot de passe principal pour faire la mise à jour maintenant.";
 "Updating" = "Mise à jour…";
 "EncryptionSettingsUpdated" = "Paramètres de chiffrement mis à jour";
-"IntroducingArchive" = "Ajout aux archives";
+"IntroducingArchive" = "Introduction de l'archive";
 "KeepYtemsYouDontNeedRightNowSafeButOutOfSight" = "Gardez les éléments dont vous n'avez pas besoin pour le moment en sécurité mais hors de vue.";
 "GoToArchive" = "Accéder aux archives";
 "ItemTransfer" = "Transfert d'élément";
@@ -1026,10 +1060,8 @@
 "ArchiveEmptyDescriptionLong" = "Remplissez votre archive avec des éléments que vous ne voulez pas voir dans les résultats de recherche et les suggestions de saisie automatique, mais qui pourraient avoir besoin d'un jour.";
 "ArchiveItem" = "Archiver l'élément";
 "OnceArchivedThisItemWillBeExcludedDescriptionLong" = "Une fois archivé, cet élément sera exclu des résultats de recherche et des suggestions de remplissage automatique.";
-"ArchiveUnavailable" = "Archive indisponible";
 "ArchivingItemsIsAPremiumFeatureDescriptionLong" = "L'archivage est une fonctionnalité Premium. Votre abonnement actuel n'inclut pas l'accès à cette fonctionnalité.";
 "AddingAttachmentsIsAPremiumFeatureDescriptionLong" = "L'ajout de pièces jointes est une fonctionnalité Premium. Votre plan actuel n'inclut pas l'accès à cette fonctionnalité.";
-"AttachmentsUnavailable" = "Pièces jointes non disponibles";
 "UpgradeToPremium" = "Passer à la version premium";
 "ThisItemIsArchived" = "Cet élément est archivé.";
 "YourPremiumSubscriptionEnded" = "Votre abonnement Premium a expiré";
@@ -1062,6 +1094,8 @@
 "ReplaceCertificate" = "Remplacer le certificat";
 "ReplaceExistingCertificate" = "Remplacer le certificat existant";
 "UnableToReadCertificateFile" = "Impossible de lire le fichier de certificat.";
+/* masterPasswordUnlock is the name of some data we want to delete, so there's no need to localize it. */
+"MasterPasswordUnlockCleared" = "masterPasswordUnlock effacé.";
 "SsoCookiesCleared" = "Cookies SSO effacés";
 "YourRequestWasInterruptedBecauseTheAppNeededToReAuthenticatePleaseTryAgain" = "Votre demande a été interrompue car l'application est nécessaire pour se ré-authentifier. Veuillez réessayer.";
 "AutofillWithBitwardenDescriptionLong" = "Bitwarden peut suggérer vos mots de passe et autres identifiants lorsque vous vous connectez à des applications et sites Web.";
@@ -1075,6 +1109,7 @@
 "Canceled" = "Annulé";
 "PastDue" = "Échéance dépassée";
 "PendingCancellation" = "Résiliation en attente";
+"Unpaid" = "Impayé";
 "UpdatePayment" = "Mettre à jour le paiement";
 "BillingAmount" = "Montant facturé";
 "StorageCost" = "Coût de stockage";
@@ -1086,17 +1121,44 @@
 "ExternalLink" = "Lien externe";
 "YourNextChargeIsForXDueOnY" = "Votre prochain prélèvement de **%1$@** sera effectué le **%2$@**.";
 "WeCouldNotProcessYourPaymentUpdateYourPaymentMethodDescriptionLong" = "Nous n'avons pas pu traiter votre paiement. Mettez à jour votre mode de paiement avant la fin de votre abonnement le **%1$@**.";
+/* Error message shown when the Premium Plan screen fails to load subscription data, with a prompt to retry. */
+"WeCouldntLoadYourSubscriptionDetailsPleaseRetry" = "Nous n'avons pas pu charger les détails de votre abonnement. Veuillez réessayer.";
 "YourSubscriptionWasCanceledOnXDescriptionLong" = "Votre abonnement a été annulé le **%1$@**. Réabonnez-vous pour continuer à utiliser les fonctionnalités Premium.";
+"YourSubscriptionWasSuspendedOnXDescriptionLong" = "Votre abonnement a été suspendu le **%1$@**. Pour le réactiver, veuillez régler vos factures impayées.";
 "YourSubscriptionExpiredOnXDescriptionLong" = "Votre abonnement a expiré le **%1$@**. Réabonnez-vous pour continuer à utiliser les fonctionnalités Premium.";
 "YourSubscriptionIsScheduledToCancelOnXDescriptionLong" = "Votre abonnement est programmé pour être annulé le **%1$@**. Vous pouvez le rétablir à tout moment avant cette date.";
 "PerMonth" = "/ mois";
+/* VoiceOver reading of "PerMonth", spoken instead of shown. */
+"PerMonthVoiceOver" = "par mois";
 "PerYear" = "/ an";
+/* VoiceOver reading of "PerYear", spoken instead of shown. */
+"PerYearVoiceOver" = "par an";
 "XAmountPerCadence" = "%1$@%2$@";
+/* %1$@ is an amount and cadence together, e.g. "$1.65 / month". */
+"XCancelAnytime" = "%1$@ · Annulation à tout moment";
+/* VoiceOver reading of "XCancelAnytime", spoken instead of shown. */
+"XCancelAnytimeVoiceOver" = "%1$@, Annulation à tout moment";
 "NegativeX" = "-%1$@";
 "UnknownStatus" = "Inconnu";
 "YourSubscriptionStatusIsUnknownVisitTheWebAppDescriptionLong" = "Le statut de votre abonnement n'a pas pu être déterminé. Veuillez visiter l'application web pour plus de détails ou mettre à jour vers la dernière version.";
-"AtTheMomentPremiumPlanIsNotAvailableDescriptionLong" = "Le plan Premium n'est pas disponible pour le moment, veuillez réessayer plus tard.";
-"UnlockMoreAdvancedFeaturesWithPremiumPlan" = "Débloquez des fonctionnalités plus avancées avec un abonnement Premium.";
+/* Headline on the Premium upgrade screen. */
+"UnlockAdvancedProtection" = "Déverrouillez une protection avancée";
+/* Premium benefit list item. */
+"BreezeThrough2faWithBuiltInCodes" = "Simplifiez-vous la vie avec la 2FA grâce aux codes intégrés";
+/* Premium benefit list item. */
+"RunReportsToFindRiskyPasswords" = "Générer des rapports pour trouver les mots de passes à risque";
+/* Premium benefit list item. */
+"KeepDocumentsSafeAndEncrypted" = "Garder vos documents en sécurité et chiffrés";
+/* Premium benefit list item. */
+"AddATrustedEmergencyContact" = "Ajouter un contact d'urgence de confiance";
+/* Premium benefit list item. */
+"IdentifyUnsecureWebsites" = "Identifier les sites web non sécurisés";
+/* Premium benefit list item. */
+"FlagAccountsWithInactive2fa" = "Repérer les comptes sans double authentification";
+/* Premium benefit list item; "Send" is the Bitwarden Send feature name and shouldn't be translated. */
+"ShareFilesSecurelyWithAnyoneUsingSend" = "Partager des fichiers avec n'importe qui en toute sécurité avec Send";
+/* Premium benefit list item. */
+"Receive247PrioritySupport" = "Recevoir une assistance prioritaire 24/7";
 "BuiltInAuthenticator" = "Authentificateur intégré";
 "EmergencyAccess" = "Accès d'urgence";
 "PaymentNotReceivedYet" = "Le paiement n'a pas encore été reçu";
@@ -1105,15 +1167,18 @@
 "WeHadTroubleOpeningThePaymentPageDescriptionLong" = "Nous avons eu des difficultés à ouvrir la page de paiement, essayez à nouveau.";
 "SecureFileStorage" = "Stockage sécurisé de fichier";
 "BreachMonitoring" = "Surveillance des fuites";
-"UpgradeNow" = "Mettre à niveau maintenant";
 "ConfirmingYourUpgrade" = "Confirmation de votre mise à niveau…";
 "OpeningCheckout" = "Lancement du paiement";
 "UpgradePending" = "Mise à niveau en attente";
 "YourUpgradeIsBeingProcessedDescriptionLong" = "Votre mise à niveau est en cours de traitement. Vous resterez sur la formule gratuite jusqu'à ce qu'elle soit finalisée. Synchronisez maintenant pour vérifier, ou continuez — la mise à jour s'effectuera automatiquement.";
 "UpgradedToPremium" = "Passer à la version Premium";
+"SubscriptionNeedsAttention" = "Votre abonnement nécessite de l'attention";
+"CheckYourPlanForDetails" = "Consultez votre abonnement pour plus d'informations.";
+"ViewPlan" = "Afficher l'abonnement";
 "YouNowHaveAccessToAdvancedSecurityDescriptionLong" = "Vous avez désormais accès aux fonctionnalités de sécurité avancées. Apprenez-en plus sur ce qui est inclus avec Premium.";
 "YouNowHaveAccessToAllAdvancedSecurityFeatures" = "Vous avez désormais accès à toutes les fonctionnalités de sécurité avancées.";
-"YoullGoToStripeSecureCheckoutToCompleteYourPurchase" = "Vous allez passer au paiement sécurisé Stripe pour compléter votre achat.";
+/* Footer on the Premium upgrade screen; "Stripe" is the payment processor's name and shouldn't be translated. */
+"YoullCompleteThePurchaseWithStripeSecureCheckout" = "Vous allez terminer l'achat avec le paiement sécurisé Stripe.";
 "ContinueToStripe" = "Poursuivre vers Stripe ?";
 "YoullBeTakenToStripeToManageYourSubscriptionCancellation" = "Vous serez redirigé vers Stripe pour gérer l'annulation de votre abonnement.";
 "UserIDCopiedToTheClipboard" = "ID utilisateur copié dans le presse-papiers";
@@ -1137,3 +1202,54 @@
 "IssueDate" = "Date d'émission";
 "ExpirationDate" = "Date d'expiration";
 "LicenseClass" = "Classe de permis";
+"PassportDetails" = "Détails du passeport";
+/* Label for the sex/gender field as printed on a passport (e.g. "M", "F", "X"). */
+"Sex" = "Sexe";
+"BirthPlace" = "Lieu de naissance";
+/* Label for the nationality field on a passport (the country a person is a national of). */
+"Nationality" = "Nationalité";
+/* Label for the category of passport (e.g. "Regular/Tourist", "Diplomatic", "Official"). */
+"PassportType" = "Type de passeport";
+"NationalIdentificationNumber" = "Numéro d'identification national";
+/* Label for the government authority or office that issued the passport. */
+"IssuingAuthorityOffice" = "Autorité émettrice/bureau";
+"AccountDetails" = "Détails du compte";
+"BankName" = "Nom de la banque";
+"NameOnAccount" = "Nom sur le compte";
+"AccountType" = "Type de compte";
+"BranchNumber" = "Numéro de branche";
+"SwiftCode" = "Code SWIFT";
+"IBAN" = "IBAN";
+"BankContactPhone" = "Téléphone du contact de la banque";
+"CertificateOfDeposit" = "Compte à terme";
+"Checking" = "Compte courant";
+"InvestmentBrokerage" = "Compte titres";
+"LineOfCredit" = "Ligne de crédit";
+"MoneyMarket" = "Compte du marché monétaire";
+"Savings" = "Compte épargne";
+"Devices" = "Appareils";
+"NoDevicesFound" = "Aucun appareil trouvé";
+"CurrentSession" = "Session en cours";
+"PendingRequest" = "Demande en attente";
+"Trusted" = "Approuvé";
+"RecentlyActiveLabel" = "Actif récemment :";
+"FirstLoginLabel" = "Première connexion :";
+"Today" = "Aujourd'hui";
+"PastSevenDays" = "7 derniers jours";
+"PastFourteenDays" = "14 derniers jours";
+"PastThirtyDays" = "30 derniers jours";
+"OverThirtyDaysAgo" = "Il y a plus de 30 jours";
+"Unknown" = "Inconnu";
+/* Device display name. %1$@ = category (e.g. "Mobile"), %2$@ = platform (e.g. "iOS"). */
+"DeviceDisplayNameXHyphenY" = "%1$@ - %2$@";
+"Mobile" = "Mobile";
+"BrowserExtension" = "Extension";
+"WebVault2" = "Application web";
+"Desktop" = "Bureau";
+"Cli" = "CLI";
+"Sdk" = "SDK";
+"Server" = "Serveur";
+/* Accessibility label for the button that clears a field's value. %1$@ is the field's title (e.g. "Date of birth"), so the spoken label reads "Clear Date of birth". */
+"ClearFieldName" = "Effacer %1$@";
+"SelectDate" = "Sélectionner la date";
+"PremiumRequiredTOTPDescriptionLong" = "La clé d'authentification (TOTP) est une fonctionnalité Premium. Votre plan actuel n'inclut pas l'accès à cette fonctionnalité.";

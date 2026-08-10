@@ -13,7 +13,6 @@ class ChangeKdfServiceTests: BitwardenTestCase {
     var accountAPIService: AccountAPIService!
     var client: MockHTTPClient!
     var clientService: MockClientService!
-    var configService: MockConfigService!
     var errorReporter: MockErrorReporter!
     var flightRecorder: MockFlightRecorder!
     var stateService: MockStateService!
@@ -32,7 +31,6 @@ class ChangeKdfServiceTests: BitwardenTestCase {
         client = MockHTTPClient()
         accountAPIService = APIService(client: client)
         clientService = MockClientService()
-        configService = MockConfigService()
         errorReporter = MockErrorReporter()
         flightRecorder = MockFlightRecorder()
         stateService = MockStateService()
@@ -41,7 +39,6 @@ class ChangeKdfServiceTests: BitwardenTestCase {
         subject = DefaultChangeKdfService(
             accountAPIService: accountAPIService,
             clientService: clientService,
-            configService: configService,
             errorReporter: errorReporter,
             flightRecorder: flightRecorder,
             stateService: stateService,
@@ -55,7 +52,6 @@ class ChangeKdfServiceTests: BitwardenTestCase {
         accountAPIService = nil
         client = nil
         clientService = nil
-        configService = nil
         errorReporter = nil
         flightRecorder = nil
         stateService = nil
@@ -68,7 +64,6 @@ class ChangeKdfServiceTests: BitwardenTestCase {
     /// `needsKdfUpdateToMinimums()` returns false if the account needs an update, but after syncing
     /// the account has already been updated.
     func test_needsKdfUpdateToMinimums_false_afterSync() async {
-        configService.featureFlagsBool[.forceUpdateKdfSettings] = true
         stateService.activeAccount = accountIterationsBelowMin
         syncService.fetchSyncHandler = { [weak self] in
             guard let self else { return }
@@ -83,25 +78,13 @@ class ChangeKdfServiceTests: BitwardenTestCase {
 
     /// `needsKdfUpdateToMinimums()` returns false and logs an error if one occurs.
     func test_needsKdfUpdateToMinimums_false_error() async {
-        configService.featureFlagsBool[.forceUpdateKdfSettings] = true
-
         let needsUpdate = await subject.needsKdfUpdateToMinimums()
         XCTAssertFalse(needsUpdate)
         XCTAssertEqual(errorReporter.errors as? [StateServiceError], [.noActiveAccount])
     }
 
-    /// `needsKdfUpdateToMinimums()` returns false if the feature flag is off.
-    func test_needsKdfUpdateToMinimums_false_featureFlagOff() async {
-        configService.featureFlagsBool[.forceUpdateKdfSettings] = false
-        stateService.activeAccount = accountIterationsBelowMin
-
-        let needsUpdate = await subject.needsKdfUpdateToMinimums()
-        XCTAssertFalse(needsUpdate)
-    }
-
     /// `needsKdfUpdateToMinimums()` returns false if the account doesn't have a master password.
     func test_needsKdfUpdateToMinimums_false_noMasterPassword() async {
-        configService.featureFlagsBool[.forceUpdateKdfSettings] = true
         stateService.activeAccount = accountIterationsBelowMin
         stateService.userHasMasterPassword["1"] = false
 
@@ -111,7 +94,6 @@ class ChangeKdfServiceTests: BitwardenTestCase {
 
     /// `needsKdfUpdateToMinimums()` returns false if the account doesn't use PBKDF2.
     func test_needsKdfUpdateToMinimums_false_notUsingPbkdf2() async {
-        configService.featureFlagsBool[.forceUpdateKdfSettings] = true
         stateService.activeAccount = .fixture(profile: .fixture(kdfIterations: 1, kdfType: .argon2id))
 
         let needsUpdate = await subject.needsKdfUpdateToMinimums()
@@ -121,7 +103,6 @@ class ChangeKdfServiceTests: BitwardenTestCase {
     /// `needsKdfUpdateToMinimums()` returns false if the account uses PBKDF2 with iterations above
     /// the minimum.
     func test_needsKdfUpdateToMinimums_false_iterationsAboveMinimum() async {
-        configService.featureFlagsBool[.forceUpdateKdfSettings] = true
         stateService.activeAccount = accountIterationsAboveMin
 
         let needsUpdate = await subject.needsKdfUpdateToMinimums()
@@ -131,7 +112,6 @@ class ChangeKdfServiceTests: BitwardenTestCase {
     /// `needsKdfUpdateToMinimums()` returns false if the account uses PBKDF2 with iterations at the
     /// minimum.
     func test_needsKdfUpdateToMinimums_false_iterationsAtMinimum() async {
-        configService.featureFlagsBool[.forceUpdateKdfSettings] = true
         stateService.activeAccount = accountIterationsAtMin
 
         let needsUpdate = await subject.needsKdfUpdateToMinimums()
@@ -141,7 +121,6 @@ class ChangeKdfServiceTests: BitwardenTestCase {
     /// `needsKdfUpdateToMinimums()` returns true if the feature flag is on and the account uses
     /// PBKDF2 with iterations below the minimum.
     func test_needsKdfUpdateToMinimums_true() async {
-        configService.featureFlagsBool[.forceUpdateKdfSettings] = true
         stateService.activeAccount = accountIterationsBelowMin
 
         let needsUpdate = await subject.needsKdfUpdateToMinimums()
@@ -154,7 +133,6 @@ class ChangeKdfServiceTests: BitwardenTestCase {
     func test_updateKdfToMinimums() async throws {
         client.result = .httpSuccess(testData: .emptyResponse)
         clientService.mockCrypto.makeUpdateKdfReturnValue = .fixture()
-        configService.featureFlagsBool[.forceUpdateKdfSettings] = true
         stateService.activeAccount = accountIterationsBelowMin
 
         try await subject.updateKdfToMinimums(password: "password123!")
@@ -170,7 +148,6 @@ class ChangeKdfServiceTests: BitwardenTestCase {
 
     /// `updateKdfToMinimums(password:)` throws an error if there's no active account.
     func test_updateKdfToMinimums_error_noActiveAccount() async throws {
-        configService.featureFlagsBool[.forceUpdateKdfSettings] = true
         await assertAsyncThrows(error: StateServiceError.noActiveAccount) {
             try await subject.updateKdfToMinimums(password: "password123!")
         }
@@ -179,7 +156,6 @@ class ChangeKdfServiceTests: BitwardenTestCase {
     /// `updateKdfToMinimums(password:)` logs an error and throws it if updating the KDF fails.
     func test_updateKdfToMinimums_error_updateKdfError() async throws {
         clientService.mockCrypto.makeUpdateKdfThrowableError = BitwardenTestError.example
-        configService.featureFlagsBool[.forceUpdateKdfSettings] = true
         stateService.activeAccount = accountIterationsBelowMin
 
         await assertAsyncThrows(error: BitwardenTestError.example) {
@@ -199,21 +175,9 @@ class ChangeKdfServiceTests: BitwardenTestCase {
         XCTAssertTrue(client.requests.isEmpty)
     }
 
-    /// `updateKdfToMinimums(password:)` doesn't updates the user's KDF settings if the feature flag is off.
-    func test_updateKdfToMinimums_featureFlagOff() async throws {
-        configService.featureFlagsBool[.forceUpdateKdfSettings] = false
-        stateService.activeAccount = accountIterationsBelowMin
-
-        try await subject.updateKdfToMinimums(password: "password123!")
-
-        XCTAssertNil(clientService.mockCrypto.makeUpdateKdfReceivedArguments?.kdf)
-        XCTAssertTrue(client.requests.isEmpty)
-    }
-
     /// `updateKdfToMinimumsIfNeeded(password:)` doesn't update the user's KDF settings if the
     /// iterations are above the minimum.
     func test_updateKdfToMinimumsIfNeeded_iterationsAboveMinimum() async throws {
-        configService.featureFlagsBool[.forceUpdateKdfSettings] = true
         stateService.activeAccount = accountIterationsAboveMin
 
         try await subject.updateKdfToMinimumsIfNeeded(password: "password123!")
@@ -227,7 +191,6 @@ class ChangeKdfServiceTests: BitwardenTestCase {
     func test_updateKdfToMinimumsIfNeeded_iterationsBelowMinimum() async throws {
         client.result = .httpSuccess(testData: .emptyResponse)
         clientService.mockCrypto.makeUpdateKdfReturnValue = .fixture()
-        configService.featureFlagsBool[.forceUpdateKdfSettings] = true
         stateService.activeAccount = accountIterationsBelowMin
 
         try await subject.updateKdfToMinimumsIfNeeded(password: "password123!")

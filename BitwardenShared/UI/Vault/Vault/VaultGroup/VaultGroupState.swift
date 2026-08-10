@@ -71,7 +71,7 @@ struct VaultGroupState: Equatable, Sendable {
     /// The `VaultListGroup` being displayed.
     var group: VaultListGroup = .login
 
-    /// Whether the user has a premium account.
+    /// Whether the user has a Premium account.
     var hasPremium: Bool = false
 
     /// The base url used to fetch icons.
@@ -86,6 +86,9 @@ struct VaultGroupState: Equatable, Sendable {
     /// Is the view searching.
     var isSearching: Bool = false
 
+    /// Whether the `vfo1-foundation` feature flag is enabled.
+    var isVfo1FoundationFeatureFlagEnabled = false
+
     /// The current loading state.
     var loadingState: LoadingState<[VaultListSection]> = .loading(nil)
 
@@ -99,7 +102,9 @@ struct VaultGroupState: Equatable, Sendable {
         case .card:
             Localizations.thereAreNoCardsInYourVault
         case .collection:
-            Localizations.noItemsCollection
+            isVfo1FoundationFeatureFlagEnabled
+                ? Localizations.thereAreNoItemsInThisSharedFolder
+                : Localizations.noItemsCollection
         case .folder:
             Localizations.noItemsFolder
         case .identity:
@@ -141,7 +146,7 @@ struct VaultGroupState: Equatable, Sendable {
     /// The search vault filter used to display a single or all vaults for the user.
     var searchVaultFilterType = VaultFilterType.allVaults
 
-    /// Whether the archive premium subscription ended card should be shown.
+    /// Whether the archive Premium subscription ended card should be shown.
     var showArchivePremiumSubscriptionEndedCard: Bool {
         !hasPremium && group == .archive
     }

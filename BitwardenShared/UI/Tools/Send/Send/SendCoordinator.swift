@@ -160,7 +160,7 @@ final class SendCoordinator: Coordinator, HasStackNavigator {
         stackNavigator?.replace(view)
     }
 
-    /// Shows the premium upgrade screen.
+    /// Shows the Premium upgrade screen.
     ///
     private func showPremiumUpgrade() {
         let navigationController = module.makeNavigationController()

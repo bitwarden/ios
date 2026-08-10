@@ -1,4 +1,5 @@
 import BitwardenSdk
+import Foundation
 
 // MARK: - PassportItemState
 
@@ -8,11 +9,11 @@ struct PassportItemState: Equatable {
     /// The place of birth on the passport.
     var birthPlace: String = ""
 
-    /// The date of birth on the passport, held as a raw ISO string.
-    var dateOfBirth: String = ""
+    /// The date of birth on the passport.
+    var dateOfBirth: Date?
 
-    /// The expiration date of the passport, held as a raw ISO string.
-    var expirationDate: String = ""
+    /// The expiration date of the passport.
+    var expirationDate: Date?
 
     /// The given name (first name) on the passport.
     var givenName: String = ""
@@ -23,8 +24,8 @@ struct PassportItemState: Equatable {
     /// Whether the passport number is visible.
     var isPassportNumberVisible: Bool = false
 
-    /// The issue date of the passport, held as a raw ISO string.
-    var issueDate: String = ""
+    /// The issue date of the passport.
+    var issueDate: Date?
 
     /// The authority/office that issued the passport.
     var issuingAuthority: String = ""
@@ -52,13 +53,31 @@ struct PassportItemState: Equatable {
 }
 
 extension PassportItemState {
-    /// The `PassportView` representation of this state, mapping empty fields to `nil` and passing the
-    /// raw ISO date strings through verbatim.
+    /// Whether the passport details section has no values to display.
+    var isPassportDetailsSectionEmpty: Bool {
+        [
+            birthPlace,
+            givenName,
+            issuingAuthority,
+            issuingCountry,
+            nationalIdentificationNumber,
+            nationality,
+            passportNumber,
+            passportType,
+            sex,
+            surname,
+        ].allSatisfy(\.isEmpty)
+            && dateOfBirth == nil
+            && expirationDate == nil
+            && issueDate == nil
+    }
+
+    /// The `PassportView` representation of this state, mapping empty text fields to `nil`.
     var passportView: PassportView {
         .init(
             surname: surname.nilIfEmpty,
             givenName: givenName.nilIfEmpty,
-            dateOfBirth: dateOfBirth.nilIfEmpty,
+            dateOfBirth: dateOfBirth,
             sex: sex.nilIfEmpty,
             birthPlace: birthPlace.nilIfEmpty,
             nationality: nationality.nilIfEmpty,
@@ -67,8 +86,8 @@ extension PassportItemState {
             passportType: passportType.nilIfEmpty,
             nationalIdentificationNumber: nationalIdentificationNumber.nilIfEmpty,
             issuingAuthority: issuingAuthority.nilIfEmpty,
-            issueDate: issueDate.nilIfEmpty,
-            expirationDate: expirationDate.nilIfEmpty,
+            issueDate: issueDate,
+            expirationDate: expirationDate,
         )
     }
 }

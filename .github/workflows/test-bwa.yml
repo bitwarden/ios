@@ -1,11 +1,10 @@
 name: Test Authenticator
 
 on:
-  # push:
-  #   branches:
-  #     - "main"
-  #     - "rc"
-  #     - "hotfix-rc"
+  push:
+    branches:
+      - main
+      - release/**/*
   pull_request:
     types: [opened, synchronize]
     paths-ignore:
@@ -58,10 +57,20 @@ env:
   _COMPILER_FLAGS: ${{ inputs.compiler-flags }}
   _GITHUB_ACTION_RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}/attempts/${{ github.run_attempt }}
 
+  # xcode optimization flags
+  COMPILER_INDEX_STORE_ENABLE: "NO"
+  COMPILATION_CACHE_ENABLE_CACHING: "YES"
+  COMPILATION_CACHE_ENABLE_PLUGIN: "YES"
+  SWIFT_ENABLE_COMPILE_CACHE: "YES"
+  CLANG_ENABLE_COMPILE_CACHE: "YES"
+  SWIFT_ENABLE_EXPLICIT_MODULES: "YES"
+  SWIFT_USE_INTEGRATED_DRIVER: "YES"
+  CLANG_ENABLE_MODULES: "YES"
+
 jobs:
   test:
     name: Test
-    runs-on: macos-26
+    runs-on: macos-26-xlarge
     timeout-minutes: 50
     permissions:
       contents: read
@@ -73,7 +82,7 @@ jobs:
           inputs: "${{ toJson(inputs) }}"
 
       - name: Check out repo
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
         with:
           persist-credentials: false
 
@@ -98,25 +107,42 @@ jobs:
           xcode-version: ${{ env._XCODE_VERSION }}
 
       - name: Configure Ruby
-        uses: ruby/setup-ruby@c4e5b1316158f92e3d49443a9d58b31d25ac0f8f # v1.306.0
+        uses: ruby/setup-ruby@12fd324f1d0b43274fdc8130f6980590a667c455 # v1.312.0
         with:
           bundler-cache: true
 
-      - name: Cache Mint packages
-        uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
+      - name: Restore Mint packages
+        id: restore-mint
+        uses: actions/cache/restore@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
         with:
           path: .mint
           key: ${{ runner.os }}-mint-${{ hashFiles('**/Mintfile') }}
           restore-keys: |
             ${{ runner.os }}-mint-
 
-      - name: Cache SPM packages
-        uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
+      - name: Restore DerivedData
+        id: restore-deriveddata
+        if: ${{ contains(env._GITHUB_ACTION_RUN_URL, 'temp_disable_cache') }} # Disabled for now while we investigate build failures on partial cache hit
+        uses: actions/cache/restore@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
+        with:
+          path: build/DerivedData
+          key: ${{ runner.os }}-deriveddata-testbwa-${{ env._XCODE_VERSION }}-${{ github.sha }}
+          restore-keys: |
+            ${{ runner.os }}-deriveddata-testbwa-${{ env._XCODE_VERSION }}-
+
+      - name: Restore SPM packages
+        id: restore-spm
+        if: ${{ contains(env._GITHUB_ACTION_RUN_URL, 'temp_disable_cache') }} # Disabled for now while we investigate build failures on partial cache hit
+        uses: actions/cache/restore@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
         with:
           path: build/DerivedData/SourcePackages
           key: ${{ runner.os }}-spm-${{ hashFiles('**/Package.resolved') }}
           restore-keys: |
             ${{ runner.os }}-spm-
+
+      # src: https://stackoverflow.com/questions/53753511/is-it-possible-to-copy-an-xcode-derived-data-cache
+      - name: Set IgnoreFileSystemDeviceInodeChanges flag
+        run: defaults write com.apple.dt.XCBuild IgnoreFileSystemDeviceInodeChanges -bool YES
 
       - name: Update local config
         run: |
@@ -147,8 +173,32 @@ jobs:
             -destination "platform=iOS Simulator,id=$_SIMULATOR_ID" \
             -derivedDataPath build/DerivedData \
             -resultBundlePath "$_BUILD_RESULT_BUNDLE_PATH" \
+            -parallelizeTargets \
+            -skipPackagePluginValidation \
+            -skipMacroValidation \
             -quiet
           kill "$PYEETD_PID"
+
+      - name: Save Mint packages
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main' && steps.restore-mint.outputs.cache-hit != 'true'
+        uses: actions/cache/save@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
+        with:
+          path: .mint
+          key: ${{ runner.os }}-mint-${{ hashFiles('**/Mintfile') }}
+
+      - name: Save SPM packages
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main' && steps.restore-spm.outputs.cache-hit != 'true'
+        uses: actions/cache/save@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
+        with:
+          path: build/DerivedData/SourcePackages
+          key: ${{ runner.os }}-spm-${{ hashFiles('**/Package.resolved') }}
+
+      - name: Save DerivedData
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main' && steps.restore-deriveddata.outputs.cache-hit != 'true'
+        uses: actions/cache/save@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
+        with:
+          path: build/DerivedData
+          key: ${{ runner.os }}-deriveddata-testbwa-${{ env._XCODE_VERSION }}-${{ github.sha }}
 
       - name: Test
         id: test
@@ -164,7 +214,7 @@ jobs:
             -resultBundlePath "$_TESTS_RESULT_BUNDLE_PATH" \
             -derivedDataPath build/DerivedData \
             -test-timeouts-enabled yes \
-            -maximum-test-execution-time-allowance 2 \
+            -maximum-test-execution-time-allowance 10 \
             -quiet
           kill "$PYEETD_PID"
 
@@ -202,7 +252,7 @@ jobs:
 
     steps:
       - name: Check out repo
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
         with:
           sparse-checkout: .github/codecov.yml
           sparse-checkout-cone-mode: false

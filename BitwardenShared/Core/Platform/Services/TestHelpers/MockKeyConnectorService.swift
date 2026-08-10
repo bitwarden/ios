@@ -13,8 +13,6 @@ class MockKeyConnectorService: KeyConnectorService {
 
     var getManagingOrganizationResult: Result<Organization?, Error> = .success(nil)
 
-    var getMasterKeyFromKeyConnectorResult: Result<String, Error> = .success("key")
-
     var migrateUserPassword: String?
     var migrateUserResult: Result<Void, Error> = .success(())
 
@@ -33,10 +31,6 @@ class MockKeyConnectorService: KeyConnectorService {
 
     func getManagingOrganization() async throws -> Organization? {
         try getManagingOrganizationResult.get()
-    }
-
-    func getMasterKeyFromKeyConnector(keyConnectorUrl: URL) async throws -> String {
-        try getMasterKeyFromKeyConnectorResult.get()
     }
 
     func migrateUser(password: String) async throws {

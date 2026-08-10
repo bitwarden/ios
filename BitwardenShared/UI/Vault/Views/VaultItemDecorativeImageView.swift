@@ -95,6 +95,9 @@ private struct CipherIconAsyncImage<Placeholder: View>: View {
 
     @SwiftUI.State private var image: UIImage?
 
+    /// Task managing the current image load, cancelled and restarted when the URL changes.
+    @SwiftUI.State private var loadTask: Task<Void, Never>?
+
     var body: some View {
         Group {
             if let image {
@@ -106,12 +109,22 @@ private struct CipherIconAsyncImage<Placeholder: View>: View {
                 placeholder()
             }
         }
-        .task(id: url) {
-            guard let url else {
-                image = nil
-                return
-            }
-            image = await CipherIconImageLoader.shared.loadImage(from: url)
+        .onAppear { startLoadingImage(from: url) }
+        .onChange(of: url) { newUrl in startLoadingImage(from: newUrl) }
+        .onDisappear {
+            loadTask?.cancel()
+            loadTask = nil
+        }
+    }
+
+    /// Cancels any in-flight load and starts a new image load for the given URL.
+    ///
+    /// - Parameter imageUrl: The URL to load the image from, or `nil` to clear the displayed image.
+    private func startLoadingImage(from imageUrl: URL?) {
+        loadTask?.cancel()
+        loadTask = Task {
+            guard let imageUrl else { image = nil; return }
+            image = await CipherIconImageLoader.shared.loadImage(from: imageUrl)
         }
     }
 }

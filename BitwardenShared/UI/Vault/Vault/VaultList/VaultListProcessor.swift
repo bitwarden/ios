@@ -23,6 +23,7 @@ final class VaultListProcessor: StateProcessor<
         & HasBillingRepository
         & HasBillingService
         & HasChangeKdfService
+        & HasConfigService
         & HasEnvironmentService
         & HasErrorReporter
         & HasEventService
@@ -49,7 +50,7 @@ final class VaultListProcessor: StateProcessor<
     /// The helper to handle master password reprompts.
     private let masterPasswordRepromptHelper: MasterPasswordRepromptHelper
 
-    /// The helper used to navigate to the premium upgrade flow.
+    /// The helper used to navigate to the Premium upgrade flow.
     lazy var premiumUpgradeHelper: PremiumUpgradeHelper = DefaultPremiumUpgradeHelper(
         services: services,
         coordinator: coordinator,
@@ -116,6 +117,8 @@ final class VaultListProcessor: StateProcessor<
             await dismissFlightRecorderToastBanner()
         case .dismissImportLoginsActionCard:
             await setImportLoginsProgress(.setUpLater)
+        case let .dismissOrganizationBanner(fromActionButton):
+            await dismissOrganizationBanner(fromActionButton: fromActionButton)
         case .dismissPremiumUpgradeActionCard:
             await dismissPremiumUpgradeActionCard()
         case .dismissUpgradedToPremiumActionCard:
@@ -178,6 +181,8 @@ final class VaultListProcessor: StateProcessor<
             state.searchText = newValue
         case let .searchVaultFilterChanged(newValue):
             state.searchVaultFilterType = newValue
+        case let .sectionExpandToggled(sectionId, isExpanded):
+            setSectionExpanded(sectionId: sectionId, isExpanded: isExpanded)
         case .showImportLogins:
             coordinator.navigate(to: .importLogins)
         case let .toastShown(newValue):
@@ -189,6 +194,8 @@ final class VaultListProcessor: StateProcessor<
             upgradeToPremium()
         case let .vaultFilterChanged(newValue):
             state.vaultFilterType = newValue
+        case .viewPlan:
+            coordinator.navigate(to: .premiumPlan)
         }
     }
 }
@@ -228,24 +235,19 @@ extension VaultListProcessor {
 
     /// Called when the vault list appears on screen.
     private func appeared() async {
+        state.isVfo1FoundationFeatureFlagEnabled = await services.configService.getFeatureFlag(.vfo1Foundation)
         await refreshVault(syncWithPeriodicCheck: true)
+        // Read after sync so the cache has been refreshed by onFetchSyncSucceeded if a sync ran.
+        await refreshPremiumActionCards()
         await handleNotifications()
         await checkPendingLoginRequests()
         await checkPersonalOwnershipPolicy()
         await loadItemTypesUserCanCreate()
+        await loadOrganizationUserNotificationBannerData()
 
         state.hasPremium = await services.stateService.doesActiveAccountHavePremium()
 
         state.shouldShowArchiveOnboardingActionCard = await services.stateService.shouldDoArchiveOnboarding()
-
-        state.shouldShowUpgradedToPremiumActionCard = await services.billingService.shouldShowUpgradedToPremiumActionCard()
-
-        let isBannerDismissed = await services.stateService.isPremiumUpgradeBannerDismissed()
-        guard !isBannerDismissed else {
-            state.shouldShowPremiumUpgradeActionCard = false
-            return
-        }
-        state.shouldShowPremiumUpgradeActionCard = await services.billingRepository.isInAppUpgradeAvailable()
     }
 
     /// Checks if the user is eligible for an app review prompt and schedules one if so.
@@ -328,7 +330,33 @@ extension VaultListProcessor {
         await services.flightRecorder.setFlightRecorderBannerDismissed()
     }
 
-    /// Dismisses the premium upgrade action card and persists the banner-dismissed preference.
+    /// Dismisses the organization user notification banner and persists the decision so it isn't
+    /// shown again until the policy is updated or the dismissal is reset on login.
+    ///
+    /// - Parameter fromActionButton: Whether the dismissal came from tapping the banner's action
+    ///   button rather than the dismiss button.
+    ///
+    private func dismissOrganizationBanner(fromActionButton: Bool) async {
+        guard let data = state.organizationUserNotificationBannerData else { return }
+        state.organizationUserNotificationBannerData = nil
+        if fromActionButton {
+            await services.eventService.collect(
+                eventType: .organizationUserNotificationBannerActionClicked,
+                organizationId: data.organizationId,
+            )
+        }
+        let dismissal = OrganizationUserNotificationBannerDismissal(
+            revisionDate: data.revisionDate,
+            showAfterEveryLogin: data.showAfterEveryLogin,
+        )
+        do {
+            try await services.stateService.setOrganizationUserNotificationBannerDismissal(dismissal)
+        } catch {
+            services.errorReporter.log(error: error)
+        }
+    }
+
+    /// Dismisses the Premium upgrade action card and persists the banner-dismissed preference.
     private func dismissPremiumUpgradeActionCard() async {
         do {
             try await services.stateService.setPremiumUpgradeBannerDismissed(true)
@@ -394,6 +422,28 @@ extension VaultListProcessor {
         }
     }
 
+    /// Loads the organization user notification banner data, suppressing it when the user has already dismissed
+    /// the banner for the current policy revision.
+    private func loadOrganizationUserNotificationBannerData() async {
+        guard let data = await services.policyService.getOrganizationUserNotificationBannerData() else {
+            state.organizationUserNotificationBannerData = nil
+            return
+        }
+
+        do {
+            let dismissal = try await services.stateService.getOrganizationUserNotificationBannerDismissal()
+            if let dismissal, dismissal.revisionDate == data.revisionDate {
+                state.organizationUserNotificationBannerData = nil
+            } else {
+                state.organizationUserNotificationBannerData = data
+            }
+        } catch {
+            // If the dismissal state can't be read, default to showing the banner.
+            services.errorReporter.log(error: error)
+            state.organizationUserNotificationBannerData = data
+        }
+    }
+
     /// Navigates to the view item view for the specified cipher. If the cipher requires master
     /// password reprompt, this will prompt the user before navigation.
     ///
@@ -410,6 +460,28 @@ extension VaultListProcessor {
                 )
             }
         }
+    }
+
+    /// Refreshes the visibility of the premium-related action cards, ensuring the subscription
+    /// attention card and the upgrade card are mutually exclusive — the attention card takes
+    /// priority when a payment problem is detected.
+    ///
+    private func refreshPremiumActionCards() async {
+        state.shouldShowSubscriptionAttentionCard =
+            await services.billingService.shouldShowSubscriptionAttentionCard()
+        state.shouldShowUpgradedToPremiumActionCard =
+            await services.billingService.shouldShowUpgradedToPremiumActionCard()
+
+        let isBannerDismissed = await services.stateService.isPremiumUpgradeBannerDismissed()
+        guard !isBannerDismissed,
+              !state.shouldShowSubscriptionAttentionCard,
+              await !services.billingService.isSelfHosted()
+        else {
+            state.shouldShowPremiumUpgradeActionCard = false
+            return
+        }
+        state.shouldShowPremiumUpgradeActionCard =
+            await services.billingRepository.isInAppUpgradeAvailable()
     }
 
     /// Refreshes the vault's contents.
@@ -600,7 +672,7 @@ extension VaultListProcessor {
         )
     }
 
-    /// Handles state updates after a premium upgrade is confirmed.
+    /// Handles state updates after a Premium upgrade is confirmed.
     ///
     private func handlePremiumUpgradeConfirmed() async {
         await refreshVault(syncWithPeriodicCheck: false)
@@ -609,7 +681,7 @@ extension VaultListProcessor {
         state.shouldShowUpgradedToPremiumActionCard = state.hasPremium
     }
 
-    /// Navigates to the premium upgrade flow. Uses the in-app upgrade path when available;
+    /// Navigates to the Premium upgrade flow. Uses the in-app upgrade path when available;
     /// otherwise opens the web vault upgrade URL as a fallback.
     ///
     private func navigateToPremiumUpgrade() async {
@@ -656,9 +728,36 @@ extension VaultListProcessor {
         }
     }
 
+    /// Persists the expanded / collapsed state of a vault list section.
+    ///
+    /// The in-memory state is updated synchronously so the header animates immediately, then the
+    /// collapsed section IDs are persisted to disk so the preference survives app launches.
+    ///
+    /// - Parameters:
+    ///   - sectionId: The ID of the section that was expanded or collapsed.
+    ///   - isExpanded: Whether the section is now expanded.
+    ///
+    private func setSectionExpanded(sectionId: String, isExpanded: Bool) {
+        if isExpanded {
+            state.collapsedSectionIds.remove(sectionId)
+        } else {
+            state.collapsedSectionIds.insert(sectionId)
+        }
+        let collapsedSectionIds = Array(state.collapsedSectionIds)
+        Task {
+            do {
+                try await services.stateService.setCollapsedVaultListSectionIds(collapsedSectionIds)
+            } catch {
+                services.errorReporter.log(error: error)
+            }
+        }
+    }
+
     /// Streams the user's vault list.
     private func streamVaultList() async {
         do {
+            let collapsedSectionIds = await (try? services.stateService.getCollapsedVaultListSectionIds()) ?? []
+            state.collapsedSectionIds = Set(collapsedSectionIds)
             for try await vaultList in try await services.vaultRepository
                 .vaultListPublisher(
                     filter: VaultListFilter(
@@ -706,7 +805,7 @@ extension VaultListProcessor {
         await appeared()
     }
 
-    /// Subscribes to premium checkout status and navigates to the upgrade screen.
+    /// Subscribes to Premium checkout status and navigates to the upgrade screen.
     private func upgradeToPremium() {
         premiumUpgradeHelper.startInAppPremiumUpgrade(onConfirmed: { [weak self] in
             await self?.handlePremiumUpgradeConfirmed()

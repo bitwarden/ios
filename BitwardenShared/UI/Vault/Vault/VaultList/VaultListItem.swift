@@ -41,9 +41,12 @@ public struct VaultListItem: Equatable, Identifiable, Sendable, VaultItemWithDec
     /// The identifier for the item.
     public let id: String
 
-    /// Whether the user has premium subscription.
+    /// Whether the user has Premium subscription.
     /// This is only used on Archive group for now, so it's not being set for any other occasions.
     public let hasPremium: Bool
+
+    /// Whether the `vfo1-foundation` feature flag is enabled.
+    public var isVfo1FoundationFeatureFlagEnabled = false
 
     /// The type of item being displayed by this item.
     public let itemType: ItemType
@@ -85,9 +88,15 @@ extension VaultListItem {
     /// Initialize a `VaultListItem` from an ID and an `ItemType`.
     /// - Parameters:
     ///   - id: The ID of the item.
+    ///   - isVfo1FoundationFeatureFlagEnabled: Whether the `vfo1-foundation` feature flag is enabled.
     ///   - itemType: The `ItemType` of the item.
-    init(id: String, itemType: ItemType) {
-        self.init(id: id, hasPremium: false, itemType: itemType)
+    init(id: String, isVfo1FoundationFeatureFlagEnabled: Bool = false, itemType: ItemType) {
+        self.init(
+            id: id,
+            hasPremium: false,
+            isVfo1FoundationFeatureFlagEnabled: isVfo1FoundationFeatureFlagEnabled,
+            itemType: itemType,
+        )
     }
 }
 
@@ -149,7 +158,7 @@ extension VaultListItem {
             case .card:
                 SharedAsset.Icons.card24
             case .collection:
-                SharedAsset.Icons.collections24
+                isVfo1FoundationFeatureFlagEnabled ? SharedAsset.Icons.sharedFolder24 : SharedAsset.Icons.collections24
             case .driversLicense:
                 SharedAsset.Icons.idCard24
             case .folder,
@@ -288,7 +297,7 @@ extension VaultListItem {
 
     // MARK: Private methods
 
-    /// Whether premium subscription is required
+    /// Whether Premium subscription is required
     /// - Parameters:
     ///   - group: The vault list group to check.
     ///   - count: The count of the group to check.

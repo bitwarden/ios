@@ -108,6 +108,16 @@ class VaultGroupStateTests: BitwardenTestCase {
         )
         XCTAssertEqual(subjectCollection.noItemsString, Localizations.noItemsCollection)
 
+        var subjectCollectionVfo1FoundationEnabled = VaultGroupState(
+            group: .collection(id: "1", name: "Collection", organizationId: ""),
+            vaultFilterType: .myVault,
+        )
+        subjectCollectionVfo1FoundationEnabled.isVfo1FoundationFeatureFlagEnabled = true
+        XCTAssertEqual(
+            subjectCollectionVfo1FoundationEnabled.noItemsString,
+            Localizations.thereAreNoItemsInThisSharedFolder,
+        )
+
         let subjectFolder = VaultGroupState(
             group: .folder(id: "1", name: "Folder"),
             vaultFilterType: .myVault,
@@ -181,7 +191,7 @@ class VaultGroupStateTests: BitwardenTestCase {
         XCTAssertNil(subjectTotp.noItemsTitle)
     }
 
-    /// `showArchivePremiumSubscriptionEndedCard` returns `true` when the user doesn't have premium
+    /// `showArchivePremiumSubscriptionEndedCard` returns `true` when the user doesn't have Premium
     /// and is viewing the archive group.
     func test_showArchivePremiumSubscriptionEndedCard() {
         let subjectNoPremiumArchive = VaultGroupState(

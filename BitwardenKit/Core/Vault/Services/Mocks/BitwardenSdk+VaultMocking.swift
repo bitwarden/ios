@@ -64,7 +64,7 @@ public extension CipherListView {
             folderId: cipher.folderId,
             collectionIds: cipher.collectionIds,
             key: cipher.key,
-            name: cipher.name,
+            name: cipher.name ?? "",
             subtitle: "",
             type: CipherListViewType(cipher: cipher),
             favorite: cipher.favorite,
@@ -89,7 +89,12 @@ public extension CipherListViewType {
     init(cipher: Cipher) {
         switch cipher.type {
         case .bankAccount:
-            self = .bankAccount
+            self = .bankAccount(
+                BankAccountListView(
+                    accountNumber: nil,
+                    accountType: nil,
+                ),
+            )
         case .card:
             self = .card(.init(brand: nil))
         case .driversLicense:
@@ -166,7 +171,7 @@ public extension CipherView {
             folderId: cipher.folderId,
             collectionIds: cipher.collectionIds,
             key: cipher.key,
-            name: cipher.name,
+            name: cipher.name ?? "",
             notes: cipher.notes,
             type: cipher.type,
             login: cipher.login.map(LoginView.init),
@@ -544,8 +549,8 @@ public extension SshKeyView {
     init(sshKey: SshKey) {
         self.init(
             privateKey: sshKey.privateKey,
-            publicKey: sshKey.publicKey,
-            fingerprint: sshKey.fingerprint,
+            publicKey: sshKey.publicKey ?? "",
+            fingerprint: sshKey.fingerprint ?? "",
         )
     }
 }

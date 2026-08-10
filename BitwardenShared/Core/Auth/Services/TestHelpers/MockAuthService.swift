@@ -66,6 +66,8 @@ class MockAuthService: AuthService {
     var setPendingAdminLoginRequestResult: Result<Void, Error> = .success(())
 
     var webAuthenticationSession: ASWebAuthenticationSession?
+    var webAuthenticationSessionCallbackKind: AuthWebSessionCallbackKind?
+    var webAuthenticationSessionUrl: URL?
 
     func answerLoginRequest(_ request: BitwardenShared.LoginRequest, approve: Bool) async throws {
         answerLoginRequestRequest = request
@@ -179,8 +181,11 @@ class MockAuthService: AuthService {
 
     func webAuthenticationSession(
         url: URL,
+        callbackKind: AuthWebSessionCallbackKind,
         completionHandler: @escaping ASWebAuthenticationSession.CompletionHandler,
     ) -> ASWebAuthenticationSession {
+        webAuthenticationSessionCallbackKind = callbackKind
+        webAuthenticationSessionUrl = url
         let mockSession = MockWebAuthenticationSession(
             url: url,
             callbackURLScheme: callbackUrlScheme,

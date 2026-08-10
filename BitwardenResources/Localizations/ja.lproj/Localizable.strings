@@ -6,6 +6,7 @@
 "Bitwarden" = "Bitwarden";
 "Cancel" = "キャンセル";
 "Copy" = "コピー";
+"CopyLicenseNumber" = "免許証番号をコピー";
 "CopyPassportNumber" = "パスポート番号をコピー";
 "CopyPassword" = "パスワードをコピー";
 "CopyUsername" = "ユーザー名をコピー";
@@ -38,6 +39,8 @@
 "RemoveAccount" = "アカウントを削除";
 "RemoveAccountConfirmation" = "このアカウントを削除してもよろしいですか？";
 "AccountAlreadyAdded" = "アカウントは追加済みです";
+"AccountCreationRestricted" = "アカウントの作成が制限されています";
+"XOnlyAllowsInvitedUsersToCreateAccounts" = "%1$@ は招待されたユーザーのみアカウントを作成できます。";
 "SwitchToAlreadyAddedAccountConfirmation" = "今すぐ切り替えますか？";
 "MasterPassword" = "マスターパスワード";
 "MoreOptions" = "その他のオプション";
@@ -48,6 +51,7 @@
 "OK" = "OK";
 "Password" = "パスワード";
 "Save" = "保存";
+/* Action to move a vault item to another vault; used as a button label, menu item, and screen title. */
 "Move" = "移動";
 "Saving" = "保存中…";
 "Settings" = "設定";
@@ -119,7 +123,7 @@
 "Options" = "オプション";
 "Other" = "その他";
 "PasswordHint" = "パスワードのヒント";
-"PasswordHintAlert" = "We’ve sent you an email with your master password hint.";
+"PasswordHintAlert" = "マスターパスワードのヒントを記載したメールを送信しました。";
 "PasswordOverrideAlert" = "現在のパスワードを上書きしてよろしいですか?";
 "PushNotificationAlert" = "Bitwarden はプッシュ通知を使って自動的に保管庫を同期します。プッシュ通知を有効化するかどうかプロンプトが出たら「許可」を押してください。";
 "Security" = "セキュリティ";
@@ -255,8 +259,14 @@
 "ShowWebsiteIconsDescription" = "ログイン情報の隣にアイコン画像を表示します";
 "IconsUrl" = "アイコンのサーバー URL";
 "AutofillWithBitwarden" = "Bitwarden で自動入力";
+/* Section header and screen title for viewing/managing a cipher's collections. */
 "Collections" = "コレクション";
+/* Section header and screen title for viewing/managing a cipher's shared folders. */
+"SharedFolders" = "共有フォルダー";
+/* Empty state message shown when a collection has no items. */
 "NoItemsCollection" = "このコレクションにはアイテムがありません";
+/* Empty state message shown when a shared folder has no items. */
+"ThereAreNoItemsInThisSharedFolder" = "この共有フォルダーにはアイテムがありません";
 "NoItemsFolder" = "このフォルダーにはアイテムがありません";
 "NoItemsTrash" = "ごみ箱にアイテムはありません。";
 "FaceID" = "Face ID";
@@ -276,6 +286,7 @@
 "RegEx" = "正規表現";
 "StartsWith" = "前方一致";
 "MatchDetection" = "一致するか検出する方法";
+/* Field label on the Move screen shown when the "vfo1-foundation" feature flag is disabled; superseded by "Vault" when enabled. */
 "Organization" = "組織";
 "HoldYubikeyNearTop" = "YubiKey を端末の上部にしっかりタッチし続けてください。";
 "TryAgain" = "もう一度実行";
@@ -290,12 +301,12 @@
 "AutofillTurnOn4" = "4. 自動入力を有効化";
 "AutofillTurnOn5" = "5. 「Bitwarden」を選択";
 "PasswordAutofill" = "パスワード自動入力";
-"BitwardenAutofillAlert2" = "The easiest way to add new logins to your vault is by using the Bitwarden Password AutoFill extension. Learn more about using the Bitwarden Password AutoFill extension by navigating to the “Settings” screen.";
+"BitwardenAutofillAlert2" = "新しいログイン情報をボールトに追加する最も簡単な方法は、Bitwardenパスワードオートフィル拡張機能を使用することです。「設定」画面に移動して、Bitwardenパスワードオートフィル拡張機能の使用方法の詳細をご覧ください。";
 "InvalidEmail" = "無効なメールアドレスです。";
 "InvalidEmailAddresses" = "無効なメール アドレスです";
-"NoEmailAddressesEntered" = "No email addresses entered";
-"EnterAtLeastOneValidEmailToShareSend" = "Enter at least one valid email address to share this Send.";
-"OneOrMoreEmailAddressesIncorrect" = "One or more email addresses are incorrect. Please review and try again.";
+"NoEmailAddressesEntered" = "メールアドレスが入力されていません";
+"EnterAtLeastOneValidEmailToShareSend" = "このSendを共有するには、有効なメールアドレスを少なくとも1つ入力してください。";
+"OneOrMoreEmailAddressesIncorrect" = "1つ以上のメールアドレスが正しくありません。確認して再試行してください。";
 "Cards" = "カード";
 "Identities" = "ID";
 "Logins" = "ログイン";
@@ -311,13 +322,26 @@
 "NoItemsToList" = "表示するアイテムがありません。";
 "MoveDown" = "下へ";
 "MoveUp" = "上へ";
+/* Empty state message on the Collections screen shown when a user has no collections. */
 "NoCollectionsToList" = "表示するコレクションがありません";
+/* Empty state message on the Shared folders screen shown when a user has no shared folders. */
+"ThereAreNoSharedFoldersToList" = "表示できる共有フォルダーがありません。";
 "MovedItemToOrg" = "%1$@ を %2$@ に移動しました。";
+/* Alert message shown when saving an item with no collection selected. */
 "SelectOneCollection" = "コレクションを最低１つは選んでください。";
+/* Alert message shown when saving an item with no shared folder selected. */
+"YouMustSelectAtLeastOneSharedFolder" = "共有フォルダーを少なくとも一つ選択してください。";
 "Share" = "共有";
 "ShareAll" = "すべてを共有";
+/* Overflow menu item and screen title on the Move screen shown when the "vfo1-foundation" feature flag is disabled; superseded by "Move" when enabled. */
 "MoveToOrganization" = "組織に移動";
+/* Empty state message shown when a user has no vaults available to move an item into, when the "vfo1-foundation" feature flag is enabled. */
+"NoVaultsToList" = "表示できる保管庫がありません。";
+/* Empty state message shown when a user has no organizations available to move an item into, when the "vfo1-foundation" feature flag is disabled. */
 "NoOrgsToList" = "表示する組織がありません。";
+/* Footer text on the Move screen explaining that moving an item transfers its ownership to the destination vault's organization, when the "vfo1-foundation" feature flag is enabled. */
+"ChooseAVaultThatYouWishToMoveThisItemToDescriptionLong" = "このアイテムを移動する保管庫を選択してください。別の保管庫に移動すると、アイテムの所有権はその組織に移ります。移動した後、あなたはこのアイテムの直接の所有者ではなくなります。";
+/* Footer text on the Move screen explaining that moving an item transfers its ownership to the destination organization, when the "vfo1-foundation" feature flag is disabled. */
 "MoveToOrgDesc" = "このアイテムを移動する組織を選択してください。組織に移動すると、アイテムの所有権がその組織に移行します。 このアイテムが移動された後、あなたはこのアイテムの直接の所有者にはなりません。";
 "NumberOfWords" = "単語数";
 "Passphrase" = "パスフレーズ";
@@ -326,7 +350,7 @@
 "Generator" = "パス生成";
 "NoFoldersToList" = "表示するフォルダーがありません。";
 "FingerprintPhrase" = "パスフレーズ";
-"YourAccountsFingerprint" = "Your account’s fingerprint phrase";
+"YourAccountsFingerprint" = "アカウントのフィンガープリントフレーズ";
 "WeAreUnableToProcessYourRequestPleaseTryAgainOrContactUs" = "リクエストを処理できませんでした。もう一度やり直すか、お問い合わせください。";
 "Export" = "エクスポート";
 "ExportVault" = "保管庫のエクスポート";
@@ -362,7 +386,7 @@
 "ExportVaultWarning" = "このエクスポートデータは暗号化されていない形式の保管庫データを含んでいます。メールなどのセキュリティ保護されていない方法で共有したり保管したりしないでください。使用した後はすぐに削除してください。";
 "ExportVaultConfirmationTitle" = "保管庫のエクスポートの確認";
 "Warning" = "注意";
-"ExportVaultFailure" = "There was a problem exporting your vault.  If the problem persists, you’ll need to export from the web vault.";
+"ExportVaultFailure" = "ボールトのエクスポート中に問題が発生しました。問題が解決しない場合は、ウェブボールトからエクスポートする必要があります。";
 "Clone" = "複製";
 "PasswordGeneratorPolicyInEffect" = "一つ以上の組織のポリシーがパスワード生成の設定に影響しています。";
 "SoftDeleting" = "ごみ箱に入れています…";
@@ -377,7 +401,7 @@
 "EnableSyncOnRefresh" = "更新時に同期を有効化";
 "EnableSyncOnRefreshDescription" = "プルダウンジェスチャーで保管庫を同期します";
 "LogInSso" = "組織のシングルサインオン";
-"LogInSsoSummary" = "Quickly log in using your organization’s single sign-on portal. Please enter your organization’s identifier to begin.";
+"LogInSsoSummary" = "組織のシングルサインオンポータルを使用して迅速にログインします。開始するには、組織の識別子を入力してください。";
 "OrgIdentifier" = "組織識別子";
 "SetMasterPassword" = "マスターパスワードを設定";
 "MasterPasswordPolicyInEffect" = "組織が求めるマスターパスワードの要件：";
@@ -414,7 +438,7 @@
 "NewSend" = "新しい Send";
 "AreYouSureDeleteSend" = "この Send を削除してもよろしいですか?";
 "SendDeleted" = "Send を削除しました。";
-"SendUpdated" = "Send updated";
+"SendUpdated" = "Sendを更新しました";
 "NewSendCreated" = "新しい Send を作成しました。";
 "Custom" = "カスタム";
 "SendDisabledWarning" = "組織のポリシーにより、既存の Send のみを削除できます。";
@@ -471,8 +495,8 @@
 "Totp" = "TOTP";
 "VerificationCodes" = "認証コード";
 "PremiumSubscriptionRequired" = "プレミアム版が必要です";
-"APremiumPlanGivesYouMoreToolsDescriptionLong" = "A Premium plan gives you more tools to stay secure and in control.";
-"UnlockAdvancedSecurityFeatures" = "Unlock advanced security features";
+"APremiumPlanGivesYouMoreToolsDescriptionLong" = "プレミアムプランでは、セキュリティと管理を強化するためのツールがさらに提供されます。";
+"UnlockAdvancedSecurityFeatures" = "高度なセキュリティ機能を有効にする";
 "CannotAddAuthenticatorKey" = "認証キーを追加できませんか？";
 "ScanQRCode" = "QR コードを読み取る";
 "CannotScanQRCode" = "QR コードをスキャンできませんか？";
@@ -511,8 +535,8 @@
 "AreYouSureYouWantToOverwriteTheCurrentUsername" = "現在のユーザー名を上書きしてもよろしいですか？";
 "GenerateUsername" = "ユーザー名を生成";
 "EmailType" = "メールの種類";
-"PlusAddressedEmailDescription" = "Use your email provider’s subaddress capabilities";
-"CatchAllEmailDescription" = "Use your domain’s configured catch-all inbox.";
+"PlusAddressedEmailDescription" = "メールプロバイダーのサブアドレス機能を使用する";
+"CatchAllEmailDescription" = "ドメインで設定されたキャッチオール受信ボックスを使用します。";
 "ForwardedEmailDescription" = "外部転送サービスを使用してメールエイリアスを生成します。";
 "Random" = "ランダム";
 "ConnectToWatch" = "Watch に接続";
@@ -562,6 +586,7 @@
 "ThereAreNoBankAccountsInYourVault" = "保管庫に銀行口座がありません";
 "US" = "米国";
 "EU" = "EU";
+"Gov" = "政府";
 "SelfHosted" = "自己ホスト型";
 "UpdateWeakMasterPasswordWarning" = "マスターパスワードが組織のポリシーに適合していません。保管庫にアクセスするには、今すぐマスターパスワードを更新しなければなりません。続行すると現在のセッションからログアウトし、再度ログインする必要があります。 他のデバイス上のアクティブなセッションは、最大1時間アクティブであり続けることがあります。";
 "CurrentMasterPasswordRequired" = "現在のマスターパスワード (必須)";
@@ -570,6 +595,8 @@
 "RequestAdminApproval" = "管理者の承認を要求する";
 "ApproveWithMasterPassword" = "マスターパスワードで承認する";
 "TurnOffUsingPublicDevice" = "パブリックデバイスを使用してオフにする";
+"TurnOnFillAssist" = "入力アシストをオンにする";
+"TurnOnFillAssistDescriptionLong" = "入力アシストは、サイト固有のルールを使用して対応サイトの自動入力の精度を向上させます。";
 "RememberThisDevice" = "このデバイスを記憶する";
 "Passkey" = "パスキー";
 "Passkeys" = "パスキー";
@@ -583,6 +610,7 @@
 "LoginApproved" = "ログインの承認";
 "LogInWithDevice" = "デバイスでログイン";
 "LoggingInOn" = "ログイン先";
+/* The word "Vault", used generically as a field label, screen title, and app-wide term for a user's or organization's item collection. */
 "Vault" = "保管庫";
 "Appearance" = "外観";
 "AccountSecurity" = "アカウントのセキュリティ";
@@ -603,7 +631,7 @@
 "ExploreMoreFeaturesOfYourBitwardenAccountOnTheWebApp" = "Bitwarden アカウントの機能をウェブアプリでご確認ください。";
 "LearnAboutOrganizationsDescriptionLong" = "Bitwarden は組織を使って保管庫アイテムを他の人と共有することができます。詳細は bitwarden.com ウェブサイトをご覧ください。";
 "RateAppDescriptionLong" = "Bitwarden の使いやすさを他のユーザーにも知ってもらいましょう。アプリストアでレビューをしてください。";
-"CreatedX" = "Created %1$@";
+"CreatedX" = "作成日 %1$@";
 "YourOrganizationPermissionsWereUpdatedRequeringYouToSetAMasterPassword" = "組織の権限が更新され、マスターパスワードの設定が必要になりました。";
 "YourOrganizationRequiresYouToSetAMasterPassword" = "あなたの組織では、マスターパスワードの設定が義務付けられています。";
 "ChooseALoginToSaveThisPasskeyTo" = "このパスキーを保存するログイン情報を選択してください";
@@ -761,10 +789,10 @@
 "OnYourComputerOpenANewBrowserTabAndGoTo" = "お使いのコンピュータで、新しいブラウザタブを開き、 **%1$@** に移動します。";
 "LogInToTheBitwardenWebApp" = "**Bitwarden ウェブアプリにログインします。**";
 "ImportLoginsToBitwarden" = "Bitwarden にログイン情報をインポート";
-"InTheBitwardenNavigationFindTheToolsOptionAndSelectImportData" = "In the Bitwarden navigation, **find the Tools option** and **select Import data.**";
-"FillOutTheFormAndImportYourSavedPasswordFile" = "Fill out the form and **import your saved password file.**";
-"SelectImportDataInTheWebAppThenDoneToFinishSyncing" = "**Select Import data** in the web app, then **Done** to finish syncing.";
-"ForYourSecurityBeSureToDeleteYourSavedPasswordFile" = "For your security, be sure to **delete your saved password file.**";
+"InTheBitwardenNavigationFindTheToolsOptionAndSelectImportData" = "Bitwardenのナビゲーションで、**「ツール」オプションを見つけ**、**「データをインポート」を選択します。**";
+"FillOutTheFormAndImportYourSavedPasswordFile" = "フォームに入力し、**保存したパスワードファイルをインポートします。**";
+"SelectImportDataInTheWebAppThenDoneToFinishSyncing" = "ウェブアプリで**「データをインポート」を選択**し、**「完了」** を選択して同期を完了します。";
+"ForYourSecurityBeSureToDeleteYourSavedPasswordFile" = "セキュリティのため、必ず**保存したパスワードファイルを削除してください。**";
 "BitwardenTools" = "Bitwarden ツール";
 "ImportSuccessful" = "インポート成功！";
 "ManageYourLoginsFromAnywhereWithBitwardenToolsForWebAndDesktop" = "Bitwarden ツールでログイン情報をどこからでも管理できます。";
@@ -777,8 +805,10 @@
 "SetUpAutofillOnAllYourDevicesToLoginWithASingleTapAnywhere" = "すべてのデバイスで自動入力を設定して、ワンタップでどこにでもログインできます。";
 "GoBack" = "戻る";
 "GotIt" = "了解";
-"ClearSsoCookies" = "Clear SSO cookies";
-"GenerateCrash" = "Generate crash";
+/* masterPasswordUnlock is the name of some data we want to delete, so there's no need to localize it. */
+"ClearMasterPasswordUnlock" = "MasterPasswordUnlock をクリア";
+"ClearSsoCookies" = "SSO Cookieをクリア";
+"GenerateCrash" = "クラッシュレポートを生成";
 "GenerateErrorReport" = "エラーレポートを生成する";
 "GenerateSdkErrorReport" = "SDK エラーレポートを生成する";
 "AllowAuthenticatorSyncing" = "Authenticator との同期を許可する";
@@ -793,7 +823,7 @@
 "UnableToMoveTheSelectedItemPleaseTryAgain" = "選択したアイテムを移動できません。もう一度やり直してください。";
 "Done" = "完了";
 "Next" = "次へ";
-"NextCode" = "Next code";
+"NextCode" = "次のコード";
 "CopyPublicKey" = "公開鍵をコピー";
 "CopyPrivateKey" = "秘密鍵をコピー";
 "CopyFingerprint" = "フィンガープリントをコピー";
@@ -821,8 +851,8 @@
 "ExportPasswordsPasskeysCreditCardsAndAnyPersonalIdentityInformation" = "パスワード、パスワード、クレジットカード、およびIDをエクスポート。";
 "RetryExport" = "エクスポートを再試行する";
 "ExportFailed" = "エクスポート失敗";
-"ThereHasBeenAnIssueExportingItems" = "There has been an issue exporting items.";
-"AreYouSureYouWantToCancelTheExportProcessQuestionMark" = "Are you sure you want to cancel the export process?";
+"ThereHasBeenAnIssueExportingItems" = "アイテムのエクスポートで問題が発生しました。";
+"AreYouSureYouWantToCancelTheExportProcessQuestionMark" = "エクスポート処理をキャンセルしてもよろしいですか？";
 "PleaseDoNotCloseTheApp" = "アプリを閉じないでください。";
 "ThisIsTakingLongerThanExpected" = "予想以上に時間がかかっています";
 "ItemsToExport" = "エクスポートするアイテム";
@@ -831,7 +861,7 @@
 "SendNameRequired" = "Send の名前 (必須)";
 "CheckPasswordForDataBreaches" = "パスワードが漏洩していないか確認する";
 "PrivateNote" = "非公開メモ";
-"CannotDeleteUserSoleOwnerDescriptionLong" = "Cannot delete this user because it is the sole owner of at least one organization. Please delete these organizations or upgrade another user.";
+"CannotDeleteUserSoleOwnerDescriptionLong" = "このユーザーは少なくとも1つの組織の唯一の所有者であるため、削除できません。これらの組織を削除するか、別のユーザーをアップグレードしてください。";
 "APasskeyAlreadyExistsForThisApplication" = "このアプリにはすでにパスキーが存在します。";
 "APasskeyAlreadyExistsForThisApplicationButAnErrorOccurredWhileLoadingIt" = "このアプリのパスキーは既に存在しますが、読み込み中にエラーが発生しました。";
 "ItemNameRequired" = "アイテム名 (必須)";
@@ -852,60 +882,64 @@
 "ShareErrorDetails" = "エラーの詳細を共有";
 "FlightRecorder" = "フライトレコーダー";
 "EnableFlightRecorder" = "フライトレコーダーを有効にする";
-"ExperiencingAnIssue" = "Experiencing an issue?";
-"EnableTemporaryLoggingDescriptionLong" = "Enable temporary logging to collect and inspect logs locally. When enabled, application states and network calls may be logged—never sensitive vault information.";
-"ToGetStartedSetALoggingDurationDescriptionLong" = "To get started, set a logging duration. Logging will automatically turn off after this period, giving you time to capture activity while reproducing any issues.";
-"LoggingDuration" = "Logging duration";
-"LogsWillBeAutomaticallyDeletedAfter30DaysDescriptionLong" = "Logs will be automatically deleted after 30 days. Bitwarden is only able to access your log data when you share it.";
+"ExperiencingAnIssue" = "問題が発生していますか？";
+"EnableTemporaryLoggingDescriptionLong" = "一時的なロギングを有効にして、ログをローカルに収集・検査します。有効にすると、アプリケーションの状態やネットワークコールがログに記録される場合がありますが、機密性の高いボールト情報が記録されることはありません。";
+"ToGetStartedSetALoggingDurationDescriptionLong" = "開始するには、ロギング時間を設定します。この期間が経過するとロギングは自動的にオフになり、問題を再現しながらアクティビティをキャプチャする時間を確保できます。";
+"LoggingDuration" = "ロギング時間";
+"LogsWillBeAutomaticallyDeletedAfter30DaysDescriptionLong" = "ログは30日後に自動的に削除されます。Bitwardenがログデータにアクセスできるのは、あなたが共有した場合のみです。";
 "ForDetailsOnWhatIsAndIsntLoggedVisitTheBitwardenHelpCenter" = "ログに記録される／されない情報の詳細は、**[Bitwarden help center](%1$@)** をご覧してください。";
 "ShowMore" = "さらに表示";
 "ShowLess" = "隠す";
-"ItemNameX" = "Item name, %1$@";
-"OwnerX" = "Owner, %1$@";
-"CollectionX" = "Collection, %1$@";
-"FolderX" = "Folder, %1$@";
-"ItemXOfY" = "Item %1$@ of %2$@";
-"ViewRecordedLogs" = "View recorded logs";
-"RecordedLogs" = "Recorded logs";
-"NoLogsRecorded" = "No logs recorded";
-"ExpiresAtXTime" = "Expires at %1$@";
-"ExpiresOnXDate" = "Expires on %1$@";
-"ExpiresTomorrow" = "Expires tomorrow";
-"DateRangeXToY" = "%1$@ to %2$@";
+"ItemNameX" = "アイテム名 %1$@";
+"OwnerX" = "所有者 %1$@";
+"VaultX" = "保管庫: %1$@";
+/* VoiceOver accessibility label for a collection the item belongs to. */
+"CollectionX" = "コレクション %1$@";
+/* VoiceOver accessibility label for a shared folder the item belongs to. */
+"SharedFolderX" = "共有フォルダー: %1$@";
+"FolderX" = "フォルダー %1$@";
+"ItemXOfY" = "アイテム %1$@ / %2$@";
+"ViewRecordedLogs" = "記録されたログを表示";
+"RecordedLogs" = "記録されたログ";
+"NoLogsRecorded" = "記録されたログはありません";
+"ExpiresAtXTime" = "%1$@ に期限切れ";
+"ExpiresOnXDate" = "%1$@ に期限切れ";
+"ExpiresTomorrow" = "明日期限切れ";
+"DateRangeXToY" = "%1$@ ～ %2$@";
 "SelfHostServerURL" = "自己ホスト型サーバー URL";
 "AllowUniversalClipboard" = "ユニバーサルクリップボードを許可";
 "UseUniversalClipboardToCopyDescriptionLong" = "ユニバーサルクリップボードを使用すると、このデバイスでコピーした内容を同じ Apple ID でサインインしている別のデバイスにペーストすることができます。";
-"RemoveMasterPasswordConfirmDomain" = "A master password is no longer required for members of the following organization. Please confirm the domain below with your organization administrator.";
-"ConfirmKeyConnectorDomain" = "Confirm Key Connector domain";
-"KeyConnectorDomain" = "Key Connector domain:";
+"RemoveMasterPasswordConfirmDomain" = "以下の組織のメンバーには、マスターパスワードが不要になりました。組織の管理者と共に以下のドメインを確認してください。";
+"ConfirmKeyConnectorDomain" = "Key Connectorドメインを確認";
+"KeyConnectorDomain" = "Key Connectorドメイン：";
 "KeyConnectorOrganization" = "組織:";
-"KeyConnectorConfirmDomainWithAdmin" = "Please confirm the domain below with your organization administrator.\n\nKey Connector domain:\n%1$@";
-"DoYouReallyWantToDeleteThisLog" = "Do you really want to delete this log?";
-"DoYouReallyWantToDeleteAllRecordedLogs" = "Do you really want to delete all recorded logs?";
-"ThisAccountWillSoonBeDeletedLogInAtXToContinueUsingBitwarden" = "This account will soon be deleted. Log in at %1$@ to continue using Bitwarden.";
+"KeyConnectorConfirmDomainWithAdmin" = "組織の管理者と共に以下のドメインを確認してください。\n\nKey Connectorドメイン：\n%1$@";
+"DoYouReallyWantToDeleteThisLog" = "このログを削除してもよろしいですか？";
+"DoYouReallyWantToDeleteAllRecordedLogs" = "記録されたすべてのログを削除してもよろしいですか？";
+"ThisAccountWillSoonBeDeletedLogInAtXToContinueUsingBitwarden" = "このアカウントはまもなく削除されます。Bitwardenを引き続き使用するには、%1$@ にログインしてください。";
 "AppSettings" = "アプリ設定";
-"ViewFileSend" = "View file Send";
-"ViewTextSend" = "View text Send";
+"ViewFileSend" = "ファイルSendを表示";
+"ViewTextSend" = "テキストSendを表示";
 "DeleteSend" = "Send を削除";
 "FlightRecorderOn" = "フライトレコーダーがオンです";
-"FlightRecorderWillBeActiveUntilDescriptionLong" = "Flight recorder will be active until %1$@ at %2$@. Return to settings to deactivate now.";
+"FlightRecorderWillBeActiveUntilDescriptionLong" = "フライトレコーダーは %1$@ %2$@ まで有効です。今すぐ無効にするには設定に戻ってください。";
 "GoToSettings" = "設定に移動";
 "SiriAndShortcutsAccess" = "Siri とショートカットへのアクセス";
-"EnableToAllowTheAppToRespondToSiriAndShortcutsUsingAppIntents" = "Enable to allow the app to respond to Siri and Shortcuts using App Intents.";
+"EnableToAllowTheAppToRespondToSiriAndShortcutsUsingAppIntents" = "有効にすると、App Intentsを使用してSiriやショートカットに応答できるようになります。";
 "NewFileSend" = "新しいファイル入のSend";
 "NewTextSend" = "新しいテキスト入のSend";
-"EditFileSend" = "Edit file Send";
-"EditTextSend" = "Edit text Send";
-"LogDeleted" = "Log deleted";
-"AllLogsDeleted" = "All logs deleted";
-"LoggingEndsOnDateAtTime" = "Logging ends on %1$@ at %2$@";
-"YouMustAttachAFileToSaveThisSend" = "You must attach a file to save this send";
+"EditFileSend" = "ファイルSendを編集";
+"EditTextSend" = "テキストSendを編集";
+"LogDeleted" = "ログを削除しました";
+"AllLogsDeleted" = "すべてのログを削除しました";
+"LoggingEndsOnDateAtTime" = "ロギングは %1$@ %2$@ に終了します";
+"YouMustAttachAFileToSaveThisSend" = "このSendを保存するにはファイルを添付する必要があります";
 "WeDontRecognizeThisDeviceEnterTheCodeSentToYourEmailDescriptionLong" = "このデバイスは未確認です。本人確認のため、メールアドレスに送信されたコードを入力してください。";
 "Created" = "作成日: %1$@";
 "LastEdited" = "最終編集: %1$@";
 "PasswordLastUpdated" = "パスワードの最終更新: %1$@";
 "DecryptionError" = "復号エラー";
-"BitwardenCouldNotDecryptThisVaultItemDescriptionLong" = "Bitwarden could not decrypt this vault item. Copy and share this error report with customer success to avoid additional data loss.";
+"BitwardenCouldNotDecryptThisVaultItemDescriptionLong" = "Bitwardenはこのボールトアイテムを復号化できませんでした。このエラーレポートをコピーしてカスタマーサクセスと共有し、さらなるデータ損失を防いでください。";
 "CopyErrorReport" = "エラーレポートをコピー";
 "ErrorCannotDecrypt" = "[エラー: 復号できません]";
 "AccountsSyncedFromBitwardenApp" = "Bitwarden アプリからアカウントが同期されました";
@@ -936,7 +970,7 @@
 "Key" = "キー";
 "KeyReadError" = "キーが読み込めません。";
 "LaunchTutorial" = "チュートリアルを開始";
-"LearnMoreLink" = "[Learn more](%1$@)";
+"LearnMoreLink" = "[詳細はこちら](%1$@)";
 "LocalCodes" = "ローカルのコード";
 "NeedHelpVisitOurHelpCenterForGuidance" = "助けが必要ですか？ヘルプセンターのガイドをご覧ください。";
 "NoAskMe" = "いいえ、毎回確認します";
@@ -963,9 +997,9 @@
 "Skip" = "スキップ";
 "Steam" = "Steam";
 "StoreAllOfYourLoginsAndSyncVerificationCodesDirectlyWithTheAuthenticatorApp" = "すべてのログイン情報を格納し、認証アプリに認証コードを直接同期します。";
-"SyncWithBrowserDescriptionLong" = "To connect to %1$@, sync your default browser with the Bitwarden mobile app. When your browser opens, complete sign-in if prompted. Once syncing is complete, you'll be returned to this app.";
+"SyncWithBrowserDescriptionLong" = "%1$@ に接続するには、デフォルトのブラウザをBitwardenモバイルアプリと同期します。ブラウザが開いたら、プロンプトが表示されたらサインインを完了してください。同期が完了すると、このアプリに戻ります。";
 "SyncWithBitwardenApp" = "Bitwarden アプリと同期";
-"SyncWithBrowser" = "Sync with browser";
+"SyncWithBrowser" = "ブラウザーと同期";
 "SyncWithTheBitwardenApp" = "Bitwarden アプリと同期";
 "TakeMeToTheAppSettings" = "アプリの設定に移動";
 "TheDataFormatProvidedDoesntMatchWhatsExpected" = "提供されたデータ形式が想定と一致しません。ファイルを確認し、正しいデータ型が使用されているか確かめてください。";
@@ -979,72 +1013,70 @@
 "SelectAccount" = "アカウントを選択";
 /* The header for the account switcher sheet. This is always plural (maximally so) if applicable regardless of the number of accounts being displayed. */
 "Accounts" = "アカウント";
-"UriMatchDetectionControlsHowBitwardenIdentifiesAutofillSuggestions" = "URI match detection controls how Bitwarden identifies autofill suggestions.";
-"StartsWithIsAnAdvancedOptionWithIncreasedRiskOfExposingCredentials" = "“Starts with” is an advanced option with increased risk of exposing credentials.";
-"RegularExpressionIsAnAdvancedOptionWithIncreasedRiskOfExposingCredentials" = "“Regular expression” is an advanced option with increased risk of exposing credentials if used incorrectly.";
-"StartsWithAdvanced" = "Starts with (advanced)";
+"UriMatchDetectionControlsHowBitwardenIdentifiesAutofillSuggestions" = "URI一致検出は、Bitwardenがオートフィルの候補をどのように識別するかを制御します。";
+"StartsWithIsAnAdvancedOptionWithIncreasedRiskOfExposingCredentials" = "「前方一致」は上級者向けオプションであり、認証情報を露出させるリスクが高まります。";
+"RegularExpressionIsAnAdvancedOptionWithIncreasedRiskOfExposingCredentials" = "「正規表現」は上級者向けオプションであり、誤って使用すると認証情報を露出させるリスクが高まります。";
+"StartsWithAdvanced" = "前方一致 (上級者向け)";
 "RegularExpressionAdvanced" = "正規表現 (高度)";
-"AreYouSureYouWantToUseX" = "Are you sure you want to use “%1$@”?";
+"AreYouSureYouWantToUseX" = "“%1$@” を使用してもよろしいですか？";
 "KeepYourCredentialsSecure" = "資格情報を安全に保つ";
-"LearnMoreAboutHowToKeepCredentialsSecureWhenUsingX" = "Learn more about how to keep credentials secure when using “%1$@”.";
-"WarningStartsWithIsAnAdvancedOptionWithIncreasedRiskOfExposingCredentials" = "**Warning:** “Starts with” is an advanced option with increased risk of exposing credentials.";
+"LearnMoreAboutHowToKeepCredentialsSecureWhenUsingX" = "“%1$@” を使用する際に認証情報を安全に保つ方法の詳細はこちら";
+"WarningStartsWithIsAnAdvancedOptionWithIncreasedRiskOfExposingCredentials" = "**警告：** 「前方一致」は上級者向けオプションであり、認証情報を露出させるリスクが高まります。";
 "WarningRegularExpressionIsAnAdvancedOptionWithIncreasedRiskOfExposingCredentials" = "**警告:** “正規表現” は高度な機能で、誤って使用すると資格情報の漏えいリスクが高まります。";
 "DefaultX" = "デフォルト (%1$@)";
 "UpdateYourEncryptionSettings" = "暗号化設定を更新";
-"TheNewRecommendedEncryptionSettingsDescriptionLong" = "The new recommended encryption settings will improve your account security. Enter your master password to update now.";
+"TheNewRecommendedEncryptionSettingsDescriptionLong" = "新しい推奨暗号化設定により、アカウントのセキュリティが向上します。今すぐ更新するには、マスターパスワードを入力してください。";
 "Updating" = "更新中…";
 "EncryptionSettingsUpdated" = "暗号化設定が更新されました";
 "IntroducingArchive" = "アーカイブの紹介";
-"KeepYtemsYouDontNeedRightNowSafeButOutOfSight" = "Keep items you don’t need right now safe but out of sight.";
+"KeepYtemsYouDontNeedRightNowSafeButOutOfSight" = "今必要のないアイテムを安全に、しかし目につかないところに保管します。";
 "GoToArchive" = "アーカイブへ移動";
-"ItemTransfer" = "Item transfer";
-"TransferItemsToX" = "Transfer items to %1$@";
-"XIsRequiringAllItemsToBeOwnedByTheOrganizationDescriptionLong" = "%1$@ is requiring all items to be owned by the organization for security and compliance. Click accept to transfer ownership of your items.";
-"DeclineAndLeave" = "Decline and leave";
-"AreYouSureYouWantToLeave" = "Are you sure you want to leave?";
-"ByDecliningYourPersonalItemsWillStayInYourAccountDescriptionLong" = "By declining, your personal items will stay in your account, but you'll lose access to shared items and organization features.";
-"ContactYourAdminToRegainAccess" = "Contact your admin to regain access.";
-"LeaveX" = "Leave %1$@";
-"YouLeftTheOrganization" = "You left the organization";
+"ItemTransfer" = "アイテムの移行";
+"TransferItemsToX" = "アイテムを %1$@ に移行";
+"XIsRequiringAllItemsToBeOwnedByTheOrganizationDescriptionLong" = "セキュリティとコンプライアンスのため、%1$@ はすべてのアイテムが組織によって所有されることを要求しています。「同意」をクリックしてアイテムの所有権を移行してください。";
+"DeclineAndLeave" = "拒否して退会";
+"AreYouSureYouWantToLeave" = "本当に退会しますか？";
+"ByDecliningYourPersonalItemsWillStayInYourAccountDescriptionLong" = "拒否すると、個人アイテムはアカウントに残りますが、共有アイテムや組織の機能へのアクセスが失われます。";
+"ContactYourAdminToRegainAccess" = "アクセスを回復するには管理者に連絡してください。";
+"LeaveX" = "%1$@ を退会";
+"YouLeftTheOrganization" = "組織を退会しました";
 "ItemTransferRequiresMainAppDescriptionLong" = "組織が個人アイテムの所有権を要求しています。Bitwarden アプリでこのリクエストを確認し完了してください。";
-"ThisSettingIsManagedByYourOrganization" = "This setting is managed by your organization.";
-"YourOrganizationHasSetTheMaximumSessionTimeoutToX" = "Your organization has set the maximum session timeout to %1$@.";
-"YourOrganizationHasSetTheDefaultSessionTimeoutToNever" = "Your organization has set the default session timeout to never.";
-"YourOrganizationHasSetTheDefaultSessionTimeoutToAppRestart" = "Your organization has set the default session timeout to on app restart.";
-"YourOrganizationHasSetTheMaximumSessionTimeoutToXAndY" = "Your organization has set the maximum session timeout to %1$@ and %2$@.";
-"HiddenItems" = "Hidden items";
+"ThisSettingIsManagedByYourOrganization" = "この設定は組織によって管理されています。";
+"YourOrganizationHasSetTheMaximumSessionTimeoutToX" = "組織は最大セッションタイムアウトを %1$@ に設定しています。";
+"YourOrganizationHasSetTheDefaultSessionTimeoutToNever" = "組織はデフォルトのセッションタイムアウトを「なし」に設定しています。";
+"YourOrganizationHasSetTheDefaultSessionTimeoutToAppRestart" = "組織はデフォルトのセッションタイムアウトを「アプリ再起動時」に設定しています。";
+"YourOrganizationHasSetTheMaximumSessionTimeoutToXAndY" = "組織は最大セッションタイムアウトを %1$@ %2$@ に設定しています。";
+"HiddenItems" = "隠しファイル";
 "Archive" = "アーカイブ";
-"Archived" = "Archived";
+"Archived" = "アーカイブ済み";
 "Unarchive" = "アーカイブ解除";
-"ItemMovedToArchive" = "Item moved to archive";
-"ItemMovedToVault" = "Item moved to vault";
-"SendingToArchive" = "Sending to archive…";
-"MovingItemToVault" = "Moving item to vault";
-"OrganizationNotFound" = "Organization not found.";
-"ItemsTransferred" = "Items transferred";
+"ItemMovedToArchive" = "アイテムをアーカイブに移動しました";
+"ItemMovedToVault" = "アイテムをボールトに移動しました";
+"SendingToArchive" = "アーカイブに移動中…";
+"MovingItemToVault" = "アイテムをボールトに移動中";
+"OrganizationNotFound" = "組織が見つかりません。";
+"ItemsTransferred" = "アイテムを移行しました";
 "ArchiveIsEmpty" = "アーカイブは空です";
-"ArchiveEmptyDescriptionLong" = "Fill your archive with items you don’t want to see in search results and autofill suggestions but might need someday.";
+"ArchiveEmptyDescriptionLong" = "検索結果やオートフィルの候補に表示したくないが、いつか必要になるかもしれないアイテムをアーカイブに保管します。";
 "ArchiveItem" = "アイテムをアーカイブ";
 "OnceArchivedThisItemWillBeExcludedDescriptionLong" = "アーカイブすると、このアイテムは検索結果と自動入力の候補から除外されます。";
-"ArchiveUnavailable" = "アーカイブは利用できません";
-"ArchivingItemsIsAPremiumFeatureDescriptionLong" = "Archiving items is a Premium feature. Your current plan does not include access to this feature.";
+"ArchivingItemsIsAPremiumFeatureDescriptionLong" = "アイテムのアーカイブはプレミアム機能です。現在のプランではこの機能にはアクセスできません。";
 "AddingAttachmentsIsAPremiumFeatureDescriptionLong" = "添付ファイルはプレミアム機能です。現在のプランにはこの機能へのアクセス権が含まれていません。";
-"AttachmentsUnavailable" = "添付ファイルは利用できません";
-"UpgradeToPremium" = "Upgrade to premium";
-"ThisItemIsArchived" = "This item is archived.";
-"YourPremiumSubscriptionEnded" = "Your Premium subscription ended";
-"YourPremiumSubscriptionEndedArchiveDescriptionLong" = "To regain access to your archive, restart your Premium subscription. If you edit details for an archived item before restarting, it’ll be moved back into your vault.";
-"RestartPremium" = "Restart Premium";
-"ThisItemIsArchivedSavingChangesWillRestoreItToYourVault" = "This item is archived. Saving changes will restore it to your vault.";
-"SettingUpAutofill" = "Setting up Autofill…";
-"AddEmail" = "Add email";
-"AnyoneWithPasswordSetByYou" = "Anyone with a password set by you";
+"UpgradeToPremium" = "プレミアムにアップグレード";
+"ThisItemIsArchived" = "このアイテムはアーカイブされています。";
+"YourPremiumSubscriptionEnded" = "プレミアムサブスクリプションが終了しました";
+"YourPremiumSubscriptionEndedArchiveDescriptionLong" = "アーカイブへのアクセスを回復するには、プレミアムサブスクリプションを再開してください。再開前にアーカイブされたアイテムの詳細を編集すると、ボールトに戻されます。";
+"RestartPremium" = "プレミアムを再開";
+"ThisItemIsArchivedSavingChangesWillRestoreItToYourVault" = "このアイテムはアーカイブされています。変更を保存すると、ボールトに復元されます。";
+"SettingUpAutofill" = "オートフィルを設定中…";
+"AddEmail" = "メールを追加";
+"AnyoneWithPasswordSetByYou" = "あなたが設定したパスワードを持つ任意のユーザー";
 "AnyoneWithTheLink" = "リンクを知っている全員";
-"AnyoneWithThisLinkCanViewThisSend" = "Anyone with this link can view this Send.";
-"AfterSharingThisSendLinkDescriptionLong" = "After sharing this Send link, individuals will need to verify their email with a code to view this Send.";
+"AnyoneWithThisLinkCanViewThisSend" = "このリンクを持つ任意のユーザーがこのSendを表示できます。";
+"AfterSharingThisSendLinkDescriptionLong" = "このSendリンクを共有した後、個人はこのSendを表示するためにコードでメールを確認する必要があります。";
 "SpecificPeople" = "特定の人";
 "WhoCanView" = "表示できる人";
-"SharingWithSpecificPeopleIsPremiumFeatureDescriptionLong" = "Sharing with specific people is a Premium feature. Your current plan does not include access to this feature.";
+"SharingWithSpecificPeopleIsPremiumFeatureDescriptionLong" = "特定のユーザーとの共有はプレミアム機能です。現在のプランではこの機能にはアクセスできません。";
 "Alias" = "エイリアス";
 "CertificateAlias" = "証明書のエイリアス";
 "TheCertificateCouldNotBeInstalled" = "証明書をインストールできませんでした。";
@@ -1062,9 +1094,11 @@
 "ReplaceCertificate" = "証明書を置き換え";
 "ReplaceExistingCertificate" = "既存の証明書を置き換える";
 "UnableToReadCertificateFile" = "証明書ファイルを読み込めません。";
+/* masterPasswordUnlock is the name of some data we want to delete, so there's no need to localize it. */
+"MasterPasswordUnlockCleared" = "MasterPasswordUnlock をクリアしました。";
 "SsoCookiesCleared" = "SSO Cookie をクリアしました";
 "YourRequestWasInterruptedBecauseTheAppNeededToReAuthenticatePleaseTryAgain" = "アプリを再認証する必要があるため、リクエストが中断されました。もう一度やり直してください。";
-"AutofillWithBitwardenDescriptionLong" = "Bitwarden can suggest your passwords and other credentials when you sign in to apps and websites.";
+"AutofillWithBitwardenDescriptionLong" = "Bitwardenは、アプリやウェブサイトにサインインする際に、パスワードやその他の認証情報を提案できます。";
 "LearnMoreAboutAutofill" = "自動入力についての詳細";
 "TurnOnNow" = "今すぐオンにする";
 "AcceptTransfer" = "転送を承認する";
@@ -1075,6 +1109,7 @@
 "Canceled" = "キャンセル済み";
 "PastDue" = "期限切れ";
 "PendingCancellation" = "キャンセル保留中";
+"Unpaid" = "未払い";
 "UpdatePayment" = "支払方法を更新";
 "BillingAmount" = "請求額";
 "StorageCost" = "ストレージコスト";
@@ -1086,17 +1121,44 @@
 "ExternalLink" = "外部リンク";
 "YourNextChargeIsForXDueOnY" = "次のお支払いは**%1$@**で、期限は**%2$@**です。";
 "WeCouldNotProcessYourPaymentUpdateYourPaymentMethodDescriptionLong" = "お支払いを処理できませんでした。**%1$@** のサブスクリプションが終了する前に、お支払い方法を更新してください。";
+/* Error message shown when the Premium Plan screen fails to load subscription data, with a prompt to retry. */
+"WeCouldntLoadYourSubscriptionDetailsPleaseRetry" = "サブスクリプション情報を読み込めませんでした。もう一度やり直してください。";
 "YourSubscriptionWasCanceledOnXDescriptionLong" = "**%1$@** でサブスクリプションがキャンセルされました。プレミアム機能を引き続き使用するには再加入してください。";
+"YourSubscriptionWasSuspendedOnXDescriptionLong" = "あなたのサブスクリプションは**%1$@**に一時停止されました。再度有効にするには、過去の未払いの請求を解決してください。";
 "YourSubscriptionExpiredOnXDescriptionLong" = "**%1$@** でサブスクリプションの有効期限が切れました。プレミアム機能を引き続き使用するには再加入してください。";
 "YourSubscriptionIsScheduledToCancelOnXDescriptionLong" = "あなたのサブスクリプションは **%1$@** でキャンセルされる予定です。その前にいつでも再開できます。";
 "PerMonth" = "/ 月";
+/* VoiceOver reading of "PerMonth", spoken instead of shown. */
+"PerMonthVoiceOver" = "/月";
 "PerYear" = "/ 年";
+/* VoiceOver reading of "PerYear", spoken instead of shown. */
+"PerYearVoiceOver" = "/年";
 "XAmountPerCadence" = "%1$@ %2$@";
+/* %1$@ is an amount and cadence together, e.g. "$1.65 / month". */
+"XCancelAnytime" = "%1$@ · いつでもキャンセル可能";
+/* VoiceOver reading of "XCancelAnytime", spoken instead of shown. */
+"XCancelAnytimeVoiceOver" = "%1$@ · いつでもキャンセル可能";
 "NegativeX" = "-%1$@";
 "UnknownStatus" = "不明";
 "YourSubscriptionStatusIsUnknownVisitTheWebAppDescriptionLong" = "サブスクリプションのステータスが確認できませんでした。詳細についてはウェブアプリをご覧いただくか、最新バージョンにアップデートしてください。";
-"AtTheMomentPremiumPlanIsNotAvailableDescriptionLong" = "現在プレミアムプランが利用できません。後でもう一度お試しください。";
-"UnlockMoreAdvancedFeaturesWithPremiumPlan" = "プレミアムプランでより高度な機能をアンロックしましょう。";
+/* Headline on the Premium upgrade screen. */
+"UnlockAdvancedProtection" = "高度な保護をアンロックする";
+/* Premium benefit list item. */
+"BreezeThrough2faWithBuiltInCodes" = "内蔵コードで二要素認証もスムーズに";
+/* Premium benefit list item. */
+"RunReportsToFindRiskyPasswords" = "危険なパスワードを見つけるためのレポートを実行";
+/* Premium benefit list item. */
+"KeepDocumentsSafeAndEncrypted" = "ドキュメントを安全に暗号化する";
+/* Premium benefit list item. */
+"AddATrustedEmergencyContact" = "信頼できる緊急連絡先を追加";
+/* Premium benefit list item. */
+"IdentifyUnsecureWebsites" = "セキュリティ保護されていないウェブサイトを特定する";
+/* Premium benefit list item. */
+"FlagAccountsWithInactive2fa" = "非アクティブな二要素認証アカウントにフラグを付ける";
+/* Premium benefit list item; "Send" is the Bitwarden Send feature name and shouldn't be translated. */
+"ShareFilesSecurelyWithAnyoneUsingSend" = "Send を使用して誰でも安全にファイルを共有";
+/* Premium benefit list item. */
+"Receive247PrioritySupport" = "24時間年中無休の優先サポートを受ける";
 "BuiltInAuthenticator" = "認証機能を内蔵";
 "EmergencyAccess" = "緊急アクセス";
 "PaymentNotReceivedYet" = "支払いはまだ受信されていません";
@@ -1105,15 +1167,18 @@
 "WeHadTroubleOpeningThePaymentPageDescriptionLong" = "支払いページを開く際に問題がありました。もう一度やり直してください。";
 "SecureFileStorage" = "セキュアなファイルストレージ";
 "BreachMonitoring" = "情報漏洩の監視";
-"UpgradeNow" = "今すぐアップグレード";
 "ConfirmingYourUpgrade" = "アップグレードを確認中…";
 "OpeningCheckout" = "チェックアウトを開いています…";
 "UpgradePending" = "アップグレードを保留中";
 "YourUpgradeIsBeingProcessedDescriptionLong" = "アップグレードは現在処理中です。完了するまで無料プランのままになります。今すぐ同期して確認するか、続行して自動的に更新させてください。";
 "UpgradedToPremium" = "プレミアムにアップグレード";
+"SubscriptionNeedsAttention" = "サブスクリプションに注意が必要です";
+"CheckYourPlanForDetails" = "詳細はプランをご確認ください。";
+"ViewPlan" = "プランを表示";
 "YouNowHaveAccessToAdvancedSecurityDescriptionLong" = "高度なセキュリティ機能にアクセスできるようになりました。プレミアムに含まれる機能の詳細をご覧ください。";
 "YouNowHaveAccessToAllAdvancedSecurityFeatures" = "すべての高度なセキュリティ機能にアクセスできるようになりました。";
-"YoullGoToStripeSecureCheckoutToCompleteYourPurchase" = "Stripe の安全なチェックアウトで購入できます。";
+/* Footer on the Premium upgrade screen; "Stripe" is the payment processor's name and shouldn't be translated. */
+"YoullCompleteThePurchaseWithStripeSecureCheckout" = "Stripe の安全なチェックアウトで購入を完了します。";
 "ContinueToStripe" = "Stripe へ進みますか？";
 "YoullBeTakenToStripeToManageYourSubscriptionCancellation" = "サブスクリプションのキャンセルを管理するために Stripe に移動します。";
 "UserIDCopiedToTheClipboard" = "ユーザー ID をクリップボードにコピーしました";
@@ -1137,3 +1202,54 @@
 "IssueDate" = "発行日";
 "ExpirationDate" = "有効期限日";
 "LicenseClass" = "免許種別";
+"PassportDetails" = "パスポートの詳細";
+/* Label for the sex/gender field as printed on a passport (e.g. "M", "F", "X"). */
+"Sex" = "性別";
+"BirthPlace" = "出生地";
+/* Label for the nationality field on a passport (the country a person is a national of). */
+"Nationality" = "国籍";
+/* Label for the category of passport (e.g. "Regular/Tourist", "Diplomatic", "Official"). */
+"PassportType" = "パスポートの種類";
+"NationalIdentificationNumber" = "国民識別番号";
+/* Label for the government authority or office that issued the passport. */
+"IssuingAuthorityOffice" = "発行機関/事務所";
+"AccountDetails" = "口座の詳細";
+"BankName" = "銀行名";
+"NameOnAccount" = "口座名義";
+"AccountType" = "口座種別";
+"BranchNumber" = "支店/機関番号";
+"SwiftCode" = "SWIFT コード";
+"IBAN" = "IBAN";
+"BankContactPhone" = "銀行の連絡先";
+"CertificateOfDeposit" = "入金証明書";
+"Checking" = "当座";
+"InvestmentBrokerage" = "投資/証券取引";
+"LineOfCredit" = "限度額";
+"MoneyMarket" = "短期市場";
+"Savings" = "普通";
+"Devices" = "デバイス";
+"NoDevicesFound" = "デバイスが見つかりません";
+"CurrentSession" = "現在のセッション";
+"PendingRequest" = "保留中のリクエスト";
+"Trusted" = "信頼済み";
+"RecentlyActiveLabel" = "最近アクティブ：";
+"FirstLoginLabel" = "初回ログイン：";
+"Today" = "今日";
+"PastSevenDays" = "過去7日間";
+"PastFourteenDays" = "過去14日間";
+"PastThirtyDays" = "過去30日間";
+"OverThirtyDaysAgo" = "30日以上前";
+"Unknown" = "不明";
+/* Device display name. %1$@ = category (e.g. "Mobile"), %2$@ = platform (e.g. "iOS"). */
+"DeviceDisplayNameXHyphenY" = "%1$@ - %2$@";
+"Mobile" = "モバイル";
+"BrowserExtension" = "ブラウザー拡張機能";
+"WebVault2" = "ウェブ保管庫";
+"Desktop" = "デスクトップ";
+"Cli" = "CLI";
+"Sdk" = "SDK";
+"Server" = "サーバー";
+/* Accessibility label for the button that clears a field's value. %1$@ is the field's title (e.g. "Date of birth"), so the spoken label reads "Clear Date of birth". */
+"ClearFieldName" = "%1$@ をクリア";
+"SelectDate" = "日付を選択";
+"PremiumRequiredTOTPDescriptionLong" = "認証キー（TOTP）はプレミアム機能です。現在のプランにはこの機能へのアクセス権が含まれていません。";

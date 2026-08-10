@@ -4,6 +4,7 @@ import BitwardenKitMocks
 /// The services provided by the test `ServiceContainer`.
 ///
 typealias Services = HasConfigService
+    & HasDebugStateService
     & HasEnvironmentService
     & HasErrorReportBuilder
     & HasErrorReporter
@@ -16,6 +17,7 @@ typealias Services = HasConfigService
 ///
 class ServiceContainer: Services {
     let configService: ConfigService
+    var debugStateService: any DebugStateService
     let environmentService: EnvironmentService
     let errorReportBuilder: any ErrorReportBuilder
     let errorReporter: ErrorReporter
@@ -26,6 +28,7 @@ class ServiceContainer: Services {
 
     required init(
         configService: ConfigService,
+        debugStateService: any DebugStateService,
         environmentService: EnvironmentService,
         errorReportBuilder: ErrorReportBuilder,
         errorReporter: ErrorReporter,
@@ -35,6 +38,7 @@ class ServiceContainer: Services {
         timeProvider: TimeProvider,
     ) {
         self.configService = configService
+        self.debugStateService = debugStateService
         self.errorReportBuilder = errorReportBuilder
         self.environmentService = environmentService
         self.errorReporter = errorReporter
@@ -48,6 +52,7 @@ class ServiceContainer: Services {
 extension ServiceContainer {
     static func withMocks(
         configService: ConfigService = MockConfigService(),
+        debugStateService: any DebugStateService = MockDebugStateService(),
         errorReportBuilder: ErrorReportBuilder = MockErrorReportBuilder(),
         environmentService: EnvironmentService = MockEnvironmentService(),
         errorReporter: ErrorReporter = MockErrorReporter(),
@@ -59,6 +64,7 @@ extension ServiceContainer {
     ) -> ServiceContainer {
         self.init(
             configService: configService,
+            debugStateService: debugStateService,
             environmentService: environmentService,
             errorReportBuilder: errorReportBuilder,
             errorReporter: errorReporter,

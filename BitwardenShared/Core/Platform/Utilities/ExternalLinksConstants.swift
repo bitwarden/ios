@@ -17,8 +17,14 @@ extension ExternalLinksConstants {
     /// A link to the app review page within the app store.
     static let appReview = URL(string: "https://itunes.apple.com/us/app/id1137397744?action=write-review")
 
+    /// A link to Bitwarden's help page for the integrated authenticator feature.
+    static let authenticatorHelp = URL(string: "https://bitwarden.com/help/integrated-authenticator")!
+
     /// A link to the auto fill help page.
     static let autofillHelp = URL(string: "https://bitwarden.com/help/auto-fill-ios/#keyboard-auto-fill")!
+
+    /// A link to Bitwarden's help page for the Fill Assist feature.
+    static let fillAssistHelp = URL(string: "https://bitwarden.com/help/fill-assist/")!
 
     /// A link to Bitwarden's help page for learning more about the account fingerprint phrase.
     static let fingerprintPhrase = URL(string: "https://bitwarden.com/help/fingerprint-phrase/")!

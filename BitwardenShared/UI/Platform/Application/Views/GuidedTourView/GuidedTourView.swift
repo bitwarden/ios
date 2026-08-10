@@ -67,7 +67,7 @@ struct GuidedTourView: View {
             .ignoresSafeArea(.all)
             .background(FullScreenCoverBackgroundRemovalView())
             .transition(.opacity)
-            .task(id: verticalSizeClass) {
+            .onChange(of: verticalSizeClass) { _ in
                 viewSize = geometry.size
             }
             .onAppear {

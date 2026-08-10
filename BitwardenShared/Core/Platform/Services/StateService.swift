@@ -10,7 +10,7 @@ import Foundation
 
 /// A protocol for a `StateService` which manages the state of the accounts in the app.
 ///
-protocol StateService: AnyObject, BillingStateService {
+protocol StateService: AnyObject, BillingStateService, DebugStateService {
     /// The language option currently selected for the app.
     var appLanguage: LanguageOption { get set }
 
@@ -38,16 +38,16 @@ protocol StateService: AnyObject, BillingStateService {
     ///
     func didAccountSwitchInExtension() async throws -> Bool
 
-    /// Returns whether the active user account has access to premium features.
+    /// Returns whether the active user account has access to Premium features.
     ///
-    /// - Returns: Whether the active account has access to premium features.
+    /// - Returns: Whether the active account has access to Premium features.
     ///
     func doesActiveAccountHavePremium() async -> Bool
 
-    /// Returns whether the active user account has premium personally (i.e. premium that the user
-    /// purchased themselves), as opposed to premium granted by an organization.
+    /// Returns whether the active user account has Premium personally (i.e. Premium that the user
+    /// purchased themselves), as opposed to Premium granted by an organization.
     ///
-    /// - Returns: Whether the active account has premium personally.
+    /// - Returns: Whether the active account has Premium personally.
     ///
     func doesActiveAccountHavePremiumPersonally() async -> Bool
 
@@ -167,6 +167,14 @@ protocol StateService: AnyObject, BillingStateService {
     ///
     func getClearClipboardValue(userId: String?) async throws -> ClearClipboardValue
 
+    /// Gets the IDs of the collapsed vault list sections for the user ID.
+    ///
+    /// - Parameter userId: The user ID associated with the collapsed vault list section IDs. Defaults
+    ///   to the active account if `nil`.
+    /// - Returns: The IDs of the vault list sections that are currently collapsed.
+    ///
+    func getCollapsedVaultListSectionIds(userId: String?) async throws -> [String]
+
     /// Gets the connect to watch value for an account.
     ///
     /// - Parameter userId: The user ID associated with the connect to watch value. Defaults to the active
@@ -210,6 +218,13 @@ protocol StateService: AnyObject, BillingStateService {
     /// - Returns: The events for the user
     ///
     func getEvents(userId: String?) async throws -> [EventData]
+
+    /// Gets whether the Fill Assist feature is enabled for the specified user.
+    ///
+    /// - Parameter userId: The user ID, or `nil` for the active account.
+    /// - Returns: Whether Fill Assist is enabled.
+    ///
+    func getFillAssistEnabled(userId: String?) async throws -> Bool
 
     /// Gets the data for the flight recorder.
     ///
@@ -283,6 +298,15 @@ protocol StateService: AnyObject, BillingStateService {
     ///
     func getNotificationsLastRegistrationDate(userId: String?) async throws -> Date?
 
+    /// Gets the organization user notification banner dismissal record for a user ID.
+    ///
+    /// - Parameter userId: The user ID of the account. Defaults to the active account if `nil`.
+    /// - Returns: The organization user notification banner dismissal record, or `nil` if not dismissed.
+    ///
+    func getOrganizationUserNotificationBannerDismissal(
+        userId: String?,
+    ) async throws -> OrganizationUserNotificationBannerDismissal?
+
     /// Gets the password generation options for a user ID.
     ///
     /// - Parameter userId: The user ID associated with the password generation options.
@@ -300,19 +324,13 @@ protocol StateService: AnyObject, BillingStateService {
     ///
     func getPreAuthEnvironmentURLs() async -> EnvironmentURLData?
 
-    /// Gets whether the premium upgrade banner has been dismissed.
+    /// Gets whether the Premium upgrade banner has been dismissed.
     ///
-    /// - Parameter userId: The user ID associated with the premium upgrade banner dismissed value.
+    /// - Parameter userId: The user ID associated with the Premium upgrade banner dismissed value.
     ///   Defaults to the active account if `nil`.
-    /// - Returns: Whether the premium upgrade banner has been dismissed.
+    /// - Returns: Whether the Premium upgrade banner has been dismissed.
     ///
     func getPremiumUpgradeBannerDismissed(userId: String?) async throws -> Bool
-
-    /// Gets whether the "Upgraded to Premium" action card should be shown for the active account.
-    ///
-    /// - Returns: Whether the action card should be shown.
-    ///
-    func getUpgradedToPremiumActionCardVisible() async -> Bool
 
     /// Gets the environment URLs for a given email during account creation.
     ///
@@ -551,20 +569,14 @@ protocol StateService: AnyObject, BillingStateService {
     ///
     func setArchiveOnboardingShown(_ shown: Bool) async
 
-    /// Sets whether the premium upgrade banner has been dismissed.
+    /// Sets whether the Premium upgrade banner has been dismissed.
     ///
     /// - Parameters:
-    ///   - dismissed: Whether the premium upgrade banner has been dismissed.
-    ///   - userId: The user ID associated with the premium upgrade banner dismissed value.
+    ///   - dismissed: Whether the Premium upgrade banner has been dismissed.
+    ///   - userId: The user ID associated with the Premium upgrade banner dismissed value.
     ///     Defaults to the active account if `nil`.
     ///
     func setPremiumUpgradeBannerDismissed(_ dismissed: Bool, userId: String?) async throws
-
-    /// Sets whether the "Upgraded to Premium" action card should be shown for the active account.
-    ///
-    /// - Parameter visible: Whether the action card should be shown.
-    ///
-    func setUpgradedToPremiumActionCardVisible(_ visible: Bool) async throws
 
     /// Sets the clear clipboard value for an account.
     ///
@@ -573,6 +585,15 @@ protocol StateService: AnyObject, BillingStateService {
     ///   - userId: The user ID of the account. Defaults to the active account if `nil`.
     ///
     func setClearClipboardValue(_ clearClipboardValue: ClearClipboardValue?, userId: String?) async throws
+
+    /// Sets the IDs of the collapsed vault list sections for the user ID.
+    ///
+    /// - Parameters:
+    ///   - ids: The IDs of the vault list sections that are currently collapsed.
+    ///   - userId: The user ID associated with the collapsed vault list section IDs. Defaults to the
+    ///     active account if `nil`.
+    ///
+    func setCollapsedVaultListSectionIds(_ ids: [String], userId: String?) async throws
 
     /// Sets the connect to watch value for an account.
     ///
@@ -605,6 +626,14 @@ protocol StateService: AnyObject, BillingStateService {
     ///   - userId: The user ID of the account. Defaults to the active account if `nil`.
     ///
     func setEvents(_ events: [EventData], userId: String?) async throws
+
+    /// Sets whether the Fill Assist feature is enabled for the specified user.
+    ///
+    /// - Parameters:
+    ///   - fillAssistEnabled: Whether Fill Assist is enabled.
+    ///   - userId: The user ID of the account. Defaults to the active account if `nil`.
+    ///
+    func setFillAssistEnabled(_ fillAssistEnabled: Bool, userId: String?) async throws
 
     /// Sets the force password reset reason for an account.
     ///
@@ -688,6 +717,17 @@ protocol StateService: AnyObject, BillingStateService {
     ///   - userId: The user ID of the account. Defaults to the active account if `nil`.
     ///
     func setNotificationsLastRegistrationDate(_ date: Date?, userId: String?) async throws
+
+    /// Sets the organization user notification banner dismissal record for a user ID.
+    ///
+    /// - Parameters:
+    ///   - dismissal: The dismissal record to store, or `nil` to clear it.
+    ///   - userId: The user ID of the account. Defaults to the active account if `nil`.
+    ///
+    func setOrganizationUserNotificationBannerDismissal(
+        _ dismissal: OrganizationUserNotificationBannerDismissal?,
+        userId: String?,
+    ) async throws
 
     /// Sets the password generation options for a user ID.
     ///
@@ -984,6 +1024,14 @@ extension StateService {
         try await getClearClipboardValue(userId: nil)
     }
 
+    /// Gets the IDs of the collapsed vault list sections for the active account.
+    ///
+    /// - Returns: The IDs of the vault list sections that are currently collapsed.
+    ///
+    func getCollapsedVaultListSectionIds() async throws -> [String] {
+        try await getCollapsedVaultListSectionIds(userId: nil)
+    }
+
     /// Gets the connect to watch value for the active account.
     ///
     /// - Returns: Whether to connect to the watch app.
@@ -1024,6 +1072,14 @@ extension StateService {
         try await getEnvironmentURLs(userId: nil)
     }
 
+    /// Gets whether Fill Assist is enabled for the active account.
+    ///
+    /// - Returns: Whether Fill Assist is enabled.
+    ///
+    func getFillAssistEnabled() async throws -> Bool {
+        try await getFillAssistEnabled(userId: nil)
+    }
+
     /// Gets whether a sync has been done successfully after login for the current user.
     /// This is particular useful to trigger logic that needs to be executed right after login in
     /// and after the first successful sync.
@@ -1058,6 +1114,14 @@ extension StateService {
         try await getNotificationsLastRegistrationDate(userId: nil)
     }
 
+    /// Gets the organization user notification banner dismissal record for the active account.
+    ///
+    /// - Returns: The organization user notification banner dismissal record, or `nil` if not dismissed.
+    ///
+    func getOrganizationUserNotificationBannerDismissal() async throws -> OrganizationUserNotificationBannerDismissal? {
+        try await getOrganizationUserNotificationBannerDismissal(userId: nil)
+    }
+
     /// Gets the password generation options for the active account.
     ///
     /// - Returns: The password generation options for the user ID.
@@ -1066,9 +1130,9 @@ extension StateService {
         try await getPasswordGenerationOptions(userId: nil)
     }
 
-    /// Gets whether the premium upgrade banner has been dismissed for the active account.
+    /// Gets whether the Premium upgrade banner has been dismissed for the active account.
     ///
-    /// - Returns: Whether the premium upgrade banner has been dismissed.
+    /// - Returns: Whether the Premium upgrade banner has been dismissed.
     ///
     func getPremiumUpgradeBannerDismissed() async throws -> Bool {
         try await getPremiumUpgradeBannerDismissed(userId: nil)
@@ -1248,6 +1312,14 @@ extension StateService {
         try await setClearClipboardValue(clearClipboardValue, userId: nil)
     }
 
+    /// Sets the IDs of the collapsed vault list sections for the active account.
+    ///
+    /// - Parameter ids: The IDs of the vault list sections that are currently collapsed.
+    ///
+    func setCollapsedVaultListSectionIds(_ ids: [String]) async throws {
+        try await setCollapsedVaultListSectionIds(ids, userId: nil)
+    }
+
     /// Sets the connect to watch value for the active account.
     ///
     /// - Parameter connectToWatch: Whether to connect to the watch app.
@@ -1270,6 +1342,14 @@ extension StateService {
     ///
     func setDisableAutoTotpCopy(_ disableAutoTotpCopy: Bool) async throws {
         try await setDisableAutoTotpCopy(disableAutoTotpCopy, userId: nil)
+    }
+
+    /// Sets whether Fill Assist is enabled for the active account.
+    ///
+    /// - Parameter fillAssistEnabled: Whether Fill Assist is enabled.
+    ///
+    func setFillAssistEnabled(_ fillAssistEnabled: Bool) async throws {
+        try await setFillAssistEnabled(fillAssistEnabled, userId: nil)
     }
 
     /// Sets the force password reset reason for the active account.
@@ -1314,6 +1394,16 @@ extension StateService {
         try await setNotificationsLastRegistrationDate(date, userId: nil)
     }
 
+    /// Sets the organization user notification banner dismissal record for the active account.
+    ///
+    /// - Parameter dismissal: The dismissal record to store, or `nil` to clear it.
+    ///
+    func setOrganizationUserNotificationBannerDismissal(
+        _ dismissal: OrganizationUserNotificationBannerDismissal?,
+    ) async throws {
+        try await setOrganizationUserNotificationBannerDismissal(dismissal, userId: nil)
+    }
+
     /// Sets the password generation options for the active account.
     ///
     /// - Parameter options: The user's password generation options.
@@ -1322,9 +1412,9 @@ extension StateService {
         try await setPasswordGenerationOptions(options, userId: nil)
     }
 
-    /// Sets whether the premium upgrade banner has been dismissed for the active account.
+    /// Sets whether the Premium upgrade banner has been dismissed for the active account.
     ///
-    /// - Parameter dismissed: Whether the premium upgrade banner has been dismissed.
+    /// - Parameter dismissed: Whether the Premium upgrade banner has been dismissed.
     ///
     func setPremiumUpgradeBannerDismissed(_ dismissed: Bool) async throws {
         try await setPremiumUpgradeBannerDismissed(dismissed, userId: nil)
@@ -1406,9 +1496,6 @@ enum StateServiceError: LocalizedError {
 
     /// The user has no pin protected user key.
     case noPinProtectedUserKey
-
-    /// The user has no user key.
-    case noEncUserKey
 
     var errorDescription: String? {
         switch self {
@@ -1672,19 +1759,14 @@ actor DefaultStateService: StateService, ActiveAccountStateProvider, ConfigState
         return appSettingsStore.premiumUpgradeBannerDismissed(userId: userId)
     }
 
-    func getUpgradedToPremiumActionCardVisible() async -> Bool {
-        do {
-            let userId = try getActiveAccountUserId()
-            return appSettingsStore.upgradedToPremiumActionCardVisible(userId: userId)
-        } catch {
-            errorReporter.log(error: error)
-            return false
-        }
-    }
-
     func getClearClipboardValue(userId: String?) async throws -> ClearClipboardValue {
         let userId = try userId ?? getActiveAccountUserId()
         return appSettingsStore.clearClipboardValue(userId: userId)
+    }
+
+    func getCollapsedVaultListSectionIds(userId: String?) async throws -> [String] {
+        let userId = try userId ?? getActiveAccountUserId()
+        return appSettingsStore.collapsedVaultListSectionIds(userId: userId)
     }
 
     func getConnectToWatch(userId: String?) async throws -> Bool {
@@ -1720,6 +1802,11 @@ actor DefaultStateService: StateService, ActiveAccountStateProvider, ConfigState
     func getEvents(userId: String?) async throws -> [EventData] {
         let userId = try userId ?? getActiveAccountUserId()
         return appSettingsStore.events(userId: userId)
+    }
+
+    func getFillAssistEnabled(userId: String?) async throws -> Bool {
+        let userId = try userId ?? getActiveAccountUserId()
+        return appSettingsStore.fillAssistEnabled(userId: userId)
     }
 
     func getFlightRecorderData() async -> FlightRecorderData? {
@@ -1766,6 +1853,13 @@ actor DefaultStateService: StateService, ActiveAccountStateProvider, ConfigState
     func getNotificationsLastRegistrationDate(userId: String?) async throws -> Date? {
         let userId = try userId ?? getActiveAccountUserId()
         return appSettingsStore.notificationsLastRegistrationDate(userId: userId)
+    }
+
+    func getOrganizationUserNotificationBannerDismissal(
+        userId: String?,
+    ) async throws -> OrganizationUserNotificationBannerDismissal? {
+        let userId = try userId ?? getActiveAccountUserId()
+        return appSettingsStore.organizationUserNotificationBannerDismissal(userId: userId)
     }
 
     func getPasswordGenerationOptions(userId: String?) async throws -> PasswordGenerationOptions? {
@@ -1903,6 +1997,15 @@ actor DefaultStateService: StateService, ActiveAccountStateProvider, ConfigState
         appSettingsStore.setLastSyncTime(nil, userId: knownUserId)
         appSettingsStore.setMasterPasswordHash(nil, userId: knownUserId)
         appSettingsStore.setPasswordGenerationOptions(nil, userId: knownUserId)
+
+        // Reset the organization user notification banner dismissal so the banner can reappear on the next
+        // login. A user-initiated (hard) logout always clears it; a soft logout (e.g. a vault-timeout logout)
+        // clears it only when the banner is configured to show after every login.
+        let bannerDismissal = appSettingsStore.organizationUserNotificationBannerDismissal(userId: knownUserId)
+        if userInitiated || bannerDismissal?.showAfterEveryLogin == true {
+            appSettingsStore.setOrganizationUserNotificationBannerDismissal(nil, userId: knownUserId)
+        }
+
         try await keychainRepository.clearLocalUserDataKeyStates(userId: knownUserId)
 
         try await dataStore.deleteDataForUser(userId: knownUserId)
@@ -2036,14 +2139,14 @@ actor DefaultStateService: StateService, ActiveAccountStateProvider, ConfigState
         appSettingsStore.setPremiumUpgradeBannerDismissed(dismissed, userId: userId)
     }
 
-    func setUpgradedToPremiumActionCardVisible(_ visible: Bool) async throws {
-        let userId = try getActiveAccountUserId()
-        appSettingsStore.setUpgradedToPremiumActionCardVisible(visible, userId: userId)
-    }
-
     func setClearClipboardValue(_ clearClipboardValue: ClearClipboardValue?, userId: String?) async throws {
         let userId = try userId ?? getActiveAccountUserId()
         appSettingsStore.setClearClipboardValue(clearClipboardValue, userId: userId)
+    }
+
+    func setCollapsedVaultListSectionIds(_ ids: [String], userId: String?) async throws {
+        let userId = try userId ?? getActiveAccountUserId()
+        appSettingsStore.setCollapsedVaultListSectionIds(ids, userId: userId)
     }
 
     func setConnectToWatch(_ connectToWatch: Bool, userId: String?) async throws {
@@ -2069,6 +2172,11 @@ actor DefaultStateService: StateService, ActiveAccountStateProvider, ConfigState
     func setEvents(_ events: [EventData], userId: String?) async throws {
         let userId = try userId ?? getActiveAccountUserId()
         appSettingsStore.setEvents(events, userId: userId)
+    }
+
+    func setFillAssistEnabled(_ fillAssistEnabled: Bool, userId: String?) async throws {
+        let userId = try userId ?? getActiveAccountUserId()
+        appSettingsStore.setFillAssistEnabled(fillAssistEnabled, userId: userId)
     }
 
     func setFlightRecorderData(_ data: FlightRecorderData?) async {
@@ -2129,6 +2237,14 @@ actor DefaultStateService: StateService, ActiveAccountStateProvider, ConfigState
     func setNotificationsLastRegistrationDate(_ date: Date?, userId: String?) async throws {
         let userId = try userId ?? getActiveAccountUserId()
         appSettingsStore.setNotificationsLastRegistrationDate(date, userId: userId)
+    }
+
+    func setOrganizationUserNotificationBannerDismissal(
+        _ dismissal: OrganizationUserNotificationBannerDismissal?,
+        userId: String?,
+    ) async throws {
+        let userId = try userId ?? getActiveAccountUserId()
+        appSettingsStore.setOrganizationUserNotificationBannerDismissal(dismissal, userId: userId)
     }
 
     func setPasswordGenerationOptions(_ options: PasswordGenerationOptions?, userId: String?) async throws {
@@ -2200,6 +2316,11 @@ actor DefaultStateService: StateService, ActiveAccountStateProvider, ConfigState
     func setServerConfig(_ config: ServerConfig?, userId: String?) async throws {
         let userId = try userId ?? getActiveAccountUserId()
         appSettingsStore.setServerConfig(config, userId: userId)
+        if let fillAssistRulesUrl = config?.environment?.fillAssistRules.flatMap(URL.init) {
+            guard var state = appSettingsStore.state else { return }
+            state.accounts[userId]?.settings.environmentUrls?.fillAssistRulesUrl = fillAssistRulesUrl
+            appSettingsStore.state = state
+        }
     }
 
     func setShouldTrustDevice(_ shouldTrustDevice: Bool?, userId: String) {
@@ -2397,6 +2518,54 @@ struct AccountVolatileData {
     var hasBeenUnlockedInteractively = false
 }
 
+// MARK: BillingStateService
+
+extension DefaultStateService: BillingStateService {
+    // MARK: Premium Upgrade Banner
+
+    func isPremiumUpgradeBannerDismissed() async -> Bool {
+        do {
+            return try await getPremiumUpgradeBannerDismissed()
+        } catch {
+            errorReporter.log(error: error)
+            return false
+        }
+    }
+
+    func isPremiumUpgradeEligible() async -> Bool {
+        guard await !doesActiveAccountHavePremium() else { return false }
+
+        // Check account age >= 7 days
+        guard let account = try? await getActiveAccount(),
+              let creationDate = account.profile.creationDate else { return false }
+        return timeProvider.timeSince(creationDate) >= Constants.premiumUpgradeBannerAccountAge
+    }
+
+    // MARK: Subscription Attention Card
+
+    func getSubscriptionAttentionCardVisible() async throws -> Bool {
+        let userId = try getActiveAccountUserId()
+        return appSettingsStore.subscriptionAttentionCardVisible(userId: userId)
+    }
+
+    func setSubscriptionAttentionCardVisible(_ visible: Bool) async throws {
+        let userId = try getActiveAccountUserId()
+        appSettingsStore.setSubscriptionAttentionCardVisible(visible, userId: userId)
+    }
+
+    // MARK: Upgraded to Premium Card
+
+    func getUpgradedToPremiumActionCardVisible() async throws -> Bool {
+        let userId = try getActiveAccountUserId()
+        return appSettingsStore.upgradedToPremiumActionCardVisible(userId: userId)
+    }
+
+    func setUpgradedToPremiumActionCardVisible(_ visible: Bool) async throws {
+        let userId = try getActiveAccountUserId()
+        appSettingsStore.setUpgradedToPremiumActionCardVisible(visible, userId: userId)
+    }
+}
+
 // MARK: BiometricsStateService
 
 extension DefaultStateService: BiometricsStateService {
@@ -2408,6 +2577,67 @@ extension DefaultStateService: BiometricsStateService {
     func setBiometricAuthenticationEnabled(_ isEnabled: Bool?, userId: String?) async throws {
         let userId = try userId ?? getActiveAccountUserId()
         appSettingsStore.setBiometricAuthenticationEnabled(isEnabled, for: userId)
+    }
+}
+
+// MARK: - DebugStateService
+
+extension DefaultStateService {
+    func addFillAssistDebugRule(
+        domain: String,
+        usernameFieldId: String,
+        passwordFieldId: String,
+    ) async throws {
+        let usernameAttributes = FillAssistFieldAttributes(
+            id: usernameFieldId,
+            name: nil,
+            role: nil,
+            tagName: nil,
+            type: nil,
+        )
+        let passwordAttributes = FillAssistFieldAttributes(
+            id: passwordFieldId,
+            name: nil,
+            role: nil,
+            tagName: nil,
+            type: nil,
+        )
+
+        let userId = try getActiveAccountUserId()
+        let existing = appSettingsStore.fillAssistCachedData(userId: userId)
+
+        var rules = existing?.rules ?? [:]
+        rules[domain] = FillAssistHostRules(fields: [
+            "username": [usernameAttributes],
+            "password": [passwordAttributes],
+        ])
+
+        let data = FillAssistCachedData(
+            cid: existing?.cid ?? "debug",
+            rules: rules,
+            sourceUrl: existing?.sourceUrl ?? "",
+        )
+        appSettingsStore.setFillAssistCachedData(data, userId: userId)
+
+        let newFingerprint = try DefaultDataFingerprintService().fingerprint(for: data)
+        try await keychainRepository.setUserAuthKey(
+            for: .fillAssistRulesFingerprint(userId: userId),
+            value: newFingerprint,
+        )
+    }
+
+    func clearFillAssistCache() async throws {
+        let userId = try getActiveAccountUserId()
+        appSettingsStore.setFillAssistCachedData(nil, userId: userId)
+        appSettingsStore.setFillAssistLastFetchTimestamp(nil, userId: userId)
+        try await keychainRepository.deleteUserAuthKey(for: .fillAssistRulesFingerprint(userId: userId))
+    }
+
+    func clearMasterPasswordUnlockForActiveAccount() async throws {
+        let userId = try getActiveAccountUserId()
+        try updateAccountProfile(userId: userId) { profile in
+            profile.userDecryptionOptions?.masterPasswordUnlock = nil
+        }
     }
 }
 

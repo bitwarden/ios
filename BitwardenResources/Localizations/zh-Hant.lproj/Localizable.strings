@@ -6,6 +6,7 @@
 "Bitwarden" = "Bitwarden";
 "Cancel" = "取消";
 "Copy" = "複製";
+"CopyLicenseNumber" = "複製駕照號碼";
 "CopyPassportNumber" = "複製護照號碼";
 "CopyPassword" = "複製密碼";
 "CopyUsername" = "複製使用者名稱";
@@ -38,6 +39,8 @@
 "RemoveAccount" = "移除帳戶";
 "RemoveAccountConfirmation" = "您確定要移除這個帳戶嗎？";
 "AccountAlreadyAdded" = "已新增帳戶";
+"AccountCreationRestricted" = "Account creation restricted";
+"XOnlyAllowsInvitedUsersToCreateAccounts" = "%1$@ only allows invited users to create accounts.";
 "SwitchToAlreadyAddedAccountConfirmation" = "您想現在就切換過去嗎？";
 "MasterPassword" = "主密碼";
 "MoreOptions" = "更多選項";
@@ -48,6 +51,7 @@
 "OK" = "好的";
 "Password" = "密碼";
 "Save" = "儲存";
+/* Action to move a vault item to another vault; used as a button label, menu item, and screen title. */
 "Move" = "移動";
 "Saving" = "儲存中…";
 "Settings" = "設定";
@@ -255,8 +259,14 @@
 "ShowWebsiteIconsDescription" = "在每個登入資料旁顯示一個可辨識的圖片。";
 "IconsUrl" = "圖示伺服器 URL";
 "AutofillWithBitwarden" = "使用 Bitwarden 自動填入";
+/* Section header and screen title for viewing/managing a cipher's collections. */
 "Collections" = "集合";
+/* Section header and screen title for viewing/managing a cipher's shared folders. */
+"SharedFolders" = "Shared folders";
+/* Empty state message shown when a collection has no items. */
 "NoItemsCollection" = "此集合中沒有項目。";
+/* Empty state message shown when a shared folder has no items. */
+"ThereAreNoItemsInThisSharedFolder" = "There are no items in this shared folder";
 "NoItemsFolder" = "此目錄裡並無項目";
 "NoItemsTrash" = "垃圾桶中沒有項目。";
 "FaceID" = "Face ID";
@@ -276,6 +286,7 @@
 "RegEx" = "規則運算式";
 "StartsWith" = "開始於";
 "MatchDetection" = "一致性偵測";
+/* Field label on the Move screen shown when the "vfo1-foundation" feature flag is disabled; superseded by "Vault" when enabled. */
 "Organization" = "組織";
 "HoldYubikeyNearTop" = "將您的 Yubikey 靠近裝置的頂端。";
 "TryAgain" = "再試一次";
@@ -311,13 +322,26 @@
 "NoItemsToList" = "沒有可列出的項目。";
 "MoveDown" = "下移";
 "MoveUp" = "上移";
+/* Empty state message on the Collections screen shown when a user has no collections. */
 "NoCollectionsToList" = "沒有可顯示的集合。";
+/* Empty state message on the Shared folders screen shown when a user has no shared folders. */
+"ThereAreNoSharedFoldersToList" = "There are no shared folders to list.";
 "MovedItemToOrg" = "%1$@ 已移動至 %2$@。";
+/* Alert message shown when saving an item with no collection selected. */
 "SelectOneCollection" = "您必須至少選擇一個集合。";
+/* Alert message shown when saving an item with no shared folder selected. */
+"YouMustSelectAtLeastOneSharedFolder" = "You must select at least one shared folder.";
 "Share" = "共用";
 "ShareAll" = "分享全部";
+/* Overflow menu item and screen title on the Move screen shown when the "vfo1-foundation" feature flag is disabled; superseded by "Move" when enabled. */
 "MoveToOrganization" = "移動至組織";
+/* Empty state message shown when a user has no vaults available to move an item into, when the "vfo1-foundation" feature flag is enabled. */
+"NoVaultsToList" = "No vaults to list.";
+/* Empty state message shown when a user has no organizations available to move an item into, when the "vfo1-foundation" feature flag is disabled. */
 "NoOrgsToList" = "沒有可列出的組織。";
+/* Footer text on the Move screen explaining that moving an item transfers its ownership to the destination vault's organization, when the "vfo1-foundation" feature flag is enabled. */
+"ChooseAVaultThatYouWishToMoveThisItemToDescriptionLong" = "Choose a vault that you wish to move this item to. Moving to another vault transfers ownership of the item to that organization. You will no longer be the direct owner of this item once it has been moved.";
+/* Footer text on the Move screen explaining that moving an item transfers its ownership to the destination organization, when the "vfo1-foundation" feature flag is disabled. */
 "MoveToOrgDesc" = "選擇您希望將這個項目移動至哪個組織。項目的擁有權將會轉移至該組織。轉移之後，您將不再是此項目的直接擁有者。";
 "NumberOfWords" = "單字數量";
 "Passphrase" = "密碼短語";
@@ -421,7 +445,7 @@
 "AboutSend" = "關於 Send";
 "HideEmail" = "對收件人隱藏我的電子郵件地址";
 "SendOptionsPolicyInEffect" = "一個或多個組織原則正影響您的 Send 選項。";
-"SendFilePremiumRequired" = "免費帳戶僅限於共用文字。若想使用檔案 Send，需要進階會員資格。";
+"SendFilePremiumRequired" = "免費帳戶僅限於共用文字。若想使用檔案傳送，需要進階會員資格。";
 "SendFileEmailVerificationRequired" = "您必須驗證電子郵件才能夠使用檔案 Send。您可以在網頁版密碼庫中驗證您的電子郵件。";
 "PasswordPrompt" = "重新詢問主密碼";
 "PasswordConfirmation" = "確認主密碼";
@@ -562,6 +586,7 @@
 "ThereAreNoBankAccountsInYourVault" = "您的保管庫中沒有銀行帳戶";
 "US" = "美國";
 "EU" = "歐盟";
+"Gov" = "Gov";
 "SelfHosted" = "自架";
 "UpdateWeakMasterPasswordWarning" = "您的主密碼不符合您的組織政策之一或多個要求。您必須立即更新您的主密碼以存取密碼庫。進行此操作將登出您目前的工作階段，需要您重新登入。其他裝置上的工作階段可能持續長達一小時。";
 "CurrentMasterPasswordRequired" = "目前主密碼（必填）";
@@ -570,6 +595,8 @@
 "RequestAdminApproval" = "要求管理員核准";
 "ApproveWithMasterPassword" = "使用主密碼核准";
 "TurnOffUsingPublicDevice" = "使用公用裝置來關閉";
+"TurnOnFillAssist" = "Turn on fill assist";
+"TurnOnFillAssistDescriptionLong" = "Fill Assist improves autofill accuracy on supported sites by using site-specific rules.";
 "RememberThisDevice" = "記住這個裝置";
 "Passkey" = "密碼金鑰";
 "Passkeys" = "密碼金鑰";
@@ -583,6 +610,7 @@
 "LoginApproved" = "登入已核准";
 "LogInWithDevice" = "使用裝置登入";
 "LoggingInOn" = "正登入到";
+/* The word "Vault", used generically as a field label, screen title, and app-wide term for a user's or organization's item collection. */
 "Vault" = "密碼庫";
 "Appearance" = "外觀";
 "AccountSecurity" = "帳戶安全性";
@@ -777,6 +805,8 @@
 "SetUpAutofillOnAllYourDevicesToLoginWithASingleTapAnywhere" = "在您所有裝置上設定一鍵自動填入登入";
 "GoBack" = "返回";
 "GotIt" = "知道了";
+/* masterPasswordUnlock is the name of some data we want to delete, so there's no need to localize it. */
+"ClearMasterPasswordUnlock" = "清除 masterPasswordUnlock";
 "ClearSsoCookies" = "SSO Cookie 已清除";
 "GenerateCrash" = "產生當機報告";
 "GenerateErrorReport" = "產生錯誤報告";
@@ -862,7 +892,11 @@
 "ShowLess" = "顯示較少";
 "ItemNameX" = "項目名稱，%1$@";
 "OwnerX" = "所有者，%1$@";
+"VaultX" = "Vault, %1$@";
+/* VoiceOver accessibility label for a collection the item belongs to. */
 "CollectionX" = "集合，%1$@";
+/* VoiceOver accessibility label for a shared folder the item belongs to. */
+"SharedFolderX" = "Shared folder, %1$@";
 "FolderX" = "資料夾，%1$@";
 "ItemXOfY" = "項目 %1$@ / %2$@";
 "ViewRecordedLogs" = "檢視記錄的日誌";
@@ -1027,10 +1061,8 @@
 "ArchiveEmptyDescriptionLong" = "將您不希望出現在搜尋結果與自動填入建議中、但日後可能需要的項目加入封存。";
 "ArchiveItem" = "封存項目";
 "OnceArchivedThisItemWillBeExcludedDescriptionLong" = "封存後，此項目將不會顯示在搜尋結果與自動填入建議中。";
-"ArchiveUnavailable" = "封存不可用";
 "ArchivingItemsIsAPremiumFeatureDescriptionLong" = "封存項目為進階版功能。您目前的方案不包含此功能。";
 "AddingAttachmentsIsAPremiumFeatureDescriptionLong" = "新增附件為 Premium 功能。您目前的方案不包含此功能。";
-"AttachmentsUnavailable" = "附件不可用";
 "UpgradeToPremium" = "升級到 Premium";
 "ThisItemIsArchived" = "此項目已被封存。";
 "YourPremiumSubscriptionEnded" = "您的進階版訂閱已到期";
@@ -1063,6 +1095,8 @@
 "ReplaceCertificate" = "更換憑證";
 "ReplaceExistingCertificate" = "取代現有憑證";
 "UnableToReadCertificateFile" = "無法讀取憑證檔案。";
+/* masterPasswordUnlock is the name of some data we want to delete, so there's no need to localize it. */
+"MasterPasswordUnlockCleared" = "已清除 masterPasswordUnlock。";
 "SsoCookiesCleared" = "SSO Cookie 已清除";
 "YourRequestWasInterruptedBecauseTheAppNeededToReAuthenticatePleaseTryAgain" = "您的請求已中斷，因為應用程式需要重新驗證。請再試一次。";
 "AutofillWithBitwardenDescriptionLong" = "當您登入應用程式與網站時，Bitwarden 可以建議您的密碼與其他憑證。";
@@ -1076,6 +1110,7 @@
 "Canceled" = "已取消";
 "PastDue" = "逾期";
 "PendingCancellation" = "待取消";
+"Unpaid" = "未付款";
 "UpdatePayment" = "更新付款方式";
 "BillingAmount" = "帳單金額";
 "StorageCost" = "儲存空間費用";
@@ -1087,17 +1122,44 @@
 "ExternalLink" = "外部連結";
 "YourNextChargeIsForXDueOnY" = "下次收費為 **%1$@**，將於 **%2$@** 到期。";
 "WeCouldNotProcessYourPaymentUpdateYourPaymentMethodDescriptionLong" = "無法處理您的付款。請在訂閱於 **%1$@** 結束前更新付款方式。";
+/* Error message shown when the Premium Plan screen fails to load subscription data, with a prompt to retry. */
+"WeCouldntLoadYourSubscriptionDetailsPleaseRetry" = "無法載入您的訂閱詳細資訊。請再試一次。";
 "YourSubscriptionWasCanceledOnXDescriptionLong" = "您的訂閱已於 **%1$@** 取消。重新訂閱以繼續使用 Premium 功能。";
+"YourSubscriptionWasSuspendedOnXDescriptionLong" = "Your subscription was suspended on **%1$@**. To reactivate, please resolve your past due invoices.";
 "YourSubscriptionExpiredOnXDescriptionLong" = "您的訂閱已於 **%1$@** 到期。重新訂閱以繼續使用 Premium 功能。";
 "YourSubscriptionIsScheduledToCancelOnXDescriptionLong" = "您的訂閱預計將於 **%1$@** 取消。在此之前，您隨時都可以恢復訂閱。";
 "PerMonth" = "/ 月";
+/* VoiceOver reading of "PerMonth", spoken instead of shown. */
+"PerMonthVoiceOver" = "per month";
 "PerYear" = "/ 年";
+/* VoiceOver reading of "PerYear", spoken instead of shown. */
+"PerYearVoiceOver" = "per year";
 "XAmountPerCadence" = "%1$@ %2$@";
+/* %1$@ is an amount and cadence together, e.g. "$1.65 / month". */
+"XCancelAnytime" = "%1$@ · Cancel anytime";
+/* VoiceOver reading of "XCancelAnytime", spoken instead of shown. */
+"XCancelAnytimeVoiceOver" = "%1$@, Cancel anytime";
 "NegativeX" = "-%1$@";
 "UnknownStatus" = "不詳";
 "YourSubscriptionStatusIsUnknownVisitTheWebAppDescriptionLong" = "無法判斷您的訂閱狀態。請前往網頁版查看詳細資訊，或更新至最新版本。";
-"AtTheMomentPremiumPlanIsNotAvailableDescriptionLong" = "目前無法使用 Premium 方案，請稍後再試。";
-"UnlockMoreAdvancedFeaturesWithPremiumPlan" = "透過 Premium 方案解鎖更多進階功能。";
+/* Headline on the Premium upgrade screen. */
+"UnlockAdvancedProtection" = "Unlock advanced protection";
+/* Premium benefit list item. */
+"BreezeThrough2faWithBuiltInCodes" = "Breeze through 2FA with built-in codes";
+/* Premium benefit list item. */
+"RunReportsToFindRiskyPasswords" = "Run reports to find risky passwords";
+/* Premium benefit list item. */
+"KeepDocumentsSafeAndEncrypted" = "Keep documents safe and encrypted";
+/* Premium benefit list item. */
+"AddATrustedEmergencyContact" = "Add a trusted emergency contact";
+/* Premium benefit list item. */
+"IdentifyUnsecureWebsites" = "Identify unsecure websites";
+/* Premium benefit list item. */
+"FlagAccountsWithInactive2fa" = "Flag accounts with inactive 2FA";
+/* Premium benefit list item; "Send" is the Bitwarden Send feature name and shouldn't be translated. */
+"ShareFilesSecurelyWithAnyoneUsingSend" = "Share files securely with anyone using Send";
+/* Premium benefit list item. */
+"Receive247PrioritySupport" = "Receive 24/7 priority support";
 "BuiltInAuthenticator" = "內建驗證器";
 "EmergencyAccess" = "緊急存取";
 "PaymentNotReceivedYet" = "尚未收到付款";
@@ -1106,15 +1168,18 @@
 "WeHadTroubleOpeningThePaymentPageDescriptionLong" = "開啟付款頁面時發生問題，請再試一次。";
 "SecureFileStorage" = "安全檔案儲存";
 "BreachMonitoring" = "外洩監控";
-"UpgradeNow" = "立即升級";
 "ConfirmingYourUpgrade" = "正在確認您的升級…";
 "OpeningCheckout" = "正在開啟結帳頁面…";
 "UpgradePending" = "升級處理中";
 "YourUpgradeIsBeingProcessedDescriptionLong" = "您的升級正在處理中。在完成之前，您將維持免費方案。立即同步以進行檢查，或繼續操作，系統將自動更新。";
 "UpgradedToPremium" = "升級到 Premium";
+"SubscriptionNeedsAttention" = "您的訂閱需要處理";
+"CheckYourPlanForDetails" = "請查看您的方案以了解詳情。";
+"ViewPlan" = "查看方案";
 "YouNowHaveAccessToAdvancedSecurityDescriptionLong" = "您現在可以使用進階安全功能。深入了解 Premium 包含的內容。";
 "YouNowHaveAccessToAllAdvancedSecurityFeatures" = "您現在可以使用所有進階安全功能。";
-"YoullGoToStripeSecureCheckoutToCompleteYourPurchase" = "您將前往 Stripe 的安全結帳頁面完成購買。";
+/* Footer on the Premium upgrade screen; "Stripe" is the payment processor's name and shouldn't be translated. */
+"YoullCompleteThePurchaseWithStripeSecureCheckout" = "You'll complete the purchase with Stripe secure checkout.";
 "ContinueToStripe" = "要前往 Stripe 嗎？";
 "YoullBeTakenToStripeToManageYourSubscriptionCancellation" = "您將前往 Stripe 管理您的訂閱取消事宜。";
 "UserIDCopiedToTheClipboard" = "使用者 ID 已複製到剪貼簿";
@@ -1138,3 +1203,54 @@
 "IssueDate" = "簽發日期";
 "ExpirationDate" = "到期日期";
 "LicenseClass" = "駕照類別";
+"PassportDetails" = "護照詳細資訊";
+/* Label for the sex/gender field as printed on a passport (e.g. "M", "F", "X"). */
+"Sex" = "性別";
+"BirthPlace" = "出生地";
+/* Label for the nationality field on a passport (the country a person is a national of). */
+"Nationality" = "國籍";
+/* Label for the category of passport (e.g. "Regular/Tourist", "Diplomatic", "Official"). */
+"PassportType" = "護照類型";
+"NationalIdentificationNumber" = "身分證字號";
+/* Label for the government authority or office that issued the passport. */
+"IssuingAuthorityOffice" = "簽發機關／單位";
+"AccountDetails" = "帳戶詳細資訊";
+"BankName" = "銀行名稱";
+"NameOnAccount" = "帳戶名稱";
+"AccountType" = "帳戶類型";
+"BranchNumber" = "分行代碼";
+"SwiftCode" = "SWIFT 代碼";
+"IBAN" = "IBAN";
+"BankContactPhone" = "銀行聯絡電話";
+"CertificateOfDeposit" = "定期存款";
+"Checking" = "支票帳戶";
+"InvestmentBrokerage" = "投資／券商帳戶";
+"LineOfCredit" = "信用額度";
+"MoneyMarket" = "貨幣市場帳戶";
+"Savings" = "儲蓄帳戶";
+"Devices" = "裝置";
+"NoDevicesFound" = "No devices found";
+"CurrentSession" = "目前工作階段";
+"PendingRequest" = "待處理請求";
+"Trusted" = "已信任";
+"RecentlyActiveLabel" = "Recently active:";
+"FirstLoginLabel" = "First login:";
+"Today" = "今天";
+"PastSevenDays" = "過去 7 天";
+"PastFourteenDays" = "過去 14 天";
+"PastThirtyDays" = "過去 30 天";
+"OverThirtyDaysAgo" = "30 天前以上";
+"Unknown" = "不詳";
+/* Device display name. %1$@ = category (e.g. "Mobile"), %2$@ = platform (e.g. "iOS"). */
+"DeviceDisplayNameXHyphenY" = "%1$@ - %2$@";
+"Mobile" = "Mobile";
+"BrowserExtension" = "Extension";
+"WebVault2" = "Web app";
+"Desktop" = "Desktop";
+"Cli" = "CLI";
+"Sdk" = "SDK";
+"Server" = "伺服器";
+/* Accessibility label for the button that clears a field's value. %1$@ is the field's title (e.g. "Date of birth"), so the spoken label reads "Clear Date of birth". */
+"ClearFieldName" = "Clear %1$@";
+"SelectDate" = "Select date";
+"PremiumRequiredTOTPDescriptionLong" = "驗證器金鑰（TOTP）為 Premium 功能。您目前的方案未包含此功能。";

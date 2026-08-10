@@ -14,7 +14,7 @@ protocol VaultItemMoreOptionsHelper {
     /// - Parameters
     ///   - item: The selected item to show the options for.
     ///   - handleDisplayToast: A closure called to handle displaying a toast.
-    ///   - handleNavigateToPremiumUpgrade: A closure called to navigate to the premium upgrade flow.
+    ///   - handleNavigateToPremiumUpgrade: A closure called to navigate to the Premium upgrade flow.
     ///   - handleOpenURL: A closure called to open a URL.
     ///
     func showMoreOptionsAlert(
@@ -122,8 +122,8 @@ class DefaultVaultItemMoreOptionsHelper: VaultItemMoreOptionsHelper {
     /// - Parameters:
     ///   - cipher: The cipher to archive.
     ///   - handleDisplayToast: A closure to display a toast.
-    ///   - handleNavigateToPremiumUpgrade: A closure called to navigate to the premium upgrade flow.
-    ///   - hasPremium: Whether the user has premium account.
+    ///   - handleNavigateToPremiumUpgrade: A closure called to navigate to the Premium upgrade flow.
+    ///   - hasPremium: Whether the user has Premium account.
     private func archive(
         _ cipher: CipherView,
         handleDisplayToast: @escaping (Toast) -> Void,
@@ -184,7 +184,7 @@ class DefaultVaultItemMoreOptionsHelper: VaultItemMoreOptionsHelper {
     ///   - cipherView: The cipher to act upon.
     ///   - handleDisplayToast: A closure to display a toast.
     ///   - handleOpenURL: A closure to open an URL.
-    ///   - hasPremium: Whether the user has premium account.
+    ///   - hasPremium: Whether the user has Premium account.
     private func handleMoreOptionsAction( // swiftlint:disable:this function_body_length function_parameter_count
         _ action: MoreOptionsAction,
         cipherView: CipherView,

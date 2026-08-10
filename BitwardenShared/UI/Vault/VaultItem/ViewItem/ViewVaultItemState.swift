@@ -1,3 +1,4 @@
+import BitwardenResources
 import BitwardenSdk
 import Foundation
 
@@ -9,6 +10,9 @@ protocol ViewVaultItemState: Sendable, VaultItemWithDecorativeIcon {
 
     /// The item's attachments.
     var attachments: [AttachmentView]? { get }
+
+    /// The bank account item state.
+    var bankAccountItemState: BankAccountItemState { get set }
 
     /// Whether the item belongs to multiple collections.
     var belongsToMultipleCollections: Bool { get }
@@ -25,11 +29,17 @@ protocol ViewVaultItemState: Sendable, VaultItemWithDecorativeIcon {
     /// belongs to.
     var cipherCollectionsToDisplay: [CollectionView] { get }
 
+    /// The icon to use for a collection the item belongs to.
+    var collectionIcon: SharedImageAsset { get }
+
     /// The custom fields state.
     var customFieldsState: AddEditCustomFieldsState { get set }
 
     /// The driver's license item state.
     var driversLicenseItemState: DriversLicenseItemState { get set }
+
+    /// The accessibility label for the folder the cipher belongs to, if any.
+    var folderAccessibilityLabel: String? { get }
 
     /// The name of the folder the cipher belongs to, if any.
     var folderName: String? { get }
@@ -46,6 +56,9 @@ protocol ViewVaultItemState: Sendable, VaultItemWithDecorativeIcon {
     /// A flag indicating if item was soft deleted.
     var isSoftDeleted: Bool { get }
 
+    /// Whether the `vfo1-foundation` feature flag is enabled.
+    var isVfo1FoundationFeatureFlagEnabled: Bool { get }
+
     /// The login item state.
     var loginState: LoginItemState { get set }
 
@@ -58,11 +71,20 @@ protocol ViewVaultItemState: Sendable, VaultItemWithDecorativeIcon {
     /// The name of this item.
     var name: String { get set }
 
+    /// The accessibility label for the "no folder" indicator.
+    var noFolderAccessibilityLabel: String { get }
+
     /// The notes of this item.
     var notes: String { get set }
 
+    /// The accessibility label describing the organization the item belongs to, if any.
+    var organizationAccessibilityLabel: String? { get }
+
     /// The name of the organization the item belongs to, if any.
     var organizationName: String? { get set }
+
+    /// The passport item state.
+    var passportItemState: PassportItemState { get set }
 
     /// Whether the item should be displayed as archived.
     var shouldDisplayAsArchived: Bool { get }
@@ -89,4 +111,9 @@ protocol ViewVaultItemState: Sendable, VaultItemWithDecorativeIcon {
 
     /// What cipher type this item is.
     var type: CipherType { get }
+
+    /// Returns the accessibility label describing a collection the item belongs to.
+    /// - Parameter collectionName: The name of the collection.
+    /// - Returns: The accessibility label.
+    func collectionAccessibilityLabel(_ collectionName: String) -> String
 }

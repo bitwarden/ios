@@ -13,6 +13,7 @@ import XCTest
 class AddEditSendItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body_length
     // MARK: Properties
 
+    var configService: MockConfigService!
     var coordinator: MockCoordinator<SendItemRoute, AuthAction>!
     var errorReporter: MockErrorReporter!
     var pasteboardService: MockPasteboardService!
@@ -29,6 +30,7 @@ class AddEditSendItemProcessorTests: BitwardenTestCase { // swiftlint:disable:th
 
     override func setUp() {
         super.setUp()
+        configService = MockConfigService()
         coordinator = MockCoordinator()
         errorReporter = MockErrorReporter()
         pasteboardService = MockPasteboardService()
@@ -39,6 +41,7 @@ class AddEditSendItemProcessorTests: BitwardenTestCase { // swiftlint:disable:th
         subject = AddEditSendItemProcessor(
             coordinator: coordinator.asAnyCoordinator(),
             services: ServiceContainer.withMocks(
+                configService: configService,
                 errorReporter: errorReporter,
                 pasteboardService: pasteboardService,
                 policyService: policyService,
@@ -52,6 +55,7 @@ class AddEditSendItemProcessorTests: BitwardenTestCase { // swiftlint:disable:th
 
     override func tearDown() {
         super.tearDown()
+        configService = nil
         coordinator = nil
         errorReporter = nil
         pasteboardService = nil
@@ -145,16 +149,27 @@ class AddEditSendItemProcessorTests: BitwardenTestCase { // swiftlint:disable:th
         XCTAssertFalse(subject.state.isSendDisabled)
         XCTAssertFalse(subject.state.isSendHideEmailDisabled)
 
-        policyService.policyAppliesToUserResult[.disableSend] = true
+        policyService.getSendPolicyOptionsResult.isSendDisabled = true
         await subject.perform(.loadData)
         XCTAssertTrue(subject.state.isSendDisabled)
         XCTAssertFalse(subject.state.isSendHideEmailDisabled)
 
-        policyService.policyAppliesToUserResult[.disableSend] = false
-        policyService.isSendHideEmailDisabledByPolicy = true
+        policyService.getSendPolicyOptionsResult.isSendDisabled = false
+        policyService.getSendPolicyOptionsResult.isHideEmailDisabled = true
         await subject.perform(.loadData)
         XCTAssertFalse(subject.state.isSendDisabled)
         XCTAssertTrue(subject.state.isSendHideEmailDisabled)
+    }
+
+    /// `perform(_:)` with `loadData` loads whether the Send Controls policy feature flag is enabled.
+    @MainActor
+    func test_perform_loadData_sendControlsPolicyFlag() async {
+        await subject.perform(.loadData)
+        XCTAssertFalse(subject.state.isSendControlsPolicyEnabled)
+
+        configService.featureFlagsBool[.sendControls] = true
+        await subject.perform(.loadData)
+        XCTAssertTrue(subject.state.isSendControlsPolicyEnabled)
     }
 
     /// `perform(_:)` with `loadData` loads the correct maximum access count in the TextField.
@@ -309,7 +324,7 @@ class AddEditSendItemProcessorTests: BitwardenTestCase { // swiftlint:disable:th
         ])
     }
 
-    /// `perform(_:)` with `.savePressed` and no premium shows a premium required alert with
+    /// `perform(_:)` with `.savePressed` and no Premium shows a Premium required alert with
     /// an upgrade action.
     @MainActor
     func test_perform_savePressed_add_file_noPremium() async {
@@ -325,8 +340,8 @@ class AddEditSendItemProcessorTests: BitwardenTestCase { // swiftlint:disable:th
         XCTAssertEqual(coordinator.alertShown, [.fileSendPremiumRequired {}])
     }
 
-    /// `perform(_:)` with `.savePressed` tapping "Upgrade to Premium" in the premium required
-    /// alert triggers the premium upgrade flow.
+    /// `perform(_:)` with `.savePressed` tapping "Upgrade to Premium" in the Premium required
+    /// alert triggers the Premium upgrade flow.
     @MainActor
     func test_perform_savePressed_add_file_noPremium_upgradeAction() async throws {
         sendRepository.doesActivateAccountHavePremiumResult = false
@@ -425,6 +440,25 @@ class AddEditSendItemProcessorTests: BitwardenTestCase { // swiftlint:disable:th
                 message: Localizations.maxFileSize,
             ),
         ])
+    }
+
+    /// `perform(_:)` with `.savePressed` and an unrecognized send type shows an error alert
+    /// instead of saving, since the type can't be mapped to an SDK `SendType`.
+    @MainActor
+    func test_perform_savePressed_add_unknownType_showsErrorAlert() async throws {
+        subject.state.name = "Name"
+        subject.state.type = .unknown
+
+        await subject.perform(.savePressed)
+
+        XCTAssertFalse(coordinator.isLoadingOverlayShowing)
+        XCTAssertNil(sendRepository.addTextSendSendView)
+        XCTAssertNil(sendRepository.addFileSendSendView)
+
+        let errorAlertWithRetry = try XCTUnwrap(coordinator.errorAlertsWithRetryShown.last)
+        guard case DataMappingError.invalidData = errorAlertWithRetry.error else {
+            return XCTFail("Expected DataMappingError.invalidData, got \(errorAlertWithRetry.error)")
+        }
     }
 
     /// `perform(_:)` with `.savePressed` and valid input in the share extension saves the item and
@@ -754,7 +788,7 @@ class AddEditSendItemProcessorTests: BitwardenTestCase { // swiftlint:disable:th
         XCTAssertEqual(subject.state.accessType, .anyoneWithPassword)
     }
 
-    /// `receive(_:)` with `.accessTypeChanged` to specific people adds an empty email row for premium users.
+    /// `receive(_:)` with `.accessTypeChanged` to specific people adds an empty email row for Premium users.
     @MainActor
     func test_receive_accessTypeChanged_specificPeople_addsEmptyEmail() {
         subject.state.hasPremium = true
@@ -776,7 +810,7 @@ class AddEditSendItemProcessorTests: BitwardenTestCase { // swiftlint:disable:th
         XCTAssertEqual(subject.state.recipientEmails, ["test@example.com"])
     }
 
-    /// `receive(_:)` with `.accessTypeChanged` to specific people shows premium alert for non-premium users.
+    /// `receive(_:)` with `.accessTypeChanged` to specific people shows Premium alert for non-Premium users.
     @MainActor
     func test_receive_accessTypeChanged_specificPeople_nonPremium_showsAlert() async throws {
         subject.state.hasPremium = false
@@ -792,7 +826,7 @@ class AddEditSendItemProcessorTests: BitwardenTestCase { // swiftlint:disable:th
         XCTAssertEqual(alert.message, Localizations.sharingWithSpecificPeopleIsPremiumFeatureDescriptionLong)
     }
 
-    /// `receive(_:)` with `.accessTypeChanged` to specific people triggers the premium upgrade
+    /// `receive(_:)` with `.accessTypeChanged` to specific people triggers the Premium upgrade
     /// helper when user taps "Upgrade to Premium" in the alert.
     @MainActor
     func test_receive_accessTypeChanged_specificPeople_nonPremium_upgradeAction() async throws {
@@ -970,7 +1004,7 @@ class AddEditSendItemProcessorTests: BitwardenTestCase { // swiftlint:disable:th
 
     // MARK: LoadData Tests
 
-    /// `perform(_:)` with `loadData` loads the premium status.
+    /// `perform(_:)` with `loadData` loads the Premium status.
     @MainActor
     func test_perform_loadData_premium() async {
         sendRepository.doesActivateAccountHavePremiumResult = true
@@ -980,7 +1014,7 @@ class AddEditSendItemProcessorTests: BitwardenTestCase { // swiftlint:disable:th
         XCTAssertTrue(subject.state.hasPremium)
     }
 
-    /// `perform(_:)` with `loadData` loads false for premium when not available.
+    /// `perform(_:)` with `loadData` loads false for Premium when not available.
     @MainActor
     func test_perform_loadData_noPremium() async {
         sendRepository.doesActivateAccountHavePremiumResult = false

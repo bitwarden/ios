@@ -21,6 +21,11 @@ class MockStateService: StateService, ActiveAccountStateProvider, AutofillStateS
     var accountsLoggedOut = [String]()
     var activeAccount: Account?
     var accounts: [Account]?
+    var addFillAssistDebugRuleCalled = false
+    var addFillAssistDebugRuleDomain: String?
+    var addFillAssistDebugRulePasswordId: String?
+    var addFillAssistDebugRuleResult: Result<Void, Error> = .success(())
+    var addFillAssistDebugRuleUsernameId: String?
     var addSitePromptShown = false
     var allowSyncOnRefresh = [String: Bool]()
     var allowUniversalClipboard = [String: Bool]()
@@ -30,12 +35,21 @@ class MockStateService: StateService, ActiveAccountStateProvider, AutofillStateS
     var archiveOnboardingShown = false
     var premiumUpgradeBannerDismissedByUserId = [String: Bool]()
     var premiumUpgradeBannerDismissedResult: Result<Void, Error> = .success(())
-    var upgradedToPremiumActionCardVisibleResult: Bool = false
+    var setSubscriptionAttentionCardResult: Result<Void, Error> = .success(())
     var setUpgradedToPremiumActionCardResult: Result<Void, Error> = .success(())
+    var subscriptionAttentionCardVisibleResult: Bool = false
+    var upgradedToPremiumActionCardVisibleResult: Bool = false
     var biometricsEnabled = [String: Bool]()
     var capturedUserId: String?
     var clearClipboardValues = [String: ClearClipboardValue]()
     var clearClipboardResult: Result<Void, Error> = .success(())
+    var clearFillAssistCacheCalled = false
+    var clearFillAssistCacheResult: Result<Void, Error> = .success(())
+    // swiftlint:disable:next identifier_name
+    var clearMasterPasswordUnlockForActiveAccountCalled = false
+    // swiftlint:disable:next identifier_name
+    var clearMasterPasswordUnlockForActiveAccountResult: Result<Void, Error> = .success(())
+    var collapsedVaultListSectionIds = [String: [String]]()
     var connectToWatchByUserId = [String: Bool]()
     var connectToWatchResult: Result<Void, Error> = .success(())
     var connectToWatchSubject = CurrentValueSubject<(String?, Bool), Never>((nil, false))
@@ -44,6 +58,9 @@ class MockStateService: StateService, ActiveAccountStateProvider, AutofillStateS
     var didAccountSwitchInExtensionResult: Result<Bool, Error> = .success(false)
     var disableAutoTotpCopyByUserId = [String: Bool]()
     var doesActiveAccountHavePremiumCalled = false
+    var fillAssistEnabledByUserId = [String: Bool]()
+    var getFillAssistEnabledError: Error?
+    var setFillAssistEnabledError: Error?
     var doesActiveAccountHavePremiumResult: Bool = true
     var doesActiveAccountHavePremiumPersonallyCalled = false // swiftlint:disable:this identifier_name
     var doesActiveAccountHavePremiumPersonallyResult: Bool = true // swiftlint:disable:this identifier_name
@@ -81,6 +98,8 @@ class MockStateService: StateService, ActiveAccountStateProvider, AutofillStateS
     var masterPasswordUnlockByUserId = [String: MasterPasswordUnlockResponseModel]()
     var notificationsLastRegistrationDates = [String: Date]()
     var notificationsLastRegistrationError: Error?
+    // swiftlint:disable:next identifier_name
+    var organizationUserNotificationBannerDismissals = [String: OrganizationUserNotificationBannerDismissal]()
     var passwordGenerationOptions = [String: PasswordGenerationOptions]()
     var pendingAppIntentActions: [PendingAppIntentAction]?
     var pendingAppIntentActionsSubject = CurrentValueSubject<[PendingAppIntentAction]?, Never>(nil)
@@ -131,6 +150,28 @@ class MockStateService: StateService, ActiveAccountStateProvider, AutofillStateS
     func addAccount(_ account: Account) async {
         accountsAdded.append(account)
         activeAccount = account
+    }
+
+    func addFillAssistDebugRule(
+        domain: String,
+        usernameFieldId: String,
+        passwordFieldId: String,
+    ) async throws {
+        addFillAssistDebugRuleCalled = true
+        addFillAssistDebugRuleDomain = domain
+        addFillAssistDebugRuleUsernameId = usernameFieldId
+        addFillAssistDebugRulePasswordId = passwordFieldId
+        try addFillAssistDebugRuleResult.get()
+    }
+
+    func clearFillAssistCache() async throws {
+        clearFillAssistCacheCalled = true
+        try clearFillAssistCacheResult.get()
+    }
+
+    func clearMasterPasswordUnlockForActiveAccount() async throws {
+        clearMasterPasswordUnlockForActiveAccountCalled = true
+        try clearMasterPasswordUnlockForActiveAccountResult.get()
     }
 
     func clearPins() async throws {
@@ -270,6 +311,11 @@ class MockStateService: StateService, ActiveAccountStateProvider, AutofillStateS
         return clearClipboardValues[userId] ?? .never
     }
 
+    func getCollapsedVaultListSectionIds(userId: String?) async throws -> [String] {
+        let userId = try unwrapUserId(userId)
+        return collapsedVaultListSectionIds[userId] ?? []
+    }
+
     func getConnectToWatch(userId: String?) async throws -> Bool {
         try connectToWatchResult.get()
         let userId = try unwrapUserId(userId)
@@ -305,6 +351,14 @@ class MockStateService: StateService, ActiveAccountStateProvider, AutofillStateS
         try eventsResult.get()
         let userId = try unwrapUserId(userId)
         return events[userId] ?? []
+    }
+
+    func getFillAssistEnabled(userId: String?) async throws -> Bool {
+        if let getFillAssistEnabledError {
+            throw getFillAssistEnabledError
+        }
+        let userId = try unwrapUserId(userId)
+        return fillAssistEnabledByUserId[userId] ?? false
     }
 
     func getFlightRecorderData() async -> FlightRecorderData? {
@@ -365,6 +419,13 @@ class MockStateService: StateService, ActiveAccountStateProvider, AutofillStateS
         }
         let userId = try unwrapUserId(userId)
         return notificationsLastRegistrationDates[userId]
+    }
+
+    func getOrganizationUserNotificationBannerDismissal(
+        userId: String?,
+    ) async throws -> OrganizationUserNotificationBannerDismissal? {
+        let userId = try unwrapUserId(userId)
+        return organizationUserNotificationBannerDismissals[userId]
     }
 
     func getPasswordGenerationOptions(userId: String?) async throws -> PasswordGenerationOptions? {
@@ -428,6 +489,10 @@ class MockStateService: StateService, ActiveAccountStateProvider, AutofillStateS
 
     func getTwoFactorToken(email: String) async -> String? {
         twoFactorTokens[email]
+    }
+
+    func getSubscriptionAttentionCardVisible() async -> Bool {
+        subscriptionAttentionCardVisibleResult
     }
 
     func getUpgradedToPremiumActionCardVisible() async -> Bool {
@@ -593,6 +658,11 @@ class MockStateService: StateService, ActiveAccountStateProvider, AutofillStateS
         premiumUpgradeBannerDismissedByUserId[userId] = dismissed
     }
 
+    func setSubscriptionAttentionCardVisible(_ visible: Bool) async throws {
+        try setSubscriptionAttentionCardResult.get()
+        subscriptionAttentionCardVisibleResult = visible
+    }
+
     func setUpgradedToPremiumActionCardVisible(_ visible: Bool) async throws {
         try setUpgradedToPremiumActionCardResult.get()
         upgradedToPremiumActionCardVisibleResult = visible
@@ -602,6 +672,11 @@ class MockStateService: StateService, ActiveAccountStateProvider, AutofillStateS
         try clearClipboardResult.get()
         let userId = try unwrapUserId(userId)
         clearClipboardValues[userId] = clearClipboardValue
+    }
+
+    func setCollapsedVaultListSectionIds(_ ids: [String], userId: String?) async throws {
+        let userId = try unwrapUserId(userId)
+        collapsedVaultListSectionIds[userId] = ids
     }
 
     func setConnectToWatch(_ connectToWatch: Bool, userId: String?) async throws {
@@ -633,6 +708,14 @@ class MockStateService: StateService, ActiveAccountStateProvider, AutofillStateS
     func setEvents(_ events: [EventData], userId: String?) async throws {
         let userId = try unwrapUserId(userId)
         self.events[userId] = events
+    }
+
+    func setFillAssistEnabled(_ fillAssistEnabled: Bool, userId: String?) async throws {
+        if let setFillAssistEnabledError {
+            throw setFillAssistEnabledError
+        }
+        let userId = try unwrapUserId(userId)
+        fillAssistEnabledByUserId[userId] = fillAssistEnabled
     }
 
     func setFlightRecorderData(_ data: FlightRecorderData?) async {
@@ -709,6 +792,14 @@ class MockStateService: StateService, ActiveAccountStateProvider, AutofillStateS
     func setNotificationsLastRegistrationDate(_ date: Date?, userId: String?) async throws {
         let userId = try unwrapUserId(userId)
         notificationsLastRegistrationDates[userId] = date
+    }
+
+    func setOrganizationUserNotificationBannerDismissal(
+        _ dismissal: OrganizationUserNotificationBannerDismissal?,
+        userId: String?,
+    ) async throws {
+        let userId = try unwrapUserId(userId)
+        organizationUserNotificationBannerDismissals[userId] = dismissal
     }
 
     func setPasswordGenerationOptions(_ options: PasswordGenerationOptions?, userId: String?) async throws {

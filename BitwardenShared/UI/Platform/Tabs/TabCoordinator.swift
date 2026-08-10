@@ -160,7 +160,8 @@ final class TabCoordinator: Coordinator, HasTabNavigator {
         )
         vaultNavigator = vaultNav
 
-        sendNavigator = createSendNavigator()
+        let sendNav = createSendNavigator()
+        sendNavigator = sendNav
 
         let generatorNav = module.makeNavigationController()
         generatorNav.navigationBar.prefersLargeTitles = false
@@ -189,7 +190,7 @@ final class TabCoordinator: Coordinator, HasTabNavigator {
         updateTabs(isSendEnabled: true)
 
         Task { [weak self, policyService] in
-            let isSendDisabled = await policyService.policyAppliesToUser(.disableSend)
+            let isSendDisabled = await policyService.getSendPolicyOptions().isSendDisabled
             await MainActor.run { self?.updateTabs(isSendEnabled: !isSendDisabled) }
         }
         streamOrganizations()
@@ -225,7 +226,7 @@ final class TabCoordinator: Coordinator, HasTabNavigator {
                         navigator.rootViewController?.title = Localizations.vaults
                     }
 
-                    let isSendDisabled = await policyService.policyAppliesToUser(.disableSend)
+                    let isSendDisabled = await policyService.getSendPolicyOptions().isSendDisabled
                     await MainActor.run { [weak self] in
                         self?.updateTabs(isSendEnabled: !isSendDisabled)
                     }
@@ -254,8 +255,10 @@ final class TabCoordinator: Coordinator, HasTabNavigator {
             return
         }
 
+        var sendNv: UINavigationController?
         if sendNavigator == nil, isSendEnabled {
-            sendNavigator = createSendNavigator()
+            sendNv = createSendNavigator()
+            sendNavigator = sendNv
         }
 
         var tabs: [TabRoute: Navigator] = [

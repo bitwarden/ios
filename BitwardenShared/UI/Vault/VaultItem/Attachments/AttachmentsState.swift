@@ -16,7 +16,7 @@ struct AttachmentsState: Equatable, Sendable {
     /// The name of the selected file.
     var fileName: String?
 
-    /// Whether the user has access to premium features.
+    /// Whether the user has access to Premium features.
     var hasPremium = false
 
     /// A toast message to show in the view.

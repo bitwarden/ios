@@ -38,7 +38,7 @@ final class VaultGroupProcessor: StateProcessor<// swiftlint:disable:this type_b
     /// The helper to handle master password reprompts.
     private let masterPasswordRepromptHelper: MasterPasswordRepromptHelper
 
-    /// The helper used to navigate to the premium upgrade flow.
+    /// The helper used to navigate to the Premium upgrade flow.
     lazy var premiumUpgradeHelper: PremiumUpgradeHelper = DefaultPremiumUpgradeHelper(
         services: services,
         coordinator: coordinator,
@@ -123,6 +123,7 @@ final class VaultGroupProcessor: StateProcessor<// swiftlint:disable:this type_b
     override func perform(_ effect: VaultGroupEffect) async {
         switch effect {
         case .appeared:
+            await loadFeatureFlags()
             await loadHasPremiumAccount()
             await checkPersonalOwnershipPolicy()
             await loadItemTypesUserCanCreate()
@@ -213,7 +214,12 @@ final class VaultGroupProcessor: StateProcessor<// swiftlint:disable:this type_b
         state.canShowVaultFilter = await services.vaultRepository.canShowVaultFilter()
     }
 
-    /// Loads whether the current account has premium subscription.
+    /// Loads the feature flags required for this processor.
+    private func loadFeatureFlags() async {
+        state.isVfo1FoundationFeatureFlagEnabled = await services.configService.getFeatureFlag(.vfo1Foundation)
+    }
+
+    /// Loads whether the current account has Premium subscription.
     ///
     private func loadHasPremiumAccount() async {
         state.hasPremium = await services.stateService.doesActiveAccountHavePremium()
@@ -225,7 +231,7 @@ final class VaultGroupProcessor: StateProcessor<// swiftlint:disable:this type_b
         state.itemTypesUserCanCreate = await vaultRepository.getItemTypesUserCanCreate()
     }
 
-    /// Dismisses the premium upgrade action card and persists the banner-dismissed preference.
+    /// Dismisses the Premium upgrade action card and persists the banner-dismissed preference.
     ///
     private func dismissPremiumUpgradeActionCard() async {
         do {
@@ -235,7 +241,7 @@ final class VaultGroupProcessor: StateProcessor<// swiftlint:disable:this type_b
         }
     }
 
-    /// Navigates to the premium upgrade flow. Uses the in-app upgrade path when available;
+    /// Navigates to the Premium upgrade flow. Uses the in-app upgrade path when available;
     /// otherwise opens the web vault upgrade URL as a fallback.
     ///
     private func navigateToPremiumUpgrade() async {

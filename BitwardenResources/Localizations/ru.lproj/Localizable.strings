@@ -6,6 +6,7 @@
 "Bitwarden" = "Bitwarden";
 "Cancel" = "Отмена";
 "Copy" = "Скопировать";
+"CopyLicenseNumber" = "Скопировать номер водительского удостоверения";
 "CopyPassportNumber" = "Скопировать номер паспорта";
 "CopyPassword" = "Скопировать пароль";
 "CopyUsername" = "Скопировать имя пользователя";
@@ -38,6 +39,8 @@
 "RemoveAccount" = "Удалить аккаунт";
 "RemoveAccountConfirmation" = "Вы действительно хотите удалить этот аккаунт?";
 "AccountAlreadyAdded" = "Аккаунт уже добавлен";
+"AccountCreationRestricted" = "Создание аккаунта запрещено";
+"XOnlyAllowsInvitedUsersToCreateAccounts" = "%1$@ позволяет создавать аккаунты только приглашенным пользователям.";
 "SwitchToAlreadyAddedAccountConfirmation" = "Хотите переключиться на него?";
 "MasterPassword" = "Мастер-пароль";
 "MoreOptions" = "Больше опций";
@@ -48,6 +51,7 @@
 "OK" = "OK";
 "Password" = "Пароль";
 "Save" = "Сохранить";
+/* Action to move a vault item to another vault; used as a button label, menu item, and screen title. */
 "Move" = "Переместить";
 "Saving" = "Сохранение…";
 "Settings" = "Настройки";
@@ -113,7 +117,7 @@
 "MinSpecial" = "Минимум символов";
 "Never" = "Никогда";
 "NoItems" = "В вашем хранилище нет элементов.";
-"NoItemsTap" = "В вашем хранилище нет элементов для этого сайта/приложения. Нажмите чтобы добавить.";
+"NoItemsTap" = "В вашем хранилище нет элементов для этого сайта/приложения. Нажмите, чтобы добавить.";
 "NoUsernamePasswordConfigured" = "У логина не заданы имя пользователя и пароль.";
 "OKGotIt" = "Понятно!";
 "Options" = "Опции";
@@ -172,7 +176,7 @@
 "PointYourCameraAtTheQRCode" = "Наведите камеру на QR-код.\nСканирование произойдет автоматически.";
 "ScanQrTitle" = "Сканировать QR-код";
 "Camera" = "Камера";
-"Photos" = "Фотографии";
+"Photos" = "Фото";
 "CopyTotp" = "Скопировать TOTP";
 "CopyTotpAutomaticallyDescription" = "Если к вашему логину прикреплен ключ аутентификации, то код подтверждения TOTP будет скопирован при автозаполнении логина.";
 "CopyTotpAutomatically" = "Скопировать TOTP автоматически";
@@ -255,8 +259,14 @@
 "ShowWebsiteIconsDescription" = "Отображать узнаваемое изображение рядом с каждым логином.";
 "IconsUrl" = "URL сервера значков";
 "AutofillWithBitwarden" = "Автозаполнение Bitwarden";
+/* Section header and screen title for viewing/managing a cipher's collections. */
 "Collections" = "Коллекции";
+/* Section header and screen title for viewing/managing a cipher's shared folders. */
+"SharedFolders" = "Общие папки";
+/* Empty state message shown when a collection has no items. */
 "NoItemsCollection" = "В этой коллекции нет элементов";
+/* Empty state message shown when a shared folder has no items. */
+"ThereAreNoItemsInThisSharedFolder" = "В этой общей папке нет элементов";
 "NoItemsFolder" = "В этой папке нет элементов";
 "NoItemsTrash" = "В корзине нет элементов.";
 "FaceID" = "Face ID";
@@ -276,6 +286,7 @@
 "RegEx" = "Регулярное выражение";
 "StartsWith" = "Начинается с";
 "MatchDetection" = "Обнаружение совпадений";
+/* Field label on the Move screen shown when the "vfo1-foundation" feature flag is disabled; superseded by "Vault" when enabled. */
 "Organization" = "Организация";
 "HoldYubikeyNearTop" = "Удерживайте Yubikey в верхней части устройства.";
 "TryAgain" = "Попробуйте снова";
@@ -311,13 +322,26 @@
 "NoItemsToList" = "Нет элементов для отображения.";
 "MoveDown" = "Переместить ниже";
 "MoveUp" = "Переместить выше";
+/* Empty state message on the Collections screen shown when a user has no collections. */
 "NoCollectionsToList" = "Нет коллекций для отображения.";
+/* Empty state message on the Shared folders screen shown when a user has no shared folders. */
+"ThereAreNoSharedFoldersToList" = "Нет общих папок для отображения.";
 "MovedItemToOrg" = "%1$@ перемещено в %2$@.";
+/* Alert message shown when saving an item with no collection selected. */
 "SelectOneCollection" = "Необходимо выбрать хотя бы одну коллекцию.";
+/* Alert message shown when saving an item with no shared folder selected. */
+"YouMustSelectAtLeastOneSharedFolder" = "Необходимо выбрать хотя бы одну общую папку.";
 "Share" = "Поделиться";
 "ShareAll" = "Поделиться всеми";
+/* Overflow menu item and screen title on the Move screen shown when the "vfo1-foundation" feature flag is disabled; superseded by "Move" when enabled. */
 "MoveToOrganization" = "Переместить в организацию";
+/* Empty state message shown when a user has no vaults available to move an item into, when the "vfo1-foundation" feature flag is enabled. */
+"NoVaultsToList" = "Нет хранилища для отображения.";
+/* Empty state message shown when a user has no organizations available to move an item into, when the "vfo1-foundation" feature flag is disabled. */
 "NoOrgsToList" = "Нет организаций для отображения.";
+/* Footer text on the Move screen explaining that moving an item transfers its ownership to the destination vault's organization, when the "vfo1-foundation" feature flag is enabled. */
+"ChooseAVaultThatYouWishToMoveThisItemToDescriptionLong" = "Выберите хранилище, в которое вы хотите переместить этот элемент. Перемещение в хранилище передает права на элемент этой организации. Вы больше не будете непосредственным владельцем этого элемента после его перемещения.";
+/* Footer text on the Move screen explaining that moving an item transfers its ownership to the destination organization, when the "vfo1-foundation" feature flag is disabled. */
 "MoveToOrgDesc" = "Выберите организацию, в которую вы хотите переместить этот элемент. При перемещении в организацию право собственности на элемент переходит к этой организации. Вы больше не будете прямым владельцем этого элемента после его перемещения.";
 "NumberOfWords" = "Количество слов";
 "Passphrase" = "Парольная фраза";
@@ -562,6 +586,7 @@
 "ThereAreNoBankAccountsInYourVault" = "В вашем хранилище нет банковских счетов.";
 "US" = "США";
 "EU" = "Европа";
+"Gov" = "Gov";
 "SelfHosted" = "Собственный хостинг";
 "UpdateWeakMasterPasswordWarning" = "Ваш мастер-пароль не соответствует требованиям политики вашей организации. Для доступа к хранилищу вы должны обновить свой мастер-пароль прямо сейчас. При этом текущая сессия будет завершена и потребуется повторная авторизация. Сессии на других устройствах могут оставаться активными в течение часа.";
 "CurrentMasterPasswordRequired" = "Текущий мастер-пароль (обязательно)";
@@ -570,6 +595,8 @@
 "RequestAdminApproval" = "Запросить одобрение администратора";
 "ApproveWithMasterPassword" = "Одобрить с мастер-паролем";
 "TurnOffUsingPublicDevice" = "Выключить с помощью публичного устройства";
+"TurnOnFillAssist" = "Включить помощник по заполнению";
+"TurnOnFillAssistDescriptionLong" = "С помощью ассистента заполнения можно повысить точность автозаполнения на поддерживаемых сайтах.";
 "RememberThisDevice" = "Запомнить это устройство";
 "Passkey" = "Passkey";
 "Passkeys" = "Passkeys";
@@ -583,6 +610,7 @@
 "LoginApproved" = "Вход одобрен";
 "LogInWithDevice" = "Войти с помощью устройства";
 "LoggingInOn" = "Войти на";
+/* The word "Vault", used generically as a field label, screen title, and app-wide term for a user's or organization's item collection. */
 "Vault" = "Хранилище";
 "Appearance" = "Внешний вид";
 "AccountSecurity" = "Безопасность аккаунта";
@@ -777,6 +805,8 @@
 "SetUpAutofillOnAllYourDevicesToLoginWithASingleTapAnywhere" = "Настройте автозаполнение на всех своих устройствах, чтобы авторизоваться одним кликом везде.";
 "GoBack" = "Вернуться";
 "GotIt" = "Понятно";
+/* masterPasswordUnlock is the name of some data we want to delete, so there's no need to localize it. */
+"ClearMasterPasswordUnlock" = "Очистить masterPasswordUnlock";
 "ClearSsoCookies" = "Очистить cookie SSO";
 "GenerateCrash" = "Сгенерировать отчет об ошибке";
 "GenerateErrorReport" = "Создать отчет об ошибке";
@@ -862,7 +892,11 @@
 "ShowLess" = "Меньше";
 "ItemNameX" = "Название элемента %1$@";
 "OwnerX" = "Владелец %1$@";
+"VaultX" = "Хранилище %1$@";
+/* VoiceOver accessibility label for a collection the item belongs to. */
 "CollectionX" = "Коллекция %1$@";
+/* VoiceOver accessibility label for a shared folder the item belongs to. */
+"SharedFolderX" = "Общая папка, %1$@";
 "FolderX" = "Папка %1$@";
 "ItemXOfY" = "Элемент %1$@ из %2$@";
 "ViewRecordedLogs" = "Просмотр записанных логов";
@@ -1026,10 +1060,8 @@
 "ArchiveEmptyDescriptionLong" = "Заполните архив элементами, которые вы не хотите видеть в результатах поиска и автозаполнения, но которые когда-нибудь могут понадобиться.";
 "ArchiveItem" = "Архивировать элемент";
 "OnceArchivedThisItemWillBeExcludedDescriptionLong" = "После архивации этот элемент будет исключен из результатов поиска и предложений по автозаполнению.";
-"ArchiveUnavailable" = "Архив недоступен";
 "ArchivingItemsIsAPremiumFeatureDescriptionLong" = "Архивирование элементов является Премиум функцией. Она не входит в ваш текущий тарифный план.";
 "AddingAttachmentsIsAPremiumFeatureDescriptionLong" = "Добавление вложений - это функция, доступная только в плане Премиум. Она не входит в ваш текущий тарифный план.";
-"AttachmentsUnavailable" = "Вложения недоступны";
 "UpgradeToPremium" = "Обновить до Премиум";
 "ThisItemIsArchived" = "Этот элемент архивирован.";
 "YourPremiumSubscriptionEnded" = "Ваша подписка Премиум закончилась";
@@ -1062,6 +1094,8 @@
 "ReplaceCertificate" = "Заменить сертификат";
 "ReplaceExistingCertificate" = "Заменить существующий сертификат";
 "UnableToReadCertificateFile" = "Не удалось прочитать файл сертификата.";
+/* masterPasswordUnlock is the name of some data we want to delete, so there's no need to localize it. */
+"MasterPasswordUnlockCleared" = "masterPasswordUnlock очищен.";
 "SsoCookiesCleared" = "Cookie SSO очищены";
 "YourRequestWasInterruptedBecauseTheAppNeededToReAuthenticatePleaseTryAgain" = "Ваш запрос был прерван, поскольку приложению потребовалась повторная аутентификация. Повторите попытку.";
 "AutofillWithBitwardenDescriptionLong" = "Bitwarden может предлагать ваши пароли и другие учетные данные при авторизации в приложениях и на сайтах.";
@@ -1075,6 +1109,7 @@
 "Canceled" = "Отменен";
 "PastDue" = "Просрочен";
 "PendingCancellation" = "Ожидание отмены";
+"Unpaid" = "Не оплачено";
 "UpdatePayment" = "Обновить платежную информацию";
 "BillingAmount" = "Сумма счета";
 "StorageCost" = "Стоимость хранилища";
@@ -1086,17 +1121,44 @@
 "ExternalLink" = "Внешняя ссылка";
 "YourNextChargeIsForXDueOnY" = "Следующий платеж на сумму **%1$@** должен быть выполнен **%2$@**.";
 "WeCouldNotProcessYourPaymentUpdateYourPaymentMethodDescriptionLong" = "Нам не удалось обработать ваш платеж. Обновите способ оплаты до истечения срока подписки **%1$@**.";
+/* Error message shown when the Premium Plan screen fails to load subscription data, with a prompt to retry. */
+"WeCouldntLoadYourSubscriptionDetailsPleaseRetry" = "Не удалось загрузить данные вашей подписки. Попробуйте еще раз.";
 "YourSubscriptionWasCanceledOnXDescriptionLong" = "Ваша подписка была отменена **%1$@**. Подпишитесь заново, чтобы продолжить пользоваться возможностями Премиум.";
+"YourSubscriptionWasSuspendedOnXDescriptionLong" = "Ваша подписка была приостановлена на **%1$@**. Чтобы ее возобновить, пожалуйста, оплатите просроченные счета.";
 "YourSubscriptionExpiredOnXDescriptionLong" = "Ваша подписка истекла **%1$@**. Подпишитесь заново, чтобы продолжить пользоваться возможностями Премиум.";
 "YourSubscriptionIsScheduledToCancelOnXDescriptionLong" = "Ваша подписка будет отменена **%1$@**. Вы сможете восстановить ее в любое время до этого момента.";
 "PerMonth" = "/ месяц";
+/* VoiceOver reading of "PerMonth", spoken instead of shown. */
+"PerMonthVoiceOver" = "в месяц";
 "PerYear" = "/ год";
+/* VoiceOver reading of "PerYear", spoken instead of shown. */
+"PerYearVoiceOver" = "в год";
 "XAmountPerCadence" = "%1$@ %2$@";
+/* %1$@ is an amount and cadence together, e.g. "$1.65 / month". */
+"XCancelAnytime" = "%1$@ · Отмена в любое время";
+/* VoiceOver reading of "XCancelAnytime", spoken instead of shown. */
+"XCancelAnytimeVoiceOver" = "%1$@, Отмена в любое время";
 "NegativeX" = "-%1$@";
 "UnknownStatus" = "Неизвестно";
 "YourSubscriptionStatusIsUnknownVisitTheWebAppDescriptionLong" = "Не удалось определить статус вашей подписки. Для получения дополнительной информации перейдите в веб-приложение или обновите его до последней версии.";
-"AtTheMomentPremiumPlanIsNotAvailableDescriptionLong" = "В настоящее время план Премиум недоступен. Пожалуйста, попробуйте позже.";
-"UnlockMoreAdvancedFeaturesWithPremiumPlan" = "Разблокировать дополнительные возможности с Премиум.";
+/* Headline on the Premium upgrade screen. */
+"UnlockAdvancedProtection" = "Разблокируйте продвинутую защиту";
+/* Premium benefit list item. */
+"BreezeThrough2faWithBuiltInCodes" = "С легкостью проходите двухэтапную аутентификацию с помощью встроенных кодов";
+/* Premium benefit list item. */
+"RunReportsToFindRiskyPasswords" = "Генерируйте отчеты о паролях, подверженных риску";
+/* Premium benefit list item. */
+"KeepDocumentsSafeAndEncrypted" = "Храните документы в безопасности и зашифрованном виде";
+/* Premium benefit list item. */
+"AddATrustedEmergencyContact" = "Добавляйте доверенный контакт для экстренных случаев";
+/* Premium benefit list item. */
+"IdentifyUnsecureWebsites" = "Выявляйте небезопасные сайты";
+/* Premium benefit list item. */
+"FlagAccountsWithInactive2fa" = "Помечайте аккаунты с неактивной двухэтапной аутентификацией";
+/* Premium benefit list item; "Send" is the Bitwarden Send feature name and shouldn't be translated. */
+"ShareFilesSecurelyWithAnyoneUsingSend" = "Делитесь файлами безопасно со всеми использующими Send";
+/* Premium benefit list item. */
+"Receive247PrioritySupport" = "Получите приоритетную поддержку 24/7";
 "BuiltInAuthenticator" = "Встроенный аутентификатор";
 "EmergencyAccess" = "Экстренный доступ";
 "PaymentNotReceivedYet" = "Оплата пока не поступила";
@@ -1105,15 +1167,18 @@
 "WeHadTroubleOpeningThePaymentPageDescriptionLong" = "У нас возникли проблемы с открытием страницы оплаты, поэтому попробуйте еще раз.";
 "SecureFileStorage" = "Защищенное хранилище файлов";
 "BreachMonitoring" = "Мониторинг нарушений";
-"UpgradeNow" = "Изменить сейчас";
 "ConfirmingYourUpgrade" = "Подтверждение перехода…";
 "OpeningCheckout" = "Начинается оформление заказа…";
 "UpgradePending" = "Ожидание перехода";
 "YourUpgradeIsBeingProcessedDescriptionLong" = "Ваш переход на платный тарифный план находится в процессе обработки. До завершения перехода вы будете пользоваться бесплатным тарифным планом. Вы можете синхронизировать данные прямо сейчас, чтобы проверить, или продолжить — обновление произойдет автоматически.";
 "UpgradedToPremium" = "Обновлено до Премиум";
+"SubscriptionNeedsAttention" = "Ваша подписка требует внимания";
+"CheckYourPlanForDetails" = "Для получения более подробной информации ознакомьтесь с вашим планом.";
+"ViewPlan" = "Посмотреть план";
 "YouNowHaveAccessToAdvancedSecurityDescriptionLong" = "Теперь у вас есть доступ к расширенным функциям безопасности. Узнайте больше о том, что включено в Премиум.";
 "YouNowHaveAccessToAllAdvancedSecurityFeatures" = "Теперь у вас есть доступ ко всем расширенным функциям безопасности.";
-"YoullGoToStripeSecureCheckoutToCompleteYourPurchase" = "Вы будете перенаправлены на защищенную страницу оформления заказа Stripe для завершения покупки.";
+/* Footer on the Premium upgrade screen; "Stripe" is the payment processor's name and shouldn't be translated. */
+"YoullCompleteThePurchaseWithStripeSecureCheckout" = "Вы сможете оформить покупку с помощью безопасной системы оплаты Stripe.";
 "ContinueToStripe" = "Продолжить на Stripe?";
 "YoullBeTakenToStripeToManageYourSubscriptionCancellation" = "Вы будете перенаправлены на сайт Stripe, где сможете отменить подписку.";
 "UserIDCopiedToTheClipboard" = "ID пользователя скопирован в буфер обмена";
@@ -1137,3 +1202,54 @@
 "IssueDate" = "Дата выдачи";
 "ExpirationDate" = "Дата истечения";
 "LicenseClass" = "Категории водительского удостоверения";
+"PassportDetails" = "Паспортные данные";
+/* Label for the sex/gender field as printed on a passport (e.g. "M", "F", "X"). */
+"Sex" = "Пол";
+"BirthPlace" = "Место рождения";
+/* Label for the nationality field on a passport (the country a person is a national of). */
+"Nationality" = "Гражданство";
+/* Label for the category of passport (e.g. "Regular/Tourist", "Diplomatic", "Official"). */
+"PassportType" = "Тип паспорта";
+"NationalIdentificationNumber" = "Национальный идентификационный номер";
+/* Label for the government authority or office that issued the passport. */
+"IssuingAuthorityOffice" = "Выдавший орган/учреждение";
+"AccountDetails" = "Реквизиты счета";
+"BankName" = "Название банка";
+"NameOnAccount" = "Имя держателя счета";
+"AccountType" = "Тип счета";
+"BranchNumber" = "Номер филиала";
+"SwiftCode" = "Код SWIFT";
+"IBAN" = "IBAN";
+"BankContactPhone" = "Контактный телефон банка";
+"CertificateOfDeposit" = "Справка о пополнении";
+"Checking" = "Проверка";
+"InvestmentBrokerage" = "Инвестиции/брокерство";
+"LineOfCredit" = "Кредитная линия";
+"MoneyMarket" = "Денежный рынок";
+"Savings" = "Сбережения";
+"Devices" = "Устройства";
+"NoDevicesFound" = "Устройств не найдено";
+"CurrentSession" = "Текущая сессия";
+"PendingRequest" = "Ожидающий запрос";
+"Trusted" = "Доверенное";
+"RecentlyActiveLabel" = "Недавняя активность:";
+"FirstLoginLabel" = "Первый вход:";
+"Today" = "Сегодня";
+"PastSevenDays" = "Последние 7 дней";
+"PastFourteenDays" = "Последние 14 дней";
+"PastThirtyDays" = "Последние 30 дней";
+"OverThirtyDaysAgo" = "Более 30 дней назад";
+"Unknown" = "Неизвестно";
+/* Device display name. %1$@ = category (e.g. "Mobile"), %2$@ = platform (e.g. "iOS"). */
+"DeviceDisplayNameXHyphenY" = "%1$@ - %2$@";
+"Mobile" = "Мобильный";
+"BrowserExtension" = "Расширение браузера";
+"WebVault2" = "Веб-приложение";
+"Desktop" = "Компьютер";
+"Cli" = "CLI";
+"Sdk" = "SDK";
+"Server" = "Сервер";
+/* Accessibility label for the button that clears a field's value. %1$@ is the field's title (e.g. "Date of birth"), so the spoken label reads "Clear Date of birth". */
+"ClearFieldName" = "Очищено %1$@";
+"SelectDate" = "Выберите дату";
+"PremiumRequiredTOTPDescriptionLong" = "Аутентификатор ключей (TOTP) - это функция, доступная только в плане Премиум. Она не входит в ваш текущий тарифный план.";

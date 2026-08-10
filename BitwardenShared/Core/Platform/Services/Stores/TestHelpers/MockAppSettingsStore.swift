@@ -40,6 +40,7 @@ class MockAppSettingsStore: AppSettingsStore { // swiftlint:disable:this type_bo
 
     var biometricAuthenticationEnabled = [String: Bool?]()
     var clearClipboardValues = [String: ClearClipboardValue]()
+    var collapsedVaultListSectionIdsByUserId = [String: [String]]()
     var connectToWatchByUserId = [String: Bool]()
     var defaultUriMatchTypeByUserId = [String: BitwardenShared.UriMatchType]()
     var disableAutoTotpCopyByUserId = [String: Bool]()
@@ -47,6 +48,9 @@ class MockAppSettingsStore: AppSettingsStore { // swiftlint:disable:this type_bo
     var encryptedUserKeys = [String: String]()
     var eventsByUserId = [String: [EventData]]()
     var featureFlags = [String: Bool]()
+    var fillAssistCachedDataByUserId = [String: FillAssistCachedData]()
+    var fillAssistEnabledByUserId = [String: Bool]()
+    var fillAssistLastFetchTimestampByUserId = [String: Date]()
     var hasPerformedSyncAfterLogin = [String: Bool]()
     var lastActiveTime = [String: Date]()
     var lastRequestToTurnOnCredentialProviderDate: Date? // swiftlint:disable:this identifier_name
@@ -55,10 +59,13 @@ class MockAppSettingsStore: AppSettingsStore { // swiftlint:disable:this type_bo
     var manuallyLockedAccounts = [String: Bool]()
     var masterPasswordHashes = [String: String]()
     var notificationsLastRegistrationDates = [String: Date]()
+    // swiftlint:disable:next identifier_name
+    var organizationUserNotificationBannerDismissals = [String: OrganizationUserNotificationBannerDismissal]()
     var passwordGenerationOptions = [String: PasswordGenerationOptions]()
     var pinProtectedUserKey = [String: String]()
     var pinProtectedUserKeyEnvelope = [String: String]()
     var premiumUpgradeBannerDismissedByUserId = [String: Bool]()
+    var subscriptionAttentionCardVisibleByUserId = [String: Bool]()
     var upgradedToPremiumCardVisibleByUserId = [String: Bool]()
     var accountCreationEnvironmentURLs = [String: EnvironmentURLData]()
     var serverConfig = [String: ServerConfig]()
@@ -116,6 +123,10 @@ class MockAppSettingsStore: AppSettingsStore { // swiftlint:disable:this type_bo
         clearClipboardValues[userId] ?? .never
     }
 
+    func collapsedVaultListSectionIds(userId: String) -> [String] {
+        collapsedVaultListSectionIdsByUserId[userId] ?? []
+    }
+
     func connectToWatch(userId: String) -> Bool {
         connectToWatchByUserId[userId] ?? false
     }
@@ -142,6 +153,18 @@ class MockAppSettingsStore: AppSettingsStore { // swiftlint:disable:this type_bo
 
     func events(userId: String) -> [EventData] {
         eventsByUserId[userId] ?? []
+    }
+
+    func fillAssistCachedData(userId: String) -> FillAssistCachedData? {
+        fillAssistCachedDataByUserId[userId]
+    }
+
+    func fillAssistEnabled(userId: String) -> Bool {
+        fillAssistEnabledByUserId[userId] ?? false
+    }
+
+    func fillAssistLastFetchTimestamp(userId: String) -> Date? {
+        fillAssistLastFetchTimestampByUserId[userId]
     }
 
     func hasPerformedSyncAfterLogin(userId: String) -> Bool {
@@ -176,6 +199,12 @@ class MockAppSettingsStore: AppSettingsStore { // swiftlint:disable:this type_bo
         notificationsLastRegistrationDates[userId]
     }
 
+    func organizationUserNotificationBannerDismissal(
+        userId: String,
+    ) -> OrganizationUserNotificationBannerDismissal? {
+        organizationUserNotificationBannerDismissals[userId]
+    }
+
     func overrideDebugFeatureFlag(name: String, value: Bool?) {
         overrideDebugFeatureFlagCalled = true
         featureFlags[name] = value
@@ -195,6 +224,10 @@ class MockAppSettingsStore: AppSettingsStore { // swiftlint:disable:this type_bo
 
     func premiumUpgradeBannerDismissed(userId: String) -> Bool {
         premiumUpgradeBannerDismissedByUserId[userId] ?? false
+    }
+
+    func subscriptionAttentionCardVisible(userId: String) -> Bool {
+        subscriptionAttentionCardVisibleByUserId[userId] ?? false
     }
 
     func upgradedToPremiumActionCardVisible(userId: String) -> Bool {
@@ -257,6 +290,10 @@ class MockAppSettingsStore: AppSettingsStore { // swiftlint:disable:this type_bo
         clearClipboardValues[userId] = clearClipboardValue
     }
 
+    func setCollapsedVaultListSectionIds(_ ids: [String], userId: String) {
+        collapsedVaultListSectionIdsByUserId[userId] = ids
+    }
+
     func setConnectToWatch(_ connectToWatch: Bool, userId: String) {
         connectToWatchByUserId[userId] = connectToWatch
     }
@@ -283,6 +320,18 @@ class MockAppSettingsStore: AppSettingsStore { // swiftlint:disable:this type_bo
 
     func setEvents(_ events: [EventData], userId: String) {
         eventsByUserId[userId] = events
+    }
+
+    func setFillAssistCachedData(_ data: FillAssistCachedData?, userId: String) {
+        fillAssistCachedDataByUserId[userId] = data
+    }
+
+    func setFillAssistEnabled(_ fillAssistEnabled: Bool?, userId: String) {
+        fillAssistEnabledByUserId[userId] = fillAssistEnabled
+    }
+
+    func setFillAssistLastFetchTimestamp(_ timestamp: Date?, userId: String) {
+        fillAssistLastFetchTimestampByUserId[userId] = timestamp
     }
 
     func setHasPerformedSyncAfterLogin(_ hasBeenPerformed: Bool?, userId: String) {
@@ -321,6 +370,17 @@ class MockAppSettingsStore: AppSettingsStore { // swiftlint:disable:this type_bo
         notificationsLastRegistrationDates[userId] = date
     }
 
+    func setOrganizationUserNotificationBannerDismissal(
+        _ dismissal: OrganizationUserNotificationBannerDismissal?,
+        userId: String,
+    ) {
+        guard let dismissal else {
+            organizationUserNotificationBannerDismissals.removeValue(forKey: userId)
+            return
+        }
+        organizationUserNotificationBannerDismissals[userId] = dismissal
+    }
+
     func setPasswordGenerationOptions(_ options: PasswordGenerationOptions?, userId: String) {
         guard let options else {
             passwordGenerationOptions.removeValue(forKey: userId)
@@ -339,6 +399,10 @@ class MockAppSettingsStore: AppSettingsStore { // swiftlint:disable:this type_bo
 
     func setPremiumUpgradeBannerDismissed(_ dismissed: Bool, userId: String) {
         premiumUpgradeBannerDismissedByUserId[userId] = dismissed
+    }
+
+    func setSubscriptionAttentionCardVisible(_ visible: Bool, userId: String) {
+        subscriptionAttentionCardVisibleByUserId[userId] = visible
     }
 
     func setUpgradedToPremiumActionCardVisible(_ visible: Bool, userId: String) {

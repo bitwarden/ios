@@ -62,7 +62,7 @@ public enum SendItemRoute: Equatable, Hashable {
     /// A route to the password generator screen.
     case generator
 
-    /// A route to the premium upgrade screen.
+    /// A route to the Premium upgrade screen.
     case premiumUpgrade
 
     /// A route to share the provided URL.

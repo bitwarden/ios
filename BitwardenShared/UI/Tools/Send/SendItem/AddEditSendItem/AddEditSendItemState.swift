@@ -71,8 +71,11 @@ struct AddEditSendItemState: Equatable, Sendable {
     /// A flag indicating if the password is visible.
     var isPasswordVisible = false
 
-    /// Whether the user has a premium account.
+    /// Whether the user has a Premium account.
     var hasPremium = false
+
+    /// Whether the Send Controls policy feature flag is enabled.
+    var isSendControlsPolicyEnabled = false
 
     /// Whether sends are disabled via a policy.
     var isSendDisabled = false
@@ -126,7 +129,7 @@ struct AddEditSendItemState: Equatable, Sendable {
             .filter { !$0.isEmpty }
     }
 
-    /// The URL to open in Safari (e.g., upgrade to premium page).
+    /// The URL to open in Safari (e.g., upgrade to Premium page).
     var url: URL?
 
     /// The deletion date options available in the menu.
@@ -149,6 +152,8 @@ struct AddEditSendItemState: Equatable, Sendable {
                 Localizations.newFileSend
             case .text:
                 Localizations.newTextSend
+            case .unknown:
+                ""
             }
         case .edit:
             switch type {
@@ -156,8 +161,26 @@ struct AddEditSendItemState: Equatable, Sendable {
                 Localizations.editFileSend
             case .text:
                 Localizations.editTextSend
+            case .unknown:
+                ""
             }
         }
+    }
+
+    /// Whether the hide-email field should be shown.
+    ///
+    /// When the Send Controls policy disables hiding the sender's email, the field is hidden
+    /// entirely; under the legacy Send Options policy it remains visible but disabled.
+    var shouldShowHideEmailField: Bool {
+        !(isSendHideEmailDisabled && isSendControlsPolicyEnabled)
+    }
+
+    /// Whether the banner noting that Send policies are in effect should be shown.
+    ///
+    /// Only shown when the hide-email restriction comes from the legacy Send Options policy. The
+    /// Send Controls policy hides the affected field entirely rather than showing a banner.
+    var shouldShowHideEmailPolicyBanner: Bool {
+        isSendHideEmailDisabled && !isSendControlsPolicyEnabled
     }
 }
 
@@ -207,7 +230,14 @@ extension AddEditSendItemState {
 
     /// Returns a `SendView` based on the properties of the `AddEditSendItemState`.
     ///
-    func newSendView() -> SendView {
+    /// - Throws: `DataMappingError.invalidData` if `type` is `.unknown`. This shouldn't happen in
+    ///   practice, since the UI's type picker never offers `.unknown`.
+    ///
+    func newSendView() throws -> SendView {
+        guard let sdkType = BitwardenSdk.SendType(type: type) else {
+            throw DataMappingError.invalidData
+        }
+
         let deletionDate = deletionDate.calculateDate() ?? Date()
 
         // Determine if the send should have a password:
@@ -230,7 +260,7 @@ extension AddEditSendItemState {
             key: key,
             newPassword: accessType == .anyoneWithPassword ? password.nilIfEmpty : nil,
             hasPassword: hasPassword,
-            type: .init(type: type),
+            type: sdkType,
             file: type == .file ? newFileView() : nil,
             text: type == .text ? newTextView() : nil,
             maxAccessCount: maximumAccessCount == 0 ? nil : UInt32(maximumAccessCount),

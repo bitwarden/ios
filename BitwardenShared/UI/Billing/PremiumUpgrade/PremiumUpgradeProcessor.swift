@@ -40,7 +40,7 @@ final class PremiumUpgradeProcessor: StateProcessor<
     /// A delegate used to start the Stripe web authentication session.
     private weak var delegate: PremiumUpgradeProcessorDelegate?
 
-    /// Cancellable for the premium checkout status subscription.
+    /// Cancellable for the Premium checkout status subscription.
     private var premiumStatusChangedCancellable: AnyCancellable?
 
     /// The services used by this processor.
@@ -98,7 +98,7 @@ final class PremiumUpgradeProcessor: StateProcessor<
 
     // MARK: Private Methods
 
-    /// Fetches the premium plan price from the billing service and updates state.
+    /// Fetches the Premium plan price from the billing service and updates state.
     /// Shows the pricing error banner on failure.
     ///
     private func fetchPremiumPrice() async {
@@ -118,7 +118,7 @@ final class PremiumUpgradeProcessor: StateProcessor<
         }
     }
 
-    /// Subscribes to premium checkout status updates and reacts accordingly.
+    /// Subscribes to Premium checkout status updates and reacts accordingly.
     ///
     private func subscribeToPremiumCheckoutStatus() {
         premiumStatusChangedCancellable = services.billingService

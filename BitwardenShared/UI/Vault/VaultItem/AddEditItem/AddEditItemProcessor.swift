@@ -104,7 +104,7 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
     /// The delegate that is notified when delete cipher item have occurred.
     private weak var delegate: CipherItemOperationDelegate?
 
-    /// The helper used to navigate to the premium upgrade flow.
+    /// The helper used to navigate to the Premium upgrade flow.
     lazy var premiumUpgradeHelper: PremiumUpgradeHelper = DefaultPremiumUpgradeHelper(
         services: services,
         coordinator: coordinator,
@@ -335,7 +335,7 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
         }
     }
 
-    /// Navigates to the premium upgrade flow. Uses the in-app upgrade path when available;
+    /// Navigates to the Premium upgrade flow. Uses the in-app upgrade path when available;
     /// otherwise opens the web vault upgrade URL as a fallback.
     ///
     private func navigateToPremiumUpgrade() async {
@@ -354,18 +354,28 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
     ///     dismissing the view without saving.
     ///
     private func handleDismiss(didAddItem: Bool = false) {
-        guard let appExtensionDelegate, appExtensionDelegate.isInAppExtensionSaveLoginFlow else {
-            let shouldDismiss = delegate?.itemAdded() ?? true
-            if shouldDismiss {
-                coordinator.navigate(to: .dismiss())
+        if let appExtensionDelegate, appExtensionDelegate.isInAppExtensionSaveLoginFlow {
+            if didAddItem, let username = state.cipher.login?.username, let password = state.cipher.login?.password {
+                appExtensionDelegate.completeAutofillRequest(username: username, password: password, fields: nil)
+            } else {
+                appExtensionDelegate.didCancel()
             }
             return
         }
 
-        if didAddItem, let username = state.cipher.login?.username, let password = state.cipher.login?.password {
-            appExtensionDelegate.completeAutofillRequest(username: username, password: password, fields: nil)
-        } else {
-            appExtensionDelegate.didCancel()
+        if let credentialProviderExtensionDelegate = appExtensionDelegate as? CredentialProviderExtensionDelegate,
+           credentialProviderExtensionDelegate.isSavingPasswordCredential {
+            if didAddItem {
+                credentialProviderExtensionDelegate.completeSavePasswordRequest()
+            } else {
+                credentialProviderExtensionDelegate.didCancel()
+            }
+            return
+        }
+
+        let shouldDismiss = delegate?.itemAdded() ?? true
+        if shouldDismiss {
+            coordinator.navigate(to: .dismiss())
         }
     }
 
@@ -498,6 +508,7 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
     /// Loads the feature flags required for this processor.
     private func loadFeatureFlags() async {
         state.cardItemState.cardScannerEnabled = await services.configService.getFeatureFlag(.cardScanner)
+        state.isVfo1FoundationFeatureFlagEnabled = await services.configService.getFeatureFlag(.vfo1Foundation)
     }
 
     /// Updates the bank account state based on the action received.
@@ -833,7 +844,9 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
             coordinator.showAlert(
                 .defaultAlert(
                     title: Localizations.anErrorHasOccurred,
-                    message: Localizations.selectOneCollection,
+                    message: state.isVfo1FoundationFeatureFlagEnabled
+                        ? Localizations.youMustSelectAtLeastOneSharedFolder
+                        : Localizations.selectOneCollection,
                 ),
             )
             return
@@ -891,6 +904,7 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
 
         try await services.vaultRepository.addCipher(state.cipher)
         coordinator.hideLoadingOverlay()
+
         handleDismiss(didAddItem: true)
         await services.reviewPromptService.trackUserAction(.addedNewItem)
     }

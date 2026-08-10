@@ -189,7 +189,7 @@ class VaultItemMoreOptionsHelperTests: BitwardenTestCase { // swiftlint:disable:
 
     /// `showMoreOptionsAlert()` shows archive option and calls `handleMoreOptionsAction` with
     /// `.archive` when the archive action is tapped but it's unavailable so it displays an alert
-    /// and invokes the premium upgrade navigation callback.
+    /// and invokes the Premium upgrade navigation callback.
     @MainActor
     func test_showMoreOptionsAlert_archiveUnavailable_invokesPremiumUpgradeCallback() async throws {
         let account = Account.fixture()
@@ -401,7 +401,7 @@ class VaultItemMoreOptionsHelperTests: BitwardenTestCase { // swiftlint:disable:
     }
 
     /// `showMoreOptionsAlert()` and press `copyTotp` copies the TOTP code if the user
-    /// doesn't have premium but the organization uses TOTP.
+    /// doesn't have Premium but the organization uses TOTP.
     @MainActor
     func test_showMoreOptionsAlert_copyTotp_organizationUseTotp() async throws {
         let account = Account.fixture()
