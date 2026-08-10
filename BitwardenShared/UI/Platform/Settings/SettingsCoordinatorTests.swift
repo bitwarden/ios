@@ -315,11 +315,24 @@ class SettingsCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this ty
     /// `navigate(to:)` with `.folders` pushes the folders view onto the stack navigator.
     @MainActor
     func test_navigateTo_folders() throws {
-        subject.navigate(to: .folders)
+        subject.navigate(to: .folders(isVfo1FoundationFeatureFlagEnabled: false))
 
         let action = try XCTUnwrap(stackNavigator.actions.last)
         XCTAssertEqual(action.type, .pushed)
-        XCTAssertTrue(action.view is UIHostingController<FoldersView>)
+        let viewController = try XCTUnwrap(action.view as? UIHostingController<FoldersView>)
+        XCTAssertEqual(viewController.navigationItem.title, Localizations.folders)
+    }
+
+    /// `navigate(to:)` with `.folders` pushes the folders view onto the stack navigator with the
+    /// "My folders" title when the `vfo1-foundation` feature flag is enabled.
+    @MainActor
+    func test_navigateTo_folders_vfo1FoundationEnabled() throws {
+        subject.navigate(to: .folders(isVfo1FoundationFeatureFlagEnabled: true))
+
+        let action = try XCTUnwrap(stackNavigator.actions.last)
+        XCTAssertEqual(action.type, .pushed)
+        let viewController = try XCTUnwrap(action.view as? UIHostingController<FoldersView>)
+        XCTAssertEqual(viewController.navigationItem.title, Localizations.myFolders)
     }
 
     /// `navigate(to:)` with `.other` pushes the other view onto the stack navigator.

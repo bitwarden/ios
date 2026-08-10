@@ -68,6 +68,29 @@ class VaultListSectionsBuilderFolderTests: BitwardenTestCase {
         }
     }
 
+    /// `addFoldersSection(nestedFolderId:)` names the section "My folders" when the
+    /// `vfo1-foundation` feature flag is enabled.
+    @MainActor
+    func test_addFoldersSection_vfo1FoundationEnabled() async throws {
+        configService.featureFlagsBool[.vfo1Foundation] = true
+        setUpSubject(
+            withData: VaultListPreparedData(
+                folders: [
+                    .fixture(id: "1", name: "folder1"),
+                ],
+            ),
+        )
+
+        let vaultListData = try await subject.addFoldersSection().build()
+
+        assertInlineSnapshot(of: vaultListData.sections.dump(), as: .lines) {
+            """
+            Section[Folders]: My folders
+              - Group[1]: folder1 (0)
+            """
+        }
+    }
+
     /// `addFoldersSection(nestedFolderId:)` adds the folders section to the list of sections
     /// with the count of ciphers per folder. However, given that one of them has `nil` ID, it's ignored and
     /// a error is logged.
