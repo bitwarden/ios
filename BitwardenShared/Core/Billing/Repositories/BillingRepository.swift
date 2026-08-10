@@ -23,9 +23,6 @@ protocol BillingRepository { // sourcery: AutoMockable
 class DefaultBillingRepository: BillingRepository {
     // MARK: Properties
 
-    /// The service used to manage billing operations.
-    private let billingService: BillingService
-
     /// The service used to manage feature flags.
     private let configService: ConfigService
 
@@ -46,7 +43,6 @@ class DefaultBillingRepository: BillingRepository {
     /// Creates a new `DefaultBillingRepository`.
     ///
     /// - Parameters:
-    ///   - billingService: The service used to manage billing operations.
     ///   - configService: The service used to manage feature flags.
     ///   - errorReporter: The service used by the application to report non-fatal errors.
     ///   - stateService: The service used to manage the app's state.
@@ -54,14 +50,12 @@ class DefaultBillingRepository: BillingRepository {
     ///   - vaultRepository: The repository used to manage vault data.
     ///
     init(
-        billingService: BillingService,
         configService: ConfigService,
         errorReporter: ErrorReporter,
         stateService: BillingStateService,
         storefrontService: StorefrontService,
         vaultRepository: VaultRepository,
     ) {
-        self.billingService = billingService
         self.configService = configService
         self.errorReporter = errorReporter
         self.stateService = stateService
@@ -72,8 +66,7 @@ class DefaultBillingRepository: BillingRepository {
     // MARK: Methods
 
     func isInAppUpgradeAvailable() async -> Bool {
-        guard await !billingService.isSelfHosted(),
-              await configService.getFeatureFlag(.premiumUpgradePath),
+        guard await configService.getFeatureFlag(.premiumUpgradePath),
               await storefrontService.isUSStorefront(),
               await stateService.isPremiumUpgradeEligible()
         else { return false }
