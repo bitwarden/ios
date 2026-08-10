@@ -22,7 +22,6 @@
 "FileShare" = "File Share";
 "FormValues" = "Form Values";
 "NoMatchingCredentialReceived" = "No stored credential matches this relying party ID.";
-"PasskeyAutofill" = "Passkey Autofill";
 "PasskeyRegisteredSuccessfully" = "Passkey registered successfully via the Bitwarden SDK.";
 "Password" = "Password";
 "PasswordsDoNotMatch" = "Passwords do not match";
