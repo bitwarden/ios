@@ -51,6 +51,7 @@
 "OK" = "Tamam";
 "Password" = "Parola";
 "Save" = "Kaydet";
+/* Action to move a vault item to another vault; used as a button label, menu item, and screen title. */
 "Move" = "Taşı";
 "Saving" = "Kaydediliyor…";
 "Settings" = "Ayarlar";
@@ -258,8 +259,14 @@
 "ShowWebsiteIconsDescription" = "Hesapların yanında tanıdık görseller göster.";
 "IconsUrl" = "Simge sunucusu URL'si";
 "AutofillWithBitwarden" = "Bitwarden ile otomatik doldur";
+/* Section header and screen title for viewing/managing a cipher's collections. */
 "Collections" = "Koleksiyonlar";
+/* Section header and screen title for viewing/managing a cipher's shared folders. */
+"SharedFolders" = "Paylaşılan klasörler";
+/* Empty state message shown when a collection has no items. */
 "NoItemsCollection" = "Bu koleksiyonda hiç kayıt yok";
+/* Empty state message shown when a shared folder has no items. */
+"ThereAreNoItemsInThisSharedFolder" = "Bu paylaşılan klasörde hiç kayıt yok";
 "NoItemsFolder" = "Bu klasörde hiç kayıt yok";
 "NoItemsTrash" = "Çöp kutusunda hiç kayıt yok.";
 "FaceID" = "Face ID";
@@ -279,6 +286,7 @@
 "RegEx" = "Düzenli ifade";
 "StartsWith" = "URI başlangıcı";
 "MatchDetection" = "Eşleşme tespiti";
+/* Field label on the Move screen shown when the "vfo1-foundation" feature flag is disabled; superseded by "Vault" when enabled. */
 "Organization" = "Kuruluş";
 "HoldYubikeyNearTop" = "Yubikey'inizi cihazınızın üzerine doğru tutun.";
 "TryAgain" = "Yeniden dene";
@@ -314,13 +322,26 @@
 "NoItemsToList" = "Listelenecek kayıt yok.";
 "MoveDown" = "Aşağı taşı";
 "MoveUp" = "Yukarı taşı";
+/* Empty state message on the Collections screen shown when a user has no collections. */
 "NoCollectionsToList" = "Listelenecek koleksiyon yok.";
+/* Empty state message on the Shared folders screen shown when a user has no shared folders. */
+"ThereAreNoSharedFoldersToList" = "There are no shared folders to list.";
 "MovedItemToOrg" = "%1$@, %2$@ kuruluşuna taşındı.";
+/* Alert message shown when saving an item with no collection selected. */
 "SelectOneCollection" = "En az bir koleksiyon seçmelisiniz.";
+/* Alert message shown when saving an item with no shared folder selected. */
+"YouMustSelectAtLeastOneSharedFolder" = "You must select at least one shared folder.";
 "Share" = "Paylaş";
 "ShareAll" = "Tümünü paylaş";
+/* Overflow menu item and screen title on the Move screen shown when the "vfo1-foundation" feature flag is disabled; superseded by "Move" when enabled. */
 "MoveToOrganization" = "Kuruluşa taşı";
+/* Empty state message shown when a user has no vaults available to move an item into, when the "vfo1-foundation" feature flag is enabled. */
+"NoVaultsToList" = "No vaults to list.";
+/* Empty state message shown when a user has no organizations available to move an item into, when the "vfo1-foundation" feature flag is disabled. */
 "NoOrgsToList" = "Listelenecek kuruluş yok.";
+/* Footer text on the Move screen explaining that moving an item transfers its ownership to the destination vault's organization, when the "vfo1-foundation" feature flag is enabled. */
+"ChooseAVaultThatYouWishToMoveThisItemToDescriptionLong" = "Choose a vault that you wish to move this item to. Moving to another vault transfers ownership of the item to that organization. You will no longer be the direct owner of this item once it has been moved.";
+/* Footer text on the Move screen explaining that moving an item transfers its ownership to the destination organization, when the "vfo1-foundation" feature flag is disabled. */
 "MoveToOrgDesc" = "Bu kaydı taşımak istediğiniz kuruluşu seçin. Taşıdığınız kaydın sahipliği seçtiğiniz kuruluşa aktarılacak. Artık bu kaydın doğrudan sahibi olmayacaksınız.";
 "NumberOfWords" = "Kelime sayısı";
 "Passphrase" = "Parola cümlesi";
@@ -589,6 +610,7 @@
 "LoginApproved" = "Giriş onaylandı";
 "LogInWithDevice" = "Cihazla giriş yap";
 "LoggingInOn" = "Giriş yapılan konum";
+/* The word "Vault", used generically as a field label, screen title, and app-wide term for a user's or organization's item collection. */
 "Vault" = "Kasa";
 "Appearance" = "Görünüm";
 "AccountSecurity" = "Hesap güvenliği";
@@ -870,7 +892,11 @@
 "ShowLess" = "Daha az göster";
 "ItemNameX" = "Kayıt adı, %1$@";
 "OwnerX" = "Sahip, %1$@";
+"VaultX" = "Kasa, %1$@";
+/* VoiceOver accessibility label for a collection the item belongs to. */
 "CollectionX" = "Koleksiyon, %1$@";
+/* VoiceOver accessibility label for a shared folder the item belongs to. */
+"SharedFolderX" = "Shared folder, %1$@";
 "FolderX" = "Klasör, %1$@";
 "ItemXOfY" = "Kayıt %1$@/%2$@";
 "ViewRecordedLogs" = "Kaydedilen günlükleri görüntüle";

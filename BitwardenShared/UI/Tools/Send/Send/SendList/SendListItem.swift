@@ -52,6 +52,8 @@ extension SendListItem {
                 SharedAsset.Icons.file24
             case .text:
                 SharedAsset.Icons.fileText24
+            case .unknown:
+                SharedAsset.Icons.fileText24
             }
         }
     }
