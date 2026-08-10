@@ -473,8 +473,10 @@ extension VaultListProcessor {
             await services.billingService.shouldShowUpgradedToPremiumActionCard()
 
         let isBannerDismissed = await services.stateService.isPremiumUpgradeBannerDismissed()
-        let isSelfHosted = await services.billingService.isSelfHosted()
-        guard !isBannerDismissed, !isSelfHosted, !state.shouldShowSubscriptionAttentionCard else {
+        guard !isBannerDismissed,
+              !state.shouldShowSubscriptionAttentionCard,
+              await !services.billingService.isSelfHosted()
+        else {
             state.shouldShowPremiumUpgradeActionCard = false
             return
         }
