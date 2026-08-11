@@ -618,12 +618,13 @@ struct BillingServiceTests { // swiftlint:disable:this type_body_length
         stateService.doesActiveAccountHavePremiumResult = false
 
         await subject.start()
-        // Let the last-sync-time subscription settle before sending a "new" value below — the
-        // publisher's `CurrentValueSubject` backing would otherwise coalesce an immediate send
-        // with the not-yet-established subscription's own initial read, making it ambiguous
-        // whether this counts as a change.
-        await Task.yield()
-        await Task.yield()
+        // Wait for the subscription's baseline snapshot before sending a "new" value below —
+        // `start()` reads `getLastSyncTime()` exactly once, before subscribing to the publisher.
+        // Without this, the publisher's `CurrentValueSubject` backing could coalesce an
+        // immediate send with the not-yet-taken snapshot, making it ambiguous whether the send
+        // counts as a change (both nested `Task`s run on the cooperative pool, so a fixed
+        // number of `Task.yield()` calls from this `@MainActor` test isn't a reliable proxy).
+        try await waitForAsync { stateService.getLastSyncTimeCallCount == 1 }
 
         stateService.premiumUpgradePendingResult = true
         stateService.premiumUpgradeLastSyncAttemptFailedResult = true
@@ -647,8 +648,7 @@ struct BillingServiceTests { // swiftlint:disable:this type_body_length
         stateService.premiumUpgradeLastSyncAttemptFailedResult = true
 
         await subject.start()
-        await Task.yield()
-        await Task.yield()
+        try await waitForAsync { stateService.getLastSyncTimeCallCount == 1 }
 
         #expect(stateService.premiumUpgradeLastSyncAttemptFailedResult == true)
         #expect(stateService.setPremiumUpgradeLastSyncAttemptFailedCallCount == 0)
@@ -671,8 +671,7 @@ struct BillingServiceTests { // swiftlint:disable:this type_body_length
 
         await subject.start()
         // See the comment in `start_clearsLastAttemptFailedOnGenericSyncEvenWithoutPremium()`.
-        await Task.yield()
-        await Task.yield()
+        try await waitForAsync { stateService.getLastSyncTimeCallCount == 1 }
 
         stateService.premiumUpgradePendingResult = true
         stateService.premiumUpgradeLastSyncAttemptFailedResult = true

@@ -1230,6 +1230,35 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         waitFor(billingService.premiumStatusChangedCallsCount == 1)
     }
 
+    /// `perform(_:)` with `.streamPremiumUpgradePendingState` re-shows the "Sync Unsuccessful"
+    /// alert if the user's own "Try again" retry also fails — the transition tracker must reset
+    /// before retrying, or this explicit, user-initiated retry would fail with no feedback.
+    @MainActor
+    func test_perform_streamPremiumUpgradePendingState_syncUnsuccessfulAlert_tryAgainFails() throws {
+        let pendingStateSubject = CurrentValueSubject<PremiumUpgradePendingState, Never>(
+            PremiumUpgradePendingState(isPending: true, lastAttemptFailed: true),
+        )
+        billingService.premiumUpgradePendingStatePublisherReturnValue = pendingStateSubject.eraseToAnyPublisher()
+        billingService.premiumStatusChangedClosure = {
+            pendingStateSubject.send(PremiumUpgradePendingState(isPending: true, lastAttemptFailed: true))
+        }
+
+        let task = Task {
+            await subject.perform(.streamPremiumUpgradePendingState)
+        }
+        defer { task.cancel() }
+
+        waitFor(!coordinator.alertShown.isEmpty)
+        let alert = try XCTUnwrap(coordinator.alertShown.last)
+
+        Task {
+            try await alert.tapAction(title: Localizations.tryAgain)
+        }
+        waitFor(coordinator.alertShown.count == 2)
+
+        XCTAssertEqual(coordinator.alertShown.last?.title, Localizations.syncUnsuccessful)
+    }
+
     /// `perform(_:)` with `.streamShowWebIcons` requests the value of the show
     /// web icons parameter from the state service.
     @MainActor

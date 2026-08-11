@@ -718,6 +718,11 @@ extension VaultListProcessor {
             // unrelated `isPending` change) would incorrectly re-show the alert.
             if pendingState.lastAttemptFailed, !lastAttemptFailed {
                 coordinator.showAlert(.syncUnsuccessful { [weak self] in
+                    // Reset the tracker before retrying — if the retry's own sync also fails,
+                    // the resulting `lastAttemptFailed: true` emission must be treated as a new
+                    // transition rather than a duplicate, or this explicit, user-initiated
+                    // retry would fail with no feedback at all.
+                    lastAttemptFailed = false
                     await self?.services.billingService.premiumStatusChanged()
                 })
             }
