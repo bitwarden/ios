@@ -376,15 +376,17 @@ class SettingsCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this ty
         XCTAssertEqual(module.billingCoordinator.routes, [.premiumUpgrade])
     }
 
-    /// `navigate(to:)` with `.premiumUpgradeComplete` presents a standalone Premium upgrade
-    /// complete screen via the billing coordinator, unlike `.premiumUpgrade` which pushes onto
-    /// Settings' own existing stack.
+    /// `navigate(to:)` with `.premiumUpgradeComplete` pops the pushed Premium upgrade screen —
+    /// unlike every other origin, Settings pushes rather than presents it, so it's otherwise
+    /// still visible underneath the celebration and never re-checks premium status on its own —
+    /// then presents a standalone Premium upgrade complete screen via the billing coordinator.
     @MainActor
     func test_navigateTo_premiumUpgradeComplete() throws {
         subject.navigate(to: .premiumUpgradeComplete)
 
-        let action = try XCTUnwrap(stackNavigator.actions.last)
-        XCTAssertEqual(action.type, .presented)
+        XCTAssertEqual(stackNavigator.actions.count, 2)
+        XCTAssertEqual(stackNavigator.actions[0].type, .popped)
+        XCTAssertEqual(stackNavigator.actions[1].type, .presented)
         XCTAssertEqual(module.billingCoordinator.routes, [.premiumUpgradeCompleteStandalone])
     }
 

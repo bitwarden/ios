@@ -509,6 +509,12 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator { // swiftlint:d
     /// screen's treatment of this same screen.
     ///
     private func showPremiumUpgradeCompleteScreen() {
+        // Unlike every other origin, Settings pushes `PremiumUpgradeView` (rather than
+        // presenting it as a fresh modal root) — reaching this method always means it's still
+        // the top of this stack, since nothing else pops it. Pop it before presenting the
+        // celebration so closing the celebration reveals the real Settings screen underneath,
+        // not a now-stale "Upgrade now" screen that has no way to notice premium was granted.
+        stackNavigator?.pop(animated: false)
         let navigationController = module.makeNavigationController()
         let coordinator = module.makeBillingCoordinator(stackNavigator: navigationController)
         coordinator.navigate(to: .premiumUpgradeCompleteStandalone)
