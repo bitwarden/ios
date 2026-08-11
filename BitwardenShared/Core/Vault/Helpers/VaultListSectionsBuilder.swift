@@ -264,6 +264,8 @@ class DefaultVaultListSectionsBuilder: VaultListSectionsBuilder { // swiftlint:d
     }
 
     func addFoldersSection(nestedFolderId: String? = nil) async throws -> VaultListSectionsBuilder {
+        let isVfo1FoundationEnabled: Bool = await configService.getFeatureFlag(.vfo1Foundation)
+
         let folderTree = try await clientService.vault().folders()
             .decryptList(folders: preparedData.folders)
             .sorted { $0.name.localizedStandardCompare($1.name) == .orderedAscending }
@@ -277,22 +279,7 @@ class DefaultVaultListSectionsBuilder: VaultListSectionsBuilder { // swiftlint:d
 
         guard let folders else { return self }
 
-        var foldersVaultListItems: [VaultListItem] = folders
-            .compactMap { folderNode in
-                guard let folderId = folderNode.node.id else {
-                    self.errorReporter.log(
-                        error: BitwardenError.dataError("Received a folder from the API with a missing ID."),
-                    )
-                    return nil
-                }
-                return VaultListItem(
-                    id: folderId,
-                    itemType: .group(.folder(
-                        id: folderId,
-                        name: folderNode.name,
-                    ), preparedData.foldersCount[folderId, default: 0]),
-                )
-            }
+        var foldersVaultListItems = folderVaultListItems(from: folders)
 
         // Add no folder to folders item if needed.
         let showNoFolderCipherGroup = preparedData.collections.isEmpty
@@ -308,7 +295,11 @@ class DefaultVaultListSectionsBuilder: VaultListSectionsBuilder { // swiftlint:d
 
         if !foldersVaultListItems.isEmpty {
             vaultListData.sections.append(
-                VaultListSection(id: "Folders", items: foldersVaultListItems, name: Localizations.folders),
+                VaultListSection(
+                    id: "Folders",
+                    items: foldersVaultListItems,
+                    name: isVfo1FoundationEnabled ? Localizations.myFolders : Localizations.folders,
+                ),
             )
         }
 
@@ -321,6 +312,26 @@ class DefaultVaultListSectionsBuilder: VaultListSectionsBuilder { // swiftlint:d
         }
 
         return self
+    }
+
+    /// Builds the `VaultListItem`s for the folders section from a tree of folders, logging an
+    /// error and skipping any folder with a missing ID.
+    private func folderVaultListItems(from folders: [TreeNode<FolderView>]) -> [VaultListItem] {
+        folders.compactMap { folderNode in
+            guard let folderId = folderNode.node.id else {
+                errorReporter.log(
+                    error: BitwardenError.dataError("Received a folder from the API with a missing ID."),
+                )
+                return nil
+            }
+            return VaultListItem(
+                id: folderId,
+                itemType: .group(.folder(
+                    id: folderId,
+                    name: folderNode.name,
+                ), preparedData.foldersCount[folderId, default: 0]),
+            )
+        }
     }
 
     func addGroupSection() -> VaultListSectionsBuilder {

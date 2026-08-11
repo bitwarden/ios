@@ -51,6 +51,7 @@
 "OK" = "OK";
 "Password" = "Heslo";
 "Save" = "Uložiť";
+/* Action to move a vault item to another vault; used as a button label, menu item, and screen title. */
 "Move" = "Presunúť";
 "Saving" = "Ukladá sa…";
 "Settings" = "Nastavenia";
@@ -258,8 +259,14 @@
 "ShowWebsiteIconsDescription" = "Pri každom prihlásení zobrazí rozpoznateľný obrázok.";
 "IconsUrl" = "URL servera ikon";
 "AutofillWithBitwarden" = "Automaticky vyplniť Bitwardenom";
+/* Section header and screen title for viewing/managing a cipher's collections. */
 "Collections" = "Zbierky";
+/* Section header and screen title for viewing/managing a cipher's shared folders. */
+"SharedFolders" = "Zdieľané priečinky";
+/* Empty state message shown when a collection has no items. */
 "NoItemsCollection" = "V zbierke sa nenachádzajú žiadne položky";
+/* Empty state message shown when a shared folder has no items. */
+"ThereAreNoItemsInThisSharedFolder" = "V tomto zdieľanom priečinku sa nenachádzajú žiadne položky";
 "NoItemsFolder" = "V tomto priečinku sa nenachádzajú žiadne položky";
 "NoItemsTrash" = "V koši nie sú žiadne položky";
 "FaceID" = "Face ID";
@@ -279,6 +286,7 @@
 "RegEx" = "Regulárny výraz";
 "StartsWith" = "Začína na";
 "MatchDetection" = "Zisťovanie zhody";
+/* Field label on the Move screen shown when the "vfo1-foundation" feature flag is disabled; superseded by "Vault" when enabled. */
 "Organization" = "Organizácia";
 "HoldYubikeyNearTop" = "Držte vaše Yubikey blízko hornej časti prístroja.";
 "TryAgain" = "Skúsiť Znovu";
@@ -314,13 +322,26 @@
 "NoItemsToList" = "Neexistujú žiadne položky na zobrazenie.";
 "MoveDown" = "Posunúť nižšie";
 "MoveUp" = "Posunúť vyššie";
+/* Empty state message on the Collections screen shown when a user has no collections. */
 "NoCollectionsToList" = "Neexistujú žiadne zbierky na zobrazenie.";
+/* Empty state message on the Shared folders screen shown when a user has no shared folders. */
+"ThereAreNoSharedFoldersToList" = "Na zobrazenie nie sú žiadne zdieľané priečinky.";
 "MovedItemToOrg" = "%1$@ presunuté do %2$@.";
+/* Alert message shown when saving an item with no collection selected. */
 "SelectOneCollection" = "Musíte vybrať aspoň jednu zbierku.";
+/* Alert message shown when saving an item with no shared folder selected. */
+"YouMustSelectAtLeastOneSharedFolder" = "Musíte vybrať aspoň jeden zdieľaný priečinok.";
 "Share" = "Zdieľať";
 "ShareAll" = "Zdieľať všetko";
+/* Overflow menu item and screen title on the Move screen shown when the "vfo1-foundation" feature flag is disabled; superseded by "Move" when enabled. */
 "MoveToOrganization" = "Presunúť do Organizácie";
+/* Empty state message shown when a user has no vaults available to move an item into, when the "vfo1-foundation" feature flag is enabled. */
+"NoVaultsToList" = "Nie sú žiadne trezory na zobrazenie.";
+/* Empty state message shown when a user has no organizations available to move an item into, when the "vfo1-foundation" feature flag is disabled. */
 "NoOrgsToList" = "Nenašli sa žiadne organizácie.";
+/* Footer text on the Move screen explaining that moving an item transfers its ownership to the destination vault's organization, when the "vfo1-foundation" feature flag is enabled. */
+"ChooseAVaultThatYouWishToMoveThisItemToDescriptionLong" = "Vyberte trezor, do ktorého chcete túto položku presunúť. Presunutím do iného trezoru sa vlastníctvo položky prevedie na danú organizáciu. Po presunutí už nebudete priamym vlastníkom tejto položky.";
+/* Footer text on the Move screen explaining that moving an item transfers its ownership to the destination organization, when the "vfo1-foundation" feature flag is disabled. */
 "MoveToOrgDesc" = "Vyberte organizáciu, do ktorej chcete presunúť túto položku. Presunom do organizácie sa vlastníctvo položky prenáša na túto organizáciu. Po presunutí už nebudete priamym vlastníkom danej položky.";
 "NumberOfWords" = "Počet slov";
 "Passphrase" = "Prístupová fráza";
@@ -589,6 +610,7 @@
 "LoginApproved" = "Prihlásenie bolo schválené";
 "LogInWithDevice" = "Prihlásiť sa pomocou zariadenia";
 "LoggingInOn" = "Server";
+/* The word "Vault", used generically as a field label, screen title, and app-wide term for a user's or organization's item collection. */
 "Vault" = "Trezor";
 "Appearance" = "Vzhľad";
 "AccountSecurity" = "Zabezpečenie účtu";
@@ -870,7 +892,11 @@
 "ShowLess" = "Zobraziť menej";
 "ItemNameX" = "Názov položky, %1$@";
 "OwnerX" = "Vlastník, %1$@";
+"VaultX" = "Trezor, %1$@";
+/* VoiceOver accessibility label for a collection the item belongs to. */
 "CollectionX" = "Zbierka, %1$@";
+/* VoiceOver accessibility label for a shared folder the item belongs to. */
+"SharedFolderX" = "Zdieľaný priečinok, %1$@";
 "FolderX" = "Priečinok, %1$@";
 "ItemXOfY" = "Položka %1$@ z %2$@";
 "ViewRecordedLogs" = "Zobraziť zaznamenané logy";

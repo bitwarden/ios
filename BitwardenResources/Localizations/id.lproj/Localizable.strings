@@ -51,6 +51,7 @@
 "OK" = "Oke";
 "Password" = "Kata Sandi";
 "Save" = "Simpan";
+/* Action to move a vault item to another vault; used as a button label, menu item, and screen title. */
 "Move" = "Pindah";
 "Saving" = "Menyimpan…";
 "Settings" = "Setelan";
@@ -258,8 +259,14 @@
 "ShowWebsiteIconsDescription" = "Menampilkan gambar pengenal di samping setiap login.";
 "IconsUrl" = "URL Server Ikon";
 "AutofillWithBitwarden" = "Isi Otomatis dengan Bitwarden";
+/* Section header and screen title for viewing/managing a cipher's collections. */
 "Collections" = "Koleksi";
+/* Section header and screen title for viewing/managing a cipher's shared folders. */
+"SharedFolders" = "Shared folders";
+/* Empty state message shown when a collection has no items. */
 "NoItemsCollection" = "Tidak ada item dalam koleksi ini";
+/* Empty state message shown when a shared folder has no items. */
+"ThereAreNoItemsInThisSharedFolder" = "There are no items in this shared folder";
 "NoItemsFolder" = "Tidak ada item di folder ini";
 "NoItemsTrash" = "Tidak ada item di sampah.";
 "FaceID" = "Face ID";
@@ -279,6 +286,7 @@
 "RegEx" = "Ekspresi umum";
 "StartsWith" = "Dimulai dengan";
 "MatchDetection" = "Deteksi kecocokan";
+/* Field label on the Move screen shown when the "vfo1-foundation" feature flag is disabled; superseded by "Vault" when enabled. */
 "Organization" = "Organisasi";
 "HoldYubikeyNearTop" = "Pegang Yubikey di dekat bagian atas perangkat.";
 "TryAgain" = "Coba Lagi";
@@ -314,13 +322,26 @@
 "NoItemsToList" = "Tidak ada item yang dapat dicantumkan.";
 "MoveDown" = "Pindah ke bawah";
 "MoveUp" = "Naik ke Atas";
+/* Empty state message on the Collections screen shown when a user has no collections. */
 "NoCollectionsToList" = "Tidak ada koleksi yang akan ditampilkan.";
+/* Empty state message on the Shared folders screen shown when a user has no shared folders. */
+"ThereAreNoSharedFoldersToList" = "There are no shared folders to list.";
 "MovedItemToOrg" = "%1$@ dipindahkan ke %2$@.";
+/* Alert message shown when saving an item with no collection selected. */
 "SelectOneCollection" = "Anda harus memilih setidaknya satu koleksi.";
+/* Alert message shown when saving an item with no shared folder selected. */
+"YouMustSelectAtLeastOneSharedFolder" = "You must select at least one shared folder.";
 "Share" = "Bagikan";
 "ShareAll" = "Bagikan semua";
+/* Overflow menu item and screen title on the Move screen shown when the "vfo1-foundation" feature flag is disabled; superseded by "Move" when enabled. */
 "MoveToOrganization" = "Pindah ke Organisasi";
+/* Empty state message shown when a user has no vaults available to move an item into, when the "vfo1-foundation" feature flag is enabled. */
+"NoVaultsToList" = "No vaults to list.";
+/* Empty state message shown when a user has no organizations available to move an item into, when the "vfo1-foundation" feature flag is disabled. */
 "NoOrgsToList" = "Tidak ada organisasi untuk dicantumkan.";
+/* Footer text on the Move screen explaining that moving an item transfers its ownership to the destination vault's organization, when the "vfo1-foundation" feature flag is enabled. */
+"ChooseAVaultThatYouWishToMoveThisItemToDescriptionLong" = "Choose a vault that you wish to move this item to. Moving to another vault transfers ownership of the item to that organization. You will no longer be the direct owner of this item once it has been moved.";
+/* Footer text on the Move screen explaining that moving an item transfers its ownership to the destination organization, when the "vfo1-foundation" feature flag is disabled. */
 "MoveToOrgDesc" = "Pilih sebuah organisasi yang Anda inginkan untuk memindahkan item ini. Memindahkan berarti menyerahkan kepemilikan item kepada organisasi tersebut. Anda tidak akan lagi menjadi pemilik item ini.";
 "NumberOfWords" = "Jumlah kata";
 "Passphrase" = "Frasa Sandi";
@@ -589,6 +610,7 @@
 "LoginApproved" = "Masuk diizinkan";
 "LogInWithDevice" = "Masuk dengan perangkat";
 "LoggingInOn" = "Sedang masuk";
+/* The word "Vault", used generically as a field label, screen title, and app-wide term for a user's or organization's item collection. */
 "Vault" = "Brankas";
 "Appearance" = "Tampilan";
 "AccountSecurity" = "Keamanan akun";
@@ -870,7 +892,11 @@
 "ShowLess" = "Lihat lebih sedikit";
 "ItemNameX" = "Nama item, %1$@";
 "OwnerX" = "Pemilik, %1$@";
+"VaultX" = "Vault, %1$@";
+/* VoiceOver accessibility label for a collection the item belongs to. */
 "CollectionX" = "Koleksi, %1$@";
+/* VoiceOver accessibility label for a shared folder the item belongs to. */
+"SharedFolderX" = "Shared folder, %1$@";
 "FolderX" = "Folder, %1$@";
 "ItemXOfY" = "Item %1$@ dari %2$@";
 "ViewRecordedLogs" = "Tampilkan catatan log";
@@ -1217,8 +1243,8 @@
 /* Device display name. %1$@ = category (e.g. "Mobile"), %2$@ = platform (e.g. "iOS"). */
 "DeviceDisplayNameXHyphenY" = "%1$@ - %2$@";
 "Mobile" = "Mobile";
-"BrowserExtension" = "Browser extension";
-"WebVault2" = "Web vault";
+"BrowserExtension" = "Extension";
+"WebVault2" = "Web app";
 "Desktop" = "Desktop";
 "Cli" = "CLI";
 "Sdk" = "SDK";

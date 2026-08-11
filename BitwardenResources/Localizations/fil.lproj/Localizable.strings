@@ -51,6 +51,7 @@
 "OK" = "OK";
 "Password" = "Password";
 "Save" = "I-save";
+/* Action to move a vault item to another vault; used as a button label, menu item, and screen title. */
 "Move" = "Ilipat";
 "Saving" = "Sine-save…";
 "Settings" = "Mga Setting";
@@ -258,8 +259,14 @@
 "ShowWebsiteIconsDescription" = "Magpakita ng makikilalang larawan sa tabi ng mga login.";
 "IconsUrl" = "URL ng server ng mga icon";
 "AutofillWithBitwarden" = "Autofill gamit ang Bitwarden";
+/* Section header and screen title for viewing/managing a cipher's collections. */
 "Collections" = "Mga Koleksyon";
+/* Section header and screen title for viewing/managing a cipher's shared folders. */
+"SharedFolders" = "Shared folders";
+/* Empty state message shown when a collection has no items. */
 "NoItemsCollection" = "Walang mga item sa koleksyong ito";
+/* Empty state message shown when a shared folder has no items. */
+"ThereAreNoItemsInThisSharedFolder" = "There are no items in this shared folder";
 "NoItemsFolder" = "Walang mga item sa folder na ito";
 "NoItemsTrash" = "Walang mga item sa basurahan.";
 "FaceID" = "Face ID";
@@ -279,6 +286,7 @@
 "RegEx" = "Regular na expression";
 "StartsWith" = "Nag-uumpisa sa";
 "MatchDetection" = "Deteksyon ng tugma";
+/* Field label on the Move screen shown when the "vfo1-foundation" feature flag is disabled; superseded by "Vault" when enabled. */
 "Organization" = "Organisasyon";
 "HoldYubikeyNearTop" = "Ilagay ang YubiKey mo sa may taas ng device.";
 "TryAgain" = "Subukan ulit";
@@ -314,13 +322,26 @@
 "NoItemsToList" = "Walang maililistang item.";
 "MoveDown" = "Ilipat pababa";
 "MoveUp" = "Ilipat Pataas";
+/* Empty state message on the Collections screen shown when a user has no collections. */
 "NoCollectionsToList" = "Walang maililistang koleksyon.";
+/* Empty state message on the Shared folders screen shown when a user has no shared folders. */
+"ThereAreNoSharedFoldersToList" = "There are no shared folders to list.";
 "MovedItemToOrg" = "Nilipat ang %1$@ sa %2$@.";
+/* Alert message shown when saving an item with no collection selected. */
 "SelectOneCollection" = "Kailangan mong pumili ng isa man lang na koleksyon.";
+/* Alert message shown when saving an item with no shared folder selected. */
+"YouMustSelectAtLeastOneSharedFolder" = "You must select at least one shared folder.";
 "Share" = "Ibahagi";
 "ShareAll" = "Ibahagi lahat";
+/* Overflow menu item and screen title on the Move screen shown when the "vfo1-foundation" feature flag is disabled; superseded by "Move" when enabled. */
 "MoveToOrganization" = "Ilipat sa Organisasyon";
+/* Empty state message shown when a user has no vaults available to move an item into, when the "vfo1-foundation" feature flag is enabled. */
+"NoVaultsToList" = "No vaults to list.";
+/* Empty state message shown when a user has no organizations available to move an item into, when the "vfo1-foundation" feature flag is disabled. */
 "NoOrgsToList" = "Walang maililistang organisasyon.";
+/* Footer text on the Move screen explaining that moving an item transfers its ownership to the destination vault's organization, when the "vfo1-foundation" feature flag is enabled. */
+"ChooseAVaultThatYouWishToMoveThisItemToDescriptionLong" = "Choose a vault that you wish to move this item to. Moving to another vault transfers ownership of the item to that organization. You will no longer be the direct owner of this item once it has been moved.";
+/* Footer text on the Move screen explaining that moving an item transfers its ownership to the destination organization, when the "vfo1-foundation" feature flag is disabled. */
 "MoveToOrgDesc" = "Piliin kung saang organisasyon mo ililipat ang item na ito. Magiging pag-aari ng organisasyon ang anumang item na ililipat mo rito. Hindi ka na ang direktang may-ari ng item na ito pagkalipat.";
 "NumberOfWords" = "Bilang ng mga salita";
 "Passphrase" = "Passphrase";
@@ -589,6 +610,7 @@
 "LoginApproved" = "Naaprubahan ang login";
 "LogInWithDevice" = "Mag-log in gamit ang device";
 "LoggingInOn" = "Naglo-log in sa";
+/* The word "Vault", used generically as a field label, screen title, and app-wide term for a user's or organization's item collection. */
 "Vault" = "Baul";
 "Appearance" = "Hitsura";
 "AccountSecurity" = "Seguridad ng account";
@@ -870,7 +892,11 @@
 "ShowLess" = "Ipakita ang mas kaunti";
 "ItemNameX" = "Pangalan ng item, %1$@";
 "OwnerX" = "May-ari, %1$@";
+"VaultX" = "Vault, %1$@";
+/* VoiceOver accessibility label for a collection the item belongs to. */
 "CollectionX" = "Koleksyon, %1$@";
+/* VoiceOver accessibility label for a shared folder the item belongs to. */
+"SharedFolderX" = "Shared folder, %1$@";
 "FolderX" = "Folder, %1$@";
 "ItemXOfY" = "Item %1$@ ng %2$@";
 "ViewRecordedLogs" = "Tingnan ang mga na-record na log";

@@ -51,6 +51,7 @@
 "OK" = "OK";
 "Password" = "パスワード";
 "Save" = "保存";
+/* Action to move a vault item to another vault; used as a button label, menu item, and screen title. */
 "Move" = "移動";
 "Saving" = "保存中…";
 "Settings" = "設定";
@@ -258,8 +259,14 @@
 "ShowWebsiteIconsDescription" = "ログイン情報の隣にアイコン画像を表示します";
 "IconsUrl" = "アイコンのサーバー URL";
 "AutofillWithBitwarden" = "Bitwarden で自動入力";
+/* Section header and screen title for viewing/managing a cipher's collections. */
 "Collections" = "コレクション";
+/* Section header and screen title for viewing/managing a cipher's shared folders. */
+"SharedFolders" = "共有フォルダー";
+/* Empty state message shown when a collection has no items. */
 "NoItemsCollection" = "このコレクションにはアイテムがありません";
+/* Empty state message shown when a shared folder has no items. */
+"ThereAreNoItemsInThisSharedFolder" = "この共有フォルダーにはアイテムがありません";
 "NoItemsFolder" = "このフォルダーにはアイテムがありません";
 "NoItemsTrash" = "ごみ箱にアイテムはありません。";
 "FaceID" = "Face ID";
@@ -279,6 +286,7 @@
 "RegEx" = "正規表現";
 "StartsWith" = "前方一致";
 "MatchDetection" = "一致するか検出する方法";
+/* Field label on the Move screen shown when the "vfo1-foundation" feature flag is disabled; superseded by "Vault" when enabled. */
 "Organization" = "組織";
 "HoldYubikeyNearTop" = "YubiKey を端末の上部にしっかりタッチし続けてください。";
 "TryAgain" = "もう一度実行";
@@ -314,13 +322,26 @@
 "NoItemsToList" = "表示するアイテムがありません。";
 "MoveDown" = "下へ";
 "MoveUp" = "上へ";
+/* Empty state message on the Collections screen shown when a user has no collections. */
 "NoCollectionsToList" = "表示するコレクションがありません";
+/* Empty state message on the Shared folders screen shown when a user has no shared folders. */
+"ThereAreNoSharedFoldersToList" = "表示できる共有フォルダーがありません。";
 "MovedItemToOrg" = "%1$@ を %2$@ に移動しました。";
+/* Alert message shown when saving an item with no collection selected. */
 "SelectOneCollection" = "コレクションを最低１つは選んでください。";
+/* Alert message shown when saving an item with no shared folder selected. */
+"YouMustSelectAtLeastOneSharedFolder" = "共有フォルダーを少なくとも一つ選択してください。";
 "Share" = "共有";
 "ShareAll" = "すべてを共有";
+/* Overflow menu item and screen title on the Move screen shown when the "vfo1-foundation" feature flag is disabled; superseded by "Move" when enabled. */
 "MoveToOrganization" = "組織に移動";
+/* Empty state message shown when a user has no vaults available to move an item into, when the "vfo1-foundation" feature flag is enabled. */
+"NoVaultsToList" = "表示できる保管庫がありません。";
+/* Empty state message shown when a user has no organizations available to move an item into, when the "vfo1-foundation" feature flag is disabled. */
 "NoOrgsToList" = "表示する組織がありません。";
+/* Footer text on the Move screen explaining that moving an item transfers its ownership to the destination vault's organization, when the "vfo1-foundation" feature flag is enabled. */
+"ChooseAVaultThatYouWishToMoveThisItemToDescriptionLong" = "このアイテムを移動する保管庫を選択してください。別の保管庫に移動すると、アイテムの所有権はその組織に移ります。移動した後、あなたはこのアイテムの直接の所有者ではなくなります。";
+/* Footer text on the Move screen explaining that moving an item transfers its ownership to the destination organization, when the "vfo1-foundation" feature flag is disabled. */
 "MoveToOrgDesc" = "このアイテムを移動する組織を選択してください。組織に移動すると、アイテムの所有権がその組織に移行します。 このアイテムが移動された後、あなたはこのアイテムの直接の所有者にはなりません。";
 "NumberOfWords" = "単語数";
 "Passphrase" = "パスフレーズ";
@@ -589,6 +610,7 @@
 "LoginApproved" = "ログインの承認";
 "LogInWithDevice" = "デバイスでログイン";
 "LoggingInOn" = "ログイン先";
+/* The word "Vault", used generically as a field label, screen title, and app-wide term for a user's or organization's item collection. */
 "Vault" = "保管庫";
 "Appearance" = "外観";
 "AccountSecurity" = "アカウントのセキュリティ";
@@ -870,7 +892,11 @@
 "ShowLess" = "隠す";
 "ItemNameX" = "アイテム名 %1$@";
 "OwnerX" = "所有者 %1$@";
+"VaultX" = "保管庫: %1$@";
+/* VoiceOver accessibility label for a collection the item belongs to. */
 "CollectionX" = "コレクション %1$@";
+/* VoiceOver accessibility label for a shared folder the item belongs to. */
+"SharedFolderX" = "共有フォルダー: %1$@";
 "FolderX" = "フォルダー %1$@";
 "ItemXOfY" = "アイテム %1$@ / %2$@";
 "ViewRecordedLogs" = "記録されたログを表示";
