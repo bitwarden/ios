@@ -38,6 +38,8 @@ class MockStateService: StateService, ActiveAccountStateProvider, AutofillStateS
     var premiumUpgradeLastSyncAttemptFailedResult: Bool = false // swiftlint:disable:this identifier_name
     var premiumUpgradePendingResult: Bool = false
     // swiftlint:disable:next identifier_name
+    var setPremiumUpgradeLastSyncAttemptFailedCallCount = 0
+    // swiftlint:disable:next identifier_name
     var setPremiumUpgradeLastSyncAttemptFailedResult: Result<Void, Error> = .success(())
     var setPremiumUpgradePendingResult: Result<Void, Error> = .success(())
     var setSubscriptionAttentionCardResult: Result<Void, Error> = .success(())
@@ -390,7 +392,11 @@ class MockStateService: StateService, ActiveAccountStateProvider, AutofillStateS
 
     func getLastSyncTime(userId: String?) async throws -> Date? {
         let userId = try unwrapUserId(userId)
-        return lastSyncTimeByUserId[userId]
+        // Falls back to `lastSyncTimeSubject`, mirroring `DefaultStateService`, where
+        // `getLastSyncTime(userId:)` and `lastSyncTimePublisher()` both read from the same
+        // underlying store — tests that drive `lastSyncTimeSubject` directly (rather than
+        // through `setLastSyncTime(_:userId:)`) still see a consistent value from either call.
+        return lastSyncTimeByUserId[userId] ?? lastSyncTimeSubject.value
     }
 
     func getLastSyncMonotonicTime(userId: String?) async throws -> TimeInterval? {
@@ -663,6 +669,7 @@ class MockStateService: StateService, ActiveAccountStateProvider, AutofillStateS
     }
 
     func setPremiumUpgradeLastSyncAttemptFailed(_ failed: Bool) async throws {
+        setPremiumUpgradeLastSyncAttemptFailedCallCount += 1
         try setPremiumUpgradeLastSyncAttemptFailedResult.get()
         premiumUpgradeLastSyncAttemptFailedResult = failed
     }

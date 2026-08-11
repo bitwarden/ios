@@ -376,7 +376,19 @@ class DefaultBillingService: BillingService {
 
                 self.currentSyncSubscriber = Task {
                     guard let publisher = try? await self.stateService.lastSyncTimePublisher() else { return }
-                    for await _ in publisher.values {
+                    // Snapshot the last-known sync time directly, rather than relying on
+                    // whichever value the publisher happens to deliver first: its
+                    // `CurrentValueSubject` backing replays the existing cached value
+                    // immediately on subscribe (not evidence that a sync just happened), and a
+                    // *different* account's sync can also re-emit this shared store without this
+                    // account's own value having changed. Comparing each emission against the
+                    // last value actually seen — rather than its position in the stream — means
+                    // only a genuinely new sync for this account reaches
+                    // `reconcilePendingUpgradeIfNeeded()`, regardless of subscription timing.
+                    var lastSeenDate = try? await self.stateService.getLastSyncTime()
+                    for await date in publisher.values {
+                        guard date != lastSeenDate else { continue }
+                        lastSeenDate = date
                         await self.reconcilePendingUpgradeIfNeeded()
                     }
                 }
@@ -398,11 +410,11 @@ class DefaultBillingService: BillingService {
             return
         }
 
-        // Reaching this point at all means a sync just completed successfully (this method
-        // is only invoked from a `lastSyncTimePublisher` emission, which never fires on
-        // failure), so the most recent attempt did not fail — clear that regardless of
-        // whether the account has become Premium yet, so a stale failure doesn't linger
-        // after a later, unrelated sync has actually succeeded.
+        // Reaching this point at all means a *new* sync just completed successfully — `start()`
+        // filters out both the initial replay and same-value re-emissions before invoking this
+        // method, and `lastSyncTimePublisher` never fires on failure — so the most recent
+        // attempt did not fail. Clear that regardless of whether the account has become Premium
+        // yet, so a stale failure doesn't linger after a later, unrelated sync has succeeded.
         do {
             try await billingStateService.setPremiumUpgradeLastSyncAttemptFailed(false)
         } catch {

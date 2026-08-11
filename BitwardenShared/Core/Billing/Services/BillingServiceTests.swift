@@ -618,6 +618,12 @@ struct BillingServiceTests { // swiftlint:disable:this type_body_length
         stateService.doesActiveAccountHavePremiumResult = false
 
         await subject.start()
+        // Let the last-sync-time subscription settle before sending a "new" value below — the
+        // publisher's `CurrentValueSubject` backing would otherwise coalesce an immediate send
+        // with the not-yet-established subscription's own initial read, making it ambiguous
+        // whether this counts as a change.
+        await Task.yield()
+        await Task.yield()
 
         stateService.premiumUpgradePendingResult = true
         stateService.premiumUpgradeLastSyncAttemptFailedResult = true
@@ -626,6 +632,33 @@ struct BillingServiceTests { // swiftlint:disable:this type_body_length
         try await waitForAsync { stateService.premiumUpgradeLastSyncAttemptFailedResult == false }
         #expect(stateService.premiumUpgradePendingResult == true)
         #expect(stateService.upgradedToPremiumActionCardVisibleResult == false)
+    }
+
+    /// `start()` does not clear a stale `lastAttemptFailed` flag just from subscribing to the
+    /// last-sync-time publisher — its `CurrentValueSubject` backing replays the existing cached
+    /// value immediately on subscribe, and that replay must not be mistaken for a new sync
+    /// completing.
+    @Test
+    func start_doesNotClearLastAttemptFailedOnInitialSubscriptionReplay() async throws {
+        stateService.activeAccount = .fixture()
+        stateService.doesActiveAccountHavePremiumResult = true
+        stateService.lastSyncTimeSubject.send(Date())
+        stateService.premiumUpgradePendingResult = true
+        stateService.premiumUpgradeLastSyncAttemptFailedResult = true
+
+        await subject.start()
+        await Task.yield()
+        await Task.yield()
+
+        #expect(stateService.premiumUpgradeLastSyncAttemptFailedResult == true)
+        #expect(stateService.setPremiumUpgradeLastSyncAttemptFailedCallCount == 0)
+
+        // A genuinely new sync, sent only once the initial subscription has settled, still
+        // clears the flag as expected.
+        stateService.lastSyncTimeSubject.send(Date())
+
+        try await waitForAsync { stateService.premiumUpgradeLastSyncAttemptFailedResult == false }
+        #expect(stateService.setPremiumUpgradeLastSyncAttemptFailedCallCount == 1)
     }
 
     /// `start()` resolves a pending Premium upgrade when a generic sync completes and the
@@ -637,6 +670,9 @@ struct BillingServiceTests { // swiftlint:disable:this type_body_length
         stateService.doesActiveAccountHavePremiumResult = false
 
         await subject.start()
+        // See the comment in `start_clearsLastAttemptFailedOnGenericSyncEvenWithoutPremium()`.
+        await Task.yield()
+        await Task.yield()
 
         stateService.premiumUpgradePendingResult = true
         stateService.premiumUpgradeLastSyncAttemptFailedResult = true

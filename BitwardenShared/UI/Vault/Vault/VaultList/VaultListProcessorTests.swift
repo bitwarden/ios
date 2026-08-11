@@ -1171,8 +1171,9 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
     /// unsuccessful" alert on a later, duplicate emission that still reports a failed attempt.
     @MainActor
     func test_perform_streamPremiumUpgradePendingState_doesNotReshowSyncUnsuccessfulAlert() {
+        billingRepository.isInAppUpgradeAvailableReturnValue = true
         let pendingStateSubject = CurrentValueSubject<PremiumUpgradePendingState, Never>(
-            PremiumUpgradePendingState(isPending: true, lastAttemptFailed: true),
+            PremiumUpgradePendingState(isPending: true, lastAttemptFailed: false),
         )
         billingService.premiumUpgradePendingStatePublisherReturnValue = pendingStateSubject.eraseToAnyPublisher()
 
@@ -1181,12 +1182,18 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         }
         defer { task.cancel() }
 
+        pendingStateSubject.send(PremiumUpgradePendingState(isPending: true, lastAttemptFailed: true))
         waitFor(!coordinator.alertShown.isEmpty)
+        XCTAssertEqual(coordinator.alertShown.count, 1)
 
-        // A later emission with the same `lastAttemptFailed: true` (e.g. triggered by an
-        // unrelated `isPending` change) should not re-show the alert.
+        // A duplicate emission with the same `lastAttemptFailed: true` (e.g. triggered by an
+        // unrelated `isPending` change) should not re-show the alert. Combine delivers a single
+        // publisher's emissions in order, so sending a distinct, independently-observable
+        // follow-up and waiting on it proves the duplicate before it was already processed —
+        // without that, `waitFor` could return before the duplicate was even handled.
+        pendingStateSubject.send(PremiumUpgradePendingState(isPending: true, lastAttemptFailed: true))
         pendingStateSubject.send(PremiumUpgradePendingState(isPending: false, lastAttemptFailed: true))
-        waitFor(subject.state.shouldShowPremiumUpgradeActionCard == false)
+        waitFor(subject.state.shouldShowPremiumUpgradeActionCard)
 
         XCTAssertEqual(coordinator.alertShown.count, 1)
     }
