@@ -402,10 +402,10 @@ class MockStateService: StateService, ActiveAccountStateProvider, AutofillStateS
 
     func getLastSyncTime(userId: String?) async throws -> Date? {
         let userId = try unwrapUserId(userId)
-        // Falls back to `lastSyncTimeSubject`, mirroring `DefaultStateService`, where
-        // `getLastSyncTime(userId:)` and `lastSyncTimePublisher()` both read from the same
-        // underlying store — tests that drive `lastSyncTimeSubject` directly (rather than
-        // through `setLastSyncTime(_:userId:)`) still see a consistent value from either call.
+        // Falls back to `lastSyncTimeSubject` for tests that drive it directly via `.send(_:)`
+        // instead of going through `setLastSyncTime(_:userId:)`, which keeps both stores in
+        // sync (mirroring `DefaultStateService`, where both calls read from the same
+        // underlying store).
         return lastSyncTimeByUserId[userId] ?? lastSyncTimeSubject.value
     }
 
@@ -810,6 +810,7 @@ class MockStateService: StateService, ActiveAccountStateProvider, AutofillStateS
     func setLastSyncTime(_ date: Date?, userId: String?) async throws {
         let userId = try unwrapUserId(userId)
         lastSyncTimeByUserId[userId] = date
+        lastSyncTimeSubject.value = date
     }
 
     func getLastUserShouldConnectToWatch() async -> Bool {
