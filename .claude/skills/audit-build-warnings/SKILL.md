@@ -1,14 +1,29 @@
 ---
-description: Build the Bitwarden iOS app, capture all compiler and lint warnings, categorize them into Swift 6 concurrency vs actionable, and interactively fix the actionable ones.
-argument-hint: "[scheme] — defaults to Bitwarden"
+name: audit-build-warnings
+description: Build the Bitwarden iOS app, capture all compiler and lint warnings, categorize them into Swift 6 concurrency vs actionable, and interactively fix the actionable ones. Use when asked to "audit build warnings", "fix warnings", "clean up warnings", "build warnings", or to reduce compiler noise before a PR.
+allowed-tools:
+  - Bash(Scripts/audit-build-warnings-prep.sh*)
+  - Bash(mint run swiftlint:*)
+  - Bash(mint run swiftformat:*)
+  - Read
+  - Grep
 ---
 
-# Audit Build Warnings: $ARGUMENTS
+# Audit Build Warnings
+
+## Invocation Examples
+
+```
+/audit-build-warnings                   # defaults to Bitwarden scheme
+/audit-build-warnings Authenticator     # Authenticator app
+/audit-build-warnings TestHarness       # BitwardenTestHarness scheme
+/audit-build-warnings BitwardenKit      # BitwardenKit framework
+```
 
 ## Setup
 
-Resolve the build scheme:
-- If `$ARGUMENTS` is provided, use it as the scheme name (e.g., `Authenticator`, `TestHarness`).
+Determine the build scheme:
+- If the user specified a scheme (e.g., `Authenticator`, `TestHarness`), use it.
 - Otherwise default to `Bitwarden`.
 
 Read simulator config — always read these files, never hardcode values:
@@ -17,40 +32,39 @@ DEVICE=$(tr -d '\n' < .test-simulator-device-name)
 OS=$(tr -d '\n' < .test-simulator-ios-version)
 ```
 
-## Phase 0: Pre-process (auto-fix before building)
+## Phase 1: Pre-process (auto-fix before building)
 
 Run all deterministic auto-fixers *before* the build so their warnings never appear in the report.
 
 ```bash
-mint run swiftformat .
-mint run swiftlint --fix .
-mint run swiftformat .   # second pass cleans up any formatting drift from SwiftLint fixes
+Scripts/audit-build-warnings-prep.sh
 ```
 
-Note how many files each tool changed. These counts appear in the Phase 3 report header but the individual changes are **not** listed as actionable warnings — they're already fixed.
+The script prints an `=== autofix-summary ===` block at the end. Read those counts — they appear in the Phase 4 report, but the individual changes are **not** listed as actionable warnings since they're already fixed.
 
-## Phase 1: Build & Capture
+## Phase 2: Build & Capture
 
 Run the build for testing and capture all output to a temp file:
 ```bash
+mkdir -p .claude/tmp
 xcodebuild build-for-testing \
   -project <SCHEME>.xcodeproj \
   -scheme <SCHEME> \
   -destination "platform=iOS Simulator,name=$DEVICE,OS=$OS" \
   -configuration Debug \
-  2>&1 | tee /tmp/bitwarden_build_output.txt
+  2>&1 | tee .claude/tmp/bitwarden_build_output.txt
 ```
 
 Confirm the build result (`** BUILD SUCCEEDED **` vs `** BUILD FAILED **`). If it failed, report errors and stop — don't proceed to warning fixes.
 
 Extract unique warnings (exclude timestamp lines starting with the year):
 ```bash
-grep -E "warning:" /tmp/bitwarden_build_output.txt \
+grep -E "warning:" .claude/tmp/bitwarden_build_output.txt \
   | grep -v "^20[0-9][0-9]" \
   | sort -u
 ```
 
-## Phase 2: Categorize
+## Phase 3: Categorize
 
 Classify every warning into one of these buckets:
 
@@ -59,7 +73,7 @@ Keywords that identify these: `Sendable`, `non-Sendable`, `actor-isolated`, `non
 
 ### 🟡 Actionable (candidates for fixing)
 Everything else, sub-divided by fix type:
-- **SwiftLint** — `file_length`, `line_length`, `orphaned_doc_comment`, and any other warnings not resolved by Phase 0
+- **SwiftLint** — `file_length`, `line_length`, `orphaned_doc_comment`, and any other warnings not resolved by Phase 1
 - **Swift compiler** — deprecation warnings, always-true/always-false casts, protocol near-matches
 - **Retroactive conformance** — `extension declares a conformance of imported type … to imported protocol`
 
@@ -70,12 +84,12 @@ These categories are typically intentional or in third-party code — default to
 - **Always-true / always-false casts** (`'as' test is always true`) — may be intentional defensive guards
 - **Protocol near-match** warnings in third-party code
 
-## Phase 3: Report
+## Phase 4: Report
 
-Write a temporary markdown report to `/tmp/build_warnings_report.md` (NOT to `Docs/` or any tracked directory — this is an ephemeral audit artifact).
+Write a temporary markdown report to `.claude/tmp/build_warnings_report.md` (gitignored — do NOT write to `Docs/` or any other tracked directory).
 
 Structure:
-1. **Pre-fix summary**: files touched by SwiftFormat and SwiftLint `--fix` in Phase 0
+1. **Pre-fix summary**: files touched by SwiftFormat and SwiftLint `--fix` in Phase 1
 2. **Summary table**: count per category
 3. **Swift 6 Concurrency section**: list all warnings grouped by sub-theme (actor isolation, Sendable captures, etc.) — presented for awareness, not fixing
 4. **Actionable section**: list all remaining warnings grouped by type (SwiftLint, compiler, retroactive conformance)
@@ -84,7 +98,7 @@ Structure:
 
 Present the summary table to the user inline (don't make them open the file).
 
-## Phase 4: Confirm Exclusions
+## Phase 5: Confirm Exclusions
 
 Ask the user one question:
 
@@ -95,7 +109,7 @@ Accept free-form input, or "none" / "proceed as-is".
 
 Record the final exclusion list.
 
-## Phase 5: Fix
+## Phase 6: Fix
 
 Apply fixes for each remaining actionable warning not in the exclusion list, one file at a time:
 
@@ -114,12 +128,12 @@ mint run swiftformat --lint --lenient <file1> <file2> ...
 ```
 If new violations appear, fix them before proceeding.
 
-## Phase 6: Cleanup & Summary
+## Phase 7: Cleanup & Summary
 
-1. Delete the temp report: `rm /tmp/build_warnings_report.md`
-2. Delete the build output: `rm /tmp/bitwarden_build_output.txt`
+1. Delete the temp report: `rm .claude/tmp/build_warnings_report.md`
+2. Delete the build output: `rm .claude/tmp/bitwarden_build_output.txt`
 3. Present a final summary:
-   - How many warnings were auto-fixed in Phase 0 (SwiftFormat + SwiftLint `--fix`)
+   - How many warnings were auto-fixed in Phase 1 (SwiftFormat + SwiftLint `--fix`)
    - How many warnings were manually fixed (by type)
    - Which warnings were intentionally skipped (and why)
    - How many Swift 6 concurrency warnings remain (with a note that these require a dedicated effort)
@@ -130,8 +144,6 @@ If new violations appear, fix them before proceeding.
 ## Guard Rails
 
 **Never fix Swift 6 concurrency warnings** in this workflow — they require actor annotations, `@preconcurrency` imports, or protocol-level changes that need intentional review, not automated fixing.
-
-**Never commit the temp report** (`/tmp/build_warnings_report.md`) — it is for interactive review only and must be deleted at the end.
 
 **Never modify `BitwardenSdk` types directly** — they come from the Rust SDK. Use `@retroactive` conformances instead.
 
