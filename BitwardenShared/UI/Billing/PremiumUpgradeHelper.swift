@@ -11,6 +11,11 @@ protocol PremiumUpgradeRoute {
     /// The route to the Premium upgrade screen.
     static var premiumUpgrade: Self { get }
 
+    /// The route to a standalone Premium upgrade complete screen, shown when an upgrade
+    /// resolves outside of the upgrade screen itself (e.g. a "Sync Now" retry succeeding after
+    /// the upgrade screen has already been dismissed).
+    static var premiumUpgradeComplete: Self { get }
+
     /// The route to dismiss the current screen with an optional action.
     ///
     /// - Parameter action: The action to perform on dismiss.
@@ -157,12 +162,21 @@ class DefaultPremiumUpgradeHelper<Route: PremiumUpgradeRoute, Event>: PremiumUpg
     // MARK: Private Methods
 
     /// Calls `onPendingDismiss`, then shows the upgrade pending alert with "Sync Now" wired to
-    /// `reconcileCheckoutSuccess()`.
+    /// `reconcileCheckoutSuccess()` — navigating to the standalone Premium upgrade complete
+    /// screen if the retry actually resolves the upgrade. A still-pending (not yet Premium) or
+    /// still-failed outcome gets no further UI here: the CTA and the "Sync unsuccessful" alert
+    /// already react to those independently via the durable `premiumUpgradePendingStatePublisher()`
+    /// signal.
     ///
     private func showUpgradePendingAlert() {
         onPendingDismiss?()
         coordinator.showAlert(.upgradePending { [weak self] in
-            await self?.services.billingService.reconcileCheckoutSuccess()
+            guard let self else { return }
+            await services.billingService.reconcileCheckoutSuccess()
+            let state = await services.billingService.premiumUpgradePendingState()
+            if !state.isPending, !state.lastAttemptFailed {
+                coordinator.navigate(to: .premiumUpgradeComplete)
+            }
         })
     }
 
