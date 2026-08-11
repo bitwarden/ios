@@ -379,6 +379,7 @@ struct PremiumUpgradeHelperTests { // swiftlint:disable:this type_body_length
         (PremiumUpgradePendingState(isPending: false, lastAttemptFailed: false), true),
         (PremiumUpgradePendingState(isPending: true, lastAttemptFailed: false), false),
         (PremiumUpgradePendingState(isPending: true, lastAttemptFailed: true), false),
+        (PremiumUpgradePendingState(isPending: false, lastAttemptFailed: true), false),
     ])
     func subscribeToPremiumCheckoutStatus_pending_syncNow(
         pendingState: PremiumUpgradePendingState,
