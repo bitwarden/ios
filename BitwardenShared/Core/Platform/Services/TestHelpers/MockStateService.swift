@@ -402,7 +402,11 @@ class MockStateService: StateService, ActiveAccountStateProvider, AutofillStateS
 
     func getLastSyncTime(userId: String?) async throws -> Date? {
         let userId = try unwrapUserId(userId)
-        return lastSyncTimeByUserId[userId]
+        // Falls back to `lastSyncTimeSubject`, mirroring `DefaultStateService`, where
+        // `getLastSyncTime(userId:)` and `lastSyncTimePublisher()` both read from the same
+        // underlying store — tests that drive `lastSyncTimeSubject` directly (rather than
+        // through `setLastSyncTime(_:userId:)`) still see a consistent value from either call.
+        return lastSyncTimeByUserId[userId] ?? lastSyncTimeSubject.value
     }
 
     func getLastSyncMonotonicTime(userId: String?) async throws -> TimeInterval? {
