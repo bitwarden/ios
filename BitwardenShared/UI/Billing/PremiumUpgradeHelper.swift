@@ -11,6 +11,11 @@ protocol PremiumUpgradeRoute {
     /// The route to the Premium upgrade screen.
     static var premiumUpgrade: Self { get }
 
+    /// The route to a standalone Premium upgrade complete screen, shown when an upgrade
+    /// resolves outside of the upgrade screen itself (e.g. a "Sync Now" retry succeeding after
+    /// the upgrade screen has already been dismissed).
+    static var premiumUpgradeComplete: Self { get }
+
     /// The route to dismiss the current screen with an optional action.
     ///
     /// - Parameter action: The action to perform on dismiss.
@@ -144,8 +149,18 @@ class DefaultPremiumUpgradeHelper<Route: PremiumUpgradeRoute, Event>: PremiumUpg
                         guard let self else { return }
                         coordinator.hideLoadingOverlay()
                         onPendingDismiss?()
-                        coordinator.showAlert(.upgradePending {
-                            await self.services.billingService.premiumStatusChanged()
+                        coordinator.showAlert(.upgradePending { [weak self] in
+                            guard let self else { return }
+                            await services.billingService.premiumStatusChanged()
+                            // A successful "Sync Now" retry resolves the pending upgrade — show
+                            // the celebration screen. A still-pending (not yet Premium) or
+                            // still-failed outcome gets no further UI here: PR2's CTA and PR3's
+                            // "Sync unsuccessful" alert already react to those independently via
+                            // the durable `premiumUpgradePendingStatePublisher()` signal.
+                            let state = await services.billingService.premiumUpgradePendingState()
+                            if !state.isPending, !state.lastAttemptFailed {
+                                coordinator.navigate(to: .premiumUpgradeComplete)
+                            }
                         })
                     }))
                 case .syncing:

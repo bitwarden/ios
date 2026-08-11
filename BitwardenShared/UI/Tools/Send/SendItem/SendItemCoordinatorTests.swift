@@ -209,6 +209,17 @@ class SendItemCoordinatorTests: BitwardenTestCase {
         XCTAssertNil(stackNavigator.actions.last)
     }
 
+    /// `navigate(to:)` with `.premiumUpgradeComplete` presents a standalone Premium upgrade
+    /// complete screen via the billing coordinator.
+    @MainActor
+    func test_navigateTo_premiumUpgradeComplete() throws {
+        subject.navigate(to: .premiumUpgradeComplete)
+
+        let action = try XCTUnwrap(stackNavigator.actions.last)
+        XCTAssertEqual(action.type, .presented)
+        XCTAssertEqual(module.billingCoordinator.routes, [.premiumUpgradeCompleteStandalone])
+    }
+
     /// `navigate(to:)` with `.view` shows the view send screen.
     @MainActor
     func test_navigateTo_view() throws {

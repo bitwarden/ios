@@ -206,6 +206,8 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator { // swiftlint:d
             showPremiumPlan(subscription: subscription)
         case .premiumUpgrade:
             showPremiumUpgrade()
+        case .premiumUpgradeComplete:
+            showPremiumUpgradeCompleteScreen()
         case let .selectLanguage(currentLanguage: currentLanguage):
             showSelectLanguage(currentLanguage: currentLanguage, delegate: context as? SelectLanguageDelegate)
         case let .settings(presentationMode):
@@ -498,6 +500,19 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator { // swiftlint:d
         guard let stackNavigator else { return }
         let coordinator = module.makeBillingCoordinator(stackNavigator: stackNavigator)
         coordinator.navigate(to: .premiumUpgrade)
+    }
+
+    /// Shows a standalone Premium upgrade complete screen, for when an upgrade resolves outside
+    /// of the upgrade screen itself (e.g. a "Sync Now" retry succeeding after the upgrade screen
+    /// has already been dismissed). Unlike `showPremiumUpgrade()`, this presents its own fresh
+    /// modal rather than pushing onto Settings' existing stack, matching every other origin
+    /// screen's treatment of this same screen.
+    ///
+    private func showPremiumUpgradeCompleteScreen() {
+        let navigationController = module.makeNavigationController()
+        let coordinator = module.makeBillingCoordinator(stackNavigator: navigationController)
+        coordinator.navigate(to: .premiumUpgradeCompleteStandalone)
+        stackNavigator?.present(navigationController)
     }
 
     /// Shows the select language screen.

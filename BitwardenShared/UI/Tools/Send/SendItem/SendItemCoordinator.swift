@@ -106,6 +106,8 @@ final class SendItemCoordinator: Coordinator, HasStackNavigator, ProfileSwitcher
             showGenerator(delegate: delegate)
         case .premiumUpgrade:
             showPremiumUpgrade()
+        case .premiumUpgradeComplete:
+            showPremiumUpgradeCompleteScreen()
         case let .share(url):
             showShareSheet(for: [url])
         case let .view(sendView):
@@ -233,6 +235,17 @@ final class SendItemCoordinator: Coordinator, HasStackNavigator, ProfileSwitcher
         let navigationController = module.makeNavigationController()
         let coordinator = module.makeBillingCoordinator(stackNavigator: navigationController)
         coordinator.navigate(to: .premiumUpgrade)
+        stackNavigator?.present(navigationController)
+    }
+
+    /// Shows a standalone Premium upgrade complete screen, for when an upgrade resolves outside
+    /// of the upgrade screen itself (e.g. a "Sync Now" retry succeeding after the upgrade screen
+    /// has already been dismissed).
+    ///
+    private func showPremiumUpgradeCompleteScreen() {
+        let navigationController = module.makeNavigationController()
+        let coordinator = module.makeBillingCoordinator(stackNavigator: navigationController)
+        coordinator.navigate(to: .premiumUpgradeCompleteStandalone)
         stackNavigator?.present(navigationController)
     }
 
