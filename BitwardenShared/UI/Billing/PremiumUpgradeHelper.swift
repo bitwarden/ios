@@ -29,6 +29,36 @@ extension SettingsRoute: PremiumUpgradeRoute {}
 extension VaultItemRoute: PremiumUpgradeRoute {}
 extension VaultRoute: PremiumUpgradeRoute {}
 
+// MARK: - PremiumUpgradeRetry
+
+/// Shared logic for the two explicit, user-initiated "retry the pending upgrade's sync" entry
+/// points — the "Sync Now" button on the upgrade pending alert, and "Try Again" on the "Sync
+/// unsuccessful" alert — so both react identically to the retry actually resolving the upgrade.
+///
+enum PremiumUpgradeRetry {
+    /// Calls `premiumStatusChanged()` and, if the pending upgrade resolved successfully (no
+    /// longer pending, and the retry itself didn't fail), navigates to the standalone Premium
+    /// upgrade complete screen. A still-pending (not yet Premium) or still-failed outcome gets
+    /// no further UI here — the CTA and the "Sync unsuccessful" alert already react to those
+    /// independently via the durable `premiumUpgradePendingStatePublisher()` signal.
+    ///
+    /// - Parameters:
+    ///   - billingService: The service used to retry the sync and check the resulting state.
+    ///   - coordinator: The coordinator to navigate on success.
+    ///
+    @MainActor
+    static func retryAndShowCompleteIfResolved<Route: PremiumUpgradeRoute, Event>(
+        billingService: BillingService,
+        coordinator: any Coordinator<Route, Event>,
+    ) async {
+        await billingService.premiumStatusChanged()
+        let state = await billingService.premiumUpgradePendingState()
+        if !state.isPending, !state.lastAttemptFailed {
+            coordinator.navigate(to: .premiumUpgradeComplete)
+        }
+    }
+}
+
 // MARK: - PremiumUpgradeHelper
 
 /// A helper that centralizes the Premium upgrade navigation flow.
@@ -151,16 +181,10 @@ class DefaultPremiumUpgradeHelper<Route: PremiumUpgradeRoute, Event>: PremiumUpg
                         onPendingDismiss?()
                         coordinator.showAlert(.upgradePending { [weak self] in
                             guard let self else { return }
-                            await services.billingService.premiumStatusChanged()
-                            // A successful "Sync Now" retry resolves the pending upgrade — show
-                            // the celebration screen. A still-pending (not yet Premium) or
-                            // still-failed outcome gets no further UI here: PR2's CTA and PR3's
-                            // "Sync unsuccessful" alert already react to those independently via
-                            // the durable `premiumUpgradePendingStatePublisher()` signal.
-                            let state = await services.billingService.premiumUpgradePendingState()
-                            if !state.isPending, !state.lastAttemptFailed {
-                                coordinator.navigate(to: .premiumUpgradeComplete)
-                            }
+                            await PremiumUpgradeRetry.retryAndShowCompleteIfResolved(
+                                billingService: services.billingService,
+                                coordinator: coordinator,
+                            )
                         })
                     }))
                 case .syncing:
