@@ -20,6 +20,8 @@ struct SendListItemRowState: Equatable {
                 "SendTextFilter"
             case .file:
                 "SendFileFilter"
+            case .unknown:
+                ""
             }
         }
     }

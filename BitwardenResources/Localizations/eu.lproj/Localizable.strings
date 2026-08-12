@@ -51,6 +51,7 @@
 "OK" = "Ados";
 "Password" = "Pasahitza";
 "Save" = "Gorde";
+/* Action to move a vault item to another vault; used as a button label, menu item, and screen title. */
 "Move" = "Mugitu";
 "Saving" = "Gordetzen…";
 "Settings" = "Ezarpenak";
@@ -258,8 +259,14 @@
 "ShowWebsiteIconsDescription" = "Erakutsi irudi bat saio-hasiera bakoitzaren ondoan.";
 "IconsUrl" = "Ikonoen zerbitzariaren URL-a";
 "AutofillWithBitwarden" = "Autobeteketa Bitwarden-ekin";
+/* Section header and screen title for viewing/managing a cipher's collections. */
 "Collections" = "Bildumak";
+/* Section header and screen title for viewing/managing a cipher's shared folders. */
+"SharedFolders" = "Shared folders";
+/* Empty state message shown when a collection has no items. */
 "NoItemsCollection" = "Ez dago elementurik bilduma honetan";
+/* Empty state message shown when a shared folder has no items. */
+"ThereAreNoItemsInThisSharedFolder" = "There are no items in this shared folder";
 "NoItemsFolder" = "Ez dago elementurik karpeta honetan";
 "NoItemsTrash" = "Zakarrontzian ez dago elementurik.";
 "FaceID" = "Face ID";
@@ -279,6 +286,7 @@
 "RegEx" = "Expresio erregularra";
 "StartsWith" = "Hasi honekin";
 "MatchDetection" = "Detekzio modua";
+/* Field label on the Move screen shown when the "vfo1-foundation" feature flag is disabled; superseded by "Vault" when enabled. */
 "Organization" = "Erakundea";
 "HoldYubikeyNearTop" = "Mantendu Yubikey gailuaren goiko aldetik gertu.";
 "TryAgain" = "Saiatu berriro";
@@ -314,13 +322,26 @@
 "NoItemsToList" = "Ez dago erakusteko elementurik.";
 "MoveDown" = "Mugitu behera";
 "MoveUp" = "Mugitu gora";
+/* Empty state message on the Collections screen shown when a user has no collections. */
 "NoCollectionsToList" = "Ez dago erakusteko bildumarik.";
+/* Empty state message on the Shared folders screen shown when a user has no shared folders. */
+"ThereAreNoSharedFoldersToList" = "There are no shared folders to list.";
 "MovedItemToOrg" = "%1$@ %2$@-era mugitu da.";
+/* Alert message shown when saving an item with no collection selected. */
 "SelectOneCollection" = "Gutxienez bilduma bat aukeratu behar duzu.";
+/* Alert message shown when saving an item with no shared folder selected. */
+"YouMustSelectAtLeastOneSharedFolder" = "You must select at least one shared folder.";
 "Share" = "Partekatu";
 "ShareAll" = "Partekatu dena";
+/* Overflow menu item and screen title on the Move screen shown when the "vfo1-foundation" feature flag is disabled; superseded by "Move" when enabled. */
 "MoveToOrganization" = "Mugitu erakundera";
+/* Empty state message shown when a user has no vaults available to move an item into, when the "vfo1-foundation" feature flag is enabled. */
+"NoVaultsToList" = "No vaults to list.";
+/* Empty state message shown when a user has no organizations available to move an item into, when the "vfo1-foundation" feature flag is disabled. */
 "NoOrgsToList" = "Ez dago erakunderik erakusteko.";
+/* Footer text on the Move screen explaining that moving an item transfers its ownership to the destination vault's organization, when the "vfo1-foundation" feature flag is enabled. */
+"ChooseAVaultThatYouWishToMoveThisItemToDescriptionLong" = "Choose a vault that you wish to move this item to. Moving to another vault transfers ownership of the item to that organization. You will no longer be the direct owner of this item once it has been moved.";
+/* Footer text on the Move screen explaining that moving an item transfers its ownership to the destination organization, when the "vfo1-foundation" feature flag is disabled. */
 "MoveToOrgDesc" = "Aukeratu elementu hau zein erakundetara eraman nahi duzun. Erakunde batera pasatzeak elementuaren jabetza erakunde horretara transferitzen du. Zu ez zara elementu honen jabe zuzena izango mugitzen duzunean.";
 "NumberOfWords" = "Hitz kopurua";
 "Passphrase" = "Pasaesaldia";
@@ -589,6 +610,7 @@
 "LoginApproved" = "Saioa onartuta";
 "LogInWithDevice" = "Hasi saioa beste gailu batekin";
 "LoggingInOn" = "Saioa hasten";
+/* The word "Vault", used generically as a field label, screen title, and app-wide term for a user's or organization's item collection. */
 "Vault" = "Kutxa";
 "Appearance" = "Itxura";
 "AccountSecurity" = "Kontuaren segurtasuna";
@@ -870,7 +892,11 @@
 "ShowLess" = "Erakutsi gutxiago";
 "ItemNameX" = "Elementuaren izena, %1$@";
 "OwnerX" = "Jabea, %1$@";
+"VaultX" = "Vault, %1$@";
+/* VoiceOver accessibility label for a collection the item belongs to. */
 "CollectionX" = "Bilduma, %1$@";
+/* VoiceOver accessibility label for a shared folder the item belongs to. */
+"SharedFolderX" = "Shared folder, %1$@";
 "FolderX" = "Karpeta, %1$@";
 "ItemXOfY" = "%1$@ elementua %2$@-tik";
 "ViewRecordedLogs" = "Ikusi grabatutako erregistroak";
@@ -1217,8 +1243,8 @@
 /* Device display name. %1$@ = category (e.g. "Mobile"), %2$@ = platform (e.g. "iOS"). */
 "DeviceDisplayNameXHyphenY" = "%1$@ - %2$@";
 "Mobile" = "Mobile";
-"BrowserExtension" = "Browser extension";
-"WebVault2" = "Web vault";
+"BrowserExtension" = "Extension";
+"WebVault2" = "Web app";
 "Desktop" = "Desktop";
 "Cli" = "CLI";
 "Sdk" = "SDK";

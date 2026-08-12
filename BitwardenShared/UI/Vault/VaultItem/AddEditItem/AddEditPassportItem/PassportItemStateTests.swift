@@ -1,3 +1,4 @@
+import BitwardenKit
 import BitwardenSdk
 import Foundation
 import Testing
@@ -7,16 +8,15 @@ import Testing
 struct PassportItemStateTests {
     // MARK: Tests
 
-    /// `passportView` maps every populated text and date field through to the SDK view,
-    /// passing the raw ISO date strings through verbatim (no `Date` conversion in the model).
+    /// `passportView` maps every populated field through to the SDK view.
     @Test
     func passportView_populated() {
         let subject = PassportItemState(
             birthPlace: "USA",
-            dateOfBirth: "2025-04-20",
-            expirationDate: "2026-08-10",
+            dateOfBirth: Date(year: 2025, month: 4, day: 20),
+            expirationDate: Date(year: 2026, month: 8, day: 10),
             givenName: "Mitchell",
-            issueDate: "2021-08-10",
+            issueDate: Date(year: 2021, month: 8, day: 10),
             issuingAuthority: "U.S. Department of State",
             issuingCountry: "United States",
             nationalIdentificationNumber: "123456789",
@@ -31,7 +31,7 @@ struct PassportItemStateTests {
 
         #expect(view.surname == "Johnson")
         #expect(view.givenName == "Mitchell")
-        #expect(view.dateOfBirth == "2025-04-20")
+        #expect(view.dateOfBirth == Date(year: 2025, month: 4, day: 20))
         #expect(view.sex == "Male")
         #expect(view.birthPlace == "USA")
         #expect(view.nationality == "USA")
@@ -40,11 +40,11 @@ struct PassportItemStateTests {
         #expect(view.passportType == "Regular/Tourist")
         #expect(view.nationalIdentificationNumber == "123456789")
         #expect(view.issuingAuthority == "U.S. Department of State")
-        #expect(view.issueDate == "2021-08-10")
-        #expect(view.expirationDate == "2026-08-10")
+        #expect(view.issueDate == Date(year: 2021, month: 8, day: 10))
+        #expect(view.expirationDate == Date(year: 2026, month: 8, day: 10))
     }
 
-    /// `passportView` maps every empty field to `nil` via `.nilIfEmpty`.
+    /// `passportView` maps every empty/unset field to `nil`.
     @Test
     func passportView_empty() {
         let subject = PassportItemState()
@@ -66,82 +66,43 @@ struct PassportItemStateTests {
         #expect(view.expirationDate == nil)
     }
 
-    /// `passportView` passes raw ISO date strings through verbatim, mapping empty dates to `nil`.
+    /// `dateOfBirthDisplay` formats a set date as a long localized date and returns an empty string
+    /// when unset.
     @Test
-    func passportView_dateStringsPassThroughVerbatim() {
-        var subject = PassportItemState()
-        subject.dateOfBirth = "2025-04-20"
-        subject.issueDate = "2021-08-10"
-        subject.expirationDate = ""
-
-        let view = subject.passportView
-
-        #expect(view.dateOfBirth == "2025-04-20")
-        #expect(view.issueDate == "2021-08-10")
-        #expect(view.expirationDate == nil)
-    }
-
-    /// `dateOfBirthDisplay` formats a valid ISO date-only string as a long localized date and
-    /// returns an empty string when unset.
-    @Test
-    func dateOfBirthDisplay() throws {
+    func dateOfBirthDisplay() {
         var subject = PassportItemState()
 
         #expect(subject.dateOfBirthDisplay.isEmpty)
 
-        subject.dateOfBirth = "2025-04-20"
-        let expectedDate = try utcDate("2025-04-20")
-        #expect(subject.dateOfBirthDisplay == expectedDate.formatted(date: .long, time: .omitted))
+        subject.dateOfBirth = Date(year: 2025, month: 4, day: 20)
+        #expect(subject.dateOfBirthDisplay == subject.dateOfBirth?.longCalendarDateDisplay)
         #expect(subject.dateOfBirthDisplay.contains("April"))
         #expect(subject.dateOfBirthDisplay.contains("2025"))
     }
 
-    /// `dateOfBirthDisplay` returns an empty string for an unparsable date string.
+    /// `issueDateDisplay` formats a set date as a long localized date and returns an empty string
+    /// when unset.
     @Test
-    func dateOfBirthDisplay_unparsable() {
-        var subject = PassportItemState()
-        subject.dateOfBirth = "not-a-date"
-
-        #expect(subject.dateOfBirthDisplay.isEmpty)
-    }
-
-    /// `issueDateDisplay` formats a valid ISO date-only string as a long localized date and
-    /// returns an empty string when unset.
-    @Test
-    func issueDateDisplay() throws {
+    func issueDateDisplay() {
         var subject = PassportItemState()
 
         #expect(subject.issueDateDisplay.isEmpty)
 
-        subject.issueDate = "2021-08-10"
-        let expectedDate = try utcDate("2021-08-10")
-        #expect(subject.issueDateDisplay == expectedDate.formatted(date: .long, time: .omitted))
+        subject.issueDate = Date(year: 2021, month: 8, day: 10)
+        #expect(subject.issueDateDisplay == subject.issueDate?.longCalendarDateDisplay)
         #expect(subject.issueDateDisplay.contains("August"))
     }
 
-    /// `expirationDateDisplay` formats a valid ISO date-only string as a long localized date and
-    /// returns an empty string when unset.
+    /// `expirationDateDisplay` formats a set date as a long localized date and returns an empty
+    /// string when unset.
     @Test
-    func expirationDateDisplay() throws {
+    func expirationDateDisplay() {
         var subject = PassportItemState()
 
         #expect(subject.expirationDateDisplay.isEmpty)
 
-        subject.expirationDate = "2026-08-10"
-        let expectedDate = try utcDate("2026-08-10")
-        #expect(subject.expirationDateDisplay == expectedDate.formatted(date: .long, time: .omitted))
+        subject.expirationDate = Date(year: 2026, month: 8, day: 10)
+        #expect(subject.expirationDateDisplay == subject.expirationDate?.longCalendarDateDisplay)
         #expect(subject.expirationDateDisplay.contains("August"))
-    }
-
-    // MARK: Helpers
-
-    /// Parses a `yyyy-MM-dd` string as a UTC date, mirroring the source's display parser so
-    /// expectations render in the same time zone as the value under test.
-    private func utcDate(_ string: String) throws -> Date {
-        let formatter = DateFormatter()
-        formatter.locale = Locale(identifier: "en_US_POSIX")
-        formatter.timeZone = TimeZone(identifier: "UTC")
-        formatter.dateFormat = "yyyy-MM-dd"
-        return try #require(formatter.date(from: string))
     }
 }
