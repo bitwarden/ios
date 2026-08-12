@@ -2,29 +2,38 @@
 name: audit-build-warnings
 description: Build the Bitwarden iOS app, capture all compiler and lint warnings, categorize them into Swift 6 concurrency vs actionable, and interactively fix the actionable ones. Use when asked to "audit build warnings", "fix warnings", "clean up warnings", "build warnings", or to reduce compiler noise before a PR.
 allowed-tools:
-  - Bash(Scripts/audit-build-warnings-prep.sh*)
-  - Bash(mint run swiftlint:*)
+  - AskUserQuestion
+  - Bash(grep:*)
+  - Bash(mkdir:*)
   - Bash(mint run swiftformat:*)
-  - Read
+  - Bash(mint run swiftlint:*)
+  - Bash(mint run xcodegen:*)
+  - Bash(rm .claude/tmp/bitwarden_build_output.txt)
+  - Bash(rm .claude/tmp/build_warnings_report.md)
+  - Bash(Scripts/audit-build-warnings-prep.sh)
+  - Bash(xcodebuild:*)
+  - Edit
   - Grep
+  - Read
+  - Write
 ---
 
 # Audit Build Warnings
 
-## Invocation Examples
-
-```
-/audit-build-warnings                   # defaults to Bitwarden scheme
-/audit-build-warnings Authenticator     # Authenticator app
-/audit-build-warnings TestHarness       # BitwardenTestHarness scheme
-/audit-build-warnings BitwardenKit      # BitwardenKit framework
-```
-
 ## Setup
 
-Determine the build scheme:
-- If the user specified a scheme (e.g., `Authenticator`, `TestHarness`), use it.
-- Otherwise default to `Bitwarden`.
+Determine the build scheme from the user's phrasing; default to `Bitwarden` if none specified. Generate the Xcode project for the selected scheme (`.xcodeproj` files are gitignored):
+
+| Scheme | Description | Spec |
+|--------|-------------|------|
+| `Bitwarden` *(default)* | Password Manager | `project-pm.yml` |
+| `Authenticator` | Authenticator | `project-bwa.yml` |
+| `BitwardenKit` | BitwardenKit | `project-bwk.yml` |
+| `TestHarness` | Test Harness | `project-bwth.yml` |
+
+```bash
+mint run xcodegen --spec <SPEC>
+```
 
 Read simulator config — always read these files, never hardcode values:
 ```bash
@@ -48,7 +57,7 @@ Run the build for testing and capture all output to a temp file:
 ```bash
 mkdir -p .claude/tmp
 xcodebuild build-for-testing \
-  -project <SCHEME>.xcodeproj \
+  -workspace Bitwarden.xcworkspace \
   -scheme <SCHEME> \
   -destination "platform=iOS Simulator,name=$DEVICE,OS=$OS" \
   -configuration Debug \
@@ -128,18 +137,21 @@ mint run swiftformat --lint --lenient <file1> <file2> ...
 ```
 If new violations appear, fix them before proceeding.
 
-## Phase 7: Cleanup & Summary
+## Phase 7: Summary & Cleanup
 
-1. Delete the temp report: `rm .claude/tmp/build_warnings_report.md`
-2. Delete the build output: `rm .claude/tmp/bitwarden_build_output.txt`
-3. Present a final summary:
+1. Present a final summary:
    - How many warnings were auto-fixed in Phase 1 (SwiftFormat + SwiftLint `--fix`)
    - How many warnings were manually fixed (by type)
    - Which warnings were intentionally skipped (and why)
    - How many Swift 6 concurrency warnings remain (with a note that these require a dedicated effort)
-4. Suggest next steps:
+2. Suggest next steps:
    - Commit the fixes using `bitwarden-delivery-tools:committing-changes`
    - If there are 10+ Swift 6 warnings, suggest creating a PM ticket to track them
+3. Ask the user whether to delete the temp artifacts (both are gitignored under `.claude/tmp/`, so there is no repo-hygiene obligation — the user may want to re-inspect them):
+   - `.claude/tmp/build_warnings_report.md`
+   - `.claude/tmp/bitwarden_build_output.txt`
+
+   Only run the `rm` commands if the user confirms.
 
 ## Guard Rails
 
