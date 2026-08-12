@@ -388,9 +388,16 @@ struct PremiumUpgradeHelperTests { // swiftlint:disable:this type_body_length
         billingRepository.isInAppUpgradeAvailableReturnValue = true
         let statusSubject = PassthroughSubject<PremiumCheckoutStatus, Never>()
         billingService.premiumCheckoutStatusPublisherReturnValue = statusSubject.eraseToAnyPublisher()
-        billingService.premiumUpgradePendingStateReturnValue = pendingState
+        // Not pending yet for `startInAppPremiumUpgrade`'s own already-pending check, so it
+        // navigates to `.premiumUpgrade` normally; `pendingState` only reflects the result of the
+        // "Sync Now" retry itself, checked afterward.
+        billingService.premiumUpgradePendingStateReturnValue = PremiumUpgradePendingState(
+            isPending: false,
+            lastAttemptFailed: false,
+        )
         let subject = makeSubject()
         await subject.navigateToPremiumUpgrade()
+        try await waitForAsync { coordinator.routes.last == .premiumUpgrade }
 
         statusSubject.send(.pending)
         try await waitForAsync {
@@ -401,6 +408,7 @@ struct PremiumUpgradeHelperTests { // swiftlint:disable:this type_body_length
             Issue.record("Expected .dismiss route")
             return
         }
+        billingService.premiumUpgradePendingStateReturnValue = pendingState
         action?.action()
 
         let alert = try #require(coordinator.alertShown.last)
@@ -436,4 +444,4 @@ struct PremiumUpgradeHelperTests { // swiftlint:disable:this type_body_length
 
         #expect(coordinator.routes.count == routeCountBeforeSend)
     }
-}
+} // swiftlint:disable:this file_length

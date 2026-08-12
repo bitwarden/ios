@@ -763,7 +763,13 @@ extension VaultListProcessor {
                     // transition rather than a duplicate, or this explicit, user-initiated
                     // retry would fail with no feedback at all.
                     lastAttemptFailed = false
-                    await self?.services.billingService.premiumStatusChanged()
+                    guard let self else { return }
+                    await PremiumUpgradeRetry.retryAndShowCompleteIfResolved(
+                        billingService: services.billingService,
+                        coordinator: coordinator,
+                    ) {
+                        await self.services.billingService.premiumStatusChanged()
+                    }
                 })
             }
             lastAttemptFailed = pendingState.lastAttemptFailed
