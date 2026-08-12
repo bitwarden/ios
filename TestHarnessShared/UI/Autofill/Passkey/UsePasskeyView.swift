@@ -37,7 +37,10 @@ struct UsePasskeyView: View {
     /// empty-state message when none have been registered yet.
     private var registeredCredentialsSection: some View {
         Section {
-            if store.state.registeredCredentials.isEmpty {
+            if store.state.isLoadingCredentials {
+                ProgressView()
+                    .frame(maxWidth: .infinity, alignment: .center)
+            } else if store.state.registeredCredentials.isEmpty {
                 Text(Localizations.noRegisteredCredentials)
                     .foregroundStyle(.secondary)
             } else {
@@ -106,9 +109,21 @@ struct UsePasskeyView: View {
 // MARK: - Previews
 
 #if DEBUG
-#Preview("Idle") {
+#Preview("Loading") {
     NavigationView {
         UsePasskeyView(store: Store(processor: StateProcessor(state: UsePasskeyState())))
+    }
+}
+
+#Preview("No Credentials") {
+    NavigationView {
+        UsePasskeyView(
+            store: Store(processor: StateProcessor(state: {
+                var state = UsePasskeyState()
+                state.isLoadingCredentials = false
+                return state
+            }())),
+        )
     }
 }
 
@@ -117,6 +132,7 @@ struct UsePasskeyView: View {
         UsePasskeyView(
             store: Store(processor: StateProcessor(state: {
                 var state = UsePasskeyState()
+                state.isLoadingCredentials = false
                 state.status = .success(credentialId: "AQIDBA==", rpId: "bitwarden.com", userName: "user")
                 return state
             }())),
@@ -129,6 +145,7 @@ struct UsePasskeyView: View {
         UsePasskeyView(
             store: Store(processor: StateProcessor(state: {
                 var state = UsePasskeyState()
+                state.isLoadingCredentials = false
                 state.status = .failure("No stored credential matches this relying party ID.")
                 return state
             }())),
@@ -141,6 +158,7 @@ struct UsePasskeyView: View {
         UsePasskeyView(
             store: Store(processor: StateProcessor(state: {
                 var state = UsePasskeyState()
+                state.isLoadingCredentials = false
                 state.registeredCredentials = [
                     Fido2CredentialAutofillView(
                         credentialId: Data([0x01]),

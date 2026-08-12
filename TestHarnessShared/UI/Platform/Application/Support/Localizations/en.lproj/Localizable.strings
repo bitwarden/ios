@@ -25,7 +25,6 @@
 "NoMatchingCredentialReceived" = "No stored credential matches this relying party ID.";
 "NoRegisteredCredentials" = "No credentials registered yet. Use Register Passkey to create one.";
 "PasskeyAssertedSuccessfully" = "Passkey sign-in succeeded via the Bitwarden SDK.";
-"PasskeyAutofill" = "Passkey Autofill";
 "PasskeyRegisteredSuccessfully" = "Passkey registered successfully via the Bitwarden SDK.";
 "Password" = "Password";
 "PasswordsDoNotMatch" = "Passwords do not match";

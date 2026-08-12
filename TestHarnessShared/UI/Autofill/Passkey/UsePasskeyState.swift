@@ -25,6 +25,9 @@ struct UsePasskeyState: Equatable {
 
     // MARK: Properties
 
+    /// Whether the registered credentials are still being loaded.
+    var isLoadingCredentials = true
+
     /// The credentials registered so far, across app launches.
     var registeredCredentials: [Fido2CredentialAutofillView] = []
 

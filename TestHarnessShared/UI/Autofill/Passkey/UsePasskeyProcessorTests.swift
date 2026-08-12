@@ -39,7 +39,14 @@ class UsePasskeyProcessorTests: BitwardenTestCase {
 
     // MARK: Effect Tests
 
-    /// `perform(.loadRegisteredCredentials)` populates the registered credentials list.
+    /// The initial state marks credentials as still loading.
+    @MainActor
+    func test_state_isLoadingCredentials_initiallyTrue() {
+        XCTAssertTrue(subject.state.isLoadingCredentials)
+    }
+
+    /// `perform(.loadRegisteredCredentials)` populates the registered credentials list and clears
+    /// the loading flag.
     @MainActor
     func test_perform_loadRegisteredCredentials_success() async {
         passkeyService.registeredCredentialsReturnValue = [.fixture(rpId: "bitwarden.com")]
@@ -47,9 +54,11 @@ class UsePasskeyProcessorTests: BitwardenTestCase {
         await subject.perform(.loadRegisteredCredentials)
 
         XCTAssertEqual(subject.state.registeredCredentials, [.fixture(rpId: "bitwarden.com")])
+        XCTAssertFalse(subject.state.isLoadingCredentials)
     }
 
-    /// `perform(.loadRegisteredCredentials)` sets status to `.failure` when loading throws.
+    /// `perform(.loadRegisteredCredentials)` sets status to `.failure` when loading throws, and
+    /// clears the loading flag.
     @MainActor
     func test_perform_loadRegisteredCredentials_failure() async {
         passkeyService.registeredCredentialsThrowableError = BitwardenTestError.example
@@ -57,6 +66,7 @@ class UsePasskeyProcessorTests: BitwardenTestCase {
         await subject.perform(.loadRegisteredCredentials)
 
         XCTAssertEqual(subject.state.status, .failure(BitwardenTestError.example.localizedDescription))
+        XCTAssertFalse(subject.state.isLoadingCredentials)
     }
 
     /// `perform(.selectCredential)` asserts using the selected credential's specific credential

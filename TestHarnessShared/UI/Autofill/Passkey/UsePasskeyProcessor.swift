@@ -67,6 +67,7 @@ final class UsePasskeyProcessor: StateProcessor<
 
     /// Loads the list of credentials registered so far, across app launches.
     private func loadRegisteredCredentials() async {
+        defer { state.isLoadingCredentials = false }
         do {
             state.registeredCredentials = try await passkeyService.registeredCredentials()
         } catch {
