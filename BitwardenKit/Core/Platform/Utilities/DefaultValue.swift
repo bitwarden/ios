@@ -86,6 +86,10 @@ extension DefaultValue: Equatable where T: Equatable {}
 
 extension DefaultValue: Hashable where T: Hashable {}
 
+// MARK: - Sendable
+
+extension DefaultValue: Sendable where T: Sendable {}
+
 // MARK: - KeyedDecodingContainer
 
 public extension KeyedDecodingContainer {

@@ -65,6 +65,7 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator { // swiftlint:d
 
     typealias Services = HasASSettingsMediator
         & HasAccountAPIService
+        & HasAppIDService
         & HasAppInfoService
         & HasAuthRepository
         & HasAuthService
@@ -73,6 +74,7 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator { // swiftlint:d
         & HasBillingService
         & HasBiometricsRepository
         & HasConfigService
+        & HasDeviceAPIService
         & HasEnvironmentService
         & HasErrorAlertServices.ErrorAlertServices
         & HasErrorReporter
@@ -172,6 +174,8 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator { // swiftlint:d
             showAutoFill()
         case .deleteAccount:
             showDeleteAccount()
+        case .deviceManagement:
+            showDeviceManagement()
         case let .dismiss(action):
             // If we're presenting a more complicated stack of view controllers (in particular, this could happen
             // if the user navigates to the Premium upgrade flow) then we only want to dismiss the presented one,
@@ -190,8 +194,8 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator { // swiftlint:d
             showExportVaultToFile()
         case let .flightRecorder(route):
             showFlightRecorder(route: route)
-        case .folders:
-            showFolders()
+        case let .folders(isVfo1FoundationFeatureFlagEnabled):
+            showFolders(isVfo1FoundationFeatureFlagEnabled: isVfo1FoundationFeatureFlagEnabled)
         case .importLogins:
             showImportLogins()
         case let .loginRequest(loginRequest):
@@ -359,6 +363,17 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator { // swiftlint:d
         stackNavigator?.present(DeleteAccountView(store: Store(processor: processor)))
     }
 
+    /// Shows the device management screen.
+    ///
+    private func showDeviceManagement() {
+        let processor = DeviceManagementProcessor(
+            coordinator: asAnyCoordinator(),
+            services: services,
+            state: DeviceManagementState(),
+        )
+        stackNavigator?.present(DeviceManagementView(store: Store(processor: processor)))
+    }
+
     /// Shows the export vault screen.
     ///
     @MainActor
@@ -404,16 +419,19 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator { // swiftlint:d
 
     /// Shows the folders screen.
     ///
-    private func showFolders() {
+    /// - Parameter isVfo1FoundationFeatureFlagEnabled: Whether the `vfo1-foundation` feature flag is enabled.
+    ///
+    private func showFolders(isVfo1FoundationFeatureFlagEnabled: Bool) {
+        let state = FoldersState(isVfo1FoundationFeatureFlagEnabled: isVfo1FoundationFeatureFlagEnabled)
         let processor = FoldersProcessor(
             coordinator: asAnyCoordinator(),
             services: services,
-            state: FoldersState(),
+            state: state,
         )
         let view = FoldersView(store: Store(processor: processor))
         let viewController = UIHostingController(rootView: view)
         viewController.navigationItem.largeTitleDisplayMode = .never
-        stackNavigator?.push(viewController, navigationTitle: Localizations.folders)
+        stackNavigator?.push(viewController, navigationTitle: state.navigationTitle)
     }
 
     /// Shows the import login items screen.

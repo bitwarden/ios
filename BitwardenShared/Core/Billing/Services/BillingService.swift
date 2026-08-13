@@ -237,7 +237,9 @@ class DefaultBillingService: BillingService {
     }
 
     func isSelfHosted() async -> Bool {
-        guard environmentService.region == .selfHosted else { return false }
+        guard environmentService.region == .selfHosted || environmentService.region == .internal else {
+            return false
+        }
         return await !configService.getFeatureFlag(.debugDisableSelfHostPremiumCheck)
     }
 

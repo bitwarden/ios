@@ -100,7 +100,7 @@ class AddEditSendItemStateTests: BitwardenTestCase { // swiftlint:disable:this t
         )
     }
 
-    func test_newSendView_text() {
+    func test_newSendView_text() throws {
         let date = Date(year: 2023, month: 11, day: 5)
         let subject = AddEditSendItemState(
             accessType: .anyoneWithPassword,
@@ -118,7 +118,7 @@ class AddEditSendItemStateTests: BitwardenTestCase { // swiftlint:disable:this t
             text: "Text",
             type: .text,
         )
-        let sendView = subject.newSendView()
+        let sendView = try subject.newSendView()
         XCTAssertNil(sendView.id)
         XCTAssertNil(sendView.accessId)
         XCTAssertEqual(sendView.name, "Name")
@@ -142,7 +142,7 @@ class AddEditSendItemStateTests: BitwardenTestCase { // swiftlint:disable:this t
 
     /// `newSendView()` correctly sets access type and emails for specific people,
     /// filtering empty emails and normalizing (trimming and lowercasing) them.
-    func test_newSendView_specificPeople() {
+    func test_newSendView_specificPeople() throws {
         let date = Date(year: 2023, month: 11, day: 5)
         let subject = AddEditSendItemState(
             accessType: .specificPeople,
@@ -153,7 +153,7 @@ class AddEditSendItemStateTests: BitwardenTestCase { // swiftlint:disable:this t
             text: "Text",
             type: .text,
         )
-        let sendView = subject.newSendView()
+        let sendView = try subject.newSendView()
         XCTAssertEqual(sendView.authType, .email)
         XCTAssertEqual(sendView.emails, ["test@example.com", "another@example.com"])
         XCTAssertFalse(sendView.hasPassword)
@@ -161,7 +161,7 @@ class AddEditSendItemStateTests: BitwardenTestCase { // swiftlint:disable:this t
     }
 
     /// `newSendView()` correctly sets access type for anyone with link.
-    func test_newSendView_anyoneWithLink() {
+    func test_newSendView_anyoneWithLink() throws {
         let date = Date(year: 2023, month: 11, day: 5)
         let subject = AddEditSendItemState(
             accessType: .anyoneWithLink,
@@ -171,14 +171,14 @@ class AddEditSendItemStateTests: BitwardenTestCase { // swiftlint:disable:this t
             text: "Text",
             type: .text,
         )
-        let sendView = subject.newSendView()
+        let sendView = try subject.newSendView()
         XCTAssertEqual(sendView.authType, .none)
         XCTAssertTrue(sendView.emails.isEmpty)
         XCTAssertFalse(sendView.hasPassword)
     }
 
     /// `newSendView()` preserves existing password when editing and no new password is entered.
-    func test_newSendView_preservesExistingPassword() {
+    func test_newSendView_preservesExistingPassword() throws {
         let date = Date(year: 2023, month: 11, day: 5)
         let originalSendView = SendView.fixture(hasPassword: true)
         let subject = AddEditSendItemState(
@@ -192,13 +192,13 @@ class AddEditSendItemStateTests: BitwardenTestCase { // swiftlint:disable:this t
             text: "Text",
             type: .text,
         )
-        let sendView = subject.newSendView()
+        let sendView = try subject.newSendView()
         XCTAssertTrue(sendView.hasPassword)
         XCTAssertNil(sendView.newPassword)
     }
 
     /// `newSendView()` clears password when access type changes from password to link.
-    func test_newSendView_clearsPasswordWhenAccessTypeChanges() {
+    func test_newSendView_clearsPasswordWhenAccessTypeChanges() throws {
         let date = Date(year: 2023, month: 11, day: 5)
         let originalSendView = SendView.fixture(hasPassword: true)
         let subject = AddEditSendItemState(
@@ -212,23 +212,34 @@ class AddEditSendItemStateTests: BitwardenTestCase { // swiftlint:disable:this t
             text: "Text",
             type: .text,
         )
-        let sendView = subject.newSendView()
+        let sendView = try subject.newSendView()
         XCTAssertFalse(sendView.hasPassword)
         XCTAssertNil(sendView.newPassword)
     }
 
     /// `newSendView()` sets the expiration date to the deletion date if the expiration date isn't
     /// `nil` to allow editing an expired send.
-    func test_newSendView_text_expired() {
+    func test_newSendView_text_expired() throws {
         let deletionDate = Date(year: 2024, month: 1, day: 2)
         let subject = AddEditSendItemState(
             customDeletionDate: deletionDate,
             deletionDate: .custom(deletionDate),
             expirationDate: .distantPast,
         )
-        let sendView = subject.newSendView()
+        let sendView = try subject.newSendView()
         XCTAssertEqual(sendView.deletionDate, deletionDate)
         XCTAssertEqual(sendView.expirationDate, deletionDate)
+    }
+
+    /// `newSendView()` throws if the send's type isn't recognized by this version of the app.
+    /// This shouldn't happen in practice, since the UI's type picker never offers `.unknown`.
+    func test_newSendView_unknownType_throws() {
+        let subject = AddEditSendItemState(type: .unknown)
+        XCTAssertThrowsError(try subject.newSendView()) { error in
+            guard case DataMappingError.invalidData = error else {
+                return XCTFail("Expected DataMappingError.invalidData, got \(error)")
+            }
+        }
     }
 
     func init_sendView_text() {
@@ -356,4 +367,71 @@ class AddEditSendItemStateTests: BitwardenTestCase { // swiftlint:disable:this t
         let subject = AddEditSendItemState(sendView: sendView)
         XCTAssertEqual(subject.accessType, .anyoneWithPassword)
     }
-}
+
+    // MARK: shouldShowHideEmailField
+
+    /// `shouldShowHideEmailField` is `true` when the hide-email option is not disabled by policy,
+    /// regardless of the Send Controls feature flag.
+    func test_shouldShowHideEmailField_notDisabled() {
+        var subject = AddEditSendItemState(isSendHideEmailDisabled: false)
+
+        subject.isSendControlsPolicyEnabled = false
+        XCTAssertTrue(subject.shouldShowHideEmailField)
+
+        subject.isSendControlsPolicyEnabled = true
+        XCTAssertTrue(subject.shouldShowHideEmailField)
+    }
+
+    /// `shouldShowHideEmailField` is `true` when hide-email is disabled by the legacy Send Options
+    /// policy (feature flag off) so the field remains visible but disabled.
+    func test_shouldShowHideEmailField_disabled_flagOff() {
+        let subject = AddEditSendItemState(
+            isSendControlsPolicyEnabled: false,
+            isSendHideEmailDisabled: true,
+        )
+        XCTAssertTrue(subject.shouldShowHideEmailField)
+    }
+
+    /// `shouldShowHideEmailField` is `false` when hide-email is disabled by the Send Controls policy
+    /// (feature flag on) so the field is hidden entirely.
+    func test_shouldShowHideEmailField_disabled_flagOn() {
+        let subject = AddEditSendItemState(
+            isSendControlsPolicyEnabled: true,
+            isSendHideEmailDisabled: true,
+        )
+        XCTAssertFalse(subject.shouldShowHideEmailField)
+    }
+
+    // MARK: shouldShowHideEmailPolicyBanner
+
+    /// `shouldShowHideEmailPolicyBanner` is `false` when the hide-email option is not disabled.
+    func test_shouldShowHideEmailPolicyBanner_notDisabled() {
+        var subject = AddEditSendItemState(isSendHideEmailDisabled: false)
+
+        subject.isSendControlsPolicyEnabled = false
+        XCTAssertFalse(subject.shouldShowHideEmailPolicyBanner)
+
+        subject.isSendControlsPolicyEnabled = true
+        XCTAssertFalse(subject.shouldShowHideEmailPolicyBanner)
+    }
+
+    /// `shouldShowHideEmailPolicyBanner` is `true` when hide-email is disabled by the legacy Send
+    /// Options policy (feature flag off).
+    func test_shouldShowHideEmailPolicyBanner_disabled_flagOff() {
+        let subject = AddEditSendItemState(
+            isSendControlsPolicyEnabled: false,
+            isSendHideEmailDisabled: true,
+        )
+        XCTAssertTrue(subject.shouldShowHideEmailPolicyBanner)
+    }
+
+    /// `shouldShowHideEmailPolicyBanner` is `false` when hide-email is disabled by the Send Controls
+    /// policy (feature flag on); the field is hidden instead of showing a banner.
+    func test_shouldShowHideEmailPolicyBanner_disabled_flagOn() {
+        let subject = AddEditSendItemState(
+            isSendControlsPolicyEnabled: true,
+            isSendHideEmailDisabled: true,
+        )
+        XCTAssertFalse(subject.shouldShowHideEmailPolicyBanner)
+    }
+} // swiftlint:disable:this file_length

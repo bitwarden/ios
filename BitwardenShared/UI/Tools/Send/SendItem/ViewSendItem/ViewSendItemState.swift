@@ -34,6 +34,8 @@ struct ViewSendItemState: Equatable {
         switch sendView.type {
         case .file: Localizations.viewFileSend
         case .text: Localizations.viewTextSend
+        // TODO: PM-41094 - Share: Implement Share panel and vault item menu integration.
+        case .item: ""
         }
     }
 }

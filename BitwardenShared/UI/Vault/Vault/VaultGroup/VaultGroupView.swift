@@ -250,6 +250,7 @@ struct VaultGroupView: View {
                 state: { state in
                     VaultListItemRowState(
                         iconBaseURL: state.iconBaseURL,
+                        isVfo1FoundationFeatureFlagEnabled: state.isVfo1FoundationFeatureFlagEnabled,
                         item: item,
                         hasDivider: !isLastInSection,
                         showWebIcons: state.showWebIcons,

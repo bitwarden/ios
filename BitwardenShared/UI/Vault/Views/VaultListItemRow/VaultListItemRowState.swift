@@ -12,6 +12,9 @@ struct VaultListItemRowState {
     /// Whether we are in an extension context.
     var isFromExtension: Bool = false
 
+    /// Whether the `vfo1-foundation` feature flag is enabled.
+    var isVfo1FoundationFeatureFlagEnabled = false
+
     /// The item displayed in this row.
     var item: VaultListItem
 

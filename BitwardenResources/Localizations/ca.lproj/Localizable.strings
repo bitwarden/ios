@@ -39,6 +39,8 @@
 "RemoveAccount" = "Suprimeix el compte";
 "RemoveAccountConfirmation" = "Voleu suprimir el compte?";
 "AccountAlreadyAdded" = "El compte ja s'ha afegit";
+"AccountCreationRestricted" = "Account creation restricted";
+"XOnlyAllowsInvitedUsersToCreateAccounts" = "%1$@ only allows invited users to create accounts.";
 "SwitchToAlreadyAddedAccountConfirmation" = "T'agradaria canviar-lo ara?";
 "MasterPassword" = "Contrasenya mestra";
 "MoreOptions" = "More options";
@@ -49,6 +51,7 @@
 "OK" = "OK";
 "Password" = "Contrasenya";
 "Save" = "Guarda";
+/* Action to move a vault item to another vault; used as a button label, menu item, and screen title. */
 "Move" = "Desplaça";
 "Saving" = "Saving…";
 "Settings" = "Configuració";
@@ -256,8 +259,14 @@
 "ShowWebsiteIconsDescription" = "Mostra una imatge reconeixible al costat de cada inici de sessió.";
 "IconsUrl" = "URL del servidor d'icones";
 "AutofillWithBitwarden" = "Ompli automàticament amb Bitwarden";
+/* Section header and screen title for viewing/managing a cipher's collections. */
 "Collections" = "Col·leccions";
+/* Section header and screen title for viewing/managing a cipher's shared folders. */
+"SharedFolders" = "Shared folders";
+/* Empty state message shown when a collection has no items. */
 "NoItemsCollection" = "No hi ha elements en aquesta col·lecció";
+/* Empty state message shown when a shared folder has no items. */
+"ThereAreNoItemsInThisSharedFolder" = "There are no items in this shared folder";
 "NoItemsFolder" = "No hi ha elements en aquesta carpeta";
 "NoItemsTrash" = "No hi ha elements a la paperera.";
 "FaceID" = "Face ID";
@@ -277,6 +286,7 @@
 "RegEx" = "Expressió regular";
 "StartsWith" = "Comença amb";
 "MatchDetection" = "Detecció de coincidències";
+/* Field label on the Move screen shown when the "vfo1-foundation" feature flag is disabled; superseded by "Vault" when enabled. */
 "Organization" = "Organització";
 "HoldYubikeyNearTop" = "Mantingueu la vostra Yubikey a la part superior del dispositiu.";
 "TryAgain" = "Torneu-ho a provar";
@@ -312,13 +322,26 @@
 "NoItemsToList" = "No hi ha cap element per llistar.";
 "MoveDown" = "Desplaça cap avall";
 "MoveUp" = "Desplaça cap amunt";
+/* Empty state message on the Collections screen shown when a user has no collections. */
 "NoCollectionsToList" = "No hi ha cap col·lecció per llistar.";
+/* Empty state message on the Shared folders screen shown when a user has no shared folders. */
+"ThereAreNoSharedFoldersToList" = "There are no shared folders to list.";
 "MovedItemToOrg" = "%1$@ desplaçat a %2$@.";
+/* Alert message shown when saving an item with no collection selected. */
 "SelectOneCollection" = "Heu d'escollir com a mínim una col·lecció.";
+/* Alert message shown when saving an item with no shared folder selected. */
+"YouMustSelectAtLeastOneSharedFolder" = "You must select at least one shared folder.";
 "Share" = "Comparteix";
 "ShareAll" = "Compartir-ho tot";
+/* Overflow menu item and screen title on the Move screen shown when the "vfo1-foundation" feature flag is disabled; superseded by "Move" when enabled. */
 "MoveToOrganization" = "Desplaça a l'organització";
+/* Empty state message shown when a user has no vaults available to move an item into, when the "vfo1-foundation" feature flag is enabled. */
+"NoVaultsToList" = "No vaults to list.";
+/* Empty state message shown when a user has no organizations available to move an item into, when the "vfo1-foundation" feature flag is disabled. */
 "NoOrgsToList" = "No hi ha cap organització per llistar.";
+/* Footer text on the Move screen explaining that moving an item transfers its ownership to the destination vault's organization, when the "vfo1-foundation" feature flag is enabled. */
+"ChooseAVaultThatYouWishToMoveThisItemToDescriptionLong" = "Choose a vault that you wish to move this item to. Moving to another vault transfers ownership of the item to that organization. You will no longer be the direct owner of this item once it has been moved.";
+/* Footer text on the Move screen explaining that moving an item transfers its ownership to the destination organization, when the "vfo1-foundation" feature flag is disabled. */
 "MoveToOrgDesc" = "Trieu una organització a la qual vulgueu desplaçar aquest element. El trasllat a una organització transfereix la propietat de l'element a aquesta organització. Ja no sereu el propietari directe d'aquest element una vegada s'haja mogut.";
 "NumberOfWords" = "Nombre de paraules";
 "Passphrase" = "Frase de pas";
@@ -563,6 +586,7 @@
 "ThereAreNoBankAccountsInYourVault" = "There are no bank accounts in your vault";
 "US" = "EUA";
 "EU" = "UE";
+"Gov" = "Gov";
 "SelfHosted" = "Autoallotjat";
 "UpdateWeakMasterPasswordWarning" = "La vostra contrasenya mestra no compleix una o més de les polítiques de l'organització. Per accedir a la caixa forta, heu d'actualitzar-la ara. Si continueu, es tancarà la sessió actual i us demanarà que torneu a iniciar-la. Les sessions en altres dispositius poden continuar romanent actives fins a una hora.";
 "CurrentMasterPasswordRequired" = "Current master password (required)";
@@ -571,6 +595,8 @@
 "RequestAdminApproval" = "Sol·liciteu l'aprovació de l'administrador";
 "ApproveWithMasterPassword" = "Aprova amb contrasenya mestra";
 "TurnOffUsingPublicDevice" = "Apagueu amb un dispositiu públic";
+"TurnOnFillAssist" = "Turn on fill assist";
+"TurnOnFillAssistDescriptionLong" = "Fill Assist improves autofill accuracy on supported sites by using site-specific rules.";
 "RememberThisDevice" = "Recorda aquest dispositiu";
 "Passkey" = "Clau de pas";
 "Passkeys" = "Claus de pas";
@@ -584,6 +610,7 @@
 "LoginApproved" = "S'ha aprovat l'inici de sessió";
 "LogInWithDevice" = "Inici de sessió amb dispositiu";
 "LoggingInOn" = "Inici de sessió en";
+/* The word "Vault", used generically as a field label, screen title, and app-wide term for a user's or organization's item collection. */
 "Vault" = "Caixa forta";
 "Appearance" = "Aparença";
 "AccountSecurity" = "Seguretat del compte";
@@ -865,7 +892,11 @@
 "ShowLess" = "Show less";
 "ItemNameX" = "Item name, %1$@";
 "OwnerX" = "Owner, %1$@";
+"VaultX" = "Vault, %1$@";
+/* VoiceOver accessibility label for a collection the item belongs to. */
 "CollectionX" = "Collection, %1$@";
+/* VoiceOver accessibility label for a shared folder the item belongs to. */
+"SharedFolderX" = "Shared folder, %1$@";
 "FolderX" = "Folder, %1$@";
 "ItemXOfY" = "Item %1$@ of %2$@";
 "ViewRecordedLogs" = "View recorded logs";
@@ -1097,12 +1128,37 @@
 "YourSubscriptionExpiredOnXDescriptionLong" = "Your subscription expired on **%1$@**. Resubscribe to continue using Premium features.";
 "YourSubscriptionIsScheduledToCancelOnXDescriptionLong" = "Your subscription is scheduled to cancel on **%1$@**. You can reinstate it anytime before then.";
 "PerMonth" = "/ month";
+/* VoiceOver reading of "PerMonth", spoken instead of shown. */
+"PerMonthVoiceOver" = "per month";
 "PerYear" = "/ year";
+/* VoiceOver reading of "PerYear", spoken instead of shown. */
+"PerYearVoiceOver" = "per year";
 "XAmountPerCadence" = "%1$@ %2$@";
+/* %1$@ is an amount and cadence together, e.g. "$1.65 / month". */
+"XCancelAnytime" = "%1$@ · Cancel anytime";
+/* VoiceOver reading of "XCancelAnytime", spoken instead of shown. */
+"XCancelAnytimeVoiceOver" = "%1$@, Cancel anytime";
 "NegativeX" = "-%1$@";
 "UnknownStatus" = "Unknown";
 "YourSubscriptionStatusIsUnknownVisitTheWebAppDescriptionLong" = "Your subscription status could not be determined. Please visit the web app for more details or update to the latest version.";
-"UnlockMoreAdvancedFeaturesWithPremiumPlan" = "Unlock more advanced features with a Premium plan.";
+/* Headline on the Premium upgrade screen. */
+"UnlockAdvancedProtection" = "Unlock advanced protection";
+/* Premium benefit list item. */
+"BreezeThrough2faWithBuiltInCodes" = "Breeze through 2FA with built-in codes";
+/* Premium benefit list item. */
+"RunReportsToFindRiskyPasswords" = "Run reports to find risky passwords";
+/* Premium benefit list item. */
+"KeepDocumentsSafeAndEncrypted" = "Keep documents safe and encrypted";
+/* Premium benefit list item. */
+"AddATrustedEmergencyContact" = "Add a trusted emergency contact";
+/* Premium benefit list item. */
+"IdentifyUnsecureWebsites" = "Identify unsecure websites";
+/* Premium benefit list item. */
+"FlagAccountsWithInactive2fa" = "Flag accounts with inactive 2FA";
+/* Premium benefit list item; "Send" is the Bitwarden Send feature name and shouldn't be translated. */
+"ShareFilesSecurelyWithAnyoneUsingSend" = "Share files securely with anyone using Send";
+/* Premium benefit list item. */
+"Receive247PrioritySupport" = "Receive 24/7 priority support";
 "BuiltInAuthenticator" = "Built-in authenticator";
 "EmergencyAccess" = "Emergency access";
 "PaymentNotReceivedYet" = "Payment not received yet";
@@ -1111,7 +1167,6 @@
 "WeHadTroubleOpeningThePaymentPageDescriptionLong" = "We had trouble opening the payment page, so try again.";
 "SecureFileStorage" = "Secure file storage";
 "BreachMonitoring" = "Breach monitoring";
-"UpgradeNow" = "Upgrade now";
 "ConfirmingYourUpgrade" = "Confirming your upgrade…";
 "OpeningCheckout" = "Opening checkout…";
 "UpgradePending" = "Upgrade pending";
@@ -1122,7 +1177,8 @@
 "ViewPlan" = "View plan";
 "YouNowHaveAccessToAdvancedSecurityDescriptionLong" = "You now have access to advanced security features. Learn more about what's included with Premium.";
 "YouNowHaveAccessToAllAdvancedSecurityFeatures" = "You now have access to all advanced security features.";
-"YoullGoToStripeSecureCheckoutToCompleteYourPurchase" = "You´ll go to Stripe´s secure checkout to complete your purchase.";
+/* Footer on the Premium upgrade screen; "Stripe" is the payment processor's name and shouldn't be translated. */
+"YoullCompleteThePurchaseWithStripeSecureCheckout" = "You'll complete the purchase with Stripe secure checkout.";
 "ContinueToStripe" = "Continue to Stripe?";
 "YoullBeTakenToStripeToManageYourSubscriptionCancellation" = "You'll be taken to Stripe to manage your subscription cancellation.";
 "UserIDCopiedToTheClipboard" = "User ID copied to the clipboard";
@@ -1171,4 +1227,29 @@
 "LineOfCredit" = "Line of credit";
 "MoneyMarket" = "Money market";
 "Savings" = "Savings";
+"Devices" = "Devices";
+"NoDevicesFound" = "No devices found";
+"CurrentSession" = "Current session";
+"PendingRequest" = "Pending request";
+"Trusted" = "Trusted";
+"RecentlyActiveLabel" = "Recently active:";
+"FirstLoginLabel" = "First login:";
+"Today" = "Today";
+"PastSevenDays" = "Past 7 days";
+"PastFourteenDays" = "Past 14 days";
+"PastThirtyDays" = "Past 30 days";
+"OverThirtyDaysAgo" = "Over 30 days ago";
+"Unknown" = "Unknown";
+/* Device display name. %1$@ = category (e.g. "Mobile"), %2$@ = platform (e.g. "iOS"). */
+"DeviceDisplayNameXHyphenY" = "%1$@ - %2$@";
+"Mobile" = "Mobile";
+"BrowserExtension" = "Extension";
+"WebVault2" = "Web app";
+"Desktop" = "Desktop";
+"Cli" = "CLI";
+"Sdk" = "SDK";
+"Server" = "Server";
+/* Accessibility label for the button that clears a field's value. %1$@ is the field's title (e.g. "Date of birth"), so the spoken label reads "Clear Date of birth". */
+"ClearFieldName" = "Clear %1$@";
+"SelectDate" = "Select date";
 "PremiumRequiredTOTPDescriptionLong" = "Authenticator key (TOTP) is a Premium feature. Your current plan does not include access to this feature.";

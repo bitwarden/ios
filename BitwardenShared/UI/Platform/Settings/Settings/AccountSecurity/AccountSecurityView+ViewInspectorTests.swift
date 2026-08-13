@@ -151,6 +151,29 @@ class AccountSecurityViewTests: BitwardenTestCase {
         XCTAssertEqual(processor.dispatchedActions.last, .pendingLoginRequestsTapped)
     }
 
+    /// The pending login requests button is hidden when manage devices is enabled.
+    @MainActor
+    func test_pendingRequestsButton_hidden_whenManageDevicesEnabled() {
+        processor.state.isManageDevicesEnabled = true
+        XCTAssertThrowsError(try subject.inspect().find(button: Localizations.pendingLogInRequests))
+    }
+
+    /// The manage devices button is hidden when manage devices is disabled.
+    @MainActor
+    func test_manageDevicesButton_hidden_whenDisabled() {
+        processor.state.isManageDevicesEnabled = false
+        XCTAssertThrowsError(try subject.inspect().find(button: Localizations.devices))
+    }
+
+    /// Tapping the manage devices button dispatches the `.manageDevicesTapped` action.
+    @MainActor
+    func test_manageDevicesButton_tap() throws {
+        processor.state.isManageDevicesEnabled = true
+        let button = try subject.inspect().find(button: Localizations.devices)
+        try button.tap()
+        XCTAssertEqual(processor.dispatchedActions.last, .manageDevicesTapped)
+    }
+
     /// Tapping the log out button dispatches the `.logout` action.
     @MainActor
     func test_logOutButton_tap() throws {
