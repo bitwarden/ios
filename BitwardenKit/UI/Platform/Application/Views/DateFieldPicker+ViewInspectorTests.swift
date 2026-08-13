@@ -46,62 +46,6 @@ class DateFieldPickerTests: BitwardenTestCase {
 
     // MARK: Tests
 
-    /// When collapsed and empty, the field shows its title and no inline date picker.
-    func test_collapsedEmpty_showsTitleAndNoPicker() throws {
-        XCTAssertNoThrow(try subject.inspect().find(text: "Date of birth"))
-        XCTAssertThrowsError(try subject.inspect().find(ViewType.DatePicker.self))
-    }
-
-    /// When a date is selected, the collapsed field shows the formatted date.
-    func test_collapsedSelected_showsFormattedDate() throws {
-        date = defaultDate
-        let expected = defaultDate.longCalendarDateDisplay
-        XCTAssertNoThrow(try subject.inspect().find(text: expected))
-    }
-
-    /// The collapsed header is a button so a single tap expands the picker.
-    func test_headerButton_exists() throws {
-        XCTAssertNoThrow(try subject.inspect().find(viewWithAccessibilityIdentifier: "DateFieldPickerHeaderButton"))
-    }
-
-    /// The header button carries an accessibility hint telling VoiceOver users it selects a date.
-    func test_headerButton_hasSelectDateHint() throws {
-        let header = try subject.inspect().find(viewWithAccessibilityIdentifier: "DateFieldPickerHeaderButton")
-        XCTAssertEqual(try header.accessibilityHint().string(), Localizations.selectDate)
-    }
-
-    /// The clear control's accessibility label names the field so VoiceOver users know what it clears.
-    func test_clearButton_accessibilityLabel_namesField() throws {
-        date = defaultDate
-        XCTAssertNoThrow(
-            try subject.inspect().find(viewWithAccessibilityLabel: Localizations.clearFieldName("Date of birth")),
-        )
-    }
-
-    /// When a date is selected, a clear control is shown and tapping it resets the value to `nil`.
-    func test_clearButton_clearsDate() throws {
-        date = defaultDate
-        let clearButton = try subject.inspect().find(viewWithAccessibilityIdentifier: "DateFieldPickerClearButton")
-        try clearButton.button().tap()
-        XCTAssertNil(date)
-    }
-
-    /// No clear control is shown when the field is empty.
-    func test_clearButton_hiddenWhenEmpty() throws {
-        XCTAssertThrowsError(try subject.inspect().find(viewWithAccessibilityIdentifier: "DateFieldPickerClearButton"))
-    }
-
-    /// A provided footer is rendered below the field.
-    func test_footer_isRendered() throws {
-        subject = DateFieldPicker(
-            title: "Date of birth",
-            date: bindingDate,
-            defaultDate: defaultDate,
-            footer: "A footer",
-        )
-        XCTAssertNoThrow(try subject.inspect().find(text: "A footer"))
-    }
-
     /// The field applies the provided accessibility identifier.
     func test_accessibilityIdentifier_custom() throws {
         subject = DateFieldPicker(
@@ -132,18 +76,38 @@ class DateFieldPickerTests: BitwardenTestCase {
         )
     }
 
-    /// `selectedLocalDay()` (which feeds the `DatePicker`'s displayed selection) converts the stored
-    /// UTC-anchored date into the local calendar day domain the `DatePicker` operates in.
-    func test_selectedLocalDay_convertsStoredDateToLocalDay() {
-        let stored = Date(year: 2024, month: 2, day: 29)
-        date = stored
-        XCTAssertEqual(subject.selectedLocalDay(), stored.asLocalCalendarDay())
+    /// The clear control's accessibility label names the field so VoiceOver users know what it clears.
+    func test_clearButton_accessibilityLabel_namesField() throws {
+        date = defaultDate
+        XCTAssertNoThrow(
+            try subject.inspect().find(viewWithAccessibilityLabel: Localizations.clearFieldName("Date of birth")),
+        )
     }
 
-    /// `selectedLocalDay()` falls back to `defaultDate` when no date is set yet.
-    func test_selectedLocalDay_fallsBackToDefaultDateWhenUnset() {
-        date = nil
-        XCTAssertEqual(subject.selectedLocalDay(), defaultDate.asLocalCalendarDay())
+    /// When a date is selected, a clear control is shown and tapping it resets the value to `nil`.
+    func test_clearButton_clearsDate() throws {
+        date = defaultDate
+        let clearButton = try subject.inspect().find(viewWithAccessibilityIdentifier: "DateFieldPickerClearButton")
+        try clearButton.button().tap()
+        XCTAssertNil(date)
+    }
+
+    /// No clear control is shown when the field is empty.
+    func test_clearButton_hiddenWhenEmpty() throws {
+        XCTAssertThrowsError(try subject.inspect().find(viewWithAccessibilityIdentifier: "DateFieldPickerClearButton"))
+    }
+
+    /// When collapsed and empty, the field shows its title and no inline date picker.
+    func test_collapsedEmpty_showsTitleAndNoPicker() throws {
+        XCTAssertNoThrow(try subject.inspect().find(text: "Date of birth"))
+        XCTAssertThrowsError(try subject.inspect().find(ViewType.DatePicker.self))
+    }
+
+    /// When a date is selected, the collapsed field shows the formatted date.
+    func test_collapsedSelected_showsFormattedDate() throws {
+        date = defaultDate
+        let expected = defaultDate.longCalendarDateDisplay
+        XCTAssertNoThrow(try subject.inspect().find(text: expected))
     }
 
     /// `commitSelectedLocalDay(_:)` (called when the user picks a day on the `DatePicker`) converts
@@ -162,5 +126,41 @@ class DateFieldPickerTests: BitwardenTestCase {
         date = Date(year: 2024, month: 2, day: 29)
         subject.commitSelectedLocalDay(subject.selectedLocalDay())
         XCTAssertEqual(date, Date(year: 2024, month: 2, day: 29))
+    }
+
+    /// A provided footer is rendered below the field.
+    func test_footer_isRendered() throws {
+        subject = DateFieldPicker(
+            title: "Date of birth",
+            date: bindingDate,
+            defaultDate: defaultDate,
+            footer: "A footer",
+        )
+        XCTAssertNoThrow(try subject.inspect().find(text: "A footer"))
+    }
+
+    /// The collapsed header is a button so a single tap expands the picker.
+    func test_headerButton_exists() throws {
+        XCTAssertNoThrow(try subject.inspect().find(viewWithAccessibilityIdentifier: "DateFieldPickerHeaderButton"))
+    }
+
+    /// The header button carries an accessibility hint telling VoiceOver users it selects a date.
+    func test_headerButton_hasSelectDateHint() throws {
+        let header = try subject.inspect().find(viewWithAccessibilityIdentifier: "DateFieldPickerHeaderButton")
+        XCTAssertEqual(try header.accessibilityHint().string(), Localizations.selectDate)
+    }
+
+    /// `selectedLocalDay()` (which feeds the `DatePicker`'s displayed selection) converts the stored
+    /// UTC-anchored date into the local calendar day domain the `DatePicker` operates in.
+    func test_selectedLocalDay_convertsStoredDateToLocalDay() {
+        let stored = Date(year: 2024, month: 2, day: 29)
+        date = stored
+        XCTAssertEqual(subject.selectedLocalDay(), stored.asLocalCalendarDay())
+    }
+
+    /// `selectedLocalDay()` falls back to `defaultDate` when no date is set yet.
+    func test_selectedLocalDay_fallsBackToDefaultDateWhenUnset() {
+        date = nil
+        XCTAssertEqual(subject.selectedLocalDay(), defaultDate.asLocalCalendarDay())
     }
 }
