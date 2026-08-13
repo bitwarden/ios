@@ -45,6 +45,9 @@ extension SendListItem {
                 SharedAsset.Icons.file24
             case .text:
                 SharedAsset.Icons.fileText24
+            // TODO: PM-41094 - Share: Implement Share panel and vault item menu integration.
+            case .item:
+                SharedAsset.Icons.file24
             }
         case let .group(group, _):
             switch group {
