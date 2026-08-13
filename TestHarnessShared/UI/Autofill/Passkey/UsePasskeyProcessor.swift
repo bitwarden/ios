@@ -21,7 +21,7 @@ final class UsePasskeyProcessor: StateProcessor<
 
     // MARK: Initialization
 
-    /// Initializes an `UsePasskeyProcessor`.
+    /// Initializes a `UsePasskeyProcessor`.
     ///
     /// - Parameters:
     ///   - coordinator: The coordinator that handles navigation.

@@ -2,7 +2,7 @@ import BitwardenSdk
 
 // MARK: - UsePasskeyEffect
 
-/// Effects that can be processed by an `UsePasskeyProcessor`.
+/// Effects that can be processed by a `UsePasskeyProcessor`.
 ///
 enum UsePasskeyEffect: Equatable {
     /// The view appeared, and should load the list of registered credentials.
