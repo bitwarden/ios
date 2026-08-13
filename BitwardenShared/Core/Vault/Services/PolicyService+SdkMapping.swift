@@ -121,6 +121,7 @@ extension PolicyType {
              .automaticUserConfirmation,
              .autotypeDefaultSetting,
              .blockClaimedDomainAccountCreation,
+             .fillAssist,
              .freeFamiliesSponsorship,
              .organizationUserNotification,
              .uriMatchDefaults: self = .unknown
