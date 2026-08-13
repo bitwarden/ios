@@ -2,12 +2,12 @@ import Foundation
 
 // MARK: - RegisterPasskeyState
 
-/// The state for the SDK-backed register passkey test screen.
+/// The state for the register passkey test screen.
 ///
 struct RegisterPasskeyState: Equatable {
     // MARK: Types
 
-    /// The current status of an SDK-backed passkey registration attempt.
+    /// The current status of an passkey registration attempt.
     enum RegistrationStatus: Equatable {
         /// Registration failed with the associated error description.
         case failure(String)
