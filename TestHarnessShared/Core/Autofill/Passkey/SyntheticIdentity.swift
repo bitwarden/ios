@@ -2,7 +2,7 @@ import Foundation
 
 // MARK: - SyntheticIdentity
 
-/// The synthetic, throwaway identity used to bootstrap the SDK-backed passkey scenarios' ephemeral
+/// The synthetic, throwaway identity used to bootstrap the passkey scenarios' ephemeral
 /// `BitwardenSdk.Client`. Persisted in the keychain so the same crypto keys can be reconstructed
 /// across app launches.
 ///

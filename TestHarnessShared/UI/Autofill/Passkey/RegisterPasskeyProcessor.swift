@@ -2,7 +2,7 @@ import BitwardenKit
 
 // MARK: - RegisterPasskeyProcessor
 
-/// The processor for the SDK-backed register passkey test screen.
+/// The processor for the register passkey test screen.
 ///
 final class RegisterPasskeyProcessor: StateProcessor<
     RegisterPasskeyState,

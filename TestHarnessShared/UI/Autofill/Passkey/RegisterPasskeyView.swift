@@ -73,7 +73,7 @@ struct RegisterPasskeyView: View {
         }
     }
 
-    /// The section containing the button that triggers SDK-backed passkey registration.
+    /// The section containing the button that triggers passkey registration.
     private var registerButtonSection: some View {
         Section {
             Button {

@@ -107,7 +107,7 @@ class RootCoordinator: Coordinator, HasStackNavigator {
         stackNavigator?.replace(view)
     }
 
-    /// Shows the SDK-backed register passkey test screen.
+    /// Shows the register passkey test screen.
     ///
     private func showRegisterPasskey() {
         let processor = RegisterPasskeyProcessor(
