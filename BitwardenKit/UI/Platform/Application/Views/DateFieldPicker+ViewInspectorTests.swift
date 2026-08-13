@@ -6,6 +6,22 @@ import XCTest
 
 @testable import BitwardenKit
 
+private extension InspectableView where View == ViewType.DatePicker {
+    /// Locates the raw binding on this date picker's selection value. Can be used to read the
+    /// currently displayed selection.
+    func selectionBinding() throws -> Binding<Date> {
+        let mirror = Mirror(reflecting: self)
+        if let binding = mirror.descendant("content", "view", "_selection") as? Binding<Date> {
+            return binding
+        } else {
+            throw InspectionError.attributeNotFound(
+                label: "_selection",
+                type: String(describing: ViewType.DatePicker.self),
+            )
+        }
+    }
+}
+
 class DateFieldPickerTests: BitwardenTestCase {
     // MARK: Properties
 
@@ -110,21 +126,33 @@ class DateFieldPickerTests: BitwardenTestCase {
         XCTAssertNoThrow(try subject.inspect().find(text: expected))
     }
 
-    /// `commitSelectedLocalDay(_:)` (called when the user picks a day on the `DatePicker`) converts
-    /// the picked local calendar day back into the UTC-anchored form used for storage — the exact
-    /// composition `selection()` wires into the live `DatePicker`, verified here without needing to
-    /// render or expand the calendar.
-    func test_commitSelectedLocalDay_commitsUTCAnchoredDate() {
+    /// Picking a day on the live `DatePicker` (in its local-day domain) converts it back into the
+    /// UTC-anchored form used for storage.
+    func test_commitSelectedLocalDay_commitsUTCAnchoredDate() throws {
+        subject = DateFieldPicker(
+            title: "Date of birth",
+            date: bindingDate,
+            defaultDate: defaultDate,
+            isExpanded: true,
+        )
         let pickedLocalDay = Date(year: 2024, month: 2, day: 29)
-        subject.commitSelectedLocalDay(pickedLocalDay)
+        try subject.inspect().find(ViewType.DatePicker.self).select(date: pickedLocalDay)
         XCTAssertEqual(date, pickedLocalDay.asUTCCalendarDay())
     }
 
     /// Selecting the day that's already displayed is idempotent: it doesn't drift the stored date by
     /// re-converting an already-converted value.
-    func test_commitSelectedLocalDay_isIdempotentForTheCurrentlyDisplayedDay() {
+    func test_commitSelectedLocalDay_isIdempotentForTheCurrentlyDisplayedDay() throws {
         date = Date(year: 2024, month: 2, day: 29)
-        subject.commitSelectedLocalDay(subject.selectedLocalDay())
+        subject = DateFieldPicker(
+            title: "Date of birth",
+            date: bindingDate,
+            defaultDate: defaultDate,
+            isExpanded: true,
+        )
+        let datePicker = try subject.inspect().find(ViewType.DatePicker.self)
+        let displayedDay = try datePicker.selectionBinding().wrappedValue
+        try datePicker.select(date: displayedDay)
         XCTAssertEqual(date, Date(year: 2024, month: 2, day: 29))
     }
 
@@ -150,17 +178,31 @@ class DateFieldPickerTests: BitwardenTestCase {
         XCTAssertEqual(try header.accessibilityHint().string(), Localizations.selectDate)
     }
 
-    /// `selectedLocalDay()` (which feeds the `DatePicker`'s displayed selection) converts the stored
-    /// UTC-anchored date into the local calendar day domain the `DatePicker` operates in.
-    func test_selectedLocalDay_convertsStoredDateToLocalDay() {
+    /// The `DatePicker`'s displayed selection converts the stored UTC-anchored date into the local
+    /// calendar day domain the `DatePicker` operates in.
+    func test_selectedLocalDay_convertsStoredDateToLocalDay() throws {
         let stored = Date(year: 2024, month: 2, day: 29)
         date = stored
-        XCTAssertEqual(subject.selectedLocalDay(), stored.asLocalCalendarDay())
+        subject = DateFieldPicker(
+            title: "Date of birth",
+            date: bindingDate,
+            defaultDate: defaultDate,
+            isExpanded: true,
+        )
+        let displayedDay = try subject.inspect().find(ViewType.DatePicker.self).selectionBinding().wrappedValue
+        XCTAssertEqual(displayedDay, stored.asLocalCalendarDay())
     }
 
-    /// `selectedLocalDay()` falls back to `defaultDate` when no date is set yet.
-    func test_selectedLocalDay_fallsBackToDefaultDateWhenUnset() {
+    /// The `DatePicker`'s displayed selection falls back to `defaultDate` when no date is set yet.
+    func test_selectedLocalDay_fallsBackToDefaultDateWhenUnset() throws {
         date = nil
-        XCTAssertEqual(subject.selectedLocalDay(), defaultDate.asLocalCalendarDay())
+        subject = DateFieldPicker(
+            title: "Date of birth",
+            date: bindingDate,
+            defaultDate: defaultDate,
+            isExpanded: true,
+        )
+        let displayedDay = try subject.inspect().find(ViewType.DatePicker.self).selectionBinding().wrappedValue
+        XCTAssertEqual(displayedDay, defaultDate.asLocalCalendarDay())
     }
 }

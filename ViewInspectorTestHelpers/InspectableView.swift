@@ -415,22 +415,6 @@ public extension InspectableView where View == BitwardenTextFieldType {
     }
 }
 
-public extension InspectableView where View == DateFieldPickerType {
-    /// Locates the raw binding on this field's date value. Can be used to simulate selecting a date.
-    ///
-    func inputBinding() throws -> Binding<Date?> {
-        let mirror = Mirror(reflecting: self)
-        if let binding = mirror.descendant("content", "view", "_date") as? Binding<Date?> {
-            return binding
-        } else {
-            throw InspectionError.attributeNotFound(
-                label: "_date",
-                type: String(describing: DateFieldPickerType.self),
-            )
-        }
-    }
-}
-
 public extension InspectableView where View == BitwardenMultilineTextFieldType {
     /// Locates the raw binding on this textfield's text value. Can be used to simulate updating the text field.
     ///
@@ -507,6 +491,22 @@ public extension InspectableView where View == BitwardenStepperType {
     func increment() throws {
         let button = try find(buttonWithId: "increment")
         try button.tap()
+    }
+}
+
+public extension InspectableView where View == DateFieldPickerType {
+    /// Locates the raw binding on this field's date value. Can be used to simulate selecting a date.
+    ///
+    func inputBinding() throws -> Binding<Date?> {
+        let mirror = Mirror(reflecting: self)
+        if let binding = mirror.descendant("content", "view", "_date") as? Binding<Date?> {
+            return binding
+        } else {
+            throw InspectionError.attributeNotFound(
+                label: "_date",
+                type: String(describing: DateFieldPickerType.self),
+            )
+        }
     }
 }
 

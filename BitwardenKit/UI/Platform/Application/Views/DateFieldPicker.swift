@@ -112,6 +112,27 @@ public struct DateFieldPicker: View {
         self.footer = footer
     }
 
+    /// Creates a new `DateFieldPicker` with the calendar already expanded. Used by tests to reach
+    /// the live `DatePicker` node via `ViewInspector` without hosting the view to mutate `@State`
+    /// and re-inspect.
+    init(
+        title: String? = nil,
+        accessibilityIdentifier: String? = nil,
+        date: Binding<Date?>,
+        defaultDate: Date = Date().asUTCCalendarDay(),
+        in range: ClosedRange<Date>? = nil,
+        footer: String? = nil,
+        isExpanded: Bool,
+    ) {
+        self.title = title
+        self.accessibilityIdentifier = accessibilityIdentifier
+        _date = date
+        self.defaultDate = defaultDate
+        self.range = range
+        self.footer = footer
+        _isExpanded = State(initialValue: isExpanded)
+    }
+
     // MARK: Private
 
     /// The inline `DatePicker`, optionally constrained to `range`. Uses the graphical calendar by
@@ -227,25 +248,20 @@ public struct DateFieldPicker: View {
         )
     }
 
-    /// The calendar day the `DatePicker` should currently show as selected: the stored date (or
-    /// `defaultDate` when unset), converted from its UTC-anchored storage form into the local
-    /// calendar day the `DatePicker` operates in.
-    ///
-    /// Not `private` so it can be exercised directly in tests without hosting the view: `isExpanded`
-    /// is `@State`, so the `DatePicker` this feeds is otherwise only reachable by first expanding the
-    /// calendar, which requires state mutations to survive a re-inspection — unavailable without
-    /// `ViewHosting`, which nothing else in this codebase uses.
-    func selectedLocalDay() -> Date {
-        (date ?? defaultDate).asLocalCalendarDay()
-    }
-
     /// Commits a calendar day the user picked (in the `DatePicker`'s local-day domain) back into
     /// `date`, converting it to the UTC-anchored form used for storage, and collapses the calendar
-    /// unless VoiceOver is active. See `selectedLocalDay()` for why this isn't `private`.
-    func commitSelectedLocalDay(_ localDay: Date) {
+    /// unless VoiceOver is active.
+    private func commitSelectedLocalDay(_ localDay: Date) {
         date = localDay.asUTCCalendarDay()
         guard !voiceOverEnabled else { return }
         withAnimation { isExpanded = false }
+    }
+
+    /// The calendar day the `DatePicker` should currently show as selected: the stored date (or
+    /// `defaultDate` when unset), converted from its UTC-anchored storage form into the local
+    /// calendar day the `DatePicker` operates in.
+    private func selectedLocalDay() -> Date {
+        (date ?? defaultDate).asLocalCalendarDay()
     }
 
     /// Clears the selected date.
