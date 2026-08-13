@@ -3,12 +3,12 @@ import Foundation
 
 // MARK: - UsePasskeyState
 
-/// The state for the SDK-backed use passkey test screen.
+/// The state for the use passkey test screen.
 ///
 struct UsePasskeyState: Equatable {
     // MARK: Types
 
-    /// The current status of an SDK-backed passkey assertion attempt.
+    /// The current status of a passkey assertion attempt.
     enum AssertionStatus: Equatable {
         /// Assertion failed with the associated error description.
         case failure(String)

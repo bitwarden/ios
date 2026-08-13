@@ -4,7 +4,7 @@ import Foundation
 
 // MARK: - UsePasskeyProcessor
 
-/// The processor for the SDK-backed use passkey test screen.
+/// The processor for the use passkey test screen.
 ///
 final class UsePasskeyProcessor: StateProcessor<
     UsePasskeyState,
