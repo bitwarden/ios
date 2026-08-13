@@ -84,7 +84,13 @@ jobs:
           token: ${{ steps.app-token.outputs.token }}
           ref: ${{ github.event.pull_request.head.sha }}
           fetch-depth: 0
-          persist-credentials: true
+          # Must stay false. Persisting would write the App token into .git/config as an
+          # http.extraheader, where the agent's `Bash(grep:*)` grant can read it — the
+          # `Read(**/.git/**)` deny below is scoped to the Read tool and does not constrain Bash.
+          # The agent already receives this token deliberately via claude-code-action's
+          # `github_token`, so an on-disk second copy adds exposure and no capability. The push step
+          # supplies credentials for itself.
+          persist-credentials: false
 
       # A full clone, deliberately: the pinned revisions live on `unstable` and on `v<version>`
       # tags, not on `main`, so --depth or --branch would resolve the wrong tree. The whole
@@ -190,6 +196,7 @@ jobs:
         if: steps.gate.outputs.skip == 'false'
         env:
           _BRANCH_NAME: ${{ github.event.pull_request.head.ref }}
+          _TOKEN: ${{ steps.app-token.outputs.token }}
         run: |
           # --untracked-files=no is required, not a refinement: earlier steps leave untracked,
           # non-gitignored directories in the workspace (`vendor/` and `.bundle/` from bundler-cache,
@@ -216,4 +223,8 @@ jobs:
             exit 1
           fi
 
-          git push origin "HEAD:$_BRANCH_NAME"
+          # Checkout no longer persists credentials, so authenticate this push only. The header is
+          # passed with `git -c` rather than `git config`, so it is never written to .git/config, and
+          # the token stays out of the remote URL where git echoes it on error.
+          git -c http.extraheader="AUTHORIZATION: basic $(printf '%s' "x-access-token:$_TOKEN" | base64 | tr -d '\n')" \
+            push origin "HEAD:$_BRANCH_NAME"
