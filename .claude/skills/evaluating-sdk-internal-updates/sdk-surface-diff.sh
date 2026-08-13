@@ -185,6 +185,12 @@ assert_surface "$NEW" "$WORK/new.names"
 assert_no_collapse "$WORK/old.names" "$WORK/new.names"
 type_decls "$OLD" > "$WORK/old.types"
 type_decls "$NEW" > "$WORK/new.types"
+# An empty `mutated` is legitimate; an empty type surface is not. Without this, MUTATED reports
+# nothing whether no type declaration changed or the type extractor stopped matching, and the
+# names-based assertions above would still pass. `type_decls` anchors at column 0 deliberately:
+# indented matches are nested UniFFI plumbing whose names repeat, which would break the name join.
+assert_surface "$OLD" "$WORK/old.types"
+assert_surface "$NEW" "$WORK/new.types"
 comm -23 "$WORK/old.names" "$WORK/new.names" > "$WORK/removed"
 comm -13 "$WORK/old.names" "$WORK/new.names" > "$WORK/added"
 join -t"$TAB" -j1 -o 1.1,1.2,2.2 "$WORK/old.types" "$WORK/new.types" \
