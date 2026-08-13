@@ -50,11 +50,13 @@ class UsePasskeyProcessorTests: BitwardenTestCase {
     @MainActor
     func test_perform_deleteCredential_success() async {
         let credential = Fido2CredentialAutofillView.fixture(cipherId: "cipher-1")
+        subject.state.registeredCredentials = [credential]
         passkeyService.registeredCredentialsReturnValue = []
 
         await subject.perform(.deleteCredential(credential))
 
         XCTAssertEqual(passkeyService.deleteCredentialReceivedCipherId, "cipher-1")
+        XCTAssertTrue(passkeyService.registeredCredentialsCalled)
         XCTAssertEqual(subject.state.registeredCredentials, [])
     }
 
