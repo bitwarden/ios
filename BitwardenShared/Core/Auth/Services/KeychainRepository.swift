@@ -85,9 +85,10 @@ enum BitwardenKeychainItem: Equatable, KeychainItem {
              .refreshToken,
              .serverCommunicationConfig,
              .unsuccessfulUnlockAttempts,
-             .userSessionKey,
              .vaultTimeout:
             nil
+        case .userSessionKey:
+            .userPresence
         case .biometrics,
              .deviceAuthKey:
             .biometryCurrentSet
