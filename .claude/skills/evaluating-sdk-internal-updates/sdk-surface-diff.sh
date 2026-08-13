@@ -101,8 +101,8 @@ type_block () {
 }
 
 # A broken extractor must never look like a clean surface. `decls` requires public/open to be the
-# first token, so anything the generator starts prepending — an attribute, `nonisolated`,
-# `public actor`, `indirect public enum` — would yield nothing and read as "no change".
+# first token, so if the generator starts prepending something to *every* declaration — an attribute,
+# `nonisolated`, `public actor`, `indirect public enum` — the surface empties and reads as "no change".
 assert_surface () {
   [ -s "$2" ] || {
     echo "error: no public declarations extracted at $1." >&2
@@ -111,6 +111,23 @@ assert_surface () {
     echo "       regex in this script before trusting any output." >&2
     exit 1
   }
+}
+
+# assert_surface only catches a total extraction failure. A partial one — a new prefix on some subset
+# of declarations — leaves the surface large enough to pass while silently dropping exactly those
+# declarations from REMOVED, ADDED and MUTATED. Between two adjacent revisions a steep drop is far
+# more likely to be that than a genuine removal, so say so rather than reporting it as one.
+assert_no_collapse () {
+  local old_count new_count
+  old_count=$(wc -l < "$1" | tr -d ' ')
+  new_count=$(wc -l < "$2" | tr -d ' ')
+  if [ "$new_count" -lt $((old_count / 2)) ]; then
+    echo "warning: the extracted surface fell from $old_count to $new_count declarations." >&2
+    echo "         A drop this steep across one bump usually means the extractor stopped matching a" >&2
+    echo "         declaration form, not that the API halved. Compare against the raw count," >&2
+    echo "         git -C <sdk-swift> grep -c '^ *\\(public\\|open\\) ' <rev> -- Sources/BitwardenSdk," >&2
+    echo "         at both revisions before trusting REMOVED." >&2
+  fi
 }
 
 WORK=$(mktemp -d)
@@ -148,6 +165,7 @@ if [ "$MODE" = "--decls" ]; then
   decls "$NEW" > "$WORK/new.decls"
   assert_surface "$OLD" "$WORK/old.decls"
   assert_surface "$NEW" "$WORK/new.decls"
+  assert_no_collapse "$WORK/old.decls" "$WORK/new.decls"
   echo "## DECLARATIONS: line-level diff of the whole surface"
   echo "Both sides are sorted, so '<' and '>' lines inside a hunk are alphabetical neighbours and"
   echo "not necessarily counterparts — match them by symbol name, not by position. A changed"
@@ -164,6 +182,7 @@ names "$OLD" > "$WORK/old.names"
 names "$NEW" > "$WORK/new.names"
 assert_surface "$OLD" "$WORK/old.names"
 assert_surface "$NEW" "$WORK/new.names"
+assert_no_collapse "$WORK/old.names" "$WORK/new.names"
 type_decls "$OLD" > "$WORK/old.types"
 type_decls "$NEW" > "$WORK/new.types"
 comm -23 "$WORK/old.names" "$WORK/new.names" > "$WORK/removed"

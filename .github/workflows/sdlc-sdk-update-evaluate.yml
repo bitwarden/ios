@@ -18,7 +18,13 @@ jobs:
   evaluate:
     name: Evaluate SDK Update
     runs-on: macos-26-xlarge
-    if: ${{ github.event.pull_request.head.ref == 'sdlc/sdk-update' }}
+    # Higher than test.yml's 50 to allow for the agent's extra build and test passes, but bounded:
+    # the 360-minute default would let a looping agent burn six hours of xlarge time per synchronize.
+    timeout-minutes: 90
+    # The repository check is redundant while `pull_request` withholds secrets from forks — the Azure
+    # login would fail before any PR-controlled code ran — but it states the guarantee here rather
+    # than resting it on that policy.
+    if: ${{ github.event.pull_request.head.ref == 'sdlc/sdk-update' && github.event.pull_request.head.repo.full_name == github.repository }}
     permissions:
       id-token: write # Azure OIDC login
       actions: read # claude-code-action track_progress
@@ -177,7 +183,7 @@ jobs:
             When done, update the sticky PR comment with the skill's report, structured as: "## SDK bump evaluated" (old → new revision and version, commit count), "## Compile-time breaks" (found-and-fixed, or "none found"), "## Runtime & serialization considerations" (found-and-fixed, or behavioral notes worth flagging; omit the section if there are none), "## Everything else in range — confirmed safe" (brief, one line per commit or group), and "## Commit" (the SHA, or "no commit — nothing needed fixing"). State explicitly whether the verifying build passed and which test targets were spot-tested. Always post this, even when the conclusion is that nothing needs fixing — the comment is the audit trail that the check ran.
           claude_args: |
             --model opus
-            --allowedTools "Bash(xcrun xcodebuild *),Bash(bash .claude/skills/evaluating-sdk-internal-updates/sdk-surface-diff.sh *),Bash(.claude/skills/evaluating-sdk-internal-updates/sdk-surface-diff.sh *),Bash(gh pr diff:*),Bash(gh pr view:*),Bash(git -C * log *),Bash(git -C * show *),Bash(git -C * diff *),Bash(git -C * grep *),Bash(git add:*),Bash(git commit:*),Bash(git log:*),Bash(git show:*),Bash(git diff:*),Bash(git status:*),Bash(grep:*),Read,Grep,Glob,Edit,Write,Skill,mcp__github_comment__update_claude_comment"
+            --allowedTools "Bash(xcrun xcodebuild *),Bash(bash .claude/skills/evaluating-sdk-internal-updates/sdk-surface-diff.sh *),Bash(.claude/skills/evaluating-sdk-internal-updates/sdk-surface-diff.sh *),Bash(gh pr diff:*),Bash(gh pr view:*),Bash(git -C * log *),Bash(git -C * show *),Bash(git -C * diff *),Bash(git -C * grep *),Bash(git add:*),Bash(git commit:*),Bash(git log:*),Bash(git show:*),Bash(git diff:*),Bash(git status:*),Bash(git grep:*),Bash(grep:*),Read,Grep,Glob,Edit,Write,Skill,mcp__github_comment__update_claude_comment"
             --disallowedTools "Read(**/.git/**),Edit(**/.git/**),Write(**/.git/**),Edit(.github/**),Write(.github/**),Edit(.claude/**),Write(.claude/**)"
 
       - name: Push any resolved fix
@@ -185,9 +191,13 @@ jobs:
         env:
           _BRANCH_NAME: ${{ github.event.pull_request.head.ref }}
         run: |
-          if [ -n "$(git status --porcelain)" ]; then
-            echo "::error::Claude left uncommitted changes; nothing was pushed."
-            git status --porcelain
+          # --untracked-files=no is required, not a refinement: earlier steps leave untracked,
+          # non-gitignored directories in the workspace (`vendor/` and `.bundle/` from bundler-cache,
+          # `.mint/` from MINT_PATH), which a bare --porcelain reports as `??` and which would trip
+          # this guard on every run, including ones where a valid fix was committed.
+          if [ -n "$(git status --porcelain --untracked-files=no)" ]; then
+            echo "::error::Claude left uncommitted changes to tracked files; nothing was pushed."
+            git status --porcelain --untracked-files=no
             exit 1
           fi
 
