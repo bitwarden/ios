@@ -981,129 +981,6 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         XCTAssertEqual(vaultTimeoutService.hasPassedSessionTimeoutIsAppRestart, false)
     }
 
-    /// `purgeExpiredUserSessionKeys()` deletes the `.userSessionKey` for an account whose session
-    /// has timed out.
-    func test_purgeExpiredUserSessionKeys_deletesExpiredKey() async {
-        stateService.accounts = [anneAccount]
-        stateService.activeAccount = anneAccount
-        stateService.isAuthenticated[anneAccount.profile.userId] = true
-        vaultTimeoutService.vaultTimeout[anneAccount.profile.userId] = .fifteenMinutes
-        vaultTimeoutService.shouldSessionTimeout[anneAccount.profile.userId] = true
-
-        await subject.purgeExpiredUserSessionKeys()
-
-        XCTAssertEqual(keychainService.deleteUserAuthKeyCallsCount, 1)
-        XCTAssertEqual(
-            keychainService.deleteUserAuthKeyReceivedItem,
-            .userSessionKey(userId: anneAccount.profile.userId),
-        )
-        XCTAssertEqual(flightRecorder.logMessages, ["[SessionCleanup] Purged 1 expired userSessionKey item(s)"])
-    }
-
-    /// `purgeExpiredUserSessionKeys()` doesn't delete the `.userSessionKey` for an account whose
-    /// session hasn't timed out.
-    func test_purgeExpiredUserSessionKeys_skipsNotTimedOut() async {
-        stateService.accounts = [anneAccount]
-        stateService.activeAccount = anneAccount
-        stateService.isAuthenticated[anneAccount.profile.userId] = true
-        vaultTimeoutService.vaultTimeout[anneAccount.profile.userId] = .fifteenMinutes
-        vaultTimeoutService.shouldSessionTimeout[anneAccount.profile.userId] = false
-
-        await subject.purgeExpiredUserSessionKeys()
-
-        XCTAssertEqual(keychainService.deleteUserAuthKeyCallsCount, 0)
-        XCTAssertTrue(flightRecorder.logMessages.isEmpty)
-    }
-
-    /// `purgeExpiredUserSessionKeys()` skips accounts with a `.never` or `.onAppRestart` timeout
-    /// value, even if `VaultTimeoutService` reports a time-based timeout.
-    func test_purgeExpiredUserSessionKeys_skipsNeverAndOnAppRestart() async {
-        stateService.accounts = [anneAccount, beeAccount]
-        stateService.activeAccount = anneAccount
-        stateService.isAuthenticated[anneAccount.profile.userId] = true
-        stateService.isAuthenticated[beeAccount.profile.userId] = true
-        vaultTimeoutService.vaultTimeout[anneAccount.profile.userId] = .never
-        vaultTimeoutService.vaultTimeout[beeAccount.profile.userId] = .onAppRestart
-        vaultTimeoutService.shouldSessionTimeout[anneAccount.profile.userId] = true
-        vaultTimeoutService.shouldSessionTimeout[beeAccount.profile.userId] = true
-
-        await subject.purgeExpiredUserSessionKeys()
-
-        XCTAssertEqual(keychainService.deleteUserAuthKeyCallsCount, 0)
-        XCTAssertTrue(flightRecorder.logMessages.isEmpty)
-    }
-
-    /// `purgeExpiredUserSessionKeys()` skips an account that's already (soft) logged out.
-    func test_purgeExpiredUserSessionKeys_skipsLoggedOutAccount() async {
-        stateService.accounts = [anneAccount]
-        stateService.activeAccount = anneAccount
-        stateService.isAuthenticated[anneAccount.profile.userId] = false
-        vaultTimeoutService.vaultTimeout[anneAccount.profile.userId] = .fifteenMinutes
-        vaultTimeoutService.shouldSessionTimeout[anneAccount.profile.userId] = true
-
-        await subject.purgeExpiredUserSessionKeys()
-
-        XCTAssertEqual(keychainService.deleteUserAuthKeyCallsCount, 0)
-    }
-
-    /// `purgeExpiredUserSessionKeys()` purges every timed-out account, not just the active one,
-    /// and logs the total count purged.
-    func test_purgeExpiredUserSessionKeys_multipleAccounts() async {
-        stateService.accounts = [anneAccount, beeAccount]
-        stateService.activeAccount = beeAccount
-        stateService.isAuthenticated[anneAccount.profile.userId] = true
-        stateService.isAuthenticated[beeAccount.profile.userId] = true
-        vaultTimeoutService.vaultTimeout[anneAccount.profile.userId] = .fifteenMinutes
-        vaultTimeoutService.vaultTimeout[beeAccount.profile.userId] = .fiveMinutes
-        vaultTimeoutService.shouldSessionTimeout[anneAccount.profile.userId] = true
-        vaultTimeoutService.shouldSessionTimeout[beeAccount.profile.userId] = true
-
-        await subject.purgeExpiredUserSessionKeys()
-
-        XCTAssertEqual(keychainService.deleteUserAuthKeyCallsCount, 2)
-        XCTAssertEqual(flightRecorder.logMessages, ["[SessionCleanup] Purged 2 expired userSessionKey item(s)"])
-    }
-
-    /// `purgeExpiredUserSessionKeys()` never locks or logs out an account, even when a non-active
-    /// account times out — that side effect remains exclusive to `checkSessionTimeouts`.
-    func test_purgeExpiredUserSessionKeys_neverLocksOrLogsOut() async {
-        stateService.accounts = [anneAccount, beeAccount]
-        stateService.activeAccount = beeAccount
-        stateService.isAuthenticated[anneAccount.profile.userId] = true
-        vaultTimeoutService.vaultTimeout[anneAccount.profile.userId] = .fifteenMinutes
-        vaultTimeoutService.shouldSessionTimeout[anneAccount.profile.userId] = true
-        vaultTimeoutService.sessionTimeoutAction[anneAccount.profile.userId] = .logout
-
-        await subject.purgeExpiredUserSessionKeys()
-
-        XCTAssertFalse(vaultTimeoutService.isLocked(userId: anneAccount.profile.userId))
-        XCTAssertFalse(vaultTimeoutService.removedIds.contains(anneAccount.profile.userId))
-        XCTAssertFalse(stateService.accountsLoggedOut.contains(anneAccount.profile.userId))
-    }
-
-    /// `purgeExpiredUserSessionKeys()` is a no-op when there are no accounts.
-    func test_purgeExpiredUserSessionKeys_noAccounts() async {
-        stateService.accounts = []
-
-        await subject.purgeExpiredUserSessionKeys()
-
-        XCTAssertEqual(keychainService.deleteUserAuthKeyCallsCount, 0)
-        XCTAssertTrue(flightRecorder.logMessages.isEmpty)
-    }
-
-    /// `purgeExpiredUserSessionKeys()` logs an error if one occurs while checking timeouts.
-    func test_purgeExpiredUserSessionKeys_error() async {
-        stateService.accounts = [anneAccount]
-        stateService.activeAccount = anneAccount
-        stateService.isAuthenticated[anneAccount.profile.userId] = true
-        vaultTimeoutService.sessionTimeoutValueError = BitwardenTestError.example
-
-        await subject.purgeExpiredUserSessionKeys()
-
-        waitFor(!errorReporter.errors.isEmpty)
-        XCTAssertEqual(errorReporter.errors as? [BitwardenTestError], [.example])
-    }
-
     /// `getProfilesState()` throws an error when the accounts are nil.
     func test_getProfilesState_empty() async {
         let state = await subject.getProfilesState(
@@ -1942,6 +1819,129 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
                 resetPasswordAutoEnroll: false,
             )
         }
+    }
+
+    /// `purgeExpiredUserSessionKeys()` deletes the `.userSessionKey` for an account whose session
+    /// has timed out.
+    func test_purgeExpiredUserSessionKeys_deletesExpiredKey() async {
+        stateService.accounts = [anneAccount]
+        stateService.activeAccount = anneAccount
+        stateService.isAuthenticated[anneAccount.profile.userId] = true
+        vaultTimeoutService.vaultTimeout[anneAccount.profile.userId] = .fifteenMinutes
+        vaultTimeoutService.shouldSessionTimeout[anneAccount.profile.userId] = true
+
+        await subject.purgeExpiredUserSessionKeys()
+
+        XCTAssertEqual(keychainService.deleteUserAuthKeyCallsCount, 1)
+        XCTAssertEqual(
+            keychainService.deleteUserAuthKeyReceivedItem,
+            .userSessionKey(userId: anneAccount.profile.userId),
+        )
+        XCTAssertEqual(flightRecorder.logMessages, ["[SessionCleanup] Purged 1 expired userSessionKey item(s)"])
+    }
+
+    /// `purgeExpiredUserSessionKeys()` doesn't delete the `.userSessionKey` for an account whose
+    /// session hasn't timed out.
+    func test_purgeExpiredUserSessionKeys_skipsNotTimedOut() async {
+        stateService.accounts = [anneAccount]
+        stateService.activeAccount = anneAccount
+        stateService.isAuthenticated[anneAccount.profile.userId] = true
+        vaultTimeoutService.vaultTimeout[anneAccount.profile.userId] = .fifteenMinutes
+        vaultTimeoutService.shouldSessionTimeout[anneAccount.profile.userId] = false
+
+        await subject.purgeExpiredUserSessionKeys()
+
+        XCTAssertEqual(keychainService.deleteUserAuthKeyCallsCount, 0)
+        XCTAssertTrue(flightRecorder.logMessages.isEmpty)
+    }
+
+    /// `purgeExpiredUserSessionKeys()` skips accounts with a `.never` or `.onAppRestart` timeout
+    /// value, even if `VaultTimeoutService` reports a time-based timeout.
+    func test_purgeExpiredUserSessionKeys_skipsNeverAndOnAppRestart() async {
+        stateService.accounts = [anneAccount, beeAccount]
+        stateService.activeAccount = anneAccount
+        stateService.isAuthenticated[anneAccount.profile.userId] = true
+        stateService.isAuthenticated[beeAccount.profile.userId] = true
+        vaultTimeoutService.vaultTimeout[anneAccount.profile.userId] = .never
+        vaultTimeoutService.vaultTimeout[beeAccount.profile.userId] = .onAppRestart
+        vaultTimeoutService.shouldSessionTimeout[anneAccount.profile.userId] = true
+        vaultTimeoutService.shouldSessionTimeout[beeAccount.profile.userId] = true
+
+        await subject.purgeExpiredUserSessionKeys()
+
+        XCTAssertEqual(keychainService.deleteUserAuthKeyCallsCount, 0)
+        XCTAssertTrue(flightRecorder.logMessages.isEmpty)
+    }
+
+    /// `purgeExpiredUserSessionKeys()` skips an account that's already (soft) logged out.
+    func test_purgeExpiredUserSessionKeys_skipsLoggedOutAccount() async {
+        stateService.accounts = [anneAccount]
+        stateService.activeAccount = anneAccount
+        stateService.isAuthenticated[anneAccount.profile.userId] = false
+        vaultTimeoutService.vaultTimeout[anneAccount.profile.userId] = .fifteenMinutes
+        vaultTimeoutService.shouldSessionTimeout[anneAccount.profile.userId] = true
+
+        await subject.purgeExpiredUserSessionKeys()
+
+        XCTAssertEqual(keychainService.deleteUserAuthKeyCallsCount, 0)
+    }
+
+    /// `purgeExpiredUserSessionKeys()` purges every timed-out account, not just the active one,
+    /// and logs the total count purged.
+    func test_purgeExpiredUserSessionKeys_multipleAccounts() async {
+        stateService.accounts = [anneAccount, beeAccount]
+        stateService.activeAccount = beeAccount
+        stateService.isAuthenticated[anneAccount.profile.userId] = true
+        stateService.isAuthenticated[beeAccount.profile.userId] = true
+        vaultTimeoutService.vaultTimeout[anneAccount.profile.userId] = .fifteenMinutes
+        vaultTimeoutService.vaultTimeout[beeAccount.profile.userId] = .fiveMinutes
+        vaultTimeoutService.shouldSessionTimeout[anneAccount.profile.userId] = true
+        vaultTimeoutService.shouldSessionTimeout[beeAccount.profile.userId] = true
+
+        await subject.purgeExpiredUserSessionKeys()
+
+        XCTAssertEqual(keychainService.deleteUserAuthKeyCallsCount, 2)
+        XCTAssertEqual(flightRecorder.logMessages, ["[SessionCleanup] Purged 2 expired userSessionKey item(s)"])
+    }
+
+    /// `purgeExpiredUserSessionKeys()` never locks or logs out an account, even when a non-active
+    /// account times out — that side effect remains exclusive to `checkSessionTimeouts`.
+    func test_purgeExpiredUserSessionKeys_neverLocksOrLogsOut() async {
+        stateService.accounts = [anneAccount, beeAccount]
+        stateService.activeAccount = beeAccount
+        stateService.isAuthenticated[anneAccount.profile.userId] = true
+        vaultTimeoutService.vaultTimeout[anneAccount.profile.userId] = .fifteenMinutes
+        vaultTimeoutService.shouldSessionTimeout[anneAccount.profile.userId] = true
+        vaultTimeoutService.sessionTimeoutAction[anneAccount.profile.userId] = .logout
+
+        await subject.purgeExpiredUserSessionKeys()
+
+        XCTAssertFalse(vaultTimeoutService.isLocked(userId: anneAccount.profile.userId))
+        XCTAssertFalse(vaultTimeoutService.removedIds.contains(anneAccount.profile.userId))
+        XCTAssertFalse(stateService.accountsLoggedOut.contains(anneAccount.profile.userId))
+    }
+
+    /// `purgeExpiredUserSessionKeys()` is a no-op when there are no accounts.
+    func test_purgeExpiredUserSessionKeys_noAccounts() async {
+        stateService.accounts = []
+
+        await subject.purgeExpiredUserSessionKeys()
+
+        XCTAssertEqual(keychainService.deleteUserAuthKeyCallsCount, 0)
+        XCTAssertTrue(flightRecorder.logMessages.isEmpty)
+    }
+
+    /// `purgeExpiredUserSessionKeys()` logs an error if one occurs while checking timeouts.
+    func test_purgeExpiredUserSessionKeys_error() async {
+        stateService.accounts = [anneAccount]
+        stateService.activeAccount = anneAccount
+        stateService.isAuthenticated[anneAccount.profile.userId] = true
+        vaultTimeoutService.sessionTimeoutValueError = BitwardenTestError.example
+
+        await subject.purgeExpiredUserSessionKeys()
+
+        waitFor(!errorReporter.errors.isEmpty)
+        XCTAssertEqual(errorReporter.errors as? [BitwardenTestError], [.example])
     }
 
     /// `setMasterPassword()` sets a TDE user's master password, saves their encryption keys, enrolls
