@@ -937,7 +937,12 @@ extension DefaultAuthRepository: AuthRepository {
                 )
                 guard hasTimedOut else { continue }
 
-                try? await keychainService.deleteUserAuthKey(for: .userSessionKey(userId: userId))
+                do {
+                    try await keychainService.deleteUserAuthKey(for: .userSessionKey(userId: userId))
+                } catch {
+                    await flightRecorder.log("[SessionCleanup] Purge failed deleting user auth key.")
+                    errorReporter.log(error: error)
+                }
                 purgedCount += 1
             }
 
