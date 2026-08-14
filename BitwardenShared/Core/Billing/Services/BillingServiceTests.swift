@@ -133,6 +133,34 @@ struct BillingServiceTests { // swiftlint:disable:this type_body_length
         #expect(billingAPIService.createCheckoutSessionCallsCount == 1)
     }
 
+    /// `createCheckoutSession()` does not mark the upgrade pending when the API call fails —
+    /// nothing would ever be left to clear a pending mark set before an attempt actually began.
+    @Test
+    func createCheckoutSession_apiError_doesNotMarkPending() async throws {
+        billingAPIService.createCheckoutSessionThrowableError = URLError(.notConnectedToInternet)
+
+        await #expect(throws: URLError.self) {
+            try await subject.createCheckoutSession()
+        }
+
+        #expect(stateService.premiumUpgradePendingResult == false)
+    }
+
+    /// `createCheckoutSession()` does not mark the upgrade pending when the returned URL fails
+    /// the HTTPS check, for the same reason as the API-error case.
+    @Test
+    func createCheckoutSession_invalidUrl_doesNotMarkPending() async throws {
+        billingAPIService.createCheckoutSessionReturnValue = CheckoutSessionResponseModel(
+            checkoutSessionUrl: URL(string: "http://checkout.stripe.com/session")!,
+        )
+
+        await #expect(throws: BillingError.invalidCheckoutUrl) {
+            _ = try await subject.createCheckoutSession()
+        }
+
+        #expect(stateService.premiumUpgradePendingResult == false)
+    }
+
     /// `getPortalUrl()` returns the URL when it uses HTTPS scheme.
     @Test
     func getPortalUrl_success() async throws {
@@ -662,8 +690,22 @@ struct BillingServiceTests { // swiftlint:disable:this type_body_length
         await subject.premiumStatusChanged()
 
         #expect(statuses.isEmpty)
-        #expect(!syncService.didFetchSync)
         #expect(stateService.premiumUpgradePendingResult == false)
+    }
+
+    /// `premiumStatusChanged()` still triggers a plain (non-forced) sync when no upgrade is
+    /// pending, mirroring `.policyChanged`'s own push handling — an account that gained Premium
+    /// via the web vault, another device, or an org still needs its profile refreshed locally,
+    /// even though nothing here is a checkout attempt to reconcile.
+    @Test
+    func premiumStatusChanged_notPending_stillSyncsGenerically() async throws {
+        stateService.premiumUpgradePendingResult = false
+        stateService.doesActiveAccountHavePremiumResult = false
+
+        await subject.premiumStatusChanged()
+
+        #expect(syncService.didFetchSync)
+        #expect(syncService.fetchSyncForceSync == false)
     }
 
     /// `premiumStatusChanged()` clears both the pending and failure flags once the user is

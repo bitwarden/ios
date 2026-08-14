@@ -112,7 +112,7 @@ protocol BillingService: AnyObject { // sourcery: AutoMockable
 
 /// The default implementation of `BillingService`.
 ///
-class DefaultBillingService: BillingService {
+class DefaultBillingService: BillingService { // swiftlint:disable:this type_body_length
     // MARK: Properties
 
     /// The API service used for billing requests.
@@ -198,18 +198,13 @@ class DefaultBillingService: BillingService {
     // MARK: Methods
 
     func createCheckoutSession() async throws -> URL {
-        // A new attempt is starting — mark it pending and clear any stale failure from a prior
-        // attempt so it can't incorrectly surface against this one before its own sync has run.
-        // This is the only place `premiumUpgradePending` is ever set to `true`: `premiumStatusChanged()`
-        // only reconciles an attempt already marked pending here, so a `.premiumStatusChanged`
-        // push for an account that never started a checkout has nothing to act on.
+        // Clear any stale failure from a prior attempt so it can't incorrectly surface against
+        // this one before its own sync has run.
         do {
             try await billingStateService.setPremiumUpgradeLastSyncAttemptFailed(false)
-            try await billingStateService.setPremiumUpgradePending(true)
         } catch {
             errorReporter.log(error: error)
         }
-        await refreshPremiumUpgradePendingStateSubject()
 
         let response = try await billingAPIService.createCheckoutSession()
         let url = response.checkoutSessionUrl
@@ -218,6 +213,20 @@ class DefaultBillingService: BillingService {
         guard url.scheme == "https" else {
             throw BillingError.invalidCheckoutUrl
         }
+
+        // Only now do we know an attempt is actually about to begin — mark it pending. This is
+        // the only place `premiumUpgradePending` is ever set to `true`: `premiumStatusChanged()`
+        // only reconciles an attempt already marked pending here, so a `.premiumStatusChanged`
+        // push for an account that never started a checkout has nothing to act on. Marking it
+        // any earlier (e.g. before the API call) would leave a stuck pending state behind if
+        // this method throws, with nothing left to ever clear it.
+        do {
+            try await billingStateService.setPremiumUpgradePending(true)
+        } catch {
+            errorReporter.log(error: error)
+        }
+        await refreshPremiumUpgradePendingStateSubject()
+
         return url
     }
 
@@ -278,15 +287,26 @@ class DefaultBillingService: BillingService {
             return
         }
 
-        // This method exists to resolve an upgrade attempt already in flight — the Stripe
-        // checkout callback confirming, or an explicit "Sync Now"/"Try Again" retry — not to
-        // react to an arbitrary trigger like a `.premiumStatusChanged` push for an account that
-        // never started one. `createCheckoutSession()` is the only place that marks an attempt
-        // pending; if nothing is pending, there's nothing here to reconcile.
+        // The checkout-status publisher and the persisted pending/failure state only make sense
+        // in the context of an in-app upgrade attempt already in flight — the Stripe checkout
+        // callback confirming, or an explicit "Sync Now"/"Try Again" retry. `createCheckoutSession()`
+        // is the only place that marks an attempt pending. But this method is also the target of
+        // a generic `.premiumStatusChanged` push for an account that never started one — Premium
+        // granted via the web vault, another device, or an org — which still needs a sync to
+        // pick up the change locally, just without touching checkout-specific state.
+        let isPending: Bool
         do {
-            guard try await billingStateService.getPremiumUpgradePending() else { return }
+            isPending = try await billingStateService.getPremiumUpgradePending()
         } catch {
             errorReporter.log(error: error)
+            isPending = false
+        }
+        guard isPending else {
+            do {
+                try await syncService.fetchSync(forceSync: false)
+            } catch {
+                errorReporter.log(error: error)
+            }
             return
         }
 
