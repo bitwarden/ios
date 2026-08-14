@@ -7,8 +7,8 @@ struct PremiumUpgradePendingState: Equatable {
     // MARK: Properties
 
     /// Whether a Premium upgrade is currently pending.
-    var isPending: Bool
+    let isPending: Bool
 
     /// Whether the last sync attempt for the pending Premium upgrade failed.
-    var lastAttemptFailed: Bool
+    let lastAttemptFailed: Bool
 }

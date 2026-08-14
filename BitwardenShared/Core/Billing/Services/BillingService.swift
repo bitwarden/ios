@@ -12,7 +12,8 @@ protocol BillingService: AnyObject { // sourcery: AutoMockable
     /// The callback URL scheme used by the Stripe checkout web authentication session.
     var checkoutCallbackUrlScheme: String { get }
 
-    /// Creates a checkout session for Premium upgrade and returns the checkout URL.
+    /// Creates a checkout session for Premium upgrade, marks the upgrade as pending, and
+    /// returns the checkout URL.
     ///
     /// - Returns: A validated HTTPS URL for the checkout session.
     /// - Throws: `BillingError.invalidCheckoutUrl` if the URL is invalid or not HTTPS.
@@ -39,9 +40,10 @@ protocol BillingService: AnyObject { // sourcery: AutoMockable
     func getSubscription() async throws -> PremiumSubscription
 
     /// Notifies that the user canceled the Stripe checkout without completing payment,
-    /// and publishes a `.canceled` status update.
+    /// clears the pending state `createCheckoutSession()` set for this attempt, and publishes
+    /// a `.canceled` status update.
     ///
-    func premiumCheckoutCanceled()
+    func premiumCheckoutCanceled() async
 
     /// A publisher that emits the status of the Premium checkout sync process.
     ///
@@ -53,7 +55,9 @@ protocol BillingService: AnyObject { // sourcery: AutoMockable
     func isSelfHosted() async -> Bool
 
     /// Notifies that a Premium status change was detected (via deep link or push notification),
-    /// triggers a sync, and publishes status updates.
+    /// triggers a sync, and publishes status updates. Does nothing if no upgrade is currently
+    /// pending — this reconciles an attempt already marked pending by `createCheckoutSession()`,
+    /// rather than reacting to an arbitrary trigger for an account that never started one.
     ///
     func premiumStatusChanged() async
 
@@ -194,10 +198,14 @@ class DefaultBillingService: BillingService {
     // MARK: Methods
 
     func createCheckoutSession() async throws -> URL {
-        // A new attempt is starting — clear any stale failure from a prior attempt so it
-        // can't incorrectly surface against this one before its own sync has run.
+        // A new attempt is starting — mark it pending and clear any stale failure from a prior
+        // attempt so it can't incorrectly surface against this one before its own sync has run.
+        // This is the only place `premiumUpgradePending` is ever set to `true`: `premiumStatusChanged()`
+        // only reconciles an attempt already marked pending here, so a `.premiumStatusChanged`
+        // push for an account that never started a checkout has nothing to act on.
         do {
             try await billingStateService.setPremiumUpgradeLastSyncAttemptFailed(false)
+            try await billingStateService.setPremiumUpgradePending(true)
         } catch {
             errorReporter.log(error: error)
         }
@@ -231,7 +239,15 @@ class DefaultBillingService: BillingService {
         return PremiumSubscription(response: response)
     }
 
-    func premiumCheckoutCanceled() {
+    func premiumCheckoutCanceled() async {
+        // Undo the pending mark `createCheckoutSession()` made for this attempt — no attempt is
+        // actually in flight anymore, so nothing should stay hidden/pending on its account.
+        do {
+            try await billingStateService.setPremiumUpgradePending(false)
+        } catch {
+            errorReporter.log(error: error)
+        }
+        await refreshPremiumUpgradePendingStateSubject()
         premiumCheckoutStatusSubject.send(.canceled)
         premiumCheckoutStatusSubject.send(nil)
     }
@@ -262,6 +278,18 @@ class DefaultBillingService: BillingService {
             return
         }
 
+        // This method exists to resolve an upgrade attempt already in flight — the Stripe
+        // checkout callback confirming, or an explicit "Sync Now"/"Try Again" retry — not to
+        // react to an arbitrary trigger like a `.premiumStatusChanged` push for an account that
+        // never started one. `createCheckoutSession()` is the only place that marks an attempt
+        // pending; if nothing is pending, there's nothing here to reconcile.
+        do {
+            guard try await billingStateService.getPremiumUpgradePending() else { return }
+        } catch {
+            errorReporter.log(error: error)
+            return
+        }
+
         premiumCheckoutStatusSubject.send(.syncing)
         var syncFailed = false
         do {
@@ -277,15 +305,11 @@ class DefaultBillingService: BillingService {
         }
 
         let hasPremium = await stateService.doesActiveAccountHavePremium()
-        do {
-            try await billingStateService.setPremiumUpgradePending(!hasPremium)
-        } catch {
-            errorReporter.log(error: error)
-        }
         premiumCheckoutStatusSubject.send(hasPremium ? .confirmed : .pending)
         if hasPremium {
             premiumCheckoutStatusSubject.send(nil)
             do {
+                try await billingStateService.setPremiumUpgradePending(false)
                 try await billingStateService.setUpgradedToPremiumActionCardVisible(true)
             } catch {
                 errorReporter.log(error: error)
@@ -370,7 +394,11 @@ class DefaultBillingService: BillingService {
         started = true
 
         lastSyncSubscriber = Task {
-            for await userId in await self.stateService.activeAccountIdPublisher().values {
+            // `activeAccountIdPublisher()`'s backing store re-emits on every write, not only
+            // when the active account actually changes (e.g. once per sync, via
+            // `updateProfile(from:userId:)`) — `removeDuplicates()` keeps this subscriber tied
+            // to actual account switches, matching what its own doc comment describes.
+            for await userId in await self.stateService.activeAccountIdPublisher().removeDuplicates().values {
                 self.currentSyncSubscriber?.cancel()
                 guard userId != nil else { continue }
 
@@ -378,7 +406,19 @@ class DefaultBillingService: BillingService {
 
                 self.currentSyncSubscriber = Task {
                     guard let publisher = try? await self.stateService.lastSyncTimePublisher() else { return }
-                    for await _ in publisher.values {
+                    // Snapshot the last-known sync time directly, rather than relying on
+                    // whichever value the publisher happens to deliver first: its
+                    // `CurrentValueSubject` backing replays the existing cached value
+                    // immediately on subscribe (not evidence that a sync just happened), and a
+                    // *different* account's sync can also re-emit this shared store without this
+                    // account's own value having changed. Comparing each emission against the
+                    // last value actually seen — rather than its position in the stream — means
+                    // only a genuinely new sync for this account reaches
+                    // `reconcilePendingUpgradeIfNeeded()`, regardless of subscription timing.
+                    var lastSeenDate = try? await self.stateService.getLastSyncTime()
+                    for await date in publisher.values {
+                        guard date != lastSeenDate else { continue }
+                        lastSeenDate = date
                         await self.reconcilePendingUpgradeIfNeeded()
                     }
                 }
@@ -400,11 +440,24 @@ class DefaultBillingService: BillingService {
             return
         }
 
-        guard await stateService.doesActiveAccountHavePremium() else { return }
+        // Reaching this point at all means a *new* sync just completed successfully — `start()`
+        // filters out both the initial replay and same-value re-emissions before invoking this
+        // method, and `lastSyncTimePublisher` never fires on failure — so the most recent
+        // attempt did not fail. Clear that regardless of whether the account has become Premium
+        // yet, so a stale failure doesn't linger after a later, unrelated sync has succeeded.
+        do {
+            try await billingStateService.setPremiumUpgradeLastSyncAttemptFailed(false)
+        } catch {
+            errorReporter.log(error: error)
+        }
+
+        guard await stateService.doesActiveAccountHavePremium() else {
+            await refreshPremiumUpgradePendingStateSubject()
+            return
+        }
 
         do {
             try await billingStateService.setPremiumUpgradePending(false)
-            try await billingStateService.setPremiumUpgradeLastSyncAttemptFailed(false)
             try await billingStateService.setUpgradedToPremiumActionCardVisible(true)
         } catch {
             errorReporter.log(error: error)

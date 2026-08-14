@@ -190,7 +190,7 @@ final class PremiumUpgradeProcessor: StateProcessor<
            result == BitwardenDeepLinkConstants.PremiumCheckoutResultQuery.successValue {
             await services.billingService.premiumStatusChanged()
         } else {
-            services.billingService.premiumCheckoutCanceled()
+            await services.billingService.premiumCheckoutCanceled()
         }
     }
 }
