@@ -577,6 +577,46 @@ class AuthServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
         )
 
         XCTAssertEqual(stateService.accountsAdded.last?.settings.environmentUrls, selfHostedURLs)
+        XCTAssertNil(stateService.accountCreationEnvironmentURLs["email@example.com"])
+    }
+
+    /// `loginWithMasterPassword(_:username:)` clears the per-email account creation environment
+    /// URL snapshot after consuming it, so a later, unrelated login attempt for the same email
+    /// isn't affected by the stale value. Regression test for the PM-20012 follow-up fix.
+    @MainActor
+    func test_loginWithMasterPassword_isNewAccount_clearsStaleAccountCreationEnvironmentURLs() async throws {
+        client.results = [
+            .httpSuccess(testData: .preLoginSuccess),
+            .httpSuccess(testData: .identityTokenSuccess),
+            .httpSuccess(testData: .preLoginSuccess),
+            .httpSuccess(testData: .identityTokenSuccess),
+        ]
+        appIDSettingsStore.appID = "App ID"
+        clientService.mockAuth.hashPasswordReturnValue = "hashed password"
+        credentialIdentityStore.state.mockIsEnabled = false
+        let staleURLs = EnvironmentURLData(base: URL(string: "https://vault.example.com")!)
+        let liveURLs = EnvironmentURLData(base: URL(string: "https://vault.bitwarden.com"))
+        stateService.accountCreationEnvironmentURLs["email@example.com"] = staleURLs
+        stateService.preAuthEnvironmentURLs = liveURLs
+        systemDevice.modelIdentifier = "Model id"
+
+        // First login consumes and clears the stale snapshot.
+        try await subject.loginWithMasterPassword(
+            "Password1234!",
+            username: "email@example.com",
+            isNewAccount: true,
+        )
+        XCTAssertEqual(stateService.accountsAdded.last?.settings.environmentUrls, staleURLs)
+        XCTAssertNil(stateService.accountCreationEnvironmentURLs["email@example.com"])
+
+        // A second, unrelated login for the same email is unaffected by the (now cleared) stale
+        // snapshot and falls back to the live pre-auth URLs.
+        try await subject.loginWithMasterPassword(
+            "Password1234!",
+            username: "email@example.com",
+            isNewAccount: false,
+        )
+        XCTAssertEqual(stateService.accountsAdded.last?.settings.environmentUrls, liveURLs)
     }
 
     /// `loginWithMasterPassword(_:username:)` logs the user in with the password for

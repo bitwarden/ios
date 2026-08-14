@@ -986,12 +986,14 @@ class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_leng
 
             // Create the account. Prefer the environment URLs snapshotted for this email when the
             // login flow started, since the global pre-auth URLs may have since been overwritten
-            // by an unrelated active-account sync (e.g. triggered by the AutoFill extension).
-            let urls: EnvironmentURLData? = if let accountCreationURLs = await stateService
-                .getAccountCreationEnvironmentURLs(email: email) {
-                accountCreationURLs
+            // by an unrelated active-account sync (e.g. triggered by the AutoFill extension). Once
+            // consumed, clear the snapshot so a stale value can't affect a later, unrelated login.
+            let urls: EnvironmentURLData?
+            if let accountCreationURLs = await stateService.getAccountCreationEnvironmentURLs(email: email) {
+                urls = accountCreationURLs
+                await stateService.setAccountCreationEnvironmentURLs(urls: nil, email: email)
             } else {
-                await stateService.getPreAuthEnvironmentURLs()
+                urls = await stateService.getPreAuthEnvironmentURLs()
             }
             let account = try Account(identityTokenResponseModel: identityTokenResponse, environmentURLs: urls)
             try await saveAccount(account, identityTokenResponse: identityTokenResponse)
