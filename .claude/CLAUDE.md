@@ -182,6 +182,7 @@ Or in Xcode: **Product → Clean Build Folder** (⇧⌘K). Stale build outputs f
 | `converting-xctest-to-swift-testing` | "convert to Swift Testing", "migrate XCTest", "xctest to swift testing" |
 | `converting-mocks-to-automockable` | "convert mock", "migrate mock to AutoMockable", "replace bespoke mock" |
 | `build-test-verify` | "build", "run tests", "lint", "format", "verify build" |
+| `audit-build-warnings` | "audit build warnings", "fix warnings", "clean up warnings", "build warnings" |
 | `bitwarden-delivery-tools:perform-preflight` | "preflight", "self review", "ready to commit" |
 | `bitwarden-delivery-tools:committing-changes` | "commit", "stage changes", "create commit" |
 | `bitwarden-delivery-tools:creating-pull-request` | "create PR", "open pull request", "submit PR" |
