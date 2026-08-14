@@ -59,6 +59,7 @@ class MockAuthRepository: AuthRepository { // swiftlint:disable:this type_body_l
     var passwordStrengthResult: Result<UInt8, Error> = .success(0)
     var pinProtectedUserKey = "123"
     var profileSwitcherState: ProfileSwitcherState?
+    var purgeExpiredUserSessionKeysCalled = false
     var requestOtpCalled = false
     var requestOtpResult: Result<Void, Error> = .success(())
     var revokeSelfFromOrganizationCalled = false
@@ -263,6 +264,10 @@ class MockAuthRepository: AuthRepository { // swiftlint:disable:this type_body_l
         passwordStrengthPassword = password
         passwordStrengthIsPreAuth = isPreAuth
         return try passwordStrengthResult.get()
+    }
+
+    func purgeExpiredUserSessionKeys() async {
+        purgeExpiredUserSessionKeysCalled = true
     }
 
     func leaveOrganization(organizationId: String) async throws {

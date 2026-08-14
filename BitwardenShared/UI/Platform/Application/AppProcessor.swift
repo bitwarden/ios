@@ -552,6 +552,10 @@ extension AppProcessor {
                 } catch {
                     services.errorReporter.log(error: error)
                 }
+                // Re-arm the background session key cleanup task with the freshest possible
+                // last-active data, since this is the last guaranteed hook before the app may be
+                // killed and never relaunched.
+                await services.backgroundSessionCleanupService.scheduleNextRefresh()
                 #if DEBUG
                 debugDidEnterBackground?()
                 #endif
@@ -574,6 +578,9 @@ extension AppProcessor {
                 } catch {
                     services.errorReporter.log(error: error)
                 }
+                // Re-arm the background session key cleanup task, covering the case where the
+                // app is killed before `didEnterBackground` fires.
+                await services.backgroundSessionCleanupService.scheduleNextRefresh()
             }
         }
     }

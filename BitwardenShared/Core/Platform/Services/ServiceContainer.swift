@@ -57,6 +57,14 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
     /// The service which manages the ciphers exposed to the system for AutoFill suggestions.
     let autofillCredentialService: AutofillCredentialService
 
+    /// The service used by the application to schedule and perform background cleanup of
+    /// expired `.userSessionKey` Keychain items.
+    public let backgroundSessionCleanupService: BackgroundSessionCleanupService
+
+    /// The scheduler used by the application to register and submit `BGTaskScheduler` requests,
+    /// if the app isn't running in an extension.
+    let backgroundTaskScheduler: BackgroundTaskScheduler?
+
     /// The repository used by the application to manage billing data for the UI layer.
     let billingRepository: BillingRepository
 
@@ -259,6 +267,10 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
     ///   - authenticatorSyncService: The service used by the application to sync TOTP codes with the Authenticator app.
     ///   - autofillCredentialService: The service which manages the ciphers exposed to the system
     ///     for AutoFill suggestions.
+    ///   - backgroundSessionCleanupService: The service used by the application to schedule and
+    ///     perform background cleanup of expired `.userSessionKey` Keychain items.
+    ///   - backgroundTaskScheduler: The scheduler used by the application to register and submit
+    ///     `BGTaskScheduler` requests, if the app isn't running in an extension.
     ///   - billingRepository: The repository used by the application to manage billing data for the UI layer.
     ///   - billingService: The service used by the application to manage billing operations.
     ///   - biometricsRepository: The repository to manage biometric unlock policies and access
@@ -338,6 +350,8 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
         authService: AuthService,
         authenticatorSyncService: AuthenticatorSyncService,
         autofillCredentialService: AutofillCredentialService,
+        backgroundSessionCleanupService: BackgroundSessionCleanupService,
+        backgroundTaskScheduler: BackgroundTaskScheduler?,
         billingRepository: BillingRepository,
         billingService: BillingService,
         biometricsRepository: BiometricsRepository,
@@ -410,6 +424,8 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
         self.authService = authService
         self.authenticatorSyncService = authenticatorSyncService
         self.autofillCredentialService = autofillCredentialService
+        self.backgroundSessionCleanupService = backgroundSessionCleanupService
+        self.backgroundTaskScheduler = backgroundTaskScheduler
         self.billingRepository = billingRepository
         self.billingService = billingService
         self.biometricsRepository = biometricsRepository
@@ -477,6 +493,8 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
     /// - Parameters:
     ///   - appContext: The context in which the app is running.
     ///   - application: The application instance.
+    ///   - backgroundTaskScheduler: The scheduler used by the application to register and submit
+    ///     `BGTaskScheduler` requests, if the app isn't running in an extension.
     ///   - errorReporter: The service used by the application to report non-fatal errors.
     ///   - nfcReaderService: The service used by the application to read NFC tags.
     ///
@@ -484,6 +502,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
     public convenience init( // swiftlint:disable:this function_body_length
         appContext: AppContext = .mainApp,
         application: Application? = nil,
+        backgroundTaskScheduler: BackgroundTaskScheduler? = nil,
         errorReporter: ErrorReporter,
         nfcReaderService: NFCReaderService? = nil,
     ) {
@@ -888,6 +907,16 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
             vaultTimeoutService: vaultTimeoutService,
         )
 
+        let backgroundSessionCleanupService = DefaultBackgroundSessionCleanupService(
+            authRepository: authRepository,
+            backgroundTaskScheduler: backgroundTaskScheduler,
+            errorReporter: errorReporter,
+            flightRecorder: flightRecorder,
+            stateService: stateService,
+            timeProvider: timeProvider,
+            vaultTimeoutService: vaultTimeoutService,
+        )
+
         let pendingAppIntentActionMediator = DefaultPendingAppIntentActionMediator(
             authRepository: authRepository,
             errorReporter: errorReporter,
@@ -1192,6 +1221,8 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
             authService: authService,
             authenticatorSyncService: authenticatorSyncService,
             autofillCredentialService: autofillCredentialService,
+            backgroundSessionCleanupService: backgroundSessionCleanupService,
+            backgroundTaskScheduler: backgroundTaskScheduler,
             billingRepository: billingRepository,
             billingService: billingService,
             biometricsRepository: biometricsRepository,
@@ -1261,6 +1292,8 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
     /// - Parameters:
     ///   - appContext: The context in which the app is running.
     ///   - application: The application instance.
+    ///   - backgroundTaskScheduler: The scheduler used by the application to register and submit
+    ///     `BGTaskScheduler` requests, if the app isn't running in an extension.
     ///   - errorReporter: The closure to get a service used by the application to report non-fatal errors.
     ///   - nfcReaderService: The closure to get a service used by the application to read NFC tags.
     /// - Returns: Singleton `ServiceContainer`.
@@ -1268,6 +1301,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
     public static func shared(
         appContext: AppContext = .mainApp,
         application: Application? = nil,
+        backgroundTaskScheduler: BackgroundTaskScheduler? = nil,
         errorReporter: () -> ErrorReporter,
         nfcReaderService: () -> NFCReaderService? = { nil },
     ) -> ServiceContainer {
@@ -1278,6 +1312,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
         let serviceContainer = ServiceContainer(
             appContext: appContext,
             application: application,
+            backgroundTaskScheduler: backgroundTaskScheduler,
             errorReporter: errorReporter(),
             nfcReaderService: nfcReaderService(),
         )

@@ -167,6 +167,17 @@ protocol AuthRepository: AnyObject {
     ///
     func passwordStrength(email: String, password: String, isPreAuth: Bool) async throws -> UInt8
 
+    /// Purges the `.userSessionKey` Keychain item for any account whose session timeout has
+    /// elapsed, without locking or logging out the account.
+    ///
+    /// This is the narrow, side-effect-free counterpart to
+    /// `checkSessionTimeouts(isAppRestart:handleActiveUser:)` that's safe to call from a
+    /// background context (e.g. a `BGAppRefreshTask`): it never calls `lockVault` or `logout`,
+    /// which `checkSessionTimeouts` can do for non-active accounts depending on org policy.
+    /// Full lock/logout handling remains foreground-only, via `checkSessionTimeouts`.
+    ///
+    func purgeExpiredUserSessionKeys() async
+
     /// Gets the profiles state for a user.
     ///
     /// - Parameters:
@@ -905,6 +916,38 @@ extension DefaultAuthRepository: AuthRepository {
     func passwordStrength(email: String, password: String, isPreAuth: Bool) async throws -> UInt8 {
         try await clientService.auth(isPreAuth: isPreAuth)
             .passwordStrength(password: password, email: email, additionalInputs: [])
+    }
+
+    func purgeExpiredUserSessionKeys() async {
+        do {
+            let accounts = try await getAccounts()
+            guard !accounts.isEmpty else { return }
+
+            var purgedCount = 0
+            for account in accounts {
+                guard !account.isLoggedOut else { continue }
+
+                let userId = account.userId
+                let timeoutValue = try await vaultTimeoutService.sessionTimeoutValue(userId: userId)
+                guard timeoutValue.allowsUserSessionKeySharing else { continue }
+
+                let hasTimedOut = try await vaultTimeoutService.hasPassedSessionTimeout(
+                    userId: userId,
+                    isAppRestart: false,
+                )
+                guard hasTimedOut else { continue }
+
+                try? await keychainService.deleteUserAuthKey(for: .userSessionKey(userId: userId))
+                purgedCount += 1
+            }
+
+            guard purgedCount > 0 else { return }
+            await flightRecorder.log("[SessionCleanup] Purged \(purgedCount) expired userSessionKey item(s)")
+        } catch StateServiceError.noAccounts, StateServiceError.noActiveAccount {
+            // No-op: nothing to do if there's no accounts.
+        } catch {
+            errorReporter.log(error: error)
+        }
     }
 
     func sessionTimeoutAction(userId: String?) async throws -> SessionTimeoutAction {

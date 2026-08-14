@@ -1,3 +1,4 @@
+import BackgroundTasks
 import BitwardenKit
 import BitwardenShared
 import UIKit
@@ -40,9 +41,12 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
 
         let services = ServiceContainer.shared(
             application: UIApplication.shared,
+            backgroundTaskScheduler: BGTaskScheduler.shared,
             errorReporter: { ErrorReporterFactory.makeDefaultErrorReporter() },
             nfcReaderService: { DefaultNFCReaderService() },
         )
+        // Registration must happen synchronously before this method returns.
+        services.backgroundSessionCleanupService.register()
         let appModule = DefaultAppModule(services: services)
         appProcessor = AppProcessor(appModule: appModule, services: services)
         return true

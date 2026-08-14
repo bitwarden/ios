@@ -83,6 +83,16 @@ protocol VaultTimeoutService: AnyObject {
     ///
     func setVaultTimeout(value: SessionTimeoutValue, userId: String?) async throws
 
+    /// The amount of time remaining until a user's session timeout elapses.
+    ///
+    /// - Parameter userId: The user ID to check.
+    /// - Returns: The number of seconds remaining until the session times out, which may be zero
+    ///   or negative if the timeout has already elapsed or the elapsed time can't be determined.
+    ///   Returns `nil` if the user's timeout value doesn't allow a schedulable timeout (`.never`
+    ///   or `.onAppRestart`).
+    ///
+    func timeUntilSessionTimeout(userId: String) async throws -> TimeInterval?
+
     /// Unlocks the user's vault
     ///
     /// - Parameters:
@@ -142,10 +152,16 @@ class DefaultVaultTimeoutService: VaultTimeoutService {
     private let stateService: StateService
 
     /// Provides the current time.
-    private let timeProvider: TimeProvider
+    ///
+    /// Not `private` because it's also used by the `hasPassedSessionTimeout`/`timeUntilSessionTimeout`
+    /// extension in `DefaultVaultTimeoutService+SessionTimeout.swift`, split out to keep this file
+    /// under the file length limit.
+    let timeProvider: TimeProvider
 
     /// A service that provides state management functionality around user session values.
-    private let userSessionStateService: UserSessionStateService
+    ///
+    /// Not `private` for the same reason as `timeProvider` above.
+    let userSessionStateService: UserSessionStateService
 
     /// A subject containing the user's vault locked status mapped to their user ID.
     private let vaultLockStatusSubject = CurrentValueSubject<[String: Bool], Never>([:])
@@ -192,61 +208,9 @@ class DefaultVaultTimeoutService: VaultTimeoutService {
 
     // MARK: Methods
 
-    func hasPassedSessionTimeout(userId: String, isAppRestart: Bool = false) async throws -> Bool {
-        let vaultTimeout = try await sessionTimeoutValue(userId: userId)
-        switch vaultTimeout {
-        case .never:
-            return false
-        case .onAppRestart:
-            // On app restart, trigger timeout if this is actually an app restart
-            return isAppRestart
-        default:
-            let lastActiveMonotonic = try await userSessionStateService.getLastActiveMonotonicTime(userId: userId)
-            let lastActiveTime = try await userSessionStateService.getLastActiveTime(userId: userId)
-
-            // We need both times to calculate session timeout. If any of the times is not present
-            // then treat it as the session has timed out.
-            guard let lastActiveMonotonic, let lastActiveTime else {
-                return true
-            }
-
-            // Use monotonic time for tamper-resistant timeout checking
-            let result = timeProvider.calculateTamperResistantElapsedTime(
-                lastMonotonicTime: lastActiveMonotonic,
-                lastWallClockTime: lastActiveTime,
-                divergenceThreshold: 5.0,
-            )
-
-            // Force timeout if tampering detected (reboot or clock manipulation)
-            if result.tamperingDetected {
-                return true
-            }
-
-            // Check for the reboot-timing attack: an attacker who reboots the device and
-            // waits until the monotonic clock matches the stored value bypasses the isReboot
-            // flag. The boot epoch shifts dramatically across a reboot and catches this.
-            // Guard on isReboot: a legitimate reboot is already caught above via tamperingDetected.
-            let storedBootEpoch = try await userSessionStateService.getLastActiveBootEpoch(userId: userId)
-            let currentBootEpoch = timeProvider.presentTime.timeIntervalSinceReferenceDate
-                - timeProvider.monotonicTime
-            // Boot epoch must always co-exist with lastActiveMonotonicTime — both are written
-            // atomically in setLastActiveTime. A missing boot epoch after the guard above means
-            // partial or manipulated state, so fail closed.
-            guard let storedBootEpoch else {
-                return true
-            }
-            if !result.isReboot {
-                let epochDrift = abs(currentBootEpoch - storedBootEpoch)
-                if epochDrift > 5.0 {
-                    return true
-                }
-            }
-
-            // Use monotonic elapsed time exclusively as the tamper-resistant timeout source
-            let timeoutSeconds = TimeInterval(vaultTimeout.seconds)
-            return result.effectiveElapsed >= timeoutSeconds
-        }
-    }
+    // `hasPassedSessionTimeout` and `timeUntilSessionTimeout` are implemented in
+    // `DefaultVaultTimeoutService+SessionTimeout.swift`, split out to keep this file under the
+    // file length limit.
 
     func isLocked(userId: String) -> Bool {
         guard let isLocked = vaultLockStatusSubject.value[userId] else { return true }
