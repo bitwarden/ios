@@ -26,6 +26,8 @@
 "FolderNone" = "无文件夹";
 "Folders" = "文件夹";
 "FolderUpdated" = "文件夹已保存";
+"MyFolder" = "我的文件夹";
+"MyFolders" = "我的文件夹";
 "InternetConnectionRequiredMessage" = "请连接互联网后再继续。";
 "InternetConnectionRequiredTitle" = "需要互联网连接";
 "InvalidMasterPassword" = "无效的主密码。请重试。";
@@ -114,7 +116,7 @@
 "MasterPasswordHint" = "主密码提示";
 "NewMasterPasswordHint" = "新主密码提示";
 "MinNumbers" = "数字最少个数";
-"MinSpecial" = "符号最少个数";
+"MinSpecial" = "特殊字符最少个数";
 "Never" = "从不";
 "NoItems" = "您的密码库中没有项目。";
 "NoItemsTap" = "您的密码库中没有适用于此网站/App 的项目。点击添加一个。";
@@ -262,11 +264,11 @@
 /* Section header and screen title for viewing/managing a cipher's collections. */
 "Collections" = "集合";
 /* Section header and screen title for viewing/managing a cipher's shared folders. */
-"SharedFolders" = "Shared folders";
+"SharedFolders" = "共享文件夹";
 /* Empty state message shown when a collection has no items. */
 "NoItemsCollection" = "此集合中没有项目";
 /* Empty state message shown when a shared folder has no items. */
-"ThereAreNoItemsInThisSharedFolder" = "There are no items in this shared folder";
+"ThereAreNoItemsInThisSharedFolder" = "此共享文件夹中没有项目";
 "NoItemsFolder" = "此文件夹中没有项目";
 "NoItemsTrash" = "回收站中没有项目。";
 "FaceID" = "面容 ID";
@@ -325,22 +327,22 @@
 /* Empty state message on the Collections screen shown when a user has no collections. */
 "NoCollectionsToList" = "没有可列出的集合。";
 /* Empty state message on the Shared folders screen shown when a user has no shared folders. */
-"ThereAreNoSharedFoldersToList" = "There are no shared folders to list.";
+"ThereAreNoSharedFoldersToList" = "没有可列出的共享文件夹。";
 "MovedItemToOrg" = "%1$@ 已移动到 %2$@。";
 /* Alert message shown when saving an item with no collection selected. */
 "SelectOneCollection" = "您必须至少选择一个集合。";
 /* Alert message shown when saving an item with no shared folder selected. */
-"YouMustSelectAtLeastOneSharedFolder" = "You must select at least one shared folder.";
+"YouMustSelectAtLeastOneSharedFolder" = "您必须至少选择一个共享文件夹。";
 "Share" = "分享";
 "ShareAll" = "分享所有";
 /* Overflow menu item and screen title on the Move screen shown when the "vfo1-foundation" feature flag is disabled; superseded by "Move" when enabled. */
 "MoveToOrganization" = "移动到组织";
 /* Empty state message shown when a user has no vaults available to move an item into, when the "vfo1-foundation" feature flag is enabled. */
-"NoVaultsToList" = "No vaults to list.";
+"NoVaultsToList" = "没有可列出的密码库。";
 /* Empty state message shown when a user has no organizations available to move an item into, when the "vfo1-foundation" feature flag is disabled. */
 "NoOrgsToList" = "没有可列出的组织。";
 /* Footer text on the Move screen explaining that moving an item transfers its ownership to the destination vault's organization, when the "vfo1-foundation" feature flag is enabled. */
-"ChooseAVaultThatYouWishToMoveThisItemToDescriptionLong" = "Choose a vault that you wish to move this item to. Moving to another vault transfers ownership of the item to that organization. You will no longer be the direct owner of this item once it has been moved.";
+"ChooseAVaultThatYouWishToMoveThisItemToDescriptionLong" = "选择一个您想将此项目移至的密码库。移动到其他密码库会将该项目的所有权转移给对应组织。移动后，您将不再是此项目的直接所有者。";
 /* Footer text on the Move screen explaining that moving an item transfers its ownership to the destination organization, when the "vfo1-foundation" feature flag is disabled. */
 "MoveToOrgDesc" = "选择一个您想将此项目移至的组织。移动到组织会将该项目的所有权转移给该组织。移动后，您将不再是此项目的直接所有者。";
 "NumberOfWords" = "单词个数";
@@ -502,7 +504,7 @@
 "CannotScanQRCode" = "无法扫描二维码吗？";
 "EnterKeyManually" = "手动输入密钥";
 "OnceTheKeyIsSuccessfullyEntered" = "成功输入密钥后，选择「保存」以安全地存储此密钥。";
-"NeverLockWarning" = "将锁定选项设置为「从不」会让任何能够访问您的设备的人都可以使用您的密码库。如果使用此选项，您应确保您的设备已受到妥善保护。";
+"NeverLockWarning" = "将锁定选项设置为「从不」会让拥有您的设备访问权限的任何人都可以使用您的密码库。如果使用此选项，您应确保您的设备已受到妥善保护。";
 "EnvironmentPageUrlsError" = "输入的一个或多个 URL 无效。请修改后再次尝试保存。";
 "GenericErrorMessage" = "我们无法处理您的请求。请重试或联系我们。";
 "LogInRequested" = "需要登录";
@@ -552,7 +554,7 @@
 "ResendNotification" = "重新发送通知";
 "NeedAnotherOption" = "需要其他选项吗？";
 "ViewAllLoginOptions" = "查看所有登录选项";
-"ThisRequestIsNoLongerValid" = "请求已失效";
+"ThisRequestIsNoLongerValid" = "此请求已失效";
 "PendingLogInRequests" = "待处理的登录请求";
 "DeclineAllRequests" = "拒绝所有请求";
 "AreYouSureYouWantToDeclineAllPendingLogInRequests" = "确定要拒绝所有待处理的登录请求吗？";
@@ -892,12 +894,13 @@
 "ShowLess" = "显示更少";
 "ItemNameX" = "项目名称，%1$@";
 "OwnerX" = "所有者，%1$@";
-"VaultX" = "Vault, %1$@";
+"VaultX" = "密码库，%1$@";
 /* VoiceOver accessibility label for a collection the item belongs to. */
 "CollectionX" = "集合，%1$@";
 /* VoiceOver accessibility label for a shared folder the item belongs to. */
-"SharedFolderX" = "Shared folder, %1$@";
+"SharedFolderX" = "共享文件夹，%1$@";
 "FolderX" = "文件夹，%1$@";
+"MyFolderX" = "我的文件夹，%1$@";
 "ItemXOfY" = "项目 %1$@ / %2$@";
 "ViewRecordedLogs" = "查看记录的日志";
 "RecordedLogs" = "记录的日志";
@@ -1105,14 +1108,14 @@
 "YourPasswordAndHintCannotBeTheSamePleaseChooseADifferentHint" = "您的密码和密码提示不能一样。请选择一个不同的提示。";
 "Plan" = "方案";
 "Premium" = "高级版";
-"Active" = "激活";
+"Active" = "活跃";
 "Canceled" = "已取消";
 "PastDue" = "逾期未支付";
 "PendingCancellation" = "待取消";
 "Unpaid" = "未支付";
 "UpdatePayment" = "更新付款信息";
 "BillingAmount" = "计费金额";
-"StorageCost" = "存储空间成本";
+"StorageCost" = "存储空间费用";
 "Discount" = "折扣";
 "EstimatedTax" = "预估税额";
 "Total" = "总计";
@@ -1243,8 +1246,8 @@
 /* Device display name. %1$@ = category (e.g. "Mobile"), %2$@ = platform (e.g. "iOS"). */
 "DeviceDisplayNameXHyphenY" = "%1$@ - %2$@";
 "Mobile" = "移动端";
-"BrowserExtension" = "浏览器扩展";
-"WebVault2" = "网页密码库";
+"BrowserExtension" = "扩展";
+"WebVault2" = "网页 App";
 "Desktop" = "桌面端";
 "Cli" = "CLI";
 "Sdk" = "SDK";

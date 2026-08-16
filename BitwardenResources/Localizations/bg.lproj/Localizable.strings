@@ -26,6 +26,8 @@
 "FolderNone" = "Няма папка";
 "Folders" = "Папки";
 "FolderUpdated" = "Папката е обновена.";
+"MyFolder" = "Моята папка";
+"MyFolders" = "Моите папки";
 "InternetConnectionRequiredMessage" = "Свържете се с Интернет, за да продължите.";
 "InternetConnectionRequiredTitle" = "Необходима е връзка към Интернет";
 "InvalidMasterPassword" = "Грешна главна парола. Пробвайте отново.";
@@ -898,6 +900,7 @@
 /* VoiceOver accessibility label for a shared folder the item belongs to. */
 "SharedFolderX" = "Споделена папка, %1$@";
 "FolderX" = "Папка, %1$@";
+"MyFolderX" = "Моята папка, %1$@";
 "ItemXOfY" = "Елемент %1$@ от %2$@";
 "ViewRecordedLogs" = "Преглед на записаните журнали";
 "RecordedLogs" = "Записани журнали";
