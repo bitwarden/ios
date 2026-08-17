@@ -424,7 +424,7 @@ extension DefaultPolicyService {
 
         let policies = await policiesApplyingToUser(.organizationUserNotification)
 
-        guard let policy = policies.earliestRevisionDate,
+        guard let policy = policies.policyWithEarliestRevisionDate,
               let description = policy[.description]?.stringValue
         else { return nil }
 
@@ -512,7 +512,7 @@ extension DefaultPolicyService {
 
     func getEarliestOrganizationApplyingPolicy(_ policyType: PolicyType) async -> String? {
         let policies = await policiesApplyingToUser(policyType, filter: nil)
-        return policies.earliestRevisionDate?.organizationId
+        return policies.policyWithEarliestRevisionDate?.organizationId
     }
 
     func getSendPolicyOptions() async -> SendPolicyOptions {

@@ -7,16 +7,16 @@ import Testing
 struct PolicyTests {
     // MARK: Tests
 
-    /// `earliestRevisionDate` returns `nil` for an empty list.
+    /// `policyWithEarliestRevisionDate` returns `nil` for an empty list.
     @Test
-    func earliestRevisionDate_empty() {
+    func policyWithEarliestRevisionDate_empty() {
         let policies: [Policy] = []
-        #expect(policies.earliestRevisionDate == nil)
+        #expect(policies.policyWithEarliestRevisionDate == nil)
     }
 
-    /// `earliestRevisionDate` returns the policy with the earliest revision date.
+    /// `policyWithEarliestRevisionDate` returns the policy with the earliest revision date.
     @Test
-    func earliestRevisionDate_multiplePolicies() {
+    func policyWithEarliestRevisionDate_multiplePolicies() {
         let earliest = Policy.fixture(id: "policy-2", revisionDate: Date(year: 2024, month: 1, day: 10))
         let policies = [
             Policy.fixture(id: "policy-1", revisionDate: Date(year: 2024, month: 3, day: 15)),
@@ -24,19 +24,19 @@ struct PolicyTests {
             Policy.fixture(id: "policy-3", revisionDate: Date(year: 2024, month: 2, day: 20)),
         ]
 
-        #expect(policies.earliestRevisionDate == earliest)
+        #expect(policies.policyWithEarliestRevisionDate == earliest)
     }
 
-    /// `earliestRevisionDate` treats a `nil` revision date as `.distantFuture`, so a policy with an
+    /// `policyWithEarliestRevisionDate` treats a `nil` revision date as `.distantFuture`, so a policy with an
     /// actual date is preferred over one with a `nil` date.
     @Test
-    func earliestRevisionDate_nilRevisionDate() {
+    func policyWithEarliestRevisionDate_nilRevisionDate() {
         let earliest = Policy.fixture(id: "policy-2", revisionDate: Date(year: 2024, month: 1, day: 10))
         let policies = [
             Policy.fixture(id: "policy-1", revisionDate: nil),
             earliest,
         ]
 
-        #expect(policies.earliestRevisionDate == earliest)
+        #expect(policies.policyWithEarliestRevisionDate == earliest)
     }
 }
