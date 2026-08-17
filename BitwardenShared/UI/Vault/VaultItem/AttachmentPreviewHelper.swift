@@ -12,9 +12,11 @@ protocol AttachmentPreviewHelper { // sourcery: AutoMockable
     /// - Parameters:
     ///   - attachment: The attachment to preview.
     ///   - cipher: The cipher that owns the attachment.
+    ///   - handleNavigateToPremiumUpgrade: A closure called to navigate to the Premium upgrade flow.
     func showPreview(
         for attachment: AttachmentView,
         cipher: CipherView,
+        handleNavigateToPremiumUpgrade: @escaping () async -> Void,
     ) async
 }
 
@@ -55,6 +57,7 @@ class DefaultAttachmentPreviewHelper: AttachmentPreviewHelper {
     func showPreview(
         for attachment: AttachmentView,
         cipher: CipherView,
+        handleNavigateToPremiumUpgrade: @escaping () async -> Void,
     ) async {
         // Files that can't be previewed aren't downloaded here. The preview screen shows its
         // unsupported or too large state right away, and the file is only downloaded if the user
