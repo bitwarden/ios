@@ -195,25 +195,36 @@ jobs:
           mkdir -p build
           : > "$_LOG"
 
-          # `set +e` covers xcodebuild alone. A compile break is the signal this workflow exists to
-          # surface and must reach the agent, while a toolchain failure must still fail the job.
           for _SCHEME in Bitwarden Authenticator; do
-            echo "=== $_SCHEME ===" >> "$_LOG"
+            _SCHEME_LOG="$RUNNER_TEMP/baseline-$_SCHEME.log"
+
+            # `set +e` covers xcodebuild alone, because a compile break is the signal this workflow
+            # exists to surface and has to reach the agent rather than end the job here.
             set +e
             xcrun xcodebuild build-for-testing -workspace Bitwarden.xcworkspace -scheme "$_SCHEME" \
               -configuration Debug -destination "platform=iOS Simulator,id=$_SIMULATOR_ID" \
               -derivedDataPath build/DerivedData -parallelizeTargets \
-              -skipPackagePluginValidation -skipMacroValidation -quiet >> "$_LOG" 2>&1
-            echo "=== $_SCHEME exit=$? ===" >> "$_LOG"
+              -skipPackagePluginValidation -skipMacroValidation -quiet > "$_SCHEME_LOG" 2>&1
+            _EXIT=$?
             set -e
-          done
 
-          # The exit markers are the liveness check. Without them an empty log reads exactly like a
-          # clean build, and the agent would report "no compile breaks" for a build that never ran.
-          if [ "$(grep -c '=== .* exit=' "$_LOG")" -ne 2 ]; then
-            echo "::error::The baseline build did not run for both schemes; the agent would read an empty log as 'no compile breaks'."
-            exit 1
-          fi
+            {
+              echo "=== $_SCHEME ==="
+              cat "$_SCHEME_LOG"
+              echo "=== $_SCHEME exit=$_EXIT ==="
+            } >> "$_LOG"
+
+            # A non-zero exit is only expected when the build diagnosed something. `-quiet` prints no
+            # success banner, so a build killed without printing (OOM, signal, a lost simulator)
+            # leaves a log indistinguishable from a clean one, which the agent would report as "no
+            # compile breaks". Pairing the exit code with the presence of a diagnostic is what
+            # separates the break this workflow wants to surface from the failure it must not hide.
+            if [ "$_EXIT" -ne 0 ] && ! grep -qE ' error:|Undefined symbols|^ld:' "$_SCHEME_LOG"; then
+              echo "::error::The $_SCHEME baseline build exited $_EXIT without a diagnosable cause, so its log cannot be read as evidence of anything."
+              tail -50 "$_SCHEME_LOG"
+              exit 1
+            fi
+          done
 
           # A step output, not a GITHUB_ENV variable: the prompt interpolates the literal path.
           # `prompt` is not shell-expanded, and the agent's Read tool cannot expand a variable.
@@ -297,14 +308,17 @@ jobs:
             push origin "HEAD:$_BRANCH_NAME"
 
       # Runs after the push so a commit SHA the report cites is real, and on !cancelled() so a failed
-      # push still produces a report. Everything the script needs arrives by environment variable, so
-      # the step is the input surface the shared action will inherit.
+      # push still produces a report. The `outcome != 'skipped'` guard keeps a setup failure, which
+      # skips the agent entirely and leaves no comment, from being annotated as a missing audit trail.
+      # Everything the script needs arrives by environment variable, so the step is the input surface
+      # the shared action will inherit.
       - name: Report the evaluation outcome
-        if: ${{ !cancelled() && steps.gate.outputs.skip == 'false' }}
+        if: ${{ !cancelled() && steps.gate.outputs.skip == 'false' && steps.claude.outcome != 'skipped' }}
         env:
           EXECUTION_FILE: ${{ steps.claude.outputs.execution_file }}
-          COMMENT_ID: ${{ steps.claude.outputs.claude_comment_id }}
           REPO: ${{ github.repository }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          COMMENT_AUTHOR: "bw-ghapp[bot]"
           JOB_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
           GH_TOKEN: ${{ steps.app-token.outputs.token }}
           # `## Runtime considerations` is omittable, so it is not required. Checking for the
