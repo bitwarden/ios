@@ -160,6 +160,25 @@ jobs:
           simulator-name: ${{ env._SIMULATOR_NAME }}
           simulator-version: ${{ env._SIMULATOR_VERSION }}
 
+      # test.yml and test-bwa.yml wrap every xcodebuild invocation in pyeetd, which kills the poster
+      # and analytics processes that saturate a booted simulator's CPU and let a test run consume the
+      # entire timeout. The build and test commands here belong to the skill, so they cannot be
+      # wrapped individually, but pyeetd is a polling loop, so one backgrounded copy covers every
+      # pass the agent makes. Its log stays in the runner temp directory to keep the workspace clean
+      # for the uncommitted-changes guard. A background launch reports nothing on failure, hence the
+      # liveness check.
+      - name: Start pyeetd
+        if: steps.gate.outputs.skip == 'false'
+        run: |
+          nohup python Scripts/pyeetd/main.py > "$RUNNER_TEMP/pyeetd.log" 2>&1 &
+          _PYEETD_PID=$!
+          sleep 2
+          if ! kill -0 "$_PYEETD_PID" 2>/dev/null; then
+            echo "::error::pyeetd exited immediately; simulator processes will contend with the agent's builds"
+            cat "$RUNNER_TEMP/pyeetd.log"
+            exit 1
+          fi
+
       - name: Run Claude Code
         id: claude
         if: steps.gate.outputs.skip == 'false'
