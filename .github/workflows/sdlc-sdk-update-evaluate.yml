@@ -92,12 +92,12 @@ jobs:
           # supplies credentials for itself.
           persist-credentials: false
 
-      # A full clone, deliberately: the pinned revisions live on `unstable` and on `v<version>`
-      # tags, not on `main`, so --depth or --branch would resolve the wrong tree. The whole
-      # repository is under 10 MB.
+      # SDK releases land on `unstable`, so that is where every pinned revision lives. `main` is
+      # months stale. The clone is full because the evaluation diffs the files of two revisions that
+      # can be weeks apart, which `--depth` or a blobless filter would not have on hand.
       - name: Clone sdk-swift
         if: steps.gate.outputs.skip == 'false'
-        run: git clone --quiet https://github.com/bitwarden/sdk-swift "${{ github.workspace }}/../sdk-swift"
+        run: git clone --quiet --branch unstable https://github.com/bitwarden/sdk-swift "${{ github.workspace }}/../sdk-swift"
 
       # Blobless: only needed to inspect uniffi.toml and Rust-level behavior for specific commits.
       - name: Clone sdk-internal
