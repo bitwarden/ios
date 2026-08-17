@@ -26,6 +26,39 @@ class BitwardenSdkVaultBitwardenCipherTypeTests: BitwardenTestCase {
     }
 }
 
+// MARK: - AttachmentView
+
+class BitwardenSdkVaultAttachmentViewTests: BitwardenTestCase {
+    // MARK: Tests
+
+    /// `fileExtension` returns the file name's extension without lowercasing it.
+    func test_fileExtension() {
+        XCTAssertEqual(AttachmentView.fixture(fileName: "photo.PNG").fileExtension, "PNG")
+        XCTAssertEqual(AttachmentView.fixture(fileName: "archive.tar.gz").fileExtension, "gz")
+    }
+
+    /// `fileExtension` returns `nil` when the file name has no extension or is `nil`.
+    func test_fileExtension_nil() {
+        XCTAssertNil(AttachmentView.fixture(fileName: "photo").fileExtension)
+        XCTAssertNil(AttachmentView.fixture(fileName: nil).fileExtension)
+    }
+
+    /// `isImage` returns `true` for file names with a recognized image extension, regardless of case.
+    func test_isImage_true() {
+        for ext in ["jpg", "jpeg", "png", "gif", "webp", "heic", "heif"] {
+            XCTAssertTrue(AttachmentView.fixture(fileName: "photo.\(ext)").isImage)
+            XCTAssertTrue(AttachmentView.fixture(fileName: "photo.\(ext.uppercased())").isImage)
+        }
+    }
+
+    /// `isImage` returns `false` for non-image extensions, no extension, or a `nil` file name.
+    func test_isImage_false() {
+        XCTAssertFalse(AttachmentView.fixture(fileName: "statement.pdf").isImage)
+        XCTAssertFalse(AttachmentView.fixture(fileName: "photo").isImage)
+        XCTAssertFalse(AttachmentView.fixture(fileName: nil).isImage)
+    }
+}
+
 // MARK: - Cipher
 
 class BitwardenSdkVaultCipherTests: BitwardenTestCase {
