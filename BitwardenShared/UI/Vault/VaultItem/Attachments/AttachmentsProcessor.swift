@@ -74,7 +74,12 @@ class AttachmentsProcessor: StateProcessor<AttachmentsState, AttachmentsAction, 
         case let .attachmentTapped(attachment):
             guard let cipher = state.cipher else { return }
             Task {
-                await attachmentPreviewHelper.showPreview(for: attachment, cipher: cipher)
+                await attachmentPreviewHelper.showPreview(
+                    for: attachment,
+                    cipher: cipher,
+                ) { [weak self] in
+                    await self?.navigateToPremiumUpgrade()
+                }
             }
         case .chooseFilePressed:
             presentFileSelectionAlert()

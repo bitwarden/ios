@@ -1514,6 +1514,10 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         subject.receive(.downloadAttachment(attachment))
 
         // Confirm on the alert
+        try await waitForAsync { [weak self] in
+            guard let self else { return true }
+            return !coordinator.alertShown.isEmpty
+        }
         let confirmAction = try XCTUnwrap(coordinator.alertShown.last?.alertActions.first)
         await confirmAction.handler?(confirmAction, [])
 
@@ -1538,6 +1542,10 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         subject.receive(.downloadAttachment(attachment))
 
         // Confirm on the alert
+        try await waitForAsync { [weak self] in
+            guard let self else { return true }
+            return !coordinator.alertShown.isEmpty
+        }
         let confirmAction = try XCTUnwrap(coordinator.alertShown.last?.alertActions.first)
         await confirmAction.handler?(confirmAction, [])
 
@@ -1591,6 +1599,10 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         subject.receive(.downloadAttachment(attachment))
 
         // Confirm on the alert
+        try await waitForAsync { [weak self] in
+            guard let self else { return true }
+            return !coordinator.alertShown.isEmpty
+        }
         let confirmAction = try XCTUnwrap(coordinator.alertShown.last?.alertActions.first)
         await confirmAction.handler?(confirmAction, [])
 
@@ -1621,6 +1633,46 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         task.cancel()
         XCTAssertTrue(coordinator.alertShown.isEmpty)
         XCTAssertEqual(coordinator.routes.last, .saveFile(temporaryUrl: .example))
+    }
+
+    /// `.receive(_:)` with `.downloadAttachment(_)` shows the Premium required alert, and doesn't
+    /// download the attachment, if the user doesn't have Premium.
+    @MainActor
+    func test_receive_downloadAttachment_noPremium() throws {
+        vaultRepository.doesActiveAccountHavePremiumResult = false
+        let attachment = AttachmentView.fixture(size: "10", sizeName: "small")
+        let cipher = CipherView.fixture(attachments: [attachment])
+        let state = try XCTUnwrap(CipherItemState(existing: cipher, hasPremium: false))
+        subject.state.loadingState = .data(state)
+
+        subject.receive(.downloadAttachment(attachment))
+
+        waitFor(!coordinator.alertShown.isEmpty)
+        XCTAssertEqual(coordinator.alertShown.last?.title, Localizations.premiumSubscriptionRequired)
+        XCTAssertNil(vaultRepository.downloadAttachmentAttachment)
+        XCTAssertTrue(coordinator.routes.isEmpty)
+    }
+
+    /// `.receive(_:)` with `.downloadAttachment(_)` navigates to the Premium upgrade flow when the
+    /// user taps the upgrade action on the Premium required alert.
+    @MainActor
+    func test_receive_downloadAttachment_noPremium_navigateToPremiumUpgrade() async throws {
+        vaultRepository.doesActiveAccountHavePremiumResult = false
+        let attachment = AttachmentView.fixture(size: "10", sizeName: "small")
+        let cipher = CipherView.fixture(attachments: [attachment])
+        let state = try XCTUnwrap(CipherItemState(existing: cipher, hasPremium: false))
+        subject.state.loadingState = .data(state)
+
+        subject.receive(.downloadAttachment(attachment))
+
+        try await waitForAsync { [weak self] in
+            guard let self else { return true }
+            return !coordinator.alertShown.isEmpty
+        }
+        let alert = try XCTUnwrap(coordinator.alertShown.last)
+        try await alert.tapAction(title: Localizations.upgradeToPremium)
+
+        XCTAssertTrue(premiumUpgradeHelper.navigateToPremiumUpgradeCalled)
     }
 
     /// `receive` with `.editPressed` has no change when the state is loading.
