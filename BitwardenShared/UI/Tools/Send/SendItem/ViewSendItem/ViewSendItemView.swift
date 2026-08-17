@@ -180,6 +180,9 @@ struct ViewSendItemView: View {
                         valueAccessibilityIdentifier: "ViewSendContentText",
                     )
                 }
+            // TODO: PM-41094 - Share: Implement Share panel and vault item menu integration.
+            case .item:
+                EmptyView()
             }
 
             BitwardenTextValueField(

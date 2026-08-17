@@ -58,6 +58,9 @@ extension SendType {
             self = .file
         case .text:
             self = .text
+        // TODO: PM-41094 - Share: Implement Share panel and vault item menu integration.
+        case .item:
+            self = .unknown
         }
     }
 }
