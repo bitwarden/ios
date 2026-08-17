@@ -45,7 +45,7 @@ struct AttachmentPreviewHelperTests {
         let attachment = AttachmentView.fixture(fileName: "photo.png", size: "11000000", sizeName: "big")
         let cipher = CipherView.loginFixture()
 
-        await subject.showPreview(for: attachment, cipher: cipher)
+        await subject.showPreview(for: attachment, cipher: cipher) {}
 
         #expect(coordinator.alertShown.isEmpty)
         #expect(vaultRepository.downloadAttachmentAttachment == nil)
@@ -53,6 +53,7 @@ struct AttachmentPreviewHelperTests {
             Issue.record("Expected a navigation to .attachmentPreview")
             return
         }
+
         #expect(state.attachment == attachment)
         #expect(state.cipher == cipher)
         #expect(state.content == .fileTooLarge)
@@ -83,7 +84,7 @@ struct AttachmentPreviewHelperTests {
         let cipher = CipherView.loginFixture()
         vaultRepository.downloadAttachmentResult = try .success(writeTemporaryImage())
 
-        await subject.showPreview(for: attachment, cipher: cipher)
+        await subject.showPreview(for: attachment, cipher: cipher) {}
 
         #expect(coordinator.alertShown.isEmpty)
         #expect(vaultRepository.downloadAttachmentAttachment == attachment)
@@ -98,7 +99,7 @@ struct AttachmentPreviewHelperTests {
         let temporaryUrl = try writeTemporaryImage()
         vaultRepository.downloadAttachmentResult = .success(temporaryUrl)
 
-        await subject.showPreview(for: attachment, cipher: cipher)
+        await subject.showPreview(for: attachment, cipher: cipher) {}
 
         guard case let .attachmentPreview(state) = coordinator.routes.last else {
             Issue.record("Expected a navigation to .attachmentPreview")
@@ -125,7 +126,7 @@ struct AttachmentPreviewHelperTests {
         let temporaryUrl = try writeTemporaryFile(data: Data("not an image".utf8))
         vaultRepository.downloadAttachmentResult = .success(temporaryUrl)
 
-        await subject.showPreview(for: attachment, cipher: cipher)
+        await subject.showPreview(for: attachment, cipher: cipher) {}
 
         guard case let .attachmentPreview(state) = coordinator.routes.last else {
             Issue.record("Expected a navigation to .attachmentPreview")
@@ -144,7 +145,7 @@ struct AttachmentPreviewHelperTests {
         let temporaryUrl = try writeTemporaryGif(frameCount: 3)
         vaultRepository.downloadAttachmentResult = .success(temporaryUrl)
 
-        await subject.showPreview(for: attachment, cipher: cipher)
+        await subject.showPreview(for: attachment, cipher: cipher) {}
 
         guard case let .attachmentPreview(state) = coordinator.routes.last else {
             Issue.record("Expected a navigation to .attachmentPreview")
@@ -166,7 +167,7 @@ struct AttachmentPreviewHelperTests {
         let cipher = CipherView.loginFixture()
         vaultRepository.downloadAttachmentResult = try .success(writeTemporaryGif(frameCount: 1))
 
-        await subject.showPreview(for: attachment, cipher: cipher)
+        await subject.showPreview(for: attachment, cipher: cipher) {}
 
         guard case let .attachmentPreview(state) = coordinator.routes.last else {
             Issue.record("Expected a navigation to .attachmentPreview")
@@ -186,7 +187,7 @@ struct AttachmentPreviewHelperTests {
         let cipher = CipherView.loginFixture()
         vaultRepository.downloadAttachmentResult = try .success(writeTemporaryGif(frameCount: 3))
 
-        await subject.showPreview(for: attachment, cipher: cipher)
+        await subject.showPreview(for: attachment, cipher: cipher) {}
 
         guard case let .attachmentPreview(state) = coordinator.routes.last else {
             Issue.record("Expected a navigation to .attachmentPreview")
@@ -212,7 +213,7 @@ struct AttachmentPreviewHelperTests {
         let temporaryUrl = try writeTemporaryFile(data: data)
         vaultRepository.downloadAttachmentResult = .success(temporaryUrl)
 
-        await subject.showPreview(for: attachment, cipher: cipher)
+        await subject.showPreview(for: attachment, cipher: cipher) {}
 
         guard case let .attachmentPreview(state) = coordinator.routes.last else {
             Issue.record("Expected a navigation to .attachmentPreview")
@@ -230,7 +231,7 @@ struct AttachmentPreviewHelperTests {
         let attachment = AttachmentView.fixture(fileName: "statement.pdf", size: "10", sizeName: "small")
         let cipher = CipherView.loginFixture()
 
-        await subject.showPreview(for: attachment, cipher: cipher)
+        await subject.showPreview(for: attachment, cipher: cipher) {}
 
         guard case let .attachmentPreview(state) = coordinator.routes.last else {
             Issue.record("Expected a navigation to .attachmentPreview")
@@ -270,7 +271,7 @@ struct AttachmentPreviewHelperTests {
         let cipher = CipherView.loginFixture()
         vaultRepository.downloadAttachmentResult = .success(nil)
 
-        await subject.showPreview(for: attachment, cipher: cipher)
+        await subject.showPreview(for: attachment, cipher: cipher) {}
 
         #expect(coordinator.alertShown.last == .defaultAlert(title: Localizations.unableToDownloadFile))
         #expect(coordinator.routes.isEmpty)
@@ -284,7 +285,7 @@ struct AttachmentPreviewHelperTests {
         let cipher = CipherView.loginFixture()
         vaultRepository.downloadAttachmentResult = .failure(BitwardenTestError.example)
 
-        await subject.showPreview(for: attachment, cipher: cipher)
+        await subject.showPreview(for: attachment, cipher: cipher) {}
 
         #expect(coordinator.alertShown.last == .defaultAlert(title: Localizations.unableToDownloadFile))
         #expect(coordinator.routes.isEmpty)
