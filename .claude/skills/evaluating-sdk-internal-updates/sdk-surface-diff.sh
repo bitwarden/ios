@@ -213,7 +213,7 @@ cat "$WORK/removed"
 echo "count: $(count "$WORK/removed")"
 
 echo
-echo "## ADDED — new declarations; check enum cases, record fields and protocol requirements"
+echo "## ADDED — new declarations, including record fields; only a pre-existing owner is a break"
 cat "$WORK/added"
 echo "count: $(count "$WORK/added")"
 
@@ -226,3 +226,8 @@ echo
 echo "MUTATED covers type declarations only. For a type's members run --type <TypeName>; for free"
 echo "functions, for methods of types not listed above, and for ADDED entries that are var/let/func"
 echo "rather than types, run --decls."
+echo
+echo "Enum cases and protocol requirements take no access modifier, so neither the sections above nor"
+echo "--decls can list them. A case added to an enum that already existed is visible only through"
+echo "--type <TypeName>, and it compiles clean at any call site with a 'default:' clause, so run"
+echo "--type against every enum and protocol the RANGE commits touch before calling a range safe."
