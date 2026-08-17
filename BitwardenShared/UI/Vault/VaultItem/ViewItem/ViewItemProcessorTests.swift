@@ -1455,6 +1455,26 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         XCTAssertEqual(attachmentPreviewHelper.showPreviewReceivedArguments?.cipher, cipher)
     }
 
+    /// `.receive(_:)` with `.downloadAttachment(_)` delegates to the Premium upgrade helper.
+    @MainActor
+    func test_receive_downloadAttachment_navigateToPremiumUpgrade() throws {
+        let attachment = AttachmentView.fixture(size: "11000000", sizeName: "big")
+        let cipher = CipherView.fixture(attachments: [attachment])
+        let state = try XCTUnwrap(CipherItemState(existing: cipher, hasPremium: false))
+        subject.state.loadingState = .data(state)
+
+        subject.receive(.downloadAttachment(attachment))
+
+        waitFor(attachmentPreviewHelper.showPreviewCalled)
+        let handleNavigateToPremiumUpgrade = try XCTUnwrap(
+            attachmentPreviewHelper.showPreviewReceivedArguments?.handleNavigateToPremiumUpgrade,
+        )
+
+        Task { await handleNavigateToPremiumUpgrade() }
+
+        waitFor(premiumUpgradeHelper.navigateToPremiumUpgradeCalled)
+    }
+
     /// `receive` with `.editPressed` has no change when the state is loading.
     @MainActor
     func test_receive_editPressed_loading() {
