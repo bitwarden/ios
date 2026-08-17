@@ -59,6 +59,12 @@ class VaultItemCoordinator: NSObject, Coordinator, HasStackNavigator { // swiftl
     /// The stack navigator that is managed by this coordinator.
     private(set) weak var stackNavigator: StackNavigator?
 
+    /// The helper used to download and preview an attachment.
+    private lazy var attachmentPreviewHelper = DefaultAttachmentPreviewHelper(
+        coordinator: asAnyCoordinator(),
+        services: services,
+    )
+
     /// The helper to use to execute vault item actions centralized.
     private lazy var vaultItemActionHelper = DefaultVaultItemActionHelper(
         coordinator: asAnyCoordinator(),
@@ -116,6 +122,8 @@ class VaultItemCoordinator: NSObject, Coordinator, HasStackNavigator { // swiftl
             )
         case let .attachments(cipher):
             showAttachments(for: cipher)
+        case let .attachmentPreview(state):
+            showAttachmentPreview(state: state)
         case let .cloneItem(cipher, hasPremium):
             showCloneItem(for: cipher, delegate: context as? CipherItemOperationDelegate, hasPremium: hasPremium)
         case let .dismiss(onDismiss):
@@ -229,6 +237,19 @@ class VaultItemCoordinator: NSObject, Coordinator, HasStackNavigator { // swiftl
         let store = Store(processor: processor)
         let view = AddEditItemView(store: store)
         stackNavigator?.replace(view)
+    }
+
+    /// Shows the attachment preview screen.
+    ///
+    /// - Parameter state: The initial state of the attachment preview screen.
+    ///
+    private func showAttachmentPreview(state: AttachmentPreviewState) {
+        let processor = AttachmentPreviewProcessor(
+            coordinator: asAnyCoordinator(),
+            services: services,
+            state: state,
+        )
+        stackNavigator?.present(AttachmentPreviewView(store: Store(processor: processor)), overFullscreen: true)
     }
 
     /// Shows the attachments screen.
@@ -479,6 +500,7 @@ class VaultItemCoordinator: NSObject, Coordinator, HasStackNavigator { // swiftl
     ///
     private func showViewItem(id: String, delegate: CipherItemOperationDelegate?) {
         let processor = ViewItemProcessor(
+            attachmentPreviewHelper: attachmentPreviewHelper,
             coordinator: asAnyCoordinator(),
             delegate: delegate,
             itemId: id,
