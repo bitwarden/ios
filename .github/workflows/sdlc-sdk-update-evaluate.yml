@@ -1,0 +1,249 @@
+name: SDLC / SDK Update Evaluation
+
+on:
+  pull_request:
+    types: [opened, synchronize]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+permissions: {}
+
+env:
+  MINT_LINK_PATH: .mint/bin # used by mint in bootstrap.sh
+  MINT_PATH: .mint/lib # used by mint in bootstrap.sh
+
+jobs:
+  evaluate:
+    name: Evaluate SDK Update
+    runs-on: macos-26-xlarge
+    # Higher than test.yml's 50 to allow for the agent's extra build and test passes, but bounded:
+    # the 360-minute default would let a looping agent burn six hours of xlarge time per synchronize.
+    timeout-minutes: 90
+    # The repository check is redundant while `pull_request` withholds secrets from forks — the Azure
+    # login would fail before any PR-controlled code ran — but it states the guarantee here rather
+    # than resting it on that policy.
+    if: ${{ github.event.pull_request.head.ref == 'sdlc/sdk-update' && github.event.pull_request.head.repo.full_name == github.repository }}
+    permissions:
+      id-token: write # Azure OIDC login
+      actions: read # claude-code-action track_progress
+      contents: write # push a resolved fix
+      pull-requests: write # sticky comment
+
+    steps:
+      - name: Skip if this bump was already evaluated
+        id: gate
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          REPO: ${{ github.repository }}
+        run: |
+          LATEST_SUBJECT=$(gh pr view "$PR_NUMBER" -R "$REPO" --json commits --jq '.commits[-1].messageHeadline')
+          if [[ "$LATEST_SUBJECT" != "SDK Update - "* ]]; then
+            echo "Branch tip is not a fresh SDK version bump ('$LATEST_SUBJECT') — already evaluated, skipping."
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "skip=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Log in to Azure
+        if: steps.gate.outputs.skip == 'false'
+        uses: bitwarden/gh-actions/azure-login@main
+        with:
+          subscription_id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          tenant_id: ${{ secrets.AZURE_TENANT_ID }}
+          client_id: ${{ secrets.AZURE_CLIENT_ID }}
+
+      - name: Get Azure Key Vault secrets
+        id: get-kv-secrets
+        if: steps.gate.outputs.skip == 'false'
+        uses: bitwarden/gh-actions/get-keyvault-secrets@main
+        with:
+          keyvault: gh-org-bitwarden
+          secrets: "ANTHROPIC-RESPONSE-API-KEY,BW-GHAPP-ID,BW-GHAPP-KEY"
+
+      - name: Log out from Azure
+        if: steps.gate.outputs.skip == 'false'
+        uses: bitwarden/gh-actions/azure-logout@main
+
+      - name: Generate GH App token
+        if: steps.gate.outputs.skip == 'false'
+        uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3.2.0
+        id: app-token
+        with:
+          client-id: ${{ steps.get-kv-secrets.outputs.BW-GHAPP-ID }}
+          private-key: ${{ steps.get-kv-secrets.outputs.BW-GHAPP-KEY }}
+          permission-contents: write
+          permission-pull-requests: write
+
+      - name: Check out repo
+        if: steps.gate.outputs.skip == 'false'
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+        with:
+          token: ${{ steps.app-token.outputs.token }}
+          ref: ${{ github.event.pull_request.head.sha }}
+          fetch-depth: 0
+          # Must stay false. Persisting would write the App token into .git/config as an
+          # http.extraheader, where the agent's `Bash(grep:*)` grant can read it — the
+          # `Read(**/.git/**)` deny below is scoped to the Read tool and does not constrain Bash.
+          # The agent already receives this token deliberately via claude-code-action's
+          # `github_token`, so an on-disk second copy adds exposure and no capability. The push step
+          # supplies credentials for itself.
+          persist-credentials: false
+
+      # SDK releases land on `unstable`, so that is where every pinned revision lives. `main` is
+      # months stale. The clone is full because the evaluation diffs the files of two revisions that
+      # can be weeks apart, which `--depth` or a blobless filter would not have on hand.
+      - name: Clone sdk-swift
+        if: steps.gate.outputs.skip == 'false'
+        run: git clone --quiet --branch unstable https://github.com/bitwarden/sdk-swift "${{ github.workspace }}/../sdk-swift"
+
+      # Blobless: only needed to inspect uniffi.toml and Rust-level behavior for specific commits.
+      - name: Clone sdk-internal
+        if: steps.gate.outputs.skip == 'false'
+        run: git clone --quiet --filter=blob:none https://github.com/bitwarden/sdk-internal "${{ github.workspace }}/../sdk-internal"
+
+      # Everything from here to "Run Claude Code" mirrors test.yml's setup, so the compile the skill
+      # performs is the same compile that gates the merge.
+      - name: Optimize macOS Runner
+        if: steps.gate.outputs.skip == 'false'
+        uses: ./.github/actions/macos-runner-tuneup
+
+      - name: Read Xcode version and simulator configuration from file
+        if: steps.gate.outputs.skip == 'false'
+        run: |
+          {
+            echo "_XCODE_VERSION=$(tr -d '\n' < .xcode-version)"
+            echo "_SIMULATOR_NAME=$(tr -d '\n' < .test-simulator-device-name)"
+            echo "_SIMULATOR_VERSION=$(tr -d '\n' < .test-simulator-ios-version)"
+          } >> "$GITHUB_ENV"
+
+      - name: Set Xcode version
+        if: steps.gate.outputs.skip == 'false'
+        uses: maxim-lobanov/setup-xcode@ed7a3b1fda3918c0306d1b724322adc0b8cc0a90 # v1.7.0
+        with:
+          xcode-version: ${{ env._XCODE_VERSION }}
+
+      - name: Configure Ruby
+        if: steps.gate.outputs.skip == 'false'
+        uses: ruby/setup-ruby@12fd324f1d0b43274fdc8130f6980590a667c455 # v1.312.0
+        with:
+          bundler-cache: true
+
+      - name: Restore Mint packages
+        if: steps.gate.outputs.skip == 'false'
+        uses: actions/cache/restore@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
+        with:
+          path: .mint
+          key: ${{ runner.os }}-mint-${{ hashFiles('**/Mintfile') }}
+          restore-keys: |
+            ${{ runner.os }}-mint-
+
+      # The .xcodeproj files are gitignored and generated, so bootstrap.sh must run before any build.
+      # A stale project silently drops source files and reports them as "cannot find X in scope",
+      # which is indistinguishable from a real SDK break.
+      - name: Install Homebrew Dependencies and run bootstrap.sh
+        if: steps.gate.outputs.skip == 'false'
+        run: |
+          brew update
+          brew bundle
+          ./Scripts/bootstrap.sh
+
+      # A concrete simulator, matching test.yml. A generic destination would additionally build the
+      # x86_64 slice, roughly doubling build time for no extra signal.
+      - name: Boot Simulator
+        id: boot-simulator
+        if: steps.gate.outputs.skip == 'false'
+        uses: ./.github/actions/boot-simulator
+        with:
+          simulator-name: ${{ env._SIMULATOR_NAME }}
+          simulator-version: ${{ env._SIMULATOR_VERSION }}
+
+      # test.yml and test-bwa.yml wrap every xcodebuild invocation in pyeetd, which kills the poster
+      # and analytics processes that saturate a booted simulator's CPU and let a test run consume the
+      # entire timeout. The build and test commands here belong to the skill, so they cannot be
+      # wrapped individually, but pyeetd is a polling loop, so one backgrounded copy covers every
+      # pass the agent makes. Its log stays in the runner temp directory to keep the workspace clean
+      # for the uncommitted-changes guard. A background launch reports nothing on failure, hence the
+      # liveness check.
+      - name: Start pyeetd
+        if: steps.gate.outputs.skip == 'false'
+        run: |
+          nohup python Scripts/pyeetd/main.py > "$RUNNER_TEMP/pyeetd.log" 2>&1 &
+          _PYEETD_PID=$!
+          sleep 2
+          if ! kill -0 "$_PYEETD_PID" 2>/dev/null; then
+            echo "::error::pyeetd exited immediately; simulator processes will contend with the agent's builds"
+            cat "$RUNNER_TEMP/pyeetd.log"
+            exit 1
+          fi
+
+      - name: Run Claude Code
+        id: claude
+        if: steps.gate.outputs.skip == 'false'
+        env:
+          _SIMULATOR_ID: ${{ steps.boot-simulator.outputs.simulator-id }}
+        uses: anthropics/claude-code-action@be7b93b1907a4abad570368f3c74b6fe3807510b # v1.0.183
+        with:
+          github_token: ${{ steps.app-token.outputs.token }}
+          anthropic_api_key: ${{ steps.get-kv-secrets.outputs.ANTHROPIC-RESPONSE-API-KEY }}
+          allowed_bots: "bw-ghapp"
+          bot_id: "178206702"
+          bot_name: "bw-ghapp[bot]"
+          track_progress: true
+          use_sticky_comment: true
+          plugin_marketplaces: "https://github.com/bitwarden/ai-plugins.git"
+          plugins: |
+            bitwarden-delivery-tools@bitwarden-marketplace
+          prompt: |
+            PR #${{ github.event.pull_request.number }} in ${{ github.repository }} bumps the Bitwarden SDK. Evaluate it using the `evaluating-sdk-internal-updates` skill and resolve anything within scope that needs resolving, per the skill's own Resolve steps.
+
+            Both prerequisite clones are already provided as sibling directories, satisfying the skill's clone prerequisite — use them directly, do not re-clone. `bitwarden/sdk-swift` is at `${{ github.workspace }}/../sdk-swift` and is the primary source of truth for the binding surface. `bitwarden/sdk-internal` is at `${{ github.workspace }}/../sdk-internal` and is a blobless clone, for the uniffi.toml check and Rust-level behavioral questions only.
+
+            The macOS toolchain is installed and `./Scripts/bootstrap.sh` has already run, so the Xcode projects are generated and you can build immediately — do not run bootstrap.sh or xcodegen again. A simulator is already booted; use `-destination "platform=iOS Simulator,id=$_SIMULATOR_ID"` exactly as the skill's build step shows, and do not boot another.
+
+            Commit any fix on the current branch (already checked out) using `Skill(bitwarden-delivery-tools:committing-changes)` for the message — do not push; the workflow pushes separately.
+
+            When done, update the sticky PR comment with the skill's report, structured as: "## SDK bump evaluated" (old → new revision and version, commit count), "## Compile-time breaks" (found-and-fixed, or "none found"), "## Runtime & serialization considerations" (found-and-fixed, or behavioral notes worth flagging; omit the section if there are none), "## Everything else in range — confirmed safe" (brief, one line per commit or group), and "## Commit" (the SHA, or "no commit — nothing needed fixing"). State explicitly whether the verifying build passed and which test targets were spot-tested. Always post this, even when the conclusion is that nothing needs fixing — the comment is the audit trail that the check ran.
+          claude_args: |
+            --model opus
+            --allowedTools "Bash(xcrun xcodebuild *),Bash(bash .claude/skills/evaluating-sdk-internal-updates/sdk-surface-diff.sh *),Bash(.claude/skills/evaluating-sdk-internal-updates/sdk-surface-diff.sh *),Bash(gh pr diff:*),Bash(gh pr view:*),Bash(git -C * log *),Bash(git -C * show *),Bash(git -C * diff *),Bash(git -C * grep *),Bash(git add:*),Bash(git commit:*),Bash(git log:*),Bash(git show:*),Bash(git diff:*),Bash(git status:*),Bash(git grep:*),Bash(grep:*),Read,Grep,Glob,Edit,Write,Skill,mcp__github_comment__update_claude_comment"
+            --disallowedTools "Read(**/.git/**),Edit(**/.git/**),Write(**/.git/**),Edit(.github/**),Write(.github/**),Edit(.claude/**),Write(.claude/**)"
+
+      - name: Push any resolved fix
+        if: steps.gate.outputs.skip == 'false'
+        env:
+          _BRANCH_NAME: ${{ github.event.pull_request.head.ref }}
+          _TOKEN: ${{ steps.app-token.outputs.token }}
+        run: |
+          # --untracked-files=no is required, not a refinement: earlier steps leave untracked,
+          # non-gitignored directories in the workspace (`vendor/` and `.bundle/` from bundler-cache,
+          # `.mint/` from MINT_PATH), which a bare --porcelain reports as `??` and which would trip
+          # this guard on every run, including ones where a valid fix was committed.
+          if [ -n "$(git status --porcelain --untracked-files=no)" ]; then
+            echo "::error::Claude left uncommitted changes to tracked files; nothing was pushed."
+            git status --porcelain --untracked-files=no
+            exit 1
+          fi
+
+          if git diff --quiet "origin/$_BRANCH_NAME" HEAD; then
+            echo "No new commits to push."
+            exit 0
+          fi
+
+          # Enforce the tool-permission boundary outside the model. A fix may touch SDK call sites
+          # and the version pin; it must never touch CI or agent configuration, which would execute
+          # with secrets on the next synchronize.
+          CHANGED=$(git diff --name-only "origin/$_BRANCH_NAME" HEAD)
+          if echo "$CHANGED" | grep -qE '^(\.github/|\.claude/)'; then
+            echo "::error::Refusing to push: the fix touches CI or agent configuration."
+            echo "$CHANGED"
+            exit 1
+          fi
+
+          # Checkout no longer persists credentials, so authenticate this push only. The header is
+          # passed with `git -c` rather than `git config`, so it is never written to .git/config, and
+          # the token stays out of the remote URL where git echoes it on error.
+          git -c http.extraheader="AUTHORIZATION: basic $(printf '%s' "x-access-token:$_TOKEN" | base64 | tr -d '\n')" \
+            push origin "HEAD:$_BRANCH_NAME"
