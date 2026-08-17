@@ -179,11 +179,58 @@ jobs:
             exit 1
           fi
 
+      # The agent cannot run this build itself: a cold two-scheme build-for-testing takes longer than
+      # the 600-second ceiling Claude Code puts on a Bash call, so its first attempt can only time
+      # out. Running it here also means the compile-break evidence is on disk however far the agent
+      # gets, and leaves build/DerivedData warm so the verify build after a fix is incremental.
+      # `build/` is gitignored, which keeps the log readable by the agent inside the workspace and
+      # invisible to the push guard.
+      - name: Run the baseline build
+        id: baseline-build
+        if: steps.gate.outputs.skip == 'false'
+        env:
+          _SIMULATOR_ID: ${{ steps.boot-simulator.outputs.simulator-id }}
+        run: |
+          _LOG="build/baseline-build.log"
+          mkdir -p build
+          : > "$_LOG"
+
+          # `set +e` covers xcodebuild alone. A compile break is the signal this workflow exists to
+          # surface and must reach the agent, while a toolchain failure must still fail the job.
+          for _SCHEME in Bitwarden Authenticator; do
+            echo "=== $_SCHEME ===" >> "$_LOG"
+            set +e
+            xcrun xcodebuild build-for-testing -workspace Bitwarden.xcworkspace -scheme "$_SCHEME" \
+              -configuration Debug -destination "platform=iOS Simulator,id=$_SIMULATOR_ID" \
+              -derivedDataPath build/DerivedData -parallelizeTargets \
+              -skipPackagePluginValidation -skipMacroValidation -quiet >> "$_LOG" 2>&1
+            echo "=== $_SCHEME exit=$? ===" >> "$_LOG"
+            set -e
+          done
+
+          # The exit markers are the liveness check. Without them an empty log reads exactly like a
+          # clean build, and the agent would report "no compile breaks" for a build that never ran.
+          if [ "$(grep -c '=== .* exit=' "$_LOG")" -ne 2 ]; then
+            echo "::error::The baseline build did not run for both schemes; the agent would read an empty log as 'no compile breaks'."
+            exit 1
+          fi
+
+          # A step output, not a GITHUB_ENV variable: the prompt interpolates the literal path.
+          # `prompt` is not shell-expanded, and the agent's Read tool cannot expand a variable.
+          echo "log=$_LOG" >> "$GITHUB_OUTPUT"
+
       - name: Run Claude Code
         id: claude
         if: steps.gate.outputs.skip == 'false'
         env:
           _SIMULATOR_ID: ${{ steps.boot-simulator.outputs.simulator-id }}
+          # Claude Code defaults to a 120-second Bash timeout with a 600-second ceiling and
+          # claude-code-action sets neither. The agent's remaining builds are incremental against the
+          # baseline step's warm DerivedData, but two schemes plus a test pass still exceed 120s. The
+          # ceiling stays well inside timeout-minutes, so a hung build arrives as a tool error the
+          # agent can report rather than as a killed job.
+          BASH_DEFAULT_TIMEOUT_MS: "600000"
+          BASH_MAX_TIMEOUT_MS: "1800000"
         uses: anthropics/claude-code-action@be7b93b1907a4abad570368f3c74b6fe3807510b # v1.0.183
         with:
           github_token: ${{ steps.app-token.outputs.token }}
@@ -196,16 +243,17 @@ jobs:
           plugin_marketplaces: "https://github.com/bitwarden/ai-plugins.git"
           plugins: |
             bitwarden-delivery-tools@bitwarden-marketplace
+          # Kept free of platform detail. Toolchains, simulators and destinations are the skill's
+          # business, and the skill is per-repo; this text is meant to read identically in every
+          # repository that adopts the workflow.
           prompt: |
             PR #${{ github.event.pull_request.number }} in ${{ github.repository }} bumps the Bitwarden SDK. Evaluate it using the `evaluating-sdk-internal-updates` skill and resolve anything within scope that needs resolving, per the skill's own Resolve steps.
 
-            Both prerequisite clones are already provided as sibling directories, satisfying the skill's clone prerequisite — use them directly, do not re-clone. `bitwarden/sdk-swift` is at `${{ github.workspace }}/../sdk-swift` and is the primary source of truth for the binding surface. `bitwarden/sdk-internal` is at `${{ github.workspace }}/../sdk-internal` and is a blobless clone, for the uniffi.toml check and Rust-level behavioral questions only.
+            The clones the skill requires are already provided as sibling directories; use them directly, do not re-clone. Repo setup has already run, so do not repeat it. A baseline build has already been run for you and its output is at `${{ steps.baseline-build.outputs.log }}`; read it rather than running your own baseline.
 
-            The macOS toolchain is installed and `./Scripts/bootstrap.sh` has already run, so the Xcode projects are generated and you can build immediately — do not run bootstrap.sh or xcodegen again. A simulator is already booted; use `-destination "platform=iOS Simulator,id=$_SIMULATOR_ID"` exactly as the skill's build step shows, and do not boot another.
+            Commit any fix on the current branch (already checked out) using `Skill(bitwarden-delivery-tools:committing-changes)` for the message. Do not push; the workflow pushes separately.
 
-            Commit any fix on the current branch (already checked out) using `Skill(bitwarden-delivery-tools:committing-changes)` for the message — do not push; the workflow pushes separately.
-
-            When done, update the sticky PR comment with the skill's report, structured as: "## SDK bump evaluated" (old → new revision and version, commit count), "## Compile-time breaks" (found-and-fixed, or "none found"), "## Runtime & serialization considerations" (found-and-fixed, or behavioral notes worth flagging; omit the section if there are none), "## Everything else in range — confirmed safe" (brief, one line per commit or group), and "## Commit" (the SHA, or "no commit — nothing needed fixing"). State explicitly whether the verifying build passed and which test targets were spot-tested. Always post this, even when the conclusion is that nothing needs fixing — the comment is the audit trail that the check ran.
+            When done, replace the sticky PR comment with the skill's report, structured as: "## SDK bump evaluated" (old → new revision and version, commit count), "## Compile-time breaks" (found-and-fixed, or "none found"), "## Runtime considerations" (behavioral or serialization notes worth flagging; omit the section if there are none), "## Everything else in range — confirmed safe" (brief, one line per commit or group), and "## Commit" (the SHA, or "no commit — nothing needed fixing"). State whether the verifying build passed. Always post this, even when the conclusion is that nothing needs fixing — the comment is the audit trail that the check ran.
           claude_args: |
             --model opus
             --allowedTools "Bash(xcrun xcodebuild *),Bash(bash .claude/skills/evaluating-sdk-internal-updates/sdk-surface-diff.sh *),Bash(.claude/skills/evaluating-sdk-internal-updates/sdk-surface-diff.sh *),Bash(gh pr diff:*),Bash(gh pr view:*),Bash(git -C * log *),Bash(git -C * show *),Bash(git -C * diff *),Bash(git -C * grep *),Bash(git add:*),Bash(git commit:*),Bash(git log:*),Bash(git show:*),Bash(git diff:*),Bash(git status:*),Bash(git grep:*),Bash(grep:*),Read,Grep,Glob,Edit,Write,Skill,mcp__github_comment__update_claude_comment"
@@ -247,3 +295,24 @@ jobs:
           # the token stays out of the remote URL where git echoes it on error.
           git -c http.extraheader="AUTHORIZATION: basic $(printf '%s' "x-access-token:$_TOKEN" | base64 | tr -d '\n')" \
             push origin "HEAD:$_BRANCH_NAME"
+
+      # Runs after the push so a commit SHA the report cites is real, and on !cancelled() so a failed
+      # push still produces a report. Everything the script needs arrives by environment variable, so
+      # the step is the input surface the shared action will inherit.
+      - name: Report the evaluation outcome
+        if: ${{ !cancelled() && steps.gate.outputs.skip == 'false' }}
+        env:
+          EXECUTION_FILE: ${{ steps.claude.outputs.execution_file }}
+          COMMENT_ID: ${{ steps.claude.outputs.claude_comment_id }}
+          REPO: ${{ github.repository }}
+          JOB_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+          # `## Runtime considerations` is omittable, so it is not required. Checking for the
+          # deliverable's sections is a positive test; keying on the spinner or an unchecked box
+          # would fire on a box the agent left unchecked on purpose.
+          REQUIRED_HEADINGS: |
+            ## SDK bump evaluated
+            ## Compile-time breaks
+            ## Everything else in range — confirmed safe
+            ## Commit
+        run: .github/scripts/report-agent-outcome.sh
