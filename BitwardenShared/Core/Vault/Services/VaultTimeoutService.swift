@@ -152,15 +152,9 @@ class DefaultVaultTimeoutService: VaultTimeoutService {
     private let stateService: StateService
 
     /// Provides the current time.
-    ///
-    /// Not `private` because it's also used by the `hasPassedSessionTimeout`/`timeUntilSessionTimeout`
-    /// extension in `DefaultVaultTimeoutService+SessionTimeout.swift`, split out to keep this file
-    /// under the file length limit.
     let timeProvider: TimeProvider
 
     /// A service that provides state management functionality around user session values.
-    ///
-    /// Not `private` for the same reason as `timeProvider` above.
     let userSessionStateService: UserSessionStateService
 
     /// A subject containing the user's vault locked status mapped to their user ID.
