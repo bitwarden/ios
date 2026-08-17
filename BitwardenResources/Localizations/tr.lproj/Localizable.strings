@@ -39,6 +39,8 @@
 "RemoveAccount" = "Hesabı kaldır";
 "RemoveAccountConfirmation" = "Bu hesabı kaldırmak istediğinizden emin misiniz?";
 "AccountAlreadyAdded" = "Hesap zaten eklenmiş";
+"AccountCreationRestricted" = "Account creation restricted";
+"XOnlyAllowsInvitedUsersToCreateAccounts" = "%1$@ only allows invited users to create accounts.";
 "SwitchToAlreadyAddedAccountConfirmation" = "Bu hesaba geçmek ister misiniz?";
 "MasterPassword" = "Ana parola";
 "MoreOptions" = "Diğer seçenekler";
@@ -49,6 +51,7 @@
 "OK" = "Tamam";
 "Password" = "Parola";
 "Save" = "Kaydet";
+/* Action to move a vault item to another vault; used as a button label, menu item, and screen title. */
 "Move" = "Taşı";
 "Saving" = "Kaydediliyor…";
 "Settings" = "Ayarlar";
@@ -256,8 +259,14 @@
 "ShowWebsiteIconsDescription" = "Hesapların yanında tanıdık görseller göster.";
 "IconsUrl" = "Simge sunucusu URL'si";
 "AutofillWithBitwarden" = "Bitwarden ile otomatik doldur";
+/* Section header and screen title for viewing/managing a cipher's collections. */
 "Collections" = "Koleksiyonlar";
+/* Section header and screen title for viewing/managing a cipher's shared folders. */
+"SharedFolders" = "Paylaşılan klasörler";
+/* Empty state message shown when a collection has no items. */
 "NoItemsCollection" = "Bu koleksiyonda hiç kayıt yok";
+/* Empty state message shown when a shared folder has no items. */
+"ThereAreNoItemsInThisSharedFolder" = "Bu paylaşılan klasörde hiç kayıt yok";
 "NoItemsFolder" = "Bu klasörde hiç kayıt yok";
 "NoItemsTrash" = "Çöp kutusunda hiç kayıt yok.";
 "FaceID" = "Face ID";
@@ -277,6 +286,7 @@
 "RegEx" = "Düzenli ifade";
 "StartsWith" = "URI başlangıcı";
 "MatchDetection" = "Eşleşme tespiti";
+/* Field label on the Move screen shown when the "vfo1-foundation" feature flag is disabled; superseded by "Vault" when enabled. */
 "Organization" = "Kuruluş";
 "HoldYubikeyNearTop" = "Yubikey'inizi cihazınızın üzerine doğru tutun.";
 "TryAgain" = "Yeniden dene";
@@ -312,13 +322,26 @@
 "NoItemsToList" = "Listelenecek kayıt yok.";
 "MoveDown" = "Aşağı taşı";
 "MoveUp" = "Yukarı taşı";
+/* Empty state message on the Collections screen shown when a user has no collections. */
 "NoCollectionsToList" = "Listelenecek koleksiyon yok.";
+/* Empty state message on the Shared folders screen shown when a user has no shared folders. */
+"ThereAreNoSharedFoldersToList" = "There are no shared folders to list.";
 "MovedItemToOrg" = "%1$@, %2$@ kuruluşuna taşındı.";
+/* Alert message shown when saving an item with no collection selected. */
 "SelectOneCollection" = "En az bir koleksiyon seçmelisiniz.";
+/* Alert message shown when saving an item with no shared folder selected. */
+"YouMustSelectAtLeastOneSharedFolder" = "You must select at least one shared folder.";
 "Share" = "Paylaş";
 "ShareAll" = "Tümünü paylaş";
+/* Overflow menu item and screen title on the Move screen shown when the "vfo1-foundation" feature flag is disabled; superseded by "Move" when enabled. */
 "MoveToOrganization" = "Kuruluşa taşı";
+/* Empty state message shown when a user has no vaults available to move an item into, when the "vfo1-foundation" feature flag is enabled. */
+"NoVaultsToList" = "No vaults to list.";
+/* Empty state message shown when a user has no organizations available to move an item into, when the "vfo1-foundation" feature flag is disabled. */
 "NoOrgsToList" = "Listelenecek kuruluş yok.";
+/* Footer text on the Move screen explaining that moving an item transfers its ownership to the destination vault's organization, when the "vfo1-foundation" feature flag is enabled. */
+"ChooseAVaultThatYouWishToMoveThisItemToDescriptionLong" = "Choose a vault that you wish to move this item to. Moving to another vault transfers ownership of the item to that organization. You will no longer be the direct owner of this item once it has been moved.";
+/* Footer text on the Move screen explaining that moving an item transfers its ownership to the destination organization, when the "vfo1-foundation" feature flag is disabled. */
 "MoveToOrgDesc" = "Bu kaydı taşımak istediğiniz kuruluşu seçin. Taşıdığınız kaydın sahipliği seçtiğiniz kuruluşa aktarılacak. Artık bu kaydın doğrudan sahibi olmayacaksınız.";
 "NumberOfWords" = "Kelime sayısı";
 "Passphrase" = "Parola cümlesi";
@@ -563,6 +586,7 @@
 "ThereAreNoBankAccountsInYourVault" = "Kasanızda hiç banka hesabı yok";
 "US" = "ABD";
 "EU" = "AB";
+"Gov" = "Gov";
 "SelfHosted" = "Barındırılan";
 "UpdateWeakMasterPasswordWarning" = "Ana parolanız kuruluş ilkelerinizi karşılamıyor. Kasanıza erişmek için ana parolanızı güncellemelisiniz. Devam ettiğinizde oturumunuz kapanacak ve yeniden oturum açmanız gerekecektir. Diğer cihazlardaki aktif oturumlar bir saate kadar aktif kalabilir.";
 "CurrentMasterPasswordRequired" = "Mevcut ana parola (gerekli)";
@@ -571,6 +595,8 @@
 "RequestAdminApproval" = "Yönetici onayı iste";
 "ApproveWithMasterPassword" = "Ana parola ile onayla";
 "TurnOffUsingPublicDevice" = "Paylaşılan bir cihaz kullanıyorsanız işaretlemeyin";
+"TurnOnFillAssist" = "Doldurma yardımcısını etkinleştir";
+"TurnOnFillAssistDescriptionLong" = "Doldurma yardımcısı, desteklenen sitelere özel kurallarla otomatik doldurma netliğini artırır.";
 "RememberThisDevice" = "Bu cihazı hatırla";
 "Passkey" = "Geçiş anahtarı";
 "Passkeys" = "Geçiş anahtarları";
@@ -584,6 +610,7 @@
 "LoginApproved" = "Giriş onaylandı";
 "LogInWithDevice" = "Cihazla giriş yap";
 "LoggingInOn" = "Giriş yapılan konum";
+/* The word "Vault", used generically as a field label, screen title, and app-wide term for a user's or organization's item collection. */
 "Vault" = "Kasa";
 "Appearance" = "Görünüm";
 "AccountSecurity" = "Hesap güvenliği";
@@ -865,7 +892,11 @@
 "ShowLess" = "Daha az göster";
 "ItemNameX" = "Kayıt adı, %1$@";
 "OwnerX" = "Sahip, %1$@";
+"VaultX" = "Kasa, %1$@";
+/* VoiceOver accessibility label for a collection the item belongs to. */
 "CollectionX" = "Koleksiyon, %1$@";
+/* VoiceOver accessibility label for a shared folder the item belongs to. */
+"SharedFolderX" = "Shared folder, %1$@";
 "FolderX" = "Klasör, %1$@";
 "ItemXOfY" = "Kayıt %1$@/%2$@";
 "ViewRecordedLogs" = "Kaydedilen günlükleri görüntüle";
@@ -1097,12 +1128,37 @@
 "YourSubscriptionExpiredOnXDescriptionLong" = "Aboneliğiniz **%1$@** tarihinde bitti. Aboneliğinizi yenileyerek Premium özellikleri kullanmaya devam edebilirsiniz.";
 "YourSubscriptionIsScheduledToCancelOnXDescriptionLong" = "Aboneliğinin %1$@ tarihinde iptal edilmesi planlanıyor. Bu tarihten önce istediğin zaman yeniden etkinleştirebilirsin.";
 "PerMonth" = "/ ay";
+/* VoiceOver reading of "PerMonth", spoken instead of shown. */
+"PerMonthVoiceOver" = "aylık";
 "PerYear" = "/ yıl";
+/* VoiceOver reading of "PerYear", spoken instead of shown. */
+"PerYearVoiceOver" = "yıllık";
 "XAmountPerCadence" = "%1$@ %2$@";
+/* %1$@ is an amount and cadence together, e.g. "$1.65 / month". */
+"XCancelAnytime" = "%1$@ · Cancel anytime";
+/* VoiceOver reading of "XCancelAnytime", spoken instead of shown. */
+"XCancelAnytimeVoiceOver" = "%1$@, Cancel anytime";
 "NegativeX" = "-%1$@";
 "UnknownStatus" = "Bilinmiyor";
 "YourSubscriptionStatusIsUnknownVisitTheWebAppDescriptionLong" = "Abonelik durumun belirlenemiyor. Lütfen uygulamanın web sayfasına giderek daha fazla bilgiye ulaşabilirsiniz ya da uygulamayı en son sürüme güncelleyebilirsiniz.";
-"UnlockMoreAdvancedFeaturesWithPremiumPlan" = "Premium plan ile daha fazla gelişmiş özellikleri aç.";
+/* Headline on the Premium upgrade screen. */
+"UnlockAdvancedProtection" = "Unlock advanced protection";
+/* Premium benefit list item. */
+"BreezeThrough2faWithBuiltInCodes" = "Breeze through 2FA with built-in codes";
+/* Premium benefit list item. */
+"RunReportsToFindRiskyPasswords" = "Run reports to find risky passwords";
+/* Premium benefit list item. */
+"KeepDocumentsSafeAndEncrypted" = "Keep documents safe and encrypted";
+/* Premium benefit list item. */
+"AddATrustedEmergencyContact" = "Add a trusted emergency contact";
+/* Premium benefit list item. */
+"IdentifyUnsecureWebsites" = "Identify unsecure websites";
+/* Premium benefit list item. */
+"FlagAccountsWithInactive2fa" = "Flag accounts with inactive 2FA";
+/* Premium benefit list item; "Send" is the Bitwarden Send feature name and shouldn't be translated. */
+"ShareFilesSecurelyWithAnyoneUsingSend" = "Share files securely with anyone using Send";
+/* Premium benefit list item. */
+"Receive247PrioritySupport" = "Receive 24/7 priority support";
 "BuiltInAuthenticator" = "Dahili kimlik doğrulayıcı";
 "EmergencyAccess" = "Acil durum erişimi";
 "PaymentNotReceivedYet" = "Ödeme henüz alınmadı";
@@ -1111,7 +1167,6 @@
 "WeHadTroubleOpeningThePaymentPageDescriptionLong" = "Ödeme sayfasını açarken bir sorunla karşılaştık, tekrardan deneyin.";
 "SecureFileStorage" = "Güvenli dosya depolama";
 "BreachMonitoring" = "İhlal izleme";
-"UpgradeNow" = "Şimdi yükselt";
 "ConfirmingYourUpgrade" = "Geliştirmen onaylanıyor…";
 "OpeningCheckout" = "Ödeme açılıyor...";
 "UpgradePending" = "Yükseltme beklemede";
@@ -1122,7 +1177,8 @@
 "ViewPlan" = "Paketi göster";
 "YouNowHaveAccessToAdvancedSecurityDescriptionLong" = "Artık tüm gelişmiş güvenlik özelliklerine ulaşabilirsiniz. Premium pakete nelerin dahil olduğunu öğrenin.";
 "YouNowHaveAccessToAllAdvancedSecurityFeatures" = "Artık tüm gelişmiş güvenlik özelliklerine ulaşabilirsiniz.";
-"YoullGoToStripeSecureCheckoutToCompleteYourPurchase" = "Ödemeni tamamlamak için Stripe'ın güvenli ödeme sayfasına yönlendiriliceksin.";
+/* Footer on the Premium upgrade screen; "Stripe" is the payment processor's name and shouldn't be translated. */
+"YoullCompleteThePurchaseWithStripeSecureCheckout" = "You'll complete the purchase with Stripe secure checkout.";
 "ContinueToStripe" = "Stripe'a devam edilsin mi?";
 "YoullBeTakenToStripeToManageYourSubscriptionCancellation" = "Abonelik iptalini yönetmek için Stripe'a yönlendiriliceksin";
 "UserIDCopiedToTheClipboard" = "Kullanıcı kimliği panoya kopyalandı";
@@ -1171,4 +1227,29 @@
 "LineOfCredit" = "Kredi limiti";
 "MoneyMarket" = "Para piyasası";
 "Savings" = "Mevduat";
+"Devices" = "Cihazlar";
+"NoDevicesFound" = "Cihaz bulunamadı";
+"CurrentSession" = "Geçerli oturum";
+"PendingRequest" = "Bekleyen istek";
+"Trusted" = "Güvenilen";
+"RecentlyActiveLabel" = "Yakın zamanda aktif:";
+"FirstLoginLabel" = "İlk giriş:";
+"Today" = "Bugün";
+"PastSevenDays" = "Son 7 gün";
+"PastFourteenDays" = "Son 14 gün";
+"PastThirtyDays" = "Son 30 gün";
+"OverThirtyDaysAgo" = "30 günden önce";
+"Unknown" = "Bilinmiyor";
+/* Device display name. %1$@ = category (e.g. "Mobile"), %2$@ = platform (e.g. "iOS"). */
+"DeviceDisplayNameXHyphenY" = "%1$@ - %2$@";
+"Mobile" = "Mobil";
+"BrowserExtension" = "Tarayıcı uzantısı";
+"WebVault2" = "Web kasası";
+"Desktop" = "Masaüstü";
+"Cli" = "CLI";
+"Sdk" = "SDK";
+"Server" = "Sunucu";
+/* Accessibility label for the button that clears a field's value. %1$@ is the field's title (e.g. "Date of birth"), so the spoken label reads "Clear Date of birth". */
+"ClearFieldName" = "%1$@ alanını temizle";
+"SelectDate" = "Tarih seçin";
 "PremiumRequiredTOTPDescriptionLong" = "Kimlik doğrulama anahtarı (TOTP) premium bir özelliktir. Mevcut paketiniz bu özelliği içermiyor.";

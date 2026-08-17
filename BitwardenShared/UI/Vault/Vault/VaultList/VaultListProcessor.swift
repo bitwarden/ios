@@ -23,6 +23,7 @@ final class VaultListProcessor: StateProcessor<
         & HasBillingRepository
         & HasBillingService
         & HasChangeKdfService
+        & HasConfigService
         & HasEnvironmentService
         & HasErrorReporter
         & HasEventService
@@ -116,8 +117,8 @@ final class VaultListProcessor: StateProcessor<
             await dismissFlightRecorderToastBanner()
         case .dismissImportLoginsActionCard:
             await setImportLoginsProgress(.setUpLater)
-        case .dismissOrganizationBanner:
-            await dismissOrganizationBanner()
+        case let .dismissOrganizationBanner(fromActionButton):
+            await dismissOrganizationBanner(fromActionButton: fromActionButton)
         case .dismissPremiumUpgradeActionCard:
             await dismissPremiumUpgradeActionCard()
         case .dismissUpgradedToPremiumActionCard:
@@ -234,6 +235,7 @@ extension VaultListProcessor {
 
     /// Called when the vault list appears on screen.
     private func appeared() async {
+        state.isVfo1FoundationFeatureFlagEnabled = await services.configService.getFeatureFlag(.vfo1Foundation)
         await refreshVault(syncWithPeriodicCheck: true)
         // Read after sync so the cache has been refreshed by onFetchSyncSucceeded if a sync ran.
         await refreshPremiumActionCards()
@@ -328,11 +330,30 @@ extension VaultListProcessor {
         await services.flightRecorder.setFlightRecorderBannerDismissed()
     }
 
-    /// Dismisses the organization user notification banner.
+    /// Dismisses the organization user notification banner and persists the decision so it isn't
+    /// shown again until the policy is updated or the dismissal is reset on login.
     ///
-    private func dismissOrganizationBanner() async {
-        // TODO: PM-33861 Persist banner dismissal data
+    /// - Parameter fromActionButton: Whether the dismissal came from tapping the banner's action
+    ///   button rather than the dismiss button.
+    ///
+    private func dismissOrganizationBanner(fromActionButton: Bool) async {
+        guard let data = state.organizationUserNotificationBannerData else { return }
         state.organizationUserNotificationBannerData = nil
+        if fromActionButton {
+            await services.eventService.collect(
+                eventType: .organizationUserNotificationBannerActionClicked,
+                organizationId: data.organizationId,
+            )
+        }
+        let dismissal = OrganizationUserNotificationBannerDismissal(
+            revisionDate: data.revisionDate,
+            showAfterEveryLogin: data.showAfterEveryLogin,
+        )
+        do {
+            try await services.stateService.setOrganizationUserNotificationBannerDismissal(dismissal)
+        } catch {
+            services.errorReporter.log(error: error)
+        }
     }
 
     /// Dismisses the Premium upgrade action card and persists the banner-dismissed preference.
@@ -401,10 +422,26 @@ extension VaultListProcessor {
         }
     }
 
-    /// Loads the organization user notification banner data.
+    /// Loads the organization user notification banner data, suppressing it when the user has already dismissed
+    /// the banner for the current policy revision.
     private func loadOrganizationUserNotificationBannerData() async {
-        state.organizationUserNotificationBannerData = await services.policyService
-            .getOrganizationUserNotificationBannerData()
+        guard let data = await services.policyService.getOrganizationUserNotificationBannerData() else {
+            state.organizationUserNotificationBannerData = nil
+            return
+        }
+
+        do {
+            let dismissal = try await services.stateService.getOrganizationUserNotificationBannerDismissal()
+            if let dismissal, dismissal.revisionDate == data.revisionDate {
+                state.organizationUserNotificationBannerData = nil
+            } else {
+                state.organizationUserNotificationBannerData = data
+            }
+        } catch {
+            // If the dismissal state can't be read, default to showing the banner.
+            services.errorReporter.log(error: error)
+            state.organizationUserNotificationBannerData = data
+        }
     }
 
     /// Navigates to the view item view for the specified cipher. If the cipher requires master
@@ -436,7 +473,10 @@ extension VaultListProcessor {
             await services.billingService.shouldShowUpgradedToPremiumActionCard()
 
         let isBannerDismissed = await services.stateService.isPremiumUpgradeBannerDismissed()
-        guard !isBannerDismissed, !state.shouldShowSubscriptionAttentionCard else {
+        guard !isBannerDismissed,
+              !state.shouldShowSubscriptionAttentionCard,
+              await !services.billingService.isSelfHosted()
+        else {
             state.shouldShowPremiumUpgradeActionCard = false
             return
         }

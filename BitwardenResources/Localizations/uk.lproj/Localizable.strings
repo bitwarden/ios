@@ -39,6 +39,8 @@
 "RemoveAccount" = "Вилучити обліковий запис";
 "RemoveAccountConfirmation" = "Ви дійсно хочете вилучити цей обліковий запис?";
 "AccountAlreadyAdded" = "Обліковий запис вже додано";
+"AccountCreationRestricted" = "Account creation restricted";
+"XOnlyAllowsInvitedUsersToCreateAccounts" = "%1$@ only allows invited users to create accounts.";
 "SwitchToAlreadyAddedAccountConfirmation" = "Бажаєте перемкнутися на нього зараз?";
 "MasterPassword" = "Головний пароль";
 "MoreOptions" = "Інші варіанти";
@@ -49,6 +51,7 @@
 "OK" = "OK";
 "Password" = "Пароль";
 "Save" = "Зберегти";
+/* Action to move a vault item to another vault; used as a button label, menu item, and screen title. */
 "Move" = "Перемістити";
 "Saving" = "Збереження…";
 "Settings" = "Налаштування";
@@ -198,18 +201,18 @@
 "CustomFields" = "Власні поля";
 "CopyNumber" = "Копіювати номер";
 "CopySecurityCode" = "Копіювати код безпеки";
-"CopyAccountNumber" = "Copy account number";
-"CopyRoutingNumber" = "Copy routing number";
+"CopyAccountNumber" = "Копіювати номер рахунку";
+"CopyRoutingNumber" = "Копіювати номер відстеження";
 "Number" = "Номер";
 "SecurityCode" = "Код безпеки";
-"AccountNumber" = "Account number";
-"RoutingNumber" = "Routing number";
-"TypeBankAccount" = "Bank account";
+"AccountNumber" = "Номер рахунку";
+"RoutingNumber" = "Номер відстеження";
+"TypeBankAccount" = "Банківський рахунок";
 "TypeCard" = "Картка";
 "TypeIdentity" = "Посвідчення";
-"TypeLicense" = "License";
+"TypeLicense" = "Ліцензія";
 "TypeLogin" = "Вхід";
-"TypePassport" = "Passport";
+"TypePassport" = "Паспорт";
 "TypeSecureNote" = "Захищена нотатка";
 "Address1" = "Адреса 1";
 "Address2" = "Адреса 2";
@@ -256,8 +259,14 @@
 "ShowWebsiteIconsDescription" = "Показувати впізнаване зображення біля кожного запису.";
 "IconsUrl" = "URL-адреса сервера піктограм";
 "AutofillWithBitwarden" = "Автозаповнення з Bitwarden";
+/* Section header and screen title for viewing/managing a cipher's collections. */
 "Collections" = "Збірки";
+/* Section header and screen title for viewing/managing a cipher's shared folders. */
+"SharedFolders" = "Shared folders";
+/* Empty state message shown when a collection has no items. */
 "NoItemsCollection" = "У цій збірці немає записів";
+/* Empty state message shown when a shared folder has no items. */
+"ThereAreNoItemsInThisSharedFolder" = "There are no items in this shared folder";
 "NoItemsFolder" = "У цій теці немає записів";
 "NoItemsTrash" = "У смітнику немає записів.";
 "FaceID" = "Face ID";
@@ -277,6 +286,7 @@
 "RegEx" = "Регулярний вираз";
 "StartsWith" = "Починається з";
 "MatchDetection" = "Виявлення збігів";
+/* Field label on the Move screen shown when the "vfo1-foundation" feature flag is disabled; superseded by "Vault" when enabled. */
 "Organization" = "Організація";
 "HoldYubikeyNearTop" = "Утримуйте Yubikey біля верхньої частини пристрою.";
 "TryAgain" = "Спробуйте знову";
@@ -312,13 +322,26 @@
 "NoItemsToList" = "Немає записів.";
 "MoveDown" = "Перемістити вниз";
 "MoveUp" = "Перемістити вгору";
+/* Empty state message on the Collections screen shown when a user has no collections. */
 "NoCollectionsToList" = "Немає збірок.";
+/* Empty state message on the Shared folders screen shown when a user has no shared folders. */
+"ThereAreNoSharedFoldersToList" = "There are no shared folders to list.";
 "MovedItemToOrg" = "%1$@ переміщено до %2$@.";
+/* Alert message shown when saving an item with no collection selected. */
 "SelectOneCollection" = "Необхідно вибрати принаймні одну збірку.";
+/* Alert message shown when saving an item with no shared folder selected. */
+"YouMustSelectAtLeastOneSharedFolder" = "You must select at least one shared folder.";
 "Share" = "Поділитися";
 "ShareAll" = "Поділитись усім";
+/* Overflow menu item and screen title on the Move screen shown when the "vfo1-foundation" feature flag is disabled; superseded by "Move" when enabled. */
 "MoveToOrganization" = "Перемістити до організації";
+/* Empty state message shown when a user has no vaults available to move an item into, when the "vfo1-foundation" feature flag is enabled. */
+"NoVaultsToList" = "No vaults to list.";
+/* Empty state message shown when a user has no organizations available to move an item into, when the "vfo1-foundation" feature flag is disabled. */
 "NoOrgsToList" = "Немає організацій.";
+/* Footer text on the Move screen explaining that moving an item transfers its ownership to the destination vault's organization, when the "vfo1-foundation" feature flag is enabled. */
+"ChooseAVaultThatYouWishToMoveThisItemToDescriptionLong" = "Choose a vault that you wish to move this item to. Moving to another vault transfers ownership of the item to that organization. You will no longer be the direct owner of this item once it has been moved.";
+/* Footer text on the Move screen explaining that moving an item transfers its ownership to the destination organization, when the "vfo1-foundation" feature flag is disabled. */
 "MoveToOrgDesc" = "Виберіть організацію, до якої ви бажаєте перемістити цей запис. Переміщуючи до організації, власність запису передається тій організації. Ви більше не будете єдиним власником цього запису після переміщення.";
 "NumberOfWords" = "Кількість слів";
 "Passphrase" = "Парольна фраза";
@@ -391,7 +414,7 @@
 "MasterPasswordPolicyValidationTitle" = "Неправильний пароль";
 "MasterPasswordPolicyValidationMessage" = "Пароль не відповідає вимогам організації. Перевірте інформацію про політику і спробуйте знову.";
 "Loading" = "Завантаження";
-"LoadingSubscription" = "Loading subscription…";
+"LoadingSubscription" = "Завантаження передплати…";
 "AcceptPoliciesError" = "Умови користування та політика приватності не погоджені.";
 "PrivacyPolicy" = "Політика приватності";
 "PersonalOwnershipPolicyInEffect" = "Політика організації впливає на ваші параметри власності.";
@@ -422,7 +445,7 @@
 "AboutSend" = "Про відправлення";
 "HideEmail" = "Приховувати мою адресу електронної пошти від отримувачів";
 "SendOptionsPolicyInEffect" = "На параметри відправлень впливають одна чи декілька політик організації.";
-"SendFilePremiumRequired" = "З безплатним обліковим записом можна відправляти лише текст. Щоб відправляти файли через Send, необхідна передплата Premium.";
+"SendFilePremiumRequired" = "З безплатним обліковим записом можна відправляти лише текст. Щоб відправляти файли, необхідна передплата Premium.";
 "SendFileEmailVerificationRequired" = "Для відправлення файлів необхідно підтвердити електронну пошту. Ви можете виконати підтвердження у вебсховищі.";
 "PasswordPrompt" = "Повторний запит головного пароля";
 "PasswordConfirmation" = "Підтвердження головного пароля";
@@ -563,6 +586,7 @@
 "ThereAreNoBankAccountsInYourVault" = "У вашому сховищі немає банківських рахунків";
 "US" = "США";
 "EU" = "ЄС";
+"Gov" = "Gov";
 "SelfHosted" = "Власне розміщення";
 "UpdateWeakMasterPasswordWarning" = "Ваш головний пароль не відповідає одній або більше політикам вашої організації. Щоб отримати доступ до сховища, вам необхідно оновити свій головний пароль зараз. Продовживши, ви вийдете з поточного сеансу, після чого потрібно буде повторно виконати вхід. Сеанси на інших пристроях можуть залишатися активними протягом однієї години.";
 "CurrentMasterPasswordRequired" = "Чинний головний пароль (обов'язково)";
@@ -571,6 +595,8 @@
 "RequestAdminApproval" = "Запит підтвердження адміністратора";
 "ApproveWithMasterPassword" = "Затвердити з головним паролем";
 "TurnOffUsingPublicDevice" = "Вимкнути використання загальнодоступного пристрою";
+"TurnOnFillAssist" = "Turn on fill assist";
+"TurnOnFillAssistDescriptionLong" = "Fill Assist improves autofill accuracy on supported sites by using site-specific rules.";
 "RememberThisDevice" = "Запам'ятати цей пристрій";
 "Passkey" = "Ключ доступу";
 "Passkeys" = "Ключі доступу";
@@ -584,6 +610,7 @@
 "LoginApproved" = "Вхід затверджено";
 "LogInWithDevice" = "Увійти з пристроєм";
 "LoggingInOn" = "Увійти на";
+/* The word "Vault", used generically as a field label, screen title, and app-wide term for a user's or organization's item collection. */
 "Vault" = "Сховище";
 "Appearance" = "Подання";
 "AccountSecurity" = "Безпека облікового запису";
@@ -718,25 +745,25 @@
 "TheVaultProtectsMoreThanJustPasswordsStoreSecureLoginsIdsCardsAndNotesSecurelyHere" = "Сховище захищає не лише ваші паролі. Безпечно зберігайте дані для входу, посвідчення, картки й нотатки.";
 "SendSensitiveInformationSafely" = "Безпечно надсилайте конфіденційну інформацію";
 "ShareFilesAndDataSecurelyWithAnyoneOnAnyPlatformYourInformationWillRemainEndToEndEncrypted" = "Безпечно діліться файлами й даними з ким завгодно, на будь-якій платформі. Ваша інформація наскрізно зашифрована та має обмежений доступ.";
-"AddLogin" = "Add login";
-"AddCard" = "Add card";
-"AddIdentity" = "Add identity";
-"AddNote" = "Add note";
-"AddSSHKey" = "Add SSH key";
-"AddBankAccount" = "Add bank account";
-"AddLicense" = "Add license";
-"AddPassport" = "Add passport";
-"EditBankAccount" = "Edit bank account";
-"EditLicense" = "Edit license";
-"EditPassport" = "Edit passport";
+"AddLogin" = "Додати запис";
+"AddCard" = "Додати картку";
+"AddIdentity" = "Додати посвідчення";
+"AddNote" = "Додати нотатку";
+"AddSSHKey" = "Додати ключ SSH";
+"AddBankAccount" = "Додати банківський рахунок";
+"AddLicense" = "Додати ліцензію";
+"AddPassport" = "Додати паспорт";
+"EditBankAccount" = "Редагувати банківський рахунок";
+"EditLicense" = "Редагувати ліцензію";
+"EditPassport" = "Редагувати паспорт";
 "EditLogin" = "Редагувати запис";
 "EditCard" = "Редагувати картку";
 "EditIdentity" = "Редагувати посвідчення";
 "EditNote" = "Редагувати нотатку";
 "EditSSHKey" = "Редагувати ключ SSH";
-"ViewBankAccount" = "View bank account";
-"ViewLicense" = "View license";
-"ViewPassport" = "View passport";
+"ViewBankAccount" = "Переглянути банківський рахунок";
+"ViewLicense" = "Переглянути ліцензію";
+"ViewPassport" = "Переглянути паспорт";
 "ViewLogin" = "Переглянути запис";
 "ViewCard" = "Переглянути картку";
 "ViewIdentity" = "Переглянути посвідчення";
@@ -769,7 +796,7 @@
 "BitwardenTools" = "Інструменти Bitwarden";
 "ImportSuccessful" = "Успішно імпортовано!";
 "ManageYourLoginsFromAnywhereWithBitwardenToolsForWebAndDesktop" = "Керуйте своїми паролями звідусіль за допомогою вебінструментів та програм Bitwarden.";
-"ManageYourSubscriptionPlanInTheBitwardenWebApp" = "Manage your subscription plan in the Bitwarden web app.";
+"ManageYourSubscriptionPlanInTheBitwardenWebApp" = "Керуйте своїм планом передплати у вебпрограмі Bitwarden.";
 "DownloadTheBrowserExtension" = "Завантажте розширення браузера";
 "GoToBitwardenToIntegrateBitwardenIntoYourFavoriteBrowserForASeamlessExperience" = "Відкрийте bitwarden.com/download, щоб інтегрувати Bitwarden у свій браузер для найкращої продуктивності.";
 "UseTheWebApp" = "Використовуйте вебпрограму";
@@ -865,7 +892,11 @@
 "ShowLess" = "Згорнути";
 "ItemNameX" = "Назва запису, %1$@";
 "OwnerX" = "Власник, %1$@";
+"VaultX" = "Vault, %1$@";
+/* VoiceOver accessibility label for a collection the item belongs to. */
 "CollectionX" = "Збірка, %1$@";
+/* VoiceOver accessibility label for a shared folder the item belongs to. */
+"SharedFolderX" = "Shared folder, %1$@";
 "FolderX" = "Тека, %1$@";
 "ItemXOfY" = "Запис %1$@ з %2$@";
 "ViewRecordedLogs" = "Перегляд записаних подій";
@@ -1077,14 +1108,14 @@
 "Active" = "Активний";
 "Canceled" = "Скасовано";
 "PastDue" = "Протерміновано";
-"PendingCancellation" = "Pending cancellation";
-"Unpaid" = "Unpaid";
+"PendingCancellation" = "Очікується скасування";
+"Unpaid" = "Не сплачено";
 "UpdatePayment" = "Оновити платіж";
 "BillingAmount" = "Сума до сплати";
 "StorageCost" = "Вартість сховища";
 "Discount" = "Знижка";
 "EstimatedTax" = "Приблизний податок";
-"Total" = "Total";
+"Total" = "Всього";
 "ManagePlan" = "Керувати планом";
 "CancelPremium" = "Скасувати Premium";
 "ExternalLink" = "Зовнішнє посилання";
@@ -1097,78 +1128,128 @@
 "YourSubscriptionExpiredOnXDescriptionLong" = "Ваша передплата завершилась **%1$@**. Поновіть передплату, щоб і надалі користуватися функціями Premium.";
 "YourSubscriptionIsScheduledToCancelOnXDescriptionLong" = "Скасування вашої передплати заплановано на **%1$@**. Її можна анулювати будь-коли до цього часу.";
 "PerMonth" = "/ місяць";
+/* VoiceOver reading of "PerMonth", spoken instead of shown. */
+"PerMonthVoiceOver" = "per month";
 "PerYear" = "/ рік";
+/* VoiceOver reading of "PerYear", spoken instead of shown. */
+"PerYearVoiceOver" = "per year";
 "XAmountPerCadence" = "%1$@ %2$@";
+/* %1$@ is an amount and cadence together, e.g. "$1.65 / month". */
+"XCancelAnytime" = "%1$@ · Cancel anytime";
+/* VoiceOver reading of "XCancelAnytime", spoken instead of shown. */
+"XCancelAnytimeVoiceOver" = "%1$@, Cancel anytime";
 "NegativeX" = "-%1$@";
 "UnknownStatus" = "Невідомо";
-"YourSubscriptionStatusIsUnknownVisitTheWebAppDescriptionLong" = "Your subscription status could not be determined. Please visit the web app for more details or update to the latest version.";
-"UnlockMoreAdvancedFeaturesWithPremiumPlan" = "Розблокувати розширені функції з планом Premium.";
+"YourSubscriptionStatusIsUnknownVisitTheWebAppDescriptionLong" = "Неможливо визначити статус вашої передплати. Відвідайте вебверсію для перегляду відомостей або оновіть програму.";
+/* Headline on the Premium upgrade screen. */
+"UnlockAdvancedProtection" = "Розблокуйте розширений захист";
+/* Premium benefit list item. */
+"BreezeThrough2faWithBuiltInCodes" = "Користуйтеся 2FA за допомогою вбудованих кодів";
+/* Premium benefit list item. */
+"RunReportsToFindRiskyPasswords" = "Створюйте звіти для виявлення ризикованих паролів";
+/* Premium benefit list item. */
+"KeepDocumentsSafeAndEncrypted" = "Зберігайте документи в безпеці та зашифрованому вигляді";
+/* Premium benefit list item. */
+"AddATrustedEmergencyContact" = "Додайте довірений екстрений контакт";
+/* Premium benefit list item. */
+"IdentifyUnsecureWebsites" = "Виявляйте незахищені вебсайти";
+/* Premium benefit list item. */
+"FlagAccountsWithInactive2fa" = "Позначайте облікові записи з неактивною функцією 2FA";
+/* Premium benefit list item; "Send" is the Bitwarden Send feature name and shouldn't be translated. */
+"ShareFilesSecurelyWithAnyoneUsingSend" = "Безпечно обмінюйтесь файлами з ким завгодно за допомогою відправлень";
+/* Premium benefit list item. */
+"Receive247PrioritySupport" = "Отримуйте цілодобову пріоритетну підтримку";
 "BuiltInAuthenticator" = "Вбудований автентифікатор";
 "EmergencyAccess" = "Екстрений доступ";
 "PaymentNotReceivedYet" = "Платіж ще не отримано";
-"ReturnToStripeInYourBrowserToFinishYourUpgradeDescriptionLong" = "Return to Stripe in your browser to finish your upgrade.";
-"SecureCheckoutDidntLoad" = "Secure checkout didn't load";
-"WeHadTroubleOpeningThePaymentPageDescriptionLong" = "We had trouble opening the payment page, so try again.";
+"ReturnToStripeInYourBrowserToFinishYourUpgradeDescriptionLong" = "Поверніться до Stripe у вашому браузері, щоб завершити оновлення.";
+"SecureCheckoutDidntLoad" = "Не вдалося завантажити безпечне оформлення замовлення";
+"WeHadTroubleOpeningThePaymentPageDescriptionLong" = "Не вдалося відкрити сторінку оплати. Спробуйте ще раз.";
 "SecureFileStorage" = "Захищене сховище файлів";
 "BreachMonitoring" = "Моніторинг витоків даних";
-"UpgradeNow" = "Покращити зараз";
 "ConfirmingYourUpgrade" = "Підтвердження вашого покращення…";
-"OpeningCheckout" = "Opening checkout…";
+"OpeningCheckout" = "Відкриття оформлення замовлення…";
 "UpgradePending" = "Покращення в очікуванні";
-"YourUpgradeIsBeingProcessedDescriptionLong" = "Your upgrade is being processed. You'll remain on the free plan until it's complete. Sync now to check, or continue and it will update automatically.";
+"YourUpgradeIsBeingProcessedDescriptionLong" = "Ваше оновлення обробляється. Доки процес оновлення не завершиться, ви залишатиметесь на безплатному тарифному плані. Синхронізуйте зараз, щоб перевірити, або перейдіть далі для автоматичного оновлення.";
 "UpgradedToPremium" = "Покращено до Premium";
-"SubscriptionNeedsAttention" = "Your subscription needs attention";
-"CheckYourPlanForDetails" = "Check your plan for details.";
-"ViewPlan" = "View plan";
-"YouNowHaveAccessToAdvancedSecurityDescriptionLong" = "You now have access to advanced security features. Learn more about what's included with Premium.";
-"YouNowHaveAccessToAllAdvancedSecurityFeatures" = "You now have access to all advanced security features.";
-"YoullGoToStripeSecureCheckoutToCompleteYourPurchase" = "You´ll go to Stripe´s secure checkout to complete your purchase.";
-"ContinueToStripe" = "Continue to Stripe?";
-"YoullBeTakenToStripeToManageYourSubscriptionCancellation" = "You'll be taken to Stripe to manage your subscription cancellation.";
+"SubscriptionNeedsAttention" = "Ваша передплата потребує уваги";
+"CheckYourPlanForDetails" = "Перевірте свій тарифний план для отримання детальної інформації.";
+"ViewPlan" = "Переглянути план";
+"YouNowHaveAccessToAdvancedSecurityDescriptionLong" = "Тепер у вас є доступ до розширених функцій безпеки. Дізнайтеся більше про можливості Premium.";
+"YouNowHaveAccessToAllAdvancedSecurityFeatures" = "Тепер ви маєте доступ до всіх розширених функцій безпеки.";
+/* Footer on the Premium upgrade screen; "Stripe" is the payment processor's name and shouldn't be translated. */
+"YoullCompleteThePurchaseWithStripeSecureCheckout" = "You'll complete the purchase with Stripe secure checkout.";
+"ContinueToStripe" = "Продовжити у Stripe?";
+"YoullBeTakenToStripeToManageYourSubscriptionCancellation" = "Вас буде спрямовано на сторінку Stripe для керування скасуванням передплати.";
 "UserIDCopiedToTheClipboard" = "ID користувача скопійовано до буфера обміну";
 "UserID" = "ID користувача";
 "CopyUserID" = "Копіювати ID користувача";
 "UserIDUnavailable" = "ID користувача недоступний";
 "ToManageYourPremiumSubscriptionDescriptionLong" = "Щоб керувати передплатою Premium, увійдіть до свого вебсховища на комп'ютері.";
-"CheckYourConnectionAndTryAgain" = "Check your connection and try again.";
+"CheckYourConnectionAndTryAgain" = "Перевірте з'єднання і спробуйте ще раз.";
 "PricingUnavailable" = "Ціни недоступні";
-"BankAccount" = "Bank account";
-"BankAccounts" = "Bank accounts";
-"License" = "License";
-"Licenses" = "Licenses";
-"Passport" = "Passport";
-"Passports" = "Passports";
-"LicenseDetails" = "License details";
-"DateOfBirth" = "Date of birth";
-"IssuingCountry" = "Issuing country";
-"IssuingStateProvince" = "Issuing state / province";
-"IssuingAuthority" = "Issuing authority";
-"IssueDate" = "Issue date";
-"ExpirationDate" = "Expiration date";
-"LicenseClass" = "License class";
-"PassportDetails" = "Passport details";
+"BankAccount" = "Банківський рахунок";
+"BankAccounts" = "Банківські рахунки";
+"License" = "Ліцензія";
+"Licenses" = "Ліцензії";
+"Passport" = "Паспорт";
+"Passports" = "Паспорти";
+"LicenseDetails" = "Деталі ліцензії";
+"DateOfBirth" = "Дата народження";
+"IssuingCountry" = "Країна випуску";
+"IssuingStateProvince" = "Штат / область видачі";
+"IssuingAuthority" = "Установа випуску";
+"IssueDate" = "Дата випуску";
+"ExpirationDate" = "Дата завершення";
+"LicenseClass" = "Клас ліцензії";
+"PassportDetails" = "Паспортні дані";
 /* Label for the sex/gender field as printed on a passport (e.g. "M", "F", "X"). */
-"Sex" = "Sex";
-"BirthPlace" = "Birth place";
+"Sex" = "Стать";
+"BirthPlace" = "Місце народження";
 /* Label for the nationality field on a passport (the country a person is a national of). */
-"Nationality" = "Nationality";
+"Nationality" = "Національність";
 /* Label for the category of passport (e.g. "Regular/Tourist", "Diplomatic", "Official"). */
-"PassportType" = "Passport type";
-"NationalIdentificationNumber" = "National identification number";
+"PassportType" = "Тип паспорта";
+"NationalIdentificationNumber" = "Національний ідентифікаційний номер";
 /* Label for the government authority or office that issued the passport. */
-"IssuingAuthorityOffice" = "Issuing authority/office";
-"AccountDetails" = "Account details";
-"BankName" = "Bank name";
-"NameOnAccount" = "Name on account";
-"AccountType" = "Account type";
-"BranchNumber" = "Branch number";
-"SwiftCode" = "SWIFT code";
+"IssuingAuthorityOffice" = "Установа або офіс, що випустили";
+"AccountDetails" = "Подробиці рахунку";
+"BankName" = "Назва банку";
+"NameOnAccount" = "Ім'я власника рахунку";
+"AccountType" = "Тип рахунку";
+"BranchNumber" = "Номер відділення";
+"SwiftCode" = "SWIFT-код";
 "IBAN" = "IBAN";
-"BankContactPhone" = "Bank contact phone";
-"CertificateOfDeposit" = "Certificate of deposit";
-"Checking" = "Checking";
-"InvestmentBrokerage" = "Investment/brokerage";
-"LineOfCredit" = "Line of credit";
-"MoneyMarket" = "Money market";
-"Savings" = "Savings";
-"PremiumRequiredTOTPDescriptionLong" = "Authenticator key (TOTP) is a Premium feature. Your current plan does not include access to this feature.";
+"BankContactPhone" = "Номер телефону банку";
+"CertificateOfDeposit" = "Депозитний сертифікат";
+"Checking" = "Перевірка";
+"InvestmentBrokerage" = "Інвестиція/брокераж";
+"LineOfCredit" = "Кредитна лінія";
+"MoneyMarket" = "Грошовий ринок";
+"Savings" = "Заощадження";
+"Devices" = "Пристрої";
+"NoDevicesFound" = "No devices found";
+"CurrentSession" = "Поточний сеанс";
+"PendingRequest" = "Запит в очікуванні";
+"Trusted" = "Надійний";
+"RecentlyActiveLabel" = "Recently active:";
+"FirstLoginLabel" = "First login:";
+"Today" = "Сьогодні";
+"PastSevenDays" = "Минулі 7 днів";
+"PastFourteenDays" = "Минулі 14 днів";
+"PastThirtyDays" = "Минулі 30 днів";
+"OverThirtyDaysAgo" = "Понад 30 днів тому";
+"Unknown" = "Невідомо";
+/* Device display name. %1$@ = category (e.g. "Mobile"), %2$@ = platform (e.g. "iOS"). */
+"DeviceDisplayNameXHyphenY" = "%1$@ - %2$@";
+"Mobile" = "Mobile";
+"BrowserExtension" = "Extension";
+"WebVault2" = "Web app";
+"Desktop" = "Desktop";
+"Cli" = "CLI";
+"Sdk" = "SDK";
+"Server" = "Сервер";
+/* Accessibility label for the button that clears a field's value. %1$@ is the field's title (e.g. "Date of birth"), so the spoken label reads "Clear Date of birth". */
+"ClearFieldName" = "Clear %1$@";
+"SelectDate" = "Select date";
+"PremiumRequiredTOTPDescriptionLong" = "Ключ автентифікації (TOTP) – це функція Premium. Ваш поточний тарифний план не передбачає доступ до цієї функції.";

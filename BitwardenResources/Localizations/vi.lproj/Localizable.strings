@@ -39,6 +39,8 @@
 "RemoveAccount" = "Xóa tài khoản";
 "RemoveAccountConfirmation" = "Bạn có chắc chắn muốn xóa tài khoản này không?";
 "AccountAlreadyAdded" = "Tài khoản đã được thêm";
+"AccountCreationRestricted" = "Hạn chế đăng ký tài khoản";
+"XOnlyAllowsInvitedUsersToCreateAccounts" = "%1$@ chỉ cho phép người được mời tạo tài khoản.";
 "SwitchToAlreadyAddedAccountConfirmation" = "Bạn muốn chuyển sang tài khoản này?";
 "MasterPassword" = "Mật khẩu chính";
 "MoreOptions" = "Thêm tuỳ chọn";
@@ -49,6 +51,7 @@
 "OK" = "OK";
 "Password" = "Mật khẩu";
 "Save" = "Lưu";
+/* Action to move a vault item to another vault; used as a button label, menu item, and screen title. */
 "Move" = "Di chuyển";
 "Saving" = "Đang lưu…";
 "Settings" = "Cài đặt";
@@ -256,8 +259,14 @@
 "ShowWebsiteIconsDescription" = "Hiện logo trang web bên cạnh mỗi đăng nhập.";
 "IconsUrl" = "URL máy chủ biểu tượng";
 "AutofillWithBitwarden" = "Tự động điền bằng Bitwarden";
+/* Section header and screen title for viewing/managing a cipher's collections. */
 "Collections" = "Các bộ sưu tập";
+/* Section header and screen title for viewing/managing a cipher's shared folders. */
+"SharedFolders" = "Thư mục chia sẻ";
+/* Empty state message shown when a collection has no items. */
 "NoItemsCollection" = "Không có mục nào trong bộ sưu tập này";
+/* Empty state message shown when a shared folder has no items. */
+"ThereAreNoItemsInThisSharedFolder" = "There are no items in this shared folder";
 "NoItemsFolder" = "Không có mục nào trong thư mục này";
 "NoItemsTrash" = "Không có gì trong thùng rác.";
 "FaceID" = "Face ID";
@@ -277,6 +286,7 @@
 "RegEx" = "Biểu thức chính quy";
 "StartsWith" = "Bắt đầu với";
 "MatchDetection" = "Độ phù hợp";
+/* Field label on the Move screen shown when the "vfo1-foundation" feature flag is disabled; superseded by "Vault" when enabled. */
 "Organization" = "Tổ chức";
 "HoldYubikeyNearTop" = "Đặt Yubikey của bạn ở phần đầu thiết bị.";
 "TryAgain" = "Thử lại";
@@ -312,13 +322,26 @@
 "NoItemsToList" = "Không có mục nào.";
 "MoveDown" = "Chuyển xuống";
 "MoveUp" = "Chuyển lên";
+/* Empty state message on the Collections screen shown when a user has no collections. */
 "NoCollectionsToList" = "Không có bộ sưu tập nào.";
+/* Empty state message on the Shared folders screen shown when a user has no shared folders. */
+"ThereAreNoSharedFoldersToList" = "Không có thư mục chia sẻ nào để hiển thị.";
 "MovedItemToOrg" = "%1$@ đã di chuyển tới %2$@.";
+/* Alert message shown when saving an item with no collection selected. */
 "SelectOneCollection" = "Bạn phải chọn ít nhất một bộ sưu tập.";
+/* Alert message shown when saving an item with no shared folder selected. */
+"YouMustSelectAtLeastOneSharedFolder" = "Bạn phải chọn ít nhất một thư mục chia sẻ.";
 "Share" = "Chia sẻ";
 "ShareAll" = "Chia sẻ tất cả";
+/* Overflow menu item and screen title on the Move screen shown when the "vfo1-foundation" feature flag is disabled; superseded by "Move" when enabled. */
 "MoveToOrganization" = "Chuyển tới Tổ chức";
+/* Empty state message shown when a user has no vaults available to move an item into, when the "vfo1-foundation" feature flag is enabled. */
+"NoVaultsToList" = "Không có kho lưu trữ nào để liệt kê.";
+/* Empty state message shown when a user has no organizations available to move an item into, when the "vfo1-foundation" feature flag is disabled. */
 "NoOrgsToList" = "Không có tổ chức.";
+/* Footer text on the Move screen explaining that moving an item transfers its ownership to the destination vault's organization, when the "vfo1-foundation" feature flag is enabled. */
+"ChooseAVaultThatYouWishToMoveThisItemToDescriptionLong" = "Chọn một kho lưu trữ mà bạn muốn chuyển mục này đến. Việc chuyển sang kho lưu trữ khác sẽ chuyển quyền sở hữu mục này cho tổ chức đó. Bạn sẽ không còn là chủ sở hữu trực tiếp của mục này sau khi nó được di chuyển.";
+/* Footer text on the Move screen explaining that moving an item transfers its ownership to the destination organization, when the "vfo1-foundation" feature flag is disabled. */
 "MoveToOrgDesc" = "Chọn một tổ chức mà bạn muốn chuyển mục này tới. Việc di chuyển đến một tổ chức sẽ chuyển quyền sở hữu của mục sang tổ chức mà bạn chọn. Bạn sẽ không còn là chủ sở hữu trực tiếp của mục này một khi nó đã được chuyển.";
 "NumberOfWords" = "Số lượng từ";
 "Passphrase" = "Cụm mật khẩu";
@@ -563,6 +586,7 @@
 "ThereAreNoBankAccountsInYourVault" = "Không có tài khoản ngân hàng nào trong kho lưu trữ của bạn";
 "US" = "Hoa Kỳ";
 "EU" = "Châu Âu";
+"Gov" = " Chính phủ";
 "SelfHosted" = "Tự lưu trữ";
 "UpdateWeakMasterPasswordWarning" = "Mật khẩu chính của bạn không đáp ứng chính sách của tổ chức của bạn. Để truy cập kho, bạn phải cập nhật mật khẩu chính của mình ngay bây giờ. Việc tiếp tục sẽ đăng xuất bạn khỏi phiên hiện tại và bắt buộc đăng nhập lại. Các phiên hoạt động trên các thiết bị khác có thể tiếp tục duy trì hoạt động trong tối đa một giờ.";
 "CurrentMasterPasswordRequired" = "Mật khẩu chính hiện tại (bắt buộc)";
@@ -571,6 +595,8 @@
 "RequestAdminApproval" = "Yêu cầu quản trị viên phê duyệt";
 "ApproveWithMasterPassword" = "Phê duyệt bằng mật khẩu chính";
 "TurnOffUsingPublicDevice" = "Tắt nếu sử dụng thiết bị công cộng";
+"TurnOnFillAssist" = "Bật hỗ trợ điền";
+"TurnOnFillAssistDescriptionLong" = "Hỗ trợ điền cải thiện độ chính xác của tính năng tự động điền trên các trang web được hỗ trợ bằng cách sử dụng các quy tắc riêng cho từng trang web.";
 "RememberThisDevice" = "Lưu thiết bị này";
 "Passkey" = "Mã khóa";
 "Passkeys" = "Các mã khóa";
@@ -584,6 +610,7 @@
 "LoginApproved" = "Lượt đăng nhập đã phê duyệt";
 "LogInWithDevice" = "Đăng nhập bằng thiết bị";
 "LoggingInOn" = "Đang đăng nhập vào";
+/* The word "Vault", used generically as a field label, screen title, and app-wide term for a user's or organization's item collection. */
 "Vault" = "Kho lưu trữ";
 "Appearance" = "Giao diện";
 "AccountSecurity" = "Bảo mật tài khoản";
@@ -865,7 +892,11 @@
 "ShowLess" = "Thu gọn";
 "ItemNameX" = "Tên mục, %1$@";
 "OwnerX" = "Chủ sở hữu, %1$@";
+"VaultX" = "Vault, %1$@";
+/* VoiceOver accessibility label for a collection the item belongs to. */
 "CollectionX" = "Bộ sưu tập, %1$@";
+/* VoiceOver accessibility label for a shared folder the item belongs to. */
+"SharedFolderX" = "Shared folder, %1$@";
 "FolderX" = "Thư mục, %1$@";
 "ItemXOfY" = "Mục %1$@ trong %2$@";
 "ViewRecordedLogs" = "Xem nhật ký đã lưu";
@@ -1097,12 +1128,37 @@
 "YourSubscriptionExpiredOnXDescriptionLong" = "Gói đăng ký của bạn đã hết hạn vào ngày **%1$@**. Vui lòng đăng ký lại để tiếp tục sử dụng các tính năng Cao cấp.";
 "YourSubscriptionIsScheduledToCancelOnXDescriptionLong" = "Gói đăng ký của bạn được lịch hủy vào ngày **%1$@**. Bạn có thể khôi phục lại gói bất kỳ lúc nào trước thời điểm đó.";
 "PerMonth" = "/ tháng";
+/* VoiceOver reading of "PerMonth", spoken instead of shown. */
+"PerMonthVoiceOver" = "mỗi tháng";
 "PerYear" = "/ năm";
+/* VoiceOver reading of "PerYear", spoken instead of shown. */
+"PerYearVoiceOver" = "mỗi năm";
 "XAmountPerCadence" = "%1$@ %2$@";
+/* %1$@ is an amount and cadence together, e.g. "$1.65 / month". */
+"XCancelAnytime" = "%1$@ · Có thể hủy bất cứ lúc nào";
+/* VoiceOver reading of "XCancelAnytime", spoken instead of shown. */
+"XCancelAnytimeVoiceOver" = "%1$@, Có thể hủy bất cứ lúc nào";
 "NegativeX" = "-%1$@";
 "UnknownStatus" = "Không xác định";
 "YourSubscriptionStatusIsUnknownVisitTheWebAppDescriptionLong" = "Không thể xác định trạng thái gói đăng ký của bạn. Vui lòng truy cập ứng dụng web để biết thêm chi tiết hoặc cập nhật lên phiên bản mới nhất.";
-"UnlockMoreAdvancedFeaturesWithPremiumPlan" = "Mở khoá các tính năng nâng cao với gói Cao cấp";
+/* Headline on the Premium upgrade screen. */
+"UnlockAdvancedProtection" = "Mở khóa các tính năng bảo vệ nâng cao";
+/* Premium benefit list item. */
+"BreezeThrough2faWithBuiltInCodes" = "Dễ dàng sử dụng xác thực hai yếu tố với mã tích hợp";
+/* Premium benefit list item. */
+"RunReportsToFindRiskyPasswords" = "Chạy báo cáo để tìm các mật khẩu có rủi ro";
+/* Premium benefit list item. */
+"KeepDocumentsSafeAndEncrypted" = "Giữ tài liệu an toàn và được mã hóa";
+/* Premium benefit list item. */
+"AddATrustedEmergencyContact" = "Thêm liên hệ khẩn cấp đáng tin cậy";
+/* Premium benefit list item. */
+"IdentifyUnsecureWebsites" = "Xác định các trang web không an toàn";
+/* Premium benefit list item. */
+"FlagAccountsWithInactive2fa" = "Đánh dấu các tài khoản chưa bật xác thực hai yếu tố";
+/* Premium benefit list item; "Send" is the Bitwarden Send feature name and shouldn't be translated. */
+"ShareFilesSecurelyWithAnyoneUsingSend" = "Chia sẻ tệp an toàn với mọi người bằng Send";
+/* Premium benefit list item. */
+"Receive247PrioritySupport" = "Nhận hỗ trợ ưu tiên 24/7";
 "BuiltInAuthenticator" = "Trình xác thực tích hợp";
 "EmergencyAccess" = "Truy cập khẩn cấp";
 "PaymentNotReceivedYet" = "Chưa nhận được thanh toán";
@@ -1111,7 +1167,6 @@
 "WeHadTroubleOpeningThePaymentPageDescriptionLong" = "Chúng tôi gặp vấn đề khi mở trang thanh toán, hãy thử lại.";
 "SecureFileStorage" = "Lưu trữ tệp an toàn";
 "BreachMonitoring" = "Giám sát vi phạm";
-"UpgradeNow" = "Nâng cấp ngay";
 "ConfirmingYourUpgrade" = "Xác nhận nâng cấp";
 "OpeningCheckout" = "Đang mở trang thanh toán…";
 "UpgradePending" = "Đang nâng cấp";
@@ -1122,7 +1177,8 @@
 "ViewPlan" = "Xem gói";
 "YouNowHaveAccessToAdvancedSecurityDescriptionLong" = "Hiện tại bạn đã có quyền truy cập vào các tính năng bảo mật nâng cao. Tìm hiểu thêm về những gì được bao gồm trong gói Cao cấp.";
 "YouNowHaveAccessToAllAdvancedSecurityFeatures" = "Hiện tại bạn đã có quyền truy cập vào tất cả các tính năng bảo mật nâng cao.";
-"YoullGoToStripeSecureCheckoutToCompleteYourPurchase" = "Bạn sẽ được chuyển đến trang thanh toán an toàn của Stripe để hoàn tất việc mua hàng.";
+/* Footer on the Premium upgrade screen; "Stripe" is the payment processor's name and shouldn't be translated. */
+"YoullCompleteThePurchaseWithStripeSecureCheckout" = "Bạn sẽ hoàn tất giao dịch mua bằng quy trình thanh toán bảo mật của Stripe.";
 "ContinueToStripe" = "Tiếp tục chuyển đến Stripe?";
 "YoullBeTakenToStripeToManageYourSubscriptionCancellation" = "Bạn sẽ được chuyển đến Stripe để quản lý việc hủy gói đăng ký của mình.";
 "UserIDCopiedToTheClipboard" = "Đã sao chép ID người dùng vào khay nhớ tạm";
@@ -1171,4 +1227,29 @@
 "LineOfCredit" = "Hạn mức tín dụng";
 "MoneyMarket" = "Thị trường tiền tệ";
 "Savings" = "Tài khoản tiết kiệm";
+"Devices" = "Thiết bị";
+"NoDevicesFound" = "Không tìm thấy thiết bị";
+"CurrentSession" = "Phiên hiện tại";
+"PendingRequest" = "Yêu cầu đang chờ xử lý";
+"Trusted" = "Đáng tin cậy";
+"RecentlyActiveLabel" = "Hoạt động gần đây:";
+"FirstLoginLabel" = "Đăng nhập lần đầu:";
+"Today" = "Hôm nay";
+"PastSevenDays" = "7 ngày qua";
+"PastFourteenDays" = "14 ngày qua";
+"PastThirtyDays" = "30 ngày qua";
+"OverThirtyDaysAgo" = "Hơn 30 ngày trước";
+"Unknown" = "Không xác định";
+/* Device display name. %1$@ = category (e.g. "Mobile"), %2$@ = platform (e.g. "iOS"). */
+"DeviceDisplayNameXHyphenY" = "%1$@ - %2$@";
+"Mobile" = "Di động";
+"BrowserExtension" = "Tiện ích mở rộng";
+"WebVault2" = "Ứng dụng web";
+"Desktop" = "Máy tính";
+"Cli" = "CLI";
+"Sdk" = "SDK";
+"Server" = "Máy chủ";
+/* Accessibility label for the button that clears a field's value. %1$@ is the field's title (e.g. "Date of birth"), so the spoken label reads "Clear Date of birth". */
+"ClearFieldName" = "Xóa %1$@";
+"SelectDate" = "Chọn ngày";
 "PremiumRequiredTOTPDescriptionLong" = "Khóa xác thực (TOTP) là một tính năng Cao cấp. Gói hiện tại của bạn không bao gồm quyền truy cập tính năng này.";

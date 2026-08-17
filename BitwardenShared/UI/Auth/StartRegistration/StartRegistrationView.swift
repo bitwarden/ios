@@ -23,9 +23,6 @@ struct StartRegistrationView: View {
                 title: Localizations.createAccount,
                 titleDisplayMode: .inline,
             )
-            .onDisappear {
-                store.send(.disappeared)
-            }
             .task {
                 await store.perform(.appeared)
             }

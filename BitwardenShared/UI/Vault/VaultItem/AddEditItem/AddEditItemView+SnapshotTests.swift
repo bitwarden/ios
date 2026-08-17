@@ -27,7 +27,7 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
                 hasPremium: true,
             ),
         )
-        processor.state.ownershipOptions = [.personal(email: "user@bitwarden.com")]
+        processor.state.ownershipOptions = [.personal(displayName: "user@bitwarden.com")]
         let store = Store(processor: processor)
         subject = AddEditItemView(store: store)
     }
@@ -234,7 +234,7 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
         processor.state.notes = "Notes"
         processor.state.folderId = "1"
         processor.state.folders = [.custom(.fixture(id: "1", name: "Folder"))]
-        processor.state.ownershipOptions = [.personal(email: "user@bitwarden.com")]
+        processor.state.ownershipOptions = [.personal(displayName: "user@bitwarden.com")]
 
         assertSnapshot(of: subject.navStackWrapped, as: .tallPortrait)
     }
@@ -262,7 +262,7 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
         processor.state.notes = "Notes"
         processor.state.folderId = "1"
         processor.state.folders = [.custom(.fixture(id: "1", name: "Folder"))]
-        processor.state.ownershipOptions = [.personal(email: "user@bitwarden.com")]
+        processor.state.ownershipOptions = [.personal(displayName: "user@bitwarden.com")]
 
         assertSnapshots(
             of: subject.navStackWrapped,
@@ -322,7 +322,7 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
         processor.state.notes = "Notes"
         processor.state.folderId = "1"
         processor.state.folders = [.custom(.fixture(id: "1", name: "Folder"))]
-        processor.state.ownershipOptions = [.personal(email: "user@bitwarden.com")]
+        processor.state.ownershipOptions = [.personal(displayName: "user@bitwarden.com")]
 
         assertSnapshot(of: subject.navStackWrapped, as: .tallPortrait)
     }
@@ -350,7 +350,7 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
         processor.state.notes = "Notes"
         processor.state.folderId = "1"
         processor.state.folders = [.custom(.fixture(id: "1", name: "Folder"))]
-        processor.state.ownershipOptions = [.personal(email: "user@bitwarden.com")]
+        processor.state.ownershipOptions = [.personal(displayName: "user@bitwarden.com")]
 
         assertSnapshot(of: subject.navStackWrapped, as: .tallPortraitAX5())
     }
@@ -378,7 +378,7 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
         processor.state.notes = "Notes"
         processor.state.folderId = "1"
         processor.state.folders = [.custom(.fixture(id: "1", name: "Folder"))]
-        processor.state.ownershipOptions = [.personal(email: "user@bitwarden.com")]
+        processor.state.ownershipOptions = [.personal(displayName: "user@bitwarden.com")]
 
         assertSnapshot(of: subject.navStackWrapped, as: .tallPortrait)
     }
@@ -406,7 +406,7 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
         processor.state.notes = "Notes"
         processor.state.folderId = "1"
         processor.state.folders = [.custom(.fixture(id: "1", name: "Folder"))]
-        processor.state.ownershipOptions = [.personal(email: "user@bitwarden.com")]
+        processor.state.ownershipOptions = [.personal(displayName: "user@bitwarden.com")]
 
         assertSnapshot(of: subject.navStackWrapped, as: .tallPortraitAX5())
     }

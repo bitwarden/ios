@@ -39,6 +39,8 @@
 "RemoveAccount" = "Verwijder account";
 "RemoveAccountConfirmation" = "Weet je zeker dat je dit account wilt verwijderen?";
 "AccountAlreadyAdded" = "Account is al toegevoegd";
+"AccountCreationRestricted" = "Account aanmaken beperkt";
+"XOnlyAllowsInvitedUsersToCreateAccounts" = "%1$@ staat het aanmaken van accounts alleen toe aan uitgenodigde gebruikers.";
 "SwitchToAlreadyAddedAccountConfirmation" = "Wil je er nu naar overschakelen?";
 "MasterPassword" = "Hoofdwachtwoord";
 "MoreOptions" = "Meer opties";
@@ -49,6 +51,7 @@
 "OK" = "OK";
 "Password" = "Wachtwoord";
 "Save" = "Opslaan";
+/* Action to move a vault item to another vault; used as a button label, menu item, and screen title. */
 "Move" = "Verplaatsen";
 "Saving" = "Opslaan…";
 "Settings" = "Instellingen";
@@ -256,8 +259,14 @@
 "ShowWebsiteIconsDescription" = "Een herkenbare afbeelding naast iedere login weergeven.";
 "IconsUrl" = "Pictogrammenserver-URL";
 "AutofillWithBitwarden" = "Automatisch invullen met Bitwarden";
+/* Section header and screen title for viewing/managing a cipher's collections. */
 "Collections" = "Verzamelingen";
+/* Section header and screen title for viewing/managing a cipher's shared folders. */
+"SharedFolders" = "Gedeelde mappen";
+/* Empty state message shown when a collection has no items. */
 "NoItemsCollection" = "Deze collectie bevat geen items";
+/* Empty state message shown when a shared folder has no items. */
+"ThereAreNoItemsInThisSharedFolder" = "Er zijn geen items in deze gedeelde map";
 "NoItemsFolder" = "Deze map bevat geen items";
 "NoItemsTrash" = "Er zijn geen items in de prullenbak.";
 "FaceID" = "Face ID";
@@ -277,6 +286,7 @@
 "RegEx" = "Reguliere expressie";
 "StartsWith" = "Begint met";
 "MatchDetection" = "Overeenkomstdetectie";
+/* Field label on the Move screen shown when the "vfo1-foundation" feature flag is disabled; superseded by "Vault" when enabled. */
 "Organization" = "Organisatie";
 "HoldYubikeyNearTop" = "Houd je Yubikey bij de bovenkant van het apparaat.";
 "TryAgain" = "Opnieuw proberen";
@@ -312,13 +322,26 @@
 "NoItemsToList" = "Er zijn geen items om weer te geven.";
 "MoveDown" = "Omlaag";
 "MoveUp" = "Omhoog";
+/* Empty state message on the Collections screen shown when a user has no collections. */
 "NoCollectionsToList" = "Er zijn geen verzamelingen om weer te geven.";
+/* Empty state message on the Shared folders screen shown when a user has no shared folders. */
+"ThereAreNoSharedFoldersToList" = "Er zijn geen gedeelde mappen om weer te geven.";
 "MovedItemToOrg" = "%1$@ is verplaatst naar %2$@.";
+/* Alert message shown when saving an item with no collection selected. */
 "SelectOneCollection" = "Je moet tenminste één verzameling selecteren.";
+/* Alert message shown when saving an item with no shared folder selected. */
+"YouMustSelectAtLeastOneSharedFolder" = "Je moet tenminste één gedeelde map selecteren.";
 "Share" = "Delen";
 "ShareAll" = "Alles delen";
+/* Overflow menu item and screen title on the Move screen shown when the "vfo1-foundation" feature flag is disabled; superseded by "Move" when enabled. */
 "MoveToOrganization" = "Naar organisatie verplaatsen";
+/* Empty state message shown when a user has no vaults available to move an item into, when the "vfo1-foundation" feature flag is enabled. */
+"NoVaultsToList" = "Geen kluizen om weer te geven.";
+/* Empty state message shown when a user has no organizations available to move an item into, when the "vfo1-foundation" feature flag is disabled. */
 "NoOrgsToList" = "Geen organisaties om weer te geven.";
+/* Footer text on the Move screen explaining that moving an item transfers its ownership to the destination vault's organization, when the "vfo1-foundation" feature flag is enabled. */
+"ChooseAVaultThatYouWishToMoveThisItemToDescriptionLong" = "Kies een kluis waarnaar je dit item wilt verplaatsen. Door het verplaatsen krijgt de organisatie de eigendomsrechten van het item. Je bent niet langer de directe eigenaar meer van het item als het is verplaatst.";
+/* Footer text on the Move screen explaining that moving an item transfers its ownership to the destination organization, when the "vfo1-foundation" feature flag is disabled. */
 "MoveToOrgDesc" = "Kies een organisatie waarnaar je dit item wilt verplaatsen. Door het verplaatsen krijgt de organisatie de eigendomsrechten van het item. Je bent niet langer de directe eigenaar meer van het item als het is verplaatst.";
 "NumberOfWords" = "Aantal woorden";
 "Passphrase" = "Wachtwoordzin";
@@ -563,6 +586,7 @@
 "ThereAreNoBankAccountsInYourVault" = "Er zijn geen bankrekeningen in je kluis";
 "US" = "US";
 "EU" = "EU";
+"Gov" = "Gov";
 "SelfHosted" = "Zelfgehost";
 "UpdateWeakMasterPasswordWarning" = "Je hoofdwachtwoord voldoet niet aan en of meerdere oganisatiebeleidsonderdelen. Om toegang te krijgen tot de kluis, moet je je hoofdwachtwoord nu bijwerken. Doorgaan zal je huidige sessie uitloggen, waarna je opnieuw moet inloggen. Actieve sessies op andere apparaten blijven mogelijk nog een uur actief.";
 "CurrentMasterPasswordRequired" = "Huidig hoofdwachtwoord (vereist)";
@@ -571,6 +595,8 @@
 "RequestAdminApproval" = "Goedkeuring van beheerder vragen";
 "ApproveWithMasterPassword" = "Goedkeuren met hoofdwachtwoord";
 "TurnOffUsingPublicDevice" = "Uitschakelen met een openbaar apparaat";
+"TurnOnFillAssist" = "Invulassistent inschakelen";
+"TurnOnFillAssistDescriptionLong" = "Invulassistentie verbetert de nauwkeurigheid van automatisch invullen op ondersteunde sites met site-specifieke regels.";
 "RememberThisDevice" = "Dit apparaat onthouden";
 "Passkey" = "Passkey";
 "Passkeys" = "Passkeys";
@@ -584,6 +610,7 @@
 "LoginApproved" = "Inloggen goedgekeurd";
 "LogInWithDevice" = "Inloggen met apparaat";
 "LoggingInOn" = "Inloggen op";
+/* The word "Vault", used generically as a field label, screen title, and app-wide term for a user's or organization's item collection. */
 "Vault" = "Kluis";
 "Appearance" = "Weergave";
 "AccountSecurity" = "Accountbeveiliging";
@@ -865,7 +892,11 @@
 "ShowLess" = "Minder weergeven";
 "ItemNameX" = "Itemnaam, %1$@";
 "OwnerX" = "Eigenaar, %1$@";
+"VaultX" = "Vault, %1$@";
+/* VoiceOver accessibility label for a collection the item belongs to. */
 "CollectionX" = "Collectie, %1$@";
+/* VoiceOver accessibility label for a shared folder the item belongs to. */
+"SharedFolderX" = "Gedeelde map, %1$@";
 "FolderX" = "Map, %1$@";
 "ItemXOfY" = "Item %1$@ van %2$@";
 "ViewRecordedLogs" = "Logopnames bekijken";
@@ -1097,12 +1128,37 @@
 "YourSubscriptionExpiredOnXDescriptionLong" = "Je abonnement is verlopen op **%1$@**. Heractiveer je abonnement om gebruik te blijven maken van Premium-functionaliteiten.";
 "YourSubscriptionIsScheduledToCancelOnXDescriptionLong" = "Je abonnement verloopt op **%1$@**. Je kunt het op elk gewenst moment hervatten.";
 "PerMonth" = "/ maand";
+/* VoiceOver reading of "PerMonth", spoken instead of shown. */
+"PerMonthVoiceOver" = "per month";
 "PerYear" = "/ jaar";
+/* VoiceOver reading of "PerYear", spoken instead of shown. */
+"PerYearVoiceOver" = "per year";
 "XAmountPerCadence" = "%1$@ %2$@";
+/* %1$@ is an amount and cadence together, e.g. "$1.65 / month". */
+"XCancelAnytime" = "%1$@ · Cancel anytime";
+/* VoiceOver reading of "XCancelAnytime", spoken instead of shown. */
+"XCancelAnytimeVoiceOver" = "%1$@, Cancel anytime";
 "NegativeX" = "-%1$@";
 "UnknownStatus" = "Onbekend";
 "YourSubscriptionStatusIsUnknownVisitTheWebAppDescriptionLong" = "Kon de status van je abonnement niet vaststellen. Bezoek de webapp voor meer informatie of werk bij naar de nieuwste versie.";
-"UnlockMoreAdvancedFeaturesWithPremiumPlan" = "Ontgrendel meer geavanceerde functies met een Premium-abonnement.";
+/* Headline on the Premium upgrade screen. */
+"UnlockAdvancedProtection" = "Geavanceerde beveiliging ontgrendelen";
+/* Premium benefit list item. */
+"BreezeThrough2faWithBuiltInCodes" = "Flits door 2FA met ingebouwde codes";
+/* Premium benefit list item. */
+"RunReportsToFindRiskyPasswords" = "Draai rapporten om riskante wachtwoorden te vinden";
+/* Premium benefit list item. */
+"KeepDocumentsSafeAndEncrypted" = "Behoud documenten veilig en versleuteld";
+/* Premium benefit list item. */
+"AddATrustedEmergencyContact" = "Voeg een vertrouwd noodcontact toe";
+/* Premium benefit list item. */
+"IdentifyUnsecureWebsites" = "Identificeer onveilige websites";
+/* Premium benefit list item. */
+"FlagAccountsWithInactive2fa" = "Markeer accounts met inactieve 2FA";
+/* Premium benefit list item; "Send" is the Bitwarden Send feature name and shouldn't be translated. */
+"ShareFilesSecurelyWithAnyoneUsingSend" = "Deel bestanden veilig met iedereen met behulp van Send";
+/* Premium benefit list item. */
+"Receive247PrioritySupport" = "Ontvang 24/7 prioriteitsondersteuning";
 "BuiltInAuthenticator" = "Ingebouwde authenticator";
 "EmergencyAccess" = "Noodtoegang";
 "PaymentNotReceivedYet" = "Betaling nog niet ontvangen";
@@ -1111,7 +1167,6 @@
 "WeHadTroubleOpeningThePaymentPageDescriptionLong" = "We hebben problemen gehad met het openen van de betaalpagina, dus probeer het opnieuw.";
 "SecureFileStorage" = "Beveiligde bestandsopslag";
 "BreachMonitoring" = "Lek-monitoring";
-"UpgradeNow" = "Nu upgraden";
 "ConfirmingYourUpgrade" = "Je upgrade aan het bevestigen…";
 "OpeningCheckout" = "Checkout openen…";
 "UpgradePending" = "Upgrade in behandeling";
@@ -1122,7 +1177,8 @@
 "ViewPlan" = "Abonnement bekijken";
 "YouNowHaveAccessToAdvancedSecurityDescriptionLong" = "Je hebt nu toegang tot geavanceerde beveiligingsfuncties. Lees meer over wat bij Premium is inbegrepen.";
 "YouNowHaveAccessToAllAdvancedSecurityFeatures" = "Je hebt nu toegang tot alle geavanceerde beveiligingsfuncties.";
-"YoullGoToStripeSecureCheckoutToCompleteYourPurchase" = "Je gaat naar Stripe's beveiligde checkout voor het afronden van je aankoop.";
+/* Footer on the Premium upgrade screen; "Stripe" is the payment processor's name and shouldn't be translated. */
+"YoullCompleteThePurchaseWithStripeSecureCheckout" = "You'll complete the purchase with Stripe secure checkout.";
 "ContinueToStripe" = "Doorgaan naar Stripe?";
 "YoullBeTakenToStripeToManageYourSubscriptionCancellation" = "Je wordt naar Stripe geleid voor het beheren van de opzegging van je abonnement.";
 "UserIDCopiedToTheClipboard" = "Gebruikers-ID naar klembord gekopieerd";
@@ -1171,4 +1227,29 @@
 "LineOfCredit" = "Kredietlijn";
 "MoneyMarket" = "Geldmarkt";
 "Savings" = "Spaargeld";
+"Devices" = "Apparaten";
+"NoDevicesFound" = "Geen apparaten gevonden";
+"CurrentSession" = "Huidige sessie";
+"PendingRequest" = "Verzoek in behandeling";
+"Trusted" = "Vertrouwd";
+"RecentlyActiveLabel" = "Recent actief:";
+"FirstLoginLabel" = "Eerste login:";
+"Today" = "Vandaag";
+"PastSevenDays" = "Afgelopen 7 dagen";
+"PastFourteenDays" = "Afgelopen 14 dagen";
+"PastThirtyDays" = "Afgelopen 30 dagen";
+"OverThirtyDaysAgo" = "Meer dan 30 dagen geleden";
+"Unknown" = "Onbekend";
+/* Device display name. %1$@ = category (e.g. "Mobile"), %2$@ = platform (e.g. "iOS"). */
+"DeviceDisplayNameXHyphenY" = "%1$@ - %2$@";
+"Mobile" = "Mobiel";
+"BrowserExtension" = "Browserextensie";
+"WebVault2" = "Webkluis";
+"Desktop" = "Desktop";
+"Cli" = "CLI";
+"Sdk" = "SDK";
+"Server" = "Server";
+/* Accessibility label for the button that clears a field's value. %1$@ is the field's title (e.g. "Date of birth"), so the spoken label reads "Clear Date of birth". */
+"ClearFieldName" = "Wis %1$@";
+"SelectDate" = "Datum selecteren";
 "PremiumRequiredTOTPDescriptionLong" = "Authenticatiesleutel (TOTP) is een Premium-functie. Toegang tot deze functie is niet inbegrepen in je huidige abonnement.";

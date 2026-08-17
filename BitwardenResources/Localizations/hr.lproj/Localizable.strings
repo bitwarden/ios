@@ -39,6 +39,8 @@
 "RemoveAccount" = "Ukloni račun";
 "RemoveAccountConfirmation" = "Sigurno želiš ukoniti ovaj račun?";
 "AccountAlreadyAdded" = "Račun već postoji";
+"AccountCreationRestricted" = "Account creation restricted";
+"XOnlyAllowsInvitedUsersToCreateAccounts" = "%1$@ only allows invited users to create accounts.";
 "SwitchToAlreadyAddedAccountConfirmation" = "Želiš li se sada prebaciti na njega?";
 "MasterPassword" = "Glavna lozinka";
 "MoreOptions" = "Više mogućnosti";
@@ -49,6 +51,7 @@
 "OK" = "OK";
 "Password" = "Lozinka";
 "Save" = "Spremi";
+/* Action to move a vault item to another vault; used as a button label, menu item, and screen title. */
 "Move" = "Premjesti";
 "Saving" = "Spremanje…";
 "Settings" = "Postavke";
@@ -256,8 +259,14 @@
 "ShowWebsiteIconsDescription" = "Prikaži prepoznatljivu sliku pored svake prijave.";
 "IconsUrl" = "URL poslužitelja ikona";
 "AutofillWithBitwarden" = "Bitwarden auto-ispuna";
+/* Section header and screen title for viewing/managing a cipher's collections. */
 "Collections" = "Zbirke";
+/* Section header and screen title for viewing/managing a cipher's shared folders. */
+"SharedFolders" = "Shared folders";
+/* Empty state message shown when a collection has no items. */
 "NoItemsCollection" = "Nema stavki u ovoj zbirci";
+/* Empty state message shown when a shared folder has no items. */
+"ThereAreNoItemsInThisSharedFolder" = "There are no items in this shared folder";
 "NoItemsFolder" = "Nema stavki u ovoj mapi";
 "NoItemsTrash" = "Nema stavki u smeću.";
 "FaceID" = "Face ID";
@@ -277,6 +286,7 @@
 "RegEx" = "Regularni izraz";
 "StartsWith" = "Počinje s";
 "MatchDetection" = "Otkrivanje podudaranja";
+/* Field label on the Move screen shown when the "vfo1-foundation" feature flag is disabled; superseded by "Vault" when enabled. */
 "Organization" = "Organizacija";
 "HoldYubikeyNearTop" = "Drži Yubikey blizu vrha uređaja.";
 "TryAgain" = "Pokušaj ponovno";
@@ -312,13 +322,26 @@
 "NoItemsToList" = "Nema stavki za prikaz.";
 "MoveDown" = "Pomakni dolje";
 "MoveUp" = "Pomakni gore";
+/* Empty state message on the Collections screen shown when a user has no collections. */
 "NoCollectionsToList" = "Nema zbirki za prikaz.";
+/* Empty state message on the Shared folders screen shown when a user has no shared folders. */
+"ThereAreNoSharedFoldersToList" = "There are no shared folders to list.";
 "MovedItemToOrg" = "%1$@ premješteno u %2$@.";
+/* Alert message shown when saving an item with no collection selected. */
 "SelectOneCollection" = "Moraš odabrati barem jednu zbirku.";
+/* Alert message shown when saving an item with no shared folder selected. */
+"YouMustSelectAtLeastOneSharedFolder" = "You must select at least one shared folder.";
 "Share" = "Podijeli";
 "ShareAll" = "Dijeli sve";
+/* Overflow menu item and screen title on the Move screen shown when the "vfo1-foundation" feature flag is disabled; superseded by "Move" when enabled. */
 "MoveToOrganization" = "Premjesti u organizaciju";
+/* Empty state message shown when a user has no vaults available to move an item into, when the "vfo1-foundation" feature flag is enabled. */
+"NoVaultsToList" = "No vaults to list.";
+/* Empty state message shown when a user has no organizations available to move an item into, when the "vfo1-foundation" feature flag is disabled. */
 "NoOrgsToList" = "Nema organizacija za prikaz.";
+/* Footer text on the Move screen explaining that moving an item transfers its ownership to the destination vault's organization, when the "vfo1-foundation" feature flag is enabled. */
+"ChooseAVaultThatYouWishToMoveThisItemToDescriptionLong" = "Choose a vault that you wish to move this item to. Moving to another vault transfers ownership of the item to that organization. You will no longer be the direct owner of this item once it has been moved.";
+/* Footer text on the Move screen explaining that moving an item transfers its ownership to the destination organization, when the "vfo1-foundation" feature flag is disabled. */
 "MoveToOrgDesc" = "Odaberi organizaciju u koju želiš premjestiti ovu stavku. Premještanje prenosi vlasništvo stavke na organizaciju. Nakon premještanja više nećeš biti izravni vlasnik ove stavke.";
 "NumberOfWords" = "Broj riječi";
 "Passphrase" = "Frazna lozinka";
@@ -563,6 +586,7 @@
 "ThereAreNoBankAccountsInYourVault" = "There are no bank accounts in your vault";
 "US" = "SAD";
 "EU" = "EU";
+"Gov" = "Gov";
 "SelfHosted" = "Vlastiti poslužitelj";
 "UpdateWeakMasterPasswordWarning" = "Tvoja glavna lozinka ne zadovoljava pravila ove organizacije. Za pristup trezoru moraš odmah ažurirati svoju glavnu lozinku. Ako nastaviš, odjaviti ćeš se iz trenutne sesije te ćeš se morati ponovno prijaviti. Aktivne sesije na drugim uređajima mogu ostati aktivne do jedan sat.";
 "CurrentMasterPasswordRequired" = "Trenutna glavna lozinka (obavezno)";
@@ -571,6 +595,8 @@
 "RequestAdminApproval" = "Zatraži odobrenje administratora";
 "ApproveWithMasterPassword" = "Odobri glavnom lozinkom";
 "TurnOffUsingPublicDevice" = "Isključi ako koristiš javni uređaj";
+"TurnOnFillAssist" = "Turn on fill assist";
+"TurnOnFillAssistDescriptionLong" = "Fill Assist improves autofill accuracy on supported sites by using site-specific rules.";
 "RememberThisDevice" = "Zapamti ovaj uređaj";
 "Passkey" = "Pristupni ključ";
 "Passkeys" = "Pristupni ključevi";
@@ -584,6 +610,7 @@
 "LoginApproved" = "Prijava odobrena";
 "LogInWithDevice" = "Prijava uređajem";
 "LoggingInOn" = "Prijava na";
+/* The word "Vault", used generically as a field label, screen title, and app-wide term for a user's or organization's item collection. */
 "Vault" = "Trezor";
 "Appearance" = "Izgled";
 "AccountSecurity" = "Sigurnost računa";
@@ -865,7 +892,11 @@
 "ShowLess" = "Pokaži manje";
 "ItemNameX" = "Naziv stavke, %1$@";
 "OwnerX" = "Vlasnik, %1$@";
+"VaultX" = "Vault, %1$@";
+/* VoiceOver accessibility label for a collection the item belongs to. */
 "CollectionX" = "Zbirka, %1$@";
+/* VoiceOver accessibility label for a shared folder the item belongs to. */
+"SharedFolderX" = "Shared folder, %1$@";
 "FolderX" = "Mapa, %1$@";
 "ItemXOfY" = "Stavka %1$@ / %2$@";
 "ViewRecordedLogs" = "Pogledaj spremljene zapise";
@@ -1097,12 +1128,37 @@
 "YourSubscriptionExpiredOnXDescriptionLong" = "Your subscription expired on **%1$@**. Resubscribe to continue using Premium features.";
 "YourSubscriptionIsScheduledToCancelOnXDescriptionLong" = "Your subscription is scheduled to cancel on **%1$@**. You can reinstate it anytime before then.";
 "PerMonth" = "/ mj.";
+/* VoiceOver reading of "PerMonth", spoken instead of shown. */
+"PerMonthVoiceOver" = "per month";
 "PerYear" = " godišnje";
+/* VoiceOver reading of "PerYear", spoken instead of shown. */
+"PerYearVoiceOver" = "per year";
 "XAmountPerCadence" = "%1$@%2$@";
+/* %1$@ is an amount and cadence together, e.g. "$1.65 / month". */
+"XCancelAnytime" = "%1$@ · Cancel anytime";
+/* VoiceOver reading of "XCancelAnytime", spoken instead of shown. */
+"XCancelAnytimeVoiceOver" = "%1$@, Cancel anytime";
 "NegativeX" = "-%1$@";
 "UnknownStatus" = "Nepoznato";
 "YourSubscriptionStatusIsUnknownVisitTheWebAppDescriptionLong" = "Nismo mogli odrediti tvoju pretplatu. Za više detalja posjeti web aplikaciju ili ažuriraj na najnoviju verziju.";
-"UnlockMoreAdvancedFeaturesWithPremiumPlan" = "Otključaj više naprednig mogućnosti s paketom Premium.";
+/* Headline on the Premium upgrade screen. */
+"UnlockAdvancedProtection" = "Unlock advanced protection";
+/* Premium benefit list item. */
+"BreezeThrough2faWithBuiltInCodes" = "Breeze through 2FA with built-in codes";
+/* Premium benefit list item. */
+"RunReportsToFindRiskyPasswords" = "Run reports to find risky passwords";
+/* Premium benefit list item. */
+"KeepDocumentsSafeAndEncrypted" = "Keep documents safe and encrypted";
+/* Premium benefit list item. */
+"AddATrustedEmergencyContact" = "Add a trusted emergency contact";
+/* Premium benefit list item. */
+"IdentifyUnsecureWebsites" = "Identify unsecure websites";
+/* Premium benefit list item. */
+"FlagAccountsWithInactive2fa" = "Flag accounts with inactive 2FA";
+/* Premium benefit list item; "Send" is the Bitwarden Send feature name and shouldn't be translated. */
+"ShareFilesSecurelyWithAnyoneUsingSend" = "Share files securely with anyone using Send";
+/* Premium benefit list item. */
+"Receive247PrioritySupport" = "Receive 24/7 priority support";
 "BuiltInAuthenticator" = "Ugrađeni autentifikator";
 "EmergencyAccess" = "Pristup u nuždi";
 "PaymentNotReceivedYet" = "Uplata još nije primljena";
@@ -1111,7 +1167,6 @@
 "WeHadTroubleOpeningThePaymentPageDescriptionLong" = "Nismo mogli otvoriti stranicu za plaćanje, pokušaj ponovno.";
 "SecureFileStorage" = "Sigurna pohrana datoteka";
 "BreachMonitoring" = "Nadzor proboja";
-"UpgradeNow" = "Nadogradi sada";
 "ConfirmingYourUpgrade" = "Potvrda tvoje nadogradnje…";
 "OpeningCheckout" = "Otvaranje kupnje…";
 "UpgradePending" = "Nadogradnja čeka";
@@ -1122,7 +1177,8 @@
 "ViewPlan" = "View plan";
 "YouNowHaveAccessToAdvancedSecurityDescriptionLong" = "Sada imaš pristup naprednim sigurnosnim značajkama. Saznaj što je uključeno u Premium.";
 "YouNowHaveAccessToAllAdvancedSecurityFeatures" = "Sada imaš pristup svim naprednim sigurnosnim značajkama.";
-"YoullGoToStripeSecureCheckoutToCompleteYourPurchase" = "Kupnju ćeš dovršiti na sigurnoj blagajni Stripe-a.";
+/* Footer on the Premium upgrade screen; "Stripe" is the payment processor's name and shouldn't be translated. */
+"YoullCompleteThePurchaseWithStripeSecureCheckout" = "You'll complete the purchase with Stripe secure checkout.";
 "ContinueToStripe" = "Continue to Stripe?";
 "YoullBeTakenToStripeToManageYourSubscriptionCancellation" = "You'll be taken to Stripe to manage your subscription cancellation.";
 "UserIDCopiedToTheClipboard" = "Korisnički ID je kopiran u međuspremnik";
@@ -1171,4 +1227,29 @@
 "LineOfCredit" = "Kreditna linija";
 "MoneyMarket" = "Tržište novca";
 "Savings" = "Štedni račun";
+"Devices" = "Devices";
+"NoDevicesFound" = "No devices found";
+"CurrentSession" = "Current session";
+"PendingRequest" = "Pending request";
+"Trusted" = "Trusted";
+"RecentlyActiveLabel" = "Recently active:";
+"FirstLoginLabel" = "First login:";
+"Today" = "Today";
+"PastSevenDays" = "Past 7 days";
+"PastFourteenDays" = "Past 14 days";
+"PastThirtyDays" = "Past 30 days";
+"OverThirtyDaysAgo" = "Over 30 days ago";
+"Unknown" = "Nepoznato";
+/* Device display name. %1$@ = category (e.g. "Mobile"), %2$@ = platform (e.g. "iOS"). */
+"DeviceDisplayNameXHyphenY" = "%1$@ - %2$@";
+"Mobile" = "Mobile";
+"BrowserExtension" = "Extension";
+"WebVault2" = "Web app";
+"Desktop" = "Desktop";
+"Cli" = "CLI";
+"Sdk" = "SDK";
+"Server" = "Server";
+/* Accessibility label for the button that clears a field's value. %1$@ is the field's title (e.g. "Date of birth"), so the spoken label reads "Clear Date of birth". */
+"ClearFieldName" = "Clear %1$@";
+"SelectDate" = "Select date";
 "PremiumRequiredTOTPDescriptionLong" = "Authenticator key (TOTP) is a Premium feature. Your current plan does not include access to this feature.";
