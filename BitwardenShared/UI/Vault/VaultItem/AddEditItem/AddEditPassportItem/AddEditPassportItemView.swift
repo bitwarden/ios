@@ -37,12 +37,14 @@ struct AddEditPassportItemView: View {
                     accessibilityIdentifier: "PassportLastNameEntry",
                 )
 
-                // TODO: PM-38360 - replace with DateFieldPicker
-                BitwardenTextField(
+                DateFieldPicker(
                     title: Localizations.dateOfBirth,
-                    text: .constant(store.state.dateOfBirthDisplay),
                     accessibilityIdentifier: "PassportDateOfBirthEntry",
-                    isTextFieldDisabled: true,
+                    date: store.binding(
+                        get: \.dateOfBirth,
+                        send: AddEditPassportItemAction.dateOfBirthChanged,
+                    ),
+                    in: Date.distantPast ... Date().asUTCCalendarDay(),
                 )
 
                 BitwardenTextField(
@@ -127,20 +129,23 @@ struct AddEditPassportItemView: View {
                     accessibilityIdentifier: "PassportIssuingAuthorityEntry",
                 )
 
-                // TODO: PM-38360 - replace with DateFieldPicker
-                BitwardenTextField(
+                DateFieldPicker(
                     title: Localizations.issueDate,
-                    text: .constant(store.state.issueDateDisplay),
                     accessibilityIdentifier: "PassportIssueDateEntry",
-                    isTextFieldDisabled: true,
+                    date: store.binding(
+                        get: \.issueDate,
+                        send: AddEditPassportItemAction.issueDateChanged,
+                    ),
+                    in: Date.distantPast ... Date().asUTCCalendarDay(),
                 )
 
-                // TODO: PM-38360 - replace with DateFieldPicker
-                BitwardenTextField(
+                DateFieldPicker(
                     title: Localizations.expirationDate,
-                    text: .constant(store.state.expirationDateDisplay),
                     accessibilityIdentifier: "PassportExpirationDateEntry",
-                    isTextFieldDisabled: true,
+                    date: store.binding(
+                        get: \.expirationDate,
+                        send: AddEditPassportItemAction.expirationDateChanged,
+                    ),
                 )
             }
         }

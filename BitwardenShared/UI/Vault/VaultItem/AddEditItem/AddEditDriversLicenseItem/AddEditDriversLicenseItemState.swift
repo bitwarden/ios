@@ -1,4 +1,3 @@
-import BitwardenKit
 import Foundation
 
 // MARK: AddEditDriversLicenseItemState
@@ -41,28 +40,4 @@ protocol AddEditDriversLicenseItemState: Equatable, Sendable {
 
     /// The middle name on the license.
     var middleName: String { get set }
-}
-
-// MARK: - Display Helpers
-
-extension AddEditDriversLicenseItemState {
-    /// The date of birth formatted as a long localized date (e.g. "August 10, 2026"); empty when unset.
-    var dateOfBirthDisplay: String { Self.displayDate(from: dateOfBirth) }
-
-    /// The expiration date formatted as a long localized date (e.g. "August 10, 2026"); empty when unset.
-    var expirationDateDisplay: String { Self.displayDate(from: expirationDate) }
-
-    /// The issue date formatted as a long localized date (e.g. "August 10, 2026"); empty when unset.
-    var issueDateDisplay: String { Self.displayDate(from: issueDate) }
-
-    /// Formats a `Date` as a long localized date (e.g. "August 10, 2026"), or returns an empty
-    /// string when the value is unset. Pinned to UTC so a UTC-anchored stored date reads back as
-    /// the same calendar day regardless of device time zone.
-    ///
-    /// PM-38360 introduces the shared `DateFieldPicker` and date utilities that will replace these
-    /// read-only fields.
-    private static func displayDate(from date: Date?) -> String {
-        guard let date else { return "" }
-        return date.longCalendarDateDisplay
-    }
 }
