@@ -215,6 +215,26 @@ struct PremiumUpgradeProcessorTests {
         #expect(delegate.performCheckoutWebAuthSessionReceivedUrl == checkoutURL)
         let alert = try #require(coordinator.alertShown.last)
         #expect(alert.title == Localizations.paymentNotReceivedYet)
+        // The pending mark createCheckoutSession() just made needs clearing — the user dismissed
+        // the checkout sheet without completing anything, so nothing is actually in flight.
+        #expect(billingService.premiumCheckoutCanceledCalled)
+    }
+
+    /// `perform(_:)` with `.upgradeNowTapped` clears the pending mark when the web auth session
+    /// fails with something other than cancellation — that attempt didn't complete either.
+    @Test
+    func perform_upgradeNowTapped_webAuthSessionFailure() async throws {
+        let checkoutURL = URL(string: "https://checkout.stripe.com/session")!
+        billingService.createCheckoutSessionReturnValue = checkoutURL
+        billingService.premiumCheckoutStatusPublisherReturnValue = PassthroughSubject<PremiumCheckoutStatus, Never>()
+            .eraseToAnyPublisher()
+        delegate.performCheckoutWebAuthSessionReturnValue = .failure(BitwardenTestError.example)
+
+        await subject.perform(.upgradeNowTapped)
+
+        let alert = try #require(coordinator.alertShown.last)
+        #expect(alert.title == Localizations.paymentNotReceivedYet)
+        #expect(billingService.premiumCheckoutCanceledCalled)
     }
 
     /// `receive(_:)` with `.cancelTapped` navigates to dismiss.

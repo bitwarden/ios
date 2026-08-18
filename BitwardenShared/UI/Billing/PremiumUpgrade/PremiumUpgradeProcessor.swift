@@ -160,10 +160,16 @@ final class PremiumUpgradeProcessor: StateProcessor<
                 await handleCheckoutCallback(callbackURL)
             case let .failure(error)? where !(error is CancellationError):
                 services.errorReporter.log(error: error)
+                await services.billingService.premiumCheckoutCanceled()
                 coordinator.showAlert(.paymentNotReceivedYet {
                     await self.createCheckoutSession()
                 })
             default:
+                // Covers the user dismissing the checkout sheet (`CancellationError`) and a
+                // missing delegate — neither completed the attempt `createCheckoutSession()`
+                // just marked pending, so it needs clearing the same way an explicit Stripe
+                // cancel redirect already does via `handleCheckoutCallback`.
+                await services.billingService.premiumCheckoutCanceled()
                 coordinator.showAlert(.paymentNotReceivedYet {
                     await self.createCheckoutSession()
                 })
@@ -190,7 +196,7 @@ final class PremiumUpgradeProcessor: StateProcessor<
            result == BitwardenDeepLinkConstants.PremiumCheckoutResultQuery.successValue {
             await services.billingService.premiumStatusChanged()
         } else {
-            services.billingService.premiumCheckoutCanceled()
+            await services.billingService.premiumCheckoutCanceled()
         }
     }
 }
