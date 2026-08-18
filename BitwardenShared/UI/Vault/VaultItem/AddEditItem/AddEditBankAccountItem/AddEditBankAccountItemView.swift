@@ -62,7 +62,7 @@ struct AddEditBankAccountItemView: View {
                 BitwardenMenuField(
                     title: Localizations.accountType,
                     accessibilityIdentifier: "AccountTypePicker",
-                    options: DefaultableType<BankAccountType>.allCases,
+                    options: BankAccountType.displayOrder.map(DefaultableType.custom),
                     selection: store.binding(
                         get: \.accountType,
                         send: AddEditBankAccountItemAction.accountTypeChanged,
