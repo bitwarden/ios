@@ -54,10 +54,9 @@ protocol BillingService: AnyObject { // sourcery: AutoMockable
     ///
     func isSelfHosted() async -> Bool
 
-    /// Notifies that a Premium status change was detected (via deep link or push notification),
-    /// triggers a sync, and publishes status updates. Does nothing if no upgrade is currently
-    /// pending — this reconciles an attempt already marked pending by `createCheckoutSession()`,
-    /// rather than reacting to an arbitrary trigger for an account that never started one.
+    /// Notifies that a Premium status change was detected (via deep link or push notification)
+    /// and triggers a sync. If an upgrade is pending, publishes checkout status updates as the
+    /// sync resolves it; otherwise performs a plain sync to pick up the change.
     ///
     func premiumStatusChanged() async
 
