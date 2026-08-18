@@ -18,12 +18,7 @@ jobs:
   evaluate:
     name: Evaluate SDK Update
     runs-on: macos-26-xlarge
-    # Higher than test.yml's 50 to allow for the agent's extra build and test passes, but bounded:
-    # the 360-minute default would let a looping agent burn six hours of xlarge time per synchronize.
     timeout-minutes: 90
-    # The repository check is redundant while `pull_request` withholds secrets from forks — the Azure
-    # login would fail before any PR-controlled code ran — but it states the guarantee here rather
-    # than resting it on that policy.
     if: ${{ github.event.pull_request.head.ref == 'sdlc/sdk-update' && github.event.pull_request.head.repo.full_name == github.repository }}
     permissions:
       id-token: write # Azure OIDC login
@@ -84,17 +79,11 @@ jobs:
           token: ${{ steps.app-token.outputs.token }}
           ref: ${{ github.event.pull_request.head.sha }}
           fetch-depth: 0
-          # Must stay false. Persisting would write the App token into .git/config as an
-          # http.extraheader, where the agent's `Bash(grep:*)` grant can read it — the
-          # `Read(**/.git/**)` deny below is scoped to the Read tool and does not constrain Bash.
-          # The agent already receives this token deliberately via claude-code-action's
-          # `github_token`, so an on-disk second copy adds exposure and no capability. The push step
-          # supplies credentials for itself.
+          # Must stay false. A persisted token lands in .git/config as an http.extraheader, which the
+          # agent's `Bash(grep:*)` grant can read; the `Read(**/.git/**)` deny does not constrain Bash.
           persist-credentials: false
 
-      # SDK releases land on `unstable`, so that is where every pinned revision lives. `main` is
-      # months stale. The clone is full because the evaluation diffs the files of two revisions that
-      # can be weeks apart, which `--depth` or a blobless filter would not have on hand.
+      # Pinned revisions live on `unstable`; `main` is months stale.
       - name: Clone sdk-swift
         if: steps.gate.outputs.skip == 'false'
         run: git clone --quiet --branch unstable https://github.com/bitwarden/sdk-swift "${{ github.workspace }}/../sdk-swift"
@@ -104,8 +93,6 @@ jobs:
         if: steps.gate.outputs.skip == 'false'
         run: git clone --quiet --filter=blob:none https://github.com/bitwarden/sdk-internal "${{ github.workspace }}/../sdk-internal"
 
-      # Everything from here to "Run Claude Code" mirrors test.yml's setup, so the compile the skill
-      # performs is the same compile that gates the merge.
       - name: Optimize macOS Runner
         if: steps.gate.outputs.skip == 'false'
         uses: ./.github/actions/macos-runner-tuneup
@@ -140,9 +127,8 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-mint-
 
-      # The .xcodeproj files are gitignored and generated, so bootstrap.sh must run before any build.
-      # A stale project silently drops source files and reports them as "cannot find X in scope",
-      # which is indistinguishable from a real SDK break.
+      # The .xcodeproj files are generated, and a stale one reports missing sources as "cannot find X
+      # in scope", which is indistinguishable from a real SDK break.
       - name: Install Homebrew Dependencies and run bootstrap.sh
         if: steps.gate.outputs.skip == 'false'
         run: |
@@ -150,8 +136,6 @@ jobs:
           brew bundle
           ./Scripts/bootstrap.sh
 
-      # A concrete simulator, matching test.yml. A generic destination would additionally build the
-      # x86_64 slice, roughly doubling build time for no extra signal.
       - name: Boot Simulator
         id: boot-simulator
         if: steps.gate.outputs.skip == 'false'
@@ -160,13 +144,8 @@ jobs:
           simulator-name: ${{ env._SIMULATOR_NAME }}
           simulator-version: ${{ env._SIMULATOR_VERSION }}
 
-      # test.yml and test-bwa.yml wrap every xcodebuild invocation in pyeetd, which kills the poster
-      # and analytics processes that saturate a booted simulator's CPU and let a test run consume the
-      # entire timeout. The build and test commands here belong to the skill, so they cannot be
-      # wrapped individually, but pyeetd is a polling loop, so one backgrounded copy covers every
-      # pass the agent makes. Its log stays in the runner temp directory to keep the workspace clean
-      # for the uncommitted-changes guard. A background launch reports nothing on failure, hence the
-      # liveness check.
+      # pyeetd kills the simulator processes that would otherwise saturate its CPU. The agent's own
+      # build commands cannot be wrapped individually, but one backgrounded copy covers every pass.
       - name: Start pyeetd
         if: steps.gate.outputs.skip == 'false'
         run: |
@@ -179,12 +158,9 @@ jobs:
             exit 1
           fi
 
-      # The agent cannot run this build itself: a cold two-scheme build-for-testing takes longer than
-      # the 600-second ceiling Claude Code puts on a Bash call, so its first attempt can only time
-      # out. Running it here also means the compile-break evidence is on disk however far the agent
-      # gets, and leaves build/DerivedData warm so the verify build after a fix is incremental.
-      # `build/` is gitignored, which keeps the log readable by the agent inside the workspace and
-      # invisible to the push guard.
+      # The agent cannot run this build itself: a cold two-scheme build-for-testing outlasts the
+      # ceiling Claude Code puts on a Bash call. Running it here also leaves build/DerivedData warm,
+      # so the agent's verify build after a fix is incremental.
       - name: Run the baseline build
         id: baseline-build
         if: steps.gate.outputs.skip == 'false'
@@ -198,8 +174,7 @@ jobs:
           for _SCHEME in Bitwarden Authenticator; do
             _SCHEME_LOG="$RUNNER_TEMP/baseline-$_SCHEME.log"
 
-            # `set +e` covers xcodebuild alone, because a compile break is the signal this workflow
-            # exists to surface and has to reach the agent rather than end the job here.
+            # `set +e` covers xcodebuild alone: a compile break has to reach the agent, not end the job.
             set +e
             xcrun xcodebuild build-for-testing -workspace Bitwarden.xcworkspace -scheme "$_SCHEME" \
               -configuration Debug -destination "platform=iOS Simulator,id=$_SIMULATOR_ID" \
@@ -214,11 +189,9 @@ jobs:
               echo "=== $_SCHEME exit=$_EXIT ==="
             } >> "$_LOG"
 
-            # A non-zero exit is only expected when the build diagnosed something. `-quiet` prints no
-            # success banner, so a build killed without printing (OOM, signal, a lost simulator)
-            # leaves a log indistinguishable from a clean one, which the agent would report as "no
-            # compile breaks". Pairing the exit code with the presence of a diagnostic is what
-            # separates the break this workflow wants to surface from the failure it must not hide.
+            # `-quiet` prints no success banner, so a build killed without printing (OOM, signal, a lost
+            # simulator) leaves a log indistinguishable from a clean one, which the agent would report as
+            # "no compile breaks". Pairing the exit code with a diagnostic separates the two.
             if [ "$_EXIT" -ne 0 ] && ! grep -qE ' error:|Undefined symbols|^ld:' "$_SCHEME_LOG"; then
               echo "::error::The $_SCHEME baseline build exited $_EXIT without a diagnosable cause, so its log cannot be read as evidence of anything."
               tail -50 "$_SCHEME_LOG"
@@ -226,8 +199,6 @@ jobs:
             fi
           done
 
-          # A step output, not a GITHUB_ENV variable: the prompt interpolates the literal path.
-          # `prompt` is not shell-expanded, and the agent's Read tool cannot expand a variable.
           echo "log=$_LOG" >> "$GITHUB_OUTPUT"
 
       - name: Run Claude Code
@@ -235,16 +206,12 @@ jobs:
         if: steps.gate.outputs.skip == 'false'
         env:
           _SIMULATOR_ID: ${{ steps.boot-simulator.outputs.simulator-id }}
-          # Claude Code defaults to a 120-second Bash timeout with a 600-second ceiling and
-          # claude-code-action sets neither. The agent's remaining builds are incremental against the
-          # baseline step's warm DerivedData, but two schemes plus a test pass still exceed 120s. The
-          # ceiling stays well inside timeout-minutes, so a hung build arrives as a tool error the
-          # agent can report rather than as a killed job.
+          # Claude Code defaults to a 120-second Bash timeout and claude-code-action sets neither
+          # variable. Both stay well inside timeout-minutes.
           BASH_DEFAULT_TIMEOUT_MS: "600000"
           BASH_MAX_TIMEOUT_MS: "1800000"
         uses: anthropics/claude-code-action@be7b93b1907a4abad570368f3c74b6fe3807510b # v1.0.183
         with:
-          github_token: ${{ steps.app-token.outputs.token }}
           anthropic_api_key: ${{ steps.get-kv-secrets.outputs.ANTHROPIC-RESPONSE-API-KEY }}
           allowed_bots: "bw-ghapp"
           bot_id: "178206702"
@@ -254,9 +221,6 @@ jobs:
           plugin_marketplaces: "https://github.com/bitwarden/ai-plugins.git"
           plugins: |
             bitwarden-delivery-tools@bitwarden-marketplace
-          # Kept free of platform detail. Toolchains, simulators and destinations are the skill's
-          # business, and the skill is per-repo; this text is meant to read identically in every
-          # repository that adopts the workflow.
           prompt: |
             PR #${{ github.event.pull_request.number }} in ${{ github.repository }} bumps the Bitwarden SDK. Evaluate it using the `evaluating-sdk-internal-updates` skill and resolve anything within scope that needs resolving, per the skill's own Resolve steps.
 
@@ -276,10 +240,8 @@ jobs:
           _BRANCH_NAME: ${{ github.event.pull_request.head.ref }}
           _TOKEN: ${{ steps.app-token.outputs.token }}
         run: |
-          # --untracked-files=no is required, not a refinement: earlier steps leave untracked,
-          # non-gitignored directories in the workspace (`vendor/` and `.bundle/` from bundler-cache,
-          # `.mint/` from MINT_PATH), which a bare --porcelain reports as `??` and which would trip
-          # this guard on every run, including ones where a valid fix was committed.
+          # --untracked-files=no is required: bundler-cache and MINT_PATH leave untracked,
+          # non-gitignored directories that a bare --porcelain would report, tripping this guard.
           if [ -n "$(git status --porcelain --untracked-files=no)" ]; then
             echo "::error::Claude left uncommitted changes to tracked files; nothing was pushed."
             git status --porcelain --untracked-files=no
@@ -291,9 +253,7 @@ jobs:
             exit 0
           fi
 
-          # Enforce the tool-permission boundary outside the model. A fix may touch SDK call sites
-          # and the version pin; it must never touch CI or agent configuration, which would execute
-          # with secrets on the next synchronize.
+          # A fix may touch SDK call sites and the version pin, never CI or agent configuration.
           CHANGED=$(git diff --name-only "origin/$_BRANCH_NAME" HEAD)
           if echo "$CHANGED" | grep -qE '^(\.github/|\.claude/)'; then
             echo "::error::Refusing to push: the fix touches CI or agent configuration."
@@ -301,32 +261,8 @@ jobs:
             exit 1
           fi
 
-          # Checkout no longer persists credentials, so authenticate this push only. The header is
-          # passed with `git -c` rather than `git config`, so it is never written to .git/config, and
-          # the token stays out of the remote URL where git echoes it on error.
+          # Checkout does not persist credentials, so authenticate this push alone. `git -c` keeps the
+          # header out of .git/config and the token out of the remote URL git echoes on error.
           git -c http.extraheader="AUTHORIZATION: basic $(printf '%s' "x-access-token:$_TOKEN" | base64 | tr -d '\n')" \
             push origin "HEAD:$_BRANCH_NAME"
 
-      # Runs after the push so a commit SHA the report cites is real, and on !cancelled() so a failed
-      # push still produces a report. The `outcome != 'skipped'` guard keeps a setup failure, which
-      # skips the agent entirely and leaves no comment, from being annotated as a missing audit trail.
-      # Everything the script needs arrives by environment variable, so the step is the input surface
-      # the shared action will inherit.
-      - name: Report the evaluation outcome
-        if: ${{ !cancelled() && steps.gate.outputs.skip == 'false' && steps.claude.outcome != 'skipped' }}
-        env:
-          EXECUTION_FILE: ${{ steps.claude.outputs.execution_file }}
-          REPO: ${{ github.repository }}
-          PR_NUMBER: ${{ github.event.pull_request.number }}
-          COMMENT_AUTHOR: "bw-ghapp[bot]"
-          JOB_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
-          GH_TOKEN: ${{ steps.app-token.outputs.token }}
-          # `## Runtime considerations` is omittable, so it is not required. Checking for the
-          # deliverable's sections is a positive test; keying on the spinner or an unchecked box
-          # would fire on a box the agent left unchecked on purpose.
-          REQUIRED_HEADINGS: |
-            ## SDK bump evaluated
-            ## Compile-time breaks
-            ## Everything else in range — confirmed safe
-            ## Commit
-        run: .github/scripts/report-agent-outcome.sh
