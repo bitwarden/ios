@@ -112,6 +112,27 @@ class AddEditSendItemViewTests: BitwardenTestCase {
         XCTAssertEqual(processor.dispatchedActions.last, .optionsPressed)
     }
 
+    /// The "Remove password" menu item is shown when editing a send with a password and no
+    /// policy enforces the access type.
+    @MainActor
+    func test_removePasswordButton_shown() throws {
+        processor.state.mode = .edit
+        processor.state.originalSendView = .fixture(hasPassword: true)
+
+        XCTAssertNoThrow(try subject.inspect().find(asyncButton: Localizations.removePassword))
+    }
+
+    /// The "Remove password" menu item is hidden when the access type is enforced by policy,
+    /// even though the send has a password, since removing it would violate the policy.
+    @MainActor
+    func test_removePasswordButton_hidden_whenAccessTypeEnforcedByPolicy() throws {
+        processor.state.mode = .edit
+        processor.state.originalSendView = .fixture(hasPassword: true)
+        processor.state.sendPolicyOptions.enforcedAccessType = .specificPeople
+
+        XCTAssertThrowsError(try subject.inspect().find(asyncButton: Localizations.removePassword))
+    }
+
     /// Tapping the save button performs the `.savePressed` effect.
     @MainActor
     func test_saveButton_tap() async throws {

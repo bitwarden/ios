@@ -287,6 +287,12 @@ class AddEditSendItemProcessor: // swiftlint:disable:this type_body_length
             let newSend = try await services.sendRepository.removePassword(from: sendView)
             var newState = AddEditSendItemState(sendView: newSend)
             newState.isOptionsExpanded = state.isOptionsExpanded
+            newState.isSendControlsPolicyEnabled = state.isSendControlsPolicyEnabled
+            newState.sendPolicyOptions = state.sendPolicyOptions
+            newState.hasPremium = state.hasPremium
+            if let enforcedAccessType = state.sendPolicyOptions.enforcedAccessType {
+                newState.accessType = enforcedAccessType
+            }
             state = newState
 
             coordinator.hideLoadingOverlay()

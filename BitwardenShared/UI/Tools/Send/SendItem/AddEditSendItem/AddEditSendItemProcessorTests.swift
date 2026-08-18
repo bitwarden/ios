@@ -223,6 +223,29 @@ class AddEditSendItemProcessorTests: BitwardenTestCase { // swiftlint:disable:th
         XCTAssertEqual(subject.state.toast, Toast(title: Localizations.sendPasswordRemoved))
     }
 
+    /// `perform(_:)` with `sendListItemRow(removePassword())` preserves the policy and premium
+    /// state on the rebuilt state so that a policy-enforced access type remains enforced after
+    /// the password is removed.
+    @MainActor
+    func test_perform_removePassword_success_preservesPolicyState() async throws {
+        let sendView = SendView.fixture(id: "SEND_ID")
+        subject.state.originalSendView = sendView
+        subject.state.isSendControlsPolicyEnabled = true
+        subject.state.hasPremium = true
+        subject.state.sendPolicyOptions = SendPolicyOptions(enforcedAccessType: .specificPeople)
+        sendRepository.removePasswordFromSendResult = .success(sendView)
+        await subject.perform(.removePassword)
+
+        let alert = try XCTUnwrap(coordinator.alertShown.last)
+        try await alert.tapAction(title: Localizations.remove)
+
+        XCTAssertTrue(subject.state.isSendControlsPolicyEnabled)
+        XCTAssertTrue(subject.state.hasPremium)
+        XCTAssertEqual(subject.state.sendPolicyOptions.enforcedAccessType, .specificPeople)
+        XCTAssertEqual(subject.state.accessType, .specificPeople)
+        XCTAssertTrue(subject.state.isAccessTypeEnforcedByPolicy)
+    }
+
     /// `perform(_:)` with `sendListItemRow(removePassword())` uses the send repository to remove
     /// the password from a send.
     @MainActor
