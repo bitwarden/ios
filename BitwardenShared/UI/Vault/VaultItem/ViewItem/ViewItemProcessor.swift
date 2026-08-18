@@ -763,6 +763,10 @@ private extension ViewItemProcessor {
 // MARK: - CipherItemOperationDelegate
 
 extension ViewItemProcessor: CipherItemOperationDelegate {
+    func bankAccountSaved() {
+        state.toast = Toast(title: Localizations.bankAccountSaved)
+    }
+
     func itemArchived() {
         coordinator.navigate(to: .dismiss(DismissAction(action: { [delegate] in delegate?.itemArchived() })))
     }

@@ -1620,6 +1620,45 @@ class AddEditItemProcessorTests: BitwardenTestCase {
         XCTAssertEqual(reviewPromptService.userActions, [.addedNewItem])
     }
 
+    /// `perform(_:)` with `.savePressed` for a new bank account item notifies the delegate to
+    /// display a "Bank account saved" toast after dismissing.
+    @MainActor
+    func test_perform_savePressed_new_bankAccount_showsSavedToast() async throws {
+        subject.state.name = "vault item"
+        subject.state.type = .bankAccount
+
+        await subject.perform(.savePressed)
+
+        var dismissAction: DismissAction?
+        if case let .dismiss(onDismiss) = coordinator.routes.last {
+            dismissAction = onDismiss
+        }
+        XCTAssertNotNil(dismissAction)
+        dismissAction?.action()
+        XCTAssertTrue(delegate.bankAccountSavedCalled)
+    }
+
+    /// `perform(_:)` with `.savePressed` for an existing bank account item notifies the delegate
+    /// to display a "Bank account saved" toast after dismissing.
+    @MainActor
+    func test_perform_savePressed_existing_bankAccount_showsSavedToast() async throws {
+        let cipher = CipherView.fixture(id: "123", type: .bankAccount)
+        let cipherState = try XCTUnwrap(CipherItemState(existing: cipher, hasPremium: true))
+        vaultRepository.updateCipherResult = .success(())
+
+        subject.state = cipherState.addEditState
+        subject.state.name = "vault item"
+        await subject.perform(.savePressed)
+
+        var dismissAction: DismissAction?
+        if case let .dismiss(onDismiss) = coordinator.routes.last {
+            dismissAction = onDismiss
+        }
+        XCTAssertNotNil(dismissAction)
+        dismissAction?.action()
+        XCTAssertTrue(delegate.bankAccountSavedCalled)
+    }
+
     /// `perform(_:)` with `.savePressed` in the app extension completes the autofill request if a
     /// username and password was entered.
     @MainActor
@@ -3491,6 +3530,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
 // MARK: MockCipherItemOperationDelegate
 
 class MockCipherItemOperationDelegate: CipherItemOperationDelegate {
+    var bankAccountSavedCalled = false
     var itemAddedCalled = false
     var itemAddedShouldDismiss = true
     var itemArchivedCalled = false
@@ -3500,6 +3540,10 @@ class MockCipherItemOperationDelegate: CipherItemOperationDelegate {
     var itemUpdatedCalled = false
     var itemUpdatedShouldDismiss = true
     var itemUnarchivedCalled = false
+
+    func bankAccountSaved() {
+        bankAccountSavedCalled = true
+    }
 
     func itemAdded() -> Bool {
         itemAddedCalled = true
