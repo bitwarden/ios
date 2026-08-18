@@ -403,7 +403,7 @@ class DefaultBillingService: BillingService { // swiftlint:disable:this type_bod
             // `activeAccountIdPublisher()`'s backing store re-emits on every write, not only
             // when the active account actually changes (e.g. once per sync, via
             // `updateProfile(from:userId:)`) — `removeDuplicates()` keeps this subscriber tied
-            // to actual account switches, matching what its own doc comment describes.
+            // to actual account switches.
             for await userId in await self.stateService.activeAccountIdPublisher().removeDuplicates().values {
                 self.currentSyncSubscriber?.cancel()
                 guard userId != nil else { continue }
