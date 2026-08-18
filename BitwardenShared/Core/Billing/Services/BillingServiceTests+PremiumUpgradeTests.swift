@@ -108,12 +108,13 @@ extension BillingServiceTests {
         #expect(!syncService.didFetchSync)
     }
 
-    /// `premiumStatusChanged()` does nothing when no upgrade is pending — this is the boundary
-    /// that keeps a `.premiumStatusChanged` push notification (which isn't tied to any local
-    /// checkout attempt) from marking an account pending just because it happens to not be
-    /// Premium yet.
+    /// `premiumStatusChanged()` does not publish a checkout status or mark the upgrade pending
+    /// when nothing is pending — this is the boundary that keeps a `.premiumStatusChanged` push
+    /// notification (which isn't tied to any local checkout attempt) from marking an account
+    /// pending just because it happens to not be Premium yet. It still triggers a plain sync;
+    /// see `premiumStatusChanged_notPending_stillSyncsGenerically`.
     @Test
-    func premiumStatusChanged_notPending_doesNothing() async throws {
+    func premiumStatusChanged_notPending_doesNotPublishOrMarkPending() async throws {
         stateService.premiumUpgradePendingResult = false
         stateService.doesActiveAccountHavePremiumResult = false
         var statuses = [PremiumCheckoutStatus]()

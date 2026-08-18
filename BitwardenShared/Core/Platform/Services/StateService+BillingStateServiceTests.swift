@@ -143,6 +143,14 @@ struct StateServiceBillingStateServiceTests {
         #expect(!result)
     }
 
+    /// `getPremiumUpgradeLastSyncAttemptFailed()` throws when there is no active account.
+    @Test
+    func getPremiumUpgradeLastSyncAttemptFailed_noActiveAccount() async {
+        await #expect(throws: StateServiceError.noActiveAccount) {
+            _ = try await subject.getPremiumUpgradeLastSyncAttemptFailed()
+        }
+    }
+
     /// `getPremiumUpgradeLastSyncAttemptFailed()` returns the stored value for the active account.
     @Test
     func getPremiumUpgradeLastSyncAttemptFailed_storedValue() async throws {
@@ -172,6 +180,14 @@ struct StateServiceBillingStateServiceTests {
 
         let result = try await subject.getPremiumUpgradePending()
         #expect(!result)
+    }
+
+    /// `getPremiumUpgradePending()` throws when there is no active account.
+    @Test
+    func getPremiumUpgradePending_noActiveAccount() async {
+        await #expect(throws: StateServiceError.noActiveAccount) {
+            _ = try await subject.getPremiumUpgradePending()
+        }
     }
 
     /// `getPremiumUpgradePending()` returns the stored value for the active account.

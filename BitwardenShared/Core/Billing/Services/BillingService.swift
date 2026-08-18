@@ -111,7 +111,7 @@ protocol BillingService: AnyObject { // sourcery: AutoMockable
 
 /// The default implementation of `BillingService`.
 ///
-class DefaultBillingService: BillingService { // swiftlint:disable:this type_body_length
+class DefaultBillingService: BillingService {
     // MARK: Properties
 
     /// The API service used for billing requests.
@@ -197,14 +197,6 @@ class DefaultBillingService: BillingService { // swiftlint:disable:this type_bod
     // MARK: Methods
 
     func createCheckoutSession() async throws -> URL {
-        // Clear any stale failure from a prior attempt so it can't incorrectly surface against
-        // this one before its own sync has run.
-        do {
-            try await billingStateService.setPremiumUpgradeLastSyncAttemptFailed(false)
-        } catch {
-            errorReporter.log(error: error)
-        }
-
         let response = try await billingAPIService.createCheckoutSession()
         let url = response.checkoutSessionUrl
         // Ensure the checkout URL uses HTTPS to prevent man-in-the-middle attacks
@@ -214,6 +206,7 @@ class DefaultBillingService: BillingService { // swiftlint:disable:this type_bod
         }
 
         do {
+            try await billingStateService.setPremiumUpgradeLastSyncAttemptFailed(false)
             try await billingStateService.setPremiumUpgradePending(true)
         } catch {
             errorReporter.log(error: error)

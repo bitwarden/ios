@@ -218,6 +218,7 @@ struct PremiumUpgradeProcessorTests {
         // The pending mark createCheckoutSession() just made needs clearing — the user dismissed
         // the checkout sheet without completing anything, so nothing is actually in flight.
         #expect(billingService.premiumCheckoutCanceledCalled)
+        #expect(errorReporter.errors.isEmpty)
     }
 
     /// `perform(_:)` with `.upgradeNowTapped` clears the pending mark when the web auth session
@@ -235,6 +236,7 @@ struct PremiumUpgradeProcessorTests {
         let alert = try #require(coordinator.alertShown.last)
         #expect(alert.title == Localizations.paymentNotReceivedYet)
         #expect(billingService.premiumCheckoutCanceledCalled)
+        #expect(errorReporter.errors.last as? BitwardenTestError == .example)
     }
 
     /// `receive(_:)` with `.cancelTapped` navigates to dismiss.

@@ -23,6 +23,20 @@ extension BillingServiceTests {
         #expect(billingAPIService.createCheckoutSessionCallsCount == 1)
     }
 
+    /// `createCheckoutSession()` does not clear a stale `lastAttemptFailed` flag when the API
+    /// call fails — the flag still describes the most recent attempt, since this one never began.
+    @Test
+    func createCheckoutSession_apiError_doesNotClearLastAttemptFailed() async throws {
+        stateService.premiumUpgradeLastSyncAttemptFailedResult = true
+        billingAPIService.createCheckoutSessionThrowableError = URLError(.notConnectedToInternet)
+
+        await #expect(throws: URLError.self) {
+            try await subject.createCheckoutSession()
+        }
+
+        #expect(stateService.premiumUpgradeLastSyncAttemptFailedResult == true)
+    }
+
     /// `createCheckoutSession()` does not mark the upgrade pending when the API call fails —
     /// nothing would ever be left to clear a pending mark set before an attempt actually began.
     @Test
@@ -48,6 +62,22 @@ extension BillingServiceTests {
         _ = try await subject.createCheckoutSession()
 
         #expect(stateService.premiumUpgradeLastSyncAttemptFailedResult == false)
+    }
+
+    /// `createCheckoutSession()` does not clear a stale `lastAttemptFailed` flag when the
+    /// returned URL fails the HTTPS check, for the same reason as the API-error case.
+    @Test
+    func createCheckoutSession_invalidUrl_doesNotClearLastAttemptFailed() async throws {
+        stateService.premiumUpgradeLastSyncAttemptFailedResult = true
+        billingAPIService.createCheckoutSessionReturnValue = CheckoutSessionResponseModel(
+            checkoutSessionUrl: URL(string: "http://checkout.stripe.com/session")!,
+        )
+
+        await #expect(throws: BillingError.invalidCheckoutUrl) {
+            _ = try await subject.createCheckoutSession()
+        }
+
+        #expect(stateService.premiumUpgradeLastSyncAttemptFailedResult == true)
     }
 
     /// `createCheckoutSession()` does not mark the upgrade pending when the returned URL fails
