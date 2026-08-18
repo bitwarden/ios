@@ -409,30 +409,33 @@ class DefaultBillingService: BillingService { // swiftlint:disable:this type_bod
                 guard userId != nil else { continue }
 
                 await self.refreshPremiumUpgradePendingStateSubject()
-
-                self.currentSyncSubscriber = Task {
-                    guard let publisher = try? await self.stateService.lastSyncTimePublisher() else { return }
-                    // Snapshot the last-known sync time directly, rather than relying on
-                    // whichever value the publisher happens to deliver first: its
-                    // `CurrentValueSubject` backing replays the existing cached value
-                    // immediately on subscribe (not evidence that a sync just happened), and a
-                    // *different* account's sync can also re-emit this shared store without this
-                    // account's own value having changed. Comparing each emission against the
-                    // last value actually seen — rather than its position in the stream — means
-                    // only a genuinely new sync for this account reaches
-                    // `reconcilePendingUpgradeIfNeeded()`, regardless of subscription timing.
-                    var lastSeenDate = try? await self.stateService.getLastSyncTime()
-                    for await date in publisher.values {
-                        guard date != lastSeenDate else { continue }
-                        lastSeenDate = date
-                        await self.reconcilePendingUpgradeIfNeeded()
-                    }
-                }
+                self.currentSyncSubscriber = Task { await self.reconcileOnEachNewSync() }
             }
         }
     }
 
     // MARK: Private Methods
+
+    /// Subscribes to the active account's sync completions and reconciles a pending Premium
+    /// upgrade after each genuinely new sync.
+    ///
+    private func reconcileOnEachNewSync() async {
+        guard let publisher = try? await stateService.lastSyncTimePublisher() else { return }
+        // Snapshot the last-known sync time directly, rather than relying on whichever value
+        // the publisher happens to deliver first: its `CurrentValueSubject` backing replays the
+        // existing cached value immediately on subscribe (not evidence that a sync just
+        // happened), and a *different* account's sync can also re-emit this shared store
+        // without this account's own value having changed. Comparing each emission against the
+        // last value actually seen — rather than its position in the stream — means only a
+        // genuinely new sync for this account reaches `reconcilePendingUpgradeIfNeeded()`,
+        // regardless of subscription timing.
+        var lastSeenDate = try? await stateService.getLastSyncTime()
+        for await date in publisher.values {
+            guard date != lastSeenDate else { continue }
+            lastSeenDate = date
+            await reconcilePendingUpgradeIfNeeded()
+        }
+    }
 
     /// Checks whether a pending Premium upgrade can now be resolved, and clears the pending
     /// state if the active account has since become Premium (by any means — personal or
