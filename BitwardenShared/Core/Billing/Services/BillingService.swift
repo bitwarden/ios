@@ -449,11 +449,9 @@ class DefaultBillingService: BillingService { // swiftlint:disable:this type_bod
             return
         }
 
-        // Reaching this point at all means a *new* sync just completed successfully — `start()`
-        // filters out both the initial replay and same-value re-emissions before invoking this
-        // method, and `lastSyncTimePublisher` never fires on failure — so the most recent
-        // attempt did not fail. Clear that regardless of whether the account has become Premium
-        // yet, so a stale failure doesn't linger after a later, unrelated sync has succeeded.
+        // `lastSyncTimePublisher` never fires on failure, so the most recent attempt did not
+        // fail. Clear that regardless of premium status, so a stale failure doesn't linger
+        // after a later, unrelated sync succeeds.
         do {
             try await billingStateService.setPremiumUpgradeLastSyncAttemptFailed(false)
         } catch {
