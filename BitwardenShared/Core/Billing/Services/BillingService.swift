@@ -213,12 +213,6 @@ class DefaultBillingService: BillingService { // swiftlint:disable:this type_bod
             throw BillingError.invalidCheckoutUrl
         }
 
-        // Only now do we know an attempt is actually about to begin — mark it pending. This is
-        // the only place `premiumUpgradePending` is ever set to `true`: `premiumStatusChanged()`
-        // only reconciles an attempt already marked pending here, so a `.premiumStatusChanged`
-        // push for an account that never started a checkout has nothing to act on. Marking it
-        // any earlier (e.g. before the API call) would leave a stuck pending state behind if
-        // this method throws, with nothing left to ever clear it.
         do {
             try await billingStateService.setPremiumUpgradePending(true)
         } catch {
