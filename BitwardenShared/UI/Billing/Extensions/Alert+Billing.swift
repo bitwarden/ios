@@ -60,6 +60,33 @@ extension Alert {
         )
     }
 
+    /// An alert shown when a sync attempt for a pending Premium upgrade fails.
+    ///
+    /// - Parameter tryAgainHandler: A closure called when the user taps "Try again".
+    /// - Returns: An `Alert` with "Not now" and "Try again" actions.
+    ///
+    static func syncUnsuccessful(
+        tryAgainHandler: @escaping () async -> Void,
+    ) -> Alert {
+        Alert(
+            title: Localizations.syncUnsuccessful,
+            message: Localizations.weCouldntSyncYourVaultWithTheServerDescriptionLong,
+            alertActions: [
+                AlertAction(
+                    title: Localizations.notNow,
+                    style: .cancel,
+                ),
+                AlertAction(
+                    title: Localizations.tryAgain,
+                    style: .default,
+                    handler: { _, _ in
+                        await tryAgainHandler()
+                    },
+                ),
+            ],
+        )
+    }
+
     /// An alert shown when a Premium upgrade is still being processed.
     ///
     /// - Parameter syncNowHandler: A closure called when the user taps "Sync now".

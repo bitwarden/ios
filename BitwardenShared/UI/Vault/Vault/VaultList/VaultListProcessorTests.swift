@@ -1252,6 +1252,119 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         task.cancel()
     }
 
+    /// `perform(_:)` with `.streamPremiumUpgradePendingState` shows the "Sync unsuccessful"
+    /// alert the first time the publisher reports a failed sync attempt.
+    @MainActor
+    func test_perform_streamPremiumUpgradePendingState_showsSyncUnsuccessfulAlert() throws {
+        let pendingStateSubject = CurrentValueSubject<PremiumUpgradePendingState, Never>(
+            PremiumUpgradePendingState(isPending: true, lastAttemptFailed: false),
+        )
+        billingService.premiumUpgradePendingStatePublisherReturnValue = pendingStateSubject.eraseToAnyPublisher()
+
+        let task = Task {
+            await subject.perform(.streamPremiumUpgradePendingState)
+        }
+        defer { task.cancel() }
+
+        pendingStateSubject.send(PremiumUpgradePendingState(isPending: true, lastAttemptFailed: true))
+        waitFor(!coordinator.alertShown.isEmpty)
+
+        XCTAssertEqual(coordinator.alertShown.count, 1)
+        XCTAssertEqual(coordinator.alertShown.last?.title, Localizations.syncUnsuccessful)
+    }
+
+    /// `perform(_:)` with `.streamPremiumUpgradePendingState` does not re-show the "Sync
+    /// unsuccessful" alert on a later, duplicate emission that still reports a failed attempt.
+    @MainActor
+    func test_perform_streamPremiumUpgradePendingState_doesNotReshowSyncUnsuccessfulAlert() {
+        billingRepository.isInAppUpgradeAvailableReturnValue = true
+        let pendingStateSubject = CurrentValueSubject<PremiumUpgradePendingState, Never>(
+            PremiumUpgradePendingState(isPending: true, lastAttemptFailed: false),
+        )
+        billingService.premiumUpgradePendingStatePublisherReturnValue = pendingStateSubject.eraseToAnyPublisher()
+
+        let task = Task {
+            await subject.perform(.streamPremiumUpgradePendingState)
+        }
+        defer { task.cancel() }
+
+        pendingStateSubject.send(PremiumUpgradePendingState(isPending: true, lastAttemptFailed: true))
+        waitFor(!coordinator.alertShown.isEmpty)
+        XCTAssertEqual(coordinator.alertShown.count, 1)
+
+        // A duplicate emission with the same `lastAttemptFailed: true` (e.g. triggered by an
+        // unrelated `isPending` change) should not re-show the alert. Combine delivers a single
+        // publisher's emissions in order, so sending a distinct, independently-observable
+        // follow-up and waiting on it proves the duplicate before it was already processed —
+        // without that, `waitFor` could return before the duplicate was even handled.
+        pendingStateSubject.send(PremiumUpgradePendingState(isPending: true, lastAttemptFailed: true))
+        pendingStateSubject.send(PremiumUpgradePendingState(isPending: false, lastAttemptFailed: true))
+        waitFor(subject.state.shouldShowPremiumUpgradeActionCard)
+
+        XCTAssertEqual(coordinator.alertShown.count, 1)
+    }
+
+    /// `perform(_:)` with `.streamPremiumUpgradePendingState` — tapping "Try again" on the
+    /// "Sync unsuccessful" alert retries via `premiumStatusChanged()`.
+    ///
+    /// Kept synchronous (not `async`) deliberately: this test runs a background `Task`
+    /// consuming an infinite stream while also driving another async call (`tapAction`) from
+    /// the test body. If the test function itself were `async`, it would run on Swift's
+    /// cooperative thread pool, and the blocking `waitFor` helper below would starve that same
+    /// pool, preventing the background `Task` from ever being scheduled — a real deadlock this
+    /// test hit before being fixed. Running synchronously (on the XCTest main thread, not the
+    /// cooperative pool) avoids that; `tapAction`'s own async call is driven via a second `Task`
+    /// polled with `waitFor` instead of an inline `await`.
+    @MainActor
+    func test_perform_streamPremiumUpgradePendingState_syncUnsuccessfulAlert_tryAgain() throws {
+        let pendingStateSubject = CurrentValueSubject<PremiumUpgradePendingState, Never>(
+            PremiumUpgradePendingState(isPending: true, lastAttemptFailed: true),
+        )
+        billingService.premiumUpgradePendingStatePublisherReturnValue = pendingStateSubject.eraseToAnyPublisher()
+
+        let task = Task {
+            await subject.perform(.streamPremiumUpgradePendingState)
+        }
+        defer { task.cancel() }
+
+        waitFor(!coordinator.alertShown.isEmpty)
+        let alert = try XCTUnwrap(coordinator.alertShown.last)
+
+        Task {
+            try await alert.tapAction(title: Localizations.tryAgain)
+        }
+        waitFor(billingService.premiumStatusChangedCallsCount == 1)
+    }
+
+    /// `perform(_:)` with `.streamPremiumUpgradePendingState` re-shows the "Sync Unsuccessful"
+    /// alert if the user's own "Try again" retry also fails — the transition tracker must reset
+    /// before retrying, or this explicit, user-initiated retry would fail with no feedback.
+    @MainActor
+    func test_perform_streamPremiumUpgradePendingState_syncUnsuccessfulAlert_tryAgainFails() throws {
+        let pendingStateSubject = CurrentValueSubject<PremiumUpgradePendingState, Never>(
+            PremiumUpgradePendingState(isPending: true, lastAttemptFailed: true),
+        )
+        billingService.premiumUpgradePendingStatePublisherReturnValue = pendingStateSubject.eraseToAnyPublisher()
+        billingService.premiumStatusChangedClosure = {
+            pendingStateSubject.send(PremiumUpgradePendingState(isPending: true, lastAttemptFailed: true))
+        }
+
+        let task = Task {
+            await subject.perform(.streamPremiumUpgradePendingState)
+        }
+        defer { task.cancel() }
+
+        waitFor(!coordinator.alertShown.isEmpty)
+        let alert = try XCTUnwrap(coordinator.alertShown.last)
+
+        Task {
+            try await alert.tapAction(title: Localizations.tryAgain)
+        }
+        waitFor(coordinator.alertShown.count == 2)
+
+        XCTAssertEqual(coordinator.alertShown.last?.title, Localizations.syncUnsuccessful)
+    }
+
     /// `perform(_:)` with `.streamShowWebIcons` requests the value of the show
     /// web icons parameter from the state service.
     @MainActor
