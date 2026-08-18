@@ -199,7 +199,7 @@ jobs:
             fi
           done
 
-          echo "log=$_LOG" >> "$GITHUB_OUTPUT"
+          echo "log=$GITHUB_WORKSPACE/$_LOG" >> "$GITHUB_OUTPUT"
 
       - name: Run Claude Code
         id: claude
