@@ -376,6 +376,10 @@ final class VaultGroupProcessor: StateProcessor<// swiftlint:disable:this type_b
 extension VaultGroupProcessor: CipherItemOperationDelegate {
     // MARK: Methods
 
+    func bankAccountSaved() {
+        displayToastAndRefresh(toastTitle: Localizations.bankAccountSaved)
+    }
+
     func itemArchived() {
         displayToastAndRefresh(toastTitle: Localizations.itemMovedToArchive)
     }
