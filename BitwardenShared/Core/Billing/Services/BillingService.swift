@@ -280,13 +280,6 @@ class DefaultBillingService: BillingService { // swiftlint:disable:this type_bod
             return
         }
 
-        // The checkout-status publisher and the persisted pending/failure state only make sense
-        // in the context of an in-app upgrade attempt already in flight — the Stripe checkout
-        // callback confirming, or an explicit "Sync Now"/"Try Again" retry. `createCheckoutSession()`
-        // is the only place that marks an attempt pending. But this method is also the target of
-        // a generic `.premiumStatusChanged` push for an account that never started one — Premium
-        // granted via the web vault, another device, or an org — which still needs a sync to
-        // pick up the change locally, just without touching checkout-specific state.
         let isPending: Bool
         do {
             isPending = try await billingStateService.getPremiumUpgradePending()
