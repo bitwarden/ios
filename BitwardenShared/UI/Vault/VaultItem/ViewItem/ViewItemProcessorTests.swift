@@ -145,6 +145,15 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         )
     }
 
+    /// `bankAccountSaved()` shows the expected toast.
+    @MainActor
+    func test_bankAccountSaved() {
+        XCTAssertNil(subject.state.toast)
+
+        subject.bankAccountSaved()
+        XCTAssertEqual(subject.state.toast, Toast(title: Localizations.bankAccountSaved))
+    }
+
     /// `itemArchived()` presents the dismiss action alert and calls the delegate.
     @MainActor
     func test_itemArchived() async throws {
