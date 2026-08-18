@@ -17,4 +17,18 @@ struct BankAccountTypeTests {
         #expect(BankAccountType.other.rawValue == "other")
         #expect(BankAccountType.savings.rawValue == "savings")
     }
+
+    /// `displayOrder` matches the order specified by design.
+    @Test
+    func displayOrder_matchesDesign() {
+        #expect(BankAccountType.displayOrder == [
+            .checking,
+            .savings,
+            .certificateOfDeposit,
+            .lineOfCredit,
+            .investmentBrokerage,
+            .moneyMarket,
+            .other,
+        ])
+    }
 }
