@@ -229,6 +229,46 @@ struct PremiumUpgradeHelperTests {
         #expect(onPendingDismissCalled)
     }
 
+    /// Tapping "Sync Now" on the upgrade pending alert navigates to the standalone Premium
+    /// upgrade complete screen only when the retry actually resolves the pending upgrade — not
+    /// when it's still pending (not yet Premium) or the retry itself failed, both of which are
+    /// covered by PR2's CTA and PR3's "Sync unsuccessful" alert independently, via the durable
+    /// `premiumUpgradePendingStatePublisher()` signal.
+    @Test(arguments: [
+        (PremiumUpgradePendingState(isPending: false, lastAttemptFailed: false), true),
+        (PremiumUpgradePendingState(isPending: true, lastAttemptFailed: false), false),
+        (PremiumUpgradePendingState(isPending: true, lastAttemptFailed: true), false),
+        (PremiumUpgradePendingState(isPending: false, lastAttemptFailed: true), false),
+    ])
+    func subscribeToPremiumCheckoutStatus_pending_syncNow(
+        pendingState: PremiumUpgradePendingState,
+        expectedNavigatesToComplete: Bool,
+    ) async throws {
+        billingRepository.isInAppUpgradeAvailableReturnValue = true
+        let statusSubject = PassthroughSubject<PremiumCheckoutStatus, Never>()
+        billingService.premiumCheckoutStatusPublisherReturnValue = statusSubject.eraseToAnyPublisher()
+        billingService.premiumUpgradePendingStateReturnValue = pendingState
+        let subject = makeSubject()
+        await subject.navigateToPremiumUpgrade()
+
+        statusSubject.send(.pending)
+        try await waitForAsync {
+            guard case let .dismiss(action) = coordinator.routes.last else { return false }
+            return action != nil
+        }
+        guard case let .dismiss(action) = coordinator.routes.last else {
+            Issue.record("Expected .dismiss route")
+            return
+        }
+        action?.action()
+
+        let alert = try #require(coordinator.alertShown.last)
+        try await alert.tapAction(title: Localizations.syncNow)
+
+        #expect(billingService.premiumStatusChangedCalled)
+        #expect((coordinator.routes.last == .premiumUpgradeComplete) == expectedNavigatesToComplete)
+    }
+
     /// When the billing service emits `.syncing`, nothing happens (the loading overlay is shown
     /// by `PremiumUpgradeProcessor`).
     @Test

@@ -269,6 +269,8 @@ final class VaultCoordinator: Coordinator, HasStackNavigator { // swiftlint:disa
             delegate?.switchToSettingsTab(route: .premiumPlan(nil))
         case .premiumUpgrade:
             showPremiumUpgrade()
+        case .premiumUpgradeComplete:
+            showPremiumUpgradeCompleteScreen()
         case let .vaultItemSelection(totpKeyModel):
             showVaultItemSelection(totpKeyModel: totpKeyModel)
         case let .viewItem(id, masterPasswordRepromptCheckCompleted):
@@ -428,6 +430,17 @@ final class VaultCoordinator: Coordinator, HasStackNavigator { // swiftlint:disa
         let navigationController = module.makeNavigationController()
         let coordinator = module.makeBillingCoordinator(stackNavigator: navigationController)
         coordinator.navigate(to: .premiumUpgrade)
+        stackNavigator?.present(navigationController)
+    }
+
+    /// Shows a standalone Premium upgrade complete screen, for when an upgrade resolves outside
+    /// of the upgrade screen itself (e.g. a "Sync Now" retry succeeding after the upgrade screen
+    /// has already been dismissed).
+    ///
+    private func showPremiumUpgradeCompleteScreen() {
+        let navigationController = module.makeNavigationController()
+        let coordinator = module.makeBillingCoordinator(stackNavigator: navigationController)
+        coordinator.navigate(to: .premiumUpgradeCompleteStandalone)
         stackNavigator?.present(navigationController)
     }
 
