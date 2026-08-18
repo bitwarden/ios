@@ -1,7 +1,6 @@
 // MARK: - PremiumUpgradePendingState
 
-/// A domain model representing the persisted state of a pending Premium upgrade for the
-/// active account.
+/// The persisted state of a pending Premium upgrade for the active account.
 ///
 struct PremiumUpgradePendingState: Equatable {
     // MARK: Properties
