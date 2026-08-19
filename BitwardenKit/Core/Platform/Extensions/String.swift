@@ -115,6 +115,16 @@ public extension String {
         return result
     }
 
+    /// Returns a copy of the string with each character separated by a space so that VoiceOver
+    /// announces the characters individually instead of interpreting the string as a whole word
+    /// or number.
+    ///
+    /// - Returns: A copy of the string with each character separated by a space.
+    ///
+    func spellingOutCharacters() -> String {
+        map { String($0) }.joined(separator: " ")
+    }
+
     /// Validates whether the string is a valid email address.
     ///
     /// - Parameter useStrictValidation: If `true`, validates against a regex pattern requiring
