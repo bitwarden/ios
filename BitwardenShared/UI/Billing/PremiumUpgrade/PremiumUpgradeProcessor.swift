@@ -173,7 +173,7 @@ final class PremiumUpgradeProcessor: StateProcessor<
         }
     }
 
-    /// Logs the failure (if any), clears the pending checkout attempt, and offers a retry alert.
+    /// Logs the failure (if any) and offers a retry alert.
     ///
     /// - Parameters:
     ///   - errorToReport: The error to log, or `nil` if there isn't one worth reporting
@@ -183,7 +183,6 @@ final class PremiumUpgradeProcessor: StateProcessor<
         if let errorToReport {
             services.errorReporter.log(error: errorToReport)
         }
-        await services.billingService.premiumCheckoutCanceled()
         coordinator.showAlert(.paymentNotReceivedYet {
             await self.createCheckoutSession()
         })

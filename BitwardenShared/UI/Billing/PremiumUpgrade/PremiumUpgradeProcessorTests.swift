@@ -216,14 +216,12 @@ struct PremiumUpgradeProcessorTests {
         #expect(delegate.performCheckoutWebAuthSessionReceivedUrl == checkoutURL)
         let alert = try #require(coordinator.alertShown.last)
         #expect(alert.title == Localizations.paymentNotReceivedYet)
-        // The pending mark createCheckoutSession() just made needs clearing — the user dismissed
-        // the checkout sheet without completing anything, so nothing is actually in flight.
-        #expect(billingService.premiumCheckoutCanceledCalled)
+        #expect(!billingService.premiumCheckoutCanceledCalled)
         #expect(errorReporter.errors.isEmpty)
     }
 
-    /// `perform(_:)` with `.upgradeNowTapped` clears the pending mark when the web auth session
-    /// fails with something other than cancellation — that attempt didn't complete either.
+    /// `perform(_:)` with `.upgradeNowTapped` shows the retry alert when the web auth session
+    /// fails with something other than cancellation.
     @Test
     func perform_upgradeNowTapped_webAuthSessionFailure() async throws {
         let checkoutURL = URL(string: "https://checkout.stripe.com/session")!
@@ -236,7 +234,7 @@ struct PremiumUpgradeProcessorTests {
 
         let alert = try #require(coordinator.alertShown.last)
         #expect(alert.title == Localizations.paymentNotReceivedYet)
-        #expect(billingService.premiumCheckoutCanceledCalled)
+        #expect(!billingService.premiumCheckoutCanceledCalled)
         #expect(errorReporter.errors.last as? BitwardenTestError == .example)
     }
 

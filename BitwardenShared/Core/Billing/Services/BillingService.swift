@@ -113,7 +113,7 @@ protocol BillingService: AnyObject { // sourcery: AutoMockable
 
 /// The default implementation of `BillingService`.
 ///
-class DefaultBillingService: BillingService {
+class DefaultBillingService: BillingService { // swiftlint:disable:this type_body_length
     // MARK: Properties
 
     /// The API service used for billing requests.
@@ -292,12 +292,24 @@ class DefaultBillingService: BillingService {
         let hasPremium = await stateService.doesActiveAccountHavePremium()
         do {
             try await billingStateService.setPremiumUpgradeLastSyncAttemptFailed(syncFailed)
-            try await billingStateService.setPremiumUpgradePending(false)
-            if hasPremium {
-                try await billingStateService.setUpgradedToPremiumActionCardVisible(true)
-            }
         } catch {
             errorReporter.log(error: error)
+        }
+        // Left set when sync succeeded but Premium isn't confirmed yet, so a later sync can
+        // still resolve it via `reconcilePendingUpgradeIfNeeded()`.
+        if hasPremium || syncFailed {
+            do {
+                try await billingStateService.setPremiumUpgradePending(false)
+            } catch {
+                errorReporter.log(error: error)
+            }
+        }
+        if hasPremium {
+            do {
+                try await billingStateService.setUpgradedToPremiumActionCardVisible(true)
+            } catch {
+                errorReporter.log(error: error)
+            }
         }
 
         premiumCheckoutStatusSubject.send(hasPremium ? .confirmed : .pending)
@@ -420,17 +432,21 @@ class DefaultBillingService: BillingService {
         }
     }
 
-    /// Checks whether a previously-failed Premium upgrade attempt can now be resolved, and sets
-    /// the "Upgraded to Premium" card visible if the active account has since become Premium
-    /// (by any means — personal or organization-granted).
+    /// Checks whether a still-unconfirmed or previously-failed Premium upgrade attempt can now
+    /// be resolved, and sets the "Upgraded to Premium" card visible if the active account has
+    /// since become Premium (by any means — personal or organization-granted).
     ///
     private func reconcilePendingUpgradeIfNeeded() async {
+        let isPending: Bool
+        let lastAttemptFailed: Bool
         do {
-            guard try await billingStateService.getPremiumUpgradeLastSyncAttemptFailed() else { return }
+            isPending = try await billingStateService.getPremiumUpgradePending()
+            lastAttemptFailed = try await billingStateService.getPremiumUpgradeLastSyncAttemptFailed()
         } catch {
             errorReporter.log(error: error)
             return
         }
+        guard isPending || lastAttemptFailed else { return }
 
         // `lastSyncTimePublisher` never fires on failure, so the most recent attempt did not
         // fail. Clear that regardless of premium status, so a stale failure doesn't linger

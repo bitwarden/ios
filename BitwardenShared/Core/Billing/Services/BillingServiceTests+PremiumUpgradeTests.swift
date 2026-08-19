@@ -161,4 +161,24 @@ extension BillingServiceTests {
         #expect(stateService.premiumUpgradeLastSyncAttemptFailedResult == false)
         #expect(stateService.premiumUpgradePendingResult == false)
     }
+
+    /// `start()` resolves a pending Premium upgrade on a generic sync even when `lastAttemptFailed`
+    /// was never set — the "sync succeeded, Premium not yet confirmed" outcome leaves only
+    /// `isPending` set, and a later, unrelated sync must still be able to resolve it.
+    @Test
+    func start_resolvesPendingUpgradeOnGenericSync_pendingOnlyNoFailureRecorded() async throws {
+        stateService.activeAccount = .fixture()
+        stateService.doesActiveAccountHavePremiumResult = false
+
+        await subject.start()
+        // See the comment in `start_clearsLastAttemptFailedOnGenericSyncEvenWithoutPremium()`.
+        try await waitForAsync { stateService.getLastSyncTimeCallCount == 1 }
+
+        stateService.premiumUpgradePendingResult = true
+        stateService.doesActiveAccountHavePremiumResult = true
+        stateService.lastSyncTimeSubject.send(Date())
+
+        try await waitForAsync { stateService.upgradedToPremiumActionCardVisibleResult == true }
+        #expect(stateService.premiumUpgradePendingResult == false)
+    }
 }

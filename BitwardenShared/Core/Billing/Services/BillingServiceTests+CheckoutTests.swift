@@ -175,8 +175,8 @@ extension BillingServiceTests {
         try await waitForAsync { lateStatuses.isEmpty }
     }
 
-    /// `premiumCheckoutCanceled()` clears the pending mark `createCheckoutSession()` made for
-    /// this attempt — no attempt is actually in flight anymore once the user cancels.
+    /// `premiumCheckoutCanceled()` clears a pending mark left over from an interrupted
+    /// `reconcileCheckoutSuccess()` call.
     @Test
     func premiumCheckoutCanceled_clearsPending() async throws {
         stateService.premiumUpgradePendingResult = true

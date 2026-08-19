@@ -27,12 +27,15 @@ extension BillingServiceTests {
         #expect(!syncService.didFetchSync)
     }
 
-    /// `reconcileCheckoutSuccess()` publishes `.confirmed` when the user gains Premium after sync.
+    /// `reconcileCheckoutSuccess()` publishes `.confirmed` when the user gains Premium after
+    /// sync, and marks the upgrade pending for the duration of that sync.
     @Test
     func reconcileCheckoutSuccess_confirmed() async throws {
         // Start as non-Premium so the guard passes, then switch to Premium after sync.
         stateService.doesActiveAccountHavePremiumResult = false
+        var pendingDuringSync = false
         syncService.fetchSyncHandler = {
+            pendingDuringSync = stateService.premiumUpgradePendingResult
             stateService.doesActiveAccountHavePremiumResult = true
         }
         var statuses = [PremiumCheckoutStatus]()
@@ -45,6 +48,7 @@ extension BillingServiceTests {
         // With instant mock sync, .syncing and .confirmed arrive within the 300ms debounce
         // window, so only .confirmed (the last value) is delivered.
         try await waitForAsync { !statuses.isEmpty }
+        #expect(pendingDuringSync)
         #expect(statuses == [.confirmed])
         #expect(syncService.didFetchSync)
     }
@@ -91,8 +95,8 @@ extension BillingServiceTests {
     }
 
     /// `reconcileCheckoutSuccess()` publishes `.pending` when the user does not have Premium
-    /// after sync, and clears the pending mark immediately rather than leaving it set — the
-    /// "Upgrade to Premium" CTA should reappear right away, not stay hidden indefinitely.
+    /// after sync, and leaves the upgrade pending — the sync itself succeeded, so a later,
+    /// unrelated sync can still resolve this via `reconcilePendingUpgradeIfNeeded()`.
     @Test
     func reconcileCheckoutSuccess_pending() async throws {
         stateService.doesActiveAccountHavePremiumResult = false
@@ -106,20 +110,20 @@ extension BillingServiceTests {
         try await waitForAsync { !statuses.isEmpty }
         #expect(statuses == [.pending])
         #expect(syncService.didFetchSync)
-        #expect(stateService.premiumUpgradePendingResult == false)
+        #expect(stateService.premiumUpgradePendingResult == true)
     }
 
-    /// `reconcileCheckoutSuccess()` marks no failure when sync succeeds but the user is still
-    /// not Premium, and does not leave the upgrade pending.
+    /// `reconcileCheckoutSuccess()` records no failure and leaves the upgrade pending when sync
+    /// succeeds but the user is still not Premium.
     @Test
-    func reconcileCheckoutSuccess_pending_noFailureRecorded() async throws {
+    func reconcileCheckoutSuccess_pending_staysPendingNoFailureRecorded() async throws {
         stateService.premiumUpgradeLastSyncAttemptFailedResult = true
         stateService.doesActiveAccountHavePremiumResult = false
 
         await subject.reconcileCheckoutSuccess()
 
         #expect(stateService.premiumUpgradeLastSyncAttemptFailedResult == false)
-        #expect(stateService.premiumUpgradePendingResult == false)
+        #expect(stateService.premiumUpgradePendingResult == true)
     }
 
     /// `reconcileCheckoutSuccess()` reports the error and publishes `.pending` when sync fails.
@@ -155,6 +159,24 @@ extension BillingServiceTests {
 
         #expect(stateService.premiumUpgradeLastSyncAttemptFailedResult == true)
         #expect(stateService.premiumUpgradePendingResult == false)
-        #expect(pendingStates.last == PremiumUpgradePendingState(isPending: false, lastAttemptFailed: true))
+        #expect(pendingStates == [
+            PremiumUpgradePendingState(isPending: false, lastAttemptFailed: false),
+            PremiumUpgradePendingState(isPending: true, lastAttemptFailed: false),
+            PremiumUpgradePendingState(isPending: false, lastAttemptFailed: true),
+        ])
+    }
+
+    /// `reconcileCheckoutSuccess()` still clears the pending mark on sync failure even if recording
+    /// the failure itself throws — each state write is independent, so one throwing does not skip
+    /// the others.
+    @Test
+    func reconcileCheckoutSuccess_syncError_clearsPendingEvenIfRecordingFailureThrows() async throws {
+        stateService.doesActiveAccountHavePremiumResult = false
+        stateService.setPremiumUpgradeLastSyncAttemptFailedResult = .failure(URLError(.notConnectedToInternet))
+        syncService.fetchSyncResult = .failure(URLError(.notConnectedToInternet))
+
+        await subject.reconcileCheckoutSuccess()
+
+        #expect(stateService.premiumUpgradePendingResult == false)
     }
 }
