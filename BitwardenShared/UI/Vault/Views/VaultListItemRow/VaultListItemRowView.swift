@@ -90,6 +90,9 @@ struct VaultListItemRowView: View {
                             }
                             .accessibilityLabel(Localizations.moreOptions)
                             .accessibilityIdentifier("CipherOptionsButton")
+                            .accessibilityAction(named: Localizations.moreOptions) {
+                                Task { await store.perform(.morePressed) }
+                            }
                         }
 
                     case let .group(group, count):
