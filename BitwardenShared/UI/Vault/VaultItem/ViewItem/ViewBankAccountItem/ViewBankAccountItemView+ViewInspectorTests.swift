@@ -1,6 +1,7 @@
 // swiftlint:disable:this file_name
 import BitwardenKit
 import BitwardenKitMocks
+import BitwardenResources
 import SwiftUI
 import ViewInspector
 import XCTest
@@ -155,6 +156,57 @@ class ViewBankAccountItemViewTests: BitwardenTestCase {
         XCTAssertEqual(
             processor.dispatchedActions.last,
             .bankAccountItemAction(.toggleIbanVisibilityChanged(true)),
+        )
+    }
+
+    /// The account number visibility toggle announces the field name and current state to VoiceOver.
+    @MainActor
+    func test_accountNumberVisibilityToggle_accessibilityLabel() throws {
+        var state = populatedState()
+        state.isAccountNumberVisible = false
+        initSubject(state: state)
+        _ = try subject.inspect().find(
+            buttonWithAccessibilityLabel: Localizations.fieldValueIsNotVisibleTapToShow(Localizations.accountNumber),
+        )
+
+        state.isAccountNumberVisible = true
+        initSubject(state: state)
+        _ = try subject.inspect().find(
+            buttonWithAccessibilityLabel: Localizations.fieldValueIsVisibleTapToHide(Localizations.accountNumber),
+        )
+    }
+
+    /// The PIN visibility toggle announces the field name and current state to VoiceOver.
+    @MainActor
+    func test_pinVisibilityToggle_accessibilityLabel() throws {
+        var state = populatedState()
+        state.isPinVisible = false
+        initSubject(state: state)
+        _ = try subject.inspect().find(
+            buttonWithAccessibilityLabel: Localizations.fieldValueIsNotVisibleTapToShow(Localizations.pin),
+        )
+
+        state.isPinVisible = true
+        initSubject(state: state)
+        _ = try subject.inspect().find(
+            buttonWithAccessibilityLabel: Localizations.fieldValueIsVisibleTapToHide(Localizations.pin),
+        )
+    }
+
+    /// The IBAN visibility toggle announces the field name and current state to VoiceOver.
+    @MainActor
+    func test_ibanVisibilityToggle_accessibilityLabel() throws {
+        var state = populatedState()
+        state.isIbanVisible = false
+        initSubject(state: state)
+        _ = try subject.inspect().find(
+            buttonWithAccessibilityLabel: Localizations.fieldValueIsNotVisibleTapToShow(Localizations.iban),
+        )
+
+        state.isIbanVisible = true
+        initSubject(state: state)
+        _ = try subject.inspect().find(
+            buttonWithAccessibilityLabel: Localizations.fieldValueIsVisibleTapToHide(Localizations.iban),
         )
     }
 

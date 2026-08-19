@@ -101,6 +101,9 @@ struct ViewBankAccountItemView: View {
             } accessoryContent: {
                 PasswordVisibilityButton(
                     accessibilityIdentifier: "ShowBankAccountNumberButton",
+                    accessibilityLabel: isVisible
+                        ? Localizations.fieldValueIsVisibleTapToHide(Localizations.accountNumber)
+                        : Localizations.fieldValueIsNotVisibleTapToShow(Localizations.accountNumber),
                     isPasswordVisible: isVisible,
                 ) {
                     store.send(.bankAccountItemAction(.toggleAccountNumberVisibilityChanged(!isVisible)))
@@ -132,6 +135,9 @@ struct ViewBankAccountItemView: View {
             } accessoryContent: {
                 PasswordVisibilityButton(
                     accessibilityIdentifier: "ShowBankAccountIbanButton",
+                    accessibilityLabel: isVisible
+                        ? Localizations.fieldValueIsVisibleTapToHide(Localizations.iban)
+                        : Localizations.fieldValueIsNotVisibleTapToShow(Localizations.iban),
                     isPasswordVisible: isVisible,
                 ) {
                     store.send(.bankAccountItemAction(.toggleIbanVisibilityChanged(!isVisible)))
@@ -163,6 +169,9 @@ struct ViewBankAccountItemView: View {
             } accessoryContent: {
                 PasswordVisibilityButton(
                     accessibilityIdentifier: "ShowBankAccountPinButton",
+                    accessibilityLabel: isVisible
+                        ? Localizations.fieldValueIsVisibleTapToHide(Localizations.pin)
+                        : Localizations.fieldValueIsNotVisibleTapToShow(Localizations.pin),
                     isPasswordVisible: isVisible,
                 ) {
                     store.send(.bankAccountItemAction(.togglePinVisibilityChanged(!isVisible)))
