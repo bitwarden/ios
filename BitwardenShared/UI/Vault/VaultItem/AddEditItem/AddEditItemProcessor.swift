@@ -1170,6 +1170,7 @@ extension AddEditItemProcessor: GeneratorCoordinatorDelegate {
 extension AddEditItemProcessor: AddEditFolderDelegate {
     func folderAdded(_ folderView: FolderView) {
         state.folder = .custom(folderView)
+        state.toast = Toast(title: Localizations.folderCreated)
     }
 
     func folderDeleted() {

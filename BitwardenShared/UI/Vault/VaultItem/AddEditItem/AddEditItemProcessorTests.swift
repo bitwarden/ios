@@ -619,7 +619,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
         XCTAssertEqual(subject.state.toast, Toast(title: Localizations.itemUpdated))
     }
 
-    /// `folderAdded(_:)` sets the selected folder to the folder that was added.
+    /// `folderAdded(_:)` sets the selected folder to the folder that was added and shows a toast.
     @MainActor
     func test_folderAdded() {
         let newFolder = FolderView.fixture(name: "New folder")
@@ -628,6 +628,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
         subject.folderAdded(newFolder)
 
         XCTAssertEqual(subject.state.folder, .custom(newFolder))
+        XCTAssertEqual(subject.state.toast, Toast(title: Localizations.folderCreated))
     }
 
     /// `init(appExtensionDelegate:coordinator:delegate:services:state:)` with adding configuration
