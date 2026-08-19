@@ -12,9 +12,7 @@ protocol BillingService: AnyObject { // sourcery: AutoMockable
     /// The callback URL scheme used by the Stripe checkout web authentication session.
     var checkoutCallbackUrlScheme: String { get }
 
-    /// Creates a checkout session for Premium upgrade and returns the checkout URL. Marking the
-    /// upgrade pending happens separately, only once `reconcileCheckoutSuccess()` confirms the
-    /// checkout actually succeeded.
+    /// Creates a checkout session for Premium upgrade and returns the checkout URL.
     ///
     /// - Returns: A validated HTTPS URL for the checkout session.
     /// - Throws: `BillingError.invalidCheckoutUrl` if the URL is invalid or not HTTPS.
@@ -60,10 +58,7 @@ protocol BillingService: AnyObject { // sourcery: AutoMockable
     func premiumStatusChanged() async
 
     /// Confirms whether a just-succeeded Stripe checkout has been granted Premium yet, syncing
-    /// to check and publishing checkout status updates as it resolves. Marks the upgrade pending
-    /// only for the duration of that check — cleared immediately once an outcome (confirmed or
-    /// not yet) is known, so the "Upgrade to Premium" CTA only ever hides for the length of this
-    /// call, not for however long an unresolved attempt lingers.
+    /// to check and publishing checkout status updates as it resolves.
     ///
     func reconcileCheckoutSuccess() async
 
@@ -461,9 +456,7 @@ class DefaultBillingService: BillingService {
     }
 
     /// Refreshes the subscription attention card cache and reports whether the active account
-    /// is eligible for a Premium upgrade sync (not self-hosted, feature-flagged in, and not
-    /// already Premium). The attention card refresh always runs regardless of the result — a
-    /// past-due or update-payment user still has Premium, so they would otherwise be excluded.
+    /// is eligible for a Premium upgrade sync.
     ///
     /// - Returns: Whether the active account is eligible for a Premium upgrade sync.
     ///
