@@ -235,6 +235,7 @@ class CompleteRegistrationProcessor: StateProcessor<
                     acceptEmergencyAccessId: nil,
                     providerInviteToken: nil,
                     providerUserId: nil,
+                    openOrgInvite: nil,
                 ),
             )
 
