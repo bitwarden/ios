@@ -101,23 +101,24 @@ extension BillingServiceTests {
         #expect(stateService.upgradedToPremiumActionCardVisibleResult == true)
     }
 
-    /// `premiumStatusChanged()` triggers a plain (non-forced) sync when eligible, mirroring
-    /// `.policyChanged`'s own push handling — an account that gained Premium via the web vault,
-    /// another device, or an org still needs its profile refreshed locally.
+    /// `premiumStatusChanged()` triggers a forced sync when eligible — unlike `.policyChanged`'s
+    /// plain sync, this method reads the synced premium status back in the same call, so it
+    /// needs the guarantee that the sync actually fetched fresh data.
     @Test
-    func premiumStatusChanged_triggersPlainSync() async throws {
+    func premiumStatusChanged_triggersForcedSync() async throws {
         stateService.doesActiveAccountHavePremiumResult = false
 
         await subject.premiumStatusChanged()
 
         #expect(syncService.didFetchSync)
-        #expect(syncService.fetchSyncForceSync == false)
+        #expect(syncService.fetchSyncForceSync == true)
     }
 
     /// `start()` clears a stale `lastAttemptFailed` flag as soon as any sync succeeds, even
-    /// when the active account still isn't Premium yet — a later, unrelated sync succeeding
-    /// means the most recent attempt did not fail, regardless of whether Premium has been
-    /// granted.
+    /// when the active account still isn't Premium yet, and promotes the attempt back to
+    /// pending rather than abandoning it — a later, unrelated sync succeeding means the most
+    /// recent attempt did not fail, but the account still isn't Premium, so a further sync must
+    /// still be able to resolve it.
     @Test
     func start_clearsLastAttemptFailedOnGenericSyncEvenWithoutPremium() async throws {
         stateService.activeAccount = .fixture()
@@ -133,10 +134,10 @@ extension BillingServiceTests {
         try await waitForAsync { stateService.getLastSyncTimeCallCount == 1 }
 
         stateService.premiumUpgradeLastSyncAttemptFailedResult = true
-        stateService.lastSyncTimeSubject.send(Date())
+        try await stateService.setLastSyncTime(Date(), userId: nil)
 
         try await waitForAsync { stateService.premiumUpgradeLastSyncAttemptFailedResult == false }
-        #expect(stateService.premiumUpgradePendingResult == false)
+        #expect(stateService.premiumUpgradePendingResult == true)
         #expect(stateService.upgradedToPremiumActionCardVisibleResult == false)
     }
 
@@ -148,7 +149,7 @@ extension BillingServiceTests {
     func start_doesNotClearLastAttemptFailedOnInitialSubscriptionReplay() async throws {
         stateService.activeAccount = .fixture()
         stateService.doesActiveAccountHavePremiumResult = true
-        stateService.lastSyncTimeSubject.send(Date())
+        try await stateService.setLastSyncTime(Date(), userId: nil)
         stateService.premiumUpgradeLastSyncAttemptFailedResult = true
 
         await subject.start()
@@ -159,10 +160,30 @@ extension BillingServiceTests {
 
         // A genuinely new sync, sent only once the initial subscription has settled, still
         // clears the flag as expected.
-        stateService.lastSyncTimeSubject.send(Date())
+        try await stateService.setLastSyncTime(Date(), userId: nil)
 
         try await waitForAsync { stateService.premiumUpgradeLastSyncAttemptFailedResult == false }
         #expect(stateService.setPremiumUpgradeLastSyncAttemptFailedCallCount == 1)
+    }
+
+    /// `start()` leaves the "Upgraded to Premium" card alone on a generic sync when there is no
+    /// pending or failed upgrade to reconcile — otherwise every sync for a Premium account would
+    /// resurrect a card the user already dismissed.
+    @Test
+    func start_doesNotSetUpgradedActionCard_whenNoPendingUpgrade() async throws {
+        stateService.activeAccount = .fixture()
+        stateService.doesActiveAccountHavePremiumResult = true
+
+        await subject.start()
+        // See the comment in `start_clearsLastAttemptFailedOnGenericSyncEvenWithoutPremium()`.
+        // `start()` itself already reads the pending flag once via its initial
+        // `refreshPremiumUpgradePendingStateSubject()` call, so the count below is 2, not 1.
+        try await waitForAsync { stateService.getLastSyncTimeCallCount == 1 }
+
+        try await stateService.setLastSyncTime(Date(), userId: nil)
+
+        try await waitForAsync { stateService.getPremiumUpgradePendingCallCount == 2 }
+        #expect(stateService.setUpgradedToPremiumActionCardVisibleCallCount == 0)
     }
 
     /// `start()` resolves a pending Premium upgrade when a generic sync completes and the
@@ -179,7 +200,7 @@ extension BillingServiceTests {
 
         stateService.premiumUpgradeLastSyncAttemptFailedResult = true
         stateService.doesActiveAccountHavePremiumResult = true
-        stateService.lastSyncTimeSubject.send(Date())
+        try await stateService.setLastSyncTime(Date(), userId: nil)
 
         // Wait for the last state mutation in the premium-confirmed branch — `lastAttemptFailed`
         // and `pending` both clear before this, so waiting on either of those would race.
@@ -202,7 +223,7 @@ extension BillingServiceTests {
 
         stateService.premiumUpgradePendingResult = true
         stateService.doesActiveAccountHavePremiumResult = true
-        stateService.lastSyncTimeSubject.send(Date())
+        try await stateService.setLastSyncTime(Date(), userId: nil)
 
         try await waitForAsync { stateService.upgradedToPremiumActionCardVisibleResult == true }
         #expect(stateService.premiumUpgradePendingResult == false)

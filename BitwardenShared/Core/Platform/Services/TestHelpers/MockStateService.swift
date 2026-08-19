@@ -35,6 +35,7 @@ class MockStateService: StateService, ActiveAccountStateProvider, AutofillStateS
     var archiveOnboardingShown = false
     var premiumUpgradeBannerDismissedByUserId = [String: Bool]()
     var premiumUpgradeBannerDismissedResult: Result<Void, Error> = .success(())
+    var getPremiumUpgradePendingCallCount = 0
     var premiumUpgradeLastSyncAttemptFailedResult: Bool = false // swiftlint:disable:this identifier_name
     var premiumUpgradePendingResult: Bool = false
     // swiftlint:disable:next identifier_name
@@ -44,6 +45,8 @@ class MockStateService: StateService, ActiveAccountStateProvider, AutofillStateS
     var setPremiumUpgradePendingResult: Result<Void, Error> = .success(())
     var setSubscriptionAttentionCardResult: Result<Void, Error> = .success(())
     var setUpgradedToPremiumActionCardResult: Result<Void, Error> = .success(())
+    // swiftlint:disable:next identifier_name
+    var setUpgradedToPremiumActionCardVisibleCallCount = 0
     var subscriptionAttentionCardVisibleResult: Bool = false
     var upgradedToPremiumActionCardVisibleResult: Bool = false
     var biometricsEnabled = [String: Bool]()
@@ -396,11 +399,7 @@ class MockStateService: StateService, ActiveAccountStateProvider, AutofillStateS
     func getLastSyncTime(userId: String?) async throws -> Date? {
         getLastSyncTimeCallCount += 1
         let userId = try unwrapUserId(userId)
-        // Falls back to `lastSyncTimeSubject` for tests that drive it directly via `.send(_:)`
-        // instead of going through `setLastSyncTime(_:userId:)`, which keeps both stores in
-        // sync (mirroring `DefaultStateService`, where both calls read from the same
-        // underlying store).
-        return lastSyncTimeByUserId[userId] ?? lastSyncTimeSubject.value
+        return lastSyncTimeByUserId[userId]
     }
 
     func getLastSyncMonotonicTime(userId: String?) async throws -> TimeInterval? {
@@ -509,7 +508,8 @@ class MockStateService: StateService, ActiveAccountStateProvider, AutofillStateS
     }
 
     func getPremiumUpgradePending() async -> Bool {
-        premiumUpgradePendingResult
+        getPremiumUpgradePendingCallCount += 1
+        return premiumUpgradePendingResult
     }
 
     func getSubscriptionAttentionCardVisible() async -> Bool {
@@ -696,6 +696,7 @@ class MockStateService: StateService, ActiveAccountStateProvider, AutofillStateS
     }
 
     func setUpgradedToPremiumActionCardVisible(_ visible: Bool) async throws {
+        setUpgradedToPremiumActionCardVisibleCallCount += 1
         try setUpgradedToPremiumActionCardResult.get()
         upgradedToPremiumActionCardVisibleResult = visible
     }
