@@ -38,6 +38,9 @@ protocol ViewVaultItemState: Sendable, VaultItemWithDecorativeIcon {
     /// The driver's license item state.
     var driversLicenseItemState: DriversLicenseItemState { get set }
 
+    /// The accessibility label for the folder the cipher belongs to, if any.
+    var folderAccessibilityLabel: String? { get }
+
     /// The name of the folder the cipher belongs to, if any.
     var folderName: String? { get }
 
@@ -67,6 +70,9 @@ protocol ViewVaultItemState: Sendable, VaultItemWithDecorativeIcon {
 
     /// The name of this item.
     var name: String { get set }
+
+    /// The accessibility label for the "no folder" indicator.
+    var noFolderAccessibilityLabel: String { get }
 
     /// The notes of this item.
     var notes: String { get set }

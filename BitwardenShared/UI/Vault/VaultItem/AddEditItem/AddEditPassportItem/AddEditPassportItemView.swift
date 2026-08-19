@@ -37,12 +37,14 @@ struct AddEditPassportItemView: View {
                     accessibilityIdentifier: "PassportLastNameEntry",
                 )
 
-                // TODO: PM-38360 - replace with DateFieldPicker
-                BitwardenTextField(
+                DateFieldPicker(
                     title: Localizations.dateOfBirth,
-                    text: .constant(store.state.dateOfBirthDisplay),
                     accessibilityIdentifier: "PassportDateOfBirthEntry",
-                    isTextFieldDisabled: true,
+                    date: store.binding(
+                        get: \.dateOfBirth,
+                        send: AddEditPassportItemAction.dateOfBirthChanged,
+                    ),
+                    in: Date.distantPast ... Date().asUTCCalendarDay(),
                 )
 
                 BitwardenTextField(
@@ -127,20 +129,23 @@ struct AddEditPassportItemView: View {
                     accessibilityIdentifier: "PassportIssuingAuthorityEntry",
                 )
 
-                // TODO: PM-38360 - replace with DateFieldPicker
-                BitwardenTextField(
+                DateFieldPicker(
                     title: Localizations.issueDate,
-                    text: .constant(store.state.issueDateDisplay),
                     accessibilityIdentifier: "PassportIssueDateEntry",
-                    isTextFieldDisabled: true,
+                    date: store.binding(
+                        get: \.issueDate,
+                        send: AddEditPassportItemAction.issueDateChanged,
+                    ),
+                    in: Date.distantPast ... Date().asUTCCalendarDay(),
                 )
 
-                // TODO: PM-38360 - replace with DateFieldPicker
-                BitwardenTextField(
+                DateFieldPicker(
                     title: Localizations.expirationDate,
-                    text: .constant(store.state.expirationDateDisplay),
                     accessibilityIdentifier: "PassportExpirationDateEntry",
-                    isTextFieldDisabled: true,
+                    date: store.binding(
+                        get: \.expirationDate,
+                        send: AddEditPassportItemAction.expirationDateChanged,
+                    ),
                 )
             }
         }
@@ -209,10 +214,10 @@ private extension PassportItemState {
     static var previewPopulated: PassportItemState {
         PassportItemState(
             birthPlace: "USA",
-            dateOfBirth: "2025-04-20",
-            expirationDate: "2026-08-10",
+            dateOfBirth: Date(year: 2025, month: 4, day: 20),
+            expirationDate: Date(year: 2026, month: 8, day: 10),
             givenName: "Mitchell",
-            issueDate: "2021-08-10",
+            issueDate: Date(year: 2021, month: 8, day: 10),
             issuingAuthority: "U.S. Department of State",
             issuingCountry: "United States",
             nationalIdentificationNumber: "123456789",

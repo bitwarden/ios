@@ -39,8 +39,8 @@
 "RemoveAccount" = "حذف حساب کاربری";
 "RemoveAccountConfirmation" = "آیا از حذف این حساب کاربری اطمینان دارید؟";
 "AccountAlreadyAdded" = "حساب کاربری قبلاً اضافه شد";
-"AccountCreationRestricted" = "Account creation restricted";
-"XOnlyAllowsInvitedUsersToCreateAccounts" = "%1$@ only allows invited users to create accounts.";
+"AccountCreationRestricted" = "ایجاد حساب کاربری محدود شد";
+"XOnlyAllowsInvitedUsersToCreateAccounts" = "%1$@ فقط به کاربران دعوت شده اجازه ایجاد حساب کاربری می‌دهد.";
 "SwitchToAlreadyAddedAccountConfirmation" = "آیا می‌خواهید همین الان تعویض کنید؟";
 "MasterPassword" = "کلمه عبور اصلی";
 "MoreOptions" = "گزینه‌های بیشتر";
@@ -51,6 +51,7 @@
 "OK" = "باشه";
 "Password" = "کلمه عبور";
 "Save" = "ذخیره";
+/* Action to move a vault item to another vault; used as a button label, menu item, and screen title. */
 "Move" = "انتقال";
 "Saving" = "در حال ذخیره…";
 "Settings" = "تنظیمات";
@@ -258,8 +259,14 @@
 "ShowWebsiteIconsDescription" = "یک تصویر قابل تشخیص در کنار هر ورود نشان دهید.";
 "IconsUrl" = "نشانی اینترنتی سرور نمادها";
 "AutofillWithBitwarden" = "پر کردن خودکار با Bitwarden";
+/* Section header and screen title for viewing/managing a cipher's collections. */
 "Collections" = "مجموعه‌ها";
+/* Section header and screen title for viewing/managing a cipher's shared folders. */
+"SharedFolders" = "پوشه‌های مشترک";
+/* Empty state message shown when a collection has no items. */
 "NoItemsCollection" = "در این مجموعه موردی برای نمایش نیست";
+/* Empty state message shown when a shared folder has no items. */
+"ThereAreNoItemsInThisSharedFolder" = "در این پوشه‌ی اشتراک گذاری شده موردی برای نمایش نیست";
 "NoItemsFolder" = "در این پوشه موردی برای نمایش نیست";
 "NoItemsTrash" = "هیچ موردی در سطل زباله وجود ندارد.";
 "FaceID" = "Face ID";
@@ -279,6 +286,7 @@
 "RegEx" = "عبارت منظم";
 "StartsWith" = "شروع می شود با";
 "MatchDetection" = "تشخیص مطابقت";
+/* Field label on the Move screen shown when the "vfo1-foundation" feature flag is disabled; superseded by "Vault" when enabled. */
 "Organization" = "سازمان";
 "HoldYubikeyNearTop" = "Yubikey خود را در نزدیکی بالای دستگاه نگهدارید.";
 "TryAgain" = "دوباره امتحان کنید";
@@ -314,13 +322,26 @@
 "NoItemsToList" = "هیچ موردی برای نمایش وجود ندارد.";
 "MoveDown" = "انتقال به پایین";
 "MoveUp" = "انتقال به بالا";
+/* Empty state message on the Collections screen shown when a user has no collections. */
 "NoCollectionsToList" = "هیچ مجموعه‌ای برای لیست کردن وجود ندارد.";
+/* Empty state message on the Shared folders screen shown when a user has no shared folders. */
+"ThereAreNoSharedFoldersToList" = "هیچ موردی اشتراک گذاری شده برای نمایش وجود ندارد.";
 "MovedItemToOrg" = "%1$@ منتقل شد به %2$@.";
+/* Alert message shown when saving an item with no collection selected. */
 "SelectOneCollection" = "شما باید حداقل یک مجموعه را انتخاب کنید.";
+/* Alert message shown when saving an item with no shared folder selected. */
+"YouMustSelectAtLeastOneSharedFolder" = "شما باید حداقل یک پوشه اشتراک گذاری شده را انتخاب کنید.";
 "Share" = "اشتراک گذاری";
 "ShareAll" = "اشتراک گذاری همه";
+/* Overflow menu item and screen title on the Move screen shown when the "vfo1-foundation" feature flag is disabled; superseded by "Move" when enabled. */
 "MoveToOrganization" = "انتقال به سازمان";
+/* Empty state message shown when a user has no vaults available to move an item into, when the "vfo1-foundation" feature flag is enabled. */
+"NoVaultsToList" = "هیچ گاوصندوقی برای فهرست کردن وجود ندارد.";
+/* Empty state message shown when a user has no organizations available to move an item into, when the "vfo1-foundation" feature flag is disabled. */
 "NoOrgsToList" = "هیچ سازمانی برای نمایش وجود ندارد.";
+/* Footer text on the Move screen explaining that moving an item transfers its ownership to the destination vault's organization, when the "vfo1-foundation" feature flag is enabled. */
+"ChooseAVaultThatYouWishToMoveThisItemToDescriptionLong" = "گاوصندوقی را انتخاب کنید که می‌خواهید این مورد را به آن منتقل کنید. انتقال به گاوصندوق دیگر، مالکیت مورد را به آن سازمان منتقل می‌کند. پس از انتقال این مورد، دیگر مالک مستقیم آن نخواهید بود.";
+/* Footer text on the Move screen explaining that moving an item transfers its ownership to the destination organization, when the "vfo1-foundation" feature flag is disabled. */
 "MoveToOrgDesc" = "سازمانی را انتخاب کنید که می‌خواهید این مورد را به آن منتقل کنید. انتقال به یک سازمان، مالکیت مورد را به آن سازمان منتقل می‌کند. پس از انتقال این مورد، دیگر مالک مستقیم آن نخواهید بود.";
 "NumberOfWords" = "تعداد کلمات";
 "Passphrase" = "عبارت عبور";
@@ -566,7 +587,7 @@
 "ThereAreNoBankAccountsInYourVault" = "هیچ حساب بانکی در گاوصندوق شما وجود ندارد";
 "US" = "امریکا";
 "EU" = "اروپا";
-"Gov" = "Gov";
+"Gov" = "دولتی";
 "SelfHosted" = "خود میزبان";
 "UpdateWeakMasterPasswordWarning" = "کلمه عبور اصلی شما با یک یا چند سیاست سازمان‌تان مطابقت ندارد. برای دسترسی به گاوصندوق، باید همین حالا کلمه عبور اصلی خود را به‌روزرسانی کنید. در صورت ادامه، شما از نشست فعلی خود خارج می‌شوید و باید دوباره وارد سیستم شوید. نشست فعال در دستگاه‌های دیگر ممکن است تا یک ساعت همچنان فعال باقی بمانند.";
 "CurrentMasterPasswordRequired" = "کلمه عبور اصلی فعلی (الزامی)";
@@ -575,8 +596,8 @@
 "RequestAdminApproval" = "درخواست تأیید مدیر";
 "ApproveWithMasterPassword" = "تأیید با کلمه عبور اصلی";
 "TurnOffUsingPublicDevice" = "اگر از دستگاه عمومی استفاده می‌کنید خاموش کنید";
-"TurnOnFillAssist" = "Turn on fill assist";
-"TurnOnFillAssistDescriptionLong" = "Fill Assist improves autofill accuracy on supported sites by using site-specific rules.";
+"TurnOnFillAssist" = "دستیار پر کردن را روشن کن";
+"TurnOnFillAssistDescriptionLong" = "دستیار پر کردن با استفاده از قوانین خاص سایت، دقت پر کردن خودکار را در سایت‌های پشتیبانی‌شده بهبود می‌بخشد.";
 "RememberThisDevice" = "این دستگاه را به خاطر بسپار";
 "Passkey" = "کلید عبور";
 "Passkeys" = "کلیدهای عبور";
@@ -590,6 +611,7 @@
 "LoginApproved" = "ورود تأیید شد";
 "LogInWithDevice" = "ورود با دستگاه";
 "LoggingInOn" = "ورود با";
+/* The word "Vault", used generically as a field label, screen title, and app-wide term for a user's or organization's item collection. */
 "Vault" = "گاوصندوق";
 "Appearance" = "ظاهر";
 "AccountSecurity" = "امنیت حساب کاربری";
@@ -871,7 +893,11 @@
 "ShowLess" = "نمایش کمتر";
 "ItemNameX" = "نام مورد، %1$@";
 "OwnerX" = "مالک، %1$@";
+"VaultX" = "گاوصندوق، %1$@";
+/* VoiceOver accessibility label for a collection the item belongs to. */
 "CollectionX" = "مجموعه، %1$@";
+/* VoiceOver accessibility label for a shared folder the item belongs to. */
+"SharedFolderX" = "پوشه اشتراک گذاری شده، %1$@";
 "FolderX" = "پوشه، %1$@";
 "ItemXOfY" = "مورد %1$@ از %2$@";
 "ViewRecordedLogs" = "مشاهده گزارش‌های ضبط شده";
@@ -1099,20 +1125,20 @@
 /* Error message shown when the Premium Plan screen fails to load subscription data, with a prompt to retry. */
 "WeCouldntLoadYourSubscriptionDetailsPleaseRetry" = "ما نتوانستیم جزئیات اشتراک شما را بارگیری کنیم. لطفاً دوباره امتحان کنید.";
 "YourSubscriptionWasCanceledOnXDescriptionLong" = "اشتراک شما در تاریخ **%1$@** لغو شد. برای ادامه استفاده از ویژگی‌های ویژه، دوباره مشترک شوید.";
-"YourSubscriptionWasSuspendedOnXDescriptionLong" = "Your subscription was suspended on **%1$@**. To reactivate, please resolve your past due invoices.";
+"YourSubscriptionWasSuspendedOnXDescriptionLong" = "اشتراک شما در تاریخ **%1$@** به حالت تعلیق درآمده است. برای فعال‌سازی مجدد، لطفاً صورتحساب‌های معوقه خود را پرداخت کنید.";
 "YourSubscriptionExpiredOnXDescriptionLong" = "اشتراک شما در تاریخ **%1$@** منقضی شد. برای ادامه استفاده از ویژگی‌های ویژه، دوباره مشترک شوید.";
 "YourSubscriptionIsScheduledToCancelOnXDescriptionLong" = "اشتراک شما قرار است در تاریخ **%1$@** لغو شود. می‌توانید قبل از آن، هر زمان که خواستید، اشتراک خود را دوباره برقرار کنید.";
 "PerMonth" = "/ ماه";
 /* VoiceOver reading of "PerMonth", spoken instead of shown. */
-"PerMonthVoiceOver" = "per month";
+"PerMonthVoiceOver" = "در ماه";
 "PerYear" = "/ سال";
 /* VoiceOver reading of "PerYear", spoken instead of shown. */
-"PerYearVoiceOver" = "per year";
+"PerYearVoiceOver" = "در سال";
 "XAmountPerCadence" = "%1$@، %2$@";
 /* %1$@ is an amount and cadence together, e.g. "$1.65 / month". */
-"XCancelAnytime" = "%1$@ · Cancel anytime";
+"XCancelAnytime" = "%1$@ · لغو در هر زمان";
 /* VoiceOver reading of "XCancelAnytime", spoken instead of shown. */
-"XCancelAnytimeVoiceOver" = "%1$@, Cancel anytime";
+"XCancelAnytimeVoiceOver" = "%1$@، لغو در هر زمان";
 "NegativeX" = "-%1$@";
 "UnknownStatus" = "ناشناخته";
 "YourSubscriptionStatusIsUnknownVisitTheWebAppDescriptionLong" = "وضعیت اشتراک شما قابل تعیین نیست. لطفاً برای جزئیات بیشتر یا به‌روزرسانی به آخرین نسخه، از برنامه وب دیدن کنید.";
@@ -1153,7 +1179,7 @@
 "YouNowHaveAccessToAdvancedSecurityDescriptionLong" = "اکنون به ویژگی‌های امنیتی پیشرفته دسترسی دارید. درباره آنچه در نسخه پریمیوم گنجانده شده است، بیشتر بدانید.";
 "YouNowHaveAccessToAllAdvancedSecurityFeatures" = "اکنون به تمام ویژگی‌های امنیتی پیشرفته دسترسی دارید.";
 /* Footer on the Premium upgrade screen; "Stripe" is the payment processor's name and shouldn't be translated. */
-"YoullCompleteThePurchaseWithStripeSecureCheckout" = "You'll complete the purchase with Stripe secure checkout.";
+"YoullCompleteThePurchaseWithStripeSecureCheckout" = "شما خرید را با پرداخت امن Stripe تکمیل خواهید کرد.";
 "ContinueToStripe" = "ادامه دادن به Stripe؟";
 "YoullBeTakenToStripeToManageYourSubscriptionCancellation" = "برای مدیریت لغو اشتراک خود به Stripe منتقل خواهید شد.";
 "UserIDCopiedToTheClipboard" = "شناسه کاربری در حافظه موقت کپی شد";
@@ -1203,12 +1229,12 @@
 "MoneyMarket" = "بازار پول";
 "Savings" = "پس‌انداز";
 "Devices" = "دستگاه‌ها";
-"NoDevicesFound" = "No devices found";
+"NoDevicesFound" = "دستگاهی پیدا نشد";
 "CurrentSession" = "نشست فعلی";
 "PendingRequest" = "درخواست معلق";
 "Trusted" = "مورد اعتماد";
-"RecentlyActiveLabel" = "Recently active:";
-"FirstLoginLabel" = "First login:";
+"RecentlyActiveLabel" = "فعالیت اخیر:";
+"FirstLoginLabel" = "اولین ورود:";
 "Today" = "امروز";
 "PastSevenDays" = "۷ روز گذشته";
 "PastFourteenDays" = "۱۴ روز گذشته";
@@ -1217,14 +1243,14 @@
 "Unknown" = "ناشناخته";
 /* Device display name. %1$@ = category (e.g. "Mobile"), %2$@ = platform (e.g. "iOS"). */
 "DeviceDisplayNameXHyphenY" = "%1$@ - %2$@";
-"Mobile" = "Mobile";
-"BrowserExtension" = "Browser extension";
-"WebVault2" = "Web vault";
-"Desktop" = "Desktop";
-"Cli" = "CLI";
+"Mobile" = "تلفن همراه";
+"BrowserExtension" = "افزونه";
+"WebVault2" = "برنامه وب";
+"Desktop" = "رومیزی";
+"Cli" = "رابط خط فرمان";
 "Sdk" = "SDK";
 "Server" = "سرور";
 /* Accessibility label for the button that clears a field's value. %1$@ is the field's title (e.g. "Date of birth"), so the spoken label reads "Clear Date of birth". */
-"ClearFieldName" = "Clear %1$@";
-"SelectDate" = "Select date";
+"ClearFieldName" = "پاک کردن %1$@";
+"SelectDate" = "انتخاب تاریخ";
 "PremiumRequiredTOTPDescriptionLong" = "کلید تولیدکننده رمز دوعاملی (TOTP) یک ویژگی پریمیوم هست. طرح فعلی شما شامل دسترسی به این قابلیت نیست.";

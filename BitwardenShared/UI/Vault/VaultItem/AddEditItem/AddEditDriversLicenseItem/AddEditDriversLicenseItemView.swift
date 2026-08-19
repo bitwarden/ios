@@ -60,12 +60,14 @@ struct AddEditDriversLicenseItemView: View {
                     ),
                 )
 
-                // TODO: PM-38360 - replace with DateFieldPicker
-                BitwardenTextField(
+                DateFieldPicker(
                     title: Localizations.dateOfBirth,
-                    text: .constant(store.state.dateOfBirthDisplay),
                     accessibilityIdentifier: "DriversLicenseDateOfBirthEntry",
-                    isTextFieldDisabled: true,
+                    date: store.binding(
+                        get: \.dateOfBirth,
+                        send: AddEditDriversLicenseItemAction.dateOfBirthChanged,
+                    ),
+                    in: Date.distantPast ... Date().asUTCCalendarDay(),
                 )
 
                 BitwardenTextField(
@@ -95,20 +97,23 @@ struct AddEditDriversLicenseItemView: View {
                     accessibilityIdentifier: "DriversLicenseIssuingAuthorityEntry",
                 )
 
-                // TODO: PM-38360 - replace with DateFieldPicker
-                BitwardenTextField(
+                DateFieldPicker(
                     title: Localizations.issueDate,
-                    text: .constant(store.state.issueDateDisplay),
                     accessibilityIdentifier: "DriversLicenseIssueDateEntry",
-                    isTextFieldDisabled: true,
+                    date: store.binding(
+                        get: \.issueDate,
+                        send: AddEditDriversLicenseItemAction.issueDateChanged,
+                    ),
+                    in: Date.distantPast ... Date().asUTCCalendarDay(),
                 )
 
-                // TODO: PM-38360 - replace with DateFieldPicker
-                BitwardenTextField(
+                DateFieldPicker(
                     title: Localizations.expirationDate,
-                    text: .constant(store.state.expirationDateDisplay),
                     accessibilityIdentifier: "DriversLicenseExpirationDateEntry",
-                    isTextFieldDisabled: true,
+                    date: store.binding(
+                        get: \.expirationDate,
+                        send: AddEditDriversLicenseItemAction.expirationDateChanged,
+                    ),
                 )
 
                 BitwardenTextField(
@@ -184,10 +189,10 @@ private extension DriversLicenseItemState {
     /// A fully populated state used by previews.
     static var previewPopulated: DriversLicenseItemState {
         DriversLicenseItemState(
-            dateOfBirth: "1989-08-01",
-            expirationDate: "2029-08-01",
+            dateOfBirth: Date(year: 1989, month: 8, day: 1),
+            expirationDate: Date(year: 2029, month: 8, day: 1),
             firstName: "Bit",
-            issueDate: "2019-08-01",
+            issueDate: Date(year: 2019, month: 8, day: 1),
             issuingAuthority: "DMV",
             issuingCountry: "United States",
             issuingState: "California",

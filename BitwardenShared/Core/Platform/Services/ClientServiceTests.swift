@@ -28,9 +28,7 @@ final class ClientServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
         sdkRepositoryFactory.makeRepositoriesReturnValue = BitwardenSdk.Repositories(
             cipher: nil,
             folder: nil,
-            userKeyState: nil,
             localUserDataKeyState: nil,
-            ephemeralPinEnvelopeState: nil,
             organizationSharedKey: nil,
             send: nil,
         )

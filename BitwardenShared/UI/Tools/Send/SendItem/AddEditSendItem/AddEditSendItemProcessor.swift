@@ -310,8 +310,8 @@ class AddEditSendItemProcessor: // swiftlint:disable:this type_body_length
         coordinator.showLoadingOverlay(LoadingOverlayState(title: Localizations.saving))
         defer { coordinator.hideLoadingOverlay() }
 
-        let sendView = state.newSendView()
         do {
+            let sendView = try state.newSendView()
             let newSendView: SendView
             switch state.mode {
             case .add, .shareExtension:
@@ -321,6 +321,8 @@ class AddEditSendItemProcessor: // swiftlint:disable:this type_body_length
                     newSendView = try await services.sendRepository.addFileSend(sendView, data: fileData)
                 case .text:
                     newSendView = try await services.sendRepository.addTextSend(sendView)
+                case .unknown:
+                    return
                 }
                 await services.reviewPromptService.trackUserAction(.createdNewSend)
             case .edit:
