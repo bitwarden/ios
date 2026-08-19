@@ -125,18 +125,19 @@ extension BillingServiceTests {
         #expect(billingAPIService.createCheckoutSessionCallsCount == 1)
     }
 
-    /// `createCheckoutSession()` marks the upgrade as pending — this is the only place that
-    /// happens, so a `.premiumStatusChanged` push for an account that never started a checkout
-    /// has nothing to act on.
+    /// `createCheckoutSession()` does not touch the pending flag at all, even on success — that
+    /// only happens once `reconcileCheckoutSuccess()` confirms the checkout actually succeeded,
+    /// so the "Upgrade to Premium" CTA never hides for longer than an active confirmation check.
     @Test
-    func createCheckoutSession_marksPending() async throws {
+    func createCheckoutSession_doesNotMarkPending() async throws {
+        stateService.premiumUpgradePendingResult = false
         billingAPIService.createCheckoutSessionReturnValue = CheckoutSessionResponseModel(
             checkoutSessionUrl: URL(string: "https://checkout.stripe.com/session")!,
         )
 
         _ = try await subject.createCheckoutSession()
 
-        #expect(stateService.premiumUpgradePendingResult == true)
+        #expect(stateService.premiumUpgradePendingResult == false)
     }
 
     /// `createCheckoutSession()` returns the URL when it uses HTTPS scheme.
@@ -189,13 +190,12 @@ extension BillingServiceTests {
     /// (CurrentValueSubject replays the last value to new subscribers).
     @Test
     func premiumCheckoutStatusPublisher_lateSubscriberReceivesPendingStatus() async throws {
-        stateService.premiumUpgradePendingResult = true
         stateService.doesActiveAccountHavePremiumResult = false
         var earlyStatuses = [PremiumCheckoutStatus]()
         let earlyCancellable = subject.premiumCheckoutStatusPublisher()
             .sink { earlyStatuses.append($0) }
 
-        await subject.premiumStatusChanged()
+        await subject.reconcileCheckoutSuccess()
         try await waitForAsync { !earlyStatuses.isEmpty }
 
         // Late subscriber connects after .pending was emitted and should receive it.
