@@ -41,6 +41,17 @@ extension BillingServiceTests {
         #expect(statuses.isEmpty)
     }
 
+    /// `premiumStatusChanged()` does not set the "Upgraded to Premium" card when the account is
+    /// still not Premium after the sync.
+    @Test
+    func premiumStatusChanged_doesNotSetUpgradedActionCard_whenStillNotPremium() async throws {
+        stateService.doesActiveAccountHavePremiumResult = false
+
+        await subject.premiumStatusChanged()
+
+        #expect(stateService.upgradedToPremiumActionCardVisibleResult == false)
+    }
+
     /// `premiumStatusChanged()` returns early without syncing when the premiumUpgradePath flag is disabled.
     @Test
     func premiumStatusChanged_featureFlagDisabled() async throws {
@@ -73,6 +84,21 @@ extension BillingServiceTests {
         await subject.premiumStatusChanged()
 
         #expect(syncService.didFetchSync)
+    }
+
+    /// `premiumStatusChanged()` sets the "Upgraded to Premium" card visible when the account has
+    /// become Premium by the time the sync completes — an out-of-band grant (an org, or another
+    /// device) has no pending checkout attempt of its own to reconcile it otherwise.
+    @Test
+    func premiumStatusChanged_setsUpgradedActionCard_whenPremiumGranted() async throws {
+        stateService.doesActiveAccountHavePremiumResult = false
+        syncService.fetchSyncHandler = {
+            stateService.doesActiveAccountHavePremiumResult = true
+        }
+
+        await subject.premiumStatusChanged()
+
+        #expect(stateService.upgradedToPremiumActionCardVisibleResult == true)
     }
 
     /// `premiumStatusChanged()` triggers a plain (non-forced) sync when eligible, mirroring

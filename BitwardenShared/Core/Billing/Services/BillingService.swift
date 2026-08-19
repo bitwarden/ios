@@ -53,7 +53,8 @@ protocol BillingService: AnyObject { // sourcery: AutoMockable
     func isSelfHosted() async -> Bool
 
     /// Notifies that a Premium status change was detected via push notification, unrelated to
-    /// any specific local checkout attempt, and triggers a plain sync to pick up the change.
+    /// any specific local checkout attempt. Triggers a plain sync to pick up the change, and
+    /// sets the "Upgraded to Premium" card visible if the active account is Premium afterward.
     ///
     func premiumStatusChanged() async
 
@@ -267,6 +268,14 @@ class DefaultBillingService: BillingService { // swiftlint:disable:this type_bod
             try await syncService.fetchSync(forceSync: false)
         } catch {
             errorReporter.log(error: error)
+        }
+
+        if await stateService.doesActiveAccountHavePremium() {
+            do {
+                try await billingStateService.setUpgradedToPremiumActionCardVisible(true)
+            } catch {
+                errorReporter.log(error: error)
+            }
         }
     }
 
