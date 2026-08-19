@@ -210,6 +210,69 @@ class ViewBankAccountItemViewTests: BitwardenTestCase {
         )
     }
 
+    /// The account number value announces its characters individually to VoiceOver when visible.
+    @MainActor
+    func test_accountNumber_accessibilityValue() throws {
+        var state = populatedState()
+        state.isAccountNumberVisible = true
+        initSubject(state: state)
+        let value = try subject.inspect().find(
+            viewWithAccessibilityIdentifier: "BankAccountNumberEntry",
+        ).text().accessibilityValue().string()
+        XCTAssertEqual(value, "1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6")
+    }
+
+    /// The PIN value announces its characters individually to VoiceOver when visible.
+    @MainActor
+    func test_pin_accessibilityValue() throws {
+        var state = populatedState()
+        state.isPinVisible = true
+        initSubject(state: state)
+        let value = try subject.inspect().find(
+            viewWithAccessibilityIdentifier: "BankAccountPinEntry",
+        ).text().accessibilityValue().string()
+        XCTAssertEqual(value, "1 2 3 4")
+    }
+
+    /// The IBAN value announces its characters individually to VoiceOver when visible.
+    @MainActor
+    func test_iban_accessibilityValue() throws {
+        var state = populatedState()
+        state.isIbanVisible = true
+        initSubject(state: state)
+        let value = try subject.inspect().find(
+            viewWithAccessibilityIdentifier: "BankAccountIbanEntry",
+        ).text().accessibilityValue().string()
+        XCTAssertEqual(value, "G B 3 3 B U K B 2 0 2 0 1 5 5 5 5 5 5 5 5 5")
+    }
+
+    /// The routing number value announces its characters individually to VoiceOver.
+    @MainActor
+    func test_routingNumber_accessibilityValue() throws {
+        let value = try subject.inspect().find(
+            viewWithAccessibilityIdentifier: "BankAccountRoutingNumberEntry",
+        ).accessibilityValue().string()
+        XCTAssertEqual(value, "1 2 3 4 5 6 7 8 9 0")
+    }
+
+    /// The branch number value announces its characters individually to VoiceOver.
+    @MainActor
+    func test_branchNumber_accessibilityValue() throws {
+        let value = try subject.inspect().find(
+            viewWithAccessibilityIdentifier: "BankAccountBranchNumberEntry",
+        ).accessibilityValue().string()
+        XCTAssertEqual(value, "1 0 0")
+    }
+
+    /// The SWIFT code value announces its characters individually to VoiceOver.
+    @MainActor
+    func test_swiftCode_accessibilityValue() throws {
+        let value = try subject.inspect().find(
+            viewWithAccessibilityIdentifier: "BankAccountSwiftCodeEntry",
+        ).accessibilityValue().string()
+        XCTAssertEqual(value, "B O F A U S 3 N")
+    }
+
     /// An empty state renders no fields, so the copy and reveal buttons are absent.
     @MainActor
     func test_emptyState_hidesFields() throws {
