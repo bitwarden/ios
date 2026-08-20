@@ -69,9 +69,7 @@ public struct BitwardenTextValueField<AccessoryContent>: View where AccessoryCon
                             : SharedAsset.Colors.textDisabled.swiftUIColor,
                     )
                     .accessibilityIdentifier(valueAccessibilityIdentifier ?? value)
-                    .if(spellOutAccessibilityValue) { textView in
-                        textView.accessibilityValue(value.spellingOutCharacters())
-                    }
+                    .speechSpellsOutCharacters(spellOutAccessibilityValue)
                     .if(textSelectionEnabled) { textView in
                         textView
                             .textSelection(.enabled)
