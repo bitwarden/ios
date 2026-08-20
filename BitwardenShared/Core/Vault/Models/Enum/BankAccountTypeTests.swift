@@ -31,4 +31,12 @@ struct BankAccountTypeTests {
             .other,
         ])
     }
+
+    /// `displayOrder` contains every case exactly once, so a newly added case can't be silently
+    /// left out of the menu.
+    @Test
+    func displayOrder_containsAllCases() {
+        #expect(Set(BankAccountType.displayOrder) == Set(BankAccountType.allCases))
+        #expect(BankAccountType.displayOrder.count == BankAccountType.allCases.count)
+    }
 }
