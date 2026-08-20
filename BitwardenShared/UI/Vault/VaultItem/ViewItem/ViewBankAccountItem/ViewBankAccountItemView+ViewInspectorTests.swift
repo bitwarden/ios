@@ -1,11 +1,11 @@
 // swiftlint:disable:this file_name
-import BitwardenKit
 import BitwardenKitMocks
 import BitwardenResources
 import SwiftUI
 import ViewInspector
 import XCTest
 
+@testable import BitwardenKit
 @testable import BitwardenShared
 
 class ViewBankAccountItemViewTests: BitwardenTestCase {
@@ -210,67 +210,98 @@ class ViewBankAccountItemViewTests: BitwardenTestCase {
         )
     }
 
-    /// The account number value announces its characters individually to VoiceOver when visible.
+    /// The account number field asks VoiceOver to spell out its characters individually when
+    /// visible.
+    ///
+    /// - Note: ViewInspector doesn't support inspecting `speechSpellsOutCharacters`, so this
+    ///   verifies the flag is passed through to `PasswordText` rather than the final VoiceOver
+    ///   announcement, which should be confirmed with on-device VoiceOver testing.
     @MainActor
-    func test_accountNumber_accessibilityValue() throws {
+    func test_accountNumber_spellsOutCharacters() throws {
         var state = populatedState()
         state.isAccountNumberVisible = true
         initSubject(state: state)
-        let value = try subject.inspect().find(
-            viewWithAccessibilityIdentifier: "BankAccountNumberEntry",
-        ).text().accessibilityValue().string()
-        XCTAssertEqual(value, "1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6")
+        let passwordText = try subject.inspect().find(PasswordText.self) { view in
+            try view.actualView().password == "1234567890123456"
+        }.actualView()
+        XCTAssertTrue(passwordText.spellOutAccessibilityValue)
     }
 
-    /// The PIN value announces its characters individually to VoiceOver when visible.
+    /// The PIN field asks VoiceOver to spell out its characters individually when visible.
+    ///
+    /// - Note: ViewInspector doesn't support inspecting `speechSpellsOutCharacters`, so this
+    ///   verifies the flag is passed through to `PasswordText` rather than the final VoiceOver
+    ///   announcement, which should be confirmed with on-device VoiceOver testing.
     @MainActor
-    func test_pin_accessibilityValue() throws {
+    func test_pin_spellsOutCharacters() throws {
         var state = populatedState()
         state.isPinVisible = true
         initSubject(state: state)
-        let value = try subject.inspect().find(
-            viewWithAccessibilityIdentifier: "BankAccountPinEntry",
-        ).text().accessibilityValue().string()
-        XCTAssertEqual(value, "1 2 3 4")
+        let passwordText = try subject.inspect().find(PasswordText.self) { view in
+            try view.actualView().password == "1234"
+        }.actualView()
+        XCTAssertTrue(passwordText.spellOutAccessibilityValue)
     }
 
-    /// The IBAN value announces its characters individually to VoiceOver when visible.
+    /// The IBAN field asks VoiceOver to spell out its characters individually when visible.
+    ///
+    /// - Note: ViewInspector doesn't support inspecting `speechSpellsOutCharacters`, so this
+    ///   verifies the flag is passed through to `PasswordText` rather than the final VoiceOver
+    ///   announcement, which should be confirmed with on-device VoiceOver testing.
     @MainActor
-    func test_iban_accessibilityValue() throws {
+    func test_iban_spellsOutCharacters() throws {
         var state = populatedState()
         state.isIbanVisible = true
         initSubject(state: state)
-        let value = try subject.inspect().find(
-            viewWithAccessibilityIdentifier: "BankAccountIbanEntry",
-        ).text().accessibilityValue().string()
-        XCTAssertEqual(value, "G B 3 3 B U K B 2 0 2 0 1 5 5 5 5 5 5 5 5 5")
+        let passwordText = try subject.inspect().find(PasswordText.self) { view in
+            try view.actualView().password == "GB33BUKB20201555555555"
+        }.actualView()
+        XCTAssertTrue(passwordText.spellOutAccessibilityValue)
     }
 
-    /// The routing number value announces its characters individually to VoiceOver.
+    /// The routing number field asks VoiceOver to spell out its characters individually.
+    ///
+    /// - Note: ViewInspector doesn't support inspecting `speechSpellsOutCharacters`, so this
+    ///   verifies the flag is passed through to `BitwardenTextValueField` rather than the final
+    ///   VoiceOver announcement, which should be confirmed with on-device VoiceOver testing.
     @MainActor
-    func test_routingNumber_accessibilityValue() throws {
-        let value = try subject.inspect().find(
-            viewWithAccessibilityIdentifier: "BankAccountRoutingNumberEntry",
-        ).accessibilityValue().string()
-        XCTAssertEqual(value, "1 2 3 4 5 6 7 8 9 0")
+    func test_routingNumber_spellsOutCharacters() throws {
+        let field = try subject.inspect().find(
+            BitwardenTextValueField<AccessoryButton>.self,
+        ) { view in
+            try view.actualView().value == "1234567890"
+        }.actualView()
+        XCTAssertTrue(field.spellOutAccessibilityValue)
     }
 
-    /// The branch number value announces its characters individually to VoiceOver.
+    /// The branch number field asks VoiceOver to spell out its characters individually.
+    ///
+    /// - Note: ViewInspector doesn't support inspecting `speechSpellsOutCharacters`, so this
+    ///   verifies the flag is passed through to `BitwardenTextValueField` rather than the final
+    ///   VoiceOver announcement, which should be confirmed with on-device VoiceOver testing.
     @MainActor
-    func test_branchNumber_accessibilityValue() throws {
-        let value = try subject.inspect().find(
-            viewWithAccessibilityIdentifier: "BankAccountBranchNumberEntry",
-        ).accessibilityValue().string()
-        XCTAssertEqual(value, "1 0 0")
+    func test_branchNumber_spellsOutCharacters() throws {
+        let field = try subject.inspect().find(
+            BitwardenTextValueField<AccessoryButton>.self,
+        ) { view in
+            try view.actualView().value == "100"
+        }.actualView()
+        XCTAssertTrue(field.spellOutAccessibilityValue)
     }
 
-    /// The SWIFT code value announces its characters individually to VoiceOver.
+    /// The SWIFT code field asks VoiceOver to spell out its characters individually.
+    ///
+    /// - Note: ViewInspector doesn't support inspecting `speechSpellsOutCharacters`, so this
+    ///   verifies the flag is passed through to `BitwardenTextValueField` rather than the final
+    ///   VoiceOver announcement, which should be confirmed with on-device VoiceOver testing.
     @MainActor
-    func test_swiftCode_accessibilityValue() throws {
-        let value = try subject.inspect().find(
-            viewWithAccessibilityIdentifier: "BankAccountSwiftCodeEntry",
-        ).accessibilityValue().string()
-        XCTAssertEqual(value, "B O F A U S 3 N")
+    func test_swiftCode_spellsOutCharacters() throws {
+        let field = try subject.inspect().find(
+            BitwardenTextValueField<AccessoryButton>.self,
+        ) { view in
+            try view.actualView().value == "BOFAUS3N"
+        }.actualView()
+        XCTAssertTrue(field.spellOutAccessibilityValue)
     }
 
     /// An empty state renders no fields, so the copy and reveal buttons are absent.

@@ -26,9 +26,7 @@ struct PasswordText: View {
                 : Text(String(repeating: "•", count: Constants.hiddenPasswordLength)),
         )
         .styleGuide(.bodyMonospaced)
-        .if(spellOutAccessibilityValue && isPasswordVisible) { view in
-            view.accessibilityValue(password.spellingOutCharacters())
-        }
+        .speechSpellsOutCharacters(spellOutAccessibilityValue && isPasswordVisible)
     }
 
     // MARK: Private Properties
