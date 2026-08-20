@@ -32,14 +32,6 @@ class StringTests: BitwardenTestCase {
         XCTAssertEqual("4111-1111-1111-1111".formattedCreditCardNumber(), "4111-1111-1111-1111")
     }
 
-    /// `spellingOutCharacters()` separates each character with a space.
-    func test_spellingOutCharacters() {
-        XCTAssertEqual("1234".spellingOutCharacters(), "1 2 3 4")
-        XCTAssertEqual("BOFAUS3N".spellingOutCharacters(), "B O F A U S 3 N")
-        XCTAssertEqual("A".spellingOutCharacters(), "A")
-        XCTAssertEqual("".spellingOutCharacters(), "")
-    }
-
     /// `hashColor` returns a color generated from a hash of the string's characters.
     func test_hashColor() {
         XCTAssertEqual("test".hashColor.description, "#924436FF")
