@@ -707,6 +707,10 @@ class MockStateService: StateService, ActiveAccountStateProvider, AutofillStateS
         clearClipboardValues[userId] = clearClipboardValue
     }
 
+    // `@MainActor` isolates the write below: callers await this from processor code that isn't
+    // itself actor-isolated, so without this the mutation runs on a background thread and races
+    // with tests polling `collapsedVaultListSectionIds` from the main thread via `waitFor`.
+    @MainActor
     func setCollapsedVaultListSectionIds(_ ids: [String], userId: String?) async throws {
         let userId = try unwrapUserId(userId)
         collapsedVaultListSectionIds[userId] = ids
@@ -743,6 +747,10 @@ class MockStateService: StateService, ActiveAccountStateProvider, AutofillStateS
         self.events[userId] = events
     }
 
+    // `@MainActor` isolates the write below for the same reason as `setCollapsedVaultListSectionIds`
+    // above: it keeps this mutation serialized with tests polling `fillAssistEnabledByUserId` from
+    // the main thread via `waitFor`, rather than racing with it from a background thread.
+    @MainActor
     func setFillAssistEnabled(_ fillAssistEnabled: Bool, userId: String?) async throws {
         if let setFillAssistEnabledError {
             throw setFillAssistEnabledError
