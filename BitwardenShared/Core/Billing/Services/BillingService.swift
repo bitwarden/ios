@@ -429,7 +429,14 @@ class DefaultBillingService: BillingService { // swiftlint:disable:this type_bod
     /// upgrade after each genuinely new sync.
     ///
     private func reconcileOnEachNewSync() async {
-        guard let publisher = try? await stateService.lastSyncTimePublisher() else { return }
+        let publisher: AnyPublisher<Date?, Never>
+        do {
+            publisher = try await stateService.lastSyncTimePublisher()
+        } catch {
+            errorReporter.log(error: error)
+            return
+        }
+
         // Snapshot the last-known sync time directly, rather than relying on whichever value
         // the publisher happens to deliver first: its `CurrentValueSubject` backing replays the
         // existing cached value immediately on subscribe (not evidence that a sync just
@@ -438,7 +445,13 @@ class DefaultBillingService: BillingService { // swiftlint:disable:this type_bod
         // last value actually seen — rather than its position in the stream — means only a
         // genuinely new sync for this account reaches `reconcilePendingUpgradeIfNeeded()`,
         // regardless of subscription timing.
-        var lastSeenDate = try? await stateService.getLastSyncTime()
+        var lastSeenDate: Date?
+        do {
+            lastSeenDate = try await stateService.getLastSyncTime()
+        } catch {
+            errorReporter.log(error: error)
+        }
+
         for await date in publisher.values {
             guard date != lastSeenDate else { continue }
             lastSeenDate = date
