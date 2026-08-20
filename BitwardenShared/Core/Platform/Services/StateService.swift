@@ -2757,6 +2757,47 @@ extension DefaultStateService: SdkStateBridgeStateService {
         accountVolatileData[userId, default: AccountVolatileData()].pinProtectedUserKey = envelope
     }
 
+    // MARK: Kdf Config
+
+    func clearKdfConfig(userId: String) async {
+        do {
+            try updateAccountProfile(userId: userId) { profile in
+                profile.kdfType = nil
+                profile.kdfIterations = nil
+                profile.kdfMemory = nil
+                profile.kdfParallelism = nil
+            }
+        } catch {
+            errorReporter.log(error: error)
+        }
+    }
+
+    func getKdfConfig(userId: String) async -> BitwardenSdk.Kdf? {
+        do {
+            let profile = try getAccount(userId: userId).profile
+            guard let kdfType = profile.kdfType, let kdfIterations = profile.kdfIterations else {
+                return nil
+            }
+            return KdfConfig(
+                kdfType: kdfType,
+                iterations: kdfIterations,
+                memory: profile.kdfMemory,
+                parallelism: profile.kdfParallelism,
+            ).sdkKdf
+        } catch {
+            errorReporter.log(error: error)
+            return nil
+        }
+    }
+
+    func setKdfConfig(_ kdf: BitwardenSdk.Kdf, userId: String) async {
+        do {
+            try await setAccountKdf(KdfConfig(kdf: kdf), userId: userId)
+        } catch {
+            errorReporter.log(error: error)
+        }
+    }
+
     // MARK: Master Password Unlock Data
 
     func clearAccountMasterPasswordUnlockData(userId: String) async {
@@ -2790,6 +2831,16 @@ extension DefaultStateService: SdkStateBridgeStateService {
 
     func setPersistentPinEnvelope(_ envelope: String?, userId: String) async {
         appSettingsStore.setPinProtectedUserKeyEnvelope(key: envelope, userId: userId)
+    }
+
+    // MARK: User Key Id
+
+    func getUserKeyId(userId: String) async -> String? {
+        appSettingsStore.userKeyId(userId: userId)
+    }
+
+    func setUserKeyId(_ keyId: String?, userId: String) async {
+        appSettingsStore.setUserKeyId(keyId, userId: userId)
     }
 
     // MARK: V2 Upgrade Token

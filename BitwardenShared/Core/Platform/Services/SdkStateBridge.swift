@@ -89,6 +89,20 @@ actor SdkStateBridge: StateBridgeForeignImpl {
         await stateService.setEphemeralPinEnvelope(value, userId: userId)
     }
 
+    // MARK: Kdf Config
+
+    func clearKdfConfig() async {
+        await stateService.clearKdfConfig(userId: userId)
+    }
+
+    func getKdfConfig() async -> BitwardenSdk.Kdf? {
+        await stateService.getKdfConfig(userId: userId)
+    }
+
+    func setKdfConfig(value: BitwardenSdk.Kdf) async {
+        await stateService.setKdfConfig(value, userId: userId)
+    }
+
     // MARK: Master Password Unlock Data
 
     func clearMasterpasswordUnlockData() async {
@@ -134,6 +148,20 @@ actor SdkStateBridge: StateBridgeForeignImpl {
         userKey = value
     }
 
+    // MARK: User Key Id
+
+    func clearUserKeyId() async {
+        await stateService.setUserKeyId(nil, userId: userId)
+    }
+
+    func getUserKeyId() async -> BitwardenSdk.KeyId? {
+        await stateService.getUserKeyId(userId: userId)
+    }
+
+    func setUserKeyId(value: BitwardenSdk.KeyId) async {
+        await stateService.setUserKeyId(value, userId: userId)
+    }
+
     // MARK: V2 Upgrade Token
 
     func clearV2UpgradeToken() async {
@@ -146,5 +174,20 @@ actor SdkStateBridge: StateBridgeForeignImpl {
 
     func setV2UpgradeToken(value: V2UpgradeToken) async {
         await stateService.setV2UpgradeToken(value, userId: userId)
+    }
+
+    // MARK: WebAuthn Prf Unlock Data
+
+    func clearWebauthnPrfUnlockData() async {
+        // Vault unlock via WebAuthn PRF is not yet supported by the app, so this is a no-op.
+    }
+
+    func getWebauthnPrfUnlockData() async -> BitwardenSdk.WebAuthnPrfUnlockData? {
+        // Vault unlock via WebAuthn PRF is not yet supported by the app, so this always returns nil.
+        nil
+    }
+
+    func setWebauthnPrfUnlockData(value: BitwardenSdk.WebAuthnPrfUnlockData) async {
+        // Vault unlock via WebAuthn PRF is not yet supported by the app, so this is a no-op.
     }
 }

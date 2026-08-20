@@ -138,6 +138,78 @@ struct StateServiceSdkStateBridgeTests {
         #expect(result == nil)
     }
 
+    // MARK: Tests - Kdf Config
+
+    /// `clearKdfConfig(userId:)` clears the KDF configuration for the specified user.
+    @Test
+    func clearKdfConfig() async throws {
+        await subject.addAccount(.fixture(profile: .fixture(userId: "1")))
+        await subject.addAccount(.fixture(profile: .fixture(userId: "2")))
+
+        await subject.clearKdfConfig(userId: "1")
+
+        let profile1 = try #require(appSettingsStore.state?.accounts["1"]?.profile)
+        #expect(profile1.kdfType == nil)
+        #expect(profile1.kdfIterations == nil)
+        #expect(profile1.kdfMemory == nil)
+        #expect(profile1.kdfParallelism == nil)
+        #expect(appSettingsStore.state?.accounts["2"]?.profile.kdfType != nil)
+    }
+
+    /// `clearKdfConfig(userId:)` logs an error if the account can't be found.
+    @Test
+    func clearKdfConfig_noAccount() async throws {
+        await subject.clearKdfConfig(userId: "1")
+
+        #expect(!errorReporter.errors.isEmpty)
+    }
+
+    /// `getKdfConfig(userId:)` returns the specified user's KDF configuration, converted to the
+    /// SDK's type, and returns `nil` when the account's KDF fields are unset (no default fallback).
+    @Test
+    func getKdfConfig() async throws {
+        await subject.addAccount(.fixture(
+            profile: .fixture(kdfIterations: 600_000, kdfType: .pbkdf2sha256, userId: "1"),
+        ))
+        await subject.addAccount(.fixture(
+            profile: .fixture(kdfIterations: nil, kdfType: nil, userId: "2"),
+        ))
+
+        #expect(await subject.getKdfConfig(userId: "1") == .pbkdf2(iterations: 600_000))
+        #expect(await subject.getKdfConfig(userId: "2") == nil)
+    }
+
+    /// `getKdfConfig(userId:)` returns `nil` and logs an error if the account can't be found.
+    @Test
+    func getKdfConfig_noAccount() async throws {
+        let result = await subject.getKdfConfig(userId: "1")
+
+        #expect(result == nil)
+        #expect(!errorReporter.errors.isEmpty)
+    }
+
+    /// `setKdfConfig(_:userId:)` persists the KDF configuration for the specified user.
+    @Test
+    func setKdfConfig() async throws {
+        await subject.addAccount(.fixture(profile: .fixture(userId: "1")))
+
+        await subject.setKdfConfig(.argon2id(iterations: 3, memory: 64, parallelism: 4), userId: "1")
+
+        let profile = try #require(appSettingsStore.state?.accounts["1"]?.profile)
+        #expect(profile.kdfType == .argon2id)
+        #expect(profile.kdfIterations == 3)
+        #expect(profile.kdfMemory == 64)
+        #expect(profile.kdfParallelism == 4)
+    }
+
+    /// `setKdfConfig(_:userId:)` logs an error if the account can't be found.
+    @Test
+    func setKdfConfig_noAccount() async throws {
+        await subject.setKdfConfig(.pbkdf2(iterations: 600_000), userId: "1")
+
+        #expect(!errorReporter.errors.isEmpty)
+    }
+
     // MARK: Tests - Master Password Unlock Data
 
     /// `clearAccountMasterPasswordUnlockData(userId:)` clears the master password unlock data for
@@ -243,6 +315,36 @@ struct StateServiceSdkStateBridgeTests {
         await subject.setPersistentPinEnvelope(nil, userId: "1")
 
         #expect(appSettingsStore.pinProtectedUserKeyEnvelope["1"] == nil)
+    }
+
+    // MARK: Tests - User Key Id
+
+    /// `getUserKeyId(userId:)` returns the user key ID stored in `AppSettingsStore`, or `nil` if none.
+    @Test
+    func getUserKeyId() async {
+        #expect(await subject.getUserKeyId(userId: "1") == nil)
+
+        appSettingsStore.userKeyIdByUserId["1"] = "USER_KEY_ID"
+
+        #expect(await subject.getUserKeyId(userId: "1") == "USER_KEY_ID")
+    }
+
+    /// `setUserKeyId(_:userId:)` persists the user key ID to `AppSettingsStore`.
+    @Test
+    func setUserKeyId() async {
+        await subject.setUserKeyId("USER_KEY_ID", userId: "1")
+
+        #expect(appSettingsStore.userKeyIdByUserId["1"] == "USER_KEY_ID")
+    }
+
+    /// `setUserKeyId(_:userId:)` clears the user key ID in `AppSettingsStore` when passed `nil`.
+    @Test
+    func setUserKeyId_nil() async {
+        appSettingsStore.userKeyIdByUserId["1"] = "USER_KEY_ID"
+
+        await subject.setUserKeyId(nil, userId: "1")
+
+        #expect(appSettingsStore.userKeyIdByUserId["1"] == nil)
     }
 
     // MARK: Tests - V2 Upgrade Token

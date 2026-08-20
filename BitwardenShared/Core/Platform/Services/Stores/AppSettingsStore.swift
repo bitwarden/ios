@@ -657,6 +657,14 @@ protocol AppSettingsStore: AnyObject {
     ///
     func setTwoFactorToken(_ token: String?, email: String)
 
+    /// Sets the ID of the user's active symmetric encryption key.
+    ///
+    /// - Parameters:
+    ///   - keyId: The ID of the user's active symmetric encryption key, or `nil` to clear it.
+    ///   - userId: The user ID associated with the user key ID.
+    ///
+    func setUserKeyId(_ keyId: String?, userId: String)
+
     /// Sets whether the user uses key connector.
     ///
     /// - Parameters:
@@ -715,6 +723,13 @@ protocol AppSettingsStore: AnyObject {
     /// - Returns: The two-factor token.
     ///
     func twoFactorToken(email: String) -> String?
+
+    /// The ID of the user's active symmetric encryption key.
+    ///
+    /// - Parameter userId: The user ID associated with the stored user key ID.
+    /// - Returns: The user key ID, or `nil` if not yet stored.
+    ///
+    func userKeyId(userId: String) -> String?
 
     /// Gets the username generation options for a user ID.
     ///
@@ -923,6 +938,7 @@ extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore {
         case subscriptionAttentionCardVisible(userId: String)
         case twoFactorToken(email: String)
         case upgradedToPremiumActionCardVisible(userId: String)
+        case userKeyId(userId: String)
         case usernameGenerationOptions(userId: String)
         case usesKeyConnector(userId: String)
         case v2UpgradeToken(userId: String)
@@ -1053,6 +1069,8 @@ extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore {
                 "twoFactorToken_\(email)"
             case let .upgradedToPremiumActionCardVisible(userId):
                 "upgradedToPremiumActionCardVisible_\(userId)"
+            case let .userKeyId(userId):
+                "userKeyId_\(userId)"
             case let .usernameGenerationOptions(userId):
                 "usernameGenerationOptions_\(userId)"
             case let .usesKeyConnector(userId):
@@ -1491,6 +1509,10 @@ extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore {
         store(token, for: .twoFactorToken(email: email))
     }
 
+    func setUserKeyId(_ keyId: String?, userId: String) {
+        store(keyId, for: .userKeyId(userId: userId))
+    }
+
     func setUsernameGenerationOptions(_ options: UsernameGenerationOptions?, userId: String) {
         store(options, for: .usernameGenerationOptions(userId: userId))
     }
@@ -1521,6 +1543,10 @@ extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore {
 
     func twoFactorToken(email: String) -> String? {
         fetch(for: .twoFactorToken(email: email))
+    }
+
+    func userKeyId(userId: String) -> String? {
+        fetch(for: .userKeyId(userId: userId))
     }
 
     func usernameGenerationOptions(userId: String) -> UsernameGenerationOptions? {

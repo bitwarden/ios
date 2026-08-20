@@ -74,6 +74,7 @@ class MockAppSettingsStore: AppSettingsStore { // swiftlint:disable:this type_bo
     var syncToAuthenticatorByUserId = [String: Bool]()
     var timeoutAction = [String: Int]()
     var twoFactorTokens = [String: String]()
+    var userKeyIdByUserId = [String: String]()
     var usesKeyConnector = [String: Bool]()
     var v2UpgradeTokenByUserId = [String: V2UpgradeToken]()
     var vaultTimeout = [String: Int]()
@@ -442,6 +443,14 @@ class MockAppSettingsStore: AppSettingsStore { // swiftlint:disable:this type_bo
         unsuccessfulUnlockAttempts[userId] = attempts
     }
 
+    func setUserKeyId(_ keyId: String?, userId: String) {
+        guard let keyId else {
+            userKeyIdByUserId.removeValue(forKey: userId)
+            return
+        }
+        userKeyIdByUserId[userId] = keyId
+    }
+
     func setUsernameGenerationOptions(_ options: UsernameGenerationOptions?, userId: String) {
         guard let options else {
             usernameGenerationOptions.removeValue(forKey: userId)
@@ -480,6 +489,10 @@ class MockAppSettingsStore: AppSettingsStore { // swiftlint:disable:this type_bo
 
     func unsuccessfulUnlockAttempts(userId: String) -> Int {
         unsuccessfulUnlockAttempts[userId] ?? 0
+    }
+
+    func userKeyId(userId: String) -> String? {
+        userKeyIdByUserId[userId]
     }
 
     func usernameGenerationOptions(userId: String) -> UsernameGenerationOptions? {

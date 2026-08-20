@@ -1423,6 +1423,26 @@ class AppSettingsStoreTests: BitwardenTestCase { // swiftlint:disable:this type_
         )
     }
 
+    /// `userKeyId(userId:)` returns `nil` if there isn't a previously stored value.
+    func test_userKeyId_isInitiallyNil() {
+        XCTAssertNil(subject.userKeyId(userId: "-1"))
+    }
+
+    /// `userKeyId(userId:)` can be used to get and set the user key ID for a user.
+    func test_userKeyId_withValue() {
+        subject.setUserKeyId("1:USER_KEY_ID", userId: "1")
+        subject.setUserKeyId("2:USER_KEY_ID", userId: "2")
+
+        XCTAssertEqual(subject.userKeyId(userId: "1"), "1:USER_KEY_ID")
+        XCTAssertEqual(subject.userKeyId(userId: "2"), "2:USER_KEY_ID")
+
+        XCTAssertNotNil(userDefaults.string(forKey: "bwPreferencesStorage:userKeyId_1"))
+        XCTAssertNotNil(userDefaults.string(forKey: "bwPreferencesStorage:userKeyId_2"))
+
+        subject.setUserKeyId(nil, userId: "1")
+        XCTAssertNil(subject.userKeyId(userId: "1"))
+    }
+
     /// `v2UpgradeToken(userId:)` returns `nil` if there isn't a previously stored value.
     func test_v2UpgradeToken_isInitiallyNil() {
         XCTAssertNil(subject.v2UpgradeToken(userId: "-1"))

@@ -140,6 +140,39 @@ struct SdkStateBridgeTests {
         #expect(stateService.setEphemeralPinEnvelopeReceivedArguments?.userId == "1")
     }
 
+    // MARK: Tests - Kdf Config
+
+    /// `clearKdfConfig()` clears the value via `StateService` for the bridge's user.
+    @Test
+    func clearKdfConfig() async {
+        await subject.clearKdfConfig()
+
+        #expect(stateService.clearKdfConfigReceivedUserId == "1")
+    }
+
+    /// `getKdfConfig()` returns the value from `StateService` for the bridge's user.
+    @Test
+    func getKdfConfig() async {
+        let kdf = BitwardenSdk.Kdf.pbkdf2(iterations: 600_000)
+        stateService.getKdfConfigReturnValue = kdf
+
+        let result = await subject.getKdfConfig()
+
+        #expect(result == kdf)
+        #expect(stateService.getKdfConfigReceivedUserId == "1")
+    }
+
+    /// `setKdfConfig(value:)` sets the value via `StateService` for the bridge's user.
+    @Test
+    func setKdfConfig() async {
+        let kdf = BitwardenSdk.Kdf.pbkdf2(iterations: 600_000)
+
+        await subject.setKdfConfig(value: kdf)
+
+        #expect(stateService.setKdfConfigReceivedArguments?.kdf == kdf)
+        #expect(stateService.setKdfConfigReceivedArguments?.userId == "1")
+    }
+
     // MARK: Tests - Master Password Unlock Data
 
     /// `clearMasterpasswordUnlockData()` clears the account's master password unlock data via
@@ -239,6 +272,37 @@ struct SdkStateBridgeTests {
         #expect(cleared == nil)
     }
 
+    // MARK: Tests - User Key Id
+
+    /// `clearUserKeyId()` clears the value via `StateService` for the bridge's user.
+    @Test
+    func clearUserKeyId() async {
+        await subject.clearUserKeyId()
+
+        #expect(stateService.setUserKeyIdReceivedArguments?.keyId == nil)
+        #expect(stateService.setUserKeyIdReceivedArguments?.userId == "1")
+    }
+
+    /// `getUserKeyId()` returns the value from `StateService` for the bridge's user.
+    @Test
+    func getUserKeyId() async {
+        stateService.getUserKeyIdReturnValue = "USER_KEY_ID"
+
+        let result = await subject.getUserKeyId()
+
+        #expect(result == "USER_KEY_ID")
+        #expect(stateService.getUserKeyIdReceivedUserId == "1")
+    }
+
+    /// `setUserKeyId(value:)` sets the value via `StateService` for the bridge's user.
+    @Test
+    func setUserKeyId() async {
+        await subject.setUserKeyId(value: "USER_KEY_ID")
+
+        #expect(stateService.setUserKeyIdReceivedArguments?.keyId == "USER_KEY_ID")
+        #expect(stateService.setUserKeyIdReceivedArguments?.userId == "1")
+    }
+
     // MARK: Tests - V2 Upgrade Token
 
     /// `clearV2UpgradeToken()` clears the value via `StateService` for the bridge's user.
@@ -271,5 +335,36 @@ struct SdkStateBridgeTests {
 
         #expect(stateService.setV2UpgradeTokenReceivedArguments?.token == token)
         #expect(stateService.setV2UpgradeTokenReceivedArguments?.userId == "1")
+    }
+
+    // MARK: Tests - WebAuthn Prf Unlock Data
+
+    /// `clearWebauthnPrfUnlockData()` is a no-op since the app doesn't support WebAuthn PRF unlock.
+    @Test
+    func clearWebauthnPrfUnlockData() async {
+        await subject.clearWebauthnPrfUnlockData()
+
+        let result = await subject.getWebauthnPrfUnlockData()
+        #expect(result == nil)
+    }
+
+    /// `getWebauthnPrfUnlockData()` always returns `nil` since the app doesn't support WebAuthn PRF
+    /// unlock.
+    @Test
+    func getWebauthnPrfUnlockData() async {
+        let result = await subject.getWebauthnPrfUnlockData()
+
+        #expect(result == nil)
+    }
+
+    /// `setWebauthnPrfUnlockData(value:)` is a no-op since the app doesn't support WebAuthn PRF unlock.
+    @Test
+    func setWebauthnPrfUnlockData() async {
+        let data = WebAuthnPrfUnlockData(options: [])
+
+        await subject.setWebauthnPrfUnlockData(value: data)
+
+        let result = await subject.getWebauthnPrfUnlockData()
+        #expect(result == nil)
     }
 }

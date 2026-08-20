@@ -57,6 +57,29 @@ protocol SdkStateBridgeStateService { // sourcery: AutoMockable
     ///
     func setEphemeralPinEnvelope(_ envelope: String?, userId: String) async
 
+    // MARK: Kdf Config
+
+    /// Clears the account's stored KDF configuration.
+    ///
+    /// - Parameter userId: The user ID of the account.
+    ///
+    func clearKdfConfig(userId: String) async
+
+    /// Gets the account's stored KDF configuration.
+    ///
+    /// - Parameter userId: The user ID of the account.
+    /// - Returns: The account's KDF configuration, or `nil` if unavailable.
+    ///
+    func getKdfConfig(userId: String) async -> BitwardenSdk.Kdf?
+
+    /// Sets the account's KDF configuration.
+    ///
+    /// - Parameters:
+    ///   - kdf: The account's KDF configuration.
+    ///   - userId: The user ID of the account.
+    ///
+    func setKdfConfig(_ kdf: BitwardenSdk.Kdf, userId: String) async
+
     // MARK: Master Password Unlock Data
 
     /// Clears the master password unlock data for an account.
@@ -99,6 +122,23 @@ protocol SdkStateBridgeStateService { // sourcery: AutoMockable
     ///   - userId: The user ID associated with the pin protected user key envelope.
     ///
     func setPersistentPinEnvelope(_ envelope: String?, userId: String) async
+
+    // MARK: User Key Id
+
+    /// Gets the ID of the account's active user key.
+    ///
+    /// - Parameter userId: The user ID of the account.
+    /// - Returns: The ID of the account's active user key, or `nil` if unavailable.
+    ///
+    func getUserKeyId(userId: String) async -> String?
+
+    /// Sets the ID of the account's active user key.
+    ///
+    /// - Parameters:
+    ///   - keyId: The ID of the account's active user key, or `nil` to clear it.
+    ///   - userId: The user ID of the account.
+    ///
+    func setUserKeyId(_ keyId: String?, userId: String) async
 
     // MARK: V2 Upgrade Token
 
