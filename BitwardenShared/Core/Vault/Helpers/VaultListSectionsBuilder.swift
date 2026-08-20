@@ -434,12 +434,7 @@ class DefaultVaultListSectionsBuilder: VaultListSectionsBuilder { // swiftlint:d
 
         let bankAccountCount = preparedData.countPerCipherType[.bankAccount, default: 0]
         if preparedData.isNewItemTypesEnabled, bankAccountCount != 0 {
-            types.append(
-                VaultListItem(
-                    id: "Types.BankAccounts",
-                    itemType: .group(.bankAccount, bankAccountCount),
-                ),
-            )
+            types.append(newItemTypeRow(id: "Types.BankAccounts", group: .bankAccount, type: .bankAccount))
         }
 
         types.append(
