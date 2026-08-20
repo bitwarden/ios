@@ -1944,6 +1944,180 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         XCTAssertEqual(errorReporter.errors as? [BitwardenTestError], [.example])
     }
 
+    // MARK: startObservingUserSessionKeyFeatureFlag
+
+    /// `startObservingUserSessionKeyFeatureFlag()` ignores pre-auth config emissions.
+    func test_startObservingUserSessionKeyFeatureFlag_preAuthConfig_ignored() async throws {
+        subject.startObservingUserSessionKeyFeatureFlag()
+        stateService.accounts = [anneAccount]
+        stateService.environmentURLs[anneAccount.profile.userId] = .defaultUS
+
+        configService.configSubject.send(MetaServerConfig(
+            isPreAuth: true,
+            userId: anneAccount.profile.userId,
+            serverConfig: makeServerConfig(flagValue: false),
+        ))
+        try await Task.sleep(nanoseconds: 100_000_000)
+
+        XCTAssertEqual(keychainService.deleteUserAuthKeyCallsCount, 0)
+    }
+
+    /// `startObservingUserSessionKeyFeatureFlag()` cleans up `.userSessionKey` items on the first
+    /// emission when the flag is OFF — this handles the kill-and-relaunch scenario where the flag
+    /// was ON during a previous session.
+    func test_startObservingUserSessionKeyFeatureFlag_firstEmission_flagOff_cleansUp() async throws {
+        subject.startObservingUserSessionKeyFeatureFlag()
+        stateService.accounts = [anneAccount]
+        stateService.environmentURLs[anneAccount.profile.userId] = .defaultUS
+
+        configService.configSubject.send(MetaServerConfig(
+            isPreAuth: false,
+            userId: anneAccount.profile.userId,
+            serverConfig: makeServerConfig(flagValue: false),
+        ))
+        try await waitForAsync { self.keychainService.deleteUserAuthKeyCallsCount > 0 }
+
+        XCTAssertEqual(keychainService.deleteUserAuthKeyCallsCount, 1)
+        XCTAssertEqual(
+            keychainService.deleteUserAuthKeyReceivedItem,
+            .userSessionKey(userId: anneAccount.profile.userId),
+        )
+    }
+
+    /// `startObservingUserSessionKeyFeatureFlag()` does not clean up on the first emission when
+    /// the flag is ON.
+    func test_startObservingUserSessionKeyFeatureFlag_firstEmission_flagOn_noCleanup() async throws {
+        subject.startObservingUserSessionKeyFeatureFlag()
+        stateService.accounts = [anneAccount]
+        stateService.environmentURLs[anneAccount.profile.userId] = .defaultUS
+
+        configService.configSubject.send(MetaServerConfig(
+            isPreAuth: false,
+            userId: anneAccount.profile.userId,
+            serverConfig: makeServerConfig(flagValue: true),
+        ))
+        try await Task.sleep(nanoseconds: 100_000_000)
+
+        XCTAssertEqual(keychainService.deleteUserAuthKeyCallsCount, 0)
+    }
+
+    /// `startObservingUserSessionKeyFeatureFlag()` deletes `.userSessionKey` items for all accounts
+    /// on the same server when the flag flips from ON to OFF.
+    func test_startObservingUserSessionKeyFeatureFlag_flagFlipsOff_deletesMatchingAccounts() async throws {
+        subject.startObservingUserSessionKeyFeatureFlag()
+        stateService.accounts = [anneAccount, beeAccount]
+        stateService.environmentURLs[anneAccount.profile.userId] = .defaultUS
+        stateService.environmentURLs[beeAccount.profile.userId] = .defaultUS
+
+        // First emission: flag ON — records value, no cleanup.
+        configService.configSubject.send(MetaServerConfig(
+            isPreAuth: false,
+            userId: anneAccount.profile.userId,
+            serverConfig: makeServerConfig(flagValue: true),
+        ))
+        try await Task.sleep(nanoseconds: 100_000_000)
+        XCTAssertEqual(keychainService.deleteUserAuthKeyCallsCount, 0)
+
+        // Second emission: flag OFF — cleanup fires for both accounts on the same server.
+        var deletedItems: [BitwardenKeychainItem] = []
+        keychainService.deleteUserAuthKeyClosure = { deletedItems.append($0) }
+        configService.configSubject.send(MetaServerConfig(
+            isPreAuth: false,
+            userId: anneAccount.profile.userId,
+            serverConfig: makeServerConfig(flagValue: false),
+        ))
+        try await waitForAsync { deletedItems.count >= 2 }
+
+        XCTAssertEqual(deletedItems.count, 2)
+        XCTAssertTrue(deletedItems.contains(.userSessionKey(userId: anneAccount.profile.userId)))
+        XCTAssertTrue(deletedItems.contains(.userSessionKey(userId: beeAccount.profile.userId)))
+    }
+
+    /// `startObservingUserSessionKeyFeatureFlag()` does not delete `.userSessionKey` for accounts
+    /// on a different server when the flag flips OFF.
+    func test_startObservingUserSessionKeyFeatureFlag_flagFlipsOff_skipsOtherServerAccounts() async throws {
+        subject.startObservingUserSessionKeyFeatureFlag()
+        stateService.accounts = [anneAccount, beeAccount]
+        stateService.environmentURLs[anneAccount.profile.userId] = .defaultUS
+        stateService.environmentURLs[beeAccount.profile.userId] = .defaultEU
+
+        // First emission: flag ON for anneAccount's server.
+        configService.configSubject.send(MetaServerConfig(
+            isPreAuth: false,
+            userId: anneAccount.profile.userId,
+            serverConfig: makeServerConfig(flagValue: true),
+        ))
+        try await Task.sleep(nanoseconds: 100_000_000)
+
+        // Flag flips OFF for anneAccount's server (US) — beeAccount is on EU, must be untouched.
+        var deletedItems: [BitwardenKeychainItem] = []
+        keychainService.deleteUserAuthKeyClosure = { deletedItems.append($0) }
+        configService.configSubject.send(MetaServerConfig(
+            isPreAuth: false,
+            userId: anneAccount.profile.userId,
+            serverConfig: makeServerConfig(flagValue: false),
+        ))
+        try await waitForAsync { deletedItems.count >= 1 }
+
+        XCTAssertEqual(deletedItems.count, 1)
+        XCTAssertTrue(deletedItems.contains(.userSessionKey(userId: anneAccount.profile.userId)))
+        XCTAssertFalse(deletedItems.contains(.userSessionKey(userId: beeAccount.profile.userId)))
+    }
+
+    /// `startObservingUserSessionKeyFeatureFlag()` does not clean up when the flag flips from
+    /// OFF to ON.
+    func test_startObservingUserSessionKeyFeatureFlag_flagFlipsOn_noCleanup() async throws {
+        subject.startObservingUserSessionKeyFeatureFlag()
+        stateService.accounts = [anneAccount]
+        stateService.environmentURLs[anneAccount.profile.userId] = .defaultUS
+
+        // Record flag as OFF first.
+        configService.configSubject.send(MetaServerConfig(
+            isPreAuth: false,
+            userId: anneAccount.profile.userId,
+            serverConfig: makeServerConfig(flagValue: false),
+        ))
+        try await Task.sleep(nanoseconds: 100_000_000)
+        keychainService.deleteUserAuthKeyCallsCount = 0
+
+        // Flag flips ON — no cleanup expected.
+        configService.configSubject.send(MetaServerConfig(
+            isPreAuth: false,
+            userId: anneAccount.profile.userId,
+            serverConfig: makeServerConfig(flagValue: true),
+        ))
+        try await Task.sleep(nanoseconds: 100_000_000)
+
+        XCTAssertEqual(keychainService.deleteUserAuthKeyCallsCount, 0)
+    }
+
+    /// `startObservingUserSessionKeyFeatureFlag()` does not trigger a second cleanup when the
+    /// flag stays OFF across two consecutive emissions.
+    func test_startObservingUserSessionKeyFeatureFlag_flagStaysFalse_noRepeatCleanup() async throws {
+        subject.startObservingUserSessionKeyFeatureFlag()
+        stateService.accounts = [anneAccount]
+        stateService.environmentURLs[anneAccount.profile.userId] = .defaultUS
+
+        // First emission: flag OFF — cleanup fires once.
+        configService.configSubject.send(MetaServerConfig(
+            isPreAuth: false,
+            userId: anneAccount.profile.userId,
+            serverConfig: makeServerConfig(flagValue: false),
+        ))
+        try await waitForAsync { self.keychainService.deleteUserAuthKeyCallsCount > 0 }
+        XCTAssertEqual(keychainService.deleteUserAuthKeyCallsCount, 1)
+
+        // Second emission: flag still OFF — no additional cleanup.
+        configService.configSubject.send(MetaServerConfig(
+            isPreAuth: false,
+            userId: anneAccount.profile.userId,
+            serverConfig: makeServerConfig(flagValue: false),
+        ))
+        try await Task.sleep(nanoseconds: 100_000_000)
+
+        XCTAssertEqual(keychainService.deleteUserAuthKeyCallsCount, 1)
+    }
+
     /// `setMasterPassword()` sets a TDE user's master password, saves their encryption keys, enrolls
     /// the user in password reset and unlocks the vault.
     func test_setMasterPassword_TDE_resetPasswordEnrollment() async throws {
@@ -2152,6 +2326,77 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
             keychainService.setUserAuthKeyReceivedArguments?.item,
             BitwardenKeychainItem.neverLock(userId: active.profile.userId),
         )
+    }
+
+    // MARK: unlockVault — userSessionKey feature flag gate
+
+    /// `unlockVaultWithPassword` does not write `.userSessionKey` when `enableUserSessionKeySharing`
+    /// is OFF, even when the vault timeout permits it.
+    func test_unlockVault_userSessionKey_featureFlagOff_doesNotWrite() async throws {
+        let account = Account.fixture()
+        stateService.activeAccount = account
+        stateService.accountEncryptionKeys = [
+            account.profile.userId: AccountEncryptionKeys(
+                cryptographicState: .fixtureV2(),
+                encryptedUserKey: "USER_KEY",
+            ),
+        ]
+        vaultTimeoutService.vaultTimeout[account.profile.userId] = .fifteenMinutes
+        configService.featureFlagsBool[.enableUserSessionKeySharing] = false
+
+        await assertAsyncDoesNotThrow {
+            try await subject.unlockVaultWithPassword(password: "password")
+        }
+
+        XCTAssertFalse(keychainService.setUserAuthKeyCalled)
+    }
+
+    /// `unlockVaultWithPassword` writes `.userSessionKey` when `enableUserSessionKeySharing` is ON
+    /// and the vault timeout permits it.
+    func test_unlockVault_userSessionKey_featureFlagOn_timeoutAllows_writes() async throws {
+        let account = Account.fixture()
+        stateService.activeAccount = account
+        stateService.accountEncryptionKeys = [
+            account.profile.userId: AccountEncryptionKeys(
+                cryptographicState: .fixtureV2(),
+                encryptedUserKey: "USER_KEY",
+            ),
+        ]
+        vaultTimeoutService.vaultTimeout[account.profile.userId] = .fifteenMinutes
+        configService.featureFlagsBool[.enableUserSessionKeySharing] = true
+        clientService.mockCrypto.getUserEncryptionKeyReturnValue = "SESSION_KEY"
+
+        await assertAsyncDoesNotThrow {
+            try await subject.unlockVaultWithPassword(password: "password")
+        }
+
+        XCTAssertTrue(keychainService.setUserAuthKeyCalled)
+        XCTAssertEqual(
+            keychainService.setUserAuthKeyReceivedArguments?.item,
+            .userSessionKey(userId: account.profile.userId),
+        )
+        XCTAssertEqual(keychainService.setUserAuthKeyReceivedArguments?.value, "SESSION_KEY")
+    }
+
+    /// `unlockVaultWithPassword` does not write `.userSessionKey` when `enableUserSessionKeySharing`
+    /// is ON but the vault timeout does not permit sharing (`.never`).
+    func test_unlockVault_userSessionKey_featureFlagOn_timeoutDenies_doesNotWrite() async throws {
+        let account = Account.fixture()
+        stateService.activeAccount = account
+        stateService.accountEncryptionKeys = [
+            account.profile.userId: AccountEncryptionKeys(
+                cryptographicState: .fixtureV2(),
+                encryptedUserKey: "USER_KEY",
+            ),
+        ]
+        vaultTimeoutService.vaultTimeout[account.profile.userId] = .never
+        configService.featureFlagsBool[.enableUserSessionKeySharing] = true
+
+        await assertAsyncDoesNotThrow {
+            try await subject.unlockVaultWithPassword(password: "password")
+        }
+
+        XCTAssertFalse(keychainService.setUserAuthKeyCalled)
     }
 
     /// `unlockVaultWithNeverlockKey` attempts to unlock the vault using an auth key from the keychain.
@@ -3758,5 +4003,23 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         XCTAssertNotNil(client.requests[0].body)
         XCTAssertEqual(client.requests[0].method, .post)
         XCTAssertEqual(client.requests[0].url.absoluteString, "https://example.com/api/accounts/verify-otp")
+    }
+
+    // MARK: Helpers
+
+    /// Builds a `ServerConfig` with `enableUserSessionKeySharing` set to the given value.
+    private func makeServerConfig(flagValue: Bool) -> ServerConfig {
+        ServerConfig(
+            date: Date(),
+            responseModel: ConfigResponseModel(
+                communication: nil,
+                environment: nil,
+                featureStates: [FeatureFlag.enableUserSessionKeySharing.rawValue: .bool(flagValue)],
+                gitHash: nil,
+                server: nil,
+                settings: nil,
+                version: "2024.4.0",
+            ),
+        )
     }
 } // swiftlint:disable:this file_length

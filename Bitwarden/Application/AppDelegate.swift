@@ -45,8 +45,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
             errorReporter: { ErrorReporterFactory.makeDefaultErrorReporter() },
             nfcReaderService: { DefaultNFCReaderService() },
         )
-        // Registration must happen synchronously before this method returns.
-        services.backgroundSessionCleanupService.register()
+        // Must be called synchronously before this method returns.
+        services.start()
         let appModule = DefaultAppModule(services: services)
         appProcessor = AppProcessor(appModule: appModule, services: services)
         return true

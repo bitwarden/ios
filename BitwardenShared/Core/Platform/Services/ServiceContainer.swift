@@ -1354,6 +1354,16 @@ extension ServiceContainer {
 
     // MARK: Methods
 
+    /// Must be called once, synchronously, before the app finishes launching.
+    ///
+    /// Registers background tasks and starts any long-lived service observations that must begin
+    /// at app launch.
+    ///
+    func start() {
+        backgroundSessionCleanupService.register()
+        authRepository.startObservingUserSessionKeyFeatureFlag()
+    }
+
     /// Gets the mediator to be used by an App Intent.
     public func getAppIntentMediator() -> AppIntentMediator {
         DefaultAppIntentMediator(

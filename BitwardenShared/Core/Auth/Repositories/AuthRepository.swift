@@ -262,6 +262,14 @@ protocol AuthRepository: AnyObject {
     ///
     func setVaultTimeout(value newValue: SessionTimeoutValue, userId: String?) async throws
 
+    /// Starts observing server config changes to reactively purge `.userSessionKey` items when
+    /// `enableUserSessionKeySharing` flips OFF for a server.
+    ///
+    /// Must be called once at app launch. Safe to call from a synchronous context — starts an
+    /// async `Task` internally.
+    ///
+    func startObservingUserSessionKeyFeatureFlag()
+
     /// Attempts to unlock the user's vault using information returned from the login with device method.
     ///
     /// - Parameters:
@@ -486,6 +494,9 @@ class DefaultAuthRepository {
     /// The service to get server-specified configuration.
     private let configService: ConfigService
 
+    /// Tracks the config-change subscription task started by `startObservingUserSessionKeyFeatureFlag()`.
+    private var configSubscriptionTask: Task<Void, Never>?
+
     /// The service used by the application to manage the environment settings.
     private let environmentService: EnvironmentService
 
@@ -497,6 +508,10 @@ class DefaultAuthRepository {
 
     /// The service used by the application for recording temporary debug logs.
     private let flightRecorder: FlightRecorder
+
+    /// Last-seen value of `enableUserSessionKeySharing` per userId, used to detect ON→OFF
+    /// transitions (including across app kills, where the value starts as `nil`).
+    private var lastKnownUserSessionKeyFlagValues: [String: Bool] = [:]
 
     /// The keychain service used by this repository.
     private let keychainService: KeychainRepository
@@ -1139,6 +1154,27 @@ extension DefaultAuthRepository: AuthRepository {
         )
     }
 
+    func startObservingUserSessionKeyFeatureFlag() {
+        let configService = configService
+        configSubscriptionTask = Task { [weak self] in
+            for await metaConfig in await configService.configPublisher() {
+                guard let self,
+                      let metaConfig,
+                      !metaConfig.isPreAuth,
+                      let userId = metaConfig.userId else { continue }
+                let flagKey = FeatureFlag.enableUserSessionKeySharing.rawValue
+                let newValue = metaConfig.serverConfig?.featureStates[flagKey]?.boolValue ?? false
+                let previousValue = lastKnownUserSessionKeyFlagValues[userId]
+                lastKnownUserSessionKeyFlagValues[userId] = newValue
+                // Fire when the flag is OFF and the previous value was either nil (unknown after a
+                // kill/relaunch — treat conservatively) or true (just flipped OFF). Deleting a
+                // non-existent Keychain item is a safe no-op.
+                guard newValue == false, previousValue != false else { continue }
+                await removeUserSessionKeys(forAccountsOnSameServerAs: userId)
+            }
+        }
+    }
+
     func unlockVaultFromLoginWithDevice(privateKey: String, key: String) async throws {
         try await unlockVault(
             method: .authRequest(
@@ -1354,6 +1390,26 @@ extension DefaultAuthRepository: AuthRepository {
         )
     }
 
+    /// Deletes the `.userSessionKey` Keychain item for every account whose `environmentUrls`
+    /// matches the given user's server.
+    ///
+    /// - Parameter userId: The user ID whose server determines which accounts are affected.
+    ///
+    private func removeUserSessionKeys(forAccountsOnSameServerAs userId: String) async {
+        do {
+            let targetUrls = try await stateService.getEnvironmentURLs(userId: userId)
+            let accounts = try await stateService.getAccounts()
+            for account in accounts {
+                guard account.settings.environmentUrls == targetUrls else { continue }
+                try? await keychainService.deleteUserAuthKey(
+                    for: .userSessionKey(userId: account.profile.userId),
+                )
+            }
+        } catch {
+            errorReporter.log(error: error)
+        }
+    }
+
     /// Attempts to unlock the vault with a given method.
     ///
     /// - Parameters:
@@ -1386,8 +1442,9 @@ extension DefaultAuthRepository: AuthRepository {
             errorReporter.log(error: error)
         }
         do {
+            let isFeatureEnabled = await configService.getFeatureFlag(.enableUserSessionKeySharing)
             let timeoutValue = try await vaultTimeoutService.sessionTimeoutValue(userId: account.profile.userId)
-            if timeoutValue.allowsUserSessionKeySharing {
+            if isFeatureEnabled, timeoutValue.allowsUserSessionKeySharing {
                 try await keychainService.setUserAuthKey(
                     for: .userSessionKey(userId: account.profile.userId),
                     value: clientService.crypto().getUserEncryptionKey(),
