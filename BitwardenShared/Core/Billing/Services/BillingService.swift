@@ -38,8 +38,8 @@ protocol BillingService: AnyObject { // sourcery: AutoMockable
     ///
     func getSubscription() async throws -> PremiumSubscription
 
-    /// Notifies that the user canceled the Stripe checkout without completing payment, and
-    /// publishes a `.canceled` status update.
+    /// Notifies that the user canceled the Stripe checkout without completing payment, clears
+    /// any pending Premium upgrade state, and publishes a `.canceled` status update.
     ///
     func premiumCheckoutCanceled() async
 
@@ -58,11 +58,6 @@ protocol BillingService: AnyObject { // sourcery: AutoMockable
     ///
     func premiumStatusChanged() async
 
-    /// Confirms whether a just-succeeded Stripe checkout has been granted Premium yet, syncing
-    /// to check and publishing checkout status updates as it resolves.
-    ///
-    func reconcileCheckoutSuccess() async
-
     /// Gets the current Premium upgrade pending state for the active account.
     ///
     /// - Returns: The current `PremiumUpgradePendingState`.
@@ -72,6 +67,11 @@ protocol BillingService: AnyObject { // sourcery: AutoMockable
     /// A publisher that emits the Premium upgrade pending state for the active account.
     ///
     func premiumUpgradePendingStatePublisher() -> AnyPublisher<PremiumUpgradePendingState, Never>
+
+    /// Confirms whether a just-succeeded Stripe checkout has been granted Premium yet, syncing
+    /// to check and publishing checkout status updates as it resolves.
+    ///
+    func reconcileCheckoutSuccess() async
 
     /// Fetches the current subscription status and updates the visibility of the subscription
     /// attention action card.
@@ -279,6 +279,21 @@ class DefaultBillingService: BillingService { // swiftlint:disable:this type_bod
         }
     }
 
+    func premiumUpgradePendingState() async -> PremiumUpgradePendingState {
+        do {
+            let isPending = try await billingStateService.getPremiumUpgradePending()
+            let lastAttemptFailed = try await billingStateService.getPremiumUpgradeLastSyncAttemptFailed()
+            return PremiumUpgradePendingState(isPending: isPending, lastAttemptFailed: lastAttemptFailed)
+        } catch {
+            errorReporter.log(error: error)
+            return PremiumUpgradePendingState(isPending: false, lastAttemptFailed: false)
+        }
+    }
+
+    func premiumUpgradePendingStatePublisher() -> AnyPublisher<PremiumUpgradePendingState, Never> {
+        premiumUpgradePendingStateSubject.eraseToAnyPublisher()
+    }
+
     func reconcileCheckoutSuccess() async {
         guard await refreshAttentionCardAndCheckPremiumUpgradeEligibility() else { return }
 
@@ -326,21 +341,6 @@ class DefaultBillingService: BillingService { // swiftlint:disable:this type_bod
             premiumCheckoutStatusSubject.send(nil)
         }
         await refreshPremiumUpgradePendingStateSubject()
-    }
-
-    func premiumUpgradePendingState() async -> PremiumUpgradePendingState {
-        do {
-            let isPending = try await billingStateService.getPremiumUpgradePending()
-            let lastAttemptFailed = try await billingStateService.getPremiumUpgradeLastSyncAttemptFailed()
-            return PremiumUpgradePendingState(isPending: isPending, lastAttemptFailed: lastAttemptFailed)
-        } catch {
-            errorReporter.log(error: error)
-            return PremiumUpgradePendingState(isPending: false, lastAttemptFailed: false)
-        }
-    }
-
-    func premiumUpgradePendingStatePublisher() -> AnyPublisher<PremiumUpgradePendingState, Never> {
-        premiumUpgradePendingStateSubject.eraseToAnyPublisher()
     }
 
     func refreshSubscriptionAttentionCard(subscription: PremiumSubscription?) async {
