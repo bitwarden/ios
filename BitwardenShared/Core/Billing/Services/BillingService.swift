@@ -410,7 +410,12 @@ class DefaultBillingService: BillingService { // swiftlint:disable:this type_bod
             // to actual account switches.
             for await userId in await self.stateService.activeAccountIdPublisher().removeDuplicates().values {
                 self.currentSyncSubscriber?.cancel()
-                guard userId != nil else { continue }
+                guard userId != nil else {
+                    self.premiumUpgradePendingStateSubject.send(
+                        PremiumUpgradePendingState(isPending: false, lastAttemptFailed: false),
+                    )
+                    continue
+                }
 
                 await self.refreshPremiumUpgradePendingStateSubject()
                 self.currentSyncSubscriber = Task { await self.reconcileOnEachNewSync() }

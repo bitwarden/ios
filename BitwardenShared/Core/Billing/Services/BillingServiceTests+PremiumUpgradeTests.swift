@@ -123,6 +123,10 @@ extension BillingServiceTests {
     func start_clearsLastAttemptFailedOnGenericSyncEvenWithoutPremium() async throws {
         stateService.activeAccount = .fixture()
         stateService.doesActiveAccountHavePremiumResult = false
+        var states = [PremiumUpgradePendingState]()
+        let cancellable = subject.premiumUpgradePendingStatePublisher()
+            .sink { states.append($0) }
+        defer { cancellable.cancel() }
 
         await subject.start()
         // Wait for the subscription's baseline snapshot before sending a "new" value below —
@@ -139,6 +143,7 @@ extension BillingServiceTests {
         try await waitForAsync { stateService.premiumUpgradeLastSyncAttemptFailedResult == false }
         #expect(stateService.premiumUpgradePendingResult == true)
         #expect(stateService.upgradedToPremiumActionCardVisibleResult == false)
+        #expect(states.last == PremiumUpgradePendingState(isPending: true, lastAttemptFailed: false))
     }
 
     /// `start()` does not clear a stale `lastAttemptFailed` flag just from subscribing to the
@@ -186,6 +191,72 @@ extension BillingServiceTests {
         #expect(stateService.setUpgradedToPremiumActionCardVisibleCallCount == 0)
     }
 
+    /// `start()` is idempotent — a second call does not create a duplicate subscription.
+    @Test
+    func start_isIdempotent() async throws {
+        stateService.activeAccount = .fixture()
+
+        await subject.start()
+        try await waitForAsync { stateService.getLastSyncTimeCallCount == 1 }
+
+        await subject.start()
+        // Give a duplicate subscription a chance to have taken its own baseline snapshot before
+        // asserting none did.
+        try await Task.sleep(nanoseconds: 100_000_000)
+
+        #expect(stateService.getLastSyncTimeCallCount == 1)
+    }
+
+    /// `start()` publishes the reconciled pending state after a background reconcile resolves
+    /// it, so consumers of `premiumUpgradePendingStatePublisher()` observe the resolution even
+    /// though it happened via a generic, unrelated sync rather than the checkout attempt's own
+    /// subscription.
+    @Test
+    func start_publishesPendingStateAfterReconcile() async throws {
+        stateService.activeAccount = .fixture()
+        stateService.doesActiveAccountHavePremiumResult = false
+        stateService.premiumUpgradePendingResult = true
+        var states = [PremiumUpgradePendingState]()
+        let cancellable = subject.premiumUpgradePendingStatePublisher()
+            .sink { states.append($0) }
+        defer { cancellable.cancel() }
+
+        await subject.start()
+        try await waitForAsync { stateService.getLastSyncTimeCallCount == 1 }
+        states.removeAll()
+
+        stateService.doesActiveAccountHavePremiumResult = true
+        try await stateService.setLastSyncTime(Date(), userId: nil)
+
+        try await waitForAsync { !states.isEmpty }
+        #expect(states.last == PremiumUpgradePendingState(isPending: false, lastAttemptFailed: false))
+    }
+
+    /// `start()` resets the published pending state to a clean default when the account logs
+    /// out, so a subscriber connecting during the unauthenticated window doesn't see a
+    /// signed-out user's stale upgrade state.
+    @Test
+    func start_resetsPendingStateOnLogout() async throws {
+        stateService.activeAccount = .fixture()
+        stateService.premiumUpgradePendingResult = true
+        stateService.premiumUpgradeLastSyncAttemptFailedResult = true
+        var states = [PremiumUpgradePendingState]()
+        let cancellable = subject.premiumUpgradePendingStatePublisher()
+            .sink { states.append($0) }
+        defer { cancellable.cancel() }
+
+        await subject.start()
+        try await waitForAsync {
+            states.last == PremiumUpgradePendingState(isPending: true, lastAttemptFailed: true)
+        }
+
+        stateService.activeIdSubject.send(nil)
+
+        try await waitForAsync {
+            states.last == PremiumUpgradePendingState(isPending: false, lastAttemptFailed: false)
+        }
+    }
+
     /// `start()` resolves a pending Premium upgrade when a generic sync completes and the
     /// active account has since become Premium, by any means (not just the original checkout
     /// attempt's own subscription).
@@ -227,5 +298,30 @@ extension BillingServiceTests {
 
         try await waitForAsync { stateService.upgradedToPremiumActionCardVisibleResult == true }
         #expect(stateService.premiumUpgradePendingResult == false)
+    }
+
+    /// `start()` cancels the previous account's sync subscriber on an account switch, so a sync
+    /// belonging to the previous account doesn't also trigger a duplicate reconcile for the new
+    /// one.
+    @Test
+    func start_resubscribesOnActiveAccountChange() async throws {
+        stateService.activeAccount = .fixture(profile: .fixture(userId: "1"))
+        stateService.doesActiveAccountHavePremiumResult = true
+
+        await subject.start()
+        try await waitForAsync { stateService.getLastSyncTimeCallCount == 1 }
+
+        stateService.activeAccount = .fixture(profile: .fixture(userId: "2"))
+        stateService.activeIdSubject.send("2")
+
+        // The switch cancels account 1's `reconcileOnEachNewSync()` and starts a fresh one for
+        // account 2, which re-snapshots its own baseline sync time.
+        try await waitForAsync { stateService.getLastSyncTimeCallCount == 2 }
+
+        // If account 1's subscriber were still alive, this sync would reach the reconciler
+        // twice instead of once.
+        try await stateService.setLastSyncTime(Date(), userId: nil)
+        try await waitForAsync { stateService.getPremiumUpgradePendingCallCount == 3 }
+        #expect(stateService.getPremiumUpgradePendingCallCount == 3)
     }
 }
