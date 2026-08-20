@@ -2833,6 +2833,9 @@ extension DefaultStateService: SdkStateBridgeStateService {
 
     func setPersistentPinEnvelope(_ envelope: String?, userId: String) async {
         appSettingsStore.setPinProtectedUserKeyEnvelope(key: envelope, userId: userId)
+
+        // Remove any legacy pin protected user key, mirroring `setPinKeys`/`clearPins`.
+        appSettingsStore.setPinProtectedUserKey(key: nil, userId: userId)
     }
 
     // MARK: User Key Id

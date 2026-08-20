@@ -298,23 +298,28 @@ struct StateServiceSdkStateBridgeTests {
     }
 
     /// `setPersistentPinEnvelope(_:userId:)` persists the pin protected user key envelope to
-    /// `AppSettingsStore` for the specified user.
+    /// `AppSettingsStore` for the specified user, and clears the legacy pin protected user key.
     @Test
     func setPersistentPinEnvelope() async {
+        appSettingsStore.pinProtectedUserKey["1"] = "LEGACY_PIN_PROTECTED_USER_KEY"
+
         await subject.setPersistentPinEnvelope("PIN_PROTECTED_USER_KEY_ENVELOPE", userId: "1")
 
         #expect(appSettingsStore.pinProtectedUserKeyEnvelope["1"] == "PIN_PROTECTED_USER_KEY_ENVELOPE")
+        #expect(appSettingsStore.pinProtectedUserKey["1"] == nil)
     }
 
     /// `setPersistentPinEnvelope(_:userId:)` clears the envelope in `AppSettingsStore` when passed
-    /// `nil`.
+    /// `nil`, and clears the legacy pin protected user key.
     @Test
     func setPersistentPinEnvelope_nil() async {
         appSettingsStore.pinProtectedUserKeyEnvelope["1"] = "PIN_PROTECTED_USER_KEY_ENVELOPE"
+        appSettingsStore.pinProtectedUserKey["1"] = "LEGACY_PIN_PROTECTED_USER_KEY"
 
         await subject.setPersistentPinEnvelope(nil, userId: "1")
 
         #expect(appSettingsStore.pinProtectedUserKeyEnvelope["1"] == nil)
+        #expect(appSettingsStore.pinProtectedUserKey["1"] == nil)
     }
 
     // MARK: Tests - User Key Id
