@@ -141,6 +141,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         XCTAssertEqual(clientCiphers.encryptReceivedCipherView, cipher)
 
         XCTAssertEqual(cipherService.addCipherWithServerCiphers.last, Cipher(cipherView: cipher))
+        XCTAssertNil(cipherService.addCipherWithServerEncryptedByKeyId)
         XCTAssertEqual(cipherService.addCipherWithServerEncryptedFor, "1")
     }
 
@@ -188,8 +189,8 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
             CipherView.fixture(id: "2"),
         ]
         let encryptionContexts = [
-            EncryptionContext(encryptedFor: "1", cipher: .fixture(id: "1")),
-            EncryptionContext(encryptedFor: "1", cipher: .fixture(id: "2")),
+            EncryptionContext(encryptedFor: "1", encryptedByKeyId: "key-1", cipher: .fixture(id: "1")),
+            EncryptionContext(encryptedFor: "1", encryptedByKeyId: "key-1", cipher: .fixture(id: "2")),
         ]
         clientCiphers.prepareCiphersForBulkShareReturnValue = encryptionContexts
 
@@ -201,6 +202,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         // Verify bulk share was called.
         XCTAssertEqual(cipherService.bulkShareCiphersWithServerCiphers.last, encryptionContexts.map(\.cipher))
         XCTAssertEqual(cipherService.bulkShareCiphersWithServerCollectionIds, ["col-1", "col-2"])
+        XCTAssertEqual(cipherService.bulkShareCiphersEncryptedByKeyId, "key-1")
         XCTAssertEqual(cipherService.bulkShareCiphersWithServerEncryptedFor, "1")
     }
 
@@ -257,7 +259,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         )
 
         let encryptionContexts = [
-            EncryptionContext(encryptedFor: "1", cipher: cipherAfterAttachmentDelete),
+            EncryptionContext(encryptedFor: "1", encryptedByKeyId: "key-1", cipher: cipherAfterAttachmentDelete),
         ]
         clientCiphers.prepareCiphersForBulkShareReturnValue = encryptionContexts
 
@@ -277,6 +279,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         // Verify bulk share was called.
         XCTAssertEqual(cipherService.bulkShareCiphersWithServerCiphers.last, encryptionContexts.map(\.cipher))
         XCTAssertEqual(cipherService.bulkShareCiphersWithServerCollectionIds, ["col-1"])
+        XCTAssertEqual(cipherService.bulkShareCiphersEncryptedByKeyId, "key-1")
         XCTAssertEqual(cipherService.bulkShareCiphersWithServerEncryptedFor, "1")
     }
 
@@ -1481,6 +1484,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         XCTAssertEqual(clientCiphers.moveToOrganizationReceivedArguments?.organizationId, "5")
 
         XCTAssertEqual(cipherService.shareCipherWithServerCiphers.last, Cipher(cipherView: updatedCipher))
+        XCTAssertNil(cipherService.shareCipherWithServerEncryptedByKeyId)
         XCTAssertEqual(cipherService.shareCipherWithServerEncryptedFor, "1")
     }
 
@@ -1648,6 +1652,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         try await subject.updateCipher(cipher)
 
         XCTAssertEqual(clientCiphers.encryptReceivedCipherView, cipher)
+        XCTAssertNil(cipherService.updateCipherWithServerEncryptedByKeyId)
         XCTAssertEqual(cipherService.updateCipherWithServerEncryptedFor, "1")
     }
 
@@ -1664,6 +1669,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         // Verify cipher was unarchived before updating
         let unarchivedCipher = archivedCipher.update(archivedDate: nil)
         XCTAssertEqual(clientCiphers.encryptReceivedCipherView, unarchivedCipher)
+        XCTAssertNil(cipherService.updateCipherWithServerEncryptedByKeyId)
         XCTAssertEqual(cipherService.updateCipherWithServerEncryptedFor, "1")
     }
 
@@ -1679,6 +1685,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
 
         // Verify cipher was NOT unarchived (kept archived)
         XCTAssertEqual(clientCiphers.encryptReceivedCipherView, archivedCipher)
+        XCTAssertNil(cipherService.updateCipherWithServerEncryptedByKeyId)
         XCTAssertEqual(cipherService.updateCipherWithServerEncryptedFor, "1")
     }
 
@@ -1694,6 +1701,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
 
         // Verify cipher was updated normally (no changes)
         XCTAssertEqual(clientCiphers.encryptReceivedCipherView, cipher)
+        XCTAssertNil(cipherService.updateCipherWithServerEncryptedByKeyId)
         XCTAssertEqual(cipherService.updateCipherWithServerEncryptedFor, "1")
     }
 

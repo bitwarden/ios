@@ -501,6 +501,7 @@ extension DefaultVaultRepository: VaultRepository {
         let cipherEncryptionContext = try await clientService.vault().ciphers().encrypt(cipherView: cipher)
         try await cipherService.addCipherWithServer(
             cipherEncryptionContext.cipher,
+            encryptedByKeyId: cipherEncryptionContext.encryptedByKeyId,
             encryptedFor: cipherEncryptionContext.encryptedFor,
         )
     }
@@ -558,6 +559,7 @@ extension DefaultVaultRepository: VaultRepository {
         try await cipherService.bulkShareCiphersWithServer(
             encryptionContexts.map(\.cipher),
             collectionIds: newCollectionIds,
+            encryptedByKeyId: encryptionContexts.first?.encryptedByKeyId,
             encryptedFor: encryptedFor,
         )
     }
@@ -879,6 +881,7 @@ extension DefaultVaultRepository: VaultRepository {
             .encrypt(cipherView: organizationCipher)
         try await cipherService.shareCipherWithServer(
             organizationCipherEncryptionContext.cipher,
+            encryptedByKeyId: organizationCipherEncryptionContext.encryptedByKeyId,
             encryptedFor: organizationCipherEncryptionContext.encryptedFor,
         )
     }
@@ -911,6 +914,7 @@ extension DefaultVaultRepository: VaultRepository {
         let cipherEncryptionContext = try await clientService.vault().ciphers().encrypt(cipherView: cipherView)
         try await cipherService.updateCipherWithServer(
             cipherEncryptionContext.cipher,
+            encryptedByKeyId: cipherEncryptionContext.encryptedByKeyId,
             encryptedFor: cipherEncryptionContext.encryptedFor,
         )
     }

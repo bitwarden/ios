@@ -37,6 +37,7 @@ class CipherAPIServiceTests: XCTestCase { // swiftlint:disable:this type_body_le
 
         let response = try await subject.addCipher(
             .fixture(),
+            encryptedByKeyId: nil,
             encryptedFor: "1",
         )
 
@@ -96,6 +97,7 @@ class CipherAPIServiceTests: XCTestCase { // swiftlint:disable:this type_body_le
 
         let response = try await subject.addCipherWithCollections(
             .fixture(collectionIds: ["1", "2", "3"]),
+            encryptedByKeyId: nil,
             encryptedFor: "1",
         )
 
@@ -215,6 +217,7 @@ class CipherAPIServiceTests: XCTestCase { // swiftlint:disable:this type_body_le
                 .fixture(collectionIds: ["1", "2"], id: "2"),
             ],
             collectionIds: ["1", "2"],
+            encryptedByKeyId: nil,
             encryptedFor: "user-1",
         )
 
@@ -383,6 +386,7 @@ class CipherAPIServiceTests: XCTestCase { // swiftlint:disable:this type_body_le
 
         let response = try await subject.shareCipher(
             .fixture(collectionIds: ["1", "2", "3"], id: "1"),
+            encryptedByKeyId: nil,
             encryptedFor: "1",
         )
 

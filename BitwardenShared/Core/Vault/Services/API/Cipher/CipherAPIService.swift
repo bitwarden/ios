@@ -20,10 +20,15 @@ protocol CipherAPIService {
     ///
     /// - Parameters:
     ///   - cipher: The cipher that the user is adding.
+    ///   - encryptedByKeyId: The hex-encoded ID of the key used to encrypt the `cipher`.
     ///   - encryptedFor: The user ID who encrypted the `cipher`.
     /// - Returns: The cipher that was added to the user's vault.
     ///
-    func addCipher(_ cipher: Cipher, encryptedFor: String?) async throws -> CipherDetailsResponseModel
+    func addCipher(
+        _ cipher: Cipher,
+        encryptedByKeyId: String?,
+        encryptedFor: String?,
+    ) async throws -> CipherDetailsResponseModel
 
     /// Performs an API request to archive an existing cipher in the user's vault.
     ///
@@ -37,22 +42,29 @@ protocol CipherAPIService {
     ///
     /// - Parameters:
     ///   - cipher: The cipher that the user is adding.
+    ///   - encryptedByKeyId: The hex-encoded ID of the key used to encrypt the `cipher`.
     ///   - encryptedFor: The user ID who encrypted the `cipher`.
     /// - Returns: The cipher that was added to the user's vault.
     ///
-    func addCipherWithCollections(_ cipher: Cipher, encryptedFor: String?) async throws -> CipherDetailsResponseModel
+    func addCipherWithCollections(
+        _ cipher: Cipher,
+        encryptedByKeyId: String?,
+        encryptedFor: String?,
+    ) async throws -> CipherDetailsResponseModel
 
     /// Performs an API request to share multiple ciphers with an organization.
     ///
     /// - Parameters:
     ///   - ciphers: The ciphers to share.
     ///   - collectionIds: The collection identifiers to share the ciphers with.
+    ///   - encryptedByKeyId: The hex-encoded ID of the key used to encrypt the ciphers.
     ///   - encryptedFor: The user ID who encrypted the ciphers.
     /// - Returns: The response containing the shared ciphers.
     ///
     func bulkShareCiphers(
         _ ciphers: [Cipher],
         collectionIds: [String],
+        encryptedByKeyId: String?,
         encryptedFor: String?,
     ) async throws -> BulkShareCiphersResponseModel
 
@@ -126,10 +138,15 @@ protocol CipherAPIService {
     ///
     /// - Parameters:
     ///   - cipher: The cipher to share.
+    ///   - encryptedByKeyId: The hex-encoded ID of the key used to encrypt the `cipher`.
     ///   - encryptedFor: The user ID who encrypted the `cipher`.
     /// - Returns: The cipher that was shared with the organization.
     ///
-    func shareCipher(_ cipher: Cipher, encryptedFor: String?) async throws -> CipherDetailsResponseModel
+    func shareCipher(
+        _ cipher: Cipher,
+        encryptedByKeyId: String?,
+        encryptedFor: String?,
+    ) async throws -> CipherDetailsResponseModel
 
     /// Performs an API request to soft delete an existing cipher in the user's vault.
     ///
@@ -149,10 +166,15 @@ protocol CipherAPIService {
     ///
     /// - Parameters:
     ///   - cipher: The cipher that the user is updating.
+    ///   - encryptedByKeyId: The hex-encoded ID of the key used to encrypt the `cipher`.
     ///   - encryptedFor: The user ID who encrypted the `cipher`.
     /// - Returns: The cipher that was updated in the user's vault.
     ///
-    func updateCipher(_ cipher: Cipher, encryptedFor: String?) async throws -> CipherDetailsResponseModel
+    func updateCipher(
+        _ cipher: Cipher,
+        encryptedByKeyId: String?,
+        encryptedFor: String?,
+    ) async throws -> CipherDetailsResponseModel
 
     /// Performs an API request to update the collections that a cipher is included in.
     ///
@@ -171,26 +193,44 @@ protocol CipherAPIService {
 }
 
 extension APIService: CipherAPIService {
-    func addCipher(_ cipher: Cipher, encryptedFor: String?) async throws -> CipherDetailsResponseModel {
-        try await apiService.send(AddCipherRequest(cipher: cipher, encryptedFor: encryptedFor))
+    func addCipher(
+        _ cipher: Cipher,
+        encryptedByKeyId: String?,
+        encryptedFor: String?,
+    ) async throws -> CipherDetailsResponseModel {
+        try await apiService.send(AddCipherRequest(
+            cipher: cipher,
+            encryptedByKeyId: encryptedByKeyId,
+            encryptedFor: encryptedFor,
+        ))
     }
 
     func archiveCipher(withID id: String) async throws -> CipherDetailsResponseModel {
         try await apiService.send(ArchiveCipherRequest(id: id))
     }
 
-    func addCipherWithCollections(_ cipher: Cipher, encryptedFor: String?) async throws -> CipherDetailsResponseModel {
-        try await apiService.send(AddCipherWithCollectionsRequest(cipher: cipher, encryptedFor: encryptedFor))
+    func addCipherWithCollections(
+        _ cipher: Cipher,
+        encryptedByKeyId: String?,
+        encryptedFor: String?,
+    ) async throws -> CipherDetailsResponseModel {
+        try await apiService.send(AddCipherWithCollectionsRequest(
+            cipher: cipher,
+            encryptedByKeyId: encryptedByKeyId,
+            encryptedFor: encryptedFor,
+        ))
     }
 
     func bulkShareCiphers(
         _ ciphers: [Cipher],
         collectionIds: [String],
+        encryptedByKeyId: String?,
         encryptedFor: String?,
     ) async throws -> BulkShareCiphersResponseModel {
         try await apiService.send(BulkShareCiphersRequest(
             ciphers: ciphers,
             collectionIds: collectionIds,
+            encryptedByKeyId: encryptedByKeyId,
             encryptedFor: encryptedFor,
         ))
     }
@@ -233,8 +273,16 @@ extension APIService: CipherAPIService {
         ))
     }
 
-    func shareCipher(_ cipher: Cipher, encryptedFor: String?) async throws -> CipherDetailsResponseModel {
-        try await apiService.send(ShareCipherRequest(cipher: cipher, encryptedFor: encryptedFor))
+    func shareCipher(
+        _ cipher: Cipher,
+        encryptedByKeyId: String?,
+        encryptedFor: String?,
+    ) async throws -> CipherDetailsResponseModel {
+        try await apiService.send(ShareCipherRequest(
+            cipher: cipher,
+            encryptedByKeyId: encryptedByKeyId,
+            encryptedFor: encryptedFor,
+        ))
     }
 
     func softDeleteCipher(withID id: String) async throws -> EmptyResponse {
@@ -245,8 +293,16 @@ extension APIService: CipherAPIService {
         try await apiService.send(UnarchiveCipherRequest(id: id))
     }
 
-    func updateCipher(_ cipher: Cipher, encryptedFor: String?) async throws -> CipherDetailsResponseModel {
-        let updateRequest = try UpdateCipherRequest(cipher: cipher, encryptedFor: encryptedFor)
+    func updateCipher(
+        _ cipher: Cipher,
+        encryptedByKeyId: String?,
+        encryptedFor: String?,
+    ) async throws -> CipherDetailsResponseModel {
+        let updateRequest = try UpdateCipherRequest(
+            cipher: cipher,
+            encryptedByKeyId: encryptedByKeyId,
+            encryptedFor: encryptedFor,
+        )
         return try await apiService.send(updateRequest)
     }
 

@@ -52,7 +52,7 @@ class CipherServiceTests: BitwardenTestCase { // swiftlint:disable:this type_bod
         stateService.activeAccount = .fixtureAccountLogin()
         client.result = .httpSuccess(testData: .cipherResponse)
 
-        try await subject.addCipherWithServer(.fixture(), encryptedFor: "1")
+        try await subject.addCipherWithServer(.fixture(), encryptedByKeyId: nil, encryptedFor: "1")
 
         XCTAssertEqual(client.requests.count, 1)
         XCTAssertEqual(client.requests[0].url.absoluteString, "https://example.com/api/ciphers")
@@ -65,7 +65,7 @@ class CipherServiceTests: BitwardenTestCase { // swiftlint:disable:this type_bod
         client.result = .httpSuccess(testData: .cipherResponse)
 
         let cipher = Cipher.fixture(collectionIds: ["1"])
-        try await subject.addCipherWithServer(cipher, encryptedFor: "1")
+        try await subject.addCipherWithServer(cipher, encryptedByKeyId: nil, encryptedFor: "1")
 
         XCTAssertEqual(client.requests.count, 1)
         XCTAssertEqual(client.requests[0].url.absoluteString, "https://example.com/api/ciphers/create")
@@ -99,7 +99,12 @@ class CipherServiceTests: BitwardenTestCase { // swiftlint:disable:this type_bod
             Cipher.fixture(id: "2"),
         ]
         let collectionIds = ["col-1", "col-2"]
-        try await subject.bulkShareCiphersWithServer(ciphers, collectionIds: collectionIds, encryptedFor: "1")
+        try await subject.bulkShareCiphersWithServer(
+            ciphers,
+            collectionIds: collectionIds,
+            encryptedByKeyId: nil,
+            encryptedFor: "1",
+        )
 
         XCTAssertEqual(client.requests.count, 1)
         XCTAssertEqual(client.requests[0].url.absoluteString, "https://example.com/api/ciphers/share")
@@ -324,7 +329,7 @@ class CipherServiceTests: BitwardenTestCase { // swiftlint:disable:this type_bod
         stateService.activeAccount = .fixture()
 
         let cipher = Cipher.fixture(collectionIds: ["1", "2"], id: "123")
-        try await subject.shareCipherWithServer(cipher, encryptedFor: "1")
+        try await subject.shareCipherWithServer(cipher, encryptedByKeyId: nil, encryptedFor: "1")
 
         var cipherResponse = try CipherDetailsResponseModel(
             response: .success(body: APITestData.cipherResponse.data),
@@ -413,7 +418,7 @@ class CipherServiceTests: BitwardenTestCase { // swiftlint:disable:this type_bod
         stateService.activeAccount = .fixtureAccountLogin()
         client.result = .httpSuccess(testData: .cipherResponse)
 
-        try await subject.updateCipherWithServer(.fixture(id: "123"), encryptedFor: "1")
+        try await subject.updateCipherWithServer(.fixture(id: "123"), encryptedByKeyId: nil, encryptedFor: "1")
 
         XCTAssertEqual(client.requests.count, 1)
         XCTAssertEqual(client.requests[0].url.absoluteString, "https://example.com/api/ciphers/123")
@@ -435,6 +440,7 @@ class CipherServiceTests: BitwardenTestCase { // swiftlint:disable:this type_bod
                 folderId: "folderId",
                 id: "123",
             ),
+            encryptedByKeyId: nil,
             encryptedFor: "1",
         )
 
@@ -454,7 +460,11 @@ class CipherServiceTests: BitwardenTestCase { // swiftlint:disable:this type_bod
         stateService.activeAccount = .fixtureAccountLogin()
         client.result = .httpSuccess(testData: .cipherResponse)
 
-        try await subject.updateCipherWithServer(.fixture(collectionIds: ["1", "2"], id: "123"), encryptedFor: "1")
+        try await subject.updateCipherWithServer(
+            .fixture(collectionIds: ["1", "2"], id: "123"),
+            encryptedByKeyId: nil,
+            encryptedFor: "1",
+        )
 
         XCTAssertEqual(client.requests.count, 1)
         XCTAssertEqual(client.requests[0].url.absoluteString, "https://example.com/api/ciphers/123")

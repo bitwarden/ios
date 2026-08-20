@@ -36,9 +36,10 @@ struct BulkShareCiphersRequest: Request {
     /// - Parameters:
     ///   - ciphers: The `Cipher` objects to share with an organization.
     ///   - collectionIds: The collection identifiers to share the ciphers with.
+    ///   - encryptedByKeyId: The hex-encoded ID of the key used to encrypt the ciphers.
     ///   - encryptedFor: The user ID who encrypted the ciphers.
     ///
-    init(ciphers: [Cipher], collectionIds: [String], encryptedFor: String?) throws {
+    init(ciphers: [Cipher], collectionIds: [String], encryptedByKeyId: String? = nil, encryptedFor: String?) throws {
         // Validate all ciphers have IDs
         guard ciphers.allSatisfy({ $0.id != nil }) else {
             throw BulkShareCiphersRequestError.missingCipherId
@@ -46,6 +47,7 @@ struct BulkShareCiphersRequest: Request {
         requestModel = BulkShareCiphersRequestModel(
             ciphers: ciphers,
             collectionIds: collectionIds,
+            encryptedByKeyId: encryptedByKeyId,
             encryptedFor: encryptedFor,
         )
     }

@@ -19,10 +19,18 @@ extension BulkShareCiphersRequestModel {
     /// - Parameters:
     ///   - ciphers: The `Cipher` objects to share.
     ///   - collectionIds: The collection identifiers to share the ciphers with.
+    ///   - encryptedByKeyId: The hex-encoded ID of the key used to encrypt the ciphers.
     ///   - encryptedFor: The user ID who encrypted the ciphers.
     ///
-    init(ciphers: [Cipher], collectionIds: [String], encryptedFor: String?) {
-        self.ciphers = ciphers.map { CipherRequestModel(cipher: $0, encryptedFor: encryptedFor, includeId: true) }
+    init(ciphers: [Cipher], collectionIds: [String], encryptedByKeyId: String? = nil, encryptedFor: String?) {
+        self.ciphers = ciphers.map { cipher in
+            CipherRequestModel(
+                cipher: cipher,
+                encryptedByKeyId: encryptedByKeyId,
+                encryptedFor: encryptedFor,
+                includeId: true,
+            )
+        }
         self.collectionIds = collectionIds
     }
 }
