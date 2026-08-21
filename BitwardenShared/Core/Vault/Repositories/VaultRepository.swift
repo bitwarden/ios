@@ -552,15 +552,13 @@ extension DefaultVaultRepository: VaultRepository {
                 collectionIds: newCollectionIds,
             )
 
-        guard let encryptedFor = encryptionContexts.first?.encryptedFor else {
+        guard !encryptionContexts.isEmpty else {
             return
         }
 
         try await cipherService.bulkShareCiphersWithServer(
-            encryptionContexts.map(\.cipher),
+            encryptionContexts,
             collectionIds: newCollectionIds,
-            encryptedByKeyId: encryptionContexts.first?.encryptedByKeyId,
-            encryptedFor: encryptedFor,
         )
     }
 

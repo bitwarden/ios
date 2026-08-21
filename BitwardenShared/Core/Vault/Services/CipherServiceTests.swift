@@ -88,22 +88,20 @@ class CipherServiceTests: BitwardenTestCase { // swiftlint:disable:this type_bod
         XCTAssertEqual(cipherDataStore.upsertCipherUserId, "1")
     }
 
-    /// `bulkShareCiphersWithServer(_:collectionIds:encryptedFor:)` shares multiple ciphers with the
+    /// `bulkShareCiphersWithServer(_:collectionIds:)` shares multiple ciphers with the
     /// organization and updates the data store.
     func test_bulkShareCiphersWithServer() async throws {
         client.result = .httpSuccess(testData: .bulkShareCiphersResponse)
         stateService.activeAccount = .fixture()
 
-        let ciphers = [
-            Cipher.fixture(id: "1"),
-            Cipher.fixture(id: "2"),
+        let encryptionContexts = [
+            EncryptionContext(encryptedFor: "1", cipher: .fixture(id: "1")),
+            EncryptionContext(encryptedFor: "1", cipher: .fixture(id: "2")),
         ]
         let collectionIds = ["col-1", "col-2"]
         try await subject.bulkShareCiphersWithServer(
-            ciphers,
+            encryptionContexts,
             collectionIds: collectionIds,
-            encryptedByKeyId: nil,
-            encryptedFor: "1",
         )
 
         XCTAssertEqual(client.requests.count, 1)

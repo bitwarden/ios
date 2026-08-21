@@ -26,15 +26,11 @@ protocol CipherService {
     /// Shares multiple ciphers with an organization and updates the locally stored data.
     ///
     /// - Parameters:
-    ///   - ciphers: The ciphers to share.
+    ///   - encryptionContexts: The encryption contexts containing the ciphers and per-cipher encryption metadata.
     ///   - collectionIds: The collection IDs to associate with the ciphers.
-    ///   - encryptedByKeyId: The hex-encoded ID of the key used to encrypt the ciphers.
-    ///   - encryptedFor: The user ID who encrypted the ciphers.
     func bulkShareCiphersWithServer(
-        _ ciphers: [Cipher],
+        _ encryptionContexts: [EncryptionContext],
         collectionIds: [String],
-        encryptedByKeyId: String?,
-        encryptedFor: String,
     ) async throws
 
     /// Returns the count of ciphers in the data store for the current user.
@@ -262,24 +258,20 @@ extension DefaultCipherService {
     }
 
     func bulkShareCiphersWithServer(
-        _ ciphers: [Cipher],
+        _ encryptionContexts: [EncryptionContext],
         collectionIds: [String],
-        encryptedByKeyId: String?,
-        encryptedFor: String,
     ) async throws {
         let userId = try await stateService.getActiveAccountId()
 
         // Share the ciphers with the backend.
         let response = try await cipherAPIService.bulkShareCiphers(
-            ciphers,
+            encryptionContexts,
             collectionIds: collectionIds,
-            encryptedByKeyId: encryptedByKeyId,
-            encryptedFor: encryptedFor,
         )
 
         // Create a dictionary for quick lookup of original ciphers by ID.
-        let ciphersById = Dictionary(uniqueKeysWithValues: ciphers.compactMap { cipher in
-            cipher.id.map { ($0, cipher) }
+        let ciphersById = Dictionary(uniqueKeysWithValues: encryptionContexts.compactMap { context in
+            context.cipher.id.map { ($0, context.cipher) }
         })
 
         // Update ciphers in local storage.

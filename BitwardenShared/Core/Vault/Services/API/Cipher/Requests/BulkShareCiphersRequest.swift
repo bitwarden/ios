@@ -31,24 +31,19 @@ struct BulkShareCiphersRequest: Request {
 
     // MARK: Initialization
 
-    /// Initialize a `BulkShareCiphersRequest` for multiple `Cipher` objects.
+    /// Initialize a `BulkShareCiphersRequest` for multiple `EncryptionContext` objects.
     ///
     /// - Parameters:
-    ///   - ciphers: The `Cipher` objects to share with an organization.
+    ///   - encryptionContexts: The encryption contexts containing the ciphers and per-cipher encryption metadata.
     ///   - collectionIds: The collection identifiers to share the ciphers with.
-    ///   - encryptedByKeyId: The hex-encoded ID of the key used to encrypt the ciphers.
-    ///   - encryptedFor: The user ID who encrypted the ciphers.
     ///
-    init(ciphers: [Cipher], collectionIds: [String], encryptedByKeyId: String? = nil, encryptedFor: String?) throws {
-        // Validate all ciphers have IDs
-        guard ciphers.allSatisfy({ $0.id != nil }) else {
+    init(encryptionContexts: [EncryptionContext], collectionIds: [String]) throws {
+        guard encryptionContexts.allSatisfy({ $0.cipher.id != nil }) else {
             throw BulkShareCiphersRequestError.missingCipherId
         }
         requestModel = BulkShareCiphersRequestModel(
-            ciphers: ciphers,
+            encryptionContexts: encryptionContexts,
             collectionIds: collectionIds,
-            encryptedByKeyId: encryptedByKeyId,
-            encryptedFor: encryptedFor,
         )
     }
 }

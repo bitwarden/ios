@@ -14,10 +14,8 @@ class MockCipherService: CipherService {
     var archiveCipher: Cipher?
     var archiveCipherResult: Result<Void, Error> = .success(())
 
-    var bulkShareCiphersWithServerCiphers = [[Cipher]]()
+    var bulkShareCiphersEncryptionContexts = [[EncryptionContext]]()
     var bulkShareCiphersWithServerCollectionIds: [String]?
-    var bulkShareCiphersEncryptedByKeyId: String?
-    var bulkShareCiphersWithServerEncryptedFor: String?
     var bulkShareCiphersWithServerResult: Result<Void, Error> = .success(())
 
     var cipherCountResult: Result<Int, Error> = .success(0)
@@ -107,15 +105,11 @@ class MockCipherService: CipherService {
     }
 
     func bulkShareCiphersWithServer(
-        _ ciphers: [Cipher],
+        _ encryptionContexts: [EncryptionContext],
         collectionIds: [String],
-        encryptedByKeyId: String?,
-        encryptedFor: String,
     ) async throws {
-        bulkShareCiphersWithServerCiphers.append(ciphers)
+        bulkShareCiphersEncryptionContexts.append(encryptionContexts)
         bulkShareCiphersWithServerCollectionIds = collectionIds
-        bulkShareCiphersEncryptedByKeyId = encryptedByKeyId
-        bulkShareCiphersWithServerEncryptedFor = encryptedFor
         try bulkShareCiphersWithServerResult.get()
     }
 

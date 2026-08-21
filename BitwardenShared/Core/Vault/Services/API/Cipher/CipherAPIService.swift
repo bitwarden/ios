@@ -55,17 +55,13 @@ protocol CipherAPIService {
     /// Performs an API request to share multiple ciphers with an organization.
     ///
     /// - Parameters:
-    ///   - ciphers: The ciphers to share.
+    ///   - encryptionContexts: The encryption contexts containing the ciphers and per-cipher encryption metadata.
     ///   - collectionIds: The collection identifiers to share the ciphers with.
-    ///   - encryptedByKeyId: The hex-encoded ID of the key used to encrypt the ciphers.
-    ///   - encryptedFor: The user ID who encrypted the ciphers.
     /// - Returns: The response containing the shared ciphers.
     ///
     func bulkShareCiphers(
-        _ ciphers: [Cipher],
+        _ encryptionContexts: [EncryptionContext],
         collectionIds: [String],
-        encryptedByKeyId: String?,
-        encryptedFor: String?,
     ) async throws -> BulkShareCiphersResponseModel
 
     /// Performs an API request to delete an existing attachment in the user's vault.
@@ -222,16 +218,12 @@ extension APIService: CipherAPIService {
     }
 
     func bulkShareCiphers(
-        _ ciphers: [Cipher],
+        _ encryptionContexts: [EncryptionContext],
         collectionIds: [String],
-        encryptedByKeyId: String?,
-        encryptedFor: String?,
     ) async throws -> BulkShareCiphersResponseModel {
         try await apiService.send(BulkShareCiphersRequest(
-            ciphers: ciphers,
+            encryptionContexts: encryptionContexts,
             collectionIds: collectionIds,
-            encryptedByKeyId: encryptedByKeyId,
-            encryptedFor: encryptedFor,
         ))
     }
 
