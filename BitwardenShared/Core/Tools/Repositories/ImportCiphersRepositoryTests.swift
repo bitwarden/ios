@@ -105,7 +105,8 @@ class ImportCiphersRepositoryTests: BitwardenTestCase {
 
         XCTAssertNotNil(clientService.mockExporters.importCxfReceivedPayload)
         XCTAssertTrue(importCiphersService.importCiphersCalled)
-        XCTAssertEqual(importCiphersService.importCiphersCiphers?.count, 9)
+        XCTAssertEqual(importCiphersService.importCiphersEncryptionContexts?.count, 9)
+        XCTAssertEqual(importCiphersService.importCiphersEncryptionContexts?[0].encryptedFor, "1")
         XCTAssertTrue(syncService.didFetchSync)
         XCTAssertTrue(syncService.fetchSyncForceSync == true)
         XCTAssertEqual(progressReports, [0.3, 0.8, 1.0])

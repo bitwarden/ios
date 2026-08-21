@@ -139,4 +139,16 @@ extension CipherRequestModel {
             type: CipherType(type: cipher.type),
         )
     }
+
+    /// Initialize a `CipherRequestModel` from an `EncryptionContext`.
+    ///
+    /// - Parameter encryptionContext: The `EncryptionContext` used to initialize a `CipherRequestModel`.
+    ///
+    init(encryptionContext: EncryptionContext) {
+        self.init(
+            cipher: encryptionContext.cipher,
+            encryptedByKeyId: encryptionContext.encryptedByKeyId,
+            encryptedFor: encryptionContext.encryptedFor,
+        )
+    }
 }
