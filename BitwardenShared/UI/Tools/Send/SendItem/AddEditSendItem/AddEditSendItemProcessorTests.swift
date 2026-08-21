@@ -180,6 +180,32 @@ class AddEditSendItemProcessorTests: BitwardenTestCase { // swiftlint:disable:th
         XCTAssertEqual(subject.state.accessType, .specificPeople)
     }
 
+    /// `perform(_:)` with `loadData` applies a policy-enforced deletion date, forcing the deletion
+    /// date and marking it enforced.
+    @MainActor
+    func test_perform_loadData_enforcedDeletionDate() async {
+        await subject.perform(.loadData)
+        XCTAssertNil(subject.state.policyEnforcedDeletionDate)
+        XCTAssertFalse(subject.state.isDeletionDateEnforcedByPolicy)
+
+        policyService.getSendPolicyOptionsResult.enforcedDeletionDateHours = 168
+        await subject.perform(.loadData)
+        XCTAssertEqual(subject.state.policyEnforcedDeletionDate, .sevenDays)
+        XCTAssertEqual(subject.state.deletionDate, .sevenDays)
+        XCTAssertTrue(subject.state.isDeletionDateEnforcedByPolicy)
+    }
+
+    /// `perform(_:)` with `loadData` leaves the deletion date unchanged when no deletion date is
+    /// enforced by policy.
+    @MainActor
+    func test_perform_loadData_noEnforcedDeletionDate() async {
+        subject.state.deletionDate = .oneDay
+        await subject.perform(.loadData)
+        XCTAssertNil(subject.state.policyEnforcedDeletionDate)
+        XCTAssertFalse(subject.state.isDeletionDateEnforcedByPolicy)
+        XCTAssertEqual(subject.state.deletionDate, .oneDay)
+    }
+
     /// `perform(_:)` with `loadData` loads whether the Send Controls policy feature flag is enabled.
     @MainActor
     func test_perform_loadData_sendControlsPolicyFlag() async {
