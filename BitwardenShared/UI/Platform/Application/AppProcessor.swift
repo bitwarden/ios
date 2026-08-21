@@ -94,6 +94,7 @@ public class AppProcessor {
 
         listenForWillEnterForeground(debugWillEnterForeground: debugWillEnterForeground)
         listenForDidEnterBackground(debugDidEnterBackground: debugDidEnterBackground)
+        listenForWillResignActive()
         listenForPendingAppIntentActions()
         listenForAcquireCookies()
     }
@@ -551,9 +552,35 @@ extension AppProcessor {
                 } catch {
                     services.errorReporter.log(error: error)
                 }
+                // Re-arm the background session key cleanup task with the freshest possible
+                // last-active data, since this is the last guaranteed hook before the app may be
+                // killed and never relaunched.
+                await services.backgroundSessionCleanupService.scheduleNextRefresh()
                 #if DEBUG
                 debugDidEnterBackground?()
                 #endif
+            }
+        }
+    }
+
+    /// Subscribes to the will-resign-active notification and records the last active time for
+    /// the current user. This covers the foreground-to-app-switcher-kill path where the app is
+    /// terminated before `didEnterBackground` fires.
+    ///
+    private func listenForWillResignActive() {
+        Task {
+            for await _ in services.notificationCenterService.willResignActivePublisher() {
+                do {
+                    let userId = try await self.services.stateService.getActiveAccountId()
+                    try await services.vaultTimeoutService.setLastActiveTime(userId: userId)
+                } catch StateServiceError.noActiveAccount {
+                    // No-op: nothing to do if there's no active account.
+                } catch {
+                    services.errorReporter.log(error: error)
+                }
+                // Re-arm the background session key cleanup task, covering the case where the
+                // app is killed before `didEnterBackground` fires.
+                await services.backgroundSessionCleanupService.scheduleNextRefresh()
             }
         }
     }

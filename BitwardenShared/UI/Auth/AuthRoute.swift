@@ -41,6 +41,9 @@ public enum AuthRoute: Equatable {
     ///   - rehydratableTarget: The target that we want to restore and rehydrate after the vault is unlocked..
     case completeWithRehydration(_ rehydratableTarget: RehydratableTarget)
 
+    /// Dismisses the auth flow because the vault was unlocked with the user session key.
+    case completeWithUserSessionKey
+
     /// A route that dismisses a presented sheet.
     case dismiss
 

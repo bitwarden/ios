@@ -99,6 +99,16 @@ extension Constants {
     /// time of 10secs but we set some more seconds just to be sure.
     static let requestToTurnOnCredentialProviderExtensionWaitTime: TimeInterval = 15 // swiftlint:disable:this identifier_name line_length
 
+    /// The interval used to reschedule the background session key cleanup task when no account
+    /// currently has a computable upcoming session timeout (e.g. all eligible accounts are
+    /// logged out or already purged). Acts as a heartbeat to notice account/session activity
+    /// that may have originated from an app extension.
+    static let sessionKeyCleanupFallbackInterval: TimeInterval = 60 * 60 // 1 hour
+
+    /// The minimum interval between background session key cleanup task executions, regardless
+    /// of how soon an account's session timeout is scheduled to elapse.
+    static let sessionKeyCleanupMinimumInterval: TimeInterval = 5 * 60 // 5 minutes
+
     /// The number of seconds before an access token's expiration time at which the app will
     /// preemptively refresh the token.
     static let tokenRefreshThreshold: TimeInterval = 5 * 60 // 5 minutes
@@ -174,5 +184,17 @@ extension Constants {
 
         /// The minimum interval between fill-assist manifest checks (6 hours, matching the browser implementation).
         static let updateInterval: TimeInterval = 6 * 60 * 60
+    }
+}
+
+// MARK: - Background Task Constants
+
+extension Constants {
+    /// Identifiers for tasks registered with `BGTaskScheduler`.
+    ///
+    enum BackgroundTaskIdentifier {
+        /// The identifier for the background app refresh task that purges expired
+        /// `.userSessionKey` Keychain items.
+        static let sessionKeyCleanup = "com.8bit.bitwarden.sessionKeyCleanup"
     }
 }
