@@ -26,6 +26,8 @@
 "FolderNone" = "Aucun dossier";
 "Folders" = "Dossiers";
 "FolderUpdated" = "Dossier sauvegardé";
+"MyFolder" = "Mon dossier";
+"MyFolders" = "Mes dossiers";
 "InternetConnectionRequiredMessage" = "Veuillez vous connecter à internet avant de continuer.";
 "InternetConnectionRequiredTitle" = "Connexion internet requise";
 "InvalidMasterPassword" = "Mot de passe principal invalide. Essayez à nouveau.";
@@ -898,6 +900,7 @@
 /* VoiceOver accessibility label for a shared folder the item belongs to. */
 "SharedFolderX" = "Dossier partagé, %1$@";
 "FolderX" = "Dossier, %1$@";
+"MyFolderX" = "Mon dossier, %1$@";
 "ItemXOfY" = "Élément %1$@ sur %2$@";
 "ViewRecordedLogs" = "Voir les journaux enregistrés";
 "RecordedLogs" = "Journaux enregistrés";

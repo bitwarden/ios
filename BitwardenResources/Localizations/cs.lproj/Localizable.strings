@@ -26,6 +26,8 @@
 "FolderNone" = "Žádná složka";
 "Folders" = "Složky";
 "FolderUpdated" = "Složka byla uložena";
+"MyFolder" = "Moje složka";
+"MyFolders" = "Moje složky";
 "InternetConnectionRequiredMessage" = "Před pokračováním se připojte k internetu.";
 "InternetConnectionRequiredTitle" = "Je vyžadováno připojení k internetu";
 "InvalidMasterPassword" = "Chybné hlavní heslo. Zkuste to znovu.";
@@ -898,6 +900,7 @@
 /* VoiceOver accessibility label for a shared folder the item belongs to. */
 "SharedFolderX" = "Sdílená složka, %1$@";
 "FolderX" = "Složka, %1$@";
+"MyFolderX" = "My folder, %1$@";
 "ItemXOfY" = "Položka %1$@ z %2$@";
 "ViewRecordedLogs" = "Zobrazit zaznamenané logy";
 "RecordedLogs" = "Nahrané logy";

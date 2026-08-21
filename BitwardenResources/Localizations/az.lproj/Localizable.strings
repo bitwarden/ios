@@ -26,6 +26,8 @@
 "FolderNone" = "Qovluq yoxdur";
 "Folders" = "Qovluqlar";
 "FolderUpdated" = "Qovluq saxlanıldı";
+"MyFolder" = "Qovluğum";
+"MyFolders" = "Qovluqlarım";
 "InternetConnectionRequiredMessage" = "Davam etməzdən əvvəl lütfən internetə bağlanın.";
 "InternetConnectionRequiredTitle" = "İnternet bağlantısı tələb olunur";
 "InvalidMasterPassword" = "Yararsız ana parol. Yenidən sınayın.";
@@ -898,6 +900,7 @@
 /* VoiceOver accessibility label for a shared folder the item belongs to. */
 "SharedFolderX" = "Paylaşılan qovluq, %1$@";
 "FolderX" = "Qovluq, %1$@";
+"MyFolderX" = "Qovluğum, %1$@";
 "ItemXOfY" = "Element %1$@/%2$@";
 "ViewRecordedLogs" = "Yazılmış qeydlərə bax";
 "RecordedLogs" = "Yazılmış qeydlər";
