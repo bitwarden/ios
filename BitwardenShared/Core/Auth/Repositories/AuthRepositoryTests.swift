@@ -2866,6 +2866,61 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         XCTAssertTrue(errorReporter.errors.isEmpty)
     }
 
+    /// `unlockVaultWithPassword(password:)` checks the entered master password against any
+    /// active organization Master Password policy after a successful unlock.
+    func test_unlockVaultWithPassword_checksMasterPasswordPolicy() async throws {
+        let account = Account.fixture(profile: .fixture(
+            userDecryptionOptions: UserDecryptionOptions(
+                hasMasterPassword: true,
+                masterPasswordUnlock: .fixture(),
+                keyConnectorOption: nil,
+                trustedDeviceOption: nil,
+            ),
+        ))
+        stateService.activeAccount = account
+        stateService.accountEncryptionKeys = [
+            "1": AccountEncryptionKeys(
+                cryptographicState: .fixtureV2(),
+                encryptedUserKey: "USER_KEY",
+            ),
+        ]
+
+        try await subject.unlockVaultWithPassword(password: "password")
+
+        XCTAssertEqual(authService.checkMasterPasswordPolicyAfterUnlockEmail, "user@bitwarden.com")
+        XCTAssertEqual(authService.checkMasterPasswordPolicyAfterUnlockMasterPassword, "password")
+        XCTAssertTrue(errorReporter.errors.isEmpty)
+    }
+
+    /// `unlockVaultWithPassword(password:)` does not let a failure in the Master Password policy
+    /// check propagate out or block an unlock that already succeeded — it logs the error instead.
+    func test_unlockVaultWithPassword_masterPasswordPolicyCheckError_doesNotThrow() async throws {
+        let account = Account.fixture(profile: .fixture(
+            userDecryptionOptions: UserDecryptionOptions(
+                hasMasterPassword: true,
+                masterPasswordUnlock: .fixture(),
+                keyConnectorOption: nil,
+                trustedDeviceOption: nil,
+            ),
+        ))
+        stateService.activeAccount = account
+        stateService.accountEncryptionKeys = [
+            "1": AccountEncryptionKeys(
+                cryptographicState: .fixtureV2(),
+                encryptedUserKey: "USER_KEY",
+            ),
+        ]
+        authService.checkMasterPasswordPolicyAfterUnlockResult = .failure(BitwardenTestError.example)
+
+        await assertAsyncDoesNotThrow {
+            try await subject.unlockVaultWithPassword(password: "password")
+        }
+
+        XCTAssertFalse(vaultTimeoutService.isLocked(userId: "1"))
+        XCTAssertEqual(stateService.masterPasswordHashes["1"], "hashed")
+        XCTAssertEqual(errorReporter.errors.last as? BitwardenTestError, .example)
+    }
+
     /// `logout` throws an error with no accounts.
     func test_logout_noAccounts() async {
         stateService.accounts = []

@@ -1158,6 +1158,16 @@ extension DefaultAuthRepository: AuthRepository {
         )
         try await stateService.setMasterPasswordHash(hashedPassword)
         await updateKdfToMinimumsIfNeeded(password: password)
+
+        do {
+            try await authService.checkMasterPasswordPolicyAfterUnlock(
+                email: account.profile.email,
+                masterPassword: password,
+            )
+        } catch {
+            // Don't let a policy-check failure block an unlock that already succeeded.
+            errorReporter.log(error: error)
+        }
     }
 
     func unlockVaultWithPIN(pin: String) async throws {
