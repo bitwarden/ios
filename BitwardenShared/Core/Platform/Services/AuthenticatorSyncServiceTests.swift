@@ -620,7 +620,6 @@ final class AuthenticatorSyncServiceTests: BitwardenTestCase { // swiftlint:disa
     ///
     @MainActor
     func test_determineSyncForUserId_unlockMultipleVaults() async throws {
-        // swiftlint:disable:previous function_body_length
         setupInitialState()
         cipherDataStore.cipherSubjectByUserId["2"] = CurrentValueSubject<[Cipher], Error>([])
         await subject.start()
@@ -649,10 +648,7 @@ final class AuthenticatorSyncServiceTests: BitwardenTestCase { // swiftlint:disa
             profile: .fixture(email: "different@bitwarden.com", userId: "2"),
             settings: .fixture(environmentURLs: .fixture(webVault: URL(string: "https://vault.example.com"))),
         ))
-        stateService.accountEncryptionKeys["2"] = AccountEncryptionKeys(
-            cryptographicState: .fixtureV2(),
-            encryptedUserKey: "userKey_2",
-        )
+        stateService.accountCryptographicStates["2"] = .fixtureV2()
         stateService.syncToAuthenticatorByUserId["2"] = true
         vaultTimeoutService.isClientLocked["2"] = false
         stateService.syncToAuthenticatorSubject.send(("2", true))
@@ -1113,10 +1109,7 @@ final class AuthenticatorSyncServiceTests: BitwardenTestCase { // swiftlint:disa
         cipherDataStore.cipherSubjectByUserId["1"] = CurrentValueSubject<[Cipher], Error>([])
         stateService.activeAccount = .fixture()
         stateService.accounts = [.fixture()]
-        stateService.accountEncryptionKeys["1"] = AccountEncryptionKeys(
-            cryptographicState: .fixtureV2(),
-            encryptedUserKey: "userKey",
-        )
+        stateService.accountCryptographicStates["1"] = .fixtureV2()
         stateService.syncToAuthenticatorByUserId["1"] = true
         vaultTimeoutService.isClientLocked["1"] = vaultLocked
     }

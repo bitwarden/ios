@@ -180,12 +180,6 @@ protocol AppSettingsStore: AnyObject {
     ///
     func events(userId: String) -> [EventData]
 
-    /// Gets the encrypted user key for the user ID.
-    ///
-    /// - Parameter userId: The user ID associated with the encrypted user key.
-    ///
-    func encryptedUserKey(userId: String) -> String?
-
     /// Gets the cached Fill-Assist rules data for the user ID.
     ///
     /// - Parameter userId: The user ID associated with the cached data.
@@ -449,14 +443,6 @@ protocol AppSettingsStore: AnyObject {
     ///   - userId: The user ID.
     ///
     func setEncryptedPin(_ encryptedPin: String?, userId: String)
-
-    /// Sets the encrypted user key for a user ID.
-    ///
-    /// - Parameters:
-    ///   - key: The user's encrypted user key.
-    ///   - userId: The user ID associated with the encrypted user key.
-    ///
-    func setEncryptedUserKey(key: String?, userId: String)
 
     /// Sets the user's events for a user ID.
     ///
@@ -868,7 +854,6 @@ extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore {
         case disableAutoTotpCopy(userId: String)
         case disableWebIcons
         case encryptedPin(userId: String)
-        case encryptedUserKey(userId: String)
         case events(userId: String)
         case fillAssistCachedData(userId: String)
         case fillAssistEnabled(userId: String)
@@ -957,8 +942,6 @@ extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore {
                 "disableAutoTotpCopy_\(userId)"
             case .disableWebIcons:
                 "disableFavicon"
-            case let .encryptedUserKey(userId):
-                "masterKeyEncryptedUserKey_\(userId)"
             case let .encryptedPin(userId):
                 "protectedPin_\(userId)"
             case let .events(userId):
@@ -1214,10 +1197,6 @@ extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore {
         fetch(for: .encryptedPin(userId: userId))
     }
 
-    func encryptedUserKey(userId: String) -> String? {
-        fetch(for: .encryptedUserKey(userId: userId))
-    }
-
     func events(userId: String) -> [EventData] {
         fetch(for: .events(userId: userId)) ?? []
     }
@@ -1368,10 +1347,6 @@ extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore {
 
     func setEncryptedPin(_ encryptedPin: String?, userId: String) {
         store(encryptedPin, for: .encryptedPin(userId: userId))
-    }
-
-    func setEncryptedUserKey(key: String?, userId: String) {
-        store(key, for: .encryptedUserKey(userId: userId))
     }
 
     func setEvents(_ events: [EventData], userId: String) {

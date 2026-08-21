@@ -101,8 +101,7 @@ class KeyConnectorServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
             "org-id",
         )
         XCTAssertTrue(client.requests.isEmpty)
-        XCTAssertNotNil(stateService.accountEncryptionKeys["1"]?.cryptographicState)
-        XCTAssertNil(stateService.accountEncryptionKeys["1"]?.encryptedUserKey)
+        XCTAssertNotNil(stateService.accountCryptographicStates["1"])
     }
 
     /// `convertNewUserToKeyConnector()` throws if SDK registration fails.
@@ -116,7 +115,7 @@ class KeyConnectorServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
             )
         }
 
-        XCTAssertNil(stateService.accountEncryptionKeys["1"])
+        XCTAssertNil(stateService.accountCryptographicStates["1"])
     }
 
     /// `convertNewUserToKeyConnector()` (v1) makes connector keys and uploads them to key connector and the API.
@@ -140,13 +139,7 @@ class KeyConnectorServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
         XCTAssertEqual(client.requests[0].url, URL(string: "https://example.com/key-connector/user-keys")!)
         XCTAssertEqual(client.requests[1].method, .post)
         XCTAssertEqual(client.requests[1].url, URL(string: "https://example.com/api/accounts/set-key-connector-key")!)
-        XCTAssertEqual(
-            stateService.accountEncryptionKeys["1"],
-            AccountEncryptionKeys(
-                cryptographicState: .v1(privateKey: "private"),
-                encryptedUserKey: nil,
-            ),
-        )
+        XCTAssertEqual(stateService.accountCryptographicStates["1"], .v1(privateKey: "private"))
     }
 
     /// `convertNewUserToKeyConnector()` (v1) throws an error if making key connector keys fails.
@@ -163,7 +156,7 @@ class KeyConnectorServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
 
         XCTAssertTrue(clientService.mockAuth.makeKeyConnectorKeysCalled)
         XCTAssertTrue(client.requests.isEmpty)
-        XCTAssertNil(stateService.accountEncryptionKeys["1"])
+        XCTAssertNil(stateService.accountCryptographicStates["1"])
     }
 
     /// `convertNewUserToKeyConnector()` (v1) throws an error if uploading the keys fails.
@@ -182,8 +175,8 @@ class KeyConnectorServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
         XCTAssertEqual(client.requests.count, 1)
     }
 
-    /// `convertNewUserToKeyConnector()` (v1) throws an error if setting the account encryption keys fails.
-    func test_convertNewUserToKeyConnector_v1_setAccountEncryptionKeysFailure() async throws {
+    /// `convertNewUserToKeyConnector()` (v1) throws an error if setting the account cryptographic state fails.
+    func test_convertNewUserToKeyConnector_v1_setAccountCryptographicStateFailure() async throws {
         configService.featureFlagsBool[.accountEncryptionV2KeyConnector] = false
         client.results = [
             .httpSuccess(testData: .emptyResponse),
@@ -200,7 +193,7 @@ class KeyConnectorServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
         XCTAssertEqual(client.requests.count, 1)
         XCTAssertEqual(client.requests[0].method, .post)
         XCTAssertEqual(client.requests[0].url, URL(string: "https://example.com/key-connector/user-keys")!)
-        XCTAssertNil(stateService.accountEncryptionKeys["1"])
+        XCTAssertNil(stateService.accountCryptographicStates["1"])
     }
 
     /// `migrateUser()` migrates the user keys and uploads them to the API and Key Connector.
