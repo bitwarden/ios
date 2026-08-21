@@ -31,6 +31,12 @@ enum VaultItemRoute: Equatable, Hashable {
     ///
     case attachments(_ cipher: CipherView)
 
+    /// A route to preview an attachment.
+    ///
+    /// - Parameter state: The initial state of the attachment preview screen.
+    ///
+    case attachmentPreview(_ state: AttachmentPreviewState)
+
     /// A route to the clone item screen.
     ///
     /// - Parameters:
