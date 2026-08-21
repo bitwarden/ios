@@ -89,13 +89,12 @@ extension DefaultImportCiphersRepository: ImportCiphersRepository {
         }
 
         let encryptionContexts = try await clientService.exporters().importCxf(payload: accountJsonString)
-        let ciphers = encryptionContexts.map(\.cipher)
 
         await onProgress(0.3)
 
         _ = try await importCiphersService
             .importCiphers(
-                ciphers: ciphers,
+                encryptionContexts: encryptionContexts,
                 folders: [],
                 folderRelationships: [],
             )
@@ -104,7 +103,7 @@ extension DefaultImportCiphersRepository: ImportCiphersRepository {
 
         try await syncService.fetchSync(forceSync: true)
 
-        let importedCredentialsCount = cxfCredentialsResultBuilder.build(from: ciphers)
+        let importedCredentialsCount = cxfCredentialsResultBuilder.build(from: encryptionContexts.map(\.cipher))
 
         await onProgress(1.0)
 
