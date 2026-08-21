@@ -112,6 +112,16 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
 
     // MARK: Tests
 
+    /// `bankAccountSaved()` delegate method shows the expected toast.
+    @MainActor
+    func test_delegate_bankAccountSaved() {
+        XCTAssertNil(subject.state.toast)
+
+        subject.bankAccountSaved()
+        XCTAssertEqual(subject.state.toast, Toast(title: Localizations.bankAccountSaved))
+        waitFor(vaultRepository.fetchSyncCalled)
+    }
+
     /// `itemArchived()` delegate method shows the expected toast.
     @MainActor
     func test_delegate_itemArchived() {
