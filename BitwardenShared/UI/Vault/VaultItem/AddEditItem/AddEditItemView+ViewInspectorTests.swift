@@ -193,10 +193,22 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
         if #available(iOS 16.0, macOS 13.0, tvOS 16.0, watchOS 9.0, *) {
             throw XCTSkip("Unable to run test in iOS 16, keep an eye on ViewInspector to see if it gets updated.")
         }
+        processor.state.isAdditionalOptionsExpanded = true
         processor.state.isMasterPasswordRePromptOn = false
-        let toggle = try subject.inspect().find(ViewType.Toggle.self, containing: Localizations.passwordPrompt)
+        let toggle = try subject.inspect().find(toggleWithAccessibilityLabel: Localizations.passwordPrompt)
         try toggle.tap()
         XCTAssertEqual(processor.dispatchedActions.last, .masterPasswordRePromptChanged(true))
+    }
+
+    /// The master password re-prompt info button is independently reachable by VoiceOver and is
+    /// announced as an external link.
+    @MainActor
+    func test_masterPasswordRePromptToggle_infoButton_accessibility() throws {
+        processor.state.isAdditionalOptionsExpanded = true
+        let button = try subject.inspect().find(
+            buttonWithAccessibilityLabel: Localizations.masterPasswordRePromptHelp,
+        )
+        try XCTAssertEqual(button.accessibilityHint().string(), Localizations.externalLink)
     }
 
     /// Updating the name text field dispatches the `.nameChanged()` action.

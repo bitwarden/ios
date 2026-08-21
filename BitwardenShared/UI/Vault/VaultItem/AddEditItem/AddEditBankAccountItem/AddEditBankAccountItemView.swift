@@ -77,6 +77,7 @@ struct AddEditBankAccountItemView: View {
                     ),
                     accessibilityIdentifier: "AccountNumberEntry",
                     passwordVisibilityAccessibilityId: "ShowAccountNumberButton",
+                    passwordVisibilityFieldName: Localizations.accountNumber,
                     isPasswordVisible: store.binding(
                         get: \.isAccountNumberVisible,
                         send: AddEditBankAccountItemAction.toggleAccountNumberVisibilityChanged,
@@ -115,6 +116,7 @@ struct AddEditBankAccountItemView: View {
                     ),
                     accessibilityIdentifier: "PinEntry",
                     passwordVisibilityAccessibilityId: "ShowPinButton",
+                    passwordVisibilityFieldName: Localizations.pin,
                     isPasswordVisible: store.binding(
                         get: \.isPinVisible,
                         send: AddEditBankAccountItemAction.togglePinVisibilityChanged,
@@ -142,6 +144,7 @@ struct AddEditBankAccountItemView: View {
                     ),
                     accessibilityIdentifier: "IbanEntry",
                     passwordVisibilityAccessibilityId: "ShowIbanButton",
+                    passwordVisibilityFieldName: Localizations.iban,
                     isPasswordVisible: store.binding(
                         get: \.isIbanVisible,
                         send: AddEditBankAccountItemAction.toggleIbanVisibilityChanged,
