@@ -536,6 +536,26 @@ extension Alert {
         )
     }
 
+    /// Returns an alert notifying the user that an enterprise policy restricts them to a single
+    /// Send type, and that the current action can't be completed.
+    ///
+    /// - Parameters:
+    ///   - allowedType: The Send type permitted by policy.
+    ///   - action: A closure to execute when the user acknowledges the alert.
+    /// - Returns: The alert shown when a Send of the disallowed type would otherwise be created.
+    static func sendTypeRestrictedByPolicy(
+        _ allowedType: SendType,
+        action: @escaping () -> Void,
+    ) -> Alert {
+        Alert(
+            title: nil,
+            message: Localizations.dueToAnEnterprisePolicyYouCanOnlyCreateXSends(allowedType.localizedName),
+            alertActions: [
+                AlertAction(title: Localizations.ok, style: .default) { _, _ in action() },
+            ],
+        )
+    }
+
     /// Returns an alert for when the "Specific People" Send feature is unavailable due to
     /// lack of Premium subscription.
     ///
