@@ -427,6 +427,7 @@
 "SendOptionsPolicyInEffect" = "One or more organization policies are affecting your Send options.";
 "SendFilePremiumRequired" = "Free accounts are restricted to sharing text only. A Premium membership is required to use files with Send.";
 "SendFileEmailVerificationRequired" = "You must verify your email to use files with Send. You can verify your email in the web vault.";
+"DueToAnEnterprisePolicyYouCanOnlyCreateXSends" = "Due to an enterprise policy, you can only create %1$@ Sends.";
 "PasswordPrompt" = "Master password re-prompt";
 "PasswordConfirmation" = "Master password confirmation";
 "PasswordConfirmationDesc" = "This action is protected, to continue please re-enter your master password to verify your identity.";

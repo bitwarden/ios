@@ -229,6 +229,22 @@ class AddEditSendItemProcessor: // swiftlint:disable:this type_body_length
     private func loadData() async {
         state.isSendControlsPolicyEnabled = await services.configService.getFeatureFlag(.sendControls)
         state.sendPolicyOptions = await services.policyService.getSendPolicyOptions()
+
+        // The share extension sets `state.type` directly from the shared content (file vs. text)
+        // without going through `SendListProcessor`'s `restrictedSendType`, so it's the only mode
+        // that can actually reach here with a disallowed type; `.add` is already constrained by
+        // the Send list's add button before this screen is shown. Only block creating a new Send
+        // of a disallowed type; editing an existing Send whose type no longer matches the policy
+        // (e.g. the policy was enforced after the Send was created) should still be allowed.
+        if state.mode != .edit,
+           let enforcedSendType = state.sendPolicyOptions.enforcedSendType,
+           enforcedSendType != state.type {
+            coordinator.showAlert(.sendTypeRestrictedByPolicy(enforcedSendType) { [weak self] in
+                self?.coordinator.navigate(to: .cancel)
+            })
+            return
+        }
+
         if let enforcedAccessType = state.sendPolicyOptions.enforcedAccessType {
             state.accessType = enforcedAccessType
         }
