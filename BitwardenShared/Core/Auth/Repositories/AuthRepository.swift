@@ -469,6 +469,9 @@ class DefaultAuthRepository {
     /// The service to get server-specified configuration.
     private let configService: ConfigService
 
+    /// The service used to manage custom headers sent with requests to a self-hosted environment.
+    private let customHeadersService: CustomHeadersService
+
     /// The service used by the application to manage the environment settings.
     private let environmentService: EnvironmentService
 
@@ -528,6 +531,8 @@ class DefaultAuthRepository {
     ///   - clientCertificateService: The service used to manage client certificates for mTLS authentication.
     ///   - clientService: The service that handles common client functionality such as encryption and decryption.
     ///   - configService: The service to get server-specified configuration.
+    ///   - customHeadersService: The service used to manage custom headers sent with requests to a
+    ///     self-hosted environment.
     ///   - environmentService: The service used by the application to manage the environment settings.
     ///   - errorReporter: The service used by the application to report non-fatal errors.
     ///   - fillAssistRepository: The repository used to manage cached Fill Assist targeting rules.
@@ -555,6 +560,7 @@ class DefaultAuthRepository {
         clientCertificateService: ClientCertificateService,
         clientService: ClientService,
         configService: ConfigService,
+        customHeadersService: CustomHeadersService,
         environmentService: EnvironmentService,
         errorReporter: ErrorReporter,
         fillAssistRepository: FillAssistRepository,
@@ -580,6 +586,7 @@ class DefaultAuthRepository {
         self.clientCertificateService = clientCertificateService
         self.clientService = clientService
         self.configService = configService
+        self.customHeadersService = customHeadersService
         self.environmentService = environmentService
         self.errorReporter = errorReporter
         self.fillAssistRepository = fillAssistRepository
@@ -766,6 +773,15 @@ extension DefaultAuthRepository: AuthRepository {
         let userId = try await stateService.getActiveAccountId()
         await vaultTimeoutService.remove(userId: userId)
 
+        // Clean up the account's Keychain credentials. Non-fatal: the server-side deletion has
+        // already succeeded, so local account removal must proceed even if this cleanup fails.
+        do {
+            try await clientCertificateService.removeCertificate(userId: userId)
+            try await customHeadersService.removeCustomHeaders(userId: userId)
+        } catch {
+            errorReporter.log(error: error)
+        }
+
         // Delete the account last.
         try await stateService.deleteAccount()
     }
@@ -882,6 +898,7 @@ extension DefaultAuthRepository: AuthRepository {
         try await stateService.setSyncToAuthenticator(false, userId: userId)
         try await keychainService.deleteItems(for: userId)
         try await clientCertificateService.removeCertificate(userId: userId)
+        try await customHeadersService.removeCustomHeaders(userId: userId)
         try await fillAssistRepository.clearRules(userId: userId)
         await vaultTimeoutService.remove(userId: userId)
 

@@ -20,6 +20,7 @@ final class SelfHostedProcessor: StateProcessor<SelfHostedState, SelfHostedActio
     // MARK: Types
 
     typealias Services = HasClientCertificateService
+        & HasCustomHeadersService
         & HasErrorReporter
 
     // MARK: Private Properties
@@ -60,6 +61,8 @@ final class SelfHostedProcessor: StateProcessor<SelfHostedState, SelfHostedActio
 
     override func perform(_ effect: SelfHostedEffect) async {
         switch effect {
+        case .appeared:
+            await loadCustomHeaders()
         case let .importClientCertificate(data, alias, password):
             await importClientCertificate(data: data, alias: alias, password: password)
         case .removeClientCertificate:
@@ -84,6 +87,20 @@ final class SelfHostedProcessor: StateProcessor<SelfHostedState, SelfHostedActio
             state.serverUrl = url
         case let .webVaultUrlChanged(url):
             state.webVaultServerUrl = url
+        // Custom header actions
+        case .addHeaderTapped:
+            state.customHeaders.append(SelfHostedState.CustomHeaderField())
+        case let .headerNameChanged(id, name):
+            guard let index = state.customHeaders.firstIndex(where: { $0.id == id }) else { return }
+            state.customHeaders[index].name = name
+        case let .headerValueChanged(id, value):
+            guard let index = state.customHeaders.firstIndex(where: { $0.id == id }) else { return }
+            state.customHeaders[index].value = value
+        case let .headerValueVisibilityChanged(id, isVisible):
+            guard let index = state.customHeaders.firstIndex(where: { $0.id == id }) else { return }
+            state.customHeaders[index].isValueVisible = isVisible
+        case let .removeHeaderTapped(id):
+            state.customHeaders.removeAll { $0.id == id }
         // Certificate actions
         case .importCertificateTapped:
             state.showingCertificateImporter = true
@@ -119,6 +136,20 @@ final class SelfHostedProcessor: StateProcessor<SelfHostedState, SelfHostedActio
         return urls
             .filter { !$0.isEmpty }
             .allSatisfy(\.isValidURL)
+    }
+
+    /// Loads the stored custom headers into the state for editing.
+    ///
+    private func loadCustomHeaders() async {
+        guard let id = state.customHeadersId.nilIfEmpty, state.customHeaders.isEmpty else { return }
+        do {
+            let headers = try await services.customHeadersService.getCustomHeaders(id: id)
+            state.customHeaders = headers
+                .sorted { $0.key < $1.key }
+                .map { SelfHostedState.CustomHeaderField(name: $0.key, value: $0.value) }
+        } catch {
+            services.errorReporter.log(error: error)
+        }
     }
 
     /// Handles the result of the certificate file picker.
@@ -240,11 +271,24 @@ final class SelfHostedProcessor: StateProcessor<SelfHostedState, SelfHostedActio
             return
         }
 
+        let previousCustomHeadersId = state.customHeadersId.nilIfEmpty
+        let customHeadersId: String?
+        do {
+            customHeadersId = try await saveCustomHeaders()
+        } catch {
+            coordinator.showAlert(Alert.defaultAlert(
+                title: Localizations.anErrorHasOccurred,
+                message: error.localizedDescription,
+            ))
+            return
+        }
+
         let urls = EnvironmentURLData(
             api: URL(string: state.apiServerUrl)?.sanitized,
             base: URL(string: state.serverUrl)?.sanitized,
             clientCertificateAlias: state.keyAlias.nilIfEmpty,
             clientCertificateFingerprint: state.keyFingerprint.nilIfEmpty,
+            customHeadersId: customHeadersId,
             events: nil as URL?,
             icons: URL(string: state.iconsServerUrl)?.sanitized,
             identity: URL(string: state.identityServerUrl)?.sanitized,
@@ -252,7 +296,37 @@ final class SelfHostedProcessor: StateProcessor<SelfHostedState, SelfHostedActio
             webVault: URL(string: state.webVaultServerUrl)?.sanitized,
         )
         await delegate?.didSaveEnvironment(urls: urls)
+
+        // Clean up the previously stored headers once the saved environment no longer references
+        // them. The removal is reference-counted, so headers still used by another account remain.
+        if let previousCustomHeadersId, previousCustomHeadersId != customHeadersId {
+            do {
+                try await services.customHeadersService.removeCustomHeaders(id: previousCustomHeadersId)
+            } catch {
+                services.errorReporter.log(error: error)
+            }
+        }
+
         coordinator.navigate(to: .dismissPresented)
+    }
+
+    /// Persists the edited custom headers and returns the identifier to store in the environment
+    /// URLs, reusing the existing identifier when the headers are unchanged.
+    ///
+    /// - Returns: The identifier of the stored custom headers, or `nil` if none are configured.
+    ///
+    private func saveCustomHeaders() async throws -> String? {
+        let headers = state.customHeadersDictionary
+        let previousId = state.customHeadersId.nilIfEmpty
+
+        guard !headers.isEmpty else { return nil }
+
+        if let previousId,
+           try await services.customHeadersService.getCustomHeaders(id: previousId) == headers {
+            return previousId
+        }
+
+        return try await services.customHeadersService.saveCustomHeaders(headers)
     }
 
     /// Removes the currently stored client certificate and clears the associated state.

@@ -7,8 +7,17 @@ import Foundation
 /// Helper class with common functionality related to the region selector.
 ///
 class RegionHelper {
+    /// The service used to manage client certificates for mTLS authentication.
+    let clientCertificateService: ClientCertificateService
+
     /// Used to perform navigations and showing alert
     let coordinator: AnyCoordinator<AuthRoute, AuthEvent>
+
+    /// The service used to manage custom headers sent with requests to a self-hosted environment.
+    let customHeadersService: CustomHeadersService
+
+    /// The service used by the application to report non-fatal errors.
+    let errorReporter: ErrorReporter
 
     /// Service used to get environment information
     let stateService: StateService
@@ -21,15 +30,26 @@ class RegionHelper {
     /// Creates a new `RegionHelper`.
     ///
     /// - Parameters:
+    ///   - clientCertificateService: The service used to manage client certificates.
     ///   - coordinator: The coordinator that handles navigation.
+    ///   - customHeadersService: The service used to manage custom headers.
     ///   - delegate: The delegate for the processor.
+    ///   - errorReporter: The service used by the application to report non-fatal errors.
     ///   - stateService: The services used by the helper .
     ///
-    init(coordinator: AnyCoordinator<AuthRoute, AuthEvent>,
-         delegate: RegionDelegate,
-         stateService: StateService) {
+    init(
+        clientCertificateService: ClientCertificateService,
+        coordinator: AnyCoordinator<AuthRoute, AuthEvent>,
+        customHeadersService: CustomHeadersService,
+        delegate: RegionDelegate,
+        errorReporter: ErrorReporter,
+        stateService: StateService,
+    ) {
+        self.clientCertificateService = clientCertificateService
         self.coordinator = coordinator
+        self.customHeadersService = customHeadersService
         self.delegate = delegate
+        self.errorReporter = errorReporter
         self.stateService = stateService
     }
 
@@ -50,7 +70,9 @@ class RegionHelper {
             .map { region in
                 AlertAction(title: region.baseURLDescription, style: .default) { _ in
                     if let urls = region.defaultURLs {
+                        let previousURLs = await self.stateService.getPreAuthEnvironmentURLs()
                         await self.delegate?.setRegion(region, urls)
+                        await self.removeDroppedPreAuthCredentials(previousURLs: previousURLs, newURLs: urls)
                     } else {
                         await self.coordinator.navigate(
                             to: .selfHosted(currentRegion: currentRegion ?? .unitedStates),
@@ -78,6 +100,38 @@ class RegionHelper {
         }
 
         await delegate?.setRegion(urls.region, urls)
+    }
+
+    // MARK: Private
+
+    /// Removes Keychain-stored credentials (client certificate identity, custom headers) whose
+    /// pre-auth references were dropped by replacing the environment URLs. Removal is
+    /// reference-counted, so credentials still used by an account remain in the Keychain.
+    ///
+    /// - Parameters:
+    ///   - previousURLs: The pre-auth environment URLs before the replacement.
+    ///   - newURLs: The pre-auth environment URLs after the replacement.
+    ///
+    private func removeDroppedPreAuthCredentials(
+        previousURLs: EnvironmentURLData?,
+        newURLs: EnvironmentURLData,
+    ) async {
+        if let fingerprint = previousURLs?.clientCertificateFingerprint,
+           newURLs.clientCertificateFingerprint == nil {
+            do {
+                try await clientCertificateService.removeCertificate(fingerprint: fingerprint)
+            } catch {
+                errorReporter.log(error: error)
+            }
+        }
+        if let customHeadersId = previousURLs?.customHeadersId,
+           newURLs.customHeadersId == nil {
+            do {
+                try await customHeadersService.removeCustomHeaders(id: customHeadersId)
+            } catch {
+                errorReporter.log(error: error)
+            }
+        }
     }
 }
 
