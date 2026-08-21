@@ -99,4 +99,10 @@ struct BankAccountItemStateTests {
         subject.accountType = .custom(.savings)
         #expect(!subject.isBankAccountDetailsSectionEmpty)
     }
+
+    /// The account type field is blank until the user has explicitly selected a value.
+    @Test
+    func accountType_defaultLocalizedName_isBlank() {
+        #expect(BankAccountItemState().accountType.localizedName.isEmpty)
+    }
 }
