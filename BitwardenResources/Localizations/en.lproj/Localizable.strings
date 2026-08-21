@@ -1069,6 +1069,7 @@
 "OnceArchivedThisItemWillBeExcludedDescriptionLong" = "Once archived, this item will be excluded from search results and autofill suggestions.";
 "ArchivingItemsIsAPremiumFeatureDescriptionLong" = "Archiving items is a Premium feature. Your current plan does not include access to this feature.";
 "AddingAttachmentsIsAPremiumFeatureDescriptionLong" = "Adding attachments is a Premium feature. Your current plan does not include access to this feature.";
+"ViewingAndDownloadingAttachmentsIsAPremiumFeatureDescriptionLong" = "Viewing and downloading attachments is a Premium feature. Your current plan does not include access to this feature.";
 "UpgradeToPremium" = "Upgrade to Premium";
 "ThisItemIsArchived" = "This item is archived.";
 "YourPremiumSubscriptionEnded" = "Your Premium subscription ended";
