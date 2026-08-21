@@ -11,7 +11,7 @@ gem 'fastlane', '2.236.0'
 gem 'abbrev', '0.1.2'
 gem 'logger', '1.7.0'
 gem 'mutex_m', '0.3.0'
-gem 'csv', '3.3.5'
+gem 'csv', '3.3.6'
 
 # Starting with Ruby 3.5.0, these are not included in the standard library
 gem 'ostruct', '0.6.3'
