@@ -140,6 +140,8 @@ final class VaultListProcessor: StateProcessor<
             await streamFlightRecorderLog()
         case .streamOrganizations:
             await streamOrganizations()
+        case .streamPremiumUpgradePendingState:
+            await streamPremiumUpgradePendingState()
         case .streamShowWebIcons:
             await streamShowWebIcons()
         case .streamVaultList:
@@ -472,6 +474,23 @@ extension VaultListProcessor {
         state.shouldShowUpgradedToPremiumActionCard =
             await services.billingService.shouldShowUpgradedToPremiumActionCard()
 
+        let isPending = await services.billingService.premiumUpgradePendingState().isPending
+        await updatePremiumUpgradeActionCardVisibility(isPending: isPending)
+    }
+
+    /// Updates `shouldShowPremiumUpgradeActionCard` based on whether a Premium upgrade is
+    /// currently pending, plus the existing banner-dismissed/subscription-attention-card gating.
+    /// Shared by the one-shot `.appeared` refresh and the live `streamPremiumUpgradePendingState()`
+    /// subscription so both use identical logic.
+    ///
+    /// - Parameter isPending: Whether a Premium upgrade is currently pending.
+    ///
+    private func updatePremiumUpgradeActionCardVisibility(isPending: Bool) async {
+        guard !isPending else {
+            state.shouldShowPremiumUpgradeActionCard = false
+            return
+        }
+
         let isBannerDismissed = await services.stateService.isPremiumUpgradeBannerDismissed()
         guard !isBannerDismissed,
               !state.shouldShowSubscriptionAttentionCard,
@@ -718,6 +737,17 @@ extension VaultListProcessor {
             }
         } catch {
             services.errorReporter.log(error: error)
+        }
+    }
+
+    /// Streams live updates to the Premium upgrade pending state, hiding or re-evaluating the
+    /// upsell action card immediately rather than waiting for the next screen appearance —
+    /// needed because dismissing the "Upgrade Pending" alert returns to this same screen
+    /// without a fresh `.appeared`.
+    ///
+    private func streamPremiumUpgradePendingState() async {
+        for await pendingState in services.billingService.premiumUpgradePendingStatePublisher().values {
+            await updatePremiumUpgradeActionCardVisibility(isPending: pendingState.isPending)
         }
     }
 
