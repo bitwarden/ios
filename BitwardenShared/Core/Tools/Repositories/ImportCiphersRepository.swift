@@ -88,7 +88,8 @@ extension DefaultImportCiphersRepository: ImportCiphersRepository {
             throw ImportCiphersRepositoryError.dataEncodingFailed
         }
 
-        let ciphers = try await clientService.exporters().importCxf(payload: accountJsonString)
+        let encryptionContexts = try await clientService.exporters().importCxf(payload: accountJsonString)
+        let ciphers = encryptionContexts.map(\.cipher)
 
         await onProgress(0.3)
 
