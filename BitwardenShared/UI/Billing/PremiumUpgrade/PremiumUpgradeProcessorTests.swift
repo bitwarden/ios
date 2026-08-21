@@ -183,7 +183,8 @@ struct PremiumUpgradeProcessorTests {
         #expect(coordinator.alertShown.count == 1)
     }
 
-    /// `perform(_:)` with `.upgradeNowTapped` calls `premiumStatusChanged` when the session returns a success URL.
+    /// `perform(_:)` with `.upgradeNowTapped` calls `reconcileCheckoutSuccess` when the session
+    /// returns a success URL.
     @Test
     func perform_upgradeNowTapped_checkoutSucceeded() async throws {
         let checkoutURL = URL(string: "https://checkout.stripe.com/session")!
@@ -197,7 +198,7 @@ struct PremiumUpgradeProcessorTests {
 
         #expect(billingService.createCheckoutSessionCallsCount == 1)
         #expect(delegate.performCheckoutWebAuthSessionReceivedUrl == checkoutURL)
-        #expect(billingService.premiumStatusChangedCalled)
+        #expect(billingService.reconcileCheckoutSuccessCalled)
         #expect(subject.state.isLoading == false)
     }
 
@@ -215,6 +216,26 @@ struct PremiumUpgradeProcessorTests {
         #expect(delegate.performCheckoutWebAuthSessionReceivedUrl == checkoutURL)
         let alert = try #require(coordinator.alertShown.last)
         #expect(alert.title == Localizations.paymentNotReceivedYet)
+        #expect(!billingService.premiumCheckoutCanceledCalled)
+        #expect(errorReporter.errors.isEmpty)
+    }
+
+    /// `perform(_:)` with `.upgradeNowTapped` shows the retry alert when the web auth session
+    /// fails with something other than cancellation.
+    @Test
+    func perform_upgradeNowTapped_webAuthSessionFailure() async throws {
+        let checkoutURL = URL(string: "https://checkout.stripe.com/session")!
+        billingService.createCheckoutSessionReturnValue = checkoutURL
+        billingService.premiumCheckoutStatusPublisherReturnValue = PassthroughSubject<PremiumCheckoutStatus, Never>()
+            .eraseToAnyPublisher()
+        delegate.performCheckoutWebAuthSessionReturnValue = .failure(BitwardenTestError.example)
+
+        await subject.perform(.upgradeNowTapped)
+
+        let alert = try #require(coordinator.alertShown.last)
+        #expect(alert.title == Localizations.paymentNotReceivedYet)
+        #expect(!billingService.premiumCheckoutCanceledCalled)
+        #expect(errorReporter.errors.last as? BitwardenTestError == .example)
     }
 
     /// `receive(_:)` with `.cancelTapped` navigates to dismiss.
