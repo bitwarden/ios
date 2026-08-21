@@ -1997,6 +1997,8 @@ actor DefaultStateService: StateService, ActiveAccountStateProvider, ConfigState
         appSettingsStore.setLastSyncTime(nil, userId: knownUserId)
         appSettingsStore.setMasterPasswordHash(nil, userId: knownUserId)
         appSettingsStore.setPasswordGenerationOptions(nil, userId: knownUserId)
+        appSettingsStore.setUserKeyId(nil, userId: knownUserId)
+        appSettingsStore.setV2UpgradeToken(nil, userId: knownUserId)
 
         // Reset the organization user notification banner dismissal so the banner can reappear on the next
         // login. A user-initiated (hard) logout always clears it; a soft logout (e.g. a vault-timeout logout)
@@ -2635,9 +2637,7 @@ extension DefaultStateService {
 
     func clearMasterPasswordUnlockForActiveAccount() async throws {
         let userId = try getActiveAccountUserId()
-        try updateAccountProfile(userId: userId) { profile in
-            profile.userDecryptionOptions?.masterPasswordUnlock = nil
-        }
+        await clearAccountMasterPasswordUnlockData(userId: userId)
     }
 }
 
@@ -2727,5 +2727,134 @@ extension DefaultStateService: AutofillStateService {
 
     func setLastRequestToTurnOnCredentialProvider(_ date: Date?) async {
         appSettingsStore.setLastRequestToTurnOnCredentialProvider(date)
+    }
+}
+
+// MARK: SdkStateBridgeStateService
+
+extension DefaultStateService: SdkStateBridgeStateService {
+    // MARK: Account Cryptographic State
+
+    func getAccountCryptographicState(userId: String) async -> WrappedAccountCryptographicState? {
+        appSettingsStore.accountCryptographicState(userId: userId)
+    }
+
+    func setAccountCryptographicState(_ state: WrappedAccountCryptographicState?, userId: String) async {
+        appSettingsStore.setAccountCryptographicState(state, userId: userId)
+    }
+
+    // MARK: Encrypted Pin
+
+    func setEncryptedPin(_ encryptedPin: String?, userId: String) async {
+        appSettingsStore.setEncryptedPin(encryptedPin, userId: userId)
+    }
+
+    // MARK: Ephemeral Pin Envelope
+
+    func getEphemeralPinEnvelope(userId: String) async -> String? {
+        accountVolatileData[userId]?.pinProtectedUserKey
+    }
+
+    func setEphemeralPinEnvelope(_ envelope: String?, userId: String) async {
+        accountVolatileData[userId, default: AccountVolatileData()].pinProtectedUserKey = envelope
+    }
+
+    // MARK: Kdf Config
+
+    func clearKdfConfig(userId: String) async {
+        do {
+            try updateAccountProfile(userId: userId) { profile in
+                profile.kdfType = nil
+                profile.kdfIterations = nil
+                profile.kdfMemory = nil
+                profile.kdfParallelism = nil
+            }
+        } catch {
+            errorReporter.log(error: error)
+        }
+    }
+
+    func getKdfConfig(userId: String) async -> BitwardenSdk.Kdf? {
+        do {
+            let profile = try getAccount(userId: userId).profile
+            guard let kdfType = profile.kdfType, let kdfIterations = profile.kdfIterations else {
+                return nil
+            }
+            return KdfConfig(
+                kdfType: kdfType,
+                iterations: kdfIterations,
+                memory: profile.kdfMemory,
+                parallelism: profile.kdfParallelism,
+            ).sdkKdf
+        } catch {
+            errorReporter.log(error: error)
+            return nil
+        }
+    }
+
+    func setKdfConfig(_ kdf: BitwardenSdk.Kdf, userId: String) async {
+        do {
+            try await setAccountKdf(KdfConfig(kdf: kdf), userId: userId)
+        } catch {
+            errorReporter.log(error: error)
+        }
+    }
+
+    // MARK: Master Password Unlock Data
+
+    func clearAccountMasterPasswordUnlockData(userId: String) async {
+        do {
+            try updateAccountProfile(userId: userId) { profile in
+                profile.userDecryptionOptions?.masterPasswordUnlock = nil
+            }
+        } catch {
+            errorReporter.log(error: error)
+        }
+    }
+
+    func getAccountMasterPasswordUnlock(userId: String) async -> MasterPasswordUnlockData? {
+        do {
+            let account = try getAccount(userId: userId)
+            guard let responseModel = account.profile.userDecryptionOptions?.masterPasswordUnlock else {
+                return nil
+            }
+            return MasterPasswordUnlockData(responseModel: responseModel)
+        } catch {
+            errorReporter.log(error: error)
+            return nil
+        }
+    }
+
+    // MARK: Persistent Pin Envelope
+
+    func getPersistentPinEnvelope(userId: String) async -> String? {
+        appSettingsStore.pinProtectedUserKeyEnvelope(userId: userId)
+    }
+
+    func setPersistentPinEnvelope(_ envelope: String?, userId: String) async {
+        appSettingsStore.setPinProtectedUserKeyEnvelope(key: envelope, userId: userId)
+
+        // Remove any legacy pin protected user key, mirroring `setPinKeys`/`clearPins`.
+        appSettingsStore.setPinProtectedUserKey(key: nil, userId: userId)
+    }
+
+    // MARK: User Key Id
+
+    func getUserKeyId(userId: String) async -> String? {
+        appSettingsStore.userKeyId(userId: userId)
+    }
+
+    func setUserKeyId(_ keyId: String?, userId: String) async {
+        appSettingsStore.setUserKeyId(keyId, userId: userId)
+    }
+
+    // MARK: V2 Upgrade Token
+
+    func getV2UpgradeToken(userId: String) async -> V2UpgradeToken? {
+        appSettingsStore.v2UpgradeToken(userId: userId)
+    }
+
+    func setV2UpgradeToken(_ token: V2UpgradeToken?, userId: String) async {
+        appSettingsStore.setV2UpgradeToken(token, userId: userId)
     }
 }
