@@ -7,6 +7,9 @@ import BitwardenSdk
 struct MasterPasswordUnlockDataRequestModel: Encodable, Equatable {
     // MARK: Properties
 
+    /// The ID of the key contained in `masterKeyWrappedUserKey`, when the user's key has one.
+    let containedKeyId: String?
+
     /// The KDF settings.
     let kdf: KdfConfig
 
@@ -25,6 +28,7 @@ extension MasterPasswordUnlockDataRequestModel {
     ///
     init(unlockData: MasterPasswordUnlockData) {
         self.init(
+            containedKeyId: unlockData.containedKeyId,
             kdf: KdfConfig(kdf: unlockData.kdf),
             masterKeyWrappedUserKey: unlockData.masterKeyWrappedUserKey,
             salt: unlockData.salt,
