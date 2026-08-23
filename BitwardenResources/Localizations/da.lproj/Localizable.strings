@@ -26,6 +26,8 @@
 "FolderNone" = "Ingen mappe";
 "Folders" = "Mapper";
 "FolderUpdated" = "Mappe opdateret.";
+"MyFolder" = "My folder";
+"MyFolders" = "My folders";
 "InternetConnectionRequiredMessage" = "Opret forbindelse til internettet inden du fortsætter.";
 "InternetConnectionRequiredTitle" = "Internetforbindelse kræves";
 "InvalidMasterPassword" = "Ugyldig hovedadgangskode. Forsøg igen.";
@@ -898,6 +900,7 @@
 /* VoiceOver accessibility label for a shared folder the item belongs to. */
 "SharedFolderX" = "Shared folder, %1$@";
 "FolderX" = "Mappe, %1$@";
+"MyFolderX" = "My folder, %1$@";
 "ItemXOfY" = "Element %1$@ af %2$@";
 "ViewRecordedLogs" = "Se optagede logs";
 "RecordedLogs" = "Optagede logs";
