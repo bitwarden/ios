@@ -76,7 +76,7 @@ class AddEditSendItemViewTests: BitwardenTestCase {
         processor.state.isOptionsExpanded = true
         processor.state.sendPolicyOptions.enforcedDeletionDateHours = 168
         XCTAssertNoThrow(
-            try subject.inspect().find(text: Localizations.sendDeletionDateEnforcedByOrganization),
+            try subject.inspect().find(text: Localizations.thisDateIsEnforcedByYourOrganization),
         )
     }
 
