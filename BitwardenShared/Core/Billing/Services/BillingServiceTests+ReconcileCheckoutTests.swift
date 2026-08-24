@@ -143,6 +143,26 @@ extension BillingServiceTests {
         #expect(errorReporter.errors.first is URLError)
     }
 
+    /// `reconcileCheckoutSuccess()` does not record a failure when `fetchSync` throws after Premium
+    /// was already confirmed — the profile (and its Premium status) is persisted early in
+    /// `fetchSync()`, so a later step in that same sync can still throw once the grant already
+    /// landed. A confirmed upgrade must never end up persisting a contradictory failure flag.
+    @Test
+    func reconcileCheckoutSuccess_syncError_premiumGranted_doesNotRecordFailure() async throws {
+        stateService.doesActiveAccountHavePremiumResult = false
+        syncService.fetchSyncHandler = {
+            stateService.doesActiveAccountHavePremiumResult = true
+        }
+        syncService.fetchSyncResult = .failure(URLError(.notConnectedToInternet))
+
+        await subject.reconcileCheckoutSuccess()
+
+        #expect(stateService.premiumUpgradeLastSyncAttemptFailedResult == false)
+        #expect(stateService.premiumUpgradePendingResult == false)
+        #expect(stateService.upgradedToPremiumActionCardVisibleResult == true)
+        #expect(errorReporter.errors.first is URLError)
+    }
+
     /// `reconcileCheckoutSuccess()` records the sync failure but clears the pending mark
     /// immediately when `fetchSync` throws, and publishes the updated `PremiumUpgradePendingState`
     /// — the "Upgrade to Premium" CTA must reappear on failure, not stay hidden indefinitely.

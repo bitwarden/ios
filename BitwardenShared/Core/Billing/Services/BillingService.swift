@@ -302,7 +302,11 @@ class DefaultBillingService: BillingService { // swiftlint:disable:this type_bod
 
         let hasPremium = await stateService.doesActiveAccountHavePremium()
         do {
-            try await billingStateService.setPremiumUpgradeLastSyncAttemptFailed(syncFailed)
+            // `syncFailed` and `hasPremium` aren't mutually exclusive: the profile (and its Premium
+            // status) is persisted early in `fetchSync()`, so a later step in that same sync can
+            // still throw after Premium was already confirmed. Only record a failure if Premium
+            // wasn't actually granted, so a confirmed upgrade never persists a contradictory flag.
+            try await billingStateService.setPremiumUpgradeLastSyncAttemptFailed(syncFailed && !hasPremium)
         } catch {
             errorReporter.log(error: error)
         }
