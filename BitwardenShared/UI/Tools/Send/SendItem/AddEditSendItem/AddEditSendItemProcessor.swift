@@ -254,6 +254,9 @@ class AddEditSendItemProcessor: // swiftlint:disable:this type_body_length
         if state.mode != .edit, let enforcedDeletionDate = state.policyEnforcedDeletionDate {
             state.deletionDate = enforcedDeletionDate
         }
+        if state.sendPolicyOptions.isHideEmailDisabled {
+            state.isHideMyEmailOn = false
+        }
         state.hasPremium = await services.sendRepository.doesActiveAccountHavePremium()
         await refreshProfileState()
 

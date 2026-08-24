@@ -142,6 +142,20 @@ class AddEditSendItemProcessorTests: BitwardenTestCase { // swiftlint:disable:th
         XCTAssertEqual(coordinator.routes.last, .deleted)
     }
 
+    /// `perform(_:)` with `loadData` clears a copied Send's hide-email value when the policy
+    /// disables hide-email, so a "Make a copy" of a non-compliant Send isn't saved non-compliant.
+    @MainActor
+    func test_perform_loadData_clearsHideEmailWhenDisabledByPolicy() async {
+        let sendView = SendView.fixture(hideEmail: true)
+        subject.state = AddEditSendItemState(copyingFrom: sendView)
+        XCTAssertTrue(subject.state.isHideMyEmailOn)
+
+        policyService.getSendPolicyOptionsResult.isHideEmailDisabled = true
+        await subject.perform(.loadData)
+
+        XCTAssertFalse(subject.state.isHideMyEmailOn)
+    }
+
     /// `perform(_:)` with `loadData` loads the policy data for the view.
     @MainActor
     func test_perform_loadData_policies() async {
