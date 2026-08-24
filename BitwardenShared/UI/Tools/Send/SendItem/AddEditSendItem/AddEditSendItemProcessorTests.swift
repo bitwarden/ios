@@ -156,6 +156,20 @@ class AddEditSendItemProcessorTests: BitwardenTestCase { // swiftlint:disable:th
         XCTAssertFalse(subject.state.isHideMyEmailOn)
     }
 
+    /// `perform(_:)` with `loadData` doesn't clear an existing Send's hide-email value when editing,
+    /// even if the policy disables hide-email, since the field remains editable in that case.
+    @MainActor
+    func test_perform_loadData_doesNotClearHideEmailWhenEditingDisabledByPolicy() async {
+        let sendView = SendView.fixture(hideEmail: true)
+        subject.state = AddEditSendItemState(sendView: sendView)
+        XCTAssertTrue(subject.state.isHideMyEmailOn)
+
+        policyService.getSendPolicyOptionsResult.isHideEmailDisabled = true
+        await subject.perform(.loadData)
+
+        XCTAssertTrue(subject.state.isHideMyEmailOn)
+    }
+
     /// `perform(_:)` with `loadData` loads the policy data for the view.
     @MainActor
     func test_perform_loadData_policies() async {
