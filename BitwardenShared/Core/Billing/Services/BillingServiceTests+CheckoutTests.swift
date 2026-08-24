@@ -175,15 +175,15 @@ extension BillingServiceTests {
         try await waitForAsync { lateStatuses.isEmpty }
     }
 
-    /// `premiumCheckoutCanceled()` clears a pending mark left over from an interrupted
-    /// `reconcileCheckoutSuccess()` call.
+    /// `premiumCheckoutCanceled()` does not clear a pending mark from a different, already-paid
+    /// checkout attempt.
     @Test
-    func premiumCheckoutCanceled_clearsPending() async throws {
+    func premiumCheckoutCanceled_doesNotClearPending() async throws {
         stateService.premiumUpgradePendingResult = true
 
         await subject.premiumCheckoutCanceled()
 
-        #expect(stateService.premiumUpgradePendingResult == false)
+        #expect(stateService.premiumUpgradePendingResult == true)
     }
 
     /// A subscriber connecting after `.pending` is emitted receives the pending status immediately
