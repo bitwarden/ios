@@ -143,18 +143,18 @@ extension BillingServiceTests {
         #expect(errorReporter.errors.first is URLError)
     }
 
-    /// `reconcileCheckoutSuccess()` still clears the pending mark on sync failure even if recording
-    /// the failure itself throws — each state write is independent, so one throwing does not skip
-    /// the others.
+    /// `reconcileCheckoutSuccess()` leaves the pending mark set on sync failure even if recording
+    /// the failure itself throws — clearing it here would lose the only record that this checkout
+    /// ever succeeded with Stripe.
     @Test
-    func reconcileCheckoutSuccess_syncError_clearsPendingEvenIfRecordingFailureThrows() async throws {
+    func reconcileCheckoutSuccess_syncError_leavesPendingSetEvenIfRecordingFailureThrows() async throws {
         stateService.doesActiveAccountHavePremiumResult = false
         stateService.setPremiumUpgradeLastSyncAttemptFailedResult = .failure(URLError(.notConnectedToInternet))
         syncService.fetchSyncResult = .failure(URLError(.notConnectedToInternet))
 
         await subject.reconcileCheckoutSuccess()
 
-        #expect(stateService.premiumUpgradePendingResult == false)
+        #expect(stateService.premiumUpgradePendingResult == true)
     }
 
     /// `reconcileCheckoutSuccess()` does not record a failure when `fetchSync` throws after Premium
@@ -177,11 +177,12 @@ extension BillingServiceTests {
         #expect(errorReporter.errors.first is URLError)
     }
 
-    /// `reconcileCheckoutSuccess()` records the sync failure but clears the pending mark
-    /// immediately when `fetchSync` throws, and publishes the updated `PremiumUpgradePendingState`
-    /// — the "Upgrade to Premium" CTA must reappear on failure, not stay hidden indefinitely.
+    /// `reconcileCheckoutSuccess()` records the sync failure but leaves the pending mark set when
+    /// `fetchSync` throws, and publishes the updated `PremiumUpgradePendingState` — clearing
+    /// `isPending` here would lose the only record that this checkout ever succeeded with Stripe,
+    /// stranding a later webhook grant with nothing pending left to resolve it.
     @Test
-    func reconcileCheckoutSuccess_syncError_recordsFailureAndClearsPending() async throws {
+    func reconcileCheckoutSuccess_syncError_recordsFailureAndLeavesPending() async throws {
         stateService.doesActiveAccountHavePremiumResult = false
         syncService.fetchSyncResult = .failure(URLError(.notConnectedToInternet))
         var pendingStates = [PremiumUpgradePendingState]()
@@ -192,11 +193,11 @@ extension BillingServiceTests {
         await subject.reconcileCheckoutSuccess()
 
         #expect(stateService.premiumUpgradeLastSyncAttemptFailedResult == true)
-        #expect(stateService.premiumUpgradePendingResult == false)
+        #expect(stateService.premiumUpgradePendingResult == true)
         #expect(pendingStates == [
             PremiumUpgradePendingState(isPending: false, lastAttemptFailed: false),
             PremiumUpgradePendingState(isPending: true, lastAttemptFailed: false),
-            PremiumUpgradePendingState(isPending: false, lastAttemptFailed: true),
+            PremiumUpgradePendingState(isPending: true, lastAttemptFailed: true),
         ])
     }
 }

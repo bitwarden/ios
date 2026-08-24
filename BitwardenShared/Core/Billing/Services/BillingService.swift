@@ -317,9 +317,12 @@ class DefaultBillingService: BillingService { // swiftlint:disable:this type_bod
         } catch {
             errorReporter.log(error: error)
         }
-        // Left set when sync succeeded but Premium isn't confirmed yet, so a later sync can
-        // still resolve it via `reconcilePendingUpgradeIfNeeded()`.
-        if hasPremium || syncFailed {
+        // Left set unless Premium is actually confirmed — including when the sync itself failed —
+        // so a later sync can still resolve it via `reconcilePendingUpgradeIfNeeded()`. Clearing it
+        // on `syncFailed` alone would lose the only record that this checkout ever succeeded with
+        // Stripe: the CTA would revert to "Upgrade to Premium" for a user who already paid, and a
+        // webhook grant landing later would have nothing pending left to resolve it.
+        if hasPremium {
             do {
                 try await billingStateService.setPremiumUpgradePending(false)
             } catch {
