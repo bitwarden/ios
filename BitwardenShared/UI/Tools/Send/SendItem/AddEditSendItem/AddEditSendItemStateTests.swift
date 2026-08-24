@@ -453,6 +453,14 @@ class AddEditSendItemStateTests: BitwardenTestCase { // swiftlint:disable:this t
         XCTAssertEqual(subject.recipientEmails, ["test@example.com"])
     }
 
+    /// `init(copyingFrom:)` defaults `recipientEmails` to a single empty entry when the original
+    /// Send has no recipient emails, so the "Specific people" recipient list has a row to edit.
+    func test_init_copyingFrom_emptyEmails_defaultsToSingleEmptyRecipient() {
+        let sendView = SendView.fixture(emails: [])
+        let subject = AddEditSendItemState(copyingFrom: sendView)
+        XCTAssertEqual(subject.recipientEmails, [""])
+    }
+
     /// `init(copyingFrom:)` sets access type to "Anyone with password" when the original Send has a
     /// password.
     func test_init_copyingFrom_withPassword_setsAnyoneWithPassword() {
