@@ -1,3 +1,4 @@
+import BitwardenSdk
 import InlineSnapshotTesting
 import Networking
 import TestHelpers
@@ -37,6 +38,7 @@ class CipherAPIServiceTests: XCTestCase { // swiftlint:disable:this type_body_le
 
         let response = try await subject.addCipher(
             .fixture(),
+            encryptedByKeyId: nil,
             encryptedFor: "1",
         )
 
@@ -96,6 +98,7 @@ class CipherAPIServiceTests: XCTestCase { // swiftlint:disable:this type_body_le
 
         let response = try await subject.addCipherWithCollections(
             .fixture(collectionIds: ["1", "2", "3"]),
+            encryptedByKeyId: nil,
             encryptedFor: "1",
         )
 
@@ -211,11 +214,10 @@ class CipherAPIServiceTests: XCTestCase { // swiftlint:disable:this type_body_le
 
         let response = try await subject.bulkShareCiphers(
             [
-                .fixture(collectionIds: ["1", "2"], id: "1"),
-                .fixture(collectionIds: ["1", "2"], id: "2"),
+                EncryptionContext(encryptedFor: "user-1", cipher: .fixture(collectionIds: ["1", "2"], id: "1")),
+                EncryptionContext(encryptedFor: "user-1", cipher: .fixture(collectionIds: ["1", "2"], id: "2")),
             ],
             collectionIds: ["1", "2"],
-            encryptedFor: "user-1",
         )
 
         XCTAssertEqual(client.requests.count, 1)
@@ -383,6 +385,7 @@ class CipherAPIServiceTests: XCTestCase { // swiftlint:disable:this type_body_le
 
         let response = try await subject.shareCipher(
             .fixture(collectionIds: ["1", "2", "3"], id: "1"),
+            encryptedByKeyId: nil,
             encryptedFor: "1",
         )
 
