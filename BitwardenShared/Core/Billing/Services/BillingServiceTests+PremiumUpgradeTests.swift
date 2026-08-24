@@ -136,6 +136,37 @@ extension BillingServiceTests {
         #expect(syncService.fetchSyncForceSync == true)
     }
 
+    /// `start()` abandons an in-flight reconcile without writing anything if the active account
+    /// changes underneath it while it's suspended in `doesActiveAccountHavePremium()` —
+    /// `BillingStateService` has no per-user API, so every call it makes would otherwise resolve
+    /// against the newly-active account instead of the one this reconcile actually started for.
+    ///
+    /// This mutates `activeAccount` directly rather than through `activeIdSubject`, so it doesn't
+    /// also trigger `start()`'s own account-switch handling (a second, legitimate subscriber for
+    /// the new account, covered separately by `start_resubscribesOnActiveAccountChange`) — that
+    /// second subscriber's own reconcile would otherwise produce the same writes this test checks
+    /// for, since the mock's pending/premium flags aren't kept per-user, making the assertions
+    /// below ambiguous about which reconcile actually wrote them.
+    @Test
+    func start_abandonsStaleReconcileOnAccountSwitch() async throws {
+        stateService.activeAccount = .fixture(profile: .fixture(userId: "1"))
+        stateService.premiumUpgradePendingResult = true
+        stateService.doesActiveAccountHavePremiumResult = true
+        stateService.doesActiveAccountHavePremiumHandler = {
+            // Simulates the account switch landing exactly inside this suspension window.
+            stateService.activeAccount = .fixture(profile: .fixture(userId: "2"))
+        }
+
+        await subject.start()
+        try await waitForAsync { stateService.getLastSyncTimeCallCount == 1 }
+
+        try await stateService.setLastSyncTime(Date(), userId: nil)
+
+        try await waitForAsync { stateService.getActiveAccountIdCallCount == 1 }
+        #expect(stateService.setUpgradedToPremiumActionCardVisibleCallCount == 0)
+        #expect(stateService.premiumUpgradePendingResult == true)
+    }
+
     /// `start()` clears a stale `lastAttemptFailed` flag as soon as any sync succeeds, even
     /// when the active account still isn't Premium yet, and promotes the attempt back to
     /// pending rather than abandoning it — a later, unrelated sync succeeding means the most

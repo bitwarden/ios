@@ -68,6 +68,7 @@ class MockStateService: StateService, ActiveAccountStateProvider, AutofillStateS
     var didAccountSwitchInExtensionResult: Result<Bool, Error> = .success(false)
     var disableAutoTotpCopyByUserId = [String: Bool]()
     var doesActiveAccountHavePremiumCalled = false
+    var doesActiveAccountHavePremiumHandler: (() -> Void)?
     var fillAssistEnabledByUserId = [String: Bool]()
     var getFillAssistEnabledError: Error?
     var setFillAssistEnabledError: Error?
@@ -96,6 +97,7 @@ class MockStateService: StateService, ActiveAccountStateProvider, AutofillStateS
     var getAccountEncryptionKeysError: Error?
     // swiftlint:disable:next identifier_name
     var getAccountHasBeenUnlockedInteractivelyResult: Result<Bool, Error> = .success(false)
+    var getActiveAccountIdCallCount = 0
     var getActiveAccountIdError: Error?
     var getBiometricAuthenticationEnabledResult: Result<Void, Error> = .success(())
     var getLastSyncTimeCallCount = 0
@@ -214,6 +216,7 @@ class MockStateService: StateService, ActiveAccountStateProvider, AutofillStateS
 
     func doesActiveAccountHavePremium() async -> Bool {
         doesActiveAccountHavePremiumCalled = true
+        doesActiveAccountHavePremiumHandler?()
         return doesActiveAccountHavePremiumResult
     }
 
@@ -278,6 +281,7 @@ class MockStateService: StateService, ActiveAccountStateProvider, AutofillStateS
     }
 
     func getActiveAccountId() async throws -> String {
+        getActiveAccountIdCallCount += 1
         if let getActiveAccountIdError { throw getActiveAccountIdError }
         guard let activeAccount else { throw StateServiceError.noActiveAccount }
         return activeAccount.profile.userId
@@ -707,9 +711,9 @@ class MockStateService: StateService, ActiveAccountStateProvider, AutofillStateS
         clearClipboardValues[userId] = clearClipboardValue
     }
 
-    // `@MainActor` isolates the write below: callers await this from processor code that isn't
-    // itself actor-isolated, so without this the mutation runs on a background thread and races
-    // with tests polling `collapsedVaultListSectionIds` from the main thread via `waitFor`.
+    /// `@MainActor` isolates the write below: callers await this from processor code that isn't
+    /// itself actor-isolated, so without this the mutation runs on a background thread and races
+    /// with tests polling `collapsedVaultListSectionIds` from the main thread via `waitFor`.
     @MainActor
     func setCollapsedVaultListSectionIds(_ ids: [String], userId: String?) async throws {
         let userId = try unwrapUserId(userId)

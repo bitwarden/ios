@@ -411,7 +411,7 @@ class DefaultBillingService: BillingService { // swiftlint:disable:this type_bod
             // to actual account switches.
             for await userId in await self.stateService.activeAccountIdPublisher().removeDuplicates().values {
                 self.currentSyncSubscriber?.cancel()
-                guard userId != nil else {
+                guard let userId else {
                     self.premiumUpgradePendingStateSubject.send(
                         PremiumUpgradePendingState(isPending: false, lastAttemptFailed: false),
                     )
@@ -419,7 +419,7 @@ class DefaultBillingService: BillingService { // swiftlint:disable:this type_bod
                 }
 
                 await self.refreshPremiumUpgradePendingStateSubject()
-                self.currentSyncSubscriber = Task { await self.reconcileOnEachNewSync() }
+                self.currentSyncSubscriber = Task { await self.reconcileOnEachNewSync(userId: userId) }
             }
         }
     }
@@ -429,7 +429,12 @@ class DefaultBillingService: BillingService { // swiftlint:disable:this type_bod
     /// Subscribes to the active account's sync completions and reconciles a pending Premium
     /// upgrade after each genuinely new sync.
     ///
-    private func reconcileOnEachNewSync() async {
+    /// - Parameter userId: The user ID of the account this subscriber was started for. Passed
+    ///   through to `reconcilePendingUpgradeIfNeeded(userId:)` so it can detect an account switch
+    ///   that happens after this subscriber has been canceled but while a reconcile it started is
+    ///   still finishing.
+    ///
+    private func reconcileOnEachNewSync(userId: String) async {
         let publisher: AnyPublisher<Date?, Never>
         do {
             publisher = try await stateService.lastSyncTimePublisher()
@@ -456,7 +461,7 @@ class DefaultBillingService: BillingService { // swiftlint:disable:this type_bod
         for await date in publisher.values {
             guard date != lastSeenDate else { continue }
             lastSeenDate = date
-            await reconcilePendingUpgradeIfNeeded()
+            await reconcilePendingUpgradeIfNeeded(userId: userId)
         }
     }
 
@@ -464,7 +469,12 @@ class DefaultBillingService: BillingService { // swiftlint:disable:this type_bod
     /// be resolved, and sets the "Upgraded to Premium" card visible if the active account has
     /// since become Premium (by any means — personal or organization-granted).
     ///
-    private func reconcilePendingUpgradeIfNeeded() async {
+    /// - Parameter userId: The user ID this reconcile is for. `BillingStateService` has no
+    ///   per-user API — every call resolves whichever account is active *at that moment* — so an
+    ///   account switch landing mid-suspension could otherwise read one account's flags and write
+    ///   another's. Re-checked after the one genuinely interruptible suspension below.
+    ///
+    private func reconcilePendingUpgradeIfNeeded(userId: String) async {
         let isPending: Bool
         let lastAttemptFailed: Bool
         do {
@@ -485,7 +495,15 @@ class DefaultBillingService: BillingService { // swiftlint:disable:this type_bod
             errorReporter.log(error: error)
         }
 
-        guard await stateService.doesActiveAccountHavePremium() else {
+        let hasPremium = await stateService.doesActiveAccountHavePremium()
+        // `start()`'s cancellation of the previous account's subscriber is cooperative — this
+        // call can still be running for `userId` after the active account has already switched.
+        // Bail without writing if so, rather than resolving the account-scoped calls below (and
+        // the rest of `doesActiveAccountHavePremium()` itself, above) against the new account.
+        let activeAccountId = try? await stateService.getActiveAccountId()
+        guard activeAccountId == userId else { return }
+
+        guard hasPremium else {
             // A checkout that previously failed to confirm just had a sync succeed without
             // finding Premium — promote it back to pending so a later sync can still resolve it,
             // instead of abandoning it now that the failure itself has been cleared above.
