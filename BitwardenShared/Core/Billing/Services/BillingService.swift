@@ -54,7 +54,8 @@ protocol BillingService: AnyObject { // sourcery: AutoMockable
 
     /// Notifies that a Premium status change was detected via push notification, unrelated to
     /// any specific local checkout attempt. Triggers a forced sync to pick up the change, and
-    /// sets the "Upgraded to Premium" card visible if the active account is Premium afterward.
+    /// sets the "Upgraded to Premium" card visible and publishes `.confirmed` if the active
+    /// account is Premium afterward.
     ///
     func premiumStatusChanged() async
 
@@ -257,7 +258,13 @@ class DefaultBillingService: BillingService { // swiftlint:disable:this type_bod
             errorReporter.log(error: error)
         }
 
-        if await stateService.doesActiveAccountHavePremium() {
+        let hasPremium = await stateService.doesActiveAccountHavePremium()
+        // Lets a live `PremiumUpgradeHelper`/`PremiumUpgradeProcessor` subscription (from an
+        // upgrade attempt still in flight elsewhere) react immediately, rather than only on the
+        // vault list's next `.appeared`.
+        premiumCheckoutStatusSubject.send(hasPremium ? .confirmed : .pending)
+        if hasPremium {
+            premiumCheckoutStatusSubject.send(nil)
             do {
                 try await billingStateService.setUpgradedToPremiumActionCardVisible(true)
             } catch {

@@ -26,21 +26,6 @@ extension BillingServiceTests {
         #expect(!syncService.didFetchSync)
     }
 
-    /// `premiumStatusChanged()` does not publish a checkout status — it isn't tied to any
-    /// specific in-flight checkout attempt, so there's no attempt outcome to report.
-    @Test
-    func premiumStatusChanged_doesNotPublishCheckoutStatus() async throws {
-        stateService.doesActiveAccountHavePremiumResult = false
-        var statuses = [PremiumCheckoutStatus]()
-        let cancellable = subject.premiumCheckoutStatusPublisher()
-            .sink { statuses.append($0) }
-        defer { cancellable.cancel() }
-
-        await subject.premiumStatusChanged()
-
-        #expect(statuses.isEmpty)
-    }
-
     /// `premiumStatusChanged()` does not set the "Upgraded to Premium" card when the account is
     /// still not Premium after the sync.
     @Test
@@ -61,6 +46,43 @@ extension BillingServiceTests {
         await subject.premiumStatusChanged()
 
         #expect(!syncService.didFetchSync)
+    }
+
+    /// `premiumStatusChanged()` publishes `.confirmed` when the account has become Premium by the
+    /// time the sync completes, so a live `PremiumUpgradeHelper`/`PremiumUpgradeProcessor`
+    /// subscription from an upgrade attempt still in flight elsewhere reacts immediately, rather
+    /// than only on the vault list's next `.appeared`.
+    @Test
+    func premiumStatusChanged_publishesConfirmed_whenPremiumGranted() async throws {
+        stateService.doesActiveAccountHavePremiumResult = false
+        syncService.fetchSyncHandler = {
+            stateService.doesActiveAccountHavePremiumResult = true
+        }
+        var statuses = [PremiumCheckoutStatus]()
+        let cancellable = subject.premiumCheckoutStatusPublisher()
+            .sink { statuses.append($0) }
+        defer { cancellable.cancel() }
+
+        await subject.premiumStatusChanged()
+
+        try await waitForAsync { !statuses.isEmpty }
+        #expect(statuses == [.confirmed])
+    }
+
+    /// `premiumStatusChanged()` publishes `.pending` when the account still isn't Premium after
+    /// the sync.
+    @Test
+    func premiumStatusChanged_publishesPending_whenStillNotPremium() async throws {
+        stateService.doesActiveAccountHavePremiumResult = false
+        var statuses = [PremiumCheckoutStatus]()
+        let cancellable = subject.premiumCheckoutStatusPublisher()
+            .sink { statuses.append($0) }
+        defer { cancellable.cancel() }
+
+        await subject.premiumStatusChanged()
+
+        try await waitForAsync { !statuses.isEmpty }
+        #expect(statuses == [.pending])
     }
 
     /// `premiumStatusChanged()` returns early without syncing when the environment is self-hosted.
