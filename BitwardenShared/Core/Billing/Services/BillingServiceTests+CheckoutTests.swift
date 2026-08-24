@@ -50,10 +50,11 @@ extension BillingServiceTests {
         #expect(stateService.premiumUpgradePendingResult == false)
     }
 
-    /// `createCheckoutSession()` clears a stale `lastAttemptFailed` flag left over from a prior
-    /// attempt before starting a new one.
+    /// `createCheckoutSession()` does not clear a `lastAttemptFailed` flag on success — that flag
+    /// may be the only surviving record of an earlier, already-paid attempt whose confirmation
+    /// sync failed, and starting a new checkout doesn't resolve it.
     @Test
-    func createCheckoutSession_clearsLastAttemptFailed() async throws {
+    func createCheckoutSession_doesNotClearLastAttemptFailed() async throws {
         stateService.premiumUpgradeLastSyncAttemptFailedResult = true
         billingAPIService.createCheckoutSessionReturnValue = CheckoutSessionResponseModel(
             checkoutSessionUrl: URL(string: "https://checkout.stripe.com/session")!,
@@ -61,7 +62,7 @@ extension BillingServiceTests {
 
         _ = try await subject.createCheckoutSession()
 
-        #expect(stateService.premiumUpgradeLastSyncAttemptFailedResult == false)
+        #expect(stateService.premiumUpgradeLastSyncAttemptFailedResult == true)
     }
 
     /// `createCheckoutSession()` does not clear a stale `lastAttemptFailed` flag when the

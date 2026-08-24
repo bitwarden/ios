@@ -208,13 +208,6 @@ class DefaultBillingService: BillingService { // swiftlint:disable:this type_bod
             throw BillingError.invalidCheckoutUrl
         }
 
-        do {
-            try await billingStateService.setPremiumUpgradeLastSyncAttemptFailed(false)
-        } catch {
-            errorReporter.log(error: error)
-        }
-        await refreshPremiumUpgradePendingStateSubject()
-
         return url
     }
 
