@@ -41,7 +41,7 @@ protocol BillingService: AnyObject { // sourcery: AutoMockable
     /// Notifies that the user canceled the Stripe checkout without completing payment, and
     /// publishes a `.canceled` status update.
     ///
-    func premiumCheckoutCanceled() async
+    func premiumCheckoutCanceled()
 
     /// A publisher that emits the status of the Premium checkout sync process.
     ///
@@ -229,7 +229,7 @@ class DefaultBillingService: BillingService { // swiftlint:disable:this type_bod
         return PremiumSubscription(response: response)
     }
 
-    func premiumCheckoutCanceled() async {
+    func premiumCheckoutCanceled() {
         premiumCheckoutStatusSubject.send(.canceled)
         premiumCheckoutStatusSubject.send(nil)
     }

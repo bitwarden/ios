@@ -143,6 +143,20 @@ extension BillingServiceTests {
         #expect(errorReporter.errors.first is URLError)
     }
 
+    /// `reconcileCheckoutSuccess()` still clears the pending mark on sync failure even if recording
+    /// the failure itself throws — each state write is independent, so one throwing does not skip
+    /// the others.
+    @Test
+    func reconcileCheckoutSuccess_syncError_clearsPendingEvenIfRecordingFailureThrows() async throws {
+        stateService.doesActiveAccountHavePremiumResult = false
+        stateService.setPremiumUpgradeLastSyncAttemptFailedResult = .failure(URLError(.notConnectedToInternet))
+        syncService.fetchSyncResult = .failure(URLError(.notConnectedToInternet))
+
+        await subject.reconcileCheckoutSuccess()
+
+        #expect(stateService.premiumUpgradePendingResult == false)
+    }
+
     /// `reconcileCheckoutSuccess()` does not record a failure when `fetchSync` throws after Premium
     /// was already confirmed — the profile (and its Premium status) is persisted early in
     /// `fetchSync()`, so a later step in that same sync can still throw once the grant already
@@ -184,19 +198,5 @@ extension BillingServiceTests {
             PremiumUpgradePendingState(isPending: true, lastAttemptFailed: false),
             PremiumUpgradePendingState(isPending: false, lastAttemptFailed: true),
         ])
-    }
-
-    /// `reconcileCheckoutSuccess()` still clears the pending mark on sync failure even if recording
-    /// the failure itself throws — each state write is independent, so one throwing does not skip
-    /// the others.
-    @Test
-    func reconcileCheckoutSuccess_syncError_clearsPendingEvenIfRecordingFailureThrows() async throws {
-        stateService.doesActiveAccountHavePremiumResult = false
-        stateService.setPremiumUpgradeLastSyncAttemptFailedResult = .failure(URLError(.notConnectedToInternet))
-        syncService.fetchSyncResult = .failure(URLError(.notConnectedToInternet))
-
-        await subject.reconcileCheckoutSuccess()
-
-        #expect(stateService.premiumUpgradePendingResult == false)
     }
 }

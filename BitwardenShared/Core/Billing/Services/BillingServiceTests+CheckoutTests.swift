@@ -65,6 +65,21 @@ extension BillingServiceTests {
         #expect(stateService.premiumUpgradeLastSyncAttemptFailedResult == true)
     }
 
+    /// `createCheckoutSession()` does not touch the pending flag at all, even on success — that
+    /// only happens once `reconcileCheckoutSuccess()` confirms the checkout actually succeeded,
+    /// so the "Upgrade to Premium" CTA never hides for longer than an active confirmation check.
+    @Test
+    func createCheckoutSession_doesNotMarkPending() async throws {
+        stateService.premiumUpgradePendingResult = false
+        billingAPIService.createCheckoutSessionReturnValue = CheckoutSessionResponseModel(
+            checkoutSessionUrl: URL(string: "https://checkout.stripe.com/session")!,
+        )
+
+        _ = try await subject.createCheckoutSession()
+
+        #expect(stateService.premiumUpgradePendingResult == false)
+    }
+
     /// `createCheckoutSession()` does not clear a stale `lastAttemptFailed` flag when the
     /// returned URL fails the HTTPS check, for the same reason as the API-error case.
     @Test
@@ -126,21 +141,6 @@ extension BillingServiceTests {
         #expect(billingAPIService.createCheckoutSessionCallsCount == 1)
     }
 
-    /// `createCheckoutSession()` does not touch the pending flag at all, even on success — that
-    /// only happens once `reconcileCheckoutSuccess()` confirms the checkout actually succeeded,
-    /// so the "Upgrade to Premium" CTA never hides for longer than an active confirmation check.
-    @Test
-    func createCheckoutSession_doesNotMarkPending() async throws {
-        stateService.premiumUpgradePendingResult = false
-        billingAPIService.createCheckoutSessionReturnValue = CheckoutSessionResponseModel(
-            checkoutSessionUrl: URL(string: "https://checkout.stripe.com/session")!,
-        )
-
-        _ = try await subject.createCheckoutSession()
-
-        #expect(stateService.premiumUpgradePendingResult == false)
-    }
-
     /// `createCheckoutSession()` returns the URL when it uses HTTPS scheme.
     @Test
     func createCheckoutSession_success() async throws {
@@ -163,7 +163,7 @@ extension BillingServiceTests {
             .sink { statuses.append($0) }
         defer { cancellable.cancel() }
 
-        await subject.premiumCheckoutCanceled()
+        subject.premiumCheckoutCanceled()
 
         try await waitForAsync { !statuses.isEmpty }
         #expect(statuses == [.canceled])
@@ -182,7 +182,7 @@ extension BillingServiceTests {
     func premiumCheckoutCanceled_doesNotClearPending() async throws {
         stateService.premiumUpgradePendingResult = true
 
-        await subject.premiumCheckoutCanceled()
+        subject.premiumCheckoutCanceled()
 
         #expect(stateService.premiumUpgradePendingResult == true)
     }
