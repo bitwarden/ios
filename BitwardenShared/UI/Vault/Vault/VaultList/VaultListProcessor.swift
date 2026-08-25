@@ -160,7 +160,7 @@ final class VaultListProcessor: StateProcessor<
     override func receive(_ action: VaultListAction) {
         switch action {
         case .addFolder:
-            coordinator.navigate(to: .addFolder)
+            coordinator.navigate(to: .addFolder, context: self)
         case let .addItemPressed(type):
             addItem(type: type)
         case .appReviewPromptShown:
@@ -829,6 +829,22 @@ extension VaultListProcessor {
         premiumUpgradeHelper.startInAppPremiumUpgrade(onConfirmed: { [weak self] in
             await self?.handlePremiumUpgradeConfirmed()
         })
+    }
+}
+
+// MARK: - AddEditFolderDelegate
+
+extension VaultListProcessor: AddEditFolderDelegate {
+    func folderAdded(_: FolderView) {
+        state.toast = Toast(title: Localizations.folderCreated)
+    }
+
+    func folderDeleted() {
+        // No-op: deleting a folder isn't supported from the vault list.
+    }
+
+    func folderEdited() {
+        // No-op: editing a folder isn't supported from the vault list.
     }
 }
 
