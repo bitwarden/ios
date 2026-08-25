@@ -130,6 +130,22 @@ class DefaultBillingService: BillingService { // swiftlint:disable:this type_bod
 
     let checkoutCallbackUrlScheme = "bitwarden"
 
+    /// The account, and — once known — the exact last-sync-time value, that
+    /// `reconcileCheckoutSuccess()`'s most recently forced sync belongs to.
+    ///
+    /// Set with a `nil` sync time right before that forced sync starts, covering the window
+    /// while the sync is still in flight — including before it's known whether a later step in
+    /// that same sync throws — during which its own last-sync-time write isn't yet knowable
+    /// here. Updated with the actual value once the sync returns, additionally covering
+    /// `reconcileOnEachNewSync(userId:)` observing that same write only *after*
+    /// `reconcileCheckoutSuccess()` has already finished resolving `lastAttemptFailed` for it:
+    /// these are two independently scheduled tasks, so nothing guarantees the former runs
+    /// before the latter completes. Never explicitly cleared — a later, genuinely different
+    /// sync produces a different last-sync-time value, so it's never matched by either check
+    /// regardless of timing, without needing a "clear" that could itself race a legitimate,
+    /// unrelated reconcile.
+    private var checkoutSuccessSync: (userId: String?, resolvedSyncTime: Date?)?
+
     /// The service used to manage feature flags.
     private let configService: ConfigService
 
@@ -309,12 +325,15 @@ class DefaultBillingService: BillingService { // swiftlint:disable:this type_bod
 
         premiumCheckoutStatusSubject.send(.syncing)
         var syncFailed = false
+        // See `checkoutSuccessSync`'s doc comment.
+        checkoutSuccessSync = (userId: userId, resolvedSyncTime: nil)
         do {
             try await syncService.fetchSync(forceSync: true)
         } catch {
             errorReporter.log(error: error)
             syncFailed = true
         }
+        checkoutSuccessSync = await (userId: userId, resolvedSyncTime: try? stateService.getLastSyncTime())
 
         // Bail without writing (or publishing) against whichever account is active now if it's
         // no longer the one this reconcile started for, rather than resolving the calls below
@@ -445,9 +464,9 @@ class DefaultBillingService: BillingService { // swiftlint:disable:this type_bod
     /// upgrade after each genuinely new sync.
     ///
     /// - Parameter userId: The user ID of the account this subscriber was started for. Passed
-    ///   through to `reconcilePendingUpgradeIfNeeded(userId:)` so it can detect an account switch
-    ///   that happens after this subscriber has been canceled but while a reconcile it started is
-    ///   still finishing.
+    ///   through to `reconcilePendingUpgradeIfNeeded(userId:lastSyncTime:)` so it can detect an
+    ///   account switch that happens after this subscriber has been canceled but while a
+    ///   reconcile it started is still finishing.
     ///
     private func reconcileOnEachNewSync(userId: String) async {
         let publisher: AnyPublisher<Date?, Never>
@@ -476,7 +495,7 @@ class DefaultBillingService: BillingService { // swiftlint:disable:this type_bod
         for await date in publisher.values {
             guard date != lastSeenDate else { continue }
             lastSeenDate = date
-            await reconcilePendingUpgradeIfNeeded(userId: userId)
+            await reconcilePendingUpgradeIfNeeded(userId: userId, lastSyncTime: date)
         }
     }
 
@@ -484,13 +503,26 @@ class DefaultBillingService: BillingService { // swiftlint:disable:this type_bod
     /// be resolved, and sets the "Upgraded to Premium" card visible if the active account has
     /// since become Premium (by any means — personal or organization-granted).
     ///
-    /// - Parameter userId: The user ID this reconcile is for. `BillingStateService` has no
-    ///   per-user API — every call resolves whichever account is active *at that moment* — so an
-    ///   account switch landing mid-suspension could otherwise read one account's flags and write
-    ///   another's. Re-checked before each of the writes below, since every `await` between them
-    ///   is a genuinely interruptible suspension.
+    /// - Parameters:
+    ///   - userId: The user ID this reconcile is for. `BillingStateService` has no per-user
+    ///     API — every call resolves whichever account is active *at that moment* — so an
+    ///     account switch landing mid-suspension could otherwise read one account's flags and
+    ///     write another's. Re-checked before each of the writes below, since every `await`
+    ///     between them is a genuinely interruptible suspension.
+    ///   - lastSyncTime: The last-sync-time value that triggered this reconcile, compared
+    ///     against `checkoutSuccessSync` below so a sync `reconcileCheckoutSuccess()` itself
+    ///     forced doesn't get raced by this method's independently-scheduled subscriber task.
     ///
-    private func reconcilePendingUpgradeIfNeeded(userId: String) async {
+    private func reconcilePendingUpgradeIfNeeded(userId: String, lastSyncTime: Date?) async {
+        // See `checkoutSuccessSync`'s doc comment: defers to `reconcileCheckoutSuccess()`'s own
+        // resolution of `lastAttemptFailed`, whether this runs while that method's forced sync
+        // is still in flight (`resolvedSyncTime` not yet known) or after the fact for that same
+        // sync's emission (`resolvedSyncTime` matches this call's `lastSyncTime` exactly).
+        if let checkoutSuccessSync, checkoutSuccessSync.userId == userId,
+           checkoutSuccessSync.resolvedSyncTime == nil || checkoutSuccessSync.resolvedSyncTime == lastSyncTime {
+            return
+        }
+
         let isPending: Bool
         let lastAttemptFailed: Bool
         do {
@@ -507,9 +539,16 @@ class DefaultBillingService: BillingService { // swiftlint:disable:this type_bod
         let accountIdAfterReads = try? await stateService.getActiveAccountId()
         guard accountIdAfterReads == userId else { return }
 
-        // `lastSyncTimePublisher` never fires on failure, so the most recent attempt did not
-        // fail. Clear that regardless of premium status, so a stale failure doesn't linger
-        // after a later, unrelated sync succeeds.
+        // Reached only for syncs `reconcileCheckoutSuccess()` didn't itself force (the guard
+        // above defers to that method for its own). `reconcileCheckoutSuccess()` is the only
+        // other writer of this flag, so this clear can't race a genuine failure of its
+        // checkout-confirmation attempt — but `lastSyncTimePublisher` firing still isn't proof
+        // this particular (unrelated) sync succeeded end to end: the last-sync time is
+        // persisted before several later steps in `fetchSync()` that can still throw. Clearing
+        // unconditionally here treats any forward progress as reason enough to drop a stale
+        // failure, on the theory that nothing downstream depends on the persisted value being
+        // momentarily wrong — only on the `lastAttemptFailed` snapshotted above, before this
+        // write.
         do {
             try await billingStateService.setPremiumUpgradeLastSyncAttemptFailed(false)
         } catch {

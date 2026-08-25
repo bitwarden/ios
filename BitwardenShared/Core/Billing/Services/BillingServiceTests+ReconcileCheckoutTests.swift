@@ -182,6 +182,37 @@ extension BillingServiceTests {
         #expect(!syncService.didFetchSync)
     }
 
+    /// `reconcileCheckoutSuccess()`'s forced sync writing the last-sync time before the sync has
+    /// fully resolved — exactly like the real `fetchSync()`, which persists it before several
+    /// later steps that can still throw — does not let the background reconciler
+    /// (`reconcilePendingUpgradeIfNeeded()`, subscribed via `start()`) race this method's own
+    /// resolution of `lastAttemptFailed` for the same sync. Without the suppression, the
+    /// reconciler's unconditional clear could stomp the genuine failure recorded below.
+    @Test
+    func reconcileCheckoutSuccess_suppressesConcurrentReconcileForOwnSync() async throws {
+        stateService.activeAccount = .fixture()
+        stateService.doesActiveAccountHavePremiumResult = false
+
+        await subject.start()
+        try await waitForAsync { stateService.getLastSyncTimeCallCount == 1 }
+
+        syncService.fetchSyncHandler = {
+            // Simulates the real `fetchSync()`'s last-sync-time write landing before the later
+            // step below throws — the same ordering that lets the background reconciler observe
+            // this sync before it's actually resolved.
+            stateService.lastSyncTimeSubject.value = Date()
+        }
+        syncService.fetchSyncResult = .failure(URLError(.notConnectedToInternet))
+
+        await subject.reconcileCheckoutSuccess()
+
+        // Give the background reconciler a chance to have acted on the emission above before
+        // asserting it didn't race the write below.
+        try await Task.sleep(nanoseconds: 250_000_000)
+        #expect(stateService.setPremiumUpgradeLastSyncAttemptFailedCallCount == 1)
+        #expect(stateService.premiumUpgradeLastSyncAttemptFailedResult == true)
+    }
+
     /// `reconcileCheckoutSuccess()` reports the error and publishes `.pending` when sync fails.
     @Test
     func reconcileCheckoutSuccess_syncError() async throws {
