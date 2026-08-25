@@ -528,6 +528,11 @@ class DefaultBillingService: BillingService { // swiftlint:disable:this type_bod
             // A checkout that previously failed to confirm just had a sync succeed without
             // finding Premium — promote it back to pending so a later sync can still resolve it,
             // instead of abandoning it now that the failure itself has been cleared above.
+            // `!isPending` is reachable even though every production caller sets `isPending`
+            // true before ever setting `lastAttemptFailed` true: `reconcileCheckoutSuccess()`'s
+            // initial `setPremiumUpgradePending(true)` only logs on failure rather than
+            // rethrowing, so that write can silently not persist while a later sync failure
+            // still succeeds in persisting `lastAttemptFailed`.
             if lastAttemptFailed, !isPending {
                 do {
                     try await billingStateService.setPremiumUpgradePending(true)
