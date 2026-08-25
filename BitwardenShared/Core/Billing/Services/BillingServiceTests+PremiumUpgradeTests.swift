@@ -48,6 +48,27 @@ extension BillingServiceTests {
         #expect(!syncService.didFetchSync)
     }
 
+    /// `premiumStatusChanged()` does not leave a stale `.pending` on the `CurrentValueSubject` for
+    /// a late subscriber — unlike `reconcileCheckoutSuccess()`'s deliberately sticky `.pending`
+    /// for an actual in-flight checkout (see `premiumCheckoutStatusPublisher_lateSubscriberReceivesPendingStatus`),
+    /// this method also runs for a `.premiumStatusChanged` push unrelated to any checkout, so a
+    /// late-subscribing upgrade UI must not replay a bogus pending status.
+    @Test
+    func premiumStatusChanged_lateSubscriberDoesNotReceiveStalePendingStatus() async throws {
+        stateService.doesActiveAccountHavePremiumResult = false
+
+        await subject.premiumStatusChanged()
+
+        var lateStatuses = [PremiumCheckoutStatus]()
+        let cancellable = subject.premiumCheckoutStatusPublisher()
+            .sink { lateStatuses.append($0) }
+        defer { cancellable.cancel() }
+
+        // Give a stale replay a chance to arrive before asserting none did.
+        try await Task.sleep(nanoseconds: 250_000_000)
+        #expect(lateStatuses.isEmpty)
+    }
+
     /// `premiumStatusChanged()` publishes `.confirmed` when the account has become Premium by the
     /// time the sync completes, so a live `PremiumUpgradeHelper`/`PremiumUpgradeProcessor`
     /// subscription from an upgrade attempt still in flight elsewhere reacts immediately, rather

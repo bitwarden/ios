@@ -263,8 +263,13 @@ class DefaultBillingService: BillingService { // swiftlint:disable:this type_bod
         // upgrade attempt still in flight elsewhere) react immediately, rather than only on the
         // vault list's next `.appeared`.
         premiumCheckoutStatusSubject.send(hasPremium ? .confirmed : .pending)
+        // Reset unconditionally, unlike `reconcileCheckoutSuccess()`'s deliberately sticky
+        // `.pending` for an actual in-flight checkout: this method also runs for a
+        // `.premiumStatusChanged` push unrelated to any checkout (an org grant, an expiration),
+        // so leaving `.pending` on the `CurrentValueSubject` would replay a bogus pending status
+        // to whichever upgrade UI subscribes next, even though no checkout is underway.
+        premiumCheckoutStatusSubject.send(nil)
         if hasPremium {
-            premiumCheckoutStatusSubject.send(nil)
             do {
                 try await billingStateService.setUpgradedToPremiumActionCardVisible(true)
             } catch {
