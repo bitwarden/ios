@@ -295,6 +295,10 @@ class DefaultBillingService: BillingService { // swiftlint:disable:this type_bod
 
     func reconcileCheckoutSuccess() async {
         guard await refreshAttentionCardAndCheckPremiumUpgradePathEligibility() else { return }
+        // Snapshot the account this reconcile is for. The "Sync Now" caller
+        // (`PremiumUpgradeHelper.pending`) dismisses to an interactive vault list before this
+        // method runs, so `fetchSync` below is a real window for the active account to switch.
+        let userId = try? await stateService.getActiveAccountId()
 
         do {
             try await billingStateService.setPremiumUpgradePending(true)
@@ -311,6 +315,12 @@ class DefaultBillingService: BillingService { // swiftlint:disable:this type_bod
             errorReporter.log(error: error)
             syncFailed = true
         }
+
+        // Bail without writing (or publishing) against whichever account is active now if it's
+        // no longer the one this reconcile started for, rather than resolving the calls below
+        // against an unrelated account's checkout.
+        let accountIdAfterSync = try? await stateService.getActiveAccountId()
+        guard accountIdAfterSync == userId else { return }
 
         let hasPremium = await stateService.doesActiveAccountHavePremium()
         do {

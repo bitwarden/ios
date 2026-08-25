@@ -11,6 +11,31 @@ import Testing
 extension BillingServiceTests {
     // MARK: Tests
 
+    /// `reconcileCheckoutSuccess()` abandons the reconcile without writing or publishing anything
+    /// if the active account changes while suspended in the forced `fetchSync()` above — the
+    /// "Sync Now" caller (`PremiumUpgradeHelper`'s `.pending` case) dismisses to an interactive
+    /// vault list before this method runs, so an account switch during that sync is a real
+    /// window, and none of `billingStateService`'s calls are per-user.
+    @Test
+    func reconcileCheckoutSuccess_abandonsWriteOnAccountSwitchDuringSync() async throws {
+        stateService.activeAccount = .fixture(profile: .fixture(userId: "1"))
+        syncService.fetchSyncHandler = {
+            // Simulates the account switch landing exactly inside this suspension window.
+            stateService.activeAccount = .fixture(profile: .fixture(userId: "2"))
+        }
+        var statuses = [PremiumCheckoutStatus]()
+        let cancellable = subject.premiumCheckoutStatusPublisher()
+            .sink { statuses.append($0) }
+        defer { cancellable.cancel() }
+
+        await subject.reconcileCheckoutSuccess()
+
+        #expect(statuses.isEmpty)
+        #expect(stateService.premiumUpgradePendingResult == true)
+        #expect(stateService.setPremiumUpgradeLastSyncAttemptFailedCallCount == 0)
+        #expect(stateService.setUpgradedToPremiumActionCardVisibleCallCount == 0)
+    }
+
     /// `reconcileCheckoutSuccess()` still syncs and confirms the upgrade when the account already
     /// has Premium going in — unlike `premiumStatusChanged()`'s identical-looking guard, "already
     /// Premium" here is the success case (a webhook grant picked up by an unrelated sync while
