@@ -159,14 +159,9 @@ final class PremiumUpgradeProcessor: StateProcessor<
             case let .success(callbackURL)?:
                 await handleCheckoutCallback(callbackURL)
             case let .failure(error)? where !(error is CancellationError):
-                services.errorReporter.log(error: error)
-                coordinator.showAlert(.paymentNotReceivedYet {
-                    await self.createCheckoutSession()
-                })
+                await handleFailedCheckoutAttempt(errorToReport: error)
             default:
-                coordinator.showAlert(.paymentNotReceivedYet {
-                    await self.createCheckoutSession()
-                })
+                await handleFailedCheckoutAttempt(errorToReport: nil)
             }
         } catch {
             coordinator.hideLoadingOverlay()
@@ -176,6 +171,21 @@ final class PremiumUpgradeProcessor: StateProcessor<
                 await self.createCheckoutSession()
             })
         }
+    }
+
+    /// Logs the failure (if any) and offers a retry alert.
+    ///
+    /// - Parameters:
+    ///   - errorToReport: The error to log, or `nil` if there isn't one worth reporting
+    ///     (e.g. the user simply dismissed the checkout sheet).
+    ///
+    private func handleFailedCheckoutAttempt(errorToReport: Error?) async {
+        if let errorToReport {
+            services.errorReporter.log(error: errorToReport)
+        }
+        coordinator.showAlert(.paymentNotReceivedYet {
+            await self.createCheckoutSession()
+        })
     }
 
     /// Routes the Stripe callback URL to the appropriate billing service method.
@@ -188,7 +198,7 @@ final class PremiumUpgradeProcessor: StateProcessor<
 
         if callbackURL.host == BitwardenDeepLinkConstants.premiumCheckoutResultHost,
            result == BitwardenDeepLinkConstants.PremiumCheckoutResultQuery.successValue {
-            await services.billingService.premiumStatusChanged()
+            await services.billingService.reconcileCheckoutSuccess()
         } else {
             services.billingService.premiumCheckoutCanceled()
         }
