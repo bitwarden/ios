@@ -403,9 +403,9 @@ class AddEditSendItemProcessor: // swiftlint:disable:this type_body_length
             return false
         }
 
-        // When password access is enforced by policy, a password is required (unless the send
-        // being edited already has one).
-        if state.policyEnforcedAccessType == .anyoneWithPassword,
+        // A password is required whenever "Anyone with password" access is selected, whether by
+        // policy or by the user, unless the send being edited already has one.
+        if state.accessType == .anyoneWithPassword,
            state.password.isEmpty,
            state.originalSendView?.hasPassword != true {
             coordinator.showAlert(.validationFieldRequired(fieldName: Localizations.password))
