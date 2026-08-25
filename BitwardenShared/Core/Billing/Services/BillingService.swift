@@ -118,6 +118,10 @@ protocol BillingService: AnyObject { // sourcery: AutoMockable
 class DefaultBillingService: BillingService { // swiftlint:disable:this type_body_length
     // MARK: Properties
 
+    /// The task that watches for active-account changes and re-subscribes
+    /// `syncCompletionSubscriber` accordingly.
+    private var activeAccountSubscriber: Task<Void, Never>?
+
     /// The API service used for billing requests.
     private let billingAPIService: BillingAPIService
 
@@ -129,10 +133,6 @@ class DefaultBillingService: BillingService { // swiftlint:disable:this type_bod
     /// The service used to manage feature flags.
     private let configService: ConfigService
 
-    /// The task that watches for sync completions for the currently active account, to
-    /// reconcile a pending Premium upgrade if one exists.
-    private var currentSyncSubscriber: Task<Void, Never>?
-
     /// The debounce interval applied to the Premium checkout status publisher.
     private let debounceInterval: DispatchQueue.SchedulerTimeType.Stride
 
@@ -141,10 +141,6 @@ class DefaultBillingService: BillingService { // swiftlint:disable:this type_bod
 
     /// The service used by the application to report non-fatal errors.
     private let errorReporter: ErrorReporter
-
-    /// The task that watches for active-account changes and re-subscribes
-    /// `currentSyncSubscriber` accordingly.
-    private var lastSyncSubscriber: Task<Void, Never>?
 
     /// Subject that emits the Premium checkout sync status.
     private let premiumCheckoutStatusSubject = CurrentValueSubject<PremiumCheckoutStatus?, Never>(nil)
@@ -159,6 +155,10 @@ class DefaultBillingService: BillingService { // swiftlint:disable:this type_bod
 
     /// The service used to manage the app's state.
     private let stateService: StateService
+
+    /// The task that watches for sync completions for the currently active account, to
+    /// reconcile a pending Premium upgrade if one exists.
+    private var syncCompletionSubscriber: Task<Void, Never>?
 
     /// The service used to handle syncing vault data with the API.
     private let syncService: SyncService
@@ -409,13 +409,13 @@ class DefaultBillingService: BillingService { // swiftlint:disable:this type_bod
         guard !started else { return }
         started = true
 
-        lastSyncSubscriber = Task {
+        activeAccountSubscriber = Task {
             // `activeAccountIdPublisher()`'s backing store re-emits on every write, not only
             // when the active account actually changes (e.g. once per sync, via
             // `updateProfile(from:userId:)`) — `removeDuplicates()` keeps this subscriber tied
             // to actual account switches.
             for await userId in await self.stateService.activeAccountIdPublisher().removeDuplicates().values {
-                self.currentSyncSubscriber?.cancel()
+                self.syncCompletionSubscriber?.cancel()
                 guard let userId else {
                     self.premiumUpgradePendingStateSubject.send(
                         PremiumUpgradePendingState(isPending: false, lastAttemptFailed: false),
@@ -424,7 +424,7 @@ class DefaultBillingService: BillingService { // swiftlint:disable:this type_bod
                 }
 
                 await self.refreshPremiumUpgradePendingStateSubject()
-                self.currentSyncSubscriber = Task { await self.reconcileOnEachNewSync(userId: userId) }
+                self.syncCompletionSubscriber = Task { await self.reconcileOnEachNewSync(userId: userId) }
             }
         }
     }
