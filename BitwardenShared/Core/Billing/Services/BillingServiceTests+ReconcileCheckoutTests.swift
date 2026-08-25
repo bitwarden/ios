@@ -96,7 +96,9 @@ extension BillingServiceTests {
             .sink { lateStatuses.append($0) }
         defer { lateCancellable.cancel() }
 
-        try await waitForAsync { lateStatuses.isEmpty }
+        // Give a stale replay a chance to arrive before asserting none did.
+        try await Task.sleep(nanoseconds: 250_000_000)
+        #expect(lateStatuses.isEmpty)
     }
 
     /// `reconcileCheckoutSuccess()` returns early without syncing when the premiumUpgradePath
