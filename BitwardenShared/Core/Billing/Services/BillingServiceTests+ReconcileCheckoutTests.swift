@@ -11,8 +11,10 @@ import Testing
 extension BillingServiceTests {
     // MARK: Tests
 
-    /// `reconcileCheckoutSuccess()` returns early without syncing when the user already has
-    /// Premium — it shares the same eligibility check as `premiumStatusChanged()`.
+    /// `reconcileCheckoutSuccess()` still syncs and confirms the upgrade when the account already
+    /// has Premium going in — unlike `premiumStatusChanged()`'s identical-looking guard, "already
+    /// Premium" here is the success case (a webhook grant picked up by an unrelated sync while
+    /// the checkout sheet was still open), not a no-op.
     @Test
     func reconcileCheckoutSuccess_alreadyHasPremium() async throws {
         stateService.doesActiveAccountHavePremiumResult = true
@@ -23,8 +25,11 @@ extension BillingServiceTests {
 
         await subject.reconcileCheckoutSuccess()
 
-        #expect(statuses.isEmpty)
-        #expect(!syncService.didFetchSync)
+        try await waitForAsync { !statuses.isEmpty }
+        #expect(statuses == [.confirmed])
+        #expect(syncService.didFetchSync)
+        #expect(stateService.premiumUpgradePendingResult == false)
+        #expect(stateService.upgradedToPremiumActionCardVisibleResult == true)
     }
 
     /// `reconcileCheckoutSuccess()` publishes `.confirmed` when the user gains Premium after
@@ -94,6 +99,18 @@ extension BillingServiceTests {
         try await waitForAsync { lateStatuses.isEmpty }
     }
 
+    /// `reconcileCheckoutSuccess()` returns early without syncing when the premiumUpgradePath
+    /// flag is disabled, regardless of the account's current Premium status.
+    @Test
+    func reconcileCheckoutSuccess_featureFlagDisabled() async throws {
+        configService.featureFlagsBool[.premiumUpgradePath] = false
+        stateService.doesActiveAccountHavePremiumResult = true
+
+        await subject.reconcileCheckoutSuccess()
+
+        #expect(!syncService.didFetchSync)
+    }
+
     /// `reconcileCheckoutSuccess()` publishes `.pending` when the user does not have Premium
     /// after sync, and leaves the upgrade pending — the sync itself succeeded, so a later,
     /// unrelated sync can still resolve this via `reconcilePendingUpgradeIfNeeded()`.
@@ -124,6 +141,18 @@ extension BillingServiceTests {
 
         #expect(stateService.premiumUpgradeLastSyncAttemptFailedResult == false)
         #expect(stateService.premiumUpgradePendingResult == true)
+    }
+
+    /// `reconcileCheckoutSuccess()` returns early without syncing when the environment is
+    /// self-hosted, regardless of the account's current Premium status.
+    @Test
+    func reconcileCheckoutSuccess_selfHosted() async throws {
+        environmentService.region = .selfHosted
+        stateService.doesActiveAccountHavePremiumResult = true
+
+        await subject.reconcileCheckoutSuccess()
+
+        #expect(!syncService.didFetchSync)
     }
 
     /// `reconcileCheckoutSuccess()` reports the error and publishes `.pending` when sync fails.

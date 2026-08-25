@@ -294,7 +294,7 @@ class DefaultBillingService: BillingService { // swiftlint:disable:this type_bod
     }
 
     func reconcileCheckoutSuccess() async {
-        guard await refreshAttentionCardAndCheckPremiumUpgradeEligibility() else { return }
+        guard await refreshAttentionCardAndCheckPremiumUpgradePathEligibility() else { return }
 
         do {
             try await billingStateService.setPremiumUpgradePending(true)
@@ -539,19 +539,33 @@ class DefaultBillingService: BillingService { // swiftlint:disable:this type_bod
     }
 
     /// Refreshes the subscription attention card cache and reports whether the active account
-    /// is eligible for a Premium upgrade sync.
+    /// is eligible to participate in the Premium upgrade path at all (self-hosted/feature-flag
+    /// gated) — independent of whether Premium has already been granted. Used by
+    /// `reconcileCheckoutSuccess()`, where an already-Premium account reached via this method is
+    /// the success case, not a no-op.
     ///
-    /// - Returns: Whether the active account is eligible for a Premium upgrade sync.
+    /// - Returns: Whether the active account is eligible for the Premium upgrade path.
     ///
-    private func refreshAttentionCardAndCheckPremiumUpgradeEligibility() async -> Bool {
+    private func refreshAttentionCardAndCheckPremiumUpgradePathEligibility() async -> Bool {
         await refreshSubscriptionAttentionCard(subscription: nil)
         guard await !isSelfHosted(),
-              await configService.getFeatureFlag(.premiumUpgradePath),
-              await !stateService.doesActiveAccountHavePremium()
+              await configService.getFeatureFlag(.premiumUpgradePath)
         else {
             return false
         }
         return true
+    }
+
+    /// As `refreshAttentionCardAndCheckPremiumUpgradePathEligibility()`, but also excludes an
+    /// account that already has Premium. Used by `premiumStatusChanged()`, which also runs for
+    /// pushes unrelated to any checkout — there, an already-Premium account means there's
+    /// nothing left to reconcile.
+    ///
+    /// - Returns: Whether the active account is eligible for a Premium upgrade sync.
+    ///
+    private func refreshAttentionCardAndCheckPremiumUpgradeEligibility() async -> Bool {
+        guard await refreshAttentionCardAndCheckPremiumUpgradePathEligibility() else { return false }
+        return await !stateService.doesActiveAccountHavePremium()
     }
 
     /// Re-reads the persisted Premium upgrade pending state for the active account and pushes
