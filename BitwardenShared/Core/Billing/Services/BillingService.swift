@@ -472,7 +472,8 @@ class DefaultBillingService: BillingService { // swiftlint:disable:this type_bod
     /// - Parameter userId: The user ID this reconcile is for. `BillingStateService` has no
     ///   per-user API — every call resolves whichever account is active *at that moment* — so an
     ///   account switch landing mid-suspension could otherwise read one account's flags and write
-    ///   another's. Re-checked after the one genuinely interruptible suspension below.
+    ///   another's. Re-checked before each of the writes below, since every `await` between them
+    ///   is a genuinely interruptible suspension.
     ///
     private func reconcilePendingUpgradeIfNeeded(userId: String) async {
         let isPending: Bool
@@ -485,6 +486,11 @@ class DefaultBillingService: BillingService { // swiftlint:disable:this type_bod
             return
         }
         guard isPending || lastAttemptFailed else { return }
+
+        // Bail without writing if the active account already switched away from `userId` during
+        // the reads above, rather than clearing the newly-active account's failure flag below.
+        let accountIdAfterReads = try? await stateService.getActiveAccountId()
+        guard accountIdAfterReads == userId else { return }
 
         // `lastSyncTimePublisher` never fires on failure, so the most recent attempt did not
         // fail. Clear that regardless of premium status, so a stale failure doesn't linger

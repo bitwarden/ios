@@ -36,6 +36,7 @@ class MockStateService: StateService, ActiveAccountStateProvider, AutofillStateS
     var premiumUpgradeBannerDismissedByUserId = [String: Bool]()
     var premiumUpgradeBannerDismissedResult: Result<Void, Error> = .success(())
     var getPremiumUpgradePendingCallCount = 0
+    var getPremiumUpgradePendingHandler: (() -> Void)?
     var premiumUpgradeLastSyncAttemptFailedResult: Bool = false // swiftlint:disable:this identifier_name
     var premiumUpgradePendingResult: Bool = false
     // swiftlint:disable:next identifier_name
@@ -513,6 +514,7 @@ class MockStateService: StateService, ActiveAccountStateProvider, AutofillStateS
 
     func getPremiumUpgradePending() async -> Bool {
         getPremiumUpgradePendingCallCount += 1
+        getPremiumUpgradePendingHandler?()
         return premiumUpgradePendingResult
     }
 
