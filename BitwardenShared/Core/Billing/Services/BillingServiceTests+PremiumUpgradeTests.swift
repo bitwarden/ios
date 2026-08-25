@@ -144,6 +144,37 @@ extension BillingServiceTests {
         #expect(stateService.upgradedToPremiumActionCardVisibleResult == true)
     }
 
+    /// `premiumStatusChanged()` reports the error when setting the "Upgraded to Premium" card
+    /// visible throws, without leaving a pending mark behind — unlike `reconcileCheckoutSuccess()`,
+    /// there is no checkout attempt here for a later reconcile to pick back up.
+    @Test
+    func premiumStatusChanged_setUpgradedActionCardError() async throws {
+        stateService.doesActiveAccountHavePremiumResult = false
+        syncService.fetchSyncHandler = {
+            stateService.doesActiveAccountHavePremiumResult = true
+        }
+        stateService.setUpgradedToPremiumActionCardResult = .failure(BitwardenTestError.example)
+
+        await subject.premiumStatusChanged()
+
+        #expect(errorReporter.errors.last as? BitwardenTestError == .example)
+    }
+
+    /// `premiumStatusChanged()` reports the error and does not record a failure flag when sync
+    /// fails — unlike `reconcileCheckoutSuccess()`'s deliberately sticky pending mark for an
+    /// actual in-flight checkout, this method also runs for a `.premiumStatusChanged` push
+    /// unrelated to any checkout, so there's no pending state to leave behind.
+    @Test
+    func premiumStatusChanged_syncError() async throws {
+        stateService.doesActiveAccountHavePremiumResult = false
+        syncService.fetchSyncResult = .failure(URLError(.notConnectedToInternet))
+
+        await subject.premiumStatusChanged()
+
+        #expect(errorReporter.errors.first is URLError)
+        #expect(stateService.premiumUpgradeLastSyncAttemptFailedResult == false)
+    }
+
     /// `premiumStatusChanged()` triggers a forced sync when eligible — unlike `.policyChanged`'s
     /// plain sync, this method reads the synced premium status back in the same call, so it
     /// needs the guarantee that the sync actually fetched fresh data.
