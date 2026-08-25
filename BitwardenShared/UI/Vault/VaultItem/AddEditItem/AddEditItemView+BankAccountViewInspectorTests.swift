@@ -60,6 +60,17 @@ class AddEditItemViewBankAccountTests: BitwardenTestCase {
         XCTAssertEqual(processor.dispatchedActions.last, .bankAccountFieldChanged(.nameOnAccountChanged("text")))
     }
 
+    /// Opening the account type menu dispatches the `.bankAccountFieldChanged(.accountTypeMenuOpened)` action.
+    @MainActor
+    func test_bankAccount_accountTypeMenuField_opened() throws {
+        processor.state.type = .bankAccount
+        try subject.inspect()
+            .find(bitwardenMenuField: Localizations.accountType)
+            .simultaneousGesture(TapGesture.self)
+            .callOnEnded(value: ())
+        XCTAssertEqual(processor.dispatchedActions.last, .bankAccountFieldChanged(.accountTypeMenuOpened))
+    }
+
     /// Updating the account number field dispatches the
     /// `.bankAccountFieldChanged(.accountNumberChanged())` action.
     @MainActor
