@@ -538,6 +538,9 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
             state.bankAccountItemState.accountNumber = accountNumber
         case let .accountTypeChanged(accountType):
             state.bankAccountItemState.accountType = accountType
+        case .accountTypeMenuOpened:
+            guard state.bankAccountItemState.accountType == .default else { return }
+            state.bankAccountItemState.accountType = .custom(.checking)
         case let .bankContactPhoneChanged(bankContactPhone):
             state.bankAccountItemState.bankContactPhone = bankContactPhone
         case let .bankNameChanged(bankName):
