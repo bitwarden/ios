@@ -1,4 +1,5 @@
 // swiftlint:disable:this file_name
+// swiftlint:disable file_length
 
 import BitwardenKit
 import BitwardenKitMocks
@@ -117,25 +118,30 @@ struct StateServiceSdkStateBridgeTests {
     }
 
     /// `setEphemeralPinEnvelope(_:userId:)` stores the pin protected user key envelope in memory
-    /// for the specified user.
+    /// for the specified user, and clears the legacy pin protected user key.
     @Test
     func setEphemeralPinEnvelope() async {
+        appSettingsStore.pinProtectedUserKey["1"] = "LEGACY_PIN_PROTECTED_USER_KEY"
+
         await subject.setEphemeralPinEnvelope("PIN_PROTECTED_USER_KEY_ENVELOPE", userId: "1")
 
         let volatileData = await subject.accountVolatileData["1"]
         #expect(volatileData?.pinProtectedUserKey == "PIN_PROTECTED_USER_KEY_ENVELOPE")
+        #expect(appSettingsStore.pinProtectedUserKey["1"] == nil)
     }
 
     /// `setEphemeralPinEnvelope(_:userId:)` clears the in-memory pin protected user key envelope
-    /// when passed `nil`.
+    /// when passed `nil`, without clearing a still-valid legacy pin protected user key.
     @Test
     func setEphemeralPinEnvelope_nil() async {
         await subject.setEphemeralPinEnvelope("PIN_PROTECTED_USER_KEY_ENVELOPE", userId: "1")
+        appSettingsStore.pinProtectedUserKey["1"] = "LEGACY_PIN_PROTECTED_USER_KEY"
 
         await subject.setEphemeralPinEnvelope(nil, userId: "1")
 
         let result = await subject.getEphemeralPinEnvelope(userId: "1")
         #expect(result == nil)
+        #expect(appSettingsStore.pinProtectedUserKey["1"] == "LEGACY_PIN_PROTECTED_USER_KEY")
     }
 
     // MARK: Tests - Kdf Config

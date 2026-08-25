@@ -2757,6 +2757,12 @@ extension DefaultStateService: SdkStateBridgeStateService {
 
     func setEphemeralPinEnvelope(_ envelope: String?, userId: String) async {
         accountVolatileData[userId, default: AccountVolatileData()].pinProtectedUserKey = envelope
+
+        // Remove any legacy pin protected user key, mirroring `setPinKeys`. Guarded on non-nil so a
+        // routine in-memory clear doesn't wipe a still-valid persistent legacy PIN.
+        if envelope != nil {
+            appSettingsStore.setPinProtectedUserKey(key: nil, userId: userId)
+        }
     }
 
     // MARK: Kdf Config
