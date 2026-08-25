@@ -68,6 +68,11 @@ struct AddEditBankAccountItemView: View {
                         send: AddEditBankAccountItemAction.accountTypeChanged,
                     ),
                 )
+                .simultaneousGesture(
+                    TapGesture().onEnded {
+                        store.send(.accountTypeMenuOpened)
+                    },
+                )
 
                 BitwardenTextField(
                     title: Localizations.accountNumber,
