@@ -26,6 +26,12 @@ protocol CipherItemOperationDelegate: AnyObject {
     /// Called when the cipher item has been successfully restored.
     func itemRestored()
 
+    /// Called when the cipher item has been successfully saved, whether it was added or updated.
+    ///
+    /// - Parameter type: The type of the cipher item that was saved.
+    ///
+    func itemSaved(type: CipherType)
+
     /// Called when the cipher item has been successfully soft deleted.
     func itemSoftDeleted()
 
@@ -48,6 +54,8 @@ extension CipherItemOperationDelegate {
     func itemDeleted() {}
 
     func itemRestored() {}
+
+    func itemSaved(type _: CipherType) {}
 
     func itemSoftDeleted() {}
 
@@ -917,6 +925,7 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
         try await services.vaultRepository.addCipher(state.cipher)
         coordinator.hideLoadingOverlay()
 
+        delegate?.itemSaved(type: state.type)
         handleDismiss(didAddItem: true)
         await services.reviewPromptService.trackUserAction(.addedNewItem)
     }
@@ -1081,6 +1090,7 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
     private func updateItem(cipherView: CipherView) async throws {
         try await services.vaultRepository.updateCipher(cipherView.updatedView(with: state))
         coordinator.hideLoadingOverlay()
+        delegate?.itemSaved(type: state.type)
         let shouldDismissed = delegate?.itemUpdated() ?? true
         if shouldDismissed {
             coordinator.navigate(to: .dismiss())
