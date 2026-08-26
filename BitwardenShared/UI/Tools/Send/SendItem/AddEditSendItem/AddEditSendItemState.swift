@@ -263,6 +263,8 @@ extension AddEditSendItemState {
             type: sdkType,
             file: type == .file ? newFileView() : nil,
             text: type == .text ? newTextView() : nil,
+            // The app only creates v1 sends, which carry no send item payload.
+            data: nil,
             maxAccessCount: maximumAccessCount == 0 ? nil : UInt32(maximumAccessCount),
             accessCount: 0, // Defaulting to `0`, since the API ignores the values we set here.
             disabled: isDeactivateThisSendOn,

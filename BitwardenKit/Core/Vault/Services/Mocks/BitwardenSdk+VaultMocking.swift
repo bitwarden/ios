@@ -477,6 +477,8 @@ public extension SendView {
             type: send.type,
             file: send.file.map(SendFileView.init),
             text: send.text.map(SendTextView.init),
+            // The app doesn't support v2 send items yet, so there's nothing to round-trip here.
+            data: nil,
             maxAccessCount: send.maxAccessCount,
             accessCount: send.accessCount,
             disabled: send.disabled,
@@ -522,6 +524,8 @@ public extension Send {
             type: sendView.type,
             file: sendView.file.map(SendFile.init),
             text: sendView.text.map(SendText.init),
+            // The app doesn't support v2 send items yet, so there's nothing to round-trip here.
+            data: nil,
             maxAccessCount: sendView.maxAccessCount,
             accessCount: sendView.accessCount,
             disabled: sendView.disabled,
