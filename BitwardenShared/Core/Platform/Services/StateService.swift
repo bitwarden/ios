@@ -38,6 +38,14 @@ protocol StateService: AnyObject, BillingStateService, DebugStateService {
     ///
     func didAccountSwitchInExtension() async throws -> Bool
 
+    /// Returns whether an account has access to Premium features (personally, or via an enabled
+    /// organization that grants it), independent of which account is currently active.
+    ///
+    /// - Parameter userId: The user ID of the account to check.
+    /// - Returns: Whether the account has access to Premium features.
+    ///
+    func doesAccountHavePremium(userId: String) async -> Bool
+
     /// Returns whether the active user account has access to Premium features.
     ///
     /// - Returns: Whether the active account has access to Premium features.
@@ -1641,18 +1649,28 @@ actor DefaultStateService: StateService, ActiveAccountStateProvider, ConfigState
         }
     }
 
-    func doesActiveAccountHavePremium() async -> Bool {
+    func doesAccountHavePremium(userId: String) async -> Bool {
         do {
-            let account = try await getActiveAccount()
+            let account = try await getAccount(userId: userId)
             let hasPremiumPersonally = account.profile.hasPremiumPersonally ?? false
             guard !hasPremiumPersonally else {
                 return true
             }
 
             let organizations = try await dataStore
-                .fetchAllOrganizations(userId: account.profile.userId)
+                .fetchAllOrganizations(userId: userId)
                 .filter { $0.enabled && $0.usersGetPremium }
             return !organizations.isEmpty
+        } catch {
+            errorReporter.log(error: error)
+            return false
+        }
+    }
+
+    func doesActiveAccountHavePremium() async -> Bool {
+        do {
+            let userId = try getActiveAccountUserId()
+            return await doesAccountHavePremium(userId: userId)
         } catch {
             errorReporter.log(error: error)
             return false
@@ -2541,6 +2559,28 @@ extension DefaultStateService: BillingStateService {
         return timeProvider.timeSince(creationDate) >= Constants.premiumUpgradeBannerAccountAge
     }
 
+    // MARK: Premium Upgrade Pending
+
+    func getPremiumUpgradeLastSyncAttemptFailed(userId: String?) async throws -> Bool {
+        let userId = try userId ?? getActiveAccountUserId()
+        return appSettingsStore.premiumUpgradeLastSyncAttemptFailed(userId: userId)
+    }
+
+    func getPremiumUpgradePending(userId: String?) async throws -> Bool {
+        let userId = try userId ?? getActiveAccountUserId()
+        return appSettingsStore.premiumUpgradePending(userId: userId)
+    }
+
+    func setPremiumUpgradeLastSyncAttemptFailed(_ failed: Bool, userId: String?) async throws {
+        let userId = try userId ?? getActiveAccountUserId()
+        appSettingsStore.setPremiumUpgradeLastSyncAttemptFailed(failed, userId: userId)
+    }
+
+    func setPremiumUpgradePending(_ pending: Bool, userId: String?) async throws {
+        let userId = try userId ?? getActiveAccountUserId()
+        appSettingsStore.setPremiumUpgradePending(pending, userId: userId)
+    }
+
     // MARK: Subscription Attention Card
 
     func getSubscriptionAttentionCardVisible() async throws -> Bool {
@@ -2555,13 +2595,13 @@ extension DefaultStateService: BillingStateService {
 
     // MARK: Upgraded to Premium Card
 
-    func getUpgradedToPremiumActionCardVisible() async throws -> Bool {
-        let userId = try getActiveAccountUserId()
+    func getUpgradedToPremiumActionCardVisible(userId: String?) async throws -> Bool {
+        let userId = try userId ?? getActiveAccountUserId()
         return appSettingsStore.upgradedToPremiumActionCardVisible(userId: userId)
     }
 
-    func setUpgradedToPremiumActionCardVisible(_ visible: Bool) async throws {
-        let userId = try getActiveAccountUserId()
+    func setUpgradedToPremiumActionCardVisible(_ visible: Bool, userId: String?) async throws {
+        let userId = try userId ?? getActiveAccountUserId()
         appSettingsStore.setUpgradedToPremiumActionCardVisible(visible, userId: userId)
     }
 }
