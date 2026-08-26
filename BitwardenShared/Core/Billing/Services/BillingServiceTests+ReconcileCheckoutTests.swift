@@ -11,6 +11,40 @@ import Testing
 extension BillingServiceTests {
     // MARK: Tests
 
+    /// `checkoutSuccessSync`'s writes from `reconcileCheckoutSuccess()` and reads from the
+    /// background sync-completion reconciler (`reconcileOnEachNewSync(userId:)`, subscribed via
+    /// `start()`) do not race under genuine concurrent thread access. Unlike
+    /// `reconcileCheckoutSuccess_suppressesConcurrentReconcileForOwnSync()` below — which only
+    /// exercises a single, near-instant mock resolution — this widens the window with a real
+    /// thread-blocking delay and repeats it many times, to give the two independently scheduled
+    /// tasks a genuine chance to overlap.
+    @Test
+    func checkoutSuccessSync_concurrentReadWrite_noDataRace() async throws {
+        stateService.activeAccount = .fixture()
+        stateService.doesActiveAccountHavePremiumResult = false
+        syncService.fetchSyncHandler = {
+            let date = Date()
+            stateService.lastSyncTimeByUserId[stateService.activeAccount?.profile.userId ?? ""] = date
+            stateService.lastSyncTimeSubject.value = date
+            // Widens the window between this emission and `reconcileCheckoutSuccess()`'s
+            // subsequent `.resolved` write, so the background reconciler above genuinely races
+            // it instead of merely interleaving cooperatively at suspension points.
+            Thread.sleep(forTimeInterval: 0.005)
+        }
+
+        await subject.start()
+        // A fixed delay rather than `waitForAsync { stateService.getLastSyncTimeCallCount == 1 }`
+        // (as used elsewhere in this file): polling that counter from this task while the
+        // background reconciler's `Task` above increments it concurrently is itself a data race
+        // on the mock's own bookkeeping — orthogonal to `checkoutSuccessSync`, but real enough to
+        // trip Thread Sanitizer and mask the result this test exists to check.
+        try await Task.sleep(nanoseconds: 50_000_000)
+
+        for _ in 0 ..< 50 {
+            await subject.reconcileCheckoutSuccess()
+        }
+    }
+
     /// `reconcileCheckoutSuccess()` abandons the reconcile without writing anything further if
     /// the active account changes while suspended in the forced `fetchSync()` above — the "Sync
     /// Now" caller (`PremiumUpgradeHelper`'s `.pending` case) dismisses to an interactive vault

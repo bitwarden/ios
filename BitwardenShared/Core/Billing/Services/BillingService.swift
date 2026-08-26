@@ -131,6 +131,10 @@ class DefaultBillingService: BillingService { // swiftlint:disable:this type_bod
 
     // MARK: Properties
 
+    /// Backing store for `checkoutSuccessSync`. Access via the computed property, which
+    /// synchronizes access with `checkoutSuccessSyncLock`.
+    private nonisolated(unsafe) var _checkoutSuccessSync: CheckoutSuccessSync?
+
     /// The task that watches for active-account changes and re-subscribes
     /// `syncCompletionSubscriber` accordingly.
     private var activeAccountSubscriber: Task<Void, Never>?
@@ -157,15 +161,19 @@ class DefaultBillingService: BillingService { // swiftlint:disable:this type_bod
     /// itself race a legitimate, unrelated reconcile.
     ///
     /// Written from `reconcileCheckoutSuccess()` (UI-driven) and read from `reconcileOnEachNewSync(userId:)`'s
-    /// background `Task`, with no lock or actor isolation between them — a real data race by
-    /// Swift's memory model, invisible to the compiler since `DefaultBillingService` is a plain
-    /// class, not `Sendable`-checked or actor-isolated. Investigated under Thread Sanitizer across
-    /// this file's full suite, including a test built specifically to force the two contexts to
-    /// race on this property (`reconcileCheckoutSuccess_suppressesConcurrentReconcileForOwnSync`);
-    /// no race was ever observed. Left as-is given that evidence — revisit (e.g. isolate this
-    /// property, or promote the class to an `actor` as `DefaultAuthenticatorSyncService` does for
-    /// the same shape of state) if it turns out to matter.
-    private var checkoutSuccessSync: CheckoutSuccessSync?
+    /// background `Task` — two independently scheduled tasks with no ordering guarantee between
+    /// them. Guarded by `checkoutSuccessSyncLock` so that overlap between them is a stale read
+    /// rather than a data race: `DefaultBillingService` is a plain class, not `Sendable`-checked
+    /// or actor-isolated, so nothing else enforces exclusive access to this property.
+    private var checkoutSuccessSync: CheckoutSuccessSync? {
+        get { checkoutSuccessSyncLock.withLock { _checkoutSuccessSync } }
+        set { checkoutSuccessSyncLock.withLock { _checkoutSuccessSync = newValue } }
+    }
+
+    /// Lock protecting `checkoutSuccessSync`'s backing store from concurrent access by
+    /// `reconcileCheckoutSuccess()` and `reconcileOnEachNewSync(userId:)`'s independently
+    /// scheduled tasks.
+    private let checkoutSuccessSyncLock = NSLock()
 
     /// The service used to manage feature flags.
     private let configService: ConfigService
