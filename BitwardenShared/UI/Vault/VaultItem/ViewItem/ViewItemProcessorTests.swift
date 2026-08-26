@@ -210,6 +210,23 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         XCTAssertTrue(delegate.itemUnarchivedCalled)
     }
 
+    /// `perform(_:)` with `.appeared` keeps a toast that was already displayed, so that saving the
+    /// item doesn't clear its own confirmation toast when the cipher update streams in.
+    @MainActor
+    func test_perform_appeared_keepsToast() {
+        vaultRepository.doesActiveAccountHavePremiumResult = true
+        subject.state.toast = Toast(title: Localizations.licenseSaved)
+        vaultRepository.cipherDetailsSubject.send(.fixture(id: "id", type: .identity))
+
+        let task = Task {
+            await subject.perform(.appeared)
+        }
+        waitFor(subject.state.loadingState != .loading(nil))
+        task.cancel()
+
+        XCTAssertEqual(subject.state.toast, Toast(title: Localizations.licenseSaved))
+    }
+
     /// `perform(_:)` with `.appeared` starts listening for updates with the vault repository.
     @MainActor
     func test_perform_appeared() { // swiftlint:disable:this function_body_length

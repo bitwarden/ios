@@ -700,6 +700,10 @@ private extension ViewItemProcessor {
 
                     newState.loadingState = .data(itemState)
                 }
+
+                // Carry over any toast, so that a toast shown in response to saving the item isn't
+                // cleared out from under the user by the cipher update that the save triggers.
+                newState.toast = state.toast
                 state = newState
             }
         } catch {
