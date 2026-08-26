@@ -1227,7 +1227,7 @@ extension AddEditItemProcessor: AuthenticatorKeyCaptureDelegate {
 
 extension AddEditItemProcessor: EditCollectionsProcessorDelegate {
     func didUpdateCipher() {
-        state.toast = Toast(title: Localizations.itemUpdated)
+        state.toast = Toast(title: state.type.savedToastTitle)
     }
 }
 

@@ -105,9 +105,24 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         )
     }
 
-    /// `didUpdateCipher()` displays a toast after the cipher is updated.
+    /// `didUpdateCipher()` displays the toast for the item's type after the cipher is updated.
     @MainActor
-    func test_didUpdateCipher() {
+    func test_didUpdateCipher() throws {
+        let cipherState = try XCTUnwrap(
+            CipherItemState(existing: .fixture(type: .identity), hasPremium: true),
+        )
+        subject.state.loadingState = .data(cipherState)
+
+        subject.didUpdateCipher()
+
+        waitFor { subject.state.toast != nil }
+
+        XCTAssertEqual(subject.state.toast, Toast(title: Localizations.identitySaved))
+    }
+
+    /// `didUpdateCipher()` falls back to the generic toast if the item hasn't loaded yet.
+    @MainActor
+    func test_didUpdateCipher_notLoaded() {
         subject.didUpdateCipher()
 
         waitFor { subject.state.toast != nil }

@@ -609,14 +609,16 @@ class AddEditItemProcessorTests: BitwardenTestCase {
         )
     }
 
-    /// `didUpdateCipher()` displays a toast after the cipher is updated.
+    /// `didUpdateCipher()` displays the toast for the item's type after the cipher is updated.
     @MainActor
     func test_didUpdateCipher() {
+        subject.state.type = .driversLicense
+
         subject.didUpdateCipher()
 
         waitFor { subject.state.toast != nil }
 
-        XCTAssertEqual(subject.state.toast, Toast(title: Localizations.itemUpdated))
+        XCTAssertEqual(subject.state.toast, Toast(title: Localizations.licenseSaved))
     }
 
     /// `folderAdded(_:)` sets the selected folder to the folder that was added and shows the
