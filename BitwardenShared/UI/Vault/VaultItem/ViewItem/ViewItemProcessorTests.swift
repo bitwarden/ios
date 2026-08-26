@@ -173,6 +173,15 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         XCTAssertTrue(delegate.itemDeletedCalled)
     }
 
+    /// `itemSaved(type:)` shows the toast for the saved item's type.
+    @MainActor
+    func test_itemSaved() {
+        XCTAssertNil(subject.state.toast)
+
+        subject.itemSaved(type: .driversLicense)
+        XCTAssertEqual(subject.state.toast, Toast(title: Localizations.licenseSaved))
+    }
+
     /// `itemSoftDeleted()` presents the dismiss action and calls the delegate.
     @MainActor
     func test_itemSoftDeleted() async throws {

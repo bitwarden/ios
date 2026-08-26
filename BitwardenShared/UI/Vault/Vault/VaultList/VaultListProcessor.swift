@@ -859,6 +859,10 @@ extension VaultListProcessor: CipherItemOperationDelegate {
         state.toast = Toast(title: Localizations.itemDeleted)
     }
 
+    func itemSaved(type: CipherType) {
+        state.toast = Toast(title: type.savedToastTitle)
+    }
+
     func itemSoftDeleted() {
         state.toast = Toast(title: Localizations.itemSoftDeleted)
     }
