@@ -384,6 +384,10 @@ extension VaultGroupProcessor: CipherItemOperationDelegate {
         displayToastAndRefresh(toastTitle: Localizations.itemDeleted)
     }
 
+    func itemSaved(type: CipherType) {
+        displayToastAndRefresh(toastTitle: type.savedToastTitle)
+    }
+
     func itemSoftDeleted() {
         displayToastAndRefresh(toastTitle: Localizations.itemSoftDeleted)
     }

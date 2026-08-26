@@ -775,6 +775,10 @@ extension ViewItemProcessor: CipherItemOperationDelegate {
         delegate?.itemRestored()
     }
 
+    func itemSaved(type: CipherType) {
+        state.toast = Toast(title: type.savedToastTitle)
+    }
+
     func itemSoftDeleted() {
         coordinator.navigate(to: .dismiss(DismissAction(action: { [delegate] in delegate?.itemSoftDeleted() })))
     }

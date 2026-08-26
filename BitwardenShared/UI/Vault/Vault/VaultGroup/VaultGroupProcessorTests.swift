@@ -132,6 +132,16 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
         waitFor(vaultRepository.fetchSyncCalled)
     }
 
+    /// `itemSaved(type:)` delegate method shows the toast for the saved item's type.
+    @MainActor
+    func test_delegate_itemSaved() {
+        XCTAssertNil(subject.state.toast)
+
+        subject.itemSaved(type: .driversLicense)
+        XCTAssertEqual(subject.state.toast, Toast(title: Localizations.licenseSaved))
+        waitFor(vaultRepository.fetchSyncCalled)
+    }
+
     /// `itemSoftDeleted()` delegate method shows the expected toast.
     @MainActor
     func test_delegate_itemSoftDeleted() {
