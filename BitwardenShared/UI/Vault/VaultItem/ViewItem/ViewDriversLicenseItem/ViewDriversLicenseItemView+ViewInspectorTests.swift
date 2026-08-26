@@ -100,6 +100,23 @@ class ViewDriversLicenseItemViewTests: BitwardenTestCase {
         )
     }
 
+    /// The license number field asks VoiceOver to spell out its characters individually when
+    /// visible.
+    ///
+    /// - Note: ViewInspector doesn't support inspecting `speechSpellsOutCharacters`, so this
+    ///   verifies the flag is passed through to `PasswordText` rather than the final VoiceOver
+    ///   announcement, which should be confirmed with on-device VoiceOver testing.
+    @MainActor
+    func test_licenseNumber_spellsOutCharacters() throws {
+        var state = populatedState()
+        state.isLicenseNumberVisible = true
+        initSubject(state: state)
+        let passwordText = try subject.inspect().find(PasswordText.self) { view in
+            try view.actualView().password == "D1234567"
+        }.actualView()
+        XCTAssertTrue(passwordText.spellOutAccessibilityValue)
+    }
+
     /// An empty state renders no fields, so the copy buttons are absent.
     @MainActor
     func test_emptyState_hidesFields() throws {

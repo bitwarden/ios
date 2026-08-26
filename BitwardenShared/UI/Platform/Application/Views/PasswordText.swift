@@ -14,6 +14,11 @@ struct PasswordText: View {
     /// A flag indicating if the password is visible or not.
     let isPasswordVisible: Bool
 
+    /// A flag indicating whether VoiceOver should announce the password's characters
+    /// individually (e.g. "1 2 3 4" instead of "one thousand two hundred thirty-four") rather
+    /// than using its default heuristics for the rendered text.
+    var spellOutAccessibilityValue = false
+
     var body: some View {
         (
             isPasswordVisible
@@ -21,6 +26,7 @@ struct PasswordText: View {
                 : Text(String(repeating: "•", count: Constants.hiddenPasswordLength)),
         )
         .styleGuide(.bodyMonospaced)
+        .speechSpellsOutCharacters(spellOutAccessibilityValue && isPasswordVisible)
     }
 
     // MARK: Private Properties
