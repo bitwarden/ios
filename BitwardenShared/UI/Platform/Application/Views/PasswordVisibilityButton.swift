@@ -32,6 +32,7 @@ struct PasswordVisibilityButton: View {
             .resizable()
             .frame(width: size, height: size)
         }
+        .accessibilityLabel(accessibilityLabel)
         .accessibilityIdentifier(accessibilityIdentifier)
     }
 

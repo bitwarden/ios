@@ -106,6 +106,9 @@ struct ViewDriversLicenseItemView: View {
             } accessoryContent: {
                 PasswordVisibilityButton(
                     accessibilityIdentifier: "ShowDriversLicenseNumberButton",
+                    accessibilityLabel: isVisible
+                        ? Localizations.fieldValueIsVisibleTapToHide(Localizations.licenseNumber)
+                        : Localizations.fieldValueIsNotVisibleTapToShow(Localizations.licenseNumber),
                     isPasswordVisible: isVisible,
                 ) {
                     store.send(.driversLicenseItemAction(.toggleLicenseNumberVisibilityChanged))

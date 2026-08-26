@@ -497,6 +497,8 @@
 "SpecialCharacters" = "Special characters (!@#$%^&*)";
 "PasswordIsVisibleTapToHide" = "Password is visible, tap to hide.";
 "PasswordIsNotVisibleTapToShow" = "Password is not visible, tap to show.";
+"FieldValueIsVisibleTapToHide" = "%1$@ is visible, tap to hide.";
+"FieldValueIsNotVisibleTapToShow" = "%1$@ is not visible, tap to show.";
 "FilterByVault" = "Filter items by vault";
 "AllVaults" = "All vaults";
 "Vaults" = "Vaults";
