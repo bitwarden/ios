@@ -1,7 +1,7 @@
 "Lock all ${applicationName} accounts" = "모든 ${applicationName} 계정 잠금";
 "Secure every ${applicationName} account" = "모든 ${applicationName} 계정 보호";
 "Lock down all ${applicationName} sessions" = "모든 ${applicationName} 세션 잠금";
-"${applicationName}, lock all vaults" = "${applicationName}, 모든 볼트 잠금";
+"${applicationName}, lock all vaults" = "${applicationName}, 모든 보관함 잠금";
 "Activate full lock for ${applicationName}" = "${applicationName} 전체 잠금 활성화";
 "Freeze every ${applicationName} account" = "모든 ${applicationName} 계정 동결";
 "Protect all ${applicationName} logins" = "모든 ${applicationName} 로그인 보호";

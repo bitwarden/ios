@@ -26,6 +26,8 @@
 "FolderNone" = "Nincs mappa";
 "Folders" = "Mappák";
 "FolderUpdated" = "A mappa mentésre került.";
+"MyFolder" = "Saját mappa";
+"MyFolders" = "Saját mappák";
 "InternetConnectionRequiredMessage" = "Csatlakozzunk az internetre a folytatás előtt.";
 "InternetConnectionRequiredTitle" = "Internetkapcsolat szükséges";
 "InvalidMasterPassword" = "A mesterjelszó érvénytelen. Próbáljuk újra.";
@@ -898,6 +900,7 @@
 /* VoiceOver accessibility label for a shared folder the item belongs to. */
 "SharedFolderX" = "Megosztott mappa, %1$@";
 "FolderX" = "Mappa, %1$@";
+"MyFolderX" = "Saját mappa, %1$@";
 "ItemXOfY" = "Item %1$@ of %2$@";
 "ViewRecordedLogs" = "Rögzített naplók megtekintése";
 "RecordedLogs" = "Adatrögzítő naplók";
@@ -1041,7 +1044,7 @@
 "LeaveX" = "%1$@ elhagyása";
 "YouLeftTheOrganization" = "Megtörtént a szervezet elhagyása.";
 "ItemTransferRequiresMainAppDescriptionLong" = "Egy szervezet a személyes elemek tulajdonjogát kéri. Nyissuk meg a fő Bitwarden alkalmazást a kérés áttekintéséhez és befejezéséhez.";
-"ThisSettingIsManagedByYourOrganization" = "Ezt a beállítást a szervezet lezeli.";
+"ThisSettingIsManagedByYourOrganization" = "Ezt a beállítást a szervezet kezeli.";
 "YourOrganizationHasSetTheMaximumSessionTimeoutToX" = "A szervezet a maximális munkamenet időkifutást %1$@ értékre állította.";
 "YourOrganizationHasSetTheDefaultSessionTimeoutToNever" = "A szervezet a maximális munkamenet időkifutást soha értékre állította.";
 "YourOrganizationHasSetTheDefaultSessionTimeoutToAppRestart" = "A szervezet a maximális munkamenet időkifutást alkalmazás újraindítás értékre állította.";

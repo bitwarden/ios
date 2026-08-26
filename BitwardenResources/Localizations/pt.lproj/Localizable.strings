@@ -26,6 +26,8 @@
 "FolderNone" = "Sem pasta";
 "Folders" = "Pastas";
 "FolderUpdated" = "Pasta guardada";
+"MyFolder" = "A minha pasta";
+"MyFolders" = "As minhas pastas";
 "InternetConnectionRequiredMessage" = "Por favor, ligue-se à Internet antes de continuar.";
 "InternetConnectionRequiredTitle" = "Ligação à Internet necessária";
 "InvalidMasterPassword" = "Palavra-passe mestra inválida. Tente novamente.";
@@ -635,7 +637,7 @@
 "YourOrganizationPermissionsWereUpdatedRequeringYouToSetAMasterPassword" = "As permissões da sua organização foram atualizadas, exigindo a definição de uma palavra-passe mestra.";
 "YourOrganizationRequiresYouToSetAMasterPassword" = "A sua organização exige a definição de uma palavra-passe mestra.";
 "ChooseALoginToSaveThisPasskeyTo" = "Escolha uma credencial para guardar esta chave de acesso";
-"SavePasskeyAsNewLogin" = "Guarde a chave de acesso como uma nova credencial";
+"SavePasskeyAsNewLogin" = "Guardar chave de acesso como nova credencial";
 "PasskeysForX" = "Chaves de acesso para %1$@";
 "PasswordsForX" = "Palavra-passe para %1$@";
 "ThisItemAlreadyContainsAPasskeyAreYouSureYouWantToOverwriteTheCurrentPasskey" = "Este item já contém uma chave de acesso. Tem a certeza de que pretende substituir a chave de acesso atual?";
@@ -898,6 +900,7 @@
 /* VoiceOver accessibility label for a shared folder the item belongs to. */
 "SharedFolderX" = "Pasta partilhada, %1$@";
 "FolderX" = "Pasta, %1$@";
+"MyFolderX" = "A minha pasta, %1$@";
 "ItemXOfY" = "Item %1$@ de %2$@";
 "ViewRecordedLogs" = "Ver os registos gravados";
 "RecordedLogs" = "Registos gravados";

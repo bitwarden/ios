@@ -26,6 +26,8 @@
 "FolderNone" = "（未分類）";
 "Folders" = "資料夾";
 "FolderUpdated" = "已更新資料夾。";
+"MyFolder" = "我的資料夾";
+"MyFolders" = "我的資料夾";
 "InternetConnectionRequiredMessage" = "請先連線至網際網路再繼續。";
 "InternetConnectionRequiredTitle" = "需要網際網路連線";
 "InvalidMasterPassword" = "無效的主密碼，請再試一次。";
@@ -39,8 +41,8 @@
 "RemoveAccount" = "移除帳戶";
 "RemoveAccountConfirmation" = "您確定要移除這個帳戶嗎？";
 "AccountAlreadyAdded" = "已新增帳戶";
-"AccountCreationRestricted" = "Account creation restricted";
-"XOnlyAllowsInvitedUsersToCreateAccounts" = "%1$@ only allows invited users to create accounts.";
+"AccountCreationRestricted" = "帳戶建立受到限制";
+"XOnlyAllowsInvitedUsersToCreateAccounts" = "%1$@ 僅允許受邀使用者建立帳戶。";
 "SwitchToAlreadyAddedAccountConfirmation" = "您想現在就切換過去嗎？";
 "MasterPassword" = "主密碼";
 "MoreOptions" = "更多選項";
@@ -262,11 +264,11 @@
 /* Section header and screen title for viewing/managing a cipher's collections. */
 "Collections" = "集合";
 /* Section header and screen title for viewing/managing a cipher's shared folders. */
-"SharedFolders" = "Shared folders";
+"SharedFolders" = "共享資料夾";
 /* Empty state message shown when a collection has no items. */
 "NoItemsCollection" = "此集合中沒有項目。";
 /* Empty state message shown when a shared folder has no items. */
-"ThereAreNoItemsInThisSharedFolder" = "There are no items in this shared folder";
+"ThereAreNoItemsInThisSharedFolder" = "此共享資料夾中沒有項目";
 "NoItemsFolder" = "此目錄裡並無項目";
 "NoItemsTrash" = "垃圾桶中沒有項目。";
 "FaceID" = "Face ID";
@@ -325,22 +327,22 @@
 /* Empty state message on the Collections screen shown when a user has no collections. */
 "NoCollectionsToList" = "沒有可顯示的集合。";
 /* Empty state message on the Shared folders screen shown when a user has no shared folders. */
-"ThereAreNoSharedFoldersToList" = "There are no shared folders to list.";
+"ThereAreNoSharedFoldersToList" = "沒有可列出的共享資料夾。";
 "MovedItemToOrg" = "%1$@ 已移動至 %2$@。";
 /* Alert message shown when saving an item with no collection selected. */
 "SelectOneCollection" = "您必須至少選擇一個集合。";
 /* Alert message shown when saving an item with no shared folder selected. */
-"YouMustSelectAtLeastOneSharedFolder" = "You must select at least one shared folder.";
+"YouMustSelectAtLeastOneSharedFolder" = "您必須至少選擇一個共享資料夾。";
 "Share" = "共用";
 "ShareAll" = "分享全部";
 /* Overflow menu item and screen title on the Move screen shown when the "vfo1-foundation" feature flag is disabled; superseded by "Move" when enabled. */
 "MoveToOrganization" = "移動至組織";
 /* Empty state message shown when a user has no vaults available to move an item into, when the "vfo1-foundation" feature flag is enabled. */
-"NoVaultsToList" = "No vaults to list.";
+"NoVaultsToList" = "沒有可列出的保管庫。";
 /* Empty state message shown when a user has no organizations available to move an item into, when the "vfo1-foundation" feature flag is disabled. */
 "NoOrgsToList" = "沒有可列出的組織。";
 /* Footer text on the Move screen explaining that moving an item transfers its ownership to the destination vault's organization, when the "vfo1-foundation" feature flag is enabled. */
-"ChooseAVaultThatYouWishToMoveThisItemToDescriptionLong" = "Choose a vault that you wish to move this item to. Moving to another vault transfers ownership of the item to that organization. You will no longer be the direct owner of this item once it has been moved.";
+"ChooseAVaultThatYouWishToMoveThisItemToDescriptionLong" = "選擇您要將此項目移至的保管庫。移至另一個保管庫後，此項目的擁有權將移轉給該組織。項目移動後，您將不再是此項目的直接擁有者。";
 /* Footer text on the Move screen explaining that moving an item transfers its ownership to the destination organization, when the "vfo1-foundation" feature flag is disabled. */
 "MoveToOrgDesc" = "選擇您希望將這個項目移動至哪個組織。項目的擁有權將會轉移至該組織。轉移之後，您將不再是此項目的直接擁有者。";
 "NumberOfWords" = "單字數量";
@@ -586,7 +588,7 @@
 "ThereAreNoBankAccountsInYourVault" = "您的保管庫中沒有銀行帳戶";
 "US" = "美國";
 "EU" = "歐盟";
-"Gov" = "Gov";
+"Gov" = "政府";
 "SelfHosted" = "自架";
 "UpdateWeakMasterPasswordWarning" = "您的主密碼不符合您的組織政策之一或多個要求。您必須立即更新您的主密碼以存取密碼庫。進行此操作將登出您目前的工作階段，需要您重新登入。其他裝置上的工作階段可能持續長達一小時。";
 "CurrentMasterPasswordRequired" = "目前主密碼（必填）";
@@ -595,8 +597,8 @@
 "RequestAdminApproval" = "要求管理員核准";
 "ApproveWithMasterPassword" = "使用主密碼核准";
 "TurnOffUsingPublicDevice" = "使用公用裝置來關閉";
-"TurnOnFillAssist" = "Turn on fill assist";
-"TurnOnFillAssistDescriptionLong" = "Fill Assist improves autofill accuracy on supported sites by using site-specific rules.";
+"TurnOnFillAssist" = "啟用填入輔助";
+"TurnOnFillAssistDescriptionLong" = "填入輔助會使用網站專屬規則，提高支援網站上的自動填入準確性。";
 "RememberThisDevice" = "記住這個裝置";
 "Passkey" = "密碼金鑰";
 "Passkeys" = "密碼金鑰";
@@ -892,12 +894,13 @@
 "ShowLess" = "顯示較少";
 "ItemNameX" = "項目名稱，%1$@";
 "OwnerX" = "所有者，%1$@";
-"VaultX" = "Vault, %1$@";
+"VaultX" = "保管庫，%1$@";
 /* VoiceOver accessibility label for a collection the item belongs to. */
 "CollectionX" = "集合，%1$@";
 /* VoiceOver accessibility label for a shared folder the item belongs to. */
-"SharedFolderX" = "Shared folder, %1$@";
+"SharedFolderX" = "共享資料夾，%1$@";
 "FolderX" = "資料夾，%1$@";
+"MyFolderX" = "My folder, %1$@";
 "ItemXOfY" = "項目 %1$@ / %2$@";
 "ViewRecordedLogs" = "檢視記錄的日誌";
 "RecordedLogs" = "已記錄的日誌";
@@ -1110,7 +1113,7 @@
 "Canceled" = "已取消";
 "PastDue" = "逾期";
 "PendingCancellation" = "待取消";
-"Unpaid" = "未付款";
+"Unpaid" = "待付款";
 "UpdatePayment" = "更新付款方式";
 "BillingAmount" = "帳單金額";
 "StorageCost" = "儲存空間費用";
@@ -1125,41 +1128,41 @@
 /* Error message shown when the Premium Plan screen fails to load subscription data, with a prompt to retry. */
 "WeCouldntLoadYourSubscriptionDetailsPleaseRetry" = "無法載入您的訂閱詳細資訊。請再試一次。";
 "YourSubscriptionWasCanceledOnXDescriptionLong" = "您的訂閱已於 **%1$@** 取消。重新訂閱以繼續使用 Premium 功能。";
-"YourSubscriptionWasSuspendedOnXDescriptionLong" = "Your subscription was suspended on **%1$@**. To reactivate, please resolve your past due invoices.";
+"YourSubscriptionWasSuspendedOnXDescriptionLong" = "您的訂閱已於 **%1$@** 暫停。若要重新啟用，請先繳清逾期帳單。";
 "YourSubscriptionExpiredOnXDescriptionLong" = "您的訂閱已於 **%1$@** 到期。重新訂閱以繼續使用 Premium 功能。";
 "YourSubscriptionIsScheduledToCancelOnXDescriptionLong" = "您的訂閱預計將於 **%1$@** 取消。在此之前，您隨時都可以恢復訂閱。";
 "PerMonth" = "/ 月";
 /* VoiceOver reading of "PerMonth", spoken instead of shown. */
-"PerMonthVoiceOver" = "per month";
+"PerMonthVoiceOver" = "每月";
 "PerYear" = "/ 年";
 /* VoiceOver reading of "PerYear", spoken instead of shown. */
-"PerYearVoiceOver" = "per year";
+"PerYearVoiceOver" = "每年";
 "XAmountPerCadence" = "%1$@ %2$@";
 /* %1$@ is an amount and cadence together, e.g. "$1.65 / month". */
-"XCancelAnytime" = "%1$@ · Cancel anytime";
+"XCancelAnytime" = "%1$@ · 隨時可取消";
 /* VoiceOver reading of "XCancelAnytime", spoken instead of shown. */
-"XCancelAnytimeVoiceOver" = "%1$@, Cancel anytime";
+"XCancelAnytimeVoiceOver" = "%1$@，隨時可取消";
 "NegativeX" = "-%1$@";
 "UnknownStatus" = "不詳";
 "YourSubscriptionStatusIsUnknownVisitTheWebAppDescriptionLong" = "無法判斷您的訂閱狀態。請前往網頁版查看詳細資訊，或更新至最新版本。";
 /* Headline on the Premium upgrade screen. */
-"UnlockAdvancedProtection" = "Unlock advanced protection";
+"UnlockAdvancedProtection" = "解鎖進階防護功能";
 /* Premium benefit list item. */
-"BreezeThrough2faWithBuiltInCodes" = "Breeze through 2FA with built-in codes";
+"BreezeThrough2faWithBuiltInCodes" = "使用內建驗證碼輕鬆完成雙重驗證";
 /* Premium benefit list item. */
-"RunReportsToFindRiskyPasswords" = "Run reports to find risky passwords";
+"RunReportsToFindRiskyPasswords" = "執行報表以找出高風險密碼";
 /* Premium benefit list item. */
-"KeepDocumentsSafeAndEncrypted" = "Keep documents safe and encrypted";
+"KeepDocumentsSafeAndEncrypted" = "安全加密保存文件";
 /* Premium benefit list item. */
-"AddATrustedEmergencyContact" = "Add a trusted emergency contact";
+"AddATrustedEmergencyContact" = "新增可信任的緊急聯絡人";
 /* Premium benefit list item. */
-"IdentifyUnsecureWebsites" = "Identify unsecure websites";
+"IdentifyUnsecureWebsites" = "識別不安全的網站";
 /* Premium benefit list item. */
-"FlagAccountsWithInactive2fa" = "Flag accounts with inactive 2FA";
+"FlagAccountsWithInactive2fa" = "標示未啟用雙重驗證的帳戶";
 /* Premium benefit list item; "Send" is the Bitwarden Send feature name and shouldn't be translated. */
-"ShareFilesSecurelyWithAnyoneUsingSend" = "Share files securely with anyone using Send";
+"ShareFilesSecurelyWithAnyoneUsingSend" = "使用 Send 安全地與任何人分享檔案";
 /* Premium benefit list item. */
-"Receive247PrioritySupport" = "Receive 24/7 priority support";
+"Receive247PrioritySupport" = "享有全年無休的優先支援";
 "BuiltInAuthenticator" = "內建驗證器";
 "EmergencyAccess" = "緊急存取";
 "PaymentNotReceivedYet" = "尚未收到付款";
@@ -1179,7 +1182,7 @@
 "YouNowHaveAccessToAdvancedSecurityDescriptionLong" = "您現在可以使用進階安全功能。深入了解 Premium 包含的內容。";
 "YouNowHaveAccessToAllAdvancedSecurityFeatures" = "您現在可以使用所有進階安全功能。";
 /* Footer on the Premium upgrade screen; "Stripe" is the payment processor's name and shouldn't be translated. */
-"YoullCompleteThePurchaseWithStripeSecureCheckout" = "You'll complete the purchase with Stripe secure checkout.";
+"YoullCompleteThePurchaseWithStripeSecureCheckout" = "您將透過 Stripe 安全結帳完成購買。";
 "ContinueToStripe" = "要前往 Stripe 嗎？";
 "YoullBeTakenToStripeToManageYourSubscriptionCancellation" = "您將前往 Stripe 管理您的訂閱取消事宜。";
 "UserIDCopiedToTheClipboard" = "使用者 ID 已複製到剪貼簿";
@@ -1229,12 +1232,12 @@
 "MoneyMarket" = "貨幣市場帳戶";
 "Savings" = "儲蓄帳戶";
 "Devices" = "裝置";
-"NoDevicesFound" = "No devices found";
+"NoDevicesFound" = "找不到裝置";
 "CurrentSession" = "目前工作階段";
 "PendingRequest" = "待處理請求";
 "Trusted" = "已信任";
-"RecentlyActiveLabel" = "Recently active:";
-"FirstLoginLabel" = "First login:";
+"RecentlyActiveLabel" = "最近活動：";
+"FirstLoginLabel" = "首次登入：";
 "Today" = "今天";
 "PastSevenDays" = "過去 7 天";
 "PastFourteenDays" = "過去 14 天";
@@ -1243,14 +1246,14 @@
 "Unknown" = "不詳";
 /* Device display name. %1$@ = category (e.g. "Mobile"), %2$@ = platform (e.g. "iOS"). */
 "DeviceDisplayNameXHyphenY" = "%1$@ - %2$@";
-"Mobile" = "Mobile";
-"BrowserExtension" = "Extension";
-"WebVault2" = "Web app";
-"Desktop" = "Desktop";
+"Mobile" = "行動裝置";
+"BrowserExtension" = "擴充套件";
+"WebVault2" = "網路應用程式";
+"Desktop" = "電腦版應用程式";
 "Cli" = "CLI";
 "Sdk" = "SDK";
 "Server" = "伺服器";
 /* Accessibility label for the button that clears a field's value. %1$@ is the field's title (e.g. "Date of birth"), so the spoken label reads "Clear Date of birth". */
-"ClearFieldName" = "Clear %1$@";
-"SelectDate" = "Select date";
+"ClearFieldName" = "清除 %1$@";
+"SelectDate" = "選擇日期";
 "PremiumRequiredTOTPDescriptionLong" = "驗證器金鑰（TOTP）為 Premium 功能。您目前的方案未包含此功能。";

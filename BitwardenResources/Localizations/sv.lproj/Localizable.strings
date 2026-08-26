@@ -26,6 +26,8 @@
 "FolderNone" = "Ingen mapp";
 "Folders" = "Mappar";
 "FolderUpdated" = "Mappen uppdaterades";
+"MyFolder" = "My folder";
+"MyFolders" = "My folders";
 "InternetConnectionRequiredMessage" = "Vänligen anslut till internet innan du fortsätter.";
 "InternetConnectionRequiredTitle" = "Internetanslutning krävs";
 "InvalidMasterPassword" = "Ogiltigt huvudlösenord. Försök igen.";
@@ -898,6 +900,7 @@
 /* VoiceOver accessibility label for a shared folder the item belongs to. */
 "SharedFolderX" = "Shared folder, %1$@";
 "FolderX" = "Mapp, %1$@";
+"MyFolderX" = "My folder, %1$@";
 "ItemXOfY" = "Objekt %1$@ av %2$@";
 "ViewRecordedLogs" = "Visa inspelade loggar";
 "RecordedLogs" = "Inspelade loggar";

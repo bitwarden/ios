@@ -26,6 +26,8 @@
 "FolderNone" = "Kein Ordner";
 "Folders" = "Ordner";
 "FolderUpdated" = "Ordner gespeichert";
+"MyFolder" = "Mein Ordner";
+"MyFolders" = "Meine Ordner";
 "InternetConnectionRequiredMessage" = "Bitte verbinde dich mit dem Internet um fortzufahren.";
 "InternetConnectionRequiredTitle" = "Internetverbindung erforderlich";
 "InvalidMasterPassword" = "Ungültiges Master-Passwort. Bitte erneut versuchen.";
@@ -266,7 +268,7 @@
 /* Empty state message shown when a collection has no items. */
 "NoItemsCollection" = "Es gibt keine Einträge in dieser Sammlung";
 /* Empty state message shown when a shared folder has no items. */
-"ThereAreNoItemsInThisSharedFolder" = "There are no items in this shared folder";
+"ThereAreNoItemsInThisSharedFolder" = "Es gibt keine Einträge in diesem geteiltem Ordner";
 "NoItemsFolder" = "Es gibt keine Einträge in diesem Ordner";
 "NoItemsTrash" = "Es sind keine Einträge im Papierkorb.";
 "FaceID" = "Face ID";
@@ -892,12 +894,13 @@
 "ShowLess" = "Weniger anzeigen";
 "ItemNameX" = "Eintragsname, %1$@";
 "OwnerX" = "Eigentümer, %1$@";
-"VaultX" = "Vault, %1$@";
+"VaultX" = "Tresor, %1$@";
 /* VoiceOver accessibility label for a collection the item belongs to. */
 "CollectionX" = "Sammlung, %1$@";
 /* VoiceOver accessibility label for a shared folder the item belongs to. */
-"SharedFolderX" = "Shared folder, %1$@";
+"SharedFolderX" = "Geteilter Ordner, %1$@";
 "FolderX" = "Ordner, %1$@";
+"MyFolderX" = "Mein Ordner, %1$@";
 "ItemXOfY" = "Eintrag %1$@ von %2$@";
 "ViewRecordedLogs" = "Gespeicherte Protokolle anzeigen";
 "RecordedLogs" = "Gespeicherte Protokolle";
