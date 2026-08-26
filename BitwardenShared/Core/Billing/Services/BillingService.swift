@@ -327,6 +327,11 @@ class DefaultBillingService: BillingService { // swiftlint:disable:this type_bod
         // method runs, so `fetchSync` below is a real window for the active account to switch.
         let userId = try? await stateService.getActiveAccountId()
 
+        // Unconditional, including for the "Sync Now" tap on `premiumStatusChanged()`'s `.pending`
+        // alert (`PremiumUpgradeHelper.swift:147`) — reachable without a real Stripe checkout if an
+        // unrelated `.premiumStatusChanged` push lands while the upgrade screen's subscription is
+        // live but hasn't confirmed yet. No path clears this for a user who never actually
+        // purchased; revisit if that turns out to matter once a later PR consumes this flag.
         do {
             try await billingStateService.setPremiumUpgradePending(true)
         } catch {
