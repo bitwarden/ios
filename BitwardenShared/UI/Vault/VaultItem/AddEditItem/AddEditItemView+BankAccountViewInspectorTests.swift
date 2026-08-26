@@ -60,14 +60,16 @@ class AddEditItemViewBankAccountTests: BitwardenTestCase {
         XCTAssertEqual(processor.dispatchedActions.last, .bankAccountFieldChanged(.nameOnAccountChanged("text")))
     }
 
-    /// Opening the account type menu dispatches the `.bankAccountFieldChanged(.accountTypeMenuOpened)` action.
+    /// Touching down on the account type menu dispatches the
+    /// `.bankAccountFieldChanged(.accountTypeMenuOpened)` action.
     @MainActor
     func test_bankAccount_accountTypeMenuField_opened() throws {
         processor.state.type = .bankAccount
+        let dragValue = DragGesture.Value(time: Date(), location: .zero, startLocation: .zero, velocity: .zero)
         try subject.inspect()
             .find(bitwardenMenuField: Localizations.accountType)
-            .simultaneousGesture(TapGesture.self)
-            .callOnEnded(value: ())
+            .simultaneousGesture(DragGesture.self)
+            .callOnChanged(value: dragValue)
         XCTAssertEqual(processor.dispatchedActions.last, .bankAccountFieldChanged(.accountTypeMenuOpened))
     }
 
