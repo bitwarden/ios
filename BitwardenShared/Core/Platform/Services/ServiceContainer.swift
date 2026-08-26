@@ -1179,6 +1179,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
             vaultTimeoutService: vaultTimeoutService,
         )
         Task { await authenticatorSyncService.start() }
+        Task { await billingService.start() }
 
         self.init(
             apiService: apiService,

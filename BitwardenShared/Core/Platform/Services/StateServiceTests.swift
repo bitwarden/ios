@@ -299,6 +299,20 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         XCTAssertEqual(errorReporter.errors as? [StateServiceError], [.noActiveAccount])
     }
 
+    /// `doesAccountHavePremium(userId:)` checks the given account regardless of which account is
+    /// currently active.
+    func test_doesAccountHavePremium_checksExplicitAccountNotActiveAccount() async throws {
+        await subject.addAccount(.fixture(profile: .fixture(hasPremiumPersonally: false, userId: "1")))
+        await subject.addAccount(.fixture(profile: .fixture(hasPremiumPersonally: true, userId: "2")))
+        try await subject.setActiveAccount(userId: "1")
+
+        let activeAccountHasPremium = await subject.doesAccountHavePremium(userId: "1")
+        let otherAccountHasPremium = await subject.doesAccountHavePremium(userId: "2")
+
+        XCTAssertFalse(activeAccountHasPremium)
+        XCTAssertTrue(otherAccountHasPremium)
+    }
+
     /// `doesActiveAccountHavePremiumPersonally()` returns true when the user has Premium personally.
     func test_doesActiveAccountHavePremiumPersonally_personalTrue() async throws {
         await subject.addAccount(.fixture(profile: .fixture(hasPremiumPersonally: true)))

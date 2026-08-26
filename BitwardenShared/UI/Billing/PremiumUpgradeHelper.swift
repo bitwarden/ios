@@ -145,7 +145,7 @@ class DefaultPremiumUpgradeHelper<Route: PremiumUpgradeRoute, Event>: PremiumUpg
                         coordinator.hideLoadingOverlay()
                         onPendingDismiss?()
                         coordinator.showAlert(.upgradePending {
-                            await self.services.billingService.premiumStatusChanged()
+                            await self.services.billingService.reconcileCheckoutSuccess()
                         })
                     }))
                 case .syncing:
