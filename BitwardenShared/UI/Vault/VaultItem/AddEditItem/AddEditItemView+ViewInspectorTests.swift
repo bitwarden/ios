@@ -636,7 +636,9 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
         processor.state.driversLicenseItemState.isLicenseNumberVisible = false
         let button = try subject.inspect()
             .find(bitwardenTextField: Localizations.licenseNumber)
-            .find(buttonWithAccessibilityLabel: Localizations.passwordIsNotVisibleTapToShow)
+            .find(buttonWithAccessibilityLabel: Localizations.fieldValueIsNotVisibleTapToShow(
+                Localizations.licenseNumber,
+            ))
         try button.tap()
         XCTAssertEqual(
             processor.dispatchedActions.last,
@@ -652,7 +654,9 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
         processor.state.driversLicenseItemState.isLicenseNumberVisible = true
         let button = try subject.inspect()
             .find(bitwardenTextField: Localizations.licenseNumber)
-            .find(buttonWithAccessibilityLabel: Localizations.passwordIsVisibleTapToHide)
+            .find(buttonWithAccessibilityLabel: Localizations.fieldValueIsVisibleTapToHide(
+                Localizations.licenseNumber,
+            ))
         try button.tap()
         XCTAssertEqual(
             processor.dispatchedActions.last,
