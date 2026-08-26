@@ -111,4 +111,18 @@ extension CipherType {
             [.text, .hidden, .boolean]
         }
     }
+
+    /// The title of the toast shown after an item of this type is saved.
+    var savedToastTitle: String {
+        switch self {
+        case .bankAccount: Localizations.bankAccountSaved
+        case .card: Localizations.cardSaved
+        case .driversLicense: Localizations.licenseSaved
+        case .identity: Localizations.identitySaved
+        case .login: Localizations.loginSaved
+        case .passport: Localizations.passportSaved
+        case .secureNote: Localizations.secureNoteSaved
+        case .sshKey: Localizations.sshKeySaved
+        }
+    }
 }
