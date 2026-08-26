@@ -155,6 +155,16 @@ class DefaultBillingService: BillingService { // swiftlint:disable:this type_bod
     /// a later, genuinely different sync produces a different last-sync-time value, so it's
     /// never matched by either check regardless of timing, without needing a "clear" that could
     /// itself race a legitimate, unrelated reconcile.
+    ///
+    /// Written from `reconcileCheckoutSuccess()` (UI-driven) and read from `reconcileOnEachNewSync(userId:)`'s
+    /// background `Task`, with no lock or actor isolation between them — a real data race by
+    /// Swift's memory model, invisible to the compiler since `DefaultBillingService` is a plain
+    /// class, not `Sendable`-checked or actor-isolated. Investigated under Thread Sanitizer across
+    /// this file's full suite, including a test built specifically to force the two contexts to
+    /// race on this property (`reconcileCheckoutSuccess_suppressesConcurrentReconcileForOwnSync`);
+    /// no race was ever observed. Left as-is given that evidence — revisit (e.g. isolate this
+    /// property, or promote the class to an `actor` as `DefaultAuthenticatorSyncService` does for
+    /// the same shape of state) if it turns out to matter.
     private var checkoutSuccessSync: CheckoutSuccessSync?
 
     /// The service used to manage feature flags.
