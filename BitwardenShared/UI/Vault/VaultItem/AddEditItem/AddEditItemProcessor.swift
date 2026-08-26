@@ -10,10 +10,6 @@ import UIKit
 ///
 @MainActor
 protocol CipherItemOperationDelegate: AnyObject {
-    /// Called when a bank account item has been successfully saved (added or updated), so the
-    /// presenting screen can display a confirmation toast.
-    func bankAccountSaved()
-
     /// Called when a new cipher item has been successfully added.
     ///
     /// - Returns: A boolean indicating whether the view should be dismissed. Defaults to `true`.
@@ -45,8 +41,6 @@ protocol CipherItemOperationDelegate: AnyObject {
 }
 
 extension CipherItemOperationDelegate {
-    func bankAccountSaved() {}
-
     func itemAdded() -> Bool { true }
 
     func itemArchived() {}
@@ -380,16 +374,9 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
         }
 
         let shouldDismiss = delegate?.itemAdded() ?? true
-        guard shouldDismiss else { return }
-
-        guard didAddItem, state.type == .bankAccount else {
+        if shouldDismiss {
             coordinator.navigate(to: .dismiss())
-            return
         }
-
-        coordinator.navigate(to: .dismiss(DismissAction(action: { [delegate] in
-            delegate?.bankAccountSaved()
-        })))
     }
 
     /// Fetches any additional data (e.g. organizations and folders) needed for adding or editing a cipher.
@@ -1095,16 +1082,9 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
         try await services.vaultRepository.updateCipher(cipherView.updatedView(with: state))
         coordinator.hideLoadingOverlay()
         let shouldDismissed = delegate?.itemUpdated() ?? true
-        guard shouldDismissed else { return }
-
-        guard state.type == .bankAccount else {
+        if shouldDismissed {
             coordinator.navigate(to: .dismiss())
-            return
         }
-
-        coordinator.navigate(to: .dismiss(DismissAction(action: { [delegate] in
-            delegate?.bankAccountSaved()
-        })))
     }
 
     /// Checks camera authorization and either opens the card scanner sheet or shows a
