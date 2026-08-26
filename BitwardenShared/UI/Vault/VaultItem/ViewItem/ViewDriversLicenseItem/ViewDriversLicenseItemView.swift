@@ -99,7 +99,7 @@ struct ViewDriversLicenseItemView: View {
         let isVisible = store.state.isLicenseNumberVisible
         if !licenseNumber.isEmpty {
             BitwardenField(title: Localizations.licenseNumber) {
-                PasswordText(password: licenseNumber, isPasswordVisible: isVisible)
+                PasswordText(password: licenseNumber, isPasswordVisible: isVisible, spellOutAccessibilityValue: true)
                     .styleGuide(.body)
                     .foregroundColor(SharedAsset.Colors.textPrimary.swiftUIColor)
                     .accessibilityIdentifier("DriversLicenseNumberEntry")
