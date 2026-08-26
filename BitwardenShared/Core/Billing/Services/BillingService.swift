@@ -116,6 +116,19 @@ protocol BillingService: AnyObject { // sourcery: AutoMockable
 /// The default implementation of `BillingService`.
 ///
 class DefaultBillingService: BillingService { // swiftlint:disable:this type_body_length
+    // MARK: - CheckoutSuccessSync
+
+    /// The account, and state, of `reconcileCheckoutSuccess()`'s most recently forced sync.
+    private enum CheckoutSuccessSync {
+        /// The forced sync for `userId` is still in flight; its last-sync-time value isn't yet
+        /// knowable.
+        case inFlight(userId: String?)
+
+        /// The forced sync for `userId` finished, persisting `syncTime` as the account's
+        /// last-sync time (`nil` if reading it back failed).
+        case resolved(userId: String?, syncTime: Date?)
+    }
+
     // MARK: Properties
 
     /// The task that watches for active-account changes and re-subscribes
@@ -130,21 +143,19 @@ class DefaultBillingService: BillingService { // swiftlint:disable:this type_bod
 
     let checkoutCallbackUrlScheme = "bitwarden"
 
-    /// The account, and — once known — the exact last-sync-time value, that
-    /// `reconcileCheckoutSuccess()`'s most recently forced sync belongs to.
+    /// The state of `reconcileCheckoutSuccess()`'s most recently forced sync.
     ///
-    /// Set with a `nil` sync time right before that forced sync starts, covering the window
-    /// while the sync is still in flight — including before it's known whether a later step in
-    /// that same sync throws — during which its own last-sync-time write isn't yet knowable
-    /// here. Updated with the actual value once the sync returns, additionally covering
-    /// `reconcileOnEachNewSync(userId:)` observing that same write only *after*
-    /// `reconcileCheckoutSuccess()` has already finished resolving `lastAttemptFailed` for it:
-    /// these are two independently scheduled tasks, so nothing guarantees the former runs
-    /// before the latter completes. Never explicitly cleared — a later, genuinely different
-    /// sync produces a different last-sync-time value, so it's never matched by either check
-    /// regardless of timing, without needing a "clear" that could itself race a legitimate,
-    /// unrelated reconcile.
-    private var checkoutSuccessSync: (userId: String?, resolvedSyncTime: Date?)?
+    /// Set to `.inFlight` right before that forced sync starts, covering the window while the
+    /// sync is still in flight — including before it's known whether a later step in that same
+    /// sync throws — during which its own last-sync-time write isn't yet knowable here. Updated
+    /// to `.resolved` once the sync returns, additionally covering `reconcileOnEachNewSync(userId:)`
+    /// observing that same write only *after* `reconcileCheckoutSuccess()` has already finished
+    /// resolving `lastAttemptFailed` for it: these are two independently scheduled tasks, so
+    /// nothing guarantees the former runs before the latter completes. Never explicitly cleared —
+    /// a later, genuinely different sync produces a different last-sync-time value, so it's
+    /// never matched by either check regardless of timing, without needing a "clear" that could
+    /// itself race a legitimate, unrelated reconcile.
+    private var checkoutSuccessSync: CheckoutSuccessSync?
 
     /// The service used to manage feature flags.
     private let configService: ConfigService
@@ -326,20 +337,25 @@ class DefaultBillingService: BillingService { // swiftlint:disable:this type_bod
         premiumCheckoutStatusSubject.send(.syncing)
         var syncFailed = false
         // See `checkoutSuccessSync`'s doc comment.
-        checkoutSuccessSync = (userId: userId, resolvedSyncTime: nil)
+        checkoutSuccessSync = .inFlight(userId: userId)
         do {
             try await syncService.fetchSync(forceSync: true)
         } catch {
             errorReporter.log(error: error)
             syncFailed = true
         }
-        checkoutSuccessSync = await (userId: userId, resolvedSyncTime: try? stateService.getLastSyncTime())
+        checkoutSuccessSync = await .resolved(userId: userId, syncTime: try? stateService.getLastSyncTime())
 
         // Bail without writing (or publishing) against whichever account is active now if it's
         // no longer the one this reconcile started for, rather than resolving the calls below
-        // against an unrelated account's checkout.
+        // against an unrelated account's checkout. Clears the `.syncing` sent above first —
+        // otherwise it would stay the `CurrentValueSubject`'s value indefinitely and replay to
+        // whichever upgrade UI subscribes next, even though no sync is actually in flight for it.
         let accountIdAfterSync = try? await stateService.getActiveAccountId()
-        guard accountIdAfterSync == userId else { return }
+        guard accountIdAfterSync == userId else {
+            premiumCheckoutStatusSubject.send(nil)
+            return
+        }
 
         let hasPremium = await stateService.doesActiveAccountHavePremium()
         do {
@@ -516,11 +532,15 @@ class DefaultBillingService: BillingService { // swiftlint:disable:this type_bod
     private func reconcilePendingUpgradeIfNeeded(userId: String, lastSyncTime: Date?) async {
         // See `checkoutSuccessSync`'s doc comment: defers to `reconcileCheckoutSuccess()`'s own
         // resolution of `lastAttemptFailed`, whether this runs while that method's forced sync
-        // is still in flight (`resolvedSyncTime` not yet known) or after the fact for that same
-        // sync's emission (`resolvedSyncTime` matches this call's `lastSyncTime` exactly).
-        if let checkoutSuccessSync, checkoutSuccessSync.userId == userId,
-           checkoutSuccessSync.resolvedSyncTime == nil || checkoutSuccessSync.resolvedSyncTime == lastSyncTime {
+        // is still in flight (`.inFlight`) or after the fact for that same sync's emission
+        // (`.resolved` with a `syncTime` matching this call's `lastSyncTime` exactly).
+        switch checkoutSuccessSync {
+        case let .inFlight(syncUserId) where syncUserId == userId:
             return
+        case let .resolved(syncUserId, syncTime) where syncUserId == userId && syncTime == lastSyncTime:
+            return
+        default:
+            break
         }
 
         let isPending: Bool

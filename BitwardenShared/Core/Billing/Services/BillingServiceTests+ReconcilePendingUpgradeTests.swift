@@ -278,6 +278,9 @@ extension BillingServiceTests {
         // twice instead of once.
         try await stateService.setLastSyncTime(Date(), userId: nil)
         try await waitForAsync { stateService.getPremiumUpgradePendingCallCount == 3 }
+        // Give a duplicate reconcile from account 1's subscriber a chance to land before
+        // asserting none did.
+        try await Task.sleep(nanoseconds: 100_000_000)
         #expect(stateService.getPremiumUpgradePendingCallCount == 3)
     }
 }

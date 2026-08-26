@@ -11,11 +11,14 @@ import Testing
 extension BillingServiceTests {
     // MARK: Tests
 
-    /// `reconcileCheckoutSuccess()` abandons the reconcile without writing or publishing anything
-    /// if the active account changes while suspended in the forced `fetchSync()` above — the
-    /// "Sync Now" caller (`PremiumUpgradeHelper`'s `.pending` case) dismisses to an interactive
-    /// vault list before this method runs, so an account switch during that sync is a real
-    /// window, and none of `billingStateService`'s calls are per-user.
+    /// `reconcileCheckoutSuccess()` abandons the reconcile without writing anything further if
+    /// the active account changes while suspended in the forced `fetchSync()` above — the "Sync
+    /// Now" caller (`PremiumUpgradeHelper`'s `.pending` case) dismisses to an interactive vault
+    /// list before this method runs, so an account switch during that sync is a real window, and
+    /// none of `billingStateService`'s calls are per-user. The `.syncing` already sent before the
+    /// switch still reaches this already-live subscriber — `compactMap` only drops the `nil`
+    /// cleanup send that follows it — but the subject's held value resets to `nil` so a *later*
+    /// subscriber (e.g. a subsequent checkout attempt) doesn't see a stale replay of it.
     @Test
     func reconcileCheckoutSuccess_abandonsWriteOnAccountSwitchDuringSync() async throws {
         stateService.activeAccount = .fixture(profile: .fixture(userId: "1"))
@@ -30,10 +33,36 @@ extension BillingServiceTests {
 
         await subject.reconcileCheckoutSuccess()
 
-        #expect(statuses.isEmpty)
+        // Wait out the debounce so the already-live subscriber's buffered `.syncing` is
+        // delivered before asserting on it.
+        try await waitForAsync { !statuses.isEmpty }
+        #expect(statuses == [.syncing])
         #expect(stateService.premiumUpgradePendingResult == true)
         #expect(stateService.setPremiumUpgradeLastSyncAttemptFailedCallCount == 0)
         #expect(stateService.setUpgradedToPremiumActionCardVisibleCallCount == 0)
+    }
+
+    /// `reconcileCheckoutSuccess()` resets the checkout status subject's held value on an
+    /// account-switch bail, so a subscriber that subscribes *after* the bail doesn't see a stale
+    /// replay of the `.syncing` sent for the account this reconcile was abandoned for.
+    @Test
+    func reconcileCheckoutSuccess_accountSwitchBail_lateSubscriberDoesNotReceiveStaleSyncingStatus() async throws {
+        stateService.activeAccount = .fixture(profile: .fixture(userId: "1"))
+        syncService.fetchSyncHandler = {
+            // Simulates the account switch landing exactly inside this suspension window.
+            stateService.activeAccount = .fixture(profile: .fixture(userId: "2"))
+        }
+
+        await subject.reconcileCheckoutSuccess()
+
+        var lateStatuses = [PremiumCheckoutStatus]()
+        let cancellable = subject.premiumCheckoutStatusPublisher()
+            .sink { lateStatuses.append($0) }
+        defer { cancellable.cancel() }
+
+        // Give a stale replay a chance to arrive before asserting none did.
+        try await Task.sleep(nanoseconds: 250_000_000)
+        #expect(lateStatuses.isEmpty)
     }
 
     /// `reconcileCheckoutSuccess()` still syncs and confirms the upgrade when the account already
@@ -199,8 +228,12 @@ extension BillingServiceTests {
         syncService.fetchSyncHandler = {
             // Simulates the real `fetchSync()`'s last-sync-time write landing before the later
             // step below throws — the same ordering that lets the background reconciler observe
-            // this sync before it's actually resolved.
-            stateService.lastSyncTimeSubject.value = Date()
+            // this sync before it's actually resolved. Writes both stores, matching
+            // `setLastSyncTime(_:userId:)`, so `getLastSyncTime()`'s later read-back in
+            // `reconcileCheckoutSuccess()` sees the same value the publisher just emitted.
+            let date = Date()
+            stateService.lastSyncTimeByUserId[stateService.activeAccount?.profile.userId ?? ""] = date
+            stateService.lastSyncTimeSubject.value = date
         }
         syncService.fetchSyncResult = .failure(URLError(.notConnectedToInternet))
 
