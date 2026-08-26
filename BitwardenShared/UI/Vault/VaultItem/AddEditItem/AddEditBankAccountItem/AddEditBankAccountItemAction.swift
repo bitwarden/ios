@@ -11,9 +11,6 @@ enum AddEditBankAccountItemAction: Equatable, Sendable {
     /// The type of the bank account changed.
     case accountTypeChanged(DefaultableType<BankAccountType>)
 
-    /// The account type menu was opened.
-    case accountTypeMenuOpened
-
     /// The contact phone number for the bank changed.
     case bankContactPhoneChanged(String)
 
