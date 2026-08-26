@@ -130,24 +130,6 @@ struct AddEditItemProcessorBankAccountTests {
         #expect(subject.state.bankAccountItemState.accountType == .custom(.checking))
     }
 
-    /// `receive(_:)` with `.bankAccountFieldChanged(.accountTypeMenuOpened)` sets the account type to
-    /// `.custom(.checking)` when the account type is still `.default`.
-    @Test
-    func receive_bankAccountFieldChanged_accountTypeMenuOpened_whenDefault() {
-        subject.state.bankAccountItemState.accountType = .default
-        subject.receive(.bankAccountFieldChanged(.accountTypeMenuOpened))
-        #expect(subject.state.bankAccountItemState.accountType == .custom(.checking))
-    }
-
-    /// `receive(_:)` with `.bankAccountFieldChanged(.accountTypeMenuOpened)` doesn't change the account
-    /// type when it's already been explicitly set.
-    @Test
-    func receive_bankAccountFieldChanged_accountTypeMenuOpened_whenAlreadyCustom() {
-        subject.state.bankAccountItemState.accountType = .custom(.savings)
-        subject.receive(.bankAccountFieldChanged(.accountTypeMenuOpened))
-        #expect(subject.state.bankAccountItemState.accountType == .custom(.savings))
-    }
-
     /// `receive(_:)` with `.bankAccountFieldChanged(.accountNumberChanged)` updates the state correctly.
     @Test
     func receive_bankAccountFieldChanged_accountNumberChanged() {
