@@ -796,7 +796,8 @@ extension ViewItemProcessor: CipherItemOperationDelegate {
 
 extension ViewItemProcessor: EditCollectionsProcessorDelegate {
     func didUpdateCipher() {
-        state.toast = Toast(title: Localizations.itemUpdated)
+        let title = state.loadingState.data?.type.savedToastTitle ?? Localizations.itemUpdated
+        state.toast = Toast(title: title)
     }
 }
 
