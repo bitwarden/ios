@@ -312,6 +312,9 @@ extension BillingServiceTests {
 
         await subject.reconcileCheckoutSuccess()
 
+        // `premiumUpgradePendingStatePublisher()` delivers on `DispatchQueue.main`, so the three
+        // sends below arrive asynchronously relative to `reconcileCheckoutSuccess()` returning.
+        try await waitForAsync { pendingStates.count == 3 }
         #expect(stateService.premiumUpgradeLastSyncAttemptFailedResult == true)
         #expect(stateService.premiumUpgradePendingResult == true)
         #expect(pendingStates == [

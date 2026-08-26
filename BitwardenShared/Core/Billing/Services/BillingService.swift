@@ -317,7 +317,13 @@ class DefaultBillingService: BillingService { // swiftlint:disable:this type_bod
     }
 
     func premiumUpgradePendingStatePublisher() -> AnyPublisher<PremiumUpgradePendingState, Never> {
-        premiumUpgradePendingStateSubject.eraseToAnyPublisher()
+        // `premiumUpgradePendingStateSubject.send(_:)` is called from `refreshPremiumUpgradePendingStateSubject()`,
+        // which runs on whichever background `Task` (`start()`'s account/sync subscribers) happens to be
+        // resolving it — never guaranteed to be the main thread. Pinned here so a consumer driving
+        // `@Published` UI state from this publisher doesn't need to hop to main itself.
+        premiumUpgradePendingStateSubject
+            .receive(on: DispatchQueue.main)
+            .eraseToAnyPublisher()
     }
 
     func reconcileCheckoutSuccess() async {

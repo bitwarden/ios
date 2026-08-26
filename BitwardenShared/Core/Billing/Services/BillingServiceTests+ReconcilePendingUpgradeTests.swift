@@ -96,10 +96,14 @@ extension BillingServiceTests {
         stateService.premiumUpgradeLastSyncAttemptFailedResult = true
         try await stateService.setLastSyncTime(Date(), userId: nil)
 
-        try await waitForAsync { stateService.premiumUpgradeLastSyncAttemptFailedResult == false }
+        // `premiumUpgradePendingStatePublisher()` delivers on `DispatchQueue.main`, so `states`
+        // lags whichever mock property the reconcile updates last — wait on it directly, rather
+        // than on `premiumUpgradeLastSyncAttemptFailedResult`, so the other assertions below are
+        // guaranteed to observe the reconcile's fully-settled state, not a partial one.
+        try await waitForAsync { states.last == PremiumUpgradePendingState(isPending: true, lastAttemptFailed: false) }
+        #expect(stateService.premiumUpgradeLastSyncAttemptFailedResult == false)
         #expect(stateService.premiumUpgradePendingResult == true)
         #expect(stateService.upgradedToPremiumActionCardVisibleResult == false)
-        #expect(states.last == PremiumUpgradePendingState(isPending: true, lastAttemptFailed: false))
     }
 
     /// `start()` does not clear a stale `lastAttemptFailed` flag just from subscribing to the
@@ -184,7 +188,13 @@ extension BillingServiceTests {
         stateService.doesActiveAccountHavePremiumResult = true
         try await stateService.setLastSyncTime(Date(), userId: nil)
 
-        try await waitForAsync { !states.isEmpty }
+        // `premiumUpgradePendingStatePublisher()` delivers on `DispatchQueue.main`, so `start()`'s
+        // own initial send (the pre-reconcile pending state) can still be in flight when
+        // `removeAll()` above runs, landing in `states` afterward — waiting on the exact expected
+        // value, rather than just non-emptiness, rules that stale intermediate value out.
+        try await waitForAsync {
+            states.last == PremiumUpgradePendingState(isPending: false, lastAttemptFailed: false)
+        }
         #expect(states.last == PremiumUpgradePendingState(isPending: false, lastAttemptFailed: false))
     }
 
