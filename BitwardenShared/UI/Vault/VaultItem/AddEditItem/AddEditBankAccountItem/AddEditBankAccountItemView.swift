@@ -68,14 +68,6 @@ struct AddEditBankAccountItemView: View {
                         send: AddEditBankAccountItemAction.accountTypeChanged,
                     ),
                 )
-                .simultaneousGesture(
-                    // Fires on touch-down (rather than `TapGesture`'s touch-up) so the account type
-                    // is set to `.custom(.checking)` before the native menu captures its content for
-                    // presentation, ensuring "Checking" is checkmarked as soon as the menu opens.
-                    DragGesture(minimumDistance: 0).onChanged { _ in
-                        store.send(.accountTypeMenuOpened)
-                    },
-                )
 
                 BitwardenTextField(
                     title: Localizations.accountNumber,
