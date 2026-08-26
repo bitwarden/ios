@@ -1,6 +1,7 @@
 // swiftlint:disable:this file_name
 import BitwardenKit
 import BitwardenKitMocks
+import BitwardenResources
 import XCTest
 
 @testable import BitwardenShared
@@ -78,6 +79,24 @@ class ViewDriversLicenseItemViewTests: BitwardenTestCase {
         XCTAssertEqual(
             processor.dispatchedActions.last,
             .driversLicenseItemAction(.toggleLicenseNumberVisibilityChanged),
+        )
+    }
+
+    /// The license number visibility toggle announces the field name and current state to
+    /// VoiceOver.
+    @MainActor
+    func test_licenseNumberVisibilityToggle_accessibilityLabel() throws {
+        var state = populatedState()
+        state.isLicenseNumberVisible = false
+        initSubject(state: state)
+        _ = try subject.inspect().find(
+            buttonWithAccessibilityLabel: Localizations.fieldValueIsNotVisibleTapToShow(Localizations.licenseNumber),
+        )
+
+        state.isLicenseNumberVisible = true
+        initSubject(state: state)
+        _ = try subject.inspect().find(
+            buttonWithAccessibilityLabel: Localizations.fieldValueIsVisibleTapToHide(Localizations.licenseNumber),
         )
     }
 
