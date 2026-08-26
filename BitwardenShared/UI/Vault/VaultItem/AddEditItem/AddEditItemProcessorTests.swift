@@ -1680,6 +1680,18 @@ class AddEditItemProcessorTests: BitwardenTestCase {
         XCTAssertTrue(coordinator.routes.isEmpty)
     }
 
+    /// `perform(_:)` with `.savePressed` notifies the delegate of the type of the item that was
+    /// added, so that a confirmation toast can be shown.
+    @MainActor
+    func test_perform_savePressed_new_notifiesDelegateItemSaved() async throws {
+        subject.state.type = .driversLicense
+        subject.state.name = "Bitwarden"
+
+        await subject.perform(.savePressed)
+
+        XCTAssertEqual(delegate.itemSavedType, .driversLicense)
+    }
+
     /// `perform(_:)` with `.savePressed` forwards errors to the error reporter.
     @MainActor
     func test_perform_savePressed_existing_error() async throws {
@@ -1698,6 +1710,21 @@ class AddEditItemProcessorTests: BitwardenTestCase {
 
         XCTAssertEqual(errorReporter.errors.first as? EncryptError, EncryptError())
         XCTAssertTrue(reviewPromptService.userActions.isEmpty)
+    }
+
+    /// `perform(_:)` with `.savePressed` notifies the delegate of the type of the item that was
+    /// updated, so that a confirmation toast can be shown.
+    @MainActor
+    func test_perform_savePressed_existing_notifiesDelegateItemSaved() async throws {
+        subject.state = try XCTUnwrap(
+            CipherItemState(existing: .fixture(type: .identity), hasPremium: true),
+        ).addEditState
+        subject.state.name = "vault item"
+        vaultRepository.updateCipherResult = .success(())
+
+        await subject.perform(.savePressed)
+
+        XCTAssertEqual(delegate.itemSavedType, .identity)
     }
 
     /// `perform(_:)` with `.savePressed` notifies the delegate that the item was updated and
@@ -2411,12 +2438,14 @@ class AddEditItemProcessorTests: BitwardenTestCase {
         XCTAssertFalse(subject.state.guidedTourViewState.showGuidedTour)
     }
 
-    /// `receive(_:)` with `.dismiss()` navigates to the `.dismiss()` route.
+    /// `receive(_:)` with `.dismiss()` navigates to the `.dismiss()` route without notifying the
+    /// delegate that the item was saved, so that cancelling doesn't show a confirmation toast.
     @MainActor
     func test_receive_dismiss() {
         subject.receive(.dismissPressed)
 
         XCTAssertEqual(coordinator.routes.last, .dismiss())
+        XCTAssertNil(delegate.itemSavedType)
     }
 
     /// `receive(_:)` with `.guidedTourViewAction(.doneTapped)` completes the guided tour.
@@ -3499,6 +3528,7 @@ class MockCipherItemOperationDelegate: CipherItemOperationDelegate {
     var itemArchivedCalled = false
     var itemDeletedCalled = false
     var itemRestoredCalled = false
+    var itemSavedType: BitwardenShared.CipherType?
     var itemSoftDeletedCalled = false
     var itemUpdatedCalled = false
     var itemUpdatedShouldDismiss = true
@@ -3519,6 +3549,10 @@ class MockCipherItemOperationDelegate: CipherItemOperationDelegate {
 
     func itemRestored() {
         itemRestoredCalled = true
+    }
+
+    func itemSaved(type: BitwardenShared.CipherType) {
+        itemSavedType = type
     }
 
     func itemSoftDeleted() {
