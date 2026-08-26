@@ -26,6 +26,8 @@
 "FolderNone" = "Karpetarik ez";
 "Folders" = "Karpetak";
 "FolderUpdated" = "Karpeta eguneratua.";
+"MyFolder" = "My folder";
+"MyFolders" = "My folders";
 "InternetConnectionRequiredMessage" = "Mesedez, konektatu internetera jarraitu aurretik.";
 "InternetConnectionRequiredTitle" = "Internet konexioa beharrezkoa da";
 "InvalidMasterPassword" = "Pasahitz nagusi baliogabea. Saiatu berriro.";
@@ -898,6 +900,7 @@
 /* VoiceOver accessibility label for a shared folder the item belongs to. */
 "SharedFolderX" = "Shared folder, %1$@";
 "FolderX" = "Karpeta, %1$@";
+"MyFolderX" = "My folder, %1$@";
 "ItemXOfY" = "%1$@ elementua %2$@-tik";
 "ViewRecordedLogs" = "Ikusi grabatutako erregistroak";
 "RecordedLogs" = "Grabatutako erregistroak";

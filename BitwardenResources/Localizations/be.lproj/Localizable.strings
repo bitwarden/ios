@@ -26,6 +26,8 @@
 "FolderNone" = "Без папкі";
 "Folders" = "Папкі";
 "FolderUpdated" = "Папка абноўлена.";
+"MyFolder" = "My folder";
+"MyFolders" = "My folders";
 "InternetConnectionRequiredMessage" = "Калі ласка, спачатку падлучыце інтэрнэт.";
 "InternetConnectionRequiredTitle" = "Патрабуецца доступ да інтэрнэту";
 "InvalidMasterPassword" = "Памылковы асноўны пароль. Паспрабуйце яшчэ раз.";
@@ -898,6 +900,7 @@
 /* VoiceOver accessibility label for a shared folder the item belongs to. */
 "SharedFolderX" = "Shared folder, %1$@";
 "FolderX" = "Тэчка, %1$@";
+"MyFolderX" = "My folder, %1$@";
 "ItemXOfY" = "Элемент %1$@ з %2$@";
 "ViewRecordedLogs" = "Праглядзець запісаныя лагі";
 "RecordedLogs" = "Запісаныя лагі";

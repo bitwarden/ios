@@ -26,6 +26,8 @@
 "FolderNone" = "Fără dosar";
 "Folders" = "Dosare";
 "FolderUpdated" = "Dosar salvat";
+"MyFolder" = "My folder";
+"MyFolders" = "My folders";
 "InternetConnectionRequiredMessage" = "Vă rugăm să vă conectați la internet înainte de a continua.";
 "InternetConnectionRequiredTitle" = "Conexiune la internet necesară";
 "InvalidMasterPassword" = "Parolă principală invalidă. Încercați din nou.";
@@ -898,6 +900,7 @@
 /* VoiceOver accessibility label for a shared folder the item belongs to. */
 "SharedFolderX" = "Shared folder, %1$@";
 "FolderX" = "Dosar, %1$@";
+"MyFolderX" = "My folder, %1$@";
 "ItemXOfY" = "Element %1$@ din %2$@";
 "ViewRecordedLogs" = "Vezi jurnalele înregistrate";
 "RecordedLogs" = "Jurnale înregistrate";

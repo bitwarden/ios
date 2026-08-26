@@ -26,6 +26,8 @@
 "FolderNone" = "フォルダーなし";
 "Folders" = "フォルダー";
 "FolderUpdated" = "フォルダーを更新しました。";
+"MyFolder" = "マイフォルダー";
+"MyFolders" = "マイフォルダー";
 "InternetConnectionRequiredMessage" = "続行する前に、インターネットに接続してください。";
 "InternetConnectionRequiredTitle" = "インターネット接続が必要です";
 "InvalidMasterPassword" = "マスターパスワードが間違っています。入力し直してください。";
@@ -897,7 +899,8 @@
 "CollectionX" = "コレクション %1$@";
 /* VoiceOver accessibility label for a shared folder the item belongs to. */
 "SharedFolderX" = "共有フォルダー: %1$@";
-"FolderX" = "フォルダー %1$@";
+"FolderX" = "フォルダー: %1$@";
+"MyFolderX" = "マイフォルダー: %1$@";
 "ItemXOfY" = "アイテム %1$@ / %2$@";
 "ViewRecordedLogs" = "記録されたログを表示";
 "RecordedLogs" = "記録されたログ";
