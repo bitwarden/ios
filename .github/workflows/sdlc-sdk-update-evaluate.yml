@@ -278,7 +278,7 @@ jobs:
           # The second alternation is the same restore list claude-code-action pulls from
           # origin/main above — this job never has a legitimate reason to commit changes there either.
           CHANGED=$(git diff --name-only "origin/$_BRANCH_NAME" HEAD)
-          if echo "$CHANGED" | grep -qE '^(\.github/|\.claude/|\.husky/|\.mcp\.json$|\.claude\.json$|\.gitmodules$|\.ripgreprc$|CLAUDE\.md$|CLAUDE\.local\.md$)'; then
+          if echo "$CHANGED" | grep -qE '(^|/)(\.github/|\.claude/|\.husky/|\.mcp\.json$|\.claude\.json$|\.gitmodules$|\.ripgreprc$|CLAUDE\.md$|CLAUDE\.local\.md$)'; then
             echo "::error::Refusing to push: the fix touches CI or agent configuration."
             echo "$CHANGED"
             exit 1
