@@ -307,29 +307,6 @@ struct BillingServiceTests { // swiftlint:disable:this type_body_length
         try await waitForAsync { lateStatuses.isEmpty }
     }
 
-    /// A subscriber connecting after `.pending` is emitted receives the pending status immediately
-    /// (CurrentValueSubject replays the last value to new subscribers).
-    @Test
-    func premiumCheckoutStatusPublisher_lateSubscriberReceivesPendingStatus() async throws {
-        stateService.doesActiveAccountHavePremiumResult = false
-        var earlyStatuses = [PremiumCheckoutStatus]()
-        let earlyCancellable = subject.premiumCheckoutStatusPublisher()
-            .sink { earlyStatuses.append($0) }
-
-        await subject.premiumStatusChanged()
-        try await waitForAsync { !earlyStatuses.isEmpty }
-
-        // Late subscriber connects after .pending was emitted and should receive it.
-        var lateStatuses = [PremiumCheckoutStatus]()
-        let lateCancellable = subject.premiumCheckoutStatusPublisher()
-            .sink { lateStatuses.append($0) }
-        try await waitForAsync { !lateStatuses.isEmpty }
-
-        #expect(lateStatuses == [.pending])
-        _ = earlyCancellable
-        _ = lateCancellable
-    }
-
     /// `premiumStatusChanged()` returns early without syncing when the user already has Premium.
     @Test
     func premiumStatusChanged_alreadyHasPremium() async throws {
@@ -422,6 +399,29 @@ struct BillingServiceTests { // swiftlint:disable:this type_body_length
         try await waitForAsync { !statuses.isEmpty }
         #expect(statuses == [.pending])
         #expect(syncService.didFetchSync)
+    }
+
+    /// `premiumStatusChanged()` resets the publisher value to `nil` after emitting `.pending`, so
+    /// a later, unrelated subscriber (e.g. opening the upgrade screen for the first time after an
+    /// out-of-band push left `.pending` behind) does not receive a stale `.pending` on connection.
+    @Test
+    func premiumStatusChanged_pending_resetsPublisherValue() async throws {
+        stateService.doesActiveAccountHavePremiumResult = false
+        var earlyStatuses = [PremiumCheckoutStatus]()
+        let earlyCancellable = subject.premiumCheckoutStatusPublisher()
+            .sink { earlyStatuses.append($0) }
+        defer { earlyCancellable.cancel() }
+
+        await subject.premiumStatusChanged()
+        try await waitForAsync { !earlyStatuses.isEmpty }
+
+        // A subscriber connecting after .pending + nil are emitted should receive nothing.
+        var lateStatuses = [PremiumCheckoutStatus]()
+        let lateCancellable = subject.premiumCheckoutStatusPublisher()
+            .sink { lateStatuses.append($0) }
+        defer { lateCancellable.cancel() }
+
+        try await waitForAsync { lateStatuses.isEmpty }
     }
 
     /// `isSelfHosted()` returns `false` when the region is not self-hosted.

@@ -115,7 +115,22 @@ class DefaultPremiumUpgradeHelper<Route: PremiumUpgradeRoute, Event>: PremiumUpg
 
     func startInAppPremiumUpgrade(onConfirmed: (() async -> Void)? = nil) {
         subscribeToPremiumCheckoutStatus(onConfirmed: onConfirmed)
-        coordinator.navigate(to: .premiumUpgrade)
+        Task { [weak self] in
+            guard let self else { return }
+            // Checked here, not just left to each caller's own CTA visibility (e.g. the Vault
+            // tab's action card, hidden while pending): a pending upgrade doesn't stop any of
+            // the other eight entry points into this flow (Settings > Plan, Send, item views,
+            // etc.) from starting a second, redundant checkout. Intercepting at this single,
+            // shared choke point closes all of them at once instead of gating each separately.
+            guard await services.billingService.premiumUpgradePendingState().isPending else {
+                coordinator.navigate(to: .premiumUpgrade)
+                return
+            }
+            onPendingDismiss?()
+            coordinator.showAlert(.upgradePending {
+                await self.services.billingService.reconcileCheckoutSuccess()
+            })
+        }
     }
 
     // MARK: Private Methods
