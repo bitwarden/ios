@@ -12,7 +12,7 @@ import Testing
 // MARK: - PremiumUpgradeHelperTests
 
 @MainActor
-struct PremiumUpgradeHelperTests {
+struct PremiumUpgradeHelperTests { // swiftlint:disable:this type_body_length
     // MARK: Properties
 
     let billingRepository: MockBillingRepository
@@ -120,6 +120,24 @@ struct PremiumUpgradeHelperTests {
 
         try await waitForAsync { coordinator.routes.last == .premiumUpgrade }
         #expect(!billingRepository.isInAppUpgradeAvailableCalled)
+    }
+
+    /// `startInAppPremiumUpgrade(onConfirmed:)` ignores a second call that arrives while the
+    /// first call's pending-state check is still in flight (e.g. a rapid double-tap on the same
+    /// CTA) — only the first call navigates.
+    @Test
+    func startInAppPremiumUpgrade_rapidDoubleCall_onlyNavigatesOnce() async throws {
+        let statusSubject = PassthroughSubject<PremiumCheckoutStatus, Never>()
+        billingService.premiumCheckoutStatusPublisherReturnValue = statusSubject.eraseToAnyPublisher()
+        let subject = makeSubject()
+
+        subject.startInAppPremiumUpgrade()
+        subject.startInAppPremiumUpgrade()
+
+        try await waitForAsync { coordinator.routes.last == .premiumUpgrade }
+        // Give a wrongly-allowed second resolution a chance to also land before asserting.
+        try await Task.sleep(nanoseconds: 50_000_000)
+        #expect(coordinator.routes.count(where: { $0 == .premiumUpgrade }) == 1)
     }
 
     /// `startInAppPremiumUpgrade(onConfirmed:)` shows the upgrade pending alert instead of
