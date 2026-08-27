@@ -268,8 +268,13 @@ class DefaultBillingService: BillingService { // swiftlint:disable:this type_bod
         }
         let hasPremium = await stateService.doesActiveAccountHavePremium()
         premiumCheckoutStatusSubject.send(hasPremium ? .confirmed : .pending)
+        // Reset unconditionally, not just when confirmed: this method runs for any out-of-band
+        // `.premiumStatusChanged` push, not just an active checkout, so a definitive "not
+        // premium (yet)" answer is just as conclusive as a "confirmed" one — leaving `.pending`
+        // on the subject would replay a stale status to whichever upgrade UI subscribes next,
+        // even though no checkout is actually in flight for it.
+        premiumCheckoutStatusSubject.send(nil)
         if hasPremium {
-            premiumCheckoutStatusSubject.send(nil)
             do {
                 try await billingStateService.setUpgradedToPremiumActionCardVisible(true)
             } catch {

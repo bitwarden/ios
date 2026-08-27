@@ -25,6 +25,10 @@ struct PremiumUpgradeHelperTests {
     init() {
         billingRepository = MockBillingRepository()
         billingService = MockBillingService()
+        billingService.premiumUpgradePendingStateReturnValue = PremiumUpgradePendingState(
+            isPending: false,
+            lastAttemptFailed: false,
+        )
         coordinator = MockCoordinator()
         environmentService = MockEnvironmentService()
     }
@@ -51,7 +55,7 @@ struct PremiumUpgradeHelperTests {
     /// `navigateToPremiumUpgrade(onConfirmed:)` navigates to the Premium upgrade route when
     /// in-app upgrade is available.
     @Test
-    func navigateToPremiumUpgrade_inAppAvailable() async {
+    func navigateToPremiumUpgrade_inAppAvailable() async throws {
         billingRepository.isInAppUpgradeAvailableReturnValue = true
         let statusSubject = PassthroughSubject<PremiumCheckoutStatus, Never>()
         billingService.premiumCheckoutStatusPublisherReturnValue = statusSubject.eraseToAnyPublisher()
@@ -68,7 +72,7 @@ struct PremiumUpgradeHelperTests {
 
         await subject.navigateToPremiumUpgrade()
 
-        #expect(coordinator.routes.last == .premiumUpgrade)
+        try await waitForAsync { coordinator.routes.last == .premiumUpgrade }
         #expect(capturedURL == nil)
     }
 
@@ -96,9 +100,10 @@ struct PremiumUpgradeHelperTests {
 
     // MARK: Tests — startInAppPremiumUpgrade
 
-    /// `startInAppPremiumUpgrade(onConfirmed:)` navigates directly without checking availability.
+    /// `startInAppPremiumUpgrade(onConfirmed:)` navigates directly without checking availability
+    /// when no upgrade is currently pending.
     @Test
-    func startInAppPremiumUpgrade_navigatesWithoutAvailabilityCheck() {
+    func startInAppPremiumUpgrade_navigatesWithoutAvailabilityCheck() async throws {
         let statusSubject = PassthroughSubject<PremiumCheckoutStatus, Never>()
         billingService.premiumCheckoutStatusPublisherReturnValue = statusSubject.eraseToAnyPublisher()
         let subject = DefaultPremiumUpgradeHelper(
@@ -113,8 +118,56 @@ struct PremiumUpgradeHelperTests {
 
         subject.startInAppPremiumUpgrade()
 
-        #expect(coordinator.routes.last == .premiumUpgrade)
+        try await waitForAsync { coordinator.routes.last == .premiumUpgrade }
         #expect(!billingRepository.isInAppUpgradeAvailableCalled)
+    }
+
+    /// `startInAppPremiumUpgrade(onConfirmed:)` shows the upgrade pending alert instead of
+    /// navigating to the upgrade screen when an upgrade is already pending — closing the door on
+    /// any of this helper's callers (Settings > Plan, Send, item views, etc.) starting a second,
+    /// redundant checkout while one is still unresolved.
+    @Test
+    func startInAppPremiumUpgrade_showsPendingAlertWhenAlreadyPending() async throws {
+        let statusSubject = PassthroughSubject<PremiumCheckoutStatus, Never>()
+        billingService.premiumCheckoutStatusPublisherReturnValue = statusSubject.eraseToAnyPublisher()
+        billingService.premiumUpgradePendingStateReturnValue = PremiumUpgradePendingState(
+            isPending: true,
+            lastAttemptFailed: false,
+        )
+        let subject = DefaultPremiumUpgradeHelper(
+            services: ServiceContainer.withMocks(
+                billingRepository: billingRepository,
+                billingService: billingService,
+                environmentService: environmentService,
+            ),
+            coordinator: coordinator.asAnyCoordinator(),
+            setURL: { _ in },
+        )
+
+        subject.startInAppPremiumUpgrade()
+
+        try await waitForAsync { !coordinator.alertShown.isEmpty }
+        #expect(coordinator.alertShown.last?.title == Localizations.upgradePending)
+        #expect(coordinator.routes.last != .premiumUpgrade)
+    }
+
+    /// `startInAppPremiumUpgrade(onConfirmed:)` calls `onPendingDismiss` when it shows the
+    /// upgrade pending alert directly, matching the cleanup already done when `.pending` arrives
+    /// mid-checkout (e.g. dismissing the Vault tab's action card).
+    @Test
+    func startInAppPremiumUpgrade_pendingAlert_callsOnPendingDismiss() async throws {
+        let statusSubject = PassthroughSubject<PremiumCheckoutStatus, Never>()
+        billingService.premiumCheckoutStatusPublisherReturnValue = statusSubject.eraseToAnyPublisher()
+        billingService.premiumUpgradePendingStateReturnValue = PremiumUpgradePendingState(
+            isPending: true,
+            lastAttemptFailed: false,
+        )
+        var onPendingDismissCalled = false
+        let subject = makeSubject(onPendingDismiss: { onPendingDismissCalled = true })
+
+        subject.startInAppPremiumUpgrade()
+
+        try await waitForAsync { onPendingDismissCalled }
     }
 
     // MARK: Tests — subscribeToPremiumCheckoutStatus
@@ -135,6 +188,7 @@ struct PremiumUpgradeHelperTests {
             setURL: { _ in },
         )
         await subject.navigateToPremiumUpgrade()
+        try await waitForAsync { coordinator.routes.last == .premiumUpgrade }
         let routeCountBeforeSend = coordinator.routes.count
 
         statusSubject.send(.canceled)
@@ -164,6 +218,7 @@ struct PremiumUpgradeHelperTests {
         await subject.navigateToPremiumUpgrade(onConfirmed: {
             onConfirmedCalled = true
         })
+        try await waitForAsync { coordinator.routes.last == .premiumUpgrade }
 
         statusSubject.send(.confirmed)
 
@@ -188,6 +243,7 @@ struct PremiumUpgradeHelperTests {
             setURL: { _ in },
         )
         await subject.navigateToPremiumUpgrade()
+        try await waitForAsync { coordinator.routes.last == .premiumUpgrade }
 
         statusSubject.send(.pending)
 
@@ -214,6 +270,7 @@ struct PremiumUpgradeHelperTests {
         var onPendingDismissCalled = false
         let subject = makeSubject(onPendingDismiss: { onPendingDismissCalled = true })
         await subject.navigateToPremiumUpgrade()
+        try await waitForAsync { coordinator.routes.last == .premiumUpgrade }
 
         statusSubject.send(.pending)
 
@@ -246,6 +303,7 @@ struct PremiumUpgradeHelperTests {
             setURL: { _ in },
         )
         await subject.navigateToPremiumUpgrade()
+        try await waitForAsync { coordinator.routes.last == .premiumUpgrade }
         let routeCountBeforeSend = coordinator.routes.count
 
         statusSubject.send(.syncing)
