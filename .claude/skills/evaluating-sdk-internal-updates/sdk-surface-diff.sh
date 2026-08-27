@@ -52,7 +52,7 @@ for rev in "$OLD" "$NEW"; do
   }
 done
 
-# git grep and grep -v both exit 1 to mean "no match", which pipefail would otherwise treat as a
+# grep and grep -v both exit 1 to mean "no match", which pipefail would otherwise treat as a
 # hard failure and abort before assert_surface can report the empty surface. Tolerate exactly 1 and
 # let anything worse propagate.
 no_match_ok () { "$@" || [ $? -eq 1 ]; }
@@ -67,7 +67,11 @@ no_match_ok () { "$@" || [ $? -eq 1 ]; }
 join_split_modifiers () {
   awk '
     /^[[:space:]]*(public|open)[[:space:]]*$/ { pending = $0; sub(/[[:space:]]+$/, "", pending); next }
-    pending { print pending " " $0; pending = ""; next }
+    # pending keeps its own indentation (a nested split must still fail the column-0 anchors in
+    # type_decls/type_exists/type_block), but the continuation line has to lose its leading
+    # indentation: left in, "  public" + " " + "  struct Foo {" joins to two spaces before "struct",
+    # which matches none of the single-space regexes below and the declaration vanishes as before.
+    pending { sub(/^[[:space:]]+/, ""); print pending " " $0; pending = ""; next }
     { print }
     END { if (pending) print pending }
   '
