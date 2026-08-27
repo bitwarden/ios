@@ -170,6 +170,30 @@ struct PremiumUpgradeHelperTests {
         try await waitForAsync { onPendingDismissCalled }
     }
 
+    /// `startInAppPremiumUpgrade(onConfirmed:)`, having shown the pending alert directly without
+    /// navigating anywhere, does not try to dismiss anything if the "Sync Now" retry it triggers
+    /// also comes back `.pending` — there's no Premium upgrade screen to dismiss, since none was
+    /// ever opened. Re-shows the alert directly instead.
+    @Test
+    func startInAppPremiumUpgrade_pendingAlert_retryStillPending_doesNotDismiss() async throws {
+        let statusSubject = PassthroughSubject<PremiumCheckoutStatus, Never>()
+        billingService.premiumCheckoutStatusPublisherReturnValue = statusSubject.eraseToAnyPublisher()
+        billingService.premiumUpgradePendingStateReturnValue = PremiumUpgradePendingState(
+            isPending: true,
+            lastAttemptFailed: false,
+        )
+        let subject = makeSubject()
+
+        subject.startInAppPremiumUpgrade()
+        try await waitForAsync { !coordinator.alertShown.isEmpty }
+
+        statusSubject.send(.pending)
+
+        try await waitForAsync { coordinator.alertShown.count == 2 }
+        #expect(coordinator.alertShown.last?.title == Localizations.upgradePending)
+        #expect(coordinator.routes.isEmpty)
+    }
+
     // MARK: Tests — subscribeToPremiumCheckoutStatus
 
     /// When the billing service emits `.canceled`, nothing happens.
