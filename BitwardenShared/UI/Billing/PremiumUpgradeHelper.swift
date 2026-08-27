@@ -73,6 +73,13 @@ class DefaultPremiumUpgradeHelper<Route: PremiumUpgradeRoute, Event>: PremiumUpg
     /// screen that was never opened.
     private var navigatedToUpgradeScreen = false
 
+    /// Whether a `startInAppPremiumUpgrade(onConfirmed:)` call's pending-state check is currently
+    /// in flight. Unlike the old, synchronous "check availability then navigate immediately"
+    /// call, this now awaits a storage read before deciding, opening a real (if brief) window for
+    /// a rapid double-tap on the same entry point to fire two overlapping checks — each of which
+    /// would otherwise navigate or show the pending alert on its own. Guards against that.
+    private var isResolvingStartRequest = false
+
     /// A cancellable for the Premium checkout status subscription.
     private var premiumStatusChangedCancellable: AnyCancellable?
 
@@ -122,9 +129,12 @@ class DefaultPremiumUpgradeHelper<Route: PremiumUpgradeRoute, Event>: PremiumUpg
     }
 
     func startInAppPremiumUpgrade(onConfirmed: (() async -> Void)? = nil) {
+        guard !isResolvingStartRequest else { return }
+        isResolvingStartRequest = true
         subscribeToPremiumCheckoutStatus(onConfirmed: onConfirmed)
         Task { [weak self] in
             guard let self else { return }
+            defer { isResolvingStartRequest = false }
             // Checked here, not just left to each caller's own CTA visibility (e.g. the Vault
             // tab's action card, hidden while pending): a pending upgrade doesn't stop any of
             // the other eight entry points into this flow (Settings > Plan, Send, item views,
