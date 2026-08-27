@@ -26,6 +26,8 @@
 "FolderNone" = "لا مجلد";
 "Folders" = "المجلدات";
 "FolderUpdated" = "تم حفظ المجلد";
+"MyFolder" = "My folder";
+"MyFolders" = "My folders";
 "InternetConnectionRequiredMessage" = "يرجى الاتصال بالإنترنت قبل المتابعة.";
 "InternetConnectionRequiredTitle" = "يطلب وجود اتصال بالإنترنت";
 "InvalidMasterPassword" = "كلمة المرور الأساسية غير صحيحة. حاول مجددا.";
@@ -898,6 +900,7 @@
 /* VoiceOver accessibility label for a shared folder the item belongs to. */
 "SharedFolderX" = "Shared folder, %1$@";
 "FolderX" = "مجلد، %1$@";
+"MyFolderX" = "My folder, %1$@";
 "ItemXOfY" = "العنصر %1$@ من %2$@";
 "ViewRecordedLogs" = "عرض السجلات المسجلة";
 "RecordedLogs" = "السجلات المسجلة";

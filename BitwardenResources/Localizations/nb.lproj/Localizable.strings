@@ -26,6 +26,8 @@
 "FolderNone" = "Ingen mappe";
 "Folders" = "Mapper";
 "FolderUpdated" = "Mappen er lagret";
+"MyFolder" = "Min mappe";
+"MyFolders" = "Mine mapper";
 "InternetConnectionRequiredMessage" = "Vennligst koble deg til internett før du fortsetter.";
 "InternetConnectionRequiredTitle" = "Internettilkobling nødvendig";
 "InvalidMasterPassword" = "Ugyldig hovedpassord. Prøv igjen.";
@@ -898,6 +900,7 @@
 /* VoiceOver accessibility label for a shared folder the item belongs to. */
 "SharedFolderX" = "Delt mappe, %1$@";
 "FolderX" = "Mappe, %1$@";
+"MyFolderX" = "My folder, %1$@";
 "ItemXOfY" = "Element %1$@ av %2$@";
 "ViewRecordedLogs" = "View recorded logs";
 "RecordedLogs" = "Recorded logs";
