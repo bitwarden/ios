@@ -191,6 +191,10 @@ class DefaultPremiumUpgradeHelper<Route: PremiumUpgradeRoute, Event>: PremiumUpg
                         showUpgradePendingAlert()
                         return
                     }
+                    // Consume the flag: the screen this refers to is about to be dismissed, so a
+                    // later `.pending` (e.g. a "Sync Now" retry that also doesn't confirm) must
+                    // not dismiss it a second time.
+                    navigatedToUpgradeScreen = false
                     coordinator.navigate(to: .dismiss(DismissAction { [weak self] in
                         guard let self else { return }
                         coordinator.hideLoadingOverlay()

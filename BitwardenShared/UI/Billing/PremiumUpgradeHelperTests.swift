@@ -328,6 +328,48 @@ struct PremiumUpgradeHelperTests { // swiftlint:disable:this type_body_length
         #expect(onPendingDismissCalled)
     }
 
+    /// When the billing service emits `.pending` a second time after the first `.pending`'s
+    /// dismiss action already ran, the coordinator does not dismiss again — there's no longer a
+    /// Premium upgrade screen on the stack to dismiss, since the first `.pending` already closed
+    /// it. The pending alert is shown directly instead.
+    @Test
+    func subscribeToPremiumCheckoutStatus_pending_secondPendingAfterDismiss_doesNotDismissAgain() async throws {
+        billingRepository.isInAppUpgradeAvailableReturnValue = true
+        let statusSubject = PassthroughSubject<PremiumCheckoutStatus, Never>()
+        billingService.premiumCheckoutStatusPublisherReturnValue = statusSubject.eraseToAnyPublisher()
+        let subject = DefaultPremiumUpgradeHelper(
+            services: ServiceContainer.withMocks(
+                billingRepository: billingRepository,
+                billingService: billingService,
+                environmentService: environmentService,
+            ),
+            coordinator: coordinator.asAnyCoordinator(),
+            setURL: { _ in },
+        )
+        await subject.navigateToPremiumUpgrade()
+        try await waitForAsync { coordinator.routes.last == .premiumUpgrade }
+
+        statusSubject.send(.pending)
+        try await waitForAsync {
+            guard case let .dismiss(action) = coordinator.routes.last else { return false }
+            return action != nil
+        }
+        guard case let .dismiss(action) = coordinator.routes.last else {
+            Issue.record("Expected .dismiss route")
+            return
+        }
+        action?.action()
+        try await waitForAsync { coordinator.alertShown.count == 1 }
+
+        statusSubject.send(.pending)
+
+        try await waitForAsync { coordinator.alertShown.count == 2 }
+        #expect(coordinator.routes.count(where: { route in
+            guard case .dismiss = route else { return false }
+            return true
+        }) == 1)
+    }
+
     /// When the billing service emits `.syncing`, nothing happens (the loading overlay is shown
     /// by `PremiumUpgradeProcessor`).
     @Test

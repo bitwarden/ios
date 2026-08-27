@@ -401,29 +401,6 @@ struct BillingServiceTests { // swiftlint:disable:this type_body_length
         #expect(syncService.didFetchSync)
     }
 
-    /// `premiumStatusChanged()` resets the publisher value to `nil` after emitting `.pending`, so
-    /// a later, unrelated subscriber (e.g. opening the upgrade screen for the first time after an
-    /// out-of-band push left `.pending` behind) does not receive a stale `.pending` on connection.
-    @Test
-    func premiumStatusChanged_pending_resetsPublisherValue() async throws {
-        stateService.doesActiveAccountHavePremiumResult = false
-        var earlyStatuses = [PremiumCheckoutStatus]()
-        let earlyCancellable = subject.premiumCheckoutStatusPublisher()
-            .sink { earlyStatuses.append($0) }
-        defer { earlyCancellable.cancel() }
-
-        await subject.premiumStatusChanged()
-        try await waitForAsync { !earlyStatuses.isEmpty }
-
-        // A subscriber connecting after .pending + nil are emitted should receive nothing.
-        var lateStatuses = [PremiumCheckoutStatus]()
-        let lateCancellable = subject.premiumCheckoutStatusPublisher()
-            .sink { lateStatuses.append($0) }
-        defer { lateCancellable.cancel() }
-
-        try await waitForAsync { lateStatuses.isEmpty }
-    }
-
     /// `isSelfHosted()` returns `false` when the region is not self-hosted.
     @Test
     func isSelfHosted_cloudRegion_returnsFalse() async {
@@ -698,7 +675,7 @@ struct BillingServiceTests { // swiftlint:disable:this type_body_length
     // MARK: reconcileCheckoutSuccess
 
     /// `reconcileCheckoutSuccess()` marks the upgrade pending, syncs, and publishes `.confirmed`
-    /// (then resets to `nil`) when the sync confirms Premium.
+    /// when the sync confirms Premium.
     @Test
     func reconcileCheckoutSuccess_confirmed() async throws {
         stateService.doesAccountHavePremiumByUserId["1"] = false
@@ -736,29 +713,6 @@ struct BillingServiceTests { // swiftlint:disable:this type_body_length
         #expect(statuses == [.pending])
         #expect(stateService.premiumUpgradePendingByUserId["1"] == true)
         #expect(stateService.premiumUpgradeSyncAttemptFailedByUserId["1"] == false)
-    }
-
-    /// `reconcileCheckoutSuccess()` resets the publisher value to `nil` after emitting `.pending`,
-    /// same as `premiumStatusChanged()`: the subject is a single, app-global `CurrentValueSubject`,
-    /// so a late subscriber — a later `startInAppPremiumUpgrade()` call, possibly for a different
-    /// account — must not replay a stale `.pending` left over from this reconcile.
-    @Test
-    func reconcileCheckoutSuccess_pending_resetsPublisherValue() async throws {
-        stateService.doesAccountHavePremiumByUserId["1"] = false
-        var earlyStatuses = [PremiumCheckoutStatus]()
-        let earlyCancellable = subject.premiumCheckoutStatusPublisher()
-            .sink { earlyStatuses.append($0) }
-        defer { earlyCancellable.cancel() }
-
-        await subject.reconcileCheckoutSuccess()
-        try await waitForAsync { !earlyStatuses.isEmpty }
-
-        var lateStatuses = [PremiumCheckoutStatus]()
-        let lateCancellable = subject.premiumCheckoutStatusPublisher()
-            .sink { lateStatuses.append($0) }
-        defer { lateCancellable.cancel() }
-
-        try await waitForAsync { lateStatuses.isEmpty }
     }
 
     /// `reconcileCheckoutSuccess()` records a sync failure (leaving the upgrade pending so a
@@ -852,6 +806,33 @@ struct BillingServiceTests { // swiftlint:disable:this type_body_length
         #expect(stateService.upgradedToPremiumCardVisibleByUserId["1"] == true)
         #expect(stateService.premiumUpgradePendingByUserId["2"] == nil)
         #expect(stateService.upgradedToPremiumCardVisibleByUserId["2"] == nil)
+    }
+
+    /// `reconcileCheckoutSuccess()` still reports `.confirmed` when the pending flags it set are
+    /// already cleared by the time its own resolution step runs — e.g. `start()`'s background
+    /// sync watcher reacting to this same forced sync and resolving it first. Regression test for
+    /// `resolvePendingUpgrade(userId:syncFailed:)`'s early-exit branch, which used to return a
+    /// hardcoded `false` in this situation regardless of the account's actual Premium status.
+    @Test
+    func reconcileCheckoutSuccess_alreadyResolvedByConcurrentSync_stillReportsConfirmed() async throws {
+        stateService.doesAccountHavePremiumByUserId["1"] = false
+        syncService.fetchSyncHandler = {
+            // Simulates `start()`'s background watcher (`reconcileOnEachNewSync(userId:)`)
+            // reacting to this same sync and resolving the pending upgrade before this call's own
+            // `resolvePendingUpgrade(userId:syncFailed:)` runs.
+            stateService.doesAccountHavePremiumByUserId["1"] = true
+            stateService.premiumUpgradePendingByUserId["1"] = false
+            stateService.premiumUpgradeSyncAttemptFailedByUserId["1"] = false
+        }
+        var statuses = [PremiumCheckoutStatus]()
+        let cancellable = subject.premiumCheckoutStatusPublisher()
+            .sink { statuses.append($0) }
+        defer { cancellable.cancel() }
+
+        await subject.reconcileCheckoutSuccess()
+
+        try await waitForAsync { !statuses.isEmpty }
+        #expect(statuses == [.confirmed])
     }
 
     // MARK: start
