@@ -20,6 +20,13 @@ class VaultGroupStateTests: BitwardenTestCase {
         XCTAssertEqual(subject.addItemButtonTitle, Localizations.addLicense)
     }
 
+    /// `itemTypesUserCanCreate` defaults to the same order the vault repository provides, since
+    /// the floating action menu renders the list bottom-up.
+    func test_itemTypesUserCanCreate_defaultsToMenuOrder() {
+        let subject = VaultGroupState(group: .login, vaultFilterType: .myVault)
+        XCTAssertEqual(subject.itemTypesUserCanCreate, CipherType.canCreateCases.reversed())
+    }
+
     /// `newItemButtonType` returns the new item button type based on the group.
     func test_newItemButtonType() {
         let subjectBankAccount = VaultGroupState(group: .bankAccount, vaultFilterType: .myVault)

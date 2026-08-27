@@ -71,6 +71,13 @@ struct VaultListStateTests {
         #expect(state.activeActionCard == nil)
     }
 
+    /// `itemTypesUserCanCreate` defaults to the same order the vault repository provides, since
+    /// the floating action menu renders the list bottom-up.
+    @Test
+    func itemTypesUserCanCreate_defaultsToMenuOrder() {
+        #expect(subject.itemTypesUserCanCreate == CipherType.canCreateCases.reversed())
+    }
+
     /// `navigationTitle` returns "My Vault" when no organizations are present, and "Vaults"
     /// when the user belongs to at least one organization.
     @Test

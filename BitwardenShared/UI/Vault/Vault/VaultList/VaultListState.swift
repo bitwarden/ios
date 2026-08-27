@@ -38,7 +38,7 @@ struct VaultListState: Equatable {
     var isVfo1FoundationFeatureFlagEnabled = false
 
     /// List of available item type for creation.
-    var itemTypesUserCanCreate: [CipherType] = CipherType.canCreateCases
+    var itemTypesUserCanCreate: [CipherType] = CipherType.canCreateCases.reversed()
 
     /// The loading state of the My Vault screen.
     var loadingState: LoadingState<[VaultListSection]> = .loading(nil)
