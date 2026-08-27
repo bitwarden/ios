@@ -131,6 +131,11 @@ class DefaultPremiumUpgradeHelper<Route: PremiumUpgradeRoute, Event>: PremiumUpg
     func startInAppPremiumUpgrade(onConfirmed: (() async -> Void)? = nil) {
         guard !isResolvingStartRequest else { return }
         isResolvingStartRequest = true
+        // Set before the `await` below, not after: `subscribeToPremiumCheckoutStatus(onConfirmed:)`
+        // attaches the new live subscription synchronously, right now — if a status arrived in the
+        // gap before the pending-state check resolves, its handler would otherwise judge it
+        // against the previous call's leftover value instead of "haven't navigated yet."
+        navigatedToUpgradeScreen = false
         subscribeToPremiumCheckoutStatus(onConfirmed: onConfirmed)
         Task { [weak self] in
             guard let self else { return }
@@ -145,7 +150,6 @@ class DefaultPremiumUpgradeHelper<Route: PremiumUpgradeRoute, Event>: PremiumUpg
                 coordinator.navigate(to: .premiumUpgrade)
                 return
             }
-            navigatedToUpgradeScreen = false
             showUpgradePendingAlert()
         }
     }
