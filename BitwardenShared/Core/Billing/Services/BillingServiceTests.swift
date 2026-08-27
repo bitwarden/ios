@@ -738,6 +738,29 @@ struct BillingServiceTests { // swiftlint:disable:this type_body_length
         #expect(stateService.premiumUpgradeSyncAttemptFailedByUserId["1"] == false)
     }
 
+    /// `reconcileCheckoutSuccess()` resets the publisher value to `nil` after emitting `.pending`,
+    /// same as `premiumStatusChanged()`: the subject is a single, app-global `CurrentValueSubject`,
+    /// so a late subscriber — a later `startInAppPremiumUpgrade()` call, possibly for a different
+    /// account — must not replay a stale `.pending` left over from this reconcile.
+    @Test
+    func reconcileCheckoutSuccess_pending_resetsPublisherValue() async throws {
+        stateService.doesAccountHavePremiumByUserId["1"] = false
+        var earlyStatuses = [PremiumCheckoutStatus]()
+        let earlyCancellable = subject.premiumCheckoutStatusPublisher()
+            .sink { earlyStatuses.append($0) }
+        defer { earlyCancellable.cancel() }
+
+        await subject.reconcileCheckoutSuccess()
+        try await waitForAsync { !earlyStatuses.isEmpty }
+
+        var lateStatuses = [PremiumCheckoutStatus]()
+        let lateCancellable = subject.premiumCheckoutStatusPublisher()
+            .sink { lateStatuses.append($0) }
+        defer { lateCancellable.cancel() }
+
+        try await waitForAsync { lateStatuses.isEmpty }
+    }
+
     /// `reconcileCheckoutSuccess()` records a sync failure (leaving the upgrade pending so a
     /// later sync can retry) and publishes `.pending` when the forced sync throws.
     @Test

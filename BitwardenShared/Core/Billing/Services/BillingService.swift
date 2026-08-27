@@ -335,9 +335,12 @@ class DefaultBillingService: BillingService { // swiftlint:disable:this type_bod
         // active account can have switched away while the sync above was in flight.
         guard await (try? stateService.getActiveAccountId()) == userId else { return }
         premiumCheckoutStatusSubject.send(hasPremium ? .confirmed : .pending)
-        if hasPremium {
-            premiumCheckoutStatusSubject.send(nil)
-        }
+        // Reset unconditionally, as in premiumStatusChanged(): this subject is a single,
+        // app-global CurrentValueSubject, not scoped to this reconcile's account or to whichever
+        // screen is currently live. Leaving `.pending` set here would replay it to the next
+        // subscriber that connects — a later `startInAppPremiumUpgrade()` call, possibly for a
+        // different account entirely — rather than only to whoever's actually watching right now.
+        premiumCheckoutStatusSubject.send(nil)
     }
 
     func refreshSubscriptionAttentionCard(subscription: PremiumSubscription?) async {
