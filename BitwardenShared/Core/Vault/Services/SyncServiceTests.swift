@@ -1174,6 +1174,24 @@ class SyncServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
                 salt: "user@bitwarden.com",
             ),
         )
+        XCTAssertEqual(
+            stateService.v2UpgradeTokens["1"],
+            V2UpgradeToken(wrappedUserKey1: "WRAPPED_USER_KEY_1", wrappedUserKey2: "WRAPPED_USER_KEY_2"),
+        )
+    }
+
+    /// `fetchSync()` clears the user's V2 upgrade token when the sync response doesn't include one.
+    func test_fetchSync_v2UpgradeToken_absent() async throws {
+        client.result = .httpSuccess(testData: .syncWithProfileOrganizations)
+        stateService.activeAccount = .fixture()
+        stateService.v2UpgradeTokens["1"] = V2UpgradeToken(
+            wrappedUserKey1: "OLD_WRAPPED_USER_KEY_1",
+            wrappedUserKey2: "OLD_WRAPPED_USER_KEY_2",
+        )
+
+        try await subject.fetchSync(forceSync: false)
+
+        XCTAssertNil(stateService.v2UpgradeTokens["1"])
     }
 
     /// `fetchSync()` throws an error if the request fails.

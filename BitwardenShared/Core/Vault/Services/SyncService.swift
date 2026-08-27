@@ -458,6 +458,7 @@ extension DefaultSyncService {
         if let masterPasswordUnlock = response.userDecryption?.masterPasswordUnlock {
             await stateService.setAccountMasterPasswordUnlock(masterPasswordUnlock, userId: userId)
         }
+        await stateService.setV2UpgradeToken(response.userDecryption?.v2UpgradeToken, userId: userId)
 
         try await cipherService.replaceCiphers(response.ciphers, userId: userId)
         try await collectionService.replaceCollections(response.collections, userId: userId)

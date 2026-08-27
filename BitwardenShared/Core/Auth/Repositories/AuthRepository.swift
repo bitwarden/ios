@@ -1285,11 +1285,13 @@ extension DefaultAuthRepository: AuthRepository {
     private func unlockVault(method: InitUserCryptoMethod, hadUserInteraction: Bool = true) async throws {
         let account = try await stateService.getActiveAccount()
         let encryptionKeys = try await stateService.getAccountEncryptionKeys()
+        let upgradeToken = await stateService.getV2UpgradeToken(userId: account.profile.userId)
 
         try await clientService.crypto().initializeUserCrypto(
             account: account,
             encryptionKeys: encryptionKeys,
             method: method,
+            upgradeToken: upgradeToken,
         )
 
         await flightRecorder.log("[Auth] Vault unlocked, method: \(method.methodType)")

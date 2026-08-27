@@ -418,6 +418,13 @@ protocol StateService: AnyObject, BillingStateService, DebugStateService {
     ///
     func getUsesKeyConnector(userId: String?) async throws -> Bool
 
+    /// Gets the V2 upgrade token for an account.
+    ///
+    /// - Parameter userId: The user ID of the account.
+    /// - Returns: The V2 upgrade token, if one is available.
+    ///
+    func getV2UpgradeToken(userId: String) async -> V2UpgradeToken?
+
     /// Whether the user is authenticated.
     ///
     /// - Parameter userId: The user ID to check if they are authenticated.
@@ -847,6 +854,14 @@ protocol StateService: AnyObject, BillingStateService, DebugStateService {
     ///   - userId: The user ID to set whether they use key connector.
     ///
     func setUsesKeyConnector(_ usesKeyConnector: Bool, userId: String?) async throws
+
+    /// Sets the V2 upgrade token for an account.
+    ///
+    /// - Parameters:
+    ///   - token: The V2 upgrade token, or `nil` to clear it.
+    ///   - userId: The user ID of the account.
+    ///
+    func setV2UpgradeToken(_ token: V2UpgradeToken?, userId: String) async
 
     /// Updates the profile information for a user.
     ///
