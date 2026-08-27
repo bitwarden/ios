@@ -142,8 +142,11 @@ class DefaultBillingService: BillingService { // swiftlint:disable:this type_bod
     /// The service used by the application to report non-fatal errors.
     private let errorReporter: ErrorReporter
 
-    /// Subject that emits the Premium checkout sync status.
-    private let premiumCheckoutStatusSubject = CurrentValueSubject<PremiumCheckoutStatus?, Never>(nil)
+    /// Subject that emits the Premium checkout sync status. A `PassthroughSubject`, deliberately
+    /// not a `CurrentValueSubject`: subscribers attach fresh at the start of each upgrade flow,
+    /// before any status for that flow can exist, and must never replay a stale status left over
+    /// from a previous flow or account to a new subscriber.
+    private let premiumCheckoutStatusSubject = PassthroughSubject<PremiumCheckoutStatus, Never>()
 
     /// Subject that emits the Premium upgrade pending state for the active account.
     private let premiumUpgradePendingStateSubject = CurrentValueSubject<PremiumUpgradePendingState, Never>(
@@ -231,7 +234,6 @@ class DefaultBillingService: BillingService { // swiftlint:disable:this type_bod
 
     func premiumCheckoutCanceled() {
         premiumCheckoutStatusSubject.send(.canceled)
-        premiumCheckoutStatusSubject.send(nil)
     }
 
     func isSelfHosted() async -> Bool {
@@ -243,7 +245,6 @@ class DefaultBillingService: BillingService { // swiftlint:disable:this type_bod
 
     func premiumCheckoutStatusPublisher() -> AnyPublisher<PremiumCheckoutStatus, Never> {
         premiumCheckoutStatusSubject
-            .compactMap(\.self)
             .debounce(for: debounceInterval, scheduler: DispatchQueue.main)
             .eraseToAnyPublisher()
     }
@@ -268,12 +269,6 @@ class DefaultBillingService: BillingService { // swiftlint:disable:this type_bod
         }
         let hasPremium = await stateService.doesActiveAccountHavePremium()
         premiumCheckoutStatusSubject.send(hasPremium ? .confirmed : .pending)
-        // Reset unconditionally, not just when confirmed: this method runs for any out-of-band
-        // `.premiumStatusChanged` push, not just an active checkout, so a definitive "not
-        // premium (yet)" answer is just as conclusive as a "confirmed" one — leaving `.pending`
-        // on the subject would replay a stale status to whichever upgrade UI subscribes next,
-        // even though no checkout is actually in flight for it.
-        premiumCheckoutStatusSubject.send(nil)
         if hasPremium {
             do {
                 try await billingStateService.setUpgradedToPremiumActionCardVisible(true)
@@ -335,12 +330,6 @@ class DefaultBillingService: BillingService { // swiftlint:disable:this type_bod
         // active account can have switched away while the sync above was in flight.
         guard await (try? stateService.getActiveAccountId()) == userId else { return }
         premiumCheckoutStatusSubject.send(hasPremium ? .confirmed : .pending)
-        // Reset unconditionally, as in premiumStatusChanged(): this subject is a single,
-        // app-global CurrentValueSubject, not scoped to this reconcile's account or to whichever
-        // screen is currently live. Leaving `.pending` set here would replay it to the next
-        // subscriber that connects — a later `startInAppPremiumUpgrade()` call, possibly for a
-        // different account entirely — rather than only to whoever's actually watching right now.
-        premiumCheckoutStatusSubject.send(nil)
     }
 
     func refreshSubscriptionAttentionCard(subscription: PremiumSubscription?) async {
@@ -486,9 +475,9 @@ class DefaultBillingService: BillingService { // swiftlint:disable:this type_bod
 
     /// Resolves a pending Premium upgrade for `userId`, if one is recorded: checks whether the
     /// account now has Premium, persists the result, and — once confirmed — shows the
-    /// "Upgraded to Premium" card. Does nothing if `userId` has no pending upgrade or prior
-    /// failure recorded, so this can safely run on every sync for every account, not just those
-    /// mid-upgrade.
+    /// "Upgraded to Premium" card. Leaves persisted state untouched if `userId` has no pending
+    /// upgrade or prior failure recorded, so this can safely run on every sync for every account,
+    /// not just those mid-upgrade — it still always reports current Premium status, though.
     ///
     /// Called both right after a checkout's own forced sync (`reconcileCheckoutSuccess()`) and
     /// from the background watcher on every subsequent sync (`reconcileOnEachNewSync(userId:)`).
@@ -520,9 +509,17 @@ class DefaultBillingService: BillingService { // swiftlint:disable:this type_bod
             lastAttemptFailed = try await billingStateService.getPremiumUpgradeLastSyncAttemptFailed(userId: userId)
         } catch {
             errorReporter.log(error: error)
-            return false
+            return await stateService.doesAccountHavePremium(userId: userId)
         }
-        guard isPending || lastAttemptFailed else { return false }
+        // Regardless of which branch below runs, the return value always answers "does `userId`
+        // have Premium right now" — never a stand-in like "was anything pending." The background
+        // sync watcher (`reconcileOnEachNewSync(userId:)`) and this method's other caller
+        // (`reconcileCheckoutSuccess()`) can both resolve the same sync, and whichever runs
+        // second must still get an accurate answer even though there's nothing left pending by
+        // the time it checks.
+        guard isPending || lastAttemptFailed else {
+            return await stateService.doesAccountHavePremium(userId: userId)
+        }
 
         let hasPremium = await stateService.doesAccountHavePremium(userId: userId)
         do {
