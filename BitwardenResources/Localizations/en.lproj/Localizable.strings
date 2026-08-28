@@ -1256,3 +1256,6 @@
 "ClearFieldName" = "Clear %1$@";
 "SelectDate" = "Select date";
 "PremiumRequiredTOTPDescriptionLong" = "Authenticator key (TOTP) is a Premium feature. Your current plan does not include access to this feature.";
+"KeepVaultUnlockedUntilTimeout" = "Keep vault unlocked until timeout";
+/* Footer text under the "Keep vault unlocked until timeout" toggle, explaining what the setting does. */
+"KeepVaultUnlockedUntilTimeoutDescriptionLong" = "This setting keeps the app and its extensions, like autofill, unlocked until session timeout, even after closing the app.";
