@@ -254,9 +254,18 @@ jobs:
         run: |
           # --untracked-files=no is required: bundler-cache and MINT_PATH leave untracked,
           # non-gitignored directories that a bare --porcelain would report, tripping this guard.
-          if [ -n "$(git status --porcelain --untracked-files=no)" ]; then
+          #
+          # claude-code-action treats the PR head as untrusted and restores these exact paths from
+          # origin/main before running Claude, regardless of whether this branch's copy is stale.
+          # This job never has a legitimate reason to change them, so a diff here is that restore,
+          # not Claude — exclude them rather than flag it.
+          _TRUSTED_CONFIG_PATHSPEC=(
+            ':!.claude' ':!.mcp.json' ':!.claude.json' ':!.gitmodules' ':!.ripgreprc'
+            ':!CLAUDE.md' ':!CLAUDE.local.md' ':!.husky'
+          )
+          if [ -n "$(git status --porcelain --untracked-files=no -- . "${_TRUSTED_CONFIG_PATHSPEC[@]}")" ]; then
             echo "::error::Claude left uncommitted changes to tracked files; nothing was pushed."
-            git status --porcelain --untracked-files=no
+            git status --porcelain --untracked-files=no -- . "${_TRUSTED_CONFIG_PATHSPEC[@]}"
             exit 1
           fi
 
@@ -266,8 +275,10 @@ jobs:
           fi
 
           # A fix may touch SDK call sites and the version pin, never CI or agent configuration.
+          # The second alternation is the same restore list claude-code-action pulls from
+          # origin/main above — this job never has a legitimate reason to commit changes there either.
           CHANGED=$(git diff --name-only "origin/$_BRANCH_NAME" HEAD)
-          if echo "$CHANGED" | grep -qE '^(\.github/|\.claude/)'; then
+          if echo "$CHANGED" | grep -qE '(^|/)(\.github/|\.claude/|\.husky/|\.mcp\.json$|\.claude\.json$|\.gitmodules$|\.ripgreprc$|CLAUDE\.md$|CLAUDE\.local\.md$)'; then
             echo "::error::Refusing to push: the fix touches CI or agent configuration."
             echo "$CHANGED"
             exit 1
