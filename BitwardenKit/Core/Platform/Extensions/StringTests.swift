@@ -203,6 +203,14 @@ class StringTests: BitwardenTestCase {
         XCTAssertEqual("ABCDEF".leftPadding(toLength: 4, withPad: "0"), "CDEF")
     }
 
+    /// `spellingOutCharacters()` separates each character with a space.
+    func test_spellingOutCharacters() {
+        XCTAssertEqual("1234".spellingOutCharacters(), "1 2 3 4")
+        XCTAssertEqual("BOFAUS3N".spellingOutCharacters(), "B O F A U S 3 N")
+        XCTAssertEqual("A".spellingOutCharacters(), "A")
+        XCTAssertEqual("".spellingOutCharacters(), "")
+    }
+
     /// `urlDecoded()` with an invalid string throws an error.
     func test_urlDecoded_withInvalidString() {
         let subject = "a_bc-"
