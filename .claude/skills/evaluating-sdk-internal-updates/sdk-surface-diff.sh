@@ -52,14 +52,45 @@ for rev in "$OLD" "$NEW"; do
   }
 done
 
-# git grep and grep -v both exit 1 to mean "no match", which pipefail would otherwise treat as a
+# grep and grep -v both exit 1 to mean "no match", which pipefail would otherwise treat as a
 # hard failure and abort before assert_surface can report the empty surface. Tolerate exactly 1 and
 # let anything worse propagate.
 no_match_ok () { "$@" || [ $? -eq 1 ]; }
 
-# Every consumer-facing declaration line, tree-wide, with FFI plumbing filtered out.
+# uniffi 0.32.0 started emitting the access modifier alone on its own line before some declarations
+# (observed: a lone "public " before every enum in one revision, none before struct/class/protocol,
+# "open" never split) instead of "public enum Foo {" on one line. Every regex below requires the
+# modifier and the keyword on the same line, so a split declaration silently vanishes from the
+# extracted surface — read downstream as REMOVED, the one verdict this tool exists to get right.
+# Joining here, once, keeps every regex below written for the single-line form permanently, rather
+# than chasing whichever combination uniffi splits next.
+join_split_modifiers () {
+  awk '
+    /^[[:space:]]*(public|open)[[:space:]]*$/ { pending = $0; sub(/[[:space:]]+$/, "", pending); next }
+    # pending keeps its own indentation (a nested split must still fail the column-0 anchors in
+    # type_decls/type_exists/type_block), but the continuation line has to lose its leading
+    # indentation: left in, "  public" + " " + "  struct Foo {" joins to two spaces before "struct",
+    # which matches none of the single-space regexes below and the declaration vanishes as before.
+    pending { sub(/^[[:space:]]+/, ""); print pending " " $0; pending = ""; next }
+    { print }
+    END { if (pending) print pending }
+  '
+}
+
+# Flattens one revision's $SRC tree to a single file, modifier-split lines joined. Per file, via
+# git show, so a trailing modifier at the end of one generated file is never joined with the first
+# line of the next — join_split_modifiers has no file-boundary awareness of its own.
+tree_content () {
+  local rev=$1
+  git -C "$SDK_SWIFT" ls-tree -r --name-only "$rev" -- "$SRC" | while IFS= read -r f; do
+    git -C "$SDK_SWIFT" show "$rev:$f" | join_split_modifiers
+  done
+}
+
+# Every consumer-facing declaration line, tree-wide, with FFI plumbing filtered out. Takes a
+# tree_content file, not a revision — see the WORK setup below.
 decls () {
-  no_match_ok git -C "$SDK_SWIFT" grep -h -E '^[[:space:]]*(public|open) (final )?(struct|enum|protocol|class|func|var|let) ' "$1" -- "$SRC" \
+  no_match_ok grep -E '^[[:space:]]*(public|open) (final )?(struct|enum|protocol|class|func|var|let) ' "$1" \
   | sed -E 's/^[[:space:]]+//' \
   | { no_match_ok grep -vE 'FfiConverter|Uniffi|uniffi'; } \
   | sort -u
@@ -74,24 +105,24 @@ names () {
 # exact here. Function names are NOT unique — `decrypt` alone is overloaded across many types, and
 # joining functions on name yields a meaningless cross product — so this is types only.
 type_decls () {
-  no_match_ok git -C "$SDK_SWIFT" grep -h -E '^(public|open) (final )?(struct|enum|protocol|class) ' "$1" -- "$SRC" \
+  no_match_ok grep -E '^(public|open) (final )?(struct|enum|protocol|class) ' "$1" \
   | { no_match_ok grep -vE 'FfiConverter|Uniffi|uniffi'; } \
   | sed -E "s/^(public|open) (final )?(struct|enum|protocol|class) ([A-Za-z0-9_]+)/\4$TAB&/" \
   | sort -t"$TAB" -k1,1 -u
 }
 
 type_exists () {
-  git -C "$SDK_SWIFT" grep -q -E "^(public|open) (final )?(struct|enum|protocol|class) $2[:{ ]" "$1" -- "$SRC"
+  grep -q -E "^(public|open) (final )?(struct|enum|protocol|class) $2[:{ ]" "$1"
 }
 
 # One type's declaration through its closing brace, comments and blank lines stripped.
-# Anchored with [:{ ] rather than \b, which git grep -E does not support and which silently
-# matches nothing. The awk drains stdin after the closing brace instead of exiting, so `git grep`
-# never takes SIGPIPE — an early exit here would make pipefail report failure on a successful run.
-# The truncation warning is gated on non-empty input and goes to stderr so it can never be mistaken
+# Anchored with [:{ ] rather than \b, which grep -E does not support and which silently matches
+# nothing. The awk drains stdin after the closing brace instead of exiting, so grep never takes
+# SIGPIPE — an early exit here would make pipefail report failure on a successful run. The
+# truncation warning is gated on non-empty input and goes to stderr so it can never be mistaken
 # for surface content or diffed as a member line.
 type_block () {
-  git -C "$SDK_SWIFT" grep -h -A2000 -E "^(public|open) (final )?(struct|enum|protocol|class) $2[:{ ]" "$1" -- "$SRC" \
+  grep -A2000 -E "^(public|open) (final )?(struct|enum|protocol|class) $2[:{ ]" "$1" \
   | awk 'finished {next}
          NR==1 {print; next}
          /^}/ {print; found=1; finished=1; next}
@@ -133,11 +164,16 @@ assert_no_collapse () {
 WORK=$(mktemp -d)
 trap 'rm -rf "$WORK"' EXIT
 
+# Materialized once per revision, up front, so every mode below reads the same modifier-joined
+# content rather than re-flattening the tree per call.
+tree_content "$OLD" > "$WORK/old.tree"
+tree_content "$NEW" > "$WORK/new.tree"
+
 if [ "$MODE" = "--type" ]; then
   echo "## MEMBERS: $TYPE_NAME"
   old_has=false; new_has=false
-  type_exists "$OLD" "$TYPE_NAME" && old_has=true
-  type_exists "$NEW" "$TYPE_NAME" && new_has=true
+  type_exists "$WORK/old.tree" "$TYPE_NAME" && old_has=true
+  type_exists "$WORK/new.tree" "$TYPE_NAME" && new_has=true
   # Without this, a misspelled name yields two empty blocks and reports "(unchanged)" — a typo would
   # read as "verified safe", which is the worst possible failure for this tool.
   if [ "$old_has" = false ] && [ "$new_has" = false ]; then
@@ -147,22 +183,22 @@ if [ "$MODE" = "--type" ]; then
     exit 1
   fi
   if [ "$old_has" = true ] && [ "$new_has" = true ]; then
-    if diff <(type_block "$OLD" "$TYPE_NAME") <(type_block "$NEW" "$TYPE_NAME"); then
+    if diff <(type_block "$WORK/old.tree" "$TYPE_NAME") <(type_block "$WORK/new.tree" "$TYPE_NAME"); then
       echo "(unchanged)"
     fi
   elif [ "$new_has" = true ]; then
     echo "(added in this range — not present at $OLD)"
-    type_block "$NEW" "$TYPE_NAME"
+    type_block "$WORK/new.tree" "$TYPE_NAME"
   else
     echo "(removed in this range — not present at $NEW)"
-    type_block "$OLD" "$TYPE_NAME"
+    type_block "$WORK/old.tree" "$TYPE_NAME"
   fi
   exit 0
 fi
 
 if [ "$MODE" = "--decls" ]; then
-  decls "$OLD" > "$WORK/old.decls"
-  decls "$NEW" > "$WORK/new.decls"
+  decls "$WORK/old.tree" > "$WORK/old.decls"
+  decls "$WORK/new.tree" > "$WORK/new.decls"
   assert_surface "$OLD" "$WORK/old.decls"
   assert_surface "$NEW" "$WORK/new.decls"
   assert_no_collapse "$WORK/old.decls" "$WORK/new.decls"
@@ -178,13 +214,13 @@ if [ "$MODE" = "--decls" ]; then
   exit 0
 fi
 
-names "$OLD" > "$WORK/old.names"
-names "$NEW" > "$WORK/new.names"
+names "$WORK/old.tree" > "$WORK/old.names"
+names "$WORK/new.tree" > "$WORK/new.names"
 assert_surface "$OLD" "$WORK/old.names"
 assert_surface "$NEW" "$WORK/new.names"
 assert_no_collapse "$WORK/old.names" "$WORK/new.names"
-type_decls "$OLD" > "$WORK/old.types"
-type_decls "$NEW" > "$WORK/new.types"
+type_decls "$WORK/old.tree" > "$WORK/old.types"
+type_decls "$WORK/new.tree" > "$WORK/new.types"
 # An empty `mutated` is legitimate; an empty type surface is not. Without this, MUTATED reports
 # nothing whether no type declaration changed or the type extractor stopped matching, and the
 # names-based assertions above would still pass. `type_decls` anchors at column 0 deliberately:
