@@ -182,7 +182,6 @@
 "CopyTotp" = "Copiar TOTP";
 "CopyTotpAutomaticallyDescription" = "Se unha credencial ten clave de autenticación, copia o código TOTP no portapapeis ó autoencher os datos.";
 "CopyTotpAutomatically" = "Copiar TOTP automaticamente";
-"PremiumRequired" = "Requírese un plan Prémium para poder empregar esta función.";
 "AttachementAdded" = "Anexo engadido";
 "AttachmentDeleted" = "Anexo eliminado";
 "ChooseFile" = "Seleccionar arquivo";
@@ -223,7 +222,6 @@
 "August" = "Agosto";
 "Brand" = "Marca";
 "CardholderName" = "Titular da tarxeta";
-"WeFoundMultipleMatchesChooseTheCorrectOne" = "Atopamos varias coincidencias. Escolle a correcta.";
 "CityTown" = "Localidade";
 "Company" = "Empresa";
 "Country" = "País";
@@ -648,7 +646,6 @@
 "SetUpAutofill" = "Configurar autoenchido";
 "AppInfo" = "Información da aplicación";
 "Browse" = "Examinar";
-"SelectCardholderName" = "Selecciona o nome do titular da tarxeta";
 "SelectLanguage" = "Seleccionar idioma";
 "ContinueToCompleteWebAuthnVerification" = "Continúa para completar a verificación con WebAuthn.";
 "ThereWasAnErrorStartingWebAuthnTwoFactorAuthentication" = "Houbo un erro ó executar a autenticación de dous factores de WebAuthn";
@@ -667,7 +664,6 @@
 "ByContinuingYouAgreeToTheTermsOfServiceAndPrivacyPolicy" = "Ó continuar, aceptas os **[Termos de Servizo](%1$@)** e a **[Política de Privacidade](%2$@)**";
 "GetAdviceAnnouncementsAndResearchOpportunitiesFromBitwardenInYourInboxUnsubscribeAtAnyTime." = "Recibe consellos, anuncios e oportunidades de investigación de Bitwarden no teu correo. **[Anula a subscrición](%1$@)** en calquera momento.";
 "UserVerificationForPasskey" = "Verificación de usuario para Clave de acceso";
-"NewItem" = "Nova entrada";
 "ExploreTheGenerator" = "Explorar o xerador";
 "LearnMoreAboutGeneratingSecureLoginCredentialsWithAGuidedTour" = "Aprender sobre a xeración de credenciais seguros cunha explicación acompañada.";
 "ExportVaultFilePwProtectInfo" = "O arquivo exportado estará protexido e requirirá o contrasinal do arquivo para descifralo.";
@@ -979,7 +975,6 @@
 "NoAskMe" = "Non, pregúntame";
 "NoCodes" = "Non tes ningún código para amosar";
 "None" = "Ningún";
-"NoneOfTheAbove" = "Ningún dos anteriores";
 "NumberOfDigits" = "Número de díxitos";
 "OtpType" = "Tipo de código dun só uso";
 "RefreshPeriod" = "Período de refresco";

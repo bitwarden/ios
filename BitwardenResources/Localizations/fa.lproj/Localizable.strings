@@ -182,7 +182,6 @@
 "CopyTotp" = "کپی TOTP";
 "CopyTotpAutomaticallyDescription" = "اگر یک ورود دارای یک کلید احراز هویت باشد، هنگام پر کردن خودکار ورود، کد تأیید TOTP را در حافظه موقت خود کپی کن.";
 "CopyTotpAutomatically" = "TOTP را به‌صورت خودکار کپی کن";
-"PremiumRequired" = "برای استفاده از این ویژگی عضویت ویژه لازم است.";
 "AttachementAdded" = "پیوست اضافه شد";
 "AttachmentDeleted" = "پیوست حذف شد";
 "ChooseFile" = "انتخاب پرونده";
@@ -223,7 +222,6 @@
 "August" = "اوت‌";
 "Brand" = "نام تجاری";
 "CardholderName" = "نام صاحب کارت";
-"WeFoundMultipleMatchesChooseTheCorrectOne" = "ما چندین مورد منطبق پیدا کردیم. مورد صحیح را انتخاب کنید.";
 "CityTown" = "شهر / شهرستان";
 "Company" = "شرکت";
 "Country" = "کشور";
@@ -649,7 +647,6 @@
 "SetUpAutofill" = "راه‌اندازی پر کردن خودکار";
 "AppInfo" = "اطلاعات برنامه";
 "Browse" = "مرور";
-"SelectCardholderName" = "انتخاب نام دارنده کارت";
 "SelectLanguage" = "انتخاب زبان";
 "ContinueToCompleteWebAuthnVerification" = "ادامه دهید تا احراز هویت WebAuthn تکمیل شود.";
 "ThereWasAnErrorStartingWebAuthnTwoFactorAuthentication" = "در شروع احراز هویت دو عاملی WebAuthn خطا رخ داد";
@@ -668,7 +665,6 @@
 "ByContinuingYouAgreeToTheTermsOfServiceAndPrivacyPolicy" = "با ادامه دادن، شما با **[شرایط خدمات](%1$@)** و **[سیاست حفظ حریم خصوصی](%2$@)** موافقت می‌کنید";
 "GetAdviceAnnouncementsAndResearchOpportunitiesFromBitwardenInYourInboxUnsubscribeAtAnyTime." = "مشاوره، اطلاعیه‌ها و فرصت‌های پژوهشی را از Bitwarden در صندوق ورودی خود دریافت کنید. **[لغو اشتراک](%1$@)** در هر زمان امکان‌پذیر است.";
 "UserVerificationForPasskey" = "تأیید هویت کاربر برای کلید عبور";
-"NewItem" = "مورد جدید";
 "ExploreTheGenerator" = "تولید کننده را بررسی کنید";
 "LearnMoreAboutGeneratingSecureLoginCredentialsWithAGuidedTour" = "با یک راهنمای قدم به قدم، بیشتر درباره ایجاد اطلاعات ورود امن بیاموزید.";
 "ExportVaultFilePwProtectInfo" = "این پرونده برون ریزی با رمز محافظت می‌شود و برای رمزگشایی به کلمه عبور پرونده نیاز دارد.";
@@ -980,7 +976,6 @@
 "NoAskMe" = "نه، از من بپرس";
 "NoCodes" = "شما هیچ کدی برای نمایش ندارید";
 "None" = "هیچ کدام";
-"NoneOfTheAbove" = "هیچ یک از موارد فوق";
 "NumberOfDigits" = "تعداد ارقام";
 "OtpType" = "نوع OTP";
 "RefreshPeriod" = "تازه کردن دوره";

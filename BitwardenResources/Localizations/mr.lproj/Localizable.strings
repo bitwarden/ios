@@ -182,7 +182,6 @@
 "CopyTotp" = "TOTP कॉपी करा";
 "CopyTotpAutomaticallyDescription" = "जर एखाद्या लॉगिनमध्ये प्रमाणीकरण की असेल, तर तुम्ही लॉगिन स्वयंपूर्त करता तेव्हा TOTP सत्यापन कोड तुमच्या क्लिपबोर्डवर कॉपी करा.";
 "CopyTotpAutomatically" = "TOTP स्वयंचलितपणे कॉपी करा";
-"PremiumRequired" = "हे वैशिष्ट्य वापरण्यासाठी Premium सदस्यत्व आवश्यक आहे.";
 "AttachementAdded" = "संलग्नक जोडला";
 "AttachmentDeleted" = "संलग्नक हटवला";
 "ChooseFile" = "फाइल निवडा";
@@ -223,7 +222,6 @@
 "August" = "ऑगस्ट";
 "Brand" = "ब्रँड";
 "CardholderName" = "कार्डधारकाचे नाव";
-"WeFoundMultipleMatchesChooseTheCorrectOne" = "आम्हाला एकाधिक जुळण्या सापडल्या. योग्य निवडा.";
 "CityTown" = "शहर / नगर";
 "Company" = "कंपनी";
 "Country" = "देश";
@@ -648,7 +646,6 @@
 "SetUpAutofill" = "स्वयंपूर्त सेट करा";
 "AppInfo" = "अॅप माहिती";
 "Browse" = "ब्राउझ करा";
-"SelectCardholderName" = "कार्डधारकाचे नाव निवडा";
 "SelectLanguage" = "भाषा निवडा";
 "ContinueToCompleteWebAuthnVerification" = "WebAuthn सत्यापन पूर्ण करण्यासाठी सुरू ठेवा.";
 "ThereWasAnErrorStartingWebAuthnTwoFactorAuthentication" = "WebAuthn द्वि-घटक प्रमाणीकरण सुरू करण्यात त्रुटी आली";
@@ -667,7 +664,6 @@
 "ByContinuingYouAgreeToTheTermsOfServiceAndPrivacyPolicy" = "सुरू ठेवल्यास, तुम्ही **[Terms of Service](%1$@)** आणि **[Privacy Policy](%2$@)** शी सहमत आहात";
 "GetAdviceAnnouncementsAndResearchOpportunitiesFromBitwardenInYourInboxUnsubscribeAtAnyTime." = "Bitwarden कडून सल्ला, घोषणा आणि संशोधन संधी तुमच्या इनबॉक्समध्ये मिळवा. कधीही **[Unsubscribe](%1$@)** करा.";
 "UserVerificationForPasskey" = "पासकीसाठी वापरकर्ता सत्यापन";
-"NewItem" = "नवीन आयटम";
 "ExploreTheGenerator" = "जनरेटर एक्सप्लोर करा";
 "LearnMoreAboutGeneratingSecureLoginCredentialsWithAGuidedTour" = "मार्गदर्शित दौऱ्यासह सुरक्षित लॉगिन क्रेडेन्शियल्स तयार करण्याबद्दल अधिक जाणून घ्या.";
 "ExportVaultFilePwProtectInfo" = "ही फाइल निर्यात संकेतशब्द-संरक्षित असेल आणि डिक्रिप्ट करण्यासाठी फाइल संकेतशब्द आवश्यक असेल.";
@@ -979,7 +975,6 @@
 "NoAskMe" = "नाही, मला विचारा";
 "NoCodes" = "तुमच्याकडे दाखवण्यासाठी कोणतेही कोड नाहीत";
 "None" = "काहीही नाही";
-"NoneOfTheAbove" = "वरीलपैकी काहीही नाही";
 "NumberOfDigits" = "अंकांची संख्या";
 "OtpType" = "OTP प्रकार";
 "RefreshPeriod" = "रिफ्रेश कालावधी";

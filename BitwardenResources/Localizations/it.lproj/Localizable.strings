@@ -182,7 +182,6 @@
 "CopyTotp" = "Copia TOTP";
 "CopyTotpAutomaticallyDescription" = "Se un login ha una chiave di autenticazione, copia il codice di verifica TOTP negli appunti quando riempi automaticamente il login.";
 "CopyTotpAutomatically" = "Copia TOTP automaticamente";
-"PremiumRequired" = "Un abbonamento Premium è richiesto per utilizzare questa funzionalità.";
 "AttachementAdded" = "Allegato aggiunto";
 "AttachmentDeleted" = "Allegato eliminato";
 "ChooseFile" = "Seleziona file";
@@ -223,7 +222,6 @@
 "August" = "Agosto";
 "Brand" = "Marca";
 "CardholderName" = "Titolare della carta";
-"WeFoundMultipleMatchesChooseTheCorrectOne" = "Abbiamo trovato multiple opzioni. Scegli quella corretta.";
 "CityTown" = "Città / Comune";
 "Company" = "Azienda";
 "Country" = "Nazione";
@@ -648,7 +646,6 @@
 "SetUpAutofill" = "Configura il riempimento automatico";
 "AppInfo" = "Info app";
 "Browse" = "Sfoglia";
-"SelectCardholderName" = "Seleziona il nome del titolare della carta";
 "SelectLanguage" = "Seleziona lingua";
 "ContinueToCompleteWebAuthnVerification" = "Continua per completare la verifica WebAuthn.";
 "ThereWasAnErrorStartingWebAuthnTwoFactorAuthentication" = "Si è verificato un errore con l'autenticazione a due fattori WebAuthn";
@@ -667,7 +664,6 @@
 "ByContinuingYouAgreeToTheTermsOfServiceAndPrivacyPolicy" = "Continuando, accetti i **[Termini di servizio](%1$@)** e l'**[Informativa sulla privacy](%2$@)**";
 "GetAdviceAnnouncementsAndResearchOpportunitiesFromBitwardenInYourInboxUnsubscribeAtAnyTime." = "Ottieni consigli, annunci e opportunità di ricerca da Bitwarden nella tua casella di posta. **[Annulla l'iscrizione](%1$@)** in qualsiasi momento.";
 "UserVerificationForPasskey" = "Verifica utente per la passkey";
-"NewItem" = "Nuovo elemento";
 "ExploreTheGenerator" = "Esplora il generatore";
 "LearnMoreAboutGeneratingSecureLoginCredentialsWithAGuidedTour" = "Scopri di più sulla generazione di credenziali di accesso sicure con un tour guidato.";
 "ExportVaultFilePwProtectInfo" = "Il file esportato sarà protetto e richiederà la password per l'eventuale importazione.";
@@ -979,7 +975,6 @@
 "NoAskMe" = "No, chiedimelo";
 "NoCodes" = "Non hai nessun codice da visualizzare";
 "None" = "Niente";
-"NoneOfTheAbove" = "Nessuna delle opzioni superiori";
 "NumberOfDigits" = "Numero di cifre";
 "OtpType" = "Tipo di OTP";
 "RefreshPeriod" = "Periodo di aggiornamento";

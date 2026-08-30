@@ -182,7 +182,6 @@
 "CopyTotp" = "Salin TOTP";
 "CopyTotpAutomaticallyDescription" = "Jika login memiliki kunci autentikator, salin kode verifikasi TOTP ke papan klip saat Anda mengisi otomatis login.";
 "CopyTotpAutomatically" = "Salin TOTP secara otomatis";
-"PremiumRequired" = "Keanggotaan premium diperlukan untuk menggunakan fitur ini.";
 "AttachementAdded" = "Lampiran ditambahkan";
 "AttachmentDeleted" = "Lampiran dihapus";
 "ChooseFile" = "Pilih Berkas";
@@ -223,7 +222,6 @@
 "August" = "Agustus";
 "Brand" = "Merek";
 "CardholderName" = "Nama Pemilik Kartu";
-"WeFoundMultipleMatchesChooseTheCorrectOne" = "Kami menemukan beberapa kecocokan. Pilih yang benar.";
 "CityTown" = "Kota / Kabupaten";
 "Company" = "Perusahaan";
 "Country" = "Negara";
@@ -648,7 +646,6 @@
 "SetUpAutofill" = "Siapkan isi otomatis";
 "AppInfo" = "Info apl";
 "Browse" = "Telusuri";
-"SelectCardholderName" = "Pilih nama pemegang kartu";
 "SelectLanguage" = "Pilih bahasa";
 "ContinueToCompleteWebAuthnVerification" = "Lanjutkan untuk menyelesaikan verifikasi WebAuthn.";
 "ThereWasAnErrorStartingWebAuthnTwoFactorAuthentication" = "Terjadi kesalahan saat memulai autentikasi dua faktor WebAuthn";
@@ -667,7 +664,6 @@
 "ByContinuingYouAgreeToTheTermsOfServiceAndPrivacyPolicy" = "Dengan melanjutkan, Anda menyetujui **[Ketentuan Layanan](%1$@)** dan **[Kebijakan Privasi](%2$@)**";
 "GetAdviceAnnouncementsAndResearchOpportunitiesFromBitwardenInYourInboxUnsubscribeAtAnyTime." = "Dapatkan saran, pengumuman, dan peluang riset dari Bitwarden di kotak masuk Anda. **[Berhenti berlangganan](%1$@)** kapan saja.";
 "UserVerificationForPasskey" = "Verifikasi pengguna untuk kunci sandi";
-"NewItem" = "Item baru";
 "ExploreTheGenerator" = "Jelajahi pembuat sandi";
 "LearnMoreAboutGeneratingSecureLoginCredentialsWithAGuidedTour" = "Pelajari lebih lanjut tentang membuat kredensial login yang aman dengan tur panduan.";
 "ExportVaultFilePwProtectInfo" = "Ekspor file ini akan dilindungi sandi dan memerlukan sandi file untuk mendekripsi.";
@@ -979,7 +975,6 @@
 "NoAskMe" = "Tidak, tanya saya";
 "NoCodes" = "Anda tidak memiliki kode untuk ditampilkan";
 "None" = "Tidak ada";
-"NoneOfTheAbove" = "Tidak ada di atas";
 "NumberOfDigits" = "Jumlah angka";
 "OtpType" = "Jenis OTP";
 "RefreshPeriod" = "Interval muat ulang";

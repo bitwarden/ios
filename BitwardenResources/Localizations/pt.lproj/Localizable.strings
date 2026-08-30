@@ -28,7 +28,7 @@
 "FolderUpdated" = "Pasta guardada";
 "MyFolder" = "A minha pasta";
 "MyFolders" = "As minhas pastas";
-"InternetConnectionRequiredMessage" = "Por favor, ligue-se à Internet antes de continuar.";
+"InternetConnectionRequiredMessage" = "Estabeleça uma ligação à Internet antes de continuar.";
 "InternetConnectionRequiredTitle" = "Ligação à Internet necessária";
 "InvalidMasterPassword" = "Palavra-passe mestra inválida. Tente novamente.";
 "InvalidPIN" = "PIN inválido. Tente novamente.";
@@ -182,7 +182,6 @@
 "CopyTotp" = "Copiar TOTP";
 "CopyTotpAutomaticallyDescription" = "Se uma credencial tiver uma chave de autenticação, copie o código de verificação TOTP para a sua área de transferência quando preencher automaticamente o início de sessão.";
 "CopyTotpAutomatically" = "Copiar TOTP automaticamente";
-"PremiumRequired" = "É necessária uma subscrição Premium para utilizar esta funcionalidade.";
 "AttachementAdded" = "Anexo adicionado";
 "AttachmentDeleted" = "Anexo eliminado";
 "ChooseFile" = "Escolher ficheiro";
@@ -223,7 +222,6 @@
 "August" = "Agosto";
 "Brand" = "Marca";
 "CardholderName" = "Nome do titular do cartão";
-"WeFoundMultipleMatchesChooseTheCorrectOne" = "Encontrámos várias correspondências. Escolha a correta.";
 "CityTown" = "Cidade / Localidade";
 "Company" = "Empresa";
 "Country" = "País";
@@ -308,7 +306,7 @@
 "InvalidEmailAddresses" = "Endereços de e-mail inválidos";
 "NoEmailAddressesEntered" = "Nenhum endereço de e-mail introduzido";
 "EnterAtLeastOneValidEmailToShareSend" = "Introduza pelo menos um endereço de e-mail válido para partilhar este Send.";
-"OneOrMoreEmailAddressesIncorrect" = "Um ou mais endereços de e-mail estão incorretos. Por favor, verifique e tente novamente.";
+"OneOrMoreEmailAddressesIncorrect" = "Um ou mais endereços de e-mail estão incorretos. Reveja-os e tente novamente.";
 "Cards" = "Cartões";
 "Identities" = "Identidades";
 "Logins" = "Credenciais";
@@ -353,7 +351,7 @@
 "NoFoldersToList" = "Não existem pastas para apresentar.";
 "FingerprintPhrase" = "Frase de impressão digital";
 "YourAccountsFingerprint" = "Frase de impressão digital da sua conta";
-"WeAreUnableToProcessYourRequestPleaseTryAgainOrContactUs" = "Não é possível processar o seu pedido. Por favor, tente novamente ou contacte-nos.";
+"WeAreUnableToProcessYourRequestPleaseTryAgainOrContactUs" = "Não é possível processar o seu pedido. Tente novamente ou contacte-nos.";
 "Export" = "Exportar";
 "ExportVault" = "Exportar cofre";
 "LockNow" = "Bloquear agora";
@@ -403,7 +401,7 @@
 "EnableSyncOnRefresh" = "Permitir a sincronização ao atualizar";
 "EnableSyncOnRefreshDescription" = "Sincronizar o cofre com o gesto de deslizar para baixo.";
 "LogInSso" = "Início de sessão único para empresas";
-"LogInSsoSummary" = "Inicie sessão rapidamente utilizando o portal de início de sessão único da sua organização. Por favor, introduza o identificador da sua organização para começar.";
+"LogInSsoSummary" = "Inicie sessão rapidamente através do portal de início de sessão único da sua organização. Introduza o identificador da sua organização para começar.";
 "OrgIdentifier" = "Identificador da organização";
 "SetMasterPassword" = "Definir a palavra-passe mestra";
 "MasterPasswordPolicyInEffect" = "Uma ou mais políticas da organização exigem que a sua palavra-passe mestra cumpra os seguintes requisitos:";
@@ -451,7 +449,7 @@
 "SendFileEmailVerificationRequired" = "Tem de verificar o seu e-mail para utilizar ficheiros com o Send. Pode verificar o seu e-mail no cofre web.";
 "PasswordPrompt" = "Pedir novamente a palavra-passe mestra";
 "PasswordConfirmation" = "Confirmação da palavra-passe mestra";
-"PasswordConfirmationDesc" = "Esta ação está protegida. Para continuar, por favor, reintroduza a sua palavra-passe mestra para verificar a sua identidade.";
+"PasswordConfirmationDesc" = "Esta ação está protegida. Para continuar, introduza novamente a sua palavra-passe mestra para confirmar a sua identidade.";
 "UpdateMasterPassword" = "Atualizar a palavra-passe mestra";
 "UpdateMasterPasswordWarning" = "A sua palavra-passe mestra foi recentemente alterada por um administrador da sua organização. Para aceder ao cofre, tem de atualizar a sua palavra-passe mestra agora. Ao prosseguir, terminará a sua sessão atual e terá de iniciar sessão novamente. As sessões ativas noutros dispositivos poderão continuar ativas até uma hora.";
 "UpdatingPassword" = "A atualizar palavra-passe";
@@ -505,8 +503,8 @@
 "EnterKeyManually" = "Introduzir a chave manualmente";
 "OnceTheKeyIsSuccessfullyEntered" = "Quando a chave for introduzida com sucesso, selecione Guardar para guardar a chave em segurança.";
 "NeverLockWarning" = "Ao definir as suas opções de bloqueio para \"Nunca\" mantém o seu cofre disponível para qualquer pessoa que tenha acesso ao seu dispositivo. Se utilizar esta opção, deve assegurar-se de que mantém o seu dispositivo devidamente protegido.";
-"EnvironmentPageUrlsError" = "Um ou mais URLs introduzidos são inválidos. Por favor, reveja-o e tente guardar novamente.";
-"GenericErrorMessage" = "Não foi possível processar o seu pedido. Por favor, tente novamente ou contacte-nos.";
+"EnvironmentPageUrlsError" = "Um ou mais dos URLs introduzidos são inválidos. Reveja-os e tente guardar novamente.";
+"GenericErrorMessage" = "Não foi possível processar o seu pedido. Tente novamente ou contacte-nos.";
 "LogInRequested" = "Pedido de início de sessão";
 "AreYouTryingToLogIn" = "Está a tentar iniciar sessão?";
 "LogInAttemptByXOnY" = "Tentativa de início de sessão por %1$@ em %2$@";
@@ -550,7 +548,7 @@
 "LogInWithMasterPassword" = "Iniciar sessão com a palavra-passe mestra";
 "LogInInitiated" = "A preparar o início de sessão";
 "ANotificationHasBeenSentToYourDevice" = "Foi enviada uma notificação para o seu dispositivo.";
-"PleaseMakeSureYourVaultIsUnlockedAndTheFingerprintPhraseMatchesOnTheOtherDevice" = "Por favor, certifique-se de que o cofre está desbloqueado e que a frase de impressão digital corresponde à do outro dispositivo.";
+"PleaseMakeSureYourVaultIsUnlockedAndTheFingerprintPhraseMatchesOnTheOtherDevice" = "Certifique-se de que o seu cofre está desbloqueado e de que a frase de impressão digital corresponde à do outro dispositivo.";
 "ResendNotification" = "Reenviar notificação";
 "NeedAnotherOption" = "Precisa de outra opção?";
 "ViewAllLoginOptions" = "Ver todas as opções de início de sessão";
@@ -561,7 +559,7 @@
 "RequestsDeclined" = "Pedidos recusados";
 "NoPendingRequests" = "Sem pedidos pendentes";
 "Language" = "Idioma";
-"LanguageChangeXDescription" = "O idioma foi alterado para %1$@. Por favor, reinicie a app para ver as alterações";
+"LanguageChangeXDescription" = "O idioma foi alterado para %1$@. Reinicie a app para ver as alterações";
 "LanguageChangeRequiresAppRestart" = "A alteração do idioma requer o reinício da app";
 "DefaultSystem" = "Predefinido (Sistema)";
 "Important" = "Importante";
@@ -648,7 +646,6 @@
 "SetUpAutofill" = "Configurar o preenchimento automático";
 "AppInfo" = "Informações da app";
 "Browse" = "Pesquisar";
-"SelectCardholderName" = "Selecione o nome do titular do cartão";
 "SelectLanguage" = "Selecionar idioma";
 "ContinueToCompleteWebAuthnVerification" = "Continue para concluir a verificação WebAuthn.";
 "ThereWasAnErrorStartingWebAuthnTwoFactorAuthentication" = "Ocorreu um erro ao iniciar a autenticação de dois fatores WebAuthn";
@@ -667,7 +664,6 @@
 "ByContinuingYouAgreeToTheTermsOfServiceAndPrivacyPolicy" = "Ao continuar, concorda com os **[Termos de utilização](%1$@)** e a **[Política de privacidade](%2$@)**";
 "GetAdviceAnnouncementsAndResearchOpportunitiesFromBitwardenInYourInboxUnsubscribeAtAnyTime." = "Receba conselhos, anúncios e oportunidades de investigação do Bitwarden na sua caixa de entrada. **[Anule a subscrição](%1$@)** a qualquer altura.";
 "UserVerificationForPasskey" = "Verificação do utilizador para a chave de acesso";
-"NewItem" = "Novo item";
 "ExploreTheGenerator" = "Explore o gerador";
 "LearnMoreAboutGeneratingSecureLoginCredentialsWithAGuidedTour" = "Saiba mais sobre como gerar credenciais de início de sessão seguras com uma visita guiada.";
 "ExportVaultFilePwProtectInfo" = "A exportação deste ficheiro será protegida por uma palavra-passe e exigirá a palavra-passe do ficheiro para ser desencriptada.";
@@ -716,7 +712,7 @@
 "RestartRegistration" = "Reiniciar registo";
 "Expired" = "Expirado";
 "ExpiredLink" = "Link expirado";
-"PleaseRestartRegistrationOrTryLoggingInYouMayAlreadyHaveAnAccount" = "Por favor, reinicie o registo ou tente iniciar sessão. É possível que já tenha uma conta.";
+"PleaseRestartRegistrationOrTryLoggingInYouMayAlreadyHaveAnAccount" = "Reinicie o registo ou tente iniciar sessão. Pode já ter uma conta.";
 "RemovePasskey" = "Remover chave de acesso";
 "PasskeyRemoved" = "Chave de acesso removida";
 "SSHKey" = "Chave SSH";
@@ -815,14 +811,14 @@
 "GenerateSdkErrorReport" = "Gerar relatório de erros do SDK";
 "AllowAuthenticatorSyncing" = "Permitir a sincronização do autenticador";
 "AuthenticatorSync" = "Sincronização do autenticador";
-"NoAccountFoundPleaseLogInAgainIfYouContinueToSeeThisError" = "Não foi encontrada nenhuma conta. Por favor, inicie sessão novamente se continuar a ver este erro.";
+"NoAccountFoundPleaseLogInAgainIfYouContinueToSeeThisError" = "Não foi encontrada nenhuma conta. Inicie sessão novamente se continuar a ver este erro.";
 "ImportError" = "Erro de importação";
 "NoLoginsWereImported" = "Não foram importadas credenciais";
 "ThisIsNotARecognizedServerDescriptionLong" = "Este não é um servidor Bitwarden reconhecido. Poderá ter de verificar com o seu fornecedor ou atualizar o seu servidor.";
 "LoginsImported" = "Credenciais importadas";
 "RememberToDeleteYourImportedPasswordFileFromYourComputer" = "Lembre-se de eliminar o ficheiro da palavra-passe importada do seu computador.";
-"SomethingWentWrong" = "Alguma coisa correu mal";
-"UnableToMoveTheSelectedItemPleaseTryAgain" = "Não foi possível mover o item selecionado. Por favor, tente novamente.";
+"SomethingWentWrong" = "Ocorreu um problema";
+"UnableToMoveTheSelectedItemPleaseTryAgain" = "Não foi possível mover o item selecionado. Tente novamente.";
 "Done" = "Concluído";
 "Next" = "Seguinte";
 "NextCode" = "Código seguinte";
@@ -855,7 +851,7 @@
 "ExportFailed" = "Falha na exportação";
 "ThereHasBeenAnIssueExportingItems" = "Ocorreu um problema com a exportação de itens.";
 "AreYouSureYouWantToCancelTheExportProcessQuestionMark" = "Tem a certeza de que pretende cancelar o processo de exportação?";
-"PleaseDoNotCloseTheApp" = "Por favor, não feche a app.";
+"PleaseDoNotCloseTheApp" = "Não feche a app.";
 "ThisIsTakingLongerThanExpected" = "Isto está a demorar mais do que o previsto";
 "ItemsToExport" = "Itens a exportar";
 "TextToShare" = "Texto a partilhar";
@@ -863,7 +859,7 @@
 "SendNameRequired" = "Nome do Send (obrigatório)";
 "CheckPasswordForDataBreaches" = "Verificar a palavra-passe para detetar violações de dados";
 "PrivateNote" = "Nota privada";
-"CannotDeleteUserSoleOwnerDescriptionLong" = "Não é possível eliminar este utilizador porque é o único proprietário de pelo menos uma organização. Por favor, elimine estas organizações ou atualize outro utilizador.";
+"CannotDeleteUserSoleOwnerDescriptionLong" = "Não é possível eliminar este utilizador porque é o único proprietário de, pelo menos, uma organização. Elimine essas organizações ou promova outro utilizador.";
 "APasskeyAlreadyExistsForThisApplication" = "Já existe uma chave de acesso para esta aplicação.";
 "APasskeyAlreadyExistsForThisApplicationButAnErrorOccurredWhileLoadingIt" = "Já existe uma chave de acesso para esta aplicação, mas ocorreu um erro ao carregá-la.";
 "ItemNameRequired" = "Nome do item (obrigatório)";
@@ -912,11 +908,11 @@
 "SelfHostServerURL" = "URL do servidor auto-hospedado";
 "AllowUniversalClipboard" = "Permitir Área de transferência universal";
 "UseUniversalClipboardToCopyDescriptionLong" = "Utilize a Área de transferência universal para copiar aqui e colar noutros dispositivos com sessão iniciada com o mesmo ID Apple.";
-"RemoveMasterPasswordConfirmDomain" = "Já não é necessária uma palavra-passe mestra para os membros da seguinte organização. Por favor, confirme o domínio abaixo com o administrador da sua organização.";
+"RemoveMasterPasswordConfirmDomain" = "A palavra-passe mestra já não é necessária para os membros da seguinte organização. Confirme o domínio abaixo com o administrador da sua organização.";
 "ConfirmKeyConnectorDomain" = "Confirmar o domínio do Key Connector";
 "KeyConnectorDomain" = "Domínio do Key Connector:";
 "KeyConnectorOrganization" = "Organização:";
-"KeyConnectorConfirmDomainWithAdmin" = "Por favor, confirme o domínio abaixo com o administrador da sua organização.\n\nDomínio do Key Connector:\n%1$@";
+"KeyConnectorConfirmDomainWithAdmin" = "Confirme o domínio abaixo com o administrador da sua organização.\n\nDomínio do Key Connector:\n%1$@";
 "DoYouReallyWantToDeleteThisLog" = "Pretende realmente eliminar este registo?";
 "DoYouReallyWantToDeleteAllRecordedLogs" = "Pretende realmente eliminar todos os registos gravados?";
 "ThisAccountWillSoonBeDeletedLogInAtXToContinueUsingBitwarden" = "Esta conta será eliminada em breve. Inicie sessão em %1$@ para continuar a utilizar o Bitwarden.";
@@ -979,11 +975,10 @@
 "NoAskMe" = "Não, perguntem-me";
 "NoCodes" = "Não tem códigos para apresentar";
 "None" = "Nenhum";
-"NoneOfTheAbove" = "Nenhuma das opções acima";
 "NumberOfDigits" = "Número de dígitos";
 "OtpType" = "Tipo de OTP";
 "RefreshPeriod" = "Período de atualização";
-"RequiredInformationIsMissing" = "Faltam informações necessárias em %1$@. Por favor, reveja o campo e tente novamente.";
+"RequiredInformationIsMissing" = "Faltam informações necessárias em %1$@. Reveja o campo e tente novamente.";
 "RequiredInformationMissing" = "Informações necessárias em falta";
 "SaveHere" = "Guardar aqui";
 "SaveThisAuthenticatorKeyHereOrAddItToALoginInYourBitwardenApp" = "Guarde esta chave de autenticação aqui ou adicione-a a uma credencial na sua app Bitwarden.";
@@ -1005,7 +1000,7 @@
 "SyncWithBrowser" = "Sincronizar com o navegador";
 "SyncWithTheBitwardenApp" = "Sincronizar com a app Bitwarden";
 "TakeMeToTheAppSettings" = "Ir às definições da app";
-"TheDataFormatProvidedDoesntMatchWhatsExpected" = "O formato dos dados fornecidos não corresponde ao que é esperado. Por favor, verifique o seu ficheiro e certifique-se de que são utilizados os tipos de dados corretos.";
+"TheDataFormatProvidedDoesntMatchWhatsExpected" = "O formato dos dados fornecidos não corresponde ao esperado. Verifique o ficheiro e certifique-se de que são utilizados os tipos de dados corretos.";
 "UnableToSyncCodesFromTheBitwardenApp" = "Não é possível sincronizar códigos da app Bitwarden. Certifique-se de que ambas as aplicações estão atualizadas. Ainda pode aceder aos seus códigos existentes na app Bitwarden.";
 "UnexpectedDataFormat" = "Formato de dados inesperado";
 "UseYourDeviceCameraToScanCodes" = "Utilize a câmara do seu dispositivo para ler códigos";
@@ -1100,12 +1095,12 @@
 /* masterPasswordUnlock is the name of some data we want to delete, so there's no need to localize it. */
 "MasterPasswordUnlockCleared" = "masterPasswordUnlock limpo.";
 "SsoCookiesCleared" = "Cookies de SSO limpos";
-"YourRequestWasInterruptedBecauseTheAppNeededToReAuthenticatePleaseTryAgain" = "O seu pedido foi interrompido porque a app precisou de voltar a autenticar. Por favor, tente novamente.";
+"YourRequestWasInterruptedBecauseTheAppNeededToReAuthenticatePleaseTryAgain" = "O seu pedido foi interrompido porque a app teve de voltar a autenticar-se. Tente novamente.";
 "AutofillWithBitwardenDescriptionLong" = "O Bitwarden pode sugerir as suas palavras-passe e outras credenciais quando inicia sessão em apps e sites.";
 "LearnMoreAboutAutofill" = "Saiba mais sobre o preenchimento automático";
 "TurnOnNow" = "Ativar agora";
 "AcceptTransfer" = "Aceitar transferência";
-"YourPasswordAndHintCannotBeTheSamePleaseChooseADifferentHint" = "A sua palavra-passe e a dica não podem ser iguais. Por favor, escolha uma dica diferente.";
+"YourPasswordAndHintCannotBeTheSamePleaseChooseADifferentHint" = "A sua palavra-passe e a dica não podem ser iguais. Escolha uma dica diferente.";
 "Plan" = "Plano";
 "Premium" = "Premium";
 "Active" = "Ativo";
@@ -1125,7 +1120,7 @@
 "YourNextChargeIsForXDueOnY" = "O seu próximo pagamento será de **%1$@**, com vencimento em **%2$@**.";
 "WeCouldNotProcessYourPaymentUpdateYourPaymentMethodDescriptionLong" = "Não foi possível processar o seu pagamento. Atualize o seu método de pagamento antes de a sua subscrição terminar em **%1$@**.";
 /* Error message shown when the Premium Plan screen fails to load subscription data, with a prompt to retry. */
-"WeCouldntLoadYourSubscriptionDetailsPleaseRetry" = "Não foi possível carregar os detalhes da sua subscrição. Por favor, tente novamente.";
+"WeCouldntLoadYourSubscriptionDetailsPleaseRetry" = "Não foi possível carregar os detalhes da sua subscrição. Tente novamente.";
 "YourSubscriptionWasCanceledOnXDescriptionLong" = "A sua subscrição foi cancelada a **%1$@**. Volte a subscrever para continuar a utilizar funcionalidades Premium.";
 "YourSubscriptionWasSuspendedOnXDescriptionLong" = "A sua subscrição foi suspensa em **%1$@**. Para a reativar, regularize as faturas em atraso.";
 "YourSubscriptionExpiredOnXDescriptionLong" = "A sua subscrição expirou a **%1$@**. Volte a subscrever para continuar a utilizar funcionalidades Premium.";
@@ -1143,7 +1138,7 @@
 "XCancelAnytimeVoiceOver" = "%1$@, Cancele a qualquer momento";
 "NegativeX" = "-%1$@";
 "UnknownStatus" = "Desconhecido";
-"YourSubscriptionStatusIsUnknownVisitTheWebAppDescriptionLong" = "Não foi possível determinar o estado da sua subscrição. Por favor, visite a aplicação web para mais detalhes ou atualize para a versão mais recente.";
+"YourSubscriptionStatusIsUnknownVisitTheWebAppDescriptionLong" = "Não foi possível determinar o estado da sua subscrição. Consulte a aplicação web para obter mais detalhes ou atualize para a versão mais recente.";
 /* Headline on the Premium upgrade screen. */
 "UnlockAdvancedProtection" = "Desbloqueie proteção avançada";
 /* Premium benefit list item. */

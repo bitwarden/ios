@@ -182,7 +182,6 @@
 "CopyTotp" = "TOTP'yi kopyala";
 "CopyTotpAutomaticallyDescription" = "Hesabınıza bağlı bir kimlik doğrulama anahtarı varsa giriş bilgilerini otomatik doldurduğunuzda TOTP doğrulama kodu panonuza kopyalanır.";
 "CopyTotpAutomatically" = "TOTP'yi otomatik kopyala";
-"PremiumRequired" = "Bu özelliği kullanmak için premium üyelik gereklidir.";
 "AttachementAdded" = "Dosya eklendi";
 "AttachmentDeleted" = "Dosya silindi";
 "ChooseFile" = "Dosya seç";
@@ -223,7 +222,6 @@
 "August" = "Ağustos";
 "Brand" = "Marka";
 "CardholderName" = "Kart sahibinin adı";
-"WeFoundMultipleMatchesChooseTheCorrectOne" = "Birden fazla eşleşme bulduk. Doğru olanı seçin.";
 "CityTown" = "Şehir";
 "Company" = "Şirket";
 "Country" = "Ülke";
@@ -648,7 +646,6 @@
 "SetUpAutofill" = "Otomatik doldurmayı ayarla";
 "AppInfo" = "Uygulama bilgileri";
 "Browse" = "Gözat";
-"SelectCardholderName" = "Kart sahibi adını seçin";
 "SelectLanguage" = "Dil seçin";
 "ContinueToCompleteWebAuthnVerification" = "WebAuthn doğrulamasını tamamlamak için devam edin.";
 "ThereWasAnErrorStartingWebAuthnTwoFactorAuthentication" = "WebAuthn iki faktörlü kimlik doğrulamayı başlatırken bir hata oluştu";
@@ -667,7 +664,6 @@
 "ByContinuingYouAgreeToTheTermsOfServiceAndPrivacyPolicy" = "Devam ederek, **[Hizmet Şartları](%1$@)** ve **[Gizlilik Politikası](%2$@)**'nı kabul etmiş olursunuz";
 "GetAdviceAnnouncementsAndResearchOpportunitiesFromBitwardenInYourInboxUnsubscribeAtAnyTime." = "Bitwarden'dan gelen tavsiyeleri, duyuruları ve araştırma fırsatlarını e-posta kutunuza alın. İstediğiniz zaman aboneliği iptal etmek için **[Aboneliği iptal et](%1$@)**.";
 "UserVerificationForPasskey" = "Geçiş anahtarı için kullanıcı doğrulaması";
-"NewItem" = "Yeni kayıt";
 "ExploreTheGenerator" = "Üreteci keşfedin";
 "LearnMoreAboutGeneratingSecureLoginCredentialsWithAGuidedTour" = "Rehberli tur ile güvenli hesap kimlik bilgileri oluşturma hakkında daha fazla bilgi edinin.";
 "ExportVaultFilePwProtectInfo" = "Dışarı aktarılan bu dosya parola korumalı olacak ve dosyanın çözülmesi için parolayı girmeniz gerekecek.";
@@ -979,7 +975,6 @@
 "NoAskMe" = "Hayır, bana sor";
 "NoCodes" = "Görüntülenecek hiç kodunuz yok";
 "None" = "Yok";
-"NoneOfTheAbove" = "Hiçbiri";
 "NumberOfDigits" = "Basamak sayısı";
 "OtpType" = "OTP türü";
 "RefreshPeriod" = "Yenileme süresi";

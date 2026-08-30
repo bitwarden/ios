@@ -182,7 +182,6 @@
 "CopyTotp" = "Копиране на кода за потвърждаване";
 "CopyTotpAutomaticallyDescription" = "Ако към вписването има и удостоверителен ключ, кодът за потвърждаване се копира автоматично в буфера при автоматично попълване.";
 "CopyTotpAutomatically" = "Автоматично копиране на TOTP";
-"PremiumRequired" = "За да се възползвате от тази възможност, трябва да ползвате платен абонамент.";
 "AttachementAdded" = "Файлът е прикачен";
 "AttachmentDeleted" = "Файлът е махнат";
 "ChooseFile" = "Изберете файл";
@@ -223,7 +222,6 @@
 "August" = "август";
 "Brand" = "Вид";
 "CardholderName" = "Име на притежателя на картата";
-"WeFoundMultipleMatchesChooseTheCorrectOne" = "Открити са няколко съвпадения. Изберете правилното.";
 "CityTown" = "Населено място";
 "Company" = "Фирма";
 "Country" = "Държава";
@@ -648,7 +646,6 @@
 "SetUpAutofill" = "Настройка на автоматичното попълване";
 "AppInfo" = "Информация за приложението";
 "Browse" = "Разглеждане";
-"SelectCardholderName" = "Изберете името на картодържателя";
 "SelectLanguage" = "Изберете език";
 "ContinueToCompleteWebAuthnVerification" = "Продължете, за да завършите проверката чрез WebAuthn.";
 "ThereWasAnErrorStartingWebAuthnTwoFactorAuthentication" = "Имаше грешка при стартирането на двустепенното удостоверяване чрез WebAuthn";
@@ -667,7 +664,6 @@
 "ByContinuingYouAgreeToTheTermsOfServiceAndPrivacyPolicy" = "Ако продължите, Вие се съгласявате с **[Условията за ползване](%1$@)** и **[Политиката за поверителност](%2$@)**";
 "GetAdviceAnnouncementsAndResearchOpportunitiesFromBitwardenInYourInboxUnsubscribeAtAnyTime." = "Получавайте съвети, обявления и предложения за участия в проучвания от Битоурден в е-пощата си. Можете да се **[отпишете](%1$@)** по всяко време.";
 "UserVerificationForPasskey" = "Потвърждение на потребителя за секретен ключ";
-"NewItem" = "Нов елемент";
 "ExploreTheGenerator" = "Разгледайте генератора";
 "LearnMoreAboutGeneratingSecureLoginCredentialsWithAGuidedTour" = "Научете повече относно генерирането на сигурни данни за вписване, като преминете през стъпките на демонстрацията.";
 "ExportVaultFilePwProtectInfo" = "Изнесеният файл ще бъде защитен с парола, която ще бъде необходима за дешифриране на файла.";
@@ -979,7 +975,6 @@
 "NoAskMe" = "Не, питайте ме";
 "NoCodes" = "Нямате кодове за показване";
 "None" = "Няма";
-"NoneOfTheAbove" = "Нито едно от изброените";
 "NumberOfDigits" = "Брой цифри";
 "OtpType" = "Вид еднократна парола";
 "RefreshPeriod" = "Период на опресняване";

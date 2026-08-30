@@ -182,7 +182,6 @@
 "CopyTotp" = "Sao chép TOTP";
 "CopyTotpAutomaticallyDescription" = "Nếu tài khoản đăng nhập có khóa xác thực, mã xác minh TOTP sẽ được sao chép vào bộ nhớ tạm khi bạn tự động điền thông tin đăng nhập.";
 "CopyTotpAutomatically" = "Tự động sao chép mã TOTP";
-"PremiumRequired" = "Cần là thành viên Cao cấp để sử dụng tính năng này.";
 "AttachementAdded" = "Đã thêm tệp đính kèm";
 "AttachmentDeleted" = "Đã xóa tệp đính kèm";
 "ChooseFile" = "Chọn tập tin";
@@ -223,7 +222,6 @@
 "August" = "Tháng 8";
 "Brand" = "Thương hiệu";
 "CardholderName" = "Tên chủ thẻ";
-"WeFoundMultipleMatchesChooseTheCorrectOne" = "Chúng tôi đã tìm thấy nhiều kết quả khớp. Hãy chọn kết quả chính xác.";
 "CityTown" = "Xã / Phường";
 "Company" = "Công ty";
 "Country" = "Quốc gia";
@@ -648,7 +646,6 @@
 "SetUpAutofill" = "Thiết lập tự động điền";
 "AppInfo" = "Thông tin ứng dụng";
 "Browse" = "Duyệt";
-"SelectCardholderName" = "Chọn tên chủ thẻ";
 "SelectLanguage" = "Chọn ngôn ngữ";
 "ContinueToCompleteWebAuthnVerification" = "Tiếp tục hoàn tất quá trình xác minh WebAuthn.";
 "ThereWasAnErrorStartingWebAuthnTwoFactorAuthentication" = "Xảy ra lỗi khi khởi động xác thực hai bước với WebAuthn";
@@ -667,7 +664,6 @@
 "ByContinuingYouAgreeToTheTermsOfServiceAndPrivacyPolicy" = "Bằng cách tiếp tục, bạn đồng ý với **[Điều khoản Dịch vụ](%1$@)** và **[Chính sách Bảo mật](%2$@)**";
 "GetAdviceAnnouncementsAndResearchOpportunitiesFromBitwardenInYourInboxUnsubscribeAtAnyTime." = "Nhận đề xuất, thông báo và cơ hội nghiên cứu từ Bitwarden qua email. **[Hủy đăng ký](%1$@)** bất cứ lúc nào.";
 "UserVerificationForPasskey" = "Xác minh người dùng cho mã khóa";
-"NewItem" = "Mục mới";
 "ExploreTheGenerator" = "Khám phá trình tạo";
 "LearnMoreAboutGeneratingSecureLoginCredentialsWithAGuidedTour" = "Tìm hiểu thêm về cách tạo thông tin đăng nhập an toàn thông qua hướng dẫn.";
 "ExportVaultFilePwProtectInfo" = "Tệp tin này sẽ được bảo vệ bằng mật khẩu và yêu cầu mật khẩu tệp tin để giải mã.";
@@ -979,7 +975,6 @@
 "NoAskMe" = "Không, hãy hỏi tôi";
 "NoCodes" = "Bạn không có mã nào để hiển thị";
 "None" = "Không có";
-"NoneOfTheAbove" = "Không có phương án nào ở trên";
 "NumberOfDigits" = "Số lượng chữ số";
 "OtpType" = "Loại OTP";
 "RefreshPeriod" = "Chu kỳ làm mới";

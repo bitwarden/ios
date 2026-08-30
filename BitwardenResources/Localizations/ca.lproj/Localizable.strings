@@ -182,7 +182,6 @@
 "CopyTotp" = "Copia TOTP";
 "CopyTotpAutomaticallyDescription" = "Si el vostre inici de sessió té una clau d'autenticació associada, el codi de verificació TOTP es copiarà al vostre porta-retalls quan s'òmpliga automàticament l'inici de sessió.";
 "CopyTotpAutomatically" = "Copia TOTP automaticament";
-"PremiumRequired" = "Cal una subscripció premium per utilitzar aquesta característica.";
 "AttachementAdded" = "S'ha afegit un adjunt";
 "AttachmentDeleted" = "S'ha suprimit un adjunt";
 "ChooseFile" = "Trieu fitxer";
@@ -223,7 +222,6 @@
 "August" = "Agost";
 "Brand" = "Marca";
 "CardholderName" = "Nom del titular de la targeta";
-"WeFoundMultipleMatchesChooseTheCorrectOne" = "Hem trobat diverses coincidències. Tria la correcta.";
 "CityTown" = "Localitat";
 "Company" = "Empresa";
 "Country" = "País";
@@ -648,7 +646,6 @@
 "SetUpAutofill" = "Configura l'emplenament automàtic";
 "AppInfo" = "Informació de l'aplicació";
 "Browse" = "Navega";
-"SelectCardholderName" = "Selecciona el nom del titular de la targeta";
 "SelectLanguage" = "Selecciona l'idioma";
 "ContinueToCompleteWebAuthnVerification" = "Continueu per completar la verificació de WebAuthn.";
 "ThereWasAnErrorStartingWebAuthnTwoFactorAuthentication" = "S'ha produït un error en iniciar l'autenticació de dos factors de WebAuthn";
@@ -667,7 +664,6 @@
 "ByContinuingYouAgreeToTheTermsOfServiceAndPrivacyPolicy" = "En continuar, acceptes els **[Termes de servei](%1$@)** i la **[Política de privadesa](%2$@)**";
 "GetAdviceAnnouncementsAndResearchOpportunitiesFromBitwardenInYourInboxUnsubscribeAtAnyTime." = "Rep consells, anuncis i oportunitats de recerca de Bitwarden a la teva safata d'entrada. **[Donar-se de baixa](%1$@)** en qualsevol moment.";
 "UserVerificationForPasskey" = "Verificació de l'usuari per a la clau de pas";
-"NewItem" = "Element nou";
 "ExploreTheGenerator" = "Explora el generador";
 "LearnMoreAboutGeneratingSecureLoginCredentialsWithAGuidedTour" = "Aprèn més sobre la generació de credencials d'inici de sessió segures amb una visita guiada.";
 "ExportVaultFilePwProtectInfo" = "Aquesta exportació de fitxers estarà protegida amb contrasenya i requerirà la contrasenya del fitxer per desxifrar-la.";
@@ -979,7 +975,6 @@
 "NoAskMe" = "No, pregunta-m'ho";
 "NoCodes" = "No teniu cap codi per mostrar";
 "None" = "Cap";
-"NoneOfTheAbove" = "Cap de les anteriors";
 "NumberOfDigits" = "Nombre de dígits";
 "OtpType" = "Tipus OTP";
 "RefreshPeriod" = "Període d'actualització";

@@ -182,7 +182,6 @@
 "CopyTotp" = "העתק TOTP";
 "CopyTotpAutomaticallyDescription" = "אם לכניסה שלך יש מפתח מאמת, העתק את קוד האימות ה־TOTP ללוח ההעתקה שלך כאשר אתה ממלא אוטומטית את הכניסה.";
 "CopyTotpAutomatically" = "העתק TOTP באופן אוטומטי";
-"PremiumRequired" = "בכדי להשתמש ביכולת זו יש צורך במנוי פרמיום.";
 "AttachementAdded" = "קובץ מצורף התווסף";
 "AttachmentDeleted" = "קובץ מצורף נמחק";
 "ChooseFile" = "בחר קובץ";
@@ -223,7 +222,6 @@
 "August" = "אוגוסט";
 "Brand" = "מותג";
 "CardholderName" = "שם בעל הכרטיס";
-"WeFoundMultipleMatchesChooseTheCorrectOne" = "מצאנו מספר התאמות. בחר את ההתאמה הנכונה.";
 "CityTown" = "עיר \\ ישוב";
 "Company" = "חברה";
 "Country" = "מדינה";
@@ -649,7 +647,6 @@
 "SetUpAutofill" = "הגדר מילוי אוטומטי";
 "AppInfo" = "פרטי יישום";
 "Browse" = "עיון";
-"SelectCardholderName" = "בחר את שם בעל הכרטיס";
 "SelectLanguage" = "בחר שפה";
 "ContinueToCompleteWebAuthnVerification" = "המשך להשלים אימות WebAuthn.";
 "ThereWasAnErrorStartingWebAuthnTwoFactorAuthentication" = "אירעה שגיאה בהתחלת אימות דו־גורמי של WebAuthn";
@@ -668,7 +665,6 @@
 "ByContinuingYouAgreeToTheTermsOfServiceAndPrivacyPolicy" = "על ידי המשך, אתה מסכים ל**[תנאי השימוש](%1$@)** ו**[מדיניות הפרטיות](%2$@)**";
 "GetAdviceAnnouncementsAndResearchOpportunitiesFromBitwardenInYourInboxUnsubscribeAtAnyTime." = "קבל עצות, הכרזות, והזדמנויות מחקר מאת Bitwarden בדואר הנכנס שלך. **[בטל הרשמה](%1$@)** בכל עת.";
 "UserVerificationForPasskey" = "אימות משתמש עבור מפתח גישה";
-"NewItem" = "פריט חדש";
 "ExploreTheGenerator" = "גלה את המחולל";
 "LearnMoreAboutGeneratingSecureLoginCredentialsWithAGuidedTour" = "למד עוד על יצירת אישורי כניסה מאובטחים עם סיור מודרך.";
 "ExportVaultFilePwProtectInfo" = "קובץ ייצוא זה יהיה מוגן סיסמה ודורש את סיסמת הקובץ כדי לפענח.";
@@ -980,7 +976,6 @@
 "NoAskMe" = "לא, שאל אותי";
 "NoCodes" = "אין לך קודים כלשהם להציג";
 "None" = "ללא";
-"NoneOfTheAbove" = "אף אחד מהנ\"ל";
 "NumberOfDigits" = "מספר ספרות";
 "OtpType" = "סוג OTP";
 "RefreshPeriod" = "תקופת רענון";

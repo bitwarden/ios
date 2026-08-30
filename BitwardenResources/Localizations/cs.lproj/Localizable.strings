@@ -182,7 +182,6 @@
 "CopyTotp" = "Kopírovat TOTP";
 "CopyTotpAutomaticallyDescription" = "Pokud mají Vaše přihlašovací údaje přidán ověřovací klíč pro TOTP, vygenerovaný ověřovací kód (TOTP) se automaticky zkopíruje do schránky při každém automatickém vyplnění přihlašovacích údajů.";
 "CopyTotpAutomatically" = "Automaticky kopírovat TOTP";
-"PremiumRequired" = "Pro použití této funkce je potřebné členství Premium.";
 "AttachementAdded" = "Příloha byla přidána";
 "AttachmentDeleted" = "Příloha byla smazána";
 "ChooseFile" = "Vybrat soubor";
@@ -223,7 +222,6 @@
 "August" = "srpen";
 "Brand" = "Vydavatel";
 "CardholderName" = "Jméno držitele karty";
-"WeFoundMultipleMatchesChooseTheCorrectOne" = "Našli jsme více shod. Vyberte správné.";
 "CityTown" = "Město";
 "Company" = "Společnost";
 "Country" = "Země";
@@ -648,7 +646,6 @@
 "SetUpAutofill" = "Nastavit automatické vyplňování";
 "AppInfo" = "Informace o aplikaci";
 "Browse" = "Procházet";
-"SelectCardholderName" = "Vyberte jméno držitele karty";
 "SelectLanguage" = "Zvolit jazyk";
 "ContinueToCompleteWebAuthnVerification" = "Pokračujte pro dokončení ověření WebAuthn.";
 "ThereWasAnErrorStartingWebAuthnTwoFactorAuthentication" = "Při spouštění dvoufaktorového ověření WebAuthn došlo k chybě";
@@ -667,7 +664,6 @@
 "ByContinuingYouAgreeToTheTermsOfServiceAndPrivacyPolicy" = "Pokračováním souhlasíte s **[Podmínkami služby](%1$@)** a **[Zásadami ochrany osobních údajů](%2$@)**";
 "GetAdviceAnnouncementsAndResearchOpportunitiesFromBitwardenInYourInboxUnsubscribeAtAnyTime." = "Dostávejte do své e-mailové schránky rady, oznámení a příležitosti k výzkumu od společnosti Bitwarden. **[Odhlásit odběr](%1$@)** můžete kdykoli.";
 "UserVerificationForPasskey" = "Ověření uživatele pro přístupový klíč";
-"NewItem" = "Nová položka";
 "ExploreTheGenerator" = "Prozkoumat generátor";
 "LearnMoreAboutGeneratingSecureLoginCredentialsWithAGuidedTour" = "Další informace o generování bezpečných přihlašovacích údajů pomocí prohlídky s průvodcem.";
 "ExportVaultFilePwProtectInfo" = "Tento soubor exportu bude chráněn heslem a k dešifrování bude vyžadovat heslo souboru.";
@@ -979,7 +975,6 @@
 "NoAskMe" = "Ne, zeptat se mě";
 "NoCodes" = "Nemáte žádné kódy k zobrazení";
 "None" = "Žádné";
-"NoneOfTheAbove" = "Nic z výše uvedeného";
 "NumberOfDigits" = "Počet číslic";
 "OtpType" = "Typ OTP";
 "RefreshPeriod" = "Doba obnovení";

@@ -182,7 +182,6 @@
 "CopyTotp" = "Копіювати TOTP";
 "CopyTotpAutomaticallyDescription" = "Якщо запис має ключ автентифікації, копіювати код підтвердження TOTP до буфера обміну під час автозаповнення.";
 "CopyTotpAutomatically" = "Автоматично копіювати коди TOTP";
-"PremiumRequired" = "Для використання цієї функції необхідна передплата Premium.";
 "AttachementAdded" = "Вкладення додано";
 "AttachmentDeleted" = "Вкладення видалено";
 "ChooseFile" = "Обрати файл";
@@ -223,7 +222,6 @@
 "August" = "Серпень";
 "Brand" = "Тип картки";
 "CardholderName" = "Ім'я власника картки";
-"WeFoundMultipleMatchesChooseTheCorrectOne" = "Знайдено декілька збігів. Виберіть правильний.";
 "CityTown" = "Місто / Селище";
 "Company" = "Компанія";
 "Country" = "Країна";
@@ -648,7 +646,6 @@
 "SetUpAutofill" = "Налаштувати автозаповнення";
 "AppInfo" = "Про програму";
 "Browse" = "Огляд";
-"SelectCardholderName" = "Виберіть ім'я власника картки";
 "SelectLanguage" = "Обрати мову";
 "ContinueToCompleteWebAuthnVerification" = "Продовжуйте, щоб завершити перевірку WebAuthn.";
 "ThereWasAnErrorStartingWebAuthnTwoFactorAuthentication" = "Сталася помилка під час запуску двофакторної автентифікації WebAuthn";
@@ -667,7 +664,6 @@
 "ByContinuingYouAgreeToTheTermsOfServiceAndPrivacyPolicy" = "Продовжуючи, ви погоджуєтеся з **[Умовами використання](%1$@)** і **[Політикою приватності](%2$@)**";
 "GetAdviceAnnouncementsAndResearchOpportunitiesFromBitwardenInYourInboxUnsubscribeAtAnyTime." = "Отримуйте поради, оголошення та інформацію щодо можливості участі в дослідженнях від Bitwarden у вашій поштовій скриньці. **[Відпишіться](%1$@)** коли завгодно.";
 "UserVerificationForPasskey" = "Перевірка для використання ключа доступу";
-"NewItem" = "Новий запис";
 "ExploreTheGenerator" = "Ознайомитися з генератором";
 "LearnMoreAboutGeneratingSecureLoginCredentialsWithAGuidedTour" = "Дізнайтеся про те, як генерувати надійні облікові дані для входу, пройшовши ознайомлення.";
 "ExportVaultFilePwProtectInfo" = "Цей експортований файл буде захищений паролем, який необхідно ввести для його розшифрування.";
@@ -979,7 +975,6 @@
 "NoAskMe" = "Ні, запитувати щоразу";
 "NoCodes" = "У вас немає кодів для показу";
 "None" = "Немає";
-"NoneOfTheAbove" = "Жодне із зазначених вище";
 "NumberOfDigits" = "Кількість цифр";
 "OtpType" = "Тип OTP";
 "RefreshPeriod" = "Період оновлення";

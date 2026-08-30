@@ -182,7 +182,6 @@
 "CopyTotp" = "Copiar TOTP";
 "CopyTotpAutomaticallyDescription" = "Se uma credencial tiver uma chave de autenticador, copie o código de verificação TOTP para sua área de transferência ao preenchê-la.";
 "CopyTotpAutomatically" = "Copiar TOTP automaticamente";
-"PremiumRequired" = "Uma assinatura Premium é necessária para usar esse recurso.";
 "AttachementAdded" = "Anexo adicionado";
 "AttachmentDeleted" = "Anexo apagado";
 "ChooseFile" = "Escolher arquivo";
@@ -223,7 +222,6 @@
 "August" = "Agosto";
 "Brand" = "Bandeira";
 "CardholderName" = "Nome do titular do cartão";
-"WeFoundMultipleMatchesChooseTheCorrectOne" = "Várias correspondências foram encontradas. Escolha a correta.";
 "CityTown" = "Cidade / Localidade";
 "Company" = "Empresa";
 "Country" = "País";
@@ -648,7 +646,6 @@
 "SetUpAutofill" = "Configurar preenchimento automático";
 "AppInfo" = "Informações do app";
 "Browse" = "Navegar";
-"SelectCardholderName" = "Selecionar nome do dono do cartão";
 "SelectLanguage" = "Selecionar idioma";
 "ContinueToCompleteWebAuthnVerification" = "Continue para concluir a verificação do WebAuthn.";
 "ThereWasAnErrorStartingWebAuthnTwoFactorAuthentication" = "Houve um erro ao iniciar a autenticação de dois fatores do WebAuthn";
@@ -667,7 +664,6 @@
 "ByContinuingYouAgreeToTheTermsOfServiceAndPrivacyPolicy" = "Ao continuar, você concorda com os **[Termos de Serviço](%1$@)** e a **[Política de Privacidade](%2$@)**";
 "GetAdviceAnnouncementsAndResearchOpportunitiesFromBitwardenInYourInboxUnsubscribeAtAnyTime." = "Receba conselhos, anúncios e oportunidades de pesquisa do Bitwarden na sua caixa de entrada. **[Cancele a inscrição](%1$@)** a qualquer momento.";
 "UserVerificationForPasskey" = "Verificação do usuário para a chave de acesso";
-"NewItem" = "Novo item";
 "ExploreTheGenerator" = "Descubra o gerador";
 "LearnMoreAboutGeneratingSecureLoginCredentialsWithAGuidedTour" = "Saiba mais sobre como gerar credenciais seguras com um guia.";
 "ExportVaultFilePwProtectInfo" = "Este arquivo de exportação será protegido por senha e precisará da mesma para ser descriptografado.";
@@ -979,7 +975,6 @@
 "NoAskMe" = "Não, me pergunte";
 "NoCodes" = "Você não tem nenhum código para exibir";
 "None" = "Nenhum";
-"NoneOfTheAbove" = "Nenhum dos anteriores";
 "NumberOfDigits" = "Número de dígitos";
 "OtpType" = "Tipo de OTP";
 "RefreshPeriod" = "Período de recarregamento";

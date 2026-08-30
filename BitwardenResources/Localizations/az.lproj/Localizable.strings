@@ -182,7 +182,6 @@
 "CopyTotp" = "TOTP-ni kopyala";
 "CopyTotpAutomaticallyDescription" = "Bir giriş prosesinin kimlik doğrulayıcı açarı varsa, giriş məlumatlarını avto-doldurduğunuz zaman TOTP doğrulama kodunu kopyalayın.";
 "CopyTotpAutomatically" = "TOTP-ni avtomatik kopyala";
-"PremiumRequired" = "Bu özəlliyi istifadə etmək üçün premium üzvlük lazımdır.";
 "AttachementAdded" = "Qoşma əlavə edildi";
 "AttachmentDeleted" = "Qoşma silindi";
 "ChooseFile" = "Fayl seç";
@@ -223,7 +222,6 @@
 "August" = "Avqust";
 "Brand" = "Brend";
 "CardholderName" = "Kart sahibinin adı";
-"WeFoundMultipleMatchesChooseTheCorrectOne" = "Bir neçə uyuşma tapdıq. Doğru olanı seçin.";
 "CityTown" = "Şəhər/Rayon";
 "Company" = "Şirkət";
 "Country" = "Ölkə";
@@ -634,7 +632,7 @@
 "LearnAboutOrganizationsDescriptionLong" = "Bitwarden, bir təşkilatı istifadə edərək seyf elementlərinizi başqaları ilə paylaşmağınıza imkan verir. Daha ətraflı məlumat üçün bitwarden.com saytını ziyarət edin.";
 "RateAppDescriptionLong" = "Başqalarının Bitwarden-in onlar üçün uyğun olub-olmadığını öyrənməkdə kömək edin. Tətbiq mağazasını ziyarət edin və tətbiqimizi qiymətləndirin.";
 "CreatedX" = "Yaradıldı: %1$@";
-"YourOrganizationPermissionsWereUpdatedRequeringYouToSetAMasterPassword" = "Təşkilatınızın icazələri güncəlləndi və bir ana parol ayarlamağınızı tələb edir.";
+"YourOrganizationPermissionsWereUpdatedRequeringYouToSetAMasterPassword" = "Təşkilatınızın izinləri güncəlləndi və bir ana parol ayarlamağınızı tələb edir.";
 "YourOrganizationRequiresYouToSetAMasterPassword" = "Təşkilatınız bir ana parol ayarlamağı tələb edir.";
 "ChooseALoginToSaveThisPasskeyTo" = "Bu keçid açarını saxlayacaq bir giriş seçin";
 "SavePasskeyAsNewLogin" = "Keçid açarını yeni bir giriş olaraq saxla";
@@ -648,7 +646,6 @@
 "SetUpAutofill" = "Avto-doldurmanı quraşdır";
 "AppInfo" = "Tətbiq məlumatı";
 "Browse" = "Nəzər sal";
-"SelectCardholderName" = "Kart sahibinin adını seçin";
 "SelectLanguage" = "Dili seç";
 "ContinueToCompleteWebAuthnVerification" = "WebAuthn doğrulamasını tamamlamaq üçün davam edin.";
 "ThereWasAnErrorStartingWebAuthnTwoFactorAuthentication" = "WebAuthn iki faktorlu kimlik doğrulama başladılarkən bir xəta baş verdi";
@@ -667,7 +664,6 @@
 "ByContinuingYouAgreeToTheTermsOfServiceAndPrivacyPolicy" = "Davam edərək, **[Xidmət Şərtləri](%1$@)** və **[Məxfilik Siyasəti](%2$@)** ilə razılaşırsınız";
 "GetAdviceAnnouncementsAndResearchOpportunitiesFromBitwardenInYourInboxUnsubscribeAtAnyTime." = "Gələn qutunuzda Bitwarden-dən məsləhət, elan və araşdırma imkanları ilə bağlı məktublar alın. İstənilən vaxt **[abunəlikdən çıxa bilərsiniz](%1$@)**.";
 "UserVerificationForPasskey" = "Keçid açarı üçün istifadəçi doğrulaması";
-"NewItem" = "Yeni element";
 "ExploreTheGenerator" = "Yaradıcını kəşf et";
 "LearnMoreAboutGeneratingSecureLoginCredentialsWithAGuidedTour" = "Bələdçili tur ilə təhlükəsiz giriş kimlik məlumatlarının yaradılması barədə ətraflı öyrənin.";
 "ExportVaultFilePwProtectInfo" = "Bu faylın xaricə köçürülməsi, parolla qorunacaq və şifrəsini açmaq üçün fayl parolu tələb olunacaq.";
@@ -979,7 +975,6 @@
 "NoAskMe" = "Xeyr, məndən soruş";
 "NoCodes" = "Göstəriləcək heç bir kodunuz yoxdur";
 "None" = "Yoxdur";
-"NoneOfTheAbove" = "Heç biri";
 "NumberOfDigits" = "Rəqəm sayı";
 "OtpType" = "OTP növü";
 "RefreshPeriod" = "Təzələmə periodu";
@@ -1086,12 +1081,12 @@
 "TheCertificateHasExpired" = "Sertifikatın müddəti bitib.";
 "TheCertificateFileIsInvalidOrCorrupted" = "Sertifikat faylı yararsızdır və ya zədəlidir.";
 "TheCertificatePasswordIsIncorrect" = "Sertifikat parolu yanlışdır.";
-"CertificateUsedForClientAuthentication" = "Client kimlik doğrulaması üçün istifadə olunan sertifikat.";
-"ClientCertificateMtls" = "Client sertifikatı (mTLS)";
+"CertificateUsedForClientAuthentication" = "İstəkçi kimlik doğrulaması üçün istifadə olunan sertifikat.";
+"ClientCertificateMtls" = "İstəkçi sertifikatı (mTLS)";
 "ACertificateWithTheAliasAlreadyExistsDescriptionLong" = "\"%1$@\" təxəllüslü bir sertifikat artıq mövcuddur. Onu əvəz etmək istəyirsiniz?";
 "EnterTheCertificatePasswordAndAlias" = "Sertifikat parolunu və istədiyiniz təxəllüsü daxil edin.";
 "ImportCertificate" = "Sertifikatı daxilə köçür";
-"ImportClientCertificate" = "Client sertifikatını daxilə köçür";
+"ImportClientCertificate" = "İstəkçi sertifikatını daxilə köçür";
 "NoCertificateDataAvailable" = "Heç bir sertifikat verisi yoxdur.";
 "RemoveCertificate" = "Sertifikatı sil";
 "ReplaceCertificate" = "Sertifikatı əvəz et";

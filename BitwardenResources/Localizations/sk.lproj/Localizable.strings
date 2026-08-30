@@ -182,7 +182,6 @@
 "CopyTotp" = "Kopírovať TOTP";
 "CopyTotpAutomaticallyDescription" = "Ak majú prihlasovacie údaje nastavený kľúč overovateľa, overovací kód TOTP bude automaticky skopírovaný do schránky vždy, keď použijete automatické vypĺňanie.";
 "CopyTotpAutomatically" = "Automaticky kopírovať TOTP";
-"PremiumRequired" = "Na použitie tejto funkcie je potrebné prémiové členstvo.";
 "AttachementAdded" = "Príloha pridaná";
 "AttachmentDeleted" = "Príloha odstránená";
 "ChooseFile" = "Vybrať súbor";
@@ -223,7 +222,6 @@
 "August" = "August";
 "Brand" = "Značka";
 "CardholderName" = "Meno držiteľa karty";
-"WeFoundMultipleMatchesChooseTheCorrectOne" = "Našli sme viacero zhôd. Vyberte správne.";
 "CityTown" = "Mesto";
 "Company" = "Spoločnosť";
 "Country" = "Krajina";
@@ -648,7 +646,6 @@
 "SetUpAutofill" = "Nastaviť automatické vypĺňanie";
 "AppInfo" = "Informácie o aplikácii";
 "Browse" = "Prehľadávať";
-"SelectCardholderName" = "Vyberte meno vlastníka karty";
 "SelectLanguage" = "Vyberte jazyk";
 "ContinueToCompleteWebAuthnVerification" = "Dokončite overovanie WebAuthn.";
 "ThereWasAnErrorStartingWebAuthnTwoFactorAuthentication" = "Pri spustení dvojstupňového overovania WebAuthn došlo k chybe";
@@ -667,7 +664,6 @@
 "ByContinuingYouAgreeToTheTermsOfServiceAndPrivacyPolicy" = "Ak budete pokračovať, tak súhlasíte s **[Podmienkami používania](%1$@)** a **[Zásadami ochrany osobných údajov](%2$@)**";
 "GetAdviceAnnouncementsAndResearchOpportunitiesFromBitwardenInYourInboxUnsubscribeAtAnyTime." = "Dostávajte do schránky rady, oznámenia a príležitosti na výskum od spoločnosti Bitwarden. **[Odhlásiť](%1$@)** sa môžete kedykoľvek.";
 "UserVerificationForPasskey" = "Overenie používateľa pre prístupový kľúč";
-"NewItem" = "Nová položka";
 "ExploreTheGenerator" = "Preskúmajte generátor";
 "LearnMoreAboutGeneratingSecureLoginCredentialsWithAGuidedTour" = "Ďalšie informácie o generovaní bezpečných prihlasovacích údajov získate pomocou prehliadky so sprievodcom.";
 "ExportVaultFilePwProtectInfo" = "Tento exportovaný súbor bude chránený heslom a na dešifrovanie bude potrebné heslo súboru.";
@@ -979,7 +975,6 @@
 "NoAskMe" = "Nie, opýtať sa ma";
 "NoCodes" = "Nemáte žiadne kódy na zobrazenie";
 "None" = "Žiadne";
-"NoneOfTheAbove" = "Žiadne z uvedených";
 "NumberOfDigits" = "Počet číslic";
 "OtpType" = "Typ OTP";
 "RefreshPeriod" = "Interval obnovenia";

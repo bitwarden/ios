@@ -182,7 +182,6 @@
 "CopyTotp" = "Kopyahin ang TOTP";
 "CopyTotpAutomaticallyDescription" = "Kung ang isang login ay may authenticator key, kopyahin ang TOTP verification code sa iyong clipboard kapag inautofill mo ang login.";
 "CopyTotpAutomatically" = "Awtomatikong kopyahin ang TOTP";
-"PremiumRequired" = "Kailangan mo ng premium membership para magamit ang feature na ito.";
 "AttachementAdded" = "Idinagdag ang attachment";
 "AttachmentDeleted" = "Tinanggal ang attachment";
 "ChooseFile" = "Pumili ng file";
@@ -223,7 +222,6 @@
 "August" = "Agosto";
 "Brand" = "Tatak";
 "CardholderName" = "Pangalan ng cardholder";
-"WeFoundMultipleMatchesChooseTheCorrectOne" = "Nakakita kami ng maraming tugma. Piliin ang tama.";
 "CityTown" = "Lungsod / Bayan";
 "Company" = "Kumpanya";
 "Country" = "Bansa";
@@ -648,7 +646,6 @@
 "SetUpAutofill" = "I-set up ang autofill";
 "AppInfo" = "Impormasyon ng app";
 "Browse" = "Mag-browse";
-"SelectCardholderName" = "Piliin ang pangalan ng may-ari ng card";
 "SelectLanguage" = "Pumili ng wika";
 "ContinueToCompleteWebAuthnVerification" = "Magpatuloy upang makumpleto ang WebAuthn verification.";
 "ThereWasAnErrorStartingWebAuthnTwoFactorAuthentication" = "Nagkaroon ng error sa pagsisimula ng WebAuthn two-factor authentication";
@@ -667,7 +664,6 @@
 "ByContinuingYouAgreeToTheTermsOfServiceAndPrivacyPolicy" = "Sa pagpapatuloy, sumasang-ayon ka sa **[Terms of Service](%1$@)** at **[Privacy Policy](%2$@)**";
 "GetAdviceAnnouncementsAndResearchOpportunitiesFromBitwardenInYourInboxUnsubscribeAtAnyTime." = "Makatanggap ng mga payo, anunsyo, at mga pagkakataon sa pananaliksik mula sa Bitwarden sa iyong inbox. **[Mag-unsubscribe](%1$@)** anumang oras.";
 "UserVerificationForPasskey" = "Pag-verify ng user para sa passkey";
-"NewItem" = "Bagong item";
 "ExploreTheGenerator" = "Tuklasin ang generator";
 "LearnMoreAboutGeneratingSecureLoginCredentialsWithAGuidedTour" = "Matuto pa tungkol sa pagbuo ng mga secure na kredensyal sa pag-login sa pamamagitan ng isang guided tour.";
 "ExportVaultFilePwProtectInfo" = "Poprotektahan ng password ang file export na ito at kakailanganin ang password para ma-decrypt ang file.";
@@ -979,7 +975,6 @@
 "NoAskMe" = "Hindi, itanong sa akin";
 "NoCodes" = "Wala kang anumang mga code na ipapakita";
 "None" = "Wala";
-"NoneOfTheAbove" = "Wala sa nabanggit";
 "NumberOfDigits" = "Bilang ng mga digit";
 "OtpType" = "Uri ng OTP";
 "RefreshPeriod" = "Panahon ng pag-refresh";

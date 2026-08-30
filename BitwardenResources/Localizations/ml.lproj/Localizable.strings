@@ -182,7 +182,6 @@
 "CopyTotp" = "TOTP പകർത്തുക";
 "CopyTotpAutomaticallyDescription" = "ഒരു ലോഗിനിൽ ആധികാരിക കീ ഉണ്ടെങ്കിൽ, നിങ്ങൾ ലോഗിൻ ഓട്ടോഫിൽ ചെയ്യുമ്പോൾ TOTP പരിശോധന കോഡ് നിങ്ങളുടെ ക്ലിപ്പ്ബോർഡിലേക്ക് പകർത്തുക.";
 "CopyTotpAutomatically" = "TOTP യാന്ത്രികമായി പകർത്തുക";
-"PremiumRequired" = "ഈ സവിശേഷത ഉപയോഗിക്കുന്നതിന് പ്രീമിയം അംഗത്വം ആവശ്യമാണ്.";
 "AttachementAdded" = "അറ്റാച്ചുമെന്റ് ചേർത്തു";
 "AttachmentDeleted" = "അറ്റാച്ചുമെന്റ് നീക്കംചെയ്തു";
 "ChooseFile" = "ഫയൽ തിരഞ്ഞെടുക്കുക";
@@ -223,7 +222,6 @@
 "August" = "ഓഗസ്റ്റ്";
 "Brand" = "ബ്രാൻഡ്";
 "CardholderName" = "കാർഡ് ഉടമയുടെ പേര്";
-"WeFoundMultipleMatchesChooseTheCorrectOne" = "ഞങ്ങൾ ഒന്നിലധികം പൊരുത്തങ്ങൾ കണ്ടെത്തി. ശരിയായത് തിരഞ്ഞെടുക്കുക.";
 "CityTown" = "നഗരം / പട്ടണം";
 "Company" = "കമ്പനി";
 "Country" = "രാജ്യം";
@@ -648,7 +646,6 @@
 "SetUpAutofill" = "ഓട്ടോഫിൽ സജ്ജീകരിക്കുക";
 "AppInfo" = "ആപ്പ് വിവരങ്ങൾ";
 "Browse" = "ബ്രൗസ് ചെയ്യുക";
-"SelectCardholderName" = "കാർഡ് ഉടമയുടെ പേര് തിരഞ്ഞെടുക്കുക";
 "SelectLanguage" = "ഭാഷ തിരഞ്ഞെടുക്കുക";
 "ContinueToCompleteWebAuthnVerification" = "WebAuthn പരിശോധന പൂർത്തിയാക്കാൻ തുടരുക.";
 "ThereWasAnErrorStartingWebAuthnTwoFactorAuthentication" = "WebAuthn ടു-ഫാക്ടർ ആധികാരികത ആരംഭിക്കുന്നതിൽ ഒരു പിശക് സംഭവിച്ചു";
@@ -667,7 +664,6 @@
 "ByContinuingYouAgreeToTheTermsOfServiceAndPrivacyPolicy" = "തുടരുന്നതിലൂടെ, നിങ്ങൾ **[Terms of Service](%1$@)** ഉം **[Privacy Policy](%2$@)** ഉം അംഗീകരിക്കുന്നു";
 "GetAdviceAnnouncementsAndResearchOpportunitiesFromBitwardenInYourInboxUnsubscribeAtAnyTime." = "നിങ്ങളുടെ ഇൻബോക്സിൽ Bitwarden-ൽ നിന്നുള്ള ഉപദേശങ്ങൾ, പ്രഖ്യാപനങ്ങൾ, ഗവേഷണ അവസരങ്ങൾ എന്നിവ നേടുക. ഏത് സമയത്തും **[Unsubscribe](%1$@)** ചെയ്യുക.";
 "UserVerificationForPasskey" = "പാസ്കീയ്ക്കുള്ള ഉപയോക്തൃ പരിശോധന";
-"NewItem" = "പുതിയ ഇനം";
 "ExploreTheGenerator" = "ജനറേറ്റർ പര്യവേക്ഷണം ചെയ്യുക";
 "LearnMoreAboutGeneratingSecureLoginCredentialsWithAGuidedTour" = "ഒരു ഗൈഡഡ് ടൂറിലൂടെ സുരക്ഷിത ലോഗിൻ യോഗ്യതാവിവരങ്ങൾ സൃഷ്ടിക്കുന്നതിനെക്കുറിച്ച് കൂടുതലറിയുക.";
 "ExportVaultFilePwProtectInfo" = "ഈ ഫയൽ കയറ്റുമതി പാസ്വേഡ് പരിരക്ഷിതമായിരിക്കും, ഡീക്രിപ്റ്റ് ചെയ്യാൻ ഫയൽ പാസ്വേഡ് ആവശ്യമാണ്.";
@@ -979,7 +975,6 @@
 "NoAskMe" = "ഇല്ല, എന്നോട് ചോദിക്കുക";
 "NoCodes" = "പ്രദർശിപ്പിക്കാൻ നിങ്ങൾക്ക് കോഡുകളൊന്നുമില്ല";
 "None" = "ഒന്നുമില്ല";
-"NoneOfTheAbove" = "മുകളിൽ പറഞ്ഞവയൊന്നുമല്ല";
 "NumberOfDigits" = "അക്കങ്ങളുടെ എണ്ണം";
 "OtpType" = "OTP തരം";
 "RefreshPeriod" = "പുതുക്കൽ കാലയളവ്";

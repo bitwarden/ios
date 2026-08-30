@@ -182,7 +182,6 @@
 "CopyTotp" = "TOTP కాపీ చేయి";
 "CopyTotpAutomaticallyDescription" = "ఒక లాగిన్‌కు ఆథెంటికేటర్ కీ ఉంటే, మీరు లాగిన్‌ను ఆటోఫిల్ చేసినప్పుడు TOTP ధృవీకరణ కోడ్‌ను మీ క్లిప్‌బోర్డ్‌కు కాపీ చేయండి.";
 "CopyTotpAutomatically" = "TOTP ఆటోమేటిక్‌గా కాపీ చేయి";
-"PremiumRequired" = "ఈ ఫీచర్ ఉపయోగించడానికి ప్రీమియం సభ్యత్వం అవసరం.";
 "AttachementAdded" = "అటాచ్మెంట్ జోడించబడింది";
 "AttachmentDeleted" = "అటాచ్మెంట్ తొలగించబడింది";
 "ChooseFile" = "ఫైల్ ఎంచుకోండి";
@@ -223,7 +222,6 @@
 "August" = "ఆగస్టు";
 "Brand" = "బ్రాండ్";
 "CardholderName" = "కార్డుదారు పేరు";
-"WeFoundMultipleMatchesChooseTheCorrectOne" = "మేము బహుళ సరిపోలికలను కనుగొన్నాము. సరైనదాన్ని ఎంచుకోండి.";
 "CityTown" = "నగరం / పట్టణం";
 "Company" = "కంపెనీ";
 "Country" = "దేశం";
@@ -648,7 +646,6 @@
 "SetUpAutofill" = "ఆటోఫిల్ సెటప్ చేయి";
 "AppInfo" = "యాప్ సమాచారం";
 "Browse" = "బ్రౌజ్ చేయి";
-"SelectCardholderName" = "కార్డుదారు పేరు ఎంచుకోండి";
 "SelectLanguage" = "భాష ఎంచుకోండి";
 "ContinueToCompleteWebAuthnVerification" = "WebAuthn ధృవీకరణను పూర్తి చేయడానికి కొనసాగించండి.";
 "ThereWasAnErrorStartingWebAuthnTwoFactorAuthentication" = "WebAuthn రెండు-కారకాల ధృవీకరణను ప్రారంభించడంలో లోపం ఉంది";
@@ -667,7 +664,6 @@
 "ByContinuingYouAgreeToTheTermsOfServiceAndPrivacyPolicy" = "కొనసాగించడం ద్వారా, మీరు **[సేవా నిబంధనలు](%1$@)** మరియు **[గోప్యతా విధానం](%2$@)**కి అంగీకరిస్తున్నారు";
 "GetAdviceAnnouncementsAndResearchOpportunitiesFromBitwardenInYourInboxUnsubscribeAtAnyTime." = "మీ ఇన్‌బాక్స్‌లో Bitwarden నుండి సలహా, ప్రకటనలు మరియు పరిశోధన అవకాశాలను పొందండి. ఎప్పుడైనా **[అన్‌సబ్‌స్క్రయిబ్](%1$@)** చేయండి.";
 "UserVerificationForPasskey" = "పాస్‌కీ కోసం వినియోగదారు ధృవీకరణ";
-"NewItem" = "కొత్త అంశం";
 "ExploreTheGenerator" = "జనరేటర్ అన్వేషించండి";
 "LearnMoreAboutGeneratingSecureLoginCredentialsWithAGuidedTour" = "గైడెడ్ టూర్‌తో సురక్షిత లాగిన్ ధృవీకరణ పత్రాలను రూపొందించడం గురించి మరింత తెలుసుకోండి.";
 "ExportVaultFilePwProtectInfo" = "ఈ ఫైల్ ఎగుమతి పాస్వర్డ్ రక్షించబడుతుంది మరియు డీక్రిప్ట్ చేయడానికి ఫైల్ పాస్వర్డ్ అవసరం.";
@@ -979,7 +975,6 @@
 "NoAskMe" = "లేదు, నన్ను అడగండి";
 "NoCodes" = "ప్రదర్శించడానికి మీకు కోడ్‌లు ఏమీ లేవు";
 "None" = "ఏదీ లేదు";
-"NoneOfTheAbove" = "పైవేవీ కావు";
 "NumberOfDigits" = "అంకెల సంఖ్య";
 "OtpType" = "OTP రకం";
 "RefreshPeriod" = "రిఫ్రెష్ వ్యవధి";

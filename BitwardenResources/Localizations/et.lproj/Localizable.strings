@@ -182,7 +182,6 @@
 "CopyTotp" = "Kopeeri TOTP";
 "CopyTotpAutomaticallyDescription" = "Kui sisselogimisel on autentimisvõti, kopeerige TOTP-kinnituskood lõikelauale, kui täidate sisselogimise automaatselt.";
 "CopyTotpAutomatically" = "TOTP automaatne kopeerimine";
-"PremiumRequired" = "Selle funktsiooni kasutamiseks on vajalik tasulist kontot omada.";
 "AttachementAdded" = "Manus on lisatud";
 "AttachmentDeleted" = "Manus on kustutatud";
 "ChooseFile" = "Vali fail";
@@ -223,7 +222,6 @@
 "August" = "August";
 "Brand" = "Väljastaja";
 "CardholderName" = "Kaardiomaniku nimi";
-"WeFoundMultipleMatchesChooseTheCorrectOne" = "Leidsime mitu vastet. Valige õige.";
 "CityTown" = "Linn / asula";
 "Company" = "Ettevõte";
 "Country" = "Riik";
@@ -648,7 +646,6 @@
 "SetUpAutofill" = "Automaattäite seadistamine";
 "AppInfo" = "Rakenduse teave";
 "Browse" = "Sirvi";
-"SelectCardholderName" = "Valige kaardiomaniku nimi";
 "SelectLanguage" = "Valige keel";
 "ContinueToCompleteWebAuthnVerification" = "WebAuthni kinnituse lõpuleviimiseks jätkake.";
 "ThereWasAnErrorStartingWebAuthnTwoFactorAuthentication" = "WebAuthn kahe-astmelise kinnitamise käivitamine ebaõnnestus";
@@ -667,7 +664,6 @@
 "ByContinuingYouAgreeToTheTermsOfServiceAndPrivacyPolicy" = "Jätkates nõustute **[Kasutustingimustega](%1$@)** ja **[Privaatsuspoliitikaga](%2$@)**";
 "GetAdviceAnnouncementsAndResearchOpportunitiesFromBitwardenInYourInboxUnsubscribeAtAnyTime." = "Saate Bitwardenilt oma postkasti nõuandeid, teadaandeid ja teadusvõimalusi. **[Loobuge tellimusest](%1$@)** igal ajal.";
 "UserVerificationForPasskey" = "Pääsukoodi kasutaja kinnitamine";
-"NewItem" = "Uus kirje";
 "ExploreTheGenerator" = "Avasta generaator";
 "LearnMoreAboutGeneratingSecureLoginCredentialsWithAGuidedTour" = "Lisateave turvaliste sisselogimismandaatide genereerimise kohta juhendatud ringkäiguga.";
 "ExportVaultFilePwProtectInfo" = "See eksporditav fail on parooliga kaitstud ja nõuab dekrüpteerimiseks parooli.";
@@ -979,7 +975,6 @@
 "NoAskMe" = "Ei, küsi minult";
 "NoCodes" = "Teil pole ühtegi koodi kuvamiseks";
 "None" = "Puudub";
-"NoneOfTheAbove" = "Ükski eeltoodud";
 "NumberOfDigits" = "Numbrite arv";
 "OtpType" = "OTP tüüp";
 "RefreshPeriod" = "Värskendusperiood";

@@ -182,7 +182,6 @@
 "CopyTotp" = "Kopiuj kod TOTP";
 "CopyTotpAutomaticallyDescription" = "Automatycznie kopiuje kod TOTP do schowka podczas autouzupełniania.";
 "CopyTotpAutomatically" = "Kopiuj kod TOTP automatycznie";
-"PremiumRequired" = "Konto Premium jest wymagane, aby skorzystać z tej funkcji.";
 "AttachementAdded" = "Załącznik został dodany";
 "AttachmentDeleted" = "Załącznik został usunięty";
 "ChooseFile" = "Wybierz plik";
@@ -223,7 +222,6 @@
 "August" = "Sierpień";
 "Brand" = "Wydawca";
 "CardholderName" = "Właściciel karty";
-"WeFoundMultipleMatchesChooseTheCorrectOne" = "Znaleźliśmy kilka dopasowań. Wybierz prawidłowe.";
 "CityTown" = "Miasto";
 "Company" = "Firma";
 "Country" = "Kraj";
@@ -648,7 +646,6 @@
 "SetUpAutofill" = "Skonfiguruj autouzupełnianie";
 "AppInfo" = "Informacje o aplikacji";
 "Browse" = "Przeglądaj";
-"SelectCardholderName" = "Wybierz właściciela karty";
 "SelectLanguage" = "Wybierz język";
 "ContinueToCompleteWebAuthnVerification" = "Kontynuuj, aby zakończyć weryfikację WebAuthn.";
 "ThereWasAnErrorStartingWebAuthnTwoFactorAuthentication" = "Wystąpił błąd podczas uruchamiania logowania dwustopniowego WebAuthn";
@@ -667,7 +664,6 @@
 "ByContinuingYouAgreeToTheTermsOfServiceAndPrivacyPolicy" = "Kontynuując, akceptujesz **[Regulamin](%1$@)** i **[Politykę prywatności](%2$@)**";
 "GetAdviceAnnouncementsAndResearchOpportunitiesFromBitwardenInYourInboxUnsubscribeAtAnyTime." = "Otrzymuj porady, ogłoszenia i możliwości badawcze od Bitwarden na swoją skrzynkę odbiorczą. **[Anuluj subskrypcję](%1$@)** w dowolnym momencie.";
 "UserVerificationForPasskey" = "Weryfikacja użytkownika dla klucza dostępu";
-"NewItem" = "Nowy element";
 "ExploreTheGenerator" = "Zobacz generator";
 "LearnMoreAboutGeneratingSecureLoginCredentialsWithAGuidedTour" = "Dowiedz się więcej o generowaniu bezpiecznych danych logowania.";
 "ExportVaultFilePwProtectInfo" = "Plik zostanie zaszyfrowany hasłem.";
@@ -979,7 +975,6 @@
 "NoAskMe" = "Nie, zapytaj mnie";
 "NoCodes" = "Nie masz żadnych kodów do wyświetlenia";
 "None" = "Brak";
-"NoneOfTheAbove" = "Żaden z powyższych";
 "NumberOfDigits" = "Liczba cyfr";
 "OtpType" = "Rodzaj OTP";
 "RefreshPeriod" = "Okres odświeżenia";

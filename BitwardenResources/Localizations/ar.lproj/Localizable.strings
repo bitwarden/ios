@@ -182,7 +182,6 @@
 "CopyTotp" = "نسخ TOTP";
 "CopyTotpAutomaticallyDescription" = "إذا كانت بيانات الدخول تحتوي على مفتاح أداة مصادقة، فسيتم نسخ رمز التحقق TOTP إلى الحافظة عند إتمام الملء التلقائي لبيانات الدخول.";
 "CopyTotpAutomatically" = "نسخ TOTP تلقائيا";
-"PremiumRequired" = "يطلب وجود اشتراك Premium لاستخدام هذه الميزة.";
 "AttachementAdded" = "تم إضافة المرفق";
 "AttachmentDeleted" = "تم حذف المرفق";
 "ChooseFile" = "اختيار ملف";
@@ -223,7 +222,6 @@
 "August" = "أغسطس";
 "Brand" = "علامة تجارية";
 "CardholderName" = "اسم حامل البطاقة";
-"WeFoundMultipleMatchesChooseTheCorrectOne" = "تم العثور على مطابقات متعددة، فاختر المطابقة الصحيحة.";
 "CityTown" = "المدينة / البلدة";
 "Company" = "الشركة";
 "Country" = "الدولة";
@@ -648,7 +646,6 @@
 "SetUpAutofill" = "إعداد الملء التلقائي";
 "AppInfo" = "معلومات التطبيق";
 "Browse" = "تصفح";
-"SelectCardholderName" = "حدد اسم حامل البطاقة";
 "SelectLanguage" = "اختار اللغة";
 "ContinueToCompleteWebAuthnVerification" = "مواصلة لإكمال التحقق من WebAuthn.";
 "ThereWasAnErrorStartingWebAuthnTwoFactorAuthentication" = "حدث خطأ أثناء بدء المصادقة الثنائية WebAuthn";
@@ -667,7 +664,6 @@
 "ByContinuingYouAgreeToTheTermsOfServiceAndPrivacyPolicy" = "من خلال المتابعة، أنت توافق على **[شروط الخدمة](%1$@)** و **[سياسة الخصوصية](%2$@)**";
 "GetAdviceAnnouncementsAndResearchOpportunitiesFromBitwardenInYourInboxUnsubscribeAtAnyTime." = "احصل على النصائح والإعلانات وفرص البحث من Bitwarden في بريدك الإلكتروني. **[إلغاء الاشتراك](%1$@)** في أي وقت.";
 "UserVerificationForPasskey" = "التحقق من هوية المستخدم لمفتاح المرور";
-"NewItem" = "عنصر جديد";
 "ExploreTheGenerator" = "استكشف المولد";
 "LearnMoreAboutGeneratingSecureLoginCredentialsWithAGuidedTour" = "تعرف على المزيد حول إنشاء بيانات حساب آمنة من خلال جولة إرشادية.";
 "ExportVaultFilePwProtectInfo" = "سيكون تصدير هذا الملف محميا بكلمة مرور ويتطلب كلمة مرور الملف لفك التشفير.";
@@ -979,7 +975,6 @@
 "NoAskMe" = "لا، اسألني";
 "NoCodes" = "ليس لديك أي رموز لعرضها";
 "None" = "لا شَيْء";
-"NoneOfTheAbove" = "لا شيء مما سبق";
 "NumberOfDigits" = "عدد الأرقام";
 "OtpType" = "نوع OTP";
 "RefreshPeriod" = "فترة التحديث";
