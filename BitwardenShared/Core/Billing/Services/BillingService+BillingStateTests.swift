@@ -90,8 +90,6 @@ struct BillingServiceBillingStateTests { // swiftlint:disable:this type_body_len
         stateService = MockStateService()
         stateService.activeAccount = .fixture()
         premiumUpgradeState = billingStateService.setUpPremiumUpgradeState(stateService: stateService)
-        // Unlike the premium-upgrade-pending state above, this pair takes no `userId`, so it just
-        // mirrors writes back into the mock's own return value.
         let billingState: MockBillingStateService = billingStateService
         billingState.getSubscriptionAttentionCardVisibleReturnValue = false
         billingState.setSubscriptionAttentionCardVisibleClosure = { visible in
