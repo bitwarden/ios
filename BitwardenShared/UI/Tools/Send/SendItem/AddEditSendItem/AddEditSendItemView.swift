@@ -85,7 +85,8 @@ struct AddEditSendItemView: View { // swiftlint:disable:this type_body_length
                     if store.state.mode == .edit {
                         optionsToolbarMenu {
                             if !store.state.isSendDisabled {
-                                if store.state.originalSendView?.hasPassword ?? false {
+                                if store.state.originalSendView?.hasPassword ?? false,
+                                   !store.state.isAccessTypeEnforcedByPolicy {
                                     AsyncButton(Localizations.removePassword) {
                                         await store.perform(.removePassword)
                                     }
@@ -325,6 +326,8 @@ struct AddEditSendItemView: View { // swiftlint:disable:this type_body_length
     /// The "Who can view" section for access type selection.
     @ViewBuilder private var whoCanView: some View {
         ContentBlock(dividerLeadingPadding: 16) {
+            // When the access type is enforced by policy, the menu shows the enforced selection but
+            // is disabled so the user can't change it.
             BitwardenMenuField(
                 title: Localizations.whoCanView,
                 accessibilityIdentifier: "SendAccessTypePicker",
@@ -334,6 +337,7 @@ struct AddEditSendItemView: View { // swiftlint:disable:this type_body_length
                     send: AddEditSendItemAction.accessTypeChanged,
                 ),
             )
+            .disabled(store.state.isAccessTypeEnforcedByPolicy)
 
             whoCanViewContent
         }

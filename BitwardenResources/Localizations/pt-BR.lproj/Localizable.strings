@@ -26,6 +26,8 @@
 "FolderNone" = "Sem pasta";
 "Folders" = "Pastas";
 "FolderUpdated" = "Pasta salva";
+"MyFolder" = "Minha pasta";
+"MyFolders" = "Minhas pastas";
 "InternetConnectionRequiredMessage" = "Conecte-se à internet antes de continuar.";
 "InternetConnectionRequiredTitle" = "É necessária uma conexão com a internet";
 "InvalidMasterPassword" = "Senha principal inválida. Tente novamente.";
@@ -262,7 +264,7 @@
 /* Section header and screen title for viewing/managing a cipher's collections. */
 "Collections" = "Conjuntos";
 /* Section header and screen title for viewing/managing a cipher's shared folders. */
-"SharedFolders" = "Shared folders";
+"SharedFolders" = "Pastas compartilhadas";
 /* Empty state message shown when a collection has no items. */
 "NoItemsCollection" = "Não há itens neste conjunto";
 /* Empty state message shown when a shared folder has no items. */
@@ -325,22 +327,22 @@
 /* Empty state message on the Collections screen shown when a user has no collections. */
 "NoCollectionsToList" = "Não há conjuntos para listar.";
 /* Empty state message on the Shared folders screen shown when a user has no shared folders. */
-"ThereAreNoSharedFoldersToList" = "There are no shared folders to list.";
+"ThereAreNoSharedFoldersToList" = "Não há pastas para listar.";
 "MovedItemToOrg" = "%1$@ movido para %2$@.";
 /* Alert message shown when saving an item with no collection selected. */
 "SelectOneCollection" = "Você deve selecionar pelo menos um conjunto.";
 /* Alert message shown when saving an item with no shared folder selected. */
-"YouMustSelectAtLeastOneSharedFolder" = "You must select at least one shared folder.";
+"YouMustSelectAtLeastOneSharedFolder" = "Você deve selecionar pelo menos uma pasta compartilhada.";
 "Share" = "Compartilhar";
 "ShareAll" = "Compartilhar tudo";
 /* Overflow menu item and screen title on the Move screen shown when the "vfo1-foundation" feature flag is disabled; superseded by "Move" when enabled. */
 "MoveToOrganization" = "Mover para organização";
 /* Empty state message shown when a user has no vaults available to move an item into, when the "vfo1-foundation" feature flag is enabled. */
-"NoVaultsToList" = "No vaults to list.";
+"NoVaultsToList" = "Nenhum cofre para listar.";
 /* Empty state message shown when a user has no organizations available to move an item into, when the "vfo1-foundation" feature flag is disabled. */
 "NoOrgsToList" = "Nenhuma organização para listar.";
 /* Footer text on the Move screen explaining that moving an item transfers its ownership to the destination vault's organization, when the "vfo1-foundation" feature flag is enabled. */
-"ChooseAVaultThatYouWishToMoveThisItemToDescriptionLong" = "Choose a vault that you wish to move this item to. Moving to another vault transfers ownership of the item to that organization. You will no longer be the direct owner of this item once it has been moved.";
+"ChooseAVaultThatYouWishToMoveThisItemToDescriptionLong" = "Escolha um cofre para o qual você deseja mover este item. Mover para outro cofre transfere a propriedade do item para aquela organização. Você não será mais o proprietário direto deste item depois que ele for movido.";
 /* Footer text on the Move screen explaining that moving an item transfers its ownership to the destination organization, when the "vfo1-foundation" feature flag is disabled. */
 "MoveToOrgDesc" = "Escolha uma organização para a qual deseja mover este item. Mover para uma organização transfere a propriedade do item para essa organização. Você não será mais o proprietário direto deste item depois que ele for movido.";
 "NumberOfWords" = "Número de palavras";
@@ -898,6 +900,7 @@
 /* VoiceOver accessibility label for a shared folder the item belongs to. */
 "SharedFolderX" = "Shared folder, %1$@";
 "FolderX" = "Pasta, %1$@";
+"MyFolderX" = "My folder, %1$@";
 "ItemXOfY" = "%1$@° de %2$@ itens";
 "ViewRecordedLogs" = "Ver registros gravados";
 "RecordedLogs" = "Registros gravados";

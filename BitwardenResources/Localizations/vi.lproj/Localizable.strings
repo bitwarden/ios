@@ -26,6 +26,8 @@
 "FolderNone" = "Chưa phân loại";
 "Folders" = "Thư mục";
 "FolderUpdated" = "Đã lưu thư mục";
+"MyFolder" = "Thư mục của tôi";
+"MyFolders" = "Thư mục của tôi";
 "InternetConnectionRequiredMessage" = "Hãy kết nối mạng trước khi tiếp tục.";
 "InternetConnectionRequiredTitle" = "Cần có kết nối mạng";
 "InvalidMasterPassword" = "Mật khẩu chính không đúng. Thử lại.";
@@ -178,7 +180,7 @@
 "Camera" = "Máy ảnh";
 "Photos" = "Ảnh";
 "CopyTotp" = "Sao chép TOTP";
-"CopyTotpAutomaticallyDescription" = "Nếu tài khoản đăng nhập có khóa xác thực, mã xác minh TOTP sẽ được sao chép vào bảng nhớ tạm khi bạn tự động điền thông tin đăng nhập.";
+"CopyTotpAutomaticallyDescription" = "Nếu tài khoản đăng nhập có khóa xác thực, mã xác minh TOTP sẽ được sao chép vào bộ nhớ tạm khi bạn tự động điền thông tin đăng nhập.";
 "CopyTotpAutomatically" = "Tự động sao chép mã TOTP";
 "PremiumRequired" = "Cần là thành viên Cao cấp để sử dụng tính năng này.";
 "AttachementAdded" = "Đã thêm tệp đính kèm";
@@ -266,7 +268,7 @@
 /* Empty state message shown when a collection has no items. */
 "NoItemsCollection" = "Không có mục nào trong bộ sưu tập này";
 /* Empty state message shown when a shared folder has no items. */
-"ThereAreNoItemsInThisSharedFolder" = "There are no items in this shared folder";
+"ThereAreNoItemsInThisSharedFolder" = "Không có mục nào trong thư mục chia sẻ này";
 "NoItemsFolder" = "Không có mục nào trong thư mục này";
 "NoItemsTrash" = "Không có gì trong thùng rác.";
 "FaceID" = "Face ID";
@@ -362,8 +364,8 @@
 "VaultLockedPIN" = "Kho lưu trữ đã bị khóa. Nhập mã PIN của bạn để mở.";
 "Dark" = "Tối";
 "Light" = "Sáng";
-"ClearClipboard" = "Xóa bảng nhớ tạm";
-"ClearClipboardDescription" = "Tự động xóa mọi thứ đã sao chép khỏi bảng nhớ tạm.";
+"ClearClipboard" = "Xóa bộ nhớ tạm";
+"ClearClipboardDescription" = "Tự động xóa mọi thứ đã sao chép khỏi bộ nhớ tạm.";
 "DefaultUriMatchDetection" = "Cách nhận diện đường dẫn (URI)";
 "Theme" = "Giao diện";
 "ThemeDescription" = "Thay đổi màu chủ đề của ứng dụng.";
@@ -892,12 +894,13 @@
 "ShowLess" = "Thu gọn";
 "ItemNameX" = "Tên mục, %1$@";
 "OwnerX" = "Chủ sở hữu, %1$@";
-"VaultX" = "Vault, %1$@";
+"VaultX" = "Kho, %1$@";
 /* VoiceOver accessibility label for a collection the item belongs to. */
 "CollectionX" = "Bộ sưu tập, %1$@";
 /* VoiceOver accessibility label for a shared folder the item belongs to. */
-"SharedFolderX" = "Shared folder, %1$@";
+"SharedFolderX" = "Thư mục chia sẻ, %1$@";
 "FolderX" = "Thư mục, %1$@";
+"MyFolderX" = "Thư mục của tôi, %1$@";
 "ItemXOfY" = "Mục %1$@ trong %2$@";
 "ViewRecordedLogs" = "Xem nhật ký đã lưu";
 "RecordedLogs" = "Nhật ký đã lưu";
@@ -1181,7 +1184,7 @@
 "YoullCompleteThePurchaseWithStripeSecureCheckout" = "Bạn sẽ hoàn tất giao dịch mua bằng quy trình thanh toán bảo mật của Stripe.";
 "ContinueToStripe" = "Tiếp tục chuyển đến Stripe?";
 "YoullBeTakenToStripeToManageYourSubscriptionCancellation" = "Bạn sẽ được chuyển đến Stripe để quản lý việc hủy gói đăng ký của mình.";
-"UserIDCopiedToTheClipboard" = "Đã sao chép ID người dùng vào khay nhớ tạm";
+"UserIDCopiedToTheClipboard" = "Đã sao chép ID người dùng vào bộ nhớ tạm";
 "UserID" = "ID người dùng";
 "CopyUserID" = "Sao chép ID người dùng";
 "UserIDUnavailable" = "ID người dùng không khả dụng";

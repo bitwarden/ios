@@ -232,17 +232,18 @@ jobs:
           plugin_marketplaces: "https://github.com/bitwarden/ai-plugins.git"
           plugins: |
             bitwarden-delivery-tools@bitwarden-marketplace
+            bitwarden-software-engineer@bitwarden-marketplace
           prompt: |
-            PR #${{ github.event.pull_request.number }} in ${{ github.repository }} bumps the Bitwarden SDK. Evaluate it using the `evaluating-sdk-internal-updates` skill and resolve anything within scope that needs resolving, per the skill's own Resolve steps.
+            PR #${{ github.event.pull_request.number }} in ${{ github.repository }} bumps the Bitwarden SDK. Evaluate it yourself using the `evaluating-sdk-internal-updates` skill's Identify steps (1-8).
 
             The clones the skill requires are already provided as sibling directories; use them directly, do not re-clone. Repo setup has already run, so do not repeat it. A baseline build has already been run for you and its output is at `${{ steps.baseline-build.outputs.log }}`; read it rather than running your own baseline.
 
-            Commit any fix on the current branch (already checked out) using `Skill(bitwarden-delivery-tools:committing-changes)` for the message. Do not push; the workflow pushes separately.
+            If step 8 turns up anything to resolve, dispatch a single subagent on the `bitwarden-software-engineer` agent to invoke `Skill(evaluating-sdk-internal-updates)` itself and carry out its Resolve steps (9-10) for every finding in one pass — decide the fix, implement it, and commit on the current branch (already checked out) using `Skill(bitwarden-delivery-tools:committing-changes)` for the message. Hand the subagent all the findings (commit, symbol, call sites for each) so it doesn't redo the investigation, dispatching it once for every finding rather than once per finding. Do not push; the workflow pushes separately. Have it report back the commit SHA and each finding's disposition. Skip the subagent entirely if step 8 finds nothing to resolve.
 
-            When done, replace the sticky PR comment with the skill's report, structured as: "## SDK bump evaluated" (old → new revision and version, commit count), "## Compile-time breaks" (found-and-fixed, or "none found"), "## Runtime considerations" (behavioral or serialization notes worth flagging; omit the section if there are none), "## Everything else in range — confirmed safe" (brief, one line per commit or group), and "## Commit" (the SHA, or "no commit — nothing needed fixing"). State whether the verifying build passed. Always post this, even when the conclusion is that nothing needs fixing — the comment is the audit trail that the check ran.
+            Once the subagent has reported back — or immediately, if there was nothing to resolve — update the sticky PR comment yourself, replacing it with the step 8 report, structured as: "## SDK bump evaluated" (old → new revision and version, commit count), "## Compile-time breaks" (found-and-fixed, or "none found"), "## Runtime considerations" (behavioral or serialization notes worth flagging; omit the section if there are none), "## Everything else in range — confirmed safe" (brief, one line per commit or group), and "## Commit" (the SHA, or "no commit — nothing needed fixing"). State whether the verifying build passed. Always post this, even when the conclusion is that nothing needs fixing — the comment is the audit trail that the check ran.
           claude_args: |
             --model opus
-            --allowedTools "Bash(xcrun xcodebuild *),Bash(bash .claude/skills/evaluating-sdk-internal-updates/sdk-surface-diff.sh *),Bash(.claude/skills/evaluating-sdk-internal-updates/sdk-surface-diff.sh *),Bash(gh pr diff:*),Bash(gh pr view:*),Bash(git -C * log *),Bash(git -C * show *),Bash(git -C * diff *),Bash(git -C * grep *),Bash(git add:*),Bash(git commit:*),Bash(git log:*),Bash(git show:*),Bash(git diff:*),Bash(git status:*),Bash(git grep:*),Bash(grep:*),Read,Grep,Glob,Edit,Write,Skill,mcp__github_comment__update_claude_comment"
+            --allowedTools "Agent,Bash(xcrun xcodebuild *),Bash(bash .claude/skills/evaluating-sdk-internal-updates/sdk-surface-diff.sh *),Bash(.claude/skills/evaluating-sdk-internal-updates/sdk-surface-diff.sh *),Bash(gh pr diff:*),Bash(gh pr view:*),Bash(git -C * log *),Bash(git -C * show *),Bash(git -C * diff *),Bash(git -C * grep *),Bash(git add:*),Bash(git commit:*),Bash(git log:*),Bash(git show:*),Bash(git diff:*),Bash(git status:*),Bash(git grep:*),Bash(grep:*),Read,Grep,Glob,Edit,Write,Skill,mcp__github_comment__update_claude_comment"
             --disallowedTools "Read(**/.git/**),Edit(**/.git/**),Write(**/.git/**),Edit(.github/**),Write(.github/**),Edit(.claude/**),Write(.claude/**)"
 
       - name: Push any resolved fix
@@ -253,9 +254,18 @@ jobs:
         run: |
           # --untracked-files=no is required: bundler-cache and MINT_PATH leave untracked,
           # non-gitignored directories that a bare --porcelain would report, tripping this guard.
-          if [ -n "$(git status --porcelain --untracked-files=no)" ]; then
+          #
+          # claude-code-action treats the PR head as untrusted and restores these exact paths from
+          # origin/main before running Claude, regardless of whether this branch's copy is stale.
+          # This job never has a legitimate reason to change them, so a diff here is that restore,
+          # not Claude — exclude them rather than flag it.
+          _TRUSTED_CONFIG_PATHSPEC=(
+            ':!.claude' ':!.mcp.json' ':!.claude.json' ':!.gitmodules' ':!.ripgreprc'
+            ':!CLAUDE.md' ':!CLAUDE.local.md' ':!.husky'
+          )
+          if [ -n "$(git status --porcelain --untracked-files=no -- . "${_TRUSTED_CONFIG_PATHSPEC[@]}")" ]; then
             echo "::error::Claude left uncommitted changes to tracked files; nothing was pushed."
-            git status --porcelain --untracked-files=no
+            git status --porcelain --untracked-files=no -- . "${_TRUSTED_CONFIG_PATHSPEC[@]}"
             exit 1
           fi
 
@@ -265,8 +275,10 @@ jobs:
           fi
 
           # A fix may touch SDK call sites and the version pin, never CI or agent configuration.
+          # The second alternation is the same restore list claude-code-action pulls from
+          # origin/main above — this job never has a legitimate reason to commit changes there either.
           CHANGED=$(git diff --name-only "origin/$_BRANCH_NAME" HEAD)
-          if echo "$CHANGED" | grep -qE '^(\.github/|\.claude/)'; then
+          if echo "$CHANGED" | grep -qE '(^|/)(\.github/|\.claude/|\.husky/|\.mcp\.json$|\.claude\.json$|\.gitmodules$|\.ripgreprc$|CLAUDE\.md$|CLAUDE\.local\.md$)'; then
             echo "::error::Refusing to push: the fix touches CI or agent configuration."
             echo "$CHANGED"
             exit 1
