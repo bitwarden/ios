@@ -36,6 +36,14 @@ class VaultListItemRowViewTests: BitwardenTestCase {
 
     // MARK: Tests
 
+    /// Test that tapping the row dispatches the `.pressed` effect.
+    @MainActor
+    func test_pressed_tap() async throws {
+        let button = try subject.inspect().find(asyncButtonWithAccessibilityIdentifier: "VaultListItemRowButton")
+        try await button.tap()
+        XCTAssertEqual(processor.effects.last, .pressed)
+    }
+
     /// Test that tapping the more button dispatches the `.morePressed` action.
     @MainActor
     func test_moreButton_tap() async throws {
@@ -44,8 +52,7 @@ class VaultListItemRowViewTests: BitwardenTestCase {
         XCTAssertEqual(processor.effects.last, .morePressed)
     }
 
-    /// Test that the more options button, and with it its VoiceOver accessibility action, isn't
-    /// shown when displayed from an extension.
+    /// Test that the more options button isn't shown when displayed from an extension.
     @MainActor
     func test_moreButton_notShownFromExtension() throws {
         processor.state = VaultListItemRowState(
