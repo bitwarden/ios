@@ -61,8 +61,7 @@ extension MockBillingStateService {
 
 // swiftlint:disable file_length
 
-/// `BillingService` tests that touch cached billing state via `billingStateService`. See
-/// `BillingServiceTests` for the rest.
+/// `BillingService` tests that touch cached billing state via `billingStateService`.
 @MainActor
 struct BillingServiceBillingStateTests { // swiftlint:disable:this type_body_length
     // MARK: Properties
