@@ -248,7 +248,10 @@ class AddEditSendItemProcessor: // swiftlint:disable:this type_body_length
         if let enforcedAccessType = state.sendPolicyOptions.enforcedAccessType {
             state.accessType = enforcedAccessType
         }
-        if let enforcedDeletionDate = state.policyEnforcedDeletionDate {
+        // Only default new Sends to the policy-enforced deletion date; overwriting an existing
+        // Send's date would recalculate a preset like `.sevenDays` from now instead of its
+        // original creation date, risking a value the policy would reject on save.
+        if state.mode != .edit, let enforcedDeletionDate = state.policyEnforcedDeletionDate {
             state.deletionDate = enforcedDeletionDate
         }
         state.hasPremium = await services.sendRepository.doesActiveAccountHavePremium()
@@ -312,6 +315,9 @@ class AddEditSendItemProcessor: // swiftlint:disable:this type_body_length
             if let enforcedAccessType = state.sendPolicyOptions.enforcedAccessType {
                 newState.accessType = enforcedAccessType
             }
+            // Deliberately not reapplying the policy-enforced deletion date here (unlike
+            // `accessType` above) — see the comment in `loadData()` for why overwriting an
+            // existing Send's date is unsafe.
             state = newState
 
             coordinator.hideLoadingOverlay()

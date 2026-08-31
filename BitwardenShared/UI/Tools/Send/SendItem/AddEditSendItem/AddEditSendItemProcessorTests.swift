@@ -245,6 +245,23 @@ class AddEditSendItemProcessorTests: BitwardenTestCase { // swiftlint:disable:th
         XCTAssertEqual(subject.state.deletionDate, .oneDay)
     }
 
+    /// `perform(_:)` with `loadData` does not overwrite the deletion date when editing an existing
+    /// Send, even if a deletion date is enforced by policy: the persisted date was valid relative
+    /// to the Send's creation date, and replacing it with a preset value would recalculate it
+    /// relative to now on save, which could push it past what the policy allows. The menu is still
+    /// marked as enforced so it can't be changed.
+    @MainActor
+    func test_perform_loadData_enforcedDeletionDate_editMode() async {
+        let sendView = SendView.fixture(deletionDate: Date(year: 2023, month: 11, day: 5, hour: 9, minute: 41))
+        subject.state = AddEditSendItemState(sendView: sendView)
+        policyService.getSendPolicyOptionsResult.enforcedDeletionDateHours = 168
+        await subject.perform(.loadData)
+
+        XCTAssertEqual(subject.state.policyEnforcedDeletionDate, .sevenDays)
+        XCTAssertEqual(subject.state.deletionDate, .custom(sendView.deletionDate))
+        XCTAssertTrue(subject.state.isDeletionDateEnforcedByPolicy)
+    }
+
     /// `perform(_:)` with `loadData` loads whether the Send Controls policy feature flag is enabled.
     @MainActor
     func test_perform_loadData_sendControlsPolicyFlag() async {
@@ -309,6 +326,30 @@ class AddEditSendItemProcessorTests: BitwardenTestCase { // swiftlint:disable:th
         XCTAssertEqual(subject.state.sendPolicyOptions.enforcedAccessType, .specificPeople)
         XCTAssertEqual(subject.state.accessType, .specificPeople)
         XCTAssertTrue(subject.state.isAccessTypeEnforcedByPolicy)
+    }
+
+    /// `perform(_:)` with `sendListItemRow(removePassword())` leaves the Send's actual deletion
+    /// date untouched when a deletion date is enforced by policy, while still marking the menu as
+    /// enforced, so removing the password doesn't push the date past what the policy allows
+    /// relative to the Send's original creation date.
+    @MainActor
+    func test_perform_removePassword_success_preservesPolicyEnforcedDeletionDate() async throws {
+        let sendView = SendView.fixture(
+            id: "SEND_ID",
+            deletionDate: Date(year: 2023, month: 11, day: 5, hour: 9, minute: 41),
+        )
+        subject.state.originalSendView = sendView
+        subject.state.isSendControlsPolicyEnabled = true
+        subject.state.sendPolicyOptions = SendPolicyOptions(enforcedDeletionDateHours: 168)
+        sendRepository.removePasswordFromSendResult = .success(sendView)
+        await subject.perform(.removePassword)
+
+        let alert = try XCTUnwrap(coordinator.alertShown.last)
+        try await alert.tapAction(title: Localizations.remove)
+
+        XCTAssertEqual(subject.state.sendPolicyOptions.enforcedDeletionDateHours, 168)
+        XCTAssertEqual(subject.state.deletionDate, .custom(sendView.deletionDate))
+        XCTAssertTrue(subject.state.isDeletionDateEnforcedByPolicy)
     }
 
     /// `perform(_:)` with `sendListItemRow(removePassword())` uses the send repository to remove
