@@ -18,8 +18,7 @@ final class PremiumUpgradeStateStore {
     var upgradedToPremiumCardVisibleByUserId = [String: Bool]()
 }
 
-/// Resolves a `nil` `userId` to `stateService`'s active account, since `MockBillingStateService`'s
-/// generated closures don't do this automatically like `DefaultStateService` does.
+/// Resolves a `nil` `userId` to `stateService`'s active account.
 func resolvedUserId(_ userId: String?, stateService: MockStateService) throws -> String {
     if let userId {
         return userId
