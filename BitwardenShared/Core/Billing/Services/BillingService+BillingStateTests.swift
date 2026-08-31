@@ -11,19 +11,15 @@ import Testing
 
 // MARK: - PremiumUpgradeStateStore
 
-/// Backing per-user-id storage for `MockBillingStateService`'s premium-upgrade-pending state,
-/// wired up by `MockBillingStateService.setUpPremiumUpgradeState(stateService:)` below.
+/// Backing per-user-id storage for `MockBillingStateService`'s premium-upgrade-pending state.
 final class PremiumUpgradeStateStore {
     var pendingByUserId = [String: Bool]()
     var syncAttemptFailedByUserId = [String: Bool]()
     var upgradedToPremiumCardVisibleByUserId = [String: Bool]()
 }
 
-/// Resolves a `nil` `userId` to `stateService`'s active account, mirroring
-/// `BillingStateService`'s "defaults to the active account if `nil`" contract — which
-/// `DefaultStateService` implements for real via `getActiveAccountUserId()`, but which
-/// `MockBillingStateService`'s generated closures have no innate concept of. Throws
-/// `StateServiceError.noActiveAccount` if `userId` is `nil` and there's no active account.
+/// Resolves a `nil` `userId` to `stateService`'s active account, since `MockBillingStateService`'s
+/// generated closures don't do this automatically like `DefaultStateService` does.
 func resolvedUserId(_ userId: String?, stateService: MockStateService) throws -> String {
     if let userId {
         return userId
@@ -35,8 +31,7 @@ func resolvedUserId(_ userId: String?, stateService: MockStateService) throws ->
 }
 
 extension MockBillingStateService {
-    // Wires this mock's premium-upgrade-pending methods to per-user-id backing storage. See
-    // `resolvedUserId(_:stateService:)` for how `nil` `userId`s are resolved.
+    /// Wires this mock's premium-upgrade-pending methods to per-user-id backing storage.
     func setUpPremiumUpgradeState(stateService: MockStateService) -> PremiumUpgradeStateStore {
         let state = PremiumUpgradeStateStore()
 
@@ -67,9 +62,8 @@ extension MockBillingStateService {
 
 // swiftlint:disable file_length
 
-/// Tests for the `BillingService` methods that read or write cached billing state through
-/// `billingStateService` — action card visibility, the subscription attention card, and
-/// premium-upgrade-pending reconciliation. See `BillingServiceTests` for the rest.
+/// `BillingService` tests that touch cached billing state via `billingStateService`. See
+/// `BillingServiceTests` for the rest.
 @MainActor
 struct BillingServiceBillingStateTests { // swiftlint:disable:this type_body_length
     // MARK: Properties
@@ -90,14 +84,6 @@ struct BillingServiceBillingStateTests { // swiftlint:disable:this type_body_len
         billingAPIService = MockBillingAPIService()
         billingAPIService.getSubscriptionReturnValue = .fixture()
         billingStateService = MockBillingStateService()
-        // `getSubscriptionAttentionCardVisible()`/`setSubscriptionAttentionCardVisible(_:)` take no
-        // `userId`, so unlike the premium-upgrade-pending state above they need no per-account
-        // storage — just mirroring writes back into the generated mock's own return value.
-        let billingState: MockBillingStateService = billingStateService
-        billingState.getSubscriptionAttentionCardVisibleReturnValue = false
-        billingState.setSubscriptionAttentionCardVisibleClosure = { visible in
-            billingState.getSubscriptionAttentionCardVisibleReturnValue = visible
-        }
         configService = MockConfigService()
         configService.featureFlagsBool[.premiumUpgradePath] = true
         environmentService = MockEnvironmentService()
@@ -106,6 +92,13 @@ struct BillingServiceBillingStateTests { // swiftlint:disable:this type_body_len
         stateService = MockStateService()
         stateService.activeAccount = .fixture()
         premiumUpgradeState = billingStateService.setUpPremiumUpgradeState(stateService: stateService)
+        // Unlike the premium-upgrade-pending state above, this pair takes no `userId`, so it just
+        // mirrors writes back into the mock's own return value.
+        let billingState: MockBillingStateService = billingStateService
+        billingState.getSubscriptionAttentionCardVisibleReturnValue = false
+        billingState.setSubscriptionAttentionCardVisibleClosure = { visible in
+            billingState.getSubscriptionAttentionCardVisibleReturnValue = visible
+        }
         syncService = MockSyncService()
         subject = DefaultBillingService(
             billingAPIService: billingAPIService,
@@ -427,16 +420,12 @@ struct BillingServiceBillingStateTests { // swiftlint:disable:this type_body_len
 
     /// `reconcileCheckoutSuccess()` still reports `.confirmed` when the pending flags it set are
     /// already cleared by the time its own resolution step runs — e.g. `start()`'s background
-    /// sync watcher reacting to this same forced sync and resolving it first. Regression test for
-    /// `resolvePendingUpgrade(userId:syncFailed:)`'s early-exit branch, which used to return a
-    /// hardcoded `false` in this situation regardless of the account's actual Premium status.
+    /// sync watcher reacting to this same forced sync and resolving it first.
     @Test
     func reconcileCheckoutSuccess_alreadyResolvedByConcurrentSync_stillReportsConfirmed() async throws {
         stateService.doesAccountHavePremiumByUserId["1"] = false
         syncService.fetchSyncHandler = {
-            // Simulates `start()`'s background watcher (`reconcileOnEachNewSync(userId:)`)
-            // reacting to this same sync and resolving the pending upgrade before this call's own
-            // `resolvePendingUpgrade(userId:syncFailed:)` runs.
+            // Simulates `start()`'s background watcher (`reconcileOnEachNewSync(userId:)`) winning the race.
             stateService.doesAccountHavePremiumByUserId["1"] = true
             premiumUpgradeState.pendingByUserId["1"] = false
             premiumUpgradeState.syncAttemptFailedByUserId["1"] = false
