@@ -6,6 +6,22 @@ import XCTest
 class AddEditSendItemStateTests: BitwardenTestCase { // swiftlint:disable:this type_body_length
     // MARK: Tests
 
+    // MARK: isAccessTypeEnforcedByPolicy
+
+    /// `isAccessTypeEnforcedByPolicy` is `false` when no access type is enforced by policy.
+    func test_isAccessTypeEnforcedByPolicy_notEnforced() {
+        let subject = AddEditSendItemState(sendPolicyOptions: SendPolicyOptions(enforcedAccessType: nil))
+        XCTAssertFalse(subject.isAccessTypeEnforcedByPolicy)
+    }
+
+    /// `isAccessTypeEnforcedByPolicy` is `true` when an access type is enforced by policy.
+    func test_isAccessTypeEnforcedByPolicy_enforced() {
+        let subject = AddEditSendItemState(
+            sendPolicyOptions: SendPolicyOptions(enforcedAccessType: .anyoneWithPassword),
+        )
+        XCTAssertTrue(subject.isAccessTypeEnforcedByPolicy)
+    }
+
     // MARK: normalizedRecipientEmails
 
     /// `normalizedRecipientEmails` applies all transformations: trim, lowercase, and filter.
@@ -333,6 +349,12 @@ class AddEditSendItemStateTests: BitwardenTestCase { // swiftlint:disable:this t
         )
     }
 
+    /// `init(sendView:)` uses a single empty row when the send has no recipient emails.
+    func test_init_sendView_noEmails_recipientEmailsHasEmptyRow() {
+        let subject = AddEditSendItemState(sendView: .fixture(emails: []))
+        XCTAssertEqual(subject.recipientEmails, [""])
+    }
+
     // MARK: init(sendView:) - Access Type Tests
 
     /// `init(sendView:)` sets access type to "Anyone with password" when hasPassword is true.
@@ -373,7 +395,7 @@ class AddEditSendItemStateTests: BitwardenTestCase { // swiftlint:disable:this t
     /// `shouldShowHideEmailField` is `true` when the hide-email option is not disabled by policy,
     /// regardless of the Send Controls feature flag.
     func test_shouldShowHideEmailField_notDisabled() {
-        var subject = AddEditSendItemState(isSendHideEmailDisabled: false)
+        var subject = AddEditSendItemState(sendPolicyOptions: SendPolicyOptions(isHideEmailDisabled: false))
 
         subject.isSendControlsPolicyEnabled = false
         XCTAssertTrue(subject.shouldShowHideEmailField)
@@ -387,7 +409,7 @@ class AddEditSendItemStateTests: BitwardenTestCase { // swiftlint:disable:this t
     func test_shouldShowHideEmailField_disabled_flagOff() {
         let subject = AddEditSendItemState(
             isSendControlsPolicyEnabled: false,
-            isSendHideEmailDisabled: true,
+            sendPolicyOptions: SendPolicyOptions(isHideEmailDisabled: true),
         )
         XCTAssertTrue(subject.shouldShowHideEmailField)
     }
@@ -397,7 +419,7 @@ class AddEditSendItemStateTests: BitwardenTestCase { // swiftlint:disable:this t
     func test_shouldShowHideEmailField_disabled_flagOn() {
         let subject = AddEditSendItemState(
             isSendControlsPolicyEnabled: true,
-            isSendHideEmailDisabled: true,
+            sendPolicyOptions: SendPolicyOptions(isHideEmailDisabled: true),
         )
         XCTAssertFalse(subject.shouldShowHideEmailField)
     }
@@ -406,7 +428,7 @@ class AddEditSendItemStateTests: BitwardenTestCase { // swiftlint:disable:this t
 
     /// `shouldShowHideEmailPolicyBanner` is `false` when the hide-email option is not disabled.
     func test_shouldShowHideEmailPolicyBanner_notDisabled() {
-        var subject = AddEditSendItemState(isSendHideEmailDisabled: false)
+        var subject = AddEditSendItemState(sendPolicyOptions: SendPolicyOptions(isHideEmailDisabled: false))
 
         subject.isSendControlsPolicyEnabled = false
         XCTAssertFalse(subject.shouldShowHideEmailPolicyBanner)
@@ -420,7 +442,7 @@ class AddEditSendItemStateTests: BitwardenTestCase { // swiftlint:disable:this t
     func test_shouldShowHideEmailPolicyBanner_disabled_flagOff() {
         let subject = AddEditSendItemState(
             isSendControlsPolicyEnabled: false,
-            isSendHideEmailDisabled: true,
+            sendPolicyOptions: SendPolicyOptions(isHideEmailDisabled: true),
         )
         XCTAssertTrue(subject.shouldShowHideEmailPolicyBanner)
     }
@@ -430,7 +452,7 @@ class AddEditSendItemStateTests: BitwardenTestCase { // swiftlint:disable:this t
     func test_shouldShowHideEmailPolicyBanner_disabled_flagOn() {
         let subject = AddEditSendItemState(
             isSendControlsPolicyEnabled: true,
-            isSendHideEmailDisabled: true,
+            sendPolicyOptions: SendPolicyOptions(isHideEmailDisabled: true),
         )
         XCTAssertFalse(subject.shouldShowHideEmailPolicyBanner)
     }
