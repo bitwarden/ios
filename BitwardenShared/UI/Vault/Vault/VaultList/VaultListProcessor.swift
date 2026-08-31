@@ -22,6 +22,7 @@ final class VaultListProcessor: StateProcessor<
         & HasAuthService
         & HasBillingRepository
         & HasBillingService
+        & HasBillingStateService
         & HasChangeKdfService
         & HasConfigService
         & HasEnvironmentService
@@ -472,7 +473,7 @@ extension VaultListProcessor {
         state.shouldShowUpgradedToPremiumActionCard =
             await services.billingService.shouldShowUpgradedToPremiumActionCard()
 
-        let isBannerDismissed = await services.stateService.isPremiumUpgradeBannerDismissed()
+        let isBannerDismissed = await services.billingStateService.isPremiumUpgradeBannerDismissed()
         guard !isBannerDismissed,
               !state.shouldShowSubscriptionAttentionCard,
               await !services.billingService.isSelfHosted()
