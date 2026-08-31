@@ -899,4 +899,59 @@ struct BillingServiceTests { // swiftlint:disable:this type_body_length
 
         try await waitForAsync { stateService.premiumUpgradePendingByUserId["1"] == false }
     }
+
+    // MARK: premiumUpgradePendingStatePublisher
+
+    /// `premiumUpgradePendingStatePublisher()` replays the current state to a new subscriber
+    /// immediately, then re-emits it as `reconcileCheckoutSuccess()` refreshes it: once pending,
+    /// right before its forced sync, and again once resolved after the sync confirms Premium.
+    @Test
+    func premiumUpgradePendingStatePublisher_emitsOnReconcileCheckoutSuccess() async throws {
+        stateService.doesAccountHavePremiumByUserId["1"] = false
+        syncService.fetchSyncHandler = {
+            stateService.doesAccountHavePremiumByUserId["1"] = true
+        }
+        var states = [PremiumUpgradePendingState]()
+        let cancellable = subject.premiumUpgradePendingStatePublisher()
+            .sink { states.append($0) }
+        defer { cancellable.cancel() }
+
+        try await waitForAsync { !states.isEmpty }
+
+        await subject.reconcileCheckoutSuccess()
+
+        try await waitForAsync { states.count == 3 }
+        #expect(states == [
+            PremiumUpgradePendingState(isPending: false, lastAttemptFailed: false),
+            PremiumUpgradePendingState(isPending: true, lastAttemptFailed: false),
+            PremiumUpgradePendingState(isPending: false, lastAttemptFailed: false),
+        ])
+    }
+
+    /// `start()` resets `premiumUpgradePendingStatePublisher()` to the default, non-pending state
+    /// the instant the active account logs out, as a direct push rather than a
+    /// `billingStateService` read — the logged-out account's own persisted flags are left
+    /// untouched for whenever it's active again.
+    @Test
+    func premiumUpgradePendingStatePublisher_resetsOnLogout() async throws {
+        var states = [PremiumUpgradePendingState]()
+        let cancellable = subject.premiumUpgradePendingStatePublisher()
+            .sink { states.append($0) }
+        defer { cancellable.cancel() }
+
+        await subject.start()
+        try await waitForAsync { states.count == 2 }
+
+        stateService.premiumUpgradePendingByUserId["1"] = true
+        stateService.doesAccountHavePremiumByUserId["1"] = false
+        stateService.lastSyncTimeSubject.send(Date())
+        try await waitForAsync { states.count == 3 }
+        #expect(states.last == PremiumUpgradePendingState(isPending: true, lastAttemptFailed: false))
+
+        stateService.activeIdSubject.send(nil)
+
+        try await waitForAsync { states.count == 4 }
+        #expect(states.last == PremiumUpgradePendingState(isPending: false, lastAttemptFailed: false))
+        #expect(stateService.premiumUpgradePendingByUserId["1"] == true)
+    }
 }
