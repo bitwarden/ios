@@ -35,19 +35,8 @@ class MockStateService: StateService, ActiveAccountStateProvider, AutofillStateS
     var archiveOnboardingShown = false
     var premiumUpgradeBannerDismissedByUserId = [String: Bool]()
     var premiumUpgradeBannerDismissedResult: Result<Void, Error> = .success(())
-    var premiumUpgradeSyncAttemptFailedByUserId = [String: Bool]()
-    var premiumUpgradePendingByUserId = [String: Bool]()
     var setSubscriptionAttentionCardResult: Result<Void, Error> = .success(())
-    var setUpgradedToPremiumActionCardResult: Result<Void, Error> = .success(())
     var subscriptionAttentionCardVisibleResult: Bool = false
-    var upgradedToPremiumCardVisibleByUserId = [String: Bool]()
-
-    /// Convenience accessor for `upgradedToPremiumCardVisibleByUserId`, keyed to
-    /// `activeAccount`, for tests that don't care about multi-account distinctions.
-    var upgradedToPremiumActionCardVisibleResult: Bool {
-        get { upgradedToPremiumCardVisibleByUserId[activeAccount?.profile.userId ?? ""] ?? false }
-        set { upgradedToPremiumCardVisibleByUserId[activeAccount?.profile.userId ?? ""] = newValue }
-    }
 
     var biometricsEnabled = [String: Bool]()
     var capturedUserId: String?
@@ -506,14 +495,17 @@ class MockStateService: StateService, ActiveAccountStateProvider, AutofillStateS
         twoFactorTokens[email]
     }
 
+    /// The `BillingStateService` requirements below exist only so `MockStateService` satisfies
+    /// `StateService`'s protocol conformance. `BillingService` depends on `BillingStateService`
+    /// through its own dedicated `billingStateService:` init parameter, so tests exercising this
+    /// state should construct and configure a `MockBillingStateService` directly instead of
+    /// reaching through `MockStateService`.
     func getPremiumUpgradeLastSyncAttemptFailed(userId: String?) async throws -> Bool {
-        let userId = try unwrapUserId(userId)
-        return premiumUpgradeSyncAttemptFailedByUserId[userId] ?? false
+        false
     }
 
     func getPremiumUpgradePending(userId: String?) async throws -> Bool {
-        let userId = try unwrapUserId(userId)
-        return premiumUpgradePendingByUserId[userId] ?? false
+        false
     }
 
     func getSubscriptionAttentionCardVisible() async -> Bool {
@@ -521,8 +513,7 @@ class MockStateService: StateService, ActiveAccountStateProvider, AutofillStateS
     }
 
     func getUpgradedToPremiumActionCardVisible(userId: String?) async throws -> Bool {
-        let userId = try unwrapUserId(userId)
-        return upgradedToPremiumCardVisibleByUserId[userId] ?? false
+        false
     }
 
     func getUserHasMasterPassword(userId: String?) async throws -> Bool {
@@ -684,26 +675,18 @@ class MockStateService: StateService, ActiveAccountStateProvider, AutofillStateS
         premiumUpgradeBannerDismissedByUserId[userId] = dismissed
     }
 
-    func setPremiumUpgradeLastSyncAttemptFailed(_ failed: Bool, userId: String?) async throws {
-        let userId = try unwrapUserId(userId)
-        premiumUpgradeSyncAttemptFailedByUserId[userId] = failed
-    }
+    /// See the note on `getPremiumUpgradeLastSyncAttemptFailed(userId:)` above: these are
+    /// conformance-only stubs.
+    func setPremiumUpgradeLastSyncAttemptFailed(_ failed: Bool, userId: String?) async throws {}
 
-    func setPremiumUpgradePending(_ pending: Bool, userId: String?) async throws {
-        let userId = try unwrapUserId(userId)
-        premiumUpgradePendingByUserId[userId] = pending
-    }
+    func setPremiumUpgradePending(_ pending: Bool, userId: String?) async throws {}
 
     func setSubscriptionAttentionCardVisible(_ visible: Bool) async throws {
         try setSubscriptionAttentionCardResult.get()
         subscriptionAttentionCardVisibleResult = visible
     }
 
-    func setUpgradedToPremiumActionCardVisible(_ visible: Bool, userId: String?) async throws {
-        try setUpgradedToPremiumActionCardResult.get()
-        let userId = try unwrapUserId(userId)
-        upgradedToPremiumCardVisibleByUserId[userId] = visible
-    }
+    func setUpgradedToPremiumActionCardVisible(_ visible: Bool, userId: String?) async throws {}
 
     func setClearClipboardValue(_ clearClipboardValue: ClearClipboardValue?, userId: String?) async throws {
         try clearClipboardResult.get()
