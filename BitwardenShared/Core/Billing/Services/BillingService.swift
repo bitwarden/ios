@@ -104,9 +104,8 @@ protocol BillingService: AnyObject { // sourcery: AutoMockable
     ///
     func shouldShowUpgradedToPremiumActionCard() async -> Bool
 
-    /// Starts observing sync completions so a pending Premium upgrade can be resolved by any
-    /// successful sync for the active account — not just the sync `reconcileCheckoutSuccess()`
-    /// itself forces. Should be called once, for the lifetime of the app.
+    /// Starts observing sync completions to resolve any pending Premium upgrade. Should be
+    /// called once, for the lifetime of the app.
     ///
     func start() async
 }
@@ -416,9 +415,7 @@ class DefaultBillingService: BillingService { // swiftlint:disable:this type_bod
 
     /// Refreshes the subscription attention card cache and reports whether the active account
     /// is eligible to participate in the Premium upgrade path at all (self-hosted/feature-flag
-    /// gated) — independent of whether Premium has already been granted. Used by
-    /// `reconcileCheckoutSuccess()`, where an already-Premium account reached via this method is
-    /// the success case, not a no-op.
+    /// gated), independent of whether Premium has already been granted.
     ///
     /// - Returns: Whether the active account is eligible for the Premium upgrade path.
     ///
@@ -476,24 +473,8 @@ class DefaultBillingService: BillingService { // swiftlint:disable:this type_bod
     /// Resolves a pending Premium upgrade for `userId`, if one is recorded: checks whether the
     /// account now has Premium, persists the result, and — once confirmed — shows the
     /// "Upgraded to Premium" card. Leaves persisted state untouched if `userId` has no pending
-    /// upgrade or prior failure recorded, so this can safely run on every sync for every account,
-    /// not just those mid-upgrade — it still always reports current Premium status, though.
-    ///
-    /// Called both right after a checkout's own forced sync (`reconcileCheckoutSuccess()`) and
-    /// from the background watcher on every subsequent sync (`reconcileOnEachNewSync(userId:)`).
-    /// Every read and write here is scoped to the explicit `userId` passed in, not whichever
-    /// account happens to be active when this runs, so an account switch mid-flight can't
-    /// corrupt a different account's flags, and calling this twice for the same sync is
-    /// redundant but never incorrect for the flags it fully owns (`isPending`, the "Upgraded to
-    /// Premium" card).
-    ///
-    /// One case is a deliberately accepted exception: if `reconcileCheckoutSuccess()`'s own
-    /// forced sync updates the last-sync time (so the background watcher also reacts to it) but
-    /// then throws on a later step, whichever of the two calls persists `lastAttemptFailed` last
-    /// wins — the watcher's `syncFailed: false` can overwrite this call's `true`. Left unresolved
-    /// since the only planned consumer of `lastAttemptFailed`, the "Sync Unsuccessful" dialog, is
-    /// itself still undecided (see PM-39767); `isPending` — which every path here agrees on — is
-    /// what keeps the upgrade from being abandoned in the meantime.
+    /// upgrade or prior failure recorded, so this can safely run on every sync for every account —
+    /// it still always reports current Premium status, though.
     ///
     /// - Parameters:
     ///   - userId: The account to resolve the pending upgrade for.
@@ -528,6 +509,10 @@ class DefaultBillingService: BillingService { // swiftlint:disable:this type_bod
             // sync can still throw after Premium was already confirmed. Only record a failure if
             // Premium wasn't actually granted, so a confirmed upgrade never persists a
             // contradictory flag.
+            //
+            // Accepted race: if `reconcileOnEachNewSync(userId:)` resolves this same sync
+            // concurrently, whichever call persists this flag last wins — `isPending` below is
+            // unaffected and is what actually gates the retry.
             try await billingStateService.setPremiumUpgradeLastSyncAttemptFailed(
                 syncFailed && !hasPremium,
                 userId: userId,

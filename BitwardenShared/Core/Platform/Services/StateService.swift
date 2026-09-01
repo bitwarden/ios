@@ -10,7 +10,7 @@ import Foundation
 
 /// A protocol for a `StateService` which manages the state of the accounts in the app.
 ///
-protocol StateService: AnyObject, BillingStateService, DebugStateService {
+protocol StateService: AnyObject, DebugStateService {
     /// The language option currently selected for the app.
     var appLanguage: LanguageOption { get set }
 
@@ -332,14 +332,6 @@ protocol StateService: AnyObject, BillingStateService, DebugStateService {
     ///
     func getPreAuthEnvironmentURLs() async -> EnvironmentURLData?
 
-    /// Gets whether the Premium upgrade banner has been dismissed.
-    ///
-    /// - Parameter userId: The user ID associated with the Premium upgrade banner dismissed value.
-    ///   Defaults to the active account if `nil`.
-    /// - Returns: Whether the Premium upgrade banner has been dismissed.
-    ///
-    func getPremiumUpgradeBannerDismissed(userId: String?) async throws -> Bool
-
     /// Gets the environment URLs for a given email during account creation.
     ///
     /// - Parameter email: The email used to start the account creation.
@@ -576,15 +568,6 @@ protocol StateService: AnyObject, BillingStateService, DebugStateService {
     /// - Parameter shown: Whether the archive onboarding has been shown.
     ///
     func setArchiveOnboardingShown(_ shown: Bool) async
-
-    /// Sets whether the Premium upgrade banner has been dismissed.
-    ///
-    /// - Parameters:
-    ///   - dismissed: Whether the Premium upgrade banner has been dismissed.
-    ///   - userId: The user ID associated with the Premium upgrade banner dismissed value.
-    ///     Defaults to the active account if `nil`.
-    ///
-    func setPremiumUpgradeBannerDismissed(_ dismissed: Bool, userId: String?) async throws
 
     /// Sets the clear clipboard value for an account.
     ///
@@ -1138,14 +1121,6 @@ extension StateService {
         try await getPasswordGenerationOptions(userId: nil)
     }
 
-    /// Gets whether the Premium upgrade banner has been dismissed for the active account.
-    ///
-    /// - Returns: Whether the Premium upgrade banner has been dismissed.
-    ///
-    func getPremiumUpgradeBannerDismissed() async throws -> Bool {
-        try await getPremiumUpgradeBannerDismissed(userId: nil)
-    }
-
     /// Gets whether Siri & Shortcuts access is enabled for the active account.
     /// - Returns: Whether Siri & Shortcuts access is enabled.
     func getSiriAndShortcutsAccess() async throws -> Bool {
@@ -1418,14 +1393,6 @@ extension StateService {
     ///
     func setPasswordGenerationOptions(_ options: PasswordGenerationOptions?) async throws {
         try await setPasswordGenerationOptions(options, userId: nil)
-    }
-
-    /// Sets whether the Premium upgrade banner has been dismissed for the active account.
-    ///
-    /// - Parameter dismissed: Whether the Premium upgrade banner has been dismissed.
-    ///
-    func setPremiumUpgradeBannerDismissed(_ dismissed: Bool) async throws {
-        try await setPremiumUpgradeBannerDismissed(dismissed, userId: nil)
     }
 
     /// Sets the app rehydration state for the active account.
@@ -1770,11 +1737,6 @@ actor DefaultStateService: StateService, ActiveAccountStateProvider, ConfigState
 
     func getArchiveOnboardingShown() async -> Bool {
         appSettingsStore.archiveOnboardingShown
-    }
-
-    func getPremiumUpgradeBannerDismissed(userId: String?) async throws -> Bool {
-        let userId = try userId ?? getActiveAccountUserId()
-        return appSettingsStore.premiumUpgradeBannerDismissed(userId: userId)
     }
 
     func getClearClipboardValue(userId: String?) async throws -> ClearClipboardValue {
@@ -2150,11 +2112,6 @@ actor DefaultStateService: StateService, ActiveAccountStateProvider, ConfigState
 
     func setArchiveOnboardingShown(_ shown: Bool) async {
         appSettingsStore.archiveOnboardingShown = shown
-    }
-
-    func setPremiumUpgradeBannerDismissed(_ dismissed: Bool, userId: String?) async throws {
-        let userId = try userId ?? getActiveAccountUserId()
-        appSettingsStore.setPremiumUpgradeBannerDismissed(dismissed, userId: userId)
     }
 
     func setClearClipboardValue(_ clearClipboardValue: ClearClipboardValue?, userId: String?) async throws {
@@ -2541,6 +2498,11 @@ struct AccountVolatileData {
 extension DefaultStateService: BillingStateService {
     // MARK: Premium Upgrade Banner
 
+    func getPremiumUpgradeBannerDismissed(userId: String?) async throws -> Bool {
+        let userId = try userId ?? getActiveAccountUserId()
+        return appSettingsStore.premiumUpgradeBannerDismissed(userId: userId)
+    }
+
     func isPremiumUpgradeBannerDismissed() async -> Bool {
         do {
             return try await getPremiumUpgradeBannerDismissed()
@@ -2557,6 +2519,11 @@ extension DefaultStateService: BillingStateService {
         guard let account = try? await getActiveAccount(),
               let creationDate = account.profile.creationDate else { return false }
         return timeProvider.timeSince(creationDate) >= Constants.premiumUpgradeBannerAccountAge
+    }
+
+    func setPremiumUpgradeBannerDismissed(_ dismissed: Bool, userId: String?) async throws {
+        let userId = try userId ?? getActiveAccountUserId()
+        appSettingsStore.setPremiumUpgradeBannerDismissed(dismissed, userId: userId)
     }
 
     // MARK: Premium Upgrade Pending

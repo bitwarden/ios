@@ -33,21 +33,6 @@ class MockStateService: StateService, ActiveAccountStateProvider, AutofillStateS
     var appRehydrationState = [String: AppRehydrationState]()
     var appTheme: AppTheme?
     var archiveOnboardingShown = false
-    var premiumUpgradeBannerDismissedByUserId = [String: Bool]()
-    var premiumUpgradeBannerDismissedResult: Result<Void, Error> = .success(())
-    var premiumUpgradeSyncAttemptFailedByUserId = [String: Bool]()
-    var premiumUpgradePendingByUserId = [String: Bool]()
-    var setSubscriptionAttentionCardResult: Result<Void, Error> = .success(())
-    var setUpgradedToPremiumActionCardResult: Result<Void, Error> = .success(())
-    var subscriptionAttentionCardVisibleResult: Bool = false
-    var upgradedToPremiumCardVisibleByUserId = [String: Bool]()
-
-    /// Convenience accessor for `upgradedToPremiumCardVisibleByUserId`, keyed to
-    /// `activeAccount`, for tests that don't care about multi-account distinctions.
-    var upgradedToPremiumActionCardVisibleResult: Bool {
-        get { upgradedToPremiumCardVisibleByUserId[activeAccount?.profile.userId ?? ""] ?? false }
-        set { upgradedToPremiumCardVisibleByUserId[activeAccount?.profile.userId ?? ""] = newValue }
-    }
 
     var biometricsEnabled = [String: Bool]()
     var capturedUserId: String?
@@ -88,8 +73,6 @@ class MockStateService: StateService, ActiveAccountStateProvider, AutofillStateS
     var isAuthenticated = [String: Bool]()
     var isAuthenticatedError: Error?
     var isInitialSyncRequiredByUserId = [String: Bool]()
-    var isPremiumUpgradeBannerDismissedResult: Bool = false
-    var isPremiumUpgradeEligibleResult: Bool = false
     var learnGeneratorActionCardStatus: AccountSetupProgress?
     var learnNewLoginActionCardStatus: AccountSetupProgress?
     var loginRequest: LoginRequestNotification?
@@ -314,12 +297,6 @@ class MockStateService: StateService, ActiveAccountStateProvider, AutofillStateS
         archiveOnboardingShown
     }
 
-    func getPremiumUpgradeBannerDismissed(userId: String?) async throws -> Bool {
-        try premiumUpgradeBannerDismissedResult.get()
-        let userId = try unwrapUserId(userId)
-        return premiumUpgradeBannerDismissedByUserId[userId] ?? false
-    }
-
     func getClearClipboardValue(userId: String?) async throws -> ClearClipboardValue {
         try clearClipboardResult.get()
         let userId = try unwrapUserId(userId)
@@ -506,25 +483,6 @@ class MockStateService: StateService, ActiveAccountStateProvider, AutofillStateS
         twoFactorTokens[email]
     }
 
-    func getPremiumUpgradeLastSyncAttemptFailed(userId: String?) async throws -> Bool {
-        let userId = try unwrapUserId(userId)
-        return premiumUpgradeSyncAttemptFailedByUserId[userId] ?? false
-    }
-
-    func getPremiumUpgradePending(userId: String?) async throws -> Bool {
-        let userId = try unwrapUserId(userId)
-        return premiumUpgradePendingByUserId[userId] ?? false
-    }
-
-    func getSubscriptionAttentionCardVisible() async -> Bool {
-        subscriptionAttentionCardVisibleResult
-    }
-
-    func getUpgradedToPremiumActionCardVisible(userId: String?) async throws -> Bool {
-        let userId = try unwrapUserId(userId)
-        return upgradedToPremiumCardVisibleByUserId[userId] ?? false
-    }
-
     func getUserHasMasterPassword(userId: String?) async throws -> Bool {
         if let userHasMasterPasswordError { throw userHasMasterPasswordError }
         let userId = try unwrapUserId(userId)
@@ -554,14 +512,6 @@ class MockStateService: StateService, ActiveAccountStateProvider, AutofillStateS
     func isInitialSyncRequired(userId: String?) async -> Bool {
         guard let userId = try? unwrapUserId(userId) else { return false }
         return isInitialSyncRequiredByUserId[userId] ?? false
-    }
-
-    func isPremiumUpgradeBannerDismissed() async -> Bool {
-        isPremiumUpgradeBannerDismissedResult
-    }
-
-    func isPremiumUpgradeEligible() async -> Bool {
-        isPremiumUpgradeEligibleResult
     }
 
     func logoutAccount(userId: String?, userInitiated: Bool) async throws {
@@ -676,33 +626,6 @@ class MockStateService: StateService, ActiveAccountStateProvider, AutofillStateS
 
     func setArchiveOnboardingShown(_ shown: Bool) async {
         archiveOnboardingShown = shown
-    }
-
-    func setPremiumUpgradeBannerDismissed(_ dismissed: Bool, userId: String?) async throws {
-        try premiumUpgradeBannerDismissedResult.get()
-        let userId = try unwrapUserId(userId)
-        premiumUpgradeBannerDismissedByUserId[userId] = dismissed
-    }
-
-    func setPremiumUpgradeLastSyncAttemptFailed(_ failed: Bool, userId: String?) async throws {
-        let userId = try unwrapUserId(userId)
-        premiumUpgradeSyncAttemptFailedByUserId[userId] = failed
-    }
-
-    func setPremiumUpgradePending(_ pending: Bool, userId: String?) async throws {
-        let userId = try unwrapUserId(userId)
-        premiumUpgradePendingByUserId[userId] = pending
-    }
-
-    func setSubscriptionAttentionCardVisible(_ visible: Bool) async throws {
-        try setSubscriptionAttentionCardResult.get()
-        subscriptionAttentionCardVisibleResult = visible
-    }
-
-    func setUpgradedToPremiumActionCardVisible(_ visible: Bool, userId: String?) async throws {
-        try setUpgradedToPremiumActionCardResult.get()
-        let userId = try unwrapUserId(userId)
-        upgradedToPremiumCardVisibleByUserId[userId] = visible
     }
 
     func setClearClipboardValue(_ clearClipboardValue: ClearClipboardValue?, userId: String?) async throws {

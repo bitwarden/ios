@@ -16,6 +16,7 @@ struct VaultListProcessorBillingTests {
 
     let billingRepository: MockBillingRepository
     let billingService: MockBillingService
+    let billingStateService: MockBillingStateService
     let coordinator: MockCoordinator<VaultRoute, AuthAction>
     let premiumUpgradeHelper: MockPremiumUpgradeHelper
     let searchProcessorMediator: MockSearchProcessorMediator
@@ -37,6 +38,8 @@ struct VaultListProcessorBillingTests {
             isPending: false,
             lastAttemptFailed: false,
         )
+        billingStateService = MockBillingStateService()
+        billingStateService.isPremiumUpgradeBannerDismissedReturnValue = false
         coordinator = MockCoordinator()
         premiumUpgradeHelper = MockPremiumUpgradeHelper()
         searchProcessorMediator = MockSearchProcessorMediator()
@@ -47,6 +50,7 @@ struct VaultListProcessorBillingTests {
         let services = ServiceContainer.withMocks(
             billingRepository: billingRepository,
             billingService: billingService,
+            billingStateService: billingStateService,
             searchProcessorMediatorFactory: searchProcessorMediatorFactory,
             stateService: stateService,
             vaultRepository: vaultRepository,
@@ -128,7 +132,7 @@ struct VaultListProcessorBillingTests {
     func perform_appeared_premiumActionCards(_ testCase: PremiumActionCardTestCase) async {
         billingService.shouldShowSubscriptionAttentionCardReturnValue = testCase.attentionCardVisible
         billingRepository.isInAppUpgradeAvailableReturnValue = testCase.upgradeAvailable
-        stateService.isPremiumUpgradeBannerDismissedResult = testCase.bannerDismissed
+        billingStateService.isPremiumUpgradeBannerDismissedReturnValue = testCase.bannerDismissed
 
         await subject.perform(.appeared)
 
@@ -142,7 +146,7 @@ struct VaultListProcessorBillingTests {
     func perform_appeared_premiumUpgradeActionCard_hidden_selfHosted() async {
         billingService.isSelfHostedReturnValue = true
         billingRepository.isInAppUpgradeAvailableReturnValue = true
-        stateService.isPremiumUpgradeBannerDismissedResult = false
+        billingStateService.isPremiumUpgradeBannerDismissedReturnValue = false
 
         await subject.perform(.appeared)
 
@@ -153,7 +157,7 @@ struct VaultListProcessorBillingTests {
     /// upgrade banner was previously dismissed.
     @Test
     func perform_appeared_loadPremiumUpgradeBanner_bannerDismissed_stillShowsUpgradedCard() async {
-        stateService.isPremiumUpgradeBannerDismissedResult = true
+        billingStateService.isPremiumUpgradeBannerDismissedReturnValue = true
         billingService.shouldShowUpgradedToPremiumActionCardReturnValue = true
 
         await subject.perform(.appeared)
@@ -198,7 +202,7 @@ struct VaultListProcessorBillingTests {
         await subject.perform(.dismissPremiumUpgradeActionCard)
 
         #expect(!subject.state.shouldShowPremiumUpgradeActionCard)
-        #expect(stateService.premiumUpgradeBannerDismissedByUserId["1"] == true)
+        #expect(billingStateService.setPremiumUpgradeBannerDismissedReceivedArguments?.dismissed == true)
     }
 
     /// `perform(_:)` with `.dismissUpgradedToPremiumActionCard` hides the upgraded-to-Premium

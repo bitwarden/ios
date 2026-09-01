@@ -8,6 +8,14 @@ import Foundation
 protocol BillingStateService { // sourcery: AutoMockable
     // MARK: Premium Upgrade Banner
 
+    /// Gets whether the Premium upgrade banner has been dismissed.
+    ///
+    /// - Parameter userId: The user ID associated with the Premium upgrade banner dismissed value.
+    ///   Defaults to the active account if `nil`.
+    /// - Returns: Whether the Premium upgrade banner has been dismissed.
+    ///
+    func getPremiumUpgradeBannerDismissed(userId: String?) async throws -> Bool
+
     /// Returns whether the Premium upgrade banner has been permanently dismissed by the user.
     ///
     /// - Returns: `true` if the user has dismissed the banner.
@@ -19,6 +27,15 @@ protocol BillingStateService { // sourcery: AutoMockable
     /// - Returns: `true` if the user is eligible for the Premium upgrade.
     ///
     func isPremiumUpgradeEligible() async -> Bool
+
+    /// Sets whether the Premium upgrade banner has been dismissed.
+    ///
+    /// - Parameters:
+    ///   - dismissed: Whether the Premium upgrade banner has been dismissed.
+    ///   - userId: The user ID associated with the Premium upgrade banner dismissed value.
+    ///     Defaults to the active account if `nil`.
+    ///
+    func setPremiumUpgradeBannerDismissed(_ dismissed: Bool, userId: String?) async throws
 
     // MARK: Premium Upgrade Pending
 
@@ -88,6 +105,14 @@ protocol BillingStateService { // sourcery: AutoMockable
 }
 
 extension BillingStateService {
+    /// Gets whether the Premium upgrade banner has been dismissed for the active account.
+    ///
+    /// - Returns: Whether the Premium upgrade banner has been dismissed.
+    ///
+    func getPremiumUpgradeBannerDismissed() async throws -> Bool {
+        try await getPremiumUpgradeBannerDismissed(userId: nil)
+    }
+
     /// Returns whether the last sync attempt to confirm a pending Premium upgrade failed, for the
     /// active account.
     ///
@@ -111,6 +136,14 @@ extension BillingStateService {
     ///
     func getUpgradedToPremiumActionCardVisible() async throws -> Bool {
         try await getUpgradedToPremiumActionCardVisible(userId: nil)
+    }
+
+    /// Sets whether the Premium upgrade banner has been dismissed for the active account.
+    ///
+    /// - Parameter dismissed: Whether the Premium upgrade banner has been dismissed.
+    ///
+    func setPremiumUpgradeBannerDismissed(_ dismissed: Bool) async throws {
+        try await setPremiumUpgradeBannerDismissed(dismissed, userId: nil)
     }
 
     /// Sets whether the last sync attempt to confirm a pending Premium upgrade failed, for the
