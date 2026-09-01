@@ -13,8 +13,6 @@ import Testing
 
 /// Tests for the `BillingService` methods that don't touch cached billing state — checkout,
 /// subscription/plan lookups, self-hosted detection, and premium status change reconciliation.
-/// See `BillingServiceBillingStateTests` for action cards, the subscription attention card, and
-/// premium-upgrade-pending reconciliation.
 @MainActor
 struct BillingServiceTests { // swiftlint:disable:this type_body_length
     // MARK: Properties
