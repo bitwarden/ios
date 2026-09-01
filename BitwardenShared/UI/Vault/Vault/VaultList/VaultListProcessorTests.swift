@@ -162,6 +162,38 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         XCTAssertEqual(reviewPromptService.userActions, [])
     }
 
+    /// `folderAdded(_:)` delegate method shows the expected toast.
+    @MainActor
+    func test_delegate_folderAdded() {
+        XCTAssertNil(subject.state.toast)
+
+        subject.folderAdded(.fixture())
+
+        XCTAssertEqual(subject.state.toast, Toast(title: Localizations.folderCreated))
+    }
+
+    /// `folderDeleted()` delegate method leaves the toast untouched, since folders can't be
+    /// deleted from the vault list.
+    @MainActor
+    func test_delegate_folderDeleted() {
+        subject.state.toast = Toast(title: Localizations.folderCreated)
+
+        subject.folderDeleted()
+
+        XCTAssertEqual(subject.state.toast, Toast(title: Localizations.folderCreated))
+    }
+
+    /// `folderEdited()` delegate method leaves the toast untouched, since folders can't be edited
+    /// from the vault list.
+    @MainActor
+    func test_delegate_folderEdited() {
+        subject.state.toast = Toast(title: Localizations.folderCreated)
+
+        subject.folderEdited()
+
+        XCTAssertEqual(subject.state.toast, Toast(title: Localizations.folderCreated))
+    }
+
     /// `perform(_:)` with `.checkAppReviewEligibility` schedules a review prompt if the user is eligible
     /// and the feature flags are enabled.
     @MainActor
@@ -822,6 +854,17 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         XCTAssertEqual(vaultRepository.fetchSyncForceSync, false)
     }
 
+    /// `perform(_:)` with `.refreshVault` leaves a toast that was shown for an unrelated reason
+    /// in place, rather than clearing it once the sync completes.
+    @MainActor
+    func test_perform_refreshVault_doesNotDismissUnrelatedToast() async {
+        subject.state.toast = Toast(title: Localizations.folderCreated)
+
+        await subject.perform(.refreshVault)
+
+        XCTAssertEqual(subject.state.toast, Toast(title: Localizations.folderCreated))
+    }
+
     /// `perform(_:)` with `.refreshVault` requests a vault sync and sets the loading state if the
     /// vault is empty; in this case sync is not flagged as periodic.
     @MainActor
@@ -1323,6 +1366,44 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         try await waitForAsync { self.subject.state.loadingState == .data([section]) }
 
         XCTAssertEqual(stateService.accountSetupImportLogins["1"], .complete)
+    }
+
+    /// `perform(_:)` with `.streamVaultList` dismisses the toast shown while the vault was taking
+    /// a long time to load, once vault data arrives.
+    @MainActor
+    func test_perform_streamVaultList_dismissesSlowLoadingToast() {
+        subject.state.toast = Toast(title: Localizations.thisIsTakingLongerThanExpected, mode: .manualDismiss)
+        vaultRepository.vaultListSubject.send(VaultListData(
+            sections: [VaultListSection(id: "1", items: [.fixture()], name: "Name")],
+        ))
+
+        let task = Task {
+            await subject.perform(.streamVaultList)
+        }
+
+        waitFor(subject.state.toast == nil)
+        task.cancel()
+
+        XCTAssertNil(subject.state.toast)
+    }
+
+    /// `perform(_:)` with `.streamVaultList` leaves a toast that was shown for an unrelated reason
+    /// in place when vault data arrives, so that it isn't cleared out from under the user.
+    @MainActor
+    func test_perform_streamVaultList_doesNotDismissUnrelatedToast() {
+        subject.state.toast = Toast(title: Localizations.folderCreated)
+        vaultRepository.vaultListSubject.send(VaultListData(
+            sections: [VaultListSection(id: "1", items: [.fixture()], name: "Name")],
+        ))
+
+        let task = Task {
+            await subject.perform(.streamVaultList)
+        }
+
+        waitFor(subject.state.loadingState != .loading(nil))
+        task.cancel()
+
+        XCTAssertEqual(subject.state.toast, Toast(title: Localizations.folderCreated))
     }
 
     /// `perform(_:)` with `.streamVaultList` doesn't dismiss the import logins action card if the
@@ -1986,12 +2067,14 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         XCTAssertEqual(coordinator.routes.last, .addAccount)
     }
 
-    /// `receive(_:)` with `.addFolder` navigates to the `.addFolder` route.
+    /// `receive(_:)` with `.addFolder` navigates to the `.addFolder` route with the processor as
+    /// the delegate.
     @MainActor
     func test_receive_addFolder() {
         subject.receive(.addFolder)
 
         XCTAssertEqual(coordinator.routes.last, .addFolder)
+        XCTAssertIdentical(coordinator.contexts.last as? AddEditFolderDelegate, subject)
     }
 
     /// `receive(_:)` with `.addItemPressed` navigates to the `.addItem` route.
