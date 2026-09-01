@@ -1,3 +1,6 @@
+import BitwardenKit
+import BitwardenKitMocks
+import Foundation
 import Testing
 
 @testable import BitwardenShared
@@ -9,10 +12,14 @@ struct CardTextParserTests {
 
     let subject: DefaultCardTextParser
 
+    /// A fixed present time, so the plausible expiration year range the parser applies stays stable
+    /// and the fixtures below never rot. Mid-year, so the calendar year is 2025 in every time zone.
+    let timeProvider = MockTimeProvider(.mockTime(Date(timeIntervalSince1970: 1_751_328_000)))
+
     // MARK: Setup
 
     init() {
-        subject = DefaultCardTextParser()
+        subject = DefaultCardTextParser(timeProvider: timeProvider)
     }
 
     // MARK: Tests – Card Number
@@ -72,6 +79,54 @@ struct CardTextParserTests {
         let result = subject.parseCard(lines: lines)
         #expect(result.expirationMonth == expectedMonth)
         #expect(result.expirationYear == expectedYear)
+    }
+
+    /// `parseCard(lines:)` does not read an expiry off a line carrying a card number's worth of
+    /// digits. OCR reading a digit or a group separator as `/` leaves a card number looking exactly
+    /// like a date, which is how a card with no printed expiry ends up with one.
+    @Test(arguments: [
+        ["5/33 6195 0371 5702"],
+        ["5333 6/95 0371 5702"],
+        ["5333 6195 0371 5/02"],
+        ["1234 5/2035 6789"],
+        ["4342 5620 3/2035 3456"],
+    ])
+    func parseCard_rejectsExpiryOnCardNumberLine(lines: [String]) {
+        let result = subject.parseCard(lines: lines)
+        #expect(result.expirationMonth == nil)
+        #expect(result.expirationYear == nil)
+    }
+
+    /// `parseCard(lines:)` rejects an expiry whose year falls outside the plausible range, and a
+    /// three digit run that is not a year at all.
+    @Test(arguments: [["03/999"], ["03/9999"], ["01/20"], ["12/99"]])
+    func parseCard_rejectsImplausibleExpiryYear(lines: [String]) {
+        let result = subject.parseCard(lines: lines)
+        #expect(result.expirationMonth == nil)
+        #expect(result.expirationYear == nil)
+    }
+
+    /// `parseCard(lines:)` still reads an expiry printed alongside its label, which is how a card
+    /// presents it.
+    @Test(arguments: zip(
+        [["VALID THRU 12/28"], ["GOOD THRU 10/27"], ["EXP 09/27"]],
+        [(12, "2028"), (10, "2027"), (9, "2027")],
+    ))
+    func parseCard_extractsLabelledExpiry(lines: [String], expected: (Int, String)) {
+        let (expectedMonth, expectedYear) = expected
+        let result = subject.parseCard(lines: lines)
+        #expect(result.expirationMonth == expectedMonth)
+        #expect(result.expirationYear == expectedYear)
+    }
+
+    /// `parseCard(lines:)` reads the card number and the expiry when the sample card from PM-37883 is
+    /// scanned with a misread slash in its number, leaving the expiry empty because the card has none.
+    @Test
+    func parseCard_sampleCardWithMisreadSlash_hasNoExpiry() {
+        let result = subject.parseCard(lines: ["5333 6195 0371 5702", "5/33 6195 0371 5702"])
+        #expect(result.cardNumber == "5333619503715702")
+        #expect(result.expirationMonth == nil)
+        #expect(result.expirationYear == nil)
     }
 
     /// `parseCard(lines:)` returns nil for both expiry fields when input contains no expiry date.

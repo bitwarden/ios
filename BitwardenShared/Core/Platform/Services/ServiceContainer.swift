@@ -1197,7 +1197,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
             biometricsRepository: biometricsRepository,
             biometricsService: biometricsService,
             cameraService: DefaultCameraService(),
-            cardTextParser: DefaultCardTextParser(),
+            cardTextParser: DefaultCardTextParser(timeProvider: timeProvider),
             changeKdfService: changeKdfService,
             cipherOwnershipHelper: cipherOwnershipHelper,
             clientCertificateService: clientCertificateService,
