@@ -66,18 +66,11 @@ class DefaultPremiumUpgradeHelper<Route: PremiumUpgradeRoute, Event>: PremiumUpg
     // MARK: Private Properties
 
     /// Whether `startInAppPremiumUpgrade(onConfirmed:)` navigated to the Premium upgrade screen
-    /// for the checkout status subscription currently live in `premiumStatusChangedCancellable`.
-    /// `false` when it instead found an upgrade already pending and showed the pending alert
-    /// directly without navigating anywhere — in that case, a later `.pending` emission (e.g.
-    /// from tapping "Sync Now" and the retry not confirming either) must not try to dismiss a
-    /// screen that was never opened.
+    /// for the current checkout status subscription.
     private var navigatedToUpgradeScreen = false
 
     /// Whether a `startInAppPremiumUpgrade(onConfirmed:)` call's pending-state check is currently
-    /// in flight. Unlike the old, synchronous "check availability then navigate immediately"
-    /// call, this now awaits a storage read before deciding, opening a real (if brief) window for
-    /// a rapid double-tap on the same entry point to fire two overlapping checks — each of which
-    /// would otherwise navigate or show the pending alert on its own. Guards against that.
+    /// in flight, to guard against a rapid double-tap firing two overlapping checks.
     private var isResolvingStartRequest = false
 
     /// A cancellable for the Premium checkout status subscription.
@@ -131,20 +124,15 @@ class DefaultPremiumUpgradeHelper<Route: PremiumUpgradeRoute, Event>: PremiumUpg
     func startInAppPremiumUpgrade(onConfirmed: (() async -> Void)? = nil) {
         guard !isResolvingStartRequest else { return }
         isResolvingStartRequest = true
-        // Set before the `await` below, not after: `subscribeToPremiumCheckoutStatus(onConfirmed:)`
-        // attaches the new live subscription synchronously, right now — if a status arrived in the
-        // gap before the pending-state check resolves, its handler would otherwise judge it
-        // against the previous call's leftover value instead of "haven't navigated yet."
+        // Reset before subscribing, so a status that arrives before the pending-state check
+        // below resolves isn't judged against a stale value.
         navigatedToUpgradeScreen = false
         subscribeToPremiumCheckoutStatus(onConfirmed: onConfirmed)
         Task { [weak self] in
             guard let self else { return }
             defer { isResolvingStartRequest = false }
-            // Checked here, not just left to each caller's own CTA visibility (e.g. the Vault
-            // tab's action card, hidden while pending): a pending upgrade doesn't stop any of
-            // the other eight entry points into this flow (Settings > Plan, Send, item views,
-            // etc.) from starting a second, redundant checkout. Intercepting at this single,
-            // shared choke point closes all of them at once instead of gating each separately.
+            // Single choke point for all entry points into this flow, so a pending upgrade
+            // blocks a second, redundant checkout from any of them.
             guard await services.billingService.premiumUpgradePendingState().isPending else {
                 navigatedToUpgradeScreen = true
                 coordinator.navigate(to: .premiumUpgrade)
@@ -191,9 +179,7 @@ class DefaultPremiumUpgradeHelper<Route: PremiumUpgradeRoute, Event>: PremiumUpg
                         showUpgradePendingAlert()
                         return
                     }
-                    // Consume the flag: the screen this refers to is about to be dismissed, so a
-                    // later `.pending` (e.g. a "Sync Now" retry that also doesn't confirm) must
-                    // not dismiss it a second time.
+                    // Consume the flag so a later `.pending` doesn't dismiss the screen again.
                     navigatedToUpgradeScreen = false
                     coordinator.navigate(to: .dismiss(DismissAction { [weak self] in
                         guard let self else { return }
