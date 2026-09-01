@@ -104,9 +104,8 @@ protocol BillingService: AnyObject { // sourcery: AutoMockable
     ///
     func shouldShowUpgradedToPremiumActionCard() async -> Bool
 
-    /// Starts observing sync completions so a pending Premium upgrade can be resolved by any
-    /// successful sync for the active account — not just the sync `reconcileCheckoutSuccess()`
-    /// itself forces. Should be called once, for the lifetime of the app.
+    /// Starts observing sync completions to resolve any pending Premium upgrade. Should be
+    /// called once, for the lifetime of the app.
     ///
     func start() async
 }
