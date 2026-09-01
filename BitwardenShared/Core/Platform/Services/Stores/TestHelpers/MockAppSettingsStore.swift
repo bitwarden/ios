@@ -65,7 +65,8 @@ class MockAppSettingsStore: AppSettingsStore { // swiftlint:disable:this type_bo
     var pinProtectedUserKey = [String: String]()
     var pinProtectedUserKeyEnvelope = [String: String]()
     var premiumUpgradeBannerDismissedByUserId = [String: Bool]()
-    var premiumUpgradeSyncAttemptFailedByUserId = [String: Bool]()
+    // swiftlint:disable:next identifier_name
+    var premiumUpgradeLastSyncAttemptFailedByUserId = [String: Bool]()
     var premiumUpgradePendingByUserId = [String: Bool]()
     var subscriptionAttentionCardVisibleByUserId = [String: Bool]()
     var upgradedToPremiumCardVisibleByUserId = [String: Bool]()
@@ -229,7 +230,7 @@ class MockAppSettingsStore: AppSettingsStore { // swiftlint:disable:this type_bo
     }
 
     func premiumUpgradeLastSyncAttemptFailed(userId: String) -> Bool {
-        premiumUpgradeSyncAttemptFailedByUserId[userId] ?? false
+        premiumUpgradeLastSyncAttemptFailedByUserId[userId] ?? false
     }
 
     func premiumUpgradePending(userId: String) -> Bool {
@@ -412,7 +413,7 @@ class MockAppSettingsStore: AppSettingsStore { // swiftlint:disable:this type_bo
     }
 
     func setPremiumUpgradeLastSyncAttemptFailed(_ failed: Bool, userId: String) {
-        premiumUpgradeSyncAttemptFailedByUserId[userId] = failed
+        premiumUpgradeLastSyncAttemptFailedByUserId[userId] = failed
     }
 
     func setPremiumUpgradePending(_ pending: Bool, userId: String) {
