@@ -38,6 +38,26 @@ struct StateServiceBillingStateServiceTests {
 
     // MARK: Premium Upgrade Banner
 
+    /// `getPremiumUpgradeBannerDismissed(userId:)` returns whether the Premium upgrade banner has been dismissed.
+    @Test
+    func getPremiumUpgradeBannerDismissed() async throws {
+        await subject.addAccount(.fixture())
+        var hasDismissedBanner = try await subject.getPremiumUpgradeBannerDismissed(userId: nil)
+        #expect(!hasDismissedBanner)
+
+        appSettingsStore.premiumUpgradeBannerDismissedByUserId["1"] = true
+        hasDismissedBanner = try await subject.getPremiumUpgradeBannerDismissed(userId: nil)
+        #expect(hasDismissedBanner)
+    }
+
+    /// `getPremiumUpgradeBannerDismissed(userId:)` throws errors if no user exists.
+    @Test
+    func getPremiumUpgradeBannerDismissed_error() async {
+        await #expect(throws: StateServiceError.noActiveAccount) {
+            _ = try await subject.getPremiumUpgradeBannerDismissed(userId: nil)
+        }
+    }
+
     /// `isPremiumUpgradeBannerDismissed()` returns `true` when the banner has been dismissed.
     @Test
     func isPremiumUpgradeBannerDismissed_true() async {
@@ -130,6 +150,25 @@ struct StateServiceBillingStateServiceTests {
 
         let isEligible = await subject.isPremiumUpgradeEligible()
         #expect(!isEligible)
+    }
+
+    /// `setPremiumUpgradeBannerDismissed(_:)` sets whether the Premium upgrade banner has been dismissed.
+    @Test
+    func setPremiumUpgradeBannerDismissed() async throws {
+        await subject.addAccount(.fixture())
+        try await subject.setPremiumUpgradeBannerDismissed(true, userId: nil)
+        #expect(appSettingsStore.premiumUpgradeBannerDismissedByUserId["1"] == true)
+
+        try await subject.setPremiumUpgradeBannerDismissed(false, userId: nil)
+        #expect(appSettingsStore.premiumUpgradeBannerDismissedByUserId["1"] == false)
+    }
+
+    /// `setPremiumUpgradeBannerDismissed(_:userId:)` throws errors if no user exists.
+    @Test
+    func setPremiumUpgradeBannerDismissed_error() async {
+        await #expect(throws: StateServiceError.noActiveAccount) {
+            try await subject.setPremiumUpgradeBannerDismissed(true, userId: nil)
+        }
     }
 
     // MARK: Premium Upgrade Pending

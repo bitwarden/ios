@@ -670,24 +670,6 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         XCTAssertTrue(hasShownOnboarding)
     }
 
-    /// `getPremiumUpgradeBannerDismissed(userId:)` returns whether the Premium upgrade banner has been dismissed.
-    func test_getPremiumUpgradeBannerDismissed() async throws {
-        await subject.addAccount(.fixture())
-        var hasDismissedBanner = try await subject.getPremiumUpgradeBannerDismissed(userId: nil)
-        XCTAssertFalse(hasDismissedBanner)
-
-        appSettingsStore.premiumUpgradeBannerDismissedByUserId["1"] = true
-        hasDismissedBanner = try await subject.getPremiumUpgradeBannerDismissed(userId: nil)
-        XCTAssertTrue(hasDismissedBanner)
-    }
-
-    /// `getPremiumUpgradeBannerDismissed(userId:)` throws errors if no user exists.
-    func test_getPremiumUpgradeBannerDismissed_error() async throws {
-        await assertAsyncThrows(error: StateServiceError.noActiveAccount) {
-            _ = try await subject.getPremiumUpgradeBannerDismissed(userId: nil)
-        }
-    }
-
     /// `getBiometricAuthenticationEnabled(:)` returns biometric unlock preference of the active user.
     func test_getBiometricAuthenticationEnabled_default() async throws {
         await subject.addAccount(.fixture())
@@ -2008,23 +1990,6 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
 
         await subject.setArchiveOnboardingShown(false)
         XCTAssertFalse(appSettingsStore.archiveOnboardingShown)
-    }
-
-    /// `setPremiumUpgradeBannerDismissed(_:)` sets whether the Premium upgrade banner has been dismissed.
-    func test_setPremiumUpgradeBannerDismissed() async throws {
-        await subject.addAccount(.fixture())
-        try await subject.setPremiumUpgradeBannerDismissed(true, userId: nil)
-        XCTAssertTrue(appSettingsStore.premiumUpgradeBannerDismissedByUserId["1"] ?? false)
-
-        try await subject.setPremiumUpgradeBannerDismissed(false, userId: nil)
-        XCTAssertFalse(appSettingsStore.premiumUpgradeBannerDismissedByUserId["1"] ?? true)
-    }
-
-    /// `setPremiumUpgradeBannerDismissed(_:userId:)` throws errors if no user exists.
-    func test_setPremiumUpgradeBannerDismissed_error() async throws {
-        await assertAsyncThrows(error: StateServiceError.noActiveAccount) {
-            try await subject.setPremiumUpgradeBannerDismissed(true, userId: nil)
-        }
     }
 
     /// `setUpgradedToPremiumActionCardVisible(_:)` throws errors if no user exists.
