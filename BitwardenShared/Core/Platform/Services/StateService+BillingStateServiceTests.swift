@@ -209,10 +209,10 @@ struct StateServiceBillingStateServiceTests {
         await subject.addAccount(.fixture())
 
         try await subject.setPremiumUpgradeLastSyncAttemptFailed(true)
-        #expect(appSettingsStore.premiumUpgradeSyncAttemptFailedByUserId["1"] == true)
+        #expect(appSettingsStore.premiumUpgradeLastSyncAttemptFailedByUserId["1"] == true)
 
         try await subject.setPremiumUpgradeLastSyncAttemptFailed(false)
-        #expect(appSettingsStore.premiumUpgradeSyncAttemptFailedByUserId["1"] == false)
+        #expect(appSettingsStore.premiumUpgradeLastSyncAttemptFailedByUserId["1"] == false)
     }
 
     /// `getPremiumUpgradePending(userId:)` and `setPremiumUpgradePending(_:userId:)` operate on the
