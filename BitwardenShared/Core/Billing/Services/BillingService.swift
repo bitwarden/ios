@@ -415,9 +415,7 @@ class DefaultBillingService: BillingService { // swiftlint:disable:this type_bod
 
     /// Refreshes the subscription attention card cache and reports whether the active account
     /// is eligible to participate in the Premium upgrade path at all (self-hosted/feature-flag
-    /// gated) — independent of whether Premium has already been granted. Used by
-    /// `reconcileCheckoutSuccess()`, where an already-Premium account reached via this method is
-    /// the success case, not a no-op.
+    /// gated), independent of whether Premium has already been granted.
     ///
     /// - Returns: Whether the active account is eligible for the Premium upgrade path.
     ///
