@@ -33,8 +33,6 @@ class MockStateService: StateService, ActiveAccountStateProvider, AutofillStateS
     var appRehydrationState = [String: AppRehydrationState]()
     var appTheme: AppTheme?
     var archiveOnboardingShown = false
-    var premiumUpgradeBannerDismissedByUserId = [String: Bool]()
-    var premiumUpgradeBannerDismissedResult: Result<Void, Error> = .success(())
 
     var biometricsEnabled = [String: Bool]()
     var capturedUserId: String?
@@ -297,12 +295,6 @@ class MockStateService: StateService, ActiveAccountStateProvider, AutofillStateS
 
     func getArchiveOnboardingShown() async -> Bool {
         archiveOnboardingShown
-    }
-
-    func getPremiumUpgradeBannerDismissed(userId: String?) async throws -> Bool {
-        try premiumUpgradeBannerDismissedResult.get()
-        let userId = try unwrapUserId(userId)
-        return premiumUpgradeBannerDismissedByUserId[userId] ?? false
     }
 
     func getClearClipboardValue(userId: String?) async throws -> ClearClipboardValue {
@@ -634,12 +626,6 @@ class MockStateService: StateService, ActiveAccountStateProvider, AutofillStateS
 
     func setArchiveOnboardingShown(_ shown: Bool) async {
         archiveOnboardingShown = shown
-    }
-
-    func setPremiumUpgradeBannerDismissed(_ dismissed: Bool, userId: String?) async throws {
-        try premiumUpgradeBannerDismissedResult.get()
-        let userId = try unwrapUserId(userId)
-        premiumUpgradeBannerDismissedByUserId[userId] = dismissed
     }
 
     func setClearClipboardValue(_ clearClipboardValue: ClearClipboardValue?, userId: String?) async throws {

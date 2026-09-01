@@ -198,7 +198,7 @@ struct VaultListProcessorBillingTests {
         await subject.perform(.dismissPremiumUpgradeActionCard)
 
         #expect(!subject.state.shouldShowPremiumUpgradeActionCard)
-        #expect(stateService.premiumUpgradeBannerDismissedByUserId["1"] == true)
+        #expect(billingStateService.setPremiumUpgradeBannerDismissedReceivedArguments?.dismissed == true)
     }
 
     /// `perform(_:)` with `.dismissUpgradedToPremiumActionCard` hides the upgraded-to-Premium
