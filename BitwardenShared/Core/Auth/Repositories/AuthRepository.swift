@@ -124,6 +124,15 @@ protocol AuthRepository: AnyObject {
     ///
     func isUserManagedByOrganization() async throws -> Bool
 
+    /// Whether the active (or given) user has opted in to sharing their session key across
+    /// the app and its extensions.
+    ///
+    /// - Parameter userId: The userId of the account. Defaults to the active user if nil.
+    /// - Returns: `true` if the user has opted in, `false` otherwise (including if no preference
+    ///   has been stored yet).
+    ///
+    func isUserSessionKeySharingEnabled(userId: String?) async throws -> Bool
+
     /// User leaves organization
     ///
     /// - Parameters:
@@ -253,6 +262,15 @@ protocol AuthRepository: AnyObject {
         organizationIdentifier: String,
         resetPasswordAutoEnroll: Bool,
     ) async throws
+
+    /// Sets whether the given user opts in to sharing their session key across the app and its
+    /// extensions, immediately capturing or purging `.userSessionKey` to match.
+    ///
+    /// - Parameters:
+    ///   - isEnabled: Whether the user opts in to sharing their session key.
+    ///   - userId: The userId of the account. Defaults to the active user if nil.
+    ///
+    func setUserSessionKeySharingEnabled(_ isEnabled: Bool, userId: String?) async throws
 
     /// Sets the SessionTimeoutValue.
     ///
@@ -409,6 +427,15 @@ extension AuthRepository {
         try await isPinUnlockAvailable(userId: nil)
     }
 
+    /// Whether the active user has opted in to sharing their session key across the app and its
+    /// extensions.
+    ///
+    /// - Returns: `true` if the user has opted in, `false` otherwise.
+    ///
+    func isUserSessionKeySharingEnabled() async throws -> Bool {
+        try await isUserSessionKeySharingEnabled(userId: nil)
+    }
+
     /// Locks the user's vault and clears decrypted data from memory
     /// - Parameters:
     ///   - userId: The userId of the account to lock. Defaults to active account if nil
@@ -449,6 +476,15 @@ extension AuthRepository {
     ///
     func sessionTimeoutValue() async throws -> SessionTimeoutValue {
         try await sessionTimeoutValue(userId: nil)
+    }
+
+    /// Sets whether the active user opts in to sharing their session key across the app and its
+    /// extensions, immediately capturing or purging `.userSessionKey` to match.
+    ///
+    /// - Parameter isEnabled: Whether the user opts in to sharing their session key.
+    ///
+    func setUserSessionKeySharingEnabled(_ isEnabled: Bool) async throws {
+        try await setUserSessionKeySharingEnabled(isEnabled, userId: nil)
     }
 
     /// Sets the SessionTimeoutValue upon the app being backgrounded.
@@ -878,6 +914,18 @@ extension DefaultAuthRepository: AuthRepository {
         return orgs.contains { $0.userIsManagedByOrganization }
     }
 
+    func isUserSessionKeySharingEnabled(userId: String?) async throws -> Bool {
+        let id = try await userIdOrActive(userId)
+        do {
+            let stored = try await keychainService.getUserAuthKeyValue(
+                for: .userSessionKeySharingEnabled(userId: id),
+            )
+            return stored == "true"
+        } catch KeychainServiceError.osStatusError(errSecItemNotFound), KeychainServiceError.keyNotFound {
+            return false
+        }
+    }
+
     func lockAllVaults(isManuallyLocking: Bool) async throws {
         let accounts = try await stateService.getAccounts()
         guard !accounts.isEmpty else {
@@ -1125,6 +1173,20 @@ extension DefaultAuthRepository: AuthRepository {
         try await vaultTimeoutService.setLastActiveTime(userId: userId)
     }
 
+    func setUserSessionKeySharingEnabled(_ isEnabled: Bool, userId: String?) async throws {
+        let id = try await userIdOrActive(userId)
+        try await keychainService.setUserAuthKey(
+            for: .userSessionKeySharingEnabled(userId: id),
+            value: isEnabled ? "true" : "false",
+        )
+
+        if isEnabled {
+            try await captureUserSessionKeyIfAllowed(userId: id)
+        } else {
+            try? await keychainService.deleteUserAuthKey(for: .userSessionKey(userId: id))
+        }
+    }
+
     func setVaultTimeout(value newValue: SessionTimeoutValue, userId: String?) async throws {
         // Ensure we have a user id.
         let id = try await userIdOrActive(userId)
@@ -1334,6 +1396,22 @@ extension DefaultAuthRepository: AuthRepository {
 
     // MARK: Private
 
+    /// Captures the active user's session key into `.userSessionKey` if the server feature flag,
+    /// the user's opt-in preference, and the current vault timeout value all allow it.
+    ///
+    /// - Parameter userId: The user ID whose session key should be captured.
+    ///
+    private func captureUserSessionKeyIfAllowed(userId: String) async throws {
+        let isFeatureEnabled: Bool = await configService.getFeatureFlag(.enableUserSessionKeySharing)
+        let isUserOptedIn = try await isUserSessionKeySharingEnabled(userId: userId)
+        let timeoutValue = try await vaultTimeoutService.sessionTimeoutValue(userId: userId)
+        guard isFeatureEnabled, isUserOptedIn, timeoutValue.allowsUserSessionKeySharing else { return }
+        try await keychainService.setUserAuthKey(
+            for: .userSessionKey(userId: userId),
+            value: clientService.crypto().getUserEncryptionKey(),
+        )
+    }
+
     /// A helper function to convert state service `Account`s to `ProfileSwitcherItem`s.
     ///
     /// - Returns: A list of available accounts as `[ProfileSwitcherItem]`.
@@ -1442,14 +1520,7 @@ extension DefaultAuthRepository: AuthRepository {
             errorReporter.log(error: error)
         }
         do {
-            let isFeatureEnabled = await configService.getFeatureFlag(.enableUserSessionKeySharing)
-            let timeoutValue = try await vaultTimeoutService.sessionTimeoutValue(userId: account.profile.userId)
-            if isFeatureEnabled, timeoutValue.allowsUserSessionKeySharing {
-                try await keychainService.setUserAuthKey(
-                    for: .userSessionKey(userId: account.profile.userId),
-                    value: clientService.crypto().getUserEncryptionKey(),
-                )
-            }
+            try await captureUserSessionKeyIfAllowed(userId: account.profile.userId)
         } catch {
             errorReporter.log(error: error)
         }

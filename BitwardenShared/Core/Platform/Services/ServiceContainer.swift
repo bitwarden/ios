@@ -1359,7 +1359,7 @@ extension ServiceContainer {
     /// Registers background tasks and starts any long-lived service observations that must begin
     /// at app launch.
     ///
-    func start() {
+    public func start() {
         backgroundSessionCleanupService.register()
         authRepository.startObservingUserSessionKeyFeatureFlag()
     }
