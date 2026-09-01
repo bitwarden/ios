@@ -39,6 +39,14 @@ final class VaultListProcessor: StateProcessor<
         & HasTimeProvider
         & HasVaultRepository
 
+    // MARK: Static Properties
+
+    /// The toast shown while the vault is taking an unusually long time to load. A new instance is
+    /// returned on each access so that the view animates between successive toasts.
+    private static var slowLoadingToast: Toast {
+        Toast(title: Localizations.thisIsTakingLongerThanExpected, mode: .manualDismiss)
+    }
+
     // MARK: Private Properties
 
     /// The `Coordinator` that handles navigation.
@@ -153,7 +161,7 @@ final class VaultListProcessor: StateProcessor<
     override func receive(_ action: VaultListAction) {
         switch action {
         case .addFolder:
-            coordinator.navigate(to: .addFolder)
+            coordinator.navigate(to: .addFolder, context: self)
         case let .addItemPressed(type):
             addItem(type: type)
         case .appReviewPromptShown:
@@ -367,6 +375,17 @@ extension VaultListProcessor {
         }
     }
 
+    /// Dismisses the toast shown while the vault is taking an unusually long time to load, if
+    /// that's the toast currently displayed.
+    ///
+    /// Any other toast is left in place, so that a toast shown in response to a folder or item
+    /// operation isn't cleared out from under the user when the vault list refreshes.
+    ///
+    private func dismissSlowLoadingToast() {
+        guard state.toast == Self.slowLoadingToast else { return }
+        state.toast = nil
+    }
+
     /// If the vault has ciphers which failed to decrypt, and the cipher decryption failure alert
     /// hasn't been shown yet, notify the user that a cipher(s) failed to decrypt.
     ///
@@ -495,11 +514,11 @@ extension VaultListProcessor {
                 try await Task.sleep(forSeconds: 5)
                 // If we already have data, don't show the toast
                 guard case .loading = self.state.loadingState else { return }
-                self.state.toast = Toast(title: Localizations.thisIsTakingLongerThanExpected, mode: .manualDismiss)
+                self.state.toast = Self.slowLoadingToast
             }
             defer {
-                state.toast = nil
                 takingTimeTask.cancel()
+                dismissSlowLoadingToast()
             }
 
             try await services.vaultRepository.fetchSync(
@@ -775,7 +794,7 @@ extension VaultListProcessor {
                 if !needsSync || !value.isEmpty {
                     // Dismiss the "this is taking a while" toast now that we have data,
                     // since this might not happen because of the sync in `refreshVault()`.
-                    state.toast = nil
+                    dismissSlowLoadingToast()
                     // If the data is not empty or if a sync is not needed, set the data.
                     state.loadingState = .data(value)
                 } else {
@@ -811,6 +830,22 @@ extension VaultListProcessor {
         premiumUpgradeHelper.startInAppPremiumUpgrade(onConfirmed: { [weak self] in
             await self?.handlePremiumUpgradeConfirmed()
         })
+    }
+}
+
+// MARK: - AddEditFolderDelegate
+
+extension VaultListProcessor: AddEditFolderDelegate {
+    func folderAdded(_: FolderView) {
+        state.toast = Toast(title: Localizations.folderCreated)
+    }
+
+    func folderDeleted() {
+        // No-op: deleting a folder isn't supported from the vault list.
+    }
+
+    func folderEdited() {
+        // No-op: editing a folder isn't supported from the vault list.
     }
 }
 
