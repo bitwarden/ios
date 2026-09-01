@@ -355,11 +355,18 @@ class AccountAPIServiceTests: BitwardenTestCase { // swiftlint:disable:this type
         client.result = .httpSuccess(testData: .emptyResponse)
 
         let requestModel = SetPasswordRequestModel(
-            kdfConfig: KdfConfig(),
-            key: "KEY",
             keys: KeysRequestModel(encryptedPrivateKey: "ENCRYPTED_PRIVATE_KEY", publicKey: "PUBLIC_KEY"),
-            masterPasswordHash: "MASTER_PASSWORD_HASH",
+            masterPasswordAuthentication: MasterPasswordAuthenticationDataRequestModel(
+                kdf: KdfConfig(),
+                masterPasswordAuthenticationHash: "MASTER_PASSWORD_HASH",
+                salt: "AUTHENTICATION_SALT",
+            ),
             masterPasswordHint: "MASTER_PASSWORD_HINT",
+            masterPasswordUnlock: MasterPasswordUnlockDataRequestModel(
+                kdf: KdfConfig(),
+                masterKeyWrappedUserKey: "KEY",
+                salt: "UNLOCK_SALT",
+            ),
             orgIdentifier: "ORG_ID",
         )
         try await subject.setPassword(requestModel)
@@ -402,10 +409,18 @@ class AccountAPIServiceTests: BitwardenTestCase { // swiftlint:disable:this type
         client.result = .httpSuccess(testData: .emptyResponse)
 
         let requestModel = UpdatePasswordRequestModel(
-            key: "KEY",
+            authenticationData: MasterPasswordAuthenticationDataRequestModel(
+                kdf: KdfConfig(),
+                masterPasswordAuthenticationHash: "NEW_MASTER_PASSWORD_HASH",
+                salt: "AUTHENTICATION_SALT",
+            ),
             masterPasswordHash: "MASTER_PASSWORD_HASH",
             masterPasswordHint: "MASTER_PASSWORD_HINT",
-            newMasterPasswordHash: "NEW_MASTER_PASSWORD_HASH",
+            unlockData: MasterPasswordUnlockDataRequestModel(
+                kdf: KdfConfig(),
+                masterKeyWrappedUserKey: "KEY",
+                salt: "UNLOCK_SALT",
+            ),
         )
         try await subject.updatePassword(requestModel)
 
@@ -420,9 +435,17 @@ class AccountAPIServiceTests: BitwardenTestCase { // swiftlint:disable:this type
         client.result = .httpSuccess(testData: .emptyResponse)
 
         let requestModel = UpdateTempPasswordRequestModel(
-            key: "KEY",
+            authenticationData: MasterPasswordAuthenticationDataRequestModel(
+                kdf: KdfConfig(),
+                masterPasswordAuthenticationHash: "NEW_MASTER_PASSWORD_HASH",
+                salt: "AUTHENTICATION_SALT",
+            ),
             masterPasswordHint: "MASTER_PASSWORD_HINT",
-            newMasterPasswordHash: "NEW_MASTER_PASSWORD_HASH",
+            unlockData: MasterPasswordUnlockDataRequestModel(
+                kdf: KdfConfig(),
+                masterKeyWrappedUserKey: "KEY",
+                salt: "UNLOCK_SALT",
+            ),
         )
         try await subject.updateTempPassword(requestModel)
 
