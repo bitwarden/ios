@@ -509,6 +509,10 @@ class DefaultBillingService: BillingService { // swiftlint:disable:this type_bod
             // sync can still throw after Premium was already confirmed. Only record a failure if
             // Premium wasn't actually granted, so a confirmed upgrade never persists a
             // contradictory flag.
+            //
+            // Accepted race: if `reconcileOnEachNewSync(userId:)` resolves this same sync
+            // concurrently, whichever call persists this flag last wins — `isPending` below is
+            // unaffected and is what actually gates the retry.
             try await billingStateService.setPremiumUpgradeLastSyncAttemptFailed(
                 syncFailed && !hasPremium,
                 userId: userId,
