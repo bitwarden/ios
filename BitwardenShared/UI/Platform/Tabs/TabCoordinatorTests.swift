@@ -295,7 +295,7 @@ class TabCoordinatorTests: BitwardenTestCase {
         let mockRoot = MockRootNavigator()
         mockRoot.rootViewController = UIViewController()
         tabNavigator.navigatorForTabReturns = mockRoot
-        policyService.policyAppliesToUserResult[.disableSend] = false
+        policyService.getSendPolicyOptionsResult.isSendDisabled = false
         vaultRepository.organizationsSubject = .init([])
 
         subject.start()
@@ -303,7 +303,7 @@ class TabCoordinatorTests: BitwardenTestCase {
 
         // Simulate the policy becoming active and a sync completing, signaled via the sync-complete
         // publisher alone (no new organizations-publisher emission).
-        policyService.policyAppliesToUserResult[.disableSend] = true
+        policyService.getSendPolicyOptionsResult.isSendDisabled = true
         syncService.syncCompleteSubject.send(())
 
         waitFor { self.tabNavigator.navigators.count == 3 }
@@ -317,13 +317,13 @@ class TabCoordinatorTests: BitwardenTestCase {
         let mockRoot = MockRootNavigator()
         mockRoot.rootViewController = UIViewController()
         tabNavigator.navigatorForTabReturns = mockRoot
-        policyService.policyAppliesToUserResult[.disableSend] = true
+        policyService.getSendPolicyOptionsResult.isSendDisabled = true
         vaultRepository.organizationsSubject = .init([])
 
         subject.start()
         waitFor { self.tabNavigator.navigators.count == 3 }
 
-        policyService.policyAppliesToUserResult[.disableSend] = false
+        policyService.getSendPolicyOptionsResult.isSendDisabled = false
         syncService.syncCompleteSubject.send(())
 
         waitFor { self.tabNavigator.navigators.count == 4 }

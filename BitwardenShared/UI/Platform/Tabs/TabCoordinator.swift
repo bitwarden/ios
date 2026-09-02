@@ -249,7 +249,7 @@ final class TabCoordinator: Coordinator, HasTabNavigator {
     private func streamSyncComplete() {
         syncCompleteStreamTask = Task { [policyService, syncService] in
             for await _ in syncService.syncCompletePublisher() {
-                let isSendDisabled = await policyService.policyAppliesToUser(.disableSend)
+                let isSendDisabled = await policyService.getSendPolicyOptions().isSendDisabled
                 await MainActor.run { [weak self] in
                     self?.updateTabs(isSendEnabled: !isSendDisabled)
                 }
