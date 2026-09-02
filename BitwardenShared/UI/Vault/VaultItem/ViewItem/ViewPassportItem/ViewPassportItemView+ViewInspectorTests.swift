@@ -114,6 +114,33 @@ class ViewPassportItemViewTests: BitwardenTestCase {
         )
     }
 
+    /// The passport number field asks VoiceOver to spell out its characters individually.
+    ///
+    /// - Note: ViewInspector doesn't support inspecting `speechSpellsOutCharacters`, so this
+    ///   verifies the flag is passed through to `PasswordText` rather than the final VoiceOver
+    ///   announcement, which should be confirmed with on-device VoiceOver testing.
+    @MainActor
+    func test_passportNumber_spellsOutCharacters() throws {
+        let passwordText = try subject.inspect().find(PasswordText.self) { view in
+            try view.actualView().password == "X12345678"
+        }.actualView()
+        XCTAssertTrue(passwordText.spellOutAccessibilityValue)
+    }
+
+    /// The national identification number field asks VoiceOver to spell out its characters
+    /// individually.
+    ///
+    /// - Note: ViewInspector doesn't support inspecting `speechSpellsOutCharacters`, so this
+    ///   verifies the flag is passed through to `PasswordText` rather than the final VoiceOver
+    ///   announcement, which should be confirmed with on-device VoiceOver testing.
+    @MainActor
+    func test_nationalIdentificationNumber_spellsOutCharacters() throws {
+        let passwordText = try subject.inspect().find(PasswordText.self) { view in
+            try view.actualView().password == "123456789"
+        }.actualView()
+        XCTAssertTrue(passwordText.spellOutAccessibilityValue)
+    }
+
     // MARK: Private
 
     /// Initializes the subject with the given state.

@@ -63,4 +63,20 @@ class PasswordHistoryListViewTests: BitwardenTestCase {
         try button.tap()
         XCTAssertEqual(processor.dispatchedActions.last, .copyPassword(passwordHistory))
     }
+
+    /// A password history row asks VoiceOver to spell out its characters individually.
+    ///
+    /// - Note: ViewInspector doesn't support inspecting `speechSpellsOutCharacters`, so this
+    ///   verifies the flag is passed through to `PasswordText` rather than the final VoiceOver
+    ///   announcement, which should be confirmed with on-device VoiceOver testing.
+    @MainActor
+    func test_passwordHistory_spellsOutCharacters() throws {
+        let passwordHistory = PasswordHistoryView.fixture(password: "8gr6uY8CLYQwzr#")
+        processor.state.passwordHistory = [passwordHistory]
+
+        let passwordText = try subject.inspect().find(PasswordText.self) { view in
+            try view.actualView().password == "8gr6uY8CLYQwzr#"
+        }.actualView()
+        XCTAssertTrue(passwordText.spellOutAccessibilityValue)
+    }
 }

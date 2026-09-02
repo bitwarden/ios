@@ -212,6 +212,20 @@ class GeneratorViewTests: BitwardenTestCase {
         XCTAssertEqual(processor.dispatchedActions.last, .textValueChanged(field: field, value: "!!"))
     }
 
+    /// The generated value field asks VoiceOver to spell out its characters individually.
+    ///
+    /// - Note: ViewInspector doesn't support inspecting `speechSpellsOutCharacters`, so this
+    ///   verifies the flag is passed through to `PasswordText` rather than the final VoiceOver
+    ///   announcement, which should be confirmed with on-device VoiceOver testing.
+    @MainActor
+    func test_generatedValue_spellsOutCharacters() throws {
+        processor.state.generatedValue = "Pa$$w0rd123"
+        let passwordText = try subject.inspect().find(PasswordText.self) { view in
+            try view.actualView().password == "Pa$$w0rd123"
+        }.actualView()
+        XCTAssertTrue(passwordText.spellOutAccessibilityValue)
+    }
+
     /// Updating the toggle value dispatches the `.toggleValueChanged()` action.
     @MainActor
     func test_toggleField_tap() throws {

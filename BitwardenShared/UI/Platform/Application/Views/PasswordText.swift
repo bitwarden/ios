@@ -17,7 +17,7 @@ struct PasswordText: View {
     /// A flag indicating whether VoiceOver should announce the password's characters
     /// individually (e.g. "1 2 3 4" instead of "one thousand two hundred thirty-four") rather
     /// than using its default heuristics for the rendered text.
-    var spellOutAccessibilityValue = false
+    var spellOutAccessibilityValue = true
 
     var body: some View {
         (
