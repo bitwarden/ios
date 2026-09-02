@@ -130,6 +130,8 @@ final class VaultGroupProcessor: StateProcessor<// swiftlint:disable:this type_b
             await checkPersonalOwnershipPolicy()
             await loadItemTypesUserCanCreate()
             await streamVaultList()
+        case let .itemPressed(item):
+            handleItemTapped(item)
         case let .morePressed(item):
             await vaultItemMoreOptionsHelper.showMoreOptionsAlert(
                 for: item,
@@ -172,21 +174,6 @@ final class VaultGroupProcessor: StateProcessor<// swiftlint:disable:this type_b
         case let .copyTOTPCode(code):
             services.pasteboardService.copy(code)
             state.toast = Toast(title: Localizations.valueHasBeenCopied(Localizations.verificationCode))
-        case let .itemPressed(item):
-            switch item.itemType {
-            case let .cipher(cipherListView, _):
-                if cipherListView.isDecryptionFailure, let cipherId = cipherListView.id {
-                    coordinator.showAlert(.cipherDecryptionFailure(cipherIds: [cipherId]) { stringToCopy in
-                        self.services.pasteboardService.copy(stringToCopy)
-                    })
-                } else {
-                    navigateToViewItem(cipherListView: cipherListView, id: item.id)
-                }
-            case let .group(group, _):
-                coordinator.navigate(to: .group(group, filter: state.vaultFilterType))
-            case let .totp(_, model):
-                navigateToViewItem(cipherListView: model.cipherListView, id: model.id)
-            }
         case .restartPremiumSubscription:
             state.url = services.environmentService.upgradeToPremiumURL
         case let .searchStateChanged(isSearching):
@@ -239,6 +226,37 @@ final class VaultGroupProcessor: StateProcessor<// swiftlint:disable:this type_b
         let itemTypes = await vaultRepository.getItemTypesUserCanCreate()
         guard generation == itemTypesLoadGeneration else { return } // A newer call superseded this one.
         state.itemTypesUserCanCreate = itemTypes
+    }
+
+    /// Dismisses the Premium upgrade action card and persists the banner-dismissed preference.
+    ///
+    private func dismissPremiumUpgradeActionCard() async {
+        do {
+            try await services.billingService.setPremiumUpgradeBannerDismissed()
+        } catch {
+            services.errorReporter.log(error: error)
+        }
+    }
+
+    /// Handles the user tapping a vault list item to open it.
+    ///
+    /// - Parameter item: The item that was tapped.
+    ///
+    private func handleItemTapped(_ item: VaultListItem) {
+        switch item.itemType {
+        case let .cipher(cipherListView, _):
+            if cipherListView.isDecryptionFailure, let cipherId = cipherListView.id {
+                coordinator.showAlert(.cipherDecryptionFailure(cipherIds: [cipherId]) { stringToCopy in
+                    self.services.pasteboardService.copy(stringToCopy)
+                })
+            } else {
+                navigateToViewItem(cipherListView: cipherListView, id: item.id)
+            }
+        case let .group(group, _):
+            coordinator.navigate(to: .group(group, filter: state.vaultFilterType))
+        case let .totp(_, model):
+            navigateToViewItem(cipherListView: model.cipherListView, id: model.id)
+        }
     }
 
     /// Navigates to the Premium upgrade flow. Uses the in-app upgrade path when available;
