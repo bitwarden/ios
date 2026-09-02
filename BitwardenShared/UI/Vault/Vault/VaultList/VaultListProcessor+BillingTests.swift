@@ -34,6 +34,10 @@ struct VaultListProcessorBillingTests {
         billingService.isSelfHostedReturnValue = false
         billingService.shouldShowSubscriptionAttentionCardReturnValue = false
         billingService.shouldShowUpgradedToPremiumActionCardReturnValue = false
+        billingService.premiumUpgradePendingStateReturnValue = PremiumUpgradePendingState(
+            isPending: false,
+            lastAttemptFailed: false,
+        )
         billingStateService = MockBillingStateService()
         billingStateService.isPremiumUpgradeBannerDismissedReturnValue = false
         coordinator = MockCoordinator()

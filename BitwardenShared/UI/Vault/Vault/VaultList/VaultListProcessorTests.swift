@@ -63,6 +63,10 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         billingService.isSelfHostedReturnValue = false
         billingService.shouldShowSubscriptionAttentionCardReturnValue = false
         billingService.shouldShowUpgradedToPremiumActionCardReturnValue = false
+        billingService.premiumUpgradePendingStateReturnValue = PremiumUpgradePendingState(
+            isPending: false,
+            lastAttemptFailed: false,
+        )
         billingStateService = MockBillingStateService()
         billingStateService.isPremiumUpgradeBannerDismissedReturnValue = false
         errorReporter = MockErrorReporter()
@@ -715,6 +719,32 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         XCTAssertFalse(subject.state.hasPremium)
     }
 
+    /// `perform(_:)` with `.appeared` hides the Premium upgrade action card when an upgrade is
+    /// currently pending, even when the banner isn't dismissed and in-app upgrade is available.
+    @MainActor
+    func test_perform_appeared_premiumUpgradeActionCard_hiddenWhilePending() async {
+        billingRepository.isInAppUpgradeAvailableReturnValue = true
+        billingService.premiumUpgradePendingStateReturnValue = PremiumUpgradePendingState(
+            isPending: true,
+            lastAttemptFailed: false,
+        )
+
+        await subject.perform(.appeared)
+
+        XCTAssertFalse(subject.state.shouldShowPremiumUpgradeActionCard)
+    }
+
+    /// `perform(_:)` with `.appeared` shows the Premium upgrade action card when no upgrade is
+    /// pending and the other gating conditions allow it.
+    @MainActor
+    func test_perform_appeared_premiumUpgradeActionCard_shownWhenNotPending() async {
+        billingRepository.isInAppUpgradeAvailableReturnValue = true
+
+        await subject.perform(.appeared)
+
+        XCTAssertTrue(subject.state.shouldShowPremiumUpgradeActionCard)
+    }
+
     /// `perform(_:)` with `.dismissArchiveOnboardingActionCard` dismisses the archive onboarding card
     /// and sets the archive onboarding shown property to true.
     @MainActor
@@ -1221,6 +1251,53 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         task.cancel()
 
         XCTAssertEqual(errorReporter.errors.last as? BitwardenTestError, .example)
+    }
+
+    /// `perform(_:)` with `.streamPremiumUpgradePendingState` hides the Premium upgrade action
+    /// card immediately when the publisher emits a pending state, without requiring a fresh
+    /// `.appeared`.
+    @MainActor
+    func test_perform_streamPremiumUpgradePendingState_hidesActionCard() {
+        billingRepository.isInAppUpgradeAvailableReturnValue = true
+        subject.state.shouldShowPremiumUpgradeActionCard = false
+        let pendingStateSubject = CurrentValueSubject<PremiumUpgradePendingState, Never>(
+            PremiumUpgradePendingState(isPending: false, lastAttemptFailed: false),
+        )
+        billingService.premiumUpgradePendingStatePublisherReturnValue = pendingStateSubject.eraseToAnyPublisher()
+
+        let task = Task {
+            await subject.perform(.streamPremiumUpgradePendingState)
+        }
+
+        // Confirm the initial (not pending) emission actually shows the card, so the
+        // subsequent hide below is a genuine transition and not already the default state.
+        waitFor(subject.state.shouldShowPremiumUpgradeActionCard == true)
+
+        pendingStateSubject.send(PremiumUpgradePendingState(isPending: true, lastAttemptFailed: false))
+        waitFor(subject.state.shouldShowPremiumUpgradeActionCard == false)
+
+        task.cancel()
+    }
+
+    /// `perform(_:)` with `.streamPremiumUpgradePendingState` re-shows the Premium upgrade
+    /// action card once the publisher reports the upgrade is no longer pending.
+    @MainActor
+    func test_perform_streamPremiumUpgradePendingState_showsActionCardWhenResolved() {
+        billingRepository.isInAppUpgradeAvailableReturnValue = true
+        subject.state.shouldShowPremiumUpgradeActionCard = false
+        let pendingStateSubject = CurrentValueSubject<PremiumUpgradePendingState, Never>(
+            PremiumUpgradePendingState(isPending: true, lastAttemptFailed: false),
+        )
+        billingService.premiumUpgradePendingStatePublisherReturnValue = pendingStateSubject.eraseToAnyPublisher()
+
+        let task = Task {
+            await subject.perform(.streamPremiumUpgradePendingState)
+        }
+
+        pendingStateSubject.send(PremiumUpgradePendingState(isPending: false, lastAttemptFailed: false))
+        waitFor(subject.state.shouldShowPremiumUpgradeActionCard == true)
+
+        task.cancel()
     }
 
     /// `perform(_:)` with `.streamShowWebIcons` requests the value of the show
