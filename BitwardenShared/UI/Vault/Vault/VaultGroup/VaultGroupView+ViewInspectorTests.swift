@@ -106,15 +106,15 @@ class VaultGroupViewTests: BitwardenTestCase {
         XCTAssertEqual(processor.dispatchedActions.last, .addItemPressed(.card))
     }
 
-    /// Tapping a vault item dispatches the `.itemPressed` action.
+    /// Tapping a vault item dispatches the `.itemPressed` effect.
     @MainActor
-    func test_vaultItem_tap() throws {
+    func test_vaultItem_tap() async throws {
         let item = VaultListItem.fixture(cipherListView: .fixture(name: "Item"))
         let section = VaultListSection(id: "Items", items: [item], name: Localizations.items)
         processor.state.loadingState = .data([section])
-        let button = try subject.inspect().find(button: "Item")
-        try button.tap()
-        XCTAssertEqual(processor.dispatchedActions.last, .itemPressed(item))
+        let button = try subject.inspect().find(asyncButton: "Item")
+        try await button.tap()
+        XCTAssertEqual(processor.effects.last, .itemPressed(item))
     }
 
     /// Tapping the vault item copy totp button dispatches the `.copyTOTPCode` action.

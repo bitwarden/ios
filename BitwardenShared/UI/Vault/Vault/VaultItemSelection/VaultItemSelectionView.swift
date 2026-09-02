@@ -219,31 +219,29 @@ private struct VaultItemSelectionSearchableView: View {
     /// A view for displaying a `VaultListItem`.
     @ViewBuilder
     private func vaultListItemView(_ item: VaultListItem, hasDivider: Bool) -> some View {
-        AsyncButton {
-            await store.perform(.vaultListItemTapped(item))
-        } label: {
-            VaultListItemRowView(
-                store: store.child(
-                    state: { state in
-                        VaultListItemRowState(
-                            iconBaseURL: state.iconBaseURL,
-                            isVfo1FoundationFeatureFlagEnabled: state.isVfo1FoundationFeatureFlagEnabled,
-                            item: item,
-                            hasDivider: hasDivider,
-                            showWebIcons: state.showWebIcons,
-                        )
-                    },
-                    mapAction: nil, // No actions are supported (TOTP copy is handled by the more pressed effect).
-                    mapEffect: { effect in
-                        switch effect {
-                        case .morePressed:
-                            .morePressed(item)
-                        }
-                    },
-                ),
-                timeProvider: CurrentTime(),
-            )
-        }
+        VaultListItemRowView(
+            store: store.child(
+                state: { state in
+                    VaultListItemRowState(
+                        iconBaseURL: state.iconBaseURL,
+                        isVfo1FoundationFeatureFlagEnabled: state.isVfo1FoundationFeatureFlagEnabled,
+                        item: item,
+                        hasDivider: hasDivider,
+                        showWebIcons: state.showWebIcons,
+                    )
+                },
+                mapAction: nil, // No actions are supported (TOTP copy is handled by the more pressed effect).
+                mapEffect: { effect in
+                    switch effect {
+                    case .morePressed:
+                        .morePressed(item)
+                    case .pressed:
+                        .vaultListItemTapped(item)
+                    }
+                },
+            ),
+            timeProvider: CurrentTime(),
+        )
     }
 }
 

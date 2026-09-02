@@ -30,6 +30,12 @@ enum VaultListEffect: Equatable {
     /// The user tapped the dismiss button on the Upgraded to Premium action card.
     case dismissUpgradedToPremiumActionCard
 
+    /// An item in the vault list was tapped to be opened.
+    ///
+    /// - Parameter item: The item that was tapped.
+    ///
+    case itemPressed(_ item: VaultListItem)
+
     /// The more button on an item in the vault group was tapped.
     ///
     /// - Parameter item: The item associated with the more button that was tapped.

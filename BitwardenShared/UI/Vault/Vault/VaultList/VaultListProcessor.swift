@@ -132,6 +132,8 @@ final class VaultListProcessor: StateProcessor<
         case .dismissUpgradedToPremiumActionCard:
             state.shouldShowUpgradedToPremiumActionCard = false
             await services.billingService.setUpgradedToPremiumActionCardDismissed()
+        case let .itemPressed(item):
+            handleItemTapped(item)
         case let .morePressed(item):
             await morePressed(item: item)
         case let .profileSwitcher(profileEffect):
@@ -173,8 +175,6 @@ final class VaultListProcessor: StateProcessor<
             reviewPromptTask?.cancel()
         case .goToArchive:
             coordinator.navigate(to: .group(.archive, filter: state.vaultFilterType))
-        case let .itemPressed(item):
-            handleItemTapped(item)
         case .learnMoreAboutPremium:
             state.url = ExternalLinksConstants.learnMoreAboutPremium
             state.shouldShowUpgradedToPremiumActionCard = false
