@@ -125,15 +125,11 @@ private struct SearchableVaultListView: View {
                     searchVaultFilterRow
 
                     ForEach(store.state.searchResults) { item in
-                        Button {
-                            store.send(.itemPressed(item: item))
-                        } label: {
-                            vaultItemRow(
-                                for: item,
-                                isLastInSection: store.state.searchResults.last == item,
-                            )
-                            .background(SharedAsset.Colors.backgroundSecondary.swiftUIColor)
-                        }
+                        vaultItemRow(
+                            for: item,
+                            isLastInSection: store.state.searchResults.last == item,
+                        )
+                        .background(SharedAsset.Colors.backgroundSecondary.swiftUIColor)
                     }
                 }
             }
@@ -251,11 +247,7 @@ private struct SearchableVaultListView: View {
                         send: { .sectionExpandToggled(sectionId: section.id, isExpanded: $0) },
                     ),
                 ) { item in
-                    Button {
-                        store.send(.itemPressed(item: item))
-                    } label: {
-                        vaultItemRow(for: item, isLastInSection: section.items.last == item)
-                    }
+                    vaultItemRow(for: item, isLastInSection: section.items.last == item)
                 }
             }
         }
@@ -293,6 +285,8 @@ private struct SearchableVaultListView: View {
                     switch effect {
                     case .morePressed:
                         .morePressed(item)
+                    case .pressed:
+                        .itemPressed(item)
                     }
                 },
             ),
