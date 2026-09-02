@@ -225,9 +225,9 @@ final class TabCoordinator: Coordinator, HasTabNavigator {
         return sendNav
     }
 
-    /// Streams the user's organizations, updating the vault title and send tab visibility reactively.
+    /// Streams the user's organizations, updating the vault title reactively.
     private func streamOrganizations() {
-        organizationStreamTask = Task { [errorReporter, tabNavigator, vaultRepository, policyService] in
+        organizationStreamTask = Task { [errorReporter, tabNavigator, vaultRepository] in
             do {
                 for try await organizations in try await vaultRepository.organizationsPublisher() {
                     guard let navigator = tabNavigator?.navigator(for: TabRoute.vault(.list)) else { return }
@@ -236,11 +236,6 @@ final class TabCoordinator: Coordinator, HasTabNavigator {
                         navigator.rootViewController?.title = Localizations.myVault
                     } else {
                         navigator.rootViewController?.title = Localizations.vaults
-                    }
-
-                    let isSendDisabled = await policyService.getSendPolicyOptions().isSendDisabled
-                    await MainActor.run { [weak self] in
-                        self?.updateTabs(isSendEnabled: !isSendDisabled)
                     }
                 }
             } catch {

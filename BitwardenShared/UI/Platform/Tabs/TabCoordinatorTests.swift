@@ -10,7 +10,7 @@ import XCTest
 
 // MARK: - TabCoordinatorTests
 
-class TabCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this type_body_length
+class TabCoordinatorTests: BitwardenTestCase {
     // MARK: Properties
 
     var errorReporter: MockErrorReporter!
@@ -285,27 +285,6 @@ class TabCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         waitFor(!errorReporter.errors.isEmpty)
         let error = try XCTUnwrap(errorReporter.errors.first as? BitwardenTestError)
         XCTAssertEqual(error, expectedError)
-    }
-
-    /// The organization stream reactively updates the Send tab visibility when the policy changes mid-session.
-    @MainActor
-    func test_start_organizationStream_updatesSendTabVisibility() {
-        let mockRoot = MockRootNavigator()
-        mockRoot.rootViewController = UIViewController()
-        tabNavigator.navigatorForTabReturns = mockRoot
-        policyService.getSendPolicyOptionsResult.isSendDisabled = false
-        vaultRepository.organizationsSubject = .init([])
-
-        subject.start()
-        // start() calls updateTabs(isSendEnabled: true) synchronously — 4 tabs immediately.
-        XCTAssertEqual(tabNavigator.navigators.count, 4)
-
-        // Simulate an org stream event while the policy is now active.
-        policyService.getSendPolicyOptionsResult.isSendDisabled = true
-        vaultRepository.organizationsSubject.send([])
-
-        waitFor { self.tabNavigator.navigators.count == 3 }
-        XCTAssertEqual(tabNavigator.navigators.count, 3)
     }
 
     /// The sync-complete stream reactively hides the Send tab when the policy becomes active, even
