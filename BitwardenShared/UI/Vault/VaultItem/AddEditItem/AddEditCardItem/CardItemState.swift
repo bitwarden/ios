@@ -56,6 +56,21 @@ extension CardItemState {
             number: cardNumber.nilIfEmpty,
         )
     }
+
+    /// Returns a copy of the state with the card scanner's state copied over from another state.
+    ///
+    /// The card scanner's state is driven by the feature flag and the UI rather than by the cipher,
+    /// so it needs to be carried over whenever the state is rebuilt from an updated cipher.
+    ///
+    /// - Parameter other: The state to copy the card scanner's state from.
+    /// - Returns: A copy of the state with the card scanner's state applied.
+    ///
+    func preservingCardScannerState(from other: CardItemState) -> CardItemState {
+        var state = self
+        state.cardScannerEnabled = other.cardScannerEnabled
+        state.isCardScannerPresented = other.isCardScannerPresented
+        return state
+    }
 }
 
 // MARK: AddEditCardItemState
