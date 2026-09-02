@@ -8,9 +8,8 @@ import XCTest
 /// Tests for `CardScannerView` and its `Coordinator`.
 ///
 /// `CardScannerWrapperView`'s retry/foreground-resume logic and its `GeometryReader` size measurement
-/// are driven by SwiftUI `@State` and cannot be meaningfully exercised without a live view host, so
-/// they are not covered here. Neither is `updateUIViewController` applying the region of interest,
-/// which needs a representable `Context` that cannot be constructed in a test.
+/// need a live view host, so they are not covered here. Neither is `updateUIViewController`, which
+/// needs a representable `Context` that a test cannot construct.
 ///
 @available(iOS 16.0, *)
 class CardScannerViewTests: BitwardenTestCase {
@@ -70,8 +69,7 @@ class CardScannerViewTests: BitwardenTestCase {
     }
 
     /// `regionOfInterest(in:)` centers the region on the bounds it is given rather than assuming an
-    /// origin of zero. The only production caller passes a zero origin, so this covers the general
-    /// contract of the function rather than a path the app exercises today.
+    /// origin of zero.
     @MainActor
     func test_regionOfInterest_nonZeroOrigin_centersOnBounds() throws {
         let region = try XCTUnwrap(CardScannerView.regionOfInterest(in: CGRect(x: 20, y: 50, width: 400, height: 800)))
@@ -82,8 +80,8 @@ class CardScannerViewTests: BitwardenTestCase {
         XCTAssertEqual(region.height, 314.799, accuracy: 0.001)
     }
 
-    /// `regionOfInterest(in:)` clamps the region's height to the bounds, so that a view too short to
-    /// contain a card-shaped region still yields a region that fits inside it.
+    /// `regionOfInterest(in:)` clamps the region's height to bounds too short to contain a
+    /// card-shaped region.
     @MainActor
     func test_regionOfInterest_boundsShorterThanCard_clampsHeight() throws {
         let region = try XCTUnwrap(CardScannerView.regionOfInterest(in: CGRect(x: 0, y: 0, width: 400, height: 200)))
@@ -94,8 +92,8 @@ class CardScannerViewTests: BitwardenTestCase {
         XCTAssertEqual(region.height, 200, accuracy: 0.001)
     }
 
-    /// `regionOfInterest(in:)` returns `nil` for empty bounds, so that text is recognized across the
-    /// whole view rather than within a degenerate region while the view is still being laid out.
+    /// `regionOfInterest(in:)` returns `nil` for empty bounds, so no region is applied while the
+    /// view is still being laid out.
     @MainActor
     func test_regionOfInterest_emptyBounds_returnsNil() {
         XCTAssertNil(CardScannerView.regionOfInterest(in: .zero))

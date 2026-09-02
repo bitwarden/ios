@@ -28,9 +28,8 @@ struct CardScannerWrapperView: View {
     /// resets on each `.onAppear`. Foreground-triggered restarts do not count against this budget.
     @SwiftUI.State private var scannerRetryCount = 0
 
-    /// The scanner's laid-out size, measured by a background `GeometryReader`. Passed down so that a
-    /// size change — a rotation, most importantly — re-invokes `updateUIViewController` and the
-    /// region of interest is re-derived instead of going stale.
+    /// The scanner's laid-out size, measured by a background `GeometryReader`. Passed down so that
+    /// a size change, a rotation most importantly, re-derives the region of interest.
     @SwiftUI.State private var scannerViewSize: CGSize = .zero
 
     /// Dismisses the sheet when the scanner gives up after exhausting retries.
@@ -52,8 +51,8 @@ struct CardScannerWrapperView: View {
                     onScannerUnavailable: restartScanning,
                 )
                 .background {
-                    // Measures the scanner itself, before the padding below is applied. A background
-                    // is used rather than wrapping the scanner so that measuring cannot affect layout.
+                    // A background measures the scanner before the padding below is applied,
+                    // without affecting layout.
                     GeometryReader { proxy in
                         Color.clear
                             .onAppear { scannerViewSize = proxy.size }
@@ -124,9 +123,8 @@ struct CardScannerWrapperView: View {
 ///
 /// - `isScanning` drives `startScanning()`/`stopScanning()` via `updateUIViewController`,
 ///   toggled by the wrapper's `.onAppear`/`.onDisappear`.
-/// - `viewSize` drives the scanner's region of interest, so that it is re-derived whenever the view
-///   is resized rather than only when scanning starts. Scanning also waits on it, so that no frame is
-///   ever recognized before the region is in place.
+/// - `viewSize` drives the region of interest, re-deriving it whenever the view is resized. Scanning
+///   waits on it, so no frame is recognized before the region is in place.
 ///
 @available(iOS 16.0, *)
 struct CardScannerView: UIViewControllerRepresentable {
@@ -142,9 +140,8 @@ struct CardScannerView: UIViewControllerRepresentable {
     /// When `true`, scanning is active; when `false`, scanning is stopped.
     @Binding var isScanning: Bool
 
-    /// The scanner's laid-out size, supplied by the wrapper. The region of interest is derived from
-    /// this rather than read from the view controller, because SwiftUI has finished laying out by the
-    /// time it changes, whereas the view controller's own bounds may not have been updated yet.
+    /// The scanner's laid-out size, supplied by the wrapper. Used to derive the region of interest,
+    /// since the view controller's own bounds may not have been updated yet.
     let viewSize: CGSize
 
     /// Called when `startScanning()` throws or the scanner becomes unavailable at runtime
@@ -162,20 +159,15 @@ struct CardScannerView: UIViewControllerRepresentable {
 
     /// Returns the region of the scanner's view that text should be recognized within.
     ///
-    /// `DataScannerViewController` recognizes text across its whole view by default, which means a
-    /// card scanned from a screen also picks up any other text on that screen — a date in a calendar
-    /// or a spreadsheet is read as the card's expiration date just as readily as one printed on the
-    /// card. Restricting recognition to a card-shaped region centered in the view keeps text above
-    /// and below the card out of the scan.
-    ///
-    /// The region spans most of the view's width, since that is how a card is held, and takes its
-    /// height from the card's own aspect ratio rather than a proportion of the view — the view's
-    /// height varies by device and by how the sheet is laid out, whereas a card's shape does not.
-    /// The height is clamped to the view so that a short view still yields a valid region.
+    /// `DataScannerViewController` recognizes text across its whole view by default, so a card
+    /// scanned from a screen also picks up unrelated text, such as a date in a calendar. A
+    /// card-shaped region centered in the view keeps that text out of the scan. It spans most of the
+    /// view's width, takes its height from the card's aspect ratio, and clamps that height to the
+    /// view so a short view still yields a valid region.
     ///
     /// - Parameter bounds: The bounds of the scanner's view.
-    /// - Returns: The region to recognize text within, or `nil` to recognize text across the whole
-    ///     view when `bounds` is empty and no meaningful region can be derived.
+    /// - Returns: The region to recognize text within, or `nil` when `bounds` is empty and text
+    ///     should be recognized across the whole view.
     ///
     static func regionOfInterest(in bounds: CGRect) -> CGRect? {
         guard !bounds.isEmpty else { return nil }
@@ -227,10 +219,8 @@ struct CardScannerView: UIViewControllerRepresentable {
             uiViewController.regionOfInterest = region
         }
 
-        // Scanning waits until a region has been derived. Starting before then would recognize text
-        // across the whole view for the first frames — precisely what the region exists to prevent.
-        // The wrapper's `GeometryReader` reports a size as soon as the scanner is laid out, which
-        // re-invokes this method, so the wait lasts a single layout pass.
+        // Wait for a region before scanning, otherwise the first frames recognize text across the
+        // whole view. The wrapper reports a size once laid out, so the wait is a single layout pass.
         guard isScanning, region != nil else {
             uiViewController.stopScanning()
             return

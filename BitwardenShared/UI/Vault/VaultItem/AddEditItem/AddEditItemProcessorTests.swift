@@ -2323,9 +2323,8 @@ class AddEditItemProcessorTests: BitwardenTestCase {
         XCTAssertEqual(subject.state.cardItemState.brand, .custom(.visa))
     }
 
-    /// `receive(_:)` with `.cardFieldChanged(.cardScannerLinesUpdated)` for a card that has no
-    /// printed expiration date dismisses the scanner and populates the card number and brand, while
-    /// leaving the expiration fields empty rather than filling them with a date the scan never read.
+    /// `receive(_:)` with `.cardFieldChanged(.cardScannerLinesUpdated)` for a card with no printed
+    /// expiration date populates the card number and brand, leaving the expiration fields empty.
     @MainActor
     func test_receive_cardFieldChanged_cardScannerLinesUpdated_noExpiration() {
         cardTextParser.parseCardReturnValue = .fixture(

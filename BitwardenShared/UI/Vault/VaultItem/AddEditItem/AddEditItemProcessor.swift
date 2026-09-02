@@ -299,9 +299,8 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
     // MARK: Private Methods
 
     /// Applies a parsed card scan result to the item state, dismissing the scanner on success.
-    /// Only applies if a card number was detected; the expiration month and year are each applied
-    /// only when the scan found them, so a card with no printed expiration date leaves those fields
-    /// empty rather than filled with a value the scan never actually read.
+    /// Requires a card number; the expiration month and year are applied only when the scan found
+    /// them, so a card with no printed expiration date leaves those fields empty.
     ///
     /// - Parameters:
     ///   - state: The item state to update.

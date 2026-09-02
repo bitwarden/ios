@@ -25,8 +25,8 @@ final class DefaultCardTextParser: CardTextParser {
         pattern: #"(?<!\d)(\d[ \-]?){12,18}\d(?!\d)"#,
     )
 
-    /// Regex that matches an expiry date in MM/YY or MM/YYYY format. The year is either two or four
-    /// digits — a three digit run is OCR noise rather than a year, and must not be accepted.
+    /// Regex that matches an expiry date in MM/YY or MM/YYYY format. A three digit year is rejected
+    /// as OCR noise.
     private static let expiryRegex = try? NSRegularExpression(
         pattern: #"\b(0?[1-9]|1[0-2])\s*/\s*(\d{2}|\d{4})\b"#,
     )
@@ -34,8 +34,8 @@ final class DefaultCardTextParser: CardTextParser {
     /// The most digits a payment card number can have.
     private static let maximumCardNumberDigits = 19
 
-    /// The fewest digits a payment card number can have. Doubles as the threshold that separates a
-    /// card number from an expiration date, since an expiry carries only four to six digits.
+    /// The fewest digits a payment card number can have. Also separates a card number from an
+    /// expiry, which carries at most six digits.
     private static let minimumCardNumberDigits = 13
 
     // MARK: Properties
@@ -47,8 +47,7 @@ final class DefaultCardTextParser: CardTextParser {
 
     /// Initializes a `DefaultCardTextParser`.
     ///
-    /// - Parameter timeProvider: Provides the present time, used to bound a scanned expiration year
-    ///     to a plausible range.
+    /// - Parameter timeProvider: Provides the present time, used to bound the expiration year.
     ///
     init(timeProvider: TimeProvider) {
         self.timeProvider = timeProvider
@@ -124,15 +123,10 @@ final class DefaultCardTextParser: CardTextParser {
 
     /// Extracts an expiry month (1–12) and 4-digit year from a line of text.
     ///
-    /// A line carrying as many digits as a card number is skipped entirely. OCR routinely reads a
-    /// digit, or a group separator, inside a card number as `/`, which leaves behind something shaped
-    /// exactly like an expiry — `"5/33 6195 0371 5702"` parses as May 2033 despite no date being
-    /// printed on the card. A card number carries at least 13 digits and an expiry carries four to
-    /// six, so the digit count tells them apart. A genuine expiry that OCR merged onto the same line
-    /// as the card number is skipped too; leaving the field empty is the safer of the two failures.
-    ///
-    /// Of the remaining matches the last plausible one wins, so a card printing both a "valid from"
-    /// and a "valid thru" date yields the expiry rather than the start date.
+    /// Lines carrying a card number's worth of digits are skipped: OCR often reads a digit or a
+    /// group separator within a card number as `/`, so `"5/33 6195 0371 5702"` would otherwise parse
+    /// as May 2033. Of the remaining matches the last plausible one wins, so a card printing both a
+    /// "valid from" and a "valid thru" date yields the expiry.
     private func extractExpiry(from line: String) -> (month: Int, year: String)? {
         guard let regex = Self.expiryRegex,
               line.filter(\.isNumber).count < Self.minimumCardNumberDigits

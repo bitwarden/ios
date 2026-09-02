@@ -12,8 +12,8 @@ struct CardTextParserTests {
 
     let subject: DefaultCardTextParser
 
-    /// A fixed present time, so the plausible expiration year range the parser applies stays stable
-    /// and the fixtures below never rot. Mid-year, so the calendar year is 2025 in every time zone.
+    /// A fixed present time, so the parser's plausible expiration year range stays stable. Mid-year,
+    /// so the calendar year is 2025 in every time zone.
     let timeProvider = MockTimeProvider(.mockTime(Date(timeIntervalSince1970: 1_751_328_000)))
 
     // MARK: Setup
@@ -82,8 +82,7 @@ struct CardTextParserTests {
     }
 
     /// `parseCard(lines:)` does not read an expiry off a line carrying a card number's worth of
-    /// digits. OCR reading a digit or a group separator as `/` leaves a card number looking exactly
-    /// like a date, which is how a card with no printed expiry ends up with one.
+    /// digits, since OCR reading a digit or separator as `/` makes a card number look like a date.
     @Test(arguments: [
         ["5/33 6195 0371 5702"],
         ["5333 6/95 0371 5702"],
@@ -119,8 +118,8 @@ struct CardTextParserTests {
         #expect(result.expirationYear == expectedYear)
     }
 
-    /// `parseCard(lines:)` reads the card number and the expiry when the sample card from PM-37883 is
-    /// scanned with a misread slash in its number, leaving the expiry empty because the card has none.
+    /// `parseCard(lines:)` reads the card number from the PM-37883 sample card scanned with a
+    /// misread slash in it, leaving the expiry empty because the card has none.
     @Test
     func parseCard_sampleCardWithMisreadSlash_hasNoExpiry() {
         let result = subject.parseCard(lines: ["5333 6195 0371 5702", "5/33 6195 0371 5702"])
