@@ -47,6 +47,24 @@ class AlertBillingTests: BitwardenTestCase {
         XCTAssertEqual(tryAgainAction.style, .default)
     }
 
+    /// `syncUnsuccessful(tryAgainHandler:)` builds an `Alert` with the correct title, message, and actions.
+    func test_syncUnsuccessful() {
+        let subject = Alert.syncUnsuccessful {}
+
+        XCTAssertEqual(subject.title, Localizations.syncUnsuccessful)
+        XCTAssertEqual(subject.message, Localizations.weCouldntSyncYourVaultWithTheServerDescriptionLong)
+        XCTAssertEqual(subject.preferredStyle, .alert)
+        XCTAssertEqual(subject.alertActions.count, 2)
+
+        let notNowAction = subject.alertActions[0]
+        XCTAssertEqual(notNowAction.title, Localizations.notNow)
+        XCTAssertEqual(notNowAction.style, .cancel)
+
+        let tryAgainAction = subject.alertActions[1]
+        XCTAssertEqual(tryAgainAction.title, Localizations.tryAgain)
+        XCTAssertEqual(tryAgainAction.style, .default)
+    }
+
     /// `upgradePending(syncNowHandler:)` builds an `Alert` with the correct title, message, and actions.
     func test_upgradePending() {
         let subject = Alert.upgradePending {}
