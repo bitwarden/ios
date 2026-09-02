@@ -165,15 +165,11 @@ struct VaultGroupView: View {
                     searchVaultFilterRow
 
                     ForEach(store.state.searchResults) { item in
-                        Button {
-                            store.send(.itemPressed(item))
-                        } label: {
-                            vaultItemRow(
-                                for: item,
-                                isLastInSection: store.state.searchResults.last == item,
-                            )
-                            .background(SharedAsset.Colors.backgroundSecondary.swiftUIColor)
-                        }
+                        vaultItemRow(
+                            for: item,
+                            isLastInSection: store.state.searchResults.last == item,
+                        )
+                        .background(SharedAsset.Colors.backgroundSecondary.swiftUIColor)
                     }
                 }
             }
@@ -225,11 +221,7 @@ struct VaultGroupView: View {
 
             ForEach(sections) { section in
                 VaultListSectionView(section: section) { item in
-                    Button {
-                        store.send(.itemPressed(item))
-                    } label: {
-                        vaultItemRow(for: item, isLastInSection: section.items.last == item)
-                    }
+                    vaultItemRow(for: item, isLastInSection: section.items.last == item)
                 }
             }
         }
@@ -266,6 +258,8 @@ struct VaultGroupView: View {
                     switch effect {
                     case .morePressed:
                         .morePressed(item)
+                    case .pressed:
+                        .itemPressed(item)
                     }
                 },
             ),
