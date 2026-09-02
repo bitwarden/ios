@@ -759,9 +759,7 @@ extension VaultListProcessor {
     }
 
     /// Streams live updates to the Premium upgrade pending state, hiding or re-evaluating the
-    /// upsell action card immediately rather than waiting for the next screen appearance —
-    /// needed because dismissing the "Upgrade Pending" alert returns to this same screen
-    /// without a fresh `.appeared`.
+    /// upsell action card as it changes.
     ///
     private func streamPremiumUpgradePendingState() async {
         for await pendingState in services.billingService.premiumUpgradePendingStatePublisher().values {
