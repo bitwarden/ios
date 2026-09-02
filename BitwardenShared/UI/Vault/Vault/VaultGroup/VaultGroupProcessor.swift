@@ -17,6 +17,7 @@ final class VaultGroupProcessor: StateProcessor<// swiftlint:disable:this type_b
     typealias Services = HasAuthRepository
         & HasBillingRepository
         & HasBillingService
+        & HasBillingStateService
         & HasConfigService
         & HasEnvironmentService
         & HasErrorReporter
@@ -235,7 +236,7 @@ final class VaultGroupProcessor: StateProcessor<// swiftlint:disable:this type_b
     ///
     private func dismissPremiumUpgradeActionCard() async {
         do {
-            try await services.stateService.setPremiumUpgradeBannerDismissed(true)
+            try await services.billingStateService.setPremiumUpgradeBannerDismissed(true)
         } catch {
             services.errorReporter.log(error: error)
         }
