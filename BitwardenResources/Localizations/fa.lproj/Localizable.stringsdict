@@ -48,9 +48,9 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>d</string>
         <key>one</key>
-        <string>این کلمه عبور %d بار در نقض‌های اطلاعاتی افشا شده است.</string>
+        <string>این کلمه عبور در نشت‌های اطلاعاتی %d بار افشا شده است.</string>
         <key>other</key>
-        <string>این کلمه عبور %d بار در نقض‌های اطلاعاتی افشا شده است.</string>
+        <string>این کلمه عبور در نشت‌های اطلاعاتی %d بار افشا شده است.</string>
       </dict>
     </dict>
     <!-- A number of characters, as in letters/numbers/punctuation. For example, the minimum number of characters when creating a password. -->

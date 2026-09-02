@@ -1,3 +1,4 @@
+import BitwardenSdk
 import InlineSnapshotTesting
 import XCTest
 
@@ -12,20 +13,25 @@ class BulkShareCiphersRequestTests: BitwardenTestCase {
         try await super.setUp()
 
         subject = try BulkShareCiphersRequest(
-            ciphers: [
-                .fixture(
-                    collectionIds: ["1", "2"],
-                    id: "123",
-                    revisionDate: Date(year: 2023, month: 10, day: 31),
+            encryptionContexts: [
+                EncryptionContext(
+                    encryptedFor: "user-1",
+                    cipher: .fixture(
+                        collectionIds: ["1", "2"],
+                        id: "123",
+                        revisionDate: Date(year: 2023, month: 10, day: 31),
+                    ),
                 ),
-                .fixture(
-                    collectionIds: ["1", "2"],
-                    id: "456",
-                    revisionDate: Date(year: 2023, month: 10, day: 31),
+                EncryptionContext(
+                    encryptedFor: "user-1",
+                    cipher: .fixture(
+                        collectionIds: ["1", "2"],
+                        id: "456",
+                        revisionDate: Date(year: 2023, month: 10, day: 31),
+                    ),
                 ),
             ],
             collectionIds: ["1", "2"],
-            encryptedFor: "user-1",
         )
     }
 
@@ -75,12 +81,11 @@ class BulkShareCiphersRequestTests: BitwardenTestCase {
     func test_init_missingCipherId() {
         XCTAssertThrowsError(
             try BulkShareCiphersRequest(
-                ciphers: [
-                    .fixture(id: "123"),
-                    .fixture(id: nil),
+                encryptionContexts: [
+                    EncryptionContext(encryptedFor: "user-1", cipher: .fixture(id: "123")),
+                    EncryptionContext(encryptedFor: "user-1", cipher: .fixture(id: nil)),
                 ],
                 collectionIds: ["1"],
-                encryptedFor: "user-1",
             ),
         ) { error in
             XCTAssertEqual(error as? BulkShareCiphersRequestError, .missingCipherId)

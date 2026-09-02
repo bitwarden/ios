@@ -455,6 +455,29 @@ struct BillingServiceTests { // swiftlint:disable:this type_body_length
         #expect(result == false)
     }
 
+    /// `isSelfHosted()` returns `true` for the internal QA region (any `bitwarden.pw` host) when
+    /// the debug flag is off, matching how `.internal` is treated as self-hosted elsewhere.
+    @Test
+    func isSelfHosted_internalRegion_debugFlagOff_returnsTrue() async {
+        environmentService.region = .internal
+        configService.featureFlagsBool[.debugDisableSelfHostPremiumCheck] = false
+
+        let result = await subject.isSelfHosted()
+
+        #expect(result == true)
+    }
+
+    /// `isSelfHosted()` returns `false` for the internal QA region when the debug override flag is enabled.
+    @Test
+    func isSelfHosted_internalRegion_debugFlagOn_returnsFalse() async {
+        environmentService.region = .internal
+        configService.featureFlagsBool[.debugDisableSelfHostPremiumCheck] = true
+
+        let result = await subject.isSelfHosted()
+
+        #expect(result == false)
+    }
+
     /// `premiumStatusChanged()` returns early without syncing when the environment is self-hosted.
     @Test
     func premiumStatusChanged_selfHosted() async throws {

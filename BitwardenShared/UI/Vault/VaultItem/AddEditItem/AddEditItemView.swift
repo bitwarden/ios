@@ -185,7 +185,7 @@ struct AddEditItemView: View {
 
             ContentBlock {
                 BitwardenMenuField(
-                    title: Localizations.folder,
+                    title: store.state.folderTitle,
                     options: store.state.folders,
                     selection: store.binding(
                         get: \.folder,

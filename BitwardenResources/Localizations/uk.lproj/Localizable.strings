@@ -26,6 +26,8 @@
 "FolderNone" = "Без теки";
 "Folders" = "Теки";
 "FolderUpdated" = "Теку збережено";
+"MyFolder" = "Моя тека";
+"MyFolders" = "Мої теки";
 "InternetConnectionRequiredMessage" = "Щоб продовжити, під'єднайтеся до інтернету.";
 "InternetConnectionRequiredTitle" = "Необхідно під'єднатися до інтернету";
 "InvalidMasterPassword" = "Недійсний головний пароль. Спробуйте знову.";
@@ -39,8 +41,8 @@
 "RemoveAccount" = "Вилучити обліковий запис";
 "RemoveAccountConfirmation" = "Ви дійсно хочете вилучити цей обліковий запис?";
 "AccountAlreadyAdded" = "Обліковий запис вже додано";
-"AccountCreationRestricted" = "Account creation restricted";
-"XOnlyAllowsInvitedUsersToCreateAccounts" = "%1$@ only allows invited users to create accounts.";
+"AccountCreationRestricted" = "Створення облікових записів обмежено";
+"XOnlyAllowsInvitedUsersToCreateAccounts" = "%1$@ дозволяє створювати облікові записи тільки запрошеним користувачам.";
 "SwitchToAlreadyAddedAccountConfirmation" = "Бажаєте перемкнутися на нього зараз?";
 "MasterPassword" = "Головний пароль";
 "MoreOptions" = "Інші варіанти";
@@ -51,6 +53,7 @@
 "OK" = "OK";
 "Password" = "Пароль";
 "Save" = "Зберегти";
+/* Action to move a vault item to another vault; used as a button label, menu item, and screen title. */
 "Move" = "Перемістити";
 "Saving" = "Збереження…";
 "Settings" = "Налаштування";
@@ -258,8 +261,14 @@
 "ShowWebsiteIconsDescription" = "Показувати впізнаване зображення біля кожного запису.";
 "IconsUrl" = "URL-адреса сервера піктограм";
 "AutofillWithBitwarden" = "Автозаповнення з Bitwarden";
+/* Section header and screen title for viewing/managing a cipher's collections. */
 "Collections" = "Збірки";
+/* Section header and screen title for viewing/managing a cipher's shared folders. */
+"SharedFolders" = "Спільні теки";
+/* Empty state message shown when a collection has no items. */
 "NoItemsCollection" = "У цій збірці немає записів";
+/* Empty state message shown when a shared folder has no items. */
+"ThereAreNoItemsInThisSharedFolder" = "У цій спільній теці немає записів";
 "NoItemsFolder" = "У цій теці немає записів";
 "NoItemsTrash" = "У смітнику немає записів.";
 "FaceID" = "Face ID";
@@ -279,6 +288,7 @@
 "RegEx" = "Регулярний вираз";
 "StartsWith" = "Починається з";
 "MatchDetection" = "Виявлення збігів";
+/* Field label on the Move screen shown when the "vfo1-foundation" feature flag is disabled; superseded by "Vault" when enabled. */
 "Organization" = "Організація";
 "HoldYubikeyNearTop" = "Утримуйте Yubikey біля верхньої частини пристрою.";
 "TryAgain" = "Спробуйте знову";
@@ -314,13 +324,26 @@
 "NoItemsToList" = "Немає записів.";
 "MoveDown" = "Перемістити вниз";
 "MoveUp" = "Перемістити вгору";
+/* Empty state message on the Collections screen shown when a user has no collections. */
 "NoCollectionsToList" = "Немає збірок.";
+/* Empty state message on the Shared folders screen shown when a user has no shared folders. */
+"ThereAreNoSharedFoldersToList" = "Немає спільних тек для показу.";
 "MovedItemToOrg" = "%1$@ переміщено до %2$@.";
+/* Alert message shown when saving an item with no collection selected. */
 "SelectOneCollection" = "Необхідно вибрати принаймні одну збірку.";
+/* Alert message shown when saving an item with no shared folder selected. */
+"YouMustSelectAtLeastOneSharedFolder" = "Необхідно вибрати принаймні одну спільну теку.";
 "Share" = "Поділитися";
 "ShareAll" = "Поділитись усім";
+/* Overflow menu item and screen title on the Move screen shown when the "vfo1-foundation" feature flag is disabled; superseded by "Move" when enabled. */
 "MoveToOrganization" = "Перемістити до організації";
+/* Empty state message shown when a user has no vaults available to move an item into, when the "vfo1-foundation" feature flag is enabled. */
+"NoVaultsToList" = "Немає сховищ для показу.";
+/* Empty state message shown when a user has no organizations available to move an item into, when the "vfo1-foundation" feature flag is disabled. */
 "NoOrgsToList" = "Немає організацій.";
+/* Footer text on the Move screen explaining that moving an item transfers its ownership to the destination vault's organization, when the "vfo1-foundation" feature flag is enabled. */
+"ChooseAVaultThatYouWishToMoveThisItemToDescriptionLong" = "Виберіть сховище, до якого ви бажаєте перемістити цей запис. Переміщення до іншого сховища передає власність запису тій організації. Ви більше не будете єдиним власником цього запису після переміщення.";
+/* Footer text on the Move screen explaining that moving an item transfers its ownership to the destination organization, when the "vfo1-foundation" feature flag is disabled. */
 "MoveToOrgDesc" = "Виберіть організацію, до якої ви бажаєте перемістити цей запис. Переміщуючи до організації, власність запису передається тій організації. Ви більше не будете єдиним власником цього запису після переміщення.";
 "NumberOfWords" = "Кількість слів";
 "Passphrase" = "Парольна фраза";
@@ -565,7 +588,7 @@
 "ThereAreNoBankAccountsInYourVault" = "У вашому сховищі немає банківських рахунків";
 "US" = "США";
 "EU" = "ЄС";
-"Gov" = "Gov";
+"Gov" = "Влада";
 "SelfHosted" = "Власне розміщення";
 "UpdateWeakMasterPasswordWarning" = "Ваш головний пароль не відповідає одній або більше політикам вашої організації. Щоб отримати доступ до сховища, вам необхідно оновити свій головний пароль зараз. Продовживши, ви вийдете з поточного сеансу, після чого потрібно буде повторно виконати вхід. Сеанси на інших пристроях можуть залишатися активними протягом однієї години.";
 "CurrentMasterPasswordRequired" = "Чинний головний пароль (обов'язково)";
@@ -574,8 +597,8 @@
 "RequestAdminApproval" = "Запит підтвердження адміністратора";
 "ApproveWithMasterPassword" = "Затвердити з головним паролем";
 "TurnOffUsingPublicDevice" = "Вимкнути використання загальнодоступного пристрою";
-"TurnOnFillAssist" = "Turn on fill assist";
-"TurnOnFillAssistDescriptionLong" = "Fill Assist improves autofill accuracy on supported sites by using site-specific rules.";
+"TurnOnFillAssist" = "Увімкнути помічник із заповнення";
+"TurnOnFillAssistDescriptionLong" = "Помічник із заповнення покращує точність автозаповнення на підтримуваних сайтах, використовуючи специфічні правила для кожного сайту.";
 "RememberThisDevice" = "Запам'ятати цей пристрій";
 "Passkey" = "Ключ доступу";
 "Passkeys" = "Ключі доступу";
@@ -589,6 +612,7 @@
 "LoginApproved" = "Вхід затверджено";
 "LogInWithDevice" = "Увійти з пристроєм";
 "LoggingInOn" = "Увійти на";
+/* The word "Vault", used generically as a field label, screen title, and app-wide term for a user's or organization's item collection. */
 "Vault" = "Сховище";
 "Appearance" = "Подання";
 "AccountSecurity" = "Безпека облікового запису";
@@ -870,8 +894,13 @@
 "ShowLess" = "Згорнути";
 "ItemNameX" = "Назва запису, %1$@";
 "OwnerX" = "Власник, %1$@";
+"VaultX" = "Сховище, %1$@";
+/* VoiceOver accessibility label for a collection the item belongs to. */
 "CollectionX" = "Збірка, %1$@";
+/* VoiceOver accessibility label for a shared folder the item belongs to. */
+"SharedFolderX" = "Спільна тека, %1$@";
 "FolderX" = "Тека, %1$@";
+"MyFolderX" = "Моя тека, %1$@";
 "ItemXOfY" = "Запис %1$@ з %2$@";
 "ViewRecordedLogs" = "Перегляд записаних подій";
 "RecordedLogs" = "Записані події";
@@ -1103,15 +1132,15 @@
 "YourSubscriptionIsScheduledToCancelOnXDescriptionLong" = "Скасування вашої передплати заплановано на **%1$@**. Її можна анулювати будь-коли до цього часу.";
 "PerMonth" = "/ місяць";
 /* VoiceOver reading of "PerMonth", spoken instead of shown. */
-"PerMonthVoiceOver" = "per month";
+"PerMonthVoiceOver" = "за місяць";
 "PerYear" = "/ рік";
 /* VoiceOver reading of "PerYear", spoken instead of shown. */
-"PerYearVoiceOver" = "per year";
+"PerYearVoiceOver" = "за рік";
 "XAmountPerCadence" = "%1$@ %2$@";
 /* %1$@ is an amount and cadence together, e.g. "$1.65 / month". */
-"XCancelAnytime" = "%1$@ · Cancel anytime";
+"XCancelAnytime" = "%1$@ · Скасування у будь-який час";
 /* VoiceOver reading of "XCancelAnytime", spoken instead of shown. */
-"XCancelAnytimeVoiceOver" = "%1$@, Cancel anytime";
+"XCancelAnytimeVoiceOver" = "%1$@, Скасування у будь-який час";
 "NegativeX" = "-%1$@";
 "UnknownStatus" = "Невідомо";
 "YourSubscriptionStatusIsUnknownVisitTheWebAppDescriptionLong" = "Неможливо визначити статус вашої передплати. Відвідайте вебверсію для перегляду відомостей або оновіть програму.";
@@ -1152,7 +1181,7 @@
 "YouNowHaveAccessToAdvancedSecurityDescriptionLong" = "Тепер у вас є доступ до розширених функцій безпеки. Дізнайтеся більше про можливості Premium.";
 "YouNowHaveAccessToAllAdvancedSecurityFeatures" = "Тепер ви маєте доступ до всіх розширених функцій безпеки.";
 /* Footer on the Premium upgrade screen; "Stripe" is the payment processor's name and shouldn't be translated. */
-"YoullCompleteThePurchaseWithStripeSecureCheckout" = "You'll complete the purchase with Stripe secure checkout.";
+"YoullCompleteThePurchaseWithStripeSecureCheckout" = "Ви завершите покупку за допомогою безпечного оформлення замовлення Stripe.";
 "ContinueToStripe" = "Продовжити у Stripe?";
 "YoullBeTakenToStripeToManageYourSubscriptionCancellation" = "Вас буде спрямовано на сторінку Stripe для керування скасуванням передплати.";
 "UserIDCopiedToTheClipboard" = "ID користувача скопійовано до буфера обміну";
@@ -1202,12 +1231,12 @@
 "MoneyMarket" = "Грошовий ринок";
 "Savings" = "Заощадження";
 "Devices" = "Пристрої";
-"NoDevicesFound" = "No devices found";
+"NoDevicesFound" = "Пристроїв не знайдено";
 "CurrentSession" = "Поточний сеанс";
 "PendingRequest" = "Запит в очікуванні";
 "Trusted" = "Надійний";
-"RecentlyActiveLabel" = "Recently active:";
-"FirstLoginLabel" = "First login:";
+"RecentlyActiveLabel" = "Нещодавно активний:";
+"FirstLoginLabel" = "Перший вхід:";
 "Today" = "Сьогодні";
 "PastSevenDays" = "Минулі 7 днів";
 "PastFourteenDays" = "Минулі 14 днів";
@@ -1216,14 +1245,14 @@
 "Unknown" = "Невідомо";
 /* Device display name. %1$@ = category (e.g. "Mobile"), %2$@ = platform (e.g. "iOS"). */
 "DeviceDisplayNameXHyphenY" = "%1$@ - %2$@";
-"Mobile" = "Mobile";
-"BrowserExtension" = "Browser extension";
-"WebVault2" = "Web vault";
-"Desktop" = "Desktop";
+"Mobile" = "Мобільний";
+"BrowserExtension" = "Розширення";
+"WebVault2" = "Вебпрограма";
+"Desktop" = "Комп'ютер";
 "Cli" = "CLI";
 "Sdk" = "SDK";
 "Server" = "Сервер";
 /* Accessibility label for the button that clears a field's value. %1$@ is the field's title (e.g. "Date of birth"), so the spoken label reads "Clear Date of birth". */
-"ClearFieldName" = "Clear %1$@";
-"SelectDate" = "Select date";
+"ClearFieldName" = "Очищено %1$@";
+"SelectDate" = "Виберіть дату";
 "PremiumRequiredTOTPDescriptionLong" = "Ключ автентифікації (TOTP) – це функція Premium. Ваш поточний тарифний план не передбачає доступ до цієї функції.";

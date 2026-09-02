@@ -26,6 +26,8 @@
 "FolderNone" = "Qovluq yoxdur";
 "Folders" = "Qovluqlar";
 "FolderUpdated" = "Qovluq saxlanıldı";
+"MyFolder" = "Qovluğum";
+"MyFolders" = "Qovluqlarım";
 "InternetConnectionRequiredMessage" = "Davam etməzdən əvvəl lütfən internetə bağlanın.";
 "InternetConnectionRequiredTitle" = "İnternet bağlantısı tələb olunur";
 "InvalidMasterPassword" = "Yararsız ana parol. Yenidən sınayın.";
@@ -51,6 +53,7 @@
 "OK" = "Oldu";
 "Password" = "Parol";
 "Save" = "Saxla";
+/* Action to move a vault item to another vault; used as a button label, menu item, and screen title. */
 "Move" = "Daşı";
 "Saving" = "Saxlanılır…";
 "Settings" = "Ayarlar";
@@ -147,7 +150,7 @@
 "NoItemsForUri" = "Seyfinizdə %1$@ üçün heç bir element yoxdur.";
 "Off" = "Bağlı";
 "On" = "Açıq";
-"Autofill" = "Avto-doldur";
+"Autofill" = "Avto-doldurma";
 "AutofillEnabled" = "Avto-doldurma fəaldır";
 "MatchingItems" = "Uyuşan elementlər";
 "Search" = "Axtar";
@@ -258,8 +261,14 @@
 "ShowWebsiteIconsDescription" = "Hər girişin yanında tanına bilən təsvir göstər.";
 "IconsUrl" = "İkon server URL-si";
 "AutofillWithBitwarden" = "Bitwarden ilə avto-doldurma";
+/* Section header and screen title for viewing/managing a cipher's collections. */
 "Collections" = "Kolleksiyalar";
+/* Section header and screen title for viewing/managing a cipher's shared folders. */
+"SharedFolders" = "Paylaşılan qovluqlar";
+/* Empty state message shown when a collection has no items. */
 "NoItemsCollection" = "Bu kolleksiyada heç bir element yoxdur";
+/* Empty state message shown when a shared folder has no items. */
+"ThereAreNoItemsInThisSharedFolder" = "Bu paylaşılan qovluqda heç bir element yoxdur";
 "NoItemsFolder" = "Bu qovluqda heç bir element yoxdur";
 "NoItemsTrash" = "Tullantı qutusunda heç bir element yoxdur.";
 "FaceID" = "Face ID";
@@ -279,6 +288,7 @@
 "RegEx" = "Müntəzəm ifadə";
 "StartsWith" = "Başlayır";
 "MatchDetection" = "Uyuşmanı aşkarlama";
+/* Field label on the Move screen shown when the "vfo1-foundation" feature flag is disabled; superseded by "Vault" when enabled. */
 "Organization" = "Təşkilat";
 "HoldYubikeyNearTop" = "Yubikey-nizi cihazınızın üzərində saxlayın.";
 "TryAgain" = "Yenidən sınayın";
@@ -314,13 +324,26 @@
 "NoItemsToList" = "Sadalanacaq heç bir element yoxdur.";
 "MoveDown" = "Aşağı daşı";
 "MoveUp" = "Yuxarı daşı";
+/* Empty state message on the Collections screen shown when a user has no collections. */
 "NoCollectionsToList" = "Sadalanacaq heç bir kolleksiya yoxdur.";
+/* Empty state message on the Shared folders screen shown when a user has no shared folders. */
+"ThereAreNoSharedFoldersToList" = "Sadalanacaq heç bir paylaşılan qovluq yoxdur.";
 "MovedItemToOrg" = "%1$@, %2$@ ünvanına daşındı.";
+/* Alert message shown when saving an item with no collection selected. */
 "SelectOneCollection" = "Ən azı bir kolleksiya seçməlisiniz.";
+/* Alert message shown when saving an item with no shared folder selected. */
+"YouMustSelectAtLeastOneSharedFolder" = "Ən azı bir paylaşılan qovluq seçməlisiniz.";
 "Share" = "Paylaş";
 "ShareAll" = "Hamısını paylaş";
+/* Overflow menu item and screen title on the Move screen shown when the "vfo1-foundation" feature flag is disabled; superseded by "Move" when enabled. */
 "MoveToOrganization" = "Təşkilata daşı";
+/* Empty state message shown when a user has no vaults available to move an item into, when the "vfo1-foundation" feature flag is enabled. */
+"NoVaultsToList" = "Sadalanacaq seyf yoxdur.";
+/* Empty state message shown when a user has no organizations available to move an item into, when the "vfo1-foundation" feature flag is disabled. */
 "NoOrgsToList" = "Sadalanacaq heç bir təşkilat yoxdur.";
+/* Footer text on the Move screen explaining that moving an item transfers its ownership to the destination vault's organization, when the "vfo1-foundation" feature flag is enabled. */
+"ChooseAVaultThatYouWishToMoveThisItemToDescriptionLong" = "Bu elementi daşımaq istədiyiniz seyfi seçin. Başqa bir seyfə daşımaq, elementin sahibliyini də həmin təşkilata daşıyacaq. Daşıdıqdan sonra bu elementə birbaşa sahibliyiniz olmayacaq.";
+/* Footer text on the Move screen explaining that moving an item transfers its ownership to the destination organization, when the "vfo1-foundation" feature flag is disabled. */
 "MoveToOrgDesc" = "Bu elementi daşımaq istədiyiniz təşkilatı seçin. Bir təşkilata daşımaq, elementin sahibliyini də həmin təşkilata daşıyacaq. Daşıdıqdan sonra bu elementə birbaşa sahibliyiniz olmayacaq.";
 "NumberOfWords" = "Söz sayı";
 "Passphrase" = "Uzun ifadə";
@@ -430,7 +453,7 @@
 "PasswordConfirmation" = "Ana parol təsdiqi";
 "PasswordConfirmationDesc" = "Bu əməliyyat qorumalıdır, davam etmək üçün lütfən kimliyinizi doğrulamaq üçün ana parolunuzu təkrar daxil edin.";
 "UpdateMasterPassword" = "Ana parolu güncəllə";
-"UpdateMasterPasswordWarning" = "Ana parolunuz təzəlikcə təşkilatınızdakı bir inzibatçı tərəfindən dəyişdirildi. Seyfə erişmək üçün Ana parolunuzu indi güncəlləməlisiniz. Davam etsəniz, hazırkı seansdan çıxış etmiş və təkrar giriş etməli olacaqsınız. Digər cihazlardakı aktiv seanslar bir saata qədər aktiv qalmağa davam edə bilər.";
+"UpdateMasterPasswordWarning" = "Ana parolunuz təzəlikcə təşkilatınızdakı bir inzibatçı tərəfindən dəyişdirildi. Seyfə erişmək üçün Ana parolunuzu indi güncəlləməlisiniz. Davam etsəniz, hazırkı sessiyadan çıxış etmiş və təkrar giriş etməli olacaqsınız. Digər cihazlardakı aktiv sessiyalar bir saata qədər aktiv qalmağa davam edə bilər.";
 "UpdatingPassword" = "Parol yenilənir";
 "RemoveMasterPassword" = "Ana parolu sil";
 "LeaveOrganization" = "Təşkilatı tərk et";
@@ -567,7 +590,7 @@
 "EU" = "AB";
 "Gov" = "Gov";
 "SelfHosted" = "Öz-özünə sahiblik edən";
-"UpdateWeakMasterPasswordWarning" = "Ana parolunuz təşkilatınızdakı siyasətlərdən birinə və ya bir neçəsinə uyğun gəlmir. Seyfə erişmək üçün ana parolunuzu indi güncəlləməlisiniz. Davam etsəniz, hazırkı seansdan çıxış etmiş və təkrar giriş etməli olacaqsınız. Digər cihazlardakı aktiv seanslar bir saata qədər aktiv qalmağa davam edə bilər.";
+"UpdateWeakMasterPasswordWarning" = "Ana parolunuz təşkilatınızdakı siyasətlərdən birinə və ya bir neçəsinə uyğun gəlmir. Seyfə erişmək üçün ana parolunuzu indi güncəlləməlisiniz. Davam etsəniz, hazırkı sessiyadan çıxış etmiş və təkrar giriş etməli olacaqsınız. Digər cihazlardakı aktiv seanslar bir saata qədər aktiv qalmağa davam edə bilər.";
 "CurrentMasterPasswordRequired" = "Hazırkı ana parol (tələb olunur)";
 "NewMasterPasswordRequired" = "Yeni ana parol (tələb olunur)";
 "ApproveWithMyOtherDevice" = "Digər cihazımla təsdiqlə";
@@ -589,14 +612,15 @@
 "LoginApproved" = "Giriş təsdiqləndi";
 "LogInWithDevice" = "Cihazla giriş et";
 "LoggingInOn" = "Giriş edilir";
+/* The word "Vault", used generically as a field label, screen title, and app-wide term for a user's or organization's item collection. */
 "Vault" = "Seyf";
 "Appearance" = "Görünüş";
-"AccountSecurity" = "Hesab güvənliyi";
+"AccountSecurity" = "Hesab təhlükəsizliyi";
 "BitwardenHelpCenter" = "Bitwarden Kömək Mərkəzi";
 "SyncNow" = "İndi sinxr.";
 "UnlockOptions" = "Kilid açma seçimləri";
-"SessionTimeout" = "Seans vaxt bitməsi";
-"SessionTimeoutAction" = "Seans vaxt bitmə əməliyyatı";
+"SessionTimeout" = "Sessiyanın bitmə vaxtı";
+"SessionTimeoutAction" = "Sessiya vaxtının bitmə əməliyyatı";
 "AccountFingerprintPhrase" = "Hesab barmaq izi ifadəsi";
 "AdditionalOptions" = "Əlavə seçimlər";
 "ContinueToWebApp" = "Veb tətbiqlə davam edilsin?";
@@ -700,7 +724,7 @@
 "PublicKey" = "Hər kəsə açıq açar";
 "TheRegionForTheGivenEmailCouldNotBeLoaded" = "Verilmiş e-poçtla əlaqəli e-poçt yüklənə bilmədi.";
 "SetUpLaterQuestion" = "Daha sonra qurulsun?";
-"YouCanFinishSetupUnlockAnytimeDescriptionLong" = "Quraşdırmanı istənilən vaxt Ayarlardakı Hesab Güvənliyində tamamlaya bilərsiniz. Başqa bir üsul qurana qədər kilidi açmaq üçün ana parolunuzu istifadə edəcəksiniz.";
+"YouCanFinishSetupUnlockAnytimeDescriptionLong" = "Quraşdırmanı istənilən vaxt Ayarlardakı \"Hesab Təhlükəsizliyi\"ndə tamamlaya bilərsiniz. Başqa bir üsul qurana qədər kilidi açmaq üçün ana parolunuzu istifadə edəcəksiniz.";
 "Confirm" = "Təsdiqlə";
 "ErrorConnectingWithTheDuoServiceUseADifferentTwoStepLoginMethodOrContactDuoForAssistance" = "Duo xidmətinə bağlanarkən xəta baş verdi. Fərqli iki addımlı giriş üsulu istifadə edin və ya kömək üçün Duo ilə əlaqə saxlayın.";
 "ThePreAuthUrlsCouldNotBeLoadedToStartTheAccountCreation" = "Hesab yaratmanı başlatmaq üçün Ön Kimlik Doğrulama URL-ləri yüklənə bilmədi.";
@@ -750,8 +774,8 @@
 "ImportSavedLogins" = "Saxlanılmış girişləri daxilə köçür";
 "ImportSavedLoginsDescriptionLong" = "Mövcud bir parol menecerindən girişləri daxilə köçürmək üçün bir kompüter istifadə edin.";
 "ImportLogins" = "Girişləri daxilə köçür";
-"GiveYourVaultAHeadStart" = "Seyfinizə üstünlük verin";
-"ImportLoginsDescriptionLong" = "Kompüterinizdəki brauzerinizdə və ya digər parol menecerində saxlanılan parolları xaricə köçürmək üçün aşağıdakı təlimatları izləyin. Daha sonra, onları güvənli şəkildə Bitwarden-ə köçürün.";
+"GiveYourVaultAHeadStart" = "Seyfinizi hazır vəziyyətə gətirin";
+"ImportLoginsDescriptionLong" = "Kompüterinizdə aşağıdakı təlimatları izləyərək brauzerinizdə və ya digər parol menecerinizdə saxlanılan parolları xaricə köçürün. Daha sonra, onları güvənli şəkildə Bitwarden-ə köçürün.";
 "ImportLoginsLater" = "Girişləri daha sonra daxilə köçür";
 "ImportLoginsLaterQuestion" = "Girişlər daha sonra daxilə köçürülsün?";
 "YouCanReturnToCompleteThisStepAnytimeInVaultUnderSettings" = "Bu addımı tamamlamaq üçün istənilən vaxt Ayarlardakı \"Seyf\"ə qayıda bilərsiniz.";
@@ -767,16 +791,16 @@
 "OnYourComputerOpenANewBrowserTabAndGoTo" = "Kompüterinizdə yeni bir brauzer vərəqi açın və bura gedin: **%1$@**";
 "LogInToTheBitwardenWebApp" = "**Bitwarden veb tətbiqində giriş edin.**";
 "ImportLoginsToBitwarden" = "Girişləri Bitwarden-ə köçür";
-"InTheBitwardenNavigationFindTheToolsOptionAndSelectImportData" = "Bitwarden naviqasiyasında **Alətlər seçimini tapın** və **Veriləri daxilə köçür**ü seçin.";
+"InTheBitwardenNavigationFindTheToolsOptionAndSelectImportData" = "Bitwarden naviqasiyasında **Alətlər seçimini tapın** və **Veriləri daxilə köçür** seçimini edin.";
 "FillOutTheFormAndImportYourSavedPasswordFile" = "Formu doldurun və **saxlanılmış parol faylınızı daxilə köçürün.**";
-"SelectImportDataInTheWebAppThenDoneToFinishSyncing" = "Veb tətbiqdə **Veriləri daxilə köçür**ü seçin, sonra sinxronlaşdırmanı bitirmək üçün \"Hazırdır\"a toxunun.";
+"SelectImportDataInTheWebAppThenDoneToFinishSyncing" = "Veb tətbiqdə **Veriləri daxilə köçür**ü seçin, sonra sinxronlaşdırmanı bitirmək üçün **Hazırdır**a toxunun.";
 "ForYourSecurityBeSureToDeleteYourSavedPasswordFile" = "Təhlükəsizliyiniz üçün **saxlanılmış parol faylınızı sildiyinizə** əmin olun.";
 "BitwardenTools" = "Bitwarden alətləri";
 "ImportSuccessful" = "Daxilə köçürmə uğurludur!";
 "ManageYourLoginsFromAnywhereWithBitwardenToolsForWebAndDesktop" = "Bitwarden-in veb və masaüstü alətləri ilə istənilən yerdən girişlərinizi idarə edin.";
 "ManageYourSubscriptionPlanInTheBitwardenWebApp" = "Abunəlik planınızı Bitwarden veb tətbiqində idarə edin.";
 "DownloadTheBrowserExtension" = "Brauzer uzantısını endir";
-"GoToBitwardenToIntegrateBitwardenIntoYourFavoriteBrowserForASeamlessExperience" = "Daha problemsiz bir təcrübə üçün Bitwarden-i sevimli brauzerinizə inteqrasiya etmək üçün bitwarden.com/download ünvanına gedin.";
+"GoToBitwardenToIntegrateBitwardenIntoYourFavoriteBrowserForASeamlessExperience" = "Bitwarden-i sevimli brauzerinizə inteqrasiya etmək üçün bitwarden.com/download ünvanına gedin.";
 "UseTheWebApp" = "Veb tətbiqi istifadə et";
 "LogInAtBitwardenToEasilyManageYourAccountAndUpdateSettings" = "Hesabınızı asanlıqla idarə etmək və ayarları güncəlləmək üçün bitwarden.com saytında giriş edin.";
 "AutofillPasswords" = "Parolları avto-doldur";
@@ -870,8 +894,13 @@
 "ShowLess" = "Daha az göstər";
 "ItemNameX" = "Elementin adı, %1$@";
 "OwnerX" = "Sahibi, %1$@";
+"VaultX" = "Seyf, %1$@";
+/* VoiceOver accessibility label for a collection the item belongs to. */
 "CollectionX" = "Kolleksiya, %1$@";
+/* VoiceOver accessibility label for a shared folder the item belongs to. */
+"SharedFolderX" = "Paylaşılan qovluq, %1$@";
 "FolderX" = "Qovluq, %1$@";
+"MyFolderX" = "Qovluğum, %1$@";
 "ItemXOfY" = "Element %1$@/%2$@";
 "ViewRecordedLogs" = "Yazılmış qeydlərə bax";
 "RecordedLogs" = "Yazılmış qeydlər";
@@ -1016,10 +1045,10 @@
 "YouLeftTheOrganization" = "Təşkilatı tərk etmisiniz";
 "ItemTransferRequiresMainAppDescriptionLong" = "Bir təşkilat, fərdi elementinizin sahibliyini tələb edir. Bu tələbi incələmək və tamamlamaq üçün əsas Bitwarden tətbiqini açın.";
 "ThisSettingIsManagedByYourOrganization" = "Bu ayar, təşkilatınız tərəfindən idarə olunur.";
-"YourOrganizationHasSetTheMaximumSessionTimeoutToX" = "Təşkilatınız, seansın maksimum bitmə vaxtını %1$@ olaraq təyin etdi.";
-"YourOrganizationHasSetTheDefaultSessionTimeoutToNever" = "Təşkilatınız, seansın ilkin bitmə vaxtını heç vaxt olaraq təyin etdi.";
-"YourOrganizationHasSetTheDefaultSessionTimeoutToAppRestart" = "Təşkilatınız, seansın ilkin bitmə vaxtını tətbiq başladılanda olaraq təyin etdi.";
-"YourOrganizationHasSetTheMaximumSessionTimeoutToXAndY" = "Təşkilatınız, seansın maksimum bitmə vaxtını %1$@ %2$@ olaraq təyin etdi.";
+"YourOrganizationHasSetTheMaximumSessionTimeoutToX" = "Təşkilatınız, sessiyanın maksimum bitmə vaxtını %1$@ olaraq təyin etdi.";
+"YourOrganizationHasSetTheDefaultSessionTimeoutToNever" = "Təşkilatınız, sessiyanın ilkin bitmə vaxtını heç vaxt olaraq təyin etdi.";
+"YourOrganizationHasSetTheDefaultSessionTimeoutToAppRestart" = "Təşkilatınız, sessiyanın ilkin bitmə vaxtını tətbiq başladılanda olaraq təyin etdi.";
+"YourOrganizationHasSetTheMaximumSessionTimeoutToXAndY" = "Təşkilatınız, sessiyanın maksimum bitmə vaxtını %1$@ %2$@ olaraq təyin etdi.";
 "HiddenItems" = "Gizli elementlər";
 "Archive" = "Arxiv";
 "Archived" = "Arxivləndi";
@@ -1086,7 +1115,7 @@
 "Unpaid" = "Ödənilməmiş";
 "UpdatePayment" = "Ödənişi güncəllə";
 "BillingAmount" = "Faktura məbləği";
-"StorageCost" = "Anbar xərci";
+"StorageCost" = "Depolama xərci";
 "Discount" = "Endirim";
 "EstimatedTax" = "Təxmini vergi";
 "Total" = "Cəmi";
@@ -1139,7 +1168,7 @@
 "ReturnToStripeInYourBrowserToFinishYourUpgradeDescriptionLong" = "Yüksəltməni tamamlamaq üçün brauzerinizdə Stripe-a qayıdın.";
 "SecureCheckoutDidntLoad" = "Güvənli ödəmə səhifəsi yüklənmədi";
 "WeHadTroubleOpeningThePaymentPageDescriptionLong" = "Ödəniş səhifəsini açmaqla bağlı çətinliyimiz var, yenidən sınayın.";
-"SecureFileStorage" = "Güvənli fayl anbarı";
+"SecureFileStorage" = "Güvənli fayl deposu";
 "BreachMonitoring" = "Pozuntu monitorinqi";
 "ConfirmingYourUpgrade" = "Yüksəltmənizi təsdiqləyin…";
 "OpeningCheckout" = "Ödəmə səhifəsi açılır…";

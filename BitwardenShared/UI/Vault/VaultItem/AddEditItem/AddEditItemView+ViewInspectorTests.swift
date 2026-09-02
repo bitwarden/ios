@@ -156,6 +156,17 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
         XCTAssertEqual(processor.dispatchedActions.last, .folderChanged(.custom(folder)))
     }
 
+    /// Updating the folder text field dispatches the `.folderChanged()` action when the
+    /// `vfo1-foundation` feature flag is enabled.
+    @MainActor
+    func test_folderTextField_updateValue_vfo1FoundationEnabled() throws {
+        processor.state.isVfo1FoundationFeatureFlagEnabled = true
+        let folder = FolderView.fixture(name: "Folder")
+        let menuField = try subject.inspect().find(bitwardenMenuField: Localizations.myFolder)
+        try menuField.select(newValue: DefaultableType<FolderView>.custom(folder))
+        XCTAssertEqual(processor.dispatchedActions.last, .folderChanged(.custom(folder)))
+    }
+
     /// Tapping the generate password button dispatches the `.generatePasswordPressed` action.
     @MainActor
     func test_generatePasswordButton_tap() throws {
@@ -649,40 +660,64 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
         )
     }
 
-    /// The date of birth field is read-only and renders the long-date display string.
+    /// The date of birth field shows the currently selected date.
     @MainActor
-    func test_driversLicense_dateOfBirthField_isDisabledAndShowsDisplayString() throws {
+    func test_driversLicense_dateOfBirthField_showsSelectedDate() throws {
         processor.state.type = .driversLicense
         processor.state.driversLicenseItemState.dateOfBirth = Date(year: 1989, month: 8, day: 1)
-        let expected = processor.state.driversLicenseItemState.dateOfBirthDisplay
 
-        let textField = try subject.inspect().find(bitwardenTextField: Localizations.dateOfBirth)
-        XCTAssertEqual(try textField.inputBinding().wrappedValue, expected)
-        XCTAssertTrue(expected.contains("1989"))
+        let picker = try subject.inspect().find(dateFieldPicker: Localizations.dateOfBirth)
+        XCTAssertEqual(try picker.inputBinding().wrappedValue, Date(year: 1989, month: 8, day: 1))
     }
 
-    /// The issue date field is read-only and renders the long-date display string.
+    /// Selecting a date of birth dispatches the `.driversLicenseFieldChanged(.dateOfBirthChanged())` action.
     @MainActor
-    func test_driversLicense_issueDateField_isDisabledAndShowsDisplayString() throws {
+    func test_driversLicense_dateOfBirthField_updateValue() throws {
+        processor.state.type = .driversLicense
+        let picker = try subject.inspect().find(dateFieldPicker: Localizations.dateOfBirth)
+        let newDate = Date(year: 1989, month: 8, day: 1)
+        try picker.inputBinding().wrappedValue = newDate
+        XCTAssertEqual(processor.dispatchedActions.last, .driversLicenseFieldChanged(.dateOfBirthChanged(newDate)))
+    }
+
+    /// The issue date field shows the currently selected date.
+    @MainActor
+    func test_driversLicense_issueDateField_showsSelectedDate() throws {
         processor.state.type = .driversLicense
         processor.state.driversLicenseItemState.issueDate = Date(year: 2019, month: 8, day: 1)
-        let expected = processor.state.driversLicenseItemState.issueDateDisplay
 
-        let textField = try subject.inspect().find(bitwardenTextField: Localizations.issueDate)
-        XCTAssertEqual(try textField.inputBinding().wrappedValue, expected)
-        XCTAssertTrue(expected.contains("2019"))
+        let picker = try subject.inspect().find(dateFieldPicker: Localizations.issueDate)
+        XCTAssertEqual(try picker.inputBinding().wrappedValue, Date(year: 2019, month: 8, day: 1))
     }
 
-    /// The expiration date field is read-only and renders the long-date display string.
+    /// Selecting an issue date dispatches the `.driversLicenseFieldChanged(.issueDateChanged())` action.
     @MainActor
-    func test_driversLicense_expirationDateField_isDisabledAndShowsDisplayString() throws {
+    func test_driversLicense_issueDateField_updateValue() throws {
+        processor.state.type = .driversLicense
+        let picker = try subject.inspect().find(dateFieldPicker: Localizations.issueDate)
+        let newDate = Date(year: 2019, month: 8, day: 1)
+        try picker.inputBinding().wrappedValue = newDate
+        XCTAssertEqual(processor.dispatchedActions.last, .driversLicenseFieldChanged(.issueDateChanged(newDate)))
+    }
+
+    /// The expiration date field shows the currently selected date.
+    @MainActor
+    func test_driversLicense_expirationDateField_showsSelectedDate() throws {
         processor.state.type = .driversLicense
         processor.state.driversLicenseItemState.expirationDate = Date(year: 2029, month: 8, day: 1)
-        let expected = processor.state.driversLicenseItemState.expirationDateDisplay
 
-        let textField = try subject.inspect().find(bitwardenTextField: Localizations.expirationDate)
-        XCTAssertEqual(try textField.inputBinding().wrappedValue, expected)
-        XCTAssertTrue(expected.contains("2029"))
+        let picker = try subject.inspect().find(dateFieldPicker: Localizations.expirationDate)
+        XCTAssertEqual(try picker.inputBinding().wrappedValue, Date(year: 2029, month: 8, day: 1))
+    }
+
+    /// Selecting an expiration date dispatches the `.driversLicenseFieldChanged(.expirationDateChanged())` action.
+    @MainActor
+    func test_driversLicense_expirationDateField_updateValue() throws {
+        processor.state.type = .driversLicense
+        let picker = try subject.inspect().find(dateFieldPicker: Localizations.expirationDate)
+        let newDate = Date(year: 2029, month: 8, day: 1)
+        try picker.inputBinding().wrappedValue = newDate
+        XCTAssertEqual(processor.dispatchedActions.last, .driversLicenseFieldChanged(.expirationDateChanged(newDate)))
     }
 
     // MARK: Passport
@@ -846,40 +881,64 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
         )
     }
 
-    /// The date of birth field is read-only and renders the long-date display string.
+    /// The date of birth field shows the currently selected date.
     @MainActor
-    func test_passport_dateOfBirthField_isDisabledAndShowsDisplayString() throws {
+    func test_passport_dateOfBirthField_showsSelectedDate() throws {
         processor.state.type = .passport
         processor.state.passportItemState.dateOfBirth = Date(year: 2025, month: 4, day: 20)
-        let expected = processor.state.passportItemState.dateOfBirthDisplay
 
-        let textField = try subject.inspect().find(bitwardenTextField: Localizations.dateOfBirth)
-        XCTAssertEqual(try textField.inputBinding().wrappedValue, expected)
-        XCTAssertTrue(expected.contains("2025"))
+        let picker = try subject.inspect().find(dateFieldPicker: Localizations.dateOfBirth)
+        XCTAssertEqual(try picker.inputBinding().wrappedValue, Date(year: 2025, month: 4, day: 20))
     }
 
-    /// The issue date field is read-only and renders the long-date display string.
+    /// Selecting a date of birth dispatches the `.passportFieldChanged(.dateOfBirthChanged())` action.
     @MainActor
-    func test_passport_issueDateField_isDisabledAndShowsDisplayString() throws {
+    func test_passport_dateOfBirthField_updateValue() throws {
+        processor.state.type = .passport
+        let picker = try subject.inspect().find(dateFieldPicker: Localizations.dateOfBirth)
+        let newDate = Date(year: 2025, month: 4, day: 20)
+        try picker.inputBinding().wrappedValue = newDate
+        XCTAssertEqual(processor.dispatchedActions.last, .passportFieldChanged(.dateOfBirthChanged(newDate)))
+    }
+
+    /// The issue date field shows the currently selected date.
+    @MainActor
+    func test_passport_issueDateField_showsSelectedDate() throws {
         processor.state.type = .passport
         processor.state.passportItemState.issueDate = Date(year: 2021, month: 8, day: 10)
-        let expected = processor.state.passportItemState.issueDateDisplay
 
-        let textField = try subject.inspect().find(bitwardenTextField: Localizations.issueDate)
-        XCTAssertEqual(try textField.inputBinding().wrappedValue, expected)
-        XCTAssertTrue(expected.contains("2021"))
+        let picker = try subject.inspect().find(dateFieldPicker: Localizations.issueDate)
+        XCTAssertEqual(try picker.inputBinding().wrappedValue, Date(year: 2021, month: 8, day: 10))
     }
 
-    /// The expiration date field is read-only and renders the long-date display string.
+    /// Selecting an issue date dispatches the `.passportFieldChanged(.issueDateChanged())` action.
     @MainActor
-    func test_passport_expirationDateField_isDisabledAndShowsDisplayString() throws {
+    func test_passport_issueDateField_updateValue() throws {
+        processor.state.type = .passport
+        let picker = try subject.inspect().find(dateFieldPicker: Localizations.issueDate)
+        let newDate = Date(year: 2021, month: 8, day: 10)
+        try picker.inputBinding().wrappedValue = newDate
+        XCTAssertEqual(processor.dispatchedActions.last, .passportFieldChanged(.issueDateChanged(newDate)))
+    }
+
+    /// The expiration date field shows the currently selected date.
+    @MainActor
+    func test_passport_expirationDateField_showsSelectedDate() throws {
         processor.state.type = .passport
         processor.state.passportItemState.expirationDate = Date(year: 2026, month: 8, day: 10)
-        let expected = processor.state.passportItemState.expirationDateDisplay
 
-        let textField = try subject.inspect().find(bitwardenTextField: Localizations.expirationDate)
-        XCTAssertEqual(try textField.inputBinding().wrappedValue, expected)
-        XCTAssertTrue(expected.contains("2026"))
+        let picker = try subject.inspect().find(dateFieldPicker: Localizations.expirationDate)
+        XCTAssertEqual(try picker.inputBinding().wrappedValue, Date(year: 2026, month: 8, day: 10))
+    }
+
+    /// Selecting an expiration date dispatches the `.passportFieldChanged(.expirationDateChanged())` action.
+    @MainActor
+    func test_passport_expirationDateField_updateValue() throws {
+        processor.state.type = .passport
+        let picker = try subject.inspect().find(dateFieldPicker: Localizations.expirationDate)
+        let newDate = Date(year: 2026, month: 8, day: 10)
+        try picker.inputBinding().wrappedValue = newDate
+        XCTAssertEqual(processor.dispatchedActions.last, .passportFieldChanged(.expirationDateChanged(newDate)))
     }
 
     // MARK: Private

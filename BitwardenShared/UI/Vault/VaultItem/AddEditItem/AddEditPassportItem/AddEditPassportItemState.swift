@@ -1,4 +1,3 @@
-import BitwardenKit
 import Foundation
 
 // MARK: AddEditPassportItemState
@@ -50,27 +49,4 @@ protocol AddEditPassportItemState: Equatable, Sendable {
 
     /// The surname (last name) on the passport.
     var surname: String { get set }
-}
-
-// MARK: - Display Helpers
-
-// TODO: PM-38360 - Remove this `Display Helpers` extension (and the read-only date fields it backs)
-// once the shared `DateFieldPicker` and date utilities replace them.
-extension AddEditPassportItemState {
-    /// The date of birth formatted as a long localized date (e.g. "August 10, 2026"); empty when unset.
-    var dateOfBirthDisplay: String { Self.displayDate(from: dateOfBirth) }
-
-    /// The expiration date formatted as a long localized date (e.g. "August 10, 2026"); empty when unset.
-    var expirationDateDisplay: String { Self.displayDate(from: expirationDate) }
-
-    /// The issue date formatted as a long localized date (e.g. "August 10, 2026"); empty when unset.
-    var issueDateDisplay: String { Self.displayDate(from: issueDate) }
-
-    /// Formats a `Date` as a long localized date (e.g. "August 10, 2026"), or returns an empty
-    /// string when the value is unset. Pinned to UTC so a UTC-anchored stored date reads back as
-    /// the same calendar day regardless of device time zone.
-    private static func displayDate(from date: Date?) -> String {
-        guard let date else { return "" }
-        return date.longCalendarDateDisplay
-    }
 }

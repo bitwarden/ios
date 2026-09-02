@@ -1,3 +1,5 @@
+import Foundation
+
 // MARK: AddEditPassportItemAction
 
 /// An enum of actions for adding or editing a passport item in its add/edit state.
@@ -6,8 +8,17 @@ enum AddEditPassportItemAction: Equatable, Sendable {
     /// The birth place changed.
     case birthPlaceChanged(String)
 
+    /// The date of birth changed.
+    case dateOfBirthChanged(Date?)
+
+    /// The expiration date changed.
+    case expirationDateChanged(Date?)
+
     /// The given name (first name) on the passport changed.
     case givenNameChanged(String)
+
+    /// The issue date changed.
+    case issueDateChanged(Date?)
 
     /// The issuing authority/office changed.
     case issuingAuthorityChanged(String)

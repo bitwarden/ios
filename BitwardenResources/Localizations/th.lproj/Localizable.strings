@@ -26,6 +26,8 @@
 "FolderNone" = "ไม่มีโฟลเดอร์";
 "Folders" = "โฟลเดอร์";
 "FolderUpdated" = "บันทึกโฟลเดอร์แล้ว";
+"MyFolder" = "โฟลเดอร์ของฉัน";
+"MyFolders" = "โฟลเดอร์ของฉัน";
 "InternetConnectionRequiredMessage" = "โปรดเชื่อมต่ออินเทอร์เน็ตก่อนดำเนินการต่อ";
 "InternetConnectionRequiredTitle" = "จำเป็นต้องเชื่อมต่ออินเทอร์เน็ต";
 "InvalidMasterPassword" = "รหัสผ่านหลักไม่ถูกต้อง โปรดลองอีกครั้ง";
@@ -39,8 +41,8 @@
 "RemoveAccount" = "ลบบัญชี";
 "RemoveAccountConfirmation" = "แน่ใจหรือไม่ว่าต้องการลบบัญชีนี้";
 "AccountAlreadyAdded" = "เพิ่มบัญชีแล้ว";
-"AccountCreationRestricted" = "Account creation restricted";
-"XOnlyAllowsInvitedUsersToCreateAccounts" = "%1$@ only allows invited users to create accounts.";
+"AccountCreationRestricted" = "การสร้างบัญชีถูกจำกัด";
+"XOnlyAllowsInvitedUsersToCreateAccounts" = "%1$@ อนุญาตให้เฉพาะผู้ใช้ที่ได้รับเชิญสร้างบัญชีเท่านั้น";
 "SwitchToAlreadyAddedAccountConfirmation" = "ต้องการสลับไปใช้บัญชีดังกล่าวตอนนี้หรือไม่";
 "MasterPassword" = "รหัสผ่านหลัก";
 "MoreOptions" = "ตัวเลือกเพิ่มเติม";
@@ -51,10 +53,11 @@
 "OK" = "ตกลง";
 "Password" = "รหัสผ่าน";
 "Save" = "บันทึก";
+/* Action to move a vault item to another vault; used as a button label, menu item, and screen title. */
 "Move" = "ย้าย";
 "Saving" = "กำลังบันทึก…";
 "Settings" = "การตั้งค่า";
-"ShowNextCode" = "Show next code";
+"ShowNextCode" = "แสดงรหัสถัดไป";
 "ItemDeleted" = "รายการถูกลบแล้ว";
 "Submit" = "ส่ง";
 "UseFingerprintToUnlock" = "ใช้ลายนิ้วมือเพื่อปลดล็อก";
@@ -148,7 +151,7 @@
 "Off" = "ปิด";
 "On" = "เปิด";
 "Autofill" = "ป้อนอัตโนมัติ";
-"AutofillEnabled" = "Autofill enabled";
+"AutofillEnabled" = "เปิดใช้งานการเติมข้อมูลอัตโนมัติแล้ว";
 "MatchingItems" = "รายการที่ตรงกัน";
 "Search" = "ค้นหา";
 "LearnAboutNewLogins" = "เรียนรู้เกี่ยวกับข้อมูลเข้าสู่ระบบใหม่";
@@ -200,18 +203,18 @@
 "CustomFields" = "ฟิลด์กำหนดเอง";
 "CopyNumber" = "คัดลอกหมายเลข";
 "CopySecurityCode" = "คัดลอกรหัสความปลอดภัย";
-"CopyAccountNumber" = "Copy account number";
-"CopyRoutingNumber" = "Copy routing number";
+"CopyAccountNumber" = "คัดลอกหมายเลขบัญชี";
+"CopyRoutingNumber" = "คัดลอกหมายเลข Routing";
 "Number" = "หมายเลข";
 "SecurityCode" = "รหัสความปลอดภัย";
-"AccountNumber" = "Account number";
-"RoutingNumber" = "Routing number";
-"TypeBankAccount" = "Bank account";
+"AccountNumber" = "หมายเลขบัญชี";
+"RoutingNumber" = "หมายเลข Routing";
+"TypeBankAccount" = "บัญชีธนาคาร";
 "TypeCard" = "บัตร";
 "TypeIdentity" = "ข้อมูลระบุตัวตน";
-"TypeLicense" = "License";
+"TypeLicense" = "ใบอนุญาต";
 "TypeLogin" = "เข้าสู่ระบบ";
-"TypePassport" = "Passport";
+"TypePassport" = "หนังสือเดินทาง";
 "TypeSecureNote" = "โน้ตความปลอดภัย";
 "Address1" = "ที่อยู่ 1";
 "Address2" = "ที่อยู่ 2";
@@ -220,7 +223,7 @@
 "August" = "สิงหาคม";
 "Brand" = "แบรนด์";
 "CardholderName" = "ชื่อผู้ถือบัตร";
-"WeFoundMultipleMatchesChooseTheCorrectOne" = "We found multiple matches. Choose the correct one.";
+"WeFoundMultipleMatchesChooseTheCorrectOne" = "เราพบรายการที่ตรงกันหลายรายการ โปรดเลือกรายการที่ถูกต้อง";
 "CityTown" = "เมือง / อำเภอ";
 "Company" = "บริษัท";
 "Country" = "ประเทศ";
@@ -258,8 +261,14 @@
 "ShowWebsiteIconsDescription" = "แสดงภาพที่จดจำได้ถัดจากข้อมูลเข้าสู่ระบบแต่ละรายการ";
 "IconsUrl" = "URL เซิร์ฟเวอร์ไอคอน";
 "AutofillWithBitwarden" = "ป้อนอัตโนมัติด้วย Bitwarden";
+/* Section header and screen title for viewing/managing a cipher's collections. */
 "Collections" = "คอลเลกชัน";
+/* Section header and screen title for viewing/managing a cipher's shared folders. */
+"SharedFolders" = "โฟลเดอร์ที่แชร์";
+/* Empty state message shown when a collection has no items. */
 "NoItemsCollection" = "ไม่มีรายการในคอลเลกชันนี้";
+/* Empty state message shown when a shared folder has no items. */
+"ThereAreNoItemsInThisSharedFolder" = "There are no items in this shared folder";
 "NoItemsFolder" = "ไม่มีรายการในโฟลเดอร์นี้";
 "NoItemsTrash" = "ไม่มีรายการในถังขยะ";
 "FaceID" = "Face ID";
@@ -279,6 +288,7 @@
 "RegEx" = "Regular expression";
 "StartsWith" = "ขึ้นต้นด้วย";
 "MatchDetection" = "การตรวจสอบการจับคู่";
+/* Field label on the Move screen shown when the "vfo1-foundation" feature flag is disabled; superseded by "Vault" when enabled. */
 "Organization" = "องค์กร";
 "HoldYubikeyNearTop" = "ถือ YubiKey ไว้ใกล้ด้านบนของอุปกรณ์";
 "TryAgain" = "ลองอีกครั้ง";
@@ -314,13 +324,26 @@
 "NoItemsToList" = "ไม่มีรายการที่จะแสดง";
 "MoveDown" = "เลื่อนลง";
 "MoveUp" = "เลื่อนขึ้น";
+/* Empty state message on the Collections screen shown when a user has no collections. */
 "NoCollectionsToList" = "ไม่มีคอลเลกชันที่จะแสดง";
+/* Empty state message on the Shared folders screen shown when a user has no shared folders. */
+"ThereAreNoSharedFoldersToList" = "ไม่มีโฟลเดอร์ที่แชร์ที่จะแสดง";
 "MovedItemToOrg" = "ย้าย %1$@ ไปยัง %2$@ แล้ว";
+/* Alert message shown when saving an item with no collection selected. */
 "SelectOneCollection" = "คุณต้องเลือกอย่างน้อยหนึ่งคอลเลกชัน";
+/* Alert message shown when saving an item with no shared folder selected. */
+"YouMustSelectAtLeastOneSharedFolder" = "คุณต้องเลือกโฟลเดอร์ที่แชร์อย่างน้อยหนึ่งโฟลเดอร์";
 "Share" = "แชร์";
 "ShareAll" = "แชร์ทั้งหมด";
+/* Overflow menu item and screen title on the Move screen shown when the "vfo1-foundation" feature flag is disabled; superseded by "Move" when enabled. */
 "MoveToOrganization" = "ย้ายไปองค์กร";
+/* Empty state message shown when a user has no vaults available to move an item into, when the "vfo1-foundation" feature flag is enabled. */
+"NoVaultsToList" = "ไม่มีคลังข้อมูลที่จะแสดง";
+/* Empty state message shown when a user has no organizations available to move an item into, when the "vfo1-foundation" feature flag is disabled. */
 "NoOrgsToList" = "ไม่มีองค์กรที่จะแสดง";
+/* Footer text on the Move screen explaining that moving an item transfers its ownership to the destination vault's organization, when the "vfo1-foundation" feature flag is enabled. */
+"ChooseAVaultThatYouWishToMoveThisItemToDescriptionLong" = "เลือกคลังข้อมูลที่คุณต้องการย้ายรายการนี้ไป การย้ายไปยังคลังข้อมูลอื่นจะโอนความเป็นเจ้าของรายการไปยังองค์กรนั้น คุณจะไม่ใช่เจ้าของโดยตรงของรายการนี้อีกต่อไปเมื่อถูกย้ายแล้ว";
+/* Footer text on the Move screen explaining that moving an item transfers its ownership to the destination organization, when the "vfo1-foundation" feature flag is disabled. */
 "MoveToOrgDesc" = "เลือกองค์กรที่คุณต้องการย้ายรายการนี้ไป การย้ายไปองค์กรจะเป็นการโอนสิทธิ์ความเป็นเจ้าของรายการไปยังองค์กรนั้น คุณจะไม่ใช่เจ้าของโดยตรงของรายการนี้อีกต่อไปหลังจากย้ายแล้ว";
 "NumberOfWords" = "จำนวนคำ";
 "Passphrase" = "วลีรหัสผ่าน";
@@ -393,7 +416,7 @@
 "MasterPasswordPolicyValidationTitle" = "รหัสผ่านไม่ถูกต้อง";
 "MasterPasswordPolicyValidationMessage" = "รหัสผ่านไม่ตรงตามข้อกำหนดขององค์กร โปรดตรวจสอบข้อมูลนโยบายแล้วลองอีกครั้ง";
 "Loading" = "กำลังโหลด";
-"LoadingSubscription" = "Loading subscription…";
+"LoadingSubscription" = "กำลังโหลดการสมัครสมาชิก…";
 "AcceptPoliciesError" = "ยังไม่ได้ยอมรับข้อกำหนดในการให้บริการและนโยบายความเป็นส่วนตัว";
 "PrivacyPolicy" = "นโยบายความเป็นส่วนตัว";
 "PersonalOwnershipPolicyInEffect" = "นโยบายองค์กรมีผลต่อตัวเลือกความเป็นเจ้าของของคุณ";
@@ -474,8 +497,8 @@
 "Totp" = "TOTP";
 "VerificationCodes" = "รหัสยืนยัน";
 "PremiumSubscriptionRequired" = "ต้องสมัครสมาชิกพรีเมียม";
-"APremiumPlanGivesYouMoreToolsDescriptionLong" = "A Premium plan gives you more tools to stay secure and in control.";
-"UnlockAdvancedSecurityFeatures" = "Unlock advanced security features";
+"APremiumPlanGivesYouMoreToolsDescriptionLong" = "แผนพรีเมียมมอบเครื่องมือเพิ่มเติมให้คุณเพื่อความปลอดภัยและการควบคุม";
+"UnlockAdvancedSecurityFeatures" = "ปลดล็อกคุณสมบัติความปลอดภัยขั้นสูง";
 "CannotAddAuthenticatorKey" = "เพิ่มคีย์แอปยืนยันตัวตนไม่ได้ใช่ไหม";
 "ScanQRCode" = "สแกน QR Code";
 "CannotScanQRCode" = "สแกน QR Code ไม่ได้ใช่ไหม";
@@ -560,12 +583,12 @@
 "ThereAreNoCardsInYourVault" = "ไม่มีบัตรในตู้นิรภัย";
 "ThereAreNoNotesInYourVault" = "ไม่มีโน้ตในตู้นิรภัย";
 "ThereAreNoIdentitiesInYourVault" = "ไม่มีข้อมูลระบุตัวตนในตู้นิรภัย";
-"ThereAreNoPassportsInYourVault" = "There are no passports in your vault";
+"ThereAreNoPassportsInYourVault" = "ไม่มีหนังสือเดินทางในคลังข้อมูลของคุณ";
 "ThereAreNoSSHKeysInYourVault" = "ไม่มีคีย์ SSH ในตู้นิรภัย";
-"ThereAreNoBankAccountsInYourVault" = "There are no bank accounts in your vault";
+"ThereAreNoBankAccountsInYourVault" = "ไม่มีบัญชีธนาคารในคลังข้อมูลของคุณ";
 "US" = "สหรัฐอเมริกา";
 "EU" = "ยุโรป";
-"Gov" = "Gov";
+"Gov" = "รัฐบาล";
 "SelfHosted" = "โฮสต์เอง";
 "UpdateWeakMasterPasswordWarning" = "รหัสผ่านหลักของคุณไม่ตรงตามนโยบายองค์กรอย่างน้อยหนึ่งข้อ ในการเข้าถึงตู้นิรภัย คุณต้องอัปเดตรหัสผ่านหลักตอนนี้ การดำเนินการต่อจะทำให้คุณออกจากระบบเซสชันปัจจุบัน และต้องเข้าสู่ระบบใหม่อีกครั้ง เซสชันที่ใช้งานอยู่บนอุปกรณ์อื่นอาจยังคงใช้งานได้นานถึงหนึ่งชั่วโมง";
 "CurrentMasterPasswordRequired" = "รหัสผ่านหลักปัจจุบัน (จำเป็น)";
@@ -574,8 +597,8 @@
 "RequestAdminApproval" = "ขออนุมัติจากผู้ดูแลระบบ";
 "ApproveWithMasterPassword" = "อนุมัติด้วยรหัสผ่านหลัก";
 "TurnOffUsingPublicDevice" = "ปิดการใช้งานอุปกรณ์สาธารณะ";
-"TurnOnFillAssist" = "Turn on fill assist";
-"TurnOnFillAssistDescriptionLong" = "Fill Assist improves autofill accuracy on supported sites by using site-specific rules.";
+"TurnOnFillAssist" = "เปิดใช้งานตัวช่วยเติม";
+"TurnOnFillAssistDescriptionLong" = "ตัวช่วยเติมข้อมูลช่วยเพิ่มความแม่นยำในการเติมข้อมูลอัตโนมัติบนเว็บไซต์ที่รองรับโดยใช้กฎเฉพาะไซต์";
 "RememberThisDevice" = "จดจำอุปกรณ์นี้";
 "Passkey" = "พาสคีย์";
 "Passkeys" = "พาสคีย์";
@@ -589,6 +612,7 @@
 "LoginApproved" = "อนุมัติการเข้าสู่ระบบแล้ว";
 "LogInWithDevice" = "เข้าสู่ระบบด้วยอุปกรณ์";
 "LoggingInOn" = "กำลังเข้าสู่ระบบบน";
+/* The word "Vault", used generically as a field label, screen title, and app-wide term for a user's or organization's item collection. */
 "Vault" = "ตู้นิรภัย";
 "Appearance" = "รูปลักษณ์";
 "AccountSecurity" = "ความปลอดภัยของบัญชี";
@@ -624,7 +648,7 @@
 "SetUpAutofill" = "ตั้งค่าป้อนอัตโนมัติ";
 "AppInfo" = "ข้อมูลแอป";
 "Browse" = "เรียกดู";
-"SelectCardholderName" = "Select cardholder name";
+"SelectCardholderName" = "เลือกชื่อผู้ถือบัตร";
 "SelectLanguage" = "เลือกภาษา";
 "ContinueToCompleteWebAuthnVerification" = "ดำเนินการต่อเพื่อเสร็จสิ้นการยืนยัน WebAuthn";
 "ThereWasAnErrorStartingWebAuthnTwoFactorAuthentication" = "เกิดข้อผิดพลาดในการเริ่มการยืนยันตัวตนสองขั้นตอนแบบ WebAuthn";
@@ -723,25 +747,25 @@
 "TheVaultProtectsMoreThanJustPasswordsStoreSecureLoginsIdsCardsAndNotesSecurelyHere" = "ตู้นิรภัยปกป้องมากกว่าแค่รหัสผ่านของคุณ จัดเก็บข้อมูลเข้าสู่ระบบที่ปลอดภัย ข้อมูลระบุตัวตน บัตร และโน้ตอย่างปลอดภัยที่นี่";
 "SendSensitiveInformationSafely" = "ส่งข้อมูลสำคัญอย่างปลอดภัย";
 "ShareFilesAndDataSecurelyWithAnyoneOnAnyPlatformYourInformationWillRemainEndToEndEncrypted" = "แชร์ไฟล์และข้อมูลอย่างปลอดภัยกับใครก็ได้ บนแพลตฟอร์มใดก็ได้ ข้อมูลของคุณจะยังคงถูกเข้ารหัสแบบต้นทางถึงปลายทางในขณะที่จำกัดการเปิดเผย";
-"AddLogin" = "Add login";
-"AddCard" = "Add card";
-"AddIdentity" = "Add identity";
-"AddNote" = "Add note";
-"AddSSHKey" = "Add SSH key";
-"AddBankAccount" = "Add bank account";
-"AddLicense" = "Add license";
-"AddPassport" = "Add passport";
-"EditBankAccount" = "Edit bank account";
-"EditLicense" = "Edit license";
-"EditPassport" = "Edit passport";
+"AddLogin" = "เพิ่มข้อมูลเข้าสู่ระบบ";
+"AddCard" = "เพิ่มบัตร";
+"AddIdentity" = "เพิ่มข้อมูลประจำตัว";
+"AddNote" = "เพิ่มบันทึก";
+"AddSSHKey" = "เพิ่มคีย์ SSH";
+"AddBankAccount" = "เพิ่มบัญชีธนาคาร";
+"AddLicense" = "เพิ่มใบอนุญาต";
+"AddPassport" = "เพิ่มหนังสือเดินทาง";
+"EditBankAccount" = "แก้ไขบัญชีธนาคาร";
+"EditLicense" = "แก้ไขใบอนุญาต";
+"EditPassport" = "แก้ไขหนังสือเดินทาง";
 "EditLogin" = "แก้ไขข้อมูลเข้าสู่ระบบ";
 "EditCard" = "แก้ไขบัตร";
 "EditIdentity" = "แก้ไขข้อมูลระบุตัวตน";
 "EditNote" = "แก้ไขโน้ต";
 "EditSSHKey" = "แก้ไขคีย์ SSH";
-"ViewBankAccount" = "View bank account";
-"ViewLicense" = "View license";
-"ViewPassport" = "View passport";
+"ViewBankAccount" = "ดูบัญชีธนาคาร";
+"ViewLicense" = "ดูใบอนุญาต";
+"ViewPassport" = "ดูหนังสือเดินทาง";
 "ViewLogin" = "ดูข้อมูลเข้าสู่ระบบ";
 "ViewCard" = "ดูบัตร";
 "ViewIdentity" = "ดูข้อมูลระบุตัวตน";
@@ -774,17 +798,17 @@
 "BitwardenTools" = "เครื่องมือ Bitwarden";
 "ImportSuccessful" = "นำเข้าสำเร็จ!";
 "ManageYourLoginsFromAnywhereWithBitwardenToolsForWebAndDesktop" = "จัดการข้อมูลเข้าสู่ระบบของคุณได้จากทุกที่ด้วยเครื่องมือ Bitwarden สำหรับเว็บและเดสก์ท็อป";
-"ManageYourSubscriptionPlanInTheBitwardenWebApp" = "Manage your subscription plan in the Bitwarden web app.";
+"ManageYourSubscriptionPlanInTheBitwardenWebApp" = "จัดการแผนการสมัครสมาชิกของคุณในเว็บแอป Bitwarden";
 "DownloadTheBrowserExtension" = "ดาวน์โหลดส่วนขยายเบราว์เซอร์";
 "GoToBitwardenToIntegrateBitwardenIntoYourFavoriteBrowserForASeamlessExperience" = "ไปที่ bitwarden.com/download เพื่อรวม Bitwarden เข้ากับเบราว์เซอร์โปรดของคุณเพื่อประสบการณ์ที่ราบรื่น";
 "UseTheWebApp" = "ใช้เว็บแอป";
 "LogInAtBitwardenToEasilyManageYourAccountAndUpdateSettings" = "เข้าสู่ระบบที่ bitwarden.com เพื่อจัดการบัญชีและอัปเดตการตั้งค่าของคุณได้อย่างง่ายดาย";
 "AutofillPasswords" = "ป้อนรหัสผ่านอัตโนมัติ";
 "SetUpAutofillOnAllYourDevicesToLoginWithASingleTapAnywhere" = "ตั้งค่าการป้อนอัตโนมัติบนอุปกรณ์ทั้งหมดของคุณเพื่อเข้าสู่ระบบด้วยการแตะเพียงครั้งเดียวจากทุกที่";
-"GoBack" = "Go back";
+"GoBack" = "กลับ";
 "GotIt" = "รับทราบ";
 /* masterPasswordUnlock is the name of some data we want to delete, so there's no need to localize it. */
-"ClearMasterPasswordUnlock" = "Clear masterPasswordUnlock";
+"ClearMasterPasswordUnlock" = "ล้าง masterPasswordUnlock";
 "ClearSsoCookies" = "ลบคุกกี้ SSO";
 "GenerateCrash" = "สร้างการหยุดทำงาน (Crash)";
 "GenerateErrorReport" = "สร้างรายงานข้อผิดพลาด";
@@ -801,7 +825,7 @@
 "UnableToMoveTheSelectedItemPleaseTryAgain" = "ไม่สามารถย้ายรายการที่เลือกได้ โปรดลองอีกครั้ง";
 "Done" = "เสร็จสิ้น";
 "Next" = "ถัดไป";
-"NextCode" = "Next code";
+"NextCode" = "รหัสถัดไป";
 "CopyPublicKey" = "คัดลอก Public Key";
 "CopyPrivateKey" = "คัดลอก Private Key";
 "CopyFingerprint" = "คัดลอกลายนิ้วมือ";
@@ -870,8 +894,13 @@
 "ShowLess" = "แสดงน้อยลง";
 "ItemNameX" = "ชื่อรายการ: %1$@";
 "OwnerX" = "เจ้าของ: %1$@";
+"VaultX" = "คลังข้อมูล, %1$@";
+/* VoiceOver accessibility label for a collection the item belongs to. */
 "CollectionX" = "คอลเลกชัน: %1$@";
+/* VoiceOver accessibility label for a shared folder the item belongs to. */
+"SharedFolderX" = "Shared folder, %1$@";
 "FolderX" = "โฟลเดอร์: %1$@";
+"MyFolderX" = "My folder, %1$@";
 "ItemXOfY" = "รายการ %1$@ จาก %2$@";
 "ViewRecordedLogs" = "ดูบันทึกที่ถูกบันทึกไว้";
 "RecordedLogs" = "บันทึกที่ถูกบันทึกไว้";
@@ -950,7 +979,7 @@
 "NoAskMe" = "ไม่ ถามฉัน";
 "NoCodes" = "คุณไม่มีรหัสที่จะแสดง";
 "None" = "ไม่มี";
-"NoneOfTheAbove" = "None of the above";
+"NoneOfTheAbove" = "ไม่มีข้อใดข้างต้น";
 "NumberOfDigits" = "จำนวนหลัก";
 "OtpType" = "ประเภท OTP";
 "RefreshPeriod" = "ระยะเวลารีเฟรช";
@@ -959,9 +988,9 @@
 "SaveHere" = "บันทึกที่นี่";
 "SaveThisAuthenticatorKeyHereOrAddItToALoginInYourBitwardenApp" = "บันทึกคีย์ยืนยันตัวตนนี้ที่นี่ หรือเพิ่มลงในข้อมูลเข้าสู่ระบบในแอป Bitwarden ของคุณ";
 "SaveToBitwarden" = "บันทึกไปที่ Bitwarden";
-"ScanCard" = "Scan card";
-"PositionYourCardInTheFrameToScanIt" = "Position your card in the frame to scan it";
-"EnableCameraPermissionInSettingsToScanYourCard" = "Enable camera access in Settings to scan your card.";
+"ScanCard" = "สแกนบัตร";
+"PositionYourCardInTheFrameToScanIt" = "วางบัตรของคุณในกรอบเพื่อสแกน";
+"EnableCameraPermissionInSettingsToScanYourCard" = "เปิดใช้งานการเข้าถึงกล้องในการตั้งค่าเพื่อสแกนบัตรของคุณ";
 "ScanComplete" = "สแกนเสร็จสมบูรณ์";
 "ScanTheQRCodeInYourSettings" = "สแกน QR Code ในการตั้งค่าการยืนยันตัวตนแบบ 2 ขั้นตอนสำหรับบัญชีใดก็ได้";
 "SecureYourAssetsWithBitwardenAuthenticator" = "รักษาความปลอดภัยบัญชีของคุณด้วย Bitwarden Authenticator";
@@ -1032,10 +1061,10 @@
 "ItemsTransferred" = "ถ่ายโอนรายการแล้ว";
 "ArchiveIsEmpty" = "ไม่มีรายการเก็บถาวร";
 "ArchiveEmptyDescriptionLong" = "ย้ายรายการที่คุณไม่อยากให้เห็นในผลการค้นหาและคำแนะนำป้อนอัตโนมัติ แต่เผื่อต้องใช้ในอนาคต มาไว้ในรายการเก็บถาวร";
-"ArchiveItem" = "Archive item";
-"OnceArchivedThisItemWillBeExcludedDescriptionLong" = "Once archived, this item will be excluded from search results and autofill suggestions.";
+"ArchiveItem" = "เก็บถาวรรายการ";
+"OnceArchivedThisItemWillBeExcludedDescriptionLong" = "เมื่อเก็บถาวรแล้ว รายการนี้จะถูกแยกออกจากผลการค้นหาและคำแนะนำการเติมข้อมูลอัตโนมัติ";
 "ArchivingItemsIsAPremiumFeatureDescriptionLong" = "การเก็บถาวรรายการเป็นฟีเจอร์พรีเมียม แผนปัจจุบันของคุณไม่สามารถใช้งานฟีเจอร์นี้ได้";
-"AddingAttachmentsIsAPremiumFeatureDescriptionLong" = "Adding attachments is a Premium feature. Your current plan does not include access to this feature.";
+"AddingAttachmentsIsAPremiumFeatureDescriptionLong" = "การเพิ่มไฟล์แนบเป็นคุณสมบัติพรีเมียม แผนปัจจุบันของคุณไม่รวมการเข้าถึงคุณสมบัตินี้";
 "UpgradeToPremium" = "อัปเกรดเป็นพรีเมียม";
 "ThisItemIsArchived" = "รายการนี้เก็บถาวรอยู่";
 "YourPremiumSubscriptionEnded" = "สมาชิกพรีเมียมสิ้นสุดลงแล้ว";
@@ -1053,177 +1082,177 @@
 "SharingWithSpecificPeopleIsPremiumFeatureDescriptionLong" = "การแชร์กับบุคคลที่ระบุเป็นฟีเจอร์พรีเมียม แผนปัจจุบันของคุณไม่สามารถใช้งานฟีเจอร์นี้ได้";
 "Alias" = "นามแฝง";
 "CertificateAlias" = "นามแฝงใบรับรอง";
-"TheCertificateCouldNotBeInstalled" = "The certificate could not be installed.";
-"TheCertificateHasExpired" = "The certificate has expired.";
-"TheCertificateFileIsInvalidOrCorrupted" = "The certificate file is invalid or corrupted.";
-"TheCertificatePasswordIsIncorrect" = "The certificate password is incorrect.";
+"TheCertificateCouldNotBeInstalled" = "ไม่สามารถติดตั้งใบรับรองได้";
+"TheCertificateHasExpired" = "ใบรับรองหมดอายุแล้ว";
+"TheCertificateFileIsInvalidOrCorrupted" = "ไฟล์ใบรับรองไม่ถูกต้องหรือเสียหาย";
+"TheCertificatePasswordIsIncorrect" = "รหัสผ่านใบรับรองไม่ถูกต้อง";
 "CertificateUsedForClientAuthentication" = "ใบรับรองที่ใช้สำหรับการยืนยันตัวตนไคลเอ็นต์";
 "ClientCertificateMtls" = "ใบรับรองไคลเอ็นต์ (mTLS)";
-"ACertificateWithTheAliasAlreadyExistsDescriptionLong" = "A certificate with the alias \"%1$@\" already exists. Do you want to replace it?";
-"EnterTheCertificatePasswordAndAlias" = "Enter the certificate password and the desired alias.";
+"ACertificateWithTheAliasAlreadyExistsDescriptionLong" = "มีใบรับรองที่มีชื่อแทน \"%1$@\" อยู่แล้ว คุณต้องการแทนที่หรือไม่?";
+"EnterTheCertificatePasswordAndAlias" = "ป้อนรหัสผ่านใบรับรองและชื่อแทนที่ต้องการ";
 "ImportCertificate" = "นำเข้าใบรับรอง";
 "ImportClientCertificate" = "นำเข้าใบรับรองไคลเอ็นต์";
-"NoCertificateDataAvailable" = "No certificate data is available.";
-"RemoveCertificate" = "Remove certificate";
+"NoCertificateDataAvailable" = "ไม่มีข้อมูลใบรับรอง";
+"RemoveCertificate" = "ลบใบรับรอง";
 "ReplaceCertificate" = "แทนที่ใบรับรอง";
-"ReplaceExistingCertificate" = "Replace existing certificate";
-"UnableToReadCertificateFile" = "Unable to read the certificate file.";
+"ReplaceExistingCertificate" = "แทนที่ใบรับรองที่มีอยู่";
+"UnableToReadCertificateFile" = "ไม่สามารถอ่านไฟล์ใบรับรองได้";
 /* masterPasswordUnlock is the name of some data we want to delete, so there's no need to localize it. */
-"MasterPasswordUnlockCleared" = "masterPasswordUnlock cleared.";
+"MasterPasswordUnlockCleared" = "ล้าง masterPasswordUnlock แล้ว";
 "SsoCookiesCleared" = "ลบคุกกี้ SSO แล้ว";
 "YourRequestWasInterruptedBecauseTheAppNeededToReAuthenticatePleaseTryAgain" = "คำขอของคุณถูกขัด เพราะแอปต้องการที่จะยืนยันตัวตนใหม่ โปรดลองอีกครั้ง";
-"AutofillWithBitwardenDescriptionLong" = "Bitwarden can suggest your passwords and other credentials when you sign in to apps and websites.";
-"LearnMoreAboutAutofill" = "Learn more about autofill";
-"TurnOnNow" = "Turn on now";
-"AcceptTransfer" = "Accept transfer";
-"YourPasswordAndHintCannotBeTheSamePleaseChooseADifferentHint" = "Your password and hint cannot be the same. Please choose a different hint.";
-"Plan" = "Plan";
-"Premium" = "Premium";
-"Active" = "Active";
-"Canceled" = "Canceled";
-"PastDue" = "Past due";
-"PendingCancellation" = "Pending cancellation";
-"Unpaid" = "Unpaid";
-"UpdatePayment" = "Update payment";
-"BillingAmount" = "Billing amount";
-"StorageCost" = "Storage cost";
-"Discount" = "Discount";
-"EstimatedTax" = "Estimated tax";
-"Total" = "Total";
-"ManagePlan" = "Manage plan";
-"CancelPremium" = "Cancel Premium";
+"AutofillWithBitwardenDescriptionLong" = "Bitwarden สามารถแนะนำรหัสผ่านและข้อมูลประจำตัวอื่นๆ ของคุณเมื่อคุณลงชื่อเข้าใช้แอปและเว็บไซต์";
+"LearnMoreAboutAutofill" = "เรียนรู้เพิ่มเติมเกี่ยวกับการเติมข้อมูลอัตโนมัติ";
+"TurnOnNow" = "เปิดใช้งานตอนนี้";
+"AcceptTransfer" = "ยอมรับการโอน";
+"YourPasswordAndHintCannotBeTheSamePleaseChooseADifferentHint" = "รหัสผ่านและคำใบ้ของคุณไม่สามารถเหมือนกันได้ โปรดเลือกคำใบ้อื่น";
+"Plan" = "แผน";
+"Premium" = "พรีเมียม";
+"Active" = "ใช้งานอยู่";
+"Canceled" = "ยกเลิกแล้ว";
+"PastDue" = "ค้างชำระ";
+"PendingCancellation" = "รอยกเลิก";
+"Unpaid" = "ค้างชำระ";
+"UpdatePayment" = "อัปเดตการชำระเงิน";
+"BillingAmount" = "จำนวนเงินเรียกเก็บ";
+"StorageCost" = "ค่าใช้จ่ายในการจัดเก็บ";
+"Discount" = "ส่วนลด";
+"EstimatedTax" = "ภาษีโดยประมาณ";
+"Total" = "รวม";
+"ManagePlan" = "จัดการแผน";
+"CancelPremium" = "ยกเลิกพรีเมียม";
 "ExternalLink" = "ลิงก์ภายนอก";
-"YourNextChargeIsForXDueOnY" = "Your next charge is for **%1$@**, due on **%2$@**.";
-"WeCouldNotProcessYourPaymentUpdateYourPaymentMethodDescriptionLong" = "We could not process your payment. Update your payment method before your subscription ends on **%1$@**.";
+"YourNextChargeIsForXDueOnY" = "ค่าใช้จ่ายครั้งถัดไปของคุณคือ **%1$@** ครบกำหนด **%2$@**";
+"WeCouldNotProcessYourPaymentUpdateYourPaymentMethodDescriptionLong" = "เราไม่สามารถดำเนินการชำระเงินของคุณได้ โปรดอัปเดตวิธีการชำระเงินก่อนที่การสมัครสมาชิกของคุณจะสิ้นสุดในวันที่ **%1$@**";
 /* Error message shown when the Premium Plan screen fails to load subscription data, with a prompt to retry. */
-"WeCouldntLoadYourSubscriptionDetailsPleaseRetry" = "We couldn't load your subscription details. Please try again.";
-"YourSubscriptionWasCanceledOnXDescriptionLong" = "Your subscription was canceled on **%1$@**. Resubscribe to continue using Premium features.";
-"YourSubscriptionWasSuspendedOnXDescriptionLong" = "Your subscription was suspended on **%1$@**. To reactivate, please resolve your past due invoices.";
-"YourSubscriptionExpiredOnXDescriptionLong" = "Your subscription expired on **%1$@**. Resubscribe to continue using Premium features.";
-"YourSubscriptionIsScheduledToCancelOnXDescriptionLong" = "Your subscription is scheduled to cancel on **%1$@**. You can reinstate it anytime before then.";
-"PerMonth" = "/ month";
+"WeCouldntLoadYourSubscriptionDetailsPleaseRetry" = "เราไม่สามารถโหลดรายละเอียดการสมัครสมาชิกของคุณได้ โปรดลองอีกครั้ง";
+"YourSubscriptionWasCanceledOnXDescriptionLong" = "การสมัครสมาชิกของคุณถูกยกเลิกเมื่อ **%1$@** สมัครใหม่เพื่อใช้คุณสมบัติพรีเมียมต่อ";
+"YourSubscriptionWasSuspendedOnXDescriptionLong" = "การสมัครสมาชิกของคุณถูกระงับเมื่อ **%1$@** หากต้องการเปิดใช้งานใหม่ โปรดชำระใบแจ้งหนี้ที่ค้างชำระ";
+"YourSubscriptionExpiredOnXDescriptionLong" = "การสมัครสมาชิกของคุณหมดอายุเมื่อ **%1$@** สมัครใหม่เพื่อใช้คุณสมบัติพรีเมียมต่อ";
+"YourSubscriptionIsScheduledToCancelOnXDescriptionLong" = "การสมัครสมาชิกของคุณมีกำหนดยกเลิกในวันที่ **%1$@** คุณสามารถยกเลิกการยกเลิกได้ตลอดเวลาก่อนวันดังกล่าว";
+"PerMonth" = "/ เดือน";
 /* VoiceOver reading of "PerMonth", spoken instead of shown. */
-"PerMonthVoiceOver" = "per month";
-"PerYear" = "/ year";
+"PerMonthVoiceOver" = "ต่อเดือน";
+"PerYear" = "/ ปี";
 /* VoiceOver reading of "PerYear", spoken instead of shown. */
-"PerYearVoiceOver" = "per year";
+"PerYearVoiceOver" = "ต่อปี";
 "XAmountPerCadence" = "%1$@ %2$@";
 /* %1$@ is an amount and cadence together, e.g. "$1.65 / month". */
-"XCancelAnytime" = "%1$@ · Cancel anytime";
+"XCancelAnytime" = "%1$@ · ยกเลิกได้ตลอดเวลา";
 /* VoiceOver reading of "XCancelAnytime", spoken instead of shown. */
-"XCancelAnytimeVoiceOver" = "%1$@, Cancel anytime";
+"XCancelAnytimeVoiceOver" = "%1$@, ยกเลิกได้ตลอดเวลา";
 "NegativeX" = "-%1$@";
-"UnknownStatus" = "Unknown";
-"YourSubscriptionStatusIsUnknownVisitTheWebAppDescriptionLong" = "Your subscription status could not be determined. Please visit the web app for more details or update to the latest version.";
+"UnknownStatus" = "ไม่ทราบ";
+"YourSubscriptionStatusIsUnknownVisitTheWebAppDescriptionLong" = "ไม่สามารถระบุสถานะการสมัครสมาชิกของคุณได้ โปรดไปที่เว็บแอปเพื่อดูรายละเอียดเพิ่มเติมหรืออัปเดตเป็นเวอร์ชันล่าสุด";
 /* Headline on the Premium upgrade screen. */
-"UnlockAdvancedProtection" = "Unlock advanced protection";
+"UnlockAdvancedProtection" = "ปลดล็อกการป้องกันขั้นสูง";
 /* Premium benefit list item. */
-"BreezeThrough2faWithBuiltInCodes" = "Breeze through 2FA with built-in codes";
+"BreezeThrough2faWithBuiltInCodes" = "ผ่าน 2FA ได้อย่างง่ายดายด้วยรหัสในตัว";
 /* Premium benefit list item. */
-"RunReportsToFindRiskyPasswords" = "Run reports to find risky passwords";
+"RunReportsToFindRiskyPasswords" = "เรียกใช้รายงานเพื่อค้นหารหัสผ่านที่มีความเสี่ยง";
 /* Premium benefit list item. */
-"KeepDocumentsSafeAndEncrypted" = "Keep documents safe and encrypted";
+"KeepDocumentsSafeAndEncrypted" = "เก็บเอกสารให้ปลอดภัยและเข้ารหัส";
 /* Premium benefit list item. */
-"AddATrustedEmergencyContact" = "Add a trusted emergency contact";
+"AddATrustedEmergencyContact" = "เพิ่มผู้ติดต่อฉุกเฉินที่เชื่อถือได้";
 /* Premium benefit list item. */
-"IdentifyUnsecureWebsites" = "Identify unsecure websites";
+"IdentifyUnsecureWebsites" = "ระบุเว็บไซต์ที่ไม่ปลอดภัย";
 /* Premium benefit list item. */
-"FlagAccountsWithInactive2fa" = "Flag accounts with inactive 2FA";
+"FlagAccountsWithInactive2fa" = "ทำเครื่องหมายบัญชีที่ปิดใช้งาน 2FA";
 /* Premium benefit list item; "Send" is the Bitwarden Send feature name and shouldn't be translated. */
-"ShareFilesSecurelyWithAnyoneUsingSend" = "Share files securely with anyone using Send";
+"ShareFilesSecurelyWithAnyoneUsingSend" = "แชร์ไฟล์อย่างปลอดภัยกับใครก็ได้โดยใช้ Send";
 /* Premium benefit list item. */
-"Receive247PrioritySupport" = "Receive 24/7 priority support";
-"BuiltInAuthenticator" = "Built-in authenticator";
-"EmergencyAccess" = "Emergency access";
-"PaymentNotReceivedYet" = "Payment not received yet";
-"ReturnToStripeInYourBrowserToFinishYourUpgradeDescriptionLong" = "Return to Stripe in your browser to finish your upgrade.";
-"SecureCheckoutDidntLoad" = "Secure checkout didn't load";
-"WeHadTroubleOpeningThePaymentPageDescriptionLong" = "We had trouble opening the payment page, so try again.";
-"SecureFileStorage" = "Secure file storage";
-"BreachMonitoring" = "Breach monitoring";
-"ConfirmingYourUpgrade" = "Confirming your upgrade…";
-"OpeningCheckout" = "Opening checkout…";
-"UpgradePending" = "Upgrade pending";
-"YourUpgradeIsBeingProcessedDescriptionLong" = "Your upgrade is being processed. You'll remain on the free plan until it's complete. Sync now to check, or continue and it will update automatically.";
-"UpgradedToPremium" = "Upgraded to Premium";
-"SubscriptionNeedsAttention" = "Your subscription needs attention";
-"CheckYourPlanForDetails" = "Check your plan for details.";
-"ViewPlan" = "View plan";
-"YouNowHaveAccessToAdvancedSecurityDescriptionLong" = "You now have access to advanced security features. Learn more about what's included with Premium.";
-"YouNowHaveAccessToAllAdvancedSecurityFeatures" = "You now have access to all advanced security features.";
+"Receive247PrioritySupport" = "รับการสนับสนุนลำดับความสำคัญ 24/7";
+"BuiltInAuthenticator" = "ตัวตรวจสอบสิทธิ์ในตัว";
+"EmergencyAccess" = "การเข้าถึงฉุกเฉิน";
+"PaymentNotReceivedYet" = "ยังไม่ได้รับการชำระเงิน";
+"ReturnToStripeInYourBrowserToFinishYourUpgradeDescriptionLong" = "กลับไปที่ Stripe ในเบราว์เซอร์ของคุณเพื่อดำเนินการอัปเกรดให้เสร็จสิ้น";
+"SecureCheckoutDidntLoad" = "การชำระเงินแบบปลอดภัยไม่โหลด";
+"WeHadTroubleOpeningThePaymentPageDescriptionLong" = "เรามีปัญหาในการเปิดหน้าชำระเงิน โปรดลองอีกครั้ง";
+"SecureFileStorage" = "พื้นที่จัดเก็บไฟล์ที่ปลอดภัย";
+"BreachMonitoring" = "การตรวจสอบการละเมิดข้อมูล";
+"ConfirmingYourUpgrade" = "กำลังยืนยันการอัปเกรดของคุณ…";
+"OpeningCheckout" = "กำลังเปิดการชำระเงิน…";
+"UpgradePending" = "การอัปเกรดรอดำเนินการ";
+"YourUpgradeIsBeingProcessedDescriptionLong" = "การอัปเกรดของคุณกำลังดำเนินการ คุณจะยังคงอยู่ในแผนฟรีจนกว่าจะเสร็จสมบูรณ์ ซิงค์ตอนนี้เพื่อตรวจสอบ หรือดำเนินการต่อและจะอัปเดตโดยอัตโนมัติ";
+"UpgradedToPremium" = "อัปเกรดเป็นพรีเมียมแล้ว";
+"SubscriptionNeedsAttention" = "การสมัครสมาชิกของคุณต้องได้รับการดูแล";
+"CheckYourPlanForDetails" = "ตรวจสอบแผนของคุณสำหรับรายละเอียด";
+"ViewPlan" = "ดูแผน";
+"YouNowHaveAccessToAdvancedSecurityDescriptionLong" = "ขณะนี้คุณสามารถเข้าถึงคุณสมบัติความปลอดภัยขั้นสูงแล้ว เรียนรู้เพิ่มเติมเกี่ยวกับสิ่งที่รวมอยู่ในพรีเมียม";
+"YouNowHaveAccessToAllAdvancedSecurityFeatures" = "ขณะนี้คุณสามารถเข้าถึงคุณสมบัติความปลอดภัยขั้นสูงทั้งหมดแล้ว";
 /* Footer on the Premium upgrade screen; "Stripe" is the payment processor's name and shouldn't be translated. */
-"YoullCompleteThePurchaseWithStripeSecureCheckout" = "You'll complete the purchase with Stripe secure checkout.";
-"ContinueToStripe" = "Continue to Stripe?";
-"YoullBeTakenToStripeToManageYourSubscriptionCancellation" = "You'll be taken to Stripe to manage your subscription cancellation.";
-"UserIDCopiedToTheClipboard" = "User ID copied to the clipboard";
-"UserID" = "User ID";
-"CopyUserID" = "Copy user ID";
-"UserIDUnavailable" = "User ID unavailable";
-"ToManageYourPremiumSubscriptionDescriptionLong" = "To manage your Premium subscription, please log in to your web vault on a computer.";
-"CheckYourConnectionAndTryAgain" = "Check your connection and try again.";
-"PricingUnavailable" = "Pricing unavailable";
-"BankAccount" = "Bank account";
-"BankAccounts" = "Bank accounts";
-"License" = "License";
-"Licenses" = "Licenses";
-"Passport" = "Passport";
-"Passports" = "Passports";
-"LicenseDetails" = "License details";
-"DateOfBirth" = "Date of birth";
-"IssuingCountry" = "Issuing country";
-"IssuingStateProvince" = "Issuing state / province";
-"IssuingAuthority" = "Issuing authority";
-"IssueDate" = "Issue date";
-"ExpirationDate" = "Expiration date";
-"LicenseClass" = "License class";
-"PassportDetails" = "Passport details";
+"YoullCompleteThePurchaseWithStripeSecureCheckout" = "คุณจะดำเนินการซื้อผ่าน Stripe ชำระเงินแบบปลอดภัย";
+"ContinueToStripe" = "ดำเนินการต่อที่ Stripe?";
+"YoullBeTakenToStripeToManageYourSubscriptionCancellation" = "คุณจะถูกนำไปที่ Stripe เพื่อจัดการการยกเลิกการสมัครสมาชิกของคุณ";
+"UserIDCopiedToTheClipboard" = "คัดลอก ID ผู้ใช้ไปยังคลิปบอร์ดแล้ว";
+"UserID" = "ID ผู้ใช้";
+"CopyUserID" = "คัดลอก ID ผู้ใช้";
+"UserIDUnavailable" = "ไม่มี ID ผู้ใช้";
+"ToManageYourPremiumSubscriptionDescriptionLong" = "ในการจัดการการสมัครสมาชิกพรีเมียมของคุณ โปรดลงชื่อเข้าใช้คลังข้อมูลเว็บของคุณบนคอมพิวเตอร์";
+"CheckYourConnectionAndTryAgain" = "ตรวจสอบการเชื่อมต่อของคุณแล้วลองอีกครั้ง";
+"PricingUnavailable" = "ไม่มีข้อมูลราคา";
+"BankAccount" = "บัญชีธนาคาร";
+"BankAccounts" = "บัญชีธนาคาร";
+"License" = "ใบอนุญาต";
+"Licenses" = "ใบอนุญาต";
+"Passport" = "หนังสือเดินทาง";
+"Passports" = "หนังสือเดินทาง";
+"LicenseDetails" = "รายละเอียดใบอนุญาต";
+"DateOfBirth" = "วันเกิด";
+"IssuingCountry" = "ประเทศผู้ออก";
+"IssuingStateProvince" = "รัฐ/จังหวัดที่ออก";
+"IssuingAuthority" = "หน่วยงานออก";
+"IssueDate" = "วันที่ออก";
+"ExpirationDate" = "วันหมดอายุ";
+"LicenseClass" = "ชั้นใบอนุญาต";
+"PassportDetails" = "รายละเอียดหนังสือเดินทาง";
 /* Label for the sex/gender field as printed on a passport (e.g. "M", "F", "X"). */
-"Sex" = "Sex";
-"BirthPlace" = "Birth place";
+"Sex" = "เพศ";
+"BirthPlace" = "สถานที่เกิด";
 /* Label for the nationality field on a passport (the country a person is a national of). */
-"Nationality" = "Nationality";
+"Nationality" = "สัญชาติ";
 /* Label for the category of passport (e.g. "Regular/Tourist", "Diplomatic", "Official"). */
-"PassportType" = "Passport type";
-"NationalIdentificationNumber" = "National identification number";
+"PassportType" = "ประเภทหนังสือเดินทาง";
+"NationalIdentificationNumber" = "หมายเลขประจำตัวประชาชน";
 /* Label for the government authority or office that issued the passport. */
-"IssuingAuthorityOffice" = "Issuing authority/office";
-"AccountDetails" = "Account details";
-"BankName" = "Bank name";
-"NameOnAccount" = "Name on account";
-"AccountType" = "Account type";
-"BranchNumber" = "Branch number";
-"SwiftCode" = "SWIFT code";
+"IssuingAuthorityOffice" = "หน่วยงานออก/สำนักงาน";
+"AccountDetails" = "รายละเอียดบัญชี";
+"BankName" = "ชื่อธนาคาร";
+"NameOnAccount" = "ชื่อในบัญชี";
+"AccountType" = "ประเภทบัญชี";
+"BranchNumber" = "หมายเลขสาขา";
+"SwiftCode" = "รหัส SWIFT";
 "IBAN" = "IBAN";
-"BankContactPhone" = "Bank contact phone";
-"CertificateOfDeposit" = "Certificate of deposit";
-"Checking" = "Checking";
-"InvestmentBrokerage" = "Investment/brokerage";
-"LineOfCredit" = "Line of credit";
-"MoneyMarket" = "Money market";
-"Savings" = "Savings";
-"Devices" = "Devices";
-"NoDevicesFound" = "No devices found";
-"CurrentSession" = "Current session";
-"PendingRequest" = "Pending request";
-"Trusted" = "Trusted";
-"RecentlyActiveLabel" = "Recently active:";
-"FirstLoginLabel" = "First login:";
-"Today" = "Today";
-"PastSevenDays" = "Past 7 days";
-"PastFourteenDays" = "Past 14 days";
-"PastThirtyDays" = "Past 30 days";
-"OverThirtyDaysAgo" = "Over 30 days ago";
-"Unknown" = "Unknown";
+"BankContactPhone" = "โทรศัพท์ติดต่อธนาคาร";
+"CertificateOfDeposit" = "ใบรับรองเงินฝาก";
+"Checking" = "เช็คกิ้ง";
+"InvestmentBrokerage" = "การลงทุน/นายหน้าซื้อขายหลักทรัพย์";
+"LineOfCredit" = "วงเงินสินเชื่อ";
+"MoneyMarket" = "ตลาดเงิน";
+"Savings" = "ออมทรัพย์";
+"Devices" = "อุปกรณ์";
+"NoDevicesFound" = "ไม่พบอุปกรณ์";
+"CurrentSession" = "เซสชันปัจจุบัน";
+"PendingRequest" = "คำขอที่รอดำเนินการ";
+"Trusted" = "เชื่อถือได้";
+"RecentlyActiveLabel" = "ใช้งานล่าสุด:";
+"FirstLoginLabel" = "เข้าสู่ระบบครั้งแรก:";
+"Today" = "วันนี้";
+"PastSevenDays" = "7 วันที่ผ่านมา";
+"PastFourteenDays" = "14 วันที่ผ่านมา";
+"PastThirtyDays" = "30 วันที่ผ่านมา";
+"OverThirtyDaysAgo" = "มากกว่า 30 วันที่ผ่านมา";
+"Unknown" = "ไม่ทราบ";
 /* Device display name. %1$@ = category (e.g. "Mobile"), %2$@ = platform (e.g. "iOS"). */
 "DeviceDisplayNameXHyphenY" = "%1$@ - %2$@";
-"Mobile" = "Mobile";
-"BrowserExtension" = "Browser extension";
-"WebVault2" = "Web vault";
-"Desktop" = "Desktop";
+"Mobile" = "มือถือ";
+"BrowserExtension" = "ส่วนขยาย";
+"WebVault2" = "เว็บแอป";
+"Desktop" = "เดสก์ท็อป";
 "Cli" = "CLI";
 "Sdk" = "SDK";
-"Server" = "Server";
+"Server" = "เซิร์ฟเวอร์";
 /* Accessibility label for the button that clears a field's value. %1$@ is the field's title (e.g. "Date of birth"), so the spoken label reads "Clear Date of birth". */
-"ClearFieldName" = "Clear %1$@";
-"SelectDate" = "Select date";
-"PremiumRequiredTOTPDescriptionLong" = "Authenticator key (TOTP) is a Premium feature. Your current plan does not include access to this feature.";
+"ClearFieldName" = "ล้าง %1$@";
+"SelectDate" = "เลือกวันที่";
+"PremiumRequiredTOTPDescriptionLong" = "คีย์ตัวตรวจสอบสิทธิ์ (TOTP) เป็นคุณสมบัติพรีเมียม แผนปัจจุบันของคุณไม่รวมการเข้าถึงคุณสมบัตินี้";
