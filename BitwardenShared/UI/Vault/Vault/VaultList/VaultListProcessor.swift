@@ -498,8 +498,9 @@ extension VaultListProcessor {
         await updatePremiumUpgradeActionCardVisibility(isPending: isPending)
     }
 
-    /// Updates `shouldShowPremiumUpgradeActionCard` based on whether a Premium upgrade is
-    /// pending, plus the existing banner-dismissed and subscription-attention-card gating.
+    /// Updates `shouldShowPremiumUpgradeActionCard`, hiding it if a Premium upgrade is pending,
+    /// the banner has been dismissed, the subscription attention card is showing, or the account
+    /// is self-hosted; otherwise showing it based on in-app upgrade availability.
     ///
     /// - Parameters:
     ///   - isPending: Whether a Premium upgrade is currently pending.
@@ -760,7 +761,8 @@ extension VaultListProcessor {
     }
 
     /// Streams live updates to the Premium upgrade pending state, hiding or re-evaluating the
-    /// upsell action card as it changes.
+    /// upsell action card as it changes. Needed because dismissing the "Upgrade Pending" alert
+    /// returns to this same screen without a fresh `.appeared`.
     ///
     private func streamPremiumUpgradePendingState() async {
         for await pendingState in services.billingService.premiumUpgradePendingStatePublisher().values {
