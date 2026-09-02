@@ -27,9 +27,6 @@ enum VaultListAction: Equatable {
     /// The user tapped the button to go to archive.
     case goToArchive
 
-    /// An item in the vault was pressed.
-    case itemPressed(item: VaultListItem)
-
     /// The "Learn more" button on the upgraded to Premium action card was tapped.
     case learnMoreAboutPremium
 
