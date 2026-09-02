@@ -432,7 +432,8 @@ class DefaultBillingService: BillingService { // swiftlint:disable:this type_bod
     /// Subscribes to the active account's sync completions and resolves a pending Premium
     /// upgrade after each genuinely new sync.
     ///
-    /// - Parameter userId: The user ID of the account this subscriber was started for.
+    /// - Parameters:
+    ///   - userId: The user ID of the account this subscriber was started for.
     ///
     private func reconcileOnEachNewSync(userId: String) async {
         let publisher: AnyPublisher<Date?, Never>

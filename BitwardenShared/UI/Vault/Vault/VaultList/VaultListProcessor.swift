@@ -501,7 +501,8 @@ extension VaultListProcessor {
     /// Updates `shouldShowPremiumUpgradeActionCard` based on whether a Premium upgrade is
     /// pending, plus the existing banner-dismissed and subscription-attention-card gating.
     ///
-    /// - Parameter isPending: Whether a Premium upgrade is currently pending.
+    /// - Parameters:
+    ///   - isPending: Whether a Premium upgrade is currently pending.
     ///
     private func updatePremiumUpgradeActionCardVisibility(isPending: Bool) async {
         guard !isPending else {
