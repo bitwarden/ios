@@ -1284,7 +1284,7 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
     @MainActor
     func test_perform_streamPremiumUpgradePendingState_showsActionCardWhenResolved() {
         billingRepository.isInAppUpgradeAvailableReturnValue = true
-        subject.state.shouldShowPremiumUpgradeActionCard = false
+        subject.state.shouldShowPremiumUpgradeActionCard = true
         let pendingStateSubject = CurrentValueSubject<PremiumUpgradePendingState, Never>(
             PremiumUpgradePendingState(isPending: true, lastAttemptFailed: false),
         )
@@ -1293,6 +1293,9 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         let task = Task {
             await subject.perform(.streamPremiumUpgradePendingState)
         }
+
+        // Confirm the pending emission is actually observed before it's resolved below.
+        waitFor(subject.state.shouldShowPremiumUpgradeActionCard == false)
 
         pendingStateSubject.send(PremiumUpgradePendingState(isPending: false, lastAttemptFailed: false))
         waitFor(subject.state.shouldShowPremiumUpgradeActionCard == true)
