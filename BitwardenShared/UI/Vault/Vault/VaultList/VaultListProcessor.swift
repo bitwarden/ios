@@ -499,9 +499,7 @@ extension VaultListProcessor {
     }
 
     /// Updates `shouldShowPremiumUpgradeActionCard` based on whether a Premium upgrade is
-    /// currently pending, plus the existing banner-dismissed/subscription-attention-card gating.
-    /// Shared by the one-shot `.appeared` refresh and the live `streamPremiumUpgradePendingState()`
-    /// subscription so both use identical logic.
+    /// pending, plus the existing banner-dismissed and subscription-attention-card gating.
     ///
     /// - Parameter isPending: Whether a Premium upgrade is currently pending.
     ///
