@@ -22,7 +22,7 @@ struct ViewPassportItemView: View {
 
                     dateField(
                         title: Localizations.dateOfBirth,
-                        value: store.state.dateOfBirthDisplay,
+                        value: store.state.dateOfBirth,
                         valueAccessibilityIdentifier: "PassportDateOfBirthEntry",
                     )
 
@@ -44,13 +44,13 @@ struct ViewPassportItemView: View {
 
                     dateField(
                         title: Localizations.issueDate,
-                        value: store.state.issueDateDisplay,
+                        value: store.state.issueDate,
                         valueAccessibilityIdentifier: "PassportIssueDateEntry",
                     )
 
                     dateField(
                         title: Localizations.expirationDate,
-                        value: store.state.expirationDateDisplay,
+                        value: store.state.expirationDate,
                         valueAccessibilityIdentifier: "PassportExpirationDateEntry",
                     )
                 }
@@ -236,19 +236,19 @@ struct ViewPassportItemView: View {
         }
     }
 
-    /// A read-only field displaying a long localized date, hidden when the value is empty.
+    /// A read-only field displaying a long localized date, hidden when unset.
     ///
     /// - Parameters:
     ///   - title: The localized title of the field.
-    ///   - value: The formatted date string to display.
+    ///   - value: The date to display.
     ///   - valueAccessibilityIdentifier: The accessibility identifier for the value.
     ///
     @ViewBuilder
-    private func dateField(title: String, value: String, valueAccessibilityIdentifier: String) -> some View {
-        if !value.isEmpty {
+    private func dateField(title: String, value: Date?, valueAccessibilityIdentifier: String) -> some View {
+        if let value {
             BitwardenTextValueField(
                 title: title,
-                value: value,
+                value: value.longCalendarDateDisplay,
                 valueAccessibilityIdentifier: valueAccessibilityIdentifier,
             )
             .accessibilityElement(children: .contain)

@@ -611,8 +611,14 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
         for action: AddEditDriversLicenseItemAction,
     ) {
         switch action {
+        case let .dateOfBirthChanged(dateOfBirth):
+            state.driversLicenseItemState.dateOfBirth = dateOfBirth
+        case let .expirationDateChanged(expirationDate):
+            state.driversLicenseItemState.expirationDate = expirationDate
         case let .firstNameChanged(firstName):
             state.driversLicenseItemState.firstName = firstName
+        case let .issueDateChanged(issueDate):
+            state.driversLicenseItemState.issueDate = issueDate
         case let .issuingAuthorityChanged(issuingAuthority):
             state.driversLicenseItemState.issuingAuthority = issuingAuthority
         case let .issuingCountryChanged(issuingCountry):
@@ -691,8 +697,14 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
         switch action {
         case let .birthPlaceChanged(birthPlace):
             state.passportItemState.birthPlace = birthPlace
+        case let .dateOfBirthChanged(dateOfBirth):
+            state.passportItemState.dateOfBirth = dateOfBirth
+        case let .expirationDateChanged(expirationDate):
+            state.passportItemState.expirationDate = expirationDate
         case let .givenNameChanged(givenName):
             state.passportItemState.givenName = givenName
+        case let .issueDateChanged(issueDate):
+            state.passportItemState.issueDate = issueDate
         case let .issuingAuthorityChanged(issuingAuthority):
             state.passportItemState.issuingAuthority = issuingAuthority
         case let .issuingCountryChanged(issuingCountry):
@@ -1137,6 +1149,8 @@ extension AddEditItemProcessor: GeneratorCoordinatorDelegate {
 
 extension AddEditItemProcessor: AddEditFolderDelegate {
     func folderAdded(_ folderView: FolderView) {
+        // The new folder is selected for the item, so no toast is shown to avoid it covering the
+        // folder field in the add/edit item view.
         state.folder = .custom(folderView)
     }
 

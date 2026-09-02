@@ -59,44 +59,4 @@ struct DriversLicenseItemStateTests {
         #expect(view.issuingAuthority == nil)
         #expect(view.licenseClass == nil)
     }
-
-    /// `dateOfBirthDisplay` formats a set date as a long localized date and returns an empty string
-    /// when unset.
-    @Test
-    func dateOfBirthDisplay() {
-        var subject = DriversLicenseItemState()
-
-        #expect(subject.dateOfBirthDisplay.isEmpty)
-
-        subject.dateOfBirth = Date(year: 2026, month: 8, day: 10)
-        #expect(subject.dateOfBirthDisplay == subject.dateOfBirth?.longCalendarDateDisplay)
-        #expect(subject.dateOfBirthDisplay.contains("August"))
-        #expect(subject.dateOfBirthDisplay.contains("2026"))
-    }
-
-    /// `expirationDateDisplay` formats a set date as a long localized date and returns an empty
-    /// string when unset.
-    @Test
-    func expirationDateDisplay() {
-        var subject = DriversLicenseItemState()
-
-        #expect(subject.expirationDateDisplay.isEmpty)
-
-        subject.expirationDate = Date(year: 2029, month: 1, day: 5)
-        #expect(subject.expirationDateDisplay == subject.expirationDate?.longCalendarDateDisplay)
-        #expect(subject.expirationDateDisplay.contains("January"))
-    }
-
-    /// `issueDateDisplay` formats a set date as a long localized date and returns an empty string
-    /// when unset.
-    @Test
-    func issueDateDisplay() {
-        var subject = DriversLicenseItemState()
-
-        #expect(subject.issueDateDisplay.isEmpty)
-
-        subject.issueDate = Date(year: 2019, month: 8, day: 1)
-        #expect(subject.issueDateDisplay == subject.issueDate?.longCalendarDateDisplay)
-        #expect(subject.issueDateDisplay.contains("August"))
-    }
 }

@@ -619,15 +619,18 @@ class AddEditItemProcessorTests: BitwardenTestCase {
         XCTAssertEqual(subject.state.toast, Toast(title: Localizations.itemUpdated))
     }
 
-    /// `folderAdded(_:)` sets the selected folder to the folder that was added.
+    /// `folderAdded(_:)` sets the selected folder to the folder that was added without showing a
+    /// toast.
     @MainActor
     func test_folderAdded() {
         let newFolder = FolderView.fixture(name: "New folder")
         subject.state.folders = [.default, .custom(newFolder)]
+        XCTAssertNil(subject.state.toast)
 
         subject.folderAdded(newFolder)
 
         XCTAssertEqual(subject.state.folder, .custom(newFolder))
+        XCTAssertNil(subject.state.toast)
     }
 
     /// `init(appExtensionDelegate:coordinator:delegate:services:state:)` with adding configuration
@@ -2222,6 +2225,36 @@ class AddEditItemProcessorTests: BitwardenTestCase {
         XCTAssertFalse(subject.state.driversLicenseItemState.isLicenseNumberVisible)
     }
 
+    /// `receive(_:)` with `.driversLicenseFieldChanged(.dateOfBirthChanged)` updates the state correctly.
+    @MainActor
+    func test_receive_driversLicenseFieldChanged_dateOfBirthChanged() {
+        subject.receive(.driversLicenseFieldChanged(.dateOfBirthChanged(Date(year: 1989, month: 8, day: 1))))
+        XCTAssertEqual(subject.state.driversLicenseItemState.dateOfBirth, Date(year: 1989, month: 8, day: 1))
+
+        subject.receive(.driversLicenseFieldChanged(.dateOfBirthChanged(nil)))
+        XCTAssertNil(subject.state.driversLicenseItemState.dateOfBirth)
+    }
+
+    /// `receive(_:)` with `.driversLicenseFieldChanged(.issueDateChanged)` updates the state correctly.
+    @MainActor
+    func test_receive_driversLicenseFieldChanged_issueDateChanged() {
+        subject.receive(.driversLicenseFieldChanged(.issueDateChanged(Date(year: 2019, month: 8, day: 1))))
+        XCTAssertEqual(subject.state.driversLicenseItemState.issueDate, Date(year: 2019, month: 8, day: 1))
+
+        subject.receive(.driversLicenseFieldChanged(.issueDateChanged(nil)))
+        XCTAssertNil(subject.state.driversLicenseItemState.issueDate)
+    }
+
+    /// `receive(_:)` with `.driversLicenseFieldChanged(.expirationDateChanged)` updates the state correctly.
+    @MainActor
+    func test_receive_driversLicenseFieldChanged_expirationDateChanged() {
+        subject.receive(.driversLicenseFieldChanged(.expirationDateChanged(Date(year: 2029, month: 8, day: 1))))
+        XCTAssertEqual(subject.state.driversLicenseItemState.expirationDate, Date(year: 2029, month: 8, day: 1))
+
+        subject.receive(.driversLicenseFieldChanged(.expirationDateChanged(nil)))
+        XCTAssertNil(subject.state.driversLicenseItemState.expirationDate)
+    }
+
     /// `receive(_:)` with `.identityFieldChanged(.titleChanged)` with a value updates the state correctly.
     @MainActor
     func test_receive_identity_titleChange_withValidValue() {
@@ -3335,6 +3368,36 @@ class AddEditItemProcessorTests: BitwardenTestCase {
 
         subject.receive(.passportFieldChanged(.togglePassportNumberVisibilityChanged(false)))
         XCTAssertFalse(subject.state.passportItemState.isPassportNumberVisible)
+    }
+
+    /// `receive(_:)` with `.passportFieldChanged(.dateOfBirthChanged)` updates the state correctly.
+    @MainActor
+    func test_receive_passportFieldChanged_dateOfBirthChanged() {
+        subject.receive(.passportFieldChanged(.dateOfBirthChanged(Date(year: 2025, month: 4, day: 20))))
+        XCTAssertEqual(subject.state.passportItemState.dateOfBirth, Date(year: 2025, month: 4, day: 20))
+
+        subject.receive(.passportFieldChanged(.dateOfBirthChanged(nil)))
+        XCTAssertNil(subject.state.passportItemState.dateOfBirth)
+    }
+
+    /// `receive(_:)` with `.passportFieldChanged(.issueDateChanged)` updates the state correctly.
+    @MainActor
+    func test_receive_passportFieldChanged_issueDateChanged() {
+        subject.receive(.passportFieldChanged(.issueDateChanged(Date(year: 2021, month: 8, day: 10))))
+        XCTAssertEqual(subject.state.passportItemState.issueDate, Date(year: 2021, month: 8, day: 10))
+
+        subject.receive(.passportFieldChanged(.issueDateChanged(nil)))
+        XCTAssertNil(subject.state.passportItemState.issueDate)
+    }
+
+    /// `receive(_:)` with `.passportFieldChanged(.expirationDateChanged)` updates the state correctly.
+    @MainActor
+    func test_receive_passportFieldChanged_expirationDateChanged() {
+        subject.receive(.passportFieldChanged(.expirationDateChanged(Date(year: 2026, month: 8, day: 10))))
+        XCTAssertEqual(subject.state.passportItemState.expirationDate, Date(year: 2026, month: 8, day: 10))
+
+        subject.receive(.passportFieldChanged(.expirationDateChanged(nil)))
+        XCTAssertNil(subject.state.passportItemState.expirationDate)
     }
 
     /// `getter:rehydrationState` returns the proper state with the cipher id.

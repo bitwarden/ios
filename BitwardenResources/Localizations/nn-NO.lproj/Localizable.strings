@@ -26,6 +26,8 @@
 "FolderNone" = "Inga mappe";
 "Folders" = "Mapper";
 "FolderUpdated" = "Retta mappa.";
+"MyFolder" = "Mappa mi";
+"MyFolders" = "Mappene mine";
 "InternetConnectionRequiredMessage" = "Ver venleg og kopla til nettet før du held fram.";
 "InternetConnectionRequiredTitle" = "Ei nettilkopling er påkravd";
 "InvalidMasterPassword" = "Ugild hovudpassord. Freista om att.";
@@ -898,6 +900,7 @@
 /* VoiceOver accessibility label for a shared folder the item belongs to. */
 "SharedFolderX" = "Delt mappe, %1$@";
 "FolderX" = "Mappe, %1$@";
+"MyFolderX" = "My folder, %1$@";
 "ItemXOfY" = "Element %1$@ av %2$@";
 "ViewRecordedLogs" = "Vis registrerte loggar";
 "RecordedLogs" = "Registrerte loggar";

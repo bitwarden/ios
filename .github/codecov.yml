@@ -6,5 +6,6 @@ ignore:
   - "GlobalTestHelpers/**"
   - "GlobalTestHelpers-bwa/**"
   - "GlobalTestHelpers-bwth/**"
+  - "ViewInspectorTestHelpers/**"
   - "**/Mocks/**"
   - "**/*Mock*.swift"
