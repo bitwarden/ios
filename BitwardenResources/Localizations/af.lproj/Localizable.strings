@@ -26,6 +26,8 @@
 "FolderNone" = "Geen vouer";
 "Folders" = "Vouers";
 "FolderUpdated" = "Vouer bygewerk.";
+"MyFolder" = "My folder";
+"MyFolders" = "My folders";
 "InternetConnectionRequiredMessage" = "Koppel asb. aan die internet voor u voortgaan.";
 "InternetConnectionRequiredTitle" = "Internetverbinding word vereis";
 "InvalidMasterPassword" = "Ongeldige hoofwagwoord. Probeer weer.";
@@ -898,6 +900,7 @@
 /* VoiceOver accessibility label for a shared folder the item belongs to. */
 "SharedFolderX" = "Shared folder, %1$@";
 "FolderX" = "Gids, %1$@";
+"MyFolderX" = "My folder, %1$@";
 "ItemXOfY" = "Item %1$@ van %2$@";
 "ViewRecordedLogs" = "Bekyk opgeneemde logs";
 "RecordedLogs" = "Opnameemde logs";

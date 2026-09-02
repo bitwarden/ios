@@ -26,6 +26,8 @@
 "FolderNone" = "Qovluq yoxdur";
 "Folders" = "Qovluqlar";
 "FolderUpdated" = "Qovluq saxlanıldı";
+"MyFolder" = "Qovluğum";
+"MyFolders" = "Qovluqlarım";
 "InternetConnectionRequiredMessage" = "Davam etməzdən əvvəl lütfən internetə bağlanın.";
 "InternetConnectionRequiredTitle" = "İnternet bağlantısı tələb olunur";
 "InvalidMasterPassword" = "Yararsız ana parol. Yenidən sınayın.";
@@ -148,7 +150,7 @@
 "NoItemsForUri" = "Seyfinizdə %1$@ üçün heç bir element yoxdur.";
 "Off" = "Bağlı";
 "On" = "Açıq";
-"Autofill" = "Avto-doldur";
+"Autofill" = "Avto-doldurma";
 "AutofillEnabled" = "Avto-doldurma fəaldır";
 "MatchingItems" = "Uyuşan elementlər";
 "Search" = "Axtar";
@@ -451,7 +453,7 @@
 "PasswordConfirmation" = "Ana parol təsdiqi";
 "PasswordConfirmationDesc" = "Bu əməliyyat qorumalıdır, davam etmək üçün lütfən kimliyinizi doğrulamaq üçün ana parolunuzu təkrar daxil edin.";
 "UpdateMasterPassword" = "Ana parolu güncəllə";
-"UpdateMasterPasswordWarning" = "Ana parolunuz təzəlikcə təşkilatınızdakı bir inzibatçı tərəfindən dəyişdirildi. Seyfə erişmək üçün Ana parolunuzu indi güncəlləməlisiniz. Davam etsəniz, hazırkı seansdan çıxış etmiş və təkrar giriş etməli olacaqsınız. Digər cihazlardakı aktiv seanslar bir saata qədər aktiv qalmağa davam edə bilər.";
+"UpdateMasterPasswordWarning" = "Ana parolunuz təzəlikcə təşkilatınızdakı bir inzibatçı tərəfindən dəyişdirildi. Seyfə erişmək üçün Ana parolunuzu indi güncəlləməlisiniz. Davam etsəniz, hazırkı sessiyadan çıxış etmiş və təkrar giriş etməli olacaqsınız. Digər cihazlardakı aktiv sessiyalar bir saata qədər aktiv qalmağa davam edə bilər.";
 "UpdatingPassword" = "Parol yenilənir";
 "RemoveMasterPassword" = "Ana parolu sil";
 "LeaveOrganization" = "Təşkilatı tərk et";
@@ -588,7 +590,7 @@
 "EU" = "AB";
 "Gov" = "Gov";
 "SelfHosted" = "Öz-özünə sahiblik edən";
-"UpdateWeakMasterPasswordWarning" = "Ana parolunuz təşkilatınızdakı siyasətlərdən birinə və ya bir neçəsinə uyğun gəlmir. Seyfə erişmək üçün ana parolunuzu indi güncəlləməlisiniz. Davam etsəniz, hazırkı seansdan çıxış etmiş və təkrar giriş etməli olacaqsınız. Digər cihazlardakı aktiv seanslar bir saata qədər aktiv qalmağa davam edə bilər.";
+"UpdateWeakMasterPasswordWarning" = "Ana parolunuz təşkilatınızdakı siyasətlərdən birinə və ya bir neçəsinə uyğun gəlmir. Seyfə erişmək üçün ana parolunuzu indi güncəlləməlisiniz. Davam etsəniz, hazırkı sessiyadan çıxış etmiş və təkrar giriş etməli olacaqsınız. Digər cihazlardakı aktiv seanslar bir saata qədər aktiv qalmağa davam edə bilər.";
 "CurrentMasterPasswordRequired" = "Hazırkı ana parol (tələb olunur)";
 "NewMasterPasswordRequired" = "Yeni ana parol (tələb olunur)";
 "ApproveWithMyOtherDevice" = "Digər cihazımla təsdiqlə";
@@ -613,12 +615,12 @@
 /* The word "Vault", used generically as a field label, screen title, and app-wide term for a user's or organization's item collection. */
 "Vault" = "Seyf";
 "Appearance" = "Görünüş";
-"AccountSecurity" = "Hesab güvənliyi";
+"AccountSecurity" = "Hesab təhlükəsizliyi";
 "BitwardenHelpCenter" = "Bitwarden Kömək Mərkəzi";
 "SyncNow" = "İndi sinxr.";
 "UnlockOptions" = "Kilid açma seçimləri";
-"SessionTimeout" = "Seans vaxt bitməsi";
-"SessionTimeoutAction" = "Seans vaxt bitmə əməliyyatı";
+"SessionTimeout" = "Sessiyanın bitmə vaxtı";
+"SessionTimeoutAction" = "Sessiya vaxtının bitmə əməliyyatı";
 "AccountFingerprintPhrase" = "Hesab barmaq izi ifadəsi";
 "AdditionalOptions" = "Əlavə seçimlər";
 "ContinueToWebApp" = "Veb tətbiqlə davam edilsin?";
@@ -722,7 +724,7 @@
 "PublicKey" = "Hər kəsə açıq açar";
 "TheRegionForTheGivenEmailCouldNotBeLoaded" = "Verilmiş e-poçtla əlaqəli e-poçt yüklənə bilmədi.";
 "SetUpLaterQuestion" = "Daha sonra qurulsun?";
-"YouCanFinishSetupUnlockAnytimeDescriptionLong" = "Quraşdırmanı istənilən vaxt Ayarlardakı Hesab Güvənliyində tamamlaya bilərsiniz. Başqa bir üsul qurana qədər kilidi açmaq üçün ana parolunuzu istifadə edəcəksiniz.";
+"YouCanFinishSetupUnlockAnytimeDescriptionLong" = "Quraşdırmanı istənilən vaxt Ayarlardakı \"Hesab Təhlükəsizliyi\"ndə tamamlaya bilərsiniz. Başqa bir üsul qurana qədər kilidi açmaq üçün ana parolunuzu istifadə edəcəksiniz.";
 "Confirm" = "Təsdiqlə";
 "ErrorConnectingWithTheDuoServiceUseADifferentTwoStepLoginMethodOrContactDuoForAssistance" = "Duo xidmətinə bağlanarkən xəta baş verdi. Fərqli iki addımlı giriş üsulu istifadə edin və ya kömək üçün Duo ilə əlaqə saxlayın.";
 "ThePreAuthUrlsCouldNotBeLoadedToStartTheAccountCreation" = "Hesab yaratmanı başlatmaq üçün Ön Kimlik Doğrulama URL-ləri yüklənə bilmədi.";
@@ -772,8 +774,8 @@
 "ImportSavedLogins" = "Saxlanılmış girişləri daxilə köçür";
 "ImportSavedLoginsDescriptionLong" = "Mövcud bir parol menecerindən girişləri daxilə köçürmək üçün bir kompüter istifadə edin.";
 "ImportLogins" = "Girişləri daxilə köçür";
-"GiveYourVaultAHeadStart" = "Seyfinizə üstünlük verin";
-"ImportLoginsDescriptionLong" = "Kompüterinizdəki brauzerinizdə və ya digər parol menecerində saxlanılan parolları xaricə köçürmək üçün aşağıdakı təlimatları izləyin. Daha sonra, onları güvənli şəkildə Bitwarden-ə köçürün.";
+"GiveYourVaultAHeadStart" = "Seyfinizi hazır vəziyyətə gətirin";
+"ImportLoginsDescriptionLong" = "Kompüterinizdə aşağıdakı təlimatları izləyərək brauzerinizdə və ya digər parol menecerinizdə saxlanılan parolları xaricə köçürün. Daha sonra, onları güvənli şəkildə Bitwarden-ə köçürün.";
 "ImportLoginsLater" = "Girişləri daha sonra daxilə köçür";
 "ImportLoginsLaterQuestion" = "Girişlər daha sonra daxilə köçürülsün?";
 "YouCanReturnToCompleteThisStepAnytimeInVaultUnderSettings" = "Bu addımı tamamlamaq üçün istənilən vaxt Ayarlardakı \"Seyf\"ə qayıda bilərsiniz.";
@@ -789,16 +791,16 @@
 "OnYourComputerOpenANewBrowserTabAndGoTo" = "Kompüterinizdə yeni bir brauzer vərəqi açın və bura gedin: **%1$@**";
 "LogInToTheBitwardenWebApp" = "**Bitwarden veb tətbiqində giriş edin.**";
 "ImportLoginsToBitwarden" = "Girişləri Bitwarden-ə köçür";
-"InTheBitwardenNavigationFindTheToolsOptionAndSelectImportData" = "Bitwarden naviqasiyasında **Alətlər seçimini tapın** və **Veriləri daxilə köçür**ü seçin.";
+"InTheBitwardenNavigationFindTheToolsOptionAndSelectImportData" = "Bitwarden naviqasiyasında **Alətlər seçimini tapın** və **Veriləri daxilə köçür** seçimini edin.";
 "FillOutTheFormAndImportYourSavedPasswordFile" = "Formu doldurun və **saxlanılmış parol faylınızı daxilə köçürün.**";
-"SelectImportDataInTheWebAppThenDoneToFinishSyncing" = "Veb tətbiqdə **Veriləri daxilə köçür**ü seçin, sonra sinxronlaşdırmanı bitirmək üçün \"Hazırdır\"a toxunun.";
+"SelectImportDataInTheWebAppThenDoneToFinishSyncing" = "Veb tətbiqdə **Veriləri daxilə köçür**ü seçin, sonra sinxronlaşdırmanı bitirmək üçün **Hazırdır**a toxunun.";
 "ForYourSecurityBeSureToDeleteYourSavedPasswordFile" = "Təhlükəsizliyiniz üçün **saxlanılmış parol faylınızı sildiyinizə** əmin olun.";
 "BitwardenTools" = "Bitwarden alətləri";
 "ImportSuccessful" = "Daxilə köçürmə uğurludur!";
 "ManageYourLoginsFromAnywhereWithBitwardenToolsForWebAndDesktop" = "Bitwarden-in veb və masaüstü alətləri ilə istənilən yerdən girişlərinizi idarə edin.";
 "ManageYourSubscriptionPlanInTheBitwardenWebApp" = "Abunəlik planınızı Bitwarden veb tətbiqində idarə edin.";
 "DownloadTheBrowserExtension" = "Brauzer uzantısını endir";
-"GoToBitwardenToIntegrateBitwardenIntoYourFavoriteBrowserForASeamlessExperience" = "Daha problemsiz bir təcrübə üçün Bitwarden-i sevimli brauzerinizə inteqrasiya etmək üçün bitwarden.com/download ünvanına gedin.";
+"GoToBitwardenToIntegrateBitwardenIntoYourFavoriteBrowserForASeamlessExperience" = "Bitwarden-i sevimli brauzerinizə inteqrasiya etmək üçün bitwarden.com/download ünvanına gedin.";
 "UseTheWebApp" = "Veb tətbiqi istifadə et";
 "LogInAtBitwardenToEasilyManageYourAccountAndUpdateSettings" = "Hesabınızı asanlıqla idarə etmək və ayarları güncəlləmək üçün bitwarden.com saytında giriş edin.";
 "AutofillPasswords" = "Parolları avto-doldur";
@@ -898,6 +900,7 @@
 /* VoiceOver accessibility label for a shared folder the item belongs to. */
 "SharedFolderX" = "Paylaşılan qovluq, %1$@";
 "FolderX" = "Qovluq, %1$@";
+"MyFolderX" = "Qovluğum, %1$@";
 "ItemXOfY" = "Element %1$@/%2$@";
 "ViewRecordedLogs" = "Yazılmış qeydlərə bax";
 "RecordedLogs" = "Yazılmış qeydlər";
@@ -1042,10 +1045,10 @@
 "YouLeftTheOrganization" = "Təşkilatı tərk etmisiniz";
 "ItemTransferRequiresMainAppDescriptionLong" = "Bir təşkilat, fərdi elementinizin sahibliyini tələb edir. Bu tələbi incələmək və tamamlamaq üçün əsas Bitwarden tətbiqini açın.";
 "ThisSettingIsManagedByYourOrganization" = "Bu ayar, təşkilatınız tərəfindən idarə olunur.";
-"YourOrganizationHasSetTheMaximumSessionTimeoutToX" = "Təşkilatınız, seansın maksimum bitmə vaxtını %1$@ olaraq təyin etdi.";
-"YourOrganizationHasSetTheDefaultSessionTimeoutToNever" = "Təşkilatınız, seansın ilkin bitmə vaxtını heç vaxt olaraq təyin etdi.";
-"YourOrganizationHasSetTheDefaultSessionTimeoutToAppRestart" = "Təşkilatınız, seansın ilkin bitmə vaxtını tətbiq başladılanda olaraq təyin etdi.";
-"YourOrganizationHasSetTheMaximumSessionTimeoutToXAndY" = "Təşkilatınız, seansın maksimum bitmə vaxtını %1$@ %2$@ olaraq təyin etdi.";
+"YourOrganizationHasSetTheMaximumSessionTimeoutToX" = "Təşkilatınız, sessiyanın maksimum bitmə vaxtını %1$@ olaraq təyin etdi.";
+"YourOrganizationHasSetTheDefaultSessionTimeoutToNever" = "Təşkilatınız, sessiyanın ilkin bitmə vaxtını heç vaxt olaraq təyin etdi.";
+"YourOrganizationHasSetTheDefaultSessionTimeoutToAppRestart" = "Təşkilatınız, sessiyanın ilkin bitmə vaxtını tətbiq başladılanda olaraq təyin etdi.";
+"YourOrganizationHasSetTheMaximumSessionTimeoutToXAndY" = "Təşkilatınız, sessiyanın maksimum bitmə vaxtını %1$@ %2$@ olaraq təyin etdi.";
 "HiddenItems" = "Gizli elementlər";
 "Archive" = "Arxiv";
 "Archived" = "Arxivləndi";
@@ -1112,7 +1115,7 @@
 "Unpaid" = "Ödənilməmiş";
 "UpdatePayment" = "Ödənişi güncəllə";
 "BillingAmount" = "Faktura məbləği";
-"StorageCost" = "Anbar xərci";
+"StorageCost" = "Depolama xərci";
 "Discount" = "Endirim";
 "EstimatedTax" = "Təxmini vergi";
 "Total" = "Cəmi";
@@ -1165,7 +1168,7 @@
 "ReturnToStripeInYourBrowserToFinishYourUpgradeDescriptionLong" = "Yüksəltməni tamamlamaq üçün brauzerinizdə Stripe-a qayıdın.";
 "SecureCheckoutDidntLoad" = "Güvənli ödəmə səhifəsi yüklənmədi";
 "WeHadTroubleOpeningThePaymentPageDescriptionLong" = "Ödəniş səhifəsini açmaqla bağlı çətinliyimiz var, yenidən sınayın.";
-"SecureFileStorage" = "Güvənli fayl anbarı";
+"SecureFileStorage" = "Güvənli fayl deposu";
 "BreachMonitoring" = "Pozuntu monitorinqi";
 "ConfirmingYourUpgrade" = "Yüksəltmənizi təsdiqləyin…";
 "OpeningCheckout" = "Ödəmə səhifəsi açılır…";
