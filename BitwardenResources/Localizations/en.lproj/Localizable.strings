@@ -21,7 +21,7 @@
 "EnterPIN" = "Enter your PIN code.";
 "Favorites" = "Favorites";
 "Folder" = "Folder";
-"FolderCreated" = "New folder created.";
+"FolderCreated" = "New folder created";
 "FolderDeleted" = "Folder deleted.";
 "FolderNone" = "No Folder";
 "Folders" = "Folders";
