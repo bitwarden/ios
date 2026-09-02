@@ -65,6 +65,11 @@ public enum SendItemRoute: Equatable, Hashable {
     /// A route to the Premium upgrade screen.
     case premiumUpgrade
 
+    /// A route to a standalone Premium upgrade complete screen, shown when an upgrade resolves
+    /// outside of the upgrade screen itself (e.g. a "Sync Now" retry succeeding after the
+    /// upgrade screen has already been dismissed).
+    case premiumUpgradeComplete
+
     /// A route to share the provided URL.
     ///
     /// - Parameter url: The `URL` to share.

@@ -64,6 +64,8 @@ class BillingCoordinator: NSObject, Coordinator, HasStackNavigator {
             }
         case .premiumUpgradeComplete:
             showPremiumUpgradeComplete()
+        case .premiumUpgradeCompleteStandalone:
+            showPremiumUpgradeCompleteStandalone()
         case let .premiumPlan(subscription):
             showPremiumPlan(subscription: subscription)
         case .premiumUpgrade:
@@ -75,7 +77,10 @@ class BillingCoordinator: NSObject, Coordinator, HasStackNavigator {
 
     // MARK: Private Methods
 
-    /// Shows the Premium upgrade complete screen.
+    /// Shows the Premium upgrade complete screen on top of the currently-visible
+    /// `PremiumUpgradeView`, for the synchronous-confirm-while-upgrade-screen-is-open path. Use
+    /// `showPremiumUpgradeCompleteStandalone()` instead when no `PremiumUpgradeView` has been
+    /// shown in this coordinator instance.
     ///
     private func showPremiumUpgradeComplete() {
         premiumUpgradeCompleteOnClose = isUpgradeAsModalRoot
@@ -92,6 +97,21 @@ class BillingCoordinator: NSObject, Coordinator, HasStackNavigator {
         )
         let view = PremiumUpgradeCompleteView(store: Store(processor: processor))
         stackNavigator?.present(view)
+    }
+
+    /// Shows the Premium upgrade complete screen as the sole content of this coordinator's
+    /// stack, with no `PremiumUpgradeView` shown first. Use this when a Premium upgrade
+    /// resolves outside of the upgrade screen itself — e.g. a "Sync Now" retry succeeding after
+    /// the upgrade screen has already been dismissed — so `.dismiss` can simply close the whole
+    /// modal without any `isUpgradeAsModalRoot`/Settings-plan branching.
+    ///
+    private func showPremiumUpgradeCompleteStandalone() {
+        let processor = PremiumUpgradeCompleteProcessor(
+            coordinator: asAnyCoordinator(),
+            services: services,
+        )
+        let view = PremiumUpgradeCompleteView(store: Store(processor: processor))
+        stackNavigator?.replace(view)
     }
 
     /// Shows the Premium plan screen.

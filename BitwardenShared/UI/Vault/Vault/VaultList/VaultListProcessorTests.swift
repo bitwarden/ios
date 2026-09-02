@@ -1369,6 +1369,10 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
             PremiumUpgradePendingState(isPending: true, lastAttemptFailed: true),
         )
         billingService.premiumUpgradePendingStatePublisherReturnValue = pendingStateSubject.eraseToAnyPublisher()
+        billingService.premiumUpgradePendingStateReturnValue = PremiumUpgradePendingState(
+            isPending: true,
+            lastAttemptFailed: false,
+        )
 
         let task = Task {
             await subject.perform(.streamPremiumUpgradePendingState)
@@ -1382,6 +1386,41 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
             try await alert.tapAction(title: Localizations.tryAgain)
         }
         waitFor(billingService.premiumStatusChangedCallsCount == 1)
+
+        // Still pending (not yet Premium) — no celebration screen, matching "Sync Now"'s own
+        // still-pending boundary.
+        XCTAssertNotEqual(coordinator.routes.last, .premiumUpgradeComplete)
+    }
+
+    /// `perform(_:)` with `.streamPremiumUpgradePendingState` navigates to the standalone Premium
+    /// upgrade complete screen when the user's own "Try again" retry actually resolves the
+    /// pending upgrade — matching "Sync Now"'s own behavior on the pending alert, so the two
+    /// explicit retry entry points behave identically.
+    @MainActor
+    func test_perform_streamPremiumUpgradePendingState_syncUnsuccessfulAlert_tryAgainResolves() throws {
+        let pendingStateSubject = CurrentValueSubject<PremiumUpgradePendingState, Never>(
+            PremiumUpgradePendingState(isPending: true, lastAttemptFailed: true),
+        )
+        billingService.premiumUpgradePendingStatePublisherReturnValue = pendingStateSubject.eraseToAnyPublisher()
+        billingService.premiumUpgradePendingStateReturnValue = PremiumUpgradePendingState(
+            isPending: false,
+            lastAttemptFailed: false,
+        )
+
+        let task = Task {
+            await subject.perform(.streamPremiumUpgradePendingState)
+        }
+        defer { task.cancel() }
+
+        waitFor(!coordinator.alertShown.isEmpty)
+        let alert = try XCTUnwrap(coordinator.alertShown.last)
+
+        Task {
+            try await alert.tapAction(title: Localizations.tryAgain)
+        }
+        waitFor(coordinator.routes.last == .premiumUpgradeComplete)
+
+        XCTAssertEqual(billingService.premiumStatusChangedCallsCount, 1)
     }
 
     /// `perform(_:)` with `.streamPremiumUpgradePendingState` re-shows the "Sync Unsuccessful"
@@ -1393,6 +1432,10 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
             PremiumUpgradePendingState(isPending: true, lastAttemptFailed: true),
         )
         billingService.premiumUpgradePendingStatePublisherReturnValue = pendingStateSubject.eraseToAnyPublisher()
+        billingService.premiumUpgradePendingStateReturnValue = PremiumUpgradePendingState(
+            isPending: true,
+            lastAttemptFailed: true,
+        )
         billingService.premiumStatusChangedClosure = {
             pendingStateSubject.send(PremiumUpgradePendingState(isPending: true, lastAttemptFailed: true))
         }
@@ -1411,6 +1454,7 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         waitFor(coordinator.alertShown.count == 2)
 
         XCTAssertEqual(coordinator.alertShown.last?.title, Localizations.syncUnsuccessful)
+        XCTAssertNotEqual(coordinator.routes.last, .premiumUpgradeComplete)
     }
 
     /// `perform(_:)` with `.streamShowWebIcons` requests the value of the show
