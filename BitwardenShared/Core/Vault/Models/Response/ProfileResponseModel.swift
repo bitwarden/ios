@@ -30,9 +30,6 @@ struct ProfileResponseModel: Codable, Equatable, AccountKeysResponseModelProtoco
     /// The profile's identifier.
     let id: String
 
-    /// The user's key.
-    let key: String?
-
     /// The user's master password hint.
     let masterPasswordHint: String?
 
