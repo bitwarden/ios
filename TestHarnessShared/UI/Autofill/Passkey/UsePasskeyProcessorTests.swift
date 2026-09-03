@@ -45,6 +45,32 @@ class UsePasskeyProcessorTests: BitwardenTestCase {
         XCTAssertTrue(subject.state.isLoadingCredentials)
     }
 
+    /// `perform(.deleteCredential)` deletes the credential's cipher and reloads the registered
+    /// credentials list.
+    @MainActor
+    func test_perform_deleteCredential_success() async {
+        let credential = Fido2CredentialAutofillView.fixture(cipherId: "cipher-1")
+        subject.state.registeredCredentials = [credential]
+        passkeyService.registeredCredentialsReturnValue = []
+
+        await subject.perform(.deleteCredential(credential))
+
+        XCTAssertEqual(passkeyService.deleteCredentialReceivedCipherId, "cipher-1")
+        XCTAssertTrue(passkeyService.registeredCredentialsCalled)
+        XCTAssertEqual(subject.state.registeredCredentials, [])
+    }
+
+    /// `perform(.deleteCredential)` sets status to `.failure` when deletion throws.
+    @MainActor
+    func test_perform_deleteCredential_failure() async {
+        let credential = Fido2CredentialAutofillView.fixture(cipherId: "cipher-1")
+        passkeyService.deleteCredentialThrowableError = BitwardenTestError.example
+
+        await subject.perform(.deleteCredential(credential))
+
+        XCTAssertEqual(subject.state.status, .failure(BitwardenTestError.example.localizedDescription))
+    }
+
     /// `perform(.loadRegisteredCredentials)` populates the registered credentials list and clears
     /// the loading flag.
     @MainActor
