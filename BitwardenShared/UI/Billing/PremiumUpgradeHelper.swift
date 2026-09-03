@@ -65,23 +65,23 @@ class DefaultPremiumUpgradeHelper<Route: PremiumUpgradeRoute, Event>: PremiumUpg
 
     // MARK: Private Properties
 
-    /// Whether `startInAppPremiumUpgrade(onConfirmed:)` navigated to the Premium upgrade screen
-    /// for the current checkout status subscription.
-    private var navigatedToUpgradeScreen = false
+    /// The coordinator used for navigation.
+    private let coordinator: any Coordinator<Route, Event>
 
     /// Whether a `startInAppPremiumUpgrade(onConfirmed:)` call's pending-state check is currently
     /// in flight, to guard against a rapid double-tap firing two overlapping checks.
     private var isResolvingStartRequest = false
 
-    /// A cancellable for the Premium checkout status subscription.
-    private var premiumStatusChangedCancellable: AnyCancellable?
-
-    /// The coordinator used for navigation.
-    private let coordinator: any Coordinator<Route, Event>
+    /// Whether `startInAppPremiumUpgrade(onConfirmed:)` navigated to the Premium upgrade screen
+    /// for the current checkout status subscription.
+    private var navigatedToUpgradeScreen = false
 
     /// An optional closure called inside the pending dismiss action before showing the upgrade
     /// pending alert. Use to dismiss action cards or perform other per-screen cleanup.
     private let onPendingDismiss: (() -> Void)?
+
+    /// A cancellable for the Premium checkout status subscription.
+    private var premiumStatusChangedCancellable: AnyCancellable?
 
     /// The services used by this helper.
     private let services: Services
