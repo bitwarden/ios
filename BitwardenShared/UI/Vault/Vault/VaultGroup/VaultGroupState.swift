@@ -78,7 +78,7 @@ struct VaultGroupState: Equatable, Sendable {
     var iconBaseURL: URL?
 
     /// List of available item type for creation.
-    var itemTypesUserCanCreate: [CipherType] = CipherType.canCreateCases
+    var itemTypesUserCanCreate: [CipherType] = CipherType.canCreateCases.reversed()
 
     /// Whether the policy is enforced to disable personal vault ownership.
     var isPersonalOwnershipDisabled: Bool = false
