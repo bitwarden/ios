@@ -15,6 +15,8 @@ typealias Services = HasAPIService
     & HasAuthRepository
     & HasAuthService
     & HasAutofillCredentialService
+    & HasBackgroundSessionCleanupService
+    & HasBackgroundTaskScheduler
     & HasBillingAPIService
     & HasBillingRepository
     & HasBillingService
@@ -151,6 +153,22 @@ protocol HasAuthService {
 protocol HasAutofillCredentialService {
     /// /// The service which manages the ciphers exposed to the system for AutoFill suggestions..
     var autofillCredentialService: AutofillCredentialService { get }
+}
+
+/// Protocol for an object that provides a `BackgroundSessionCleanupService`.
+///
+protocol HasBackgroundSessionCleanupService {
+    /// The service used by the application to schedule and perform background cleanup of
+    /// expired `.userSessionKey` Keychain items.
+    var backgroundSessionCleanupService: BackgroundSessionCleanupService { get }
+}
+
+/// Protocol for an object that provides a `BackgroundTaskScheduler`.
+///
+protocol HasBackgroundTaskScheduler {
+    /// The scheduler used by the application to register and submit `BGTaskScheduler` requests,
+    /// if the app isn't running in an extension.
+    var backgroundTaskScheduler: BackgroundTaskScheduler? { get }
 }
 
 /// Protocol for an object that provides a `BillingAPIService`.
