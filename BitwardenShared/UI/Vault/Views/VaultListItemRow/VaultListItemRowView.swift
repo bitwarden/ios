@@ -3,6 +3,32 @@ import BitwardenResources
 import BitwardenSdk
 import SwiftUI
 
+// MARK: - View+MoreOptionsAccessibilityActions
+
+private extension View {
+    /// Adds a named `.accessibilityAction` for each of the provided more-options action kinds.
+    /// The number of kinds is data-driven (it depends on the cipher's `copyableFields`), so this
+    /// folds over the list at runtime rather than statically chaining a fixed set of conditional
+    /// modifiers; `AnyView` erasure is used so the accumulator type stays fixed across the fold.
+    ///
+    /// - Parameters:
+    ///   - kinds: The more-options action kinds to expose as accessibility actions.
+    ///   - onSelect: Called with the selected kind when its accessibility action is activated.
+    ///
+    func accessibilityMoreOptionsActions(
+        _ kinds: [MoreOptionsActionKind],
+        onSelect: @escaping (MoreOptionsActionKind) async -> Void,
+    ) -> AnyView {
+        kinds.reduce(AnyView(self)) { view, kind in
+            AnyView(
+                view.accessibilityAsyncAction(named: kind.localizedName) {
+                    await onSelect(kind)
+                },
+            )
+        }
+    }
+}
+
 // MARK: - VaultListItemRowView
 
 /// A view that displays information about a `VaultListItem` as a row in a list.
@@ -76,8 +102,39 @@ struct VaultListItemRowView: View {
                     .padding(.leading, 22 + 16 + 16)
             }
         }
-        .accessibilityElement(children: .contain)
+        .accessibilityElement(children: .combine)
         .accessibilityIdentifier(store.state.item.vaultItemAccessibilityId)
+        .accessibilityAction {
+            Task { await store.perform(.pressed) }
+        }
+        .accessibilityMoreOptionsActions(accessibilityMoreOptionsActionKinds) { kind in
+            await store.perform(.accessibilityMoreOptionsActionPressed(kind))
+        }
+        .conditionalAccessibilityAction(
+            if: {
+                if case let .totp(_, model) = store.state.item.itemType {
+                    !model.requiresMasterPassword && store.state.showTotpCopyButton
+                } else {
+                    false
+                }
+            }(),
+            named: Localizations.copyTotp,
+        ) {
+            if case let .totp(_, model) = store.state.item.itemType {
+                store.send(.copyTOTPCode(model.totpCode.code))
+            }
+        }
+    }
+
+    /// The more-options accessibility action kinds applicable to this row, empty for non-cipher
+    /// items, decryption-failure ciphers, or when running in an extension (matching the ellipsis
+    /// button's own visibility gate).
+    private var accessibilityMoreOptionsActionKinds: [MoreOptionsActionKind] {
+        guard case let .cipher(cipherItem, _) = store.state.item.itemType,
+              !store.state.isFromExtension, !cipherItem.isDecryptionFailure else {
+            return []
+        }
+        return cipherItem.applicableMoreOptionsActionKinds(hasPremium: store.state.hasPremium)
     }
 
     // MARK: - Private Views
