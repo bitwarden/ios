@@ -2289,11 +2289,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
     /// dismisses the scanner and populates card state.
     @MainActor
     func test_receive_cardFieldChanged_cardScannerLinesUpdated_sufficientData() {
-        cardTextParser.parseCardReturnValue = ScannedCardData(
-            cardNumber: "4111111111111111",
-            expirationMonth: 12,
-            expirationYear: "2028",
-        )
+        cardTextParser.parseCardReturnValue = .fixture()
         subject.state.cardItemState.isCardScannerPresented = true
 
         subject.receive(.cardFieldChanged(.cardScannerLinesUpdated(["4111111111111111", "JANE DOE", "12/28"])))
@@ -2309,11 +2305,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
     /// leaves the scanner open and does not update card state.
     @MainActor
     func test_receive_cardFieldChanged_cardScannerLinesUpdated_insufficientData() {
-        cardTextParser.parseCardReturnValue = ScannedCardData(
-            cardNumber: nil,
-            expirationMonth: 12,
-            expirationYear: "2028",
-        )
+        cardTextParser.parseCardReturnValue = .fixture(cardNumber: nil)
         subject.state.cardItemState.isCardScannerPresented = true
 
         subject.receive(.cardFieldChanged(.cardScannerLinesUpdated(["JANE DOE", "12/28"])))
@@ -2326,16 +2318,47 @@ class AddEditItemProcessorTests: BitwardenTestCase {
     /// inferred from the detected card number.
     @MainActor
     func test_receive_cardFieldChanged_cardScannerLinesUpdated_setsCardBrand() {
-        cardTextParser.parseCardReturnValue = ScannedCardData(
-            cardNumber: "4111111111111111",
-            expirationMonth: 12,
-            expirationYear: "2028",
-        )
+        cardTextParser.parseCardReturnValue = .fixture()
         subject.state.cardItemState.isCardScannerPresented = true
 
         subject.receive(.cardFieldChanged(.cardScannerLinesUpdated(["4111111111111111", "JANE DOE", "12/28"])))
 
         XCTAssertEqual(subject.state.cardItemState.brand, .custom(.visa))
+    }
+
+    /// `receive(_:)` with `.cardFieldChanged(.cardScannerLinesUpdated)` for a card with no printed
+    /// expiration date populates the card number and brand, leaving the expiration fields empty.
+    @MainActor
+    func test_receive_cardFieldChanged_cardScannerLinesUpdated_noExpiration() {
+        cardTextParser.parseCardReturnValue = .fixture(
+            cardNumber: "5333619503715702",
+            expirationMonth: nil,
+            expirationYear: nil,
+        )
+        subject.state.cardItemState.isCardScannerPresented = true
+
+        subject.receive(.cardFieldChanged(.cardScannerLinesUpdated(["5333 6195 0371 5702"])))
+
+        XCTAssertFalse(subject.state.cardItemState.isCardScannerPresented)
+        XCTAssertTrue(subject.state.cardItemState.shouldFocusCardholderNameAfterScan)
+        XCTAssertEqual(subject.state.cardItemState.cardNumber, "5333619503715702")
+        XCTAssertEqual(subject.state.cardItemState.brand, .custom(.mastercard))
+        XCTAssertEqual(subject.state.cardItemState.expirationMonth, .default)
+        XCTAssertEqual(subject.state.cardItemState.expirationYear, "")
+    }
+
+    /// `receive(_:)` with `.cardFieldChanged(.cardScannerLinesUpdated)` applies an expiration year
+    /// that was detected without a month, leaving the month unset.
+    @MainActor
+    func test_receive_cardFieldChanged_cardScannerLinesUpdated_expirationYearWithoutMonth() {
+        cardTextParser.parseCardReturnValue = .fixture(expirationMonth: nil, expirationYear: "2028")
+        subject.state.cardItemState.isCardScannerPresented = true
+
+        subject.receive(.cardFieldChanged(.cardScannerLinesUpdated(["4111111111111111", "2028"])))
+
+        XCTAssertFalse(subject.state.cardItemState.isCardScannerPresented)
+        XCTAssertEqual(subject.state.cardItemState.expirationMonth, .default)
+        XCTAssertEqual(subject.state.cardItemState.expirationYear, "2028")
     }
 
     /// `receive(_:)` with `.cardFieldChanged(.cardScannerDismissed)` hides the card scanner and

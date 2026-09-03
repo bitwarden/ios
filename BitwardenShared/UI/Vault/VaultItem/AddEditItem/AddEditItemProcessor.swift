@@ -299,23 +299,19 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
     // MARK: Private Methods
 
     /// Applies a parsed card scan result to the item state, dismissing the scanner on success.
-    /// Only applies if both a card number and expiration month were detected.
+    /// Requires a card number; the expiration month and year are applied only when the scan found
+    /// them, so a card with no printed expiration date leaves those fields empty.
     ///
     /// - Parameters:
     ///   - state: The item state to update.
     ///   - data: The parsed card data returned by the card text parser.
     private func applyCardScanResult(_ state: inout AddEditItemState, data: ScannedCardData) {
-        guard data.cardNumber != nil,
-              data.expirationMonth != nil else {
-            return
-        }
+        guard let number = data.cardNumber else { return }
 
         state.cardItemState.isCardScannerPresented = false
         state.cardItemState.shouldFocusCardholderNameAfterScan = true
-        if let number = data.cardNumber {
-            state.cardItemState.cardNumber = number
-            state.cardItemState.brand = .custom(CardComponent.Brand.detect(from: number))
-        }
+        state.cardItemState.cardNumber = number
+        state.cardItemState.brand = .custom(CardComponent.Brand.detect(from: number))
         if let month = data.expirationMonth,
            let cardMonth = CardComponent.Month(rawValue: month) {
             state.cardItemState.expirationMonth = .custom(cardMonth)
