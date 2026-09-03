@@ -984,8 +984,15 @@ class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_leng
                 await stateService.setTwoFactorToken(twoFactorToken, email: email)
             }
 
-            // Create the account.
-            let urls = await stateService.getPreAuthEnvironmentURLs()
+            // Create the account. Prefer the environment URLs snapshotted for this email when the
+            // login flow started, since the global pre-auth URLs may have since been overwritten
+            // by an unrelated active-account sync (e.g. triggered by the AutoFill extension).
+            let urls: EnvironmentURLData? = if let accountCreationURLs = await stateService
+                .getAccountCreationEnvironmentURLs(email: email) {
+                accountCreationURLs
+            } else {
+                await stateService.getPreAuthEnvironmentURLs()
+            }
             let account = try Account(identityTokenResponseModel: identityTokenResponse, environmentURLs: urls)
             try await saveAccount(account, identityTokenResponse: identityTokenResponse)
 
