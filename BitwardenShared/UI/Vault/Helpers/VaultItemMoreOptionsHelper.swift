@@ -23,6 +23,24 @@ protocol VaultItemMoreOptionsHelper {
         handleNavigateToPremiumUpgrade: @escaping () async -> Void,
         handleOpenURL: @escaping (URL) -> Void,
     ) async
+
+    /// Performs the more-options action identified by `kind` for `item` directly, without
+    /// presenting the action sheet. Used by the vault list row's VoiceOver accessibility actions.
+    ///
+    /// - Parameters
+    ///   - kind: The kind of more-options action to perform.
+    ///   - item: The selected item to perform the action on.
+    ///   - handleDisplayToast: A closure called to handle displaying a toast.
+    ///   - handleNavigateToPremiumUpgrade: A closure called to navigate to the Premium upgrade flow.
+    ///   - handleOpenURL: A closure called to open a URL.
+    ///
+    func performMoreOptionsAction(
+        _ kind: MoreOptionsActionKind,
+        for item: VaultListItem,
+        handleDisplayToast: @escaping (Toast) -> Void,
+        handleNavigateToPremiumUpgrade: @escaping () async -> Void,
+        handleOpenURL: @escaping (URL) -> Void,
+    ) async
 }
 
 // MARK: - DefaultVaultItemMoreOptionsHelper
@@ -109,6 +127,37 @@ class DefaultVaultItemMoreOptionsHelper: VaultItemMoreOptionsHelper {
                     hasPremium: hasPremium,
                 )
             })
+        } catch {
+            services.errorReporter.log(error: error)
+            coordinator.showAlert(.defaultAlert(title: Localizations.anErrorHasOccurred))
+        }
+    }
+
+    func performMoreOptionsAction(
+        _ kind: MoreOptionsActionKind,
+        for item: VaultListItem,
+        handleDisplayToast: @escaping (Toast) -> Void,
+        handleNavigateToPremiumUpgrade: @escaping () async -> Void,
+        handleOpenURL: @escaping (URL) -> Void,
+    ) async {
+        do {
+            guard case let .cipher(cipherListView, _) = item.itemType,
+                  let cipherId = cipherListView.id,
+                  let cipherView = try await services.vaultRepository.fetchCipher(withId: cipherId) else {
+                return
+            }
+
+            let hasPremium = await services.vaultRepository.doesActiveAccountHavePremium()
+            guard let action = kind.moreOptionsAction(cipherView: cipherView, itemId: item.id) else { return }
+
+            await handleMoreOptionsAction(
+                action,
+                cipherView: cipherView,
+                handleDisplayToast: handleDisplayToast,
+                handleNavigateToPremiumUpgrade: handleNavigateToPremiumUpgrade,
+                handleOpenURL: handleOpenURL,
+                hasPremium: hasPremium,
+            )
         } catch {
             services.errorReporter.log(error: error)
             coordinator.showAlert(.defaultAlert(title: Localizations.anErrorHasOccurred))
