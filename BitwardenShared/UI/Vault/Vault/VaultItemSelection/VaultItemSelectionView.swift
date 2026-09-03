@@ -224,6 +224,7 @@ private struct VaultItemSelectionSearchableView: View {
                 state: { state in
                     VaultListItemRowState(
                         iconBaseURL: state.iconBaseURL,
+                        hasPremium: state.hasPremium,
                         isVfo1FoundationFeatureFlagEnabled: state.isVfo1FoundationFeatureFlagEnabled,
                         item: item,
                         hasDivider: hasDivider,
@@ -233,6 +234,8 @@ private struct VaultItemSelectionSearchableView: View {
                 mapAction: nil, // No actions are supported (TOTP copy is handled by the more pressed effect).
                 mapEffect: { effect in
                     switch effect {
+                    case let .accessibilityMoreOptionsActionPressed(kind):
+                        .accessibilityMoreOptionsActionPressed(item, kind)
                     case .morePressed:
                         .morePressed(item)
                     case .pressed:

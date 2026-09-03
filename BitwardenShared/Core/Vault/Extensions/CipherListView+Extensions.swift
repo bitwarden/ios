@@ -1,5 +1,6 @@
 import BitwardenResources
 import BitwardenSdk
+import Foundation
 
 extension CipherListView {
     // MARK: Properties
@@ -31,7 +32,74 @@ extension CipherListView {
         archivedDate != nil || deletedDate != nil
     }
 
+    /// Whether this cipher can be archived. Mirrors `CipherView.canBeArchived`.
+    var canBeArchived: Bool {
+        archivedDate == nil && deletedDate == nil
+    }
+
+    /// Whether this cipher can be unarchived. Mirrors `CipherView.canBeUnarchived`.
+    var canBeUnarchived: Bool {
+        archivedDate != nil && deletedDate == nil
+    }
+
     // MARK: Methods
+
+    /// Computes, synchronously and without decrypting anything beyond what's already in this
+    /// list view, the set of more-options actions applicable to this cipher. Used to populate the
+    /// vault list row's VoiceOver custom accessibility actions without a `fetchCipher` round trip.
+    ///
+    /// Scope note: intentionally matches `Alert.moreOptions`'s scope exactly (e.g. no Identity
+    /// fields, no bank IBAN/SWIFT/PIN/branch number), even though `copyableFields` exposes more
+    /// than the sheet currently surfaces.
+    ///
+    /// - Parameter hasPremium: Whether the active account has Premium, used to gate the Copy TOTP
+    ///   action.
+    /// - Returns: The list of applicable more-options action kinds, in the order they should be
+    ///   presented.
+    func applicableMoreOptionsActionKinds( // swiftlint:disable:this cyclomatic_complexity
+        hasPremium: Bool,
+    ) -> [MoreOptionsActionKind] {
+        guard !isDecryptionFailure else { return [] }
+
+        var kinds: [MoreOptionsActionKind] = [.view]
+        if deletedDate == nil { kinds.append(.edit) }
+
+        switch type {
+        case .card:
+            if copyableFields.contains(.cardNumber) { kinds.append(.copyCardNumber) }
+            if copyableFields.contains(.cardSecurityCode) { kinds.append(.copySecurityCode) }
+        case let .login(loginListView):
+            if copyableFields.contains(.loginUsername) { kinds.append(.copyUsername) }
+            if copyableFields.contains(.loginPassword) { kinds.append(.copyPassword) }
+            if copyableFields.contains(.loginTotp), hasPremium || organizationUseTotp {
+                kinds.append(.copyTotp)
+            }
+            if let uri = loginListView.uris?.first?.uri, URL(string: uri) != nil {
+                kinds.append(.launch)
+            }
+        case .identity:
+            break
+        case .secureNote:
+            if copyableFields.contains(.secureNotes) { kinds.append(.copyNotes) }
+        case .sshKey:
+            if copyableFields.contains(.sshKey) {
+                kinds.append(.copyPublicKey)
+                if viewPassword { kinds.append(.copyPrivateKey) }
+                kinds.append(.copyFingerprint)
+            }
+        case .bankAccount:
+            if copyableFields.contains(.bankAccountAccountNumber) { kinds.append(.copyAccountNumber) }
+            if copyableFields.contains(.bankAccountRoutingNumber) { kinds.append(.copyRoutingNumber) }
+        case .driversLicense:
+            if copyableFields.contains(.driversLicenseLicenseNumber) { kinds.append(.copyLicenseNumber) }
+        case .passport:
+            if copyableFields.contains(.passportPassportNumber) { kinds.append(.copyPassportNumber) }
+        }
+
+        if canBeArchived { kinds.append(.archive) }
+        if canBeUnarchived { kinds.append(.unarchive) }
+        return kinds
+    }
 
     /// Whether the cipher belongs to a group.
     /// - Parameter group: The group to filter.
