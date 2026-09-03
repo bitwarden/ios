@@ -22,6 +22,20 @@ class AddEditSendItemStateTests: BitwardenTestCase { // swiftlint:disable:this t
         XCTAssertTrue(subject.isAccessTypeEnforcedByPolicy)
     }
 
+    // MARK: isDeletionDateEnforcedByPolicy
+
+    /// `isDeletionDateEnforcedByPolicy` is `true` when a deletion date is enforced by policy.
+    func test_isDeletionDateEnforcedByPolicy_enforced() {
+        let subject = AddEditSendItemState(sendPolicyOptions: SendPolicyOptions(enforcedDeletionDateHours: 168))
+        XCTAssertTrue(subject.isDeletionDateEnforcedByPolicy)
+    }
+
+    /// `isDeletionDateEnforcedByPolicy` is `false` when no deletion date is enforced by policy.
+    func test_isDeletionDateEnforcedByPolicy_notEnforced() {
+        let subject = AddEditSendItemState(sendPolicyOptions: SendPolicyOptions(enforcedDeletionDateHours: nil))
+        XCTAssertFalse(subject.isDeletionDateEnforcedByPolicy)
+    }
+
     // MARK: normalizedRecipientEmails
 
     /// `normalizedRecipientEmails` applies all transformations: trim, lowercase, and filter.
@@ -54,6 +68,20 @@ class AddEditSendItemStateTests: BitwardenTestCase { // swiftlint:disable:this t
     func test_normalizedRecipientEmails_trimsWhitespace() {
         let subject = AddEditSendItemState(recipientEmails: ["  test@example.com  ", "\tanother@example.com\n"])
         XCTAssertEqual(subject.normalizedRecipientEmails, ["test@example.com", "another@example.com"])
+    }
+
+    // MARK: policyEnforcedDeletionDate
+
+    /// `policyEnforcedDeletionDate` maps the enforced hours to the matching deletion date type.
+    func test_policyEnforcedDeletionDate_enforced() {
+        let subject = AddEditSendItemState(sendPolicyOptions: SendPolicyOptions(enforcedDeletionDateHours: 168))
+        XCTAssertEqual(subject.policyEnforcedDeletionDate, .sevenDays)
+    }
+
+    /// `policyEnforcedDeletionDate` is `nil` when no deletion date is enforced by policy.
+    func test_policyEnforcedDeletionDate_notEnforced() {
+        let subject = AddEditSendItemState(sendPolicyOptions: SendPolicyOptions(enforcedDeletionDateHours: nil))
+        XCTAssertNil(subject.policyEnforcedDeletionDate)
     }
 
     // MARK: shouldShowTrashIcon
@@ -91,7 +119,7 @@ class AddEditSendItemStateTests: BitwardenTestCase { // swiftlint:disable:this t
         let subject = AddEditSendItemState(mode: .add)
         XCTAssertEqual(
             subject.availableDeletionDateTypes,
-            [.oneHour, .oneDay, .twoDays, .threeDays, .sevenDays, .thirtyDays],
+            [.oneHour, .oneDay, .twoDays, .threeDays, .sevenDays, .fourteenDays, .thirtyDays],
         )
     }
 
@@ -102,7 +130,7 @@ class AddEditSendItemStateTests: BitwardenTestCase { // swiftlint:disable:this t
         let subject = AddEditSendItemState(customDeletionDate: deletionDate, mode: .edit)
         XCTAssertEqual(
             subject.availableDeletionDateTypes,
-            [.oneHour, .oneDay, .twoDays, .threeDays, .sevenDays, .thirtyDays, .custom(deletionDate)],
+            [.oneHour, .oneDay, .twoDays, .threeDays, .sevenDays, .fourteenDays, .thirtyDays, .custom(deletionDate)],
         )
     }
 
@@ -112,7 +140,7 @@ class AddEditSendItemStateTests: BitwardenTestCase { // swiftlint:disable:this t
         let subject = AddEditSendItemState(mode: .shareExtension(.singleAccount))
         XCTAssertEqual(
             subject.availableDeletionDateTypes,
-            [.oneHour, .oneDay, .twoDays, .threeDays, .sevenDays, .thirtyDays],
+            [.oneHour, .oneDay, .twoDays, .threeDays, .sevenDays, .fourteenDays, .thirtyDays],
         )
     }
 

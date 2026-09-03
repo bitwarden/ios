@@ -90,6 +90,11 @@ enum PolicyOptionType: String {
     /// are allowed.
     case allowedSendTypes
 
+    /// A policy option for the deletion date users are required to use on Sends, encoded as an
+    /// `Int` number of hours from creation (e.g. `168` = 7 days). A missing key means the deletion
+    /// date is not restricted.
+    case deletionHours
+
     /// A policy option for whether the send should disable the hide email option.
     case disableHideEmail
 
