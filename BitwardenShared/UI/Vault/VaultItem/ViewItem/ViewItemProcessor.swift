@@ -200,7 +200,12 @@ final class ViewItemProcessor: StateProcessor<ViewItemState, ViewItemAction, Vie
         case let .downloadAttachment(attachment):
             guard case let .data(cipherState) = state.loadingState else { return }
             Task {
-                await attachmentPreviewHelper.showPreview(for: attachment, cipher: cipherState.cipher)
+                await attachmentPreviewHelper.showPreview(
+                    for: attachment,
+                    cipher: cipherState.cipher,
+                ) { [weak self] in
+                    await self?.navigateToPremiumUpgrade()
+                }
             }
         case let .driversLicenseItemAction(action):
             handleDriversLicenseAction(action)
