@@ -63,6 +63,9 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
     /// The service used by the application to manage billing operations.
     let billingService: BillingService
 
+    /// The service used by the application to manage the app's billing state.
+    let billingStateService: BillingStateService
+
     /// The repository to manage biometric unlock policies and access controls the user.
     let biometricsRepository: BiometricsRepository
 
@@ -261,6 +264,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
     ///     for AutoFill suggestions.
     ///   - billingRepository: The repository used by the application to manage billing data for the UI layer.
     ///   - billingService: The service used by the application to manage billing operations.
+    ///   - billingStateService: The service used by the application to manage the app's billing state.
     ///   - biometricsRepository: The repository to manage biometric unlock policies and access
     ///     controls for the user.
     ///   - biometricsService: The service used to obtain device biometrics status & data.
@@ -340,6 +344,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
         autofillCredentialService: AutofillCredentialService,
         billingRepository: BillingRepository,
         billingService: BillingService,
+        billingStateService: BillingStateService,
         biometricsRepository: BiometricsRepository,
         biometricsService: BiometricsService,
         cameraService: CameraService,
@@ -412,6 +417,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
         self.autofillCredentialService = autofillCredentialService
         self.billingRepository = billingRepository
         self.billingService = billingService
+        self.billingStateService = billingStateService
         self.biometricsRepository = biometricsRepository
         self.biometricsService = biometricsService
         self.cameraService = cameraService
@@ -1179,6 +1185,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
             vaultTimeoutService: vaultTimeoutService,
         )
         Task { await authenticatorSyncService.start() }
+        Task { await billingService.start() }
 
         self.init(
             apiService: apiService,
@@ -1194,6 +1201,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
             autofillCredentialService: autofillCredentialService,
             billingRepository: billingRepository,
             billingService: billingService,
+            billingStateService: stateService,
             biometricsRepository: biometricsRepository,
             biometricsService: biometricsService,
             cameraService: DefaultCameraService(),
