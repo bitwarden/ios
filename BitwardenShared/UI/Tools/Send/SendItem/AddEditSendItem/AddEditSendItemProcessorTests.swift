@@ -142,6 +142,34 @@ class AddEditSendItemProcessorTests: BitwardenTestCase { // swiftlint:disable:th
         XCTAssertEqual(coordinator.routes.last, .deleted)
     }
 
+    /// `perform(_:)` with `loadData` clears a copied Send's hide-email value when the policy
+    /// disables hide-email, so a "Make a copy" of a non-compliant Send isn't saved non-compliant.
+    @MainActor
+    func test_perform_loadData_clearsHideEmailWhenDisabledByPolicy() async {
+        let sendView = SendView.fixture(hideEmail: true)
+        subject.state = AddEditSendItemState(copyingFrom: sendView)
+        XCTAssertTrue(subject.state.isHideMyEmailOn)
+
+        policyService.getSendPolicyOptionsResult.isHideEmailDisabled = true
+        await subject.perform(.loadData)
+
+        XCTAssertFalse(subject.state.isHideMyEmailOn)
+    }
+
+    /// `perform(_:)` with `loadData` doesn't clear an existing Send's hide-email value when editing,
+    /// even if the policy disables hide-email, since the field remains editable in that case.
+    @MainActor
+    func test_perform_loadData_doesNotClearHideEmailWhenEditingDisabledByPolicy() async {
+        let sendView = SendView.fixture(hideEmail: true)
+        subject.state = AddEditSendItemState(sendView: sendView)
+        XCTAssertTrue(subject.state.isHideMyEmailOn)
+
+        policyService.getSendPolicyOptionsResult.isHideEmailDisabled = true
+        await subject.perform(.loadData)
+
+        XCTAssertTrue(subject.state.isHideMyEmailOn)
+    }
+
     /// `perform(_:)` with `loadData` loads the policy data for the view.
     @MainActor
     func test_perform_loadData_policies() async {
@@ -607,6 +635,25 @@ class AddEditSendItemProcessorTests: BitwardenTestCase { // swiftlint:disable:th
         guard case DataMappingError.invalidData = errorAlertWithRetry.error else {
             return XCTFail("Expected DataMappingError.invalidData, got \(errorAlertWithRetry.error)")
         }
+    }
+
+    /// `perform(_:)` with `.savePressed` shows a validation alert when "Anyone with password" access
+    /// is selected and no password is set, even when policy doesn't enforce password access. This
+    /// covers copying a password-protected Send: the copy preselects "Anyone with password" but
+    /// carries no password, so a password must still be required.
+    @MainActor
+    func test_perform_savePressed_anyoneWithPassword_noPasswordAndNotEnforcedByPolicy() async {
+        let sendView = SendView.fixture(hasPassword: true, type: .text)
+        subject.state = AddEditSendItemState(copyingFrom: sendView)
+        subject.state.name = "Name"
+
+        await subject.perform(.savePressed)
+
+        XCTAssertTrue(coordinator.loadingOverlaysShown.isEmpty)
+        XCTAssertNil(sendRepository.addTextSendSendView)
+        XCTAssertEqual(coordinator.alertShown, [
+            .validationFieldRequired(fieldName: Localizations.password),
+        ])
     }
 
     /// `perform(_:)` with `.savePressed` and valid input in the share extension saves the item and
