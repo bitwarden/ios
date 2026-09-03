@@ -619,15 +619,18 @@ class AddEditItemProcessorTests: BitwardenTestCase {
         XCTAssertEqual(subject.state.toast, Toast(title: Localizations.itemUpdated))
     }
 
-    /// `folderAdded(_:)` sets the selected folder to the folder that was added.
+    /// `folderAdded(_:)` sets the selected folder to the folder that was added without showing a
+    /// toast.
     @MainActor
     func test_folderAdded() {
         let newFolder = FolderView.fixture(name: "New folder")
         subject.state.folders = [.default, .custom(newFolder)]
+        XCTAssertNil(subject.state.toast)
 
         subject.folderAdded(newFolder)
 
         XCTAssertEqual(subject.state.folder, .custom(newFolder))
+        XCTAssertNil(subject.state.toast)
     }
 
     /// `init(appExtensionDelegate:coordinator:delegate:services:state:)` with adding configuration
@@ -702,6 +705,14 @@ class AddEditItemProcessorTests: BitwardenTestCase {
         configService.featureFlagsBool[.cardScanner] = true
         await subject.perform(.appeared)
         XCTAssertTrue(subject.state.cardItemState.cardScannerEnabled)
+    }
+
+    /// `perform(_:)` with `.appeared` loads the vfo1-foundation feature flag.
+    @MainActor
+    func test_perform_appeared_featureFlags_vfo1Foundation() async {
+        configService.featureFlagsBool[.vfo1Foundation] = true
+        await subject.perform(.appeared)
+        XCTAssertTrue(subject.state.isVfo1FoundationFeatureFlagEnabled)
     }
 
     /// `perform(_:)` with `.appeared` doesn't show the password autofill alert if it has already been shown.
@@ -1374,9 +1385,10 @@ class AddEditItemProcessorTests: BitwardenTestCase {
         XCTAssertEqual(coordinator.errorAlertsShown as? [EncryptError], [EncryptError()])
     }
 
-    /// `perform(_:)` with `.savePressed` shows an error if an organization but no collections have been selected.
+    /// `perform(_:)` with `.savePressed` shows an error if an organization but no collections have been selected,
+    /// when the `vfo1-foundation` feature flag is disabled.
     @MainActor
-    func test_perform_savePressed_noCollection() async throws {
+    func test_perform_savePressed_noCollection_vfo1FoundationDisabled() async throws {
         subject.state.name = "Organization Item"
         subject.state.owner = CipherOwner.organization(id: "123", name: "Organization")
 
@@ -1388,6 +1400,26 @@ class AddEditItemProcessorTests: BitwardenTestCase {
             Alert.defaultAlert(
                 title: Localizations.anErrorHasOccurred,
                 message: Localizations.selectOneCollection,
+            ),
+        )
+    }
+
+    /// `perform(_:)` with `.savePressed` shows an error if an organization but no collections have been selected,
+    /// when the `vfo1-foundation` feature flag is enabled.
+    @MainActor
+    func test_perform_savePressed_noCollection_vfo1FoundationEnabled() async throws {
+        subject.state.name = "Organization Item"
+        subject.state.owner = CipherOwner.organization(id: "123", name: "Organization")
+        subject.state.isVfo1FoundationFeatureFlagEnabled = true
+
+        await subject.perform(.savePressed)
+
+        let alert = try XCTUnwrap(coordinator.alertShown.first)
+        XCTAssertEqual(
+            alert,
+            Alert.defaultAlert(
+                title: Localizations.anErrorHasOccurred,
+                message: Localizations.youMustSelectAtLeastOneSharedFolder,
             ),
         )
     }
@@ -2191,6 +2223,36 @@ class AddEditItemProcessorTests: BitwardenTestCase {
 
         subject.receive(.driversLicenseFieldChanged(.toggleLicenseNumberVisibilityChanged(false)))
         XCTAssertFalse(subject.state.driversLicenseItemState.isLicenseNumberVisible)
+    }
+
+    /// `receive(_:)` with `.driversLicenseFieldChanged(.dateOfBirthChanged)` updates the state correctly.
+    @MainActor
+    func test_receive_driversLicenseFieldChanged_dateOfBirthChanged() {
+        subject.receive(.driversLicenseFieldChanged(.dateOfBirthChanged(Date(year: 1989, month: 8, day: 1))))
+        XCTAssertEqual(subject.state.driversLicenseItemState.dateOfBirth, Date(year: 1989, month: 8, day: 1))
+
+        subject.receive(.driversLicenseFieldChanged(.dateOfBirthChanged(nil)))
+        XCTAssertNil(subject.state.driversLicenseItemState.dateOfBirth)
+    }
+
+    /// `receive(_:)` with `.driversLicenseFieldChanged(.issueDateChanged)` updates the state correctly.
+    @MainActor
+    func test_receive_driversLicenseFieldChanged_issueDateChanged() {
+        subject.receive(.driversLicenseFieldChanged(.issueDateChanged(Date(year: 2019, month: 8, day: 1))))
+        XCTAssertEqual(subject.state.driversLicenseItemState.issueDate, Date(year: 2019, month: 8, day: 1))
+
+        subject.receive(.driversLicenseFieldChanged(.issueDateChanged(nil)))
+        XCTAssertNil(subject.state.driversLicenseItemState.issueDate)
+    }
+
+    /// `receive(_:)` with `.driversLicenseFieldChanged(.expirationDateChanged)` updates the state correctly.
+    @MainActor
+    func test_receive_driversLicenseFieldChanged_expirationDateChanged() {
+        subject.receive(.driversLicenseFieldChanged(.expirationDateChanged(Date(year: 2029, month: 8, day: 1))))
+        XCTAssertEqual(subject.state.driversLicenseItemState.expirationDate, Date(year: 2029, month: 8, day: 1))
+
+        subject.receive(.driversLicenseFieldChanged(.expirationDateChanged(nil)))
+        XCTAssertNil(subject.state.driversLicenseItemState.expirationDate)
     }
 
     /// `receive(_:)` with `.identityFieldChanged(.titleChanged)` with a value updates the state correctly.
@@ -3306,6 +3368,36 @@ class AddEditItemProcessorTests: BitwardenTestCase {
 
         subject.receive(.passportFieldChanged(.togglePassportNumberVisibilityChanged(false)))
         XCTAssertFalse(subject.state.passportItemState.isPassportNumberVisible)
+    }
+
+    /// `receive(_:)` with `.passportFieldChanged(.dateOfBirthChanged)` updates the state correctly.
+    @MainActor
+    func test_receive_passportFieldChanged_dateOfBirthChanged() {
+        subject.receive(.passportFieldChanged(.dateOfBirthChanged(Date(year: 2025, month: 4, day: 20))))
+        XCTAssertEqual(subject.state.passportItemState.dateOfBirth, Date(year: 2025, month: 4, day: 20))
+
+        subject.receive(.passportFieldChanged(.dateOfBirthChanged(nil)))
+        XCTAssertNil(subject.state.passportItemState.dateOfBirth)
+    }
+
+    /// `receive(_:)` with `.passportFieldChanged(.issueDateChanged)` updates the state correctly.
+    @MainActor
+    func test_receive_passportFieldChanged_issueDateChanged() {
+        subject.receive(.passportFieldChanged(.issueDateChanged(Date(year: 2021, month: 8, day: 10))))
+        XCTAssertEqual(subject.state.passportItemState.issueDate, Date(year: 2021, month: 8, day: 10))
+
+        subject.receive(.passportFieldChanged(.issueDateChanged(nil)))
+        XCTAssertNil(subject.state.passportItemState.issueDate)
+    }
+
+    /// `receive(_:)` with `.passportFieldChanged(.expirationDateChanged)` updates the state correctly.
+    @MainActor
+    func test_receive_passportFieldChanged_expirationDateChanged() {
+        subject.receive(.passportFieldChanged(.expirationDateChanged(Date(year: 2026, month: 8, day: 10))))
+        XCTAssertEqual(subject.state.passportItemState.expirationDate, Date(year: 2026, month: 8, day: 10))
+
+        subject.receive(.passportFieldChanged(.expirationDateChanged(nil)))
+        XCTAssertNil(subject.state.passportItemState.expirationDate)
     }
 
     /// `getter:rehydrationState` returns the proper state with the cipher id.

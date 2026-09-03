@@ -26,6 +26,8 @@
 "FolderNone" = "لا مجلد";
 "Folders" = "المجلدات";
 "FolderUpdated" = "تم حفظ المجلد";
+"MyFolder" = "My folder";
+"MyFolders" = "My folders";
 "InternetConnectionRequiredMessage" = "يرجى الاتصال بالإنترنت قبل المتابعة.";
 "InternetConnectionRequiredTitle" = "يطلب وجود اتصال بالإنترنت";
 "InvalidMasterPassword" = "كلمة المرور الأساسية غير صحيحة. حاول مجددا.";
@@ -51,6 +53,7 @@
 "OK" = "حسنا";
 "Password" = "كلمة المرور";
 "Save" = "حفظ";
+/* Action to move a vault item to another vault; used as a button label, menu item, and screen title. */
 "Move" = "نقل";
 "Saving" = "جاري الحفظ…";
 "Settings" = "الإعدادات";
@@ -258,8 +261,14 @@
 "ShowWebsiteIconsDescription" = "إظهار صورة قابلة للتعرف بجانب كل تسجيل دخول.";
 "IconsUrl" = "عنوان URL لخادم الأيقونات";
 "AutofillWithBitwarden" = "ملء تلقائي باستخدام Bitwarden";
+/* Section header and screen title for viewing/managing a cipher's collections. */
 "Collections" = "المختارات";
+/* Section header and screen title for viewing/managing a cipher's shared folders. */
+"SharedFolders" = "Shared folders";
+/* Empty state message shown when a collection has no items. */
 "NoItemsCollection" = "لا توجد عناصر في هذه المجموعة";
+/* Empty state message shown when a shared folder has no items. */
+"ThereAreNoItemsInThisSharedFolder" = "There are no items in this shared folder";
 "NoItemsFolder" = "لا توجد عناصر في هذا المجلد";
 "NoItemsTrash" = "لا توجد عناصر في سلة المهملات.";
 "FaceID" = "Face ID";
@@ -279,6 +288,7 @@
 "RegEx" = "التعبير النمطي";
 "StartsWith" = "يبدأ بـ";
 "MatchDetection" = "كشف المطابقة";
+/* Field label on the Move screen shown when the "vfo1-foundation" feature flag is disabled; superseded by "Vault" when enabled. */
 "Organization" = "المنظمة";
 "HoldYubikeyNearTop" = "اضغط على Yubikey بالقرب من الجزء العلوي من الجهاز.";
 "TryAgain" = "حاول مجددا";
@@ -314,13 +324,26 @@
 "NoItemsToList" = "لا توجد عناصر لعرضها.";
 "MoveDown" = "تحريك للأسفل";
 "MoveUp" = "التحريك للأعلى";
+/* Empty state message on the Collections screen shown when a user has no collections. */
 "NoCollectionsToList" = "لا توجد مجموعات لعرضها.";
+/* Empty state message on the Shared folders screen shown when a user has no shared folders. */
+"ThereAreNoSharedFoldersToList" = "There are no shared folders to list.";
 "MovedItemToOrg" = "تم نقل %1$@ إلى %2$@.";
+/* Alert message shown when saving an item with no collection selected. */
 "SelectOneCollection" = "يجب اختيار مجموعة واحدة على الأقل.";
+/* Alert message shown when saving an item with no shared folder selected. */
+"YouMustSelectAtLeastOneSharedFolder" = "You must select at least one shared folder.";
 "Share" = "مشاركة";
 "ShareAll" = "مشاركة الكل";
+/* Overflow menu item and screen title on the Move screen shown when the "vfo1-foundation" feature flag is disabled; superseded by "Move" when enabled. */
 "MoveToOrganization" = "الانتقال إلى المنظمة";
+/* Empty state message shown when a user has no vaults available to move an item into, when the "vfo1-foundation" feature flag is enabled. */
+"NoVaultsToList" = "No vaults to list.";
+/* Empty state message shown when a user has no organizations available to move an item into, when the "vfo1-foundation" feature flag is disabled. */
 "NoOrgsToList" = "لا توجد منظمات لعرضها.";
+/* Footer text on the Move screen explaining that moving an item transfers its ownership to the destination vault's organization, when the "vfo1-foundation" feature flag is enabled. */
+"ChooseAVaultThatYouWishToMoveThisItemToDescriptionLong" = "Choose a vault that you wish to move this item to. Moving to another vault transfers ownership of the item to that organization. You will no longer be the direct owner of this item once it has been moved.";
+/* Footer text on the Move screen explaining that moving an item transfers its ownership to the destination organization, when the "vfo1-foundation" feature flag is disabled. */
 "MoveToOrgDesc" = "اختر منظمة تود نقل هذا العنصر إليها. النقل إلى منظمة ينقل ملكية العنصر إليها. لن تعود المالك المباشر لهذا العنصر بمجرد نقله.";
 "NumberOfWords" = "عدد الكلمات";
 "Passphrase" = "جملة المرور";
@@ -589,6 +612,7 @@
 "LoginApproved" = "تم قبول تسجيل الدخول";
 "LogInWithDevice" = "تسجيل الدخول باستخدام الجهاز";
 "LoggingInOn" = "تسجيل الدخول إلى";
+/* The word "Vault", used generically as a field label, screen title, and app-wide term for a user's or organization's item collection. */
 "Vault" = "خزنة";
 "Appearance" = "المظهر";
 "AccountSecurity" = "أمان الحساب";
@@ -870,8 +894,13 @@
 "ShowLess" = "إظهار أقل";
 "ItemNameX" = "اسم العنصر، %1$@";
 "OwnerX" = "المالك، %1$@";
+"VaultX" = "Vault, %1$@";
+/* VoiceOver accessibility label for a collection the item belongs to. */
 "CollectionX" = "المجموعة، %1$@";
+/* VoiceOver accessibility label for a shared folder the item belongs to. */
+"SharedFolderX" = "Shared folder, %1$@";
 "FolderX" = "مجلد، %1$@";
+"MyFolderX" = "My folder, %1$@";
 "ItemXOfY" = "العنصر %1$@ من %2$@";
 "ViewRecordedLogs" = "عرض السجلات المسجلة";
 "RecordedLogs" = "السجلات المسجلة";
@@ -1217,8 +1246,8 @@
 /* Device display name. %1$@ = category (e.g. "Mobile"), %2$@ = platform (e.g. "iOS"). */
 "DeviceDisplayNameXHyphenY" = "%1$@ - %2$@";
 "Mobile" = "Mobile";
-"BrowserExtension" = "Browser extension";
-"WebVault2" = "Web vault";
+"BrowserExtension" = "Extension";
+"WebVault2" = "Web app";
 "Desktop" = "Desktop";
 "Cli" = "CLI";
 "Sdk" = "SDK";

@@ -26,6 +26,8 @@
 "FolderNone" = "Без папки";
 "Folders" = "Папки";
 "FolderUpdated" = "Папка сохранена";
+"MyFolder" = "Моя папка";
+"MyFolders" = "Мои папки";
 "InternetConnectionRequiredMessage" = "Подключитесь к интернету чтобы продолжить.";
 "InternetConnectionRequiredTitle" = "Требуется подключение к интернету";
 "InvalidMasterPassword" = "Неверный мастер-пароль. Попробуйте снова.";
@@ -51,6 +53,7 @@
 "OK" = "OK";
 "Password" = "Пароль";
 "Save" = "Сохранить";
+/* Action to move a vault item to another vault; used as a button label, menu item, and screen title. */
 "Move" = "Переместить";
 "Saving" = "Сохранение…";
 "Settings" = "Настройки";
@@ -116,7 +119,7 @@
 "MinSpecial" = "Минимум символов";
 "Never" = "Никогда";
 "NoItems" = "В вашем хранилище нет элементов.";
-"NoItemsTap" = "В вашем хранилище нет элементов для этого сайта/приложения. Нажмите чтобы добавить.";
+"NoItemsTap" = "В вашем хранилище нет элементов для этого сайта/приложения. Нажмите, чтобы добавить.";
 "NoUsernamePasswordConfigured" = "У логина не заданы имя пользователя и пароль.";
 "OKGotIt" = "Понятно!";
 "Options" = "Опции";
@@ -258,8 +261,14 @@
 "ShowWebsiteIconsDescription" = "Отображать узнаваемое изображение рядом с каждым логином.";
 "IconsUrl" = "URL сервера значков";
 "AutofillWithBitwarden" = "Автозаполнение Bitwarden";
+/* Section header and screen title for viewing/managing a cipher's collections. */
 "Collections" = "Коллекции";
+/* Section header and screen title for viewing/managing a cipher's shared folders. */
+"SharedFolders" = "Общие папки";
+/* Empty state message shown when a collection has no items. */
 "NoItemsCollection" = "В этой коллекции нет элементов";
+/* Empty state message shown when a shared folder has no items. */
+"ThereAreNoItemsInThisSharedFolder" = "В этой общей папке нет элементов";
 "NoItemsFolder" = "В этой папке нет элементов";
 "NoItemsTrash" = "В корзине нет элементов.";
 "FaceID" = "Face ID";
@@ -279,6 +288,7 @@
 "RegEx" = "Регулярное выражение";
 "StartsWith" = "Начинается с";
 "MatchDetection" = "Обнаружение совпадений";
+/* Field label on the Move screen shown when the "vfo1-foundation" feature flag is disabled; superseded by "Vault" when enabled. */
 "Organization" = "Организация";
 "HoldYubikeyNearTop" = "Удерживайте Yubikey в верхней части устройства.";
 "TryAgain" = "Попробуйте снова";
@@ -314,13 +324,26 @@
 "NoItemsToList" = "Нет элементов для отображения.";
 "MoveDown" = "Переместить ниже";
 "MoveUp" = "Переместить выше";
+/* Empty state message on the Collections screen shown when a user has no collections. */
 "NoCollectionsToList" = "Нет коллекций для отображения.";
+/* Empty state message on the Shared folders screen shown when a user has no shared folders. */
+"ThereAreNoSharedFoldersToList" = "Нет общих папок для отображения.";
 "MovedItemToOrg" = "%1$@ перемещено в %2$@.";
+/* Alert message shown when saving an item with no collection selected. */
 "SelectOneCollection" = "Необходимо выбрать хотя бы одну коллекцию.";
+/* Alert message shown when saving an item with no shared folder selected. */
+"YouMustSelectAtLeastOneSharedFolder" = "Необходимо выбрать хотя бы одну общую папку.";
 "Share" = "Поделиться";
 "ShareAll" = "Поделиться всеми";
+/* Overflow menu item and screen title on the Move screen shown when the "vfo1-foundation" feature flag is disabled; superseded by "Move" when enabled. */
 "MoveToOrganization" = "Переместить в организацию";
+/* Empty state message shown when a user has no vaults available to move an item into, when the "vfo1-foundation" feature flag is enabled. */
+"NoVaultsToList" = "Нет хранилища для отображения.";
+/* Empty state message shown when a user has no organizations available to move an item into, when the "vfo1-foundation" feature flag is disabled. */
 "NoOrgsToList" = "Нет организаций для отображения.";
+/* Footer text on the Move screen explaining that moving an item transfers its ownership to the destination vault's organization, when the "vfo1-foundation" feature flag is enabled. */
+"ChooseAVaultThatYouWishToMoveThisItemToDescriptionLong" = "Выберите хранилище, в которое вы хотите переместить этот элемент. Перемещение в хранилище передает права на элемент этой организации. Вы больше не будете непосредственным владельцем этого элемента после его перемещения.";
+/* Footer text on the Move screen explaining that moving an item transfers its ownership to the destination organization, when the "vfo1-foundation" feature flag is disabled. */
 "MoveToOrgDesc" = "Выберите организацию, в которую вы хотите переместить этот элемент. При перемещении в организацию право собственности на элемент переходит к этой организации. Вы больше не будете прямым владельцем этого элемента после его перемещения.";
 "NumberOfWords" = "Количество слов";
 "Passphrase" = "Парольная фраза";
@@ -474,8 +497,8 @@
 "Totp" = "TOTP";
 "VerificationCodes" = "Коды подтверждения";
 "PremiumSubscriptionRequired" = "Требуется подписка Премиум";
-"APremiumPlanGivesYouMoreToolsDescriptionLong" = "План Премиум дает вам больше возможностей по обеспечения безопасности и контроля.";
-"UnlockAdvancedSecurityFeatures" = "Разблокировать дополнительные функции безопасности";
+"APremiumPlanGivesYouMoreToolsDescriptionLong" = "План Премиум предлагает вам больше возможностей для обеспечения безопасности и контроля.";
+"UnlockAdvancedSecurityFeatures" = "Разблокировать дополнительные возможности безопасности";
 "CannotAddAuthenticatorKey" = "Не удается добавить ключ аутентификатора?";
 "ScanQRCode" = "Сканировать QR-код";
 "CannotScanQRCode" = "Не удается сосканировать QR-код?";
@@ -589,6 +612,7 @@
 "LoginApproved" = "Вход одобрен";
 "LogInWithDevice" = "Войти с помощью устройства";
 "LoggingInOn" = "Войти на";
+/* The word "Vault", used generically as a field label, screen title, and app-wide term for a user's or organization's item collection. */
 "Vault" = "Хранилище";
 "Appearance" = "Внешний вид";
 "AccountSecurity" = "Безопасность аккаунта";
@@ -870,8 +894,13 @@
 "ShowLess" = "Меньше";
 "ItemNameX" = "Название элемента %1$@";
 "OwnerX" = "Владелец %1$@";
+"VaultX" = "Хранилище %1$@";
+/* VoiceOver accessibility label for a collection the item belongs to. */
 "CollectionX" = "Коллекция %1$@";
+/* VoiceOver accessibility label for a shared folder the item belongs to. */
+"SharedFolderX" = "Общая папка, %1$@";
 "FolderX" = "Папка %1$@";
+"MyFolderX" = "Моя папка, %1$@";
 "ItemXOfY" = "Элемент %1$@ из %2$@";
 "ViewRecordedLogs" = "Просмотр записанных логов";
 "RecordedLogs" = "Записанные логи";
@@ -1217,8 +1246,8 @@
 /* Device display name. %1$@ = category (e.g. "Mobile"), %2$@ = platform (e.g. "iOS"). */
 "DeviceDisplayNameXHyphenY" = "%1$@ - %2$@";
 "Mobile" = "Мобильный";
-"BrowserExtension" = "Расширение браузера";
-"WebVault2" = "Веб-хранилище";
+"BrowserExtension" = "Расширение";
+"WebVault2" = "Веб-приложение";
 "Desktop" = "Компьютер";
 "Cli" = "CLI";
 "Sdk" = "SDK";

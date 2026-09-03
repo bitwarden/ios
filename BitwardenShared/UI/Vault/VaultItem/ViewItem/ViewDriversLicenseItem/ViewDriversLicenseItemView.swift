@@ -24,7 +24,7 @@ struct ViewDriversLicenseItemView: View {
 
                     licenseNumberItem
 
-                    dateField(title: Localizations.dateOfBirth, value: store.state.dateOfBirthDisplay)
+                    dateField(title: Localizations.dateOfBirth, value: store.state.dateOfBirth)
 
                     issuingCountryItem
 
@@ -32,9 +32,9 @@ struct ViewDriversLicenseItemView: View {
 
                     issuingAuthorityItem
 
-                    dateField(title: Localizations.issueDate, value: store.state.issueDateDisplay)
+                    dateField(title: Localizations.issueDate, value: store.state.issueDate)
 
-                    dateField(title: Localizations.expirationDate, value: store.state.expirationDateDisplay)
+                    dateField(title: Localizations.expirationDate, value: store.state.expirationDate)
 
                     licenseClassItem
                 }
@@ -176,16 +176,16 @@ struct ViewDriversLicenseItemView: View {
         }
     }
 
-    /// A read-only field displaying a long localized date, hidden when the value is empty.
+    /// A read-only field displaying a long localized date, hidden when unset.
     ///
     /// - Parameters:
     ///   - title: The localized title of the field.
-    ///   - value: The formatted date string to display.
+    ///   - value: The date to display.
     ///
     @ViewBuilder
-    private func dateField(title: String, value: String) -> some View {
-        if !value.isEmpty {
-            BitwardenTextValueField(title: title, value: value)
+    private func dateField(title: String, value: Date?) -> some View {
+        if let value {
+            BitwardenTextValueField(title: title, value: value.longCalendarDateDisplay)
                 .accessibilityElement(children: .contain)
         }
     }
@@ -201,14 +201,14 @@ extension DriversLicenseItemState {
             middleName,
             lastName,
             licenseNumber,
-            dateOfBirth,
             issuingCountry,
             issuingState,
             issuingAuthority,
-            issueDate,
-            expirationDate,
             licenseClass,
         ].allSatisfy(\.isEmpty)
+            && dateOfBirth == nil
+            && issueDate == nil
+            && expirationDate == nil
     }
 }
 
@@ -240,10 +240,10 @@ extension DriversLicenseItemState {
                     store: Store(
                         processor: StateProcessor(
                             state: DriversLicenseItemState(
-                                dateOfBirth: "2025-04-20",
-                                expirationDate: "2026-08-10",
+                                dateOfBirth: Date(year: 2025, month: 4, day: 20),
+                                expirationDate: Date(year: 2026, month: 8, day: 10),
                                 firstName: "Mitchell",
-                                issueDate: "2021-08-10",
+                                issueDate: Date(year: 2021, month: 8, day: 10),
                                 issuingAuthority: "DMV",
                                 issuingCountry: "United States",
                                 issuingState: "Wisconsin",

@@ -26,6 +26,8 @@
 "FolderNone" = "Δεν υπάρχει φάκελος";
 "Folders" = "Φάκελοι";
 "FolderUpdated" = "Ο φάκελος ενημερώθηκε";
+"MyFolder" = "My folder";
+"MyFolders" = "My folders";
 "InternetConnectionRequiredMessage" = "Συνδεθείτε στο διαδίκτυο πριν συνεχίσετε.";
 "InternetConnectionRequiredTitle" = "Απαιτείται σύνδεση στο διαδίκτυο";
 "InvalidMasterPassword" = "Μη έγκυρος κύριος κωδικός. Δοκιμάστε ξανά.";
@@ -51,6 +53,7 @@
 "OK" = "OK";
 "Password" = "Κωδικός";
 "Save" = "Αποθήκευση";
+/* Action to move a vault item to another vault; used as a button label, menu item, and screen title. */
 "Move" = "Μετακίνηση";
 "Saving" = "Αποθήκευση…";
 "Settings" = "Ρυθμίσεις";
@@ -258,8 +261,14 @@
 "ShowWebsiteIconsDescription" = "Εμφάνιση μιας αναγνωρίσιμης εικόνας δίπλα σε κάθε σύνδεση.";
 "IconsUrl" = "URL διακομιστή εικονιδίων";
 "AutofillWithBitwarden" = "Αυτόματη συμπλήρωση με Bitwarden";
+/* Section header and screen title for viewing/managing a cipher's collections. */
 "Collections" = "Συλλογές";
+/* Section header and screen title for viewing/managing a cipher's shared folders. */
+"SharedFolders" = "Shared folders";
+/* Empty state message shown when a collection has no items. */
 "NoItemsCollection" = "Δεν υπάρχουν αντικείμενα σε αυτή τη συλλογή";
+/* Empty state message shown when a shared folder has no items. */
+"ThereAreNoItemsInThisSharedFolder" = "There are no items in this shared folder";
 "NoItemsFolder" = "Δεν υπάρχουν αντικείμενα σε αυτόν τον φάκελο";
 "NoItemsTrash" = "Δεν υπάρχουν αντικείμενα στον κάδο απορριμμάτων.";
 "FaceID" = "Face ID";
@@ -279,6 +288,7 @@
 "RegEx" = "Κανονική έκφραση";
 "StartsWith" = "Έναρξη με";
 "MatchDetection" = "Εντοπισμός αντιστοίχισης";
+/* Field label on the Move screen shown when the "vfo1-foundation" feature flag is disabled; superseded by "Vault" when enabled. */
 "Organization" = "Οργανισμός";
 "HoldYubikeyNearTop" = "Κρατήστε το Yubikey κοντά στην κορυφή της συσκευής.";
 "TryAgain" = "Προσπαθήστε ξανά";
@@ -314,13 +324,26 @@
 "NoItemsToList" = "Δεν υπάρχουν στοιχεία στη λίστα.";
 "MoveDown" = "Μετακίνηση κάτω";
 "MoveUp" = "Μετακίνηση πάνω";
+/* Empty state message on the Collections screen shown when a user has no collections. */
 "NoCollectionsToList" = "Δεν υπάρχουν επιλογές στη λίστα.";
+/* Empty state message on the Shared folders screen shown when a user has no shared folders. */
+"ThereAreNoSharedFoldersToList" = "There are no shared folders to list.";
 "MovedItemToOrg" = "%1$@ μετακινήθηκε στο %2$@.";
+/* Alert message shown when saving an item with no collection selected. */
 "SelectOneCollection" = "Πρέπει να επιλέξετε τουλάχιστον μία συλλογή.";
+/* Alert message shown when saving an item with no shared folder selected. */
+"YouMustSelectAtLeastOneSharedFolder" = "You must select at least one shared folder.";
 "Share" = "Κοινοποίηση";
 "ShareAll" = "Κοινή χρήση όλων";
+/* Overflow menu item and screen title on the Move screen shown when the "vfo1-foundation" feature flag is disabled; superseded by "Move" when enabled. */
 "MoveToOrganization" = "Μετακίνηση στον Οργανισμό";
+/* Empty state message shown when a user has no vaults available to move an item into, when the "vfo1-foundation" feature flag is enabled. */
+"NoVaultsToList" = "No vaults to list.";
+/* Empty state message shown when a user has no organizations available to move an item into, when the "vfo1-foundation" feature flag is disabled. */
 "NoOrgsToList" = "Δεν υπάρχουν οργανισμοί προς εμφάνιση.";
+/* Footer text on the Move screen explaining that moving an item transfers its ownership to the destination vault's organization, when the "vfo1-foundation" feature flag is enabled. */
+"ChooseAVaultThatYouWishToMoveThisItemToDescriptionLong" = "Choose a vault that you wish to move this item to. Moving to another vault transfers ownership of the item to that organization. You will no longer be the direct owner of this item once it has been moved.";
+/* Footer text on the Move screen explaining that moving an item transfers its ownership to the destination organization, when the "vfo1-foundation" feature flag is disabled. */
 "MoveToOrgDesc" = "Επιλέξτε έναν οργανισμό στον οποίο θέλετε να μετακινήσετε αυτό το στοιχείο. Η μετακίνηση σε έναν οργανισμό μεταβιβάζει την ιδιοκτησία του στοιχείου σε αυτό τον οργανισμό. Δεν θα είστε πλέον ο άμεσος ιδιοκτήτης αυτού του στοιχείου μόλις το μετακινήσετε.";
 "NumberOfWords" = "Αριθμός λέξεων";
 "Passphrase" = "Συνθηματικό";
@@ -589,6 +612,7 @@
 "LoginApproved" = "Η σύνδεση εγκρίθηκε";
 "LogInWithDevice" = "Σύνδεση με χρήση συσκευής";
 "LoggingInOn" = "Σύνδεση στο";
+/* The word "Vault", used generically as a field label, screen title, and app-wide term for a user's or organization's item collection. */
 "Vault" = "Κρύπτη";
 "Appearance" = "Εμφάνιση";
 "AccountSecurity" = "Ασφάλεια λογαριασμού";
@@ -870,8 +894,13 @@
 "ShowLess" = "Εμφάνιση λιγότερων";
 "ItemNameX" = "Όνομα στοιχείου, %1$@";
 "OwnerX" = "Ιδιοκτήτης, %1$@";
+"VaultX" = "Vault, %1$@";
+/* VoiceOver accessibility label for a collection the item belongs to. */
 "CollectionX" = "Συλλογή, %1$@";
+/* VoiceOver accessibility label for a shared folder the item belongs to. */
+"SharedFolderX" = "Shared folder, %1$@";
 "FolderX" = "Φάκελος, %1$@";
+"MyFolderX" = "My folder, %1$@";
 "ItemXOfY" = "Στοιχείο %1$@ από %2$@";
 "ViewRecordedLogs" = "Προβολή καταγεγραμμένων αρχείων καταγραφής";
 "RecordedLogs" = "Καταγεγραμμένα αρχεία καταγραφής";

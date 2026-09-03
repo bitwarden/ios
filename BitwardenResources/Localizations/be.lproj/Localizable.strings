@@ -26,6 +26,8 @@
 "FolderNone" = "Без папкі";
 "Folders" = "Папкі";
 "FolderUpdated" = "Папка абноўлена.";
+"MyFolder" = "My folder";
+"MyFolders" = "My folders";
 "InternetConnectionRequiredMessage" = "Калі ласка, спачатку падлучыце інтэрнэт.";
 "InternetConnectionRequiredTitle" = "Патрабуецца доступ да інтэрнэту";
 "InvalidMasterPassword" = "Памылковы асноўны пароль. Паспрабуйце яшчэ раз.";
@@ -51,6 +53,7 @@
 "OK" = "Добра";
 "Password" = "Пароль";
 "Save" = "Захаваць";
+/* Action to move a vault item to another vault; used as a button label, menu item, and screen title. */
 "Move" = "Перамясціць";
 "Saving" = "Захаванне…";
 "Settings" = "Налады";
@@ -258,8 +261,14 @@
 "ShowWebsiteIconsDescription" = "Паказваць распазнавальны відарыс побач з кожным лагінам.";
 "IconsUrl" = "URL-адрас сервера значкоў";
 "AutofillWithBitwarden" = "Аўтазапаўненне з Bitwarden";
+/* Section header and screen title for viewing/managing a cipher's collections. */
 "Collections" = "Калекцыі";
+/* Section header and screen title for viewing/managing a cipher's shared folders. */
+"SharedFolders" = "Shared folders";
+/* Empty state message shown when a collection has no items. */
 "NoItemsCollection" = "У гэтай калекцыі няма элементаў";
+/* Empty state message shown when a shared folder has no items. */
+"ThereAreNoItemsInThisSharedFolder" = "There are no items in this shared folder";
 "NoItemsFolder" = "У гэтай тэчцы няма элементаў";
 "NoItemsTrash" = "У сметніцы адсутнічаюць элементы.";
 "FaceID" = "Face ID";
@@ -279,6 +288,7 @@
 "RegEx" = "Рэгулярны выраз";
 "StartsWith" = "Пачынаецца з";
 "MatchDetection" = "Выяўленне супадзенняў";
+/* Field label on the Move screen shown when the "vfo1-foundation" feature flag is disabled; superseded by "Vault" when enabled. */
 "Organization" = "Арганізацыя";
 "HoldYubikeyNearTop" = "Трымайце ваш YubiKey каля верхняй часткі прылады.";
 "TryAgain" = "Паспрабуйце яшчэ раз";
@@ -314,13 +324,26 @@
 "NoItemsToList" = "У спісе адсутнічаюць элементы.";
 "MoveDown" = "Перамясціць уніз";
 "MoveUp" = "Перамясціць уверх";
+/* Empty state message on the Collections screen shown when a user has no collections. */
 "NoCollectionsToList" = "У спісе адсутнічаюць калекцыі.";
+/* Empty state message on the Shared folders screen shown when a user has no shared folders. */
+"ThereAreNoSharedFoldersToList" = "There are no shared folders to list.";
 "MovedItemToOrg" = "%1$@ перамешчана ў %2$@.";
+/* Alert message shown when saving an item with no collection selected. */
 "SelectOneCollection" = "Вы павінны выбраць прынамсі адну калекцыю.";
+/* Alert message shown when saving an item with no shared folder selected. */
+"YouMustSelectAtLeastOneSharedFolder" = "You must select at least one shared folder.";
 "Share" = "Абагуліць";
 "ShareAll" = "Абагуліць усё";
+/* Overflow menu item and screen title on the Move screen shown when the "vfo1-foundation" feature flag is disabled; superseded by "Move" when enabled. */
 "MoveToOrganization" = "Перамясціць у арганізацыю";
+/* Empty state message shown when a user has no vaults available to move an item into, when the "vfo1-foundation" feature flag is enabled. */
+"NoVaultsToList" = "No vaults to list.";
+/* Empty state message shown when a user has no organizations available to move an item into, when the "vfo1-foundation" feature flag is disabled. */
 "NoOrgsToList" = "Няма арганізацый для паказу.";
+/* Footer text on the Move screen explaining that moving an item transfers its ownership to the destination vault's organization, when the "vfo1-foundation" feature flag is enabled. */
+"ChooseAVaultThatYouWishToMoveThisItemToDescriptionLong" = "Choose a vault that you wish to move this item to. Moving to another vault transfers ownership of the item to that organization. You will no longer be the direct owner of this item once it has been moved.";
+/* Footer text on the Move screen explaining that moving an item transfers its ownership to the destination organization, when the "vfo1-foundation" feature flag is disabled. */
 "MoveToOrgDesc" = "Выберыце арганізацыю, у якую вы хочаце перамясціць гэты элемент. Пры перамяшчэнні ў арганізацыю ўсе правы ўласнасці на дадзены элемент пяройдуць да гэтай арганізацыі. Вы больш не будзеце адзіным уласнікам гэтага элемента пасля яго перамяшчэння.";
 "NumberOfWords" = "Колькасць слоў";
 "Passphrase" = "Парольная фраза";
@@ -589,6 +612,7 @@
 "LoginApproved" = "Уваход ухвалены";
 "LogInWithDevice" = "Увайсці з іншай прылады";
 "LoggingInOn" = "Увайсці на";
+/* The word "Vault", used generically as a field label, screen title, and app-wide term for a user's or organization's item collection. */
 "Vault" = "Сховішча";
 "Appearance" = "Знешні выгляд";
 "AccountSecurity" = "Бяспеке акаўнта";
@@ -870,8 +894,13 @@
 "ShowLess" = "Паказаць менш";
 "ItemNameX" = "Назва элемента, %1$@";
 "OwnerX" = "Уладальнік, %1$@";
+"VaultX" = "Vault, %1$@";
+/* VoiceOver accessibility label for a collection the item belongs to. */
 "CollectionX" = "Калекцыя, %1$@";
+/* VoiceOver accessibility label for a shared folder the item belongs to. */
+"SharedFolderX" = "Shared folder, %1$@";
 "FolderX" = "Тэчка, %1$@";
+"MyFolderX" = "My folder, %1$@";
 "ItemXOfY" = "Элемент %1$@ з %2$@";
 "ViewRecordedLogs" = "Праглядзець запісаныя лагі";
 "RecordedLogs" = "Запісаныя лагі";
@@ -1217,8 +1246,8 @@
 /* Device display name. %1$@ = category (e.g. "Mobile"), %2$@ = platform (e.g. "iOS"). */
 "DeviceDisplayNameXHyphenY" = "%1$@ - %2$@";
 "Mobile" = "Mobile";
-"BrowserExtension" = "Browser extension";
-"WebVault2" = "Web vault";
+"BrowserExtension" = "Extension";
+"WebVault2" = "Web app";
 "Desktop" = "Desktop";
 "Cli" = "CLI";
 "Sdk" = "SDK";

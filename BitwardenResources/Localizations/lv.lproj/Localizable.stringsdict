@@ -48,15 +48,15 @@
       <key>ThisPasswordHasBeenExposedTimes</key>
       <dict>
         <key>zero</key>
-        <string>This password has been exposed %d times in data breaches.</string>
+        <string>Šī parole datu noplūdēs ir atklāta %d reižu.</string>
         <key>NSStringFormatSpecTypeKey</key>
         <string>NSStringPluralRuleType</string>
         <key>NSStringFormatValueTypeKey</key>
         <string>d</string>
         <key>one</key>
-        <string>This password has been exposed %d time in data breaches.</string>
+        <string>Šī parole datu noplūdēs ir atklāta %d reizi.</string>
         <key>other</key>
-        <string>This password has been exposed %d times in data breaches.</string>
+        <string>Šī parole datu noplūdēs ir atklāta %d reizes.</string>
       </dict>
     </dict>
     <!-- A number of characters, as in letters/numbers/punctuation. For example, the minimum number of characters when creating a password. -->
@@ -67,15 +67,15 @@
       <key>Characters</key>
       <dict>
         <key>zero</key>
-        <string>%d characters</string>
+        <string>%d rakstzīmju</string>
         <key>NSStringFormatSpecTypeKey</key>
         <string>NSStringPluralRuleType</string>
         <key>NSStringFormatValueTypeKey</key>
         <string>d</string>
         <key>one</key>
-        <string>%d character</string>
+        <string>%d rakstzīme</string>
         <key>other</key>
-        <string>%d characters</string>
+        <string>%d rakstzīmes</string>
       </dict>
     </dict>
     <!-- A number of days, used in menu selections. For example, the number of days to keep a send before deletion. -->
@@ -86,15 +86,15 @@
       <key>Days</key>
       <dict>
         <key>zero</key>
-        <string>%d days</string>
+        <string>%d dienu</string>
         <key>NSStringFormatSpecTypeKey</key>
         <string>NSStringPluralRuleType</string>
         <key>NSStringFormatValueTypeKey</key>
         <string>d</string>
         <key>one</key>
-        <string>%d day</string>
+        <string>%d diena</string>
         <key>other</key>
-        <string>%d days</string>
+        <string>%d dienas</string>
       </dict>
     </dict>
     <!-- A number of hours, used in menu selections. For example, how long to log events in the flight recorder. -->
@@ -105,15 +105,15 @@
       <key>Hours</key>
       <dict>
         <key>zero</key>
-        <string>%d hours</string>
+        <string>%d stundu</string>
         <key>NSStringFormatSpecTypeKey</key>
         <string>NSStringPluralRuleType</string>
         <key>NSStringFormatValueTypeKey</key>
         <string>d</string>
         <key>one</key>
-        <string>%d hour</string>
+        <string>%d stunda</string>
         <key>other</key>
-        <string>%d hours</string>
+        <string>%d stundas</string>
       </dict>
     </dict>
     <!-- A number of items, used in headers' voiceover to indicate how many items are in a section. -->
@@ -124,15 +124,15 @@
       <key>Items</key>
       <dict>
         <key>zero</key>
-        <string>%d items</string>
+        <string>%d vienumu</string>
         <key>NSStringFormatSpecTypeKey</key>
         <string>NSStringPluralRuleType</string>
         <key>NSStringFormatValueTypeKey</key>
         <string>d</string>
         <key>one</key>
-        <string>%d item</string>
+        <string>%d vienums</string>
         <key>other</key>
-        <string>%d items</string>
+        <string>%d vienumi</string>
       </dict>
     </dict>
     <!-- Message indicating a number of items were successfully imported in the Credential Exchange flow. -->
@@ -143,15 +143,15 @@
       <key>ItemsSuccessfullyImported</key>
       <dict>
         <key>zero</key>
-        <string>%d items successfully imported</string>
+        <string>Sekmīgi ievietoti %d vienumi</string>
         <key>NSStringFormatSpecTypeKey</key>
         <string>NSStringPluralRuleType</string>
         <key>NSStringFormatValueTypeKey</key>
         <string>d</string>
         <key>one</key>
-        <string>%d item successfully imported</string>
+        <string>Sekmīgi ievietots %d vienums</string>
         <key>other</key>
-        <string>%d items successfully imported</string>
+        <string>Sekmīgi ievietoti %d vienumi</string>
       </dict>
     </dict>
     <!-- A number of minutes, used in menu selections. For example, the amount of time to keep the vault unlocked after being unlocked. -->
@@ -162,15 +162,15 @@
       <key>Minutes</key>
       <dict>
         <key>zero</key>
-        <string>%d minutes</string>
+        <string>%d minūšu</string>
         <key>NSStringFormatSpecTypeKey</key>
         <string>NSStringPluralRuleType</string>
         <key>NSStringFormatValueTypeKey</key>
         <string>d</string>
         <key>one</key>
-        <string>%d minute</string>
+        <string>%d minūte</string>
         <key>other</key>
-        <string>%d minutes</string>
+        <string>%d minūtes</string>
       </dict>
     </dict>
     <!-- A number of seconds, used in menu selection. For example, how long to keep copied fields in the clipboard before clearing. -->
@@ -181,15 +181,15 @@
       <key>Seconds</key>
       <dict>
         <key>zero</key>
-        <string>%d seconds</string>
+        <string>%d sekunžu</string>
         <key>NSStringFormatSpecTypeKey</key>
         <string>NSStringPluralRuleType</string>
         <key>NSStringFormatValueTypeKey</key>
         <string>d</string>
         <key>one</key>
-        <string>%d second</string>
+        <string>%d sekunde</string>
         <key>other</key>
-        <string>%d seconds</string>
+        <string>%d sekundes</string>
       </dict>
     </dict>
     <!-- A number of weeks, used in menu selection. For example, how long to log events in the flight recorder. -->
@@ -200,34 +200,34 @@
       <key>Weeks</key>
       <dict>
         <key>zero</key>
-        <string>%d weeks</string>
+        <string>%d nedēļu</string>
         <key>NSStringFormatSpecTypeKey</key>
         <string>NSStringPluralRuleType</string>
         <key>NSStringFormatValueTypeKey</key>
         <string>d</string>
         <key>one</key>
-        <string>%d week</string>
+        <string>%d nedēļa</string>
         <key>other</key>
-        <string>%d weeks</string>
+        <string>%d nedēļas</string>
       </dict>
     </dict>
     <!-- A message indicating the grace period for a past due subscription, with pluralized days and the date. -->
     <key>YouHaveAGracePeriodOfXDaysFromYourSubscriptionDescriptionLong</key>
     <dict>
       <key>NSStringLocalizedFormatKey</key>
-      <string>%1$#@YouHaveAGracePeriodOfXDaysFromYourSubscriptionExpirationDate@ Please resolve the past due invoices by **%2$@**.</string>
+      <string>%1$#@YouHaveAGracePeriodOfXDaysFromYourSubscriptionExpirationDate@ Lūgums apmaksāt nokavētos rēķinus līdz **%2$@**.</string>
       <key>YouHaveAGracePeriodOfXDaysFromYourSubscriptionExpirationDate</key>
       <dict>
         <key>zero</key>
-        <string>You have a grace period of %1$d days from your subscription expiration date.</string>
+        <string>Tev ir %1$d dienu labvēlības laika posms no abonementa beigu datuma.</string>
         <key>NSStringFormatSpecTypeKey</key>
         <string>NSStringPluralRuleType</string>
         <key>NSStringFormatValueTypeKey</key>
         <string>d</string>
         <key>one</key>
-        <string>You have a grace period of %1$d day from your subscription expiration date.</string>
+        <string>Tev ir %1$d dienas labvēlības laika posms no abonementa beigu datuma.</string>
         <key>other</key>
-        <string>You have a grace period of %1$d days from your subscription expiration date.</string>
+        <string>Tev ir %1$d dienu labvēlības laika posms no abonementa beigu datuma.</string>
       </dict>
     </dict>
     <!-- A message indicating the minimum length of a PIN in characters. -->
@@ -238,15 +238,15 @@
       <key>YourPINMustBeAtLeastCharacters</key>
       <dict>
         <key>zero</key>
-        <string>Your PIN must be at least %d characters.</string>
+        <string>PIN ir jābūt vismaz %d rakstzīmēm.</string>
         <key>NSStringFormatSpecTypeKey</key>
         <string>NSStringPluralRuleType</string>
         <key>NSStringFormatValueTypeKey</key>
         <string>d</string>
         <key>one</key>
-        <string>Your PIN must be at least %d character.</string>
+        <string>PIN ir jābūt vismaz %d rakstzīmei.</string>
         <key>other</key>
-        <string>Your PIN must be at least %d characters.</string>
+        <string>PIN ir jābūt vismaz %d rakstzīmēm.</string>
       </dict>
     </dict>
   </dict>

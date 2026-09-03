@@ -131,6 +131,7 @@ struct AddEditItemView: View {
                             isMoveToOrganizationEnabled: store.state.canMoveToOrganization,
                             isRestoreEnabled: false,
                             isUnarchiveEnabled: store.state.canBeUnarchived,
+                            isVfo1FoundationFeatureFlagEnabled: store.state.isVfo1FoundationFeatureFlagEnabled,
                             store: store.child(
                                 state: { _ in },
                                 mapAction: { .morePressed($0) },
@@ -184,7 +185,7 @@ struct AddEditItemView: View {
 
             ContentBlock {
                 BitwardenMenuField(
-                    title: Localizations.folder,
+                    title: store.state.folderTitle,
                     options: store.state.folders,
                     selection: store.binding(
                         get: \.folder,
@@ -201,7 +202,7 @@ struct AddEditItemView: View {
                 if store.state.configuration.isAdding, store.state.hasOrganizations, let owner = store.state.owner {
                     ContentBlock(dividerLeadingPadding: 16) {
                         BitwardenMenuField(
-                            title: Localizations.owner,
+                            title: store.state.ownerFieldTitle,
                             accessibilityIdentifier: "ItemOwnershipPicker",
                             options: store.state.ownershipOptions,
                             selection: store.binding(

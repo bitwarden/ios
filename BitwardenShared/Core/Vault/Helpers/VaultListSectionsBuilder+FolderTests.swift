@@ -14,6 +14,7 @@ class VaultListSectionsBuilderFolderTests: BitwardenTestCase {
     // MARK: Properties
 
     var clientService: MockClientService!
+    var configService: MockConfigService!
     var errorReporter: MockErrorReporter!
     var subject: DefaultVaultListSectionsBuilder!
 
@@ -23,6 +24,7 @@ class VaultListSectionsBuilderFolderTests: BitwardenTestCase {
         super.setUp()
 
         clientService = MockClientService()
+        configService = MockConfigService()
         errorReporter = MockErrorReporter()
     }
 
@@ -30,6 +32,7 @@ class VaultListSectionsBuilderFolderTests: BitwardenTestCase {
         super.tearDown()
 
         clientService = nil
+        configService = nil
         errorReporter = nil
         subject = nil
     }
@@ -61,6 +64,29 @@ class VaultListSectionsBuilderFolderTests: BitwardenTestCase {
               - Group[2]: afolder2 (5)
               - Group[1]: folder1 (20)
               - Group[3]: folder3 (0)
+            """
+        }
+    }
+
+    /// `addFoldersSection(nestedFolderId:)` names the section "My folders" when the
+    /// `vfo1-foundation` feature flag is enabled.
+    @MainActor
+    func test_addFoldersSection_vfo1FoundationEnabled() async throws {
+        configService.featureFlagsBool[.vfo1Foundation] = true
+        setUpSubject(
+            withData: VaultListPreparedData(
+                folders: [
+                    .fixture(id: "1", name: "folder1"),
+                ],
+            ),
+        )
+
+        let vaultListData = try await subject.addFoldersSection().build()
+
+        assertInlineSnapshot(of: vaultListData.sections.dump(), as: .lines) {
+            """
+            Section[Folders]: My folders
+              - Group[1]: folder1 (0)
             """
         }
     }
@@ -274,6 +300,7 @@ class VaultListSectionsBuilderFolderTests: BitwardenTestCase {
         subject = DefaultVaultListSectionsBuilder(
             clientService: clientService,
             collectionHelper: collectionHelper,
+            configService: configService,
             errorReporter: errorReporter,
             stateService: MockStateService(),
             withData: withData,

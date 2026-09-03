@@ -26,6 +26,8 @@
 "FolderNone" = "Nieprzypisane";
 "Folders" = "Foldery";
 "FolderUpdated" = "Folder został zapisany";
+"MyFolder" = "Mój folder";
+"MyFolders" = "Moje foldery";
 "InternetConnectionRequiredMessage" = "Najpierw połącz się z Internetem.";
 "InternetConnectionRequiredTitle" = "Połączenie internetowe jest wymagane";
 "InvalidMasterPassword" = "Hasło główne jest nieprawidłowe. Spróbuj ponownie.";
@@ -51,6 +53,7 @@
 "OK" = "Ok";
 "Password" = "Hasło";
 "Save" = "Zapisz";
+/* Action to move a vault item to another vault; used as a button label, menu item, and screen title. */
 "Move" = "Przenieś";
 "Saving" = "Zapisywanie…";
 "Settings" = "Ustawienia";
@@ -258,8 +261,14 @@
 "ShowWebsiteIconsDescription" = "Pokaż rozpoznawalną ikonę obok danych logowania.";
 "IconsUrl" = "Adres URL serwera ikon";
 "AutofillWithBitwarden" = "Uzupełnij z Bitwarden";
+/* Section header and screen title for viewing/managing a cipher's collections. */
 "Collections" = "Kolekcje";
+/* Section header and screen title for viewing/managing a cipher's shared folders. */
+"SharedFolders" = "Udostępnione foldery";
+/* Empty state message shown when a collection has no items. */
 "NoItemsCollection" = "Brak elementów w kolekcji";
+/* Empty state message shown when a shared folder has no items. */
+"ThereAreNoItemsInThisSharedFolder" = "Brak elementów w udostępnionym folderze";
 "NoItemsFolder" = "Brak elementów w folderze";
 "NoItemsTrash" = "Brak elementów w koszu.";
 "FaceID" = "Face ID";
@@ -279,6 +288,7 @@
 "RegEx" = "Wyrażenie regularne";
 "StartsWith" = "Rozpoczyna się od";
 "MatchDetection" = "Wykrywanie dopasowania";
+/* Field label on the Move screen shown when the "vfo1-foundation" feature flag is disabled; superseded by "Vault" when enabled. */
 "Organization" = "Organizacja";
 "HoldYubikeyNearTop" = "Przyłóż klucz YubiKey w okolicy górnej części urządzenia.";
 "TryAgain" = "Spróbuj ponownie";
@@ -314,13 +324,26 @@
 "NoItemsToList" = "Brak elementów do wyświetlenia.";
 "MoveDown" = "Przenieś w dół";
 "MoveUp" = "Przenieś w górę";
+/* Empty state message on the Collections screen shown when a user has no collections. */
 "NoCollectionsToList" = "Brak kolekcji do wyświetlenia.";
+/* Empty state message on the Shared folders screen shown when a user has no shared folders. */
+"ThereAreNoSharedFoldersToList" = "Brak udostępnionych folderów do wyświetlenia.";
 "MovedItemToOrg" = "Przeniesiono %1$@ do %2$@.";
+/* Alert message shown when saving an item with no collection selected. */
 "SelectOneCollection" = "Musisz wybrać co najmniej jedną kolekcję.";
+/* Alert message shown when saving an item with no shared folder selected. */
+"YouMustSelectAtLeastOneSharedFolder" = "Musisz wybrać co najmniej jeden udostępniony folder.";
 "Share" = "Udostępnij";
 "ShareAll" = "Udostępnij wszystko";
+/* Overflow menu item and screen title on the Move screen shown when the "vfo1-foundation" feature flag is disabled; superseded by "Move" when enabled. */
 "MoveToOrganization" = "Przenieś do organizacji";
+/* Empty state message shown when a user has no vaults available to move an item into, when the "vfo1-foundation" feature flag is enabled. */
+"NoVaultsToList" = "Brak sejfów do wyświetlenia.";
+/* Empty state message shown when a user has no organizations available to move an item into, when the "vfo1-foundation" feature flag is disabled. */
 "NoOrgsToList" = "Brak organizacji do wyświetlenia.";
+/* Footer text on the Move screen explaining that moving an item transfers its ownership to the destination vault's organization, when the "vfo1-foundation" feature flag is enabled. */
+"ChooseAVaultThatYouWishToMoveThisItemToDescriptionLong" = "Wybierz sejf, do którego chcesz przenieść element. Przeniesienie spowoduje zmianę własności elementu na organizację.";
+/* Footer text on the Move screen explaining that moving an item transfers its ownership to the destination organization, when the "vfo1-foundation" feature flag is disabled. */
 "MoveToOrgDesc" = "Wybierz organizację, do której chcesz przenieść ten element. Ta czynność spowoduje utratę własności elementu i przenosi te uprawnienia do organizacji.";
 "NumberOfWords" = "Liczba słów";
 "Passphrase" = "Hasło wyrazowe";
@@ -589,6 +612,7 @@
 "LoginApproved" = "Logowanie zostało potwierdzone";
 "LogInWithDevice" = "Zaloguj się za pomocą urządzenia";
 "LoggingInOn" = "Serwer";
+/* The word "Vault", used generically as a field label, screen title, and app-wide term for a user's or organization's item collection. */
 "Vault" = "Sejf";
 "Appearance" = "Wygląd";
 "AccountSecurity" = "Bezpieczeństwo konta";
@@ -870,8 +894,13 @@
 "ShowLess" = "Pokaż mniej";
 "ItemNameX" = "Nazwa elementu, %1$@";
 "OwnerX" = "Właściciel, %1$@";
+"VaultX" = "Sejf, %1$@";
+/* VoiceOver accessibility label for a collection the item belongs to. */
 "CollectionX" = "Kolekcja, %1$@";
+/* VoiceOver accessibility label for a shared folder the item belongs to. */
+"SharedFolderX" = "Udostępniony folder, %1$@";
 "FolderX" = "Folder, %1$@";
+"MyFolderX" = "Mój folder, %1$@";
 "ItemXOfY" = "Element %1$@ z %2$@";
 "ViewRecordedLogs" = "Pokaż zarejestrowane logi";
 "RecordedLogs" = "Zarejestrowane logi";
@@ -1218,7 +1247,7 @@
 "DeviceDisplayNameXHyphenY" = "%1$@ - %2$@";
 "Mobile" = "Telefon";
 "BrowserExtension" = "Rozszerzenie";
-"WebVault2" = "Sejf internetowy";
+"WebVault2" = "Aplikacja internetowa";
 "Desktop" = "Komputer";
 "Cli" = "CLI";
 "Sdk" = "SDK";

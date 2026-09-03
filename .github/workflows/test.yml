@@ -76,7 +76,7 @@ jobs:
           inputs: "${{ toJson(inputs) }}"
 
       - name: Check out repo
-        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
 
@@ -107,30 +107,32 @@ jobs:
 
       - name: Restore Mint packages
         id: restore-mint
-        uses: actions/cache/restore@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: .mint
           key: ${{ runner.os }}-mint-${{ hashFiles('**/Mintfile') }}
           restore-keys: |
             ${{ runner.os }}-mint-
 
-      - name: Restore SPM packages
-        id: restore-spm
-        uses: actions/cache/restore@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
-        with:
-          path: build/DerivedData/SourcePackages
-          key: ${{ runner.os }}-spm-${{ hashFiles('**/Package.resolved') }}
-          restore-keys: |
-            ${{ runner.os }}-spm-
-
       - name: Restore DerivedData
         id: restore-deriveddata
-        uses: actions/cache/restore@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
+        if: ${{ contains(env._GITHUB_ACTION_RUN_URL, 'temp_disable_cache') }} # Disabled for now while we investigate build failures on partial cache hit
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: build/DerivedData
           key: ${{ runner.os }}-deriveddata-testbwpm-${{ env._XCODE_VERSION }}-${{ github.sha }}
           restore-keys: |
             ${{ runner.os }}-deriveddata-testbwpm-${{ env._XCODE_VERSION }}-
+
+      - name: Restore SPM packages
+        id: restore-spm
+        if: ${{ contains(env._GITHUB_ACTION_RUN_URL, 'temp_disable_cache') }} # Disabled for now while we investigate build failures on partial cache hit
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: build/DerivedData/SourcePackages
+          key: ${{ runner.os }}-spm-${{ hashFiles('**/Package.resolved') }}
+          restore-keys: |
+            ${{ runner.os }}-spm-
 
       # src: https://stackoverflow.com/questions/53753511/is-it-possible-to-copy-an-xcode-derived-data-cache
       - name: Set IgnoreFileSystemDeviceInodeChanges flag
@@ -173,21 +175,21 @@ jobs:
 
       - name: Save Mint packages
         if: github.event_name == 'push' && github.ref == 'refs/heads/main' && steps.restore-mint.outputs.cache-hit != 'true'
-        uses: actions/cache/save@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
+        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: .mint
           key: ${{ runner.os }}-mint-${{ hashFiles('**/Mintfile') }}
 
       - name: Save SPM packages
         if: github.event_name == 'push' && github.ref == 'refs/heads/main' && steps.restore-spm.outputs.cache-hit != 'true'
-        uses: actions/cache/save@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
+        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: build/DerivedData/SourcePackages
           key: ${{ runner.os }}-spm-${{ hashFiles('**/Package.resolved') }}
 
       - name: Save DerivedData
         if: github.event_name == 'push' && github.ref == 'refs/heads/main' && steps.restore-deriveddata.outputs.cache-hit != 'true'
-        uses: actions/cache/save@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
+        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: build/DerivedData
           key: ${{ runner.os }}-deriveddata-testbwpm-${{ env._XCODE_VERSION }}-${{ github.sha }}
@@ -244,7 +246,7 @@ jobs:
 
     steps:
       - name: Check out repo
-        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           sparse-checkout: .github/codecov.yml
           sparse-checkout-cone-mode: false

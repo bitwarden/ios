@@ -26,6 +26,8 @@
 "FolderNone" = "Fără dosar";
 "Folders" = "Dosare";
 "FolderUpdated" = "Dosar salvat";
+"MyFolder" = "My folder";
+"MyFolders" = "My folders";
 "InternetConnectionRequiredMessage" = "Vă rugăm să vă conectați la internet înainte de a continua.";
 "InternetConnectionRequiredTitle" = "Conexiune la internet necesară";
 "InvalidMasterPassword" = "Parolă principală invalidă. Încercați din nou.";
@@ -51,6 +53,7 @@
 "OK" = "OK";
 "Password" = "Parolă";
 "Save" = "Salvare";
+/* Action to move a vault item to another vault; used as a button label, menu item, and screen title. */
 "Move" = "Mutare";
 "Saving" = "Se salvează…";
 "Settings" = "Setări";
@@ -258,8 +261,14 @@
 "ShowWebsiteIconsDescription" = "Afișează o imagine ușor de recunoscut lângă fiecare autentificare.";
 "IconsUrl" = "URL server de pictograme";
 "AutofillWithBitwarden" = "Completare automată cu Bitwarden";
+/* Section header and screen title for viewing/managing a cipher's collections. */
 "Collections" = "Colecții";
+/* Section header and screen title for viewing/managing a cipher's shared folders. */
+"SharedFolders" = "Shared folders";
+/* Empty state message shown when a collection has no items. */
 "NoItemsCollection" = "Nu există elemente în această colecție";
+/* Empty state message shown when a shared folder has no items. */
+"ThereAreNoItemsInThisSharedFolder" = "There are no items in this shared folder";
 "NoItemsFolder" = "Nu există elemente în acest dosar";
 "NoItemsTrash" = "Nu există articole în coșul de reciclare.";
 "FaceID" = "ID facial";
@@ -279,6 +288,7 @@
 "RegEx" = "Expresie regulată";
 "StartsWith" = "Începe cu";
 "MatchDetection" = "Detectare de potrivire";
+/* Field label on the Move screen shown when the "vfo1-foundation" feature flag is disabled; superseded by "Vault" when enabled. */
 "Organization" = "Organizație";
 "HoldYubikeyNearTop" = "Țineți Yubikey în partea superioară a dispozitivului.";
 "TryAgain" = "Încercați din nou";
@@ -314,13 +324,26 @@
 "NoItemsToList" = "Nu există niciun articol de afișat.";
 "MoveDown" = "Mutare în jos";
 "MoveUp" = "Mutare în sus";
+/* Empty state message on the Collections screen shown when a user has no collections. */
 "NoCollectionsToList" = "Nu există colecții de afișat.";
+/* Empty state message on the Shared folders screen shown when a user has no shared folders. */
+"ThereAreNoSharedFoldersToList" = "There are no shared folders to list.";
 "MovedItemToOrg" = "%1$@ s-a mutat la %2$@.";
+/* Alert message shown when saving an item with no collection selected. */
 "SelectOneCollection" = "Trebuie să selectați cel puțin o colecție.";
+/* Alert message shown when saving an item with no shared folder selected. */
+"YouMustSelectAtLeastOneSharedFolder" = "You must select at least one shared folder.";
 "Share" = "Partajare";
 "ShareAll" = "Distribuie tot";
+/* Overflow menu item and screen title on the Move screen shown when the "vfo1-foundation" feature flag is disabled; superseded by "Move" when enabled. */
 "MoveToOrganization" = "Mutare la organizație";
+/* Empty state message shown when a user has no vaults available to move an item into, when the "vfo1-foundation" feature flag is enabled. */
+"NoVaultsToList" = "No vaults to list.";
+/* Empty state message shown when a user has no organizations available to move an item into, when the "vfo1-foundation" feature flag is disabled. */
 "NoOrgsToList" = "Nicio organizație de afișat.";
+/* Footer text on the Move screen explaining that moving an item transfers its ownership to the destination vault's organization, when the "vfo1-foundation" feature flag is enabled. */
+"ChooseAVaultThatYouWishToMoveThisItemToDescriptionLong" = "Choose a vault that you wish to move this item to. Moving to another vault transfers ownership of the item to that organization. You will no longer be the direct owner of this item once it has been moved.";
+/* Footer text on the Move screen explaining that moving an item transfers its ownership to the destination organization, when the "vfo1-foundation" feature flag is disabled. */
 "MoveToOrgDesc" = "Alegeți o organizație la care doriți să mutați acest articol. Mutarea într-o organizație, transferă proprietatea asupra articolului către organizația respectivă. Nu veți mai fi proprietarul direct al acestui articol odată ce a fost mutat.";
 "NumberOfWords" = "Număr de cuvinte";
 "Passphrase" = "Frază de acces";
@@ -589,6 +612,7 @@
 "LoginApproved" = "Autentificare aprobată";
 "LogInWithDevice" = "Conectați-vă cu dispozitivul";
 "LoggingInOn" = "Conectare pe";
+/* The word "Vault", used generically as a field label, screen title, and app-wide term for a user's or organization's item collection. */
 "Vault" = "Seif";
 "Appearance" = "Aspect";
 "AccountSecurity" = "Securitate cont";
@@ -870,8 +894,13 @@
 "ShowLess" = "Arată mai puțin";
 "ItemNameX" = "Nume element, %1$@";
 "OwnerX" = "Proprietar, %1$@";
+"VaultX" = "Vault, %1$@";
+/* VoiceOver accessibility label for a collection the item belongs to. */
 "CollectionX" = "Colecție, %1$@";
+/* VoiceOver accessibility label for a shared folder the item belongs to. */
+"SharedFolderX" = "Shared folder, %1$@";
 "FolderX" = "Dosar, %1$@";
+"MyFolderX" = "My folder, %1$@";
 "ItemXOfY" = "Element %1$@ din %2$@";
 "ViewRecordedLogs" = "Vezi jurnalele înregistrate";
 "RecordedLogs" = "Jurnale înregistrate";
@@ -1217,8 +1246,8 @@
 /* Device display name. %1$@ = category (e.g. "Mobile"), %2$@ = platform (e.g. "iOS"). */
 "DeviceDisplayNameXHyphenY" = "%1$@ - %2$@";
 "Mobile" = "Mobile";
-"BrowserExtension" = "Browser extension";
-"WebVault2" = "Web vault";
+"BrowserExtension" = "Extension";
+"WebVault2" = "Web app";
 "Desktop" = "Desktop";
 "Cli" = "CLI";
 "Sdk" = "SDK";

@@ -21,11 +21,13 @@
 "EnterPIN" = "Enter your PIN code.";
 "Favorites" = "Favorites";
 "Folder" = "Folder";
-"FolderCreated" = "New folder created.";
+"FolderCreated" = "New folder created";
 "FolderDeleted" = "Folder deleted.";
 "FolderNone" = "No Folder";
 "Folders" = "Folders";
 "FolderUpdated" = "Folder saved";
+"MyFolder" = "My folder";
+"MyFolders" = "My folders";
 "InternetConnectionRequiredMessage" = "Please connect to the internet before continuing.";
 "InternetConnectionRequiredTitle" = "Internet connection required";
 "InvalidMasterPassword" = "Invalid master password. Try again.";
@@ -51,6 +53,7 @@
 "OK" = "OK";
 "Password" = "Password";
 "Save" = "Save";
+/* Action to move a vault item to another vault; used as a button label, menu item, and screen title. */
 "Move" = "Move";
 "Saving" = "Saving…";
 "Settings" = "Settings";
@@ -179,7 +182,6 @@
 "CopyTotp" = "Copy TOTP";
 "CopyTotpAutomaticallyDescription" = "If a login has an authenticator key, copy the TOTP verification code to your clipboard when you autofill the login.";
 "CopyTotpAutomatically" = "Copy TOTP automatically";
-"PremiumRequired" = "A Premium membership is required to use this feature.";
 "AttachementAdded" = "Attachment added";
 "AttachmentDeleted" = "Attachment deleted";
 "ChooseFile" = "Choose file";
@@ -220,7 +222,6 @@
 "August" = "August";
 "Brand" = "Brand";
 "CardholderName" = "Cardholder name";
-"WeFoundMultipleMatchesChooseTheCorrectOne" = "We found multiple matches. Choose the correct one.";
 "CityTown" = "City / Town";
 "Company" = "Company";
 "Country" = "Country";
@@ -258,8 +259,14 @@
 "ShowWebsiteIconsDescription" = "Show a recognizable image next to each login.";
 "IconsUrl" = "Icons server URL";
 "AutofillWithBitwarden" = "Autofill with Bitwarden";
+/* Section header and screen title for viewing/managing a cipher's collections. */
 "Collections" = "Collections";
+/* Section header and screen title for viewing/managing a cipher's shared folders. */
+"SharedFolders" = "Shared folders";
+/* Empty state message shown when a collection has no items. */
 "NoItemsCollection" = "There are no items in this collection";
+/* Empty state message shown when a shared folder has no items. */
+"ThereAreNoItemsInThisSharedFolder" = "There are no items in this shared folder";
 "NoItemsFolder" = "There are no items in this folder";
 "NoItemsTrash" = "There are no items in the trash.";
 "FaceID" = "Face ID";
@@ -279,6 +286,7 @@
 "RegEx" = "Regular expression";
 "StartsWith" = "Starts with";
 "MatchDetection" = "Match detection";
+/* Field label on the Move screen shown when the "vfo1-foundation" feature flag is disabled; superseded by "Vault" when enabled. */
 "Organization" = "Organization";
 "HoldYubikeyNearTop" = "Hold your Yubikey near the top of the device.";
 "TryAgain" = "Try again";
@@ -299,6 +307,7 @@
 "NoEmailAddressesEntered" = "No email addresses entered";
 "EnterAtLeastOneValidEmailToShareSend" = "Enter at least one valid email address to share this Send.";
 "OneOrMoreEmailAddressesIncorrect" = "One or more email addresses are incorrect. Please review and try again.";
+"OnlyIncludeTheFollowingDomainsDescriptionLong" = "Only include the following domains: %1$@. Please review and try again.";
 "Cards" = "Cards";
 "Identities" = "Identities";
 "Logins" = "Logins";
@@ -314,13 +323,26 @@
 "NoItemsToList" = "There are no items to list.";
 "MoveDown" = "Move down";
 "MoveUp" = "Move Up";
+/* Empty state message on the Collections screen shown when a user has no collections. */
 "NoCollectionsToList" = "There are no collections to list.";
+/* Empty state message on the Shared folders screen shown when a user has no shared folders. */
+"ThereAreNoSharedFoldersToList" = "There are no shared folders to list.";
 "MovedItemToOrg" = "%1$@ moved to %2$@.";
+/* Alert message shown when saving an item with no collection selected. */
 "SelectOneCollection" = "You must select at least one collection.";
+/* Alert message shown when saving an item with no shared folder selected. */
+"YouMustSelectAtLeastOneSharedFolder" = "You must select at least one shared folder.";
 "Share" = "Share";
 "ShareAll" = "Share all";
+/* Overflow menu item and screen title on the Move screen shown when the "vfo1-foundation" feature flag is disabled; superseded by "Move" when enabled. */
 "MoveToOrganization" = "Move to Organization";
+/* Empty state message shown when a user has no vaults available to move an item into, when the "vfo1-foundation" feature flag is enabled. */
+"NoVaultsToList" = "No vaults to list.";
+/* Empty state message shown when a user has no organizations available to move an item into, when the "vfo1-foundation" feature flag is disabled. */
 "NoOrgsToList" = "No organizations to list.";
+/* Footer text on the Move screen explaining that moving an item transfers its ownership to the destination vault's organization, when the "vfo1-foundation" feature flag is enabled. */
+"ChooseAVaultThatYouWishToMoveThisItemToDescriptionLong" = "Choose a vault that you wish to move this item to. Moving to another vault transfers ownership of the item to that organization. You will no longer be the direct owner of this item once it has been moved.";
+/* Footer text on the Move screen explaining that moving an item transfers its ownership to the destination organization, when the "vfo1-foundation" feature flag is disabled. */
 "MoveToOrgDesc" = "Choose an organization that you wish to move this item to. Moving to an organization transfers ownership of the item to that organization. You will no longer be the direct owner of this item once it has been moved.";
 "NumberOfWords" = "Number of words";
 "Passphrase" = "Passphrase";
@@ -589,6 +611,7 @@
 "LoginApproved" = "Login approved";
 "LogInWithDevice" = "Log in with device";
 "LoggingInOn" = "Logging in on";
+/* The word "Vault", used generically as a field label, screen title, and app-wide term for a user's or organization's item collection. */
 "Vault" = "Vault";
 "Appearance" = "Appearance";
 "AccountSecurity" = "Account security";
@@ -624,7 +647,6 @@
 "SetUpAutofill" = "Set up autofill";
 "AppInfo" = "App info";
 "Browse" = "Browse";
-"SelectCardholderName" = "Select cardholder name";
 "SelectLanguage" = "Select language";
 "ContinueToCompleteWebAuthnVerification" = "Continue to complete WebAuthn verification.";
 "ThereWasAnErrorStartingWebAuthnTwoFactorAuthentication" = "There was an error starting WebAuthn two factor authentication";
@@ -643,7 +665,6 @@
 "ByContinuingYouAgreeToTheTermsOfServiceAndPrivacyPolicy" = "By continuing, you agree to the **[Terms of Service](%1$@)** and **[Privacy Policy](%2$@)**";
 "GetAdviceAnnouncementsAndResearchOpportunitiesFromBitwardenInYourInboxUnsubscribeAtAnyTime." = "Get advice, announcements, and research opportunities from Bitwarden in your inbox. **[Unsubscribe](%1$@)** at any time.";
 "UserVerificationForPasskey" = "User verification for passkey";
-"NewItem" = "New item";
 "ExploreTheGenerator" = "Explore the generator";
 "LearnMoreAboutGeneratingSecureLoginCredentialsWithAGuidedTour" = "Learn more about generating secure login credentials with a guided tour.";
 "ExportVaultFilePwProtectInfo" = "This file export will be password protected and require the file password to decrypt.";
@@ -857,6 +878,10 @@
 "Identification" = "Identification";
 "Owner" = "Owner";
 "VerifyYourIdentity" = "Verify your identity";
+"ThisOperationIsNotAllowedOnThisAccount" = "This operation is not allowed on this account";
+"AnErrorOccurredWhileTryingToLockTheCurrentUser" = "An error occurred while trying to lock the current user";
+"LockAllAccounts" = "Lock all accounts";
+"AllAccountsHaveBeenLocked" = "All accounts have been locked";
 "ShareErrorDetails" = "Share error details";
 "FlightRecorder" = "Flight recorder";
 "EnableFlightRecorder" = "Enable flight recorder";
@@ -870,8 +895,13 @@
 "ShowLess" = "Show less";
 "ItemNameX" = "Item name, %1$@";
 "OwnerX" = "Owner, %1$@";
+"VaultX" = "Vault, %1$@";
+/* VoiceOver accessibility label for a collection the item belongs to. */
 "CollectionX" = "Collection, %1$@";
+/* VoiceOver accessibility label for a shared folder the item belongs to. */
+"SharedFolderX" = "Shared folder, %1$@";
 "FolderX" = "Folder, %1$@";
+"MyFolderX" = "My folder, %1$@";
 "ItemXOfY" = "Item %1$@ of %2$@";
 "ViewRecordedLogs" = "View recorded logs";
 "RecordedLogs" = "Recorded logs";
@@ -880,7 +910,13 @@
 "ExpiresOnXDate" = "Expires on %1$@";
 "ExpiresTomorrow" = "Expires tomorrow";
 "DateRangeXToY" = "%1$@ to %2$@";
+"LogOutAllAccounts" = "Log out all accounts";
+"AllAccountsHaveBeenLoggedOut" = "All accounts have been logged out";
+"AnErrorOccurredWhileTryingToLogOutAllAccounts" = "An error occurred while trying to log out all accounts";
 "SelfHostServerURL" = "Self-host server URL";
+"OpenGenerator" = "Open generator";
+"OpenPasswordGenerator" = "Open password generator";
+"GeneratePassphrase" = "Generate passphrase";
 "AllowUniversalClipboard" = "Allow Universal Clipboard";
 "UseUniversalClipboardToCopyDescriptionLong" = "Use Universal Clipboard to copy here and paste on other devices signed in with the same Apple ID.";
 "RemoveMasterPasswordConfirmDomain" = "A master password is no longer required for members of the following organization. Please confirm the domain below with your organization administrator.";
@@ -900,6 +936,7 @@
 "GoToSettings" = "Go to settings";
 "SiriAndShortcutsAccess" = "Siri & Shortcuts access";
 "EnableToAllowTheAppToRespondToSiriAndShortcutsUsingAppIntents" = "Enable to allow the app to respond to Siri and Shortcuts using App Intents.";
+"ThereIsNoActiveAccount" = "There is no active account.";
 "NewFileSend" = "New file Send";
 "NewTextSend" = "New text Send";
 "EditFileSend" = "Edit file Send";
@@ -950,7 +987,6 @@
 "NoAskMe" = "No, ask me";
 "NoCodes" = "You don’t have any codes to display";
 "None" = "None";
-"NoneOfTheAbove" = "None of the above";
 "NumberOfDigits" = "Number of digits";
 "OtpType" = "OTP Type";
 "RefreshPeriod" = "Refresh period";

@@ -77,12 +77,6 @@ struct AddEditSendItemState: Equatable, Sendable {
     /// Whether the Send Controls policy feature flag is enabled.
     var isSendControlsPolicyEnabled = false
 
-    /// Whether sends are disabled via a policy.
-    var isSendDisabled = false
-
-    /// Whether the send hide email option is disabled via a policy.
-    var isSendHideEmailDisabled = false
-
     /// The key for this send.
     var key: String?
 
@@ -107,8 +101,12 @@ struct AddEditSendItemState: Equatable, Sendable {
     /// A password that can be used to limit access to this item.
     var password: String = ""
 
-    /// The list of recipient emails for the "specific people" access type.
-    var recipientEmails: [String] = []
+    /// The list of recipient emails for the "specific people" access type. Defaults to a single
+    /// empty row so the email field is always present when "Specific people" is selected.
+    var recipientEmails: [String] = [""]
+
+    /// The Send restrictions enforced by policy for the active user.
+    var sendPolicyOptions = SendPolicyOptions()
 
     /// The contents of this item.
     var text: String = ""
@@ -119,18 +117,10 @@ struct AddEditSendItemState: Equatable, Sendable {
     /// The type of this item.
     var type: SendType = .text
 
-    // MARK: Computed Properties
-
-    /// The recipient emails filtered to remove empty entries and normalized
-    /// (trimmed whitespace and lowercased) for validation and API submission.
-    var normalizedRecipientEmails: [String] {
-        recipientEmails
-            .map { $0.trimmingCharacters(in: .whitespacesAndNewlines).lowercased() }
-            .filter { !$0.isEmpty }
-    }
-
     /// The URL to open in Safari (e.g., upgrade to Premium page).
     var url: URL?
+
+    // MARK: Computed Properties
 
     /// The deletion date options available in the menu.
     var availableDeletionDateTypes: [SendDeletionDateType] {
@@ -140,6 +130,21 @@ struct AddEditSendItemState: Equatable, Sendable {
         case .edit:
             [.oneHour, .oneDay, .twoDays, .threeDays, .sevenDays, .thirtyDays, .custom(customDeletionDate)]
         }
+    }
+
+    /// Whether the access type is enforced by policy, which hides the "who can view" menu.
+    var isAccessTypeEnforcedByPolicy: Bool {
+        sendPolicyOptions.enforcedAccessType != nil
+    }
+
+    /// Whether sends are disabled via a policy.
+    var isSendDisabled: Bool {
+        sendPolicyOptions.isSendDisabled
+    }
+
+    /// Whether the send hide email option is disabled via a policy.
+    var isSendHideEmailDisabled: Bool {
+        sendPolicyOptions.isHideEmailDisabled
     }
 
     /// The navigation title to use for the view.
@@ -152,6 +157,8 @@ struct AddEditSendItemState: Equatable, Sendable {
                 Localizations.newFileSend
             case .text:
                 Localizations.newTextSend
+            case .unknown:
+                ""
             }
         case .edit:
             switch type {
@@ -159,8 +166,24 @@ struct AddEditSendItemState: Equatable, Sendable {
                 Localizations.editFileSend
             case .text:
                 Localizations.editTextSend
+            case .unknown:
+                ""
             }
         }
+    }
+
+    /// The recipient emails filtered to remove empty entries and normalized
+    /// (trimmed whitespace and lowercased) for validation and API submission.
+    var normalizedRecipientEmails: [String] {
+        recipientEmails
+            .map { $0.trimmingCharacters(in: .whitespacesAndNewlines).lowercased() }
+            .filter { !$0.isEmpty }
+    }
+
+    /// The access type the user is required to use by policy, or `nil` if the access type is not
+    /// restricted by policy.
+    var policyEnforcedAccessType: SendAccessType? {
+        sendPolicyOptions.enforcedAccessType
     }
 
     /// Whether the hide-email field should be shown.
@@ -218,7 +241,7 @@ extension AddEditSendItemState {
             notes: sendView.notes ?? "",
             originalSendView: sendView,
             password: "",
-            recipientEmails: sendView.emails,
+            recipientEmails: sendView.emails.isEmpty ? [""] : sendView.emails,
             text: sendView.text?.text ?? "",
             type: SendType(sendType: sendView.type),
         )
@@ -226,7 +249,14 @@ extension AddEditSendItemState {
 
     /// Returns a `SendView` based on the properties of the `AddEditSendItemState`.
     ///
-    func newSendView() -> SendView {
+    /// - Throws: `DataMappingError.invalidData` if `type` is `.unknown`. This shouldn't happen in
+    ///   practice, since the UI's type picker never offers `.unknown`.
+    ///
+    func newSendView() throws -> SendView {
+        guard let sdkType = BitwardenSdk.SendType(type: type) else {
+            throw DataMappingError.invalidData
+        }
+
         let deletionDate = deletionDate.calculateDate() ?? Date()
 
         // Determine if the send should have a password:
@@ -249,7 +279,7 @@ extension AddEditSendItemState {
             key: key,
             newPassword: accessType == .anyoneWithPassword ? password.nilIfEmpty : nil,
             hasPassword: hasPassword,
-            type: .init(type: type),
+            type: sdkType,
             file: type == .file ? newFileView() : nil,
             text: type == .text ? newTextView() : nil,
             maxAccessCount: maximumAccessCount == 0 ? nil : UInt32(maximumAccessCount),
