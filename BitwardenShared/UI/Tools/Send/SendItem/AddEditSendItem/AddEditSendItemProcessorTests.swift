@@ -180,6 +180,45 @@ class AddEditSendItemProcessorTests: BitwardenTestCase { // swiftlint:disable:th
         XCTAssertEqual(subject.state.accessType, .specificPeople)
     }
 
+    /// `perform(_:)` with `loadData` shows an alert and exits the flow when the current Send type
+    /// conflicts with the policy-enforced Send type.
+    @MainActor
+    func test_perform_loadData_enforcedSendType_mismatch() async throws {
+        subject.state.type = .file
+        policyService.getSendPolicyOptionsResult.enforcedSendType = .text
+        await subject.perform(.loadData)
+
+        XCTAssertEqual(coordinator.alertShown, [.sendTypeRestrictedByPolicy(.text) {}])
+        XCTAssertFalse(subject.state.hasPremium)
+
+        let alert = try XCTUnwrap(coordinator.alertShown.last)
+        try await alert.tapAction(title: Localizations.ok)
+        XCTAssertEqual(coordinator.routes.last, .cancel)
+    }
+
+    /// `perform(_:)` with `loadData` does not show an alert when the current Send type matches
+    /// the policy-enforced Send type.
+    @MainActor
+    func test_perform_loadData_enforcedSendType_matching() async {
+        subject.state.type = .text
+        policyService.getSendPolicyOptionsResult.enforcedSendType = .text
+        await subject.perform(.loadData)
+
+        XCTAssertTrue(coordinator.alertShown.isEmpty)
+    }
+
+    /// `perform(_:)` with `loadData` does not show an alert when editing an existing Send whose
+    /// type no longer matches a policy that was enforced after the Send was created.
+    @MainActor
+    func test_perform_loadData_enforcedSendType_editModeMismatch() async {
+        subject.state.mode = .edit
+        subject.state.type = .file
+        policyService.getSendPolicyOptionsResult.enforcedSendType = .text
+        await subject.perform(.loadData)
+
+        XCTAssertTrue(coordinator.alertShown.isEmpty)
+    }
+
     /// `perform(_:)` with `loadData` loads whether the Send Controls policy feature flag is enabled.
     @MainActor
     func test_perform_loadData_sendControlsPolicyFlag() async {

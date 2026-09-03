@@ -23,6 +23,7 @@ class MockSendRepository: BitwardenShared.SendRepository {
     var searchSendType: BitwardenShared.SendType?
     var searchSendSubject = CurrentValueSubject<[SendListItem], Error>([])
 
+    var sendListPublisherIncludeTypesSection: Bool?
     var sendListSubject = CurrentValueSubject<[SendListSection], Error>([])
 
     var sendSubject = CurrentValueSubject<SendView?, Error>(nil)
@@ -102,8 +103,11 @@ class MockSendRepository: BitwardenShared.SendRepository {
         return searchSendSubject.eraseToAnyPublisher().values
     }
 
-    func sendListPublisher() -> AsyncThrowingPublisher<AnyPublisher<[SendListSection], Error>> {
-        sendListSubject
+    func sendListPublisher(
+        includeTypesSection: Bool,
+    ) -> AsyncThrowingPublisher<AnyPublisher<[SendListSection], Error>> {
+        sendListPublisherIncludeTypesSection = includeTypesSection
+        return sendListSubject
             .eraseToAnyPublisher()
             .values
     }
