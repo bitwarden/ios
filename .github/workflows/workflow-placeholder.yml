@@ -12,8 +12,10 @@ on:
 
 jobs:
   placeholder:
-    runs-on: ubuntu-latest
+    name: Placeholder
+    runs-on: ubuntu-22.04
     permissions:
       contents: read
     steps:
-      - run: echo "Placeholder workflow"
+      - name: Placeholder step
+        run: echo "Placeholder workflow"
