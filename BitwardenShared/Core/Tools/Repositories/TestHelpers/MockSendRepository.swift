@@ -23,8 +23,8 @@ class MockSendRepository: BitwardenShared.SendRepository {
     var searchSendType: BitwardenShared.SendType?
     var searchSendSubject = CurrentValueSubject<[SendListItem], Error>([])
 
-    var sendListSubject = CurrentValueSubject<[SendListSection], Error>([])
     var sendListPublisherIncludeTypesSection: Bool?
+    var sendListSubject = CurrentValueSubject<[SendListSection], Error>([])
 
     var sendSubject = CurrentValueSubject<SendView?, Error>(nil)
 
