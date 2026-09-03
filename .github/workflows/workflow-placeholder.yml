@@ -1,0 +1,5 @@
+# This placeholder workflow file is used for testing entirely new workflows before they are
+# merged into the main branch. It should only be modified in feature branches for testing.
+# Once the new workflow is ready to be merged, it should be copied to a new file with an
+# appropriate name (e.g., ci-bwpm.yml) in the .github/workflows directory and the placeholder
+# should be reverted to its original (empty) state before merging the feature branch.
