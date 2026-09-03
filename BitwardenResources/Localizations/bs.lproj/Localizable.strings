@@ -182,7 +182,6 @@
 "CopyTotp" = "Iskopirajte TOTP";
 "CopyTotpAutomaticallyDescription" = "Ako prijava ima authenticator ključ, kopiraj TOTP verifikacijski kod u međuspremnik kada automatski popunite prijavu.";
 "CopyTotpAutomatically" = "Kopiraj TOTP (autentifikacijski kod) automatski";
-"PremiumRequired" = "Za korišćenje ove funkcije potrebno je premium članstvo.";
 "AttachementAdded" = "Prilog dodat";
 "AttachmentDeleted" = "Prilog izbrisan";
 "ChooseFile" = "Odaberite datoteku";
@@ -223,7 +222,6 @@
 "August" = "August";
 "Brand" = "Vrsta kartice";
 "CardholderName" = "Ime vlasnika kartice";
-"WeFoundMultipleMatchesChooseTheCorrectOne" = "Pronašli smo više podudaranja. Odaberite ispravno.";
 "CityTown" = "Grad";
 "Company" = "Kompanija";
 "Country" = "Država";
@@ -648,7 +646,6 @@
 "SetUpAutofill" = "Postavite automatsko popunjavanje";
 "AppInfo" = "Informacije o aplikaciji";
 "Browse" = "Pregledaj";
-"SelectCardholderName" = "Odaberite ime vlasnika kartice";
 "SelectLanguage" = "Odaberite jezik";
 "ContinueToCompleteWebAuthnVerification" = "Nastavite da dovršite WebAuthn verifikaciju.";
 "ThereWasAnErrorStartingWebAuthnTwoFactorAuthentication" = "Došlo je do greške pri pokretanju WebAuthn dvofaktorske autentifikacije";
@@ -667,7 +664,6 @@
 "ByContinuingYouAgreeToTheTermsOfServiceAndPrivacyPolicy" = "Nastavkom se slažete s **[Uvjetima korištenja](%1$@)** i **[Politikom privatnosti](%2$@)**";
 "GetAdviceAnnouncementsAndResearchOpportunitiesFromBitwardenInYourInboxUnsubscribeAtAnyTime." = "Primajte savjete, najave i mogućnosti istraživanja od Bitwarden u svoj sandučić. **[Odjavite se](%1$@)** u bilo kojem trenutku.";
 "UserVerificationForPasskey" = "Verifikacija korisnika za pristupni ključ";
-"NewItem" = "Nova stavka";
 "ExploreTheGenerator" = "Istražite generator";
 "LearnMoreAboutGeneratingSecureLoginCredentialsWithAGuidedTour" = "Saznajte više o generiranju sigurnih podataka za prijavu uz vođenu turu.";
 "ExportVaultFilePwProtectInfo" = "Ovaj izvoz datoteke bit će zaštićen lozinkom i zahtijevat će lozinku datoteke za dešifriranje.";
@@ -979,7 +975,6 @@
 "NoAskMe" = "Ne, pitaj me";
 "NoCodes" = "Nemate nijedan kod za prikaz";
 "None" = "Nijedno";
-"NoneOfTheAbove" = "Ništa od navedenog";
 "NumberOfDigits" = "Broj cifara";
 "OtpType" = "OTP tip";
 "RefreshPeriod" = "Period osvježavanja";

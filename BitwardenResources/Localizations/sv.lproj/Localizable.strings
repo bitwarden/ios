@@ -182,7 +182,6 @@
 "CopyTotp" = "Kopiera TOTP";
 "CopyTotpAutomaticallyDescription" = "Om en inloggning har en autentiseringsnyckel kopierar du TOTP-verifieringskoden till ditt urklipp när du fyller i inloggningen automatiskt.";
 "CopyTotpAutomatically" = "Kopiera TOTP automatiskt";
-"PremiumRequired" = "Ett premium-medlemskap krävs för att använda den här funktionen.";
 "AttachementAdded" = "Bilaga tillagd";
 "AttachmentDeleted" = "Bilaga borttagen";
 "ChooseFile" = "Välj fil";
@@ -223,7 +222,6 @@
 "August" = "Augusti";
 "Brand" = "Märke";
 "CardholderName" = "Kortinnehavarens namn";
-"WeFoundMultipleMatchesChooseTheCorrectOne" = "Vi hittade flera matchningar. Välj den rätta.";
 "CityTown" = "Ort";
 "Company" = "Företag";
 "Country" = "Land";
@@ -648,7 +646,6 @@
 "SetUpAutofill" = "Ställ in autofyllning";
 "AppInfo" = "Appinfo";
 "Browse" = "Bläddra";
-"SelectCardholderName" = "Välj kortinnehavarens namn";
 "SelectLanguage" = "Välj språk";
 "ContinueToCompleteWebAuthnVerification" = "Fortsätt för att slutföra WebAuthn verifieringen.";
 "ThereWasAnErrorStartingWebAuthnTwoFactorAuthentication" = "Det uppstod ett fel vid start av WebAuthn tvåfaktorsautentisering";
@@ -667,7 +664,6 @@
 "ByContinuingYouAgreeToTheTermsOfServiceAndPrivacyPolicy" = "Genom att fortsätta godkänner du **[Användarvillkoren](%1$@)** och **[Integritetspolicy](%2$@)**";
 "GetAdviceAnnouncementsAndResearchOpportunitiesFromBitwardenInYourInboxUnsubscribeAtAnyTime." = "Få råd, tillkännagivanden och forskningsmöjligheter från Bitwarden i din inkorg. **[Avsluta prenumerationen](%1$@)** när som helst.";
 "UserVerificationForPasskey" = "Användarverifiering för inloggningsnyckel";
-"NewItem" = "Nytt objekt";
 "ExploreTheGenerator" = "Utforska generatorn";
 "LearnMoreAboutGeneratingSecureLoginCredentialsWithAGuidedTour" = "Läs mer om att generera säkra inloggningsuppgifter med en guidad tur.";
 "ExportVaultFilePwProtectInfo" = "Den exporterade filen kommer vara lösenordsskyddad. Du kommer behöva ange fillösenordet för att dekryptera den.";
@@ -979,7 +975,6 @@
 "NoAskMe" = "Nej, fråga mig";
 "NoCodes" = "Du har inga koder att visa";
 "None" = "Ingen";
-"NoneOfTheAbove" = "Inget av ovanstående";
 "NumberOfDigits" = "Antal siffror";
 "OtpType" = "OTP-typ";
 "RefreshPeriod" = "Uppdateringstid";

@@ -182,7 +182,6 @@
 "CopyTotp" = "Kopiraj TOTP";
 "CopyTotpAutomaticallyDescription" = "Ako za prijavu postoji ključ autentifikatora, kopiraj TOTP kôd za provjeru u međuspremnik nakon auto-ispune prijave.";
 "CopyTotpAutomatically" = "Automatski kopiraj TOTP";
-"PremiumRequired" = "Za korištenje ove značajke potrebna je premium pretplata.";
 "AttachementAdded" = "Privitak dodan";
 "AttachmentDeleted" = "Privitak izbrisan";
 "ChooseFile" = "Odaberi datoteku";
@@ -223,7 +222,6 @@
 "August" = "kolovoz";
 "Brand" = "Vrsta kartice";
 "CardholderName" = "Vlasnik kartice";
-"WeFoundMultipleMatchesChooseTheCorrectOne" = "Pronašli smo više podudaranja. Odaberi ispravni.";
 "CityTown" = "Grad / Mjesto";
 "Company" = "Tvrtka";
 "Country" = "Zemlja";
@@ -648,7 +646,6 @@
 "SetUpAutofill" = "Podesi auto-ispunu";
 "AppInfo" = "Informacije o aplikaciji";
 "Browse" = "Pregledaj";
-"SelectCardholderName" = "Odaberi vlasnika kartice";
 "SelectLanguage" = "Odaberi jezik";
 "ContinueToCompleteWebAuthnVerification" = "Nastavi na dovršetak WebAuthn potvrde.";
 "ThereWasAnErrorStartingWebAuthnTwoFactorAuthentication" = "Došlo je do greške kod pokretanja WebAuthn dvostruke autentifikacije";
@@ -667,7 +664,6 @@
 "ByContinuingYouAgreeToTheTermsOfServiceAndPrivacyPolicy" = "Nastavkom, slažeš se s **[Uvjetima usluge](%1$@)** i **[Politikom privatnosti](%2$@)**";
 "GetAdviceAnnouncementsAndResearchOpportunitiesFromBitwardenInYourInboxUnsubscribeAtAnyTime." = "Primaj savjete, najave i mogućnosti istraživanja od Bitwardena u svoju Ulaznu poštu. **[Otkaži pretplatu](%1$@)** u bilo kojem trenutku.";
 "UserVerificationForPasskey" = "Potvrda korisnika za pristupni ključ";
-"NewItem" = "Nova stavka";
 "ExploreTheGenerator" = "Istraži generator";
 "LearnMoreAboutGeneratingSecureLoginCredentialsWithAGuidedTour" = "Saznaj više o generiranju sigurnih vjerodajnica za prijavu uz vođeni obilazak.";
 "ExportVaultFilePwProtectInfo" = "Ova izvozna datoteka biti će zaštićena lozinkom bez koje ju neće biti moguće dešifrirati.";
@@ -979,7 +975,6 @@
 "NoAskMe" = "Ne, pitaj me";
 "NoCodes" = "Nema kodova za prikaz";
 "None" = "Nijedno";
-"NoneOfTheAbove" = "Ništa od navedenog";
 "NumberOfDigits" = "Broj znamenki";
 "OtpType" = "Vrsta OTP-a";
 "RefreshPeriod" = "Vrijeme osvježavanja";

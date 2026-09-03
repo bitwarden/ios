@@ -182,7 +182,6 @@
 "CopyTotp" = "TOTP 복사";
 "CopyTotpAutomaticallyDescription" = "로그인에 인증 키가 연결되어 있을 경우, 그 로그인을 자동 완성할 때마다 TOTP 인증 코드가 클립보드에 자동으로 복사됩니다.";
 "CopyTotpAutomatically" = "인증 코드 자동으로 복사하기";
-"PremiumRequired" = "이 기능을 사용하려면 프리미엄 멤버십이 필요합니다.";
 "AttachementAdded" = "첨부 파일 추가함";
 "AttachmentDeleted" = "첨부 파일 삭제함";
 "ChooseFile" = "파일 선택";
@@ -223,7 +222,6 @@
 "August" = "8월";
 "Brand" = "브랜드";
 "CardholderName" = "카드 소유자 이름";
-"WeFoundMultipleMatchesChooseTheCorrectOne" = "일치하는 항목이 여러 개 발견되었습니다. 올바른 항목을 선택하세요.";
 "CityTown" = "읍 / 면 / 동";
 "Company" = "회사";
 "Country" = "국가";
@@ -648,7 +646,6 @@
 "SetUpAutofill" = "자동 완성 설정";
 "AppInfo" = "애플리케이션 정보";
 "Browse" = "둘러보기";
-"SelectCardholderName" = "카드 소지자 이름 선택";
 "SelectLanguage" = "언어 선택";
 "ContinueToCompleteWebAuthnVerification" = "WebAuthn 인증을 완료하려면 계속하세요.";
 "ThereWasAnErrorStartingWebAuthnTwoFactorAuthentication" = "WebAuthn 2단계 인증을 시작하는 중 오류가 발생했습니다";
@@ -667,7 +664,6 @@
 "ByContinuingYouAgreeToTheTermsOfServiceAndPrivacyPolicy" = "계속함으로써 귀하는 **[이용약관](%1$@)** and **[개인정보처리방침](%2$@)**에 동의한 것으로 간주됩니다.";
 "GetAdviceAnnouncementsAndResearchOpportunitiesFromBitwardenInYourInboxUnsubscribeAtAnyTime." = "Bitwarden으로부터 새로운 소식과 연구 기회 등을 이메일로 받아보세요. 언제나 **[구독 취소](%1$@)**할 수 있습니다.";
 "UserVerificationForPasskey" = "패스키에 대한 사용자 확인";
-"NewItem" = "새 항목";
 "ExploreTheGenerator" = "생성기 둘러보기";
 "LearnMoreAboutGeneratingSecureLoginCredentialsWithAGuidedTour" = "안전한 로그인 비밀번호를 생성하는 방법에 대해 알아보세요.";
 "ExportVaultFilePwProtectInfo" = "파일 내보내기는 암호로 보호될 것이며, 파일을 열기 위해서는 파일 암호가 필요합니다.";
@@ -979,7 +975,6 @@
 "NoAskMe" = "아니요, 나중에 다시 물어보기";
 "NoCodes" = "표시할 코드가 없습니다";
 "None" = "없음";
-"NoneOfTheAbove" = "위에 없음";
 "NumberOfDigits" = "자릿수";
 "OtpType" = "OTP 유형";
 "RefreshPeriod" = "새로 고침 간격";

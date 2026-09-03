@@ -182,7 +182,6 @@
 "CopyTotp" = "Αντιγραφή TOTP";
 "CopyTotpAutomaticallyDescription" = "Εάν η σύνδεση έχει κάποιο κλειδί αυθεντικοποίησης, αντιγράψτε τον κωδικό επαλήθευσης TOTP στο πρόχειρο σας όταν κάνετε με αυτόματη συμπλήρωση τη συνδεση.";
 "CopyTotpAutomatically" = "Αυτόματη αντιγραφή TOTP";
-"PremiumRequired" = "Για να χρησιμοποιήσετε αυτό το χαρακτηριστικό, απαιτείται η έκδοση premium.";
 "AttachementAdded" = "Το συνημμένο προστέθηκε";
 "AttachmentDeleted" = "Το συνημμένο διαγράφηκε";
 "ChooseFile" = "Επιλογή αρχείου";
@@ -223,7 +222,6 @@
 "August" = "Αύγουστος";
 "Brand" = "Επωνυμία κάρτας";
 "CardholderName" = "Όνομα κατόχου της κάρτας";
-"WeFoundMultipleMatchesChooseTheCorrectOne" = "Βρήκαμε πολλαπλές αντιστοιχίες. Επιλέξτε τη σωστή.";
 "CityTown" = "Πόλη / Κωμόπολη";
 "Company" = "Εταιρεία";
 "Country" = "Χώρα";
@@ -648,7 +646,6 @@
 "SetUpAutofill" = "Ρύθμιση αυτόματης συμπλήρωσης";
 "AppInfo" = "Πληροφορίες εφαρμογής";
 "Browse" = "Περιήγηση";
-"SelectCardholderName" = "Επιλέξτε όνομα κατόχου κάρτας";
 "SelectLanguage" = "Επιλέξτε γλώσσα";
 "ContinueToCompleteWebAuthnVerification" = "Συνεχίστε να ολοκληρώσετε την επαλήθευση WebAuthn.";
 "ThereWasAnErrorStartingWebAuthnTwoFactorAuthentication" = "Παρουσιάστηκε σφάλμα κατά την εκκίνηση του ελέγχου ταυτότητας δύο παραγόντων WebAuthn";
@@ -667,7 +664,6 @@
 "ByContinuingYouAgreeToTheTermsOfServiceAndPrivacyPolicy" = "Συνεχίζοντας, συμφωνείτε με τους **[Όρους Χρήσης](%1$@)** και την **[Πολιτική Απορρήτου](%2$@)**";
 "GetAdviceAnnouncementsAndResearchOpportunitiesFromBitwardenInYourInboxUnsubscribeAtAnyTime." = "Λάβετε συμβουλές, ανακοινώσεις και ευκαιρίες έρευνας από το Bitwarden στα εισερχόμενά σας. **[Ακύρωση συνδρομής](%1$@)** ανά πάσα στιγμή.";
 "UserVerificationForPasskey" = "Επαλήθευση χρήστη για κλειδί πρόσβασης";
-"NewItem" = "Νέο στοιχείο";
 "ExploreTheGenerator" = "Εξερευνήστε τη γεννήτρια";
 "LearnMoreAboutGeneratingSecureLoginCredentialsWithAGuidedTour" = "Μάθετε περισσότερα σχετικά με τη δημιουργία ασφαλών διαπιστευτηρίων σύνδεσης μέσω μιας ξενάγησης.";
 "ExportVaultFilePwProtectInfo" = "Αυτή η εξαγωγή αρχείου θα προστατεύεται με κωδικό πρόσβασης και θα απαιτείται ο κωδικός πρόσβασης του αρχείου για αποκρυπτογράφηση.";
@@ -979,7 +975,6 @@
 "NoAskMe" = "Όχι, να γίνεται ερώτηση";
 "NoCodes" = "Δεν έχετε κανέναν κωδικό προς εμφάνιση";
 "None" = "Κανένα";
-"NoneOfTheAbove" = "Κανένα από τα παραπάνω";
 "NumberOfDigits" = "Αριθμός ψηφίων";
 "OtpType" = "Τύπος OTP";
 "RefreshPeriod" = "Περίοδος ανανέωσης";

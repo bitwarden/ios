@@ -182,7 +182,6 @@
 "CopyTotp" = "Копирај једнократни код";
 "CopyTotpAutomaticallyDescription" = "Ако пријава има кључ за аутентификацију, копирај ТОТП верификациони кôд у међуспремнику када аутоматски попуниш пријаву.";
 "CopyTotpAutomatically" = "Аутоматски копирај једнократни кôд";
-"PremiumRequired" = "Премијум је потребно за употребу ове способности.";
 "AttachementAdded" = "Прилог додат";
 "AttachmentDeleted" = "Прилог избрисан";
 "ChooseFile" = "Изабери датотеку";
@@ -223,7 +222,6 @@
 "August" = "Август";
 "Brand" = "Произвођач";
 "CardholderName" = "Име Власника Картице";
-"WeFoundMultipleMatchesChooseTheCorrectOne" = "Пронашли смо више подударања. Изаберите исправно.";
 "CityTown" = "Град";
 "Company" = "Предузеће";
 "Country" = "Земља";
@@ -648,7 +646,6 @@
 "SetUpAutofill" = "Подесити ауто-пуњење";
 "AppInfo" = "Информације о апликацији";
 "Browse" = "Потражи";
-"SelectCardholderName" = "Изаберите име власника картице";
 "SelectLanguage" = "Изабери језик";
 "ContinueToCompleteWebAuthnVerification" = "Наставите са довршавањем WebAuthn верификације.";
 "ThereWasAnErrorStartingWebAuthnTwoFactorAuthentication" = "Дошло је до грешке при покретању WebAuthn двофакторске аутентификације";
@@ -667,7 +664,6 @@
 "ByContinuingYouAgreeToTheTermsOfServiceAndPrivacyPolicy" = "Ако наставите, слажете се са **[Услови коришћења услуге](%1$@)** и **[Политика приватности](%2$@)**";
 "GetAdviceAnnouncementsAndResearchOpportunitiesFromBitwardenInYourInboxUnsubscribeAtAnyTime." = "Добијајте савете, најаве и могућности истраживања од Bitwarden-а у пријемном сандучету. **[Откажите](%1$@)** у било ком тренутку.";
 "UserVerificationForPasskey" = "Верификација корисника за приступни кључ";
-"NewItem" = "Нова ставка";
 "ExploreTheGenerator" = "Истражи генератор";
 "LearnMoreAboutGeneratingSecureLoginCredentialsWithAGuidedTour" = "Сазнај више о генерисању безбедних акредитива за пријаву кроз вођену туру.";
 "ExportVaultFilePwProtectInfo" = "Овај извоз ће бити заштићен лозинком и захтеваће лозинку датотеке за дешифровање.";
@@ -979,7 +975,6 @@
 "NoAskMe" = "Не, питај ме";
 "NoCodes" = "Немате никакве кодове за приказ";
 "None" = "Ниједан";
-"NoneOfTheAbove" = "Ништа од наведеног";
 "NumberOfDigits" = "Број цифара";
 "OtpType" = "Тип ОТП";
 "RefreshPeriod" = "Период освежавања";

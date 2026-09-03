@@ -182,7 +182,6 @@
 "CopyTotp" = "Kopijuoti TOTP";
 "CopyTotpAutomaticallyDescription" = "Jei prisijungimas turi autentifikavimo raktą, automatiškai pildant prisijungimo duomenis, nukopijuokite TOTP patikrinimo kodą į iškarpinę.";
 "CopyTotpAutomatically" = "Kopijuoti vienkartinį kodą (TOTP) automatiškai";
-"PremiumRequired" = "Premium narystė reikalinga šiai funkcijai naudoti.";
 "AttachementAdded" = "Priedas pridėtas";
 "AttachmentDeleted" = "Priedas ištrintas";
 "ChooseFile" = "Pasirinkti failą";
@@ -223,7 +222,6 @@
 "August" = "Rugpjūtis";
 "Brand" = "Prekės ženklas";
 "CardholderName" = "Kortelės savininko vardas";
-"WeFoundMultipleMatchesChooseTheCorrectOne" = "Radome kelis atitikmenis. Pasirinkite tinkamą.";
 "CityTown" = "Miestas";
 "Company" = "Įmonė";
 "Country" = "Šalis";
@@ -648,7 +646,6 @@
 "SetUpAutofill" = "Nustatyti automatinį pildymą";
 "AppInfo" = "Programos informacija";
 "Browse" = "Naršyti";
-"SelectCardholderName" = "Pasirinkti kortelės turėtojo vardą";
 "SelectLanguage" = "Pasirinkti kalbą";
 "ContinueToCompleteWebAuthnVerification" = "Tęskite, kad užbaigtumėte WebAuthn patikrą.";
 "ThereWasAnErrorStartingWebAuthnTwoFactorAuthentication" = "Įvyko klaida paleidžiant WebAuthn dviejų veiksnių autentifikavimą";
@@ -667,7 +664,6 @@
 "ByContinuingYouAgreeToTheTermsOfServiceAndPrivacyPolicy" = "Tęsdami sutinkate su **[Paslaugų teikimo sąlygomis](%1$@)** ir **[Privatumo politika](%2$@)**";
 "GetAdviceAnnouncementsAndResearchOpportunitiesFromBitwardenInYourInboxUnsubscribeAtAnyTime." = "Gaukite patarimų, pranešimų ir galimybių dalyvauti tyrimuose iš „Bitwarden“ savo pašto dėžutėje. **[Atsisakyti prenumeratos](%1$@)** galite bet kada.";
 "UserVerificationForPasskey" = "Naudotojo patikrinimas dėl prieigos rakto";
-"NewItem" = "Naujas elementas";
 "ExploreTheGenerator" = "Naršyti generatorių";
 "LearnMoreAboutGeneratingSecureLoginCredentialsWithAGuidedTour" = "Sužinokite daugiau apie saugių prisijungimo duomenų generavimą naudodami vadovaujamą ekskursiją.";
 "ExportVaultFilePwProtectInfo" = "Šis failo eksportas bus apsaugotas slaptažodžiu, o jo iššifravimui reikės failo slaptažodžio.";
@@ -979,7 +975,6 @@
 "NoAskMe" = "Ne, paklauskite manęs";
 "NoCodes" = "Neturite kodų, kuriuos būtų galima rodyti";
 "None" = "Nėra";
-"NoneOfTheAbove" = "Nė vienas iš aukščiau išvardytų";
 "NumberOfDigits" = "Skaitmenų skaičius";
 "OtpType" = "OTP tipas";
 "RefreshPeriod" = "Atnaujinimo periodas";

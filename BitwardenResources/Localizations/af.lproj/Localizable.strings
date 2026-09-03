@@ -182,7 +182,6 @@
 "CopyTotp" = "Kopieer TOTP";
 "CopyTotpAutomaticallyDescription" = "As 'n aanmelding 'n verifikasiesleutel het, kopieer die TOTP-verifikasiekode na u knipbord wanneer u die aanmelding outovul.";
 "CopyTotpAutomatically" = "Kopieer TOTP outomaties";
-"PremiumRequired" = "’n Premie-lidmaatskap is nodig om hierdie funksie te gebruik.";
 "AttachementAdded" = "Aanhegsel toegevoeg";
 "AttachmentDeleted" = "Aanhegsel geskrap";
 "ChooseFile" = "Kies lêer";
@@ -223,7 +222,6 @@
 "August" = "Augustus";
 "Brand" = "Handelsmerk";
 "CardholderName" = "Kaarthouernaam";
-"WeFoundMultipleMatchesChooseTheCorrectOne" = "Ons het verskeie ooreenstemmings gevind. Kies die korrekte een.";
 "CityTown" = "Stad / Dorp";
 "Company" = "Maatskappy";
 "Country" = "Land";
@@ -648,7 +646,6 @@
 "SetUpAutofill" = "Stel outovul op";
 "AppInfo" = "Programinligting";
 "Browse" = "Blaai";
-"SelectCardholderName" = "Kies kaarthouernaam";
 "SelectLanguage" = "Kies taal";
 "ContinueToCompleteWebAuthnVerification" = "Gaan voort om WebAuthn-verifikasie te voltooi.";
 "ThereWasAnErrorStartingWebAuthnTwoFactorAuthentication" = "Daar was 'n fout met die begin van WebAuthn-tweefaktor-verifikasie";
@@ -667,7 +664,6 @@
 "ByContinuingYouAgreeToTheTermsOfServiceAndPrivacyPolicy" = "Deur voort te gaan, stem u in tot die **[Diensbepalings](%1$@)** en **[Privaatheidsbeleid](%2$@)**";
 "GetAdviceAnnouncementsAndResearchOpportunitiesFromBitwardenInYourInboxUnsubscribeAtAnyTime." = "Ontvang advies, aankondigings en navorsingsgeleenthede van Bitwarden in u posbus. **[Teken uit](%1$@)** te eniger tyd.";
 "UserVerificationForPasskey" = "Gebruikersverifikasie vir sleutelpas";
-"NewItem" = "Nuwe item";
 "ExploreTheGenerator" = "Verken die genereerder";
 "LearnMoreAboutGeneratingSecureLoginCredentialsWithAGuidedTour" = "Kom meer te wete oor die generering van veilige aanmeldingsbewyse met 'n begeleide toer.";
 "ExportVaultFilePwProtectInfo" = "Hierdie lêeruitvoer sal met 'n wagwoord beskerm word en die lêerwagwoord benodig om te dekripteer.";
@@ -979,7 +975,6 @@
 "NoAskMe" = "Nee, vra my";
 "NoCodes" = "U het geen kodes om te vertoon nie";
 "None" = "Geen";
-"NoneOfTheAbove" = "Geen van bogenoemde nie";
 "NumberOfDigits" = "Aantal syfers";
 "OtpType" = "OTP-tipe";
 "RefreshPeriod" = "Verfrissingstydperk";

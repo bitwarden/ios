@@ -183,7 +183,6 @@
 "CopyTotp" = "TOTP ಅನ್ನು ನಕಲಿಸಿ";
 "CopyTotpAutomaticallyDescription" = "ಲಾಗಿನ್ ಅಧಿಕೃತ ಕೀಲಿಯನ್ನು ಹೊಂದಿದ್ದರೆ, ನೀವು ಲಾಗಿನ್ ಅನ್ನು ಸ್ವಯಂ ಭರ್ತಿ ಮಾಡುವಾಗ TOTP ಪರಿಶೀಲನಾ ಕೋಡ್ ಅನ್ನು ನಿಮ್ಮ ಕ್ಲಿಪ್ಬೋರ್ಡ್ಗೆ ನಕಲಿಸಿ.";
 "CopyTotpAutomatically" = "TOTP ಅನ್ನು ಸ್ವಯಂಚಾಲಿತವಾಗಿ ನಕಲಿಸಿ";
-"PremiumRequired" = "ಈ ವೈಶಿಷ್ಟ್ಯವನ್ನು ಬಳಸಲು ಪ್ರೀಮಿಯಂ ಸದಸ್ಯತ್ವ ಅಗತ್ಯವಿದೆ.";
 "AttachementAdded" = "ಲಗತ್ತು ಸೇರಿಸಲಾಗಿದೆ";
 "AttachmentDeleted" = "ಲಗತ್ತು ಅಳಿಸಲಾಗಿದೆ";
 "ChooseFile" = "ಫೈಲ್ ಆಯ್ಕೆ";
@@ -224,7 +223,6 @@
 "August" = "ಆಗಸ್ಟ್";
 "Brand" = "ಬ್ರ್ಯಾಂಡ್";
 "CardholderName" = "ಕಾರ್ಡುದಾರನ ಹೆಸರು";
-"WeFoundMultipleMatchesChooseTheCorrectOne" = "ನಾವು ಬಹು ಹೊಂದಾಣಿಕೆಗಳನ್ನು ಕಂಡುಕೊಂಡಿದ್ದೇವೆ. ಸರಿಯಾದದನ್ನು ಆಯ್ಕೆಮಾಡಿ.";
 "CityTown" = "ನಗರ / ಪಟ್ಟಣ";
 "Company" = "ಕಂಪನಿ";
 "Country" = "ದೇಶ";
@@ -649,7 +647,6 @@
 "SetUpAutofill" = "ಸ್ವಯಂ ಭರ್ತಿ ಹೊಂದಿಸಿ";
 "AppInfo" = "ಅಪ್ಲಿಕೇಶನ್ ಮಾಹಿತಿ";
 "Browse" = "ಬ್ರೌಸ್ ಮಾಡಿ";
-"SelectCardholderName" = "ಕಾರ್ಡ್ದಾರರ ಹೆಸರನ್ನು ಆಯ್ಕೆಮಾಡಿ";
 "SelectLanguage" = "ಭಾಷೆಯನ್ನು ಆಯ್ಕೆಮಾಡಿ";
 "ContinueToCompleteWebAuthnVerification" = "WebAuthn ಪರಿಶೀಲನೆಯನ್ನು ಪೂರ್ಣಗೊಳಿಸಲು ಮುಂದುವರಿಯಿರಿ.";
 "ThereWasAnErrorStartingWebAuthnTwoFactorAuthentication" = "WebAuthn ಎರಡು-ಅಂಶ ದೃಢೀಕರಣವನ್ನು ಪ್ರಾರಂಭಿಸುವಲ್ಲಿ ದೋಷವಿದೆ";
@@ -668,7 +665,6 @@
 "ByContinuingYouAgreeToTheTermsOfServiceAndPrivacyPolicy" = "ಮುಂದುವರಿಯುವ ಮೂಲಕ, ನೀವು **[ಸೇವಾ ನಿಯಮಗಳು](%1$@)** ಮತ್ತು **[ಗೌಪ್ಯತಾ ನೀತಿ](%2$@)** ಗೆ ಸಮ್ಮತಿಸುತ್ತೀರಿ";
 "GetAdviceAnnouncementsAndResearchOpportunitiesFromBitwardenInYourInboxUnsubscribeAtAnyTime." = "ನಿಮ್ಮ ಇನ್ಬಾಕ್ಸ್ನಲ್ಲಿ Bitwarden ನಿಂದ ಸಲಹೆ, ಘೋಷಣೆಗಳು ಮತ್ತು ಸಂಶೋಧನಾ ಅವಕಾಶಗಳನ್ನು ಪಡೆಯಿರಿ. ಯಾವುದೇ ಸಮಯದಲ್ಲಿ **[ಅನ್ಸಬ್ಸ್ಕ್ರೈಬ್](%1$@)** ಮಾಡಿ.";
 "UserVerificationForPasskey" = "ಪಾಸ್ಕೀಗಾಗಿ ಬಳಕೆದಾರ ಪರಿಶೀಲನೆ";
-"NewItem" = "ಹೊಸ ಐಟಂ";
 "ExploreTheGenerator" = "ಜನರೇಟರ್ ಅನ್ನು ಅನ್ವೇಷಿಸಿ";
 "LearnMoreAboutGeneratingSecureLoginCredentialsWithAGuidedTour" = "ಮಾರ್ಗದರ್ಶಿತ ಪ್ರವಾಸದೊಂದಿಗೆ ಸುರಕ್ಷಿತ ಲಾಗಿನ್ ರುಜುವಾತುಗಳನ್ನು ರಚಿಸುವ ಬಗ್ಗೆ ಇನ್ನಷ್ಟು ತಿಳಿಯಿರಿ.";
 "ExportVaultFilePwProtectInfo" = "ಈ ಫೈಲ್ ರಫ್ತು ಪಾಸ್ವರ್ಡ್-ರಕ್ಷಿತವಾಗಿರುತ್ತದೆ ಮತ್ತು ಡೀಕ್ರಿಪ್ಟ್ ಮಾಡಲು ಫೈಲ್ ಪಾಸ್ವರ್ಡ್ ಅಗತ್ಯವಿರುತ್ತದೆ.";
@@ -980,7 +976,6 @@
 "NoAskMe" = "ಇಲ್ಲ, ನನ್ನನ್ನು ಕೇಳಿ";
 "NoCodes" = "ಪ್ರದರ್ಶಿಸಲು ನೀವು ಯಾವುದೇ ಕೋಡ್ಗಳನ್ನು ಹೊಂದಿಲ್ಲ";
 "None" = "ಯಾವುದೂ ಇಲ್ಲ";
-"NoneOfTheAbove" = "ಮೇಲಿನ ಯಾವುದೂ ಅಲ್ಲ";
 "NumberOfDigits" = "ಅಂಕೆಗಳ ಸಂಖ್ಯೆ";
 "OtpType" = "OTP ಪ್ರಕಾರ";
 "RefreshPeriod" = "ರಿಫ್ರೆಶ್ ಅವಧಿ";

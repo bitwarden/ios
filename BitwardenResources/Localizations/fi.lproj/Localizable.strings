@@ -182,7 +182,6 @@
 "CopyTotp" = "Kopioi TOTP-koodi";
 "CopyTotpAutomaticallyDescription" = "Jos kirjautumistieto sisältää kaksivaiheisen kirjautumisen todennusavaimen, kopioidaan TOTP-koodi leikepöydälle kun kohde täytetään automaattisesti.";
 "CopyTotpAutomatically" = "Kopioi TOTP-koodi automaattisesti";
-"PremiumRequired" = "Käyttääksesi tätä toimintoa tarvitset Premium-jäsenyyden.";
 "AttachementAdded" = "Tiedostoliite lisätty";
 "AttachmentDeleted" = "Tiedostoliite poistettiin";
 "ChooseFile" = "Valitse tiedosto";
@@ -223,7 +222,6 @@
 "August" = "Elokuu";
 "Brand" = "Merkki";
 "CardholderName" = "Kortinhaltijan nimi";
-"WeFoundMultipleMatchesChooseTheCorrectOne" = "Löytyi useita vastaavuuksia. Valitse niistä oikea.";
 "CityTown" = "Paikkakunta";
 "Company" = "Yritys";
 "Country" = "Maa";
@@ -648,7 +646,6 @@
 "SetUpAutofill" = "Määritä automaattitäyttö";
 "AppInfo" = "Sovellustiedot";
 "Browse" = "Selaa";
-"SelectCardholderName" = "Valitse kortinhaltijan nimi";
 "SelectLanguage" = "Valitse kieli";
 "ContinueToCompleteWebAuthnVerification" = "Viimeistele WebAuthn-vahvistus jatkamalla.";
 "ThereWasAnErrorStartingWebAuthnTwoFactorAuthentication" = "Virhe aloitettaessa kaksivaiheista WebAuthn-tunnistautumista";
@@ -667,7 +664,6 @@
 "ByContinuingYouAgreeToTheTermsOfServiceAndPrivacyPolicy" = "Jatkamalla hyväksyt **[Käyttöehdot](%1$@)** ja **[Tietosuojakäytännön](%2$@)**";
 "GetAdviceAnnouncementsAndResearchOpportunitiesFromBitwardenInYourInboxUnsubscribeAtAnyTime." = "Saat Bitwardenilta neuvoja, ilmoituksia ja tutkimusmahdollisuuksia postilaatikkoosi. **[Peru tilaus](%1$@)** milloin tahansa.";
 "UserVerificationForPasskey" = "Vahvista pääsyavaimen käyttö";
-"NewItem" = "Uusi kohde";
 "ExploreTheGenerator" = "Tutustu generaattoriin";
 "LearnMoreAboutGeneratingSecureLoginCredentialsWithAGuidedTour" = "Tutustu opastetusti turvallisten kirjautumistietojen luontiin.";
 "ExportVaultFilePwProtectInfo" = "Tämä vientitiedosto suojataan salauksen purkuun tarvittavalla salasanalla.";
@@ -979,7 +975,6 @@
 "NoAskMe" = "Ei, kysy minulta";
 "NoCodes" = "Sinulla ei ole näytettäviä kohteita.";
 "None" = "Ei mitään";
-"NoneOfTheAbove" = "Ei mikään yllä olevista";
 "NumberOfDigits" = "Pituus";
 "OtpType" = "OTP:n tyyppi";
 "RefreshPeriod" = "Päivitysaika";

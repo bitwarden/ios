@@ -182,7 +182,6 @@
 "CopyTotp" = "TOTP kopiëren";
 "CopyTotpAutomaticallyDescription" = "Als een login een authenticatorsleutel heeft, kopieer dan de TOTP-verificatiecode naar je klembord wanneer je de login automatisch invult.";
 "CopyTotpAutomatically" = "TOTP automatisch kopiëren";
-"PremiumRequired" = "Je hebt een Premium-abonnement nodig om deze functionaliteit te kunnen gebruiken.";
 "AttachementAdded" = "Bijlage is toegevoegd";
 "AttachmentDeleted" = "Bijlage is verwijderd";
 "ChooseFile" = "Bestand kiezen";
@@ -223,7 +222,6 @@
 "August" = "augustus";
 "Brand" = "Merk";
 "CardholderName" = "Naam kaarthouder";
-"WeFoundMultipleMatchesChooseTheCorrectOne" = "We found multiple matches. Choose the correct one.";
 "CityTown" = "Stad / gemeente";
 "Company" = "Bedrijf";
 "Country" = "Land";
@@ -648,7 +646,6 @@
 "SetUpAutofill" = "Automatisch invullen instellen";
 "AppInfo" = "App informatie";
 "Browse" = "Blader";
-"SelectCardholderName" = "Select cardholder name";
 "SelectLanguage" = "Selecteer taal";
 "ContinueToCompleteWebAuthnVerification" = "Ga verder om WebAuthn verificatie te voltooien.";
 "ThereWasAnErrorStartingWebAuthnTwoFactorAuthentication" = "Er is een fout opgetreden bij het starten van WebAuthn twee factor authenticatie";
@@ -667,7 +664,6 @@
 "ByContinuingYouAgreeToTheTermsOfServiceAndPrivacyPolicy" = "Door verder te gaan, gaat je akkoord met de **[Algemene voorwaarden](%1$@)** en het **[Privacybeleid](%2$@)**";
 "GetAdviceAnnouncementsAndResearchOpportunitiesFromBitwardenInYourInboxUnsubscribeAtAnyTime." = "Ontvang advies, aankondigingen en onderzoeksmogelijkheden van Bitwarden in je inbox. Je kunt je op ieder moment **[uitschrijven](%1$@)**.";
 "UserVerificationForPasskey" = "Gebruikersverificatie voor passkey";
-"NewItem" = "Nieuw item";
 "ExploreTheGenerator" = "Ontdek de generator";
 "LearnMoreAboutGeneratingSecureLoginCredentialsWithAGuidedTour" = "Lees meer over het genereren van veilige logingegevens met een begeleide tour.";
 "ExportVaultFilePwProtectInfo" = "Deze bestandsexport wordt met een wachtwoord beveiligd en vereist het bestandswachtwoord om te ontsleutelen.";
@@ -979,7 +975,6 @@
 "NoAskMe" = "Nee, vraag het me";
 "NoCodes" = "Je hebt geen codes om weer te geven";
 "None" = "Geen";
-"NoneOfTheAbove" = "None of the above";
 "NumberOfDigits" = "Aantal cijfers";
 "OtpType" = "OTP-type";
 "RefreshPeriod" = "Verversperiode";

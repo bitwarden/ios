@@ -182,7 +182,6 @@
 "CopyTotp" = "Skriv av TOTP";
 "CopyTotpAutomaticallyDescription" = "Viss ein pålogging har ein autentiseringsnøkkel, kopier TOTP-verifiseringskoden til utklippstavla når du autoutfyller påloggingen.";
 "CopyTotpAutomatically" = "Kopier TOTP-en automatisk";
-"PremiumRequired" = "Ei Premium-tinging er påkravd for å bruka denne funksjonen.";
 "AttachementAdded" = "Vedlegg lagd til";
 "AttachmentDeleted" = "Vedlegg sletta";
 "ChooseFile" = "Vel fil";
@@ -223,7 +222,6 @@
 "August" = "August";
 "Brand" = "Merke";
 "CardholderName" = "Namn til korteigar";
-"WeFoundMultipleMatchesChooseTheCorrectOne" = "Vi fann fleire treff. Vel den rette.";
 "CityTown" = "By";
 "Company" = "Verksemd";
 "Country" = "Land";
@@ -648,7 +646,6 @@
 "SetUpAutofill" = "Set opp autoutfyll";
 "AppInfo" = "Appinfo";
 "Browse" = "Bla";
-"SelectCardholderName" = "Vel kortinnehavarnamn";
 "SelectLanguage" = "Vel språk";
 "ContinueToCompleteWebAuthnVerification" = "Gå vidare for å fullføre WebAuth-verifikasjon.";
 "ThereWasAnErrorStartingWebAuthnTwoFactorAuthentication" = "Ein feil skjedde under oppstarten av WebAuth-tofaktorautentiseringa";
@@ -667,7 +664,6 @@
 "ByContinuingYouAgreeToTheTermsOfServiceAndPrivacyPolicy" = "Ved å halde fram, godtek du **[Vilkåra for bruk](%1$@)** og **[Personvernspolicyen](%2$@)**";
 "GetAdviceAnnouncementsAndResearchOpportunitiesFromBitwardenInYourInboxUnsubscribeAtAnyTime." = "Få råd, kunngjeringar og forskingsmoglegheiter frå Bitwarden i innboksen. **[Avslutt abonnement](%1$@)** når som helst.";
 "UserVerificationForPasskey" = "Brukerstadfesting for passnøkkel";
-"NewItem" = "Ny oppføring";
 "ExploreTheGenerator" = "Utforsk generatoren";
 "LearnMoreAboutGeneratingSecureLoginCredentialsWithAGuidedTour" = "Lær meir om å generere sikre påloggingsdokumentasjon med ein omvising.";
 "ExportVaultFilePwProtectInfo" = "Denne fileksporten vil vere passordbeskytta og krevje filpassord for å dekryptere.";
@@ -979,7 +975,6 @@
 "NoAskMe" = "Nei, spør meg";
 "NoCodes" = "Du har ingen kode å vise";
 "None" = "Ingen";
-"NoneOfTheAbove" = "Ingen av dei over";
 "NumberOfDigits" = "Tal siffer";
 "OtpType" = "OTP-type";
 "RefreshPeriod" = "Oppdateringsperiode";

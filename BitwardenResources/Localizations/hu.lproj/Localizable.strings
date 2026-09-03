@@ -182,7 +182,6 @@
 "CopyTotp" = "Egyszeri jelszó másolása";
 "CopyTotpAutomaticallyDescription" = "Ha egy belépéshez tartozik hitelesítő kulcs, másolja a TOTP megerősítő kódot a vágólapra amikor a belépést tölti.";
 "CopyTotpAutomatically" = "TOTP automatikus másolása";
-"PremiumRequired" = "A funkció használatához prémium tagság szükséges.";
 "AttachementAdded" = "Melléklet hozzáadva";
 "AttachmentDeleted" = "Melléklet törölve";
 "ChooseFile" = "Fájl kiválasztása";
@@ -223,7 +222,6 @@
 "August" = "augusztus";
 "Brand" = "Márka";
 "CardholderName" = "Kártyatulajdonos neve";
-"WeFoundMultipleMatchesChooseTheCorrectOne" = "Több egyezés is található. Válasszuk ki a megfelelőt.";
 "CityTown" = "Település";
 "Company" = "Cég";
 "Country" = "Ország";
@@ -648,7 +646,6 @@
 "SetUpAutofill" = "Automata-kitöltés beállítása";
 "AppInfo" = "App infó";
 "Browse" = "Böngészés";
-"SelectCardholderName" = "Válasszuk ki a kártyabirtokos nevét.";
 "SelectLanguage" = "Nyelv kiválasztása";
 "ContinueToCompleteWebAuthnVerification" = "Tovább a WebAuthn megerősítés befejezéséhez.";
 "ThereWasAnErrorStartingWebAuthnTwoFactorAuthentication" = "Hiba lépett fel a WebAuthn kétfaktoros hitelesítés indítása során";
@@ -667,7 +664,6 @@
 "ByContinuingYouAgreeToTheTermsOfServiceAndPrivacyPolicy" = "A folytatással elfogadjuk a **[Használati feltételeket](%1$@)** és az **[Adatvédelmi szabályokat](%2$@)**";
 "GetAdviceAnnouncementsAndResearchOpportunitiesFromBitwardenInYourInboxUnsubscribeAtAnyTime." = "Tanácsokat, bejelentéseket és kutatási lehetőségeket kaphatunk a Bitwardentől a postaládába. **[Leiratkozás](%1$@)** bármikor.";
 "UserVerificationForPasskey" = "Használjon megerősítést a belépőkulcshoz";
-"NewItem" = "Új elem";
 "ExploreTheGenerator" = "A generátor felfedezése";
 "LearnMoreAboutGeneratingSecureLoginCredentialsWithAGuidedTour" = "Tudjunk meg többet a biztonságos bejelentkezési hitelesítő adatok létrehozásáról egy vezetett bemutatóval.";
 "ExportVaultFilePwProtectInfo" = "Ez a fájl export jelszó védett lesz, és ugyanezzel a jelszóval lehet később feloldani.";
@@ -979,7 +975,6 @@
 "NoAskMe" = "Nem, rákérdezés";
 "NoCodes" = "Nincs megjeleníthető kód.";
 "None" = "Nincs";
-"NoneOfTheAbove" = "A fentiek közül egyik sem";
 "NumberOfDigits" = "Számjegyek száma";
 "OtpType" = "OTP típus";
 "RefreshPeriod" = "Frissítési gyakoriság";

@@ -182,7 +182,6 @@
 "CopyTotp" = "複製 TOTP";
 "CopyTotpAutomaticallyDescription" = "若登入資訊已包含驗證器金鑰，在自動填入此登入資訊時，複製 TOTP 驗證碼到您的剪貼簿。";
 "CopyTotpAutomatically" = "自動複製 TOTP";
-"PremiumRequired" = "進階會員才可使用此功能。";
 "AttachementAdded" = "已新增附件";
 "AttachmentDeleted" = "已刪除附件";
 "ChooseFile" = "選擇檔案";
@@ -223,7 +222,6 @@
 "August" = "八月";
 "Brand" = "發卡組織";
 "CardholderName" = "持卡人姓名";
-"WeFoundMultipleMatchesChooseTheCorrectOne" = "我們找到多個符合項目。請選擇正確的一項。";
 "CityTown" = "市/鎮";
 "Company" = "公司";
 "Country" = "國家";
@@ -648,7 +646,6 @@
 "SetUpAutofill" = "設定自動填入";
 "AppInfo" = "App 資訊";
 "Browse" = "瀏覽";
-"SelectCardholderName" = "選擇持卡人姓名";
 "SelectLanguage" = "選擇語言";
 "ContinueToCompleteWebAuthnVerification" = "繼續以完成 WebAuthn 2FA 驗證。";
 "ThereWasAnErrorStartingWebAuthnTwoFactorAuthentication" = "啟動 WebAuthn 2FA 驗證發生錯誤";
@@ -667,7 +664,6 @@
 "ByContinuingYouAgreeToTheTermsOfServiceAndPrivacyPolicy" = "繼續前，您需同意 **[服務條款](%1$@)** 及 **[隱私權政策](%2$@)**";
 "GetAdviceAnnouncementsAndResearchOpportunitiesFromBitwardenInYourInboxUnsubscribeAtAnyTime." = "獲得來自 Bitwarden 的公告、建議及研究資訊電子郵件。可以在任何時間 **[取消訂閱](%1$@)**。";
 "UserVerificationForPasskey" = "密碼金鑰的使用者驗證";
-"NewItem" = "新項目";
 "ExploreTheGenerator" = "探索密碼產生器";
 "LearnMoreAboutGeneratingSecureLoginCredentialsWithAGuidedTour" = "透過導覽了解如何產生安全的登入憑證。";
 "ExportVaultFilePwProtectInfo" = "此檔案匯出將受密碼保護，需要檔案密碼才能解密。";
@@ -979,7 +975,6 @@
 "NoAskMe" = "不，詢問我";
 "NoCodes" = "您沒有任何可顯示的驗證碼";
 "None" = "無";
-"NoneOfTheAbove" = "以上皆非";
 "NumberOfDigits" = "位數";
 "OtpType" = "OTP 類型";
 "RefreshPeriod" = "更新週期";

@@ -182,7 +182,6 @@
 "CopyTotp" = "TOTP のコピー";
 "CopyTotpAutomaticallyDescription" = "ログイン情報に認証キーがある場合は、自動入力時にクリップボードに TOTP 認証コードをコピーします。";
 "CopyTotpAutomatically" = "TOTP を自動的にコピー";
-"PremiumRequired" = "この機能を使うにはプレミアム会員になってください。";
 "AttachementAdded" = "添付ファイルを追加しました";
 "AttachmentDeleted" = "添付ファイルを削除しました";
 "ChooseFile" = "ファイルを選択";
@@ -223,7 +222,6 @@
 "August" = "8月";
 "Brand" = "ブランド";
 "CardholderName" = "カードの名義人名";
-"WeFoundMultipleMatchesChooseTheCorrectOne" = "一致するものが複数見つかりました。正しいものを選択してください。";
 "CityTown" = "市町村";
 "Company" = "会社名";
 "Country" = "国";
@@ -648,7 +646,6 @@
 "SetUpAutofill" = "自動入力を設定";
 "AppInfo" = "アプリ情報";
 "Browse" = "検索";
-"SelectCardholderName" = "カード所有者名を選択";
 "SelectLanguage" = "言語を選択";
 "ContinueToCompleteWebAuthnVerification" = "WebAuthn 認証の完了に進みます。";
 "ThereWasAnErrorStartingWebAuthnTwoFactorAuthentication" = "WebAuthn 2要素認証の開始時にエラーが発生しました";
@@ -667,7 +664,6 @@
 "ByContinuingYouAgreeToTheTermsOfServiceAndPrivacyPolicy" = "続行すると **[サービス利用規約](%1$@)** と **[プライバシーポリシー](%2$@)** に同意したものとします";
 "GetAdviceAnnouncementsAndResearchOpportunitiesFromBitwardenInYourInboxUnsubscribeAtAnyTime." = "Bitwarden からメールでアドバイスや告知、アンケートを受け取りましょう。**[配信停止](%1$@)** はいつでもできます。";
 "UserVerificationForPasskey" = "パスキーのユーザー認証";
-"NewItem" = "新しいアイテム";
 "ExploreTheGenerator" = "生成機能について知る";
 "LearnMoreAboutGeneratingSecureLoginCredentialsWithAGuidedTour" = "セキュアなログイン資格情報を生成する方法を、ガイド付きツアーでより深く学習しましょう。";
 "ExportVaultFilePwProtectInfo" = "このファイルのエクスポートはパスワードで保護され、復号するにはファイルのパスワードが必要になります。";
@@ -979,7 +975,6 @@
 "NoAskMe" = "いいえ、毎回確認します";
 "NoCodes" = "表示するコードがありません";
 "None" = "なし";
-"NoneOfTheAbove" = "上記以外";
 "NumberOfDigits" = "桁数";
 "OtpType" = "OTPの種類";
 "RefreshPeriod" = "更新頻度";

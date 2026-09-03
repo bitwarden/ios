@@ -182,7 +182,6 @@
 "CopyTotp" = "复制 TOTP";
 "CopyTotpAutomaticallyDescription" = "如果登录项目包含验证器密钥，当自动填充此登录时，TOTP 验证码将复制到剪贴板。";
 "CopyTotpAutomatically" = "自动复制 TOTP";
-"PremiumRequired" = "需要高级版成员资格才能使用此功能。";
 "AttachementAdded" = "附件已添加";
 "AttachmentDeleted" = "附件已删除";
 "ChooseFile" = "选择文件";
@@ -223,7 +222,6 @@
 "August" = "八月";
 "Brand" = "品牌";
 "CardholderName" = "持卡人姓名";
-"WeFoundMultipleMatchesChooseTheCorrectOne" = "我们找到了多个匹配项。请选择一个正确的匹配项。";
 "CityTown" = "市 / 镇";
 "Company" = "公司";
 "Country" = "国家 / 地区";
@@ -648,7 +646,6 @@
 "SetUpAutofill" = "设置自动填充";
 "AppInfo" = "App 信息";
 "Browse" = "浏览";
-"SelectCardholderName" = "选择持卡人姓名";
 "SelectLanguage" = "选择语言";
 "ContinueToCompleteWebAuthnVerification" = "继续完成 WebAuthn 验证。";
 "ThereWasAnErrorStartingWebAuthnTwoFactorAuthentication" = "启动 WebAuthn 双重身份验证时出错";
@@ -667,7 +664,6 @@
 "ByContinuingYouAgreeToTheTermsOfServiceAndPrivacyPolicy" = "若继续，表示您同意 **[服务条款](%1$@)** 和 **[隐私政策](%2$@)**";
 "GetAdviceAnnouncementsAndResearchOpportunitiesFromBitwardenInYourInboxUnsubscribeAtAnyTime." = "获取来自 Bitwarden 的建议、公告和调研电子邮件。随时 **[取消订阅](%1$@)** 。";
 "UserVerificationForPasskey" = "通行密钥用户验证";
-"NewItem" = "新增项目";
 "ExploreTheGenerator" = "探索生成器";
 "LearnMoreAboutGeneratingSecureLoginCredentialsWithAGuidedTour" = "通过引导式教程，进一步了解有关生成安全登录凭据的信息。";
 "ExportVaultFilePwProtectInfo" = "此文件导出将受密码保护，需要文件密码才能解密。";
@@ -979,7 +975,6 @@
 "NoAskMe" = "不，询问我";
 "NoCodes" = "您没有任何可显示的代码";
 "None" = "无";
-"NoneOfTheAbove" = "以上都不是";
 "NumberOfDigits" = "位数";
 "OtpType" = "OTP 类型";
 "RefreshPeriod" = "刷新周期";
@@ -1235,7 +1230,7 @@
 "CurrentSession" = "当前会话";
 "PendingRequest" = "待处理的请求";
 "Trusted" = "已信任";
-"RecentlyActiveLabel" = "近期活动：";
+"RecentlyActiveLabel" = "最近活动：";
 "FirstLoginLabel" = "首次登录：";
 "Today" = "今天";
 "PastSevenDays" = "过去 7 天";

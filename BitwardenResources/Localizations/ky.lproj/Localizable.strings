@@ -182,7 +182,6 @@
 "CopyTotp" = "TOTPди көчүрүү";
 "CopyTotpAutomaticallyDescription" = "Эгерде кирүүдө аутентификатор ачкычы болсо, сиз кирүүнү автолуктоодо TOTP текшерүү кодун буферге көчүрүңүз.";
 "CopyTotpAutomatically" = "TOTPди автоматтык түрдө көчүрүү";
-"PremiumRequired" = "Бул функцияны колдонуу үчүн Premium мүчөлүгү талап кылынат.";
 "AttachementAdded" = "Тиркеме кошулду";
 "AttachmentDeleted" = "Тиркеме өчүрүлдү";
 "ChooseFile" = "Файлды тандоо";
@@ -223,7 +222,6 @@
 "August" = "Август";
 "Brand" = "Бренд";
 "CardholderName" = "Карта ээсинин аты";
-"WeFoundMultipleMatchesChooseTheCorrectOne" = "Биз бир нече дал келүүнү таптык. Туурасын тандаңыз.";
 "CityTown" = "Шаар / Кыштак";
 "Company" = "Компания";
 "Country" = "Өлкө";
@@ -648,7 +646,6 @@
 "SetUpAutofill" = "Автолуктоону орнотуу";
 "AppInfo" = "Колдонмо маалыматы";
 "Browse" = "Карап чыгуу";
-"SelectCardholderName" = "Карта ээсинин атын тандоо";
 "SelectLanguage" = "Тилди тандоо";
 "ContinueToCompleteWebAuthnVerification" = "WebAuthn текшерүүсүн аяктоо үчүн улантыңыз.";
 "ThereWasAnErrorStartingWebAuthnTwoFactorAuthentication" = "WebAuthn эки факторлуу аутентификацияны баштоодо ката кетти";
@@ -667,7 +664,6 @@
 "ByContinuingYouAgreeToTheTermsOfServiceAndPrivacyPolicy" = "Улантуу менен, сиз **[Колдонуу шарттарына](%1$@)** жана **[Купуялык саясатына](%2$@)** макул болосуз";
 "GetAdviceAnnouncementsAndResearchOpportunitiesFromBitwardenInYourInboxUnsubscribeAtAnyTime." = "Кирүү кутуңузга Bitwardenден кеңештер, жарыялар жана изилдөө мүмкүнчүлүктөрүн алыңыз. Каалаган убакта **[Жазылуудан баш тартуу](%1$@)**.";
 "UserVerificationForPasskey" = "Өтүү ачкычы үчүн колдонуучуну текшерүү";
-"NewItem" = "Жаңы элемент";
 "ExploreTheGenerator" = "Генераторду изилдөө";
 "LearnMoreAboutGeneratingSecureLoginCredentialsWithAGuidedTour" = "Жетекчилик тур менен коопсуз кирүү маалыматтарын түзүү жөнүндө көбүрөөк билүү.";
 "ExportVaultFilePwProtectInfo" = "Бул файл экспорттоо сырсөз менен корголот жана чечүү үчүн файлдын сырсөзүн талап кылат.";
@@ -979,7 +975,6 @@
 "NoAskMe" = "Жок, менден сура";
 "NoCodes" = "Көрсөтүү үчүн эч кандай коддоруңуз жок";
 "None" = "Эч нерсе";
-"NoneOfTheAbove" = "Жогорудагылардын эч бири";
 "NumberOfDigits" = "Сандардын саны";
 "OtpType" = "OTP түрү";
 "RefreshPeriod" = "Жаңыртуу мезгили";

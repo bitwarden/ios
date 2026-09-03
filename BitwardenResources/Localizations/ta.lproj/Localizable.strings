@@ -183,7 +183,6 @@
 "CopyTotp" = "TOTP ஐ நகலெடு";
 "CopyTotpAutomaticallyDescription" = "ஒரு உள்நுழைவுக்கு அங்கீகார விசை இருந்தால், உள்நுழைவை தானாக நிரப்பும்போது TOTP சரிபார்ப்புக் குறியீட்டை உங்கள் கிளிப்போர்டுக்கு நகலெடுக்கவும்.";
 "CopyTotpAutomatically" = "TOTPஐத் தானாக நகலெடு";
-"PremiumRequired" = "இவ்வம்சத்தை பயன்படுத்த உயர்தர உறுப்பினர் தகுதி தேவை.";
 "AttachementAdded" = "இணைப்பு சேர்க்கப்பட்டது";
 "AttachmentDeleted" = "இணைப்பு அழிக்கப்பட்டது";
 "ChooseFile" = "கோப்பைத் தேர்ந்தெடு";
@@ -224,7 +223,6 @@
 "August" = "ஆகஸ்ட்";
 "Brand" = "வணிகக்குறி";
 "CardholderName" = "அட்டைதாரரின் பெயர்";
-"WeFoundMultipleMatchesChooseTheCorrectOne" = "பல பொருத்தங்களைக் கண்டோம். சரியானதைத் தேர்ந்தெடுக்கவும்.";
 "CityTown" = "மாநகரம் / நகரம்";
 "Company" = "நிறுவனம்";
 "Country" = "நாடு";
@@ -649,7 +647,6 @@
 "SetUpAutofill" = "தானாக நிரப்புதலை அமைக்கவும்";
 "AppInfo" = "பயன்பாட்டு தகவல்";
 "Browse" = "உலாவவும்";
-"SelectCardholderName" = "அட்டைதாரரின் பெயரைத் தேர்ந்தெடுக்கவும்";
 "SelectLanguage" = "மொழியைத் தேர்ந்தெடுக்கவும்";
 "ContinueToCompleteWebAuthnVerification" = "WebAuthn சரிபார்ப்பை முடிக்க தொடரவும்.";
 "ThereWasAnErrorStartingWebAuthnTwoFactorAuthentication" = "WebAuthn இரண்டு காரணி அங்கீகாரத்தைத் தொடங்குவதில் பிழை ஏற்பட்டது";
@@ -668,7 +665,6 @@
 "ByContinuingYouAgreeToTheTermsOfServiceAndPrivacyPolicy" = "தொடர்வதன் மூலம், நீங்கள் **[சேவை விதிமுறைகள்](%1$@)** மற்றும் **[தனியுரிமைக் கொள்கை](%2$@)** க்கு உடன்படுகிறீர்கள்";
 "GetAdviceAnnouncementsAndResearchOpportunitiesFromBitwardenInYourInboxUnsubscribeAtAnyTime." = "உங்கள் இன்பாக்ஸில் பிட்வார்டனிடமிருந்து ஆலோசனை, அறிவிப்புகள் மற்றும் ஆராய்ச்சி வாய்ப்புகளைப் பெறுங்கள். எந்த நேரத்திலும் **[குழுவிலகவும்](%1$@)**.";
 "UserVerificationForPasskey" = "பாஸ்கீக்கான பயனர் சரிபார்ப்பு";
-"NewItem" = "புதிய பொருள்";
 "ExploreTheGenerator" = "ஜெனரேட்டரை ஆராயவும்";
 "LearnMoreAboutGeneratingSecureLoginCredentialsWithAGuidedTour" = "வழிகாட்டப்பட்ட சுற்றுப்பயணத்துடன் பாதுகாப்பான உள்நுழைவு சான்றுகளை உருவாக்குவது பற்றி மேலும் அறிக.";
 "ExportVaultFilePwProtectInfo" = "இந்த கோப்பு ஏற்றுமதி கடவுச்சொல் பாதுகாக்கப்படும், மேலும் கோப்பை மறையாக்கம் செய்ய கோப்பு கடவுச்சொல் தேவைப்படும்.";
@@ -980,7 +976,6 @@
 "NoAskMe" = "வேண்டாம், என்னிடம் கேள்";
 "NoCodes" = "உங்களிடம் காண்பிக்கக் குறியீடுகள் இல்லை";
 "None" = "ஏதுமில்லை";
-"NoneOfTheAbove" = "மேலே உள்ளவை எதுவுமில்லை";
 "NumberOfDigits" = "இலக்கங்களின் எண்ணிக்கை";
 "OtpType" = "OTP வகை";
 "RefreshPeriod" = "புதுப்பிக்கும் காலம்";

@@ -182,7 +182,6 @@
 "CopyTotp" = "TOTP ကူးယူပါ";
 "CopyTotpAutomaticallyDescription" = "ဝင်ရောက်မှုတစ်ခုတွင် အောက်တန်မီတာ သော့ရှိပါက၊ သင်ဝင်ရောက်မှုကို အလိုအလျောက်ဖြည့်သည့်အခါ TOTP အတည်ပြုကုဒ်ကို သင့်ကလစ်ဘုတ်သို့ ကူးယူပါ။";
 "CopyTotpAutomatically" = "TOTP ကို အလိုအလျောက် ကူးယူပါ";
-"PremiumRequired" = "ဤအင်္ဂါရပ်ကို သုံးရန် အဆင့်မြင့် အသင်းဝင်မှု လိုအပ်သည်။";
 "AttachementAdded" = "ပူးတွဲပစ္စည်း ထည့်ပြီးပါပြီ";
 "AttachmentDeleted" = "ပူးတွဲပစ္စည်း ဖျက်ပြီးပါပြီ";
 "ChooseFile" = "ဖိုင် ရွေးပါ";
@@ -223,7 +222,6 @@
 "August" = "ဩဂုတ်";
 "Brand" = "အမှတ်တံဆိပ်";
 "CardholderName" = "ကဒ်ကိုင်ဆောင်သူအမည်";
-"WeFoundMultipleMatchesChooseTheCorrectOne" = "ကိုက်ညီမှုများစွာ တွေ့ရှိထားပါသည်။ မှန်ကန်သောတစ်ခုကို ရွေးပါ။";
 "CityTown" = "မြို့";
 "Company" = "ကုမ္ပဏီ";
 "Country" = "နိုင်ငံ";
@@ -648,7 +646,6 @@
 "SetUpAutofill" = "အလိုအလျောက်ဖြည့်ခြင်း သတ်မှတ်ပါ";
 "AppInfo" = "အက်ပ် အချက်အလက်";
 "Browse" = "ရှာဖွေပါ";
-"SelectCardholderName" = "ကဒ်ကိုင်ဆောင်သူအမည် ရွေးပါ";
 "SelectLanguage" = "ဘာသာစကား ရွေးပါ";
 "ContinueToCompleteWebAuthnVerification" = "WebAuthn အတည်ပြုခြင်းကို အပြီးသတ်ရန် ဆက်လက်ပါ။";
 "ThereWasAnErrorStartingWebAuthnTwoFactorAuthentication" = "WebAuthn အဆင့်နှစ်ဆင့် အတည်ပြုခြင်းကို စတင်ရာတွင် အမှားရှိခဲ့သည်";
@@ -667,7 +664,6 @@
 "ByContinuingYouAgreeToTheTermsOfServiceAndPrivacyPolicy" = "ဆက်လက်ခြင်းဖြင့်၊ သင်သည် **[ဝန်ဆောင်မှုသတ်မှတ်ချက်များ](%1$@)** နှင့် **[ကိုယ်ရေးမူဝါဒ](%2$@)** ကို သဘောတူပါသည်။";
 "GetAdviceAnnouncementsAndResearchOpportunitiesFromBitwardenInYourInboxUnsubscribeAtAnyTime." = "သင့်ဝင်စာပုံးတွင် Bitwarden မှ အကြံဉာဏ်များ၊ ကြေညာချက်များနှင့် သုတေသနအခွင့်အလမ်းများ ရယူပါ။ အချိန်မရွေး **[စာရင်းဖြုတ်ရန်](%1$@)**။";
 "UserVerificationForPasskey" = "Passkey အတွက် အသုံးပြုသူ အတည်ပြုခြင်း";
-"NewItem" = "ပစ္စည်းအသစ်";
 "ExploreTheGenerator" = "ဂျင်နရေတာကို စူးစမ်းပါ";
 "LearnMoreAboutGeneratingSecureLoginCredentialsWithAGuidedTour" = "လမ်းညွှန်ခရီးစဉ်ဖြင့် လုံခြုံသော ဝင်ရောက်မှုအထောက်အထားများ ဖန်တီးခြင်းအကြောင်း ပိုမိုလေ့လာပါ။";
 "ExportVaultFilePwProtectInfo" = "ဤဖိုင် တင်ပို့မှုကို စကားဝှက်ဖြင့် ကာကွယ်ထားမည်ဖြစ်ပြီး ကုဒ်ဖြင့်ဖွင့်ရန် ဖိုင် စကားဝှက် လိုအပ်မည်။";
@@ -979,7 +975,6 @@
 "NoAskMe" = "မဟုတ်ပါ၊ ကျွန်ုပ်ကို မေးပါ";
 "NoCodes" = "ပြသရန် ကုဒ်များ မရှိပါ";
 "None" = "မရှိ";
-"NoneOfTheAbove" = "အထက်ပါတစ်ခုမှ မဟုတ်ပါ";
 "NumberOfDigits" = "ဂဏန်းအရေအတွက်";
 "OtpType" = "OTP အမျိုးအစား";
 "RefreshPeriod" = "ပြန်လည်စတင်သည့်ကာလ";

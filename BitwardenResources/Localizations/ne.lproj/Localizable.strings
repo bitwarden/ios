@@ -182,7 +182,6 @@
 "CopyTotp" = "TOTP प्रतिलिपि गर्नुहोस्";
 "CopyTotpAutomaticallyDescription" = "यदि लगइनसँग प्रमाणीकरण कुञ्जी छ भने, तपाईंले लगइन स्वत: भरण गर्दा TOTP प्रमाणीकरण कोड तपाईंको क्लिपबोर्डमा प्रतिलिपि गर्नुहोस्।";
 "CopyTotpAutomatically" = "TOTP स्वचालित रूपमा प्रतिलिपि गर्नुहोस्";
-"PremiumRequired" = "यो सुविधा प्रयोग गर्न Premium सदस्यता आवश्यक छ।";
 "AttachementAdded" = "संलग्न थपियो";
 "AttachmentDeleted" = "संलग्न मेटियो";
 "ChooseFile" = "फाइल छान्नुहोस्";
@@ -223,7 +222,6 @@
 "August" = "अगस्ट";
 "Brand" = "ब्रान्ड";
 "CardholderName" = "कार्डधारकको नाम";
-"WeFoundMultipleMatchesChooseTheCorrectOne" = "हामीले धेरै मिलानहरू फेला पार्यौं। सही एक छान्नुहोस्।";
 "CityTown" = "सहर / नगर";
 "Company" = "कम्पनी";
 "Country" = "देश";
@@ -648,7 +646,6 @@
 "SetUpAutofill" = "स्वत: भरण सेट अप गर्नुहोस्";
 "AppInfo" = "एप जानकारी";
 "Browse" = "ब्राउज गर्नुहोस्";
-"SelectCardholderName" = "कार्डधारकको नाम चयन गर्नुहोस्";
 "SelectLanguage" = "भाषा चयन गर्नुहोस्";
 "ContinueToCompleteWebAuthnVerification" = "WebAuthn प्रमाणीकरण पूरा गर्न जारी राख्नुहोस्।";
 "ThereWasAnErrorStartingWebAuthnTwoFactorAuthentication" = "WebAuthn दुई-कारक प्रमाणीकरण सुरु गर्न त्रुटि भयो";
@@ -667,7 +664,6 @@
 "ByContinuingYouAgreeToTheTermsOfServiceAndPrivacyPolicy" = "जारी राखेर, तपाईं **[सेवा सर्तहरू](%1$@)** र **[गोपनीयता नीति](%2$@)** मा सहमत हुनुहुन्छ";
 "GetAdviceAnnouncementsAndResearchOpportunitiesFromBitwardenInYourInboxUnsubscribeAtAnyTime." = "Bitwarden बाट सल्लाह, घोषणाहरू, र अनुसन्धान अवसरहरू आफ्नो इनबक्समा प्राप्त गर्नुहोस्। कुनै पनि समयमा **[सदस्यता रद्द गर्नुहोस्](%1$@)**।";
 "UserVerificationForPasskey" = "पासकीको लागि प्रयोगकर्ता प्रमाणीकरण";
-"NewItem" = "नयाँ वस्तु";
 "ExploreTheGenerator" = "जेनरेटर अन्वेषण गर्नुहोस्";
 "LearnMoreAboutGeneratingSecureLoginCredentialsWithAGuidedTour" = "निर्देशित यात्राको साथ सुरक्षित लगइन प्रमाणहरू उत्पन्न गर्ने बारे थप जान्नुहोस्।";
 "ExportVaultFilePwProtectInfo" = "यो फाइल निर्यात पासवर्ड-सुरक्षित हुनेछ र डिक्रिप्ट गर्न फाइल पासवर्ड आवश्यक पर्नेछ।";
@@ -979,7 +975,6 @@
 "NoAskMe" = "होइन, मलाई सोध्नुहोस्";
 "NoCodes" = "तपाईंसँग प्रदर्शन गर्न कुनै कोडहरू छैनन्";
 "None" = "कुनै पनि";
-"NoneOfTheAbove" = "माथिको कुनै पनि होइन";
 "NumberOfDigits" = "अङ्कहरूको संख्या";
 "OtpType" = "OTP प्रकार";
 "RefreshPeriod" = "ताजा गर्ने अवधि";

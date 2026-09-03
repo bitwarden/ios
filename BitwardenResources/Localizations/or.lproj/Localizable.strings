@@ -182,7 +182,6 @@
 "CopyTotp" = "TOTP କପି";
 "CopyTotpAutomaticallyDescription" = "ଯଦି ଏକ ପ୍ରବେଶରେ ପ୍ରାମାଣିକ କୀ ଅଛି, ତେବେ ଆପଣ ପ୍ରବେଶ ଅଟୋଫିଲ୍ କଲାବେଳେ TOTP ଯାଞ୍ଚ କୋଡ୍ ଆପଣଙ୍କ କ୍ଲିପବୋର୍ଡ୍‌ରେ କପି କରନ୍ତୁ।";
 "CopyTotpAutomatically" = "TOTP ସ୍ୱୟଂଚାଳିତ କପି";
-"PremiumRequired" = "ଏହି ବୈଶିଷ୍ଟ୍ୟ ବ୍ୟବହାର କରିବାକୁ Premium ସଦସ୍ୟତା ଆବଶ୍ୟକ।";
 "AttachementAdded" = "ସଂଲଗ୍ନ ଯୋଡ଼ାଗଲା";
 "AttachmentDeleted" = "ସଂଲଗ୍ନ ଲିଭାଗଲା";
 "ChooseFile" = "ଫାଇଲ୍ ବାଛନ୍ତୁ";
@@ -223,7 +222,6 @@
 "August" = "ଅଗଷ୍ଟ";
 "Brand" = "ବ୍ରାଣ୍ଡ";
 "CardholderName" = "କାର୍ଡଧାରୀ ନାମ";
-"WeFoundMultipleMatchesChooseTheCorrectOne" = "ଆମେ ଏକାଧିକ ମେଳ ପାଇଲୁ। ଠିକ୍ ଗୋଟିଏ ବାଛନ୍ତୁ।";
 "CityTown" = "ସହର / ନଗର";
 "Company" = "ସଂସ୍ଥା";
 "Country" = "ଦେଶ";
@@ -648,7 +646,6 @@
 "SetUpAutofill" = "ଅଟୋଫିଲ୍ ବ୍ୟବସ୍ଥା";
 "AppInfo" = "ଆପ୍ ସୂଚନା";
 "Browse" = "ବ୍ରାଉଜ୍";
-"SelectCardholderName" = "କାର୍ଡଧାରୀ ନାମ ବାଛନ୍ତୁ";
 "SelectLanguage" = "ଭାଷା ବାଛନ୍ତୁ";
 "ContinueToCompleteWebAuthnVerification" = "WebAuthn ଯାଞ୍ଚ ସମାପ୍ତ କରିବାକୁ ଜାରି ରଖନ୍ତୁ।";
 "ThereWasAnErrorStartingWebAuthnTwoFactorAuthentication" = "WebAuthn ଦୁଇ-କାରକ ପ୍ରମାଣୀକରଣ ଆରମ୍ଭ କରିବାରେ ଏକ ତ୍ରୁଟି ଘଟିଛି।";
@@ -667,7 +664,6 @@
 "ByContinuingYouAgreeToTheTermsOfServiceAndPrivacyPolicy" = "ଜାରି ରଖିବା ଦ୍ୱାରା, ଆପଣ **[ସେବା ଶର୍ତ୍ତ](%1$@)** ଏବଂ **[ଗୋପନୀୟତା ନୀତି](%2$@)** ରେ ସହମତ।";
 "GetAdviceAnnouncementsAndResearchOpportunitiesFromBitwardenInYourInboxUnsubscribeAtAnyTime." = "ଆପଣଙ୍କ ଇନବକ୍ସରେ Bitwarden ଠାରୁ ପରାମର୍ଶ, ଘୋଷଣା, ଏବଂ ଗବେଷଣା ସୁଯୋଗ ପାଆନ୍ତୁ। ଯେ କୌଣସି ସମୟରେ **[ସବସ୍କ୍ରିପସନ୍ ବନ୍ଦ](%1$@)** କରନ୍ତୁ।";
 "UserVerificationForPasskey" = "ପାସକୀ ପାଇଁ ବ୍ୟବହାରକାରୀ ଯାଞ୍ଚ";
-"NewItem" = "ନୂଆ ଆଇଟମ୍";
 "ExploreTheGenerator" = "ଜେନେରେଟର୍ ଅନୁସନ୍ଧାନ";
 "LearnMoreAboutGeneratingSecureLoginCredentialsWithAGuidedTour" = "ଏକ ଗାଇଡେଡ୍ ଟୁର୍ ସହ ସୁରକ୍ଷିତ ପ୍ରବେଶ ପ୍ରମାଣପତ୍ର ସୃଷ୍ଟି ବିଷୟରେ ଅଧିକ ଜାଣନ୍ତୁ।";
 "ExportVaultFilePwProtectInfo" = "ଏହି ଫାଇଲ୍ ରପ୍ତାନୀ ପାସୱାର୍ଡ ଦ୍ୱାରା ସୁରକ୍ଷିତ ହେବ ଏବଂ ଡିକ୍ରିପ୍ଟ୍ କରିବାକୁ ଫାଇଲ୍ ପାସୱାର୍ଡ ଆବଶ୍ୟକ।";
@@ -979,7 +975,6 @@
 "NoAskMe" = "ନାଁ, ମୋତେ ପଚାର";
 "NoCodes" = "ଆପଣଙ୍କ ପାଖରେ ଦେଖାଇବାକୁ କୌଣସି କୋଡ୍ ନାହିଁ";
 "None" = "କିଛି ନୁହେଁ";
-"NoneOfTheAbove" = "ଉପରୋକ୍ତ ମଧ୍ୟରୁ କୌଣସିଟି ନୁହେଁ";
 "NumberOfDigits" = "ଅଙ୍କ ସଂଖ୍ୟା";
 "OtpType" = "OTP ପ୍ରକାର";
 "RefreshPeriod" = "ପୁନଃସତେଜ ଅବଧି";

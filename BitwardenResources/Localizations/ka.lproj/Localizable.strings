@@ -182,7 +182,6 @@
 "CopyTotp" = "TOTP-ის კოპირება";
 "CopyTotpAutomaticallyDescription" = "თუ შესვლას აქვს ავთენტიფიკატორის გასაღები, დააკოპირეთ TOTP დადასტურების კოდი ბუფერში, როცა ავტომატურად ავსებთ შესვლას.";
 "CopyTotpAutomatically" = "TOTP-ის ავტომატური კოპირება";
-"PremiumRequired" = "ამ ფუნქციის გამოსაყენებლად საჭიროა Premium წევრობა.";
 "AttachementAdded" = "დანართი დაემატა";
 "AttachmentDeleted" = "დანართი წაიშალა";
 "ChooseFile" = "აირჩიეთ ფაილი";
@@ -223,7 +222,6 @@
 "August" = "აგვისტო";
 "Brand" = "ბრენდი";
 "CardholderName" = "ბარათის მფლობელის სახელი";
-"WeFoundMultipleMatchesChooseTheCorrectOne" = "ვიპოვეთ რამდენიმე შესაბამისი. აირჩიეთ სწორი.";
 "CityTown" = "ქალაქი / დაბა";
 "Company" = "კომპანია";
 "Country" = "ქვეყანა";
@@ -648,7 +646,6 @@
 "SetUpAutofill" = "ავტოშევსების დაყენება";
 "AppInfo" = "აპლიკაციის ინფორმაცია";
 "Browse" = "დათვალიერება";
-"SelectCardholderName" = "აირჩიეთ ბარათის მფლობელის სახელი";
 "SelectLanguage" = "აირჩიეთ ენა";
 "ContinueToCompleteWebAuthnVerification" = "გააგრძელეთ WebAuthn-ის დადასტურების დასასრულებლად.";
 "ThereWasAnErrorStartingWebAuthnTwoFactorAuthentication" = "There was an error starting WebAuthn two factor authentication";
@@ -667,7 +664,6 @@
 "ByContinuingYouAgreeToTheTermsOfServiceAndPrivacyPolicy" = "გაგრძელებით, თქვენ ეთანხმებით **[მომსახურების პირობებს](%1$@)** და **[კონფიდენციალურობის პოლიტიკას](%2$@)**";
 "GetAdviceAnnouncementsAndResearchOpportunitiesFromBitwardenInYourInboxUnsubscribeAtAnyTime." = "მიიღეთ რჩევები, განცხადებები და კვლევის შესაძლებლობები Bitwarden-ისგან თქვენს ელ. ფოსტაზე. **[გამოწერა](%1$@)** ნებისმიერ დროს შეგიძლიათ.";
 "UserVerificationForPasskey" = "მომხმარებლის ვერიფიკაცია passkey-სთვის";
-"NewItem" = "ახალი ჩანაწერი";
 "ExploreTheGenerator" = "გენერატორის დათვალიერება";
 "LearnMoreAboutGeneratingSecureLoginCredentialsWithAGuidedTour" = "გაიგეთ მეტი უსაფრთხო შესვლის მონაცემების გენერირების შესახებ ინტერაქტიული ტურით.";
 "ExportVaultFilePwProtectInfo" = "ეს ფაილის ექსპორტი დაცული იქნება პაროლით და გაშიფვრისთვის საჭირო იქნება ფაილის პაროლი.";
@@ -979,7 +975,6 @@
 "NoAskMe" = "არა, მკითხე";
 "NoCodes" = "საჩვენებელი კოდები არ გაქვთ";
 "None" = "არცერთი";
-"NoneOfTheAbove" = "ზემოაღნიშნულიდან არცერთი";
 "NumberOfDigits" = "ციფრების რაოდენობა";
 "OtpType" = "OTP ტიპი";
 "RefreshPeriod" = "განახლების პერიოდი";

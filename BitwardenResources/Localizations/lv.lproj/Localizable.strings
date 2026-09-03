@@ -182,7 +182,6 @@
 "CopyTotp" = "Ievietot TOTP starpliktuvē";
 "CopyTotpAutomaticallyDescription" = "Ja pieteikšanās vienumam ir pievienota autentificētāja atslēga, TOTP apliecinājuma kods tiks automātiski ievietots starpliktuvē, kad vien tiks automātiski aizpildīta pieteikšanās veidne.";
 "CopyTotpAutomatically" = "Automātiski ievietot TOTP starpliktuvē";
-"PremiumRequired" = "Ir nepieciešama Premium dalība, lai izmantotu šo iespēju.";
 "AttachementAdded" = "Pielikums pievienots";
 "AttachmentDeleted" = "Pielikums izdzēsts";
 "ChooseFile" = "Izvēlies datni";
@@ -223,7 +222,6 @@
 "August" = "Augusts";
 "Brand" = "Zīmols";
 "CardholderName" = "Kartes īpašnieka vārds";
-"WeFoundMultipleMatchesChooseTheCorrectOne" = "Mēs atradām vairākas atbilstības. Jāizvēlas pareizā.";
 "CityTown" = "Pilsēta / ciems";
 "Company" = "Uzņēmums";
 "Country" = "Valsts";
@@ -648,7 +646,6 @@
 "SetUpAutofill" = "Iestatīt automātisko aizpildi";
 "AppInfo" = "Par lietotni";
 "Browse" = "Pārlūkot";
-"SelectCardholderName" = "Atlasīt kartes turētāja vārdu";
 "SelectLanguage" = "Atlasīt valodu";
 "ContinueToCompleteWebAuthnVerification" = "Turpināt, lai pabeigtu WebAuthn apliecināšanu.";
 "ThereWasAnErrorStartingWebAuthnTwoFactorAuthentication" = "Atgadījās kļūda WebAuth divpakāpju autentifikācijas uzsākšanā";
@@ -667,7 +664,6 @@
 "ByContinuingYouAgreeToTheTermsOfServiceAndPrivacyPolicy" = "Turpinot Tu piekrīti **[pakalpojuma izmantošanas nosacījumiem](%1$@)** un **[privātuma politikai](%2$@)**";
 "GetAdviceAnnouncementsAndResearchOpportunitiesFromBitwardenInYourInboxUnsubscribeAtAnyTime." = "Iegūt savā iesūtnē padomus, paziņojumus un izpētes iespējas no Bitwarden. **[Atrakstīties](%1$@)** var jebkurā brīdī.";
 "UserVerificationForPasskey" = "Lietotāja apliecināšana piekļuves atslēgai";
-"NewItem" = "Jauns vienums";
 "ExploreTheGenerator" = "Izpētīt veidotāju";
 "LearnMoreAboutGeneratingSecureLoginCredentialsWithAGuidedTour" = "Drošas pieteikšanās informācijas izveidošanas iepazīšana soli pa solim.";
 "ExportVaultFilePwProtectInfo" = "Šī datņu izgūšana būs aizsargāta ar paroli, un būs nepieciešama datnes parole, lai to atšifrētu.";
@@ -979,7 +975,6 @@
 "NoAskMe" = "Nē, vaicāt man";
 "NoCodes" = "Nav neviena koda, ko parādīt";
 "None" = "Nav";
-"NoneOfTheAbove" = "Nekas no iepriekšminētā";
 "NumberOfDigits" = "Ciparu skaits";
 "OtpType" = "OTP veids";
 "RefreshPeriod" = "Atsvaidzināšanas laika posms";

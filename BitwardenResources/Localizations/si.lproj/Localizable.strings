@@ -182,7 +182,6 @@
 "CopyTotp" = "TOTP පිටපත් කරන්න";
 "CopyTotpAutomaticallyDescription" = "පිවිසුමකට සත්‍යාපක යතුරක් තිබේ නම්, ඔබ පිවිසුම ස්වයං පිරවුම් කරන විට TOTP සත්‍යාපන කේතය ඔබගේ ක්ලිප්බෝඩයට පිටපත් කරන්න.";
 "CopyTotpAutomatically" = "TOTP ස්වයංක්‍රීයව පිටපත් කරන්න";
-"PremiumRequired" = "මෙම විශේෂාංගය භාවිතා කිරීමට වාරික සාමාජිකත්වයක් අවශ්‍ය වේ.";
 "AttachementAdded" = "ඇමුණුම එකතු කරන ලදී";
 "AttachmentDeleted" = "ඇමුණුම මකා ඇත";
 "ChooseFile" = "ගොනුව තෝරන්න";
@@ -223,7 +222,6 @@
 "August" = "නිකිණි";
 "Brand" = "වෙළඳ නාමය";
 "CardholderName" = "කාඩ්පත් හිමිකරුගේ නම";
-"WeFoundMultipleMatchesChooseTheCorrectOne" = "අපට ගැලපීම් කිහිපයක් හමු විය. නිවැරදි එක තෝරන්න.";
 "CityTown" = "නගරය";
 "Company" = "සමාගම";
 "Country" = "රට";
@@ -648,7 +646,6 @@
 "SetUpAutofill" = "ස්වයං පිරවුම් සකසන්න";
 "AppInfo" = "යෙදුම් තොරතුරු";
 "Browse" = "බ්‍රවුස් කරන්න";
-"SelectCardholderName" = "කාඩ්පත් හිමිකරුගේ නම තෝරන්න";
 "SelectLanguage" = "භාෂාව තෝරන්න";
 "ContinueToCompleteWebAuthnVerification" = "WebAuthn සත්‍යාපනය සම්පූර්ණ කිරීමට ඉදිරියට යන්න.";
 "ThereWasAnErrorStartingWebAuthnTwoFactorAuthentication" = "WebAuthn සාධක දෙකක සත්‍යාපනය ආරම්භ කිරීමේ දෝෂයක් ඇති විය";
@@ -667,7 +664,6 @@
 "ByContinuingYouAgreeToTheTermsOfServiceAndPrivacyPolicy" = "ඉදිරියට යාමෙන්, ඔබ **[සේවා කොන්දේසි](%1$@)** සහ **[රහස්‍යතා ප්‍රතිපත්තිය](%2$@)** සමඟ එකඟ වේ";
 "GetAdviceAnnouncementsAndResearchOpportunitiesFromBitwardenInYourInboxUnsubscribeAtAnyTime." = "ඔබගේ ඇතුළු පෙට්ටියට Bitwarden වෙතින් උපදෙස්, නිවේදන සහ පර්යේෂණ අවස්ථා ලබා ගන්න. ඕනෑම වේලාවක **[දායකත්වය අවලංගු කරන්න](%1$@)**.";
 "UserVerificationForPasskey" = "පාස්කී සඳහා පරිශීලක සත්‍යාපනය";
-"NewItem" = "නව අයිතමය";
 "ExploreTheGenerator" = "උත්පාදක යන්ත්‍රය ගවේෂණය කරන්න";
 "LearnMoreAboutGeneratingSecureLoginCredentialsWithAGuidedTour" = "මඟ පෙන්වූ සංචාරයක් සමඟ ආරක්ෂිත පිවිසුම් අක්තපත්‍ර ජනනය කිරීම ගැන වැඩිදුර ඉගෙන ගන්න.";
 "ExportVaultFilePwProtectInfo" = "මෙම ගොනු අපනයනය මුරපද ආරක්ෂිත වන අතර විකේතනය සඳහා ගොනු මුරපදය අවශ්‍ය වේ.";
@@ -979,7 +975,6 @@
 "NoAskMe" = "නැත, මගෙන් අසන්න";
 "NoCodes" = "පෙන්වීමට ඔබට කේත කිසිවක් නොමැත";
 "None" = "කිසිවක් නැත";
-"NoneOfTheAbove" = "ඉහත කිසිවක් නොවේ";
 "NumberOfDigits" = "ඉලක්කම් ගණන";
 "OtpType" = "OTP වර්ගය";
 "RefreshPeriod" = "නැවුම් කිරීමේ කාල සීමාව";

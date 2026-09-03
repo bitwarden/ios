@@ -182,7 +182,6 @@
 "CopyTotp" = "Copier le TOTP";
 "CopyTotpAutomaticallyDescription" = "Si un identifiant possède une clé d'authentification, copiez le code de vérification TOTP dans votre presse-papiers lorsque vous saisissez automatiquement l'identifiant.";
 "CopyTotpAutomatically" = "Copier TOTP automatiquement";
-"PremiumRequired" = "Une adhésion Premium est requise pour utiliser cette fonctionnalité.";
 "AttachementAdded" = "Pièce jointe ajoutée";
 "AttachmentDeleted" = "Pièce jointe supprimée";
 "ChooseFile" = "Choisir un fichier";
@@ -223,7 +222,6 @@
 "August" = "Août";
 "Brand" = "Réseau de paiement";
 "CardholderName" = "Nom du titulaire de la carte";
-"WeFoundMultipleMatchesChooseTheCorrectOne" = "Nous avons trouvé plusieurs correspondances. Choisissez la bonne.";
 "CityTown" = "Ville";
 "Company" = "Entreprise";
 "Country" = "Pays";
@@ -648,7 +646,6 @@
 "SetUpAutofill" = "Configurer la saisie automatique";
 "AppInfo" = "Infos sur l'application";
 "Browse" = "Parcourir";
-"SelectCardholderName" = "Sélectionner le nom du titulaire de la carte";
 "SelectLanguage" = "Sélectionner la langue";
 "ContinueToCompleteWebAuthnVerification" = "Continuer pour compléter la vérification WebAuthn.";
 "ThereWasAnErrorStartingWebAuthnTwoFactorAuthentication" = "Une erreur s'est produite lors du démarrage de l'authentification en deux étapes WebAuthn";
@@ -667,7 +664,6 @@
 "ByContinuingYouAgreeToTheTermsOfServiceAndPrivacyPolicy" = "En continuant, vous acceptez les **[conditions d’utilisation](%1$@)** et la **[politique de confidentialité](%2$@)**";
 "GetAdviceAnnouncementsAndResearchOpportunitiesFromBitwardenInYourInboxUnsubscribeAtAnyTime." = "Obtenez des conseils, des annonces et des opportunités de recherche de la part de Bitwarden dans votre boîte de réception. **[Désabonnez-vous de](%1$@)** à tout moment.";
 "UserVerificationForPasskey" = "Vérification de l'utilisateur pour la clé d'accès";
-"NewItem" = "Nouvel élément";
 "ExploreTheGenerator" = "Découvrir le générateur";
 "LearnMoreAboutGeneratingSecureLoginCredentialsWithAGuidedTour" = "Apprenez-en plus sur la génération d'identifiants de connexion sécurisés grâce à une visite guidée.";
 "ExportVaultFilePwProtectInfo" = "L'export de ce fichier sera protégé par un mot de passe qui sera nécessaire pour pouvoir le déchiffrer.";
@@ -979,7 +975,6 @@
 "NoAskMe" = "Non, me demander";
 "NoCodes" = "Il n'y a aucun code à afficher";
 "None" = "Aucun";
-"NoneOfTheAbove" = "Aucune de ces réponses";
 "NumberOfDigits" = "Nombre de chiffres";
 "OtpType" = "Type OTP";
 "RefreshPeriod" = "Fréquence de mise à jour";

@@ -182,7 +182,6 @@
 "CopyTotp" = "Kopiatu TOTP-a";
 "CopyTotpAutomaticallyDescription" = "Saio batek autentifikazio-giltza badu, kopiatu TOTP egiaztapen-kodea zure arbelean saioa autobeteketa egiten duzunean.";
 "CopyTotpAutomatically" = "Kopiatu TOTP automatikoki";
-"PremiumRequired" = "Premium bazkidetza beharrezkoa da ezaugarri hau erabiltzeko.";
 "AttachementAdded" = "Eranskina gehitu da";
 "AttachmentDeleted" = "Eranskina ezabatu da";
 "ChooseFile" = "Hautatu fitxategia";
@@ -223,7 +222,6 @@
 "August" = "Abuztua";
 "Brand" = "Marka";
 "CardholderName" = "Txartelaren titularraren izena";
-"WeFoundMultipleMatchesChooseTheCorrectOne" = "Bat etortze anitz aurkitu ditugu. Aukeratu zuzena.";
 "CityTown" = "Hiria / Herria";
 "Company" = "Enpresa";
 "Country" = "Herrialdea";
@@ -648,7 +646,6 @@
 "SetUpAutofill" = "Konfiguratu autobeteketa";
 "AppInfo" = "Aplikazioaren informazioa";
 "Browse" = "Arakatu";
-"SelectCardholderName" = "Hautatu txartelaren titularraren izena";
 "SelectLanguage" = "Hautatu hizkuntza";
 "ContinueToCompleteWebAuthnVerification" = "Jarraitu WebAuthn egiaztapena osatzeko.";
 "ThereWasAnErrorStartingWebAuthnTwoFactorAuthentication" = "Errore bat gertatu da WebAuthn bi faktoreko autentifikazioa abiaraztean";
@@ -667,7 +664,6 @@
 "ByContinuingYouAgreeToTheTermsOfServiceAndPrivacyPolicy" = "Jarraitzean, **[Zerbitzu-baldintzak](%1$@)** eta **[Pribatutasun-politika](%2$@)** onartzen dituzu";
 "GetAdviceAnnouncementsAndResearchOpportunitiesFromBitwardenInYourInboxUnsubscribeAtAnyTime." = "Jaso aholkuak, iragarpenak eta ikerketa-aukera Bitwarden-en zure sarrerako ontzian. **[Harpidetza kendu](%1$@)** nahi duzunean.";
 "UserVerificationForPasskey" = "Erabiltzailearen egiaztapena pasagiltzarako";
-"NewItem" = "Elementu berria";
 "ExploreTheGenerator" = "Arakatu sortzailea";
 "LearnMoreAboutGeneratingSecureLoginCredentialsWithAGuidedTour" = "Ikasi gehiago saio-kredentzial seguruak sortzeari buruz gidatutako bisita batekin.";
 "ExportVaultFilePwProtectInfo" = "Fitxategien esportazio hori pasahitzaren bidez babestuta egongo da eta deszifratzeko fitxategi pasahitza beharko da.";
@@ -979,7 +975,6 @@
 "NoAskMe" = "Ez, eskatu niri";
 "NoCodes" = "Ez duzu erakusteko koderik";
 "None" = "Bat ere ez";
-"NoneOfTheAbove" = "Goikoetako bat ere ez";
 "NumberOfDigits" = "Digitu kopurua";
 "OtpType" = "OTP mota";
 "RefreshPeriod" = "Freskatze-epea";

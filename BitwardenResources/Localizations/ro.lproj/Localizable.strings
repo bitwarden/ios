@@ -182,7 +182,6 @@
 "CopyTotp" = "Copiere TOTP";
 "CopyTotpAutomaticallyDescription" = "Dacă o autentificare are o cheie authenticator, copiază codul de verificare TOTP în clipboard când completezi automat autentificarea.";
 "CopyTotpAutomatically" = "Copiați automat TOTP";
-"PremiumRequired" = "Este necesar statutul de membru Premium pentru a utiliza această caracteristică.";
 "AttachementAdded" = "Atașamentul s-a adăugat";
 "AttachmentDeleted" = "Atașamentul s-a șters";
 "ChooseFile" = "Alegere fișier";
@@ -223,7 +222,6 @@
 "August" = "august";
 "Brand" = "Tip card";
 "CardholderName" = "Numele titularului de card";
-"WeFoundMultipleMatchesChooseTheCorrectOne" = "Am găsit mai multe potriviri. Alege-o pe cea corectă.";
 "CityTown" = "Localitate";
 "Company" = "Companie";
 "Country" = "Țară";
@@ -648,7 +646,6 @@
 "SetUpAutofill" = "Configurează completarea automată";
 "AppInfo" = "Informații aplicație";
 "Browse" = "Navighează";
-"SelectCardholderName" = "Selectează numele deținătorului cardului";
 "SelectLanguage" = "Selectează limba";
 "ContinueToCompleteWebAuthnVerification" = "Continuă pentru a finaliza verificarea WebAuthn.";
 "ThereWasAnErrorStartingWebAuthnTwoFactorAuthentication" = "A apărut o eroare la pornirea autentificării cu doi factori WebAuthn";
@@ -667,7 +664,6 @@
 "ByContinuingYouAgreeToTheTermsOfServiceAndPrivacyPolicy" = "Continuând, ești de acord cu **[Termenii de utilizare](%1$@)** și **[Politica de confidențialitate](%2$@)**";
 "GetAdviceAnnouncementsAndResearchOpportunitiesFromBitwardenInYourInboxUnsubscribeAtAnyTime." = "Primește sfaturi, anunțuri și oportunități de cercetare de la Bitwarden în căsuța ta de e-mail. **[Dezabonare](%1$@)** în orice moment.";
 "UserVerificationForPasskey" = "Verificarea utilizatorului pentru cheia de acces";
-"NewItem" = "Element nou";
 "ExploreTheGenerator" = "Explorează generatorul";
 "LearnMoreAboutGeneratingSecureLoginCredentialsWithAGuidedTour" = "Află mai multe despre generarea de acreditări de autentificare sigure cu un tur ghidat.";
 "ExportVaultFilePwProtectInfo" = "Acest export va fi protejat cu parolă și necesită parola fișierului pentru decriptare.";
@@ -979,7 +975,6 @@
 "NoAskMe" = "Nu, întreabă-mă";
 "NoCodes" = "Nu ai niciun cod de afișat";
 "None" = "Niciuna";
-"NoneOfTheAbove" = "Niciuna dintre cele de mai sus";
 "NumberOfDigits" = "Număr de cifre";
 "OtpType" = "Tip OTP";
 "RefreshPeriod" = "Perioadă de reîmprospătare";

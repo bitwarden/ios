@@ -182,7 +182,6 @@
 "CopyTotp" = "Скапіяваць TOTP";
 "CopyTotpAutomaticallyDescription" = "Калі ўваход мае ключ аўтэнтыфікатара, капіруйце TOTP-код праверкі ў буфер абмену пры аўтазапаўненні ўваходу.";
 "CopyTotpAutomatically" = "Скапіяваць TOTP аўтаматычна";
-"PremiumRequired" = "Для выкарыстання гэтай функцыі патрабуецца прэміяльны статус.";
 "AttachementAdded" = "Далучэнне дададзена";
 "AttachmentDeleted" = "Далучэнне выдалена";
 "ChooseFile" = "Выбраць файл";
@@ -223,7 +222,6 @@
 "August" = "Жнівень";
 "Brand" = "Тып карткі";
 "CardholderName" = "Імя ўладальніка карткі";
-"WeFoundMultipleMatchesChooseTheCorrectOne" = "Мы знайшлі некалькі супадзенняў. Выберыце правільнае.";
 "CityTown" = "Горад / Пасёлак";
 "Company" = "Кампанія";
 "Country" = "Краіна";
@@ -648,7 +646,6 @@
 "SetUpAutofill" = "Наладзіць аўтазапаўненне";
 "AppInfo" = "Пра праграму";
 "Browse" = "Агляд";
-"SelectCardholderName" = "Выберыце імя ўладальніка карты";
 "SelectLanguage" = "Абраць мову";
 "ContinueToCompleteWebAuthnVerification" = "Працягніце, каб завяршыць праверку WebAuthn.";
 "ThereWasAnErrorStartingWebAuthnTwoFactorAuthentication" = "Узнікла памылка пры запуску двухфактарнай аўтэнтыфікацыі WebAuthn";
@@ -667,7 +664,6 @@
 "ByContinuingYouAgreeToTheTermsOfServiceAndPrivacyPolicy" = "Працягваючы, вы згаджаецеся з **[Умовамі абслугоўвання](%1$@)** і **[Палітыкай прыватнасці](%2$@)**";
 "GetAdviceAnnouncementsAndResearchOpportunitiesFromBitwardenInYourInboxUnsubscribeAtAnyTime." = "Атрымлівайце парады, аб'явы і магчымасці даследаванняў ад Bitwarden у сваю паштоўку. **[Адпісацца](%1$@)** можна ў любы час.";
 "UserVerificationForPasskey" = "Праверка карыстальніка для ключа доступу";
-"NewItem" = "Новы элемент";
 "ExploreTheGenerator" = "Даследаваць генератар";
 "LearnMoreAboutGeneratingSecureLoginCredentialsWithAGuidedTour" = "Даведайцеся больш пра стварэнне бяспечных уліковых дадзеных з дапамогай экскурсіі.";
 "ExportVaultFilePwProtectInfo" = "Гэты экспартаваны файл будзе абаронены паролем, які неабходна будзе ўвесці для яго расшыфроўкі.";
@@ -979,7 +975,6 @@
 "NoAskMe" = "Не, пытацца ў мяне";
 "NoCodes" = "У вас няма кодаў для адлюстравання";
 "None" = "Няма";
-"NoneOfTheAbove" = "Ніводнае з вышэйпералічанага";
 "NumberOfDigits" = "Колькасць лічбаў";
 "OtpType" = "Тып OTP";
 "RefreshPeriod" = "Перыяд абнаўлення";

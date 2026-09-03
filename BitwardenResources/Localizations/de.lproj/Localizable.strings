@@ -182,7 +182,6 @@
 "CopyTotp" = "TOTP kopieren";
 "CopyTotpAutomaticallyDescription" = "Ist ein Authentifizierungsschlüssel mit deinen Zugangsdaten verknüpft, wird der TOTP-Verifizierungscode in die Zwischenablage kopiert, wenn du die Zugangsdaten automatisch ausfüllen lässt.";
 "CopyTotpAutomatically" = "TOTP automatisch kopieren";
-"PremiumRequired" = "Für diese Funktion benötigen Sie eine Premiummitgliedschaft.";
 "AttachementAdded" = "Anhang hinzugefügt";
 "AttachmentDeleted" = "Anhang entfernt";
 "ChooseFile" = "Datei auswählen";
@@ -223,7 +222,6 @@
 "August" = "August";
 "Brand" = "Marke";
 "CardholderName" = "Name des Karteninhabers";
-"WeFoundMultipleMatchesChooseTheCorrectOne" = "Wir haben mehrere Übereinstimmungen gefunden. Wähle die richtige aus.";
 "CityTown" = "Stadt oder Ort";
 "Company" = "Firma";
 "Country" = "Land";
@@ -648,7 +646,6 @@
 "SetUpAutofill" = "Automatisches Ausfüllen einrichten";
 "AppInfo" = "App-Info";
 "Browse" = "Durchsuchen";
-"SelectCardholderName" = "Karteninhaber auswählen";
 "SelectLanguage" = "Sprache auswählen";
 "ContinueToCompleteWebAuthnVerification" = "Fortfahren, um die WebAuthn-Verifizierung abzuschließen.";
 "ThereWasAnErrorStartingWebAuthnTwoFactorAuthentication" = "Es gab einen Fehler beim Starten der WebAuthn Zwei-Faktor-Authentifizierung";
@@ -667,7 +664,6 @@
 "ByContinuingYouAgreeToTheTermsOfServiceAndPrivacyPolicy" = "Indem du fortfährst, stimmst du den **[Nutzungsbedingungen](%1$@)** und **[Datenschutzrichtlinien](%2$@)** zu";
 "GetAdviceAnnouncementsAndResearchOpportunitiesFromBitwardenInYourInboxUnsubscribeAtAnyTime." = "Erhalte Ratschläge, Ankündigungen und Marktforschungsumfragen von Bitwarden in deinem Posteingang. **[Abbestellen](%1$@)** jederzeit möglich.";
 "UserVerificationForPasskey" = "Benutzer-Verifizierung für Passkey";
-"NewItem" = "Neuer Eintrag";
 "ExploreTheGenerator" = "Erkunde den Generator";
 "LearnMoreAboutGeneratingSecureLoginCredentialsWithAGuidedTour" = "Erfahren mehr über die Erstellung sicherer Zugangsdaten mit einer geführten Tour.";
 "ExportVaultFilePwProtectInfo" = "Dieser Datei-Export ist passwortgeschützt und erfordert das Dateipasswort zum Entschlüsseln.";
@@ -979,7 +975,6 @@
 "NoAskMe" = "Nein, frag mich";
 "NoCodes" = "Keine Codes zum Anzeigen vorhanden";
 "None" = "Keine";
-"NoneOfTheAbove" = "Keine der oben genannten";
 "NumberOfDigits" = "Anzahl der Ziffern";
 "OtpType" = "OTP-Typ";
 "RefreshPeriod" = "Aktualisierungszeitraum";

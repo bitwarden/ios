@@ -182,7 +182,6 @@
 "CopyTotp" = "Скопировать TOTP";
 "CopyTotpAutomaticallyDescription" = "Если к вашему логину прикреплен ключ аутентификации, то код подтверждения TOTP будет скопирован при автозаполнении логина.";
 "CopyTotpAutomatically" = "Скопировать TOTP автоматически";
-"PremiumRequired" = "Для использования этой функции требуется Премиум.";
 "AttachementAdded" = "Вложение добавлено";
 "AttachmentDeleted" = "Вложение удалено";
 "ChooseFile" = "Выбрать файл";
@@ -223,7 +222,6 @@
 "August" = "Август";
 "Brand" = "Тип карты";
 "CardholderName" = "Имя владельца карты";
-"WeFoundMultipleMatchesChooseTheCorrectOne" = "Мы нашли несколько совпадений. Выберите правильное.";
 "CityTown" = "Город / Поселок";
 "Company" = "Компания";
 "Country" = "Страна";
@@ -648,7 +646,6 @@
 "SetUpAutofill" = "Настроить автозаполнение";
 "AppInfo" = "Информация о приложении";
 "Browse" = "Обзор";
-"SelectCardholderName" = "Выберите имя владельца карты";
 "SelectLanguage" = "Выбрать язык";
 "ContinueToCompleteWebAuthnVerification" = "Перейти к завершению верификации WebAuthn.";
 "ThereWasAnErrorStartingWebAuthnTwoFactorAuthentication" = "Возникла ошибка при запуске двухэтапной аутентификации WebAuthn";
@@ -667,7 +664,6 @@
 "ByContinuingYouAgreeToTheTermsOfServiceAndPrivacyPolicy" = "Продолжая, вы принимаете **[Условия использования](%1$@)** и **[Политику конфиденциальности](%2$@)**";
 "GetAdviceAnnouncementsAndResearchOpportunitiesFromBitwardenInYourInboxUnsubscribeAtAnyTime." = "Получайте советы, объявления и исследования от Bitwarden в свой почтовый ящик. **[Отписаться](%1$@)** можно в любое время.";
 "UserVerificationForPasskey" = "Верификация пользователя по passskey";
-"NewItem" = "Новый элемент";
 "ExploreTheGenerator" = "Исследуйте генератор";
 "LearnMoreAboutGeneratingSecureLoginCredentialsWithAGuidedTour" = "Узнайте больше о создании надежных учетных данных, просмотрев гид.";
 "ExportVaultFilePwProtectInfo" = "Экспорт этого файла будет защищен паролем, и для расшифровки потребуется пароль файла.";
@@ -979,7 +975,6 @@
 "NoAskMe" = "Нет, спросить меня";
 "NoCodes" = "У вас нет кодов для отображения";
 "None" = "Нет";
-"NoneOfTheAbove" = "Ни одно из вышеперечисленных";
 "NumberOfDigits" = "Количество цифр";
 "OtpType" = "Тип OTP";
 "RefreshPeriod" = "Период обновления";

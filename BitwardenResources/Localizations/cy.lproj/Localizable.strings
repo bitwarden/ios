@@ -182,7 +182,6 @@
 "CopyTotp" = "Copïo TOTP";
 "CopyTotpAutomaticallyDescription" = "Os oes gan fewngofnodiad allwedd dilysydd, copïwch y cod dilysu TOTP i'ch clipfwrdd pan fyddwch yn llenwi'r mewngofnodiad yn awtomatig.";
 "CopyTotpAutomatically" = "Copïo TOTP yn awtomatig";
-"PremiumRequired" = "Mae angen aelodaeth uwch i ddefnyddio'r nodwedd hon.";
 "AttachementAdded" = "Atodiad wedi'i ychwanegu";
 "AttachmentDeleted" = "Atodiad wedi'i ddileu";
 "ChooseFile" = "Dewis ffeil";
@@ -223,7 +222,6 @@
 "August" = "Awst";
 "Brand" = "Brand";
 "CardholderName" = "Enw ar y cerdyn";
-"WeFoundMultipleMatchesChooseTheCorrectOne" = "Fe wnaethom ddod o hyd i nifer o gyfatebiadau. Dewiswch yr un cywir.";
 "CityTown" = "Tref / Dinas";
 "Company" = "Cwmni";
 "Country" = "Gwlad";
@@ -648,7 +646,6 @@
 "SetUpAutofill" = "Sefydlu llenwi awtomatig";
 "AppInfo" = "Gwybodaeth ap";
 "Browse" = "Pori";
-"SelectCardholderName" = "Dewiswch enw deiliad y cerdyn";
 "SelectLanguage" = "Dewiswch iaith";
 "ContinueToCompleteWebAuthnVerification" = "Parhau i gwblhau dilysiad WebAuthn.";
 "ThereWasAnErrorStartingWebAuthnTwoFactorAuthentication" = "Cafwyd gwall wrth gychwyn dilysiad dau-ffactor WebAuthn";
@@ -667,7 +664,6 @@
 "ByContinuingYouAgreeToTheTermsOfServiceAndPrivacyPolicy" = "Drwy barhau, rydych yn cytuno i'r **[Telerau Gwasanaeth](%1$@)** a'r **[Polisi Preifatrwydd](%2$@)**";
 "GetAdviceAnnouncementsAndResearchOpportunitiesFromBitwardenInYourInboxUnsubscribeAtAnyTime." = "Cewch gyngor, cyhoeddiadau, a chyfleoedd ymchwil gan Bitwarden yn eich mewnflwch. **[Dadgofrestru](%1$@)** unrhyw bryd.";
 "UserVerificationForPasskey" = "Dilysiad defnyddiwr ar gyfer passkey";
-"NewItem" = "Eitem newydd";
 "ExploreTheGenerator" = "Archwilio'r cynhyrchydd";
 "LearnMoreAboutGeneratingSecureLoginCredentialsWithAGuidedTour" = "Dysgwch fwy am gynhyrchu tystlythyrau mewngofnodi diogel gyda thaith dywys.";
 "ExportVaultFilePwProtectInfo" = "Bydd yr allforiad ffeil hwn wedi'i ddiogelu gan gyfrinair a bydd angen cyfrinair y ffeil i'w ddadgryptio.";
@@ -979,7 +975,6 @@
 "NoAskMe" = "Na, gofynnwch i mi";
 "NoCodes" = "Nid oes gennych unrhyw godau i'w harddangos";
 "None" = "Dim";
-"NoneOfTheAbove" = "Dim o'r uchod";
 "NumberOfDigits" = "Nifer y digidau";
 "OtpType" = "Math OTP";
 "RefreshPeriod" = "Cyfnod adnewyddu";
