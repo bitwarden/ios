@@ -74,7 +74,9 @@ class MockAppSettingsStore: AppSettingsStore { // swiftlint:disable:this type_bo
     var syncToAuthenticatorByUserId = [String: Bool]()
     var timeoutAction = [String: Int]()
     var twoFactorTokens = [String: String]()
+    var userKeyIdByUserId = [String: String]()
     var usesKeyConnector = [String: Bool]()
+    var v2UpgradeTokenByUserId = [String: V2UpgradeToken]()
     var vaultTimeout = [String: Int]()
     var state: State? {
         didSet {
@@ -441,6 +443,14 @@ class MockAppSettingsStore: AppSettingsStore { // swiftlint:disable:this type_bo
         unsuccessfulUnlockAttempts[userId] = attempts
     }
 
+    func setUserKeyId(_ keyId: String?, userId: String) {
+        guard let keyId else {
+            userKeyIdByUserId.removeValue(forKey: userId)
+            return
+        }
+        userKeyIdByUserId[userId] = keyId
+    }
+
     func setUsernameGenerationOptions(_ options: UsernameGenerationOptions?, userId: String) {
         guard let options else {
             usernameGenerationOptions.removeValue(forKey: userId)
@@ -451,6 +461,10 @@ class MockAppSettingsStore: AppSettingsStore { // swiftlint:disable:this type_bo
 
     func setUsesKeyConnector(_ usesKeyConnector: Bool, userId: String) {
         self.usesKeyConnector[userId] = usesKeyConnector
+    }
+
+    func setV2UpgradeToken(_ token: V2UpgradeToken?, userId: String) {
+        v2UpgradeTokenByUserId[userId] = token
     }
 
     func setVaultTimeout(minutes: Int, userId: String) {
@@ -477,12 +491,20 @@ class MockAppSettingsStore: AppSettingsStore { // swiftlint:disable:this type_bo
         unsuccessfulUnlockAttempts[userId] ?? 0
     }
 
+    func userKeyId(userId: String) -> String? {
+        userKeyIdByUserId[userId]
+    }
+
     func usernameGenerationOptions(userId: String) -> UsernameGenerationOptions? {
         usernameGenerationOptions[userId]
     }
 
     func usesKeyConnector(userId: String) -> Bool {
         usesKeyConnector[userId] ?? false
+    }
+
+    func v2UpgradeToken(userId: String) -> V2UpgradeToken? {
+        v2UpgradeTokenByUserId[userId]
     }
 
     func vaultTimeout(userId: String) -> Int? {

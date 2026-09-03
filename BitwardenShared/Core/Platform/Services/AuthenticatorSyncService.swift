@@ -360,11 +360,13 @@ actor DefaultAuthenticatorSyncService: NSObject, AuthenticatorSyncService {
 
         let account = try await stateService.getAccount(userId: userId)
         let encryptionKeys = try await stateService.getAccountEncryptionKeys(userId: userId)
+        let upgradeToken = await stateService.getV2UpgradeToken(userId: userId)
 
         try await authenticatorClientService.crypto().initializeUserCrypto(
             account: account,
             encryptionKeys: encryptionKeys,
             method: .decryptedKey(decryptedUserKey: authenticatorKey),
+            upgradeToken: upgradeToken,
         )
         try await initializeOrganizationCrypto(userId: userId)
     }

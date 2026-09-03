@@ -2,6 +2,7 @@ import BitwardenKit
 import BitwardenKitMocks
 import struct BitwardenSdk.EnrollPinResponse
 import struct BitwardenSdk.ServerCommunicationConfig
+import struct BitwardenSdk.V2UpgradeToken
 import Combine
 import Foundation
 
@@ -143,6 +144,7 @@ class MockStateService: StateService, ActiveAccountStateProvider, AutofillStateS
     var userIds = [String]()
     var usernameGenerationOptions = [String: UsernameGenerationOptions]()
     var usesKeyConnector = [String: Bool]()
+    var v2UpgradeTokens = [String: V2UpgradeToken]()
 
     lazy var activeIdSubject = CurrentValueSubject<String?, Never>(self.activeAccount?.profile.userId)
     lazy var appThemeSubject = CurrentValueSubject<AppTheme, Never>(self.appTheme ?? .default)
@@ -517,6 +519,10 @@ class MockStateService: StateService, ActiveAccountStateProvider, AutofillStateS
     func getUsesKeyConnector(userId: String?) async throws -> Bool {
         let userId = try unwrapUserId(userId)
         return usesKeyConnector[userId] ?? false
+    }
+
+    func getV2UpgradeToken(userId: String) async -> V2UpgradeToken? {
+        v2UpgradeTokens[userId]
     }
 
     func isAuthenticated(userId: String?) async throws -> Bool {
@@ -914,6 +920,10 @@ class MockStateService: StateService, ActiveAccountStateProvider, AutofillStateS
     func setUsesKeyConnector(_ usesKeyConnector: Bool, userId: String?) async throws {
         let userId = try unwrapUserId(userId)
         self.usesKeyConnector[userId] = usesKeyConnector
+    }
+
+    func setV2UpgradeToken(_ token: V2UpgradeToken?, userId: String) async {
+        v2UpgradeTokens[userId] = token
     }
 
     /// Attempts to convert a possible user id into an account, or returns the active account.

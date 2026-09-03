@@ -983,6 +983,39 @@ final class AuthenticatorSyncServiceTests: BitwardenTestCase { // swiftlint:disa
         XCTAssertTrue(authenticatorClientService.userClientArray.isEmpty)
     }
 
+    /// Unlocking the vault to sync ciphers to the Authenticator app passes along the user's stored
+    /// V2 upgrade token, if one exists.
+    @MainActor
+    func test_writeCiphers_vaultLocked_withV2UpgradeToken() async throws {
+        setupInitialState()
+        stateService.v2UpgradeTokens["1"] = V2UpgradeToken(
+            wrappedUserKey1: "WRAPPED_USER_KEY_1",
+            wrappedUserKey2: "WRAPPED_USER_KEY_2",
+        )
+        await subject.start()
+        stateService.syncToAuthenticatorSubject.send(("1", true))
+        try await waitForAsync {
+            self.keychainRepository.setAuthenticatorVaultKeyCalled
+        }
+
+        vaultTimeoutService.isClientLocked["1"] = true
+        cipherDataStore.cipherSubjectByUserId["1"]?.send([
+            .fixture(
+                id: "1234",
+                login: .fixture(
+                    username: "masked@example.com",
+                    totp: "totp",
+                ),
+            ),
+        ])
+
+        try await waitForAsync { self.authBridgeItemService.storedItems["1"]?.first != nil }
+        XCTAssertEqual(
+            authenticatorClientService.mockCrypto.initializeUserCryptoReceivedReq?.upgradeToken,
+            V2UpgradeToken(wrappedUserKey1: "WRAPPED_USER_KEY_1", wrappedUserKey2: "WRAPPED_USER_KEY_2"),
+        )
+    }
+
     /// Verify that `writeCiphers()` correctly reports errors from unlocking a locked vault with
     /// the AuthenticatorVaultKey.
     ///

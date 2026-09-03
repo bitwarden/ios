@@ -3018,6 +3018,44 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         }
     }
 
+    /// `unlockVaultWithPassword(password:)` passes along the stored V2 upgrade token, if one exists,
+    /// when unlocking the vault.
+    func test_unlockVault_withV2UpgradeToken() async throws {
+        clientService.mockCrypto.enrollPinWithEncryptedPinReturnValue = EnrollPinResponse(
+            pinProtectedUserKeyEnvelope: "pinProtectedUserKeyEnvelope",
+            userKeyEncryptedPin: "userKeyEncryptedPin",
+        )
+        stateService.activeAccount = .fixture(profile: .fixture(
+            userDecryptionOptions: UserDecryptionOptions(
+                hasMasterPassword: true,
+                masterPasswordUnlock: .fixture(),
+                keyConnectorOption: nil,
+                trustedDeviceOption: nil,
+            ),
+        ))
+        stateService.accountEncryptionKeys = [
+            "1": AccountEncryptionKeys(
+                cryptographicState: .fixtureV2(),
+                encryptedUserKey: "USER_KEY",
+            ),
+        ]
+        stateService.encryptedPinByUserId["1"] = "ENCRYPTED_PIN"
+        stateService.pinUnlockRequiresPasswordAfterRestartValue = true
+        stateService.v2UpgradeTokens["1"] = V2UpgradeToken(
+            wrappedUserKey1: "WRAPPED_USER_KEY_1",
+            wrappedUserKey2: "WRAPPED_USER_KEY_2",
+        )
+
+        await assertAsyncDoesNotThrow {
+            try await subject.unlockVaultWithPassword(password: "password")
+        }
+
+        XCTAssertEqual(
+            clientService.mockCrypto.initializeUserCryptoReceivedReq?.upgradeToken,
+            V2UpgradeToken(wrappedUserKey1: "WRAPPED_USER_KEY_1", wrappedUserKey2: "WRAPPED_USER_KEY_2"),
+        )
+    }
+
     /// `unlockVaultFromLoginWithDevice()` unlocks the vault using the key returned by an approved auth request.
     func test_unlockVaultFromLoginWithDevice() async throws {
         stateService.activeAccount = Account.fixture()
