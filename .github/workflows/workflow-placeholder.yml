@@ -3,3 +3,14 @@
 # Once the new workflow is ready to be merged, it should be copied to a new file with an
 # appropriate name (e.g., ci-bwpm.yml) in the .github/workflows directory and the placeholder
 # should be reverted to its original (empty) state before merging the feature branch.
+
+name: Workflow Placeholder
+
+on:
+  workflow_dispatch:
+
+jobs:
+  placeholder:
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "Placeholder workflow"
