@@ -26,6 +26,7 @@ typealias Services = HasAPIService
     & HasClientCertificateService
     & HasClientService
     & HasConfigService
+    & HasCustomHeadersService
     & HasDebugStateService
     & HasDeviceAPIService
     & HasDeviceAuthKeyService
@@ -221,6 +222,14 @@ protocol HasClientCertificateService {
 protocol HasClientService {
     /// The client used by the application to handle auth related encryption and decryption tasks.
     var clientService: ClientService { get }
+}
+
+/// Protocol for an object that provides a `CustomHeadersService`.
+///
+protocol HasCustomHeadersService {
+    /// The service used by the application to manage custom headers sent with requests to a
+    /// self-hosted environment.
+    var customHeadersService: CustomHeadersService { get }
 }
 
 /// Protocol for an object that provides a `DeviceAPIService`.

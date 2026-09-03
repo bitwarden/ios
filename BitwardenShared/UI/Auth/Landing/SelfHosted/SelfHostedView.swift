@@ -26,10 +26,14 @@ struct SelfHostedView: View {
             selfHostedEnvironment
             customEnvironment
             clientCertificateSection
+            customHeadersSection
         }
         .textFieldConfiguration(.url)
         .navigationBar(title: Localizations.settings, titleDisplayMode: .inline)
         .scrollView()
+        .task {
+            await store.perform(.appeared)
+        }
         .toolbar {
             cancelToolbarItem {
                 store.send(.dismiss)
@@ -189,6 +193,26 @@ struct SelfHostedView: View {
         }
     }
 
+    /// The custom headers section.
+    private var customHeadersSection: some View {
+        SectionView(Localizations.customHeaders, contentSpacing: 8) {
+            ForEach(store.state.customHeaders) { header in
+                customHeaderRow(header)
+            }
+
+            Button(Localizations.addHeader) {
+                store.send(.addHeaderTapped)
+            }
+            .accessibilityIdentifier("AddHeaderButton")
+            .buttonStyle(.secondary())
+
+            Text(Localizations.customHeadersFooter)
+                .styleGuide(.footnote)
+                .foregroundColor(SharedAsset.Colors.textSecondary.swiftUIColor)
+                .frame(maxWidth: .infinity, alignment: .leading)
+        }
+    }
+
     /// The client certificate (mTLS) section.
     private var clientCertificateSection: some View {
         SectionView(Localizations.clientCertificateMtls, contentSpacing: 8) {
@@ -213,6 +237,49 @@ struct SelfHostedView: View {
                 .accessibilityIdentifier("RemoveCertificateButton")
                 .buttonStyle(.secondary(isDestructive: true))
             }
+        }
+    }
+
+    // MARK: Private methods
+
+    /// A row for editing a single custom header name/value pair.
+    ///
+    /// - Parameter header: The custom header field displayed in the row.
+    ///
+    private func customHeaderRow(_ header: SelfHostedState.CustomHeaderField) -> some View {
+        VStack(spacing: 8) {
+            BitwardenTextField(
+                title: Localizations.name,
+                text: store.binding(
+                    get: { _ in header.name },
+                    send: { SelfHostedAction.headerNameChanged(id: header.id, name: $0) },
+                ),
+            )
+            .accessibilityIdentifier("HeaderNameEntry")
+            .keyboardType(.asciiCapable)
+            .textContentType(nil)
+
+            BitwardenTextField(
+                title: Localizations.value,
+                text: store.binding(
+                    get: { _ in header.value },
+                    send: { SelfHostedAction.headerValueChanged(id: header.id, value: $0) },
+                ),
+                accessibilityIdentifier: "HeaderValueEntry",
+                passwordVisibilityAccessibilityId: "HeaderValueVisibilityToggle",
+                isPasswordVisible: store.binding(
+                    get: { _ in header.isValueVisible },
+                    send: { SelfHostedAction.headerValueVisibilityChanged(id: header.id, isVisible: $0) },
+                ),
+            )
+            .keyboardType(.asciiCapable)
+            .textContentType(nil)
+
+            Button(Localizations.removeHeader) {
+                store.send(.removeHeaderTapped(id: header.id))
+            }
+            .accessibilityIdentifier("RemoveHeaderButton")
+            .buttonStyle(.secondary(isDestructive: true))
         }
     }
 }
