@@ -245,6 +245,7 @@ struct VaultGroupView: View {
                 state: { state in
                     VaultListItemRowState(
                         iconBaseURL: state.iconBaseURL,
+                        hasPremium: state.hasPremium,
                         isVfo1FoundationFeatureFlagEnabled: state.isVfo1FoundationFeatureFlagEnabled,
                         item: item,
                         hasDivider: !isLastInSection,
@@ -259,6 +260,8 @@ struct VaultGroupView: View {
                 },
                 mapEffect: { effect in
                     switch effect {
+                    case let .accessibilityMoreOptionsActionPressed(kind):
+                        .accessibilityMoreOptionsActionPressed(item, kind)
                     case .morePressed:
                         .morePressed(item)
                     case .pressed:

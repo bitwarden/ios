@@ -2,6 +2,14 @@
 
 /// Effects that can be processed by a `VaultListProcessor`.
 enum VaultListEffect: Equatable {
+    /// A VoiceOver custom accessibility action for one of the more-options actions was activated.
+    ///
+    /// - Parameters:
+    ///   - item: The item associated with the action.
+    ///   - kind: The kind of more-options action that was activated.
+    ///
+    case accessibilityMoreOptionsActionPressed(_ item: VaultListItem, _ kind: MoreOptionsActionKind)
+
     /// The vault list appeared on screen.
     case appeared
 

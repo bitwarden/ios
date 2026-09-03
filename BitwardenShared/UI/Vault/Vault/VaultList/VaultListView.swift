@@ -264,6 +264,7 @@ private struct SearchableVaultListView: View {
                 state: { state in
                     VaultListItemRowState(
                         iconBaseURL: state.iconBaseURL,
+                        hasPremium: state.hasPremium,
                         isFromExtension: false,
                         isVfo1FoundationFeatureFlagEnabled: state.isVfo1FoundationFeatureFlagEnabled,
                         item: item,
@@ -279,6 +280,8 @@ private struct SearchableVaultListView: View {
                 },
                 mapEffect: { effect in
                     switch effect {
+                    case let .accessibilityMoreOptionsActionPressed(kind):
+                        .accessibilityMoreOptionsActionPressed(item, kind)
                     case .morePressed:
                         .morePressed(item)
                     case .pressed:
