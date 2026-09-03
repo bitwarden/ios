@@ -138,6 +138,64 @@ class AuthServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
         XCTAssertEqual(subject.callbackUrlScheme, "bitwarden")
     }
 
+    /// `checkMasterPasswordPolicyAfterUnlock(email:masterPassword:)` falls back to
+    /// `PolicyService.getMasterPasswordPolicyOptions()` when there's no cached SSO/TDE policy for
+    /// the account (e.g. a non-SSO login, or an ordinary vault-timeout re-lock).
+    func test_checkMasterPasswordPolicyAfterUnlock_noCachedPolicy_fallsBackToPolicyService() async throws {
+        clientService.mockAuth.satisfiesPolicyReturnValue = false
+        policyService.getMasterPasswordPolicyOptionsResult = .success(
+            MasterPasswordPolicyOptions(
+                minComplexity: 2,
+                minLength: 8,
+                requireUpper: true,
+                requireLower: false,
+                requireNumbers: true,
+                requireSpecial: false,
+                enforceOnLogin: true,
+            ),
+        )
+        stateService.activeAccount = .fixture()
+
+        try await subject.checkMasterPasswordPolicyAfterUnlock(
+            email: "user@bitwarden.com",
+            masterPassword: "weak password",
+        )
+
+        XCTAssertEqual(
+            stateService.forcePasswordResetReason["1"],
+            .weakMasterPasswordOnLogin,
+        )
+    }
+
+    /// `checkMasterPasswordPolicyAfterUnlock(email:masterPassword:)` ignores (and clears) a
+    /// cached SSO/TDE policy that belongs to a different account, so a stale policy from one
+    /// account's login can never be misapplied to a later unlock for a different account.
+    func test_checkMasterPasswordPolicyAfterUnlock_cachedPolicyForDifferentAccount_isIgnored() async throws {
+        policyService.getMasterPasswordPolicyOptionsResult = .success(nil)
+        clientService.mockAuth.satisfiesPolicyReturnValue = false
+        client.result = .httpSuccess(testData: .identityTokenWithMasterPasswordPolicy)
+
+        // Cache a policy for "user@bitwarden.com" via an SSO login.
+        _ = try await subject.loginWithSingleSignOn(code: "super_cool_secret_code", email: "user@bitwarden.com")
+
+        // Consume it for a different account.
+        stateService.activeAccount = .fixture(profile: .fixture(email: "other@bitwarden.com", userId: "2"))
+        try await subject.checkMasterPasswordPolicyAfterUnlock(
+            email: "other@bitwarden.com",
+            masterPassword: "weak password",
+        )
+
+        XCTAssertNil(stateService.forcePasswordResetReason["2"])
+
+        // The cache should also have been cleared, even for the original account.
+        stateService.activeAccount = .fixture(profile: .fixture(userId: "13512467-9cfe-43b0-969f-07534084764b"))
+        try await subject.checkMasterPasswordPolicyAfterUnlock(
+            email: "user@bitwarden.com",
+            masterPassword: "weak password",
+        )
+        XCTAssertNil(stateService.forcePasswordResetReason["13512467-9cfe-43b0-969f-07534084764b"])
+    }
+
     /// `checkPendingLoginRequest(withId:)` returns the result of the API request.
     func test_checkPendingLoginRequest() async throws {
         // First initiate the login with device flow so that the necessary data is cached.
@@ -809,6 +867,60 @@ class AuthServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
         assertGetConfig()
     }
 
+    /// `loginWithSingleSignOn(code:email:)` caches the master password policy from the identity
+    /// token response, and `checkMasterPasswordPolicyAfterUnlock(email:masterPassword:)` applies
+    /// it once the vault is unlocked with the master password.
+    func test_loginSingleSignOn_masterPasswordPolicy_appliesOnUnlock() async throws {
+        policyService.getMasterPasswordPolicyOptionsResult = .success(nil)
+        clientService.mockAuth.satisfiesPolicyReturnValue = false
+        client.result = .httpSuccess(testData: .identityTokenWithMasterPasswordPolicy)
+
+        let unlockMethod = try await subject.loginWithSingleSignOn(
+            code: "super_cool_secret_code",
+            email: "user@bitwarden.com",
+        )
+        guard case let .masterPassword(account) = unlockMethod else {
+            return XCTFail("Expected the masterPassword unlock method.")
+        }
+        stateService.activeAccount = account
+
+        try await subject.checkMasterPasswordPolicyAfterUnlock(
+            email: "user@bitwarden.com",
+            masterPassword: "weak password",
+        )
+
+        XCTAssertEqual(
+            stateService.forcePasswordResetReason[account.profile.userId],
+            .weakMasterPasswordOnLogin,
+        )
+    }
+
+    /// `loginWithSingleSignOn(code:email:)` caches the master password policy from the identity
+    /// token response even when the response leads to the TDE `requireDecryptionOptions` flow, so
+    /// it can still be applied later if the user chooses to approve with their master password.
+    func test_loginSingleSignOn_masterPasswordPolicy_capturedForTrustedDeviceApproval() async throws {
+        policyService.getMasterPasswordPolicyOptionsResult = .success(nil)
+        clientService.mockAuth.satisfiesPolicyReturnValue = false
+        trustDeviceService.isDeviceTrustedResult = .success(false)
+        client.result = .httpSuccess(testData: .identityTokenTrustedDeviceWithMPPolicy)
+
+        await assertAsyncThrows(error: AuthError.requireDecryptionOptions) {
+            _ = try await subject.loginWithSingleSignOn(code: "super_cool_secret_code", email: "user@bitwarden.com")
+        }
+
+        // Simulate the user choosing "approve with master password" on the decryption options screen.
+        stateService.activeAccount = .fixture(profile: .fixture(userId: "13512467-9cfe-43b0-969f-07534084764b"))
+        try await subject.checkMasterPasswordPolicyAfterUnlock(
+            email: "user@bitwarden.com",
+            masterPassword: "weak password",
+        )
+
+        XCTAssertEqual(
+            stateService.forcePasswordResetReason["13512467-9cfe-43b0-969f-07534084764b"],
+            .weakMasterPasswordOnLogin,
+        )
+    }
+
     /// `loginWithTwoFactorCode(email:code:method:remember:)` uses the cached request but with two factor
     /// codes added in to authenticate.
     func test_loginWithTwoFactorCode() async throws { // swiftlint:disable:this function_body_length
@@ -881,6 +993,99 @@ class AuthServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
 
         XCTAssertEqual(unlockMethod, .masterPassword(.fixtureAccountLogin()))
         assertGetConfig()
+    }
+
+    /// `loginWithTwoFactorCode(email:code:method:remember:)` caches the master password policy
+    /// from the final identity token response for an SSO login that also required two-factor
+    /// authentication, since the pre-2FA `loginWithSingleSignOn` attempt threw before it could
+    /// cache anything.
+    func test_loginWithTwoFactorCode_ssoMasterPasswordPolicy_appliesOnUnlock() async throws {
+        policyService.getMasterPasswordPolicyOptionsResult = .success(nil)
+        clientService.mockAuth.satisfiesPolicyReturnValue = false
+        client.results = [
+            .httpFailure(
+                statusCode: 400,
+                headers: [:],
+                data: APITestData.identityTokenTwoFactorError.data,
+            ),
+            .httpSuccess(testData: .identityTokenWithMasterPasswordPolicy),
+        ]
+
+        await assertAsyncThrows(
+            error: IdentityTokenRequestError.twoFactorRequired(AuthMethodsData.fixture(), nil, "exampleToken"),
+        ) {
+            _ = try await subject.loginWithSingleSignOn(code: "super_cool_secret_code", email: "user@bitwarden.com")
+        }
+
+        let unlockMethod = try await subject.loginWithTwoFactorCode(
+            email: "user@bitwarden.com",
+            code: "just_a_lil_code",
+            method: .email,
+            remember: false,
+        )
+        guard case let .masterPassword(account) = unlockMethod else {
+            return XCTFail("Expected the masterPassword unlock method.")
+        }
+        stateService.activeAccount = account
+
+        try await subject.checkMasterPasswordPolicyAfterUnlock(
+            email: "user@bitwarden.com",
+            masterPassword: "weak password",
+        )
+
+        XCTAssertEqual(
+            stateService.forcePasswordResetReason[account.profile.userId],
+            .weakMasterPasswordOnLogin,
+        )
+    }
+
+    /// `loginWithTwoFactorCode(email:code:method:remember:)` does not cache a master password
+    /// policy for a plain (non-SSO) password + two-factor login, since that flow already checks
+    /// the policy via `preAuthForcePasswordResetReason`. Caching it here too would cause it to be
+    /// redundantly re-checked once the vault is unlocked.
+    func test_loginWithTwoFactorCode_passwordLogin_doesNotCacheMasterPasswordPolicy() async throws {
+        // No local policy is available, so any policy applied would have to come from the
+        // (incorrectly) cached SSO policy.
+        policyService.getMasterPasswordPolicyOptionsResult = .success(nil)
+        clientService.mockAuth.satisfiesPolicyReturnValue = false
+        client.results = [
+            .httpSuccess(testData: .preLoginSuccess),
+            .httpFailure(
+                statusCode: 400,
+                headers: [:],
+                data: APITestData.identityTokenTwoFactorError.data,
+            ),
+            .httpSuccess(testData: .identityTokenWithMasterPasswordPolicy),
+        ]
+        clientService.mockAuth.hashPasswordReturnValue = "hashed password"
+
+        await assertAsyncThrows(
+            error: IdentityTokenRequestError.twoFactorRequired(AuthMethodsData.fixture(), nil, "exampleToken"),
+        ) {
+            try await subject.loginWithMasterPassword(
+                "Password1234!",
+                username: "user@bitwarden.com",
+                isNewAccount: false,
+            )
+        }
+
+        let unlockMethod = try await subject.loginWithTwoFactorCode(
+            email: "user@bitwarden.com",
+            code: "just_a_lil_code",
+            method: .email,
+            remember: false,
+        )
+        guard case let .masterPassword(account) = unlockMethod else {
+            return XCTFail("Expected the masterPassword unlock method.")
+        }
+        stateService.activeAccount = account
+
+        try await subject.checkMasterPasswordPolicyAfterUnlock(
+            email: "user@bitwarden.com",
+            masterPassword: "weak password",
+        )
+
+        XCTAssertNil(stateService.forcePasswordResetReason[account.profile.userId])
     }
 
     /// `loginWithTwoFactorCode(email:code:method:remember:)` uses the cached request
