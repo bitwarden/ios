@@ -65,6 +65,13 @@ extension FeatureFlag: @retroactive CaseIterable {
     /// Flag to enable/disable Premium upgrade path.
     static let premiumUpgradePath = FeatureFlag(rawValue: "pm-31697-premium-upgrade-path")
 
+    /// Flag to enable/disable SDK-managed PIN unlock.
+    ///
+    /// When enabled, PIN unlock, enrollment, and validation route through the Bitwarden SDK's
+    /// client-managed PIN state (`InitUserCryptoMethod.pinState`, `PinSettingsClient`) instead
+    /// of the legacy iOS-managed PIN-protected key envelope.
+    static let sdkManagedPinUnlock = FeatureFlag(rawValue: "pm-31059-sdk-pin-unlock")
+
     /// Flag to enable/disable the Send Controls policy, which supersedes the `disableSend` and
     /// `sendOptions` policies when active.
     static let sendControls = FeatureFlag(rawValue: "pm-31885-send-controls")
@@ -91,6 +98,7 @@ extension FeatureFlag: @retroactive CaseIterable {
             .organizationUserNotificationBanner,
             .policiesInAcceptedState,
             .premiumUpgradePath,
+            .sdkManagedPinUnlock,
             .sendControls,
             .vfo1Foundation,
         ]

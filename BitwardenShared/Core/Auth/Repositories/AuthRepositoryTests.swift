@@ -249,7 +249,8 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         XCTAssertFalse(result)
     }
 
-    /// `.clearPins()` clears the user's pins.
+    /// `.clearPins()` clears the user's legacy pins when the `sdkManagedPinUnlock` feature flag
+    /// is disabled.
     func test_clearPins() async throws {
         stateService.activeAccount = Account.fixture()
         let userId = Account.fixture().profile.userId
@@ -262,6 +263,21 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         XCTAssertNil(stateService.pinProtectedUserKeyValue[userId])
         XCTAssertNil(stateService.encryptedPinByUserId[userId])
         XCTAssertNil(stateService.accountVolatileData[userId]?.pinProtectedUserKey)
+        XCTAssertFalse(clientService.mockUserCryptoManagement.mockPinSettings.unsetPinCalled)
+    }
+
+    /// `.clearPins()` clears the SDK-managed PIN state when the `sdkManagedPinUnlock` feature
+    /// flag is enabled, leaving legacy PIN state untouched.
+    func test_clearPins_sdkManagedPinUnlock() async throws {
+        configService.featureFlagsBool[.sdkManagedPinUnlock] = true
+        stateService.activeAccount = Account.fixture()
+        let userId = Account.fixture().profile.userId
+        stateService.pinProtectedUserKeyValue[userId] = "123"
+
+        try await subject.clearPins()
+
+        XCTAssertTrue(clientService.mockUserCryptoManagement.mockPinSettings.unsetPinCalled)
+        XCTAssertEqual(stateService.pinProtectedUserKeyValue[userId], "123")
     }
 
     /// `convertNewUserToKeyConnector()` converts a new user to key connector and unlocks the vault.
@@ -2302,7 +2318,8 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         }
     }
 
-    /// `setPins(_:requirePasswordAfterRestart:)` sets the user's pins.
+    /// `setPins(_:requirePasswordAfterRestart:)` sets the user's legacy pins when the
+    /// `sdkManagedPinUnlock` feature flag is disabled.
     func test_setPins() async throws {
         let account = Account.fixture()
         stateService.activeAccount = account
@@ -2321,11 +2338,53 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         XCTAssertEqual(stateService.encryptedPinByUserId[userId], "userKeyEncryptedPin")
         XCTAssertEqual(stateService.pinProtectedUserKeyEnvelopeValue[userId], "pinProtectedUserKeyEnvelope")
         XCTAssertNil(stateService.pinProtectedUserKeyValue[userId])
+        XCTAssertFalse(clientService.mockUserCryptoManagement.mockPinSettings.setPinCalled)
     }
 
     /// `setPins(_:requirePasswordAfterRestart:)` throws an error if one occurs.
     func test_setPins_error() async throws {
         clientService.mockCrypto.enrollPinThrowableError = BitwardenTestError.example
+
+        await assertAsyncThrows(error: BitwardenTestError.example) {
+            try await subject.setPins("123", requirePasswordAfterRestart: true)
+        }
+    }
+
+    /// `setPins(_:requirePasswordAfterRestart:)` sets the SDK-managed PIN with a
+    /// `.afterFirstUnlock` lock type when the `sdkManagedPinUnlock` feature flag is enabled and
+    /// master password is required after restart, without touching legacy PIN state.
+    func test_setPins_sdkManagedPinUnlock() async throws {
+        configService.featureFlagsBool[.sdkManagedPinUnlock] = true
+        let account = Account.fixture()
+        stateService.activeAccount = account
+
+        try await subject.setPins("123", requirePasswordAfterRestart: true)
+
+        let setPinArguments = clientService.mockUserCryptoManagement.mockPinSettings.setPinReceivedArguments
+        XCTAssertEqual(setPinArguments?.pin, "123")
+        XCTAssertEqual(setPinArguments?.lockType, .afterFirstUnlock)
+        XCTAssertFalse(clientService.mockCrypto.enrollPinCalled)
+        XCTAssertNil(stateService.pinProtectedUserKeyEnvelopeValue[account.profile.userId])
+    }
+
+    /// `setPins(_:requirePasswordAfterRestart:)` sets the SDK-managed PIN lock type to
+    /// `.beforeFirstUnlock` when master password isn't required after restart.
+    func test_setPins_sdkManagedPinUnlock_beforeFirstUnlock() async throws {
+        configService.featureFlagsBool[.sdkManagedPinUnlock] = true
+        stateService.activeAccount = .fixture()
+
+        try await subject.setPins("123", requirePasswordAfterRestart: false)
+
+        let setPinArguments = clientService.mockUserCryptoManagement.mockPinSettings.setPinReceivedArguments
+        XCTAssertEqual(setPinArguments?.pin, "123")
+        XCTAssertEqual(setPinArguments?.lockType, .beforeFirstUnlock)
+    }
+
+    /// `setPins(_:requirePasswordAfterRestart:)` throws an error from the SDK-managed PIN
+    /// enrollment call when the `sdkManagedPinUnlock` feature flag is enabled.
+    func test_setPins_sdkManagedPinUnlock_error() async throws {
+        configService.featureFlagsBool[.sdkManagedPinUnlock] = true
+        clientService.mockUserCryptoManagement.mockPinSettings.setPinThrowableError = BitwardenTestError.example
 
         await assertAsyncThrows(error: BitwardenTestError.example) {
             try await subject.setPins("123", requirePasswordAfterRestart: true)
@@ -3363,6 +3422,37 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         XCTAssertEqual(stateService.manuallyLockedAccounts["1"], false)
     }
 
+    /// `unlockVaultWithPIN(_:)` unlocks the vault via the SDK-managed PIN state when the
+    /// `sdkManagedPinUnlock` feature flag is enabled.
+    func test_unlockVaultWithPIN_sdkManagedPinUnlock() async throws {
+        configService.featureFlagsBool[.sdkManagedPinUnlock] = true
+        let account = Account.fixture()
+        stateService.activeAccount = account
+        stateService.accountEncryptionKeys = [
+            "1": AccountEncryptionKeys(
+                cryptographicState: .fixtureV2(),
+                encryptedUserKey: "USER_KEY",
+            ),
+        ]
+
+        try await subject.unlockVaultWithPIN(pin: "123")
+
+        XCTAssertEqual(
+            clientService.mockCrypto.initializeUserCryptoReceivedReq,
+            InitUserCryptoRequest(
+                userId: "1",
+                kdfParams: .pbkdf2(iterations: UInt32(Constants.pbkdf2Iterations)),
+                email: "user@bitwarden.com",
+                accountCryptographicState: .fixtureV2(),
+                method: .pinState(pin: "123"),
+                upgradeToken: nil,
+            ),
+        )
+        XCTAssertFalse(vaultTimeoutService.isLocked(userId: "1"))
+        XCTAssertTrue(vaultTimeoutService.unlockVaultHadUserInteraction)
+        XCTAssertEqual(stateService.manuallyLockedAccounts["1"], false)
+    }
+
     /// `unlockVaultWithPassword` restores the biometric key after a successful unlock when biometrics is enabled.
     func test_unlockVaultWithPassword_restoresBiometricKeyWhenEnabled() async throws {
         let account = Account.fixture(profile: .fixture(
@@ -3644,6 +3734,20 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         let isPinValid = try await subject.validatePin(pin: "123")
 
         XCTAssertFalse(isPinValid)
+    }
+
+    /// `validatePin(_:)` validates via the SDK-managed PIN settings client when the
+    /// `sdkManagedPinUnlock` feature flag is enabled.
+    func test_validatePin_sdkManagedPinUnlock() async throws {
+        configService.featureFlagsBool[.sdkManagedPinUnlock] = true
+        stateService.activeAccount = .fixture()
+        clientService.mockUserCryptoManagement.mockPinSettings.validatePinReturnValue = true
+
+        let isPinValid = try await subject.validatePin(pin: "123")
+
+        XCTAssertTrue(isPinValid)
+        XCTAssertEqual(clientService.mockUserCryptoManagement.mockPinSettings.validatePinReceivedPin, "123")
+        XCTAssertFalse(clientService.mockAuth.validatePinProtectedUserKeyEnvelopeCalled)
     }
 
     /// `validatePin(_:)` throws if the there is no active account.
