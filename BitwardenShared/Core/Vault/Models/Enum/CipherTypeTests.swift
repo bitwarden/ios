@@ -64,4 +64,16 @@ class CipherTypeTests: BitwardenTestCase {
         XCTAssertEqual(CipherType.passport.rawValue, 8)
         XCTAssertTrue(CipherType.allCases.contains(.passport))
     }
+
+    /// `savedToastTitle` returns the correct values.
+    func test_savedToastTitle() {
+        XCTAssertEqual(CipherType.bankAccount.savedToastTitle, Localizations.bankAccountSaved)
+        XCTAssertEqual(CipherType.card.savedToastTitle, Localizations.cardSaved)
+        XCTAssertEqual(CipherType.driversLicense.savedToastTitle, Localizations.licenseSaved)
+        XCTAssertEqual(CipherType.identity.savedToastTitle, Localizations.identitySaved)
+        XCTAssertEqual(CipherType.login.savedToastTitle, Localizations.loginSaved)
+        XCTAssertEqual(CipherType.passport.savedToastTitle, Localizations.passportSaved)
+        XCTAssertEqual(CipherType.secureNote.savedToastTitle, Localizations.secureNoteSaved)
+        XCTAssertEqual(CipherType.sshKey.savedToastTitle, Localizations.sshKeySaved)
+    }
 }

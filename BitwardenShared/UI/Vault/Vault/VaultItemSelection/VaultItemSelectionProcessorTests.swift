@@ -106,10 +106,20 @@ class VaultItemSelectionProcessorTests: BitwardenTestCase { // swiftlint:disable
         XCTAssertTrue(searchProcessorMediatorFactory.makeCalled)
     }
 
-    /// `itemAdded()` requests the coordinator dismiss the view.
+    /// `itemAdded(type:)` requests the coordinator dismiss the view.
     @MainActor
     func test_itemAdded() {
-        let shouldDismiss = subject.itemAdded()
+        let shouldDismiss = subject.itemAdded(type: .login)
+
+        XCTAssertEqual(coordinator.routes, [.dismiss()])
+        XCTAssertFalse(shouldDismiss)
+    }
+
+    /// `itemDismissed()` requests the coordinator dismiss the view, so that cancelling the add
+    /// item screen also tears down the item selection screen presented beneath it.
+    @MainActor
+    func test_itemDismissed() {
+        let shouldDismiss = subject.itemDismissed()
 
         XCTAssertEqual(coordinator.routes, [.dismiss()])
         XCTAssertFalse(shouldDismiss)
@@ -131,10 +141,10 @@ class VaultItemSelectionProcessorTests: BitwardenTestCase { // swiftlint:disable
         XCTAssertEqual(coordinator.routes, [.dismiss()])
     }
 
-    /// `itemUpdated()` requests the coordinator dismiss the view.
+    /// `itemUpdated(type:)` requests the coordinator dismiss the view.
     @MainActor
     func test_itemUpdated() {
-        let shouldDismiss = subject.itemUpdated()
+        let shouldDismiss = subject.itemUpdated(type: .login)
 
         XCTAssertEqual(coordinator.routes, [.dismiss()])
         XCTAssertFalse(shouldDismiss)

@@ -52,6 +52,10 @@ class DefaultVaultItemMoreOptionsHelper: VaultItemMoreOptionsHelper {
     /// The services used by this helper.
     private var services: Services
 
+    /// The closure used to display a toast, stored when navigating to the edit item screen so
+    /// that a confirmation toast can be displayed once the item has been saved.
+    private var handleDisplayToastAfterEdit: ((Toast) -> Void)?
+
     // MARK: Initialization
 
     /// Initialize a `VaultItemMoreOptionsHelper`.
@@ -227,6 +231,7 @@ class DefaultVaultItemMoreOptionsHelper: VaultItemMoreOptionsHelper {
             }
         case let .edit(cipherView):
             await masterPasswordRepromptHelper.repromptForMasterPasswordIfNeeded(cipherView: cipherView) {
+                self.handleDisplayToastAfterEdit = handleDisplayToast
                 self.coordinator.navigate(to: .editItem(cipherView), context: self)
             }
         case let .launch(url):
@@ -270,5 +275,20 @@ class DefaultVaultItemMoreOptionsHelper: VaultItemMoreOptionsHelper {
             await coordinator.showErrorAlert(error: error)
             services.errorReporter.log(error: error)
         }
+    }
+}
+
+// MARK: - CipherItemOperationDelegate
+
+extension DefaultVaultItemMoreOptionsHelper: CipherItemOperationDelegate {
+    func itemDismissed() -> Bool {
+        handleDisplayToastAfterEdit = nil
+        return true
+    }
+
+    func itemUpdated(type: CipherType) -> Bool {
+        handleDisplayToastAfterEdit?(Toast(title: type.savedToastTitle))
+        handleDisplayToastAfterEdit = nil
+        return true
     }
 }
