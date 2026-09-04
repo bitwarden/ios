@@ -26,9 +26,9 @@ enum TitleType: String, Codable, Equatable, Hashable, Menuable {
 
     // MARK: Type Properties
 
-    /// default state title for title type
+    /// The default placeholder shown when no title is selected.
     static var defaultValueLocalizedName: String {
-        "--\(Localizations.select)--"
+        Localizations.none
     }
 
     var localizedName: String {
