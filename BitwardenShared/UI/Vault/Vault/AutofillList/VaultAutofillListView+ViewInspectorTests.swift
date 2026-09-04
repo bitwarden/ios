@@ -5,6 +5,7 @@ import BitwardenResources
 import XCTest
 
 @testable import BitwardenShared
+@testable import BitwardenSharedMocks
 
 class VaultAutofillListViewTests: BitwardenTestCase {
     // MARK: Properties
@@ -73,5 +74,15 @@ class VaultAutofillListViewTests: BitwardenTestCase {
         let button = try subject.inspect().find(asyncButton: Localizations.tryAgain)
         try await button.tap()
         XCTAssertEqual(processor.effects.last, .loadData)
+    }
+
+    /// Tapping a vault item row performs the `.vaultItemTapped` effect.
+    @MainActor
+    func test_vaultItem_tap() async throws {
+        let item = VaultListItem.fixture(cipherListView: .fixture(name: "Item"))
+        processor.state.loadingState = .data([VaultListSection(id: "Items", items: [item], name: Localizations.items)])
+        let button = try subject.inspect().find(asyncButtonWithAccessibilityIdentifier: "VaultListItemRowButton")
+        try await button.tap()
+        XCTAssertEqual(processor.effects.last, .vaultItemTapped(item))
     }
 }

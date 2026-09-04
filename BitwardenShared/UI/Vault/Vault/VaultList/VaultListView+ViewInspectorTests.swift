@@ -333,14 +333,14 @@ class VaultListViewTests: BitwardenTestCase { // swiftlint:disable:this type_bod
         )
     }
 
-    /// Tapping the search result dispatches the `.itemPressed` action.
+    /// Tapping the search result dispatches the `.itemPressed` effect.
     @MainActor
-    func test_searchResult_tap() throws {
+    func test_searchResult_tap() async throws {
         let result = VaultListItem.fixture()
         processor.state.searchResults = [result]
-        let button = try subject.inspect().find(button: "Bitwarden")
-        try button.tap()
-        XCTAssertEqual(processor.dispatchedActions.last, .itemPressed(item: result))
+        let button = try subject.inspect().find(asyncButton: "Bitwarden")
+        try await button.tap()
+        XCTAssertEqual(processor.effects.last, .itemPressed(result))
     }
 
     /// Tapping the go to settings button in the flight recorder toast banner dispatches the
@@ -367,18 +367,14 @@ class VaultListViewTests: BitwardenTestCase { // swiftlint:disable:this type_bod
         XCTAssertEqual(processor.effects, [.tryAgainTapped])
     }
 
-    /// Tapping the vault item dispatches the `.itemPressed` action.
+    /// Tapping the vault item dispatches the `.itemPressed` effect.
     @MainActor
-    func test_vaultItem_tap() throws {
+    func test_vaultItem_tap() async throws {
         let item = VaultListItem(id: "1", itemType: .group(.login, 123))
         processor.state.loadingState = .data([VaultListSection(id: "1", items: [item], name: "Group")])
-        let button = try subject.inspect().find(LoadingViewType.self)
-            .find(ViewType.Button.self) { view in
-                _ = try view.find { try $0.accessibilityIdentifier() == "LoginCell" }
-                return true
-            }
-        try button.tap()
-        XCTAssertEqual(processor.dispatchedActions.last, .itemPressed(item: item))
+        let button = try subject.inspect().find(asyncButtonWithAccessibilityIdentifier: "VaultListItemRowButton")
+        try await button.tap()
+        XCTAssertEqual(processor.effects.last, .itemPressed(item))
     }
 
     /// Tapping the vault item copy totp button dispatches the `.copyTOTPCode` action.

@@ -6,6 +6,7 @@ import BitwardenSdk
 import XCTest
 
 @testable import BitwardenShared
+@testable import BitwardenSharedMocks
 
 class VaultItemSelectionViewTests: BitwardenTestCase {
     // MARK: Properties
@@ -60,5 +61,17 @@ class VaultItemSelectionViewTests: BitwardenTestCase {
         let button = try subject.inspect().find(button: Localizations.addItem)
         try button.tap()
         XCTAssertEqual(processor.dispatchedActions.last, .addTapped)
+    }
+
+    /// Tapping a vault item row performs the `.vaultListItemTapped` effect.
+    @MainActor
+    func test_vaultListItem_tap() async throws {
+        let item = VaultListItem.fixture(cipherListView: .fixture(name: "Item"))
+        processor.state.vaultListSections = [
+            VaultListSection(id: "Items", items: [item], name: Localizations.items),
+        ]
+        let button = try subject.inspect().find(asyncButtonWithAccessibilityIdentifier: "VaultListItemRowButton")
+        try await button.tap()
+        XCTAssertEqual(processor.effects.last, .vaultListItemTapped(item))
     }
 }

@@ -122,12 +122,16 @@ final class VaultGroupProcessor: StateProcessor<// swiftlint:disable:this type_b
 
     override func perform(_ effect: VaultGroupEffect) async {
         switch effect {
+        case let .accessibilityMoreOptionsActionPressed(item, kind):
+            await performMoreOptionsAction(kind, for: item)
         case .appeared:
             await loadFeatureFlags()
             await loadHasPremiumAccount()
             await checkPersonalOwnershipPolicy()
             await loadItemTypesUserCanCreate()
             await streamVaultList()
+        case let .itemPressed(item):
+            handleItemTapped(item)
         case let .morePressed(item):
             await vaultItemMoreOptionsHelper.showMoreOptionsAlert(
                 for: item,
@@ -167,21 +171,6 @@ final class VaultGroupProcessor: StateProcessor<// swiftlint:disable:this type_b
         case let .copyTOTPCode(code):
             services.pasteboardService.copy(code)
             state.toast = Toast(title: Localizations.valueHasBeenCopied(Localizations.verificationCode))
-        case let .itemPressed(item):
-            switch item.itemType {
-            case let .cipher(cipherListView, _):
-                if cipherListView.isDecryptionFailure, let cipherId = cipherListView.id {
-                    coordinator.showAlert(.cipherDecryptionFailure(cipherIds: [cipherId]) { stringToCopy in
-                        self.services.pasteboardService.copy(stringToCopy)
-                    })
-                } else {
-                    navigateToViewItem(cipherListView: cipherListView, id: item.id)
-                }
-            case let .group(group, _):
-                coordinator.navigate(to: .group(group, filter: state.vaultFilterType))
-            case let .totp(_, model):
-                navigateToViewItem(cipherListView: model.cipherListView, id: model.id)
-            }
         case .restartPremiumSubscription:
             state.url = services.environmentService.upgradeToPremiumURL
         case let .searchStateChanged(isSearching):
@@ -241,6 +230,27 @@ final class VaultGroupProcessor: StateProcessor<// swiftlint:disable:this type_b
         }
     }
 
+    /// Handles the user tapping a vault list item to open it.
+    ///
+    /// - Parameter item: The item that was tapped.
+    ///
+    private func handleItemTapped(_ item: VaultListItem) {
+        switch item.itemType {
+        case let .cipher(cipherListView, _):
+            if cipherListView.isDecryptionFailure, let cipherId = cipherListView.id {
+                coordinator.showAlert(.cipherDecryptionFailure(cipherIds: [cipherId]) { stringToCopy in
+                    self.services.pasteboardService.copy(stringToCopy)
+                })
+            } else {
+                navigateToViewItem(cipherListView: cipherListView, id: item.id)
+            }
+        case let .group(group, _):
+            coordinator.navigate(to: .group(group, filter: state.vaultFilterType))
+        case let .totp(_, model):
+            navigateToViewItem(cipherListView: model.cipherListView, id: model.id)
+        }
+    }
+
     /// Navigates to the Premium upgrade flow. Uses the in-app upgrade path when available;
     /// otherwise opens the web vault upgrade URL as a fallback.
     ///
@@ -248,6 +258,29 @@ final class VaultGroupProcessor: StateProcessor<// swiftlint:disable:this type_b
         await premiumUpgradeHelper.navigateToPremiumUpgrade(onConfirmed: { [weak self] in
             await self?.refreshVaultGroup()
         })
+    }
+
+    /// Performs the more-options action identified by `kind` for the given vault item, activated
+    /// via a VoiceOver custom accessibility action.
+    ///
+    /// - Parameters:
+    ///   - kind: The kind of more-options action to perform.
+    ///   - item: The vault list item to perform the action on.
+    ///
+    private func performMoreOptionsAction(_ kind: MoreOptionsActionKind, for item: VaultListItem) async {
+        await vaultItemMoreOptionsHelper.performMoreOptionsAction(
+            kind,
+            for: item,
+            handleDisplayToast: { [weak self] toast in
+                self?.state.toast = toast
+            },
+            handleNavigateToPremiumUpgrade: { [weak self] in
+                await self?.navigateToPremiumUpgrade()
+            },
+            handleOpenURL: { [weak self] url in
+                self?.state.url = url
+            },
+        )
     }
 
     /// Navigates to the view item view for the specified cipher. If the cipher requires master

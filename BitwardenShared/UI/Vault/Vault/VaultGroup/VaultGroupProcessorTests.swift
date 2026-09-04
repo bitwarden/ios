@@ -292,6 +292,28 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
         )
     }
 
+    /// `perform(_:)` with `.accessibilityMoreOptionsActionPressed` has the vault item more options
+    /// helper perform the action directly.
+    @MainActor
+    func test_perform_accessibilityMoreOptionsActionPressed() async throws {
+        let item = VaultListItem.fixture()
+        await subject.perform(.accessibilityMoreOptionsActionPressed(item, .copyUsername))
+
+        XCTAssertTrue(vaultItemMoreOptionsHelper.performActionCalled)
+        XCTAssertEqual(vaultItemMoreOptionsHelper.performActionKind, .copyUsername)
+        XCTAssertEqual(vaultItemMoreOptionsHelper.performActionItem, item)
+        XCTAssertNotNil(vaultItemMoreOptionsHelper.performActionHandleDisplayToast)
+        XCTAssertNotNil(vaultItemMoreOptionsHelper.performActionHandleOpenURL)
+
+        let toast = Toast(title: Localizations.valueHasBeenCopied(Localizations.username))
+        vaultItemMoreOptionsHelper.performActionHandleDisplayToast?(toast)
+        XCTAssertEqual(subject.state.toast, toast)
+
+        let url = URL.example
+        vaultItemMoreOptionsHelper.performActionHandleOpenURL?(url)
+        XCTAssertEqual(subject.state.url, url)
+    }
+
     /// `perform(_:)` with `.morePressed` has the vault item more options helper display the alert.
     @MainActor
     func test_perform_morePressed() async throws {
@@ -871,12 +893,12 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
         )
     }
 
-    /// `receive(_:)` with `.itemPressed` on a cipher navigates to the `.viewItem` route.
+    /// `perform(_:)` with `.itemPressed` on a cipher navigates to the `.viewItem` route.
     @MainActor
-    func test_receive_itemPressed_cipher() async throws {
+    func test_perform_itemPressed_cipher() async throws {
         let cipherListView = CipherListView.fixture(id: "id")
 
-        subject.receive(.itemPressed(.fixture(cipherListView: cipherListView)))
+        await subject.perform(.itemPressed(.fixture(cipherListView: cipherListView)))
         try await waitForAsync { !self.coordinator.routes.isEmpty }
 
         XCTAssertEqual(coordinator.routes.last, .viewItem(id: "id", masterPasswordRepromptCheckCompleted: true))
@@ -884,13 +906,13 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
         XCTAssertEqual(masterPasswordRepromptHelper.repromptForMasterPasswordCipherListView, cipherListView)
     }
 
-    /// `receive(_:)` with `.itemPressed` shows an alert when tapping on a cipher which failed to decrypt.
+    /// `perform(_:)` with `.itemPressed` shows an alert when tapping on a cipher which failed to decrypt.
     @MainActor
-    func test_receive_itemPressed_cipherDecryptionFailure() async throws {
+    func test_perform_itemPressed_cipherDecryptionFailure() async throws {
         let cipherListView = CipherListView.fixture(name: Localizations.errorCannotDecrypt)
         let item = VaultListItem.fixture(cipherListView: cipherListView)
 
-        subject.receive(.itemPressed(item))
+        await subject.perform(.itemPressed(item))
 
         let alert = try XCTUnwrap(coordinator.alertShown.last)
         XCTAssertEqual(alert, .cipherDecryptionFailure(cipherIds: ["1"]) { _ in })
@@ -907,20 +929,20 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
         )
     }
 
-    /// `receive(_:)` with `.itemPressed` on a group navigates to the `.group` route.
+    /// `perform(_:)` with `.itemPressed` on a group navigates to the `.group` route.
     @MainActor
-    func test_receive_itemPressed_group() {
-        subject.receive(.itemPressed(VaultListItem(id: "1", itemType: .group(.card, 2))))
+    func test_perform_itemPressed_group() async {
+        await subject.perform(.itemPressed(VaultListItem(id: "1", itemType: .group(.card, 2))))
         XCTAssertEqual(coordinator.routes.last, .group(.card, filter: .allVaults))
     }
 
-    /// `receive(_:)` with `.itemPressed` navigates to the `.viewItem` route.
+    /// `perform(_:)` with `.itemPressed` navigates to the `.viewItem` route.
     @MainActor
-    func test_receive_itemPressed_totp() async throws {
+    func test_perform_itemPressed_totp() async throws {
         let cipherListView = CipherListView.fixture()
         let totpItem = VaultListItem.fixtureTOTP(totp: .fixture(cipherListView: cipherListView))
 
-        subject.receive(.itemPressed(totpItem))
+        await subject.perform(.itemPressed(totpItem))
         try await waitForAsync { !self.coordinator.routes.isEmpty }
 
         XCTAssertEqual(coordinator.routes.last, .viewItem(id: totpItem.id, masterPasswordRepromptCheckCompleted: true))

@@ -117,6 +117,8 @@ final class VaultListProcessor: StateProcessor<
         switch effect {
         case .appeared:
             await appeared()
+        case let .accessibilityMoreOptionsActionPressed(item, kind):
+            await performMoreOptionsAction(kind, for: item)
         case .checkAppReviewEligibility:
             await checkAppReviewEligibility()
         case .dismissArchiveOnboardingActionCard:
@@ -132,6 +134,8 @@ final class VaultListProcessor: StateProcessor<
         case .dismissUpgradedToPremiumActionCard:
             state.shouldShowUpgradedToPremiumActionCard = false
             await services.billingService.setUpgradedToPremiumActionCardDismissed()
+        case let .itemPressed(item):
+            handleItemTapped(item)
         case let .morePressed(item):
             await morePressed(item: item)
         case let .profileSwitcher(profileEffect):
@@ -173,8 +177,6 @@ final class VaultListProcessor: StateProcessor<
             reviewPromptTask?.cancel()
         case .goToArchive:
             coordinator.navigate(to: .group(.archive, filter: state.vaultFilterType))
-        case let .itemPressed(item):
-            handleItemTapped(item)
         case .learnMoreAboutPremium:
             state.url = ExternalLinksConstants.learnMoreAboutPremium
             state.shouldShowUpgradedToPremiumActionCard = false
@@ -678,6 +680,29 @@ extension VaultListProcessor {
     ///
     private func morePressed(item: VaultListItem) async {
         await vaultItemMoreOptionsHelper.showMoreOptionsAlert(
+            for: item,
+            handleDisplayToast: { [weak self] toast in
+                self?.state.toast = toast
+            },
+            handleNavigateToPremiumUpgrade: { [weak self] in
+                await self?.navigateToPremiumUpgrade()
+            },
+            handleOpenURL: { [weak self] url in
+                self?.state.url = url
+            },
+        )
+    }
+
+    /// Performs the more-options action identified by `kind` for the given vault item, activated
+    /// via a VoiceOver custom accessibility action.
+    ///
+    /// - Parameters:
+    ///   - kind: The kind of more-options action to perform.
+    ///   - item: The vault list item to perform the action on.
+    ///
+    private func performMoreOptionsAction(_ kind: MoreOptionsActionKind, for item: VaultListItem) async {
+        await vaultItemMoreOptionsHelper.performMoreOptionsAction(
+            kind,
             for: item,
             handleDisplayToast: { [weak self] toast in
                 self?.state.toast = toast
