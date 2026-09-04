@@ -29,7 +29,7 @@ struct PasswordText: View {
         .if(spellOutAccessibilityValue && isPasswordVisible) { textView in
             textView.accessibilityValue(password.spellingOutCharacters())
         }
-        .speechSpellsOutCharacters(spellOutAccessibilityValue)
+        .speechSpellsOutCharacters(spellOutAccessibilityValue && isPasswordVisible)
     }
 
     // MARK: Private Properties

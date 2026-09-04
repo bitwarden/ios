@@ -122,9 +122,7 @@ public extension String {
     /// - Returns: A copy of the string with each character separated by a space.
     ///
     func spellingOutCharacters() -> String {
-        map { String($0) }
-            .joined(separator: " ")
-            .replacingOccurrences(of: String.zeroWidthSpace, with: "")
+        map { String($0) }.joined(separator: " ")
     }
 
     /// Validates whether the string is a valid email address.
