@@ -89,6 +89,8 @@ extension BitwardenSdk.Send {
             type: type,
             file: model.file.map(SendFile.init),
             text: model.text.map(SendText.init),
+            // The API response model has no v2 send item payload, which the app doesn't support yet.
+            data: nil,
             maxAccessCount: model.maxAccessCount,
             accessCount: model.accessCount,
             disabled: model.disabled,

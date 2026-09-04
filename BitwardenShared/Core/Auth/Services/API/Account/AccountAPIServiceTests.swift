@@ -384,6 +384,7 @@ class AccountAPIServiceTests: BitwardenTestCase { // swiftlint:disable:this type
             masterPasswordHash: "MASTER_PASSWORD_HASH",
             newMasterPasswordHash: "NEW_MASTER_PASSWORD_HINT",
             unlockData: MasterPasswordUnlockDataRequestModel(
+                containedKeyId: nil,
                 kdf: KdfConfig(),
                 masterKeyWrappedUserKey: "MASTER_KEY_WRAPPED_USER_KEY",
                 salt: "UNLOCK_SALT",
