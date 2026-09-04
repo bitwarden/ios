@@ -44,6 +44,21 @@ class VaultListItemRowViewTests: BitwardenTestCase {
         XCTAssertEqual(processor.effects.last, .morePressed)
     }
 
+    /// Test that the more options button, and with it its VoiceOver accessibility action, isn't
+    /// shown when displayed from an extension.
+    @MainActor
+    func test_moreButton_notShownFromExtension() throws {
+        processor.state = VaultListItemRowState(
+            isFromExtension: true,
+            item: .fixture(),
+            hasDivider: false,
+            showWebIcons: true,
+        )
+        XCTAssertThrowsError(
+            try subject.inspect().find(asyncButtonWithAccessibilityLabel: Localizations.moreOptions),
+        )
+    }
+
     /// Test that tapping the totp copy button dispatches the `.copyTOTPCode` action.
     @MainActor
     func test_totpCopyButton_tap() throws {
