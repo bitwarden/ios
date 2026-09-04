@@ -851,16 +851,17 @@ extension VaultListProcessor: AddEditFolderDelegate {
 // MARK: - CipherItemOperationDelegate
 
 extension VaultListProcessor: CipherItemOperationDelegate {
+    func itemAdded(type: CipherType) -> Bool {
+        state.toast = Toast(title: type.savedToastTitle)
+        return true
+    }
+
     func itemArchived() {
         state.toast = Toast(title: Localizations.itemMovedToArchive)
     }
 
     func itemDeleted() {
         state.toast = Toast(title: Localizations.itemDeleted)
-    }
-
-    func itemSaved(type: CipherType) {
-        state.toast = Toast(title: type.savedToastTitle)
     }
 
     func itemSoftDeleted() {

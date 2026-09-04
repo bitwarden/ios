@@ -767,6 +767,11 @@ private extension ViewItemProcessor {
 // MARK: - CipherItemOperationDelegate
 
 extension ViewItemProcessor: CipherItemOperationDelegate {
+    func itemAdded(type: CipherType) -> Bool {
+        state.toast = Toast(title: type.savedToastTitle)
+        return true
+    }
+
     func itemArchived() {
         coordinator.navigate(to: .dismiss(DismissAction(action: { [delegate] in delegate?.itemArchived() })))
     }
@@ -779,16 +784,17 @@ extension ViewItemProcessor: CipherItemOperationDelegate {
         delegate?.itemRestored()
     }
 
-    func itemSaved(type: CipherType) {
-        state.toast = Toast(title: type.savedToastTitle)
-    }
-
     func itemSoftDeleted() {
         coordinator.navigate(to: .dismiss(DismissAction(action: { [delegate] in delegate?.itemSoftDeleted() })))
     }
 
     func itemUnarchived() {
         coordinator.navigate(to: .dismiss(DismissAction(action: { [delegate] in delegate?.itemUnarchived() })))
+    }
+
+    func itemUpdated(type: CipherType) -> Bool {
+        state.toast = Toast(title: type.savedToastTitle)
+        return true
     }
 }
 

@@ -287,7 +287,7 @@ class VaultItemSelectionProcessor: StateProcessor<
 // MARK: - CipherItemOperationDelegate
 
 extension VaultItemSelectionProcessor: CipherItemOperationDelegate {
-    func itemAdded() -> Bool {
+    func itemAdded(type _: CipherType) -> Bool {
         coordinator.navigate(to: .dismiss())
         // Return false to notify the calling processor that the dismissal occurs here.
         return false
@@ -297,11 +297,17 @@ extension VaultItemSelectionProcessor: CipherItemOperationDelegate {
         coordinator.navigate(to: .dismiss())
     }
 
+    func itemDismissed() -> Bool {
+        coordinator.navigate(to: .dismiss())
+        // Return false to notify the calling processor that the dismissal occurs here.
+        return false
+    }
+
     func itemUnarchived() {
         coordinator.navigate(to: .dismiss())
     }
 
-    func itemUpdated() -> Bool {
+    func itemUpdated(type _: CipherType) -> Bool {
         coordinator.navigate(to: .dismiss())
         // Return false to notify the calling processor that the dismissal occurs here.
         return false

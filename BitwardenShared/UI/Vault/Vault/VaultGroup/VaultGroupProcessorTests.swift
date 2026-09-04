@@ -132,14 +132,25 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
         waitFor(vaultRepository.fetchSyncCalled)
     }
 
-    /// `itemSaved(type:)` delegate method shows the toast for the saved item's type.
+    /// `itemAdded(type:)` delegate method shows the toast for the added item's type.
     @MainActor
-    func test_delegate_itemSaved() {
+    func test_delegate_itemAdded() {
         XCTAssertNil(subject.state.toast)
 
-        subject.itemSaved(type: .driversLicense)
+        let shouldDismiss = subject.itemAdded(type: .driversLicense)
+        XCTAssertTrue(shouldDismiss)
         XCTAssertEqual(subject.state.toast, Toast(title: Localizations.licenseSaved))
         waitFor(vaultRepository.fetchSyncCalled)
+    }
+
+    /// `itemDismissed()` delegate method doesn't show a toast when the editor is dismissed
+    /// without saving.
+    @MainActor
+    func test_delegate_itemDismissed() {
+        let shouldDismiss = subject.itemDismissed()
+
+        XCTAssertTrue(shouldDismiss)
+        XCTAssertNil(subject.state.toast)
     }
 
     /// `itemSoftDeleted()` delegate method shows the expected toast.

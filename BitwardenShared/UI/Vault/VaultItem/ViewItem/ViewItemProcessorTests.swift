@@ -188,12 +188,32 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         XCTAssertTrue(delegate.itemDeletedCalled)
     }
 
-    /// `itemSaved(type:)` shows the toast for the saved item's type.
+    /// `itemAdded(type:)` shows the toast for the added item's type and dismisses the view.
     @MainActor
-    func test_itemSaved() {
+    func test_itemAdded() {
         XCTAssertNil(subject.state.toast)
 
-        subject.itemSaved(type: .driversLicense)
+        let shouldDismiss = subject.itemAdded(type: .driversLicense)
+        XCTAssertTrue(shouldDismiss)
+        XCTAssertEqual(subject.state.toast, Toast(title: Localizations.licenseSaved))
+    }
+
+    /// `itemDismissed()` doesn't show a toast when the editor is dismissed without saving.
+    @MainActor
+    func test_itemDismissed() {
+        let shouldDismiss = subject.itemDismissed()
+
+        XCTAssertTrue(shouldDismiss)
+        XCTAssertNil(subject.state.toast)
+    }
+
+    /// `itemUpdated(type:)` shows the toast for the updated item's type and dismisses the view.
+    @MainActor
+    func test_itemUpdated() {
+        XCTAssertNil(subject.state.toast)
+
+        let shouldDismiss = subject.itemUpdated(type: .driversLicense)
+        XCTAssertTrue(shouldDismiss)
         XCTAssertEqual(subject.state.toast, Toast(title: Localizations.licenseSaved))
     }
 
