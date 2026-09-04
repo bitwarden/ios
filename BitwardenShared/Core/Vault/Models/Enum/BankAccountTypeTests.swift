@@ -1,3 +1,4 @@
+import BitwardenResources
 import Foundation
 import Testing
 
@@ -5,6 +6,13 @@ import Testing
 
 struct BankAccountTypeTests {
     // MARK: Tests
+
+    /// `defaultValueLocalizedName` is the localized `None` placeholder shown when no account
+    /// type is selected.
+    @Test
+    func defaultValueLocalizedName_isNone() {
+        #expect(BankAccountType.defaultValueLocalizedName == Localizations.none)
+    }
 
     /// Raw values match the server contract.
     @Test
