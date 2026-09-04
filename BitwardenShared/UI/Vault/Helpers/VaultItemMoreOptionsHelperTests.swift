@@ -522,6 +522,64 @@ class VaultItemMoreOptionsHelperTests: BitwardenTestCase { // swiftlint:disable:
         XCTAssertEqual(coordinator.routes, [.editItem(cipherView)])
     }
 
+    /// `showMoreOptionsAlert()` and press `edit` passes the helper as the navigation context, so
+    /// that it's notified when the item is saved and can show a confirmation toast.
+    @MainActor
+    func test_showMoreOptionsAlert_edit_showsToastAfterSave() async throws {
+        stateService.activeAccount = .fixture()
+
+        let cipherView = CipherView.fixture(type: .identity)
+        vaultRepository.fetchCipherResult = .success(cipherView)
+        let item = try XCTUnwrap(VaultListItem(cipherListView: .fixture()))
+
+        var displayedToast: Toast?
+        await subject.showMoreOptionsAlert(
+            for: item,
+            handleDisplayToast: { displayedToast = $0 },
+            handleNavigateToPremiumUpgrade: {},
+            handleOpenURL: { _ in },
+        )
+
+        let optionsAlert = try XCTUnwrap(coordinator.alertShown.last)
+        try await optionsAlert.tapAction(title: Localizations.edit)
+
+        // The helper is the delegate, so the add/edit screen can report the save back to it.
+        let delegate = try XCTUnwrap(coordinator.contexts.last as? CipherItemOperationDelegate)
+        XCTAssertIdentical(delegate, subject as AnyObject)
+
+        let shouldDismiss = delegate.itemUpdated(type: .driversLicense)
+
+        XCTAssertTrue(shouldDismiss)
+        XCTAssertEqual(displayedToast, Toast(title: Localizations.licenseSaved))
+    }
+
+    /// `showMoreOptionsAlert()` and press `edit` doesn't show a toast when the edit screen is
+    /// dismissed without saving.
+    @MainActor
+    func test_showMoreOptionsAlert_edit_noToastWhenDismissed() async throws {
+        stateService.activeAccount = .fixture()
+
+        vaultRepository.fetchCipherResult = .success(.fixture(type: .identity))
+        let item = try XCTUnwrap(VaultListItem(cipherListView: .fixture()))
+
+        var displayedToast: Toast?
+        await subject.showMoreOptionsAlert(
+            for: item,
+            handleDisplayToast: { displayedToast = $0 },
+            handleNavigateToPremiumUpgrade: {},
+            handleOpenURL: { _ in },
+        )
+
+        let optionsAlert = try XCTUnwrap(coordinator.alertShown.last)
+        try await optionsAlert.tapAction(title: Localizations.edit)
+
+        let delegate = try XCTUnwrap(coordinator.contexts.last as? CipherItemOperationDelegate)
+        let shouldDismiss = delegate.itemDismissed()
+
+        XCTAssertTrue(shouldDismiss)
+        XCTAssertNil(displayedToast)
+    }
+
     /// `showMoreOptionsAlert()` shows the appropriate more options alert for an identity cipher.
     @MainActor
     func test_showMoreOptionsAlert_identity() async throws {
