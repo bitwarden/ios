@@ -12,10 +12,11 @@ import UIKit
 protocol CipherItemOperationDelegate: AnyObject {
     /// Called when a new cipher item has been successfully added.
     ///
+    /// - Parameter type: The type of the cipher item that was added.
     /// - Returns: A boolean indicating whether the view should be dismissed. Defaults to `true`.
     ///     If `false` is returned the delegate is responsible for dismissing the view.
     ///
-    func itemAdded() -> Bool
+    func itemAdded(type: CipherType) -> Bool
 
     /// Called when the cipher item has been successfully archived.
     func itemArchived()
@@ -23,14 +24,15 @@ protocol CipherItemOperationDelegate: AnyObject {
     /// Called when the cipher item has been successfully permanently deleted.
     func itemDeleted()
 
+    /// Called when the add/edit item view is being dismissed without the item having been saved.
+    ///
+    /// - Returns: A boolean indicating whether the view should be dismissed. Defaults to `true`.
+    ///     If `false` is returned the delegate is responsible for dismissing the view.
+    ///
+    func itemDismissed() -> Bool
+
     /// Called when the cipher item has been successfully restored.
     func itemRestored()
-
-    /// Called when the cipher item has been successfully saved, whether it was added or updated.
-    ///
-    /// - Parameter type: The type of the cipher item that was saved.
-    ///
-    func itemSaved(type: CipherType)
 
     /// Called when the cipher item has been successfully soft deleted.
     func itemSoftDeleted()
@@ -40,28 +42,29 @@ protocol CipherItemOperationDelegate: AnyObject {
 
     /// Called when a cipher item has been successfully updated.
     ///
+    /// - Parameter type: The type of the cipher item that was updated.
     /// - Returns: A boolean indicating whether the view should be dismissed. Defaults to `true`.
     ///     If `false` is returned the delegate is responsible for dismissing the view.
     ///
-    func itemUpdated() -> Bool
+    func itemUpdated(type: CipherType) -> Bool
 }
 
 extension CipherItemOperationDelegate {
-    func itemAdded() -> Bool { true }
+    func itemAdded(type _: CipherType) -> Bool { true }
 
     func itemArchived() {}
 
     func itemDeleted() {}
 
-    func itemRestored() {}
+    func itemDismissed() -> Bool { true }
 
-    func itemSaved(type _: CipherType) {}
+    func itemRestored() {}
 
     func itemSoftDeleted() {}
 
     func itemUnarchived() {}
 
-    func itemUpdated() -> Bool { true }
+    func itemUpdated(type _: CipherType) -> Bool { true }
 }
 
 // MARK: - AddEditItemProcessor
@@ -381,7 +384,11 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
             return
         }
 
-        let shouldDismiss = delegate?.itemAdded() ?? true
+        let shouldDismiss = if didAddItem {
+            delegate?.itemAdded(type: state.type) ?? true
+        } else {
+            delegate?.itemDismissed() ?? true
+        }
         if shouldDismiss {
             coordinator.navigate(to: .dismiss())
         }
@@ -925,7 +932,6 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
         try await services.vaultRepository.addCipher(state.cipher)
         coordinator.hideLoadingOverlay()
 
-        delegate?.itemSaved(type: state.type)
         handleDismiss(didAddItem: true)
         await services.reviewPromptService.trackUserAction(.addedNewItem)
     }
@@ -1090,8 +1096,7 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
     private func updateItem(cipherView: CipherView) async throws {
         try await services.vaultRepository.updateCipher(cipherView.updatedView(with: state))
         coordinator.hideLoadingOverlay()
-        delegate?.itemSaved(type: state.type)
-        let shouldDismissed = delegate?.itemUpdated() ?? true
+        let shouldDismissed = delegate?.itemUpdated(type: state.type) ?? true
         if shouldDismissed {
             coordinator.navigate(to: .dismiss())
         }
