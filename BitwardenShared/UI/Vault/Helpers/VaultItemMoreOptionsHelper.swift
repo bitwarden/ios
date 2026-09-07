@@ -13,12 +13,15 @@ protocol VaultItemMoreOptionsHelper {
     ///
     /// - Parameters
     ///   - item: The selected item to show the options for.
+    ///   - delegate: The delegate notified of operations performed on the item from within the
+    ///     add/edit item view, used when the edit option is selected.
     ///   - handleDisplayToast: A closure called to handle displaying a toast.
     ///   - handleNavigateToPremiumUpgrade: A closure called to navigate to the Premium upgrade flow.
     ///   - handleOpenURL: A closure called to open a URL.
     ///
     func showMoreOptionsAlert(
         for item: VaultListItem,
+        delegate: CipherItemOperationDelegate?,
         handleDisplayToast: @escaping (Toast) -> Void,
         handleNavigateToPremiumUpgrade: @escaping () async -> Void,
         handleOpenURL: @escaping (URL) -> Void,
@@ -52,10 +55,6 @@ class DefaultVaultItemMoreOptionsHelper: VaultItemMoreOptionsHelper {
     /// The services used by this helper.
     private var services: Services
 
-    /// The closure used to display a toast, stored when navigating to the edit item screen so
-    /// that a confirmation toast can be displayed once the item has been saved.
-    private var handleDisplayToastAfterEdit: ((Toast) -> Void)?
-
     // MARK: Initialization
 
     /// Initialize a `VaultItemMoreOptionsHelper`.
@@ -79,6 +78,7 @@ class DefaultVaultItemMoreOptionsHelper: VaultItemMoreOptionsHelper {
 
     func showMoreOptionsAlert(
         for item: VaultListItem,
+        delegate: CipherItemOperationDelegate?,
         handleDisplayToast: @escaping (Toast) -> Void,
         handleNavigateToPremiumUpgrade: @escaping () async -> Void,
         handleOpenURL: @escaping (URL) -> Void,
@@ -107,6 +107,7 @@ class DefaultVaultItemMoreOptionsHelper: VaultItemMoreOptionsHelper {
                 await self.handleMoreOptionsAction(
                     action,
                     cipherView: cipherView,
+                    delegate: delegate,
                     handleDisplayToast: handleDisplayToast,
                     handleNavigateToPremiumUpgrade: handleNavigateToPremiumUpgrade,
                     handleOpenURL: handleOpenURL,
@@ -186,12 +187,15 @@ class DefaultVaultItemMoreOptionsHelper: VaultItemMoreOptionsHelper {
     /// - Parameters:
     ///   - action: The selected action.
     ///   - cipherView: The cipher to act upon.
+    ///   - delegate: The delegate notified of operations performed on the item from within the
+    ///     add/edit item view, used when the edit option is selected.
     ///   - handleDisplayToast: A closure to display a toast.
     ///   - handleOpenURL: A closure to open an URL.
     ///   - hasPremium: Whether the user has Premium account.
     private func handleMoreOptionsAction( // swiftlint:disable:this function_body_length function_parameter_count
         _ action: MoreOptionsAction,
         cipherView: CipherView,
+        delegate: CipherItemOperationDelegate?,
         handleDisplayToast: @escaping (Toast) -> Void,
         handleNavigateToPremiumUpgrade: @escaping () async -> Void,
         handleOpenURL: @escaping (URL) -> Void,
@@ -231,8 +235,7 @@ class DefaultVaultItemMoreOptionsHelper: VaultItemMoreOptionsHelper {
             }
         case let .edit(cipherView):
             await masterPasswordRepromptHelper.repromptForMasterPasswordIfNeeded(cipherView: cipherView) {
-                self.handleDisplayToastAfterEdit = handleDisplayToast
-                self.coordinator.navigate(to: .editItem(cipherView), context: self)
+                self.coordinator.navigate(to: .editItem(cipherView), context: delegate)
             }
         case let .launch(url):
             handleOpenURL(url.sanitized)
@@ -275,20 +278,5 @@ class DefaultVaultItemMoreOptionsHelper: VaultItemMoreOptionsHelper {
             await coordinator.showErrorAlert(error: error)
             services.errorReporter.log(error: error)
         }
-    }
-}
-
-// MARK: - CipherItemOperationDelegate
-
-extension DefaultVaultItemMoreOptionsHelper: CipherItemOperationDelegate {
-    func itemDismissed() -> Bool {
-        handleDisplayToastAfterEdit = nil
-        return true
-    }
-
-    func itemUpdated(type: CipherType) -> Bool {
-        handleDisplayToastAfterEdit?(Toast(title: type.savedToastTitle))
-        handleDisplayToastAfterEdit = nil
-        return true
     }
 }

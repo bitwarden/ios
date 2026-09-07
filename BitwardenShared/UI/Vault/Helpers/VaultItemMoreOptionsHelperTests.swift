@@ -86,6 +86,7 @@ class VaultItemMoreOptionsHelperTests: BitwardenTestCase { // swiftlint:disable:
         var toastToDisplay: Toast?
         await subject.showMoreOptionsAlert(
             for: item,
+            delegate: nil,
             handleDisplayToast: { toastToDisplay = $0 },
             handleNavigateToPremiumUpgrade: {},
             handleOpenURL: { _ in },
@@ -122,6 +123,7 @@ class VaultItemMoreOptionsHelperTests: BitwardenTestCase { // swiftlint:disable:
         var toastToDisplay: Toast?
         await subject.showMoreOptionsAlert(
             for: item,
+            delegate: nil,
             handleDisplayToast: { toastToDisplay = $0 },
             handleNavigateToPremiumUpgrade: {},
             handleOpenURL: { _ in },
@@ -155,6 +157,7 @@ class VaultItemMoreOptionsHelperTests: BitwardenTestCase { // swiftlint:disable:
         var toastToDisplay: Toast?
         await subject.showMoreOptionsAlert(
             for: item,
+            delegate: nil,
             handleDisplayToast: { toastToDisplay = $0 },
             handleNavigateToPremiumUpgrade: {},
             handleOpenURL: { _ in },
@@ -204,6 +207,7 @@ class VaultItemMoreOptionsHelperTests: BitwardenTestCase { // swiftlint:disable:
         var navigatedToPremiumUpgrade = false
         await subject.showMoreOptionsAlert(
             for: item,
+            delegate: nil,
             handleDisplayToast: { toastToDisplay = $0 },
             handleNavigateToPremiumUpgrade: { navigatedToPremiumUpgrade = true },
             handleOpenURL: { _ in },
@@ -228,48 +232,54 @@ class VaultItemMoreOptionsHelperTests: BitwardenTestCase { // swiftlint:disable:
         XCTAssertTrue(navigatedToPremiumUpgrade)
     }
 
-    /// `showMoreOptionsAlert()` shows the appropriate more options alert for a card cipher.
+    /// `showMoreOptionsAlert()` shows only the view, edit and archive options for a card cipher
+    /// with no number or security code.
     @MainActor
     func test_showMoreOptionsAlert_card() async throws {
-        let account = Account.fixture()
-        stateService.activeAccount = account
+        stateService.activeAccount = .fixture()
 
-        var item = try XCTUnwrap(VaultListItem(cipherListView: .fixture(type: .card(.init(brand: nil)))))
-
-        // If the card item has no number or code, only the view and add buttons should display.
+        let item = try XCTUnwrap(VaultListItem(cipherListView: .fixture(type: .card(.init(brand: nil)))))
         vaultRepository.fetchCipherResult = .success(.cardFixture())
 
         await subject.showMoreOptionsAlert(
             for: item,
+            delegate: nil,
             handleDisplayToast: { _ in },
             handleNavigateToPremiumUpgrade: {},
             handleOpenURL: { _ in },
         )
 
-        var alert = try XCTUnwrap(coordinator.alertShown.last)
+        let alert = try XCTUnwrap(coordinator.alertShown.last)
         XCTAssertEqual(alert.title, "Bitwarden")
         XCTAssertEqual(alert.alertActions.count, 4)
         XCTAssertEqual(alert.alertActions[0].title, Localizations.view)
         XCTAssertEqual(alert.alertActions[1].title, Localizations.edit)
         XCTAssertEqual(alert.alertActions[2].title, Localizations.archive)
         XCTAssertEqual(alert.alertActions[3].title, Localizations.cancel)
+    }
 
-        // A card with data should show the copy actions.
+    /// `showMoreOptionsAlert()` shows the copy options for a card cipher with a number and
+    /// security code, and each option performs the expected operation.
+    @MainActor
+    func test_showMoreOptionsAlert_card_withData() async throws {
+        stateService.activeAccount = .fixture()
+
         let cardWithData = CipherView.cardFixture(card: .fixture(
             code: "123",
             number: "123456789",
         ))
         vaultRepository.fetchCipherResult = .success(cardWithData)
-        item = try XCTUnwrap(VaultListItem(cipherListView: .fixture()))
+        let item = try XCTUnwrap(VaultListItem(cipherListView: .fixture()))
 
         await subject.showMoreOptionsAlert(
             for: item,
+            delegate: nil,
             handleDisplayToast: { _ in },
             handleNavigateToPremiumUpgrade: {},
             handleOpenURL: { _ in },
         )
 
-        alert = try XCTUnwrap(coordinator.alertShown.last)
+        let alert = try XCTUnwrap(coordinator.alertShown.last)
         XCTAssertEqual(alert.title, "Bitwarden")
         XCTAssertEqual(alert.alertActions.count, 6)
         XCTAssertEqual(alert.alertActions[0].title, Localizations.view)
@@ -278,8 +288,6 @@ class VaultItemMoreOptionsHelperTests: BitwardenTestCase { // swiftlint:disable:
         XCTAssertEqual(alert.alertActions[3].title, Localizations.copySecurityCode)
         XCTAssertEqual(alert.alertActions[4].title, Localizations.archive)
         XCTAssertEqual(alert.alertActions[5].title, Localizations.cancel)
-
-        // Test the functionality of the buttons.
 
         // View navigates to the view item view.
         let viewAction = try XCTUnwrap(alert.alertActions[0])
@@ -323,6 +331,7 @@ class VaultItemMoreOptionsHelperTests: BitwardenTestCase { // swiftlint:disable:
 
         await subject.showMoreOptionsAlert(
             for: item,
+            delegate: nil,
             handleDisplayToast: { _ in },
             handleNavigateToPremiumUpgrade: {},
             handleOpenURL: { _ in },
@@ -379,6 +388,7 @@ class VaultItemMoreOptionsHelperTests: BitwardenTestCase { // swiftlint:disable:
         var toastToDisplay: Toast?
         await subject.showMoreOptionsAlert(
             for: item,
+            delegate: nil,
             handleDisplayToast: { toastToDisplay = $0 },
             handleNavigateToPremiumUpgrade: {},
             handleOpenURL: { _ in },
@@ -424,6 +434,7 @@ class VaultItemMoreOptionsHelperTests: BitwardenTestCase { // swiftlint:disable:
         var toastToDisplay: Toast?
         await subject.showMoreOptionsAlert(
             for: item,
+            delegate: nil,
             handleDisplayToast: { toastToDisplay = $0 },
             handleNavigateToPremiumUpgrade: {},
             handleOpenURL: { _ in },
@@ -454,6 +465,7 @@ class VaultItemMoreOptionsHelperTests: BitwardenTestCase { // swiftlint:disable:
 
         await subject.showMoreOptionsAlert(
             for: item,
+            delegate: nil,
             handleDisplayToast: { _ in },
             handleNavigateToPremiumUpgrade: {},
             handleOpenURL: { _ in },
@@ -478,6 +490,7 @@ class VaultItemMoreOptionsHelperTests: BitwardenTestCase { // swiftlint:disable:
 
         await subject.showMoreOptionsAlert(
             for: item,
+            delegate: nil,
             handleDisplayToast: { _ in },
             handleNavigateToPremiumUpgrade: {},
             handleOpenURL: { _ in },
@@ -503,6 +516,7 @@ class VaultItemMoreOptionsHelperTests: BitwardenTestCase { // swiftlint:disable:
 
         await subject.showMoreOptionsAlert(
             for: item,
+            delegate: nil,
             handleDisplayToast: { _ in },
             handleNavigateToPremiumUpgrade: {},
             handleOpenURL: { _ in },
@@ -522,20 +536,21 @@ class VaultItemMoreOptionsHelperTests: BitwardenTestCase { // swiftlint:disable:
         XCTAssertEqual(coordinator.routes, [.editItem(cipherView)])
     }
 
-    /// `showMoreOptionsAlert()` and press `edit` passes the helper as the navigation context, so
-    /// that it's notified when the item is saved and can show a confirmation toast.
+    /// `showMoreOptionsAlert()` and press `edit` passes the delegate it was given as the
+    /// navigation context, so that the caller is notified when the item is saved.
     @MainActor
-    func test_showMoreOptionsAlert_edit_showsToastAfterSave() async throws {
+    func test_showMoreOptionsAlert_edit_passesDelegateAsContext() async throws {
         stateService.activeAccount = .fixture()
 
         let cipherView = CipherView.fixture(type: .identity)
         vaultRepository.fetchCipherResult = .success(cipherView)
         let item = try XCTUnwrap(VaultListItem(cipherListView: .fixture()))
 
-        var displayedToast: Toast?
+        let delegate = MockCipherItemOperationDelegate()
         await subject.showMoreOptionsAlert(
             for: item,
-            handleDisplayToast: { displayedToast = $0 },
+            delegate: delegate,
+            handleDisplayToast: { _ in },
             handleNavigateToPremiumUpgrade: {},
             handleOpenURL: { _ in },
         )
@@ -543,28 +558,24 @@ class VaultItemMoreOptionsHelperTests: BitwardenTestCase { // swiftlint:disable:
         let optionsAlert = try XCTUnwrap(coordinator.alertShown.last)
         try await optionsAlert.tapAction(title: Localizations.edit)
 
-        // The helper is the delegate, so the add/edit screen can report the save back to it.
-        let delegate = try XCTUnwrap(coordinator.contexts.last as? CipherItemOperationDelegate)
-        XCTAssertIdentical(delegate, subject as AnyObject)
-
-        let shouldDismiss = delegate.itemUpdated(type: .driversLicense)
-
-        XCTAssertTrue(shouldDismiss)
-        XCTAssertEqual(displayedToast, Toast(title: Localizations.licenseSaved))
+        XCTAssertEqual(coordinator.routes.last, .editItem(cipherView))
+        XCTAssertIdentical(coordinator.contexts.last as AnyObject, delegate)
     }
 
-    /// `showMoreOptionsAlert()` and press `edit` doesn't show a toast when the edit screen is
-    /// dismissed without saving.
+    /// `showMoreOptionsAlert()` and press `edit` routes the saved confirmation through the
+    /// caller's delegate rather than a toast closure held by the helper.
     @MainActor
-    func test_showMoreOptionsAlert_edit_noToastWhenDismissed() async throws {
+    func test_showMoreOptionsAlert_edit_savedToastComesFromDelegate() async throws {
         stateService.activeAccount = .fixture()
 
         vaultRepository.fetchCipherResult = .success(.fixture(type: .identity))
         let item = try XCTUnwrap(VaultListItem(cipherListView: .fixture()))
 
         var displayedToast: Toast?
+        let delegate = MockCipherItemOperationDelegate()
         await subject.showMoreOptionsAlert(
             for: item,
+            delegate: delegate,
             handleDisplayToast: { displayedToast = $0 },
             handleNavigateToPremiumUpgrade: {},
             handleOpenURL: { _ in },
@@ -573,11 +584,13 @@ class VaultItemMoreOptionsHelperTests: BitwardenTestCase { // swiftlint:disable:
         let optionsAlert = try XCTUnwrap(coordinator.alertShown.last)
         try await optionsAlert.tapAction(title: Localizations.edit)
 
-        let delegate = try XCTUnwrap(coordinator.contexts.last as? CipherItemOperationDelegate)
-        let shouldDismiss = delegate.itemDismissed()
+        let context = try XCTUnwrap(coordinator.contexts.last as? CipherItemOperationDelegate)
+        XCTAssertTrue(context.itemUpdated(type: .driversLicense))
 
-        XCTAssertTrue(shouldDismiss)
+        // The helper doesn't display the toast itself, the delegate is left to do it.
         XCTAssertNil(displayedToast)
+        XCTAssertTrue(delegate.itemUpdatedCalled)
+        XCTAssertEqual(delegate.itemUpdatedType, .driversLicense)
     }
 
     /// `showMoreOptionsAlert()` shows the appropriate more options alert for an identity cipher.
@@ -594,6 +607,7 @@ class VaultItemMoreOptionsHelperTests: BitwardenTestCase { // swiftlint:disable:
 
         await subject.showMoreOptionsAlert(
             for: item,
+            delegate: nil,
             handleDisplayToast: { _ in },
             handleNavigateToPremiumUpgrade: {},
             handleOpenURL: { _ in },
@@ -632,6 +646,7 @@ class VaultItemMoreOptionsHelperTests: BitwardenTestCase { // swiftlint:disable:
 
         await subject.showMoreOptionsAlert(
             for: item,
+            delegate: nil,
             handleDisplayToast: { _ in },
             handleNavigateToPremiumUpgrade: {},
             handleOpenURL: { _ in },
@@ -658,6 +673,7 @@ class VaultItemMoreOptionsHelperTests: BitwardenTestCase { // swiftlint:disable:
 
         await subject.showMoreOptionsAlert(
             for: item,
+            delegate: nil,
             handleDisplayToast: { _ in },
             handleNavigateToPremiumUpgrade: {},
             handleOpenURL: { _ in },
@@ -698,6 +714,7 @@ class VaultItemMoreOptionsHelperTests: BitwardenTestCase { // swiftlint:disable:
         var urlToOpen: URL?
         await subject.showMoreOptionsAlert(
             for: item,
+            delegate: nil,
             handleDisplayToast: { _ in },
             handleNavigateToPremiumUpgrade: {},
             handleOpenURL: { urlToOpen = $0 },
@@ -762,6 +779,7 @@ class VaultItemMoreOptionsHelperTests: BitwardenTestCase { // swiftlint:disable:
 
         await subject.showMoreOptionsAlert(
             for: item,
+            delegate: nil,
             handleDisplayToast: { _ in },
             handleNavigateToPremiumUpgrade: {},
             handleOpenURL: { _ in },
@@ -795,6 +813,7 @@ class VaultItemMoreOptionsHelperTests: BitwardenTestCase { // swiftlint:disable:
 
         await subject.showMoreOptionsAlert(
             for: item,
+            delegate: nil,
             handleDisplayToast: { _ in },
             handleNavigateToPremiumUpgrade: {},
             handleOpenURL: { _ in },
@@ -815,6 +834,7 @@ class VaultItemMoreOptionsHelperTests: BitwardenTestCase { // swiftlint:disable:
 
         await subject.showMoreOptionsAlert(
             for: item,
+            delegate: nil,
             handleDisplayToast: { _ in },
             handleNavigateToPremiumUpgrade: {},
             handleOpenURL: { _ in },
@@ -855,6 +875,7 @@ class VaultItemMoreOptionsHelperTests: BitwardenTestCase { // swiftlint:disable:
 
         await subject.showMoreOptionsAlert(
             for: item,
+            delegate: nil,
             handleDisplayToast: { _ in },
             handleNavigateToPremiumUpgrade: {},
             handleOpenURL: { _ in },
@@ -871,6 +892,7 @@ class VaultItemMoreOptionsHelperTests: BitwardenTestCase { // swiftlint:disable:
 
         await subject.showMoreOptionsAlert(
             for: item,
+            delegate: nil,
             handleDisplayToast: { _ in },
             handleNavigateToPremiumUpgrade: {},
             handleOpenURL: { _ in },
@@ -895,6 +917,7 @@ class VaultItemMoreOptionsHelperTests: BitwardenTestCase { // swiftlint:disable:
         var toastToDisplay: Toast?
         await subject.showMoreOptionsAlert(
             for: item,
+            delegate: nil,
             handleDisplayToast: { toastToDisplay = $0 },
             handleNavigateToPremiumUpgrade: {},
             handleOpenURL: { _ in },
@@ -928,6 +951,7 @@ class VaultItemMoreOptionsHelperTests: BitwardenTestCase { // swiftlint:disable:
         var toastToDisplay: Toast?
         await subject.showMoreOptionsAlert(
             for: item,
+            delegate: nil,
             handleDisplayToast: { toastToDisplay = $0 },
             handleNavigateToPremiumUpgrade: {},
             handleOpenURL: { _ in },
@@ -959,17 +983,20 @@ class VaultItemMoreOptionsHelperTests: BitwardenTestCase { // swiftlint:disable:
 
 class MockVaultItemMoreOptionsHelper: VaultItemMoreOptionsHelper {
     var showMoreOptionsAlertCalled = false
+    var showMoreOptionsAlertDelegate: CipherItemOperationDelegate?
     var showMoreOptionsAlertHandleDisplayToast: ((Toast) -> Void)?
     var showMoreOptionsAlertHandlePremiumUpgrade: (() async -> Void)?
     var showMoreOptionsAlertHandleOpenURL: ((URL) -> Void)?
 
     func showMoreOptionsAlert(
         for item: VaultListItem,
+        delegate: CipherItemOperationDelegate?,
         handleDisplayToast: @escaping (Toast) -> Void,
         handleNavigateToPremiumUpgrade: @escaping () async -> Void,
         handleOpenURL: @escaping (URL) -> Void,
     ) async {
         showMoreOptionsAlertCalled = true
+        showMoreOptionsAlertDelegate = delegate
         showMoreOptionsAlertHandleDisplayToast = handleDisplayToast
         showMoreOptionsAlertHandlePremiumUpgrade = handleNavigateToPremiumUpgrade
         showMoreOptionsAlertHandleOpenURL = handleOpenURL

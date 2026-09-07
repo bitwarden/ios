@@ -50,6 +50,14 @@ class VaultItemSelectionProcessor: StateProcessor<
     /// The helper to handle the more options menu for a vault item.
     private let vaultItemMoreOptionsHelper: VaultItemMoreOptionsHelper
 
+    /// The delegate used when editing an item from the more options menu. This screen's own
+    /// delegate conformance dismisses on save, which is correct for the OTP key flow but not for
+    /// a plain edit, which should stay put and show a confirmation toast. Retained here because
+    /// `AddEditItemProcessor` holds its delegate weakly.
+    private lazy var moreOptionsEditDelegate = CipherSavedToastDelegate { [weak self] toast in
+        self?.state.toast = toast
+    }
+
     // MARK: Initialization
 
     /// Initialize a `VaultItemSelectionProcessor`.
@@ -87,6 +95,7 @@ class VaultItemSelectionProcessor: StateProcessor<
         case let .morePressed(item):
             await vaultItemMoreOptionsHelper.showMoreOptionsAlert(
                 for: item,
+                delegate: moreOptionsEditDelegate,
                 handleDisplayToast: { [weak self] toast in
                     self?.state.toast = toast
                 },

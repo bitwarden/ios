@@ -131,6 +131,7 @@ final class VaultGroupProcessor: StateProcessor<// swiftlint:disable:this type_b
         case let .morePressed(item):
             await vaultItemMoreOptionsHelper.showMoreOptionsAlert(
                 for: item,
+                delegate: self,
                 handleDisplayToast: { [weak self] toast in
                     self?.state.toast = toast
                 },
@@ -399,6 +400,11 @@ extension VaultGroupProcessor: CipherItemOperationDelegate {
 
     func itemUnarchived() {
         displayToastAndRefresh(toastTitle: Localizations.itemMovedToVault)
+    }
+
+    func itemUpdated(type: CipherType) -> Bool {
+        displayToastAndRefresh(toastTitle: type.savedToastTitle)
+        return true
     }
 
     // MARK: Private methods

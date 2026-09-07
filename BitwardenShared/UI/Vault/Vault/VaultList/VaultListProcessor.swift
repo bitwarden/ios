@@ -679,6 +679,7 @@ extension VaultListProcessor {
     private func morePressed(item: VaultListItem) async {
         await vaultItemMoreOptionsHelper.showMoreOptionsAlert(
             for: item,
+            delegate: self,
             handleDisplayToast: { [weak self] toast in
                 self?.state.toast = toast
             },
@@ -874,6 +875,11 @@ extension VaultListProcessor: CipherItemOperationDelegate {
 
     func itemUnarchived() {
         state.toast = Toast(title: Localizations.itemMovedToVault)
+    }
+
+    func itemUpdated(type: CipherType) -> Bool {
+        state.toast = Toast(title: type.savedToastTitle)
+        return true
     }
 }
 
