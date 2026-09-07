@@ -32,6 +32,7 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
     var searchProcessorMediatorFactory: MockSearchProcessorMediatorFactory!
     var stateService: MockStateService!
     var subject: VaultGroupProcessor!
+    var syncService: MockSyncService!
     var timeProvider: MockTimeProvider!
     var vaultItemMoreOptionsHelper: MockVaultItemMoreOptionsHelper!
     var vaultRepository: MockVaultRepository!
@@ -58,6 +59,7 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
 
         premiumUpgradeHelper = MockPremiumUpgradeHelper()
         stateService = MockStateService()
+        syncService = MockSyncService()
         timeProvider = MockTimeProvider(.mockTime(fixedDate))
         vaultItemMoreOptionsHelper = MockVaultItemMoreOptionsHelper()
         vaultRepository = MockVaultRepository()
@@ -76,6 +78,7 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
                 policyService: policyService,
                 searchProcessorMediatorFactory: searchProcessorMediatorFactory,
                 stateService: stateService,
+                syncService: syncService,
                 timeProvider: timeProvider,
                 vaultRepository: vaultRepository,
             ),
@@ -105,6 +108,7 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
         searchProcessorMediatorFactory = nil
         stateService = nil
         subject = nil
+        syncService = nil
         timeProvider = nil
         vaultItemMoreOptionsHelper = nil
         vaultRepository = nil
@@ -251,6 +255,54 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
 
         waitFor(subject.state.itemTypesUserCanCreate == [.card])
         task.cancel()
+    }
+
+    /// The processor reloads the item types the user can create whenever a sync completes, so
+    /// feature-flag or policy changes picked up by the sync are reflected without needing the
+    /// screen to reappear.
+    @MainActor
+    func test_streamSyncComplete_reloadsItemTypesUserCanCreate() {
+        vaultRepository.getItemTypesUserCanCreateResult = [.card]
+
+        syncService.syncCompleteSubject.send(())
+
+        waitFor(subject.state.itemTypesUserCanCreate == [.card])
+        XCTAssertEqual(subject.state.itemTypesUserCanCreate, [.card])
+    }
+
+    /// Loading the item types the user can create discards a stale result from an older,
+    /// slower-resolving call when a newer, overlapping call has already updated the state.
+    @MainActor
+    func test_loadItemTypesUserCanCreate_discardsStaleResults_fromOverlappingCalls() {
+        // Let the automatic reload triggered when the processor subscribes to the sync-complete
+        // stream at init (which replays its current value immediately) finish first, so it
+        // doesn't interfere with the overlapping calls being set up below.
+        waitFor(subject.state.itemTypesUserCanCreate == CipherType.canCreateCases)
+
+        vaultRepository.getItemTypesUserCanCreateGated = true
+
+        let firstTask = Task { await subject.perform(.appeared) }
+        defer { firstTask.cancel() }
+        waitFor(vaultRepository.getItemTypesUserCanCreateContinuations.count == 1)
+
+        let secondTask = Task { await subject.perform(.appeared) }
+        defer { secondTask.cancel() }
+        waitFor(vaultRepository.getItemTypesUserCanCreateContinuations.count == 2)
+
+        // The newer, second call resolves first.
+        vaultRepository.getItemTypesUserCanCreateContinuations[1].resume(returning: [.card])
+        waitFor(subject.state.itemTypesUserCanCreate == [.card])
+
+        // The older, first call resolving afterwards must not overwrite the newer result.
+        vaultRepository.getItemTypesUserCanCreateContinuations[0].resume(returning: [.login])
+
+        // Give the stale result a chance to (wrongly) apply, then confirm it didn't.
+        let deadline = Date(timeIntervalSinceNow: 0.25)
+        while Date() < deadline {
+            RunLoop.current.run(mode: .default, before: Date(timeIntervalSinceNow: 0.05))
+        }
+
+        XCTAssertEqual(subject.state.itemTypesUserCanCreate, [.card])
     }
 
     /// `perform(_:)` with `appeared` determines whether the vault filter can be shown based on

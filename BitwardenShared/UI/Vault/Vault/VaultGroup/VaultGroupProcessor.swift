@@ -25,6 +25,7 @@ final class VaultGroupProcessor: StateProcessor<// swiftlint:disable:this type_b
         & HasPolicyService
         & HasSearchProcessorMediatorFactory
         & HasStateService
+        & HasSyncService
         & HasTimeProvider
         & HasVaultRepository
 
@@ -34,6 +35,10 @@ final class VaultGroupProcessor: StateProcessor<// swiftlint:disable:this type_b
 
     /// The `Coordinator` for this processor.
     private var coordinator: any Coordinator<VaultRoute, AuthAction>
+
+    /// A monotonically increasing token used to discard stale results from overlapping
+    /// `loadItemTypesUserCanCreate()` calls.
+    private var itemTypesLoadGeneration = 0
 
     /// The helper to handle master password reprompts.
     private let masterPasswordRepromptHelper: MasterPasswordRepromptHelper
@@ -59,6 +64,9 @@ final class VaultGroupProcessor: StateProcessor<// swiftlint:disable:this type_b
 
     /// An object to manage TOTP code expirations and batch refresh calls for search results.
     private var searchTotpExpirationManager: TOTPExpirationManager?
+
+    /// A task to handle the sync-complete stream.
+    private var syncCompleteStreamTask: Task<Void, Never>?
 
     /// The helper to handle the more options menu for a vault item.
     private let vaultItemMoreOptionsHelper: VaultItemMoreOptionsHelper
@@ -111,11 +119,15 @@ final class VaultGroupProcessor: StateProcessor<// swiftlint:disable:this type_b
                 }
             },
         )
+
+        streamSyncComplete()
     }
 
     deinit {
         groupTotpExpirationManager?.cleanup()
         groupTotpExpirationManager = nil
+        syncCompleteStreamTask?.cancel()
+        syncCompleteStreamTask = nil
     }
 
     // MARK: Methods
@@ -227,8 +239,13 @@ final class VaultGroupProcessor: StateProcessor<// swiftlint:disable:this type_b
 
     /// Checks available item types user can create.
     ///
+    @MainActor
     private func loadItemTypesUserCanCreate() async {
-        state.itemTypesUserCanCreate = await vaultRepository.getItemTypesUserCanCreate()
+        itemTypesLoadGeneration += 1
+        let generation = itemTypesLoadGeneration
+        let itemTypes = await vaultRepository.getItemTypesUserCanCreate()
+        guard generation == itemTypesLoadGeneration else { return } // A newer call superseded this one.
+        state.itemTypesUserCanCreate = itemTypes
     }
 
     /// Dismisses the Premium upgrade action card and persists the banner-dismissed preference.
@@ -353,6 +370,17 @@ final class VaultGroupProcessor: StateProcessor<// swiftlint:disable:this type_b
             }
         } catch {
             services.errorReporter.log(error: error)
+        }
+    }
+
+    /// Streams sync-complete events to keep up-to-date sync-related features here.
+    private func streamSyncComplete() {
+        syncCompleteStreamTask = Task { [weak self] in
+            guard let publisher = self?.services.syncService.syncCompletePublisher() else { return }
+            for await _ in publisher {
+                guard let self else { return }
+                await loadItemTypesUserCanCreate()
+            }
         }
     }
 

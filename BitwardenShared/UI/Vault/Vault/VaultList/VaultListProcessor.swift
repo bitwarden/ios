@@ -55,6 +55,10 @@ final class VaultListProcessor: StateProcessor<
     /// ciphers which failed to decrypt.
     private(set) var hasShownCipherDecryptionFailureAlert = false
 
+    /// A monotonically increasing token used to discard stale results from overlapping
+    /// `loadItemTypesUserCanCreate()` calls.
+    private var itemTypesLoadGeneration = 0
+
     /// The helper to handle master password reprompts.
     private let masterPasswordRepromptHelper: MasterPasswordRepromptHelper
 
@@ -76,6 +80,9 @@ final class VaultListProcessor: StateProcessor<
 
     /// The services used by this processor.
     private let services: Services
+
+    /// A task to handle the sync-complete stream.
+    private var syncCompleteStreamTask: Task<Void, Never>?
 
     /// The helper to handle the more options menu for a vault item.
     private let vaultItemMoreOptionsHelper: VaultItemMoreOptionsHelper
@@ -105,10 +112,14 @@ final class VaultListProcessor: StateProcessor<
         self.vaultItemMoreOptionsHelper = vaultItemMoreOptionsHelper
 
         super.init(state: state)
+
+        streamSyncComplete()
     }
 
     deinit {
         reviewPromptTask?.cancel()
+        syncCompleteStreamTask?.cancel()
+        syncCompleteStreamTask = nil
     }
 
     // MARK: Methods
@@ -244,13 +255,18 @@ extension VaultListProcessor {
     /// Called when the vault list appears on screen.
     private func appeared() async {
         state.isVfo1FoundationFeatureFlagEnabled = await services.configService.getFeatureFlag(.vfo1Foundation)
+
+        // This is being loaded before and after syncing to avoid glitches on which cipher types
+        // are allowed while the vault is being refreshed/synced, as feature flags or policies may change that.
+        await loadItemTypesUserCanCreate()
+
         await refreshVault(syncWithPeriodicCheck: true)
+
         // Read after sync so the cache has been refreshed by onFetchSyncSucceeded if a sync ran.
         await refreshPremiumActionCards()
         await handleNotifications()
         await checkPendingLoginRequests()
         await checkPersonalOwnershipPolicy()
-        await loadItemTypesUserCanCreate()
         await loadOrganizationUserNotificationBannerData()
 
         state.hasPremium = await services.stateService.doesActiveAccountHavePremium()
@@ -322,8 +338,13 @@ extension VaultListProcessor {
 
     /// Checks available item types user can create.
     ///
+    @MainActor
     private func loadItemTypesUserCanCreate() async {
-        state.itemTypesUserCanCreate = await services.vaultRepository.getItemTypesUserCanCreate()
+        itemTypesLoadGeneration += 1
+        let generation = itemTypesLoadGeneration
+        let itemTypes = await services.vaultRepository.getItemTypesUserCanCreate()
+        guard generation == itemTypesLoadGeneration else { return } // A newer call superseded this one.
+        state.itemTypesUserCanCreate = itemTypes
     }
 
     /// Dismisses the archive onboarding action card and persists the preference.
@@ -768,6 +789,17 @@ extension VaultListProcessor {
                 try await services.stateService.setCollapsedVaultListSectionIds(collapsedSectionIds)
             } catch {
                 services.errorReporter.log(error: error)
+            }
+        }
+    }
+
+    /// Streams sync-complete events to keep up-to-date sync-related features here.
+    private func streamSyncComplete() {
+        syncCompleteStreamTask = Task { [weak self] in
+            guard let publisher = self?.services.syncService.syncCompletePublisher() else { return }
+            for await _ in publisher {
+                guard let self else { return }
+                await loadItemTypesUserCanCreate()
             }
         }
     }
