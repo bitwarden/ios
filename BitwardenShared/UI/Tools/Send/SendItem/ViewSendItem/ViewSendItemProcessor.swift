@@ -10,6 +10,7 @@ class ViewSendItemProcessor: StateProcessor<ViewSendItemState, ViewSendItemActio
 
     typealias Services = HasErrorReporter
         & HasPasteboardService
+        & HasPolicyService
         & HasSendRepository
 
     // MARK: Private Properties
@@ -68,6 +69,8 @@ class ViewSendItemProcessor: StateProcessor<ViewSendItemState, ViewSendItemActio
             coordinator.navigate(to: .cancel)
         case .editItem:
             coordinator.navigate(to: .edit(state.sendView))
+        case .makeCopy:
+            coordinator.navigate(to: .add(content: .copy(state.sendView)))
         case .shareSend:
             guard let shareURL = state.shareURL else { return }
             coordinator.navigate(to: .share(url: shareURL))
@@ -99,6 +102,7 @@ class ViewSendItemProcessor: StateProcessor<ViewSendItemState, ViewSendItemActio
     /// Loads the data for the view.
     ///
     private func loadData() async {
+        state.sendPolicyOptions = await services.policyService.getSendPolicyOptions()
         do {
             state.shareURL = try await services.sendRepository.shareURL(for: state.sendView)
         } catch {

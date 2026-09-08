@@ -1149,8 +1149,9 @@ extension AddEditItemProcessor: GeneratorCoordinatorDelegate {
 
 extension AddEditItemProcessor: AddEditFolderDelegate {
     func folderAdded(_ folderView: FolderView) {
+        // The new folder is selected for the item, so no toast is shown to avoid it covering the
+        // folder field in the add/edit item view.
         state.folder = .custom(folderView)
-        state.toast = Toast(title: Localizations.folderCreated)
     }
 
     func folderDeleted() {
