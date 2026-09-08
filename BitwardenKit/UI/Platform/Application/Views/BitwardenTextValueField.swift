@@ -26,6 +26,11 @@ public struct BitwardenTextValueField<AccessoryContent>: View where AccessoryCon
     /// The (optional) accessibility identifier to apply to the displayed value of the field
     var valueAccessibilityIdentifier: String?
 
+    /// Whether VoiceOver should announce the value's characters individually (e.g.
+    /// "1 2 3 4" instead of "one thousand two hundred thirty-four") rather than using its
+    /// default heuristics for the rendered text.
+    var spellOutAccessibilityValue: Bool
+
     /// Any accessory content that should be displayed on the trailing edge of the field. This
     /// content automatically has the `AccessoryButtonStyle` applied to it.
     var accessoryContent: AccessoryContent?
@@ -64,6 +69,7 @@ public struct BitwardenTextValueField<AccessoryContent>: View where AccessoryCon
                             : SharedAsset.Colors.textDisabled.swiftUIColor,
                     )
                     .accessibilityIdentifier(valueAccessibilityIdentifier ?? value)
+                    .speechSpellsOutCharacters(spellOutAccessibilityValue)
                     .if(textSelectionEnabled) { textView in
                         textView
                             .textSelection(.enabled)
@@ -87,6 +93,8 @@ public struct BitwardenTextValueField<AccessoryContent>: View where AccessoryCon
     ///   - textSelectionEnabled: Whether text selection is enabled.
     ///     This doesn't allow range selection, only copy/share actions.
     ///   - useUIKitTextView: Whether we should use a UITextView or a SwiftUI version.
+    ///   - spellOutAccessibilityValue: Whether VoiceOver should announce the value's characters
+    ///     individually rather than using its default heuristics for the rendered text.
     ///   - accessoryContent: Any accessory content that should be displayed on the trailing edge of
     ///     the field. This content automatically has the `AccessoryButtonStyle` applied to it.
     public init(
@@ -96,6 +104,7 @@ public struct BitwardenTextValueField<AccessoryContent>: View where AccessoryCon
         valueAccessibilityIdentifier: String? = "ItemValue",
         textSelectionEnabled: Bool = true,
         useUIKitTextView: Bool = false,
+        spellOutAccessibilityValue: Bool = false,
         @ViewBuilder accessoryContent: () -> AccessoryContent,
     ) {
         self.textSelectionEnabled = textSelectionEnabled
@@ -104,6 +113,7 @@ public struct BitwardenTextValueField<AccessoryContent>: View where AccessoryCon
         self.value = value
         self.useUIKitTextView = useUIKitTextView
         self.valueAccessibilityIdentifier = valueAccessibilityIdentifier
+        self.spellOutAccessibilityValue = spellOutAccessibilityValue
         self.accessoryContent = accessoryContent()
     }
 }
@@ -121,6 +131,8 @@ public extension BitwardenTextValueField where AccessoryContent == EmptyView {
     ///   - textSelectionEnabled: Whether text selection is enabled.
     ///     This doesn't allow range selection, only copy/share actions.
     ///   - useUIKitTextView: Whether we should use a UITextView or a SwiftUI version.
+    ///   - spellOutAccessibilityValue: Whether VoiceOver should announce the value's characters
+    ///     individually rather than using its default heuristics for the rendered text.
     ///
     init(
         title: String? = nil,
@@ -129,6 +141,7 @@ public extension BitwardenTextValueField where AccessoryContent == EmptyView {
         valueAccessibilityIdentifier: String? = "ItemValue",
         textSelectionEnabled: Bool = true,
         useUIKitTextView: Bool = false,
+        spellOutAccessibilityValue: Bool = false,
     ) {
         self.init(
             title: title,
@@ -137,6 +150,7 @@ public extension BitwardenTextValueField where AccessoryContent == EmptyView {
             valueAccessibilityIdentifier: valueAccessibilityIdentifier,
             textSelectionEnabled: textSelectionEnabled,
             useUIKitTextView: useUIKitTextView,
+            spellOutAccessibilityValue: spellOutAccessibilityValue,
         ) {
             EmptyView()
         }
@@ -155,6 +169,8 @@ public extension BitwardenTextValueField where AccessoryContent == AccessoryButt
     ///     to the displayed value of the field.
     ///   - textSelectionEnabled: Whether text selection is enabled.
     ///   - useUIKitTextView: Whether we should use a UITextView or a SwiftUI version.
+    ///   - spellOutAccessibilityValue: Whether VoiceOver should announce the value's characters
+    ///     individually rather than using its default heuristics for the rendered text.
     ///   - copyButtonAction: The action to perform when the button is pressed.
     ///   - copyButtonAccessibilityIdentifier: The (optional) accessibility identifier to apply
     ///     to the button.
@@ -165,6 +181,7 @@ public extension BitwardenTextValueField where AccessoryContent == AccessoryButt
         valueAccessibilityIdentifier: String? = "ItemValue",
         textSelectionEnabled: Bool = true,
         useUIKitTextView: Bool = false,
+        spellOutAccessibilityValue: Bool = false,
         copyButtonAccessibilityIdentifier: String,
         copyButtonAction: @escaping () -> Void,
     ) {
@@ -176,6 +193,7 @@ public extension BitwardenTextValueField where AccessoryContent == AccessoryButt
             valueAccessibilityIdentifier: valueAccessibilityIdentifier,
             textSelectionEnabled: textSelectionEnabled,
             useUIKitTextView: useUIKitTextView,
+            spellOutAccessibilityValue: spellOutAccessibilityValue,
             accessoryContent: {
                 AccessoryButton(
                     asset: SharedAsset.Icons.copy24,
