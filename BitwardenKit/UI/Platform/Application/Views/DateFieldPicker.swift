@@ -272,10 +272,18 @@ public struct DateFieldPicker: View {
         }
     }
 
-    /// Toggles the inline calendar's expanded state.
+    /// Toggles the inline calendar's expanded state. Expanding an empty field commits `defaultDate`
+    /// immediately, matching the day the calendar shows as selected as soon as it opens. Without this,
+    /// `date` stays `nil` until the `DatePicker`'s selection binding fires a change, which it doesn't do
+    /// for a tap on the day it's already displaying as selected — leaving the field appearing to have a
+    /// date (today) while the actual value backing it (e.g. a save action) is still empty.
     private func toggleExpanded() {
+        let isExpanding = !isExpanded
         withAnimation {
             isExpanded.toggle()
+            if isExpanding, date == nil {
+                date = defaultDate
+            }
         }
     }
 }
