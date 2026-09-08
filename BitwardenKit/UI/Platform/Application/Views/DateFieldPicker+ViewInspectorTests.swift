@@ -172,10 +172,11 @@ class DateFieldPickerTests: BitwardenTestCase {
         XCTAssertNoThrow(try subject.inspect().find(viewWithAccessibilityIdentifier: "DateFieldPickerHeaderButton"))
     }
 
-    /// The header button carries an accessibility hint telling VoiceOver users it selects a date.
-    func test_headerButton_hasSelectDateHint() throws {
+    /// The header button carries an accessibility hint telling VoiceOver users that activating it opens
+    /// the calendar picker, rather than a generic (and ambiguous-sounding) "Select date".
+    func test_headerButton_hasOpensDatePickerHint() throws {
         let header = try subject.inspect().find(viewWithAccessibilityIdentifier: "DateFieldPickerHeaderButton")
-        XCTAssertEqual(try header.accessibilityHint().string(), Localizations.selectDate)
+        XCTAssertEqual(try header.accessibilityHint().string(), Localizations.opensDatePicker)
     }
 
     /// Expanding an empty field immediately commits `defaultDate`, matching the day the calendar shows

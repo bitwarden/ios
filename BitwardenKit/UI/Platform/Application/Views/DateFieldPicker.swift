@@ -206,7 +206,7 @@ public struct DateFieldPicker: View {
             }
             .buttonStyle(.plain)
             .accessibilityIdentifier("\(resolvedAccessibilityIdentifier)HeaderButton")
-            .accessibilityHint(Localizations.selectDate)
+            .accessibilityHint(Localizations.opensDatePicker)
 
             if date != nil {
                 AccessoryButton(
