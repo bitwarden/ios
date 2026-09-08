@@ -76,8 +76,10 @@ class DefaultPremiumUpgradeHelper<Route: PremiumUpgradeRoute, Event>: PremiumUpg
     /// for the current checkout status subscription.
     private var navigatedToUpgradeScreen = false
 
-    /// An optional closure called inside the pending dismiss action before showing the upgrade
-    /// pending alert. Use to dismiss action cards or perform other per-screen cleanup.
+    /// An optional closure called before showing the upgrade pending alert, to transiently hide
+    /// any visible upsell UI for the duration of the pending upgrade. A pending upgrade isn't
+    /// the user asking to stop seeing that UI permanently, so this must not persist a permanent
+    /// dismissal — only an explicit, user-initiated dismiss action should do that.
     private let onPendingDismiss: (() -> Void)?
 
     /// A cancellable for the Premium checkout status subscription.
@@ -97,7 +99,8 @@ class DefaultPremiumUpgradeHelper<Route: PremiumUpgradeRoute, Event>: PremiumUpg
     ///   - services: The services used by this helper.
     ///   - coordinator: The coordinator used for navigation.
     ///   - setURL: Opens a URL (used for the web-based upgrade fallback).
-    ///   - onPendingDismiss: Called when a pending upgrade is dismissed, before the pending alert.
+    ///   - onPendingDismiss: Called before showing the upgrade pending alert, to transiently hide
+    ///     any visible upsell UI without persisting a permanent dismissal.
     ///
     init(
         services: Services,

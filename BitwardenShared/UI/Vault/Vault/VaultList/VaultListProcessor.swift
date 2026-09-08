@@ -65,7 +65,7 @@ final class VaultListProcessor: StateProcessor<
         coordinator: coordinator,
         setURL: { [weak self] url in self?.state.url = url },
         onPendingDismiss: { [weak self] in
-            Task { @MainActor in await self?.dismissPremiumUpgradeActionCard() }
+            self?.hidePremiumUpgradeActionCardForPendingUpgrade()
         },
     )
 
@@ -375,6 +375,15 @@ extension VaultListProcessor {
         } catch {
             services.errorReporter.log(error: error)
         }
+    }
+
+    /// Hides the Premium upgrade action card without persisting a permanent dismissal. Used
+    /// while a Premium upgrade is pending — that's a temporary state, not the user asking to
+    /// stop seeing this card, so unlike `dismissPremiumUpgradeActionCard()` this doesn't touch
+    /// `isPremiumUpgradeBannerDismissed`. `streamPremiumUpgradePendingState()` re-shows the card
+    /// on its own once the pending upgrade resolves.
+    private func hidePremiumUpgradeActionCardForPendingUpgrade() {
+        state.shouldShowPremiumUpgradeActionCard = false
     }
 
     /// Dismisses the toast shown while the vault is taking an unusually long time to load, if

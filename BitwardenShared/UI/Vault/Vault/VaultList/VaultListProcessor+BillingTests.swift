@@ -2,6 +2,7 @@
 import BitwardenKit
 import BitwardenKitMocks
 import BitwardenResources
+import Combine
 import TestHelpers
 import Testing
 
@@ -239,6 +240,47 @@ struct VaultListProcessorBillingTests {
         subject.receive(.upgradeToPremium)
 
         #expect(premiumUpgradeHelper.startInAppPremiumUpgradeCalled)
+    }
+
+    /// `receive(_:)` with `.upgradeToPremium`, when a Premium upgrade is already pending, hides
+    /// the action card without persisting a permanent dismissal — a pending upgrade is a
+    /// temporary state, not the user asking to stop seeing this card, and
+    /// `streamPremiumUpgradePendingState()` re-shows it on its own once the upgrade resolves.
+    ///
+    /// Builds its own subject with a real `DefaultPremiumUpgradeHelper` (unlike the rest of this
+    /// file, which substitutes `MockPremiumUpgradeHelper`), because the behavior under test —
+    /// `onPendingDismiss`'s closure — is private wiring inside `VaultListProcessor`'s real
+    /// helper that the mock can't stand in for.
+    @Test
+    func receive_upgradeToPremium_pendingUpgrade_hidesActionCardWithoutPersistingDismissal() async throws {
+        billingService.premiumCheckoutStatusPublisherReturnValue = Empty().eraseToAnyPublisher()
+        billingService.premiumUpgradePendingStateReturnValue = PremiumUpgradePendingState(
+            isPending: true,
+            lastAttemptFailed: false,
+        )
+        var state = VaultListState()
+        state.shouldShowPremiumUpgradeActionCard = true
+        let services = ServiceContainer.withMocks(
+            billingRepository: billingRepository,
+            billingService: billingService,
+            billingStateService: billingStateService,
+            searchProcessorMediatorFactory: searchProcessorMediatorFactory,
+            stateService: stateService,
+            vaultRepository: vaultRepository,
+        )
+        let realSubject = VaultListProcessor(
+            coordinator: coordinator.asAnyCoordinator(),
+            masterPasswordRepromptHelper: MockMasterPasswordRepromptHelper(),
+            services: services,
+            state: state,
+            vaultItemMoreOptionsHelper: MockVaultItemMoreOptionsHelper(),
+        )
+
+        realSubject.receive(.upgradeToPremium)
+
+        try await waitForAsync { !coordinator.alertShown.isEmpty }
+        #expect(!realSubject.state.shouldShowPremiumUpgradeActionCard)
+        #expect(!billingStateService.setPremiumUpgradeBannerDismissedCalled)
     }
 
     /// `receive(_:)` with `.viewPlan` navigates to the Premium plan screen.
