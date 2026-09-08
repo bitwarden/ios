@@ -156,6 +156,37 @@ class DateFieldPickerTests: BitwardenTestCase {
         XCTAssertEqual(date, Date(year: 2024, month: 2, day: 29))
     }
 
+    /// A selection change that keeps the same month and year as the last one reported (a genuine day
+    /// tap) commits normally, even after an earlier month/year navigation updated the comparison point.
+    func test_handleSelectionChange_dayTapAfterMonthYearChange_commits() throws {
+        subject = DateFieldPicker(
+            title: "Date of birth",
+            date: bindingDate,
+            defaultDate: defaultDate,
+            isExpanded: true,
+            lastDisplayedLocalDay: Date(year: 2024, month: 3, day: 1),
+        )
+        let pickedDay = Date(year: 2024, month: 3, day: 15)
+        try subject.inspect().find(ViewType.DatePicker.self).select(date: pickedDay)
+        XCTAssertEqual(date, pickedDay.asUTCCalendarDay())
+    }
+
+    /// A selection change that moves to a different month or year — as reported by the calendar's quick
+    /// month/year navigation header before any day has been tapped — doesn't commit a value. The
+    /// calendar stays open so the user can then pick a day within the newly navigated month.
+    func test_handleSelectionChange_monthYearChange_doesNotCommit() throws {
+        subject = DateFieldPicker(
+            title: "Date of birth",
+            date: bindingDate,
+            defaultDate: defaultDate,
+            isExpanded: true,
+            lastDisplayedLocalDay: Date(year: 2024, month: 2, day: 29),
+        )
+        let navigatedMonth = Date(year: 2024, month: 3, day: 29)
+        try subject.inspect().find(ViewType.DatePicker.self).select(date: navigatedMonth)
+        XCTAssertNil(date)
+    }
+
     /// A provided footer is rendered below the field.
     func test_footer_isRendered() throws {
         subject = DateFieldPicker(

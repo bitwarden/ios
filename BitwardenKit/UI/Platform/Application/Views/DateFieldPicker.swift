@@ -40,6 +40,12 @@ public struct DateFieldPicker: View {
     /// Whether the inline calendar is currently expanded.
     @State private var isExpanded = false
 
+    /// The calendar day last reported through the graphical calendar's selection binding. Used by
+    /// `handleSelectionChange(_:)` to tell a genuine day tap apart from the calendar's quick month/year
+    /// navigation header, which reports a changed selection (a new month/year, but no day tap yet)
+    /// before the user has actually picked a day.
+    @State private var lastDisplayedLocalDay: Date?
+
     /// Whether the view allows user interaction.
     @Environment(\.isEnabled) var isEnabled: Bool
 
@@ -123,6 +129,7 @@ public struct DateFieldPicker: View {
         in range: ClosedRange<Date>? = nil,
         footer: String? = nil,
         isExpanded: Bool,
+        lastDisplayedLocalDay: Date? = nil,
     ) {
         self.title = title
         self.accessibilityIdentifier = accessibilityIdentifier
@@ -131,6 +138,7 @@ public struct DateFieldPicker: View {
         self.range = range
         self.footer = footer
         _isExpanded = State(initialValue: isExpanded)
+        _lastDisplayedLocalDay = State(initialValue: lastDisplayedLocalDay)
     }
 
     // MARK: Private
@@ -244,8 +252,28 @@ public struct DateFieldPicker: View {
     private func selection() -> Binding<Date> {
         Binding(
             get: { selectedLocalDay() },
-            set: { newValue in commitSelectedLocalDay(newValue) },
+            set: { newValue in handleSelectionChange(newValue) },
         )
+    }
+
+    /// Handles a change reported by the graphical calendar's selection binding. Tapping the calendar's
+    /// quick month/year navigation header reports a changed selection (a new month/year, with no day
+    /// tapped yet) exactly the same way a genuine day tap does. Treating every change as a day tap
+    /// closed the calendar and committed that not-yet-chosen day the moment the user changed the month
+    /// or year, before they had a chance to pick the day they actually wanted.
+    ///
+    /// A change is only committed when it keeps the same month and year as the last one reported: that's
+    /// what distinguishes an actual day tap from a month/year navigation, which is left to just update
+    /// the comparison point so a day tapped afterward, within the newly navigated month, still commits.
+    /// This check doesn't apply when nothing's been reported yet (nothing to compare against) or under
+    /// VoiceOver, where the wheel picker commits every change immediately (see `commitSelectedLocalDay`).
+    private func handleSelectionChange(_ localDay: Date) {
+        defer { lastDisplayedLocalDay = localDay }
+        if let lastDisplayedLocalDay, !voiceOverEnabled,
+           !Calendar.current.isDate(lastDisplayedLocalDay, equalTo: localDay, toGranularity: .month) {
+            return
+        }
+        commitSelectedLocalDay(localDay)
     }
 
     /// Commits a calendar day the user picked (in the `DatePicker`'s local-day domain) back into
@@ -281,8 +309,11 @@ public struct DateFieldPicker: View {
         let isExpanding = !isExpanded
         withAnimation {
             isExpanded.toggle()
-            if isExpanding, date == nil {
-                date = defaultDate
+            if isExpanding {
+                if date == nil {
+                    date = defaultDate
+                }
+                lastDisplayedLocalDay = selectedLocalDay()
             }
         }
     }
