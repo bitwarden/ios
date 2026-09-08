@@ -70,7 +70,7 @@ extension CipherListView {
             if copyableFields.contains(.cardSecurityCode) { kinds.append(.copySecurityCode) }
         case let .login(loginListView):
             if copyableFields.contains(.loginUsername) { kinds.append(.copyUsername) }
-            if copyableFields.contains(.loginPassword) { kinds.append(.copyPassword) }
+            if copyableFields.contains(.loginPassword), viewPassword { kinds.append(.copyPassword) }
             if copyableFields.contains(.loginTotp), hasPremium || organizationUseTotp {
                 kinds.append(.copyTotp)
             }
