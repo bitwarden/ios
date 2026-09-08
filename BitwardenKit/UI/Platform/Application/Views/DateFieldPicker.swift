@@ -34,6 +34,15 @@ public struct DateFieldPicker: View {
     /// from this so multiple pickers on the same screen don't share child accessibility identifiers.
     private var resolvedAccessibilityIdentifier: String { accessibilityIdentifier ?? "DateFieldPicker" }
 
+    /// Whether `range` excludes dates later than today, as it does for a date of birth or an issue
+    /// date. Under VoiceOver, swiping the wheel picker past today doesn't move it (there's no later row
+    /// to select), which otherwise looks and sounds identical to VoiceOver just repeating the current
+    /// value — this surfaces why, via `datePicker()`'s accessibility hint.
+    private var disallowsFutureDates: Bool {
+        guard let range else { return false }
+        return range.upperBound <= Date().asUTCCalendarDay()
+    }
+
     /// The (optional) title of the field.
     let title: String?
 
@@ -165,6 +174,7 @@ public struct DateFieldPicker: View {
             isPickerFocused = newValue && voiceOverEnabled
         }
         .accessibilityFocused($isPickerFocused)
+        .accessibilityHint(voiceOverEnabled && disallowsFutureDates ? Localizations.futureDatesCantBeSelected : "")
 
         if voiceOverEnabled {
             picker.datePickerStyle(.wheel)
