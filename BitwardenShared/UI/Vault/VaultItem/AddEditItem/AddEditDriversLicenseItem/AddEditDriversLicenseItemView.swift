@@ -54,6 +54,7 @@ struct AddEditDriversLicenseItemView: View {
                     ),
                     accessibilityIdentifier: "DriversLicenseNumberEntry",
                     passwordVisibilityAccessibilityId: "ShowDriversLicenseNumberButton",
+                    passwordVisibilityFieldName: Localizations.licenseNumber,
                     isPasswordVisible: store.binding(
                         get: \.isLicenseNumberVisible,
                         send: AddEditDriversLicenseItemAction.toggleLicenseNumberVisibilityChanged,
