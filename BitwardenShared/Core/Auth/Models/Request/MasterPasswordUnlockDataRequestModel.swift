@@ -18,6 +18,29 @@ struct MasterPasswordUnlockDataRequestModel: Encodable, Equatable {
 
     /// The salt used to encrypt the user key.
     let salt: String
+
+    // MARK: Initialization
+
+    /// Initializes a `MasterPasswordUnlockDataRequestModel`.
+    ///
+    /// - Parameters:
+    ///   - containedKeyId: The ID of the key contained in `masterKeyWrappedUserKey`, when the
+    ///     user's key has one.
+    ///   - kdf: The KDF settings.
+    ///   - masterKeyWrappedUserKey: The user's master key encrypted with their user key.
+    ///   - salt: The salt used to encrypt the user key.
+    ///
+    init(
+        containedKeyId: String? = nil,
+        kdf: KdfConfig,
+        masterKeyWrappedUserKey: String,
+        salt: String,
+    ) {
+        self.containedKeyId = containedKeyId
+        self.kdf = kdf
+        self.masterKeyWrappedUserKey = masterKeyWrappedUserKey
+        self.salt = salt
+    }
 }
 
 extension MasterPasswordUnlockDataRequestModel {
