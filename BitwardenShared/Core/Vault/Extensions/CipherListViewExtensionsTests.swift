@@ -505,19 +505,30 @@ class CipherListViewExtensionsTests: BitwardenTestCase { // swiftlint:disable:th
     }
 
     /// `applicableMoreOptionsActionKinds(hasPremium:)` gates login copy/launch actions on
-    /// `copyableFields`, Premium/organization TOTP, and a parseable URI.
+    /// `copyableFields`, `viewPassword`, Premium/organization TOTP, and a parseable URI.
     func test_applicableMoreOptionsActionKinds_login() {
         let noData = CipherListView.fixture(type: .login(.fixture()))
         XCTAssertEqual(noData.applicableMoreOptionsActionKinds(hasPremium: false), [.view, .edit, .archive])
 
         let withData = CipherListView.fixture(
             type: .login(.fixture(uris: [.fixture(uri: URL.example.relativeString)])),
+            viewPassword: true,
             copyableFields: [.loginUsername, .loginPassword, .loginTotp],
         )
         XCTAssertEqual(
             withData.applicableMoreOptionsActionKinds(hasPremium: true),
             [.view, .edit, .copyUsername, .copyPassword, .copyTotp, .launch, .archive],
         )
+    }
+
+    /// `applicableMoreOptionsActionKinds(hasPremium:)` excludes `.copyPassword` when `viewPassword`
+    /// is `false`, even if `copyableFields` contains `.loginPassword`.
+    func test_applicableMoreOptionsActionKinds_login_noViewPassword() {
+        let cipher = CipherListView.fixture(
+            type: .login(.fixture()),
+            copyableFields: [.loginPassword],
+        )
+        XCTAssertEqual(cipher.applicableMoreOptionsActionKinds(hasPremium: false), [.view, .edit, .archive])
     }
 
     /// `applicableMoreOptionsActionKinds(hasPremium:)` excludes `.copyTotp` when the account has no
