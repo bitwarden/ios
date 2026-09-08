@@ -57,6 +57,7 @@ public struct BitwardenTextValueField<AccessoryContent>: View where AccessoryCon
                     calculatedHeight: $textViewDynamicHeight,
                     isEditable: false,
                     isFocused: .constant(false),
+                    spellOutAccessibilityValue: spellOutAccessibilityValue,
                 )
                 .frame(minHeight: textViewDynamicHeight)
             } else {
