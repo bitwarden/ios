@@ -14,16 +14,32 @@ struct PasswordText: View {
     /// A flag indicating if the password is visible or not.
     let isPasswordVisible: Bool
 
+    /// A flag indicating whether VoiceOver should announce the password's characters
+    /// individually (e.g. "1 2 3 4" instead of "one thousand two hundred thirty-four") rather
+    /// than using its default heuristics for the rendered text.
+    var spellOutAccessibilityValue = false
+
     var body: some View {
         (
             isPasswordVisible
                 ? Text(colorCodedText(for: password))
-                : Text(String(repeating: "•", count: Constants.hiddenPasswordLength)),
+                : Text(hiddenPassword),
         )
         .styleGuide(.bodyMonospaced)
+        // The rendered text includes a zero-width space after each character to allow wrapping on
+        // any character boundary, but that same text is used as the accessibility label by
+        // default. Override it with the zero-width-space-free password so VoiceOver doesn't
+        // announce the value once from the label and again from `speechSpellsOutCharacters`.
+        .accessibilityLabel(isPasswordVisible ? password : hiddenPassword)
+        .speechSpellsOutCharacters(spellOutAccessibilityValue && isPasswordVisible)
     }
 
     // MARK: Private Properties
+
+    /// The text displayed and announced in place of the password when it's hidden.
+    private var hiddenPassword: String {
+        String(repeating: "•", count: Constants.hiddenPasswordLength)
+    }
 
     /// Returns an `AttributedString` containing a color-coded evaluation of the provided string.
     ///
