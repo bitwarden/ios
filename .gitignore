@@ -86,6 +86,7 @@ Authenticator/Application/Support/Settings.bundle/Acknowledgements.latest_result
 
 # AI
 .claude/settings.local.json
+.claude/tmp/
 review-*.md
 
 # Generated files

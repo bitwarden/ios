@@ -26,6 +26,8 @@
 "FolderNone" = "Geen map";
 "Folders" = "Mappen";
 "FolderUpdated" = "Map opgeslagen";
+"MyFolder" = "Mijn map";
+"MyFolders" = "Mijn mappen";
 "InternetConnectionRequiredMessage" = "Maak verbinding met internet voordat u doorgaat.";
 "InternetConnectionRequiredTitle" = "Internetverbinding is vereist";
 "InvalidMasterPassword" = "Ongeldig hoofdwachtwoord. Probeer het opnieuw.";
@@ -898,6 +900,7 @@
 /* VoiceOver accessibility label for a shared folder the item belongs to. */
 "SharedFolderX" = "Gedeelde map, %1$@";
 "FolderX" = "Map, %1$@";
+"MyFolderX" = "Mijn map, %1$@";
 "ItemXOfY" = "Item %1$@ van %2$@";
 "ViewRecordedLogs" = "Logopnames bekijken";
 "RecordedLogs" = "Logopnames";

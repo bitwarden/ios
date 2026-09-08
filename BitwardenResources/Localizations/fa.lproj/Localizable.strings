@@ -26,6 +26,8 @@
 "FolderNone" = "بدون پوشه";
 "Folders" = "پوشه‌ها";
 "FolderUpdated" = "پوشه ذخیره شد";
+"MyFolder" = "پوشه من";
+"MyFolders" = "پوشه‌های من";
 "InternetConnectionRequiredMessage" = "لطفاً قبل از ادامه به اینترنت متصل شوید.";
 "InternetConnectionRequiredTitle" = "اتصال به اینترنت لازم است";
 "InvalidMasterPassword" = "کلمه عبور اصلی نامعتبر است. دوباره امتحان کنید.";
@@ -139,7 +141,7 @@
 "UnlockWithFaceID" = "باز کردن قفل با Face ID";
 "UnlockWithTouchID" = "باز کردن قفل با Touch ID";
 "UnlockWithOpticID" = "باز کردن قفل با Optic ID";
-"UnlockWithPIN" = "باز کردن با کد پین";
+"UnlockWithPIN" = "باز کردن قفل با کد پین";
 "VerificationCode" = "کد تأیید";
 "WebVault" = "گاوصندوق وب Bitwarden";
 "Items" = "موارد";
@@ -180,7 +182,7 @@
 "CopyTotp" = "کپی TOTP";
 "CopyTotpAutomaticallyDescription" = "اگر یک ورود دارای یک کلید احراز هویت باشد، هنگام پر کردن خودکار ورود، کد تأیید TOTP را در حافظه موقت خود کپی کن.";
 "CopyTotpAutomatically" = "TOTP را به‌صورت خودکار کپی کن";
-"PremiumRequired" = "برای استفاده از این ویژگی عضویت پرمیوم لازم است.";
+"PremiumRequired" = "برای استفاده از این ویژگی عضویت ویژه لازم است.";
 "AttachementAdded" = "پیوست اضافه شد";
 "AttachmentDeleted" = "پیوست حذف شد";
 "ChooseFile" = "انتخاب پرونده";
@@ -313,7 +315,7 @@
 "SecureNotes" = "یادداشت‌های امن";
 "CheckingPassword" = "درحال بررسی کلمه عبور…";
 "CheckPassword" = "بررسی کنید که آیا کلمه عبور افشا شده است یا خیر.";
-"PasswordSafe" = "این کلمه عبور در هیچ نقض‌های داده‌ای شناخته نشده است. استفاده از آن باید ایمن باشد.";
+"PasswordSafe" = "این کلمه عبور در هیچ یک از نشت‌های اطلاعاتی شناخته شده پیدا نشده است. استفاده از آن باید امن باشد.";
 "IdentityName" = "نام هویت";
 "Value" = "مقدار";
 "PasswordHistory" = "تاریخچه کلمه عبور";
@@ -445,7 +447,7 @@
 "AboutSend" = "درباره ارسال";
 "HideEmail" = "نشانی ایمیلم را از گیرندگان مخفی کن";
 "SendOptionsPolicyInEffect" = "یک یا چند سیاست سازمان بر گزینه‌های ارسال شما تأثیر می‌گذارد.";
-"SendFilePremiumRequired" = "حساب‌های کاربری رایگان فقط می‌توانند متن را به اشتراک بگذارند. برای استفاده از قابلیت ارسال پرونده‌ها، به عضویت پریمیوم نیاز دارید.";
+"SendFilePremiumRequired" = "حساب‌های کاربری رایگان فقط می‌توانند متن را به اشتراک بگذارند. برای استفاده از قابلیت ارسال پرونده‌ها، به عضویت ویژه نیاز دارید.";
 "SendFileEmailVerificationRequired" = "برای استفاده از پرونده‌ها با \"ارسال\" باید ایمیل خود را تأیید کنید.";
 "PasswordPrompt" = "درخواست مجدد کلمه عبور اصلی";
 "PasswordConfirmation" = "تأیید کلمه عبور اصلی";
@@ -495,8 +497,8 @@
 "All" = "همه";
 "Totp" = "TOTP";
 "VerificationCodes" = "کدهای تأیید";
-"PremiumSubscriptionRequired" = "اشتراک پرمیوم نیاز است";
-"APremiumPlanGivesYouMoreToolsDescriptionLong" = "یک طرح پرمیوم، ابزارهای بیشتری را برای ایمن ماندن و کنترل در اختیار شما قرار می‌دهد.";
+"PremiumSubscriptionRequired" = "اشتراک ویژه نیاز است";
+"APremiumPlanGivesYouMoreToolsDescriptionLong" = "یک طرح ویژه، ابزارهای بیشتری را برای ایمن ماندن و کنترل در اختیار شما قرار می‌دهد.";
 "UnlockAdvancedSecurityFeatures" = "ویژگی‌های امنیتی پیشرفته را باز کنید";
 "CannotAddAuthenticatorKey" = "نمی‌توانید کلید احراز هویت را اضافه کنید؟";
 "ScanQRCode" = "اسکن کد QR";
@@ -569,11 +571,11 @@
 "Weak" = "ضعیف";
 "Good" = "خوب";
 "Strong" = "قوی";
-"CheckKnownDataBreachesForThisPassword" = "بررسی نقض‌های داده شناخته شده برای این کلمه عبور";
+"CheckKnownDataBreachesForThisPassword" = "بررسی نشت‌های اطلاعاتی شناخته شده برای این کلمه عبور";
 "ExposedMasterPassword" = "کلمه عبور اصلی افشا شده است";
-"PasswordFoundInADataBreachAlertDescription" = "کلمه عبور در افشای داده پیدا شد. از یک کلمه عبور منحصربه‌فرد برای محافظت از حساب کاربری خود استفاده کنید. آیا مطمئنید که می‌خواهید از یک کلمه عبور افشا شده استفاده کنید؟";
+"PasswordFoundInADataBreachAlertDescription" = "کلمه عبور در یک نشت اطلاعاتی پیدا شده است. برای محافظت از حساب خود، از یک کلمه عبور منحصربه‌فرد استفاده کنید. آیا مطمئن هستید که می‌خواهید از یک کلمه عبور افشا شده استفاده کنید؟";
 "WeakAndExposedMasterPassword" = "کلمه عبور اصلی ضعیف و افشا شده";
-"WeakPasswordIdentifiedAndFoundInADataBreachAlertDescription" = "کلمه عبور ضعیف شناسایی و در یک افشای داده پیدا شد. از یک کلمه عبور قوی و منحصربه‌فرد برای محافظت از حساب کاربری خود استفاده کنید. آیا مطمئنید که می‌خواهید از این کلمه عبور استفاده کنید؟";
+"WeakPasswordIdentifiedAndFoundInADataBreachAlertDescription" = "کلمه عبور ضعیف شناسایی و در یک نشت اطلاعاتی پیدا شد. از یک کلمه عبور قوی و منحصربه‌فرد برای محافظت از حساب کاربری خود استفاده کنید. آیا مطمئن هستید که می‌خواهید از این کلمه عبور استفاده کنید؟";
 "AddTheKeyToAnExistingOrNewItem" = "کلید را به یک مورد موجود یا جدید اضافه کنید";
 "ThereAreNoItemsInYourVaultThatMatchX" = "هیچ موردی در گاوصندوق شما وجود ندارد که با \"%1$@\" مطابقت داشته باشد";
 "SearchForAnItemOrAddANewItem" = "یک مورد را جستجو کنید یا یک مورد جدید اضافه کنید";
@@ -677,7 +679,7 @@
 "IntroCarouselPage3Title" = "ورودهای خود را ارتقا دهید";
 "IntroCarouselPage3Message" = "از تولید کننده برای ایجاد و ذخیره کلمات عبور قوی و منحصربه‌فرد برای تمام حساب‌های کاربری خود استفاده کنید.";
 "IntroCarouselPage4Title" = "داده‌های شما، زمانی که نیاز دارید و در جایی که نیاز دارید";
-"IntroCarouselPage4Message" = "کلمات عبور نامحدود را در دستگاه‌های نامحدود با برنامه‌های موبایل، مرورگر و دسکتاپ Bitwarden ذخیره کنید.";
+"IntroCarouselPage4Message" = "کلمه‌های عبور نامحدود را در دستگاه‌های نامحدود با برنامه‌های موبایل، مرورگر و رایانه رومیزی Bitwarden ذخیره کنید.";
 "AccountSetup" = "راه‌اندازی حساب کاربری";
 "SetUpUnlock" = "راه‌اندازی باز کردن قفل";
 "SetUpBiometricsOrChooseAPinCodeToQuicklyAccessYourVaultAndAutofillYourLogins" = "راه‌اندازی بیومتریک یا انتخاب کد پین برای دسترسی سریع به گاوصندوق و پر کردن خودکار ورودهای شما.";
@@ -860,7 +862,7 @@
 "TextToShare" = "متن برای اشتراک گذاری";
 "SendDetails" = "جزئیات ارسال";
 "SendNameRequired" = "نام ارسال (الزامی)";
-"CheckPasswordForDataBreaches" = "بررسی کلمه عبور برای نقض‌های داده";
+"CheckPasswordForDataBreaches" = "بررسی کلمه عبور برای نشت‌های اطلاعاتی";
 "PrivateNote" = "یادداشت خصوصی";
 "CannotDeleteUserSoleOwnerDescriptionLong" = "امکان حذف این کاربر وجود ندارد زیرا تنها مالک حداقل یک سازمان است. لطفاً این سازمان‌ها را حذف کنید یا مالکیت را به کاربر دیگری منتقل کنید.";
 "APasskeyAlreadyExistsForThisApplication" = "یک کلید عبور از قبل برای این برنامه وجود دارد.";
@@ -899,6 +901,7 @@
 /* VoiceOver accessibility label for a shared folder the item belongs to. */
 "SharedFolderX" = "پوشه اشتراک گذاری شده، %1$@";
 "FolderX" = "پوشه، %1$@";
+"MyFolderX" = "پوشه من، %1$@";
 "ItemXOfY" = "مورد %1$@ از %2$@";
 "ViewRecordedLogs" = "مشاهده گزارش‌های ضبط شده";
 "RecordedLogs" = "گزارش‌های ضبط شده";
@@ -1061,13 +1064,13 @@
 "ArchiveEmptyDescriptionLong" = "مواردی را که نمی‌خواهید در نتایج جستجو و پیشنهادهای پر کردن خودکار ببینید، اما ممکن است روزی به آن‌ها نیاز داشته باشید، به بایگانی اضافه کنید.";
 "ArchiveItem" = "بایگانی مورد";
 "OnceArchivedThisItemWillBeExcludedDescriptionLong" = "پس از بایگانی، این مورد از نتایج جستجو و پیشنهادات پر کردن خودکار حذف خواهد شد.";
-"ArchivingItemsIsAPremiumFeatureDescriptionLong" = "بایگانی کردن موارد یک ویژگی پریمیوم هست. طرح فعلی شما شامل دسترسی به این قابلیت نیست.";
-"AddingAttachmentsIsAPremiumFeatureDescriptionLong" = "افزودن پیوست‌ها یک ویژگی پریمیوم است. طرح فعلی شما شامل دسترسی به این ویژگی نمی‌شود.";
-"UpgradeToPremium" = "ارتقا به پرمیوم";
+"ArchivingItemsIsAPremiumFeatureDescriptionLong" = "بایگانی کردن موارد یک ویژگی ویژه هست. طرح فعلی شما شامل دسترسی به این قابلیت نیست.";
+"AddingAttachmentsIsAPremiumFeatureDescriptionLong" = "افزودن پیوست‌ها یک ویژگی ویژه است. طرح فعلی شما شامل دسترسی به این ویژگی نمی‌شود.";
+"UpgradeToPremium" = "ارتقا به ویژه";
 "ThisItemIsArchived" = "این مورد بایگانی شد.";
-"YourPremiumSubscriptionEnded" = "اشتراک پرمیوم شما به پایان رسید";
-"YourPremiumSubscriptionEndedArchiveDescriptionLong" = "برای دسترسی مجدد به بایگانی خود، اشتراک پرمیوم خود را مجدداً راه‌اندازی کنید. اگر قبل از راه‌اندازی مجدد، جزئیات یک مورد بایگانی شده را ویرایش کنید، آن مورد به گاوصندوق شما بازگردانده می‌شود.";
-"RestartPremium" = "راه‌اندازی مجدد پریمیوم";
+"YourPremiumSubscriptionEnded" = "اشتراک ویژه شما به پایان رسید";
+"YourPremiumSubscriptionEndedArchiveDescriptionLong" = "برای دسترسی مجدد به بایگانی خود، اشتراک ویژه خود را مجدداً راه‌اندازی کنید. اگر قبل از راه‌اندازی مجدد، جزئیات یک مورد بایگانی شده را ویرایش کنید، آن مورد به گاوصندوق شما بازگردانده می‌شود.";
+"RestartPremium" = "راه‌اندازی مجدد ویژه";
 "ThisItemIsArchivedSavingChangesWillRestoreItToYourVault" = "این مورد بایگانی شده است. ذخیره تغییرات، آن را به گاوصندوق شما بازمی‌گرداند.";
 "SettingUpAutofill" = "تنظیم پر کردن خودکار…";
 "AddEmail" = "افزودن ایمیل";
@@ -1077,7 +1080,7 @@
 "AfterSharingThisSendLinkDescriptionLong" = "پس از اشتراک‌گذاری این لینک ارسال، افراد برای مشاهده این ارسال باید ایمیل خود را با یک کد تأیید کنند.";
 "SpecificPeople" = "افراد خاص";
 "WhoCanView" = "چه کسی می‌تواند ببیند";
-"SharingWithSpecificPeopleIsPremiumFeatureDescriptionLong" = "اشتراک‌گذاری با افراد خاص یک ویژگی پرمیوم است. طرح فعلی شما شامل دسترسی به این ویژگی نمی‌شود.";
+"SharingWithSpecificPeopleIsPremiumFeatureDescriptionLong" = "اشتراک‌گذاری با افراد خاص یک ویژگی ویژه است. طرح فعلی شما شامل دسترسی به این ویژگی نمی‌شود.";
 "Alias" = "نام مستعار";
 "CertificateAlias" = "نام مستعار گواهی‌نامه";
 "TheCertificateCouldNotBeInstalled" = "گواهی‌نامه نصب نشد.";
@@ -1105,7 +1108,7 @@
 "AcceptTransfer" = "نقل و انتقالات را بپذیرید";
 "YourPasswordAndHintCannotBeTheSamePleaseChooseADifferentHint" = "کلمه عبور و راهنمای شما نمی‌توانند یکسان باشند. لطفاً راهنمای دیگری انتخاب کنید.";
 "Plan" = "طرح";
-"Premium" = "پرمیوم";
+"Premium" = "ویژه";
 "Active" = "فعال";
 "Canceled" = "لغو شد";
 "PastDue" = "بدهی معوق";
@@ -1118,7 +1121,7 @@
 "EstimatedTax" = "برآورد مالیات";
 "Total" = "مجموع";
 "ManagePlan" = "مدیریت طرح";
-"CancelPremium" = "لغو پریمیوم";
+"CancelPremium" = "لغو ویژه";
 "ExternalLink" = "لینک خارجی";
 "YourNextChargeIsForXDueOnY" = "هزینه بعدی شما برای **%1$@** است که باید در **%2$@** پرداخت شود.";
 "WeCouldNotProcessYourPaymentUpdateYourPaymentMethodDescriptionLong" = "ما نتوانستیم پرداخت شما را پردازش کنیم. قبل از پایان اشتراک‌تان در تاریخ **%1$@**، روش پرداخت خود را به‌روزرسانی کنید.";
@@ -1167,16 +1170,16 @@
 "SecureCheckoutDidntLoad" = "پرداخت امن بارگیری نشد";
 "WeHadTroubleOpeningThePaymentPageDescriptionLong" = "ما در باز کردن صفحه پرداخت مشکل داشتیم، بنابراین دوباره امتحان کنید.";
 "SecureFileStorage" = "ذخیره‌سازی امن پرونده";
-"BreachMonitoring" = "پایش نشت اطلاعات";
+"BreachMonitoring" = "نظارت بر نشت اطلاعات";
 "ConfirmingYourUpgrade" = "در حال تأیید ارتقاء شما…";
 "OpeningCheckout" = "افتتاح حساب…";
 "UpgradePending" = "ارتقا در انتظار انجام";
 "YourUpgradeIsBeingProcessedDescriptionLong" = "ارتقاء شما در حال پردازش است. تا زمان تکمیل، در طرح رایگان باقی خواهید ماند. اکنون برای بررسی همگام‌سازی کنید، یا ادامه دهید تا به‌طور خودکار به‌روزرسانی شود.";
-"UpgradedToPremium" = "ارتقا به پرمیوم";
+"UpgradedToPremium" = "ارتقا به ویژه";
 "SubscriptionNeedsAttention" = "اشتراک شما نیاز به توجه دارد";
 "CheckYourPlanForDetails" = "برای جزئیات بیشتر، طرح خود را بررسی کنید.";
 "ViewPlan" = "مشاهده طرح";
-"YouNowHaveAccessToAdvancedSecurityDescriptionLong" = "اکنون به ویژگی‌های امنیتی پیشرفته دسترسی دارید. درباره آنچه در نسخه پریمیوم گنجانده شده است، بیشتر بدانید.";
+"YouNowHaveAccessToAdvancedSecurityDescriptionLong" = "اکنون به ویژگی‌های امنیتی پیشرفته دسترسی دارید. درباره آنچه در نسخه ویژه گنجانده شده است، بیشتر بدانید.";
 "YouNowHaveAccessToAllAdvancedSecurityFeatures" = "اکنون به تمام ویژگی‌های امنیتی پیشرفته دسترسی دارید.";
 /* Footer on the Premium upgrade screen; "Stripe" is the payment processor's name and shouldn't be translated. */
 "YoullCompleteThePurchaseWithStripeSecureCheckout" = "شما خرید را با پرداخت امن Stripe تکمیل خواهید کرد.";
@@ -1186,7 +1189,7 @@
 "UserID" = "شناسه کاربری";
 "CopyUserID" = "کپی شناسه کاربری";
 "UserIDUnavailable" = "شناسه کاربری در دسترس نیست";
-"ToManageYourPremiumSubscriptionDescriptionLong" = "برای مدیریت اشتراک پرمیوم خود، لطفاً از طریق رایانه به گاوصندوق وب خود وارد شوید.";
+"ToManageYourPremiumSubscriptionDescriptionLong" = "برای مدیریت اشتراک ویژه خود، لطفاً از طریق رایانه به گاوصندوق وب خود وارد شوید.";
 "CheckYourConnectionAndTryAgain" = "اتصال خود را بررسی کرده و دوباره تلاش کنید.";
 "PricingUnavailable" = "قیمت گذاری در دسترس نیست";
 "BankAccount" = "حساب بانکی";
@@ -1253,4 +1256,4 @@
 /* Accessibility label for the button that clears a field's value. %1$@ is the field's title (e.g. "Date of birth"), so the spoken label reads "Clear Date of birth". */
 "ClearFieldName" = "پاک کردن %1$@";
 "SelectDate" = "انتخاب تاریخ";
-"PremiumRequiredTOTPDescriptionLong" = "کلید تولیدکننده رمز دوعاملی (TOTP) یک ویژگی پریمیوم هست. طرح فعلی شما شامل دسترسی به این قابلیت نیست.";
+"PremiumRequiredTOTPDescriptionLong" = "کلید تولیدکننده رمز دوعاملی (TOTP) یک ویژگی ویژه هست. طرح فعلی شما شامل دسترسی به این قابلیت نیست.";

@@ -26,6 +26,8 @@
 "FolderNone" = "Без папки";
 "Folders" = "Папки";
 "FolderUpdated" = "Папка сохранена";
+"MyFolder" = "Моя папка";
+"MyFolders" = "Мои папки";
 "InternetConnectionRequiredMessage" = "Подключитесь к интернету чтобы продолжить.";
 "InternetConnectionRequiredTitle" = "Требуется подключение к интернету";
 "InvalidMasterPassword" = "Неверный мастер-пароль. Попробуйте снова.";
@@ -495,8 +497,8 @@
 "Totp" = "TOTP";
 "VerificationCodes" = "Коды подтверждения";
 "PremiumSubscriptionRequired" = "Требуется подписка Премиум";
-"APremiumPlanGivesYouMoreToolsDescriptionLong" = "План Премиум дает вам больше возможностей по обеспечения безопасности и контроля.";
-"UnlockAdvancedSecurityFeatures" = "Разблокировать дополнительные функции безопасности";
+"APremiumPlanGivesYouMoreToolsDescriptionLong" = "План Премиум предлагает вам больше возможностей для обеспечения безопасности и контроля.";
+"UnlockAdvancedSecurityFeatures" = "Разблокировать дополнительные возможности безопасности";
 "CannotAddAuthenticatorKey" = "Не удается добавить ключ аутентификатора?";
 "ScanQRCode" = "Сканировать QR-код";
 "CannotScanQRCode" = "Не удается сосканировать QR-код?";
@@ -898,6 +900,7 @@
 /* VoiceOver accessibility label for a shared folder the item belongs to. */
 "SharedFolderX" = "Общая папка, %1$@";
 "FolderX" = "Папка %1$@";
+"MyFolderX" = "Моя папка, %1$@";
 "ItemXOfY" = "Элемент %1$@ из %2$@";
 "ViewRecordedLogs" = "Просмотр записанных логов";
 "RecordedLogs" = "Записанные логи";
@@ -1243,7 +1246,7 @@
 /* Device display name. %1$@ = category (e.g. "Mobile"), %2$@ = platform (e.g. "iOS"). */
 "DeviceDisplayNameXHyphenY" = "%1$@ - %2$@";
 "Mobile" = "Мобильный";
-"BrowserExtension" = "Расширение браузера";
+"BrowserExtension" = "Расширение";
 "WebVault2" = "Веб-приложение";
 "Desktop" = "Компьютер";
 "Cli" = "CLI";

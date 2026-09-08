@@ -26,6 +26,8 @@
 "FolderNone" = "Nema mape";
 "Folders" = "Mape";
 "FolderUpdated" = "Mapa ažurirana";
+"MyFolder" = "My folder";
+"MyFolders" = "My folders";
 "InternetConnectionRequiredMessage" = "Spoji se na internet prije nastavka.";
 "InternetConnectionRequiredTitle" = "Potrebna je veza s internetom";
 "InvalidMasterPassword" = "Neispravna glavna lozinka. Pokušaj ponovo.";
@@ -898,6 +900,7 @@
 /* VoiceOver accessibility label for a shared folder the item belongs to. */
 "SharedFolderX" = "Shared folder, %1$@";
 "FolderX" = "Mapa, %1$@";
+"MyFolderX" = "My folder, %1$@";
 "ItemXOfY" = "Stavka %1$@ / %2$@";
 "ViewRecordedLogs" = "Pogledaj spremljene zapise";
 "RecordedLogs" = "Spremljeni zapisi";

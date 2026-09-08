@@ -26,6 +26,8 @@
 "FolderNone" = "폴더 없음";
 "Folders" = "폴더";
 "FolderUpdated" = "폴더가 저장됨";
+"MyFolder" = "내 폴더";
+"MyFolders" = "내 폴더";
 "InternetConnectionRequiredMessage" = "계속하기 전에 인터넷에 연결해 주세요.";
 "InternetConnectionRequiredTitle" = "인터넷 연결 필요";
 "InvalidMasterPassword" = "마스터 비밀번호가 잘못되었습니다. 다시 시도해 주세요.";
@@ -262,11 +264,11 @@
 /* Section header and screen title for viewing/managing a cipher's collections. */
 "Collections" = "컬렉션";
 /* Section header and screen title for viewing/managing a cipher's shared folders. */
-"SharedFolders" = "Shared folders";
+"SharedFolders" = "공유 폴더";
 /* Empty state message shown when a collection has no items. */
 "NoItemsCollection" = "이 컬렉션에 항목이 없습니다.";
 /* Empty state message shown when a shared folder has no items. */
-"ThereAreNoItemsInThisSharedFolder" = "There are no items in this shared folder";
+"ThereAreNoItemsInThisSharedFolder" = "이 공유 폴더에 항목이 없습니다";
 "NoItemsFolder" = "이 폴더에 항목이 없습니다.";
 "NoItemsTrash" = "휴지통에 아무 항목도 없습니다.";
 "FaceID" = "Face ID";
@@ -325,22 +327,22 @@
 /* Empty state message on the Collections screen shown when a user has no collections. */
 "NoCollectionsToList" = "컬렉션이 없습니다.";
 /* Empty state message on the Shared folders screen shown when a user has no shared folders. */
-"ThereAreNoSharedFoldersToList" = "There are no shared folders to list.";
+"ThereAreNoSharedFoldersToList" = "공유 폴더가 없습니다.";
 "MovedItemToOrg" = "%1$@ 항목이 %2$@ 조직으로 이동되었습니다.";
 /* Alert message shown when saving an item with no collection selected. */
 "SelectOneCollection" = "반드시 하나 이상의 컬렉션을 선택해야 합니다.";
 /* Alert message shown when saving an item with no shared folder selected. */
-"YouMustSelectAtLeastOneSharedFolder" = "You must select at least one shared folder.";
+"YouMustSelectAtLeastOneSharedFolder" = "반드시 하나 이상의 공유 폴더를 선택해야 합니다.";
 "Share" = "공유";
 "ShareAll" = "모두 공유";
 /* Overflow menu item and screen title on the Move screen shown when the "vfo1-foundation" feature flag is disabled; superseded by "Move" when enabled. */
 "MoveToOrganization" = "조직으로 이동하기";
 /* Empty state message shown when a user has no vaults available to move an item into, when the "vfo1-foundation" feature flag is enabled. */
-"NoVaultsToList" = "No vaults to list.";
+"NoVaultsToList" = "보관함이 없습니다.";
 /* Empty state message shown when a user has no organizations available to move an item into, when the "vfo1-foundation" feature flag is disabled. */
 "NoOrgsToList" = "조직이 없습니다.";
 /* Footer text on the Move screen explaining that moving an item transfers its ownership to the destination vault's organization, when the "vfo1-foundation" feature flag is enabled. */
-"ChooseAVaultThatYouWishToMoveThisItemToDescriptionLong" = "Choose a vault that you wish to move this item to. Moving to another vault transfers ownership of the item to that organization. You will no longer be the direct owner of this item once it has been moved.";
+"ChooseAVaultThatYouWishToMoveThisItemToDescriptionLong" = "이 항목을 이동할 보관함을 선택하십시오. 항목이 보관함으로 이동되면 소유권이 조직으로 이전됩니다. 일단 이동되면, 더는 이동된 항목의 직접적인 소유자가 아니게 됩니다.";
 /* Footer text on the Move screen explaining that moving an item transfers its ownership to the destination organization, when the "vfo1-foundation" feature flag is disabled. */
 "MoveToOrgDesc" = "이 항목을 이동할 조직을 선택하십시오. 항목이 조직으로 이동되면 소유권이 조직으로 이전됩니다. 일단 이동되면, 더는 이동된 항목의 직접적인 소유자가 아니게 됩니다.";
 "NumberOfWords" = "단어 수";
@@ -386,7 +388,7 @@
 "ExportVaultWarning" = "내보내기는 보관함 데이터가 암호화되지 않은 형식으로 포함됩니다. 내보낸 파일을 안전하지 않은 채널(예: 이메일)을 통해 저장하거나 보내지 마십시오. 사용이 끝난 후에는 즉시 삭제하십시오.";
 "ExportVaultConfirmationTitle" = "보관함 내보내기 확인";
 "Warning" = "경고";
-"ExportVaultFailure" = "볼트 내보내기에 문제가 발생했습니다. 문제가 계속되면 웹 볼트에서 내보내기를 수행해야 합니다.";
+"ExportVaultFailure" = "보관함을 내보내던 도중 문제가 생겼습니다. 계속 문제가 생긴다면 웹 보관함에서 내보내셔야 합니다.";
 "Clone" = "복제";
 "PasswordGeneratorPolicyInEffect" = "하나 이상의 단체 정책이 생성기 규칙에 영항을 미치고 있습니다.";
 "SoftDeleting" = "휴지통으로 보내는 중...";
@@ -502,7 +504,7 @@
 "CannotScanQRCode" = "QR 코드를 스캔할 수 없나요?";
 "EnterKeyManually" = "수동으로 Api 키 입력";
 "OnceTheKeyIsSuccessfullyEntered" = "키가 첫 번째로 입력되었다면\n키를 안전히 저장하기 위해 TOTP를 추가하세요.";
-"NeverLockWarning" = "잠금 옵션을 '사용 안 함'으로 설정하면 기기에 액세스할 수 있는 사람이면 누구나 볼트를 사용할 수 있습니다. 이 옵션을 사용하는 경우 기기를 적절히 보호해야 합니다.";
+"NeverLockWarning" = "“잠그지 않음”으로 설정하면 기기에 접근할 수 있는 누구나 보관함을 사용할 수 있습니다. 이 설정을 사용하는 경우 기기를 잘 보호해야 합니다.";
 "EnvironmentPageUrlsError" = "하나 이상의 URL이 유효하지 않습니다. 다시 시도하세요.";
 "GenericErrorMessage" = "지금은 귀하의 요청을 처리할 수 없습니다. 다시 시도하거나 지원팀에 문의해 주세요";
 "LogInRequested" = "로그인이 요청됨";
@@ -581,12 +583,12 @@
 "ThereAreNoCardsInYourVault" = "보관함에 카드가 없습니다.";
 "ThereAreNoNotesInYourVault" = "보관함에 메모가 없습니다.";
 "ThereAreNoIdentitiesInYourVault" = "보관함에 신원이 없습니다.";
-"ThereAreNoPassportsInYourVault" = "볼트에 여권이 없습니다";
+"ThereAreNoPassportsInYourVault" = "보관함에 여권이 없습니다";
 "ThereAreNoSSHKeysInYourVault" = "보관함에 SSH 키가 없습니다.";
-"ThereAreNoBankAccountsInYourVault" = "볼트에 은행 계좌가 없습니다";
+"ThereAreNoBankAccountsInYourVault" = "보관함에 은행 계좌가 없습니다";
 "US" = "미국";
 "EU" = "유럽";
-"Gov" = "Gov";
+"Gov" = "정부";
 "SelfHosted" = "셀프호스팅";
 "UpdateWeakMasterPasswordWarning" = "마스터 비밀번호가 조직 정책에 맞지 않습니다. 보관함에 액세스하려면 지금 마스터 비밀번호를 업데이트해야 합니다. 계속하면 현재 세션에서 로그아웃되며 다시 로그인해야 합니다. 다른 장치의 활성 세션은 최대 1시간 동안 계속 활성 상태로 유지될 수 있습니다.";
 "CurrentMasterPasswordRequired" = "현재 마스터 비밀번호 (필수)";
@@ -626,10 +628,10 @@
 "ContinueToAppStore" = "앱 스토어로 계속하시겠습니까?";
 "ContinueWithoutSyncing" = "동기화 없이 계속";
 "TwoStepLoginDescriptionLong" = "Bitwarden 웹 앱에서 2단계 로그인을 설정하여 계정을 더욱 안전하게 보호하세요.";
-"YouCanImportDataToYourVaultOnX" = "%1$@에서 볼트로 데이터를 가져올 수 있습니다.";
+"YouCanImportDataToYourVaultOnX" = "%1$@에서 보관함으로 데이터를 가져올 수 있습니다.";
 "PrivacyPolicyDescriptionLong" = "bitwarden.com에서 개인정보처리방침을 확인하세요.";
 "ExploreMoreFeaturesOfYourBitwardenAccountOnTheWebApp" = "웹 앱에서 Bitwarden 계정의 더 많은 기능을 살펴보세요.";
-"LearnAboutOrganizationsDescriptionLong" = "Bitwarden을 사용하면 조직을 통해 볼트 항목을 다른 사람과 공유할 수 있습니다. bitwarden.com 웹사이트에서 자세히 알아보세요.";
+"LearnAboutOrganizationsDescriptionLong" = "Bitwarden은 조직을 사용하여 보관함 항목들을 다른 사람과 공유할 수 있게 해줍니다. 자세한 내용은 bitwarden.com 사이트에서 확인해주세요.";
 "RateAppDescriptionLong" = "다른 사람들이 Bitwarden이 자신에게 적합한지 알아볼 수 있도록 도와주세요. 지금 앱 스토어를 방문하여 평가를 남겨주세요.";
 "CreatedX" = "생성됨 %1$@";
 "YourOrganizationPermissionsWereUpdatedRequeringYouToSetAMasterPassword" = "조직 권한이 업데이트되어 마스터 암호를 설정해야 합니다.";
@@ -698,7 +700,7 @@
 "CheckOutThePassphraseGenerator" = "비밀구절 생성기를 확인해 보세요";
 "WhatMakesAPasswordStrong" = "어떤 비밀번호가 강한 비밀번호인가요?";
 "PreventAccountLockout" = "계정 잠김 방지하기";
-"NeverLoseAccessToYourVault" = "볼트 액세스를 절대 잃지 마세요";
+"NeverLoseAccessToYourVault" = "보관함 접근 권한을 절대 잃지 마세요";
 "TheBestWayToMakeSureYouCanAlwaysAccessYourAccountIsToSetUpSafeguardsFromTheStart" = "언제나 계정에 접근할 수 있도록 하는 가장 좋은 방법은 안전장치를 미리 마련하는 것입니다.";
 "CreateAHint" = "비밀번호 힌트 만들기";
 "YourHintWillBeSentToYouViaEmailWhenYouRequestIt" = "비밀번호 힌트는 요청 시에 이메일로 전송됩니다.";
@@ -742,7 +744,7 @@
 "GetStarted" = "시작하기";
 "Dismiss" = "닫기";
 "SaveAndProtectYourData" = "데이터 저장 및 보호";
-"TheVaultProtectsMoreThanJustPasswordsStoreSecureLoginsIdsCardsAndNotesSecurelyHere" = "볼트는 비밀번호뿐만 아니라 더 많은 것을 보호합니다. 안전한 로그인, 신분증, 카드 및 메모를 여기에 안전하게 보관하세요.";
+"TheVaultProtectsMoreThanJustPasswordsStoreSecureLoginsIdsCardsAndNotesSecurelyHere" = "보관함이 보호하는 건 비밀번호뿐만이 아닙니다. 로그인, 신원, 카드, 메모를 여기에 안전하게 보관하세요.";
 "SendSensitiveInformationSafely" = "민감한 정보를 안전하게 전송하세요.";
 "ShareFilesAndDataSecurelyWithAnyoneOnAnyPlatformYourInformationWillRemainEndToEndEncrypted" = "파일과 데이터를 안전하게 모든 플랫폼에서 누구와도 공유하세요. 당신의 정보는 노출을 최소화하면서 종단 간 암호화 상태로 유지됩니다.";
 "AddLogin" = "로그인 추가";
@@ -772,11 +774,11 @@
 "ImportSavedLogins" = "저장된 로그인 가져오기";
 "ImportSavedLoginsDescriptionLong" = "컴퓨터를 사용하여 기존 비밀번호 관리자에서 로그인을 가져옵니다.";
 "ImportLogins" = "로그인 가져오기";
-"GiveYourVaultAHeadStart" = "볼트에 미리 데이터 채우기";
+"GiveYourVaultAHeadStart" = "보관함에 미리 데이터 채우기";
 "ImportLoginsDescriptionLong" = "컴퓨터에서 다음 지침에 따라 브라우저나 다른 비밀번호 관리자에서 저장된 비밀번호를 내보냅니다. 그런 다음 Bitwarden으로 안전하게 가져옵니다.";
 "ImportLoginsLater" = "나중에 로그인 가져오기";
 "ImportLoginsLaterQuestion" = "나중에 로그인을 가져오시겠습니까?";
-"YouCanReturnToCompleteThisStepAnytimeInVaultUnderSettings" = "설정 아래의 볼트에서 언제든지 이 단계를 완료할 수 있습니다.";
+"YouCanReturnToCompleteThisStepAnytimeInVaultUnderSettings" = "언제든 보관함의 설정에 돌아와 절차를 완료할 수 있습니다.";
 "DoYouHaveAComputerAvailable" = "사용 가능한 컴퓨터가 있습니까?";
 "DoYouHaveAComputerAvailableDescriptionLong" = "다음 지침은 데스크톱 또는 노트북 컴퓨터에서 로그인을 가져오는 과정을 안내합니다.";
 "StepXOfY" = "%2$@단계 중 %1$@단계";
@@ -842,11 +844,11 @@
 "ImportFailed" = "가져오기 실패";
 "ThereWasAnIssueImportingAllOfYourPasswordsNoDataWasDeleted" = "모든 비밀번호를 가져오는 중에 문제가 발생했습니다.\n\n삭제된 데이터는 없습니다.";
 "RetryImport" = "가져오기 재시도";
-"ShowVault" = "볼트 표시";
+"ShowVault" = "보관함 표시";
 "ImportNotAvailable" = "가져오기를 사용할 수 없음";
 "ImportingFromAnotherProviderIsNotAvailableForThisDevice" = "이 기기에서는 다른 제공업체에서 가져오기를 사용할 수 없습니다.";
-"ExportVaultToAFile" = "볼트를 파일로 내보내기";
-"ExportVaultToAnotherApp" = "볼트를 다른 앱으로 내보내기";
+"ExportVaultToAFile" = "보관함을 파일로 내보내기";
+"ExportVaultToAnotherApp" = "보관함을 다른 앱으로 내보내기";
 "ExportItems" = "항목 내보내기";
 "ExportPasswordsPasskeysCreditCardsAndAnyPersonalIdentityInformation" = "비밀번호, 패스키, 신용 카드 및 개인 신분 정보를 내보냅니다.";
 "RetryExport" = "내보내기 재시도";
@@ -883,7 +885,7 @@
 "FlightRecorder" = "비행 기록 장치";
 "EnableFlightRecorder" = "비행 기록 장치 활성화";
 "ExperiencingAnIssue" = "문제가 발생했나요?";
-"EnableTemporaryLoggingDescriptionLong" = "임시 로깅을 활성화하여 로그를 로컬에서 수집하고 검사합니다. 활성화하면 애플리케이션 상태 및 네트워크 호출이 기록될 수 있으며, 민감한 볼트 정보는 절대 기록되지 않습니다.";
+"EnableTemporaryLoggingDescriptionLong" = "임시 로깅을 활성화하여 로그를 로컬에서 수집하고 검사합니다. 활성화하면 애플리케이션 상태 및 네트워크 호출이 기록될 수 있으며, 민감한 보관함 정보는 절대 기록되지 않습니다.";
 "ToGetStartedSetALoggingDurationDescriptionLong" = "시작하려면 로깅 기간을 설정하세요. 이 기간이 지나면 로깅이 자동으로 꺼져 문제를 재현하는 동안 활동을 캡처할 시간을 제공합니다.";
 "LoggingDuration" = "로깅 기간";
 "LogsWillBeAutomaticallyDeletedAfter30DaysDescriptionLong" = "로그는 30일 후에 자동으로 삭제됩니다. Bitwarden은 사용자가 로그 데이터를 공유할 때만 액세스할 수 있습니다.";
@@ -892,12 +894,13 @@
 "ShowLess" = "간략히 보기";
 "ItemNameX" = "항목 이름, %1$@";
 "OwnerX" = "소유자, %1$@";
-"VaultX" = "Vault, %1$@";
+"VaultX" = "보관함, %1$@";
 /* VoiceOver accessibility label for a collection the item belongs to. */
 "CollectionX" = "컬렉션, %1$@";
 /* VoiceOver accessibility label for a shared folder the item belongs to. */
-"SharedFolderX" = "Shared folder, %1$@";
+"SharedFolderX" = "공유 폴더, %1$@";
 "FolderX" = "폴더, %1$@";
+"MyFolderX" = "내 폴더, %1$@";
 "ItemXOfY" = "%2$@개 중 %1$@번째 항목";
 "ViewRecordedLogs" = "기록된 로그 보기";
 "RecordedLogs" = "기록된 로그";
@@ -939,7 +942,7 @@
 "LastEdited" = "마지막 편집: %1$@";
 "PasswordLastUpdated" = "비밀번호 마지막 업데이트: %1$@";
 "DecryptionError" = "복호화 오류";
-"BitwardenCouldNotDecryptThisVaultItemDescriptionLong" = "Bitwarden이 이 볼트 항목을 복호화할 수 없습니다. 추가 데이터 손실을 방지하려면 이 오류 보고서를 복사하여 고객 성공 팀과 공유하세요.";
+"BitwardenCouldNotDecryptThisVaultItemDescriptionLong" = "Bitwarden이 이 보관함 항목을 복호화할 수 없습니다. 추가 데이터 손실을 막으려면 이 오류 보고서를 복사해 고객 지원 팀과 공유하세요.";
 "CopyErrorReport" = "오류 보고서 복사";
 "ErrorCannotDecrypt" = "[오류: 복호화할 수 없음]";
 "AccountsSyncedFromBitwardenApp" = "Bitwarden 앱에서 동기화된 계정";
@@ -1053,7 +1056,7 @@
 "ItemMovedToArchive" = "항목이 아카이브로 이동됨";
 "ItemMovedToVault" = "항목을 보관함으로 이동함";
 "SendingToArchive" = "아카이브로 이동 중…";
-"MovingItemToVault" = "항목을 볼트로 이동 중";
+"MovingItemToVault" = "항목을 보관함으로 이동 중";
 "OrganizationNotFound" = "조직을 찾을 수 없습니다.";
 "ItemsTransferred" = "항목 이전됨";
 "ArchiveIsEmpty" = "아카이브가 비어 있음";
@@ -1065,9 +1068,9 @@
 "UpgradeToPremium" = "프리미엄으로 업그레이드";
 "ThisItemIsArchived" = "이 항목은 보관되었습니다.";
 "YourPremiumSubscriptionEnded" = "프리미엄 구독이 끝났습니다";
-"YourPremiumSubscriptionEndedArchiveDescriptionLong" = "아카이브에 다시 액세스하려면 프리미엄 구독을 다시 시작하세요. 다시 시작하기 전에 보관된 항목의 세부 정보를 편집하면 볼트로 다시 이동됩니다.";
+"YourPremiumSubscriptionEndedArchiveDescriptionLong" = "아카이브에 다시 액세스하려면 프리미엄 구독을 다시 시작하세요. 다시 시작하기 전에 보관된 항목의 세부 정보를 편집하면 보관함으로 다시 이동됩니다.";
 "RestartPremium" = "프리미엄 재시작";
-"ThisItemIsArchivedSavingChangesWillRestoreItToYourVault" = "이 항목은 보관되었습니다. 변경 사항을 저장하면 볼트로 복원됩니다.";
+"ThisItemIsArchivedSavingChangesWillRestoreItToYourVault" = "이 항목은 보관되었습니다. 변경 사항을 저장하면 보관함으로 복원됩니다.";
 "SettingUpAutofill" = "자동 채우기 설정 중…";
 "AddEmail" = "이메일 추가";
 "AnyoneWithPasswordSetByYou" = "사용자가 설정한 비밀번호를 가진 사람";
@@ -1185,7 +1188,7 @@
 "UserID" = "사용자 ID";
 "CopyUserID" = "사용자 ID 복사";
 "UserIDUnavailable" = "사용자 ID를 사용할 수 없음";
-"ToManageYourPremiumSubscriptionDescriptionLong" = "프리미엄 구독을 관리하려면 컴퓨터에서 웹 볼트에 로그인하세요.";
+"ToManageYourPremiumSubscriptionDescriptionLong" = "프리미엄 구독을 관리하려면 컴퓨터에서 웹 보관함에 로그인하세요.";
 "CheckYourConnectionAndTryAgain" = "연결을 확인하고 다시 시도하세요.";
 "PricingUnavailable" = "가격 정보를 사용할 수 없음";
 "BankAccount" = "은행 계좌";
@@ -1228,12 +1231,12 @@
 "MoneyMarket" = "머니마켓";
 "Savings" = "저축 예금";
 "Devices" = "기기";
-"NoDevicesFound" = "No devices found";
+"NoDevicesFound" = "기기를 찾을 수 없습니다";
 "CurrentSession" = "현재 세션";
 "PendingRequest" = "보류 중인 요청";
 "Trusted" = "신뢰됨";
-"RecentlyActiveLabel" = "Recently active:";
-"FirstLoginLabel" = "First login:";
+"RecentlyActiveLabel" = "최근 활성:";
+"FirstLoginLabel" = "첫 로그인:";
 "Today" = "오늘";
 "PastSevenDays" = "지난 7일";
 "PastFourteenDays" = "지난 14일";
@@ -1242,10 +1245,10 @@
 "Unknown" = "알 수 없음";
 /* Device display name. %1$@ = category (e.g. "Mobile"), %2$@ = platform (e.g. "iOS"). */
 "DeviceDisplayNameXHyphenY" = "%1$@ - %2$@";
-"Mobile" = "Mobile";
-"BrowserExtension" = "Extension";
-"WebVault2" = "Web app";
-"Desktop" = "Desktop";
+"Mobile" = "모바일";
+"BrowserExtension" = "확장";
+"WebVault2" = "웹 앱";
+"Desktop" = "데스크탑";
 "Cli" = "CLI";
 "Sdk" = "SDK";
 "Server" = "서버";

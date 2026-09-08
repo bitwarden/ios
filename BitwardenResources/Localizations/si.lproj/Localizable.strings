@@ -26,6 +26,8 @@
 "FolderNone" = "බහාලුමක් නැත";
 "Folders" = "බහාලුම්";
 "FolderUpdated" = "ෆෝල්ඩරය සුරකින ලදී";
+"MyFolder" = "මගේ ෆෝල්ඩරය";
+"MyFolders" = "මගේ ෆෝල්ඩර";
 "InternetConnectionRequiredMessage" = "කරුණාකර ඉදිරියට යාමට පෙර අන්තර්ජාලයට සම්බන්ධ වන්න.";
 "InternetConnectionRequiredTitle" = "අන්තර්ජාල සම්බන්ධතාවය අවශ්‍යයි";
 "InvalidMasterPassword" = "අවලංගු ප්‍රධාන මුරපදය. නැවත උත්සාහ කරන්න.";
@@ -898,6 +900,7 @@
 /* VoiceOver accessibility label for a shared folder the item belongs to. */
 "SharedFolderX" = "Shared folder, %1$@";
 "FolderX" = "ෆෝල්ඩරය, %1$@";
+"MyFolderX" = "My folder, %1$@";
 "ItemXOfY" = "%2$@ න් %1$@ අයිතමය";
 "ViewRecordedLogs" = "පටිගත කළ ලොග බලන්න";
 "RecordedLogs" = "පටිගත කළ ලොග";

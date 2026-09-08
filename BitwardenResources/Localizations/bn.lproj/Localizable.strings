@@ -26,6 +26,8 @@
 "FolderNone" = "কোন ফোল্ডার নেই";
 "Folders" = "ফোল্ডারসমূহ";
 "FolderUpdated" = "ফোল্ডার হালনাগাদকৃত।";
+"MyFolder" = "My folder";
+"MyFolders" = "My folders";
 "InternetConnectionRequiredMessage" = "চালিয়ে যাওয়ার আগে দয়া করে ইন্টারনেটের সাথে সংযুক্ত হন।";
 "InternetConnectionRequiredTitle" = "ইন্টারনেট সংযোগ প্রয়োজন";
 "InvalidMasterPassword" = "মাস্টার পাসওয়ার্ডটি সঠিক নয়। আবার চেষ্টা করুন।";
@@ -898,6 +900,7 @@
 /* VoiceOver accessibility label for a shared folder the item belongs to. */
 "SharedFolderX" = "Shared folder, %1$@";
 "FolderX" = "ফোল্ডার, %1$@";
+"MyFolderX" = "My folder, %1$@";
 "ItemXOfY" = "আইটেম %1$@ এর %2$@";
 "ViewRecordedLogs" = "রেকর্ড করা লগ দেখুন";
 "RecordedLogs" = "রেকর্ড করা লগ";

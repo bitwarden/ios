@@ -26,6 +26,8 @@
 "FolderNone" = "პაპკის გარეშე";
 "Folders" = "პაპკები";
 "FolderUpdated" = "პაპკა შენახულია";
+"MyFolder" = "My folder";
+"MyFolders" = "My folders";
 "InternetConnectionRequiredMessage" = "გაგრძელებამდე, გთხოვთ, დაუკავშირდეთ ინტერნეტს.";
 "InternetConnectionRequiredTitle" = "საჭიროა ინტერნეტთან კავშირი";
 "InvalidMasterPassword" = "არასწორი მთავარი პაროლი. სცადეთ ხელახლა.";
@@ -898,6 +900,7 @@
 /* VoiceOver accessibility label for a shared folder the item belongs to. */
 "SharedFolderX" = "Shared folder, %1$@";
 "FolderX" = "პაპკა, %1$@";
+"MyFolderX" = "My folder, %1$@";
 "ItemXOfY" = "ჩანაწერი %1$@ %2$@-დან";
 "ViewRecordedLogs" = "ჩაწერილი ჟურნალების ნახვა";
 "RecordedLogs" = "ჩაწერილი ჟურნალები";

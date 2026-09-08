@@ -57,4 +57,23 @@ enum SendAccessType: CaseIterable, Equatable, Hashable, Menuable, Sendable {
             self = .anyoneWithPassword
         }
     }
+
+    /// Creates a `SendAccessType` from the Send Controls policy's `whoCanAccess` value, or `nil`
+    /// when the access type is unrestricted.
+    ///
+    /// The server's `WhoCanAccessType`: `0` = Any (unrestricted), `1` = PasswordProtected,
+    /// `2` = SpecificPeople (email verification).
+    ///
+    /// - Parameter whoCanAccessPolicyValue: The policy's `whoCanAccess` int value.
+    ///
+    init?(whoCanAccessPolicyValue value: Int?) {
+        switch value {
+        case 1:
+            self = .anyoneWithPassword
+        case 2:
+            self = .specificPeople
+        default:
+            return nil
+        }
+    }
 }

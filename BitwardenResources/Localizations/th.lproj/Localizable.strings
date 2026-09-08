@@ -26,6 +26,8 @@
 "FolderNone" = "ไม่มีโฟลเดอร์";
 "Folders" = "โฟลเดอร์";
 "FolderUpdated" = "บันทึกโฟลเดอร์แล้ว";
+"MyFolder" = "โฟลเดอร์ของฉัน";
+"MyFolders" = "โฟลเดอร์ของฉัน";
 "InternetConnectionRequiredMessage" = "โปรดเชื่อมต่ออินเทอร์เน็ตก่อนดำเนินการต่อ";
 "InternetConnectionRequiredTitle" = "จำเป็นต้องเชื่อมต่ออินเทอร์เน็ต";
 "InvalidMasterPassword" = "รหัสผ่านหลักไม่ถูกต้อง โปรดลองอีกครั้ง";
@@ -898,6 +900,7 @@
 /* VoiceOver accessibility label for a shared folder the item belongs to. */
 "SharedFolderX" = "Shared folder, %1$@";
 "FolderX" = "โฟลเดอร์: %1$@";
+"MyFolderX" = "My folder, %1$@";
 "ItemXOfY" = "รายการ %1$@ จาก %2$@";
 "ViewRecordedLogs" = "ดูบันทึกที่ถูกบันทึกไว้";
 "RecordedLogs" = "บันทึกที่ถูกบันทึกไว้";

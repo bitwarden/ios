@@ -26,6 +26,8 @@
 "FolderNone" = "Klasör yok";
 "Folders" = "Klasörler";
 "FolderUpdated" = "Klasör kaydedildi";
+"MyFolder" = "Klasörüm";
+"MyFolders" = "Klasörlerim";
 "InternetConnectionRequiredMessage" = "Lütfen devam etmeden önce internete bağlanın.";
 "InternetConnectionRequiredTitle" = "İnternet bağlantısı gerekli";
 "InvalidMasterPassword" = "Ana parola geçersiz. Tekrar deneyin.";
@@ -898,6 +900,7 @@
 /* VoiceOver accessibility label for a shared folder the item belongs to. */
 "SharedFolderX" = "Shared folder, %1$@";
 "FolderX" = "Klasör, %1$@";
+"MyFolderX" = "Klasörüm, %1$@";
 "ItemXOfY" = "Kayıt %1$@/%2$@";
 "ViewRecordedLogs" = "Kaydedilen günlükleri görüntüle";
 "RecordedLogs" = "Kaydedilen günlükler";

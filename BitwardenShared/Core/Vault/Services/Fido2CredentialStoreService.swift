@@ -70,9 +70,17 @@ final class Fido2CredentialStoreService: Fido2CredentialStore {
     /// - Parameter cred: Cipher/Credential to add/update.
     func saveCredential(cred: BitwardenSdk.EncryptionContext) async throws {
         if cred.cipher.id == nil {
-            try await cipherService.addCipherWithServer(cred.cipher, encryptedFor: cred.encryptedFor)
+            try await cipherService.addCipherWithServer(
+                cred.cipher,
+                encryptedByKeyId: cred.encryptedByKeyId,
+                encryptedFor: cred.encryptedFor,
+            )
         } else {
-            try await cipherService.updateCipherWithServer(cred.cipher, encryptedFor: cred.encryptedFor)
+            try await cipherService.updateCipherWithServer(
+                cred.cipher,
+                encryptedByKeyId: cred.encryptedByKeyId,
+                encryptedFor: cred.encryptedFor,
+            )
         }
     }
 

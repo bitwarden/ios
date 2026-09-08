@@ -6,7 +6,7 @@
     <key>BitwardenCouldNotDecryptXVaultItemsDescriptionLong</key>
     <dict>
       <key>NSStringLocalizedFormatKey</key>
-      <string>%#@BitwardenCouldNotDecryptVaultItems@ Copy and share this error report with customer success to avoid additional data loss.</string>
+      <string>%#@BitwardenCouldNotDecryptVaultItems@ ಹೆಚ್ಚುವರಿ ಡೇಟಾ ನಷ್ಟವನ್ನು ತಪ್ಪಿಸಲು ಈ ದೋಷ ವರದಿಯನ್ನು ನಕಲಿಸಿ ಮತ್ತು ಗ್ರಾಹಕ ಯಶಸ್ಸಿನೊಂದಿಗೆ ಹಂಚಿಕೊಳ್ಳಿ.</string>
       <key>BitwardenCouldNotDecryptVaultItems</key>
       <dict>
         <key>NSStringFormatSpecTypeKey</key>
@@ -14,9 +14,9 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>d</string>
         <key>one</key>
-        <string>Bitwarden could not decrypt %d vault item.</string>
+        <string>Bitwarden %d ವಾಲ್ಟ್ ಐಟಂ ಅನ್ನು ಡೀಕ್ರಿಪ್ಟ್ ಮಾಡಲು ಸಾಧ್ಯವಾಗಲಿಲ್ಲ.</string>
         <key>other</key>
-        <string>Bitwarden could not decrypt %d vault items.</string>
+        <string>Bitwarden %d ವಾಲ್ಟ್ ಐಟಂಗಳನ್ನು ಡೀಕ್ರಿಪ್ಟ್ ಮಾಡಲು ಸಾಧ್ಯವಾಗಲಿಲ್ಲ.</string>
       </dict>
     </dict>
     <!-- A message indicating the minimum length of a master password in characters. -->
@@ -31,16 +31,16 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>d</string>
         <key>one</key>
-        <string>Master password must be at least %d character long.</string>
+        <string>ಮಾಸ್ಟರ್ ಪಾಸ್ವರ್ಡ್ ಕನಿಷ್ಠ %d ಅಕ್ಷರ ಉದ್ದವಾಗಿರಬೇಕು.</string>
         <key>other</key>
-        <string>Master password must be at least %d characters long.</string>
+        <string>ಮಾಸ್ಟರ್ ಪಾಸ್ವರ್ಡ್ ಕನಿಷ್ಠ %d ಅಕ್ಷರಗಳ ಉದ್ದವಾಗಿರಬೇಕು.</string>
       </dict>
     </dict>
     <!-- A warning if we have determined that a password has been exposed in a data breach. -->
     <key>ThisPasswordHasBeenExposedXTimesDescriptionLong</key>
     <dict>
       <key>NSStringLocalizedFormatKey</key>
-      <string>%#@ThisPasswordHasBeenExposedTimes@ You should change it.</string>
+      <string>%#@ThisPasswordHasBeenExposedTimes@ ನೀವು ಅದನ್ನು ಬದಲಾಯಿಸಬೇಕು.</string>
       <key>ThisPasswordHasBeenExposedTimes</key>
       <dict>
         <key>NSStringFormatSpecTypeKey</key>
@@ -48,9 +48,9 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>d</string>
         <key>one</key>
-        <string>This password has been exposed %d time in data breaches.</string>
+        <string>ಈ ಪಾಸ್ವರ್ಡ್ ಡೇಟಾ ಉಲ್ಲಂಘನೆಗಳಲ್ಲಿ %d ಬಾರಿ ಬಹಿರಂಗಗೊಂಡಿದೆ.</string>
         <key>other</key>
-        <string>This password has been exposed %d times in data breaches.</string>
+        <string>ಈ ಪಾಸ್ವರ್ಡ್ ಡೇಟಾ ಉಲ್ಲಂಘನೆಗಳಲ್ಲಿ %d ಬಾರಿ ಬಹಿರಂಗಗೊಂಡಿದೆ.</string>
       </dict>
     </dict>
     <!-- A number of characters, as in letters/numbers/punctuation. For example, the minimum number of characters when creating a password. -->
@@ -65,9 +65,9 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>d</string>
         <key>one</key>
-        <string>%d character</string>
+        <string>%d ಅಕ್ಷರ</string>
         <key>other</key>
-        <string>%d characters</string>
+        <string>%d ಅಕ್ಷರಗಳು</string>
       </dict>
     </dict>
     <!-- A number of days, used in menu selections. For example, the number of days to keep a send before deletion. -->
@@ -82,9 +82,9 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>d</string>
         <key>one</key>
-        <string>%d day</string>
+        <string>%d ದಿನ</string>
         <key>other</key>
-        <string>%d days</string>
+        <string>%d ದಿನಗಳು</string>
       </dict>
     </dict>
     <!-- A number of hours, used in menu selections. For example, how long to log events in the flight recorder. -->
@@ -99,9 +99,9 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>d</string>
         <key>one</key>
-        <string>%d hour</string>
+        <string>%d ಗಂಟೆ</string>
         <key>other</key>
-        <string>%d hours</string>
+        <string>%d ಗಂಟೆಗಳು</string>
       </dict>
     </dict>
     <!-- A number of items, used in headers' voiceover to indicate how many items are in a section. -->
@@ -116,9 +116,9 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>d</string>
         <key>one</key>
-        <string>%d item</string>
+        <string>%d ಐಟಂ</string>
         <key>other</key>
-        <string>%d items</string>
+        <string>%d ಐಟಂಗಳು</string>
       </dict>
     </dict>
     <!-- Message indicating a number of items were successfully imported in the Credential Exchange flow. -->
@@ -133,9 +133,9 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>d</string>
         <key>one</key>
-        <string>%d item successfully imported</string>
+        <string>%d ಐಟಂ ಯಶಸ್ವಿಯಾಗಿ ಆಮದು ಮಾಡಲಾಗಿದೆ</string>
         <key>other</key>
-        <string>%d items successfully imported</string>
+        <string>%d ಐಟಂಗಳು ಯಶಸ್ವಿಯಾಗಿ ಆಮದು ಮಾಡಲಾಗಿದೆ</string>
       </dict>
     </dict>
     <!-- A number of minutes, used in menu selections. For example, the amount of time to keep the vault unlocked after being unlocked. -->
@@ -150,9 +150,9 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>d</string>
         <key>one</key>
-        <string>%d minute</string>
+        <string>%d ನಿಮಿಷ</string>
         <key>other</key>
-        <string>%d minutes</string>
+        <string>%d ನಿಮಿಷಗಳು</string>
       </dict>
     </dict>
     <!-- A number of seconds, used in menu selection. For example, how long to keep copied fields in the clipboard before clearing. -->
@@ -167,9 +167,9 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>d</string>
         <key>one</key>
-        <string>%d second</string>
+        <string>%d ಸೆಕೆಂಡ್</string>
         <key>other</key>
-        <string>%d seconds</string>
+        <string>%d ಸೆಕೆಂಡುಗಳು</string>
       </dict>
     </dict>
     <!-- A number of weeks, used in menu selection. For example, how long to log events in the flight recorder. -->
@@ -184,16 +184,16 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>d</string>
         <key>one</key>
-        <string>%d week</string>
+        <string>%d ವಾರ</string>
         <key>other</key>
-        <string>%d weeks</string>
+        <string>%d ವಾರಗಳು</string>
       </dict>
     </dict>
     <!-- A message indicating the grace period for a past due subscription, with pluralized days and the date. -->
     <key>YouHaveAGracePeriodOfXDaysFromYourSubscriptionDescriptionLong</key>
     <dict>
       <key>NSStringLocalizedFormatKey</key>
-      <string>%1$#@YouHaveAGracePeriodOfXDaysFromYourSubscriptionExpirationDate@ Please resolve the past due invoices by **%2$@**.</string>
+      <string>%1$#@YouHaveAGracePeriodOfXDaysFromYourSubscriptionExpirationDate@ ದಯವಿಟ್ಟು **%2$@** ರೊಳಗೆ ಬಾಕಿ ಇರುವ ಇನ್ವಾಯ್ಸ್ಗಳನ್ನು ಪರಿಹರಿಸಿ.</string>
       <key>YouHaveAGracePeriodOfXDaysFromYourSubscriptionExpirationDate</key>
       <dict>
         <key>NSStringFormatSpecTypeKey</key>
@@ -201,16 +201,16 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>d</string>
         <key>one</key>
-        <string>You have a grace period of %1$d day from your subscription expiration date.</string>
+        <string>ನಿಮ್ಮ ಚಂದಾದಾರಿಕೆ ಅವಧಿ ಮೀರುವ ದಿನಾಂಕದಿಂದ ನೀವು %1$d ದಿನದ ಗ್ರೇಸ್ ಅವಧಿಯನ್ನು ಹೊಂದಿದ್ದೀರಿ.</string>
         <key>other</key>
-        <string>You have a grace period of %1$d days from your subscription expiration date.</string>
+        <string>ನಿಮ್ಮ ಚಂದಾದಾರಿಕೆ ಅವಧಿ ಮೀರುವ ದಿನಾಂಕದಿಂದ ನೀವು %1$d ದಿನಗಳ ಗ್ರೇಸ್ ಅವಧಿಯನ್ನು ಹೊಂದಿದ್ದೀರಿ.</string>
       </dict>
     </dict>
     <!-- A message indicating the minimum length of a PIN in characters. -->
     <key>YourPINMustBeAtLeastXCharactersDescriptionLong</key>
     <dict>
       <key>NSStringLocalizedFormatKey</key>
-      <string>%#@YourPINMustBeAtLeastCharacters@ Your PIN settings will be reset if you ever fully log out of the application.</string>
+      <string>%#@YourPINMustBeAtLeastCharacters@ ನೀವು ಅಪ್ಲಿಕೇಶನ್ನಿಂದ ಸಂಪೂರ್ಣವಾಗಿ ಲಾಗ್ ಔಟ್ ಮಾಡಿದರೆ ನಿಮ್ಮ PIN ಸೆಟ್ಟಿಂಗ್ಗಳು ಮರುಹೊಂದಿಸಲ್ಪಡುತ್ತವೆ.</string>
       <key>YourPINMustBeAtLeastCharacters</key>
       <dict>
         <key>NSStringFormatSpecTypeKey</key>
@@ -218,9 +218,9 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>d</string>
         <key>one</key>
-        <string>Your PIN must be at least %d character.</string>
+        <string>ನಿಮ್ಮ PIN ಕನಿಷ್ಠ %d ಅಕ್ಷರವಾಗಿರಬೇಕು.</string>
         <key>other</key>
-        <string>Your PIN must be at least %d characters.</string>
+        <string>ನಿಮ್ಮ PIN ಕನಿಷ್ಠ %d ಅಕ್ಷರಗಳಾಗಿರಬೇಕು.</string>
       </dict>
     </dict>
   </dict>

@@ -27,21 +27,21 @@ struct ImportCiphersRequest: Request {
 
     /// Initialize a `ImportCiphersRequest` for ciphers, folders and its relattionship.
     /// - Parameters:
-    ///   - ciphers: Ciphers to import.
+    ///   - encryptionContexts: The encryption contexts containing ciphers and their encryption metadata to import.
     ///   - folders: Folders to import.
     ///   - folderRelationships: The cipher<->folder relationships map. The key is the cipher index
     ///   and the value is the folder index in their respective arrays.
     init(
-        ciphers: [Cipher],
+        encryptionContexts: [EncryptionContext],
         folders: [Folder] = [],
         folderRelationships: [(key: Int, value: Int)] = [],
     ) throws {
-        guard !ciphers.isEmpty else {
+        guard !encryptionContexts.isEmpty else {
             throw BitwardenError.dataError("There are no ciphers to import.")
         }
 
         requestModel = ImportCiphersRequestModel(
-            ciphers: ciphers.map { CipherRequestModel(cipher: $0) },
+            ciphers: encryptionContexts.map { CipherRequestModel(encryptionContext: $0) },
             folders: folders.map { FolderWithIdRequestModel(folder: $0) },
             folderRelationships: folderRelationships.map { FolderRelationship(key: $0.key, value: $0.value) },
         )

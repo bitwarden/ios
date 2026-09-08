@@ -26,6 +26,8 @@
 "FolderNone" = "கோப்புறையற்றவை";
 "Folders" = "கோப்புறைகள்";
 "FolderUpdated" = "கோப்புறை சேமிக்கப்பட்டது";
+"MyFolder" = "எனது கோப்புறை";
+"MyFolders" = "எனது கோப்புறைகள்";
 "InternetConnectionRequiredMessage" = "தொடரும் முன் இணையத்துடன் இணைக்கவும்.";
 "InternetConnectionRequiredTitle" = "இணைய இணைப்பு தேவை";
 "InvalidMasterPassword" = "செல்லாத பிரதான கடவுச்சொல். மீண்டும் முயலவும்.";
@@ -899,6 +901,7 @@
 /* VoiceOver accessibility label for a shared folder the item belongs to. */
 "SharedFolderX" = "Shared folder, %1$@";
 "FolderX" = "கோப்புறை, %1$@";
+"MyFolderX" = "My folder, %1$@";
 "ItemXOfY" = "பொருள் %1$@ இல் %2$@";
 "ViewRecordedLogs" = "பதிவு செய்யப்பட்ட பதிவுகளைப் பார்";
 "RecordedLogs" = "பதிவு செய்யப்பட்ட பதிவுகள்";

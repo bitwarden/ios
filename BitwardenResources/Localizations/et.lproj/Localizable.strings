@@ -26,6 +26,8 @@
 "FolderNone" = "Kaust puudub";
 "Folders" = "Kaustad";
 "FolderUpdated" = "Kaust on uuendatud.";
+"MyFolder" = "My folder";
+"MyFolders" = "My folders";
 "InternetConnectionRequiredMessage" = "Jätkamiseks on vajalik internetiühendus.";
 "InternetConnectionRequiredTitle" = "Vajalik on internetiühendus";
 "InvalidMasterPassword" = "Vale ülemparool. Proovi uuesti.";
@@ -898,6 +900,7 @@
 /* VoiceOver accessibility label for a shared folder the item belongs to. */
 "SharedFolderX" = "Shared folder, %1$@";
 "FolderX" = "Kaust: %1$@";
+"MyFolderX" = "My folder, %1$@";
 "ItemXOfY" = "Üksus %1$@ / %2$@";
 "ViewRecordedLogs" = "Vaata salvestatud logisid";
 "RecordedLogs" = "Salvestatud logid";

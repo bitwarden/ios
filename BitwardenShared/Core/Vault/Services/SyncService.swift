@@ -78,6 +78,12 @@ protocol SyncService: AnyObject {
     /// - Returns: The organization ID if migration is needed, or `nil` if not.
     ///
     func organizationIdRequiringVaultMigration() async throws -> String?
+
+    /// A publisher for when a sync completes successfully.
+    ///
+    /// Emits after all sync data has been persisted.
+    ///
+    func syncCompletePublisher() -> AsyncPublisher<AnyPublisher<Void, Never>>
 }
 
 extension SyncService {
@@ -200,6 +206,9 @@ class DefaultSyncService: SyncService {
     /// The API service used to perform sync API requests.
     private let syncAPIService: SyncAPIService
 
+    /// The subject tracking when a sync completes successfully.
+    private let syncCompleteSubject = CurrentValueSubject<Void, Never>(())
+
     /// A delegate of the `SyncService` that is notified if a user's security stamp changes.
     weak var delegate: SyncServiceDelegate?
 
@@ -301,6 +310,10 @@ class DefaultSyncService: SyncService {
         }
 
         return organizationId
+    }
+
+    func syncCompletePublisher() -> AsyncPublisher<AnyPublisher<Void, Never>> {
+        syncCompleteSubject.eraseToAnyPublisher().values
     }
 
     // MARK: Private
@@ -482,6 +495,7 @@ extension DefaultSyncService {
         }
 
         await delegate?.onFetchSyncSucceeded(userId: userId)
+        syncCompleteSubject.send(())
     }
 
     func deleteCipher(data: SyncCipherNotification) async throws {

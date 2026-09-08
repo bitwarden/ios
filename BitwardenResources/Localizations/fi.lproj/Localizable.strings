@@ -26,6 +26,8 @@
 "FolderNone" = "Ei kansiota";
 "Folders" = "Kansiot";
 "FolderUpdated" = "Kansio tallennettiin";
+"MyFolder" = "My folder";
+"MyFolders" = "My folders";
 "InternetConnectionRequiredMessage" = "Jatka muodostamalla yhteys Internetiin.";
 "InternetConnectionRequiredTitle" = "Internet-yhteys vaaditaan";
 "InvalidMasterPassword" = "Virheellinen pääsalasana. Yritä uudelleen.";
@@ -898,6 +900,7 @@
 /* VoiceOver accessibility label for a shared folder the item belongs to. */
 "SharedFolderX" = "Shared folder, %1$@";
 "FolderX" = "Kansio, %1$@";
+"MyFolderX" = "My folder, %1$@";
 "ItemXOfY" = "Kohde %1$@ / %2$@";
 "ViewRecordedLogs" = "Näytä tallennetut lokit";
 "RecordedLogs" = "Tallennetut lokit";

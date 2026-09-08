@@ -26,6 +26,8 @@
 "FolderNone" = "ללא תיקיה";
 "Folders" = "תיקיות";
 "FolderUpdated" = "תיקיה עודכנה";
+"MyFolder" = "My folder";
+"MyFolders" = "My folders";
 "InternetConnectionRequiredMessage" = "אנא התחבר לאינטרנט לפני שתמשיך.";
 "InternetConnectionRequiredTitle" = "דרוש חיבור אינטרנט";
 "InvalidMasterPassword" = "סיסמה ראשית שגויה. נסה שוב.";
@@ -899,6 +901,7 @@
 /* VoiceOver accessibility label for a shared folder the item belongs to. */
 "SharedFolderX" = "Shared folder, %1$@";
 "FolderX" = "תיקייה, %1$@";
+"MyFolderX" = "My folder, %1$@";
 "ItemXOfY" = "פריט %1$@ מתוך %2$@";
 "ViewRecordedLogs" = "הצג יומנים מוקלטים";
 "RecordedLogs" = "יומנים מוקלטים";

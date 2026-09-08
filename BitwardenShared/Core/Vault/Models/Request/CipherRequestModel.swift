@@ -31,6 +31,11 @@ struct CipherRequestModel: JSONRequestBody {
     /// Driver's license data if the cipher is a driver's license.
     let driversLicense: CipherDriversLicenseModel?
 
+    /// The hex-encoded ID of the key used to encrypt this cipher's fields.
+    ///
+    /// - Note: `nil` for legacy AES-CBC-HMAC keys (V1 accounts) that carry no key ID.
+    let encryptedByKeyId: String?
+
     /// The ID of the user that encrypted the cipher. It should always represent a UserId.
     /// This is used to check that the user who encrypted the cipher is the same making the request.
     let encryptedFor: String?
@@ -98,10 +103,11 @@ extension CipherRequestModel {
     ///
     /// - Parameters:
     ///   - cipher: The `Cipher` used to initialize a `CipherRequestModel`.
+    ///   - encryptedByKeyId: The hex-encoded ID of the key used to encrypt the `cipher`.
     ///   - encryptedFor: The user ID who encrypted the `cipher`.
     ///   - includeId: Whether to include the cipher's ID in the request model. Defaults to `false`.
     ///
-    init(cipher: Cipher, encryptedFor: String? = nil, includeId: Bool = false) {
+    init(cipher: Cipher, encryptedByKeyId: String? = nil, encryptedFor: String? = nil, includeId: Bool = false) {
         self.init(
             archivedDate: cipher.archivedDate,
             attachments2: cipher.attachments?.reduce(into: [String: AttachmentRequestModel]()) { result, attachment in
@@ -112,6 +118,7 @@ extension CipherRequestModel {
             card: cipher.card.map(CipherCardModel.init),
             data: cipher.data,
             driversLicense: cipher.driversLicense.map(CipherDriversLicenseModel.init),
+            encryptedByKeyId: encryptedByKeyId,
             encryptedFor: encryptedFor,
             favorite: cipher.favorite,
             fields: cipher.fields?.map(CipherFieldModel.init),
@@ -130,6 +137,18 @@ extension CipherRequestModel {
             secureNote: cipher.secureNote.map(CipherSecureNoteModel.init),
             sshKey: cipher.sshKey.map(CipherSSHKeyModel.init),
             type: CipherType(type: cipher.type),
+        )
+    }
+
+    /// Initialize a `CipherRequestModel` from an `EncryptionContext`.
+    ///
+    /// - Parameter encryptionContext: The `EncryptionContext` used to initialize a `CipherRequestModel`.
+    ///
+    init(encryptionContext: EncryptionContext) {
+        self.init(
+            cipher: encryptionContext.cipher,
+            encryptedByKeyId: encryptionContext.encryptedByKeyId,
+            encryptedFor: encryptionContext.encryptedFor,
         )
     }
 }

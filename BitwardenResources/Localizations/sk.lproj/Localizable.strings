@@ -26,6 +26,8 @@
 "FolderNone" = "Žiadny priečinok";
 "Folders" = "Priečinky";
 "FolderUpdated" = "Priečinok bol uložený";
+"MyFolder" = "Môj priečinok";
+"MyFolders" = "Moje priečinky";
 "InternetConnectionRequiredMessage" = "Pripojte sa k internetu pred pokračovaním.";
 "InternetConnectionRequiredTitle" = "Vyžaduje sa internetové pripojenie";
 "InvalidMasterPassword" = "Neplatné hlavné heslo. Skúste to znova.";
@@ -898,6 +900,7 @@
 /* VoiceOver accessibility label for a shared folder the item belongs to. */
 "SharedFolderX" = "Zdieľaný priečinok, %1$@";
 "FolderX" = "Priečinok, %1$@";
+"MyFolderX" = "Môj priečinok, %1$@";
 "ItemXOfY" = "Položka %1$@ z %2$@";
 "ViewRecordedLogs" = "Zobraziť zaznamenané logy";
 "RecordedLogs" = "Zaznamenané logy";

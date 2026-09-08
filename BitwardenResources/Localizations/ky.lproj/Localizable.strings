@@ -26,6 +26,8 @@
 "FolderNone" = "Папка жок";
 "Folders" = "Папкалар";
 "FolderUpdated" = "Папка сакталды";
+"MyFolder" = "My folder";
+"MyFolders" = "My folders";
 "InternetConnectionRequiredMessage" = "Улантуудан мурун интернетке туташыңыз.";
 "InternetConnectionRequiredTitle" = "Интернет байланышы талап кылынат";
 "InvalidMasterPassword" = "Башкы сырсөз туура эмес. Кайра аракет кылыңыз.";
@@ -898,6 +900,7 @@
 /* VoiceOver accessibility label for a shared folder the item belongs to. */
 "SharedFolderX" = "Shared folder, %1$@";
 "FolderX" = "Папка, %1$@";
+"MyFolderX" = "My folder, %1$@";
 "ItemXOfY" = "%2$@ ичинен %1$@-элемент";
 "ViewRecordedLogs" = "Жазылган журналдарды көрүү";
 "RecordedLogs" = "Жазылган журналдар";

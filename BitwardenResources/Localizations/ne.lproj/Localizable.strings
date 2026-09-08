@@ -26,6 +26,8 @@
 "FolderNone" = "कुनै फोल्डरमा हैन";
 "Folders" = "फोल्डरहरू";
 "FolderUpdated" = "फोल्डर सेभ गरियो";
+"MyFolder" = "मेरो फोल्डर";
+"MyFolders" = "मेरा फोल्डरहरू";
 "InternetConnectionRequiredMessage" = "कृपया जारी राख्नु अघि इन्टरनेटमा जडान गर्नुहोस्।";
 "InternetConnectionRequiredTitle" = "इन्टरनेट जडान आवश्यक छ";
 "InvalidMasterPassword" = "अवैध मास्टर पासवर्ड। फेरि प्रयास गर्नुहोस्।";
@@ -898,6 +900,7 @@
 /* VoiceOver accessibility label for a shared folder the item belongs to. */
 "SharedFolderX" = "साझा फोल्डर, %1$@";
 "FolderX" = "फोल्डर, %1$@";
+"MyFolderX" = "My folder, %1$@";
 "ItemXOfY" = "%2$@ मध्ये वस्तु %1$@";
 "ViewRecordedLogs" = "रेकर्ड गरिएका लगहरू हेर्नुहोस्";
 "RecordedLogs" = "रेकर्ड गरिएका लगहरू";

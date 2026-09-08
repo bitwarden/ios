@@ -28,8 +28,13 @@ struct AddCipherRequest: Request {
     ///
     /// - Parameters:
     ///   - cipher: The `Cipher` to add to the user's vault.
-    ///   - encryptedFor: The user ID who encrypted the `cipher`
-    init(cipher: Cipher, encryptedFor: String?) {
-        requestModel = CipherRequestModel(cipher: cipher, encryptedFor: encryptedFor)
+    ///   - encryptedByKeyId: The hex-encoded ID of the key used to encrypt the `cipher`.
+    ///   - encryptedFor: The user ID who encrypted the `cipher`.
+    init(cipher: Cipher, encryptedByKeyId: String? = nil, encryptedFor: String?) {
+        requestModel = CipherRequestModel(
+            cipher: cipher,
+            encryptedByKeyId: encryptedByKeyId,
+            encryptedFor: encryptedFor,
+        )
     }
 }

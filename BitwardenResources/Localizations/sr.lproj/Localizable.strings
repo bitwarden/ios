@@ -26,6 +26,8 @@
 "FolderNone" = "Без фасцикле";
 "Folders" = "Фасцикле";
 "FolderUpdated" = "Фасцикла ажурирана.";
+"MyFolder" = "Моја фасцикла";
+"MyFolders" = "Моје фасцикле";
 "InternetConnectionRequiredMessage" = "Повежите се на Интернет пре него што наставите.";
 "InternetConnectionRequiredTitle" = "Неопходна је веза са интернетом";
 "InvalidMasterPassword" = "Главна Лозинка је неважећа. Покушајте поново.";
@@ -898,6 +900,7 @@
 /* VoiceOver accessibility label for a shared folder the item belongs to. */
 "SharedFolderX" = "Дељена фасцикла, %1$@";
 "FolderX" = "Фасцикла, %1$@";
+"MyFolderX" = "My folder, %1$@";
 "ItemXOfY" = "Ставка %1$@ од %2$@";
 "ViewRecordedLogs" = "Погледајте снимљене извештаје";
 "RecordedLogs" = "Снимљени извештаји";

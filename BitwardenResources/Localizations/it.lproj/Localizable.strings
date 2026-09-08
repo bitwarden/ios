@@ -26,6 +26,8 @@
 "FolderNone" = "Nessuna cartella";
 "Folders" = "Cartelle";
 "FolderUpdated" = "Cartella salvata";
+"MyFolder" = "My folder";
+"MyFolders" = "My folders";
 "InternetConnectionRequiredMessage" = "Connettiti a internet prima di continuare.";
 "InternetConnectionRequiredTitle" = "Connessione a internet necessaria";
 "InvalidMasterPassword" = "Password principale non valida. Riprova.";
@@ -898,6 +900,7 @@
 /* VoiceOver accessibility label for a shared folder the item belongs to. */
 "SharedFolderX" = "Shared folder, %1$@";
 "FolderX" = "Cartella, %1$@";
+"MyFolderX" = "My folder, %1$@";
 "ItemXOfY" = "Elemento %1$@ di %2$@";
 "ViewRecordedLogs" = "Visualizza tracciamento (log)";
 "RecordedLogs" = "Tracciamenti (log) registrati";

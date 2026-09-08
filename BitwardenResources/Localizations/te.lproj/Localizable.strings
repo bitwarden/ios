@@ -26,6 +26,8 @@
 "FolderNone" = "ఫోల్డర్ లేదు";
 "Folders" = "ఫోల్డర్‌లు";
 "FolderUpdated" = "ఫోల్డర్ భద్రపరచబడింది";
+"MyFolder" = "నా ఫోల్డర్";
+"MyFolders" = "నా ఫోల్డర్‌లు";
 "InternetConnectionRequiredMessage" = "కొనసాగించే ముందు దయచేసి ఇంటర్నెట్‌కు కనెక్ట్ అవ్వండి.";
 "InternetConnectionRequiredTitle" = "ఇంటర్నెట్ కనెక్షన్ అవసరం";
 "InvalidMasterPassword" = "అమాన్యమైన మాస్టర్ పాస్వర్డ్. మళ్లీ ప్రయత్నించండి.";
@@ -898,6 +900,7 @@
 /* VoiceOver accessibility label for a shared folder the item belongs to. */
 "SharedFolderX" = "Shared folder, %1$@";
 "FolderX" = "ఫోల్డర్, %1$@";
+"MyFolderX" = "My folder, %1$@";
 "ItemXOfY" = "%2$@లో అంశం %1$@";
 "ViewRecordedLogs" = "రికార్డ్ చేసిన లాగ్‌లను చూడండి";
 "RecordedLogs" = "రికార్డ్ చేసిన లాగ్‌లు";

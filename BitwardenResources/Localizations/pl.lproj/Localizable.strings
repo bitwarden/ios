@@ -26,6 +26,8 @@
 "FolderNone" = "Nieprzypisane";
 "Folders" = "Foldery";
 "FolderUpdated" = "Folder został zapisany";
+"MyFolder" = "Mój folder";
+"MyFolders" = "Moje foldery";
 "InternetConnectionRequiredMessage" = "Najpierw połącz się z Internetem.";
 "InternetConnectionRequiredTitle" = "Połączenie internetowe jest wymagane";
 "InvalidMasterPassword" = "Hasło główne jest nieprawidłowe. Spróbuj ponownie.";
@@ -898,6 +900,7 @@
 /* VoiceOver accessibility label for a shared folder the item belongs to. */
 "SharedFolderX" = "Udostępniony folder, %1$@";
 "FolderX" = "Folder, %1$@";
+"MyFolderX" = "Mój folder, %1$@";
 "ItemXOfY" = "Element %1$@ z %2$@";
 "ViewRecordedLogs" = "Pokaż zarejestrowane logi";
 "RecordedLogs" = "Zarejestrowane logi";

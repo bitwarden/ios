@@ -26,6 +26,8 @@
 "FolderNone" = "Δεν υπάρχει φάκελος";
 "Folders" = "Φάκελοι";
 "FolderUpdated" = "Ο φάκελος ενημερώθηκε";
+"MyFolder" = "My folder";
+"MyFolders" = "My folders";
 "InternetConnectionRequiredMessage" = "Συνδεθείτε στο διαδίκτυο πριν συνεχίσετε.";
 "InternetConnectionRequiredTitle" = "Απαιτείται σύνδεση στο διαδίκτυο";
 "InvalidMasterPassword" = "Μη έγκυρος κύριος κωδικός. Δοκιμάστε ξανά.";
@@ -898,6 +900,7 @@
 /* VoiceOver accessibility label for a shared folder the item belongs to. */
 "SharedFolderX" = "Shared folder, %1$@";
 "FolderX" = "Φάκελος, %1$@";
+"MyFolderX" = "My folder, %1$@";
 "ItemXOfY" = "Στοιχείο %1$@ από %2$@";
 "ViewRecordedLogs" = "Προβολή καταγεγραμμένων αρχείων καταγραφής";
 "RecordedLogs" = "Καταγεγραμμένα αρχεία καταγραφής";

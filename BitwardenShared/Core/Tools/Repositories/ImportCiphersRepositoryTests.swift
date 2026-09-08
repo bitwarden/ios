@@ -1,5 +1,6 @@
 import AuthenticationServices
 import BitwardenKit
+import BitwardenSdk
 import BitwardenSdkMocks
 import TestHelpers
 import XCTest
@@ -68,15 +69,18 @@ class ImportCiphersRepositoryTests: BitwardenTestCase {
         credentialManagerFactory.importManager = credentialImportManager
 
         clientService.mockExporters.importCxfReturnValue = [
-            .fixture(id: "1", login: .fixture(), type: .login),
-            .fixture(id: "2", login: .fixture(), type: .login),
-            .fixture(id: "3", login: .fixture(fido2Credentials: [.fixture()]), type: .login),
-            .fixture(id: "4", type: .card),
-            .fixture(id: "5", type: .card),
-            .fixture(id: "6", type: .card),
-            .fixture(id: "7", type: .identity),
-            .fixture(id: "8", type: .secureNote),
-            .fixture(id: "9", type: .secureNote),
+            EncryptionContext(encryptedFor: "1", cipher: .fixture(id: "1", login: .fixture(), type: .login)),
+            EncryptionContext(encryptedFor: "1", cipher: .fixture(id: "2", login: .fixture(), type: .login)),
+            EncryptionContext(
+                encryptedFor: "1",
+                cipher: .fixture(id: "3", login: .fixture(fido2Credentials: [.fixture()]), type: .login),
+            ),
+            EncryptionContext(encryptedFor: "1", cipher: .fixture(id: "4", type: .card)),
+            EncryptionContext(encryptedFor: "1", cipher: .fixture(id: "5", type: .card)),
+            EncryptionContext(encryptedFor: "1", cipher: .fixture(id: "6", type: .card)),
+            EncryptionContext(encryptedFor: "1", cipher: .fixture(id: "7", type: .identity)),
+            EncryptionContext(encryptedFor: "1", cipher: .fixture(id: "8", type: .secureNote)),
+            EncryptionContext(encryptedFor: "1", cipher: .fixture(id: "9", type: .secureNote)),
         ]
 
         let expectedResults = [
@@ -101,7 +105,8 @@ class ImportCiphersRepositoryTests: BitwardenTestCase {
 
         XCTAssertNotNil(clientService.mockExporters.importCxfReceivedPayload)
         XCTAssertTrue(importCiphersService.importCiphersCalled)
-        XCTAssertEqual(importCiphersService.importCiphersCiphers?.count, 9)
+        XCTAssertEqual(importCiphersService.importCiphersEncryptionContexts?.count, 9)
+        XCTAssertEqual(importCiphersService.importCiphersEncryptionContexts?[0].encryptedFor, "1")
         XCTAssertTrue(syncService.didFetchSync)
         XCTAssertTrue(syncService.fetchSyncForceSync == true)
         XCTAssertEqual(progressReports, [0.3, 0.8, 1.0])
@@ -180,8 +185,8 @@ class ImportCiphersRepositoryTests: BitwardenTestCase {
         credentialManagerFactory.importManager = credentialImportManager
 
         clientService.mockExporters.importCxfReturnValue = [
-            .fixture(id: "1", login: .fixture(), type: .login),
-            .fixture(id: "2", login: .fixture(), type: .login),
+            EncryptionContext(encryptedFor: "1", cipher: .fixture(id: "1", login: .fixture(), type: .login)),
+            EncryptionContext(encryptedFor: "1", cipher: .fixture(id: "2", login: .fixture(), type: .login)),
         ]
 
         importCiphersService.importCiphersError = BitwardenTestError.example
@@ -216,8 +221,8 @@ class ImportCiphersRepositoryTests: BitwardenTestCase {
         credentialManagerFactory.importManager = credentialImportManager
 
         clientService.mockExporters.importCxfReturnValue = [
-            .fixture(id: "1", login: .fixture(), type: .login),
-            .fixture(id: "2", login: .fixture(), type: .login),
+            EncryptionContext(encryptedFor: "1", cipher: .fixture(id: "1", login: .fixture(), type: .login)),
+            EncryptionContext(encryptedFor: "1", cipher: .fixture(id: "2", login: .fixture(), type: .login)),
         ]
 
         syncService.fetchSyncResult = .failure(BitwardenTestError.example)
