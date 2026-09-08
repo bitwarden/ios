@@ -175,6 +175,14 @@ public struct DateFieldPicker: View {
         }
         .accessibilityFocused($isPickerFocused)
         .accessibilityHint(voiceOverEnabled && disallowsFutureDates ? Localizations.futureDatesCantBeSelected : "")
+        .accessibilityScrollAction { _ in
+            // The wheel picker is itself scrollable, so VoiceOver's three-finger scroll gesture (meant
+            // to scroll the enclosing form) lands on it instead and changes the selected date. Claiming
+            // the gesture here stops that; moving focus off the wheel also means a repeated scroll
+            // gesture reaches the form normally, since VoiceOver then has a different nearest scrollable
+            // ancestor to target.
+            isPickerFocused = false
+        }
 
         if voiceOverEnabled {
             picker.datePickerStyle(.wheel)
