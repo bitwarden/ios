@@ -28,9 +28,12 @@ struct PasswordText: View {
         .styleGuide(.bodyMonospaced)
         // The rendered text includes a zero-width space after each character to allow wrapping on
         // any character boundary, but that same text is used as the accessibility label by
-        // default. Override it with the zero-width-space-free password so VoiceOver doesn't
-        // announce the value once from the label and again from `speechSpellsOutCharacters`.
-        .accessibilityLabel(isPasswordVisible ? password : hiddenPassword)
+        // default. When spelling out characters, override the label with the zero-width-space-free
+        // password so VoiceOver doesn't announce the value once from the label and again from
+        // `speechSpellsOutCharacters`. Fields that don't opt in keep their default label.
+        .if(spellOutAccessibilityValue && isPasswordVisible) { view in
+            view.accessibilityLabel(password)
+        }
         .speechSpellsOutCharacters(spellOutAccessibilityValue && isPasswordVisible)
     }
 
