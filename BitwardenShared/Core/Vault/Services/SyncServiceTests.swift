@@ -888,7 +888,6 @@ class SyncServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
                 culture: "en-US",
                 email: "user@bitwarden.com",
                 id: "c8aa1e36-4427-11ee-be56-0242ac120002",
-                key: "key",
                 organizations: [],
                 privateKey: "private key",
                 providerOrganizations: [],
@@ -897,13 +896,7 @@ class SyncServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
         )
         XCTAssertEqual(stateService.updateProfileUserId, "1")
         XCTAssertEqual(stateService.usesKeyConnector["1"], false)
-        XCTAssertEqual(
-            stateService.accountEncryptionKeys["1"],
-            AccountEncryptionKeys(
-                cryptographicState: .v1(privateKey: "private key"),
-                encryptedUserKey: "key",
-            ),
-        )
+        XCTAssertEqual(stateService.accountCryptographicStates["1"], .v1(privateKey: "private key"))
     }
 
     /// `fetchSync()` updates the user's profile when it has account keys.
@@ -920,7 +913,6 @@ class SyncServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
                 culture: "en-US",
                 email: "user@bitwarden.com",
                 id: "c8aa1e36-4427-11ee-be56-0242ac120002",
-                key: "key",
                 organizations: [],
                 privateKey: "private key",
                 providerOrganizations: [],
@@ -929,13 +921,7 @@ class SyncServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
         )
         XCTAssertEqual(stateService.updateProfileUserId, "1")
         XCTAssertEqual(stateService.usesKeyConnector["1"], false)
-        XCTAssertEqual(
-            stateService.accountEncryptionKeys["1"],
-            AccountEncryptionKeys(
-                cryptographicState: .fixtureV2(),
-                encryptedUserKey: "key",
-            ),
-        )
+        XCTAssertEqual(stateService.accountCryptographicStates["1"], .fixtureV2())
     }
 
     /// `fetchSync()` notifies the sync service delegate if the user needs to be migrated to Key
@@ -1203,6 +1189,60 @@ class SyncServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
             try await subject.fetchSync(forceSync: false)
         }
         XCTAssertNil(syncServiceDelegate.onFetchSyncSucceededCalledWithuserId)
+    }
+
+    /// `fetchSync()` emits on `syncCompletePublisher()` once the sync succeeds.
+    func test_fetchSync_syncCompletePublisher_emitsOnSuccess() async throws {
+        client.result = .httpSuccess(testData: .syncWithCiphers)
+        stateService.activeAccount = .fixture()
+
+        var didSubscribe = false
+        var didEmitAfterSync = false
+        let publisherTask = Task {
+            var iterator = subject.syncCompletePublisher().makeAsyncIterator()
+            _ = await iterator.next() // The subject's initial replayed value, proving subscription is live.
+            didSubscribe = true
+            _ = await iterator.next() // The emission fired at the end of a successful `fetchSync()`.
+            didEmitAfterSync = true
+        }
+        defer { publisherTask.cancel() }
+        try await waitForAsync { didSubscribe }
+
+        try await subject.fetchSync(forceSync: false)
+
+        try await waitForAsync { didEmitAfterSync }
+    }
+
+    /// `fetchSync()` does not emit on `syncCompletePublisher()` if the request fails.
+    func test_fetchSync_syncCompletePublisher_doesNotEmitOnError() async throws {
+        client.result = .httpFailure()
+        stateService.activeAccount = .fixture()
+
+        var didSubscribe = false
+        var didEmit = false
+        let publisherTask = Task {
+            var iterator = subject.syncCompletePublisher().makeAsyncIterator()
+            _ = await iterator.next() // The subject's initial replayed value, proving subscription is live.
+            didSubscribe = true
+            _ = await iterator.next() // Should never resolve, since the sync fails.
+            didEmit = true
+        }
+        defer { publisherTask.cancel() }
+        try await waitForAsync { didSubscribe }
+
+        await assertAsyncThrows {
+            try await subject.fetchSync(forceSync: false)
+        }
+
+        // `fetchSync()` has already thrown by this point, so any `syncCompleteSubject.send(())` call
+        // it would have made already happened synchronously, within that same call, before it
+        // returned — there's no real-time event left to wait out. Yielding gives the scheduler a
+        // chance to run `publisherTask` and observe an already-buffered value, if one incorrectly
+        // exists, without an arbitrary wall-clock delay.
+        for _ in 0 ..< 5 {
+            await Task.yield()
+        }
+        XCTAssertFalse(didEmit)
     }
 
     func test_deleteCipher() async throws {

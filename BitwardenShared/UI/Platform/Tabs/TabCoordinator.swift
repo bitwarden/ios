@@ -63,6 +63,12 @@ final class TabCoordinator: Coordinator, HasTabNavigator {
     /// A delegate of the `SettingsCoordinator`.
     private weak var settingsDelegate: SettingsCoordinatorDelegate?
 
+    /// A task to handle the sync-complete stream.
+    private var syncCompleteStreamTask: Task<Void, Never>?
+
+    /// The sync service used to detect when a sync has completed, to refresh tab visibility.
+    private let syncService: SyncService
+
     /// The coordinator used to navigate to `VaultRoute`s.
     private var vaultCoordinator: AnyCoordinator<VaultRoute, AuthAction>?
 
@@ -85,6 +91,7 @@ final class TabCoordinator: Coordinator, HasTabNavigator {
     ///   - policyService: The policy service used to check for active policies.
     ///   - rootNavigator: The root navigator used to display this coordinator's interface.
     ///   - settingsDelegate: A delegate of the `SettingsCoordinator`.
+    ///   - syncService: The sync service used to detect when a sync has completed, to refresh tab visibility.
     ///   - tabNavigator: The tab navigator that is managed by this coordinator.
     ///   - vaultDelegate: A delegate of the `VaultCoordinator`.
     ///   - vaultRepository: A vault repository used to the vault tab title.
@@ -95,6 +102,7 @@ final class TabCoordinator: Coordinator, HasTabNavigator {
         policyService: PolicyService,
         rootNavigator: RootNavigator,
         settingsDelegate: SettingsCoordinatorDelegate,
+        syncService: SyncService,
         tabNavigator: TabNavigator,
         vaultDelegate: VaultCoordinatorDelegate,
         vaultRepository: VaultRepository,
@@ -104,6 +112,7 @@ final class TabCoordinator: Coordinator, HasTabNavigator {
         self.policyService = policyService
         self.rootNavigator = rootNavigator
         self.settingsDelegate = settingsDelegate
+        self.syncService = syncService
         self.tabNavigator = tabNavigator
         self.vaultDelegate = vaultDelegate
         self.vaultRepository = vaultRepository
@@ -112,6 +121,8 @@ final class TabCoordinator: Coordinator, HasTabNavigator {
     deinit {
         organizationStreamTask?.cancel()
         organizationStreamTask = nil
+        syncCompleteStreamTask?.cancel()
+        syncCompleteStreamTask = nil
     }
 
     // MARK: Methods
@@ -194,6 +205,7 @@ final class TabCoordinator: Coordinator, HasTabNavigator {
             await MainActor.run { self?.updateTabs(isSendEnabled: !isSendDisabled) }
         }
         streamOrganizations()
+        streamSyncComplete()
     }
 
     // MARK: Private Methods
@@ -213,9 +225,9 @@ final class TabCoordinator: Coordinator, HasTabNavigator {
         return sendNav
     }
 
-    /// Streams the user's organizations, updating the vault title and send tab visibility reactively.
+    /// Streams the user's organizations, updating the vault title reactively.
     private func streamOrganizations() {
-        organizationStreamTask = Task { [errorReporter, tabNavigator, vaultRepository, policyService] in
+        organizationStreamTask = Task { [errorReporter, tabNavigator, vaultRepository] in
             do {
                 for try await organizations in try await vaultRepository.organizationsPublisher() {
                     guard let navigator = tabNavigator?.navigator(for: TabRoute.vault(.list)) else { return }
@@ -225,14 +237,22 @@ final class TabCoordinator: Coordinator, HasTabNavigator {
                     } else {
                         navigator.rootViewController?.title = Localizations.vaults
                     }
-
-                    let isSendDisabled = await policyService.getSendPolicyOptions().isSendDisabled
-                    await MainActor.run { [weak self] in
-                        self?.updateTabs(isSendEnabled: !isSendDisabled)
-                    }
                 }
             } catch {
                 errorReporter.log(error: error)
+            }
+        }
+    }
+
+    /// Streams sync-complete events, re-checking the Send policy and updating tab visibility once
+    /// a sync has fully persisted (organizations and policies both included).
+    private func streamSyncComplete() {
+        syncCompleteStreamTask = Task { [policyService, syncService] in
+            for await _ in syncService.syncCompletePublisher() {
+                let isSendDisabled = await policyService.getSendPolicyOptions().isSendDisabled
+                await MainActor.run { [weak self] in
+                    self?.updateTabs(isSendEnabled: !isSendDisabled)
+                }
             }
         }
     }

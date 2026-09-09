@@ -92,6 +92,22 @@ class VaultCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this type_
 
         XCTAssertTrue(module.addEditFolderCoordinator.isStarted)
         XCTAssertEqual(module.addEditFolderCoordinator.routes, [.addEditFolder(folder: nil)])
+        XCTAssertNil(module.addEditFolderCoordinator.contexts.last as? AddEditFolderDelegate)
+    }
+
+    /// `navigate(to:)` with `.addFolder` and a context passes the context along to the add/edit
+    /// folder coordinator as the delegate.
+    @MainActor
+    func test_navigateTo_addFolder_withDelegate() throws {
+        let delegate = MockAddEditFolderDelegate()
+        subject.navigate(to: .addFolder, context: delegate)
+
+        XCTAssertTrue(module.addEditFolderCoordinator.isStarted)
+        XCTAssertEqual(module.addEditFolderCoordinator.routes, [.addEditFolder(folder: nil)])
+        XCTAssertIdentical(
+            module.addEditFolderCoordinator.contexts.last as? AddEditFolderDelegate,
+            delegate,
+        )
     }
 
     /// `navigate(to:)` with `.autofillList` replaces the stack navigator's stack with the autofill list.

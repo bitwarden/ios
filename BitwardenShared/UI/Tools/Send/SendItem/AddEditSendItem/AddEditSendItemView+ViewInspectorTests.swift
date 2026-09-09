@@ -56,6 +56,30 @@ class AddEditSendItemViewTests: BitwardenTestCase {
         XCTAssertEqual(processor.dispatchedActions.last, .deletionDateChanged(.thirtyDays))
     }
 
+    /// The deletion date menu remains visible but is disabled when the deletion date is enforced
+    /// by policy.
+    @MainActor
+    func test_deletionDateMenu_disabledWhenEnforcedByPolicy() throws {
+        processor.state.isOptionsExpanded = true
+        var menuField = try subject.inspect().find(bitwardenMenuField: Localizations.deletionDate)
+        XCTAssertFalse(menuField.isDisabled())
+
+        processor.state.sendPolicyOptions.enforcedDeletionDateHours = 168
+        menuField = try subject.inspect().find(bitwardenMenuField: Localizations.deletionDate)
+        XCTAssertTrue(menuField.isDisabled())
+    }
+
+    /// The deletion date field shows the policy helper text when the deletion date is enforced by
+    /// policy.
+    @MainActor
+    func test_deletionDate_helperTextWhenEnforcedByPolicy() throws {
+        processor.state.isOptionsExpanded = true
+        processor.state.sendPolicyOptions.enforcedDeletionDateHours = 168
+        XCTAssertNoThrow(
+            try subject.inspect().find(text: Localizations.thisDateIsEnforcedByYourOrganization),
+        )
+    }
+
     /// Updating the maximum access count stepper sends the `.maximumAccessCountChanged` action.
     @MainActor
     func test_maximumAccessCountStepper_updated() throws {
@@ -112,6 +136,27 @@ class AddEditSendItemViewTests: BitwardenTestCase {
         XCTAssertEqual(processor.dispatchedActions.last, .optionsPressed)
     }
 
+    /// The "Remove password" menu item is shown when editing a send with a password and no
+    /// policy enforces the access type.
+    @MainActor
+    func test_removePasswordButton_shown() throws {
+        processor.state.mode = .edit
+        processor.state.originalSendView = .fixture(hasPassword: true)
+
+        XCTAssertNoThrow(try subject.inspect().find(asyncButton: Localizations.removePassword))
+    }
+
+    /// The "Remove password" menu item is hidden when the access type is enforced by policy,
+    /// even though the send has a password, since removing it would violate the policy.
+    @MainActor
+    func test_removePasswordButton_hidden_whenAccessTypeEnforcedByPolicy() throws {
+        processor.state.mode = .edit
+        processor.state.originalSendView = .fixture(hasPassword: true)
+        processor.state.sendPolicyOptions.enforcedAccessType = .specificPeople
+
+        XCTAssertThrowsError(try subject.inspect().find(asyncButton: Localizations.removePassword))
+    }
+
     /// Tapping the save button performs the `.savePressed` effect.
     @MainActor
     func test_saveButton_tap() async throws {
@@ -128,7 +173,7 @@ class AddEditSendItemViewTests: BitwardenTestCase {
     /// Setting `isSendDisabled` disables the controls within the view.
     @MainActor
     func test_sendDisabled() async throws {
-        processor.state.isSendDisabled = true
+        processor.state.sendPolicyOptions.isSendDisabled = true
 
         let infoContainer = try subject.inspect().find(InfoContainer<Text>.self)
         try XCTAssertEqual(infoContainer.text().string(), Localizations.sendDisabledWarning)
@@ -144,7 +189,7 @@ class AddEditSendItemViewTests: BitwardenTestCase {
     /// Setting `isSendHideEmailDisabled` disables the hide email control within the view.
     @MainActor
     func test_sendHideEmailDisabled() async throws {
-        processor.state.isSendHideEmailDisabled = true
+        processor.state.sendPolicyOptions.isHideEmailDisabled = true
 
         let infoContainer = try subject.inspect().find(InfoContainer<Text>.self)
         try XCTAssertEqual(infoContainer.text().string(), Localizations.sendOptionsPolicyInEffect)
@@ -169,6 +214,17 @@ class AddEditSendItemViewTests: BitwardenTestCase {
         let menuField = try subject.inspect().find(bitwardenMenuField: Localizations.whoCanView)
         try menuField.select(newValue: SendAccessType.anyoneWithPassword)
         XCTAssertEqual(processor.dispatchedActions.last, .accessTypeChanged(.anyoneWithPassword))
+    }
+
+    /// The access type menu remains visible but is disabled when the access type is enforced by policy.
+    @MainActor
+    func test_accessTypeMenu_disabledWhenEnforcedByPolicy() throws {
+        var menuField = try subject.inspect().find(bitwardenMenuField: Localizations.whoCanView)
+        XCTAssertFalse(menuField.isDisabled())
+
+        processor.state.sendPolicyOptions.enforcedAccessType = .anyoneWithPassword
+        menuField = try subject.inspect().find(bitwardenMenuField: Localizations.whoCanView)
+        XCTAssertTrue(menuField.isDisabled())
     }
 
     /// Updating the password textfield when "Anyone with password" is selected sends the `.passwordChanged` action.

@@ -3,6 +3,7 @@ import BitwardenKitMocks
 import struct BitwardenSdk.EnrollPinResponse
 import struct BitwardenSdk.ServerCommunicationConfig
 import struct BitwardenSdk.V2UpgradeToken
+import enum BitwardenSdk.WrappedAccountCryptographicState
 import Combine
 import Foundation
 
@@ -11,7 +12,7 @@ import Foundation
 
 class MockStateService: StateService, ActiveAccountStateProvider, AutofillStateService, ServerCommunicationConfigStateService { // swiftlint:disable:this type_body_length line_length
     var accessTokenExpirationDateByUserId = [String: Date]()
-    var accountEncryptionKeys = [String: AccountEncryptionKeys]()
+    var accountCryptographicStates = [String: WrappedAccountCryptographicState]()
     var accountSetupAutofill = [String: AccountSetupProgress]()
     var accountSetupAutofillError: Error?
     var accountSetupImportLogins = [String: AccountSetupProgress]()
@@ -84,7 +85,7 @@ class MockStateService: StateService, ActiveAccountStateProvider, AutofillStateS
     var learnNewLoginActionCardStatus: AccountSetupProgress?
     var loginRequest: LoginRequestNotification?
     var logoutAccountUserInitiated = false
-    var getAccountEncryptionKeysError: Error?
+    var getAccountCryptographicStateError: Error?
     // swiftlint:disable:next identifier_name
     var getAccountHasBeenUnlockedInteractivelyResult: Result<Bool, Error> = .success(false)
     var getActiveAccountIdError: Error?
@@ -213,16 +214,16 @@ class MockStateService: StateService, ActiveAccountStateProvider, AutofillStateS
         return doesActiveAccountHavePremiumPersonallyResult
     }
 
-    func getAccountEncryptionKeys(userId: String?) async throws -> AccountEncryptionKeys {
-        if let error = getAccountEncryptionKeysError {
+    func getAccountCryptographicState(userId: String?) async throws -> WrappedAccountCryptographicState {
+        if let error = getAccountCryptographicStateError {
             throw error
         }
         let id = try await getAccountIdOrActiveId(userId: userId)
-        guard let encryptionKeys = accountEncryptionKeys[id]
+        guard let cryptographicState = accountCryptographicStates[id]
         else {
             throw StateServiceError.noActiveAccount
         }
-        return encryptionKeys
+        return cryptographicState
     }
 
     func getAccountHasBeenUnlockedInteractively(userId: String?) async throws -> Bool {
@@ -570,9 +571,12 @@ class MockStateService: StateService, ActiveAccountStateProvider, AutofillStateS
         accessTokenExpirationDateByUserId[userId] = expirationDate
     }
 
-    func setAccountEncryptionKeys(_ encryptionKeys: AccountEncryptionKeys, userId: String?) async throws {
+    func setAccountCryptographicState(
+        _ cryptographicState: WrappedAccountCryptographicState,
+        userId: String?,
+    ) async throws {
         let userId = try unwrapUserId(userId)
-        accountEncryptionKeys[userId] = encryptionKeys
+        accountCryptographicStates[userId] = cryptographicState
     }
 
     func setAccountHasBeenUnlockedInteractively(userId: String?, value: Bool) async throws {

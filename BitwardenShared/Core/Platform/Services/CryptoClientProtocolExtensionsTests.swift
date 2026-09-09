@@ -26,15 +26,12 @@ class CryptoClientProtocolExtensionsTests: BitwardenTestCase {
 
     // MARK: Tests
 
-    // `initializeUserCrypto(account:encryptionKeys:method:)` initializes the user crypto using a
+    // `initializeUserCrypto(account:cryptographicState:method:)` initializes the user crypto using a
     // user's master password.
     func test_initializeUserCrypto_masterPassword() async throws {
         try await subject.initializeUserCrypto(
             account: .fixture(),
-            encryptionKeys: AccountEncryptionKeys(
-                cryptographicState: .fixtureV2(),
-                encryptedUserKey: "encryptedUserKey",
-            ),
+            cryptographicState: .fixtureV2(),
             method: .masterPasswordUnlock(
                 password: "password123",
                 masterPasswordUnlock: MasterPasswordUnlockData(
@@ -74,15 +71,12 @@ class CryptoClientProtocolExtensionsTests: BitwardenTestCase {
         XCTAssertEqual(securityState, "SECURITY_STATE")
     }
 
-    // `initializeUserCrypto(account:encryptionKeys:method:)` initializes the user crypto using a
+    // `initializeUserCrypto(account:cryptographicState:method:)` initializes the user crypto using a
     // user's PIN.
     func test_initializeUserCrypto_pin() async throws {
         try await subject.initializeUserCrypto(
             account: .fixture(),
-            encryptionKeys: AccountEncryptionKeys(
-                cryptographicState: .fixtureV2(),
-                encryptedUserKey: "encryptedUserKey",
-            ),
+            cryptographicState: .fixtureV2(),
             method: .pin(pin: "1234", pinProtectedUserKey: "pinProtectedUserKey"),
             upgradeToken: nil,
         )
@@ -112,10 +106,7 @@ class CryptoClientProtocolExtensionsTests: BitwardenTestCase {
 
         try await subject.initializeUserCrypto(
             account: .fixture(),
-            encryptionKeys: AccountEncryptionKeys(
-                cryptographicState: .fixtureV2(),
-                encryptedUserKey: "encryptedUserKey",
-            ),
+            cryptographicState: .fixtureV2(),
             method: .pin(pin: "1234", pinProtectedUserKey: "pinProtectedUserKey"),
             upgradeToken: upgradeToken,
         )

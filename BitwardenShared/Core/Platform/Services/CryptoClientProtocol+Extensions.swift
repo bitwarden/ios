@@ -7,12 +7,12 @@ extension CryptoClientProtocol {
     /// Initialization method for the user crypto. Needs to be called before any other crypto operations.
     /// - Parameters:
     ///   - account: The account of the user to initialize crypto.
-    ///   - encryptionKeys: The encryption keys for the user.
+    ///   - cryptographicState: The account's cryptographic state.
     ///   - method: The crypto initialization method.
     ///   - upgradeToken: The V2 upgrade token, if one is available, to migrate the user's key from V1 to V2.
     func initializeUserCrypto(
         account: Account,
-        encryptionKeys: AccountEncryptionKeys,
+        cryptographicState: WrappedAccountCryptographicState,
         method: InitUserCryptoMethod,
         upgradeToken: V2UpgradeToken?,
     ) async throws {
@@ -21,7 +21,7 @@ extension CryptoClientProtocol {
                 userId: account.profile.userId,
                 kdfParams: account.kdf.sdkKdf,
                 email: account.profile.email,
-                accountCryptographicState: encryptionKeys.cryptographicState,
+                accountCryptographicState: cryptographicState,
                 method: method,
                 upgradeToken: upgradeToken,
             ),
