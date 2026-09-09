@@ -224,7 +224,7 @@ struct AddEditSendItemState: Equatable, Sendable {
         case .specificPeople:
             Localizations.afterSharingThisSendLinkDescriptionLong
         case .anyoneWithPassword:
-            nil
+            Localizations.individualsWillNeedToEnterThisPasswordDescriptionLong
         }
     }
 }

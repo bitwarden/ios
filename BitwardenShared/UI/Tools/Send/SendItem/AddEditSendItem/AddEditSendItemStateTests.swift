@@ -556,6 +556,6 @@ class AddEditSendItemStateTests: BitwardenTestCase { // swiftlint:disable:this t
     /// `whoCanViewFooter` is `nil` when the access type is "Anyone with the password".
     func test_whoCanViewFooter_anyoneWithPassword() {
         let subject = AddEditSendItemState(accessType: .anyoneWithPassword)
-        XCTAssertNil(subject.whoCanViewFooter)
+        XCTAssertEqual(subject.whoCanViewFooter, Localizations.individualsWillNeedToEnterThisPasswordDescriptionLong)
     }
 } // swiftlint:disable:this file_length
