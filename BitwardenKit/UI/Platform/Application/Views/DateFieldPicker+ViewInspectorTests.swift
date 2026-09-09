@@ -156,50 +156,42 @@ class DateFieldPickerTests: BitwardenTestCase {
         XCTAssertEqual(date, Date(year: 2024, month: 2, day: 29))
     }
 
-    /// A selection change that keeps the same month and year as the last one reported (a genuine day
-    /// tap) commits normally, even after an earlier month/year navigation updated the comparison point.
-    func test_handleSelectionChange_dayTapAfterMonthYearChange_commits() throws {
+    /// A selection change reported by the calendar's quick month/year navigation header — a new
+    /// month/year, before any day has been tapped — still commits, so the field's value stays in sync
+    /// with whatever the calendar is currently showing. A day tapped afterward, within that newly
+    /// navigated month, also commits normally.
+    func test_handleSelectionChange_navigateThenPickDay_bothCommit() throws {
+        date = Date(year: 2024, month: 2, day: 29)
         subject = DateFieldPicker(
             title: "Date of birth",
             date: bindingDate,
             defaultDate: defaultDate,
             isExpanded: true,
-            lastDisplayedLocalDay: Date(year: 2024, month: 3, day: 1),
         )
+        let datePicker = try subject.inspect().find(ViewType.DatePicker.self)
+
+        let navigatedMonth = Date(year: 2024, month: 3, day: 29)
+        try datePicker.select(date: navigatedMonth)
+        XCTAssertEqual(date, navigatedMonth.asUTCCalendarDay())
+
         let pickedDay = Date(year: 2024, month: 3, day: 15)
-        try subject.inspect().find(ViewType.DatePicker.self).select(date: pickedDay)
+        try datePicker.select(date: pickedDay)
         XCTAssertEqual(date, pickedDay.asUTCCalendarDay())
     }
 
-    /// A selection change that moves to a different month or year — as reported by the calendar's quick
-    /// month/year navigation header before any day has been tapped — doesn't commit a value. The
-    /// calendar stays open so the user can then pick a day within the newly navigated month.
-    func test_handleSelectionChange_monthYearChange_doesNotCommit() throws {
-        subject = DateFieldPicker(
-            title: "Date of birth",
-            date: bindingDate,
-            defaultDate: defaultDate,
-            isExpanded: true,
-            lastDisplayedLocalDay: Date(year: 2024, month: 2, day: 29),
-        )
-        let navigatedMonth = Date(year: 2024, month: 3, day: 29)
-        try subject.inspect().find(ViewType.DatePicker.self).select(date: navigatedMonth)
-        XCTAssertNil(date)
-    }
-
-    /// A selection change reporting the exact same day as the last one reported — the calendar settling
-    /// on the newly navigated month, not a new tap — doesn't commit a value either.
-    func test_handleSelectionChange_repeatedSameDay_doesNotCommit() throws {
+    /// A selection change reporting the exact same day as the currently committed value — the calendar
+    /// settling on a newly navigated month, not a new tap — still commits, even though it's a no-op.
+    func test_handleSelectionChange_repeatedSameDay_stillCommits() throws {
         let trackedDay = Date(year: 2024, month: 3, day: 1)
+        date = trackedDay
         subject = DateFieldPicker(
             title: "Date of birth",
             date: bindingDate,
             defaultDate: defaultDate,
             isExpanded: true,
-            lastDisplayedLocalDay: trackedDay,
         )
         try subject.inspect().find(ViewType.DatePicker.self).select(date: trackedDay)
-        XCTAssertNil(date)
+        XCTAssertEqual(date, trackedDay.asUTCCalendarDay())
     }
 
     /// A provided footer is rendered below the field.
@@ -273,22 +265,5 @@ class DateFieldPickerTests: BitwardenTestCase {
         )
         let displayedDay = try subject.inspect().find(ViewType.DatePicker.self).selectionBinding().wrappedValue
         XCTAssertEqual(displayedDay, defaultDate.asLocalCalendarDay())
-    }
-
-    /// The `DatePicker`'s displayed selection tracks an in-progress navigation (`lastDisplayedLocalDay`)
-    /// rather than the last committed `date`, so a re-render mid-navigation doesn't hand the calendar
-    /// its old month back and undo the navigation.
-    func test_displayedLocalDay_tracksInProgressNavigationOverCommittedDate() throws {
-        date = Date(year: 2024, month: 9, day: 8)
-        let navigatedMonth = Date(year: 2024, month: 3, day: 1)
-        subject = DateFieldPicker(
-            title: "Date of birth",
-            date: bindingDate,
-            defaultDate: defaultDate,
-            isExpanded: true,
-            lastDisplayedLocalDay: navigatedMonth,
-        )
-        let displayedDay = try subject.inspect().find(ViewType.DatePicker.self).selectionBinding().wrappedValue
-        XCTAssertEqual(displayedDay, navigatedMonth)
     }
 }
