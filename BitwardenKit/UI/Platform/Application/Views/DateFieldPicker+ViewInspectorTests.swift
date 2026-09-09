@@ -274,4 +274,21 @@ class DateFieldPickerTests: BitwardenTestCase {
         let displayedDay = try subject.inspect().find(ViewType.DatePicker.self).selectionBinding().wrappedValue
         XCTAssertEqual(displayedDay, defaultDate.asLocalCalendarDay())
     }
+
+    /// The `DatePicker`'s displayed selection tracks an in-progress navigation (`lastDisplayedLocalDay`)
+    /// rather than the last committed `date`, so a re-render mid-navigation doesn't hand the calendar
+    /// its old month back and undo the navigation.
+    func test_displayedLocalDay_tracksInProgressNavigationOverCommittedDate() throws {
+        date = Date(year: 2024, month: 9, day: 8)
+        let navigatedMonth = Date(year: 2024, month: 3, day: 1)
+        subject = DateFieldPicker(
+            title: "Date of birth",
+            date: bindingDate,
+            defaultDate: defaultDate,
+            isExpanded: true,
+            lastDisplayedLocalDay: navigatedMonth,
+        )
+        let displayedDay = try subject.inspect().find(ViewType.DatePicker.self).selectionBinding().wrappedValue
+        XCTAssertEqual(displayedDay, navigatedMonth)
+    }
 }
