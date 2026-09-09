@@ -18,39 +18,34 @@ final class PremiumUpgradeStateStore {
     var upgradedToPremiumCardVisibleByUserId = [String: Bool]()
 }
 
-/// Resolves a `nil` `userId` to `stateService`'s active account.
-func resolvedUserId(_ userId: String?, stateService: MockStateService) throws -> String {
-    if let userId {
-        return userId
-    }
-    guard let activeAccount = stateService.activeAccount else {
-        throw StateServiceError.noActiveAccount
-    }
-    return activeAccount.profile.userId
-}
-
 extension MockBillingStateService {
     /// Wires this mock's premium-upgrade-pending methods to per-user-id backing storage.
     func setUpPremiumUpgradeState(stateService: MockStateService) -> PremiumUpgradeStateStore {
         let state = PremiumUpgradeStateStore()
 
         getPremiumUpgradePendingClosure = { userId in
-            try state.pendingByUserId[resolvedUserId(userId, stateService: stateService)] ?? false
+            let userId = try await stateService.getAccountIdOrActiveId(userId: userId)
+            return state.pendingByUserId[userId] ?? false
         }
         setPremiumUpgradePendingClosure = { pending, userId in
-            try state.pendingByUserId[resolvedUserId(userId, stateService: stateService)] = pending
+            let userId = try await stateService.getAccountIdOrActiveId(userId: userId)
+            state.pendingByUserId[userId] = pending
         }
         getPremiumUpgradeLastSyncAttemptFailedClosure = { userId in
-            try state.syncAttemptFailedByUserId[resolvedUserId(userId, stateService: stateService)] ?? false
+            let userId = try await stateService.getAccountIdOrActiveId(userId: userId)
+            return state.syncAttemptFailedByUserId[userId] ?? false
         }
         setPremiumUpgradeLastSyncAttemptFailedClosure = { failed, userId in
-            try state.syncAttemptFailedByUserId[resolvedUserId(userId, stateService: stateService)] = failed
+            let userId = try await stateService.getAccountIdOrActiveId(userId: userId)
+            state.syncAttemptFailedByUserId[userId] = failed
         }
         getUpgradedToPremiumActionCardVisibleClosure = { userId in
-            try state.upgradedToPremiumCardVisibleByUserId[resolvedUserId(userId, stateService: stateService)] ?? false
+            let userId = try await stateService.getAccountIdOrActiveId(userId: userId)
+            return state.upgradedToPremiumCardVisibleByUserId[userId] ?? false
         }
         setUpgradedToPremiumActionCardVisibleClosure = { visible, userId in
-            try state.upgradedToPremiumCardVisibleByUserId[resolvedUserId(userId, stateService: stateService)] = visible
+            let userId = try await stateService.getAccountIdOrActiveId(userId: userId)
+            state.upgradedToPremiumCardVisibleByUserId[userId] = visible
         }
 
         return state
