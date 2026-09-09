@@ -1,5 +1,6 @@
 import BitwardenResources
 import SwiftUI
+import UIKit
 
 // MARK: - DateFieldPicker
 
@@ -40,7 +41,7 @@ public struct DateFieldPicker: View {
     /// Whether `range` excludes dates later than today, as it does for a date of birth or an issue
     /// date. Under VoiceOver, swiping the wheel picker past today doesn't move it (there's no later row
     /// to select), which otherwise looks and sounds identical to VoiceOver just repeating the current
-    /// value — this surfaces why, via `datePicker()`'s accessibility hint.
+    /// value — `handleSelectionChange(_:)` uses this to decide when to post a boundary announcement.
     private var disallowsFutureDates: Bool {
         guard let range else { return false }
         return range.upperBound <= Date().asUTCCalendarDay()
@@ -177,7 +178,6 @@ public struct DateFieldPicker: View {
             isPickerFocused = newValue && voiceOverEnabled
         }
         .accessibilityFocused($isPickerFocused)
-        .accessibilityHint(voiceOverEnabled && disallowsFutureDates ? Localizations.futureDatesCantBeSelected : "")
         .accessibilityScrollAction { _ in
             // The wheel picker is itself scrollable, so VoiceOver's three-finger scroll gesture (meant
             // to scroll the enclosing form) lands on it instead and changes the selected date. Claiming
@@ -287,8 +287,18 @@ public struct DateFieldPicker: View {
     /// the comparison point so a day tapped afterward, within the newly navigated month, still commits.
     /// This check doesn't apply when nothing's been reported yet (nothing to compare against) or under
     /// VoiceOver, where the wheel picker commits every change immediately.
+    ///
+    /// Also posts a live VoiceOver announcement — rather than relying on an accessibility hint, which
+    /// needs "Speak Hints" enabled and isn't spoken by the wheel's native month/day/year sub-elements
+    /// anyway — when the reported day is at the range's upper bound and the field disallows future
+    /// dates, since that's the only signal available when a swipe attempt lands back on a day that's
+    /// already at the boundary.
     private func handleSelectionChange(_ localDay: Date) {
         defer { lastDisplayedLocalDay = localDay }
+        if voiceOverEnabled, disallowsFutureDates, let range,
+           localDay >= range.upperBound.asLocalCalendarDay() {
+            UIAccessibility.post(notification: .announcement, argument: Localizations.futureDatesUnavailable)
+        }
         if let lastDisplayedLocalDay, !voiceOverEnabled,
            !Calendar.current.isDate(lastDisplayedLocalDay, equalTo: localDay, toGranularity: .month) {
             return

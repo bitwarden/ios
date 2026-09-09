@@ -1272,6 +1272,6 @@
 "SelectDate" = "Select date";
 /* Accessibility hint on a collapsed date field announcing that activating it opens the calendar picker. */
 "OpensDatePicker" = "Double tap to open picker";
-/* Accessibility hint on a date picker whose range excludes future dates, e.g. date of birth or an issue date, explaining why scrolling the wheel past today doesn't move it further. */
-"FutureDatesCantBeSelected" = "Future dates can't be selected";
+/* VoiceOver announcement posted when a date picker whose range excludes future dates, e.g. date of birth or an issue date, reports landing on today (the latest available day) while scrolling the wheel. */
+"FutureDatesUnavailable" = "Future dates unavailable";
 "PremiumRequiredTOTPDescriptionLong" = "Authenticator key (TOTP) is a Premium feature. Your current plan does not include access to this feature.";
