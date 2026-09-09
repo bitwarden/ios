@@ -85,4 +85,52 @@ class ViewSendItemViewTests: BitwardenTestCase {
             as: [.defaultPortrait, .defaultPortraitDark, .tallPortraitAX5(heightMultiple: 2)],
         )
     }
+
+    /// The view send view for a disabled file send renders correctly, with the send-link section
+    /// and edit FAB hidden and no "Make a copy" action.
+    @MainActor
+    func disabletest_snapshot_viewSend_disabledFileSend() {
+        processor.state = ViewSendItemState(
+            sendView: .fixture(
+                type: .file,
+                file: .fixture(fileName: "photo_123.jpg", sizeName: "3.25 MB"),
+                disabled: true,
+            ),
+            shareURL: URL(string: "send.bitwarden.com/39ngaol3"),
+        )
+        assertSnapshots(
+            of: subject.navStackWrapped,
+            as: [.defaultPortrait, .defaultPortraitDark, .tallPortraitAX5(heightMultiple: 2)],
+        )
+    }
+
+    /// The view send view for a disabled text send whose type is restricted by policy renders
+    /// correctly, with the send-link section and edit FAB hidden.
+    @MainActor
+    func disabletest_snapshot_viewSend_disabledTextSend_typeRestricted() {
+        var state = ViewSendItemState(
+            sendView: .fixture(name: "My text send", text: .fixture(text: "Some text to send"), disabled: true),
+            shareURL: URL(string: "send.bitwarden.com/39ngaol3"),
+        )
+        state.sendPolicyOptions = SendPolicyOptions(enforcedSendType: .file)
+        processor.state = state
+        assertSnapshots(
+            of: subject.navStackWrapped,
+            as: [.defaultPortrait, .defaultPortraitDark, .tallPortraitAX5(heightMultiple: 2)],
+        )
+    }
+
+    /// The view send view for a disabled text send whose type isn't restricted by policy renders
+    /// correctly, with the "Make a copy" action shown in the banner.
+    @MainActor
+    func disabletest_snapshot_viewSend_disabledTextSend_makeACopy() {
+        processor.state = ViewSendItemState(
+            sendView: .fixture(name: "My text send", text: .fixture(text: "Some text to send"), disabled: true),
+            shareURL: URL(string: "send.bitwarden.com/39ngaol3"),
+        )
+        assertSnapshots(
+            of: subject.navStackWrapped,
+            as: [.defaultPortrait, .defaultPortraitDark, .tallPortraitAX5(heightMultiple: 2)],
+        )
+    }
 }
