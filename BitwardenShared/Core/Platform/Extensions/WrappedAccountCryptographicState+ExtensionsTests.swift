@@ -4,6 +4,7 @@ import BitwardenSdk
 import XCTest
 
 @testable import BitwardenShared
+@testable import BitwardenSharedMocks
 
 // MARK: - WrappedAccountCryptographicStateExtensionsTests
 
@@ -146,5 +147,40 @@ class WrappedAccountCryptographicStateExtensionsTests: BitwardenTestCase {
         }
 
         XCTAssertEqual(privateKey, resultPrivateKey)
+    }
+
+    /// `init(responseModel:)` initializes a `WrappedAccountCryptographicState` from a response model with
+    /// account keys.
+    func test_init_responseModel() {
+        let subject = WrappedAccountCryptographicState(
+            responseModel: ProfileResponseModel.fixture(
+                accountKeys: .fixtureFilled(),
+                privateKey: "PRIVATE_KEY",
+            ),
+        )
+
+        XCTAssertEqual(subject, .fixtureV2())
+    }
+
+    /// `init(responseModel:)` initializes a `WrappedAccountCryptographicState` from a response model with
+    /// a private key but no account keys.
+    func test_init_responseModel_noAccountKeys() {
+        let subject = WrappedAccountCryptographicState(
+            responseModel: IdentityTokenResponseModel.fixture(
+                accountKeys: nil,
+                privateKey: "PRIVATE_KEY",
+            ),
+        )
+
+        XCTAssertEqual(subject, .v1(privateKey: "PRIVATE_KEY"))
+    }
+
+    /// `init(responseModel:)` returns `nil` if the response model doesn't contain account keys.
+    func test_init_responseModel_missingKeys() {
+        let subject = WrappedAccountCryptographicState(
+            responseModel: IdentityTokenResponseModel.fixture(accountKeys: nil, privateKey: nil),
+        )
+
+        XCTAssertNil(subject)
     }
 }

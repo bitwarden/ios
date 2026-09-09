@@ -65,12 +65,12 @@ protocol StateService: AnyObject, BillingStateService, DebugStateService {
     ///
     func getAccount(userId: String?) async throws -> Account
 
-    /// Gets the account encryptions keys for an account.
+    /// Gets the cryptographic state for an account.
     ///
     /// - Parameter userId: The user ID of the account. Defaults to the active account if `nil`.
-    /// - Returns: The account encryption keys.
+    /// - Returns: The account's cryptographic state.
     ///
-    func getAccountEncryptionKeys(userId: String?) async throws -> AccountEncryptionKeys
+    func getAccountCryptographicState(userId: String?) async throws -> WrappedAccountCryptographicState
 
     /// Gets whether the user has unlocked their account in the current session interactively.
     /// - Parameter userId: The user ID of the account. Defaults to the active account if `nil`.
@@ -472,13 +472,16 @@ protocol StateService: AnyObject, BillingStateService, DebugStateService {
     ///
     func setAccessTokenExpirationDate(_ expirationDate: Date?, userId: String) async
 
-    /// Sets the account encryption keys for an account.
+    /// Sets the cryptographic state for an account.
     ///
     /// - Parameters:
-    ///   - encryptionKeys: The account encryption keys.
+    ///   - cryptographicState: The account's cryptographic state.
     ///   - userId: The user ID of the account. Defaults to the active account if `nil`.
     ///
-    func setAccountEncryptionKeys(_ encryptionKeys: AccountEncryptionKeys, userId: String?) async throws
+    func setAccountCryptographicState(
+        _ cryptographicState: WrappedAccountCryptographicState,
+        userId: String?,
+    ) async throws
 
     /// Sets whether the user has unlocked their account in the current session  interactively.
     /// - Parameters:
@@ -926,12 +929,12 @@ extension StateService {
         try await getAccessTokenExpirationDate(userId: getActiveAccountId())
     }
 
-    /// Gets the account encryptions keys for the active account.
+    /// Gets the cryptographic state for the active account.
     ///
-    /// - Returns: The account encryption keys.
+    /// - Returns: The active account's cryptographic state.
     ///
-    func getAccountEncryptionKeys() async throws -> AccountEncryptionKeys {
-        try await getAccountEncryptionKeys(userId: nil)
+    func getAccountCryptographicState() async throws -> WrappedAccountCryptographicState {
+        try await getAccountCryptographicState(userId: nil)
     }
 
     /// Gets whether the user has unlocked their account in the current session  interactively.
@@ -1233,12 +1236,12 @@ extension StateService {
         try await setAccessTokenExpirationDate(expirationDate, userId: getActiveAccountId())
     }
 
-    /// Sets the account encryption keys for the active account.
+    /// Sets the cryptographic state for the active account.
     ///
-    /// - Parameter encryptionKeys: The account encryption keys.
+    /// - Parameter cryptographicState: The account's cryptographic state.
     ///
-    func setAccountEncryptionKeys(_ encryptionKeys: AccountEncryptionKeys) async throws {
-        try await setAccountEncryptionKeys(encryptionKeys, userId: nil)
+    func setAccountCryptographicState(_ cryptographicState: WrappedAccountCryptographicState) async throws {
+        try await setAccountCryptographicState(cryptographicState, userId: nil)
     }
 
     /// Sets whether the user has unlocked their account in the current session  interactively.
@@ -1685,15 +1688,12 @@ actor DefaultStateService: StateService, ActiveAccountStateProvider, ConfigState
         return account
     }
 
-    func getAccountEncryptionKeys(userId: String?) async throws -> AccountEncryptionKeys {
+    func getAccountCryptographicState(userId: String?) async throws -> WrappedAccountCryptographicState {
         let userId = try userId ?? getActiveAccountUserId()
         guard let cryptographicState = appSettingsStore.accountCryptographicState(userId: userId) else {
             throw StateServiceError.noAccountCryptographicState
         }
-        return AccountEncryptionKeys(
-            cryptographicState: cryptographicState,
-            encryptedUserKey: appSettingsStore.encryptedUserKey(userId: userId),
-        )
+        return cryptographicState
     }
 
     func getAccountHasBeenUnlockedInteractively(userId: String?) async throws -> Bool {
@@ -1992,7 +1992,6 @@ actor DefaultStateService: StateService, ActiveAccountStateProvider, ConfigState
         appSettingsStore.setAccountCryptographicState(nil, userId: knownUserId)
         appSettingsStore.setDefaultUriMatchType(nil, userId: knownUserId)
         appSettingsStore.setDisableAutoTotpCopy(nil, userId: knownUserId)
-        appSettingsStore.setEncryptedUserKey(key: nil, userId: knownUserId)
         appSettingsStore.setHasPerformedSyncAfterLogin(nil, userId: knownUserId)
         appSettingsStore.setLastSyncTime(nil, userId: knownUserId)
         appSettingsStore.setMasterPasswordHash(nil, userId: knownUserId)
@@ -2042,10 +2041,12 @@ actor DefaultStateService: StateService, ActiveAccountStateProvider, ConfigState
         }
     }
 
-    func setAccountEncryptionKeys(_ encryptionKeys: AccountEncryptionKeys, userId: String?) async throws {
+    func setAccountCryptographicState(
+        _ cryptographicState: WrappedAccountCryptographicState,
+        userId: String?,
+    ) async throws {
         let userId = try userId ?? getActiveAccountUserId()
-        appSettingsStore.setAccountCryptographicState(encryptionKeys.cryptographicState, userId: userId)
-        appSettingsStore.setEncryptedUserKey(key: encryptionKeys.encryptedUserKey, userId: userId)
+        appSettingsStore.setAccountCryptographicState(cryptographicState, userId: userId)
     }
 
     func setAccountHasBeenUnlockedInteractively(userId: String?, value: Bool) async throws {
