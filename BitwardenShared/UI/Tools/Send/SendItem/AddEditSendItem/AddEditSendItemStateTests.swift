@@ -1,3 +1,4 @@
+import BitwardenResources
 import BitwardenSdk
 import XCTest
 
@@ -534,5 +535,27 @@ class AddEditSendItemStateTests: BitwardenTestCase { // swiftlint:disable:this t
             sendPolicyOptions: SendPolicyOptions(isHideEmailDisabled: true),
         )
         XCTAssertFalse(subject.shouldShowHideEmailPolicyBanner)
+    }
+
+    // MARK: whoCanViewFooter
+
+    /// `whoCanViewFooter` returns the "anyone with this link" description when the access type is
+    /// "Anyone with the link".
+    func test_whoCanViewFooter_anyoneWithLink() {
+        let subject = AddEditSendItemState(accessType: .anyoneWithLink)
+        XCTAssertEqual(subject.whoCanViewFooter, Localizations.anyoneWithThisLinkCanViewThisSend)
+    }
+
+    /// `whoCanViewFooter` returns the "specific people" description when the access type is
+    /// "Specific people".
+    func test_whoCanViewFooter_specificPeople() {
+        let subject = AddEditSendItemState(accessType: .specificPeople)
+        XCTAssertEqual(subject.whoCanViewFooter, Localizations.afterSharingThisSendLinkDescriptionLong)
+    }
+
+    /// `whoCanViewFooter` is `nil` when the access type is "Anyone with the password".
+    func test_whoCanViewFooter_anyoneWithPassword() {
+        let subject = AddEditSendItemState(accessType: .anyoneWithPassword)
+        XCTAssertNil(subject.whoCanViewFooter)
     }
 } // swiftlint:disable:this file_length

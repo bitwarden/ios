@@ -215,6 +215,18 @@ struct AddEditSendItemState: Equatable, Sendable {
     var shouldShowHideEmailPolicyBanner: Bool {
         isSendHideEmailDisabled && !isSendControlsPolicyEnabled
     }
+
+    /// The footer text to display below the "who can view" menu.
+    var whoCanViewFooter: String? {
+        switch accessType {
+        case .anyoneWithLink:
+            Localizations.anyoneWithThisLinkCanViewThisSend
+        case .specificPeople:
+            Localizations.afterSharingThisSendLinkDescriptionLong
+        case .anyoneWithPassword:
+            nil
+        }
+    }
 }
 
 extension AddEditSendItemState {
