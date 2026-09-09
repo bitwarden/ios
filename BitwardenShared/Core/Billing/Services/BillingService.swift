@@ -104,10 +104,10 @@ protocol BillingService: AnyObject { // sourcery: AutoMockable
     ///
     func shouldShowUpgradedToPremiumActionCard() async -> Bool
 
-    /// Starts observing sync completions to resolve any pending Premium upgrade. Should be
-    /// called once, for the lifetime of the app.
+    /// Starts reconciling any pending Premium upgrade against the active account's sync
+    /// completions. Should be called once, for the lifetime of the app.
     ///
-    func start() async
+    func startReconcilingPendingUpgrades() async
 }
 
 // MARK: - DefaultBillingService
@@ -387,7 +387,7 @@ class DefaultBillingService: BillingService { // swiftlint:disable:this type_bod
         }
     }
 
-    func start() async {
+    func startReconcilingPendingUpgrades() async {
         guard !started else { return }
         started = true
 

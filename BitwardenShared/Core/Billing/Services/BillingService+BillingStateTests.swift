@@ -410,13 +410,15 @@ struct BillingServiceBillingStateTests { // swiftlint:disable:this type_body_len
     }
 
     /// `reconcileCheckoutSuccess()` still reports `.confirmed` when the pending flags it set are
-    /// already cleared by the time its own resolution step runs — e.g. `start()`'s background
-    /// sync watcher reacting to this same forced sync and resolving it first.
+    /// already cleared by the time its own resolution step runs — e.g.
+    /// `startReconcilingPendingUpgrades()`'s background sync watcher reacting to this same forced
+    /// sync and resolving it first.
     @Test
     func reconcileCheckoutSuccess_alreadyResolvedByConcurrentSync_stillReportsConfirmed() async throws {
         stateService.doesAccountHavePremiumByUserId["1"] = false
         syncService.fetchSyncHandler = {
-            // Simulates `start()`'s background watcher (`reconcileOnEachNewSync(userId:)`) winning the race.
+            // Simulates `startReconcilingPendingUpgrades()`'s background watcher
+            // (`reconcileOnEachNewSync(userId:)`) winning the race.
             stateService.doesAccountHavePremiumByUserId["1"] = true
             premiumUpgradeState.pendingByUserId["1"] = false
             premiumUpgradeState.syncAttemptFailedByUserId["1"] = false
@@ -432,28 +434,29 @@ struct BillingServiceBillingStateTests { // swiftlint:disable:this type_body_len
         #expect(statuses == [.confirmed])
     }
 
-    // MARK: start
+    // MARK: startReconcilingPendingUpgrades
 
-    /// `start()` resolves a pending upgrade the moment it starts observing an account that
-    /// already has one recorded (e.g. left over from a previous app session).
+    /// `startReconcilingPendingUpgrades()` resolves a pending upgrade the moment it starts
+    /// observing an account that already has one recorded (e.g. left over from a previous app
+    /// session).
     @Test
-    func start_resolvesExistingPendingUpgradeOnFirstSync() async throws {
+    func startReconcilingPendingUpgrades_resolvesExistingPendingUpgradeOnFirstSync() async throws {
         premiumUpgradeState.pendingByUserId["1"] = true
         stateService.doesAccountHavePremiumByUserId["1"] = true
 
-        await subject.start()
+        await subject.startReconcilingPendingUpgrades()
         stateService.lastSyncTimeSubject.send(Date())
 
         try await waitForAsync { premiumUpgradeState.pendingByUserId["1"] == false }
         #expect(premiumUpgradeState.upgradedToPremiumCardVisibleByUserId["1"] == true)
     }
 
-    /// `start()` resolves a pending upgrade on a later, unrelated sync — not just the sync that
-    /// originated the checkout attempt (the "delayed sync" case: Settings > Sync Now, or a sync
-    /// triggered from the web vault).
+    /// `startReconcilingPendingUpgrades()` resolves a pending upgrade on a later, unrelated sync —
+    /// not just the sync that originated the checkout attempt (the "delayed sync" case: Settings >
+    /// Sync Now, or a sync triggered from the web vault).
     @Test
-    func start_resolvesPendingUpgradeOnDelayedSync() async throws {
-        await subject.start()
+    func startReconcilingPendingUpgrades_resolvesPendingUpgradeOnDelayedSync() async throws {
+        await subject.startReconcilingPendingUpgrades()
 
         premiumUpgradeState.pendingByUserId["1"] = true
         stateService.doesAccountHavePremiumByUserId["1"] = false
@@ -468,14 +471,14 @@ struct BillingServiceBillingStateTests { // swiftlint:disable:this type_body_len
         #expect(premiumUpgradeState.upgradedToPremiumCardVisibleByUserId["1"] == true)
     }
 
-    /// `start()`'s background sync watcher leaves an account with no pending upgrade (and no
-    /// prior failure) untouched, so a normal sync for a long-since-Premium or free account never
-    /// spuriously shows the "Upgraded to Premium" card.
+    /// `startReconcilingPendingUpgrades()`'s background sync watcher leaves an account with no
+    /// pending upgrade (and no prior failure) untouched, so a normal sync for a long-since-Premium
+    /// or free account never spuriously shows the "Upgraded to Premium" card.
     @Test
-    func start_ignoresSyncsWithNoPendingUpgrade() async throws {
+    func startReconcilingPendingUpgrades_ignoresSyncsWithNoPendingUpgrade() async throws {
         stateService.doesAccountHavePremiumByUserId["1"] = true
 
-        await subject.start()
+        await subject.startReconcilingPendingUpgrades()
         stateService.lastSyncTimeSubject.send(Date())
 
         // Give the background watcher a chance to (not) act before asserting nothing changed.
@@ -484,14 +487,14 @@ struct BillingServiceBillingStateTests { // swiftlint:disable:this type_body_len
         #expect(premiumUpgradeState.upgradedToPremiumCardVisibleByUserId["1"] == nil)
     }
 
-    /// `start()` only subscribes once, ignoring subsequent calls.
+    /// `startReconcilingPendingUpgrades()` only subscribes once, ignoring subsequent calls.
     @Test
-    func start_subscribesOnlyOnce() async throws {
+    func startReconcilingPendingUpgrades_subscribesOnlyOnce() async throws {
         premiumUpgradeState.pendingByUserId["1"] = true
         stateService.doesAccountHavePremiumByUserId["1"] = true
 
-        await subject.start()
-        await subject.start()
+        await subject.startReconcilingPendingUpgrades()
+        await subject.startReconcilingPendingUpgrades()
         stateService.lastSyncTimeSubject.send(Date())
 
         try await waitForAsync { premiumUpgradeState.pendingByUserId["1"] == false }
@@ -525,10 +528,10 @@ struct BillingServiceBillingStateTests { // swiftlint:disable:this type_body_len
         ])
     }
 
-    /// `start()` resets `premiumUpgradePendingStatePublisher()` to the default, non-pending state
-    /// the instant the active account logs out, as a direct push rather than a
-    /// `billingStateService` read — the logged-out account's own persisted flags are left
-    /// untouched for whenever it's active again.
+    /// `startReconcilingPendingUpgrades()` resets `premiumUpgradePendingStatePublisher()` to the
+    /// default, non-pending state the instant the active account logs out, as a direct push
+    /// rather than a `billingStateService` read — the logged-out account's own persisted flags
+    /// are left untouched for whenever it's active again.
     @Test
     func premiumUpgradePendingStatePublisher_resetsOnLogout() async throws {
         var states = [PremiumUpgradePendingState]()
@@ -536,7 +539,7 @@ struct BillingServiceBillingStateTests { // swiftlint:disable:this type_body_len
             .sink { states.append($0) }
         defer { cancellable.cancel() }
 
-        await subject.start()
+        await subject.startReconcilingPendingUpgrades()
         try await waitForAsync { states.count == 2 }
 
         premiumUpgradeState.pendingByUserId["1"] = true
