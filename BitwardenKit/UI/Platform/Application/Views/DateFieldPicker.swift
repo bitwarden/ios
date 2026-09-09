@@ -7,13 +7,10 @@ import UIKit
 /// A reusable field for entering an optional calendar date.
 ///
 /// The field renders as a collapsed row showing its title and, once set, the current value.
-/// Tapping the row expands an inline graphical calendar; selecting a day populates the value.
-/// The calendar stays expanded until the user collapses it again via the row — it doesn't auto-
-/// collapse on selection, since the calendar's quick month/year navigation reports a changed
-/// selection the same way a genuine day tap does, and auto-collapsing on that closed the calendar
-/// out from under the user before they'd picked the day they actually wanted. When a date is set,
-/// a clear control is shown to reset it. Because the field operates on an optional `Date?`, it can
-/// represent a genuinely empty value, which the underlying `DatePicker` cannot do on its own.
+/// Tapping the row expands an inline graphical calendar; selecting a day populates the
+/// value and collapses the calendar. When a date is set, a clear control is shown to reset it.
+/// Because the field operates on an optional `Date?`, it can represent a genuinely empty value,
+/// which the underlying `DatePicker` cannot do on its own.
 ///
 public struct DateFieldPicker: View {
     // MARK: Properties
@@ -158,8 +155,8 @@ public struct DateFieldPicker: View {
 
     /// The inline `DatePicker`, optionally constrained to `range`. Uses the graphical calendar by
     /// default, falling back to the wheel style under VoiceOver where the calendar is hard to navigate.
-    /// Neither style collapses the calendar on selection (see `selection()`); the user collapses it via
-    /// the row when they're done.
+    /// In the graphical style, selecting a day commits the value and collapses the calendar via
+    /// `selection()`; the wheel style stays expanded so the user can scrub freely.
     ///
     /// `range`'s bounds are UTC-anchored, like `date`, so they're converted to the same local-day
     /// domain the picker operates in (see `selection()`) before being applied.
@@ -263,8 +260,9 @@ public struct DateFieldPicker: View {
     }
 
     /// A binding driving the calendar: reads the selected date (falling back to `defaultDate` when
-    /// empty) and, on selection, commits the value. The calendar never auto-collapses on a commit (see
-    /// `commitSelectedLocalDay(_:)`) — the user collapses it via the header when they're done.
+    /// empty) and, on selection, commits the value. With the graphical calendar, a selection also
+    /// collapses the calendar; under VoiceOver the wheel stays expanded so continuous scrubbing does
+    /// not dismiss it on the first change — the user collapses it via the header instead.
     ///
     /// `date` is UTC-anchored (see `iso8601DateOnlyString`), but the `DatePicker` reads/writes
     /// calendar days in the device's local time zone. The get/set here convert at that boundary so
@@ -278,15 +276,19 @@ public struct DateFieldPicker: View {
 
     /// Handles a change reported by the graphical calendar's selection binding. Tapping the calendar's
     /// quick month/year navigation header reports a changed selection (a new month/year, with no day
-    /// tapped yet) exactly the same way a genuine day tap does. Treating every change as a day tap
-    /// closed the calendar and committed that not-yet-chosen day the moment the user changed the month
-    /// or year, before they had a chance to pick the day they actually wanted.
+    /// tapped yet) exactly the same way a genuine day tap does — and, once navigated, the calendar
+    /// settling on the newly displayed month appears to report that same (still not actually tapped)
+    /// day a second time. Treating every change as a day tap closed the calendar and committed that
+    /// not-yet-chosen day the moment the user changed the month or year, before they had a chance to
+    /// pick the day they actually wanted; comparing only the month let that second, settling report
+    /// slip through as if it were a genuine tap, since it does share a month with the first report.
     ///
-    /// A change is only committed when it keeps the same month and year as the last one reported: that's
-    /// what distinguishes an actual day tap from a month/year navigation, which is left to just update
-    /// the comparison point so a day tapped afterward, within the newly navigated month, still commits.
-    /// This check doesn't apply when nothing's been reported yet (nothing to compare against) or under
-    /// VoiceOver, where the wheel picker commits every change immediately.
+    /// A change only commits when it's a day tap: the month/year differs from the last one reported (a
+    /// month/year navigation, not a day tap — the comparison point still updates, so a day tapped
+    /// afterward, within the newly navigated month, correctly commits), or the exact day reported
+    /// hasn't changed (the settling report described above, not a new tap). This doesn't apply when
+    /// nothing's been reported yet (nothing to compare against) or under VoiceOver, where the wheel
+    /// picker commits every change immediately.
     ///
     /// Also posts a live VoiceOver announcement — rather than relying on an accessibility hint, which
     /// needs "Speak Hints" enabled and isn't spoken by the wheel's native month/day/year sub-elements
@@ -299,18 +301,23 @@ public struct DateFieldPicker: View {
            localDay >= range.upperBound.asLocalCalendarDay() {
             UIAccessibility.post(notification: .announcement, argument: Localizations.futureDatesUnavailable)
         }
-        if let lastDisplayedLocalDay, !voiceOverEnabled,
-           !Calendar.current.isDate(lastDisplayedLocalDay, equalTo: localDay, toGranularity: .month) {
-            return
+        if let lastDisplayedLocalDay, !voiceOverEnabled {
+            let isSameMonth = Calendar.current.isDate(lastDisplayedLocalDay, equalTo: localDay, toGranularity: .month)
+            let isUnchangedDay = lastDisplayedLocalDay == localDay
+            if !isSameMonth || isUnchangedDay {
+                return
+            }
         }
         commitSelectedLocalDay(localDay)
     }
 
     /// Commits a calendar day the user picked (in the `DatePicker`'s local-day domain) back into
-    /// `date`, converting it to the UTC-anchored form used for storage. Doesn't collapse the calendar;
-    /// the user does that via the header when they're done.
+    /// `date`, converting it to the UTC-anchored form used for storage, and collapses the calendar
+    /// unless VoiceOver is active.
     private func commitSelectedLocalDay(_ localDay: Date) {
         date = localDay.asUTCCalendarDay()
+        guard !voiceOverEnabled else { return }
+        withAnimation { isExpanded = false }
     }
 
     /// The calendar day the `DatePicker` should currently show as selected: the stored date (or

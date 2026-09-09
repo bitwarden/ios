@@ -187,6 +187,21 @@ class DateFieldPickerTests: BitwardenTestCase {
         XCTAssertNil(date)
     }
 
+    /// A selection change reporting the exact same day as the last one reported — the calendar settling
+    /// on the newly navigated month, not a new tap — doesn't commit a value either.
+    func test_handleSelectionChange_repeatedSameDay_doesNotCommit() throws {
+        let trackedDay = Date(year: 2024, month: 3, day: 1)
+        subject = DateFieldPicker(
+            title: "Date of birth",
+            date: bindingDate,
+            defaultDate: defaultDate,
+            isExpanded: true,
+            lastDisplayedLocalDay: trackedDay,
+        )
+        try subject.inspect().find(ViewType.DatePicker.self).select(date: trackedDay)
+        XCTAssertNil(date)
+    }
+
     /// A provided footer is rendered below the field.
     func test_footer_isRendered() throws {
         subject = DateFieldPicker(
