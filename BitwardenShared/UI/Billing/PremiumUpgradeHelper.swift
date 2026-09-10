@@ -145,12 +145,12 @@ class DefaultPremiumUpgradeHelper<Route: PremiumUpgradeRoute, Event>: PremiumUpg
     // MARK: Private Methods
 
     /// Calls `onPendingDismiss`, then shows the upgrade pending alert with "Sync Now" wired to
-    /// `reconcileCheckoutSuccess()`.
+    /// `resolveCheckoutSuccess()`.
     ///
     private func showUpgradePendingAlert() {
         onPendingDismiss?()
         coordinator.showAlert(.upgradePending { [weak self] in
-            await self?.services.billingService.reconcileCheckoutSuccess()
+            await self?.services.billingService.resolveCheckoutSuccess()
         })
     }
 
