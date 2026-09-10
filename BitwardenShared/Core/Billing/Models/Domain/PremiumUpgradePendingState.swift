@@ -12,7 +12,7 @@ struct PremiumUpgradePendingState: Equatable, Sendable {
     ///
     /// Can be transiently wrong after a compound sync failure: if a sync persists data —
     /// including a new last-sync time — before throwing on a later step, the background sync
-    /// watcher (`reconcileOnEachNewSync(userId:)`) observes that last-sync-time change and
+    /// watcher (`resolveOnEachNewSync(userId:)`) observes that last-sync-time change and
     /// resolves the pending upgrade with `syncFailed: false`, unaware the sync it rode in on
     /// actually failed. Nothing reads this property yet; revisit if that changes.
     let lastAttemptFailed: Bool

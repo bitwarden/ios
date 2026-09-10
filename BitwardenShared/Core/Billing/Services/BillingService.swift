@@ -69,10 +69,10 @@ protocol BillingService: AnyObject { // sourcery: AutoMockable
 
     /// Confirms whether a just-succeeded Stripe checkout has been granted Premium yet, syncing
     /// to check and publishing checkout status updates as it resolves. If the sync doesn't
-    /// confirm Premium (or fails), the upgrade is left pending so `start()`'s background watcher
-    /// can resolve it once a later sync does.
+    /// confirm Premium (or fails), the upgrade is left pending so
+    /// `startResolvingPendingUpgrades()`'s background watcher can resolve it once a later sync does.
     ///
-    func reconcileCheckoutSuccess() async
+    func resolveCheckoutSuccess() async
 
     /// Fetches the current subscription status and updates the visibility of the subscription
     /// attention action card.
@@ -104,10 +104,10 @@ protocol BillingService: AnyObject { // sourcery: AutoMockable
     ///
     func shouldShowUpgradedToPremiumActionCard() async -> Bool
 
-    /// Starts reconciling any pending Premium upgrade against the active account's sync
+    /// Starts resolving any pending Premium upgrade against the active account's sync
     /// completions. Should be called once, for the lifetime of the app.
     ///
-    func startReconcilingPendingUpgrades() async
+    func startResolvingPendingUpgrades() async
 }
 
 // MARK: - DefaultBillingService
@@ -159,7 +159,7 @@ class DefaultBillingService: BillingService { // swiftlint:disable:this type_bod
     private let stateService: StateService
 
     /// The task that watches for sync completions for the currently active account, to
-    /// reconcile a pending Premium upgrade if one exists.
+    /// resolve a pending Premium upgrade if one exists.
     private var syncCompletionSubscriber: Task<Void, Never>?
 
     /// The service used to handle syncing vault data with the API.
@@ -276,8 +276,9 @@ class DefaultBillingService: BillingService { // swiftlint:disable:this type_bod
             }
         }
         // No further action needed if a pending upgrade was also in flight: the forced sync
-        // above updates the active account's last-sync time either way, and `start()`'s
-        // background watcher resolves any pending upgrade generically on every sync.
+        // above updates the active account's last-sync time either way, and
+        // `startResolvingPendingUpgrades()`'s background watcher resolves any pending upgrade
+        // generically on every sync.
     }
 
     func premiumUpgradePendingState() async -> PremiumUpgradePendingState {
@@ -301,7 +302,7 @@ class DefaultBillingService: BillingService { // swiftlint:disable:this type_bod
             .eraseToAnyPublisher()
     }
 
-    func reconcileCheckoutSuccess() async {
+    func resolveCheckoutSuccess() async {
         guard await isEligibleForPremiumUpgradePath() else { return }
         guard let userId = try? await stateService.getActiveAccountId() else { return }
 
@@ -324,7 +325,7 @@ class DefaultBillingService: BillingService { // swiftlint:disable:this type_bod
         let hasPremium = await resolvePendingUpgrade(userId: userId, syncFailed: syncFailed)
         await refreshPremiumUpgradePendingStateSubject()
 
-        // Only the account this reconcile started for should see its own checkout result — the
+        // Only the account this resolution started for should see its own checkout result — the
         // "Sync Now" tap that led here already dismissed to an interactive vault list, so the
         // active account can have switched away while the sync above was in flight.
         guard await (try? stateService.getActiveAccountId()) == userId else { return }
@@ -387,7 +388,7 @@ class DefaultBillingService: BillingService { // swiftlint:disable:this type_bod
         }
     }
 
-    func startReconcilingPendingUpgrades() async {
+    func startResolvingPendingUpgrades() async {
         guard !started else { return }
         started = true
 
@@ -406,7 +407,7 @@ class DefaultBillingService: BillingService { // swiftlint:disable:this type_bod
                 }
 
                 await self.refreshPremiumUpgradePendingStateSubject()
-                self.syncCompletionSubscriber = Task { await self.reconcileOnEachNewSync(userId: userId) }
+                self.syncCompletionSubscriber = Task { await self.resolveOnEachNewSync(userId: userId) }
             }
         }
     }
@@ -434,7 +435,7 @@ class DefaultBillingService: BillingService { // swiftlint:disable:this type_bod
     ///
     /// - Parameter userId: The user ID of the account this subscriber was started for.
     ///
-    private func reconcileOnEachNewSync(userId: String) async {
+    private func resolveOnEachNewSync(userId: String) async {
         let publisher: AnyPublisher<Date?, Never>
         do {
             publisher = try await stateService.lastSyncTimePublisher()
@@ -494,8 +495,8 @@ class DefaultBillingService: BillingService { // swiftlint:disable:this type_bod
         }
         // Regardless of which branch below runs, the return value always answers "does `userId`
         // have Premium right now" — never a stand-in like "was anything pending." The background
-        // sync watcher (`reconcileOnEachNewSync(userId:)`) and this method's other caller
-        // (`reconcileCheckoutSuccess()`) can both resolve the same sync, and whichever runs
+        // sync watcher (`resolveOnEachNewSync(userId:)`) and this method's other caller
+        // (`resolveCheckoutSuccess()`) can both resolve the same sync, and whichever runs
         // second must still get an accurate answer even though there's nothing left pending by
         // the time it checks.
         guard isPending || lastAttemptFailed else {
@@ -510,7 +511,7 @@ class DefaultBillingService: BillingService { // swiftlint:disable:this type_bod
             // Premium wasn't actually granted, so a confirmed upgrade never persists a
             // contradictory flag.
             //
-            // Accepted race: if `reconcileOnEachNewSync(userId:)` resolves this same sync
+            // Accepted race: if `resolveOnEachNewSync(userId:)` resolves this same sync
             // concurrently, whichever call persists this flag last wins — `isPending` below is
             // unaffected and is what actually gates the retry.
             try await billingStateService.setPremiumUpgradeLastSyncAttemptFailed(
