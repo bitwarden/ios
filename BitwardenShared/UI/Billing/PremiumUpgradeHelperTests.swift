@@ -25,10 +25,7 @@ struct PremiumUpgradeHelperTests { // swiftlint:disable:this type_body_length
     init() {
         billingRepository = MockBillingRepository()
         billingService = MockBillingService()
-        billingService.premiumUpgradePendingStateReturnValue = PremiumUpgradePendingState(
-            isPending: false,
-            lastAttemptFailed: false,
-        )
+        billingService.premiumUpgradePendingStateReturnValue = PremiumUpgradePendingState.none
         coordinator = MockCoordinator()
         environmentService = MockEnvironmentService()
     }
@@ -148,10 +145,7 @@ struct PremiumUpgradeHelperTests { // swiftlint:disable:this type_body_length
     func startInAppPremiumUpgrade_showsPendingAlertWhenAlreadyPending() async throws {
         let statusSubject = PassthroughSubject<PremiumCheckoutStatus, Never>()
         billingService.premiumCheckoutStatusPublisherReturnValue = statusSubject.eraseToAnyPublisher()
-        billingService.premiumUpgradePendingStateReturnValue = PremiumUpgradePendingState(
-            isPending: true,
-            lastAttemptFailed: false,
-        )
+        billingService.premiumUpgradePendingStateReturnValue = .pending(lastAttemptFailed: false)
         let subject = DefaultPremiumUpgradeHelper(
             services: ServiceContainer.withMocks(
                 billingRepository: billingRepository,
@@ -176,10 +170,7 @@ struct PremiumUpgradeHelperTests { // swiftlint:disable:this type_body_length
     func startInAppPremiumUpgrade_pendingAlert_callsOnPendingDismiss() async throws {
         let statusSubject = PassthroughSubject<PremiumCheckoutStatus, Never>()
         billingService.premiumCheckoutStatusPublisherReturnValue = statusSubject.eraseToAnyPublisher()
-        billingService.premiumUpgradePendingStateReturnValue = PremiumUpgradePendingState(
-            isPending: true,
-            lastAttemptFailed: false,
-        )
+        billingService.premiumUpgradePendingStateReturnValue = .pending(lastAttemptFailed: false)
         var onPendingDismissCalled = false
         let subject = makeSubject(onPendingDismiss: { onPendingDismissCalled = true })
 
@@ -196,10 +187,7 @@ struct PremiumUpgradeHelperTests { // swiftlint:disable:this type_body_length
     func startInAppPremiumUpgrade_pendingAlert_retryStillPending_doesNotDismiss() async throws {
         let statusSubject = PassthroughSubject<PremiumCheckoutStatus, Never>()
         billingService.premiumCheckoutStatusPublisherReturnValue = statusSubject.eraseToAnyPublisher()
-        billingService.premiumUpgradePendingStateReturnValue = PremiumUpgradePendingState(
-            isPending: true,
-            lastAttemptFailed: false,
-        )
+        billingService.premiumUpgradePendingStateReturnValue = .pending(lastAttemptFailed: false)
         let subject = makeSubject()
 
         subject.startInAppPremiumUpgrade()
