@@ -843,6 +843,21 @@ class CipherItemStateTests: BitwardenTestCase { // swiftlint:disable:this type_b
         XCTAssertEqual(subject, expected)
     }
 
+    /// `update(from:)` preserves the card scanner's state, which isn't derived from the `CipherView`.
+    func test_updateFromCipherView_cardScannerState() throws {
+        var subject = try XCTUnwrap(
+            CipherItemState(existing: .fixture(card: .fixture(), type: .card), hasPremium: true),
+        )
+        subject.cardItemState.cardScannerEnabled = true
+        subject.cardItemState.isCardScannerPresented = true
+
+        subject.update(from: .fixture(card: .fixture(number: "1111222233334444"), name: "Card", type: .card))
+
+        XCTAssertEqual(subject.cardItemState.cardNumber, "1111222233334444")
+        XCTAssertTrue(subject.cardItemState.cardScannerEnabled)
+        XCTAssertTrue(subject.cardItemState.isCardScannerPresented)
+    }
+
     /// `update(from:)` updates the state from an updated identity `CipherView`.
     func test_updateFromCipherView_identity() {
         var subject = CipherItemState(existing: .fixture(type: .identity), hasPremium: true)
