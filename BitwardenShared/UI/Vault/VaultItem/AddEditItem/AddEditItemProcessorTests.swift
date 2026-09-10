@@ -1924,6 +1924,30 @@ class AddEditItemProcessorTests: BitwardenTestCase {
         try XCTAssertEqual(XCTUnwrap(subject.state as? CipherItemState), updatedState)
     }
 
+    /// `perform(_:)` with `.streamCipherDetails` preserves the card scanner's state when an update
+    /// to the cipher occurs, so the scan card button remains visible while editing a card.
+    @MainActor
+    func test_perform_streamCipherDetails_cardScannerState() async throws {
+        subject.state = try XCTUnwrap(
+            CipherItemState(existing: .fixture(card: .fixture(), id: "1", type: .card), hasPremium: false),
+        )
+        subject.state.cardItemState.cardScannerEnabled = true
+        subject.state.cardItemState.isCardScannerPresented = true
+
+        let task = Task {
+            await subject.perform(.streamCipherDetails)
+        }
+        defer { task.cancel() }
+
+        vaultRepository.cipherDetailsSubject.send(
+            .fixture(card: .fixture(), id: "1", name: "Updated name", type: .card),
+        )
+        try await waitForAsync { self.subject.state.name == "Updated name" }
+
+        XCTAssertTrue(subject.state.cardItemState.cardScannerEnabled)
+        XCTAssertTrue(subject.state.cardItemState.isCardScannerPresented)
+    }
+
     /// `perform(_:)` with `.streamCipherDetails` logs an error if getting updates for the cipher fails.
     @MainActor
     func test_perform_streamCipherDetails_error() async throws {
