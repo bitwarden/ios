@@ -65,9 +65,6 @@ final class VaultGroupProcessor: StateProcessor<// swiftlint:disable:this type_b
     /// An object to manage TOTP code expirations and batch refresh calls for search results.
     private var searchTotpExpirationManager: TOTPExpirationManager?
 
-    /// A task to handle the sync-complete stream.
-    private var syncCompleteStreamTask: Task<Void, Never>?
-
     /// The helper to handle the more options menu for a vault item.
     private let vaultItemMoreOptionsHelper: VaultItemMoreOptionsHelper
 
@@ -119,15 +116,11 @@ final class VaultGroupProcessor: StateProcessor<// swiftlint:disable:this type_b
                 }
             },
         )
-
-        streamSyncComplete()
     }
 
     deinit {
         groupTotpExpirationManager?.cleanup()
         groupTotpExpirationManager = nil
-        syncCompleteStreamTask?.cancel()
-        syncCompleteStreamTask = nil
     }
 
     // MARK: Methods
@@ -163,6 +156,8 @@ final class VaultGroupProcessor: StateProcessor<// swiftlint:disable:this type_b
             for await value in await services.stateService.showWebIconsPublisher().values {
                 state.showWebIcons = value
             }
+        case .streamSyncComplete:
+            await streamSyncComplete()
         }
     }
 
@@ -374,13 +369,9 @@ final class VaultGroupProcessor: StateProcessor<// swiftlint:disable:this type_b
     }
 
     /// Streams sync-complete events to keep up-to-date sync-related features here.
-    private func streamSyncComplete() {
-        syncCompleteStreamTask = Task { [weak self] in
-            guard let publisher = self?.services.syncService.syncCompletePublisher() else { return }
-            for await _ in publisher {
-                guard let self else { return }
-                await loadItemTypesUserCanCreate()
-            }
+    private func streamSyncComplete() async {
+        for await _ in services.syncService.syncCompletePublisher() {
+            await loadItemTypesUserCanCreate()
         }
     }
 

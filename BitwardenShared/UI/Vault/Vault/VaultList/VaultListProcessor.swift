@@ -81,9 +81,6 @@ final class VaultListProcessor: StateProcessor<
     /// The services used by this processor.
     private let services: Services
 
-    /// A task to handle the sync-complete stream.
-    private var syncCompleteStreamTask: Task<Void, Never>?
-
     /// The helper to handle the more options menu for a vault item.
     private let vaultItemMoreOptionsHelper: VaultItemMoreOptionsHelper
 
@@ -112,14 +109,10 @@ final class VaultListProcessor: StateProcessor<
         self.vaultItemMoreOptionsHelper = vaultItemMoreOptionsHelper
 
         super.init(state: state)
-
-        streamSyncComplete()
     }
 
     deinit {
         reviewPromptTask?.cancel()
-        syncCompleteStreamTask?.cancel()
-        syncCompleteStreamTask = nil
     }
 
     // MARK: Methods
@@ -161,6 +154,8 @@ final class VaultListProcessor: StateProcessor<
             await streamOrganizations()
         case .streamShowWebIcons:
             await streamShowWebIcons()
+        case .streamSyncComplete:
+            await streamSyncComplete()
         case .streamVaultList:
             await streamVaultList()
         case .tryAgainTapped:
@@ -794,13 +789,9 @@ extension VaultListProcessor {
     }
 
     /// Streams sync-complete events to keep up-to-date sync-related features here.
-    private func streamSyncComplete() {
-        syncCompleteStreamTask = Task { [weak self] in
-            guard let publisher = self?.services.syncService.syncCompletePublisher() else { return }
-            for await _ in publisher {
-                guard let self else { return }
-                await loadItemTypesUserCanCreate()
-            }
+    private func streamSyncComplete() async {
+        for await _ in services.syncService.syncCompletePublisher() {
+            await loadItemTypesUserCanCreate()
         }
     }
 

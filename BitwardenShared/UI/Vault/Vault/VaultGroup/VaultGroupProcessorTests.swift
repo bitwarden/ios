@@ -257,13 +257,17 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
         task.cancel()
     }
 
-    /// The processor reloads the item types the user can create whenever a sync completes, so
-    /// feature-flag or policy changes picked up by the sync are reflected without needing the
-    /// screen to reappear.
+    /// `perform(_:)` with `.streamSyncComplete` reloads the item types the user can create
+    /// whenever a sync completes, so feature-flag or policy changes picked up by the sync are
+    /// reflected without needing the screen to reappear.
     @MainActor
-    func test_streamSyncComplete_reloadsItemTypesUserCanCreate() {
-        vaultRepository.getItemTypesUserCanCreateResult = [.card]
+    func test_perform_streamSyncComplete_reloadsItemTypesUserCanCreate() {
+        let task = Task {
+            await subject.perform(.streamSyncComplete)
+        }
+        defer { task.cancel() }
 
+        vaultRepository.getItemTypesUserCanCreateResult = [.card]
         syncService.syncCompleteSubject.send(())
 
         waitFor(subject.state.itemTypesUserCanCreate == [.card])
@@ -274,11 +278,6 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
     /// slower-resolving call when a newer, overlapping call has already updated the state.
     @MainActor
     func test_loadItemTypesUserCanCreate_discardsStaleResults_fromOverlappingCalls() {
-        // Let the automatic reload triggered when the processor subscribes to the sync-complete
-        // stream at init (which replays its current value immediately) finish first, so it
-        // doesn't interfere with the overlapping calls being set up below.
-        waitFor(subject.state.itemTypesUserCanCreate == CipherType.canCreateCases)
-
         vaultRepository.getItemTypesUserCanCreateGated = true
 
         let firstTask = Task { await subject.perform(.appeared) }
