@@ -1269,9 +1269,10 @@
 "Server" = "Server";
 /* Accessibility label for the button that clears a field's value. %1$@ is the field's title (e.g. "Date of birth"), so the spoken label reads "Clear Date of birth". */
 "ClearFieldName" = "Clear %1$@";
-"SelectDate" = "Select date";
 /* Accessibility hint on a collapsed date field announcing that activating it opens the calendar picker. */
-"OpensDatePicker" = "Double tap to open picker";
+"OpensDatePicker" = "Opens date picker";
+/* Accessibility hint on an expanded date field announcing that activating it closes the calendar picker. */
+"ClosesDatePicker" = "Closes date picker";
 /* VoiceOver announcement posted when a date picker whose range excludes future dates, e.g. date of birth or an issue date, reports landing on today (the latest available day) while scrolling the wheel. */
 "FutureDatesUnavailable" = "Future dates unavailable";
 "PremiumRequiredTOTPDescriptionLong" = "Authenticator key (TOTP) is a Premium feature. Your current plan does not include access to this feature.";
