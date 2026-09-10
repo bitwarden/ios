@@ -75,7 +75,7 @@ class MockVaultRepository: VaultRepository { // swiftlint:disable:this type_body
 
     var getTOTPKeyIfAllowedToCopyResult: Result<String?, Error> = .success(nil)
 
-    var getItemTypesUserCanCreateResult: [BitwardenShared.CipherType] = CipherType.canCreateCases
+    var getItemTypesUserCanCreateResult: [BitwardenShared.CipherType] = CipherType.canCreateCases.reversed()
 
     var hasMinimumCipherCountResult: Result<Bool, Error> = .success(false)
 
