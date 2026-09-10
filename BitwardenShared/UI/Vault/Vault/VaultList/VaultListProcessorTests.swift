@@ -506,11 +506,6 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
     /// while the vault is syncing.
     @MainActor
     func test_perform_appeared_itemTypesUserCanCreate_loadsBeforeRefreshingVault() {
-        // Let the automatic reload triggered when the processor subscribes to the sync-complete
-        // stream at init (which replays its current value immediately) finish first, so it
-        // doesn't interfere with the call being gated below.
-        waitFor(subject.state.itemTypesUserCanCreate == CipherType.canCreateCases)
-
         vaultRepository.getItemTypesUserCanCreateGated = true
 
         let task = Task {
