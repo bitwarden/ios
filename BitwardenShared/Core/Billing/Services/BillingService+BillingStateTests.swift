@@ -258,7 +258,7 @@ struct BillingServiceBillingStateTests { // swiftlint:disable:this type_body_len
 
         let result = await subject.premiumUpgradePendingState()
 
-        #expect(result == PremiumUpgradePendingState(isPending: true, lastAttemptFailed: true))
+        #expect(result == .pending(lastAttemptFailed: true))
     }
 
     /// `premiumUpgradePendingState()` returns a default, non-pending state and logs the error
@@ -269,7 +269,7 @@ struct BillingServiceBillingStateTests { // swiftlint:disable:this type_body_len
 
         let result = await subject.premiumUpgradePendingState()
 
-        #expect(result == PremiumUpgradePendingState(isPending: false, lastAttemptFailed: false))
+        #expect(result == .none)
         #expect(errorReporter.errors.first as? StateServiceError == .noActiveAccount)
     }
 
@@ -522,9 +522,9 @@ struct BillingServiceBillingStateTests { // swiftlint:disable:this type_body_len
 
         try await waitForAsync { states.count == 3 }
         #expect(states == [
-            PremiumUpgradePendingState(isPending: false, lastAttemptFailed: false),
-            PremiumUpgradePendingState(isPending: true, lastAttemptFailed: false),
-            PremiumUpgradePendingState(isPending: false, lastAttemptFailed: false),
+            .none,
+            .pending(lastAttemptFailed: false),
+            .none,
         ])
     }
 
@@ -546,12 +546,12 @@ struct BillingServiceBillingStateTests { // swiftlint:disable:this type_body_len
         stateService.doesAccountHavePremiumByUserId["1"] = false
         stateService.lastSyncTimeSubject.send(Date())
         try await waitForAsync { states.count == 3 }
-        #expect(states.last == PremiumUpgradePendingState(isPending: true, lastAttemptFailed: false))
+        #expect(states.last == .pending(lastAttemptFailed: false))
 
         stateService.activeIdSubject.send(nil)
 
         try await waitForAsync { states.count == 4 }
-        #expect(states.last == PremiumUpgradePendingState(isPending: false, lastAttemptFailed: false))
+        #expect(states.last == PremiumUpgradePendingState.none)
         #expect(premiumUpgradeState.pendingByUserId["1"] == true)
     }
 }

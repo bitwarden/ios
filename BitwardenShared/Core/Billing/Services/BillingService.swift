@@ -148,9 +148,7 @@ class DefaultBillingService: BillingService { // swiftlint:disable:this type_bod
     private let premiumCheckoutStatusSubject = PassthroughSubject<PremiumCheckoutStatus, Never>()
 
     /// Subject that emits the Premium upgrade pending state for the active account.
-    private let premiumUpgradePendingStateSubject = CurrentValueSubject<PremiumUpgradePendingState, Never>(
-        PremiumUpgradePendingState(isPending: false, lastAttemptFailed: false),
-    )
+    private let premiumUpgradePendingStateSubject = CurrentValueSubject<PremiumUpgradePendingState, Never>(.none)
 
     /// Whether `start()` has already been called, to guard against subscribing more than once.
     private var started = false
@@ -283,12 +281,12 @@ class DefaultBillingService: BillingService { // swiftlint:disable:this type_bod
 
     func premiumUpgradePendingState() async -> PremiumUpgradePendingState {
         do {
-            let isPending = try await billingStateService.getPremiumUpgradePending()
+            guard try await billingStateService.getPremiumUpgradePending() else { return .none }
             let lastAttemptFailed = try await billingStateService.getPremiumUpgradeLastSyncAttemptFailed()
-            return PremiumUpgradePendingState(isPending: isPending, lastAttemptFailed: lastAttemptFailed)
+            return .pending(lastAttemptFailed: lastAttemptFailed)
         } catch {
             errorReporter.log(error: error)
-            return PremiumUpgradePendingState(isPending: false, lastAttemptFailed: false)
+            return .none
         }
     }
 
@@ -400,9 +398,7 @@ class DefaultBillingService: BillingService { // swiftlint:disable:this type_bod
             for await userId in await self.stateService.activeAccountIdPublisher().removeDuplicates().values {
                 self.syncCompletionSubscriber?.cancel()
                 guard let userId else {
-                    self.premiumUpgradePendingStateSubject.send(
-                        PremiumUpgradePendingState(isPending: false, lastAttemptFailed: false),
-                    )
+                    self.premiumUpgradePendingStateSubject.send(.none)
                     continue
                 }
 
