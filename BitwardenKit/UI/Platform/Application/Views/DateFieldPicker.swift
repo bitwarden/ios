@@ -279,15 +279,19 @@ public struct DateFieldPicker: View {
     /// auto-collapses — the user collapses it via the header instead.
     ///
     /// Also posts a live VoiceOver announcement — an accessibility hint needs "Speak Hints" enabled and
-    /// isn't spoken by the wheel's native month/day/year sub-elements anyway — when the reported day is
-    /// at the range's upper bound on a field that disallows future dates.
+    /// isn't spoken by the wheel's native month/day/year sub-elements anyway — when the wheel is already
+    /// sitting on the range's upper bound and reports that same boundary day again, meaning the user tried
+    /// to scroll past it and the wheel couldn't move. Landing on the boundary day itself (arriving from an
+    /// earlier day) doesn't announce, so VoiceOver reads that day normally instead of talking over it.
     private func handleSelectionChange(_ localDay: Date) {
+        let previousLocalDay = selectedLocalDay()
+
         if voiceOverEnabled, disallowsFutureDates, let range,
+           previousLocalDay >= range.upperBound.asLocalCalendarDay(),
            localDay >= range.upperBound.asLocalCalendarDay() {
             UIAccessibility.post(notification: .announcement, argument: Localizations.futureDatesUnavailable)
         }
 
-        let previousLocalDay = selectedLocalDay()
         date = localDay.asUTCCalendarDay()
 
         guard !voiceOverEnabled else { return }
