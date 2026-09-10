@@ -402,6 +402,33 @@ class AuthServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
         XCTAssertEqual(result, [.fixture(fingerprintPhrase: "a-fingerprint-phrase-string-placeholder")])
     }
 
+    /// `init()` subscribes to `stateService.activeAccountIdPublisher()` and clears the cached
+    /// SSO/TDE master password policy whenever the active account changes, so a policy captured
+    /// during one account's SSO/TDE login can't leak into a later unlock if the user switches
+    /// accounts (or logs out) without unlocking first.
+    func test_init_activeAccountChange_clearsCachedSsoMasterPasswordPolicy() async throws {
+        policyService.getMasterPasswordPolicyOptionsResult = .success(nil)
+        clientService.mockAuth.satisfiesPolicyReturnValue = false
+        client.result = .httpSuccess(testData: .identityTokenWithMasterPasswordPolicy)
+
+        // Cache a policy for "user@bitwarden.com" via an SSO login.
+        _ = try await subject.loginWithSingleSignOn(code: "super_cool_secret_code", email: "user@bitwarden.com")
+        XCTAssertNotNil(subject.ssoMasterPasswordPolicy)
+
+        // Simulate switching the active account away and back without unlocking.
+        stateService.activeIdSubject.send("2")
+        try await waitForAsync { self.subject.ssoMasterPasswordPolicy == nil }
+
+        // The cached policy should have been cleared by the account switch, so no reset is
+        // required even though the email matches the account the policy was cached for.
+        stateService.activeAccount = .fixture()
+        try await subject.checkMasterPasswordPolicyAfterUnlock(
+            email: "user@bitwarden.com",
+            masterPassword: "weak password",
+        )
+        XCTAssertNil(stateService.forcePasswordResetReason["1"])
+    }
+
     /// `initiateLoginWithDevice(email:)` calls the sdk method and returns a fingerprint.
     func test_initiateLoginWithDevice() async throws {
         // Set up the mock data.

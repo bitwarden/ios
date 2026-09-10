@@ -371,7 +371,7 @@ class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_leng
     /// login, cached (keyed by email) until the user unlocks the vault with their master
     /// password. Only consumed when the email matches the account being unlocked, to avoid a
     /// stale policy from one account leaking into a later unlock for a different account.
-    private var ssoMasterPasswordPolicy: (email: String, policy: MasterPasswordPolicyResponseModel?)?
+    private(set) var ssoMasterPasswordPolicy: (email: String, policy: MasterPasswordPolicyResponseModel?)?
 
     /// The service used by the application to manage account state.
     private let stateService: StateService
@@ -389,6 +389,11 @@ class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_leng
     /// The data generated when initiating a login with device request, which is used to
     /// complete the login process after the request is approved.
     private var loginWithDeviceData: AuthRequestResponse?
+
+    /// A task that clears `ssoMasterPasswordPolicy` whenever the active account changes, so a
+    /// policy cached for one account can't be left around after the user switches away without
+    /// unlocking (e.g. to another account, or to no account at all).
+    private var ssoMasterPasswordPolicyResetTask: Task<Void, Never>?
 
     // MARK: Computed Properties
 
@@ -453,6 +458,18 @@ class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_leng
         self.stateService = stateService
         self.systemDevice = systemDevice
         self.trustDeviceService = trustDeviceService
+
+        // Clear the cached SSO/TDE master password policy whenever the active account changes,
+        // so it doesn't linger if the user switches away (or logs out) without unlocking.
+        ssoMasterPasswordPolicyResetTask = Task { [weak self, stateService] in
+            for await _ in await stateService.activeAccountIdPublisher().values {
+                self?.ssoMasterPasswordPolicy = nil
+            }
+        }
+    }
+
+    deinit {
+        ssoMasterPasswordPolicyResetTask?.cancel()
     }
 
     // MARK: Methods
