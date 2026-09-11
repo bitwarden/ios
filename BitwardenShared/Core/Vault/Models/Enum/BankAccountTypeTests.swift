@@ -17,4 +17,26 @@ struct BankAccountTypeTests {
         #expect(BankAccountType.other.rawValue == "other")
         #expect(BankAccountType.savings.rawValue == "savings")
     }
+
+    /// `displayOrder` matches the order specified by design.
+    @Test
+    func displayOrder_matchesDesign() {
+        #expect(BankAccountType.displayOrder == [
+            .checking,
+            .savings,
+            .certificateOfDeposit,
+            .lineOfCredit,
+            .investmentBrokerage,
+            .moneyMarket,
+            .other,
+        ])
+    }
+
+    /// `displayOrder` contains every case exactly once, so a newly added case can't be silently
+    /// left out of the menu.
+    @Test
+    func displayOrder_containsAllCases() {
+        #expect(Set(BankAccountType.displayOrder) == Set(BankAccountType.allCases))
+        #expect(BankAccountType.displayOrder.count == BankAccountType.allCases.count)
+    }
 }
