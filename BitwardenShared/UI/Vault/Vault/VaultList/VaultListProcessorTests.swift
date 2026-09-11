@@ -232,6 +232,37 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         XCTAssertEqual(subject.state.toast, Toast(title: Localizations.itemDeleted))
     }
 
+    /// `itemAdded(type:)` delegate method shows the toast for the added item's type.
+    @MainActor
+    func test_delegate_itemAdded() {
+        XCTAssertNil(subject.state.toast)
+
+        let shouldDismiss = subject.itemAdded(type: .driversLicense)
+        XCTAssertTrue(shouldDismiss)
+        XCTAssertEqual(subject.state.toast, Toast(title: Localizations.licenseSaved))
+    }
+
+    /// `itemUpdated(type:)` delegate method shows the toast for the updated item's type, which
+    /// covers saving an edit started from the item's more options menu.
+    @MainActor
+    func test_delegate_itemUpdated() {
+        XCTAssertNil(subject.state.toast)
+
+        let shouldDismiss = subject.itemUpdated(type: .driversLicense)
+        XCTAssertTrue(shouldDismiss)
+        XCTAssertEqual(subject.state.toast, Toast(title: Localizations.licenseSaved))
+    }
+
+    /// `itemDismissed()` delegate method doesn't show a toast when the editor is dismissed
+    /// without saving.
+    @MainActor
+    func test_delegate_itemDismissed() {
+        let shouldDismiss = subject.itemDismissed()
+
+        XCTAssertTrue(shouldDismiss)
+        XCTAssertNil(subject.state.toast)
+    }
+
     /// `itemSoftDeleted()` delegate method shows the expected toast.
     @MainActor
     func test_delegate_itemSoftDeleted() {
