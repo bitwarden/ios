@@ -156,6 +156,44 @@ class DateFieldPickerTests: BitwardenTestCase {
         XCTAssertEqual(date, Date(year: 2024, month: 2, day: 29))
     }
 
+    /// A selection change reported by the calendar's quick month/year navigation header — a new
+    /// month/year, before any day has been tapped — still commits, so the field's value stays in sync
+    /// with whatever the calendar is currently showing. A day tapped afterward, within that newly
+    /// navigated month, also commits normally.
+    func test_handleSelectionChange_navigateThenPickDay_bothCommit() throws {
+        date = Date(year: 2024, month: 2, day: 29)
+        subject = DateFieldPicker(
+            title: "Date of birth",
+            date: bindingDate,
+            defaultDate: defaultDate,
+            isExpanded: true,
+        )
+        let datePicker = try subject.inspect().find(ViewType.DatePicker.self)
+
+        let navigatedMonth = Date(year: 2024, month: 3, day: 29)
+        try datePicker.select(date: navigatedMonth)
+        XCTAssertEqual(date, navigatedMonth.asUTCCalendarDay())
+
+        let pickedDay = Date(year: 2024, month: 3, day: 15)
+        try datePicker.select(date: pickedDay)
+        XCTAssertEqual(date, pickedDay.asUTCCalendarDay())
+    }
+
+    /// A selection change reporting the exact same day as the currently committed value — the calendar
+    /// settling on a newly navigated month, not a new tap — still commits, even though it's a no-op.
+    func test_handleSelectionChange_repeatedSameDay_stillCommits() throws {
+        let trackedDay = Date(year: 2024, month: 3, day: 1)
+        date = trackedDay
+        subject = DateFieldPicker(
+            title: "Date of birth",
+            date: bindingDate,
+            defaultDate: defaultDate,
+            isExpanded: true,
+        )
+        try subject.inspect().find(ViewType.DatePicker.self).select(date: trackedDay)
+        XCTAssertEqual(date, trackedDay.asUTCCalendarDay())
+    }
+
     /// A provided footer is rendered below the field.
     func test_footer_isRendered() throws {
         subject = DateFieldPicker(
@@ -172,10 +210,46 @@ class DateFieldPickerTests: BitwardenTestCase {
         XCTAssertNoThrow(try subject.inspect().find(viewWithAccessibilityIdentifier: "DateFieldPickerHeaderButton"))
     }
 
-    /// The header button carries an accessibility hint telling VoiceOver users it selects a date.
-    func test_headerButton_hasSelectDateHint() throws {
+    /// The header button carries an accessibility hint telling VoiceOver users that activating it opens
+    /// the calendar picker, rather than a generic (and ambiguous-sounding) "Select date".
+    func test_headerButton_collapsed_hasOpensDatePickerHint() throws {
         let header = try subject.inspect().find(viewWithAccessibilityIdentifier: "DateFieldPickerHeaderButton")
-        XCTAssertEqual(try header.accessibilityHint().string(), Localizations.selectDate)
+        XCTAssertEqual(try header.accessibilityHint().string(), Localizations.opensDatePicker)
+    }
+
+    /// Once the calendar is expanded, activating the same header button collapses it instead, so the
+    /// hint switches to describe that outcome.
+    func test_headerButton_expanded_hasClosesDatePickerHint() throws {
+        subject = DateFieldPicker(
+            title: "Date of birth",
+            date: bindingDate,
+            defaultDate: defaultDate,
+            isExpanded: true,
+        )
+        let header = try subject.inspect().find(viewWithAccessibilityIdentifier: "DateFieldPickerHeaderButton")
+        XCTAssertEqual(try header.accessibilityHint().string(), Localizations.closesDatePicker)
+    }
+
+    /// Expanding an empty field immediately commits `defaultDate`, matching the day the calendar shows
+    /// as already selected, so the user can save without first tapping a different day and back.
+    func test_headerButton_expandingEmptyField_commitsDefaultDate() throws {
+        let header = try subject.inspect().find(viewWithAccessibilityIdentifier: "DateFieldPickerHeaderButton")
+        try header.button().tap()
+        XCTAssertEqual(date, defaultDate)
+    }
+
+    /// Collapsing an already-expanded field doesn't clear or otherwise touch a previously committed date.
+    func test_headerButton_collapsingField_doesNotChangeCommittedDate() throws {
+        date = Date(year: 2024, month: 2, day: 29)
+        subject = DateFieldPicker(
+            title: "Date of birth",
+            date: bindingDate,
+            defaultDate: defaultDate,
+            isExpanded: true,
+        )
+        let header = try subject.inspect().find(viewWithAccessibilityIdentifier: "DateFieldPickerHeaderButton")
+        try header.button().tap()
+        XCTAssertEqual(date, Date(year: 2024, month: 2, day: 29))
     }
 
     /// The `DatePicker`'s displayed selection converts the stored UTC-anchored date into the local
