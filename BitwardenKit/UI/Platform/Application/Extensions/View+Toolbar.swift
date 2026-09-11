@@ -1,3 +1,5 @@
+// swiftlint:disable file_length
+
 import BitwardenResources
 import SwiftUI
 
@@ -109,6 +111,16 @@ public extension View {
             .accessibilityIdentifier(accessibilityIdentifier)
     }
 
+    /// Returns a toolbar button configured for downloading an item.
+    ///
+    /// - Parameter action: The action to perform when the button is tapped.
+    /// - Returns: A `Button` configured for downloading an item.
+    ///
+    func downloadToolbarButton(action: @escaping () async -> Void) -> some View {
+        toolbarButton(asset: SharedAsset.Icons.download24, label: Localizations.download, action: action)
+            .accessibilityIdentifier("DownloadItemButton")
+    }
+
     /// Returns a toolbar button configured for editing an item.
     ///
     /// - Parameter action: The action to perform when the button is tapped.
@@ -176,6 +188,26 @@ public extension View {
     ///
     func toolbarButton(asset: SharedImageAsset, label: String, action: @escaping () -> Void) -> some View {
         Button(action: action) {
+            Image(asset: asset, label: Text(label))
+                .imageStyle(.toolbarIcon)
+        }
+        .buttonStyle(.toolbar)
+        // Ideally we would set both `minHeight` and `minWidth` to 44. Setting `minWidth` causes
+        // padding to be applied equally on both sides of the image. This results in extra padding
+        // along the margin though.
+        .frame(minHeight: 44)
+    }
+
+    /// Returns a `Button` that displays an image for use in a toolbar.
+    ///
+    /// - Parameters:
+    ///   - asset: The image asset to show in the button.
+    ///   - label: The label associated with the image, used as an accessibility label.
+    ///   - action: The async action to perform when the button is tapped.
+    /// - Returns: A `Button` for displaying an image in a toolbar.
+    ///
+    func toolbarButton(asset: SharedImageAsset, label: String, action: @escaping () async -> Void) -> some View {
+        AsyncButton(action: action) {
             Image(asset: asset, label: Text(label))
                 .imageStyle(.toolbarIcon)
         }
@@ -283,6 +315,17 @@ public extension View {
             if !hidden {
                 closeToolbarButton(action: action)
             }
+        }
+    }
+
+    /// A `ToolbarItem` for views with a download button.
+    ///
+    /// - Parameter action: The action to perform when the download button is tapped.
+    /// - Returns: A `ToolbarItem` with a download button.
+    ///
+    func downloadToolbarItem(_ action: @escaping () async -> Void) -> some ToolbarContent {
+        ToolbarItem(placement: .topBarTrailing) {
+            downloadToolbarButton(action: action)
         }
     }
 

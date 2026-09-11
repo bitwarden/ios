@@ -170,6 +170,10 @@
 "Attachments" = "Attachments";
 "UnableToDownloadFile" = "Unable to download file.";
 "Downloading" = "Downloading…";
+"OpeningPreview" = "Opening preview…";
+/* %1$@ is the uppercased file extension of the attachment, e.g. "PDF". */
+"PreviewUnavailableForXFilesDescriptionLong" = "Preview unavailable for %1$@ files. You can still download it to view on your device.";
+"PreviewUnavailableDescriptionLong" = "Preview unavailable for this file. You can still download it to view on your device.";
 "AttachmentLargeWarning" = "This attachment is %1$@ in size. Are you sure you want to download it onto your device?";
 "AuthenticatorKey" = "Authenticator key";
 "VerificationCodeTotp" = "Verification code (TOTP)";
