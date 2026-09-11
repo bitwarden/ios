@@ -1326,7 +1326,11 @@ extension DefaultAuthRepository: AuthRepository {
         do {
             let sessionKey = try await keychainService.getUserAuthKeyValue(for: .userSessionKey(userId: id))
             do {
-                try await unlockVault(method: .decryptedKey(decryptedUserKey: sessionKey), hadUserInteraction: false)
+                try await unlockVault(
+                    method: .decryptedKey(decryptedUserKey: sessionKey),
+                    hadUserInteraction: false,
+                    captureUserSessionKey: false,
+                )
             } catch {
                 try? await keychainService.deleteUserAuthKey(for: .userSessionKey(userId: id))
                 throw error
@@ -1476,7 +1480,17 @@ extension DefaultAuthRepository: AuthRepository {
     ///   - method: The unlocking `InitUserCryptoMethod` method
     ///   - hadUserInteraction: If the user interacted with the app to unlock the vault
     ///   or was unlocked using the never lock key.
-    private func unlockVault(method: InitUserCryptoMethod, hadUserInteraction: Bool = true) async throws {
+    ///   - captureUserSessionKey: Whether the active user's session key should be (re)captured
+    ///   into the `.userSessionKey` Keychain item once unlocked. This should be `false` when
+    ///   `method` is itself sourced from that Keychain item (e.g. `unlockVaultWithSessionKey()`),
+    ///   since the stored value is already current and re-writing it would trigger a redundant
+    ///   Face ID/Touch ID prompt (the item requires user presence for both reads and writes).
+    ///
+    private func unlockVault(
+        method: InitUserCryptoMethod,
+        hadUserInteraction: Bool = true,
+        captureUserSessionKey: Bool = true,
+    ) async throws {
         let account = try await stateService.getActiveAccount()
         let cryptographicState = try await stateService.getAccountCryptographicState()
 
@@ -1501,10 +1515,12 @@ extension DefaultAuthRepository: AuthRepository {
         } catch {
             errorReporter.log(error: error)
         }
-        do {
-            try await captureUserSessionKeyIfAllowed(userId: account.profile.userId)
-        } catch {
-            errorReporter.log(error: error)
+        if captureUserSessionKey {
+            do {
+                try await captureUserSessionKeyIfAllowed(userId: account.profile.userId)
+            } catch {
+                errorReporter.log(error: error)
+            }
         }
         await configureBiometricUnlockIfNeeded()
     }
