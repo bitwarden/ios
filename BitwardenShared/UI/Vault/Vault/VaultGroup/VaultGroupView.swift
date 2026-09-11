@@ -168,15 +168,11 @@ struct VaultGroupView: View {
                     searchVaultFilterRow
 
                     ForEach(store.state.searchResults) { item in
-                        Button {
-                            store.send(.itemPressed(item))
-                        } label: {
-                            vaultItemRow(
-                                for: item,
-                                isLastInSection: store.state.searchResults.last == item,
-                            )
-                            .background(SharedAsset.Colors.backgroundSecondary.swiftUIColor)
-                        }
+                        vaultItemRow(
+                            for: item,
+                            isLastInSection: store.state.searchResults.last == item,
+                        )
+                        .background(SharedAsset.Colors.backgroundSecondary.swiftUIColor)
                     }
                 }
             }
@@ -228,11 +224,7 @@ struct VaultGroupView: View {
 
             ForEach(sections) { section in
                 VaultListSectionView(section: section) { item in
-                    Button {
-                        store.send(.itemPressed(item))
-                    } label: {
-                        vaultItemRow(for: item, isLastInSection: section.items.last == item)
-                    }
+                    vaultItemRow(for: item, isLastInSection: section.items.last == item)
                 }
             }
         }
@@ -253,6 +245,7 @@ struct VaultGroupView: View {
                 state: { state in
                     VaultListItemRowState(
                         iconBaseURL: state.iconBaseURL,
+                        hasPremium: state.hasPremium,
                         isVfo1FoundationFeatureFlagEnabled: state.isVfo1FoundationFeatureFlagEnabled,
                         item: item,
                         hasDivider: !isLastInSection,
@@ -267,8 +260,12 @@ struct VaultGroupView: View {
                 },
                 mapEffect: { effect in
                     switch effect {
+                    case let .accessibilityMoreOptionsActionPressed(kind):
+                        .accessibilityMoreOptionsActionPressed(item, kind)
                     case .morePressed:
                         .morePressed(item)
+                    case .pressed:
+                        .itemPressed(item)
                     }
                 },
             ),
