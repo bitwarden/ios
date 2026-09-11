@@ -10,7 +10,7 @@ import Foundation
 
 /// A protocol for a `StateService` which manages the state of the accounts in the app.
 ///
-protocol StateService: AnyObject, BillingStateService, DebugStateService {
+protocol StateService: AnyObject, DebugStateService {
     /// The language option currently selected for the app.
     var appLanguage: LanguageOption { get set }
 
@@ -37,6 +37,14 @@ protocol StateService: AnyObject, BillingStateService, DebugStateService {
     /// - Returns: Whether the active was switched in the extension.
     ///
     func didAccountSwitchInExtension() async throws -> Bool
+
+    /// Returns whether an account has access to Premium features (personally, or via an enabled
+    /// organization that grants it), independent of which account is currently active.
+    ///
+    /// - Parameter userId: The user ID of the account to check.
+    /// - Returns: Whether the account has access to Premium features.
+    ///
+    func doesAccountHavePremium(userId: String) async -> Bool
 
     /// Returns whether the active user account has access to Premium features.
     ///
@@ -324,14 +332,6 @@ protocol StateService: AnyObject, BillingStateService, DebugStateService {
     ///
     func getPreAuthEnvironmentURLs() async -> EnvironmentURLData?
 
-    /// Gets whether the Premium upgrade banner has been dismissed.
-    ///
-    /// - Parameter userId: The user ID associated with the Premium upgrade banner dismissed value.
-    ///   Defaults to the active account if `nil`.
-    /// - Returns: Whether the Premium upgrade banner has been dismissed.
-    ///
-    func getPremiumUpgradeBannerDismissed(userId: String?) async throws -> Bool
-
     /// Gets the environment URLs for a given email during account creation.
     ///
     /// - Parameter email: The email used to start the account creation.
@@ -571,15 +571,6 @@ protocol StateService: AnyObject, BillingStateService, DebugStateService {
     /// - Parameter shown: Whether the archive onboarding has been shown.
     ///
     func setArchiveOnboardingShown(_ shown: Bool) async
-
-    /// Sets whether the Premium upgrade banner has been dismissed.
-    ///
-    /// - Parameters:
-    ///   - dismissed: Whether the Premium upgrade banner has been dismissed.
-    ///   - userId: The user ID associated with the Premium upgrade banner dismissed value.
-    ///     Defaults to the active account if `nil`.
-    ///
-    func setPremiumUpgradeBannerDismissed(_ dismissed: Bool, userId: String?) async throws
 
     /// Sets the clear clipboard value for an account.
     ///
@@ -1133,14 +1124,6 @@ extension StateService {
         try await getPasswordGenerationOptions(userId: nil)
     }
 
-    /// Gets whether the Premium upgrade banner has been dismissed for the active account.
-    ///
-    /// - Returns: Whether the Premium upgrade banner has been dismissed.
-    ///
-    func getPremiumUpgradeBannerDismissed() async throws -> Bool {
-        try await getPremiumUpgradeBannerDismissed(userId: nil)
-    }
-
     /// Gets whether Siri & Shortcuts access is enabled for the active account.
     /// - Returns: Whether Siri & Shortcuts access is enabled.
     func getSiriAndShortcutsAccess() async throws -> Bool {
@@ -1415,14 +1398,6 @@ extension StateService {
         try await setPasswordGenerationOptions(options, userId: nil)
     }
 
-    /// Sets whether the Premium upgrade banner has been dismissed for the active account.
-    ///
-    /// - Parameter dismissed: Whether the Premium upgrade banner has been dismissed.
-    ///
-    func setPremiumUpgradeBannerDismissed(_ dismissed: Bool) async throws {
-        try await setPremiumUpgradeBannerDismissed(dismissed, userId: nil)
-    }
-
     /// Sets the app rehydration state for the active account.
     ///
     /// - Parameter rehydrationState: The app rehydration state.
@@ -1644,18 +1619,28 @@ actor DefaultStateService: StateService, ActiveAccountStateProvider, ConfigState
         }
     }
 
-    func doesActiveAccountHavePremium() async -> Bool {
+    func doesAccountHavePremium(userId: String) async -> Bool {
         do {
-            let account = try await getActiveAccount()
+            let account = try await getAccount(userId: userId)
             let hasPremiumPersonally = account.profile.hasPremiumPersonally ?? false
             guard !hasPremiumPersonally else {
                 return true
             }
 
             let organizations = try await dataStore
-                .fetchAllOrganizations(userId: account.profile.userId)
+                .fetchAllOrganizations(userId: userId)
                 .filter { $0.enabled && $0.usersGetPremium }
             return !organizations.isEmpty
+        } catch {
+            errorReporter.log(error: error)
+            return false
+        }
+    }
+
+    func doesActiveAccountHavePremium() async -> Bool {
+        do {
+            let userId = try getActiveAccountUserId()
+            return await doesAccountHavePremium(userId: userId)
         } catch {
             errorReporter.log(error: error)
             return false
@@ -1752,11 +1737,6 @@ actor DefaultStateService: StateService, ActiveAccountStateProvider, ConfigState
 
     func getArchiveOnboardingShown() async -> Bool {
         appSettingsStore.archiveOnboardingShown
-    }
-
-    func getPremiumUpgradeBannerDismissed(userId: String?) async throws -> Bool {
-        let userId = try userId ?? getActiveAccountUserId()
-        return appSettingsStore.premiumUpgradeBannerDismissed(userId: userId)
     }
 
     func getClearClipboardValue(userId: String?) async throws -> ClearClipboardValue {
@@ -2133,11 +2113,6 @@ actor DefaultStateService: StateService, ActiveAccountStateProvider, ConfigState
 
     func setArchiveOnboardingShown(_ shown: Bool) async {
         appSettingsStore.archiveOnboardingShown = shown
-    }
-
-    func setPremiumUpgradeBannerDismissed(_ dismissed: Bool, userId: String?) async throws {
-        let userId = try userId ?? getActiveAccountUserId()
-        appSettingsStore.setPremiumUpgradeBannerDismissed(dismissed, userId: userId)
     }
 
     func setClearClipboardValue(_ clearClipboardValue: ClearClipboardValue?, userId: String?) async throws {
@@ -2524,6 +2499,11 @@ struct AccountVolatileData {
 extension DefaultStateService: BillingStateService {
     // MARK: Premium Upgrade Banner
 
+    func getPremiumUpgradeBannerDismissed(userId: String?) async throws -> Bool {
+        let userId = try userId ?? getActiveAccountUserId()
+        return appSettingsStore.premiumUpgradeBannerDismissed(userId: userId)
+    }
+
     func isPremiumUpgradeBannerDismissed() async -> Bool {
         do {
             return try await getPremiumUpgradeBannerDismissed()
@@ -2542,6 +2522,33 @@ extension DefaultStateService: BillingStateService {
         return timeProvider.timeSince(creationDate) >= Constants.premiumUpgradeBannerAccountAge
     }
 
+    func setPremiumUpgradeBannerDismissed(_ dismissed: Bool, userId: String?) async throws {
+        let userId = try userId ?? getActiveAccountUserId()
+        appSettingsStore.setPremiumUpgradeBannerDismissed(dismissed, userId: userId)
+    }
+
+    // MARK: Premium Upgrade Pending
+
+    func getPremiumUpgradeLastSyncAttemptFailed(userId: String?) async throws -> Bool {
+        let userId = try userId ?? getActiveAccountUserId()
+        return appSettingsStore.premiumUpgradeLastSyncAttemptFailed(userId: userId)
+    }
+
+    func getPremiumUpgradePending(userId: String?) async throws -> Bool {
+        let userId = try userId ?? getActiveAccountUserId()
+        return appSettingsStore.premiumUpgradePending(userId: userId)
+    }
+
+    func setPremiumUpgradeLastSyncAttemptFailed(_ failed: Bool, userId: String?) async throws {
+        let userId = try userId ?? getActiveAccountUserId()
+        appSettingsStore.setPremiumUpgradeLastSyncAttemptFailed(failed, userId: userId)
+    }
+
+    func setPremiumUpgradePending(_ pending: Bool, userId: String?) async throws {
+        let userId = try userId ?? getActiveAccountUserId()
+        appSettingsStore.setPremiumUpgradePending(pending, userId: userId)
+    }
+
     // MARK: Subscription Attention Card
 
     func getSubscriptionAttentionCardVisible() async throws -> Bool {
@@ -2556,13 +2563,13 @@ extension DefaultStateService: BillingStateService {
 
     // MARK: Upgraded to Premium Card
 
-    func getUpgradedToPremiumActionCardVisible() async throws -> Bool {
-        let userId = try getActiveAccountUserId()
+    func getUpgradedToPremiumActionCardVisible(userId: String?) async throws -> Bool {
+        let userId = try userId ?? getActiveAccountUserId()
         return appSettingsStore.upgradedToPremiumActionCardVisible(userId: userId)
     }
 
-    func setUpgradedToPremiumActionCardVisible(_ visible: Bool) async throws {
-        let userId = try getActiveAccountUserId()
+    func setUpgradedToPremiumActionCardVisible(_ visible: Bool, userId: String?) async throws {
+        let userId = try userId ?? getActiveAccountUserId()
         appSettingsStore.setUpgradedToPremiumActionCardVisible(visible, userId: userId)
     }
 }

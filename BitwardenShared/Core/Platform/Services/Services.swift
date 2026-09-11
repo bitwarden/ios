@@ -18,6 +18,7 @@ typealias Services = HasAPIService
     & HasBillingAPIService
     & HasBillingRepository
     & HasBillingService
+    & HasBillingStateService
     & HasBiometricsRepository
     & HasCameraService
     & HasCardTextParser
@@ -172,6 +173,13 @@ protocol HasBillingRepository {
 protocol HasBillingService {
     /// The service used by the application to manage billing operations.
     var billingService: BillingService { get }
+}
+
+/// Protocol for an object that provides a `BillingStateService`.
+///
+protocol HasBillingStateService {
+    /// The service used by the application to manage the app's billing state.
+    var billingStateService: BillingStateService { get }
 }
 
 /// Protocol for obtaining the device's biometric authentication type.
