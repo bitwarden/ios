@@ -167,6 +167,9 @@ actor DefaultClientService: ClientService {
     /// The factory to create SDK repositories.
     private let sdkRepositoryFactory: SdkRepositoryFactory
 
+    /// The service used to manage the account state the SDK state bridge reads from and writes to.
+    private let sdkStateBridgeStateService: SdkStateBridgeStateService
+
     /// The service used by the application to manage account state.
     private let stateService: StateService
 
@@ -182,6 +185,8 @@ actor DefaultClientService: ClientService {
     ///   - configService: The service to get server-specified configuration.
     ///   - errorReporter: The service used by the application to report non-fatal errors.
     ///   - sdkRepositoryFactory: The factory to create SDK repositories.
+    ///   - sdkStateBridgeStateService: The service used to manage the account state the SDK state
+    ///     bridge reads from and writes to.
     ///   - stateService: The service used by the application to manage account state.
     ///
     init(
@@ -189,12 +194,14 @@ actor DefaultClientService: ClientService {
         configService: ConfigService,
         errorReporter: ErrorReporter,
         sdkRepositoryFactory: SdkRepositoryFactory,
+        sdkStateBridgeStateService: SdkStateBridgeStateService,
         stateService: StateService,
     ) {
         self.clientBuilder = clientBuilder
         self.configService = configService
         self.errorReporter = errorReporter
         self.sdkRepositoryFactory = sdkRepositoryFactory
+        self.sdkStateBridgeStateService = sdkStateBridgeStateService
         self.stateService = stateService
 
         Task {
@@ -303,6 +310,11 @@ actor DefaultClientService: ClientService {
     ///   - client: The SDK client to configure.
     ///   - userId: The user ID the SDK client instance belongs to.
     func configureNewClient(_ client: BitwardenSdkClient, for userId: String) async {
+        client.kmStateBridge().registerBridgeImpl(bridgeImpl: SdkStateBridge(
+            errorReporter: errorReporter,
+            stateService: sdkStateBridgeStateService,
+            userId: userId,
+        ))
         client.platform().state().registerClientManagedRepositories(
             repositories: sdkRepositoryFactory.makeRepositories(userId: userId),
         )
@@ -356,6 +368,10 @@ protocol BitwardenSdkClient {
     /// Returns generator operations.
     func generators() -> GeneratorClientsProtocol
 
+    /// Returns the key management state bridge client, used to register the app's
+    /// `StateBridgeForeignImpl` implementation so the SDK can read/write mobile state directly.
+    func kmStateBridge() -> StateBridgeClientProtocol
+
     /// Returns platform operations.
     func platform() -> PlatformClientService
 
@@ -386,6 +402,10 @@ extension Client: BitwardenSdkClient {
 
     func generators() -> GeneratorClientsProtocol {
         generators() as GeneratorClients
+    }
+
+    func kmStateBridge() -> StateBridgeClientProtocol {
+        kmStateBridge() as StateBridgeClient
     }
 
     func platform() -> PlatformClientService {

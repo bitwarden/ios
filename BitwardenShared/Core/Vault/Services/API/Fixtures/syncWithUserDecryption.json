@@ -16,6 +16,10 @@
       },
       "masterKeyEncryptedUserKey": "MASTER_KEY_ENCRYPTED_USER_KEY",
       "salt": "user@bitwarden.com"
+    },
+    "v2UpgradeToken": {
+      "wrappedUserKey1": "WRAPPED_USER_KEY_1",
+      "wrappedUserKey2": "WRAPPED_USER_KEY_2"
     }
   },
   "object": "sync"
