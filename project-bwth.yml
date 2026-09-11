@@ -131,6 +131,7 @@ targets:
     dependencies:
       - target: BitwardenKit/BitwardenKit
       - target: BitwardenKit/BitwardenResources
+      - package: BitwardenSdk
     preBuildScripts:
       - name: Sourcery
         script: |
@@ -174,4 +175,5 @@ targets:
       - target: TestHarnessShared
       - target: BitwardenKit/BitwardenKitMocks
       - target: BitwardenKit/TestHelpers
+      - package: BitwardenSdk
     randomExecutionOrder: true
