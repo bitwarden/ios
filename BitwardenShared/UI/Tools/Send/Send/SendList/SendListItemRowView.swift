@@ -157,12 +157,14 @@ struct SendListItemRowView: View {
     private func optionsMenu(for sendView: SendView) -> some View {
         Menu {
             if !store.state.isSendDisabled {
-                AsyncButton(Localizations.copyLink) {
-                    await store.perform(.copyLinkPressed(sendView))
-                }
-                .accessibilityIdentifier("Copy")
-                AsyncButton(Localizations.shareLink) {
-                    await store.perform(.shareLinkPressed(sendView))
+                if !sendView.disabled {
+                    AsyncButton(Localizations.copyLink) {
+                        await store.perform(.copyLinkPressed(sendView))
+                    }
+                    .accessibilityIdentifier("Copy")
+                    AsyncButton(Localizations.shareLink) {
+                        await store.perform(.shareLinkPressed(sendView))
+                    }
                 }
 
                 Section("") {
