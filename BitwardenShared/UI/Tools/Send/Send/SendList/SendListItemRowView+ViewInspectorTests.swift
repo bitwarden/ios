@@ -39,12 +39,15 @@ class SendListItemRowViewTests: BitwardenTestCase {
 
     // MARK: Tests
 
-    /// The options menu doesn't show Edit, Copy Link, or Share Link options for a Send that's
-    /// individually non-compliant (`sendView.disabled`), even when Sends aren't disabled
-    /// org-wide.
+    /// The options menu doesn't show Edit, Copy Link, Share Link, or Remove Password options for
+    /// a Send that's individually non-compliant (`sendView.disabled`), even when Sends aren't
+    /// disabled org-wide.
     @MainActor
-    func test_optionsMenu_disabledSend_hidesEditCopyAndShareLink() throws {
-        processor.state.item = SendListItem(id: "1", itemType: .send(.fixture(id: "1", disabled: true)))
+    func test_optionsMenu_disabledSend_hidesEditCopyShareLinkAndRemovePassword() throws {
+        processor.state.item = SendListItem(
+            id: "1",
+            itemType: .send(.fixture(id: "1", hasPassword: true, disabled: true)),
+        )
 
         let menu = try subject.inspect().find(ViewType.Menu.self) { view in
             try view.accessibilityIdentifier() == "SendOptionsButton"
@@ -52,13 +55,14 @@ class SendListItemRowViewTests: BitwardenTestCase {
         XCTAssertThrowsError(try menu.find(button: Localizations.edit))
         XCTAssertThrowsError(try menu.find(button: Localizations.copyLink))
         XCTAssertThrowsError(try menu.find(button: Localizations.shareLink))
+        XCTAssertThrowsError(try menu.find(button: Localizations.removePassword))
     }
 
-    /// The options menu shows Edit, Copy Link, and Share Link options for a compliant Send, and
-    /// tapping each dispatches the corresponding action/effect.
+    /// The options menu shows Edit, Copy Link, Share Link, and Remove Password options for a
+    /// compliant Send, and tapping each dispatches the corresponding action/effect.
     @MainActor
-    func test_optionsMenu_enabledSend_showsEditCopyAndShareLinkAndTapped() async throws {
-        let sendView = SendView.fixture(id: "1", disabled: false)
+    func test_optionsMenu_enabledSend_showsEditCopyShareLinkAndRemovePasswordAndTapped() async throws {
+        let sendView = SendView.fixture(id: "1", hasPassword: true, disabled: false)
         processor.state.item = SendListItem(id: "1", itemType: .send(sendView))
 
         let menu = try subject.inspect().find(ViewType.Menu.self) { view in
@@ -73,17 +77,25 @@ class SendListItemRowViewTests: BitwardenTestCase {
         try await shareButton.tap()
         XCTAssertEqual(processor.effects.last, .shareLinkPressed(sendView))
 
+        let removePasswordButton = try subject.inspect().find(asyncButton: Localizations.removePassword)
+        try await removePasswordButton.tap()
+        XCTAssertEqual(processor.effects.last, .removePassword(sendView))
+
         let editButton = try menu.find(button: Localizations.edit)
         try editButton.tap()
         XCTAssertEqual(processor.dispatchedActions.last, .editPressed(sendView))
     }
 
-    /// The options menu doesn't show Edit, Copy Link, or Share Link options when Sends are
-    /// disabled org-wide, even for a Send that isn't itself individually non-compliant.
+    /// The options menu doesn't show Edit, Copy Link, Share Link, or Remove Password options
+    /// when Sends are disabled org-wide, even for a Send that isn't itself individually
+    /// non-compliant.
     @MainActor
-    func test_optionsMenu_sendsDisabledByPolicy_hidesEditCopyAndShareLink() throws {
+    func test_optionsMenu_sendsDisabledByPolicy_hidesEditCopyShareLinkAndRemovePassword() throws {
         processor.state.isSendDisabled = true
-        processor.state.item = SendListItem(id: "1", itemType: .send(.fixture(id: "1", disabled: false)))
+        processor.state.item = SendListItem(
+            id: "1",
+            itemType: .send(.fixture(id: "1", hasPassword: true, disabled: false)),
+        )
 
         let menu = try subject.inspect().find(ViewType.Menu.self) { view in
             try view.accessibilityIdentifier() == "SendOptionsButton"
@@ -91,5 +103,6 @@ class SendListItemRowViewTests: BitwardenTestCase {
         XCTAssertThrowsError(try menu.find(button: Localizations.edit))
         XCTAssertThrowsError(try menu.find(button: Localizations.copyLink))
         XCTAssertThrowsError(try menu.find(button: Localizations.shareLink))
+        XCTAssertThrowsError(try menu.find(button: Localizations.removePassword))
     }
 }

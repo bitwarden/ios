@@ -175,10 +175,10 @@ struct SendListItemRowView: View {
                         Button(Localizations.edit) {
                             store.send(.editPressed(sendView))
                         }
-                    }
-                    if sendView.hasPassword {
-                        AsyncButton(Localizations.removePassword) {
-                            await store.perform(.removePassword(sendView))
+                        if sendView.hasPassword {
+                            AsyncButton(Localizations.removePassword) {
+                                await store.perform(.removePassword(sendView))
+                            }
                         }
                     }
 
