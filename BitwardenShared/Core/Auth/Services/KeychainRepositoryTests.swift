@@ -505,6 +505,85 @@ final class KeychainRepositoryTests: BitwardenTestCase { // swiftlint:disable:th
         }
     }
 
+    // MARK: Tests - deleteClientCertificateChain(fingerprint:)
+
+    /// `deleteClientCertificateChain(fingerprint:)` delegates to the facade with the correct item.
+    func test_deleteClientCertificateChain_delegatesToFacade() async throws {
+        try await subject.deleteClientCertificateChain(fingerprint: "abc123")
+
+        XCTAssertEqual(
+            keychainServiceFacade.deleteValueReceivedItem?.unformattedKey,
+            BitwardenKeychainItem.clientCertificateChain(fingerprint: "abc123").unformattedKey,
+        )
+    }
+
+    /// `deleteClientCertificateChain(fingerprint:)` rethrows errors from the facade.
+    func test_deleteClientCertificateChain_throwsError() async {
+        keychainServiceFacade.deleteValueThrowableError = KeychainServiceError.osStatusError(-1)
+
+        await assertAsyncThrows(error: KeychainServiceError.osStatusError(-1)) {
+            try await subject.deleteClientCertificateChain(fingerprint: "abc123")
+        }
+    }
+
+    // MARK: Tests - getClientCertificateChain(fingerprint:)
+
+    /// `getClientCertificateChain(fingerprint:)` returns the decoded chain from the facade.
+    func test_getClientCertificateChain_returnsChain() async throws {
+        let chain = [Data([0x00, 0x01, 0x02]), Data([0x03, 0x04])]
+        let json = try XCTUnwrap(String(data: JSONEncoder.defaultEncoder.encode(chain), encoding: .utf8))
+        keychainServiceFacade.getValueReturnValue = json
+
+        let result = try await subject.getClientCertificateChain(fingerprint: "abc123")
+
+        XCTAssertEqual(result, chain)
+        XCTAssertEqual(
+            keychainServiceFacade.getValueReceivedItem?.unformattedKey,
+            BitwardenKeychainItem.clientCertificateChain(fingerprint: "abc123").unformattedKey,
+        )
+    }
+
+    /// `getClientCertificateChain(fingerprint:)` returns nil on keyNotFound.
+    func test_getClientCertificateChain_notFound_returnsNil() async throws {
+        keychainServiceFacade.getValueThrowableError = KeychainServiceError.keyNotFound(
+            BitwardenKeychainItem.clientCertificateChain(fingerprint: "abc123"),
+        )
+
+        let result = try await subject.getClientCertificateChain(fingerprint: "abc123")
+
+        XCTAssertNil(result)
+    }
+
+    /// `getClientCertificateChain(fingerprint:)` rethrows non-notFound errors from the facade.
+    func test_getClientCertificateChain_throwsError() async {
+        keychainServiceFacade.getValueThrowableError = KeychainServiceError.osStatusError(-1)
+
+        await assertAsyncThrows(error: KeychainServiceError.osStatusError(-1)) {
+            _ = try await subject.getClientCertificateChain(fingerprint: "abc123")
+        }
+    }
+
+    // MARK: Tests - setClientCertificateChain(_:fingerprint:)
+
+    /// `setClientCertificateChain(_:fingerprint:)` delegates to the facade with the correct item.
+    func test_setClientCertificateChain_delegatesToFacade() async throws {
+        try await subject.setClientCertificateChain([Data([0x00, 0x01, 0x02])], fingerprint: "abc123")
+
+        XCTAssertEqual(
+            keychainServiceFacade.setValueReceivedArguments?.item.unformattedKey,
+            BitwardenKeychainItem.clientCertificateChain(fingerprint: "abc123").unformattedKey,
+        )
+    }
+
+    /// `setClientCertificateChain(_:fingerprint:)` rethrows errors from the facade.
+    func test_setClientCertificateChain_throwsError() async {
+        keychainServiceFacade.setValueThrowableError = KeychainServiceError.osStatusError(-1)
+
+        await assertAsyncThrows(error: KeychainServiceError.osStatusError(-1)) {
+            try await subject.setClientCertificateChain([Data()], fingerprint: "abc123")
+        }
+    }
+
     // MARK: Private
 
     /// Creates a `SecIdentity` from a pre-generated self-signed test PKCS#12 (password: "testpassword").
