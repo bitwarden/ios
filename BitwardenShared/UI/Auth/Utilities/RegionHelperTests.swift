@@ -2,9 +2,11 @@ import BitwardenKit
 import BitwardenKitMocks
 import BitwardenResources
 import BitwardenSdk
+import TestHelpers
 import XCTest
 
 @testable import BitwardenShared
+@testable import BitwardenSharedMocks
 
 // MARK: - RegionHelperTests
 
@@ -12,6 +14,9 @@ class RegionHelperTests: BitwardenTestCase {
     // MARK: Properties
 
     var subject: RegionHelper!
+    var clientCertificateService: MockClientCertificateService!
+    var customHeadersService: MockCustomHeadersService!
+    var errorReporter: MockErrorReporter!
     var regionDelegate: MockRegionDelegate!
     var coordinator: MockCoordinator<AuthRoute, AuthEvent>!
     var stateService: MockStateService!
@@ -20,13 +25,19 @@ class RegionHelperTests: BitwardenTestCase {
 
     override func setUp() {
         super.setUp()
+        clientCertificateService = MockClientCertificateService()
         coordinator = MockCoordinator<AuthRoute, AuthEvent>()
+        customHeadersService = MockCustomHeadersService()
+        errorReporter = MockErrorReporter()
         stateService = MockStateService()
         regionDelegate = MockRegionDelegate()
 
         subject = RegionHelper(
+            clientCertificateService: clientCertificateService,
             coordinator: coordinator.asAnyCoordinator(),
+            customHeadersService: customHeadersService,
             delegate: regionDelegate,
+            errorReporter: errorReporter,
             stateService: stateService,
         )
         subject.delegate = regionDelegate
@@ -34,6 +45,9 @@ class RegionHelperTests: BitwardenTestCase {
 
     override func tearDown() {
         super.tearDown()
+        clientCertificateService = nil
+        customHeadersService = nil
+        errorReporter = nil
         subject = nil
     }
 
@@ -88,6 +102,56 @@ class RegionHelperTests: BitwardenTestCase {
         XCTAssertTrue(regionDelegate.setRegionCalled)
         XCTAssertEqual(regionDelegate.setRegionType, .gov)
         XCTAssertEqual(regionDelegate.setRegionUrls, RegionType.gov.defaultURLs)
+    }
+
+    /// Selecting a built-in region removes Keychain credentials whose pre-auth references were
+    /// dropped by replacing the self-hosted environment URLs.
+    @MainActor
+    func test_presentRegionSelectorAlert_builtInRegion_removesDroppedCredentials() async throws {
+        stateService.preAuthEnvironmentURLs = EnvironmentURLData(
+            base: URL(string: "https://example.com"),
+            clientCertificateAlias: "Cert",
+            clientCertificateFingerprint: "cert-fingerprint",
+            customHeadersId: "headers-id",
+        )
+
+        await subject.presentRegionSelectorAlert(title: Localizations.loggingInOn, currentRegion: .selfHosted)
+        let alert = try XCTUnwrap(coordinator.alertShown.last)
+        try await alert.tapAction(title: "bitwarden.com")
+
+        XCTAssertEqual(clientCertificateService.removeCertificateFingerprintReceivedFingerprint, "cert-fingerprint")
+        XCTAssertEqual(customHeadersService.removeCustomHeadersIdReceivedId, "headers-id")
+    }
+
+    /// Selecting a built-in region doesn't remove any Keychain credentials when the previous
+    /// pre-auth environment had none configured.
+    @MainActor
+    func test_presentRegionSelectorAlert_builtInRegion_noCredentials_removesNothing() async throws {
+        stateService.preAuthEnvironmentURLs = EnvironmentURLData(base: URL(string: "https://example.com"))
+
+        await subject.presentRegionSelectorAlert(title: Localizations.loggingInOn, currentRegion: .selfHosted)
+        let alert = try XCTUnwrap(coordinator.alertShown.last)
+        try await alert.tapAction(title: "bitwarden.com")
+
+        XCTAssertFalse(clientCertificateService.removeCertificateFingerprintCalled)
+        XCTAssertFalse(customHeadersService.removeCustomHeadersIdCalled)
+    }
+
+    /// A failure removing dropped Keychain credentials is logged and doesn't block the region change.
+    @MainActor
+    func test_presentRegionSelectorAlert_builtInRegion_removalError_logsError() async throws {
+        stateService.preAuthEnvironmentURLs = EnvironmentURLData(
+            base: URL(string: "https://example.com"),
+            customHeadersId: "headers-id",
+        )
+        customHeadersService.removeCustomHeadersIdThrowableError = BitwardenTestError.example
+
+        await subject.presentRegionSelectorAlert(title: Localizations.loggingInOn, currentRegion: .selfHosted)
+        let alert = try XCTUnwrap(coordinator.alertShown.last)
+        try await alert.tapAction(title: "bitwarden.com")
+
+        XCTAssertTrue(regionDelegate.setRegionCalled)
+        XCTAssertEqual(errorReporter.errors as? [BitwardenTestError], [.example])
     }
 
     /// `presentRegionSelectorAlert(title:currentRegion)` shows alert and tap selfhosted.

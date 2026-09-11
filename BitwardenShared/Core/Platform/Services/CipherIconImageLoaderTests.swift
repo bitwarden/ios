@@ -11,6 +11,7 @@ struct CipherIconImageLoaderTests {
     // MARK: Properties
 
     var certificateService: MockClientCertificateService
+    var customHeadersService: MockCustomHeadersService
     var errorReporter: MockErrorReporter
     var subject: CipherIconImageLoader
 
@@ -18,9 +19,14 @@ struct CipherIconImageLoaderTests {
 
     init() {
         certificateService = MockClientCertificateService()
+        customHeadersService = MockCustomHeadersService.withNoHeaders()
         errorReporter = MockErrorReporter()
         subject = CipherIconImageLoader()
-        subject.configure(certificateService: certificateService, errorReporter: errorReporter)
+        subject.configure(
+            certificateService: certificateService,
+            customHeadersService: customHeadersService,
+            errorReporter: errorReporter,
+        )
     }
 
     // MARK: Tests - urlSession(_:task:didReceive:)
@@ -94,6 +100,31 @@ struct CipherIconImageLoaderTests {
         _ = await subject.urlSession(session, didReceive: challenge)
 
         #expect(certificateService.getClientCertificateIdentityCalled)
+    }
+
+    // MARK: Tests - iconRequest(for:)
+
+    /// `iconRequest(for:)` attaches the configured custom headers to the request.
+    @Test
+    func iconRequest_attachesCustomHeaders() async {
+        customHeadersService.getCustomHeadersReturnValue = [
+            "CF-Access-Client-Id": "client-id",
+            "CF-Access-Client-Secret": "client-secret",
+        ]
+
+        let request = await subject.iconRequest(for: URL(string: "https://example.com/icon.png")!)
+
+        #expect(request.value(forHTTPHeaderField: "CF-Access-Client-Id") == "client-id")
+        #expect(request.value(forHTTPHeaderField: "CF-Access-Client-Secret") == "client-secret")
+    }
+
+    /// `iconRequest(for:)` builds a request with no additional headers when no custom headers are
+    /// configured.
+    @Test
+    func iconRequest_noCustomHeaders_addsNoHeaders() async {
+        let request = await subject.iconRequest(for: URL(string: "https://example.com/icon.png")!)
+
+        #expect(request.allHTTPHeaderFields?.isEmpty ?? true)
     }
 
     // MARK: Tests - loadImage(from:)

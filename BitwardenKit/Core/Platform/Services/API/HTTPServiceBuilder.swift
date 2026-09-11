@@ -6,6 +6,9 @@ import Networking
 public class HTTPServiceBuilder {
     // MARK: Properties
 
+    /// Additional `RequestHandler`s applied to requests after the default headers handler.
+    private let additionalRequestHandlers: [RequestHandler]
+
     /// The underlying `HTTPClient` that performs the network request.
     private let client: HTTPClient
 
@@ -30,6 +33,8 @@ public class HTTPServiceBuilder {
     /// Initialize an `HTTPServiceBuilder`.
     ///
     /// - Parameters:
+    ///   - additionalRequestHandlers: Additional `RequestHandler`s applied to requests after the
+    ///     default headers handler.
     ///   - client: The underlying `HTTPClient` that performs the network request.
     ///   - defaultHeadersRequestHandler: A `RequestHandler` that applies default headers
     ///     (user agent, client type & name, etc) to requests.
@@ -40,12 +45,14 @@ public class HTTPServiceBuilder {
     ///    needs SSO cookie refresh.
     ///
     public init(
+        additionalRequestHandlers: [RequestHandler] = [],
         client: HTTPClient,
         defaultHeadersRequestHandler: DefaultHeadersRequestHandler,
         loggers: [HTTPLogger],
         ssoCookieVendorRequestHandler: RequestHandler,
         ssoCookieVendorResponseHandler: ResponseHandler,
     ) {
+        self.additionalRequestHandlers = additionalRequestHandlers
         self.client = client
         self.defaultHeadersRequestHandler = defaultHeadersRequestHandler
         self.loggers = loggers
@@ -71,8 +78,7 @@ public class HTTPServiceBuilder {
             baseURLGetter: baseURLGetter,
             client: client,
             loggers: loggers,
-            requestHandlers: [
-                defaultHeadersRequestHandler,
+            requestHandlers: [defaultHeadersRequestHandler] + additionalRequestHandlers + [
                 ssoCookieVendorRequestHandler,
             ],
             responseHandlers: [

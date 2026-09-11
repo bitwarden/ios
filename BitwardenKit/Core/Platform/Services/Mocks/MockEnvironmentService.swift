@@ -11,6 +11,7 @@ public class MockEnvironmentService: EnvironmentService {
     public var baseURL = URL(string: "https://example.com")!
     public var changeEmailURL = URL(string: "https://example.com/#/settings/account")!
     public var clientCertificateFingerprint: String?
+    public var customHeadersId: String?
     public var eventsURL = URL(string: "https://example.com/events")!
     public var fillAssistRulesURL = URL(string: "https://example.com/fill-assist-rules")!
     public var iconsURL = URL(string: "https://example.com/icons")!

@@ -117,6 +117,19 @@ struct EnvironmentServiceTests { // swiftlint:disable:this type_body_length
         #expect(subject.clientCertificateFingerprint == "test-fingerprint")
     }
 
+    /// `loadURLsForActiveAccount()` loads the custom headers identifier from the account URLs.
+    @Test
+    func loadURLsForActiveAccount_customHeadersId() async {
+        let urls = EnvironmentURLData(base: .example, customHeadersId: "test-headers-id")
+        let account = Account.fixture(settings: .fixture(environmentURLs: urls))
+        stateService.activeAccount = account
+        stateService.environmentURLs = [account.profile.userId: urls]
+
+        await subject.loadURLsForActiveAccount()
+
+        #expect(subject.customHeadersId == "test-headers-id")
+    }
+
     /// `loadURLsForActiveAccount()` handles EU URLs.
     @Test
     func loadURLsForActiveAccount_europe() async {
@@ -337,5 +350,15 @@ struct EnvironmentServiceTests { // swiftlint:disable:this type_body_length
         await subject.setPreAuthURLs(urls: urls)
 
         #expect(subject.clientCertificateFingerprint == "test-fingerprint")
+    }
+
+    /// `setPreAuthURLs(urls:)` sets the custom headers identifier from the pre-auth URLs.
+    @Test
+    func setPreAuthURLs_customHeadersId() async {
+        let urls = EnvironmentURLData(base: .example, customHeadersId: "test-headers-id")
+
+        await subject.setPreAuthURLs(urls: urls)
+
+        #expect(subject.customHeadersId == "test-headers-id")
     }
 }

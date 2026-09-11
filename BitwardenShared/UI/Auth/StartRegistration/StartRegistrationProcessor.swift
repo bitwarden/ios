@@ -47,8 +47,10 @@ class StartRegistrationProcessor: StateProcessor<
 
     typealias Services = HasAccountAPIService
         & HasAuthRepository
+        & HasClientCertificateService
         & HasClientService
         & HasConfigService
+        & HasCustomHeadersService
         & HasEnvironmentService
         & HasErrorReporter
         & HasStateService
@@ -66,8 +68,11 @@ class StartRegistrationProcessor: StateProcessor<
 
     /// Helper class with region specific functions
     private lazy var regionHelper = RegionHelper(
+        clientCertificateService: services.clientCertificateService,
         coordinator: coordinator,
+        customHeadersService: services.customHeadersService,
         delegate: self,
+        errorReporter: services.errorReporter,
         stateService: services.stateService,
     )
 

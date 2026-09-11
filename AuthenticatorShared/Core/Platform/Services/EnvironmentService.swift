@@ -45,6 +45,10 @@ extension DefaultEnvironmentService {
         nil
     }
 
+    var customHeadersId: String? {
+        nil
+    }
+
     var eventsURL: URL {
         environmentURLs.eventsURL
     }

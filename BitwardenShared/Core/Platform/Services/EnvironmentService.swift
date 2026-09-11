@@ -22,6 +22,9 @@ class DefaultEnvironmentService: EnvironmentService {
     /// Backing store for `currentClientCertificateFingerprint`. Access via the computed property.
     private nonisolated(unsafe) var _currentClientCertificateFingerprint: String?
 
+    /// Backing store for `currentCustomHeadersId`. Access via the computed property.
+    private nonisolated(unsafe) var _currentCustomHeadersId: String?
+
     /// Backing store for `environmentURLs`. Access via the computed property.
     private nonisolated(unsafe) var _environmentURLs: EnvironmentURLs
 
@@ -29,6 +32,12 @@ class DefaultEnvironmentService: EnvironmentService {
     private var currentClientCertificateFingerprint: String? {
         get { lock.withLock { _currentClientCertificateFingerprint } }
         set { lock.withLock { _currentClientCertificateFingerprint = newValue } }
+    }
+
+    /// The identifier of the custom headers for the current environment.
+    private var currentCustomHeadersId: String? {
+        get { lock.withLock { _currentCustomHeadersId } }
+        set { lock.withLock { _currentCustomHeadersId = newValue } }
     }
 
     /// The app's current environment URLs.
@@ -78,6 +87,7 @@ class DefaultEnvironmentService: EnvironmentService {
 
         await setPreAuthURLs(urls: managedSettingsURLs ?? urls)
         currentClientCertificateFingerprint = urls.clientCertificateFingerprint
+        currentCustomHeadersId = urls.customHeadersId
         environmentURLs = EnvironmentURLs(environmentURLData: urls)
 
         errorReporter.setRegion(region.errorReporterName, isPreAuth: false)
@@ -89,6 +99,7 @@ class DefaultEnvironmentService: EnvironmentService {
     func setPreAuthURLs(urls: EnvironmentURLData) async {
         await stateService.setPreAuthEnvironmentURLs(urls)
         currentClientCertificateFingerprint = urls.clientCertificateFingerprint
+        currentCustomHeadersId = urls.customHeadersId
         environmentURLs = EnvironmentURLs(environmentURLData: urls)
 
         errorReporter.setRegion(region.errorReporterName, isPreAuth: true)
@@ -129,6 +140,10 @@ extension DefaultEnvironmentService {
 
     var changeEmailURL: URL {
         environmentURLs.changeEmailURL
+    }
+
+    var customHeadersId: String? {
+        currentCustomHeadersId
     }
 
     var eventsURL: URL {

@@ -9,8 +9,8 @@ import UIKit
 /// requests do via `CertificateHTTPClient`.
 ///
 /// Singleton to share a single URLSession across all icon loads and avoid threading the loader
-/// through the VaultListItemRow view stack. `configure(certificateService:errorReporter:)` is
-/// called once by `ServiceContainer` before any view loads.
+/// through the VaultListItemRow view stack. `configure(certificateService:customHeadersService:errorReporter:)`
+/// is called once by `ServiceContainer` before any view loads.
 ///
 final class CipherIconImageLoader: NSObject, @unchecked Sendable {
     // MARK: Properties
@@ -21,6 +21,10 @@ final class CipherIconImageLoader: NSObject, @unchecked Sendable {
     /// The service used to resolve the user's client certificate identity for mTLS challenges.
     private var certificateService: ClientCertificateService?
 
+    /// The service used to get the user's custom headers for icon requests. Icon URLs always come
+    /// from the environment's icons URL, so the headers apply to every icon request.
+    private var customHeadersService: CustomHeadersService?
+
     /// The service used to report non-fatal errors, including misconfiguration of this loader.
     private var errorReporter: ErrorReporter?
 
@@ -30,17 +34,40 @@ final class CipherIconImageLoader: NSObject, @unchecked Sendable {
 
     // MARK: Methods
 
-    /// Configures the loader with the services needed to participate in mTLS and report errors.
-    /// Must be called once at startup before any icon loads.
+    /// Configures the loader with the services needed to participate in mTLS, apply custom
+    /// headers, and report errors. Must be called once at startup before any icon loads.
     ///
     /// - Parameters:
     ///   - certificateService: The service used to resolve the user's client certificate.
+    ///   - customHeadersService: The service used to get the user's custom headers.
     ///   - errorReporter: The service used to report non-fatal errors.
     ///
-    func configure(certificateService: ClientCertificateService, errorReporter: ErrorReporter) {
+    func configure(
+        certificateService: ClientCertificateService,
+        customHeadersService: CustomHeadersService,
+        errorReporter: ErrorReporter,
+    ) {
         self.certificateService = certificateService
+        self.customHeadersService = customHeadersService
         self.errorReporter = errorReporter
         urlSession = URLSession(configuration: .default, delegate: self, delegateQueue: nil)
+    }
+
+    /// Builds the request used to download the icon at the given URL, attaching the user's custom
+    /// headers. Icon URLs always come from the environment's icons URL, so the headers apply to
+    /// every icon request.
+    ///
+    /// - Parameter url: The icon URL.
+    /// - Returns: The request used to download the icon.
+    ///
+    func iconRequest(for url: URL) async -> URLRequest {
+        var request = URLRequest(url: url)
+        if let customHeadersService {
+            for (name, value) in await customHeadersService.getCustomHeaders() {
+                request.setValue(value, forHTTPHeaderField: name)
+            }
+        }
+        return request
     }
 
     /// Downloads and decodes the icon at the given URL.
@@ -53,12 +80,14 @@ final class CipherIconImageLoader: NSObject, @unchecked Sendable {
         guard certificateService != nil else {
             errorReporter?.log(error: BitwardenError.generalError(
                 type: "CipherIconImageLoader",
-                message: "`configure(certificateService:errorReporter:)` must be called before loading icons.",
+                message: "`configure(certificateService:customHeadersService:errorReporter:)` "
+                    + "must be called before loading icons.",
             ))
             return nil
         }
         do {
-            let (data, response) = try await urlSession.data(from: url)
+            let request = await iconRequest(for: url)
+            let (data, response) = try await urlSession.data(for: request)
             guard let http = response as? HTTPURLResponse, (200 ..< 300).contains(http.statusCode) else {
                 return nil
             }

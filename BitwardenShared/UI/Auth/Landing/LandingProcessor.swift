@@ -12,7 +12,9 @@ class LandingProcessor: StateProcessor<LandingState, LandingAction, LandingEffec
 
     typealias Services = HasAppSettingsStore
         & HasAuthRepository
+        & HasClientCertificateService
         & HasConfigService
+        & HasCustomHeadersService
         & HasEnvironmentService
         & HasErrorReporter
         & HasStateService
@@ -30,8 +32,11 @@ class LandingProcessor: StateProcessor<LandingState, LandingAction, LandingEffec
 
     /// Helper class with region specific functions
     private lazy var regionHelper = RegionHelper(
+        clientCertificateService: services.clientCertificateService,
         coordinator: coordinator,
+        customHeadersService: services.customHeadersService,
         delegate: self,
+        errorReporter: services.errorReporter,
         stateService: services.stateService,
     )
 

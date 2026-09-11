@@ -56,6 +56,7 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
         & HasClientCertificateService
         & HasClientService
         & HasConfigService
+        & HasCustomHeadersService
         & HasDeviceAPIService
         & HasEnvironmentService
         & HasErrorAlertServices.ErrorAlertServices
@@ -660,6 +661,7 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
                 webVaultServerUrl: preAuthEnvironmentURLs.webVault?.sanitized.description ?? "",
                 keyAlias: preAuthEnvironmentURLs.clientCertificateAlias ?? "",
                 keyFingerprint: preAuthEnvironmentURLs.clientCertificateFingerprint ?? "",
+                customHeadersId: preAuthEnvironmentURLs.customHeadersId ?? "",
             )
         }
 

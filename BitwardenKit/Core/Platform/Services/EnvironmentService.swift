@@ -17,6 +17,9 @@ public protocol EnvironmentService {
     /// The SHA-256 fingerprint of the client certificate used for mTLS, if configured.
     var clientCertificateFingerprint: String? { get }
 
+    /// The identifier of the custom headers stored in the Keychain, if configured.
+    var customHeadersId: String? { get }
+
     /// The URL for the events API.
     var eventsURL: URL { get }
 

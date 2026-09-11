@@ -505,6 +505,84 @@ final class KeychainRepositoryTests: BitwardenTestCase { // swiftlint:disable:th
         }
     }
 
+    // MARK: Tests - deleteCustomHeaders(id:)
+
+    /// `deleteCustomHeaders(id:)` delegates to the facade with the correct item.
+    func test_deleteCustomHeaders_delegatesToFacade() async throws {
+        try await subject.deleteCustomHeaders(id: "headers-id")
+
+        XCTAssertEqual(
+            keychainServiceFacade.deleteValueReceivedItem as? BitwardenKeychainItem,
+            .customHeaders(id: "headers-id"),
+        )
+    }
+
+    /// `deleteCustomHeaders(id:)` rethrows errors from the facade.
+    func test_deleteCustomHeaders_throwsError() async {
+        keychainServiceFacade.deleteValueThrowableError = KeychainServiceError.osStatusError(-1)
+
+        await assertAsyncThrows(error: KeychainServiceError.osStatusError(-1)) {
+            try await subject.deleteCustomHeaders(id: "headers-id")
+        }
+    }
+
+    // MARK: Tests - getCustomHeaders(id:)
+
+    /// `getCustomHeaders(id:)` returns the stored headers.
+    func test_getCustomHeaders_returnsHeaders() async throws {
+        keychainServiceFacade.getValueReturnValue = #"{"Header-A":"1"}"#
+
+        let result = try await subject.getCustomHeaders(id: "headers-id")
+
+        XCTAssertEqual(result, ["Header-A": "1"])
+        XCTAssertEqual(
+            keychainServiceFacade.getValueReceivedItem?.unformattedKey,
+            BitwardenKeychainItem.customHeaders(id: "headers-id").unformattedKey,
+        )
+    }
+
+    /// `getCustomHeaders(id:)` returns nil when the item isn't found in the keychain.
+    func test_getCustomHeaders_notFound_returnsNil() async throws {
+        keychainServiceFacade.getValueThrowableError = KeychainServiceError.keyNotFound(
+            BitwardenKeychainItem.customHeaders(id: "headers-id"),
+        )
+
+        let result = try await subject.getCustomHeaders(id: "headers-id")
+
+        XCTAssertNil(result)
+    }
+
+    /// `getCustomHeaders(id:)` rethrows unexpected errors from the facade.
+    func test_getCustomHeaders_throwsError() async {
+        keychainServiceFacade.getValueThrowableError = KeychainServiceError.osStatusError(-1)
+
+        await assertAsyncThrows(error: KeychainServiceError.osStatusError(-1)) {
+            _ = try await subject.getCustomHeaders(id: "headers-id")
+        }
+    }
+
+    // MARK: Tests - setCustomHeaders(_:id:)
+
+    /// `setCustomHeaders(_:id:)` delegates to the facade with the correct item.
+    func test_setCustomHeaders_delegatesToFacade() async throws {
+        try await subject.setCustomHeaders(["Header-A": "1"], id: "headers-id")
+
+        XCTAssertEqual(
+            keychainServiceFacade.setValueReceivedArguments?.item as? BitwardenKeychainItem,
+            .customHeaders(id: "headers-id"),
+        )
+        XCTAssertEqual(keychainServiceFacade.setValueReceivedArguments?.value, #"{"Header-A":"1"}"#)
+    }
+
+    /// `setCustomHeaders(_:id:)` rethrows errors from the facade.
+    func test_setCustomHeaders_throwsError() async {
+        keychainServiceFacade.setValueThrowableError = KeychainServiceError.osStatusError(-1)
+
+        await assertAsyncThrows(error: KeychainServiceError.osStatusError(-1)) {
+            try await subject.setCustomHeaders(["Header-A": "1"], id: "headers-id")
+        }
+    }
+
     // MARK: Private
 
     /// Creates a `SecIdentity` from a pre-generated self-signed test PKCS#12 (password: "testpassword").
