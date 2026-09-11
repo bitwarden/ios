@@ -69,7 +69,7 @@ final class VaultListProcessor: StateProcessor<
         coordinator: coordinator,
         setURL: { [weak self] url in self?.state.url = url },
         onPendingDismiss: { [weak self] in
-            Task { @MainActor in await self?.dismissPremiumUpgradeActionCard() }
+            self?.hidePremiumUpgradeActionCardForPendingUpgrade()
         },
     )
 
@@ -153,6 +153,8 @@ final class VaultListProcessor: StateProcessor<
             await streamFlightRecorderLog()
         case .streamOrganizations:
             await streamOrganizations()
+        case .streamPremiumUpgradePendingState:
+            await streamPremiumUpgradePendingState()
         case .streamShowWebIcons:
             await streamShowWebIcons()
         case .streamSyncComplete:
@@ -391,6 +393,15 @@ extension VaultListProcessor {
         }
     }
 
+    /// Hides the Premium upgrade action card without persisting a permanent dismissal. Used
+    /// while a Premium upgrade is pending — that's a temporary state, not the user asking to
+    /// stop seeing this card, so unlike `dismissPremiumUpgradeActionCard()` this doesn't touch
+    /// `isPremiumUpgradeBannerDismissed`. `streamPremiumUpgradePendingState()` re-shows the card
+    /// on its own once the pending upgrade resolves.
+    private func hidePremiumUpgradeActionCardForPendingUpgrade() {
+        state.shouldShowPremiumUpgradeActionCard = false
+    }
+
     /// Dismisses the toast shown while the vault is taking an unusually long time to load, if
     /// that's the toast currently displayed.
     ///
@@ -507,6 +518,23 @@ extension VaultListProcessor {
             await services.billingService.shouldShowSubscriptionAttentionCard()
         state.shouldShowUpgradedToPremiumActionCard =
             await services.billingService.shouldShowUpgradedToPremiumActionCard()
+
+        let isPending = await services.billingService.premiumUpgradePendingState().isPending
+        await updatePremiumUpgradeActionCardVisibility(isPending: isPending)
+    }
+
+    /// Updates `shouldShowPremiumUpgradeActionCard`, hiding it if a Premium upgrade is pending,
+    /// the banner has been dismissed, the subscription attention card is showing, or the account
+    /// is self-hosted; otherwise showing it based on in-app upgrade availability.
+    ///
+    /// - Parameters:
+    ///   - isPending: Whether a Premium upgrade is currently pending.
+    ///
+    private func updatePremiumUpgradeActionCardVisibility(isPending: Bool) async {
+        guard !isPending else {
+            state.shouldShowPremiumUpgradeActionCard = false
+            return
+        }
 
         let isBannerDismissed = await services.billingStateService.isPremiumUpgradeBannerDismissed()
         guard !isBannerDismissed,
@@ -754,6 +782,16 @@ extension VaultListProcessor {
             }
         } catch {
             services.errorReporter.log(error: error)
+        }
+    }
+
+    /// Streams live updates to the Premium upgrade pending state, hiding or re-evaluating the
+    /// upsell action card as it changes. Needed because dismissing the "Upgrade Pending" alert
+    /// returns to this same screen without a fresh `.appeared`.
+    ///
+    private func streamPremiumUpgradePendingState() async {
+        for await pendingState in services.billingService.premiumUpgradePendingStatePublisher().values {
+            await updatePremiumUpgradeActionCardVisibility(isPending: pendingState.isPending)
         }
     }
 

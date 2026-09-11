@@ -17,7 +17,6 @@ final class VaultGroupProcessor: StateProcessor<// swiftlint:disable:this type_b
     typealias Services = HasAuthRepository
         & HasBillingRepository
         & HasBillingService
-        & HasBillingStateService
         & HasConfigService
         & HasEnvironmentService
         & HasErrorReporter
@@ -49,9 +48,6 @@ final class VaultGroupProcessor: StateProcessor<// swiftlint:disable:this type_b
         services: services,
         coordinator: coordinator,
         setURL: { [weak self] url in self?.state.url = url },
-        onPendingDismiss: { [weak self] in
-            Task { @MainActor in await self?.dismissPremiumUpgradeActionCard() }
-        },
     )
 
     /// The services for this processor.
@@ -244,16 +240,6 @@ final class VaultGroupProcessor: StateProcessor<// swiftlint:disable:this type_b
         state.itemTypesUserCanCreate = itemTypes
     }
 
-    /// Dismisses the Premium upgrade action card and persists the banner-dismissed preference.
-    ///
-    private func dismissPremiumUpgradeActionCard() async {
-        do {
-            try await services.billingStateService.setPremiumUpgradeBannerDismissed(true)
-        } catch {
-            services.errorReporter.log(error: error)
-        }
-    }
-
     /// Navigates to the Premium upgrade flow. Uses the in-app upgrade path when available;
     /// otherwise opens the web vault upgrade URL as a fallback.
     ///
@@ -427,4 +413,4 @@ extension VaultGroupProcessor: CipherItemOperationDelegate {
             await perform(.refresh)
         }
     }
-} // swiftlint:disable:this file_length
+}

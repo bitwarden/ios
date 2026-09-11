@@ -65,23 +65,25 @@ class DefaultPremiumUpgradeHelper<Route: PremiumUpgradeRoute, Event>: PremiumUpg
 
     // MARK: Private Properties
 
-    /// Whether `startInAppPremiumUpgrade(onConfirmed:)` navigated to the Premium upgrade screen
-    /// for the current checkout status subscription.
-    private var navigatedToUpgradeScreen = false
+    /// The coordinator used for navigation.
+    private let coordinator: any Coordinator<Route, Event>
 
     /// Whether a `startInAppPremiumUpgrade(onConfirmed:)` call's pending-state check is currently
     /// in flight, to guard against a rapid double-tap firing two overlapping checks.
     private var isResolvingStartRequest = false
 
+    /// Whether `startInAppPremiumUpgrade(onConfirmed:)` navigated to the Premium upgrade screen
+    /// for the current checkout status subscription.
+    private var navigatedToUpgradeScreen = false
+
+    /// An optional closure called before showing the upgrade pending alert, to transiently hide
+    /// any visible upsell UI for the duration of the pending upgrade. A pending upgrade isn't
+    /// the user asking to stop seeing that UI permanently, so this must not persist a permanent
+    /// dismissal — only an explicit, user-initiated dismiss action should do that.
+    private let onPendingDismiss: (() -> Void)?
+
     /// A cancellable for the Premium checkout status subscription.
     private var premiumStatusChangedCancellable: AnyCancellable?
-
-    /// The coordinator used for navigation.
-    private let coordinator: any Coordinator<Route, Event>
-
-    /// An optional closure called inside the pending dismiss action before showing the upgrade
-    /// pending alert. Use to dismiss action cards or perform other per-screen cleanup.
-    private let onPendingDismiss: (() -> Void)?
 
     /// The services used by this helper.
     private let services: Services
@@ -97,7 +99,8 @@ class DefaultPremiumUpgradeHelper<Route: PremiumUpgradeRoute, Event>: PremiumUpg
     ///   - services: The services used by this helper.
     ///   - coordinator: The coordinator used for navigation.
     ///   - setURL: Opens a URL (used for the web-based upgrade fallback).
-    ///   - onPendingDismiss: Called when a pending upgrade is dismissed, before the pending alert.
+    ///   - onPendingDismiss: Called before showing the upgrade pending alert, to transiently hide
+    ///     any visible upsell UI without persisting a permanent dismissal.
     ///
     init(
         services: Services,
