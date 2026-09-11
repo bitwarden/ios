@@ -456,12 +456,9 @@ class AuthServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
 
         XCTAssertEqual(stateService.accountsAdded, [Account.fixtureAccountLogin()])
         XCTAssertEqual(
-            stateService.accountEncryptionKeys,
+            stateService.accountCryptographicStates,
             [
-                "13512467-9cfe-43b0-969f-07534084764b": AccountEncryptionKeys(
-                    cryptographicState: .v1(privateKey: "PRIVATE_KEY"),
-                    encryptedUserKey: "KEY",
-                ),
+                "13512467-9cfe-43b0-969f-07534084764b": .v1(privateKey: "PRIVATE_KEY"),
             ],
         )
         XCTAssertNil(stateService.accountSetupAutofill["13512467-9cfe-43b0-969f-07534084764b"])
@@ -526,12 +523,9 @@ class AuthServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
 
         XCTAssertEqual(stateService.accountsAdded, [Account.fixtureAccountLogin()])
         XCTAssertEqual(
-            stateService.accountEncryptionKeys,
+            stateService.accountCryptographicStates,
             [
-                "13512467-9cfe-43b0-969f-07534084764b": AccountEncryptionKeys(
-                    cryptographicState: .v1(privateKey: "PRIVATE_KEY"),
-                    encryptedUserKey: "KEY",
-                ),
+                "13512467-9cfe-43b0-969f-07534084764b": .v1(privateKey: "PRIVATE_KEY"),
             ],
         )
         XCTAssertEqual(stateService.accountSetupAutofill["13512467-9cfe-43b0-969f-07534084764b"], .incomplete)
@@ -788,12 +782,9 @@ class AuthServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
 
         XCTAssertEqual(stateService.accountsAdded, [.fixtureAccountLogin()])
         XCTAssertEqual(
-            stateService.accountEncryptionKeys,
+            stateService.accountCryptographicStates,
             [
-                "13512467-9cfe-43b0-969f-07534084764b": AccountEncryptionKeys(
-                    cryptographicState: .v1(privateKey: "PRIVATE_KEY"),
-                    encryptedUserKey: "KEY",
-                ),
+                "13512467-9cfe-43b0-969f-07534084764b": .v1(privateKey: "PRIVATE_KEY"),
             ],
         )
         XCTAssertEqual(
@@ -858,12 +849,9 @@ class AuthServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
 
         XCTAssertEqual(stateService.accountsAdded, [.fixtureAccountLogin()])
         XCTAssertEqual(
-            stateService.accountEncryptionKeys,
+            stateService.accountCryptographicStates,
             [
-                "13512467-9cfe-43b0-969f-07534084764b": AccountEncryptionKeys(
-                    cryptographicState: .v1(privateKey: "PRIVATE_KEY"),
-                    encryptedUserKey: "KEY",
-                ),
+                "13512467-9cfe-43b0-969f-07534084764b": .v1(privateKey: "PRIVATE_KEY"),
             ],
         )
         XCTAssertEqual(
@@ -885,7 +873,7 @@ class AuthServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
 
     /// `loginWithTwoFactorCode(email:code:method:remember:)` uses the cached request
     /// but with device verification code added in to authenticate.
-    func test_loginWithNewDeviceVerificationCode() async throws { // swiftlint:disable:this function_body_length
+    func test_loginWithNewDeviceVerificationCode() async throws {
         // Set up the mock data.
         client.results = [
             .httpSuccess(testData: .preLoginSuccess),
@@ -924,12 +912,9 @@ class AuthServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
         // Verify the results.
         XCTAssertEqual(stateService.accountsAdded, [.fixtureAccountLogin()])
         XCTAssertEqual(
-            stateService.accountEncryptionKeys,
+            stateService.accountCryptographicStates,
             [
-                "13512467-9cfe-43b0-969f-07534084764b": AccountEncryptionKeys(
-                    cryptographicState: .v1(privateKey: "PRIVATE_KEY"),
-                    encryptedUserKey: "KEY",
-                ),
+                "13512467-9cfe-43b0-969f-07534084764b": .v1(privateKey: "PRIVATE_KEY"),
             ],
         )
         XCTAssertEqual(

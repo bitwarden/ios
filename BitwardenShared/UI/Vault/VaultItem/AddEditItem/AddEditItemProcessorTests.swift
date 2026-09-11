@@ -619,8 +619,8 @@ class AddEditItemProcessorTests: BitwardenTestCase {
         XCTAssertEqual(subject.state.toast, Toast(title: Localizations.itemUpdated))
     }
 
-    /// `folderAdded(_:)` sets the selected folder to the folder that was added and shows the
-    /// folder created toast.
+    /// `folderAdded(_:)` sets the selected folder to the folder that was added without showing a
+    /// toast.
     @MainActor
     func test_folderAdded() {
         let newFolder = FolderView.fixture(name: "New folder")
@@ -630,7 +630,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
         subject.folderAdded(newFolder)
 
         XCTAssertEqual(subject.state.folder, .custom(newFolder))
-        XCTAssertEqual(subject.state.toast, Toast(title: Localizations.folderCreated))
+        XCTAssertNil(subject.state.toast)
     }
 
     /// `init(appExtensionDelegate:coordinator:delegate:services:state:)` with adding configuration
@@ -1922,6 +1922,30 @@ class AddEditItemProcessorTests: BitwardenTestCase {
         try await waitForAsync { self.subject.state.name == "Updated name" }
 
         try XCTAssertEqual(XCTUnwrap(subject.state as? CipherItemState), updatedState)
+    }
+
+    /// `perform(_:)` with `.streamCipherDetails` preserves the card scanner's state when an update
+    /// to the cipher occurs, so the scan card button remains visible while editing a card.
+    @MainActor
+    func test_perform_streamCipherDetails_cardScannerState() async throws {
+        subject.state = try XCTUnwrap(
+            CipherItemState(existing: .fixture(card: .fixture(), id: "1", type: .card), hasPremium: false),
+        )
+        subject.state.cardItemState.cardScannerEnabled = true
+        subject.state.cardItemState.isCardScannerPresented = true
+
+        let task = Task {
+            await subject.perform(.streamCipherDetails)
+        }
+        defer { task.cancel() }
+
+        vaultRepository.cipherDetailsSubject.send(
+            .fixture(card: .fixture(), id: "1", name: "Updated name", type: .card),
+        )
+        try await waitForAsync { self.subject.state.name == "Updated name" }
+
+        XCTAssertTrue(subject.state.cardItemState.cardScannerEnabled)
+        XCTAssertTrue(subject.state.cardItemState.isCardScannerPresented)
     }
 
     /// `perform(_:)` with `.streamCipherDetails` logs an error if getting updates for the cipher fails.

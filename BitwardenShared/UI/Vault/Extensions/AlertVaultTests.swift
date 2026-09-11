@@ -670,6 +670,25 @@ class AlertVaultTests: BitwardenTestCase { // swiftlint:disable:this type_body_l
         XCTAssertEqual(subject.alertActions.first?.style, .default)
     }
 
+    /// `sendTypeRestrictedByPolicy(_:action:)` returns an `Alert` notifying the user that an
+    /// enterprise policy restricts them to a single Send type.
+    func test_sendTypeRestrictedByPolicy() async throws {
+        var called = false
+        let subject = Alert.sendTypeRestrictedByPolicy(.text) { called = true }
+
+        XCTAssertNil(subject.title)
+        XCTAssertEqual(
+            subject.message,
+            Localizations.dueToAnEnterprisePolicyYouCanOnlyCreateXSends(SendType.text.localizedName),
+        )
+        XCTAssertEqual(subject.alertActions.count, 1)
+        XCTAssertEqual(subject.alertActions[0].title, Localizations.ok)
+        XCTAssertEqual(subject.alertActions[0].style, .default)
+
+        try await subject.tapAction(title: Localizations.ok)
+        XCTAssertTrue(called)
+    }
+
     /// `specificPeopleUnavailable(action:)` returns an `Alert` notifying the user that the
     /// "Specific People" Send feature requires Premium.
     func test_specificPeopleUnavailable() async throws {
