@@ -494,6 +494,10 @@ struct ViewItemDetailsView: View { // swiftlint:disable:this type_body_length
                 }
                 .accessibilityLabel(Localizations.download)
             }
+            .contentShape(Rectangle())
+            .onTapGesture {
+                store.send(.attachmentPressed(attachment))
+            }
         }
         .accessibilityElement(children: .contain)
         .accessibilityIdentifier("CipherAttachment")
