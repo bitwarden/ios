@@ -266,6 +266,7 @@ class VaultItemCoordinator: NSObject, Coordinator, HasStackNavigator { // swiftl
     ///
     private func showAttachments(for cipher: CipherView) {
         let processor = AttachmentsProcessor(
+            attachmentPreviewHelper: attachmentPreviewHelper,
             coordinator: asAnyCoordinator(),
             services: services,
             state: AttachmentsState(cipher: cipher),

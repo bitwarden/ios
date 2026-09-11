@@ -145,6 +145,10 @@ struct AttachmentsView: View {
                 }
                 .accessibilityLabel(Localizations.delete)
             }
+            .contentShape(Rectangle())
+            .onTapGesture {
+                store.send(.attachmentTapped(attachment))
+            }
         }
         .accessibilityIdentifier("AttachmentRow")
     }
