@@ -1,4 +1,5 @@
 // swiftlint:disable:this file_name
+// swiftlint:disable file_length
 import BitwardenKit
 import BitwardenKitMocks
 import BitwardenResources
@@ -30,6 +31,7 @@ class VaultListViewTests: BitwardenTestCase { // swiftlint:disable:this type_bod
             userInitials: "AA",
         )
         let state = VaultListState(
+            itemTypesUserCanCreate: CipherType.canCreateCases,
             profileSwitcherState: ProfileSwitcherState(
                 accounts: [account],
                 activeAccountId: account.userId,

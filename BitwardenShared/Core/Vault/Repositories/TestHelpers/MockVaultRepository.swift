@@ -77,6 +77,12 @@ class MockVaultRepository: VaultRepository { // swiftlint:disable:this type_body
 
     var getItemTypesUserCanCreateResult: [BitwardenShared.CipherType] = CipherType.canCreateCases
 
+    /// When `true`, `getItemTypesUserCanCreate()` suspends until manually resumed via
+    /// `getItemTypesUserCanCreateContinuations`, in call order. Used to test scenarios with
+    /// overlapping calls.
+    var getItemTypesUserCanCreateGated = false
+    var getItemTypesUserCanCreateContinuations: [CheckedContinuation<[BitwardenShared.CipherType], Never>] = []
+
     var hasMinimumCipherCountResult: Result<Bool, Error> = .success(false)
 
     var isVaultEmptyCalled = false
@@ -258,7 +264,10 @@ class MockVaultRepository: VaultRepository { // swiftlint:disable:this type_body
     }
 
     func getItemTypesUserCanCreate() async -> [BitwardenShared.CipherType] {
-        getItemTypesUserCanCreateResult
+        guard getItemTypesUserCanCreateGated else { return getItemTypesUserCanCreateResult }
+        return await withCheckedContinuation { continuation in
+            getItemTypesUserCanCreateContinuations.append(continuation)
+        }
     }
 
     func getTOTPKeyIfAllowedToCopy(cipher: CipherView) async throws -> String? {
