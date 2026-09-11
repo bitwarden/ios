@@ -197,11 +197,13 @@ final class ViewItemProcessor: StateProcessor<ViewItemState, ViewItemAction, Vie
             streamCipherDetailsTask = nil
         case .dismissPressed:
             coordinator.navigate(to: .dismiss())
-        case let .downloadAttachment(attachment):
+        case let .attachmentTapped(attachment):
             guard case let .data(cipherState) = state.loadingState else { return }
             Task {
                 await attachmentPreviewHelper.showPreview(for: attachment, cipher: cipherState.cipher)
             }
+        case let .downloadAttachment(attachment):
+            confirmDownload(attachment)
         case let .driversLicenseItemAction(action):
             handleDriversLicenseAction(action)
         case .editPressed:
@@ -295,6 +297,23 @@ private extension ViewItemProcessor {
         }
     }
 
+    /// Present an alert to confirm downloading large attachments.
+    ///
+    /// - Parameter attachment: The attachment to download.
+    ///
+    private func confirmDownload(_ attachment: AttachmentView) {
+        // If the attachment is larger than 10 MB, make the user confirm downloading it.
+        if let sizeName = attachment.sizeName,
+           let size = Int(attachment.size ?? ""),
+           size >= Constants.largeFileSize {
+            coordinator.showAlert(.confirmDownload(fileSize: sizeName) {
+                await self.downloadAttachment(attachment)
+            })
+        } else {
+            Task { await downloadAttachment(attachment) }
+        }
+    }
+
     /// Copies a value to the pasteboard and shows a toast for the field that was copied.
     ///
     /// - Parameters:
@@ -320,6 +339,31 @@ private extension ViewItemProcessor {
                     cipherId: cipherState.cipher.id,
                 )
             }
+        }
+    }
+
+    /// Download the attachment.
+    ///
+    /// - Parameter attachment: The attachment to download.
+    ///
+    private func downloadAttachment(_ attachment: AttachmentView) async {
+        defer { coordinator.hideLoadingOverlay() }
+        do {
+            guard case let .data(cipherState) = state.loadingState else { return }
+            coordinator.showLoadingOverlay(LoadingOverlayState(title: Localizations.downloading))
+
+            guard let temporaryUrl = try await services.vaultRepository.downloadAttachment(
+                attachment,
+                cipher: cipherState.cipher,
+            ) else {
+                return coordinator.showAlert(.defaultAlert(title: Localizations.unableToDownloadFile))
+            }
+
+            coordinator.hideLoadingOverlay()
+            coordinator.navigate(to: .saveFile(temporaryUrl: temporaryUrl))
+        } catch {
+            coordinator.showAlert(.defaultAlert(title: Localizations.unableToDownloadFile))
+            services.errorReporter.log(error: error)
         }
     }
 
