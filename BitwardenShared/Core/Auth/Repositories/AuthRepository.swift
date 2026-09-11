@@ -981,11 +981,18 @@ extension DefaultAuthRepository: AuthRepository {
         }
 
         let requestModel = SetPasswordRequestModel(
-            kdfConfig: kdf,
-            key: requestUserKey,
             keys: requestKeys,
-            masterPasswordHash: requestPasswordHash,
+            masterPasswordAuthentication: MasterPasswordAuthenticationDataRequestModel(
+                kdf: kdf,
+                masterPasswordAuthenticationHash: requestPasswordHash,
+                salt: email,
+            ),
             masterPasswordHint: masterPasswordHint,
+            masterPasswordUnlock: MasterPasswordUnlockDataRequestModel(
+                kdf: kdf,
+                masterKeyWrappedUserKey: requestUserKey,
+                salt: email,
+            ),
             orgIdentifier: organizationIdentifier,
         )
 
@@ -1322,22 +1329,33 @@ extension DefaultAuthRepository: AuthRepository {
             purpose: .serverAuthorization,
         )
 
+        let authenticationData = MasterPasswordAuthenticationDataRequestModel(
+            kdf: account.kdf,
+            masterPasswordAuthenticationHash: updatePasswordResponse.passwordHash,
+            salt: account.profile.email,
+        )
+        let unlockData = MasterPasswordUnlockDataRequestModel(
+            kdf: account.kdf,
+            masterKeyWrappedUserKey: updatePasswordResponse.newKey,
+            salt: account.profile.email,
+        )
+
         switch reason {
         case .adminForcePasswordReset:
             try await accountAPIService.updateTempPassword(
                 UpdateTempPasswordRequestModel(
-                    key: updatePasswordResponse.newKey,
+                    authenticationData: authenticationData,
                     masterPasswordHint: passwordHint,
-                    newMasterPasswordHash: updatePasswordResponse.passwordHash,
+                    unlockData: unlockData,
                 ),
             )
         case .weakMasterPasswordOnLogin:
             try await accountAPIService.updatePassword(
                 UpdatePasswordRequestModel(
-                    key: updatePasswordResponse.newKey,
+                    authenticationData: authenticationData,
                     masterPasswordHash: masterPasswordHash,
                     masterPasswordHint: passwordHint,
-                    newMasterPasswordHash: updatePasswordResponse.passwordHash,
+                    unlockData: unlockData,
                 ),
             )
         }
