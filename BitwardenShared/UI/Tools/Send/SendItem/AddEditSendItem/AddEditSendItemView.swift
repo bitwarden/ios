@@ -388,9 +388,6 @@ struct AddEditSendItemView: View { // swiftlint:disable:this type_body_length
     /// The list of recipient emails for "Specific people" access type.
     @ViewBuilder private var recipientEmailsList: some View {
         VStack(alignment: .leading, spacing: 0) {
-            Divider()
-                .padding(.leading, 16)
-
             ForEach(store.state.recipientEmails.indices, id: \.self) { index in
                 BitwardenTextField(
                     title: Localizations.email,
