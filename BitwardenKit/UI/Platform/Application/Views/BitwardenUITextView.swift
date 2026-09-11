@@ -74,6 +74,11 @@ public struct BitwardenUITextView: UIViewRepresentable {
     /// A binding for whether the text view has focus.
     @Binding var isFocused: Bool
 
+    /// Whether VoiceOver should announce the text's characters individually (e.g.
+    /// "1 2 3 4" instead of "one thousand two hundred thirty-four") rather than using its
+    /// default heuristics for the rendered text.
+    var spellOutAccessibilityValue: Bool = false
+
     // MARK: - Initializers
 
     /// Initializes a `BitwardenUITextView`.
@@ -85,16 +90,20 @@ public struct BitwardenUITextView: UIViewRepresentable {
     ///   - isEditable: Indicates whether the `UITextView` is editable. When set to `true`, the user can edit the
     ///     text. If `false`, the text view is read-only.
     ///   - isFocused: A binding for whether the text view has focus.
+    ///   - spellOutAccessibilityValue: Whether VoiceOver should announce the text's characters
+    ///     individually rather than using its default heuristics for the rendered text.
     public init(
         text: Binding<String>,
         calculatedHeight: Binding<CGFloat>,
         isEditable: Bool,
         isFocused: Binding<Bool>,
+        spellOutAccessibilityValue: Bool = false,
     ) {
         _text = text
         _calculatedHeight = calculatedHeight
         self.isEditable = isEditable
         _isFocused = isFocused
+        self.spellOutAccessibilityValue = spellOutAccessibilityValue
     }
 
     /// Creates and returns the coordinator for the `UITextView`.
@@ -147,6 +156,13 @@ public struct BitwardenUITextView: UIViewRepresentable {
         if uiView.text != text {
             uiView.text = text
         }
+
+        uiView.accessibilityAttributedLabel = spellOutAccessibilityValue
+            ? NSAttributedString(
+                string: text,
+                attributes: [.accessibilitySpeechSpellOut: true],
+            )
+            : nil
 
         if isFocused, !uiView.isFirstResponder {
             // Dispatch here to prevent modifying state during a view update.
