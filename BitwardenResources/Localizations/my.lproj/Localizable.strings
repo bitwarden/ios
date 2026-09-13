@@ -182,7 +182,6 @@
 "CopyTotp" = "TOTP ကူးယူပါ";
 "CopyTotpAutomaticallyDescription" = "ဝင်ရောက်မှုတစ်ခုတွင် အောက်တန်မီတာ သော့ရှိပါက၊ သင်ဝင်ရောက်မှုကို အလိုအလျောက်ဖြည့်သည့်အခါ TOTP အတည်ပြုကုဒ်ကို သင့်ကလစ်ဘုတ်သို့ ကူးယူပါ။";
 "CopyTotpAutomatically" = "TOTP ကို အလိုအလျောက် ကူးယူပါ";
-"PremiumRequired" = "ဤအင်္ဂါရပ်ကို သုံးရန် အဆင့်မြင့် အသင်းဝင်မှု လိုအပ်သည်။";
 "AttachementAdded" = "ပူးတွဲပစ္စည်း ထည့်ပြီးပါပြီ";
 "AttachmentDeleted" = "ပူးတွဲပစ္စည်း ဖျက်ပြီးပါပြီ";
 "ChooseFile" = "ဖိုင် ရွေးပါ";
@@ -223,7 +222,6 @@
 "August" = "ဩဂုတ်";
 "Brand" = "အမှတ်တံဆိပ်";
 "CardholderName" = "ကဒ်ကိုင်ဆောင်သူအမည်";
-"WeFoundMultipleMatchesChooseTheCorrectOne" = "ကိုက်ညီမှုများစွာ တွေ့ရှိထားပါသည်။ မှန်ကန်သောတစ်ခုကို ရွေးပါ။";
 "CityTown" = "မြို့";
 "Company" = "ကုမ္ပဏီ";
 "Country" = "နိုင်ငံ";
@@ -309,6 +307,7 @@
 "NoEmailAddressesEntered" = "အီးမေးလ်လိပ်စာ ထည့်သွင်းထားခြင်း မရှိပါ";
 "EnterAtLeastOneValidEmailToShareSend" = "ဤ Send ကို မျှဝေရန် အနည်းဆုံး မှန်ကန်သော အီးမေးလ်လိပ်စာတစ်ခု ထည့်ပါ။";
 "OneOrMoreEmailAddressesIncorrect" = "တစ်ခု သို့မဟုတ် တစ်ခုထက်ပိုသော အီးမေးလ်လိပ်စာများ မမှန်ကန်ပါ။ ပြန်လည်သုံးသပ်ပြီး ထပ်စမ်းကြည့်ပါ။";
+"OnlyIncludeTheFollowingDomainsDescriptionLong" = "Only include the following domains: %1$@. Please review and try again.";
 "Cards" = "ကဒ်များ";
 "Identities" = "ကိုယ်ရေးအချက်အလက်များ";
 "Logins" = "ဝင်ရောက်မှုများ";
@@ -444,11 +443,19 @@
 "NewSendCreated" = "Send ဖန်တီးပြီးပါပြီ";
 "Custom" = "စိတ်ကြိုက်";
 "SendDisabledWarning" = "လုပ်ငန်းမူဝါဒအရ၊ သင်သည် ရှိပြီးသား Send ကိုသာ ဖျက်နိုင်သည်။";
+"ThisDateIsEnforcedByYourOrganization" = "This date is enforced by your organization";
 "AboutSend" = "Send အကြောင်း";
 "HideEmail" = "လက်ခံသူများထံမှ ကျွန်ုပ်၏ အီးမေးလ်လိပ်စာကို ဝှက်ပါ";
 "SendOptionsPolicyInEffect" = "တစ်ခု သို့မဟုတ် တစ်ခုထက်ပိုသော အဖွဲ့အစည်းမူဝါဒများသည် သင့် Send ရွေးချယ်မှုများကို သက်ရောက်နေသည်။";
 "SendFilePremiumRequired" = "အခမဲ့အကောင့်များသည် စာသားမျှဝေခြင်းကိုသာ ကန့်သတ်ထားသည်။ Send ဖြင့် ဖိုင်များသုံးရန် အဆင့်မြင့် အသင်းဝင်မှု လိုအပ်သည်။";
 "SendFileEmailVerificationRequired" = "Send ဖြင့် ဖိုင်များသုံးရန် သင်သည် သင့်အီးမေးလ်ကို အတည်ပြုရပါမည်။ သင့်အီးမေးလ်ကို ဝဘ်ဗော်လ်တ်တွင် အတည်ပြုနိုင်သည်။";
+/* Alert message shown when Send Controls policy restricts creation to one Send type. %1$@ is the allowed Send type, either "File" or "Text". */
+"DueToAnEnterprisePolicyYouCanOnlyCreateXSends" = "Due to an enterprise policy, you can only create %1$@ Sends.";
+"OrganizationPolicyRestriction" = "Organization policy restriction";
+"TextSendsAreNotAllowedDescriptionLong" = "Text Sends are not allowed for your organization and this Send will automatically expire at the set deletion date.";
+"ThisSendIsNotCompliantDescriptionLong" = "This Send is not compliant with your organization's Send policy and will automatically expire at the set deletion date.";
+"ToEditThisSendMakeACopyDescriptionLong" = "To edit this Send, make a copy. If this Send can expire at the set deletion date, no action is needed.";
+"MakeACopy" = "Make a copy";
 "PasswordPrompt" = "မာစတာစကားဝှက် ပြန်လည်တောင်းဆိုခြင်း";
 "PasswordConfirmation" = "မာစတာစကားဝှက် အတည်ပြုချက်";
 "PasswordConfirmationDesc" = "ဤလုပ်ဆောင်ချက်ကို ကာကွယ်ထားသည်၊ ဆက်လက်ရန် သင့်ကိုယ်ရေးကို အတည်ပြုရန် သင့် မာစတာစကားဝှက်ကို ပြန်လည်ထည့်ပါ။";
@@ -648,7 +655,6 @@
 "SetUpAutofill" = "အလိုအလျောက်ဖြည့်ခြင်း သတ်မှတ်ပါ";
 "AppInfo" = "အက်ပ် အချက်အလက်";
 "Browse" = "ရှာဖွေပါ";
-"SelectCardholderName" = "ကဒ်ကိုင်ဆောင်သူအမည် ရွေးပါ";
 "SelectLanguage" = "ဘာသာစကား ရွေးပါ";
 "ContinueToCompleteWebAuthnVerification" = "WebAuthn အတည်ပြုခြင်းကို အပြီးသတ်ရန် ဆက်လက်ပါ။";
 "ThereWasAnErrorStartingWebAuthnTwoFactorAuthentication" = "WebAuthn အဆင့်နှစ်ဆင့် အတည်ပြုခြင်းကို စတင်ရာတွင် အမှားရှိခဲ့သည်";
@@ -667,7 +673,6 @@
 "ByContinuingYouAgreeToTheTermsOfServiceAndPrivacyPolicy" = "ဆက်လက်ခြင်းဖြင့်၊ သင်သည် **[ဝန်ဆောင်မှုသတ်မှတ်ချက်များ](%1$@)** နှင့် **[ကိုယ်ရေးမူဝါဒ](%2$@)** ကို သဘောတူပါသည်။";
 "GetAdviceAnnouncementsAndResearchOpportunitiesFromBitwardenInYourInboxUnsubscribeAtAnyTime." = "သင့်ဝင်စာပုံးတွင် Bitwarden မှ အကြံဉာဏ်များ၊ ကြေညာချက်များနှင့် သုတေသနအခွင့်အလမ်းများ ရယူပါ။ အချိန်မရွေး **[စာရင်းဖြုတ်ရန်](%1$@)**။";
 "UserVerificationForPasskey" = "Passkey အတွက် အသုံးပြုသူ အတည်ပြုခြင်း";
-"NewItem" = "ပစ္စည်းအသစ်";
 "ExploreTheGenerator" = "ဂျင်နရေတာကို စူးစမ်းပါ";
 "LearnMoreAboutGeneratingSecureLoginCredentialsWithAGuidedTour" = "လမ်းညွှန်ခရီးစဉ်ဖြင့် လုံခြုံသော ဝင်ရောက်မှုအထောက်အထားများ ဖန်တီးခြင်းအကြောင်း ပိုမိုလေ့လာပါ။";
 "ExportVaultFilePwProtectInfo" = "ဤဖိုင် တင်ပို့မှုကို စကားဝှက်ဖြင့် ကာကွယ်ထားမည်ဖြစ်ပြီး ကုဒ်ဖြင့်ဖွင့်ရန် ဖိုင် စကားဝှက် လိုအပ်မည်။";
@@ -881,6 +886,10 @@
 "Identification" = "သက်သေခံ";
 "Owner" = "ပိုင်ရှင်";
 "VerifyYourIdentity" = "သင့်ကိုယ်ရေးကို အတည်ပြုပါ";
+"ThisOperationIsNotAllowedOnThisAccount" = "This operation is not allowed on this account";
+"AnErrorOccurredWhileTryingToLockTheCurrentUser" = "An error occurred while trying to lock the current user";
+"LockAllAccounts" = "Lock all accounts";
+"AllAccountsHaveBeenLocked" = "All accounts have been locked";
 "ShareErrorDetails" = "အမှားအသေးစိတ် မျှဝေပါ";
 "FlightRecorder" = "Flight recorder";
 "EnableFlightRecorder" = "Flight recorder ကို ဖွင့်ပါ";
@@ -909,7 +918,13 @@
 "ExpiresOnXDate" = "%1$@ တွင် သက်တမ်းကုန်ဆုံးသည်";
 "ExpiresTomorrow" = "မနက်ဖြန် သက်တမ်းကုန်ဆုံးမည်";
 "DateRangeXToY" = "%1$@ မှ %2$@ အထိ";
+"LogOutAllAccounts" = "Log out all accounts";
+"AllAccountsHaveBeenLoggedOut" = "All accounts have been logged out";
+"AnErrorOccurredWhileTryingToLogOutAllAccounts" = "An error occurred while trying to log out all accounts";
 "SelfHostServerURL" = "ကိုယ်တိုင်လက်ခံကျင်းပ ဆာဗာ URL";
+"OpenGenerator" = "Open generator";
+"OpenPasswordGenerator" = "Open password generator";
+"GeneratePassphrase" = "Generate passphrase";
 "AllowUniversalClipboard" = "Universal Clipboard ကို ခွင့်ပြုပါ";
 "UseUniversalClipboardToCopyDescriptionLong" = "Universal Clipboard ကို သုံး၍ ဤနေရာတွင် ကူးယူပြီး တူညီသော Apple ID ဖြင့် ဝင်ရောက်ထားသော အခြားစက်ပစ္စည်းများတွင် ကူးထည့်ပါ။";
 "RemoveMasterPasswordConfirmDomain" = "အောက်ပါအဖွဲ့အစည်း၏ အဖွဲ့ဝင်များအတွက် မာစတာစကားဝှက် မလိုအပ်တော့ပါ။ အောက်ပါဒိုမိန်းကို သင့်အဖွဲ့အစည်း အက်ဒမင်ဖြင့် အတည်ပြုပါ။";
@@ -929,6 +944,7 @@
 "GoToSettings" = "ဆက်တင်များသို့ သွားပါ";
 "SiriAndShortcutsAccess" = "Siri နှင့် Shortcuts ဝင်ရောက်ခွင့်";
 "EnableToAllowTheAppToRespondToSiriAndShortcutsUsingAppIntents" = "App Intents ကို သုံး၍ Siri နှင့် Shortcuts သို့ အက်ပ်အား တုံ့ပြန်နိုင်စေရန် ဖွင့်ပါ။";
+"ThereIsNoActiveAccount" = "There is no active account.";
 "NewFileSend" = "ဖိုင် Send အသစ်";
 "NewTextSend" = "စာသား Send အသစ်";
 "EditFileSend" = "ဖိုင် Send ပြင်ဆင်ပါ";
@@ -979,7 +995,6 @@
 "NoAskMe" = "မဟုတ်ပါ၊ ကျွန်ုပ်ကို မေးပါ";
 "NoCodes" = "ပြသရန် ကုဒ်များ မရှိပါ";
 "None" = "မရှိ";
-"NoneOfTheAbove" = "အထက်ပါတစ်ခုမှ မဟုတ်ပါ";
 "NumberOfDigits" = "ဂဏန်းအရေအတွက်";
 "OtpType" = "OTP အမျိုးအစား";
 "RefreshPeriod" = "ပြန်လည်စတင်သည့်ကာလ";

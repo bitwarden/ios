@@ -21,7 +21,7 @@
 "EnterPIN" = "உம் கடவெண் குறியை உள்ளிடு.";
 "Favorites" = "பிடித்தவை";
 "Folder" = "கோப்புறை";
-"FolderCreated" = "புதிய கோப்புறை உருவாக்கப்பட்டது.";
+"FolderCreated" = "புதிய கோப்புறை உருவாக்கப்பட்டது";
 "FolderDeleted" = "கோப்புறை அழிக்கப்பட்டது.";
 "FolderNone" = "கோப்புறையற்றவை";
 "Folders" = "கோப்புறைகள்";
@@ -183,7 +183,6 @@
 "CopyTotp" = "TOTP ஐ நகலெடு";
 "CopyTotpAutomaticallyDescription" = "ஒரு உள்நுழைவுக்கு அங்கீகார விசை இருந்தால், உள்நுழைவை தானாக நிரப்பும்போது TOTP சரிபார்ப்புக் குறியீட்டை உங்கள் கிளிப்போர்டுக்கு நகலெடுக்கவும்.";
 "CopyTotpAutomatically" = "TOTPஐத் தானாக நகலெடு";
-"PremiumRequired" = "இவ்வம்சத்தை பயன்படுத்த உயர்தர உறுப்பினர் தகுதி தேவை.";
 "AttachementAdded" = "இணைப்பு சேர்க்கப்பட்டது";
 "AttachmentDeleted" = "இணைப்பு அழிக்கப்பட்டது";
 "ChooseFile" = "கோப்பைத் தேர்ந்தெடு";
@@ -224,7 +223,6 @@
 "August" = "ஆகஸ்ட்";
 "Brand" = "வணிகக்குறி";
 "CardholderName" = "அட்டைதாரரின் பெயர்";
-"WeFoundMultipleMatchesChooseTheCorrectOne" = "பல பொருத்தங்களைக் கண்டோம். சரியானதைத் தேர்ந்தெடுக்கவும்.";
 "CityTown" = "மாநகரம் / நகரம்";
 "Company" = "நிறுவனம்";
 "Country" = "நாடு";
@@ -269,7 +267,7 @@
 /* Empty state message shown when a collection has no items. */
 "NoItemsCollection" = "இந்தத் தொகுப்பில் எந்தப் பொருளும் இல்லை";
 /* Empty state message shown when a shared folder has no items. */
-"ThereAreNoItemsInThisSharedFolder" = "There are no items in this shared folder";
+"ThereAreNoItemsInThisSharedFolder" = "இந்த பகிரப்பட்ட கோப்புறையில் எந்த உருப்படிகளும் இல்லை";
 "NoItemsFolder" = "இந்தக் கோப்புறையில் எந்தப் பொருளும் இல்லை";
 "NoItemsTrash" = "இக்குப்பையில் உருப்படிகள் ஏதுமில்லை.";
 "FaceID" = "முக அடையாளம்";
@@ -310,6 +308,7 @@
 "NoEmailAddressesEntered" = "மின்னஞ்சல் முகவரிகள் எதுவும் உள்ளிடப்படவில்லை";
 "EnterAtLeastOneValidEmailToShareSend" = "இந்த அனுப்புதலைப் பகிர குறைந்தது ஒரு செல்லுபடியாகும் மின்னஞ்சல் முகவரியையாவது உள்ளிடவும்.";
 "OneOrMoreEmailAddressesIncorrect" = "ஒன்று அல்லது அதற்கு மேற்பட்ட மின்னஞ்சல் முகவரிகள் தவறானவை. மதிப்பாய்வு செய்து மீண்டும் முயற்சிக்கவும்.";
+"OnlyIncludeTheFollowingDomainsDescriptionLong" = "பின்வரும் டொமைன்களை மட்டுமே சேர்க்கவும்: %1$@. தயவுசெய்து சரிபார்த்து மீண்டும் முயற்சிக்கவும்.";
 "Cards" = "அட்டைகள்";
 "Identities" = "அடையாளங்கள்";
 "Logins" = "உள்நுழைவுகள்";
@@ -445,11 +444,19 @@
 "NewSendCreated" = "Send உருவானது";
 "Custom" = "தனிபயன்";
 "SendDisabledWarning" = "முனைவக கொள்ளையால், உம்மால் இருக்கின்ற Sendஐ மட்டுமே அழிக்கவியலும்.";
+"ThisDateIsEnforcedByYourOrganization" = "இந்தத் தேதி உங்கள் நிறுவனத்தால் செயல்படுத்தப்படுகிறது";
 "AboutSend" = "Send பற்றி";
 "HideEmail" = "பெறுநர்களிடமிருந்து என் மின்னஞ்சல் முகவரியை மறை";
 "SendOptionsPolicyInEffect" = "ஒன்று அ மேற்பட்ட நிறுவன கொள்கைகள் உமது Send தெரிவுகளை பாதிக்கிறது.";
 "SendFilePremiumRequired" = "இலவச கணக்குகள் சொற்சரம் மட்டும் பகிர்தலுக்கு கட்டுப்படுத்தப்பட்டுள்ளது. Send உடன் கோப்புகளை பயன்படுத்த உயர்தர உறுப்பினர் தகுதி தேவை.";
 "SendFileEmailVerificationRequired" = "Send உடன் கோப்புகளைப் பயன்படுத்த உம் மின்னஞ்சலைக் கட்டாயம் சரிபார்க்க வேண்டும்.  உம் மின்னஞ்சலை வலைப்பெட்டகத்தில் சரிபார்க்கலாம்.";
+/* Alert message shown when Send Controls policy restricts creation to one Send type. %1$@ is the allowed Send type, either "File" or "Text". */
+"DueToAnEnterprisePolicyYouCanOnlyCreateXSends" = "நிறுவனக் கொள்கை காரணமாக, நீங்கள் %1$@ Sends மட்டுமே உருவாக்க முடியும்.";
+"OrganizationPolicyRestriction" = "நிறுவனக் கொள்கை கட்டுப்பாடு";
+"TextSendsAreNotAllowedDescriptionLong" = "உங்கள் நிறுவனத்திற்கு உரை Sends அனுமதிக்கப்படவில்லை மற்றும் இந்த Send அமைக்கப்பட்ட நீக்கல் தேதியில் தானாகவே காலாவதியாகும்.";
+"ThisSendIsNotCompliantDescriptionLong" = "இந்த Send உங்கள் நிறுவனத்தின் Send கொள்கைக்கு இணங்கவில்லை மற்றும் அமைக்கப்பட்ட நீக்கல் தேதியில் தானாகவே காலாவதியாகும்.";
+"ToEditThisSendMakeACopyDescriptionLong" = "இந்த Send-ஐத் திருத்த, ஒரு நகலை உருவாக்கவும். இந்த Send அமைக்கப்பட்ட நீக்கல் தேதியில் காலாவதியாகலாம் என்றால், எந்த நடவடிக்கையும் தேவையில்லை.";
+"MakeACopy" = "ஒரு நகலை உருவாக்கவும்";
 "PasswordPrompt" = "பிரதான கடவுச்சொல் மறு-தூண்டி";
 "PasswordConfirmation" = "பிரதான கடவுச்சொல் உறுதியாக்கம்";
 "PasswordConfirmationDesc" = "இச்செயல் காக்கப்பட்டது, தொடர உம் அடையாளத்தைச் சரிபார்க்க உம் பிரதான கடவுச்சொல்லை மீண்டுமுள்ளிடவும்.";
@@ -649,7 +656,6 @@
 "SetUpAutofill" = "தானாக நிரப்புதலை அமைக்கவும்";
 "AppInfo" = "பயன்பாட்டு தகவல்";
 "Browse" = "உலாவவும்";
-"SelectCardholderName" = "அட்டைதாரரின் பெயரைத் தேர்ந்தெடுக்கவும்";
 "SelectLanguage" = "மொழியைத் தேர்ந்தெடுக்கவும்";
 "ContinueToCompleteWebAuthnVerification" = "WebAuthn சரிபார்ப்பை முடிக்க தொடரவும்.";
 "ThereWasAnErrorStartingWebAuthnTwoFactorAuthentication" = "WebAuthn இரண்டு காரணி அங்கீகாரத்தைத் தொடங்குவதில் பிழை ஏற்பட்டது";
@@ -668,7 +674,6 @@
 "ByContinuingYouAgreeToTheTermsOfServiceAndPrivacyPolicy" = "தொடர்வதன் மூலம், நீங்கள் **[சேவை விதிமுறைகள்](%1$@)** மற்றும் **[தனியுரிமைக் கொள்கை](%2$@)** க்கு உடன்படுகிறீர்கள்";
 "GetAdviceAnnouncementsAndResearchOpportunitiesFromBitwardenInYourInboxUnsubscribeAtAnyTime." = "உங்கள் இன்பாக்ஸில் பிட்வார்டனிடமிருந்து ஆலோசனை, அறிவிப்புகள் மற்றும் ஆராய்ச்சி வாய்ப்புகளைப் பெறுங்கள். எந்த நேரத்திலும் **[குழுவிலகவும்](%1$@)**.";
 "UserVerificationForPasskey" = "பாஸ்கீக்கான பயனர் சரிபார்ப்பு";
-"NewItem" = "புதிய பொருள்";
 "ExploreTheGenerator" = "ஜெனரேட்டரை ஆராயவும்";
 "LearnMoreAboutGeneratingSecureLoginCredentialsWithAGuidedTour" = "வழிகாட்டப்பட்ட சுற்றுப்பயணத்துடன் பாதுகாப்பான உள்நுழைவு சான்றுகளை உருவாக்குவது பற்றி மேலும் அறிக.";
 "ExportVaultFilePwProtectInfo" = "இந்த கோப்பு ஏற்றுமதி கடவுச்சொல் பாதுகாக்கப்படும், மேலும் கோப்பை மறையாக்கம் செய்ய கோப்பு கடவுச்சொல் தேவைப்படும்.";
@@ -882,6 +887,10 @@
 "Identification" = "அடையாளம்";
 "Owner" = "உரிமையாளர்";
 "VerifyYourIdentity" = "உங்கள் அடையாளத்தைச் சரிபார்க்கவும்";
+"ThisOperationIsNotAllowedOnThisAccount" = "இந்தக் கணக்கில் இந்தச் செயல்பாடு அனுமதிக்கப்படவில்லை";
+"AnErrorOccurredWhileTryingToLockTheCurrentUser" = "தற்போதைய பயனரைப் பூட்ட முயற்சிக்கும்போது ஒரு பிழை ஏற்பட்டது";
+"LockAllAccounts" = "அனைத்து கணக்குகளையும் பூட்டவும்";
+"AllAccountsHaveBeenLocked" = "அனைத்து கணக்குகளும் பூட்டப்பட்டன";
 "ShareErrorDetails" = "பிழை விவரங்களைப் பகிரு";
 "FlightRecorder" = "ஃபிளைட் ரெக்கார்டர்";
 "EnableFlightRecorder" = "ஃபிளைட் ரெக்கார்டரை இயக்கு";
@@ -895,13 +904,13 @@
 "ShowLess" = "குறைவாக காட்டு";
 "ItemNameX" = "பொருள் பெயர், %1$@";
 "OwnerX" = "உரிமையாளர், %1$@";
-"VaultX" = "Vault, %1$@";
+"VaultX" = "பெட்டகம், %1$@";
 /* VoiceOver accessibility label for a collection the item belongs to. */
 "CollectionX" = "தொகுப்பு, %1$@";
 /* VoiceOver accessibility label for a shared folder the item belongs to. */
-"SharedFolderX" = "Shared folder, %1$@";
+"SharedFolderX" = "பகிரப்பட்ட கோப்புறை, %1$@";
 "FolderX" = "கோப்புறை, %1$@";
-"MyFolderX" = "My folder, %1$@";
+"MyFolderX" = "எனது கோப்புறை, %1$@";
 "ItemXOfY" = "பொருள் %1$@ இல் %2$@";
 "ViewRecordedLogs" = "பதிவு செய்யப்பட்ட பதிவுகளைப் பார்";
 "RecordedLogs" = "பதிவு செய்யப்பட்ட பதிவுகள்";
@@ -910,7 +919,13 @@
 "ExpiresOnXDate" = "%1$@ இல் காலாவதியாகிறது";
 "ExpiresTomorrow" = "நாளை காலாவதியாகிறது";
 "DateRangeXToY" = "%1$@ முதல் %2$@ வரை";
+"LogOutAllAccounts" = "அனைத்து கணக்குகளிலிருந்தும் வெளியேறு";
+"AllAccountsHaveBeenLoggedOut" = "அனைத்து கணக்குகளிலிருந்தும் வெளியேற்றப்பட்டது";
+"AnErrorOccurredWhileTryingToLogOutAllAccounts" = "அனைத்து கணக்குகளிலிருந்தும் வெளியேற முயற்சிக்கும்போது ஒரு பிழை ஏற்பட்டது";
 "SelfHostServerURL" = "சுய-ஹோஸ்ட் சேவையக URL";
+"OpenGenerator" = "ஜெனரேட்டரைத் திற";
+"OpenPasswordGenerator" = "கடவுச்சொல் ஜெனரேட்டரைத் திற";
+"GeneratePassphrase" = "கடவுச்சொற்றொடரை உருவாக்கு";
 "AllowUniversalClipboard" = "யுனிவர்சல் கிளிப்போர்டை அனுமதி";
 "UseUniversalClipboardToCopyDescriptionLong" = "இங்கே நகலெடுக்கவும், அதே ஆப்பிள் ஐடி-யில் உள்நுழைந்த பிற சாதனங்களில் ஒட்டவும் யுனிவர்சல் கிளிப்போர்டைப் பயன்படுத்தவும்.";
 "RemoveMasterPasswordConfirmDomain" = "பின்வரும் அமைப்பின் உறுப்பினர்களுக்கு மாஸ்டர் கடவுச்சொல் இனி தேவையில்லை. உங்கள் அமைப்பு நிர்வாகியுடன் கீழே உள்ள டொமைனை உறுதிப்படுத்தவும்.";
@@ -930,6 +945,7 @@
 "GoToSettings" = "அமைப்புகளுக்குச் செல்";
 "SiriAndShortcutsAccess" = "சிரி & ஷார்ட்கட்ஸ் அணுகல்";
 "EnableToAllowTheAppToRespondToSiriAndShortcutsUsingAppIntents" = "பயன்பாட்டு நோக்கங்களைப் பயன்படுத்தி சிரி மற்றும் ஷார்ட்கட்ஸ்களுக்கு பயன்பாடு பதிலளிக்க அனுமதிக்க இயக்கவும்.";
+"ThereIsNoActiveAccount" = "செயலில் உள்ள கணக்கு எதுவும் இல்லை.";
 "NewFileSend" = "புதிய கோப்பு அனுப்பு";
 "NewTextSend" = "புதிய உரை அனுப்பு";
 "EditFileSend" = "கோப்பு அனுப்புதலைத் திருத்து";
@@ -980,7 +996,6 @@
 "NoAskMe" = "வேண்டாம், என்னிடம் கேள்";
 "NoCodes" = "உங்களிடம் காண்பிக்கக் குறியீடுகள் இல்லை";
 "None" = "ஏதுமில்லை";
-"NoneOfTheAbove" = "மேலே உள்ளவை எதுவுமில்லை";
 "NumberOfDigits" = "இலக்கங்களின் எண்ணிக்கை";
 "OtpType" = "OTP வகை";
 "RefreshPeriod" = "புதுப்பிக்கும் காலம்";

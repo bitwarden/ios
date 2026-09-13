@@ -182,7 +182,6 @@
 "CopyTotp" = "Iskopirajte TOTP";
 "CopyTotpAutomaticallyDescription" = "Ako prijava ima authenticator ključ, kopiraj TOTP verifikacijski kod u međuspremnik kada automatski popunite prijavu.";
 "CopyTotpAutomatically" = "Kopiraj TOTP (autentifikacijski kod) automatski";
-"PremiumRequired" = "Za korišćenje ove funkcije potrebno je premium članstvo.";
 "AttachementAdded" = "Prilog dodat";
 "AttachmentDeleted" = "Prilog izbrisan";
 "ChooseFile" = "Odaberite datoteku";
@@ -223,7 +222,6 @@
 "August" = "August";
 "Brand" = "Vrsta kartice";
 "CardholderName" = "Ime vlasnika kartice";
-"WeFoundMultipleMatchesChooseTheCorrectOne" = "Pronašli smo više podudaranja. Odaberite ispravno.";
 "CityTown" = "Grad";
 "Company" = "Kompanija";
 "Country" = "Država";
@@ -309,6 +307,7 @@
 "NoEmailAddressesEntered" = "Nema unesenih adresa e-pošte";
 "EnterAtLeastOneValidEmailToShareSend" = "Unesite barem jednu važeću adresu e-pošte za dijeljenje ovog Senda.";
 "OneOrMoreEmailAddressesIncorrect" = "Jedna ili više adresa e-pošte su netačne. Pregledajte i pokušajte ponovo.";
+"OnlyIncludeTheFollowingDomainsDescriptionLong" = "Only include the following domains: %1$@. Please review and try again.";
 "Cards" = "Kartice";
 "Identities" = "Identiteti";
 "Logins" = "Prijave";
@@ -444,11 +443,19 @@
 "NewSendCreated" = "Novi Send kreiran.";
 "Custom" = "Prilagođeno";
 "SendDisabledWarning" = "Pravila tvrtke omogućuju brisanje samo postojećeg Senda.";
+"ThisDateIsEnforcedByYourOrganization" = "This date is enforced by your organization";
 "AboutSend" = "O Sendu";
 "HideEmail" = "Sakrij moju adresu e-pošte od primatelja.";
 "SendOptionsPolicyInEffect" = "Jedno ili više pravila organizacije utječe na postavke Senda.";
 "SendFilePremiumRequired" = "Kod besplatnog računa moguće je dijeljenje samo teksta. Za slanje datoteka potrebno je Premium članstvo.";
 "SendFileEmailVerificationRequired" = "Moraš potvrditi svoju e-poštu za koritšenje datoteka sa Sendom. Možeš potvrditi svoju adresu e-pošte preko web trezora.";
+/* Alert message shown when Send Controls policy restricts creation to one Send type. %1$@ is the allowed Send type, either "File" or "Text". */
+"DueToAnEnterprisePolicyYouCanOnlyCreateXSends" = "Due to an enterprise policy, you can only create %1$@ Sends.";
+"OrganizationPolicyRestriction" = "Organization policy restriction";
+"TextSendsAreNotAllowedDescriptionLong" = "Text Sends are not allowed for your organization and this Send will automatically expire at the set deletion date.";
+"ThisSendIsNotCompliantDescriptionLong" = "This Send is not compliant with your organization's Send policy and will automatically expire at the set deletion date.";
+"ToEditThisSendMakeACopyDescriptionLong" = "To edit this Send, make a copy. If this Send can expire at the set deletion date, no action is needed.";
+"MakeACopy" = "Make a copy";
 "PasswordPrompt" = "Ponovno zatraži glavnu lozinku";
 "PasswordConfirmation" = "Potvrda glavne lozinke";
 "PasswordConfirmationDesc" = "Ova radnja je zaštićena. Za nastavak i potvrdu identiteta, unesi svoju glavnu lozinku.";
@@ -648,7 +655,6 @@
 "SetUpAutofill" = "Postavite automatsko popunjavanje";
 "AppInfo" = "Informacije o aplikaciji";
 "Browse" = "Pregledaj";
-"SelectCardholderName" = "Odaberite ime vlasnika kartice";
 "SelectLanguage" = "Odaberite jezik";
 "ContinueToCompleteWebAuthnVerification" = "Nastavite da dovršite WebAuthn verifikaciju.";
 "ThereWasAnErrorStartingWebAuthnTwoFactorAuthentication" = "Došlo je do greške pri pokretanju WebAuthn dvofaktorske autentifikacije";
@@ -667,7 +673,6 @@
 "ByContinuingYouAgreeToTheTermsOfServiceAndPrivacyPolicy" = "Nastavkom se slažete s **[Uvjetima korištenja](%1$@)** i **[Politikom privatnosti](%2$@)**";
 "GetAdviceAnnouncementsAndResearchOpportunitiesFromBitwardenInYourInboxUnsubscribeAtAnyTime." = "Primajte savjete, najave i mogućnosti istraživanja od Bitwarden u svoj sandučić. **[Odjavite se](%1$@)** u bilo kojem trenutku.";
 "UserVerificationForPasskey" = "Verifikacija korisnika za pristupni ključ";
-"NewItem" = "Nova stavka";
 "ExploreTheGenerator" = "Istražite generator";
 "LearnMoreAboutGeneratingSecureLoginCredentialsWithAGuidedTour" = "Saznajte više o generiranju sigurnih podataka za prijavu uz vođenu turu.";
 "ExportVaultFilePwProtectInfo" = "Ovaj izvoz datoteke bit će zaštićen lozinkom i zahtijevat će lozinku datoteke za dešifriranje.";
@@ -881,6 +886,10 @@
 "Identification" = "Identifikacija";
 "Owner" = "Vlasnik";
 "VerifyYourIdentity" = "Potvrdite svoj identitet";
+"ThisOperationIsNotAllowedOnThisAccount" = "This operation is not allowed on this account";
+"AnErrorOccurredWhileTryingToLockTheCurrentUser" = "An error occurred while trying to lock the current user";
+"LockAllAccounts" = "Lock all accounts";
+"AllAccountsHaveBeenLocked" = "All accounts have been locked";
 "ShareErrorDetails" = "Podijeli detalje greške";
 "FlightRecorder" = "Snimač leta";
 "EnableFlightRecorder" = "Omogući snimač leta";
@@ -909,7 +918,13 @@
 "ExpiresOnXDate" = "Ističe %1$@";
 "ExpiresTomorrow" = "Ističe sutra";
 "DateRangeXToY" = "%1$@ do %2$@";
+"LogOutAllAccounts" = "Log out all accounts";
+"AllAccountsHaveBeenLoggedOut" = "All accounts have been logged out";
+"AnErrorOccurredWhileTryingToLogOutAllAccounts" = "An error occurred while trying to log out all accounts";
 "SelfHostServerURL" = "URL samostalno hostovanog servera";
+"OpenGenerator" = "Open generator";
+"OpenPasswordGenerator" = "Open password generator";
+"GeneratePassphrase" = "Generate passphrase";
 "AllowUniversalClipboard" = "Dozvoli univerzalni međuspremnik";
 "UseUniversalClipboardToCopyDescriptionLong" = "Koristite univerzalni međuspremnik za kopiranje ovdje i lijepljenje na drugim uređajima prijavljenim s istim Apple ID-om.";
 "RemoveMasterPasswordConfirmDomain" = "Glavna lozinka više nije potrebna za članove sljedeće organizacije. Potvrdite domenu ispod sa administratorom svoje organizacije.";
@@ -929,6 +944,7 @@
 "GoToSettings" = "Idi na postavke";
 "SiriAndShortcutsAccess" = "Pristup Siri i prečacima";
 "EnableToAllowTheAppToRespondToSiriAndShortcutsUsingAppIntents" = "Omogućite da aplikacija odgovara na Siri i prečace koristeći App Intents.";
+"ThereIsNoActiveAccount" = "There is no active account.";
 "NewFileSend" = "Novi Send datoteke";
 "NewTextSend" = "Novi Send teksta";
 "EditFileSend" = "Uredi Send datoteke";
@@ -979,7 +995,6 @@
 "NoAskMe" = "Ne, pitaj me";
 "NoCodes" = "Nemate nijedan kod za prikaz";
 "None" = "Nijedno";
-"NoneOfTheAbove" = "Ništa od navedenog";
 "NumberOfDigits" = "Broj cifara";
 "OtpType" = "OTP tip";
 "RefreshPeriod" = "Period osvježavanja";

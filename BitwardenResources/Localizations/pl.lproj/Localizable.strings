@@ -21,7 +21,7 @@
 "EnterPIN" = "Wpisz kod PIN.";
 "Favorites" = "Ulubione";
 "Folder" = "Folder";
-"FolderCreated" = "Folder został utworzony.";
+"FolderCreated" = "Folder został utworzony";
 "FolderDeleted" = "Folder został usunięty.";
 "FolderNone" = "Nieprzypisane";
 "Folders" = "Foldery";
@@ -182,7 +182,6 @@
 "CopyTotp" = "Kopiuj kod TOTP";
 "CopyTotpAutomaticallyDescription" = "Automatycznie kopiuje kod TOTP do schowka podczas autouzupełniania.";
 "CopyTotpAutomatically" = "Kopiuj kod TOTP automatycznie";
-"PremiumRequired" = "Konto Premium jest wymagane, aby skorzystać z tej funkcji.";
 "AttachementAdded" = "Załącznik został dodany";
 "AttachmentDeleted" = "Załącznik został usunięty";
 "ChooseFile" = "Wybierz plik";
@@ -223,7 +222,6 @@
 "August" = "Sierpień";
 "Brand" = "Wydawca";
 "CardholderName" = "Właściciel karty";
-"WeFoundMultipleMatchesChooseTheCorrectOne" = "Znaleźliśmy kilka dopasowań. Wybierz prawidłowe.";
 "CityTown" = "Miasto";
 "Company" = "Firma";
 "Country" = "Kraj";
@@ -309,6 +307,7 @@
 "NoEmailAddressesEntered" = "Brak adresu e-mail";
 "EnterAtLeastOneValidEmailToShareSend" = "Wpisz co najmniej jeden prawidłowy adres e-mail, aby udostępnić wysyłkę.";
 "OneOrMoreEmailAddressesIncorrect" = "Co najmniej jeden adres e-mail jest nieprawidłowy. Sprawdź je i spróbuj ponownie.";
+"OnlyIncludeTheFollowingDomainsDescriptionLong" = "Dozwolone domeny: %1$@. Sprawdź i spróbuj ponownie.";
 "Cards" = "Karty";
 "Identities" = "Tożsamości";
 "Logins" = "Dane logowania";
@@ -444,11 +443,19 @@
 "NewSendCreated" = "Wysyłka została utworzona";
 "Custom" = "Niestandardowe";
 "SendDisabledWarning" = "Ze względu na zasadę przedsiębiorstwa, tylko Ty możesz usunąć obecną wysyłkę.";
+"ThisDateIsEnforcedByYourOrganization" = "Data została narzucona przez organizację";
 "AboutSend" = "O wysyłce";
 "HideEmail" = "Ukryj mój adres e-mail przed odbiorcami";
 "SendOptionsPolicyInEffect" = "Co najmniej jedna zasada organizacji wpływa na ustawienia wysyłek.";
 "SendFilePremiumRequired" = "Darmowe konta są ograniczone do udostępniania tylko tekstu. Konto Premium jest wymagane do udostępniania plików.";
 "SendFileEmailVerificationRequired" = "Musisz zweryfikować adres e-mail, aby wysyłać pliki za pomocą wysyłek.";
+/* Alert message shown when Send Controls policy restricts creation to one Send type. %1$@ is the allowed Send type, either "File" or "Text". */
+"DueToAnEnterprisePolicyYouCanOnlyCreateXSends" = "Due to an enterprise policy, you can only create %1$@ Sends.";
+"OrganizationPolicyRestriction" = "Ograniczenie przez zasadę organizacji";
+"TextSendsAreNotAllowedDescriptionLong" = "Wysyłki tekstów nie są dozwolone w organizacji. Wysyłka wygaśnie automatycznie w dacie jej usunięcia.";
+"ThisSendIsNotCompliantDescriptionLong" = "Wysyłka nie jest zgodna z zasadami organizacji i wygaśnie automatycznie w dacie jej usunięcia.";
+"ToEditThisSendMakeACopyDescriptionLong" = "Aby edytować wysyłkę, utwórz jej kopię. Jeśli wysyłka może wygasnąć w dacie usunięcia, nie musisz nic robić.";
+"MakeACopy" = "Utwórz kopię";
 "PasswordPrompt" = "Potwierdź hasłem głównym";
 "PasswordConfirmation" = "Potwierdź hasło główne";
 "PasswordConfirmationDesc" = "Ta operacja jest chroniona. Aby kontynuować, wpisz ponownie hasło główne.";
@@ -648,7 +655,6 @@
 "SetUpAutofill" = "Skonfiguruj autouzupełnianie";
 "AppInfo" = "Informacje o aplikacji";
 "Browse" = "Przeglądaj";
-"SelectCardholderName" = "Wybierz właściciela karty";
 "SelectLanguage" = "Wybierz język";
 "ContinueToCompleteWebAuthnVerification" = "Kontynuuj, aby zakończyć weryfikację WebAuthn.";
 "ThereWasAnErrorStartingWebAuthnTwoFactorAuthentication" = "Wystąpił błąd podczas uruchamiania logowania dwustopniowego WebAuthn";
@@ -667,7 +673,6 @@
 "ByContinuingYouAgreeToTheTermsOfServiceAndPrivacyPolicy" = "Kontynuując, akceptujesz **[Regulamin](%1$@)** i **[Politykę prywatności](%2$@)**";
 "GetAdviceAnnouncementsAndResearchOpportunitiesFromBitwardenInYourInboxUnsubscribeAtAnyTime." = "Otrzymuj porady, ogłoszenia i możliwości badawcze od Bitwarden na swoją skrzynkę odbiorczą. **[Anuluj subskrypcję](%1$@)** w dowolnym momencie.";
 "UserVerificationForPasskey" = "Weryfikacja użytkownika dla klucza dostępu";
-"NewItem" = "Nowy element";
 "ExploreTheGenerator" = "Zobacz generator";
 "LearnMoreAboutGeneratingSecureLoginCredentialsWithAGuidedTour" = "Dowiedz się więcej o generowaniu bezpiecznych danych logowania.";
 "ExportVaultFilePwProtectInfo" = "Plik zostanie zaszyfrowany hasłem.";
@@ -881,6 +886,10 @@
 "Identification" = "Identyfikacja";
 "Owner" = "Właściciel";
 "VerifyYourIdentity" = "Zweryfikuj tożsamość";
+"ThisOperationIsNotAllowedOnThisAccount" = "Operacja nie jest dozwolona na tym koncie";
+"AnErrorOccurredWhileTryingToLockTheCurrentUser" = "Wystąpił błąd podczas próby zablokowania obecnego użytkownika";
+"LockAllAccounts" = "Zablokuj wszystkie konta";
+"AllAccountsHaveBeenLocked" = "Wszystkie konta zostały zablokowane";
 "ShareErrorDetails" = "Udostępnij szczegóły błędu";
 "FlightRecorder" = "Rejestrator zdarzeń";
 "EnableFlightRecorder" = "Włącz rejestrator zdarzeń";
@@ -909,7 +918,13 @@
 "ExpiresOnXDate" = "Wygasa %1$@";
 "ExpiresTomorrow" = "Wygasa jutro";
 "DateRangeXToY" = "%1$@ do %2$@";
+"LogOutAllAccounts" = "Wyloguj się ze wszystkich kont";
+"AllAccountsHaveBeenLoggedOut" = "Wylogowano ze wszystkich kont";
+"AnErrorOccurredWhileTryingToLogOutAllAccounts" = "Wystąpił błąd podczas próby wylogowania wszystkich kont";
 "SelfHostServerURL" = "URL samodzielnie hostowanego serwera";
+"OpenGenerator" = "Otwórz generator";
+"OpenPasswordGenerator" = "Otwórz generator haseł";
+"GeneratePassphrase" = "Wygeneruj hasło wyrazowe";
 "AllowUniversalClipboard" = "Zezwalaj na uniwersalny schowek";
 "UseUniversalClipboardToCopyDescriptionLong" = "Użyj uniwersalnego schowka, aby skopiować i wkleić dane na innych urządzeniach zalogowanych przy użyciu tego samego Apple ID.";
 "RemoveMasterPasswordConfirmDomain" = "Hasło główne nie jest już wymagane dla członków następującej organizacji. Potwierdź poniższą domenę z administratorem organizacji.";
@@ -929,6 +944,7 @@
 "GoToSettings" = "Przejdź do ustawień";
 "SiriAndShortcutsAccess" = "Dostęp do Siri i skrótów";
 "EnableToAllowTheAppToRespondToSiriAndShortcutsUsingAppIntents" = "Włącz, aby zezwolić aplikacji na reagowanie na Siri i skróty przy użyciu intencji aplikacji.";
+"ThereIsNoActiveAccount" = "Brak aktywnego konta.";
 "NewFileSend" = "Nowa wysyłka pliku";
 "NewTextSend" = "Nowa wysyłka tekstu";
 "EditFileSend" = "Edytuj plik wysyłki";
@@ -979,7 +995,6 @@
 "NoAskMe" = "Nie, zapytaj mnie";
 "NoCodes" = "Nie masz żadnych kodów do wyświetlenia";
 "None" = "Brak";
-"NoneOfTheAbove" = "Żaden z powyższych";
 "NumberOfDigits" = "Liczba cyfr";
 "OtpType" = "Rodzaj OTP";
 "RefreshPeriod" = "Okres odświeżenia";

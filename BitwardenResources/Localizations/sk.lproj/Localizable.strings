@@ -182,7 +182,6 @@
 "CopyTotp" = "Kopírovať TOTP";
 "CopyTotpAutomaticallyDescription" = "Ak majú prihlasovacie údaje nastavený kľúč overovateľa, overovací kód TOTP bude automaticky skopírovaný do schránky vždy, keď použijete automatické vypĺňanie.";
 "CopyTotpAutomatically" = "Automaticky kopírovať TOTP";
-"PremiumRequired" = "Na použitie tejto funkcie je potrebné prémiové členstvo.";
 "AttachementAdded" = "Príloha pridaná";
 "AttachmentDeleted" = "Príloha odstránená";
 "ChooseFile" = "Vybrať súbor";
@@ -223,7 +222,6 @@
 "August" = "August";
 "Brand" = "Značka";
 "CardholderName" = "Meno držiteľa karty";
-"WeFoundMultipleMatchesChooseTheCorrectOne" = "Našli sme viacero zhôd. Vyberte správne.";
 "CityTown" = "Mesto";
 "Company" = "Spoločnosť";
 "Country" = "Krajina";
@@ -309,6 +307,7 @@
 "NoEmailAddressesEntered" = "Nezadali ste žiadne e-mailové adresy";
 "EnterAtLeastOneValidEmailToShareSend" = "Zadajte aspoň jednu platnú e-mailovú adresu, aby ste mohli zdieľať tento Send.";
 "OneOrMoreEmailAddressesIncorrect" = "Jedna alebo viaceré e-mailové adresy sú nesprávne. Skontrolujte ich a skúste to znovu.";
+"OnlyIncludeTheFollowingDomainsDescriptionLong" = "Zahrnúť iba nasledujúce domény: %1$@. Skontrolujte to a skúste to znova.";
 "Cards" = "Karty";
 "Identities" = "Identity";
 "Logins" = "Prihlasovacie údaje";
@@ -444,11 +443,19 @@
 "NewSendCreated" = "Send bol vytvorený";
 "Custom" = "Vlastné";
 "SendDisabledWarning" = "Z dôvodu podnikovej politiky môžete odstrániť iba existujúci Send.";
+"ThisDateIsEnforcedByYourOrganization" = "Tento dátum je stanovený vašou organizáciou";
 "AboutSend" = "O Sende";
 "HideEmail" = "Skryť moju e-mailovú adresu pred príjemcami";
 "SendOptionsPolicyInEffect" = "Jedno alebo viac pravidiel organizácie ovplyvňujú vaše možnosti funkcie Send.";
 "SendFilePremiumRequired" = "Bezplatné účty sú obmedzené len na zdieľanie textu. Na odosielanie súborov cez Send sa vyžaduje prémiové členstvo.";
 "SendFileEmailVerificationRequired" = "Na odosielanie súborov cez Send musíte overiť svoj e-mail.";
+/* Alert message shown when Send Controls policy restricts creation to one Send type. %1$@ is the allowed Send type, either "File" or "Text". */
+"DueToAnEnterprisePolicyYouCanOnlyCreateXSends" = "Vzhľadom na pravidlá spoločnosti môžete vytvoriť len %1$@ Send.";
+"OrganizationPolicyRestriction" = "Obmedzenie politiky organizácie";
+"TextSendsAreNotAllowedDescriptionLong" = "Vaša organizácia nepovoľuje textové Sendy a tento Send automaticky vyprší v nastavený deň odstránenia.";
+"ThisSendIsNotCompliantDescriptionLong" = "Tento Send nie je v súlade s politikou Sendu vašej organizácie a jeho platnosť automaticky vyprší v stanovený deň odstránenia.";
+"ToEditThisSendMakeACopyDescriptionLong" = "Na úpravu tohto Sendu si urobte kópiu. Ak tento Send môže vypršať v stanovenom dátume na odstránenie, nemusíte nič robiť.";
+"MakeACopy" = "Vytvoriť kópiu";
 "PasswordPrompt" = "Znova vyzvať na zadanie hlavného hesla";
 "PasswordConfirmation" = "Potvrdenie hlavného hesla";
 "PasswordConfirmationDesc" = "Táto akcia je chránená. Ak chcete pokračovať, znova zadajte hlavné heslo a overte svoju totožnosť.";
@@ -648,7 +655,6 @@
 "SetUpAutofill" = "Nastaviť automatické vypĺňanie";
 "AppInfo" = "Informácie o aplikácii";
 "Browse" = "Prehľadávať";
-"SelectCardholderName" = "Vyberte meno vlastníka karty";
 "SelectLanguage" = "Vyberte jazyk";
 "ContinueToCompleteWebAuthnVerification" = "Dokončite overovanie WebAuthn.";
 "ThereWasAnErrorStartingWebAuthnTwoFactorAuthentication" = "Pri spustení dvojstupňového overovania WebAuthn došlo k chybe";
@@ -667,7 +673,6 @@
 "ByContinuingYouAgreeToTheTermsOfServiceAndPrivacyPolicy" = "Ak budete pokračovať, tak súhlasíte s **[Podmienkami používania](%1$@)** a **[Zásadami ochrany osobných údajov](%2$@)**";
 "GetAdviceAnnouncementsAndResearchOpportunitiesFromBitwardenInYourInboxUnsubscribeAtAnyTime." = "Dostávajte do schránky rady, oznámenia a príležitosti na výskum od spoločnosti Bitwarden. **[Odhlásiť](%1$@)** sa môžete kedykoľvek.";
 "UserVerificationForPasskey" = "Overenie používateľa pre prístupový kľúč";
-"NewItem" = "Nová položka";
 "ExploreTheGenerator" = "Preskúmajte generátor";
 "LearnMoreAboutGeneratingSecureLoginCredentialsWithAGuidedTour" = "Ďalšie informácie o generovaní bezpečných prihlasovacích údajov získate pomocou prehliadky so sprievodcom.";
 "ExportVaultFilePwProtectInfo" = "Tento exportovaný súbor bude chránený heslom a na dešifrovanie bude potrebné heslo súboru.";
@@ -881,6 +886,10 @@
 "Identification" = "Identifikácia";
 "Owner" = "Vlastník";
 "VerifyYourIdentity" = "Overte svoju totožnosť";
+"ThisOperationIsNotAllowedOnThisAccount" = "Táto operácia nie je s týmto účtom povolená";
+"AnErrorOccurredWhileTryingToLockTheCurrentUser" = "Pri pokuse o uzamknutie aktuálneho používateľa sa vyskytla chyba";
+"LockAllAccounts" = "Uzamknúť všetky účty";
+"AllAccountsHaveBeenLocked" = "Všetky účty boli uzamknuté";
 "ShareErrorDetails" = "Zdieľať podrobnosti o chybe";
 "FlightRecorder" = "Čierna skrinka";
 "EnableFlightRecorder" = "Povoliť čiernu skrinku";
@@ -909,7 +918,13 @@
 "ExpiresOnXDate" = "Platnosť končí %1$@";
 "ExpiresTomorrow" = "Platnosť končí zajtra";
 "DateRangeXToY" = "%1$@ do %2$@";
+"LogOutAllAccounts" = "Odhlásiť všetky účty";
+"AllAccountsHaveBeenLoggedOut" = "Všetky účty boli odhlásené";
+"AnErrorOccurredWhileTryingToLogOutAllAccounts" = "Pri pokuse o odhlásenie všetkých účtov došlo k chybe";
 "SelfHostServerURL" = "Adresa URL vlastného hostingu";
+"OpenGenerator" = "Otvoriť generátor";
+"OpenPasswordGenerator" = "Otvoriť generátor hesla";
+"GeneratePassphrase" = "Generovať prístupovú frázu";
 "AllowUniversalClipboard" = "Povoliť Univerzálnu schránku";
 "UseUniversalClipboardToCopyDescriptionLong" = "Použiť Univerzálnu schránku na kopírovanie a vkladanie na ďalších zariadeniach prihlásených s rovnakým Apple ID.";
 "RemoveMasterPasswordConfirmDomain" = "Hlavné heslo sa už nevyžaduje pre členov tejto organizácie. Nižšie uvedenú doménu potvrďte u správcu organizácie.";
@@ -929,6 +944,7 @@
 "GoToSettings" = "Prejsť do nastavení";
 "SiriAndShortcutsAccess" = "Prístup k Siri a Skratky";
 "EnableToAllowTheAppToRespondToSiriAndShortcutsUsingAppIntents" = "Povoliť, aby aplikácia mohla pomocou intencií aplikácie odpovedať Siri a Skratky.";
+"ThereIsNoActiveAccount" = "Neexistuje žiadny aktívny účet.";
 "NewFileSend" = "Nový súborový Send";
 "NewTextSend" = "Nový textový Send";
 "EditFileSend" = "Upraviť súborový Send";
@@ -979,7 +995,6 @@
 "NoAskMe" = "Nie, opýtať sa ma";
 "NoCodes" = "Nemáte žiadne kódy na zobrazenie";
 "None" = "Žiadne";
-"NoneOfTheAbove" = "Žiadne z uvedených";
 "NumberOfDigits" = "Počet číslic";
 "OtpType" = "Typ OTP";
 "RefreshPeriod" = "Interval obnovenia";
@@ -1247,7 +1262,7 @@
 "DeviceDisplayNameXHyphenY" = "%1$@ – %2$@";
 "Mobile" = "Mobil";
 "BrowserExtension" = "Rozšírenie prehliadača";
-"WebVault2" = "Webový trezor";
+"WebVault2" = "Webová aplikácia";
 "Desktop" = "Počítač";
 "Cli" = "CLI";
 "Sdk" = "SDK";

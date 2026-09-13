@@ -21,7 +21,7 @@
 "EnterPIN" = "請輸入 PIN 碼。";
 "Favorites" = "我的最愛";
 "Folder" = "資料夾";
-"FolderCreated" = "已新增資料夾。";
+"FolderCreated" = "資料夾已新增。";
 "FolderDeleted" = "已刪除資料夾。";
 "FolderNone" = "（未分類）";
 "Folders" = "資料夾";
@@ -182,7 +182,6 @@
 "CopyTotp" = "複製 TOTP";
 "CopyTotpAutomaticallyDescription" = "若登入資訊已包含驗證器金鑰，在自動填入此登入資訊時，複製 TOTP 驗證碼到您的剪貼簿。";
 "CopyTotpAutomatically" = "自動複製 TOTP";
-"PremiumRequired" = "進階會員才可使用此功能。";
 "AttachementAdded" = "已新增附件";
 "AttachmentDeleted" = "已刪除附件";
 "ChooseFile" = "選擇檔案";
@@ -223,7 +222,6 @@
 "August" = "八月";
 "Brand" = "發卡組織";
 "CardholderName" = "持卡人姓名";
-"WeFoundMultipleMatchesChooseTheCorrectOne" = "我們找到多個符合項目。請選擇正確的一項。";
 "CityTown" = "市/鎮";
 "Company" = "公司";
 "Country" = "國家";
@@ -309,6 +307,7 @@
 "NoEmailAddressesEntered" = "尚未輸入任何電子郵件地址";
 "EnterAtLeastOneValidEmailToShareSend" = "請至少輸入一個有效的電子郵件地址以分享此 Send。";
 "OneOrMoreEmailAddressesIncorrect" = "一個或多個電子郵件地址不正確。請檢查後再試一次。";
+"OnlyIncludeTheFollowingDomainsDescriptionLong" = "Only include the following domains: %1$@. Please review and try again.";
 "Cards" = "付款卡";
 "Identities" = "身分";
 "Logins" = "登入資料";
@@ -444,11 +443,19 @@
 "NewSendCreated" = "已建立新的 Send";
 "Custom" = "自訂";
 "SendDisabledWarning" = "由於企業原則限制，您只能刪除現有的 Send。";
+"ThisDateIsEnforcedByYourOrganization" = "This date is enforced by your organization";
 "AboutSend" = "關於 Send";
 "HideEmail" = "對收件人隱藏我的電子郵件地址";
 "SendOptionsPolicyInEffect" = "一個或多個組織原則正影響您的 Send 選項。";
 "SendFilePremiumRequired" = "免費帳戶僅限於共用文字。若想使用檔案傳送，需要進階會員資格。";
 "SendFileEmailVerificationRequired" = "您必須驗證電子郵件才能夠使用檔案 Send。您可以在網頁版密碼庫中驗證您的電子郵件。";
+/* Alert message shown when Send Controls policy restricts creation to one Send type. %1$@ is the allowed Send type, either "File" or "Text". */
+"DueToAnEnterprisePolicyYouCanOnlyCreateXSends" = "Due to an enterprise policy, you can only create %1$@ Sends.";
+"OrganizationPolicyRestriction" = "Organization policy restriction";
+"TextSendsAreNotAllowedDescriptionLong" = "Text Sends are not allowed for your organization and this Send will automatically expire at the set deletion date.";
+"ThisSendIsNotCompliantDescriptionLong" = "This Send is not compliant with your organization's Send policy and will automatically expire at the set deletion date.";
+"ToEditThisSendMakeACopyDescriptionLong" = "To edit this Send, make a copy. If this Send can expire at the set deletion date, no action is needed.";
+"MakeACopy" = "Make a copy";
 "PasswordPrompt" = "重新詢問主密碼";
 "PasswordConfirmation" = "確認主密碼";
 "PasswordConfirmationDesc" = "此動作受到保護。若要繼續，請重新輸入您的主密碼以驗證您的身分。";
@@ -648,7 +655,6 @@
 "SetUpAutofill" = "設定自動填入";
 "AppInfo" = "App 資訊";
 "Browse" = "瀏覽";
-"SelectCardholderName" = "選擇持卡人姓名";
 "SelectLanguage" = "選擇語言";
 "ContinueToCompleteWebAuthnVerification" = "繼續以完成 WebAuthn 2FA 驗證。";
 "ThereWasAnErrorStartingWebAuthnTwoFactorAuthentication" = "啟動 WebAuthn 2FA 驗證發生錯誤";
@@ -667,7 +673,6 @@
 "ByContinuingYouAgreeToTheTermsOfServiceAndPrivacyPolicy" = "繼續前，您需同意 **[服務條款](%1$@)** 及 **[隱私權政策](%2$@)**";
 "GetAdviceAnnouncementsAndResearchOpportunitiesFromBitwardenInYourInboxUnsubscribeAtAnyTime." = "獲得來自 Bitwarden 的公告、建議及研究資訊電子郵件。可以在任何時間 **[取消訂閱](%1$@)**。";
 "UserVerificationForPasskey" = "密碼金鑰的使用者驗證";
-"NewItem" = "新項目";
 "ExploreTheGenerator" = "探索密碼產生器";
 "LearnMoreAboutGeneratingSecureLoginCredentialsWithAGuidedTour" = "透過導覽了解如何產生安全的登入憑證。";
 "ExportVaultFilePwProtectInfo" = "此檔案匯出將受密碼保護，需要檔案密碼才能解密。";
@@ -881,6 +886,10 @@
 "Identification" = "身份";
 "Owner" = "擁有者";
 "VerifyYourIdentity" = "驗證您的身份";
+"ThisOperationIsNotAllowedOnThisAccount" = "Account戶不允許執行此操作";
+"AnErrorOccurredWhileTryingToLockTheCurrentUser" = "嘗試鎖定當前使用者時發生錯誤";
+"LockAllAccounts" = "鎖定所有帳號";
+"AllAccountsHaveBeenLocked" = "All accounts have been locked";
 "ShareErrorDetails" = "傳送錯誤訊息";
 "FlightRecorder" = "飛行記錄儀";
 "EnableFlightRecorder" = "啟用飛行記錄器";
@@ -900,7 +909,7 @@
 /* VoiceOver accessibility label for a shared folder the item belongs to. */
 "SharedFolderX" = "共享資料夾，%1$@";
 "FolderX" = "資料夾，%1$@";
-"MyFolderX" = "My folder, %1$@";
+"MyFolderX" = "資料夾，%1$@";
 "ItemXOfY" = "項目 %1$@ / %2$@";
 "ViewRecordedLogs" = "檢視記錄的日誌";
 "RecordedLogs" = "已記錄的日誌";
@@ -909,7 +918,13 @@
 "ExpiresOnXDate" = "在 %1$@ 到期";
 "ExpiresTomorrow" = "明天到期";
 "DateRangeXToY" = "%2$@ 至 %1$@";
+"LogOutAllAccounts" = "Log out all accounts";
+"AllAccountsHaveBeenLoggedOut" = "All accounts have been logged out";
+"AnErrorOccurredWhileTryingToLogOutAllAccounts" = "An error occurred while trying to log out all accounts";
 "SelfHostServerURL" = "自建伺服器 URL";
+"OpenGenerator" = "開啟產生器";
+"OpenPasswordGenerator" = "開啟密碼產生器";
+"GeneratePassphrase" = "產生密碼短語";
 "AllowUniversalClipboard" = "允許通用剪貼簿";
 "UseUniversalClipboardToCopyDescriptionLong" = "使用通用剪貼簿在此複製並在其他使用相同 Apple ID 登入的裝置上貼上。";
 "RemoveMasterPasswordConfirmDomain" = "以下組織的成員不再需要主密碼。請與您的組織管理員確認下方網域。";
@@ -929,6 +944,7 @@
 "GoToSettings" = "前往設定";
 "SiriAndShortcutsAccess" = "Siri 與 捷徑 存取";
 "EnableToAllowTheAppToRespondToSiriAndShortcutsUsingAppIntents" = "啟用以允許應用程式透過 App Intents 回應 Siri 與捷徑。";
+"ThereIsNoActiveAccount" = "There is no active account.";
 "NewFileSend" = "新增檔案 Send";
 "NewTextSend" = "新增文字 Send";
 "EditFileSend" = "編輯檔案 Send";
@@ -979,7 +995,6 @@
 "NoAskMe" = "不，詢問我";
 "NoCodes" = "您沒有任何可顯示的驗證碼";
 "None" = "無";
-"NoneOfTheAbove" = "以上皆非";
 "NumberOfDigits" = "位數";
 "OtpType" = "OTP 類型";
 "RefreshPeriod" = "更新週期";

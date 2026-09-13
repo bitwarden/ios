@@ -21,7 +21,7 @@
 "EnterPIN" = "Zadejte PIN kód.";
 "Favorites" = "Oblíbené";
 "Folder" = "Složka";
-"FolderCreated" = "Nová složka byla vytvořena.";
+"FolderCreated" = "Nová složka byla vytvořena";
 "FolderDeleted" = "Složka byla smazána.";
 "FolderNone" = "Žádná složka";
 "Folders" = "Složky";
@@ -182,7 +182,6 @@
 "CopyTotp" = "Kopírovat TOTP";
 "CopyTotpAutomaticallyDescription" = "Pokud mají Vaše přihlašovací údaje přidán ověřovací klíč pro TOTP, vygenerovaný ověřovací kód (TOTP) se automaticky zkopíruje do schránky při každém automatickém vyplnění přihlašovacích údajů.";
 "CopyTotpAutomatically" = "Automaticky kopírovat TOTP";
-"PremiumRequired" = "Pro použití této funkce je potřebné členství Premium.";
 "AttachementAdded" = "Příloha byla přidána";
 "AttachmentDeleted" = "Příloha byla smazána";
 "ChooseFile" = "Vybrat soubor";
@@ -223,7 +222,6 @@
 "August" = "srpen";
 "Brand" = "Vydavatel";
 "CardholderName" = "Jméno držitele karty";
-"WeFoundMultipleMatchesChooseTheCorrectOne" = "Našli jsme více shod. Vyberte správné.";
 "CityTown" = "Město";
 "Company" = "Společnost";
 "Country" = "Země";
@@ -309,6 +307,7 @@
 "NoEmailAddressesEntered" = "Nebyly zadány žádné e-mailové adresy";
 "EnterAtLeastOneValidEmailToShareSend" = "Zadejte alespoň jednu platnou e-mailovou adresu pro sdílení tohoto Send.";
 "OneOrMoreEmailAddressesIncorrect" = "Jedna nebo více e-mailových adres je nesprávná. Zkontrolujte ji a zkuste to znovu.";
+"OnlyIncludeTheFollowingDomainsDescriptionLong" = "Zahrnout jen následující domény: %1$@. Zkontrolujte to a zkuste to znovu.";
 "Cards" = "Karty";
 "Identities" = "Identity";
 "Logins" = "Přihlašovací údaje";
@@ -444,11 +443,19 @@
 "NewSendCreated" = "Send byl vytvořen";
 "Custom" = "Vlastní";
 "SendDisabledWarning" = "Z důvodu podnikových zásad můžete smazat pouze existující Send.";
+"ThisDateIsEnforcedByYourOrganization" = "Toto datum vynucuje Vaše organizace";
 "AboutSend" = "O Send";
 "HideEmail" = "Skrýt mou e-mailovou adresu před příjemci";
 "SendOptionsPolicyInEffect" = "Jedna nebo více zásad organizace ovlivňuje nastavení Send.";
 "SendFilePremiumRequired" = "Bezplatné účty jsou omezeny jen na sdílení textu. K používání souborů pomocí Send je vyžadováno členství Premium.";
 "SendFileEmailVerificationRequired" = "Abyste mohli tuto funkci používat, musíte ověřit svůj e-mail. Svůj e-mail můžete ověřit ve webovém trezoru.";
+/* Alert message shown when Send Controls policy restricts creation to one Send type. %1$@ is the allowed Send type, either "File" or "Text". */
+"DueToAnEnterprisePolicyYouCanOnlyCreateXSends" = "V souladu s podnikovými zásadami můžete vytvořit jen %1$@ Sends.";
+"OrganizationPolicyRestriction" = "Omezení zásad organizace";
+"TextSendsAreNotAllowedDescriptionLong" = "Vaší organizaci není povoleno odesílat textové Sends a tato zpráva automaticky vyprší v nastavený den smazání.";
+"ThisSendIsNotCompliantDescriptionLong" = "Tento Send není v souladu se zásadami Vaší organizace a jeho platnost automaticky vyprší v nastavený den smazání.";
+"ToEditThisSendMakeACopyDescriptionLong" = "Pro úpravu tohoto Send vytvořte kopii. Pokud tento Send vyprší v nastaveném datu smazání, není potřeba žádná akce.";
+"MakeACopy" = "Vytvořit kopii";
 "PasswordPrompt" = "Zeptat se znovu na hlavní heslo";
 "PasswordConfirmation" = "Potvrzení hlavního hesla";
 "PasswordConfirmationDesc" = "Tato akce je chráněna. Chcete-li pokračovat, zadejte znovu Vaše hlavní heslo, abychom ověřili Vaši totožnost.";
@@ -648,7 +655,6 @@
 "SetUpAutofill" = "Nastavit automatické vyplňování";
 "AppInfo" = "Informace o aplikaci";
 "Browse" = "Procházet";
-"SelectCardholderName" = "Vyberte jméno držitele karty";
 "SelectLanguage" = "Zvolit jazyk";
 "ContinueToCompleteWebAuthnVerification" = "Pokračujte pro dokončení ověření WebAuthn.";
 "ThereWasAnErrorStartingWebAuthnTwoFactorAuthentication" = "Při spouštění dvoufaktorového ověření WebAuthn došlo k chybě";
@@ -667,7 +673,6 @@
 "ByContinuingYouAgreeToTheTermsOfServiceAndPrivacyPolicy" = "Pokračováním souhlasíte s **[Podmínkami služby](%1$@)** a **[Zásadami ochrany osobních údajů](%2$@)**";
 "GetAdviceAnnouncementsAndResearchOpportunitiesFromBitwardenInYourInboxUnsubscribeAtAnyTime." = "Dostávejte do své e-mailové schránky rady, oznámení a příležitosti k výzkumu od společnosti Bitwarden. **[Odhlásit odběr](%1$@)** můžete kdykoli.";
 "UserVerificationForPasskey" = "Ověření uživatele pro přístupový klíč";
-"NewItem" = "Nová položka";
 "ExploreTheGenerator" = "Prozkoumat generátor";
 "LearnMoreAboutGeneratingSecureLoginCredentialsWithAGuidedTour" = "Další informace o generování bezpečných přihlašovacích údajů pomocí prohlídky s průvodcem.";
 "ExportVaultFilePwProtectInfo" = "Tento soubor exportu bude chráněn heslem a k dešifrování bude vyžadovat heslo souboru.";
@@ -881,6 +886,10 @@
 "Identification" = "Identifikace";
 "Owner" = "Vlastník";
 "VerifyYourIdentity" = "Ověřte svou totožnost";
+"ThisOperationIsNotAllowedOnThisAccount" = "Tato operace není na tomto účtu povolena";
+"AnErrorOccurredWhileTryingToLockTheCurrentUser" = "Vyskytla se chyba při uzamčení aktuálního uživatele";
+"LockAllAccounts" = "Uzamknout všechny účty";
+"AllAccountsHaveBeenLocked" = "Všechny účty byly uzamčeny";
 "ShareErrorDetails" = "Sdílet podrobnosti o chybě";
 "FlightRecorder" = "Letový zapisovač";
 "EnableFlightRecorder" = "Povolit letový zapisovač";
@@ -909,7 +918,13 @@
 "ExpiresOnXDate" = "Vyprší %1$@";
 "ExpiresTomorrow" = "Vyprší zítra";
 "DateRangeXToY" = "%1$@ do %2$@";
+"LogOutAllAccounts" = "Odhlásit všechny účty";
+"AllAccountsHaveBeenLoggedOut" = "Všechny účty byly odhlášeny";
+"AnErrorOccurredWhileTryingToLogOutAllAccounts" = "Vyskytla se chyba při pokusu o odhlášení všech účtů";
 "SelfHostServerURL" = "Adresa URL vlastního serveru";
+"OpenGenerator" = "Otevřít generátor";
+"OpenPasswordGenerator" = "Otevřít generátor hesel";
+"GeneratePassphrase" = "Vygenerovat heslovou frázi";
 "AllowUniversalClipboard" = "Povolit univerzální schránku";
 "UseUniversalClipboardToCopyDescriptionLong" = "Použijte univerzální schránku pro kopírování zde a vložení na jiná zařízení přihlášená se stejným Apple ID.";
 "RemoveMasterPasswordConfirmDomain" = "Hlavní heslo již není vyžadováno pro členy následující organizace. Potvrďte níže uvedenou doménu u správce Vaší organizace.";
@@ -929,6 +944,7 @@
 "GoToSettings" = "Přejít do nastavení";
 "SiriAndShortcutsAccess" = "Přístup Siri a Zkratek";
 "EnableToAllowTheAppToRespondToSiriAndShortcutsUsingAppIntents" = "Povolte, aby aplikace reagovala na Siri a Zkratky pomocí záměrů aplikací.";
+"ThereIsNoActiveAccount" = "Neexistuje žádný aktivní účet.";
 "NewFileSend" = "Odeslat Send se soubory";
 "NewTextSend" = "Odeslat textový Send";
 "EditFileSend" = "Upravit soubor ze Send";
@@ -979,7 +995,6 @@
 "NoAskMe" = "Ne, zeptat se mě";
 "NoCodes" = "Nemáte žádné kódy k zobrazení";
 "None" = "Žádné";
-"NoneOfTheAbove" = "Nic z výše uvedeného";
 "NumberOfDigits" = "Počet číslic";
 "OtpType" = "Typ OTP";
 "RefreshPeriod" = "Doba obnovení";

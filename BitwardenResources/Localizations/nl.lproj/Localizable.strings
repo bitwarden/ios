@@ -182,7 +182,6 @@
 "CopyTotp" = "TOTP kopiëren";
 "CopyTotpAutomaticallyDescription" = "Als een login een authenticatorsleutel heeft, kopieer dan de TOTP-verificatiecode naar je klembord wanneer je de login automatisch invult.";
 "CopyTotpAutomatically" = "TOTP automatisch kopiëren";
-"PremiumRequired" = "Je hebt een Premium-abonnement nodig om deze functionaliteit te kunnen gebruiken.";
 "AttachementAdded" = "Bijlage is toegevoegd";
 "AttachmentDeleted" = "Bijlage is verwijderd";
 "ChooseFile" = "Bestand kiezen";
@@ -223,7 +222,6 @@
 "August" = "augustus";
 "Brand" = "Merk";
 "CardholderName" = "Naam kaarthouder";
-"WeFoundMultipleMatchesChooseTheCorrectOne" = "We found multiple matches. Choose the correct one.";
 "CityTown" = "Stad / gemeente";
 "Company" = "Bedrijf";
 "Country" = "Land";
@@ -309,6 +307,7 @@
 "NoEmailAddressesEntered" = "Geen e-mailadressen ingevoerd";
 "EnterAtLeastOneValidEmailToShareSend" = "Voer ten minste één geldig e-mailadres in om deze Send te delen.";
 "OneOrMoreEmailAddressesIncorrect" = "Een of meer e-mailadressen zijn onjuist. Controleer en probeer het opnieuw.";
+"OnlyIncludeTheFollowingDomainsDescriptionLong" = "Only include the following domains: %1$@. Please review and try again.";
 "Cards" = "Kaarten";
 "Identities" = "Identiteiten";
 "Logins" = "Logins";
@@ -444,11 +443,19 @@
 "NewSendCreated" = "Send aangemaakt";
 "Custom" = "Aangepast";
 "SendDisabledWarning" = "Als gevolg van een ondernemingsbeleid kun je alleen een bestaande Send verwijderen.";
+"ThisDateIsEnforcedByYourOrganization" = "Deze datum is opgelegd door je organisatie";
 "AboutSend" = "Over Send";
 "HideEmail" = "Verberg mijn e-mailadres voor ontvangers";
 "SendOptionsPolicyInEffect" = "Een of meer organisatiebeleidseisen heeft invloed op de mogelijkheden van je Send.";
 "SendFilePremiumRequired" = "Met een gratis account kun je alleen tekst delen. Voor het delen van bestanden heb je een Premium-abonnement nodig.";
 "SendFileEmailVerificationRequired" = "Je moet je e-mailadres verifiëren om bestanden met Send te kunnen gebruiken.";
+/* Alert message shown when Send Controls policy restricts creation to one Send type. %1$@ is the allowed Send type, either "File" or "Text". */
+"DueToAnEnterprisePolicyYouCanOnlyCreateXSends" = "Als gevolg van een ondernemingsbeleid kunt je slechts %1$@ Sends aanmaken.";
+"OrganizationPolicyRestriction" = "Beperking van het organisatiebeleid";
+"TextSendsAreNotAllowedDescriptionLong" = "Tekst-Sends zijn niet in overeenstemming met het Send-beleid van je organisatie en deze Send vervalt automatisch op de aangegeven datum van verwijdering.";
+"ThisSendIsNotCompliantDescriptionLong" = "Deze Send is niet in overeenstemming met het Send-beleid van je organisatie en vervalt automatisch op de aangegeven datum van verwijdering.";
+"ToEditThisSendMakeACopyDescriptionLong" = "Maak een kopie om deze Send te bewerken. Als deze Send mag verlopen op de verwijderingsdatum is geen actie nodig.";
+"MakeACopy" = "Een kopie maken";
 "PasswordPrompt" = "Hoofdwachtwoord opnieuw vragen";
 "PasswordConfirmation" = "Hoofdwachtwoord bevestigen";
 "PasswordConfirmationDesc" = "Deze actie is beveiligd. Voer je hoofdwachtwoord opnieuw in om je identiteit vast te stellen en door te gaan.";
@@ -648,7 +655,6 @@
 "SetUpAutofill" = "Automatisch invullen instellen";
 "AppInfo" = "App informatie";
 "Browse" = "Blader";
-"SelectCardholderName" = "Select cardholder name";
 "SelectLanguage" = "Selecteer taal";
 "ContinueToCompleteWebAuthnVerification" = "Ga verder om WebAuthn verificatie te voltooien.";
 "ThereWasAnErrorStartingWebAuthnTwoFactorAuthentication" = "Er is een fout opgetreden bij het starten van WebAuthn twee factor authenticatie";
@@ -667,7 +673,6 @@
 "ByContinuingYouAgreeToTheTermsOfServiceAndPrivacyPolicy" = "Door verder te gaan, gaat je akkoord met de **[Algemene voorwaarden](%1$@)** en het **[Privacybeleid](%2$@)**";
 "GetAdviceAnnouncementsAndResearchOpportunitiesFromBitwardenInYourInboxUnsubscribeAtAnyTime." = "Ontvang advies, aankondigingen en onderzoeksmogelijkheden van Bitwarden in je inbox. Je kunt je op ieder moment **[uitschrijven](%1$@)**.";
 "UserVerificationForPasskey" = "Gebruikersverificatie voor passkey";
-"NewItem" = "Nieuw item";
 "ExploreTheGenerator" = "Ontdek de generator";
 "LearnMoreAboutGeneratingSecureLoginCredentialsWithAGuidedTour" = "Lees meer over het genereren van veilige logingegevens met een begeleide tour.";
 "ExportVaultFilePwProtectInfo" = "Deze bestandsexport wordt met een wachtwoord beveiligd en vereist het bestandswachtwoord om te ontsleutelen.";
@@ -881,6 +886,10 @@
 "Identification" = "Identificatie";
 "Owner" = "Eigenaar";
 "VerifyYourIdentity" = "Verifieer je identiteit";
+"ThisOperationIsNotAllowedOnThisAccount" = "Deze handeling is niet toegestaan op dit account";
+"AnErrorOccurredWhileTryingToLockTheCurrentUser" = "Er is een fout opgetreden tijdens het vergrendelen van de huidige gebruiker";
+"LockAllAccounts" = "Alle accounts vergrendelen";
+"AllAccountsHaveBeenLocked" = "Alle accounts zijn vergrendeld";
 "ShareErrorDetails" = "Foutdetails delen";
 "FlightRecorder" = "Flight recorder";
 "EnableFlightRecorder" = "Flight recorder inschakelen";
@@ -909,7 +918,13 @@
 "ExpiresOnXDate" = "Verloopt op %1$@";
 "ExpiresTomorrow" = "Verloopt morgen";
 "DateRangeXToY" = "%1$@ tot %2$@";
+"LogOutAllAccounts" = "Alle accounts uitloggen";
+"AllAccountsHaveBeenLoggedOut" = "Alle accounts zijn uitgelogd";
+"AnErrorOccurredWhileTryingToLogOutAllAccounts" = "Er is een fout opgetreden tijdens het uitloggen van alle accounts";
 "SelfHostServerURL" = "URL zelfgehoste server";
+"OpenGenerator" = "Generator openen";
+"OpenPasswordGenerator" = "Wachtwoordgenerator openen";
+"GeneratePassphrase" = "Wachtwoordzin genereren";
 "AllowUniversalClipboard" = "Universeel klembord toestaan";
 "UseUniversalClipboardToCopyDescriptionLong" = "Gebruik Universeel Klembord om hier te kopiëren en te plakken op andere apparaten die zijn ingelogd met hetzelfde Apple-ID.";
 "RemoveMasterPasswordConfirmDomain" = "Voor leden van de volgende organisatie is een hoofdwachtwoord niet langer nodig. Bevestig het domein hieronder met de beheerder van je organisatie.";
@@ -929,6 +944,7 @@
 "GoToSettings" = "Ga naar instellingen";
 "SiriAndShortcutsAccess" = "Toegang Siri & Opdrachten";
 "EnableToAllowTheAppToRespondToSiriAndShortcutsUsingAppIntents" = "Inschakelen voor het toestaan van de app te reageren op Siri en Opdrachten met behulp van App Intents.";
+"ThereIsNoActiveAccount" = "Er is geen actief account.";
 "NewFileSend" = "Nieuwe Send (bestand)";
 "NewTextSend" = "Nieuwe Send (tekst)";
 "EditFileSend" = "Send (bestand) bewerken";
@@ -979,7 +995,6 @@
 "NoAskMe" = "Nee, vraag het me";
 "NoCodes" = "Je hebt geen codes om weer te geven";
 "None" = "Geen";
-"NoneOfTheAbove" = "None of the above";
 "NumberOfDigits" = "Aantal cijfers";
 "OtpType" = "OTP-type";
 "RefreshPeriod" = "Verversperiode";

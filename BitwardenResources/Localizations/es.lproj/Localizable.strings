@@ -21,13 +21,13 @@
 "EnterPIN" = "Introduce to código PIN.";
 "Favorites" = "Favoritos";
 "Folder" = "Carpeta";
-"FolderCreated" = "Nueva carpeta creada.";
+"FolderCreated" = "Nueva carpeta creada";
 "FolderDeleted" = "Carpeta eliminada.";
 "FolderNone" = "Sin carpeta";
 "Folders" = "Carpetas";
-"FolderUpdated" = "Carpeta guardada";
-"MyFolder" = "My folder";
-"MyFolders" = "My folders";
+"FolderUpdated" = "Carpeta guardar";
+"MyFolder" = "Mi carpeta";
+"MyFolders" = "Mis carpetas";
 "InternetConnectionRequiredMessage" = "Por favor, conéctate a Internet antes de continuar.";
 "InternetConnectionRequiredTitle" = "Conexión a Internet requerida";
 "InvalidMasterPassword" = "Contraseña maestra no válida. Inténtelo de nuevo.";
@@ -182,7 +182,6 @@
 "CopyTotp" = "Copiar código TOTP";
 "CopyTotpAutomaticallyDescription" = "Si un inicio de sesión tiene una clave de autenticador, copia el código de verificación TOTP al portapapeles cuando autocompletes el inicio de sesión.";
 "CopyTotpAutomatically" = "Copiar TOTP automáticamente";
-"PremiumRequired" = "Se quiere membrasía Premium para poder utilizar esta característica.";
 "AttachementAdded" = "Adjunto añadido";
 "AttachmentDeleted" = "Adjunto eliminado";
 "ChooseFile" = "Elegir archivo";
@@ -223,7 +222,6 @@
 "August" = "Agosto";
 "Brand" = "Marca";
 "CardholderName" = "Nombre del propietario de la tarjeta";
-"WeFoundMultipleMatchesChooseTheCorrectOne" = "Hemos encontrado varias coincidencias. Elige la correcta.";
 "CityTown" = "Ciudad / Pueblo";
 "Company" = "Empresa";
 "Country" = "País";
@@ -264,11 +262,11 @@
 /* Section header and screen title for viewing/managing a cipher's collections. */
 "Collections" = "Colecciones";
 /* Section header and screen title for viewing/managing a cipher's shared folders. */
-"SharedFolders" = "Shared folders";
+"SharedFolders" = "Carpetas compartidas";
 /* Empty state message shown when a collection has no items. */
 "NoItemsCollection" = "No hay elementos en esta coleccion";
 /* Empty state message shown when a shared folder has no items. */
-"ThereAreNoItemsInThisSharedFolder" = "There are no items in this shared folder";
+"ThereAreNoItemsInThisSharedFolder" = "No hay elementos en esta carpeta compartida";
 "NoItemsFolder" = "No hay elementos en esta carpeta";
 "NoItemsTrash" = "No hay elementos en la papelera.";
 "FaceID" = "Face ID";
@@ -309,6 +307,7 @@
 "NoEmailAddressesEntered" = "No se han introducido direcciones de correo electrónico";
 "EnterAtLeastOneValidEmailToShareSend" = "Introduce al menos una dirección de correo electrónico válida para compartir este envío.";
 "OneOrMoreEmailAddressesIncorrect" = "Una o más direcciones de correo electrónico son incorrectas. Revísalas y vuelve a intentarlo.";
+"OnlyIncludeTheFollowingDomainsDescriptionLong" = "Incluye únicamente los siguientes dominios: %1$@. Revísalo e inténtalo de nuevo.";
 "Cards" = "Tarjetas";
 "Identities" = "Identidades";
 "Logins" = "Inicios de sesión";
@@ -327,22 +326,22 @@
 /* Empty state message on the Collections screen shown when a user has no collections. */
 "NoCollectionsToList" = "No hay colecciones que listar.";
 /* Empty state message on the Shared folders screen shown when a user has no shared folders. */
-"ThereAreNoSharedFoldersToList" = "There are no shared folders to list.";
+"ThereAreNoSharedFoldersToList" = "No hay carpetas compartidas que mostrar.";
 "MovedItemToOrg" = "%1$@ se movió a %2$@.";
 /* Alert message shown when saving an item with no collection selected. */
 "SelectOneCollection" = "Debe seleccionar al menos una colección.";
 /* Alert message shown when saving an item with no shared folder selected. */
-"YouMustSelectAtLeastOneSharedFolder" = "You must select at least one shared folder.";
+"YouMustSelectAtLeastOneSharedFolder" = "Debes seleccionar al menos una carpeta compartida.";
 "Share" = "Compartir";
 "ShareAll" = "Compartir todo";
 /* Overflow menu item and screen title on the Move screen shown when the "vfo1-foundation" feature flag is disabled; superseded by "Move" when enabled. */
 "MoveToOrganization" = "Mover a la Organización";
 /* Empty state message shown when a user has no vaults available to move an item into, when the "vfo1-foundation" feature flag is enabled. */
-"NoVaultsToList" = "No vaults to list.";
+"NoVaultsToList" = "No cajas fuertes que mostrar.";
 /* Empty state message shown when a user has no organizations available to move an item into, when the "vfo1-foundation" feature flag is disabled. */
 "NoOrgsToList" = "No hay organizaciones que listar.";
 /* Footer text on the Move screen explaining that moving an item transfers its ownership to the destination vault's organization, when the "vfo1-foundation" feature flag is enabled. */
-"ChooseAVaultThatYouWishToMoveThisItemToDescriptionLong" = "Choose a vault that you wish to move this item to. Moving to another vault transfers ownership of the item to that organization. You will no longer be the direct owner of this item once it has been moved.";
+"ChooseAVaultThatYouWishToMoveThisItemToDescriptionLong" = "Elige la caja fuerte a la que deseas trasladar este elemento. Al trasladarlo a otra caja fuerte, la titularidad del elemento pasa a esa organización. Una vez trasladado, ya no serás el titular directo de este elemento.";
 /* Footer text on the Move screen explaining that moving an item transfers its ownership to the destination organization, when the "vfo1-foundation" feature flag is disabled. */
 "MoveToOrgDesc" = "Elige una organización a la que deseas mover este objeto. Mover a una organización transfiere la propiedad del objeto a esa organización. Ya no serás el dueño directo de este objeto una vez que haya sido movido.";
 "NumberOfWords" = "Número de palabras";
@@ -444,11 +443,19 @@
 "NewSendCreated" = "Send creado";
 "Custom" = "Personalizado";
 "SendDisabledWarning" = "Debido a una política empresarial, sólo puede eliminar un Send existente.";
+"ThisDateIsEnforcedByYourOrganization" = "Esta fecha la establece tu organización.";
 "AboutSend" = "Acerca de Send";
 "HideEmail" = "Ocultar mi dirección de correo electrónico a los destinatarios.";
 "SendOptionsPolicyInEffect" = "Una o más políticas de organización están afectando sus opciones del Send.";
 "SendFilePremiumRequired" = "Las cuentas gratuitas están restringidas a compartir texto solamente. Se requiere una membresía premium para usar archivos con Send.";
 "SendFileEmailVerificationRequired" = "Debes verificar tu correo electrónico para usar archivos con el Send. Puedes verificar tu correo electrónico en la caja fuerte web.";
+/* Alert message shown when Send Controls policy restricts creation to one Send type. %1$@ is the allowed Send type, either "File" or "Text". */
+"DueToAnEnterprisePolicyYouCanOnlyCreateXSends" = "Debido a una política de la empresa, solo puedes crear %1$@ envíos.";
+"OrganizationPolicyRestriction" = "Restricción de la política de la organización";
+"TextSendsAreNotAllowedDescriptionLong" = "No se permiten los envíos de mensajes de texto en tu organización y este envío caducará automáticamente en la fecha de eliminación establecida.";
+"ThisSendIsNotCompliantDescriptionLong" = "Este envío no cumple con la política de envíos de tu organización y caducará automáticamente en la fecha de eliminación establecida.";
+"ToEditThisSendMakeACopyDescriptionLong" = "Para editar este Envío, haz una copia. Si este Envío puede caducar en la fecha de eliminación establecida, no es necesario realizar ninguna acción.";
+"MakeACopy" = "Hacer una copia";
 "PasswordPrompt" = "Volver a preguntar contraseña maestra";
 "PasswordConfirmation" = "Confirmación de contraseña maestra";
 "PasswordConfirmationDesc" = "Esta acción está protegida, para continuar por favor vuelva a introducir su contraseña maestra para verificar su identidad.";
@@ -588,7 +595,7 @@
 "ThereAreNoBankAccountsInYourVault" = "No hay cuentas bancarias en tu caja fuerte";
 "US" = "EE.UU.";
 "EU" = "Unión Europea";
-"Gov" = "Gov";
+"Gov" = "Gobierno";
 "SelfHosted" = "Autoalojado";
 "UpdateWeakMasterPasswordWarning" = "Su contraseña maestra no cumple con una o más de las políticas de su organización. Para acceder a la caja fuerte, debe actualizar su contraseña maestra ahora. Proceder le desconectará de su sesión actual, requiriendo que vuelva a iniciar sesión. Las sesiones activas en otros dispositivos pueden seguir estando activas durante hasta una hora.";
 "CurrentMasterPasswordRequired" = "Contraseña maestra actual (requerido)";
@@ -649,7 +656,6 @@
 "SetUpAutofill" = "Configurar autorrelleno";
 "AppInfo" = "Información de la aplicación";
 "Browse" = "Navegar";
-"SelectCardholderName" = "Seleccionar nombre del titular";
 "SelectLanguage" = "Selecciona el idioma";
 "ContinueToCompleteWebAuthnVerification" = "Continúa para completar la verificación de WebAuthn.";
 "ThereWasAnErrorStartingWebAuthnTwoFactorAuthentication" = "Hubo un error al iniciar autenticación de doble factor WebAuthn";
@@ -668,7 +674,6 @@
 "ByContinuingYouAgreeToTheTermsOfServiceAndPrivacyPolicy" = "Al continuar, aceptas los **[Términos de Servicio](%1$@)** y la **[Política de Privacidad](%2$@)**";
 "GetAdviceAnnouncementsAndResearchOpportunitiesFromBitwardenInYourInboxUnsubscribeAtAnyTime." = "Recibe consejos, anuncios y oportunidades de investigación de Bitwarden en tu bandeja de entrada. **[Cancela la suscripción](%1$@)** en cualquier momento.";
 "UserVerificationForPasskey" = "Verificación de usuario para passkey";
-"NewItem" = "Nuevo elemento";
 "ExploreTheGenerator" = "Explora el generador";
 "LearnMoreAboutGeneratingSecureLoginCredentialsWithAGuidedTour" = "Saber más acerca de generar credenciales seguras de inicio de sesión con un tour guiado.";
 "ExportVaultFilePwProtectInfo" = "Esta exportación de archivo estará protegida por contraseña, y requerirá la contraseña del archivo para descifrarla.";
@@ -831,7 +836,7 @@
 "CopyPrivateKey" = "Copiar clave privada";
 "CopyFingerprint" = "Copiar huella";
 "SSHKeys" = "Claves SSH";
-"OpticID" = "Optic ID";
+"OpticID" = "Identificación óptica";
 "UseOpticIDToUnlock" = "Usar Optic ID para desbloquear";
 "NothingAvailableToAutofill" = "Nada disponible para autocompletar";
 "FailedToGenerateVerificationCode" = "Error al generar el código de verificación";
@@ -882,6 +887,10 @@
 "Identification" = "Identificación";
 "Owner" = "Propietario";
 "VerifyYourIdentity" = "Verifica tu identidad";
+"ThisOperationIsNotAllowedOnThisAccount" = "Esta operación no está permitida en esta cuenta";
+"AnErrorOccurredWhileTryingToLockTheCurrentUser" = "Se ha producido un error al intentar bloquear al usuario actual";
+"LockAllAccounts" = "Bloquear todas las cuentas";
+"AllAccountsHaveBeenLocked" = "Todas las cuentas han sido bloqueadas";
 "ShareErrorDetails" = "Compartir detalles del error";
 "FlightRecorder" = "Registrador de vuelo";
 "EnableFlightRecorder" = "Activar registrador de vuelo";
@@ -895,13 +904,13 @@
 "ShowLess" = "Mostrar menos";
 "ItemNameX" = "Nombre del elemento, %1$@";
 "OwnerX" = "Propietario, %1$@";
-"VaultX" = "Vault, %1$@";
+"VaultX" = "Caja fuerte: %1$@";
 /* VoiceOver accessibility label for a collection the item belongs to. */
 "CollectionX" = "Colección, %1$@";
 /* VoiceOver accessibility label for a shared folder the item belongs to. */
-"SharedFolderX" = "Shared folder, %1$@";
+"SharedFolderX" = "Carpeta compartida, %1$@";
 "FolderX" = "Carpeta, %1$@";
-"MyFolderX" = "My folder, %1$@";
+"MyFolderX" = "Mi carpeta, %1$@";
 "ItemXOfY" = "Elemento %1$@ de %2$@";
 "ViewRecordedLogs" = "Ver registros grabados";
 "RecordedLogs" = "Registros grabados";
@@ -910,7 +919,13 @@
 "ExpiresOnXDate" = "Caduca el %1$@";
 "ExpiresTomorrow" = "Expira mañana";
 "DateRangeXToY" = "%1$@ a %2$@";
+"LogOutAllAccounts" = "Cerrar sesión en todas las cuentas";
+"AllAccountsHaveBeenLoggedOut" = "Todas las cuentas han sido bloqueadas";
+"AnErrorOccurredWhileTryingToLogOutAllAccounts" = "Se ha producido un error al intentar cerrar sesión en todas las cuentas";
 "SelfHostServerURL" = "URL del servidor autoalojado";
+"OpenGenerator" = "Abrir generador";
+"OpenPasswordGenerator" = "Abrir generador de contraseñas";
+"GeneratePassphrase" = "Generar frase de contraseña";
 "AllowUniversalClipboard" = "Permitir el portapapeles universal";
 "UseUniversalClipboardToCopyDescriptionLong" = "Usa el portapapeles universal para copiar aquí y pegar en otros dispositivos que hayan iniciado sesión con el mismo Apple ID.";
 "RemoveMasterPasswordConfirmDomain" = "Ya no es necesaria una contraseña maestra para los miembros de la siguiente organización. Por favor, confirma el dominio que aparece a continuación con el administrador de tu organización.";
@@ -930,6 +945,7 @@
 "GoToSettings" = "Ir a ajustes";
 "SiriAndShortcutsAccess" = "Acceso a Siri y Atajos";
 "EnableToAllowTheAppToRespondToSiriAndShortcutsUsingAppIntents" = "Activa para permitir que la aplicación responda a Siri y Atajos usando App Intents.";
+"ThereIsNoActiveAccount" = "No hay ninguna cuenta activa.";
 "NewFileSend" = "Nuevo Send de archivo";
 "NewTextSend" = "Nuevo Send de texto";
 "EditFileSend" = "Editar Send de archivo";
@@ -980,7 +996,6 @@
 "NoAskMe" = "No, pregúntame";
 "NoCodes" = "No tienes ningún código para mostrar";
 "None" = "Ninguno";
-"NoneOfTheAbove" = "Ninguno de los anteriores";
 "NumberOfDigits" = "Número de dígitos";
 "OtpType" = "Tipo OTP";
 "RefreshPeriod" = "Período de actualización";
@@ -1232,12 +1247,12 @@
 "MoneyMarket" = "Mercados monetarios";
 "Savings" = "Ahorros";
 "Devices" = "Dispositivos";
-"NoDevicesFound" = "No devices found";
+"NoDevicesFound" = "No se han encontrado dispositivos";
 "CurrentSession" = "Sesión actual";
 "PendingRequest" = "Solicitud pendiente";
 "Trusted" = "De confianza";
-"RecentlyActiveLabel" = "Recently active:";
-"FirstLoginLabel" = "First login:";
+"RecentlyActiveLabel" = "Activo recientemente:";
+"FirstLoginLabel" = "Primer inicio de sesión:";
 "Today" = "Hoy";
 "PastSevenDays" = "Últimos 7 días";
 "PastFourteenDays" = "Últimos 14 días";
@@ -1246,10 +1261,10 @@
 "Unknown" = "Desconocido";
 /* Device display name. %1$@ = category (e.g. "Mobile"), %2$@ = platform (e.g. "iOS"). */
 "DeviceDisplayNameXHyphenY" = "%1$@ - %2$@";
-"Mobile" = "Mobile";
-"BrowserExtension" = "Extension";
-"WebVault2" = "Web app";
-"Desktop" = "Desktop";
+"Mobile" = "Móvil";
+"BrowserExtension" = "Extensión";
+"WebVault2" = "Aplicación web";
+"Desktop" = "Escritorio";
 "Cli" = "CLI";
 "Sdk" = "SDK";
 "Server" = "Servidor";

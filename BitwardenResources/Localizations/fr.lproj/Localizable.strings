@@ -182,7 +182,6 @@
 "CopyTotp" = "Copier le TOTP";
 "CopyTotpAutomaticallyDescription" = "Si un identifiant possède une clé d'authentification, copiez le code de vérification TOTP dans votre presse-papiers lorsque vous saisissez automatiquement l'identifiant.";
 "CopyTotpAutomatically" = "Copier TOTP automatiquement";
-"PremiumRequired" = "Une adhésion Premium est requise pour utiliser cette fonctionnalité.";
 "AttachementAdded" = "Pièce jointe ajoutée";
 "AttachmentDeleted" = "Pièce jointe supprimée";
 "ChooseFile" = "Choisir un fichier";
@@ -223,7 +222,6 @@
 "August" = "Août";
 "Brand" = "Réseau de paiement";
 "CardholderName" = "Nom du titulaire de la carte";
-"WeFoundMultipleMatchesChooseTheCorrectOne" = "Nous avons trouvé plusieurs correspondances. Choisissez la bonne.";
 "CityTown" = "Ville";
 "Company" = "Entreprise";
 "Country" = "Pays";
@@ -309,6 +307,7 @@
 "NoEmailAddressesEntered" = "Aucune adresse courriel saisie";
 "EnterAtLeastOneValidEmailToShareSend" = "Entrez au moins une adresse courriel valide pour partager ce Send.";
 "OneOrMoreEmailAddressesIncorrect" = "Une ou plusieurs adresses courriel sont incorrectes. Veuillez vérifier et réessayer.";
+"OnlyIncludeTheFollowingDomainsDescriptionLong" = "Inclure uniquement les domaines suivants : %1$@. Veuillez vérifier et réessayer.";
 "Cards" = "Cartes";
 "Identities" = "Identités";
 "Logins" = "Identifiants";
@@ -444,11 +443,19 @@
 "NewSendCreated" = "Send créé";
 "Custom" = "Personnalisé";
 "SendDisabledWarning" = "En raison d'une politique d'entreprise, vous ne pouvez que supprimer un Send existant.";
+"ThisDateIsEnforcedByYourOrganization" = "Cette date est imposée par votre organisation";
 "AboutSend" = "À propos de Send";
 "HideEmail" = "Masquer mon adresse électronique aux destinataires";
 "SendOptionsPolicyInEffect" = "Une ou plusieurs politiques de sécurité de l'organisation affectent vos options Send.";
 "SendFilePremiumRequired" = "Les comptes gratuits sont limités au partage de texte uniquement. Une adhésion Premium est requise pour utiliser les fichiers avec Send.";
 "SendFileEmailVerificationRequired" = "Vous devez vérifier votre courriel pour utiliser des fichiers avec Send. Vous pouvez vérifier votre courriel dans le coffre web.";
+/* Alert message shown when Send Controls policy restricts creation to one Send type. %1$@ is the allowed Send type, either "File" or "Text". */
+"DueToAnEnterprisePolicyYouCanOnlyCreateXSends" = "Conformément à la politique de l'entreprise, vous ne pouvez créer que des %1$@ Sends.";
+"OrganizationPolicyRestriction" = "Contrainte de stratégie d'organisation";
+"TextSendsAreNotAllowedDescriptionLong" = "Les textes Send ne sont pas autorisés pour votre organisation et ce Send expirera automatiquement à la date de suppression définie.";
+"ThisSendIsNotCompliantDescriptionLong" = "Ce Send n'est pas conforme à la politique Send de votre organisation et expirera automatiquement à la date de suppression définie.";
+"ToEditThisSendMakeACopyDescriptionLong" = "Pour modifier ce Send, faites-en une copie. Si ce Send peut expirer à la date de suppression définie, aucune action n'est nécessaire.";
+"MakeACopy" = "Créer une copie";
 "PasswordPrompt" = "Ressaisir le mot de passe principal";
 "PasswordConfirmation" = "Confirmation du mot de passe principal";
 "PasswordConfirmationDesc" = "Cette action est protégée, pour continuer veuillez entrer à nouveau votre mot de passe principal pour vérifier votre identité.";
@@ -648,7 +655,6 @@
 "SetUpAutofill" = "Configurer la saisie automatique";
 "AppInfo" = "Infos sur l'application";
 "Browse" = "Parcourir";
-"SelectCardholderName" = "Sélectionner le nom du titulaire de la carte";
 "SelectLanguage" = "Sélectionner la langue";
 "ContinueToCompleteWebAuthnVerification" = "Continuer pour compléter la vérification WebAuthn.";
 "ThereWasAnErrorStartingWebAuthnTwoFactorAuthentication" = "Une erreur s'est produite lors du démarrage de l'authentification en deux étapes WebAuthn";
@@ -667,7 +673,6 @@
 "ByContinuingYouAgreeToTheTermsOfServiceAndPrivacyPolicy" = "En continuant, vous acceptez les **[conditions d’utilisation](%1$@)** et la **[politique de confidentialité](%2$@)**";
 "GetAdviceAnnouncementsAndResearchOpportunitiesFromBitwardenInYourInboxUnsubscribeAtAnyTime." = "Obtenez des conseils, des annonces et des opportunités de recherche de la part de Bitwarden dans votre boîte de réception. **[Désabonnez-vous de](%1$@)** à tout moment.";
 "UserVerificationForPasskey" = "Vérification de l'utilisateur pour la clé d'accès";
-"NewItem" = "Nouvel élément";
 "ExploreTheGenerator" = "Découvrir le générateur";
 "LearnMoreAboutGeneratingSecureLoginCredentialsWithAGuidedTour" = "Apprenez-en plus sur la génération d'identifiants de connexion sécurisés grâce à une visite guidée.";
 "ExportVaultFilePwProtectInfo" = "L'export de ce fichier sera protégé par un mot de passe qui sera nécessaire pour pouvoir le déchiffrer.";
@@ -881,6 +886,10 @@
 "Identification" = "Identification";
 "Owner" = "Propriétaire";
 "VerifyYourIdentity" = "Vérifiez votre identité";
+"ThisOperationIsNotAllowedOnThisAccount" = "Cette opération n'est pas autorisée sur ce compte";
+"AnErrorOccurredWhileTryingToLockTheCurrentUser" = "Une erreur s'est produite en essayant de verrouiller l'utilisateur actuel";
+"LockAllAccounts" = "Verrouiller tous les comptes";
+"AllAccountsHaveBeenLocked" = "Tous les comptes ont été verrouillés";
 "ShareErrorDetails" = "Partager les détails de l'erreur";
 "FlightRecorder" = "Enregistreur de vols";
 "EnableFlightRecorder" = "Activer l'enregistreur de vol";
@@ -909,7 +918,13 @@
 "ExpiresOnXDate" = "Expire le %1$@";
 "ExpiresTomorrow" = "Expire demain";
 "DateRangeXToY" = "%1$@ à %2$@";
+"LogOutAllAccounts" = "Déconnecter tous les comptes";
+"AllAccountsHaveBeenLoggedOut" = "Tous les comptes ont été déconnectés";
+"AnErrorOccurredWhileTryingToLogOutAllAccounts" = "Une erreur est survenue lors de la tentative de déconnexion de tous les comptes";
 "SelfHostServerURL" = "URL du serveur autohébergé";
+"OpenGenerator" = "Ouvrir le générateur";
+"OpenPasswordGenerator" = "Ouvrir le générateur de mots de passe";
+"GeneratePassphrase" = "Générer une phrase de passe";
 "AllowUniversalClipboard" = "Autoriser le Presse-papiers universel";
 "UseUniversalClipboardToCopyDescriptionLong" = "Utilisez le Presse-papiers universel pour copier ici et coller sur d’autres appareils connectés avec le même identifiant Apple.";
 "RemoveMasterPasswordConfirmDomain" = "Un mot de passe principal n’est plus requis pour les membres de l’organisation suivante. Veuillez confirmer le domaine ci-dessous auprès de l'administrateur de votre organisation.";
@@ -929,6 +944,7 @@
 "GoToSettings" = "Aller aux paramètres";
 "SiriAndShortcutsAccess" = "Accès à Siri et aux Raccourcis";
 "EnableToAllowTheAppToRespondToSiriAndShortcutsUsingAppIntents" = "Activer pour permettre à l’application de répondre à Siri et aux Raccourcis via les App Intents.";
+"ThereIsNoActiveAccount" = "Aucun compte actif";
 "NewFileSend" = "Nouveau fichier Send";
 "NewTextSend" = "Nouveau texte Send";
 "EditFileSend" = "Modifier le fichier Send";
@@ -979,7 +995,6 @@
 "NoAskMe" = "Non, me demander";
 "NoCodes" = "Il n'y a aucun code à afficher";
 "None" = "Aucun";
-"NoneOfTheAbove" = "Aucune de ces réponses";
 "NumberOfDigits" = "Nombre de chiffres";
 "OtpType" = "Type OTP";
 "RefreshPeriod" = "Fréquence de mise à jour";
@@ -1064,7 +1079,7 @@
 "ArchiveItem" = "Archiver l'élément";
 "OnceArchivedThisItemWillBeExcludedDescriptionLong" = "Une fois archivé, cet élément sera exclu des résultats de recherche et des suggestions de remplissage automatique.";
 "ArchivingItemsIsAPremiumFeatureDescriptionLong" = "L'archivage est une fonctionnalité Premium. Votre abonnement actuel n'inclut pas l'accès à cette fonctionnalité.";
-"AddingAttachmentsIsAPremiumFeatureDescriptionLong" = "L'ajout de pièces jointes est une fonctionnalité Premium. Votre plan actuel n'inclut pas l'accès à cette fonctionnalité.";
+"AddingAttachmentsIsAPremiumFeatureDescriptionLong" = "L'ajout de pièces jointes est une fonctionnalité Premium. Votre abonnement actuel n'inclut pas l'accès à cette fonctionnalité.";
 "UpgradeToPremium" = "Passer à la version premium";
 "ThisItemIsArchived" = "Cet élément est archivé.";
 "YourPremiumSubscriptionEnded" = "Votre abonnement Premium a expiré";
@@ -1255,4 +1270,4 @@
 /* Accessibility label for the button that clears a field's value. %1$@ is the field's title (e.g. "Date of birth"), so the spoken label reads "Clear Date of birth". */
 "ClearFieldName" = "Effacer %1$@";
 "SelectDate" = "Sélectionner la date";
-"PremiumRequiredTOTPDescriptionLong" = "La clé d'authentification (TOTP) est une fonctionnalité Premium. Votre plan actuel n'inclut pas l'accès à cette fonctionnalité.";
+"PremiumRequiredTOTPDescriptionLong" = "La clé d'authentification (TOTP) est une fonctionnalité Premium. Votre abonnement actuel n'inclut pas l'accès à cette fonctionnalité.";

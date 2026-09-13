@@ -21,7 +21,7 @@
 "EnterPIN" = "Digite o seu código PIN.";
 "Favorites" = "Favoritos";
 "Folder" = "Pasta";
-"FolderCreated" = "Nova pasta criada.";
+"FolderCreated" = "Nova pasta criada";
 "FolderDeleted" = "Pasta apagada.";
 "FolderNone" = "Sem pasta";
 "Folders" = "Pastas";
@@ -182,7 +182,6 @@
 "CopyTotp" = "Copiar TOTP";
 "CopyTotpAutomaticallyDescription" = "Se uma credencial tiver uma chave de autenticador, copie o código de verificação TOTP para sua área de transferência ao preenchê-la.";
 "CopyTotpAutomatically" = "Copiar TOTP automaticamente";
-"PremiumRequired" = "Uma assinatura Premium é necessária para usar esse recurso.";
 "AttachementAdded" = "Anexo adicionado";
 "AttachmentDeleted" = "Anexo apagado";
 "ChooseFile" = "Escolher arquivo";
@@ -223,7 +222,6 @@
 "August" = "Agosto";
 "Brand" = "Bandeira";
 "CardholderName" = "Nome do titular do cartão";
-"WeFoundMultipleMatchesChooseTheCorrectOne" = "Várias correspondências foram encontradas. Escolha a correta.";
 "CityTown" = "Cidade / Localidade";
 "Company" = "Empresa";
 "Country" = "País";
@@ -268,7 +266,7 @@
 /* Empty state message shown when a collection has no items. */
 "NoItemsCollection" = "Não há itens neste conjunto";
 /* Empty state message shown when a shared folder has no items. */
-"ThereAreNoItemsInThisSharedFolder" = "There are no items in this shared folder";
+"ThereAreNoItemsInThisSharedFolder" = "Não há itens nesta pasta compartilhada";
 "NoItemsFolder" = "Não há itens nesta pasta";
 "NoItemsTrash" = "Não há itens na lixeira.";
 "FaceID" = "Face ID";
@@ -309,6 +307,7 @@
 "NoEmailAddressesEntered" = "Nenhum endereço de e-mail digitado";
 "EnterAtLeastOneValidEmailToShareSend" = "Digite pelo menos um endereço de e-mail válido para compartilhar este Send.";
 "OneOrMoreEmailAddressesIncorrect" = "Um ou mais endereços de e-mail estão incorretos. Revise e tente novamente.";
+"OnlyIncludeTheFollowingDomainsDescriptionLong" = "Inclua apenas os seguintes domínios: %1$@. Revise e tente novamente.";
 "Cards" = "Cartões";
 "Identities" = "Identidades";
 "Logins" = "Credenciais";
@@ -444,11 +443,19 @@
 "NewSendCreated" = "Send criado";
 "Custom" = "Personalizado";
 "SendDisabledWarning" = "Devido a uma política corporativa, você só pode apagar um Send existente.";
+"ThisDateIsEnforcedByYourOrganization" = "Esta data é aplicada pela sua organização";
 "AboutSend" = "Sobre o Send";
 "HideEmail" = "Ocultar meu endereço de e-mail dos destinatários";
 "SendOptionsPolicyInEffect" = "Uma ou mais políticas da organização estão afetando as suas opções de Send.";
 "SendFilePremiumRequired" = "Contas gratuitas só podem compartilhar texto. É necessário um plano Premium para usar arquivos com o Send.";
 "SendFileEmailVerificationRequired" = "Você precisa verificar o seu e-mail para usar arquivos com o Send. Você pode verificar seu e-mail no cofre web.";
+/* Alert message shown when Send Controls policy restricts creation to one Send type. %1$@ is the allowed Send type, either "File" or "Text". */
+"DueToAnEnterprisePolicyYouCanOnlyCreateXSends" = "Devido a uma política empresarial, você só pode criar Sends de %1$@.";
+"OrganizationPolicyRestriction" = "Restrição de políticas da organização";
+"TextSendsAreNotAllowedDescriptionLong" = "Sends de texto não são permitidos na sua organização e este Send expirará automaticamente na data de apagamento configurada.";
+"ThisSendIsNotCompliantDescriptionLong" = "Este Send não está em conformidade com a política de Send de sua organização e irá expirar automaticamente na data de apagamento configurada.";
+"ToEditThisSendMakeACopyDescriptionLong" = "Para editar este Send, crie uma cópia. Se este Send pode expirar na data de apagamento, nenhuma ação é necessária.";
+"MakeACopy" = "Fazer uma cópia";
 "PasswordPrompt" = "Resolicitar senha principal";
 "PasswordConfirmation" = "Confirmação de senha principal";
 "PasswordConfirmationDesc" = "Esta ação é protegida, para continuar redigite a sua senha principal para verificar a sua identidade.";
@@ -598,7 +605,7 @@
 "ApproveWithMasterPassword" = "Aprovar com senha principal";
 "TurnOffUsingPublicDevice" = "Desativar usando um dispositivo público";
 "TurnOnFillAssist" = "Ativar assistência de preenchimento";
-"TurnOnFillAssistDescriptionLong" = "Fill Assist improves autofill accuracy on supported sites by using site-specific rules.";
+"TurnOnFillAssistDescriptionLong" = "A assistência de preenchimento melhora a precisão do preenchimento automático, usando regras específicas aos sites.";
 "RememberThisDevice" = "Lembrar deste dispositivo";
 "Passkey" = "Chave de acesso";
 "Passkeys" = "Chaves de acesso";
@@ -648,7 +655,6 @@
 "SetUpAutofill" = "Configurar preenchimento automático";
 "AppInfo" = "Informações do app";
 "Browse" = "Navegar";
-"SelectCardholderName" = "Selecionar nome do dono do cartão";
 "SelectLanguage" = "Selecionar idioma";
 "ContinueToCompleteWebAuthnVerification" = "Continue para concluir a verificação do WebAuthn.";
 "ThereWasAnErrorStartingWebAuthnTwoFactorAuthentication" = "Houve um erro ao iniciar a autenticação de dois fatores do WebAuthn";
@@ -667,7 +673,6 @@
 "ByContinuingYouAgreeToTheTermsOfServiceAndPrivacyPolicy" = "Ao continuar, você concorda com os **[Termos de Serviço](%1$@)** e a **[Política de Privacidade](%2$@)**";
 "GetAdviceAnnouncementsAndResearchOpportunitiesFromBitwardenInYourInboxUnsubscribeAtAnyTime." = "Receba conselhos, anúncios e oportunidades de pesquisa do Bitwarden na sua caixa de entrada. **[Cancele a inscrição](%1$@)** a qualquer momento.";
 "UserVerificationForPasskey" = "Verificação do usuário para a chave de acesso";
-"NewItem" = "Novo item";
 "ExploreTheGenerator" = "Descubra o gerador";
 "LearnMoreAboutGeneratingSecureLoginCredentialsWithAGuidedTour" = "Saiba mais sobre como gerar credenciais seguras com um guia.";
 "ExportVaultFilePwProtectInfo" = "Este arquivo de exportação será protegido por senha e precisará da mesma para ser descriptografado.";
@@ -881,6 +886,10 @@
 "Identification" = "Identificação";
 "Owner" = "Proprietário";
 "VerifyYourIdentity" = "Verifique sua identidade";
+"ThisOperationIsNotAllowedOnThisAccount" = "Esta operação não é permitida nesta conta";
+"AnErrorOccurredWhileTryingToLockTheCurrentUser" = "Ocorreu um erro ao tentar bloquear o usuário atual";
+"LockAllAccounts" = "Bloquear todas as contas";
+"AllAccountsHaveBeenLocked" = "Todas as contas foram bloqueadas";
 "ShareErrorDetails" = "Compartilhar detalhes do erro";
 "FlightRecorder" = "Gravador de voo";
 "EnableFlightRecorder" = "Ativar gravador de voo";
@@ -894,13 +903,13 @@
 "ShowLess" = "Mostrar menos";
 "ItemNameX" = "Nome do item, %1$@";
 "OwnerX" = "Proprietário, %1$@";
-"VaultX" = "Vault, %1$@";
+"VaultX" = "Cofre, %1$@";
 /* VoiceOver accessibility label for a collection the item belongs to. */
 "CollectionX" = "Conjunto, %1$@";
 /* VoiceOver accessibility label for a shared folder the item belongs to. */
-"SharedFolderX" = "Shared folder, %1$@";
+"SharedFolderX" = "Pasta compartilhada, %1$@";
 "FolderX" = "Pasta, %1$@";
-"MyFolderX" = "My folder, %1$@";
+"MyFolderX" = "Minha pasta, %1$@";
 "ItemXOfY" = "%1$@° de %2$@ itens";
 "ViewRecordedLogs" = "Ver registros gravados";
 "RecordedLogs" = "Registros gravados";
@@ -909,7 +918,13 @@
 "ExpiresOnXDate" = "Expira em %1$@";
 "ExpiresTomorrow" = "Expira amanhã";
 "DateRangeXToY" = "%1$@ a %2$@";
+"LogOutAllAccounts" = "Desconectar todas as contas";
+"AllAccountsHaveBeenLoggedOut" = "Todas as contas foram desconectadas";
+"AnErrorOccurredWhileTryingToLogOutAllAccounts" = "Ocorreu um erro ao tentar desconectar todas as contas";
 "SelfHostServerURL" = "URL do servidor auto-hospedado";
+"OpenGenerator" = "Abrir gerador";
+"OpenPasswordGenerator" = "Abrir gerador de senhas";
+"GeneratePassphrase" = "Gerar frase secreta";
 "AllowUniversalClipboard" = "Permitir Área de Transferência Universal";
 "UseUniversalClipboardToCopyDescriptionLong" = "Use a Área de Transferência Universal para copiar aqui e colar em outros dispositivos conectados com o mesmo Apple ID.";
 "RemoveMasterPasswordConfirmDomain" = "Uma senha principal não é mais necessária para membros da seguinte organização. Confirme o domínio abaixo com o administrador da sua organização.";
@@ -929,6 +944,7 @@
 "GoToSettings" = "Ir às configurações";
 "SiriAndShortcutsAccess" = "Acesso à Siri e Atalhos";
 "EnableToAllowTheAppToRespondToSiriAndShortcutsUsingAppIntents" = "Ative para permitir que o aplicativo responda à Siri e aos Atalhos usando App Intents.";
+"ThereIsNoActiveAccount" = "Não há nenhuma conta ativa.";
 "NewFileSend" = "Novo Send de arquivo";
 "NewTextSend" = "Novo Send de texto";
 "EditFileSend" = "Editar Send de arquivo";
@@ -979,7 +995,6 @@
 "NoAskMe" = "Não, me pergunte";
 "NoCodes" = "Você não tem nenhum código para exibir";
 "None" = "Nenhum";
-"NoneOfTheAbove" = "Nenhum dos anteriores";
 "NumberOfDigits" = "Número de dígitos";
 "OtpType" = "Tipo de OTP";
 "RefreshPeriod" = "Período de recarregamento";
@@ -1098,7 +1113,7 @@
 "ReplaceExistingCertificate" = "Substituir certificado existente";
 "UnableToReadCertificateFile" = "Não é possível ler o arquivo do certificado.";
 /* masterPasswordUnlock is the name of some data we want to delete, so there's no need to localize it. */
-"MasterPasswordUnlockCleared" = "masterPasswordDesbloqueado limpo.";
+"MasterPasswordUnlockCleared" = "masterPasswordUnlock limpo.";
 "SsoCookiesCleared" = "Cookies de SSO limpos";
 "YourRequestWasInterruptedBecauseTheAppNeededToReAuthenticatePleaseTryAgain" = "Sua solicitação foi interrompida, pois o app precisou se reautenticar. Tente novamente.";
 "AutofillWithBitwardenDescriptionLong" = "O Bitwarden pode sugerir suas senhas e outras credenciais ao se conectar a apps e sites.";
@@ -1132,24 +1147,24 @@
 "YourSubscriptionIsScheduledToCancelOnXDescriptionLong" = "Sua assinatura está agendada para ser cancelada em **%1$@**. Você pode restabelecê-la a qualquer momento antes disso.";
 "PerMonth" = "/ mês";
 /* VoiceOver reading of "PerMonth", spoken instead of shown. */
-"PerMonthVoiceOver" = "per month";
+"PerMonthVoiceOver" = "por mês";
 "PerYear" = "/ ano";
 /* VoiceOver reading of "PerYear", spoken instead of shown. */
-"PerYearVoiceOver" = "per year";
+"PerYearVoiceOver" = "por ano";
 "XAmountPerCadence" = "%1$@ %2$@";
 /* %1$@ is an amount and cadence together, e.g. "$1.65 / month". */
-"XCancelAnytime" = "%1$@ · Cancel anytime";
+"XCancelAnytime" = "%1$@ · Cancele quando quiser";
 /* VoiceOver reading of "XCancelAnytime", spoken instead of shown. */
-"XCancelAnytimeVoiceOver" = "%1$@, Cancel anytime";
+"XCancelAnytimeVoiceOver" = "%1$@, Cancele quando quiser";
 "NegativeX" = "-%1$@";
 "UnknownStatus" = "Desconhecido";
 "YourSubscriptionStatusIsUnknownVisitTheWebAppDescriptionLong" = "O estado da sua assinatura não pôde ser determinado. Visite o aplicativo web para mais detalhes ou atualize para a versão mais recente.";
 /* Headline on the Premium upgrade screen. */
-"UnlockAdvancedProtection" = "Desbloquear proteção avançada";
+"UnlockAdvancedProtection" = "Desbloqueie proteção avançada";
 /* Premium benefit list item. */
 "BreezeThrough2faWithBuiltInCodes" = "Passe direto pela 2FA com códigos embutidos";
 /* Premium benefit list item. */
-"RunReportsToFindRiskyPasswords" = "Execute relatorios para encontrar senhas em risco";
+"RunReportsToFindRiskyPasswords" = "Execute relatórios para encontrar senhas em risco";
 /* Premium benefit list item. */
 "KeepDocumentsSafeAndEncrypted" = "Mantenha documentos seguros e criptografados";
 /* Premium benefit list item. */
@@ -1181,7 +1196,7 @@
 "YouNowHaveAccessToAdvancedSecurityDescriptionLong" = "Agora você tem acesso a todos os recursos avançados de segurança. Saiba mais sobre o que está incluso com o Premium.";
 "YouNowHaveAccessToAllAdvancedSecurityFeatures" = "Agora você tem acesso a todos os recursos avançados de segurança.";
 /* Footer on the Premium upgrade screen; "Stripe" is the payment processor's name and shouldn't be translated. */
-"YoullCompleteThePurchaseWithStripeSecureCheckout" = "You'll complete the purchase with Stripe secure checkout.";
+"YoullCompleteThePurchaseWithStripeSecureCheckout" = "Você realizará a compra com o Stripe.";
 "ContinueToStripe" = "Continuar no Stripe?";
 "YoullBeTakenToStripeToManageYourSubscriptionCancellation" = "Você será levado para o Stripe para gerenciar o cancelamento de sua assinatura.";
 "UserIDCopiedToTheClipboard" = "ID de usuário copiado para área de transferência";
@@ -1231,12 +1246,12 @@
 "MoneyMarket" = "Mercado monetário";
 "Savings" = "Poupança";
 "Devices" = "Dispositivos";
-"NoDevicesFound" = "No devices found";
+"NoDevicesFound" = "Nenhum dispositivo encontrado";
 "CurrentSession" = "Sessão atual";
 "PendingRequest" = "Solicitação pendente";
 "Trusted" = "Confiado";
-"RecentlyActiveLabel" = "Recently active:";
-"FirstLoginLabel" = "First login:";
+"RecentlyActiveLabel" = "Ativo recentemente:";
+"FirstLoginLabel" = "Primeiro acesso:";
 "Today" = "Hoje";
 "PastSevenDays" = "Últimos 7 dias";
 "PastFourteenDays" = "Últimos 14 dias";
@@ -1245,14 +1260,14 @@
 "Unknown" = "Desconhecido";
 /* Device display name. %1$@ = category (e.g. "Mobile"), %2$@ = platform (e.g. "iOS"). */
 "DeviceDisplayNameXHyphenY" = "%1$@ - %2$@";
-"Mobile" = "Mobile";
-"BrowserExtension" = "Extension";
-"WebVault2" = "Web app";
-"Desktop" = "Desktop";
+"Mobile" = "Celular";
+"BrowserExtension" = "Extensão";
+"WebVault2" = "Aplicativo web";
+"Desktop" = "Computador";
 "Cli" = "CLI";
 "Sdk" = "SDK";
 "Server" = "Servidor";
 /* Accessibility label for the button that clears a field's value. %1$@ is the field's title (e.g. "Date of birth"), so the spoken label reads "Clear Date of birth". */
-"ClearFieldName" = "Clear %1$@";
-"SelectDate" = "Select date";
+"ClearFieldName" = "Limpar %1$@";
+"SelectDate" = "Escolher data";
 "PremiumRequiredTOTPDescriptionLong" = "A chave do autenticador (TOTP) é um recurso do Premium. O seu plano atual não inclui o acesso a este recurso.";

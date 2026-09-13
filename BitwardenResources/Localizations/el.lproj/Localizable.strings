@@ -21,7 +21,7 @@
 "EnterPIN" = "Εισαγωγή κωδικού ΡΙΝ.";
 "Favorites" = "Αγαπημένα";
 "Folder" = "Φάκελος";
-"FolderCreated" = "Ο φάκελος δημιουργήθηκε.";
+"FolderCreated" = "Δημιουργήθηκε νέος φάκελος.";
 "FolderDeleted" = "Ο φάκελος διαγράφηκε";
 "FolderNone" = "Δεν υπάρχει φάκελος";
 "Folders" = "Φάκελοι";
@@ -182,7 +182,6 @@
 "CopyTotp" = "Αντιγραφή TOTP";
 "CopyTotpAutomaticallyDescription" = "Εάν η σύνδεση έχει κάποιο κλειδί αυθεντικοποίησης, αντιγράψτε τον κωδικό επαλήθευσης TOTP στο πρόχειρο σας όταν κάνετε με αυτόματη συμπλήρωση τη συνδεση.";
 "CopyTotpAutomatically" = "Αυτόματη αντιγραφή TOTP";
-"PremiumRequired" = "Για να χρησιμοποιήσετε αυτό το χαρακτηριστικό, απαιτείται η έκδοση premium.";
 "AttachementAdded" = "Το συνημμένο προστέθηκε";
 "AttachmentDeleted" = "Το συνημμένο διαγράφηκε";
 "ChooseFile" = "Επιλογή αρχείου";
@@ -223,7 +222,6 @@
 "August" = "Αύγουστος";
 "Brand" = "Επωνυμία κάρτας";
 "CardholderName" = "Όνομα κατόχου της κάρτας";
-"WeFoundMultipleMatchesChooseTheCorrectOne" = "Βρήκαμε πολλαπλές αντιστοιχίες. Επιλέξτε τη σωστή.";
 "CityTown" = "Πόλη / Κωμόπολη";
 "Company" = "Εταιρεία";
 "Country" = "Χώρα";
@@ -309,6 +307,7 @@
 "NoEmailAddressesEntered" = "Δεν εισήχθησαν διευθύνσεις email";
 "EnterAtLeastOneValidEmailToShareSend" = "Εισάγετε τουλάχιστον μία έγκυρη διεύθυνση email για να μοιραστείτε αυτό το Send.";
 "OneOrMoreEmailAddressesIncorrect" = "Μία ή περισσότερες διευθύνσεις email είναι λανθασμένες. Παρακαλώ ελέγξτε και δοκιμάστε ξανά.";
+"OnlyIncludeTheFollowingDomainsDescriptionLong" = "Only include the following domains: %1$@. Please review and try again.";
 "Cards" = "Κάρτες";
 "Identities" = "Ταυτότητες";
 "Logins" = "Συνδέσεις";
@@ -444,11 +443,19 @@
 "NewSendCreated" = "Το Send δημιουργήθηκε";
 "Custom" = "Προσαρμοσμένο";
 "SendDisabledWarning" = "Λόγω μιας επιχειρηματικής πολιτικής, είστε σε θέση να διαγράψετε μόνο ένα υπάρχον Send";
+"ThisDateIsEnforcedByYourOrganization" = "This date is enforced by your organization";
 "AboutSend" = "Σχετικά με το Send";
 "HideEmail" = "Απόκρυψη της διεύθυνσης email μου από τους παραλήπτες.";
 "SendOptionsPolicyInEffect" = "Μία ή περισσότερες οργανωτικές πολιτικές επηρεάζουν τις επιλογές send σας.";
 "SendFilePremiumRequired" = "Οι δωρεάν λογαριασμοί περιορίζονται μόνο στην κοινή χρήση κειμένου. Μια premium συνδρομή απαιτείται για τη χρήση αρχείων με Αποστολή.";
 "SendFileEmailVerificationRequired" = "Πρέπει να επαληθεύσετε το email σας για να χρησιμοποιήσετε τα αρχεία με το send.";
+/* Alert message shown when Send Controls policy restricts creation to one Send type. %1$@ is the allowed Send type, either "File" or "Text". */
+"DueToAnEnterprisePolicyYouCanOnlyCreateXSends" = "Due to an enterprise policy, you can only create %1$@ Sends.";
+"OrganizationPolicyRestriction" = "Organization policy restriction";
+"TextSendsAreNotAllowedDescriptionLong" = "Text Sends are not allowed for your organization and this Send will automatically expire at the set deletion date.";
+"ThisSendIsNotCompliantDescriptionLong" = "This Send is not compliant with your organization's Send policy and will automatically expire at the set deletion date.";
+"ToEditThisSendMakeACopyDescriptionLong" = "To edit this Send, make a copy. If this Send can expire at the set deletion date, no action is needed.";
+"MakeACopy" = "Make a copy";
 "PasswordPrompt" = "Προτροπή κύριου κωδικού πρόσβασης";
 "PasswordConfirmation" = "Επιβεβαίωση κύριου κωδικού πρόσβασης";
 "PasswordConfirmationDesc" = "Αυτή η ενέργεια προστατεύεται, για να συνεχίσετε, πληκτρολογήστε ξανά τον κύριο κωδικό πρόσβασης για να επαληθεύσετε την ταυτότητα σας.";
@@ -648,7 +655,6 @@
 "SetUpAutofill" = "Ρύθμιση αυτόματης συμπλήρωσης";
 "AppInfo" = "Πληροφορίες εφαρμογής";
 "Browse" = "Περιήγηση";
-"SelectCardholderName" = "Επιλέξτε όνομα κατόχου κάρτας";
 "SelectLanguage" = "Επιλέξτε γλώσσα";
 "ContinueToCompleteWebAuthnVerification" = "Συνεχίστε να ολοκληρώσετε την επαλήθευση WebAuthn.";
 "ThereWasAnErrorStartingWebAuthnTwoFactorAuthentication" = "Παρουσιάστηκε σφάλμα κατά την εκκίνηση του ελέγχου ταυτότητας δύο παραγόντων WebAuthn";
@@ -667,7 +673,6 @@
 "ByContinuingYouAgreeToTheTermsOfServiceAndPrivacyPolicy" = "Συνεχίζοντας, συμφωνείτε με τους **[Όρους Χρήσης](%1$@)** και την **[Πολιτική Απορρήτου](%2$@)**";
 "GetAdviceAnnouncementsAndResearchOpportunitiesFromBitwardenInYourInboxUnsubscribeAtAnyTime." = "Λάβετε συμβουλές, ανακοινώσεις και ευκαιρίες έρευνας από το Bitwarden στα εισερχόμενά σας. **[Ακύρωση συνδρομής](%1$@)** ανά πάσα στιγμή.";
 "UserVerificationForPasskey" = "Επαλήθευση χρήστη για κλειδί πρόσβασης";
-"NewItem" = "Νέο στοιχείο";
 "ExploreTheGenerator" = "Εξερευνήστε τη γεννήτρια";
 "LearnMoreAboutGeneratingSecureLoginCredentialsWithAGuidedTour" = "Μάθετε περισσότερα σχετικά με τη δημιουργία ασφαλών διαπιστευτηρίων σύνδεσης μέσω μιας ξενάγησης.";
 "ExportVaultFilePwProtectInfo" = "Αυτή η εξαγωγή αρχείου θα προστατεύεται με κωδικό πρόσβασης και θα απαιτείται ο κωδικός πρόσβασης του αρχείου για αποκρυπτογράφηση.";
@@ -881,6 +886,10 @@
 "Identification" = "Ταυτοποίηση";
 "Owner" = "Ιδιοκτήτης";
 "VerifyYourIdentity" = "Επαλήθευση ταυτότητας";
+"ThisOperationIsNotAllowedOnThisAccount" = "This operation is not allowed on this account";
+"AnErrorOccurredWhileTryingToLockTheCurrentUser" = "An error occurred while trying to lock the current user";
+"LockAllAccounts" = "Lock all accounts";
+"AllAccountsHaveBeenLocked" = "All accounts have been locked";
 "ShareErrorDetails" = "Κοινοποίηση λεπτομερειών σφάλματος";
 "FlightRecorder" = "Καταγραφέας πτήσης";
 "EnableFlightRecorder" = "Ενεργοποίηση καταγραφέα πτήσης";
@@ -909,7 +918,13 @@
 "ExpiresOnXDate" = "Λήγει στις %1$@";
 "ExpiresTomorrow" = "Λήγει αύριο";
 "DateRangeXToY" = "%1$@ έως %2$@";
+"LogOutAllAccounts" = "Log out all accounts";
+"AllAccountsHaveBeenLoggedOut" = "All accounts have been logged out";
+"AnErrorOccurredWhileTryingToLogOutAllAccounts" = "An error occurred while trying to log out all accounts";
 "SelfHostServerURL" = "Διεύθυνση URL διακομιστή αυτοεξυπηρετητή";
+"OpenGenerator" = "Open generator";
+"OpenPasswordGenerator" = "Open password generator";
+"GeneratePassphrase" = "Generate passphrase";
 "AllowUniversalClipboard" = "Να επιτρέπεται το Universal Clipboard";
 "UseUniversalClipboardToCopyDescriptionLong" = "Χρησιμοποιήστε το Universal Clipboard για αντιγραφή εδώ και επικόλληση σε άλλες συσκευές που είναι συνδεδεμένες με το ίδιο Apple ID.";
 "RemoveMasterPasswordConfirmDomain" = "Δεν απαιτείται πλέον κύριος κωδικός πρόσβασης για τα μέλη του ακόλουθου οργανισμού. Παρακαλώ επιβεβαιώστε τον παρακάτω τομέα με τον διαχειριστή του οργανισμού σας.";
@@ -929,6 +944,7 @@
 "GoToSettings" = "Μετάβαση στις ρυθμίσεις";
 "SiriAndShortcutsAccess" = "Πρόσβαση Siri & Συντομεύσεων";
 "EnableToAllowTheAppToRespondToSiriAndShortcutsUsingAppIntents" = "Ενεργοποιήστε για να επιτρέψετε στην εφαρμογή να ανταποκρίνεται στη Siri και στις Συντομεύσεις χρησιμοποιώντας App Intents.";
+"ThereIsNoActiveAccount" = "There is no active account.";
 "NewFileSend" = "Νέο Send αρχείου";
 "NewTextSend" = "Νέο Send κειμένου";
 "EditFileSend" = "Επεξεργασία Send αρχείου";
@@ -979,7 +995,6 @@
 "NoAskMe" = "Όχι, να γίνεται ερώτηση";
 "NoCodes" = "Δεν έχετε κανέναν κωδικό προς εμφάνιση";
 "None" = "Κανένα";
-"NoneOfTheAbove" = "Κανένα από τα παραπάνω";
 "NumberOfDigits" = "Αριθμός ψηφίων";
 "OtpType" = "Τύπος OTP";
 "RefreshPeriod" = "Περίοδος ανανέωσης";
