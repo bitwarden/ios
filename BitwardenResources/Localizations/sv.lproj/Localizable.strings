@@ -182,7 +182,6 @@
 "CopyTotp" = "Kopiera TOTP";
 "CopyTotpAutomaticallyDescription" = "Om en inloggning har en autentiseringsnyckel kopierar du TOTP-verifieringskoden till ditt urklipp när du fyller i inloggningen automatiskt.";
 "CopyTotpAutomatically" = "Kopiera TOTP automatiskt";
-"PremiumRequired" = "Ett premium-medlemskap krävs för att använda den här funktionen.";
 "AttachementAdded" = "Bilaga tillagd";
 "AttachmentDeleted" = "Bilaga borttagen";
 "ChooseFile" = "Välj fil";
@@ -223,7 +222,6 @@
 "August" = "Augusti";
 "Brand" = "Märke";
 "CardholderName" = "Kortinnehavarens namn";
-"WeFoundMultipleMatchesChooseTheCorrectOne" = "Vi hittade flera matchningar. Välj den rätta.";
 "CityTown" = "Ort";
 "Company" = "Företag";
 "Country" = "Land";
@@ -309,6 +307,7 @@
 "NoEmailAddressesEntered" = "Inga e-postadresser har angetts";
 "EnterAtLeastOneValidEmailToShareSend" = "Ange minst en giltig e-postadress för att dela denna Send.";
 "OneOrMoreEmailAddressesIncorrect" = "En eller flera e-postadresser är felaktiga. Granska och försök igen.";
+"OnlyIncludeTheFollowingDomainsDescriptionLong" = "Only include the following domains: %1$@. Please review and try again.";
 "Cards" = "Kort";
 "Identities" = "Identiteter";
 "Logins" = "Inloggningar";
@@ -444,11 +443,19 @@
 "NewSendCreated" = "Ny Send har skapats";
 "Custom" = "Anpassad";
 "SendDisabledWarning" = "På grund av en företagspolicy kan du bara radera en befintlig Send.";
+"ThisDateIsEnforcedByYourOrganization" = "This date is enforced by your organization";
 "AboutSend" = "Om Send";
 "HideEmail" = "Dölj min e-postadress för mottagare.";
 "SendOptionsPolicyInEffect" = "En eller flera organisationsriktlinjer påverkar dina Send-inställningar.";
 "SendFilePremiumRequired" = "Gratiskonton är begränsade till att endast dela text. Ett premium-medlemskap krävs för att använda filer med Send.";
 "SendFileEmailVerificationRequired" = "Du måste verifiera din e-postadress för att använda filer med Send. Du kan verifiera din e-postadress i webbvalvet.";
+/* Alert message shown when Send Controls policy restricts creation to one Send type. %1$@ is the allowed Send type, either "File" or "Text". */
+"DueToAnEnterprisePolicyYouCanOnlyCreateXSends" = "Due to an enterprise policy, you can only create %1$@ Sends.";
+"OrganizationPolicyRestriction" = "Organization policy restriction";
+"TextSendsAreNotAllowedDescriptionLong" = "Text Sends are not allowed for your organization and this Send will automatically expire at the set deletion date.";
+"ThisSendIsNotCompliantDescriptionLong" = "This Send is not compliant with your organization's Send policy and will automatically expire at the set deletion date.";
+"ToEditThisSendMakeACopyDescriptionLong" = "To edit this Send, make a copy. If this Send can expire at the set deletion date, no action is needed.";
+"MakeACopy" = "Make a copy";
 "PasswordPrompt" = "Återupprepa huvudlösenord";
 "PasswordConfirmation" = "Bekräfta huvudlösenord";
 "PasswordConfirmationDesc" = "Denna åtgärd är skyddad. För att fortsätta, vänligen verifiera din identitet genom att ange ditt huvudlösenord.";
@@ -648,7 +655,6 @@
 "SetUpAutofill" = "Ställ in autofyllning";
 "AppInfo" = "Appinfo";
 "Browse" = "Bläddra";
-"SelectCardholderName" = "Välj kortinnehavarens namn";
 "SelectLanguage" = "Välj språk";
 "ContinueToCompleteWebAuthnVerification" = "Fortsätt för att slutföra WebAuthn verifieringen.";
 "ThereWasAnErrorStartingWebAuthnTwoFactorAuthentication" = "Det uppstod ett fel vid start av WebAuthn tvåfaktorsautentisering";
@@ -667,7 +673,6 @@
 "ByContinuingYouAgreeToTheTermsOfServiceAndPrivacyPolicy" = "Genom att fortsätta godkänner du **[Användarvillkoren](%1$@)** och **[Integritetspolicy](%2$@)**";
 "GetAdviceAnnouncementsAndResearchOpportunitiesFromBitwardenInYourInboxUnsubscribeAtAnyTime." = "Få råd, tillkännagivanden och forskningsmöjligheter från Bitwarden i din inkorg. **[Avsluta prenumerationen](%1$@)** när som helst.";
 "UserVerificationForPasskey" = "Användarverifiering för inloggningsnyckel";
-"NewItem" = "Nytt objekt";
 "ExploreTheGenerator" = "Utforska generatorn";
 "LearnMoreAboutGeneratingSecureLoginCredentialsWithAGuidedTour" = "Läs mer om att generera säkra inloggningsuppgifter med en guidad tur.";
 "ExportVaultFilePwProtectInfo" = "Den exporterade filen kommer vara lösenordsskyddad. Du kommer behöva ange fillösenordet för att dekryptera den.";
@@ -881,6 +886,10 @@
 "Identification" = "Identifiering";
 "Owner" = "Ägare";
 "VerifyYourIdentity" = "Verifiera din identitet";
+"ThisOperationIsNotAllowedOnThisAccount" = "This operation is not allowed on this account";
+"AnErrorOccurredWhileTryingToLockTheCurrentUser" = "An error occurred while trying to lock the current user";
+"LockAllAccounts" = "Lock all accounts";
+"AllAccountsHaveBeenLocked" = "All accounts have been locked";
 "ShareErrorDetails" = "Dela felinformation";
 "FlightRecorder" = "Färdskrivare";
 "EnableFlightRecorder" = "Aktivera färdskrivare";
@@ -909,7 +918,13 @@
 "ExpiresOnXDate" = "Går ut den %1$@";
 "ExpiresTomorrow" = "Går ut imorgon";
 "DateRangeXToY" = "%1$@ till %2$@";
+"LogOutAllAccounts" = "Log out all accounts";
+"AllAccountsHaveBeenLoggedOut" = "All accounts have been logged out";
+"AnErrorOccurredWhileTryingToLogOutAllAccounts" = "An error occurred while trying to log out all accounts";
 "SelfHostServerURL" = "URL för server med egen värd";
+"OpenGenerator" = "Open generator";
+"OpenPasswordGenerator" = "Open password generator";
+"GeneratePassphrase" = "Generate passphrase";
 "AllowUniversalClipboard" = "Tillåt universellt urklipp";
 "UseUniversalClipboardToCopyDescriptionLong" = "Använd Universal Clipboard för att kopiera här och klistra in på andra enheter som är inloggade med samma Apple-ID.";
 "RemoveMasterPasswordConfirmDomain" = "Ett huvudlösenord krävs inte längre för medlemmar i följande organisation. Vänligen bekräfta domänen nedan med din organisationsadministratör.";
@@ -929,6 +944,7 @@
 "GoToSettings" = "För att kunna använda push-notiser måste du gå till inställningarna och ändra appens notifieringsbehörighet till \"Tillåt\"";
 "SiriAndShortcutsAccess" = "Tillgång till Siri och genvägar";
 "EnableToAllowTheAppToRespondToSiriAndShortcutsUsingAppIntents" = "Aktivera för att låta appen svara på Siri och genvägar med hjälp av App Intents.";
+"ThereIsNoActiveAccount" = "There is no active account.";
 "NewFileSend" = "Ny fil Skicka";
 "NewTextSend" = "Ny text Skicka";
 "EditFileSend" = "Redigera fil Skicka";
@@ -979,7 +995,6 @@
 "NoAskMe" = "Nej, fråga mig";
 "NoCodes" = "Du har inga koder att visa";
 "None" = "Ingen";
-"NoneOfTheAbove" = "Inget av ovanstående";
 "NumberOfDigits" = "Antal siffror";
 "OtpType" = "OTP-typ";
 "RefreshPeriod" = "Uppdateringstid";

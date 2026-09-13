@@ -183,7 +183,6 @@
 "CopyTotp" = "TOTP ಅನ್ನು ನಕಲಿಸಿ";
 "CopyTotpAutomaticallyDescription" = "ಲಾಗಿನ್ ಅಧಿಕೃತ ಕೀಲಿಯನ್ನು ಹೊಂದಿದ್ದರೆ, ನೀವು ಲಾಗಿನ್ ಅನ್ನು ಸ್ವಯಂ ಭರ್ತಿ ಮಾಡುವಾಗ TOTP ಪರಿಶೀಲನಾ ಕೋಡ್ ಅನ್ನು ನಿಮ್ಮ ಕ್ಲಿಪ್ಬೋರ್ಡ್ಗೆ ನಕಲಿಸಿ.";
 "CopyTotpAutomatically" = "TOTP ಅನ್ನು ಸ್ವಯಂಚಾಲಿತವಾಗಿ ನಕಲಿಸಿ";
-"PremiumRequired" = "ಈ ವೈಶಿಷ್ಟ್ಯವನ್ನು ಬಳಸಲು ಪ್ರೀಮಿಯಂ ಸದಸ್ಯತ್ವ ಅಗತ್ಯವಿದೆ.";
 "AttachementAdded" = "ಲಗತ್ತು ಸೇರಿಸಲಾಗಿದೆ";
 "AttachmentDeleted" = "ಲಗತ್ತು ಅಳಿಸಲಾಗಿದೆ";
 "ChooseFile" = "ಫೈಲ್ ಆಯ್ಕೆ";
@@ -224,7 +223,6 @@
 "August" = "ಆಗಸ್ಟ್";
 "Brand" = "ಬ್ರ್ಯಾಂಡ್";
 "CardholderName" = "ಕಾರ್ಡುದಾರನ ಹೆಸರು";
-"WeFoundMultipleMatchesChooseTheCorrectOne" = "ನಾವು ಬಹು ಹೊಂದಾಣಿಕೆಗಳನ್ನು ಕಂಡುಕೊಂಡಿದ್ದೇವೆ. ಸರಿಯಾದದನ್ನು ಆಯ್ಕೆಮಾಡಿ.";
 "CityTown" = "ನಗರ / ಪಟ್ಟಣ";
 "Company" = "ಕಂಪನಿ";
 "Country" = "ದೇಶ";
@@ -310,6 +308,7 @@
 "NoEmailAddressesEntered" = "ಯಾವುದೇ ಇಮೇಲ್ ವಿಳಾಸಗಳನ್ನು ನಮೂದಿಸಲಾಗಿಲ್ಲ";
 "EnterAtLeastOneValidEmailToShareSend" = "ಈ ಕಳುಹಿಸುವಿಕೆಯನ್ನು ಹಂಚಿಕೊಳ್ಳಲು ಕನಿಷ್ಠ ಒಂದು ಮಾನ್ಯ ಇಮೇಲ್ ವಿಳಾಸವನ್ನು ನಮೂದಿಸಿ.";
 "OneOrMoreEmailAddressesIncorrect" = "ಒಂದು ಅಥವಾ ಹೆಚ್ಚು ಇಮೇಲ್ ವಿಳಾಸಗಳು ತಪ್ಪಾಗಿವೆ. ದಯವಿಟ್ಟು ಪರಿಶೀಲಿಸಿ ಮತ್ತು ಮತ್ತೆ ಪ್ರಯತ್ನಿಸಿ.";
+"OnlyIncludeTheFollowingDomainsDescriptionLong" = "Only include the following domains: %1$@. Please review and try again.";
 "Cards" = "ಕಾರ್ಡ್‌ಗಳು";
 "Identities" = "ಗುರುತುಗಳು";
 "Logins" = "ಲಾಗಿನ್ಸ್";
@@ -445,11 +444,19 @@
 "NewSendCreated" = "ಹೊಸ ಕಳುಹಿಸುವಿಕೆಯನ್ನು ರಚಿಸಲಾಗಿದೆ.";
 "Custom" = "ಕಸ್ಟಮ್";
 "SendDisabledWarning" = "Due to an enterprise policy, you are only able to delete an existing Send.";
+"ThisDateIsEnforcedByYourOrganization" = "This date is enforced by your organization";
 "AboutSend" = "ಕಳುಹಿಸುವ ಬಗ್ಗೆ";
 "HideEmail" = "ಸ್ವೀಕರಿಸುವವರಿಂದ ನನ್ನ ಇಮೇಲ್ ವಿಳಾಸವನ್ನು ಮರೆಮಾಡಿ.";
 "SendOptionsPolicyInEffect" = "ಒಂದು ಅಥವಾ ಹೆಚ್ಚಿನ ಸಂಸ್ಥೆಯ ನೀತಿಗಳು ನಿಮ್ಮ ಕಳುಹಿಸುವ ಆಯ್ಕೆಗಳ ಮೇಲೆ ಪರಿಣಾಮ ಬೀರುತ್ತವೆ.";
 "SendFilePremiumRequired" = "Free accounts are restricted to sharing text only. A premium membership is required to use files with Send.";
 "SendFileEmailVerificationRequired" = "ಕಳುಹಿಸುವಿಕೆಯೊಂದಿಗೆ ಫೈಲ್‌ಗಳನ್ನು ಬಳಸಲು ನಿಮ್ಮ ಇಮೇಲ್ ಅನ್ನು ನೀವು ಪರಿಶೀಲಿಸಬೇಕು. ವೆಬ್ ವಾಲ್ಟ್ನಲ್ಲಿ ನಿಮ್ಮ ಇಮೇಲ್ ಅನ್ನು ನೀವು ಪರಿಶೀಲಿಸಬಹುದು.";
+/* Alert message shown when Send Controls policy restricts creation to one Send type. %1$@ is the allowed Send type, either "File" or "Text". */
+"DueToAnEnterprisePolicyYouCanOnlyCreateXSends" = "Due to an enterprise policy, you can only create %1$@ Sends.";
+"OrganizationPolicyRestriction" = "Organization policy restriction";
+"TextSendsAreNotAllowedDescriptionLong" = "Text Sends are not allowed for your organization and this Send will automatically expire at the set deletion date.";
+"ThisSendIsNotCompliantDescriptionLong" = "This Send is not compliant with your organization's Send policy and will automatically expire at the set deletion date.";
+"ToEditThisSendMakeACopyDescriptionLong" = "To edit this Send, make a copy. If this Send can expire at the set deletion date, no action is needed.";
+"MakeACopy" = "Make a copy";
 "PasswordPrompt" = "ಮಾಸ್ಟರ್ ಪಾಸ್ವರ್ಡ್ ಮರು-ಪ್ರಾಂಪ್ಟ್";
 "PasswordConfirmation" = "ಮಾಸ್ಟರ್ ಪಾಸ್ವರ್ಡ್ ದೃಢೀಕರಣ";
 "PasswordConfirmationDesc" = "ಮುಂದುವರಿಯಲು ಈ ಕ್ರಿಯೆಯನ್ನು ರಕ್ಷಿಸಲಾಗಿದೆ, ದಯವಿಟ್ಟು ನಿಮ್ಮ ಗುರುತನ್ನು ಪರಿಶೀಲಿಸಲು ನಿಮ್ಮ ಮಾಸ್ಟರ್ ಪಾಸ್‌ವರ್ಡ್ ಅನ್ನು ಮರು ನಮೂದಿಸಿ.";
@@ -649,7 +656,6 @@
 "SetUpAutofill" = "ಸ್ವಯಂ ಭರ್ತಿ ಹೊಂದಿಸಿ";
 "AppInfo" = "ಅಪ್ಲಿಕೇಶನ್ ಮಾಹಿತಿ";
 "Browse" = "ಬ್ರೌಸ್ ಮಾಡಿ";
-"SelectCardholderName" = "ಕಾರ್ಡ್ದಾರರ ಹೆಸರನ್ನು ಆಯ್ಕೆಮಾಡಿ";
 "SelectLanguage" = "ಭಾಷೆಯನ್ನು ಆಯ್ಕೆಮಾಡಿ";
 "ContinueToCompleteWebAuthnVerification" = "WebAuthn ಪರಿಶೀಲನೆಯನ್ನು ಪೂರ್ಣಗೊಳಿಸಲು ಮುಂದುವರಿಯಿರಿ.";
 "ThereWasAnErrorStartingWebAuthnTwoFactorAuthentication" = "WebAuthn ಎರಡು-ಅಂಶ ದೃಢೀಕರಣವನ್ನು ಪ್ರಾರಂಭಿಸುವಲ್ಲಿ ದೋಷವಿದೆ";
@@ -668,7 +674,6 @@
 "ByContinuingYouAgreeToTheTermsOfServiceAndPrivacyPolicy" = "ಮುಂದುವರಿಯುವ ಮೂಲಕ, ನೀವು **[ಸೇವಾ ನಿಯಮಗಳು](%1$@)** ಮತ್ತು **[ಗೌಪ್ಯತಾ ನೀತಿ](%2$@)** ಗೆ ಸಮ್ಮತಿಸುತ್ತೀರಿ";
 "GetAdviceAnnouncementsAndResearchOpportunitiesFromBitwardenInYourInboxUnsubscribeAtAnyTime." = "ನಿಮ್ಮ ಇನ್ಬಾಕ್ಸ್ನಲ್ಲಿ Bitwarden ನಿಂದ ಸಲಹೆ, ಘೋಷಣೆಗಳು ಮತ್ತು ಸಂಶೋಧನಾ ಅವಕಾಶಗಳನ್ನು ಪಡೆಯಿರಿ. ಯಾವುದೇ ಸಮಯದಲ್ಲಿ **[ಅನ್ಸಬ್ಸ್ಕ್ರೈಬ್](%1$@)** ಮಾಡಿ.";
 "UserVerificationForPasskey" = "ಪಾಸ್ಕೀಗಾಗಿ ಬಳಕೆದಾರ ಪರಿಶೀಲನೆ";
-"NewItem" = "ಹೊಸ ಐಟಂ";
 "ExploreTheGenerator" = "ಜನರೇಟರ್ ಅನ್ನು ಅನ್ವೇಷಿಸಿ";
 "LearnMoreAboutGeneratingSecureLoginCredentialsWithAGuidedTour" = "ಮಾರ್ಗದರ್ಶಿತ ಪ್ರವಾಸದೊಂದಿಗೆ ಸುರಕ್ಷಿತ ಲಾಗಿನ್ ರುಜುವಾತುಗಳನ್ನು ರಚಿಸುವ ಬಗ್ಗೆ ಇನ್ನಷ್ಟು ತಿಳಿಯಿರಿ.";
 "ExportVaultFilePwProtectInfo" = "ಈ ಫೈಲ್ ರಫ್ತು ಪಾಸ್ವರ್ಡ್-ರಕ್ಷಿತವಾಗಿರುತ್ತದೆ ಮತ್ತು ಡೀಕ್ರಿಪ್ಟ್ ಮಾಡಲು ಫೈಲ್ ಪಾಸ್ವರ್ಡ್ ಅಗತ್ಯವಿರುತ್ತದೆ.";
@@ -882,6 +887,10 @@
 "Identification" = "ಗುರುತಿಸುವಿಕೆ";
 "Owner" = "ಮಾಲೀಕರು";
 "VerifyYourIdentity" = "ನಿಮ್ಮ ಗುರುತನ್ನು ಪರಿಶೀಲಿಸಿ";
+"ThisOperationIsNotAllowedOnThisAccount" = "This operation is not allowed on this account";
+"AnErrorOccurredWhileTryingToLockTheCurrentUser" = "An error occurred while trying to lock the current user";
+"LockAllAccounts" = "Lock all accounts";
+"AllAccountsHaveBeenLocked" = "All accounts have been locked";
 "ShareErrorDetails" = "ದೋಷ ವಿವರಗಳನ್ನು ಹಂಚಿಕೊಳ್ಳಿ";
 "FlightRecorder" = "ಫ್ಲೈಟ್ ರೆಕಾರ್ಡರ್";
 "EnableFlightRecorder" = "ಫ್ಲೈಟ್ ರೆಕಾರ್ಡರ್ ಸಕ್ರಿಯಗೊಳಿಸಿ";
@@ -910,7 +919,13 @@
 "ExpiresOnXDate" = "%1$@ ರಂದು ಅವಧಿ ಮುಗಿಯುತ್ತದೆ";
 "ExpiresTomorrow" = "ನಾಳೆ ಅವಧಿ ಮುಗಿಯುತ್ತದೆ";
 "DateRangeXToY" = "%1$@ ರಿಂದ %2$@ ವರೆಗೆ";
+"LogOutAllAccounts" = "Log out all accounts";
+"AllAccountsHaveBeenLoggedOut" = "All accounts have been logged out";
+"AnErrorOccurredWhileTryingToLogOutAllAccounts" = "An error occurred while trying to log out all accounts";
 "SelfHostServerURL" = "ಸ್ವಯಂ-ಹೋಸ್ಟ್ ಸರ್ವರ್ URL";
+"OpenGenerator" = "Open generator";
+"OpenPasswordGenerator" = "Open password generator";
+"GeneratePassphrase" = "Generate passphrase";
 "AllowUniversalClipboard" = "ಯುನಿವರ್ಸಲ್ ಕ್ಲಿಪ್ಬೋರ್ಡ್ ಅನ್ನು ಅನುಮತಿಸಿ";
 "UseUniversalClipboardToCopyDescriptionLong" = "ಇಲ್ಲಿ ನಕಲಿಸಲು ಮತ್ತು ಅದೇ Apple ID ಯೊಂದಿಗೆ ಸೈನ್ ಇನ್ ಮಾಡಿದ ಇತರ ಸಾಧನಗಳಲ್ಲಿ ಅಂಟಿಸಲು ಯುನಿವರ್ಸಲ್ ಕ್ಲಿಪ್ಬೋರ್ಡ್ ಬಳಸಿ.";
 "RemoveMasterPasswordConfirmDomain" = "ಕೆಳಗಿನ ಸಂಸ್ಥೆಯ ಸದಸ್ಯರಿಗೆ ಮಾಸ್ಟರ್ ಪಾಸ್ವರ್ಡ್ ಇನ್ನು ಮುಂದೆ ಅಗತ್ಯವಿಲ್ಲ. ದಯವಿಟ್ಟು ಕೆಳಗಿನ ಡೊಮೇನ್ ಅನ್ನು ನಿಮ್ಮ ಸಂಸ್ಥೆಯ ನಿರ್ವಾಹಕರೊಂದಿಗೆ ದೃಢೀಕರಿಸಿ.";
@@ -930,6 +945,7 @@
 "GoToSettings" = "ಸೆಟ್ಟಿಂಗ್ಗಳಿಗೆ ಹೋಗಿ";
 "SiriAndShortcutsAccess" = "Siri & Shortcuts ಪ್ರವೇಶ";
 "EnableToAllowTheAppToRespondToSiriAndShortcutsUsingAppIntents" = "App Intents ಬಳಸಿ Siri ಮತ್ತು Shortcuts ಗೆ ಪ್ರತಿಕ್ರಿಯಿಸಲು ಅಪ್ಲಿಕೇಶನ್ ಅನ್ನು ಅನುಮತಿಸಲು ಸಕ್ರಿಯಗೊಳಿಸಿ.";
+"ThereIsNoActiveAccount" = "There is no active account.";
 "NewFileSend" = "ಹೊಸ ಫೈಲ್ ಕಳುಹಿಸುವಿಕೆ";
 "NewTextSend" = "ಹೊಸ ಪಠ್ಯ ಕಳುಹಿಸುವಿಕೆ";
 "EditFileSend" = "ಫೈಲ್ ಕಳುಹಿಸುವಿಕೆಯನ್ನು ಸಂಪಾದಿಸಿ";
@@ -980,7 +996,6 @@
 "NoAskMe" = "ಇಲ್ಲ, ನನ್ನನ್ನು ಕೇಳಿ";
 "NoCodes" = "ಪ್ರದರ್ಶಿಸಲು ನೀವು ಯಾವುದೇ ಕೋಡ್ಗಳನ್ನು ಹೊಂದಿಲ್ಲ";
 "None" = "ಯಾವುದೂ ಇಲ್ಲ";
-"NoneOfTheAbove" = "ಮೇಲಿನ ಯಾವುದೂ ಅಲ್ಲ";
 "NumberOfDigits" = "ಅಂಕೆಗಳ ಸಂಖ್ಯೆ";
 "OtpType" = "OTP ಪ್ರಕಾರ";
 "RefreshPeriod" = "ರಿಫ್ರೆಶ್ ಅವಧಿ";

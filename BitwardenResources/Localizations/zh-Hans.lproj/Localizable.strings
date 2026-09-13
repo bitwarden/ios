@@ -21,7 +21,7 @@
 "EnterPIN" = "请输入您的 PIN 码。";
 "Favorites" = "收藏夹";
 "Folder" = "文件夹";
-"FolderCreated" = "新文件夹已创建。";
+"FolderCreated" = "新文件夹已创建";
 "FolderDeleted" = "文件夹已删除。";
 "FolderNone" = "无文件夹";
 "Folders" = "文件夹";
@@ -182,7 +182,6 @@
 "CopyTotp" = "复制 TOTP";
 "CopyTotpAutomaticallyDescription" = "如果登录项目包含验证器密钥，当自动填充此登录时，TOTP 验证码将复制到剪贴板。";
 "CopyTotpAutomatically" = "自动复制 TOTP";
-"PremiumRequired" = "需要高级版成员资格才能使用此功能。";
 "AttachementAdded" = "附件已添加";
 "AttachmentDeleted" = "附件已删除";
 "ChooseFile" = "选择文件";
@@ -223,7 +222,6 @@
 "August" = "八月";
 "Brand" = "品牌";
 "CardholderName" = "持卡人姓名";
-"WeFoundMultipleMatchesChooseTheCorrectOne" = "我们找到了多个匹配项。请选择一个正确的匹配项。";
 "CityTown" = "市 / 镇";
 "Company" = "公司";
 "Country" = "国家 / 地区";
@@ -309,6 +307,7 @@
 "NoEmailAddressesEntered" = "未输入电子邮箱地址";
 "EnterAtLeastOneValidEmailToShareSend" = "输入至少一个有效的电子邮箱地址以分享此 Send。";
 "OneOrMoreEmailAddressesIncorrect" = "一个或多个电子邮箱地址不正确。请检查然后重试。";
+"OnlyIncludeTheFollowingDomainsDescriptionLong" = "仅允许以下域名：%1$@。请检查然后重试。";
 "Cards" = "支付卡";
 "Identities" = "身份";
 "Logins" = "登录";
@@ -444,11 +443,19 @@
 "NewSendCreated" = "Send 已创建";
 "Custom" = "自定义";
 "SendDisabledWarning" = "由于某个企业策略，您只能删除现有的 Send。";
+"ThisDateIsEnforcedByYourOrganization" = "此日期由您的组织强制执行";
 "AboutSend" = "关于 Send";
 "HideEmail" = "对接收者隐藏我的电子邮箱地址";
 "SendOptionsPolicyInEffect" = "一个或多个组织策略正在影响您的 Send 设置。";
 "SendFilePremiumRequired" = "免费账户仅限于共享文本。需要高级版成员资格才能使用文件 Send。";
 "SendFileEmailVerificationRequired" = "您必须验证电子邮箱才能使用文件 Send。您可以在网页密码库中验证您的电子邮箱。";
+/* Alert message shown when Send Controls policy restricts creation to one Send type. %1$@ is the allowed Send type, either "File" or "Text". */
+"DueToAnEnterprisePolicyYouCanOnlyCreateXSends" = "由于某个企业策略，您只能创建 %1$@ Send。";
+"OrganizationPolicyRestriction" = "组织策略限制";
+"TextSendsAreNotAllowedDescriptionLong" = "您的组织不允许文本 Send，此 Send 将在设置的删除日期自动过期。";
+"ThisSendIsNotCompliantDescriptionLong" = "此 Send 不符合您组织的 Send 策略，将在设置的删除日期自动过期。";
+"ToEditThisSendMakeACopyDescriptionLong" = "要编辑此 Send，请创建副本。如果此 Send 可以在设置的删除日期过期，则无需任何操作。";
+"MakeACopy" = "创建副本";
 "PasswordPrompt" = "主密码二次验证";
 "PasswordConfirmation" = "确认主密码";
 "PasswordConfirmationDesc" = "此操作受到保护。要继续，请重新输入主密码以验证您的身份。";
@@ -648,7 +655,6 @@
 "SetUpAutofill" = "设置自动填充";
 "AppInfo" = "App 信息";
 "Browse" = "浏览";
-"SelectCardholderName" = "选择持卡人姓名";
 "SelectLanguage" = "选择语言";
 "ContinueToCompleteWebAuthnVerification" = "继续完成 WebAuthn 验证。";
 "ThereWasAnErrorStartingWebAuthnTwoFactorAuthentication" = "启动 WebAuthn 双重身份验证时出错";
@@ -667,7 +673,6 @@
 "ByContinuingYouAgreeToTheTermsOfServiceAndPrivacyPolicy" = "若继续，表示您同意 **[服务条款](%1$@)** 和 **[隐私政策](%2$@)**";
 "GetAdviceAnnouncementsAndResearchOpportunitiesFromBitwardenInYourInboxUnsubscribeAtAnyTime." = "获取来自 Bitwarden 的建议、公告和调研电子邮件。随时 **[取消订阅](%1$@)** 。";
 "UserVerificationForPasskey" = "通行密钥用户验证";
-"NewItem" = "新增项目";
 "ExploreTheGenerator" = "探索生成器";
 "LearnMoreAboutGeneratingSecureLoginCredentialsWithAGuidedTour" = "通过引导式教程，进一步了解有关生成安全登录凭据的信息。";
 "ExportVaultFilePwProtectInfo" = "此文件导出将受密码保护，需要文件密码才能解密。";
@@ -881,6 +886,10 @@
 "Identification" = "身份";
 "Owner" = "所有者";
 "VerifyYourIdentity" = "验证您的身份";
+"ThisOperationIsNotAllowedOnThisAccount" = "此账户上不允许此操作";
+"AnErrorOccurredWhileTryingToLockTheCurrentUser" = "尝试锁定当前用户时发生错误";
+"LockAllAccounts" = "锁定所有账户";
+"AllAccountsHaveBeenLocked" = "所有账户已锁定";
 "ShareErrorDetails" = "分享错误详细信息";
 "FlightRecorder" = "Flight Recorder";
 "EnableFlightRecorder" = "启用 Flight Recorder";
@@ -909,7 +918,13 @@
 "ExpiresOnXDate" = "%1$@ 过期";
 "ExpiresTomorrow" = "明天过期";
 "DateRangeXToY" = "%1$@ 至 %2$@";
+"LogOutAllAccounts" = "注销所有账户";
+"AllAccountsHaveBeenLoggedOut" = "所有账户已注销";
+"AnErrorOccurredWhileTryingToLogOutAllAccounts" = "尝试注销所有账户时发生错误";
 "SelfHostServerURL" = "自托管服务器 URL";
+"OpenGenerator" = "打开生成器";
+"OpenPasswordGenerator" = "打开密码生成器";
+"GeneratePassphrase" = "生成密码短语";
 "AllowUniversalClipboard" = "允许通用剪贴板";
 "UseUniversalClipboardToCopyDescriptionLong" = "使用通用剪贴板，可以在这里复制并粘贴到使用相同 Apple ID 登录的其他设备上。";
 "RemoveMasterPasswordConfirmDomain" = "以下组织的成员不再要求主密码。请与您的组织管理员确认下面的域名。";
@@ -929,6 +944,7 @@
 "GoToSettings" = "前往设置";
 "SiriAndShortcutsAccess" = "Siri & 快捷指令访问权限";
 "EnableToAllowTheAppToRespondToSiriAndShortcutsUsingAppIntents" = "启用以允许此 App 使用 App Intent 响应 Siri 和快捷指令。";
+"ThereIsNoActiveAccount" = "没有活动的账户。";
 "NewFileSend" = "新增文件 Send";
 "NewTextSend" = "新增文本 Send";
 "EditFileSend" = "编辑文件 Send";
@@ -979,7 +995,6 @@
 "NoAskMe" = "不，询问我";
 "NoCodes" = "您没有任何可显示的代码";
 "None" = "无";
-"NoneOfTheAbove" = "以上都不是";
 "NumberOfDigits" = "位数";
 "OtpType" = "OTP 类型";
 "RefreshPeriod" = "刷新周期";
@@ -1235,7 +1250,7 @@
 "CurrentSession" = "当前会话";
 "PendingRequest" = "待处理的请求";
 "Trusted" = "已信任";
-"RecentlyActiveLabel" = "近期活动：";
+"RecentlyActiveLabel" = "最近活动：";
 "FirstLoginLabel" = "首次登录：";
 "Today" = "今天";
 "PastSevenDays" = "过去 7 天";

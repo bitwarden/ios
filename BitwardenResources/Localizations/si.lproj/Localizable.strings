@@ -182,7 +182,6 @@
 "CopyTotp" = "TOTP පිටපත් කරන්න";
 "CopyTotpAutomaticallyDescription" = "පිවිසුමකට සත්‍යාපක යතුරක් තිබේ නම්, ඔබ පිවිසුම ස්වයං පිරවුම් කරන විට TOTP සත්‍යාපන කේතය ඔබගේ ක්ලිප්බෝඩයට පිටපත් කරන්න.";
 "CopyTotpAutomatically" = "TOTP ස්වයංක්‍රීයව පිටපත් කරන්න";
-"PremiumRequired" = "මෙම විශේෂාංගය භාවිතා කිරීමට වාරික සාමාජිකත්වයක් අවශ්‍ය වේ.";
 "AttachementAdded" = "ඇමුණුම එකතු කරන ලදී";
 "AttachmentDeleted" = "ඇමුණුම මකා ඇත";
 "ChooseFile" = "ගොනුව තෝරන්න";
@@ -223,7 +222,6 @@
 "August" = "නිකිණි";
 "Brand" = "වෙළඳ නාමය";
 "CardholderName" = "කාඩ්පත් හිමිකරුගේ නම";
-"WeFoundMultipleMatchesChooseTheCorrectOne" = "අපට ගැලපීම් කිහිපයක් හමු විය. නිවැරදි එක තෝරන්න.";
 "CityTown" = "නගරය";
 "Company" = "සමාගම";
 "Country" = "රට";
@@ -309,6 +307,7 @@
 "NoEmailAddressesEntered" = "විද්‍යුත් තැපැල් ලිපින කිසිවක් ඇතුළත් කර නොමැත";
 "EnterAtLeastOneValidEmailToShareSend" = "මෙම යැවීම බෙදාගැනීමට අවම වශයෙන් එක් වලංගු විද්‍යුත් තැපැල් ලිපිනයක් ඇතුළත් කරන්න.";
 "OneOrMoreEmailAddressesIncorrect" = "එක් හෝ කිහිපයක් විද්‍යුත් තැපැල් ලිපින වැරදියි. කරුණාකර සමාලෝචනය කර නැවත උත්සාහ කරන්න.";
+"OnlyIncludeTheFollowingDomainsDescriptionLong" = "Only include the following domains: %1$@. Please review and try again.";
 "Cards" = "කාඩ්පත්";
 "Identities" = "අනන්‍යතා";
 "Logins" = "පිවිසුම්";
@@ -444,11 +443,19 @@
 "NewSendCreated" = "යැවීම සාදන ලදී";
 "Custom" = "අභිරුචි";
 "SendDisabledWarning" = "ව්‍යවසාය ප්‍රතිපත්තියක් හේතුවෙන්, ඔබට පවතින යැවීමක් මකා දැමීමට පමණක් හැකිය.";
+"ThisDateIsEnforcedByYourOrganization" = "This date is enforced by your organization";
 "AboutSend" = "යැවීම ගැන";
 "HideEmail" = "ලබන්නන්ගෙන් මගේ විද්‍යුත් තැපැල් ලිපිනය සඟවන්න";
 "SendOptionsPolicyInEffect" = "එක් හෝ කිහිපයක් සංවිධාන ප්‍රතිපත්ති ඔබගේ යැවීම් විකල්පවලට බලපායි.";
 "SendFilePremiumRequired" = "නිදහස් ගිණුම් පෙළ පමණක් බෙදාගැනීමට සීමා කර ඇත. යැවීම සමඟ ගොනු භාවිතා කිරීමට වාරික සාමාජිකත්වයක් අවශ්‍ය වේ.";
 "SendFileEmailVerificationRequired" = "යැවීම සමඟ ගොනු භාවිතා කිරීමට ඔබ ඔබගේ විද්‍යුත් තැපෑල සත්‍යාපනය කළ යුතුය. ඔබට වෙබ් සුරක්ෂිතාගාරයේ ඔබගේ විද්‍යුත් තැපෑල සත්‍යාපනය කළ හැක.";
+/* Alert message shown when Send Controls policy restricts creation to one Send type. %1$@ is the allowed Send type, either "File" or "Text". */
+"DueToAnEnterprisePolicyYouCanOnlyCreateXSends" = "Due to an enterprise policy, you can only create %1$@ Sends.";
+"OrganizationPolicyRestriction" = "Organization policy restriction";
+"TextSendsAreNotAllowedDescriptionLong" = "Text Sends are not allowed for your organization and this Send will automatically expire at the set deletion date.";
+"ThisSendIsNotCompliantDescriptionLong" = "This Send is not compliant with your organization's Send policy and will automatically expire at the set deletion date.";
+"ToEditThisSendMakeACopyDescriptionLong" = "To edit this Send, make a copy. If this Send can expire at the set deletion date, no action is needed.";
+"MakeACopy" = "Make a copy";
 "PasswordPrompt" = "ප්‍රධාන මුරපදය නැවත විමසන්න";
 "PasswordConfirmation" = "ප්‍රධාන මුරපද තහවුරු කිරීම";
 "PasswordConfirmationDesc" = "මෙම ක්‍රියාව ආරක්ෂිතයි, ඉදිරියට යාමට කරුණාකර ඔබගේ අනන්‍යතාව සත්‍යාපනය කිරීමට ඔබගේ ප්‍රධාන මුරපදය නැවත ඇතුළත් කරන්න.";
@@ -648,7 +655,6 @@
 "SetUpAutofill" = "ස්වයං පිරවුම් සකසන්න";
 "AppInfo" = "යෙදුම් තොරතුරු";
 "Browse" = "බ්‍රවුස් කරන්න";
-"SelectCardholderName" = "කාඩ්පත් හිමිකරුගේ නම තෝරන්න";
 "SelectLanguage" = "භාෂාව තෝරන්න";
 "ContinueToCompleteWebAuthnVerification" = "WebAuthn සත්‍යාපනය සම්පූර්ණ කිරීමට ඉදිරියට යන්න.";
 "ThereWasAnErrorStartingWebAuthnTwoFactorAuthentication" = "WebAuthn සාධක දෙකක සත්‍යාපනය ආරම්භ කිරීමේ දෝෂයක් ඇති විය";
@@ -667,7 +673,6 @@
 "ByContinuingYouAgreeToTheTermsOfServiceAndPrivacyPolicy" = "ඉදිරියට යාමෙන්, ඔබ **[සේවා කොන්දේසි](%1$@)** සහ **[රහස්‍යතා ප්‍රතිපත්තිය](%2$@)** සමඟ එකඟ වේ";
 "GetAdviceAnnouncementsAndResearchOpportunitiesFromBitwardenInYourInboxUnsubscribeAtAnyTime." = "ඔබගේ ඇතුළු පෙට්ටියට Bitwarden වෙතින් උපදෙස්, නිවේදන සහ පර්යේෂණ අවස්ථා ලබා ගන්න. ඕනෑම වේලාවක **[දායකත්වය අවලංගු කරන්න](%1$@)**.";
 "UserVerificationForPasskey" = "පාස්කී සඳහා පරිශීලක සත්‍යාපනය";
-"NewItem" = "නව අයිතමය";
 "ExploreTheGenerator" = "උත්පාදක යන්ත්‍රය ගවේෂණය කරන්න";
 "LearnMoreAboutGeneratingSecureLoginCredentialsWithAGuidedTour" = "මඟ පෙන්වූ සංචාරයක් සමඟ ආරක්ෂිත පිවිසුම් අක්තපත්‍ර ජනනය කිරීම ගැන වැඩිදුර ඉගෙන ගන්න.";
 "ExportVaultFilePwProtectInfo" = "මෙම ගොනු අපනයනය මුරපද ආරක්ෂිත වන අතර විකේතනය සඳහා ගොනු මුරපදය අවශ්‍ය වේ.";
@@ -881,6 +886,10 @@
 "Identification" = "හඳුනාගැනීම";
 "Owner" = "හිමිකරු";
 "VerifyYourIdentity" = "ඔබගේ අනන්‍යතාව සත්‍යාපනය කරන්න";
+"ThisOperationIsNotAllowedOnThisAccount" = "This operation is not allowed on this account";
+"AnErrorOccurredWhileTryingToLockTheCurrentUser" = "An error occurred while trying to lock the current user";
+"LockAllAccounts" = "Lock all accounts";
+"AllAccountsHaveBeenLocked" = "All accounts have been locked";
 "ShareErrorDetails" = "දෝෂ විස්තර බෙදාගන්න";
 "FlightRecorder" = "ගුවන් පියාසැරි පටිගත කරන්නා";
 "EnableFlightRecorder" = "ගුවන් පියාසැරි පටිගත කිරීම සක්‍රිය කරන්න";
@@ -909,7 +918,13 @@
 "ExpiresOnXDate" = "%1$@ දින කල් ඉකුත් වේ";
 "ExpiresTomorrow" = "හෙට කල් ඉකුත් වේ";
 "DateRangeXToY" = "%1$@ සිට %2$@ දක්වා";
+"LogOutAllAccounts" = "Log out all accounts";
+"AllAccountsHaveBeenLoggedOut" = "All accounts have been logged out";
+"AnErrorOccurredWhileTryingToLogOutAllAccounts" = "An error occurred while trying to log out all accounts";
 "SelfHostServerURL" = "ස්වයං-සත්කාරක සේවාදායක URL";
+"OpenGenerator" = "Open generator";
+"OpenPasswordGenerator" = "Open password generator";
+"GeneratePassphrase" = "Generate passphrase";
 "AllowUniversalClipboard" = "විශ්ව ක්ලිප්බෝඩයට ඉඩ දෙන්න";
 "UseUniversalClipboardToCopyDescriptionLong" = "මෙහි පිටපත් කර එකම Apple ID සමඟ පිවිස ඇති වෙනත් උපාංගවල ඇලවීමට විශ්ව ක්ලිප්බෝඩය භාවිතා කරන්න.";
 "RemoveMasterPasswordConfirmDomain" = "පහත සංවිධානයේ සාමාජිකයින් සඳහා ප්‍රධාන මුරපදයක් තවදුරටත් අවශ්‍ය නොවේ. කරුණාකර ඔබගේ සංවිධාන පරිපාලක සමඟ පහත වසම තහවුරු කරන්න.";
@@ -929,6 +944,7 @@
 "GoToSettings" = "සැකසීම් වෙත යන්න";
 "SiriAndShortcutsAccess" = "Siri සහ කෙටිමං ප්‍රවේශය";
 "EnableToAllowTheAppToRespondToSiriAndShortcutsUsingAppIntents" = "යෙදුමට App Intents භාවිතයෙන් Siri සහ කෙටිමං වලට ප්‍රතිචාර දැක්වීමට ඉඩ දීමට සක්‍රිය කරන්න.";
+"ThereIsNoActiveAccount" = "There is no active account.";
 "NewFileSend" = "නව ගොනු යැවීම";
 "NewTextSend" = "නව පෙළ යැවීම";
 "EditFileSend" = "ගොනු යැවීම සංස්කරණය කරන්න";
@@ -979,7 +995,6 @@
 "NoAskMe" = "නැත, මගෙන් අසන්න";
 "NoCodes" = "පෙන්වීමට ඔබට කේත කිසිවක් නොමැත";
 "None" = "කිසිවක් නැත";
-"NoneOfTheAbove" = "ඉහත කිසිවක් නොවේ";
 "NumberOfDigits" = "ඉලක්කම් ගණන";
 "OtpType" = "OTP වර්ගය";
 "RefreshPeriod" = "නැවුම් කිරීමේ කාල සීමාව";

@@ -182,7 +182,6 @@
 "CopyTotp" = "Скапіяваць TOTP";
 "CopyTotpAutomaticallyDescription" = "Калі ўваход мае ключ аўтэнтыфікатара, капіруйце TOTP-код праверкі ў буфер абмену пры аўтазапаўненні ўваходу.";
 "CopyTotpAutomatically" = "Скапіяваць TOTP аўтаматычна";
-"PremiumRequired" = "Для выкарыстання гэтай функцыі патрабуецца прэміяльны статус.";
 "AttachementAdded" = "Далучэнне дададзена";
 "AttachmentDeleted" = "Далучэнне выдалена";
 "ChooseFile" = "Выбраць файл";
@@ -223,7 +222,6 @@
 "August" = "Жнівень";
 "Brand" = "Тып карткі";
 "CardholderName" = "Імя ўладальніка карткі";
-"WeFoundMultipleMatchesChooseTheCorrectOne" = "Мы знайшлі некалькі супадзенняў. Выберыце правільнае.";
 "CityTown" = "Горад / Пасёлак";
 "Company" = "Кампанія";
 "Country" = "Краіна";
@@ -309,6 +307,7 @@
 "NoEmailAddressesEntered" = "Адрасы электроннай пошты не ўведзеныя";
 "EnterAtLeastOneValidEmailToShareSend" = "Увядзіце прынамсі адзін сапраўдны адрас электроннай пошты, каб абагуліць гэты Send.";
 "OneOrMoreEmailAddressesIncorrect" = "Адзін або некалькі адрасоў электроннай пошты няправільныя. Калі ласка, праверце і паспрабуйце яшчэ раз.";
+"OnlyIncludeTheFollowingDomainsDescriptionLong" = "Only include the following domains: %1$@. Please review and try again.";
 "Cards" = "Карткі";
 "Identities" = "Пасведчанні";
 "Logins" = "Лагіны";
@@ -444,11 +443,19 @@
 "NewSendCreated" = "Створаны новы Send.";
 "Custom" = "Карыстальніцкі";
 "SendDisabledWarning" = "У адпаведнасці з палітыкай прадпрыемства, вы можаце выдаліць толькі бягучы Send.";
+"ThisDateIsEnforcedByYourOrganization" = "This date is enforced by your organization";
 "AboutSend" = "Пра Send";
 "HideEmail" = "Схаваць мой адрас электроннай пошты ад атрымальнікаў";
 "SendOptionsPolicyInEffect" = "Адна або больш палітык арганізацыі ўплываюць на параметры Send.";
 "SendFilePremiumRequired" = "У бясплатных уліковых запісах можна адпраўляць толькі тэкст. Для адпраўкі файлаў праз Send, патрабуецца прэміяльны статус.";
 "SendFileEmailVerificationRequired" = "Для адпраўкі файлаў з дапамогай Send, вам неабходна праверыць вашу электронную пошту. Зрабіць гэта можна ў вэб-сховішчы.";
+/* Alert message shown when Send Controls policy restricts creation to one Send type. %1$@ is the allowed Send type, either "File" or "Text". */
+"DueToAnEnterprisePolicyYouCanOnlyCreateXSends" = "Due to an enterprise policy, you can only create %1$@ Sends.";
+"OrganizationPolicyRestriction" = "Organization policy restriction";
+"TextSendsAreNotAllowedDescriptionLong" = "Text Sends are not allowed for your organization and this Send will automatically expire at the set deletion date.";
+"ThisSendIsNotCompliantDescriptionLong" = "This Send is not compliant with your organization's Send policy and will automatically expire at the set deletion date.";
+"ToEditThisSendMakeACopyDescriptionLong" = "To edit this Send, make a copy. If this Send can expire at the set deletion date, no action is needed.";
+"MakeACopy" = "Make a copy";
 "PasswordPrompt" = "Паўторны запыт асноўнага пароля";
 "PasswordConfirmation" = "Пацвярджэнне асноўнага пароля";
 "PasswordConfirmationDesc" = "Гэта дзеянне абаронена. Паўторна ўвядзіце асноўны пароль, каб праверыць сваю асобу і працягнуць далей.";
@@ -648,7 +655,6 @@
 "SetUpAutofill" = "Наладзіць аўтазапаўненне";
 "AppInfo" = "Пра праграму";
 "Browse" = "Агляд";
-"SelectCardholderName" = "Выберыце імя ўладальніка карты";
 "SelectLanguage" = "Абраць мову";
 "ContinueToCompleteWebAuthnVerification" = "Працягніце, каб завяршыць праверку WebAuthn.";
 "ThereWasAnErrorStartingWebAuthnTwoFactorAuthentication" = "Узнікла памылка пры запуску двухфактарнай аўтэнтыфікацыі WebAuthn";
@@ -667,7 +673,6 @@
 "ByContinuingYouAgreeToTheTermsOfServiceAndPrivacyPolicy" = "Працягваючы, вы згаджаецеся з **[Умовамі абслугоўвання](%1$@)** і **[Палітыкай прыватнасці](%2$@)**";
 "GetAdviceAnnouncementsAndResearchOpportunitiesFromBitwardenInYourInboxUnsubscribeAtAnyTime." = "Атрымлівайце парады, аб'явы і магчымасці даследаванняў ад Bitwarden у сваю паштоўку. **[Адпісацца](%1$@)** можна ў любы час.";
 "UserVerificationForPasskey" = "Праверка карыстальніка для ключа доступу";
-"NewItem" = "Новы элемент";
 "ExploreTheGenerator" = "Даследаваць генератар";
 "LearnMoreAboutGeneratingSecureLoginCredentialsWithAGuidedTour" = "Даведайцеся больш пра стварэнне бяспечных уліковых дадзеных з дапамогай экскурсіі.";
 "ExportVaultFilePwProtectInfo" = "Гэты экспартаваны файл будзе абаронены паролем, які неабходна будзе ўвесці для яго расшыфроўкі.";
@@ -881,6 +886,10 @@
 "Identification" = "Ідэнтыфікацыя";
 "Owner" = "Уладальнік";
 "VerifyYourIdentity" = "Пацвердзіце сваю асобу";
+"ThisOperationIsNotAllowedOnThisAccount" = "This operation is not allowed on this account";
+"AnErrorOccurredWhileTryingToLockTheCurrentUser" = "An error occurred while trying to lock the current user";
+"LockAllAccounts" = "Lock all accounts";
+"AllAccountsHaveBeenLocked" = "All accounts have been locked";
 "ShareErrorDetails" = "Абагуліць звесткі пра памылку";
 "FlightRecorder" = "Бартавы самапісец";
 "EnableFlightRecorder" = "Уключыць бартавы самапісец";
@@ -909,7 +918,13 @@
 "ExpiresOnXDate" = "Скончваецца %1$@";
 "ExpiresTomorrow" = "Скончваецца заўтра";
 "DateRangeXToY" = "%1$@ – %2$@";
+"LogOutAllAccounts" = "Log out all accounts";
+"AllAccountsHaveBeenLoggedOut" = "All accounts have been logged out";
+"AnErrorOccurredWhileTryingToLogOutAllAccounts" = "An error occurred while trying to log out all accounts";
 "SelfHostServerURL" = "URL самастойнага сервера";
+"OpenGenerator" = "Open generator";
+"OpenPasswordGenerator" = "Open password generator";
+"GeneratePassphrase" = "Generate passphrase";
 "AllowUniversalClipboard" = "Дазволіць Universal Clipboard";
 "UseUniversalClipboardToCopyDescriptionLong" = "Выкарыстоўвайце Universal Clipboard, каб капіраваць тут і ўстаўляць на іншых прыладах, увайшоўшых пад тым жа Apple ID.";
 "RemoveMasterPasswordConfirmDomain" = "Галоўны пароль больш не патрабуецца для членаў наступнай арганізацыі. Калі ласка, пацвердзіце дамен ніжэй са сваім адміністратарам арганізацыі.";
@@ -929,6 +944,7 @@
 "GoToSettings" = "Перайсці ў налады";
 "SiriAndShortcutsAccess" = "Доступ Siri і Shortcuts";
 "EnableToAllowTheAppToRespondToSiriAndShortcutsUsingAppIntents" = "Уключыце, каб дазволіць праграме адказваць на Siri і Shortcuts з дапамогай App Intents.";
+"ThereIsNoActiveAccount" = "There is no active account.";
 "NewFileSend" = "Новая файлавая адпраўка";
 "NewTextSend" = "Новая тэкставая адпраўка";
 "EditFileSend" = "Рэдагаваць файлавую адпраўку";
@@ -979,7 +995,6 @@
 "NoAskMe" = "Не, пытацца ў мяне";
 "NoCodes" = "У вас няма кодаў для адлюстравання";
 "None" = "Няма";
-"NoneOfTheAbove" = "Ніводнае з вышэйпералічанага";
 "NumberOfDigits" = "Колькасць лічбаў";
 "OtpType" = "Тып OTP";
 "RefreshPeriod" = "Перыяд абнаўлення";

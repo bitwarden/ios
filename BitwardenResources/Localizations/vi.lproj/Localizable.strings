@@ -182,7 +182,6 @@
 "CopyTotp" = "Sao chép TOTP";
 "CopyTotpAutomaticallyDescription" = "Nếu tài khoản đăng nhập có khóa xác thực, mã xác minh TOTP sẽ được sao chép vào bộ nhớ tạm khi bạn tự động điền thông tin đăng nhập.";
 "CopyTotpAutomatically" = "Tự động sao chép mã TOTP";
-"PremiumRequired" = "Cần là thành viên Cao cấp để sử dụng tính năng này.";
 "AttachementAdded" = "Đã thêm tệp đính kèm";
 "AttachmentDeleted" = "Đã xóa tệp đính kèm";
 "ChooseFile" = "Chọn tập tin";
@@ -223,7 +222,6 @@
 "August" = "Tháng 8";
 "Brand" = "Thương hiệu";
 "CardholderName" = "Tên chủ thẻ";
-"WeFoundMultipleMatchesChooseTheCorrectOne" = "Chúng tôi đã tìm thấy nhiều kết quả khớp. Hãy chọn kết quả chính xác.";
 "CityTown" = "Xã / Phường";
 "Company" = "Công ty";
 "Country" = "Quốc gia";
@@ -309,6 +307,7 @@
 "NoEmailAddressesEntered" = "Chưa nhập địa chỉ email";
 "EnterAtLeastOneValidEmailToShareSend" = "Nhập ít nhất một địa chỉ email hợp lệ để chia sẻ Send này.";
 "OneOrMoreEmailAddressesIncorrect" = "Một hoặc nhiều địa chỉ email chưa chính xác. Vui lòng kiểm tra và thử lại.";
+"OnlyIncludeTheFollowingDomainsDescriptionLong" = "Chỉ bao gồm các tên miền sau: %1$@. Vui lòng xem lại và thử lại.";
 "Cards" = "Thẻ";
 "Identities" = "Danh tính";
 "Logins" = "Đăng nhập";
@@ -444,11 +443,19 @@
 "NewSendCreated" = "Đã tạo Send";
 "Custom" = "Tùy chỉnh";
 "SendDisabledWarning" = "Do chính sách doanh nghiệp, bạn chỉ có thể xóa những Send hiện có.";
+"ThisDateIsEnforcedByYourOrganization" = "Ngày này do tổ chức của bạn quy định";
 "AboutSend" = "Về Send";
 "HideEmail" = "Ẩn địa chỉ email của tôi với người nhận";
 "SendOptionsPolicyInEffect" = "Các chính sách của tổ chức đang ảnh hưởng đến tùy chọn Send của bạn.";
 "SendFilePremiumRequired" = "Tài khoản miễn phí chỉ được gửi văn bản. Nâng cấp lên gói Cao Cấp để gửi các tập tin với Send.";
 "SendFileEmailVerificationRequired" = "Bạn phải xác minh email của mình để sử dụng tệp trong Send. Bạn có thể xác minh email của mình trong kho lưu trữ web.";
+/* Alert message shown when Send Controls policy restricts creation to one Send type. %1$@ is the allowed Send type, either "File" or "Text". */
+"DueToAnEnterprisePolicyYouCanOnlyCreateXSends" = "Due to an enterprise policy, you can only create %1$@ Sends.";
+"OrganizationPolicyRestriction" = "Hạn chế do chính sách của tổ chức";
+"TextSendsAreNotAllowedDescriptionLong" = "Tổ chức của bạn không cho phép các Send văn bản và Send này sẽ tự động hết hạn vào ngày xóa được thiết lập.";
+"ThisSendIsNotCompliantDescriptionLong" = "This Send is not compliant with your organization's Send policy and will automatically expire at the set deletion date.";
+"ToEditThisSendMakeACopyDescriptionLong" = "Để chỉnh sửa Send này, hãy tạo một bản sao. Nếu Send này có thể hết hạn vào ngày xóa đã đặt, bạn không cần thực hiện hành động nào.";
+"MakeACopy" = "Tạo một bản sao";
 "PasswordPrompt" = "Nhập lại mật khẩu chính";
 "PasswordConfirmation" = "Xác nhận mật khẩu chính";
 "PasswordConfirmationDesc" = "Hành động này được bảo vệ. Để tiếp tục, hãy nhập lại mật khẩu chính của bạn để xác minh danh tính.";
@@ -648,7 +655,6 @@
 "SetUpAutofill" = "Thiết lập tự động điền";
 "AppInfo" = "Thông tin ứng dụng";
 "Browse" = "Duyệt";
-"SelectCardholderName" = "Chọn tên chủ thẻ";
 "SelectLanguage" = "Chọn ngôn ngữ";
 "ContinueToCompleteWebAuthnVerification" = "Tiếp tục hoàn tất quá trình xác minh WebAuthn.";
 "ThereWasAnErrorStartingWebAuthnTwoFactorAuthentication" = "Xảy ra lỗi khi khởi động xác thực hai bước với WebAuthn";
@@ -667,7 +673,6 @@
 "ByContinuingYouAgreeToTheTermsOfServiceAndPrivacyPolicy" = "Bằng cách tiếp tục, bạn đồng ý với **[Điều khoản Dịch vụ](%1$@)** và **[Chính sách Bảo mật](%2$@)**";
 "GetAdviceAnnouncementsAndResearchOpportunitiesFromBitwardenInYourInboxUnsubscribeAtAnyTime." = "Nhận đề xuất, thông báo và cơ hội nghiên cứu từ Bitwarden qua email. **[Hủy đăng ký](%1$@)** bất cứ lúc nào.";
 "UserVerificationForPasskey" = "Xác minh người dùng cho mã khóa";
-"NewItem" = "Mục mới";
 "ExploreTheGenerator" = "Khám phá trình tạo";
 "LearnMoreAboutGeneratingSecureLoginCredentialsWithAGuidedTour" = "Tìm hiểu thêm về cách tạo thông tin đăng nhập an toàn thông qua hướng dẫn.";
 "ExportVaultFilePwProtectInfo" = "Tệp tin này sẽ được bảo vệ bằng mật khẩu và yêu cầu mật khẩu tệp tin để giải mã.";
@@ -881,6 +886,10 @@
 "Identification" = "Định danh";
 "Owner" = "Chủ sở hữu";
 "VerifyYourIdentity" = "Xác minh danh tính của bạn";
+"ThisOperationIsNotAllowedOnThisAccount" = "This operation is not allowed on this account";
+"AnErrorOccurredWhileTryingToLockTheCurrentUser" = "An error occurred while trying to lock the current user";
+"LockAllAccounts" = "Lock all accounts";
+"AllAccountsHaveBeenLocked" = "All accounts have been locked";
 "ShareErrorDetails" = "Chia sẻ chi tiết lỗi";
 "FlightRecorder" = "Bản ghi nhật ký";
 "EnableFlightRecorder" = "Bật bản ghi nhật ký";
@@ -909,7 +918,13 @@
 "ExpiresOnXDate" = "Hết hạn trong %1$@";
 "ExpiresTomorrow" = "Hết hạn ngày mai";
 "DateRangeXToY" = "%1$@ đến %2$@";
+"LogOutAllAccounts" = "Log out all accounts";
+"AllAccountsHaveBeenLoggedOut" = "All accounts have been logged out";
+"AnErrorOccurredWhileTryingToLogOutAllAccounts" = "An error occurred while trying to log out all accounts";
 "SelfHostServerURL" = "URL máy chủ tự lưu trữ";
+"OpenGenerator" = "Open generator";
+"OpenPasswordGenerator" = "Open password generator";
+"GeneratePassphrase" = "Generate passphrase";
 "AllowUniversalClipboard" = "Cho phép Universal Clipboard";
 "UseUniversalClipboardToCopyDescriptionLong" = "Sử dụng Universal Clipboard để sao chép ở đây và dán vào các thiết bị khác đã đăng nhập bằng cùng một Apple ID.";
 "RemoveMasterPasswordConfirmDomain" = "Mật khẩu chính không còn được yêu cầu đối với các thành viên của tổ chức sau đây. Vui lòng xác nhận tên miền bên dưới với quản trị viên của tổ chức.";
@@ -929,6 +944,7 @@
 "GoToSettings" = "Đi đến cài đặt";
 "SiriAndShortcutsAccess" = "Truy cập Siri & Phím tắt";
 "EnableToAllowTheAppToRespondToSiriAndShortcutsUsingAppIntents" = "Cho phép ứng dụng phản hồi với Siri và Phím tắt thông qua App Intents.";
+"ThereIsNoActiveAccount" = "There is no active account.";
 "NewFileSend" = "Send tập tin mới";
 "NewTextSend" = "Send văn bản mới";
 "EditFileSend" = "Chỉnh sửa Send tập tin";
@@ -979,7 +995,6 @@
 "NoAskMe" = "Không, hãy hỏi tôi";
 "NoCodes" = "Bạn không có mã nào để hiển thị";
 "None" = "Không có";
-"NoneOfTheAbove" = "Không có phương án nào ở trên";
 "NumberOfDigits" = "Số lượng chữ số";
 "OtpType" = "Loại OTP";
 "RefreshPeriod" = "Chu kỳ làm mới";

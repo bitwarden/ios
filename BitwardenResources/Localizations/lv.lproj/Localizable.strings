@@ -182,7 +182,6 @@
 "CopyTotp" = "Ievietot TOTP starpliktuvē";
 "CopyTotpAutomaticallyDescription" = "Ja pieteikšanās vienumam ir pievienota autentificētāja atslēga, TOTP apliecinājuma kods tiks automātiski ievietots starpliktuvē, kad vien tiks automātiski aizpildīta pieteikšanās veidne.";
 "CopyTotpAutomatically" = "Automātiski ievietot TOTP starpliktuvē";
-"PremiumRequired" = "Ir nepieciešama Premium dalība, lai izmantotu šo iespēju.";
 "AttachementAdded" = "Pielikums pievienots";
 "AttachmentDeleted" = "Pielikums izdzēsts";
 "ChooseFile" = "Izvēlies datni";
@@ -223,7 +222,6 @@
 "August" = "Augusts";
 "Brand" = "Zīmols";
 "CardholderName" = "Kartes īpašnieka vārds";
-"WeFoundMultipleMatchesChooseTheCorrectOne" = "Mēs atradām vairākas atbilstības. Jāizvēlas pareizā.";
 "CityTown" = "Pilsēta / ciems";
 "Company" = "Uzņēmums";
 "Country" = "Valsts";
@@ -309,6 +307,7 @@
 "NoEmailAddressesEntered" = "Nav ievadīta neviena e-pasta adrese";
 "EnterAtLeastOneValidEmailToShareSend" = "Jāievada vismaz viena derīga e-pasta adresi, lai kopīgotu šo “Send”.";
 "OneOrMoreEmailAddressesIncorrect" = "Viena vai vairākas e-pasta adreses ir nepareizas. Lūgums pārskatīt un mēģināt vēlreiz.";
+"OnlyIncludeTheFollowingDomainsDescriptionLong" = "Iekļaut tikai šos domēnus: %1$@. Lūgums pārskatīt un mēģināt vēlreiz.";
 "Cards" = "Kartes";
 "Identities" = "Identitātes";
 "Logins" = "Pieteikšanās vienumi";
@@ -444,11 +443,19 @@
 "NewSendCreated" = "Send izveidots";
 "Custom" = "Pielāgots";
 "SendDisabledWarning" = "Uzņēmuma nosacījumu dēļ ir iespējams dzēst tikai esošu Send.";
+"ThisDateIsEnforcedByYourOrganization" = "Šis datums ir apvienības uzspiests";
 "AboutSend" = "Par Send";
 "HideEmail" = "Slēpt e-pasta adresi no saņēmējiem.";
 "SendOptionsPolicyInEffect" = "Viens vai vairāki apvienības nosacījumi ietekmē Send iespējas.";
 "SendFilePremiumRequired" = "Ar bezmaksas kontu ir iespējams kopīgot tikai tekstu. Ir nepieciešama Premium dalība, lai Send izmantotu datnes.";
 "SendFileEmailVerificationRequired" = "Ir jāapliecina sava e-pasta adrese, lai izmantotu datnes ar Send. E-pasta edresi var apliecināt tīmekļa glabātavā.";
+/* Alert message shown when Send Controls policy restricts creation to one Send type. %1$@ is the allowed Send type, either "File" or "Text". */
+"DueToAnEnterprisePolicyYouCanOnlyCreateXSends" = "Due to an enterprise policy, you can only create %1$@ Sends.";
+"OrganizationPolicyRestriction" = "Apvienības pamatnostādņu ierobežojums";
+"TextSendsAreNotAllowedDescriptionLong" = "Apvienībā nav atļauti teksta “Send”, un šis “Send” automātiski beigsies iestatītajā izdzēšanas datumā.";
+"ThisSendIsNotCompliantDescriptionLong" = "This Send is not compliant with your organization's Send policy and will automatically expire at the set deletion date.";
+"ToEditThisSendMakeACopyDescriptionLong" = "Lai labotu šo “Send”, jāizveido kopija. Ja šis “Send” var beigties iestatītajā izdzēšanas datumā, nav nepieciešams veikt nekādas darbības.";
+"MakeACopy" = "Izveidot kopiju";
 "PasswordPrompt" = "Galvenās paroles pārvaicāšana";
 "PasswordConfirmation" = "Galvenās paroles apstiprināšana";
 "PasswordConfirmationDesc" = "Šī darbība ir aizsargāta, lai turpinātu, ir jāievada galvenā parole, lai apstiprinātu identitāti.";
@@ -648,7 +655,6 @@
 "SetUpAutofill" = "Iestatīt automātisko aizpildi";
 "AppInfo" = "Par lietotni";
 "Browse" = "Pārlūkot";
-"SelectCardholderName" = "Atlasīt kartes turētāja vārdu";
 "SelectLanguage" = "Atlasīt valodu";
 "ContinueToCompleteWebAuthnVerification" = "Turpināt, lai pabeigtu WebAuthn apliecināšanu.";
 "ThereWasAnErrorStartingWebAuthnTwoFactorAuthentication" = "Atgadījās kļūda WebAuth divpakāpju autentifikācijas uzsākšanā";
@@ -667,7 +673,6 @@
 "ByContinuingYouAgreeToTheTermsOfServiceAndPrivacyPolicy" = "Turpinot Tu piekrīti **[pakalpojuma izmantošanas nosacījumiem](%1$@)** un **[privātuma politikai](%2$@)**";
 "GetAdviceAnnouncementsAndResearchOpportunitiesFromBitwardenInYourInboxUnsubscribeAtAnyTime." = "Iegūt savā iesūtnē padomus, paziņojumus un izpētes iespējas no Bitwarden. **[Atrakstīties](%1$@)** var jebkurā brīdī.";
 "UserVerificationForPasskey" = "Lietotāja apliecināšana piekļuves atslēgai";
-"NewItem" = "Jauns vienums";
 "ExploreTheGenerator" = "Izpētīt veidotāju";
 "LearnMoreAboutGeneratingSecureLoginCredentialsWithAGuidedTour" = "Drošas pieteikšanās informācijas izveidošanas iepazīšana soli pa solim.";
 "ExportVaultFilePwProtectInfo" = "Šī datņu izgūšana būs aizsargāta ar paroli, un būs nepieciešama datnes parole, lai to atšifrētu.";
@@ -881,6 +886,10 @@
 "Identification" = "Identifikācija";
 "Owner" = "Īpašnieks";
 "VerifyYourIdentity" = "Apliecināt savu identitāti";
+"ThisOperationIsNotAllowedOnThisAccount" = "This operation is not allowed on this account";
+"AnErrorOccurredWhileTryingToLockTheCurrentUser" = "An error occurred while trying to lock the current user";
+"LockAllAccounts" = "Lock all accounts";
+"AllAccountsHaveBeenLocked" = "All accounts have been locked";
 "ShareErrorDetails" = "Kopīgot informāciju par kļūdu";
 "FlightRecorder" = "Melnā kaste";
 "EnableFlightRecorder" = "Iespējot melno kasti";
@@ -909,7 +918,13 @@
 "ExpiresOnXDate" = "Beigsies %1$@";
 "ExpiresTomorrow" = "Beigsies rīt";
 "DateRangeXToY" = "%1$@ - %2$@";
+"LogOutAllAccounts" = "Log out all accounts";
+"AllAccountsHaveBeenLoggedOut" = "All accounts have been logged out";
+"AnErrorOccurredWhileTryingToLogOutAllAccounts" = "An error occurred while trying to log out all accounts";
 "SelfHostServerURL" = "Pašmitināta servera URL";
+"OpenGenerator" = "Open generator";
+"OpenPasswordGenerator" = "Open password generator";
+"GeneratePassphrase" = "Generate passphrase";
 "AllowUniversalClipboard" = "Ļaut Universal Clipboard";
 "UseUniversalClipboardToCopyDescriptionLong" = "Izmantot Universal Clipboard, lai ievietotu šeit un ielīmētu citās ierīcēs, kurās ir veikta pieteikšanās ar to pašu Apple ID.";
 "RemoveMasterPasswordConfirmDomain" = "Galvenā parole nav nepieciešama turpmāk minētās apvienības dalībniekiem. Lūgums saskaņot zemāk esošo domēnu ar savas apvienības pārvaldītāju.";
@@ -929,6 +944,7 @@
 "GoToSettings" = "Doties uz iestatījumiem";
 "SiriAndShortcutsAccess" = "Siri un saīšņu piekļuve";
 "EnableToAllowTheAppToRespondToSiriAndShortcutsUsingAppIntents" = "Iespējot, lai ļautu lietotnei atasukties uz Siri un saīsnēm ar lietotņu nolūkiem.";
+"ThereIsNoActiveAccount" = "There is no active account.";
 "NewFileSend" = "Jauns datnes Send";
 "NewTextSend" = "Jauns teksta Send";
 "EditFileSend" = "Labot datnes Send";
@@ -979,7 +995,6 @@
 "NoAskMe" = "Nē, vaicāt man";
 "NoCodes" = "Nav neviena koda, ko parādīt";
 "None" = "Nav";
-"NoneOfTheAbove" = "Nekas no iepriekšminētā";
 "NumberOfDigits" = "Ciparu skaits";
 "OtpType" = "OTP veids";
 "RefreshPeriod" = "Atsvaidzināšanas laika posms";
