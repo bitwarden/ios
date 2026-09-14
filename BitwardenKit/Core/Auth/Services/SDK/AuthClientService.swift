@@ -13,6 +13,10 @@ public protocol AuthClientService: AnyObject, Sendable { // sourcery: AutoMockab
     ///
     func hashPassword(email: String, password: String, kdfParams: Kdf, purpose: HashPurpose) async throws -> String
 
+    /// Returns the client for login functionality.
+    ///
+    func login() -> LoginClientProtocol
+
     /// Generate keys needed to onboard a new user without master key to key connector.
     ///
     func makeKeyConnectorKeys() throws -> KeyConnectorResponse
@@ -68,6 +72,10 @@ public protocol AuthClientService: AnyObject, Sendable { // sourcery: AutoMockab
 // MARK: - AuthClient
 
 extension AuthClient: AuthClientService {
+    public func login() -> LoginClientProtocol {
+        login() as LoginClient
+    }
+
     public func registration() -> RegistrationClientProtocol {
         registration() as RegistrationClient
     }
