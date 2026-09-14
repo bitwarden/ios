@@ -552,7 +552,7 @@ class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_leng
         return try await clientService.auth().hashPassword(
             email: masterPasswordUnlock.salt,
             password: password,
-            kdfParams: account.kdf.sdkKdf,
+            kdfParams: masterPasswordUnlock.kdf.sdkKdf,
             purpose: purpose,
         )
     }

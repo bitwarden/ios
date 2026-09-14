@@ -348,8 +348,16 @@ class AuthServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
     /// master password unlock data, the account's KDF params, and the requested purpose, returning
     /// the SDK's hashed result.
     func test_hashPassword() async throws {
-        stateService.activeAccount = .fixtureWithMasterPasswordUnlock(
-            masterPasswordUnlock: .fixture(salt: "UNLOCK_SALT"),
+        stateService.activeAccount = .fixture(
+            profile: .fixture(
+                kdfIterations: 500_000,
+                userDecryptionOptions: UserDecryptionOptions(
+                    hasMasterPassword: true,
+                    masterPasswordUnlock: .fixture(iterations: 600_000, salt: "UNLOCK_SALT"),
+                    keyConnectorOption: nil,
+                    trustedDeviceOption: nil,
+                ),
+            ),
         )
         clientService.mockAuth.hashPasswordReturnValue = "hashed password"
 

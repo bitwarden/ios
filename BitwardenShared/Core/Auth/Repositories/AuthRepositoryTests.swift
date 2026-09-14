@@ -3330,8 +3330,16 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
             passwordHash: "NEW_PASSWORD_HASH",
             newKey: "NEW_KEY",
         )
-        stateService.activeAccount = .fixtureWithMasterPasswordUnlock(
-            masterPasswordUnlock: .fixture(salt: "UNLOCK_SALT"),
+        stateService.activeAccount = .fixture(
+            profile: .fixture(
+                kdfIterations: 500_000,
+                userDecryptionOptions: UserDecryptionOptions(
+                    hasMasterPassword: true,
+                    masterPasswordUnlock: .fixture(iterations: 600_000, salt: "UNLOCK_SALT"),
+                    keyConnectorOption: nil,
+                    trustedDeviceOption: nil,
+                ),
+            ),
         )
         stateService.forcePasswordResetReason["1"] = .adminForcePasswordReset
 
@@ -3343,6 +3351,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         )
 
         XCTAssertEqual(clientService.mockAuth.hashPasswordReceivedArguments?.email, "UNLOCK_SALT")
+        XCTAssertEqual(clientService.mockAuth.hashPasswordReceivedArguments?.kdfParams, .pbkdf2(iterations: 600_000))
         XCTAssertTrue(errorReporter.errors.isEmpty)
     }
 

@@ -1321,7 +1321,7 @@ extension DefaultAuthRepository: AuthRepository {
         let masterPasswordHash = try await clientService.auth().hashPassword(
             email: masterPasswordUnlock.salt,
             password: currentPassword,
-            kdfParams: account.kdf.sdkKdf,
+            kdfParams: masterPasswordUnlock.kdf.sdkKdf,
             purpose: .serverAuthorization,
         )
 
