@@ -2388,6 +2388,75 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         }
     }
 
+    /// `unlockVaultWithSessionKey()` unlocks the vault using the session key from the keychain,
+    /// returns `true`, and does not treat the unlock as user interaction.
+    func test_unlockVaultWithSessionKey_success() async throws {
+        let active = Account.fixture()
+        stateService.activeAccount = active
+        stateService.accountCryptographicStates[active.profile.userId] = .fixtureV2()
+        keychainService.getUserAuthKeyValueReturnValue = "SESSION_KEY"
+
+        let result = try await subject.unlockVaultWithSessionKey()
+
+        XCTAssertTrue(result)
+        XCTAssertEqual(
+            keychainService.getUserAuthKeyValueReceivedItem,
+            .userSessionKey(userId: active.profile.userId),
+        )
+        XCTAssertEqual(
+            clientService.mockCrypto.initializeUserCryptoReceivedReq?.method,
+            .decryptedKey(decryptedUserKey: "SESSION_KEY"),
+        )
+        XCTAssertFalse(vaultTimeoutService.unlockVaultHadUserInteraction)
+    }
+
+    /// `unlockVaultWithSessionKey()` returns `false` without throwing when the keychain reports
+    /// the OS status for an item that isn't found.
+    func test_unlockVaultWithSessionKey_osStatusItemNotFound_returnsFalse() async throws {
+        stateService.activeAccount = .fixture()
+        keychainService.getUserAuthKeyValueThrowableError = KeychainServiceError.osStatusError(errSecItemNotFound)
+
+        let result = try await subject.unlockVaultWithSessionKey()
+
+        XCTAssertFalse(result)
+        XCTAssertFalse(keychainService.deleteUserAuthKeyCalled)
+    }
+
+    /// `unlockVaultWithSessionKey()` returns `false` without throwing when the keychain doesn't
+    /// have a session key stored.
+    func test_unlockVaultWithSessionKey_keyNotFound_returnsFalse() async throws {
+        let active = Account.fixture()
+        stateService.activeAccount = active
+        keychainService.getUserAuthKeyValueThrowableError = KeychainServiceError.keyNotFound(
+            BitwardenKeychainItem.userSessionKey(userId: active.profile.userId),
+        )
+
+        let result = try await subject.unlockVaultWithSessionKey()
+
+        XCTAssertFalse(result)
+        XCTAssertFalse(keychainService.deleteUserAuthKeyCalled)
+    }
+
+    /// `unlockVaultWithSessionKey()` deletes the session key from the keychain and rethrows the
+    /// error when unlocking the vault fails.
+    func test_unlockVaultWithSessionKey_unlockVaultError_deletesKeyAndRethrows() async throws {
+        let active = Account.fixture()
+        stateService.activeAccount = active
+        stateService.accountCryptographicStates[active.profile.userId] = .fixtureV2()
+        keychainService.getUserAuthKeyValueReturnValue = "SESSION_KEY"
+        clientService.mockCrypto.initializeUserCryptoThrowableError = BitwardenTestError.example
+
+        await assertAsyncThrows(error: BitwardenTestError.example) {
+            _ = try await subject.unlockVaultWithSessionKey()
+        }
+
+        XCTAssertTrue(keychainService.deleteUserAuthKeyCalled)
+        XCTAssertEqual(
+            keychainService.deleteUserAuthKeyReceivedItem,
+            .userSessionKey(userId: active.profile.userId),
+        )
+    }
+
     /// `lockAllVaults(isManuallyLocking:)` locks all available vaults.
     func test_lockAllVaults() async throws {
         stateService.accounts = [

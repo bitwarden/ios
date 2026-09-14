@@ -1424,7 +1424,7 @@ extension DefaultAuthRepository: AuthRepository {
             errorReporter.log(error: error)
         }
         do {
-            let isFeatureEnabled = await configService.getFeatureFlag(.enableUserSessionKeySharing)
+            let isFeatureEnabled: Bool = await configService.getFeatureFlag(.enableUserSessionKeySharing)
             let timeoutValue = try await vaultTimeoutService.sessionTimeoutValue(userId: account.profile.userId)
             if isFeatureEnabled, timeoutValue.allowsUserSessionKeySharing {
                 try await keychainService.setUserAuthKey(
