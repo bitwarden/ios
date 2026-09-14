@@ -1313,10 +1313,13 @@ extension DefaultAuthRepository: AuthRepository {
         reason: ForcePasswordResetReason,
     ) async throws {
         let account = try await stateService.getActiveAccount()
+        guard let masterPasswordUnlock = account.profile.userDecryptionOptions?.masterPasswordUnlock else {
+            throw AuthError.missingMasterPasswordUnlockData
+        }
         let updatePasswordResponse = try await clientService.crypto().makeUpdatePassword(newPassword: newPassword)
 
         let masterPasswordHash = try await clientService.auth().hashPassword(
-            email: account.profile.email,
+            email: masterPasswordUnlock.salt,
             password: currentPassword,
             kdfParams: account.kdf.sdkKdf,
             purpose: .serverAuthorization,

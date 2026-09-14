@@ -3295,7 +3295,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
     /// `updateMasterPassword()` rethrows an error if an error occurs.
     func test_updateMasterPassword_error() async throws {
         clientService.mockCrypto.makeUpdatePasswordThrowableError = BitwardenTestError.example
-        stateService.activeAccount = .fixture()
+        stateService.activeAccount = .fixtureWithMasterPasswordUnlock()
 
         await assertAsyncThrows(error: BitwardenTestError.example) {
             try await subject.updateMasterPassword(
@@ -3307,6 +3307,45 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         }
     }
 
+    /// `updateMasterPassword()` throws an error when the account's master password unlock data is
+    /// missing.
+    func test_updateMasterPassword_errorWhenMasterPasswordUnlockMissing() async throws {
+        stateService.activeAccount = .fixture()
+
+        await assertAsyncThrows(error: AuthError.missingMasterPasswordUnlockData) {
+            try await subject.updateMasterPassword(
+                currentPassword: "PASSWORD",
+                newPassword: "NEW_PASSWORD",
+                passwordHint: "PASSWORD_HINT",
+                reason: .weakMasterPasswordOnLogin,
+            )
+        }
+    }
+
+    /// `updateMasterPassword()` uses the salt from the account's master password unlock data,
+    /// when available, instead of the user's email.
+    func test_updateMasterPassword_usesMasterPasswordUnlockSalt() async throws {
+        client.result = .httpSuccess(testData: .emptyResponse)
+        clientService.mockCrypto.makeUpdatePasswordReturnValue = UpdatePasswordResponse(
+            passwordHash: "NEW_PASSWORD_HASH",
+            newKey: "NEW_KEY",
+        )
+        stateService.activeAccount = .fixtureWithMasterPasswordUnlock(
+            masterPasswordUnlock: .fixture(salt: "UNLOCK_SALT"),
+        )
+        stateService.forcePasswordResetReason["1"] = .adminForcePasswordReset
+
+        try await subject.updateMasterPassword(
+            currentPassword: "PASSWORD",
+            newPassword: "NEW_PASSWORD",
+            passwordHint: "PASSWORD_HINT",
+            reason: .weakMasterPasswordOnLogin,
+        )
+
+        XCTAssertEqual(clientService.mockAuth.hashPasswordReceivedArguments?.email, "UNLOCK_SALT")
+        XCTAssertTrue(errorReporter.errors.isEmpty)
+    }
+
     /// `updateMasterPassword()` performs the API request to update the user's password.
     func test_updateMasterPassword_weakMasterPasswordOnLogin() async throws {
         client.result = .httpSuccess(testData: .emptyResponse)
@@ -3314,7 +3353,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
             passwordHash: "NEW_PASSWORD_HASH",
             newKey: "NEW_KEY",
         )
-        stateService.activeAccount = .fixture()
+        stateService.activeAccount = .fixtureWithMasterPasswordUnlock()
         stateService.masterPasswordHashes["1"] = "MASTER_PASSWORD_HASH"
         stateService.forcePasswordResetReason["1"] = .adminForcePasswordReset
 
@@ -3342,6 +3381,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
             ),
         )
         XCTAssertNil(stateService.forcePasswordResetReason["1"])
+        XCTAssertTrue(errorReporter.errors.isEmpty)
     }
 
     /// `validatePassword(_:)` returns `true` if the master password matches the stored password hash.
