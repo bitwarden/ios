@@ -2234,12 +2234,7 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
     /// `setAccountMasterPasswordUnlock(_:)` throws an error if there's no active account.
     func test_setAccountMasterPasswordUnlock_noActiveAccount() async throws {
         await assertAsyncThrows(error: StateServiceError.noActiveAccount) {
-            try await subject.setAccountMasterPasswordUnlock(
-                MasterPasswordUnlockResponseModel(
-                    account: .fixture(),
-                    masterKeyEncryptedUserKey: "MASTER_KEY_ENCRYPTED_USER_KEY",
-                ),
-            )
+            try await subject.setAccountMasterPasswordUnlock(.fixture())
         }
     }
 

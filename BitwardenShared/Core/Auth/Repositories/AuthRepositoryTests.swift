@@ -3352,6 +3352,14 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
 
         XCTAssertEqual(clientService.mockAuth.hashPasswordReceivedArguments?.email, "UNLOCK_SALT")
         XCTAssertEqual(clientService.mockAuth.hashPasswordReceivedArguments?.kdfParams, .pbkdf2(iterations: 600_000))
+        XCTAssertEqual(
+            stateService.masterPasswordUnlockByUserId["1"],
+            MasterPasswordUnlockResponseModel(
+                kdf: KdfConfig(kdfType: .pbkdf2sha256, iterations: 600_000),
+                masterKeyEncryptedUserKey: "NEW_KEY",
+                salt: "UNLOCK_SALT",
+            ),
+        )
         XCTAssertTrue(errorReporter.errors.isEmpty)
     }
 
@@ -3386,7 +3394,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
             MasterPasswordUnlockResponseModel(
                 kdf: KdfConfig(kdfType: .pbkdf2sha256, iterations: Constants.pbkdf2Iterations),
                 masterKeyEncryptedUserKey: "NEW_KEY",
-                salt: "user@bitwarden.com",
+                salt: "SALT",
             ),
         )
         XCTAssertNil(stateService.forcePasswordResetReason["1"])
