@@ -248,18 +248,14 @@ extension VaultListProcessor {
     }
 
     /// Called when the vault list appears on screen.
-    ///
-    /// - Parameters:
-    ///   - forceSync: Whether the vault refresh should bypass the account revision check.
-    ///
-    private func appeared(forceSync: Bool = false) async {
+    private func appeared() async {
         state.isVfo1FoundationFeatureFlagEnabled = await services.configService.getFeatureFlag(.vfo1Foundation)
 
         // This is being loaded before and after syncing to avoid glitches on which cipher types
         // are allowed while the vault is being refreshed/synced, as feature flags or policies may change that.
         await loadItemTypesUserCanCreate()
 
-        await refreshVault(forceSync: forceSync, syncWithPeriodicCheck: true)
+        await refreshVault(syncWithPeriodicCheck: true)
 
         // Read after sync so the cache has been refreshed by onFetchSyncSucceeded if a sync ran.
         await refreshPremiumActionCards()
@@ -552,13 +548,9 @@ extension VaultListProcessor {
 
     /// Refreshes the vault's contents.
     ///
-    /// - Parameters:
-    ///   - forceSync: Whether to bypass the account revision check, which reports that no sync is
-    ///     needed when it can't reach the server. `true` for explicit user retries.
-    ///   - syncWithPeriodicCheck: Whether the sync should take into consideration
-    ///     the periodic check.
-    ///
-    private func refreshVault(forceSync: Bool = false, syncWithPeriodicCheck: Bool) async {
+    /// - Parameter syncWithPeriodicCheck: Whether the sync should take into consideration
+    /// the periodic check.
+    private func refreshVault(syncWithPeriodicCheck: Bool) async {
         do {
             let takingTimeTask = Task {
                 try await Task.sleep(forSeconds: 5)
@@ -573,7 +565,7 @@ extension VaultListProcessor {
 
             do {
                 try await services.vaultRepository.fetchSync(
-                    forceSync: forceSync,
+                    forceSync: false,
                     isPeriodic: syncWithPeriodicCheck,
                 )
             } catch URLError.cancelled {
@@ -758,7 +750,7 @@ extension VaultListProcessor {
     ///
     private func showSyncUnsuccessfulAlert(message: String) {
         coordinator.showAlert(.syncUnsuccessful(message: message) { [weak self] in
-            await self?.refreshVault(forceSync: true, syncWithPeriodicCheck: false)
+            await self?.refreshVault(syncWithPeriodicCheck: false)
         })
     }
 
@@ -878,11 +870,10 @@ extension VaultListProcessor {
         }
     }
 
-    /// Resets the loading state and re-runs the appeared flow, forcing the sync so an explicit
-    /// retry always reaches the server.
+    /// Resets the loading state and re-runs the appeared flow.
     private func tryAgainTapped() async {
         state.loadingState = .loading(nil)
-        await appeared(forceSync: true)
+        await appeared()
     }
 
     /// Subscribes to Premium checkout status and navigates to the upgrade screen.

@@ -326,14 +326,13 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
     }
 
     /// `perform(_:)` with `.appeared` starts listening for updates with the vault repository.
-    /// In this case sync is flagged as periodic and is not forced.
+    /// In this case sync is flagged as periodic.
     @MainActor
     func test_perform_appeared() async {
         await subject.perform(.appeared)
 
         XCTAssertTrue(vaultRepository.fetchSyncCalled)
         XCTAssertTrue(try XCTUnwrap(vaultRepository.fetchSyncIsPeriodic))
-        XCTAssertEqual(vaultRepository.fetchSyncForceSync, false)
     }
 
     /// `perform(_:)` with `.appeared` doesn't show an alert or log an error if the request was cancelled.
@@ -1119,9 +1118,8 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         XCTAssertEqual(subject.state.loadingState, .error(errorMessage: serverError.message))
     }
 
-    /// Tapping "Try again" on the sync unsuccessful alert forces a non-periodic sync, so the
-    /// retry reaches the server even when the account revision check can't, and leaves the
-    /// cached data on screen.
+    /// Tapping "Try again" on the sync unsuccessful alert performs a non-periodic sync without
+    /// forcing it, and leaves the cached data on screen.
     @MainActor
     func test_perform_refreshed_error_tryAgain() async throws {
         let section = VaultListSection(id: "1", items: [.fixture()], name: "Section")
@@ -1135,7 +1133,7 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         try await coordinator.alertShown.last?.tapAction(title: Localizations.tryAgain)
 
         XCTAssertTrue(vaultRepository.fetchSyncCalled)
-        XCTAssertEqual(vaultRepository.fetchSyncForceSync, true)
+        XCTAssertEqual(vaultRepository.fetchSyncForceSync, false)
         XCTAssertEqual(vaultRepository.fetchSyncIsPeriodic, false)
         XCTAssertEqual(subject.state.loadingState, .data([section]))
     }
@@ -1755,8 +1753,7 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         XCTAssertEqual(sections[0].items, [vaultListItem])
     }
 
-    /// `perform(_:)` with `.tryAgainTapped` will reset the loading state to `.loading(nil)` and
-    /// force the sync, so the retry reaches the server even when the account revision check can't.
+    /// `perform(_:)` with `.tryAgainTapped` will reset the loading state to `.loading(nil)`.
     @MainActor
     func test_perform_tryAgain() async throws {
         subject.state.loadingState = .error(errorMessage: "error")
@@ -1768,11 +1765,9 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         defer { task.cancel() }
         try await waitForAsync { self.subject.state.loadingState == .loading(nil) }
         XCTAssertTrue(vaultRepository.fetchSyncCalled)
-        XCTAssertEqual(vaultRepository.fetchSyncForceSync, true)
     }
 
-    /// `perform(_:)` with `.tryAgainTapped` will force a fetch of the data again and set the state
-    /// to '.data(sections)'
+    /// `perform(_:)` with `.tryAgainTapped` will fetch the data again and set the state to '.data(sections)'
     @MainActor
     func test_perform_tryAgain_success() async throws {
         let section = VaultListSection(id: "1", items: [.fixture()], name: "Section")
@@ -1788,7 +1783,6 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
 
         try await waitForAsync { self.subject.state.loadingState == .data([section]) }
         XCTAssertTrue(vaultRepository.fetchSyncCalled)
-        XCTAssertEqual(vaultRepository.fetchSyncForceSync, true)
     }
 
     /// `onNewSearchResults(data:)` closure from search mediator updates the state's search results with the new items.
