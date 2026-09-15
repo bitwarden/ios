@@ -13,7 +13,7 @@ struct BankAccountTypeTests {
     func defaultValueLocalizedName_isNone() {
         #expect(BankAccountType.defaultValueLocalizedName == Localizations.none)
     }
-    
+
     /// `displayOrder` contains every case exactly once, so a newly added case can't be silently
     /// left out of the menu.
     @Test
