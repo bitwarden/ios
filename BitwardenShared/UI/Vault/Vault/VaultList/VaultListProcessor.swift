@@ -458,7 +458,7 @@ extension VaultListProcessor {
     }
 
     /// Handles a failure to sync the vault, showing the full screen error view when there's no
-    /// cached data to fall back on, and a dialog offering a retry when there is.
+    /// cached data and a sync is needed, and a dialog offering a retry otherwise.
     ///
     /// - Parameters:
     ///   - error: The error thrown by the sync.
