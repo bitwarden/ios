@@ -132,7 +132,6 @@
 "PasswordOverrideAlert" = "Are you sure you want to overwrite the current password?";
 "PushNotificationAlert" = "Bitwarden keeps your vault automatically synced by using push notifications. For the best possible experience, please select “Allow” on the following prompt when asked to allow push notifications.";
 "Security" = "Security";
-"Select" = "Select";
 "ItemUpdated" = "Item saved";
 "Submitting" = "Submitting…";
 "Syncing" = "Syncing…";
