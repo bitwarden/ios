@@ -13,17 +13,13 @@ struct BankAccountTypeTests {
     func defaultValueLocalizedName_isNone() {
         #expect(BankAccountType.defaultValueLocalizedName == Localizations.none)
     }
-
-    /// Raw values match the server contract.
+    
+    /// `displayOrder` contains every case exactly once, so a newly added case can't be silently
+    /// left out of the menu.
     @Test
-    func rawValues_matchServerContract() {
-        #expect(BankAccountType.certificateOfDeposit.rawValue == "certificateOfDeposit")
-        #expect(BankAccountType.checking.rawValue == "checking")
-        #expect(BankAccountType.investmentBrokerage.rawValue == "investmentBrokerage")
-        #expect(BankAccountType.lineOfCredit.rawValue == "lineOfCredit")
-        #expect(BankAccountType.moneyMarket.rawValue == "moneyMarket")
-        #expect(BankAccountType.other.rawValue == "other")
-        #expect(BankAccountType.savings.rawValue == "savings")
+    func displayOrder_containsAllCases() {
+        #expect(Set(BankAccountType.displayOrder) == Set(BankAccountType.allCases))
+        #expect(BankAccountType.displayOrder.count == BankAccountType.allCases.count)
     }
 
     /// `displayOrder` matches the order specified by design.
@@ -40,11 +36,15 @@ struct BankAccountTypeTests {
         ])
     }
 
-    /// `displayOrder` contains every case exactly once, so a newly added case can't be silently
-    /// left out of the menu.
+    /// Raw values match the server contract.
     @Test
-    func displayOrder_containsAllCases() {
-        #expect(Set(BankAccountType.displayOrder) == Set(BankAccountType.allCases))
-        #expect(BankAccountType.displayOrder.count == BankAccountType.allCases.count)
+    func rawValues_matchServerContract() {
+        #expect(BankAccountType.certificateOfDeposit.rawValue == "certificateOfDeposit")
+        #expect(BankAccountType.checking.rawValue == "checking")
+        #expect(BankAccountType.investmentBrokerage.rawValue == "investmentBrokerage")
+        #expect(BankAccountType.lineOfCredit.rawValue == "lineOfCredit")
+        #expect(BankAccountType.moneyMarket.rawValue == "moneyMarket")
+        #expect(BankAccountType.other.rawValue == "other")
+        #expect(BankAccountType.savings.rawValue == "savings")
     }
 }
