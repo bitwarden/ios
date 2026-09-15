@@ -35,6 +35,18 @@ public enum GeneratorType: CaseIterable, Equatable, Identifiable, Menuable, Send
             Localizations.username
         }
     }
+
+    /// The title of the button used to fill the generated value into the field the user came from.
+    public var fillButtonTitle: String {
+        switch self {
+        case .passphrase:
+            Localizations.useThisPassphrase
+        case .password:
+            Localizations.useThisPassword
+        case .username:
+            Localizations.useThisUsername
+        }
+    }
 }
 
 // MARK: - GeneratorState
@@ -68,8 +80,16 @@ struct GeneratorState: Equatable {
             }
         }
 
-        /// A flag indicating if the select button is visible.
-        var isSelectButtonVisible: Bool {
+        /// A flag indicating if the copy icon button next to the regenerate button is visible.
+        var isCopyIconButtonVisible: Bool {
+            switch self {
+            case .tab: false
+            case .inPlace: true
+            }
+        }
+
+        /// A flag indicating if the full-width fill button pinned to the bottom of the sheet is visible.
+        var isFillButtonVisible: Bool {
             switch self {
             case .tab: false
             case .inPlace: true

@@ -10,6 +10,9 @@
 "CopyPassportNumber" = "Copy passport number";
 "CopyPassword" = "Copy password";
 "CopyUsername" = "Copy username";
+"UseThisPassphrase" = "Use this passphrase";
+"UseThisPassword" = "Use this password";
+"UseThisUsername" = "Use this username";
 "Delete" = "Delete";
 "DeleteAll" = "Delete all";
 "Deleting" = "Deleting…";
