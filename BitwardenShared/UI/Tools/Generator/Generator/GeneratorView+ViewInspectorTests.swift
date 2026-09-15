@@ -83,6 +83,16 @@ class GeneratorViewTests: BitwardenTestCase {
         XCTAssertEqual(processor.dispatchedActions.last, .copyGeneratedValue)
     }
 
+    /// The copy icon button is labeled for copying a username, not a password, when generating a username.
+    @MainActor
+    func test_generatedValue_copyTap_inPlace_username() throws {
+        processor.state.presentationMode = .inPlace
+        processor.state.generatorType = .username
+        let button = try subject.inspect().find(buttonWithAccessibilityLabel: Localizations.copyUsername)
+        try button.tap()
+        XCTAssertEqual(processor.dispatchedActions.last, .copyGeneratedValue)
+    }
+
     /// The full-width copy button is only present when presented in a tab, not when presented in place.
     @MainActor
     func test_generatedValue_copyButton_notPresentInPlace() throws {

@@ -36,6 +36,14 @@ class GeneratorStateTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         XCTAssertEqual(subject.availableGeneratorTypes, [.password, .passphrase, .username])
     }
 
+    /// `GeneratorType.copyButtonAccessibilityLabel` returns the accessibility label for the
+    /// buttons used to copy the generated value to the clipboard, for each generator type.
+    func test_copyButtonAccessibilityLabel() {
+        XCTAssertEqual(GeneratorType.passphrase.copyButtonAccessibilityLabel, Localizations.copyPassword)
+        XCTAssertEqual(GeneratorType.password.copyButtonAccessibilityLabel, Localizations.copyPassword)
+        XCTAssertEqual(GeneratorType.username.copyButtonAccessibilityLabel, Localizations.copyUsername)
+    }
+
     /// `GeneratorType.fillButtonTitle` returns the title of the button used to fill the
     /// generated value into the field the user came from, for each generator type.
     func test_fillButtonTitle() {

@@ -321,7 +321,7 @@ struct GeneratorView: View { // swiftlint:disable:this type_body_length
             if store.state.presentationMode.isCopyIconButtonVisible {
                 AccessoryButton(
                     asset: SharedAsset.Icons.copy24,
-                    accessibilityLabel: Localizations.copyPassword,
+                    accessibilityLabel: store.state.generatorType.copyButtonAccessibilityLabel,
                     accessibilityIdentifier: "CopyValueIconButton",
                 ) {
                     store.send(.copyGeneratedValue)
@@ -335,7 +335,7 @@ struct GeneratorView: View { // swiftlint:disable:this type_body_length
             }
             .buttonStyle(.primary())
             .accessibilityIdentifier("CopyValueButton")
-            .accessibilityLabel(Localizations.copyPassword)
+            .accessibilityLabel(store.state.generatorType.copyButtonAccessibilityLabel)
         }
     }
 
