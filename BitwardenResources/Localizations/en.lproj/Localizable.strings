@@ -8,6 +8,7 @@
 "Copy" = "Copy";
 "CopyLicenseNumber" = "Copy license number";
 "CopyPassportNumber" = "Copy passport number";
+"CopyPassphrase" = "Copy passphrase";
 "CopyPassword" = "Copy password";
 "CopyUsername" = "Copy username";
 "UseThisPassphrase" = "Use this passphrase";

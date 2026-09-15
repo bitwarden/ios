@@ -304,7 +304,7 @@ struct GeneratorView: View { // swiftlint:disable:this type_body_length
         } accessoryContent: {
             AccessoryButton(
                 asset: SharedAsset.Icons.generate24,
-                accessibilityLabel: Localizations.generatePassword,
+                accessibilityLabel: store.state.generatorType.regenerateButtonAccessibilityLabel,
                 accessibilityIdentifier: "RegenerateValueButton",
             ) {
                 store.send(.refreshGeneratedValue)

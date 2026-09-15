@@ -39,7 +39,7 @@ class GeneratorStateTests: BitwardenTestCase { // swiftlint:disable:this type_bo
     /// `GeneratorType.copyButtonAccessibilityLabel` returns the accessibility label for the
     /// buttons used to copy the generated value to the clipboard, for each generator type.
     func test_copyButtonAccessibilityLabel() {
-        XCTAssertEqual(GeneratorType.passphrase.copyButtonAccessibilityLabel, Localizations.copyPassword)
+        XCTAssertEqual(GeneratorType.passphrase.copyButtonAccessibilityLabel, Localizations.copyPassphrase)
         XCTAssertEqual(GeneratorType.password.copyButtonAccessibilityLabel, Localizations.copyPassword)
         XCTAssertEqual(GeneratorType.username.copyButtonAccessibilityLabel, Localizations.copyUsername)
     }
@@ -50,6 +50,14 @@ class GeneratorStateTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         XCTAssertEqual(GeneratorType.passphrase.fillButtonTitle, Localizations.useThisPassphrase)
         XCTAssertEqual(GeneratorType.password.fillButtonTitle, Localizations.useThisPassword)
         XCTAssertEqual(GeneratorType.username.fillButtonTitle, Localizations.useThisUsername)
+    }
+
+    /// `GeneratorType.regenerateButtonAccessibilityLabel` returns the accessibility label for the
+    /// button used to regenerate the generated value, for each generator type.
+    func test_regenerateButtonAccessibilityLabel() {
+        XCTAssertEqual(GeneratorType.passphrase.regenerateButtonAccessibilityLabel, Localizations.generatePassphrase)
+        XCTAssertEqual(GeneratorType.password.regenerateButtonAccessibilityLabel, Localizations.generatePassword)
+        XCTAssertEqual(GeneratorType.username.regenerateButtonAccessibilityLabel, Localizations.generateUsername)
     }
 
     /// `PresentationMode.isCopyIconButtonVisible` is only `true` when presented in place.

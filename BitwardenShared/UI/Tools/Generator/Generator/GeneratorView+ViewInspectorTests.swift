@@ -93,6 +93,16 @@ class GeneratorViewTests: BitwardenTestCase {
         XCTAssertEqual(processor.dispatchedActions.last, .copyGeneratedValue)
     }
 
+    /// The copy icon button is labeled for copying a passphrase, not a password, when generating a passphrase.
+    @MainActor
+    func test_generatedValue_copyTap_inPlace_passphrase() throws {
+        processor.state.presentationMode = .inPlace
+        processor.state.generatorType = .passphrase
+        let button = try subject.inspect().find(buttonWithAccessibilityLabel: Localizations.copyPassphrase)
+        try button.tap()
+        XCTAssertEqual(processor.dispatchedActions.last, .copyGeneratedValue)
+    }
+
     /// The full-width copy button is only present when presented in a tab, not when presented in place.
     @MainActor
     func test_generatedValue_copyButton_notPresentInPlace() throws {
@@ -112,6 +122,24 @@ class GeneratorViewTests: BitwardenTestCase {
     @MainActor
     func test_generatedValue_refreshTap() throws {
         let button = try subject.inspect().find(buttonWithAccessibilityLabel: Localizations.generatePassword)
+        try button.tap()
+        XCTAssertEqual(processor.dispatchedActions.last, .refreshGeneratedValue)
+    }
+
+    /// The refresh button is labeled for regenerating a username, not a password, when generating a username.
+    @MainActor
+    func test_generatedValue_refreshTap_username() throws {
+        processor.state.generatorType = .username
+        let button = try subject.inspect().find(buttonWithAccessibilityLabel: Localizations.generateUsername)
+        try button.tap()
+        XCTAssertEqual(processor.dispatchedActions.last, .refreshGeneratedValue)
+    }
+
+    /// The refresh button is labeled for regenerating a passphrase, not a password, when generating a passphrase.
+    @MainActor
+    func test_generatedValue_refreshTap_passphrase() throws {
+        processor.state.generatorType = .passphrase
+        let button = try subject.inspect().find(buttonWithAccessibilityLabel: Localizations.generatePassphrase)
         try button.tap()
         XCTAssertEqual(processor.dispatchedActions.last, .refreshGeneratedValue)
     }

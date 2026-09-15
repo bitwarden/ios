@@ -51,10 +51,24 @@ public enum GeneratorType: CaseIterable, Equatable, Identifiable, Menuable, Send
     /// The accessibility label for the buttons used to copy the generated value to the clipboard.
     public var copyButtonAccessibilityLabel: String {
         switch self {
-        case .passphrase, .password:
+        case .passphrase:
+            Localizations.copyPassphrase
+        case .password:
             Localizations.copyPassword
         case .username:
             Localizations.copyUsername
+        }
+    }
+
+    /// The accessibility label for the button used to regenerate the generated value.
+    public var regenerateButtonAccessibilityLabel: String {
+        switch self {
+        case .passphrase:
+            Localizations.generatePassphrase
+        case .password:
+            Localizations.generatePassword
+        case .username:
+            Localizations.generateUsername
         }
     }
 }
