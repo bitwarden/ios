@@ -45,6 +45,12 @@ protocol BillingService: AnyObject { // sourcery: AutoMockable
     ///
     func premiumCheckoutStatusPublisher() -> AnyPublisher<PremiumCheckoutStatus, Never>
 
+    /// Gets whether the Premium upgrade banner has been dismissed by the active account.
+    ///
+    /// - Returns: Whether the banner has been dismissed.
+    ///
+    func isPremiumUpgradeBannerDismissed() async -> Bool
+
     /// Returns whether the current environment is effectively self-hosted for Premium upgrade checks.
     /// Returns `false` when the debug override flag is enabled, regardless of the actual region.
     ///
@@ -68,6 +74,10 @@ protocol BillingService: AnyObject { // sourcery: AutoMockable
     ///   - subscription: A previously fetched subscription to use, or `nil` to fetch fresh.
     ///
     func refreshSubscriptionAttentionCard(subscription: PremiumSubscription?) async
+
+    /// Sets the Premium upgrade banner as dismissed for the active account, so it is not shown again.
+    ///
+    func setPremiumUpgradeBannerDismissed() async throws
 
     /// Sets the "Upgraded to Premium" action card as dismissed and clears its visibility flag.
     ///
@@ -193,6 +203,10 @@ class DefaultBillingService: BillingService {
         premiumCheckoutStatusSubject.send(nil)
     }
 
+    func isPremiumUpgradeBannerDismissed() async -> Bool {
+        await billingStateService.isPremiumUpgradeBannerDismissed()
+    }
+
     func isSelfHosted() async -> Bool {
         guard environmentService.region == .selfHosted || environmentService.region == .internal else {
             return false
@@ -265,6 +279,10 @@ class DefaultBillingService: BillingService {
         } catch {
             errorReporter.log(error: error)
         }
+    }
+
+    func setPremiumUpgradeBannerDismissed() async throws {
+        try await billingStateService.setPremiumUpgradeBannerDismissed(true)
     }
 
     func setUpgradedToPremiumActionCardDismissed() async {
