@@ -2513,6 +2513,13 @@ extension DefaultStateService: BillingStateService {
         }
     }
 
+    func setPremiumUpgradeBannerDismissed(_ dismissed: Bool, userId: String?) async throws {
+        let userId = try userId ?? getActiveAccountUserId()
+        appSettingsStore.setPremiumUpgradeBannerDismissed(dismissed, userId: userId)
+    }
+
+    // MARK: Premium Upgrade Eligibility
+
     func isPremiumUpgradeEligible() async -> Bool {
         guard await !doesActiveAccountHavePremium() else { return false }
 
@@ -2520,11 +2527,6 @@ extension DefaultStateService: BillingStateService {
         guard let account = try? await getActiveAccount(),
               let creationDate = account.profile.creationDate else { return false }
         return timeProvider.timeSince(creationDate) >= Constants.premiumUpgradeBannerAccountAge
-    }
-
-    func setPremiumUpgradeBannerDismissed(_ dismissed: Bool, userId: String?) async throws {
-        let userId = try userId ?? getActiveAccountUserId()
-        appSettingsStore.setPremiumUpgradeBannerDismissed(dismissed, userId: userId)
     }
 
     // MARK: Premium Upgrade Pending

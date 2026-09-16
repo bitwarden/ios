@@ -1939,13 +1939,6 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         XCTAssertFalse(appSettingsStore.archiveOnboardingShown)
     }
 
-    /// `setUpgradedToPremiumActionCardVisible(_:)` throws errors if no user exists.
-    func test_setUpgradedToPremiumActionCardVisible_error() async throws {
-        await assertAsyncThrows(error: StateServiceError.noActiveAccount) {
-            try await subject.setUpgradedToPremiumActionCardVisible(true)
-        }
-    }
-
     /// `setBiometricAuthenticationEnabled(isEnabled:)` sets biometric unlock preference for the default user.
     func test_setBiometricAuthenticationEnabled_default() async throws {
         await subject.addAccount(.fixture())

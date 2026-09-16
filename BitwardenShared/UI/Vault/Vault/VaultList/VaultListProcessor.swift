@@ -22,7 +22,6 @@ final class VaultListProcessor: StateProcessor<
         & HasAuthService
         & HasBillingRepository
         & HasBillingService
-        & HasBillingStateService
         & HasChangeKdfService
         & HasConfigService
         & HasEnvironmentService
@@ -384,7 +383,7 @@ extension VaultListProcessor {
     /// Dismisses the Premium upgrade action card and persists the banner-dismissed preference.
     private func dismissPremiumUpgradeActionCard() async {
         do {
-            try await services.billingStateService.setPremiumUpgradeBannerDismissed(true)
+            try await services.billingService.setPremiumUpgradeBannerDismissed()
             state.shouldShowPremiumUpgradeActionCard = false
         } catch {
             services.errorReporter.log(error: error)
@@ -535,7 +534,7 @@ extension VaultListProcessor {
         state.shouldShowUpgradedToPremiumActionCard =
             await services.billingService.shouldShowUpgradedToPremiumActionCard()
 
-        let isBannerDismissed = await services.billingStateService.isPremiumUpgradeBannerDismissed()
+        let isBannerDismissed = await services.billingService.isPremiumUpgradeBannerDismissed()
         guard !isBannerDismissed,
               !state.shouldShowSubscriptionAttentionCard,
               await !services.billingService.isSelfHosted()

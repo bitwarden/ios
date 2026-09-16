@@ -10,8 +10,9 @@ protocol BillingStateService { // sourcery: AutoMockable
 
     /// Gets whether the Premium upgrade banner has been dismissed.
     ///
-    /// - Parameter userId: The user ID associated with the Premium upgrade banner dismissed value.
-    ///   Defaults to the active account if `nil`.
+    /// - Parameters:
+    ///   - userId: The user ID associated with the Premium upgrade banner dismissed value.
+    ///     Defaults to the active account if `nil`.
     /// - Returns: Whether the Premium upgrade banner has been dismissed.
     ///
     func getPremiumUpgradeBannerDismissed(userId: String?) async throws -> Bool
@@ -22,12 +23,6 @@ protocol BillingStateService { // sourcery: AutoMockable
     ///
     func isPremiumUpgradeBannerDismissed() async -> Bool
 
-    /// Returns whether the user meets the eligibility criteria for the Premium upgrade.
-    ///
-    /// - Returns: `true` if the user is eligible for the Premium upgrade.
-    ///
-    func isPremiumUpgradeEligible() async -> Bool
-
     /// Sets whether the Premium upgrade banner has been dismissed.
     ///
     /// - Parameters:
@@ -36,6 +31,14 @@ protocol BillingStateService { // sourcery: AutoMockable
     ///     Defaults to the active account if `nil`.
     ///
     func setPremiumUpgradeBannerDismissed(_ dismissed: Bool, userId: String?) async throws
+
+    // MARK: Premium Upgrade Eligibility
+
+    /// Returns whether the user meets the eligibility criteria for the Premium upgrade.
+    ///
+    /// - Returns: `true` if the user is eligible for the Premium upgrade.
+    ///
+    func isPremiumUpgradeEligible() async -> Bool
 
     // MARK: Premium Upgrade Pending
 
@@ -104,6 +107,8 @@ protocol BillingStateService { // sourcery: AutoMockable
     func setUpgradedToPremiumActionCardVisible(_ visible: Bool, userId: String?) async throws
 }
 
+// MARK: - BillingStateService Convenience Methods
+
 extension BillingStateService {
     /// Gets whether the Premium upgrade banner has been dismissed for the active account.
     ///
@@ -140,7 +145,8 @@ extension BillingStateService {
 
     /// Sets whether the Premium upgrade banner has been dismissed for the active account.
     ///
-    /// - Parameter dismissed: Whether the Premium upgrade banner has been dismissed.
+    /// - Parameters:
+    ///   - dismissed: Whether the Premium upgrade banner has been dismissed.
     ///
     func setPremiumUpgradeBannerDismissed(_ dismissed: Bool) async throws {
         try await setPremiumUpgradeBannerDismissed(dismissed, userId: nil)
