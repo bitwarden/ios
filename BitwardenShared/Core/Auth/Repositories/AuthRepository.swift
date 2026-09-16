@@ -1456,7 +1456,14 @@ extension DefaultAuthRepository: AuthRepository {
             // Note: We handle all errors broadly here because the SDK doesn't provide specific
             // error types to distinguish key rotation failures from other errors. Clearing the
             // PIN keys on any error is the safest approach to maintain data consistency.
-            try await clearPins()
+            // `clearPins()` is best-effort here: any failure is logged rather than thrown, since
+            // throwing would abort the in-progress unlock after `initializeUserCrypto` already
+            // succeeded.
+            do {
+                try await clearPins()
+            } catch {
+                errorReporter.log(error: error)
+            }
             // Return `nil` instead of throwing to avoid erroring out of the unlock process.
             return nil
         }
