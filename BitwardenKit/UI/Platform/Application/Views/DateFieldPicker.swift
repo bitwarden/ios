@@ -24,6 +24,15 @@ public struct DateFieldPicker: View {
     /// The date the calendar opens to when the user expands an empty field.
     let defaultDate: Date
 
+    /// Whether `range` excludes dates later than today, as it does for a date of birth or an issue
+    /// date. Under VoiceOver, swiping the wheel picker past today doesn't move it (there's no later row
+    /// to select), which otherwise looks and sounds identical to VoiceOver just repeating the current
+    /// value — `handleSelectionChange(_:)` uses this to decide when to post a boundary announcement.
+    private var disallowsFutureDates: Bool {
+        guard let range else { return false }
+        return range.upperBound <= Date().asUTCCalendarDay()
+    }
+
     /// The (optional) footer text shown below the field.
     let footer: String?
 
@@ -34,15 +43,6 @@ public struct DateFieldPicker: View {
     /// supply one. Child elements (the header button, the clear button) derive their own identifiers
     /// from this so multiple pickers on the same screen don't share child accessibility identifiers.
     private var resolvedAccessibilityIdentifier: String { accessibilityIdentifier ?? "DateFieldPicker" }
-
-    /// Whether `range` excludes dates later than today, as it does for a date of birth or an issue
-    /// date. Under VoiceOver, swiping the wheel picker past today doesn't move it (there's no later row
-    /// to select), which otherwise looks and sounds identical to VoiceOver just repeating the current
-    /// value — `handleSelectionChange(_:)` uses this to decide when to post a boundary announcement.
-    private var disallowsFutureDates: Bool {
-        guard let range else { return false }
-        return range.upperBound <= Date().asUTCCalendarDay()
-    }
 
     /// The (optional) title of the field.
     let title: String?
@@ -278,11 +278,9 @@ public struct DateFieldPicker: View {
     /// that settling echo). Neither check applies under VoiceOver, where the wheel picker never
     /// auto-collapses — the user collapses it via the header instead.
     ///
-    /// Also posts a live VoiceOver announcement — an accessibility hint needs "Speak Hints" enabled and
-    /// isn't spoken by the wheel's native month/day/year sub-elements anyway — when the wheel is already
+    /// Also posts a live VoiceOver announcement when the wheel is already
     /// sitting on the range's upper bound and reports that same boundary day again, meaning the user tried
-    /// to scroll past it and the wheel couldn't move. Landing on the boundary day itself (arriving from an
-    /// earlier day) doesn't announce, so VoiceOver reads that day normally instead of talking over it.
+    /// to scroll past it and the wheel couldn't move.
     private func handleSelectionChange(_ localDay: Date) {
         let previousLocalDay = selectedLocalDay()
 
