@@ -79,6 +79,7 @@ class MockAuthRepository: AuthRepository { // swiftlint:disable:this type_body_l
     var setPinsResult: Result<Void, Error> = .success(())
     var setLastActiveAccountTimeError: Error?
     var setVaultTimeoutError: Error?
+    var startObservingUserSessionKeyFlagCalled = false
     var unlockVaultFromLoginWithDeviceKey: String?
     var unlockVaultFromLoginWithDevicePrivateKey: String?
     var unlockVaultFromLoginWithDeviceResult: Result<Void, Error> = .success(())
@@ -383,6 +384,10 @@ class MockAuthRepository: AuthRepository { // swiftlint:disable:this type_body_l
         if let setVaultTimeoutError {
             throw setVaultTimeoutError
         }
+    }
+
+    func startObservingUserSessionKeyFeatureFlag() {
+        startObservingUserSessionKeyFlagCalled = true
     }
 
     func unlockVaultFromLoginWithDevice(privateKey: String, key: String) async throws {

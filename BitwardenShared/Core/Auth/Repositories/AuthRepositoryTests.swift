@@ -1914,7 +1914,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
     func test_startObservingUserSessionKeyFeatureFlag_firstEmission_flagOff_cleansUp() async throws {
         subject.startObservingUserSessionKeyFeatureFlag()
         stateService.accounts = [anneAccount]
-        stateService.environmentURLs[anneAccount.profile.userId] = .defaultUS
+        stateService.environmentURLs[anneAccount.profile.userId] = anneAccount.settings.environmentUrls
 
         configService.configSubject.send(MetaServerConfig(
             isPreAuth: false,
@@ -1952,8 +1952,8 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
     func test_startObservingUserSessionKeyFeatureFlag_flagFlipsOff_deletesMatchingAccounts() async throws {
         subject.startObservingUserSessionKeyFeatureFlag()
         stateService.accounts = [anneAccount, beeAccount]
-        stateService.environmentURLs[anneAccount.profile.userId] = .defaultUS
-        stateService.environmentURLs[beeAccount.profile.userId] = .defaultUS
+        stateService.environmentURLs[anneAccount.profile.userId] = anneAccount.settings.environmentUrls
+        stateService.environmentURLs[beeAccount.profile.userId] = beeAccount.settings.environmentUrls
 
         // First emission: flag ON — records value, no cleanup.
         configService.configSubject.send(MetaServerConfig(
@@ -1982,9 +1982,13 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
     /// `startObservingUserSessionKeyFeatureFlag()` does not delete `.userSessionKey` for accounts
     /// on a different server when the flag flips OFF.
     func test_startObservingUserSessionKeyFeatureFlag_flagFlipsOff_skipsOtherServerAccounts() async throws {
+        let beeOnDifferentServer = Account.fixture(
+            profile: beeAccount.profile,
+            settings: .fixture(environmentURLs: .defaultEU),
+        )
         subject.startObservingUserSessionKeyFeatureFlag()
-        stateService.accounts = [anneAccount, beeAccount]
-        stateService.environmentURLs[anneAccount.profile.userId] = .defaultUS
+        stateService.accounts = [anneAccount, beeOnDifferentServer]
+        stateService.environmentURLs[anneAccount.profile.userId] = anneAccount.settings.environmentUrls
         stateService.environmentURLs[beeAccount.profile.userId] = .defaultEU
 
         // First emission: flag ON for anneAccount's server.
@@ -2042,7 +2046,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
     func test_startObservingUserSessionKeyFeatureFlag_flagStaysFalse_noRepeatCleanup() async throws {
         subject.startObservingUserSessionKeyFeatureFlag()
         stateService.accounts = [anneAccount]
-        stateService.environmentURLs[anneAccount.profile.userId] = .defaultUS
+        stateService.environmentURLs[anneAccount.profile.userId] = anneAccount.settings.environmentUrls
 
         // First emission: flag OFF — cleanup fires once.
         configService.configSubject.send(MetaServerConfig(
@@ -2263,13 +2267,17 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
     /// `unlockVaultWithPassword` does not write `.userSessionKey` when `enableUserSessionKeySharing`
     /// is OFF, even when the vault timeout permits it.
     func test_unlockVault_userSessionKey_featureFlagOff_doesNotWrite() async throws {
-        let account = Account.fixture()
-        stateService.activeAccount = account
-        stateService.accountEncryptionKeys = [
-            account.profile.userId: AccountEncryptionKeys(
-                cryptographicState: .fixtureV2(),
-                encryptedUserKey: "USER_KEY",
+        let account = Account.fixture(profile: .fixture(
+            userDecryptionOptions: UserDecryptionOptions(
+                hasMasterPassword: true,
+                masterPasswordUnlock: .fixture(),
+                keyConnectorOption: nil,
+                trustedDeviceOption: nil,
             ),
+        ))
+        stateService.activeAccount = account
+        stateService.accountCryptographicStates = [
+            account.profile.userId: .fixtureV2(),
         ]
         vaultTimeoutService.vaultTimeout[account.profile.userId] = .fifteenMinutes
         configService.featureFlagsBool[.enableUserSessionKeySharing] = false
@@ -2284,13 +2292,17 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
     /// `unlockVaultWithPassword` writes `.userSessionKey` when `enableUserSessionKeySharing` is ON
     /// and the vault timeout permits it.
     func test_unlockVault_userSessionKey_featureFlagOn_timeoutAllows_writes() async throws {
-        let account = Account.fixture()
-        stateService.activeAccount = account
-        stateService.accountEncryptionKeys = [
-            account.profile.userId: AccountEncryptionKeys(
-                cryptographicState: .fixtureV2(),
-                encryptedUserKey: "USER_KEY",
+        let account = Account.fixture(profile: .fixture(
+            userDecryptionOptions: UserDecryptionOptions(
+                hasMasterPassword: true,
+                masterPasswordUnlock: .fixture(),
+                keyConnectorOption: nil,
+                trustedDeviceOption: nil,
             ),
+        ))
+        stateService.activeAccount = account
+        stateService.accountCryptographicStates = [
+            account.profile.userId: .fixtureV2(),
         ]
         vaultTimeoutService.vaultTimeout[account.profile.userId] = .fifteenMinutes
         configService.featureFlagsBool[.enableUserSessionKeySharing] = true
@@ -2311,13 +2323,17 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
     /// `unlockVaultWithPassword` does not write `.userSessionKey` when `enableUserSessionKeySharing`
     /// is ON but the vault timeout does not permit sharing (`.never`).
     func test_unlockVault_userSessionKey_featureFlagOn_timeoutDenies_doesNotWrite() async throws {
-        let account = Account.fixture()
-        stateService.activeAccount = account
-        stateService.accountEncryptionKeys = [
-            account.profile.userId: AccountEncryptionKeys(
-                cryptographicState: .fixtureV2(),
-                encryptedUserKey: "USER_KEY",
+        let account = Account.fixture(profile: .fixture(
+            userDecryptionOptions: UserDecryptionOptions(
+                hasMasterPassword: true,
+                masterPasswordUnlock: .fixture(),
+                keyConnectorOption: nil,
+                trustedDeviceOption: nil,
             ),
+        ))
+        stateService.activeAccount = account
+        stateService.accountCryptographicStates = [
+            account.profile.userId: .fixtureV2(),
         ]
         vaultTimeoutService.vaultTimeout[account.profile.userId] = .never
         configService.featureFlagsBool[.enableUserSessionKeySharing] = true
