@@ -1154,27 +1154,29 @@ extension DefaultAuthRepository: AuthRepository {
     }
 
     func unlockVaultWithPIN(pin: String) async throws {
-        guard await configService.getFeatureFlag(.sdkManagedPinUnlock) else {
-            if let pinProtectedUserKeyEnvelope = try await stateService.pinProtectedUserKeyEnvelope() {
+        if let pinProtectedUserKeyEnvelope = try await stateService.pinProtectedUserKeyEnvelope() {
+            if await configService.getFeatureFlag(.sdkManagedPinUnlock) {
+                try await unlockVault(method: .pinState(pin: pin))
+            } else {
                 try await unlockVault(
                     method: .pinEnvelope(
                         pin: pin,
                         pinProtectedUserKeyEnvelope: pinProtectedUserKeyEnvelope,
                     ),
                 )
-            } else {
-                // This is needed to support unlocking with a legacy pin protected user key. Once the
-                // vault is unlocked, the user's pin protected user key is migrated to a pin protected
-                // user key envelope.
-                guard let pinProtectedUserKey = try await stateService.pinProtectedUserKey() else {
-                    throw StateServiceError.noPinProtectedUserKey
-                }
-                try await unlockVault(method: .pin(pin: pin, pinProtectedUserKey: pinProtectedUserKey))
             }
             return
         }
 
-        try await unlockVault(method: .pinState(pin: pin))
+        // This is needed to support unlocking with a legacy pin protected user key, regardless of
+        // the SDK-managed flag — the SDK state bridge only ever exposes the envelope slots, never
+        // this legacy key. Once the vault is unlocked, `configurePinUnlockIfNeeded` migrates it to
+        // a pin protected user key envelope, which brings the SDK-managed path in sync too since
+        // migration writes to the same shared storage slot the bridge reads.
+        guard let pinProtectedUserKey = try await stateService.pinProtectedUserKey() else {
+            throw StateServiceError.noPinProtectedUserKey
+        }
+        try await unlockVault(method: .pin(pin: pin, pinProtectedUserKey: pinProtectedUserKey))
     }
 
     func validatePassword(_ password: String) async throws -> Bool {
