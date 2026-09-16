@@ -1092,6 +1092,7 @@
 "AnyoneWithTheLink" = "Anyone with the link";
 "AnyoneWithThisLinkCanViewThisSend" = "Anyone with this link can view this Send.";
 "AfterSharingThisSendLinkDescriptionLong" = "After sharing this Send link, individuals will need to verify their email with a code to view this Send.";
+"IndividualsWillNeedToEnterThisPasswordDescriptionLong" = "Individuals will need to enter this password to view this Send";
 "SpecificPeople" = "Specific people";
 "WhoCanView" = "Who can view";
 "SharingWithSpecificPeopleIsPremiumFeatureDescriptionLong" = "Sharing with specific people is a Premium feature. Your current plan does not include access to this feature.";
@@ -1276,3 +1277,19 @@
 /* VoiceOver announcement posted when a date picker whose range excludes future dates, e.g. date of birth or an issue date, reports landing on today (the latest available day) while scrolling the wheel. */
 "FutureDatesUnavailable" = "Future dates unavailable";
 "PremiumRequiredTOTPDescriptionLong" = "Authenticator key (TOTP) is a Premium feature. Your current plan does not include access to this feature.";
+/* Toast shown after a login item is saved. */
+"LoginSaved" = "Login saved";
+/* Toast shown after a card item is saved. */
+"CardSaved" = "Card saved";
+/* Toast shown after an identity item is saved. */
+"IdentitySaved" = "Identity saved";
+/* Toast shown after a secure note item is saved. */
+"SecureNoteSaved" = "Secure note saved";
+/* Toast shown after an SSH key item is saved. */
+"SSHKeySaved" = "SSH key saved";
+/* Toast shown after a bank account item is saved. */
+"BankAccountSaved" = "Bank account saved";
+/* Toast shown after a driver's license item is saved. */
+"LicenseSaved" = "License saved";
+/* Toast shown after a passport item is saved. */
+"PassportSaved" = "Passport saved";
