@@ -24,10 +24,8 @@ public struct DateFieldPicker: View {
     /// The date the calendar opens to when the user expands an empty field.
     let defaultDate: Date
 
-    /// Whether `range` excludes dates later than today, as it does for a date of birth or an issue
-    /// date. Under VoiceOver, swiping the wheel picker past today doesn't move it (there's no later row
-    /// to select), which otherwise looks and sounds identical to VoiceOver just repeating the current
-    /// value — `handleSelectionChange(_:)` uses this to decide when to post a boundary announcement.
+    /// Whether `range` excludes dates later than today. Under VoiceOver,
+    /// `handleSelectionChange(_:)` uses this to decide when to post a boundary announcement.
     private var disallowsFutureDates: Bool {
         guard let range else { return false }
         return range.upperBound <= Date().asUTCCalendarDay()
@@ -143,7 +141,7 @@ public struct DateFieldPicker: View {
         _isExpanded = State(initialValue: isExpanded)
     }
 
-    // MARK: Private
+    // MARK: Private Views
 
     /// The inline `DatePicker`, optionally constrained to `range`. Uses the graphical calendar by
     /// default, falling back to the wheel style under VoiceOver where the calendar is hard to navigate.
@@ -251,17 +249,14 @@ public struct DateFieldPicker: View {
         .frame(minHeight: 64)
     }
 
-    /// A binding driving the calendar: reads the selected date (falling back to `defaultDate` when
-    /// empty) and, on selection, commits the value (see `handleSelectionChange(_:)`).
-    ///
-    /// `date` is UTC-anchored (see `iso8601DateOnlyString`), but the `DatePicker` reads/writes
-    /// calendar days in the device's local time zone. The get/set here convert at that boundary so
-    /// the day the user sees selected, and the day they pick, always match the day that gets stored.
-    private func selection() -> Binding<Date> {
-        Binding(
-            get: { selectedLocalDay() },
-            set: { newValue in handleSelectionChange(newValue) },
-        )
+    // MARK: Private Methods
+
+    /// Clears the selected date.
+    private func clearDate() {
+        withAnimation {
+            date = nil
+            isExpanded = false
+        }
     }
 
     /// Handles a change reported by the graphical calendar's selection binding: always commits the
@@ -305,12 +300,17 @@ public struct DateFieldPicker: View {
         (date ?? defaultDate).asLocalCalendarDay()
     }
 
-    /// Clears the selected date.
-    private func clearDate() {
-        withAnimation {
-            date = nil
-            isExpanded = false
-        }
+    /// A binding driving the calendar: reads the selected date (falling back to `defaultDate` when
+    /// empty) and, on selection, commits the value (see `handleSelectionChange(_:)`).
+    ///
+    /// `date` is UTC-anchored (see `iso8601DateOnlyString`), but the `DatePicker` reads/writes
+    /// calendar days in the device's local time zone. The get/set here convert at that boundary so
+    /// the day the user sees selected, and the day they pick, always match the day that gets stored.
+    private func selection() -> Binding<Date> {
+        Binding(
+            get: { selectedLocalDay() },
+            set: { newValue in handleSelectionChange(newValue) },
+        )
     }
 
     /// Toggles the inline calendar's expanded state. Expanding an empty field commits `defaultDate`
