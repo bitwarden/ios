@@ -21,18 +21,15 @@ public enum GeneratorType: CaseIterable, Equatable, Identifiable, Menuable, Send
     /// All of the cases to show in the menu.
     public static let allCases: [Self] = [.password, .passphrase, .username]
 
-    public var id: String {
-        localizedName
-    }
-
-    public var localizedName: String {
+    /// The accessibility label for the buttons used to copy the generated value to the clipboard.
+    public var copyButtonAccessibilityLabel: String {
         switch self {
         case .passphrase:
-            Localizations.passphrase
+            Localizations.copyPassphrase
         case .password:
-            Localizations.password
+            Localizations.copyPassword
         case .username:
-            Localizations.username
+            Localizations.copyUsername
         }
     }
 
@@ -48,15 +45,18 @@ public enum GeneratorType: CaseIterable, Equatable, Identifiable, Menuable, Send
         }
     }
 
-    /// The accessibility label for the buttons used to copy the generated value to the clipboard.
-    public var copyButtonAccessibilityLabel: String {
+    public var id: String {
+        localizedName
+    }
+
+    public var localizedName: String {
         switch self {
         case .passphrase:
-            Localizations.copyPassphrase
+            Localizations.passphrase
         case .password:
-            Localizations.copyPassword
+            Localizations.password
         case .username:
-            Localizations.copyUsername
+            Localizations.username
         }
     }
 
@@ -88,24 +88,16 @@ struct GeneratorState: Equatable {
         /// The generator is being presented in place for a specific generation task.
         case inPlace
 
-        /// A flag indicating if the dismiss button is visible.
-        var isDismissButtonVisible: Bool {
+        /// A flag indicating if the copy icon button next to the regenerate button is visible.
+        var isCopyIconButtonVisible: Bool {
             switch self {
             case .tab: false
             case .inPlace: true
             }
         }
 
-        /// A flag indicating if the options toolbar button is visible.
-        var isOptionsButtonVisible: Bool {
-            switch self {
-            case .tab: true
-            case .inPlace: false
-            }
-        }
-
-        /// A flag indicating if the copy icon button next to the regenerate button is visible.
-        var isCopyIconButtonVisible: Bool {
+        /// A flag indicating if the dismiss button is visible.
+        var isDismissButtonVisible: Bool {
             switch self {
             case .tab: false
             case .inPlace: true
@@ -117,6 +109,14 @@ struct GeneratorState: Equatable {
             switch self {
             case .tab: false
             case .inPlace: true
+            }
+        }
+
+        /// A flag indicating if the options toolbar button is visible.
+        var isOptionsButtonVisible: Bool {
+            switch self {
+            case .tab: true
+            case .inPlace: false
             }
         }
     }
