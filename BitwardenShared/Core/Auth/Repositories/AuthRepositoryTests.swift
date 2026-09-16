@@ -3274,12 +3274,13 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
     }
 
     /// `unlockVaultWithPIN(_:)` unlocks the vault via the SDK-managed PIN state when the
-    /// `sdkManagedPinUnlock` feature flag is enabled.
+    /// `sdkManagedPinUnlock` feature flag is enabled and a pin protected user key envelope exists.
     func test_unlockVaultWithPIN_sdkManagedPinUnlock() async throws {
         configService.featureFlagsBool[.sdkManagedPinUnlock] = true
         let account = Account.fixture()
         stateService.activeAccount = account
         stateService.accountCryptographicStates = ["1": .fixtureV2()]
+        stateService.pinProtectedUserKeyEnvelopeValue[account.profile.userId] = "pinProtectedUserKeyEnvelope"
 
         try await subject.unlockVaultWithPIN(pin: "123")
 
@@ -3297,6 +3298,52 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         XCTAssertFalse(vaultTimeoutService.isLocked(userId: "1"))
         XCTAssertTrue(vaultTimeoutService.unlockVaultHadUserInteraction)
         XCTAssertEqual(stateService.manuallyLockedAccounts["1"], false)
+    }
+
+    /// `unlockVaultWithPIN(_:)` still unlocks via the legacy pin protected user key (and migrates
+    /// it to an envelope) when the `sdkManagedPinUnlock` feature flag is enabled but the user
+    /// hasn't yet been migrated to a pin protected user key envelope. The SDK state bridge never
+    /// exposes the legacy key, so `.pinState` would fail for these users if it were used instead.
+    func test_unlockVaultWithPIN_sdkManagedPinUnlock_migratesLegacyPinProtectedUserKey() async throws {
+        configService.featureFlagsBool[.sdkManagedPinUnlock] = true
+        let account = Account.fixture()
+        clientService.mockCrypto.enrollPinWithEncryptedPinReturnValue = EnrollPinResponse(
+            pinProtectedUserKeyEnvelope: "pinProtectedUserKeyEnvelope",
+            userKeyEncryptedPin: "userKeyEncryptedPin",
+        )
+        stateService.activeAccount = account
+        stateService.accountCryptographicStates = [
+            "1": .fixtureV2(),
+        ]
+        stateService.encryptedPinByUserId[account.profile.userId] = "encryptedPin"
+        stateService.pinProtectedUserKeyValue[account.profile.userId] = "pinProtectedUserKey"
+
+        try await subject.unlockVaultWithPIN(pin: "123")
+
+        XCTAssertEqual(
+            clientService.mockCrypto.initializeUserCryptoReceivedReq,
+            InitUserCryptoRequest(
+                userId: "1",
+                kdfParams: .pbkdf2(iterations: UInt32(Constants.pbkdf2Iterations)),
+                email: "user@bitwarden.com",
+                accountCryptographicState: .fixtureV2(),
+                method: .pin(pin: "123", pinProtectedUserKey: "pinProtectedUserKey"),
+                upgradeToken: nil,
+            ),
+        )
+        XCTAssertFalse(vaultTimeoutService.isLocked(userId: "1"))
+        XCTAssertTrue(vaultTimeoutService.unlockVaultHadUserInteraction)
+        XCTAssertEqual(stateService.manuallyLockedAccounts["1"], false)
+
+        // Existing pin is migrated to pin protected key envelope, bringing the SDK-managed
+        // state bridge in sync for subsequent unlocks.
+        XCTAssertEqual(clientService.mockCrypto.enrollPinWithEncryptedPinReceivedEncryptedPin, "encryptedPin")
+        XCTAssertEqual(stateService.pinProtectedUserKeyEnvelopeValue["1"], "pinProtectedUserKeyEnvelope")
+        XCTAssertEqual(stateService.encryptedPinByUserId["1"], "userKeyEncryptedPin")
+        XCTAssertEqual(flightRecorder.logMessages, [
+            "[Auth] Vault unlocked, method: PIN",
+            "[Auth] Migrated from legacy PIN to PIN-protected user key envelope",
+        ])
     }
 
     /// `unlockVaultWithPassword` restores the biometric key after a successful unlock when biometrics is enabled.
