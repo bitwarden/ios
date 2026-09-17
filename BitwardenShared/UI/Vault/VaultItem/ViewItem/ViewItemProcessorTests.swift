@@ -188,13 +188,17 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         XCTAssertTrue(delegate.itemDeletedCalled)
     }
 
-    /// `didFinishAddingItem(id:)` replaces the current view with the added item's detail view,
-    /// e.g. after cloning the item being viewed, passing along the same upstream delegate.
+    /// `didFinishAddingItem(id:type:)` replaces the current view with the added item's detail
+    /// view and a confirmation toast, e.g. after cloning the item being viewed, passing along the
+    /// same upstream delegate.
     @MainActor
     func test_didFinishAddingItem() {
-        subject.didFinishAddingItem(id: "1")
+        subject.didFinishAddingItem(id: "1", type: .driversLicense)
 
-        XCTAssertEqual(coordinator.routes.last, .viewItem(id: "1"))
+        XCTAssertEqual(
+            coordinator.routes.last,
+            .viewItem(id: "1", toastTitle: Localizations.licenseSaved),
+        )
         XCTAssertIdentical(coordinator.contexts.last as? MockCipherItemOperationDelegate, delegate)
     }
 

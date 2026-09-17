@@ -232,16 +232,20 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         XCTAssertEqual(subject.state.toast, Toast(title: Localizations.itemDeleted))
     }
 
-    /// `didFinishAddingItem(id:)` delegate method navigates to the added item's detail view,
-    /// still performing the master password reprompt check in case the user enabled reprompt on
-    /// the item they just created.
+    /// `didFinishAddingItem(id:type:)` delegate method navigates to the added item's detail view
+    /// with a confirmation toast, still performing the master password reprompt check in case the
+    /// user enabled reprompt on the item they just created.
     @MainActor
     func test_delegate_didFinishAddingItem() {
-        subject.didFinishAddingItem(id: "1")
+        subject.didFinishAddingItem(id: "1", type: .driversLicense)
 
         XCTAssertEqual(
             coordinator.routes.last,
-            .viewItem(id: "1", masterPasswordRepromptCheckCompleted: false),
+            .viewItem(
+                id: "1",
+                masterPasswordRepromptCheckCompleted: false,
+                toastTitle: Localizations.licenseSaved,
+            ),
         )
         XCTAssertTrue(coordinator.contexts.last is VaultListProcessor)
     }

@@ -15,9 +15,11 @@ protocol CipherItemOperationDelegate: AnyObject {
     /// Separate from `itemAdded(type:)` because the added item's id isn't useful until the add
     /// view is out of the way, e.g. to navigate to the item's details.
     ///
-    /// - Parameter id: The ID of the cipher that was added.
+    /// - Parameters:
+    ///   - id: The ID of the cipher that was added.
+    ///   - type: The type of the cipher item that was added.
     ///
-    func didFinishAddingItem(id: String)
+    func didFinishAddingItem(id: String, type: CipherType)
 
     /// Called when a new cipher item has been successfully added.
     ///
@@ -59,7 +61,7 @@ protocol CipherItemOperationDelegate: AnyObject {
 }
 
 extension CipherItemOperationDelegate {
-    func didFinishAddingItem(id _: String) {}
+    func didFinishAddingItem(id _: String, type _: CipherType) {}
 
     func itemAdded(type _: CipherType) -> Bool { true }
 
@@ -397,8 +399,9 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
             return
         }
 
+        let addedItemType = state.type
         let shouldDismiss = if didAddItem {
-            delegate?.itemAdded(type: state.type) ?? true
+            delegate?.itemAdded(type: addedItemType) ?? true
         } else {
             delegate?.itemDismissed() ?? true
         }
@@ -406,7 +409,7 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
 
         if didAddItem, let addedItemId {
             coordinator.navigate(to: .dismiss(DismissAction(action: { [delegate] in
-                delegate?.didFinishAddingItem(id: addedItemId)
+                delegate?.didFinishAddingItem(id: addedItemId, type: addedItemType)
             })))
         } else {
             coordinator.navigate(to: .dismiss())

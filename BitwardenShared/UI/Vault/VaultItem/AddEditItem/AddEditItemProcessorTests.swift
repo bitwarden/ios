@@ -1444,6 +1444,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
         XCTAssertNotNil(dismissAction)
         dismissAction?.action()
         XCTAssertEqual(delegate.didFinishAddingItemId, "1")
+        XCTAssertEqual(delegate.didFinishAddingItemType, .login)
     }
 
     /// `perform(_:)` with `.savePressed` displays an alert containing the message returned by the
@@ -1517,6 +1518,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
         XCTAssertNotNil(dismissAction)
         dismissAction?.action()
         XCTAssertEqual(delegate.didFinishAddingItemId, "1")
+        XCTAssertEqual(delegate.didFinishAddingItemType, .secureNote)
         XCTAssertEqual(reviewPromptService.userActions, [.addedNewItem])
     }
 
@@ -1570,6 +1572,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
         XCTAssertNotNil(dismissAction)
         dismissAction?.action()
         XCTAssertEqual(delegate.didFinishAddingItemId, "1")
+        XCTAssertEqual(delegate.didFinishAddingItemType, .card)
         XCTAssertEqual(reviewPromptService.userActions, [.addedNewItem])
     }
 
@@ -1605,6 +1608,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
         XCTAssertNotNil(loginDismissAction)
         loginDismissAction?.action()
         XCTAssertEqual(delegate.didFinishAddingItemId, "1")
+        XCTAssertEqual(delegate.didFinishAddingItemType, .login)
         XCTAssertEqual(reviewPromptService.userActions, [.addedNewItem])
     }
 
@@ -1657,6 +1661,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
         XCTAssertNotNil(sshKeyDismissAction)
         sshKeyDismissAction?.action()
         XCTAssertEqual(delegate.didFinishAddingItemId, "1")
+        XCTAssertEqual(delegate.didFinishAddingItemType, .sshKey)
         XCTAssertEqual(reviewPromptService.userActions, [.addedNewItem])
     }
 
@@ -3616,6 +3621,7 @@ class MockCipherItemOperationDelegate: CipherItemOperationDelegate {
     var itemUpdatedType: BitwardenShared.CipherType?
     var itemUnarchivedCalled = false
     var didFinishAddingItemId: String?
+    var didFinishAddingItemType: BitwardenShared.CipherType?
 
     func itemAdded(type: BitwardenShared.CipherType) -> Bool {
         itemAddedCalled = true
@@ -3654,7 +3660,8 @@ class MockCipherItemOperationDelegate: CipherItemOperationDelegate {
         itemUnarchivedCalled = true
     }
 
-    func didFinishAddingItem(id: String) {
+    func didFinishAddingItem(id: String, type: BitwardenShared.CipherType) {
         didFinishAddingItemId = id
+        didFinishAddingItemType = type
     }
 }

@@ -875,8 +875,11 @@ extension VaultListProcessor: AddEditFolderDelegate {
 // MARK: - CipherItemOperationDelegate
 
 extension VaultListProcessor: CipherItemOperationDelegate {
-    func didFinishAddingItem(id: String) {
-        coordinator.navigate(to: .viewItem(id: id, masterPasswordRepromptCheckCompleted: false), context: self)
+    func didFinishAddingItem(id: String, type: CipherType) {
+        coordinator.navigate(
+            to: .viewItem(id: id, masterPasswordRepromptCheckCompleted: false, toastTitle: type.savedToastTitle),
+            context: self,
+        )
     }
 
     func itemArchived() {
