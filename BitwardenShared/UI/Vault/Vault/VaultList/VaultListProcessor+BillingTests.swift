@@ -16,7 +16,6 @@ struct VaultListProcessorBillingTests {
 
     let billingRepository: MockBillingRepository
     let billingService: MockBillingService
-    let billingStateService: MockBillingStateService
     let coordinator: MockCoordinator<VaultRoute, AuthAction>
     let premiumUpgradeHelper: MockPremiumUpgradeHelper
     let searchProcessorMediator: MockSearchProcessorMediator
@@ -35,8 +34,6 @@ struct VaultListProcessorBillingTests {
         billingService.shouldShowSubscriptionAttentionCardReturnValue = false
         billingService.isPremiumUpgradeBannerDismissedReturnValue = false
         billingService.shouldShowUpgradedToPremiumActionCardReturnValue = false
-        billingStateService = MockBillingStateService()
-        billingStateService.isPremiumUpgradeBannerDismissedReturnValue = false
         coordinator = MockCoordinator()
         premiumUpgradeHelper = MockPremiumUpgradeHelper()
         searchProcessorMediator = MockSearchProcessorMediator()
@@ -47,7 +44,6 @@ struct VaultListProcessorBillingTests {
         let services = ServiceContainer.withMocks(
             billingRepository: billingRepository,
             billingService: billingService,
-            billingStateService: billingStateService,
             searchProcessorMediatorFactory: searchProcessorMediatorFactory,
             stateService: stateService,
             vaultRepository: vaultRepository,
