@@ -720,12 +720,12 @@ class GeneratorProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         XCTAssertFalse(generatorRepository.addPasswordHistoryCalled)
     }
 
-    /// `receive(_:)` with `.selectButtonPressed` navigates to the `.complete` route.
+    /// `receive(_:)` with `.fillGeneratedValue` navigates to the `.complete` route.
     @MainActor
     func test_receive_selectButtonPressed() {
         subject.state.generatorType = .password
         subject.state.generatedValue = "password"
-        subject.receive(.selectButtonPressed)
+        subject.receive(.fillGeneratedValue)
         XCTAssertEqual(coordinator.routes.last, .complete(type: .password, value: "password"))
         waitFor(!reviewPromptService.userActions.isEmpty)
         XCTAssertEqual(reviewPromptService.userActions, [.copiedOrInsertedGeneratedValue])

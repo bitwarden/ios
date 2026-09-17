@@ -207,34 +207,34 @@ class GeneratorViewTests: BitwardenTestCase {
         XCTAssertEqual(processor.dispatchedActions.last, .showPasswordHistory)
     }
 
-    /// Tapping the fill button dispatches the `.selectButtonPressed` action, labeled for a password.
+    /// Tapping the fill button dispatches the `.fillGeneratedValue` action, labeled for a password.
     @MainActor
     func test_fillButton_tap_password() throws {
         processor.state.presentationMode = .inPlace
         processor.state.generatorType = .password
         let button = try subject.inspect().find(button: Localizations.useThisPassword)
         try button.tap()
-        XCTAssertEqual(processor.dispatchedActions.last, .selectButtonPressed)
+        XCTAssertEqual(processor.dispatchedActions.last, .fillGeneratedValue)
     }
 
-    /// Tapping the fill button dispatches the `.selectButtonPressed` action, labeled for a passphrase.
+    /// Tapping the fill button dispatches the `.fillGeneratedValue` action, labeled for a passphrase.
     @MainActor
     func test_fillButton_tap_passphrase() throws {
         processor.state.presentationMode = .inPlace
         processor.state.generatorType = .passphrase
         let button = try subject.inspect().find(button: Localizations.useThisPassphrase)
         try button.tap()
-        XCTAssertEqual(processor.dispatchedActions.last, .selectButtonPressed)
+        XCTAssertEqual(processor.dispatchedActions.last, .fillGeneratedValue)
     }
 
-    /// Tapping the fill button dispatches the `.selectButtonPressed` action, labeled for a username.
+    /// Tapping the fill button dispatches the `.fillGeneratedValue` action, labeled for a username.
     @MainActor
     func test_fillButton_tap_username() throws {
         processor.state.presentationMode = .inPlace
         processor.state.generatorType = .username
         let button = try subject.inspect().find(button: Localizations.useThisUsername)
         try button.tap()
-        XCTAssertEqual(processor.dispatchedActions.last, .selectButtonPressed)
+        XCTAssertEqual(processor.dispatchedActions.last, .fillGeneratedValue)
     }
 
     /// Updating the slider value dispatches the `.sliderValueChanged` action.

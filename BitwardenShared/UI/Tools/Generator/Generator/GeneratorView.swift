@@ -89,7 +89,7 @@ struct GeneratorView: View { // swiftlint:disable:this type_body_length
     @ViewBuilder var fillButton: some View {
         if store.state.presentationMode.isFillButtonVisible {
             Button(store.state.generatorType.fillButtonTitle) {
-                store.send(.selectButtonPressed)
+                store.send(.fillGeneratedValue)
             }
             .buttonStyle(.primary())
             .accessibilityIdentifier("SelectButton")

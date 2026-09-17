@@ -27,8 +27,8 @@ enum GeneratorAction: Equatable {
     /// The refresh generated value button was pressed.
     case refreshGeneratedValue
 
-    /// The select button was pressed.
-    case selectButtonPressed
+    /// The fill generated value button was pressed.
+    case fillGeneratedValue
 
     /// The show password history button was pressed.
     case showPasswordHistory
@@ -86,9 +86,9 @@ extension GeneratorAction {
         case .clearUrl,
              .copyGeneratedValue,
              .dismissPressed,
+             .fillGeneratedValue,
              .guidedTourViewAction,
              .learnMoreAboutPremium,
-             .selectButtonPressed,
              .showPasswordHistory,
              .sliderEditingChanged,
              .textFieldIsPasswordVisibleChanged,

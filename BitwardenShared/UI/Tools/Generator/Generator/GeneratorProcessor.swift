@@ -130,7 +130,7 @@ final class GeneratorProcessor: StateProcessor<GeneratorState, GeneratorAction, 
         case .refreshGeneratedValue:
             // Generating a new value happens below.
             break
-        case .selectButtonPressed:
+        case .fillGeneratedValue:
             coordinator.navigate(
                 to: .complete(
                     type: state.generatorType,
