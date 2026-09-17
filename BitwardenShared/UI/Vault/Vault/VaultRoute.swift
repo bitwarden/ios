@@ -92,8 +92,9 @@ public enum VaultRoute: Equatable, Hashable {
     ///   - id: The id of the item to display.
     ///   - masterPasswordRepromptCheckCompleted: Whether the master password reprompt check has
     ///     already been completed.
+    ///   - toastTitle: A toast title to show once the view item screen is displayed, if any.
     ///
-    case viewItem(id: String, masterPasswordRepromptCheckCompleted: Bool = false)
+    case viewItem(id: String, masterPasswordRepromptCheckCompleted: Bool = false, toastTitle: String? = nil)
 
     /// A route to display the profile switcher.
     ///
