@@ -188,14 +188,14 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         XCTAssertTrue(delegate.itemDeletedCalled)
     }
 
-    /// `itemAdded(type:)` shows the toast for the added item's type and dismisses the view.
+    /// `didFinishAddingItem(id:)` replaces the current view with the added item's detail view,
+    /// e.g. after cloning the item being viewed, passing along the same upstream delegate.
     @MainActor
-    func test_itemAdded() {
-        XCTAssertNil(subject.state.toast)
+    func test_didFinishAddingItem() {
+        subject.didFinishAddingItem(id: "1")
 
-        let shouldDismiss = subject.itemAdded(type: .driversLicense)
-        XCTAssertTrue(shouldDismiss)
-        XCTAssertEqual(subject.state.toast, Toast(title: Localizations.licenseSaved))
+        XCTAssertEqual(coordinator.routes.last, .viewItem(id: "1"))
+        XCTAssertIdentical(coordinator.contexts.last as? MockCipherItemOperationDelegate, delegate)
     }
 
     /// `itemDismissed()` doesn't show a toast when the editor is dismissed without saving.
