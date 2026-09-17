@@ -1429,6 +1429,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
     /// `perform(_:)` with `.savePressed` succeeds if an organization and collection have been selected.
     @MainActor
     func test_perform_savePressed_organizationAndCollection() async throws {
+        vaultRepository.addCipherResult = .success(.fixture(id: "1"))
         subject.state.name = "Organization Item"
         subject.state.owner = CipherOwner.organization(id: "123", name: "Organization")
         subject.state.collectionIds = ["1"]
@@ -1436,7 +1437,13 @@ class AddEditItemProcessorTests: BitwardenTestCase {
         await subject.perform(.savePressed)
 
         XCTAssertNotNil(vaultRepository.addCipherCiphers.first)
-        XCTAssertEqual(coordinator.routes.last, .dismiss())
+        var dismissAction: DismissAction?
+        if case let .dismiss(onDismiss) = coordinator.routes.last {
+            dismissAction = onDismiss
+        }
+        XCTAssertNotNil(dismissAction)
+        dismissAction?.action()
+        XCTAssertEqual(delegate.didFinishAddingItemId, "1")
     }
 
     /// `perform(_:)` with `.savePressed` displays an alert containing the message returned by the
@@ -1487,7 +1494,8 @@ class AddEditItemProcessorTests: BitwardenTestCase {
 
     /// `perform(_:)` with `.savePressed` saves the item.
     @MainActor
-    func test_perform_savePressed_secureNote() async {
+    func test_perform_savePressed_secureNote() async throws {
+        vaultRepository.addCipherResult = .success(.fixture(id: "1"))
         subject.state.type = .secureNote
         subject.state.name = "secureNote"
 
@@ -1502,13 +1510,20 @@ class AddEditItemProcessorTests: BitwardenTestCase {
             XCTUnwrap(vaultRepository.addCipherCiphers.first).name,
             "secureNote",
         )
-        XCTAssertEqual(coordinator.routes.last, .dismiss())
+        var dismissAction: DismissAction?
+        if case let .dismiss(onDismiss) = coordinator.routes.last {
+            dismissAction = onDismiss
+        }
+        XCTAssertNotNil(dismissAction)
+        dismissAction?.action()
+        XCTAssertEqual(delegate.didFinishAddingItemId, "1")
         XCTAssertEqual(reviewPromptService.userActions, [.addedNewItem])
     }
 
     /// `perform(_:)` with `.savePressed` saves the item.
     @MainActor
     func test_perform_savePressed_card() async throws {
+        vaultRepository.addCipherResult = .success(.fixture(id: "1"))
         subject.state.name = "vault item"
         subject.state.type = .card
         let expectedCardState = CardItemState(
@@ -1548,13 +1563,20 @@ class AddEditItemProcessorTests: BitwardenTestCase {
                     creationDate: vaultRepository.addCipherCiphers[0].creationDate,
                 ),
         )
-        XCTAssertEqual(coordinator.routes.last, .dismiss())
+        var dismissAction: DismissAction?
+        if case let .dismiss(onDismiss) = coordinator.routes.last {
+            dismissAction = onDismiss
+        }
+        XCTAssertNotNil(dismissAction)
+        dismissAction?.action()
+        XCTAssertEqual(delegate.didFinishAddingItemId, "1")
         XCTAssertEqual(reviewPromptService.userActions, [.addedNewItem])
     }
 
     /// `perform(_:)` with `.savePressed` saves the item.
     @MainActor
-    func test_perform_savePressed_login() async {
+    func test_perform_savePressed_login() async throws {
+        vaultRepository.addCipherResult = .success(.fixture(id: "1"))
         subject.state.name = "vault item"
         await subject.perform(.savePressed)
 
@@ -1576,13 +1598,20 @@ class AddEditItemProcessorTests: BitwardenTestCase {
                     .newCipherView(creationDate: vaultRepository.addCipherCiphers[0].creationDate),
             ],
         )
-        XCTAssertEqual(coordinator.routes.last, .dismiss())
+        var loginDismissAction: DismissAction?
+        if case let .dismiss(onDismiss) = coordinator.routes.last {
+            loginDismissAction = onDismiss
+        }
+        XCTAssertNotNil(loginDismissAction)
+        loginDismissAction?.action()
+        XCTAssertEqual(delegate.didFinishAddingItemId, "1")
         XCTAssertEqual(reviewPromptService.userActions, [.addedNewItem])
     }
 
     /// `perform(_:)` with `.savePressed` saves the item for `.sshKey`.
     @MainActor
     func test_perform_savePressed_sshKey() async throws {
+        vaultRepository.addCipherResult = .success(.fixture(id: "1"))
         subject.state.name = "vault item"
         subject.state.type = .sshKey
         let expectedSSHKeyItemState = SSHKeyItemState(
@@ -1621,7 +1650,13 @@ class AddEditItemProcessorTests: BitwardenTestCase {
                     creationDate: vaultRepository.addCipherCiphers[0].creationDate,
                 ),
         )
-        XCTAssertEqual(coordinator.routes.last, .dismiss())
+        var sshKeyDismissAction: DismissAction?
+        if case let .dismiss(onDismiss) = coordinator.routes.last {
+            sshKeyDismissAction = onDismiss
+        }
+        XCTAssertNotNil(sshKeyDismissAction)
+        sshKeyDismissAction?.action()
+        XCTAssertEqual(delegate.didFinishAddingItemId, "1")
         XCTAssertEqual(reviewPromptService.userActions, [.addedNewItem])
     }
 
@@ -1683,7 +1718,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
     }
 
     /// `perform(_:)` with `.savePressed` notifies the delegate of the type of the item that was
-    /// added, so that a confirmation toast can be shown.
+    /// added, so it can decide whether to dismiss.
     @MainActor
     func test_perform_savePressed_new_notifiesDelegateItemAdded() async throws {
         subject.state.type = .driversLicense
@@ -3580,6 +3615,7 @@ class MockCipherItemOperationDelegate: CipherItemOperationDelegate {
     var itemUpdatedShouldDismiss = true
     var itemUpdatedType: BitwardenShared.CipherType?
     var itemUnarchivedCalled = false
+    var didFinishAddingItemId: String?
 
     func itemAdded(type: BitwardenShared.CipherType) -> Bool {
         itemAddedCalled = true
@@ -3616,5 +3652,9 @@ class MockCipherItemOperationDelegate: CipherItemOperationDelegate {
 
     func itemUnarchived() {
         itemUnarchivedCalled = true
+    }
+
+    func didFinishAddingItem(id: String) {
+        didFinishAddingItemId = id
     }
 }

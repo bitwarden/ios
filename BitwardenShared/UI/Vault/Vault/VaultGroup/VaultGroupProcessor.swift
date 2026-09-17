@@ -396,9 +396,8 @@ final class VaultGroupProcessor: StateProcessor<// swiftlint:disable:this type_b
 extension VaultGroupProcessor: CipherItemOperationDelegate {
     // MARK: Methods
 
-    func itemAdded(type: CipherType) -> Bool {
-        displayToastAndRefresh(toastTitle: type.savedToastTitle)
-        return true
+    func didFinishAddingItem(id: String) {
+        coordinator.navigate(to: .viewItem(id: id, masterPasswordRepromptCheckCompleted: false), context: self)
     }
 
     func itemArchived() {

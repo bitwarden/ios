@@ -11,7 +11,7 @@ class MockVaultRepository: VaultRepository { // swiftlint:disable:this type_body
     // MARK: Properties
 
     var addCipherCiphers = [CipherView]()
-    var addCipherResult: Result<Void, Error> = .success(())
+    var addCipherResult: Result<CipherView, Error> = .success(.fixture())
 
     var archiveCipher = [CipherView]()
     var archiveCipherResult: Result<Void, Error> = .success(())
@@ -148,9 +148,9 @@ class MockVaultRepository: VaultRepository { // swiftlint:disable:this type_body
 
     // MARK: Methods
 
-    func addCipher(_ cipher: BitwardenSdk.CipherView) async throws {
+    func addCipher(_ cipher: BitwardenSdk.CipherView) async throws -> BitwardenSdk.CipherView {
         addCipherCiphers.append(cipher)
-        try addCipherResult.get()
+        return try addCipherResult.get()
     }
 
     func bulkShareCiphers(
