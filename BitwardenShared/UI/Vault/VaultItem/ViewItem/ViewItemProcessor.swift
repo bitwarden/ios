@@ -767,9 +767,8 @@ private extension ViewItemProcessor {
 // MARK: - CipherItemOperationDelegate
 
 extension ViewItemProcessor: CipherItemOperationDelegate {
-    func itemAdded(type: CipherType) -> Bool {
-        state.toast = Toast(title: type.savedToastTitle)
-        return true
+    func didFinishAddingItem(id: String) {
+        coordinator.navigate(to: .viewItem(id: id), context: delegate)
     }
 
     func itemArchived() {
