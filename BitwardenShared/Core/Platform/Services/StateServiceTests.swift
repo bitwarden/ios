@@ -254,6 +254,17 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         XCTAssertTrue(hasPremium)
     }
 
+    /// `doesAccountHavePremium(userId:)` with a user ID that has no account throws an error
+    /// internally which is logged and returns `false` as default.
+    func test_doesAccountHavePremium_unknownUserIdLogsErrorAndReturnsFalse() async throws {
+        await subject.addAccount(.fixture(profile: .fixture(hasPremiumPersonally: true, userId: "1")))
+
+        let hasPremium = await subject.doesAccountHavePremium(userId: "2")
+
+        XCTAssertFalse(hasPremium)
+        XCTAssertEqual(errorReporter.errors as? [StateServiceError], [.noAccounts])
+    }
+
     /// `doesAccountHavePremiumPersonally(userId:)` checks the given account regardless of which
     /// account is currently active.
     func test_doesAccountHavePremiumPersonally_checksExplicitAccountNotActiveAccount() async throws {
@@ -277,6 +288,17 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         let hasPremium = await subject.doesAccountHavePremiumPersonally(userId: nil)
 
         XCTAssertTrue(hasPremium)
+    }
+
+    /// `doesAccountHavePremiumPersonally(userId:)` with a user ID that has no account throws an
+    /// error internally which is logged and returns `false` as default.
+    func test_doesAccountHavePremiumPersonally_unknownUserIdLogsErrorAndReturnsFalse() async throws {
+        await subject.addAccount(.fixture(profile: .fixture(hasPremiumPersonally: true, userId: "1")))
+
+        let hasPremium = await subject.doesAccountHavePremiumPersonally(userId: "2")
+
+        XCTAssertFalse(hasPremium)
+        XCTAssertEqual(errorReporter.errors as? [StateServiceError], [.noAccounts])
     }
 
     /// `doesActiveAccountHavePremium()` with Premium personally and no organizations returns true.
