@@ -2262,6 +2262,113 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         )
     }
 
+    // MARK: setVaultTimeout — userSessionKey
+
+    /// `setVaultTimeout` deletes the `.userSessionKey` item when the new timeout value does not
+    /// allow user session key sharing.
+    func test_setVaultTimeout_userSessionKey_deletesWhenTimeoutExcludesSharing() async throws {
+        let active = Account.fixture()
+        stateService.activeAccount = active
+
+        try await subject.setVaultTimeout(value: .onAppRestart)
+
+        XCTAssertEqual(
+            keychainService.deleteUserAuthKeyReceivedItem,
+            .userSessionKey(userId: active.profile.userId),
+        )
+    }
+
+    /// `setVaultTimeout` does not write the `.userSessionKey` item when switching from a timeout
+    /// that excludes sharing to one that allows it while `enableUserSessionKeySharing` is OFF.
+    func test_setVaultTimeout_userSessionKey_featureFlagOff_doesNotWrite() async throws {
+        let active = Account.fixture()
+        stateService.activeAccount = active
+        vaultTimeoutService.vaultTimeout[active.profile.userId] = .onAppRestart
+        configService.featureFlagsBool[.enableUserSessionKeySharing] = false
+
+        try await subject.setVaultTimeout(value: .fifteenMinutes)
+
+        XCTAssertFalse(keychainService.setUserAuthKeyCalled)
+    }
+
+    /// `setVaultTimeout` does not write the `.userSessionKey` item when switching from a timeout
+    /// that excludes sharing to one that allows it while the vault is locked.
+    func test_setVaultTimeout_userSessionKey_vaultLocked_doesNotWrite() async throws {
+        let active = Account.fixture()
+        stateService.activeAccount = active
+        vaultTimeoutService.vaultTimeout[active.profile.userId] = .onAppRestart
+        configService.featureFlagsBool[.enableUserSessionKeySharing] = true
+        vaultTimeoutService.isClientLocked[active.profile.userId] = true
+
+        try await subject.setVaultTimeout(value: .fifteenMinutes)
+
+        XCTAssertFalse(keychainService.setUserAuthKeyCalled)
+    }
+
+    /// `setVaultTimeout` does not re-write the `.userSessionKey` item when switching between two
+    /// sharing-eligible timeouts, since the key is already on the keychain.
+    func test_setVaultTimeout_userSessionKey_currentValueAlreadyAllowsSharing_doesNotWrite() async throws {
+        let active = Account.fixture()
+        stateService.activeAccount = active
+        vaultTimeoutService.vaultTimeout[active.profile.userId] = .fiveMinutes
+        configService.featureFlagsBool[.enableUserSessionKeySharing] = true
+        vaultTimeoutService.isClientLocked[active.profile.userId] = false
+
+        try await subject.setVaultTimeout(value: .fifteenMinutes)
+
+        XCTAssertFalse(keychainService.setUserAuthKeyCalled)
+    }
+
+    /// `setVaultTimeout` writes the `.userSessionKey` item when switching from a timeout that
+    /// excludes sharing to one that allows it while `enableUserSessionKeySharing` is ON and the
+    /// vault is unlocked.
+    func test_setVaultTimeout_userSessionKey_featureFlagOn_vaultUnlocked_writes() async throws {
+        let active = Account.fixture()
+        stateService.activeAccount = active
+        vaultTimeoutService.vaultTimeout[active.profile.userId] = .onAppRestart
+        configService.featureFlagsBool[.enableUserSessionKeySharing] = true
+        vaultTimeoutService.isClientLocked[active.profile.userId] = false
+        clientService.mockCrypto.getUserEncryptionKeyReturnValue = "SESSION_KEY"
+
+        try await subject.setVaultTimeout(value: .fifteenMinutes)
+
+        XCTAssertTrue(keychainService.setUserAuthKeyCalled)
+        XCTAssertEqual(
+            keychainService.setUserAuthKeyReceivedArguments?.item,
+            .userSessionKey(userId: active.profile.userId),
+        )
+        XCTAssertEqual(keychainService.setUserAuthKeyReceivedArguments?.value, "SESSION_KEY")
+    }
+
+    /// `setVaultTimeout` logs the error and still applies the new timeout value when deleting the
+    /// `.userSessionKey` item fails.
+    func test_setVaultTimeout_userSessionKey_deleteError_logsError() async throws {
+        let active = Account.fixture()
+        stateService.activeAccount = active
+        keychainService.deleteUserAuthKeyThrowableError = BitwardenTestError.example
+
+        try await subject.setVaultTimeout(value: .onAppRestart)
+
+        XCTAssertEqual(errorReporter.errors as? [BitwardenTestError], [.example])
+        XCTAssertEqual(vaultTimeoutService.vaultTimeout[active.profile.userId], .onAppRestart)
+    }
+
+    /// `setVaultTimeout` logs the error and still applies the new timeout value when writing the
+    /// `.userSessionKey` item fails.
+    func test_setVaultTimeout_userSessionKey_writeError_logsError() async throws {
+        let active = Account.fixture()
+        stateService.activeAccount = active
+        vaultTimeoutService.vaultTimeout[active.profile.userId] = .onAppRestart
+        configService.featureFlagsBool[.enableUserSessionKeySharing] = true
+        vaultTimeoutService.isClientLocked[active.profile.userId] = false
+        clientService.mockCrypto.getUserEncryptionKeyThrowableError = BitwardenTestError.example
+
+        try await subject.setVaultTimeout(value: .fifteenMinutes)
+
+        XCTAssertEqual(errorReporter.errors as? [BitwardenTestError], [.example])
+        XCTAssertEqual(vaultTimeoutService.vaultTimeout[active.profile.userId], .fifteenMinutes)
+    }
+
     // MARK: unlockVault — userSessionKey feature flag gate
 
     /// `unlockVaultWithPassword` does not write `.userSessionKey` when `enableUserSessionKeySharing`

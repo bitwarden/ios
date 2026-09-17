@@ -1124,9 +1124,23 @@ extension DefaultAuthRepository: AuthRepository {
             )
         }
 
-        // Delete the session key when switching to a timeout that excludes it.
-        if !newValue.allowsUserSessionKeySharing {
-            try? await keychainService.deleteUserAuthKey(for: .userSessionKey(userId: id))
+        // Delete the session key when switching to a timeout that excludes it, or write it back
+        // when switching from a timeout that excludes it to one that allows sharing while the
+        // vault is already unlocked. If the current value already allows sharing, the key is
+        // already on the keychain and doesn't need to be written again.
+        do {
+            if !newValue.allowsUserSessionKeySharing {
+                try await keychainService.deleteUserAuthKey(for: .userSessionKey(userId: id))
+            } else if currentValue?.allowsUserSessionKeySharing != true,
+                      await configService.getFeatureFlag(.enableUserSessionKeySharing),
+                      try await !isLocked(userId: id) {
+                try await keychainService.setUserAuthKey(
+                    for: .userSessionKey(userId: id),
+                    value: clientService.crypto().getUserEncryptionKey(),
+                )
+            }
+        } catch {
+            errorReporter.log(error: error)
         }
 
         // Then configure the vault timeout service with the correct value.
