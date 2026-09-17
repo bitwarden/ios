@@ -136,15 +136,18 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
         waitFor(vaultRepository.fetchSyncCalled)
     }
 
-    /// `itemAdded(type:)` delegate method shows the toast for the added item's type.
+    /// `didFinishAddingItem(id:)` delegate method navigates to the added item's detail view,
+    /// still performing the master password reprompt check in case the user enabled reprompt on
+    /// the item they just created.
     @MainActor
-    func test_delegate_itemAdded() {
-        XCTAssertNil(subject.state.toast)
+    func test_delegate_didFinishAddingItem() {
+        subject.didFinishAddingItem(id: "1")
 
-        let shouldDismiss = subject.itemAdded(type: .driversLicense)
-        XCTAssertTrue(shouldDismiss)
-        XCTAssertEqual(subject.state.toast, Toast(title: Localizations.licenseSaved))
-        waitFor(vaultRepository.fetchSyncCalled)
+        XCTAssertEqual(
+            coordinator.routes.last,
+            .viewItem(id: "1", masterPasswordRepromptCheckCompleted: false),
+        )
+        XCTAssertTrue(coordinator.contexts.last is VaultGroupProcessor)
     }
 
     /// `itemUpdated(type:)` delegate method shows the toast for the updated item's type, which
