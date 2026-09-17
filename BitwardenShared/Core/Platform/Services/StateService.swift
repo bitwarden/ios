@@ -2528,11 +2528,6 @@ extension DefaultStateService: BillingStateService {
         return appSettingsStore.premiumUpgradeBannerDismissed(userId: userId)
     }
 
-    func setPremiumUpgradeBannerDismissed(_ dismissed: Bool, userId: String?) async throws {
-        let userId = try userId ?? getActiveAccountUserId()
-        appSettingsStore.setPremiumUpgradeBannerDismissed(dismissed, userId: userId)
-    }
-
     func isPremiumUpgradeBannerDismissed() async -> Bool {
         do {
             return try await getPremiumUpgradeBannerDismissed()
@@ -2540,6 +2535,11 @@ extension DefaultStateService: BillingStateService {
             errorReporter.log(error: error)
             return false
         }
+    }
+
+    func setPremiumUpgradeBannerDismissed(_ dismissed: Bool, userId: String?) async throws {
+        let userId = try userId ?? getActiveAccountUserId()
+        appSettingsStore.setPremiumUpgradeBannerDismissed(dismissed, userId: userId)
     }
 
     // MARK: Premium Upgrade Eligibility
@@ -2551,6 +2551,28 @@ extension DefaultStateService: BillingStateService {
         guard let account = try? await getActiveAccount(),
               let creationDate = account.profile.creationDate else { return false }
         return timeProvider.timeSince(creationDate) >= Constants.premiumUpgradeBannerAccountAge
+    }
+
+    // MARK: Premium Upgrade Pending
+
+    func getPremiumUpgradeLastSyncAttemptFailed(userId: String?) async throws -> Bool {
+        let userId = try userId ?? getActiveAccountUserId()
+        return appSettingsStore.premiumUpgradeLastSyncAttemptFailed(userId: userId)
+    }
+
+    func getPremiumUpgradePending(userId: String?) async throws -> Bool {
+        let userId = try userId ?? getActiveAccountUserId()
+        return appSettingsStore.premiumUpgradePending(userId: userId)
+    }
+
+    func setPremiumUpgradeLastSyncAttemptFailed(_ failed: Bool, userId: String?) async throws {
+        let userId = try userId ?? getActiveAccountUserId()
+        appSettingsStore.setPremiumUpgradeLastSyncAttemptFailed(failed, userId: userId)
+    }
+
+    func setPremiumUpgradePending(_ pending: Bool, userId: String?) async throws {
+        let userId = try userId ?? getActiveAccountUserId()
+        appSettingsStore.setPremiumUpgradePending(pending, userId: userId)
     }
 
     // MARK: Subscription Attention Card
