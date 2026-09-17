@@ -38,26 +38,23 @@ protocol StateService: AnyObject, DebugStateService {
     ///
     func didAccountSwitchInExtension() async throws -> Bool
 
-    /// Returns whether an account has access to Premium features (personally, or via an enabled
-    /// organization that grants it), independent of which account is currently active.
+    /// Returns whether an account has access to Premium features, either personally or via an
+    /// enabled organization that grants it.
     ///
-    /// - Parameter userId: The user ID of the account to check.
+    /// - Parameters:
+    ///   - userId: The user ID of the account to check. Defaults to the active account if `nil`.
     /// - Returns: Whether the account has access to Premium features.
     ///
-    func doesAccountHavePremium(userId: String) async -> Bool
+    func doesAccountHavePremium(userId: String?) async -> Bool
 
-    /// Returns whether the active user account has access to Premium features.
+    /// Returns whether an account has Premium personally (i.e. Premium that the user purchased
+    /// themselves), as opposed to Premium granted by an organization.
     ///
-    /// - Returns: Whether the active account has access to Premium features.
+    /// - Parameters:
+    ///   - userId: The user ID of the account to check. Defaults to the active account if `nil`.
+    /// - Returns: Whether the account has Premium personally.
     ///
-    func doesActiveAccountHavePremium() async -> Bool
-
-    /// Returns whether the active user account has Premium personally (i.e. Premium that the user
-    /// purchased themselves), as opposed to Premium granted by an organization.
-    ///
-    /// - Returns: Whether the active account has Premium personally.
-    ///
-    func doesActiveAccountHavePremiumPersonally() async -> Bool
+    func doesAccountHavePremiumPersonally(userId: String?) async -> Bool
 
     /// Gets the access token's expiration date for an account.
     ///
@@ -417,6 +414,13 @@ protocol StateService: AnyObject, DebugStateService {
     /// - Returns: Whether the user uses key connector.
     ///
     func getUsesKeyConnector(userId: String?) async throws -> Bool
+
+    /// Gets the V2 upgrade token for an account.
+    ///
+    /// - Parameter userId: The user ID of the account.
+    /// - Returns: The V2 upgrade token, if one is available.
+    ///
+    func getV2UpgradeToken(userId: String) async -> V2UpgradeToken?
 
     /// Whether the user is authenticated.
     ///
@@ -842,6 +846,14 @@ protocol StateService: AnyObject, DebugStateService {
     ///
     func setUsesKeyConnector(_ usesKeyConnector: Bool, userId: String?) async throws
 
+    /// Sets the V2 upgrade token for an account.
+    ///
+    /// - Parameters:
+    ///   - token: The V2 upgrade token, or `nil` to clear it.
+    ///   - userId: The user ID of the account.
+    ///
+    func setV2UpgradeToken(_ token: V2UpgradeToken?, userId: String) async
+
     /// Updates the profile information for a user.
     ///
     /// - Parameters:
@@ -910,6 +922,24 @@ extension StateService {
         }
         actions.append(action)
         await setPendingAppIntentActions(actions: actions)
+    }
+
+    /// Returns whether the active account has access to Premium features, either personally or via
+    /// an enabled organization that grants it.
+    ///
+    /// - Returns: Whether the active account has access to Premium features.
+    ///
+    func doesActiveAccountHavePremium() async -> Bool {
+        await doesAccountHavePremium(userId: nil)
+    }
+
+    /// Returns whether the active account has Premium personally (i.e. Premium that the user
+    /// purchased themselves), as opposed to Premium granted by an organization.
+    ///
+    /// - Returns: Whether the active account has Premium personally.
+    ///
+    func doesActiveAccountHavePremiumPersonally() async -> Bool {
+        await doesAccountHavePremiumPersonally(userId: nil)
     }
 
     /// Gets the access token's expiration date for the active account.
@@ -1619,9 +1649,10 @@ actor DefaultStateService: StateService, ActiveAccountStateProvider, ConfigState
         }
     }
 
-    func doesAccountHavePremium(userId: String) async -> Bool {
+    func doesAccountHavePremium(userId: String?) async -> Bool {
         do {
-            let account = try await getAccount(userId: userId)
+            let userId = try userId ?? getActiveAccountUserId()
+            let account = try getAccount(userId: userId)
             let hasPremiumPersonally = account.profile.hasPremiumPersonally ?? false
             guard !hasPremiumPersonally else {
                 return true
@@ -1637,19 +1668,10 @@ actor DefaultStateService: StateService, ActiveAccountStateProvider, ConfigState
         }
     }
 
-    func doesActiveAccountHavePremium() async -> Bool {
+    func doesAccountHavePremiumPersonally(userId: String?) async -> Bool {
         do {
-            let userId = try getActiveAccountUserId()
-            return await doesAccountHavePremium(userId: userId)
-        } catch {
-            errorReporter.log(error: error)
-            return false
-        }
-    }
-
-    func doesActiveAccountHavePremiumPersonally() async -> Bool {
-        do {
-            let account = try await getActiveAccount()
+            let userId = try userId ?? getActiveAccountUserId()
+            let account = try getAccount(userId: userId)
             return account.profile.hasPremiumPersonally ?? false
         } catch {
             errorReporter.log(error: error)
@@ -1976,6 +1998,8 @@ actor DefaultStateService: StateService, ActiveAccountStateProvider, ConfigState
         appSettingsStore.setLastSyncTime(nil, userId: knownUserId)
         appSettingsStore.setMasterPasswordHash(nil, userId: knownUserId)
         appSettingsStore.setPasswordGenerationOptions(nil, userId: knownUserId)
+        appSettingsStore.setUserKeyId(nil, userId: knownUserId)
+        appSettingsStore.setV2UpgradeToken(nil, userId: knownUserId)
 
         // Reset the organization user notification banner dismissal so the banner can reappear on the next
         // login. A user-initiated (hard) logout always clears it; a soft logout (e.g. a vault-timeout logout)
@@ -2645,9 +2669,7 @@ extension DefaultStateService {
 
     func clearMasterPasswordUnlockForActiveAccount() async throws {
         let userId = try getActiveAccountUserId()
-        try updateAccountProfile(userId: userId) { profile in
-            profile.userDecryptionOptions?.masterPasswordUnlock = nil
-        }
+        await clearAccountMasterPasswordUnlockData(userId: userId)
     }
 }
 
@@ -2737,5 +2759,140 @@ extension DefaultStateService: AutofillStateService {
 
     func setLastRequestToTurnOnCredentialProvider(_ date: Date?) async {
         appSettingsStore.setLastRequestToTurnOnCredentialProvider(date)
+    }
+}
+
+// MARK: SdkStateBridgeStateService
+
+extension DefaultStateService: SdkStateBridgeStateService {
+    // MARK: Account Cryptographic State
+
+    func getAccountCryptographicState(userId: String) async -> WrappedAccountCryptographicState? {
+        appSettingsStore.accountCryptographicState(userId: userId)
+    }
+
+    func setAccountCryptographicState(_ state: WrappedAccountCryptographicState?, userId: String) async {
+        appSettingsStore.setAccountCryptographicState(state, userId: userId)
+    }
+
+    // MARK: Encrypted Pin
+
+    func setEncryptedPin(_ encryptedPin: String?, userId: String) async {
+        appSettingsStore.setEncryptedPin(encryptedPin, userId: userId)
+    }
+
+    // MARK: Ephemeral Pin Envelope
+
+    func getEphemeralPinEnvelope(userId: String) async -> String? {
+        accountVolatileData[userId]?.pinProtectedUserKey
+    }
+
+    func setEphemeralPinEnvelope(_ envelope: String?, userId: String) async {
+        accountVolatileData[userId, default: AccountVolatileData()].pinProtectedUserKey = envelope
+
+        // Remove any legacy pin protected user key, mirroring `setPinKeys`. Guarded on non-nil so a
+        // routine in-memory clear doesn't wipe a still-valid persistent legacy PIN.
+        if envelope != nil {
+            appSettingsStore.setPinProtectedUserKey(key: nil, userId: userId)
+        }
+    }
+
+    // MARK: Kdf Config
+
+    func clearKdfConfig(userId: String) async {
+        do {
+            try updateAccountProfile(userId: userId) { profile in
+                profile.kdfType = nil
+                profile.kdfIterations = nil
+                profile.kdfMemory = nil
+                profile.kdfParallelism = nil
+            }
+        } catch {
+            errorReporter.log(error: error)
+        }
+    }
+
+    func getKdfConfig(userId: String) async -> BitwardenSdk.Kdf? {
+        do {
+            let profile = try getAccount(userId: userId).profile
+            guard let kdfType = profile.kdfType, let kdfIterations = profile.kdfIterations else {
+                return nil
+            }
+            return KdfConfig(
+                kdfType: kdfType,
+                iterations: kdfIterations,
+                memory: profile.kdfMemory,
+                parallelism: profile.kdfParallelism,
+            ).sdkKdf
+        } catch {
+            errorReporter.log(error: error)
+            return nil
+        }
+    }
+
+    func setKdfConfig(_ kdf: BitwardenSdk.Kdf, userId: String) async {
+        do {
+            try await setAccountKdf(KdfConfig(kdf: kdf), userId: userId)
+        } catch {
+            errorReporter.log(error: error)
+        }
+    }
+
+    // MARK: Master Password Unlock Data
+
+    func clearAccountMasterPasswordUnlockData(userId: String) async {
+        do {
+            try updateAccountProfile(userId: userId) { profile in
+                profile.userDecryptionOptions?.masterPasswordUnlock = nil
+            }
+        } catch {
+            errorReporter.log(error: error)
+        }
+    }
+
+    func getAccountMasterPasswordUnlock(userId: String) async -> MasterPasswordUnlockData? {
+        do {
+            let account = try getAccount(userId: userId)
+            guard let responseModel = account.profile.userDecryptionOptions?.masterPasswordUnlock else {
+                return nil
+            }
+            return MasterPasswordUnlockData(responseModel: responseModel)
+        } catch {
+            errorReporter.log(error: error)
+            return nil
+        }
+    }
+
+    // MARK: Persistent Pin Envelope
+
+    func getPersistentPinEnvelope(userId: String) async -> String? {
+        appSettingsStore.pinProtectedUserKeyEnvelope(userId: userId)
+    }
+
+    func setPersistentPinEnvelope(_ envelope: String?, userId: String) async {
+        appSettingsStore.setPinProtectedUserKeyEnvelope(key: envelope, userId: userId)
+
+        // Remove any legacy pin protected user key, mirroring `setPinKeys`/`clearPins`.
+        appSettingsStore.setPinProtectedUserKey(key: nil, userId: userId)
+    }
+
+    // MARK: User Key Id
+
+    func getUserKeyId(userId: String) async -> String? {
+        appSettingsStore.userKeyId(userId: userId)
+    }
+
+    func setUserKeyId(_ keyId: String?, userId: String) async {
+        appSettingsStore.setUserKeyId(keyId, userId: userId)
+    }
+
+    // MARK: V2 Upgrade Token
+
+    func getV2UpgradeToken(userId: String) async -> V2UpgradeToken? {
+        appSettingsStore.v2UpgradeToken(userId: userId)
+    }
+
+    func setV2UpgradeToken(_ token: V2UpgradeToken?, userId: String) async {
+        appSettingsStore.setV2UpgradeToken(token, userId: userId)
     }
 }

@@ -436,7 +436,7 @@ class DefaultSyncService: SyncService {
 }
 
 extension DefaultSyncService {
-    func fetchSync(forceSync: Bool, isPeriodic: Bool) async throws {
+    func fetchSync(forceSync: Bool, isPeriodic: Bool) async throws { // swiftlint:disable:this function_body_length
         let account = try await stateService.getActiveAccount()
         let userId = account.profile.userId
 
@@ -471,6 +471,7 @@ extension DefaultSyncService {
         if let masterPasswordUnlock = response.userDecryption?.masterPasswordUnlock {
             await stateService.setAccountMasterPasswordUnlock(masterPasswordUnlock, userId: userId)
         }
+        await stateService.setV2UpgradeToken(response.userDecryption?.v2UpgradeToken, userId: userId)
 
         try await cipherService.replaceCiphers(response.ciphers, userId: userId)
         try await collectionService.replaceCollections(response.collections, userId: userId)
