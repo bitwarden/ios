@@ -234,4 +234,21 @@ struct StateServiceBillingStateServiceTests {
             try await subject.setUpgradedToPremiumActionCardVisible(true)
         }
     }
+
+    /// `getUpgradedToPremiumActionCardVisible(userId:)` and
+    /// `setUpgradedToPremiumActionCardVisible(_:userId:)` operate on the given account regardless
+    /// of which account is currently active.
+    @Test
+    func upgradedToPremiumActionCardVisible_explicitUserId_notActiveAccount() async throws {
+        await subject.addAccount(.fixture(profile: .fixture(userId: "1")))
+        await subject.addAccount(.fixture(profile: .fixture(userId: "2")))
+        try await subject.setActiveAccount(userId: "1")
+
+        try await subject.setUpgradedToPremiumActionCardVisible(true, userId: "2")
+
+        let activeAccountVisible = try await subject.getUpgradedToPremiumActionCardVisible()
+        let otherAccountVisible = try await subject.getUpgradedToPremiumActionCardVisible(userId: "2")
+        #expect(!activeAccountVisible)
+        #expect(otherAccountVisible)
+    }
 }
