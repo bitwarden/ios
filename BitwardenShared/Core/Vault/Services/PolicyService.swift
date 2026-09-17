@@ -314,15 +314,6 @@ actor DefaultPolicyService: PolicyService {
 
         return filter.map { policies.filter($0) } ?? policies
     }
-
-    /// Returns the policy with the earliest revision date from the given list, or `nil` if the list is empty.
-    ///
-    /// - Parameter policies: The list of policies to search.
-    /// - Returns: The policy with the earliest revision date.
-    ///
-    private func policyWithEarliestRevisionDate(from policies: [Policy]) -> Policy? {
-        policies.min { ($0.revisionDate ?? .distantFuture) < ($1.revisionDate ?? .distantFuture) }
-    }
 }
 
 extension DefaultPolicyService {
@@ -433,7 +424,7 @@ extension DefaultPolicyService {
 
         let policies = await policiesApplyingToUser(.organizationUserNotification)
 
-        guard let policy = policyWithEarliestRevisionDate(from: policies),
+        guard let policy = policies.policyWithEarliestRevisionDate,
               let description = policy[.description]?.stringValue
         else { return nil }
 
@@ -521,12 +512,13 @@ extension DefaultPolicyService {
 
     func getEarliestOrganizationApplyingPolicy(_ policyType: PolicyType) async -> String? {
         let policies = await policiesApplyingToUser(policyType, filter: nil)
-        return policyWithEarliestRevisionDate(from: policies)?.organizationId
+        return policies.policyWithEarliestRevisionDate?.organizationId
     }
 
     func getSendPolicyOptions() async -> SendPolicyOptions {
         guard await configService.getFeatureFlag(.sendControls) else {
             return await SendPolicyOptions(
+                enforcedAccessType: nil,
                 isHideEmailDisabled: policyAppliesToUser(.sendOptions) { policy in
                     policy[.disableHideEmail]?.boolValue == true
                 },

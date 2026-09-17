@@ -50,6 +50,21 @@ class SendItemCoordinatorTests: BitwardenTestCase {
 
     // MARK: Tests
 
+    /// `navigate(to:)` with `.add()` shows the add item screen pre-filled from a copied Send, in
+    /// add mode with no id/access id/key so saving creates a new Send.
+    @MainActor
+    func test_navigateTo_add_copyContent() throws {
+        let sendView = SendView.fixture(id: "original-id", name: "Original name")
+        subject.navigate(to: .add(content: .copy(sendView)))
+
+        let action = try XCTUnwrap(stackNavigator.actions.last)
+        XCTAssertEqual(action.type, .replaced)
+        let view = try XCTUnwrap(action.view as? AddEditSendItemView)
+        XCTAssertEqual(view.store.state.mode, .add)
+        XCTAssertNil(view.store.state.id)
+        XCTAssertEqual(view.store.state.name, "Original name")
+    }
+
     /// `navigate(to:)` with `.add()` shows the add item screen.
     @MainActor
     func test_navigateTo_add_noContent() throws {

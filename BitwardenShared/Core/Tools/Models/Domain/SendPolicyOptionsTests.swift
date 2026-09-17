@@ -1,4 +1,5 @@
 import BitwardenKit
+import BitwardenSdk
 import Foundation
 import TestHelpers
 import Testing
@@ -10,6 +11,22 @@ import Testing
 
 struct SendPolicyOptionsTests {
     // MARK: init(sendControlsPolicies:) Tests
+
+    /// `init(sendControlsPolicies:)` reads the allowed domains from the enforcing policy's
+    /// comma-separated `allowedDomains` string, trimming whitespace.
+    @Test
+    func init_sendControlsPolicies_allowedDomains() {
+        let subject = SendPolicyOptions(sendControlsPolicies: [
+            .fixture(
+                data: [
+                    PolicyOptionType.whoCanAccess.rawValue: .int(2),
+                    PolicyOptionType.allowedDomains.rawValue: .string("acme.com, acme.co"),
+                ],
+                type: .sendControls,
+            ),
+        ])
+        #expect(subject.allowedDomains == ["acme.com", "acme.co"])
+    }
 
     /// `init(sendControlsPolicies:)` disables the hide email option when a policy enables the
     /// `disableHideEmail` option.
@@ -30,21 +47,270 @@ struct SendPolicyOptionsTests {
         #expect(subject.isSendDisabled)
     }
 
-    /// `init(sendControlsPolicies:)` enforces no restrictions when there are no applying policies.
+    /// `init(sendControlsPolicies:)` disables Sends when *any* applying policy enables it.
     @Test
-    func init_sendControlsPolicies_empty() {
-        let subject = SendPolicyOptions(sendControlsPolicies: [])
-        #expect(!subject.isHideEmailDisabled)
-        #expect(!subject.isSendDisabled)
-    }
-
-    /// `init(sendControlsPolicies:)` enforces a restriction when *any* applying policy enables it.
-    @Test
-    func init_sendControlsPolicies_multiplePolicies_enforcesIfAny() {
+    func init_sendControlsPolicies_disableSend_multiplePolicies_enforcesIfAny() {
         let subject = SendPolicyOptions(sendControlsPolicies: [
             .fixture(data: [PolicyOptionType.disableSend.rawValue: .bool(false)], id: "a", type: .sendControls),
             .fixture(data: [PolicyOptionType.disableSend.rawValue: .bool(true)], id: "b", type: .sendControls),
         ])
         #expect(subject.isSendDisabled)
+    }
+
+    /// `init(sendControlsPolicies:)` enforces no restrictions when there are no applying policies.
+    @Test
+    func init_sendControlsPolicies_empty() {
+        let subject = SendPolicyOptions(sendControlsPolicies: [])
+        #expect(subject.allowedDomains.isEmpty)
+        #expect(subject.enforcedAccessType == nil)
+        #expect(subject.enforcedDeletionDateHours == nil)
+        #expect(subject.enforcedSendType == nil)
+        #expect(!subject.isHideEmailDisabled)
+        #expect(!subject.isSendDisabled)
+    }
+
+    /// `init(sendControlsPolicies:)` maps the `whoCanAccess` option to the enforced access type.
+    @Test
+    func init_sendControlsPolicies_enforcedAccessType() {
+        #expect(
+            SendPolicyOptions(sendControlsPolicies: [
+                .fixture(data: [PolicyOptionType.whoCanAccess.rawValue: .int(1)], type: .sendControls),
+            ]).enforcedAccessType == .anyoneWithPassword,
+        )
+        #expect(
+            SendPolicyOptions(sendControlsPolicies: [
+                .fixture(data: [PolicyOptionType.whoCanAccess.rawValue: .int(2)], type: .sendControls),
+            ]).enforcedAccessType == .specificPeople,
+        )
+        #expect(
+            SendPolicyOptions(sendControlsPolicies: [
+                .fixture(data: [PolicyOptionType.whoCanAccess.rawValue: .int(0)], type: .sendControls),
+            ]).enforcedAccessType == nil,
+        )
+        #expect(
+            SendPolicyOptions(sendControlsPolicies: [.fixture(type: .sendControls)]).enforcedAccessType == nil,
+        )
+    }
+
+    /// `init(sendControlsPolicies:)` resolves the access type to the most restrictive across all
+    /// applying policies — email verification beats password protection regardless of revision date.
+    @Test
+    func init_sendControlsPolicies_enforcedAccessType_emailVerificationBeatsPassword() {
+        let subject = SendPolicyOptions(sendControlsPolicies: [
+            .fixture(
+                data: [PolicyOptionType.whoCanAccess.rawValue: .int(1)],
+                id: "password-later",
+                revisionDate: Date(year: 2024, month: 6, day: 1),
+                type: .sendControls,
+            ),
+            .fixture(
+                data: [PolicyOptionType.whoCanAccess.rawValue: .int(2)],
+                id: "email-earlier",
+                revisionDate: Date(year: 2024, month: 1, day: 1),
+                type: .sendControls,
+            ),
+        ])
+        #expect(subject.enforcedAccessType == .specificPeople)
+    }
+
+    /// `init(sendControlsPolicies:)` enforces password protection over no access control.
+    @Test
+    func init_sendControlsPolicies_enforcedAccessType_passwordBeatsNoAccessControl() {
+        let subject = SendPolicyOptions(sendControlsPolicies: [
+            .fixture(data: [PolicyOptionType.whoCanAccess.rawValue: .int(0)], id: "none", type: .sendControls),
+            .fixture(data: [PolicyOptionType.whoCanAccess.rawValue: .int(1)], id: "password", type: .sendControls),
+        ])
+        #expect(subject.enforcedAccessType == .anyoneWithPassword)
+    }
+
+    /// `init(sendControlsPolicies:)` takes the allowed domains from the earliest-revision policy when
+    /// multiple policies enforce email verification.
+    @Test
+    func init_sendControlsPolicies_allowedDomains_multipleEmailPolicies_earliestRevisionWins() {
+        let subject = SendPolicyOptions(sendControlsPolicies: [
+            .fixture(
+                data: [
+                    PolicyOptionType.whoCanAccess.rawValue: .int(2),
+                    PolicyOptionType.allowedDomains.rawValue: .string("later.com"),
+                ],
+                id: "later",
+                revisionDate: Date(year: 2024, month: 6, day: 1),
+                type: .sendControls,
+            ),
+            .fixture(
+                data: [
+                    PolicyOptionType.whoCanAccess.rawValue: .int(2),
+                    PolicyOptionType.allowedDomains.rawValue: .string("earlier.com"),
+                ],
+                id: "earlier",
+                revisionDate: Date(year: 2024, month: 1, day: 1),
+                type: .sendControls,
+            ),
+        ])
+        #expect(subject.enforcedAccessType == .specificPeople)
+        #expect(subject.allowedDomains == ["earlier.com"])
+    }
+
+    /// `init(sendControlsPolicies:)` reads the enforced deletion date hours from a policy's
+    /// `deletionHours` option.
+    @Test
+    func init_sendControlsPolicies_enforcedDeletionDateHours() {
+        let subject = SendPolicyOptions(sendControlsPolicies: [
+            .fixture(data: [PolicyOptionType.deletionHours.rawValue: .int(168)], type: .sendControls),
+        ])
+        #expect(subject.enforcedDeletionDateHours == 168)
+    }
+
+    /// `init(sendControlsPolicies:)` enforces no deletion date when no policy specifies
+    /// `deletionHours`.
+    @Test
+    func init_sendControlsPolicies_enforcedDeletionDateHours_missing() {
+        let subject = SendPolicyOptions(sendControlsPolicies: [.fixture(type: .sendControls)])
+        #expect(subject.enforcedDeletionDateHours == nil)
+    }
+
+    /// `init(sendControlsPolicies:)` enforces the most restrictive deletion date (the shortest
+    /// timeframe, i.e. the minimum hours) across applying policies.
+    @Test
+    func init_sendControlsPolicies_enforcedDeletionDateHours_multiplePolicies_shortestWins() {
+        let subject = SendPolicyOptions(sendControlsPolicies: [
+            .fixture(
+                data: [PolicyOptionType.deletionHours.rawValue: .int(720)],
+                id: "thirty-days",
+                type: .sendControls,
+            ),
+            .fixture(
+                data: [PolicyOptionType.deletionHours.rawValue: .int(168)],
+                id: "seven-days",
+                type: .sendControls,
+            ),
+        ])
+        #expect(subject.enforcedDeletionDateHours == 168)
+    }
+
+    /// `init(sendControlsPolicies:)` maps a single-element `allowedSendTypes` array to the enforced
+    /// Send type.
+    @Test
+    func init_sendControlsPolicies_enforcedSendType() {
+        #expect(
+            SendPolicyOptions(sendControlsPolicies: [
+                .fixture(data: [PolicyOptionType.allowedSendTypes.rawValue: .array([.int(0)])], type: .sendControls),
+            ]).enforcedSendType == .text,
+        )
+        #expect(
+            SendPolicyOptions(sendControlsPolicies: [
+                .fixture(data: [PolicyOptionType.allowedSendTypes.rawValue: .array([.int(1)])], type: .sendControls),
+            ]).enforcedSendType == .file,
+        )
+    }
+
+    /// `init(sendControlsPolicies:)` enforces no Send type when both types are allowed.
+    @Test
+    func init_sendControlsPolicies_enforcedSendType_bothAllowed() {
+        let subject = SendPolicyOptions(sendControlsPolicies: [
+            .fixture(
+                data: [PolicyOptionType.allowedSendTypes.rawValue: .array([.int(0), .int(1)])],
+                type: .sendControls,
+            ),
+        ])
+        #expect(subject.enforcedSendType == nil)
+    }
+
+    /// `init(sendControlsPolicies:)` enforces no Send type when no policy specifies `allowedSendTypes`.
+    @Test
+    func init_sendControlsPolicies_enforcedSendType_missing() {
+        let subject = SendPolicyOptions(sendControlsPolicies: [.fixture(type: .sendControls)])
+        #expect(subject.enforcedSendType == nil)
+    }
+
+    /// `init(sendControlsPolicies:)` enforces no Send type when the `allowedSendTypes` array is empty.
+    @Test
+    func init_sendControlsPolicies_enforcedSendType_emptyArray() {
+        let subject = SendPolicyOptions(sendControlsPolicies: [
+            .fixture(data: [PolicyOptionType.allowedSendTypes.rawValue: .array([])], type: .sendControls),
+        ])
+        #expect(subject.enforcedSendType == nil)
+    }
+
+    /// `init(sendControlsPolicies:)` enforces the most restrictive Send type across applying
+    /// policies (a single-type restriction wins over an unrestricted "both" policy).
+    @Test
+    func init_sendControlsPolicies_enforcedSendType_multiplePolicies_mostRestrictiveWins() {
+        let subject = SendPolicyOptions(sendControlsPolicies: [
+            .fixture(
+                data: [PolicyOptionType.allowedSendTypes.rawValue: .array([.int(0), .int(1)])],
+                id: "both",
+                type: .sendControls,
+            ),
+            .fixture(
+                data: [PolicyOptionType.allowedSendTypes.rawValue: .array([.int(0)])],
+                id: "text-only",
+                type: .sendControls,
+            ),
+        ])
+        #expect(subject.enforcedSendType == .text)
+    }
+
+    /// `init(sendControlsPolicies:)` enforces the file type when a file-only policy applies
+    /// alongside an unrestricted "both" policy.
+    @Test
+    func init_sendControlsPolicies_enforcedSendType_multiplePolicies_fileOnly() {
+        let subject = SendPolicyOptions(sendControlsPolicies: [
+            .fixture(
+                data: [PolicyOptionType.allowedSendTypes.rawValue: .array([.int(0), .int(1)])],
+                id: "both",
+                type: .sendControls,
+            ),
+            .fixture(
+                data: [PolicyOptionType.allowedSendTypes.rawValue: .array([.int(1)])],
+                id: "file-only",
+                type: .sendControls,
+            ),
+        ])
+        #expect(subject.enforcedSendType == .file)
+    }
+
+    /// `init(sendControlsPolicies:)` resolves a text-only vs file-only conflict to the most
+    /// restrictive type (text wins per the order text > file > both).
+    @Test
+    func init_sendControlsPolicies_enforcedSendType_multiplePolicies_conflictTextWins() {
+        let subject = SendPolicyOptions(sendControlsPolicies: [
+            .fixture(
+                data: [PolicyOptionType.allowedSendTypes.rawValue: .array([.int(0)])],
+                id: "text-only",
+                type: .sendControls,
+            ),
+            .fixture(
+                data: [PolicyOptionType.allowedSendTypes.rawValue: .array([.int(1)])],
+                id: "file-only",
+                type: .sendControls,
+            ),
+        ])
+        #expect(subject.enforcedSendType == .text)
+    }
+
+    // MARK: isSendTypeRestricted(for:) Tests
+
+    /// `isSendTypeRestricted(for:)` returns `false` when no Send type is enforced.
+    @Test
+    func isSendTypeRestricted_unrestricted() {
+        let subject = SendPolicyOptions()
+        #expect(!subject.isSendTypeRestricted(for: .fixture(type: .text)))
+    }
+
+    /// `isSendTypeRestricted(for:)` returns `true` when the Send's type doesn't match the enforced
+    /// Send type.
+    @Test
+    func isSendTypeRestricted_mismatch() {
+        let subject = SendPolicyOptions(enforcedSendType: .file)
+        #expect(subject.isSendTypeRestricted(for: .fixture(type: .text)))
+    }
+
+    /// `isSendTypeRestricted(for:)` returns `false` when the Send's type matches the enforced Send
+    /// type.
+    @Test
+    func isSendTypeRestricted_matches() {
+        let subject = SendPolicyOptions(enforcedSendType: .file)
+        #expect(!subject.isSendTypeRestricted(for: .fixture(type: .file)))
     }
 }

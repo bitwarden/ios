@@ -180,12 +180,6 @@ protocol AppSettingsStore: AnyObject {
     ///
     func events(userId: String) -> [EventData]
 
-    /// Gets the encrypted user key for the user ID.
-    ///
-    /// - Parameter userId: The user ID associated with the encrypted user key.
-    ///
-    func encryptedUserKey(userId: String) -> String?
-
     /// Gets the cached Fill-Assist rules data for the user ID.
     ///
     /// - Parameter userId: The user ID associated with the cached data.
@@ -450,14 +444,6 @@ protocol AppSettingsStore: AnyObject {
     ///
     func setEncryptedPin(_ encryptedPin: String?, userId: String)
 
-    /// Sets the encrypted user key for a user ID.
-    ///
-    /// - Parameters:
-    ///   - key: The user's encrypted user key.
-    ///   - userId: The user ID associated with the encrypted user key.
-    ///
-    func setEncryptedUserKey(key: String?, userId: String)
-
     /// Sets the user's events for a user ID.
     ///
     /// - Parameters:
@@ -657,6 +643,14 @@ protocol AppSettingsStore: AnyObject {
     ///
     func setTwoFactorToken(_ token: String?, email: String)
 
+    /// Sets the ID of the user's active symmetric encryption key.
+    ///
+    /// - Parameters:
+    ///   - keyId: The ID of the user's active symmetric encryption key, or `nil` to clear it.
+    ///   - userId: The user ID associated with the user key ID.
+    ///
+    func setUserKeyId(_ keyId: String?, userId: String)
+
     /// Sets whether the user uses key connector.
     ///
     /// - Parameters:
@@ -672,6 +666,14 @@ protocol AppSettingsStore: AnyObject {
     ///   - userId: The user ID associated with the username generation options.
     ///
     func setUsernameGenerationOptions(_ options: UsernameGenerationOptions?, userId: String)
+
+    /// Sets the user's V2 encryption upgrade token.
+    ///
+    /// - Parameters:
+    ///   - token: The user's V2 encryption upgrade token.
+    ///   - userId: The user ID.
+    ///
+    func setV2UpgradeToken(_ token: V2UpgradeToken?, userId: String)
 
     /// Get whether the device should be trusted.
     ///
@@ -708,6 +710,13 @@ protocol AppSettingsStore: AnyObject {
     ///
     func twoFactorToken(email: String) -> String?
 
+    /// The ID of the user's active symmetric encryption key.
+    ///
+    /// - Parameter userId: The user ID associated with the stored user key ID.
+    /// - Returns: The user key ID, or `nil` if not yet stored.
+    ///
+    func userKeyId(userId: String) -> String?
+
     /// Gets the username generation options for a user ID.
     ///
     /// - Parameter userId: The user ID associated with the username generation options.
@@ -721,6 +730,13 @@ protocol AppSettingsStore: AnyObject {
     /// - Returns: Whether the user uses key connector.
     ///
     func usesKeyConnector(userId: String) -> Bool
+
+    /// The user's V2 encryption upgrade token.
+    ///
+    /// - Parameter userId: The user ID associated with the V2 upgrade token.
+    /// - Returns: The user's V2 encryption upgrade token.
+    ///
+    func v2UpgradeToken(userId: String) -> V2UpgradeToken?
 
     // MARK: Publishers
 
@@ -868,7 +884,6 @@ extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore {
         case disableAutoTotpCopy(userId: String)
         case disableWebIcons
         case encryptedPin(userId: String)
-        case encryptedUserKey(userId: String)
         case events(userId: String)
         case fillAssistCachedData(userId: String)
         case fillAssistEnabled(userId: String)
@@ -908,8 +923,10 @@ extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore {
         case subscriptionAttentionCardVisible(userId: String)
         case twoFactorToken(email: String)
         case upgradedToPremiumActionCardVisible(userId: String)
+        case userKeyId(userId: String)
         case usernameGenerationOptions(userId: String)
         case usesKeyConnector(userId: String)
+        case v2UpgradeToken(userId: String)
         case vaultTimeoutAction(userId: String)
 
         /// Returns the key used to store the data under for retrieving it later.
@@ -957,8 +974,6 @@ extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore {
                 "disableAutoTotpCopy_\(userId)"
             case .disableWebIcons:
                 "disableFavicon"
-            case let .encryptedUserKey(userId):
-                "masterKeyEncryptedUserKey_\(userId)"
             case let .encryptedPin(userId):
                 "protectedPin_\(userId)"
             case let .events(userId):
@@ -1037,10 +1052,14 @@ extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore {
                 "twoFactorToken_\(email)"
             case let .upgradedToPremiumActionCardVisible(userId):
                 "upgradedToPremiumActionCardVisible_\(userId)"
+            case let .userKeyId(userId):
+                "userKeyId_\(userId)"
             case let .usernameGenerationOptions(userId):
                 "usernameGenerationOptions_\(userId)"
             case let .usesKeyConnector(userId):
                 "usesKeyConnector_\(userId)"
+            case let .v2UpgradeToken(userId):
+                "v2UpgradeToken_\(userId)"
             case let .vaultTimeoutAction(userId):
                 "vaultTimeoutAction_\(userId)"
             }
@@ -1214,10 +1233,6 @@ extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore {
         fetch(for: .encryptedPin(userId: userId))
     }
 
-    func encryptedUserKey(userId: String) -> String? {
-        fetch(for: .encryptedUserKey(userId: userId))
-    }
-
     func events(userId: String) -> [EventData] {
         fetch(for: .events(userId: userId)) ?? []
     }
@@ -1370,10 +1385,6 @@ extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore {
         store(encryptedPin, for: .encryptedPin(userId: userId))
     }
 
-    func setEncryptedUserKey(key: String?, userId: String) {
-        store(key, for: .encryptedUserKey(userId: userId))
-    }
-
     func setEvents(_ events: [EventData], userId: String) {
         store(events, for: .events(userId: userId))
     }
@@ -1473,12 +1484,20 @@ extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore {
         store(token, for: .twoFactorToken(email: email))
     }
 
+    func setUserKeyId(_ keyId: String?, userId: String) {
+        store(keyId, for: .userKeyId(userId: userId))
+    }
+
     func setUsernameGenerationOptions(_ options: UsernameGenerationOptions?, userId: String) {
         store(options, for: .usernameGenerationOptions(userId: userId))
     }
 
     func setUsesKeyConnector(_ usesKeyConnector: Bool, userId: String) {
         store(usesKeyConnector, for: .usesKeyConnector(userId: userId))
+    }
+
+    func setV2UpgradeToken(_ token: V2UpgradeToken?, userId: String) {
+        store(token, for: .v2UpgradeToken(userId: userId))
     }
 
     func setSiriAndShortcutsAccess(_ siriAndShortcutsAccess: Bool, userId: String) {
@@ -1501,12 +1520,20 @@ extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore {
         fetch(for: .twoFactorToken(email: email))
     }
 
+    func userKeyId(userId: String) -> String? {
+        fetch(for: .userKeyId(userId: userId))
+    }
+
     func usernameGenerationOptions(userId: String) -> UsernameGenerationOptions? {
         fetch(for: .usernameGenerationOptions(userId: userId))
     }
 
     func usesKeyConnector(userId: String) -> Bool {
         fetch(for: .usesKeyConnector(userId: userId))
+    }
+
+    func v2UpgradeToken(userId: String) -> V2UpgradeToken? {
+        fetch(for: .v2UpgradeToken(userId: userId))
     }
 
     func activeAccountIdPublisher() -> AnyPublisher<String?, Never> {

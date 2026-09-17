@@ -105,9 +105,24 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         )
     }
 
-    /// `didUpdateCipher()` displays a toast after the cipher is updated.
+    /// `didUpdateCipher()` displays the toast for the item's type after the cipher is updated.
     @MainActor
-    func test_didUpdateCipher() {
+    func test_didUpdateCipher() throws {
+        let cipherState = try XCTUnwrap(
+            CipherItemState(existing: .fixture(type: .identity), hasPremium: true),
+        )
+        subject.state.loadingState = .data(cipherState)
+
+        subject.didUpdateCipher()
+
+        waitFor { subject.state.toast != nil }
+
+        XCTAssertEqual(subject.state.toast, Toast(title: Localizations.identitySaved))
+    }
+
+    /// `didUpdateCipher()` falls back to the generic toast if the item hasn't loaded yet.
+    @MainActor
+    func test_didUpdateCipher_notLoaded() {
         subject.didUpdateCipher()
 
         waitFor { subject.state.toast != nil }
@@ -173,6 +188,35 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         XCTAssertTrue(delegate.itemDeletedCalled)
     }
 
+    /// `itemAdded(type:)` shows the toast for the added item's type and dismisses the view.
+    @MainActor
+    func test_itemAdded() {
+        XCTAssertNil(subject.state.toast)
+
+        let shouldDismiss = subject.itemAdded(type: .driversLicense)
+        XCTAssertTrue(shouldDismiss)
+        XCTAssertEqual(subject.state.toast, Toast(title: Localizations.licenseSaved))
+    }
+
+    /// `itemDismissed()` doesn't show a toast when the editor is dismissed without saving.
+    @MainActor
+    func test_itemDismissed() {
+        let shouldDismiss = subject.itemDismissed()
+
+        XCTAssertTrue(shouldDismiss)
+        XCTAssertNil(subject.state.toast)
+    }
+
+    /// `itemUpdated(type:)` shows the toast for the updated item's type and dismisses the view.
+    @MainActor
+    func test_itemUpdated() {
+        XCTAssertNil(subject.state.toast)
+
+        let shouldDismiss = subject.itemUpdated(type: .driversLicense)
+        XCTAssertTrue(shouldDismiss)
+        XCTAssertEqual(subject.state.toast, Toast(title: Localizations.licenseSaved))
+    }
+
     /// `itemSoftDeleted()` presents the dismiss action and calls the delegate.
     @MainActor
     func test_itemSoftDeleted() async throws {
@@ -199,6 +243,23 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         XCTAssertNotNil(dismissAction)
         dismissAction?.action()
         XCTAssertTrue(delegate.itemUnarchivedCalled)
+    }
+
+    /// `perform(_:)` with `.appeared` keeps a toast that was already displayed, so that saving the
+    /// item doesn't clear its own confirmation toast when the cipher update streams in.
+    @MainActor
+    func test_perform_appeared_keepsToast() {
+        vaultRepository.doesActiveAccountHavePremiumResult = true
+        subject.state.toast = Toast(title: Localizations.licenseSaved)
+        vaultRepository.cipherDetailsSubject.send(.fixture(id: "id", type: .identity))
+
+        let task = Task {
+            await subject.perform(.appeared)
+        }
+        waitFor(subject.state.loadingState != .loading(nil))
+        task.cancel()
+
+        XCTAssertEqual(subject.state.toast, Toast(title: Localizations.licenseSaved))
     }
 
     /// `perform(_:)` with `.appeared` starts listening for updates with the vault repository.

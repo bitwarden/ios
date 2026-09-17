@@ -77,6 +77,111 @@ class TestFindUsedKeysParameterizedCalls(unittest.TestCase):
         self.assertEqual(result, {"alpha", "beta"})
 
 
+class TestFindUsedKeysAppIntentLiterals(unittest.TestCase):
+    """AppIntents/ShortcutsProvider reference Localizable.strings keys as
+    string literals instead of `Localizations.X`, since Apple's AppIntents
+    framework requires compile-time string literals for these properties."""
+
+    def test_intent_title_literal_is_matched(self):
+        source = 'static var title: LocalizedStringResource = "OpenGenerator"'
+        result = find_used_keys([source])
+        self.assertEqual(result, {"opengenerator"})
+
+    def test_intent_description_literal_is_matched(self):
+        source = 'static var description = IntentDescription("OpenGenerator")'
+        result = find_used_keys([source])
+        self.assertEqual(result, {"opengenerator"})
+
+    def test_shortcuts_provider_short_title_literal_is_matched(self):
+        source = 'shortTitle: "LockAllAccounts",'
+        result = find_used_keys([source])
+        self.assertEqual(result, {"lockallaccounts"})
+
+    def test_result_dialog_literal_is_matched(self):
+        source = 'return .result(dialog: "AllAccountsHaveBeenLocked")'
+        result = find_used_keys([source])
+        self.assertEqual(result, {"allaccountshavebeenlocked"})
+
+    def test_result_dialog_with_interpolation_is_not_matched_as_a_key(self):
+        # Interpolated dialogs aren't Localizable.strings keys.
+        source = 'return .result(value: passphrase, dialog: "Passphrase: \\(passphrase)")'
+        result = find_used_keys([source])
+        self.assertEqual(result, set())
+
+    def test_full_appintent_file_all_literals_matched(self):
+        source = (
+            'struct LockAllAccountsIntent: AppIntent {\n'
+            '    static var title: LocalizedStringResource = "LockAllAccounts"\n'
+            '    static var description = IntentDescription("LockAllAccounts")\n'
+            '    func perform() async throws -> some IntentResult {\n'
+            '        return .result(dialog: "AllAccountsHaveBeenLocked")\n'
+            '    }\n'
+            '}\n'
+        )
+        result = find_used_keys([source])
+        self.assertEqual(result, {"lockallaccounts", "allaccountshavebeenlocked"})
+
+
+class TestFindUsedKeysCustomLocalizedStringResourceConvertible(unittest.TestCase):
+    """`CustomLocalizedStringResourceConvertible` conformances (e.g. AppIntent
+    error enums) return bare string literals per switch case rather than
+    `Localizations.X` references, since the property type is
+    `LocalizedStringResource`."""
+
+    def test_bare_literal_in_switch_case_is_matched(self):
+        source = (
+            'public var localizedStringResource: LocalizedStringResource {\n'
+            '    switch self {\n'
+            '    case .noActiveAccount:\n'
+            '        "ThereIsNoActiveAccount"\n'
+            '    case .notAllowed:\n'
+            '        "ThisOperationIsNotAllowedOnThisAccount"\n'
+            '    }\n'
+            '}\n'
+        )
+        result = find_used_keys([source])
+        self.assertEqual(
+            result, {"thereisnoactiveaccount", "thisoperationisnotallowedonthisaccount"}
+        )
+
+    def test_full_appintent_error_enum_matched(self):
+        # Mirrors BitwardenShared/UI/Platform/Application/AppIntentMediator.swift.
+        source = (
+            '@available(iOS 16, *)\n'
+            'public enum AppIntentError: Error, CustomLocalizedStringResourceConvertible {\n'
+            '    case noActiveAccount\n'
+            '    case notAllowed\n'
+            '\n'
+            '    public var localizedStringResource: LocalizedStringResource {\n'
+            '        switch self {\n'
+            '        case .noActiveAccount:\n'
+            '            "ThereIsNoActiveAccount"\n'
+            '        case .notAllowed:\n'
+            '            "ThisOperationIsNotAllowedOnThisAccount"\n'
+            '        }\n'
+            '    }\n'
+            '}\n'
+        )
+        result = find_used_keys([source])
+        self.assertEqual(
+            result, {"thereisnoactiveaccount", "thisoperationisnotallowedonthisaccount"}
+        )
+
+    def test_unrelated_switch_outside_block_is_not_matched(self):
+        # A bare string literal in a switch that has nothing to do with
+        # LocalizedStringResource must not be treated as a key.
+        source = (
+            'var body: String {\n'
+            '    switch self {\n'
+            '    case .foo:\n'
+            '        "NotAKey"\n'
+            '    }\n'
+            '}\n'
+        )
+        result = find_used_keys([source])
+        self.assertEqual(result, set())
+
+
 class TestFindUsedKeysMultipleFiles(unittest.TestCase):
     """Identifiers are unioned across all provided file contents."""
 

@@ -317,7 +317,7 @@ class SendRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
     func test_sendListPublisher_withoutValues() async throws {
         sendService.sendsSubject.send([])
 
-        var iterator = try await subject.sendListPublisher().makeAsyncIterator()
+        var iterator = try await subject.sendListPublisher(includeTypesSection: true).makeAsyncIterator()
         let sections = try await iterator.next()
 
         try assertInlineSnapshot(of: dumpSendListSections(XCTUnwrap(sections)), as: .lines) {
@@ -342,7 +342,7 @@ class SendRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
             ),
         ])
 
-        var iterator = try await subject.sendListPublisher().makeAsyncIterator()
+        var iterator = try await subject.sendListPublisher(includeTypesSection: true).makeAsyncIterator()
         let sections = try await iterator.next()
 
         try assertInlineSnapshot(of: dumpSendListSections(XCTUnwrap(sections)), as: .lines) {
@@ -353,6 +353,34 @@ class SendRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
             Section: All Sends
               - Send: encrypted name
               - Send: encrypted name
+            """
+        }
+    }
+
+    /// `sendListPublisher(includeTypesSection:)` omits the "Types" filter section when
+    /// `includeTypesSection` is `false`.
+    func test_sendListPublisher_includeTypesSectionFalse_omitsTypesSection() async throws {
+        sendService.sendsSubject.send([
+            .fixture(
+                name: "encrypted text name",
+                text: .init(hidden: false, text: "encrypted text"),
+                type: .text,
+            ),
+            .fixture(
+                file: .init(fileName: "test.txt", id: "1", size: "123", sizeName: "123 KB"),
+                name: "encrypted file name",
+                type: .file,
+            ),
+        ])
+
+        var iterator = try await subject.sendListPublisher(includeTypesSection: false).makeAsyncIterator()
+        let sections = try await iterator.next()
+
+        try assertInlineSnapshot(of: dumpSendListSections(XCTUnwrap(sections)), as: .lines) {
+            """
+            Section: All Sends
+              - Send: encrypted file name
+              - Send: encrypted text name
             """
         }
     }

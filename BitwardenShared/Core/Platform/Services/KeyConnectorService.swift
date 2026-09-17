@@ -134,11 +134,8 @@ extension DefaultKeyConnectorService: KeyConnectorService {
                 ),
             )
 
-            try await stateService.setAccountEncryptionKeys(
-                AccountEncryptionKeys(
-                    cryptographicState: .v1(privateKey: keyConnectorResponse.keys.private),
-                    encryptedUserKey: nil,
-                ),
+            try await stateService.setAccountCryptographicState(
+                .v1(privateKey: keyConnectorResponse.keys.private),
             )
             return KeyConnectorConversionResult(
                 encryptedUserKey: keyConnectorResponse.encryptedUserKey,
@@ -151,12 +148,7 @@ extension DefaultKeyConnectorService: KeyConnectorService {
             ssoOrgIdentifier: orgIdentifier,
         )
 
-        try await stateService.setAccountEncryptionKeys(
-            AccountEncryptionKeys(
-                cryptographicState: result.accountCryptographicState,
-                encryptedUserKey: nil,
-            ),
-        )
+        try await stateService.setAccountCryptographicState(result.accountCryptographicState)
 
         return KeyConnectorConversionResult(
             encryptedUserKey: result.keyConnectorKeyWrappedUserKey,
