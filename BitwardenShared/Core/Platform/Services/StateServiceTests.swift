@@ -228,6 +228,21 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         XCTAssertTrue(otherAccountHasPremium)
     }
 
+    /// `doesAccountHavePremium(userId:)` resolves Premium granted by an organization against the
+    /// given account's organizations, not the active account's.
+    func test_doesAccountHavePremium_explicitAccountOrganizationTrue() async throws {
+        await subject.addAccount(.fixture(profile: .fixture(hasPremiumPersonally: false, userId: "1")))
+        await subject.addAccount(.fixture(profile: .fixture(hasPremiumPersonally: false, userId: "2")))
+        try await subject.setActiveAccount(userId: "1")
+        try await dataStore.replaceOrganizations([.fixture(enabled: true, usersGetPremium: true)], userId: "2")
+
+        let activeAccountHasPremium = await subject.doesAccountHavePremium(userId: "1")
+        let otherAccountHasPremium = await subject.doesAccountHavePremium(userId: "2")
+
+        XCTAssertFalse(activeAccountHasPremium)
+        XCTAssertTrue(otherAccountHasPremium)
+    }
+
     /// `doesAccountHavePremium(userId:)` checks the active account when passed `nil`.
     func test_doesAccountHavePremium_nilUserIdChecksActiveAccount() async throws {
         await subject.addAccount(.fixture(profile: .fixture(hasPremiumPersonally: false, userId: "1")))
