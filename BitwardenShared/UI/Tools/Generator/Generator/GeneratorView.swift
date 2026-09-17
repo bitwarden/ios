@@ -329,7 +329,7 @@ struct GeneratorView: View { // swiftlint:disable:this type_body_length
             }
         }
 
-        if store.state.presentationMode == .tab {
+        if store.state.presentationMode.isCopyButtonVisible {
             Button(Localizations.copy) {
                 store.send(.copyGeneratedValue)
             }

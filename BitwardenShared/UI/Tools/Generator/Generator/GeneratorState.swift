@@ -88,6 +88,14 @@ struct GeneratorState: Equatable {
         /// The generator is being presented in place for a specific generation task.
         case inPlace
 
+        /// A flag indicating if the full-width primary copy button is visible.
+        var isCopyButtonVisible: Bool {
+            switch self {
+            case .tab: true
+            case .inPlace: false
+            }
+        }
+
         /// A flag indicating if the copy icon button next to the regenerate button is visible.
         var isCopyIconButtonVisible: Bool {
             switch self {
