@@ -191,7 +191,7 @@ struct BillingServiceActionCardTests {
 
         await subject.setUpgradedToPremiumActionCardDismissed()
 
-        #expect(billingStateService.setUpgradedToPremiumActionCardVisibleReceivedVisible == false)
+        #expect(billingStateService.setUpgradedToPremiumActionCardVisibleReceivedArguments?.visible == false)
     }
 
     /// `setUpgradedToPremiumActionCardDismissed()` logs an error if the state service throws.

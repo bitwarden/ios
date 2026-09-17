@@ -53,6 +53,8 @@ class MockStateService: StateService, ActiveAccountStateProvider, AutofillStateS
     var defaultUriMatchTypeByUserId = [String: UriMatchType]()
     var didAccountSwitchInExtensionResult: Result<Bool, Error> = .success(false)
     var disableAutoTotpCopyByUserId = [String: Bool]()
+    var doesAccountHavePremiumByUserId = [String: Bool]()
+    var doesAccountHavePremiumPersonallyByUserId = [String: Bool]()
     var doesActiveAccountHavePremiumCalled = false
     var fillAssistEnabledByUserId = [String: Bool]()
     var getFillAssistEnabledError: Error?
@@ -196,14 +198,20 @@ class MockStateService: StateService, ActiveAccountStateProvider, AutofillStateS
         try didAccountSwitchInExtensionResult.get()
     }
 
-    func doesActiveAccountHavePremium() async -> Bool {
-        doesActiveAccountHavePremiumCalled = true
-        return doesActiveAccountHavePremiumResult
+    func doesAccountHavePremium(userId: String?) async -> Bool {
+        guard let userId else {
+            doesActiveAccountHavePremiumCalled = true
+            return doesActiveAccountHavePremiumResult
+        }
+        return doesAccountHavePremiumByUserId[userId] ?? doesActiveAccountHavePremiumResult
     }
 
-    func doesActiveAccountHavePremiumPersonally() async -> Bool {
-        doesActiveAccountHavePremiumPersonallyCalled = true
-        return doesActiveAccountHavePremiumPersonallyResult
+    func doesAccountHavePremiumPersonally(userId: String?) async -> Bool {
+        guard let userId else {
+            doesActiveAccountHavePremiumPersonallyCalled = true
+            return doesActiveAccountHavePremiumPersonallyResult
+        }
+        return doesAccountHavePremiumPersonallyByUserId[userId] ?? doesActiveAccountHavePremiumPersonallyResult
     }
 
     func getAccountCryptographicState(userId: String?) async throws -> WrappedAccountCryptographicState {

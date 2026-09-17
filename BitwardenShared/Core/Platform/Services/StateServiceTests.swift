@@ -214,6 +214,56 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         XCTAssertTrue(didSwitch)
     }
 
+    /// `doesAccountHavePremium(userId:)` checks the given account regardless of which account is
+    /// currently active.
+    func test_doesAccountHavePremium_checksExplicitAccountNotActiveAccount() async throws {
+        await subject.addAccount(.fixture(profile: .fixture(hasPremiumPersonally: false, userId: "1")))
+        await subject.addAccount(.fixture(profile: .fixture(hasPremiumPersonally: true, userId: "2")))
+        try await subject.setActiveAccount(userId: "1")
+
+        let activeAccountHasPremium = await subject.doesAccountHavePremium(userId: "1")
+        let otherAccountHasPremium = await subject.doesAccountHavePremium(userId: "2")
+
+        XCTAssertFalse(activeAccountHasPremium)
+        XCTAssertTrue(otherAccountHasPremium)
+    }
+
+    /// `doesAccountHavePremium(userId:)` checks the active account when passed `nil`.
+    func test_doesAccountHavePremium_nilUserIdChecksActiveAccount() async throws {
+        await subject.addAccount(.fixture(profile: .fixture(hasPremiumPersonally: false, userId: "1")))
+        await subject.addAccount(.fixture(profile: .fixture(hasPremiumPersonally: true, userId: "2")))
+        try await subject.setActiveAccount(userId: "2")
+
+        let hasPremium = await subject.doesAccountHavePremium(userId: nil)
+
+        XCTAssertTrue(hasPremium)
+    }
+
+    /// `doesAccountHavePremiumPersonally(userId:)` checks the given account regardless of which
+    /// account is currently active.
+    func test_doesAccountHavePremiumPersonally_checksExplicitAccountNotActiveAccount() async throws {
+        await subject.addAccount(.fixture(profile: .fixture(hasPremiumPersonally: false, userId: "1")))
+        await subject.addAccount(.fixture(profile: .fixture(hasPremiumPersonally: true, userId: "2")))
+        try await subject.setActiveAccount(userId: "1")
+
+        let activeAccountHasPremium = await subject.doesAccountHavePremiumPersonally(userId: "1")
+        let otherAccountHasPremium = await subject.doesAccountHavePremiumPersonally(userId: "2")
+
+        XCTAssertFalse(activeAccountHasPremium)
+        XCTAssertTrue(otherAccountHasPremium)
+    }
+
+    /// `doesAccountHavePremiumPersonally(userId:)` checks the active account when passed `nil`.
+    func test_doesAccountHavePremiumPersonally_nilUserIdChecksActiveAccount() async throws {
+        await subject.addAccount(.fixture(profile: .fixture(hasPremiumPersonally: false, userId: "1")))
+        await subject.addAccount(.fixture(profile: .fixture(hasPremiumPersonally: true, userId: "2")))
+        try await subject.setActiveAccount(userId: "2")
+
+        let hasPremium = await subject.doesAccountHavePremiumPersonally(userId: nil)
+
+        XCTAssertTrue(hasPremium)
+    }
+
     /// `doesActiveAccountHavePremium()` with Premium personally and no organizations returns true.
     func test_doesActiveAccountHavePremium_personalTrue_noOrganization() async throws {
         await subject.addAccount(.fixture(profile: .fixture(hasPremiumPersonally: true)))
