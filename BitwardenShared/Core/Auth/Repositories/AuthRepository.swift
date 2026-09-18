@@ -1186,9 +1186,23 @@ extension DefaultAuthRepository: AuthRepository {
             )
         }
 
-        // Delete the session key when switching to a timeout that excludes it.
-        if !newValue.allowsUserSessionKeySharing {
-            try? await keychainService.deleteUserAuthKey(for: .userSessionKey(userId: id))
+        // Delete the session key when switching to a timeout that excludes it, or write it back
+        // when switching from a timeout that excludes it to one that allows sharing while the
+        // vault is already unlocked. If the current value already allows sharing, the key is
+        // already on the keychain and doesn't need to be written again.
+        do {
+            if !newValue.allowsUserSessionKeySharing {
+                try await keychainService.deleteUserAuthKey(for: .userSessionKey(userId: id))
+            } else if currentValue?.allowsUserSessionKeySharing != true,
+                      await configService.getFeatureFlag(.enableUserSessionKeySharing),
+                      try await !isLocked(userId: id) {
+                try await keychainService.setUserAuthKey(
+                    for: .userSessionKey(userId: id),
+                    value: clientService.crypto().getUserEncryptionKey(),
+                )
+            }
+        } catch {
+            errorReporter.log(error: error)
         }
 
         // Then configure the vault timeout service with the correct value.
@@ -1322,6 +1336,10 @@ extension DefaultAuthRepository: AuthRepository {
     }
 
     func unlockVaultWithSessionKey() async throws -> Bool {
+        guard await configService.getFeatureFlag(.enableUserSessionKeySharing) else {
+            return false
+        }
+
         let id = try await stateService.getActiveAccountId()
         do {
             let sessionKey = try await keychainService.getUserAuthKeyValue(for: .userSessionKey(userId: id))
@@ -1493,11 +1511,13 @@ extension DefaultAuthRepository: AuthRepository {
     ) async throws {
         let account = try await stateService.getActiveAccount()
         let cryptographicState = try await stateService.getAccountCryptographicState()
+        let upgradeToken = await stateService.getV2UpgradeToken(userId: account.profile.userId)
 
         try await clientService.crypto().initializeUserCrypto(
             account: account,
             cryptographicState: cryptographicState,
             method: method,
+            upgradeToken: upgradeToken,
         )
 
         await flightRecorder.log("[Auth] Vault unlocked, method: \(method.methodType)")

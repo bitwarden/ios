@@ -32,6 +32,35 @@ enum BackgroundSessionCleanupServiceError: Error {
     case registrationFailed
 }
 
+// MARK: - TaskCompletionGuard
+
+/// A thread-safe, one-shot flag ensuring a `BGTask` is completed exactly once, regardless of which
+/// of the two concurrent paths that can complete it — the work task finishing normally, or the
+/// system calling the expiration handler — wins the race. Lock-based rather than actor-based so the
+/// expiration handler can call `setTaskCompleted(success:)` synchronously, without an extra
+/// suspension point, as soon as it's told the task expired.
+///
+private final class TaskCompletionGuard: @unchecked Sendable {
+    /// Whether the task has already been marked completed.
+    private var hasCompleted = false
+
+    /// Lock protecting `hasCompleted` from the concurrently-running work task and expiration handler.
+    private let lock = NSLock()
+
+    /// Atomically claims the right to complete the task.
+    ///
+    /// - Returns: `true` if this call is the first to claim completion, meaning the caller should
+    ///   go on to call `setTaskCompleted(success:)`; `false` if some other caller already did.
+    ///
+    func claimCompletion() -> Bool {
+        lock.withLock {
+            guard !hasCompleted else { return false }
+            hasCompleted = true
+            return true
+        }
+    }
+}
+
 // MARK: - DefaultBackgroundSessionCleanupService
 
 /// The default implementation of `BackgroundSessionCleanupService`.
@@ -141,20 +170,31 @@ class DefaultBackgroundSessionCleanupService: BackgroundSessionCleanupService {
     /// - Parameter task: The task instance provided by the system.
     ///
     private func handleAppRefresh(_ task: BGAppRefreshTask) {
-        let work = Task {
-            await flightRecorder.log("[BackgroundSessionCleanup] Background refresh task fired")
-            await authRepository.purgeExpiredUserSessionKeys()
-            await scheduleNextRefresh()
-            await flightRecorder.log("[BackgroundSessionCleanup] Background refresh task completed")
-            task.setTaskCompleted(success: true)
-        }
+        let completionGuard = TaskCompletionGuard()
+        var work: Task<Void, Never>?
 
+        // Install the expiration handler before starting `work` so a very fast expiration can't
+        // be missed, and cancel cooperatively at each step so `work` doesn't keep running (and
+        // racing to complete the task) after the OS has reclaimed the execution window.
         task.expirationHandler = { [weak self] in
-            work.cancel()
+            work?.cancel()
+            guard completionGuard.claimCompletion() else { return }
             task.setTaskCompleted(success: false)
             Task {
                 await self?.flightRecorder.log("[BackgroundSessionCleanup] Background refresh task expired")
             }
+        }
+
+        work = Task {
+            await flightRecorder.log("[BackgroundSessionCleanup] Background refresh task fired")
+            await authRepository.purgeExpiredUserSessionKeys()
+            // Bail without completing the task below — if cancelled, the expiration handler has
+            // already claimed completion and called `setTaskCompleted(success: false)`.
+            guard !Task.isCancelled else { return }
+            await scheduleNextRefresh()
+            guard !Task.isCancelled, completionGuard.claimCompletion() else { return }
+            await flightRecorder.log("[BackgroundSessionCleanup] Background refresh task completed")
+            task.setTaskCompleted(success: true)
         }
     }
 

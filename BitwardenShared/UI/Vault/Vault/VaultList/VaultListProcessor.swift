@@ -55,6 +55,10 @@ final class VaultListProcessor: StateProcessor<
     /// ciphers which failed to decrypt.
     private(set) var hasShownCipherDecryptionFailureAlert = false
 
+    /// A monotonically increasing token used to discard stale results from overlapping
+    /// `loadItemTypesUserCanCreate()` calls.
+    private var itemTypesLoadGeneration = 0
+
     /// The helper to handle master password reprompts.
     private let masterPasswordRepromptHelper: MasterPasswordRepromptHelper
 
@@ -150,6 +154,8 @@ final class VaultListProcessor: StateProcessor<
             await streamOrganizations()
         case .streamShowWebIcons:
             await streamShowWebIcons()
+        case .streamSyncComplete:
+            await streamSyncComplete()
         case .streamVaultList:
             await streamVaultList()
         case .tryAgainTapped:
@@ -244,13 +250,18 @@ extension VaultListProcessor {
     /// Called when the vault list appears on screen.
     private func appeared() async {
         state.isVfo1FoundationFeatureFlagEnabled = await services.configService.getFeatureFlag(.vfo1Foundation)
+
+        // This is being loaded before and after syncing to avoid glitches on which cipher types
+        // are allowed while the vault is being refreshed/synced, as feature flags or policies may change that.
+        await loadItemTypesUserCanCreate()
+
         await refreshVault(syncWithPeriodicCheck: true)
+
         // Read after sync so the cache has been refreshed by onFetchSyncSucceeded if a sync ran.
         await refreshPremiumActionCards()
         await handleNotifications()
         await checkPendingLoginRequests()
         await checkPersonalOwnershipPolicy()
-        await loadItemTypesUserCanCreate()
         await loadOrganizationUserNotificationBannerData()
 
         state.hasPremium = await services.stateService.doesActiveAccountHavePremium()
@@ -322,8 +333,13 @@ extension VaultListProcessor {
 
     /// Checks available item types user can create.
     ///
+    @MainActor
     private func loadItemTypesUserCanCreate() async {
-        state.itemTypesUserCanCreate = await services.vaultRepository.getItemTypesUserCanCreate()
+        itemTypesLoadGeneration += 1
+        let generation = itemTypesLoadGeneration
+        let itemTypes = await services.vaultRepository.getItemTypesUserCanCreate()
+        guard generation == itemTypesLoadGeneration else { return } // A newer call superseded this one.
+        state.itemTypesUserCanCreate = itemTypes
     }
 
     /// Dismisses the archive onboarding action card and persists the preference.
@@ -679,6 +695,7 @@ extension VaultListProcessor {
     private func morePressed(item: VaultListItem) async {
         await vaultItemMoreOptionsHelper.showMoreOptionsAlert(
             for: item,
+            delegate: self,
             handleDisplayToast: { [weak self] toast in
                 self?.state.toast = toast
             },
@@ -772,6 +789,13 @@ extension VaultListProcessor {
         }
     }
 
+    /// Streams sync-complete events to keep up-to-date sync-related features here.
+    private func streamSyncComplete() async {
+        for await _ in services.syncService.syncCompletePublisher() {
+            await loadItemTypesUserCanCreate()
+        }
+    }
+
     /// Streams the user's vault list.
     private func streamVaultList() async {
         do {
@@ -851,6 +875,11 @@ extension VaultListProcessor: AddEditFolderDelegate {
 // MARK: - CipherItemOperationDelegate
 
 extension VaultListProcessor: CipherItemOperationDelegate {
+    func itemAdded(type: CipherType) -> Bool {
+        state.toast = Toast(title: type.savedToastTitle)
+        return true
+    }
+
     func itemArchived() {
         state.toast = Toast(title: Localizations.itemMovedToArchive)
     }
@@ -869,6 +898,11 @@ extension VaultListProcessor: CipherItemOperationDelegate {
 
     func itemUnarchived() {
         state.toast = Toast(title: Localizations.itemMovedToVault)
+    }
+
+    func itemUpdated(type: CipherType) -> Bool {
+        state.toast = Toast(title: type.savedToastTitle)
+        return true
     }
 }
 

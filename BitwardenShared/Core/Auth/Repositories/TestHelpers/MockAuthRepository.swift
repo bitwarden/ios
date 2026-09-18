@@ -84,7 +84,7 @@ class MockAuthRepository: AuthRepository { // swiftlint:disable:this type_body_l
     var setUserSessionKeySharingEnabledResult: Result<Void, Error> = .success(())
     var setUserSessionKeySharingEnabledValues: [(isEnabled: Bool, userId: String?)] = []
     var setVaultTimeoutError: Error?
-    var startObservingSessionKeyFlagCalled = false
+    var startObservingUserSessionKeyFlagCalled = false
     var unlockVaultFromLoginWithDeviceKey: String?
     var unlockVaultFromLoginWithDevicePrivateKey: String?
     var unlockVaultFromLoginWithDeviceResult: Result<Void, Error> = .success(())
@@ -403,7 +403,7 @@ class MockAuthRepository: AuthRepository { // swiftlint:disable:this type_body_l
     }
 
     func startObservingUserSessionKeyFeatureFlag() {
-        startObservingSessionKeyFlagCalled = true
+        startObservingUserSessionKeyFlagCalled = true
     }
 
     func unlockVaultFromLoginWithDevice(privateKey: String, key: String) async throws {
