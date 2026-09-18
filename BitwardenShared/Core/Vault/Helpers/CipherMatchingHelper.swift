@@ -1,3 +1,4 @@
+import BitwardenKit
 import BitwardenSdk
 import Foundation
 
@@ -74,8 +75,12 @@ class DefaultCipherMatchingHelper: CipherMatchingHelper {
 
             switch uriMatchType {
             case .domain:
+                let isApp = URL(string: uriToMatch)?.isApp ?? false
+                if hasLocalHostPortMismatch(loginUri: uri, uriToMatch: uriToMatch, isApp: isApp) {
+                    continue
+                }
                 matchResult = checkForCipherDomainMatch(
-                    isApp: URL(string: uriToMatch)?.isApp ?? false,
+                    isApp: isApp,
                     loginUri: uri,
                     matchingDomains: matchingDomains,
                     matchingFuzzyDomains: matchingFuzzyDomains,
@@ -155,6 +160,37 @@ class DefaultCipherMatchingHelper: CipherMatchingHelper {
         }
 
         return .none
+    }
+
+    /// Determines whether local host/IP domain matching should be rejected due to differing ports.
+    ///
+    /// - Parameters:
+    ///   - loginUri: The login URI from the cipher.
+    ///   - uriToMatch: The URI being matched against.
+    ///   - isApp: Whether the URLs use the `iosapp://` scheme.
+    /// - Returns: `true` when both URIs are local host/IP values with different ports.
+    ///
+    private func hasLocalHostPortMismatch(loginUri: String, uriToMatch: String, isApp: Bool) -> Bool {
+        let loginURL = isApp ? URL(string: loginUri) : URL(string: loginUri)?.sanitized
+        let matchURL = isApp ? URL(string: uriToMatch) : URL(string: uriToMatch)?.sanitized
+
+        guard isLocalHostOrIpAddress(loginURL), isLocalHostOrIpAddress(matchURL) else {
+            return false
+        }
+
+        return loginURL?.hostWithPort != matchURL?.hostWithPort
+    }
+
+    /// Determines whether a URL resolves to localhost or an IP address (IPv4 or IPv6).
+    ///
+    /// - Parameter url: URL to inspect.
+    /// - Returns: `true` when the URL host is localhost or an IP address.
+    ///
+    private func isLocalHostOrIpAddress(_ url: URL?) -> Bool {
+        guard let host = url?.host?.lowercased() else { return false }
+        // `URL.host` strips brackets from IPv6 hosts, so a colon in the host
+        // indicates an IPv6 literal (regular domains and IPv4 never contain `:`).
+        return host == "localhost" || url?.isIPAddress == true || host.contains(":")
     }
 
     /// Returns a list of domains that match the specified domain. If the domain is contained
