@@ -59,17 +59,17 @@ public enum UI {
     @MainActor
     public static func applyDefaultAppearances() { // swiftlint:disable:this function_body_length
         let bodyFont = UIFontMetrics(forTextStyle: .body).scaledFont(
-            for: FontFamily.DMSans.regular.font(size: 15),
+            for: FontFamily.InterVariable.regular.font(size: 15),
         )
         let bodyBoldFont = UIFontMetrics(forTextStyle: .body).scaledFont(
-            for: FontFamily.DMSans.bold.font(size: 15),
+            for: FontFamily.InterVariable.bold.font(size: 15),
         )
         let largeTitleFont = UIFontMetrics(forTextStyle: .largeTitle).scaledFont(
-            for: FontFamily.DMSans.bold.font(size: 26),
+            for: FontFamily.InterVariable.bold.font(size: 26),
         )
         let iconBadgeBackground = SharedAsset.Colors.iconBadgeBackground.color
         let iconBadgeTextAttributes: [NSAttributedString.Key: Any] = [
-            .font: FontFamily.DMSans.bold.font(size: 12),
+            .font: FontFamily.InterVariable.bold.font(size: 12),
             .foregroundColor: SharedAsset.Colors.iconBadgeForeground.color,
         ]
 
@@ -124,7 +124,7 @@ public enum UI {
 
         UIBarButtonItem.appearance(whenContainedInInstancesOf: [UISearchBar.self]).title = Localizations.cancel
         UIBarButtonItem.appearance(whenContainedInInstancesOf: [UISearchBar.self]).setTitleTextAttributes(
-            [.font: FontFamily.DMSans.regular.font(size: 15)],
+            [.font: FontFamily.InterVariable.regular.font(size: 15)],
             for: .normal,
         )
 
@@ -137,14 +137,18 @@ public enum UI {
 
         UISegmentedControl.appearance().setTitleTextAttributes(
             [
-                .font: UIFontMetrics(forTextStyle: .callout).scaledFont(for: FontFamily.DMSans.regular.font(size: 13)),
+                .font: UIFontMetrics(forTextStyle: .callout).scaledFont(
+                    for: FontFamily.InterVariable.regular.font(size: 13),
+                ),
                 .foregroundColor: SharedAsset.Colors.textSecondary.color,
             ],
             for: .normal,
         )
         UISegmentedControl.appearance().setTitleTextAttributes(
             [
-                .font: UIFontMetrics(forTextStyle: .callout).scaledFont(for: FontFamily.DMSans.semiBold.font(size: 13)),
+                .font: UIFontMetrics(forTextStyle: .callout).scaledFont(
+                    for: FontFamily.InterVariable.semiBold.font(size: 13),
+                ),
                 .foregroundColor: SharedAsset.Colors.textInteraction.color,
             ],
             for: .selected,
