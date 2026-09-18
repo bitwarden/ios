@@ -737,7 +737,12 @@ extension DefaultAuthRepository: AuthRepository {
     }
 
     func clearPins() async throws {
-        try await stateService.clearPins()
+        guard await configService.getFeatureFlag(.sdkManagedPinUnlock) else {
+            try await stateService.clearPins()
+            return
+        }
+
+        try await clientService.userCryptoManagement().pinSettings().unsetPin()
     }
 
     func deleteAccount(otp: String?, passwordText: String?) async throws {
@@ -1023,11 +1028,17 @@ extension DefaultAuthRepository: AuthRepository {
     }
 
     func setPins(_ pin: String, requirePasswordAfterRestart: Bool) async throws {
-        let enrollPinResponse = try await clientService.crypto().enrollPin(pin: pin)
-        try await stateService.setPinKeys(
-            enrollPinResponse: enrollPinResponse,
-            requirePasswordAfterRestart: requirePasswordAfterRestart,
-        )
+        guard await configService.getFeatureFlag(.sdkManagedPinUnlock) else {
+            let enrollPinResponse = try await clientService.crypto().enrollPin(pin: pin)
+            try await stateService.setPinKeys(
+                enrollPinResponse: enrollPinResponse,
+                requirePasswordAfterRestart: requirePasswordAfterRestart,
+            )
+            return
+        }
+
+        let lockType: PinLockType = requirePasswordAfterRestart ? .afterFirstUnlock : .beforeFirstUnlock
+        try await clientService.userCryptoManagement().pinSettings().setPin(pin: pin, lockType: lockType)
     }
 
     func setLastActiveAccountTime() async throws {
@@ -1144,21 +1155,28 @@ extension DefaultAuthRepository: AuthRepository {
 
     func unlockVaultWithPIN(pin: String) async throws {
         if let pinProtectedUserKeyEnvelope = try await stateService.pinProtectedUserKeyEnvelope() {
-            try await unlockVault(
-                method: .pinEnvelope(
-                    pin: pin,
-                    pinProtectedUserKeyEnvelope: pinProtectedUserKeyEnvelope,
-                ),
-            )
-        } else {
-            // This is needed to support unlocking with a legacy pin protected user key. Once the
-            // vault is unlocked, the user's pin protected user key is migrated to a pin protected
-            // user key envelope.
-            guard let pinProtectedUserKey = try await stateService.pinProtectedUserKey() else {
-                throw StateServiceError.noPinProtectedUserKey
+            if await configService.getFeatureFlag(.sdkManagedPinUnlock) {
+                try await unlockVault(method: .pinState(pin: pin))
+            } else {
+                try await unlockVault(
+                    method: .pinEnvelope(
+                        pin: pin,
+                        pinProtectedUserKeyEnvelope: pinProtectedUserKeyEnvelope,
+                    ),
+                )
             }
-            try await unlockVault(method: .pin(pin: pin, pinProtectedUserKey: pinProtectedUserKey))
+            return
         }
+
+        // This is needed to support unlocking with a legacy pin protected user key, regardless of
+        // the SDK-managed flag — the SDK state bridge only ever exposes the envelope slots, never
+        // this legacy key. Once the vault is unlocked, `configurePinUnlockIfNeeded` migrates it to
+        // a pin protected user key envelope, which brings the SDK-managed path in sync too since
+        // migration writes to the same shared storage slot the bridge reads.
+        guard let pinProtectedUserKey = try await stateService.pinProtectedUserKey() else {
+            throw StateServiceError.noPinProtectedUserKey
+        }
+        try await unlockVault(method: .pin(pin: pin, pinProtectedUserKey: pinProtectedUserKey))
     }
 
     func validatePassword(_ password: String) async throws -> Bool {
@@ -1186,14 +1204,18 @@ extension DefaultAuthRepository: AuthRepository {
     }
 
     func validatePin(pin: String) async throws -> Bool {
-        guard let pinProtectedUserKeyEnvelope = try await stateService.pinProtectedUserKeyEnvelope() else {
-            return false
+        guard await configService.getFeatureFlag(.sdkManagedPinUnlock) else {
+            guard let pinProtectedUserKeyEnvelope = try await stateService.pinProtectedUserKeyEnvelope() else {
+                return false
+            }
+
+            return try await clientService.auth().validatePinProtectedUserKeyEnvelope(
+                pin: pin,
+                pinProtectedUserKeyEnvelope: pinProtectedUserKeyEnvelope,
+            )
         }
 
-        return try await clientService.auth().validatePinProtectedUserKeyEnvelope(
-            pin: pin,
-            pinProtectedUserKeyEnvelope: pinProtectedUserKeyEnvelope,
-        )
+        return try await clientService.userCryptoManagement().pinSettings().validatePin(pin: pin)
     }
 
     func verifyOtp(_ otp: String) async throws {
@@ -1436,7 +1458,14 @@ extension DefaultAuthRepository: AuthRepository {
             // Note: We handle all errors broadly here because the SDK doesn't provide specific
             // error types to distinguish key rotation failures from other errors. Clearing the
             // PIN keys on any error is the safest approach to maintain data consistency.
-            try await stateService.clearPins()
+            // `clearPins()` is best-effort here: any failure is logged rather than thrown, since
+            // throwing would abort the in-progress unlock after `initializeUserCrypto` already
+            // succeeded.
+            do {
+                try await clearPins()
+            } catch {
+                errorReporter.log(error: error)
+            }
             // Return `nil` instead of throwing to avoid erroring out of the unlock process.
             return nil
         }
