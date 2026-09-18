@@ -36,6 +36,7 @@ extension SendView {
             type: type,
             file: file,
             text: text,
+            data: nil,
             maxAccessCount: maxAccessCount,
             accessCount: accessCount,
             disabled: disabled,
