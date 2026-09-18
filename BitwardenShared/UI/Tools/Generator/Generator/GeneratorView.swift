@@ -78,24 +78,17 @@ struct GeneratorView: View { // swiftlint:disable:this type_body_length
                     view
                 }
             }
-            .safeAreaInset(edge: .bottom) {
-                fillButton
-            }
         }
     }
 
-    /// The full-width button pinned to the bottom of the sheet that fills the generated value
+    /// The full-width button that fills the generated value
     /// into the field the user came from, when presented in place.
     @ViewBuilder var fillButton: some View {
-        if store.state.presentationMode.isFillButtonVisible {
-            Button(store.state.generatorType.fillButtonTitle) {
-                store.send(.fillGeneratedValue)
-            }
-            .buttonStyle(.primary())
-            .accessibilityIdentifier("SelectButton")
-            .padding(12)
-            .background(SharedAsset.Colors.backgroundPrimary.swiftUIColor)
+        Button(store.state.generatorType.fillButtonTitle) {
+            store.send(.fillGeneratedValue)
         }
+        .buttonStyle(.primary())
+        .accessibilityIdentifier("FillGeneratedValueButton")
     }
 
     @ViewBuilder
@@ -327,6 +320,10 @@ struct GeneratorView: View { // swiftlint:disable:this type_body_length
                     store.send(.copyGeneratedValue)
                 }
             }
+        }
+
+        if store.state.presentationMode.isFillButtonVisible {
+            fillButton
         }
 
         if store.state.presentationMode.isCopyButtonVisible {
