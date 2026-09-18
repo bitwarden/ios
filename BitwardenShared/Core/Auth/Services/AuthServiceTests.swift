@@ -1,6 +1,7 @@
 import BitwardenKit
 import BitwardenKitMocks
 import BitwardenSdk
+import BitwardenSdkMocks
 import TestHelpers
 import XCTest
 
@@ -477,6 +478,63 @@ class AuthServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
             IdentityTokenResponseModel.fixture().refreshToken,
         )
         assertGetConfig()
+    }
+
+    /// `loginWithMasterPassword(_:username:)` uses the SDK's password prelogin client and the
+    /// SDK-returned Salt (instead of the user's email) when hashing the master password, when the
+    /// `passwordPreloginFromSdk` feature flag is enabled.
+    @MainActor
+    func test_loginWithMasterPassword_passwordPreloginFromSdk() async throws {
+        // Set up the mock data.
+        configService.featureFlagsBoolPreAuth[.passwordPreloginFromSdk] = true
+        client.results = [
+            .httpSuccess(testData: .identityTokenSuccess),
+        ]
+        appIDSettingsStore.appID = "App ID"
+        let mockLogin = MockLoginClientProtocol()
+        mockLogin.getPasswordPreloginReturnValue = PasswordPreloginResponse(
+            kdf: .pbkdf2(iterations: NonZeroU32(700_000)),
+            salt: "sdk-returned-salt",
+        )
+        clientService.mockAuth.loginReturnValue = mockLogin
+        var hashPasswordCalls = [(email: String, kdfParams: Kdf)]()
+        clientService.mockAuth.hashPasswordClosure = { email, _, kdfParams, _ in
+            hashPasswordCalls.append((email: email, kdfParams: kdfParams))
+            return "hashed password"
+        }
+        stateService.preAuthEnvironmentURLs = EnvironmentURLData(base: URL(string: "https://vault.bitwarden.com"))
+        systemDevice.modelIdentifier = "Model id"
+
+        // Attempt to login.
+        try await subject.loginWithMasterPassword(
+            "Password1234!",
+            username: "email@example.com",
+            isNewAccount: false,
+        )
+
+        // Verify the SDK prelogin client was used instead of the `/prelogin` REST endpoint.
+        //
+        // Note: `clientService.mockAuthIsPreAuth`/`mockAuthUserId` aren't asserted here — they're
+        // overwritten by every `clientService.auth(...)` call, including the later
+        // `saveMasterPasswordHash`/`checkMasterPasswordPolicies` calls in this same flow (which use
+        // `isPreAuth: false`), so they don't isolate this specific login call.
+        XCTAssertTrue(clientService.mockAuth.loginCalled)
+        XCTAssertEqual(mockLogin.getPasswordPreloginReceivedEmail, "email@example.com")
+        XCTAssertEqual(client.requests.count, 1)
+        let tokenRequest = IdentityTokenRequestModel(
+            authenticationMethod: .password(username: "email@example.com", password: "hashed password"),
+            deeplinkScheme: "bitwarden",
+            deviceInfo: DeviceInfo(
+                identifier: "App ID",
+                name: "Model id",
+            ),
+            loginRequestId: nil,
+        )
+        XCTAssertEqual(client.requests[0].body, try tokenRequest.encode())
+
+        // Verify the SDK-returned Salt (not the user's email) was used to hash the master password.
+        XCTAssertEqual(hashPasswordCalls.first?.email, "sdk-returned-salt")
+        XCTAssertEqual(hashPasswordCalls.first?.kdfParams, .pbkdf2(iterations: NonZeroU32(700_000)))
     }
 
     /// `loginWithMasterPassword(_:username:)` logs the user in with the password for
