@@ -471,6 +471,127 @@ final class VaultTimeoutServiceTests: BitwardenTestCase { // swiftlint:disable:t
         XCTAssertTrue(shouldTimeout)
     }
 
+    /// `.timeUntilSessionTimeout(userId:)` returns `nil` for a timeout value of `.never`.
+    func test_timeUntilSessionTimeout_never() async throws {
+        let account = Account.fixture()
+        stateService.activeAccount = account
+        userSessionStateService.getVaultTimeoutReturnValue = .never
+
+        let remaining = try await subject.timeUntilSessionTimeout(userId: account.profile.userId)
+        XCTAssertNil(remaining)
+    }
+
+    /// `.timeUntilSessionTimeout(userId:)` returns `nil` for a timeout value of `.onAppRestart`.
+    func test_timeUntilSessionTimeout_onAppRestart() async throws {
+        let account = Account.fixture()
+        stateService.activeAccount = account
+        userSessionStateService.getVaultTimeoutReturnValue = .onAppRestart
+
+        let remaining = try await subject.timeUntilSessionTimeout(userId: account.profile.userId)
+        XCTAssertNil(remaining)
+    }
+
+    /// `.timeUntilSessionTimeout(userId:)` returns the number of seconds remaining until timeout
+    /// for a schedulable timeout value.
+    func test_timeUntilSessionTimeout_remaining() async throws {
+        let account = Account.fixture()
+        stateService.activeAccount = account
+        userSessionStateService.getVaultTimeoutReturnValue = .fiveMinutes
+
+        let currentTime = Date(year: 2024, month: 1, day: 2, hour: 6, minute: 0)
+        let currentMonotonicTime: TimeInterval = 1000.0
+        timeProvider.timeConfig = .mockTime(currentTime, currentMonotonicTime)
+
+        userSessionStateService.getLastActiveBootEpochReturnValue = currentTime.timeIntervalSinceReferenceDate
+            - currentMonotonicTime
+
+        // Last active 1 minute ago (60 seconds), 240 seconds remaining until the 5 minute timeout.
+        userSessionStateService.getLastActiveTimeReturnValue = Calendar.current
+            .date(byAdding: .minute, value: -1, to: currentTime)
+        userSessionStateService.getLastActiveMonotonicTimeReturnValue = currentMonotonicTime - 60
+        timeProvider.calculateTamperResistantElapsedTimeResult = TamperResistantTimeResult(
+            divergence: 0,
+            effectiveElapsed: 60,
+            elapsedMonotonic: 60,
+            elapsedWallClock: 60,
+            isReboot: false,
+            tamperingDetected: false,
+        )
+
+        let remaining = try await subject.timeUntilSessionTimeout(userId: account.profile.userId)
+        XCTAssertEqual(remaining, 240)
+    }
+
+    /// `.timeUntilSessionTimeout(userId:)` returns a non-positive value once the timeout has
+    /// already elapsed.
+    func test_timeUntilSessionTimeout_alreadyElapsed() async throws {
+        let account = Account.fixture()
+        stateService.activeAccount = account
+        userSessionStateService.getVaultTimeoutReturnValue = .fiveMinutes
+
+        let currentTime = Date(year: 2024, month: 1, day: 2, hour: 6, minute: 0)
+        let currentMonotonicTime: TimeInterval = 1000.0
+        timeProvider.timeConfig = .mockTime(currentTime, currentMonotonicTime)
+
+        userSessionStateService.getLastActiveBootEpochReturnValue = currentTime.timeIntervalSinceReferenceDate
+            - currentMonotonicTime
+
+        // Last active 6 minutes ago (360 seconds), already past the 5 minute timeout.
+        userSessionStateService.getLastActiveTimeReturnValue = Calendar.current
+            .date(byAdding: .minute, value: -6, to: currentTime)
+        userSessionStateService.getLastActiveMonotonicTimeReturnValue = currentMonotonicTime - 360
+        timeProvider.calculateTamperResistantElapsedTimeResult = TamperResistantTimeResult(
+            divergence: 0,
+            effectiveElapsed: 360,
+            elapsedMonotonic: 360,
+            elapsedWallClock: 360,
+            isReboot: false,
+            tamperingDetected: false,
+        )
+
+        let remaining = try await subject.timeUntilSessionTimeout(userId: account.profile.userId)
+        XCTAssertLessThanOrEqual(remaining ?? 0, 0)
+    }
+
+    /// `.timeUntilSessionTimeout(userId:)` fails closed to `0` (already timed out) when tampering
+    /// is detected, rather than returning a large or negative elapsed-derived value.
+    func test_timeUntilSessionTimeout_tamperingDetected() async throws {
+        let account = Account.fixture()
+        stateService.activeAccount = account
+        userSessionStateService.getVaultTimeoutReturnValue = .fifteenMinutes
+
+        let currentTime = Date(year: 2024, month: 1, day: 2, hour: 6, minute: 0)
+        let currentMonotonicTime: TimeInterval = 100.0
+        timeProvider.timeConfig = .mockTime(currentTime, currentMonotonicTime)
+
+        userSessionStateService.getLastActiveTimeReturnValue = Calendar.current
+            .date(byAdding: .minute, value: -2, to: currentTime)
+        userSessionStateService.getLastActiveMonotonicTimeReturnValue = 5000.0
+
+        timeProvider.calculateTamperResistantElapsedTimeResult = TamperResistantTimeResult(
+            divergence: 5020,
+            effectiveElapsed: -4900,
+            elapsedMonotonic: -4900,
+            elapsedWallClock: 120,
+            isReboot: true,
+            tamperingDetected: true,
+        )
+
+        let remaining = try await subject.timeUntilSessionTimeout(userId: account.profile.userId)
+        XCTAssertEqual(remaining, 0)
+    }
+
+    /// `.timeUntilSessionTimeout(userId:)` fails closed to `0` when there's no last active time
+    /// recorded for the user.
+    func test_timeUntilSessionTimeout_noLastActiveTime() async throws {
+        let account = Account.fixture()
+        stateService.activeAccount = account
+        userSessionStateService.getVaultTimeoutReturnValue = .fiveMinutes
+
+        let remaining = try await subject.timeUntilSessionTimeout(userId: account.profile.userId)
+        XCTAssertEqual(remaining, 0)
+    }
+
     /// `isPinUnlockAvailable` throws errors.
     func test_isPinUnlockAvailable_error() async throws {
         stateService.pinProtectedUserKeyEnvelopeError = BitwardenTestError.example

@@ -6,6 +6,7 @@ import Foundation
 class MockNotificationCenterService: NotificationCenterService {
     var didEnterBackgroundSubject = CurrentValueSubject<Void, Never>(())
     var isInForegroundSubject = CurrentValueSubject<Bool, Never>(true)
+    var willResignActiveSubject = PassthroughSubject<Void, Never>()
     var willEnterForegroundSubject = CurrentValueSubject<Void, Never>(())
 
     func didEnterBackgroundPublisher() -> AsyncPublisher<AnyPublisher<Void, Never>> {
@@ -14,6 +15,10 @@ class MockNotificationCenterService: NotificationCenterService {
 
     func isInForegroundPublisher() -> AsyncPublisher<AnyPublisher<Bool, Never>> {
         isInForegroundSubject.eraseToAnyPublisher().values
+    }
+
+    func willResignActivePublisher() -> AsyncPublisher<AnyPublisher<Void, Never>> {
+        willResignActiveSubject.eraseToAnyPublisher().values
     }
 
     func willEnterForegroundPublisher() -> AsyncPublisher<AnyPublisher<Void, Never>> {

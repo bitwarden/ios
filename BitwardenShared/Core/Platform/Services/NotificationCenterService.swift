@@ -18,6 +18,12 @@ protocol NotificationCenterService: AnyObject {
     ///
     func isInForegroundPublisher() -> AsyncPublisher<AnyPublisher<Bool, Never>>
 
+    /// A publisher for when the app is about to resign active status.
+    /// This fires when the user opens the app switcher (before the app enters the background),
+    /// covering the foreground-to-kill path where `didEnterBackground` never fires.
+    ///
+    func willResignActivePublisher() -> AsyncPublisher<AnyPublisher<Void, Never>>
+
     /// A publisher for when the app enters the foreground.
     ///
     func willEnterForegroundPublisher() -> AsyncPublisher<AnyPublisher<Void, Never>>
@@ -71,6 +77,14 @@ class DefaultNotificationCenterService: NotificationCenterService {
 
     func isInForegroundPublisher() -> AsyncPublisher<AnyPublisher<Bool, Never>> {
         isInForegroundSubject.eraseToAnyPublisher().values
+    }
+
+    func willResignActivePublisher() -> AsyncPublisher<AnyPublisher<Void, Never>> {
+        notificationCenter
+            .publisher(for: UIApplication.willResignActiveNotification)
+            .map { _ in }
+            .eraseToAnyPublisher()
+            .values
     }
 
     func willEnterForegroundPublisher() -> AsyncPublisher<AnyPublisher<Void, Never>> {
