@@ -17,6 +17,12 @@ protocol BillingStateService { // sourcery: AutoMockable
     ///
     func getPremiumUpgradeBannerDismissed(userId: String?) async throws -> Bool
 
+    /// Returns whether the Premium upgrade banner has been permanently dismissed by the user.
+    ///
+    /// - Returns: `true` if the user has dismissed the banner.
+    ///
+    func isPremiumUpgradeBannerDismissed() async -> Bool
+
     /// Sets whether the Premium upgrade banner has been dismissed.
     ///
     /// - Parameters:
@@ -25,12 +31,6 @@ protocol BillingStateService { // sourcery: AutoMockable
     ///     Defaults to the active account if `nil`.
     ///
     func setPremiumUpgradeBannerDismissed(_ dismissed: Bool, userId: String?) async throws
-
-    /// Returns whether the Premium upgrade banner has been permanently dismissed by the user.
-    ///
-    /// - Returns: `true` if the user has dismissed the banner.
-    ///
-    func isPremiumUpgradeBannerDismissed() async -> Bool
 
     // MARK: Premium Upgrade Eligibility
 
