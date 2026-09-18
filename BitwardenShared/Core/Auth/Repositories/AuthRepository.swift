@@ -1274,6 +1274,10 @@ extension DefaultAuthRepository: AuthRepository {
     }
 
     func unlockVaultWithSessionKey() async throws -> Bool {
+        guard await configService.getFeatureFlag(.enableUserSessionKeySharing) else {
+            return false
+        }
+
         let id = try await stateService.getActiveAccountId()
         do {
             let sessionKey = try await keychainService.getUserAuthKeyValue(for: .userSessionKey(userId: id))

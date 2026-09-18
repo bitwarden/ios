@@ -2514,6 +2514,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
     /// `unlockVaultWithSessionKey()` unlocks the vault using the session key from the keychain,
     /// returns `true`, and does not treat the unlock as user interaction.
     func test_unlockVaultWithSessionKey_success() async throws {
+        configService.featureFlagsBool[.enableUserSessionKeySharing] = true
         let active = Account.fixture()
         stateService.activeAccount = active
         stateService.accountCryptographicStates[active.profile.userId] = .fixtureV2()
@@ -2536,6 +2537,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
     /// `unlockVaultWithSessionKey()` returns `false` without throwing when the keychain reports
     /// the OS status for an item that isn't found.
     func test_unlockVaultWithSessionKey_osStatusItemNotFound_returnsFalse() async throws {
+        configService.featureFlagsBool[.enableUserSessionKeySharing] = true
         stateService.activeAccount = .fixture()
         keychainService.getUserAuthKeyValueThrowableError = KeychainServiceError.osStatusError(errSecItemNotFound)
 
@@ -2548,6 +2550,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
     /// `unlockVaultWithSessionKey()` returns `false` without throwing when the keychain doesn't
     /// have a session key stored.
     func test_unlockVaultWithSessionKey_keyNotFound_returnsFalse() async throws {
+        configService.featureFlagsBool[.enableUserSessionKeySharing] = true
         let active = Account.fixture()
         stateService.activeAccount = active
         keychainService.getUserAuthKeyValueThrowableError = KeychainServiceError.keyNotFound(
@@ -2563,6 +2566,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
     /// `unlockVaultWithSessionKey()` deletes the session key from the keychain and rethrows the
     /// error when unlocking the vault fails.
     func test_unlockVaultWithSessionKey_unlockVaultError_deletesKeyAndRethrows() async throws {
+        configService.featureFlagsBool[.enableUserSessionKeySharing] = true
         let active = Account.fixture()
         stateService.activeAccount = active
         stateService.accountCryptographicStates[active.profile.userId] = .fixtureV2()
@@ -2578,6 +2582,19 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
             keychainService.deleteUserAuthKeyReceivedItem,
             .userSessionKey(userId: active.profile.userId),
         )
+    }
+
+    /// `unlockVaultWithSessionKey()` returns `false` without reading the keychain when
+    /// `enableUserSessionKeySharing` is OFF.
+    func test_unlockVaultWithSessionKey_featureFlagDisabled_returnsFalse() async throws {
+        configService.featureFlagsBool[.enableUserSessionKeySharing] = false
+        stateService.activeAccount = .fixture()
+        keychainService.getUserAuthKeyValueReturnValue = "SESSION_KEY"
+
+        let result = try await subject.unlockVaultWithSessionKey()
+
+        XCTAssertFalse(result)
+        XCTAssertFalse(keychainService.getUserAuthKeyValueCalled)
     }
 
     /// `lockAllVaults(isManuallyLocking:)` locks all available vaults.
