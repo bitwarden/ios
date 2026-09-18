@@ -546,6 +546,37 @@ class VaultListSectionsBuilderTests: BitwardenTestCase { // swiftlint:disable:th
         }
     }
 
+    /// `addTypesSection()` does not add the Bank Accounts row when its count is 0, even when the
+    /// `.newItemTypes` flag is enabled.
+    func test_addTypesSection_bankAccount_zeroCount() {
+        setUpSubject(
+            withData: VaultListPreparedData(
+                countPerCipherType: [
+                    .card: 10,
+                    .identity: 1,
+                    .login: 15,
+                    .secureNote: 2,
+                ],
+                isNewItemTypesEnabled: true,
+            ),
+        )
+
+        let vaultListData = subject.addTypesSection().build()
+
+        assertInlineSnapshot(of: vaultListData.sections.dump(), as: .lines) {
+            """
+            Section[Types]: Types
+              - Group[Types.Logins]: Login (15)
+              - Group[Types.Cards]: Card (10)
+              - Group[Types.Identities]: Identity (1)
+              - Group[Types.DriversLicense]: License (0)
+              - Group[Types.Passport]: Passport (0)
+              - Group[Types.SecureNotes]: Secure note (2)
+              - Group[Types.SSHKeys]: SSH key (0)
+            """
+        }
+    }
+
     /// `addTypesSection()` does not add the Bank Accounts row when the `.newItemTypes` flag is disabled.
     func test_addTypesSection_bankAccount_newItemTypesDisabled() {
         setUpSubject(
