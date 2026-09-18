@@ -37,6 +37,8 @@ class MockAuthRepository: AuthRepository { // swiftlint:disable:this type_body_l
     var isLockedResult: Result<Bool, Error> = .success(true)
     var isPinUnlockAvailableResult: Result<Bool, Error> = .success(false)
     var isUserManagedByOrganizationResult: Result<Bool, Error> = .success(false)
+    var isUserSessionKeySharingEnabledCalled = false
+    var isUserSessionKeySharingEnabledResult: Result<Bool, Error> = .success(false)
     var pinUnlockAvailabilityResult: Result<[String: Bool], Error> = .success([:])
     var leaveOrganizationCalled = false
     var leaveOrganizationOrganizationId: String?
@@ -78,6 +80,9 @@ class MockAuthRepository: AuthRepository { // swiftlint:disable:this type_body_l
     var setPinsRequirePasswordAfterRestart: Bool?
     var setPinsResult: Result<Void, Error> = .success(())
     var setLastActiveAccountTimeError: Error?
+    var setUserSessionKeySharingEnabledCalled = false
+    var setUserSessionKeySharingEnabledResult: Result<Void, Error> = .success(())
+    var setUserSessionKeySharingEnabledValues: [(isEnabled: Bool, userId: String?)] = []
     var setVaultTimeoutError: Error?
     var startObservingUserSessionKeyFlagCalled = false
     var unlockVaultFromLoginWithDeviceKey: String?
@@ -260,6 +265,11 @@ class MockAuthRepository: AuthRepository { // swiftlint:disable:this type_body_l
         try isUserManagedByOrganizationResult.get()
     }
 
+    func isUserSessionKeySharingEnabled(userId: String?) async throws -> Bool {
+        isUserSessionKeySharingEnabledCalled = true
+        return try isUserSessionKeySharingEnabledResult.get()
+    }
+
     func leaveOrganization(organizationId: String) async throws {
         leaveOrganizationCalled = true
         leaveOrganizationOrganizationId = organizationId
@@ -377,6 +387,12 @@ class MockAuthRepository: AuthRepository { // swiftlint:disable:this type_body_l
         pinProtectedUserKey = pin
         setPinsRequirePasswordAfterRestart = requirePasswordAfterRestart
         try setPinsResult.get()
+    }
+
+    func setUserSessionKeySharingEnabled(_ isEnabled: Bool, userId: String?) async throws {
+        setUserSessionKeySharingEnabledCalled = true
+        setUserSessionKeySharingEnabledValues.append((isEnabled: isEnabled, userId: userId))
+        try setUserSessionKeySharingEnabledResult.get()
     }
 
     func setVaultTimeout(value: SessionTimeoutValue, userId: String?) async throws {
