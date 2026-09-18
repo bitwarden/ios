@@ -15,6 +15,9 @@ enum GeneratorAction: Equatable {
     /// The email type was changed.
     case emailTypeChanged(UsernameEmailType)
 
+    /// The fill generated value button was pressed.
+    case fillGeneratedValue
+
     /// The generator type was changed.
     case generatorTypeChanged(GeneratorType)
 
@@ -26,9 +29,6 @@ enum GeneratorAction: Equatable {
 
     /// The refresh generated value button was pressed.
     case refreshGeneratedValue
-
-    /// The fill generated value button was pressed.
-    case fillGeneratedValue
 
     /// The show password history button was pressed.
     case showPasswordHistory
