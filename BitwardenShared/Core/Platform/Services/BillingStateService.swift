@@ -59,23 +59,28 @@ protocol BillingStateService { // sourcery: AutoMockable
 
     // MARK: Upgraded to Premium Card
 
-    /// Returns whether the "Upgraded to Premium" action card should be shown for the active account.
+    /// Returns whether the "Upgraded to Premium" action card should be shown.
     ///
+    /// - Parameters:
+    ///   - userId: The user ID of the account to check. Defaults to the active account if `nil`.
     /// - Returns: `true` if the card should be shown.
     ///
-    func getUpgradedToPremiumActionCardVisible() async throws -> Bool
+    func getUpgradedToPremiumActionCardVisible(userId: String?) async throws -> Bool
 
-    /// Sets whether the "Upgraded to Premium" action card should be shown for the active account.
+    /// Sets whether the "Upgraded to Premium" action card should be shown.
     ///
     /// - Parameters:
     ///   - visible: Whether the action card should be shown.
+    ///   - userId: The user ID of the account to update. Defaults to the active account if `nil`.
     ///
-    func setUpgradedToPremiumActionCardVisible(_ visible: Bool) async throws
+    func setUpgradedToPremiumActionCardVisible(_ visible: Bool, userId: String?) async throws
 }
 
 // MARK: - BillingStateService Convenience Methods
 
 extension BillingStateService {
+    // MARK: Premium Upgrade Banner
+
     /// Gets whether the Premium upgrade banner has been dismissed for the active account.
     ///
     /// - Returns: Whether the Premium upgrade banner has been dismissed.
@@ -91,5 +96,24 @@ extension BillingStateService {
     ///
     func setPremiumUpgradeBannerDismissed(_ dismissed: Bool) async throws {
         try await setPremiumUpgradeBannerDismissed(dismissed, userId: nil)
+    }
+
+    // MARK: Upgraded to Premium Card
+
+    /// Returns whether the "Upgraded to Premium" action card should be shown for the active account.
+    ///
+    /// - Returns: `true` if the card should be shown.
+    ///
+    func getUpgradedToPremiumActionCardVisible() async throws -> Bool {
+        try await getUpgradedToPremiumActionCardVisible(userId: nil)
+    }
+
+    /// Sets whether the "Upgraded to Premium" action card should be shown for the active account.
+    ///
+    /// - Parameters:
+    ///   - visible: Whether the action card should be shown.
+    ///
+    func setUpgradedToPremiumActionCardVisible(_ visible: Bool) async throws {
+        try await setUpgradedToPremiumActionCardVisible(visible, userId: nil)
     }
 }
