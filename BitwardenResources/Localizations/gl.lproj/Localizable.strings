@@ -182,7 +182,6 @@
 "CopyTotp" = "Copiar TOTP";
 "CopyTotpAutomaticallyDescription" = "Se unha credencial ten clave de autenticación, copia o código TOTP no portapapeis ó autoencher os datos.";
 "CopyTotpAutomatically" = "Copiar TOTP automaticamente";
-"PremiumRequired" = "Requírese un plan Prémium para poder empregar esta función.";
 "AttachementAdded" = "Anexo engadido";
 "AttachmentDeleted" = "Anexo eliminado";
 "ChooseFile" = "Seleccionar arquivo";
@@ -223,7 +222,6 @@
 "August" = "Agosto";
 "Brand" = "Marca";
 "CardholderName" = "Titular da tarxeta";
-"WeFoundMultipleMatchesChooseTheCorrectOne" = "Atopamos varias coincidencias. Escolle a correcta.";
 "CityTown" = "Localidade";
 "Company" = "Empresa";
 "Country" = "País";
@@ -309,6 +307,7 @@
 "NoEmailAddressesEntered" = "Non se introduciu ningún enderezo de correo";
 "EnterAtLeastOneValidEmailToShareSend" = "Introduce polo menos un enderezo de correo válido para compartir este Send.";
 "OneOrMoreEmailAddressesIncorrect" = "Un ou máis enderezos de correo son incorrectos. Revisa e inténtao de novo.";
+"OnlyIncludeTheFollowingDomainsDescriptionLong" = "Only include the following domains: %1$@. Please review and try again.";
 "Cards" = "Tarxetas";
 "Identities" = "Identidades";
 "Logins" = "Credenciais";
@@ -444,11 +443,19 @@
 "NewSendCreated" = "Send creado";
 "Custom" = "Personalizado";
 "SendDisabledWarning" = "Por unha directiva de empresa só podes eliminar un Send existente.";
+"ThisDateIsEnforcedByYourOrganization" = "This date is enforced by your organization";
 "AboutSend" = "Sobre Send";
 "HideEmail" = "Ocultar o meu correo ós destinatarios";
 "SendOptionsPolicyInEffect" = "As directivas da organización están afectando ás opcións do Send.";
 "SendFilePremiumRequired" = "As contas gratiuitas só poden compartir texto. Para enviar arquivos con Send requírese unha conta Prémium.";
 "SendFileEmailVerificationRequired" = "Debes verificar o teu correo para enviar arquivos con Send. Podes facelo dende a aplicación web.";
+/* Alert message shown when Send Controls policy restricts creation to one Send type. %1$@ is the allowed Send type, either "File" or "Text". */
+"DueToAnEnterprisePolicyYouCanOnlyCreateXSends" = "Due to an enterprise policy, you can only create %1$@ Sends.";
+"OrganizationPolicyRestriction" = "Organization policy restriction";
+"TextSendsAreNotAllowedDescriptionLong" = "Text Sends are not allowed for your organization and this Send will automatically expire at the set deletion date.";
+"ThisSendIsNotCompliantDescriptionLong" = "This Send is not compliant with your organization's Send policy and will automatically expire at the set deletion date.";
+"ToEditThisSendMakeACopyDescriptionLong" = "To edit this Send, make a copy. If this Send can expire at the set deletion date, no action is needed.";
+"MakeACopy" = "Make a copy";
 "PasswordPrompt" = "Volver solicitar o contrasinal mestre";
 "PasswordConfirmation" = "Repetir o contrasinal mestre";
 "PasswordConfirmationDesc" = "Esta acción está protexida. Para continuar por favor volve introducir o teu contrasinal mestre.";
@@ -648,7 +655,6 @@
 "SetUpAutofill" = "Configurar autoenchido";
 "AppInfo" = "Información da aplicación";
 "Browse" = "Examinar";
-"SelectCardholderName" = "Selecciona o nome do titular da tarxeta";
 "SelectLanguage" = "Seleccionar idioma";
 "ContinueToCompleteWebAuthnVerification" = "Continúa para completar a verificación con WebAuthn.";
 "ThereWasAnErrorStartingWebAuthnTwoFactorAuthentication" = "Houbo un erro ó executar a autenticación de dous factores de WebAuthn";
@@ -667,7 +673,6 @@
 "ByContinuingYouAgreeToTheTermsOfServiceAndPrivacyPolicy" = "Ó continuar, aceptas os **[Termos de Servizo](%1$@)** e a **[Política de Privacidade](%2$@)**";
 "GetAdviceAnnouncementsAndResearchOpportunitiesFromBitwardenInYourInboxUnsubscribeAtAnyTime." = "Recibe consellos, anuncios e oportunidades de investigación de Bitwarden no teu correo. **[Anula a subscrición](%1$@)** en calquera momento.";
 "UserVerificationForPasskey" = "Verificación de usuario para Clave de acceso";
-"NewItem" = "Nova entrada";
 "ExploreTheGenerator" = "Explorar o xerador";
 "LearnMoreAboutGeneratingSecureLoginCredentialsWithAGuidedTour" = "Aprender sobre a xeración de credenciais seguros cunha explicación acompañada.";
 "ExportVaultFilePwProtectInfo" = "O arquivo exportado estará protexido e requirirá o contrasinal do arquivo para descifralo.";
@@ -881,6 +886,10 @@
 "Identification" = "Identificación";
 "Owner" = "Propietario";
 "VerifyYourIdentity" = "Verifica a túa identidade";
+"ThisOperationIsNotAllowedOnThisAccount" = "This operation is not allowed on this account";
+"AnErrorOccurredWhileTryingToLockTheCurrentUser" = "An error occurred while trying to lock the current user";
+"LockAllAccounts" = "Lock all accounts";
+"AllAccountsHaveBeenLocked" = "All accounts have been locked";
 "ShareErrorDetails" = "Compartir detalles do erro";
 "FlightRecorder" = "Gravador de voo";
 "EnableFlightRecorder" = "Activar gravador de voo";
@@ -909,7 +918,13 @@
 "ExpiresOnXDate" = "Caduca o %1$@";
 "ExpiresTomorrow" = "Caduca mañá";
 "DateRangeXToY" = "%1$@ a %2$@";
+"LogOutAllAccounts" = "Log out all accounts";
+"AllAccountsHaveBeenLoggedOut" = "All accounts have been logged out";
+"AnErrorOccurredWhileTryingToLogOutAllAccounts" = "An error occurred while trying to log out all accounts";
 "SelfHostServerURL" = "URL do servidor de aloxamento propio";
+"OpenGenerator" = "Open generator";
+"OpenPasswordGenerator" = "Open password generator";
+"GeneratePassphrase" = "Generate passphrase";
 "AllowUniversalClipboard" = "Permitir portapapeis universal";
 "UseUniversalClipboardToCopyDescriptionLong" = "Usa o portapapeis universal para copiar aquí e pegar noutros dispositivos que inicien sesión co mesmo ID de Apple.";
 "RemoveMasterPasswordConfirmDomain" = "Xa non se require un contrasinal mestre para os membros da seguinte organización. Confirma o dominio a continuación co administrador da túa organización.";
@@ -929,6 +944,7 @@
 "GoToSettings" = "Ir aos axustes";
 "SiriAndShortcutsAccess" = "Acceso a Siri e atallos";
 "EnableToAllowTheAppToRespondToSiriAndShortcutsUsingAppIntents" = "Activa para permitir que a aplicación responda a Siri e atallos usando App Intents.";
+"ThereIsNoActiveAccount" = "There is no active account.";
 "NewFileSend" = "Novo Send de arquivo";
 "NewTextSend" = "Novo Send de texto";
 "EditFileSend" = "Editar Send de ficheiro";
@@ -979,7 +995,6 @@
 "NoAskMe" = "Non, pregúntame";
 "NoCodes" = "Non tes ningún código para amosar";
 "None" = "Ningún";
-"NoneOfTheAbove" = "Ningún dos anteriores";
 "NumberOfDigits" = "Número de díxitos";
 "OtpType" = "Tipo de código dun só uso";
 "RefreshPeriod" = "Período de refresco";

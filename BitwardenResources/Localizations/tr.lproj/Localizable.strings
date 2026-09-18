@@ -182,7 +182,6 @@
 "CopyTotp" = "TOTP'yi kopyala";
 "CopyTotpAutomaticallyDescription" = "Hesabınıza bağlı bir kimlik doğrulama anahtarı varsa giriş bilgilerini otomatik doldurduğunuzda TOTP doğrulama kodu panonuza kopyalanır.";
 "CopyTotpAutomatically" = "TOTP'yi otomatik kopyala";
-"PremiumRequired" = "Bu özelliği kullanmak için premium üyelik gereklidir.";
 "AttachementAdded" = "Dosya eklendi";
 "AttachmentDeleted" = "Dosya silindi";
 "ChooseFile" = "Dosya seç";
@@ -223,7 +222,6 @@
 "August" = "Ağustos";
 "Brand" = "Marka";
 "CardholderName" = "Kart sahibinin adı";
-"WeFoundMultipleMatchesChooseTheCorrectOne" = "Birden fazla eşleşme bulduk. Doğru olanı seçin.";
 "CityTown" = "Şehir";
 "Company" = "Şirket";
 "Country" = "Ülke";
@@ -309,6 +307,7 @@
 "NoEmailAddressesEntered" = "E-posta adresi girilmedi";
 "EnterAtLeastOneValidEmailToShareSend" = "Bu Send'i paylaşmak için en az bir geçerli e-posta adresi girin.";
 "OneOrMoreEmailAddressesIncorrect" = "Bir veya daha fazla e posta adresi geçersiz. Lütfen kontrol edip yeniden deneyin.";
+"OnlyIncludeTheFollowingDomainsDescriptionLong" = "Only include the following domains: %1$@. Please review and try again.";
 "Cards" = "Kartlar";
 "Identities" = "Kimlikler";
 "Logins" = "Hesaplar";
@@ -444,11 +443,19 @@
 "NewSendCreated" = "Send oluşturuldu";
 "Custom" = "Özel";
 "SendDisabledWarning" = "Bir kuruluş ilkesi nedeniyle yalnızca mevcut Send'leri silebilirsiniz.";
+"ThisDateIsEnforcedByYourOrganization" = "This date is enforced by your organization";
 "AboutSend" = "Send hakkında";
 "HideEmail" = "E-posta adresimi alıcılardan gizle";
 "SendOptionsPolicyInEffect" = "Bir veya daha fazla kuruluş ilkesi Send seçeneklerinizi etkiliyor.";
 "SendFilePremiumRequired" = "Ücretsiz hesaplar yalnızca metin paylaşabilir. Send ile dosya paylaşmak için premium üyelik gerekir.";
 "SendFileEmailVerificationRequired" = "Send ile dosya paylaşmak için e-postanızı doğrulamalısınız. E-postanızı web kasası üzerinden doğrulayabilirsiniz.";
+/* Alert message shown when Send Controls policy restricts creation to one Send type. %1$@ is the allowed Send type, either "File" or "Text". */
+"DueToAnEnterprisePolicyYouCanOnlyCreateXSends" = "Due to an enterprise policy, you can only create %1$@ Sends.";
+"OrganizationPolicyRestriction" = "Organization policy restriction";
+"TextSendsAreNotAllowedDescriptionLong" = "Text Sends are not allowed for your organization and this Send will automatically expire at the set deletion date.";
+"ThisSendIsNotCompliantDescriptionLong" = "This Send is not compliant with your organization's Send policy and will automatically expire at the set deletion date.";
+"ToEditThisSendMakeACopyDescriptionLong" = "To edit this Send, make a copy. If this Send can expire at the set deletion date, no action is needed.";
+"MakeACopy" = "Kopya oluştur";
 "PasswordPrompt" = "Ana parolayı yeniden iste";
 "PasswordConfirmation" = "Ana parola onayı";
 "PasswordConfirmationDesc" = "Bu işlem korumalıdır. İşleme devam etmek için lütfen ana parolanızı yeniden girin.";
@@ -648,7 +655,6 @@
 "SetUpAutofill" = "Otomatik doldurmayı ayarla";
 "AppInfo" = "Uygulama bilgileri";
 "Browse" = "Gözat";
-"SelectCardholderName" = "Kart sahibi adını seçin";
 "SelectLanguage" = "Dil seçin";
 "ContinueToCompleteWebAuthnVerification" = "WebAuthn doğrulamasını tamamlamak için devam edin.";
 "ThereWasAnErrorStartingWebAuthnTwoFactorAuthentication" = "WebAuthn iki faktörlü kimlik doğrulamayı başlatırken bir hata oluştu";
@@ -667,7 +673,6 @@
 "ByContinuingYouAgreeToTheTermsOfServiceAndPrivacyPolicy" = "Devam ederek, **[Hizmet Şartları](%1$@)** ve **[Gizlilik Politikası](%2$@)**'nı kabul etmiş olursunuz";
 "GetAdviceAnnouncementsAndResearchOpportunitiesFromBitwardenInYourInboxUnsubscribeAtAnyTime." = "Bitwarden'dan gelen tavsiyeleri, duyuruları ve araştırma fırsatlarını e-posta kutunuza alın. İstediğiniz zaman aboneliği iptal etmek için **[Aboneliği iptal et](%1$@)**.";
 "UserVerificationForPasskey" = "Geçiş anahtarı için kullanıcı doğrulaması";
-"NewItem" = "Yeni kayıt";
 "ExploreTheGenerator" = "Üreteci keşfedin";
 "LearnMoreAboutGeneratingSecureLoginCredentialsWithAGuidedTour" = "Rehberli tur ile güvenli hesap kimlik bilgileri oluşturma hakkında daha fazla bilgi edinin.";
 "ExportVaultFilePwProtectInfo" = "Dışarı aktarılan bu dosya parola korumalı olacak ve dosyanın çözülmesi için parolayı girmeniz gerekecek.";
@@ -881,6 +886,10 @@
 "Identification" = "Kimlik";
 "Owner" = "Sahibi";
 "VerifyYourIdentity" = "Kimliğinizi doğrulayın";
+"ThisOperationIsNotAllowedOnThisAccount" = "Bu hesapta bu işleme izin verilmiyor";
+"AnErrorOccurredWhileTryingToLockTheCurrentUser" = "Geçerli kullanıcıyı kilitlemeye çalışırken bir hata oluştu";
+"LockAllAccounts" = "Tüm hesapları kilitle";
+"AllAccountsHaveBeenLocked" = "Tüm hesaplar kilitlendi";
 "ShareErrorDetails" = "Hata ayrıntılarını paylaş";
 "FlightRecorder" = "Uçuş kaydedici";
 "EnableFlightRecorder" = "Uçuş kaydediciyi etkinleştir";
@@ -909,7 +918,13 @@
 "ExpiresOnXDate" = "%1$@ tarihinde sona erer";
 "ExpiresTomorrow" = "Yarın sona eriyor";
 "DateRangeXToY" = "%1$@ ila %2$@";
+"LogOutAllAccounts" = "Tüm hesaplardan çıkış yap";
+"AllAccountsHaveBeenLoggedOut" = "Tüm hesaplardan çıkış yapıldı";
+"AnErrorOccurredWhileTryingToLogOutAllAccounts" = "Tüm hesaplardan çıkış yapmaya çalışırken bir hata oluştu";
 "SelfHostServerURL" = "Kendi kendine barındırılan sunucu URL'si";
+"OpenGenerator" = "Üreteci aç";
+"OpenPasswordGenerator" = "Parola üretecini aç";
+"GeneratePassphrase" = "Parola cümlesi üret";
 "AllowUniversalClipboard" = "Evrensel Pano’ya izin ver";
 "UseUniversalClipboardToCopyDescriptionLong" = "Burada kopyaladığınız şeyleri aynı Apple ID ile giriş yapmış diğer cihazlarınıza yapıştırmak için Evrensel Pano’yu kullanabilirsiniz.";
 "RemoveMasterPasswordConfirmDomain" = "Aşağıdaki organizasyonun üyeleri için artık ana parola gerekmemektedir. Lütfen alan adını organizasyon yöneticinizle doğrulayın.";
@@ -929,6 +944,7 @@
 "GoToSettings" = "Ayarlara git";
 "SiriAndShortcutsAccess" = "Siri ve Kısayollara erişim";
 "EnableToAllowTheAppToRespondToSiriAndShortcutsUsingAppIntents" = "Uygulamanın App Intents kullanarak Siri ve Kısayollara yanıt vermesine izin ver.";
+"ThereIsNoActiveAccount" = "Aktif hesap yok.";
 "NewFileSend" = "Yeni Send dosyası";
 "NewTextSend" = "Yeni Send metni";
 "EditFileSend" = "Send dosyasını düzenle";
@@ -979,7 +995,6 @@
 "NoAskMe" = "Hayır, bana sor";
 "NoCodes" = "Görüntülenecek hiç kodunuz yok";
 "None" = "Yok";
-"NoneOfTheAbove" = "Hiçbiri";
 "NumberOfDigits" = "Basamak sayısı";
 "OtpType" = "OTP türü";
 "RefreshPeriod" = "Yenileme süresi";

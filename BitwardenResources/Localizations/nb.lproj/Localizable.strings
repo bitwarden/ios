@@ -182,7 +182,6 @@
 "CopyTotp" = "Kopier TOTP-en";
 "CopyTotpAutomaticallyDescription" = "Hvis en innlogging har en autentiseringsnøkkel, kopier TOTP-verifiseringskoden til utklippstavlen din når du auto-utfyller innloggingen.";
 "CopyTotpAutomatically" = "Kopier TOTP-en automatisk";
-"PremiumRequired" = "Et Premium-medlemskap er påkrevd for å bruke denne funksjonen.";
 "AttachementAdded" = "Vedlegget er lagt til";
 "AttachmentDeleted" = "Vedlegget er slettet";
 "ChooseFile" = "Velg fil";
@@ -223,7 +222,6 @@
 "August" = "August";
 "Brand" = "Merke";
 "CardholderName" = "Kortholderens navn";
-"WeFoundMultipleMatchesChooseTheCorrectOne" = "Vi fant flere treff. Velg den riktige.";
 "CityTown" = "By / Tettsted";
 "Company" = "Firma";
 "Country" = "Land";
@@ -309,6 +307,7 @@
 "NoEmailAddressesEntered" = "No email addresses entered";
 "EnterAtLeastOneValidEmailToShareSend" = "Enter at least one valid email address to share this Send.";
 "OneOrMoreEmailAddressesIncorrect" = "One or more email addresses are incorrect. Please review and try again.";
+"OnlyIncludeTheFollowingDomainsDescriptionLong" = "Only include the following domains: %1$@. Please review and try again.";
 "Cards" = "Kort";
 "Identities" = "Identiteter";
 "Logins" = "Innlogginger";
@@ -444,11 +443,19 @@
 "NewSendCreated" = "Ny send opprettet.";
 "Custom" = "Egendefinert";
 "SendDisabledWarning" = "På grunn av virksomhetsvilkår kan du kun slette en eksisterende Send.";
+"ThisDateIsEnforcedByYourOrganization" = "This date is enforced by your organization";
 "AboutSend" = "Om Send";
 "HideEmail" = "Skjul min e-postadresse fra mottakere.";
 "SendOptionsPolicyInEffect" = "En eller flere av organisasjons vilkår påvirker generatorinnstillingene dine.";
 "SendFilePremiumRequired" = "Gratiskontoer kan kun dele tekst. Et premiummedlemskap kreves for å bruke filer med Send.";
 "SendFileEmailVerificationRequired" = "Du må bekrefte e-posten din for å bruke filer med Send. Du kan bekrefte e-postadressen din i netthvelvet.";
+/* Alert message shown when Send Controls policy restricts creation to one Send type. %1$@ is the allowed Send type, either "File" or "Text". */
+"DueToAnEnterprisePolicyYouCanOnlyCreateXSends" = "Due to an enterprise policy, you can only create %1$@ Sends.";
+"OrganizationPolicyRestriction" = "Organization policy restriction";
+"TextSendsAreNotAllowedDescriptionLong" = "Text Sends are not allowed for your organization and this Send will automatically expire at the set deletion date.";
+"ThisSendIsNotCompliantDescriptionLong" = "This Send is not compliant with your organization's Send policy and will automatically expire at the set deletion date.";
+"ToEditThisSendMakeACopyDescriptionLong" = "To edit this Send, make a copy. If this Send can expire at the set deletion date, no action is needed.";
+"MakeACopy" = "Make a copy";
 "PasswordPrompt" = "Forespørsel om hovedpassord på nytt";
 "PasswordConfirmation" = "Hovedpassord-bekreftelse";
 "PasswordConfirmationDesc" = "Denne handlingen er beskyttet, for å fortsette å skrive inn hovedpassordet på nytt for å verifisere din identitet.";
@@ -648,7 +655,6 @@
 "SetUpAutofill" = "Sett opp auto-utfylling";
 "AppInfo" = "App-informasjon";
 "Browse" = "Bla rundt";
-"SelectCardholderName" = "Velg kortinnehavers navn";
 "SelectLanguage" = "Velg språk";
 "ContinueToCompleteWebAuthnVerification" = "Fortsett til å fullføre WebAuthn-verifisering.";
 "ThereWasAnErrorStartingWebAuthnTwoFactorAuthentication" = "There was an error starting WebAuthn two factor authentication";
@@ -667,7 +673,6 @@
 "ByContinuingYouAgreeToTheTermsOfServiceAndPrivacyPolicy" = "Ved å fortsette godtar du **[Vilkår for bruk](%1$@)** og **[Personvernerklæring](%2$@)**";
 "GetAdviceAnnouncementsAndResearchOpportunitiesFromBitwardenInYourInboxUnsubscribeAtAnyTime." = "Få råd, kunngjøringer og forskningsmuligheter fra Bitwarden i innboksen. **[Avslutt abonnement](%1$@)** når som helst.";
 "UserVerificationForPasskey" = "Brukerverifisering for passnøkkel";
-"NewItem" = "Nytt objekt";
 "ExploreTheGenerator" = "Explore the generator";
 "LearnMoreAboutGeneratingSecureLoginCredentialsWithAGuidedTour" = "Learn more about generating secure login credentials with a guided tour.";
 "ExportVaultFilePwProtectInfo" = "Denne fileksporten vil bli passordbeskyttet og vil kreve filpassordet ved dekryptering.";
@@ -881,6 +886,10 @@
 "Identification" = "Identifikasjon";
 "Owner" = "Eier";
 "VerifyYourIdentity" = "Bekreft identiteten din";
+"ThisOperationIsNotAllowedOnThisAccount" = "This operation is not allowed on this account";
+"AnErrorOccurredWhileTryingToLockTheCurrentUser" = "An error occurred while trying to lock the current user";
+"LockAllAccounts" = "Lock all accounts";
+"AllAccountsHaveBeenLocked" = "All accounts have been locked";
 "ShareErrorDetails" = "Share error details";
 "FlightRecorder" = "Flight recorder";
 "EnableFlightRecorder" = "Enable flight recorder";
@@ -909,7 +918,13 @@
 "ExpiresOnXDate" = "Utløper %1$@";
 "ExpiresTomorrow" = "Expires tomorrow";
 "DateRangeXToY" = "%1$@ til %2$@";
+"LogOutAllAccounts" = "Log out all accounts";
+"AllAccountsHaveBeenLoggedOut" = "All accounts have been logged out";
+"AnErrorOccurredWhileTryingToLogOutAllAccounts" = "An error occurred while trying to log out all accounts";
 "SelfHostServerURL" = "Self-host server URL";
+"OpenGenerator" = "Open generator";
+"OpenPasswordGenerator" = "Open password generator";
+"GeneratePassphrase" = "Generate passphrase";
 "AllowUniversalClipboard" = "Tillat universelt utklippstavle";
 "UseUniversalClipboardToCopyDescriptionLong" = "Bruk universelt utklippstavle for å kopiere her og lime inn på andre enheter som er logget på med samme Apple-ID.";
 "RemoveMasterPasswordConfirmDomain" = "A master password is no longer required for members of the following organization. Please confirm the domain below with your organization administrator.";
@@ -929,6 +944,7 @@
 "GoToSettings" = "Gå til innstillingene";
 "SiriAndShortcutsAccess" = "Siri- og snarveistilgang";
 "EnableToAllowTheAppToRespondToSiriAndShortcutsUsingAppIntents" = "Aktiver for å la appen svare på Siri og Snarveier ved hjelp av App Intents.";
+"ThereIsNoActiveAccount" = "There is no active account.";
 "NewFileSend" = "New file Send";
 "NewTextSend" = "New text Send";
 "EditFileSend" = "Edit file Send";
@@ -979,7 +995,6 @@
 "NoAskMe" = "Nei, spør meg";
 "NoCodes" = "Du har ingen koder å vise";
 "None" = "Ingen";
-"NoneOfTheAbove" = "Ingen av de ovennevnte";
 "NumberOfDigits" = "Antall sifre";
 "OtpType" = "OTP-type";
 "RefreshPeriod" = "Refresh period";

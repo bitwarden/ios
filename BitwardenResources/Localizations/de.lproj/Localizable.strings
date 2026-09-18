@@ -21,7 +21,7 @@
 "EnterPIN" = "PIN-Code eingeben.";
 "Favorites" = "Favoriten";
 "Folder" = "Ordner";
-"FolderCreated" = "Neuer Ordner wurde erstellt.";
+"FolderCreated" = "Neuer Ordner erstellt.";
 "FolderDeleted" = "Ordner wurde gelöscht.";
 "FolderNone" = "Kein Ordner";
 "Folders" = "Ordner";
@@ -182,7 +182,6 @@
 "CopyTotp" = "TOTP kopieren";
 "CopyTotpAutomaticallyDescription" = "Ist ein Authentifizierungsschlüssel mit deinen Zugangsdaten verknüpft, wird der TOTP-Verifizierungscode in die Zwischenablage kopiert, wenn du die Zugangsdaten automatisch ausfüllen lässt.";
 "CopyTotpAutomatically" = "TOTP automatisch kopieren";
-"PremiumRequired" = "Für diese Funktion benötigen Sie eine Premiummitgliedschaft.";
 "AttachementAdded" = "Anhang hinzugefügt";
 "AttachmentDeleted" = "Anhang entfernt";
 "ChooseFile" = "Datei auswählen";
@@ -223,7 +222,6 @@
 "August" = "August";
 "Brand" = "Marke";
 "CardholderName" = "Name des Karteninhabers";
-"WeFoundMultipleMatchesChooseTheCorrectOne" = "Wir haben mehrere Übereinstimmungen gefunden. Wähle die richtige aus.";
 "CityTown" = "Stadt oder Ort";
 "Company" = "Firma";
 "Country" = "Land";
@@ -309,6 +307,7 @@
 "NoEmailAddressesEntered" = "Keine E-Mail-Adressen eingegeben";
 "EnterAtLeastOneValidEmailToShareSend" = "Gib mindestens eine gültige E-Mail-Adresse ein, um dieses Send mit anderen zu teilen.";
 "OneOrMoreEmailAddressesIncorrect" = "Eine oder mehrere E-Mail-Adressen sind falsch. Bitte überprüfe sie und versuche es erneut.";
+"OnlyIncludeTheFollowingDomainsDescriptionLong" = "Bitte gib nur die folgenden Domains an: %1$@. Bitte überprüfe die Eingabe und versuche es erneut.";
 "Cards" = "Karten";
 "Identities" = "Identitäten";
 "Logins" = "Zugangsdaten";
@@ -444,11 +443,19 @@
 "NewSendCreated" = "Neues Send erstellt";
 "Custom" = "Benutzerdefiniert";
 "SendDisabledWarning" = "Aufgrund einer Unternehmensrichtlinie kannst du nur ein bestehendes Send löschen.";
+"ThisDateIsEnforcedByYourOrganization" = "Dieses Datum wird von deiner Organisation vorgeschrieben";
 "AboutSend" = "Über Send";
 "HideEmail" = "Meine E-Mail-Adresse vor den Empfängern verstecken";
 "SendOptionsPolicyInEffect" = "Eine oder mehrere Organisationsrichtlinien beeinflussen deine Send Einstellungen.";
 "SendFilePremiumRequired" = "Kostenlose Konten sind auf das Teilen von Texten beschränkt. Eine Premium-Mitgliedschaft ist erforderlich, um Dateien mit Send zu verwenden.";
 "SendFileEmailVerificationRequired" = "Du musst deine E-Mail-Adresse verifizieren, um Dateien mit Send zu verwenden. Du kannst deine E-Mail-Adresse im Web-Tresor verifizieren.";
+/* Alert message shown when Send Controls policy restricts creation to one Send type. %1$@ is the allowed Send type, either "File" or "Text". */
+"DueToAnEnterprisePolicyYouCanOnlyCreateXSends" = "Aufgrund einer Unternehmensrichtlinie kannst du nur %1$@-Sends erstellen.";
+"OrganizationPolicyRestriction" = "Einschränkung aufgrund von Organisationsrichtlinien";
+"TextSendsAreNotAllowedDescriptionLong" = "Text-Sends sind für deine Organisation nicht erlaubt und dieses Senden läuft automatisch zum festgelegten Löschdatum ab.";
+"ThisSendIsNotCompliantDescriptionLong" = "Dieses Send entspricht nicht den Send-Richtlinien deiner Organisation und läuft automatisch zum festgelegten Löschdatum ab.";
+"ToEditThisSendMakeACopyDescriptionLong" = "Erstellle eine Kopie, um diesen Send zu bearbeiten. Wenn dieses Send zum festgelegten Löschdatum ablaufen kann, sind keine Maßnahmen erforderlich.";
+"MakeACopy" = "Eine Kopie erstellen";
 "PasswordPrompt" = "Master-Passwort erneut abfragen";
 "PasswordConfirmation" = "Master-Passwort bestätigen";
 "PasswordConfirmationDesc" = "Diese Aktion ist geschützt. Um fortzufahren, gib bitte dein Master-Passwort erneut ein, um deine Identität zu verifizieren.";
@@ -648,7 +655,6 @@
 "SetUpAutofill" = "Automatisches Ausfüllen einrichten";
 "AppInfo" = "App-Info";
 "Browse" = "Durchsuchen";
-"SelectCardholderName" = "Karteninhaber auswählen";
 "SelectLanguage" = "Sprache auswählen";
 "ContinueToCompleteWebAuthnVerification" = "Fortfahren, um die WebAuthn-Verifizierung abzuschließen.";
 "ThereWasAnErrorStartingWebAuthnTwoFactorAuthentication" = "Es gab einen Fehler beim Starten der WebAuthn Zwei-Faktor-Authentifizierung";
@@ -667,7 +673,6 @@
 "ByContinuingYouAgreeToTheTermsOfServiceAndPrivacyPolicy" = "Indem du fortfährst, stimmst du den **[Nutzungsbedingungen](%1$@)** und **[Datenschutzrichtlinien](%2$@)** zu";
 "GetAdviceAnnouncementsAndResearchOpportunitiesFromBitwardenInYourInboxUnsubscribeAtAnyTime." = "Erhalte Ratschläge, Ankündigungen und Marktforschungsumfragen von Bitwarden in deinem Posteingang. **[Abbestellen](%1$@)** jederzeit möglich.";
 "UserVerificationForPasskey" = "Benutzer-Verifizierung für Passkey";
-"NewItem" = "Neuer Eintrag";
 "ExploreTheGenerator" = "Erkunde den Generator";
 "LearnMoreAboutGeneratingSecureLoginCredentialsWithAGuidedTour" = "Erfahren mehr über die Erstellung sicherer Zugangsdaten mit einer geführten Tour.";
 "ExportVaultFilePwProtectInfo" = "Dieser Datei-Export ist passwortgeschützt und erfordert das Dateipasswort zum Entschlüsseln.";
@@ -881,6 +886,10 @@
 "Identification" = "Identifikation";
 "Owner" = "Besitzer";
 "VerifyYourIdentity" = "Verifiziere deine Identität";
+"ThisOperationIsNotAllowedOnThisAccount" = "Dieser Vorgang ist mit diesem Konto nicht erlaubt";
+"AnErrorOccurredWhileTryingToLockTheCurrentUser" = "Beim Versuch, den aktuellen Benutzer zu sperren ist ein Fehler aufgetreten";
+"LockAllAccounts" = "Alle Konten sperren";
+"AllAccountsHaveBeenLocked" = "Alle Konten wurden gesperrt";
 "ShareErrorDetails" = "Fehlerdetails teilen";
 "FlightRecorder" = "Flugschreiber";
 "EnableFlightRecorder" = "Flugschreiber aktivieren";
@@ -909,7 +918,13 @@
 "ExpiresOnXDate" = "Läuft ab am %1$@";
 "ExpiresTomorrow" = "Läuft morgen ab";
 "DateRangeXToY" = "%1$@ nach %2$@";
+"LogOutAllAccounts" = "Alle Konten abmelden";
+"AllAccountsHaveBeenLoggedOut" = "Alle Konten wurden abgemeldet";
+"AnErrorOccurredWhileTryingToLogOutAllAccounts" = "Beim Versuch, alle Konten abzumelden ist ein Fehler aufgetreten";
 "SelfHostServerURL" = "Selbst gehostete Server-URL";
+"OpenGenerator" = "Generator öffnen";
+"OpenPasswordGenerator" = "Passwortgenerator öffnen";
+"GeneratePassphrase" = "Passphrase generieren";
 "AllowUniversalClipboard" = "Allgemeine Zwischenablage zulassen";
 "UseUniversalClipboardToCopyDescriptionLong" = "Verwende die allgemeine Zwischenablage, um hier zu kopieren und auf anderen Geräten einzufügen, die mit dem gleichen Apple-Account angemeldet sind.";
 "RemoveMasterPasswordConfirmDomain" = "Für Mitglieder der folgenden Organisation ist kein Master-Passwort mehr erforderlich. Bitte bestätige die folgende Domain bei deinem Organisations-Administrator.";
@@ -929,6 +944,7 @@
 "GoToSettings" = "Gehe zu den Einstellungen";
 "SiriAndShortcutsAccess" = "Zugriff auf Siri & Kurzbefehle";
 "EnableToAllowTheAppToRespondToSiriAndShortcutsUsingAppIntents" = "Aktivieren, damit die App auf Siri und Kurzbefehle mithilfe von App Intents reagieren kann.";
+"ThereIsNoActiveAccount" = "Es gibt kein aktives Konto.";
 "NewFileSend" = "Neues Datei-Send";
 "NewTextSend" = "Neues Text-Send";
 "EditFileSend" = "Datei-Send bearbeiten";
@@ -979,7 +995,6 @@
 "NoAskMe" = "Nein, frag mich";
 "NoCodes" = "Keine Codes zum Anzeigen vorhanden";
 "None" = "Keine";
-"NoneOfTheAbove" = "Keine der oben genannten";
 "NumberOfDigits" = "Anzahl der Ziffern";
 "OtpType" = "OTP-Typ";
 "RefreshPeriod" = "Aktualisierungszeitraum";
@@ -1225,11 +1240,11 @@
 "IBAN" = "IBAN";
 "BankContactPhone" = "Telefonnummer der Bank";
 "CertificateOfDeposit" = "Einlagenzertifikat";
-"Checking" = "Wird überprüft";
-"InvestmentBrokerage" = "Anlage/Wertpapierhandel";
-"LineOfCredit" = "Kreditrahmen";
-"MoneyMarket" = "Finanzmarkt";
-"Savings" = "Ersparnisse";
+"Checking" = "Girokonto";
+"InvestmentBrokerage" = "Anlage-/Maklerkonto";
+"LineOfCredit" = "Kreditlinie";
+"MoneyMarket" = "Geldmarktkonto";
+"Savings" = "Sparkonto";
 "Devices" = "Geräte";
 "NoDevicesFound" = "Keine Geräte gefunden";
 "CurrentSession" = "Aktuelle Sitzung";

@@ -182,7 +182,6 @@
 "CopyTotp" = "TOTPди көчүрүү";
 "CopyTotpAutomaticallyDescription" = "Эгерде кирүүдө аутентификатор ачкычы болсо, сиз кирүүнү автолуктоодо TOTP текшерүү кодун буферге көчүрүңүз.";
 "CopyTotpAutomatically" = "TOTPди автоматтык түрдө көчүрүү";
-"PremiumRequired" = "Бул функцияны колдонуу үчүн Premium мүчөлүгү талап кылынат.";
 "AttachementAdded" = "Тиркеме кошулду";
 "AttachmentDeleted" = "Тиркеме өчүрүлдү";
 "ChooseFile" = "Файлды тандоо";
@@ -223,7 +222,6 @@
 "August" = "Август";
 "Brand" = "Бренд";
 "CardholderName" = "Карта ээсинин аты";
-"WeFoundMultipleMatchesChooseTheCorrectOne" = "Биз бир нече дал келүүнү таптык. Туурасын тандаңыз.";
 "CityTown" = "Шаар / Кыштак";
 "Company" = "Компания";
 "Country" = "Өлкө";
@@ -309,6 +307,7 @@
 "NoEmailAddressesEntered" = "Электрондук почта даректери киргизилген жок";
 "EnterAtLeastOneValidEmailToShareSend" = "Бул Sendди бөлүшүү үчүн жок дегенде бир туура электрондук почта даректи киргизиңиз.";
 "OneOrMoreEmailAddressesIncorrect" = "Бир же бир нече электрондук почта даректери туура эмес. Кайра карап чыгып, аракет кылыңыз.";
+"OnlyIncludeTheFollowingDomainsDescriptionLong" = "Only include the following domains: %1$@. Please review and try again.";
 "Cards" = "Карталар";
 "Identities" = "Иденттүүлүктөр";
 "Logins" = "Кирүүлөр";
@@ -444,11 +443,19 @@
 "NewSendCreated" = "Send түзүлдү";
 "Custom" = "Ыңгайлаштырылган";
 "SendDisabledWarning" = "Ишкана саясатына байланыштуу, сиз бар Sendди гана өчүрө аласыз.";
+"ThisDateIsEnforcedByYourOrganization" = "This date is enforced by your organization";
 "AboutSend" = "Send жөнүндө";
 "HideEmail" = "Менин электрондук почта дарегимди кабыл алуучулардан жашыруу";
 "SendOptionsPolicyInEffect" = "Бир же бир нече уюм саясаты сиздин Send параметрлериңизге таасир этүүдө.";
 "SendFilePremiumRequired" = "Акысыз аккаунттар текст менен гана бөлүшүүгө чектелген. Send менен файлдарды колдонуу үчүн Premium мүчөлүгү талап кылынат.";
 "SendFileEmailVerificationRequired" = "Send менен файлдарды колдонуу үчүн электрондук почтаңызды текшерүүдөн өтүшүңүз керек. Электрондук почтаңызды веб купчулда текшере аласыз.";
+/* Alert message shown when Send Controls policy restricts creation to one Send type. %1$@ is the allowed Send type, either "File" or "Text". */
+"DueToAnEnterprisePolicyYouCanOnlyCreateXSends" = "Due to an enterprise policy, you can only create %1$@ Sends.";
+"OrganizationPolicyRestriction" = "Organization policy restriction";
+"TextSendsAreNotAllowedDescriptionLong" = "Text Sends are not allowed for your organization and this Send will automatically expire at the set deletion date.";
+"ThisSendIsNotCompliantDescriptionLong" = "This Send is not compliant with your organization's Send policy and will automatically expire at the set deletion date.";
+"ToEditThisSendMakeACopyDescriptionLong" = "To edit this Send, make a copy. If this Send can expire at the set deletion date, no action is needed.";
+"MakeACopy" = "Make a copy";
 "PasswordPrompt" = "Башкы сырсөздү кайра суроо";
 "PasswordConfirmation" = "Башкы сырсөздү ырастоо";
 "PasswordConfirmationDesc" = "Бул аракет корголгон, улантуу үчүн иденттүүлүгүңүздү текшерүү үчүн башкы сырсөзүңүздү кайра киргизиңиз.";
@@ -648,7 +655,6 @@
 "SetUpAutofill" = "Автолуктоону орнотуу";
 "AppInfo" = "Колдонмо маалыматы";
 "Browse" = "Карап чыгуу";
-"SelectCardholderName" = "Карта ээсинин атын тандоо";
 "SelectLanguage" = "Тилди тандоо";
 "ContinueToCompleteWebAuthnVerification" = "WebAuthn текшерүүсүн аяктоо үчүн улантыңыз.";
 "ThereWasAnErrorStartingWebAuthnTwoFactorAuthentication" = "WebAuthn эки факторлуу аутентификацияны баштоодо ката кетти";
@@ -667,7 +673,6 @@
 "ByContinuingYouAgreeToTheTermsOfServiceAndPrivacyPolicy" = "Улантуу менен, сиз **[Колдонуу шарттарына](%1$@)** жана **[Купуялык саясатына](%2$@)** макул болосуз";
 "GetAdviceAnnouncementsAndResearchOpportunitiesFromBitwardenInYourInboxUnsubscribeAtAnyTime." = "Кирүү кутуңузга Bitwardenден кеңештер, жарыялар жана изилдөө мүмкүнчүлүктөрүн алыңыз. Каалаган убакта **[Жазылуудан баш тартуу](%1$@)**.";
 "UserVerificationForPasskey" = "Өтүү ачкычы үчүн колдонуучуну текшерүү";
-"NewItem" = "Жаңы элемент";
 "ExploreTheGenerator" = "Генераторду изилдөө";
 "LearnMoreAboutGeneratingSecureLoginCredentialsWithAGuidedTour" = "Жетекчилик тур менен коопсуз кирүү маалыматтарын түзүү жөнүндө көбүрөөк билүү.";
 "ExportVaultFilePwProtectInfo" = "Бул файл экспорттоо сырсөз менен корголот жана чечүү үчүн файлдын сырсөзүн талап кылат.";
@@ -881,6 +886,10 @@
 "Identification" = "Иденттөө";
 "Owner" = "Ээси";
 "VerifyYourIdentity" = "Иденттүүлүгүңүздү текшериңиз";
+"ThisOperationIsNotAllowedOnThisAccount" = "This operation is not allowed on this account";
+"AnErrorOccurredWhileTryingToLockTheCurrentUser" = "An error occurred while trying to lock the current user";
+"LockAllAccounts" = "Lock all accounts";
+"AllAccountsHaveBeenLocked" = "All accounts have been locked";
 "ShareErrorDetails" = "Ката маалыматтарын бөлүшүү";
 "FlightRecorder" = "Учуу жазуучу";
 "EnableFlightRecorder" = "Учуу жазуучуну иштетүү";
@@ -909,7 +918,13 @@
 "ExpiresOnXDate" = "Мөөнөтү %1$@ бүтөт";
 "ExpiresTomorrow" = "Мөөнөтү эртең бүтөт";
 "DateRangeXToY" = "%1$@ ден %2$@ ге чейин";
+"LogOutAllAccounts" = "Log out all accounts";
+"AllAccountsHaveBeenLoggedOut" = "All accounts have been logged out";
+"AnErrorOccurredWhileTryingToLogOutAllAccounts" = "An error occurred while trying to log out all accounts";
 "SelfHostServerURL" = "Өзүн өзү камсыздоочу сервердин URL дареги";
+"OpenGenerator" = "Open generator";
+"OpenPasswordGenerator" = "Open password generator";
+"GeneratePassphrase" = "Generate passphrase";
 "AllowUniversalClipboard" = "Универсалдуу буферге уруксат берүү";
 "UseUniversalClipboardToCopyDescriptionLong" = "Универсалдуу буферди колдонуп, бул жерден көчүрүп, ошол эле Apple ID менен кирген башка түзмөктөргө чаптаңыз.";
 "RemoveMasterPasswordConfirmDomain" = "Төмөнкү уюмдун мүчөлөрү үчүн башкы сырсөз мындан ары талап кылынбайт. Төмөндөгү доменди уюмуңуздун администратору менен ырастаңыз.";
@@ -929,6 +944,7 @@
 "GoToSettings" = "Орнотууларга өтүү";
 "SiriAndShortcutsAccess" = "Siri & Shortcuts кирүү мүмкүнчүлүгү";
 "EnableToAllowTheAppToRespondToSiriAndShortcutsUsingAppIntents" = "Колдонмонун App Intents аркылуу Siri жана Shortcutsка жооп беришине уруксат берүү үчүн иштетиңиз.";
+"ThereIsNoActiveAccount" = "There is no active account.";
 "NewFileSend" = "Жаңы файл Send";
 "NewTextSend" = "Жаңы текст Send";
 "EditFileSend" = "Файл Sendди түзөтүү";
@@ -979,7 +995,6 @@
 "NoAskMe" = "Жок, менден сура";
 "NoCodes" = "Көрсөтүү үчүн эч кандай коддоруңуз жок";
 "None" = "Эч нерсе";
-"NoneOfTheAbove" = "Жогорудагылардын эч бири";
 "NumberOfDigits" = "Сандардын саны";
 "OtpType" = "OTP түрү";
 "RefreshPeriod" = "Жаңыртуу мезгили";

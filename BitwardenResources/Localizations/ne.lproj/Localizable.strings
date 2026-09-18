@@ -182,7 +182,6 @@
 "CopyTotp" = "TOTP प्रतिलिपि गर्नुहोस्";
 "CopyTotpAutomaticallyDescription" = "यदि लगइनसँग प्रमाणीकरण कुञ्जी छ भने, तपाईंले लगइन स्वत: भरण गर्दा TOTP प्रमाणीकरण कोड तपाईंको क्लिपबोर्डमा प्रतिलिपि गर्नुहोस्।";
 "CopyTotpAutomatically" = "TOTP स्वचालित रूपमा प्रतिलिपि गर्नुहोस्";
-"PremiumRequired" = "यो सुविधा प्रयोग गर्न Premium सदस्यता आवश्यक छ।";
 "AttachementAdded" = "संलग्न थपियो";
 "AttachmentDeleted" = "संलग्न मेटियो";
 "ChooseFile" = "फाइल छान्नुहोस्";
@@ -223,7 +222,6 @@
 "August" = "अगस्ट";
 "Brand" = "ब्रान्ड";
 "CardholderName" = "कार्डधारकको नाम";
-"WeFoundMultipleMatchesChooseTheCorrectOne" = "हामीले धेरै मिलानहरू फेला पार्यौं। सही एक छान्नुहोस्।";
 "CityTown" = "सहर / नगर";
 "Company" = "कम्पनी";
 "Country" = "देश";
@@ -309,6 +307,7 @@
 "NoEmailAddressesEntered" = "कुनै इमेल ठेगानाहरू प्रविष्ट गरिएनन्";
 "EnterAtLeastOneValidEmailToShareSend" = "यो पठाउने साझेदारी गर्न कम्तीमा एउटा मान्य इमेल ठेगाना प्रविष्ट गर्नुहोस्।";
 "OneOrMoreEmailAddressesIncorrect" = "एक वा बढी इमेल ठेगानाहरू गलत छन्। कृपया समीक्षा गर्नुहोस् र फेरि प्रयास गर्नुहोस्।";
+"OnlyIncludeTheFollowingDomainsDescriptionLong" = "Only include the following domains: %1$@. Please review and try again.";
 "Cards" = "कार्डहरू";
 "Identities" = "पहिचानहरू";
 "Logins" = "लगइनहरू";
@@ -444,11 +443,19 @@
 "NewSendCreated" = "पठाउने सिर्जना गरियो";
 "Custom" = "अनुकूल";
 "SendDisabledWarning" = "उद्यम नीतिको कारणले, तपाईं केवल अवस्थित पठाउने मेटाउन सक्षम हुनुहुन्छ।";
+"ThisDateIsEnforcedByYourOrganization" = "This date is enforced by your organization";
 "AboutSend" = "पठाउनेको बारेमा";
 "HideEmail" = "प्राप्तकर्ताहरूबाट मेरो इमेल ठेगाना लुकाउनुहोस्";
 "SendOptionsPolicyInEffect" = "एक वा बढी संगठन नीतिहरूले तपाईंको पठाउने विकल्पहरूलाई असर गरिरहेको छ।";
 "SendFilePremiumRequired" = "नि:शुल्क खाताहरू पाठ मात्र साझेदारी गर्न प्रतिबन्धित छन्। पठाउनेसँग फाइलहरू प्रयोग गर्न Premium सदस्यता आवश्यक छ।";
 "SendFileEmailVerificationRequired" = "पठाउनेसँग फाइलहरू प्रयोग गर्न तपाईंले आफ्नो इमेल प्रमाणित गर्नुपर्छ। तपाईं आफ्नो इमेल वेब भल्टमा प्रमाणित गर्न सक्नुहुन्छ।";
+/* Alert message shown when Send Controls policy restricts creation to one Send type. %1$@ is the allowed Send type, either "File" or "Text". */
+"DueToAnEnterprisePolicyYouCanOnlyCreateXSends" = "Due to an enterprise policy, you can only create %1$@ Sends.";
+"OrganizationPolicyRestriction" = "Organization policy restriction";
+"TextSendsAreNotAllowedDescriptionLong" = "Text Sends are not allowed for your organization and this Send will automatically expire at the set deletion date.";
+"ThisSendIsNotCompliantDescriptionLong" = "This Send is not compliant with your organization's Send policy and will automatically expire at the set deletion date.";
+"ToEditThisSendMakeACopyDescriptionLong" = "To edit this Send, make a copy. If this Send can expire at the set deletion date, no action is needed.";
+"MakeACopy" = "Make a copy";
 "PasswordPrompt" = "मास्टर पासवर्ड पुन: सोध्ने";
 "PasswordConfirmation" = "मास्टर पासवर्ड पुष्टि";
 "PasswordConfirmationDesc" = "यो कार्य सुरक्षित छ, जारी राख्न कृपया आफ्नो पहिचान प्रमाणित गर्न आफ्नो मास्टर पासवर्ड पुन: प्रविष्ट गर्नुहोस्।";
@@ -648,7 +655,6 @@
 "SetUpAutofill" = "स्वत: भरण सेट अप गर्नुहोस्";
 "AppInfo" = "एप जानकारी";
 "Browse" = "ब्राउज गर्नुहोस्";
-"SelectCardholderName" = "कार्डधारकको नाम चयन गर्नुहोस्";
 "SelectLanguage" = "भाषा चयन गर्नुहोस्";
 "ContinueToCompleteWebAuthnVerification" = "WebAuthn प्रमाणीकरण पूरा गर्न जारी राख्नुहोस्।";
 "ThereWasAnErrorStartingWebAuthnTwoFactorAuthentication" = "WebAuthn दुई-कारक प्रमाणीकरण सुरु गर्न त्रुटि भयो";
@@ -667,7 +673,6 @@
 "ByContinuingYouAgreeToTheTermsOfServiceAndPrivacyPolicy" = "जारी राखेर, तपाईं **[सेवा सर्तहरू](%1$@)** र **[गोपनीयता नीति](%2$@)** मा सहमत हुनुहुन्छ";
 "GetAdviceAnnouncementsAndResearchOpportunitiesFromBitwardenInYourInboxUnsubscribeAtAnyTime." = "Bitwarden बाट सल्लाह, घोषणाहरू, र अनुसन्धान अवसरहरू आफ्नो इनबक्समा प्राप्त गर्नुहोस्। कुनै पनि समयमा **[सदस्यता रद्द गर्नुहोस्](%1$@)**।";
 "UserVerificationForPasskey" = "पासकीको लागि प्रयोगकर्ता प्रमाणीकरण";
-"NewItem" = "नयाँ वस्तु";
 "ExploreTheGenerator" = "जेनरेटर अन्वेषण गर्नुहोस्";
 "LearnMoreAboutGeneratingSecureLoginCredentialsWithAGuidedTour" = "निर्देशित यात्राको साथ सुरक्षित लगइन प्रमाणहरू उत्पन्न गर्ने बारे थप जान्नुहोस्।";
 "ExportVaultFilePwProtectInfo" = "यो फाइल निर्यात पासवर्ड-सुरक्षित हुनेछ र डिक्रिप्ट गर्न फाइल पासवर्ड आवश्यक पर्नेछ।";
@@ -881,6 +886,10 @@
 "Identification" = "पहिचान";
 "Owner" = "मालिक";
 "VerifyYourIdentity" = "आफ्नो पहिचान प्रमाणित गर्नुहोस्";
+"ThisOperationIsNotAllowedOnThisAccount" = "This operation is not allowed on this account";
+"AnErrorOccurredWhileTryingToLockTheCurrentUser" = "An error occurred while trying to lock the current user";
+"LockAllAccounts" = "Lock all accounts";
+"AllAccountsHaveBeenLocked" = "All accounts have been locked";
 "ShareErrorDetails" = "त्रुटि विवरण साझेदारी गर्नुहोस्";
 "FlightRecorder" = "फ्लाइट रेकर्डर";
 "EnableFlightRecorder" = "फ्लाइट रेकर्डर सक्षम गर्नुहोस्";
@@ -909,7 +918,13 @@
 "ExpiresOnXDate" = "%1$@ मा म्याद सकिन्छ";
 "ExpiresTomorrow" = "भोलि म्याद सकिन्छ";
 "DateRangeXToY" = "%1$@ देखि %2$@ सम्म";
+"LogOutAllAccounts" = "Log out all accounts";
+"AllAccountsHaveBeenLoggedOut" = "All accounts have been logged out";
+"AnErrorOccurredWhileTryingToLogOutAllAccounts" = "An error occurred while trying to log out all accounts";
 "SelfHostServerURL" = "सेल्फ-होस्ट सर्भर URL";
+"OpenGenerator" = "Open generator";
+"OpenPasswordGenerator" = "Open password generator";
+"GeneratePassphrase" = "Generate passphrase";
 "AllowUniversalClipboard" = "युनिभर्सल क्लिपबोर्ड अनुमति दिनुहोस्";
 "UseUniversalClipboardToCopyDescriptionLong" = "यहाँ प्रतिलिपि गर्न र एउटै Apple ID सँग साइन इन गरिएका अन्य यन्त्रहरूमा टाँस्न युनिभर्सल क्लिपबोर्ड प्रयोग गर्नुहोस्।";
 "RemoveMasterPasswordConfirmDomain" = "निम्न संगठनका सदस्यहरूको लागि मास्टर पासवर्ड आवश्यक छैन। कृपया आफ्नो संगठन प्रशासकसँग तलको डोमेन पुष्टि गर्नुहोस्।";
@@ -929,6 +944,7 @@
 "GoToSettings" = "सेटिङ्समा जानुहोस्";
 "SiriAndShortcutsAccess" = "Siri र सर्टकट पहुँच";
 "EnableToAllowTheAppToRespondToSiriAndShortcutsUsingAppIntents" = "एप इन्टेन्टहरू प्रयोग गरेर Siri र सर्टकटहरूमा प्रतिक्रिया दिन एपलाई अनुमति दिन सक्षम गर्नुहोस्।";
+"ThereIsNoActiveAccount" = "There is no active account.";
 "NewFileSend" = "नयाँ फाइल पठाउने";
 "NewTextSend" = "नयाँ पाठ पठाउने";
 "EditFileSend" = "फाइल पठाउने सम्पादन गर्नुहोस्";
@@ -979,7 +995,6 @@
 "NoAskMe" = "होइन, मलाई सोध्नुहोस्";
 "NoCodes" = "तपाईंसँग प्रदर्शन गर्न कुनै कोडहरू छैनन्";
 "None" = "कुनै पनि";
-"NoneOfTheAbove" = "माथिको कुनै पनि होइन";
 "NumberOfDigits" = "अङ्कहरूको संख्या";
 "OtpType" = "OTP प्रकार";
 "RefreshPeriod" = "ताजा गर्ने अवधि";

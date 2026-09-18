@@ -182,7 +182,6 @@
 "CopyTotp" = "TOTP କପି";
 "CopyTotpAutomaticallyDescription" = "ଯଦି ଏକ ପ୍ରବେଶରେ ପ୍ରାମାଣିକ କୀ ଅଛି, ତେବେ ଆପଣ ପ୍ରବେଶ ଅଟୋଫିଲ୍ କଲାବେଳେ TOTP ଯାଞ୍ଚ କୋଡ୍ ଆପଣଙ୍କ କ୍ଲିପବୋର୍ଡ୍‌ରେ କପି କରନ୍ତୁ।";
 "CopyTotpAutomatically" = "TOTP ସ୍ୱୟଂଚାଳିତ କପି";
-"PremiumRequired" = "ଏହି ବୈଶିଷ୍ଟ୍ୟ ବ୍ୟବହାର କରିବାକୁ Premium ସଦସ୍ୟତା ଆବଶ୍ୟକ।";
 "AttachementAdded" = "ସଂଲଗ୍ନ ଯୋଡ଼ାଗଲା";
 "AttachmentDeleted" = "ସଂଲଗ୍ନ ଲିଭାଗଲା";
 "ChooseFile" = "ଫାଇଲ୍ ବାଛନ୍ତୁ";
@@ -223,7 +222,6 @@
 "August" = "ଅଗଷ୍ଟ";
 "Brand" = "ବ୍ରାଣ୍ଡ";
 "CardholderName" = "କାର୍ଡଧାରୀ ନାମ";
-"WeFoundMultipleMatchesChooseTheCorrectOne" = "ଆମେ ଏକାଧିକ ମେଳ ପାଇଲୁ। ଠିକ୍ ଗୋଟିଏ ବାଛନ୍ତୁ।";
 "CityTown" = "ସହର / ନଗର";
 "Company" = "ସଂସ୍ଥା";
 "Country" = "ଦେଶ";
@@ -309,6 +307,7 @@
 "NoEmailAddressesEntered" = "କୌଣସି ଇମେଲ ଠିକଣା ଦିଆଯାଇନାହିଁ";
 "EnterAtLeastOneValidEmailToShareSend" = "ଏହି ପଠାଣ ବାଣ୍ଟିବାକୁ ଅତି କମରେ ଗୋଟିଏ ବୈଧ ଇମେଲ ଠିକଣା ଦିଅନ୍ତୁ।";
 "OneOrMoreEmailAddressesIncorrect" = "ଗୋଟିଏ ବା ଏକାଧିକ ଇମେଲ ଠିକଣା ଭୁଲ୍। ଦୟାକରି ଯାଞ୍ଚ ଏବଂ ପୁନଃ ଚେଷ୍ଟା।";
+"OnlyIncludeTheFollowingDomainsDescriptionLong" = "Only include the following domains: %1$@. Please review and try again.";
 "Cards" = "କାର୍ଡଗୁଡ଼ିକ";
 "Identities" = "ପରିଚୟଗୁଡ଼ିକ";
 "Logins" = "ପ୍ରବେଶଗୁଡ଼ିକ";
@@ -444,11 +443,19 @@
 "NewSendCreated" = "ପଠାଣ ସୃଷ୍ଟି";
 "Custom" = "କଷ୍ଟମ୍";
 "SendDisabledWarning" = "ଏଣ୍ଟରପ୍ରାଇଜ୍ ନୀତି କାରଣରୁ, ଆପଣ କେବଳ ବିଦ୍ୟମାନ ପଠାଣକୁ ଲିଭାଇପାରିବେ।";
+"ThisDateIsEnforcedByYourOrganization" = "This date is enforced by your organization";
 "AboutSend" = "ପଠାଣ ବିଷୟରେ";
 "HideEmail" = "ପ୍ରାପ୍ତକାରୀଙ୍କଠାରୁ ମୋ ଇମେଲ ଠିକଣା ଲୁଚାନ୍ତୁ";
 "SendOptionsPolicyInEffect" = "ଗୋଟିଏ ବା ଏକାଧିକ ସଂଗଠନ ନୀତି ଆପଣଙ୍କ ପଠାଣ ବିକଳ୍ପଗୁଡ଼ିକୁ ପ୍ରଭାବିତ କରୁଛି।";
 "SendFilePremiumRequired" = "ମାଗଣା ଖାତାଗୁଡ଼ିକ କେବଳ ପାଠ ବାଣ୍ଟିବାକୁ ସୀମିତ। ପଠାଣ ସହ ଫାଇଲ୍ ବ୍ୟବହାର କରିବାକୁ Premium ସଦସ୍ୟତା ଆବଶ୍ୟକ।";
 "SendFileEmailVerificationRequired" = "ପଠାଣ ସହିତ ଫାଇଲ୍ ବ୍ୟବହାର କରିବାକୁ ଆପଣଙ୍କୁ ଆପଣଙ୍କ ଇମେଲ ଯାଞ୍ଚ କରିବାକୁ ପଡ଼ିବ। ଆପଣ ୱେବ ତିଜୋରିରେ ଆପଣଙ୍କ ଇମେଲ ଯାଞ୍ଚ କରିପାରିବେ।";
+/* Alert message shown when Send Controls policy restricts creation to one Send type. %1$@ is the allowed Send type, either "File" or "Text". */
+"DueToAnEnterprisePolicyYouCanOnlyCreateXSends" = "Due to an enterprise policy, you can only create %1$@ Sends.";
+"OrganizationPolicyRestriction" = "Organization policy restriction";
+"TextSendsAreNotAllowedDescriptionLong" = "Text Sends are not allowed for your organization and this Send will automatically expire at the set deletion date.";
+"ThisSendIsNotCompliantDescriptionLong" = "This Send is not compliant with your organization's Send policy and will automatically expire at the set deletion date.";
+"ToEditThisSendMakeACopyDescriptionLong" = "To edit this Send, make a copy. If this Send can expire at the set deletion date, no action is needed.";
+"MakeACopy" = "Make a copy";
 "PasswordPrompt" = "ମାଷ୍ଟର ପାସୱାର୍ଡ ପୁନଃପ୍ରମ୍ପ୍ଟ";
 "PasswordConfirmation" = "ମାଷ୍ଟର ପାସୱାର୍ଡ ନିଶ୍ଚିତକରଣ";
 "PasswordConfirmationDesc" = "ଏହି କାର୍ଯ୍ୟ ସୁରକ୍ଷିତ, ଜାରି ରଖିବାକୁ ଆପଣଙ୍କ ପରିଚୟ ଯାଞ୍ଚ କରିବାକୁ ଆପଣଙ୍କ ମାଷ୍ଟର ପାସୱାର୍ଡ ପୁନଃ ଦିଅନ୍ତୁ।";
@@ -648,7 +655,6 @@
 "SetUpAutofill" = "ଅଟୋଫିଲ୍ ବ୍ୟବସ୍ଥା";
 "AppInfo" = "ଆପ୍ ସୂଚନା";
 "Browse" = "ବ୍ରାଉଜ୍";
-"SelectCardholderName" = "କାର୍ଡଧାରୀ ନାମ ବାଛନ୍ତୁ";
 "SelectLanguage" = "ଭାଷା ବାଛନ୍ତୁ";
 "ContinueToCompleteWebAuthnVerification" = "WebAuthn ଯାଞ୍ଚ ସମାପ୍ତ କରିବାକୁ ଜାରି ରଖନ୍ତୁ।";
 "ThereWasAnErrorStartingWebAuthnTwoFactorAuthentication" = "WebAuthn ଦୁଇ-କାରକ ପ୍ରମାଣୀକରଣ ଆରମ୍ଭ କରିବାରେ ଏକ ତ୍ରୁଟି ଘଟିଛି।";
@@ -667,7 +673,6 @@
 "ByContinuingYouAgreeToTheTermsOfServiceAndPrivacyPolicy" = "ଜାରି ରଖିବା ଦ୍ୱାରା, ଆପଣ **[ସେବା ଶର୍ତ୍ତ](%1$@)** ଏବଂ **[ଗୋପନୀୟତା ନୀତି](%2$@)** ରେ ସହମତ।";
 "GetAdviceAnnouncementsAndResearchOpportunitiesFromBitwardenInYourInboxUnsubscribeAtAnyTime." = "ଆପଣଙ୍କ ଇନବକ୍ସରେ Bitwarden ଠାରୁ ପରାମର୍ଶ, ଘୋଷଣା, ଏବଂ ଗବେଷଣା ସୁଯୋଗ ପାଆନ୍ତୁ। ଯେ କୌଣସି ସମୟରେ **[ସବସ୍କ୍ରିପସନ୍ ବନ୍ଦ](%1$@)** କରନ୍ତୁ।";
 "UserVerificationForPasskey" = "ପାସକୀ ପାଇଁ ବ୍ୟବହାରକାରୀ ଯାଞ୍ଚ";
-"NewItem" = "ନୂଆ ଆଇଟମ୍";
 "ExploreTheGenerator" = "ଜେନେରେଟର୍ ଅନୁସନ୍ଧାନ";
 "LearnMoreAboutGeneratingSecureLoginCredentialsWithAGuidedTour" = "ଏକ ଗାଇଡେଡ୍ ଟୁର୍ ସହ ସୁରକ୍ଷିତ ପ୍ରବେଶ ପ୍ରମାଣପତ୍ର ସୃଷ୍ଟି ବିଷୟରେ ଅଧିକ ଜାଣନ୍ତୁ।";
 "ExportVaultFilePwProtectInfo" = "ଏହି ଫାଇଲ୍ ରପ୍ତାନୀ ପାସୱାର୍ଡ ଦ୍ୱାରା ସୁରକ୍ଷିତ ହେବ ଏବଂ ଡିକ୍ରିପ୍ଟ୍ କରିବାକୁ ଫାଇଲ୍ ପାସୱାର୍ଡ ଆବଶ୍ୟକ।";
@@ -881,6 +886,10 @@
 "Identification" = "ପରିଚୟ";
 "Owner" = "ମାଲିକ";
 "VerifyYourIdentity" = "ଆପଣଙ୍କ ପରିଚୟ ଯାଞ୍ଚ";
+"ThisOperationIsNotAllowedOnThisAccount" = "This operation is not allowed on this account";
+"AnErrorOccurredWhileTryingToLockTheCurrentUser" = "An error occurred while trying to lock the current user";
+"LockAllAccounts" = "Lock all accounts";
+"AllAccountsHaveBeenLocked" = "All accounts have been locked";
 "ShareErrorDetails" = "ତ୍ରୁଟି ବିବରଣୀ ବାଣ୍ଟନ୍ତୁ";
 "FlightRecorder" = "ଫ୍ଲାଇଟ୍ ରେକର୍ଡର୍";
 "EnableFlightRecorder" = "ଫ୍ଲାଇଟ୍ ରେକର୍ଡର୍ ସକ୍ରିୟ";
@@ -909,7 +918,13 @@
 "ExpiresOnXDate" = "%1$@ ରେ ଶେଷ";
 "ExpiresTomorrow" = "ଆସନ୍ତାକାଲି ଶେଷ";
 "DateRangeXToY" = "%1$@ ରୁ %2$@";
+"LogOutAllAccounts" = "Log out all accounts";
+"AllAccountsHaveBeenLoggedOut" = "All accounts have been logged out";
+"AnErrorOccurredWhileTryingToLogOutAllAccounts" = "An error occurred while trying to log out all accounts";
 "SelfHostServerURL" = "ସ୍ୱ-ହୋଷ୍ଟ ସର୍ଭର URL";
+"OpenGenerator" = "Open generator";
+"OpenPasswordGenerator" = "Open password generator";
+"GeneratePassphrase" = "Generate passphrase";
 "AllowUniversalClipboard" = "Universal Clipboard ଅନୁମତି";
 "UseUniversalClipboardToCopyDescriptionLong" = "ଏଠାରେ କପି କରିବାକୁ ଏବଂ ସମାନ Apple ID ସହ ସାଇନ୍ ଇନ୍ ହୋଇଥିବା ଅନ୍ୟ ଡିଭାଇସ୍‌ଗୁଡ଼ିକରେ ପେଷ୍ଟ୍ କରିବାକୁ Universal Clipboard ବ୍ୟବହାର।";
 "RemoveMasterPasswordConfirmDomain" = "ନିମ୍ନଲିଖିତ ସଂଗଠନର ସଦସ୍ୟମାନଙ୍କ ପାଇଁ ମାଷ୍ଟର ପାସୱାର୍ଡ ଆବଶ୍ୟକ ନୁହେଁ। ଦୟାକରି ତଳେ ଥିବା ଡୋମେନ୍‌କୁ ଆପଣଙ୍କ ସଂଗଠନ ପ୍ରଶାସକଙ୍କ ସହ ନିଶ୍ଚିତ କରନ୍ତୁ।";
@@ -929,6 +944,7 @@
 "GoToSettings" = "ସେଟିଂକୁ ଯାଆନ୍ତୁ";
 "SiriAndShortcutsAccess" = "Siri & Shortcuts ପ୍ରବେଶ";
 "EnableToAllowTheAppToRespondToSiriAndShortcutsUsingAppIntents" = "App Intents ବ୍ୟବହାର କରି Siri ଏବଂ Shortcuts କୁ ଆପ୍ ପ୍ରତିକ୍ରିୟା ଦେବାକୁ ସକ୍ରିୟ କରନ୍ତୁ।";
+"ThereIsNoActiveAccount" = "There is no active account.";
 "NewFileSend" = "ନୂଆ ଫାଇଲ୍ ପଠାଣ";
 "NewTextSend" = "ନୂଆ ପାଠ ପଠାଣ";
 "EditFileSend" = "ଫାଇଲ୍ ପଠାଣ ସମ୍ପାଦନ";
@@ -979,7 +995,6 @@
 "NoAskMe" = "ନାଁ, ମୋତେ ପଚାର";
 "NoCodes" = "ଆପଣଙ୍କ ପାଖରେ ଦେଖାଇବାକୁ କୌଣସି କୋଡ୍ ନାହିଁ";
 "None" = "କିଛି ନୁହେଁ";
-"NoneOfTheAbove" = "ଉପରୋକ୍ତ ମଧ୍ୟରୁ କୌଣସିଟି ନୁହେଁ";
 "NumberOfDigits" = "ଅଙ୍କ ସଂଖ୍ୟା";
 "OtpType" = "OTP ପ୍ରକାର";
 "RefreshPeriod" = "ପୁନଃସତେଜ ଅବଧି";

@@ -182,7 +182,6 @@
 "CopyTotp" = "Kopioi TOTP-koodi";
 "CopyTotpAutomaticallyDescription" = "Jos kirjautumistieto sisältää kaksivaiheisen kirjautumisen todennusavaimen, kopioidaan TOTP-koodi leikepöydälle kun kohde täytetään automaattisesti.";
 "CopyTotpAutomatically" = "Kopioi TOTP-koodi automaattisesti";
-"PremiumRequired" = "Käyttääksesi tätä toimintoa tarvitset Premium-jäsenyyden.";
 "AttachementAdded" = "Tiedostoliite lisätty";
 "AttachmentDeleted" = "Tiedostoliite poistettiin";
 "ChooseFile" = "Valitse tiedosto";
@@ -223,7 +222,6 @@
 "August" = "Elokuu";
 "Brand" = "Merkki";
 "CardholderName" = "Kortinhaltijan nimi";
-"WeFoundMultipleMatchesChooseTheCorrectOne" = "Löytyi useita vastaavuuksia. Valitse niistä oikea.";
 "CityTown" = "Paikkakunta";
 "Company" = "Yritys";
 "Country" = "Maa";
@@ -309,6 +307,7 @@
 "NoEmailAddressesEntered" = "Ei sähköpostiosoitteita syötetty";
 "EnterAtLeastOneValidEmailToShareSend" = "Anna vähintään yksi kelvollinen sähköpostiosoite jakaaksesi tämän Lähetyksen.";
 "OneOrMoreEmailAddressesIncorrect" = "Yksi tai useampi sähköpostiosoite on virheellinen. Tarkista ja yritä uudelleen.";
+"OnlyIncludeTheFollowingDomainsDescriptionLong" = "Only include the following domains: %1$@. Please review and try again.";
 "Cards" = "Kortit";
 "Identities" = "Henkilöllisyydet";
 "Logins" = "Kirjautumistiedot";
@@ -444,11 +443,19 @@
 "NewSendCreated" = "Send luotiin";
 "Custom" = "Mukautettu";
 "SendDisabledWarning" = "Yrityskäytännön vuoksi voit poistaa vain olemassa olevan Sendin.";
+"ThisDateIsEnforcedByYourOrganization" = "This date is enforced by your organization";
 "AboutSend" = "Tietoja Sendistä";
 "HideEmail" = "Piilota sähköpostiosoitteeni vastaanottajilta";
 "SendOptionsPolicyInEffect" = "Yksi tai useampi organisaatiokäytäntö vaikuttaa Send-asetuksiisi.";
 "SendFilePremiumRequired" = "Ilmaiset tilit on rajoitettu tekstin jakoon. Tiedostojen käyttö Sendeissä vaatii Premium-jäsenyyden.";
 "SendFileEmailVerificationRequired" = "Sinun on vahvistettava sähköpostiosoitteesi käyttääksesi tiedostoja Sendeissä. Voit vahvistaa osoitteesi verkkoholvissa.";
+/* Alert message shown when Send Controls policy restricts creation to one Send type. %1$@ is the allowed Send type, either "File" or "Text". */
+"DueToAnEnterprisePolicyYouCanOnlyCreateXSends" = "Due to an enterprise policy, you can only create %1$@ Sends.";
+"OrganizationPolicyRestriction" = "Organization policy restriction";
+"TextSendsAreNotAllowedDescriptionLong" = "Text Sends are not allowed for your organization and this Send will automatically expire at the set deletion date.";
+"ThisSendIsNotCompliantDescriptionLong" = "This Send is not compliant with your organization's Send policy and will automatically expire at the set deletion date.";
+"ToEditThisSendMakeACopyDescriptionLong" = "To edit this Send, make a copy. If this Send can expire at the set deletion date, no action is needed.";
+"MakeACopy" = "Make a copy";
 "PasswordPrompt" = "Pääsalasanan uudelleenkysely";
 "PasswordConfirmation" = "Pääsalasanan vahvistus";
 "PasswordConfirmationDesc" = "Toiminto on suojattu. Jatka vahvistamalla henkilöllisyytesi syöttämällä pääsalasanasi uudelleen.";
@@ -648,7 +655,6 @@
 "SetUpAutofill" = "Määritä automaattitäyttö";
 "AppInfo" = "Sovellustiedot";
 "Browse" = "Selaa";
-"SelectCardholderName" = "Valitse kortinhaltijan nimi";
 "SelectLanguage" = "Valitse kieli";
 "ContinueToCompleteWebAuthnVerification" = "Viimeistele WebAuthn-vahvistus jatkamalla.";
 "ThereWasAnErrorStartingWebAuthnTwoFactorAuthentication" = "Virhe aloitettaessa kaksivaiheista WebAuthn-tunnistautumista";
@@ -667,7 +673,6 @@
 "ByContinuingYouAgreeToTheTermsOfServiceAndPrivacyPolicy" = "Jatkamalla hyväksyt **[Käyttöehdot](%1$@)** ja **[Tietosuojakäytännön](%2$@)**";
 "GetAdviceAnnouncementsAndResearchOpportunitiesFromBitwardenInYourInboxUnsubscribeAtAnyTime." = "Saat Bitwardenilta neuvoja, ilmoituksia ja tutkimusmahdollisuuksia postilaatikkoosi. **[Peru tilaus](%1$@)** milloin tahansa.";
 "UserVerificationForPasskey" = "Vahvista pääsyavaimen käyttö";
-"NewItem" = "Uusi kohde";
 "ExploreTheGenerator" = "Tutustu generaattoriin";
 "LearnMoreAboutGeneratingSecureLoginCredentialsWithAGuidedTour" = "Tutustu opastetusti turvallisten kirjautumistietojen luontiin.";
 "ExportVaultFilePwProtectInfo" = "Tämä vientitiedosto suojataan salauksen purkuun tarvittavalla salasanalla.";
@@ -881,6 +886,10 @@
 "Identification" = "Henkilöllisyystodistus";
 "Owner" = "Omistaja";
 "VerifyYourIdentity" = "Vahvista henkilöllisyytesi";
+"ThisOperationIsNotAllowedOnThisAccount" = "This operation is not allowed on this account";
+"AnErrorOccurredWhileTryingToLockTheCurrentUser" = "An error occurred while trying to lock the current user";
+"LockAllAccounts" = "Lock all accounts";
+"AllAccountsHaveBeenLocked" = "All accounts have been locked";
 "ShareErrorDetails" = "Jaa virhetiedot";
 "FlightRecorder" = "Musta laatikko";
 "EnableFlightRecorder" = "Aktivoi musta laatikko";
@@ -909,7 +918,13 @@
 "ExpiresOnXDate" = "Erääntyy %1$@";
 "ExpiresTomorrow" = "Erääntyy huomenna";
 "DateRangeXToY" = "%1$@–%2$@";
+"LogOutAllAccounts" = "Log out all accounts";
+"AllAccountsHaveBeenLoggedOut" = "All accounts have been logged out";
+"AnErrorOccurredWhileTryingToLogOutAllAccounts" = "An error occurred while trying to log out all accounts";
 "SelfHostServerURL" = "Itse ylläpidetyn palvelimen URL-osoite";
+"OpenGenerator" = "Open generator";
+"OpenPasswordGenerator" = "Open password generator";
+"GeneratePassphrase" = "Generate passphrase";
 "AllowUniversalClipboard" = "Salli Universal Clipboard";
 "UseUniversalClipboardToCopyDescriptionLong" = "Käytä Universal Clipboardia kopioidaksesi tähän ja liittääksesi muihin laitteisiin, jotka on kirjattu sisään samalla Apple ID:llä.";
 "RemoveMasterPasswordConfirmDomain" = "Pääsalasanaa ei enää tarvita tämän organisaation jäsenille. Ole hyvä ja vahvista alla oleva verkkotunnus organisaation ylläpitäjän kanssa.";
@@ -929,6 +944,7 @@
 "GoToSettings" = "Avaa asetukset";
 "SiriAndShortcutsAccess" = "Sirin ja pikavalintojen käyttö";
 "EnableToAllowTheAppToRespondToSiriAndShortcutsUsingAppIntents" = "Ota käyttöön salliaksesi sovelluksen vastata Sirille ja pikakomentoihin App Intents -rajapinnan välityksellä.";
+"ThereIsNoActiveAccount" = "There is no active account.";
 "NewFileSend" = "Uusi tiedosto-Send";
 "NewTextSend" = "Uusi teksti-Send";
 "EditFileSend" = "Muokkaa tiedosto-Sendiä";
@@ -979,7 +995,6 @@
 "NoAskMe" = "Ei, kysy minulta";
 "NoCodes" = "Sinulla ei ole näytettäviä kohteita.";
 "None" = "Ei mitään";
-"NoneOfTheAbove" = "Ei mikään yllä olevista";
 "NumberOfDigits" = "Pituus";
 "OtpType" = "OTP:n tyyppi";
 "RefreshPeriod" = "Päivitysaika";

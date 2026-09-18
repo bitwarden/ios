@@ -182,7 +182,6 @@
 "CopyTotp" = "نسخ TOTP";
 "CopyTotpAutomaticallyDescription" = "إذا كانت بيانات الدخول تحتوي على مفتاح أداة مصادقة، فسيتم نسخ رمز التحقق TOTP إلى الحافظة عند إتمام الملء التلقائي لبيانات الدخول.";
 "CopyTotpAutomatically" = "نسخ TOTP تلقائيا";
-"PremiumRequired" = "يطلب وجود اشتراك Premium لاستخدام هذه الميزة.";
 "AttachementAdded" = "تم إضافة المرفق";
 "AttachmentDeleted" = "تم حذف المرفق";
 "ChooseFile" = "اختيار ملف";
@@ -223,7 +222,6 @@
 "August" = "أغسطس";
 "Brand" = "علامة تجارية";
 "CardholderName" = "اسم حامل البطاقة";
-"WeFoundMultipleMatchesChooseTheCorrectOne" = "تم العثور على مطابقات متعددة، فاختر المطابقة الصحيحة.";
 "CityTown" = "المدينة / البلدة";
 "Company" = "الشركة";
 "Country" = "الدولة";
@@ -309,6 +307,7 @@
 "NoEmailAddressesEntered" = "لم يتم إدخال عناوين البريد الإلكتروني";
 "EnterAtLeastOneValidEmailToShareSend" = "أدخل عنوان بريد إلكتروني واحدا على الأقل يكون صالح لمشاركة هذا Send.";
 "OneOrMoreEmailAddressesIncorrect" = "عنوان بريد إلكتروني واحد أو أكثر غير صحيح. الرجاء المراجعة والمحاولة مرة أخرى.";
+"OnlyIncludeTheFollowingDomainsDescriptionLong" = "Only include the following domains: %1$@. Please review and try again.";
 "Cards" = "بطاقات";
 "Identities" = "الهويات";
 "Logins" = "تسجيلات الدخول";
@@ -444,11 +443,19 @@
 "NewSendCreated" = "تم إنشاء Send جديد";
 "Custom" = "مخصص";
 "SendDisabledWarning" = "بسبب سياسة المؤسسة، يمكنك فقط حذف Send موجود فعلا.";
+"ThisDateIsEnforcedByYourOrganization" = "This date is enforced by your organization";
 "AboutSend" = "حول Send";
 "HideEmail" = "إخفاء عنوان بريدي الإلكتروني عن المستلمين";
 "SendOptionsPolicyInEffect" = "تؤثر سياسة واحدة أو أكثر من سياسات المنظمة على خيارات Send الخاصة بك.";
 "SendFilePremiumRequired" = "← تقتصر الحسابات المجانية على مشاركة النصوص فقط. الاشتراك في الباقة Premium مطلوب لاستخدام الملفات عبر Send.";
 "SendFileEmailVerificationRequired" = "يجب عليك التحقق من بريدك الإلكتروني لاستخدام الملفات عبر ميزة Send. يمكنك التحقق من بريدك الإلكتروني في خزينة الويب.";
+/* Alert message shown when Send Controls policy restricts creation to one Send type. %1$@ is the allowed Send type, either "File" or "Text". */
+"DueToAnEnterprisePolicyYouCanOnlyCreateXSends" = "Due to an enterprise policy, you can only create %1$@ Sends.";
+"OrganizationPolicyRestriction" = "Organization policy restriction";
+"TextSendsAreNotAllowedDescriptionLong" = "Text Sends are not allowed for your organization and this Send will automatically expire at the set deletion date.";
+"ThisSendIsNotCompliantDescriptionLong" = "This Send is not compliant with your organization's Send policy and will automatically expire at the set deletion date.";
+"ToEditThisSendMakeACopyDescriptionLong" = "To edit this Send, make a copy. If this Send can expire at the set deletion date, no action is needed.";
+"MakeACopy" = "Make a copy";
 "PasswordPrompt" = "إعادة طلب كلمة المرور الرئيسية";
 "PasswordConfirmation" = "تأكيد كلمة المرور الرئيسية";
 "PasswordConfirmationDesc" = "هذا الإجراء محمي. للمتابعة، يرجى إعادة إدخال كلمة المرور الرئيسية الخاصة بك للتحقق من هويتك.";
@@ -648,7 +655,6 @@
 "SetUpAutofill" = "إعداد الملء التلقائي";
 "AppInfo" = "معلومات التطبيق";
 "Browse" = "تصفح";
-"SelectCardholderName" = "حدد اسم حامل البطاقة";
 "SelectLanguage" = "اختار اللغة";
 "ContinueToCompleteWebAuthnVerification" = "مواصلة لإكمال التحقق من WebAuthn.";
 "ThereWasAnErrorStartingWebAuthnTwoFactorAuthentication" = "حدث خطأ أثناء بدء المصادقة الثنائية WebAuthn";
@@ -667,7 +673,6 @@
 "ByContinuingYouAgreeToTheTermsOfServiceAndPrivacyPolicy" = "من خلال المتابعة، أنت توافق على **[شروط الخدمة](%1$@)** و **[سياسة الخصوصية](%2$@)**";
 "GetAdviceAnnouncementsAndResearchOpportunitiesFromBitwardenInYourInboxUnsubscribeAtAnyTime." = "احصل على النصائح والإعلانات وفرص البحث من Bitwarden في بريدك الإلكتروني. **[إلغاء الاشتراك](%1$@)** في أي وقت.";
 "UserVerificationForPasskey" = "التحقق من هوية المستخدم لمفتاح المرور";
-"NewItem" = "عنصر جديد";
 "ExploreTheGenerator" = "استكشف المولد";
 "LearnMoreAboutGeneratingSecureLoginCredentialsWithAGuidedTour" = "تعرف على المزيد حول إنشاء بيانات حساب آمنة من خلال جولة إرشادية.";
 "ExportVaultFilePwProtectInfo" = "سيكون تصدير هذا الملف محميا بكلمة مرور ويتطلب كلمة مرور الملف لفك التشفير.";
@@ -881,6 +886,10 @@
 "Identification" = "الهوية";
 "Owner" = "مالك";
 "VerifyYourIdentity" = "تأكيد الهوية";
+"ThisOperationIsNotAllowedOnThisAccount" = "This operation is not allowed on this account";
+"AnErrorOccurredWhileTryingToLockTheCurrentUser" = "An error occurred while trying to lock the current user";
+"LockAllAccounts" = "Lock all accounts";
+"AllAccountsHaveBeenLocked" = "All accounts have been locked";
 "ShareErrorDetails" = "مشاركة تفاصيل الخطأ";
 "FlightRecorder" = "مسجل الرحلة";
 "EnableFlightRecorder" = "تفعيل مسجل الرحلة";
@@ -909,7 +918,13 @@
 "ExpiresOnXDate" = "تنتهي الصلاحية بتاريخ %1$@";
 "ExpiresTomorrow" = "تنتهي غدا";
 "DateRangeXToY" = "%1$@ إلى %2$@";
+"LogOutAllAccounts" = "Log out all accounts";
+"AllAccountsHaveBeenLoggedOut" = "All accounts have been logged out";
+"AnErrorOccurredWhileTryingToLogOutAllAccounts" = "An error occurred while trying to log out all accounts";
 "SelfHostServerURL" = "URL خادم الاستضافة الذاتية";
+"OpenGenerator" = "Open generator";
+"OpenPasswordGenerator" = "Open password generator";
+"GeneratePassphrase" = "Generate passphrase";
 "AllowUniversalClipboard" = "السماح باستخدام الحافظة العامة";
 "UseUniversalClipboardToCopyDescriptionLong" = "استخدم الحافظة العامة للنسخ هنا واللصق على الأجهزة الأخرى المسجلة بمعرف Apple ID نفسه.";
 "RemoveMasterPasswordConfirmDomain" = "لم تعد كلمة المرور الرئيسية مطلوبة لأعضاء المنظمة التالية. يرجى تأكيد النطاق أدناه مع مسؤول منظمتك.";
@@ -929,6 +944,7 @@
 "GoToSettings" = "الانتقال إلى الإعدادات";
 "SiriAndShortcutsAccess" = "الوصول إلى Siri والاختصارات";
 "EnableToAllowTheAppToRespondToSiriAndShortcutsUsingAppIntents" = "تمكين السماح للتطبيق بالاستجابة لـ Siri والاختصارات باستخدام App Intents.";
+"ThereIsNoActiveAccount" = "There is no active account.";
 "NewFileSend" = "ملف جديد Send";
 "NewTextSend" = "نص جديد Send";
 "EditFileSend" = "تعديل ملف Send";
@@ -979,7 +995,6 @@
 "NoAskMe" = "لا، اسألني";
 "NoCodes" = "ليس لديك أي رموز لعرضها";
 "None" = "لا شَيْء";
-"NoneOfTheAbove" = "لا شيء مما سبق";
 "NumberOfDigits" = "عدد الأرقام";
 "OtpType" = "نوع OTP";
 "RefreshPeriod" = "فترة التحديث";

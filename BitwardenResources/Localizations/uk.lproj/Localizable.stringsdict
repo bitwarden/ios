@@ -56,13 +56,13 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>d</string>
         <key>one</key>
-        <string>Цей пароль було розкрито %d раз у витоках даних.</string>
+        <string>Цей пароль було викрито %d раз у витоках даних.</string>
         <key>few</key>
-        <string>Цей пароль було розкрито %d рази у витоках даних.</string>
+        <string>Цей пароль було викрито %d рази у витоках даних.</string>
         <key>many</key>
-        <string>Цей пароль було розкрито %d разів у витоках даних.</string>
+        <string>Цей пароль було викрито %d разів у витоках даних.</string>
         <key>other</key>
-        <string>Цей пароль було розкрито %d разів у витоках даних.</string>
+        <string>Цей пароль було викрито %d разів у витоках даних.</string>
       </dict>
     </dict>
     <!-- A number of characters, as in letters/numbers/punctuation. For example, the minimum number of characters when creating a password. -->

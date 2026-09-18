@@ -182,7 +182,6 @@
 "CopyTotp" = "คัดลอก TOTP";
 "CopyTotpAutomaticallyDescription" = "หากข้อมูลเข้าสู่ระบบมีคีย์แอปยืนยันตัวตน ให้คัดลอกรหัสยืนยัน TOTP ไปยังคลิปบอร์ดเมื่อป้อนอัตโนมัติ";
 "CopyTotpAutomatically" = "คัดลอก TOTP อัตโนมัติ";
-"PremiumRequired" = "ต้องเป็นสมาชิกพรีเมียมเพื่อใช้ฟีเจอร์นี้";
 "AttachementAdded" = "เพิ่มไฟล์แนบแล้ว";
 "AttachmentDeleted" = "ลบไฟล์แนบแล้ว";
 "ChooseFile" = "เลือกไฟล์";
@@ -223,7 +222,6 @@
 "August" = "สิงหาคม";
 "Brand" = "แบรนด์";
 "CardholderName" = "ชื่อผู้ถือบัตร";
-"WeFoundMultipleMatchesChooseTheCorrectOne" = "เราพบรายการที่ตรงกันหลายรายการ โปรดเลือกรายการที่ถูกต้อง";
 "CityTown" = "เมือง / อำเภอ";
 "Company" = "บริษัท";
 "Country" = "ประเทศ";
@@ -309,6 +307,7 @@
 "NoEmailAddressesEntered" = "ไม่ได้ระบุที่อยู่อีเมล";
 "EnterAtLeastOneValidEmailToShareSend" = "โปรดระบุที่อยู่อีเมลที่ถูกต้องอย่างน้อยหนึ่งรายการเพื่อแชร์รายการ Send นี้";
 "OneOrMoreEmailAddressesIncorrect" = "มีที่อยู่อีเมลอย่างน้อยหนึ่งรายการไม่ถูกต้อง โปรดตรวจสอบแล้วลองอีกครั้ง";
+"OnlyIncludeTheFollowingDomainsDescriptionLong" = "Only include the following domains: %1$@. Please review and try again.";
 "Cards" = "บัตร";
 "Identities" = "ข้อมูลระบุตัวตน";
 "Logins" = "ข้อมูลเข้าสู่ระบบ";
@@ -444,11 +443,19 @@
 "NewSendCreated" = "สร้าง Send แล้ว";
 "Custom" = "กำหนดเอง";
 "SendDisabledWarning" = "เนื่องจากนโยบายองค์กร คุณสามารถลบ Send ที่มีอยู่ได้เท่านั้น";
+"ThisDateIsEnforcedByYourOrganization" = "This date is enforced by your organization";
 "AboutSend" = "เกี่ยวกับ Send";
 "HideEmail" = "ซ่อนที่อยู่อีเมลของฉันจากผู้รับ";
 "SendOptionsPolicyInEffect" = "นโยบายองค์กรอย่างน้อยหนึ่งรายการมีผลต่อตัวเลือก Send ของคุณ";
 "SendFilePremiumRequired" = "บัญชีฟรีถูกจำกัดให้แชร์ได้เฉพาะข้อความ ต้องเป็นสมาชิกพรีเมียมเพื่อใช้ไฟล์กับ Send";
 "SendFileEmailVerificationRequired" = "คุณต้องยืนยันอีเมลเพื่อใช้ไฟล์กับ Send คุณสามารถยืนยันอีเมลได้ในตู้นิรภัยเว็บ";
+/* Alert message shown when Send Controls policy restricts creation to one Send type. %1$@ is the allowed Send type, either "File" or "Text". */
+"DueToAnEnterprisePolicyYouCanOnlyCreateXSends" = "Due to an enterprise policy, you can only create %1$@ Sends.";
+"OrganizationPolicyRestriction" = "Organization policy restriction";
+"TextSendsAreNotAllowedDescriptionLong" = "Text Sends are not allowed for your organization and this Send will automatically expire at the set deletion date.";
+"ThisSendIsNotCompliantDescriptionLong" = "This Send is not compliant with your organization's Send policy and will automatically expire at the set deletion date.";
+"ToEditThisSendMakeACopyDescriptionLong" = "To edit this Send, make a copy. If this Send can expire at the set deletion date, no action is needed.";
+"MakeACopy" = "Make a copy";
 "PasswordPrompt" = "ถามรหัสผ่านหลักซ้ำ";
 "PasswordConfirmation" = "ยืนยันรหัสผ่านหลัก";
 "PasswordConfirmationDesc" = "การกระทำนี้ได้รับการป้องกัน โปรดกรอกรหัสผ่านหลักอีกครั้งเพื่อยืนยันตัวตนของคุณ";
@@ -648,7 +655,6 @@
 "SetUpAutofill" = "ตั้งค่าป้อนอัตโนมัติ";
 "AppInfo" = "ข้อมูลแอป";
 "Browse" = "เรียกดู";
-"SelectCardholderName" = "เลือกชื่อผู้ถือบัตร";
 "SelectLanguage" = "เลือกภาษา";
 "ContinueToCompleteWebAuthnVerification" = "ดำเนินการต่อเพื่อเสร็จสิ้นการยืนยัน WebAuthn";
 "ThereWasAnErrorStartingWebAuthnTwoFactorAuthentication" = "เกิดข้อผิดพลาดในการเริ่มการยืนยันตัวตนสองขั้นตอนแบบ WebAuthn";
@@ -667,7 +673,6 @@
 "ByContinuingYouAgreeToTheTermsOfServiceAndPrivacyPolicy" = "เมื่อดำเนินการต่อ ถือว่าคุณยอมรับ **[ข้อกำหนดในการให้บริการ](%1$@)** และ **[นโยบายความเป็นส่วนตัว](%2$@)**";
 "GetAdviceAnnouncementsAndResearchOpportunitiesFromBitwardenInYourInboxUnsubscribeAtAnyTime." = "รับคำแนะนำ ประกาศ และโอกาสในการวิจัยจาก Bitwarden ในกล่องจดหมายของคุณ **[ยกเลิกการรับข่าวสาร](%1$@)** ได้ทุกเมื่อ";
 "UserVerificationForPasskey" = "การยืนยันผู้ใช้สำหรับพาสคีย์";
-"NewItem" = "รายการใหม่";
 "ExploreTheGenerator" = "สำรวจตัวสร้าง";
 "LearnMoreAboutGeneratingSecureLoginCredentialsWithAGuidedTour" = "เรียนรู้เพิ่มเติมเกี่ยวกับการสร้างข้อมูลเข้าสู่ระบบที่ปลอดภัยด้วยคำแนะนำแบบทีละขั้นตอน";
 "ExportVaultFilePwProtectInfo" = "ไฟล์ส่งออกนี้จะถูกป้องกันด้วยรหัสผ่านและต้องใช้รหัสผ่านไฟล์เพื่อถอดรหัส";
@@ -881,6 +886,10 @@
 "Identification" = "การระบุตัวตน";
 "Owner" = "เจ้าของ";
 "VerifyYourIdentity" = "ยืนยันตัวตนของคุณ";
+"ThisOperationIsNotAllowedOnThisAccount" = "This operation is not allowed on this account";
+"AnErrorOccurredWhileTryingToLockTheCurrentUser" = "An error occurred while trying to lock the current user";
+"LockAllAccounts" = "Lock all accounts";
+"AllAccountsHaveBeenLocked" = "All accounts have been locked";
 "ShareErrorDetails" = "แชร์รายละเอียดข้อผิดพลาด";
 "FlightRecorder" = "Flight recorder";
 "EnableFlightRecorder" = "เปิดใช้งาน Flight recorder";
@@ -909,7 +918,13 @@
 "ExpiresOnXDate" = "หมดอายุวันที่ %1$@";
 "ExpiresTomorrow" = "หมดอายุพรุ่งนี้";
 "DateRangeXToY" = "%1$@ ถึง %2$@";
+"LogOutAllAccounts" = "Log out all accounts";
+"AllAccountsHaveBeenLoggedOut" = "All accounts have been logged out";
+"AnErrorOccurredWhileTryingToLogOutAllAccounts" = "An error occurred while trying to log out all accounts";
 "SelfHostServerURL" = "URL เซิร์ฟเวอร์โฮสต์เอง";
+"OpenGenerator" = "Open generator";
+"OpenPasswordGenerator" = "Open password generator";
+"GeneratePassphrase" = "Generate passphrase";
 "AllowUniversalClipboard" = "อนุญาตคลิปบอร์ดกลาง";
 "UseUniversalClipboardToCopyDescriptionLong" = "ใช้คลิปบอร์ดกลางเพื่อคัดลอกที่นี่และวางบนอุปกรณ์อื่นที่ลงชื่อเข้าใช้ด้วย Apple ID เดียวกัน";
 "RemoveMasterPasswordConfirmDomain" = "สมาชิกขององค์กรต่อไปนี้ไม่จำเป็นต้องใช้รหัสผ่านหลักอีกต่อไป โปรดยืนยันโดเมนด้านล่างกับผู้ดูแลระบบองค์กรของคุณ";
@@ -929,6 +944,7 @@
 "GoToSettings" = "ไปที่การตั้งค่า";
 "SiriAndShortcutsAccess" = "การเข้าถึง Siri และคำสั่งลัด";
 "EnableToAllowTheAppToRespondToSiriAndShortcutsUsingAppIntents" = "เปิดใช้งานเพื่อให้แอปตอบสนองต่อ Siri และคำสั่งลัดโดยใช้ App Intents";
+"ThereIsNoActiveAccount" = "There is no active account.";
 "NewFileSend" = "ไฟล์ Send ใหม่";
 "NewTextSend" = "ข้อความ Send ใหม่";
 "EditFileSend" = "แก้ไขไฟล์ Send";
@@ -979,7 +995,6 @@
 "NoAskMe" = "ไม่ ถามฉัน";
 "NoCodes" = "คุณไม่มีรหัสที่จะแสดง";
 "None" = "ไม่มี";
-"NoneOfTheAbove" = "ไม่มีข้อใดข้างต้น";
 "NumberOfDigits" = "จำนวนหลัก";
 "OtpType" = "ประเภท OTP";
 "RefreshPeriod" = "ระยะเวลารีเฟรช";

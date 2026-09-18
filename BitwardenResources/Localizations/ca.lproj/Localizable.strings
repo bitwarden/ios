@@ -26,8 +26,8 @@
 "FolderNone" = "Cap carpeta";
 "Folders" = "Carpetes";
 "FolderUpdated" = "Carpeta guardada";
-"MyFolder" = "La meva carpeta";
-"MyFolders" = "Les meves carpetes";
+"MyFolder" = "La meua carpeta";
+"MyFolders" = "Les meues carpetes";
 "InternetConnectionRequiredMessage" = "Connecteu-vos a Internet abans de continuar.";
 "InternetConnectionRequiredTitle" = "Es requereix connexió a Internet";
 "InvalidMasterPassword" = "La contrasenya mestra no és vàlida. Torneu-ho a provar.";
@@ -182,7 +182,6 @@
 "CopyTotp" = "Copia TOTP";
 "CopyTotpAutomaticallyDescription" = "Si el vostre inici de sessió té una clau d'autenticació associada, el codi de verificació TOTP es copiarà al vostre porta-retalls quan s'òmpliga automàticament l'inici de sessió.";
 "CopyTotpAutomatically" = "Copia TOTP automaticament";
-"PremiumRequired" = "Cal una subscripció premium per utilitzar aquesta característica.";
 "AttachementAdded" = "S'ha afegit un adjunt";
 "AttachmentDeleted" = "S'ha suprimit un adjunt";
 "ChooseFile" = "Trieu fitxer";
@@ -223,7 +222,6 @@
 "August" = "Agost";
 "Brand" = "Marca";
 "CardholderName" = "Nom del titular de la targeta";
-"WeFoundMultipleMatchesChooseTheCorrectOne" = "Hem trobat diverses coincidències. Tria la correcta.";
 "CityTown" = "Localitat";
 "Company" = "Empresa";
 "Country" = "País";
@@ -309,6 +307,7 @@
 "NoEmailAddressesEntered" = "No s'han introduït adreces de correu electrònic";
 "EnterAtLeastOneValidEmailToShareSend" = "Introdueix almenys una adreça de correu electrònic vàlida per compartir aquest enviament.";
 "OneOrMoreEmailAddressesIncorrect" = "Una o més adreces de correu electrònic són incorrectes. Revisa-les i torna a intentar-ho.";
+"OnlyIncludeTheFollowingDomainsDescriptionLong" = "Only include the following domains: %1$@. Please review and try again.";
 "Cards" = "Targetes";
 "Identities" = "Identitats";
 "Logins" = "Inicis de sessió";
@@ -444,11 +443,19 @@
 "NewSendCreated" = "S'ha creat un Send nou";
 "Custom" = "Personalitzat";
 "SendDisabledWarning" = "A causa d'una política empresarial, només podeu suprimir un Send existent.";
+"ThisDateIsEnforcedByYourOrganization" = "This date is enforced by your organization";
 "AboutSend" = "Quant a Send";
 "HideEmail" = "Amagueu la meua adreça de correu electrònic als destinataris.";
 "SendOptionsPolicyInEffect" = "Una o més polítiques d'organització afecten les vostres opcions del Send.";
 "SendFilePremiumRequired" = "Els comptes gratuïts només es poden compartir text. Cal utilitzar una subscripció premium per utilitzar fitxers amb Send.";
 "SendFileEmailVerificationRequired" = "Heu de verificar el vostre correu electrònic per utilitzar aquesta característica.";
+/* Alert message shown when Send Controls policy restricts creation to one Send type. %1$@ is the allowed Send type, either "File" or "Text". */
+"DueToAnEnterprisePolicyYouCanOnlyCreateXSends" = "Due to an enterprise policy, you can only create %1$@ Sends.";
+"OrganizationPolicyRestriction" = "Organization policy restriction";
+"TextSendsAreNotAllowedDescriptionLong" = "Text Sends are not allowed for your organization and this Send will automatically expire at the set deletion date.";
+"ThisSendIsNotCompliantDescriptionLong" = "This Send is not compliant with your organization's Send policy and will automatically expire at the set deletion date.";
+"ToEditThisSendMakeACopyDescriptionLong" = "To edit this Send, make a copy. If this Send can expire at the set deletion date, no action is needed.";
+"MakeACopy" = "Make a copy";
 "PasswordPrompt" = "Re-sol·licitud de la contrasenya mestra";
 "PasswordConfirmation" = "Confirmació de la contrasenya mestra";
 "PasswordConfirmationDesc" = "Aquesta acció està protegida. Per continuar, torneu a introduir la contrasenya principal per verificar la vostra identitat.";
@@ -648,7 +655,6 @@
 "SetUpAutofill" = "Configura l'emplenament automàtic";
 "AppInfo" = "Informació de l'aplicació";
 "Browse" = "Navega";
-"SelectCardholderName" = "Selecciona el nom del titular de la targeta";
 "SelectLanguage" = "Selecciona l'idioma";
 "ContinueToCompleteWebAuthnVerification" = "Continueu per completar la verificació de WebAuthn.";
 "ThereWasAnErrorStartingWebAuthnTwoFactorAuthentication" = "S'ha produït un error en iniciar l'autenticació de dos factors de WebAuthn";
@@ -667,7 +673,6 @@
 "ByContinuingYouAgreeToTheTermsOfServiceAndPrivacyPolicy" = "En continuar, acceptes els **[Termes de servei](%1$@)** i la **[Política de privadesa](%2$@)**";
 "GetAdviceAnnouncementsAndResearchOpportunitiesFromBitwardenInYourInboxUnsubscribeAtAnyTime." = "Rep consells, anuncis i oportunitats de recerca de Bitwarden a la teva safata d'entrada. **[Donar-se de baixa](%1$@)** en qualsevol moment.";
 "UserVerificationForPasskey" = "Verificació de l'usuari per a la clau de pas";
-"NewItem" = "Element nou";
 "ExploreTheGenerator" = "Explora el generador";
 "LearnMoreAboutGeneratingSecureLoginCredentialsWithAGuidedTour" = "Aprèn més sobre la generació de credencials d'inici de sessió segures amb una visita guiada.";
 "ExportVaultFilePwProtectInfo" = "Aquesta exportació de fitxers estarà protegida amb contrasenya i requerirà la contrasenya del fitxer per desxifrar-la.";
@@ -748,10 +753,10 @@
 "SendSensitiveInformationSafely" = "Envieu informació confidencial, de manera segura";
 "ShareFilesAndDataSecurelyWithAnyoneOnAnyPlatformYourInformationWillRemainEndToEndEncrypted" = "Comparteix fitxers i dades de manera segura amb qualsevol persona, en qualsevol plataforma. La teua informació romandrà xifrada de principi a fi i alhora limitarà l'exposició.";
 "AddLogin" = "Afegeix inici de sessió";
-"AddCard" = "Afegeix targeta";
-"AddIdentity" = "Afegeix identitat";
-"AddNote" = "Afegeix nota";
-"AddSSHKey" = "Afegeix clau SSH";
+"AddCard" = "Afig una targeta";
+"AddIdentity" = "Afig identitat";
+"AddNote" = "Afig nota";
+"AddSSHKey" = "Afig clau SSH";
 "AddBankAccount" = "Afegeix compte bancari";
 "AddLicense" = "Afegeix llicència";
 "AddPassport" = "Afegeix passaport";
@@ -872,7 +877,7 @@
 "AddWebsite" = "Afig un lloc web";
 "CannotDeleteAccount" = "No es pot suprimir el compte";
 "CannotDeleteAccountDescriptionLong" = "Aquesta acció no es pot completar perquè el teu compte és propietat d'una organització. Contacta amb l'administrador de la teva organització per obtenir més detalls.";
-"AddItem" = "Afegeix element";
+"AddItem" = "Afig element";
 "SetUpAuthenticatorKey" = "Configura la clau d'autenticació";
 "ItemDetails" = "Detalls de l'element";
 "CardDetails" = "Dades de la targeta";
@@ -881,6 +886,10 @@
 "Identification" = "Identificació";
 "Owner" = "Propietari";
 "VerifyYourIdentity" = "Verifica la teva identitat";
+"ThisOperationIsNotAllowedOnThisAccount" = "This operation is not allowed on this account";
+"AnErrorOccurredWhileTryingToLockTheCurrentUser" = "An error occurred while trying to lock the current user";
+"LockAllAccounts" = "Lock all accounts";
+"AllAccountsHaveBeenLocked" = "All accounts have been locked";
 "ShareErrorDetails" = "Comparteix els detalls de l'error";
 "FlightRecorder" = "Registrador al vol";
 "EnableFlightRecorder" = "Habilita el Registrador al vol";
@@ -909,7 +918,13 @@
 "ExpiresOnXDate" = "Caduca el %1$@";
 "ExpiresTomorrow" = "Caduca demà";
 "DateRangeXToY" = "de %1$@ a %2$@";
+"LogOutAllAccounts" = "Log out all accounts";
+"AllAccountsHaveBeenLoggedOut" = "All accounts have been logged out";
+"AnErrorOccurredWhileTryingToLogOutAllAccounts" = "An error occurred while trying to log out all accounts";
 "SelfHostServerURL" = "URL del servidor autoallotjat";
+"OpenGenerator" = "Open generator";
+"OpenPasswordGenerator" = "Open password generator";
+"GeneratePassphrase" = "Generate passphrase";
 "AllowUniversalClipboard" = "Permet el portapapers universal";
 "UseUniversalClipboardToCopyDescriptionLong" = "Utilitza el portapapers universal per copiar aquí i enganxar en altres dispositius amb la mateixa Apple ID.";
 "RemoveMasterPasswordConfirmDomain" = "Ja no cal contrasenya mestra per als membres de la següent organització. Confirma'n el domini a sota amb l'administrador de la teva organització.";
@@ -929,6 +944,7 @@
 "GoToSettings" = "Vés a la configuració";
 "SiriAndShortcutsAccess" = "Accés a Siri i dreceres";
 "EnableToAllowTheAppToRespondToSiriAndShortcutsUsingAppIntents" = "Activa per permetre que l'aplicació respongui a Siri i dreceres mitjançant Intencions d'aplicació.";
+"ThereIsNoActiveAccount" = "There is no active account.";
 "NewFileSend" = "Nou enviament de fitxer";
 "NewTextSend" = "Nou enviament de text";
 "EditFileSend" = "Edita l'enviament de fitxer";
@@ -979,7 +995,6 @@
 "NoAskMe" = "No, pregunta-m'ho";
 "NoCodes" = "No teniu cap codi per mostrar";
 "None" = "Cap";
-"NoneOfTheAbove" = "Cap de les anteriors";
 "NumberOfDigits" = "Nombre de dígits";
 "OtpType" = "Tipus OTP";
 "RefreshPeriod" = "Període d'actualització";

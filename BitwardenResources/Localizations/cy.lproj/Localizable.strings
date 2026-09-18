@@ -182,7 +182,6 @@
 "CopyTotp" = "Copïo TOTP";
 "CopyTotpAutomaticallyDescription" = "Os oes gan fewngofnodiad allwedd dilysydd, copïwch y cod dilysu TOTP i'ch clipfwrdd pan fyddwch yn llenwi'r mewngofnodiad yn awtomatig.";
 "CopyTotpAutomatically" = "Copïo TOTP yn awtomatig";
-"PremiumRequired" = "Mae angen aelodaeth uwch i ddefnyddio'r nodwedd hon.";
 "AttachementAdded" = "Atodiad wedi'i ychwanegu";
 "AttachmentDeleted" = "Atodiad wedi'i ddileu";
 "ChooseFile" = "Dewis ffeil";
@@ -223,7 +222,6 @@
 "August" = "Awst";
 "Brand" = "Brand";
 "CardholderName" = "Enw ar y cerdyn";
-"WeFoundMultipleMatchesChooseTheCorrectOne" = "Fe wnaethom ddod o hyd i nifer o gyfatebiadau. Dewiswch yr un cywir.";
 "CityTown" = "Tref / Dinas";
 "Company" = "Cwmni";
 "Country" = "Gwlad";
@@ -309,6 +307,7 @@
 "NoEmailAddressesEntered" = "Dim cyfeiriadau e-bost wedi'u nodi";
 "EnterAtLeastOneValidEmailToShareSend" = "Rhowch o leiaf un cyfeiriad e-bost dilys i rannu'r Anfon hwn.";
 "OneOrMoreEmailAddressesIncorrect" = "Mae un neu fwy o gyfeiriadau e-bost yn anghywir. Adolygwch a cheisiwch eto.";
+"OnlyIncludeTheFollowingDomainsDescriptionLong" = "Only include the following domains: %1$@. Please review and try again.";
 "Cards" = "Cardiau";
 "Identities" = "Eitemau hunaniaeth";
 "Logins" = "Manylion mewngofnodi";
@@ -444,11 +443,19 @@
 "NewSendCreated" = "Anfon wedi'i greu";
 "Custom" = "Addasedig";
 "SendDisabledWarning" = "Oherwydd polisi menter, dim ond dileu Anfon sy'n bodoli y gallwch ei wneud.";
+"ThisDateIsEnforcedByYourOrganization" = "This date is enforced by your organization";
 "AboutSend" = "Ynghylch Send";
 "HideEmail" = "Cuddio fy nghyfeiriad ebost rhag derbynwyr";
 "SendOptionsPolicyInEffect" = "Mae un neu fwy o bolisïau sefydliad yn effeithio ar eich opsiynau Anfon.";
 "SendFilePremiumRequired" = "Mae cyfrifon am ddim wedi'u cyfyngu i rannu testun yn unig. Mae angen aelodaeth Premiwm i ddefnyddio ffeiliau gydag Anfon.";
 "SendFileEmailVerificationRequired" = "Rhaid i chi ddilysu'ch e-bost i ddefnyddio ffeiliau gydag Anfon. Gallwch ddilysu'ch e-bost yn y cwpwrdd gwe.";
+/* Alert message shown when Send Controls policy restricts creation to one Send type. %1$@ is the allowed Send type, either "File" or "Text". */
+"DueToAnEnterprisePolicyYouCanOnlyCreateXSends" = "Due to an enterprise policy, you can only create %1$@ Sends.";
+"OrganizationPolicyRestriction" = "Organization policy restriction";
+"TextSendsAreNotAllowedDescriptionLong" = "Text Sends are not allowed for your organization and this Send will automatically expire at the set deletion date.";
+"ThisSendIsNotCompliantDescriptionLong" = "This Send is not compliant with your organization's Send policy and will automatically expire at the set deletion date.";
+"ToEditThisSendMakeACopyDescriptionLong" = "To edit this Send, make a copy. If this Send can expire at the set deletion date, no action is needed.";
+"MakeACopy" = "Make a copy";
 "PasswordPrompt" = "Ailofyn am y prif gyfrinair";
 "PasswordConfirmation" = "Cadarnhad cyfrinair meistr";
 "PasswordConfirmationDesc" = "Mae'r weithred hon wedi'i diogelu, i barhau rhowch eich cyfrinair meistr eto i wirio'ch hunaniaeth.";
@@ -648,7 +655,6 @@
 "SetUpAutofill" = "Sefydlu llenwi awtomatig";
 "AppInfo" = "Gwybodaeth ap";
 "Browse" = "Pori";
-"SelectCardholderName" = "Dewiswch enw deiliad y cerdyn";
 "SelectLanguage" = "Dewiswch iaith";
 "ContinueToCompleteWebAuthnVerification" = "Parhau i gwblhau dilysiad WebAuthn.";
 "ThereWasAnErrorStartingWebAuthnTwoFactorAuthentication" = "Cafwyd gwall wrth gychwyn dilysiad dau-ffactor WebAuthn";
@@ -667,7 +673,6 @@
 "ByContinuingYouAgreeToTheTermsOfServiceAndPrivacyPolicy" = "Drwy barhau, rydych yn cytuno i'r **[Telerau Gwasanaeth](%1$@)** a'r **[Polisi Preifatrwydd](%2$@)**";
 "GetAdviceAnnouncementsAndResearchOpportunitiesFromBitwardenInYourInboxUnsubscribeAtAnyTime." = "Cewch gyngor, cyhoeddiadau, a chyfleoedd ymchwil gan Bitwarden yn eich mewnflwch. **[Dadgofrestru](%1$@)** unrhyw bryd.";
 "UserVerificationForPasskey" = "Dilysiad defnyddiwr ar gyfer passkey";
-"NewItem" = "Eitem newydd";
 "ExploreTheGenerator" = "Archwilio'r cynhyrchydd";
 "LearnMoreAboutGeneratingSecureLoginCredentialsWithAGuidedTour" = "Dysgwch fwy am gynhyrchu tystlythyrau mewngofnodi diogel gyda thaith dywys.";
 "ExportVaultFilePwProtectInfo" = "Bydd yr allforiad ffeil hwn wedi'i ddiogelu gan gyfrinair a bydd angen cyfrinair y ffeil i'w ddadgryptio.";
@@ -881,6 +886,10 @@
 "Identification" = "Adnabod";
 "Owner" = "Perchennog";
 "VerifyYourIdentity" = "Gwirio'ch hunaniaeth";
+"ThisOperationIsNotAllowedOnThisAccount" = "This operation is not allowed on this account";
+"AnErrorOccurredWhileTryingToLockTheCurrentUser" = "An error occurred while trying to lock the current user";
+"LockAllAccounts" = "Lock all accounts";
+"AllAccountsHaveBeenLocked" = "All accounts have been locked";
 "ShareErrorDetails" = "Rhannu manylion gwall";
 "FlightRecorder" = "Cofnodwr hedfan";
 "EnableFlightRecorder" = "Galluogi cofnodydd hedfan";
@@ -909,7 +918,13 @@
 "ExpiresOnXDate" = "Yn dod i ben ar %1$@";
 "ExpiresTomorrow" = "Yn dod i ben yfory";
 "DateRangeXToY" = "%1$@ i %2$@";
+"LogOutAllAccounts" = "Log out all accounts";
+"AllAccountsHaveBeenLoggedOut" = "All accounts have been logged out";
+"AnErrorOccurredWhileTryingToLogOutAllAccounts" = "An error occurred while trying to log out all accounts";
 "SelfHostServerURL" = "URL gweinydd hunan-gynnal";
+"OpenGenerator" = "Open generator";
+"OpenPasswordGenerator" = "Open password generator";
+"GeneratePassphrase" = "Generate passphrase";
 "AllowUniversalClipboard" = "Caniatáu Clipfwrdd Universal";
 "UseUniversalClipboardToCopyDescriptionLong" = "Defnyddiwch Clipfwrdd Universal i gopïo yma a gludo ar ddyfeisiau eraill sydd wedi mewngofnodi gyda'r un Apple ID.";
 "RemoveMasterPasswordConfirmDomain" = "Nid oes angen cyfrinair meistr mwyach ar aelodau'r sefydliad canlynol. Cadarnhewch y parth isod gyda gweinyddwr eich sefydliad.";
@@ -929,6 +944,7 @@
 "GoToSettings" = "Ewch i osodiadau";
 "SiriAndShortcutsAccess" = "Mynediad Siri & Shortcuts";
 "EnableToAllowTheAppToRespondToSiriAndShortcutsUsingAppIntents" = "Galluogi i ganiatáu i'r ap ymateb i Siri a Shortcuts gan ddefnyddio App Intents.";
+"ThereIsNoActiveAccount" = "There is no active account.";
 "NewFileSend" = "Anfon ffeil newydd";
 "NewTextSend" = "Anfon testun newydd";
 "EditFileSend" = "Golygu Anfon ffeil";
@@ -979,7 +995,6 @@
 "NoAskMe" = "Na, gofynnwch i mi";
 "NoCodes" = "Nid oes gennych unrhyw godau i'w harddangos";
 "None" = "Dim";
-"NoneOfTheAbove" = "Dim o'r uchod";
 "NumberOfDigits" = "Nifer y digidau";
 "OtpType" = "Math OTP";
 "RefreshPeriod" = "Cyfnod adnewyddu";

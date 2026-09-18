@@ -21,7 +21,7 @@
 "EnterPIN" = "Введіть PIN-код.";
 "Favorites" = "Обране";
 "Folder" = "Тека";
-"FolderCreated" = "Нову теку створено.";
+"FolderCreated" = "Нову теку створено";
 "FolderDeleted" = "Теку видалено.";
 "FolderNone" = "Без теки";
 "Folders" = "Теки";
@@ -182,7 +182,6 @@
 "CopyTotp" = "Копіювати TOTP";
 "CopyTotpAutomaticallyDescription" = "Якщо запис має ключ автентифікації, копіювати код підтвердження TOTP до буфера обміну під час автозаповнення.";
 "CopyTotpAutomatically" = "Автоматично копіювати коди TOTP";
-"PremiumRequired" = "Для використання цієї функції необхідна передплата Premium.";
 "AttachementAdded" = "Вкладення додано";
 "AttachmentDeleted" = "Вкладення видалено";
 "ChooseFile" = "Обрати файл";
@@ -223,7 +222,6 @@
 "August" = "Серпень";
 "Brand" = "Тип картки";
 "CardholderName" = "Ім'я власника картки";
-"WeFoundMultipleMatchesChooseTheCorrectOne" = "Знайдено декілька збігів. Виберіть правильний.";
 "CityTown" = "Місто / Селище";
 "Company" = "Компанія";
 "Country" = "Країна";
@@ -309,6 +307,7 @@
 "NoEmailAddressesEntered" = "Не введено жодної адреси е-пошти";
 "EnterAtLeastOneValidEmailToShareSend" = "Введіть принаймні одну дійсну адресу е-пошти, щоб поділитися цим відправленням.";
 "OneOrMoreEmailAddressesIncorrect" = "Одна або кілька адрес електронної пошти неправильні. Перевірте і повторіть спробу.";
+"OnlyIncludeTheFollowingDomainsDescriptionLong" = "Вкажіть лише такі домени: %1$@. Перевірте й повторіть спробу.";
 "Cards" = "Картки";
 "Identities" = "Особисті дані";
 "Logins" = "Записи входу";
@@ -342,9 +341,9 @@
 /* Empty state message shown when a user has no organizations available to move an item into, when the "vfo1-foundation" feature flag is disabled. */
 "NoOrgsToList" = "Немає організацій.";
 /* Footer text on the Move screen explaining that moving an item transfers its ownership to the destination vault's organization, when the "vfo1-foundation" feature flag is enabled. */
-"ChooseAVaultThatYouWishToMoveThisItemToDescriptionLong" = "Виберіть сховище, до якого ви бажаєте перемістити цей запис. Переміщення до іншого сховища передає власність запису тій організації. Ви більше не будете єдиним власником цього запису після переміщення.";
+"ChooseAVaultThatYouWishToMoveThisItemToDescriptionLong" = "Виберіть сховище, до якого ви бажаєте перемістити цей запис. Власність запису передається організації, до сховища якої він переміщується. Ви більше не володітимете безпосередньо цим записом після переміщення.";
 /* Footer text on the Move screen explaining that moving an item transfers its ownership to the destination organization, when the "vfo1-foundation" feature flag is disabled. */
-"MoveToOrgDesc" = "Виберіть організацію, до якої ви бажаєте перемістити цей запис. Переміщуючи до організації, власність запису передається тій організації. Ви більше не будете єдиним власником цього запису після переміщення.";
+"MoveToOrgDesc" = "Виберіть організацію, до якої ви бажаєте перемістити цей запис. Власність запису передається організації, до якої він переміщується. Ви більше не володітимете безпосередньо цим записом після переміщення.";
 "NumberOfWords" = "Кількість слів";
 "Passphrase" = "Парольна фраза";
 "WordSeparator" = "Розділювач слів";
@@ -444,11 +443,19 @@
 "NewSendCreated" = "Відправлення створено";
 "Custom" = "Власний";
 "SendDisabledWarning" = "У зв'язку з політикою компанії, ви можете лише видалити наявне відправлення.";
+"ThisDateIsEnforcedByYourOrganization" = "Цією датою керує ваша організація";
 "AboutSend" = "Про відправлення";
 "HideEmail" = "Приховувати мою адресу електронної пошти від отримувачів";
 "SendOptionsPolicyInEffect" = "На параметри відправлень впливають одна чи декілька політик організації.";
 "SendFilePremiumRequired" = "З безплатним обліковим записом можна відправляти лише текст. Щоб відправляти файли, необхідна передплата Premium.";
 "SendFileEmailVerificationRequired" = "Для відправлення файлів необхідно підтвердити електронну пошту. Ви можете виконати підтвердження у вебсховищі.";
+/* Alert message shown when Send Controls policy restricts creation to one Send type. %1$@ is the allowed Send type, either "File" or "Text". */
+"DueToAnEnterprisePolicyYouCanOnlyCreateXSends" = "Відповідно до політики компанії, ви можете створити лише %1$@ відправлень.";
+"OrganizationPolicyRestriction" = "Обмеження політики організації";
+"TextSendsAreNotAllowedDescriptionLong" = "Для вашої організації не дозволено текстові відправлення, тому це відправлення автоматично видалиться у визначену дату.";
+"ThisSendIsNotCompliantDescriptionLong" = "Це відправлення не відповідає політиці вашої організації щодо відправлень і автоматично видалиться у визначену дату.";
+"ToEditThisSendMakeACopyDescriptionLong" = "Щоб редагувати це відправлення, зробіть копію. Якщо термін дії цього відправлення може завершитися у встановлену дату видалення, жодних дій виконувати не потрібно.";
+"MakeACopy" = "Зробити копію";
 "PasswordPrompt" = "Повторний запит головного пароля";
 "PasswordConfirmation" = "Підтвердження головного пароля";
 "PasswordConfirmationDesc" = "Ця дія захищена. Щоб продовжити, повторно введіть головний пароль.";
@@ -565,16 +572,16 @@
 "LanguageChangeRequiresAppRestart" = "Для зміни мови потрібно перезапустити програму";
 "DefaultSystem" = "Типова (Система)";
 "Important" = "Важливо";
-"WeakMasterPassword" = "Слабкий головний пароль";
-"WeakPasswordIdentifiedUseAStrongPasswordToProtectYourAccount" = "Виявлено слабкий пароль. Використовуйте надійний пароль для захисту свого облікового запису. Ви дійсно хочете використати слабкий пароль?";
-"Weak" = "Слабкий";
+"WeakMasterPassword" = "Ненадійний головний пароль";
+"WeakPasswordIdentifiedUseAStrongPasswordToProtectYourAccount" = "Виявлено ненадійний пароль. Використовуйте надійний пароль для захисту свого облікового запису. Ви дійсно хочете використати ненадійний пароль?";
+"Weak" = "Ненадійний";
 "Good" = "Хороший";
 "Strong" = "Надійний";
 "CheckKnownDataBreachesForThisPassword" = "Перевірити відомі витоки даних для цього пароля";
 "ExposedMasterPassword" = "Головний пароль викрито";
 "PasswordFoundInADataBreachAlertDescription" = "Пароль знайдено у витоку даних. Використовуйте унікальний пароль для захисту свого облікового запису. Ви дійсно хочете використати викритий пароль?";
-"WeakAndExposedMasterPassword" = "Слабкий і викритий головний пароль";
-"WeakPasswordIdentifiedAndFoundInADataBreachAlertDescription" = "Виявлено слабкий пароль, який знайдено у витоку даних. Використовуйте надійний та унікальний пароль для захисту свого облікового запису. Ви дійсно хочете використати цей пароль?";
+"WeakAndExposedMasterPassword" = "Ненадійний і викритий головний пароль";
+"WeakPasswordIdentifiedAndFoundInADataBreachAlertDescription" = "Виявлено ненадійний пароль, який знайдено у витоку даних. Використовуйте надійний та унікальний пароль для захисту свого облікового запису. Ви дійсно хочете використати цей пароль?";
 "AddTheKeyToAnExistingOrNewItem" = "Додати ключ до наявного чи нового запису";
 "ThereAreNoItemsInYourVaultThatMatchX" = "У вашому сховищі немає записів, які відповідають \"%1$@\"";
 "SearchForAnItemOrAddANewItem" = "Шукати запис або додати новий запис";
@@ -588,9 +595,9 @@
 "ThereAreNoBankAccountsInYourVault" = "У вашому сховищі немає банківських рахунків";
 "US" = "США";
 "EU" = "ЄС";
-"Gov" = "Влада";
+"Gov" = "Gov";
 "SelfHosted" = "Власне розміщення";
-"UpdateWeakMasterPasswordWarning" = "Ваш головний пароль не відповідає одній або більше політикам вашої організації. Щоб отримати доступ до сховища, вам необхідно оновити свій головний пароль зараз. Продовживши, ви вийдете з поточного сеансу, після чого потрібно буде повторно виконати вхід. Сеанси на інших пристроях можуть залишатися активними протягом однієї години.";
+"UpdateWeakMasterPasswordWarning" = "Ваш головний пароль не відповідає щонайменше одній політиці вашої організації. Щоб отримати доступ до сховища, вам необхідно оновити свій головний пароль зараз. Продовживши, ви вийдете з поточного сеансу, після чого потрібно буде повторно виконати вхід. Сеанси на інших пристроях можуть залишатися активними протягом однієї години.";
 "CurrentMasterPasswordRequired" = "Чинний головний пароль (обов'язково)";
 "NewMasterPasswordRequired" = "Новий головний пароль (обов'язково)";
 "ApproveWithMyOtherDevice" = "Затвердити з моїм іншим пристроєм";
@@ -648,7 +655,6 @@
 "SetUpAutofill" = "Налаштувати автозаповнення";
 "AppInfo" = "Про програму";
 "Browse" = "Огляд";
-"SelectCardholderName" = "Виберіть ім'я власника картки";
 "SelectLanguage" = "Обрати мову";
 "ContinueToCompleteWebAuthnVerification" = "Продовжуйте, щоб завершити перевірку WebAuthn.";
 "ThereWasAnErrorStartingWebAuthnTwoFactorAuthentication" = "Сталася помилка під час запуску двофакторної автентифікації WebAuthn";
@@ -667,7 +673,6 @@
 "ByContinuingYouAgreeToTheTermsOfServiceAndPrivacyPolicy" = "Продовжуючи, ви погоджуєтеся з **[Умовами використання](%1$@)** і **[Політикою приватності](%2$@)**";
 "GetAdviceAnnouncementsAndResearchOpportunitiesFromBitwardenInYourInboxUnsubscribeAtAnyTime." = "Отримуйте поради, оголошення та інформацію щодо можливості участі в дослідженнях від Bitwarden у вашій поштовій скриньці. **[Відпишіться](%1$@)** коли завгодно.";
 "UserVerificationForPasskey" = "Перевірка для використання ключа доступу";
-"NewItem" = "Новий запис";
 "ExploreTheGenerator" = "Ознайомитися з генератором";
 "LearnMoreAboutGeneratingSecureLoginCredentialsWithAGuidedTour" = "Дізнайтеся про те, як генерувати надійні облікові дані для входу, пройшовши ознайомлення.";
 "ExportVaultFilePwProtectInfo" = "Цей експортований файл буде захищений паролем, який необхідно ввести для його розшифрування.";
@@ -881,6 +886,10 @@
 "Identification" = "Ідентифікація";
 "Owner" = "Власник";
 "VerifyYourIdentity" = "Підтвердьте свою особу";
+"ThisOperationIsNotAllowedOnThisAccount" = "Ця операція не дозволена в цьому обліковому записі";
+"AnErrorOccurredWhileTryingToLockTheCurrentUser" = "Під час спроби блокування поточного користувача сталася помилка";
+"LockAllAccounts" = "Заблокувати всі облікові записи";
+"AllAccountsHaveBeenLocked" = "Всі облікові записи заблоковано";
 "ShareErrorDetails" = "Поширити подробиці про помилку";
 "FlightRecorder" = "Чорна скринька";
 "EnableFlightRecorder" = "Увімкнути чорну скриньку";
@@ -909,7 +918,13 @@
 "ExpiresOnXDate" = "Термін дії до %1$@";
 "ExpiresTomorrow" = "Термін дії до завтра";
 "DateRangeXToY" = "%1$@ – %2$@";
+"LogOutAllAccounts" = "Вийти з усіх облікових записів";
+"AllAccountsHaveBeenLoggedOut" = "Виконано вихід з усіх облікових записів";
+"AnErrorOccurredWhileTryingToLogOutAllAccounts" = "Під час спроби виходу з усіх облікових записів сталася помилка";
 "SelfHostServerURL" = "URL-адреса власного сервера";
+"OpenGenerator" = "Відкрити генератор";
+"OpenPasswordGenerator" = "Відкрити генератор паролів";
+"GeneratePassphrase" = "Генерувати парольну фразу";
 "AllowUniversalClipboard" = "Дозволити універсальний буфер обміну";
 "UseUniversalClipboardToCopyDescriptionLong" = "Використовуйте універсальний буфер обміну, щоб копіювати дані тут і вставити на інших пристроях, на яких виконано вхід із цим Apple ID.";
 "RemoveMasterPasswordConfirmDomain" = "Головний пароль більше не є обов'язковим для учасників зазначеної організації. Підтвердьте вказаний нижче домен з адміністратором вашої організації.";
@@ -929,6 +944,7 @@
 "GoToSettings" = "Відкрити налаштування";
 "SiriAndShortcutsAccess" = "Доступ до Siri та Команд";
 "EnableToAllowTheAppToRespondToSiriAndShortcutsUsingAppIntents" = "Увімкніть, щоб дозволити програмі реагувати на Siri та Команди за допомогою App Intents.";
+"ThereIsNoActiveAccount" = "Немає активного облікового запису.";
 "NewFileSend" = "Нове файлове відправлення";
 "NewTextSend" = "Нове текстове відправлення";
 "EditFileSend" = "Редагувати файлове відправлення";
@@ -979,7 +995,6 @@
 "NoAskMe" = "Ні, запитувати щоразу";
 "NoCodes" = "У вас немає кодів для показу";
 "None" = "Немає";
-"NoneOfTheAbove" = "Жодне із зазначених вище";
 "NumberOfDigits" = "Кількість цифр";
 "OtpType" = "Тип OTP";
 "RefreshPeriod" = "Період оновлення";
@@ -1138,9 +1153,9 @@
 "PerYearVoiceOver" = "за рік";
 "XAmountPerCadence" = "%1$@ %2$@";
 /* %1$@ is an amount and cadence together, e.g. "$1.65 / month". */
-"XCancelAnytime" = "%1$@ · Скасування у будь-який час";
+"XCancelAnytime" = "%1$@ · Скасування будь-коли";
 /* VoiceOver reading of "XCancelAnytime", spoken instead of shown. */
-"XCancelAnytimeVoiceOver" = "%1$@, Скасування у будь-який час";
+"XCancelAnytimeVoiceOver" = "%1$@, Скасування будь-коли";
 "NegativeX" = "-%1$@";
 "UnknownStatus" = "Невідомо";
 "YourSubscriptionStatusIsUnknownVisitTheWebAppDescriptionLong" = "Неможливо визначити статус вашої передплати. Відвідайте вебверсію для перегляду відомостей або оновіть програму.";
@@ -1253,6 +1268,6 @@
 "Sdk" = "SDK";
 "Server" = "Сервер";
 /* Accessibility label for the button that clears a field's value. %1$@ is the field's title (e.g. "Date of birth"), so the spoken label reads "Clear Date of birth". */
-"ClearFieldName" = "Очищено %1$@";
-"SelectDate" = "Виберіть дату";
+"ClearFieldName" = "Очистити %1$@";
+"SelectDate" = "Вибрати дату";
 "PremiumRequiredTOTPDescriptionLong" = "Ключ автентифікації (TOTP) – це функція Premium. Ваш поточний тарифний план не передбачає доступ до цієї функції.";

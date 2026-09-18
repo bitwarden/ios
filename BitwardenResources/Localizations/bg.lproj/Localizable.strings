@@ -182,7 +182,6 @@
 "CopyTotp" = "Копиране на кода за потвърждаване";
 "CopyTotpAutomaticallyDescription" = "Ако към вписването има и удостоверителен ключ, кодът за потвърждаване се копира автоматично в буфера при автоматично попълване.";
 "CopyTotpAutomatically" = "Автоматично копиране на TOTP";
-"PremiumRequired" = "За да се възползвате от тази възможност, трябва да ползвате платен абонамент.";
 "AttachementAdded" = "Файлът е прикачен";
 "AttachmentDeleted" = "Файлът е махнат";
 "ChooseFile" = "Изберете файл";
@@ -223,7 +222,6 @@
 "August" = "август";
 "Brand" = "Вид";
 "CardholderName" = "Име на притежателя на картата";
-"WeFoundMultipleMatchesChooseTheCorrectOne" = "Открити са няколко съвпадения. Изберете правилното.";
 "CityTown" = "Населено място";
 "Company" = "Фирма";
 "Country" = "Държава";
@@ -309,6 +307,7 @@
 "NoEmailAddressesEntered" = "Няма въведени адреси на е-пощи";
 "EnterAtLeastOneValidEmailToShareSend" = "Въведете поне един правилен адрес на е-поща, за да споделите това Изпращане.";
 "OneOrMoreEmailAddressesIncorrect" = "Един или повече от адресите на е-пощи са неправилни. Моля, прегледайте ги и опитайте отново.";
+"OnlyIncludeTheFollowingDomainsDescriptionLong" = "Включват се само следните домейни: %1$@. Моля, прегледайте и опитайте отново.";
 "Cards" = "Карти";
 "Identities" = "Самоличности";
 "Logins" = "Записи";
@@ -444,11 +443,19 @@
 "NewSendCreated" = "Създадено е ново изпращане.";
 "Custom" = "По избор";
 "SendDisabledWarning" = "Поради политика на организация, може само да изтривате съществуващи изпращания.";
+"ThisDateIsEnforcedByYourOrganization" = "Тази дата е наложена от организацията Ви";
 "AboutSend" = "Относно изпращането";
 "HideEmail" = "Скриване на е-пощата ми от получателите.";
 "SendOptionsPolicyInEffect" = "Поне една политика на организация влияе на настройките за изпращане.";
 "SendFilePremiumRequired" = "Безплатните регистрации могат да споделят само текст. Необходим е платен абонамент, за да можете да изпращате файлове.";
 "SendFileEmailVerificationRequired" = "Трябва да потвърдите е-пощата си, за да можете да изпращате файлове.";
+/* Alert message shown when Send Controls policy restricts creation to one Send type. %1$@ is the allowed Send type, either "File" or "Text". */
+"DueToAnEnterprisePolicyYouCanOnlyCreateXSends" = "Поради определена политика за големите организации, може да създадете не повече от %1$@ Изпращания.";
+"OrganizationPolicyRestriction" = "Ограничение за политиката на организацията";
+"TextSendsAreNotAllowedDescriptionLong" = "Текстовите Изпращания не са разрешени от организацията Ви. Това Изпращане автоматично ще загуби давност на зададената дата за изтриване.";
+"ThisSendIsNotCompliantDescriptionLong" = "Това Изпращане не отговаря на политиката за Изпращания на организацията Ви и автоматично ще загуби давност на зададената дата за изтриване.";
+"ToEditThisSendMakeACopyDescriptionLong" = "За да редактирате това Изпращане, първо му направете копие. Ако давността на това Изпращане може да изтече на зададена дата за изтриване, не са необходими допълнителни действия.";
+"MakeACopy" = "Създаване на копие";
 "PasswordPrompt" = "Повторно запитване за главната парола";
 "PasswordConfirmation" = "Потвърждение на главната парола";
 "PasswordConfirmationDesc" = "Това действие е защитено. За да продължите, въведете отново главната си парола, за да потвърдите самоличността си.";
@@ -648,7 +655,6 @@
 "SetUpAutofill" = "Настройка на автоматичното попълване";
 "AppInfo" = "Информация за приложението";
 "Browse" = "Разглеждане";
-"SelectCardholderName" = "Изберете името на картодържателя";
 "SelectLanguage" = "Изберете език";
 "ContinueToCompleteWebAuthnVerification" = "Продължете, за да завършите проверката чрез WebAuthn.";
 "ThereWasAnErrorStartingWebAuthnTwoFactorAuthentication" = "Имаше грешка при стартирането на двустепенното удостоверяване чрез WebAuthn";
@@ -667,7 +673,6 @@
 "ByContinuingYouAgreeToTheTermsOfServiceAndPrivacyPolicy" = "Ако продължите, Вие се съгласявате с **[Условията за ползване](%1$@)** и **[Политиката за поверителност](%2$@)**";
 "GetAdviceAnnouncementsAndResearchOpportunitiesFromBitwardenInYourInboxUnsubscribeAtAnyTime." = "Получавайте съвети, обявления и предложения за участия в проучвания от Битоурден в е-пощата си. Можете да се **[отпишете](%1$@)** по всяко време.";
 "UserVerificationForPasskey" = "Потвърждение на потребителя за секретен ключ";
-"NewItem" = "Нов елемент";
 "ExploreTheGenerator" = "Разгледайте генератора";
 "LearnMoreAboutGeneratingSecureLoginCredentialsWithAGuidedTour" = "Научете повече относно генерирането на сигурни данни за вписване, като преминете през стъпките на демонстрацията.";
 "ExportVaultFilePwProtectInfo" = "Изнесеният файл ще бъде защитен с парола, която ще бъде необходима за дешифриране на файла.";
@@ -881,6 +886,10 @@
 "Identification" = "Идентификация";
 "Owner" = "Собственик";
 "VerifyYourIdentity" = "Потвърдете самоличността си";
+"ThisOperationIsNotAllowedOnThisAccount" = "Тази операция не е разрешена за този акаунт";
+"AnErrorOccurredWhileTryingToLockTheCurrentUser" = "Възникна грешка при опита за заключване на текущия потребител";
+"LockAllAccounts" = "Заключване на всички акаунти";
+"AllAccountsHaveBeenLocked" = "Всички акаунти бяха заключени";
 "ShareErrorDetails" = "Споделяне на подробностите за грешката";
 "FlightRecorder" = "Проследяване чрез журнали";
 "EnableFlightRecorder" = "Включване на проследяването чрез журнали";
@@ -909,7 +918,13 @@
 "ExpiresOnXDate" = "Изтича на %1$@";
 "ExpiresTomorrow" = "Изтича утре";
 "DateRangeXToY" = "%1$@ до %2$@";
+"LogOutAllAccounts" = "Отписване на всички акаунти";
+"AllAccountsHaveBeenLoggedOut" = "Всички акаунти бяха отписани";
+"AnErrorOccurredWhileTryingToLogOutAllAccounts" = "Възникна грешка при опита за отписване на всички акаунти";
 "SelfHostServerURL" = "Адрес на собствения сървър";
+"OpenGenerator" = "Отваряне на генератора";
+"OpenPasswordGenerator" = "Отваряне на генератора на пароли";
+"GeneratePassphrase" = "Генериране на парола-фраза";
 "AllowUniversalClipboard" = "Разрешаване на универсалния буфер за обмен";
 "UseUniversalClipboardToCopyDescriptionLong" = "Използвайте универсалния буфер за обмен, за да копирате тук и да поставяте на други устройства, където сте вписан(а) със същия идентификатор на Apple.";
 "RemoveMasterPasswordConfirmDomain" = "За членовете на следната организация вече не се изисква главна парола. Потвърдете домейна по-долу с администратора на организацията си.";
@@ -929,6 +944,7 @@
 "GoToSettings" = "Към настройките";
 "SiriAndShortcutsAccess" = "Достъп до Siri и Shortcuts";
 "EnableToAllowTheAppToRespondToSiriAndShortcutsUsingAppIntents" = "Включете, за да разрешите на приложението да отговаря на Siri и Shortcuts чрез методите за намерения на приложението.";
+"ThereIsNoActiveAccount" = "Няма активен акаунт.";
 "NewFileSend" = "Ново файлово Изпращане";
 "NewTextSend" = "Ново текстово Изпращане";
 "EditFileSend" = "Редактиране на файловото Изпращане";
@@ -979,7 +995,6 @@
 "NoAskMe" = "Не, питайте ме";
 "NoCodes" = "Нямате кодове за показване";
 "None" = "Няма";
-"NoneOfTheAbove" = "Нито едно от изброените";
 "NumberOfDigits" = "Брой цифри";
 "OtpType" = "Вид еднократна парола";
 "RefreshPeriod" = "Период на опресняване";
