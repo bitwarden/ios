@@ -81,16 +81,14 @@ struct GeneratorView: View { // swiftlint:disable:this type_body_length
         }
     }
 
-    /// The full-width button pinned to the bottom of the sheet that fills the generated value
+    /// The full-width button that fills the generated value
     /// into the field the user came from, when presented in place.
     @ViewBuilder var fillButton: some View {
         Button(store.state.generatorType.fillButtonTitle) {
             store.send(.fillGeneratedValue)
         }
         .buttonStyle(.primary())
-        .accessibilityIdentifier("SelectButton")
-        .padding(12)
-        .background(SharedAsset.Colors.backgroundPrimary.swiftUIColor)
+        .accessibilityIdentifier("FillGeneratedValueButton")
     }
 
     @ViewBuilder
