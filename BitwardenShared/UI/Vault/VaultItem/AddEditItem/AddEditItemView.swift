@@ -245,25 +245,28 @@ private extension AddEditItemView {
             }
 
             if store.state.showMasterPasswordReprompt {
-                BitwardenToggle(isOn: store.binding(
-                    get: \.isMasterPasswordRePromptOn,
-                    send: AddEditItemAction.masterPasswordRePromptChanged,
-                )) {
-                    HStack(alignment: .center, spacing: 8) {
+                BitwardenToggle(
+                    isOn: store.binding(
+                        get: \.isMasterPasswordRePromptOn,
+                        send: AddEditItemAction.masterPasswordRePromptChanged,
+                    ),
+                    accessibilityIdentifier: "MasterPasswordRepromptToggle",
+                    accessibilityLabel: Localizations.passwordPrompt,
+                    title: {
                         Text(Localizations.passwordPrompt)
-
+                    },
+                    accessory: {
                         Button {
                             openURL(ExternalLinksConstants.protectIndividualItems)
                         } label: {
                             SharedAsset.Icons.questionCircle16.swiftUIImage
                         }
-                        .accessibilityLabel(Localizations.masterPasswordRePromptHelp)
                         .buttonStyle(.fieldLabelIcon)
-                    }
-                }
+                        .accessibilityLabel(Localizations.masterPasswordRePromptHelp)
+                        .accessibilityHint(Localizations.externalLink)
+                    },
+                )
                 .toggleStyle(.bitwarden)
-                .accessibilityIdentifier("MasterPasswordRepromptToggle")
-                .accessibilityLabel(Localizations.passwordPrompt)
                 .contentBlock()
             }
 
