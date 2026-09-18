@@ -148,8 +148,8 @@ class VaultItemCoordinator: NSObject, Coordinator, HasStackNavigator { // swiftl
         case .setupTotpManual:
             guard let delegate = context as? AuthenticatorKeyCaptureDelegate else { return }
             showManualTotp(delegate: delegate)
-        case let .viewItem(id):
-            showViewItem(id: id, delegate: context as? CipherItemOperationDelegate)
+        case let .viewItem(id, toastTitle):
+            showViewItem(id: id, delegate: context as? CipherItemOperationDelegate, toastTitle: toastTitle)
         }
     }
 
@@ -476,14 +476,15 @@ class VaultItemCoordinator: NSObject, Coordinator, HasStackNavigator { // swiftl
     /// - Parameters:
     ///   - id: The id of the item to show.
     ///   - delegate: The delegate.
+    ///   - toastTitle: A toast title to show once the screen is displayed, if any.
     ///
-    private func showViewItem(id: String, delegate: CipherItemOperationDelegate?) {
+    private func showViewItem(id: String, delegate: CipherItemOperationDelegate?, toastTitle: String? = nil) {
         let processor = ViewItemProcessor(
             coordinator: asAnyCoordinator(),
             delegate: delegate,
             itemId: id,
             services: services,
-            state: ViewItemState(),
+            state: ViewItemState(toast: toastTitle.map { Toast(title: $0) }),
             vaultItemActionHelper: vaultItemActionHelper,
         )
         let store = Store(processor: processor)

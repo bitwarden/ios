@@ -52,11 +52,12 @@ class CipherServiceTests: BitwardenTestCase { // swiftlint:disable:this type_bod
         stateService.activeAccount = .fixtureAccountLogin()
         client.result = .httpSuccess(testData: .cipherResponse)
 
-        try await subject.addCipherWithServer(.fixture(), encryptedByKeyId: nil, encryptedFor: "1")
+        let addedCipher = try await subject.addCipherWithServer(.fixture(), encryptedByKeyId: nil, encryptedFor: "1")
 
         XCTAssertEqual(client.requests.count, 1)
         XCTAssertEqual(client.requests[0].url.absoluteString, "https://example.com/api/ciphers")
         XCTAssertEqual(cipherDataStore.upsertCipherValue?.id, "3792af7a-4441-11ee-be56-0242ac120002")
+        XCTAssertEqual(addedCipher.id, "3792af7a-4441-11ee-be56-0242ac120002")
     }
 
     /// `addCipherWithServer(_:)` adds the cipher in the backend and local storage.
@@ -65,12 +66,14 @@ class CipherServiceTests: BitwardenTestCase { // swiftlint:disable:this type_bod
         client.result = .httpSuccess(testData: .cipherResponse)
 
         let cipher = Cipher.fixture(collectionIds: ["1"])
-        try await subject.addCipherWithServer(cipher, encryptedByKeyId: nil, encryptedFor: "1")
+        let addedCipher = try await subject.addCipherWithServer(cipher, encryptedByKeyId: nil, encryptedFor: "1")
 
         XCTAssertEqual(client.requests.count, 1)
         XCTAssertEqual(client.requests[0].url.absoluteString, "https://example.com/api/ciphers/create")
         XCTAssertEqual(cipherDataStore.upsertCipherValue?.collectionIds, ["1"])
         XCTAssertEqual(cipherDataStore.upsertCipherValue?.id, "3792af7a-4441-11ee-be56-0242ac120002")
+        XCTAssertEqual(addedCipher.collectionIds, ["1"])
+        XCTAssertEqual(addedCipher.id, "3792af7a-4441-11ee-be56-0242ac120002")
     }
 
     /// `archiveCipherWithServer(id:_:)` archives the cipher in the backend and local storage.
