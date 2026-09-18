@@ -383,7 +383,7 @@ extension VaultListProcessor {
     /// Dismisses the Premium upgrade action card and persists the banner-dismissed preference.
     private func dismissPremiumUpgradeActionCard() async {
         do {
-            try await services.stateService.setPremiumUpgradeBannerDismissed(true)
+            try await services.billingService.setPremiumUpgradeBannerDismissed()
             state.shouldShowPremiumUpgradeActionCard = false
         } catch {
             services.errorReporter.log(error: error)
@@ -534,7 +534,7 @@ extension VaultListProcessor {
         state.shouldShowUpgradedToPremiumActionCard =
             await services.billingService.shouldShowUpgradedToPremiumActionCard()
 
-        let isBannerDismissed = await services.stateService.isPremiumUpgradeBannerDismissed()
+        let isBannerDismissed = await services.billingService.isPremiumUpgradeBannerDismissed()
         guard !isBannerDismissed,
               !state.shouldShowSubscriptionAttentionCard,
               await !services.billingService.isSelfHosted()

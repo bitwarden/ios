@@ -36,6 +36,17 @@ protocol BillingService: AnyObject { // sourcery: AutoMockable
     ///
     func getSubscription() async throws -> PremiumSubscription
 
+    /// Gets whether the Premium upgrade banner has been dismissed by the active account.
+    ///
+    /// - Returns: Whether the banner has been dismissed.
+    ///
+    func isPremiumUpgradeBannerDismissed() async -> Bool
+
+    /// Returns whether the current environment is effectively self-hosted for Premium upgrade checks.
+    /// Returns `false` when the debug override flag is enabled, regardless of the actual region.
+    ///
+    func isSelfHosted() async -> Bool
+
     /// Notifies that the user canceled the Stripe checkout without completing payment,
     /// and publishes a `.canceled` status update.
     ///
@@ -44,11 +55,6 @@ protocol BillingService: AnyObject { // sourcery: AutoMockable
     /// A publisher that emits the status of the Premium checkout sync process.
     ///
     func premiumCheckoutStatusPublisher() -> AnyPublisher<PremiumCheckoutStatus, Never>
-
-    /// Returns whether the current environment is effectively self-hosted for Premium upgrade checks.
-    /// Returns `false` when the debug override flag is enabled, regardless of the actual region.
-    ///
-    func isSelfHosted() async -> Bool
 
     /// Notifies that a Premium status change was detected (via deep link or push notification),
     /// triggers a sync, and publishes status updates.
@@ -68,6 +74,10 @@ protocol BillingService: AnyObject { // sourcery: AutoMockable
     ///   - subscription: A previously fetched subscription to use, or `nil` to fetch fresh.
     ///
     func refreshSubscriptionAttentionCard(subscription: PremiumSubscription?) async
+
+    /// Sets the Premium upgrade banner as dismissed for the active account, so it is not shown again.
+    ///
+    func setPremiumUpgradeBannerDismissed() async throws
 
     /// Sets the "Upgraded to Premium" action card as dismissed and clears its visibility flag.
     ///
@@ -188,9 +198,8 @@ class DefaultBillingService: BillingService {
         return PremiumSubscription(response: response)
     }
 
-    func premiumCheckoutCanceled() {
-        premiumCheckoutStatusSubject.send(.canceled)
-        premiumCheckoutStatusSubject.send(nil)
+    func isPremiumUpgradeBannerDismissed() async -> Bool {
+        await billingStateService.isPremiumUpgradeBannerDismissed()
     }
 
     func isSelfHosted() async -> Bool {
@@ -198,6 +207,11 @@ class DefaultBillingService: BillingService {
             return false
         }
         return await !configService.getFeatureFlag(.debugDisableSelfHostPremiumCheck)
+    }
+
+    func premiumCheckoutCanceled() {
+        premiumCheckoutStatusSubject.send(.canceled)
+        premiumCheckoutStatusSubject.send(nil)
     }
 
     func premiumCheckoutStatusPublisher() -> AnyPublisher<PremiumCheckoutStatus, Never> {
@@ -265,6 +279,10 @@ class DefaultBillingService: BillingService {
         } catch {
             errorReporter.log(error: error)
         }
+    }
+
+    func setPremiumUpgradeBannerDismissed() async throws {
+        try await billingStateService.setPremiumUpgradeBannerDismissed(true)
     }
 
     func setUpgradedToPremiumActionCardDismissed() async {
