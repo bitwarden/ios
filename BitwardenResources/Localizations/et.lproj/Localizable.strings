@@ -8,8 +8,12 @@
 "Copy" = "Kopeeri";
 "CopyLicenseNumber" = "Kopeeri litsentsi number";
 "CopyPassportNumber" = "Kopeeri passi number";
+"CopyPassphrase" = "Copy passphrase";
 "CopyPassword" = "Kopeeri parool";
 "CopyUsername" = "Kopeeri kasutajanimi";
+"UseThisPassphrase" = "Use this passphrase";
+"UseThisPassword" = "Use this password";
+"UseThisUsername" = "Use this username";
 "Delete" = "Kustuta";
 "DeleteAll" = "Kustuta kõik";
 "Deleting" = "Kustutamine…";
@@ -129,7 +133,6 @@
 "PasswordOverrideAlert" = "Oled kindel, et soovid olemasolevat parooli asendada?";
 "PushNotificationAlert" = "Bitwarden hoiab teie vara automaatselt sünkroonituna tõukemärguannete abil. Parima kogemuse saamiseks valige tõukemärguannete lubamise küsimisel järgmisel hüpikaknal „Luba”.";
 "Security" = "Turvalisus";
-"Select" = "Vali";
 "ItemUpdated" = "Kirje on uuendatud.";
 "Submitting" = "Esitamine…";
 "Syncing" = "Sünkroonimine…";
@@ -182,7 +185,6 @@
 "CopyTotp" = "Kopeeri TOTP";
 "CopyTotpAutomaticallyDescription" = "Kui sisselogimisel on autentimisvõti, kopeerige TOTP-kinnituskood lõikelauale, kui täidate sisselogimise automaatselt.";
 "CopyTotpAutomatically" = "TOTP automaatne kopeerimine";
-"PremiumRequired" = "Selle funktsiooni kasutamiseks on vajalik tasulist kontot omada.";
 "AttachementAdded" = "Manus on lisatud";
 "AttachmentDeleted" = "Manus on kustutatud";
 "ChooseFile" = "Vali fail";
@@ -223,7 +225,6 @@
 "August" = "August";
 "Brand" = "Väljastaja";
 "CardholderName" = "Kaardiomaniku nimi";
-"WeFoundMultipleMatchesChooseTheCorrectOne" = "Leidsime mitu vastet. Valige õige.";
 "CityTown" = "Linn / asula";
 "Company" = "Ettevõte";
 "Country" = "Riik";
@@ -309,6 +310,7 @@
 "NoEmailAddressesEntered" = "Ühtegi e-posti aadressi pole sisestatud";
 "EnterAtLeastOneValidEmailToShareSend" = "Selle saadetise jagamiseks sisestage vähemalt üks kehtiv e-posti aadress.";
 "OneOrMoreEmailAddressesIncorrect" = "Üks või mitu e-posti aadressi on valed. Palun kontrollige ja proovige uuesti.";
+"OnlyIncludeTheFollowingDomainsDescriptionLong" = "Only include the following domains: %1$@. Please review and try again.";
 "Cards" = "Kaardid";
 "Identities" = "Identiteedid";
 "Logins" = "Kontod";
@@ -444,11 +446,19 @@
 "NewSendCreated" = "Uus Send on loodud.";
 "Custom" = "Kohandatud";
 "SendDisabledWarning" = "Ettevõtte poliitika kohaselt saad ainult olemasolevat Sendi kustutada.";
+"ThisDateIsEnforcedByYourOrganization" = "This date is enforced by your organization";
 "AboutSend" = "Rohkem infot";
 "HideEmail" = "Ära näita saajatele minu e-posti aadressi.";
 "SendOptionsPolicyInEffect" = "Organisatsiooni seaded mõjutavad sinu Sendi sätteid.";
 "SendFilePremiumRequired" = "Tasuta kontoga on võimalik saata ainult tekste. Failide saatmiseks on vajalik omada tasulist kontot.";
 "SendFileEmailVerificationRequired" = "Sendi kasutamiseks pead kinnitama oma e-posti aadressi. Saad seda teha veebihoidlas.";
+/* Alert message shown when Send Controls policy restricts creation to one Send type. %1$@ is the allowed Send type, either "File" or "Text". */
+"DueToAnEnterprisePolicyYouCanOnlyCreateXSends" = "Due to an enterprise policy, you can only create %1$@ Sends.";
+"OrganizationPolicyRestriction" = "Organization policy restriction";
+"TextSendsAreNotAllowedDescriptionLong" = "Text Sends are not allowed for your organization and this Send will automatically expire at the set deletion date.";
+"ThisSendIsNotCompliantDescriptionLong" = "This Send is not compliant with your organization's Send policy and will automatically expire at the set deletion date.";
+"ToEditThisSendMakeACopyDescriptionLong" = "To edit this Send, make a copy. If this Send can expire at the set deletion date, no action is needed.";
+"MakeACopy" = "Make a copy";
 "PasswordPrompt" = "Nõutav on ülemparool";
 "PasswordConfirmation" = "Ülemparooli kinnitamine";
 "PasswordConfirmationDesc" = "See tegevus on kaitstud. Jätkamiseks sisesta oma ülemparool.";
@@ -648,7 +658,6 @@
 "SetUpAutofill" = "Automaattäite seadistamine";
 "AppInfo" = "Rakenduse teave";
 "Browse" = "Sirvi";
-"SelectCardholderName" = "Valige kaardiomaniku nimi";
 "SelectLanguage" = "Valige keel";
 "ContinueToCompleteWebAuthnVerification" = "WebAuthni kinnituse lõpuleviimiseks jätkake.";
 "ThereWasAnErrorStartingWebAuthnTwoFactorAuthentication" = "WebAuthn kahe-astmelise kinnitamise käivitamine ebaõnnestus";
@@ -667,7 +676,6 @@
 "ByContinuingYouAgreeToTheTermsOfServiceAndPrivacyPolicy" = "Jätkates nõustute **[Kasutustingimustega](%1$@)** ja **[Privaatsuspoliitikaga](%2$@)**";
 "GetAdviceAnnouncementsAndResearchOpportunitiesFromBitwardenInYourInboxUnsubscribeAtAnyTime." = "Saate Bitwardenilt oma postkasti nõuandeid, teadaandeid ja teadusvõimalusi. **[Loobuge tellimusest](%1$@)** igal ajal.";
 "UserVerificationForPasskey" = "Pääsukoodi kasutaja kinnitamine";
-"NewItem" = "Uus kirje";
 "ExploreTheGenerator" = "Avasta generaator";
 "LearnMoreAboutGeneratingSecureLoginCredentialsWithAGuidedTour" = "Lisateave turvaliste sisselogimismandaatide genereerimise kohta juhendatud ringkäiguga.";
 "ExportVaultFilePwProtectInfo" = "See eksporditav fail on parooliga kaitstud ja nõuab dekrüpteerimiseks parooli.";
@@ -881,6 +889,10 @@
 "Identification" = "Tuvastamine";
 "Owner" = "Omanik";
 "VerifyYourIdentity" = "Kinnitage oma identiteet";
+"ThisOperationIsNotAllowedOnThisAccount" = "This operation is not allowed on this account";
+"AnErrorOccurredWhileTryingToLockTheCurrentUser" = "An error occurred while trying to lock the current user";
+"LockAllAccounts" = "Lock all accounts";
+"AllAccountsHaveBeenLocked" = "All accounts have been locked";
 "ShareErrorDetails" = "Jaga vea üksikasju";
 "FlightRecorder" = "Lennuregistraator";
 "EnableFlightRecorder" = "Lülita lennuregistraator sisse";
@@ -909,7 +921,13 @@
 "ExpiresOnXDate" = "Aegub %1$@";
 "ExpiresTomorrow" = "Aegub homme";
 "DateRangeXToY" = "%1$@ kuni %2$@";
+"LogOutAllAccounts" = "Log out all accounts";
+"AllAccountsHaveBeenLoggedOut" = "All accounts have been logged out";
+"AnErrorOccurredWhileTryingToLogOutAllAccounts" = "An error occurred while trying to log out all accounts";
 "SelfHostServerURL" = "Isehostitud serveri URL";
+"OpenGenerator" = "Open generator";
+"OpenPasswordGenerator" = "Open password generator";
+"GeneratePassphrase" = "Generate passphrase";
 "AllowUniversalClipboard" = "Luba universaalne lõikelaud";
 "UseUniversalClipboardToCopyDescriptionLong" = "Kasutage universaalset lõikelauda, et kopeerida siia ja kleepida teistesse seadmetesse, mis on sisse logitud sama Apple ID-ga.";
 "RemoveMasterPasswordConfirmDomain" = "Järgmise organisatsiooni liikmetele ei ole peaparool enam vajalik. Kinnitage allpool olev domeen oma organisatsiooni administraatoriga.";
@@ -929,6 +947,7 @@
 "GoToSettings" = "Mine seadetesse";
 "SiriAndShortcutsAccess" = "Siri ja otseteede juurdepääs";
 "EnableToAllowTheAppToRespondToSiriAndShortcutsUsingAppIntents" = "Lubage rakendusel vastata Sirile ja otseteedele rakenduse kavatsuste abil.";
+"ThereIsNoActiveAccount" = "There is no active account.";
 "NewFileSend" = "Uus failisaadetis";
 "NewTextSend" = "Uus tekstisaadetis";
 "EditFileSend" = "Muuda failisaadetist";
@@ -979,7 +998,6 @@
 "NoAskMe" = "Ei, küsi minult";
 "NoCodes" = "Teil pole ühtegi koodi kuvamiseks";
 "None" = "Puudub";
-"NoneOfTheAbove" = "Ükski eeltoodud";
 "NumberOfDigits" = "Numbrite arv";
 "OtpType" = "OTP tüüp";
 "RefreshPeriod" = "Värskendusperiood";
@@ -1077,6 +1095,7 @@
 "AnyoneWithTheLink" = "Igaüks lingiga";
 "AnyoneWithThisLinkCanViewThisSend" = "Igaüks selle lingiga saab seda saadetist vaadata.";
 "AfterSharingThisSendLinkDescriptionLong" = "Pärast selle saadetise lingi jagamist peavad isikud selle saadetise vaatamiseks kinnitama oma e-posti koodiga.";
+"IndividualsWillNeedToEnterThisPasswordDescriptionLong" = "Individuals will need to enter this password to view this Send";
 "SpecificPeople" = "Kindlad inimesed";
 "WhoCanView" = "Kes saavad vaadata";
 "SharingWithSpecificPeopleIsPremiumFeatureDescriptionLong" = "Kindlate inimestega jagamine on Premium funktsioon. Teie praegune plaan ei hõlma sellele funktsioonile juurdepääsu.";
@@ -1254,5 +1273,26 @@
 "Server" = "Server";
 /* Accessibility label for the button that clears a field's value. %1$@ is the field's title (e.g. "Date of birth"), so the spoken label reads "Clear Date of birth". */
 "ClearFieldName" = "Tühjenda %1$@";
-"SelectDate" = "Valige kuupäev";
+/* Accessibility hint on a collapsed date field announcing that activating it opens the calendar picker. */
+"OpensDatePicker" = "Opens date picker";
+/* Accessibility hint on an expanded date field announcing that activating it closes the calendar picker. */
+"ClosesDatePicker" = "Closes date picker";
+/* VoiceOver announcement posted when a date picker whose range excludes future dates, e.g. date of birth or an issue date, reports landing on today (the latest available day) while scrolling the wheel. */
+"FutureDatesUnavailable" = "Future dates unavailable";
 "PremiumRequiredTOTPDescriptionLong" = "Autentimisvõti (TOTP) on Premium funktsioon. Teie praegune plaan ei hõlma sellele funktsioonile juurdepääsu.";
+/* Toast shown after a login item is saved. */
+"LoginSaved" = "Login saved";
+/* Toast shown after a card item is saved. */
+"CardSaved" = "Card saved";
+/* Toast shown after an identity item is saved. */
+"IdentitySaved" = "Identity saved";
+/* Toast shown after a secure note item is saved. */
+"SecureNoteSaved" = "Secure note saved";
+/* Toast shown after an SSH key item is saved. */
+"SSHKeySaved" = "SSH key saved";
+/* Toast shown after a bank account item is saved. */
+"BankAccountSaved" = "Bank account saved";
+/* Toast shown after a driver's license item is saved. */
+"LicenseSaved" = "License saved";
+/* Toast shown after a passport item is saved. */
+"PassportSaved" = "Passport saved";

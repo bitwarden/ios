@@ -8,8 +8,12 @@
 "Copy" = "కాపీ చేయి";
 "CopyLicenseNumber" = "లైసెన్స్ సంఖ్య కాపీ చేయి";
 "CopyPassportNumber" = "పాస్‌పోర్ట్ సంఖ్య కాపీ చేయి";
+"CopyPassphrase" = "Copy passphrase";
 "CopyPassword" = "పాస్వర్డ్ కాపీ చేయి";
 "CopyUsername" = "వినియోగదారు పేరు కాపీ చేయి";
+"UseThisPassphrase" = "Use this passphrase";
+"UseThisPassword" = "Use this password";
+"UseThisUsername" = "Use this username";
 "Delete" = "తొలగించు";
 "DeleteAll" = "అన్నీ తొలగించు";
 "Deleting" = "తొలగిస్తోంది…";
@@ -129,7 +133,6 @@
 "PasswordOverrideAlert" = "మీరు ఖచ్చితంగా ప్రస్తుత పాస్వర్డ్‌ను భర్తీ చేయాలనుకుంటున్నారా?";
 "PushNotificationAlert" = "Bitwarden పుష్ నోటిఫికేషన్‌లను ఉపయోగించడం ద్వారా మీ ఖజానాను ఆటోమేటిక్‌గా సింక్ చేస్తూ ఉంటుంది. ఉత్తమ అనుభవం కోసం, పుష్ నోటిఫికేషన్‌లను అనుమతించమని అడిగినప్పుడు దయచేసి కింది ప్రాంప్ట్‌లో “అనుమతించు” ఎంచుకోండి.";
 "Security" = "భద్రత";
-"Select" = "ఎంచుకోండి";
 "ItemUpdated" = "అంశం భద్రపరచబడింది";
 "Submitting" = "సమర్పిస్తోంది…";
 "Syncing" = "సింక్ అవుతోంది…";
@@ -182,7 +185,6 @@
 "CopyTotp" = "TOTP కాపీ చేయి";
 "CopyTotpAutomaticallyDescription" = "ఒక లాగిన్‌కు ఆథెంటికేటర్ కీ ఉంటే, మీరు లాగిన్‌ను ఆటోఫిల్ చేసినప్పుడు TOTP ధృవీకరణ కోడ్‌ను మీ క్లిప్‌బోర్డ్‌కు కాపీ చేయండి.";
 "CopyTotpAutomatically" = "TOTP ఆటోమేటిక్‌గా కాపీ చేయి";
-"PremiumRequired" = "ఈ ఫీచర్ ఉపయోగించడానికి ప్రీమియం సభ్యత్వం అవసరం.";
 "AttachementAdded" = "అటాచ్మెంట్ జోడించబడింది";
 "AttachmentDeleted" = "అటాచ్మెంట్ తొలగించబడింది";
 "ChooseFile" = "ఫైల్ ఎంచుకోండి";
@@ -223,7 +225,6 @@
 "August" = "ఆగస్టు";
 "Brand" = "బ్రాండ్";
 "CardholderName" = "కార్డుదారు పేరు";
-"WeFoundMultipleMatchesChooseTheCorrectOne" = "మేము బహుళ సరిపోలికలను కనుగొన్నాము. సరైనదాన్ని ఎంచుకోండి.";
 "CityTown" = "నగరం / పట్టణం";
 "Company" = "కంపెనీ";
 "Country" = "దేశం";
@@ -309,6 +310,7 @@
 "NoEmailAddressesEntered" = "ఇమెయిల్ చిరునామాలు నమోదు చేయబడలేదు";
 "EnterAtLeastOneValidEmailToShareSend" = "ఈ Sendను భాగస్వామ్యం చేయడానికి కనీసం ఒక చెల్లుబాటు అయ్యే ఇమెయిల్ చిరునామాను నమోదు చేయండి.";
 "OneOrMoreEmailAddressesIncorrect" = "ఒకటి లేదా అంతకంటే ఎక్కువ ఇమెయిల్ చిరునామాలు తప్పు. దయచేసి సమీక్షించి మళ్లీ ప్రయత్నించండి.";
+"OnlyIncludeTheFollowingDomainsDescriptionLong" = "Only include the following domains: %1$@. Please review and try again.";
 "Cards" = "కార్డ్‌లు";
 "Identities" = "గుర్తింపులు";
 "Logins" = "లాగిన్‌లు";
@@ -444,11 +446,19 @@
 "NewSendCreated" = "Send సృష్టించబడింది";
 "Custom" = "అనుకూల";
 "SendDisabledWarning" = "ఎంటర్‌ప్రైజ్ విధానం కారణంగా, మీరు ఇప్పటికే ఉన్న Sendను మాత్రమే తొలగించగలరు.";
+"ThisDateIsEnforcedByYourOrganization" = "This date is enforced by your organization";
 "AboutSend" = "Send గురించి";
 "HideEmail" = "స్వీకర్తల నుండి నా ఇమెయిల్ చిరునామాను దాచు";
 "SendOptionsPolicyInEffect" = "ఒకటి లేదా అంతకంటే ఎక్కువ సంస్థ విధానాలు మీ Send ఎంపికలను ప్రభావితం చేస్తున్నాయి.";
 "SendFilePremiumRequired" = "ఉచిత ఖాతాలు టెక్స్ట్‌ను మాత్రమే భాగస్వామ్యం చేయడానికి పరిమితం చేయబడ్డాయి. Sendతో ఫైల్‌లను ఉపయోగించడానికి ప్రీమియం సభ్యత్వం అవసరం.";
 "SendFileEmailVerificationRequired" = "Sendతో ఫైల్‌లను ఉపయోగించడానికి మీరు మీ ఇమెయిల్‌ను ధృవీకరించాలి. మీరు వెబ్ ఖజానాలో మీ ఇమెయిల్‌ను ధృవీకరించవచ్చు.";
+/* Alert message shown when Send Controls policy restricts creation to one Send type. %1$@ is the allowed Send type, either "File" or "Text". */
+"DueToAnEnterprisePolicyYouCanOnlyCreateXSends" = "Due to an enterprise policy, you can only create %1$@ Sends.";
+"OrganizationPolicyRestriction" = "Organization policy restriction";
+"TextSendsAreNotAllowedDescriptionLong" = "Text Sends are not allowed for your organization and this Send will automatically expire at the set deletion date.";
+"ThisSendIsNotCompliantDescriptionLong" = "This Send is not compliant with your organization's Send policy and will automatically expire at the set deletion date.";
+"ToEditThisSendMakeACopyDescriptionLong" = "To edit this Send, make a copy. If this Send can expire at the set deletion date, no action is needed.";
+"MakeACopy" = "Make a copy";
 "PasswordPrompt" = "మాస్టర్ పాస్వర్డ్ మళ్లీ ప్రాంప్ట్ చేయి";
 "PasswordConfirmation" = "మాస్టర్ పాస్వర్డ్ నిర్ధారణ";
 "PasswordConfirmationDesc" = "ఈ చర్య రక్షించబడింది, కొనసాగించడానికి దయచేసి మీ గుర్తింపును ధృవీకరించడానికి మీ మాస్టర్ పాస్వర్డ్‌ను మళ్లీ నమోదు చేయండి.";
@@ -648,7 +658,6 @@
 "SetUpAutofill" = "ఆటోఫిల్ సెటప్ చేయి";
 "AppInfo" = "యాప్ సమాచారం";
 "Browse" = "బ్రౌజ్ చేయి";
-"SelectCardholderName" = "కార్డుదారు పేరు ఎంచుకోండి";
 "SelectLanguage" = "భాష ఎంచుకోండి";
 "ContinueToCompleteWebAuthnVerification" = "WebAuthn ధృవీకరణను పూర్తి చేయడానికి కొనసాగించండి.";
 "ThereWasAnErrorStartingWebAuthnTwoFactorAuthentication" = "WebAuthn రెండు-కారకాల ధృవీకరణను ప్రారంభించడంలో లోపం ఉంది";
@@ -667,7 +676,6 @@
 "ByContinuingYouAgreeToTheTermsOfServiceAndPrivacyPolicy" = "కొనసాగించడం ద్వారా, మీరు **[సేవా నిబంధనలు](%1$@)** మరియు **[గోప్యతా విధానం](%2$@)**కి అంగీకరిస్తున్నారు";
 "GetAdviceAnnouncementsAndResearchOpportunitiesFromBitwardenInYourInboxUnsubscribeAtAnyTime." = "మీ ఇన్‌బాక్స్‌లో Bitwarden నుండి సలహా, ప్రకటనలు మరియు పరిశోధన అవకాశాలను పొందండి. ఎప్పుడైనా **[అన్‌సబ్‌స్క్రయిబ్](%1$@)** చేయండి.";
 "UserVerificationForPasskey" = "పాస్‌కీ కోసం వినియోగదారు ధృవీకరణ";
-"NewItem" = "కొత్త అంశం";
 "ExploreTheGenerator" = "జనరేటర్ అన్వేషించండి";
 "LearnMoreAboutGeneratingSecureLoginCredentialsWithAGuidedTour" = "గైడెడ్ టూర్‌తో సురక్షిత లాగిన్ ధృవీకరణ పత్రాలను రూపొందించడం గురించి మరింత తెలుసుకోండి.";
 "ExportVaultFilePwProtectInfo" = "ఈ ఫైల్ ఎగుమతి పాస్వర్డ్ రక్షించబడుతుంది మరియు డీక్రిప్ట్ చేయడానికి ఫైల్ పాస్వర్డ్ అవసరం.";
@@ -881,6 +889,10 @@
 "Identification" = "గుర్తింపు";
 "Owner" = "యజమాని";
 "VerifyYourIdentity" = "మీ గుర్తింపును ధృవీకరించండి";
+"ThisOperationIsNotAllowedOnThisAccount" = "This operation is not allowed on this account";
+"AnErrorOccurredWhileTryingToLockTheCurrentUser" = "An error occurred while trying to lock the current user";
+"LockAllAccounts" = "Lock all accounts";
+"AllAccountsHaveBeenLocked" = "All accounts have been locked";
 "ShareErrorDetails" = "లోపం వివరాలను భాగస్వామ్యం చేయి";
 "FlightRecorder" = "ఫ్లైట్ రికార్డర్";
 "EnableFlightRecorder" = "ఫ్లైట్ రికార్డర్ ప్రారంభించు";
@@ -909,7 +921,13 @@
 "ExpiresOnXDate" = "%1$@న గడువు ముగుస్తుంది";
 "ExpiresTomorrow" = "రేపు గడువు ముగుస్తుంది";
 "DateRangeXToY" = "%1$@ నుండి %2$@";
+"LogOutAllAccounts" = "Log out all accounts";
+"AllAccountsHaveBeenLoggedOut" = "All accounts have been logged out";
+"AnErrorOccurredWhileTryingToLogOutAllAccounts" = "An error occurred while trying to log out all accounts";
 "SelfHostServerURL" = "స్వీయ-హోస్ట్ సర్వర్ URL";
+"OpenGenerator" = "Open generator";
+"OpenPasswordGenerator" = "Open password generator";
+"GeneratePassphrase" = "Generate passphrase";
 "AllowUniversalClipboard" = "యూనివర్సల్ క్లిప్‌బోర్డ్‌ను అనుమతించు";
 "UseUniversalClipboardToCopyDescriptionLong" = "ఇక్కడ కాపీ చేయడానికి మరియు అదే Apple IDతో సైన్ ఇన్ చేసిన ఇతర పరికరాలలో పేస్ట్ చేయడానికి యూనివర్సల్ క్లిప్‌బోర్డ్ ఉపయోగించండి.";
 "RemoveMasterPasswordConfirmDomain" = "కింది సంస్థ సభ్యులకు మాస్టర్ పాస్వర్డ్ ఇక అవసరం లేదు. దయచేసి కింది డొమైన్‌ను మీ సంస్థ నిర్వాహకునితో నిర్ధారించండి.";
@@ -929,6 +947,7 @@
 "GoToSettings" = "సెట్టింగ్‌లకు వెళ్ళు";
 "SiriAndShortcutsAccess" = "Siri & షార్ట్‌కట్స్ ప్రాప్యత";
 "EnableToAllowTheAppToRespondToSiriAndShortcutsUsingAppIntents" = "యాప్ ఇంటెంట్‌లను ఉపయోగించి Siri మరియు షార్ట్‌కట్స్‌కు ప్రతిస్పందించడానికి యాప్‌ను అనుమతించడానికి ప్రారంభించండి.";
+"ThereIsNoActiveAccount" = "There is no active account.";
 "NewFileSend" = "కొత్త ఫైల్ Send";
 "NewTextSend" = "కొత్త టెక్స్ట్ Send";
 "EditFileSend" = "ఫైల్ Send సవరించు";
@@ -979,7 +998,6 @@
 "NoAskMe" = "లేదు, నన్ను అడగండి";
 "NoCodes" = "ప్రదర్శించడానికి మీకు కోడ్‌లు ఏమీ లేవు";
 "None" = "ఏదీ లేదు";
-"NoneOfTheAbove" = "పైవేవీ కావు";
 "NumberOfDigits" = "అంకెల సంఖ్య";
 "OtpType" = "OTP రకం";
 "RefreshPeriod" = "రిఫ్రెష్ వ్యవధి";
@@ -1077,6 +1095,7 @@
 "AnyoneWithTheLink" = "లింక్ ఉన్న ఎవరైనా";
 "AnyoneWithThisLinkCanViewThisSend" = "ఈ లింక్ ఉన్న ఎవరైనా ఈ Sendను చూడవచ్చు.";
 "AfterSharingThisSendLinkDescriptionLong" = "ఈ Send లింక్‌ను భాగస్వామ్యం చేసిన తర్వాత, వ్యక్తులు ఈ Sendను చూడడానికి వారి ఇమెయిల్‌ను కోడ్‌తో ధృవీకరించాలి.";
+"IndividualsWillNeedToEnterThisPasswordDescriptionLong" = "Individuals will need to enter this password to view this Send";
 "SpecificPeople" = "నిర్దిష్ట వ్యక్తులు";
 "WhoCanView" = "ఎవరు చూడగలరు";
 "SharingWithSpecificPeopleIsPremiumFeatureDescriptionLong" = "నిర్దిష్ట వ్యక్తులతో భాగస్వామ్యం చేయడం ప్రీమియం ఫీచర్. మీ ప్రస్తుత ప్లాన్‌లో ఈ ఫీచర్‌కు ప్రాప్యత లేదు.";
@@ -1254,5 +1273,26 @@
 "Server" = "సర్వర్";
 /* Accessibility label for the button that clears a field's value. %1$@ is the field's title (e.g. "Date of birth"), so the spoken label reads "Clear Date of birth". */
 "ClearFieldName" = "%1$@ క్లియర్ చేయి";
-"SelectDate" = "తేదీ ఎంచుకోండి";
+/* Accessibility hint on a collapsed date field announcing that activating it opens the calendar picker. */
+"OpensDatePicker" = "Opens date picker";
+/* Accessibility hint on an expanded date field announcing that activating it closes the calendar picker. */
+"ClosesDatePicker" = "Closes date picker";
+/* VoiceOver announcement posted when a date picker whose range excludes future dates, e.g. date of birth or an issue date, reports landing on today (the latest available day) while scrolling the wheel. */
+"FutureDatesUnavailable" = "Future dates unavailable";
 "PremiumRequiredTOTPDescriptionLong" = "ఆథెంటికేటర్ కీ (TOTP) ప్రీమియం ఫీచర్. మీ ప్రస్తుత ప్లాన్‌లో ఈ ఫీచర్‌కు ప్రాప్యత లేదు.";
+/* Toast shown after a login item is saved. */
+"LoginSaved" = "Login saved";
+/* Toast shown after a card item is saved. */
+"CardSaved" = "Card saved";
+/* Toast shown after an identity item is saved. */
+"IdentitySaved" = "Identity saved";
+/* Toast shown after a secure note item is saved. */
+"SecureNoteSaved" = "Secure note saved";
+/* Toast shown after an SSH key item is saved. */
+"SSHKeySaved" = "SSH key saved";
+/* Toast shown after a bank account item is saved. */
+"BankAccountSaved" = "Bank account saved";
+/* Toast shown after a driver's license item is saved. */
+"LicenseSaved" = "License saved";
+/* Toast shown after a passport item is saved. */
+"PassportSaved" = "Passport saved";

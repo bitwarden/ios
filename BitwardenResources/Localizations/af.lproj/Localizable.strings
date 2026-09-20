@@ -8,8 +8,12 @@
 "Copy" = "Kopieer";
 "CopyLicenseNumber" = "Kopieer lisensienommer";
 "CopyPassportNumber" = "Kopieer paspoortnommer";
+"CopyPassphrase" = "Copy passphrase";
 "CopyPassword" = "Kopieer wagwoord";
 "CopyUsername" = "Kopieer gebruikersnaam";
+"UseThisPassphrase" = "Use this passphrase";
+"UseThisPassword" = "Use this password";
+"UseThisUsername" = "Use this username";
 "Delete" = "Skrap";
 "DeleteAll" = "Vee alles uit";
 "Deleting" = "Besig om uit te vee…";
@@ -129,7 +133,6 @@
 "PasswordOverrideAlert" = "Is u seker u wil oor die huidige wagwoord skryf?";
 "PushNotificationAlert" = "Bitwarden hou u kluis outomaties gesinkroniseer deur stootkennisgewings te gebruik. Vir die beste moontlike ervaring, kies asseblief “Laat toe” op die volgende versoek wanneer u gevra word om stootkennisgewings toe te laat.";
 "Security" = "Sekuriteit";
-"Select" = "Kies";
 "ItemUpdated" = "Item bygewerk.";
 "Submitting" = "Besig om in te dien…";
 "Syncing" = "Besig om te sinkroniseer…";
@@ -182,7 +185,6 @@
 "CopyTotp" = "Kopieer TOTP";
 "CopyTotpAutomaticallyDescription" = "As 'n aanmelding 'n verifikasiesleutel het, kopieer die TOTP-verifikasiekode na u knipbord wanneer u die aanmelding outovul.";
 "CopyTotpAutomatically" = "Kopieer TOTP outomaties";
-"PremiumRequired" = "’n Premie-lidmaatskap is nodig om hierdie funksie te gebruik.";
 "AttachementAdded" = "Aanhegsel toegevoeg";
 "AttachmentDeleted" = "Aanhegsel geskrap";
 "ChooseFile" = "Kies lêer";
@@ -223,7 +225,6 @@
 "August" = "Augustus";
 "Brand" = "Handelsmerk";
 "CardholderName" = "Kaarthouernaam";
-"WeFoundMultipleMatchesChooseTheCorrectOne" = "Ons het verskeie ooreenstemmings gevind. Kies die korrekte een.";
 "CityTown" = "Stad / Dorp";
 "Company" = "Maatskappy";
 "Country" = "Land";
@@ -309,6 +310,7 @@
 "NoEmailAddressesEntered" = "Geen e-posadresse ingevoer nie";
 "EnterAtLeastOneValidEmailToShareSend" = "Voer ten minste een geldige e-posadres in om hierdie Send te deel.";
 "OneOrMoreEmailAddressesIncorrect" = "Een of meer e-posadresse is verkeerd. Hersien asseblief en probeer weer.";
+"OnlyIncludeTheFollowingDomainsDescriptionLong" = "Only include the following domains: %1$@. Please review and try again.";
 "Cards" = "Kaarte";
 "Identities" = "Identiteite";
 "Logins" = "Aantekeninge";
@@ -444,11 +446,19 @@
 "NewSendCreated" = "Nuwe send geskep.";
 "Custom" = "Pasgemaak";
 "SendDisabledWarning" = "A.g.v. ’n ondernemingsbeleid kan u slegs ’n bestaande Send skrap.";
+"ThisDateIsEnforcedByYourOrganization" = "This date is enforced by your organization";
 "AboutSend" = "Oor Send";
 "HideEmail" = "Versteek my e-posadres vir ontvangers.";
 "SendOptionsPolicyInEffect" = "Een of meer organisasiebeleide beïnvloed u Send-opsies.";
 "SendFilePremiumRequired" = "Met gratis rekeninge kan u slegs teks deel. ’n Premie-lidmaatskap word vereis om lêers met Send te gebruik.";
 "SendFileEmailVerificationRequired" = "U moet u e-pos bevestig om lêers met Send te kan gebruik. U kan u e-pos in die webkluis bevestig.";
+/* Alert message shown when Send Controls policy restricts creation to one Send type. %1$@ is the allowed Send type, either "File" or "Text". */
+"DueToAnEnterprisePolicyYouCanOnlyCreateXSends" = "Due to an enterprise policy, you can only create %1$@ Sends.";
+"OrganizationPolicyRestriction" = "Organization policy restriction";
+"TextSendsAreNotAllowedDescriptionLong" = "Text Sends are not allowed for your organization and this Send will automatically expire at the set deletion date.";
+"ThisSendIsNotCompliantDescriptionLong" = "This Send is not compliant with your organization's Send policy and will automatically expire at the set deletion date.";
+"ToEditThisSendMakeACopyDescriptionLong" = "To edit this Send, make a copy. If this Send can expire at the set deletion date, no action is needed.";
+"MakeACopy" = "Make a copy";
 "PasswordPrompt" = "Vra weer vir hoofwagwoord";
 "PasswordConfirmation" = "Hoofwagwoordbevestiging";
 "PasswordConfirmationDesc" = "Hierdie aksie is beskerm. Voer u hoofwagwoord in om u identiteit te bevestig om voort te gaan.";
@@ -648,7 +658,6 @@
 "SetUpAutofill" = "Stel outovul op";
 "AppInfo" = "Programinligting";
 "Browse" = "Blaai";
-"SelectCardholderName" = "Kies kaarthouernaam";
 "SelectLanguage" = "Kies taal";
 "ContinueToCompleteWebAuthnVerification" = "Gaan voort om WebAuthn-verifikasie te voltooi.";
 "ThereWasAnErrorStartingWebAuthnTwoFactorAuthentication" = "Daar was 'n fout met die begin van WebAuthn-tweefaktor-verifikasie";
@@ -667,7 +676,6 @@
 "ByContinuingYouAgreeToTheTermsOfServiceAndPrivacyPolicy" = "Deur voort te gaan, stem u in tot die **[Diensbepalings](%1$@)** en **[Privaatheidsbeleid](%2$@)**";
 "GetAdviceAnnouncementsAndResearchOpportunitiesFromBitwardenInYourInboxUnsubscribeAtAnyTime." = "Ontvang advies, aankondigings en navorsingsgeleenthede van Bitwarden in u posbus. **[Teken uit](%1$@)** te eniger tyd.";
 "UserVerificationForPasskey" = "Gebruikersverifikasie vir sleutelpas";
-"NewItem" = "Nuwe item";
 "ExploreTheGenerator" = "Verken die genereerder";
 "LearnMoreAboutGeneratingSecureLoginCredentialsWithAGuidedTour" = "Kom meer te wete oor die generering van veilige aanmeldingsbewyse met 'n begeleide toer.";
 "ExportVaultFilePwProtectInfo" = "Hierdie lêeruitvoer sal met 'n wagwoord beskerm word en die lêerwagwoord benodig om te dekripteer.";
@@ -881,6 +889,10 @@
 "Identification" = "Identifikasie";
 "Owner" = "Eienaar";
 "VerifyYourIdentity" = "Verifieer u identiteit";
+"ThisOperationIsNotAllowedOnThisAccount" = "This operation is not allowed on this account";
+"AnErrorOccurredWhileTryingToLockTheCurrentUser" = "An error occurred while trying to lock the current user";
+"LockAllAccounts" = "Lock all accounts";
+"AllAccountsHaveBeenLocked" = "All accounts have been locked";
 "ShareErrorDetails" = "Deel foutbesonderhede";
 "FlightRecorder" = "Vlugopnemer";
 "EnableFlightRecorder" = "Aktiveer vlugopnemer";
@@ -909,7 +921,13 @@
 "ExpiresOnXDate" = "Verval op %1$@";
 "ExpiresTomorrow" = "Verval môre";
 "DateRangeXToY" = "%1$@ tot %2$@";
+"LogOutAllAccounts" = "Log out all accounts";
+"AllAccountsHaveBeenLoggedOut" = "All accounts have been logged out";
+"AnErrorOccurredWhileTryingToLogOutAllAccounts" = "An error occurred while trying to log out all accounts";
 "SelfHostServerURL" = "Self-gasbediener-URL";
+"OpenGenerator" = "Open generator";
+"OpenPasswordGenerator" = "Open password generator";
+"GeneratePassphrase" = "Generate passphrase";
 "AllowUniversalClipboard" = "Laat Universele Knipbord toe";
 "UseUniversalClipboardToCopyDescriptionLong" = "Gebruik Universele Knipbord om hier te kopieer en op ander toestelle wat met dieselfde Apple ID aangemeld is, te plak.";
 "RemoveMasterPasswordConfirmDomain" = "'n Hoofwagwoord word nie meer vir lede van die volgende organisasie vereis nie. Bevestig asseblief die domein hieronder met u organisasie-administrateur.";
@@ -929,6 +947,7 @@
 "GoToSettings" = "Gaan na instellings";
 "SiriAndShortcutsAccess" = "Siri & Kortpaaie-toegang";
 "EnableToAllowTheAppToRespondToSiriAndShortcutsUsingAppIntents" = "Aktiveer om die program toe te laat om op Siri en Kortpaaie te reageer deur Program-Intenties te gebruik.";
+"ThereIsNoActiveAccount" = "There is no active account.";
 "NewFileSend" = "Nuwe lêer Stuur";
 "NewTextSend" = "Nuwe teks Stuur";
 "EditFileSend" = "Wysig lêer Stuur";
@@ -979,7 +998,6 @@
 "NoAskMe" = "Nee, vra my";
 "NoCodes" = "U het geen kodes om te vertoon nie";
 "None" = "Geen";
-"NoneOfTheAbove" = "Geen van bogenoemde nie";
 "NumberOfDigits" = "Aantal syfers";
 "OtpType" = "OTP-tipe";
 "RefreshPeriod" = "Verfrissingstydperk";
@@ -1077,6 +1095,7 @@
 "AnyoneWithTheLink" = "Enigiemand met die skakel";
 "AnyoneWithThisLinkCanViewThisSend" = "Enigiemand met hierdie skakel kan hierdie Stuur bekyk.";
 "AfterSharingThisSendLinkDescriptionLong" = "Nadat u hierdie Stuur-skakel gedeel het, sal individue hul e-pos met 'n kode moet verifieer om hierdie Stuur te kan bekyk.";
+"IndividualsWillNeedToEnterThisPasswordDescriptionLong" = "Individuals will need to enter this password to view this Send";
 "SpecificPeople" = "Spesifieke mense";
 "WhoCanView" = "Wie kan sien";
 "SharingWithSpecificPeopleIsPremiumFeatureDescriptionLong" = "Deel met spesifieke mense is 'n Premium-funksie. U huidige plan sluit nie toegang tot hierdie funksie in nie.";
@@ -1254,5 +1273,26 @@
 "Server" = "Bediener";
 /* Accessibility label for the button that clears a field's value. %1$@ is the field's title (e.g. "Date of birth"), so the spoken label reads "Clear Date of birth". */
 "ClearFieldName" = "Clear %1$@";
-"SelectDate" = "Select date";
+/* Accessibility hint on a collapsed date field announcing that activating it opens the calendar picker. */
+"OpensDatePicker" = "Opens date picker";
+/* Accessibility hint on an expanded date field announcing that activating it closes the calendar picker. */
+"ClosesDatePicker" = "Closes date picker";
+/* VoiceOver announcement posted when a date picker whose range excludes future dates, e.g. date of birth or an issue date, reports landing on today (the latest available day) while scrolling the wheel. */
+"FutureDatesUnavailable" = "Future dates unavailable";
 "PremiumRequiredTOTPDescriptionLong" = "Waarmerksleutel (TOTP) is ’n Premium-funksie. U huidige plan sluit nie toegang tot hierdie funksie in nie.";
+/* Toast shown after a login item is saved. */
+"LoginSaved" = "Login saved";
+/* Toast shown after a card item is saved. */
+"CardSaved" = "Card saved";
+/* Toast shown after an identity item is saved. */
+"IdentitySaved" = "Identity saved";
+/* Toast shown after a secure note item is saved. */
+"SecureNoteSaved" = "Secure note saved";
+/* Toast shown after an SSH key item is saved. */
+"SSHKeySaved" = "SSH key saved";
+/* Toast shown after a bank account item is saved. */
+"BankAccountSaved" = "Bank account saved";
+/* Toast shown after a driver's license item is saved. */
+"LicenseSaved" = "License saved";
+/* Toast shown after a passport item is saved. */
+"PassportSaved" = "Passport saved";

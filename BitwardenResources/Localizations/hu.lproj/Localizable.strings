@@ -8,8 +8,12 @@
 "Copy" = "Másolás";
 "CopyLicenseNumber" = "Vezetői engedély szám másolása";
 "CopyPassportNumber" = "Útlevélszám másolása";
+"CopyPassphrase" = "Jelmondat másolása";
 "CopyPassword" = "Jelszó másolása";
 "CopyUsername" = "Felhasználónév másolása";
+"UseThisPassphrase" = "Jelmondat használata";
+"UseThisPassword" = "Jelszó használata";
+"UseThisUsername" = "Felhasználónév használata";
 "Delete" = "Törlés";
 "DeleteAll" = "Összes törlése";
 "Deleting" = "Törlés…";
@@ -21,7 +25,7 @@
 "EnterPIN" = "Add meg a PIN-kódodat.";
 "Favorites" = "Kedvencek";
 "Folder" = "Mappa";
-"FolderCreated" = "Új mappa létrehozva.";
+"FolderCreated" = "Az új mappa létrejött.";
 "FolderDeleted" = "A mappa törlése megtörtént.";
 "FolderNone" = "Nincs mappa";
 "Folders" = "Mappák";
@@ -129,7 +133,6 @@
 "PasswordOverrideAlert" = "Biztosan felül akarod írni a jelenlegi jelszót?";
 "PushNotificationAlert" = "Bitwarden keeps your vault automatically synced by using push notifications. For the best possible experience, please select “Allow” on the following prompt when asked to allow push notifications.";
 "Security" = "Biztonság";
-"Select" = "Kijelölés";
 "ItemUpdated" = "Az elem frissítésre került.";
 "Submitting" = "Beküldés…";
 "Syncing" = "Szinkronizálás…";
@@ -182,7 +185,6 @@
 "CopyTotp" = "Egyszeri jelszó másolása";
 "CopyTotpAutomaticallyDescription" = "Ha egy belépéshez tartozik hitelesítő kulcs, másolja a TOTP megerősítő kódot a vágólapra amikor a belépést tölti.";
 "CopyTotpAutomatically" = "TOTP automatikus másolása";
-"PremiumRequired" = "A funkció használatához prémium tagság szükséges.";
 "AttachementAdded" = "Melléklet hozzáadva";
 "AttachmentDeleted" = "Melléklet törölve";
 "ChooseFile" = "Fájl kiválasztása";
@@ -223,7 +225,6 @@
 "August" = "augusztus";
 "Brand" = "Márka";
 "CardholderName" = "Kártyatulajdonos neve";
-"WeFoundMultipleMatchesChooseTheCorrectOne" = "Több egyezés is található. Válasszuk ki a megfelelőt.";
 "CityTown" = "Település";
 "Company" = "Cég";
 "Country" = "Ország";
@@ -309,6 +310,7 @@
 "NoEmailAddressesEntered" = "Nincsenek megadva email címek.";
 "EnterAtLeastOneValidEmailToShareSend" = "Adjunk meg legalább egy érvényes email címet a Send elem megosztásához.";
 "OneOrMoreEmailAddressesIncorrect" = "Egy vagy több email cím helytelen. Tekintsük át és próbáljuk újra.";
+"OnlyIncludeTheFollowingDomainsDescriptionLong" = "Csak a következő tartományokat tartalmazza: %1$@. Tekintsük át és próbáljuk újra.";
 "Cards" = "Kártyák";
 "Identities" = "Azonosságok";
 "Logins" = "Bejelentkezések";
@@ -444,11 +446,19 @@
 "NewSendCreated" = "Az új Send elem létrejött.";
 "Custom" = "Egyedi";
 "SendDisabledWarning" = "A vállalati házirend miatt csak egy meglévő Send elem törölhető.";
+"ThisDateIsEnforcedByYourOrganization" = "Ezt a dátumot a szervezet erőlteti.";
 "AboutSend" = "A Sendről";
 "HideEmail" = "Saját email cím elrejtése a címzettek elől.";
 "SendOptionsPolicyInEffect" = "Egy vagy több szervezeti szabály érinti a Send opciókat.";
 "SendFilePremiumRequired" = "Ingyenes fiókkal csak szöveget lehet megosztani. Prémium tagság szükséges a fájlok használatához a Sendnél.";
 "SendFileEmailVerificationRequired" = "Ha fájlokat szeretnénk használni a Senddel, ellenőrizni kell az email címet.";
+/* Alert message shown when Send Controls policy restricts creation to one Send type. %1$@ is the allowed Send type, either "File" or "Text". */
+"DueToAnEnterprisePolicyYouCanOnlyCreateXSends" = "A vállalati szabályzat miatt csak %1$@ Send elem hozható létre.";
+"OrganizationPolicyRestriction" = "Szervezeti szabályzat korlátozás";
+"TextSendsAreNotAllowedDescriptionLong" = "Ez a szöveges Send elem nem felel meg a szervezet Küldés házirendjének és ez a Send elem automatikusan lejár a beállított törlési napon.";
+"ThisSendIsNotCompliantDescriptionLong" = "Ez a Send elem nem felel meg a szervezet Küldés házirendjének és automatikusan lejár a beállított törlési napon.";
+"ToEditThisSendMakeACopyDescriptionLong" = "A Send elem szerkesztéséhez készítsünk másolatot. Ha ez a Send elem a beállított törlési dátumon lejárhat, nincs szükség műveletre.";
+"MakeACopy" = "Másolat létrehozása";
 "PasswordPrompt" = "Mesterjelszó újbóli bekérése";
 "PasswordConfirmation" = "Mesterjelszó megerősítése";
 "PasswordConfirmationDesc" = "Ez a művelet védett. A folytatásért ismételten meg kell adni a mesterjelszőt az személyazonosság ellenőrzéséhez.";
@@ -648,7 +658,6 @@
 "SetUpAutofill" = "Automata-kitöltés beállítása";
 "AppInfo" = "App infó";
 "Browse" = "Böngészés";
-"SelectCardholderName" = "Válasszuk ki a kártyabirtokos nevét.";
 "SelectLanguage" = "Nyelv kiválasztása";
 "ContinueToCompleteWebAuthnVerification" = "Tovább a WebAuthn megerősítés befejezéséhez.";
 "ThereWasAnErrorStartingWebAuthnTwoFactorAuthentication" = "Hiba lépett fel a WebAuthn kétfaktoros hitelesítés indítása során";
@@ -667,7 +676,6 @@
 "ByContinuingYouAgreeToTheTermsOfServiceAndPrivacyPolicy" = "A folytatással elfogadjuk a **[Használati feltételeket](%1$@)** és az **[Adatvédelmi szabályokat](%2$@)**";
 "GetAdviceAnnouncementsAndResearchOpportunitiesFromBitwardenInYourInboxUnsubscribeAtAnyTime." = "Tanácsokat, bejelentéseket és kutatási lehetőségeket kaphatunk a Bitwardentől a postaládába. **[Leiratkozás](%1$@)** bármikor.";
 "UserVerificationForPasskey" = "Használjon megerősítést a belépőkulcshoz";
-"NewItem" = "Új elem";
 "ExploreTheGenerator" = "A generátor felfedezése";
 "LearnMoreAboutGeneratingSecureLoginCredentialsWithAGuidedTour" = "Tudjunk meg többet a biztonságos bejelentkezési hitelesítő adatok létrehozásáról egy vezetett bemutatóval.";
 "ExportVaultFilePwProtectInfo" = "Ez a fájl export jelszó védett lesz, és ugyanezzel a jelszóval lehet később feloldani.";
@@ -881,6 +889,10 @@
 "Identification" = "Azonosítás";
 "Owner" = "Tulajdonos";
 "VerifyYourIdentity" = "Személyazonosság ellenőrzése";
+"ThisOperationIsNotAllowedOnThisAccount" = "Ez a művelet nem engedélyezett ezen a fiókon.";
+"AnErrorOccurredWhileTryingToLockTheCurrentUser" = "Hiba történt az aktuális felhasználó zárolásának kísérlete közben.";
+"LockAllAccounts" = "Összes fiók lezárása";
+"AllAccountsHaveBeenLocked" = "Az összes fiók zárolásra került.";
 "ShareErrorDetails" = "Hiba részletek megosztása";
 "FlightRecorder" = "Adatrögzítő";
 "EnableFlightRecorder" = "Adatrögzítő engedélyezése";
@@ -909,7 +921,13 @@
 "ExpiresOnXDate" = "Lejárat: %1$@";
 "ExpiresTomorrow" = "Holnap lejár";
 "DateRangeXToY" = "%1$@ - %2$@";
+"LogOutAllAccounts" = "Összes fiók kijelentkeztetése";
+"AllAccountsHaveBeenLoggedOut" = "Az összes fiók kijelentkeztetésre került.";
+"AnErrorOccurredWhileTryingToLogOutAllAccounts" = "Hiba történt az összes fiók kijelentkeztetésének kísérlete közben.";
 "SelfHostServerURL" = "Saját üzemeltetésű szerver webcím";
+"OpenGenerator" = "Generátor megnyitása";
+"OpenPasswordGenerator" = "Jelszó generátor megnyitása";
+"GeneratePassphrase" = "Jelmondat generálás";
 "AllowUniversalClipboard" = "Univerzális vágólap engedélyezése";
 "UseUniversalClipboardToCopyDescriptionLong" = "Az Univerzális vágólap segítségével másolhatunk itt, majd beilleszthetünk más eszközökre, amelyeken ugyanazzal az Apple azonosítóval vagyunk bejelentkezve.";
 "RemoveMasterPasswordConfirmDomain" = "A következő szervezet tagjai számára már nincs szükség mesterjelszóra. Erősítsük meg az alábbi tartományt a szervezet adminisztrátorával.";
@@ -929,6 +947,7 @@
 "GoToSettings" = "Ugrás a beállításokhoz";
 "SiriAndShortcutsAccess" = "Siri és parancsikonok hozzáférés";
 "EnableToAllowTheAppToRespondToSiriAndShortcutsUsingAppIntents" = "Engedélyezzük, hogy az alkalmazás az App Intents használatával válaszoljon a Siri és a parancsikonokra.";
+"ThereIsNoActiveAccount" = "Nincs aktív fiók.";
 "NewFileSend" = "Új fájl Send elem";
 "NewTextSend" = "Új szöveges Send elem";
 "EditFileSend" = "Send fájl szerkesztése";
@@ -979,7 +998,6 @@
 "NoAskMe" = "Nem, rákérdezés";
 "NoCodes" = "Nincs megjeleníthető kód.";
 "None" = "Nincs";
-"NoneOfTheAbove" = "A fentiek közül egyik sem";
 "NumberOfDigits" = "Számjegyek száma";
 "OtpType" = "OTP típus";
 "RefreshPeriod" = "Frissítési gyakoriság";
@@ -1077,6 +1095,7 @@
 "AnyoneWithTheLink" = "Bárki ezzel a hivatkozással";
 "AnyoneWithThisLinkCanViewThisSend" = "Bárki ezzel a hivatkozással megtekintheti ezt a Send elemet.";
 "AfterSharingThisSendLinkDescriptionLong" = "A Send hivatkozás megosztása után a személyeknek ellenőrizniük kell email címüket egy kóddal a Send megtekintéséhez.";
+"IndividualsWillNeedToEnterThisPasswordDescriptionLong" = "A személyeknek meg kell adniuk a jelszót a Send elem megtekintéséhez.";
 "SpecificPeople" = "Adott személyek";
 "WhoCanView" = "Ki láthatja";
 "SharingWithSpecificPeopleIsPremiumFeatureDescriptionLong" = "Az elemek archiválása prémium funkció. A jelenlegi csomag nem tartalmazza a hozzáférést ehhez a funkcióhoz.";
@@ -1254,5 +1273,26 @@
 "Server" = "Szerver";
 /* Accessibility label for the button that clears a field's value. %1$@ is the field's title (e.g. "Date of birth"), so the spoken label reads "Clear Date of birth". */
 "ClearFieldName" = "%1$@ kiürítése";
-"SelectDate" = "Dátum kiválasztása";
+/* Accessibility hint on a collapsed date field announcing that activating it opens the calendar picker. */
+"OpensDatePicker" = "Dátumválasztó megnyitása";
+/* Accessibility hint on an expanded date field announcing that activating it closes the calendar picker. */
+"ClosesDatePicker" = "Dátumválasztó bezárása";
+/* VoiceOver announcement posted when a date picker whose range excludes future dates, e.g. date of birth or an issue date, reports landing on today (the latest available day) while scrolling the wheel. */
+"FutureDatesUnavailable" = "A jövőbeli dátumok nem érhetők el.";
 "PremiumRequiredTOTPDescriptionLong" = "A hitelesítési kulcs (TOTP) egy prémium funkció. A jelenlegi csomag nem tartalmazza a hozzáférést ehhez a funkcióhoz.";
+/* Toast shown after a login item is saved. */
+"LoginSaved" = "A bejelentkezés mentésre került.";
+/* Toast shown after a card item is saved. */
+"CardSaved" = "A kártya mentésre került.";
+/* Toast shown after an identity item is saved. */
+"IdentitySaved" = "A személyazonosság mentésre került.";
+/* Toast shown after a secure note item is saved. */
+"SecureNoteSaved" = "A biztonságos jegyzet mentésre került.";
+/* Toast shown after an SSH key item is saved. */
+"SSHKeySaved" = "Az SSH kulcs mentésre került.";
+/* Toast shown after a bank account item is saved. */
+"BankAccountSaved" = "A bankszámla mentésre került.";
+/* Toast shown after a driver's license item is saved. */
+"LicenseSaved" = "A licensz mentésre került.";
+/* Toast shown after a passport item is saved. */
+"PassportSaved" = "Az útlevél mentésre került.";

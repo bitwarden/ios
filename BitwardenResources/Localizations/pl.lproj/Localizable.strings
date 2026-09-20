@@ -8,8 +8,12 @@
 "Copy" = "Kopiuj";
 "CopyLicenseNumber" = "Kopiuj numer prawa jazdy";
 "CopyPassportNumber" = "Kopiuj numer paszportu";
+"CopyPassphrase" = "Kopiuj hasło wyrazowe";
 "CopyPassword" = "Kopiuj hasło";
 "CopyUsername" = "Kopiuj nazwę użytkownika";
+"UseThisPassphrase" = "Użyj tego hasła wyrazowego";
+"UseThisPassword" = "Użyj tego hasła";
+"UseThisUsername" = "Użyj tej nazwy użytkownika";
 "Delete" = "Usuń";
 "DeleteAll" = "Usuń wszystko";
 "Deleting" = "Usuwanie…";
@@ -21,7 +25,7 @@
 "EnterPIN" = "Wpisz kod PIN.";
 "Favorites" = "Ulubione";
 "Folder" = "Folder";
-"FolderCreated" = "Folder został utworzony.";
+"FolderCreated" = "Folder został utworzony";
 "FolderDeleted" = "Folder został usunięty.";
 "FolderNone" = "Nieprzypisane";
 "Folders" = "Foldery";
@@ -129,7 +133,6 @@
 "PasswordOverrideAlert" = "Czy na pewno chcesz zastąpić obecne hasło?";
 "PushNotificationAlert" = "Bitwarden automatycznie synchronizuje sejf za pomocą powiadomień. Dla najlepszych rezultatów przyznaj aplikacji uprawnienia do wysyłania powiadomień.";
 "Security" = "Zabezpieczenia";
-"Select" = "Wybierz";
 "ItemUpdated" = "Element został zapisany";
 "Submitting" = "Wysyłanie…";
 "Syncing" = "Synchronizacja…";
@@ -182,7 +185,6 @@
 "CopyTotp" = "Kopiuj kod TOTP";
 "CopyTotpAutomaticallyDescription" = "Automatycznie kopiuje kod TOTP do schowka podczas autouzupełniania.";
 "CopyTotpAutomatically" = "Kopiuj kod TOTP automatycznie";
-"PremiumRequired" = "Konto Premium jest wymagane, aby skorzystać z tej funkcji.";
 "AttachementAdded" = "Załącznik został dodany";
 "AttachmentDeleted" = "Załącznik został usunięty";
 "ChooseFile" = "Wybierz plik";
@@ -223,7 +225,6 @@
 "August" = "Sierpień";
 "Brand" = "Wydawca";
 "CardholderName" = "Właściciel karty";
-"WeFoundMultipleMatchesChooseTheCorrectOne" = "Znaleźliśmy kilka dopasowań. Wybierz prawidłowe.";
 "CityTown" = "Miasto";
 "Company" = "Firma";
 "Country" = "Kraj";
@@ -309,6 +310,7 @@
 "NoEmailAddressesEntered" = "Brak adresu e-mail";
 "EnterAtLeastOneValidEmailToShareSend" = "Wpisz co najmniej jeden prawidłowy adres e-mail, aby udostępnić wysyłkę.";
 "OneOrMoreEmailAddressesIncorrect" = "Co najmniej jeden adres e-mail jest nieprawidłowy. Sprawdź je i spróbuj ponownie.";
+"OnlyIncludeTheFollowingDomainsDescriptionLong" = "Dozwolone domeny: %1$@. Sprawdź i spróbuj ponownie.";
 "Cards" = "Karty";
 "Identities" = "Tożsamości";
 "Logins" = "Dane logowania";
@@ -444,11 +446,19 @@
 "NewSendCreated" = "Wysyłka została utworzona";
 "Custom" = "Niestandardowe";
 "SendDisabledWarning" = "Ze względu na zasadę przedsiębiorstwa, tylko Ty możesz usunąć obecną wysyłkę.";
+"ThisDateIsEnforcedByYourOrganization" = "Data została narzucona przez organizację";
 "AboutSend" = "O wysyłce";
 "HideEmail" = "Ukryj mój adres e-mail przed odbiorcami";
 "SendOptionsPolicyInEffect" = "Co najmniej jedna zasada organizacji wpływa na ustawienia wysyłek.";
 "SendFilePremiumRequired" = "Darmowe konta są ograniczone do udostępniania tylko tekstu. Konto Premium jest wymagane do udostępniania plików.";
 "SendFileEmailVerificationRequired" = "Musisz zweryfikować adres e-mail, aby wysyłać pliki za pomocą wysyłek.";
+/* Alert message shown when Send Controls policy restricts creation to one Send type. %1$@ is the allowed Send type, either "File" or "Text". */
+"DueToAnEnterprisePolicyYouCanOnlyCreateXSends" = "Due to an enterprise policy, you can only create %1$@ Sends.";
+"OrganizationPolicyRestriction" = "Ograniczenie przez zasadę organizacji";
+"TextSendsAreNotAllowedDescriptionLong" = "Wysyłki tekstów nie są dozwolone w organizacji. Wysyłka wygaśnie automatycznie w dacie jej usunięcia.";
+"ThisSendIsNotCompliantDescriptionLong" = "Wysyłka nie jest zgodna z zasadami organizacji i wygaśnie automatycznie w dacie jej usunięcia.";
+"ToEditThisSendMakeACopyDescriptionLong" = "Aby edytować wysyłkę, utwórz jej kopię. Jeśli wysyłka może wygasnąć w dacie usunięcia, nie musisz nic robić.";
+"MakeACopy" = "Utwórz kopię";
 "PasswordPrompt" = "Potwierdź hasłem głównym";
 "PasswordConfirmation" = "Potwierdź hasło główne";
 "PasswordConfirmationDesc" = "Ta operacja jest chroniona. Aby kontynuować, wpisz ponownie hasło główne.";
@@ -648,7 +658,6 @@
 "SetUpAutofill" = "Skonfiguruj autouzupełnianie";
 "AppInfo" = "Informacje o aplikacji";
 "Browse" = "Przeglądaj";
-"SelectCardholderName" = "Wybierz właściciela karty";
 "SelectLanguage" = "Wybierz język";
 "ContinueToCompleteWebAuthnVerification" = "Kontynuuj, aby zakończyć weryfikację WebAuthn.";
 "ThereWasAnErrorStartingWebAuthnTwoFactorAuthentication" = "Wystąpił błąd podczas uruchamiania logowania dwustopniowego WebAuthn";
@@ -667,7 +676,6 @@
 "ByContinuingYouAgreeToTheTermsOfServiceAndPrivacyPolicy" = "Kontynuując, akceptujesz **[Regulamin](%1$@)** i **[Politykę prywatności](%2$@)**";
 "GetAdviceAnnouncementsAndResearchOpportunitiesFromBitwardenInYourInboxUnsubscribeAtAnyTime." = "Otrzymuj porady, ogłoszenia i możliwości badawcze od Bitwarden na swoją skrzynkę odbiorczą. **[Anuluj subskrypcję](%1$@)** w dowolnym momencie.";
 "UserVerificationForPasskey" = "Weryfikacja użytkownika dla klucza dostępu";
-"NewItem" = "Nowy element";
 "ExploreTheGenerator" = "Zobacz generator";
 "LearnMoreAboutGeneratingSecureLoginCredentialsWithAGuidedTour" = "Dowiedz się więcej o generowaniu bezpiecznych danych logowania.";
 "ExportVaultFilePwProtectInfo" = "Plik zostanie zaszyfrowany hasłem.";
@@ -881,6 +889,10 @@
 "Identification" = "Identyfikacja";
 "Owner" = "Właściciel";
 "VerifyYourIdentity" = "Zweryfikuj tożsamość";
+"ThisOperationIsNotAllowedOnThisAccount" = "Operacja nie jest dozwolona na tym koncie";
+"AnErrorOccurredWhileTryingToLockTheCurrentUser" = "Wystąpił błąd podczas próby zablokowania obecnego użytkownika";
+"LockAllAccounts" = "Zablokuj wszystkie konta";
+"AllAccountsHaveBeenLocked" = "Wszystkie konta zostały zablokowane";
 "ShareErrorDetails" = "Udostępnij szczegóły błędu";
 "FlightRecorder" = "Rejestrator zdarzeń";
 "EnableFlightRecorder" = "Włącz rejestrator zdarzeń";
@@ -909,7 +921,13 @@
 "ExpiresOnXDate" = "Wygasa %1$@";
 "ExpiresTomorrow" = "Wygasa jutro";
 "DateRangeXToY" = "%1$@ do %2$@";
+"LogOutAllAccounts" = "Wyloguj się ze wszystkich kont";
+"AllAccountsHaveBeenLoggedOut" = "Wylogowano ze wszystkich kont";
+"AnErrorOccurredWhileTryingToLogOutAllAccounts" = "Wystąpił błąd podczas próby wylogowania wszystkich kont";
 "SelfHostServerURL" = "URL samodzielnie hostowanego serwera";
+"OpenGenerator" = "Otwórz generator";
+"OpenPasswordGenerator" = "Otwórz generator haseł";
+"GeneratePassphrase" = "Wygeneruj hasło wyrazowe";
 "AllowUniversalClipboard" = "Zezwalaj na uniwersalny schowek";
 "UseUniversalClipboardToCopyDescriptionLong" = "Użyj uniwersalnego schowka, aby skopiować i wkleić dane na innych urządzeniach zalogowanych przy użyciu tego samego Apple ID.";
 "RemoveMasterPasswordConfirmDomain" = "Hasło główne nie jest już wymagane dla członków następującej organizacji. Potwierdź poniższą domenę z administratorem organizacji.";
@@ -929,6 +947,7 @@
 "GoToSettings" = "Przejdź do ustawień";
 "SiriAndShortcutsAccess" = "Dostęp do Siri i skrótów";
 "EnableToAllowTheAppToRespondToSiriAndShortcutsUsingAppIntents" = "Włącz, aby zezwolić aplikacji na reagowanie na Siri i skróty przy użyciu intencji aplikacji.";
+"ThereIsNoActiveAccount" = "Brak aktywnego konta.";
 "NewFileSend" = "Nowa wysyłka pliku";
 "NewTextSend" = "Nowa wysyłka tekstu";
 "EditFileSend" = "Edytuj plik wysyłki";
@@ -979,7 +998,6 @@
 "NoAskMe" = "Nie, zapytaj mnie";
 "NoCodes" = "Nie masz żadnych kodów do wyświetlenia";
 "None" = "Brak";
-"NoneOfTheAbove" = "Żaden z powyższych";
 "NumberOfDigits" = "Liczba cyfr";
 "OtpType" = "Rodzaj OTP";
 "RefreshPeriod" = "Okres odświeżenia";
@@ -1077,6 +1095,7 @@
 "AnyoneWithTheLink" = "Każdy, kto ma link";
 "AnyoneWithThisLinkCanViewThisSend" = "Każdy, kto ma link, może odczytać wysyłkę.";
 "AfterSharingThisSendLinkDescriptionLong" = "Aby wyświetlić wysyłkę, odbiorcy będą musieli zweryfikować adres e-mail za pomocą kodu.";
+"IndividualsWillNeedToEnterThisPasswordDescriptionLong" = "Individuals will need to enter this password to view this Send";
 "SpecificPeople" = "Konkretni użytkownicy";
 "WhoCanView" = "Kto może odczytać";
 "SharingWithSpecificPeopleIsPremiumFeatureDescriptionLong" = "Udostępnianie użytkownikom jest funkcją Premium. Twój obecny plan nie zawiera tej funkcji.";
@@ -1254,5 +1273,26 @@
 "Server" = "Serwer";
 /* Accessibility label for the button that clears a field's value. %1$@ is the field's title (e.g. "Date of birth"), so the spoken label reads "Clear Date of birth". */
 "ClearFieldName" = "Wyczyść %1$@";
-"SelectDate" = "Wybierz datę";
+/* Accessibility hint on a collapsed date field announcing that activating it opens the calendar picker. */
+"OpensDatePicker" = "Opens date picker";
+/* Accessibility hint on an expanded date field announcing that activating it closes the calendar picker. */
+"ClosesDatePicker" = "Closes date picker";
+/* VoiceOver announcement posted when a date picker whose range excludes future dates, e.g. date of birth or an issue date, reports landing on today (the latest available day) while scrolling the wheel. */
+"FutureDatesUnavailable" = "Future dates unavailable";
 "PremiumRequiredTOTPDescriptionLong" = "Klucz uwierzytelniający (TOTP) jest funkcją Premium. Twój obecny plan nie zawiera tej funkcji.";
+/* Toast shown after a login item is saved. */
+"LoginSaved" = "Dane logowania zostały zapisane";
+/* Toast shown after a card item is saved. */
+"CardSaved" = "Karta została zapisana";
+/* Toast shown after an identity item is saved. */
+"IdentitySaved" = "Tożsamość została zapisana";
+/* Toast shown after a secure note item is saved. */
+"SecureNoteSaved" = "Notatka została zapisana";
+/* Toast shown after an SSH key item is saved. */
+"SSHKeySaved" = "Klucz SSH został zapisany";
+/* Toast shown after a bank account item is saved. */
+"BankAccountSaved" = "Konto bankowe zostało zapisane";
+/* Toast shown after a driver's license item is saved. */
+"LicenseSaved" = "Prawo jazdy zostało zapisane";
+/* Toast shown after a passport item is saved. */
+"PassportSaved" = "Paszport został zapisany";

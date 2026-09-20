@@ -8,8 +8,12 @@
 "Copy" = "Copiere";
 "CopyLicenseNumber" = "Copiază numărul permisului";
 "CopyPassportNumber" = "Copiază numărul pașaportului";
+"CopyPassphrase" = "Copy passphrase";
 "CopyPassword" = "Copiere parolă";
 "CopyUsername" = "Copiere nume utilizator";
+"UseThisPassphrase" = "Use this passphrase";
+"UseThisPassword" = "Use this password";
+"UseThisUsername" = "Use this username";
 "Delete" = "Ștergere";
 "DeleteAll" = "Șterge tot";
 "Deleting" = "Se șterge…";
@@ -129,7 +133,6 @@
 "PasswordOverrideAlert" = "Sigur doriți să suprascrieți parola curentă?";
 "PushNotificationAlert" = "Bitwarden menține seiful sincronizat automat folosind notificări push. Pentru cea mai bună experiență, te rugăm să selectezi „Permite” la următoarea solicitare când ți se cere să permiți notificările push.";
 "Security" = "Securitate";
-"Select" = "Selectare";
 "ItemUpdated" = "Articol salvat";
 "Submitting" = "Se trimite…";
 "Syncing" = "Se sincronizează…";
@@ -182,7 +185,6 @@
 "CopyTotp" = "Copiere TOTP";
 "CopyTotpAutomaticallyDescription" = "Dacă o autentificare are o cheie authenticator, copiază codul de verificare TOTP în clipboard când completezi automat autentificarea.";
 "CopyTotpAutomatically" = "Copiați automat TOTP";
-"PremiumRequired" = "Este necesar statutul de membru Premium pentru a utiliza această caracteristică.";
 "AttachementAdded" = "Atașamentul s-a adăugat";
 "AttachmentDeleted" = "Atașamentul s-a șters";
 "ChooseFile" = "Alegere fișier";
@@ -223,7 +225,6 @@
 "August" = "august";
 "Brand" = "Tip card";
 "CardholderName" = "Numele titularului de card";
-"WeFoundMultipleMatchesChooseTheCorrectOne" = "Am găsit mai multe potriviri. Alege-o pe cea corectă.";
 "CityTown" = "Localitate";
 "Company" = "Companie";
 "Country" = "Țară";
@@ -309,6 +310,7 @@
 "NoEmailAddressesEntered" = "Nu s-au introdus adrese de e-mail";
 "EnterAtLeastOneValidEmailToShareSend" = "Introdu cel puțin o adresă de e-mail validă pentru a distribui acest Send.";
 "OneOrMoreEmailAddressesIncorrect" = "Una sau mai multe adrese de e-mail sunt incorecte. Te rugăm să revezi și să încerci din nou.";
+"OnlyIncludeTheFollowingDomainsDescriptionLong" = "Only include the following domains: %1$@. Please review and try again.";
 "Cards" = "Carduri";
 "Identities" = "Identități";
 "Logins" = "Conectări";
@@ -444,11 +446,19 @@
 "NewSendCreated" = "Send creat";
 "Custom" = "Personalizat";
 "SendDisabledWarning" = "Datorită unei politici de întreprindere, puteți șterge numai un Send existent.";
+"ThisDateIsEnforcedByYourOrganization" = "This date is enforced by your organization";
 "AboutSend" = "Despre Send";
 "HideEmail" = "Ascundeți adresa mea de e-mail de la destinatari";
 "SendOptionsPolicyInEffect" = "Una sau mai multe politici organizaționale vă afectează opțiunile Send-ului.";
 "SendFilePremiumRequired" = "Conturile gratuite sunt limitate la partajarea de text. Trebuie să fiți membrii Premium pentru a utiliza fișiere cu Send.";
 "SendFileEmailVerificationRequired" = "Trebuie să vă verificați e-mailul pentru a utiliza fișiere cu Send. Vă puteți verifica e-mailul în seiful web.";
+/* Alert message shown when Send Controls policy restricts creation to one Send type. %1$@ is the allowed Send type, either "File" or "Text". */
+"DueToAnEnterprisePolicyYouCanOnlyCreateXSends" = "Due to an enterprise policy, you can only create %1$@ Sends.";
+"OrganizationPolicyRestriction" = "Organization policy restriction";
+"TextSendsAreNotAllowedDescriptionLong" = "Text Sends are not allowed for your organization and this Send will automatically expire at the set deletion date.";
+"ThisSendIsNotCompliantDescriptionLong" = "This Send is not compliant with your organization's Send policy and will automatically expire at the set deletion date.";
+"ToEditThisSendMakeACopyDescriptionLong" = "To edit this Send, make a copy. If this Send can expire at the set deletion date, no action is needed.";
+"MakeACopy" = "Make a copy";
 "PasswordPrompt" = "Re-solicitare parolă principală";
 "PasswordConfirmation" = "Confirmare parolă principală";
 "PasswordConfirmationDesc" = "Această acțiune este protejată. Pentru a continua, vă rugăm să reintroduceți parola principală pentru a vă verifica identitatea.";
@@ -648,7 +658,6 @@
 "SetUpAutofill" = "Configurează completarea automată";
 "AppInfo" = "Informații aplicație";
 "Browse" = "Navighează";
-"SelectCardholderName" = "Selectează numele deținătorului cardului";
 "SelectLanguage" = "Selectează limba";
 "ContinueToCompleteWebAuthnVerification" = "Continuă pentru a finaliza verificarea WebAuthn.";
 "ThereWasAnErrorStartingWebAuthnTwoFactorAuthentication" = "A apărut o eroare la pornirea autentificării cu doi factori WebAuthn";
@@ -667,7 +676,6 @@
 "ByContinuingYouAgreeToTheTermsOfServiceAndPrivacyPolicy" = "Continuând, ești de acord cu **[Termenii de utilizare](%1$@)** și **[Politica de confidențialitate](%2$@)**";
 "GetAdviceAnnouncementsAndResearchOpportunitiesFromBitwardenInYourInboxUnsubscribeAtAnyTime." = "Primește sfaturi, anunțuri și oportunități de cercetare de la Bitwarden în căsuța ta de e-mail. **[Dezabonare](%1$@)** în orice moment.";
 "UserVerificationForPasskey" = "Verificarea utilizatorului pentru cheia de acces";
-"NewItem" = "Element nou";
 "ExploreTheGenerator" = "Explorează generatorul";
 "LearnMoreAboutGeneratingSecureLoginCredentialsWithAGuidedTour" = "Află mai multe despre generarea de acreditări de autentificare sigure cu un tur ghidat.";
 "ExportVaultFilePwProtectInfo" = "Acest export va fi protejat cu parolă și necesită parola fișierului pentru decriptare.";
@@ -881,6 +889,10 @@
 "Identification" = "Identificare";
 "Owner" = "Proprietar";
 "VerifyYourIdentity" = "Verificați- vă identitatea";
+"ThisOperationIsNotAllowedOnThisAccount" = "This operation is not allowed on this account";
+"AnErrorOccurredWhileTryingToLockTheCurrentUser" = "An error occurred while trying to lock the current user";
+"LockAllAccounts" = "Lock all accounts";
+"AllAccountsHaveBeenLocked" = "All accounts have been locked";
 "ShareErrorDetails" = "Distribuie detaliile erorii";
 "FlightRecorder" = "Înregistrator de zbor";
 "EnableFlightRecorder" = "Activează înregistratorul de zbor";
@@ -909,7 +921,13 @@
 "ExpiresOnXDate" = "Expiră pe %1$@";
 "ExpiresTomorrow" = "Expiră mâine";
 "DateRangeXToY" = "%1$@ până la %2$@";
+"LogOutAllAccounts" = "Log out all accounts";
+"AllAccountsHaveBeenLoggedOut" = "All accounts have been logged out";
+"AnErrorOccurredWhileTryingToLogOutAllAccounts" = "An error occurred while trying to log out all accounts";
 "SelfHostServerURL" = "URL server self-host";
+"OpenGenerator" = "Open generator";
+"OpenPasswordGenerator" = "Open password generator";
+"GeneratePassphrase" = "Generate passphrase";
 "AllowUniversalClipboard" = "Permite Clipboard Universal";
 "UseUniversalClipboardToCopyDescriptionLong" = "Folosește Clipboard Universal pentru a copia aici și a lipi pe alte dispozitive autentificate cu același Apple ID.";
 "RemoveMasterPasswordConfirmDomain" = "O parolă master nu mai este necesară pentru membrii următoarei organizații. Te rugăm să confirmi domeniul de mai jos cu administratorul organizației.";
@@ -929,6 +947,7 @@
 "GoToSettings" = "Mergi la setări";
 "SiriAndShortcutsAccess" = "Acces Siri și Shortcuts";
 "EnableToAllowTheAppToRespondToSiriAndShortcutsUsingAppIntents" = "Activează pentru a permite aplicației să răspundă la Siri și Shortcuts folosind App Intents.";
+"ThereIsNoActiveAccount" = "There is no active account.";
 "NewFileSend" = "Send fișier nou";
 "NewTextSend" = "Send text nou";
 "EditFileSend" = "Editează Send fișier";
@@ -979,7 +998,6 @@
 "NoAskMe" = "Nu, întreabă-mă";
 "NoCodes" = "Nu ai niciun cod de afișat";
 "None" = "Niciuna";
-"NoneOfTheAbove" = "Niciuna dintre cele de mai sus";
 "NumberOfDigits" = "Număr de cifre";
 "OtpType" = "Tip OTP";
 "RefreshPeriod" = "Perioadă de reîmprospătare";
@@ -1077,6 +1095,7 @@
 "AnyoneWithTheLink" = "Oricine cu linkul";
 "AnyoneWithThisLinkCanViewThisSend" = "Oricine cu acest link poate vizualiza acest Send.";
 "AfterSharingThisSendLinkDescriptionLong" = "După partajarea acestui link Send, persoanele vor trebui să își verifice e-mailul cu un cod pentru a vizualiza acest Send.";
+"IndividualsWillNeedToEnterThisPasswordDescriptionLong" = "Individuals will need to enter this password to view this Send";
 "SpecificPeople" = "Persoane specifice";
 "WhoCanView" = "Cine poate vizualiza";
 "SharingWithSpecificPeopleIsPremiumFeatureDescriptionLong" = "Partajarea cu persoane specifice este o funcție Premium. Planul tău actual nu include acces la această funcție.";
@@ -1254,5 +1273,26 @@
 "Server" = "Server";
 /* Accessibility label for the button that clears a field's value. %1$@ is the field's title (e.g. "Date of birth"), so the spoken label reads "Clear Date of birth". */
 "ClearFieldName" = "Șterge %1$@";
-"SelectDate" = "Selectează data";
+/* Accessibility hint on a collapsed date field announcing that activating it opens the calendar picker. */
+"OpensDatePicker" = "Opens date picker";
+/* Accessibility hint on an expanded date field announcing that activating it closes the calendar picker. */
+"ClosesDatePicker" = "Closes date picker";
+/* VoiceOver announcement posted when a date picker whose range excludes future dates, e.g. date of birth or an issue date, reports landing on today (the latest available day) while scrolling the wheel. */
+"FutureDatesUnavailable" = "Future dates unavailable";
 "PremiumRequiredTOTPDescriptionLong" = "Cheia Authenticator (TOTP) este o funcție Premium. Planul tău actual nu include acces la această funcție.";
+/* Toast shown after a login item is saved. */
+"LoginSaved" = "Login saved";
+/* Toast shown after a card item is saved. */
+"CardSaved" = "Card saved";
+/* Toast shown after an identity item is saved. */
+"IdentitySaved" = "Identity saved";
+/* Toast shown after a secure note item is saved. */
+"SecureNoteSaved" = "Secure note saved";
+/* Toast shown after an SSH key item is saved. */
+"SSHKeySaved" = "SSH key saved";
+/* Toast shown after a bank account item is saved. */
+"BankAccountSaved" = "Bank account saved";
+/* Toast shown after a driver's license item is saved. */
+"LicenseSaved" = "License saved";
+/* Toast shown after a passport item is saved. */
+"PassportSaved" = "Passport saved";

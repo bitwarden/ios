@@ -8,8 +8,12 @@
 "Copy" = "Kopiraj";
 "CopyLicenseNumber" = "Kopiraj številko dovoljenja";
 "CopyPassportNumber" = "Kopiraj številko potnega lista";
+"CopyPassphrase" = "Copy passphrase";
 "CopyPassword" = "Kopiraj geslo";
 "CopyUsername" = "Kopiraj uporabniško ime";
+"UseThisPassphrase" = "Use this passphrase";
+"UseThisPassword" = "Use this password";
+"UseThisUsername" = "Use this username";
 "Delete" = "Izbriši";
 "DeleteAll" = "Izbriši vse";
 "Deleting" = "Brisanje…";
@@ -129,7 +133,6 @@
 "PasswordOverrideAlert" = "Ali ste prepričani, da želite prepisati vaše trenutno geslo?";
 "PushNotificationAlert" = "Bitwarden vzdržuje samodejno sinhronizacijo vašega trezorja s pomočjo potisnih obvestil. Za najboljšo možno izkušnjo izberite »Dovoli« na naslednjem pozivu, ko vas vpraša, ali dovolite potisna obvestila.";
 "Security" = "Varnost";
-"Select" = "Izberi";
 "ItemUpdated" = "Element shranjen.";
 "Submitting" = "Pošiljanje…";
 "Syncing" = "Sinhronizacija…";
@@ -182,7 +185,6 @@
 "CopyTotp" = "Kopiraj TOTP";
 "CopyTotpAutomaticallyDescription" = "Če ima prijava ključ overovitelja, ko samodejno izpolnite prijavo, kopirajte kodo TOTP v odložišče.";
 "CopyTotpAutomatically" = "Samodejno kopiraj TOTP";
-"PremiumRequired" = "Premium članstvo je potrebno za uporabo te funkcije.";
 "AttachementAdded" = "Priloga dodana";
 "AttachmentDeleted" = "Priloga izbrisana";
 "ChooseFile" = "Izberite datoteko";
@@ -223,7 +225,6 @@
 "August" = "Avgust";
 "Brand" = "Znamka";
 "CardholderName" = "Imetnik kartice";
-"WeFoundMultipleMatchesChooseTheCorrectOne" = "Našli smo več zadetkov. Izberite pravilnega.";
 "CityTown" = "Mesto";
 "Company" = "Podjetje";
 "Country" = "Država";
@@ -309,6 +310,7 @@
 "NoEmailAddressesEntered" = "Ni vnesenih e-poštnih naslovov";
 "EnterAtLeastOneValidEmailToShareSend" = "Za skupno rabo tega Senda vnesite vsaj en veljaven e-poštni naslov.";
 "OneOrMoreEmailAddressesIncorrect" = "Eden ali več e-poštnih naslovov je napačnih. Preglejte in poskusite znova.";
+"OnlyIncludeTheFollowingDomainsDescriptionLong" = "Only include the following domains: %1$@. Please review and try again.";
 "Cards" = "Plačilne kartice";
 "Identities" = "Identitete";
 "Logins" = "Prijave";
@@ -444,11 +446,19 @@
 "NewSendCreated" = "Pošiljka ustvarjena.";
 "Custom" = "Po meri";
 "SendDisabledWarning" = "Zaradi pravilnika podjetja lahko samo izbrišete obstoječi Send.";
+"ThisDateIsEnforcedByYourOrganization" = "This date is enforced by your organization";
 "AboutSend" = "O pošiljkah";
 "HideEmail" = "Skrij moj e-poštni naslov od prejemnikov.";
 "SendOptionsPolicyInEffect" = "Ena ali več pravilnikov organizacije vpliva na vaše možnosti pošiljanja.";
 "SendFilePremiumRequired" = "Brezplačni računi so omejeni samo na besedilne pošiljke. Za uporabo datotečnih pošiljk je potrebno članstvo Premium.";
 "SendFileEmailVerificationRequired" = "Če želite uporabljati datotečne pošiljke, morate potrditi svoj e-naslov. To lahko storite v trezorju na spletu.";
+/* Alert message shown when Send Controls policy restricts creation to one Send type. %1$@ is the allowed Send type, either "File" or "Text". */
+"DueToAnEnterprisePolicyYouCanOnlyCreateXSends" = "Due to an enterprise policy, you can only create %1$@ Sends.";
+"OrganizationPolicyRestriction" = "Organization policy restriction";
+"TextSendsAreNotAllowedDescriptionLong" = "Text Sends are not allowed for your organization and this Send will automatically expire at the set deletion date.";
+"ThisSendIsNotCompliantDescriptionLong" = "This Send is not compliant with your organization's Send policy and will automatically expire at the set deletion date.";
+"ToEditThisSendMakeACopyDescriptionLong" = "To edit this Send, make a copy. If this Send can expire at the set deletion date, no action is needed.";
+"MakeACopy" = "Make a copy";
 "PasswordPrompt" = "Ponovno zahtevaj glavno geslo";
 "PasswordConfirmation" = "Potrditev glavnega gesla";
 "PasswordConfirmationDesc" = "To dejanje je zaščiteno. Za nadaljevanje znova vnesite svoje glavno geslo za potrditev identitete.";
@@ -648,7 +658,6 @@
 "SetUpAutofill" = "Nastavi samodejno izpolnjevanje";
 "AppInfo" = "Podatki o aplikaciji";
 "Browse" = "Prebrskaj";
-"SelectCardholderName" = "Izberite ime imetnika kartice";
 "SelectLanguage" = "Izberite jezik";
 "ContinueToCompleteWebAuthnVerification" = "Nadaljujte za dokončanje preverjanja WebAuthn.";
 "ThereWasAnErrorStartingWebAuthnTwoFactorAuthentication" = "Pri zagonu dvofaktorske avtentikacije WebAuthn je prišlo do napake";
@@ -667,7 +676,6 @@
 "ByContinuingYouAgreeToTheTermsOfServiceAndPrivacyPolicy" = "Z nadaljevanjem se strinjate z **[Pogoji storitve](%1$@)** in **[Pravilnikom o zasebnosti](%2$@)**";
 "GetAdviceAnnouncementsAndResearchOpportunitiesFromBitwardenInYourInboxUnsubscribeAtAnyTime." = "Prejemajte nasvete, obvestila in raziskovalne priložnosti od Bitwarden v svoj nabiralnik. Kadar koli se lahko **[odjavite](%1$@)**.";
 "UserVerificationForPasskey" = "Preverjanje uporabnika za varnostni ključ";
-"NewItem" = "Nov element";
 "ExploreTheGenerator" = "Raziščite generator";
 "LearnMoreAboutGeneratingSecureLoginCredentialsWithAGuidedTour" = "Več o ustvarjanju varnih prijavnih podatkov izveste z vodenim ogledom.";
 "ExportVaultFilePwProtectInfo" = "Ta izvoz bo zaščiten z geslom; to geslo bo potrebno tudi pri uvozu.";
@@ -881,6 +889,10 @@
 "Identification" = "Identifikacija";
 "Owner" = "Lastnik";
 "VerifyYourIdentity" = "Preverite svojo identiteto";
+"ThisOperationIsNotAllowedOnThisAccount" = "This operation is not allowed on this account";
+"AnErrorOccurredWhileTryingToLockTheCurrentUser" = "An error occurred while trying to lock the current user";
+"LockAllAccounts" = "Lock all accounts";
+"AllAccountsHaveBeenLocked" = "All accounts have been locked";
 "ShareErrorDetails" = "Deli podrobnosti o napaki";
 "FlightRecorder" = "Letalski zapisovalnik";
 "EnableFlightRecorder" = "Omogoči letalski zapisovalnik";
@@ -909,7 +921,13 @@
 "ExpiresOnXDate" = "Poteče %1$@";
 "ExpiresTomorrow" = "Poteče jutri";
 "DateRangeXToY" = "%1$@ do %2$@";
+"LogOutAllAccounts" = "Log out all accounts";
+"AllAccountsHaveBeenLoggedOut" = "All accounts have been logged out";
+"AnErrorOccurredWhileTryingToLogOutAllAccounts" = "An error occurred while trying to log out all accounts";
 "SelfHostServerURL" = "URL samogostovanega strežnika";
+"OpenGenerator" = "Open generator";
+"OpenPasswordGenerator" = "Open password generator";
+"GeneratePassphrase" = "Generate passphrase";
 "AllowUniversalClipboard" = "Dovoli univerzalno odložišče";
 "UseUniversalClipboardToCopyDescriptionLong" = "Uporabite univerzalno odložišče za kopiranje tukaj in lepljenje na drugih napravah, prijavljenih z istim Apple ID.";
 "RemoveMasterPasswordConfirmDomain" = "Za člane naslednje organizacije glavno geslo ni več potrebno. Potrdite spodnjo domeno s skrbnikom organizacije.";
@@ -929,6 +947,7 @@
 "GoToSettings" = "Pojdi v nastavitve";
 "SiriAndShortcutsAccess" = "Dostop Siri in bližnjic";
 "EnableToAllowTheAppToRespondToSiriAndShortcutsUsingAppIntents" = "Omogočite, da aplikacija odgovarja na Siri in bližnjice z uporabo App Intents.";
+"ThereIsNoActiveAccount" = "There is no active account.";
 "NewFileSend" = "Nov Send z datoteko";
 "NewTextSend" = "Nov Send z besedilom";
 "EditFileSend" = "Uredi Send z datoteko";
@@ -979,7 +998,6 @@
 "NoAskMe" = "Ne, vprašaj me";
 "NoCodes" = "Nimate nobenih kod za prikaz";
 "None" = "Brez";
-"NoneOfTheAbove" = "Noben od zgoraj navedenih";
 "NumberOfDigits" = "Število števk";
 "OtpType" = "Vrsta OTP";
 "RefreshPeriod" = "Obdobje osveževanja";
@@ -1077,6 +1095,7 @@
 "AnyoneWithTheLink" = "Kdorkoli s povezavo";
 "AnyoneWithThisLinkCanViewThisSend" = "Kdorkoli s to povezavo si lahko ogleda ta Send.";
 "AfterSharingThisSendLinkDescriptionLong" = "Po skupni rabi te povezave Senda bodo morali posamezniki za ogled tega Senda potrditi svoj e-poštni naslov s kodo.";
+"IndividualsWillNeedToEnterThisPasswordDescriptionLong" = "Individuals will need to enter this password to view this Send";
 "SpecificPeople" = "Določene osebe";
 "WhoCanView" = "Kdo si lahko ogleda";
 "SharingWithSpecificPeopleIsPremiumFeatureDescriptionLong" = "Skupna raba z določenimi osebami je funkcija Premium. Vaš trenutni paket ne vključuje dostopa do te funkcije.";
@@ -1254,5 +1273,26 @@
 "Server" = "Strežnik";
 /* Accessibility label for the button that clears a field's value. %1$@ is the field's title (e.g. "Date of birth"), so the spoken label reads "Clear Date of birth". */
 "ClearFieldName" = "Počisti %1$@";
-"SelectDate" = "Izberite datum";
+/* Accessibility hint on a collapsed date field announcing that activating it opens the calendar picker. */
+"OpensDatePicker" = "Opens date picker";
+/* Accessibility hint on an expanded date field announcing that activating it closes the calendar picker. */
+"ClosesDatePicker" = "Closes date picker";
+/* VoiceOver announcement posted when a date picker whose range excludes future dates, e.g. date of birth or an issue date, reports landing on today (the latest available day) while scrolling the wheel. */
+"FutureDatesUnavailable" = "Future dates unavailable";
 "PremiumRequiredTOTPDescriptionLong" = "Ključ overovitelja (TOTP) je funkcija Premium. Vaš trenutni paket ne vključuje dostopa do te funkcije.";
+/* Toast shown after a login item is saved. */
+"LoginSaved" = "Login saved";
+/* Toast shown after a card item is saved. */
+"CardSaved" = "Card saved";
+/* Toast shown after an identity item is saved. */
+"IdentitySaved" = "Identity saved";
+/* Toast shown after a secure note item is saved. */
+"SecureNoteSaved" = "Secure note saved";
+/* Toast shown after an SSH key item is saved. */
+"SSHKeySaved" = "SSH key saved";
+/* Toast shown after a bank account item is saved. */
+"BankAccountSaved" = "Bank account saved";
+/* Toast shown after a driver's license item is saved. */
+"LicenseSaved" = "License saved";
+/* Toast shown after a passport item is saved. */
+"PassportSaved" = "Passport saved";

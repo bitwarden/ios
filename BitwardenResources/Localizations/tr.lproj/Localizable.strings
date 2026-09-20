@@ -8,8 +8,12 @@
 "Copy" = "Kopyala";
 "CopyLicenseNumber" = "Ruhsat numarasını kopyala";
 "CopyPassportNumber" = "Pasaport numarasını kopyala";
+"CopyPassphrase" = "Copy passphrase";
 "CopyPassword" = "Parolayı kopyala";
 "CopyUsername" = "Kullanıcı adını kopyala";
+"UseThisPassphrase" = "Bu parola cümlesini kullan";
+"UseThisPassword" = "Bu parolayı kullan";
+"UseThisUsername" = "Bu kullanıcı adını kullan";
 "Delete" = "Sil";
 "DeleteAll" = "Tümünü sil";
 "Deleting" = "Siliniyor…";
@@ -129,7 +133,6 @@
 "PasswordOverrideAlert" = "Mevcut parolanın üzerine kaydetmek istediğinize emin misiniz?";
 "PushNotificationAlert" = "Bitwarden, anında ilet bildirimlerini kullanarak kasanızı otomatik olarak eşitleyebilir. Bitwarden'dan en iyi şekilde faydalanmak için lütfen bir sonraki ekranda “İzin Ver”i seçerek bildirimlere izin verin.";
 "Security" = "Güvenlik";
-"Select" = "Seç";
 "ItemUpdated" = "Kayıt kaydedildi";
 "Submitting" = "Gönderiliyor…";
 "Syncing" = "Eşitleniyor…";
@@ -182,7 +185,6 @@
 "CopyTotp" = "TOTP'yi kopyala";
 "CopyTotpAutomaticallyDescription" = "Hesabınıza bağlı bir kimlik doğrulama anahtarı varsa giriş bilgilerini otomatik doldurduğunuzda TOTP doğrulama kodu panonuza kopyalanır.";
 "CopyTotpAutomatically" = "TOTP'yi otomatik kopyala";
-"PremiumRequired" = "Bu özelliği kullanmak için premium üyelik gereklidir.";
 "AttachementAdded" = "Dosya eklendi";
 "AttachmentDeleted" = "Dosya silindi";
 "ChooseFile" = "Dosya seç";
@@ -223,7 +225,6 @@
 "August" = "Ağustos";
 "Brand" = "Marka";
 "CardholderName" = "Kart sahibinin adı";
-"WeFoundMultipleMatchesChooseTheCorrectOne" = "Birden fazla eşleşme bulduk. Doğru olanı seçin.";
 "CityTown" = "Şehir";
 "Company" = "Şirket";
 "Country" = "Ülke";
@@ -309,6 +310,7 @@
 "NoEmailAddressesEntered" = "E-posta adresi girilmedi";
 "EnterAtLeastOneValidEmailToShareSend" = "Bu Send'i paylaşmak için en az bir geçerli e-posta adresi girin.";
 "OneOrMoreEmailAddressesIncorrect" = "Bir veya daha fazla e posta adresi geçersiz. Lütfen kontrol edip yeniden deneyin.";
+"OnlyIncludeTheFollowingDomainsDescriptionLong" = "Only include the following domains: %1$@. Please review and try again.";
 "Cards" = "Kartlar";
 "Identities" = "Kimlikler";
 "Logins" = "Hesaplar";
@@ -444,11 +446,19 @@
 "NewSendCreated" = "Send oluşturuldu";
 "Custom" = "Özel";
 "SendDisabledWarning" = "Bir kuruluş ilkesi nedeniyle yalnızca mevcut Send'leri silebilirsiniz.";
+"ThisDateIsEnforcedByYourOrganization" = "This date is enforced by your organization";
 "AboutSend" = "Send hakkında";
 "HideEmail" = "E-posta adresimi alıcılardan gizle";
 "SendOptionsPolicyInEffect" = "Bir veya daha fazla kuruluş ilkesi Send seçeneklerinizi etkiliyor.";
 "SendFilePremiumRequired" = "Ücretsiz hesaplar yalnızca metin paylaşabilir. Send ile dosya paylaşmak için premium üyelik gerekir.";
 "SendFileEmailVerificationRequired" = "Send ile dosya paylaşmak için e-postanızı doğrulamalısınız. E-postanızı web kasası üzerinden doğrulayabilirsiniz.";
+/* Alert message shown when Send Controls policy restricts creation to one Send type. %1$@ is the allowed Send type, either "File" or "Text". */
+"DueToAnEnterprisePolicyYouCanOnlyCreateXSends" = "Due to an enterprise policy, you can only create %1$@ Sends.";
+"OrganizationPolicyRestriction" = "Organization policy restriction";
+"TextSendsAreNotAllowedDescriptionLong" = "Text Sends are not allowed for your organization and this Send will automatically expire at the set deletion date.";
+"ThisSendIsNotCompliantDescriptionLong" = "This Send is not compliant with your organization's Send policy and will automatically expire at the set deletion date.";
+"ToEditThisSendMakeACopyDescriptionLong" = "To edit this Send, make a copy. If this Send can expire at the set deletion date, no action is needed.";
+"MakeACopy" = "Kopya oluştur";
 "PasswordPrompt" = "Ana parolayı yeniden iste";
 "PasswordConfirmation" = "Ana parola onayı";
 "PasswordConfirmationDesc" = "Bu işlem korumalıdır. İşleme devam etmek için lütfen ana parolanızı yeniden girin.";
@@ -648,7 +658,6 @@
 "SetUpAutofill" = "Otomatik doldurmayı ayarla";
 "AppInfo" = "Uygulama bilgileri";
 "Browse" = "Gözat";
-"SelectCardholderName" = "Kart sahibi adını seçin";
 "SelectLanguage" = "Dil seçin";
 "ContinueToCompleteWebAuthnVerification" = "WebAuthn doğrulamasını tamamlamak için devam edin.";
 "ThereWasAnErrorStartingWebAuthnTwoFactorAuthentication" = "WebAuthn iki faktörlü kimlik doğrulamayı başlatırken bir hata oluştu";
@@ -667,7 +676,6 @@
 "ByContinuingYouAgreeToTheTermsOfServiceAndPrivacyPolicy" = "Devam ederek, **[Hizmet Şartları](%1$@)** ve **[Gizlilik Politikası](%2$@)**'nı kabul etmiş olursunuz";
 "GetAdviceAnnouncementsAndResearchOpportunitiesFromBitwardenInYourInboxUnsubscribeAtAnyTime." = "Bitwarden'dan gelen tavsiyeleri, duyuruları ve araştırma fırsatlarını e-posta kutunuza alın. İstediğiniz zaman aboneliği iptal etmek için **[Aboneliği iptal et](%1$@)**.";
 "UserVerificationForPasskey" = "Geçiş anahtarı için kullanıcı doğrulaması";
-"NewItem" = "Yeni kayıt";
 "ExploreTheGenerator" = "Üreteci keşfedin";
 "LearnMoreAboutGeneratingSecureLoginCredentialsWithAGuidedTour" = "Rehberli tur ile güvenli hesap kimlik bilgileri oluşturma hakkında daha fazla bilgi edinin.";
 "ExportVaultFilePwProtectInfo" = "Dışarı aktarılan bu dosya parola korumalı olacak ve dosyanın çözülmesi için parolayı girmeniz gerekecek.";
@@ -881,6 +889,10 @@
 "Identification" = "Kimlik";
 "Owner" = "Sahibi";
 "VerifyYourIdentity" = "Kimliğinizi doğrulayın";
+"ThisOperationIsNotAllowedOnThisAccount" = "Bu hesapta bu işleme izin verilmiyor";
+"AnErrorOccurredWhileTryingToLockTheCurrentUser" = "Geçerli kullanıcıyı kilitlemeye çalışırken bir hata oluştu";
+"LockAllAccounts" = "Tüm hesapları kilitle";
+"AllAccountsHaveBeenLocked" = "Tüm hesaplar kilitlendi";
 "ShareErrorDetails" = "Hata ayrıntılarını paylaş";
 "FlightRecorder" = "Uçuş kaydedici";
 "EnableFlightRecorder" = "Uçuş kaydediciyi etkinleştir";
@@ -909,7 +921,13 @@
 "ExpiresOnXDate" = "%1$@ tarihinde sona erer";
 "ExpiresTomorrow" = "Yarın sona eriyor";
 "DateRangeXToY" = "%1$@ ila %2$@";
+"LogOutAllAccounts" = "Tüm hesaplardan çıkış yap";
+"AllAccountsHaveBeenLoggedOut" = "Tüm hesaplardan çıkış yapıldı";
+"AnErrorOccurredWhileTryingToLogOutAllAccounts" = "Tüm hesaplardan çıkış yapmaya çalışırken bir hata oluştu";
 "SelfHostServerURL" = "Kendi kendine barındırılan sunucu URL'si";
+"OpenGenerator" = "Üreteci aç";
+"OpenPasswordGenerator" = "Parola üretecini aç";
+"GeneratePassphrase" = "Parola cümlesi üret";
 "AllowUniversalClipboard" = "Evrensel Pano’ya izin ver";
 "UseUniversalClipboardToCopyDescriptionLong" = "Burada kopyaladığınız şeyleri aynı Apple ID ile giriş yapmış diğer cihazlarınıza yapıştırmak için Evrensel Pano’yu kullanabilirsiniz.";
 "RemoveMasterPasswordConfirmDomain" = "Aşağıdaki organizasyonun üyeleri için artık ana parola gerekmemektedir. Lütfen alan adını organizasyon yöneticinizle doğrulayın.";
@@ -929,6 +947,7 @@
 "GoToSettings" = "Ayarlara git";
 "SiriAndShortcutsAccess" = "Siri ve Kısayollara erişim";
 "EnableToAllowTheAppToRespondToSiriAndShortcutsUsingAppIntents" = "Uygulamanın App Intents kullanarak Siri ve Kısayollara yanıt vermesine izin ver.";
+"ThereIsNoActiveAccount" = "Aktif hesap yok.";
 "NewFileSend" = "Yeni Send dosyası";
 "NewTextSend" = "Yeni Send metni";
 "EditFileSend" = "Send dosyasını düzenle";
@@ -979,7 +998,6 @@
 "NoAskMe" = "Hayır, bana sor";
 "NoCodes" = "Görüntülenecek hiç kodunuz yok";
 "None" = "Yok";
-"NoneOfTheAbove" = "Hiçbiri";
 "NumberOfDigits" = "Basamak sayısı";
 "OtpType" = "OTP türü";
 "RefreshPeriod" = "Yenileme süresi";
@@ -1077,6 +1095,7 @@
 "AnyoneWithTheLink" = "Bağlantıya sahip olan herkes";
 "AnyoneWithThisLinkCanViewThisSend" = "Bu bağlantıya sahip olan herkes bu Gönderiyi görüntüleyebilir.";
 "AfterSharingThisSendLinkDescriptionLong" = "Bu Send bağlantısını paylaştığınızda kullanıcıların bu Send'i görüntülemeleri için e-posta adreslerini bir kodla doğrulamaları gerekecektir.";
+"IndividualsWillNeedToEnterThisPasswordDescriptionLong" = "Bu Send'i görmek isteyen kişilerin bu parolayı girmesi gerekecektir";
 "SpecificPeople" = "Belirli kişiler";
 "WhoCanView" = "Kim görebilir";
 "SharingWithSpecificPeopleIsPremiumFeatureDescriptionLong" = "Seçili kişiler ile paylaşmak bir Premium özelliğidir.Şuanki planınız bu özelliği içermiyor.";
@@ -1254,5 +1273,26 @@
 "Server" = "Sunucu";
 /* Accessibility label for the button that clears a field's value. %1$@ is the field's title (e.g. "Date of birth"), so the spoken label reads "Clear Date of birth". */
 "ClearFieldName" = "%1$@ alanını temizle";
-"SelectDate" = "Tarih seçin";
+/* Accessibility hint on a collapsed date field announcing that activating it opens the calendar picker. */
+"OpensDatePicker" = "Tarih seçiciyi açar";
+/* Accessibility hint on an expanded date field announcing that activating it closes the calendar picker. */
+"ClosesDatePicker" = "Tarih seçiciyi kapatır";
+/* VoiceOver announcement posted when a date picker whose range excludes future dates, e.g. date of birth or an issue date, reports landing on today (the latest available day) while scrolling the wheel. */
+"FutureDatesUnavailable" = "Future dates unavailable";
 "PremiumRequiredTOTPDescriptionLong" = "Kimlik doğrulama anahtarı (TOTP) premium bir özelliktir. Mevcut paketiniz bu özelliği içermiyor.";
+/* Toast shown after a login item is saved. */
+"LoginSaved" = "Hesap kaydedildi";
+/* Toast shown after a card item is saved. */
+"CardSaved" = "Kart kaydedildi";
+/* Toast shown after an identity item is saved. */
+"IdentitySaved" = "Kimlik kaydedildi";
+/* Toast shown after a secure note item is saved. */
+"SecureNoteSaved" = "Güvenli not kaydedildi";
+/* Toast shown after an SSH key item is saved. */
+"SSHKeySaved" = "SSH anahtarı kaydedildi";
+/* Toast shown after a bank account item is saved. */
+"BankAccountSaved" = "Banka hesabı kaydedildi";
+/* Toast shown after a driver's license item is saved. */
+"LicenseSaved" = "Ehliyet kaydedildi";
+/* Toast shown after a passport item is saved. */
+"PassportSaved" = "Pasaport kaydedildi";

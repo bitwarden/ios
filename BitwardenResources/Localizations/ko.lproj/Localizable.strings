@@ -8,8 +8,12 @@
 "Copy" = "복사";
 "CopyLicenseNumber" = "면허 번호 복사";
 "CopyPassportNumber" = "여권 번호 복사";
+"CopyPassphrase" = "Copy passphrase";
 "CopyPassword" = "비밀번호 복사";
 "CopyUsername" = "사용자 이름 복사";
+"UseThisPassphrase" = "Use this passphrase";
+"UseThisPassword" = "Use this password";
+"UseThisUsername" = "Use this username";
 "Delete" = "삭제";
 "DeleteAll" = "모두 삭제";
 "Deleting" = "삭제 중…";
@@ -129,7 +133,6 @@
 "PasswordOverrideAlert" = "정말 현재 비밀번호를 덮어쓰시겠습니까?";
 "PushNotificationAlert" = "Bitwarden은 푸시 알림을 사용하여 사용자의 보관함을 자동으로 동기화합니다. 다음 대화 상자에서 푸시 알림에 대해 물어보면 최상의 사용자 경험을 위해 \"승인\"을 선택해 주세요.";
 "Security" = "보안";
-"Select" = "선택";
 "ItemUpdated" = "항목을 업데이트했습니다.";
 "Submitting" = "제출 중";
 "Syncing" = "동기화 중...";
@@ -182,7 +185,6 @@
 "CopyTotp" = "TOTP 복사";
 "CopyTotpAutomaticallyDescription" = "로그인에 인증 키가 연결되어 있을 경우, 그 로그인을 자동 완성할 때마다 TOTP 인증 코드가 클립보드에 자동으로 복사됩니다.";
 "CopyTotpAutomatically" = "인증 코드 자동으로 복사하기";
-"PremiumRequired" = "이 기능을 사용하려면 프리미엄 멤버십이 필요합니다.";
 "AttachementAdded" = "첨부 파일 추가함";
 "AttachmentDeleted" = "첨부 파일 삭제함";
 "ChooseFile" = "파일 선택";
@@ -223,7 +225,6 @@
 "August" = "8월";
 "Brand" = "브랜드";
 "CardholderName" = "카드 소유자 이름";
-"WeFoundMultipleMatchesChooseTheCorrectOne" = "일치하는 항목이 여러 개 발견되었습니다. 올바른 항목을 선택하세요.";
 "CityTown" = "읍 / 면 / 동";
 "Company" = "회사";
 "Country" = "국가";
@@ -309,6 +310,7 @@
 "NoEmailAddressesEntered" = "입력된 이메일 주소 없음";
 "EnterAtLeastOneValidEmailToShareSend" = "이 Send를 공유하려면 하나 이상의 유효한 이메일 주소를 입력하세요.";
 "OneOrMoreEmailAddressesIncorrect" = "하나 이상의 이메일 주소가 잘못되었습니다. 확인 후 다시 시도하세요.";
+"OnlyIncludeTheFollowingDomainsDescriptionLong" = "Only include the following domains: %1$@. Please review and try again.";
 "Cards" = "카드";
 "Identities" = "신원";
 "Logins" = "로그인";
@@ -444,11 +446,19 @@
 "NewSendCreated" = "새 Send 생성됨.";
 "Custom" = "사용자 지정";
 "SendDisabledWarning" = "엔터프라이즈 정책으로 인해 이미 생성된 Send를 삭제하는 것만 허용됩니다.";
+"ThisDateIsEnforcedByYourOrganization" = "조직에서 이 날짜로 강제했습니다";
 "AboutSend" = "Send 정보";
 "HideEmail" = "받는 사람으로부터 나의 이메일 주소 숨기기";
 "SendOptionsPolicyInEffect" = "하나 이상의 단체 정책이 Send 설정에 영향을 미치고 있습니다.";
 "SendFilePremiumRequired" = "무료 계정은 텍스트만 공유할 수 있습니다. Premium 멤버십이 있어야 Send에서 파일을 사용할 수 있습니다";
 "SendFileEmailVerificationRequired" = "이메일을 인증해야 Send에서 파일을 사용할 수 있습니다.";
+/* Alert message shown when Send Controls policy restricts creation to one Send type. %1$@ is the allowed Send type, either "File" or "Text". */
+"DueToAnEnterprisePolicyYouCanOnlyCreateXSends" = "Due to an enterprise policy, you can only create %1$@ Sends.";
+"OrganizationPolicyRestriction" = "Organization policy restriction";
+"TextSendsAreNotAllowedDescriptionLong" = "Text Sends are not allowed for your organization and this Send will automatically expire at the set deletion date.";
+"ThisSendIsNotCompliantDescriptionLong" = "This Send is not compliant with your organization's Send policy and will automatically expire at the set deletion date.";
+"ToEditThisSendMakeACopyDescriptionLong" = "To edit this Send, make a copy. If this Send can expire at the set deletion date, no action is needed.";
+"MakeACopy" = "Make a copy";
 "PasswordPrompt" = "마스터 비밀번호 재확인";
 "PasswordConfirmation" = "마스터 비밀번호 확인";
 "PasswordConfirmationDesc" = "이 작업은 보호되어 있습니다. 계속하려면 마스터 비밀번호를 입력하여 신원을 인증하세요.";
@@ -648,7 +658,6 @@
 "SetUpAutofill" = "자동 완성 설정";
 "AppInfo" = "애플리케이션 정보";
 "Browse" = "둘러보기";
-"SelectCardholderName" = "카드 소지자 이름 선택";
 "SelectLanguage" = "언어 선택";
 "ContinueToCompleteWebAuthnVerification" = "WebAuthn 인증을 완료하려면 계속하세요.";
 "ThereWasAnErrorStartingWebAuthnTwoFactorAuthentication" = "WebAuthn 2단계 인증을 시작하는 중 오류가 발생했습니다";
@@ -667,7 +676,6 @@
 "ByContinuingYouAgreeToTheTermsOfServiceAndPrivacyPolicy" = "계속함으로써 귀하는 **[이용약관](%1$@)** and **[개인정보처리방침](%2$@)**에 동의한 것으로 간주됩니다.";
 "GetAdviceAnnouncementsAndResearchOpportunitiesFromBitwardenInYourInboxUnsubscribeAtAnyTime." = "Bitwarden으로부터 새로운 소식과 연구 기회 등을 이메일로 받아보세요. 언제나 **[구독 취소](%1$@)**할 수 있습니다.";
 "UserVerificationForPasskey" = "패스키에 대한 사용자 확인";
-"NewItem" = "새 항목";
 "ExploreTheGenerator" = "생성기 둘러보기";
 "LearnMoreAboutGeneratingSecureLoginCredentialsWithAGuidedTour" = "안전한 로그인 비밀번호를 생성하는 방법에 대해 알아보세요.";
 "ExportVaultFilePwProtectInfo" = "파일 내보내기는 암호로 보호될 것이며, 파일을 열기 위해서는 파일 암호가 필요합니다.";
@@ -881,6 +889,10 @@
 "Identification" = "본인 확인";
 "Owner" = "소유자";
 "VerifyYourIdentity" = "신원 확인";
+"ThisOperationIsNotAllowedOnThisAccount" = "This operation is not allowed on this account";
+"AnErrorOccurredWhileTryingToLockTheCurrentUser" = "An error occurred while trying to lock the current user";
+"LockAllAccounts" = "Lock all accounts";
+"AllAccountsHaveBeenLocked" = "All accounts have been locked";
 "ShareErrorDetails" = "오류 세부 정보 공유";
 "FlightRecorder" = "비행 기록 장치";
 "EnableFlightRecorder" = "비행 기록 장치 활성화";
@@ -909,7 +921,13 @@
 "ExpiresOnXDate" = "%1$@에 만료";
 "ExpiresTomorrow" = "내일 만료";
 "DateRangeXToY" = "%1$@ - %2$@";
+"LogOutAllAccounts" = "Log out all accounts";
+"AllAccountsHaveBeenLoggedOut" = "All accounts have been logged out";
+"AnErrorOccurredWhileTryingToLogOutAllAccounts" = "An error occurred while trying to log out all accounts";
 "SelfHostServerURL" = "자체 호스트 서버 URL";
+"OpenGenerator" = "Open generator";
+"OpenPasswordGenerator" = "Open password generator";
+"GeneratePassphrase" = "Generate passphrase";
 "AllowUniversalClipboard" = "유니버설 클립보드 허용";
 "UseUniversalClipboardToCopyDescriptionLong" = "유니버설 클립보드를 사용하면 여기에서 복사한 내용을 동일한 Apple ID로 로그인된 다른 기기에서도 붙여넣을 수 있습니다.";
 "RemoveMasterPasswordConfirmDomain" = "다음 조직의 구성원에게는 더 이상 마스터 암호가 필요하지 않습니다. 아래 도메인을 조직 관리자에게 확인하세요.";
@@ -929,6 +947,7 @@
 "GoToSettings" = "설정으로 이동";
 "SiriAndShortcutsAccess" = "Siri 및 단축어 접근";
 "EnableToAllowTheAppToRespondToSiriAndShortcutsUsingAppIntents" = "이 설정을 활성화하면 App Intents를 사용하여 앱이 Siri 및 단축어에 응답할 수 있습니다.";
+"ThereIsNoActiveAccount" = "There is no active account.";
 "NewFileSend" = "새 파일 Send";
 "NewTextSend" = "새 텍스트 Send";
 "EditFileSend" = "파일 Send 편집";
@@ -979,7 +998,6 @@
 "NoAskMe" = "아니요, 나중에 다시 물어보기";
 "NoCodes" = "표시할 코드가 없습니다";
 "None" = "없음";
-"NoneOfTheAbove" = "위에 없음";
 "NumberOfDigits" = "자릿수";
 "OtpType" = "OTP 유형";
 "RefreshPeriod" = "새로 고침 간격";
@@ -1077,6 +1095,7 @@
 "AnyoneWithTheLink" = "링크가 있는 모든 사람";
 "AnyoneWithThisLinkCanViewThisSend" = "이 링크가 있는 모든 사람이 이 Send를 볼 수 있습니다.";
 "AfterSharingThisSendLinkDescriptionLong" = "이 Send 링크를 공유한 후, 개인은 이 Send를 보기 위해 코드로 이메일을 확인해야 합니다.";
+"IndividualsWillNeedToEnterThisPasswordDescriptionLong" = "Individuals will need to enter this password to view this Send";
 "SpecificPeople" = "특정 사람";
 "WhoCanView" = "볼 수 있는 사람";
 "SharingWithSpecificPeopleIsPremiumFeatureDescriptionLong" = "특정 사람과 공유는 프리미엄 기능입니다. 현재 요금제에는 이 기능에 대한 액세스가 포함되어 있지 않습니다.";
@@ -1254,5 +1273,26 @@
 "Server" = "서버";
 /* Accessibility label for the button that clears a field's value. %1$@ is the field's title (e.g. "Date of birth"), so the spoken label reads "Clear Date of birth". */
 "ClearFieldName" = "%1$@ 지우기";
-"SelectDate" = "날짜 선택";
+/* Accessibility hint on a collapsed date field announcing that activating it opens the calendar picker. */
+"OpensDatePicker" = "Opens date picker";
+/* Accessibility hint on an expanded date field announcing that activating it closes the calendar picker. */
+"ClosesDatePicker" = "Closes date picker";
+/* VoiceOver announcement posted when a date picker whose range excludes future dates, e.g. date of birth or an issue date, reports landing on today (the latest available day) while scrolling the wheel. */
+"FutureDatesUnavailable" = "Future dates unavailable";
 "PremiumRequiredTOTPDescriptionLong" = "인증자 키(TOTP)는 프리미엄 기능입니다. 현재 요금제에는 이 기능에 대한 액세스가 포함되어 있지 않습니다.";
+/* Toast shown after a login item is saved. */
+"LoginSaved" = "Login saved";
+/* Toast shown after a card item is saved. */
+"CardSaved" = "Card saved";
+/* Toast shown after an identity item is saved. */
+"IdentitySaved" = "Identity saved";
+/* Toast shown after a secure note item is saved. */
+"SecureNoteSaved" = "Secure note saved";
+/* Toast shown after an SSH key item is saved. */
+"SSHKeySaved" = "SSH key saved";
+/* Toast shown after a bank account item is saved. */
+"BankAccountSaved" = "Bank account saved";
+/* Toast shown after a driver's license item is saved. */
+"LicenseSaved" = "License saved";
+/* Toast shown after a passport item is saved. */
+"PassportSaved" = "Passport saved";

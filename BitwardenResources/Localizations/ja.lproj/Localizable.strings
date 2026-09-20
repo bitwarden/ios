@@ -8,8 +8,12 @@
 "Copy" = "コピー";
 "CopyLicenseNumber" = "免許証番号をコピー";
 "CopyPassportNumber" = "パスポート番号をコピー";
+"CopyPassphrase" = "パスフレーズをコピー";
 "CopyPassword" = "パスワードをコピー";
 "CopyUsername" = "ユーザー名をコピー";
+"UseThisPassphrase" = "このパスフレーズを使用する";
+"UseThisPassword" = "このパスワードを使用する";
+"UseThisUsername" = "このユーザー名を使用する";
 "Delete" = "削除";
 "DeleteAll" = "すべて削除";
 "Deleting" = "削除中…";
@@ -129,7 +133,6 @@
 "PasswordOverrideAlert" = "現在のパスワードを上書きしてよろしいですか?";
 "PushNotificationAlert" = "Bitwarden はプッシュ通知を使って自動的に保管庫を同期します。プッシュ通知を有効化するかどうかプロンプトが出たら「許可」を押してください。";
 "Security" = "セキュリティ";
-"Select" = "選択";
 "ItemUpdated" = "アイテムを更新しました。";
 "Submitting" = "送信中…";
 "Syncing" = "同期中…";
@@ -182,7 +185,6 @@
 "CopyTotp" = "TOTP のコピー";
 "CopyTotpAutomaticallyDescription" = "ログイン情報に認証キーがある場合は、自動入力時にクリップボードに TOTP 認証コードをコピーします。";
 "CopyTotpAutomatically" = "TOTP を自動的にコピー";
-"PremiumRequired" = "この機能を使うにはプレミアム会員になってください。";
 "AttachementAdded" = "添付ファイルを追加しました";
 "AttachmentDeleted" = "添付ファイルを削除しました";
 "ChooseFile" = "ファイルを選択";
@@ -223,7 +225,6 @@
 "August" = "8月";
 "Brand" = "ブランド";
 "CardholderName" = "カードの名義人名";
-"WeFoundMultipleMatchesChooseTheCorrectOne" = "一致するものが複数見つかりました。正しいものを選択してください。";
 "CityTown" = "市町村";
 "Company" = "会社名";
 "Country" = "国";
@@ -276,7 +277,7 @@
 "CustomFieldName" = "カスタムフィールド名";
 "FieldTypeBoolean" = "真偽値";
 "FieldTypeHidden" = "非表示";
-"FieldTypeLinked" = "リンク済";
+"FieldTypeLinked" = "リンクされたフィールド";
 "FieldTypeText" = "テキスト";
 "NewCustomField" = "新規カスタムフィールド";
 "SelectTypeField" = "どのタイプのカスタムフィールドを追加しますか？";
@@ -309,6 +310,7 @@
 "NoEmailAddressesEntered" = "メールアドレスが入力されていません";
 "EnterAtLeastOneValidEmailToShareSend" = "このSendを共有するには、有効なメールアドレスを少なくとも1つ入力してください。";
 "OneOrMoreEmailAddressesIncorrect" = "1つ以上のメールアドレスが正しくありません。確認して再試行してください。";
+"OnlyIncludeTheFollowingDomainsDescriptionLong" = "以下のドメインのみを含めてください: %1$@ 修正し、もう一度やり直してください。";
 "Cards" = "カード";
 "Identities" = "ID";
 "Logins" = "ログイン";
@@ -444,11 +446,19 @@
 "NewSendCreated" = "新しい Send を作成しました。";
 "Custom" = "カスタム";
 "SendDisabledWarning" = "組織のポリシーにより、既存の Send のみを削除できます。";
+"ThisDateIsEnforcedByYourOrganization" = "この日付はあなたの組織によって強制されます";
 "AboutSend" = "Send について";
 "HideEmail" = "メールアドレスを受信者に表示しない";
 "SendOptionsPolicyInEffect" = "一つ以上の組織ポリシーが Send の設定に影響しています。";
 "SendFilePremiumRequired" = "無料アカウントではテキストの共有のみに制限されています。Send でファイルを送信するにはプレミアム会員登録が必要です。";
 "SendFileEmailVerificationRequired" = "Send でファイルを送信するにはメールアドレスを確認する必要があります。";
+/* Alert message shown when Send Controls policy restricts creation to one Send type. %1$@ is the allowed Send type, either "File" or "Text". */
+"DueToAnEnterprisePolicyYouCanOnlyCreateXSends" = "エンタープライズポリシーにより、%1$@ Send のみを作成できます。";
+"OrganizationPolicyRestriction" = "組織ポリシーの制限";
+"TextSendsAreNotAllowedDescriptionLong" = "この組織ではテキスト Send が許可されていないため、設定された削除日時に自動的に失効します。";
+"ThisSendIsNotCompliantDescriptionLong" = "この Send は組織の Send ポリシーに準拠していないため、設定された削除日時に自動的に失効します。";
+"ToEditThisSendMakeACopyDescriptionLong" = "この Send を編集するには、コピーを作成してください。この Send が設定された削除日時に期限切れになる可能性がある場合は、アクションは必要ありません。";
+"MakeACopy" = "コピーを作成";
 "PasswordPrompt" = "マスターパスワードの再要求";
 "PasswordConfirmation" = "マスターパスワードの確認";
 "PasswordConfirmationDesc" = "この操作は保護されています。続行するには、確認のためにマスターパスワードを再入力してください。";
@@ -648,7 +658,6 @@
 "SetUpAutofill" = "自動入力を設定";
 "AppInfo" = "アプリ情報";
 "Browse" = "検索";
-"SelectCardholderName" = "カード所有者名を選択";
 "SelectLanguage" = "言語を選択";
 "ContinueToCompleteWebAuthnVerification" = "WebAuthn 認証の完了に進みます。";
 "ThereWasAnErrorStartingWebAuthnTwoFactorAuthentication" = "WebAuthn 2要素認証の開始時にエラーが発生しました";
@@ -667,7 +676,6 @@
 "ByContinuingYouAgreeToTheTermsOfServiceAndPrivacyPolicy" = "続行すると **[サービス利用規約](%1$@)** と **[プライバシーポリシー](%2$@)** に同意したものとします";
 "GetAdviceAnnouncementsAndResearchOpportunitiesFromBitwardenInYourInboxUnsubscribeAtAnyTime." = "Bitwarden からメールでアドバイスや告知、アンケートを受け取りましょう。**[配信停止](%1$@)** はいつでもできます。";
 "UserVerificationForPasskey" = "パスキーのユーザー認証";
-"NewItem" = "新しいアイテム";
 "ExploreTheGenerator" = "生成機能について知る";
 "LearnMoreAboutGeneratingSecureLoginCredentialsWithAGuidedTour" = "セキュアなログイン資格情報を生成する方法を、ガイド付きツアーでより深く学習しましょう。";
 "ExportVaultFilePwProtectInfo" = "このファイルのエクスポートはパスワードで保護され、復号するにはファイルのパスワードが必要になります。";
@@ -881,6 +889,10 @@
 "Identification" = "ID";
 "Owner" = "所有者";
 "VerifyYourIdentity" = "本人確認を行ってください";
+"ThisOperationIsNotAllowedOnThisAccount" = "この操作はこのアカウントでは許可されていません";
+"AnErrorOccurredWhileTryingToLockTheCurrentUser" = "現在のユーザーのロック中にエラーが発生しました";
+"LockAllAccounts" = "すべてのアカウントをロック";
+"AllAccountsHaveBeenLocked" = "すべてのアカウントがロックされています";
 "ShareErrorDetails" = "エラーの詳細を共有";
 "FlightRecorder" = "フライトレコーダー";
 "EnableFlightRecorder" = "フライトレコーダーを有効にする";
@@ -909,7 +921,13 @@
 "ExpiresOnXDate" = "%1$@ に期限切れ";
 "ExpiresTomorrow" = "明日期限切れ";
 "DateRangeXToY" = "%1$@ ～ %2$@";
+"LogOutAllAccounts" = "すべてのアカウントをログアウト";
+"AllAccountsHaveBeenLoggedOut" = "すべてのアカウントがログアウトされました";
+"AnErrorOccurredWhileTryingToLogOutAllAccounts" = "すべてのアカウントをログアウト中にエラーが発生しました";
 "SelfHostServerURL" = "自己ホスト型サーバー URL";
+"OpenGenerator" = "ジェネレーターを開く";
+"OpenPasswordGenerator" = "パスワードジェネレーターを開く";
+"GeneratePassphrase" = "パスフレーズを生成";
 "AllowUniversalClipboard" = "ユニバーサルクリップボードを許可";
 "UseUniversalClipboardToCopyDescriptionLong" = "ユニバーサルクリップボードを使用すると、このデバイスでコピーした内容を同じ Apple ID でサインインしている別のデバイスにペーストすることができます。";
 "RemoveMasterPasswordConfirmDomain" = "以下の組織のメンバーには、マスターパスワードが不要になりました。組織の管理者と共に以下のドメインを確認してください。";
@@ -929,6 +947,7 @@
 "GoToSettings" = "設定に移動";
 "SiriAndShortcutsAccess" = "Siri とショートカットへのアクセス";
 "EnableToAllowTheAppToRespondToSiriAndShortcutsUsingAppIntents" = "有効にすると、App Intentsを使用してSiriやショートカットに応答できるようになります。";
+"ThereIsNoActiveAccount" = "アクティブなアカウントがありません。";
 "NewFileSend" = "新しいファイル入のSend";
 "NewTextSend" = "新しいテキスト入のSend";
 "EditFileSend" = "ファイルSendを編集";
@@ -979,7 +998,6 @@
 "NoAskMe" = "いいえ、毎回確認します";
 "NoCodes" = "表示するコードがありません";
 "None" = "なし";
-"NoneOfTheAbove" = "上記以外";
 "NumberOfDigits" = "桁数";
 "OtpType" = "OTPの種類";
 "RefreshPeriod" = "更新頻度";
@@ -1077,6 +1095,7 @@
 "AnyoneWithTheLink" = "リンクを知っている全員";
 "AnyoneWithThisLinkCanViewThisSend" = "このリンクを持つ任意のユーザーがこのSendを表示できます。";
 "AfterSharingThisSendLinkDescriptionLong" = "このSendリンクを共有した後、個人はこのSendを表示するためにコードでメールを確認する必要があります。";
+"IndividualsWillNeedToEnterThisPasswordDescriptionLong" = "この Send を表示するには、各個人がこのパスワードを入力する必要があります";
 "SpecificPeople" = "特定の人";
 "WhoCanView" = "表示できる人";
 "SharingWithSpecificPeopleIsPremiumFeatureDescriptionLong" = "特定のユーザーとの共有はプレミアム機能です。現在のプランではこの機能にはアクセスできません。";
@@ -1254,5 +1273,26 @@
 "Server" = "サーバー";
 /* Accessibility label for the button that clears a field's value. %1$@ is the field's title (e.g. "Date of birth"), so the spoken label reads "Clear Date of birth". */
 "ClearFieldName" = "%1$@ をクリア";
-"SelectDate" = "日付を選択";
+/* Accessibility hint on a collapsed date field announcing that activating it opens the calendar picker. */
+"OpensDatePicker" = "日付ピッカーを開く";
+/* Accessibility hint on an expanded date field announcing that activating it closes the calendar picker. */
+"ClosesDatePicker" = "日付ピッカーを閉じる";
+/* VoiceOver announcement posted when a date picker whose range excludes future dates, e.g. date of birth or an issue date, reports landing on today (the latest available day) while scrolling the wheel. */
+"FutureDatesUnavailable" = "将来の日付は利用できません";
 "PremiumRequiredTOTPDescriptionLong" = "認証キー（TOTP）はプレミアム機能です。現在のプランにはこの機能へのアクセス権が含まれていません。";
+/* Toast shown after a login item is saved. */
+"LoginSaved" = "ログイン情報を保存しました";
+/* Toast shown after a card item is saved. */
+"CardSaved" = "カードを保存しました";
+/* Toast shown after an identity item is saved. */
+"IdentitySaved" = "ID を保存しました";
+/* Toast shown after a secure note item is saved. */
+"SecureNoteSaved" = "セキュアメモを保存しました";
+/* Toast shown after an SSH key item is saved. */
+"SSHKeySaved" = "SSH 鍵を保存しました";
+/* Toast shown after a bank account item is saved. */
+"BankAccountSaved" = "銀行口座を保存しました";
+/* Toast shown after a driver's license item is saved. */
+"LicenseSaved" = "免許証を保存しました";
+/* Toast shown after a passport item is saved. */
+"PassportSaved" = "パスポートを保存しました";

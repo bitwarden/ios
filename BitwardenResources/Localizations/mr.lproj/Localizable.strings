@@ -8,8 +8,12 @@
 "Copy" = "कॉपी";
 "CopyLicenseNumber" = "परवाना क्रमांक कॉपी करा";
 "CopyPassportNumber" = "पासपोर्ट क्रमांक कॉपी करा";
+"CopyPassphrase" = "Copy passphrase";
 "CopyPassword" = "पासवर्ड कॉपी करा";
 "CopyUsername" = "वापरकर्तानाव कॉपी करा";
+"UseThisPassphrase" = "Use this passphrase";
+"UseThisPassword" = "Use this password";
+"UseThisUsername" = "Use this username";
 "Delete" = "खोडा";
 "DeleteAll" = "सर्व हटवा";
 "Deleting" = "हटवत आहे…";
@@ -129,7 +133,6 @@
 "PasswordOverrideAlert" = "तुम्हाला खात्री आहे की तुम्ही सध्याचा संकेतशब्द अधिलिखित करू इच्छिता?";
 "PushNotificationAlert" = "Bitwarden पुश सूचनांचा वापर करून तुमची तिजोरी स्वयंचलितपणे समक्रमित ठेवते. सर्वोत्तम अनुभवासाठी, पुश सूचनांना अनुमती देण्यास सांगितल्यावर कृपया खालील प्रॉम्प्टवर “Allow” निवडा.";
 "Security" = "सुरक्षा";
-"Select" = "निवडा";
 "ItemUpdated" = "आयटम जतन केला";
 "Submitting" = "सबमिट करत आहे…";
 "Syncing" = "समक्रमण करत आहे…";
@@ -182,7 +185,6 @@
 "CopyTotp" = "TOTP कॉपी करा";
 "CopyTotpAutomaticallyDescription" = "जर एखाद्या लॉगिनमध्ये प्रमाणीकरण की असेल, तर तुम्ही लॉगिन स्वयंपूर्त करता तेव्हा TOTP सत्यापन कोड तुमच्या क्लिपबोर्डवर कॉपी करा.";
 "CopyTotpAutomatically" = "TOTP स्वयंचलितपणे कॉपी करा";
-"PremiumRequired" = "हे वैशिष्ट्य वापरण्यासाठी Premium सदस्यत्व आवश्यक आहे.";
 "AttachementAdded" = "संलग्नक जोडला";
 "AttachmentDeleted" = "संलग्नक हटवला";
 "ChooseFile" = "फाइल निवडा";
@@ -223,7 +225,6 @@
 "August" = "ऑगस्ट";
 "Brand" = "ब्रँड";
 "CardholderName" = "कार्डधारकाचे नाव";
-"WeFoundMultipleMatchesChooseTheCorrectOne" = "आम्हाला एकाधिक जुळण्या सापडल्या. योग्य निवडा.";
 "CityTown" = "शहर / नगर";
 "Company" = "कंपनी";
 "Country" = "देश";
@@ -309,6 +310,7 @@
 "NoEmailAddressesEntered" = "कोणतेही ईमेल पत्ते प्रविष्ट केले नाहीत";
 "EnterAtLeastOneValidEmailToShareSend" = "हा Send सामायिक करण्यासाठी किमान एक वैध ईमेल पत्ता प्रविष्ट करा.";
 "OneOrMoreEmailAddressesIncorrect" = "एक किंवा अधिक ईमेल पत्ते चुकीचे आहेत. कृपया तपासा आणि पुन्हा प्रयत्न करा.";
+"OnlyIncludeTheFollowingDomainsDescriptionLong" = "Only include the following domains: %1$@. Please review and try again.";
 "Cards" = "कार्ड";
 "Identities" = "ओळख";
 "Logins" = "लॉगिन्स";
@@ -444,11 +446,19 @@
 "NewSendCreated" = "Send तयार";
 "Custom" = "सानुकूल";
 "SendDisabledWarning" = "एंटरप्राइझ धोरणामुळे, तुम्ही फक्त विद्यमान Send हटवू शकता.";
+"ThisDateIsEnforcedByYourOrganization" = "This date is enforced by your organization";
 "AboutSend" = "Send बद्दल";
 "HideEmail" = "प्राप्तकर्त्यांपासून माझा ईमेल पत्ता लपवा";
 "SendOptionsPolicyInEffect" = "एक किंवा अधिक संस्था धोरणे तुमच्या Send पर्यायांवर परिणाम करत आहेत.";
 "SendFilePremiumRequired" = "मोफत खाती फक्त मजकूर सामायिक करण्यासाठी प्रतिबंधित आहेत. Send सह फाइल्स वापरण्यासाठी Premium सदस्यत्व आवश्यक आहे.";
 "SendFileEmailVerificationRequired" = "Send सह फाइल्स वापरण्यासाठी तुम्ही तुमचा ईमेल सत्यापित करणे आवश्यक आहे. तुम्ही वेब तिजोरीत तुमचा ईमेल सत्यापित करू शकता.";
+/* Alert message shown when Send Controls policy restricts creation to one Send type. %1$@ is the allowed Send type, either "File" or "Text". */
+"DueToAnEnterprisePolicyYouCanOnlyCreateXSends" = "Due to an enterprise policy, you can only create %1$@ Sends.";
+"OrganizationPolicyRestriction" = "Organization policy restriction";
+"TextSendsAreNotAllowedDescriptionLong" = "Text Sends are not allowed for your organization and this Send will automatically expire at the set deletion date.";
+"ThisSendIsNotCompliantDescriptionLong" = "This Send is not compliant with your organization's Send policy and will automatically expire at the set deletion date.";
+"ToEditThisSendMakeACopyDescriptionLong" = "To edit this Send, make a copy. If this Send can expire at the set deletion date, no action is needed.";
+"MakeACopy" = "Make a copy";
 "PasswordPrompt" = "मुख्य संकेतशब्द पुन्हा विचारा";
 "PasswordConfirmation" = "मुख्य संकेतशब्द पुष्टीकरण";
 "PasswordConfirmationDesc" = "ही क्रिया संरक्षित आहे, सुरू ठेवण्यासाठी कृपया तुमची ओळख सत्यापित करण्यासाठी तुमचा मुख्य संकेतशब्द पुन्हा प्रविष्ट करा.";
@@ -648,7 +658,6 @@
 "SetUpAutofill" = "स्वयंपूर्त सेट करा";
 "AppInfo" = "अॅप माहिती";
 "Browse" = "ब्राउझ करा";
-"SelectCardholderName" = "कार्डधारकाचे नाव निवडा";
 "SelectLanguage" = "भाषा निवडा";
 "ContinueToCompleteWebAuthnVerification" = "WebAuthn सत्यापन पूर्ण करण्यासाठी सुरू ठेवा.";
 "ThereWasAnErrorStartingWebAuthnTwoFactorAuthentication" = "WebAuthn द्वि-घटक प्रमाणीकरण सुरू करण्यात त्रुटी आली";
@@ -667,7 +676,6 @@
 "ByContinuingYouAgreeToTheTermsOfServiceAndPrivacyPolicy" = "सुरू ठेवल्यास, तुम्ही **[Terms of Service](%1$@)** आणि **[Privacy Policy](%2$@)** शी सहमत आहात";
 "GetAdviceAnnouncementsAndResearchOpportunitiesFromBitwardenInYourInboxUnsubscribeAtAnyTime." = "Bitwarden कडून सल्ला, घोषणा आणि संशोधन संधी तुमच्या इनबॉक्समध्ये मिळवा. कधीही **[Unsubscribe](%1$@)** करा.";
 "UserVerificationForPasskey" = "पासकीसाठी वापरकर्ता सत्यापन";
-"NewItem" = "नवीन आयटम";
 "ExploreTheGenerator" = "जनरेटर एक्सप्लोर करा";
 "LearnMoreAboutGeneratingSecureLoginCredentialsWithAGuidedTour" = "मार्गदर्शित दौऱ्यासह सुरक्षित लॉगिन क्रेडेन्शियल्स तयार करण्याबद्दल अधिक जाणून घ्या.";
 "ExportVaultFilePwProtectInfo" = "ही फाइल निर्यात संकेतशब्द-संरक्षित असेल आणि डिक्रिप्ट करण्यासाठी फाइल संकेतशब्द आवश्यक असेल.";
@@ -881,6 +889,10 @@
 "Identification" = "ओळख";
 "Owner" = "मालक";
 "VerifyYourIdentity" = "तुमची ओळख सत्यापित करा";
+"ThisOperationIsNotAllowedOnThisAccount" = "This operation is not allowed on this account";
+"AnErrorOccurredWhileTryingToLockTheCurrentUser" = "An error occurred while trying to lock the current user";
+"LockAllAccounts" = "Lock all accounts";
+"AllAccountsHaveBeenLocked" = "All accounts have been locked";
 "ShareErrorDetails" = "त्रुटी तपशील सामायिक करा";
 "FlightRecorder" = "फ्लाइट रेकॉर्डर";
 "EnableFlightRecorder" = "फ्लाइट रेकॉर्डर सक्षम करा";
@@ -909,7 +921,13 @@
 "ExpiresOnXDate" = "%1$@ रोजी कालबाह्य होते";
 "ExpiresTomorrow" = "उद्या कालबाह्य होते";
 "DateRangeXToY" = "%1$@ ते %2$@";
+"LogOutAllAccounts" = "Log out all accounts";
+"AllAccountsHaveBeenLoggedOut" = "All accounts have been logged out";
+"AnErrorOccurredWhileTryingToLogOutAllAccounts" = "An error occurred while trying to log out all accounts";
 "SelfHostServerURL" = "स्वयं-होस्ट सर्व्हर URL";
+"OpenGenerator" = "Open generator";
+"OpenPasswordGenerator" = "Open password generator";
+"GeneratePassphrase" = "Generate passphrase";
 "AllowUniversalClipboard" = "युनिव्हर्सल क्लिपबोर्डला अनुमती द्या";
 "UseUniversalClipboardToCopyDescriptionLong" = "येथे कॉपी करण्यासाठी आणि समान Apple ID ने साइन इन केलेल्या इतर डिव्हाइसवर पेस्ट करण्यासाठी Universal Clipboard वापरा.";
 "RemoveMasterPasswordConfirmDomain" = "खालील संस्थेच्या सदस्यांसाठी मुख्य संकेतशब्द आवश्यक नाही. कृपया खालील डोमेन तुमच्या संस्था प्रशासकासह पुष्टी करा.";
@@ -929,6 +947,7 @@
 "GoToSettings" = "सेटिंग्जवर जा";
 "SiriAndShortcutsAccess" = "Siri आणि Shortcuts प्रवेश";
 "EnableToAllowTheAppToRespondToSiriAndShortcutsUsingAppIntents" = "App Intents वापरून Siri आणि Shortcuts ला प्रतिसाद देण्यासाठी अॅपला अनुमती देण्यासाठी सक्षम करा.";
+"ThereIsNoActiveAccount" = "There is no active account.";
 "NewFileSend" = "नवीन फाइल Send";
 "NewTextSend" = "नवीन मजकूर Send";
 "EditFileSend" = "फाइल Send संपादित करा";
@@ -979,7 +998,6 @@
 "NoAskMe" = "नाही, मला विचारा";
 "NoCodes" = "तुमच्याकडे दाखवण्यासाठी कोणतेही कोड नाहीत";
 "None" = "काहीही नाही";
-"NoneOfTheAbove" = "वरीलपैकी काहीही नाही";
 "NumberOfDigits" = "अंकांची संख्या";
 "OtpType" = "OTP प्रकार";
 "RefreshPeriod" = "रिफ्रेश कालावधी";
@@ -1077,6 +1095,7 @@
 "AnyoneWithTheLink" = "लिंक असलेला कोणीही";
 "AnyoneWithThisLinkCanViewThisSend" = "या लिंकसह कोणीही हा Send पाहू शकतो.";
 "AfterSharingThisSendLinkDescriptionLong" = "हा Send लिंक सामायिक केल्यानंतर, व्यक्तींना हा Send पाहण्यासाठी त्यांचा ईमेल कोडसह सत्यापित करणे आवश्यक आहे.";
+"IndividualsWillNeedToEnterThisPasswordDescriptionLong" = "Individuals will need to enter this password to view this Send";
 "SpecificPeople" = "विशिष्ट लोक";
 "WhoCanView" = "कोण पाहू शकतो";
 "SharingWithSpecificPeopleIsPremiumFeatureDescriptionLong" = "विशिष्ट लोकांसोबत सामायिक करणे हे Premium वैशिष्ट्य आहे. तुमच्या सध्याच्या योजनेत या वैशिष्ट्याचा प्रवेश समाविष्ट नाही.";
@@ -1254,5 +1273,26 @@
 "Server" = "सर्व्हर";
 /* Accessibility label for the button that clears a field's value. %1$@ is the field's title (e.g. "Date of birth"), so the spoken label reads "Clear Date of birth". */
 "ClearFieldName" = "%1$@ साफ करा";
-"SelectDate" = "तारीख निवडा";
+/* Accessibility hint on a collapsed date field announcing that activating it opens the calendar picker. */
+"OpensDatePicker" = "Opens date picker";
+/* Accessibility hint on an expanded date field announcing that activating it closes the calendar picker. */
+"ClosesDatePicker" = "Closes date picker";
+/* VoiceOver announcement posted when a date picker whose range excludes future dates, e.g. date of birth or an issue date, reports landing on today (the latest available day) while scrolling the wheel. */
+"FutureDatesUnavailable" = "Future dates unavailable";
 "PremiumRequiredTOTPDescriptionLong" = "प्रमाणीकरण की (TOTP) हे Premium वैशिष्ट्य आहे. तुमच्या सध्याच्या योजनेत या वैशिष्ट्याचा प्रवेश समाविष्ट नाही.";
+/* Toast shown after a login item is saved. */
+"LoginSaved" = "Login saved";
+/* Toast shown after a card item is saved. */
+"CardSaved" = "Card saved";
+/* Toast shown after an identity item is saved. */
+"IdentitySaved" = "Identity saved";
+/* Toast shown after a secure note item is saved. */
+"SecureNoteSaved" = "Secure note saved";
+/* Toast shown after an SSH key item is saved. */
+"SSHKeySaved" = "SSH key saved";
+/* Toast shown after a bank account item is saved. */
+"BankAccountSaved" = "Bank account saved";
+/* Toast shown after a driver's license item is saved. */
+"LicenseSaved" = "License saved";
+/* Toast shown after a passport item is saved. */
+"PassportSaved" = "Passport saved";

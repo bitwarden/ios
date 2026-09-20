@@ -8,8 +8,12 @@
 "Copy" = "کپی";
 "CopyLicenseNumber" = "کپی شماره مجوز";
 "CopyPassportNumber" = "کپی شماره گذرنامه";
+"CopyPassphrase" = "Copy passphrase";
 "CopyPassword" = "کپی کلمه عبور";
 "CopyUsername" = "کپی نام کاربری";
+"UseThisPassphrase" = "Use this passphrase";
+"UseThisPassword" = "Use this password";
+"UseThisUsername" = "Use this username";
 "Delete" = "حذف";
 "DeleteAll" = "حذف همه";
 "Deleting" = "در حال حذف…";
@@ -129,7 +133,6 @@
 "PasswordOverrideAlert" = "آیا از بازنویسی بر روی کلمه عبور فعلی مطمئن هستید؟";
 "PushNotificationAlert" = "Bitwarden گاوصندوق شما را به‌صورت خودکار از طریق نشان دادن اعلانیه‌های اجباری به هنگام‌سازی می‌کند. برای بهترین تجربه کاربری ممکن، لطفاً زمانی که از شما پرسیده شد، \"مجاز\" را سریعاً انتخاب کنید تا نمایش اعلانیه های اجباری فعال شود.";
 "Security" = "امنیت";
-"Select" = "انتخاب";
 "ItemUpdated" = "مورد به‌روزرسانی شد";
 "Submitting" = "در حال ارائه…";
 "Syncing" = "در حال همگام سازی…";
@@ -182,7 +185,6 @@
 "CopyTotp" = "کپی TOTP";
 "CopyTotpAutomaticallyDescription" = "اگر یک ورود دارای یک کلید احراز هویت باشد، هنگام پر کردن خودکار ورود، کد تأیید TOTP را در حافظه موقت خود کپی کن.";
 "CopyTotpAutomatically" = "TOTP را به‌صورت خودکار کپی کن";
-"PremiumRequired" = "برای استفاده از این ویژگی عضویت ویژه لازم است.";
 "AttachementAdded" = "پیوست اضافه شد";
 "AttachmentDeleted" = "پیوست حذف شد";
 "ChooseFile" = "انتخاب پرونده";
@@ -223,7 +225,6 @@
 "August" = "اوت‌";
 "Brand" = "نام تجاری";
 "CardholderName" = "نام صاحب کارت";
-"WeFoundMultipleMatchesChooseTheCorrectOne" = "ما چندین مورد منطبق پیدا کردیم. مورد صحیح را انتخاب کنید.";
 "CityTown" = "شهر / شهرستان";
 "Company" = "شرکت";
 "Country" = "کشور";
@@ -309,6 +310,7 @@
 "NoEmailAddressesEntered" = "هیچ آدرس ایمیلی وارد نشده است";
 "EnterAtLeastOneValidEmailToShareSend" = "حداقل یک آدرس ایمیل معتبر برای اشتراک‌گذاری این ارسال وارد کنید.";
 "OneOrMoreEmailAddressesIncorrect" = "یک یا چند آدرس ایمیل اشتباه است. لطفاً بررسی کنید و دوباره امتحان کنید.";
+"OnlyIncludeTheFollowingDomainsDescriptionLong" = "Only include the following domains: %1$@. Please review and try again.";
 "Cards" = "کارت‌ها";
 "Identities" = "مشخصات";
 "Logins" = "ورودها";
@@ -444,11 +446,19 @@
 "NewSendCreated" = "ارسال ساخته شد";
 "Custom" = "سفارشی";
 "SendDisabledWarning" = "به دلیل سیاست سازمانی، شما فقط می‌توانید ارسال موجود را حذف کنید.";
+"ThisDateIsEnforcedByYourOrganization" = "این تاریخ توسط سازمان شما اعمال شده است";
 "AboutSend" = "درباره ارسال";
 "HideEmail" = "نشانی ایمیلم را از گیرندگان مخفی کن";
 "SendOptionsPolicyInEffect" = "یک یا چند سیاست سازمان بر گزینه‌های ارسال شما تأثیر می‌گذارد.";
 "SendFilePremiumRequired" = "حساب‌های کاربری رایگان فقط می‌توانند متن را به اشتراک بگذارند. برای استفاده از قابلیت ارسال پرونده‌ها، به عضویت ویژه نیاز دارید.";
 "SendFileEmailVerificationRequired" = "برای استفاده از پرونده‌ها با \"ارسال\" باید ایمیل خود را تأیید کنید.";
+/* Alert message shown when Send Controls policy restricts creation to one Send type. %1$@ is the allowed Send type, either "File" or "Text". */
+"DueToAnEnterprisePolicyYouCanOnlyCreateXSends" = "Due to an enterprise policy, you can only create %1$@ Sends.";
+"OrganizationPolicyRestriction" = "Organization policy restriction";
+"TextSendsAreNotAllowedDescriptionLong" = "Text Sends are not allowed for your organization and this Send will automatically expire at the set deletion date.";
+"ThisSendIsNotCompliantDescriptionLong" = "This Send is not compliant with your organization's Send policy and will automatically expire at the set deletion date.";
+"ToEditThisSendMakeACopyDescriptionLong" = "To edit this Send, make a copy. If this Send can expire at the set deletion date, no action is needed.";
+"MakeACopy" = "Make a copy";
 "PasswordPrompt" = "درخواست مجدد کلمه عبور اصلی";
 "PasswordConfirmation" = "تأیید کلمه عبور اصلی";
 "PasswordConfirmationDesc" = "این عمل محافظت می‌شود. برای ادامه، لطفاً کلمه عبور اصلی خود را دوباره وارد کنید تا هویت‌تان را تأیید کنید.";
@@ -649,7 +659,6 @@
 "SetUpAutofill" = "راه‌اندازی پر کردن خودکار";
 "AppInfo" = "اطلاعات برنامه";
 "Browse" = "مرور";
-"SelectCardholderName" = "انتخاب نام دارنده کارت";
 "SelectLanguage" = "انتخاب زبان";
 "ContinueToCompleteWebAuthnVerification" = "ادامه دهید تا احراز هویت WebAuthn تکمیل شود.";
 "ThereWasAnErrorStartingWebAuthnTwoFactorAuthentication" = "در شروع احراز هویت دو عاملی WebAuthn خطا رخ داد";
@@ -668,7 +677,6 @@
 "ByContinuingYouAgreeToTheTermsOfServiceAndPrivacyPolicy" = "با ادامه دادن، شما با **[شرایط خدمات](%1$@)** و **[سیاست حفظ حریم خصوصی](%2$@)** موافقت می‌کنید";
 "GetAdviceAnnouncementsAndResearchOpportunitiesFromBitwardenInYourInboxUnsubscribeAtAnyTime." = "مشاوره، اطلاعیه‌ها و فرصت‌های پژوهشی را از Bitwarden در صندوق ورودی خود دریافت کنید. **[لغو اشتراک](%1$@)** در هر زمان امکان‌پذیر است.";
 "UserVerificationForPasskey" = "تأیید هویت کاربر برای کلید عبور";
-"NewItem" = "مورد جدید";
 "ExploreTheGenerator" = "تولید کننده را بررسی کنید";
 "LearnMoreAboutGeneratingSecureLoginCredentialsWithAGuidedTour" = "با یک راهنمای قدم به قدم، بیشتر درباره ایجاد اطلاعات ورود امن بیاموزید.";
 "ExportVaultFilePwProtectInfo" = "این پرونده برون ریزی با رمز محافظت می‌شود و برای رمزگشایی به کلمه عبور پرونده نیاز دارد.";
@@ -882,6 +890,10 @@
 "Identification" = "شناسایی";
 "Owner" = "مالک";
 "VerifyYourIdentity" = "هویت خود را تأیید کنید";
+"ThisOperationIsNotAllowedOnThisAccount" = "This operation is not allowed on this account";
+"AnErrorOccurredWhileTryingToLockTheCurrentUser" = "An error occurred while trying to lock the current user";
+"LockAllAccounts" = "Lock all accounts";
+"AllAccountsHaveBeenLocked" = "All accounts have been locked";
 "ShareErrorDetails" = "اشتراک‌گذاری جزئیات خطا";
 "FlightRecorder" = "ضبط‌ کننده پرواز";
 "EnableFlightRecorder" = "فعال‌سازی ضبط‌ کننده پرواز";
@@ -910,7 +922,13 @@
 "ExpiresOnXDate" = "منقضی می‌شود در %1$@";
 "ExpiresTomorrow" = "فردا منقضی می‎​‌شود";
 "DateRangeXToY" = "%1$@ به %2$@";
+"LogOutAllAccounts" = "Log out all accounts";
+"AllAccountsHaveBeenLoggedOut" = "All accounts have been logged out";
+"AnErrorOccurredWhileTryingToLogOutAllAccounts" = "An error occurred while trying to log out all accounts";
 "SelfHostServerURL" = "نشانی اینترنتی سرور خود میزبان";
+"OpenGenerator" = "Open generator";
+"OpenPasswordGenerator" = "Open password generator";
+"GeneratePassphrase" = "Generate passphrase";
 "AllowUniversalClipboard" = "اجازه دادن به حافظه موقت سراسری";
 "UseUniversalClipboardToCopyDescriptionLong" = "از حافظه موقت سراسری استفاده کنید تا در اینجا کپی کرده و در دستگاه‌های دیگر که با همان Apple ID وارد شده‌اند، جای‌گذاری کنید.";
 "RemoveMasterPasswordConfirmDomain" = "برای اعضای سازمان زیر، کلمه عبور اصلی دیگر لازم نیست. لطفاً دامنه زیر را با مدیر سازمان خود تأیید کنید.";
@@ -930,6 +948,7 @@
 "GoToSettings" = "رفتن به تنظیمات";
 "SiriAndShortcutsAccess" = "دسترسی به سیری و میان‌برها";
 "EnableToAllowTheAppToRespondToSiriAndShortcutsUsingAppIntents" = "فعال‌سازی برای اجازه دادن به برنامه جهت پاسخ‌گویی به سیری و میان‌برها با استفاده از App Intents.";
+"ThereIsNoActiveAccount" = "There is no active account.";
 "NewFileSend" = "پرونده جدید ارسال";
 "NewTextSend" = "متن جدید ارسال";
 "EditFileSend" = "ویرایش پرونده ارسال";
@@ -980,7 +999,6 @@
 "NoAskMe" = "نه، از من بپرس";
 "NoCodes" = "شما هیچ کدی برای نمایش ندارید";
 "None" = "هیچ کدام";
-"NoneOfTheAbove" = "هیچ یک از موارد فوق";
 "NumberOfDigits" = "تعداد ارقام";
 "OtpType" = "نوع OTP";
 "RefreshPeriod" = "تازه کردن دوره";
@@ -1078,6 +1096,7 @@
 "AnyoneWithTheLink" = "هر کسی که لینک را داشته باشد";
 "AnyoneWithThisLinkCanViewThisSend" = "هر کسی با این لینک می‌تواند این ارسال را مشاهده کند.";
 "AfterSharingThisSendLinkDescriptionLong" = "پس از اشتراک‌گذاری این لینک ارسال، افراد برای مشاهده این ارسال باید ایمیل خود را با یک کد تأیید کنند.";
+"IndividualsWillNeedToEnterThisPasswordDescriptionLong" = "Individuals will need to enter this password to view this Send";
 "SpecificPeople" = "افراد خاص";
 "WhoCanView" = "چه کسی می‌تواند ببیند";
 "SharingWithSpecificPeopleIsPremiumFeatureDescriptionLong" = "اشتراک‌گذاری با افراد خاص یک ویژگی ویژه است. طرح فعلی شما شامل دسترسی به این ویژگی نمی‌شود.";
@@ -1255,5 +1274,26 @@
 "Server" = "سرور";
 /* Accessibility label for the button that clears a field's value. %1$@ is the field's title (e.g. "Date of birth"), so the spoken label reads "Clear Date of birth". */
 "ClearFieldName" = "پاک کردن %1$@";
-"SelectDate" = "انتخاب تاریخ";
+/* Accessibility hint on a collapsed date field announcing that activating it opens the calendar picker. */
+"OpensDatePicker" = "Opens date picker";
+/* Accessibility hint on an expanded date field announcing that activating it closes the calendar picker. */
+"ClosesDatePicker" = "Closes date picker";
+/* VoiceOver announcement posted when a date picker whose range excludes future dates, e.g. date of birth or an issue date, reports landing on today (the latest available day) while scrolling the wheel. */
+"FutureDatesUnavailable" = "Future dates unavailable";
 "PremiumRequiredTOTPDescriptionLong" = "کلید تولیدکننده رمز دوعاملی (TOTP) یک ویژگی ویژه هست. طرح فعلی شما شامل دسترسی به این قابلیت نیست.";
+/* Toast shown after a login item is saved. */
+"LoginSaved" = "Login saved";
+/* Toast shown after a card item is saved. */
+"CardSaved" = "Card saved";
+/* Toast shown after an identity item is saved. */
+"IdentitySaved" = "Identity saved";
+/* Toast shown after a secure note item is saved. */
+"SecureNoteSaved" = "Secure note saved";
+/* Toast shown after an SSH key item is saved. */
+"SSHKeySaved" = "SSH key saved";
+/* Toast shown after a bank account item is saved. */
+"BankAccountSaved" = "Bank account saved";
+/* Toast shown after a driver's license item is saved. */
+"LicenseSaved" = "License saved";
+/* Toast shown after a passport item is saved. */
+"PassportSaved" = "Passport saved";
