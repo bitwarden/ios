@@ -2530,7 +2530,6 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         stateService.activeAccount = account
         vaultTimeoutService.vaultTimeout[account.profile.userId] = .fifteenMinutes
         configService.featureFlagsBool[.enableUserSessionKeySharing] = true
-        keychainService.getUserAuthKeyValueReturnValue = "true"
         clientService.mockCrypto.getUserEncryptionKeyReturnValue = "SESSION_KEY"
 
         var setInvocations: [(item: BitwardenKeychainItem, value: String)] = []
@@ -2541,10 +2540,10 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         try await subject.setUserSessionKeySharingEnabled(true)
 
         XCTAssertEqual(setInvocations.map(\.item), [
-            .userSessionKeySharingEnabled(userId: account.profile.userId),
             .userSessionKey(userId: account.profile.userId),
+            .userSessionKeySharingEnabled(userId: account.profile.userId),
         ])
-        XCTAssertEqual(setInvocations.map(\.value), ["true", "SESSION_KEY"])
+        XCTAssertEqual(setInvocations.map(\.value), ["SESSION_KEY", "true"])
     }
 
     /// `setUserSessionKeySharingEnabled(_:userId:)` persists the preference but does not capture
@@ -2554,7 +2553,6 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         stateService.activeAccount = account
         vaultTimeoutService.vaultTimeout[account.profile.userId] = .fifteenMinutes
         configService.featureFlagsBool[.enableUserSessionKeySharing] = false
-        keychainService.getUserAuthKeyValueReturnValue = "true"
 
         var setInvocations: [(item: BitwardenKeychainItem, value: String)] = []
         keychainService.setUserAuthKeyClosure = { item, value in
@@ -2573,7 +2571,6 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         stateService.activeAccount = account
         vaultTimeoutService.vaultTimeout[account.profile.userId] = .never
         configService.featureFlagsBool[.enableUserSessionKeySharing] = true
-        keychainService.getUserAuthKeyValueReturnValue = "true"
 
         var setInvocations: [(item: BitwardenKeychainItem, value: String)] = []
         keychainService.setUserAuthKeyClosure = { item, value in
@@ -2583,6 +2580,23 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         try await subject.setUserSessionKeySharingEnabled(true)
 
         XCTAssertEqual(setInvocations.map(\.item), [.userSessionKeySharingEnabled(userId: account.profile.userId)])
+    }
+
+    /// `setUserSessionKeySharingEnabled(_:userId:)` does not persist the opt-in preference when
+    /// capturing the session key fails, so a failed enable attempt never leaves the preference
+    /// recorded as enabled.
+    func test_setUserSessionKeySharingEnabled_true_doesNotPersistPreference_whenCaptureThrows() async throws {
+        let account = Account.fixture()
+        stateService.activeAccount = account
+        vaultTimeoutService.vaultTimeout[account.profile.userId] = .fifteenMinutes
+        configService.featureFlagsBool[.enableUserSessionKeySharing] = true
+        clientService.mockCrypto.getUserEncryptionKeyThrowableError = BitwardenTestError.example
+
+        await assertAsyncThrows(error: BitwardenTestError.example) {
+            try await subject.setUserSessionKeySharingEnabled(true)
+        }
+
+        XCTAssertFalse(keychainService.setUserAuthKeyCalled)
     }
 
     /// `setUserSessionKeySharingEnabled(_:userId:)` persists the preference and purges the

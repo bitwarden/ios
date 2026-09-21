@@ -1157,14 +1157,21 @@ extension DefaultAuthRepository: AuthRepository {
 
     func setUserSessionKeySharingEnabled(_ isEnabled: Bool, userId: String?) async throws {
         let id = try await userIdOrActive(userId)
-        try await keychainService.setUserAuthKey(
-            for: .userSessionKeySharingEnabled(userId: id),
-            value: isEnabled ? "true" : "false",
-        )
 
         if isEnabled {
-            try await captureUserSessionKeyIfAllowed(userId: id)
+            // Capture the session key before persisting the opt-in preference so a failure here
+            // (e.g. a user-presence prompt cancellation) leaves the preference untouched instead
+            // of recording an opt-in the user was told failed.
+            try await captureUserSessionKeyIfAllowed(userId: id, isUserOptedIn: true)
+            try await keychainService.setUserAuthKey(
+                for: .userSessionKeySharingEnabled(userId: id),
+                value: "true",
+            )
         } else {
+            try await keychainService.setUserAuthKey(
+                for: .userSessionKeySharingEnabled(userId: id),
+                value: "false",
+            )
             try? await keychainService.deleteUserAuthKey(for: .userSessionKey(userId: id))
         }
     }
@@ -1403,13 +1410,22 @@ extension DefaultAuthRepository: AuthRepository {
     /// Captures the active user's session key into `.userSessionKey` if the server feature flag,
     /// the user's opt-in preference, and the current vault timeout value all allow it.
     ///
-    /// - Parameter userId: The user ID whose session key should be captured.
+    /// - Parameters:
+    ///   - userId: The user ID whose session key should be captured.
+    ///   - isUserOptedIn: The opt-in preference to gate on. Pass `nil` (default) to read the
+    ///     currently persisted preference from the keychain; pass an explicit value when the
+    ///     preference hasn't been persisted yet, e.g. while `setUserSessionKeySharingEnabled(_:userId:)`
+    ///     is still deciding whether to persist it.
     ///
-    private func captureUserSessionKeyIfAllowed(userId: String) async throws {
+    private func captureUserSessionKeyIfAllowed(userId: String, isUserOptedIn: Bool? = nil) async throws {
         let isFeatureEnabled: Bool = await configService.getFeatureFlag(.enableUserSessionKeySharing)
-        let isUserOptedIn = try await isUserSessionKeySharingEnabled(userId: userId)
+        let isOptedIn = if let isUserOptedIn {
+            isUserOptedIn
+        } else {
+            try await isUserSessionKeySharingEnabled(userId: userId)
+        }
         let timeoutValue = try await vaultTimeoutService.sessionTimeoutValue(userId: userId)
-        guard isFeatureEnabled, isUserOptedIn, timeoutValue.allowsUserSessionKeySharing else { return }
+        guard isFeatureEnabled, isOptedIn, timeoutValue.allowsUserSessionKeySharing else { return }
         try await keychainService.setUserAuthKey(
             for: .userSessionKey(userId: userId),
             value: clientService.crypto().getUserEncryptionKey(),
