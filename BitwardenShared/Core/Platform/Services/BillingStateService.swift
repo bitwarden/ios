@@ -44,14 +44,16 @@ protocol BillingStateService { // sourcery: AutoMockable
 
     /// Returns whether the last sync attempt to confirm a pending Premium upgrade failed.
     ///
-    /// - Parameter userId: The user ID of the account to check. Defaults to the active account if `nil`.
+    /// - Parameters:
+    ///   - userId: The user ID of the account to check. Defaults to the active account if `nil`.
     /// - Returns: `true` if the last sync attempt failed.
     ///
     func getPremiumUpgradeLastSyncAttemptFailed(userId: String?) async throws -> Bool
 
     /// Returns whether a Premium upgrade is pending.
     ///
-    /// - Parameter userId: The user ID of the account to check. Defaults to the active account if `nil`.
+    /// - Parameters:
+    ///   - userId: The user ID of the account to check. Defaults to the active account if `nil`.
     /// - Returns: `true` if a Premium upgrade is pending.
     ///
     func getPremiumUpgradePending(userId: String?) async throws -> Bool

@@ -296,14 +296,16 @@ protocol AppSettingsStore: AnyObject {
 
     /// Gets whether the last sync attempt to confirm a pending Premium upgrade failed for the given user.
     ///
-    /// - Parameter userId: The user ID.
+    /// - Parameters:
+    ///   - userId: The user ID.
     /// - Returns: Whether the last sync attempt failed.
     ///
     func premiumUpgradeLastSyncAttemptFailed(userId: String) -> Bool
 
     /// Gets whether a Premium upgrade is pending for the given user.
     ///
-    /// - Parameter userId: The user ID.
+    /// - Parameters:
+    ///   - userId: The user ID.
     /// - Returns: Whether a Premium upgrade is pending.
     ///
     func premiumUpgradePending(userId: String) -> Bool

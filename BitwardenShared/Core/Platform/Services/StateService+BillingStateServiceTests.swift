@@ -187,6 +187,24 @@ struct StateServiceBillingStateServiceTests {
         #expect(!result)
     }
 
+    /// `getPremiumUpgradePending()` returns the stored value for the active account.
+    @Test
+    func getPremiumUpgradePending_storedValue() async throws {
+        await subject.addAccount(.fixture())
+        appSettingsStore.premiumUpgradePendingByUserId["1"] = true
+
+        let result = try await subject.getPremiumUpgradePending()
+        #expect(result)
+    }
+
+    /// `getPremiumUpgradePending()` throws when there is no active account.
+    @Test
+    func getPremiumUpgradePending_noActiveAccount() async {
+        await #expect(throws: StateServiceError.noActiveAccount) {
+            _ = try await subject.getPremiumUpgradePending()
+        }
+    }
+
     /// `setPremiumUpgradePending(_:)` persists the value for the active account.
     @Test
     func setPremiumUpgradePending() async throws {
@@ -197,6 +215,14 @@ struct StateServiceBillingStateServiceTests {
 
         try await subject.setPremiumUpgradePending(false)
         #expect(appSettingsStore.premiumUpgradePendingByUserId["1"] == false)
+    }
+
+    /// `setPremiumUpgradePending(_:)` throws errors if no user exists.
+    @Test
+    func setPremiumUpgradePending_error() async {
+        await #expect(throws: StateServiceError.noActiveAccount) {
+            try await subject.setPremiumUpgradePending(true)
+        }
     }
 
     /// `getPremiumUpgradeLastSyncAttemptFailed()` returns `false` when no value has been set.
