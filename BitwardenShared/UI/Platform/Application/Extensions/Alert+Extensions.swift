@@ -1,5 +1,6 @@
 import BitwardenKit
 import BitwardenResources
+import Foundation
 
 // MARK: - Alert
 
@@ -127,6 +128,24 @@ extension Alert {
                         await confirmationHandler()
                     },
                 ),
+            ],
+        )
+    }
+
+    /// An alert to show when one or more recipient email addresses don't match the domains allowed
+    /// by the organization's Send Controls policy.
+    ///
+    /// - Parameter allowedDomains: The domains that recipient emails are allowed to use.
+    /// - Returns: An alert listing the allowed domains.
+    ///
+    static func invalidEmailAddressesForDomains(_ allowedDomains: [String]) -> Alert {
+        Alert(
+            title: Localizations.invalidEmailAddresses,
+            message: Localizations.onlyIncludeTheFollowingDomainsDescriptionLong(
+                allowedDomains.formatted(.list(type: .and, width: .narrow)),
+            ),
+            alertActions: [
+                AlertAction(title: Localizations.ok, style: .default),
             ],
         )
     }

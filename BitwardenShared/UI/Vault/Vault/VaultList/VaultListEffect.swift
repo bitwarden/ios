@@ -60,6 +60,9 @@ enum VaultListEffect: Equatable {
     /// Stream the show web icons setting.
     case streamShowWebIcons
 
+    /// Stream sync-complete events to reload the item types the user can create.
+    case streamSyncComplete
+
     /// Stream the vault list for the user.
     case streamVaultList
 

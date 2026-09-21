@@ -1089,9 +1089,9 @@ class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_leng
     private func saveAccount(_ account: Account, identityTokenResponse: IdentityTokenResponseModel) async throws {
         await stateService.addAccount(account)
 
-        // Save the encryption keys.
-        if let encryptionKeys = AccountEncryptionKeys(responseModel: identityTokenResponse) {
-            try await stateService.setAccountEncryptionKeys(encryptionKeys)
+        // Save the cryptographic state.
+        if let cryptographicState = WrappedAccountCryptographicState(responseModel: identityTokenResponse) {
+            try await stateService.setAccountCryptographicState(cryptographicState)
         }
 
         // Save the account tokens.

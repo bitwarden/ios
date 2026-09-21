@@ -35,6 +35,8 @@ class MockSyncService: SyncService {
     var organizationIdRequiringVaultMigrationCalled = false // swiftlint:disable:this identifier_name
     var organizationIdRequiringVaultMigrationResult: Result<String?, Error> = .success(nil) // swiftlint:disable:this identifier_name line_length
 
+    var syncCompleteSubject = CurrentValueSubject<Void, Never>(())
+
     func deleteCipher(data: SyncCipherNotification) async throws {
         deleteCipherData = data
         return try deleteCipherResult.get()
@@ -81,5 +83,9 @@ class MockSyncService: SyncService {
     func organizationIdRequiringVaultMigration() async throws -> String? {
         organizationIdRequiringVaultMigrationCalled = true
         return try organizationIdRequiringVaultMigrationResult.get()
+    }
+
+    func syncCompletePublisher() -> AsyncPublisher<AnyPublisher<Void, Never>> {
+        syncCompleteSubject.eraseToAnyPublisher().values
     }
 }

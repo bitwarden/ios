@@ -481,7 +481,7 @@ struct CipherItemState: Equatable { // swiftlint:disable:this type_body_length
         }
 
         bankAccountItemState = cipherView.bankAccountItemState()
-        cardItemState = cipherView.cardItemState()
+        cardItemState = cipherView.cardItemState().preservingCardScannerState(from: cardItemState)
         driversLicenseItemState = cipherView.driversLicenseItemState()
         collectionIds = cipherView.collectionIds
         customFieldsState = AddEditCustomFieldsState(cipherType: type, customFields: cipherView.customFields)

@@ -162,6 +162,38 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         XCTAssertEqual(reviewPromptService.userActions, [])
     }
 
+    /// `folderAdded(_:)` delegate method shows the expected toast.
+    @MainActor
+    func test_delegate_folderAdded() {
+        XCTAssertNil(subject.state.toast)
+
+        subject.folderAdded(.fixture())
+
+        XCTAssertEqual(subject.state.toast, Toast(title: Localizations.folderCreated))
+    }
+
+    /// `folderDeleted()` delegate method leaves the toast untouched, since folders can't be
+    /// deleted from the vault list.
+    @MainActor
+    func test_delegate_folderDeleted() {
+        subject.state.toast = Toast(title: Localizations.folderCreated)
+
+        subject.folderDeleted()
+
+        XCTAssertEqual(subject.state.toast, Toast(title: Localizations.folderCreated))
+    }
+
+    /// `folderEdited()` delegate method leaves the toast untouched, since folders can't be edited
+    /// from the vault list.
+    @MainActor
+    func test_delegate_folderEdited() {
+        subject.state.toast = Toast(title: Localizations.folderCreated)
+
+        subject.folderEdited()
+
+        XCTAssertEqual(subject.state.toast, Toast(title: Localizations.folderCreated))
+    }
+
     /// `perform(_:)` with `.checkAppReviewEligibility` schedules a review prompt if the user is eligible
     /// and the feature flags are enabled.
     @MainActor
@@ -198,6 +230,37 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
 
         subject.itemDeleted()
         XCTAssertEqual(subject.state.toast, Toast(title: Localizations.itemDeleted))
+    }
+
+    /// `itemAdded(type:)` delegate method shows the toast for the added item's type.
+    @MainActor
+    func test_delegate_itemAdded() {
+        XCTAssertNil(subject.state.toast)
+
+        let shouldDismiss = subject.itemAdded(type: .driversLicense)
+        XCTAssertTrue(shouldDismiss)
+        XCTAssertEqual(subject.state.toast, Toast(title: Localizations.licenseSaved))
+    }
+
+    /// `itemUpdated(type:)` delegate method shows the toast for the updated item's type, which
+    /// covers saving an edit started from the item's more options menu.
+    @MainActor
+    func test_delegate_itemUpdated() {
+        XCTAssertNil(subject.state.toast)
+
+        let shouldDismiss = subject.itemUpdated(type: .driversLicense)
+        XCTAssertTrue(shouldDismiss)
+        XCTAssertEqual(subject.state.toast, Toast(title: Localizations.licenseSaved))
+    }
+
+    /// `itemDismissed()` delegate method doesn't show a toast when the editor is dismissed
+    /// without saving.
+    @MainActor
+    func test_delegate_itemDismissed() {
+        let shouldDismiss = subject.itemDismissed()
+
+        XCTAssertTrue(shouldDismiss)
+        XCTAssertNil(subject.state.toast)
     }
 
     /// `itemSoftDeleted()` delegate method shows the expected toast.
@@ -467,6 +530,72 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
 
         waitFor(subject.state.itemTypesUserCanCreate == [.card])
         task.cancel()
+    }
+
+    /// `perform(_:)` with `.appeared` loads the item types the user can create before refreshing
+    /// the vault, so the create menu reflects the correct types immediately rather than glitching
+    /// while the vault is syncing.
+    @MainActor
+    func test_perform_appeared_itemTypesUserCanCreate_loadsBeforeRefreshingVault() {
+        vaultRepository.getItemTypesUserCanCreateGated = true
+
+        let task = Task {
+            await subject.perform(.appeared)
+        }
+        defer { task.cancel() }
+
+        waitFor(vaultRepository.getItemTypesUserCanCreateContinuations.count == 1)
+        XCTAssertFalse(vaultRepository.fetchSyncCalled)
+
+        vaultRepository.getItemTypesUserCanCreateContinuations[0].resume(returning: [.card])
+        waitFor(vaultRepository.fetchSyncCalled)
+    }
+
+    /// `perform(_:)` with `.streamSyncComplete` reloads the item types the user can create
+    /// whenever a sync completes, so feature-flag or policy changes picked up by the sync are
+    /// reflected without needing the screen to reappear.
+    @MainActor
+    func test_perform_streamSyncComplete_reloadsItemTypesUserCanCreate() {
+        let task = Task {
+            await subject.perform(.streamSyncComplete)
+        }
+        defer { task.cancel() }
+
+        vaultRepository.getItemTypesUserCanCreateResult = [.card]
+        syncService.syncCompleteSubject.send(())
+
+        waitFor(subject.state.itemTypesUserCanCreate == [.card])
+        XCTAssertEqual(subject.state.itemTypesUserCanCreate, [.card])
+    }
+
+    /// Loading the item types the user can create discards a stale result from an older,
+    /// slower-resolving call when a newer, overlapping call has already updated the state.
+    @MainActor
+    func test_loadItemTypesUserCanCreate_discardsStaleResults_fromOverlappingCalls() {
+        vaultRepository.getItemTypesUserCanCreateGated = true
+
+        let firstTask = Task { await subject.perform(.appeared) }
+        defer { firstTask.cancel() }
+        waitFor(vaultRepository.getItemTypesUserCanCreateContinuations.count == 1)
+
+        let secondTask = Task { await subject.perform(.appeared) }
+        defer { secondTask.cancel() }
+        waitFor(vaultRepository.getItemTypesUserCanCreateContinuations.count == 2)
+
+        // The newer, second call resolves first.
+        vaultRepository.getItemTypesUserCanCreateContinuations[1].resume(returning: [.card])
+        waitFor(subject.state.itemTypesUserCanCreate == [.card])
+
+        // The older, first call resolving afterwards must not overwrite the newer result.
+        vaultRepository.getItemTypesUserCanCreateContinuations[0].resume(returning: [.login])
+
+        // Give the stale result a chance to (wrongly) apply, then confirm it didn't.
+        let deadline = Date(timeIntervalSinceNow: 0.25)
+        while Date() < deadline {
+            RunLoop.current.run(mode: .default, before: Date(timeIntervalSinceNow: 0.05))
+        }
+
+        XCTAssertEqual(subject.state.itemTypesUserCanCreate, [.card])
     }
 
     /// `perform(_:)` with `.appeared` loads organization user notification banner data from the policy service.
@@ -820,6 +949,17 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         XCTAssertTrue(vaultRepository.fetchSyncCalled)
         XCTAssertFalse(try XCTUnwrap(vaultRepository.fetchSyncIsPeriodic))
         XCTAssertEqual(vaultRepository.fetchSyncForceSync, false)
+    }
+
+    /// `perform(_:)` with `.refreshVault` leaves a toast that was shown for an unrelated reason
+    /// in place, rather than clearing it once the sync completes.
+    @MainActor
+    func test_perform_refreshVault_doesNotDismissUnrelatedToast() async {
+        subject.state.toast = Toast(title: Localizations.folderCreated)
+
+        await subject.perform(.refreshVault)
+
+        XCTAssertEqual(subject.state.toast, Toast(title: Localizations.folderCreated))
     }
 
     /// `perform(_:)` with `.refreshVault` requests a vault sync and sets the loading state if the
@@ -1323,6 +1463,44 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         try await waitForAsync { self.subject.state.loadingState == .data([section]) }
 
         XCTAssertEqual(stateService.accountSetupImportLogins["1"], .complete)
+    }
+
+    /// `perform(_:)` with `.streamVaultList` dismisses the toast shown while the vault was taking
+    /// a long time to load, once vault data arrives.
+    @MainActor
+    func test_perform_streamVaultList_dismissesSlowLoadingToast() {
+        subject.state.toast = Toast(title: Localizations.thisIsTakingLongerThanExpected, mode: .manualDismiss)
+        vaultRepository.vaultListSubject.send(VaultListData(
+            sections: [VaultListSection(id: "1", items: [.fixture()], name: "Name")],
+        ))
+
+        let task = Task {
+            await subject.perform(.streamVaultList)
+        }
+
+        waitFor(subject.state.toast == nil)
+        task.cancel()
+
+        XCTAssertNil(subject.state.toast)
+    }
+
+    /// `perform(_:)` with `.streamVaultList` leaves a toast that was shown for an unrelated reason
+    /// in place when vault data arrives, so that it isn't cleared out from under the user.
+    @MainActor
+    func test_perform_streamVaultList_doesNotDismissUnrelatedToast() {
+        subject.state.toast = Toast(title: Localizations.folderCreated)
+        vaultRepository.vaultListSubject.send(VaultListData(
+            sections: [VaultListSection(id: "1", items: [.fixture()], name: "Name")],
+        ))
+
+        let task = Task {
+            await subject.perform(.streamVaultList)
+        }
+
+        waitFor(subject.state.loadingState != .loading(nil))
+        task.cancel()
+
+        XCTAssertEqual(subject.state.toast, Toast(title: Localizations.folderCreated))
     }
 
     /// `perform(_:)` with `.streamVaultList` doesn't dismiss the import logins action card if the
@@ -1986,12 +2164,14 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         XCTAssertEqual(coordinator.routes.last, .addAccount)
     }
 
-    /// `receive(_:)` with `.addFolder` navigates to the `.addFolder` route.
+    /// `receive(_:)` with `.addFolder` navigates to the `.addFolder` route with the processor as
+    /// the delegate.
     @MainActor
     func test_receive_addFolder() {
         subject.receive(.addFolder)
 
         XCTAssertEqual(coordinator.routes.last, .addFolder)
+        XCTAssertIdentical(coordinator.contexts.last as? AddEditFolderDelegate, subject)
     }
 
     /// `receive(_:)` with `.addItemPressed` navigates to the `.addItem` route.
