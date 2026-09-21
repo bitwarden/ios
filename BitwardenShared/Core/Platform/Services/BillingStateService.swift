@@ -40,6 +40,24 @@ protocol BillingStateService { // sourcery: AutoMockable
     ///
     func isPremiumUpgradeEligible() async -> Bool
 
+    // MARK: Premium Upgrade Pending
+
+    /// Returns whether a Premium upgrade is pending.
+    ///
+    /// - Parameters:
+    ///   - userId: The user ID of the account to check. Defaults to the active account if `nil`.
+    /// - Returns: `true` if a Premium upgrade is pending.
+    ///
+    func getPremiumUpgradePending(userId: String?) async throws -> Bool
+
+    /// Sets whether a Premium upgrade is pending.
+    ///
+    /// - Parameters:
+    ///   - pending: Whether a Premium upgrade is pending.
+    ///   - userId: The user ID of the account to update. Defaults to the active account if `nil`.
+    ///
+    func setPremiumUpgradePending(_ pending: Bool, userId: String?) async throws
+
     // MARK: Subscription Attention Card
 
     /// Returns whether the "subscription needs attention" action card should be shown for the
@@ -96,6 +114,25 @@ extension BillingStateService {
     ///
     func setPremiumUpgradeBannerDismissed(_ dismissed: Bool) async throws {
         try await setPremiumUpgradeBannerDismissed(dismissed, userId: nil)
+    }
+
+    // MARK: Premium Upgrade Pending
+
+    /// Returns whether a Premium upgrade is pending for the active account.
+    ///
+    /// - Returns: `true` if a Premium upgrade is pending.
+    ///
+    func getPremiumUpgradePending() async throws -> Bool {
+        try await getPremiumUpgradePending(userId: nil)
+    }
+
+    /// Sets whether a Premium upgrade is pending for the active account.
+    ///
+    /// - Parameters:
+    ///   - pending: Whether a Premium upgrade is pending.
+    ///
+    func setPremiumUpgradePending(_ pending: Bool) async throws {
+        try await setPremiumUpgradePending(pending, userId: nil)
     }
 
     // MARK: Upgraded to Premium Card
