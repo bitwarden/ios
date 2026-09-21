@@ -1407,7 +1407,7 @@ extension DefaultAuthRepository: AuthRepository {
 
     // MARK: Private
 
-    /// Captures the active user's session key into `.userSessionKey` if the server feature flag,
+    /// Captures the given user's session key into `.userSessionKey` if the server feature flag,
     /// the user's opt-in preference, and the current vault timeout value all allow it.
     ///
     /// - Parameters:
@@ -1428,7 +1428,7 @@ extension DefaultAuthRepository: AuthRepository {
         guard isFeatureEnabled, isOptedIn, timeoutValue.allowsUserSessionKeySharing else { return }
         try await keychainService.setUserAuthKey(
             for: .userSessionKey(userId: userId),
-            value: clientService.crypto().getUserEncryptionKey(),
+            value: clientService.crypto(for: userId).getUserEncryptionKey(),
         )
     }
 
