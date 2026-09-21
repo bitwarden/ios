@@ -225,27 +225,6 @@ struct StateServiceBillingStateServiceTests {
         }
     }
 
-    /// `getPremiumUpgradeLastSyncAttemptFailed()` returns `false` when no value has been set.
-    @Test
-    func getPremiumUpgradeLastSyncAttemptFailed_defaultsFalse() async throws {
-        await subject.addAccount(.fixture())
-
-        let result = try await subject.getPremiumUpgradeLastSyncAttemptFailed()
-        #expect(!result)
-    }
-
-    /// `setPremiumUpgradeLastSyncAttemptFailed(_:)` persists the value for the active account.
-    @Test
-    func setPremiumUpgradeLastSyncAttemptFailed() async throws {
-        await subject.addAccount(.fixture())
-
-        try await subject.setPremiumUpgradeLastSyncAttemptFailed(true)
-        #expect(appSettingsStore.premiumUpgradeLastSyncAttemptFailedByUserId["1"] == true)
-
-        try await subject.setPremiumUpgradeLastSyncAttemptFailed(false)
-        #expect(appSettingsStore.premiumUpgradeLastSyncAttemptFailedByUserId["1"] == false)
-    }
-
     /// `getPremiumUpgradePending(userId:)` and `setPremiumUpgradePending(_:userId:)` operate on the
     /// given account regardless of which account is currently active.
     @Test

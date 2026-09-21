@@ -42,14 +42,6 @@ protocol BillingStateService { // sourcery: AutoMockable
 
     // MARK: Premium Upgrade Pending
 
-    /// Returns whether the last sync attempt to confirm a pending Premium upgrade failed.
-    ///
-    /// - Parameters:
-    ///   - userId: The user ID of the account to check. Defaults to the active account if `nil`.
-    /// - Returns: `true` if the last sync attempt failed.
-    ///
-    func getPremiumUpgradeLastSyncAttemptFailed(userId: String?) async throws -> Bool
-
     /// Returns whether a Premium upgrade is pending.
     ///
     /// - Parameters:
@@ -57,14 +49,6 @@ protocol BillingStateService { // sourcery: AutoMockable
     /// - Returns: `true` if a Premium upgrade is pending.
     ///
     func getPremiumUpgradePending(userId: String?) async throws -> Bool
-
-    /// Sets whether the last sync attempt to confirm a pending Premium upgrade failed.
-    ///
-    /// - Parameters:
-    ///   - failed: Whether the last sync attempt failed.
-    ///   - userId: The user ID of the account to update. Defaults to the active account if `nil`.
-    ///
-    func setPremiumUpgradeLastSyncAttemptFailed(_ failed: Bool, userId: String?) async throws
 
     /// Sets whether a Premium upgrade is pending.
     ///
@@ -134,31 +118,12 @@ extension BillingStateService {
 
     // MARK: Premium Upgrade Pending
 
-    /// Returns whether the last sync attempt to confirm a pending Premium upgrade failed, for the
-    /// active account.
-    ///
-    /// - Returns: `true` if the last sync attempt failed.
-    ///
-    func getPremiumUpgradeLastSyncAttemptFailed() async throws -> Bool {
-        try await getPremiumUpgradeLastSyncAttemptFailed(userId: nil)
-    }
-
     /// Returns whether a Premium upgrade is pending for the active account.
     ///
     /// - Returns: `true` if a Premium upgrade is pending.
     ///
     func getPremiumUpgradePending() async throws -> Bool {
         try await getPremiumUpgradePending(userId: nil)
-    }
-
-    /// Sets whether the last sync attempt to confirm a pending Premium upgrade failed, for the
-    /// active account.
-    ///
-    /// - Parameters:
-    ///   - failed: Whether the last sync attempt failed.
-    ///
-    func setPremiumUpgradeLastSyncAttemptFailed(_ failed: Bool) async throws {
-        try await setPremiumUpgradeLastSyncAttemptFailed(failed, userId: nil)
     }
 
     /// Sets whether a Premium upgrade is pending for the active account.

@@ -294,14 +294,6 @@ protocol AppSettingsStore: AnyObject {
     ///
     func premiumUpgradeBannerDismissed(userId: String) -> Bool
 
-    /// Gets whether the last sync attempt to confirm a pending Premium upgrade failed for the given user.
-    ///
-    /// - Parameters:
-    ///   - userId: The user ID.
-    /// - Returns: Whether the last sync attempt failed.
-    ///
-    func premiumUpgradeLastSyncAttemptFailed(userId: String) -> Bool
-
     /// Gets whether a Premium upgrade is pending for the given user.
     ///
     /// - Parameters:
@@ -588,14 +580,6 @@ protocol AppSettingsStore: AnyObject {
     ///   - userId: The user ID associated with the Premium upgrade banner dismissed value.
     ///
     func setPremiumUpgradeBannerDismissed(_ dismissed: Bool, userId: String)
-
-    /// Sets whether the last sync attempt to confirm a pending Premium upgrade failed for the given user.
-    ///
-    /// - Parameters:
-    ///   - failed: Whether the last sync attempt failed.
-    ///   - userId: The user ID.
-    ///
-    func setPremiumUpgradeLastSyncAttemptFailed(_ failed: Bool, userId: String)
 
     /// Sets whether a Premium upgrade is pending for the given user.
     ///
@@ -944,7 +928,6 @@ extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore {
         case accountCreationEnvironmentURLs(email: String)
         case preAuthServerConfig
         case premiumUpgradeBannerDismissed(userId: String)
-        case premiumUpgradeLastSyncAttemptFailed(userId: String)
         case premiumUpgradePending(userId: String)
         case rememberedEmail
         case rememberedOrgIdentifier
@@ -1064,8 +1047,6 @@ extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore {
                 "preAuthServerConfig"
             case let .premiumUpgradeBannerDismissed(userId):
                 "premiumUpgradeBannerDismissed_\(userId)"
-            case let .premiumUpgradeLastSyncAttemptFailed(userId):
-                "premiumUpgradeLastSyncAttemptFailed_\(userId)"
             case let .premiumUpgradePending(userId):
                 "premiumUpgradePending_\(userId)"
             case .rememberedEmail:
@@ -1345,10 +1326,6 @@ extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore {
         fetch(for: .premiumUpgradeBannerDismissed(userId: userId))
     }
 
-    func premiumUpgradeLastSyncAttemptFailed(userId: String) -> Bool {
-        fetch(for: .premiumUpgradeLastSyncAttemptFailed(userId: userId))
-    }
-
     func premiumUpgradePending(userId: String) -> Bool {
         fetch(for: .premiumUpgradePending(userId: userId))
     }
@@ -1496,10 +1473,6 @@ extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore {
 
     func setPremiumUpgradeBannerDismissed(_ dismissed: Bool, userId: String) {
         store(dismissed, for: .premiumUpgradeBannerDismissed(userId: userId))
-    }
-
-    func setPremiumUpgradeLastSyncAttemptFailed(_ failed: Bool, userId: String) {
-        store(failed, for: .premiumUpgradeLastSyncAttemptFailed(userId: userId))
     }
 
     func setPremiumUpgradePending(_ pending: Bool, userId: String) {

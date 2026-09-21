@@ -14,8 +14,11 @@ import Testing
 /// Backing per-user-id storage for `MockBillingStateService`'s premium-upgrade-pending state.
 final class PremiumUpgradeStateStore {
     var pendingByUserId = [String: Bool]()
-    var syncAttemptFailedByUserId = [String: Bool]()
     var upgradedToPremiumCardVisibleByUserId = [String: Bool]()
+
+    /// How many times `pendingByUserId` has been written. Lets a test wait on a resolution that
+    /// re-persists the value it already held, which `pendingByUserId` alone can't distinguish.
+    var pendingWriteCount = 0
 }
 
 extension MockBillingStateService {
@@ -30,14 +33,7 @@ extension MockBillingStateService {
         setPremiumUpgradePendingClosure = { pending, userId in
             let userId = try await stateService.getAccountIdOrActiveId(userId: userId)
             state.pendingByUserId[userId] = pending
-        }
-        getPremiumUpgradeLastSyncAttemptFailedClosure = { userId in
-            let userId = try await stateService.getAccountIdOrActiveId(userId: userId)
-            return state.syncAttemptFailedByUserId[userId] ?? false
-        }
-        setPremiumUpgradeLastSyncAttemptFailedClosure = { failed, userId in
-            let userId = try await stateService.getAccountIdOrActiveId(userId: userId)
-            state.syncAttemptFailedByUserId[userId] = failed
+            state.pendingWriteCount += 1
         }
         getUpgradedToPremiumActionCardVisibleClosure = { userId in
             let userId = try await stateService.getAccountIdOrActiveId(userId: userId)
@@ -53,8 +49,6 @@ extension MockBillingStateService {
 }
 
 // MARK: - BillingServicePremiumUpgradeTests
-
-// swiftlint:disable file_length
 
 /// Tests for the `BillingService` methods that persist and resolve a pending Premium upgrade.
 @MainActor
@@ -100,15 +94,14 @@ struct BillingServicePremiumUpgradeTests {
 
     // MARK: premiumUpgradePendingState
 
-    /// `premiumUpgradePendingState()` reflects the persisted pending/failure flags for the active account.
+    /// `premiumUpgradePendingState()` reflects the persisted pending flag for the active account.
     @Test
-    func premiumUpgradePendingState_reflectsPersistedFlags() async {
+    func premiumUpgradePendingState_reflectsPersistedFlag() async {
         premiumUpgradeState.pendingByUserId["1"] = true
-        premiumUpgradeState.syncAttemptFailedByUserId["1"] = true
 
         let result = await subject.premiumUpgradePendingState()
 
-        #expect(result == .pending(lastAttemptFailed: true))
+        #expect(result == .pending)
     }
 
     /// `premiumUpgradePendingState()` returns a default, non-pending state and logs the error
@@ -144,7 +137,6 @@ struct BillingServicePremiumUpgradeTests {
         #expect(statuses == [.confirmed])
         #expect(syncService.didFetchSync)
         #expect(premiumUpgradeState.pendingByUserId["1"] == false)
-        #expect(premiumUpgradeState.syncAttemptFailedByUserId["1"] == false)
         #expect(premiumUpgradeState.upgradedToPremiumCardVisibleByUserId["1"] == true)
     }
 
@@ -163,11 +155,10 @@ struct BillingServicePremiumUpgradeTests {
         try await waitForAsync { !statuses.isEmpty }
         #expect(statuses == [.pending])
         #expect(premiumUpgradeState.pendingByUserId["1"] == true)
-        #expect(premiumUpgradeState.syncAttemptFailedByUserId["1"] == false)
     }
 
-    /// `resolveCheckoutSuccess()` records a sync failure (leaving the upgrade pending so a
-    /// later sync can retry) and publishes `.pending` when the forced sync throws.
+    /// `resolveCheckoutSuccess()` leaves the upgrade pending (so a later sync can retry), logs
+    /// the error, and publishes `.pending` when the forced sync throws.
     @Test
     func resolveCheckoutSuccess_syncError() async throws {
         stateService.doesAccountHavePremiumByUserId["1"] = false
@@ -183,11 +174,11 @@ struct BillingServicePremiumUpgradeTests {
         #expect(statuses == [.pending])
         #expect(errorReporter.errors.first is URLError)
         #expect(premiumUpgradeState.pendingByUserId["1"] == true)
-        #expect(premiumUpgradeState.syncAttemptFailedByUserId["1"] == true)
     }
 
-    /// `resolveCheckoutSuccess()` never records a sync failure once Premium is confirmed, even
-    /// if the sync that granted it later throws on an unrelated step.
+    /// `resolveCheckoutSuccess()` still resolves the upgrade when Premium was granted by a sync
+    /// that later threw on an unrelated step — the profile is persisted early in `fetchSync()`,
+    /// so a throwing sync and a confirmed upgrade aren't mutually exclusive.
     @Test
     func resolveCheckoutSuccess_syncErrorAfterPremiumConfirmed() async throws {
         stateService.doesAccountHavePremiumByUserId["1"] = false
@@ -198,7 +189,6 @@ struct BillingServicePremiumUpgradeTests {
 
         await subject.resolveCheckoutSuccess()
 
-        #expect(premiumUpgradeState.syncAttemptFailedByUserId["1"] == false)
         #expect(premiumUpgradeState.pendingByUserId["1"] == false)
         #expect(premiumUpgradeState.upgradedToPremiumCardVisibleByUserId["1"] == true)
     }
@@ -271,7 +261,6 @@ struct BillingServicePremiumUpgradeTests {
             // (`resolveOnEachNewSync(userId:)`) winning the race.
             stateService.doesAccountHavePremiumByUserId["1"] = true
             premiumUpgradeState.pendingByUserId["1"] = false
-            premiumUpgradeState.syncAttemptFailedByUserId["1"] = false
         }
         var statuses = [PremiumCheckoutStatus]()
         let cancellable = subject.premiumCheckoutStatusPublisher()
@@ -311,7 +300,7 @@ struct BillingServicePremiumUpgradeTests {
         premiumUpgradeState.pendingByUserId["1"] = true
         stateService.doesAccountHavePremiumByUserId["1"] = false
         stateService.lastSyncTimeSubject.send(Date())
-        try await waitForAsync { premiumUpgradeState.syncAttemptFailedByUserId["1"] == false }
+        try await waitForAsync { premiumUpgradeState.pendingWriteCount == 1 }
         #expect(premiumUpgradeState.pendingByUserId["1"] == true)
 
         stateService.doesAccountHavePremiumByUserId["1"] = true
@@ -322,8 +311,8 @@ struct BillingServicePremiumUpgradeTests {
     }
 
     /// `startResolvingPendingUpgrades()`'s background sync watcher leaves an account with no
-    /// pending upgrade (and no prior failure) untouched, so a normal sync for a long-since-Premium
-    /// or free account never spuriously shows the "Upgraded to Premium" card.
+    /// pending upgrade untouched, so a normal sync for a long-since-Premium or free account never
+    /// spuriously shows the "Upgraded to Premium" card.
     @Test
     func startResolvingPendingUpgrades_ignoresSyncsWithNoPendingUpgrade() async throws {
         stateService.doesAccountHavePremiumByUserId["1"] = true
@@ -373,7 +362,7 @@ struct BillingServicePremiumUpgradeTests {
         try await waitForAsync { states.count == 3 }
         #expect(states == [
             .none,
-            .pending(lastAttemptFailed: false),
+            .pending,
             .none,
         ])
     }
@@ -396,7 +385,7 @@ struct BillingServicePremiumUpgradeTests {
         stateService.doesAccountHavePremiumByUserId["1"] = false
         stateService.lastSyncTimeSubject.send(Date())
         try await waitForAsync { states.count == 3 }
-        #expect(states.last == .pending(lastAttemptFailed: false))
+        #expect(states.last == .pending)
 
         stateService.activeIdSubject.send(nil)
 

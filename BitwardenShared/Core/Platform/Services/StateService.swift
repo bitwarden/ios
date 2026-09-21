@@ -2555,19 +2555,9 @@ extension DefaultStateService: BillingStateService {
 
     // MARK: Premium Upgrade Pending
 
-    func getPremiumUpgradeLastSyncAttemptFailed(userId: String?) async throws -> Bool {
-        let userId = try userId ?? getActiveAccountUserId()
-        return appSettingsStore.premiumUpgradeLastSyncAttemptFailed(userId: userId)
-    }
-
     func getPremiumUpgradePending(userId: String?) async throws -> Bool {
         let userId = try userId ?? getActiveAccountUserId()
         return appSettingsStore.premiumUpgradePending(userId: userId)
-    }
-
-    func setPremiumUpgradeLastSyncAttemptFailed(_ failed: Bool, userId: String?) async throws {
-        let userId = try userId ?? getActiveAccountUserId()
-        appSettingsStore.setPremiumUpgradeLastSyncAttemptFailed(failed, userId: userId)
     }
 
     func setPremiumUpgradePending(_ pending: Bool, userId: String?) async throws {

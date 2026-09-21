@@ -296,8 +296,7 @@ class DefaultBillingService: BillingService { // swiftlint:disable:this type_bod
     func premiumUpgradePendingState() async -> PremiumUpgradePendingState {
         do {
             guard try await billingStateService.getPremiumUpgradePending() else { return .none }
-            let lastAttemptFailed = try await billingStateService.getPremiumUpgradeLastSyncAttemptFailed()
-            return .pending(lastAttemptFailed: lastAttemptFailed)
+            return .pending
         } catch {
             errorReporter.log(error: error)
             return .none
@@ -326,15 +325,13 @@ class DefaultBillingService: BillingService { // swiftlint:disable:this type_bod
         await refreshPremiumUpgradePendingStateSubject()
 
         premiumCheckoutStatusSubject.send(.syncing)
-        var syncFailed = false
         do {
             try await syncService.fetchSync(forceSync: true)
         } catch {
             errorReporter.log(error: error)
-            syncFailed = true
         }
 
-        let hasPremium = await resolvePendingUpgrade(userId: userId, syncFailed: syncFailed)
+        let hasPremium = await resolvePendingUpgrade(userId: userId)
         await refreshPremiumUpgradePendingStateSubject()
 
         // Only the account this resolution started for should see its own checkout result — the
@@ -473,7 +470,7 @@ class DefaultBillingService: BillingService { // swiftlint:disable:this type_bod
         for await date in publisher.values {
             guard date != lastSeenDate else { continue }
             lastSeenDate = date
-            _ = await resolvePendingUpgrade(userId: userId, syncFailed: false)
+            _ = await resolvePendingUpgrade(userId: userId)
             await refreshPremiumUpgradePendingStateSubject()
         }
     }
@@ -488,21 +485,18 @@ class DefaultBillingService: BillingService { // swiftlint:disable:this type_bod
     /// Resolves a pending Premium upgrade for `userId`, if one is recorded: checks whether the
     /// account now has Premium, persists the result, and — once confirmed — shows the
     /// "Upgraded to Premium" card. Leaves persisted state untouched if `userId` has no pending
-    /// upgrade or prior failure recorded, so this can safely run on every sync for every account —
-    /// it still always reports current Premium status, though.
+    /// upgrade recorded, so this can safely run on every sync for every account — it still always
+    /// reports current Premium status, though.
     ///
     /// - Parameters:
     ///   - userId: The account to resolve the pending upgrade for.
-    ///   - syncFailed: Whether the sync that triggered this resolution failed outright.
     /// - Returns: Whether `userId` has Premium after this resolution.
     ///
     @discardableResult
-    private func resolvePendingUpgrade(userId: String, syncFailed: Bool) async -> Bool {
+    private func resolvePendingUpgrade(userId: String) async -> Bool {
         let isPending: Bool
-        let lastAttemptFailed: Bool
         do {
             isPending = try await billingStateService.getPremiumUpgradePending(userId: userId)
-            lastAttemptFailed = try await billingStateService.getPremiumUpgradeLastSyncAttemptFailed(userId: userId)
         } catch {
             errorReporter.log(error: error)
             return await stateService.doesAccountHavePremium(userId: userId)
@@ -513,25 +507,12 @@ class DefaultBillingService: BillingService { // swiftlint:disable:this type_bod
         // (`resolveCheckoutSuccess()`) can both resolve the same sync, and whichever runs
         // second must still get an accurate answer even though there's nothing left pending by
         // the time it checks.
-        guard isPending || lastAttemptFailed else {
+        guard isPending else {
             return await stateService.doesAccountHavePremium(userId: userId)
         }
 
         let hasPremium = await stateService.doesAccountHavePremium(userId: userId)
         do {
-            // `syncFailed` and `hasPremium` aren't mutually exclusive: the profile (and its
-            // Premium status) is persisted early in `fetchSync()`, so a later step in that same
-            // sync can still throw after Premium was already confirmed. Only record a failure if
-            // Premium wasn't actually granted, so a confirmed upgrade never persists a
-            // contradictory flag.
-            //
-            // Accepted race: if `resolveOnEachNewSync(userId:)` resolves this same sync
-            // concurrently, whichever call persists this flag last wins — `isPending` below is
-            // unaffected and is what actually gates the retry.
-            try await billingStateService.setPremiumUpgradeLastSyncAttemptFailed(
-                syncFailed && !hasPremium,
-                userId: userId,
-            )
             try await billingStateService.setPremiumUpgradePending(!hasPremium, userId: userId)
             if hasPremium {
                 try await billingStateService.setUpgradedToPremiumActionCardVisible(true, userId: userId)
