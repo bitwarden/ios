@@ -2323,14 +2323,15 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
     }
 
     /// `setVaultTimeout` writes the `.userSessionKey` item when switching from a timeout that
-    /// excludes sharing to one that allows it while `enableUserSessionKeySharing` is ON and the
-    /// vault is unlocked.
+    /// excludes sharing to one that allows it while `enableUserSessionKeySharing` is ON, the user
+    /// has opted in, and the vault is unlocked.
     func test_setVaultTimeout_userSessionKey_featureFlagOn_vaultUnlocked_writes() async throws {
         let active = Account.fixture()
         stateService.activeAccount = active
         vaultTimeoutService.vaultTimeout[active.profile.userId] = .onAppRestart
         configService.featureFlagsBool[.enableUserSessionKeySharing] = true
         vaultTimeoutService.isClientLocked[active.profile.userId] = false
+        keychainService.getUserAuthKeyValueReturnValue = "true"
         clientService.mockCrypto.getUserEncryptionKeyReturnValue = "SESSION_KEY"
 
         try await subject.setVaultTimeout(value: .fifteenMinutes)
@@ -2341,6 +2342,23 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
             .userSessionKey(userId: active.profile.userId),
         )
         XCTAssertEqual(keychainService.setUserAuthKeyReceivedArguments?.value, "SESSION_KEY")
+    }
+
+    /// `setVaultTimeout` does not write the `.userSessionKey` item when switching from a timeout
+    /// that excludes sharing to one that allows it while the feature flag and timeout both allow
+    /// sharing, but the user has not opted in via `setUserSessionKeySharingEnabled(_:userId:)`.
+    func test_setVaultTimeout_userSessionKey_preferenceDisabled_doesNotWrite() async throws {
+        let active = Account.fixture()
+        stateService.activeAccount = active
+        vaultTimeoutService.vaultTimeout[active.profile.userId] = .onAppRestart
+        configService.featureFlagsBool[.enableUserSessionKeySharing] = true
+        vaultTimeoutService.isClientLocked[active.profile.userId] = false
+        keychainService.getUserAuthKeyValueReturnValue = "false"
+        clientService.mockCrypto.getUserEncryptionKeyReturnValue = "SESSION_KEY"
+
+        try await subject.setVaultTimeout(value: .fifteenMinutes)
+
+        XCTAssertFalse(keychainService.setUserAuthKeyCalled)
     }
 
     /// `setVaultTimeout` logs the error and still applies the new timeout value when deleting the
@@ -2364,6 +2382,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         vaultTimeoutService.vaultTimeout[active.profile.userId] = .onAppRestart
         configService.featureFlagsBool[.enableUserSessionKeySharing] = true
         vaultTimeoutService.isClientLocked[active.profile.userId] = false
+        keychainService.getUserAuthKeyValueReturnValue = "true"
         clientService.mockCrypto.getUserEncryptionKeyThrowableError = BitwardenTestError.example
 
         try await subject.setVaultTimeout(value: .fifteenMinutes)
