@@ -156,6 +156,71 @@ struct StateServiceBillingStateServiceTests {
         #expect(!isEligible)
     }
 
+    // MARK: Premium Upgrade Pending
+
+    /// `getPremiumUpgradePending()` returns `false` when no value has been set.
+    @Test
+    func getPremiumUpgradePending_defaultsFalse() async throws {
+        await subject.addAccount(.fixture())
+
+        let result = try await subject.getPremiumUpgradePending()
+        #expect(!result)
+    }
+
+    /// `getPremiumUpgradePending()` returns the stored value for the active account.
+    @Test
+    func getPremiumUpgradePending_storedValue() async throws {
+        await subject.addAccount(.fixture())
+        appSettingsStore.premiumUpgradePendingByUserId["1"] = true
+
+        let result = try await subject.getPremiumUpgradePending()
+        #expect(result)
+    }
+
+    /// `getPremiumUpgradePending()` throws when there is no active account.
+    @Test
+    func getPremiumUpgradePending_noActiveAccount() async {
+        await #expect(throws: StateServiceError.noActiveAccount) {
+            _ = try await subject.getPremiumUpgradePending()
+        }
+    }
+
+    /// `setPremiumUpgradePending(_:)` persists the value for the active account.
+    @Test
+    func setPremiumUpgradePending() async throws {
+        await subject.addAccount(.fixture())
+
+        try await subject.setPremiumUpgradePending(true)
+        #expect(appSettingsStore.premiumUpgradePendingByUserId["1"] == true)
+
+        try await subject.setPremiumUpgradePending(false)
+        #expect(appSettingsStore.premiumUpgradePendingByUserId["1"] == false)
+    }
+
+    /// `setPremiumUpgradePending(_:)` throws errors if no user exists.
+    @Test
+    func setPremiumUpgradePending_error() async {
+        await #expect(throws: StateServiceError.noActiveAccount) {
+            try await subject.setPremiumUpgradePending(true)
+        }
+    }
+
+    /// `getPremiumUpgradePending(userId:)` and `setPremiumUpgradePending(_:userId:)` operate on the
+    /// given account regardless of which account is currently active.
+    @Test
+    func premiumUpgradePending_explicitUserId_notActiveAccount() async throws {
+        await subject.addAccount(.fixture(profile: .fixture(userId: "1")))
+        await subject.addAccount(.fixture(profile: .fixture(userId: "2")))
+        try await subject.setActiveAccount(userId: "1")
+
+        try await subject.setPremiumUpgradePending(true, userId: "2")
+
+        let activeAccountPending = try await subject.getPremiumUpgradePending()
+        let otherAccountPending = try await subject.getPremiumUpgradePending(userId: "2")
+        #expect(!activeAccountPending)
+        #expect(otherAccountPending)
+    }
+
     // MARK: Subscription Attention Card
 
     /// `getSubscriptionAttentionCardVisible()` returns `false` when no value has been set.
