@@ -80,26 +80,6 @@ struct StateServiceBillingStateServiceTests {
         }
     }
 
-    /// `isPremiumUpgradeBannerDismissed()` returns `true` when the banner has been dismissed.
-    @Test
-    func isPremiumUpgradeBannerDismissed_true() async {
-        await subject.addAccount(.fixture())
-        appSettingsStore.premiumUpgradeBannerDismissedByUserId["1"] = true
-
-        let isDismissed = await subject.isPremiumUpgradeBannerDismissed()
-        #expect(isDismissed)
-    }
-
-    /// `isPremiumUpgradeBannerDismissed()` returns `false` when the banner has not been dismissed.
-    @Test
-    func isPremiumUpgradeBannerDismissed_false() async {
-        await subject.addAccount(.fixture())
-        appSettingsStore.premiumUpgradeBannerDismissedByUserId["1"] = false
-
-        let isDismissed = await subject.isPremiumUpgradeBannerDismissed()
-        #expect(!isDismissed)
-    }
-
     // MARK: Premium Upgrade Eligibility
 
     /// `isPremiumUpgradeEligible()` returns `true` when user is free and account is 7+ days old.
@@ -133,7 +113,7 @@ struct StateServiceBillingStateServiceTests {
     }
 
     /// `isPremiumUpgradeEligible()` returns `true` even when the banner has been dismissed,
-    /// since dismissal is a separate concern checked via `isPremiumUpgradeBannerDismissed()`.
+    /// since dismissal is a separate concern checked via `getPremiumUpgradeBannerDismissed(userId:)`.
     @Test
     func isPremiumUpgradeEligible_bannerDismissedDoesNotAffectEligibility() async {
         let fixedDate = Date(timeIntervalSince1970: 1_000_000_000)

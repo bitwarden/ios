@@ -199,7 +199,12 @@ class DefaultBillingService: BillingService {
     }
 
     func isPremiumUpgradeBannerDismissed() async -> Bool {
-        await billingStateService.isPremiumUpgradeBannerDismissed()
+        do {
+            return try await billingStateService.getPremiumUpgradeBannerDismissed()
+        } catch {
+            errorReporter.log(error: error)
+            return false
+        }
     }
 
     func isSelfHosted() async -> Bool {

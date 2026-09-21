@@ -2503,15 +2503,6 @@ extension DefaultStateService: BillingStateService {
         return appSettingsStore.premiumUpgradeBannerDismissed(userId: userId)
     }
 
-    func isPremiumUpgradeBannerDismissed() async -> Bool {
-        do {
-            return try await getPremiumUpgradeBannerDismissed()
-        } catch {
-            errorReporter.log(error: error)
-            return false
-        }
-    }
-
     func setPremiumUpgradeBannerDismissed(_ dismissed: Bool, userId: String?) async throws {
         let userId = try userId ?? getActiveAccountUserId()
         appSettingsStore.setPremiumUpgradeBannerDismissed(dismissed, userId: userId)
