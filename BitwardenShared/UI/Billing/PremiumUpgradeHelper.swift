@@ -133,7 +133,7 @@ class DefaultPremiumUpgradeHelper<Route: PremiumUpgradeRoute, Event>: PremiumUpg
             defer { isResolvingStartRequest = false }
             // Single choke point for all entry points into this flow, so a pending upgrade
             // blocks a second, redundant checkout from any of them.
-            guard case .pending = await services.billingService.premiumUpgradeState() else {
+            guard case .pending = await services.billingService.premiumUpgradeLifecycleState() else {
                 navigatedToUpgradeScreen = true
                 coordinator.navigate(to: .premiumUpgrade)
                 return

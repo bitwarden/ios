@@ -24,7 +24,7 @@ final class PremiumUpgradeStateStore {
 extension MockStateService {
     /// Sets whether an account has Premium it purchased personally, updating both the personal
     /// and the inclusive accessors. A pending upgrade resolves on *personal* Premium, while the
-    /// derived `PremiumUpgradeState` consults both, so a test simulating a purchase landing has
+    /// derived `PremiumUpgradeLifecycleState` consults both, so a test simulating a purchase landing has
     /// to move the two together or the mock describes an account that can't exist.
     ///
     /// - Parameters:

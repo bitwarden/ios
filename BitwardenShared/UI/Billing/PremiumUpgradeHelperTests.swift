@@ -25,7 +25,7 @@ struct PremiumUpgradeHelperTests { // swiftlint:disable:this type_body_length
     init() {
         billingRepository = MockBillingRepository()
         billingService = MockBillingService()
-        billingService.premiumUpgradeStateReturnValue = .notPremium
+        billingService.premiumUpgradeLifecycleStateReturnValue = .notPremium
         coordinator = MockCoordinator()
         environmentService = MockEnvironmentService()
     }
@@ -145,7 +145,7 @@ struct PremiumUpgradeHelperTests { // swiftlint:disable:this type_body_length
     func startInAppPremiumUpgrade_showsPendingAlertWhenAlreadyPending() async throws {
         let statusSubject = PassthroughSubject<PremiumCheckoutStatus, Never>()
         billingService.premiumCheckoutStatusPublisherReturnValue = statusSubject.eraseToAnyPublisher()
-        billingService.premiumUpgradeStateReturnValue = .pending
+        billingService.premiumUpgradeLifecycleStateReturnValue = .pending
         let subject = DefaultPremiumUpgradeHelper(
             services: ServiceContainer.withMocks(
                 billingRepository: billingRepository,
@@ -170,7 +170,7 @@ struct PremiumUpgradeHelperTests { // swiftlint:disable:this type_body_length
     func startInAppPremiumUpgrade_pendingAlert_callsOnPendingDismiss() async throws {
         let statusSubject = PassthroughSubject<PremiumCheckoutStatus, Never>()
         billingService.premiumCheckoutStatusPublisherReturnValue = statusSubject.eraseToAnyPublisher()
-        billingService.premiumUpgradeStateReturnValue = .pending
+        billingService.premiumUpgradeLifecycleStateReturnValue = .pending
         var onPendingDismissCalled = false
         let subject = makeSubject(onPendingDismiss: { onPendingDismissCalled = true })
 
@@ -187,7 +187,7 @@ struct PremiumUpgradeHelperTests { // swiftlint:disable:this type_body_length
     func startInAppPremiumUpgrade_pendingAlert_retryStillPending_doesNotDismiss() async throws {
         let statusSubject = PassthroughSubject<PremiumCheckoutStatus, Never>()
         billingService.premiumCheckoutStatusPublisherReturnValue = statusSubject.eraseToAnyPublisher()
-        billingService.premiumUpgradeStateReturnValue = .pending
+        billingService.premiumUpgradeLifecycleStateReturnValue = .pending
         let subject = makeSubject()
 
         subject.startInAppPremiumUpgrade()
