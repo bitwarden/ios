@@ -4,6 +4,7 @@ import BitwardenResources
 import BitwardenSdk
 import Combine
 import InlineSnapshotTesting
+import Networking
 import TestHelpers
 import XCTest
 
@@ -990,7 +991,7 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         XCTAssertEqual(
             subject.state.loadingState,
             .error(
-                errorMessage: Localizations.weAreUnableToProcessYourRequestPleaseTryAgainOrContactUs,
+                errorMessage: Localizations.weCouldntSyncYourVaultWithTheServerDescriptionLong,
             ),
         )
     }
@@ -1005,7 +1006,10 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         await subject.perform(.refreshVault)
 
         XCTAssertTrue(vaultRepository.fetchSyncCalled)
-        XCTAssertEqual(coordinator.errorAlertsShown as? [BitwardenTestError], [.example])
+        XCTAssertEqual(
+            coordinator.alertShown.last,
+            .syncUnsuccessful(message: Localizations.weCouldntSyncYourVaultWithTheServerDescriptionLong) {},
+        )
         XCTAssertEqual(errorReporter.errors.last as? BitwardenTestError, .example)
         XCTAssertEqual(subject.state.loadingState, .data([section]))
     }
@@ -1020,9 +1024,152 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         await subject.perform(.refreshVault)
 
         XCTAssertTrue(vaultRepository.fetchSyncCalled)
-        XCTAssertEqual(coordinator.errorAlertsShown as? [BitwardenTestError], [.example])
+        XCTAssertEqual(
+            coordinator.alertShown.last,
+            .syncUnsuccessful(message: Localizations.weCouldntSyncYourVaultWithTheServerDescriptionLong) {},
+        )
         XCTAssertEqual(errorReporter.errors.last as? BitwardenTestError, .example)
         XCTAssertEqual(subject.state.loadingState, .data([section]))
+    }
+
+    /// `perform(_:)` with `.refreshed` records an error and changes the loading state to `.error`
+    /// when the cached data contains zero sections.
+    @MainActor
+    func test_perform_refreshed_error_emptySections() async {
+        subject.state.loadingState = .data([])
+        vaultRepository.fetchSyncResult = .failure(BitwardenTestError.example)
+        vaultRepository.needsSyncResult = .success(true)
+        await subject.perform(.refreshVault)
+
+        XCTAssertTrue(vaultRepository.fetchSyncCalled)
+        XCTAssertTrue(coordinator.alertShown.isEmpty)
+        XCTAssertEqual(errorReporter.errors.last as? BitwardenTestError, .example)
+        XCTAssertEqual(
+            subject.state.loadingState,
+            .error(
+                errorMessage: Localizations.weCouldntSyncYourVaultWithTheServerDescriptionLong,
+            ),
+        )
+    }
+
+    /// `perform(_:)` with `.refreshed` shows the sync unsuccessful alert and preserves the cached
+    /// data when the loading state is `.loading` over cached sections.
+    @MainActor
+    func test_perform_refreshed_error_loadingWithCachedData() async {
+        let section = VaultListSection(id: "1", items: [.fixture()], name: "Section")
+        subject.state.loadingState = .loading([section])
+        vaultRepository.fetchSyncResult = .failure(BitwardenTestError.example)
+        vaultRepository.needsSyncResult = .success(true)
+        await subject.perform(.refreshVault)
+
+        XCTAssertTrue(vaultRepository.fetchSyncCalled)
+        XCTAssertEqual(
+            coordinator.alertShown.last,
+            .syncUnsuccessful(message: Localizations.weCouldntSyncYourVaultWithTheServerDescriptionLong) {},
+        )
+        XCTAssertEqual(subject.state.loadingState, .loading([section]))
+    }
+
+    /// Tapping "Not now" on the sync unsuccessful alert doesn't retry the sync or change the
+    /// loading state.
+    @MainActor
+    func test_perform_refreshed_error_notNow() async throws {
+        let section = VaultListSection(id: "1", items: [.fixture()], name: "Section")
+        subject.state.loadingState = .data([section])
+        vaultRepository.fetchSyncResult = .failure(BitwardenTestError.example)
+        vaultRepository.needsSyncResult = .success(true)
+        await subject.perform(.refreshVault)
+
+        vaultRepository.fetchSyncCalled = false
+        try await coordinator.alertShown.last?.tapAction(title: Localizations.notNow)
+
+        XCTAssertFalse(vaultRepository.fetchSyncCalled)
+        XCTAssertEqual(coordinator.alertShown.count, 1)
+        XCTAssertEqual(subject.state.loadingState, .data([section]))
+    }
+
+    /// `perform(_:)` with `.refreshed` surfaces a server-supplied error message in the sync
+    /// unsuccessful alert rather than the generic copy.
+    @MainActor
+    func test_perform_refreshed_error_serverError() async throws {
+        let response = HTTPResponse.failure(statusCode: 400, body: APITestData.bitwardenErrorMessage.data)
+        let serverError = try ServerError.error(errorResponse: ErrorResponseModel(response: response))
+        let section = VaultListSection(id: "1", items: [.fixture()], name: "Section")
+        subject.state.loadingState = .data([section])
+        vaultRepository.fetchSyncResult = .failure(serverError)
+        vaultRepository.needsSyncResult = .success(true)
+        await subject.perform(.refreshVault)
+
+        XCTAssertEqual(coordinator.alertShown.last, .syncUnsuccessful(message: serverError.message) {})
+        XCTAssertEqual(subject.state.loadingState, .data([section]))
+    }
+
+    /// `perform(_:)` with `.refreshed` surfaces a server-supplied error message in the full screen
+    /// error view when there's no cached data.
+    @MainActor
+    func test_perform_refreshed_error_serverError_emptyState() async throws {
+        let response = HTTPResponse.failure(statusCode: 400, body: APITestData.bitwardenErrorMessage.data)
+        let serverError = try ServerError.error(errorResponse: ErrorResponseModel(response: response))
+        vaultRepository.fetchSyncResult = .failure(serverError)
+        vaultRepository.needsSyncResult = .success(true)
+        await subject.perform(.refreshVault)
+
+        XCTAssertTrue(coordinator.alertShown.isEmpty)
+        XCTAssertEqual(subject.state.loadingState, .error(errorMessage: serverError.message))
+    }
+
+    /// Tapping "Try again" on the sync unsuccessful alert performs a non-periodic sync without
+    /// forcing it, and leaves the cached data on screen.
+    @MainActor
+    func test_perform_refreshed_error_tryAgain() async throws {
+        let section = VaultListSection(id: "1", items: [.fixture()], name: "Section")
+        subject.state.loadingState = .data([section])
+        vaultRepository.fetchSyncResult = .failure(BitwardenTestError.example)
+        vaultRepository.needsSyncResult = .success(true)
+        await subject.perform(.refreshVault)
+
+        vaultRepository.fetchSyncCalled = false
+        vaultRepository.fetchSyncResult = .success(())
+        try await coordinator.alertShown.last?.tapAction(title: Localizations.tryAgain)
+
+        XCTAssertTrue(vaultRepository.fetchSyncCalled)
+        XCTAssertEqual(vaultRepository.fetchSyncForceSync, false)
+        XCTAssertEqual(vaultRepository.fetchSyncIsPeriodic, false)
+        XCTAssertEqual(subject.state.loadingState, .data([section]))
+    }
+
+    /// Tapping "Try again" on the sync unsuccessful alert shows the alert again if the retried
+    /// sync also fails.
+    @MainActor
+    func test_perform_refreshed_error_tryAgain_repeatedFailure() async throws {
+        let section = VaultListSection(id: "1", items: [.fixture()], name: "Section")
+        subject.state.loadingState = .data([section])
+        vaultRepository.fetchSyncResult = .failure(BitwardenTestError.example)
+        vaultRepository.needsSyncResult = .success(true)
+        await subject.perform(.refreshVault)
+
+        try await coordinator.alertShown.last?.tapAction(title: Localizations.tryAgain)
+
+        let expectedAlert = Alert.syncUnsuccessful(
+            message: Localizations.weCouldntSyncYourVaultWithTheServerDescriptionLong,
+        ) {}
+        XCTAssertEqual(coordinator.alertShown.count, 2)
+        XCTAssertEqual(coordinator.alertShown, [expectedAlert, expectedAlert])
+        XCTAssertEqual(errorReporter.errors.count, 2)
+        XCTAssertEqual(subject.state.loadingState, .data([section]))
+    }
+
+    /// `perform(_:)` with `.refreshed` shows the generic error alert, not the sync unsuccessful
+    /// alert, when the sync succeeds but the local vault empty check fails.
+    @MainActor
+    func test_perform_refreshed_isVaultEmptyError() async {
+        vaultRepository.fetchSyncResult = .success(())
+        vaultRepository.isVaultEmptyResult = .failure(BitwardenTestError.example)
+        await subject.perform(.refreshVault)
+
+        XCTAssertTrue(coordinator.alertShown.isEmpty)
+        XCTAssertEqual(coordinator.errorAlertsShown as? [BitwardenTestError], [.example])
+        XCTAssertEqual(errorReporter.errors.last as? BitwardenTestError, .example)
     }
 
     /// `perform(.refreshAccountProfiles)` without profiles for the profile switcher.

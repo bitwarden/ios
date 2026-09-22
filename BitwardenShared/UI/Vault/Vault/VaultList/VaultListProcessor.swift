@@ -457,6 +457,33 @@ extension VaultListProcessor {
         }
     }
 
+    /// Handles a failure to sync the vault, showing the full screen error view when there's no
+    /// cached data and a sync is needed, and a dialog offering a retry otherwise.
+    ///
+    /// - Parameters:
+    ///   - error: The error thrown by the sync.
+    ///
+    private func handleSyncFailure(error: Error) async {
+        services.errorReporter.log(error: error)
+
+        let message = (error as? ServerError)?.message
+            ?? Localizations.weCouldntSyncYourVaultWithTheServerDescriptionLong
+        let needsSync = try? await services.vaultRepository.needsSync()
+        if needsSync == true {
+            // If the vault needs a sync and there are cached items,
+            // display the cached data behind a dialog offering a retry.
+            if let sections = state.loadingState.data, !sections.isEmpty {
+                showSyncUnsuccessfulAlert(message: message)
+            } else {
+                // If the vault needs a sync and there were no cached items,
+                // show the full screen error view.
+                state.loadingState = .error(errorMessage: message)
+            }
+        } else {
+            showSyncUnsuccessfulAlert(message: message)
+        }
+    }
+
     /// Loads the organization user notification banner data, suppressing it when the user has already dismissed
     /// the banner for the current policy revision.
     private func loadOrganizationUserNotificationBannerData() async {
@@ -536,10 +563,18 @@ extension VaultListProcessor {
                 dismissSlowLoadingToast()
             }
 
-            try await services.vaultRepository.fetchSync(
-                forceSync: false,
-                isPeriodic: syncWithPeriodicCheck,
-            )
+            do {
+                try await services.vaultRepository.fetchSync(
+                    forceSync: false,
+                    isPeriodic: syncWithPeriodicCheck,
+                )
+            } catch URLError.cancelled {
+                // No-op: don't log or alert for cancellation errors.
+                return
+            } catch {
+                await handleSyncFailure(error: error)
+                return
+            }
 
             if try await services.vaultRepository.isVaultEmpty() {
                 // Normally after syncing the database will publish the contents of the vault which is
@@ -549,27 +584,9 @@ extension VaultListProcessor {
             }
 
             await checkIfForceKdfUpdateRequired()
-        } catch URLError.cancelled {
-            // No-op: don't log or alert for cancellation errors.
         } catch {
             services.errorReporter.log(error: error)
-
-            let needsSync = try? await services.vaultRepository.needsSync()
-            if needsSync == true {
-                // If the vault needs a sync and there are cached items,
-                // display the cached data and show an error alert.
-                if let sections = state.loadingState.data, !sections.isEmpty {
-                    await coordinator.showErrorAlert(error: error)
-                } else {
-                    // If the vault needs a sync and there were no cached items,
-                    // show the full screen error view.
-                    state.loadingState = .error(
-                        errorMessage: Localizations.weAreUnableToProcessYourRequestPleaseTryAgainOrContactUs,
-                    )
-                }
-            } else {
-                await coordinator.showErrorAlert(error: error)
-            }
+            await coordinator.showErrorAlert(error: error)
         }
     }
 
@@ -723,6 +740,17 @@ extension VaultListProcessor {
     private func navigateToPremiumUpgrade() async {
         await premiumUpgradeHelper.navigateToPremiumUpgrade(onConfirmed: { [weak self] in
             await self?.handlePremiumUpgradeConfirmed()
+        })
+    }
+
+    /// Shows the sync unsuccessful alert, with "Try again" wired to a non-periodic vault refresh.
+    ///
+    /// - Parameters:
+    ///   - message: The message to display in the alert.
+    ///
+    private func showSyncUnsuccessfulAlert(message: String) {
+        coordinator.showAlert(.syncUnsuccessful(message: message) { [weak self] in
+            await self?.refreshVault(syncWithPeriodicCheck: false)
         })
     }
 
