@@ -66,7 +66,7 @@ class GeneratorViewTests: BitwardenTestCase {
         XCTAssertEqual(processor.dispatchedActions.last, .dismissPressed)
     }
 
-    /// Tapping on the copy button dispatches the `.copyGeneratedValue` action.
+    /// Tapping on the copy button dispatches the `.copyGeneratedValue` action when presented in a tab.
     @MainActor
     func test_generatedValue_copyTap() throws {
         let button = try subject.inspect().find(buttonWithAccessibilityLabel: Localizations.copyPassword)
@@ -74,10 +74,72 @@ class GeneratorViewTests: BitwardenTestCase {
         XCTAssertEqual(processor.dispatchedActions.last, .copyGeneratedValue)
     }
 
+    /// Tapping on the copy icon button dispatches the `.copyGeneratedValue` action when presented in place.
+    @MainActor
+    func test_generatedValue_copyTap_inPlace() throws {
+        processor.state.presentationMode = .inPlace
+        let button = try subject.inspect().find(buttonWithAccessibilityLabel: Localizations.copyPassword)
+        try button.tap()
+        XCTAssertEqual(processor.dispatchedActions.last, .copyGeneratedValue)
+    }
+
+    /// The copy icon button is labeled for copying a username, not a password, when generating a username.
+    @MainActor
+    func test_generatedValue_copyTap_inPlace_username() throws {
+        processor.state.presentationMode = .inPlace
+        processor.state.generatorType = .username
+        let button = try subject.inspect().find(buttonWithAccessibilityLabel: Localizations.copyUsername)
+        try button.tap()
+        XCTAssertEqual(processor.dispatchedActions.last, .copyGeneratedValue)
+    }
+
+    /// The copy icon button is labeled for copying a passphrase, not a password, when generating a passphrase.
+    @MainActor
+    func test_generatedValue_copyTap_inPlace_passphrase() throws {
+        processor.state.presentationMode = .inPlace
+        processor.state.generatorType = .passphrase
+        let button = try subject.inspect().find(buttonWithAccessibilityLabel: Localizations.copyPassphrase)
+        try button.tap()
+        XCTAssertEqual(processor.dispatchedActions.last, .copyGeneratedValue)
+    }
+
+    /// The full-width copy button is only present when presented in a tab, not when presented in place.
+    @MainActor
+    func test_generatedValue_copyButton_notPresentInPlace() throws {
+        processor.state.presentationMode = .inPlace
+        XCTAssertThrowsError(try subject.inspect().find(button: Localizations.copy))
+    }
+
+    /// The full-width fill button pinned to the bottom of the sheet is only present when presented
+    /// in place, not when presented in a tab.
+    @MainActor
+    func test_fillButton_notPresentInTab() throws {
+        processor.state.presentationMode = .tab
+        XCTAssertThrowsError(try subject.inspect().find(button: Localizations.useThisPassword))
+    }
+
     /// Tapping on the refresh button dispatches the `.refreshGeneratedValue` action.
     @MainActor
     func test_generatedValue_refreshTap() throws {
         let button = try subject.inspect().find(buttonWithAccessibilityLabel: Localizations.generatePassword)
+        try button.tap()
+        XCTAssertEqual(processor.dispatchedActions.last, .refreshGeneratedValue)
+    }
+
+    /// The refresh button is labeled for regenerating a username, not a password, when generating a username.
+    @MainActor
+    func test_generatedValue_refreshTap_username() throws {
+        processor.state.generatorType = .username
+        let button = try subject.inspect().find(buttonWithAccessibilityLabel: Localizations.generateUsername)
+        try button.tap()
+        XCTAssertEqual(processor.dispatchedActions.last, .refreshGeneratedValue)
+    }
+
+    /// The refresh button is labeled for regenerating a passphrase, not a password, when generating a passphrase.
+    @MainActor
+    func test_generatedValue_refreshTap_passphrase() throws {
+        processor.state.generatorType = .passphrase
+        let button = try subject.inspect().find(buttonWithAccessibilityLabel: Localizations.generatePassphrase)
         try button.tap()
         XCTAssertEqual(processor.dispatchedActions.last, .refreshGeneratedValue)
     }
@@ -145,13 +207,34 @@ class GeneratorViewTests: BitwardenTestCase {
         XCTAssertEqual(processor.dispatchedActions.last, .showPasswordHistory)
     }
 
-    /// Tapping the select button dispatches the `.selectButtonPressed` action.
+    /// Tapping the fill button dispatches the `.fillGeneratedValue` action, labeled for a password.
     @MainActor
-    func test_selectButton_tap() async throws {
+    func test_fillButton_tap_password() throws {
         processor.state.presentationMode = .inPlace
-        let button = try subject.inspect().find(button: Localizations.select)
+        processor.state.generatorType = .password
+        let button = try subject.inspect().find(button: Localizations.useThisPassword)
         try button.tap()
-        XCTAssertEqual(processor.dispatchedActions.last, .selectButtonPressed)
+        XCTAssertEqual(processor.dispatchedActions.last, .fillGeneratedValue)
+    }
+
+    /// Tapping the fill button dispatches the `.fillGeneratedValue` action, labeled for a passphrase.
+    @MainActor
+    func test_fillButton_tap_passphrase() throws {
+        processor.state.presentationMode = .inPlace
+        processor.state.generatorType = .passphrase
+        let button = try subject.inspect().find(button: Localizations.useThisPassphrase)
+        try button.tap()
+        XCTAssertEqual(processor.dispatchedActions.last, .fillGeneratedValue)
+    }
+
+    /// Tapping the fill button dispatches the `.fillGeneratedValue` action, labeled for a username.
+    @MainActor
+    func test_fillButton_tap_username() throws {
+        processor.state.presentationMode = .inPlace
+        processor.state.generatorType = .username
+        let button = try subject.inspect().find(button: Localizations.useThisUsername)
+        try button.tap()
+        XCTAssertEqual(processor.dispatchedActions.last, .fillGeneratedValue)
     }
 
     /// Updating the slider value dispatches the `.sliderValueChanged` action.

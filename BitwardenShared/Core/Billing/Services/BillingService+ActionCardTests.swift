@@ -33,7 +33,7 @@ struct BillingServiceActionCardTests {
         billingStateService = MockBillingStateService()
         billingStateService.getSubscriptionAttentionCardVisibleReturnValue = false
         billingStateService.getUpgradedToPremiumActionCardVisibleReturnValue = false
-        billingStateService.isPremiumUpgradeBannerDismissedReturnValue = false
+        billingStateService.getPremiumUpgradeBannerDismissedReturnValue = false
         configService = MockConfigService()
         configService.featureFlagsBool[.premiumUpgradePath] = true
         environmentService = MockEnvironmentService()
@@ -53,10 +53,22 @@ struct BillingServiceActionCardTests {
 
     // MARK: isPremiumUpgradeBannerDismissed
 
+    /// `isPremiumUpgradeBannerDismissed()` logs the error and returns `false` when the state
+    /// service throws.
+    @Test
+    func isPremiumUpgradeBannerDismissed_error() async {
+        billingStateService.getPremiumUpgradeBannerDismissedThrowableError = StateServiceError.noActiveAccount
+
+        let result = await subject.isPremiumUpgradeBannerDismissed()
+
+        #expect(result == false)
+        #expect(errorReporter.errors as? [StateServiceError] == [.noActiveAccount])
+    }
+
     /// `isPremiumUpgradeBannerDismissed()` returns `false` when the banner has not been dismissed.
     @Test
     func isPremiumUpgradeBannerDismissed_false() async {
-        billingStateService.isPremiumUpgradeBannerDismissedReturnValue = false
+        billingStateService.getPremiumUpgradeBannerDismissedReturnValue = false
 
         let result = await subject.isPremiumUpgradeBannerDismissed()
 
@@ -66,7 +78,7 @@ struct BillingServiceActionCardTests {
     /// `isPremiumUpgradeBannerDismissed()` returns `true` when the banner has been dismissed.
     @Test
     func isPremiumUpgradeBannerDismissed_true() async {
-        billingStateService.isPremiumUpgradeBannerDismissedReturnValue = true
+        billingStateService.getPremiumUpgradeBannerDismissedReturnValue = true
 
         let result = await subject.isPremiumUpgradeBannerDismissed()
 
