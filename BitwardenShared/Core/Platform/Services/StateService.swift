@@ -2533,15 +2533,6 @@ extension DefaultStateService: BillingStateService {
         appSettingsStore.setPremiumUpgradeBannerDismissed(dismissed, userId: userId)
     }
 
-    func isPremiumUpgradeBannerDismissed() async -> Bool {
-        do {
-            return try await getPremiumUpgradeBannerDismissed()
-        } catch {
-            errorReporter.log(error: error)
-            return false
-        }
-    }
-
     // MARK: Premium Upgrade Eligibility
 
     func isPremiumUpgradeEligible() async -> Bool {
