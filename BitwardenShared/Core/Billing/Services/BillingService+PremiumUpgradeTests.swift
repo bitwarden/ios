@@ -23,7 +23,7 @@ final class PremiumUpgradeStateStore {
 
 extension MockStateService {
     /// Sets whether an account has Premium it purchased personally, updating both the personal
-    /// and the inclusive accessors. A pending upgrade resolves on *personal* Premium, while the
+    /// and the inclusive accessors. A pending upgrade completes on *personal* Premium, while the
     /// derived `PremiumUpgradeLifecycleState` consults both, so a test simulating a purchase landing has
     /// to move the two together or the mock describes an account that can't exist.
     ///
@@ -66,7 +66,7 @@ extension MockBillingStateService {
 
 // MARK: - BillingServicePremiumUpgradeTests
 
-/// Tests for the `BillingService` methods that persist and resolve a pending Premium upgrade.
+/// Tests for the `BillingService` methods that persist and complete a pending Premium upgrade.
 @MainActor
 struct BillingServicePremiumUpgradeTests {
     // MARK: Properties
@@ -108,6 +108,86 @@ struct BillingServicePremiumUpgradeTests {
         )
     }
 
+    // MARK: completePendingUpgrade
+
+    /// `completePendingUpgrade(userId:)` completes the account named by its parameter, not
+    /// whichever account happens to be active — the sync it runs after belongs to that account.
+    @Test
+    func completePendingUpgrade_completesGivenAccountNotActiveAccount() async {
+        stateService.activeAccount = .fixture(profile: .fixture(userId: "2"))
+        premiumUpgradeStorage.pendingByUserId["1"] = true
+        stateService.setPersonalPremium(true, userId: "1")
+
+        await subject.completePendingUpgrade(userId: "1")
+
+        #expect(premiumUpgradeStorage.pendingByUserId["1"] == false)
+        #expect(premiumUpgradeStorage.upgradedToPremiumCardVisibleByUserId["1"] == true)
+        #expect(premiumUpgradeStorage.pendingByUserId["2"] == nil)
+    }
+
+    /// `completePendingUpgrade(userId:)` completes a pending upgrade on a later, unrelated sync —
+    /// not just the sync that originated the checkout attempt. This is QA's "delayed sync" case:
+    /// Settings > Vault > Sync Now, or a sync triggered from the web vault.
+    @Test
+    func completePendingUpgrade_completesPendingUpgradeOnDelayedSync() async {
+        premiumUpgradeStorage.pendingByUserId["1"] = true
+        stateService.setPersonalPremium(false, userId: "1")
+
+        await subject.completePendingUpgrade(userId: "1")
+
+        #expect(premiumUpgradeStorage.pendingByUserId["1"] == true)
+        #expect(premiumUpgradeStorage.upgradedToPremiumCardVisibleByUserId["1"] == nil)
+
+        stateService.setPersonalPremium(true, userId: "1")
+
+        await subject.completePendingUpgrade(userId: "1")
+
+        #expect(premiumUpgradeStorage.pendingByUserId["1"] == false)
+        #expect(premiumUpgradeStorage.upgradedToPremiumCardVisibleByUserId["1"] == true)
+    }
+
+    /// `completePendingUpgrade(userId:)` leaves an account with no pending upgrade untouched, so
+    /// a routine sync for a long-since-Premium or free account never spuriously shows the
+    /// "Upgraded to Premium" card.
+    @Test
+    func completePendingUpgrade_withNoPendingUpgrade_doesNothing() async {
+        stateService.setPersonalPremium(true, userId: "1")
+
+        await subject.completePendingUpgrade(userId: "1")
+
+        #expect(premiumUpgradeStorage.pendingByUserId["1"] == nil)
+        #expect(premiumUpgradeStorage.upgradedToPremiumCardVisibleByUserId["1"] == nil)
+    }
+
+    /// `completePendingUpgrade(userId:)` doesn't treat organization-granted Premium as the
+    /// personal purchase landing: the pending flag is only ever set by a personal checkout, so an
+    /// organization grant arriving mid-flight must leave the upgrade pending and the card hidden.
+    @Test
+    func completePendingUpgrade_withOrganizationPremiumOnly_staysPending() async {
+        premiumUpgradeStorage.pendingByUserId["1"] = true
+        stateService.doesAccountHavePremiumPersonallyByUserId["1"] = false
+        stateService.doesAccountHavePremiumByUserId["1"] = true
+
+        await subject.completePendingUpgrade(userId: "1")
+
+        #expect(premiumUpgradeStorage.pendingByUserId["1"] == true)
+        #expect(premiumUpgradeStorage.upgradedToPremiumCardVisibleByUserId["1"] == nil)
+    }
+
+    /// `completePendingUpgrade(userId:)` logs the error and leaves persisted state alone when
+    /// reading the pending flag throws.
+    @Test
+    func completePendingUpgrade_withReadError_logsError() async {
+        billingStateService.getPremiumUpgradePendingClosure = { _ in
+            throw BitwardenTestError.example
+        }
+
+        await subject.completePendingUpgrade(userId: "1")
+
+        #expect(errorReporter.errors.last as? BitwardenTestError == .example)
+        #expect(premiumUpgradeStorage.pendingByUserId["1"] == nil)
+    }
+
     // MARK: premiumCheckoutSucceeded
 
     /// `premiumCheckoutSucceeded()` still persists the correct result for the account it started
@@ -135,14 +215,14 @@ struct BillingServicePremiumUpgradeTests {
     }
 
     /// `premiumCheckoutSucceeded()` still reports `.confirmed` when the pending flag it set is
-    /// already cleared by the time its own resolution step runs — which is the normal case, since
-    /// its forced sync reaches `onFetchSyncSucceeded(userId:)` and resolves the upgrade first.
+    /// already cleared by the time its own completion step runs — which is the normal case, since
+    /// its forced sync reaches `onFetchSyncSucceeded(userId:)` and completes the upgrade first.
     @Test
-    func premiumCheckoutSucceeded_alreadyResolvedByConcurrentSync_stillReportsConfirmed() async throws {
+    func premiumCheckoutSucceeded_alreadyCompletedByConcurrentSync_stillReportsConfirmed() async throws {
         stateService.setPersonalPremium(false, userId: "1")
         syncService.fetchSyncHandler = {
-            // Simulates the sync delegate's `resolvePendingUpgrade(userId:)` resolving this
-            // same forced sync before `premiumCheckoutSucceeded()` gets to its own resolution.
+            // Simulates the sync delegate's `completePendingUpgrade(userId:)` completing this
+            // same forced sync before `premiumCheckoutSucceeded()` gets to its own completion.
             stateService.setPersonalPremium(true, userId: "1")
             premiumUpgradeStorage.pendingByUserId["1"] = false
         }
@@ -190,7 +270,7 @@ struct BillingServicePremiumUpgradeTests {
         #expect(premiumUpgradeStorage.pendingByUserId["1"] == nil)
     }
 
-    /// `premiumCheckoutSucceeded()` does nothing when there's no active account to resolve for.
+    /// `premiumCheckoutSucceeded()` does nothing when there's no active account to complete for.
     @Test
     func premiumCheckoutSucceeded_noActiveAccount_doesNothing() async {
         stateService.activeAccount = nil
@@ -247,7 +327,7 @@ struct BillingServicePremiumUpgradeTests {
         #expect(premiumUpgradeStorage.pendingByUserId["1"] == true)
     }
 
-    /// `premiumCheckoutSucceeded()` still resolves the upgrade when Premium was granted by a sync
+    /// `premiumCheckoutSucceeded()` still completes the upgrade when Premium was granted by a sync
     /// that later threw on an unrelated step — the profile is persisted early in `fetchSync()`,
     /// so a throwing sync and a confirmed upgrade aren't mutually exclusive.
     @Test
@@ -262,85 +342,5 @@ struct BillingServicePremiumUpgradeTests {
 
         #expect(premiumUpgradeStorage.pendingByUserId["1"] == false)
         #expect(premiumUpgradeStorage.upgradedToPremiumCardVisibleByUserId["1"] == true)
-    }
-
-    // MARK: resolvePendingUpgrade
-
-    /// `resolvePendingUpgrade(userId:)` resolves the account named by its parameter, not
-    /// whichever account happens to be active — the sync it runs after belongs to that account.
-    @Test
-    func resolvePendingUpgrade_resolvesGivenAccountNotActiveAccount() async {
-        stateService.activeAccount = .fixture(profile: .fixture(userId: "2"))
-        premiumUpgradeStorage.pendingByUserId["1"] = true
-        stateService.setPersonalPremium(true, userId: "1")
-
-        await subject.resolvePendingUpgrade(userId: "1")
-
-        #expect(premiumUpgradeStorage.pendingByUserId["1"] == false)
-        #expect(premiumUpgradeStorage.upgradedToPremiumCardVisibleByUserId["1"] == true)
-        #expect(premiumUpgradeStorage.pendingByUserId["2"] == nil)
-    }
-
-    /// `resolvePendingUpgrade(userId:)` resolves a pending upgrade on a later, unrelated sync —
-    /// not just the sync that originated the checkout attempt. This is QA's "delayed sync" case:
-    /// Settings > Vault > Sync Now, or a sync triggered from the web vault.
-    @Test
-    func resolvePendingUpgrade_resolvesPendingUpgradeOnDelayedSync() async {
-        premiumUpgradeStorage.pendingByUserId["1"] = true
-        stateService.setPersonalPremium(false, userId: "1")
-
-        await subject.resolvePendingUpgrade(userId: "1")
-
-        #expect(premiumUpgradeStorage.pendingByUserId["1"] == true)
-        #expect(premiumUpgradeStorage.upgradedToPremiumCardVisibleByUserId["1"] == nil)
-
-        stateService.setPersonalPremium(true, userId: "1")
-
-        await subject.resolvePendingUpgrade(userId: "1")
-
-        #expect(premiumUpgradeStorage.pendingByUserId["1"] == false)
-        #expect(premiumUpgradeStorage.upgradedToPremiumCardVisibleByUserId["1"] == true)
-    }
-
-    /// `resolvePendingUpgrade(userId:)` leaves an account with no pending upgrade untouched, so
-    /// a routine sync for a long-since-Premium or free account never spuriously shows the
-    /// "Upgraded to Premium" card.
-    @Test
-    func resolvePendingUpgrade_withNoPendingUpgrade_doesNothing() async {
-        stateService.setPersonalPremium(true, userId: "1")
-
-        await subject.resolvePendingUpgrade(userId: "1")
-
-        #expect(premiumUpgradeStorage.pendingByUserId["1"] == nil)
-        #expect(premiumUpgradeStorage.upgradedToPremiumCardVisibleByUserId["1"] == nil)
-    }
-
-    /// `resolvePendingUpgrade(userId:)` doesn't treat organization-granted Premium as the
-    /// personal purchase landing: the pending flag is only ever set by a personal checkout, so an
-    /// organization grant arriving mid-flight must leave the upgrade pending and the card hidden.
-    @Test
-    func resolvePendingUpgrade_withOrganizationPremiumOnly_staysPending() async {
-        premiumUpgradeStorage.pendingByUserId["1"] = true
-        stateService.doesAccountHavePremiumPersonallyByUserId["1"] = false
-        stateService.doesAccountHavePremiumByUserId["1"] = true
-
-        await subject.resolvePendingUpgrade(userId: "1")
-
-        #expect(premiumUpgradeStorage.pendingByUserId["1"] == true)
-        #expect(premiumUpgradeStorage.upgradedToPremiumCardVisibleByUserId["1"] == nil)
-    }
-
-    /// `resolvePendingUpgrade(userId:)` logs the error and leaves persisted state alone when
-    /// reading the pending flag throws.
-    @Test
-    func resolvePendingUpgrade_withReadError_logsError() async {
-        billingStateService.getPremiumUpgradePendingClosure = { _ in
-            throw BitwardenTestError.example
-        }
-
-        await subject.resolvePendingUpgrade(userId: "1")
-
-        #expect(errorReporter.errors.last as? BitwardenTestError == .example)
-        #expect(premiumUpgradeStorage.pendingByUserId["1"] == nil)
     }
 }
