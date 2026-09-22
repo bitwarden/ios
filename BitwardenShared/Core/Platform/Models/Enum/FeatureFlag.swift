@@ -83,7 +83,6 @@ extension FeatureFlag: @retroactive CaseIterable {
             .newItemTypes,
             .noLogoutOnKdfChange,
             .organizationUserNotificationBanner,
-            .policiesInAcceptedState,
             .premiumUpgradePath,
             .sendControls,
             .vfo1Foundation,

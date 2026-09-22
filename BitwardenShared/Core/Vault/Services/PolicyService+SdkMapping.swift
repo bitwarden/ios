@@ -112,6 +112,7 @@ extension PolicyType {
         case .removeUnlockWithPin: self = .removeUnlockWithPin
         case .requireSso: self = .requireSSO
         case .resetPassword: self = .resetPassword
+        case .organizationUserNotification: self = .organizationUserNotification
         case .restrictedItemTypes: self = .restrictItemTypes
         case .sendControls: self = .sendControls
         case .sendOptions: self = .sendOptions
@@ -123,7 +124,6 @@ extension PolicyType {
              .blockClaimedDomainAccountCreation,
              .fillAssist,
              .freeFamiliesSponsorship,
-             .organizationUserNotification,
              .uriMatchDefaults: self = .unknown
         }
     }

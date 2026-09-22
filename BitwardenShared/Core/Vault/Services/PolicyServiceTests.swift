@@ -108,6 +108,23 @@ class PolicyServiceTests: BitwardenTestCase { // swiftlint:disable:this type_bod
         subject = nil
     }
 
+    // MARK: Test Helpers
+
+    /// Stubs the mock SDK policies client to return the enabled policies matching the requested
+    /// type, mirroring the part of `PoliciesClient.filterByType`'s contract that doesn't depend on
+    /// organization context.
+    ///
+    /// Tests for logic *downstream* of the filter use this to get realistic input without
+    /// re-asserting the organization-context filtering (membership status, role exemptions,
+    /// `usePolicies`) that the SDK owns and tests. Tests that verify what the service hands *to*
+    /// the SDK skip this and assert on `filterByTypeReceivedArguments` instead.
+    ///
+    private func stubSdkFilterByType() {
+        clientService.mockPolicies.filterByTypeClosure = { policies, _, policyType in
+            policies.filter { $0.enabled && $0.type == policyType }
+        }
+    }
+
     // MARK: Tests
 
     /// `applyPasswordGenerationOptions(options:)` applies the password generation policy to the
@@ -115,7 +132,8 @@ class PolicyServiceTests: BitwardenTestCase { // swiftlint:disable:this type_bod
     func test_applyPasswordGenerationOptions_overridePasswordType_existingOption() async throws {
         stateService.activeAccount = .fixture()
         organizationService.fetchAllOrganizationsResult = .success([.fixture()])
-        policyDataStore.fetchPoliciesResult = .success([passwordGeneratorPolicy])
+        policyDataStore.fetchPoliciesNewResult = .success([passwordGeneratorPolicy])
+        stubSdkFilterByType()
 
         var options = PasswordGenerationOptions(type: .password)
         let appliedPolicy = try await subject.applyPasswordGenerationPolicy(options: &options)
@@ -124,24 +142,12 @@ class PolicyServiceTests: BitwardenTestCase { // swiftlint:disable:this type_bod
         XCTAssertTrue(appliedPolicy)
     }
 
-    /// `applyPasswordGenerationOptions()` returns `true` if the user is owner in the organization.
-    func test_applyPasswordGenerationOptions_exemptUser() async throws {
-        stateService.activeAccount = .fixture()
-        organizationService.fetchAllOrganizationsResult = .success([.fixture(type: .owner)])
-        policyDataStore.fetchPoliciesResult = .success([passwordGeneratorPolicy])
-
-        var options = PasswordGenerationOptions(type: .password)
-        let appliedPolicy = try await subject.applyPasswordGenerationPolicy(options: &options)
-
-        XCTAssertTrue(appliedPolicy)
-    }
-
     /// `applyPasswordGenerationOptions(options:)` applies the password generation policy to the
     /// options when there's multiple policies.
     func test_applyPasswordGenerationOptions_multiplePolicies() async throws {
         stateService.activeAccount = .fixture()
         organizationService.fetchAllOrganizationsResult = .success([.fixture()])
-        policyDataStore.fetchPoliciesResult = .success(
+        policyDataStore.fetchPoliciesNewResult = .success(
             [
                 .fixture(
                     data: [
@@ -155,6 +161,7 @@ class PolicyServiceTests: BitwardenTestCase { // swiftlint:disable:this type_bod
                 passwordGeneratorPolicy,
             ],
         )
+        stubSdkFilterByType()
 
         var options = PasswordGenerationOptions()
         let appliedPolicy = try await subject.applyPasswordGenerationPolicy(options: &options)
@@ -184,7 +191,7 @@ class PolicyServiceTests: BitwardenTestCase { // swiftlint:disable:this type_bod
     func test_applyPasswordGenerationOptions_multiplePolicies_differentTypes() async throws {
         stateService.activeAccount = .fixture()
         organizationService.fetchAllOrganizationsResult = .success([.fixture()])
-        policyDataStore.fetchPoliciesResult = .success(
+        policyDataStore.fetchPoliciesNewResult = .success(
             [
                 passwordGeneratorPolicy,
                 .fixture(
@@ -203,6 +210,7 @@ class PolicyServiceTests: BitwardenTestCase { // swiftlint:disable:this type_bod
                 ),
             ],
         )
+        stubSdkFilterByType()
 
         var options = PasswordGenerationOptions()
         let appliedPolicy = try await subject.applyPasswordGenerationPolicy(options: &options)
@@ -229,7 +237,8 @@ class PolicyServiceTests: BitwardenTestCase { // swiftlint:disable:this type_bod
     func test_applyPasswordGenerationOptions_policy() async throws {
         stateService.activeAccount = .fixture()
         organizationService.fetchAllOrganizationsResult = .success([.fixture()])
-        policyDataStore.fetchPoliciesResult = .success([passwordGeneratorPolicy])
+        policyDataStore.fetchPoliciesNewResult = .success([passwordGeneratorPolicy])
+        stubSdkFilterByType()
 
         var options = PasswordGenerationOptions()
         let appliedPolicy = try await subject.applyPasswordGenerationPolicy(options: &options)
@@ -259,7 +268,7 @@ class PolicyServiceTests: BitwardenTestCase { // swiftlint:disable:this type_bod
     func test_applyPasswordGenerationOptions_policy_noOverride() async throws {
         stateService.activeAccount = .fixture()
         organizationService.fetchAllOrganizationsResult = .success([.fixture()])
-        policyDataStore.fetchPoliciesResult = .success(
+        policyDataStore.fetchPoliciesNewResult = .success(
             [
                 .fixture(
                     data: [:],
@@ -267,6 +276,7 @@ class PolicyServiceTests: BitwardenTestCase { // swiftlint:disable:this type_bod
                 ),
             ],
         )
+        stubSdkFilterByType()
 
         var options = PasswordGenerationOptions()
         let appliedPolicy = try await subject.applyPasswordGenerationPolicy(options: &options)
@@ -280,7 +290,8 @@ class PolicyServiceTests: BitwardenTestCase { // swiftlint:disable:this type_bod
     func test_applyPasswordGenerationOptions_policy_existingOptions() async throws {
         stateService.activeAccount = .fixture()
         organizationService.fetchAllOrganizationsResult = .success([.fixture()])
-        policyDataStore.fetchPoliciesResult = .success([passwordGeneratorPolicy])
+        policyDataStore.fetchPoliciesNewResult = .success([passwordGeneratorPolicy])
+        stubSdkFilterByType()
 
         var options = PasswordGenerationOptions(
             capitalize: false,
@@ -313,17 +324,6 @@ class PolicyServiceTests: BitwardenTestCase { // swiftlint:disable:this type_bod
         )
     }
 
-    /// `getMasterPasswordPolicyOptions()` returns `nil` if the user is exempt from policies in the organization.
-    func test_getMasterPasswordPolicyOptions_exemptUser() async throws {
-        stateService.activeAccount = .fixture()
-        organizationService.fetchAllOrganizationsResult = .success([.fixture(type: .owner)])
-        policyDataStore.fetchPoliciesResult = .success([masterPasswordPolicy])
-
-        let policyValues = try await subject.getMasterPasswordPolicyOptions()
-
-        XCTAssertNil(policyValues)
-    }
-
     /// `getMasterPasswordPolicyOptions()` returns `nil` if there is no master password policy type exist.
     func test_getMasterPasswordPolicyOptions_nil() async throws {
         let policy = try await subject.getMasterPasswordPolicyOptions()
@@ -335,7 +335,9 @@ class PolicyServiceTests: BitwardenTestCase { // swiftlint:disable:this type_bod
     func test_getMasterPasswordPolicyOptions_success() async throws {
         stateService.activeAccount = .fixture()
         organizationService.fetchAllOrganizationsResult = .success([.fixture()])
-        policyDataStore.fetchPoliciesResult = .success([masterPasswordPolicy])
+        policyDataStore.fetchPoliciesNewResult = .success([masterPasswordPolicy])
+        stubSdkFilterByType()
+
         let policy = try await subject.getMasterPasswordPolicyOptions()
         XCTAssertNotNil(policy)
         let safePolicy = try XCTUnwrap(policy)
@@ -354,7 +356,8 @@ class PolicyServiceTests: BitwardenTestCase { // swiftlint:disable:this type_bod
     func test_getEarliestOrganizationApplyingPolicy_noPolicies() async {
         stateService.activeAccount = .fixture()
         organizationService.fetchAllOrganizationsResult = .success([.fixture()])
-        policyDataStore.fetchPoliciesResult = .success([])
+        policyDataStore.fetchPoliciesNewResult = .success([])
+        stubSdkFilterByType()
 
         let organizationId = await subject.getEarliestOrganizationApplyingPolicy(.personalOwnership)
 
@@ -365,7 +368,7 @@ class PolicyServiceTests: BitwardenTestCase { // swiftlint:disable:this type_bod
     func test_getEarliestOrganizationApplyingPolicy_singlePolicy() async {
         stateService.activeAccount = .fixture()
         organizationService.fetchAllOrganizationsResult = .success([.fixture(id: "org-1")])
-        policyDataStore.fetchPoliciesResult = .success([
+        policyDataStore.fetchPoliciesNewResult = .success([
             .fixture(
                 id: "policy-1",
                 organizationId: "org-1",
@@ -373,6 +376,7 @@ class PolicyServiceTests: BitwardenTestCase { // swiftlint:disable:this type_bod
                 type: .personalOwnership,
             ),
         ])
+        stubSdkFilterByType()
 
         let organizationId = await subject.getEarliestOrganizationApplyingPolicy(.personalOwnership)
 
@@ -387,7 +391,7 @@ class PolicyServiceTests: BitwardenTestCase { // swiftlint:disable:this type_bod
             .fixture(id: "org-2"),
             .fixture(id: "org-3"),
         ])
-        policyDataStore.fetchPoliciesResult = .success([
+        policyDataStore.fetchPoliciesNewResult = .success([
             .fixture(
                 id: "policy-1",
                 organizationId: "org-1",
@@ -407,6 +411,7 @@ class PolicyServiceTests: BitwardenTestCase { // swiftlint:disable:this type_bod
                 type: .personalOwnership,
             ),
         ])
+        stubSdkFilterByType()
 
         let organizationId = await subject.getEarliestOrganizationApplyingPolicy(.personalOwnership)
 
@@ -420,7 +425,7 @@ class PolicyServiceTests: BitwardenTestCase { // swiftlint:disable:this type_bod
             .fixture(id: "org-1"),
             .fixture(id: "org-2"),
         ])
-        policyDataStore.fetchPoliciesResult = .success([
+        policyDataStore.fetchPoliciesNewResult = .success([
             .fixture(
                 id: "policy-1",
                 organizationId: "org-1",
@@ -434,6 +439,7 @@ class PolicyServiceTests: BitwardenTestCase { // swiftlint:disable:this type_bod
                 type: .personalOwnership,
             ),
         ])
+        stubSdkFilterByType()
 
         let organizationId = await subject.getEarliestOrganizationApplyingPolicy(.personalOwnership)
 
@@ -448,7 +454,7 @@ class PolicyServiceTests: BitwardenTestCase { // swiftlint:disable:this type_bod
             .fixture(id: "org-2"),
             .fixture(id: "org-3"),
         ])
-        policyDataStore.fetchPoliciesResult = .success([
+        policyDataStore.fetchPoliciesNewResult = .success([
             .fixture(
                 id: "policy-1",
                 organizationId: "org-1",
@@ -468,6 +474,7 @@ class PolicyServiceTests: BitwardenTestCase { // swiftlint:disable:this type_bod
                 type: .personalOwnership,
             ),
         ])
+        stubSdkFilterByType()
 
         let organizationId = await subject.getEarliestOrganizationApplyingPolicy(.personalOwnership)
 
@@ -491,7 +498,7 @@ class PolicyServiceTests: BitwardenTestCase { // swiftlint:disable:this type_bod
             .fixture(id: "org-1"),
             .fixture(id: "org-2"),
         ])
-        policyDataStore.fetchPoliciesResult = .success([
+        policyDataStore.fetchPoliciesNewResult = .success([
             .fixture(
                 id: "policy-1",
                 organizationId: "org-1",
@@ -505,6 +512,7 @@ class PolicyServiceTests: BitwardenTestCase { // swiftlint:disable:this type_bod
                 type: .personalOwnership,
             ),
         ])
+        stubSdkFilterByType()
 
         let organizationId = await subject.getEarliestOrganizationApplyingPolicy(.personalOwnership)
 
@@ -519,7 +527,7 @@ class PolicyServiceTests: BitwardenTestCase { // swiftlint:disable:this type_bod
         configService.featureFlagsBool[.sendControls] = true
         stateService.activeAccount = .fixture()
         organizationService.fetchAllOrganizationsResult = .success([.fixture()])
-        policyDataStore.fetchPoliciesResult = .success(
+        policyDataStore.fetchPoliciesNewResult = .success(
             [
                 .fixture(
                     data: [
@@ -530,6 +538,7 @@ class PolicyServiceTests: BitwardenTestCase { // swiftlint:disable:this type_bod
                 ),
             ],
         )
+        stubSdkFilterByType()
 
         let options = await subject.getSendPolicyOptions()
         XCTAssertEqual(options.allowedDomains, ["acme.com", "acme.co"])
@@ -541,7 +550,7 @@ class PolicyServiceTests: BitwardenTestCase { // swiftlint:disable:this type_bod
         configService.featureFlagsBool[.sendControls] = false
         stateService.activeAccount = .fixture()
         organizationService.fetchAllOrganizationsResult = .success([.fixture()])
-        policyDataStore.fetchPoliciesResult = .success(
+        policyDataStore.fetchPoliciesNewResult = .success(
             [
                 .fixture(
                     data: [
@@ -552,6 +561,7 @@ class PolicyServiceTests: BitwardenTestCase { // swiftlint:disable:this type_bod
                 ),
             ],
         )
+        stubSdkFilterByType()
 
         let options = await subject.getSendPolicyOptions()
         XCTAssertTrue(options.allowedDomains.isEmpty)
@@ -565,7 +575,7 @@ class PolicyServiceTests: BitwardenTestCase { // swiftlint:disable:this type_bod
         configService.featureFlagsBool[.sendControls] = true
         stateService.activeAccount = .fixture()
         organizationService.fetchAllOrganizationsResult = .success([.fixture()])
-        policyDataStore.fetchPoliciesResult = .success(
+        policyDataStore.fetchPoliciesNewResult = .success(
             [
                 .fixture(
                     data: [PolicyOptionType.whoCanAccess.rawValue: .int(1)],
@@ -573,6 +583,7 @@ class PolicyServiceTests: BitwardenTestCase { // swiftlint:disable:this type_bod
                 ),
             ],
         )
+        stubSdkFilterByType()
 
         let options = await subject.getSendPolicyOptions()
         XCTAssertEqual(options.enforcedAccessType, .anyoneWithPassword)
@@ -584,7 +595,7 @@ class PolicyServiceTests: BitwardenTestCase { // swiftlint:disable:this type_bod
         configService.featureFlagsBool[.sendControls] = true
         stateService.activeAccount = .fixture()
         organizationService.fetchAllOrganizationsResult = .success([.fixture()])
-        policyDataStore.fetchPoliciesResult = .success(
+        policyDataStore.fetchPoliciesNewResult = .success(
             [
                 .fixture(
                     data: [PolicyOptionType.whoCanAccess.rawValue: .int(2)],
@@ -592,6 +603,7 @@ class PolicyServiceTests: BitwardenTestCase { // swiftlint:disable:this type_bod
                 ),
             ],
         )
+        stubSdkFilterByType()
 
         let options = await subject.getSendPolicyOptions()
         XCTAssertEqual(options.enforcedAccessType, .specificPeople)
@@ -603,7 +615,7 @@ class PolicyServiceTests: BitwardenTestCase { // swiftlint:disable:this type_bod
         configService.featureFlagsBool[.sendControls] = true
         stateService.activeAccount = .fixture()
         organizationService.fetchAllOrganizationsResult = .success([.fixture()])
-        policyDataStore.fetchPoliciesResult = .success(
+        policyDataStore.fetchPoliciesNewResult = .success(
             [
                 .fixture(
                     data: [PolicyOptionType.whoCanAccess.rawValue: .int(0)],
@@ -611,6 +623,7 @@ class PolicyServiceTests: BitwardenTestCase { // swiftlint:disable:this type_bod
                 ),
             ],
         )
+        stubSdkFilterByType()
 
         let options = await subject.getSendPolicyOptions()
         XCTAssertNil(options.enforcedAccessType)
@@ -622,7 +635,8 @@ class PolicyServiceTests: BitwardenTestCase { // swiftlint:disable:this type_bod
         configService.featureFlagsBool[.sendControls] = true
         stateService.activeAccount = .fixture()
         organizationService.fetchAllOrganizationsResult = .success([.fixture()])
-        policyDataStore.fetchPoliciesResult = .success([.fixture(type: .sendControls)])
+        policyDataStore.fetchPoliciesNewResult = .success([.fixture(type: .sendControls)])
+        stubSdkFilterByType()
 
         let options = await subject.getSendPolicyOptions()
         XCTAssertNil(options.enforcedAccessType)
@@ -633,7 +647,8 @@ class PolicyServiceTests: BitwardenTestCase { // swiftlint:disable:this type_bod
         configService.featureFlagsBool[.sendControls] = true
         stateService.activeAccount = .fixture()
         organizationService.fetchAllOrganizationsResult = .success([.fixture()])
-        policyDataStore.fetchPoliciesResult = .success([])
+        policyDataStore.fetchPoliciesNewResult = .success([])
+        stubSdkFilterByType()
 
         let options = await subject.getSendPolicyOptions()
         XCTAssertNil(options.enforcedAccessType)
@@ -645,7 +660,7 @@ class PolicyServiceTests: BitwardenTestCase { // swiftlint:disable:this type_bod
         configService.featureFlagsBool[.sendControls] = false
         stateService.activeAccount = .fixture()
         organizationService.fetchAllOrganizationsResult = .success([.fixture()])
-        policyDataStore.fetchPoliciesResult = .success(
+        policyDataStore.fetchPoliciesNewResult = .success(
             [
                 .fixture(
                     data: [PolicyOptionType.whoCanAccess.rawValue: .int(1)],
@@ -653,6 +668,7 @@ class PolicyServiceTests: BitwardenTestCase { // swiftlint:disable:this type_bod
                 ),
             ],
         )
+        stubSdkFilterByType()
 
         let options = await subject.getSendPolicyOptions()
         XCTAssertNil(options.enforcedAccessType)
@@ -665,7 +681,7 @@ class PolicyServiceTests: BitwardenTestCase { // swiftlint:disable:this type_bod
         configService.featureFlagsBool[.sendControls] = true
         stateService.activeAccount = .fixture()
         organizationService.fetchAllOrganizationsResult = .success([.fixture()])
-        policyDataStore.fetchPoliciesResult = .success(
+        policyDataStore.fetchPoliciesNewResult = .success(
             [
                 .fixture(
                     data: [PolicyOptionType.allowedSendTypes.rawValue: .array([.int(1)])],
@@ -673,6 +689,7 @@ class PolicyServiceTests: BitwardenTestCase { // swiftlint:disable:this type_bod
                 ),
             ],
         )
+        stubSdkFilterByType()
 
         let options = await subject.getSendPolicyOptions()
         XCTAssertEqual(options.enforcedSendType, .file)
@@ -683,7 +700,7 @@ class PolicyServiceTests: BitwardenTestCase { // swiftlint:disable:this type_bod
         configService.featureFlagsBool[.sendControls] = true
         stateService.activeAccount = .fixture()
         organizationService.fetchAllOrganizationsResult = .success([.fixture()])
-        policyDataStore.fetchPoliciesResult = .success(
+        policyDataStore.fetchPoliciesNewResult = .success(
             [
                 .fixture(
                     data: [PolicyOptionType.allowedSendTypes.rawValue: .array([.int(0), .int(1)])],
@@ -691,6 +708,7 @@ class PolicyServiceTests: BitwardenTestCase { // swiftlint:disable:this type_bod
                 ),
             ],
         )
+        stubSdkFilterByType()
 
         let options = await subject.getSendPolicyOptions()
         XCTAssertNil(options.enforcedSendType)
@@ -701,7 +719,7 @@ class PolicyServiceTests: BitwardenTestCase { // swiftlint:disable:this type_bod
         configService.featureFlagsBool[.sendControls] = false
         stateService.activeAccount = .fixture()
         organizationService.fetchAllOrganizationsResult = .success([.fixture()])
-        policyDataStore.fetchPoliciesResult = .success(
+        policyDataStore.fetchPoliciesNewResult = .success(
             [
                 .fixture(
                     data: [PolicyOptionType.allowedSendTypes.rawValue: .array([.int(1)])],
@@ -709,6 +727,7 @@ class PolicyServiceTests: BitwardenTestCase { // swiftlint:disable:this type_bod
                 ),
             ],
         )
+        stubSdkFilterByType()
 
         let options = await subject.getSendPolicyOptions()
         XCTAssertNil(options.enforcedSendType)
@@ -722,7 +741,7 @@ class PolicyServiceTests: BitwardenTestCase { // swiftlint:disable:this type_bod
         configService.featureFlagsBool[.sendControls] = true
         stateService.activeAccount = .fixture()
         organizationService.fetchAllOrganizationsResult = .success([.fixture()])
-        policyDataStore.fetchPoliciesResult = .success(
+        policyDataStore.fetchPoliciesNewResult = .success(
             [
                 .fixture(
                     data: [PolicyOptionType.disableHideEmail.rawValue: .bool(true)],
@@ -730,6 +749,7 @@ class PolicyServiceTests: BitwardenTestCase { // swiftlint:disable:this type_bod
                 ),
             ],
         )
+        stubSdkFilterByType()
 
         let options = await subject.getSendPolicyOptions()
         XCTAssertTrue(options.isHideEmailDisabled)
@@ -740,7 +760,8 @@ class PolicyServiceTests: BitwardenTestCase { // swiftlint:disable:this type_bod
         configService.featureFlagsBool[.sendControls] = true
         stateService.activeAccount = .fixture()
         organizationService.fetchAllOrganizationsResult = .success([.fixture()])
-        policyDataStore.fetchPoliciesResult = .success([])
+        policyDataStore.fetchPoliciesNewResult = .success([])
+        stubSdkFilterByType()
 
         let options = await subject.getSendPolicyOptions()
         XCTAssertFalse(options.isHideEmailDisabled)
@@ -752,7 +773,7 @@ class PolicyServiceTests: BitwardenTestCase { // swiftlint:disable:this type_bod
         configService.featureFlagsBool[.sendControls] = true
         stateService.activeAccount = .fixture()
         organizationService.fetchAllOrganizationsResult = .success([.fixture()])
-        policyDataStore.fetchPoliciesResult = .success(
+        policyDataStore.fetchPoliciesNewResult = .success(
             [
                 .fixture(
                     data: [PolicyOptionType.disableHideEmail.rawValue: .bool(false)],
@@ -760,6 +781,7 @@ class PolicyServiceTests: BitwardenTestCase { // swiftlint:disable:this type_bod
                 ),
             ],
         )
+        stubSdkFilterByType()
 
         let options = await subject.getSendPolicyOptions()
         XCTAssertFalse(options.isHideEmailDisabled)
@@ -771,7 +793,8 @@ class PolicyServiceTests: BitwardenTestCase { // swiftlint:disable:this type_bod
         configService.featureFlagsBool[.sendControls] = true
         stateService.activeAccount = .fixture()
         organizationService.fetchAllOrganizationsResult = .success([.fixture()])
-        policyDataStore.fetchPoliciesResult = .success([.fixture(type: .sendControls)])
+        policyDataStore.fetchPoliciesNewResult = .success([.fixture(type: .sendControls)])
+        stubSdkFilterByType()
 
         let options = await subject.getSendPolicyOptions()
         XCTAssertFalse(options.isHideEmailDisabled)
@@ -783,7 +806,7 @@ class PolicyServiceTests: BitwardenTestCase { // swiftlint:disable:this type_bod
         configService.featureFlagsBool[.sendControls] = false
         stateService.activeAccount = .fixture()
         organizationService.fetchAllOrganizationsResult = .success([.fixture()])
-        policyDataStore.fetchPoliciesResult = .success(
+        policyDataStore.fetchPoliciesNewResult = .success(
             [
                 .fixture(
                     data: [PolicyOptionType.disableHideEmail.rawValue: .bool(false)],
@@ -795,6 +818,7 @@ class PolicyServiceTests: BitwardenTestCase { // swiftlint:disable:this type_bod
                 ),
             ],
         )
+        stubSdkFilterByType()
 
         let options = await subject.getSendPolicyOptions()
         XCTAssertTrue(options.isHideEmailDisabled)
@@ -808,7 +832,7 @@ class PolicyServiceTests: BitwardenTestCase { // swiftlint:disable:this type_bod
         configService.featureFlagsBool[.sendControls] = true
         stateService.activeAccount = .fixture()
         organizationService.fetchAllOrganizationsResult = .success([.fixture()])
-        policyDataStore.fetchPoliciesResult = .success(
+        policyDataStore.fetchPoliciesNewResult = .success(
             [
                 .fixture(
                     data: [PolicyOptionType.disableSend.rawValue: .bool(true)],
@@ -816,6 +840,7 @@ class PolicyServiceTests: BitwardenTestCase { // swiftlint:disable:this type_bod
                 ),
             ],
         )
+        stubSdkFilterByType()
 
         let options = await subject.getSendPolicyOptions()
         XCTAssertTrue(options.isSendDisabled)
@@ -827,7 +852,7 @@ class PolicyServiceTests: BitwardenTestCase { // swiftlint:disable:this type_bod
         configService.featureFlagsBool[.sendControls] = true
         stateService.activeAccount = .fixture()
         organizationService.fetchAllOrganizationsResult = .success([.fixture()])
-        policyDataStore.fetchPoliciesResult = .success(
+        policyDataStore.fetchPoliciesNewResult = .success(
             [
                 .fixture(
                     data: [PolicyOptionType.disableSend.rawValue: .bool(false)],
@@ -835,6 +860,7 @@ class PolicyServiceTests: BitwardenTestCase { // swiftlint:disable:this type_bod
                 ),
             ],
         )
+        stubSdkFilterByType()
 
         let options = await subject.getSendPolicyOptions()
         XCTAssertFalse(options.isSendDisabled)
@@ -846,7 +872,8 @@ class PolicyServiceTests: BitwardenTestCase { // swiftlint:disable:this type_bod
         configService.featureFlagsBool[.sendControls] = true
         stateService.activeAccount = .fixture()
         organizationService.fetchAllOrganizationsResult = .success([.fixture()])
-        policyDataStore.fetchPoliciesResult = .success([.fixture(type: .sendControls)])
+        policyDataStore.fetchPoliciesNewResult = .success([.fixture(type: .sendControls)])
+        stubSdkFilterByType()
 
         let options = await subject.getSendPolicyOptions()
         XCTAssertFalse(options.isSendDisabled)
@@ -857,7 +884,8 @@ class PolicyServiceTests: BitwardenTestCase { // swiftlint:disable:this type_bod
         configService.featureFlagsBool[.sendControls] = true
         stateService.activeAccount = .fixture()
         organizationService.fetchAllOrganizationsResult = .success([.fixture()])
-        policyDataStore.fetchPoliciesResult = .success([])
+        policyDataStore.fetchPoliciesNewResult = .success([])
+        stubSdkFilterByType()
 
         let options = await subject.getSendPolicyOptions()
         XCTAssertFalse(options.isSendDisabled)
@@ -869,7 +897,8 @@ class PolicyServiceTests: BitwardenTestCase { // swiftlint:disable:this type_bod
         configService.featureFlagsBool[.sendControls] = true
         stateService.activeAccount = .fixture()
         organizationService.fetchAllOrganizationsResult = .success([.fixture()])
-        policyDataStore.fetchPoliciesResult = .success([.fixture(type: .disableSend)])
+        policyDataStore.fetchPoliciesNewResult = .success([.fixture(type: .disableSend)])
+        stubSdkFilterByType()
 
         let options = await subject.getSendPolicyOptions()
         XCTAssertFalse(options.isSendDisabled)
@@ -881,7 +910,8 @@ class PolicyServiceTests: BitwardenTestCase { // swiftlint:disable:this type_bod
         configService.featureFlagsBool[.sendControls] = false
         stateService.activeAccount = .fixture()
         organizationService.fetchAllOrganizationsResult = .success([.fixture()])
-        policyDataStore.fetchPoliciesResult = .success([.fixture(type: .disableSend)])
+        policyDataStore.fetchPoliciesNewResult = .success([.fixture(type: .disableSend)])
+        stubSdkFilterByType()
 
         let options = await subject.getSendPolicyOptions()
         XCTAssertTrue(options.isSendDisabled)
@@ -893,7 +923,8 @@ class PolicyServiceTests: BitwardenTestCase { // swiftlint:disable:this type_bod
         configService.featureFlagsBool[.sendControls] = false
         stateService.activeAccount = .fixture()
         organizationService.fetchAllOrganizationsResult = .success([.fixture()])
-        policyDataStore.fetchPoliciesResult = .success([])
+        policyDataStore.fetchPoliciesNewResult = .success([])
+        stubSdkFilterByType()
 
         let options = await subject.getSendPolicyOptions()
         XCTAssertFalse(options.isSendDisabled)
@@ -905,7 +936,7 @@ class PolicyServiceTests: BitwardenTestCase { // swiftlint:disable:this type_bod
         configService.featureFlagsBool[.sendControls] = false
         stateService.activeAccount = .fixture()
         organizationService.fetchAllOrganizationsResult = .success([.fixture()])
-        policyDataStore.fetchPoliciesResult = .success(
+        policyDataStore.fetchPoliciesNewResult = .success(
             [
                 .fixture(
                     data: [PolicyOptionType.disableSend.rawValue: .bool(true)],
@@ -913,6 +944,7 @@ class PolicyServiceTests: BitwardenTestCase { // swiftlint:disable:this type_bod
                 ),
             ],
         )
+        stubSdkFilterByType()
 
         let options = await subject.getSendPolicyOptions()
         XCTAssertFalse(options.isSendDisabled)
@@ -922,7 +954,8 @@ class PolicyServiceTests: BitwardenTestCase { // swiftlint:disable:this type_bod
     func test_fetchTimeoutPolicyValues() async throws {
         stateService.activeAccount = .fixture()
         organizationService.fetchAllOrganizationsResult = .success([.fixture()])
-        policyDataStore.fetchPoliciesResult = .success([maximumTimeoutPolicy])
+        policyDataStore.fetchPoliciesNewResult = .success([maximumTimeoutPolicy])
+        stubSdkFilterByType()
 
         let policyValues = try await subject.fetchTimeoutPolicyValues()
 
@@ -934,7 +967,8 @@ class PolicyServiceTests: BitwardenTestCase { // swiftlint:disable:this type_bod
     func test_fetchTimeoutPolicyValues_logout() async throws {
         stateService.activeAccount = .fixture()
         organizationService.fetchAllOrganizationsResult = .success([.fixture()])
-        policyDataStore.fetchPoliciesResult = .success([maximumTimeoutPolicyLogout])
+        policyDataStore.fetchPoliciesNewResult = .success([maximumTimeoutPolicyLogout])
+        stubSdkFilterByType()
 
         let policyValues = try await subject.fetchTimeoutPolicyValues()
 
@@ -943,23 +977,13 @@ class PolicyServiceTests: BitwardenTestCase { // swiftlint:disable:this type_bod
         XCTAssertEqual(policyValues?.timeoutValue?.rawValue, 60)
     }
 
-    /// `fetchTimeoutPolicyValues()` returns `nil` if the user is exempt from policies in the organization.
-    func test_fetchTimeoutPolicyValues_exemptUser() async throws {
-        stateService.activeAccount = .fixture()
-        organizationService.fetchAllOrganizationsResult = .success([.fixture(type: .owner)])
-        policyDataStore.fetchPoliciesResult = .success([maximumTimeoutPolicy])
-
-        let policyValues = try await subject.fetchTimeoutPolicyValues()
-
-        XCTAssertNil(policyValues)
-    }
-
     /// `fetchTimeoutPolicyValues()` fetches timeout values
     /// when the policy contains a value but no action.
     func test_fetchTimeoutPolicyValues_noAction() async throws {
         stateService.activeAccount = .fixture()
         organizationService.fetchAllOrganizationsResult = .success([.fixture()])
-        policyDataStore.fetchPoliciesResult = .success([maximumTimeoutPolicyNoAction])
+        policyDataStore.fetchPoliciesNewResult = .success([maximumTimeoutPolicyNoAction])
+        stubSdkFilterByType()
 
         let policyValues = try await subject.fetchTimeoutPolicyValues()
 
@@ -974,10 +998,11 @@ class PolicyServiceTests: BitwardenTestCase { // swiftlint:disable:this type_bod
             .fixture(id: "org-1"),
             .fixture(id: "org-2"),
         ])
-        policyDataStore.fetchPoliciesResult = .success([
+        policyDataStore.fetchPoliciesNewResult = .success([
             .fixture(enabled: false, organizationId: "org-1", type: .twoFactorAuthentication),
             .fixture(enabled: true, organizationId: "org-2", type: .twoFactorAuthentication),
         ])
+        stubSdkFilterByType()
 
         let organizations = await subject.organizationsApplyingPolicyToUser(.twoFactorAuthentication)
         XCTAssertEqual(organizations, ["org-2"])
@@ -987,7 +1012,8 @@ class PolicyServiceTests: BitwardenTestCase { // swiftlint:disable:this type_bod
     func test_policyAppliesToUser() async {
         stateService.activeAccount = .fixture()
         organizationService.fetchAllOrganizationsResult = .success([.fixture()])
-        policyDataStore.fetchPoliciesResult = .success([.fixture(type: .twoFactorAuthentication)])
+        policyDataStore.fetchPoliciesNewResult = .success([.fixture(type: .twoFactorAuthentication)])
+        stubSdkFilterByType()
 
         let twoFactorApplies = await subject.policyAppliesToUser(.twoFactorAuthentication)
         XCTAssertTrue(twoFactorApplies)
@@ -1000,7 +1026,8 @@ class PolicyServiceTests: BitwardenTestCase { // swiftlint:disable:this type_bod
     func test_policyAppliesToUser_calledConcurrently() async {
         stateService.activeAccount = .fixture()
         organizationService.fetchAllOrganizationsResult = .success([.fixture()])
-        policyDataStore.fetchPoliciesResult = .success([.fixture(type: .twoFactorAuthentication)])
+        policyDataStore.fetchPoliciesNewResult = .success([.fixture(type: .twoFactorAuthentication)])
+        stubSdkFilterByType()
 
         // Calling `policyAppliesToUser(_:)` concurrently shouldn't throw an exception due to
         // simultaneous access to shared state. Since it's a race condition, running it repeatedly
@@ -1018,10 +1045,11 @@ class PolicyServiceTests: BitwardenTestCase { // swiftlint:disable:this type_bod
     func test_policyAppliesToUser_multipleOrganizations() async {
         stateService.activeAccount = .fixture()
         organizationService.fetchAllOrganizationsResult = .success([.fixture(id: "org-1"), .fixture(id: "org-2")])
-        policyDataStore.fetchPoliciesResult = .success([
+        policyDataStore.fetchPoliciesNewResult = .success([
             .fixture(enabled: false, organizationId: "org-1", type: .twoFactorAuthentication),
             .fixture(enabled: true, organizationId: "org-2", type: .twoFactorAuthentication),
         ])
+        stubSdkFilterByType()
 
         let policyApplies = await subject.policyAppliesToUser(.twoFactorAuthentication)
         XCTAssertTrue(policyApplies)
@@ -1032,10 +1060,11 @@ class PolicyServiceTests: BitwardenTestCase { // swiftlint:disable:this type_bod
     func test_policyAppliesToUser_multiplePolicies() async {
         stateService.activeAccount = .fixture()
         organizationService.fetchAllOrganizationsResult = .success([.fixture()])
-        policyDataStore.fetchPoliciesResult = .success([
+        policyDataStore.fetchPoliciesNewResult = .success([
             .fixture(type: .twoFactorAuthentication),
             .fixture(type: .onlyOrg),
         ])
+        stubSdkFilterByType()
 
         let twoFactorApplies = await subject.policyAppliesToUser(.twoFactorAuthentication)
         XCTAssertTrue(twoFactorApplies)
@@ -1048,87 +1077,12 @@ class PolicyServiceTests: BitwardenTestCase { // swiftlint:disable:this type_bod
     }
 
     /// `policyAppliesToUser(_:)` returns whether the policy applies to the user when there's no
-    /// organizations.
-    func test_policyAppliesToUser_noOrganizations() async {
-        stateService.activeAccount = .fixture()
-        organizationService.fetchAllOrganizationsResult = .success([])
-        policyDataStore.fetchPoliciesResult = .success([.fixture(type: .twoFactorAuthentication)])
-
-        let policyApplies = await subject.policyAppliesToUser(.twoFactorAuthentication)
-        XCTAssertFalse(policyApplies)
-    }
-
-    /// `policyAppliesToUser(_:)` returns whether the policy applies to the user when there's no
     /// policies.
     func test_policyAppliesToUser_noPolicies() async {
         stateService.activeAccount = .fixture()
         organizationService.fetchAllOrganizationsResult = .success([.fixture()])
-        policyDataStore.fetchPoliciesResult = .success([])
-
-        let policyApplies = await subject.policyAppliesToUser(.twoFactorAuthentication)
-        XCTAssertFalse(policyApplies)
-    }
-
-    /// `policyAppliesToUser(_:)` returns whether the policy applies to the user when the
-    /// organization user is exempt from policies.
-    func test_policyAppliesToUser_organizationExempt() async {
-        stateService.activeAccount = .fixture()
-        organizationService.fetchAllOrganizationsResult = .success([.fixture(type: .admin)])
-        policyDataStore.fetchPoliciesResult = .success([.fixture(type: .twoFactorAuthentication)])
-
-        let policyApplies = await subject.policyAppliesToUser(.twoFactorAuthentication)
-        XCTAssertFalse(policyApplies)
-    }
-
-    /// `policyAppliesToUser(_:)` returns `true` when the policy applies to the user when the
-    /// organization user is `admin`.
-    func test_policyAppliesToUser_organizationNotExemptWhenPolicyIsRemoveUnlockWithPin() async {
-        stateService.activeAccount = .fixture()
-        organizationService.fetchAllOrganizationsResult = .success([.fixture(type: .admin)])
-        policyDataStore.fetchPoliciesResult = .success([.fixture(type: .removeUnlockWithPin)])
-
-        let policyApplies = await subject.policyAppliesToUser(.removeUnlockWithPin)
-        XCTAssertTrue(policyApplies)
-    }
-
-    /// `policyAppliesToUser(_:)` returns whether the policy applies to the user when the
-    /// organization doesn't use policies.
-    func test_policyAppliesToUser_organizationDoesNotUsePolicies() async {
-        stateService.activeAccount = .fixture()
-        organizationService.fetchAllOrganizationsResult = .success([.fixture(usePolicies: false)])
-        policyDataStore.fetchPoliciesResult = .success([.fixture(type: .twoFactorAuthentication)])
-
-        let policyApplies = await subject.policyAppliesToUser(.twoFactorAuthentication)
-        XCTAssertFalse(policyApplies)
-    }
-
-    /// `policyAppliesToUser(_:)` returns enabled policy applies to the user even if the organization is disabled.
-    func test_policyAppliesToUser_organizationNotEnabled() async {
-        stateService.activeAccount = .fixture()
-        organizationService.fetchAllOrganizationsResult = .success([.fixture(enabled: false)])
-        policyDataStore.fetchPoliciesResult = .success([.fixture(type: .twoFactorAuthentication)])
-
-        let policyApplies = await subject.policyAppliesToUser(.twoFactorAuthentication)
-        XCTAssertTrue(policyApplies)
-    }
-
-    /// `policyAppliesToUser(_:)` returns whether the policy applies to the user when the user is
-    /// only invited to the organization.
-    func test_policyAppliesToUser_organizationInvited() async {
-        stateService.activeAccount = .fixture()
-        organizationService.fetchAllOrganizationsResult = .success([.fixture(status: .invited)])
-        policyDataStore.fetchPoliciesResult = .success([.fixture(type: .twoFactorAuthentication)])
-
-        let policyApplies = await subject.policyAppliesToUser(.twoFactorAuthentication)
-        XCTAssertFalse(policyApplies)
-    }
-
-    /// `policyAppliesToUser(_:)` returns `false` when the user is staged, provisioned but not
-    /// yet invited, in the organization — staged members are not subject to org policies.
-    func test_policyAppliesToUser_organizationStaged() async {
-        stateService.activeAccount = .fixture()
-        organizationService.fetchAllOrganizationsResult = .success([.fixture(status: .staged)])
-        policyDataStore.fetchPoliciesResult = .success([.fixture(type: .twoFactorAuthentication)])
+        policyDataStore.fetchPoliciesNewResult = .success([])
+        stubSdkFilterByType()
 
         let policyApplies = await subject.policyAppliesToUser(.twoFactorAuthentication)
         XCTAssertFalse(policyApplies)
@@ -1148,30 +1102,13 @@ class PolicyServiceTests: BitwardenTestCase { // swiftlint:disable:this type_bod
         XCTAssertEqual(policyDataStore.replacePoliciesNewPolicies, policies)
     }
 
-    /// `replacePolicies(_:userId:)` updates the cached list of policies for the user.
-    func test_replacePolicies_updatesPolicyAppliesToUser() async throws {
-        stateService.activeAccount = .fixture()
-        organizationService.fetchAllOrganizationsResult = .success([.fixture(id: "org-1")])
-        policyDataStore.fetchPoliciesResult = .success([])
-
-        var policyApplies = await subject.policyAppliesToUser(.twoFactorAuthentication)
-        XCTAssertFalse(policyApplies)
-
-        try await subject.replacePolicies(
-            [.fixture(type: .twoFactorAuthentication)],
-            userId: "1",
-        )
-
-        policyApplies = await subject.policyAppliesToUser(.twoFactorAuthentication)
-        XCTAssertTrue(policyApplies)
-    }
-
     /// `getOrganizationIdsForRestricItemTypesPolicy()` returns the policies that apply to the user.
     func test_getOrganizationIdsForRestricItemTypesPolicy() async {
         let result: Policy = .fixture(type: .restrictItemTypes)
         stateService.activeAccount = .fixture()
         organizationService.fetchAllOrganizationsResult = .success([.fixture()])
-        policyDataStore.fetchPoliciesResult = .success([result])
+        policyDataStore.fetchPoliciesNewResult = .success([result])
+        stubSdkFilterByType()
 
         let twoFactorPolicies: [String] = await subject.getOrganizationIdsForRestricItemTypesPolicy()
         XCTAssertEqual(twoFactorPolicies, [result.organizationId])
@@ -1181,7 +1118,8 @@ class PolicyServiceTests: BitwardenTestCase { // swiftlint:disable:this type_bod
     func test_getOrganizationIdsForRestricItemTypesPolicy_calledConcurrently() async {
         stateService.activeAccount = .fixture()
         organizationService.fetchAllOrganizationsResult = .success([.fixture()])
-        policyDataStore.fetchPoliciesResult = .success([.fixture(type: .twoFactorAuthentication)])
+        policyDataStore.fetchPoliciesNewResult = .success([.fixture(type: .twoFactorAuthentication)])
+        stubSdkFilterByType()
 
         // Calling `policyAppliesToUser(_:)` concurrently shouldn't throw an exception due to
         // simultaneous access to shared state. Since it's a race condition, running it repeatedly
@@ -1200,24 +1138,14 @@ class PolicyServiceTests: BitwardenTestCase { // swiftlint:disable:this type_bod
         let result: Policy = .fixture(enabled: true, organizationId: "org-2", type: .restrictItemTypes)
         stateService.activeAccount = .fixture()
         organizationService.fetchAllOrganizationsResult = .success([.fixture(id: "org-1"), .fixture(id: "org-2")])
-        policyDataStore.fetchPoliciesResult = .success([
+        policyDataStore.fetchPoliciesNewResult = .success([
             .fixture(enabled: false, organizationId: "org-1", type: .twoFactorAuthentication),
             result,
         ])
+        stubSdkFilterByType()
 
         let policies = await subject.getOrganizationIdsForRestricItemTypesPolicy()
         XCTAssertEqual(policies, [result.organizationId])
-    }
-
-    /// `getOrganizationIdsForRestricItemTypesPolicy()` returns the policies that apply to the user when there's no
-    /// organizations.
-    func test_getOrganizationIdsForRestricItemTypesPolicy_noOrganizations() async {
-        stateService.activeAccount = .fixture()
-        organizationService.fetchAllOrganizationsResult = .success([])
-        policyDataStore.fetchPoliciesResult = .success([.fixture(type: .twoFactorAuthentication)])
-
-        let policies = await subject.getOrganizationIdsForRestricItemTypesPolicy()
-        XCTAssertTrue(policies.isEmpty)
     }
 
     /// `getOrganizationIdsForRestricItemTypesPolicy_noOrganizations(_:)` returns the policies that apply to
@@ -1225,52 +1153,8 @@ class PolicyServiceTests: BitwardenTestCase { // swiftlint:disable:this type_bod
     func test_getOrganizationIdsForRestricItemTypesPolicy_noOrganizations_noPolicies() async {
         stateService.activeAccount = .fixture()
         organizationService.fetchAllOrganizationsResult = .success([.fixture()])
-        policyDataStore.fetchPoliciesResult = .success([])
-
-        let policies = await subject.getOrganizationIdsForRestricItemTypesPolicy()
-        XCTAssertTrue(policies.isEmpty)
-    }
-
-    /// `getOrganizationIdsForRestricItemTypesPolicy()` returns the restricted cipher types when the user is admin.
-    func test_getOrganizationIdsForRestricItemTypesPolicy_organizationExempt() async {
-        let result: Policy = .fixture(type: .restrictItemTypes)
-        stateService.activeAccount = .fixture()
-        organizationService.fetchAllOrganizationsResult = .success([.fixture(type: .admin)])
-        policyDataStore.fetchPoliciesResult = .success([result])
-
-        let twoFactorPolicies: [String] = await subject.getOrganizationIdsForRestricItemTypesPolicy()
-        XCTAssertEqual(twoFactorPolicies, [result.organizationId])
-    }
-
-    /// `getOrganizationIdsForRestricItemTypesPolicy()` returns the policies that apply to the user when the
-    /// organization doesn't use policies.
-    func test_getOrganizationIdsForRestricItemTypesPolicy_organizationDoesNotUsePolicies() async {
-        stateService.activeAccount = .fixture()
-        organizationService.fetchAllOrganizationsResult = .success([.fixture(usePolicies: false)])
-        policyDataStore.fetchPoliciesResult = .success([.fixture(type: .restrictItemTypes)])
-
-        let policies = await subject.getOrganizationIdsForRestricItemTypesPolicy()
-        XCTAssertTrue(policies.isEmpty)
-    }
-
-    /// `getOrganizationIdsForRestricItemTypesPolicy()` returns the policies that apply to the user even
-    /// if the organization is disabled.
-    func test_getOrganizationIdsForRestricItemTypesPolicy_organizationNotEnabled() async {
-        let result: Policy = .fixture(type: .restrictItemTypes)
-        stateService.activeAccount = .fixture()
-        organizationService.fetchAllOrganizationsResult = .success([.fixture(enabled: false)])
-        policyDataStore.fetchPoliciesResult = .success([result])
-
-        let policies = await subject.getOrganizationIdsForRestricItemTypesPolicy()
-        XCTAssertEqual(policies, [result.organizationId])
-    }
-
-    /// `getOrganizationIdsForRestricItemTypesPolicy()` returns whether the policy applies to the user when the user is
-    /// only invited to the organization.
-    func test_getOrganizationIdsForRestricItemTypesPolicy_organizationInvited() async {
-        stateService.activeAccount = .fixture()
-        organizationService.fetchAllOrganizationsResult = .success([.fixture(status: .invited)])
-        policyDataStore.fetchPoliciesResult = .success([.fixture(type: .restrictItemTypes)])
+        policyDataStore.fetchPoliciesNewResult = .success([])
+        stubSdkFilterByType()
 
         let policies = await subject.getOrganizationIdsForRestricItemTypesPolicy()
         XCTAssertTrue(policies.isEmpty)
@@ -1283,12 +1167,13 @@ class PolicyServiceTests: BitwardenTestCase { // swiftlint:disable:this type_bod
         configService.featureFlagsBool[.organizationUserNotificationBanner] = false
         stateService.activeAccount = .fixture()
         organizationService.fetchAllOrganizationsResult = .success([.fixture()])
-        policyDataStore.fetchPoliciesResult = .success([
+        policyDataStore.fetchPoliciesNewResult = .success([
             .fixture(
                 data: [PolicyOptionType.description.rawValue: .string("Test message")],
                 type: .organizationUserNotification,
             ),
         ])
+        stubSdkFilterByType()
 
         let result = await subject.getOrganizationUserNotificationBannerData()
         XCTAssertNil(result)
@@ -1299,9 +1184,10 @@ class PolicyServiceTests: BitwardenTestCase { // swiftlint:disable:this type_bod
         configService.featureFlagsBool[.organizationUserNotificationBanner] = true
         stateService.activeAccount = .fixture()
         organizationService.fetchAllOrganizationsResult = .success([.fixture()])
-        policyDataStore.fetchPoliciesResult = .success([
+        policyDataStore.fetchPoliciesNewResult = .success([
             .fixture(data: nil, type: .organizationUserNotification),
         ])
+        stubSdkFilterByType()
 
         let result = await subject.getOrganizationUserNotificationBannerData()
         XCTAssertNil(result)
@@ -1316,7 +1202,7 @@ class PolicyServiceTests: BitwardenTestCase { // swiftlint:disable:this type_bod
             .fixture(id: "org-1"),
             .fixture(id: "org-2"),
         ])
-        policyDataStore.fetchPoliciesResult = .success([
+        policyDataStore.fetchPoliciesNewResult = .success([
             .fixture(
                 data: [PolicyOptionType.description.rawValue: .string("Later org message.")],
                 organizationId: "org-1",
@@ -1330,6 +1216,7 @@ class PolicyServiceTests: BitwardenTestCase { // swiftlint:disable:this type_bod
                 type: .organizationUserNotification,
             ),
         ])
+        stubSdkFilterByType()
 
         let result = await subject.getOrganizationUserNotificationBannerData()
         XCTAssertEqual(result?.description, "Earlier org message.")
@@ -1340,7 +1227,8 @@ class PolicyServiceTests: BitwardenTestCase { // swiftlint:disable:this type_bod
         configService.featureFlagsBool[.organizationUserNotificationBanner] = true
         stateService.activeAccount = .fixture()
         organizationService.fetchAllOrganizationsResult = .success([.fixture()])
-        policyDataStore.fetchPoliciesResult = .success([])
+        policyDataStore.fetchPoliciesNewResult = .success([])
+        stubSdkFilterByType()
 
         let result = await subject.getOrganizationUserNotificationBannerData()
         XCTAssertNil(result)
@@ -1352,7 +1240,7 @@ class PolicyServiceTests: BitwardenTestCase { // swiftlint:disable:this type_bod
         configService.featureFlagsBool[.organizationUserNotificationBanner] = true
         stateService.activeAccount = .fixture()
         organizationService.fetchAllOrganizationsResult = .success([.fixture()])
-        policyDataStore.fetchPoliciesResult = .success([
+        policyDataStore.fetchPoliciesNewResult = .success([
             .fixture(
                 data: [
                     PolicyOptionType.header.rawValue: .string("Important Notice"),
@@ -1364,6 +1252,7 @@ class PolicyServiceTests: BitwardenTestCase { // swiftlint:disable:this type_bod
                 type: .organizationUserNotification,
             ),
         ])
+        stubSdkFilterByType()
 
         let result = await subject.getOrganizationUserNotificationBannerData()
         XCTAssertEqual(result?.headerText, "Important Notice")
@@ -1380,12 +1269,13 @@ class PolicyServiceTests: BitwardenTestCase { // swiftlint:disable:this type_bod
         configService.featureFlagsBool[.organizationUserNotificationBanner] = true
         stateService.activeAccount = .fixture()
         organizationService.fetchAllOrganizationsResult = .success([.fixture()])
-        policyDataStore.fetchPoliciesResult = .success([
+        policyDataStore.fetchPoliciesNewResult = .success([
             .fixture(
                 data: [PolicyOptionType.description.rawValue: .string("Minimal message.")],
                 type: .organizationUserNotification,
             ),
         ])
+        stubSdkFilterByType()
 
         let result = await subject.getOrganizationUserNotificationBannerData()
         XCTAssertNil(result?.headerText)
@@ -1401,7 +1291,8 @@ class PolicyServiceTests: BitwardenTestCase { // swiftlint:disable:this type_bod
         let result: Policy = .fixture(type: .restrictItemTypes)
         stateService.activeAccount = .fixture()
         organizationService.fetchAllOrganizationsResult = .success([.fixture()])
-        policyDataStore.fetchPoliciesResult = .success([result])
+        policyDataStore.fetchPoliciesNewResult = .success([result])
+        stubSdkFilterByType()
 
         let restrictedTypes: [BitwardenShared.CipherType] = await subject.getRestrictedItemCipherTypes()
         XCTAssertEqual(restrictedTypes, [.card])
@@ -1413,85 +1304,36 @@ class PolicyServiceTests: BitwardenTestCase { // swiftlint:disable:this type_bod
         let result: Policy = .fixture(enabled: true, organizationId: "org-2", type: .restrictItemTypes)
         stateService.activeAccount = .fixture()
         organizationService.fetchAllOrganizationsResult = .success([.fixture(id: "org-1"), .fixture(id: "org-2")])
-        policyDataStore.fetchPoliciesResult = .success([
+        policyDataStore.fetchPoliciesNewResult = .success([
             .fixture(enabled: false, organizationId: "org-1", type: .twoFactorAuthentication),
             result,
         ])
+        stubSdkFilterByType()
 
         let restrictedTypes = await subject.getRestrictedItemCipherTypes()
         XCTAssertEqual(restrictedTypes, [.card])
-    }
-
-    /// `getRestrictedItemCipherTypes()` returns empty array when there are no organizations.
-    func test_getRestrictedItemCipherTypes_noOrganizations() async {
-        stateService.activeAccount = .fixture()
-        organizationService.fetchAllOrganizationsResult = .success([])
-        policyDataStore.fetchPoliciesResult = .success([.fixture(type: .restrictItemTypes)])
-
-        let restrictedTypes = await subject.getRestrictedItemCipherTypes()
-        XCTAssertTrue(restrictedTypes.isEmpty)
     }
 
     /// `getRestrictedItemCipherTypes()` returns empty array when there are no policies.
     func test_getRestrictedItemCipherTypes_noPolicies() async {
         stateService.activeAccount = .fixture()
         organizationService.fetchAllOrganizationsResult = .success([.fixture()])
-        policyDataStore.fetchPoliciesResult = .success([])
+        policyDataStore.fetchPoliciesNewResult = .success([])
+        stubSdkFilterByType()
 
         let restrictedTypes = await subject.getRestrictedItemCipherTypes()
         XCTAssertTrue(restrictedTypes.isEmpty)
     }
 
-    /// `getRestrictedItemCipherTypes()` returns the restricted cipher types when the user is admin.
-    func test_getRestrictedItemCipherTypes_organizationExempt() async {
+    // MARK: - SDK boundary Tests
+
+    /// `replacePoliciesNew(_:userId:)` updates the in-memory accepted-state policy cache so
+    /// subsequent calls to `policyAppliesToUser(_:)` reflect the new policies.
+    func test_replacePoliciesNew_updatesCache() async throws {
         stateService.activeAccount = .fixture()
-        organizationService.fetchAllOrganizationsResult = .success([.fixture(type: .admin)])
-        policyDataStore.fetchPoliciesResult = .success([.fixture(type: .restrictItemTypes)])
-
-        let restrictedTypes = await subject.getRestrictedItemCipherTypes()
-        XCTAssertEqual(restrictedTypes, [.card])
-    }
-
-    /// `getRestrictedItemCipherTypes()` returns empty array when the organization doesn't use policies.
-    func test_getRestrictedItemCipherTypes_organizationDoesNotUsePolicies() async {
-        stateService.activeAccount = .fixture()
-        organizationService.fetchAllOrganizationsResult = .success([.fixture(usePolicies: false)])
-        policyDataStore.fetchPoliciesResult = .success([.fixture(type: .restrictItemTypes)])
-
-        let restrictedTypes = await subject.getRestrictedItemCipherTypes()
-        XCTAssertTrue(restrictedTypes.isEmpty)
-    }
-
-    /// `getRestrictedItemCipherTypes()` returns restricted cipher types even if the organization is disabled.
-    func test_getRestrictedItemCipherTypes_organizationNotEnabled() async {
-        let result: Policy = .fixture(type: .restrictItemTypes)
-        stateService.activeAccount = .fixture()
-        organizationService.fetchAllOrganizationsResult = .success([.fixture(enabled: false)])
-        policyDataStore.fetchPoliciesResult = .success([result])
-
-        let restrictedTypes = await subject.getRestrictedItemCipherTypes()
-        XCTAssertEqual(restrictedTypes, [.card])
-    }
-
-    /// `getRestrictedItemCipherTypes()` returns empty array when the user is only invited to the organization.
-    func test_getRestrictedItemCipherTypes_organizationInvited() async {
-        stateService.activeAccount = .fixture()
-        organizationService.fetchAllOrganizationsResult = .success([.fixture(status: .invited)])
-        policyDataStore.fetchPoliciesResult = .success([.fixture(type: .restrictItemTypes)])
-
-        let restrictedTypes = await subject.getRestrictedItemCipherTypes()
-        XCTAssertTrue(restrictedTypes.isEmpty)
-    }
-
-    /// `replacePoliciesNew(_:userId:)` updates the in-memory accepted-state policy cache used by
-    /// the SDK path so subsequent calls to `policyAppliesToUser(_:)` reflect the new policies.
-    @MainActor
-    func test_replacePoliciesNew_updatesSdkPathCache() async throws {
-        stateService.activeAccount = .fixture()
-        configService.featureFlagsBool[.policiesInAcceptedState] = true
         organizationService.fetchAllOrganizationsResult = .success([.fixture(id: "org-1")])
 
-        // Initially no accepted-state policies → SDK path returns false
+        // Initially no accepted-state policies → SDK isn't consulted and nothing applies.
         clientService.mockPolicies.filterByTypeReturnValue = []
 
         var policyApplies = await subject.policyAppliesToUser(.twoFactorAuthentication)
@@ -1518,14 +1360,10 @@ class PolicyServiceTests: BitwardenTestCase { // swiftlint:disable:this type_bod
         XCTAssertTrue(policyApplies)
     }
 
-    // MARK: SDK path — policiesInAcceptedState flag
-
-    /// `policyAppliesToUser(_:)` delegates to `PoliciesClient.filterByType` when the feature flag
-    /// is enabled and returns `true` when the SDK reports the policy applies.
-    @MainActor
-    func test_policyAppliesToUser_sdkPath_filterByTypeCalled() async {
+    /// `policyAppliesToUser(_:)` delegates to `PoliciesClient.filterByType` and returns `true` when
+    /// the SDK reports the policy applies.
+    func test_policyAppliesToUser_filterByTypeCalled() async {
         stateService.activeAccount = .fixture()
-        configService.featureFlagsBool[.policiesInAcceptedState] = true
 
         policyDataStore.fetchPoliciesNewResult = .success([.fixture(enabled: true, type: .masterPassword)])
         organizationService.fetchAllOrganizationsResult = .success([.fixture(id: "organization-1", status: .accepted)])
@@ -1551,10 +1389,8 @@ class PolicyServiceTests: BitwardenTestCase { // swiftlint:disable:this type_bod
 
     /// `policyAppliesToUser(_:)` returns `false` when the SDK returns an empty list (policy does
     /// not apply to this user in their organization context).
-    @MainActor
-    func test_policyAppliesToUser_sdkPath_sdkReturnsEmpty() async {
+    func test_policyAppliesToUser_sdkReturnsEmpty() async {
         stateService.activeAccount = .fixture()
-        configService.featureFlagsBool[.policiesInAcceptedState] = true
 
         policyDataStore.fetchPoliciesNewResult = .success([.fixture(enabled: true, type: .masterPassword)])
         organizationService.fetchAllOrganizationsResult = .success([.fixture(type: .owner)])
@@ -1568,44 +1404,102 @@ class PolicyServiceTests: BitwardenTestCase { // swiftlint:disable:this type_bod
         XCTAssertTrue(clientService.mockPolicies.filterByTypeCalled)
     }
 
-    /// `policyAppliesToUser(_:)` passes organizations including provider-user context to the SDK.
-    @MainActor
-    func test_policyAppliesToUser_sdkPath_providerUserMapped() async {
+    /// `policyAppliesToUser(_:)` hands the SDK a policy context for each organization, carrying the
+    /// membership status, role, enabled state and policy capability the SDK filters on.
+    func test_policyAppliesToUser_mapsOrganizationContexts() async {
         stateService.activeAccount = .fixture()
-        configService.featureFlagsBool[.policiesInAcceptedState] = true
+
+        policyDataStore.fetchPoliciesNewResult = .success([.fixture(enabled: true, type: .maximumVaultTimeout)])
+        organizationService.fetchAllOrganizationsResult = .success([
+            .fixture(
+                enabled: false,
+                id: "org-1",
+                isProviderUser: true,
+                status: .accepted,
+                type: .owner,
+                usePolicies: false,
+            ),
+            .fixture(
+                enabled: true,
+                id: "org-2",
+                isProviderUser: false,
+                status: .invited,
+                type: .user,
+                usePolicies: true,
+            ),
+        ])
+        clientService.mockPolicies.filterByTypeReturnValue = []
+
+        _ = await subject.policyAppliesToUser(.maximumVaultTimeout)
+
+        let contexts = clientService.mockPolicies.filterByTypeReceivedArguments?.organizationUserPolicyContexts
+        XCTAssertEqual(
+            contexts,
+            [
+                BitwardenSdk.OrganizationUserPolicyContext(
+                    id: "org-1",
+                    status: .accepted,
+                    role: .owner,
+                    enabled: false,
+                    usePolicies: false,
+                    isProviderUser: true,
+                ),
+                BitwardenSdk.OrganizationUserPolicyContext(
+                    id: "org-2",
+                    status: .invited,
+                    role: .user,
+                    enabled: true,
+                    usePolicies: true,
+                    isProviderUser: false,
+                ),
+            ],
+        )
+    }
+
+    /// `policyAppliesToUser(_:)` maps the staged membership status through to the SDK, which
+    /// decides whether staged members are subject to the policy.
+    func test_policyAppliesToUser_mapsStagedOrganizationContext() async {
+        stateService.activeAccount = .fixture()
 
         policyDataStore.fetchPoliciesNewResult = .success([.fixture(enabled: true, type: .masterPassword)])
-        let providerOrg = Organization.fixture(id: "org-provider", isProviderUser: true, status: .accepted)
-        organizationService.fetchAllOrganizationsResult = .success([providerOrg])
-
+        organizationService.fetchAllOrganizationsResult = .success([.fixture(status: .staged)])
         clientService.mockPolicies.filterByTypeReturnValue = []
 
         _ = await subject.policyAppliesToUser(.masterPassword)
 
-        let receivedContexts = clientService.mockPolicies.filterByTypeReceivedArguments?.organizationUserPolicyContexts
-        XCTAssertEqual(receivedContexts?.first?.isProviderUser, true)
+        let contexts = clientService.mockPolicies.filterByTypeReceivedArguments?.organizationUserPolicyContexts
+        XCTAssertEqual(contexts?.first?.status, .staged)
     }
 
-    /// `policyAppliesToUser(_:)` uses the native filter when the feature flag is disabled.
-    func test_policyAppliesToUser_nativePathWhenFlagOff() async {
+    /// `policyAppliesToUser(_:)` converts the stored policy into the SDK's `PolicyView`
+    /// representation, encoding the policy's option data as JSON.
+    func test_policyAppliesToUser_mapsPolicyToSdkPolicyView() async throws {
         stateService.activeAccount = .fixture()
-        // Flag not set → defaults to false
 
-        policyDataStore.fetchPoliciesResult = .success([.fixture(enabled: true, type: .masterPassword)])
-        organizationService.fetchAllOrganizationsResult = .success([.fixture(status: .confirmed)])
+        policyDataStore.fetchPoliciesNewResult = .success([maximumTimeoutPolicy])
+        organizationService.fetchAllOrganizationsResult = .success([.fixture()])
+        stubSdkFilterByType()
 
-        let applies = await subject.policyAppliesToUser(.masterPassword)
+        _ = await subject.policyAppliesToUser(.maximumVaultTimeout)
 
-        XCTAssertTrue(applies)
-        XCTAssertFalse(clientService.mockPolicies.filterByTypeCalled) // SDK not invoked
+        let sentPolicy = try XCTUnwrap(
+            clientService.mockPolicies.filterByTypeReceivedArguments?.policies.first,
+        )
+        XCTAssertEqual(sentPolicy.id, maximumTimeoutPolicy.id)
+        XCTAssertEqual(sentPolicy.organizationId, maximumTimeoutPolicy.organizationId)
+        XCTAssertEqual(sentPolicy.type, .maximumVaultTimeout)
+        XCTAssertTrue(sentPolicy.enabled)
+
+        let encodedData = try XCTUnwrap(sentPolicy.data?.data(using: .utf8))
+        let decodedData = try JSONDecoder().decode([String: AnyCodable].self, from: encodedData)
+        XCTAssertEqual(decodedData[PolicyOptionType.minutes.rawValue]?.intValue, 60)
+        XCTAssertEqual(decodedData[PolicyOptionType.action.rawValue]?.stringValue, "lock")
     }
 
-    /// `policyAppliesToUser(_:)` returns `[]` (safe degradation) when `clientService.policies` throws
-    /// while the SDK flag is enabled.
-    @MainActor
-    func test_policyAppliesToUser_sdkPath_clientServiceThrowsReturnsEmpty() async {
+    /// `policyAppliesToUser(_:)` returns `[]` (safe degradation) and reports the error when
+    /// `clientService.policies` throws.
+    func test_policyAppliesToUser_clientServiceThrowsReturnsEmpty() async {
         stateService.activeAccount = .fixture()
-        configService.featureFlagsBool[.policiesInAcceptedState] = true
 
         policyDataStore.fetchPoliciesNewResult = .success([.fixture(enabled: true, type: .masterPassword)])
         organizationService.fetchAllOrganizationsResult = .success([.fixture(status: .accepted)])
@@ -1616,14 +1510,13 @@ class PolicyServiceTests: BitwardenTestCase { // swiftlint:disable:this type_bod
 
         // Degraded to empty (not crashing)
         XCTAssertFalse(applies)
+        XCTAssertEqual(errorReporter.errors as? [BitwardenTestError], [.example])
     }
 
-    /// `getMasterPasswordPolicyOptions()` excludes policies without data before invoking the SDK
-    /// when the feature flag is enabled — verifying the filter is forwarded to `sdkFilterPolicies`.
-    @MainActor
-    func test_getMasterPasswordPolicyOptions_sdkPath_filterExcludesNilDataPolicy() async throws {
+    /// `getMasterPasswordPolicyOptions()` excludes policies without data before invoking the SDK,
+    /// verifying the filter is forwarded to `sdkFilterPolicies`.
+    func test_getMasterPasswordPolicyOptions_filterExcludesNilDataPolicy() async throws {
         stateService.activeAccount = .fixture()
-        configService.featureFlagsBool[.policiesInAcceptedState] = true
         organizationService.fetchAllOrganizationsResult = .success([.fixture(id: "org-1", status: .accepted)])
 
         // Policy without data — the { $0.data != nil } filter should exclude it before the SDK call.
@@ -1635,12 +1528,10 @@ class PolicyServiceTests: BitwardenTestCase { // swiftlint:disable:this type_bod
         XCTAssertFalse(clientService.mockPolicies.filterByTypeCalled)
     }
 
-    /// `getSendPolicyOptions()` uses the SDK `filterByType` path when the `policiesInAcceptedState`
-    /// flag is enabled, enforcing no Send restrictions when the SDK reports no applying policies.
-    @MainActor
-    func test_getSendPolicyOptions_sdkPath_noApplyingPolicies() async {
+    /// `getSendPolicyOptions()` enforces no Send restrictions when the SDK reports no applying
+    /// policies.
+    func test_getSendPolicyOptions_sdkNoApplyingPolicies() async {
         stateService.activeAccount = .fixture()
-        configService.featureFlagsBool[.policiesInAcceptedState] = true
         configService.featureFlagsBool[.sendControls] = true
         organizationService.fetchAllOrganizationsResult = .success([.fixture(id: "org-1", status: .accepted)])
         policyDataStore.fetchPoliciesNewResult = .success([.fixture(type: .sendControls)])
@@ -1655,11 +1546,9 @@ class PolicyServiceTests: BitwardenTestCase { // swiftlint:disable:this type_bod
     }
 
     /// `getSendPolicyOptions()` parses the Send restrictions from the policies the SDK reports as
-    /// applying when the `policiesInAcceptedState` flag is enabled.
-    @MainActor
-    func test_getSendPolicyOptions_sdkPath_parsesApplyingPolicies() async {
+    /// applying.
+    func test_getSendPolicyOptions_sdkParsesApplyingPolicies() async {
         stateService.activeAccount = .fixture()
-        configService.featureFlagsBool[.policiesInAcceptedState] = true
         configService.featureFlagsBool[.sendControls] = true
         organizationService.fetchAllOrganizationsResult = .success([.fixture(id: "org-1", status: .accepted)])
         policyDataStore.fetchPoliciesNewResult = .success([.fixture(type: .sendControls)])
