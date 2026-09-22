@@ -16,6 +16,24 @@ import Testing
 ///
 @MainActor
 struct BillingServicePremiumUpgradeLifecycleStateTests {
+    // MARK: Types
+
+    /// A single row of the `premiumUpgradeLifecycleState()` derivation table: the three inputs
+    /// the state is derived from, and the lifecycle position they should produce.
+    struct TestCase: Sendable {
+        /// Whether the account has Premium it purchased itself.
+        let personalPremium: Bool
+
+        /// Whether a personal checkout is recorded as awaiting confirmation.
+        let pending: Bool
+
+        /// Whether the account has Premium granted by an organization.
+        let organizationPremium: Bool
+
+        /// The `PremiumUpgradeLifecycleState` the three inputs above should derive to.
+        let expected: PremiumUpgradeLifecycleState
+    }
+
     // MARK: Properties
 
     var billingAPIService: MockBillingAPIService!
@@ -57,50 +75,46 @@ struct BillingServicePremiumUpgradeLifecycleStateTests {
     /// Premium status, its persisted pending flag, and its organization-granted Premium — in
     /// that order of precedence.
     @Test(arguments: [
-        PremiumUpgradeLifecycleStateTestCase(
+        TestCase(
             personalPremium: false,
             pending: false,
             organizationPremium: false,
             expected: .notPremium,
         ),
-        PremiumUpgradeLifecycleStateTestCase(
+        TestCase(
             personalPremium: false,
             pending: false,
             organizationPremium: true,
             expected: .premium,
         ),
-        PremiumUpgradeLifecycleStateTestCase(
+        TestCase(
             personalPremium: false,
             pending: true,
             organizationPremium: false,
             expected: .pending,
         ),
         // An organization grant arriving mid-flight is not the personal purchase landing.
-        PremiumUpgradeLifecycleStateTestCase(
+        TestCase(
             personalPremium: false,
             pending: true,
             organizationPremium: true,
             expected: .pending,
         ),
-        PremiumUpgradeLifecycleStateTestCase(
+        TestCase(
             personalPremium: true,
             pending: false,
             organizationPremium: false,
             expected: .premium,
         ),
         // A pending flag not yet cleared must not mask Premium that has actually been granted.
-        PremiumUpgradeLifecycleStateTestCase(
+        TestCase(
             personalPremium: true,
             pending: true,
             organizationPremium: true,
             expected: .premium,
         ),
     ])
-    func premiumUpgradeLifecycleState_derivation(testCase: PremiumUpgradeLifecycleStateTestCase) async {
-        // The active-account results, not the by-userId dictionaries: the accessor under test
-        // passes `userId: nil`, and `MockStateService`'s Premium accessors short-circuit to these
-        // before consulting the dictionaries. Both default to `true`, so leaving either unset
-        // reports Premium regardless of the test case.
+    func premiumUpgradeLifecycleState_derivation(testCase: TestCase) async {
         stateService.doesActiveAccountHavePremiumPersonallyResult = testCase.personalPremium
         stateService.doesActiveAccountHavePremiumResult = testCase.personalPremium
             || testCase.organizationPremium
@@ -139,22 +153,4 @@ struct BillingServicePremiumUpgradeLifecycleStateTests {
         #expect(result == .premium)
         #expect(errorReporter.errors.last as? BitwardenTestError == .example)
     }
-}
-
-// MARK: - PremiumUpgradeLifecycleStateTestCase
-
-/// A single row of the `premiumUpgradeLifecycleState()` derivation table: the three inputs the state is
-/// derived from, and the lifecycle position they should produce.
-struct PremiumUpgradeLifecycleStateTestCase: Sendable {
-    /// Whether the account has Premium it purchased itself.
-    let personalPremium: Bool
-
-    /// Whether a personal checkout is recorded as awaiting confirmation.
-    let pending: Bool
-
-    /// Whether the account has Premium granted by an organization.
-    let organizationPremium: Bool
-
-    /// The `PremiumUpgradeLifecycleState` the three inputs above should derive to.
-    let expected: PremiumUpgradeLifecycleState
 }
