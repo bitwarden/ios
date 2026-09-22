@@ -2870,6 +2870,21 @@ extension DefaultStateService: SdkStateBridgeStateService {
         appSettingsStore.setUserKeyId(keyId, userId: userId)
     }
 
+    // MARK: V2 Encrypted Migrations Grace Period Start
+
+    func getV2EncryptedMigrationsGracePeriodStart(
+        userId: String,
+    ) async -> V2EncryptedMigrationsGracePeriodStart? {
+        appSettingsStore.v2EncryptedMigrationsGracePeriodStart(userId: userId)
+    }
+
+    func setV2EncryptedMigrationsGracePeriodStart(
+        _ date: V2EncryptedMigrationsGracePeriodStart?,
+        userId: String,
+    ) async {
+        appSettingsStore.setV2EncryptedMigrationsGracePeriodStart(date, userId: userId)
+    }
+
     // MARK: V2 Upgrade Token
 
     func getV2UpgradeToken(userId: String) async -> V2UpgradeToken? {

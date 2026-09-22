@@ -1407,6 +1407,36 @@ class AppSettingsStoreTests: BitwardenTestCase { // swiftlint:disable:this type_
         XCTAssertNil(subject.userKeyId(userId: "1"))
     }
 
+    /// `v2EncryptedMigrationsGracePeriodStart(userId:)` returns `nil` if there isn't a previously
+    /// stored value.
+    func test_v2EncryptedMigrationsGracePeriodStart_isInitiallyNil() {
+        XCTAssertNil(subject.v2EncryptedMigrationsGracePeriodStart(userId: "-1"))
+    }
+
+    /// `v2EncryptedMigrationsGracePeriodStart(userId:)` can be used to get and set the V2 encrypted
+    /// migrations grace period start for a user.
+    func test_v2EncryptedMigrationsGracePeriodStart_withValue() {
+        let date1 = Date(year: 2023, month: 12, day: 1)
+        let date2 = Date(year: 2023, month: 10, day: 2)
+
+        subject.setV2EncryptedMigrationsGracePeriodStart(date1, userId: "1")
+        subject.setV2EncryptedMigrationsGracePeriodStart(date2, userId: "2")
+
+        XCTAssertEqual(subject.v2EncryptedMigrationsGracePeriodStart(userId: "1"), date1)
+        XCTAssertEqual(subject.v2EncryptedMigrationsGracePeriodStart(userId: "2"), date2)
+        XCTAssertEqual(
+            userDefaults.double(forKey: "bwPreferencesStorage:v2EncryptedMigrationsGracePeriodStart_1"),
+            1_701_388_800.0,
+        )
+        XCTAssertEqual(
+            userDefaults.double(forKey: "bwPreferencesStorage:v2EncryptedMigrationsGracePeriodStart_2"),
+            1_696_204_800.0,
+        )
+
+        subject.setV2EncryptedMigrationsGracePeriodStart(nil, userId: "1")
+        XCTAssertNil(subject.v2EncryptedMigrationsGracePeriodStart(userId: "1"))
+    }
+
     /// `v2UpgradeToken(userId:)` returns `nil` if there isn't a previously stored value.
     func test_v2UpgradeToken_isInitiallyNil() {
         XCTAssertNil(subject.v2UpgradeToken(userId: "-1"))

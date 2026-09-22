@@ -667,6 +667,15 @@ protocol AppSettingsStore: AnyObject {
     ///
     func setUsernameGenerationOptions(_ options: UsernameGenerationOptions?, userId: String)
 
+    /// Sets the time the v2 encrypted migrations grace period started for the user. The SDK owns
+    /// writing this value, the app should only clear it to intentionally reset the window.
+    ///
+    /// - Parameters:
+    ///   - date: The time the grace period started, or `nil` to clear it.
+    ///   - userId: The user ID.
+    ///
+    func setV2EncryptedMigrationsGracePeriodStart(_ date: V2EncryptedMigrationsGracePeriodStart?, userId: String)
+
     /// Sets the user's V2 encryption upgrade token.
     ///
     /// - Parameters:
@@ -730,6 +739,14 @@ protocol AppSettingsStore: AnyObject {
     /// - Returns: Whether the user uses key connector.
     ///
     func usesKeyConnector(userId: String) -> Bool
+
+    /// The time the SDK first checked whether the user could be prompted to migrate to v2
+    /// encryption, anchoring the two-week grace period before that prompt may be shown.
+    ///
+    /// - Parameter userId: The user ID associated with the V2 encrypted migrations grace period start.
+    /// - Returns: The time the grace period started, or `nil` if the SDK hasn't checked yet.
+    ///
+    func v2EncryptedMigrationsGracePeriodStart(userId: String) -> V2EncryptedMigrationsGracePeriodStart?
 
     /// The user's V2 encryption upgrade token.
     ///
@@ -926,6 +943,7 @@ extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore {
         case userKeyId(userId: String)
         case usernameGenerationOptions(userId: String)
         case usesKeyConnector(userId: String)
+        case v2EncryptedMigrationsGracePeriodStart(userId: String)
         case v2UpgradeToken(userId: String)
         case vaultTimeoutAction(userId: String)
 
@@ -1058,6 +1076,8 @@ extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore {
                 "usernameGenerationOptions_\(userId)"
             case let .usesKeyConnector(userId):
                 "usesKeyConnector_\(userId)"
+            case let .v2EncryptedMigrationsGracePeriodStart(userId):
+                "v2EncryptedMigrationsGracePeriodStart_\(userId)"
             case let .v2UpgradeToken(userId):
                 "v2UpgradeToken_\(userId)"
             case let .vaultTimeoutAction(userId):
@@ -1496,6 +1516,10 @@ extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore {
         store(usesKeyConnector, for: .usesKeyConnector(userId: userId))
     }
 
+    func setV2EncryptedMigrationsGracePeriodStart(_ date: V2EncryptedMigrationsGracePeriodStart?, userId: String) {
+        store(date?.timeIntervalSince1970, for: .v2EncryptedMigrationsGracePeriodStart(userId: userId))
+    }
+
     func setV2UpgradeToken(_ token: V2UpgradeToken?, userId: String) {
         store(token, for: .v2UpgradeToken(userId: userId))
     }
@@ -1530,6 +1554,10 @@ extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore {
 
     func usesKeyConnector(userId: String) -> Bool {
         fetch(for: .usesKeyConnector(userId: userId))
+    }
+
+    func v2EncryptedMigrationsGracePeriodStart(userId: String) -> V2EncryptedMigrationsGracePeriodStart? {
+        fetch(for: .v2EncryptedMigrationsGracePeriodStart(userId: userId)).map { Date(timeIntervalSince1970: $0) }
     }
 
     func v2UpgradeToken(userId: String) -> V2UpgradeToken? {
