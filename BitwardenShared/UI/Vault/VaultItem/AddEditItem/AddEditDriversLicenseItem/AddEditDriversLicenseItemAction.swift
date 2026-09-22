@@ -1,10 +1,21 @@
+import Foundation
+
 // MARK: AddEditDriversLicenseItemAction
 
 /// An enum of actions for adding or editing a driver's license Item in its add/edit state.
 ///
 enum AddEditDriversLicenseItemAction: Equatable, Sendable {
+    /// The date of birth changed.
+    case dateOfBirthChanged(Date?)
+
+    /// The expiration date changed.
+    case expirationDateChanged(Date?)
+
     /// The first name on the license changed.
     case firstNameChanged(String)
+
+    /// The issue date changed.
+    case issueDateChanged(Date?)
 
     /// The issuing authority changed.
     case issuingAuthorityChanged(String)

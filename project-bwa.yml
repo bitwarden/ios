@@ -16,7 +16,7 @@ settings:
 packages:
   SwiftProtobuf:
     url: https://github.com/apple/swift-protobuf
-    exactVersion: 1.38.0
+    exactVersion: 1.38.1
 projectReferences:
   BitwardenKit:
     path: BitwardenKit.xcodeproj
@@ -113,7 +113,8 @@ targets:
           - $(SRCROOT)/Authenticator/Application/Support/Settings.bundle/Acknowledgements
     postCompileScripts:
       - script: |
-          if [[ -z "$CI" ]]; then
+          if [[ -n "$CI" ]]; then
+            echo "[Lint Changes] skipping, CI detected"
             exit 0
           fi
           if [[ ! "$PATH" =~ "/opt/homebrew/bin" ]]; then

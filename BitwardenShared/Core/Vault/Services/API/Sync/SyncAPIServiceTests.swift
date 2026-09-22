@@ -161,7 +161,6 @@ class SyncAPIServiceTests: BitwardenTestCase {
                     culture: "en-US",
                     email: "user@bitwarden.com",
                     id: "c8aa1e36-4427-11ee-be56-0242ac120002",
-                    key: "key",
                     organizations: [],
                     privateKey: "private key",
                     providerOrganizations: [],

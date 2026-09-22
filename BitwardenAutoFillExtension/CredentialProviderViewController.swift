@@ -569,6 +569,11 @@ extension CredentialProviderViewController: CredentialProviderExtensionDelegate 
             .values
     }
 
+    @available(iOSApplicationExtension 18.0, *)
+    func setMatchedExcludedCredentialFound() {
+        cancel(error: ASExtensionError(.matchedExcludedCredential))
+    }
+
     func setUserInteractionRequired() {
         context?.flowFailedBecauseUserInteractionRequired = true
         cancel(error: ASExtensionError(.userInteractionRequired))

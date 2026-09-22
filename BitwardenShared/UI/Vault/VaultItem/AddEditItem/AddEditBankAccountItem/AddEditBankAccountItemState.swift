@@ -51,7 +51,7 @@ protocol AddEditBankAccountItemState: Equatable, Sendable {
 extension BankAccountType: Menuable {
     /// The default placeholder shown when no account type is selected.
     public static var defaultValueLocalizedName: String {
-        "--\(Localizations.select)--"
+        Localizations.none
     }
 
     /// A localized string representation of the account type.

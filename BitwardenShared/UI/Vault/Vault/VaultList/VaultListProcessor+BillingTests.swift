@@ -30,6 +30,7 @@ struct VaultListProcessorBillingTests {
         billingRepository = MockBillingRepository()
         billingRepository.isInAppUpgradeAvailableReturnValue = false
         billingService = MockBillingService()
+        billingService.isSelfHostedReturnValue = false
         billingService.shouldShowSubscriptionAttentionCardReturnValue = false
         billingService.shouldShowUpgradedToPremiumActionCardReturnValue = false
         coordinator = MockCoordinator()
@@ -129,6 +130,19 @@ struct VaultListProcessorBillingTests {
 
         #expect(subject.state.shouldShowSubscriptionAttentionCard == testCase.expectedAttentionCard)
         #expect(subject.state.shouldShowPremiumUpgradeActionCard == testCase.expectedUpgradeCard)
+    }
+
+    /// `perform(_:)` with `.appeared` hides the Premium upgrade action card for self-hosted
+    /// accounts, even when the promo would otherwise be available.
+    @Test
+    func perform_appeared_premiumUpgradeActionCard_hidden_selfHosted() async {
+        billingService.isSelfHostedReturnValue = true
+        billingRepository.isInAppUpgradeAvailableReturnValue = true
+        stateService.isPremiumUpgradeBannerDismissedResult = false
+
+        await subject.perform(.appeared)
+
+        #expect(!subject.state.shouldShowPremiumUpgradeActionCard)
     }
 
     /// `perform(_:)` with `.appeared` still shows the upgraded-to-Premium card even when the

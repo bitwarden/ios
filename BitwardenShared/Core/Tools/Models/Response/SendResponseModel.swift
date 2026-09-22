@@ -1,3 +1,4 @@
+import BitwardenKit
 import Foundation
 import Networking
 
@@ -59,5 +60,5 @@ struct SendResponseModel: Codable, Equatable, JSONResponse {
     let text: SendTextModel?
 
     /// The type of data in the send.
-    let type: SendType
+    @DefaultValue var type: SendType
 }

@@ -66,6 +66,7 @@ class DefaultCipherEncryptionMediator: CipherEncryptionMediator {
         if didAddCipherKey {
             try await cipherService.updateCipherWithServer(
                 cipherEncryptionContext.cipher,
+                encryptedByKeyId: cipherEncryptionContext.encryptedByKeyId,
                 encryptedFor: cipherEncryptionContext.encryptedFor,
             )
         }
@@ -89,6 +90,7 @@ class DefaultCipherEncryptionMediator: CipherEncryptionMediator {
 
         try await cipherService.updateCipherWithServer(
             cipherEncryptionContext.cipher,
+            encryptedByKeyId: cipherEncryptionContext.encryptedByKeyId,
             encryptedFor: cipherEncryptionContext.encryptedFor,
         )
 

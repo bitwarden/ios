@@ -46,6 +46,11 @@ struct ViewItemView: View {
         store.state.loadingState.data?.canBeUnarchived ?? false
     }
 
+    /// Whether the `vfo1-foundation` feature flag is enabled.
+    var isVfo1FoundationFeatureFlagEnabled: Bool {
+        store.state.loadingState.data?.isVfo1FoundationFeatureFlagEnabled ?? false
+    }
+
     /// The `Store` for this view.
     @ObservedObject var store: Store<ViewItemState, ViewItemAction, ViewItemEffect>
 
@@ -86,6 +91,7 @@ struct ViewItemView: View {
                     isMoveToOrganizationEnabled: isMoveToOrganizationEnabled,
                     isRestoreEnabled: isRestoredEnabled,
                     isUnarchiveEnabled: isUnarchiveEnabled,
+                    isVfo1FoundationFeatureFlagEnabled: isVfo1FoundationFeatureFlagEnabled,
                     store: store.child(
                         state: { _ in },
                         mapAction: { .morePressed($0) },

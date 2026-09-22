@@ -80,6 +80,18 @@ class BitwardenSdkVaultCipherDetailsResponseModelTests: BitwardenTestCase {
 class BitwardenSdkCipherListViewTypeTests: BitwardenTestCase {
     // MARK: Tests
 
+    /// `isBankAccount` returns whether the type is a bank account.
+    func test_isBankAccount() {
+        XCTAssertTrue(
+            CipherListViewType.bankAccount(BankAccountListView(accountNumber: nil, accountType: nil)).isBankAccount,
+        )
+        XCTAssertFalse(CipherListViewType.login(.fixture()).isBankAccount)
+        XCTAssertFalse(CipherListViewType.card(.init(brand: nil)).isBankAccount)
+        XCTAssertFalse(CipherListViewType.identity.isBankAccount)
+        XCTAssertFalse(CipherListViewType.secureNote.isBankAccount)
+        XCTAssertFalse(CipherListViewType.sshKey.isBankAccount)
+    }
+
     /// `isLogin` returns whether the type is a login.
     func test_isLogin() {
         XCTAssertTrue(CipherListViewType.login(.fixture()).isLogin)
@@ -362,7 +374,10 @@ class BitwardenSdkVaultCipherTypeTests: BitwardenTestCase {
         XCTAssertEqual(CipherType(CipherListViewType.identity), .identity)
         XCTAssertEqual(CipherType(CipherListViewType.secureNote), .secureNote)
         XCTAssertEqual(CipherType(CipherListViewType.sshKey), .sshKey)
-        XCTAssertEqual(CipherType(CipherListViewType.bankAccount), .bankAccount)
+        XCTAssertEqual(
+            CipherType(CipherListViewType.bankAccount(.init(accountNumber: nil, accountType: nil))),
+            .bankAccount,
+        )
         XCTAssertEqual(CipherType(CipherListViewType.driversLicense), .driversLicense)
         XCTAssertEqual(CipherType(CipherListViewType.passport), .passport)
     }

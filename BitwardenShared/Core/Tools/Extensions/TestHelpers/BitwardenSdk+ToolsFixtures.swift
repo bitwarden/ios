@@ -25,14 +25,17 @@ extension Send {
         text: SendTextModel? = nil,
         type: BitwardenShared.SendType = .text,
     ) -> Send {
-        self.init(
+        guard let sdkType = SendType(type: type) else {
+            preconditionFailure("The SDK's `SendType` has no case for `.unknown`; can't build a fixture with it.")
+        }
+        return self.init(
             id: id,
             accessId: accessId,
             name: name,
             notes: notes,
             key: key,
             password: password,
-            type: SendType(type: type),
+            type: sdkType,
             file: file.map(SendFile.init),
             text: text.map(SendText.init),
             maxAccessCount: maxAccessCount,

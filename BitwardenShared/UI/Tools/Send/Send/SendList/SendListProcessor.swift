@@ -195,7 +195,9 @@ final class SendListProcessor: StateProcessor<SendListState, SendListAction, Sen
     /// Load any initial data for the view.
     ///
     private func loadData() async {
-        state.isSendDisabled = await services.policyService.getSendPolicyOptions().isSendDisabled
+        let policyOptions = await services.policyService.getSendPolicyOptions()
+        state.isSendDisabled = policyOptions.isSendDisabled
+        state.restrictedSendType = policyOptions.enforcedSendType
     }
 
     /// Removes the password from the provided send.
@@ -235,7 +237,9 @@ final class SendListProcessor: StateProcessor<SendListState, SendListAction, Sen
                     }
                 }
             } else {
-                for try await sections in try await services.sendRepository.sendListPublisher() {
+                for try await sections in try await services.sendRepository.sendListPublisher(
+                    includeTypesSection: state.restrictedSendType == nil,
+                ) {
                     let needsSync = try await services.vaultRepository.needsSync()
 
                     if needsSync, sections.isEmpty {

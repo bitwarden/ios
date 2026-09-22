@@ -397,16 +397,20 @@ class Fido2CredentialStoreServiceTests: BitwardenTestCase { // swiftlint:disable
     /// `.saveCredential(cred:)` add cipher to server when no id present.
     func test_saveCredential_add() async throws {
         try await subject.saveCredential(
-            cred: EncryptionContext(encryptedFor: "1", cipher: .fixture()),
+            cred: EncryptionContext(encryptedFor: "1", encryptedByKeyId: "key-1", cipher: .fixture()),
         )
         XCTAssertTrue(cipherService.addCipherWithServerCiphers.count == 1)
+        XCTAssertEqual(cipherService.addCipherWithServerEncryptedByKeyId, "key-1")
         XCTAssertEqual(cipherService.addCipherWithServerEncryptedFor, "1")
     }
 
     /// `.saveCredential(cred:)` add cipher to server when no id present.
     func test_saveCredential_update() async throws {
-        try await subject.saveCredential(cred: EncryptionContext(encryptedFor: "1", cipher: .fixture(id: "1")))
+        try await subject.saveCredential(
+            cred: EncryptionContext(encryptedFor: "1", encryptedByKeyId: "key-1", cipher: .fixture(id: "1")),
+        )
         XCTAssertTrue(cipherService.updateCipherWithServerCiphers.count == 1)
+        XCTAssertEqual(cipherService.updateCipherWithServerEncryptedByKeyId, "key-1")
         XCTAssertEqual(cipherService.updateCipherWithServerEncryptedFor, "1")
     }
 

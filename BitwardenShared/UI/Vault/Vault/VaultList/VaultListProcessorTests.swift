@@ -4,6 +4,7 @@ import BitwardenResources
 import BitwardenSdk
 import Combine
 import InlineSnapshotTesting
+import Networking
 import TestHelpers
 import XCTest
 
@@ -59,6 +60,7 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         billingRepository = MockBillingRepository()
         billingRepository.isInAppUpgradeAvailableReturnValue = false
         billingService = MockBillingService()
+        billingService.isSelfHostedReturnValue = false
         billingService.shouldShowSubscriptionAttentionCardReturnValue = false
         billingService.shouldShowUpgradedToPremiumActionCardReturnValue = false
         errorReporter = MockErrorReporter()
@@ -161,6 +163,38 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         XCTAssertEqual(reviewPromptService.userActions, [])
     }
 
+    /// `folderAdded(_:)` delegate method shows the expected toast.
+    @MainActor
+    func test_delegate_folderAdded() {
+        XCTAssertNil(subject.state.toast)
+
+        subject.folderAdded(.fixture())
+
+        XCTAssertEqual(subject.state.toast, Toast(title: Localizations.folderCreated))
+    }
+
+    /// `folderDeleted()` delegate method leaves the toast untouched, since folders can't be
+    /// deleted from the vault list.
+    @MainActor
+    func test_delegate_folderDeleted() {
+        subject.state.toast = Toast(title: Localizations.folderCreated)
+
+        subject.folderDeleted()
+
+        XCTAssertEqual(subject.state.toast, Toast(title: Localizations.folderCreated))
+    }
+
+    /// `folderEdited()` delegate method leaves the toast untouched, since folders can't be edited
+    /// from the vault list.
+    @MainActor
+    func test_delegate_folderEdited() {
+        subject.state.toast = Toast(title: Localizations.folderCreated)
+
+        subject.folderEdited()
+
+        XCTAssertEqual(subject.state.toast, Toast(title: Localizations.folderCreated))
+    }
+
     /// `perform(_:)` with `.checkAppReviewEligibility` schedules a review prompt if the user is eligible
     /// and the feature flags are enabled.
     @MainActor
@@ -197,6 +231,37 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
 
         subject.itemDeleted()
         XCTAssertEqual(subject.state.toast, Toast(title: Localizations.itemDeleted))
+    }
+
+    /// `itemAdded(type:)` delegate method shows the toast for the added item's type.
+    @MainActor
+    func test_delegate_itemAdded() {
+        XCTAssertNil(subject.state.toast)
+
+        let shouldDismiss = subject.itemAdded(type: .driversLicense)
+        XCTAssertTrue(shouldDismiss)
+        XCTAssertEqual(subject.state.toast, Toast(title: Localizations.licenseSaved))
+    }
+
+    /// `itemUpdated(type:)` delegate method shows the toast for the updated item's type, which
+    /// covers saving an edit started from the item's more options menu.
+    @MainActor
+    func test_delegate_itemUpdated() {
+        XCTAssertNil(subject.state.toast)
+
+        let shouldDismiss = subject.itemUpdated(type: .driversLicense)
+        XCTAssertTrue(shouldDismiss)
+        XCTAssertEqual(subject.state.toast, Toast(title: Localizations.licenseSaved))
+    }
+
+    /// `itemDismissed()` delegate method doesn't show a toast when the editor is dismissed
+    /// without saving.
+    @MainActor
+    func test_delegate_itemDismissed() {
+        let shouldDismiss = subject.itemDismissed()
+
+        XCTAssertTrue(shouldDismiss)
+        XCTAssertNil(subject.state.toast)
     }
 
     /// `itemSoftDeleted()` delegate method shows the expected toast.
@@ -250,6 +315,14 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         )
         XCTAssertEqual(subject.state.vaultFilterType, .allVaults)
         XCTAssertTrue(searchProcessorMediatorFactory.makeCalled)
+    }
+
+    /// `perform(_:)` with `.appeared` loads the vfo1-foundation feature flag.
+    @MainActor
+    func test_perform_appeared_featureFlags_vfo1Foundation() async {
+        configService.featureFlagsBool[.vfo1Foundation] = true
+        await subject.perform(.appeared)
+        XCTAssertTrue(subject.state.isVfo1FoundationFeatureFlagEnabled)
     }
 
     /// `perform(_:)` with `.appeared` starts listening for updates with the vault repository.
@@ -458,6 +531,72 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
 
         waitFor(subject.state.itemTypesUserCanCreate == [.card])
         task.cancel()
+    }
+
+    /// `perform(_:)` with `.appeared` loads the item types the user can create before refreshing
+    /// the vault, so the create menu reflects the correct types immediately rather than glitching
+    /// while the vault is syncing.
+    @MainActor
+    func test_perform_appeared_itemTypesUserCanCreate_loadsBeforeRefreshingVault() {
+        vaultRepository.getItemTypesUserCanCreateGated = true
+
+        let task = Task {
+            await subject.perform(.appeared)
+        }
+        defer { task.cancel() }
+
+        waitFor(vaultRepository.getItemTypesUserCanCreateContinuations.count == 1)
+        XCTAssertFalse(vaultRepository.fetchSyncCalled)
+
+        vaultRepository.getItemTypesUserCanCreateContinuations[0].resume(returning: [.card])
+        waitFor(vaultRepository.fetchSyncCalled)
+    }
+
+    /// `perform(_:)` with `.streamSyncComplete` reloads the item types the user can create
+    /// whenever a sync completes, so feature-flag or policy changes picked up by the sync are
+    /// reflected without needing the screen to reappear.
+    @MainActor
+    func test_perform_streamSyncComplete_reloadsItemTypesUserCanCreate() {
+        let task = Task {
+            await subject.perform(.streamSyncComplete)
+        }
+        defer { task.cancel() }
+
+        vaultRepository.getItemTypesUserCanCreateResult = [.card]
+        syncService.syncCompleteSubject.send(())
+
+        waitFor(subject.state.itemTypesUserCanCreate == [.card])
+        XCTAssertEqual(subject.state.itemTypesUserCanCreate, [.card])
+    }
+
+    /// Loading the item types the user can create discards a stale result from an older,
+    /// slower-resolving call when a newer, overlapping call has already updated the state.
+    @MainActor
+    func test_loadItemTypesUserCanCreate_discardsStaleResults_fromOverlappingCalls() {
+        vaultRepository.getItemTypesUserCanCreateGated = true
+
+        let firstTask = Task { await subject.perform(.appeared) }
+        defer { firstTask.cancel() }
+        waitFor(vaultRepository.getItemTypesUserCanCreateContinuations.count == 1)
+
+        let secondTask = Task { await subject.perform(.appeared) }
+        defer { secondTask.cancel() }
+        waitFor(vaultRepository.getItemTypesUserCanCreateContinuations.count == 2)
+
+        // The newer, second call resolves first.
+        vaultRepository.getItemTypesUserCanCreateContinuations[1].resume(returning: [.card])
+        waitFor(subject.state.itemTypesUserCanCreate == [.card])
+
+        // The older, first call resolving afterwards must not overwrite the newer result.
+        vaultRepository.getItemTypesUserCanCreateContinuations[0].resume(returning: [.login])
+
+        // Give the stale result a chance to (wrongly) apply, then confirm it didn't.
+        let deadline = Date(timeIntervalSinceNow: 0.25)
+        while Date() < deadline {
+            RunLoop.current.run(mode: .default, before: Date(timeIntervalSinceNow: 0.05))
+        }
+
+        XCTAssertEqual(subject.state.itemTypesUserCanCreate, [.card])
     }
 
     /// `perform(_:)` with `.appeared` loads organization user notification banner data from the policy service.
@@ -813,6 +952,17 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         XCTAssertEqual(vaultRepository.fetchSyncForceSync, false)
     }
 
+    /// `perform(_:)` with `.refreshVault` leaves a toast that was shown for an unrelated reason
+    /// in place, rather than clearing it once the sync completes.
+    @MainActor
+    func test_perform_refreshVault_doesNotDismissUnrelatedToast() async {
+        subject.state.toast = Toast(title: Localizations.folderCreated)
+
+        await subject.perform(.refreshVault)
+
+        XCTAssertEqual(subject.state.toast, Toast(title: Localizations.folderCreated))
+    }
+
     /// `perform(_:)` with `.refreshVault` requests a vault sync and sets the loading state if the
     /// vault is empty; in this case sync is not flagged as periodic.
     @MainActor
@@ -841,7 +991,7 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         XCTAssertEqual(
             subject.state.loadingState,
             .error(
-                errorMessage: Localizations.weAreUnableToProcessYourRequestPleaseTryAgainOrContactUs,
+                errorMessage: Localizations.weCouldntSyncYourVaultWithTheServerDescriptionLong,
             ),
         )
     }
@@ -856,7 +1006,10 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         await subject.perform(.refreshVault)
 
         XCTAssertTrue(vaultRepository.fetchSyncCalled)
-        XCTAssertEqual(coordinator.errorAlertsShown as? [BitwardenTestError], [.example])
+        XCTAssertEqual(
+            coordinator.alertShown.last,
+            .syncUnsuccessful(message: Localizations.weCouldntSyncYourVaultWithTheServerDescriptionLong) {},
+        )
         XCTAssertEqual(errorReporter.errors.last as? BitwardenTestError, .example)
         XCTAssertEqual(subject.state.loadingState, .data([section]))
     }
@@ -871,9 +1024,152 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         await subject.perform(.refreshVault)
 
         XCTAssertTrue(vaultRepository.fetchSyncCalled)
-        XCTAssertEqual(coordinator.errorAlertsShown as? [BitwardenTestError], [.example])
+        XCTAssertEqual(
+            coordinator.alertShown.last,
+            .syncUnsuccessful(message: Localizations.weCouldntSyncYourVaultWithTheServerDescriptionLong) {},
+        )
         XCTAssertEqual(errorReporter.errors.last as? BitwardenTestError, .example)
         XCTAssertEqual(subject.state.loadingState, .data([section]))
+    }
+
+    /// `perform(_:)` with `.refreshed` records an error and changes the loading state to `.error`
+    /// when the cached data contains zero sections.
+    @MainActor
+    func test_perform_refreshed_error_emptySections() async {
+        subject.state.loadingState = .data([])
+        vaultRepository.fetchSyncResult = .failure(BitwardenTestError.example)
+        vaultRepository.needsSyncResult = .success(true)
+        await subject.perform(.refreshVault)
+
+        XCTAssertTrue(vaultRepository.fetchSyncCalled)
+        XCTAssertTrue(coordinator.alertShown.isEmpty)
+        XCTAssertEqual(errorReporter.errors.last as? BitwardenTestError, .example)
+        XCTAssertEqual(
+            subject.state.loadingState,
+            .error(
+                errorMessage: Localizations.weCouldntSyncYourVaultWithTheServerDescriptionLong,
+            ),
+        )
+    }
+
+    /// `perform(_:)` with `.refreshed` shows the sync unsuccessful alert and preserves the cached
+    /// data when the loading state is `.loading` over cached sections.
+    @MainActor
+    func test_perform_refreshed_error_loadingWithCachedData() async {
+        let section = VaultListSection(id: "1", items: [.fixture()], name: "Section")
+        subject.state.loadingState = .loading([section])
+        vaultRepository.fetchSyncResult = .failure(BitwardenTestError.example)
+        vaultRepository.needsSyncResult = .success(true)
+        await subject.perform(.refreshVault)
+
+        XCTAssertTrue(vaultRepository.fetchSyncCalled)
+        XCTAssertEqual(
+            coordinator.alertShown.last,
+            .syncUnsuccessful(message: Localizations.weCouldntSyncYourVaultWithTheServerDescriptionLong) {},
+        )
+        XCTAssertEqual(subject.state.loadingState, .loading([section]))
+    }
+
+    /// Tapping "Not now" on the sync unsuccessful alert doesn't retry the sync or change the
+    /// loading state.
+    @MainActor
+    func test_perform_refreshed_error_notNow() async throws {
+        let section = VaultListSection(id: "1", items: [.fixture()], name: "Section")
+        subject.state.loadingState = .data([section])
+        vaultRepository.fetchSyncResult = .failure(BitwardenTestError.example)
+        vaultRepository.needsSyncResult = .success(true)
+        await subject.perform(.refreshVault)
+
+        vaultRepository.fetchSyncCalled = false
+        try await coordinator.alertShown.last?.tapAction(title: Localizations.notNow)
+
+        XCTAssertFalse(vaultRepository.fetchSyncCalled)
+        XCTAssertEqual(coordinator.alertShown.count, 1)
+        XCTAssertEqual(subject.state.loadingState, .data([section]))
+    }
+
+    /// `perform(_:)` with `.refreshed` surfaces a server-supplied error message in the sync
+    /// unsuccessful alert rather than the generic copy.
+    @MainActor
+    func test_perform_refreshed_error_serverError() async throws {
+        let response = HTTPResponse.failure(statusCode: 400, body: APITestData.bitwardenErrorMessage.data)
+        let serverError = try ServerError.error(errorResponse: ErrorResponseModel(response: response))
+        let section = VaultListSection(id: "1", items: [.fixture()], name: "Section")
+        subject.state.loadingState = .data([section])
+        vaultRepository.fetchSyncResult = .failure(serverError)
+        vaultRepository.needsSyncResult = .success(true)
+        await subject.perform(.refreshVault)
+
+        XCTAssertEqual(coordinator.alertShown.last, .syncUnsuccessful(message: serverError.message) {})
+        XCTAssertEqual(subject.state.loadingState, .data([section]))
+    }
+
+    /// `perform(_:)` with `.refreshed` surfaces a server-supplied error message in the full screen
+    /// error view when there's no cached data.
+    @MainActor
+    func test_perform_refreshed_error_serverError_emptyState() async throws {
+        let response = HTTPResponse.failure(statusCode: 400, body: APITestData.bitwardenErrorMessage.data)
+        let serverError = try ServerError.error(errorResponse: ErrorResponseModel(response: response))
+        vaultRepository.fetchSyncResult = .failure(serverError)
+        vaultRepository.needsSyncResult = .success(true)
+        await subject.perform(.refreshVault)
+
+        XCTAssertTrue(coordinator.alertShown.isEmpty)
+        XCTAssertEqual(subject.state.loadingState, .error(errorMessage: serverError.message))
+    }
+
+    /// Tapping "Try again" on the sync unsuccessful alert performs a non-periodic sync without
+    /// forcing it, and leaves the cached data on screen.
+    @MainActor
+    func test_perform_refreshed_error_tryAgain() async throws {
+        let section = VaultListSection(id: "1", items: [.fixture()], name: "Section")
+        subject.state.loadingState = .data([section])
+        vaultRepository.fetchSyncResult = .failure(BitwardenTestError.example)
+        vaultRepository.needsSyncResult = .success(true)
+        await subject.perform(.refreshVault)
+
+        vaultRepository.fetchSyncCalled = false
+        vaultRepository.fetchSyncResult = .success(())
+        try await coordinator.alertShown.last?.tapAction(title: Localizations.tryAgain)
+
+        XCTAssertTrue(vaultRepository.fetchSyncCalled)
+        XCTAssertEqual(vaultRepository.fetchSyncForceSync, false)
+        XCTAssertEqual(vaultRepository.fetchSyncIsPeriodic, false)
+        XCTAssertEqual(subject.state.loadingState, .data([section]))
+    }
+
+    /// Tapping "Try again" on the sync unsuccessful alert shows the alert again if the retried
+    /// sync also fails.
+    @MainActor
+    func test_perform_refreshed_error_tryAgain_repeatedFailure() async throws {
+        let section = VaultListSection(id: "1", items: [.fixture()], name: "Section")
+        subject.state.loadingState = .data([section])
+        vaultRepository.fetchSyncResult = .failure(BitwardenTestError.example)
+        vaultRepository.needsSyncResult = .success(true)
+        await subject.perform(.refreshVault)
+
+        try await coordinator.alertShown.last?.tapAction(title: Localizations.tryAgain)
+
+        let expectedAlert = Alert.syncUnsuccessful(
+            message: Localizations.weCouldntSyncYourVaultWithTheServerDescriptionLong,
+        ) {}
+        XCTAssertEqual(coordinator.alertShown.count, 2)
+        XCTAssertEqual(coordinator.alertShown, [expectedAlert, expectedAlert])
+        XCTAssertEqual(errorReporter.errors.count, 2)
+        XCTAssertEqual(subject.state.loadingState, .data([section]))
+    }
+
+    /// `perform(_:)` with `.refreshed` shows the generic error alert, not the sync unsuccessful
+    /// alert, when the sync succeeds but the local vault empty check fails.
+    @MainActor
+    func test_perform_refreshed_isVaultEmptyError() async {
+        vaultRepository.fetchSyncResult = .success(())
+        vaultRepository.isVaultEmptyResult = .failure(BitwardenTestError.example)
+        await subject.perform(.refreshVault)
+
+        XCTAssertTrue(coordinator.alertShown.isEmpty)
+        XCTAssertEqual(coordinator.errorAlertsShown as? [BitwardenTestError], [.example])
+        XCTAssertEqual(errorReporter.errors.last as? BitwardenTestError, .example)
     }
 
     /// `perform(.refreshAccountProfiles)` without profiles for the profile switcher.
@@ -1314,6 +1610,44 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         try await waitForAsync { self.subject.state.loadingState == .data([section]) }
 
         XCTAssertEqual(stateService.accountSetupImportLogins["1"], .complete)
+    }
+
+    /// `perform(_:)` with `.streamVaultList` dismisses the toast shown while the vault was taking
+    /// a long time to load, once vault data arrives.
+    @MainActor
+    func test_perform_streamVaultList_dismissesSlowLoadingToast() {
+        subject.state.toast = Toast(title: Localizations.thisIsTakingLongerThanExpected, mode: .manualDismiss)
+        vaultRepository.vaultListSubject.send(VaultListData(
+            sections: [VaultListSection(id: "1", items: [.fixture()], name: "Name")],
+        ))
+
+        let task = Task {
+            await subject.perform(.streamVaultList)
+        }
+
+        waitFor(subject.state.toast == nil)
+        task.cancel()
+
+        XCTAssertNil(subject.state.toast)
+    }
+
+    /// `perform(_:)` with `.streamVaultList` leaves a toast that was shown for an unrelated reason
+    /// in place when vault data arrives, so that it isn't cleared out from under the user.
+    @MainActor
+    func test_perform_streamVaultList_doesNotDismissUnrelatedToast() {
+        subject.state.toast = Toast(title: Localizations.folderCreated)
+        vaultRepository.vaultListSubject.send(VaultListData(
+            sections: [VaultListSection(id: "1", items: [.fixture()], name: "Name")],
+        ))
+
+        let task = Task {
+            await subject.perform(.streamVaultList)
+        }
+
+        waitFor(subject.state.loadingState != .loading(nil))
+        task.cancel()
+
+        XCTAssertEqual(subject.state.toast, Toast(title: Localizations.folderCreated))
     }
 
     /// `perform(_:)` with `.streamVaultList` doesn't dismiss the import logins action card if the
@@ -1977,12 +2311,14 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         XCTAssertEqual(coordinator.routes.last, .addAccount)
     }
 
-    /// `receive(_:)` with `.addFolder` navigates to the `.addFolder` route.
+    /// `receive(_:)` with `.addFolder` navigates to the `.addFolder` route with the processor as
+    /// the delegate.
     @MainActor
     func test_receive_addFolder() {
         subject.receive(.addFolder)
 
         XCTAssertEqual(coordinator.routes.last, .addFolder)
+        XCTAssertIdentical(coordinator.contexts.last as? AddEditFolderDelegate, subject)
     }
 
     /// `receive(_:)` with `.addItemPressed` navigates to the `.addItem` route.

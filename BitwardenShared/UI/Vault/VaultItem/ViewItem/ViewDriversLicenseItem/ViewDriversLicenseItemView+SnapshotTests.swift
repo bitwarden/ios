@@ -61,10 +61,10 @@ class ViewDriversLicenseItemViewTests: BitwardenTestCase {
     /// A fully populated driver's license state for snapshots.
     private func populatedState() -> DriversLicenseItemState {
         DriversLicenseItemState(
-            dateOfBirth: "1989-08-01",
-            expirationDate: "2029-08-01",
+            dateOfBirth: Date(year: 1989, month: 8, day: 1),
+            expirationDate: Date(year: 2029, month: 8, day: 1),
             firstName: "Bit",
-            issueDate: "2019-08-01",
+            issueDate: Date(year: 2019, month: 8, day: 1),
             issuingAuthority: "DMV",
             issuingCountry: "United States",
             issuingState: "California",

@@ -40,8 +40,8 @@ struct DateFieldPickerShowcaseView: View {
             }
 
             Section {
-                if let selectedDate = store.state.selectedDate {
-                    Text(Localizations.selectedDateValue(selectedDate.formatted(date: .long, time: .omitted)))
+                if store.state.selectedDate != nil {
+                    Text(Localizations.selectedDateValue(store.state.selectedDateDisplay))
                         .styleGuide(.body)
                 } else {
                     Text(Localizations.noDateSelected)

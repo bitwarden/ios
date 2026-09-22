@@ -23,6 +23,7 @@ final class VaultListProcessor: StateProcessor<
         & HasBillingRepository
         & HasBillingService
         & HasChangeKdfService
+        & HasConfigService
         & HasEnvironmentService
         & HasErrorReporter
         & HasEventService
@@ -37,6 +38,14 @@ final class VaultListProcessor: StateProcessor<
         & HasTimeProvider
         & HasVaultRepository
 
+    // MARK: Static Properties
+
+    /// The toast shown while the vault is taking an unusually long time to load. A new instance is
+    /// returned on each access so that the view animates between successive toasts.
+    private static var slowLoadingToast: Toast {
+        Toast(title: Localizations.thisIsTakingLongerThanExpected, mode: .manualDismiss)
+    }
+
     // MARK: Private Properties
 
     /// The `Coordinator` that handles navigation.
@@ -45,6 +54,10 @@ final class VaultListProcessor: StateProcessor<
     /// Whether the cipher decryption failure alert was shown to the user, if the vault has any
     /// ciphers which failed to decrypt.
     private(set) var hasShownCipherDecryptionFailureAlert = false
+
+    /// A monotonically increasing token used to discard stale results from overlapping
+    /// `loadItemTypesUserCanCreate()` calls.
+    private var itemTypesLoadGeneration = 0
 
     /// The helper to handle master password reprompts.
     private let masterPasswordRepromptHelper: MasterPasswordRepromptHelper
@@ -141,6 +154,8 @@ final class VaultListProcessor: StateProcessor<
             await streamOrganizations()
         case .streamShowWebIcons:
             await streamShowWebIcons()
+        case .streamSyncComplete:
+            await streamSyncComplete()
         case .streamVaultList:
             await streamVaultList()
         case .tryAgainTapped:
@@ -151,7 +166,7 @@ final class VaultListProcessor: StateProcessor<
     override func receive(_ action: VaultListAction) {
         switch action {
         case .addFolder:
-            coordinator.navigate(to: .addFolder)
+            coordinator.navigate(to: .addFolder, context: self)
         case let .addItemPressed(type):
             addItem(type: type)
         case .appReviewPromptShown:
@@ -234,13 +249,19 @@ extension VaultListProcessor {
 
     /// Called when the vault list appears on screen.
     private func appeared() async {
+        state.isVfo1FoundationFeatureFlagEnabled = await services.configService.getFeatureFlag(.vfo1Foundation)
+
+        // This is being loaded before and after syncing to avoid glitches on which cipher types
+        // are allowed while the vault is being refreshed/synced, as feature flags or policies may change that.
+        await loadItemTypesUserCanCreate()
+
         await refreshVault(syncWithPeriodicCheck: true)
+
         // Read after sync so the cache has been refreshed by onFetchSyncSucceeded if a sync ran.
         await refreshPremiumActionCards()
         await handleNotifications()
         await checkPendingLoginRequests()
         await checkPersonalOwnershipPolicy()
-        await loadItemTypesUserCanCreate()
         await loadOrganizationUserNotificationBannerData()
 
         state.hasPremium = await services.stateService.doesActiveAccountHavePremium()
@@ -312,8 +333,13 @@ extension VaultListProcessor {
 
     /// Checks available item types user can create.
     ///
+    @MainActor
     private func loadItemTypesUserCanCreate() async {
-        state.itemTypesUserCanCreate = await services.vaultRepository.getItemTypesUserCanCreate()
+        itemTypesLoadGeneration += 1
+        let generation = itemTypesLoadGeneration
+        let itemTypes = await services.vaultRepository.getItemTypesUserCanCreate()
+        guard generation == itemTypesLoadGeneration else { return } // A newer call superseded this one.
+        state.itemTypesUserCanCreate = itemTypes
     }
 
     /// Dismisses the archive onboarding action card and persists the preference.
@@ -362,6 +388,17 @@ extension VaultListProcessor {
         } catch {
             services.errorReporter.log(error: error)
         }
+    }
+
+    /// Dismisses the toast shown while the vault is taking an unusually long time to load, if
+    /// that's the toast currently displayed.
+    ///
+    /// Any other toast is left in place, so that a toast shown in response to a folder or item
+    /// operation isn't cleared out from under the user when the vault list refreshes.
+    ///
+    private func dismissSlowLoadingToast() {
+        guard state.toast == Self.slowLoadingToast else { return }
+        state.toast = nil
     }
 
     /// If the vault has ciphers which failed to decrypt, and the cipher decryption failure alert
@@ -420,6 +457,33 @@ extension VaultListProcessor {
         }
     }
 
+    /// Handles a failure to sync the vault, showing the full screen error view when there's no
+    /// cached data and a sync is needed, and a dialog offering a retry otherwise.
+    ///
+    /// - Parameters:
+    ///   - error: The error thrown by the sync.
+    ///
+    private func handleSyncFailure(error: Error) async {
+        services.errorReporter.log(error: error)
+
+        let message = (error as? ServerError)?.message
+            ?? Localizations.weCouldntSyncYourVaultWithTheServerDescriptionLong
+        let needsSync = try? await services.vaultRepository.needsSync()
+        if needsSync == true {
+            // If the vault needs a sync and there are cached items,
+            // display the cached data behind a dialog offering a retry.
+            if let sections = state.loadingState.data, !sections.isEmpty {
+                showSyncUnsuccessfulAlert(message: message)
+            } else {
+                // If the vault needs a sync and there were no cached items,
+                // show the full screen error view.
+                state.loadingState = .error(errorMessage: message)
+            }
+        } else {
+            showSyncUnsuccessfulAlert(message: message)
+        }
+    }
+
     /// Loads the organization user notification banner data, suppressing it when the user has already dismissed
     /// the banner for the current policy revision.
     private func loadOrganizationUserNotificationBannerData() async {
@@ -471,7 +535,10 @@ extension VaultListProcessor {
             await services.billingService.shouldShowUpgradedToPremiumActionCard()
 
         let isBannerDismissed = await services.stateService.isPremiumUpgradeBannerDismissed()
-        guard !isBannerDismissed, !state.shouldShowSubscriptionAttentionCard else {
+        guard !isBannerDismissed,
+              !state.shouldShowSubscriptionAttentionCard,
+              await !services.billingService.isSelfHosted()
+        else {
             state.shouldShowPremiumUpgradeActionCard = false
             return
         }
@@ -489,17 +556,25 @@ extension VaultListProcessor {
                 try await Task.sleep(forSeconds: 5)
                 // If we already have data, don't show the toast
                 guard case .loading = self.state.loadingState else { return }
-                self.state.toast = Toast(title: Localizations.thisIsTakingLongerThanExpected, mode: .manualDismiss)
+                self.state.toast = Self.slowLoadingToast
             }
             defer {
-                state.toast = nil
                 takingTimeTask.cancel()
+                dismissSlowLoadingToast()
             }
 
-            try await services.vaultRepository.fetchSync(
-                forceSync: false,
-                isPeriodic: syncWithPeriodicCheck,
-            )
+            do {
+                try await services.vaultRepository.fetchSync(
+                    forceSync: false,
+                    isPeriodic: syncWithPeriodicCheck,
+                )
+            } catch URLError.cancelled {
+                // No-op: don't log or alert for cancellation errors.
+                return
+            } catch {
+                await handleSyncFailure(error: error)
+                return
+            }
 
             if try await services.vaultRepository.isVaultEmpty() {
                 // Normally after syncing the database will publish the contents of the vault which is
@@ -509,27 +584,9 @@ extension VaultListProcessor {
             }
 
             await checkIfForceKdfUpdateRequired()
-        } catch URLError.cancelled {
-            // No-op: don't log or alert for cancellation errors.
         } catch {
             services.errorReporter.log(error: error)
-
-            let needsSync = try? await services.vaultRepository.needsSync()
-            if needsSync == true {
-                // If the vault needs a sync and there are cached items,
-                // display the cached data and show an error alert.
-                if let sections = state.loadingState.data, !sections.isEmpty {
-                    await coordinator.showErrorAlert(error: error)
-                } else {
-                    // If the vault needs a sync and there were no cached items,
-                    // show the full screen error view.
-                    state.loadingState = .error(
-                        errorMessage: Localizations.weAreUnableToProcessYourRequestPleaseTryAgainOrContactUs,
-                    )
-                }
-            } else {
-                await coordinator.showErrorAlert(error: error)
-            }
+            await coordinator.showErrorAlert(error: error)
         }
     }
 
@@ -655,6 +712,7 @@ extension VaultListProcessor {
     private func morePressed(item: VaultListItem) async {
         await vaultItemMoreOptionsHelper.showMoreOptionsAlert(
             for: item,
+            delegate: self,
             handleDisplayToast: { [weak self] toast in
                 self?.state.toast = toast
             },
@@ -682,6 +740,17 @@ extension VaultListProcessor {
     private func navigateToPremiumUpgrade() async {
         await premiumUpgradeHelper.navigateToPremiumUpgrade(onConfirmed: { [weak self] in
             await self?.handlePremiumUpgradeConfirmed()
+        })
+    }
+
+    /// Shows the sync unsuccessful alert, with "Try again" wired to a non-periodic vault refresh.
+    ///
+    /// - Parameters:
+    ///   - message: The message to display in the alert.
+    ///
+    private func showSyncUnsuccessfulAlert(message: String) {
+        coordinator.showAlert(.syncUnsuccessful(message: message) { [weak self] in
+            await self?.refreshVault(syncWithPeriodicCheck: false)
         })
     }
 
@@ -748,6 +817,13 @@ extension VaultListProcessor {
         }
     }
 
+    /// Streams sync-complete events to keep up-to-date sync-related features here.
+    private func streamSyncComplete() async {
+        for await _ in services.syncService.syncCompletePublisher() {
+            await loadItemTypesUserCanCreate()
+        }
+    }
+
     /// Streams the user's vault list.
     private func streamVaultList() async {
         do {
@@ -769,7 +845,7 @@ extension VaultListProcessor {
                 if !needsSync || !value.isEmpty {
                     // Dismiss the "this is taking a while" toast now that we have data,
                     // since this might not happen because of the sync in `refreshVault()`.
-                    state.toast = nil
+                    dismissSlowLoadingToast()
                     // If the data is not empty or if a sync is not needed, set the data.
                     state.loadingState = .data(value)
                 } else {
@@ -808,9 +884,30 @@ extension VaultListProcessor {
     }
 }
 
+// MARK: - AddEditFolderDelegate
+
+extension VaultListProcessor: AddEditFolderDelegate {
+    func folderAdded(_: FolderView) {
+        state.toast = Toast(title: Localizations.folderCreated)
+    }
+
+    func folderDeleted() {
+        // No-op: deleting a folder isn't supported from the vault list.
+    }
+
+    func folderEdited() {
+        // No-op: editing a folder isn't supported from the vault list.
+    }
+}
+
 // MARK: - CipherItemOperationDelegate
 
 extension VaultListProcessor: CipherItemOperationDelegate {
+    func itemAdded(type: CipherType) -> Bool {
+        state.toast = Toast(title: type.savedToastTitle)
+        return true
+    }
+
     func itemArchived() {
         state.toast = Toast(title: Localizations.itemMovedToArchive)
     }
@@ -829,6 +926,11 @@ extension VaultListProcessor: CipherItemOperationDelegate {
 
     func itemUnarchived() {
         state.toast = Toast(title: Localizations.itemMovedToVault)
+    }
+
+    func itemUpdated(type: CipherType) -> Bool {
+        state.toast = Toast(title: type.savedToastTitle)
+        return true
     }
 }
 

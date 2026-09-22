@@ -89,7 +89,12 @@ public extension CipherListViewType {
     init(cipher: Cipher) {
         switch cipher.type {
         case .bankAccount:
-            self = .bankAccount
+            self = .bankAccount(
+                BankAccountListView(
+                    accountNumber: nil,
+                    accountType: nil,
+                ),
+            )
         case .card:
             self = .card(.init(brand: nil))
         case .driversLicense:
@@ -544,8 +549,8 @@ public extension SshKeyView {
     init(sshKey: SshKey) {
         self.init(
             privateKey: sshKey.privateKey,
-            publicKey: sshKey.publicKey,
-            fingerprint: sshKey.fingerprint,
+            publicKey: sshKey.publicKey ?? "",
+            fingerprint: sshKey.fingerprint ?? "",
         )
     }
 }

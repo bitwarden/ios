@@ -117,6 +117,11 @@ extension ProfileSwitcherHandler {
             await select(account)
         case .addAccountPressed:
             hideProfileSwitcher()
+            do {
+                try await profileServices.authRepository.setLastActiveAccountTime()
+            } catch {
+                profileServices.errorReporter.log(error: error)
+            }
             showAddAccount()
         case .refreshAccountProfiles:
             await refreshProfileState()

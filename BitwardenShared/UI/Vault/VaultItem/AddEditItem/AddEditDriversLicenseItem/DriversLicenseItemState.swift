@@ -1,15 +1,16 @@
 import BitwardenSdk
+import Foundation
 
 // MARK: - DriversLicenseItemState
 
 /// A model for a driver's license item.
 ///
 struct DriversLicenseItemState: Equatable {
-    /// The date of birth on the license, held as a raw ISO string.
-    var dateOfBirth: String = ""
+    /// The date of birth on the license.
+    var dateOfBirth: Date?
 
-    /// The expiration date of the license, held as a raw ISO string.
-    var expirationDate: String = ""
+    /// The expiration date of the license.
+    var expirationDate: Date?
 
     /// The first name on the license.
     var firstName: String = ""
@@ -17,8 +18,8 @@ struct DriversLicenseItemState: Equatable {
     /// Whether the license number is visible.
     var isLicenseNumberVisible: Bool = false
 
-    /// The issue date of the license, held as a raw ISO string.
-    var issueDate: String = ""
+    /// The issue date of the license.
+    var issueDate: Date?
 
     /// The authority that issued the license.
     var issuingAuthority: String = ""
@@ -48,12 +49,12 @@ extension DriversLicenseItemState {
             firstName: firstName.nilIfEmpty,
             middleName: middleName.nilIfEmpty,
             lastName: lastName.nilIfEmpty,
-            dateOfBirth: dateOfBirth.nilIfEmpty,
+            dateOfBirth: dateOfBirth,
             licenseNumber: licenseNumber.nilIfEmpty,
             issuingCountry: issuingCountry.nilIfEmpty,
             issuingState: issuingState.nilIfEmpty,
-            issueDate: issueDate.nilIfEmpty,
-            expirationDate: expirationDate.nilIfEmpty,
+            issueDate: issueDate,
+            expirationDate: expirationDate,
             issuingAuthority: issuingAuthority.nilIfEmpty,
             licenseClass: licenseClass.nilIfEmpty,
         )

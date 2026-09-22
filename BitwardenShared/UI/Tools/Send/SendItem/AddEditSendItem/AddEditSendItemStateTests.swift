@@ -1,3 +1,4 @@
+import BitwardenResources
 import BitwardenSdk
 import XCTest
 
@@ -5,6 +6,36 @@ import XCTest
 
 class AddEditSendItemStateTests: BitwardenTestCase { // swiftlint:disable:this type_body_length
     // MARK: Tests
+
+    // MARK: isAccessTypeEnforcedByPolicy
+
+    /// `isAccessTypeEnforcedByPolicy` is `false` when no access type is enforced by policy.
+    func test_isAccessTypeEnforcedByPolicy_notEnforced() {
+        let subject = AddEditSendItemState(sendPolicyOptions: SendPolicyOptions(enforcedAccessType: nil))
+        XCTAssertFalse(subject.isAccessTypeEnforcedByPolicy)
+    }
+
+    /// `isAccessTypeEnforcedByPolicy` is `true` when an access type is enforced by policy.
+    func test_isAccessTypeEnforcedByPolicy_enforced() {
+        let subject = AddEditSendItemState(
+            sendPolicyOptions: SendPolicyOptions(enforcedAccessType: .anyoneWithPassword),
+        )
+        XCTAssertTrue(subject.isAccessTypeEnforcedByPolicy)
+    }
+
+    // MARK: isDeletionDateEnforcedByPolicy
+
+    /// `isDeletionDateEnforcedByPolicy` is `true` when a deletion date is enforced by policy.
+    func test_isDeletionDateEnforcedByPolicy_enforced() {
+        let subject = AddEditSendItemState(sendPolicyOptions: SendPolicyOptions(enforcedDeletionDateHours: 168))
+        XCTAssertTrue(subject.isDeletionDateEnforcedByPolicy)
+    }
+
+    /// `isDeletionDateEnforcedByPolicy` is `false` when no deletion date is enforced by policy.
+    func test_isDeletionDateEnforcedByPolicy_notEnforced() {
+        let subject = AddEditSendItemState(sendPolicyOptions: SendPolicyOptions(enforcedDeletionDateHours: nil))
+        XCTAssertFalse(subject.isDeletionDateEnforcedByPolicy)
+    }
 
     // MARK: normalizedRecipientEmails
 
@@ -38,6 +69,20 @@ class AddEditSendItemStateTests: BitwardenTestCase { // swiftlint:disable:this t
     func test_normalizedRecipientEmails_trimsWhitespace() {
         let subject = AddEditSendItemState(recipientEmails: ["  test@example.com  ", "\tanother@example.com\n"])
         XCTAssertEqual(subject.normalizedRecipientEmails, ["test@example.com", "another@example.com"])
+    }
+
+    // MARK: policyEnforcedDeletionDate
+
+    /// `policyEnforcedDeletionDate` maps the enforced hours to the matching deletion date type.
+    func test_policyEnforcedDeletionDate_enforced() {
+        let subject = AddEditSendItemState(sendPolicyOptions: SendPolicyOptions(enforcedDeletionDateHours: 168))
+        XCTAssertEqual(subject.policyEnforcedDeletionDate, .sevenDays)
+    }
+
+    /// `policyEnforcedDeletionDate` is `nil` when no deletion date is enforced by policy.
+    func test_policyEnforcedDeletionDate_notEnforced() {
+        let subject = AddEditSendItemState(sendPolicyOptions: SendPolicyOptions(enforcedDeletionDateHours: nil))
+        XCTAssertNil(subject.policyEnforcedDeletionDate)
     }
 
     // MARK: shouldShowTrashIcon
@@ -75,7 +120,7 @@ class AddEditSendItemStateTests: BitwardenTestCase { // swiftlint:disable:this t
         let subject = AddEditSendItemState(mode: .add)
         XCTAssertEqual(
             subject.availableDeletionDateTypes,
-            [.oneHour, .oneDay, .twoDays, .threeDays, .sevenDays, .thirtyDays],
+            [.oneHour, .oneDay, .twoDays, .threeDays, .sevenDays, .fourteenDays, .thirtyDays],
         )
     }
 
@@ -86,7 +131,7 @@ class AddEditSendItemStateTests: BitwardenTestCase { // swiftlint:disable:this t
         let subject = AddEditSendItemState(customDeletionDate: deletionDate, mode: .edit)
         XCTAssertEqual(
             subject.availableDeletionDateTypes,
-            [.oneHour, .oneDay, .twoDays, .threeDays, .sevenDays, .thirtyDays, .custom(deletionDate)],
+            [.oneHour, .oneDay, .twoDays, .threeDays, .sevenDays, .fourteenDays, .thirtyDays, .custom(deletionDate)],
         )
     }
 
@@ -96,11 +141,11 @@ class AddEditSendItemStateTests: BitwardenTestCase { // swiftlint:disable:this t
         let subject = AddEditSendItemState(mode: .shareExtension(.singleAccount))
         XCTAssertEqual(
             subject.availableDeletionDateTypes,
-            [.oneHour, .oneDay, .twoDays, .threeDays, .sevenDays, .thirtyDays],
+            [.oneHour, .oneDay, .twoDays, .threeDays, .sevenDays, .fourteenDays, .thirtyDays],
         )
     }
 
-    func test_newSendView_text() {
+    func test_newSendView_text() throws {
         let date = Date(year: 2023, month: 11, day: 5)
         let subject = AddEditSendItemState(
             accessType: .anyoneWithPassword,
@@ -118,7 +163,7 @@ class AddEditSendItemStateTests: BitwardenTestCase { // swiftlint:disable:this t
             text: "Text",
             type: .text,
         )
-        let sendView = subject.newSendView()
+        let sendView = try subject.newSendView()
         XCTAssertNil(sendView.id)
         XCTAssertNil(sendView.accessId)
         XCTAssertEqual(sendView.name, "Name")
@@ -142,7 +187,7 @@ class AddEditSendItemStateTests: BitwardenTestCase { // swiftlint:disable:this t
 
     /// `newSendView()` correctly sets access type and emails for specific people,
     /// filtering empty emails and normalizing (trimming and lowercasing) them.
-    func test_newSendView_specificPeople() {
+    func test_newSendView_specificPeople() throws {
         let date = Date(year: 2023, month: 11, day: 5)
         let subject = AddEditSendItemState(
             accessType: .specificPeople,
@@ -153,7 +198,7 @@ class AddEditSendItemStateTests: BitwardenTestCase { // swiftlint:disable:this t
             text: "Text",
             type: .text,
         )
-        let sendView = subject.newSendView()
+        let sendView = try subject.newSendView()
         XCTAssertEqual(sendView.authType, .email)
         XCTAssertEqual(sendView.emails, ["test@example.com", "another@example.com"])
         XCTAssertFalse(sendView.hasPassword)
@@ -161,7 +206,7 @@ class AddEditSendItemStateTests: BitwardenTestCase { // swiftlint:disable:this t
     }
 
     /// `newSendView()` correctly sets access type for anyone with link.
-    func test_newSendView_anyoneWithLink() {
+    func test_newSendView_anyoneWithLink() throws {
         let date = Date(year: 2023, month: 11, day: 5)
         let subject = AddEditSendItemState(
             accessType: .anyoneWithLink,
@@ -171,14 +216,14 @@ class AddEditSendItemStateTests: BitwardenTestCase { // swiftlint:disable:this t
             text: "Text",
             type: .text,
         )
-        let sendView = subject.newSendView()
+        let sendView = try subject.newSendView()
         XCTAssertEqual(sendView.authType, .none)
         XCTAssertTrue(sendView.emails.isEmpty)
         XCTAssertFalse(sendView.hasPassword)
     }
 
     /// `newSendView()` preserves existing password when editing and no new password is entered.
-    func test_newSendView_preservesExistingPassword() {
+    func test_newSendView_preservesExistingPassword() throws {
         let date = Date(year: 2023, month: 11, day: 5)
         let originalSendView = SendView.fixture(hasPassword: true)
         let subject = AddEditSendItemState(
@@ -192,13 +237,13 @@ class AddEditSendItemStateTests: BitwardenTestCase { // swiftlint:disable:this t
             text: "Text",
             type: .text,
         )
-        let sendView = subject.newSendView()
+        let sendView = try subject.newSendView()
         XCTAssertTrue(sendView.hasPassword)
         XCTAssertNil(sendView.newPassword)
     }
 
     /// `newSendView()` clears password when access type changes from password to link.
-    func test_newSendView_clearsPasswordWhenAccessTypeChanges() {
+    func test_newSendView_clearsPasswordWhenAccessTypeChanges() throws {
         let date = Date(year: 2023, month: 11, day: 5)
         let originalSendView = SendView.fixture(hasPassword: true)
         let subject = AddEditSendItemState(
@@ -212,23 +257,34 @@ class AddEditSendItemStateTests: BitwardenTestCase { // swiftlint:disable:this t
             text: "Text",
             type: .text,
         )
-        let sendView = subject.newSendView()
+        let sendView = try subject.newSendView()
         XCTAssertFalse(sendView.hasPassword)
         XCTAssertNil(sendView.newPassword)
     }
 
     /// `newSendView()` sets the expiration date to the deletion date if the expiration date isn't
     /// `nil` to allow editing an expired send.
-    func test_newSendView_text_expired() {
+    func test_newSendView_text_expired() throws {
         let deletionDate = Date(year: 2024, month: 1, day: 2)
         let subject = AddEditSendItemState(
             customDeletionDate: deletionDate,
             deletionDate: .custom(deletionDate),
             expirationDate: .distantPast,
         )
-        let sendView = subject.newSendView()
+        let sendView = try subject.newSendView()
         XCTAssertEqual(sendView.deletionDate, deletionDate)
         XCTAssertEqual(sendView.expirationDate, deletionDate)
+    }
+
+    /// `newSendView()` throws if the send's type isn't recognized by this version of the app.
+    /// This shouldn't happen in practice, since the UI's type picker never offers `.unknown`.
+    func test_newSendView_unknownType_throws() {
+        let subject = AddEditSendItemState(type: .unknown)
+        XCTAssertThrowsError(try subject.newSendView()) { error in
+            guard case DataMappingError.invalidData = error else {
+                return XCTFail("Expected DataMappingError.invalidData, got \(error)")
+            }
+        }
     }
 
     func init_sendView_text() {
@@ -322,6 +378,12 @@ class AddEditSendItemStateTests: BitwardenTestCase { // swiftlint:disable:this t
         )
     }
 
+    /// `init(sendView:)` uses a single empty row when the send has no recipient emails.
+    func test_init_sendView_noEmails_recipientEmailsHasEmptyRow() {
+        let subject = AddEditSendItemState(sendView: .fixture(emails: []))
+        XCTAssertEqual(subject.recipientEmails, [""])
+    }
+
     // MARK: init(sendView:) - Access Type Tests
 
     /// `init(sendView:)` sets access type to "Anyone with password" when hasPassword is true.
@@ -357,12 +419,63 @@ class AddEditSendItemStateTests: BitwardenTestCase { // swiftlint:disable:this t
         XCTAssertEqual(subject.accessType, .anyoneWithPassword)
     }
 
+    // MARK: init(copyingFrom:) Tests
+
+    /// `init(copyingFrom:)` sets `.add` mode and omits the id, access id, and key so saving creates
+    /// a new Send rather than updating the original.
+    func test_init_copyingFrom_addMode() {
+        let sendView = SendView.fixture(id: "original-id", accessId: "original-access-id", key: "original-key")
+        let subject = AddEditSendItemState(copyingFrom: sendView)
+
+        XCTAssertEqual(subject.mode, .add)
+        XCTAssertNil(subject.id)
+        XCTAssertNil(subject.accessId)
+        XCTAssertNil(subject.key)
+        XCTAssertNil(subject.originalSendView)
+    }
+
+    /// `init(copyingFrom:)` copies the name, notes, text, hide-email, and recipient emails from the
+    /// original Send.
+    func test_init_copyingFrom_copiesFields() {
+        let sendView = SendView.fixture(
+            name: "Original name",
+            notes: "Some notes",
+            text: .fixture(hidden: true, text: "Some text"),
+            hideEmail: true,
+            emails: ["test@example.com"],
+        )
+        let subject = AddEditSendItemState(copyingFrom: sendView)
+
+        XCTAssertEqual(subject.name, "Original name")
+        XCTAssertEqual(subject.notes, "Some notes")
+        XCTAssertEqual(subject.text, "Some text")
+        XCTAssertTrue(subject.isHideTextByDefaultOn)
+        XCTAssertTrue(subject.isHideMyEmailOn)
+        XCTAssertEqual(subject.recipientEmails, ["test@example.com"])
+    }
+
+    /// `init(copyingFrom:)` defaults `recipientEmails` to a single empty entry when the original
+    /// Send has no recipient emails, so the "Specific people" recipient list has a row to edit.
+    func test_init_copyingFrom_emptyEmails_defaultsToSingleEmptyRecipient() {
+        let sendView = SendView.fixture(emails: [])
+        let subject = AddEditSendItemState(copyingFrom: sendView)
+        XCTAssertEqual(subject.recipientEmails, [""])
+    }
+
+    /// `init(copyingFrom:)` sets access type to "Anyone with password" when the original Send has a
+    /// password.
+    func test_init_copyingFrom_withPassword_setsAnyoneWithPassword() {
+        let sendView = SendView.fixture(hasPassword: true, authType: .none)
+        let subject = AddEditSendItemState(copyingFrom: sendView)
+        XCTAssertEqual(subject.accessType, .anyoneWithPassword)
+    }
+
     // MARK: shouldShowHideEmailField
 
     /// `shouldShowHideEmailField` is `true` when the hide-email option is not disabled by policy,
     /// regardless of the Send Controls feature flag.
     func test_shouldShowHideEmailField_notDisabled() {
-        var subject = AddEditSendItemState(isSendHideEmailDisabled: false)
+        var subject = AddEditSendItemState(sendPolicyOptions: SendPolicyOptions(isHideEmailDisabled: false))
 
         subject.isSendControlsPolicyEnabled = false
         XCTAssertTrue(subject.shouldShowHideEmailField)
@@ -376,7 +489,7 @@ class AddEditSendItemStateTests: BitwardenTestCase { // swiftlint:disable:this t
     func test_shouldShowHideEmailField_disabled_flagOff() {
         let subject = AddEditSendItemState(
             isSendControlsPolicyEnabled: false,
-            isSendHideEmailDisabled: true,
+            sendPolicyOptions: SendPolicyOptions(isHideEmailDisabled: true),
         )
         XCTAssertTrue(subject.shouldShowHideEmailField)
     }
@@ -386,7 +499,7 @@ class AddEditSendItemStateTests: BitwardenTestCase { // swiftlint:disable:this t
     func test_shouldShowHideEmailField_disabled_flagOn() {
         let subject = AddEditSendItemState(
             isSendControlsPolicyEnabled: true,
-            isSendHideEmailDisabled: true,
+            sendPolicyOptions: SendPolicyOptions(isHideEmailDisabled: true),
         )
         XCTAssertFalse(subject.shouldShowHideEmailField)
     }
@@ -395,7 +508,7 @@ class AddEditSendItemStateTests: BitwardenTestCase { // swiftlint:disable:this t
 
     /// `shouldShowHideEmailPolicyBanner` is `false` when the hide-email option is not disabled.
     func test_shouldShowHideEmailPolicyBanner_notDisabled() {
-        var subject = AddEditSendItemState(isSendHideEmailDisabled: false)
+        var subject = AddEditSendItemState(sendPolicyOptions: SendPolicyOptions(isHideEmailDisabled: false))
 
         subject.isSendControlsPolicyEnabled = false
         XCTAssertFalse(subject.shouldShowHideEmailPolicyBanner)
@@ -409,7 +522,7 @@ class AddEditSendItemStateTests: BitwardenTestCase { // swiftlint:disable:this t
     func test_shouldShowHideEmailPolicyBanner_disabled_flagOff() {
         let subject = AddEditSendItemState(
             isSendControlsPolicyEnabled: false,
-            isSendHideEmailDisabled: true,
+            sendPolicyOptions: SendPolicyOptions(isHideEmailDisabled: true),
         )
         XCTAssertTrue(subject.shouldShowHideEmailPolicyBanner)
     }
@@ -419,8 +532,31 @@ class AddEditSendItemStateTests: BitwardenTestCase { // swiftlint:disable:this t
     func test_shouldShowHideEmailPolicyBanner_disabled_flagOn() {
         let subject = AddEditSendItemState(
             isSendControlsPolicyEnabled: true,
-            isSendHideEmailDisabled: true,
+            sendPolicyOptions: SendPolicyOptions(isHideEmailDisabled: true),
         )
         XCTAssertFalse(subject.shouldShowHideEmailPolicyBanner)
+    }
+
+    // MARK: whoCanViewFooter
+
+    /// `whoCanViewFooter` returns the "anyone with this link" description when the access type is
+    /// "Anyone with the link".
+    func test_whoCanViewFooter_anyoneWithLink() {
+        let subject = AddEditSendItemState(accessType: .anyoneWithLink)
+        XCTAssertEqual(subject.whoCanViewFooter, Localizations.anyoneWithThisLinkCanViewThisSend)
+    }
+
+    /// `whoCanViewFooter` returns the "specific people" description when the access type is
+    /// "Specific people".
+    func test_whoCanViewFooter_specificPeople() {
+        let subject = AddEditSendItemState(accessType: .specificPeople)
+        XCTAssertEqual(subject.whoCanViewFooter, Localizations.afterSharingThisSendLinkDescriptionLong)
+    }
+
+    /// `whoCanViewFooter` returns the "individuals will need to enter this password" description
+    /// when the access type is "Anyone with the password".
+    func test_whoCanViewFooter_anyoneWithPassword() {
+        let subject = AddEditSendItemState(accessType: .anyoneWithPassword)
+        XCTAssertEqual(subject.whoCanViewFooter, Localizations.individualsWillNeedToEnterThisPasswordDescriptionLong)
     }
 } // swiftlint:disable:this file_length

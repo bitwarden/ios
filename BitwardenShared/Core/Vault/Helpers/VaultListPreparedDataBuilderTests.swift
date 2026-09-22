@@ -77,7 +77,7 @@ class VaultListPreparedDataBuilderTests: BitwardenTestCase { // swiftlint:disabl
     /// `addItem(forGroup:with:)` adds the cipher to the group items when the group is `.bankAccount`
     /// and the cipher is a bank account.
     func test_addItem_forGroupBankAccount_addsItem() async {
-        let cipher = CipherListView.fixture(id: "1", type: .bankAccount)
+        let cipher = CipherListView.fixture(id: "1", type: .bankAccount(.init(accountNumber: nil, accountType: nil)))
         let preparedData = await subject.addItem(forGroup: .bankAccount, with: cipher).build()
 
         XCTAssertEqual(preparedData.groupItems.count, 1)

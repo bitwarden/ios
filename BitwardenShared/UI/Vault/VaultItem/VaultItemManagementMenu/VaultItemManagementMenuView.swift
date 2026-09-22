@@ -30,6 +30,9 @@ struct VaultItemManagementMenuView: View {
     /// The flag for whether to show the unarchive option.
     let isUnarchiveEnabled: Bool
 
+    /// Whether the `vfo1-foundation` feature flag is enabled.
+    let isVfo1FoundationFeatureFlagEnabled: Bool
+
     /// The `Store` for this view.
     @ObservedObject var store: Store<Void, VaultItemManagementMenuAction, VaultItemManagementMenuEffect>
 
@@ -53,13 +56,13 @@ struct VaultItemManagementMenuView: View {
             }
 
             if isCollectionsEnabled {
-                Button(Localizations.collections) {
+                Button(isVfo1FoundationFeatureFlagEnabled ? Localizations.sharedFolders : Localizations.collections) {
                     store.send(.editCollections)
                 }
             }
 
             if isMoveToOrganizationEnabled {
-                Button(Localizations.moveToOrganization) {
+                Button(isVfo1FoundationFeatureFlagEnabled ? Localizations.move : Localizations.moveToOrganization) {
                     store.send(.moveToOrganization)
                 }
             }
@@ -97,6 +100,7 @@ struct VaultItemManagementMenuView: View {
         isMoveToOrganizationEnabled: true,
         isRestoreEnabled: true,
         isUnarchiveEnabled: false,
+        isVfo1FoundationFeatureFlagEnabled: false,
         store: Store(
             processor: StateProcessor(
                 state: (),

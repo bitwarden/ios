@@ -1,5 +1,6 @@
 import BitwardenResources
 import SwiftUI
+import UIKit
 
 // MARK: - DateFieldPicker
 
@@ -23,11 +24,23 @@ public struct DateFieldPicker: View {
     /// The date the calendar opens to when the user expands an empty field.
     let defaultDate: Date
 
+    /// Whether `range` excludes dates later than today. Under VoiceOver,
+    /// `handleSelectionChange(_:)` uses this to decide when to post a boundary announcement.
+    private var disallowsFutureDates: Bool {
+        guard let range else { return false }
+        return range.upperBound <= Date().asUTCCalendarDay()
+    }
+
     /// The (optional) footer text shown below the field.
     let footer: String?
 
     /// The (optional) range of selectable dates.
     let range: ClosedRange<Date>?
+
+    /// The identifier applied to the field, falling back to a generic default when the caller doesn't
+    /// supply one. Child elements (the header button, the clear button) derive their own identifiers
+    /// from this so multiple pickers on the same screen don't share child accessibility identifiers.
+    private var resolvedAccessibilityIdentifier: String { accessibilityIdentifier ?? "DateFieldPicker" }
 
     /// The (optional) title of the field.
     let title: String?
@@ -75,7 +88,7 @@ public struct DateFieldPicker: View {
                 : SharedAsset.Colors.backgroundSecondaryDisabled.swiftUIColor,
         )
         .clipShape(RoundedRectangle(cornerRadius: 8))
-        .accessibilityIdentifier(accessibilityIdentifier ?? "DateFieldPicker")
+        .accessibilityIdentifier(resolvedAccessibilityIdentifier)
     }
 
     // MARK: Initialization
@@ -107,7 +120,28 @@ public struct DateFieldPicker: View {
         self.footer = footer
     }
 
-    // MARK: Private
+    /// Creates a new `DateFieldPicker` with the calendar already expanded. Used by tests to reach
+    /// the live `DatePicker` node via `ViewInspector` without hosting the view to mutate `@State`
+    /// and re-inspect.
+    init(
+        title: String? = nil,
+        accessibilityIdentifier: String? = nil,
+        date: Binding<Date?>,
+        defaultDate: Date = Date().asUTCCalendarDay(),
+        in range: ClosedRange<Date>? = nil,
+        footer: String? = nil,
+        isExpanded: Bool,
+    ) {
+        self.title = title
+        self.accessibilityIdentifier = accessibilityIdentifier
+        _date = date
+        self.defaultDate = defaultDate
+        self.range = range
+        self.footer = footer
+        _isExpanded = State(initialValue: isExpanded)
+    }
+
+    // MARK: Private Views
 
     /// The inline `DatePicker`, optionally constrained to `range`. Uses the graphical calendar by
     /// default, falling back to the wheel style under VoiceOver where the calendar is hard to navigate.
@@ -131,6 +165,14 @@ public struct DateFieldPicker: View {
             isPickerFocused = newValue && voiceOverEnabled
         }
         .accessibilityFocused($isPickerFocused)
+        .accessibilityScrollAction { _ in
+            // The wheel picker is itself scrollable, so VoiceOver's three-finger scroll gesture (meant
+            // to scroll the enclosing form) lands on it instead and changes the selected date. Claiming
+            // the gesture here stops that; moving focus off the wheel also means a repeated scroll
+            // gesture reaches the form normally, since VoiceOver then has a different nearest scrollable
+            // ancestor to target.
+            isPickerFocused = false
+        }
 
         if voiceOverEnabled {
             picker.datePickerStyle(.wheel)
@@ -146,8 +188,8 @@ public struct DateFieldPicker: View {
             if let title {
                 Text(title)
                     .styleGuide(
-                        .subheadline,
-                        weight: .semibold,
+                        .headline,
+                        weight: .regular,
                         includeLinePadding: false,
                         includeLineSpacing: false,
                     )
@@ -179,14 +221,14 @@ public struct DateFieldPicker: View {
                 labelContent()
             }
             .buttonStyle(.plain)
-            .accessibilityIdentifier("DateFieldHeaderButton")
-            .accessibilityHint(Localizations.selectDate)
+            .accessibilityIdentifier("\(resolvedAccessibilityIdentifier)HeaderButton")
+            .accessibilityHint(isExpanded ? Localizations.closesDatePicker : Localizations.opensDatePicker)
 
             if date != nil {
                 AccessoryButton(
                     asset: SharedAsset.Icons.circleX24,
                     accessibilityLabel: title.map { Localizations.clearFieldName($0) } ?? Localizations.clear,
-                    accessibilityIdentifier: "DateFieldClearButton",
+                    accessibilityIdentifier: "\(resolvedAccessibilityIdentifier)ClearButton",
                 ) {
                     clearDate()
                 }
@@ -207,24 +249,7 @@ public struct DateFieldPicker: View {
         .frame(minHeight: 64)
     }
 
-    /// A binding driving the calendar: reads the selected date (falling back to `defaultDate` when
-    /// empty) and, on selection, commits the value. With the graphical calendar, a selection also
-    /// collapses the calendar; under VoiceOver the wheel stays expanded so continuous scrubbing does
-    /// not dismiss it on the first change — the user collapses it via the header instead.
-    ///
-    /// `date` is UTC-anchored (see `iso8601DateOnlyString`), but the `DatePicker` reads/writes
-    /// calendar days in the device's local time zone. The get/set here convert at that boundary so
-    /// the day the user sees selected, and the day they pick, always match the day that gets stored.
-    private func selection() -> Binding<Date> {
-        Binding(
-            get: { (date ?? defaultDate).asLocalCalendarDay() },
-            set: { newValue in
-                date = newValue.asUTCCalendarDay()
-                guard !voiceOverEnabled else { return }
-                withAnimation { isExpanded = false }
-            },
-        )
-    }
+    // MARK: Private Methods
 
     /// Clears the selected date.
     private func clearDate() {
@@ -234,10 +259,72 @@ public struct DateFieldPicker: View {
         }
     }
 
-    /// Toggles the inline calendar's expanded state.
+    /// Handles a change reported by the graphical calendar's selection binding: always commits the
+    /// reported day into `date`, converting it to the UTC-anchored form used for storage, but only
+    /// collapses the calendar for a genuine day tap.
+    ///
+    /// The calendar's quick month/year navigation header reports a changed selection (a new month/year,
+    /// no day tapped yet) the same way a day tap does, and once navigated, settling on the new month
+    /// appears to report that same not-yet-tapped day again. Both should still commit, so the field's
+    /// value stays in sync with whatever day the calendar is currently showing, but neither should
+    /// collapse the calendar before the user has actually picked a day. A change only collapses when its
+    /// month/year matches `date`'s (ruling out a month/year navigation, which still commits so the next
+    /// comparison is against the newly navigated month) AND its day differs from `date`'s (ruling out
+    /// that settling echo). Neither check applies under VoiceOver, where the wheel picker never
+    /// auto-collapses — the user collapses it via the header instead.
+    ///
+    /// Also posts a live VoiceOver announcement when the wheel is already
+    /// sitting on the range's upper bound and reports that same boundary day again, meaning the user tried
+    /// to scroll past it and the wheel couldn't move.
+    private func handleSelectionChange(_ localDay: Date) {
+        let previousLocalDay = selectedLocalDay()
+
+        if voiceOverEnabled, disallowsFutureDates, let range,
+           previousLocalDay >= range.upperBound.asLocalCalendarDay(),
+           localDay >= range.upperBound.asLocalCalendarDay() {
+            UIAccessibility.post(notification: .announcement, argument: Localizations.futureDatesUnavailable)
+        }
+
+        date = localDay.asUTCCalendarDay()
+
+        guard !voiceOverEnabled else { return }
+        let isSameMonth = Calendar.current.isDate(previousLocalDay, equalTo: localDay, toGranularity: .month)
+        guard isSameMonth, previousLocalDay != localDay else { return }
+        withAnimation { isExpanded = false }
+    }
+
+    /// The calendar day the `DatePicker` should currently show as selected: the stored date (or
+    /// `defaultDate` when unset), converted from its UTC-anchored storage form into the local
+    /// calendar day the `DatePicker` operates in.
+    private func selectedLocalDay() -> Date {
+        (date ?? defaultDate).asLocalCalendarDay()
+    }
+
+    /// A binding driving the calendar: reads the selected date (falling back to `defaultDate` when
+    /// empty) and, on selection, commits the value (see `handleSelectionChange(_:)`).
+    ///
+    /// `date` is UTC-anchored (see `iso8601DateOnlyString`), but the `DatePicker` reads/writes
+    /// calendar days in the device's local time zone. The get/set here convert at that boundary so
+    /// the day the user sees selected, and the day they pick, always match the day that gets stored.
+    private func selection() -> Binding<Date> {
+        Binding(
+            get: { selectedLocalDay() },
+            set: { newValue in handleSelectionChange(newValue) },
+        )
+    }
+
+    /// Toggles the inline calendar's expanded state. Expanding an empty field commits `defaultDate`
+    /// immediately, matching the day the calendar shows as selected as soon as it opens. Without this,
+    /// `date` stays `nil` until the `DatePicker`'s selection binding fires a change, which it doesn't do
+    /// for a tap on the day it's already displaying as selected — leaving the field appearing to have a
+    /// date (today) while the actual value backing it (e.g. a save action) is still empty.
     private func toggleExpanded() {
+        let isExpanding = !isExpanded
         withAnimation {
             isExpanded.toggle()
+            if isExpanding, date == nil {
+                date = defaultDate
+            }
         }
     }
 }

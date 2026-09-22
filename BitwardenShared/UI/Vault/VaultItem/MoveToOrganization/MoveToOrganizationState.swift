@@ -16,6 +16,9 @@ struct MoveToOrganizationState: Equatable, Sendable {
     /// The full list of collections for the user, across all organizations.
     var collections: [CollectionView] = []
 
+    /// Whether the `vfo1-foundation` feature flag is enabled.
+    var isVfo1FoundationFeatureFlagEnabled = false
+
     /// The organization ID of the organization that the cipher is moving to.
     var organizationId: String?
 
