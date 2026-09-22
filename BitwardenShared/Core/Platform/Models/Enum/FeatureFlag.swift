@@ -56,12 +56,6 @@ extension FeatureFlag: @retroactive CaseIterable {
     /// Flag to enable/disable the organization user notification banner policy.
     static let organizationUserNotificationBanner = FeatureFlag(rawValue: "pm-31948-org-user-notification-banner")
 
-    /// Flag to enable/disable accepted-state organization policy enforcement via the SDK.
-    ///
-    /// When enabled, `PolicyService.policiesApplyingToUser` routes through the Bitwarden SDK
-    /// so that policies are enforced against members in the accepted (not only confirmed) state.
-    static let policiesInAcceptedState = FeatureFlag(rawValue: "pm-34145-policies-in-accepted-state")
-
     /// Flag to enable/disable Premium upgrade path.
     static let premiumUpgradePath = FeatureFlag(rawValue: "pm-31697-premium-upgrade-path")
 
