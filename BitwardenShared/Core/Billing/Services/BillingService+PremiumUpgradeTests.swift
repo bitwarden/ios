@@ -108,120 +108,13 @@ struct BillingServicePremiumUpgradeTests {
         )
     }
 
-    // MARK: resolveCheckoutSuccess
+    // MARK: premiumCheckoutSucceeded
 
-    /// `resolveCheckoutSuccess()` marks the upgrade pending, syncs, and publishes `.confirmed`
-    /// when the sync confirms Premium.
-    @Test
-    func resolveCheckoutSuccess_confirmed() async throws {
-        stateService.setPersonalPremium(false, userId: "1")
-        syncService.fetchSyncHandler = {
-            stateService.setPersonalPremium(true, userId: "1")
-        }
-        var statuses = [PremiumCheckoutStatus]()
-        let cancellable = subject.premiumCheckoutStatusPublisher()
-            .sink { statuses.append($0) }
-        defer { cancellable.cancel() }
-
-        await subject.resolveCheckoutSuccess()
-
-        try await waitForAsync { !statuses.isEmpty }
-        #expect(statuses == [.confirmed])
-        #expect(syncService.didFetchSync)
-        #expect(premiumUpgradeStorage.pendingByUserId["1"] == false)
-        #expect(premiumUpgradeStorage.upgradedToPremiumCardVisibleByUserId["1"] == true)
-    }
-
-    /// `resolveCheckoutSuccess()` leaves the upgrade pending and publishes `.pending` when the
-    /// sync succeeds but Premium hasn't been granted yet.
-    @Test
-    func resolveCheckoutSuccess_pending() async throws {
-        stateService.setPersonalPremium(false, userId: "1")
-        var statuses = [PremiumCheckoutStatus]()
-        let cancellable = subject.premiumCheckoutStatusPublisher()
-            .sink { statuses.append($0) }
-        defer { cancellable.cancel() }
-
-        await subject.resolveCheckoutSuccess()
-
-        try await waitForAsync { !statuses.isEmpty }
-        #expect(statuses == [.pending])
-        #expect(premiumUpgradeStorage.pendingByUserId["1"] == true)
-    }
-
-    /// `resolveCheckoutSuccess()` leaves the upgrade pending (so a later sync can retry), logs
-    /// the error, and publishes `.pending` when the forced sync throws.
-    @Test
-    func resolveCheckoutSuccess_syncError() async throws {
-        stateService.setPersonalPremium(false, userId: "1")
-        syncService.fetchSyncResult = .failure(URLError(.notConnectedToInternet))
-        var statuses = [PremiumCheckoutStatus]()
-        let cancellable = subject.premiumCheckoutStatusPublisher()
-            .sink { statuses.append($0) }
-        defer { cancellable.cancel() }
-
-        await subject.resolveCheckoutSuccess()
-
-        try await waitForAsync { !statuses.isEmpty }
-        #expect(statuses == [.pending])
-        #expect(errorReporter.errors.first is URLError)
-        #expect(premiumUpgradeStorage.pendingByUserId["1"] == true)
-    }
-
-    /// `resolveCheckoutSuccess()` still resolves the upgrade when Premium was granted by a sync
-    /// that later threw on an unrelated step — the profile is persisted early in `fetchSync()`,
-    /// so a throwing sync and a confirmed upgrade aren't mutually exclusive.
-    @Test
-    func resolveCheckoutSuccess_syncErrorAfterPremiumConfirmed() async throws {
-        stateService.setPersonalPremium(false, userId: "1")
-        syncService.fetchSyncHandler = {
-            stateService.setPersonalPremium(true, userId: "1")
-        }
-        syncService.fetchSyncResult = .failure(URLError(.notConnectedToInternet))
-
-        await subject.resolveCheckoutSuccess()
-
-        #expect(premiumUpgradeStorage.pendingByUserId["1"] == false)
-        #expect(premiumUpgradeStorage.upgradedToPremiumCardVisibleByUserId["1"] == true)
-    }
-
-    /// `resolveCheckoutSuccess()` does nothing when the environment is self-hosted.
-    @Test
-    func resolveCheckoutSuccess_selfHosted_doesNothing() async {
-        environmentService.region = .selfHosted
-
-        await subject.resolveCheckoutSuccess()
-
-        #expect(!syncService.didFetchSync)
-        #expect(premiumUpgradeStorage.pendingByUserId["1"] == nil)
-    }
-
-    /// `resolveCheckoutSuccess()` does nothing when the premiumUpgradePath feature flag is disabled.
-    @Test
-    func resolveCheckoutSuccess_featureFlagDisabled_doesNothing() async {
-        configService.featureFlagsBool[.premiumUpgradePath] = false
-
-        await subject.resolveCheckoutSuccess()
-
-        #expect(!syncService.didFetchSync)
-        #expect(premiumUpgradeStorage.pendingByUserId["1"] == nil)
-    }
-
-    /// `resolveCheckoutSuccess()` does nothing when there's no active account to resolve for.
-    @Test
-    func resolveCheckoutSuccess_noActiveAccount_doesNothing() async {
-        stateService.activeAccount = nil
-
-        await subject.resolveCheckoutSuccess()
-
-        #expect(!syncService.didFetchSync)
-    }
-
-    /// `resolveCheckoutSuccess()` still persists the correct result for the account it started
+    /// `premiumCheckoutSucceeded()` still persists the correct result for the account it started
     /// for, even if the active account switches away while its forced sync is in flight — and
     /// doesn't publish a checkout status meant for the now-active (unrelated) account.
     @Test
-    func resolveCheckoutSuccess_accountSwitchedDuringSync_writesOriginalAccountOnly() async throws {
+    func premiumCheckoutSucceeded_accountSwitchedDuringSync_writesOriginalAccountOnly() async throws {
         stateService.setPersonalPremium(false, userId: "1")
         syncService.fetchSyncHandler = {
             stateService.setPersonalPremium(true, userId: "1")
@@ -232,7 +125,7 @@ struct BillingServicePremiumUpgradeTests {
             .sink { statuses.append($0) }
         defer { cancellable.cancel() }
 
-        await subject.resolveCheckoutSuccess()
+        await subject.premiumCheckoutSucceeded()
 
         #expect(statuses.isEmpty)
         #expect(premiumUpgradeStorage.pendingByUserId["1"] == false)
@@ -241,15 +134,15 @@ struct BillingServicePremiumUpgradeTests {
         #expect(premiumUpgradeStorage.upgradedToPremiumCardVisibleByUserId["2"] == nil)
     }
 
-    /// `resolveCheckoutSuccess()` still reports `.confirmed` when the pending flag it set is
+    /// `premiumCheckoutSucceeded()` still reports `.confirmed` when the pending flag it set is
     /// already cleared by the time its own resolution step runs — which is the normal case, since
     /// its forced sync reaches `onFetchSyncSucceeded(userId:)` and resolves the upgrade first.
     @Test
-    func resolveCheckoutSuccess_alreadyResolvedByConcurrentSync_stillReportsConfirmed() async throws {
+    func premiumCheckoutSucceeded_alreadyResolvedByConcurrentSync_stillReportsConfirmed() async throws {
         stateService.setPersonalPremium(false, userId: "1")
         syncService.fetchSyncHandler = {
             // Simulates the sync delegate's `resolvePendingUpgrade(userId:)` resolving this
-            // same forced sync before `resolveCheckoutSuccess()` gets to its own resolution.
+            // same forced sync before `premiumCheckoutSucceeded()` gets to its own resolution.
             stateService.setPersonalPremium(true, userId: "1")
             premiumUpgradeStorage.pendingByUserId["1"] = false
         }
@@ -258,10 +151,117 @@ struct BillingServicePremiumUpgradeTests {
             .sink { statuses.append($0) }
         defer { cancellable.cancel() }
 
-        await subject.resolveCheckoutSuccess()
+        await subject.premiumCheckoutSucceeded()
 
         try await waitForAsync { !statuses.isEmpty }
         #expect(statuses == [.confirmed])
+    }
+
+    /// `premiumCheckoutSucceeded()` marks the upgrade pending, syncs, and publishes `.confirmed`
+    /// when the sync confirms Premium.
+    @Test
+    func premiumCheckoutSucceeded_confirmed() async throws {
+        stateService.setPersonalPremium(false, userId: "1")
+        syncService.fetchSyncHandler = {
+            stateService.setPersonalPremium(true, userId: "1")
+        }
+        var statuses = [PremiumCheckoutStatus]()
+        let cancellable = subject.premiumCheckoutStatusPublisher()
+            .sink { statuses.append($0) }
+        defer { cancellable.cancel() }
+
+        await subject.premiumCheckoutSucceeded()
+
+        try await waitForAsync { !statuses.isEmpty }
+        #expect(statuses == [.confirmed])
+        #expect(syncService.didFetchSync)
+        #expect(premiumUpgradeStorage.pendingByUserId["1"] == false)
+        #expect(premiumUpgradeStorage.upgradedToPremiumCardVisibleByUserId["1"] == true)
+    }
+
+    /// `premiumCheckoutSucceeded()` does nothing when the premiumUpgradePath feature flag is disabled.
+    @Test
+    func premiumCheckoutSucceeded_featureFlagDisabled_doesNothing() async {
+        configService.featureFlagsBool[.premiumUpgradePath] = false
+
+        await subject.premiumCheckoutSucceeded()
+
+        #expect(!syncService.didFetchSync)
+        #expect(premiumUpgradeStorage.pendingByUserId["1"] == nil)
+    }
+
+    /// `premiumCheckoutSucceeded()` does nothing when there's no active account to resolve for.
+    @Test
+    func premiumCheckoutSucceeded_noActiveAccount_doesNothing() async {
+        stateService.activeAccount = nil
+
+        await subject.premiumCheckoutSucceeded()
+
+        #expect(!syncService.didFetchSync)
+    }
+
+    /// `premiumCheckoutSucceeded()` leaves the upgrade pending and publishes `.pending` when the
+    /// sync succeeds but Premium hasn't been granted yet.
+    @Test
+    func premiumCheckoutSucceeded_pending() async throws {
+        stateService.setPersonalPremium(false, userId: "1")
+        var statuses = [PremiumCheckoutStatus]()
+        let cancellable = subject.premiumCheckoutStatusPublisher()
+            .sink { statuses.append($0) }
+        defer { cancellable.cancel() }
+
+        await subject.premiumCheckoutSucceeded()
+
+        try await waitForAsync { !statuses.isEmpty }
+        #expect(statuses == [.pending])
+        #expect(premiumUpgradeStorage.pendingByUserId["1"] == true)
+    }
+
+    /// `premiumCheckoutSucceeded()` does nothing when the environment is self-hosted.
+    @Test
+    func premiumCheckoutSucceeded_selfHosted_doesNothing() async {
+        environmentService.region = .selfHosted
+
+        await subject.premiumCheckoutSucceeded()
+
+        #expect(!syncService.didFetchSync)
+        #expect(premiumUpgradeStorage.pendingByUserId["1"] == nil)
+    }
+
+    /// `premiumCheckoutSucceeded()` leaves the upgrade pending (so a later sync can retry), logs
+    /// the error, and publishes `.pending` when the forced sync throws.
+    @Test
+    func premiumCheckoutSucceeded_syncError() async throws {
+        stateService.setPersonalPremium(false, userId: "1")
+        syncService.fetchSyncResult = .failure(URLError(.notConnectedToInternet))
+        var statuses = [PremiumCheckoutStatus]()
+        let cancellable = subject.premiumCheckoutStatusPublisher()
+            .sink { statuses.append($0) }
+        defer { cancellable.cancel() }
+
+        await subject.premiumCheckoutSucceeded()
+
+        try await waitForAsync { !statuses.isEmpty }
+        #expect(statuses == [.pending])
+        #expect(errorReporter.errors.first is URLError)
+        #expect(premiumUpgradeStorage.pendingByUserId["1"] == true)
+    }
+
+    /// `premiumCheckoutSucceeded()` still resolves the upgrade when Premium was granted by a sync
+    /// that later threw on an unrelated step — the profile is persisted early in `fetchSync()`,
+    /// so a throwing sync and a confirmed upgrade aren't mutually exclusive.
+    @Test
+    func premiumCheckoutSucceeded_syncErrorAfterPremiumConfirmed() async throws {
+        stateService.setPersonalPremium(false, userId: "1")
+        syncService.fetchSyncHandler = {
+            stateService.setPersonalPremium(true, userId: "1")
+        }
+        syncService.fetchSyncResult = .failure(URLError(.notConnectedToInternet))
+
+        await subject.premiumCheckoutSucceeded()
+
+        #expect(premiumUpgradeStorage.pendingByUserId["1"] == false)
+        #expect(premiumUpgradeStorage.upgradedToPremiumCardVisibleByUserId["1"] == true)
     }
 
     // MARK: resolvePendingUpgrade

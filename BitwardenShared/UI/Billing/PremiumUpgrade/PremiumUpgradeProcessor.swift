@@ -188,7 +188,7 @@ final class PremiumUpgradeProcessor: StateProcessor<
 
         if callbackURL.host == BitwardenDeepLinkConstants.premiumCheckoutResultHost,
            result == BitwardenDeepLinkConstants.PremiumCheckoutResultQuery.successValue {
-            await services.billingService.resolveCheckoutSuccess()
+            await services.billingService.premiumCheckoutSucceeded()
         } else {
             services.billingService.premiumCheckoutCanceled()
         }
