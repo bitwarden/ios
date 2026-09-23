@@ -10,6 +10,15 @@ protocol BillingService: AnyObject { // sourcery: AutoMockable
     /// The callback URL scheme used by the Stripe checkout web authentication session.
     var checkoutCallbackUrlScheme: String { get }
 
+    /// Clears the account's pending Premium upgrade once the personally purchased Premium has
+    /// arrived. Does nothing for an account with no pending upgrade, so this can safely run after
+    /// every sync.
+    ///
+    /// - Parameters:
+    ///   - userId: The account to complete the pending upgrade for.
+    ///
+    func completePendingUpgrade(userId: String) async
+
     /// Creates a checkout session for Premium upgrade and returns the checkout URL.
     ///
     /// - Returns: A validated HTTPS URL for the checkout session.
@@ -55,6 +64,15 @@ protocol BillingService: AnyObject { // sourcery: AutoMockable
     /// A publisher that emits the status of the Premium checkout sync process.
     ///
     func premiumCheckoutStatusPublisher() -> AnyPublisher<PremiumCheckoutStatus, Never>
+
+    /// Notifies that the user completed payment in the Stripe checkout, marking the upgrade
+    /// pending before reconciling the new Premium status. The upgrade stays pending until a sync
+    /// reports the purchased Premium, which `completePendingUpgrade(userId:)` then clears.
+    ///
+    /// Marking the upgrade pending asserts that a purchase was made, so only call this after
+    /// observing a successful Stripe callback.
+    ///
+    func premiumCheckoutSucceeded() async
 
     /// Notifies that a Premium status change was detected (via deep link or push notification),
     /// triggers a sync, and publishes status updates.
@@ -169,6 +187,21 @@ class DefaultBillingService: BillingService {
 
     // MARK: Methods
 
+    func completePendingUpgrade(userId: String) async {
+        do {
+            // A pending upgrade always comes from a personal checkout, so only personal Premium
+            // completes it — an organization grant arriving mid-flight isn't the purchase landing.
+            guard try await billingStateService.getPremiumUpgradePending(userId: userId),
+                  await stateService.doesAccountHavePremiumPersonally(userId: userId)
+            else {
+                return
+            }
+            try await billingStateService.setPremiumUpgradePending(false, userId: userId)
+        } catch {
+            errorReporter.log(error: error)
+        }
+    }
+
     func createCheckoutSession() async throws -> URL {
         let response = try await billingAPIService.createCheckoutSession()
         let url = response.checkoutSessionUrl
@@ -224,6 +257,15 @@ class DefaultBillingService: BillingService {
             .compactMap(\.self)
             .debounce(for: debounceInterval, scheduler: DispatchQueue.main)
             .eraseToAnyPublisher()
+    }
+
+    func premiumCheckoutSucceeded() async {
+        do {
+            try await billingStateService.setPremiumUpgradePending(true)
+        } catch {
+            errorReporter.log(error: error)
+        }
+        await premiumStatusChanged()
     }
 
     func premiumStatusChanged() async {
