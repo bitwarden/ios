@@ -1184,6 +1184,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
             cipherDataStore: dataStore,
             clientService: clientService,
             errorReporter: errorReporter,
+            flightRecorder: flightRecorder,
             keychainRepository: keychainRepository,
             organizationService: organizationService,
             sharedKeychainRepository: sharedKeychainRepository,
