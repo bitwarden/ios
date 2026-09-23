@@ -44,7 +44,7 @@ final class KeychainRepositoryUserSessionTests: BitwardenTestCase {
 
         XCTAssertEqual(monotonicTime, 12345.67)
         XCTAssertEqual(
-            keychainServiceFacade.getValueReceivedItem?.unformattedKey,
+            keychainServiceFacade.getValueReceivedArguments?.item.unformattedKey,
             BitwardenKeychainItem.lastActiveMonotonicTime(userId: "1").unformattedKey,
         )
     }
@@ -128,7 +128,7 @@ final class KeychainRepositoryUserSessionTests: BitwardenTestCase {
 
         XCTAssertEqual(bootEpoch, 1_700_000_000.5)
         XCTAssertEqual(
-            keychainServiceFacade.getValueReceivedItem?.unformattedKey,
+            keychainServiceFacade.getValueReceivedArguments?.item.unformattedKey,
             BitwardenKeychainItem.lastActiveBootEpoch(userId: "1").unformattedKey,
         )
     }
@@ -212,7 +212,7 @@ final class KeychainRepositoryUserSessionTests: BitwardenTestCase {
 
         XCTAssertEqual(result, Date(timeIntervalSince1970: 1_234_567_890))
         XCTAssertEqual(
-            keychainServiceFacade.getValueReceivedItem?.unformattedKey,
+            keychainServiceFacade.getValueReceivedArguments?.item.unformattedKey,
             BitwardenKeychainItem.lastActiveTime(userId: "1").unformattedKey,
         )
     }
@@ -283,7 +283,7 @@ final class KeychainRepositoryUserSessionTests: BitwardenTestCase {
 
         XCTAssertEqual(result, 4)
         XCTAssertEqual(
-            keychainServiceFacade.getValueReceivedItem?.unformattedKey,
+            keychainServiceFacade.getValueReceivedArguments?.item.unformattedKey,
             BitwardenKeychainItem.unsuccessfulUnlockAttempts(userId: "1").unformattedKey,
         )
     }
@@ -322,7 +322,7 @@ final class KeychainRepositoryUserSessionTests: BitwardenTestCase {
 
         XCTAssertEqual(result, 15)
         XCTAssertEqual(
-            keychainServiceFacade.getValueReceivedItem?.unformattedKey,
+            keychainServiceFacade.getValueReceivedArguments?.item.unformattedKey,
             BitwardenKeychainItem.vaultTimeout(userId: "1").unformattedKey,
         )
     }

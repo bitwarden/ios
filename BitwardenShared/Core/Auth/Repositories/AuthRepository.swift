@@ -508,6 +508,9 @@ class DefaultAuthRepository {
     /// The service used by the application to manage trust device information.
     private let trustDeviceService: TrustDeviceService
 
+    /// The service used to keep biometric and never-lock unlock keys in sync after unlock.
+    private let unlockKeyMaintenanceService: UnlockKeyMaintenanceService
+
     /// The service used by the application to manage user session state.
     private let userSessionStateService: UserSessionStateService
 
@@ -542,6 +545,8 @@ class DefaultAuthRepository {
     ///   - stateService: The service used by the application to manage account state.
     ///   - syncService: The service used by the application to handle syncing vault data with the API.
     ///   - trustDeviceService: The service used by the application to manage trust device information.
+    ///   - unlockKeyMaintenanceService: The service used to keep biometric and never-lock unlock keys in
+    ///     sync after unlock.
     ///   - userSessionStateService: The service used by the application to manage user session state.
     ///   - vaultTimeoutService: The service used by the application to manage vault access.
     ///
@@ -568,6 +573,7 @@ class DefaultAuthRepository {
         stateService: StateService,
         syncService: SyncService,
         trustDeviceService: TrustDeviceService,
+        unlockKeyMaintenanceService: UnlockKeyMaintenanceService,
         userSessionStateService: UserSessionStateService,
         vaultTimeoutService: VaultTimeoutService,
     ) {
@@ -593,6 +599,7 @@ class DefaultAuthRepository {
         self.stateService = stateService
         self.syncService = syncService
         self.trustDeviceService = trustDeviceService
+        self.unlockKeyMaintenanceService = unlockKeyMaintenanceService
         self.userSessionStateService = userSessionStateService
         self.vaultTimeoutService = vaultTimeoutService
     }
@@ -1072,8 +1079,16 @@ extension DefaultAuthRepository: AuthRepository {
     }
 
     func unlockVaultWithBiometrics() async throws {
-        let decryptedUserKey = try await biometricsRepository.getUserAuthKey()
+        let context = LAContext()
+        let decryptedUserKey = try await biometricsRepository.getUserAuthKey(context: context)
         try await unlockVault(method: .decryptedKey(decryptedUserKey: decryptedUserKey))
+
+        // Reuse the key and context already used to unlock, so refreshing a stale biometric key
+        // (e.g. after a no-logout key rotation) costs no additional Face/Touch ID prompt.
+        await unlockKeyMaintenanceService.refreshBiometricUnlockKeyIfStale(
+            storedKey: decryptedUserKey,
+            context: context,
+        )
     }
 
     func unlockVaultWithDeviceKey() async throws {
@@ -1291,7 +1306,13 @@ extension DefaultAuthRepository: AuthRepository {
         } catch {
             errorReporter.log(error: error)
         }
-        await configureBiometricUnlockIfNeeded()
+        await unlockKeyMaintenanceService.configureBiometricUnlockIfNeeded()
+        // The biometric key is only refreshed contextually, in `unlockVaultWithBiometrics`,
+        // reusing the key/context from that read so there's no extra Face/Touch ID prompt. Other
+        // unlock methods skip it here to avoid a surprise biometrics prompt; the biometric key
+        // catches up the next time the user actually unlocks with biometrics. The never-lock key
+        // isn't biometric-protected, so it's always safe to refresh here regardless of method.
+        await unlockKeyMaintenanceService.refreshNeverLockKeyIfStale()
     }
 
     /// Updates the user's KDF settings to the minimums.
@@ -1363,23 +1384,6 @@ extension DefaultAuthRepository: AuthRepository {
     private func userIdOrActive(_ maybeId: String?) async throws -> String {
         if let maybeId { return maybeId }
         return try await stateService.getActiveAccountId()
-    }
-
-    /// Restores the biometric unlock keychain entry after a vault unlock when the
-    /// biometric preference is enabled. The preference survives logout but the keychain entry
-    /// is cleared; this rewrites the key so biometric unlock works without re-enabling in settings.
-    ///
-    private func configureBiometricUnlockIfNeeded() async {
-        do {
-            guard try await biometricsRepository.getBiometricUnlockStatus().isEnabled else { return }
-            guard await !biometricsRepository.hasBiometricUnlockKey() else { return }
-            let authKey = try await clientService.crypto().getUserEncryptionKey()
-            try await biometricsRepository.restoreBiometricUnlockKey(authKey: authKey)
-        } catch BiometricsServiceError.biometryLocked {
-            // Lockout is a transient state; do nothing and let the user retry later.
-        } catch {
-            errorReporter.log(error: error)
-        }
     }
 
     /// Configures PIN unlock if the user requires master password or biometrics after an app restart.

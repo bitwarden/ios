@@ -1,6 +1,7 @@
 import BitwardenKit
 import BitwardenSdk
 import Foundation
+import LocalAuthentication
 
 // MARK: - KeychainItem
 
@@ -486,12 +487,19 @@ extension DefaultKeychainRepository: BiometricsKeychainRepository {
         try await keychainServiceFacade.deleteValue(for: BitwardenKeychainItem.biometrics(userId: userId))
     }
 
-    func getUserBiometricAuthKey(userId: String) async throws -> String {
-        try await keychainServiceFacade.getValue(for: BitwardenKeychainItem.biometrics(userId: userId))
+    func getUserBiometricAuthKey(userId: String, context: LAContext?) async throws -> String {
+        try await keychainServiceFacade.getValue(
+            for: BitwardenKeychainItem.biometrics(userId: userId),
+            context: context,
+        )
     }
 
-    func setUserBiometricAuthKey(userId: String, value: String) async throws {
-        try await keychainServiceFacade.setValue(value, for: BitwardenKeychainItem.biometrics(userId: userId))
+    func setUserBiometricAuthKey(userId: String, value: String, context: LAContext?) async throws {
+        try await keychainServiceFacade.setValue(
+            value,
+            for: BitwardenKeychainItem.biometrics(userId: userId),
+            context: context,
+        )
     }
 
     func userBiometricAuthKeyExists(userId: String) async -> Bool {
