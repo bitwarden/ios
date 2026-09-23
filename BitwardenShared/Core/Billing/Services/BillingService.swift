@@ -254,6 +254,8 @@ class DefaultBillingService: BillingService {
     }
 
     func premiumCheckoutSucceeded() async {
+        await refreshSubscriptionAttentionCard(subscription: nil)
+
         guard await isEligibleForPremiumUpgradePath() else { return }
         guard let userId = try? await stateService.getActiveAccountId() else { return }
 
@@ -282,8 +284,7 @@ class DefaultBillingService: BillingService {
         // update-payment users still have premium, so they would be excluded by the guard below.
         await refreshSubscriptionAttentionCard(subscription: nil)
 
-        guard await !isSelfHosted(),
-              await configService.getFeatureFlag(.premiumUpgradePath),
+        guard await isEligibleForPremiumUpgradePath(),
               await !stateService.doesActiveAccountHavePremium()
         else {
             return
@@ -311,9 +312,7 @@ class DefaultBillingService: BillingService {
     }
 
     func refreshSubscriptionAttentionCard(subscription: PremiumSubscription?) async {
-        guard await !isSelfHosted(),
-              await configService.getFeatureFlag(.premiumUpgradePath)
-        else {
+        guard await isEligibleForPremiumUpgradePath() else {
             do {
                 try await billingStateService.setSubscriptionAttentionCardVisible(false)
             } catch {
@@ -402,14 +401,13 @@ class DefaultBillingService: BillingService {
         return .premium
     }
 
-    /// Refreshes the subscription attention card cache and reports whether the active account
-    /// is eligible to participate in the Premium upgrade path at all (self-hosted/feature-flag
-    /// gated), independent of whether Premium has already been granted.
+    /// Reports whether the active account is eligible to participate in the Premium upgrade path
+    /// at all (self-hosted/feature-flag gated), independent of whether Premium has already been
+    /// granted.
     ///
     /// - Returns: Whether the active account is eligible for the Premium upgrade path.
     ///
     private func isEligibleForPremiumUpgradePath() async -> Bool {
-        await refreshSubscriptionAttentionCard(subscription: nil)
         guard await !isSelfHosted(),
               await configService.getFeatureFlag(.premiumUpgradePath)
         else {
