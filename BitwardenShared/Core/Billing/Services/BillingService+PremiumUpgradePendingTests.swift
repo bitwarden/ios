@@ -82,18 +82,6 @@ struct BillingServicePremiumUpgradePendingTests {
         #expect(billingStateService.setPremiumUpgradePendingReceivedArguments?.pending == false)
     }
 
-    /// `completePendingUpgrade(userId:)` leaves the upgrade pending when the purchased Premium
-    /// hasn't arrived yet, so a later sync can complete it.
-    @Test
-    func completePendingUpgrade_pendingWithoutPremium_leavesFlagSet() async {
-        billingStateService.getPremiumUpgradePendingReturnValue = true
-        stateService.doesAccountHavePremiumPersonallyByUserId["1"] = false
-
-        await subject.completePendingUpgrade(userId: "1")
-
-        #expect(!billingStateService.setPremiumUpgradePendingCalled)
-    }
-
     /// `completePendingUpgrade(userId:)` doesn't treat organization-granted Premium as the
     /// personal purchase landing: the flag is only ever set by a personal checkout, so an
     /// organization grant arriving mid-flight must leave the upgrade pending.
@@ -102,6 +90,18 @@ struct BillingServicePremiumUpgradePendingTests {
         billingStateService.getPremiumUpgradePendingReturnValue = true
         stateService.doesAccountHavePremiumPersonallyByUserId["1"] = false
         stateService.doesAccountHavePremiumByUserId["1"] = true
+
+        await subject.completePendingUpgrade(userId: "1")
+
+        #expect(!billingStateService.setPremiumUpgradePendingCalled)
+    }
+
+    /// `completePendingUpgrade(userId:)` leaves the upgrade pending when the purchased Premium
+    /// hasn't arrived yet, so a later sync can complete it.
+    @Test
+    func completePendingUpgrade_pendingWithoutPremium_leavesFlagSet() async {
+        billingStateService.getPremiumUpgradePendingReturnValue = true
+        stateService.doesAccountHavePremiumPersonallyByUserId["1"] = false
 
         await subject.completePendingUpgrade(userId: "1")
 
