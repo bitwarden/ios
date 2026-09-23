@@ -714,7 +714,7 @@ extension AppProcessor: SyncServiceDelegate {
         // Clear a Premium upgrade left pending by an earlier checkout whose sync didn't report
         // it. Runs on every sync, not just the checkout's own, so the flag clears whenever the
         // server catches up.
-        await services.billingService.completePendingUpgrade(userId: userId)
+        await services.billingService.completeUpgradeIfPending(userId: userId)
 
         do {
             let hasPerformedSyncAfterLogin = try await services.stateService.getHasPerformedSyncAfterLogin(

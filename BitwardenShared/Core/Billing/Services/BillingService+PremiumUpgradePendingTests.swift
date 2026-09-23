@@ -52,94 +52,94 @@ struct BillingServicePremiumUpgradePendingTests {
         )
     }
 
-    // MARK: completePendingUpgrade
+    // MARK: completeUpgradeIfPending
 
-    /// `completePendingUpgrade(userId:)` clears the pending flag for the account named by its
+    /// `completeUpgradeIfPending(userId:)` clears the pending flag for the account named by its
     /// parameter, not whichever account happens to be active — the sync it follows belongs to
     /// that account.
     @Test
-    func completePendingUpgrade_clearsGivenAccountNotActiveAccount() async {
+    func completeUpgradeIfPending_clearsGivenAccountNotActiveAccount() async {
         stateService.activeAccount = .fixture(profile: .fixture(userId: "2"))
         billingStateService.getPremiumUpgradePendingReturnValue = true
         stateService.doesAccountHavePremiumPersonallyByUserId["1"] = true
 
-        await subject.completePendingUpgrade(userId: "1")
+        await subject.completeUpgradeIfPending(userId: "1")
 
         #expect(billingStateService.setPremiumUpgradePendingReceivedArguments?.pending == false)
         #expect(billingStateService.setPremiumUpgradePendingReceivedArguments?.userId == "1")
     }
 
-    /// `completePendingUpgrade(userId:)` clears the pending flag once the purchased Premium has
+    /// `completeUpgradeIfPending(userId:)` clears the pending flag once the purchased Premium has
     /// arrived — the sync that finally reports it may be any later sync, not the checkout's own.
     @Test
-    func completePendingUpgrade_pendingAndPersonalPremium_clearsFlag() async {
+    func completeUpgradeIfPending_pendingAndPersonalPremium_clearsFlag() async {
         billingStateService.getPremiumUpgradePendingReturnValue = true
         stateService.doesAccountHavePremiumPersonallyByUserId["1"] = true
 
-        await subject.completePendingUpgrade(userId: "1")
+        await subject.completeUpgradeIfPending(userId: "1")
 
         #expect(billingStateService.setPremiumUpgradePendingCallsCount == 1)
         #expect(billingStateService.setPremiumUpgradePendingReceivedArguments?.pending == false)
     }
 
-    /// `completePendingUpgrade(userId:)` doesn't treat organization-granted Premium as the
+    /// `completeUpgradeIfPending(userId:)` doesn't treat organization-granted Premium as the
     /// personal purchase landing: the flag is only ever set by a personal checkout, so an
     /// organization grant arriving mid-flight must leave the upgrade pending.
     @Test
-    func completePendingUpgrade_pendingWithOrganizationPremiumOnly_leavesFlagSet() async {
+    func completeUpgradeIfPending_pendingWithOrganizationPremiumOnly_leavesFlagSet() async {
         billingStateService.getPremiumUpgradePendingReturnValue = true
         stateService.doesAccountHavePremiumPersonallyByUserId["1"] = false
         stateService.doesAccountHavePremiumByUserId["1"] = true
 
-        await subject.completePendingUpgrade(userId: "1")
+        await subject.completeUpgradeIfPending(userId: "1")
 
         #expect(!billingStateService.setPremiumUpgradePendingCalled)
     }
 
-    /// `completePendingUpgrade(userId:)` leaves the upgrade pending when the purchased Premium
+    /// `completeUpgradeIfPending(userId:)` leaves the upgrade pending when the purchased Premium
     /// hasn't arrived yet, so a later sync can complete it.
     @Test
-    func completePendingUpgrade_pendingWithoutPremium_leavesFlagSet() async {
+    func completeUpgradeIfPending_pendingWithoutPremium_leavesFlagSet() async {
         billingStateService.getPremiumUpgradePendingReturnValue = true
         stateService.doesAccountHavePremiumPersonallyByUserId["1"] = false
 
-        await subject.completePendingUpgrade(userId: "1")
+        await subject.completeUpgradeIfPending(userId: "1")
 
         #expect(!billingStateService.setPremiumUpgradePendingCalled)
     }
 
-    /// `completePendingUpgrade(userId:)` writes nothing for an account with no pending upgrade,
+    /// `completeUpgradeIfPending(userId:)` writes nothing for an account with no pending upgrade,
     /// so a routine sync for a long-since-Premium or free account never touches the flag.
     @Test
-    func completePendingUpgrade_withNoPendingUpgrade_doesNothing() async {
+    func completeUpgradeIfPending_withNoPendingUpgrade_doesNothing() async {
         billingStateService.getPremiumUpgradePendingReturnValue = false
         stateService.doesAccountHavePremiumPersonallyByUserId["1"] = true
 
-        await subject.completePendingUpgrade(userId: "1")
+        await subject.completeUpgradeIfPending(userId: "1")
 
         #expect(!billingStateService.setPremiumUpgradePendingCalled)
     }
 
-    /// `completePendingUpgrade(userId:)` logs the error and writes nothing when reading the
+    /// `completeUpgradeIfPending(userId:)` logs the error and writes nothing when reading the
     /// pending flag throws.
     @Test
-    func completePendingUpgrade_withReadError_logsError() async {
+    func completeUpgradeIfPending_withReadError_logsError() async {
         billingStateService.getPremiumUpgradePendingThrowableError = BitwardenTestError.example
 
-        await subject.completePendingUpgrade(userId: "1")
+        await subject.completeUpgradeIfPending(userId: "1")
 
         #expect(errorReporter.errors.last as? BitwardenTestError == .example)
         #expect(!billingStateService.setPremiumUpgradePendingCalled)
     }
 
-    /// `completePendingUpgrade(userId:)` logs the error when clearing the pending flag throws.
+    /// `completeUpgradeIfPending(userId:)` logs the error when clearing the pending flag throws.
     @Test
-    func completePendingUpgrade_withWriteError_logsError() async {
+    func completeUpgradeIfPending_withWriteError_logsError() async {
         billingStateService.getPremiumUpgradePendingReturnValue = true
         billingStateService.setPremiumUpgradePendingThrowableError = BitwardenTestError.example
         stateService.doesAccountHavePremiumPersonallyByUserId["1"] = true
 
-        await subject.completePendingUpgrade(userId: "1")
+        await subject.completeUpgradeIfPending(userId: "1")
 
         #expect(errorReporter.errors.last as? BitwardenTestError == .example)
     }

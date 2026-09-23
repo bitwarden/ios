@@ -1480,8 +1480,8 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
     func test_onFetchSyncSucceeded_completesPendingPremiumUpgrade() async {
         await subject.onFetchSyncSucceeded(userId: "1")
 
-        XCTAssertTrue(billingService.completePendingUpgradeCalled)
-        XCTAssertEqual(billingService.completePendingUpgradeReceivedUserId, "1")
+        XCTAssertTrue(billingService.completeUpgradeIfPendingCalled)
+        XCTAssertEqual(billingService.completeUpgradeIfPendingReceivedUserId, "1")
     }
 
     /// `onFetchSyncSucceeded(userId:)` completes a pending Premium upgrade even on a repeat sync,
@@ -1491,8 +1491,8 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
 
         await subject.onFetchSyncSucceeded(userId: "1")
 
-        XCTAssertTrue(billingService.completePendingUpgradeCalled)
-        XCTAssertEqual(billingService.completePendingUpgradeReceivedUserId, "1")
+        XCTAssertTrue(billingService.completeUpgradeIfPendingCalled)
+        XCTAssertEqual(billingService.completeUpgradeIfPendingReceivedUserId, "1")
     }
 
     /// `removeMasterPassword(organizationName:)` notifies the coordinator to show the remove

@@ -17,7 +17,7 @@ protocol BillingService: AnyObject { // sourcery: AutoMockable
     /// - Parameters:
     ///   - userId: The account to complete the pending upgrade for.
     ///
-    func completePendingUpgrade(userId: String) async
+    func completeUpgradeIfPending(userId: String) async
 
     /// Creates a checkout session for Premium upgrade and returns the checkout URL.
     ///
@@ -67,7 +67,7 @@ protocol BillingService: AnyObject { // sourcery: AutoMockable
 
     /// Notifies that the user completed payment in the Stripe checkout, marking the upgrade
     /// pending before reconciling the new Premium status. The upgrade stays pending until a sync
-    /// reports the purchased Premium, which `completePendingUpgrade(userId:)` then clears.
+    /// reports the purchased Premium, which `completeUpgradeIfPending(userId:)` then clears.
     ///
     /// Marking the upgrade pending asserts that a purchase was made, so only call this after
     /// observing a successful Stripe callback.
@@ -187,7 +187,7 @@ class DefaultBillingService: BillingService {
 
     // MARK: Methods
 
-    func completePendingUpgrade(userId: String) async {
+    func completeUpgradeIfPending(userId: String) async {
         do {
             // A pending upgrade always comes from a personal checkout, so only personal Premium
             // completes it — an organization grant arriving mid-flight isn't the purchase landing.
