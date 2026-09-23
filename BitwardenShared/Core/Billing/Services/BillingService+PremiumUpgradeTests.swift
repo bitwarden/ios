@@ -9,6 +9,8 @@ import Testing
 @testable import BitwardenShared
 @testable import BitwardenSharedMocks
 
+// swiftlint:disable file_length
+
 // MARK: - PremiumUpgradeStateStore
 
 /// Backing per-user-id storage for `MockBillingStateService`'s premium-upgrade-pending state.
@@ -337,5 +339,95 @@ struct BillingServicePremiumUpgradeTests {
 
         #expect(premiumUpgradeStorage.pendingByUserId["1"] == false)
         #expect(premiumUpgradeStorage.upgradedToPremiumCardVisibleByUserId["1"] == true)
+    }
+
+    // MARK: retryPendingUpgrade
+
+    /// `retryPendingUpgrade()` completes a pending upgrade and publishes `.confirmed` when its
+    /// sync finds the purchased Premium — the "Sync Now" retry succeeding on a real upgrade.
+    @Test
+    func retryPendingUpgrade_confirmed() async throws {
+        premiumUpgradeStorage.pendingByUserId["1"] = true
+        stateService.setPersonalPremium(false, userId: "1")
+        syncService.fetchSyncHandler = {
+            stateService.setPersonalPremium(true, userId: "1")
+        }
+        var statuses = [PremiumCheckoutStatus]()
+        let cancellable = subject.premiumCheckoutStatusPublisher()
+            .sink { statuses.append($0) }
+        defer { cancellable.cancel() }
+
+        await subject.retryPendingUpgrade()
+
+        try await waitForAsync { !statuses.isEmpty }
+        #expect(statuses == [.confirmed])
+        #expect(syncService.didFetchSync)
+        #expect(premiumUpgradeStorage.pendingByUserId["1"] == false)
+        #expect(premiumUpgradeStorage.upgradedToPremiumCardVisibleByUserId["1"] == true)
+    }
+
+    /// `retryPendingUpgrade()` does nothing when the premiumUpgradePath feature flag is disabled.
+    @Test
+    func retryPendingUpgrade_featureFlagDisabled_doesNothing() async {
+        configService.featureFlagsBool[.premiumUpgradePath] = false
+
+        await subject.retryPendingUpgrade()
+
+        #expect(!syncService.didFetchSync)
+        #expect(premiumUpgradeStorage.pendingByUserId["1"] == nil)
+    }
+
+    /// `retryPendingUpgrade()` does nothing when there's no active account to retry for.
+    @Test
+    func retryPendingUpgrade_noActiveAccount_doesNothing() async {
+        stateService.activeAccount = nil
+
+        await subject.retryPendingUpgrade()
+
+        #expect(!syncService.didFetchSync)
+    }
+
+    /// `retryPendingUpgrade()` leaves a genuinely pending upgrade pending and publishes `.pending`
+    /// when its sync still doesn't find Premium.
+    @Test
+    func retryPendingUpgrade_pending() async throws {
+        premiumUpgradeStorage.pendingByUserId["1"] = true
+        stateService.setPersonalPremium(false, userId: "1")
+        var statuses = [PremiumCheckoutStatus]()
+        let cancellable = subject.premiumCheckoutStatusPublisher()
+            .sink { statuses.append($0) }
+        defer { cancellable.cancel() }
+
+        await subject.retryPendingUpgrade()
+
+        try await waitForAsync { !statuses.isEmpty }
+        #expect(statuses == [.pending])
+        #expect(premiumUpgradeStorage.pendingByUserId["1"] == true)
+    }
+
+    /// `retryPendingUpgrade()` never marks an upgrade pending, so a "Sync Now" tap on a pending
+    /// alert reached without a checkout — the alert is also shown for a push-driven `.pending` —
+    /// can't latch the account into a pending state it can never leave. It syncs and reports
+    /// nothing, rather than republishing `.pending` and re-showing the alert on a loop.
+    @Test
+    func retryPendingUpgrade_withNoPendingUpgrade_doesNotMarkPending() async throws {
+        stateService.setPersonalPremium(false, userId: "1")
+        // `premiumUpgradeLifecycleState()` resolves the active account by passing a `nil` userId,
+        // which `MockStateService` answers from these rather than from its per-user storage.
+        stateService.doesActiveAccountHavePremiumPersonallyResult = false
+        stateService.doesActiveAccountHavePremiumResult = false
+        var statuses = [PremiumCheckoutStatus]()
+        let cancellable = subject.premiumCheckoutStatusPublisher()
+            .sink { statuses.append($0) }
+        defer { cancellable.cancel() }
+
+        await subject.retryPendingUpgrade()
+
+        try await waitForAsync { !statuses.isEmpty }
+        #expect(statuses == [.syncing])
+        #expect(syncService.didFetchSync)
+        #expect(premiumUpgradeStorage.pendingByUserId["1"] == nil)
+        #expect(premiumUpgradeStorage.upgradedToPremiumCardVisibleByUserId["1"] == nil)
+        #expect(await subject.premiumUpgradeLifecycleState() == .notPremium)
     }
 }

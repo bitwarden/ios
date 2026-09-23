@@ -9,6 +9,8 @@ import Testing
 @testable import BitwardenShared
 @testable import BitwardenSharedMocks
 
+// swiftlint:disable file_length
+
 // MARK: - PremiumUpgradeHelperTests
 
 @MainActor
@@ -198,6 +200,26 @@ struct PremiumUpgradeHelperTests { // swiftlint:disable:this type_body_length
         try await waitForAsync { coordinator.alertShown.count == 2 }
         #expect(coordinator.alertShown.last?.title == Localizations.upgradePending)
         #expect(coordinator.routes.isEmpty)
+    }
+
+    /// The pending alert's "Sync Now" retries via `retryPendingUpgrade()`, not
+    /// `premiumCheckoutSucceeded()`. The alert is reachable without a preceding checkout — a
+    /// push-driven `.pending` shows it too — and `premiumCheckoutSucceeded()` marks the account
+    /// pending, which would latch a user who never purchased out of the upgrade path for good.
+    @Test
+    func startInAppPremiumUpgrade_pendingAlert_syncNow_retriesWithoutMarkingPending() async throws {
+        let statusSubject = PassthroughSubject<PremiumCheckoutStatus, Never>()
+        billingService.premiumCheckoutStatusPublisherReturnValue = statusSubject.eraseToAnyPublisher()
+        billingService.premiumUpgradeLifecycleStateReturnValue = .pending
+        let subject = makeSubject()
+
+        subject.startInAppPremiumUpgrade()
+        try await waitForAsync { !coordinator.alertShown.isEmpty }
+
+        try await coordinator.alertShown.last?.tapAction(title: Localizations.syncNow)
+
+        #expect(billingService.retryPendingUpgradeCalled)
+        #expect(!billingService.premiumCheckoutSucceededCalled)
     }
 
     // MARK: Tests — subscribeToPremiumCheckoutStatus

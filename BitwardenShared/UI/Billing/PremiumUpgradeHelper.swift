@@ -145,12 +145,13 @@ class DefaultPremiumUpgradeHelper<Route: PremiumUpgradeRoute, Event>: PremiumUpg
     // MARK: Private Methods
 
     /// Calls `onPendingDismiss`, then shows the upgrade pending alert with "Sync Now" wired to
-    /// re-run the post-checkout confirmation via `premiumCheckoutSucceeded()`.
+    /// `retryPendingUpgrade()`. The alert is reachable without a preceding checkout, so the
+    /// retry must not be one that marks an upgrade pending.
     ///
     private func showUpgradePendingAlert() {
         onPendingDismiss?()
         coordinator.showAlert(.upgradePending { [weak self] in
-            await self?.services.billingService.premiumCheckoutSucceeded()
+            await self?.services.billingService.retryPendingUpgrade()
         })
     }
 

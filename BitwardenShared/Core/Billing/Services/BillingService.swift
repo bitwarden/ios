@@ -67,10 +67,15 @@ protocol BillingService: AnyObject { // sourcery: AutoMockable
     ///
     func premiumCheckoutStatusPublisher() -> AnyPublisher<PremiumCheckoutStatus, Never>
 
-    /// Notifies that the user completed payment in the Stripe checkout. Confirms whether the
-    /// account has been granted Premium yet, syncing to check and publishing checkout status
-    /// updates as it resolves. If the sync doesn't confirm Premium (or fails), the upgrade is
-    /// left pending so `completePendingUpgrade(userId:)` can finish it once a later sync does.
+    /// Notifies that the user completed payment in the Stripe checkout. Marks the upgrade
+    /// pending, then confirms whether the account has been granted Premium yet, syncing to check
+    /// and publishing checkout status updates as it resolves. If the sync doesn't confirm Premium
+    /// (or fails), the upgrade is left pending so `completePendingUpgrade(userId:)` can finish it
+    /// once a later sync does.
+    ///
+    /// Marking the upgrade pending asserts that a purchase was made, so only call this after
+    /// observing a successful Stripe callback. Use `retryPendingUpgrade()` for a user-initiated
+    /// retry, which makes no such assertion.
     ///
     func premiumCheckoutSucceeded() async
 
@@ -98,6 +103,12 @@ protocol BillingService: AnyObject { // sourcery: AutoMockable
     ///   - subscription: A previously fetched subscription to use, or `nil` to fetch fresh.
     ///
     func refreshSubscriptionAttentionCard(subscription: PremiumSubscription?) async
+
+    /// Syncs and finishes an upgrade that is already pending, publishing checkout status updates
+    /// as it resolves. Unlike `premiumCheckoutSucceeded()`, this never marks an upgrade pending,
+    /// so it is safe to call for a user-initiated retry that may not follow a real checkout.
+    ///
+    func retryPendingUpgrade() async
 
     /// Sets the Premium upgrade banner as dismissed for the active account, so it is not shown again.
     ///
@@ -265,18 +276,7 @@ class DefaultBillingService: BillingService {
             errorReporter.log(error: error)
         }
 
-        premiumCheckoutStatusSubject.send(.syncing)
-        do {
-            try await syncService.fetchSync(forceSync: true)
-        } catch {
-            errorReporter.log(error: error)
-        }
-
-        let upgradeState = await completePendingUpgradeState(userId: userId)
-
-        // Only the account this checkout started for should see its own result.
-        guard await (try? stateService.getActiveAccountId()) == userId else { return }
-        premiumCheckoutStatusSubject.send(upgradeState == .premium ? .confirmed : .pending)
+        await syncAndCompletePendingUpgrade(userId: userId)
     }
 
     func premiumStatusChanged() async {
@@ -337,6 +337,15 @@ class DefaultBillingService: BillingService {
         } catch {
             errorReporter.log(error: error)
         }
+    }
+
+    func retryPendingUpgrade() async {
+        await refreshSubscriptionAttentionCard(subscription: nil)
+
+        guard await isEligibleForPremiumUpgradePath() else { return }
+        guard let userId = try? await stateService.getActiveAccountId() else { return }
+
+        await syncAndCompletePendingUpgrade(userId: userId)
     }
 
     func setPremiumUpgradeBannerDismissed() async throws {
@@ -441,5 +450,38 @@ class DefaultBillingService: BillingService {
             errorReporter.log(error: error)
         }
         return await stateService.doesAccountHavePremium(userId: userId) ? .premium : .notPremium
+    }
+
+    /// Force-syncs, completes `userId`'s pending upgrade if one is outstanding, and publishes
+    /// where the account landed.
+    ///
+    /// Publishes nothing when the account had no pending upgrade: there was no checkout to
+    /// report on, and publishing `.pending` for one would re-show the pending alert on a loop.
+    /// `premiumCheckoutSucceeded()` can't reach that case, having just marked the upgrade pending
+    /// itself.
+    ///
+    /// - Parameters:
+    ///   - userId: The account to sync and complete the pending upgrade for.
+    ///
+    private func syncAndCompletePendingUpgrade(userId: String) async {
+        premiumCheckoutStatusSubject.send(.syncing)
+        do {
+            try await syncService.fetchSync(forceSync: true)
+        } catch {
+            errorReporter.log(error: error)
+        }
+
+        let upgradeState = await completePendingUpgradeState(userId: userId)
+
+        // Only the account this checkout started for should see its own result.
+        guard await (try? stateService.getActiveAccountId()) == userId else { return }
+        switch upgradeState {
+        case .notPremium:
+            break
+        case .pending:
+            premiumCheckoutStatusSubject.send(.pending)
+        case .premium:
+            premiumCheckoutStatusSubject.send(.confirmed)
+        }
     }
 }
