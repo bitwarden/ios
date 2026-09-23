@@ -74,8 +74,12 @@ protocol BillingService: AnyObject { // sourcery: AutoMockable
     ///
     func premiumCheckoutSucceeded() async
 
-    /// Notifies that a Premium status change was detected (via deep link or push notification),
-    /// triggers a sync, and publishes status updates.
+    /// Notifies that a Premium status change was detected — by a push notification, or by the
+    /// user retrying from the upgrade pending alert — and triggers a sync, publishing status
+    /// updates as it resolves. Returns early for an account that already has Premium.
+    ///
+    /// Use `premiumCheckoutSucceeded()` for the Stripe checkout callback, which additionally
+    /// records that the upgrade is pending.
     ///
     func premiumStatusChanged() async
 
