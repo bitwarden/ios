@@ -472,6 +472,7 @@ extension DefaultSyncService {
             await stateService.setAccountMasterPasswordUnlock(masterPasswordUnlock, userId: userId)
         }
         await stateService.setV2UpgradeToken(response.userDecryption?.v2UpgradeToken, userId: userId)
+        try await reinitUserCryptoIfNeeded(userId: userId)
 
         try await cipherService.replaceCiphers(response.ciphers, userId: userId)
         try await collectionService.replaceCollections(response.collections, userId: userId)
@@ -662,5 +663,26 @@ extension DefaultSyncService {
         if let cryptographicState = WrappedAccountCryptographicState(responseModel: profile) {
             try await stateService.setAccountCryptographicState(cryptographicState, userId: userId)
         }
+    }
+
+    /// Re-initializes the SDK's crypto with the newly synced cryptographic state if the user has a pending V2
+    /// upgrade token and their vault is currently unlocked, e.g. after a no-logout key rotation. Without this, an
+    /// unlocked SDK would continue decrypting with the old (V1) user key until the next full vault unlock.
+    ///
+    /// - Parameter userId: The userId of the account whose crypto should be re-initialized.
+    ///
+    private func reinitUserCryptoIfNeeded(userId: String) async throws {
+        guard await !vaultTimeoutService.isLocked(userId: userId),
+              let upgradeToken = await stateService.getV2UpgradeToken(userId: userId)
+        else { return }
+
+        let cryptographicState = try await stateService.getAccountCryptographicState(userId: userId)
+        try await clientService.crypto(for: userId).reinitUserCrypto(
+            req: ReinitUserCryptoRequest(
+                accountCryptographicState: cryptographicState,
+                upgradeToken: upgradeToken,
+            ),
+        )
+        await flightRecorder.log("[Auth] Re-initialized user crypto after sync with V2 upgrade token")
     }
 } // swiftlint:disable:this file_length
