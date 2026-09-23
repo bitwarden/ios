@@ -12,12 +12,9 @@ protocol BillingService: AnyObject { // sourcery: AutoMockable
     /// The callback URL scheme used by the Stripe checkout web authentication session.
     var checkoutCallbackUrlScheme: String { get }
 
-    /// Completes an account's pending Premium upgrade once the purchased Premium arrives: clears
-    /// the pending flag and makes the "Upgraded to Premium" action card visible. Only personal
-    /// Premium completes the upgrade — the flag is set by a personal checkout, so an organization
-    /// grant arriving mid-flight isn't that purchase landing. Leaves persisted state untouched
-    /// when the account has no pending upgrade recorded, or when Premium hasn't arrived yet, so
-    /// this can safely run after every sync.
+    /// If the account has a Premium upgrade pending, completes it once the personally purchased
+    /// Premium arrives — clearing the pending flag and revealing the "Upgraded to Premium"
+    /// action card. Does nothing otherwise, so this can safely run after every sync.
     ///
     /// - Parameters:
     ///   - userId: The account to complete the pending upgrade for.
@@ -150,10 +147,8 @@ class DefaultBillingService: BillingService {
     /// The service used by the application to report non-fatal errors.
     private let errorReporter: ErrorReporter
 
-    /// Subject that emits the Premium checkout sync status. A `PassthroughSubject`, deliberately
-    /// not a `CurrentValueSubject`: subscribers attach fresh at the start of each upgrade flow,
-    /// before any status for that flow can exist, and must never replay a stale status left over
-    /// from a previous flow or account to a new subscriber.
+    /// Subject that emits the Premium checkout sync status. Subscribers attach fresh per upgrade
+    /// flow, so this must never replay a status from a previous flow or account.
     private let premiumCheckoutStatusSubject = PassthroughSubject<PremiumCheckoutStatus, Never>()
 
     /// The service used to manage the app's state.
@@ -277,9 +272,7 @@ class DefaultBillingService: BillingService {
 
         let upgradeState = await completePendingUpgradeState(userId: userId)
 
-        // Only the account this checkout started for should see its own result — the
-        // "Sync Now" tap that led here already dismissed to an interactive vault list, so the
-        // active account can have switched away while the sync above was in flight.
+        // Only the account this checkout started for should see its own result.
         guard await (try? stateService.getActiveAccountId()) == userId else { return }
         premiumCheckoutStatusSubject.send(upgradeState == .premium ? .confirmed : .pending)
     }
@@ -311,9 +304,6 @@ class DefaultBillingService: BillingService {
                 errorReporter.log(error: error)
             }
         }
-        // A pending upgrade in flight needs no extra handling here: the forced sync above ends
-        // in the sync delegate's `onFetchSyncSucceeded(userId:)`, which completes any pending
-        // upgrade generically.
     }
 
     func premiumUpgradeLifecycleState() async -> PremiumUpgradeLifecycleState {
