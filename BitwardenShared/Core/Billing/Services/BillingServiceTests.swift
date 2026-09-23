@@ -290,7 +290,8 @@ struct BillingServiceTests { // swiftlint:disable:this type_body_length
         #expect(result.cancelAt != nil)
     }
 
-    /// `premiumCheckoutCanceled()` publishes `.canceled` and then resets the publisher value to nil.
+    /// `premiumCheckoutCanceled()` publishes `.canceled` to current subscribers without replaying
+    /// it to a later subscriber.
     @Test
     func premiumCheckoutCanceled() async throws {
         var statuses = [PremiumCheckoutStatus]()
@@ -303,7 +304,8 @@ struct BillingServiceTests { // swiftlint:disable:this type_body_length
         try await waitForAsync { !statuses.isEmpty }
         #expect(statuses == [.canceled])
 
-        // After .canceled + nil are sent, a new subscriber should receive nothing (nil is filtered).
+        // A subscriber attaching after `.canceled` was sent should receive nothing, since the
+        // subject doesn't replay.
         var lateStatuses = [PremiumCheckoutStatus]()
         let lateCancellable = subject.premiumCheckoutStatusPublisher()
             .sink { lateStatuses.append($0) }

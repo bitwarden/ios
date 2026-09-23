@@ -29,17 +29,23 @@ extension VaultRoute: PremiumUpgradeRoute {}
 /// A helper that centralizes the Premium upgrade navigation flow.
 ///
 protocol PremiumUpgradeHelper { // sourcery: AutoMockable
-    /// Checks if in-app upgrade is available and navigates accordingly: to the upgrade screen
-    /// if available, or opens the web vault upgrade URL as a fallback.
+    /// Checks if in-app upgrade is available and resolves to one of three outcomes: opens the web
+    /// vault upgrade URL if in-app upgrade is unavailable, shows the upgrade pending alert if an
+    /// upgrade is already pending, or navigates to the upgrade screen. The pending check and any
+    /// navigation resolve asynchronously, after this method returns.
     ///
-    /// - Parameter onConfirmed: An optional closure called when the upgrade is confirmed.
+    /// - Parameters:
+    ///   - onConfirmed: An optional closure called when the upgrade is confirmed.
     ///
     func navigateToPremiumUpgrade(onConfirmed: (() async -> Void)?) async
 
-    /// Subscribes to checkout status and navigates directly to the Premium upgrade screen,
-    /// skipping the availability check. Use when availability is already known (e.g., action card tap).
+    /// Subscribes to checkout status, then either shows the upgrade pending alert if an upgrade is
+    /// already pending or navigates directly to the Premium upgrade screen. Skips the availability
+    /// check, so use when availability is already known (e.g., action card tap). The pending check
+    /// resolves asynchronously, so neither outcome has happened when this method returns.
     ///
-    /// - Parameter onConfirmed: An optional closure called when the upgrade is confirmed.
+    /// - Parameters:
+    ///   - onConfirmed: An optional closure called when the upgrade is confirmed.
     ///
     func startInAppPremiumUpgrade(onConfirmed: (() async -> Void)?)
 }
