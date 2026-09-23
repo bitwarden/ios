@@ -388,24 +388,18 @@ class DefaultBillingService: BillingService {
             errorReporter.log(error: error)
             return await premiumUpgradeLifecycleState(userId: userId)
         }
-        // `premiumCheckoutSucceeded()`'s own forced sync also reaches the sync delegate, so it and
-        // `completePendingUpgrade(userId:)` both act on that one sync; whichever runs second sees
-        // nothing pending and reports the derived state, which by then is `.premium`.
         guard wasPending else { return await premiumUpgradeLifecycleState(userId: userId) }
 
-        // Personal, not inclusive: the flag was set by a personal checkout, so only personal
-        // Premium confirms it. An organization grant arriving mid-flight is not this purchase
-        // landing, and must not clear the flag or surface the "Upgraded to Premium" card.
-        let hasPremium = await stateService.doesAccountHavePremiumPersonally(userId: userId)
+        // A pending upgrade always comes from a personal checkout, so only personal Premium completes it.
+        guard await stateService.doesAccountHavePremiumPersonally(userId: userId) else { return .pending }
+
         do {
-            try await billingStateService.setPremiumUpgradePending(!hasPremium, userId: userId)
-            if hasPremium {
-                try await billingStateService.setUpgradedToPremiumActionCardVisible(true, userId: userId)
-            }
+            try await billingStateService.setPremiumUpgradePending(false, userId: userId)
+            try await billingStateService.setUpgradedToPremiumActionCardVisible(true, userId: userId)
         } catch {
             errorReporter.log(error: error)
         }
-        return hasPremium ? .premium : .pending
+        return .premium
     }
 
     /// Refreshes the subscription attention card cache and reports whether the active account

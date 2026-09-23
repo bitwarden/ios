@@ -15,10 +15,6 @@ import Testing
 final class PremiumUpgradeStateStore {
     var pendingByUserId = [String: Bool]()
     var upgradedToPremiumCardVisibleByUserId = [String: Bool]()
-
-    /// How many times `pendingByUserId` has been written. Lets a test wait on a resolution that
-    /// re-persists the value it already held, which `pendingByUserId` alone can't distinguish.
-    var pendingWriteCount = 0
 }
 
 extension MockStateService {
@@ -49,7 +45,6 @@ extension MockBillingStateService {
         setPremiumUpgradePendingClosure = { pending, userId in
             let userId = try await stateService.getAccountIdOrActiveId(userId: userId)
             state.pendingByUserId[userId] = pending
-            state.pendingWriteCount += 1
         }
         getUpgradedToPremiumActionCardVisibleClosure = { userId in
             let userId = try await stateService.getAccountIdOrActiveId(userId: userId)
