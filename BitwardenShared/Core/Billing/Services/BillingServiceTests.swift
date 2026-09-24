@@ -32,6 +32,8 @@ struct BillingServiceTests { // swiftlint:disable:this type_body_length
         billingAPIService = MockBillingAPIService()
         billingAPIService.getSubscriptionReturnValue = .fixture()
         billingStateService = MockBillingStateService()
+        billingStateService.getSubscriptionAttentionCardVisibleReturnValue = false
+        billingStateService.getUpgradedToPremiumActionCardVisibleReturnValue = false
         configService = MockConfigService()
         configService.featureFlagsBool[.premiumUpgradePath] = true
         environmentService = MockEnvironmentService()

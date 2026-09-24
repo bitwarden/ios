@@ -19,7 +19,7 @@ protocol BillingService: AnyObject { // sourcery: AutoMockable
     /// - Parameters:
     ///   - userId: The account to complete the pending upgrade for.
     ///
-    func completePendingUpgrade(userId: String) async
+    func completeUpgradeIfPending(userId: String) async
 
     /// Creates a checkout session for Premium upgrade and returns the checkout URL.
     ///
@@ -70,8 +70,8 @@ protocol BillingService: AnyObject { // sourcery: AutoMockable
     /// Notifies that the user completed payment in the Stripe checkout. Marks the upgrade
     /// pending, then confirms whether the account has been granted Premium yet, syncing to check
     /// and publishing checkout status updates as it resolves. If the sync doesn't confirm Premium
-    /// (or fails), the upgrade is left pending so `completePendingUpgrade(userId:)` can finish it
-    /// once a later sync does.
+    /// (or fails), the upgrade is left pending so `completeUpgradeIfPending(userId:)` can finish
+    /// it once a later sync does.
     ///
     /// Marking the upgrade pending asserts that a purchase was made, so only call this after
     /// observing a successful Stripe callback. Use `retryPendingUpgrade()` for a user-initiated
@@ -79,8 +79,13 @@ protocol BillingService: AnyObject { // sourcery: AutoMockable
     ///
     func premiumCheckoutSucceeded() async
 
-    /// Notifies that a Premium status change was detected (via deep link or push notification),
-    /// triggers a sync, and publishes status updates.
+    /// Notifies that a Premium status change was detected by a push notification, and triggers a
+    /// sync, publishing status updates as it resolves. Returns early for an account that already
+    /// has Premium.
+    ///
+    /// Use `premiumCheckoutSucceeded()` for the Stripe checkout callback, which additionally
+    /// records that the upgrade is pending, and `retryPendingUpgrade()` for a user-initiated
+    /// retry of an upgrade that is already pending.
     ///
     func premiumStatusChanged() async
 
@@ -205,8 +210,8 @@ class DefaultBillingService: BillingService {
 
     // MARK: Methods
 
-    func completePendingUpgrade(userId: String) async {
-        await completePendingUpgradeState(userId: userId)
+    func completeUpgradeIfPending(userId: String) async {
+        await completeUpgradeIfPendingState(userId: userId)
     }
 
     func createCheckoutSession() async throws -> URL {
@@ -380,7 +385,7 @@ class DefaultBillingService: BillingService {
 
     // MARK: Private Methods
 
-    /// Performs `completePendingUpgrade(userId:)`'s work and additionally reports where the
+    /// Performs `completeUpgradeIfPending(userId:)`'s work and additionally reports where the
     /// account ended up, for the caller that needs to act on the outcome.
     ///
     /// - Parameters:
@@ -388,7 +393,7 @@ class DefaultBillingService: BillingService {
     /// - Returns: `userId`'s `PremiumUpgradeLifecycleState` after this completion.
     ///
     @discardableResult
-    private func completePendingUpgradeState(userId: String) async -> PremiumUpgradeLifecycleState {
+    private func completeUpgradeIfPendingState(userId: String) async -> PremiumUpgradeLifecycleState {
         let wasPending: Bool
         do {
             wasPending = try await billingStateService.getPremiumUpgradePending(userId: userId)
@@ -431,7 +436,7 @@ class DefaultBillingService: BillingService {
     /// The three checks are ordered deliberately, and the order is the only thing that
     /// distinguishes the outcomes — both Premium branches return the same `.premium`:
     ///
-    /// - Personal Premium is checked first. `completePendingUpgrade(userId:)` clears the pending
+    /// - Personal Premium is checked first. `completeUpgradeIfPending(userId:)` clears the pending
     ///   flag in a separate write after Premium is granted, so between the grant and the clear
     ///   — or if that write fails — the flag is stale and must not win.
     /// - The pending flag is checked before organization-granted Premium. The flag is only ever
@@ -471,7 +476,7 @@ class DefaultBillingService: BillingService {
             errorReporter.log(error: error)
         }
 
-        let upgradeState = await completePendingUpgradeState(userId: userId)
+        let upgradeState = await completeUpgradeIfPendingState(userId: userId)
 
         // Only the account this checkout started for should see its own result.
         guard await (try? stateService.getActiveAccountId()) == userId else { return }

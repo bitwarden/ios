@@ -71,13 +71,13 @@ class DefaultPremiumUpgradeHelper<Route: PremiumUpgradeRoute, Event>: PremiumUpg
 
     // MARK: Private Properties
 
-    /// Whether `startInAppPremiumUpgrade(onConfirmed:)` navigated to the Premium upgrade screen
-    /// for the current checkout status subscription.
-    private var navigatedToUpgradeScreen = false
-
     /// Whether a `startInAppPremiumUpgrade(onConfirmed:)` call's pending-state check is currently
     /// in flight, to guard against a rapid double-tap firing two overlapping checks.
     private var isResolvingStartRequest = false
+
+    /// Whether `startInAppPremiumUpgrade(onConfirmed:)` navigated to the Premium upgrade screen
+    /// for the current checkout status subscription.
+    private var navigatedToUpgradeScreen = false
 
     /// A cancellable for the Premium checkout status subscription.
     private var premiumStatusChangedCancellable: AnyCancellable?
@@ -165,7 +165,8 @@ class DefaultPremiumUpgradeHelper<Route: PremiumUpgradeRoute, Event>: PremiumUpg
     /// On `.pending`, dismisses the Premium upgrade screen first if one was navigated to for
     /// this subscription, then shows the upgrade pending alert.
     ///
-    /// - Parameter onConfirmed: An optional closure called when the upgrade is confirmed.
+    /// - Parameters:
+    ///   - onConfirmed: An optional closure called when the upgrade is confirmed.
     ///
     private func subscribeToPremiumCheckoutStatus(onConfirmed: (() async -> Void)?) {
         premiumStatusChangedCancellable = services.billingService

@@ -184,7 +184,7 @@ struct PremiumUpgradeProcessorTests {
     }
 
     /// `perform(_:)` with `.upgradeNowTapped` calls `premiumCheckoutSucceeded` when the session
-    /// returns a success URL.
+    /// returns a success URL, so the upgrade is marked pending.
     @Test
     func perform_upgradeNowTapped_checkoutSucceeded() async throws {
         let checkoutURL = URL(string: "https://checkout.stripe.com/session")!

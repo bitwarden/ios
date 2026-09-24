@@ -42,7 +42,7 @@ struct EnvironmentServiceTests {
         )
         #expect(
             subject.fillAssistRulesURL
-                == URL(string: "https://github.com/bitwarden/map-the-web/releases/latest/download"),
+                == URL(string: "https://fillassist.bitwarden.com"),
         )
         #expect(subject.webVaultURL == URL(string: "https://vault.bitwarden.com"))
     }
