@@ -10,7 +10,7 @@ import Testing
 
 // MARK: - BillingServicePremiumUpgradeLifecycleStateTests
 
-/// Tests for `BillingService.premiumUpgradeLifecycleState()`, which derives an account's position in the
+/// Tests for `BillingService.premiumUpgradeLifecycleState(userId:)`, which derives an account's position in the
 /// Premium upgrade lifecycle from its personal Premium status, its persisted pending flag, and
 /// its organization-granted Premium.
 ///
@@ -127,6 +127,21 @@ struct BillingServicePremiumUpgradeLifecycleStateTests {
         let result = await subject.premiumUpgradeLifecycleState()
 
         #expect(result == testCase.expected)
+    }
+
+    /// `premiumUpgradeLifecycleState(userId:)` derives the state of the account named by its
+    /// parameter, not the active account.
+    @Test
+    func premiumUpgradeLifecycleState_givenUserId_derivesThatAccount() async {
+        stateService.doesActiveAccountHavePremiumPersonallyResult = true
+        stateService.doesActiveAccountHavePremiumResult = true
+        stateService.doesAccountHavePremiumPersonallyByUserId["2"] = false
+        stateService.doesAccountHavePremiumByUserId["2"] = false
+        billingStateService.getPremiumUpgradePendingClosure = { userId in userId == "2" }
+
+        let result = await subject.premiumUpgradeLifecycleState(userId: "2")
+
+        #expect(result == .pending)
     }
 
     /// `premiumUpgradeLifecycleState()` reports `.notPremium` and logs the error when the pending
