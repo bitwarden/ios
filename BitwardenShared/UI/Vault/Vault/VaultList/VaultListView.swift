@@ -544,7 +544,7 @@ struct VaultListView: View {
                 processor: StateProcessor(
                     state: VaultListState(
                         loadingState: .error(
-                            errorMessage: Localizations.weAreUnableToProcessYourRequestPleaseTryAgainOrContactUs,
+                            errorMessage: Localizations.weCouldntSyncYourVaultWithTheServerDescriptionLong,
                         ),
                     ),
                 ),

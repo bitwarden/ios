@@ -578,6 +578,36 @@ extension Alert {
         return alert
     }
 
+    /// An alert shown when a vault sync fails.
+    ///
+    /// - Parameters:
+    ///   - message: The message to display — a server-supplied message when one is available,
+    ///     otherwise the generic sync failure copy.
+    ///   - tryAgainHandler: A closure called when the user taps "Try again".
+    /// - Returns: An `Alert` with "Not now" and "Try again" actions.
+    static func syncUnsuccessful(
+        message: String,
+        tryAgainHandler: @escaping () async -> Void,
+    ) -> Alert {
+        Alert(
+            title: Localizations.syncUnsuccessful,
+            message: message,
+            alertActions: [
+                AlertAction(
+                    title: Localizations.notNow,
+                    style: .cancel,
+                ),
+                AlertAction(
+                    title: Localizations.tryAgain,
+                    style: .default,
+                    handler: { _, _ in
+                        await tryAgainHandler()
+                    },
+                ),
+            ],
+        )
+    }
+
     /// Returns an alert notifying the user that a Premium subscription is required to view TOTP
     /// codes, with an option to upgrade.
     ///
