@@ -88,8 +88,8 @@ protocol BillingService: AnyObject { // sourcery: AutoMockable
     /// Derives an account's position in the Premium upgrade lifecycle from its Premium status
     /// and its persisted pending flag.
     ///
-    /// If the pending flag can't be read, the error is logged and the account is treated as not
-    /// pending.
+    /// If the account can't be resolved, the error is logged and `.notPremium` is returned. If the
+    /// pending flag can't be read, the error is logged and the account is treated as not pending.
     ///
     /// - Parameters:
     ///   - userId: The account to derive the state for. Defaults to the active account if `nil`.
@@ -329,22 +329,32 @@ class DefaultBillingService: BillingService {
     }
 
     func premiumUpgradeLifecycleState(userId: String?) async -> PremiumUpgradeLifecycleState {
+        // Resolved once so all three reads see the same account, even if the active account
+        // changes partway through.
+        let resolvedUserId: String
+        do {
+            resolvedUserId = try await stateService.getAccountIdOrActiveId(userId: userId)
+        } catch {
+            errorReporter.log(error: error)
+            return .notPremium
+        }
+
         // Personal Premium wins over the pending flag. `completeUpgradeIfPending(userId:)` clears
         // the flag in a separate write after a sync reports Premium, so between the two — or if
         // that write fails — the flag is stale.
-        if await stateService.doesAccountHavePremiumPersonally(userId: userId) { return .premium }
+        if await stateService.doesAccountHavePremiumPersonally(userId: resolvedUserId) { return .premium }
 
         // The pending flag wins over organization-granted Premium. Only a personal checkout sets
         // the flag, so an organization grant arriving while that purchase is in flight isn't the
         // purchase landing.
         do {
-            if try await billingStateService.getPremiumUpgradePending(userId: userId) { return .pending }
+            if try await billingStateService.getPremiumUpgradePending(userId: resolvedUserId) { return .pending }
         } catch {
             errorReporter.log(error: error)
         }
 
         // Personal Premium was ruled out above, so any Premium here is organization-granted.
-        return await stateService.doesAccountHavePremium(userId: userId) ? .premium : .notPremium
+        return await stateService.doesAccountHavePremium(userId: resolvedUserId) ? .premium : .notPremium
     }
 
     func refreshSubscriptionAttentionCard(subscription: PremiumSubscription?) async {
