@@ -2,6 +2,8 @@ import BitwardenKit
 import Combine
 import Foundation
 
+// swiftlint:disable file_length
+
 // MARK: - BillingService
 
 /// A protocol for a service used to manage billing operations.
@@ -82,6 +84,12 @@ protocol BillingService: AnyObject { // sourcery: AutoMockable
     /// records that the upgrade is pending.
     ///
     func premiumStatusChanged() async
+
+    /// Gets the active account's current position in the Premium upgrade lifecycle.
+    ///
+    /// - Returns: The active account's current `PremiumUpgradeLifecycleState`.
+    ///
+    func premiumUpgradeLifecycleState() async -> PremiumUpgradeLifecycleState
 
     /// Fetches the current subscription status and updates the visibility of the subscription
     /// attention action card.
@@ -302,6 +310,10 @@ class DefaultBillingService: BillingService {
         }
     }
 
+    func premiumUpgradeLifecycleState() async -> PremiumUpgradeLifecycleState {
+        await premiumUpgradeLifecycleState(userId: nil)
+    }
+
     func refreshSubscriptionAttentionCard(subscription: PremiumSubscription?) async {
         guard await !isSelfHosted(),
               await configService.getFeatureFlag(.premiumUpgradePath)
@@ -360,5 +372,36 @@ class DefaultBillingService: BillingService {
             errorReporter.log(error: error)
             return false
         }
+    }
+
+    // MARK: Private Methods
+
+    /// Derives an account's position in the Premium upgrade lifecycle from its Premium status
+    /// and its persisted pending flag.
+    ///
+    /// If the pending flag can't be read, the error is logged and the account is treated as not
+    /// pending.
+    ///
+    /// - Parameters:
+    ///   - userId: The account to derive the state for. Defaults to the active account if `nil`.
+    /// - Returns: The account's current `PremiumUpgradeLifecycleState`.
+    ///
+    private func premiumUpgradeLifecycleState(userId: String?) async -> PremiumUpgradeLifecycleState {
+        // Personal Premium wins over the pending flag. `completeUpgradeIfPending(userId:)` clears
+        // the flag in a separate write after a sync reports Premium, so between the two — or if
+        // that write fails — the flag is stale.
+        if await stateService.doesAccountHavePremiumPersonally(userId: userId) { return .premium }
+
+        // The pending flag wins over organization-granted Premium. Only a personal checkout sets
+        // the flag, so an organization grant arriving while that purchase is in flight isn't the
+        // purchase landing.
+        do {
+            if try await billingStateService.getPremiumUpgradePending(userId: userId) { return .pending }
+        } catch {
+            errorReporter.log(error: error)
+        }
+
+        // Personal Premium was ruled out above, so any Premium here is organization-granted.
+        return await stateService.doesAccountHavePremium(userId: userId) ? .premium : .notPremium
     }
 }
