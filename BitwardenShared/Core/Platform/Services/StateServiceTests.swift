@@ -214,6 +214,93 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         XCTAssertTrue(didSwitch)
     }
 
+    /// `doesAccountHavePremium(userId:)` checks the given account regardless of which account is
+    /// currently active.
+    func test_doesAccountHavePremium_checksExplicitAccountNotActiveAccount() async throws {
+        await subject.addAccount(.fixture(profile: .fixture(hasPremiumPersonally: false, userId: "1")))
+        await subject.addAccount(.fixture(profile: .fixture(hasPremiumPersonally: true, userId: "2")))
+        try await subject.setActiveAccount(userId: "1")
+
+        let activeAccountHasPremium = await subject.doesAccountHavePremium(userId: "1")
+        let otherAccountHasPremium = await subject.doesAccountHavePremium(userId: "2")
+
+        XCTAssertFalse(activeAccountHasPremium)
+        XCTAssertTrue(otherAccountHasPremium)
+    }
+
+    /// `doesAccountHavePremium(userId:)` resolves Premium granted by an organization against the
+    /// given account's organizations, not the active account's.
+    func test_doesAccountHavePremium_explicitAccountOrganizationTrue() async throws {
+        await subject.addAccount(.fixture(profile: .fixture(hasPremiumPersonally: false, userId: "1")))
+        await subject.addAccount(.fixture(profile: .fixture(hasPremiumPersonally: false, userId: "2")))
+        try await subject.setActiveAccount(userId: "1")
+        try await dataStore.replaceOrganizations([.fixture(enabled: true, usersGetPremium: true)], userId: "2")
+
+        let activeAccountHasPremium = await subject.doesAccountHavePremium(userId: "1")
+        let otherAccountHasPremium = await subject.doesAccountHavePremium(userId: "2")
+
+        XCTAssertFalse(activeAccountHasPremium)
+        XCTAssertTrue(otherAccountHasPremium)
+    }
+
+    /// `doesAccountHavePremium(userId:)` checks the active account when passed `nil`.
+    func test_doesAccountHavePremium_nilUserIdChecksActiveAccount() async throws {
+        await subject.addAccount(.fixture(profile: .fixture(hasPremiumPersonally: false, userId: "1")))
+        await subject.addAccount(.fixture(profile: .fixture(hasPremiumPersonally: true, userId: "2")))
+        try await subject.setActiveAccount(userId: "2")
+
+        let hasPremium = await subject.doesAccountHavePremium(userId: nil)
+
+        XCTAssertTrue(hasPremium)
+    }
+
+    /// `doesAccountHavePremium(userId:)` with a user ID that has no account throws an error
+    /// internally which is logged and returns `false` as default.
+    func test_doesAccountHavePremium_unknownUserIdLogsErrorAndReturnsFalse() async throws {
+        await subject.addAccount(.fixture(profile: .fixture(hasPremiumPersonally: true, userId: "1")))
+
+        let hasPremium = await subject.doesAccountHavePremium(userId: "2")
+
+        XCTAssertFalse(hasPremium)
+        XCTAssertEqual(errorReporter.errors as? [StateServiceError], [.noAccounts])
+    }
+
+    /// `doesAccountHavePremiumPersonally(userId:)` checks the given account regardless of which
+    /// account is currently active.
+    func test_doesAccountHavePremiumPersonally_checksExplicitAccountNotActiveAccount() async throws {
+        await subject.addAccount(.fixture(profile: .fixture(hasPremiumPersonally: false, userId: "1")))
+        await subject.addAccount(.fixture(profile: .fixture(hasPremiumPersonally: true, userId: "2")))
+        try await subject.setActiveAccount(userId: "1")
+
+        let activeAccountHasPremium = await subject.doesAccountHavePremiumPersonally(userId: "1")
+        let otherAccountHasPremium = await subject.doesAccountHavePremiumPersonally(userId: "2")
+
+        XCTAssertFalse(activeAccountHasPremium)
+        XCTAssertTrue(otherAccountHasPremium)
+    }
+
+    /// `doesAccountHavePremiumPersonally(userId:)` checks the active account when passed `nil`.
+    func test_doesAccountHavePremiumPersonally_nilUserIdChecksActiveAccount() async throws {
+        await subject.addAccount(.fixture(profile: .fixture(hasPremiumPersonally: false, userId: "1")))
+        await subject.addAccount(.fixture(profile: .fixture(hasPremiumPersonally: true, userId: "2")))
+        try await subject.setActiveAccount(userId: "2")
+
+        let hasPremium = await subject.doesAccountHavePremiumPersonally(userId: nil)
+
+        XCTAssertTrue(hasPremium)
+    }
+
+    /// `doesAccountHavePremiumPersonally(userId:)` with a user ID that has no account throws an
+    /// error internally which is logged and returns `false` as default.
+    func test_doesAccountHavePremiumPersonally_unknownUserIdLogsErrorAndReturnsFalse() async throws {
+        await subject.addAccount(.fixture(profile: .fixture(hasPremiumPersonally: true, userId: "1")))
+
+        let hasPremium = await subject.doesAccountHavePremiumPersonally(userId: "2")
+
+        XCTAssertFalse(hasPremium)
+        XCTAssertEqual(errorReporter.errors as? [StateServiceError], [.noAccounts])
+    }
+
     /// `doesActiveAccountHavePremium()` with Premium personally and no organizations returns true.
     func test_doesActiveAccountHavePremium_personalTrue_noOrganization() async throws {
         await subject.addAccount(.fixture(profile: .fixture(hasPremiumPersonally: true)))
@@ -643,24 +730,6 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         appSettingsStore.archiveOnboardingShown = true
         hasShownOnboarding = await subject.getArchiveOnboardingShown()
         XCTAssertTrue(hasShownOnboarding)
-    }
-
-    /// `getPremiumUpgradeBannerDismissed(userId:)` returns whether the Premium upgrade banner has been dismissed.
-    func test_getPremiumUpgradeBannerDismissed() async throws {
-        await subject.addAccount(.fixture())
-        var hasDismissedBanner = try await subject.getPremiumUpgradeBannerDismissed(userId: nil)
-        XCTAssertFalse(hasDismissedBanner)
-
-        appSettingsStore.premiumUpgradeBannerDismissedByUserId["1"] = true
-        hasDismissedBanner = try await subject.getPremiumUpgradeBannerDismissed(userId: nil)
-        XCTAssertTrue(hasDismissedBanner)
-    }
-
-    /// `getPremiumUpgradeBannerDismissed(userId:)` throws errors if no user exists.
-    func test_getPremiumUpgradeBannerDismissed_error() async throws {
-        await assertAsyncThrows(error: StateServiceError.noActiveAccount) {
-            _ = try await subject.getPremiumUpgradeBannerDismissed(userId: nil)
-        }
     }
 
     /// `getBiometricAuthenticationEnabled(:)` returns biometric unlock preference of the active user.
@@ -1948,30 +2017,6 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
 
         await subject.setArchiveOnboardingShown(false)
         XCTAssertFalse(appSettingsStore.archiveOnboardingShown)
-    }
-
-    /// `setPremiumUpgradeBannerDismissed(_:)` sets whether the Premium upgrade banner has been dismissed.
-    func test_setPremiumUpgradeBannerDismissed() async throws {
-        await subject.addAccount(.fixture())
-        try await subject.setPremiumUpgradeBannerDismissed(true, userId: nil)
-        XCTAssertTrue(appSettingsStore.premiumUpgradeBannerDismissedByUserId["1"] ?? false)
-
-        try await subject.setPremiumUpgradeBannerDismissed(false, userId: nil)
-        XCTAssertFalse(appSettingsStore.premiumUpgradeBannerDismissedByUserId["1"] ?? true)
-    }
-
-    /// `setPremiumUpgradeBannerDismissed(_:userId:)` throws errors if no user exists.
-    func test_setPremiumUpgradeBannerDismissed_error() async throws {
-        await assertAsyncThrows(error: StateServiceError.noActiveAccount) {
-            try await subject.setPremiumUpgradeBannerDismissed(true, userId: nil)
-        }
-    }
-
-    /// `setUpgradedToPremiumActionCardVisible(_:)` throws errors if no user exists.
-    func test_setUpgradedToPremiumActionCardVisible_error() async throws {
-        await assertAsyncThrows(error: StateServiceError.noActiveAccount) {
-            try await subject.setUpgradedToPremiumActionCardVisible(true)
-        }
     }
 
     /// `setBiometricAuthenticationEnabled(isEnabled:)` sets biometric unlock preference for the default user.
