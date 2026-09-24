@@ -16,14 +16,14 @@ import Testing
 struct BillingServicePremiumUpgradePendingTests {
     // MARK: Properties
 
-    var billingAPIService: MockBillingAPIService!
-    var billingStateService: MockBillingStateService!
-    var configService: MockConfigService!
-    var environmentService: MockEnvironmentService!
-    var errorReporter: MockErrorReporter!
-    var stateService: MockStateService!
-    var syncService: MockSyncService!
-    var subject: DefaultBillingService!
+    let billingAPIService: MockBillingAPIService
+    let billingStateService: MockBillingStateService
+    let configService: MockConfigService
+    let environmentService: MockEnvironmentService
+    let errorReporter: MockErrorReporter
+    let stateService: MockStateService
+    let syncService: MockSyncService
+    let subject: DefaultBillingService
 
     // MARK: Initialization
 
