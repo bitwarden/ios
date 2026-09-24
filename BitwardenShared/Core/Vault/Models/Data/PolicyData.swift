@@ -8,6 +8,17 @@ import Foundation
 class PolicyData: NSManagedObject, ManagedUserObject, CodableModelData {
     typealias Model = PolicyResponseModel
 
+    // MARK: Static Properties
+
+    /// The name of the entity in the data model.
+    ///
+    /// This intentionally differs from the class name. Policies were originally persisted in a
+    /// `PolicyData` entity, with accepted-state policies (`policiesNew`) in a separate
+    /// `PolicyNewData` entity. The legacy entity was removed and `PolicyNewData` was retained to
+    /// avoid migrating the persisted policies.
+    ///
+    static let entityName = "PolicyNewData"
+
     // MARK: Properties
 
     /// The policy's identifier.
@@ -67,50 +78,5 @@ extension PolicyData {
             #keyPath(PolicyData.id),
             id,
         )
-    }
-}
-
-// MARK: - PolicyNewData helpers
-
-extension PolicyData {
-    /// The CoreData entity name for the accepted-state policies store (`policiesNew`).
-    static let policiesNewEntityName = "PolicyNewData"
-
-    /// Returns a `NSBatchDeleteRequest` that deletes all accepted-state policies for the specified user.
-    ///
-    /// - Parameter userId: The user associated with the objects to delete.
-    /// - Returns: A `NSBatchDeleteRequest` targeting the `PolicyNewData` entity.
-    ///
-    static func deletePoliciesNewByUserIdRequest(userId: String) -> NSBatchDeleteRequest {
-        let fetchRequest = NSFetchRequest<NSFetchRequestResult>(entityName: policiesNewEntityName)
-        fetchRequest.predicate = userIdPredicate(userId: userId)
-        return NSBatchDeleteRequest(fetchRequest: fetchRequest)
-    }
-
-    /// Returns a `NSFetchRequest` that fetches accepted-state policies for the specified user.
-    ///
-    /// - Parameter userId: The user associated with the objects to fetch.
-    /// - Returns: A `NSFetchRequest` targeting the `PolicyNewData` entity.
-    ///
-    static func fetchPoliciesNewByUserIdRequest(userId: String) -> NSFetchRequest<PolicyData> {
-        let fetchRequest = NSFetchRequest<PolicyData>(entityName: policiesNewEntityName)
-        fetchRequest.predicate = userIdPredicate(userId: userId)
-        return fetchRequest
-    }
-
-    /// Returns a `NSBatchInsertRequest` that inserts accepted-state policies for the specified user.
-    ///
-    /// - Parameters:
-    ///   - policies: The policies to insert.
-    ///   - userId: The user associated with the policies.
-    /// - Returns: A `NSBatchInsertRequest` targeting the `PolicyNewData` entity.
-    ///
-    static func batchInsertPoliciesNewRequest(
-        _ policies: [PolicyResponseModel],
-        userId: String,
-    ) -> NSBatchInsertRequest {
-        batchInsertRequest(entityName: policiesNewEntityName, objects: policies) { policyData, policy in
-            policyData.update(with: policy, userId: userId)
-        }
     }
 }
