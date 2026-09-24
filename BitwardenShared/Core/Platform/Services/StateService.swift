@@ -38,18 +38,23 @@ protocol StateService: AnyObject, DebugStateService {
     ///
     func didAccountSwitchInExtension() async throws -> Bool
 
-    /// Returns whether the active user account has access to Premium features.
+    /// Returns whether an account has access to Premium features, either personally or via an
+    /// enabled organization that grants it.
     ///
-    /// - Returns: Whether the active account has access to Premium features.
+    /// - Parameters:
+    ///   - userId: The user ID of the account to check. Defaults to the active account if `nil`.
+    /// - Returns: Whether the account has access to Premium features.
     ///
-    func doesActiveAccountHavePremium() async -> Bool
+    func doesAccountHavePremium(userId: String?) async -> Bool
 
-    /// Returns whether the active user account has Premium personally (i.e. Premium that the user
-    /// purchased themselves), as opposed to Premium granted by an organization.
+    /// Returns whether an account has Premium personally (i.e. Premium that the user purchased
+    /// themselves), as opposed to Premium granted by an organization.
     ///
-    /// - Returns: Whether the active account has Premium personally.
+    /// - Parameters:
+    ///   - userId: The user ID of the account to check. Defaults to the active account if `nil`.
+    /// - Returns: Whether the account has Premium personally.
     ///
-    func doesActiveAccountHavePremiumPersonally() async -> Bool
+    func doesAccountHavePremiumPersonally(userId: String?) async -> Bool
 
     /// Gets the access token's expiration date for an account.
     ///
@@ -919,6 +924,24 @@ extension StateService {
         await setPendingAppIntentActions(actions: actions)
     }
 
+    /// Returns whether the active account has access to Premium features, either personally or via
+    /// an enabled organization that grants it.
+    ///
+    /// - Returns: Whether the active account has access to Premium features.
+    ///
+    func doesActiveAccountHavePremium() async -> Bool {
+        await doesAccountHavePremium(userId: nil)
+    }
+
+    /// Returns whether the active account has Premium personally (i.e. Premium that the user
+    /// purchased themselves), as opposed to Premium granted by an organization.
+    ///
+    /// - Returns: Whether the active account has Premium personally.
+    ///
+    func doesActiveAccountHavePremiumPersonally() async -> Bool {
+        await doesAccountHavePremiumPersonally(userId: nil)
+    }
+
     /// Gets the access token's expiration date for the active account.
     ///
     /// - Returns: The user's access token expiration date.
@@ -1626,16 +1649,17 @@ actor DefaultStateService: StateService, ActiveAccountStateProvider, ConfigState
         }
     }
 
-    func doesActiveAccountHavePremium() async -> Bool {
+    func doesAccountHavePremium(userId: String?) async -> Bool {
         do {
-            let account = try await getActiveAccount()
+            let userId = try userId ?? getActiveAccountUserId()
+            let account = try getAccount(userId: userId)
             let hasPremiumPersonally = account.profile.hasPremiumPersonally ?? false
             guard !hasPremiumPersonally else {
                 return true
             }
 
             let organizations = try await dataStore
-                .fetchAllOrganizations(userId: account.profile.userId)
+                .fetchAllOrganizations(userId: userId)
                 .filter { $0.enabled && $0.usersGetPremium }
             return !organizations.isEmpty
         } catch {
@@ -1644,9 +1668,10 @@ actor DefaultStateService: StateService, ActiveAccountStateProvider, ConfigState
         }
     }
 
-    func doesActiveAccountHavePremiumPersonally() async -> Bool {
+    func doesAccountHavePremiumPersonally(userId: String?) async -> Bool {
         do {
-            let account = try await getActiveAccount()
+            let userId = try userId ?? getActiveAccountUserId()
+            let account = try getAccount(userId: userId)
             return account.profile.hasPremiumPersonally ?? false
         } catch {
             errorReporter.log(error: error)
@@ -2533,13 +2558,13 @@ extension DefaultStateService: BillingStateService {
 
     // MARK: Upgraded to Premium Card
 
-    func getUpgradedToPremiumActionCardVisible() async throws -> Bool {
-        let userId = try getActiveAccountUserId()
+    func getUpgradedToPremiumActionCardVisible(userId: String?) async throws -> Bool {
+        let userId = try userId ?? getActiveAccountUserId()
         return appSettingsStore.upgradedToPremiumActionCardVisible(userId: userId)
     }
 
-    func setUpgradedToPremiumActionCardVisible(_ visible: Bool) async throws {
-        let userId = try getActiveAccountUserId()
+    func setUpgradedToPremiumActionCardVisible(_ visible: Bool, userId: String?) async throws {
+        let userId = try userId ?? getActiveAccountUserId()
         appSettingsStore.setUpgradedToPremiumActionCardVisible(visible, userId: userId)
     }
 }
