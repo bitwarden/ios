@@ -124,6 +124,15 @@ protocol AuthRepository: AnyObject {
     ///
     func isUserManagedByOrganization() async throws -> Bool
 
+    /// Whether the active (or given) user has opted in to sharing their session key across
+    /// the app and its extensions.
+    ///
+    /// - Parameter userId: The userId of the account. Defaults to the active user if nil.
+    /// - Returns: `true` if the user has opted in, `false` otherwise (including if no preference
+    ///   has been stored yet).
+    ///
+    func isUserSessionKeySharingEnabled(userId: String?) async throws -> Bool
+
     /// User leaves organization
     ///
     /// - Parameters:
@@ -253,6 +262,15 @@ protocol AuthRepository: AnyObject {
         organizationIdentifier: String,
         resetPasswordAutoEnroll: Bool,
     ) async throws
+
+    /// Sets whether the given user opts in to sharing their session key across the app and its
+    /// extensions, immediately capturing or purging `.userSessionKey` to match.
+    ///
+    /// - Parameters:
+    ///   - isEnabled: Whether the user opts in to sharing their session key.
+    ///   - userId: The userId of the account. Defaults to the active user if nil.
+    ///
+    func setUserSessionKeySharingEnabled(_ isEnabled: Bool, userId: String?) async throws
 
     /// Sets the SessionTimeoutValue.
     ///
@@ -409,6 +427,15 @@ extension AuthRepository {
         try await isPinUnlockAvailable(userId: nil)
     }
 
+    /// Whether the active user has opted in to sharing their session key across the app and its
+    /// extensions.
+    ///
+    /// - Returns: `true` if the user has opted in, `false` otherwise.
+    ///
+    func isUserSessionKeySharingEnabled() async throws -> Bool {
+        try await isUserSessionKeySharingEnabled(userId: nil)
+    }
+
     /// Locks the user's vault and clears decrypted data from memory
     /// - Parameters:
     ///   - userId: The userId of the account to lock. Defaults to active account if nil
@@ -449,6 +476,15 @@ extension AuthRepository {
     ///
     func sessionTimeoutValue() async throws -> SessionTimeoutValue {
         try await sessionTimeoutValue(userId: nil)
+    }
+
+    /// Sets whether the active user opts in to sharing their session key across the app and its
+    /// extensions, immediately capturing or purging `.userSessionKey` to match.
+    ///
+    /// - Parameter isEnabled: Whether the user opts in to sharing their session key.
+    ///
+    func setUserSessionKeySharingEnabled(_ isEnabled: Bool) async throws {
+        try await setUserSessionKeySharingEnabled(isEnabled, userId: nil)
     }
 
     /// Sets the SessionTimeoutValue upon the app being backgrounded.
@@ -869,6 +905,18 @@ extension DefaultAuthRepository: AuthRepository {
         return orgs.contains { $0.userIsManagedByOrganization }
     }
 
+    func isUserSessionKeySharingEnabled(userId: String?) async throws -> Bool {
+        let id = try await userIdOrActive(userId)
+        do {
+            let stored = try await keychainService.getUserAuthKeyValue(
+                for: .userSessionKeySharingEnabled(userId: id),
+            )
+            return stored == "true"
+        } catch KeychainServiceError.osStatusError(errSecItemNotFound), KeychainServiceError.keyNotFound {
+            return false
+        }
+    }
+
     func lockAllVaults(isManuallyLocking: Bool) async throws {
         let accounts = try await stateService.getAccounts()
         guard !accounts.isEmpty else {
@@ -1107,6 +1155,27 @@ extension DefaultAuthRepository: AuthRepository {
         try await vaultTimeoutService.setLastActiveTime(userId: userId)
     }
 
+    func setUserSessionKeySharingEnabled(_ isEnabled: Bool, userId: String?) async throws {
+        let id = try await userIdOrActive(userId)
+
+        if isEnabled {
+            // Capture the session key before persisting the opt-in preference so a failure here
+            // (e.g. a user-presence prompt cancellation) leaves the preference untouched instead
+            // of recording an opt-in the user was told failed.
+            try await captureUserSessionKeyIfAllowed(userId: id, isUserOptedIn: true)
+            try await keychainService.setUserAuthKey(
+                for: .userSessionKeySharingEnabled(userId: id),
+                value: "true",
+            )
+        } else {
+            try await keychainService.setUserAuthKey(
+                for: .userSessionKeySharingEnabled(userId: id),
+                value: "false",
+            )
+            try? await keychainService.deleteUserAuthKey(for: .userSessionKey(userId: id))
+        }
+    }
+
     func setVaultTimeout(value newValue: SessionTimeoutValue, userId: String?) async throws {
         // Ensure we have a user id.
         let id = try await userIdOrActive(userId)
@@ -1124,23 +1193,13 @@ extension DefaultAuthRepository: AuthRepository {
             )
         }
 
-        // Delete the session key when switching to a timeout that excludes it, or write it back
-        // when switching from a timeout that excludes it to one that allows sharing while the
-        // vault is already unlocked. If the current value already allows sharing, the key is
-        // already on the keychain and doesn't need to be written again.
-        do {
-            if !newValue.allowsUserSessionKeySharing {
+        // Delete the session key when switching to a timeout that excludes it.
+        if !newValue.allowsUserSessionKeySharing {
+            do {
                 try await keychainService.deleteUserAuthKey(for: .userSessionKey(userId: id))
-            } else if currentValue?.allowsUserSessionKeySharing != true,
-                      await configService.getFeatureFlag(.enableUserSessionKeySharing),
-                      try await !isLocked(userId: id) {
-                try await keychainService.setUserAuthKey(
-                    for: .userSessionKey(userId: id),
-                    value: clientService.crypto().getUserEncryptionKey(),
-                )
+            } catch {
+                errorReporter.log(error: error)
             }
-        } catch {
-            errorReporter.log(error: error)
         }
 
         // Then configure the vault timeout service with the correct value.
@@ -1148,6 +1207,23 @@ extension DefaultAuthRepository: AuthRepository {
             value: newValue,
             userId: id,
         )
+
+        // Write the session key back when switching from a timeout that excludes it to one that
+        // allows sharing while the vault is already unlocked, gated on the user's opt-in
+        // preference via `captureUserSessionKeyIfAllowed(userId:)`. If the current value already
+        // allows sharing, the key is already on the keychain and doesn't need to be written (and
+        // re-prompted for, since the item requires user presence) again. This must run after
+        // `vaultTimeoutService.setVaultTimeout` above, since `captureUserSessionKeyIfAllowed`
+        // reads the timeout value back from `vaultTimeoutService`.
+        if newValue.allowsUserSessionKeySharing, currentValue?.allowsUserSessionKeySharing != true {
+            do {
+                if try await !isLocked(userId: id) {
+                    try await captureUserSessionKeyIfAllowed(userId: id)
+                }
+            } catch {
+                errorReporter.log(error: error)
+            }
+        }
     }
 
     func startObservingUserSessionKeyFeatureFlag() {
@@ -1282,7 +1358,11 @@ extension DefaultAuthRepository: AuthRepository {
         do {
             let sessionKey = try await keychainService.getUserAuthKeyValue(for: .userSessionKey(userId: id))
             do {
-                try await unlockVault(method: .decryptedKey(decryptedUserKey: sessionKey), hadUserInteraction: false)
+                try await unlockVault(
+                    method: .decryptedKey(decryptedUserKey: sessionKey),
+                    hadUserInteraction: false,
+                    captureUserSessionKey: false,
+                )
             } catch {
                 try? await keychainService.deleteUserAuthKey(for: .userSessionKey(userId: id))
                 throw error
@@ -1333,6 +1413,31 @@ extension DefaultAuthRepository: AuthRepository {
     }
 
     // MARK: Private
+
+    /// Captures the given user's session key into `.userSessionKey` if the server feature flag,
+    /// the user's opt-in preference, and the current vault timeout value all allow it.
+    ///
+    /// - Parameters:
+    ///   - userId: The user ID whose session key should be captured.
+    ///   - isUserOptedIn: The opt-in preference to gate on. Pass `nil` (default) to read the
+    ///     currently persisted preference from the keychain; pass an explicit value when the
+    ///     preference hasn't been persisted yet, e.g. while `setUserSessionKeySharingEnabled(_:userId:)`
+    ///     is still deciding whether to persist it.
+    ///
+    private func captureUserSessionKeyIfAllowed(userId: String, isUserOptedIn: Bool? = nil) async throws {
+        let isFeatureEnabled: Bool = await configService.getFeatureFlag(.enableUserSessionKeySharing)
+        let isOptedIn = if let isUserOptedIn {
+            isUserOptedIn
+        } else {
+            try await isUserSessionKeySharingEnabled(userId: userId)
+        }
+        let timeoutValue = try await vaultTimeoutService.sessionTimeoutValue(userId: userId)
+        guard isFeatureEnabled, isOptedIn, timeoutValue.allowsUserSessionKeySharing else { return }
+        try await keychainService.setUserAuthKey(
+            for: .userSessionKey(userId: userId),
+            value: clientService.crypto(for: userId).getUserEncryptionKey(),
+        )
+    }
 
     /// A helper function to convert state service `Account`s to `ProfileSwitcherItem`s.
     ///
@@ -1416,7 +1521,17 @@ extension DefaultAuthRepository: AuthRepository {
     ///   - method: The unlocking `InitUserCryptoMethod` method
     ///   - hadUserInteraction: If the user interacted with the app to unlock the vault
     ///   or was unlocked using the never lock key.
-    private func unlockVault(method: InitUserCryptoMethod, hadUserInteraction: Bool = true) async throws {
+    ///   - captureUserSessionKey: Whether the active user's session key should be (re)captured
+    ///   into the `.userSessionKey` Keychain item once unlocked. This should be `false` when
+    ///   `method` is itself sourced from that Keychain item (e.g. `unlockVaultWithSessionKey()`),
+    ///   since the stored value is already current and re-writing it would trigger a redundant
+    ///   Face ID/Touch ID prompt (the item requires user presence for both reads and writes).
+    ///
+    private func unlockVault(
+        method: InitUserCryptoMethod,
+        hadUserInteraction: Bool = true,
+        captureUserSessionKey: Bool = true,
+    ) async throws {
         let account = try await stateService.getActiveAccount()
         let cryptographicState = try await stateService.getAccountCryptographicState()
         let upgradeToken = await stateService.getV2UpgradeToken(userId: account.profile.userId)
@@ -1443,17 +1558,12 @@ extension DefaultAuthRepository: AuthRepository {
         } catch {
             errorReporter.log(error: error)
         }
-        do {
-            let isFeatureEnabled: Bool = await configService.getFeatureFlag(.enableUserSessionKeySharing)
-            let timeoutValue = try await vaultTimeoutService.sessionTimeoutValue(userId: account.profile.userId)
-            if isFeatureEnabled, timeoutValue.allowsUserSessionKeySharing {
-                try await keychainService.setUserAuthKey(
-                    for: .userSessionKey(userId: account.profile.userId),
-                    value: clientService.crypto().getUserEncryptionKey(),
-                )
+        if captureUserSessionKey {
+            do {
+                try await captureUserSessionKeyIfAllowed(userId: account.profile.userId)
+            } catch {
+                errorReporter.log(error: error)
             }
-        } catch {
-            errorReporter.log(error: error)
         }
         await configureBiometricUnlockIfNeeded()
     }

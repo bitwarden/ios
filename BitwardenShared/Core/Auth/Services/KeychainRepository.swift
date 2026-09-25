@@ -62,6 +62,10 @@ enum BitwardenKeychainItem: Equatable, KeychainItem {
     /// The keychain item for the user session key (cross-process unlock).
     case userSessionKey(userId: String)
 
+    /// The keychain item for the user's opt-in preference for sharing their session key across
+    /// the app and its extensions.
+    case userSessionKeySharingEnabled(userId: String)
+
     /// The keychain item for a user's vault timeout.
     case vaultTimeout(userId: String)
 
@@ -85,6 +89,7 @@ enum BitwardenKeychainItem: Equatable, KeychainItem {
              .refreshToken,
              .serverCommunicationConfig,
              .unsuccessfulUnlockAttempts,
+             .userSessionKeySharingEnabled,
              .vaultTimeout:
             nil
         case .userSessionKey:
@@ -109,6 +114,7 @@ enum BitwardenKeychainItem: Equatable, KeychainItem {
              .pendingAdminLoginRequest,
              .unsuccessfulUnlockAttempts,
              .userSessionKey,
+             .userSessionKeySharingEnabled,
              .vaultTimeout:
             kSecAttrAccessibleWhenUnlockedThisDeviceOnly
         case .accessToken,
@@ -162,6 +168,8 @@ enum BitwardenKeychainItem: Equatable, KeychainItem {
             "unsuccessfulUnlockAttempts_\(userId)"
         case let .userSessionKey(userId: id):
             "userSessionKey_" + id
+        case let .userSessionKeySharingEnabled(userId: id):
+            "userSessionKeySharingEnabled_" + id
         case let .vaultTimeout(userId):
             "vaultTimeout_\(userId)"
         }

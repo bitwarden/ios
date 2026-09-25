@@ -1280,6 +1280,9 @@
 /* VoiceOver announcement posted when a date picker whose range excludes future dates, e.g. date of birth or an issue date, reports landing on today (the latest available day) while scrolling the wheel. */
 "FutureDatesUnavailable" = "Future dates unavailable";
 "PremiumRequiredTOTPDescriptionLong" = "Authenticator key (TOTP) is a Premium feature. Your current plan does not include access to this feature.";
+"KeepVaultUnlockedUntilTimeout" = "Keep vault unlocked until timeout";
+/* Footer text under the "Keep vault unlocked until timeout" toggle, explaining what the setting does. */
+"KeepVaultUnlockedUntilTimeoutDescriptionLong" = "This setting keeps the app and its extensions, like autofill, unlocked until session timeout, even after closing the app.";
 /* Toast shown after a login item is saved. */
 "LoginSaved" = "Login saved";
 /* Toast shown after a card item is saved. */
