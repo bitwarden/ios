@@ -11,6 +11,8 @@ import Testing
 
 // swiftlint:disable file_length
 
+/// Tests for the `BillingService` methods that don't touch cached billing state — checkout,
+/// subscription/plan lookups, self-hosted detection, and premium status change reconciliation.
 @MainActor
 struct BillingServiceTests { // swiftlint:disable:this type_body_length
     // MARK: Properties
@@ -38,6 +40,7 @@ struct BillingServiceTests { // swiftlint:disable:this type_body_length
         environmentService.region = .unitedStates
         errorReporter = MockErrorReporter()
         stateService = MockStateService()
+        stateService.activeAccount = .fixture()
         syncService = MockSyncService()
         subject = DefaultBillingService(
             billingAPIService: billingAPIService,
@@ -289,7 +292,8 @@ struct BillingServiceTests { // swiftlint:disable:this type_body_length
         #expect(result.cancelAt != nil)
     }
 
-    /// `premiumCheckoutCanceled()` publishes `.canceled` and then resets the publisher value to nil.
+    /// `premiumCheckoutCanceled()` publishes `.canceled` to current subscribers without replaying
+    /// it to a later subscriber.
     @Test
     func premiumCheckoutCanceled() async throws {
         var statuses = [PremiumCheckoutStatus]()
@@ -302,35 +306,21 @@ struct BillingServiceTests { // swiftlint:disable:this type_body_length
         try await waitForAsync { !statuses.isEmpty }
         #expect(statuses == [.canceled])
 
-        // After .canceled + nil are sent, a new subscriber should receive nothing (nil is filtered).
+        // A subscriber attaching after `.canceled` was sent should receive only statuses sent
+        // afterward, since the subject doesn't replay.
         var lateStatuses = [PremiumCheckoutStatus]()
         let lateCancellable = subject.premiumCheckoutStatusPublisher()
             .sink { lateStatuses.append($0) }
         defer { lateCancellable.cancel() }
-        try await waitForAsync { lateStatuses.isEmpty }
-    }
 
-    /// A subscriber connecting after `.pending` is emitted receives the pending status immediately
-    /// (CurrentValueSubject replays the last value to new subscribers).
-    @Test
-    func premiumCheckoutStatusPublisher_lateSubscriberReceivesPendingStatus() async throws {
-        stateService.doesActiveAccountHavePremiumResult = false
-        var earlyStatuses = [PremiumCheckoutStatus]()
-        let earlyCancellable = subject.premiumCheckoutStatusPublisher()
-            .sink { earlyStatuses.append($0) }
+        // Wait out the 100ms debounce before sending the next status, so a replayed value would
+        // arrive as its own element rather than collapsing into the one sent below.
+        try await Task.sleep(nanoseconds: 200_000_000)
+        subject.premiumCheckoutCanceled()
 
-        await subject.premiumStatusChanged()
-        try await waitForAsync { !earlyStatuses.isEmpty }
-
-        // Late subscriber connects after .pending was emitted and should receive it.
-        var lateStatuses = [PremiumCheckoutStatus]()
-        let lateCancellable = subject.premiumCheckoutStatusPublisher()
-            .sink { lateStatuses.append($0) }
-        try await waitForAsync { !lateStatuses.isEmpty }
-
-        #expect(lateStatuses == [.pending])
-        _ = earlyCancellable
-        _ = lateCancellable
+        try await waitForAsync { statuses.count == 2 }
+        #expect(statuses == [.canceled, .canceled])
+        #expect(lateStatuses == [.canceled])
     }
 
     /// `premiumStatusChanged()` returns early without syncing when the user already has Premium.
@@ -363,15 +353,15 @@ struct BillingServiceTests { // swiftlint:disable:this type_body_length
 
         await subject.premiumStatusChanged()
 
-        // With instant mock sync, .syncing and .confirmed arrive within the 300ms debounce
+        // With instant mock sync, .syncing and .confirmed arrive within the 100ms debounce
         // window, so only .confirmed (the last value) is delivered.
         try await waitForAsync { !statuses.isEmpty }
         #expect(statuses == [.confirmed])
         #expect(syncService.didFetchSync)
     }
 
-    /// `premiumStatusChanged()` resets the publisher value to nil after emitting `.confirmed`,
-    /// so late subscribers do not receive a stale `.confirmed` on connection.
+    /// `premiumStatusChanged()` publishes `.confirmed` to current subscribers without replaying it
+    /// to a subscriber that connects afterward.
     @Test
     func premiumStatusChanged_confirmed_resetsPublisherValue() async throws {
         stateService.doesActiveAccountHavePremiumResult = false
@@ -385,14 +375,23 @@ struct BillingServiceTests { // swiftlint:disable:this type_body_length
 
         await subject.premiumStatusChanged()
         try await waitForAsync { !earlyStatuses.isEmpty }
+        #expect(earlyStatuses == [.confirmed])
 
-        // A subscriber connecting after .confirmed + nil are emitted should receive nothing.
+        // A subscriber connecting after `.confirmed` was published should receive only statuses
+        // published afterward, since the subject doesn't replay.
         var lateStatuses = [PremiumCheckoutStatus]()
         let lateCancellable = subject.premiumCheckoutStatusPublisher()
             .sink { lateStatuses.append($0) }
         defer { lateCancellable.cancel() }
 
-        try await waitForAsync { lateStatuses.isEmpty }
+        // Wait out the 100ms debounce before sending the next status, so a replayed `.confirmed`
+        // would arrive as its own element rather than collapsing into the one sent below.
+        try await Task.sleep(nanoseconds: 200_000_000)
+        subject.premiumCheckoutCanceled()
+
+        try await waitForAsync { earlyStatuses.count == 2 }
+        #expect(earlyStatuses == [.confirmed, .canceled])
+        #expect(lateStatuses == [.canceled])
     }
 
     /// `premiumStatusChanged()` returns early without syncing when the premiumUpgradePath flag is disabled.
