@@ -1,5 +1,8 @@
+// swiftlint:disable file_length
+
 import BitwardenKitMocks
 import BitwardenSdk
+import Foundation
 import TestHelpers
 import Testing
 
@@ -301,6 +304,43 @@ struct SdkStateBridgeTests {
 
         #expect(stateService.setUserKeyIdReceivedArguments?.keyId == "USER_KEY_ID")
         #expect(stateService.setUserKeyIdReceivedArguments?.userId == "1")
+    }
+
+    // MARK: Tests - V2 Encrypted Migrations Grace Period Start
+
+    /// `clearV2EncryptedMigrationsGracePeriodStart()` clears the value via `StateService` for the
+    /// bridge's user.
+    @Test
+    func clearV2EncryptedMigrationsGracePeriodStart() async {
+        await subject.clearV2EncryptedMigrationsGracePeriodStart()
+
+        #expect(stateService.setV2EncryptedMigrationsGracePeriodStartReceivedArguments?.date == nil)
+        #expect(stateService.setV2EncryptedMigrationsGracePeriodStartReceivedArguments?.userId == "1")
+    }
+
+    /// `getV2EncryptedMigrationsGracePeriodStart()` returns the value from `StateService` for the
+    /// bridge's user.
+    @Test
+    func getV2EncryptedMigrationsGracePeriodStart() async {
+        let date = Date(year: 2024, month: 1, day: 1)
+        stateService.getV2EncryptedMigrationsGracePeriodStartReturnValue = date
+
+        let result = await subject.getV2EncryptedMigrationsGracePeriodStart()
+
+        #expect(result == date)
+        #expect(stateService.getV2EncryptedMigrationsGracePeriodStartReceivedUserId == "1")
+    }
+
+    /// `setV2EncryptedMigrationsGracePeriodStart(value:)` sets the value via `StateService` for the
+    /// bridge's user.
+    @Test
+    func setV2EncryptedMigrationsGracePeriodStart() async {
+        let date = Date(year: 2024, month: 1, day: 1)
+
+        await subject.setV2EncryptedMigrationsGracePeriodStart(value: date)
+
+        #expect(stateService.setV2EncryptedMigrationsGracePeriodStartReceivedArguments?.date == date)
+        #expect(stateService.setV2EncryptedMigrationsGracePeriodStartReceivedArguments?.userId == "1")
     }
 
     // MARK: Tests - V2 Upgrade Token

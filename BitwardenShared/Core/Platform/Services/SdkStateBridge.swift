@@ -162,6 +162,20 @@ actor SdkStateBridge: StateBridgeForeignImpl {
         await stateService.setUserKeyId(value, userId: userId)
     }
 
+    // MARK: V2 Encrypted Migrations Grace Period Start
+
+    func clearV2EncryptedMigrationsGracePeriodStart() async {
+        await stateService.setV2EncryptedMigrationsGracePeriodStart(nil, userId: userId)
+    }
+
+    func getV2EncryptedMigrationsGracePeriodStart() async -> V2EncryptedMigrationsGracePeriodStart? {
+        await stateService.getV2EncryptedMigrationsGracePeriodStart(userId: userId)
+    }
+
+    func setV2EncryptedMigrationsGracePeriodStart(value: V2EncryptedMigrationsGracePeriodStart) async {
+        await stateService.setV2EncryptedMigrationsGracePeriodStart(value, userId: userId)
+    }
+
     // MARK: V2 Upgrade Token
 
     func clearV2UpgradeToken() async {

@@ -38,6 +38,7 @@ extension Send {
             type: sdkType,
             file: file.map(SendFile.init),
             text: text.map(SendText.init),
+            data: nil,
             maxAccessCount: maxAccessCount,
             accessCount: accessCount,
             disabled: disabled,
