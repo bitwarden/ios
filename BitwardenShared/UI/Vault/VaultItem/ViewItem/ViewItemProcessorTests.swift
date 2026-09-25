@@ -13,6 +13,7 @@ import XCTest
 class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body_length
     // MARK: Properties
 
+    var attachmentPreviewHelper: MockAttachmentPreviewHelper!
     var authRepository: MockAuthRepository!
     var billingRepository: MockBillingRepository!
     var billingService: MockBillingService!
@@ -34,6 +35,7 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
 
     override func setUp() {
         super.setUp()
+        attachmentPreviewHelper = MockAttachmentPreviewHelper()
         authRepository = MockAuthRepository()
         billingRepository = MockBillingRepository()
         billingService = MockBillingService()
@@ -63,6 +65,7 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
             vaultRepository: vaultRepository,
         )
         subject = ViewItemProcessor(
+            attachmentPreviewHelper: attachmentPreviewHelper,
             coordinator: coordinator.asAnyCoordinator(),
             delegate: delegate,
             itemId: "id",
@@ -75,6 +78,7 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
 
     override func tearDown() {
         super.tearDown()
+        attachmentPreviewHelper = nil
         authRepository = nil
         billingRepository = nil
         billingService = nil
@@ -147,6 +151,7 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
             vaultRepository: vaultRepository,
         )
         subject = ViewItemProcessor(
+            attachmentPreviewHelper: attachmentPreviewHelper,
             coordinator: coordinator.asAnyCoordinator(),
             delegate: delegate,
             itemId: "id",
@@ -1493,6 +1498,22 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         subject.state.url = .example
         subject.receive(.clearURL)
         XCTAssertNil(subject.state.url)
+    }
+
+    /// `.receive(_:)` with `.attachmentTapped(_)` delegates to the attachment preview helper
+    /// with the attachment and cipher.
+    @MainActor
+    func test_receive_attachmentTapped() throws {
+        let attachment = AttachmentView.fixture(size: "11000000", sizeName: "big")
+        let cipher = CipherView.fixture(attachments: [attachment])
+        let state = try XCTUnwrap(CipherItemState(existing: cipher, hasPremium: true))
+        subject.state.loadingState = .data(state)
+
+        subject.receive(.attachmentTapped(attachment))
+
+        waitFor(attachmentPreviewHelper.showPreviewCalled)
+        XCTAssertEqual(attachmentPreviewHelper.showPreviewReceivedArguments?.attachment, attachment)
+        XCTAssertEqual(attachmentPreviewHelper.showPreviewReceivedArguments?.cipher, cipher)
     }
 
     /// `.receive(_:)` with `.downloadAttachment(_)` shows an alert and downloads the attachment for large attachments.

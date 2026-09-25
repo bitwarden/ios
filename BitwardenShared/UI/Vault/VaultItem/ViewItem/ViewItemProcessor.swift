@@ -57,6 +57,9 @@ final class ViewItemProcessor: StateProcessor<ViewItemState, ViewItemAction, Vie
 
     // MARK: Private Properties
 
+    /// The helper used to download and preview an attachment.
+    private let attachmentPreviewHelper: AttachmentPreviewHelper
+
     /// The `Coordinator` for this processor.
     private let coordinator: AnyCoordinator<VaultItemRoute, VaultItemEvent>
 
@@ -90,6 +93,7 @@ final class ViewItemProcessor: StateProcessor<ViewItemState, ViewItemAction, Vie
     /// Creates a new `ViewItemProcessor`.
     ///
     /// - Parameters:
+    ///   - attachmentPreviewHelper: The helper used to download and preview an attachment.
     ///   - coordinator: The `Coordinator` for this processor.
     ///   - delegate: The delegate that is notified when add/edit/delete cipher item have occurred.
     ///   - itemId: The id of the item that is being viewed.
@@ -98,6 +102,7 @@ final class ViewItemProcessor: StateProcessor<ViewItemState, ViewItemAction, Vie
     ///   - vaultItemActionHelper: The helper to execute vault item actions.
     ///
     init(
+        attachmentPreviewHelper: AttachmentPreviewHelper,
         coordinator: AnyCoordinator<VaultItemRoute, VaultItemEvent>,
         delegate: CipherItemOperationDelegate?,
         itemId: String,
@@ -105,6 +110,7 @@ final class ViewItemProcessor: StateProcessor<ViewItemState, ViewItemAction, Vie
         state: ViewItemState,
         vaultItemActionHelper: VaultItemActionHelper,
     ) {
+        self.attachmentPreviewHelper = attachmentPreviewHelper
         self.coordinator = coordinator
         self.delegate = delegate
         self.itemId = itemId
@@ -191,6 +197,11 @@ final class ViewItemProcessor: StateProcessor<ViewItemState, ViewItemAction, Vie
             streamCipherDetailsTask = nil
         case .dismissPressed:
             coordinator.navigate(to: .dismiss())
+        case let .attachmentTapped(attachment):
+            guard case let .data(cipherState) = state.loadingState else { return }
+            Task {
+                await attachmentPreviewHelper.showPreview(for: attachment, cipher: cipherState.cipher)
+            }
         case let .downloadAttachment(attachment):
             confirmDownload(attachment)
         case let .driversLicenseItemAction(action):
