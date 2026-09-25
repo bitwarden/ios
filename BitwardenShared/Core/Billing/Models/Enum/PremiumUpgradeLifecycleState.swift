@@ -3,8 +3,8 @@
 /// An account's position in the Premium upgrade lifecycle.
 ///
 /// Transitions:
-/// - `.notPremium` → `.pending` when Stripe checkout completes but the post-checkout sync
-///   still reports the account as non-Premium.
+/// - `.notPremium` → `.pending` when Stripe checkout completes, before the server has
+///   reported the purchase.
 /// - `.pending` → `.premium` when a later sync reports the purchased Premium.
 ///
 /// `.pending` → `.notPremium` is deliberately absent: a checkout that never settles stays
