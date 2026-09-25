@@ -546,6 +546,73 @@ class AuthServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
         assertGetConfig()
     }
 
+    /// `loginWithMasterPassword(_:username:)` saves the new account under the environment URLs
+    /// that were snapshotted for this email when the login flow started, even if the global
+    /// pre-auth URLs were since overwritten by an unrelated active-account sync (e.g. triggered
+    /// by the AutoFill extension launching mid-login). Regression test for PM-20012.
+    @MainActor
+    func test_loginWithMasterPassword_isNewAccount_prefersAccountCreationEnvironmentURLs() async throws {
+        client.results = [
+            .httpSuccess(testData: .preLoginSuccess),
+            .httpSuccess(testData: .identityTokenSuccess),
+        ]
+        appIDSettingsStore.appID = "App ID"
+        clientService.mockAuth.hashPasswordReturnValue = "hashed password"
+        credentialIdentityStore.state.mockIsEnabled = false
+        let selfHostedURLs = EnvironmentURLData(base: URL(string: "https://vault.example.com")!)
+        stateService.accountCreationEnvironmentURLs["email@example.com"] = selfHostedURLs
+        stateService.preAuthEnvironmentURLs = EnvironmentURLData(base: URL(string: "https://vault.bitwarden.com"))
+        systemDevice.modelIdentifier = "Model id"
+
+        try await subject.loginWithMasterPassword(
+            "Password1234!",
+            username: "email@example.com",
+            isNewAccount: true,
+        )
+
+        XCTAssertEqual(stateService.accountsAdded.last?.settings.environmentUrls, selfHostedURLs)
+        XCTAssertNil(stateService.accountCreationEnvironmentURLs["email@example.com"])
+    }
+
+    /// `loginWithMasterPassword(_:username:)` clears the per-email account creation environment
+    /// URL snapshot after consuming it, so a later, unrelated login attempt for the same email
+    /// isn't affected by the stale value. Regression test for the PM-20012 follow-up fix.
+    @MainActor
+    func test_loginWithMasterPassword_isNewAccount_clearsStaleAccountCreationEnvironmentURLs() async throws {
+        client.results = [
+            .httpSuccess(testData: .preLoginSuccess),
+            .httpSuccess(testData: .identityTokenSuccess),
+            .httpSuccess(testData: .preLoginSuccess),
+            .httpSuccess(testData: .identityTokenSuccess),
+        ]
+        appIDSettingsStore.appID = "App ID"
+        clientService.mockAuth.hashPasswordReturnValue = "hashed password"
+        credentialIdentityStore.state.mockIsEnabled = false
+        let staleURLs = EnvironmentURLData(base: URL(string: "https://vault.example.com")!)
+        let liveURLs = EnvironmentURLData(base: URL(string: "https://vault.bitwarden.com"))
+        stateService.accountCreationEnvironmentURLs["email@example.com"] = staleURLs
+        stateService.preAuthEnvironmentURLs = liveURLs
+        systemDevice.modelIdentifier = "Model id"
+
+        // First login consumes and clears the stale snapshot.
+        try await subject.loginWithMasterPassword(
+            "Password1234!",
+            username: "email@example.com",
+            isNewAccount: true,
+        )
+        XCTAssertEqual(stateService.accountsAdded.last?.settings.environmentUrls, staleURLs)
+        XCTAssertNil(stateService.accountCreationEnvironmentURLs["email@example.com"])
+
+        // A second, unrelated login for the same email is unaffected by the (now cleared) stale
+        // snapshot and falls back to the live pre-auth URLs.
+        try await subject.loginWithMasterPassword(
+            "Password1234!",
+            username: "email@example.com",
+            isNewAccount: false,
+        )
+        XCTAssertEqual(stateService.accountsAdded.last?.settings.environmentUrls, liveURLs)
+    }
+
     /// `loginWithMasterPassword(_:username:)` logs the user in with the password for
     /// a newly created account and logs an error instead of throwing if setting the account setup
     /// progress fails.

@@ -398,7 +398,7 @@ class MockAppSettingsStore: AppSettingsStore { // swiftlint:disable:this type_bo
         upgradedToPremiumCardVisibleByUserId[userId] = visible
     }
 
-    func setAccountCreationEnvironmentURLs(environmentURLData: EnvironmentURLData, email: String) {
+    func setAccountCreationEnvironmentURLs(environmentURLData: EnvironmentURLData?, email: String) {
         accountCreationEnvironmentURLs[email] = environmentURLData
     }
 
