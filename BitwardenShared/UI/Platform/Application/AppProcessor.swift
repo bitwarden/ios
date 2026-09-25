@@ -722,7 +722,7 @@ extension AppProcessor: SyncServiceDelegate {
             try await services.stateService.setHasPerformedSyncAfterLogin(true, userId: userId)
 
             if await services.policyService.policyAppliesToUser(.removeUnlockWithPin) {
-                try await services.stateService.clearPins()
+                try await services.authRepository.clearPins()
             }
         } catch {
             services.errorReporter.log(error: error)
