@@ -269,7 +269,10 @@ class VaultItemMoreOptionsHelperTests: BitwardenTestCase { // swiftlint:disable:
             number: "123456789",
         ))
         vaultRepository.fetchCipherResult = .success(cardWithData)
-        let item = try XCTUnwrap(VaultListItem(cipherListView: .fixture()))
+        let item = try XCTUnwrap(VaultListItem(cipherListView: .fixture(
+            type: .card(.init(brand: nil)),
+            copyableFields: [.cardNumber, .cardSecurityCode],
+        )))
 
         await subject.showMoreOptionsAlert(
             for: item,
@@ -327,7 +330,11 @@ class VaultItemMoreOptionsHelperTests: BitwardenTestCase { // swiftlint:disable:
             reprompt: .password,
         )
         vaultRepository.fetchCipherResult = .success(loginWithData)
-        let item = try XCTUnwrap(VaultListItem(cipherListView: .fixture()))
+        let item = try XCTUnwrap(VaultListItem(cipherListView: .fixture(
+            type: .login(.fixture(uris: [.fixture(uri: URL.example.relativeString)])),
+            viewPassword: true,
+            copyableFields: [.loginUsername, .loginPassword],
+        )))
 
         await subject.showMoreOptionsAlert(
             for: item,
@@ -383,7 +390,10 @@ class VaultItemMoreOptionsHelperTests: BitwardenTestCase { // swiftlint:disable:
         )
         vaultRepository.fetchCipherResult = .success(cipherView)
 
-        let item = try XCTUnwrap(VaultListItem(cipherListView: .fixture()))
+        let item = try XCTUnwrap(VaultListItem(cipherListView: .fixture(
+            type: .login(.fixture(totp: "totpKey")),
+            copyableFields: [.loginTotp],
+        )))
 
         var toastToDisplay: Toast?
         await subject.showMoreOptionsAlert(
@@ -429,7 +439,11 @@ class VaultItemMoreOptionsHelperTests: BitwardenTestCase { // swiftlint:disable:
             organizationUseTotp: true,
 
         ))
-        let item = try XCTUnwrap(VaultListItem(cipherListView: .fixture()))
+        let item = try XCTUnwrap(VaultListItem(cipherListView: .fixture(
+            type: .login(.fixture(totp: "totpKey")),
+            organizationUseTotp: true,
+            copyableFields: [.loginTotp],
+        )))
 
         var toastToDisplay: Toast?
         await subject.showMoreOptionsAlert(
@@ -461,7 +475,10 @@ class VaultItemMoreOptionsHelperTests: BitwardenTestCase { // swiftlint:disable:
 
         let cipherView = CipherView.fixture(login: .fixture(totp: "totpKey"))
         vaultRepository.fetchCipherResult = .success(cipherView)
-        let item = try XCTUnwrap(VaultListItem(cipherListView: .fixture()))
+        let item = try XCTUnwrap(VaultListItem(cipherListView: .fixture(
+            type: .login(.fixture(totp: "totpKey")),
+            copyableFields: [.loginTotp],
+        )))
 
         await subject.showMoreOptionsAlert(
             for: item,
@@ -486,7 +503,10 @@ class VaultItemMoreOptionsHelperTests: BitwardenTestCase { // swiftlint:disable:
 
         let cipherView = CipherView.fixture(login: .fixture(totp: "totpKey"))
         vaultRepository.fetchCipherResult = .success(cipherView)
-        let item = try XCTUnwrap(VaultListItem(cipherListView: .fixture()))
+        let item = try XCTUnwrap(VaultListItem(cipherListView: .fixture(
+            type: .login(.fixture(totp: "totpKey")),
+            copyableFields: [.loginTotp],
+        )))
 
         await subject.showMoreOptionsAlert(
             for: item,
@@ -642,7 +662,7 @@ class VaultItemMoreOptionsHelperTests: BitwardenTestCase { // swiftlint:disable:
         stateService.userHasMasterPassword = [account.profile.userId: true]
 
         vaultRepository.fetchCipherResult = .success(.fixture(deletedDate: .now, type: .login))
-        let item = try XCTUnwrap(VaultListItem(cipherListView: .fixture(login: .fixture())))
+        let item = try XCTUnwrap(VaultListItem(cipherListView: .fixture(login: .fixture(), deletedDate: .now)))
 
         await subject.showMoreOptionsAlert(
             for: item,
@@ -709,7 +729,14 @@ class VaultItemMoreOptionsHelperTests: BitwardenTestCase { // swiftlint:disable:
             totp: "totpKey",
         ))
         vaultRepository.fetchCipherResult = .success(loginWithData)
-        let item = try XCTUnwrap(VaultListItem(cipherListView: .fixture()))
+        let item = try XCTUnwrap(VaultListItem(cipherListView: .fixture(
+            type: .login(.fixture(
+                totp: "totpKey",
+                uris: [.fixture(uri: URL.example.relativeString)],
+            )),
+            viewPassword: true,
+            copyableFields: [.loginUsername, .loginPassword, .loginTotp],
+        )))
 
         var urlToOpen: URL?
         await subject.showMoreOptionsAlert(
@@ -830,7 +857,10 @@ class VaultItemMoreOptionsHelperTests: BitwardenTestCase { // swiftlint:disable:
         // A note with data should show the copy action.
         let noteWithData = CipherView.fixture(notes: "Test Note", type: .secureNote)
         vaultRepository.fetchCipherResult = .success(noteWithData)
-        item = try XCTUnwrap(VaultListItem(cipherListView: .fixture()))
+        item = try XCTUnwrap(VaultListItem(cipherListView: .fixture(
+            type: .secureNote,
+            copyableFields: [.secureNotes],
+        )))
 
         await subject.showMoreOptionsAlert(
             for: item,
@@ -912,7 +942,7 @@ class VaultItemMoreOptionsHelperTests: BitwardenTestCase { // swiftlint:disable:
 
         let cipherView = CipherView.loginFixture(archivedDate: .now, deletedDate: nil)
         vaultRepository.fetchCipherResult = .success(cipherView)
-        let item = try XCTUnwrap(VaultListItem(cipherListView: .fixture()))
+        let item = try XCTUnwrap(VaultListItem(cipherListView: .fixture(archivedDate: .now)))
 
         var toastToDisplay: Toast?
         await subject.showMoreOptionsAlert(
@@ -946,7 +976,7 @@ class VaultItemMoreOptionsHelperTests: BitwardenTestCase { // swiftlint:disable:
 
         let cipherView = CipherView.loginFixture(archivedDate: .now, deletedDate: nil, reprompt: .password)
         vaultRepository.fetchCipherResult = .success(cipherView)
-        let item = try XCTUnwrap(VaultListItem(cipherListView: .fixture()))
+        let item = try XCTUnwrap(VaultListItem(cipherListView: .fixture(archivedDate: .now)))
 
         var toastToDisplay: Toast?
         await subject.showMoreOptionsAlert(
