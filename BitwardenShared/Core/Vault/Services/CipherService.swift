@@ -13,7 +13,10 @@ protocol CipherService {
     ///   - cipher: The cipher to add.
     ///   - encryptedByKeyId: The hex-encoded ID of the key used to encrypt the `cipher`.
     ///   - encryptedFor: The user ID who encrypted the `cipher`.
-    func addCipherWithServer(_ cipher: Cipher, encryptedByKeyId: String?, encryptedFor: String) async throws
+    /// - Returns: The cipher as persisted to local storage, including the id assigned by the backend.
+    ///
+    @discardableResult
+    func addCipherWithServer(_ cipher: Cipher, encryptedByKeyId: String?, encryptedFor: String) async throws -> Cipher
 
     /// Archives a cipher for the current user both in the backend and in local storage.
     ///
@@ -223,7 +226,12 @@ class DefaultCipherService: CipherService {
 }
 
 extension DefaultCipherService {
-    func addCipherWithServer(_ cipher: Cipher, encryptedByKeyId: String?, encryptedFor: String) async throws {
+    @discardableResult
+    func addCipherWithServer(
+        _ cipher: Cipher,
+        encryptedByKeyId: String?,
+        encryptedFor: String,
+    ) async throws -> Cipher {
         let userId = try await stateService.getActiveAccountId()
 
         // Add the cipher in the backend.
@@ -241,7 +249,9 @@ extension DefaultCipherService {
         response.collectionIds = cipher.collectionIds
 
         // Add the cipher in local storage.
-        try await cipherDataStore.upsertCipher(Cipher(responseModel: response), userId: userId)
+        let addedCipher = Cipher(responseModel: response)
+        try await cipherDataStore.upsertCipher(addedCipher, userId: userId)
+        return addedCipher
     }
 
     func archiveCipherWithServer(id: String, _ cipher: Cipher) async throws {

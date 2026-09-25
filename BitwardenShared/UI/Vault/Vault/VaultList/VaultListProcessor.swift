@@ -903,9 +903,11 @@ extension VaultListProcessor: AddEditFolderDelegate {
 // MARK: - CipherItemOperationDelegate
 
 extension VaultListProcessor: CipherItemOperationDelegate {
-    func itemAdded(type: CipherType) -> Bool {
-        state.toast = Toast(title: type.savedToastTitle)
-        return true
+    func didFinishAddingItem(id: String, type: CipherType) {
+        coordinator.navigate(
+            to: .viewItem(id: id, masterPasswordRepromptCheckCompleted: false, toastTitle: type.savedToastTitle),
+            context: self,
+        )
     }
 
     func itemArchived() {

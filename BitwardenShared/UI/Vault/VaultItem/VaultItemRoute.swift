@@ -99,9 +99,11 @@ enum VaultItemRoute: Equatable, Hashable {
 
     /// A route to the view item screen.
     ///
-    /// - Parameter id: The id of the item to display.
+    /// - Parameters:
+    ///   - id: The id of the item to display.
+    ///   - toastTitle: A toast title to show once the view item screen is displayed, if any.
     ///
-    case viewItem(id: String)
+    case viewItem(id: String, toastTitle: String? = nil)
 }
 
 enum VaultItemEvent {
