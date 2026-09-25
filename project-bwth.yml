@@ -77,6 +77,7 @@ targets:
       - target: BitwardenKit/BitwardenKit
       - target: BitwardenKit/BitwardenResources
       - target: BitwardenKit/Networking
+      - package: BitwardenSdk
     postCompileScripts:
       - script: |
           if [[ -n "$CI" ]]; then
@@ -174,6 +175,7 @@ targets:
       - target: TestHarness
       - target: TestHarnessShared
       - target: BitwardenKit/BitwardenKitMocks
+      - target: BitwardenKit/BitwardenSdkMocks
       - target: BitwardenKit/TestHelpers
       - package: BitwardenSdk
     randomExecutionOrder: true
