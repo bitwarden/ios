@@ -380,6 +380,21 @@ extension AuthRouter {
                 return .completeWithNeverUnlockKey
             case (_, false, _):
                 return .complete
+            case (_, true, false):
+                guard try await services.stateService.isAuthenticated(userId: userId) else {
+                    return .landingSoftLoggedOut(email: activeAccount.profile.email)
+                }
+                // If a session key is present, auto-unlock without user interaction.
+                // checkSessionTimeouts() has already verified the timeout hasn't elapsed.
+                if try await services.authRepository.unlockVaultWithSessionKey() {
+                    return .completeWithUserSessionKey
+                }
+                return .vaultUnlock(
+                    activeAccount,
+                    animated: animated,
+                    attemptAutomaticBiometricUnlock: attemptAutomaticBiometricUnlock,
+                    didSwitchAccountAutomatically: didSwitchAccountAutomatically,
+                )
             default:
                 guard try await services.stateService.isAuthenticated(userId: userId) else {
                     return .landingSoftLoggedOut(email: activeAccount.profile.email)

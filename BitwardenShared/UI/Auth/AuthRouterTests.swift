@@ -162,6 +162,109 @@ final class AuthRouterTests: BitwardenTestCase { // swiftlint:disable:this type_
         XCTAssertEqual(route, .complete)
     }
 
+    /// `handleAndRoute(_ :)` redirects `.accountBecameActive()` to `.completeWithUserSessionKey`
+    ///     when the vault is locked and a session key is present to auto-unlock it.
+    func test_handleAndRoute_accountBecameActive_sessionKeyUnlock_success() async {
+        let active = Account.fixture()
+        stateService.activeAccount = active
+        authRepository.isLockedResult = .success(true)
+        stateService.isAuthenticated[active.profile.userId] = true
+        authRepository.unlockVaultWithSessionKeyResult = .success(true)
+
+        let route = await subject.handleAndRoute(
+            .accountBecameActive(
+                active,
+                animated: true,
+                attemptAutomaticBiometricUnlock: true,
+                didSwitchAccountAutomatically: false,
+            ),
+        )
+
+        XCTAssertEqual(route, .completeWithUserSessionKey)
+        XCTAssertTrue(authRepository.unlockVaultWithSessionKeyCalled)
+    }
+
+    /// `handleAndRoute(_ :)` redirects `.accountBecameActive()` to `.vaultUnlock`
+    ///     when the vault is locked and there's no session key to auto-unlock it.
+    func test_handleAndRoute_accountBecameActive_sessionKeyUnlock_returnsFalse() async {
+        let active = Account.fixture()
+        stateService.activeAccount = active
+        authRepository.isLockedResult = .success(true)
+        stateService.isAuthenticated[active.profile.userId] = true
+        authRepository.unlockVaultWithSessionKeyResult = .success(false)
+
+        let route = await subject.handleAndRoute(
+            .accountBecameActive(
+                active,
+                animated: true,
+                attemptAutomaticBiometricUnlock: true,
+                didSwitchAccountAutomatically: false,
+            ),
+        )
+
+        XCTAssertEqual(
+            route,
+            .vaultUnlock(
+                active,
+                animated: true,
+                attemptAutomaticBiometricUnlock: true,
+                didSwitchAccountAutomatically: false,
+            ),
+        )
+        XCTAssertTrue(authRepository.unlockVaultWithSessionKeyCalled)
+    }
+
+    /// `handleAndRoute(_ :)` redirects `.accountBecameActive()` to `.vaultUnlock`
+    ///     when unlocking the vault with the session key fails.
+    func test_handleAndRoute_accountBecameActive_sessionKeyUnlock_error() async {
+        let active = Account.fixture()
+        stateService.activeAccount = active
+        authRepository.isLockedResult = .success(true)
+        stateService.isAuthenticated[active.profile.userId] = true
+        authRepository.unlockVaultWithSessionKeyResult = .failure(BitwardenTestError.example)
+
+        let route = await subject.handleAndRoute(
+            .accountBecameActive(
+                active,
+                animated: true,
+                attemptAutomaticBiometricUnlock: true,
+                didSwitchAccountAutomatically: false,
+            ),
+        )
+
+        XCTAssertEqual(
+            route,
+            .vaultUnlock(
+                active,
+                animated: true,
+                attemptAutomaticBiometricUnlock: true,
+                didSwitchAccountAutomatically: false,
+            ),
+        )
+        XCTAssertEqual(errorReporter.errors as? [BitwardenTestError], [.example])
+    }
+
+    /// `handleAndRoute(_ :)` redirects `.accountBecameActive()` to `.landingSoftLoggedOut`
+    ///     without attempting to auto-unlock with a session key when the account is soft logged out.
+    func test_handleAndRoute_accountBecameActive_sessionKeyUnlock_notAuthenticated() async {
+        let active = Account.fixture()
+        stateService.activeAccount = active
+        authRepository.isLockedResult = .success(true)
+        stateService.isAuthenticated[active.profile.userId] = false
+
+        let route = await subject.handleAndRoute(
+            .accountBecameActive(
+                active,
+                animated: true,
+                attemptAutomaticBiometricUnlock: true,
+                didSwitchAccountAutomatically: false,
+            ),
+        )
+
+        XCTAssertEqual(route, .landingSoftLoggedOut(email: active.profile.email))
+        XCTAssertFalse(authRepository.unlockVaultWithSessionKeyCalled)
+    }
+
     /// `handleAndRoute(_ :)` redirects `.accountBecameActive()` to `.vaultUnlock` when checking if
     /// an account is authenticated fails.
     func test_handleAndRoute_accountBecameActive_logout_isAuthenticatedError() async {

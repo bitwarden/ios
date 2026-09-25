@@ -59,6 +59,7 @@ class MockAuthRepository: AuthRepository { // swiftlint:disable:this type_body_l
     var passwordStrengthResult: Result<UInt8, Error> = .success(0)
     var pinProtectedUserKey = "123"
     var profileSwitcherState: ProfileSwitcherState?
+    var purgeExpiredUserSessionKeysCalled = false
     var requestOtpCalled = false
     var requestOtpResult: Result<Void, Error> = .success(())
     var revokeSelfFromOrganizationCalled = false
@@ -78,6 +79,7 @@ class MockAuthRepository: AuthRepository { // swiftlint:disable:this type_body_l
     var setPinsResult: Result<Void, Error> = .success(())
     var setLastActiveAccountTimeError: Error?
     var setVaultTimeoutError: Error?
+    var startObservingUserSessionKeyFlagCalled = false
     var unlockVaultFromLoginWithDeviceKey: String?
     var unlockVaultFromLoginWithDevicePrivateKey: String?
     var unlockVaultFromLoginWithDeviceResult: Result<Void, Error> = .success(())
@@ -104,6 +106,8 @@ class MockAuthRepository: AuthRepository { // swiftlint:disable:this type_body_l
     var convertNewUserToKeyConnectorKeyResult: Result<Void, Error> = .success(())
     var unlockVaultWithNeverlockKeyCalled = false
     var unlockVaultWithNeverlockResult: Result<Void, Error> = .success(())
+    var unlockVaultWithSessionKeyCalled = false
+    var unlockVaultWithSessionKeyResult: Result<Bool, Error> = .success(false)
     var verifyOtpOpt: String?
     var verifyOtpResult: Result<Void, Error> = .success(())
 
@@ -256,13 +260,6 @@ class MockAuthRepository: AuthRepository { // swiftlint:disable:this type_body_l
         try isUserManagedByOrganizationResult.get()
     }
 
-    func passwordStrength(email: String, password: String, isPreAuth: Bool) async throws -> UInt8 {
-        passwordStrengthEmail = email
-        passwordStrengthPassword = password
-        passwordStrengthIsPreAuth = isPreAuth
-        return try passwordStrengthResult.get()
-    }
-
     func leaveOrganization(organizationId: String) async throws {
         leaveOrganizationCalled = true
         leaveOrganizationOrganizationId = organizationId
@@ -283,6 +280,11 @@ class MockAuthRepository: AuthRepository { // swiftlint:disable:this type_body_l
         hasManuallyLocked = isManuallyLocking
     }
 
+    func logout() async throws {
+        logoutCalled = true
+        try logoutResult.get()
+    }
+
     func logout(userId: String?, userInitiated: Bool) async throws {
         if let logoutError = logoutErrorByUserId[userId] {
             throw logoutError
@@ -293,15 +295,21 @@ class MockAuthRepository: AuthRepository { // swiftlint:disable:this type_body_l
         try await logout()
     }
 
-    func logout() async throws {
-        logoutCalled = true
-        try logoutResult.get()
-    }
-
     func migrateUserToKeyConnector(password: String) async throws {
         migrateUserToKeyConnectorCalled = true
         migrateUserToKeyConnectorPassword = password
         return try migrateUserToKeyConnectorResult.get()
+    }
+
+    func passwordStrength(email: String, password: String, isPreAuth: Bool) async throws -> UInt8 {
+        passwordStrengthEmail = email
+        passwordStrengthPassword = password
+        passwordStrengthIsPreAuth = isPreAuth
+        return try passwordStrengthResult.get()
+    }
+
+    func purgeExpiredUserSessionKeys() async {
+        purgeExpiredUserSessionKeysCalled = true
     }
 
     func requestOtp() async throws {
@@ -313,6 +321,20 @@ class MockAuthRepository: AuthRepository { // swiftlint:disable:this type_body_l
         revokeSelfFromOrganizationCalled = true
         revokeSelfFromOrganizationOrganizationId = organizationId
         try revokeSelfFromOrganizationResult.get()
+    }
+
+    func sessionTimeoutAction(userId: String?) async throws -> SessionTimeoutAction {
+        let userId = try unwrapUserId(userId)
+        return sessionTimeoutAction[userId] ?? .lock
+    }
+
+    func sessionTimeoutValue(userId: String?) async throws -> SessionTimeoutValue {
+        guard let value = try vaultTimeout[unwrapUserId(userId)] else {
+            throw (userId == nil)
+                ? StateServiceError.noActiveAccount
+                : StateServiceError.noAccounts
+        }
+        return value
     }
 
     func setActiveAccount(userId: String) async throws -> Account {
@@ -335,27 +357,6 @@ class MockAuthRepository: AuthRepository { // swiftlint:disable:this type_body_l
         }
     }
 
-    func setPins(_ pin: String, requirePasswordAfterRestart: Bool) async throws {
-        encryptedPin = pin
-        pinProtectedUserKey = pin
-        setPinsRequirePasswordAfterRestart = requirePasswordAfterRestart
-        try setPinsResult.get()
-    }
-
-    func sessionTimeoutAction(userId: String?) async throws -> SessionTimeoutAction {
-        let userId = try unwrapUserId(userId)
-        return sessionTimeoutAction[userId] ?? .lock
-    }
-
-    func sessionTimeoutValue(userId: String?) async throws -> SessionTimeoutValue {
-        guard let value = try vaultTimeout[unwrapUserId(userId)] else {
-            throw (userId == nil)
-                ? StateServiceError.noActiveAccount
-                : StateServiceError.noAccounts
-        }
-        return value
-    }
-
     func setMasterPassword(
         _ password: String,
         masterPasswordHint: String,
@@ -371,11 +372,22 @@ class MockAuthRepository: AuthRepository { // swiftlint:disable:this type_body_l
         try setMasterPasswordResult.get()
     }
 
+    func setPins(_ pin: String, requirePasswordAfterRestart: Bool) async throws {
+        encryptedPin = pin
+        pinProtectedUserKey = pin
+        setPinsRequirePasswordAfterRestart = requirePasswordAfterRestart
+        try setPinsResult.get()
+    }
+
     func setVaultTimeout(value: SessionTimeoutValue, userId: String?) async throws {
         try vaultTimeout[unwrapUserId(userId)] = value
         if let setVaultTimeoutError {
             throw setVaultTimeoutError
         }
+    }
+
+    func startObservingUserSessionKeyFeatureFlag() {
+        startObservingUserSessionKeyFlagCalled = true
     }
 
     func unlockVaultFromLoginWithDevice(privateKey: String, key: String) async throws {
@@ -387,6 +399,11 @@ class MockAuthRepository: AuthRepository { // swiftlint:disable:this type_body_l
     func unlockVaultWithAuthenticatorVaultKey(userId: String) async throws {
         unlockVaultWithAuthVaultKeyCalled = true
         try unlockVaultWithAuthVaultKeyResult.get()
+    }
+
+    func unlockVaultWithBiometrics() async throws {
+        unlockVaultWithBiometricsCalled = true
+        return try unlockVaultWithBiometricsResult.get()
     }
 
     func unlockVaultWithDeviceKey() async throws {
@@ -404,9 +421,9 @@ class MockAuthRepository: AuthRepository { // swiftlint:disable:this type_body_l
         try unlockVaultWithKeyConnectorKeyResult.get()
     }
 
-    func unlockVaultWithPIN(pin: String) async throws {
-        unlockVaultPIN = pin
-        try unlockWithPINResult.get()
+    func unlockVaultWithNeverlockKey() async throws {
+        unlockVaultWithNeverlockKeyCalled = true
+        return try unlockVaultWithNeverlockResult.get()
     }
 
     func unlockVaultWithPassword(password: String) async throws {
@@ -414,14 +431,14 @@ class MockAuthRepository: AuthRepository { // swiftlint:disable:this type_body_l
         try unlockWithPasswordResult.get()
     }
 
-    func unlockVaultWithBiometrics() async throws {
-        unlockVaultWithBiometricsCalled = true
-        return try unlockVaultWithBiometricsResult.get()
+    func unlockVaultWithPIN(pin: String) async throws {
+        unlockVaultPIN = pin
+        try unlockWithPINResult.get()
     }
 
-    func unlockVaultWithNeverlockKey() async throws {
-        unlockVaultWithNeverlockKeyCalled = true
-        return try unlockVaultWithNeverlockResult.get()
+    func unlockVaultWithSessionKey() async throws -> Bool {
+        unlockVaultWithSessionKeyCalled = true
+        return try unlockVaultWithSessionKeyResult.get()
     }
 
     /// Attempts to convert a possible user id into a known account id.
