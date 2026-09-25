@@ -8,8 +8,12 @@
 "Copy" = "კოპირება";
 "CopyLicenseNumber" = "ლიცენზიის ნომრის კოპირება";
 "CopyPassportNumber" = "პასპორტის ნომრის კოპირება";
+"CopyPassphrase" = "Copy passphrase";
 "CopyPassword" = "პაროლის კოპირება";
 "CopyUsername" = "მომხმარებლის სახელის კოპირება";
+"UseThisPassphrase" = "Use this passphrase";
+"UseThisPassword" = "Use this password";
+"UseThisUsername" = "Use this username";
 "Delete" = "წაშლა";
 "DeleteAll" = "ყველას წაშლა";
 "Deleting" = "წაშლა…";
@@ -129,7 +133,6 @@
 "PasswordOverrideAlert" = "დარწმუნებული ხართ, რომ გსურთ მიმდინარე პაროლის ჩანაცვლება?";
 "PushNotificationAlert" = "Bitwarden ინახავს თქვენს სეიფს ავტომატურად სინქრონიზებულს პუშ-შეტყობინებების გამოყენებით. საუკეთესო გამოცდილებისთვის, გთხოვთ, აირჩიოთ \"ნებადართული\" შემდეგ მოთხოვნაზე, როცა გთხოვენ პუშ-შეტყობინებების დაშვებას.";
 "Security" = "უსაფრთხოება";
-"Select" = "არჩევა";
 "ItemUpdated" = "ჩანაწერი შენახულია";
 "Submitting" = "გაგზავნა…";
 "Syncing" = "სინქრონიზაცია…";
@@ -182,7 +185,6 @@
 "CopyTotp" = "TOTP-ის კოპირება";
 "CopyTotpAutomaticallyDescription" = "თუ შესვლას აქვს ავთენტიფიკატორის გასაღები, დააკოპირეთ TOTP დადასტურების კოდი ბუფერში, როცა ავტომატურად ავსებთ შესვლას.";
 "CopyTotpAutomatically" = "TOTP-ის ავტომატური კოპირება";
-"PremiumRequired" = "ამ ფუნქციის გამოსაყენებლად საჭიროა Premium წევრობა.";
 "AttachementAdded" = "დანართი დაემატა";
 "AttachmentDeleted" = "დანართი წაიშალა";
 "ChooseFile" = "აირჩიეთ ფაილი";
@@ -223,7 +225,6 @@
 "August" = "აგვისტო";
 "Brand" = "ბრენდი";
 "CardholderName" = "ბარათის მფლობელის სახელი";
-"WeFoundMultipleMatchesChooseTheCorrectOne" = "ვიპოვეთ რამდენიმე შესაბამისი. აირჩიეთ სწორი.";
 "CityTown" = "ქალაქი / დაბა";
 "Company" = "კომპანია";
 "Country" = "ქვეყანა";
@@ -309,6 +310,7 @@
 "NoEmailAddressesEntered" = "ელ. ფოსტის მისამართები არ არის შეყვანილი";
 "EnterAtLeastOneValidEmailToShareSend" = "ამ Send-ის გასაზიარებლად, შეიყვანეთ მინიმუმ ერთი მოქმედი ელ. ფოსტის მისამართი.";
 "OneOrMoreEmailAddressesIncorrect" = "ერთი ან მეტი ელ. ფოსტის მისამართი არასწორია. გთხოვთ, შეამოწმოთ და სცადოთ ხელახლა.";
+"OnlyIncludeTheFollowingDomainsDescriptionLong" = "Only include the following domains: %1$@. Please review and try again.";
 "Cards" = "ბარათები";
 "Identities" = "პირადობები";
 "Logins" = "შესვლები";
@@ -444,11 +446,19 @@
 "NewSendCreated" = "Send შეიქმნა";
 "Custom" = "მორგებული";
 "SendDisabledWarning" = "კორპორატიული პოლიტიკის გამო, თქვენ შეგიძლიათ მხოლოდ არსებული Send-ის წაშლა.";
+"ThisDateIsEnforcedByYourOrganization" = "This date is enforced by your organization";
 "AboutSend" = "Send-ის შესახებ";
 "HideEmail" = "ჩემი ელ. ფოსტის მისამართის დამალვა მიმღებებისგან";
 "SendOptionsPolicyInEffect" = "ერთი ან მეტი ორგანიზაციის პოლიტიკა გავლენას ახდენს თქვენს Send ვარიანტებზე.";
 "SendFilePremiumRequired" = "უფასო ანგარიშები შემოიფარგლება მხოლოდ ტექსტის გაზიარებით. Send-თან ფაილების გამოსაყენებლად საჭიროა Premium წევრობა.";
 "SendFileEmailVerificationRequired" = "Send-თან ფაილების გამოსაყენებლად, უნდა დაადასტუროთ თქვენი ელ. ფოსტა. თქვენი ელ. ფოსტის დადასტურება შეგიძლიათ ვებ-სეიფში.";
+/* Alert message shown when Send Controls policy restricts creation to one Send type. %1$@ is the allowed Send type, either "File" or "Text". */
+"DueToAnEnterprisePolicyYouCanOnlyCreateXSends" = "Due to an enterprise policy, you can only create %1$@ Sends.";
+"OrganizationPolicyRestriction" = "Organization policy restriction";
+"TextSendsAreNotAllowedDescriptionLong" = "Text Sends are not allowed for your organization and this Send will automatically expire at the set deletion date.";
+"ThisSendIsNotCompliantDescriptionLong" = "This Send is not compliant with your organization's Send policy and will automatically expire at the set deletion date.";
+"ToEditThisSendMakeACopyDescriptionLong" = "To edit this Send, make a copy. If this Send can expire at the set deletion date, no action is needed.";
+"MakeACopy" = "Make a copy";
 "PasswordPrompt" = "მთავარი პაროლის ხელახალი მოთხოვნა";
 "PasswordConfirmation" = "მთავარი პაროლის დადასტურება";
 "PasswordConfirmationDesc" = "ეს ქმედება დაცულია, გასაგრძელებლად, გთხოვთ, ხელახლა შეიყვანოთ თქვენი მთავარი პაროლი ვინაობის დასადასტურებლად.";
@@ -648,7 +658,6 @@
 "SetUpAutofill" = "ავტოშევსების დაყენება";
 "AppInfo" = "აპლიკაციის ინფორმაცია";
 "Browse" = "დათვალიერება";
-"SelectCardholderName" = "აირჩიეთ ბარათის მფლობელის სახელი";
 "SelectLanguage" = "აირჩიეთ ენა";
 "ContinueToCompleteWebAuthnVerification" = "გააგრძელეთ WebAuthn-ის დადასტურების დასასრულებლად.";
 "ThereWasAnErrorStartingWebAuthnTwoFactorAuthentication" = "There was an error starting WebAuthn two factor authentication";
@@ -667,7 +676,6 @@
 "ByContinuingYouAgreeToTheTermsOfServiceAndPrivacyPolicy" = "გაგრძელებით, თქვენ ეთანხმებით **[მომსახურების პირობებს](%1$@)** და **[კონფიდენციალურობის პოლიტიკას](%2$@)**";
 "GetAdviceAnnouncementsAndResearchOpportunitiesFromBitwardenInYourInboxUnsubscribeAtAnyTime." = "მიიღეთ რჩევები, განცხადებები და კვლევის შესაძლებლობები Bitwarden-ისგან თქვენს ელ. ფოსტაზე. **[გამოწერა](%1$@)** ნებისმიერ დროს შეგიძლიათ.";
 "UserVerificationForPasskey" = "მომხმარებლის ვერიფიკაცია passkey-სთვის";
-"NewItem" = "ახალი ჩანაწერი";
 "ExploreTheGenerator" = "გენერატორის დათვალიერება";
 "LearnMoreAboutGeneratingSecureLoginCredentialsWithAGuidedTour" = "გაიგეთ მეტი უსაფრთხო შესვლის მონაცემების გენერირების შესახებ ინტერაქტიული ტურით.";
 "ExportVaultFilePwProtectInfo" = "ეს ფაილის ექსპორტი დაცული იქნება პაროლით და გაშიფვრისთვის საჭირო იქნება ფაილის პაროლი.";
@@ -881,6 +889,10 @@
 "Identification" = "იდენტიფიკაცია";
 "Owner" = "მფლობელი";
 "VerifyYourIdentity" = "დაადასტურეთ თქვენი ვინაობა";
+"ThisOperationIsNotAllowedOnThisAccount" = "This operation is not allowed on this account";
+"AnErrorOccurredWhileTryingToLockTheCurrentUser" = "An error occurred while trying to lock the current user";
+"LockAllAccounts" = "Lock all accounts";
+"AllAccountsHaveBeenLocked" = "All accounts have been locked";
 "ShareErrorDetails" = "შეცდომის დეტალების გაზიარება";
 "FlightRecorder" = "Flight recorder";
 "EnableFlightRecorder" = "Flight recorder-ის ჩართვა";
@@ -909,7 +921,13 @@
 "ExpiresOnXDate" = "ვადა ეწურება %1$@-ზე";
 "ExpiresTomorrow" = "ვადა ეწურება ხვალ";
 "DateRangeXToY" = "%1$@-დან %2$@-მდე";
+"LogOutAllAccounts" = "Log out all accounts";
+"AllAccountsHaveBeenLoggedOut" = "All accounts have been logged out";
+"AnErrorOccurredWhileTryingToLogOutAllAccounts" = "An error occurred while trying to log out all accounts";
 "SelfHostServerURL" = "საკუთარი სერვერის URL";
+"OpenGenerator" = "Open generator";
+"OpenPasswordGenerator" = "Open password generator";
+"GeneratePassphrase" = "Generate passphrase";
 "AllowUniversalClipboard" = "Universal Clipboard-ის დაშვება";
 "UseUniversalClipboardToCopyDescriptionLong" = "გამოიყენეთ Universal Clipboard აქ კოპირებისთვის და სხვა მოწყობილობებზე ჩასასმელად, რომლებიც შესულია იმავე Apple ID-ით.";
 "RemoveMasterPasswordConfirmDomain" = "შემდეგი ორგანიზაციის წევრებისთვის მთავარი პაროლი აღარ არის საჭირო. გთხოვთ, დაადასტუროთ ქვემოთ მოცემული დომენი თქვენი ორგანიზაციის ადმინისტრატორთან.";
@@ -929,6 +947,7 @@
 "GoToSettings" = "პარამეტრებში გადასვლა";
 "SiriAndShortcutsAccess" = "Siri-სა და Shortcuts-ის წვდომა";
 "EnableToAllowTheAppToRespondToSiriAndShortcutsUsingAppIntents" = "ჩართეთ, რათა აპმა შეძლოს Siri-სა და Shortcuts-ზე პასუხი App Intents-ის გამოყენებით.";
+"ThereIsNoActiveAccount" = "There is no active account.";
 "NewFileSend" = "ახალი ფაილის Send";
 "NewTextSend" = "ახალი ტექსტის Send";
 "EditFileSend" = "ფაილის Send-ის რედაქტირება";
@@ -979,7 +998,6 @@
 "NoAskMe" = "არა, მკითხე";
 "NoCodes" = "საჩვენებელი კოდები არ გაქვთ";
 "None" = "არცერთი";
-"NoneOfTheAbove" = "ზემოაღნიშნულიდან არცერთი";
 "NumberOfDigits" = "ციფრების რაოდენობა";
 "OtpType" = "OTP ტიპი";
 "RefreshPeriod" = "განახლების პერიოდი";
@@ -1077,6 +1095,7 @@
 "AnyoneWithTheLink" = "ნებისმიერი ბმულით";
 "AnyoneWithThisLinkCanViewThisSend" = "ნებისმიერ ამ ბმულის მქონე პირს შეუძლია ამ Send-ის ნახვა.";
 "AfterSharingThisSendLinkDescriptionLong" = "ამ Send-ის ბმულის გაზიარების შემდეგ, პირებს მოუწევთ თავიანთი ელ. ფოსტის კოდით დადასტურება ამ Send-ის სანახავად.";
+"IndividualsWillNeedToEnterThisPasswordDescriptionLong" = "Individuals will need to enter this password to view this Send";
 "SpecificPeople" = "კონკრეტული პირები";
 "WhoCanView" = "ვის შეუძლია ნახვა";
 "SharingWithSpecificPeopleIsPremiumFeatureDescriptionLong" = "კონკრეტულ პირებთან გაზიარება არის Premium ფუნქცია. თქვენი მიმდინარე გეგმა არ მოიცავს ამ ფუნქციაზე წვდომას.";
@@ -1254,5 +1273,26 @@
 "Server" = "სერვერი";
 /* Accessibility label for the button that clears a field's value. %1$@ is the field's title (e.g. "Date of birth"), so the spoken label reads "Clear Date of birth". */
 "ClearFieldName" = "%1$@-ის გასუფთავება";
-"SelectDate" = "აირჩიეთ თარიღი";
+/* Accessibility hint on a collapsed date field announcing that activating it opens the calendar picker. */
+"OpensDatePicker" = "Opens date picker";
+/* Accessibility hint on an expanded date field announcing that activating it closes the calendar picker. */
+"ClosesDatePicker" = "Closes date picker";
+/* VoiceOver announcement posted when a date picker whose range excludes future dates, e.g. date of birth or an issue date, reports landing on today (the latest available day) while scrolling the wheel. */
+"FutureDatesUnavailable" = "Future dates unavailable";
 "PremiumRequiredTOTPDescriptionLong" = "ავთენტიფიკატორის გასაღები (TOTP) არის Premium ფუნქცია. თქვენი მიმდინარე გეგმა არ მოიცავს ამ ფუნქციაზე წვდომას.";
+/* Toast shown after a login item is saved. */
+"LoginSaved" = "Login saved";
+/* Toast shown after a card item is saved. */
+"CardSaved" = "Card saved";
+/* Toast shown after an identity item is saved. */
+"IdentitySaved" = "Identity saved";
+/* Toast shown after a secure note item is saved. */
+"SecureNoteSaved" = "Secure note saved";
+/* Toast shown after an SSH key item is saved. */
+"SSHKeySaved" = "SSH key saved";
+/* Toast shown after a bank account item is saved. */
+"BankAccountSaved" = "Bank account saved";
+/* Toast shown after a driver's license item is saved. */
+"LicenseSaved" = "License saved";
+/* Toast shown after a passport item is saved. */
+"PassportSaved" = "Passport saved";

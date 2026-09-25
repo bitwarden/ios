@@ -8,8 +8,12 @@
 "Copy" = "複製";
 "CopyLicenseNumber" = "複製駕照號碼";
 "CopyPassportNumber" = "複製護照號碼";
+"CopyPassphrase" = "Copy passphrase";
 "CopyPassword" = "複製密碼";
 "CopyUsername" = "複製使用者名稱";
+"UseThisPassphrase" = "Use this passphrase";
+"UseThisPassword" = "Use this password";
+"UseThisUsername" = "Use this username";
 "Delete" = "刪除";
 "DeleteAll" = "刪除全部";
 "Deleting" = "正在刪除…";
@@ -21,7 +25,7 @@
 "EnterPIN" = "請輸入 PIN 碼。";
 "Favorites" = "我的最愛";
 "Folder" = "資料夾";
-"FolderCreated" = "已新增資料夾。";
+"FolderCreated" = "資料夾已新增。";
 "FolderDeleted" = "已刪除資料夾。";
 "FolderNone" = "（未分類）";
 "Folders" = "資料夾";
@@ -129,7 +133,6 @@
 "PasswordOverrideAlert" = "您確定要覆寫目前的密碼嗎？";
 "PushNotificationAlert" = "Bitwarden 使用推送通知來自動同步您的密碼庫。為了確保同步順暢，稍後系統將詢問您是否開啟通知，請選擇「允許」。";
 "Security" = "安全";
-"Select" = "選擇";
 "ItemUpdated" = "項目已儲存";
 "Submitting" = "提交中…";
 "Syncing" = "正在同步…";
@@ -182,7 +185,6 @@
 "CopyTotp" = "複製 TOTP";
 "CopyTotpAutomaticallyDescription" = "若登入資訊已包含驗證器金鑰，在自動填入此登入資訊時，複製 TOTP 驗證碼到您的剪貼簿。";
 "CopyTotpAutomatically" = "自動複製 TOTP";
-"PremiumRequired" = "進階會員才可使用此功能。";
 "AttachementAdded" = "已新增附件";
 "AttachmentDeleted" = "已刪除附件";
 "ChooseFile" = "選擇檔案";
@@ -223,7 +225,6 @@
 "August" = "八月";
 "Brand" = "發卡組織";
 "CardholderName" = "持卡人姓名";
-"WeFoundMultipleMatchesChooseTheCorrectOne" = "我們找到多個符合項目。請選擇正確的一項。";
 "CityTown" = "市/鎮";
 "Company" = "公司";
 "Country" = "國家";
@@ -309,6 +310,7 @@
 "NoEmailAddressesEntered" = "尚未輸入任何電子郵件地址";
 "EnterAtLeastOneValidEmailToShareSend" = "請至少輸入一個有效的電子郵件地址以分享此 Send。";
 "OneOrMoreEmailAddressesIncorrect" = "一個或多個電子郵件地址不正確。請檢查後再試一次。";
+"OnlyIncludeTheFollowingDomainsDescriptionLong" = "Only include the following domains: %1$@. Please review and try again.";
 "Cards" = "付款卡";
 "Identities" = "身分";
 "Logins" = "登入資料";
@@ -444,11 +446,19 @@
 "NewSendCreated" = "已建立新的 Send";
 "Custom" = "自訂";
 "SendDisabledWarning" = "由於企業原則限制，您只能刪除現有的 Send。";
+"ThisDateIsEnforcedByYourOrganization" = "This date is enforced by your organization";
 "AboutSend" = "關於 Send";
 "HideEmail" = "對收件人隱藏我的電子郵件地址";
 "SendOptionsPolicyInEffect" = "一個或多個組織原則正影響您的 Send 選項。";
 "SendFilePremiumRequired" = "免費帳戶僅限於共用文字。若想使用檔案傳送，需要進階會員資格。";
 "SendFileEmailVerificationRequired" = "您必須驗證電子郵件才能夠使用檔案 Send。您可以在網頁版密碼庫中驗證您的電子郵件。";
+/* Alert message shown when Send Controls policy restricts creation to one Send type. %1$@ is the allowed Send type, either "File" or "Text". */
+"DueToAnEnterprisePolicyYouCanOnlyCreateXSends" = "Due to an enterprise policy, you can only create %1$@ Sends.";
+"OrganizationPolicyRestriction" = "Organization policy restriction";
+"TextSendsAreNotAllowedDescriptionLong" = "Text Sends are not allowed for your organization and this Send will automatically expire at the set deletion date.";
+"ThisSendIsNotCompliantDescriptionLong" = "This Send is not compliant with your organization's Send policy and will automatically expire at the set deletion date.";
+"ToEditThisSendMakeACopyDescriptionLong" = "To edit this Send, make a copy. If this Send can expire at the set deletion date, no action is needed.";
+"MakeACopy" = "Make a copy";
 "PasswordPrompt" = "重新詢問主密碼";
 "PasswordConfirmation" = "確認主密碼";
 "PasswordConfirmationDesc" = "此動作受到保護。若要繼續，請重新輸入您的主密碼以驗證您的身分。";
@@ -648,7 +658,6 @@
 "SetUpAutofill" = "設定自動填入";
 "AppInfo" = "App 資訊";
 "Browse" = "瀏覽";
-"SelectCardholderName" = "選擇持卡人姓名";
 "SelectLanguage" = "選擇語言";
 "ContinueToCompleteWebAuthnVerification" = "繼續以完成 WebAuthn 2FA 驗證。";
 "ThereWasAnErrorStartingWebAuthnTwoFactorAuthentication" = "啟動 WebAuthn 2FA 驗證發生錯誤";
@@ -667,7 +676,6 @@
 "ByContinuingYouAgreeToTheTermsOfServiceAndPrivacyPolicy" = "繼續前，您需同意 **[服務條款](%1$@)** 及 **[隱私權政策](%2$@)**";
 "GetAdviceAnnouncementsAndResearchOpportunitiesFromBitwardenInYourInboxUnsubscribeAtAnyTime." = "獲得來自 Bitwarden 的公告、建議及研究資訊電子郵件。可以在任何時間 **[取消訂閱](%1$@)**。";
 "UserVerificationForPasskey" = "密碼金鑰的使用者驗證";
-"NewItem" = "新項目";
 "ExploreTheGenerator" = "探索密碼產生器";
 "LearnMoreAboutGeneratingSecureLoginCredentialsWithAGuidedTour" = "透過導覽了解如何產生安全的登入憑證。";
 "ExportVaultFilePwProtectInfo" = "此檔案匯出將受密碼保護，需要檔案密碼才能解密。";
@@ -881,6 +889,10 @@
 "Identification" = "身份";
 "Owner" = "擁有者";
 "VerifyYourIdentity" = "驗證您的身份";
+"ThisOperationIsNotAllowedOnThisAccount" = "Account戶不允許執行此操作";
+"AnErrorOccurredWhileTryingToLockTheCurrentUser" = "嘗試鎖定當前使用者時發生錯誤";
+"LockAllAccounts" = "鎖定所有帳號";
+"AllAccountsHaveBeenLocked" = "All accounts have been locked";
 "ShareErrorDetails" = "傳送錯誤訊息";
 "FlightRecorder" = "飛行記錄儀";
 "EnableFlightRecorder" = "啟用飛行記錄器";
@@ -900,7 +912,7 @@
 /* VoiceOver accessibility label for a shared folder the item belongs to. */
 "SharedFolderX" = "共享資料夾，%1$@";
 "FolderX" = "資料夾，%1$@";
-"MyFolderX" = "My folder, %1$@";
+"MyFolderX" = "資料夾，%1$@";
 "ItemXOfY" = "項目 %1$@ / %2$@";
 "ViewRecordedLogs" = "檢視記錄的日誌";
 "RecordedLogs" = "已記錄的日誌";
@@ -909,7 +921,13 @@
 "ExpiresOnXDate" = "在 %1$@ 到期";
 "ExpiresTomorrow" = "明天到期";
 "DateRangeXToY" = "%2$@ 至 %1$@";
+"LogOutAllAccounts" = "Log out all accounts";
+"AllAccountsHaveBeenLoggedOut" = "All accounts have been logged out";
+"AnErrorOccurredWhileTryingToLogOutAllAccounts" = "An error occurred while trying to log out all accounts";
 "SelfHostServerURL" = "自建伺服器 URL";
+"OpenGenerator" = "開啟產生器";
+"OpenPasswordGenerator" = "開啟密碼產生器";
+"GeneratePassphrase" = "產生密碼短語";
 "AllowUniversalClipboard" = "允許通用剪貼簿";
 "UseUniversalClipboardToCopyDescriptionLong" = "使用通用剪貼簿在此複製並在其他使用相同 Apple ID 登入的裝置上貼上。";
 "RemoveMasterPasswordConfirmDomain" = "以下組織的成員不再需要主密碼。請與您的組織管理員確認下方網域。";
@@ -929,6 +947,7 @@
 "GoToSettings" = "前往設定";
 "SiriAndShortcutsAccess" = "Siri 與 捷徑 存取";
 "EnableToAllowTheAppToRespondToSiriAndShortcutsUsingAppIntents" = "啟用以允許應用程式透過 App Intents 回應 Siri 與捷徑。";
+"ThereIsNoActiveAccount" = "There is no active account.";
 "NewFileSend" = "新增檔案 Send";
 "NewTextSend" = "新增文字 Send";
 "EditFileSend" = "編輯檔案 Send";
@@ -979,7 +998,6 @@
 "NoAskMe" = "不，詢問我";
 "NoCodes" = "您沒有任何可顯示的驗證碼";
 "None" = "無";
-"NoneOfTheAbove" = "以上皆非";
 "NumberOfDigits" = "位數";
 "OtpType" = "OTP 類型";
 "RefreshPeriod" = "更新週期";
@@ -1078,6 +1096,7 @@
 "AnyoneWithTheLink" = "任何持有連結的人";
 "AnyoneWithThisLinkCanViewThisSend" = "任何持有此連結的人都可以檢視此 Send。";
 "AfterSharingThisSendLinkDescriptionLong" = "分享此 Send 連結後，收件者需使用驗證碼驗證其電子郵件，才能檢視此 Send。";
+"IndividualsWillNeedToEnterThisPasswordDescriptionLong" = "Individuals will need to enter this password to view this Send";
 "SpecificPeople" = "特定人員";
 "WhoCanView" = "誰可以檢視";
 "SharingWithSpecificPeopleIsPremiumFeatureDescriptionLong" = "與特定人員分享為 Premium 功能。您目前的方案不包含此功能的使用權限。";
@@ -1255,5 +1274,26 @@
 "Server" = "伺服器";
 /* Accessibility label for the button that clears a field's value. %1$@ is the field's title (e.g. "Date of birth"), so the spoken label reads "Clear Date of birth". */
 "ClearFieldName" = "清除 %1$@";
-"SelectDate" = "選擇日期";
+/* Accessibility hint on a collapsed date field announcing that activating it opens the calendar picker. */
+"OpensDatePicker" = "Opens date picker";
+/* Accessibility hint on an expanded date field announcing that activating it closes the calendar picker. */
+"ClosesDatePicker" = "Closes date picker";
+/* VoiceOver announcement posted when a date picker whose range excludes future dates, e.g. date of birth or an issue date, reports landing on today (the latest available day) while scrolling the wheel. */
+"FutureDatesUnavailable" = "Future dates unavailable";
 "PremiumRequiredTOTPDescriptionLong" = "驗證器金鑰（TOTP）為 Premium 功能。您目前的方案未包含此功能。";
+/* Toast shown after a login item is saved. */
+"LoginSaved" = "登入項目已儲存";
+/* Toast shown after a card item is saved. */
+"CardSaved" = "Card saved";
+/* Toast shown after an identity item is saved. */
+"IdentitySaved" = "Identity saved";
+/* Toast shown after a secure note item is saved. */
+"SecureNoteSaved" = "Secure note saved";
+/* Toast shown after an SSH key item is saved. */
+"SSHKeySaved" = "SSH key saved";
+/* Toast shown after a bank account item is saved. */
+"BankAccountSaved" = "Bank account saved";
+/* Toast shown after a driver's license item is saved. */
+"LicenseSaved" = "License saved";
+/* Toast shown after a passport item is saved. */
+"PassportSaved" = "Passport saved";

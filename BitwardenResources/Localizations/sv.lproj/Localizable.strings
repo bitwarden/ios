@@ -8,8 +8,12 @@
 "Copy" = "Kopiera";
 "CopyLicenseNumber" = "Kopiera licensnummer";
 "CopyPassportNumber" = "Kopiera passnummer";
+"CopyPassphrase" = "Kopiera lösenfras";
 "CopyPassword" = "Kopiera lösenord";
 "CopyUsername" = "Kopiera användarnamn";
+"UseThisPassphrase" = "Använd den här lösenordsfrasen";
+"UseThisPassword" = "Använd det här lösenordet";
+"UseThisUsername" = "Använd det här användarnamnet";
 "Delete" = "Radera";
 "DeleteAll" = "Radera alla";
 "Deleting" = "Tar bort…";
@@ -26,8 +30,8 @@
 "FolderNone" = "Ingen mapp";
 "Folders" = "Mappar";
 "FolderUpdated" = "Mappen uppdaterades";
-"MyFolder" = "My folder";
-"MyFolders" = "My folders";
+"MyFolder" = "Min mapp";
+"MyFolders" = "Mina mappar";
 "InternetConnectionRequiredMessage" = "Vänligen anslut till internet innan du fortsätter.";
 "InternetConnectionRequiredTitle" = "Internetanslutning krävs";
 "InvalidMasterPassword" = "Ogiltigt huvudlösenord. Försök igen.";
@@ -129,11 +133,10 @@
 "PasswordOverrideAlert" = "Är du säker på att du vill skriva över det nuvarande lösenordet?";
 "PushNotificationAlert" = "Bitwarden håller ditt valv automatiskt synkroniserat med hjälp av push-meddelanden. För bästa möjliga upplevelse, välj ”Tillåt” när du blir ombedd att tillåta push-meddelanden.";
 "Security" = "Säkerhet";
-"Select" = "Välj";
 "ItemUpdated" = "Objektet uppdaterades";
 "Submitting" = "Skickar in…";
 "Syncing" = "Synkroniserar…";
-"SyncingLogins" = "Synkroniserar inloggningar...";
+"SyncingLogins" = "Synkroniserar inloggningar…";
 "SyncingComplete" = "Synkronisering slutförd";
 "TouchID" = "Touch ID";
 "TwoStepLogin" = "Tvåfaktorsautentisering";
@@ -182,7 +185,6 @@
 "CopyTotp" = "Kopiera TOTP";
 "CopyTotpAutomaticallyDescription" = "Om en inloggning har en autentiseringsnyckel kopierar du TOTP-verifieringskoden till ditt urklipp när du fyller i inloggningen automatiskt.";
 "CopyTotpAutomatically" = "Kopiera TOTP automatiskt";
-"PremiumRequired" = "Ett premium-medlemskap krävs för att använda den här funktionen.";
 "AttachementAdded" = "Bilaga tillagd";
 "AttachmentDeleted" = "Bilaga borttagen";
 "ChooseFile" = "Välj fil";
@@ -223,7 +225,6 @@
 "August" = "Augusti";
 "Brand" = "Märke";
 "CardholderName" = "Kortinnehavarens namn";
-"WeFoundMultipleMatchesChooseTheCorrectOne" = "Vi hittade flera matchningar. Välj den rätta.";
 "CityTown" = "Ort";
 "Company" = "Företag";
 "Country" = "Land";
@@ -264,11 +265,11 @@
 /* Section header and screen title for viewing/managing a cipher's collections. */
 "Collections" = "Samlingar";
 /* Section header and screen title for viewing/managing a cipher's shared folders. */
-"SharedFolders" = "Shared folders";
+"SharedFolders" = "Delade mappar";
 /* Empty state message shown when a collection has no items. */
 "NoItemsCollection" = "Det finns inga objekt i denna samling";
 /* Empty state message shown when a shared folder has no items. */
-"ThereAreNoItemsInThisSharedFolder" = "There are no items in this shared folder";
+"ThereAreNoItemsInThisSharedFolder" = "Det finns inga objekt i den här delade mappen";
 "NoItemsFolder" = "Det finns inga objekt i den här mappen";
 "NoItemsTrash" = "Det finns inga objekt i papperskorgen.";
 "FaceID" = "Face ID";
@@ -309,6 +310,7 @@
 "NoEmailAddressesEntered" = "Inga e-postadresser har angetts";
 "EnterAtLeastOneValidEmailToShareSend" = "Ange minst en giltig e-postadress för att dela denna Send.";
 "OneOrMoreEmailAddressesIncorrect" = "En eller flera e-postadresser är felaktiga. Granska och försök igen.";
+"OnlyIncludeTheFollowingDomainsDescriptionLong" = "Inkludera bara följande domäner: %1$@. Kontrollera och försök igen.";
 "Cards" = "Kort";
 "Identities" = "Identiteter";
 "Logins" = "Inloggningar";
@@ -327,22 +329,22 @@
 /* Empty state message on the Collections screen shown when a user has no collections. */
 "NoCollectionsToList" = "Det finns inga samlingar att visa.";
 /* Empty state message on the Shared folders screen shown when a user has no shared folders. */
-"ThereAreNoSharedFoldersToList" = "There are no shared folders to list.";
+"ThereAreNoSharedFoldersToList" = "Det finns inga delade mappar att lista.";
 "MovedItemToOrg" = "%1$@ flyttades till %2$@.";
 /* Alert message shown when saving an item with no collection selected. */
 "SelectOneCollection" = "Du måste markera minst en samling.";
 /* Alert message shown when saving an item with no shared folder selected. */
-"YouMustSelectAtLeastOneSharedFolder" = "You must select at least one shared folder.";
+"YouMustSelectAtLeastOneSharedFolder" = "Du måste välja minst en delad mapp.";
 "Share" = "Dela";
 "ShareAll" = "Dela alla";
 /* Overflow menu item and screen title on the Move screen shown when the "vfo1-foundation" feature flag is disabled; superseded by "Move" when enabled. */
 "MoveToOrganization" = "Flytta till organisation";
 /* Empty state message shown when a user has no vaults available to move an item into, when the "vfo1-foundation" feature flag is enabled. */
-"NoVaultsToList" = "No vaults to list.";
+"NoVaultsToList" = "Det finns inga valv att lista.";
 /* Empty state message shown when a user has no organizations available to move an item into, when the "vfo1-foundation" feature flag is disabled. */
 "NoOrgsToList" = "Inga organisationer att lista.";
 /* Footer text on the Move screen explaining that moving an item transfers its ownership to the destination vault's organization, when the "vfo1-foundation" feature flag is enabled. */
-"ChooseAVaultThatYouWishToMoveThisItemToDescriptionLong" = "Choose a vault that you wish to move this item to. Moving to another vault transfers ownership of the item to that organization. You will no longer be the direct owner of this item once it has been moved.";
+"ChooseAVaultThatYouWishToMoveThisItemToDescriptionLong" = "Välj det valv du vill flytta det här objektet till. Om du flyttar det till ett annat valv överförs äganderätten till objektet till den organisationen. Du är inte längre direkt ägare till objektet när det har flyttats.";
 /* Footer text on the Move screen explaining that moving an item transfers its ownership to the destination organization, when the "vfo1-foundation" feature flag is disabled. */
 "MoveToOrgDesc" = "Välj en organisation som du vill flytta detta objektet till. Flytt till en organisation överför ägandet av objektet till den organisationen. Du kommer inte längre att vara direkt ägare till detta objekt när det har flyttats.";
 "NumberOfWords" = "Antal ord";
@@ -444,11 +446,19 @@
 "NewSendCreated" = "Ny Send har skapats";
 "Custom" = "Anpassad";
 "SendDisabledWarning" = "På grund av en företagspolicy kan du bara radera en befintlig Send.";
+"ThisDateIsEnforcedByYourOrganization" = "Det här datumet styrs av din organisation";
 "AboutSend" = "Om Send";
 "HideEmail" = "Dölj min e-postadress för mottagare.";
 "SendOptionsPolicyInEffect" = "En eller flera organisationsriktlinjer påverkar dina Send-inställningar.";
 "SendFilePremiumRequired" = "Gratiskonton är begränsade till att endast dela text. Ett premium-medlemskap krävs för att använda filer med Send.";
 "SendFileEmailVerificationRequired" = "Du måste verifiera din e-postadress för att använda filer med Send. Du kan verifiera din e-postadress i webbvalvet.";
+/* Alert message shown when Send Controls policy restricts creation to one Send type. %1$@ is the allowed Send type, either "File" or "Text". */
+"DueToAnEnterprisePolicyYouCanOnlyCreateXSends" = "På grund av en företagspolicy kan du endast skapa %1$@ Send-objekt.";
+"OrganizationPolicyRestriction" = "Begränsning enligt organisationspolicy";
+"TextSendsAreNotAllowedDescriptionLong" = "Text-Sends är inte tillåtna för din organisation och denna Send upphör automatiskt på det angivna raderingsdatumet.";
+"ThisSendIsNotCompliantDescriptionLong" = "Den här Send uppfyller inte organisationens Send-policy och upphör automatiskt på det angivna raderingsdatumet.";
+"ToEditThisSendMakeACopyDescriptionLong" = "Om du vill redigera den här Send, skapa en kopia. Om denna Send får upphöra på det angivna raderingsdatumet krävs ingen åtgärd.";
+"MakeACopy" = "Skapa en kopia";
 "PasswordPrompt" = "Återupprepa huvudlösenord";
 "PasswordConfirmation" = "Bekräfta huvudlösenord";
 "PasswordConfirmationDesc" = "Denna åtgärd är skyddad. För att fortsätta, vänligen verifiera din identitet genom att ange ditt huvudlösenord.";
@@ -648,7 +658,6 @@
 "SetUpAutofill" = "Ställ in autofyllning";
 "AppInfo" = "Appinfo";
 "Browse" = "Bläddra";
-"SelectCardholderName" = "Välj kortinnehavarens namn";
 "SelectLanguage" = "Välj språk";
 "ContinueToCompleteWebAuthnVerification" = "Fortsätt för att slutföra WebAuthn verifieringen.";
 "ThereWasAnErrorStartingWebAuthnTwoFactorAuthentication" = "Det uppstod ett fel vid start av WebAuthn tvåfaktorsautentisering";
@@ -667,7 +676,6 @@
 "ByContinuingYouAgreeToTheTermsOfServiceAndPrivacyPolicy" = "Genom att fortsätta godkänner du **[Användarvillkoren](%1$@)** och **[Integritetspolicy](%2$@)**";
 "GetAdviceAnnouncementsAndResearchOpportunitiesFromBitwardenInYourInboxUnsubscribeAtAnyTime." = "Få råd, tillkännagivanden och forskningsmöjligheter från Bitwarden i din inkorg. **[Avsluta prenumerationen](%1$@)** när som helst.";
 "UserVerificationForPasskey" = "Användarverifiering för inloggningsnyckel";
-"NewItem" = "Nytt objekt";
 "ExploreTheGenerator" = "Utforska generatorn";
 "LearnMoreAboutGeneratingSecureLoginCredentialsWithAGuidedTour" = "Läs mer om att generera säkra inloggningsuppgifter med en guidad tur.";
 "ExportVaultFilePwProtectInfo" = "Den exporterade filen kommer vara lösenordsskyddad. Du kommer behöva ange fillösenordet för att dekryptera den.";
@@ -839,7 +847,7 @@
 "YouMayNeedToEnableDevicePasscodeOrBiometrics" = "Du kan behöva aktivera enhetens lösenkod eller biometri.";
 "StartImportCXFDescriptionLong" = "Importera lösenord, lösenordsnycklar, kreditkort och annan personlig identitetsinformation från en annan lösenordshanterare.\n\nDina uppgifter kommer **inte** att raderas från din tidigare leverantör.";
 "ImportPasswords" = "Importera lösenord";
-"ImportingEllipsis" = "Importerar...";
+"ImportingEllipsis" = "Importerar…";
 "AreYouSureYouWantToCancelTheImportProcessQuestionMark" = "Är du säker på att du vill avbryta importprocessen?";
 "ImportFailed" = "Importen misslyckades";
 "ThereWasAnIssueImportingAllOfYourPasswordsNoDataWasDeleted" = "Det uppstod ett problem med att importera alla dina lösenord.\n\nInga uppgifter raderades.";
@@ -881,6 +889,10 @@
 "Identification" = "Identifiering";
 "Owner" = "Ägare";
 "VerifyYourIdentity" = "Verifiera din identitet";
+"ThisOperationIsNotAllowedOnThisAccount" = "Den här åtgärden är inte tillåten för det här kontot";
+"AnErrorOccurredWhileTryingToLockTheCurrentUser" = "Ett fel uppstod när det aktuella användarkontot skulle låsas";
+"LockAllAccounts" = "Lås alla konton";
+"AllAccountsHaveBeenLocked" = "Alla konton har låsts";
 "ShareErrorDetails" = "Dela felinformation";
 "FlightRecorder" = "Färdskrivare";
 "EnableFlightRecorder" = "Aktivera färdskrivare";
@@ -894,13 +906,13 @@
 "ShowLess" = "Visa mindre";
 "ItemNameX" = "Artikelns namn, %1$@";
 "OwnerX" = "Ägare, %1$@";
-"VaultX" = "Vault, %1$@";
+"VaultX" = "Valv, %1$@";
 /* VoiceOver accessibility label for a collection the item belongs to. */
 "CollectionX" = "Samling, %1$@";
 /* VoiceOver accessibility label for a shared folder the item belongs to. */
-"SharedFolderX" = "Shared folder, %1$@";
+"SharedFolderX" = "Delad mapp, %1$@";
 "FolderX" = "Mapp, %1$@";
-"MyFolderX" = "My folder, %1$@";
+"MyFolderX" = "Min mapp, %1$@";
 "ItemXOfY" = "Objekt %1$@ av %2$@";
 "ViewRecordedLogs" = "Visa inspelade loggar";
 "RecordedLogs" = "Inspelade loggar";
@@ -909,7 +921,13 @@
 "ExpiresOnXDate" = "Går ut den %1$@";
 "ExpiresTomorrow" = "Går ut imorgon";
 "DateRangeXToY" = "%1$@ till %2$@";
+"LogOutAllAccounts" = "Logga ut från alla konton";
+"AllAccountsHaveBeenLoggedOut" = "Alla konton har loggats ut";
+"AnErrorOccurredWhileTryingToLogOutAllAccounts" = "Ett fel uppstod när alla konton skulle loggas ut";
 "SelfHostServerURL" = "URL för server med egen värd";
+"OpenGenerator" = "Öppna generatorn";
+"OpenPasswordGenerator" = "Öppna lösenordsgeneratorn";
+"GeneratePassphrase" = "Generera lösenordsfras";
 "AllowUniversalClipboard" = "Tillåt universellt urklipp";
 "UseUniversalClipboardToCopyDescriptionLong" = "Använd Universal Clipboard för att kopiera här och klistra in på andra enheter som är inloggade med samma Apple-ID.";
 "RemoveMasterPasswordConfirmDomain" = "Ett huvudlösenord krävs inte längre för medlemmar i följande organisation. Vänligen bekräfta domänen nedan med din organisationsadministratör.";
@@ -929,6 +947,7 @@
 "GoToSettings" = "För att kunna använda push-notiser måste du gå till inställningarna och ändra appens notifieringsbehörighet till \"Tillåt\"";
 "SiriAndShortcutsAccess" = "Tillgång till Siri och genvägar";
 "EnableToAllowTheAppToRespondToSiriAndShortcutsUsingAppIntents" = "Aktivera för att låta appen svara på Siri och genvägar med hjälp av App Intents.";
+"ThereIsNoActiveAccount" = "Det finns inget aktivt konto.";
 "NewFileSend" = "Ny fil Skicka";
 "NewTextSend" = "Ny text Skicka";
 "EditFileSend" = "Redigera fil Skicka";
@@ -979,7 +998,6 @@
 "NoAskMe" = "Nej, fråga mig";
 "NoCodes" = "Du har inga koder att visa";
 "None" = "Ingen";
-"NoneOfTheAbove" = "Inget av ovanstående";
 "NumberOfDigits" = "Antal siffror";
 "OtpType" = "OTP-typ";
 "RefreshPeriod" = "Uppdateringstid";
@@ -1029,7 +1047,7 @@
 "DefaultX" = "Standard (%1$@)";
 "UpdateYourEncryptionSettings" = "Uppdatera dina krypteringsinställningar";
 "TheNewRecommendedEncryptionSettingsDescriptionLong" = "De nya rekommenderade krypteringsinställningarna kommer att förbättra ditt kontos säkerhet. Ange ditt huvudlösenord för att uppdatera nu.";
-"Updating" = "Uppdaterar...";
+"Updating" = "Uppdaterar…";
 "EncryptionSettingsUpdated" = "Krypteringsinställningar uppdaterade";
 "IntroducingArchive" = "Introducerar arkiv";
 "KeepYtemsYouDontNeedRightNowSafeButOutOfSight" = "Håll objekt som du inte behöver just nu är säkra, men utom synhåll.";
@@ -1077,6 +1095,7 @@
 "AnyoneWithTheLink" = "Vem som helst med länken";
 "AnyoneWithThisLinkCanViewThisSend" = "Vem som helst med denna länk kan se denna Send.";
 "AfterSharingThisSendLinkDescriptionLong" = "Efter att ha delat denna Send-länk kommer individer att behöva verifiera sin e-post med en kod för att visa denna Send.";
+"IndividualsWillNeedToEnterThisPasswordDescriptionLong" = "Personer måste ange detta lösenord för att visa denna Send";
 "SpecificPeople" = "Specifika personer";
 "WhoCanView" = "Vem kan se";
 "SharingWithSpecificPeopleIsPremiumFeatureDescriptionLong" = "Delning med specifika personer är en Premiumfunktion. Din nuvarande plan inkluderar inte tillgång till denna funktion.";
@@ -1231,12 +1250,12 @@
 "MoneyMarket" = "Penningmarknad";
 "Savings" = "Sparkonto";
 "Devices" = "Enheter";
-"NoDevicesFound" = "No devices found";
+"NoDevicesFound" = "Inga enheter hittades";
 "CurrentSession" = "Aktuell session";
 "PendingRequest" = "Väntande begäran";
 "Trusted" = "Betrodd";
-"RecentlyActiveLabel" = "Recently active:";
-"FirstLoginLabel" = "First login:";
+"RecentlyActiveLabel" = "Senast aktiv:";
+"FirstLoginLabel" = "Första inloggningen:";
 "Today" = "Idag";
 "PastSevenDays" = "Senaste 7 dagarna";
 "PastFourteenDays" = "Senaste 14 dagarna";
@@ -1244,15 +1263,36 @@
 "OverThirtyDaysAgo" = "Mer än 30 dagar sedan";
 "Unknown" = "Okänd";
 /* Device display name. %1$@ = category (e.g. "Mobile"), %2$@ = platform (e.g. "iOS"). */
-"DeviceDisplayNameXHyphenY" = "%1$@ - %2$@";
-"Mobile" = "Mobile";
-"BrowserExtension" = "Extension";
-"WebVault2" = "Web app";
-"Desktop" = "Desktop";
+"DeviceDisplayNameXHyphenY" = "%1$@ – %2$@";
+"Mobile" = "Mobil";
+"BrowserExtension" = "Webbläsartillägg";
+"WebVault2" = "Webbapp";
+"Desktop" = "Skrivbord";
 "Cli" = "CLI";
 "Sdk" = "SDK";
 "Server" = "Server";
 /* Accessibility label for the button that clears a field's value. %1$@ is the field's title (e.g. "Date of birth"), so the spoken label reads "Clear Date of birth". */
 "ClearFieldName" = "Rensa %1$@";
-"SelectDate" = "Välj datum";
+/* Accessibility hint on a collapsed date field announcing that activating it opens the calendar picker. */
+"OpensDatePicker" = "Öppnar datumväljaren";
+/* Accessibility hint on an expanded date field announcing that activating it closes the calendar picker. */
+"ClosesDatePicker" = "Stänger datumväljaren";
+/* VoiceOver announcement posted when a date picker whose range excludes future dates, e.g. date of birth or an issue date, reports landing on today (the latest available day) while scrolling the wheel. */
+"FutureDatesUnavailable" = "Framtida datum är inte tillgängliga";
 "PremiumRequiredTOTPDescriptionLong" = "Autentiseringsnyckel (TOTP) är en Premium-funktion. Din nuvarande prenumeration inkluderar inte tillgång till denna funktion.";
+/* Toast shown after a login item is saved. */
+"LoginSaved" = "Inloggning sparad";
+/* Toast shown after a card item is saved. */
+"CardSaved" = "Kort sparat";
+/* Toast shown after an identity item is saved. */
+"IdentitySaved" = "Identitet sparad";
+/* Toast shown after a secure note item is saved. */
+"SecureNoteSaved" = "Säker anteckning sparad";
+/* Toast shown after an SSH key item is saved. */
+"SSHKeySaved" = "SSH-nyckel sparad";
+/* Toast shown after a bank account item is saved. */
+"BankAccountSaved" = "Bankkonto sparat";
+/* Toast shown after a driver's license item is saved. */
+"LicenseSaved" = "Licens sparad";
+/* Toast shown after a passport item is saved. */
+"PassportSaved" = "Pass sparat";

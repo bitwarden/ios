@@ -8,8 +8,12 @@
 "Copy" = "העתק";
 "CopyLicenseNumber" = "העתק מספר רישיון";
 "CopyPassportNumber" = "העתק מספר דרכון";
+"CopyPassphrase" = "Copy passphrase";
 "CopyPassword" = "העתק סיסמה";
 "CopyUsername" = "העתק שם משתמש";
+"UseThisPassphrase" = "Use this passphrase";
+"UseThisPassword" = "Use this password";
+"UseThisUsername" = "Use this username";
 "Delete" = "מחק";
 "DeleteAll" = "מחק הכל";
 "Deleting" = "מוחק…";
@@ -129,7 +133,6 @@
 "PasswordOverrideAlert" = "האם אתה בטוח שברצונך לדרוס את הסיסמה הקיימת?";
 "PushNotificationAlert" = "Bitwarden שומר את הכספת שלך מסונכרנת באופן אוטומטי באמצעות התראות בדחיפה. לחוויה הטובה ביותר האפשרית, אנא בחר “אפשר“ בבקשה הבאה כאשר תתבקש לאפשר התראות בדחיפה.";
 "Security" = "אבטחה";
-"Select" = "בחר";
 "ItemUpdated" = "הפריט נשמר";
 "Submitting" = "שולח…";
 "Syncing" = "מסנכרן…";
@@ -182,7 +185,6 @@
 "CopyTotp" = "העתק TOTP";
 "CopyTotpAutomaticallyDescription" = "אם לכניסה שלך יש מפתח מאמת, העתק את קוד האימות ה־TOTP ללוח ההעתקה שלך כאשר אתה ממלא אוטומטית את הכניסה.";
 "CopyTotpAutomatically" = "העתק TOTP באופן אוטומטי";
-"PremiumRequired" = "בכדי להשתמש ביכולת זו יש צורך במנוי פרמיום.";
 "AttachementAdded" = "קובץ מצורף התווסף";
 "AttachmentDeleted" = "קובץ מצורף נמחק";
 "ChooseFile" = "בחר קובץ";
@@ -223,7 +225,6 @@
 "August" = "אוגוסט";
 "Brand" = "מותג";
 "CardholderName" = "שם בעל הכרטיס";
-"WeFoundMultipleMatchesChooseTheCorrectOne" = "מצאנו מספר התאמות. בחר את ההתאמה הנכונה.";
 "CityTown" = "עיר \\ ישוב";
 "Company" = "חברה";
 "Country" = "מדינה";
@@ -309,6 +310,7 @@
 "NoEmailAddressesEntered" = "לא הוזנו כתובות אימייל";
 "EnterAtLeastOneValidEmailToShareSend" = "הזן לפחות כתובת אימייל אחת תקפה כדי לשתף Send זה.";
 "OneOrMoreEmailAddressesIncorrect" = "כתובת אימייל אחת או יותר שגויה. אנא בדוק ונסה שוב.";
+"OnlyIncludeTheFollowingDomainsDescriptionLong" = "Only include the following domains: %1$@. Please review and try again.";
 "Cards" = "כרטיסים";
 "Identities" = "זהויות";
 "Logins" = "פרטי התחברות";
@@ -444,11 +446,19 @@
 "NewSendCreated" = "סֵנְד נוצר";
 "Custom" = "מותאם אישית";
 "SendDisabledWarning" = "בשל מדיניות ארגונית, אתה יכול למחוק רק סֵנְד קיים.";
+"ThisDateIsEnforcedByYourOrganization" = "This date is enforced by your organization";
 "AboutSend" = "אודות Send";
 "HideEmail" = "הסתר את כתובת האימייל שלי מהנמענים";
 "SendOptionsPolicyInEffect" = "מדיניות ארגון אחת או יותר משפיעה על אפשרויות הSend שלך.";
 "SendFilePremiumRequired" = "חשבונות חינמיים מוגבלים לשיתוף טקסט בלבד. יש צורך בחשבון פרימיום כדי להשתמש בSend עם קבצים.";
 "SendFileEmailVerificationRequired" = "עליך לאמת את האימייל שלך כדי להשתמש בSend עם קבצים. ניתן לאמת את האימייל באתר הכספת.";
+/* Alert message shown when Send Controls policy restricts creation to one Send type. %1$@ is the allowed Send type, either "File" or "Text". */
+"DueToAnEnterprisePolicyYouCanOnlyCreateXSends" = "Due to an enterprise policy, you can only create %1$@ Sends.";
+"OrganizationPolicyRestriction" = "Organization policy restriction";
+"TextSendsAreNotAllowedDescriptionLong" = "Text Sends are not allowed for your organization and this Send will automatically expire at the set deletion date.";
+"ThisSendIsNotCompliantDescriptionLong" = "This Send is not compliant with your organization's Send policy and will automatically expire at the set deletion date.";
+"ToEditThisSendMakeACopyDescriptionLong" = "To edit this Send, make a copy. If this Send can expire at the set deletion date, no action is needed.";
+"MakeACopy" = "Make a copy";
 "PasswordPrompt" = "הזנה חוזרת של הסיסמה הראשית";
 "PasswordConfirmation" = "אימות סיסמה ראשית";
 "PasswordConfirmationDesc" = "פעולה זו מוגנת. כדי להמשיך, כתוב שוב את הסיסמה הראשית שלך לאימות זהותך.";
@@ -649,7 +659,6 @@
 "SetUpAutofill" = "הגדר מילוי אוטומטי";
 "AppInfo" = "פרטי יישום";
 "Browse" = "עיון";
-"SelectCardholderName" = "בחר את שם בעל הכרטיס";
 "SelectLanguage" = "בחר שפה";
 "ContinueToCompleteWebAuthnVerification" = "המשך להשלים אימות WebAuthn.";
 "ThereWasAnErrorStartingWebAuthnTwoFactorAuthentication" = "אירעה שגיאה בהתחלת אימות דו־גורמי של WebAuthn";
@@ -668,7 +677,6 @@
 "ByContinuingYouAgreeToTheTermsOfServiceAndPrivacyPolicy" = "על ידי המשך, אתה מסכים ל**[תנאי השימוש](%1$@)** ו**[מדיניות הפרטיות](%2$@)**";
 "GetAdviceAnnouncementsAndResearchOpportunitiesFromBitwardenInYourInboxUnsubscribeAtAnyTime." = "קבל עצות, הכרזות, והזדמנויות מחקר מאת Bitwarden בדואר הנכנס שלך. **[בטל הרשמה](%1$@)** בכל עת.";
 "UserVerificationForPasskey" = "אימות משתמש עבור מפתח גישה";
-"NewItem" = "פריט חדש";
 "ExploreTheGenerator" = "גלה את המחולל";
 "LearnMoreAboutGeneratingSecureLoginCredentialsWithAGuidedTour" = "למד עוד על יצירת אישורי כניסה מאובטחים עם סיור מודרך.";
 "ExportVaultFilePwProtectInfo" = "קובץ ייצוא זה יהיה מוגן סיסמה ודורש את סיסמת הקובץ כדי לפענח.";
@@ -882,6 +890,10 @@
 "Identification" = "הזדהות";
 "Owner" = "בעלים";
 "VerifyYourIdentity" = "אמת את זהותך";
+"ThisOperationIsNotAllowedOnThisAccount" = "This operation is not allowed on this account";
+"AnErrorOccurredWhileTryingToLockTheCurrentUser" = "An error occurred while trying to lock the current user";
+"LockAllAccounts" = "Lock all accounts";
+"AllAccountsHaveBeenLocked" = "All accounts have been locked";
 "ShareErrorDetails" = "שתף פרטי שגיאה";
 "FlightRecorder" = "מקליט טיסה";
 "EnableFlightRecorder" = "הפעל מקליט טיסה";
@@ -910,7 +922,13 @@
 "ExpiresOnXDate" = "פג תוקף ב: %1$@";
 "ExpiresTomorrow" = "פג תוקף מחר";
 "DateRangeXToY" = "%1$@ עד %2$@";
+"LogOutAllAccounts" = "Log out all accounts";
+"AllAccountsHaveBeenLoggedOut" = "All accounts have been logged out";
+"AnErrorOccurredWhileTryingToLogOutAllAccounts" = "An error occurred while trying to log out all accounts";
 "SelfHostServerURL" = "URL של שרת אירוח עצמי";
+"OpenGenerator" = "Open generator";
+"OpenPasswordGenerator" = "Open password generator";
+"GeneratePassphrase" = "Generate passphrase";
 "AllowUniversalClipboard" = "התר 'לוח עריכה אוניברסלי'";
 "UseUniversalClipboardToCopyDescriptionLong" = "השתמש ב'לוח עריכה אוניברסלי' כדי להעתיק כאן ולהדביק במכשירים אחרים המחוברים עם אותו Apple ID.";
 "RemoveMasterPasswordConfirmDomain" = "סיסמה ראשית אינה נדרשת עוד עבור חברים בארגון הבא. נא לאשר את הדומיין שלהלן עם מנהל הארגון שלך.";
@@ -930,6 +948,7 @@
 "GoToSettings" = "עבור להגדרות";
 "SiriAndShortcutsAccess" = "גישת Siri & קיצורים";
 "EnableToAllowTheAppToRespondToSiriAndShortcutsUsingAppIntents" = "אפשר כדי להתיר ליישום להגיב ל־Siri ולקיצורים באמצעות App Intents.";
+"ThereIsNoActiveAccount" = "There is no active account.";
 "NewFileSend" = "סֵנְד של קובץ חדש";
 "NewTextSend" = "סֵנְד של טקסט חדש";
 "EditFileSend" = "ערוך סֵנְד של קובץ";
@@ -980,7 +999,6 @@
 "NoAskMe" = "לא, שאל אותי";
 "NoCodes" = "אין לך קודים כלשהם להציג";
 "None" = "ללא";
-"NoneOfTheAbove" = "אף אחד מהנ\"ל";
 "NumberOfDigits" = "מספר ספרות";
 "OtpType" = "סוג OTP";
 "RefreshPeriod" = "תקופת רענון";
@@ -1078,6 +1096,7 @@
 "AnyoneWithTheLink" = "כל מי שיש לו את הקישור";
 "AnyoneWithThisLinkCanViewThisSend" = "כל מי שיש לו קישור זה יכול לצפות ב-Send הזה.";
 "AfterSharingThisSendLinkDescriptionLong" = "לאחר שיתוף קישור Send זה, אנשים יצטרכו לאמת את האימייל שלהם באמצעות קוד כדי לצפות ב-Send הזה.";
+"IndividualsWillNeedToEnterThisPasswordDescriptionLong" = "Individuals will need to enter this password to view this Send";
 "SpecificPeople" = "אנשים ספציפיים";
 "WhoCanView" = "מי יכול לצפות";
 "SharingWithSpecificPeopleIsPremiumFeatureDescriptionLong" = "שיתוף עם אנשים ספציפיים הוא תכונת פרימיום. התוכנית הנוכחית שלך אינה כוללת גישה לתכונה זו.";
@@ -1255,5 +1274,26 @@
 "Server" = "שרת";
 /* Accessibility label for the button that clears a field's value. %1$@ is the field's title (e.g. "Date of birth"), so the spoken label reads "Clear Date of birth". */
 "ClearFieldName" = "נקה %1$@";
-"SelectDate" = "בחר תאריך";
+/* Accessibility hint on a collapsed date field announcing that activating it opens the calendar picker. */
+"OpensDatePicker" = "Opens date picker";
+/* Accessibility hint on an expanded date field announcing that activating it closes the calendar picker. */
+"ClosesDatePicker" = "Closes date picker";
+/* VoiceOver announcement posted when a date picker whose range excludes future dates, e.g. date of birth or an issue date, reports landing on today (the latest available day) while scrolling the wheel. */
+"FutureDatesUnavailable" = "Future dates unavailable";
 "PremiumRequiredTOTPDescriptionLong" = "מפתח אימות (TOTP) הוא תכונת פרימיום. התוכנית הנוכחית שלך אינה כוללת גישה לתכונה זו.";
+/* Toast shown after a login item is saved. */
+"LoginSaved" = "Login saved";
+/* Toast shown after a card item is saved. */
+"CardSaved" = "Card saved";
+/* Toast shown after an identity item is saved. */
+"IdentitySaved" = "Identity saved";
+/* Toast shown after a secure note item is saved. */
+"SecureNoteSaved" = "Secure note saved";
+/* Toast shown after an SSH key item is saved. */
+"SSHKeySaved" = "SSH key saved";
+/* Toast shown after a bank account item is saved. */
+"BankAccountSaved" = "Bank account saved";
+/* Toast shown after a driver's license item is saved. */
+"LicenseSaved" = "License saved";
+/* Toast shown after a passport item is saved. */
+"PassportSaved" = "Passport saved";

@@ -8,8 +8,12 @@
 "Copy" = "Kopyahin";
 "CopyLicenseNumber" = "Kopyahin ang numero ng lisensya";
 "CopyPassportNumber" = "Kopyahin ang passport number";
+"CopyPassphrase" = "Copy passphrase";
 "CopyPassword" = "Kopyahin ang password";
 "CopyUsername" = "Kopyahin ang username";
+"UseThisPassphrase" = "Use this passphrase";
+"UseThisPassword" = "Use this password";
+"UseThisUsername" = "Use this username";
 "Delete" = "Burahin";
 "DeleteAll" = "Tanggalin lahat";
 "Deleting" = "Tinatanggal…";
@@ -129,7 +133,6 @@
 "PasswordOverrideAlert" = "Sigurado ka bang gusto mong palitan ang kasalukuyang password?";
 "PushNotificationAlert" = "Pinapanatili ng Bitwarden na awtomatikong naka-sync ang iyong baul sa pamamagitan ng paggamit ng push notifications. Para sa pinakamahusay na karanasan, piliin ang “Allow” sa kasunod na prompt kapag hiniling na pahintulutan ang push notifications.";
 "Security" = "Seguridad";
-"Select" = "Piliin";
 "ItemUpdated" = "Na-save ang item";
 "Submitting" = "Isinusumite…";
 "Syncing" = "Nag-si-sync…";
@@ -182,7 +185,6 @@
 "CopyTotp" = "Kopyahin ang TOTP";
 "CopyTotpAutomaticallyDescription" = "Kung ang isang login ay may authenticator key, kopyahin ang TOTP verification code sa iyong clipboard kapag inautofill mo ang login.";
 "CopyTotpAutomatically" = "Awtomatikong kopyahin ang TOTP";
-"PremiumRequired" = "Kailangan mo ng premium membership para magamit ang feature na ito.";
 "AttachementAdded" = "Idinagdag ang attachment";
 "AttachmentDeleted" = "Tinanggal ang attachment";
 "ChooseFile" = "Pumili ng file";
@@ -223,7 +225,6 @@
 "August" = "Agosto";
 "Brand" = "Tatak";
 "CardholderName" = "Pangalan ng cardholder";
-"WeFoundMultipleMatchesChooseTheCorrectOne" = "Nakakita kami ng maraming tugma. Piliin ang tama.";
 "CityTown" = "Lungsod / Bayan";
 "Company" = "Kumpanya";
 "Country" = "Bansa";
@@ -309,6 +310,7 @@
 "NoEmailAddressesEntered" = "Walang mga email address na ipinasok";
 "EnterAtLeastOneValidEmailToShareSend" = "Magpasok ng hindi bababa sa isang wastong email address upang ibahagi ang Send na ito.";
 "OneOrMoreEmailAddressesIncorrect" = "Isa o higit pang mga email address ang mali. Pakisuri at subukan muli.";
+"OnlyIncludeTheFollowingDomainsDescriptionLong" = "Only include the following domains: %1$@. Please review and try again.";
 "Cards" = "Mga Kard";
 "Identities" = "Mga Pagkakakilanlan";
 "Logins" = "Mga login";
@@ -444,11 +446,19 @@
 "NewSendCreated" = "Nagawa ang Send";
 "Custom" = "Ipinasadya";
 "SendDisabledWarning" = "Makakabura ka lang ng kasalukuyang save dahil sa isang patakaran sa enterprise.";
+"ThisDateIsEnforcedByYourOrganization" = "This date is enforced by your organization";
 "AboutSend" = "Tungkol sa Send";
 "HideEmail" = "Itago ang email address ko sa mga tatanggap";
 "SendOptionsPolicyInEffect" = "Naaapektuhan ng isa o higit pang mga patakaran sa organisasyon mo ang mga opsyon mo sa Send.";
 "SendFilePremiumRequired" = "Teksto lamang ang maibabahagi ng mga libreng account. Kailangan ng premium membership para makapagbahagi ng mga file gamit ang Send.";
 "SendFileEmailVerificationRequired" = "Kailangan mong beripikahin ang email mo para makapagbahagi ng mga file gamit ang Send. Mabeberipika mo ang email mo sa web vault.";
+/* Alert message shown when Send Controls policy restricts creation to one Send type. %1$@ is the allowed Send type, either "File" or "Text". */
+"DueToAnEnterprisePolicyYouCanOnlyCreateXSends" = "Due to an enterprise policy, you can only create %1$@ Sends.";
+"OrganizationPolicyRestriction" = "Organization policy restriction";
+"TextSendsAreNotAllowedDescriptionLong" = "Text Sends are not allowed for your organization and this Send will automatically expire at the set deletion date.";
+"ThisSendIsNotCompliantDescriptionLong" = "This Send is not compliant with your organization's Send policy and will automatically expire at the set deletion date.";
+"ToEditThisSendMakeACopyDescriptionLong" = "To edit this Send, make a copy. If this Send can expire at the set deletion date, no action is needed.";
+"MakeACopy" = "Make a copy";
 "PasswordPrompt" = "Reprompt para sa master password";
 "PasswordConfirmation" = "Kumpirmasyon para sa master password";
 "PasswordConfirmationDesc" = "Protektado ang aksyong ito, mangyaring ilagay ulit ang master password mo para maberipika ang pagkakakilanlan mo.";
@@ -648,7 +658,6 @@
 "SetUpAutofill" = "I-set up ang autofill";
 "AppInfo" = "Impormasyon ng app";
 "Browse" = "Mag-browse";
-"SelectCardholderName" = "Piliin ang pangalan ng may-ari ng card";
 "SelectLanguage" = "Pumili ng wika";
 "ContinueToCompleteWebAuthnVerification" = "Magpatuloy upang makumpleto ang WebAuthn verification.";
 "ThereWasAnErrorStartingWebAuthnTwoFactorAuthentication" = "Nagkaroon ng error sa pagsisimula ng WebAuthn two-factor authentication";
@@ -667,7 +676,6 @@
 "ByContinuingYouAgreeToTheTermsOfServiceAndPrivacyPolicy" = "Sa pagpapatuloy, sumasang-ayon ka sa **[Terms of Service](%1$@)** at **[Privacy Policy](%2$@)**";
 "GetAdviceAnnouncementsAndResearchOpportunitiesFromBitwardenInYourInboxUnsubscribeAtAnyTime." = "Makatanggap ng mga payo, anunsyo, at mga pagkakataon sa pananaliksik mula sa Bitwarden sa iyong inbox. **[Mag-unsubscribe](%1$@)** anumang oras.";
 "UserVerificationForPasskey" = "Pag-verify ng user para sa passkey";
-"NewItem" = "Bagong item";
 "ExploreTheGenerator" = "Tuklasin ang generator";
 "LearnMoreAboutGeneratingSecureLoginCredentialsWithAGuidedTour" = "Matuto pa tungkol sa pagbuo ng mga secure na kredensyal sa pag-login sa pamamagitan ng isang guided tour.";
 "ExportVaultFilePwProtectInfo" = "Poprotektahan ng password ang file export na ito at kakailanganin ang password para ma-decrypt ang file.";
@@ -881,6 +889,10 @@
 "Identification" = "Pagkakakilanlan";
 "Owner" = "May-ari";
 "VerifyYourIdentity" = "I-verify ang iyong pagkakakilanlan";
+"ThisOperationIsNotAllowedOnThisAccount" = "This operation is not allowed on this account";
+"AnErrorOccurredWhileTryingToLockTheCurrentUser" = "An error occurred while trying to lock the current user";
+"LockAllAccounts" = "Lock all accounts";
+"AllAccountsHaveBeenLocked" = "All accounts have been locked";
 "ShareErrorDetails" = "Ibahagi ang mga detalye ng error";
 "FlightRecorder" = "Flight recorder";
 "EnableFlightRecorder" = "I-enable ang flight recorder";
@@ -909,7 +921,13 @@
 "ExpiresOnXDate" = "Mag-e-expire sa %1$@";
 "ExpiresTomorrow" = "Mag-e-expire bukas";
 "DateRangeXToY" = "%1$@ hanggang %2$@";
+"LogOutAllAccounts" = "Log out all accounts";
+"AllAccountsHaveBeenLoggedOut" = "All accounts have been logged out";
+"AnErrorOccurredWhileTryingToLogOutAllAccounts" = "An error occurred while trying to log out all accounts";
 "SelfHostServerURL" = "URL ng self-host server";
+"OpenGenerator" = "Open generator";
+"OpenPasswordGenerator" = "Open password generator";
+"GeneratePassphrase" = "Generate passphrase";
 "AllowUniversalClipboard" = "Payagan ang Universal Clipboard";
 "UseUniversalClipboardToCopyDescriptionLong" = "Gamitin ang Universal Clipboard upang kopyahin dito at i-paste sa iba pang mga device na naka-sign in gamit ang parehong Apple ID.";
 "RemoveMasterPasswordConfirmDomain" = "Hindi na kinakailangan ng master password para sa mga miyembro ng sumusunod na organisasyon. Pakikumpirma ang domain sa ibaba sa administrator ng iyong organisasyon.";
@@ -929,6 +947,7 @@
 "GoToSettings" = "Pumunta sa mga setting";
 "SiriAndShortcutsAccess" = "Access sa Siri at Shortcuts";
 "EnableToAllowTheAppToRespondToSiriAndShortcutsUsingAppIntents" = "I-enable upang payagan ang app na tumugon sa Siri at Shortcuts gamit ang App Intents.";
+"ThereIsNoActiveAccount" = "There is no active account.";
 "NewFileSend" = "Bagong file Send";
 "NewTextSend" = "Bagong text Send";
 "EditFileSend" = "I-edit ang file Send";
@@ -979,7 +998,6 @@
 "NoAskMe" = "Hindi, itanong sa akin";
 "NoCodes" = "Wala kang anumang mga code na ipapakita";
 "None" = "Wala";
-"NoneOfTheAbove" = "Wala sa nabanggit";
 "NumberOfDigits" = "Bilang ng mga digit";
 "OtpType" = "Uri ng OTP";
 "RefreshPeriod" = "Panahon ng pag-refresh";
@@ -1077,6 +1095,7 @@
 "AnyoneWithTheLink" = "Kahit sino na may link";
 "AnyoneWithThisLinkCanViewThisSend" = "Kahit sino na may link na ito ay maaaring tingnan ang Send na ito.";
 "AfterSharingThisSendLinkDescriptionLong" = "Pagkatapos ibahagi ang Send link na ito, kakailanganin ng mga indibidwal na i-verify ang kanilang email gamit ang isang code upang tingnan ang Send na ito.";
+"IndividualsWillNeedToEnterThisPasswordDescriptionLong" = "Individuals will need to enter this password to view this Send";
 "SpecificPeople" = "Mga partikular na tao";
 "WhoCanView" = "Sino ang maaaring tumingin";
 "SharingWithSpecificPeopleIsPremiumFeatureDescriptionLong" = "Ang pagbabahagi sa mga partikular na tao ay isang Premium na feature. Ang iyong kasalukuyang plano ay hindi kasama ang access sa feature na ito.";
@@ -1254,5 +1273,26 @@
 "Server" = "Server";
 /* Accessibility label for the button that clears a field's value. %1$@ is the field's title (e.g. "Date of birth"), so the spoken label reads "Clear Date of birth". */
 "ClearFieldName" = "I-clear ang %1$@";
-"SelectDate" = "Pumili ng petsa";
+/* Accessibility hint on a collapsed date field announcing that activating it opens the calendar picker. */
+"OpensDatePicker" = "Opens date picker";
+/* Accessibility hint on an expanded date field announcing that activating it closes the calendar picker. */
+"ClosesDatePicker" = "Closes date picker";
+/* VoiceOver announcement posted when a date picker whose range excludes future dates, e.g. date of birth or an issue date, reports landing on today (the latest available day) while scrolling the wheel. */
+"FutureDatesUnavailable" = "Future dates unavailable";
 "PremiumRequiredTOTPDescriptionLong" = "Ang Authenticator key (TOTP) ay isang Premium na feature. Ang iyong kasalukuyang plano ay hindi kasama ang access sa feature na ito.";
+/* Toast shown after a login item is saved. */
+"LoginSaved" = "Login saved";
+/* Toast shown after a card item is saved. */
+"CardSaved" = "Card saved";
+/* Toast shown after an identity item is saved. */
+"IdentitySaved" = "Identity saved";
+/* Toast shown after a secure note item is saved. */
+"SecureNoteSaved" = "Secure note saved";
+/* Toast shown after an SSH key item is saved. */
+"SSHKeySaved" = "SSH key saved";
+/* Toast shown after a bank account item is saved. */
+"BankAccountSaved" = "Bank account saved";
+/* Toast shown after a driver's license item is saved. */
+"LicenseSaved" = "License saved";
+/* Toast shown after a passport item is saved. */
+"PassportSaved" = "Passport saved";

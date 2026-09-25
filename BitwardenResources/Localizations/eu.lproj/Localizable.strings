@@ -8,8 +8,12 @@
 "Copy" = "Kopiatu";
 "CopyLicenseNumber" = "Kopiatu lizentzia-zenbakia";
 "CopyPassportNumber" = "Kopiatu pasaporte-zenbakia";
+"CopyPassphrase" = "Copy passphrase";
 "CopyPassword" = "Kopiatu pasahitza";
 "CopyUsername" = "Kopiatu erabiltzaile-izena";
+"UseThisPassphrase" = "Use this passphrase";
+"UseThisPassword" = "Use this password";
+"UseThisUsername" = "Use this username";
 "Delete" = "Ezabatu";
 "DeleteAll" = "Ezabatu dena";
 "Deleting" = "Ezabatzen…";
@@ -129,7 +133,6 @@
 "PasswordOverrideAlert" = "Ziur al zaude pasahitza berridatzi nahi duzula?";
 "PushNotificationAlert" = "Bitwarden-ek zure kutxa automatikoki sinkronizatuta mantentzen du jakinarazpen push-ak erabiliz. Esperientzia onena izateko, hautatu \"Baimendu\" ondorengo leihoan, jakinarazpen push-ak onartzeko eskatzen zaizunean.";
 "Security" = "Segurtasuna";
-"Select" = "Hautatu";
 "ItemUpdated" = "Elementua eguneratu da.";
 "Submitting" = "Bidaltzen…";
 "Syncing" = "Sinkronizatzen…";
@@ -182,7 +185,6 @@
 "CopyTotp" = "Kopiatu TOTP-a";
 "CopyTotpAutomaticallyDescription" = "Saio batek autentifikazio-giltza badu, kopiatu TOTP egiaztapen-kodea zure arbelean saioa autobeteketa egiten duzunean.";
 "CopyTotpAutomatically" = "Kopiatu TOTP automatikoki";
-"PremiumRequired" = "Premium bazkidetza beharrezkoa da ezaugarri hau erabiltzeko.";
 "AttachementAdded" = "Eranskina gehitu da";
 "AttachmentDeleted" = "Eranskina ezabatu da";
 "ChooseFile" = "Hautatu fitxategia";
@@ -223,7 +225,6 @@
 "August" = "Abuztua";
 "Brand" = "Marka";
 "CardholderName" = "Txartelaren titularraren izena";
-"WeFoundMultipleMatchesChooseTheCorrectOne" = "Bat etortze anitz aurkitu ditugu. Aukeratu zuzena.";
 "CityTown" = "Hiria / Herria";
 "Company" = "Enpresa";
 "Country" = "Herrialdea";
@@ -309,6 +310,7 @@
 "NoEmailAddressesEntered" = "Ez da helbide elektronikorik sartu";
 "EnterAtLeastOneValidEmailToShareSend" = "Sartu gutxienez helbide elektroniko baliodun bat bidalketa hau partekatzeko.";
 "OneOrMoreEmailAddressesIncorrect" = "Helbide elektroniko bat edo gehiago oker daude. Mesedez, berrikusi eta saiatu berriro.";
+"OnlyIncludeTheFollowingDomainsDescriptionLong" = "Only include the following domains: %1$@. Please review and try again.";
 "Cards" = "Txartelak";
 "Identities" = "Identitateak";
 "Logins" = "Saio-hasierak";
@@ -444,11 +446,19 @@
 "NewSendCreated" = "Send berria sortua.";
 "Custom" = "Pertsonalizatua";
 "SendDisabledWarning" = "Enpresa-politika baten ondorioz, lehendik dagoen Send-a bakarrik ezaba dezakezu.";
+"ThisDateIsEnforcedByYourOrganization" = "This date is enforced by your organization";
 "AboutSend" = "Send-i buruz";
 "HideEmail" = "Ezkutatu nire emaila hartzaileei";
 "SendOptionsPolicyInEffect" = "Erakundeko politika batek edo gehiagok Send-eko aukerei eragiten diote.";
 "SendFilePremiumRequired" = "Doako kontuak testuak partekatzera mugatzen dira. Premium bazkidetza behar da Send-ekin fitxategiak partekatzeko.";
 "SendFileEmailVerificationRequired" = "Emaila egiaztatu behar duzu fitxategiak Send-ekin partekatzeko. Emaila webguneko kutxa gotorrean egiazta dezakezu.";
+/* Alert message shown when Send Controls policy restricts creation to one Send type. %1$@ is the allowed Send type, either "File" or "Text". */
+"DueToAnEnterprisePolicyYouCanOnlyCreateXSends" = "Due to an enterprise policy, you can only create %1$@ Sends.";
+"OrganizationPolicyRestriction" = "Organization policy restriction";
+"TextSendsAreNotAllowedDescriptionLong" = "Text Sends are not allowed for your organization and this Send will automatically expire at the set deletion date.";
+"ThisSendIsNotCompliantDescriptionLong" = "This Send is not compliant with your organization's Send policy and will automatically expire at the set deletion date.";
+"ToEditThisSendMakeACopyDescriptionLong" = "To edit this Send, make a copy. If this Send can expire at the set deletion date, no action is needed.";
+"MakeACopy" = "Make a copy";
 "PasswordPrompt" = "Berriro eskatu pasahitz nagusia";
 "PasswordConfirmation" = "Baieztatu pasahitz nagusia";
 "PasswordConfirmationDesc" = "Ekintza hau babestuta dago. Jarraitzeko, mesedez, sartu berriro pasahitz nagusia zure identitatea egiaztatzeko.";
@@ -648,7 +658,6 @@
 "SetUpAutofill" = "Konfiguratu autobeteketa";
 "AppInfo" = "Aplikazioaren informazioa";
 "Browse" = "Arakatu";
-"SelectCardholderName" = "Hautatu txartelaren titularraren izena";
 "SelectLanguage" = "Hautatu hizkuntza";
 "ContinueToCompleteWebAuthnVerification" = "Jarraitu WebAuthn egiaztapena osatzeko.";
 "ThereWasAnErrorStartingWebAuthnTwoFactorAuthentication" = "Errore bat gertatu da WebAuthn bi faktoreko autentifikazioa abiaraztean";
@@ -667,7 +676,6 @@
 "ByContinuingYouAgreeToTheTermsOfServiceAndPrivacyPolicy" = "Jarraitzean, **[Zerbitzu-baldintzak](%1$@)** eta **[Pribatutasun-politika](%2$@)** onartzen dituzu";
 "GetAdviceAnnouncementsAndResearchOpportunitiesFromBitwardenInYourInboxUnsubscribeAtAnyTime." = "Jaso aholkuak, iragarpenak eta ikerketa-aukera Bitwarden-en zure sarrerako ontzian. **[Harpidetza kendu](%1$@)** nahi duzunean.";
 "UserVerificationForPasskey" = "Erabiltzailearen egiaztapena pasagiltzarako";
-"NewItem" = "Elementu berria";
 "ExploreTheGenerator" = "Arakatu sortzailea";
 "LearnMoreAboutGeneratingSecureLoginCredentialsWithAGuidedTour" = "Ikasi gehiago saio-kredentzial seguruak sortzeari buruz gidatutako bisita batekin.";
 "ExportVaultFilePwProtectInfo" = "Fitxategien esportazio hori pasahitzaren bidez babestuta egongo da eta deszifratzeko fitxategi pasahitza beharko da.";
@@ -881,6 +889,10 @@
 "Identification" = "Identifikazioa";
 "Owner" = "Jabea";
 "VerifyYourIdentity" = "Egiaztatu zure identitatea";
+"ThisOperationIsNotAllowedOnThisAccount" = "This operation is not allowed on this account";
+"AnErrorOccurredWhileTryingToLockTheCurrentUser" = "An error occurred while trying to lock the current user";
+"LockAllAccounts" = "Lock all accounts";
+"AllAccountsHaveBeenLocked" = "All accounts have been locked";
 "ShareErrorDetails" = "Partekatu errorearen xehetasunak";
 "FlightRecorder" = "Hegaldi-erregistratzailea";
 "EnableFlightRecorder" = "Gaitu hegaldi-erregistratzailea";
@@ -909,7 +921,13 @@
 "ExpiresOnXDate" = "%1$@-an iraungitzen da";
 "ExpiresTomorrow" = "Bihar iraungitzen da";
 "DateRangeXToY" = "%1$@-tik %2$@-ra";
+"LogOutAllAccounts" = "Log out all accounts";
+"AllAccountsHaveBeenLoggedOut" = "All accounts have been logged out";
+"AnErrorOccurredWhileTryingToLogOutAllAccounts" = "An error occurred while trying to log out all accounts";
 "SelfHostServerURL" = "Autoostalari zerbitzariaren URLa";
+"OpenGenerator" = "Open generator";
+"OpenPasswordGenerator" = "Open password generator";
+"GeneratePassphrase" = "Generate passphrase";
 "AllowUniversalClipboard" = "Baimendu Arbel Unibertsala";
 "UseUniversalClipboardToCopyDescriptionLong" = "Erabili Arbel Unibertsala hemen kopiatzeko eta Apple ID berarekin saioa hasita dauden beste gailuetan itsasteko.";
 "RemoveMasterPasswordConfirmDomain" = "Ondorengo erakundeko kideentzat pasahitz nagusia ez da jada beharrezkoa. Mesedez, berretsi beheko domeinua zure erakundearen administratzailearekin.";
@@ -929,6 +947,7 @@
 "GoToSettings" = "Joan ezarpenetara";
 "SiriAndShortcutsAccess" = "Siri eta lasterbideen sarbidea";
 "EnableToAllowTheAppToRespondToSiriAndShortcutsUsingAppIntents" = "Gaitu aplikazioak Siri eta lasterbideei erantzuteko App Intents erabiliz.";
+"ThereIsNoActiveAccount" = "There is no active account.";
 "NewFileSend" = "Fitxategi-bidalketa berria";
 "NewTextSend" = "Testu-bidalketa berria";
 "EditFileSend" = "Editatu fitxategi-bidalketa";
@@ -979,7 +998,6 @@
 "NoAskMe" = "Ez, eskatu niri";
 "NoCodes" = "Ez duzu erakusteko koderik";
 "None" = "Bat ere ez";
-"NoneOfTheAbove" = "Goikoetako bat ere ez";
 "NumberOfDigits" = "Digitu kopurua";
 "OtpType" = "OTP mota";
 "RefreshPeriod" = "Freskatze-epea";
@@ -1077,6 +1095,7 @@
 "AnyoneWithTheLink" = "Esteka duen edonor";
 "AnyoneWithThisLinkCanViewThisSend" = "Esteka hau duen edonork ikus dezake bidalketa hau.";
 "AfterSharingThisSendLinkDescriptionLong" = "Bidalketa-esteka hau partekatu ondoren, pertsonek beren helbide elektronikoa kode batekin egiaztatu beharko dute bidalketa hau ikusteko.";
+"IndividualsWillNeedToEnterThisPasswordDescriptionLong" = "Individuals will need to enter this password to view this Send";
 "SpecificPeople" = "Pertsona zehatzak";
 "WhoCanView" = "Norak ikus dezakete";
 "SharingWithSpecificPeopleIsPremiumFeatureDescriptionLong" = "Pertsona zehatzekin partekatzea Premium ezaugarria da. Zure uneko planak ez du ezaugarri honetarako sarbiderik.";
@@ -1254,5 +1273,26 @@
 "Server" = "Zerbitzaria";
 /* Accessibility label for the button that clears a field's value. %1$@ is the field's title (e.g. "Date of birth"), so the spoken label reads "Clear Date of birth". */
 "ClearFieldName" = "Garbitu %1$@";
-"SelectDate" = "Hautatu data";
+/* Accessibility hint on a collapsed date field announcing that activating it opens the calendar picker. */
+"OpensDatePicker" = "Opens date picker";
+/* Accessibility hint on an expanded date field announcing that activating it closes the calendar picker. */
+"ClosesDatePicker" = "Closes date picker";
+/* VoiceOver announcement posted when a date picker whose range excludes future dates, e.g. date of birth or an issue date, reports landing on today (the latest available day) while scrolling the wheel. */
+"FutureDatesUnavailable" = "Future dates unavailable";
 "PremiumRequiredTOTPDescriptionLong" = "Autentifikazio-giltza (TOTP) Premium ezaugarria da. Zure uneko planak ez du ezaugarri honetarako sarbiderik.";
+/* Toast shown after a login item is saved. */
+"LoginSaved" = "Login saved";
+/* Toast shown after a card item is saved. */
+"CardSaved" = "Card saved";
+/* Toast shown after an identity item is saved. */
+"IdentitySaved" = "Identity saved";
+/* Toast shown after a secure note item is saved. */
+"SecureNoteSaved" = "Secure note saved";
+/* Toast shown after an SSH key item is saved. */
+"SSHKeySaved" = "SSH key saved";
+/* Toast shown after a bank account item is saved. */
+"BankAccountSaved" = "Bank account saved";
+/* Toast shown after a driver's license item is saved. */
+"LicenseSaved" = "License saved";
+/* Toast shown after a passport item is saved. */
+"PassportSaved" = "Passport saved";
