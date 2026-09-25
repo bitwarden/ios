@@ -205,8 +205,9 @@ actor DefaultAuthenticatorSyncService: NSObject, AuthenticatorSyncService {
         try await keychainRepository.setAuthenticatorVaultKey(key, userId: userId)
     }
 
-    /// Take a list of encrypted ciphers, filter for only active ciphers with a totp code,  decrypt them, then
-    /// convert the list to AuthenticatorSyncItemDataView to be stored and sync'd to the Authenticator app.
+    /// Take a list of encrypted ciphers, filter for only active login ciphers, decrypt them, filter for only
+    /// those with a totp code, then convert the list to AuthenticatorSyncItemDataView to be stored and sync'd to
+    /// the Authenticator app.
     ///
     /// - Parameters:
     ///   - ciphers: The encrypted `Cipher` objects.
@@ -216,17 +217,17 @@ actor DefaultAuthenticatorSyncService: NSObject, AuthenticatorSyncService {
     ///
     private func decryptTOTPs(_ ciphers: [Cipher],
                               account: Account) async throws -> [AuthenticatorBridgeItemDataView] {
-        let totpCiphers = ciphers.filter { cipher in
-            !cipher.isHidden
-                && cipher.type == .login
-                && cipher.login?.totp != nil
+        // Blob-encrypted ciphers store `login` within the encrypted `data` blob, so whether a
+        // cipher has a TOTP key can only be determined after decryption.
+        let loginCiphers = ciphers.filter { cipher in
+            !cipher.isHidden && cipher.type == .login
         }
-        let decryptedCiphers = try await totpCiphers.asyncMap { cipher in
+        let decryptedCiphers = try await loginCiphers.asyncMap { cipher in
             try await self.authenticatorClientService.vault(for: account.profile.userId).ciphers()
                 .decrypt(cipher: cipher)
         }
 
-        return decryptedCiphers.map { cipher in
+        return decryptedCiphers.filter { $0.login?.totp != nil }.map { cipher in
             AuthenticatorBridgeItemDataView(
                 accountDomain: account.settings.environmentUrls?.webVaultHost ?? Constants.defaultWebVaultHost,
                 accountEmail: account.profile.email,
