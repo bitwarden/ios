@@ -1,3 +1,4 @@
+import BitwardenKit
 import Foundation
 
 // MARK: - CardTextParser
@@ -24,10 +25,33 @@ final class DefaultCardTextParser: CardTextParser {
         pattern: #"(?<!\d)(\d[ \-]?){12,18}\d(?!\d)"#,
     )
 
-    /// Regex that matches an expiry date in MM/YY or MM/YYYY format.
+    /// Regex that matches an expiry date in MM/YY or MM/YYYY format. A three digit year is rejected
+    /// as OCR noise.
     private static let expiryRegex = try? NSRegularExpression(
-        pattern: #"\b(0?[1-9]|1[0-2])\s*/\s*(\d{2,4})\b"#,
+        pattern: #"\b(0?[1-9]|1[0-2])\s*/\s*(\d{2}|\d{4})\b"#,
     )
+
+    /// The most digits a payment card number can have.
+    private static let maximumCardNumberDigits = 19
+
+    /// The fewest digits a payment card number can have. Also separates a card number from an
+    /// expiry, which carries at most six digits.
+    private static let minimumCardNumberDigits = 13
+
+    // MARK: Properties
+
+    /// Provides the present time, used to bound a scanned expiration year to a plausible range.
+    private let timeProvider: TimeProvider
+
+    // MARK: Initialization
+
+    /// Initializes a `DefaultCardTextParser`.
+    ///
+    /// - Parameter timeProvider: Provides the present time, used to bound the expiration year.
+    ///
+    init(timeProvider: TimeProvider) {
+        self.timeProvider = timeProvider
+    }
 
     // MARK: CardTextParser
 
@@ -89,7 +113,8 @@ final class DefaultCardTextParser: CardTextParser {
         let matchRange = Range(match.range, in: line)!
         let raw = String(line[matchRange])
         let digits = raw.filter(\.isNumber)
-        guard digits.count >= 13, digits.count <= 19 else { return nil }
+        guard digits.count >= Self.minimumCardNumberDigits,
+              digits.count <= Self.maximumCardNumberDigits else { return nil }
         // Reject sequences that look like dates or years (e.g. 8-digit numbers that match no Luhn prefix)
         guard !looksLikeDateOrYear(digits) else { return nil }
         guard isLuhnValid(digits), hasValidLength(digits) else { return nil }
@@ -97,23 +122,46 @@ final class DefaultCardTextParser: CardTextParser {
     }
 
     /// Extracts an expiry month (1–12) and 4-digit year from a line of text.
+    ///
+    /// Lines carrying a card number's worth of digits are skipped: OCR often reads a digit or a
+    /// group separator within a card number as `/`, so `"5/33 6195 0371 5702"` would otherwise parse
+    /// as May 2033. Of the remaining matches the last plausible one wins, so a card printing both a
+    /// "valid from" and a "valid thru" date yields the expiry.
     private func extractExpiry(from line: String) -> (month: Int, year: String)? {
-        guard let regex = Self.expiryRegex else { return nil }
-        let range = NSRange(line.startIndex..., in: line)
-        let allMatches = regex.matches(in: line, range: range)
-        guard let match = allMatches.last,
-              match.numberOfRanges == 3 else { return nil }
-        guard
-            let monthRange = Range(match.range(at: 1), in: line),
-            let yearRange = Range(match.range(at: 2), in: line),
-            let month = Int(String(line[monthRange]))
+        guard let regex = Self.expiryRegex,
+              line.filter(\.isNumber).count < Self.minimumCardNumberDigits
         else { return nil }
 
-        var yearString = String(line[yearRange])
-        if yearString.count == 2 {
-            yearString = "20\(yearString)"
+        let range = NSRange(line.startIndex..., in: line)
+        var result: (month: Int, year: String)?
+
+        for match in regex.matches(in: line, range: range) {
+            guard match.numberOfRanges == 3,
+                  let monthRange = Range(match.range(at: 1), in: line),
+                  let yearRange = Range(match.range(at: 2), in: line),
+                  let month = Int(String(line[monthRange]))
+            else { continue }
+
+            var yearString = String(line[yearRange])
+            if yearString.count == 2 {
+                yearString = "20\(yearString)"
+            }
+
+            // Skip rather than stop: a later match on the line may still be a genuine expiry.
+            guard isPlausibleExpiryYear(yearString) else { continue }
+
+            result = (month, yearString)
         }
-        return (month, yearString)
+
+        return result
+    }
+
+    /// Returns `true` if `yearString` falls within the plausible range for a card expiration year.
+    private func isPlausibleExpiryYear(_ yearString: String) -> Bool {
+        guard let year = Int(yearString) else { return false }
+        let currentYear = Calendar.current.component(.year, from: timeProvider.presentTime)
+        return year >= currentYear - Constants.cardScanMaxExpiryYearsPast
+            && year <= currentYear + Constants.cardScanMaxExpiryYearsAhead
     }
 
     /// Merges adjacent lines that look like split card-number digit groups into a single line.
