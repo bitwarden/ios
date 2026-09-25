@@ -436,7 +436,7 @@ class DefaultSyncService: SyncService {
 }
 
 extension DefaultSyncService {
-    func fetchSync(forceSync: Bool, isPeriodic: Bool) async throws { // swiftlint:disable:this function_body_length
+    func fetchSync(forceSync: Bool, isPeriodic: Bool) async throws {
         let account = try await stateService.getActiveAccount()
         let userId = account.profile.userId
 
@@ -478,8 +478,7 @@ extension DefaultSyncService {
         try await folderService.replaceFolders(response.folders, userId: userId)
         try await sendService.replaceSends(response.sends, userId: userId)
         try await settingsService.replaceEquivalentDomains(response.domains, userId: userId)
-        try await policyService.replacePolicies(response.policies, userId: userId)
-        try await policyService.replacePoliciesNew(response.policiesNew ?? [], userId: userId)
+        try await policyService.replacePolicies(response.effectivePolicies, userId: userId)
         try await stateService.setLastSyncTime(timeProvider.presentTime, userId: userId)
         try await stateService.setLastSyncMonotonicTime(timeProvider.monotonicTime, userId: userId)
         try await checkVaultTimeoutPolicy()

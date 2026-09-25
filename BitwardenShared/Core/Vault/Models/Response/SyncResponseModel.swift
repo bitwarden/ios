@@ -17,11 +17,12 @@ struct SyncResponseModel: JSONResponse, Equatable {
     /// The user's list of folders.
     let folders: [FolderResponseModel]
 
-    /// Policies that apply to the user.
-    let policies: [PolicyResponseModel]
+    /// Policies that apply to the user. This is the legacy list, superseded by `policiesNew`.
+    /// See `effectivePolicies`.
+    let policies: [PolicyResponseModel]?
 
     /// The new policies list including accepted-state members from the server-side flag.
-    /// Falls back to `policies` when absent.
+    /// See `effectivePolicies` for the fallback to `policies` when absent.
     let policiesNew: [PolicyResponseModel]?
 
     /// The user's profile.
@@ -32,4 +33,16 @@ struct SyncResponseModel: JSONResponse, Equatable {
 
     /// The user's decryption info.
     let userDecryption: UserDecryptionResponseModel?
+
+    // MARK: Computed Properties
+
+    /// The effective list of policies for the user.
+    ///
+    /// Prefers `policiesNew` (which includes accepted-state members) over the legacy `policies`
+    /// list, which is used when the server doesn't return `policiesNew`. Returns an empty list
+    /// when neither is present.
+    ///
+    var effectivePolicies: [PolicyResponseModel] {
+        policiesNew ?? policies ?? []
+    }
 }

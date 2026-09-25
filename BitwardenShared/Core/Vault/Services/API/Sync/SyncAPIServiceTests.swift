@@ -180,12 +180,12 @@ class SyncAPIServiceTests: BitwardenTestCase {
 
         XCTAssertNil(response.policiesNew)
         XCTAssertNil(response.profile?.organizationsNew)
-        XCTAssertFalse(response.policies.isEmpty)
+        XCTAssertEqual(response.policies?.isEmpty, false)
     }
 
     /// `getSync()` successfully decodes a response where only the new fields are present —
     /// `policiesNew` at the sync root and `profile.organizationsNew` on the profile, with
-    /// the legacy `policies` and `profile.organizations` empty.
+    /// the legacy `policies` absent and `profile.organizations` empty.
     func test_sync_withPoliciesNew_newOnly() async throws {
         client.result = .httpSuccess(testData: .syncWithPoliciesNewOnly)
 
@@ -193,7 +193,7 @@ class SyncAPIServiceTests: BitwardenTestCase {
 
         XCTAssertEqual(response.policiesNew?.count, 1)
         XCTAssertEqual(response.policiesNew?.first?.id, "policy-new-1")
-        XCTAssertTrue(response.policies.isEmpty)
+        XCTAssertNil(response.policies)
         XCTAssertEqual(response.profile?.organizationsNew?.count, 1)
         XCTAssertEqual(response.profile?.organizationsNew?.first?.id, "org-new-1")
         XCTAssertEqual(response.profile?.organizations?.count, 0)
@@ -209,8 +209,8 @@ class SyncAPIServiceTests: BitwardenTestCase {
 
         XCTAssertEqual(response.policiesNew?.count, 1)
         XCTAssertEqual(response.policiesNew?.first?.id, "policy-new-1")
-        XCTAssertEqual(response.policies.count, 1)
-        XCTAssertEqual(response.policies.first?.id, "policy-legacy-1")
+        XCTAssertEqual(response.policies?.count, 1)
+        XCTAssertEqual(response.policies?.first?.id, "policy-legacy-1")
         XCTAssertEqual(response.profile?.organizationsNew?.count, 1)
         XCTAssertEqual(response.profile?.organizationsNew?.first?.id, "org-new-1")
         XCTAssertEqual(response.profile?.organizations?.count, 1)
