@@ -109,17 +109,13 @@ class DefaultVaultItemMoreOptionsHelper: VaultItemMoreOptionsHelper {
                 return
             }
 
-            let canEdit = cipherView.deletedDate == nil
             let hasPremium = await services.vaultRepository.doesActiveAccountHavePremium()
 
             coordinator.showAlert(.moreOptions(
                 context: MoreOptionsAlertContext(
-                    canArchive: cipherView.canBeArchived,
-                    canCopyTotp: hasPremium || cipherView.organizationUseTotp,
-                    canUnarchive: cipherView.canBeUnarchived,
+                    actionKinds: cipherListView.applicableMoreOptionsActionKinds(hasPremium: hasPremium),
                     cipherView: cipherView,
                     id: item.id,
-                    showEdit: canEdit,
                 ),
             ) { action in
                 await self.handleMoreOptionsAction(
@@ -158,6 +154,7 @@ class DefaultVaultItemMoreOptionsHelper: VaultItemMoreOptionsHelper {
             await handleMoreOptionsAction(
                 action,
                 cipherView: cipherView,
+                delegate: nil,
                 handleDisplayToast: handleDisplayToast,
                 handleNavigateToPremiumUpgrade: handleNavigateToPremiumUpgrade,
                 handleOpenURL: handleOpenURL,
