@@ -6,6 +6,15 @@ import SwiftUI
 public struct BitwardenTextValueField<AccessoryContent>: View where AccessoryContent: View {
     // MARK: Properties
 
+    /// Any accessory content that should be displayed on the trailing edge of the field. This
+    /// content automatically has the `AccessoryButtonStyle` applied to it.
+    var accessoryContent: AccessoryContent?
+
+    /// Whether VoiceOver should announce the value's characters individually (e.g.
+    /// "1 2 3 4" instead of "one thousand two hundred thirty-four") rather than using its
+    /// default heuristics for the rendered text.
+    var spellOutAccessibilityValue: Bool
+
     /// Whether the text selection is enabled.
     /// Warning: This only allows Copy/Share actions but not range selection.
     var textSelectionEnabled: Bool
@@ -25,15 +34,6 @@ public struct BitwardenTextValueField<AccessoryContent>: View where AccessoryCon
 
     /// The (optional) accessibility identifier to apply to the displayed value of the field
     var valueAccessibilityIdentifier: String?
-
-    /// Whether VoiceOver should announce the value's characters individually (e.g.
-    /// "1 2 3 4" instead of "one thousand two hundred thirty-four") rather than using its
-    /// default heuristics for the rendered text.
-    var spellOutAccessibilityValue: Bool
-
-    /// Any accessory content that should be displayed on the trailing edge of the field. This
-    /// content automatically has the `AccessoryButtonStyle` applied to it.
-    var accessoryContent: AccessoryContent?
 
     /// A value indicating whether the textfield is currently enabled or disabled.
     @Environment(\.isEnabled) var isEnabled: Bool
