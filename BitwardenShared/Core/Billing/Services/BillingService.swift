@@ -89,11 +89,17 @@ protocol BillingService: AnyObject { // sourcery: AutoMockable
     ///
     func premiumStatusChanged() async
 
-    /// Gets the active account's current position in the Premium upgrade lifecycle.
+    /// Derives an account's position in the Premium upgrade lifecycle from its Premium status
+    /// and its persisted pending flag.
     ///
-    /// - Returns: The active account's current `PremiumUpgradeLifecycleState`.
+    /// If the account can't be resolved, the error is logged and `.notPremium` is returned. If the
+    /// pending flag can't be read, the error is logged and the account is treated as not pending.
     ///
-    func premiumUpgradeLifecycleState() async -> PremiumUpgradeLifecycleState
+    /// - Parameters:
+    ///   - userId: The account to derive the state for. Defaults to the active account if `nil`.
+    /// - Returns: The account's current `PremiumUpgradeLifecycleState`.
+    ///
+    func premiumUpgradeLifecycleState(userId: String?) async -> PremiumUpgradeLifecycleState
 
     /// Fetches the current subscription status and updates the visibility of the subscription
     /// attention action card.
@@ -134,6 +140,18 @@ protocol BillingService: AnyObject { // sourcery: AutoMockable
     /// - Returns: Whether the action card should be shown.
     ///
     func shouldShowUpgradedToPremiumActionCard() async -> Bool
+}
+
+// MARK: - BillingService Convenience Methods
+
+extension BillingService {
+    /// Derives the active account's position in the Premium upgrade lifecycle.
+    ///
+    /// - Returns: The active account's current `PremiumUpgradeLifecycleState`.
+    ///
+    func premiumUpgradeLifecycleState() async -> PremiumUpgradeLifecycleState {
+        await premiumUpgradeLifecycleState(userId: nil)
+    }
 }
 
 // MARK: - DefaultBillingService
@@ -312,8 +330,33 @@ class DefaultBillingService: BillingService {
         }
     }
 
-    func premiumUpgradeLifecycleState() async -> PremiumUpgradeLifecycleState {
-        await premiumUpgradeLifecycleState(userId: nil)
+    func premiumUpgradeLifecycleState(userId: String?) async -> PremiumUpgradeLifecycleState {
+        // Resolved once so all three reads see the same account, even if the active account
+        // changes partway through.
+        let resolvedUserId: String
+        do {
+            resolvedUserId = try await stateService.getAccountIdOrActiveId(userId: userId)
+        } catch {
+            errorReporter.log(error: error)
+            return .notPremium
+        }
+
+        // Personal Premium wins over the pending flag. `completeUpgradeIfPending(userId:)` clears
+        // the flag in a separate write after a sync reports Premium, so between the two — or if
+        // that write fails — the flag is stale.
+        if await stateService.doesAccountHavePremiumPersonally(userId: resolvedUserId) { return .premium }
+
+        // The pending flag wins over organization-granted Premium. Only a personal checkout sets
+        // the flag, so an organization grant arriving while that purchase is in flight isn't the
+        // purchase landing.
+        do {
+            if try await billingStateService.getPremiumUpgradePending(userId: resolvedUserId) { return .pending }
+        } catch {
+            errorReporter.log(error: error)
+        }
+
+        // Personal Premium was ruled out above, so any Premium here is organization-granted.
+        return await stateService.doesAccountHavePremium(userId: resolvedUserId) ? .premium : .notPremium
     }
 
     func refreshSubscriptionAttentionCard(subscription: PremiumSubscription?) async {
@@ -428,33 +471,6 @@ class DefaultBillingService: BillingService {
             return false
         }
         return true
-    }
-
-    /// Derives an account's position in the Premium upgrade lifecycle from its Premium status
-    /// and its persisted pending flag.
-    ///
-    /// The three checks are ordered deliberately, and the order is the only thing that
-    /// distinguishes the outcomes — both Premium branches return the same `.premium`:
-    ///
-    /// - Personal Premium is checked first. `completeUpgradeIfPending(userId:)` clears the pending
-    ///   flag in a separate write after Premium is granted, so between the grant and the clear
-    ///   — or if that write fails — the flag is stale and must not win.
-    /// - The pending flag is checked before organization-granted Premium. The flag is only ever
-    ///   set by a personal checkout, so an organization grant arriving while that purchase is
-    ///   in flight is not confirmation of it, and must not be reported as the upgrade landing.
-    ///
-    /// - Parameters:
-    ///   - userId: The account to derive the state for. Defaults to the active account if `nil`.
-    /// - Returns: The account's current `PremiumUpgradeLifecycleState`.
-    ///
-    private func premiumUpgradeLifecycleState(userId: String?) async -> PremiumUpgradeLifecycleState {
-        if await stateService.doesAccountHavePremiumPersonally(userId: userId) { return .premium }
-        do {
-            if try await billingStateService.getPremiumUpgradePending(userId: userId) { return .pending }
-        } catch {
-            errorReporter.log(error: error)
-        }
-        return await stateService.doesAccountHavePremium(userId: userId) ? .premium : .notPremium
     }
 
     /// Force-syncs, completes `userId`'s pending upgrade if one is outstanding, and publishes

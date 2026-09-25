@@ -10,7 +10,7 @@ import Testing
 
 // MARK: - BillingServicePremiumUpgradeLifecycleStateTests
 
-/// Tests for `BillingService.premiumUpgradeLifecycleState()`, which derives an account's position in the
+/// Tests for `BillingService.premiumUpgradeLifecycleState(userId:)`, which derives an account's position in the
 /// Premium upgrade lifecycle from its personal Premium status, its persisted pending flag, and
 /// its organization-granted Premium.
 ///
@@ -20,50 +20,40 @@ struct BillingServicePremiumUpgradeLifecycleStateTests {
 
     /// A single row of the `premiumUpgradeLifecycleState()` derivation table: the three inputs
     /// the state is derived from, and the lifecycle position they should produce.
-    struct TestCase: Sendable {
-        /// Whether the account has Premium it purchased itself.
-        let personalPremium: Bool
-
-        /// Whether a personal checkout is recorded as awaiting confirmation.
-        let pending: Bool
+    struct DerivationTestCase: Sendable {
+        /// The `PremiumUpgradeLifecycleState` the three inputs below should derive to.
+        let expected: PremiumUpgradeLifecycleState
 
         /// Whether the account has Premium granted by an organization.
         let organizationPremium: Bool
 
-        /// The `PremiumUpgradeLifecycleState` the three inputs above should derive to.
-        let expected: PremiumUpgradeLifecycleState
+        /// Whether a personal checkout is recorded as awaiting confirmation.
+        let pending: Bool
+
+        /// Whether the account has Premium it purchased itself.
+        let personalPremium: Bool
     }
 
     // MARK: Properties
 
-    var billingAPIService: MockBillingAPIService!
-    var billingStateService: MockBillingStateService!
-    var configService: MockConfigService!
-    var environmentService: MockEnvironmentService!
-    var errorReporter: MockErrorReporter!
-    var premiumUpgradeStorage: PremiumUpgradeStateStore!
-    var stateService: MockStateService!
-    var subject: DefaultBillingService!
+    let billingStateService: MockBillingStateService
+    let errorReporter: MockErrorReporter
+    let stateService: MockStateService
+    let subject: DefaultBillingService
 
     // MARK: Initialization
 
     init() {
-        billingAPIService = MockBillingAPIService()
-        billingAPIService.getSubscriptionReturnValue = .fixture()
         billingStateService = MockBillingStateService()
-        configService = MockConfigService()
-        configService.featureFlagsBool[.premiumUpgradePath] = true
-        environmentService = MockEnvironmentService()
-        environmentService.region = .unitedStates
+        billingStateService.getPremiumUpgradePendingReturnValue = false
         errorReporter = MockErrorReporter()
         stateService = MockStateService()
         stateService.activeAccount = .fixture()
-        premiumUpgradeStorage = billingStateService.setUpPremiumUpgradeState(stateService: stateService)
         subject = DefaultBillingService(
-            billingAPIService: billingAPIService,
+            billingAPIService: MockBillingAPIService(),
             billingStateService: billingStateService,
-            configService: configService,
-            environmentService: environmentService,
+            configService: MockConfigService(),
+            environmentService: MockEnvironmentService(),
             errorReporter: errorReporter,
             stateService: stateService,
             syncService: MockSyncService(),
@@ -71,72 +61,134 @@ struct BillingServicePremiumUpgradeLifecycleStateTests {
         )
     }
 
+    // MARK: Tests
+
+    /// `premiumUpgradeLifecycleState()` keeps reading the account that was active when it was
+    /// called, even if the active account changes partway through.
+    @Test
+    func premiumUpgradeLifecycleState_activeAccountSwitchesMidCall_readsOriginalAccount() async {
+        stateService.doesActiveAccountHavePremiumPersonallyResult = true
+        stateService.doesActiveAccountHavePremiumResult = true
+        stateService.doesAccountHavePremiumPersonallyByUserId["1"] = false
+        stateService.doesAccountHavePremiumByUserId["1"] = false
+        billingStateService.getPremiumUpgradePendingClosure = { [stateService] _ in
+            stateService.activeAccount = .fixture(profile: .fixture(userId: "2"))
+            return false
+        }
+
+        let result = await subject.premiumUpgradeLifecycleState()
+
+        #expect(result == .notPremium)
+        #expect(billingStateService.getPremiumUpgradePendingReceivedUserId == "1")
+    }
+
     /// `premiumUpgradeLifecycleState()` derives the active account's lifecycle position from its personal
     /// Premium status, its persisted pending flag, and its organization-granted Premium — in
     /// that order of precedence.
     @Test(arguments: [
-        TestCase(
-            personalPremium: false,
-            pending: false,
-            organizationPremium: false,
+        DerivationTestCase(
             expected: .notPremium,
-        ),
-        TestCase(
-            personalPremium: false,
-            pending: false,
-            organizationPremium: true,
-            expected: .premium,
-        ),
-        TestCase(
-            personalPremium: false,
-            pending: true,
             organizationPremium: false,
+            pending: false,
+            personalPremium: false,
+        ),
+        DerivationTestCase(
+            expected: .premium,
+            organizationPremium: true,
+            pending: false,
+            personalPremium: false,
+        ),
+        DerivationTestCase(
             expected: .pending,
+            organizationPremium: false,
+            pending: true,
+            personalPremium: false,
         ),
         // An organization grant arriving mid-flight is not the personal purchase landing.
-        TestCase(
-            personalPremium: false,
-            pending: true,
-            organizationPremium: true,
+        DerivationTestCase(
             expected: .pending,
+            organizationPremium: true,
+            pending: true,
+            personalPremium: false,
         ),
-        TestCase(
-            personalPremium: true,
-            pending: false,
-            organizationPremium: false,
+        DerivationTestCase(
             expected: .premium,
+            organizationPremium: false,
+            pending: false,
+            personalPremium: true,
+        ),
+        DerivationTestCase(
+            expected: .premium,
+            organizationPremium: true,
+            pending: false,
+            personalPremium: true,
         ),
         // A pending flag not yet cleared must not mask Premium that has actually been granted.
-        TestCase(
-            personalPremium: true,
-            pending: true,
-            organizationPremium: true,
+        DerivationTestCase(
             expected: .premium,
+            organizationPremium: false,
+            pending: true,
+            personalPremium: true,
+        ),
+        DerivationTestCase(
+            expected: .premium,
+            organizationPremium: true,
+            pending: true,
+            personalPremium: true,
         ),
     ])
-    func premiumUpgradeLifecycleState_derivation(testCase: TestCase) async {
+    func premiumUpgradeLifecycleState_derivation(testCase: DerivationTestCase) async {
         stateService.doesActiveAccountHavePremiumPersonallyResult = testCase.personalPremium
         stateService.doesActiveAccountHavePremiumResult = testCase.personalPremium
             || testCase.organizationPremium
-        premiumUpgradeStorage.pendingByUserId["1"] = testCase.pending
+        billingStateService.getPremiumUpgradePendingReturnValue = testCase.pending
 
         let result = await subject.premiumUpgradeLifecycleState()
 
         #expect(result == testCase.expected)
     }
 
-    /// `premiumUpgradeLifecycleState()` reports `.notPremium` and logs the error when the state service
-    /// can't resolve the active account.
+    /// `premiumUpgradeLifecycleState(userId:)` derives the state of the account named by its
+    /// parameter, not the active account.
     @Test
-    func premiumUpgradeLifecycleState_error() async {
+    func premiumUpgradeLifecycleState_givenUserId_derivesThatAccount() async {
+        stateService.doesActiveAccountHavePremiumPersonallyResult = true
+        stateService.doesActiveAccountHavePremiumResult = true
+        stateService.doesAccountHavePremiumPersonallyByUserId["2"] = false
+        stateService.doesAccountHavePremiumByUserId["2"] = false
+        billingStateService.getPremiumUpgradePendingClosure = { userId in userId == "2" }
+
+        let result = await subject.premiumUpgradeLifecycleState(userId: "2")
+
+        #expect(result == .pending)
+    }
+
+    /// `premiumUpgradeLifecycleState()` reports `.notPremium` and logs the error once, without
+    /// reading the pending flag, when there's no active account to resolve.
+    @Test
+    func premiumUpgradeLifecycleState_noActiveAccount_logsErrorAndReturnsNotPremium() async {
         stateService.activeAccount = nil
-        stateService.doesActiveAccountHavePremiumPersonallyResult = false
-        stateService.doesActiveAccountHavePremiumResult = false
 
         let result = await subject.premiumUpgradeLifecycleState()
 
         #expect(result == .notPremium)
+        #expect(errorReporter.errors.count == 1)
         #expect(errorReporter.errors.first as? StateServiceError == .noActiveAccount)
+        #expect(!billingStateService.getPremiumUpgradePendingCalled)
+    }
+
+    /// `premiumUpgradeLifecycleState()` reports `.notPremium` and logs the error when the pending
+    /// flag can't be read for an account without Premium.
+    @Test
+    func premiumUpgradeLifecycleState_pendingReadError_noPremium() async {
+        stateService.doesActiveAccountHavePremiumPersonallyResult = false
+        stateService.doesActiveAccountHavePremiumResult = false
+        billingStateService.getPremiumUpgradePendingThrowableError = BitwardenTestError.example
+
+        let result = await subject.premiumUpgradeLifecycleState()
+
+        #expect(result == .notPremium)
+        #expect(errorReporter.errors.last as? BitwardenTestError == .example)
     }
 
     /// `premiumUpgradeLifecycleState()` still reports `.premium` for an organization-granted account when
@@ -146,7 +198,7 @@ struct BillingServicePremiumUpgradeLifecycleStateTests {
     func premiumUpgradeLifecycleState_pendingReadError_organizationPremium() async {
         stateService.doesActiveAccountHavePremiumPersonallyResult = false
         stateService.doesActiveAccountHavePremiumResult = true
-        billingStateService.getPremiumUpgradePendingClosure = { _ in throw BitwardenTestError.example }
+        billingStateService.getPremiumUpgradePendingThrowableError = BitwardenTestError.example
 
         let result = await subject.premiumUpgradeLifecycleState()
 
