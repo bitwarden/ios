@@ -425,13 +425,9 @@ platform :ios do |options|
   desc "Submit iOS app to the App Store"
   lane :release_to_production do |options|
 
+    # Used as supplied: bitwarden/deploy's format-release-notes action formats it.
     changelog = options[:changelog] || "Bug fixes and improvements"
     is_dry_run = options[:dry_run] == "true" || options[:dry_run] == true
-
-    # The changelog is used as supplied. The caller formats the notes --
-    # bitwarden/deploy's format-release-notes action -- so one convention covers
-    # every store. Splitting here would break an item on any internal period,
-    # such as a version number.
 
     auth_locales = ["en-US"]
     pw_manager_locales = ["ca", "zh-Hans", "zh-Hant", "hr", "cs", "da", "nl-NL", "en-US", "fi", "fr-FR", "de-DE", "id", "it", "ja", "ko", "no", "pl", "pt-PT", "pt-BR", "ro", "ru", "sk", "es-ES", "es-MX", "sv", "tr", "uk", "vi"]
