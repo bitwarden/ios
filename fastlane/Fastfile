@@ -425,8 +425,13 @@ platform :ios do |options|
   desc "Submit iOS app to the App Store"
   lane :release_to_production do |options|
 
+    required_options = [
+      :changelog,
+    ]
+    ensure_required_options(options, required_options)
+
     # Used as supplied: bitwarden/deploy's format-release-notes action formats it.
-    changelog = options[:changelog] || "Bug fixes and improvements"
+    changelog = options[:changelog]
     is_dry_run = options[:dry_run] == "true" || options[:dry_run] == true
 
     auth_locales = ["en-US"]
