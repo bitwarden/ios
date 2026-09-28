@@ -137,8 +137,8 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
     }
 
     /// `didFinishAddingItem(id:type:)` delegate method navigates to the added item's detail view
-    /// with a confirmation toast, still performing the master password reprompt check in case the
-    /// user enabled reprompt on the item they just created.
+    /// with a confirmation toast, skipping the master password reprompt check since the user just
+    /// created the item.
     @MainActor
     func test_delegate_didFinishAddingItem() {
         subject.didFinishAddingItem(id: "1", type: .driversLicense)
@@ -147,7 +147,7 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
             coordinator.routes.last,
             .viewItem(
                 id: "1",
-                masterPasswordRepromptCheckCompleted: false,
+                masterPasswordRepromptCheckCompleted: true,
                 toastTitle: Localizations.licenseSaved,
             ),
         )
