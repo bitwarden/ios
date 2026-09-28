@@ -62,6 +62,7 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         billingService = MockBillingService()
         billingService.isSelfHostedReturnValue = false
         billingService.shouldShowSubscriptionAttentionCardReturnValue = false
+        billingService.isPremiumUpgradeBannerDismissedReturnValue = false
         billingService.shouldShowUpgradedToPremiumActionCardReturnValue = false
         errorReporter = MockErrorReporter()
         changeKdfService = MockChangeKdfService()
