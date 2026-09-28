@@ -428,12 +428,10 @@ platform :ios do |options|
     changelog = options[:changelog] || "Bug fixes and improvements"
     is_dry_run = options[:dry_run] == "true" || options[:dry_run] == true
 
-    formatted_changelog = changelog
-      .split('.')
-      .map(&:strip)
-      .reject(&:empty?)
-      .map { |item| "• #{item.gsub(/\A(?:•|\u2022)\s*/, '')}" }
-      .join("\n")
+    # The changelog is used as supplied. The caller formats the notes --
+    # bitwarden/deploy's format-release-notes action -- so one convention covers
+    # every store. Splitting here would break an item on any internal period,
+    # such as a version number.
 
     auth_locales = ["en-US"]
     pw_manager_locales = ["ca", "zh-Hans", "zh-Hant", "hr", "cs", "da", "nl-NL", "en-US", "fi", "fr-FR", "de-DE", "id", "it", "ja", "ko", "no", "pl", "pt-PT", "pt-BR", "ro", "ru", "sk", "es-ES", "es-MX", "sv", "tr", "uk", "vi"]
@@ -454,7 +452,7 @@ platform :ios do |options|
     locales.each do |locale|
       dir = "#{metadata_path}/#{locale}"
       FileUtils.mkdir_p(dir)
-      File.write("#{dir}/release_notes.txt", formatted_changelog)
+      File.write("#{dir}/release_notes.txt", changelog)
     end
 
     notes = locales.each_with_object({}) do |locale, hash|
@@ -471,7 +469,7 @@ platform :ios do |options|
       UI.message("✅ Validation passed")
       UI.message("✅ Release notes prepared for #{locales.count} locales")
       UI.message("✅ Release notes: ")
-      UI.message("#{formatted_changelog}")
+      UI.message("#{changelog}")
       UI.success("🎯 DRY RUN COMPLETE - Everything looks ready for production!")
       next # ← EXITS HERE in dry run
     end
