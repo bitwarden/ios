@@ -6,6 +6,9 @@ import Foundation
 
 /// The content to display in an `AttachmentPreviewView`, based on the downloaded attachment.
 enum AttachmentPreviewContent: Equatable, Hashable, Sendable {
+    /// The attachment is an animated GIF that decoded successfully, with its raw data.
+    case animatedImage(Data)
+
     /// The attachment could not be decoded into a displayable image.
     case fileError
 
