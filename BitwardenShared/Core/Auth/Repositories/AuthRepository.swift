@@ -879,11 +879,13 @@ extension DefaultAuthRepository: AuthRepository {
         try await keychainService.deleteItems(for: userId)
         try await clientCertificateService.removeCertificate(userId: userId)
         try await fillAssistRepository.clearRules(userId: userId)
-        await vaultTimeoutService.remove(userId: userId)
 
         if await policyService.policyAppliesToUser(.removeUnlockWithPin) {
             try await clearPins()
         }
+
+        // Remove the user's SDK client after anything that may use it, so it isn't recreated.
+        await vaultTimeoutService.remove(userId: userId)
 
         // Log the account out last.
         try await stateService.logoutAccount(userId: userId, userInitiated: userInitiated)
@@ -1458,13 +1460,17 @@ extension DefaultAuthRepository: AuthRepository {
             // Note: We handle all errors broadly here because the SDK doesn't provide specific
             // error types to distinguish key rotation failures from other errors. Clearing the
             // PIN keys on any error is the safest approach to maintain data consistency.
-            // `clearPins()` is best-effort here: any failure is logged rather than thrown, since
-            // throwing would abort the in-progress unlock after `initializeUserCrypto` already
-            // succeeded.
-            do {
-                try await clearPins()
-            } catch {
-                errorReporter.log(error: error)
+            if await configService.getFeatureFlag(.sdkManagedPinUnlock) {
+                // Unsetting the SDK-managed PIN is best-effort: any failure is logged rather than
+                // thrown, since throwing would abort the in-progress unlock after
+                // `initializeUserCrypto` already succeeded.
+                do {
+                    try await clientService.userCryptoManagement().pinSettings().unsetPin()
+                } catch {
+                    errorReporter.log(error: error)
+                }
+            } else {
+                try await stateService.clearPins()
             }
             // Return `nil` instead of throwing to avoid erroring out of the unlock process.
             return nil

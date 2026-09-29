@@ -24,6 +24,7 @@ class MockClientService: ClientService {
     var platformError: Error?
     var policiesError: Error?
     var userClientArray = [String: BitwardenSdkClient]()
+    var userCryptoManagementError: Error?
 
     init(
         auth: MockAuthClientService = MockAuthClientService(),
@@ -96,8 +97,9 @@ class MockClientService: ClientService {
         mockSends
     }
 
-    func userCryptoManagement(for userId: String?) -> UserCryptoManagementClientService {
-        mockUserCryptoManagement
+    func userCryptoManagement(for userId: String?) throws -> UserCryptoManagementClientService {
+        if let userCryptoManagementError { throw userCryptoManagementError }
+        return mockUserCryptoManagement
     }
 
     func vault(for userId: String?) -> VaultClientService {
