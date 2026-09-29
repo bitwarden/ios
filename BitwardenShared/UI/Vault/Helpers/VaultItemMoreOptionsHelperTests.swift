@@ -1023,6 +1023,7 @@ class VaultItemMoreOptionsHelperTests: BitwardenTestCase { // swiftlint:disable:
         await subject.performMoreOptionsAction(
             .view,
             for: item,
+            delegate: nil,
             handleDisplayToast: { _ in },
             handleNavigateToPremiumUpgrade: {},
             handleOpenURL: { _ in },
@@ -1031,7 +1032,8 @@ class VaultItemMoreOptionsHelperTests: BitwardenTestCase { // swiftlint:disable:
         XCTAssertEqual(coordinator.routes.last, .viewItem(id: item.id, masterPasswordRepromptCheckCompleted: true))
     }
 
-    /// `performMoreOptionsAction(_:for:...)` with `.edit` navigates to the `.editItem` route.
+    /// `performMoreOptionsAction(_:for:...)` with `.edit` navigates to the `.editItem` route and
+    /// passes the delegate it was given as the navigation context.
     @MainActor
     func test_performMoreOptionsAction_edit() async throws {
         stateService.activeAccount = .fixture()
@@ -1039,15 +1041,18 @@ class VaultItemMoreOptionsHelperTests: BitwardenTestCase { // swiftlint:disable:
         vaultRepository.fetchCipherResult = .success(cipherView)
         let item = try XCTUnwrap(VaultListItem(cipherListView: .fixture()))
 
+        let delegate = MockCipherItemOperationDelegate()
         await subject.performMoreOptionsAction(
             .edit,
             for: item,
+            delegate: delegate,
             handleDisplayToast: { _ in },
             handleNavigateToPremiumUpgrade: {},
             handleOpenURL: { _ in },
         )
 
         XCTAssertEqual(coordinator.routes.last, .editItem(cipherView))
+        XCTAssertIdentical(coordinator.contexts.last as AnyObject, delegate)
     }
 
     /// `performMoreOptionsAction(_:for:...)` with `.copyUsername` copies the cipher's username.
@@ -1061,6 +1066,7 @@ class VaultItemMoreOptionsHelperTests: BitwardenTestCase { // swiftlint:disable:
         await subject.performMoreOptionsAction(
             .copyUsername,
             for: item,
+            delegate: nil,
             handleDisplayToast: { _ in },
             handleNavigateToPremiumUpgrade: {},
             handleOpenURL: { _ in },
@@ -1082,6 +1088,7 @@ class VaultItemMoreOptionsHelperTests: BitwardenTestCase { // swiftlint:disable:
         await subject.performMoreOptionsAction(
             .copyPassword,
             for: item,
+            delegate: nil,
             handleDisplayToast: { _ in },
             handleNavigateToPremiumUpgrade: {},
             handleOpenURL: { _ in },
@@ -1105,6 +1112,7 @@ class VaultItemMoreOptionsHelperTests: BitwardenTestCase { // swiftlint:disable:
         await subject.performMoreOptionsAction(
             .copyPassword,
             for: item,
+            delegate: nil,
             handleDisplayToast: { _ in },
             handleNavigateToPremiumUpgrade: {},
             handleOpenURL: { _ in },
@@ -1130,6 +1138,7 @@ class VaultItemMoreOptionsHelperTests: BitwardenTestCase { // swiftlint:disable:
         await subject.performMoreOptionsAction(
             .copyTotp,
             for: item,
+            delegate: nil,
             handleDisplayToast: { _ in },
             handleNavigateToPremiumUpgrade: {},
             handleOpenURL: { _ in },
@@ -1152,6 +1161,7 @@ class VaultItemMoreOptionsHelperTests: BitwardenTestCase { // swiftlint:disable:
         await subject.performMoreOptionsAction(
             .launch,
             for: item,
+            delegate: nil,
             handleDisplayToast: { _ in },
             handleNavigateToPremiumUpgrade: {},
             handleOpenURL: { urlToOpen = $0 },
@@ -1174,6 +1184,7 @@ class VaultItemMoreOptionsHelperTests: BitwardenTestCase { // swiftlint:disable:
         await subject.performMoreOptionsAction(
             .archive,
             for: item,
+            delegate: nil,
             handleDisplayToast: { toastToDisplay = $0 },
             handleNavigateToPremiumUpgrade: {},
             handleOpenURL: { _ in },
@@ -1200,6 +1211,7 @@ class VaultItemMoreOptionsHelperTests: BitwardenTestCase { // swiftlint:disable:
         await subject.performMoreOptionsAction(
             .unarchive,
             for: item,
+            delegate: nil,
             handleDisplayToast: { toastToDisplay = $0 },
             handleNavigateToPremiumUpgrade: {},
             handleOpenURL: { _ in },
@@ -1218,6 +1230,7 @@ class VaultItemMoreOptionsHelperTests: BitwardenTestCase { // swiftlint:disable:
         await subject.performMoreOptionsAction(
             .view,
             for: item,
+            delegate: nil,
             handleDisplayToast: { _ in },
             handleNavigateToPremiumUpgrade: {},
             handleOpenURL: { _ in },
@@ -1236,6 +1249,7 @@ class VaultItemMoreOptionsHelperTests: BitwardenTestCase { // swiftlint:disable:
         await subject.performMoreOptionsAction(
             .view,
             for: item,
+            delegate: nil,
             handleDisplayToast: { _ in },
             handleNavigateToPremiumUpgrade: {},
             handleOpenURL: { _ in },
@@ -1251,6 +1265,7 @@ class MockVaultItemMoreOptionsHelper: VaultItemMoreOptionsHelper {
     var performActionCalled = false
     var performActionKind: MoreOptionsActionKind?
     var performActionItem: VaultListItem?
+    var performActionDelegate: CipherItemOperationDelegate?
     var performActionHandleDisplayToast: ((Toast) -> Void)?
     var performActionHandlePremiumUpgrade: (() async -> Void)?
     var performActionHandleOpenURL: ((URL) -> Void)?
@@ -1261,9 +1276,10 @@ class MockVaultItemMoreOptionsHelper: VaultItemMoreOptionsHelper {
     var showMoreOptionsAlertHandlePremiumUpgrade: (() async -> Void)?
     var showMoreOptionsAlertHandleOpenURL: ((URL) -> Void)?
 
-    func performMoreOptionsAction(
+    func performMoreOptionsAction( // swiftlint:disable:this function_parameter_count
         _ kind: MoreOptionsActionKind,
         for item: VaultListItem,
+        delegate: CipherItemOperationDelegate?,
         handleDisplayToast: @escaping (Toast) -> Void,
         handleNavigateToPremiumUpgrade: @escaping () async -> Void,
         handleOpenURL: @escaping (URL) -> Void,
@@ -1271,6 +1287,7 @@ class MockVaultItemMoreOptionsHelper: VaultItemMoreOptionsHelper {
         performActionCalled = true
         performActionKind = kind
         performActionItem = item
+        performActionDelegate = delegate
         performActionHandleDisplayToast = handleDisplayToast
         performActionHandlePremiumUpgrade = handleNavigateToPremiumUpgrade
         performActionHandleOpenURL = handleOpenURL

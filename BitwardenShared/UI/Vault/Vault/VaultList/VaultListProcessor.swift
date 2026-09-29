@@ -749,6 +749,7 @@ extension VaultListProcessor {
         await vaultItemMoreOptionsHelper.performMoreOptionsAction(
             kind,
             for: item,
+            delegate: self,
             handleDisplayToast: { [weak self] toast in
                 self?.state.toast = toast
             },

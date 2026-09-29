@@ -93,6 +93,7 @@ class VaultItemSelectionProcessor: StateProcessor<
             await vaultItemMoreOptionsHelper.performMoreOptionsAction(
                 kind,
                 for: item,
+                delegate: moreOptionsEditDelegate,
                 handleDisplayToast: { [weak self] toast in
                     self?.state.toast = toast
                 },
