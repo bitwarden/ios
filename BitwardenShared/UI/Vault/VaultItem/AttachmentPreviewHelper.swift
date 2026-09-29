@@ -2,6 +2,7 @@ import BitwardenKit
 import BitwardenResources
 import BitwardenSdk
 import Foundation
+import ImageIO
 import UIKit
 
 /// A protocol for a helper to centralize downloading and previewing a vault item's attachment.
@@ -79,6 +80,11 @@ class DefaultAttachmentPreviewHelper: AttachmentPreviewHelper {
         }
         guard let data = try? Data(contentsOf: temporaryUrl), UIImage(data: data) != nil else {
             return .fileError
+        }
+        if attachment.isGif,
+           let source = CGImageSourceCreateWithData(data as CFData, nil),
+           CGImageSourceGetCount(source) > 1 {
+            return .animatedImage(data)
         }
         return .image(data)
     }
