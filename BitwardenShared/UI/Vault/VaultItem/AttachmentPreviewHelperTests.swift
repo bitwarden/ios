@@ -133,6 +133,67 @@ struct AttachmentPreviewHelperTests {
         #expect(state.content == .fileError)
     }
 
+    /// `showPreview(for:cipher:)` navigates to the preview screen with `.animatedImage(data)`
+    /// content when the attachment is a GIF with multiple frames.
+    @Test
+    func showPreview_gif_animated() async throws {
+        let attachment = AttachmentView.fixture(fileName: "cat.gif", size: "10", sizeName: "small")
+        let cipher = CipherView.loginFixture()
+        vaultRepository.downloadAttachmentResult = try .success(writeTemporaryGif(frameCount: 3))
+
+        await subject.showPreview(for: attachment, cipher: cipher)
+
+        guard case let .attachmentPreview(state) = coordinator.routes.last else {
+            Issue.record("Expected a navigation to .attachmentPreview")
+            return
+        }
+        guard case let .animatedImage(data) = state.content else {
+            Issue.record("Expected .animatedImage content")
+            return
+        }
+        #expect(!data.isEmpty)
+    }
+
+    /// `showPreview(for:cipher:)` navigates to the preview screen with `.image(data)` content when
+    /// the attachment is a GIF with a single frame.
+    @Test
+    func showPreview_gif_singleFrame() async throws {
+        let attachment = AttachmentView.fixture(fileName: "cat.gif", size: "10", sizeName: "small")
+        let cipher = CipherView.loginFixture()
+        vaultRepository.downloadAttachmentResult = try .success(writeTemporaryGif(frameCount: 1))
+
+        await subject.showPreview(for: attachment, cipher: cipher)
+
+        guard case let .attachmentPreview(state) = coordinator.routes.last else {
+            Issue.record("Expected a navigation to .attachmentPreview")
+            return
+        }
+        guard case .image = state.content else {
+            Issue.record("Expected .image content")
+            return
+        }
+    }
+
+    /// `showPreview(for:cipher:)` navigates to the preview screen with `.image(data)` content for
+    /// multi-frame data when the attachment doesn't have a GIF extension.
+    @Test
+    func showPreview_animatedData_nonGifExtension() async throws {
+        let attachment = AttachmentView.fixture(fileName: "cat.png", size: "10", sizeName: "small")
+        let cipher = CipherView.loginFixture()
+        vaultRepository.downloadAttachmentResult = try .success(writeTemporaryGif(frameCount: 3))
+
+        await subject.showPreview(for: attachment, cipher: cipher)
+
+        guard case let .attachmentPreview(state) = coordinator.routes.last else {
+            Issue.record("Expected a navigation to .attachmentPreview")
+            return
+        }
+        guard case .image = state.content else {
+            Issue.record("Expected .image content")
+            return
+        }
+    }
+
     /// `showPreview(for:cipher:)` navigates to the preview screen with `.unsupportedFileType`
     /// content for a non-image attachment, without attempting to read/decode its data.
     @Test
@@ -182,16 +243,22 @@ struct AttachmentPreviewHelperTests {
 
     // MARK: Private Methods
 
-    /// Writes valid image data to a temporary file and returns its url.
-    private func writeTemporaryImage() throws -> URL {
-        let data = try #require(UIImage(systemName: "photo")?.pngData())
-        return try writeTemporaryFile(data: data)
-    }
-
     /// Writes the given data to a temporary file and returns its url.
     private func writeTemporaryFile(data: Data) throws -> URL {
         let url = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
         try data.write(to: url)
         return url
+    }
+
+    /// Writes a GIF with the given number of frames to a temporary file and returns its url.
+    private func writeTemporaryGif(frameCount: Int) throws -> URL {
+        let data = try #require(Data.testGif(frameCount: frameCount))
+        return try writeTemporaryFile(data: data)
+    }
+
+    /// Writes valid image data to a temporary file and returns its url.
+    private func writeTemporaryImage() throws -> URL {
+        let data = try #require(UIImage(systemName: "photo")?.pngData())
+        return try writeTemporaryFile(data: data)
     }
 }
