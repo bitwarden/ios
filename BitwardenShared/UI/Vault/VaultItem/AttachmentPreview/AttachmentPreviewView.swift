@@ -2,7 +2,9 @@ import BitwardenKit
 import BitwardenResources
 import SwiftUI
 #if DEBUG
+import ImageIO
 import UIKit
+import UniformTypeIdentifiers
 #endif
 
 // MARK: - AttachmentPreviewView
@@ -48,6 +50,8 @@ struct AttachmentPreviewView: View {
     /// The main content of the view, based on the current preview content state.
     @ViewBuilder private var content: some View {
         switch store.state.content {
+        case let .animatedImage(data):
+            AnimatedImageView(data: data)
         case let .image(data):
             ZoomableImageView(data: data)
         case let .unsupportedFileType(fileExtension):
@@ -94,6 +98,38 @@ struct AttachmentPreviewView: View {
             ),
         )))
     }
+}
+
+#Preview("Animated GIF") {
+    NavigationView {
+        AttachmentPreviewView(store: Store(processor: StateProcessor(
+            state: AttachmentPreviewState(
+                attachment: .fixture(fileName: "dancingCat.gif"),
+                content: .animatedImage(previewGifData()),
+                fileName: "dancingCat.gif",
+                temporaryUrl: URL(fileURLWithPath: "/tmp/preview"),
+            ),
+        )))
+    }
+}
+
+/// Builds a small animated GIF that cycles through a few SF Symbols, for use in previews.
+private func previewGifData() -> Data {
+    let data = NSMutableData()
+    let symbols = ["photo", "photo.fill", "photo.on.rectangle"]
+    guard let destination = CGImageDestinationCreateWithData(
+        data,
+        UTType.gif.identifier as CFString,
+        symbols.count,
+        nil,
+    ) else { return Data() }
+    let frameProperties = [kCGImagePropertyGIFDictionary: [kCGImagePropertyGIFDelayTime: 0.5]]
+    for symbol in symbols {
+        guard let image = UIImage(systemName: symbol)?.cgImage else { continue }
+        CGImageDestinationAddImage(destination, image, frameProperties as CFDictionary)
+    }
+    CGImageDestinationFinalize(destination)
+    return data as Data
 }
 
 #Preview("Unsupported File Type") {

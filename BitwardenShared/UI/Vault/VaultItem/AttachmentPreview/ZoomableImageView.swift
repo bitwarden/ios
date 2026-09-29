@@ -12,36 +12,66 @@ struct ZoomableImageView: View {
     /// The image data to display.
     let data: Data
 
-    // MARK: Private Properties
-
-    /// The current pan offset, combining the committed offset and any in-progress drag gesture.
-    @SwiftUI.State private var offset: CGSize = .zero
-
-    /// The offset committed at the end of the last drag gesture.
-    @SwiftUI.State private var committedOffset: CGSize = .zero
-
-    /// The current zoom scale, combining the committed scale and any in-progress magnification gesture.
-    @SwiftUI.State private var scale: CGFloat = Self.minScale
-
-    /// The scale committed at the end of the last magnification gesture.
-    @SwiftUI.State private var committedScale: CGFloat = Self.minScale
-
     // MARK: View
 
     var body: some View {
         if let image = UIImage(data: data) {
-            Image(uiImage: image)
-                .resizable()
-                .scaledToFit()
-                .scaleEffect(scale)
-                .offset(offset)
-                .simultaneousGesture(magnificationGesture)
-                .simultaneousGesture(dragGesture)
-                .accessibilityIdentifier("AttachmentPreviewImage")
+            ZoomableView {
+                Image(uiImage: image)
+                    .resizable()
+                    .scaledToFit()
+            }
+            .accessibilityIdentifier("AttachmentPreviewImage")
         }
     }
 
-    /// A gesture that pans the image once it's zoomed in.
+    // MARK: Initialization
+
+    /// Creates a new `ZoomableImageView`.
+    ///
+    /// - Parameter data: The image data to display.
+    ///
+    init(data: Data) {
+        self.data = data
+    }
+}
+
+// MARK: - ZoomableView
+
+/// A container view that applies pinch-to-zoom and, once zoomed in, drag-to-pan gestures to its
+/// content.
+///
+struct ZoomableView<Content: View>: View {
+    // MARK: Properties
+
+    /// The content to zoom and pan.
+    let content: Content
+
+    // MARK: Private Properties
+
+    /// The offset committed at the end of the last drag gesture.
+    @SwiftUI.State private var committedOffset: CGSize = .zero
+
+    /// The scale committed at the end of the last magnification gesture.
+    @SwiftUI.State private var committedScale: CGFloat = Self.minScale
+
+    /// The current pan offset, combining the committed offset and any in-progress drag gesture.
+    @SwiftUI.State private var offset: CGSize = .zero
+
+    /// The current zoom scale, combining the committed scale and any in-progress magnification gesture.
+    @SwiftUI.State private var scale: CGFloat = Self.minScale
+
+    // MARK: View
+
+    var body: some View {
+        content
+            .scaleEffect(scale)
+            .offset(offset)
+            .simultaneousGesture(magnificationGesture)
+            .simultaneousGesture(dragGesture)
+    }
+
+    /// A gesture that pans the content once it's zoomed in.
     private var dragGesture: some Gesture {
         DragGesture()
             .onChanged { value in
@@ -56,7 +86,7 @@ struct ZoomableImageView: View {
             }
     }
 
-    /// A gesture that zooms the image between `minScale` and `maxScale`.
+    /// A gesture that zooms the content between `minScale` and `maxScale`.
     private var magnificationGesture: some Gesture {
         MagnificationGesture()
             .onChanged { value in
@@ -74,23 +104,23 @@ struct ZoomableImageView: View {
 
     // MARK: Initialization
 
-    /// Creates a new `ZoomableImageView`.
+    /// Creates a new `ZoomableView`.
     ///
-    /// - Parameter data: The image data to display.
+    /// - Parameter content: The content to zoom and pan.
     ///
-    init(data: Data) {
-        self.data = data
+    init(@ViewBuilder content: () -> Content) {
+        self.content = content()
     }
 }
 
 // MARK: - Constants
 
-private extension ZoomableImageView {
+private extension ZoomableView {
     /// The maximum allowed zoom scale.
-    static let maxScale: CGFloat = 5
+    static var maxScale: CGFloat { 5 }
 
     /// The minimum allowed zoom scale.
-    static let minScale: CGFloat = 1
+    static var minScale: CGFloat { 1 }
 }
 
 // MARK: - Previews
