@@ -43,6 +43,19 @@ class BitwardenSdkVaultAttachmentViewTests: BitwardenTestCase {
         XCTAssertNil(AttachmentView.fixture(fileName: nil).fileExtension)
     }
 
+    /// `isGif` returns `true` for file names with a GIF extension, regardless of case.
+    func test_isGif_true() {
+        XCTAssertTrue(AttachmentView.fixture(fileName: "cat.gif").isGif)
+        XCTAssertTrue(AttachmentView.fixture(fileName: "cat.GIF").isGif)
+    }
+
+    /// `isGif` returns `false` for non-GIF extensions, no extension, or a `nil` file name.
+    func test_isGif_false() {
+        XCTAssertFalse(AttachmentView.fixture(fileName: "photo.png").isGif)
+        XCTAssertFalse(AttachmentView.fixture(fileName: "gif").isGif)
+        XCTAssertFalse(AttachmentView.fixture(fileName: nil).isGif)
+    }
+
     /// `isImage` returns `true` for file names with a recognized image extension, regardless of case.
     func test_isImage_true() {
         for ext in ["jpg", "jpeg", "png", "gif", "webp", "heic", "heif"] {
