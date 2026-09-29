@@ -16,6 +16,9 @@ struct SendResponseModel: Codable, Equatable, JSONResponse {
     /// The authentication type for this send.
     let authType: SendAuthType?
 
+    /// The item included in the send.
+    let data: SendDataModel?
+
     /// The deletion date of the send.
     let deletionDate: Date
 
