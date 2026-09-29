@@ -22,6 +22,7 @@ final class MockClientBuilder: ClientBuilder {
 class MockClient: BitwardenSdkClient {
     var authClient = MockAuthClientService()
     var cryptoClient = MockCryptoClientProtocol()
+    var cryptoSyncHandlerClient = MockCryptoSyncHandlerClientProtocol()
     var exporterClient = MockExporterClientProtocol()
     var generatorClient = MockGeneratorClientsProtocol()
     var kmStateBridgeClient = MockStateBridgeClientProtocol()
@@ -36,6 +37,10 @@ class MockClient: BitwardenSdkClient {
 
     func crypto() -> CryptoClientProtocol {
         cryptoClient
+    }
+
+    func cryptoSyncHandler() -> CryptoSyncHandlerClientProtocol {
+        cryptoSyncHandlerClient
     }
 
     func echo(msg: String) -> String {

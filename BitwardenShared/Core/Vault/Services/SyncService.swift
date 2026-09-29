@@ -436,7 +436,7 @@ class DefaultSyncService: SyncService {
 }
 
 extension DefaultSyncService {
-    func fetchSync(forceSync: Bool, isPeriodic: Bool) async throws { // swiftlint:disable:this function_body_length
+    func fetchSync(forceSync: Bool, isPeriodic: Bool) async throws {
         let account = try await stateService.getActiveAccount()
         let userId = account.profile.userId
 
@@ -468,10 +468,7 @@ extension DefaultSyncService {
         if let profile = response.profile {
             try await onProfileSynced(profile, userId: userId)
         }
-        if let masterPasswordUnlock = response.userDecryption?.masterPasswordUnlock {
-            await stateService.setAccountMasterPasswordUnlock(masterPasswordUnlock, userId: userId)
-        }
-        await stateService.setV2UpgradeToken(response.userDecryption?.v2UpgradeToken, userId: userId)
+        try await clientService.cryptoSyncHandler(for: userId).onSync(data: cryptoSyncData(from: response))
 
         try await cipherService.replaceCiphers(response.ciphers, userId: userId)
         try await collectionService.replaceCollections(response.collections, userId: userId)
@@ -658,9 +655,30 @@ extension DefaultSyncService {
     private func onProfileSynced(_ profile: ProfileResponseModel, userId: String) async throws {
         await stateService.updateProfile(from: profile, userId: userId)
         try await stateService.setUsesKeyConnector(profile.usesKeyConnector, userId: userId)
+    }
 
-        if let cryptographicState = WrappedAccountCryptographicState(responseModel: profile) {
-            try await stateService.setAccountCryptographicState(cryptographicState, userId: userId)
+    /// Builds the key management data the SDK's crypto sync handler persists.
+    ///
+    /// A `nil` field inside `userDecryption` makes the SDK clear the stored value, e.g. stale
+    /// master password unlock data after the master password is removed.
+    ///
+    /// - Parameter response: The sync response.
+    /// - Returns: The data to pass to the SDK's crypto sync handler.
+    ///
+    private func cryptoSyncData(from response: SyncResponseModel) -> CryptoSyncData {
+        let userDecryption = response.userDecryption.map { decryption in
+            CryptoSyncUserDecryption(
+                masterPasswordUnlock: decryption.masterPasswordUnlock.map(MasterPasswordUnlockData.init),
+                v2UpgradeToken: decryption.v2UpgradeToken,
+                webAuthnPrfOptions: nil,
+                userKeyId: decryption.userKeyId,
+            )
         }
+        let accountCryptographicState = response.profile.flatMap(WrappedAccountCryptographicState.init)
+
+        return CryptoSyncData(
+            userDecryption: userDecryption,
+            accountCryptographicState: accountCryptographicState,
+        )
     }
 } // swiftlint:disable:this file_length

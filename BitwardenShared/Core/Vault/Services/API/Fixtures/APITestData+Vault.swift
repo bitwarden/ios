@@ -24,6 +24,9 @@ public extension APITestData {
     static let syncWithProviderOrganization = loadFromJsonBundle(resource: "syncWithProviderOrganization")
     static let syncWithSends = loadFromJsonBundle(resource: "syncWithSends")
     static let syncWithUserDecryption = loadFromJsonBundle(resource: "syncWithUserDecryption")
+    static let syncWithUserDecryptionNoMasterPassword = loadFromJsonBundle(
+        resource: "syncWithUserDecryptionNoMasterPassword",
+    )
     static let updateCipherCollectionsResponse = loadFromJsonBundle(resource: "updateCipherCollectionsResponse")
 }
 

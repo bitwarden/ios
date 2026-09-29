@@ -14,6 +14,7 @@ extension ClientFido2AuthenticatorProtocol {}
 extension ClientManagedTokens {}
 extension CollectionsClientProtocol {}
 extension CryptoClientProtocol {}
+extension CryptoSyncHandlerClientProtocol {}
 extension ExporterClientProtocol {}
 extension Fido2CredentialStore {}
 extension FoldersClientProtocol {}

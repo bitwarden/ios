@@ -896,7 +896,10 @@ class SyncServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
         )
         XCTAssertEqual(stateService.updateProfileUserId, "1")
         XCTAssertEqual(stateService.usesKeyConnector["1"], false)
-        XCTAssertEqual(stateService.accountCryptographicStates["1"], .v1(privateKey: "private key"))
+        XCTAssertEqual(
+            clientService.mockCryptoSyncHandler.onSyncReceivedData?.accountCryptographicState,
+            .v1(privateKey: "private key"),
+        )
     }
 
     /// `fetchSync()` updates the user's profile when it has account keys.
@@ -921,7 +924,10 @@ class SyncServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
         )
         XCTAssertEqual(stateService.updateProfileUserId, "1")
         XCTAssertEqual(stateService.usesKeyConnector["1"], false)
-        XCTAssertEqual(stateService.accountCryptographicStates["1"], .fixtureV2())
+        XCTAssertEqual(
+            clientService.mockCryptoSyncHandler.onSyncReceivedData?.accountCryptographicState,
+            .fixtureV2(),
+        )
     }
 
     /// `fetchSync()` notifies the sync service delegate if the user needs to be migrated to Key
@@ -1145,39 +1151,69 @@ class SyncServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
         XCTAssertEqual(policyService.replacePoliciesUserId, "1")
     }
 
-    /// `fetchSync()` updates the user's master password unlock decryption options.
+    /// `fetchSync()` passes the user's decryption options to the SDK's crypto sync handler.
     func test_fetchSync_userDecryptionOptions() async throws {
         client.result = .httpSuccess(testData: .syncWithUserDecryption)
         stateService.activeAccount = .fixture()
 
         try await subject.fetchSync(forceSync: false)
 
+        XCTAssertEqual(clientService.mockCryptoSyncHandlerUserId, "1")
         XCTAssertEqual(
-            stateService.masterPasswordUnlockByUserId["1"],
-            MasterPasswordUnlockResponseModel(
-                kdf: KdfConfig(kdfType: .pbkdf2sha256, iterations: 600_000),
-                masterKeyEncryptedUserKey: "MASTER_KEY_ENCRYPTED_USER_KEY",
-                salt: "user@bitwarden.com",
+            clientService.mockCryptoSyncHandler.onSyncReceivedData,
+            CryptoSyncData(
+                userDecryption: CryptoSyncUserDecryption(
+                    masterPasswordUnlock: MasterPasswordUnlockData(
+                        kdf: .pbkdf2(iterations: 600_000),
+                        masterKeyWrappedUserKey: "MASTER_KEY_ENCRYPTED_USER_KEY",
+                        salt: "user@bitwarden.com",
+                    ),
+                    v2UpgradeToken: V2UpgradeToken(
+                        wrappedUserKey1: "WRAPPED_USER_KEY_1",
+                        wrappedUserKey2: "WRAPPED_USER_KEY_2",
+                    ),
+                    webAuthnPrfOptions: nil,
+                    userKeyId: "0123456789abcdef0123456789abcdef",
+                ),
+                accountCryptographicState: nil,
             ),
         )
-        XCTAssertEqual(
-            stateService.v2UpgradeTokens["1"],
-            V2UpgradeToken(wrappedUserKey1: "WRAPPED_USER_KEY_1", wrappedUserKey2: "WRAPPED_USER_KEY_2"),
-        )
+        XCTAssertNil(stateService.masterPasswordUnlockByUserId["1"])
+        XCTAssertNil(stateService.v2UpgradeTokens["1"])
     }
 
-    /// `fetchSync()` clears the user's V2 upgrade token when the sync response doesn't include one.
-    func test_fetchSync_v2UpgradeToken_absent() async throws {
-        client.result = .httpSuccess(testData: .syncWithProfileOrganizations)
+    /// `fetchSync()` passes `nil` master password unlock data to the SDK's crypto sync handler when
+    /// the sync response doesn't include it, so the SDK clears the stored value.
+    func test_fetchSync_userDecryptionOptions_masterPasswordUnlockAbsent() async throws {
+        client.result = .httpSuccess(testData: .syncWithUserDecryptionNoMasterPassword)
         stateService.activeAccount = .fixture()
-        stateService.v2UpgradeTokens["1"] = V2UpgradeToken(
-            wrappedUserKey1: "OLD_WRAPPED_USER_KEY_1",
-            wrappedUserKey2: "OLD_WRAPPED_USER_KEY_2",
-        )
 
         try await subject.fetchSync(forceSync: false)
 
-        XCTAssertNil(stateService.v2UpgradeTokens["1"])
+        XCTAssertEqual(
+            clientService.mockCryptoSyncHandler.onSyncReceivedData,
+            CryptoSyncData(
+                userDecryption: CryptoSyncUserDecryption(
+                    masterPasswordUnlock: nil,
+                    v2UpgradeToken: nil,
+                    webAuthnPrfOptions: nil,
+                    userKeyId: nil,
+                ),
+                accountCryptographicState: nil,
+            ),
+        )
+    }
+
+    /// `fetchSync()` passes no user decryption options to the SDK's crypto sync handler when the
+    /// sync response doesn't include them.
+    func test_fetchSync_userDecryptionOptions_absent() async throws {
+        client.result = .httpSuccess(testData: .syncWithProfileOrganizations)
+        stateService.activeAccount = .fixture()
+
+        try await subject.fetchSync(forceSync: false)
+
+        XCTAssertEqual(clientService.mockCryptoSyncHandler.onSyncCallsCount, 1)
+        XCTAssertNil(clientService.mockCryptoSyncHandler.onSyncReceivedData?.userDecryption)
     }
 
     /// `fetchSync()` throws an error if the request fails.

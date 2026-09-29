@@ -10,6 +10,8 @@ class MockClientService: ClientService {
     var mockAuthIsPreAuth = false
     var mockAuthUserId: String?
     var mockCrypto: MockCryptoClientProtocol
+    var mockCryptoSyncHandler: MockCryptoSyncHandlerClientProtocol
+    var mockCryptoSyncHandlerUserId: String?
     var mockExporters: MockExporterClientProtocol
     var mockGenerators: MockGeneratorClientsProtocol
     var mockGeneratorsIsPreAuth = false
@@ -27,6 +29,7 @@ class MockClientService: ClientService {
     init(
         auth: MockAuthClientService = MockAuthClientService(),
         crypto: MockCryptoClientProtocol = MockCryptoClientProtocol(),
+        cryptoSyncHandler: MockCryptoSyncHandlerClientProtocol = MockCryptoSyncHandlerClientProtocol(),
         exporters: MockExporterClientProtocol = MockExporterClientProtocol(),
         generators: MockGeneratorClientsProtocol = MockGeneratorClientsProtocol(),
         platform: MockPlatformClientService = MockPlatformClientService.withMocks(),
@@ -42,6 +45,7 @@ class MockClientService: ClientService {
     ) {
         mockAuth = auth
         mockCrypto = crypto
+        mockCryptoSyncHandler = cryptoSyncHandler
         mockExporters = exporters
         mockGenerators = generators
         mockPlatform = platform
@@ -58,6 +62,11 @@ class MockClientService: ClientService {
 
     func crypto(for userId: String?) -> CryptoClientProtocol {
         mockCrypto
+    }
+
+    func cryptoSyncHandler(for userId: String?) -> CryptoSyncHandlerClientProtocol {
+        mockCryptoSyncHandlerUserId = userId
+        return mockCryptoSyncHandler
     }
 
     func exporters(for userId: String?) -> ExporterClientProtocol {

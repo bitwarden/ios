@@ -303,6 +303,17 @@ final class ClientServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
         XCTAssertNotIdentical(crypto, user2Crypto)
     }
 
+    /// `cryptoSyncHandler(for:)` returns a new `CryptoSyncHandlerClientProtocol` for every user.
+    func test_cryptoSyncHandler() async throws {
+        stateService.activeAccount = .fixture(profile: .fixture(userId: "1"))
+
+        let handler = try await subject.cryptoSyncHandler(for: nil)
+        XCTAssertIdentical(handler, clientBuilder.clients.first?.cryptoSyncHandlerClient)
+
+        let user2Handler = try await subject.cryptoSyncHandler(for: "2")
+        XCTAssertNotIdentical(handler, user2Handler)
+    }
+
     /// `exporters(for:)` returns a new `ExporterClientProtocol` for every user.
     func test_exporters() async throws {
         stateService.activeAccount = .fixture(profile: .fixture(userId: "1"))

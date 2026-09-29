@@ -26,6 +26,13 @@ protocol ClientService {
     ///
     func crypto(for userId: String?) async throws -> CryptoClientProtocol
 
+    /// Returns a `CryptoSyncHandlerClientProtocol` for key management work that runs on sync.
+    ///
+    /// - Parameter userId: The user ID mapped to the client instance.
+    /// - Returns: A `CryptoSyncHandlerClientProtocol` for key management sync tasks.
+    ///
+    func cryptoSyncHandler(for userId: String?) async throws -> CryptoSyncHandlerClientProtocol
+
     /// Returns a `ExporterClientProtocol` for vault export data tasks.
     ///
     /// - Parameter userId: The user ID mapped to the client instance.
@@ -227,6 +234,10 @@ actor DefaultClientService: ClientService {
         try await client(for: userId).crypto()
     }
 
+    func cryptoSyncHandler(for userId: String?) async throws -> CryptoSyncHandlerClientProtocol {
+        try await client(for: userId).cryptoSyncHandler()
+    }
+
     func exporters(for userId: String?) async throws -> ExporterClientProtocol {
         try await client(for: userId).exporters()
     }
@@ -362,6 +373,9 @@ protocol BitwardenSdkClient {
     /// Returns crypto operations.
     func crypto() -> CryptoClientProtocol
 
+    /// Returns key management sync operations.
+    func cryptoSyncHandler() -> CryptoSyncHandlerClientProtocol
+
     ///  Returns exporters.
     func exporters() -> ExporterClientProtocol
 
@@ -394,6 +408,10 @@ extension Client: BitwardenSdkClient {
 
     func crypto() -> CryptoClientProtocol {
         crypto() as CryptoClient
+    }
+
+    func cryptoSyncHandler() -> CryptoSyncHandlerClientProtocol {
+        cryptoSyncHandler() as CryptoSyncHandlerClient
     }
 
     func exporters() -> ExporterClientProtocol {
