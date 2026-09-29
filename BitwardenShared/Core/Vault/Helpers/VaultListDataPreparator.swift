@@ -348,6 +348,10 @@ struct DefaultVaultListDataPreparator: VaultListDataPreparator { // swiftlint:di
                     return
                 }
 
+                if filter.group == .totp, !decryptedCipher.belongsToGroup(.totp) {
+                    return
+                }
+
                 let matchResult = decryptedCipher.matchesSearchQuery(searchText)
                 guard matchResult != .none else {
                     return

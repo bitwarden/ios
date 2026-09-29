@@ -450,6 +450,61 @@ class VaultListDataPreparatorSearchTests: BitwardenTestCase { // swiftlint:disab
         XCTAssertNotNil(result)
     }
 
+    /// `prepareSearchAutofillCombinedMultipleData(from:filter:withFido2Credentials:)` returns the
+    /// prepared data including a v2 cipher, whose encrypted login is `nil`, when in TOTP group
+    /// and its decrypted cipher has TOTP.
+    @MainActor
+    func test_prepareSearchAutofillCombinedMultipleData_totpGroupV2Cipher() async throws {
+        ciphersClientWrapperService.decryptAndProcessCiphersInBatchOnCipherParameterToPass = .fixture(
+            id: "1",
+            login: .fixture(totp: "123456"),
+            name: "Example Site",
+            copyableFields: [.loginPassword],
+        )
+
+        let result = await subject.prepareSearchAutofillCombinedMultipleData(
+            from: [.fixture(data: "sealed-blob", id: "1", login: nil, type: .login)],
+            filter: VaultListFilter(group: .totp, searchText: "example"),
+            withFido2Credentials: nil,
+        )
+
+        XCTAssertEqual(mockCallOrderHelper.callOrder, [
+            "prepareRestrictItemsPolicyOrganizations",
+            "prepareNewItemTypesEnabled",
+            "addItemForGroup",
+        ])
+        XCTAssertEqual(
+            try ciphersClientWrapperService.decryptAndProcessCiphersInBatchPreFilterResult.get().count,
+            1,
+            "v2 login cipher should pass preFilter when group is TOTP",
+        )
+        XCTAssertNotNil(result)
+    }
+
+    /// `prepareSearchAutofillCombinedMultipleData(from:filter:withFido2Credentials:)` returns the
+    /// prepared data filtering out cipher when in TOTP group and its decrypted cipher has no TOTP.
+    @MainActor
+    func test_prepareSearchAutofillCombinedMultipleData_totpGroupNoTotp() async throws {
+        ciphersClientWrapperService.decryptAndProcessCiphersInBatchOnCipherParameterToPass = .fixture(
+            id: "1",
+            login: .fixture(totp: nil),
+            name: "Example Site",
+            copyableFields: [.loginPassword],
+        )
+
+        let result = await subject.prepareSearchAutofillCombinedMultipleData(
+            from: [.fixture(data: "sealed-blob", id: "1", login: nil, type: .login)],
+            filter: VaultListFilter(group: .totp, searchText: "example"),
+            withFido2Credentials: nil,
+        )
+
+        XCTAssertEqual(mockCallOrderHelper.callOrder, [
+            "prepareRestrictItemsPolicyOrganizations",
+            "prepareNewItemTypesEnabled",
+        ])
+        XCTAssertNotNil(result)
+    }
+
     /// `prepareSearchData(from:filter:)` returns the prepared data filtering out archived cipher
     /// when not in archive group.
     @MainActor
@@ -725,6 +780,34 @@ class VaultListDataPreparatorSearchTests: BitwardenTestCase { // swiftlint:disab
             "prepareNewItemTypesEnabled",
             "addSearchResultItem",
         ])
+        XCTAssertNotNil(result)
+    }
+
+    /// `prepareSearchData(from:filter:)` returns the prepared data including a v2 cipher,
+    /// whose encrypted login is `nil`, when in TOTP group.
+    @MainActor
+    func test_prepareSearchData_totpGroupV2Cipher() async throws {
+        ciphersClientWrapperService.decryptAndProcessCiphersInBatchOnCipherParameterToPass = .fixture(
+            id: "1",
+            name: "Example Login",
+            type: .login(.fixture(totp: "123456")),
+        )
+
+        let result = await subject.prepareSearchData(
+            from: [.fixture(data: "sealed-blob", id: "1", login: nil, type: .login)],
+            filter: VaultListFilter(group: .totp, searchText: "example"),
+        )
+
+        XCTAssertEqual(mockCallOrderHelper.callOrder, [
+            "prepareRestrictItemsPolicyOrganizations",
+            "prepareNewItemTypesEnabled",
+            "addSearchResultItem",
+        ])
+        XCTAssertEqual(
+            try ciphersClientWrapperService.decryptAndProcessCiphersInBatchPreFilterResult.get().count,
+            1,
+            "v2 login cipher should pass preFilter when group is TOTP",
+        )
         XCTAssertNotNil(result)
     }
 } // swiftlint:disable:this file_length

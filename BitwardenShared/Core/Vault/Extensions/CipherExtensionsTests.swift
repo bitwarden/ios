@@ -97,14 +97,22 @@ class CipherExtensionsTests: BitwardenTestCase {
         XCTAssertTrue(cipher.belongsToGroup(.login))
     }
 
-    /// `belongsToGroup(_:)` returns `false` when the cipher is a login without TOTP and the group is `.totp`.
+    /// `belongsToGroup(_:)` returns `true` when the cipher is a login without TOTP and the group is `.totp`,
+    /// as the TOTP can only be checked after decryption.
     func test_belongsToGroup_totp_noTotp() {
         let cipher = Cipher.fixture(
             login: .fixture(totp: nil),
             type: .login,
         )
-        XCTAssertFalse(cipher.belongsToGroup(.totp))
+        XCTAssertTrue(cipher.belongsToGroup(.totp))
         XCTAssertTrue(cipher.belongsToGroup(.login))
+    }
+
+    /// `belongsToGroup(_:)` returns `true` when the cipher is a v2 login, whose encrypted login is `nil`,
+    /// and the group is `.totp`.
+    func test_belongsToGroup_totp_v2Cipher() {
+        let cipher = Cipher.fixture(data: "sealed-blob", login: nil, type: .login)
+        XCTAssertTrue(cipher.belongsToGroup(.totp))
     }
 
     /// `belongsToGroup(_:)` returns `false` when the cipher is not a login and the group is `.totp`.

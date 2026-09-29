@@ -40,7 +40,7 @@ extension Cipher {
         case .sshKey:
             type == .sshKey
         case .totp:
-            login?.totp != nil
+            type == .login
         case .trash:
             deletedDate != nil
         }
