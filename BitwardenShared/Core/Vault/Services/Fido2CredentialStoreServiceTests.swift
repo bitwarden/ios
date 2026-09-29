@@ -79,6 +79,24 @@ class Fido2CredentialStoreServiceTests: BitwardenTestCase { // swiftlint:disable
         XCTAssertTrue(result[0].id == "5")
     }
 
+    /// `.allCredentials()` returns v2 ciphers, whose encrypted login is `nil`, when their decrypted
+    /// list view has Fido2 credentials.
+    func test_allCredentials_v2Cipher() async throws {
+        cipherService.fetchAllCiphersResult = .success([
+            .fixture(data: "sealed-blob", id: "1", login: nil, type: .login),
+            .fixture(data: "sealed-blob", id: "2", login: nil, type: .login),
+        ])
+        clientService.mockVault.clientCiphers.decryptListClosure = { ciphers in
+            ciphers.map { cipher in
+                .fixture(id: cipher.id, type: .login(.fixture(hasFido2: cipher.id == "1")))
+            }
+        }
+
+        let result = try await subject.allCredentials()
+
+        XCTAssertEqual(result.map(\.id), ["1"])
+    }
+
     /// `.allCredentials()` throws when fetching ciphers.
     func test_allCredentials_throwsFetchingCiphers() async throws {
         cipherService.fetchAllCiphersResult = .failure(BitwardenTestError.example)
@@ -202,6 +220,29 @@ class Fido2CredentialStoreServiceTests: BitwardenTestCase { // swiftlint:disable
         XCTAssertFalse(syncService.didFetchSync)
     }
 
+    /// `.findCredentials(ids:ripId:)` returns v2 ciphers, whose encrypted login is `nil`, when their
+    /// decrypted cipher has Fido2 credentials.
+    func test_findCredentials_v2Cipher() async throws {
+        let expectedRpId = Fido2CredentialAutofillView.defaultRpId
+        cipherService.fetchAllCiphersResult = .success([
+            .fixture(data: "sealed-blob", id: "1", login: nil, type: .login),
+            .fixture(data: "sealed-blob", id: "2", login: nil, type: .login),
+        ])
+        stateService.activeAccount = .fixture(profile: .fixture(userId: "user123"))
+        syncService.needsSyncResult = .success(false)
+
+        clientService.mockPlatform.mockFido2.decryptFido2AutofillCredentialsClosure = { cipherView in
+            guard let cipherId = cipherView.id, cipherId == "1" else {
+                return []
+            }
+            return [.fixture(cipherId: cipherId, rpId: expectedRpId)]
+        }
+
+        let result = try await subject.findCredentials(ids: nil, ripId: expectedRpId, userHandle: nil)
+
+        XCTAssertEqual(result.map(\.id), ["1"])
+    }
+
     /// `.findCredentials(ids:ripId:)` returns empty if there are active Fido2 credentials.
     func test_findCredentials_empty() async throws {
         cipherService.fetchAllCiphersResult = .success([])
@@ -222,7 +263,7 @@ class Fido2CredentialStoreServiceTests: BitwardenTestCase { // swiftlint:disable
         syncService.needsSyncResult = .success(true)
 
         clientService.mockPlatform.mockFido2.decryptFido2AutofillCredentialsClosure = { cipherView in
-            guard let cipherId = cipherView.id else {
+            guard let cipherId = cipherView.id, cipherView.hasFido2Credentials else {
                 return []
             }
             let hasExpectedCredentialId = cipherId == expectedCipherId
@@ -256,7 +297,7 @@ class Fido2CredentialStoreServiceTests: BitwardenTestCase { // swiftlint:disable
         syncService.needsSyncResult = .success(false)
 
         clientService.mockPlatform.mockFido2.decryptFido2AutofillCredentialsClosure = { cipherView in
-            guard let cipherId = cipherView.id else {
+            guard let cipherId = cipherView.id, cipherView.hasFido2Credentials else {
                 return []
             }
             let hasExpectedCredentialId = cipherId == expectedCipherId
@@ -290,7 +331,7 @@ class Fido2CredentialStoreServiceTests: BitwardenTestCase { // swiftlint:disable
         syncService.needsSyncResult = .failure(BitwardenTestError.example)
 
         clientService.mockPlatform.mockFido2.decryptFido2AutofillCredentialsClosure = { cipherView in
-            guard let cipherId = cipherView.id else {
+            guard let cipherId = cipherView.id, cipherView.hasFido2Credentials else {
                 return []
             }
             let hasExpectedCredentialId = cipherId == expectedCipherId

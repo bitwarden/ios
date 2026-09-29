@@ -49,8 +49,9 @@ final class Fido2CredentialStoreService: Fido2CredentialStore {
     /// - Returns: Array of active login ciphers that have Fido2 credentials.
     func allCredentials() async throws -> [BitwardenSdk.CipherListView] {
         try await clientService.vault().ciphers().decryptList(
-            ciphers: cipherService.fetchAllCiphers().filter(\.isActiveWithFido2Credentials),
+            ciphers: cipherService.fetchAllCiphers().filter(\.isActiveLogin),
         )
+        .filter { $0.type.loginListView?.hasFido2 == true }
     }
 
     /// Finds active login ciphers that have Fido2 credentials, match the `ripId` and if `ids` is sent
@@ -104,7 +105,7 @@ final class Fido2CredentialStoreService: Fido2CredentialStore {
         userHandle: Data?,
     ) async throws -> [BitwardenSdk.CipherView] {
         let activeCiphersWithFido2Credentials = try await cipherService.fetchAllCiphers()
-            .filter(\.isActiveWithFido2Credentials)
+            .filter(\.isActiveLogin)
             .asyncMap { cipher in
                 try await self.clientService.vault().ciphers().decrypt(cipher: cipher)
             }
@@ -172,11 +173,9 @@ final class Fido2CredentialStoreService: Fido2CredentialStore {
 }
 
 private extension Cipher {
-    /// Whether the cipher is active, is a login and has Fido2 credentials.
-    var isActiveWithFido2Credentials: Bool {
-        !isHidden
-            && type == .login
-            && login?.fido2Credentials?.isEmpty == false
+    /// Whether the cipher is active and is a login. Fido2 credentials can only be checked after decryption.
+    var isActiveLogin: Bool {
+        !isHidden && type == .login
     }
 }
 
