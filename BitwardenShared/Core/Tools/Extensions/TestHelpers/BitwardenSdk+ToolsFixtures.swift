@@ -9,6 +9,7 @@ extension Send {
     static func fixture(
         accessCount: UInt32 = 0,
         accessId: String = "ACCESS_ID",
+        data: SendItem? = nil,
         deletionDate: Date = Date(year: 2024, month: 01, day: 01),
         disabled: Bool = false,
         emails: String? = nil,
@@ -38,7 +39,7 @@ extension Send {
             type: sdkType,
             file: file.map(SendFile.init),
             text: text.map(SendText.init),
-            data: nil,
+            data: data,
             maxAccessCount: maxAccessCount,
             accessCount: accessCount,
             disabled: disabled,
