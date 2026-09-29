@@ -56,6 +56,11 @@ extension AttachmentView {
         return String(ext)
     }
 
+    /// Whether this attachment's file name has a GIF extension.
+    var isGif: Bool {
+        fileExtension?.lowercased() == "gif"
+    }
+
     /// Whether this attachment's file name has an extension recognized as an image format that
     /// can be shown in the in-app attachment preview.
     var isImage: Bool {
