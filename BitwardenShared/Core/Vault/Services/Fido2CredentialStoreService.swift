@@ -48,9 +48,10 @@ final class Fido2CredentialStoreService: Fido2CredentialStore {
     /// Gets all the active login ciphers that have Fido2 credentials.
     /// - Returns: Array of active login ciphers that have Fido2 credentials.
     func allCredentials() async throws -> [BitwardenSdk.CipherListView] {
-        try await clientService.vault().ciphers().decryptList(
+        try await clientService.vault().ciphers().decryptListWithFailures(
             ciphers: cipherService.fetchAllCiphers().filter(\.isActiveLogin),
         )
+        .successes
         .filter { $0.type.loginListView?.hasFido2 == true }
     }
 
@@ -104,11 +105,15 @@ final class Fido2CredentialStoreService: Fido2CredentialStore {
         shouldCheckSync: Bool,
         userHandle: Data?,
     ) async throws -> [BitwardenSdk.CipherView] {
-        let activeCiphersWithFido2Credentials = try await cipherService.fetchAllCiphers()
-            .filter(\.isActiveLogin)
-            .asyncMap { cipher in
-                try await self.clientService.vault().ciphers().decrypt(cipher: cipher)
+        // Skip ciphers that fail to decrypt, so one broken login doesn't fail every passkey lookup.
+        var activeLoginCipherViews = [BitwardenSdk.CipherView]()
+        for cipher in try await cipherService.fetchAllCiphers().filter(\.isActiveLogin) {
+            do {
+                try await activeLoginCipherViews.append(clientService.vault().ciphers().decrypt(cipher: cipher))
+            } catch {
+                errorReporter.log(error: error)
             }
+        }
 
         var needsSync = false
         if shouldCheckSync {
@@ -116,7 +121,7 @@ final class Fido2CredentialStoreService: Fido2CredentialStore {
         }
 
         var result = [BitwardenSdk.CipherView]()
-        for cipherView in activeCiphersWithFido2Credentials {
+        for cipherView in activeLoginCipherViews {
             let fido2CredentialAutofillViews = try await clientService.platform()
                 .fido2()
                 .decryptFido2AutofillCredentials(cipherView: cipherView)
