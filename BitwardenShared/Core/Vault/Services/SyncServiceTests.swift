@@ -18,6 +18,7 @@ class SyncServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
     var clientService: MockClientService!
     var collectionService: MockCollectionService!
     var configService: MockConfigService!
+    var errorReporter: MockErrorReporter!
     var fillAssistRepository: MockFillAssistRepository!
     var flightRecorder: MockFlightRecorder!
     var folderService: MockFolderService!
@@ -44,6 +45,7 @@ class SyncServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
         clientService = MockClientService()
         collectionService = MockCollectionService()
         configService = MockConfigService()
+        errorReporter = MockErrorReporter()
         fillAssistRepository = MockFillAssistRepository()
         flightRecorder = MockFlightRecorder()
         folderService = MockFolderService()
@@ -75,6 +77,7 @@ class SyncServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
             clientService: clientService,
             collectionService: collectionService,
             configService: configService,
+            errorReporter: errorReporter,
             fillAssistRepository: fillAssistRepository,
             flightRecorder: flightRecorder,
             folderService: folderService,
@@ -101,6 +104,7 @@ class SyncServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
         clientService = nil
         collectionService = nil
         configService = nil
+        errorReporter = nil
         fillAssistRepository = nil
         flightRecorder = nil
         folderService = nil

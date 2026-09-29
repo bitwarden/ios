@@ -176,6 +176,9 @@ class DefaultSyncService: SyncService {
     /// The service to get server-specified configuration.
     private let configService: ConfigService
 
+    /// The service used by the application to report non-fatal errors.
+    private let errorReporter: ErrorReporter
+
     /// The repository used by the application to manage fill-assist data.
     private let fillAssistRepository: FillAssistRepository
 
@@ -232,6 +235,7 @@ class DefaultSyncService: SyncService {
     ///   - clientService: The service that handles common client functionality such as encryption and decryption.
     ///   - collectionService: The service for managing the collections for the user.
     ///   - configService: The service to get server-specified configuration.
+    ///   - errorReporter: The service used by the application to report non-fatal errors.
     ///   - flightRecorder: The service used by the application for recording temporary debug logs.
     ///   - folderService: The service for managing the folders for the user.
     ///   - keyConnectorService: The service used by the application to manage Key Connector.
@@ -252,6 +256,7 @@ class DefaultSyncService: SyncService {
         clientService: ClientService,
         collectionService: CollectionService,
         configService: ConfigService,
+        errorReporter: ErrorReporter,
         fillAssistRepository: FillAssistRepository,
         flightRecorder: FlightRecorder,
         folderService: FolderService,
@@ -272,6 +277,7 @@ class DefaultSyncService: SyncService {
         self.clientService = clientService
         self.collectionService = collectionService
         self.configService = configService
+        self.errorReporter = errorReporter
         self.fillAssistRepository = fillAssistRepository
         self.flightRecorder = flightRecorder
         self.folderService = folderService
@@ -468,7 +474,7 @@ extension DefaultSyncService {
         if let profile = response.profile {
             try await onProfileSynced(profile, userId: userId)
         }
-        try await clientService.cryptoSyncHandler(for: userId).onSync(data: cryptoSyncData(from: response))
+        try await handleCryptoSync(response, userId: userId)
 
         try await cipherService.replaceCiphers(response.ciphers, userId: userId)
         try await collectionService.replaceCollections(response.collections, userId: userId)
@@ -655,6 +661,23 @@ extension DefaultSyncService {
     private func onProfileSynced(_ profile: ProfileResponseModel, userId: String) async throws {
         await stateService.updateProfile(from: profile, userId: userId)
         try await stateService.setUsesKeyConnector(profile.usesKeyConnector, userId: userId)
+    }
+
+    /// Passes the sync response's key state to the SDK's crypto sync handler.
+    ///
+    /// - Parameters:
+    ///   - response: The sync response.
+    ///   - userId: The ID of the user being synced.
+    ///
+    private func handleCryptoSync(_ response: SyncResponseModel, userId: String) async throws {
+        let cryptoSyncHandler = try await clientService.cryptoSyncHandler(for: userId)
+        do {
+            // Logged, not rethrown: data the SDK rejects (e.g. a malformed key from the server) must
+            // not block the rest of the sync. The SDK writes nothing in that case.
+            try await cryptoSyncHandler.onSync(data: cryptoSyncData(from: response))
+        } catch {
+            errorReporter.log(error: error)
+        }
     }
 
     /// Builds the key management data the SDK's crypto sync handler persists.
