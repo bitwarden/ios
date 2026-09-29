@@ -216,15 +216,14 @@ actor DefaultAuthenticatorSyncService: NSObject, AuthenticatorSyncService {
     ///
     private func decryptTOTPs(_ ciphers: [Cipher],
                               account: Account) async throws -> [AuthenticatorBridgeItemDataView] {
-        let totpCiphers = ciphers.filter { cipher in
-            !cipher.isHidden
-                && cipher.type == .login
-                && cipher.login?.totp != nil
+        let loginCiphers = ciphers.filter { cipher in
+            !cipher.isHidden && cipher.type == .login
         }
-        let decryptedCiphers = try await totpCiphers.asyncMap { cipher in
+        let decryptedCiphers = try await loginCiphers.asyncMap { cipher in
             try await self.authenticatorClientService.vault(for: account.profile.userId).ciphers()
                 .decrypt(cipher: cipher)
         }
+        .filter { $0.login?.totp != nil }
 
         return decryptedCiphers.map { cipher in
             AuthenticatorBridgeItemDataView(

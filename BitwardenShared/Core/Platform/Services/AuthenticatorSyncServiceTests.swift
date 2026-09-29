@@ -270,6 +270,35 @@ final class AuthenticatorSyncServiceTests: BitwardenTestCase { // swiftlint:disa
         XCTAssertEqual(items.first?.id, "1234")
     }
 
+    /// When v2 Ciphers, whose encrypted login is `nil`, are published, the service syncs the ones whose
+    /// decrypted login contains a TOTP key.
+    ///
+    @MainActor
+    func test_decryptTOTPs_v2Cipher() async throws {
+        authenticatorClientService.mockVault.clientCiphers.decryptClosure = { cipher in
+            .fixture(
+                id: cipher.id,
+                login: .fixture(totp: cipher.id == "1234" ? "totp" : nil),
+                type: .login,
+            )
+        }
+        setupInitialState()
+        await subject.start()
+        cipherDataStore.cipherSubjectByUserId["1"]?.send([
+            .fixture(data: "sealed-blob", id: "1234", login: nil, type: .login),
+            .fixture(data: "sealed-blob", id: "No TOTP", login: nil, type: .login),
+        ])
+        stateService.syncToAuthenticatorSubject.send(("1", true))
+        try await waitForAsync {
+            self.authBridgeItemService.storedItems["1"]?.first != nil
+        }
+
+        let items = try XCTUnwrap(authBridgeItemService.storedItems["1"])
+        XCTAssertEqual(items.count, 1)
+        XCTAssertEqual(items.first?.id, "1234")
+        XCTAssertEqual(items.first?.totpKey, "totp")
+    }
+
     /// Verifies that the AuthSyncService responds to new Ciphers published and provides a generated UUID if the
     /// Cipher has no id itself.
     ///
