@@ -215,6 +215,23 @@ class VaultItemSelectionProcessorTests: BitwardenTestCase { // swiftlint:disable
         XCTAssertEqual(subject.state.url, url)
     }
 
+    /// `perform(_:)` with `.accessibilityMoreOptionsActionPressed` passes the same delegate as the
+    /// more options alert, which shows a confirmation toast once the item is saved and leaves this
+    /// screen in place.
+    @MainActor
+    func test_perform_accessibilityMoreOptionsActionPressed_editShowsToastWithoutDismissing() async throws {
+        await subject.perform(.accessibilityMoreOptionsActionPressed(.fixture(), .edit))
+
+        let delegate = try XCTUnwrap(vaultItemMoreOptionsHelper.performActionDelegate)
+        XCTAssertNotIdentical(delegate as AnyObject, subject)
+
+        let shouldDismiss = delegate.itemUpdated(type: .driversLicense)
+
+        XCTAssertTrue(shouldDismiss)
+        XCTAssertEqual(subject.state.toast, Toast(title: Localizations.licenseSaved))
+        XCTAssertTrue(coordinator.routes.isEmpty)
+    }
+
     /// `perform(_:)` with `.morePressed` has the vault item more options helper display the alert.
     @MainActor
     func test_perform_morePressed() async throws {

@@ -33,13 +33,16 @@ protocol VaultItemMoreOptionsHelper {
     /// - Parameters
     ///   - kind: The kind of more-options action to perform.
     ///   - item: The selected item to perform the action on.
+    ///   - delegate: The delegate notified of operations performed on the item from within the
+    ///     add/edit item view, used when the edit option is selected.
     ///   - handleDisplayToast: A closure called to handle displaying a toast.
     ///   - handleNavigateToPremiumUpgrade: A closure called to navigate to the Premium upgrade flow.
     ///   - handleOpenURL: A closure called to open a URL.
     ///
-    func performMoreOptionsAction(
+    func performMoreOptionsAction( // swiftlint:disable:this function_parameter_count
         _ kind: MoreOptionsActionKind,
         for item: VaultListItem,
+        delegate: CipherItemOperationDelegate?,
         handleDisplayToast: @escaping (Toast) -> Void,
         handleNavigateToPremiumUpgrade: @escaping () async -> Void,
         handleOpenURL: @escaping (URL) -> Void,
@@ -134,9 +137,10 @@ class DefaultVaultItemMoreOptionsHelper: VaultItemMoreOptionsHelper {
         }
     }
 
-    func performMoreOptionsAction(
+    func performMoreOptionsAction( // swiftlint:disable:this function_parameter_count
         _ kind: MoreOptionsActionKind,
         for item: VaultListItem,
+        delegate: CipherItemOperationDelegate?,
         handleDisplayToast: @escaping (Toast) -> Void,
         handleNavigateToPremiumUpgrade: @escaping () async -> Void,
         handleOpenURL: @escaping (URL) -> Void,
@@ -154,7 +158,7 @@ class DefaultVaultItemMoreOptionsHelper: VaultItemMoreOptionsHelper {
             await handleMoreOptionsAction(
                 action,
                 cipherView: cipherView,
-                delegate: nil,
+                delegate: delegate,
                 handleDisplayToast: handleDisplayToast,
                 handleNavigateToPremiumUpgrade: handleNavigateToPremiumUpgrade,
                 handleOpenURL: handleOpenURL,

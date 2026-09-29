@@ -935,6 +935,7 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         XCTAssertTrue(vaultItemMoreOptionsHelper.performActionCalled)
         XCTAssertEqual(vaultItemMoreOptionsHelper.performActionKind, .copyUsername)
         XCTAssertEqual(vaultItemMoreOptionsHelper.performActionItem, item)
+        XCTAssertIdentical(vaultItemMoreOptionsHelper.performActionDelegate as AnyObject, subject)
         XCTAssertNotNil(vaultItemMoreOptionsHelper.performActionHandleDisplayToast)
         XCTAssertNotNil(vaultItemMoreOptionsHelper.performActionHandleOpenURL)
 
