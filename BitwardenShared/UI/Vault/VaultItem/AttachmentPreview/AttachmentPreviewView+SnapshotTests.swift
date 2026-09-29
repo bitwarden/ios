@@ -35,23 +35,14 @@ class AttachmentPreviewViewTests: BitwardenTestCase {
 
     // MARK: Previews
 
-    /// The image content renders correctly.
+    /// The animated image content renders its first frame.
     @MainActor
-    func disabletest_snapshot_attachmentPreview_image() {
-        processor.state = .fixture(content: .image(UIImage(systemName: "photo")?.pngData() ?? Data()))
-        assertSnapshots(
-            of: subject.navStackWrapped,
-            as: [
-                .defaultPortrait,
-                .defaultPortraitDark,
-            ],
+    func disabletest_snapshot_attachmentPreview_animatedImage() {
+        processor.state = .fixture(
+            attachment: .fixture(fileName: "cat.gif"),
+            content: .animatedImage(UIImage(systemName: "photo")?.pngData() ?? Data()),
+            fileName: "cat.gif",
         )
-    }
-
-    /// The unsupported file type content renders correctly.
-    @MainActor
-    func disabletest_snapshot_attachmentPreview_unsupportedFileType() {
-        processor.state = .fixture(content: .unsupportedFileType(fileExtension: "PDF"))
         assertSnapshots(
             of: subject.navStackWrapped,
             as: [
@@ -75,6 +66,19 @@ class AttachmentPreviewViewTests: BitwardenTestCase {
         )
     }
 
+    /// The image content renders correctly.
+    @MainActor
+    func disabletest_snapshot_attachmentPreview_image() {
+        processor.state = .fixture(content: .image(UIImage(systemName: "photo")?.pngData() ?? Data()))
+        assertSnapshots(
+            of: subject.navStackWrapped,
+            as: [
+                .defaultPortrait,
+                .defaultPortraitDark,
+            ],
+        )
+    }
+
     /// A long file name is truncated in the navigation bar.
     @MainActor
     func disabletest_snapshot_attachmentPreview_longFileName() {
@@ -83,6 +87,20 @@ class AttachmentPreviewViewTests: BitwardenTestCase {
         assertSnapshots(
             of: subject.navStackWrapped,
             as: [.defaultPortrait],
+        )
+    }
+
+    /// The unsupported file type content renders correctly.
+    @MainActor
+    func disabletest_snapshot_attachmentPreview_unsupportedFileType() {
+        processor.state = .fixture(content: .unsupportedFileType(fileExtension: "PDF"))
+        assertSnapshots(
+            of: subject.navStackWrapped,
+            as: [
+                .defaultPortrait,
+                .defaultPortraitDark,
+                .defaultPortraitAX5,
+            ],
         )
     }
 }
