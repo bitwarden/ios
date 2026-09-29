@@ -105,23 +105,23 @@ final class Fido2CredentialStoreService: Fido2CredentialStore {
         shouldCheckSync: Bool,
         userHandle: Data?,
     ) async throws -> [BitwardenSdk.CipherView] {
-        // Skip ciphers that fail to decrypt, so one broken login doesn't fail every passkey lookup.
-        var activeLoginCipherViews = [BitwardenSdk.CipherView]()
-        for cipher in try await cipherService.fetchAllCiphers().filter(\.isActiveLogin) {
-            do {
-                try await activeLoginCipherViews.append(clientService.vault().ciphers().decrypt(cipher: cipher))
-            } catch {
-                errorReporter.log(error: error)
-            }
-        }
-
         var needsSync = false
         if shouldCheckSync {
             needsSync = await needsSyncCheckingLocally()
         }
 
+        // Decrypt one login at a time so only the matches are retained, not every login.
         var result = [BitwardenSdk.CipherView]()
-        for cipherView in activeLoginCipherViews {
+        for cipher in try await cipherService.fetchAllCiphers().filter(\.isActiveLogin) {
+            let cipherView: BitwardenSdk.CipherView
+            do {
+                cipherView = try await clientService.vault().ciphers().decrypt(cipher: cipher)
+            } catch {
+                // Skip ciphers that fail to decrypt, so one broken login doesn't fail every passkey lookup.
+                errorReporter.log(error: error)
+                continue
+            }
+
             let fido2CredentialAutofillViews = try await clientService.platform()
                 .fido2()
                 .decryptFido2AutofillCredentials(cipherView: cipherView)
