@@ -77,20 +77,22 @@ struct AppearanceView: View {
                 send: AppearanceAction.toggleShowWebsiteIcons,
             ),
             accessibilityIdentifier: "ShowWebsiteIconsSwitch",
-        ) {
-            HStack(spacing: 8) {
+            accessibilityLabel: Localizations.showWebsiteIcons,
+            title: {
                 Text(Localizations.showWebsiteIcons)
-
+            },
+            accessory: {
                 Button {
                     openURL(ExternalLinksConstants.websiteIconsHelp)
                 } label: {
                     SharedAsset.Icons.questionCircle16.swiftUIImage
                         .scaledFrame(width: 16, height: 16)
-                        .accessibilityLabel(Localizations.learnMore)
                 }
                 .buttonStyle(.fieldLabelIcon)
-            }
-        }
+                .accessibilityLabel(Localizations.learnMore)
+                .accessibilityHint(Localizations.externalLink)
+            },
+        )
         .contentBlock()
     }
 }
