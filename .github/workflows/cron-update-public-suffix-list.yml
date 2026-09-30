@@ -27,7 +27,7 @@ jobs:
       - name: Switch to branch
         id: switch-branch
         run: |
-          BRANCH_NAME="cron-sync-public-suffix-list"
+          BRANCH_NAME="sdlc/cron-sync-public-suffix-list"
           echo "branch_name=$BRANCH_NAME" >> "$GITHUB_OUTPUT"
 
           if git switch "$BRANCH_NAME"; then
