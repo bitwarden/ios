@@ -21,7 +21,21 @@ jobs:
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
+          fetch-depth: 0
           persist-credentials: true
+
+      - name: Switch to branch
+        id: switch-branch
+        run: |
+          BRANCH_NAME="cron-sync-public-suffix-list"
+          echo "branch_name=$BRANCH_NAME" >> "$GITHUB_OUTPUT"
+
+          if git switch "$BRANCH_NAME"; then
+            echo "✅ Switched to existing branch: $BRANCH_NAME"
+          else
+            echo "📝 Creating new branch: $BRANCH_NAME"
+            git switch -c "$BRANCH_NAME"
+          fi
 
       - name: Download latest PSL list
         run: |
@@ -41,33 +55,42 @@ jobs:
 
       - name: Create branch and commit
         if: steps.check-changes.outputs.has_changes == 'true'
+        env:
+          _BRANCH_NAME: ${{ steps.switch-branch.outputs.branch_name }}
         run: |
           echo "📋 Committing public_suffix_list.dat..."
 
-          BRANCH_NAME="cron-sync-public-suffix-list/$GITHUB_RUN_NUMBER-sync"
           git config user.name "GitHub Actions Bot"
           git config user.email "actions@github.com"
-          git checkout -b "$BRANCH_NAME"
           git add "$PSL_FILE"
           git commit -m "Update public suffix list"
-          git push origin "$BRANCH_NAME"
-          echo "BRANCH_NAME=$BRANCH_NAME" >> "$GITHUB_ENV"
-          echo "🌱 Branch created: $BRANCH_NAME"
+          git push origin "$_BRANCH_NAME"
 
-      - name: Create Pull Request
+      - name: Create or Update Pull Request
         if: steps.check-changes.outputs.has_changes == 'true'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          DUPLICATES_FOUND: ${{ steps.check-changes.outputs.duplicates_found }}
-          BASE_PR_URL: ${{ github.server_url }}/${{ github.repository }}/pull/
+          _BRANCH_NAME: ${{ steps.switch-branch.outputs.branch_name }}
         run: |
           PR_BODY="Updates the public suffix list with the latest data from $SOURCE_URL"
 
-          # Use echo -e to interpret escape sequences and pipe to gh pr create
-          PR_URL=$(echo -e "$PR_BODY" | gh pr create \
-            --title "Update public suffix list" \
-            --body-file - \
-            --base main \
-            --head "$BRANCH_NAME" \
-            --label "automated-pr" \
-            --label "t:deps")
+          EXISTING_PR=$(gh pr list --head "$_BRANCH_NAME" --base main --state open --json number --jq '.[0].number // empty')
+
+          if [ -n "$EXISTING_PR" ]; then
+            echo "🔄 Updating existing PR #$EXISTING_PR..."
+            echo -e "$PR_BODY" | gh pr edit "$EXISTING_PR" \
+              --title "Update public suffix list" \
+              --body-file -
+            PR_URL="https://github.com/${{ github.repository }}/pull/$EXISTING_PR"
+            echo "## ✅ Updated PR: $PR_URL" >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "📝 Creating new PR..."
+            PR_URL=$(echo -e "$PR_BODY" | gh pr create \
+              --title "Update public suffix list" \
+              --body-file - \
+              --base main \
+              --head "$_BRANCH_NAME" \
+              --label "automated-pr" \
+              --label "t:deps")
+            echo "## 🚀 Created PR: $PR_URL" >> "$GITHUB_STEP_SUMMARY"
+          fi
