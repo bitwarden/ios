@@ -500,8 +500,9 @@ class AddEditSendItemProcessorTests: BitwardenTestCase { // swiftlint:disable:th
         ])
     }
 
+    /// `perform(_:)` with `.savePressed` for a text send with no text shows a validation alert.
     @MainActor
-    func test_perform_savedPressed_add_noTextToShare() async {
+    func test_perform_savePressed_add_noTextToShare() async {
         subject.state.name = "Name"
         subject.state.type = .text
         subject.state.text = ""
@@ -783,6 +784,27 @@ class AddEditSendItemProcessorTests: BitwardenTestCase { // swiftlint:disable:th
         XCTAssertNil(sendRepository.updateSendSendView)
         XCTAssertEqual(coordinator.alertShown, [
             .validationFieldRequired(fieldName: Localizations.name),
+        ])
+    }
+
+    /// `perform(_:)` with `.savePressed` while editing a text send with the text cleared shows a
+    /// validation alert.
+    @MainActor
+    func test_perform_savePressed_edit_noTextToShare() async {
+        let sendView = SendView.fixture(
+            id: "SEND_ID",
+            name: "Name",
+            type: .text,
+            text: SendTextView(text: "Text", hidden: false),
+        )
+        subject.state = AddEditSendItemState(sendView: sendView)
+        subject.state.text = ""
+        await subject.perform(.savePressed)
+
+        XCTAssertTrue(coordinator.loadingOverlaysShown.isEmpty)
+        XCTAssertNil(sendRepository.updateSendSendView)
+        XCTAssertEqual(coordinator.alertShown, [
+            .validationFieldRequired(fieldName: Localizations.textToShare),
         ])
     }
 
