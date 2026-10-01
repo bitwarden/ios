@@ -50,10 +50,9 @@ extension AttachmentView {
 
     /// The file name's extension, if any (not lowercased).
     var fileExtension: String? {
-        guard let fileName, fileName.contains("."), let ext = fileName.split(separator: ".").last else {
-            return nil
-        }
-        return String(ext)
+        guard let fileName, let dotIndex = fileName.lastIndex(of: ".") else { return nil }
+        let ext = fileName[fileName.index(after: dotIndex)...]
+        return ext.isEmpty ? nil : String(ext)
     }
 
     /// Whether this attachment's file name has a GIF extension.

@@ -69,24 +69,45 @@ class DefaultAttachmentPreviewHelper: AttachmentPreviewHelper {
 
     // MARK: Private Methods
 
-    /// Classifies the downloaded file's content for display in the preview screen.
+    /// Classifies the downloaded file's content for display in the preview screen. Reading and
+    /// decoding the file is done off the main actor since attachments can be large.
     ///
     /// - Parameter attachment: The attachment that was downloaded.
     /// - Parameter temporaryUrl: The url where the downloaded file is stored.
     /// - Returns: The content to show in the preview screen.
-    private func classify(_ attachment: AttachmentView, temporaryUrl: URL) -> AttachmentPreviewContent {
-        guard attachment.isImage else {
-            return .unsupportedFileType(fileExtension: attachment.fileExtension ?? "")
+    private func classify(_ attachment: AttachmentView, temporaryUrl: URL) async -> AttachmentPreviewContent {
+        let fileExtension = attachment.fileExtension ?? ""
+        let isGif = attachment.isGif
+        let isImage = attachment.isImage
+        return await Task.detached {
+            classifyDownloadedFile(
+                fileExtension: fileExtension,
+                isGif: isGif,
+                isImage: isImage,
+                temporaryUrl: temporaryUrl,
+            )
+        }.value
+    }
+
+    /// Deletes the decrypted temporary file once its image content has been loaded into memory, so
+    /// it isn't left on disk while the preview is displayed. The preview screen writes the file
+    /// back out from memory only if the user chooses to download it. Content that couldn't be
+    /// loaded into memory keeps its file so that it can still be downloaded.
+    ///
+    /// - Parameters:
+    ///   - content: The classified content of the downloaded file.
+    ///   - temporaryUrl: The url where the downloaded file is stored.
+    private func deleteTemporaryFileIfLoaded(_ content: AttachmentPreviewContent, at temporaryUrl: URL) {
+        switch content {
+        case .animatedImage, .image:
+            do {
+                try FileManager.default.removeItem(at: temporaryUrl)
+            } catch {
+                services.errorReporter.log(error: error)
+            }
+        case .fileError, .unsupportedFileType:
+            break
         }
-        guard let data = try? Data(contentsOf: temporaryUrl), UIImage(data: data) != nil else {
-            return .fileError
-        }
-        if attachment.isGif,
-           let source = CGImageSourceCreateWithData(data as CFData, nil),
-           CGImageSourceGetCount(source) > 1 {
-            return .animatedImage(data)
-        }
-        return .image(data)
     }
 
     /// Downloads the attachment and navigates to the preview screen, classifying the downloaded
@@ -107,10 +128,13 @@ class DefaultAttachmentPreviewHelper: AttachmentPreviewHelper {
                 return coordinator.showAlert(.defaultAlert(title: Localizations.unableToDownloadFile))
             }
 
+            let content = await classify(attachment, temporaryUrl: temporaryUrl)
+            deleteTemporaryFileIfLoaded(content, at: temporaryUrl)
+
             coordinator.hideLoadingOverlay()
             coordinator.navigate(to: .attachmentPreview(AttachmentPreviewState(
                 attachment: attachment,
-                content: classify(attachment, temporaryUrl: temporaryUrl),
+                content: content,
                 fileName: attachment.fileName ?? "",
                 temporaryUrl: temporaryUrl,
             )))
@@ -119,4 +143,35 @@ class DefaultAttachmentPreviewHelper: AttachmentPreviewHelper {
             services.errorReporter.log(error: error)
         }
     }
+}
+
+// MARK: - Private
+
+/// Classifies a downloaded file's content for display in the preview screen. This reads and decodes
+/// the file synchronously, so it should be called off the main actor.
+///
+/// - Parameters:
+///   - fileExtension: The attachment's file extension.
+///   - isGif: Whether the attachment has a GIF file extension.
+///   - isImage: Whether the attachment has an image file extension.
+///   - temporaryUrl: The url where the downloaded file is stored.
+/// - Returns: The content to show in the preview screen.
+private nonisolated func classifyDownloadedFile(
+    fileExtension: String,
+    isGif: Bool,
+    isImage: Bool,
+    temporaryUrl: URL,
+) -> AttachmentPreviewContent {
+    guard isImage else {
+        return .unsupportedFileType(fileExtension: fileExtension)
+    }
+    guard let data = try? Data(contentsOf: temporaryUrl), UIImage(data: data) != nil else {
+        return .fileError
+    }
+    if isGif,
+       let source = CGImageSourceCreateWithData(data as CFData, nil),
+       CGImageSourceGetCount(source) > 1 {
+        return .animatedImage(data)
+    }
+    return .image(data)
 }
