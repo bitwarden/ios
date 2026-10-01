@@ -13,6 +13,9 @@ import SwiftUI
 struct AnimatedImageView: View {
     // MARK: Private Properties
 
+    /// Whether the animation is currently zoomed in.
+    @Binding private var isZoomed: Bool
+
     /// The player that decodes and advances the animation's frames.
     @StateObject private var player: AnimatedImagePlayer
 
@@ -23,7 +26,7 @@ struct AnimatedImageView: View {
 
     var body: some View {
         if let frame = player.currentFrame {
-            ZoomableView {
+            ZoomableView(isZoomed: $isZoomed) {
                 Image(decorative: frame, scale: 1)
                     .resizable()
                     .scaledToFit()
@@ -70,9 +73,12 @@ struct AnimatedImageView: View {
 
     /// Creates a new `AnimatedImageView`.
     ///
-    /// - Parameter data: The animated image data to display.
+    /// - Parameters:
+    ///   - data: The animated image data to display.
+    ///   - isZoomed: A binding that is updated with whether the image is currently zoomed in.
     ///
-    init(data: Data) {
+    init(data: Data, isZoomed: Binding<Bool> = .constant(false)) {
+        _isZoomed = isZoomed
         _player = StateObject(wrappedValue: AnimatedImagePlayer(data: data))
     }
 }
