@@ -183,9 +183,8 @@ class DefaultBillingService: BillingService {
     /// The service used by the application to report non-fatal errors.
     private let errorReporter: ErrorReporter
 
-    /// Subject that emits the Premium checkout sync status. Subscribers attach fresh per upgrade
-    /// flow, so this must never replay a status from a previous flow or account.
-    private let premiumCheckoutStatusSubject = PassthroughSubject<PremiumCheckoutStatus, Never>()
+    /// Subject that emits the Premium checkout sync status.
+    private let premiumCheckoutStatusSubject = CurrentValueSubject<PremiumCheckoutStatus?, Never>(nil)
 
     /// The service used to manage the app's state.
     private let stateService: StateService
@@ -293,10 +292,12 @@ class DefaultBillingService: BillingService {
 
     func premiumCheckoutCanceled() {
         premiumCheckoutStatusSubject.send(.canceled)
+        premiumCheckoutStatusSubject.send(nil)
     }
 
     func premiumCheckoutStatusPublisher() -> AnyPublisher<PremiumCheckoutStatus, Never> {
         premiumCheckoutStatusSubject
+            .compactMap(\.self)
             .debounce(for: debounceInterval, scheduler: DispatchQueue.main)
             .eraseToAnyPublisher()
     }
@@ -470,5 +471,8 @@ class DefaultBillingService: BillingService {
         }
         let hasPremium = await stateService.doesAccountHavePremiumPersonally(userId: userId)
         premiumCheckoutStatusSubject.send(hasPremium ? .confirmed : .pending)
+        if hasPremium {
+            premiumCheckoutStatusSubject.send(nil)
+        }
     }
 }
