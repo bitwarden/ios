@@ -711,8 +711,6 @@ extension AppProcessor: SyncServiceDelegate {
         // always reflects current subscription status without making a live API call there.
         await services.billingService.refreshSubscriptionAttentionCard(subscription: nil)
 
-        // The only place a pending upgrade completes — for the checkout's own sync and for
-        // whichever later sync lands the purchase — so this runs after every sync.
         await services.billingService.completeUpgradeIfPending(userId: userId)
 
         do {
