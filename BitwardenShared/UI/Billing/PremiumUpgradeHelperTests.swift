@@ -9,12 +9,10 @@ import Testing
 @testable import BitwardenShared
 @testable import BitwardenSharedMocks
 
-// swiftlint:disable file_length
-
 // MARK: - PremiumUpgradeHelperTests
 
 @MainActor
-struct PremiumUpgradeHelperTests { // swiftlint:disable:this type_body_length
+struct PremiumUpgradeHelperTests {
     // MARK: Properties
 
     let billingRepository: MockBillingRepository
@@ -27,7 +25,6 @@ struct PremiumUpgradeHelperTests { // swiftlint:disable:this type_body_length
     init() {
         billingRepository = MockBillingRepository()
         billingService = MockBillingService()
-        billingService.premiumUpgradeLifecycleStateReturnValue = .notPremium
         coordinator = MockCoordinator()
         environmentService = MockEnvironmentService()
     }
@@ -54,7 +51,7 @@ struct PremiumUpgradeHelperTests { // swiftlint:disable:this type_body_length
     /// `navigateToPremiumUpgrade(onConfirmed:)` navigates to the Premium upgrade route when
     /// in-app upgrade is available.
     @Test
-    func navigateToPremiumUpgrade_inAppAvailable() async throws {
+    func navigateToPremiumUpgrade_inAppAvailable() async {
         billingRepository.isInAppUpgradeAvailableReturnValue = true
         let statusSubject = PassthroughSubject<PremiumCheckoutStatus, Never>()
         billingService.premiumCheckoutStatusPublisherReturnValue = statusSubject.eraseToAnyPublisher()
@@ -71,7 +68,7 @@ struct PremiumUpgradeHelperTests { // swiftlint:disable:this type_body_length
 
         await subject.navigateToPremiumUpgrade()
 
-        try await waitForAsync { coordinator.routes.last == .premiumUpgrade }
+        #expect(coordinator.routes.last == .premiumUpgrade)
         #expect(capturedURL == nil)
     }
 
@@ -99,10 +96,9 @@ struct PremiumUpgradeHelperTests { // swiftlint:disable:this type_body_length
 
     // MARK: Tests — startInAppPremiumUpgrade
 
-    /// `startInAppPremiumUpgrade(onConfirmed:)` navigates directly without checking availability
-    /// when no upgrade is currently pending.
+    /// `startInAppPremiumUpgrade(onConfirmed:)` navigates directly without checking availability.
     @Test
-    func startInAppPremiumUpgrade_navigatesWithoutAvailabilityCheck() async throws {
+    func startInAppPremiumUpgrade_navigatesWithoutAvailabilityCheck() {
         let statusSubject = PassthroughSubject<PremiumCheckoutStatus, Never>()
         billingService.premiumCheckoutStatusPublisherReturnValue = statusSubject.eraseToAnyPublisher()
         let subject = DefaultPremiumUpgradeHelper(
@@ -117,109 +113,8 @@ struct PremiumUpgradeHelperTests { // swiftlint:disable:this type_body_length
 
         subject.startInAppPremiumUpgrade()
 
-        try await waitForAsync { coordinator.routes.last == .premiumUpgrade }
+        #expect(coordinator.routes.last == .premiumUpgrade)
         #expect(!billingRepository.isInAppUpgradeAvailableCalled)
-    }
-
-    /// `startInAppPremiumUpgrade(onConfirmed:)` ignores a second call that arrives while the
-    /// first call's pending-state check is still in flight (e.g. a rapid double-tap on the same
-    /// CTA) — only the first call navigates.
-    @Test
-    func startInAppPremiumUpgrade_rapidDoubleCall_onlyNavigatesOnce() async throws {
-        let statusSubject = PassthroughSubject<PremiumCheckoutStatus, Never>()
-        billingService.premiumCheckoutStatusPublisherReturnValue = statusSubject.eraseToAnyPublisher()
-        let subject = makeSubject()
-
-        subject.startInAppPremiumUpgrade()
-        subject.startInAppPremiumUpgrade()
-
-        try await waitForAsync { coordinator.routes.last == .premiumUpgrade }
-        // Give a wrongly-allowed second resolution a chance to also land before asserting.
-        try await Task.sleep(nanoseconds: 50_000_000)
-        #expect(coordinator.routes.count(where: { $0 == .premiumUpgrade }) == 1)
-    }
-
-    /// `startInAppPremiumUpgrade(onConfirmed:)` shows the upgrade pending alert instead of
-    /// navigating to the upgrade screen when an upgrade is already pending — closing the door on
-    /// any of this helper's callers (Settings > Plan, Send, item views, etc.) starting a second,
-    /// redundant checkout while one is still unresolved.
-    @Test
-    func startInAppPremiumUpgrade_showsPendingAlertWhenAlreadyPending() async throws {
-        let statusSubject = PassthroughSubject<PremiumCheckoutStatus, Never>()
-        billingService.premiumCheckoutStatusPublisherReturnValue = statusSubject.eraseToAnyPublisher()
-        billingService.premiumUpgradeLifecycleStateReturnValue = .pending
-        let subject = DefaultPremiumUpgradeHelper(
-            services: ServiceContainer.withMocks(
-                billingRepository: billingRepository,
-                billingService: billingService,
-                environmentService: environmentService,
-            ),
-            coordinator: coordinator.asAnyCoordinator(),
-            setURL: { _ in },
-        )
-
-        subject.startInAppPremiumUpgrade()
-
-        try await waitForAsync { !coordinator.alertShown.isEmpty }
-        #expect(coordinator.alertShown.last?.title == Localizations.upgradePending)
-        #expect(coordinator.routes.last != .premiumUpgrade)
-    }
-
-    /// `startInAppPremiumUpgrade(onConfirmed:)` calls `onPendingDismiss` when it shows the
-    /// upgrade pending alert directly, matching the cleanup already done when `.pending` arrives
-    /// mid-checkout (e.g. dismissing the Vault tab's action card).
-    @Test
-    func startInAppPremiumUpgrade_pendingAlert_callsOnPendingDismiss() async throws {
-        let statusSubject = PassthroughSubject<PremiumCheckoutStatus, Never>()
-        billingService.premiumCheckoutStatusPublisherReturnValue = statusSubject.eraseToAnyPublisher()
-        billingService.premiumUpgradeLifecycleStateReturnValue = .pending
-        var onPendingDismissCalled = false
-        let subject = makeSubject(onPendingDismiss: { onPendingDismissCalled = true })
-
-        subject.startInAppPremiumUpgrade()
-
-        try await waitForAsync { onPendingDismissCalled }
-    }
-
-    /// `startInAppPremiumUpgrade(onConfirmed:)`, having shown the pending alert directly without
-    /// navigating anywhere, does not try to dismiss anything if the "Sync Now" retry it triggers
-    /// also comes back `.pending` — there's no Premium upgrade screen to dismiss, since none was
-    /// ever opened. Re-shows the alert directly instead.
-    @Test
-    func startInAppPremiumUpgrade_pendingAlert_retryStillPending_doesNotDismiss() async throws {
-        let statusSubject = PassthroughSubject<PremiumCheckoutStatus, Never>()
-        billingService.premiumCheckoutStatusPublisherReturnValue = statusSubject.eraseToAnyPublisher()
-        billingService.premiumUpgradeLifecycleStateReturnValue = .pending
-        let subject = makeSubject()
-
-        subject.startInAppPremiumUpgrade()
-        try await waitForAsync { !coordinator.alertShown.isEmpty }
-
-        statusSubject.send(.pending)
-
-        try await waitForAsync { coordinator.alertShown.count == 2 }
-        #expect(coordinator.alertShown.last?.title == Localizations.upgradePending)
-        #expect(coordinator.routes.isEmpty)
-    }
-
-    /// The pending alert's "Sync Now" retries via `retryPendingUpgrade()`, not
-    /// `premiumCheckoutSucceeded()`. The alert is reachable without a preceding checkout — an
-    /// upgrade tap while already pending shows it too — and `premiumCheckoutSucceeded()` marks the
-    /// account pending, which would latch a user who never purchased out of the upgrade path for good.
-    @Test
-    func startInAppPremiumUpgrade_pendingAlert_syncNow_retriesWithoutMarkingPending() async throws {
-        let statusSubject = PassthroughSubject<PremiumCheckoutStatus, Never>()
-        billingService.premiumCheckoutStatusPublisherReturnValue = statusSubject.eraseToAnyPublisher()
-        billingService.premiumUpgradeLifecycleStateReturnValue = .pending
-        let subject = makeSubject()
-
-        subject.startInAppPremiumUpgrade()
-        try await waitForAsync { !coordinator.alertShown.isEmpty }
-
-        try await coordinator.alertShown.last?.tapAction(title: Localizations.syncNow)
-
-        #expect(billingService.retryPendingUpgradeCalled)
-        #expect(!billingService.premiumCheckoutSucceededCalled)
     }
 
     // MARK: Tests — subscribeToPremiumCheckoutStatus
@@ -240,7 +135,6 @@ struct PremiumUpgradeHelperTests { // swiftlint:disable:this type_body_length
             setURL: { _ in },
         )
         await subject.navigateToPremiumUpgrade()
-        try await waitForAsync { coordinator.routes.last == .premiumUpgrade }
         let routeCountBeforeSend = coordinator.routes.count
 
         statusSubject.send(.canceled)
@@ -270,7 +164,6 @@ struct PremiumUpgradeHelperTests { // swiftlint:disable:this type_body_length
         await subject.navigateToPremiumUpgrade(onConfirmed: {
             onConfirmedCalled = true
         })
-        try await waitForAsync { coordinator.routes.last == .premiumUpgrade }
 
         statusSubject.send(.confirmed)
 
@@ -295,7 +188,6 @@ struct PremiumUpgradeHelperTests { // swiftlint:disable:this type_body_length
             setURL: { _ in },
         )
         await subject.navigateToPremiumUpgrade()
-        try await waitForAsync { coordinator.routes.last == .premiumUpgrade }
 
         statusSubject.send(.pending)
 
@@ -322,7 +214,6 @@ struct PremiumUpgradeHelperTests { // swiftlint:disable:this type_body_length
         var onPendingDismissCalled = false
         let subject = makeSubject(onPendingDismiss: { onPendingDismissCalled = true })
         await subject.navigateToPremiumUpgrade()
-        try await waitForAsync { coordinator.routes.last == .premiumUpgrade }
 
         statusSubject.send(.pending)
 
@@ -338,27 +229,16 @@ struct PremiumUpgradeHelperTests { // swiftlint:disable:this type_body_length
         #expect(onPendingDismissCalled)
     }
 
-    /// When the billing service emits `.pending` a second time after the first `.pending`'s
-    /// dismiss action already ran, the coordinator does not dismiss again — there's no longer a
-    /// Premium upgrade screen on the stack to dismiss, since the first `.pending` already closed
-    /// it. The pending alert is shown directly instead.
+    /// The upgrade pending alert's "Sync Now" retries via `retryPendingUpgrade()`, not
+    /// `premiumCheckoutSucceeded()`, which would mark the upgrade pending again, or
+    /// `premiumStatusChanged()`, which publishes no checkout status for the alert to react to.
     @Test
-    func subscribeToPremiumCheckoutStatus_pending_secondPendingAfterDismiss_doesNotDismissAgain() async throws {
+    func subscribeToPremiumCheckoutStatus_pending_syncNow_retriesPendingUpgrade() async throws {
         billingRepository.isInAppUpgradeAvailableReturnValue = true
         let statusSubject = PassthroughSubject<PremiumCheckoutStatus, Never>()
         billingService.premiumCheckoutStatusPublisherReturnValue = statusSubject.eraseToAnyPublisher()
-        let subject = DefaultPremiumUpgradeHelper(
-            services: ServiceContainer.withMocks(
-                billingRepository: billingRepository,
-                billingService: billingService,
-                environmentService: environmentService,
-            ),
-            coordinator: coordinator.asAnyCoordinator(),
-            setURL: { _ in },
-        )
+        let subject = makeSubject()
         await subject.navigateToPremiumUpgrade()
-        try await waitForAsync { coordinator.routes.last == .premiumUpgrade }
-
         statusSubject.send(.pending)
         try await waitForAsync {
             guard case let .dismiss(action) = coordinator.routes.last else { return false }
@@ -369,15 +249,12 @@ struct PremiumUpgradeHelperTests { // swiftlint:disable:this type_body_length
             return
         }
         action?.action()
-        try await waitForAsync { coordinator.alertShown.count == 1 }
 
-        statusSubject.send(.pending)
+        try await coordinator.alertShown.last?.tapAction(title: Localizations.syncNow)
 
-        try await waitForAsync { coordinator.alertShown.count == 2 }
-        #expect(coordinator.routes.count(where: { route in
-            guard case .dismiss = route else { return false }
-            return true
-        }) == 1)
+        #expect(billingService.retryPendingUpgradeCalled)
+        #expect(!billingService.premiumCheckoutSucceededCalled)
+        #expect(!billingService.premiumStatusChangedCalled)
     }
 
     /// When the billing service emits `.syncing`, nothing happens (the loading overlay is shown
@@ -397,7 +274,6 @@ struct PremiumUpgradeHelperTests { // swiftlint:disable:this type_body_length
             setURL: { _ in },
         )
         await subject.navigateToPremiumUpgrade()
-        try await waitForAsync { coordinator.routes.last == .premiumUpgrade }
         let routeCountBeforeSend = coordinator.routes.count
 
         statusSubject.send(.syncing)
