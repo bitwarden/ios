@@ -251,7 +251,7 @@ class VaultItemCoordinator: NSObject, Coordinator, HasStackNavigator { // swiftl
             services: services,
             state: state,
         )
-        stackNavigator?.present(AttachmentPreviewView(store: Store(processor: processor)), overFullscreen: true)
+        stackNavigator?.present(AttachmentPreviewView(store: Store(processor: processor)))
     }
 
     /// Shows the attachments screen.
