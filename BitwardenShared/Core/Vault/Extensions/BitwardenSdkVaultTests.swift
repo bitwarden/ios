@@ -40,6 +40,7 @@ class BitwardenSdkVaultAttachmentViewTests: BitwardenTestCase {
     /// `fileExtension` returns `nil` when the file name has no extension or is `nil`.
     func test_fileExtension_nil() {
         XCTAssertNil(AttachmentView.fixture(fileName: "photo").fileExtension)
+        XCTAssertNil(AttachmentView.fixture(fileName: "photo.").fileExtension)
         XCTAssertNil(AttachmentView.fixture(fileName: nil).fileExtension)
     }
 
@@ -68,6 +69,7 @@ class BitwardenSdkVaultAttachmentViewTests: BitwardenTestCase {
     func test_isImage_false() {
         XCTAssertFalse(AttachmentView.fixture(fileName: "statement.pdf").isImage)
         XCTAssertFalse(AttachmentView.fixture(fileName: "photo").isImage)
+        XCTAssertFalse(AttachmentView.fixture(fileName: "photo.png.").isImage)
         XCTAssertFalse(AttachmentView.fixture(fileName: nil).isImage)
     }
 }
