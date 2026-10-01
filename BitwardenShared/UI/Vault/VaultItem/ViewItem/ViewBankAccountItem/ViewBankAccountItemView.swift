@@ -40,6 +40,7 @@ struct ViewBankAccountItemView: View {
                         valueAccessibilityIdentifier: "BankAccountRoutingNumberEntry",
                         copyButtonAccessibilityIdentifier: "BankAccountCopyRoutingNumberButton",
                         copyField: .routingNumber,
+                        spellOutAccessibilityValue: true,
                     )
 
                     copyableTextField(
@@ -48,6 +49,7 @@ struct ViewBankAccountItemView: View {
                         valueAccessibilityIdentifier: "BankAccountBranchNumberEntry",
                         copyButtonAccessibilityIdentifier: "BankAccountCopyBranchNumberButton",
                         copyField: .branchNumber,
+                        spellOutAccessibilityValue: true,
                     )
 
                     pinItem
@@ -58,6 +60,7 @@ struct ViewBankAccountItemView: View {
                         valueAccessibilityIdentifier: "BankAccountSwiftCodeEntry",
                         copyButtonAccessibilityIdentifier: "BankAccountCopySwiftCodeButton",
                         copyField: .swiftCode,
+                        spellOutAccessibilityValue: true,
                     )
 
                     ibanItem
@@ -94,13 +97,16 @@ struct ViewBankAccountItemView: View {
         let isVisible = store.state.isAccountNumberVisible
         if !accountNumber.isEmpty {
             BitwardenField(title: Localizations.accountNumber) {
-                PasswordText(password: accountNumber, isPasswordVisible: isVisible)
+                PasswordText(password: accountNumber, isPasswordVisible: isVisible, spellOutAccessibilityValue: true)
                     .styleGuide(.body)
                     .foregroundColor(SharedAsset.Colors.textPrimary.swiftUIColor)
                     .accessibilityIdentifier("BankAccountNumberEntry")
             } accessoryContent: {
                 PasswordVisibilityButton(
                     accessibilityIdentifier: "ShowBankAccountNumberButton",
+                    accessibilityLabel: isVisible
+                        ? Localizations.fieldValueIsVisibleTapToHide(Localizations.accountNumber)
+                        : Localizations.fieldValueIsNotVisibleTapToShow(Localizations.accountNumber),
                     isPasswordVisible: isVisible,
                 ) {
                     store.send(.bankAccountItemAction(.toggleAccountNumberVisibilityChanged(!isVisible)))
@@ -125,13 +131,16 @@ struct ViewBankAccountItemView: View {
         let isVisible = store.state.isIbanVisible
         if !iban.isEmpty {
             BitwardenField(title: Localizations.iban) {
-                PasswordText(password: iban, isPasswordVisible: isVisible)
+                PasswordText(password: iban, isPasswordVisible: isVisible, spellOutAccessibilityValue: true)
                     .styleGuide(.body)
                     .foregroundColor(SharedAsset.Colors.textPrimary.swiftUIColor)
                     .accessibilityIdentifier("BankAccountIbanEntry")
             } accessoryContent: {
                 PasswordVisibilityButton(
                     accessibilityIdentifier: "ShowBankAccountIbanButton",
+                    accessibilityLabel: isVisible
+                        ? Localizations.fieldValueIsVisibleTapToHide(Localizations.iban)
+                        : Localizations.fieldValueIsNotVisibleTapToShow(Localizations.iban),
                     isPasswordVisible: isVisible,
                 ) {
                     store.send(.bankAccountItemAction(.toggleIbanVisibilityChanged(!isVisible)))
@@ -156,13 +165,16 @@ struct ViewBankAccountItemView: View {
         let isVisible = store.state.isPinVisible
         if !pin.isEmpty {
             BitwardenField(title: Localizations.pin) {
-                PasswordText(password: pin, isPasswordVisible: isVisible)
+                PasswordText(password: pin, isPasswordVisible: isVisible, spellOutAccessibilityValue: true)
                     .styleGuide(.body)
                     .foregroundColor(SharedAsset.Colors.textPrimary.swiftUIColor)
                     .accessibilityIdentifier("BankAccountPinEntry")
             } accessoryContent: {
                 PasswordVisibilityButton(
                     accessibilityIdentifier: "ShowBankAccountPinButton",
+                    accessibilityLabel: isVisible
+                        ? Localizations.fieldValueIsVisibleTapToHide(Localizations.pin)
+                        : Localizations.fieldValueIsNotVisibleTapToShow(Localizations.pin),
                     isPasswordVisible: isVisible,
                 ) {
                     store.send(.bankAccountItemAction(.togglePinVisibilityChanged(!isVisible)))
@@ -189,6 +201,8 @@ struct ViewBankAccountItemView: View {
     ///   - valueAccessibilityIdentifier: The accessibility identifier for the value.
     ///   - copyButtonAccessibilityIdentifier: The accessibility identifier for the copy button.
     ///   - copyField: The field identifying the value being copied.
+    ///   - spellOutAccessibilityValue: Whether VoiceOver should announce the value's characters
+    ///     individually rather than using its default heuristics for the rendered text.
     ///
     @ViewBuilder
     private func copyableTextField(
@@ -197,12 +211,14 @@ struct ViewBankAccountItemView: View {
         valueAccessibilityIdentifier: String,
         copyButtonAccessibilityIdentifier: String,
         copyField: CopyableField,
+        spellOutAccessibilityValue: Bool = false,
     ) -> some View {
         if !value.isEmpty {
             BitwardenTextValueField(
                 title: title,
                 value: value,
                 valueAccessibilityIdentifier: valueAccessibilityIdentifier,
+                spellOutAccessibilityValue: spellOutAccessibilityValue,
                 copyButtonAccessibilityIdentifier: copyButtonAccessibilityIdentifier,
                 copyButtonAction: { store.send(.copyPressed(value: value, field: copyField)) },
             )
