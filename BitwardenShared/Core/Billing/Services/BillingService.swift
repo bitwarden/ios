@@ -12,13 +12,11 @@ protocol BillingService: AnyObject { // sourcery: AutoMockable
     /// The callback URL scheme used by the Stripe checkout web authentication session.
     var checkoutCallbackUrlScheme: String { get }
 
-    /// If the account has a Premium upgrade pending, completes it once the personally purchased
-    /// Premium arrives — clearing the pending flag and revealing the "Upgraded to Premium"
-    /// action card. Does nothing otherwise, so this can safely run after every sync.
+    /// Clears the account's pending Premium upgrade and reveals the "Upgraded to Premium" action
+    /// card once the personally purchased Premium has arrived. Does nothing for an account with no
+    /// pending upgrade, so this can safely run after every sync.
     ///
-    /// This is the only place a pending upgrade completes, including for the sync that
-    /// `premiumCheckoutSucceeded()` and `retryPendingUpgrade()` run, so call it after every
-    /// successful sync.
+    /// This is the only place a pending upgrade completes.
     ///
     /// - Parameters:
     ///   - userId: The account to complete the pending upgrade for.
@@ -71,15 +69,10 @@ protocol BillingService: AnyObject { // sourcery: AutoMockable
     ///
     func premiumCheckoutStatusPublisher() -> AnyPublisher<PremiumCheckoutStatus, Never>
 
-    /// Notifies that the user completed payment in the Stripe checkout. Marks the active account's
-    /// upgrade pending, then publishes `.syncing`, force-syncs, and publishes `.confirmed` if the
-    /// sync succeeded and the account has personal Premium, or `.pending` otherwise. Does nothing
-    /// if the account isn't eligible for the Premium upgrade path.
-    ///
-    /// This never clears the pending flag or reveals the "Upgraded to Premium" action card;
-    /// `completeUpgradeIfPending(userId:)` does both when the sync succeeds. If the sync doesn't
-    /// land Premium, the upgrade stays pending for a later sync to complete. If the active
-    /// account can't be resolved, the error is logged and `.pending` is published.
+    /// Notifies that the user completed payment in the Stripe checkout, marking the active
+    /// account's upgrade pending, then force-syncing and publishing `.confirmed` or `.pending`.
+    /// Does nothing if the account isn't eligible for the Premium upgrade path. The upgrade stays
+    /// pending until a sync reports the purchased Premium.
     ///
     /// Marking the upgrade pending asserts that a purchase was made, so only call this after
     /// observing a successful Stripe callback. Use `retryPendingUpgrade()` for a user-initiated
@@ -89,8 +82,7 @@ protocol BillingService: AnyObject { // sourcery: AutoMockable
 
     /// Notifies that a `premiumStatusChanged` push notification arrived, and force-syncs the
     /// active account. The sync's own completion handling reconciles a pending upgrade and
-    /// refreshes the subscription attention card; this publishes no checkout status and shows no
-    /// UI of its own.
+    /// refreshes the subscription attention card; this publishes no checkout status.
     ///
     /// This always syncs, whichever account the push names and whether or not the account already
     /// has Premium or is eligible for the Premium upgrade path. The server sends this push for
@@ -125,16 +117,9 @@ protocol BillingService: AnyObject { // sourcery: AutoMockable
     ///
     func refreshSubscriptionAttentionCard(subscription: PremiumSubscription?) async
 
-    /// Retries an upgrade that is already pending: publishes `.syncing`, force-syncs, and
-    /// publishes `.confirmed` if the sync succeeded and the active account has personal Premium,
-    /// or `.pending` otherwise. Does nothing if the account isn't eligible for the Premium
-    /// upgrade path. If the active account can't be resolved, the error is logged and `.pending`
-    /// is published.
-    ///
-    /// Unlike `premiumCheckoutSucceeded()`, this never marks an upgrade pending, so it is safe to
-    /// call for a user-initiated retry that may not follow a real checkout. Like it, this never
-    /// clears the pending flag or reveals the "Upgraded to Premium" action card;
-    /// `completeUpgradeIfPending(userId:)` does both when the sync succeeds.
+    /// Retries an upgrade that is already pending. Like `premiumCheckoutSucceeded()`, but never
+    /// marks an upgrade pending, so it's safe for a user-initiated retry that may not follow a
+    /// real checkout.
     ///
     func retryPendingUpgrade() async
 
@@ -449,11 +434,10 @@ class DefaultBillingService: BillingService {
 
     // MARK: Private Methods
 
-    /// Reports whether the active account is eligible to participate in the Premium upgrade path
-    /// at all (self-hosted/feature-flag gated), independent of whether Premium has already been
-    /// granted.
+    /// Reports whether the Premium upgrade path is available: not self-hosted, and the
+    /// `premiumUpgradePath` feature flag is enabled.
     ///
-    /// - Returns: Whether the active account is eligible for the Premium upgrade path.
+    /// - Returns: Whether the Premium upgrade path is available.
     ///
     private func isEligibleForPremiumUpgradePath() async -> Bool {
         guard await !isSelfHosted(),
@@ -468,11 +452,9 @@ class DefaultBillingService: BillingService {
     /// purchased Premium: `.confirmed` if the sync succeeded and the account has personal
     /// Premium, and `.pending` if the sync threw or the account has no personal Premium.
     ///
-    /// This only reads. Clearing the pending flag and revealing the "Upgraded to Premium" action
-    /// card belong to `completeUpgradeIfPending(userId:)`, which the sync runs on success before
-    /// returning. The outcome is decided from the sync result and personal Premium alone, not the
-    /// pending flag, so a failed pending write can't leave the waiting overlay without a result,
-    /// and organization-granted Premium can't pass for the purchase landing.
+    /// The outcome is decided from the sync result and personal Premium alone, not the pending
+    /// flag, so a failed pending write can't leave the waiting overlay without a result, and
+    /// organization-granted Premium can't pass for the purchase landing.
     ///
     /// - Parameters:
     ///   - userId: The account whose purchased Premium to check for after the sync.

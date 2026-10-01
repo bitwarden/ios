@@ -20,10 +20,8 @@ final class PremiumUpgradeStateStore {
 }
 
 extension MockStateService {
-    /// Sets whether an account has Premium it purchased personally, updating both the personal
-    /// and the inclusive accessors. A pending upgrade completes on *personal* Premium, while the
-    /// derived `PremiumUpgradeLifecycleState` consults both, so a test simulating a purchase landing has
-    /// to move the two together or the mock describes an account that can't exist.
+    /// Sets both the personal and inclusive Premium accessors, so a simulated purchase can't leave
+    /// the mock with personal Premium but no Premium.
     ///
     /// - Parameters:
     ///   - hasPremium: Whether the account has personally-purchased Premium.
@@ -37,6 +35,11 @@ extension MockStateService {
 
 extension MockBillingStateService {
     /// Wires this mock's premium-upgrade-pending methods to per-user-id backing storage.
+    ///
+    /// - Parameters:
+    ///   - stateService: The state service used to resolve a `nil` user ID to the active account.
+    /// - Returns: The backing storage, for tests to seed and inspect.
+    ///
     func setUpPremiumUpgradeState(stateService: MockStateService) -> PremiumUpgradeStateStore {
         let state = PremiumUpgradeStateStore()
 
@@ -63,7 +66,7 @@ extension MockBillingStateService {
 
 // MARK: - BillingServicePremiumUpgradePendingTests
 
-/// Tests for the `BillingService` methods that persist and complete a pending Premium upgrade.
+/// Tests for the `BillingService` methods that track whether a Premium upgrade is pending.
 ///
 @MainActor
 struct BillingServicePremiumUpgradePendingTests { // swiftlint:disable:this type_body_length
@@ -108,8 +111,9 @@ struct BillingServicePremiumUpgradePendingTests { // swiftlint:disable:this type
 
     // MARK: completeUpgradeIfPending
 
-    /// `completeUpgradeIfPending(userId:)` completes the account named by its parameter, not
-    /// whichever account happens to be active — the sync it runs after belongs to that account.
+    /// `completeUpgradeIfPending(userId:)` clears the pending flag for the account named by its
+    /// parameter, not whichever account happens to be active — the sync it follows belongs to
+    /// that account.
     @Test
     func completeUpgradeIfPending_completesGivenAccountNotActiveAccount() async {
         stateService.activeAccount = .fixture(profile: .fixture(userId: "2"))
@@ -123,9 +127,8 @@ struct BillingServicePremiumUpgradePendingTests { // swiftlint:disable:this type
         #expect(premiumUpgradeStorage.pendingByUserId["2"] == nil)
     }
 
-    /// `completeUpgradeIfPending(userId:)` completes a pending upgrade on a later, unrelated sync —
-    /// not just the sync that originated the checkout attempt. This is QA's "delayed sync" case:
-    /// Settings > Vault > Sync Now, or a sync triggered from the web vault.
+    /// `completeUpgradeIfPending(userId:)` clears the pending flag once the purchased Premium has
+    /// arrived — the sync that finally reports it may be any later sync, not the checkout's own.
     @Test
     func completeUpgradeIfPending_completesPendingUpgradeOnDelayedSync() async {
         premiumUpgradeStorage.pendingByUserId["1"] = true
@@ -144,9 +147,8 @@ struct BillingServicePremiumUpgradePendingTests { // swiftlint:disable:this type
         #expect(premiumUpgradeStorage.upgradedToPremiumCardVisibleByUserId["1"] == true)
     }
 
-    /// `completeUpgradeIfPending(userId:)` leaves an account with no pending upgrade untouched, so
-    /// a routine sync for a long-since-Premium or free account never spuriously shows the
-    /// "Upgraded to Premium" card.
+    /// `completeUpgradeIfPending(userId:)` writes nothing for an account with no pending upgrade,
+    /// so a routine sync for a long-since-Premium or free account never touches the flag.
     @Test
     func completeUpgradeIfPending_withNoPendingUpgrade_doesNothing() async {
         stateService.setPersonalPremium(true, userId: "1")
@@ -158,8 +160,8 @@ struct BillingServicePremiumUpgradePendingTests { // swiftlint:disable:this type
     }
 
     /// `completeUpgradeIfPending(userId:)` doesn't treat organization-granted Premium as the
-    /// personal purchase landing: the pending flag is only ever set by a personal checkout, so an
-    /// organization grant arriving mid-flight must leave the upgrade pending and the card hidden.
+    /// personal purchase landing: the flag is only ever set by a personal checkout, so an
+    /// organization grant arriving mid-flight must leave the upgrade pending.
     @Test
     func completeUpgradeIfPending_withOrganizationPremiumOnly_staysPending() async {
         premiumUpgradeStorage.pendingByUserId["1"] = true
@@ -172,8 +174,8 @@ struct BillingServicePremiumUpgradePendingTests { // swiftlint:disable:this type
         #expect(premiumUpgradeStorage.upgradedToPremiumCardVisibleByUserId["1"] == nil)
     }
 
-    /// `completeUpgradeIfPending(userId:)` logs the error and leaves persisted state alone when
-    /// reading the pending flag throws.
+    /// `completeUpgradeIfPending(userId:)` logs the error and writes nothing when reading the
+    /// pending flag throws.
     @Test
     func completeUpgradeIfPending_withReadError_logsError() async {
         billingStateService.getPremiumUpgradePendingClosure = { _ in
@@ -186,8 +188,8 @@ struct BillingServicePremiumUpgradePendingTests { // swiftlint:disable:this type
         #expect(premiumUpgradeStorage.pendingByUserId["1"] == nil)
     }
 
-    /// `completeUpgradeIfPending(userId:)` logs the error and leaves the card hidden when clearing
-    /// the pending flag throws — the card is only revealed alongside a successful clear.
+    /// `completeUpgradeIfPending(userId:)` logs the error and doesn't reveal the card when clearing
+    /// the pending flag throws.
     @Test
     func completeUpgradeIfPending_withWriteError_logsError() async {
         premiumUpgradeStorage.pendingByUserId["1"] = true
@@ -229,9 +231,8 @@ struct BillingServicePremiumUpgradePendingTests { // swiftlint:disable:this type
     }
 
     /// `premiumCheckoutSucceeded()` marks the upgrade pending, force-syncs, and publishes
-    /// `.confirmed` when the sync lands personal Premium. It only reads after the sync: clearing
-    /// the flag and revealing the card belong to `completeUpgradeIfPending(userId:)`, and the
-    /// attention card refresh belongs to the sync's own completion handling.
+    /// `.confirmed` when the sync lands personal Premium, leaving the flag and cards to the sync's
+    /// completion handling.
     @Test
     func premiumCheckoutSucceeded_confirmed() async throws {
         stateService.setPersonalPremium(false, userId: "1")
@@ -374,9 +375,7 @@ struct BillingServicePremiumUpgradePendingTests { // swiftlint:disable:this type
     }
 
     /// `premiumCheckoutSucceeded()` logs the error, still syncs, and still publishes `.pending`
-    /// when marking the upgrade pending throws and the sync doesn't land Premium. The result
-    /// doesn't depend on the pending flag, so a failed write can't leave the waiting overlay
-    /// without a result.
+    /// when marking the upgrade pending throws and the sync doesn't land Premium.
     @Test
     func premiumCheckoutSucceeded_withWriteError_logsErrorAndPublishesPending() async throws {
         stateService.setPersonalPremium(false, userId: "1")
@@ -423,8 +422,8 @@ struct BillingServicePremiumUpgradePendingTests { // swiftlint:disable:this type
     // MARK: retryPendingUpgrade
 
     /// `retryPendingUpgrade()` force-syncs and publishes `.confirmed` when its sync finds the
-    /// purchased Premium — the "Sync Now" retry succeeding on a real upgrade. It only reads:
-    /// clearing the flag and revealing the card belong to `completeUpgradeIfPending(userId:)`.
+    /// purchased Premium — the "Sync Now" retry succeeding on a real upgrade — leaving the flag
+    /// and cards to the sync's completion handling.
     @Test
     func retryPendingUpgrade_confirmed() async throws {
         premiumUpgradeStorage.pendingByUserId["1"] = true

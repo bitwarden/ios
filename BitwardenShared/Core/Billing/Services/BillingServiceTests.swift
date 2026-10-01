@@ -12,7 +12,7 @@ import Testing
 // swiftlint:disable file_length
 
 /// Tests for the `BillingService` methods that don't touch cached billing state — checkout,
-/// subscription/plan lookups, self-hosted detection, and premium status change reconciliation.
+/// subscription/plan lookups, self-hosted detection, and the `premiumStatusChanged` push handler.
 @MainActor
 struct BillingServiceTests { // swiftlint:disable:this type_body_length
     // MARK: Properties
@@ -306,8 +306,6 @@ struct BillingServiceTests { // swiftlint:disable:this type_body_length
         try await waitForAsync { !statuses.isEmpty }
         #expect(statuses == [.canceled])
 
-        // A subscriber attaching after `.canceled` was sent should receive only statuses sent
-        // afterward, since the subject doesn't replay.
         var lateStatuses = [PremiumCheckoutStatus]()
         let lateCancellable = subject.premiumCheckoutStatusPublisher()
             .sink { lateStatuses.append($0) }
@@ -374,7 +372,7 @@ struct BillingServiceTests { // swiftlint:disable:this type_body_length
     }
 
     /// `premiumStatusChanged()` force-syncs a self-hosted account — self-hosted license changes
-    /// send this push without bumping the account revision date, so it's their main signal.
+    /// send this push without bumping the account revision date.
     @Test
     func premiumStatusChanged_selfHosted_forceSyncs() async {
         environmentService.region = .selfHosted
