@@ -162,9 +162,9 @@ extension CardComponent.Brand {
 
 extension CardComponent.Brand: CaseIterable {}
 extension CardComponent.Brand: Menuable {
-    /// default state title for title type
+    /// The default placeholder shown when no card brand is selected.
     static var defaultValueLocalizedName: String {
-        "--\(Localizations.select)--"
+        Localizations.none
     }
 
     /// Provides a localized string representation of the card brand.
@@ -290,9 +290,9 @@ extension CardComponent.Brand {
 
 extension CardComponent.Month: CaseIterable {}
 extension CardComponent.Month: Menuable {
-    /// default state title for title type
+    /// The default placeholder shown when no expiration month is selected.
     static var defaultValueLocalizedName: String {
-        "--\(Localizations.select)--"
+        Localizations.none
     }
 
     var localizedName: String {

@@ -474,6 +474,9 @@ struct VaultListView: View {
         .task {
             await store.perform(.streamShowWebIcons)
         }
+        .task {
+            await store.perform(.streamSyncComplete)
+        }
         .onAppear { restartVaultListStream() }
         .onChange(of: store.state.vaultFilterType) { _ in restartVaultListStream() }
         .onDisappear {
@@ -541,7 +544,7 @@ struct VaultListView: View {
                 processor: StateProcessor(
                     state: VaultListState(
                         loadingState: .error(
-                            errorMessage: Localizations.weAreUnableToProcessYourRequestPleaseTryAgainOrContactUs,
+                            errorMessage: Localizations.weCouldntSyncYourVaultWithTheServerDescriptionLong,
                         ),
                     ),
                 ),

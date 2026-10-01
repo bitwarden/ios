@@ -1,4 +1,5 @@
 // swiftlint:disable:this file_name
+// swiftlint:disable file_length
 import BitwardenKit
 import BitwardenKitMocks
 import BitwardenResources
@@ -12,6 +13,8 @@ import XCTest
 @testable import BitwardenSharedMocks
 
 // MARK: - VaultListViewTests
+
+// swiftlint:disable file_length
 
 class VaultListViewTests: BitwardenTestCase { // swiftlint:disable:this type_body_length
     // MARK: Properties
@@ -30,6 +33,7 @@ class VaultListViewTests: BitwardenTestCase { // swiftlint:disable:this type_bod
             userInitials: "AA",
         )
         let state = VaultListState(
+            itemTypesUserCanCreate: CipherType.canCreateCases,
             profileSwitcherState: ProfileSwitcherState(
                 accounts: [account],
                 activeAccountId: account.userId,
@@ -360,7 +364,7 @@ class VaultListViewTests: BitwardenTestCase { // swiftlint:disable:this type_bod
     @MainActor
     func test_tryAgainButton_tap() async throws {
         processor.state.loadingState = .error(
-            errorMessage: Localizations.weAreUnableToProcessYourRequestPleaseTryAgainOrContactUs,
+            errorMessage: Localizations.weCouldntSyncYourVaultWithTheServerDescriptionLong,
         )
         let button = try subject.inspect().find(asyncButton: Localizations.tryAgain)
         try await button.tap()

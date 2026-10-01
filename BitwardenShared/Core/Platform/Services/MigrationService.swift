@@ -295,6 +295,20 @@ class DefaultMigrationService {
             appGroupUserDefaults.removeObject(forKey: accountKeysStorageKey)
         }
     }
+
+    /// Performs migration 7.
+    ///
+    /// Notes:
+    ///  - Removes the legacy `masterKeyEncryptedUserKey` value. It's no longer read now that the
+    ///    master-key-wrapped user key is sourced from `MasterPasswordUnlockResponseModel`.
+    ///
+    private func performMigration7() async throws {
+        guard let state = appSettingsStore.state else { return }
+
+        for (accountId, _) in state.accounts {
+            appGroupUserDefaults.removeObject(forKey: "bwPreferencesStorage:masterKeyEncryptedUserKey_\(accountId)")
+        }
+    }
 }
 
 extension DefaultMigrationService {
@@ -307,6 +321,7 @@ extension DefaultMigrationService {
             performMigration4,
             performMigration5,
             performMigration6,
+            performMigration7,
         ]
     }
 

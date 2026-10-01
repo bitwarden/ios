@@ -2,6 +2,8 @@ import BitwardenKit
 import BitwardenKitMocks
 import struct BitwardenSdk.EnrollPinResponse
 import struct BitwardenSdk.ServerCommunicationConfig
+import struct BitwardenSdk.V2UpgradeToken
+import enum BitwardenSdk.WrappedAccountCryptographicState
 import Combine
 import Foundation
 
@@ -10,7 +12,7 @@ import Foundation
 
 class MockStateService: StateService, ActiveAccountStateProvider, AutofillStateService, ServerCommunicationConfigStateService { // swiftlint:disable:this type_body_length line_length
     var accessTokenExpirationDateByUserId = [String: Date]()
-    var accountEncryptionKeys = [String: AccountEncryptionKeys]()
+    var accountCryptographicStates = [String: WrappedAccountCryptographicState]()
     var accountSetupAutofill = [String: AccountSetupProgress]()
     var accountSetupAutofillError: Error?
     var accountSetupImportLogins = [String: AccountSetupProgress]()
@@ -33,12 +35,6 @@ class MockStateService: StateService, ActiveAccountStateProvider, AutofillStateS
     var appRehydrationState = [String: AppRehydrationState]()
     var appTheme: AppTheme?
     var archiveOnboardingShown = false
-    var premiumUpgradeBannerDismissedByUserId = [String: Bool]()
-    var premiumUpgradeBannerDismissedResult: Result<Void, Error> = .success(())
-    var setSubscriptionAttentionCardResult: Result<Void, Error> = .success(())
-    var setUpgradedToPremiumActionCardResult: Result<Void, Error> = .success(())
-    var subscriptionAttentionCardVisibleResult: Bool = false
-    var upgradedToPremiumActionCardVisibleResult: Bool = false
     var biometricsEnabled = [String: Bool]()
     var capturedUserId: String?
     var clearClipboardValues = [String: ClearClipboardValue]()
@@ -57,6 +53,8 @@ class MockStateService: StateService, ActiveAccountStateProvider, AutofillStateS
     var defaultUriMatchTypeByUserId = [String: UriMatchType]()
     var didAccountSwitchInExtensionResult: Result<Bool, Error> = .success(false)
     var disableAutoTotpCopyByUserId = [String: Bool]()
+    var doesAccountHavePremiumByUserId = [String: Bool]()
+    var doesAccountHavePremiumPersonallyByUserId = [String: Bool]()
     var doesActiveAccountHavePremiumCalled = false
     var fillAssistEnabledByUserId = [String: Bool]()
     var getFillAssistEnabledError: Error?
@@ -77,13 +75,11 @@ class MockStateService: StateService, ActiveAccountStateProvider, AutofillStateS
     var isAuthenticated = [String: Bool]()
     var isAuthenticatedError: Error?
     var isInitialSyncRequiredByUserId = [String: Bool]()
-    var isPremiumUpgradeBannerDismissedResult: Bool = false
-    var isPremiumUpgradeEligibleResult: Bool = false
     var learnGeneratorActionCardStatus: AccountSetupProgress?
     var learnNewLoginActionCardStatus: AccountSetupProgress?
     var loginRequest: LoginRequestNotification?
     var logoutAccountUserInitiated = false
-    var getAccountEncryptionKeysError: Error?
+    var getAccountCryptographicStateError: Error?
     // swiftlint:disable:next identifier_name
     var getAccountHasBeenUnlockedInteractivelyResult: Result<Bool, Error> = .success(false)
     var getActiveAccountIdError: Error?
@@ -143,6 +139,7 @@ class MockStateService: StateService, ActiveAccountStateProvider, AutofillStateS
     var userIds = [String]()
     var usernameGenerationOptions = [String: UsernameGenerationOptions]()
     var usesKeyConnector = [String: Bool]()
+    var v2UpgradeTokens = [String: V2UpgradeToken]()
 
     lazy var activeIdSubject = CurrentValueSubject<String?, Never>(self.activeAccount?.profile.userId)
     lazy var appThemeSubject = CurrentValueSubject<AppTheme, Never>(self.appTheme ?? .default)
@@ -201,26 +198,32 @@ class MockStateService: StateService, ActiveAccountStateProvider, AutofillStateS
         try didAccountSwitchInExtensionResult.get()
     }
 
-    func doesActiveAccountHavePremium() async -> Bool {
-        doesActiveAccountHavePremiumCalled = true
-        return doesActiveAccountHavePremiumResult
+    func doesAccountHavePremium(userId: String?) async -> Bool {
+        guard let userId else {
+            doesActiveAccountHavePremiumCalled = true
+            return doesActiveAccountHavePremiumResult
+        }
+        return doesAccountHavePremiumByUserId[userId] ?? doesActiveAccountHavePremiumResult
     }
 
-    func doesActiveAccountHavePremiumPersonally() async -> Bool {
-        doesActiveAccountHavePremiumPersonallyCalled = true
-        return doesActiveAccountHavePremiumPersonallyResult
+    func doesAccountHavePremiumPersonally(userId: String?) async -> Bool {
+        guard let userId else {
+            doesActiveAccountHavePremiumPersonallyCalled = true
+            return doesActiveAccountHavePremiumPersonallyResult
+        }
+        return doesAccountHavePremiumPersonallyByUserId[userId] ?? doesActiveAccountHavePremiumPersonallyResult
     }
 
-    func getAccountEncryptionKeys(userId: String?) async throws -> AccountEncryptionKeys {
-        if let error = getAccountEncryptionKeysError {
+    func getAccountCryptographicState(userId: String?) async throws -> WrappedAccountCryptographicState {
+        if let error = getAccountCryptographicStateError {
             throw error
         }
         let id = try await getAccountIdOrActiveId(userId: userId)
-        guard let encryptionKeys = accountEncryptionKeys[id]
+        guard let cryptographicState = accountCryptographicStates[id]
         else {
             throw StateServiceError.noActiveAccount
         }
-        return encryptionKeys
+        return cryptographicState
     }
 
     func getAccountHasBeenUnlockedInteractively(userId: String?) async throws -> Bool {
@@ -297,12 +300,6 @@ class MockStateService: StateService, ActiveAccountStateProvider, AutofillStateS
 
     func getArchiveOnboardingShown() async -> Bool {
         archiveOnboardingShown
-    }
-
-    func getPremiumUpgradeBannerDismissed(userId: String?) async throws -> Bool {
-        try premiumUpgradeBannerDismissedResult.get()
-        let userId = try unwrapUserId(userId)
-        return premiumUpgradeBannerDismissedByUserId[userId] ?? false
     }
 
     func getClearClipboardValue(userId: String?) async throws -> ClearClipboardValue {
@@ -491,14 +488,6 @@ class MockStateService: StateService, ActiveAccountStateProvider, AutofillStateS
         twoFactorTokens[email]
     }
 
-    func getSubscriptionAttentionCardVisible() async -> Bool {
-        subscriptionAttentionCardVisibleResult
-    }
-
-    func getUpgradedToPremiumActionCardVisible() async -> Bool {
-        upgradedToPremiumActionCardVisibleResult
-    }
-
     func getUserHasMasterPassword(userId: String?) async throws -> Bool {
         if let userHasMasterPasswordError { throw userHasMasterPasswordError }
         let userId = try unwrapUserId(userId)
@@ -519,6 +508,10 @@ class MockStateService: StateService, ActiveAccountStateProvider, AutofillStateS
         return usesKeyConnector[userId] ?? false
     }
 
+    func getV2UpgradeToken(userId: String) async -> V2UpgradeToken? {
+        v2UpgradeTokens[userId]
+    }
+
     func isAuthenticated(userId: String?) async throws -> Bool {
         let userId = try unwrapUserId(userId)
         if let isAuthenticatedError { throw isAuthenticatedError }
@@ -528,14 +521,6 @@ class MockStateService: StateService, ActiveAccountStateProvider, AutofillStateS
     func isInitialSyncRequired(userId: String?) async -> Bool {
         guard let userId = try? unwrapUserId(userId) else { return false }
         return isInitialSyncRequiredByUserId[userId] ?? false
-    }
-
-    func isPremiumUpgradeBannerDismissed() async -> Bool {
-        isPremiumUpgradeBannerDismissedResult
-    }
-
-    func isPremiumUpgradeEligible() async -> Bool {
-        isPremiumUpgradeEligibleResult
     }
 
     func logoutAccount(userId: String?, userInitiated: Bool) async throws {
@@ -564,9 +549,12 @@ class MockStateService: StateService, ActiveAccountStateProvider, AutofillStateS
         accessTokenExpirationDateByUserId[userId] = expirationDate
     }
 
-    func setAccountEncryptionKeys(_ encryptionKeys: AccountEncryptionKeys, userId: String?) async throws {
+    func setAccountCryptographicState(
+        _ cryptographicState: WrappedAccountCryptographicState,
+        userId: String?,
+    ) async throws {
         let userId = try unwrapUserId(userId)
-        accountEncryptionKeys[userId] = encryptionKeys
+        accountCryptographicStates[userId] = cryptographicState
     }
 
     func setAccountHasBeenUnlockedInteractively(userId: String?, value: Bool) async throws {
@@ -650,22 +638,6 @@ class MockStateService: StateService, ActiveAccountStateProvider, AutofillStateS
 
     func setArchiveOnboardingShown(_ shown: Bool) async {
         archiveOnboardingShown = shown
-    }
-
-    func setPremiumUpgradeBannerDismissed(_ dismissed: Bool, userId: String?) async throws {
-        try premiumUpgradeBannerDismissedResult.get()
-        let userId = try unwrapUserId(userId)
-        premiumUpgradeBannerDismissedByUserId[userId] = dismissed
-    }
-
-    func setSubscriptionAttentionCardVisible(_ visible: Bool) async throws {
-        try setSubscriptionAttentionCardResult.get()
-        subscriptionAttentionCardVisibleResult = visible
-    }
-
-    func setUpgradedToPremiumActionCardVisible(_ visible: Bool) async throws {
-        try setUpgradedToPremiumActionCardResult.get()
-        upgradedToPremiumActionCardVisibleResult = visible
     }
 
     func setClearClipboardValue(_ clearClipboardValue: ClearClipboardValue?, userId: String?) async throws {
@@ -914,6 +886,10 @@ class MockStateService: StateService, ActiveAccountStateProvider, AutofillStateS
     func setUsesKeyConnector(_ usesKeyConnector: Bool, userId: String?) async throws {
         let userId = try unwrapUserId(userId)
         self.usesKeyConnector[userId] = usesKeyConnector
+    }
+
+    func setV2UpgradeToken(_ token: V2UpgradeToken?, userId: String) async {
+        v2UpgradeTokens[userId] = token
     }
 
     /// Attempts to convert a possible user id into an account, or returns the active account.

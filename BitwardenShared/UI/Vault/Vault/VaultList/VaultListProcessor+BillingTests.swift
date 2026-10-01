@@ -32,6 +32,7 @@ struct VaultListProcessorBillingTests {
         billingService = MockBillingService()
         billingService.isSelfHostedReturnValue = false
         billingService.shouldShowSubscriptionAttentionCardReturnValue = false
+        billingService.isPremiumUpgradeBannerDismissedReturnValue = false
         billingService.shouldShowUpgradedToPremiumActionCardReturnValue = false
         coordinator = MockCoordinator()
         premiumUpgradeHelper = MockPremiumUpgradeHelper()
@@ -124,7 +125,7 @@ struct VaultListProcessorBillingTests {
     func perform_appeared_premiumActionCards(_ testCase: PremiumActionCardTestCase) async {
         billingService.shouldShowSubscriptionAttentionCardReturnValue = testCase.attentionCardVisible
         billingRepository.isInAppUpgradeAvailableReturnValue = testCase.upgradeAvailable
-        stateService.isPremiumUpgradeBannerDismissedResult = testCase.bannerDismissed
+        billingService.isPremiumUpgradeBannerDismissedReturnValue = testCase.bannerDismissed
 
         await subject.perform(.appeared)
 
@@ -138,7 +139,7 @@ struct VaultListProcessorBillingTests {
     func perform_appeared_premiumUpgradeActionCard_hidden_selfHosted() async {
         billingService.isSelfHostedReturnValue = true
         billingRepository.isInAppUpgradeAvailableReturnValue = true
-        stateService.isPremiumUpgradeBannerDismissedResult = false
+        billingService.isPremiumUpgradeBannerDismissedReturnValue = false
 
         await subject.perform(.appeared)
 
@@ -149,7 +150,7 @@ struct VaultListProcessorBillingTests {
     /// upgrade banner was previously dismissed.
     @Test
     func perform_appeared_loadPremiumUpgradeBanner_bannerDismissed_stillShowsUpgradedCard() async {
-        stateService.isPremiumUpgradeBannerDismissedResult = true
+        billingService.isPremiumUpgradeBannerDismissedReturnValue = true
         billingService.shouldShowUpgradedToPremiumActionCardReturnValue = true
 
         await subject.perform(.appeared)
@@ -194,7 +195,7 @@ struct VaultListProcessorBillingTests {
         await subject.perform(.dismissPremiumUpgradeActionCard)
 
         #expect(!subject.state.shouldShowPremiumUpgradeActionCard)
-        #expect(stateService.premiumUpgradeBannerDismissedByUserId["1"] == true)
+        #expect(billingService.setPremiumUpgradeBannerDismissedCalled)
     }
 
     /// `perform(_:)` with `.dismissUpgradedToPremiumActionCard` hides the upgraded-to-Premium

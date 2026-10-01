@@ -21,6 +21,30 @@ public enum GeneratorType: CaseIterable, Equatable, Identifiable, Menuable, Send
     /// All of the cases to show in the menu.
     public static let allCases: [Self] = [.password, .passphrase, .username]
 
+    /// The accessibility label for the buttons used to copy the generated value to the clipboard.
+    public var copyButtonAccessibilityLabel: String {
+        switch self {
+        case .passphrase:
+            Localizations.copyPassphrase
+        case .password:
+            Localizations.copyPassword
+        case .username:
+            Localizations.copyUsername
+        }
+    }
+
+    /// The title of the button used to fill the generated value into the field the user came from.
+    public var fillButtonTitle: String {
+        switch self {
+        case .passphrase:
+            Localizations.useThisPassphrase
+        case .password:
+            Localizations.useThisPassword
+        case .username:
+            Localizations.useThisUsername
+        }
+    }
+
     public var id: String {
         localizedName
     }
@@ -33,6 +57,18 @@ public enum GeneratorType: CaseIterable, Equatable, Identifiable, Menuable, Send
             Localizations.password
         case .username:
             Localizations.username
+        }
+    }
+
+    /// The accessibility label for the button used to regenerate the generated value.
+    public var regenerateButtonAccessibilityLabel: String {
+        switch self {
+        case .passphrase:
+            Localizations.generatePassphrase
+        case .password:
+            Localizations.generatePassword
+        case .username:
+            Localizations.generateUsername
         }
     }
 }
@@ -52,8 +88,32 @@ struct GeneratorState: Equatable {
         /// The generator is being presented in place for a specific generation task.
         case inPlace
 
+        /// A flag indicating if the full-width primary copy button is visible.
+        var isCopyButtonVisible: Bool {
+            switch self {
+            case .tab: true
+            case .inPlace: false
+            }
+        }
+
+        /// A flag indicating if the copy icon button next to the regenerate button is visible.
+        var isCopyIconButtonVisible: Bool {
+            switch self {
+            case .tab: false
+            case .inPlace: true
+            }
+        }
+
         /// A flag indicating if the dismiss button is visible.
         var isDismissButtonVisible: Bool {
+            switch self {
+            case .tab: false
+            case .inPlace: true
+            }
+        }
+
+        /// A flag indicating if the full-width fill button pinned to the bottom of the sheet is visible.
+        var isFillButtonVisible: Bool {
             switch self {
             case .tab: false
             case .inPlace: true
@@ -65,14 +125,6 @@ struct GeneratorState: Equatable {
             switch self {
             case .tab: true
             case .inPlace: false
-            }
-        }
-
-        /// A flag indicating if the select button is visible.
-        var isSelectButtonVisible: Bool {
-            switch self {
-            case .tab: false
-            case .inPlace: true
             }
         }
     }

@@ -1,3 +1,4 @@
+import BitwardenResources
 import Foundation
 import Testing
 
@@ -5,6 +6,35 @@ import Testing
 
 struct BankAccountTypeTests {
     // MARK: Tests
+
+    /// `defaultValueLocalizedName` is the localized `None` placeholder shown when no account
+    /// type is selected.
+    @Test
+    func defaultValueLocalizedName_isNone() {
+        #expect(BankAccountType.defaultValueLocalizedName == Localizations.none)
+    }
+
+    /// `displayOrder` contains every case exactly once, so a newly added case can't be silently
+    /// left out of the menu.
+    @Test
+    func displayOrder_containsAllCases() {
+        #expect(Set(BankAccountType.displayOrder) == Set(BankAccountType.allCases))
+        #expect(BankAccountType.displayOrder.count == BankAccountType.allCases.count)
+    }
+
+    /// `displayOrder` matches the order specified by design.
+    @Test
+    func displayOrder_matchesDesign() {
+        #expect(BankAccountType.displayOrder == [
+            .checking,
+            .savings,
+            .certificateOfDeposit,
+            .lineOfCredit,
+            .investmentBrokerage,
+            .moneyMarket,
+            .other,
+        ])
+    }
 
     /// Raw values match the server contract.
     @Test

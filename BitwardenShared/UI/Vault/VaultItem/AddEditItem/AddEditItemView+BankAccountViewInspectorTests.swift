@@ -136,9 +136,10 @@ class AddEditItemViewBankAccountTests: BitwardenTestCase {
     func test_bankAccount_accountNumberVisibilityButton_tap_whenNotVisible() throws {
         processor.state.type = .bankAccount
         processor.state.bankAccountItemState.isAccountNumberVisible = false
+        let accessibilityLabel = Localizations.fieldValueIsNotVisibleTapToShow(Localizations.accountNumber)
         let button = try subject.inspect()
             .find(bitwardenTextField: Localizations.accountNumber)
-            .find(buttonWithAccessibilityLabel: Localizations.passwordIsNotVisibleTapToShow)
+            .find(buttonWithAccessibilityLabel: accessibilityLabel)
         try button.tap()
         XCTAssertEqual(
             processor.dispatchedActions.last,
@@ -154,7 +155,7 @@ class AddEditItemViewBankAccountTests: BitwardenTestCase {
         processor.state.bankAccountItemState.isAccountNumberVisible = true
         let button = try subject.inspect()
             .find(bitwardenTextField: Localizations.accountNumber)
-            .find(buttonWithAccessibilityLabel: Localizations.passwordIsVisibleTapToHide)
+            .find(buttonWithAccessibilityLabel: Localizations.fieldValueIsVisibleTapToHide(Localizations.accountNumber))
         try button.tap()
         XCTAssertEqual(
             processor.dispatchedActions.last,
@@ -170,7 +171,7 @@ class AddEditItemViewBankAccountTests: BitwardenTestCase {
         processor.state.bankAccountItemState.isPinVisible = false
         let button = try subject.inspect()
             .find(bitwardenTextField: Localizations.pin)
-            .find(buttonWithAccessibilityLabel: Localizations.passwordIsNotVisibleTapToShow)
+            .find(buttonWithAccessibilityLabel: Localizations.fieldValueIsNotVisibleTapToShow(Localizations.pin))
         try button.tap()
         XCTAssertEqual(
             processor.dispatchedActions.last,
@@ -186,7 +187,7 @@ class AddEditItemViewBankAccountTests: BitwardenTestCase {
         processor.state.bankAccountItemState.isPinVisible = true
         let button = try subject.inspect()
             .find(bitwardenTextField: Localizations.pin)
-            .find(buttonWithAccessibilityLabel: Localizations.passwordIsVisibleTapToHide)
+            .find(buttonWithAccessibilityLabel: Localizations.fieldValueIsVisibleTapToHide(Localizations.pin))
         try button.tap()
         XCTAssertEqual(
             processor.dispatchedActions.last,
@@ -202,7 +203,7 @@ class AddEditItemViewBankAccountTests: BitwardenTestCase {
         processor.state.bankAccountItemState.isIbanVisible = false
         let button = try subject.inspect()
             .find(bitwardenTextField: Localizations.iban)
-            .find(buttonWithAccessibilityLabel: Localizations.passwordIsNotVisibleTapToShow)
+            .find(buttonWithAccessibilityLabel: Localizations.fieldValueIsNotVisibleTapToShow(Localizations.iban))
         try button.tap()
         XCTAssertEqual(
             processor.dispatchedActions.last,
@@ -218,7 +219,7 @@ class AddEditItemViewBankAccountTests: BitwardenTestCase {
         processor.state.bankAccountItemState.isIbanVisible = true
         let button = try subject.inspect()
             .find(bitwardenTextField: Localizations.iban)
-            .find(buttonWithAccessibilityLabel: Localizations.passwordIsVisibleTapToHide)
+            .find(buttonWithAccessibilityLabel: Localizations.fieldValueIsVisibleTapToHide(Localizations.iban))
         try button.tap()
         XCTAssertEqual(
             processor.dispatchedActions.last,

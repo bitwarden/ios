@@ -575,6 +575,17 @@ class GeneratorProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         XCTAssertEqual(subject.state.usernameState.plusAddressedEmailType, .random)
     }
 
+    /// `receive(_:)` with `.fillGeneratedValue` navigates to the `.complete` route.
+    @MainActor
+    func test_receive_fillGeneratedValue() {
+        subject.state.generatorType = .password
+        subject.state.generatedValue = "password"
+        subject.receive(.fillGeneratedValue)
+        XCTAssertEqual(coordinator.routes.last, .complete(type: .password, value: "password"))
+        waitFor(!reviewPromptService.userActions.isEmpty)
+        XCTAssertEqual(reviewPromptService.userActions, [.copiedOrInsertedGeneratedValue])
+    }
+
     /// `receive(_:)` with `.generatorTypeChanged` updates the state's generator type value.
     @MainActor
     func test_receive_generatorTypeChanged() {
@@ -718,17 +729,6 @@ class GeneratorProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
 
         XCTAssertEqual(subject.state.generatedValue, "USERNAME")
         XCTAssertFalse(generatorRepository.addPasswordHistoryCalled)
-    }
-
-    /// `receive(_:)` with `.selectButtonPressed` navigates to the `.complete` route.
-    @MainActor
-    func test_receive_selectButtonPressed() {
-        subject.state.generatorType = .password
-        subject.state.generatedValue = "password"
-        subject.receive(.selectButtonPressed)
-        XCTAssertEqual(coordinator.routes.last, .complete(type: .password, value: "password"))
-        waitFor(!reviewPromptService.userActions.isEmpty)
-        XCTAssertEqual(reviewPromptService.userActions, [.copiedOrInsertedGeneratedValue])
     }
 
     /// `receive(_:)` with `.showPasswordHistory` asks the coordinator to show the password history.

@@ -10,6 +10,12 @@ import XCTest
 class CardComponentBrandTests: BitwardenTestCase {
     // MARK: Tests
 
+    /// `defaultValueLocalizedName` is the localized `None` placeholder shown when no brand is
+    /// selected.
+    func test_defaultValueLocalizedName() {
+        XCTAssertEqual(CardComponent.Brand.defaultValueLocalizedName, Localizations.none)
+    }
+
     /// `getter:icon` returns the appropriate icon for each card brand.
     func test_icon() {
         XCTAssertEqual(CardComponent.Brand.americanExpress.icon.name, SharedAsset.Icons.Cards.amex.name)
@@ -278,5 +284,17 @@ class CardComponentBrandTests: BitwardenTestCase {
     /// `validDigitLengths` returns `[13, 16, 19]` for Visa.
     func test_validDigitLengths_visa() {
         XCTAssertEqual(CardComponent.Brand.visa.validDigitLengths, [13, 16, 19])
+    }
+}
+
+// MARK: - CardComponentMonthTests
+
+class CardComponentMonthTests: BitwardenTestCase {
+    // MARK: Tests
+
+    /// `defaultValueLocalizedName` is the localized `None` placeholder shown when no expiration
+    /// month is selected.
+    func test_defaultValueLocalizedName() {
+        XCTAssertEqual(CardComponent.Month.defaultValueLocalizedName, Localizations.none)
     }
 }
