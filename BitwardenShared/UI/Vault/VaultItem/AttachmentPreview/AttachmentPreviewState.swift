@@ -35,7 +35,9 @@ struct AttachmentPreviewState: Equatable, Hashable, Sendable {
     /// The attachment's file name.
     let fileName: String
 
-    /// The url where the decrypted attachment is temporarily stored.
+    /// The url where the decrypted attachment is temporarily stored. For image content, the file
+    /// is deleted once the image is loaded into memory and is only written back to this url when
+    /// the user downloads the attachment.
     let temporaryUrl: URL
 
     /// A toast message to show in the view.
