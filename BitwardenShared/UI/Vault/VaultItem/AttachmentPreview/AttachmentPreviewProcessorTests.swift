@@ -46,17 +46,6 @@ struct AttachmentPreviewProcessorTests {
         #expect(coordinator.routes.last == .dismiss())
     }
 
-    /// `receive(_:)` with `.toastShown` updates the state's toast.
-    @Test
-    func receive_toastShown() {
-        let toast = Toast(title: "toast")
-        subject.receive(.toastShown(toast))
-        #expect(subject.state.toast == toast)
-
-        subject.receive(.toastShown(nil))
-        #expect(subject.state.toast == nil)
-    }
-
     /// `perform(_:)` with `.downloadPressed` navigates to `.saveFile(temporaryUrl:)` with the
     /// state's temporary url.
     @Test

@@ -1,4 +1,3 @@
-import BitwardenKit
 @preconcurrency import BitwardenSdk
 import Foundation
 
@@ -40,34 +39,12 @@ struct AttachmentPreviewState: Equatable, Hashable, Sendable {
     /// the user downloads the attachment.
     let temporaryUrl: URL
 
-    /// A toast message to show in the view.
-    var toast: Toast?
-
     // MARK: Computed Properties
 
     /// The file name, middle-truncated to fit the navigation bar title if necessary, always
     /// preserving the trailing file extension.
     var truncatedFileName: String {
         Self.truncateMiddle(fileName, maxLength: Self.maxTruncatedFileNameLength)
-    }
-
-    // MARK: Hashable, Equatable
-
-    /// `toast` is transient view-only state and isn't part of this value's identity, so it's
-    /// excluded here. This lets `AttachmentPreviewState` remain `Hashable`, which `VaultItemRoute`
-    /// requires, even though `Toast` itself isn't `Hashable`.
-    static func == (lhs: AttachmentPreviewState, rhs: AttachmentPreviewState) -> Bool {
-        lhs.attachment == rhs.attachment
-            && lhs.content == rhs.content
-            && lhs.fileName == rhs.fileName
-            && lhs.temporaryUrl == rhs.temporaryUrl
-    }
-
-    func hash(into hasher: inout Hasher) {
-        hasher.combine(attachment)
-        hasher.combine(content)
-        hasher.combine(fileName)
-        hasher.combine(temporaryUrl)
     }
 }
 
