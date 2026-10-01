@@ -17,6 +17,12 @@ struct AttachmentPreviewView: View {
     /// The `Store` for this view.
     @ObservedObject var store: Store<AttachmentPreviewState, AttachmentPreviewAction, AttachmentPreviewEffect>
 
+    // MARK: Private Properties
+
+    /// Whether the image is zoomed in. Swiping down pans the image while it's zoomed in, so
+    /// swipe-to-dismiss is disabled until the image is zoomed back out.
+    @SwiftUI.State private var isZoomed = false
+
     // MARK: View
 
     var body: some View {
@@ -24,6 +30,7 @@ struct AttachmentPreviewView: View {
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .background(SharedAsset.Colors.backgroundPrimary.swiftUIColor)
             .navigationBar(title: "", titleDisplayMode: .inline)
+            .interactiveDismissDisabled(isZoomed)
             .toolbar {
                 closeToolbarItem {
                     store.send(.dismissPressed)
@@ -52,9 +59,9 @@ struct AttachmentPreviewView: View {
     @ViewBuilder private var content: some View {
         switch store.state.content {
         case let .animatedImage(data):
-            AnimatedImageView(data: data)
+            AnimatedImageView(data: data, isZoomed: $isZoomed)
         case let .image(data):
-            ZoomableImageView(data: data)
+            ZoomableImageView(data: data, isZoomed: $isZoomed)
         case let .unsupportedFileType(fileExtension):
             emptyStateView(
                 message: Localizations.previewUnavailableForXFilesDescriptionLong(fileExtension.uppercased()),
