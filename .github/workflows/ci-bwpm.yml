@@ -69,7 +69,7 @@ jobs:
       contents: read
       id-token: write
     if: ${{ github.event_name == 'workflow_dispatch' && inputs.build-mode != 'CI' }}
-    uses: bitwarden/ios/.github/workflows/_build-any.yml@main
+    uses: ./.github/workflows/_build-any.yml
     with:
       bw-env: ${{ (inputs.build-variant == 'Production') && 'bwpm_prod' || 'bwpm_beta' }}
       build-mode: ${{ inputs.build-mode }}
@@ -80,32 +80,32 @@ jobs:
       distribute: ${{ github.event_name == 'workflow_dispatch' && inputs.distribute }} # event_name check is a workaround for github failing the workflow run when triggered by push
     secrets: inherit
 
-  build-public:
-    name: Build CI
-    needs: version
-    permissions:
-      contents: read
-      id-token: write
-    if: ${{ github.event_name == 'push' || inputs.build-mode == 'CI' }}
-    uses: bitwarden/ios/.github/workflows/_build-any.yml@main
-    strategy:
-      matrix:
-        include:
-          - bw-env: bwpm_prod
-            build-mode: Device
-            distribute: true
-          - bw-env: bwpm_prod
-            build-mode: Simulator
-            distribute: false
-          - bw-env: bwpm_beta
-            build-mode: Device
-            compiler-flags: DEBUG_MENU
-            distribute: true
-    with:
-      bw-env: ${{ matrix.bw-env }}
-      build-mode: ${{ matrix.build-mode }}
-      version-name: ${{ needs.version.outputs.version_name }}
-      version-number: ${{ needs.version.outputs.version_number }}
-      compiler-flags: ${{ matrix.compiler-flags }}
-      distribute: ${{ matrix.distribute }}
-    secrets: inherit
+  # build-public:
+  #   name: Build CI
+  #   needs: version
+  #   permissions:
+  #     contents: read
+  #     id-token: write
+  #   if: ${{ github.event_name == 'push' || inputs.build-mode == 'CI' }}
+  #   uses: bitwarden/ios/.github/workflows/_build-any.yml@main
+  #   strategy:
+  #     matrix:
+  #       include:
+  #         - bw-env: bwpm_prod
+  #           build-mode: Device
+  #           distribute: true
+  #         - bw-env: bwpm_prod
+  #           build-mode: Simulator
+  #           distribute: false
+  #         - bw-env: bwpm_beta
+  #           build-mode: Device
+  #           compiler-flags: DEBUG_MENU
+  #           distribute: true
+  #   with:
+  #     bw-env: ${{ matrix.bw-env }}
+  #     build-mode: ${{ matrix.build-mode }}
+  #     version-name: ${{ needs.version.outputs.version_name }}
+  #     version-number: ${{ needs.version.outputs.version_number }}
+  #     compiler-flags: ${{ matrix.compiler-flags }}
+  #     distribute: ${{ matrix.distribute }}
+  #   secrets: inherit

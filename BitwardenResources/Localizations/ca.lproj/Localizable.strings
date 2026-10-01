@@ -839,7 +839,7 @@
 "YouMayNeedToEnableDevicePasscodeOrBiometrics" = "Potser has d'activar el codi de desbloqueig del dispositiu o els biomètrics.";
 "StartImportCXFDescriptionLong" = "Importa contrasenyes, claus d'accés, targetes de crèdit i qualsevol informació d'identitat personal d'un altre gestor de contrasenyes.\n\nLes teves dades **no** s'eliminaran del teu proveïdor anterior.";
 "ImportPasswords" = "Importa contrasenyes";
-"ImportingEllipsis" = "S'està important...";
+"ImportingEllipsis" = "S'està important…";
 "AreYouSureYouWantToCancelTheImportProcessQuestionMark" = "Estàs segur que vols cancel·lar el procés d'importació?";
 "ImportFailed" = "La importació ha fallat";
 "ThereWasAnIssueImportingAllOfYourPasswordsNoDataWasDeleted" = "Hi ha hagut un problema en importar totes les teves contrasenyes.\n\nNo s'ha eliminat cap dada.";

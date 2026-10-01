@@ -839,7 +839,7 @@
 "YouMayNeedToEnableDevicePasscodeOrBiometrics" = "Efallai y bydd angen i chi alluogi cyfrinair dyfais neu fiometreg.";
 "StartImportCXFDescriptionLong" = "Mewnforio cyfrineiriau, passkeys, cardiau credyd, ac unrhyw wybodaeth hunaniaeth bersonol o reolwr cyfrineiriau arall.\n\nNi fydd eich data yn cael ei **ddileu** gan eich darparwr blaenorol.";
 "ImportPasswords" = "Mewnforio cyfrineiriau";
-"ImportingEllipsis" = "Yn mewnforio...";
+"ImportingEllipsis" = "Yn mewnforio…";
 "AreYouSureYouWantToCancelTheImportProcessQuestionMark" = "Ydych chi'n siŵr eich bod am ganslo'r broses fewnforio?";
 "ImportFailed" = "Mewnforio wedi methu";
 "ThereWasAnIssueImportingAllOfYourPasswordsNoDataWasDeleted" = "Cafwyd problem wrth fewnforio'ch holl gyfrineiriau.\n\nNi ddilëwyd unrhyw ddata.";
