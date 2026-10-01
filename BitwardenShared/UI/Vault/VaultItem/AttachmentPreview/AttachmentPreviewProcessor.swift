@@ -69,8 +69,6 @@ class AttachmentPreviewProcessor: StateProcessor<
         switch action {
         case .dismissPressed:
             coordinator.navigate(to: .dismiss())
-        case let .toastShown(newValue):
-            state.toast = newValue
         }
     }
 

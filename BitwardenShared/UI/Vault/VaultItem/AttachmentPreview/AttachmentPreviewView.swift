@@ -47,10 +47,6 @@ struct AttachmentPreviewView: View {
                     await store.perform(.downloadPressed)
                 }
             }
-            .toast(store.binding(
-                get: \.toast,
-                send: AttachmentPreviewAction.toastShown,
-            ))
     }
 
     // MARK: Private Views
@@ -62,10 +58,12 @@ struct AttachmentPreviewView: View {
             AnimatedImageView(data: data, isZoomed: $isZoomed)
         case let .image(data):
             ZoomableImageView(data: data, isZoomed: $isZoomed)
-        case let .unsupportedFileType(fileExtension):
+        case let .unsupportedFileType(fileExtension) where !fileExtension.isEmpty:
             emptyStateView(
                 message: Localizations.previewUnavailableForXFilesDescriptionLong(fileExtension.uppercased()),
             )
+        case .unsupportedFileType:
+            emptyStateView(message: Localizations.previewUnavailableDescriptionLong)
         case .fileError:
             emptyStateView(message: Localizations.previewUnavailableDescriptionLong)
         }
