@@ -203,9 +203,9 @@ struct PremiumUpgradeHelperTests { // swiftlint:disable:this type_body_length
     }
 
     /// The pending alert's "Sync Now" retries via `retryPendingUpgrade()`, not
-    /// `premiumCheckoutSucceeded()`. The alert is reachable without a preceding checkout — a
-    /// push-driven `.pending` shows it too — and `premiumCheckoutSucceeded()` marks the account
-    /// pending, which would latch a user who never purchased out of the upgrade path for good.
+    /// `premiumCheckoutSucceeded()`. The alert is reachable without a preceding checkout — an
+    /// upgrade tap while already pending shows it too — and `premiumCheckoutSucceeded()` marks the
+    /// account pending, which would latch a user who never purchased out of the upgrade path for good.
     @Test
     func startInAppPremiumUpgrade_pendingAlert_syncNow_retriesWithoutMarkingPending() async throws {
         let statusSubject = PassthroughSubject<PremiumCheckoutStatus, Never>()

@@ -16,6 +16,10 @@ protocol BillingService: AnyObject { // sourcery: AutoMockable
     /// Premium arrives — clearing the pending flag and revealing the "Upgraded to Premium"
     /// action card. Does nothing otherwise, so this can safely run after every sync.
     ///
+    /// This is the only place a pending upgrade completes, including for the sync that
+    /// `premiumCheckoutSucceeded()` and `retryPendingUpgrade()` run, so call it after every
+    /// successful sync.
+    ///
     /// - Parameters:
     ///   - userId: The account to complete the pending upgrade for.
     ///
@@ -67,11 +71,15 @@ protocol BillingService: AnyObject { // sourcery: AutoMockable
     ///
     func premiumCheckoutStatusPublisher() -> AnyPublisher<PremiumCheckoutStatus, Never>
 
-    /// Notifies that the user completed payment in the Stripe checkout. Marks the upgrade
-    /// pending, then confirms whether the account has been granted Premium yet, syncing to check
-    /// and publishing checkout status updates as it resolves. If the sync doesn't confirm Premium
-    /// (or fails), the upgrade is left pending so `completeUpgradeIfPending(userId:)` can finish
-    /// it once a later sync does.
+    /// Notifies that the user completed payment in the Stripe checkout. Marks the active account's
+    /// upgrade pending, then publishes `.syncing`, force-syncs, and publishes `.confirmed` if the
+    /// sync succeeded and the account has personal Premium, or `.pending` otherwise. Does nothing
+    /// if the account isn't eligible for the Premium upgrade path.
+    ///
+    /// This never clears the pending flag or reveals the "Upgraded to Premium" action card;
+    /// `completeUpgradeIfPending(userId:)` does both when the sync succeeds. If the sync doesn't
+    /// land Premium, the upgrade stays pending for a later sync to complete. If the active
+    /// account can't be resolved, the error is logged and `.pending` is published.
     ///
     /// Marking the upgrade pending asserts that a purchase was made, so only call this after
     /// observing a successful Stripe callback. Use `retryPendingUpgrade()` for a user-initiated
@@ -79,13 +87,15 @@ protocol BillingService: AnyObject { // sourcery: AutoMockable
     ///
     func premiumCheckoutSucceeded() async
 
-    /// Notifies that a Premium status change was detected by a push notification, and triggers a
-    /// sync, publishing status updates as it resolves. Returns early for an account that already
-    /// has Premium.
+    /// Notifies that a `premiumStatusChanged` push notification arrived, and force-syncs the
+    /// active account. The sync's own completion handling reconciles a pending upgrade and
+    /// refreshes the subscription attention card; this publishes no checkout status and shows no
+    /// UI of its own.
     ///
-    /// Use `premiumCheckoutSucceeded()` for the Stripe checkout callback, which additionally
-    /// records that the upgrade is pending, and `retryPendingUpgrade()` for a user-initiated
-    /// retry of an upgrade that is already pending.
+    /// This always syncs, whichever account the push names and whether or not the account already
+    /// has Premium or is eligible for the Premium upgrade path. The server sends this push for
+    /// changes that don't bump the account's revision date (e.g. a payment on a past-due
+    /// subscription, or a self-hosted license change), so a non-forced sync would skip them.
     ///
     func premiumStatusChanged() async
 
@@ -115,9 +125,16 @@ protocol BillingService: AnyObject { // sourcery: AutoMockable
     ///
     func refreshSubscriptionAttentionCard(subscription: PremiumSubscription?) async
 
-    /// Syncs and finishes an upgrade that is already pending, publishing checkout status updates
-    /// as it resolves. Unlike `premiumCheckoutSucceeded()`, this never marks an upgrade pending,
-    /// so it is safe to call for a user-initiated retry that may not follow a real checkout.
+    /// Retries an upgrade that is already pending: publishes `.syncing`, force-syncs, and
+    /// publishes `.confirmed` if the sync succeeded and the active account has personal Premium,
+    /// or `.pending` otherwise. Does nothing if the account isn't eligible for the Premium
+    /// upgrade path. If the active account can't be resolved, the error is logged and `.pending`
+    /// is published.
+    ///
+    /// Unlike `premiumCheckoutSucceeded()`, this never marks an upgrade pending, so it is safe to
+    /// call for a user-initiated retry that may not follow a real checkout. Like it, this never
+    /// clears the pending flag or reveals the "Upgraded to Premium" action card;
+    /// `completeUpgradeIfPending(userId:)` does both when the sync succeeds.
     ///
     func retryPendingUpgrade() async
 
@@ -229,7 +246,19 @@ class DefaultBillingService: BillingService {
     // MARK: Methods
 
     func completeUpgradeIfPending(userId: String) async {
-        await completeUpgradeIfPendingState(userId: userId)
+        do {
+            // A pending upgrade always comes from a personal checkout, so only personal Premium
+            // completes it — an organization grant arriving mid-flight isn't the purchase landing.
+            guard try await billingStateService.getPremiumUpgradePending(userId: userId),
+                  await stateService.doesAccountHavePremiumPersonally(userId: userId)
+            else {
+                return
+            }
+            try await billingStateService.setPremiumUpgradePending(false, userId: userId)
+            try await billingStateService.setUpgradedToPremiumActionCardVisible(true, userId: userId)
+        } catch {
+            errorReporter.log(error: error)
+        }
     }
 
     func createCheckoutSession() async throws -> URL {
@@ -288,10 +317,16 @@ class DefaultBillingService: BillingService {
     }
 
     func premiumCheckoutSucceeded() async {
-        await refreshSubscriptionAttentionCard(subscription: nil)
-
         guard await isEligibleForPremiumUpgradePath() else { return }
-        guard let userId = try? await stateService.getActiveAccountId() else { return }
+
+        let userId: String
+        do {
+            userId = try await stateService.getActiveAccountId()
+        } catch {
+            errorReporter.log(error: error)
+            premiumCheckoutStatusSubject.send(.pending)
+            return
+        }
 
         do {
             try await billingStateService.setPremiumUpgradePending(true, userId: userId)
@@ -299,34 +334,14 @@ class DefaultBillingService: BillingService {
             errorReporter.log(error: error)
         }
 
-        await syncAndCompletePendingUpgrade(userId: userId)
+        await syncAndReport(userId: userId)
     }
 
     func premiumStatusChanged() async {
-        // Refresh the attention card cache regardless of premium status — past-due and
-        // update-payment users still have premium, so they would be excluded by the guard below.
-        await refreshSubscriptionAttentionCard(subscription: nil)
-
-        guard await isEligibleForPremiumUpgradePath(),
-              await !stateService.doesActiveAccountHavePremium()
-        else {
-            return
-        }
-
-        premiumCheckoutStatusSubject.send(.syncing)
         do {
             try await syncService.fetchSync(forceSync: true)
         } catch {
             errorReporter.log(error: error)
-        }
-        let hasPremium = await stateService.doesActiveAccountHavePremium()
-        premiumCheckoutStatusSubject.send(hasPremium ? .confirmed : .pending)
-        if hasPremium {
-            do {
-                try await billingStateService.setUpgradedToPremiumActionCardVisible(true)
-            } catch {
-                errorReporter.log(error: error)
-            }
         }
     }
 
@@ -388,12 +403,18 @@ class DefaultBillingService: BillingService {
     }
 
     func retryPendingUpgrade() async {
-        await refreshSubscriptionAttentionCard(subscription: nil)
-
         guard await isEligibleForPremiumUpgradePath() else { return }
-        guard let userId = try? await stateService.getActiveAccountId() else { return }
 
-        await syncAndCompletePendingUpgrade(userId: userId)
+        let userId: String
+        do {
+            userId = try await stateService.getActiveAccountId()
+        } catch {
+            errorReporter.log(error: error)
+            premiumCheckoutStatusSubject.send(.pending)
+            return
+        }
+
+        await syncAndReport(userId: userId)
     }
 
     func setPremiumUpgradeBannerDismissed() async throws {
@@ -428,36 +449,6 @@ class DefaultBillingService: BillingService {
 
     // MARK: Private Methods
 
-    /// Performs `completeUpgradeIfPending(userId:)`'s work and additionally reports where the
-    /// account ended up, for the caller that needs to act on the outcome.
-    ///
-    /// - Parameters:
-    ///   - userId: The account to complete the pending upgrade for.
-    /// - Returns: `userId`'s `PremiumUpgradeLifecycleState` after this completion.
-    ///
-    @discardableResult
-    private func completeUpgradeIfPendingState(userId: String) async -> PremiumUpgradeLifecycleState {
-        let wasPending: Bool
-        do {
-            wasPending = try await billingStateService.getPremiumUpgradePending(userId: userId)
-        } catch {
-            errorReporter.log(error: error)
-            return await premiumUpgradeLifecycleState(userId: userId)
-        }
-        guard wasPending else { return await premiumUpgradeLifecycleState(userId: userId) }
-
-        // A pending upgrade always comes from a personal checkout, so only personal Premium completes it.
-        guard await stateService.doesAccountHavePremiumPersonally(userId: userId) else { return .pending }
-
-        do {
-            try await billingStateService.setPremiumUpgradePending(false, userId: userId)
-            try await billingStateService.setUpgradedToPremiumActionCardVisible(true, userId: userId)
-        } catch {
-            errorReporter.log(error: error)
-        }
-        return .premium
-    }
-
     /// Reports whether the active account is eligible to participate in the Premium upgrade path
     /// at all (self-hosted/feature-flag gated), independent of whether Premium has already been
     /// granted.
@@ -473,36 +464,29 @@ class DefaultBillingService: BillingService {
         return true
     }
 
-    /// Force-syncs, completes `userId`'s pending upgrade if one is outstanding, and publishes
-    /// where the account landed.
+    /// Publishes `.syncing`, force-syncs, and publishes whether the sync landed `userId`'s
+    /// purchased Premium: `.confirmed` if the sync succeeded and the account has personal
+    /// Premium, and `.pending` if the sync threw or the account has no personal Premium.
     ///
-    /// Publishes nothing when the account had no pending upgrade: there was no checkout to
-    /// report on, and publishing `.pending` for one would re-show the pending alert on a loop.
-    /// `premiumCheckoutSucceeded()` can't reach that case, having just marked the upgrade pending
-    /// itself.
+    /// This only reads. Clearing the pending flag and revealing the "Upgraded to Premium" action
+    /// card belong to `completeUpgradeIfPending(userId:)`, which the sync runs on success before
+    /// returning. The outcome is decided from the sync result and personal Premium alone, not the
+    /// pending flag, so a failed pending write can't leave the waiting overlay without a result,
+    /// and organization-granted Premium can't pass for the purchase landing.
     ///
     /// - Parameters:
-    ///   - userId: The account to sync and complete the pending upgrade for.
+    ///   - userId: The account whose purchased Premium to check for after the sync.
     ///
-    private func syncAndCompletePendingUpgrade(userId: String) async {
+    private func syncAndReport(userId: String) async {
         premiumCheckoutStatusSubject.send(.syncing)
         do {
             try await syncService.fetchSync(forceSync: true)
         } catch {
             errorReporter.log(error: error)
-        }
-
-        let upgradeState = await completeUpgradeIfPendingState(userId: userId)
-
-        // Only the account this checkout started for should see its own result.
-        guard await (try? stateService.getActiveAccountId()) == userId else { return }
-        switch upgradeState {
-        case .notPremium:
-            break
-        case .pending:
             premiumCheckoutStatusSubject.send(.pending)
-        case .premium:
-            premiumCheckoutStatusSubject.send(.confirmed)
+            return
         }
+        let hasPremium = await stateService.doesAccountHavePremiumPersonally(userId: userId)
+        premiumCheckoutStatusSubject.send(hasPremium ? .confirmed : .pending)
     }
 }
