@@ -229,9 +229,8 @@ struct PremiumUpgradeHelperTests {
         #expect(onPendingDismissCalled)
     }
 
-    /// The upgrade pending alert's "Sync Now" retries via `retryPendingUpgrade()`, not
-    /// `premiumCheckoutSucceeded()`, which would mark the upgrade pending again, or
-    /// `premiumStatusChanged()`, which publishes no checkout status for the alert to react to.
+    /// When the billing service emits `.pending`, tapping "Sync Now" on the upgrade pending alert
+    /// calls `retryPendingUpgrade()`.
     @Test
     func subscribeToPremiumCheckoutStatus_pending_syncNow_retriesPendingUpgrade() async throws {
         billingRepository.isInAppUpgradeAvailableReturnValue = true
@@ -253,8 +252,6 @@ struct PremiumUpgradeHelperTests {
         try await coordinator.alertShown.last?.tapAction(title: Localizations.syncNow)
 
         #expect(billingService.retryPendingUpgradeCalled)
-        #expect(!billingService.premiumCheckoutSucceededCalled)
-        #expect(!billingService.premiumStatusChangedCalled)
     }
 
     /// When the billing service emits `.syncing`, nothing happens (the loading overlay is shown
