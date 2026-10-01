@@ -111,6 +111,7 @@ struct AttachmentPreviewHelperTests {
         #expect(!data.isEmpty)
         #expect(state.attachment == attachment)
         #expect(state.temporaryUrl == temporaryUrl)
+        #expect(!FileManager.default.fileExists(atPath: temporaryUrl.path))
         #expect(!coordinator.isLoadingOverlayShowing)
         #expect(coordinator.loadingOverlaysShown.last?.title == Localizations.openingPreview)
     }
@@ -131,6 +132,7 @@ struct AttachmentPreviewHelperTests {
             return
         }
         #expect(state.content == .fileError)
+        #expect(FileManager.default.fileExists(atPath: temporaryUrl.path))
     }
 
     /// `showPreview(for:cipher:)` navigates to the preview screen with `.animatedImage(data)`
@@ -139,7 +141,8 @@ struct AttachmentPreviewHelperTests {
     func showPreview_gif_animated() async throws {
         let attachment = AttachmentView.fixture(fileName: "cat.gif", size: "10", sizeName: "small")
         let cipher = CipherView.loginFixture()
-        vaultRepository.downloadAttachmentResult = try .success(writeTemporaryGif(frameCount: 3))
+        let temporaryUrl = try writeTemporaryGif(frameCount: 3)
+        vaultRepository.downloadAttachmentResult = .success(temporaryUrl)
 
         await subject.showPreview(for: attachment, cipher: cipher)
 
@@ -152,6 +155,7 @@ struct AttachmentPreviewHelperTests {
             return
         }
         #expect(!data.isEmpty)
+        #expect(!FileManager.default.fileExists(atPath: temporaryUrl.path))
     }
 
     /// `showPreview(for:cipher:)` navigates to the preview screen with `.image(data)` content when
@@ -194,6 +198,30 @@ struct AttachmentPreviewHelperTests {
         }
     }
 
+    /// `showPreview(for:cipher:)` navigates to the preview screen with `.image(data)` content for
+    /// the supported WebP and HEIC/HEIF formats, and deletes the temporary file.
+    @Test(arguments: [
+        ("photo.webp", Data.testWebP),
+        ("photo.heic", Data.testHeic),
+        ("photo.heif", Data.testHeic),
+        ("photo.HEIC", Data.testHeic),
+    ])
+    func showPreview_image_webpAndHeic(fileName: String, data: Data) async throws {
+        let attachment = AttachmentView.fixture(fileName: fileName, size: "10", sizeName: "small")
+        let cipher = CipherView.loginFixture()
+        let temporaryUrl = try writeTemporaryFile(data: data)
+        vaultRepository.downloadAttachmentResult = .success(temporaryUrl)
+
+        await subject.showPreview(for: attachment, cipher: cipher)
+
+        guard case let .attachmentPreview(state) = coordinator.routes.last else {
+            Issue.record("Expected a navigation to .attachmentPreview")
+            return
+        }
+        #expect(state.content == .image(data))
+        #expect(!FileManager.default.fileExists(atPath: temporaryUrl.path))
+    }
+
     /// `showPreview(for:cipher:)` navigates to the preview screen with `.unsupportedFileType`
     /// content for a non-image attachment, without attempting to read/decode its data.
     @Test
@@ -210,6 +238,7 @@ struct AttachmentPreviewHelperTests {
             return
         }
         #expect(state.content == .unsupportedFileType(fileExtension: "pdf"))
+        #expect(FileManager.default.fileExists(atPath: temporaryUrl.path))
     }
 
     /// `showPreview(for:cipher:)` shows the existing blocking alert and doesn't navigate when the

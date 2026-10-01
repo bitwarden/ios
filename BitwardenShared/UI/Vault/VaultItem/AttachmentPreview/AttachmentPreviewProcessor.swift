@@ -1,4 +1,5 @@
 import BitwardenKit
+import BitwardenResources
 import Foundation
 
 // MARK: - AttachmentPreviewProcessor
@@ -54,7 +55,13 @@ class AttachmentPreviewProcessor: StateProcessor<
     override func perform(_ effect: AttachmentPreviewEffect) async {
         switch effect {
         case .downloadPressed:
-            coordinator.navigate(to: .saveFile(temporaryUrl: state.temporaryUrl))
+            do {
+                try restoreTemporaryFileIfNeeded()
+                coordinator.navigate(to: .saveFile(temporaryUrl: state.temporaryUrl))
+            } catch {
+                coordinator.showAlert(.defaultAlert(title: Localizations.unableToDownloadFile))
+                services.errorReporter.log(error: error)
+            }
         }
     }
 
@@ -65,5 +72,28 @@ class AttachmentPreviewProcessor: StateProcessor<
         case let .toastShown(newValue):
             state.toast = newValue
         }
+    }
+
+    // MARK: Private Methods
+
+    /// Writes the image content back to `state.temporaryUrl` if its file was deleted after the
+    /// image was loaded into memory, so that it can be saved by the user. The file is removed
+    /// again when this processor is deallocated.
+    ///
+    private func restoreTemporaryFileIfNeeded() throws {
+        let data: Data
+        switch state.content {
+        case let .animatedImage(imageData), let .image(imageData):
+            data = imageData
+        case .fileError, .unsupportedFileType:
+            return
+        }
+
+        guard !FileManager.default.fileExists(atPath: state.temporaryUrl.path) else { return }
+        try FileManager.default.createDirectory(
+            at: state.temporaryUrl.deletingLastPathComponent(),
+            withIntermediateDirectories: true,
+        )
+        try data.write(to: state.temporaryUrl, options: .atomic)
     }
 }
