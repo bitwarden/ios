@@ -11,14 +11,6 @@ import Testing
 
 // swiftlint:disable file_length
 
-// MARK: - PremiumUpgradeStateStore
-
-/// Backing per-user-id storage for `MockBillingStateService`'s premium-upgrade-pending state.
-final class PremiumUpgradeStateStore {
-    var pendingByUserId = [String: Bool]()
-    var upgradedToPremiumCardVisibleByUserId = [String: Bool]()
-}
-
 extension MockStateService {
     /// Sets both the personal and inclusive Premium accessors, so a simulated purchase can't leave
     /// the mock with personal Premium but no Premium.
@@ -30,37 +22,6 @@ extension MockStateService {
     func setPersonalPremium(_ hasPremium: Bool, userId: String) {
         doesAccountHavePremiumPersonallyByUserId[userId] = hasPremium
         doesAccountHavePremiumByUserId[userId] = hasPremium
-    }
-}
-
-extension MockBillingStateService {
-    /// Wires this mock's premium-upgrade-pending methods to per-user-id backing storage.
-    ///
-    /// - Parameters:
-    ///   - stateService: The state service used to resolve a `nil` user ID to the active account.
-    /// - Returns: The backing storage, for tests to seed and inspect.
-    ///
-    func setUpPremiumUpgradeState(stateService: MockStateService) -> PremiumUpgradeStateStore {
-        let state = PremiumUpgradeStateStore()
-
-        getPremiumUpgradePendingClosure = { userId in
-            let userId = try await stateService.getAccountIdOrActiveId(userId: userId)
-            return state.pendingByUserId[userId] ?? false
-        }
-        setPremiumUpgradePendingClosure = { pending, userId in
-            let userId = try await stateService.getAccountIdOrActiveId(userId: userId)
-            state.pendingByUserId[userId] = pending
-        }
-        getUpgradedToPremiumActionCardVisibleClosure = { userId in
-            let userId = try await stateService.getAccountIdOrActiveId(userId: userId)
-            return state.upgradedToPremiumCardVisibleByUserId[userId] ?? false
-        }
-        setUpgradedToPremiumActionCardVisibleClosure = { visible, userId in
-            let userId = try await stateService.getAccountIdOrActiveId(userId: userId)
-            state.upgradedToPremiumCardVisibleByUserId[userId] = visible
-        }
-
-        return state
     }
 }
 
@@ -77,7 +38,6 @@ struct BillingServicePremiumUpgradePendingTests { // swiftlint:disable:this type
     let configService: MockConfigService
     let environmentService: MockEnvironmentService
     let errorReporter: MockErrorReporter
-    let premiumUpgradeStorage: PremiumUpgradeStateStore
     let stateService: MockStateService
     let syncService: MockSyncService
     let subject: DefaultBillingService
@@ -88,6 +48,7 @@ struct BillingServicePremiumUpgradePendingTests { // swiftlint:disable:this type
         billingAPIService = MockBillingAPIService()
         billingAPIService.getSubscriptionReturnValue = .fixture()
         billingStateService = MockBillingStateService()
+        billingStateService.getPremiumUpgradePendingReturnValue = false
         configService = MockConfigService()
         configService.featureFlagsBool[.premiumUpgradePath] = true
         environmentService = MockEnvironmentService()
@@ -95,7 +56,6 @@ struct BillingServicePremiumUpgradePendingTests { // swiftlint:disable:this type
         errorReporter = MockErrorReporter()
         stateService = MockStateService()
         stateService.activeAccount = .fixture()
-        premiumUpgradeStorage = billingStateService.setUpPremiumUpgradeState(stateService: stateService)
         syncService = MockSyncService()
         subject = DefaultBillingService(
             billingAPIService: billingAPIService,
@@ -117,34 +77,36 @@ struct BillingServicePremiumUpgradePendingTests { // swiftlint:disable:this type
     @Test
     func completeUpgradeIfPending_completesGivenAccountNotActiveAccount() async {
         stateService.activeAccount = .fixture(profile: .fixture(userId: "2"))
-        premiumUpgradeStorage.pendingByUserId["1"] = true
+        billingStateService.getPremiumUpgradePendingReturnValue = true
         stateService.setPersonalPremium(true, userId: "1")
 
         await subject.completeUpgradeIfPending(userId: "1")
 
-        #expect(premiumUpgradeStorage.pendingByUserId["1"] == false)
-        #expect(premiumUpgradeStorage.upgradedToPremiumCardVisibleByUserId["1"] == true)
-        #expect(premiumUpgradeStorage.pendingByUserId["2"] == nil)
+        #expect(billingStateService.getPremiumUpgradePendingReceivedUserId == "1")
+        #expect(billingStateService.setPremiumUpgradePendingReceivedArguments?.pending == false)
+        #expect(billingStateService.setPremiumUpgradePendingReceivedArguments?.userId == "1")
+        #expect(billingStateService.setUpgradedToPremiumActionCardVisibleReceivedArguments?.visible == true)
+        #expect(billingStateService.setUpgradedToPremiumActionCardVisibleReceivedArguments?.userId == "1")
     }
 
     /// `completeUpgradeIfPending(userId:)` clears the pending flag once the purchased Premium has
     /// arrived — the sync that finally reports it may be any later sync, not the checkout's own.
     @Test
     func completeUpgradeIfPending_completesPendingUpgradeOnDelayedSync() async {
-        premiumUpgradeStorage.pendingByUserId["1"] = true
+        billingStateService.getPremiumUpgradePendingReturnValue = true
         stateService.setPersonalPremium(false, userId: "1")
 
         await subject.completeUpgradeIfPending(userId: "1")
 
-        #expect(premiumUpgradeStorage.pendingByUserId["1"] == true)
-        #expect(premiumUpgradeStorage.upgradedToPremiumCardVisibleByUserId["1"] == nil)
+        #expect(!billingStateService.setPremiumUpgradePendingCalled)
+        #expect(!billingStateService.setUpgradedToPremiumActionCardVisibleCalled)
 
         stateService.setPersonalPremium(true, userId: "1")
 
         await subject.completeUpgradeIfPending(userId: "1")
 
-        #expect(premiumUpgradeStorage.pendingByUserId["1"] == false)
-        #expect(premiumUpgradeStorage.upgradedToPremiumCardVisibleByUserId["1"] == true)
+        #expect(billingStateService.setPremiumUpgradePendingReceivedArguments?.pending == false)
+        #expect(billingStateService.setUpgradedToPremiumActionCardVisibleReceivedArguments?.visible == true)
     }
 
     /// `completeUpgradeIfPending(userId:)` writes nothing for an account with no pending upgrade,
@@ -155,8 +117,8 @@ struct BillingServicePremiumUpgradePendingTests { // swiftlint:disable:this type
 
         await subject.completeUpgradeIfPending(userId: "1")
 
-        #expect(premiumUpgradeStorage.pendingByUserId["1"] == nil)
-        #expect(premiumUpgradeStorage.upgradedToPremiumCardVisibleByUserId["1"] == nil)
+        #expect(!billingStateService.setPremiumUpgradePendingCalled)
+        #expect(!billingStateService.setUpgradedToPremiumActionCardVisibleCalled)
     }
 
     /// `completeUpgradeIfPending(userId:)` doesn't treat organization-granted Premium as the
@@ -164,44 +126,40 @@ struct BillingServicePremiumUpgradePendingTests { // swiftlint:disable:this type
     /// organization grant arriving mid-flight must leave the upgrade pending.
     @Test
     func completeUpgradeIfPending_withOrganizationPremiumOnly_staysPending() async {
-        premiumUpgradeStorage.pendingByUserId["1"] = true
+        billingStateService.getPremiumUpgradePendingReturnValue = true
         stateService.doesAccountHavePremiumPersonallyByUserId["1"] = false
         stateService.doesAccountHavePremiumByUserId["1"] = true
 
         await subject.completeUpgradeIfPending(userId: "1")
 
-        #expect(premiumUpgradeStorage.pendingByUserId["1"] == true)
-        #expect(premiumUpgradeStorage.upgradedToPremiumCardVisibleByUserId["1"] == nil)
+        #expect(!billingStateService.setPremiumUpgradePendingCalled)
+        #expect(!billingStateService.setUpgradedToPremiumActionCardVisibleCalled)
     }
 
     /// `completeUpgradeIfPending(userId:)` logs the error and writes nothing when reading the
     /// pending flag throws.
     @Test
     func completeUpgradeIfPending_withReadError_logsError() async {
-        billingStateService.getPremiumUpgradePendingClosure = { _ in
-            throw BitwardenTestError.example
-        }
+        billingStateService.getPremiumUpgradePendingThrowableError = BitwardenTestError.example
 
         await subject.completeUpgradeIfPending(userId: "1")
 
         #expect(errorReporter.errors.last as? BitwardenTestError == .example)
-        #expect(premiumUpgradeStorage.pendingByUserId["1"] == nil)
+        #expect(!billingStateService.setPremiumUpgradePendingCalled)
     }
 
     /// `completeUpgradeIfPending(userId:)` logs the error and doesn't reveal the card when clearing
     /// the pending flag throws.
     @Test
     func completeUpgradeIfPending_withWriteError_logsError() async {
-        premiumUpgradeStorage.pendingByUserId["1"] = true
+        billingStateService.getPremiumUpgradePendingReturnValue = true
+        billingStateService.setPremiumUpgradePendingThrowableError = BitwardenTestError.example
         stateService.setPersonalPremium(true, userId: "1")
-        billingStateService.setPremiumUpgradePendingClosure = { _, _ in
-            throw BitwardenTestError.example
-        }
 
         await subject.completeUpgradeIfPending(userId: "1")
 
         #expect(errorReporter.errors.last as? BitwardenTestError == .example)
-        #expect(premiumUpgradeStorage.upgradedToPremiumCardVisibleByUserId["1"] == nil)
+        #expect(!billingStateService.setUpgradedToPremiumActionCardVisibleCalled)
     }
 
     // MARK: premiumCheckoutSucceeded
@@ -226,8 +184,9 @@ struct BillingServicePremiumUpgradePendingTests { // swiftlint:disable:this type
 
         try await waitForAsync { !statuses.isEmpty }
         #expect(statuses == [.confirmed])
-        #expect(premiumUpgradeStorage.pendingByUserId["1"] == true)
-        #expect(premiumUpgradeStorage.pendingByUserId["2"] == nil)
+        #expect(billingStateService.setPremiumUpgradePendingCallsCount == 1)
+        #expect(billingStateService.setPremiumUpgradePendingReceivedArguments?.pending == true)
+        #expect(billingStateService.setPremiumUpgradePendingReceivedArguments?.userId == "1")
     }
 
     /// `premiumCheckoutSucceeded()` marks the upgrade pending, force-syncs, and publishes
@@ -249,8 +208,8 @@ struct BillingServicePremiumUpgradePendingTests { // swiftlint:disable:this type
         try await waitForAsync { !statuses.isEmpty }
         #expect(statuses == [.confirmed])
         #expect(syncService.fetchSyncForceSync == true)
-        #expect(premiumUpgradeStorage.pendingByUserId["1"] == true)
-        #expect(premiumUpgradeStorage.upgradedToPremiumCardVisibleByUserId["1"] == nil)
+        #expect(billingStateService.setPremiumUpgradePendingReceivedArguments?.pending == true)
+        #expect(!billingStateService.setUpgradedToPremiumActionCardVisibleCalled)
         #expect(!billingAPIService.getSubscriptionCalled)
     }
 
@@ -262,7 +221,7 @@ struct BillingServicePremiumUpgradePendingTests { // swiftlint:disable:this type
         await subject.premiumCheckoutSucceeded()
 
         #expect(!syncService.didFetchSync)
-        #expect(premiumUpgradeStorage.pendingByUserId["1"] == nil)
+        #expect(!billingStateService.setPremiumUpgradePendingCalled)
     }
 
     /// `premiumCheckoutSucceeded()` logs the error and publishes `.pending` without syncing when
@@ -301,7 +260,7 @@ struct BillingServicePremiumUpgradePendingTests { // swiftlint:disable:this type
 
         try await waitForAsync { !statuses.isEmpty }
         #expect(statuses == [.pending])
-        #expect(premiumUpgradeStorage.pendingByUserId["1"] == true)
+        #expect(billingStateService.setPremiumUpgradePendingReceivedArguments?.pending == true)
     }
 
     /// `premiumCheckoutSucceeded()` leaves the upgrade pending and publishes `.pending` when the
@@ -318,7 +277,7 @@ struct BillingServicePremiumUpgradePendingTests { // swiftlint:disable:this type
 
         try await waitForAsync { !statuses.isEmpty }
         #expect(statuses == [.pending])
-        #expect(premiumUpgradeStorage.pendingByUserId["1"] == true)
+        #expect(billingStateService.setPremiumUpgradePendingReceivedArguments?.pending == true)
     }
 
     /// `premiumCheckoutSucceeded()` does nothing when the environment is self-hosted.
@@ -329,7 +288,7 @@ struct BillingServicePremiumUpgradePendingTests { // swiftlint:disable:this type
         await subject.premiumCheckoutSucceeded()
 
         #expect(!syncService.didFetchSync)
-        #expect(premiumUpgradeStorage.pendingByUserId["1"] == nil)
+        #expect(!billingStateService.setPremiumUpgradePendingCalled)
     }
 
     /// `premiumCheckoutSucceeded()` leaves the upgrade pending (so a later sync can complete it),
@@ -348,7 +307,7 @@ struct BillingServicePremiumUpgradePendingTests { // swiftlint:disable:this type
         try await waitForAsync { !statuses.isEmpty }
         #expect(statuses == [.pending])
         #expect(errorReporter.errors.first is URLError)
-        #expect(premiumUpgradeStorage.pendingByUserId["1"] == true)
+        #expect(billingStateService.setPremiumUpgradePendingReceivedArguments?.pending == true)
     }
 
     /// `premiumCheckoutSucceeded()` publishes `.pending` when the sync throws, even if it persisted
@@ -370,8 +329,8 @@ struct BillingServicePremiumUpgradePendingTests { // swiftlint:disable:this type
 
         try await waitForAsync { !statuses.isEmpty }
         #expect(statuses == [.pending])
-        #expect(premiumUpgradeStorage.pendingByUserId["1"] == true)
-        #expect(premiumUpgradeStorage.upgradedToPremiumCardVisibleByUserId["1"] == nil)
+        #expect(billingStateService.setPremiumUpgradePendingReceivedArguments?.pending == true)
+        #expect(!billingStateService.setUpgradedToPremiumActionCardVisibleCalled)
     }
 
     /// `premiumCheckoutSucceeded()` logs the error, still syncs, and still publishes `.pending`
@@ -379,9 +338,7 @@ struct BillingServicePremiumUpgradePendingTests { // swiftlint:disable:this type
     @Test
     func premiumCheckoutSucceeded_withWriteError_logsErrorAndPublishesPending() async throws {
         stateService.setPersonalPremium(false, userId: "1")
-        billingStateService.setPremiumUpgradePendingClosure = { _, _ in
-            throw BitwardenTestError.example
-        }
+        billingStateService.setPremiumUpgradePendingThrowableError = BitwardenTestError.example
         var statuses = [PremiumCheckoutStatus]()
         let cancellable = subject.premiumCheckoutStatusPublisher()
             .sink { statuses.append($0) }
@@ -401,9 +358,7 @@ struct BillingServicePremiumUpgradePendingTests { // swiftlint:disable:this type
     @Test
     func premiumCheckoutSucceeded_withWriteError_premiumLanded_publishesConfirmed() async throws {
         stateService.setPersonalPremium(false, userId: "1")
-        billingStateService.setPremiumUpgradePendingClosure = { _, _ in
-            throw BitwardenTestError.example
-        }
+        billingStateService.setPremiumUpgradePendingThrowableError = BitwardenTestError.example
         syncService.fetchSyncHandler = {
             stateService.setPersonalPremium(true, userId: "1")
         }
@@ -426,7 +381,7 @@ struct BillingServicePremiumUpgradePendingTests { // swiftlint:disable:this type
     /// and cards to the sync's completion handling.
     @Test
     func retryPendingUpgrade_confirmed() async throws {
-        premiumUpgradeStorage.pendingByUserId["1"] = true
+        billingStateService.getPremiumUpgradePendingReturnValue = true
         stateService.setPersonalPremium(false, userId: "1")
         syncService.fetchSyncHandler = {
             stateService.setPersonalPremium(true, userId: "1")
@@ -441,8 +396,8 @@ struct BillingServicePremiumUpgradePendingTests { // swiftlint:disable:this type
         try await waitForAsync { !statuses.isEmpty }
         #expect(statuses == [.confirmed])
         #expect(syncService.fetchSyncForceSync == true)
-        #expect(premiumUpgradeStorage.pendingByUserId["1"] == true)
-        #expect(premiumUpgradeStorage.upgradedToPremiumCardVisibleByUserId["1"] == nil)
+        #expect(!billingStateService.setPremiumUpgradePendingCalled)
+        #expect(!billingStateService.setUpgradedToPremiumActionCardVisibleCalled)
         #expect(!billingAPIService.getSubscriptionCalled)
     }
 
@@ -454,7 +409,7 @@ struct BillingServicePremiumUpgradePendingTests { // swiftlint:disable:this type
         await subject.retryPendingUpgrade()
 
         #expect(!syncService.didFetchSync)
-        #expect(premiumUpgradeStorage.pendingByUserId["1"] == nil)
+        #expect(!billingStateService.setPremiumUpgradePendingCalled)
     }
 
     /// `retryPendingUpgrade()` logs the error and publishes `.pending` without syncing when the
@@ -480,7 +435,7 @@ struct BillingServicePremiumUpgradePendingTests { // swiftlint:disable:this type
     /// when its sync still doesn't find Premium.
     @Test
     func retryPendingUpgrade_pending() async throws {
-        premiumUpgradeStorage.pendingByUserId["1"] = true
+        billingStateService.getPremiumUpgradePendingReturnValue = true
         stateService.setPersonalPremium(false, userId: "1")
         var statuses = [PremiumCheckoutStatus]()
         let cancellable = subject.premiumCheckoutStatusPublisher()
@@ -491,13 +446,13 @@ struct BillingServicePremiumUpgradePendingTests { // swiftlint:disable:this type
 
         try await waitForAsync { !statuses.isEmpty }
         #expect(statuses == [.pending])
-        #expect(premiumUpgradeStorage.pendingByUserId["1"] == true)
+        #expect(!billingStateService.setPremiumUpgradePendingCalled)
     }
 
     /// `retryPendingUpgrade()` logs the error and publishes `.pending` when the forced sync throws.
     @Test
     func retryPendingUpgrade_syncError() async throws {
-        premiumUpgradeStorage.pendingByUserId["1"] = true
+        billingStateService.getPremiumUpgradePendingReturnValue = true
         stateService.setPersonalPremium(false, userId: "1")
         syncService.fetchSyncResult = .failure(URLError(.notConnectedToInternet))
         var statuses = [PremiumCheckoutStatus]()
@@ -510,7 +465,7 @@ struct BillingServicePremiumUpgradePendingTests { // swiftlint:disable:this type
         try await waitForAsync { !statuses.isEmpty }
         #expect(statuses == [.pending])
         #expect(errorReporter.errors.first is URLError)
-        #expect(premiumUpgradeStorage.pendingByUserId["1"] == true)
+        #expect(!billingStateService.setPremiumUpgradePendingCalled)
     }
 
     /// `retryPendingUpgrade()` never marks an upgrade pending, so a "Sync Now" tap that doesn't
@@ -528,7 +483,7 @@ struct BillingServicePremiumUpgradePendingTests { // swiftlint:disable:this type
         try await waitForAsync { !statuses.isEmpty }
         #expect(statuses == [.pending])
         #expect(syncService.didFetchSync)
-        #expect(premiumUpgradeStorage.pendingByUserId["1"] == nil)
-        #expect(premiumUpgradeStorage.upgradedToPremiumCardVisibleByUserId["1"] == nil)
+        #expect(!billingStateService.setPremiumUpgradePendingCalled)
+        #expect(!billingStateService.setUpgradedToPremiumActionCardVisibleCalled)
     }
 }
