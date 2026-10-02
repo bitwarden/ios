@@ -399,6 +399,7 @@ struct AddEditSendItemView: View { // swiftlint:disable:this type_body_length
                         send: { .recipientEmailChanged(index: index, value: $0) },
                     ),
                     accessibilityIdentifier: "SendRecipientEmailEntry",
+                    focus: .field($focusedRecipientEmailIndex, equals: index),
                 ) {
                     if store.state.shouldShowTrashIcon(for: index) {
                         Button {
@@ -411,7 +412,6 @@ struct AddEditSendItemView: View { // swiftlint:disable:this type_body_length
                         .accessibilityIdentifier("RemoveRecipientEmailButton")
                     }
                 }
-                .focused($focusedRecipientEmailIndex, equals: index)
                 .textFieldConfiguration(.email)
                 .accessibilityIdentifier("EmailRecipientCell")
 
