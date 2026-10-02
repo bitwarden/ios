@@ -35,6 +35,29 @@ public enum SessionTimeoutValue: Codable, RawRepresentable, Equatable, Hashable,
     /// A custom timeout value.
     case custom(Int)
 
+    /// Whether this timeout value allows the user session key to be shared across process boundaries.
+    ///
+    /// Returns `false` for values that treat a process boundary as a lock trigger (`.immediately` and
+    /// `.onAppRestart`) and for `.never`, which uses a dedicated `neverLock` keychain item instead.
+    /// Returns `true` for all timed timeout values.
+    ///
+    public var allowsUserSessionKeySharing: Bool {
+        switch self {
+        case .immediately,
+             .never,
+             .onAppRestart:
+            false
+        case .custom,
+             .fifteenMinutes,
+             .fiveMinutes,
+             .fourHours,
+             .oneHour,
+             .oneMinute,
+             .thirtyMinutes:
+            true
+        }
+    }
+
     /// The session timeout value in seconds.
     public var seconds: Int {
         rawValue * 60

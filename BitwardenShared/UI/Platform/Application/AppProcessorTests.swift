@@ -22,6 +22,7 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
     var authRepository: MockAuthRepository!
     var authenticatorSyncService: MockAuthenticatorSyncService!
     var autofillCredentialService: MockAutofillCredentialService!
+    var backgroundSessionCleanupService: MockBackgroundSessionCleanupService!
     var billingService: MockBillingService!
     var clientService: MockClientService!
     var configService: MockConfigService!
@@ -60,6 +61,7 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
         authRepository = MockAuthRepository()
         authenticatorSyncService = MockAuthenticatorSyncService()
         autofillCredentialService = MockAutofillCredentialService()
+        backgroundSessionCleanupService = MockBackgroundSessionCleanupService()
         billingService = MockBillingService()
         clientService = MockClientService()
         configService = MockConfigService()
@@ -95,6 +97,7 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
                 authRepository: authRepository,
                 authenticatorSyncService: authenticatorSyncService,
                 autofillCredentialService: autofillCredentialService,
+                backgroundSessionCleanupService: backgroundSessionCleanupService,
                 billingService: billingService,
                 clientService: clientService,
                 configService: configService,
@@ -125,6 +128,7 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
         appModule = nil
         authRepository = nil
         autofillCredentialService = nil
+        backgroundSessionCleanupService = nil
         billingService = nil
         clientService = nil
         configService = nil
@@ -173,6 +177,63 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
         vaultTimeoutService.lastActiveTime[account.profile.userId] = .distantPast
 
         notificationCenterService.didEnterBackgroundSubject.send()
+        waitFor(vaultTimeoutService.lastActiveTime[account.profile.userId] != .distantPast)
+
+        let updated = vaultTimeoutService.lastActiveTime[account.profile.userId]
+
+        XCTAssertEqual(timeProvider.presentTime.timeIntervalSince1970, updated!.timeIntervalSince1970, accuracy: 1.0)
+    }
+
+    /// The background session key cleanup task is rescheduled when the app is backgrounded.
+    @MainActor
+    func test_appBackgrounded_reschedulesSessionCleanup() {
+        notificationCenterService.didEnterBackgroundSubject.send()
+        waitFor(backgroundSessionCleanupService.scheduleNextRefreshCalled)
+        XCTAssertTrue(backgroundSessionCleanupService.scheduleNextRefreshCalled)
+    }
+
+    /// The background session key cleanup task is rescheduled when the app resigns active, to
+    /// cover the case where the app is killed before `didEnterBackground` fires.
+    @MainActor
+    func test_appWillResignActive_reschedulesSessionCleanup() {
+        notificationCenterService.willResignActiveSubject.send()
+        waitFor(backgroundSessionCleanupService.scheduleNextRefreshCalled)
+        XCTAssertTrue(backgroundSessionCleanupService.scheduleNextRefreshCalled)
+    }
+
+    /// `init()` subscribes to app will-resign-active events and logs an error if one occurs when
+    /// setting the last active time.
+    @MainActor
+    func test_appWillResignActive_error() {
+        stateService.activeAccount = .fixture()
+        vaultTimeoutService.setLastActiveTimeError = BitwardenTestError.example
+
+        notificationCenterService.willResignActiveSubject.send()
+
+        waitFor(!errorReporter.errors.isEmpty)
+        XCTAssertEqual(errorReporter.errors as? [BitwardenTestError], [.example])
+    }
+
+    /// `init()` subscribes to app will-resign-active events but does not log an error or update
+    /// the last active time if there's no active account.
+    @MainActor
+    func test_appWillResignActive_noActiveAccount() {
+        notificationCenterService.willResignActiveSubject.send()
+
+        waitFor(backgroundSessionCleanupService.scheduleNextRefreshCalled)
+        XCTAssertTrue(errorReporter.errors.isEmpty)
+        XCTAssertTrue(vaultTimeoutService.lastActiveTime.isEmpty)
+    }
+
+    /// The user's last active time is updated when the app resigns active.
+    @MainActor
+    func test_appWillResignActive_setLastActiveTime() {
+        let account: Account = .fixture()
+        stateService.activeAccount = account
+
+        vaultTimeoutService.lastActiveTime[account.profile.userId] = .distantPast
+
+        notificationCenterService.willResignActiveSubject.send()
         waitFor(vaultTimeoutService.lastActiveTime[account.profile.userId] != .distantPast)
 
         let updated = vaultTimeoutService.lastActiveTime[account.profile.userId]
