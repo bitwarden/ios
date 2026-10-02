@@ -1376,9 +1376,7 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
 
         await subject.onFetchSyncSucceeded(userId: "1")
 
-        XCTAssertNil(stateService.pinProtectedUserKeyValue["1"])
-        XCTAssertNil(stateService.encryptedPinByUserId["1"])
-        XCTAssertNil(stateService.accountVolatileData["1"])
+        XCTAssertTrue(authRepository.clearPinsCalled)
     }
 
     /// `onFetchSyncSucceeded(userId:)` doesn't clear the unlock user pins when it has performed sync after login
@@ -1393,9 +1391,7 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
 
         await subject.onFetchSyncSucceeded(userId: "1")
 
-        XCTAssertNotNil(stateService.pinProtectedUserKeyValue["1"])
-        XCTAssertNotNil(stateService.encryptedPinByUserId["1"])
-        XCTAssertNotNil(stateService.accountVolatileData["1"])
+        XCTAssertFalse(authRepository.clearPinsCalled)
         XCTAssertTrue(stateService.hasPerformedSyncAfterLogin["1"] == true)
     }
 
@@ -1457,14 +1453,14 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
         stateService.accountVolatileData["1"] = AccountVolatileData(pinProtectedUserKey: "pin")
         stateService.hasPerformedSyncAfterLogin["1"] = false
         policyService.policyAppliesToUserResult[.removeUnlockWithPin] = true
-        stateService.activeAccount = nil
+        authRepository.clearPinsResult = .failure(BitwardenTestError.example)
 
         await subject.onFetchSyncSucceeded(userId: "1")
 
         XCTAssertNotNil(stateService.pinProtectedUserKeyValue["1"])
         XCTAssertNotNil(stateService.encryptedPinByUserId["1"])
         XCTAssertNotNil(stateService.accountVolatileData["1"])
-        XCTAssertEqual(errorReporter.errors as? [StateServiceError], [.noActiveAccount])
+        XCTAssertEqual(errorReporter.errors as? [BitwardenTestError], [.example])
     }
 
     /// `onFetchSyncSucceeded(userId:)` triggers a subscription attention card refresh on every sync.

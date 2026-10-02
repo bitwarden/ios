@@ -73,6 +73,13 @@ protocol ClientService {
     ///
     func sends(for userId: String?) async throws -> SendClientProtocol
 
+    /// Returns a `UserCryptoManagementClientService` for SDK-managed user crypto state tasks.
+    ///
+    /// - Parameter userId: The user ID mapped to the client instance.
+    /// - Returns: A `UserCryptoManagementClientService` for SDK-managed user crypto state tasks.
+    ///
+    func userCryptoManagement(for userId: String?) async throws -> UserCryptoManagementClientService
+
     /// Returns a `VaultClientService` for vault data tasks.
     ///
     /// - Parameter userId: The user ID mapped to the client instance.
@@ -138,6 +145,12 @@ extension ClientService {
     ///
     func sends() async throws -> SendClientProtocol {
         try await sends(for: nil)
+    }
+
+    /// Returns a `UserCryptoManagementClientService` for SDK-managed user crypto state tasks.
+    ///
+    func userCryptoManagement() async throws -> UserCryptoManagementClientService {
+        try await userCryptoManagement(for: nil)
     }
 
     /// Returns a `VaultClientService` for vault data tasks.
@@ -250,6 +263,10 @@ actor DefaultClientService: ClientService {
 
     func sends(for userId: String?) async throws -> SendClientProtocol {
         try await client(for: userId).sends()
+    }
+
+    func userCryptoManagement(for userId: String?) async throws -> UserCryptoManagementClientService {
+        try await client(for: userId).userCryptoManagement()
     }
 
     func vault(for userId: String?) async throws -> VaultClientService {
@@ -381,6 +398,9 @@ protocol BitwardenSdkClient {
     /// Returns sends operations.
     func sends() -> SendClientProtocol
 
+    /// Returns SDK-managed user crypto state operations.
+    func userCryptoManagement() -> UserCryptoManagementClientService
+
     /// Returns vault operations.
     func vault() -> VaultClientService
 }
@@ -418,6 +438,10 @@ extension Client: BitwardenSdkClient {
 
     func sends() -> SendClientProtocol {
         sends() as SendClient
+    }
+
+    func userCryptoManagement() -> UserCryptoManagementClientService {
+        userCryptoManagement() as UserCryptoManagementClient
     }
 
     func vault() -> VaultClientService {
