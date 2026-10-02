@@ -1045,6 +1045,22 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         XCTAssertEqual(result, [.secureNote, .identity, .card, .login])
     }
 
+    /// `getItemTypesUserCanCreate()` returns item types in reverse of the order they should
+    /// appear in the add item menu, since the menu content is rendered in reverse so it displays
+    /// correctly when it opens upward from the floating action button.
+    @MainActor
+    func test_getItemTypesUserCanCreate_order() async throws {
+        stateService.activeAccount = .fixture()
+        policyService.policyAppliesToUserPolicies = []
+        configService.featureFlagsBool[.newItemTypes] = true
+
+        let result = await subject.getItemTypesUserCanCreate()
+        XCTAssertEqual(
+            result,
+            [.secureNote, .passport, .driversLicense, .identity, .bankAccount, .card, .login],
+        )
+    }
+
     /// `getItemTypesUserCanCreate()` includes the gated `.bankAccount` and `.driversLicense` types
     /// when the `.newItemTypes` feature flag is enabled.
     @MainActor
