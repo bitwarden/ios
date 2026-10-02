@@ -74,6 +74,16 @@ struct VaultListStateTests {
         #expect(state.activeActionCard == nil)
     }
 
+    /// `activeActionCard` returns the archive onboarding card when the vault is populated, since
+    /// the user has items to archive.
+    @Test
+    func activeActionCard_introducingArchive_shownInPopulatedVault() {
+        var state = VaultListState()
+        state.shouldShowArchiveOnboardingActionCard = true
+        state.loadingState = .data([VaultListSection(id: "1", items: [VaultListItem.fixture()], name: "")])
+        #expect(state.activeActionCard == .introducingArchive)
+    }
+
     /// `activeActionCard` returns `nil` for the import logins card when the vault is populated,
     /// preserving the original behavior where the card only appeared on an empty vault.
     @Test
