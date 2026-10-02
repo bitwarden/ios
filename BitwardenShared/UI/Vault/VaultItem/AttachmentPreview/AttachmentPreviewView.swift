@@ -33,6 +33,7 @@ struct AttachmentPreviewView: View {
                     Text(store.state.truncatedFileName)
                         .styleGuide(.headline)
                         .lineLimit(1)
+                        .truncationMode(.middle)
                 }
 
                 downloadToolbarItem {
