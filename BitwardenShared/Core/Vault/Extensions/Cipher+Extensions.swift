@@ -40,7 +40,9 @@ extension Cipher {
         case .sshKey:
             type == .sshKey
         case .totp:
-            login?.totp != nil
+            // Blob-encrypted ciphers store `login` within the encrypted `data` blob, so whether a
+            // cipher has a TOTP key can only be determined after decryption.
+            type == .login
         case .trash:
             deletedDate != nil
         }
