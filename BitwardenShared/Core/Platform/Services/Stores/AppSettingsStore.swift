@@ -294,6 +294,14 @@ protocol AppSettingsStore: AnyObject {
     ///
     func premiumUpgradeBannerDismissed(userId: String) -> Bool
 
+    /// Gets whether a Premium upgrade is pending for the given user.
+    ///
+    /// - Parameters:
+    ///   - userId: The user ID.
+    /// - Returns: Whether a Premium upgrade is pending.
+    ///
+    func premiumUpgradePending(userId: String) -> Bool
+
     /// Gets whether the "subscription needs attention" action card should be shown for the given user.
     ///
     /// - Parameter userId: The user ID.
@@ -572,6 +580,14 @@ protocol AppSettingsStore: AnyObject {
     ///   - userId: The user ID associated with the Premium upgrade banner dismissed value.
     ///
     func setPremiumUpgradeBannerDismissed(_ dismissed: Bool, userId: String)
+
+    /// Sets whether a Premium upgrade is pending for the given user.
+    ///
+    /// - Parameters:
+    ///   - pending: Whether a Premium upgrade is pending.
+    ///   - userId: The user ID.
+    ///
+    func setPremiumUpgradePending(_ pending: Bool, userId: String)
 
     /// Sets whether the "subscription needs attention" action card should be shown for the given user.
     ///
@@ -912,6 +928,7 @@ extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore {
         case accountCreationEnvironmentURLs(email: String)
         case preAuthServerConfig
         case premiumUpgradeBannerDismissed(userId: String)
+        case premiumUpgradePending(userId: String)
         case rememberedEmail
         case rememberedOrgIdentifier
         case reviewPromptData
@@ -1030,6 +1047,8 @@ extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore {
                 "preAuthServerConfig"
             case let .premiumUpgradeBannerDismissed(userId):
                 "premiumUpgradeBannerDismissed_\(userId)"
+            case let .premiumUpgradePending(userId):
+                "premiumUpgradePending_\(userId)"
             case .rememberedEmail:
                 "rememberedEmail"
             case .rememberedOrgIdentifier:
@@ -1307,6 +1326,10 @@ extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore {
         fetch(for: .premiumUpgradeBannerDismissed(userId: userId))
     }
 
+    func premiumUpgradePending(userId: String) -> Bool {
+        fetch(for: .premiumUpgradePending(userId: userId))
+    }
+
     func subscriptionAttentionCardVisible(userId: String) -> Bool {
         fetch(for: .subscriptionAttentionCardVisible(userId: userId))
     }
@@ -1450,6 +1473,10 @@ extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore {
 
     func setPremiumUpgradeBannerDismissed(_ dismissed: Bool, userId: String) {
         store(dismissed, for: .premiumUpgradeBannerDismissed(userId: userId))
+    }
+
+    func setPremiumUpgradePending(_ pending: Bool, userId: String) {
+        store(pending, for: .premiumUpgradePending(userId: userId))
     }
 
     func setSubscriptionAttentionCardVisible(_ visible: Bool, userId: String) {
