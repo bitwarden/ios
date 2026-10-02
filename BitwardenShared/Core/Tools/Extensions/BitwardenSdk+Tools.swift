@@ -11,7 +11,10 @@ extension SendDataModel {
         // The API stores the item's cipher as an opaque JSON string.
         let cipher = try CipherDetailsResponseModel(cipher: sendItem.data)
         let data = try JSONEncoder.defaultEncoder.encode(cipher)
-        self.init(data: String(data: data, encoding: .utf8))
+        self.init(
+            data: String(data: data, encoding: .utf8),
+            encryptionVersion: SendEncryptionVersion(encryptionType: sendItem.encryptionVersion),
+        )
     }
 }
 
@@ -129,11 +132,12 @@ extension BitwardenSdk.SendType {
 
 extension BitwardenSdk.SendItem {
     init(sendDataModel model: SendDataModel) throws {
-        guard let data = model.data?.data(using: .utf8) else {
+        guard let encryptionVersion = model.encryptionVersion.sdkEncryptionType,
+              let data = model.data?.data(using: .utf8) else {
             throw DataMappingError.invalidData
         }
         let cipher = try CipherDetailsResponseModel.decoder.decode(CipherDetailsResponseModel.self, from: data)
-        self.init(encryptionVersion: .v1, data: Cipher(responseModel: cipher))
+        self.init(encryptionVersion: encryptionVersion, data: Cipher(responseModel: cipher))
     }
 }
 
