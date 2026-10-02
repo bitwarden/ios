@@ -81,14 +81,6 @@ protocol PolicyService: AnyObject {
     ///   - userId: The user ID associated with the policies.
     ///
     func replacePolicies(_ policies: [PolicyResponseModel], userId: String) async throws
-
-    /// Replaces the list of accepted-state policies (from `policiesNew`) for the user.
-    ///
-    /// - Parameters:
-    ///   - policies: The list of accepted-state policies.
-    ///   - userId: The user ID associated with the policies.
-    ///
-    func replacePoliciesNew(_ policies: [PolicyResponseModel], userId: String) async throws
 }
 
 // MARK: - DefaultPolicyService
@@ -116,9 +108,6 @@ actor DefaultPolicyService: PolicyService {
 
     /// The list of policies, keyed by the user's ID.
     private var policiesByUserId = [String: [Policy]]()
-
-    /// The list of accepted-state policies (from `policiesNew`), keyed by the user's ID.
-    private var policiesNewByUserId = [String: [Policy]]()
 
     /// The service used by the application to manage account state.
     let stateService: StateService
@@ -154,27 +143,6 @@ actor DefaultPolicyService: PolicyService {
 
     // MARK: Private
 
-    /// Determines whether an organization is exempt from a specific policy.
-    ///
-    /// - Parameters:
-    ///   - organization: The organization used to determine if it is exempt.
-    ///   - policyType: The policy to check.
-    /// - Returns: Whether the organization is exempt from the policy.
-    ///
-    private func isOrganization(_ organization: Organization, exemptFrom policyType: PolicyType) -> Bool {
-        if policyType == .passwordGenerator
-            || policyType == .removeUnlockWithPin
-            || policyType == .restrictItemTypes {
-            return false
-        }
-
-        if policyType == .maximumVaultTimeout {
-            return organization.type == .owner
-        }
-
-        return organization.isExemptFromPolicies
-    }
-
     /// Determines whether a policy applies to the active user.
     ///
     /// - Parameters:
@@ -188,12 +156,11 @@ actor DefaultPolicyService: PolicyService {
 
     /// The list of policies for a policy type that apply to the active user.
     ///
-    /// When the `policiesInAcceptedState` feature flag is enabled, evaluation is delegated to the
-    /// Bitwarden SDK via `PoliciesClient.filterByType`. Otherwise, the legacy native filter is used.
+    /// Evaluation is delegated to the Bitwarden SDK via `PoliciesClient.filterByType`.
     ///
     /// - Parameters:
     ///   - policyType: The policy to check.
-    ///   - filter: An optional filter to apply to the list of policies before SDK/native evaluation.
+    ///   - filter: An optional filter to apply to the list of policies before SDK evaluation.
     /// - Returns: The list of policies that apply to the user.
     ///
     private func policiesApplyingToUser(_ policyType: PolicyType, filter: ((Policy) -> Bool)? = nil) async -> [Policy] {
@@ -201,22 +168,6 @@ actor DefaultPolicyService: PolicyService {
               let organizations = try? await organizationService.fetchAllOrganizations()
         else {
             return []
-        }
-
-        guard await configService.getFeatureFlag(.policiesInAcceptedState) else {
-            guard let policies = try? await policiesForUser(userId: userId, type: policyType, filter: filter) else {
-                return []
-            }
-
-            // Legacy native filter: the policy applies when the organization is in accepted or confirmed
-            // state, uses policies, and the user is not exempt from the policy.
-            return policies.filter { policy in
-                guard let organization = organizations.first(where: { $0.id == policy.organizationId })
-                else { return false }
-                return (organization.status == .accepted || organization.status == .confirmed) &&
-                    organization.usePolicies &&
-                    !isOrganization(organization, exemptFrom: policyType)
-            }
         }
 
         do {
@@ -251,7 +202,7 @@ actor DefaultPolicyService: PolicyService {
             return []
         }
 
-        let policies = try await policiesNewForUser(userId: userId, filter: filter)
+        let policies = try await policiesForUser(userId: userId, filter: filter)
         let sdkPolicies = policies.compactMap { BitwardenSdk.PolicyView($0) }
         guard !sdkPolicies.isEmpty else {
             return []
@@ -267,17 +218,15 @@ actor DefaultPolicyService: PolicyService {
         return filtered.map { Policy($0) }
     }
 
-    /// Returns the list of policies that are assigned to the user.
+    /// Returns all policies for the user, using an in-memory cache.
     ///
     /// - Parameters:
     ///   - userId: The user ID of the user.
-    ///   - type: The type of policies to return.
     ///   - filter: An optional filter to apply to the list of policies.
-    /// - Returns: The list of the user's policies.
+    /// - Returns: All of the user's policies with the filter applied, if any.
     ///
     private func policiesForUser(
         userId: String,
-        type: PolicyType,
         filter: ((Policy) -> Bool)? = nil,
     ) async throws -> [Policy] {
         let policies: [Policy]
@@ -286,30 +235,6 @@ actor DefaultPolicyService: PolicyService {
         } else {
             policies = try await policyDataStore.fetchAllPolicies(userId: userId)
             policiesByUserId[userId] = policies
-        }
-
-        return policies.filter { policy in
-            policy.enabled && policy.type == type && filter?(policy) ?? true
-        }
-    }
-
-    /// Returns all accepted-state policies (`policiesNew`) for the user, using an in-memory cache.
-    ///
-    /// - Parameters:
-    ///   - userId: The user ID of the user.
-    ///   - filter: An optional filter to apply to the list of policies.
-    /// - Returns: All policies from the accepted-state store with the filter applied, if any.
-    ///
-    private func policiesNewForUser(
-        userId: String,
-        filter: ((Policy) -> Bool)? = nil,
-    ) async throws -> [Policy] {
-        let policies: [Policy]
-        if let cachedPolicies = policiesNewByUserId[userId] {
-            policies = cachedPolicies
-        } else {
-            policies = try await policyDataStore.fetchAllPoliciesNew(userId: userId)
-            policiesNewByUserId[userId] = policies
         }
 
         return filter.map { policies.filter($0) } ?? policies
@@ -542,10 +467,5 @@ extension DefaultPolicyService {
     func replacePolicies(_ policies: [PolicyResponseModel], userId: String) async throws {
         policiesByUserId[userId] = policies.map(Policy.init)
         try await policyDataStore.replacePolicies(policies, userId: userId)
-    }
-
-    func replacePoliciesNew(_ policies: [PolicyResponseModel], userId: String) async throws {
-        policiesNewByUserId[userId] = policies.map(Policy.init)
-        try await policyDataStore.replacePoliciesNew(policies, userId: userId)
     }
 }

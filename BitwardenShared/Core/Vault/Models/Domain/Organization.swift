@@ -91,9 +91,4 @@ extension Organization {
     var isAdmin: Bool {
         [OrganizationUserType.owner, OrganizationUserType.admin].contains(type)
     }
-
-    /// Whether the user is exempt from policies.
-    var isExemptFromPolicies: Bool {
-        canManagePolicies
-    }
 }

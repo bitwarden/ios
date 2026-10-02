@@ -45,7 +45,6 @@
   "collections": [],
   "ciphers": [],
   "domains": null,
-  "policies": [],
   "policiesNew": [
     {
       "id": "policy-new-1",
