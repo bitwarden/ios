@@ -206,6 +206,74 @@ final class AuthenticatorSyncServiceTests: BitwardenTestCase { // swiftlint:disa
         XCTAssertFalse(keychainRepository.setAuthenticatorVaultKeyCalled)
     }
 
+    /// When Ciphers are published, the service decrypts blob-encrypted ciphers (whose login is stored
+    /// in the encrypted `data` blob) and syncs them if the decrypted login contains a TOTP key.
+    ///
+    @MainActor
+    func test_decryptTOTPs_blobEncryptedCipherWithTOTP() async throws {
+        authenticatorClientService.mockVault.clientCiphers.decryptClosure = { cipher in
+            CipherView.fixture(
+                id: cipher.id,
+                login: .fixture(
+                    username: "blob@example.com",
+                    totp: "blob-totp",
+                ),
+                name: "Blob Item",
+            )
+        }
+        setupInitialState()
+        await subject.start()
+        cipherDataStore.cipherSubjectByUserId["1"]?.send([
+            .fixture(data: "encrypted-data", id: "blob", login: nil, name: nil),
+        ])
+        stateService.syncToAuthenticatorSubject.send(("1", true))
+        try await waitForAsync {
+            self.authBridgeItemService.storedItems["1"]?.first != nil
+        }
+
+        let items = try XCTUnwrap(authBridgeItemService.storedItems["1"])
+        XCTAssertEqual(items.count, 1)
+        let item = try XCTUnwrap(items.first)
+        XCTAssertEqual(item.id, "blob")
+        XCTAssertEqual(item.name, "Blob Item")
+        XCTAssertEqual(item.totpKey, "blob-totp")
+        XCTAssertEqual(item.username, "blob@example.com")
+    }
+
+    /// When Ciphers are published, the service ignores blob-encrypted ciphers whose decrypted login
+    /// doesn't contain a TOTP key.
+    ///
+    @MainActor
+    func test_decryptTOTPs_blobEncryptedCipherWithoutTOTP() async throws {
+        authenticatorClientService.mockVault.clientCiphers.decryptClosure = { cipher in
+            guard cipher.data != nil else { return CipherView(cipher: cipher) }
+            return CipherView.fixture(
+                id: cipher.id,
+                login: .fixture(username: "blob@example.com"),
+            )
+        }
+        setupInitialState()
+        await subject.start()
+        cipherDataStore.cipherSubjectByUserId["1"]?.send([
+            .fixture(
+                id: "1234",
+                login: .fixture(
+                    username: "masked@example.com",
+                    totp: "totp",
+                ),
+            ),
+            .fixture(data: "encrypted-data", id: "blob", login: nil, name: nil),
+        ])
+        stateService.syncToAuthenticatorSubject.send(("1", true))
+        try await waitForAsync {
+            self.authBridgeItemService.storedItems["1"]?.first != nil
+        }
+
+        let items = try XCTUnwrap(authBridgeItemService.storedItems["1"])
+        XCTAssertEqual(items.count, 1)
+        XCTAssertEqual(items.first?.id, "1234")
+    }
+
     /// When Ciphers are published. the service filters out ones that have a deletedDate in the past.
     ///
     @MainActor
@@ -268,6 +336,43 @@ final class AuthenticatorSyncServiceTests: BitwardenTestCase { // swiftlint:disa
         let items = try XCTUnwrap(authBridgeItemService.storedItems["1"])
         XCTAssertEqual(items.count, 1)
         XCTAssertEqual(items.first?.id, "1234")
+    }
+
+    /// When Ciphers are published, the service syncs both legacy ciphers and blob-encrypted ciphers
+    /// that contain a TOTP key.
+    ///
+    @MainActor
+    func test_decryptTOTPs_mixedBlobAndLegacyCiphers() async throws {
+        authenticatorClientService.mockVault.clientCiphers.decryptClosure = { cipher in
+            guard cipher.data != nil else { return CipherView(cipher: cipher) }
+            return CipherView.fixture(
+                id: cipher.id,
+                login: .fixture(
+                    username: "blob@example.com",
+                    totp: "blob-totp",
+                ),
+            )
+        }
+        setupInitialState()
+        await subject.start()
+        cipherDataStore.cipherSubjectByUserId["1"]?.send([
+            .fixture(
+                id: "legacy",
+                login: .fixture(
+                    username: "masked@example.com",
+                    totp: "totp",
+                ),
+            ),
+            .fixture(data: "encrypted-data", id: "blob", login: nil, name: nil),
+        ])
+        stateService.syncToAuthenticatorSubject.send(("1", true))
+        try await waitForAsync {
+            self.authBridgeItemService.storedItems["1"]?.first != nil
+        }
+
+        let items = try XCTUnwrap(authBridgeItemService.storedItems["1"])
+        XCTAssertEqual(items.map(\.id), ["legacy", "blob"])
+        XCTAssertEqual(items.map(\.totpKey), ["totp", "blob-totp"])
     }
 
     /// Verifies that the AuthSyncService responds to new Ciphers published and provides a generated UUID if the
