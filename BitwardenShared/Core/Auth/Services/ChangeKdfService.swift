@@ -111,6 +111,10 @@ class DefaultChangeKdfService: ChangeKdfService {
                 UpdateKdfRequestModel(response: updateKdfResponse),
             )
             try await stateService.setAccountKdf(kdfConfig, userId: account.profile.userId)
+            await stateService.setAccountMasterPasswordUnlock(
+                MasterPasswordUnlockResponseModel(unlockData: updateKdfResponse.masterPasswordUnlockData),
+                userId: account.profile.userId,
+            )
             await flightRecorder.log("[Auth] Upgraded user's KDF to minimums")
         } catch {
             errorReporter.log(error: BitwardenError.generalError(
