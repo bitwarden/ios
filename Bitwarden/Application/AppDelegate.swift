@@ -41,7 +41,15 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
 
         let services = ServiceContainer.shared(
             application: UIApplication.shared,
-            backgroundTaskScheduler: BGTaskScheduler.shared,
+            // `BGTaskScheduler` unreliably throws `.unavailable` on the Simulator even when
+            // correctly configured; disable it there for now.
+            backgroundTaskScheduler: {
+                #if targetEnvironment(simulator)
+                nil
+                #else
+                BGTaskScheduler.shared
+                #endif
+            }(),
             errorReporter: { ErrorReporterFactory.makeDefaultErrorReporter() },
             nfcReaderService: { DefaultNFCReaderService() },
         )

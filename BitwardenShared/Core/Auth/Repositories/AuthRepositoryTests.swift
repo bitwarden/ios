@@ -136,6 +136,9 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         clientService.mockAuth.registrationReturnValue = clientRegistration
         clientRegistration.postKeysForJitPasswordRegistrationReturnValue = .fixture()
         configService.featureFlagsBool[.accountEncryptionV2JITPassword] = true
+        // Default the user-session-key-sharing preference to opted-out so `unlockVault(...)`'s
+        // capture gate reads a well-defined value in tests that don't otherwise care about it.
+        keychainService.getUserAuthKeyValueReturnValue = "false"
         userSessionStateService.getVaultTimeoutReturnValue = .fifteenMinutes
         userSessionStateService.getUnsuccessfulUnlockAttemptsReturnValue = 0
 
@@ -2320,14 +2323,15 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
     }
 
     /// `setVaultTimeout` writes the `.userSessionKey` item when switching from a timeout that
-    /// excludes sharing to one that allows it while `enableUserSessionKeySharing` is ON and the
-    /// vault is unlocked.
+    /// excludes sharing to one that allows it while `enableUserSessionKeySharing` is ON, the user
+    /// has opted in, and the vault is unlocked.
     func test_setVaultTimeout_userSessionKey_featureFlagOn_vaultUnlocked_writes() async throws {
         let active = Account.fixture()
         stateService.activeAccount = active
         vaultTimeoutService.vaultTimeout[active.profile.userId] = .onAppRestart
         configService.featureFlagsBool[.enableUserSessionKeySharing] = true
         vaultTimeoutService.isClientLocked[active.profile.userId] = false
+        keychainService.getUserAuthKeyValueReturnValue = "true"
         clientService.mockCrypto.getUserEncryptionKeyReturnValue = "SESSION_KEY"
 
         try await subject.setVaultTimeout(value: .fifteenMinutes)
@@ -2338,6 +2342,23 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
             .userSessionKey(userId: active.profile.userId),
         )
         XCTAssertEqual(keychainService.setUserAuthKeyReceivedArguments?.value, "SESSION_KEY")
+    }
+
+    /// `setVaultTimeout` does not write the `.userSessionKey` item when switching from a timeout
+    /// that excludes sharing to one that allows it while the feature flag and timeout both allow
+    /// sharing, but the user has not opted in via `setUserSessionKeySharingEnabled(_:userId:)`.
+    func test_setVaultTimeout_userSessionKey_preferenceDisabled_doesNotWrite() async throws {
+        let active = Account.fixture()
+        stateService.activeAccount = active
+        vaultTimeoutService.vaultTimeout[active.profile.userId] = .onAppRestart
+        configService.featureFlagsBool[.enableUserSessionKeySharing] = true
+        vaultTimeoutService.isClientLocked[active.profile.userId] = false
+        keychainService.getUserAuthKeyValueReturnValue = "false"
+        clientService.mockCrypto.getUserEncryptionKeyReturnValue = "SESSION_KEY"
+
+        try await subject.setVaultTimeout(value: .fifteenMinutes)
+
+        XCTAssertFalse(keychainService.setUserAuthKeyCalled)
     }
 
     /// `setVaultTimeout` logs the error and still applies the new timeout value when deleting the
@@ -2361,6 +2382,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         vaultTimeoutService.vaultTimeout[active.profile.userId] = .onAppRestart
         configService.featureFlagsBool[.enableUserSessionKeySharing] = true
         vaultTimeoutService.isClientLocked[active.profile.userId] = false
+        keychainService.getUserAuthKeyValueReturnValue = "true"
         clientService.mockCrypto.getUserEncryptionKeyThrowableError = BitwardenTestError.example
 
         try await subject.setVaultTimeout(value: .fifteenMinutes)
@@ -2396,8 +2418,8 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         XCTAssertFalse(keychainService.setUserAuthKeyCalled)
     }
 
-    /// `unlockVaultWithPassword` writes `.userSessionKey` when `enableUserSessionKeySharing` is ON
-    /// and the vault timeout permits it.
+    /// `unlockVaultWithPassword` writes `.userSessionKey` when `enableUserSessionKeySharing` is ON,
+    /// the user has opted in, and the vault timeout permits it.
     func test_unlockVault_userSessionKey_featureFlagOn_timeoutAllows_writes() async throws {
         let account = Account.fixture(profile: .fixture(
             userDecryptionOptions: UserDecryptionOptions(
@@ -2413,6 +2435,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         ]
         vaultTimeoutService.vaultTimeout[account.profile.userId] = .fifteenMinutes
         configService.featureFlagsBool[.enableUserSessionKeySharing] = true
+        keychainService.getUserAuthKeyValueReturnValue = "true"
         clientService.mockCrypto.getUserEncryptionKeyReturnValue = "SESSION_KEY"
 
         await assertAsyncDoesNotThrow {
@@ -2425,6 +2448,33 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
             .userSessionKey(userId: account.profile.userId),
         )
         XCTAssertEqual(keychainService.setUserAuthKeyReceivedArguments?.value, "SESSION_KEY")
+    }
+
+    /// `unlockVaultWithPassword` does not write `.userSessionKey` when `enableUserSessionKeySharing`
+    /// and the vault timeout both allow it, but the user has not opted in to session key sharing.
+    func test_unlockVault_doesNotStoreSessionKey_whenPreferenceDisabled_evenIfFlagAndTimeoutAllow() async throws {
+        let account = Account.fixture(profile: .fixture(
+            userDecryptionOptions: UserDecryptionOptions(
+                hasMasterPassword: true,
+                masterPasswordUnlock: .fixture(),
+                keyConnectorOption: nil,
+                trustedDeviceOption: nil,
+            ),
+        ))
+        stateService.activeAccount = account
+        stateService.accountCryptographicStates = [
+            account.profile.userId: .fixtureV2(),
+        ]
+        vaultTimeoutService.vaultTimeout[account.profile.userId] = .fifteenMinutes
+        configService.featureFlagsBool[.enableUserSessionKeySharing] = true
+        keychainService.getUserAuthKeyValueReturnValue = "false"
+        clientService.mockCrypto.getUserEncryptionKeyReturnValue = "SESSION_KEY"
+
+        await assertAsyncDoesNotThrow {
+            try await subject.unlockVaultWithPassword(password: "password")
+        }
+
+        XCTAssertFalse(keychainService.setUserAuthKeyCalled)
     }
 
     /// `unlockVaultWithPassword` does not write `.userSessionKey` when `enableUserSessionKeySharing`
@@ -2450,6 +2500,194 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         }
 
         XCTAssertFalse(keychainService.setUserAuthKeyCalled)
+    }
+
+    // MARK: isUserSessionKeySharingEnabled / setUserSessionKeySharingEnabled
+
+    /// `isUserSessionKeySharingEnabled(userId:)` returns `true` when the stored preference is `"true"`.
+    func test_isUserSessionKeySharingEnabled_true() async throws {
+        let account = Account.fixture()
+        stateService.activeAccount = account
+        keychainService.getUserAuthKeyValueReturnValue = "true"
+
+        let result = try await subject.isUserSessionKeySharingEnabled()
+
+        XCTAssertTrue(result)
+        XCTAssertEqual(
+            keychainService.getUserAuthKeyValueReceivedItem,
+            .userSessionKeySharingEnabled(userId: account.profile.userId),
+        )
+    }
+
+    /// `isUserSessionKeySharingEnabled(userId:)` returns `false` when the stored preference is `"false"`.
+    func test_isUserSessionKeySharingEnabled_false() async throws {
+        stateService.activeAccount = .fixture()
+        keychainService.getUserAuthKeyValueReturnValue = "false"
+
+        let result = try await subject.isUserSessionKeySharingEnabled()
+
+        XCTAssertFalse(result)
+    }
+
+    /// `isUserSessionKeySharingEnabled(userId:)` defaults to `false` when no preference has been stored.
+    func test_isUserSessionKeySharingEnabled_defaultsFalseWhenNotFound() async throws {
+        let account = Account.fixture()
+        stateService.activeAccount = account
+        keychainService.getUserAuthKeyValueThrowableError = KeychainServiceError.keyNotFound(
+            BitwardenKeychainItem.userSessionKeySharingEnabled(userId: account.profile.userId),
+        )
+
+        let result = try await subject.isUserSessionKeySharingEnabled()
+
+        XCTAssertFalse(result)
+    }
+
+    /// `setUserSessionKeySharingEnabled(_:userId:)` persists the preference and captures the
+    /// session key when the feature flag and timeout both allow it.
+    func test_setUserSessionKeySharingEnabled_true_capturesSessionKey_whenAllowed() async throws {
+        let account = Account.fixture()
+        stateService.activeAccount = account
+        vaultTimeoutService.vaultTimeout[account.profile.userId] = .fifteenMinutes
+        configService.featureFlagsBool[.enableUserSessionKeySharing] = true
+        clientService.mockCrypto.getUserEncryptionKeyReturnValue = "SESSION_KEY"
+
+        var setInvocations: [(item: BitwardenKeychainItem, value: String)] = []
+        keychainService.setUserAuthKeyClosure = { item, value in
+            setInvocations.append((item: item, value: value))
+        }
+
+        try await subject.setUserSessionKeySharingEnabled(true)
+
+        XCTAssertEqual(setInvocations.map(\.item), [
+            .userSessionKey(userId: account.profile.userId),
+            .userSessionKeySharingEnabled(userId: account.profile.userId),
+        ])
+        XCTAssertEqual(setInvocations.map(\.value), ["SESSION_KEY", "true"])
+    }
+
+    /// `setUserSessionKeySharingEnabled(_:userId:)` persists the preference but does not capture
+    /// the session key when the server feature flag is off.
+    func test_setUserSessionKeySharingEnabled_true_doesNotCaptureSessionKey_whenFeatureFlagOff() async throws {
+        let account = Account.fixture()
+        stateService.activeAccount = account
+        vaultTimeoutService.vaultTimeout[account.profile.userId] = .fifteenMinutes
+        configService.featureFlagsBool[.enableUserSessionKeySharing] = false
+
+        var setInvocations: [(item: BitwardenKeychainItem, value: String)] = []
+        keychainService.setUserAuthKeyClosure = { item, value in
+            setInvocations.append((item: item, value: value))
+        }
+
+        try await subject.setUserSessionKeySharingEnabled(true)
+
+        XCTAssertEqual(setInvocations.map(\.item), [.userSessionKeySharingEnabled(userId: account.profile.userId)])
+    }
+
+    /// `setUserSessionKeySharingEnabled(_:userId:)` persists the preference but does not capture
+    /// the session key when the current vault timeout disallows sharing.
+    func test_setUserSessionKeySharingEnabled_true_doesNotCaptureSessionKey_whenTimeoutDisallows() async throws {
+        let account = Account.fixture()
+        stateService.activeAccount = account
+        vaultTimeoutService.vaultTimeout[account.profile.userId] = .never
+        configService.featureFlagsBool[.enableUserSessionKeySharing] = true
+
+        var setInvocations: [(item: BitwardenKeychainItem, value: String)] = []
+        keychainService.setUserAuthKeyClosure = { item, value in
+            setInvocations.append((item: item, value: value))
+        }
+
+        try await subject.setUserSessionKeySharingEnabled(true)
+
+        XCTAssertEqual(setInvocations.map(\.item), [.userSessionKeySharingEnabled(userId: account.profile.userId)])
+    }
+
+    /// `setUserSessionKeySharingEnabled(_:userId:)` does not persist the opt-in preference when
+    /// capturing the session key fails, so a failed enable attempt never leaves the preference
+    /// recorded as enabled.
+    func test_setUserSessionKeySharingEnabled_true_doesNotPersistPreference_whenCaptureThrows() async throws {
+        let account = Account.fixture()
+        stateService.activeAccount = account
+        vaultTimeoutService.vaultTimeout[account.profile.userId] = .fifteenMinutes
+        configService.featureFlagsBool[.enableUserSessionKeySharing] = true
+        clientService.mockCrypto.getUserEncryptionKeyThrowableError = BitwardenTestError.example
+
+        await assertAsyncThrows(error: BitwardenTestError.example) {
+            try await subject.setUserSessionKeySharingEnabled(true)
+        }
+
+        XCTAssertFalse(keychainService.setUserAuthKeyCalled)
+    }
+
+    /// `setUserSessionKeySharingEnabled(_:userId:)` persists the preference and purges the
+    /// active user's `.userSessionKey` when disabled.
+    func test_setUserSessionKeySharingEnabled_false_purgesUserSessionKey() async throws {
+        let account = Account.fixture()
+        stateService.activeAccount = account
+
+        try await subject.setUserSessionKeySharingEnabled(false)
+
+        XCTAssertEqual(
+            keychainService.setUserAuthKeyReceivedArguments?.item,
+            .userSessionKeySharingEnabled(userId: account.profile.userId),
+        )
+        XCTAssertEqual(keychainService.setUserAuthKeyReceivedArguments?.value, "false")
+        XCTAssertTrue(keychainService.deleteUserAuthKeyCalled)
+        XCTAssertEqual(
+            keychainService.deleteUserAuthKeyReceivedItem,
+            .userSessionKey(userId: account.profile.userId),
+        )
+    }
+
+    /// `unlockVaultWithSessionKey()` unlocks the vault using the `.userSessionKey` Keychain item
+    /// but does not write the key back to the Keychain. Re-writing an unchanged value would
+    /// trigger a redundant Face ID/Touch ID prompt, since `.userSessionKey` requires user presence
+    /// for both reads and writes.
+    func test_unlockVaultWithSessionKey_doesNotRecaptureSessionKey() async throws {
+        let account = Account.fixture()
+        stateService.activeAccount = account
+        stateService.accountCryptographicStates = [
+            account.profile.userId: .v1(privateKey: "secret"),
+        ]
+        keychainService.getUserAuthKeyValueReturnValue = "session-key"
+        configService.featureFlagsBool[.enableUserSessionKeySharing] = true
+        vaultTimeoutService.vaultTimeout[account.profile.userId] = .fifteenMinutes
+
+        let result = try await subject.unlockVaultWithSessionKey()
+
+        XCTAssertTrue(result)
+        XCTAssertFalse(keychainService.setUserAuthKeyCalled)
+    }
+
+    /// `unlockVaultWithSessionKey()` deletes the `.userSessionKey` Keychain item and rethrows if
+    /// unlocking with the retrieved key fails.
+    func test_unlockVaultWithSessionKey_unlockFails_deletesKey() async throws {
+        let account = Account.fixture()
+        stateService.activeAccount = account
+        keychainService.getUserAuthKeyValueReturnValue = "session-key"
+
+        await assertAsyncThrows(error: StateServiceError.noActiveAccount) {
+            _ = try await subject.unlockVaultWithSessionKey()
+        }
+
+        XCTAssertTrue(keychainService.deleteUserAuthKeyCalled)
+        XCTAssertEqual(
+            keychainService.deleteUserAuthKeyReceivedItem,
+            .userSessionKey(userId: account.profile.userId),
+        )
+    }
+
+    /// `unlockVaultWithSessionKey()` returns `false` when there's no `.userSessionKey` stored for
+    /// the active user.
+    func test_unlockVaultWithSessionKey_noKeyStored_returnsFalse() async throws {
+        let account = Account.fixture()
+        stateService.activeAccount = account
+        keychainService.getUserAuthKeyValueThrowableError = KeychainServiceError.keyNotFound(
+            BitwardenKeychainItem.userSessionKey(userId: account.profile.userId),
+        )
+
+        let result = try await subject.unlockVaultWithSessionKey()
+
+        XCTAssertFalse(result)
     }
 
     /// `unlockVaultWithNeverlockKey` attempts to unlock the vault using an auth key from the keychain.
