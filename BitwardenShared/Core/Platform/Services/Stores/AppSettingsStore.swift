@@ -589,13 +589,14 @@ protocol AppSettingsStore: AnyObject {
     ///
     func setUpgradedToPremiumActionCardVisible(_ visible: Bool, userId: String)
 
-    /// Sets the environment URLs used to start the account creation flow.
+    /// Sets the environment URLs used to start the account creation flow. Pass `nil` to clear
+    /// the value once it's been consumed, so it can't be reused by a later, unrelated flow.
     ///
     /// - Parameters:
     ///  - email: The user's email address.
-    ///  - environmentURLData: The environment data to be saved.
+    ///  - environmentURLData: The environment data to be saved, or `nil` to clear it.
     ///
-    func setAccountCreationEnvironmentURLs(environmentURLData: EnvironmentURLData, email: String)
+    func setAccountCreationEnvironmentURLs(environmentURLData: EnvironmentURLData?, email: String)
 
     /// Sets the server config.
     ///
@@ -1460,7 +1461,7 @@ extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore {
         store(visible, for: .upgradedToPremiumActionCardVisible(userId: userId))
     }
 
-    func setAccountCreationEnvironmentURLs(environmentURLData: EnvironmentURLData, email: String) {
+    func setAccountCreationEnvironmentURLs(environmentURLData: EnvironmentURLData?, email: String) {
         store(environmentURLData, for: .accountCreationEnvironmentURLs(email: email))
     }
 
