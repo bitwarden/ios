@@ -14,9 +14,17 @@ class UpdateTempPasswordRequestTests: BitwardenTestCase {
 
         subject = UpdateTempPasswordRequest(
             requestModel: UpdateTempPasswordRequestModel(
-                key: "KEY",
+                authenticationData: MasterPasswordAuthenticationDataRequestModel(
+                    kdf: KdfConfig(),
+                    masterPasswordAuthenticationHash: "NEW_MASTER_PASSWORD_HASH",
+                    salt: "AUTHENTICATION_SALT",
+                ),
                 masterPasswordHint: "MASTER_PASSWORD_HINT",
-                newMasterPasswordHash: "NEW_MASTER_PASSWORD_HASH",
+                unlockData: MasterPasswordUnlockDataRequestModel(
+                    kdf: KdfConfig(),
+                    masterKeyWrappedUserKey: "KEY",
+                    salt: "UNLOCK_SALT",
+                ),
             ),
         )
     }
@@ -36,9 +44,23 @@ class UpdateTempPasswordRequestTests: BitwardenTestCase {
             bodyData.prettyPrintedJson,
             """
             {
-              "key" : "KEY",
+              "authenticationData" : {
+                "kdf" : {
+                  "iterations" : 600000,
+                  "kdfType" : 0
+                },
+                "masterPasswordAuthenticationHash" : "NEW_MASTER_PASSWORD_HASH",
+                "salt" : "AUTHENTICATION_SALT"
+              },
               "masterPasswordHint" : "MASTER_PASSWORD_HINT",
-              "newMasterPasswordHash" : "NEW_MASTER_PASSWORD_HASH"
+              "unlockData" : {
+                "kdf" : {
+                  "iterations" : 600000,
+                  "kdfType" : 0
+                },
+                "masterKeyWrappedUserKey" : "KEY",
+                "salt" : "UNLOCK_SALT"
+              }
             }
             """,
         )
