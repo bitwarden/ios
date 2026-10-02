@@ -75,6 +75,7 @@ class MockAppSettingsStore: AppSettingsStore { // swiftlint:disable:this type_bo
     var twoFactorTokens = [String: String]()
     var userKeyIdByUserId = [String: String]()
     var usesKeyConnector = [String: Bool]()
+    var v2EncryptedMigrationsGracePeriodStarts = [String: V2EncryptedMigrationsGracePeriodStart]()
     var v2UpgradeTokenByUserId = [String: V2UpgradeToken]()
     var vaultTimeout = [String: Int]()
     var state: State? {
@@ -450,6 +451,10 @@ class MockAppSettingsStore: AppSettingsStore { // swiftlint:disable:this type_bo
         self.usesKeyConnector[userId] = usesKeyConnector
     }
 
+    func setV2EncryptedMigrationsGracePeriodStart(_ date: V2EncryptedMigrationsGracePeriodStart?, userId: String) {
+        v2EncryptedMigrationsGracePeriodStarts[userId] = date
+    }
+
     func setV2UpgradeToken(_ token: V2UpgradeToken?, userId: String) {
         v2UpgradeTokenByUserId[userId] = token
     }
@@ -488,6 +493,10 @@ class MockAppSettingsStore: AppSettingsStore { // swiftlint:disable:this type_bo
 
     func usesKeyConnector(userId: String) -> Bool {
         usesKeyConnector[userId] ?? false
+    }
+
+    func v2EncryptedMigrationsGracePeriodStart(userId: String) -> V2EncryptedMigrationsGracePeriodStart? {
+        v2EncryptedMigrationsGracePeriodStarts[userId]
     }
 
     func v2UpgradeToken(userId: String) -> V2UpgradeToken? {
