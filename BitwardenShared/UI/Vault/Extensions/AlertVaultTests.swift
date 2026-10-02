@@ -36,6 +36,39 @@ class AlertVaultTests: BitwardenTestCase { // swiftlint:disable:this type_body_l
         XCTAssertFalse(called)
     }
 
+    /// `attachmentPreviewUnavailable(action:)` returns an `Alert` notifying the user that
+    /// previewing or downloading an attachment is unavailable and requires Premium.
+    func test_attachmentPreviewUnavailable() async throws {
+        var called = false
+        let subject = Alert.attachmentPreviewUnavailable { called = true }
+
+        XCTAssertEqual(subject.title, Localizations.premiumSubscriptionRequired)
+        XCTAssertEqual(
+            subject.message,
+            Localizations.viewingAndDownloadingAttachmentsIsAPremiumFeatureDescriptionLong,
+        )
+        XCTAssertEqual(subject.alertActions.count, 2)
+        XCTAssertEqual(subject.alertActions[0].title, Localizations.upgradeToPremium)
+        XCTAssertEqual(subject.alertActions[0].style, .default)
+        XCTAssertEqual(subject.alertActions[1].title, Localizations.cancel)
+        XCTAssertEqual(subject.alertActions[1].style, .cancel)
+
+        let preferredAction = try XCTUnwrap(subject.preferredAction)
+        XCTAssertTrue(preferredAction === subject.alertActions[0])
+
+        try await subject.tapAction(title: Localizations.upgradeToPremium)
+        XCTAssertTrue(called)
+    }
+
+    /// `attachmentPreviewUnavailable(action:)` doesn't call the action when cancel is tapped.
+    func test_attachmentPreviewUnavailable_cancel() async throws {
+        var called = false
+        let subject = Alert.attachmentPreviewUnavailable { called = true }
+
+        try await subject.tapCancel()
+        XCTAssertFalse(called)
+    }
+
     /// `cipherDecryptionFailure()` returns an `Alert` to notify the user that an item in their
     /// vault was unable to be decrypted for when a cipher which failed to decrypt is tapped.
     func test_cipherDecryptionFailure() async throws {
