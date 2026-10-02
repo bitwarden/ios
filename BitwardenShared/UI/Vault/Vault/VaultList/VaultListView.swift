@@ -303,8 +303,24 @@ extension SearchableVaultListView {
     /// The active action card, rendered based on priority. Only one card is shown at a time.
     @ViewBuilder private var actionCard: some View {
         switch store.state.activeActionCard {
-        case .organizationBanner:
-            organizationBannerActionCard
+        case let .organizationBanner(data):
+            ActionCard(
+                title: data.headerText,
+                message: data.description,
+                actionButtonState: data.buttonText.map { text in
+                    ActionCard.ButtonState(title: text) {
+                        await store.perform(.dismissOrganizationBanner(fromActionButton: true))
+                    }
+                },
+                dismissButtonState: data.buttonText == nil
+                    ? ActionCard.ButtonState(title: Localizations.dismiss) {
+                        await store.perform(.dismissOrganizationBanner(fromActionButton: false))
+                    }
+                    : nil,
+            ) {
+                SharedAsset.Icons.informationCircle24.swiftUIImage
+                    .foregroundStyle(SharedAsset.Colors.iconSecondary.swiftUIColor)
+            }
         case .importItems:
             ActionCard(
                 title: Localizations.importSavedLogins,
@@ -356,29 +372,6 @@ extension SearchableVaultListView {
             )
         case nil:
             EmptyView()
-        }
-    }
-
-    /// The action card for the organization user notification banner.
-    @ViewBuilder private var organizationBannerActionCard: some View {
-        if let data = store.state.organizationUserNotificationBannerData {
-            ActionCard(
-                title: data.headerText,
-                message: data.description,
-                actionButtonState: data.buttonText.map { text in
-                    ActionCard.ButtonState(title: text) {
-                        await store.perform(.dismissOrganizationBanner(fromActionButton: true))
-                    }
-                },
-                dismissButtonState: data.buttonText == nil
-                    ? ActionCard.ButtonState(title: Localizations.dismiss) {
-                        await store.perform(.dismissOrganizationBanner(fromActionButton: false))
-                    }
-                    : nil,
-            ) {
-                SharedAsset.Icons.informationCircle24.swiftUIImage
-                    .foregroundStyle(SharedAsset.Colors.iconSecondary.swiftUIColor)
-            }
         }
     }
 }

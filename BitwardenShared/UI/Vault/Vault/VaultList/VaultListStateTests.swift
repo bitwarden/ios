@@ -7,9 +7,20 @@ import Testing
 struct VaultListStateTests {
     // MARK: Static Properties
 
-    /// All subsets of `VaultListActionCard` cases, used for exhaustive priority testing.
-    static let allCardSubsets: [[VaultListActionCard]] = VaultListActionCard.allCases
-        .reduce([[]]) { subsets, card in subsets + subsets.map { $0 + [card] } }
+    /// All action cards, in priority order from highest to lowest.
+    static let actionCardsByPriority: [VaultListActionCard] = [
+        .organizationBanner(.fixture()),
+        .upgradedToPremium,
+        .upgradeNeeded,
+        .subscriptionNeedsAttention,
+        .introducingArchive,
+        .importItems,
+    ]
+
+    /// Every combination of action cards that could be eligible at the same time, from none to all
+    /// of them, used for exhaustive priority testing.
+    static let allCardCombinations: [[VaultListActionCard]] = actionCardsByPriority
+        .reduce([[]]) { combinations, card in combinations + combinations.map { $0 + [card] } }
 
     // MARK: Properties
 
@@ -26,7 +37,7 @@ struct VaultListStateTests {
     /// `activeActionCard` returns the highest-priority active card across all flag combinations,
     /// or `nil` when no flags are set. Tests use an empty vault; cards ineligible in an empty vault
     /// (`introducingArchive`) are excluded from the expected result.
-    @Test(arguments: allCardSubsets)
+    @Test(arguments: allCardCombinations)
     func activeActionCard(activeCards: [VaultListActionCard]) {
         var state = VaultListState()
         state.loadingState = .data([])
@@ -36,8 +47,8 @@ struct VaultListStateTests {
                 state.importLoginsSetupProgress = .incomplete
             case .introducingArchive:
                 state.shouldShowArchiveOnboardingActionCard = true
-            case .organizationBanner:
-                state.organizationUserNotificationBannerData = .fixture()
+            case let .organizationBanner(data):
+                state.organizationUserNotificationBannerData = data
             case .subscriptionNeedsAttention:
                 state.shouldShowSubscriptionAttentionCard = true
             case .upgradeNeeded:
@@ -46,9 +57,9 @@ struct VaultListStateTests {
                 state.shouldShowUpgradedToPremiumActionCard = true
             }
         }
-        let emptyVaultIneligible: Set<VaultListActionCard> = [.introducingArchive]
-        let expected = VaultListActionCard.allCases.first { card in
-            activeCards.contains(card) && !emptyVaultIneligible.contains(card)
+        let expected = Self.actionCardsByPriority.first { card in
+            // Get first passed in card, sorted by priority, that is not `.introducingArchive`.
+            activeCards.contains(card) && card != .introducingArchive
         }
         #expect(state.activeActionCard == expected)
     }
