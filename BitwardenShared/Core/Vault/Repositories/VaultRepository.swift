@@ -24,8 +24,10 @@ public protocol VaultRepository: AnyObject {
     /// Adds a cipher to the user's vault.
     ///
     /// - Parameter cipher: The cipher that the user is added.
+    /// - Returns: The added cipher, including the id assigned by the backend.
     ///
-    func addCipher(_ cipher: CipherView) async throws
+    @discardableResult
+    func addCipher(_ cipher: CipherView) async throws -> CipherView
 
     /// Archives a cipher.
     ///
@@ -497,13 +499,15 @@ extension DefaultVaultRepository: VaultRepository {
 
     // MARK: Data Methods
 
-    func addCipher(_ cipher: CipherView) async throws {
+    @discardableResult
+    func addCipher(_ cipher: CipherView) async throws -> CipherView {
         let cipherEncryptionContext = try await clientService.vault().ciphers().encrypt(cipherView: cipher)
-        try await cipherService.addCipherWithServer(
+        let addedCipher = try await cipherService.addCipherWithServer(
             cipherEncryptionContext.cipher,
             encryptedByKeyId: cipherEncryptionContext.encryptedByKeyId,
             encryptedFor: cipherEncryptionContext.encryptedFor,
         )
+        return try await clientService.vault().ciphers().decrypt(cipher: addedCipher)
     }
 
     func archiveCipher(_ cipher: BitwardenSdk.CipherView) async throws {
