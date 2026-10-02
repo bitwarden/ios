@@ -102,7 +102,7 @@ struct CertificateHTTPClientTests {
         let session = URLSession.shared
         let task = URLSession.shared.dataTask(with: URL(string: "https://example.com")!)
         let challenge = makeChallenge(authenticationMethod: NSURLAuthenticationMethodClientCertificate)
-        certificateService.getClientCertificateIdentityReturnValue = nil
+        certificateService.getClientCertificateReturnValue = nil
 
         let (disposition, credential) = await subject.urlSession(session, task: task, didReceive: challenge)
 
@@ -130,7 +130,7 @@ struct CertificateHTTPClientTests {
     func sessionDidReceiveChallenge_clientCertificateNoIdentity_performsDefaultHandling() async {
         let session = URLSession.shared
         let challenge = makeChallenge(authenticationMethod: NSURLAuthenticationMethodClientCertificate)
-        certificateService.getClientCertificateIdentityReturnValue = nil
+        certificateService.getClientCertificateReturnValue = nil
 
         let (disposition, credential) = await subject.urlSession(session, didReceive: challenge)
 
