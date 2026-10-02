@@ -253,6 +253,25 @@ class VaultItemCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this t
         XCTAssertEqual(action.embedInNavigationController, true)
     }
 
+    /// `navigate(to:)` with `.attachmentPreview()` presents the attachment preview screen as a
+    /// sheet so it can be dismissed with a swipe.
+    @MainActor
+    func test_navigateTo_attachmentPreview() throws {
+        let state = AttachmentPreviewState(
+            attachment: .fixture(fileName: "photo.png"),
+            content: .fileError,
+            fileName: "photo.png",
+            temporaryUrl: URL(fileURLWithPath: "/tmp/photo.png"),
+        )
+        subject.navigate(to: .attachmentPreview(state))
+
+        let action = try XCTUnwrap(stackNavigator.actions.last)
+        XCTAssertEqual(action.type, .presented)
+        XCTAssertTrue(action.view is AttachmentPreviewView)
+        XCTAssertEqual(action.embedInNavigationController, true)
+        XCTAssertEqual(action.overFullscreen, false)
+    }
+
     /// `navigate(to:)` with `.generator`, `.password`, and a delegate presents the generator
     /// screen.
     @MainActor

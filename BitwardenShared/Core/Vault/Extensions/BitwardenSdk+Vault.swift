@@ -44,6 +44,30 @@ extension AttachmentResponseModel {
 
 extension AttachmentView: @retroactive Identifiable {}
 
+extension AttachmentView {
+    /// File extensions recognized as image formats that can be shown in the in-app attachment preview.
+    private static let imageExtensions: Set<String> = ["jpg", "jpeg", "png", "gif", "webp", "heic", "heif"]
+
+    /// The file name's extension, if any (not lowercased).
+    var fileExtension: String? {
+        guard let fileName, let dotIndex = fileName.lastIndex(of: ".") else { return nil }
+        let ext = fileName[fileName.index(after: dotIndex)...]
+        return ext.isEmpty ? nil : String(ext)
+    }
+
+    /// Whether this attachment's file name has a GIF extension.
+    var isGif: Bool {
+        fileExtension?.lowercased() == "gif"
+    }
+
+    /// Whether this attachment's file name has an extension recognized as an image format that
+    /// can be shown in the in-app attachment preview.
+    var isImage: Bool {
+        guard let fileExtension else { return false }
+        return Self.imageExtensions.contains(fileExtension.lowercased())
+    }
+}
+
 extension CipherBankAccountModel {
     init(bankAccount: BitwardenSdk.BankAccount) {
         self.init(
