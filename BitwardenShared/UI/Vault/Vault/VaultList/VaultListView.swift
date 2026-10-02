@@ -80,8 +80,6 @@ private struct SearchableVaultListView: View {
     @ViewBuilder private var emptyVault: some View {
         VStack(spacing: 24) {
             Group {
-                organizationBannerActionCard
-
                 actionCard
 
                 vaultFilterRow
@@ -237,8 +235,6 @@ private struct SearchableVaultListView: View {
     @ViewBuilder
     private func vaultContents(with sections: [VaultListSection]) -> some View {
         VStack(spacing: 20) {
-            organizationBannerActionCard
-
             actionCard
 
             vaultFilterRow
@@ -307,6 +303,8 @@ extension SearchableVaultListView {
     /// The active action card, rendered based on priority. Only one card is shown at a time.
     @ViewBuilder private var actionCard: some View {
         switch store.state.activeActionCard {
+        case .organizationBanner:
+            organizationBannerActionCard
         case .importItems:
             ActionCard(
                 title: Localizations.importSavedLogins,

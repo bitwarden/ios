@@ -149,6 +149,7 @@ struct VaultListState: Equatable {
     /// - Returns: `true` if the card should be displayed; `false` otherwise.
     private func shouldShow(_ card: VaultListActionCard) -> Bool {
         switch card {
+        case .organizationBanner: organizationUserNotificationBannerData != nil
         case .upgradedToPremium: shouldShowUpgradedToPremiumActionCard
         case .upgradeNeeded: shouldShowPremiumUpgradeActionCard
         case .subscriptionNeedsAttention: shouldShowSubscriptionAttentionCard
@@ -163,6 +164,9 @@ struct VaultListState: Equatable {
 /// The action card to show on the vault list. Only one is shown at a time.
 /// Cases are declared in priority order from highest to lowest.
 enum VaultListActionCard: CaseIterable, Equatable {
+    /// The organization user notification banner.
+    case organizationBanner
+
     /// The post-upgrade confirmation card.
     case upgradedToPremium
 

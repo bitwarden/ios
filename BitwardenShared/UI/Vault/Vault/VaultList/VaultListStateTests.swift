@@ -36,6 +36,8 @@ struct VaultListStateTests {
                 state.importLoginsSetupProgress = .incomplete
             case .introducingArchive:
                 state.shouldShowArchiveOnboardingActionCard = true
+            case .organizationBanner:
+                state.organizationUserNotificationBannerData = .fixture()
             case .subscriptionNeedsAttention:
                 state.shouldShowSubscriptionAttentionCard = true
             case .upgradeNeeded:
