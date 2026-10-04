@@ -140,8 +140,9 @@ struct SettingsView: View {
                     accessibilityIdentifier: "UniversalClipboardChooser",
                 ) {
                     Text(Localizations.useUniversalClipboardToCopyDescriptionLong)
-                        .styleGuide(.footnote)
+                        .styleGuide(.footnote, includeLinePadding: false, includeLineSpacing: false)
                         .foregroundColor(Color(asset: SharedAsset.Colors.textSecondary))
+                        .padding(.vertical, 12)
                 }
             }
         }
