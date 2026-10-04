@@ -38,6 +38,18 @@ class SettingsViewTests: BitwardenTestCase {
 
     // MARK: Tests
 
+    /// The clipboard toggle is available without biometrics or Password Manager sync.
+    @MainActor
+    func test_allowUniversalClipboard_toggle() throws {
+        let toggle = try subject.inspect().find(toggleWithAccessibilityLabel: Localizations.allowUniversalClipboard)
+        try toggle.tap()
+        XCTAssertEqual(processor.dispatchedActions.last, .toggleAllowUniversalClipboard(true))
+
+        processor.state.allowUniversalClipboard = true
+        try toggle.tap()
+        XCTAssertEqual(processor.dispatchedActions.last, .toggleAllowUniversalClipboard(false))
+    }
+
     /// Updating the value of the app theme sends the  `.appThemeChanged()` action.
     @MainActor
     func test_appThemeChanged_updateValue() throws {

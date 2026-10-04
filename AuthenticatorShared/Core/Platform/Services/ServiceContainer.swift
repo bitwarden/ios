@@ -318,6 +318,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
         )
 
         let pasteboardService = DefaultPasteboardService(
+            appSettingsStore: appSettingsStore,
             errorReporter: errorReporter,
         )
 
