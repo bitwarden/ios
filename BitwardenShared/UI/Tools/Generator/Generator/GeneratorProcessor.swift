@@ -125,12 +125,7 @@ final class GeneratorProcessor: StateProcessor<GeneratorState, GeneratorAction, 
             coordinator.navigate(to: .cancel)
         case let .emailTypeChanged(emailType):
             state.usernameState.updateEmailType(emailType)
-        case let .generatorTypeChanged(generatorType):
-            state.generatorType = generatorType
-        case .refreshGeneratedValue:
-            // Generating a new value happens below.
-            break
-        case .selectButtonPressed:
+        case .fillGeneratedValue:
             coordinator.navigate(
                 to: .complete(
                     type: state.generatorType,
@@ -140,6 +135,11 @@ final class GeneratorProcessor: StateProcessor<GeneratorState, GeneratorAction, 
             Task {
                 await services.reviewPromptService.trackUserAction(.copiedOrInsertedGeneratedValue)
             }
+        case let .generatorTypeChanged(generatorType):
+            state.generatorType = generatorType
+        case .refreshGeneratedValue:
+            // Generating a new value happens below.
+            break
         case .showPasswordHistory:
             coordinator.navigate(to: .generatorHistory)
         case let .sliderEditingChanged(_, isEditing):

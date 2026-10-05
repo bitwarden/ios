@@ -1,4 +1,5 @@
 import BitwardenKit
+import BitwardenResources
 import BitwardenSdk
 import InlineSnapshotTesting
 import XCTest
@@ -33,6 +34,48 @@ class GeneratorStateTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         subject.presentationMode = .tab
 
         XCTAssertEqual(subject.availableGeneratorTypes, [.password, .passphrase, .username])
+    }
+
+    /// `GeneratorType.copyButtonAccessibilityLabel` returns the accessibility label for the
+    /// buttons used to copy the generated value to the clipboard, for each generator type.
+    func test_copyButtonAccessibilityLabel() {
+        XCTAssertEqual(GeneratorType.passphrase.copyButtonAccessibilityLabel, Localizations.copyPassphrase)
+        XCTAssertEqual(GeneratorType.password.copyButtonAccessibilityLabel, Localizations.copyPassword)
+        XCTAssertEqual(GeneratorType.username.copyButtonAccessibilityLabel, Localizations.copyUsername)
+    }
+
+    /// `GeneratorType.fillButtonTitle` returns the title of the button used to fill the
+    /// generated value into the field the user came from, for each generator type.
+    func test_fillButtonTitle() {
+        XCTAssertEqual(GeneratorType.passphrase.fillButtonTitle, Localizations.useThisPassphrase)
+        XCTAssertEqual(GeneratorType.password.fillButtonTitle, Localizations.useThisPassword)
+        XCTAssertEqual(GeneratorType.username.fillButtonTitle, Localizations.useThisUsername)
+    }
+
+    /// `GeneratorType.regenerateButtonAccessibilityLabel` returns the accessibility label for the
+    /// button used to regenerate the generated value, for each generator type.
+    func test_regenerateButtonAccessibilityLabel() {
+        XCTAssertEqual(GeneratorType.passphrase.regenerateButtonAccessibilityLabel, Localizations.generatePassphrase)
+        XCTAssertEqual(GeneratorType.password.regenerateButtonAccessibilityLabel, Localizations.generatePassword)
+        XCTAssertEqual(GeneratorType.username.regenerateButtonAccessibilityLabel, Localizations.generateUsername)
+    }
+
+    /// `PresentationMode.isCopyButtonVisible` is only `true` when presented in a tab.
+    func test_isCopyButtonVisible() {
+        XCTAssertTrue(GeneratorState.PresentationMode.tab.isCopyButtonVisible)
+        XCTAssertFalse(GeneratorState.PresentationMode.inPlace.isCopyButtonVisible)
+    }
+
+    /// `PresentationMode.isCopyIconButtonVisible` is only `true` when presented in place.
+    func test_isCopyIconButtonVisible() {
+        XCTAssertFalse(GeneratorState.PresentationMode.tab.isCopyIconButtonVisible)
+        XCTAssertTrue(GeneratorState.PresentationMode.inPlace.isCopyIconButtonVisible)
+    }
+
+    /// `PresentationMode.isFillButtonVisible` is only `true` when presented in place.
+    func test_isFillButtonVisible() {
+        XCTAssertFalse(GeneratorState.PresentationMode.tab.isFillButtonVisible)
+        XCTAssertTrue(GeneratorState.PresentationMode.inPlace.isFillButtonVisible)
     }
 
     /// `formSections` returns the sections and fields for generating a passphrase.

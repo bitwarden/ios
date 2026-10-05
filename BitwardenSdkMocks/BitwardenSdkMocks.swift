@@ -24,4 +24,5 @@ extension RegistrationClientProtocol {}
 extension SendClientProtocol {}
 extension ServerCommunicationConfigClientProtocol {}
 extension ServerCommunicationConfigRepository {}
+extension StateBridgeClientProtocol {}
 extension StateClientProtocol {}

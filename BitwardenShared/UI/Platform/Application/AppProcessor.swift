@@ -711,6 +711,8 @@ extension AppProcessor: SyncServiceDelegate {
         // always reflects current subscription status without making a live API call there.
         await services.billingService.refreshSubscriptionAttentionCard(subscription: nil)
 
+        await services.billingService.completeUpgradeIfPending(userId: userId)
+
         do {
             let hasPerformedSyncAfterLogin = try await services.stateService.getHasPerformedSyncAfterLogin(
                 userId: userId,

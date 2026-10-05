@@ -25,6 +25,7 @@ final class VaultGroupProcessor: StateProcessor<// swiftlint:disable:this type_b
         & HasPolicyService
         & HasSearchProcessorMediatorFactory
         & HasStateService
+        & HasSyncService
         & HasTimeProvider
         & HasVaultRepository
 
@@ -34,6 +35,10 @@ final class VaultGroupProcessor: StateProcessor<// swiftlint:disable:this type_b
 
     /// The `Coordinator` for this processor.
     private var coordinator: any Coordinator<VaultRoute, AuthAction>
+
+    /// A monotonically increasing token used to discard stale results from overlapping
+    /// `loadItemTypesUserCanCreate()` calls.
+    private var itemTypesLoadGeneration = 0
 
     /// The helper to handle master password reprompts.
     private let masterPasswordRepromptHelper: MasterPasswordRepromptHelper
@@ -128,6 +133,7 @@ final class VaultGroupProcessor: StateProcessor<// swiftlint:disable:this type_b
         case let .morePressed(item):
             await vaultItemMoreOptionsHelper.showMoreOptionsAlert(
                 for: item,
+                delegate: self,
                 handleDisplayToast: { [weak self] toast in
                     self?.state.toast = toast
                 },
@@ -148,6 +154,8 @@ final class VaultGroupProcessor: StateProcessor<// swiftlint:disable:this type_b
             for await value in await services.stateService.showWebIconsPublisher().values {
                 state.showWebIcons = value
             }
+        case .streamSyncComplete:
+            await streamSyncComplete()
         }
     }
 
@@ -224,8 +232,13 @@ final class VaultGroupProcessor: StateProcessor<// swiftlint:disable:this type_b
 
     /// Checks available item types user can create.
     ///
+    @MainActor
     private func loadItemTypesUserCanCreate() async {
-        state.itemTypesUserCanCreate = await vaultRepository.getItemTypesUserCanCreate()
+        itemTypesLoadGeneration += 1
+        let generation = itemTypesLoadGeneration
+        let itemTypes = await vaultRepository.getItemTypesUserCanCreate()
+        guard generation == itemTypesLoadGeneration else { return } // A newer call superseded this one.
+        state.itemTypesUserCanCreate = itemTypes
     }
 
     /// Navigates to the Premium upgrade flow. Uses the in-app upgrade path when available;
@@ -343,6 +356,13 @@ final class VaultGroupProcessor: StateProcessor<// swiftlint:disable:this type_b
         }
     }
 
+    /// Streams sync-complete events to keep up-to-date sync-related features here.
+    private func streamSyncComplete() async {
+        for await _ in services.syncService.syncCompletePublisher() {
+            await loadItemTypesUserCanCreate()
+        }
+    }
+
     /// Stream the vault list.
     private func streamVaultList() async {
         do {
@@ -362,6 +382,11 @@ final class VaultGroupProcessor: StateProcessor<// swiftlint:disable:this type_b
 
 extension VaultGroupProcessor: CipherItemOperationDelegate {
     // MARK: Methods
+
+    func itemAdded(type: CipherType) -> Bool {
+        displayToastAndRefresh(toastTitle: type.savedToastTitle)
+        return true
+    }
 
     func itemArchived() {
         displayToastAndRefresh(toastTitle: Localizations.itemMovedToArchive)
@@ -383,6 +408,11 @@ extension VaultGroupProcessor: CipherItemOperationDelegate {
         displayToastAndRefresh(toastTitle: Localizations.itemMovedToVault)
     }
 
+    func itemUpdated(type: CipherType) -> Bool {
+        displayToastAndRefresh(toastTitle: type.savedToastTitle)
+        return true
+    }
+
     // MARK: Private methods
 
     /// Displays a toast and performs a refresh.
@@ -394,4 +424,4 @@ extension VaultGroupProcessor: CipherItemOperationDelegate {
             await perform(.refresh)
         }
     }
-}
+} // swiftlint:disable:this file_length

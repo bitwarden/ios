@@ -116,10 +116,19 @@ class SendListProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
     func test_perform_loadData_policies() async {
         await subject.perform(.loadData)
         XCTAssertFalse(subject.state.isSendDisabled)
+        XCTAssertNil(subject.state.restrictedSendType)
 
         policyService.getSendPolicyOptionsResult.isSendDisabled = true
         await subject.perform(.loadData)
         XCTAssertTrue(subject.state.isSendDisabled)
+    }
+
+    /// `perform(_:)` with `loadData` sets the restricted Send type from the enforced policy type.
+    @MainActor
+    func test_perform_loadData_restrictedSendType() async {
+        policyService.getSendPolicyOptionsResult.enforcedSendType = .file
+        await subject.perform(.loadData)
+        XCTAssertEqual(subject.state.restrictedSendType, .file)
     }
 
     /// `perform(_:)` with `refresh` requests a fetch sync update, but does not force a sync.
@@ -428,6 +437,25 @@ class SendListProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         XCTAssertEqual(sections.count, 1)
         XCTAssertEqual(sections[0].items, [sendListItem])
         XCTAssertTrue(vaultRepository.needsSyncCalled)
+    }
+
+    /// `perform(_:)` with `.streamSendList` tells the repository to omit the "Types" filter section
+    /// when the user is restricted to a single Send type.
+    @MainActor
+    func test_perform_streamSendList_restrictedSendType() throws {
+        subject.state.restrictedSendType = .file
+        sendRepository.sendListSubject.send([
+            SendListSection(id: "AllSends", items: [], name: "All sends"),
+        ])
+
+        let task = Task {
+            await subject.perform(.streamSendList)
+        }
+
+        waitFor(sendRepository.sendListPublisherIncludeTypesSection != nil)
+        task.cancel()
+
+        XCTAssertEqual(sendRepository.sendListPublisherIncludeTypesSection, false)
     }
 
     /// `perform(_:)` with `.streamSendList` updates the state's send list whenever it changes.

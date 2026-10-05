@@ -126,15 +126,23 @@ struct AddEditSendItemState: Equatable, Sendable {
     var availableDeletionDateTypes: [SendDeletionDateType] {
         switch mode {
         case .add, .shareExtension:
-            [.oneHour, .oneDay, .twoDays, .threeDays, .sevenDays, .thirtyDays]
+            [.oneHour, .oneDay, .twoDays, .threeDays, .sevenDays, .fourteenDays, .thirtyDays]
         case .edit:
-            [.oneHour, .oneDay, .twoDays, .threeDays, .sevenDays, .thirtyDays, .custom(customDeletionDate)]
+            [
+                .oneHour, .oneDay, .twoDays, .threeDays, .sevenDays, .fourteenDays, .thirtyDays,
+                .custom(customDeletionDate),
+            ]
         }
     }
 
     /// Whether the access type is enforced by policy, which hides the "who can view" menu.
     var isAccessTypeEnforcedByPolicy: Bool {
         sendPolicyOptions.enforcedAccessType != nil
+    }
+
+    /// Whether the deletion date is enforced by policy, which disables the deletion date menu.
+    var isDeletionDateEnforcedByPolicy: Bool {
+        sendPolicyOptions.enforcedDeletionDateHours != nil
     }
 
     /// Whether sends are disabled via a policy.
@@ -186,6 +194,12 @@ struct AddEditSendItemState: Equatable, Sendable {
         sendPolicyOptions.enforcedAccessType
     }
 
+    /// The deletion date the user is required to use by policy, or `nil` if the deletion date is
+    /// not restricted by policy.
+    var policyEnforcedDeletionDate: SendDeletionDateType? {
+        sendPolicyOptions.enforcedDeletionDateHours.map { SendDeletionDateType.from(hours: $0) }
+    }
+
     /// Whether the hide-email field should be shown.
     ///
     /// When the Send Controls policy disables hiding the sender's email, the field is hidden
@@ -200,6 +214,18 @@ struct AddEditSendItemState: Equatable, Sendable {
     /// Send Controls policy hides the affected field entirely rather than showing a banner.
     var shouldShowHideEmailPolicyBanner: Bool {
         isSendHideEmailDisabled && !isSendControlsPolicyEnabled
+    }
+
+    /// The footer text to display below the "who can view" menu.
+    var whoCanViewFooter: String? {
+        switch accessType {
+        case .anyoneWithLink:
+            Localizations.anyoneWithThisLinkCanViewThisSend
+        case .specificPeople:
+            Localizations.afterSharingThisSendLinkDescriptionLong
+        case .anyoneWithPassword:
+            Localizations.individualsWillNeedToEnterThisPasswordDescriptionLong
+        }
     }
 }
 
@@ -241,6 +267,36 @@ extension AddEditSendItemState {
             notes: sendView.notes ?? "",
             originalSendView: sendView,
             password: "",
+            recipientEmails: sendView.emails.isEmpty ? [""] : sendView.emails,
+            text: sendView.text?.text ?? "",
+            type: SendType(sendType: sendView.type),
+        )
+    }
+
+    /// Creates a new `AddEditSendItemState` for creating a policy-compliant copy of a restricted
+    /// `sendView`. Used when the user taps "Make a copy" from the View Send screen's restriction
+    /// banner; unlike `init(sendView:)`, this omits the id, access id, and key so that saving
+    /// creates a brand-new Send rather than updating the original, and defaults to `.add` mode.
+    /// Policy-enforced fields (access type, deletion date) are applied afterward by the existing
+    /// `loadData()` policy-override logic, the same as for any other new Send.
+    ///
+    /// - Parameter sendView: The restricted `SendView` to copy details from.
+    ///
+    init(copyingFrom sendView: SendView) {
+        let accessType: SendAccessType = if sendView.hasPassword {
+            .anyoneWithPassword
+        } else {
+            SendAccessType(authType: sendView.authType)
+        }
+
+        self.init(
+            accessType: accessType,
+            isHideMyEmailOn: sendView.hideEmail,
+            isHideTextByDefaultOn: sendView.text?.hidden ?? false,
+            maximumAccessCount: sendView.maxAccessCount.map(Int.init) ?? 0,
+            mode: .add,
+            name: sendView.name,
+            notes: sendView.notes ?? "",
             recipientEmails: sendView.emails.isEmpty ? [""] : sendView.emails,
             text: sendView.text?.text ?? "",
             type: SendType(sendType: sendView.type),

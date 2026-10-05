@@ -106,10 +106,20 @@ class VaultItemSelectionProcessorTests: BitwardenTestCase { // swiftlint:disable
         XCTAssertTrue(searchProcessorMediatorFactory.makeCalled)
     }
 
-    /// `itemAdded()` requests the coordinator dismiss the view.
+    /// `itemAdded(type:)` requests the coordinator dismiss the view.
     @MainActor
     func test_itemAdded() {
-        let shouldDismiss = subject.itemAdded()
+        let shouldDismiss = subject.itemAdded(type: .login)
+
+        XCTAssertEqual(coordinator.routes, [.dismiss()])
+        XCTAssertFalse(shouldDismiss)
+    }
+
+    /// `itemDismissed()` requests the coordinator dismiss the view, so that cancelling the add
+    /// item screen also tears down the item selection screen presented beneath it.
+    @MainActor
+    func test_itemDismissed() {
+        let shouldDismiss = subject.itemDismissed()
 
         XCTAssertEqual(coordinator.routes, [.dismiss()])
         XCTAssertFalse(shouldDismiss)
@@ -131,10 +141,10 @@ class VaultItemSelectionProcessorTests: BitwardenTestCase { // swiftlint:disable
         XCTAssertEqual(coordinator.routes, [.dismiss()])
     }
 
-    /// `itemUpdated()` requests the coordinator dismiss the view.
+    /// `itemUpdated(type:)` requests the coordinator dismiss the view.
     @MainActor
     func test_itemUpdated() {
-        let shouldDismiss = subject.itemUpdated()
+        let shouldDismiss = subject.itemUpdated(type: .login)
 
         XCTAssertEqual(coordinator.routes, [.dismiss()])
         XCTAssertFalse(shouldDismiss)
@@ -189,6 +199,23 @@ class VaultItemSelectionProcessorTests: BitwardenTestCase { // swiftlint:disable
         let url = URL.example
         vaultItemMoreOptionsHelper.showMoreOptionsAlertHandleOpenURL?(url)
         XCTAssertEqual(subject.state.url, url)
+    }
+
+    /// `perform(_:)` with `.morePressed` passes a delegate that shows a confirmation toast once
+    /// the item is saved and leaves this screen in place, rather than this screen's own delegate
+    /// conformance, which dismisses on save for the OTP key flow.
+    @MainActor
+    func test_perform_morePressed_editShowsToastWithoutDismissing() async throws {
+        await subject.perform(.morePressed(.fixture()))
+
+        let delegate = try XCTUnwrap(vaultItemMoreOptionsHelper.showMoreOptionsAlertDelegate)
+        XCTAssertNotIdentical(delegate as AnyObject, subject)
+
+        let shouldDismiss = delegate.itemUpdated(type: .driversLicense)
+
+        XCTAssertTrue(shouldDismiss)
+        XCTAssertEqual(subject.state.toast, Toast(title: Localizations.licenseSaved))
+        XCTAssertTrue(coordinator.routes.isEmpty)
     }
 
     /// `perform(_:)` with `.morePressed` delegates to the Premium upgrade helper when the

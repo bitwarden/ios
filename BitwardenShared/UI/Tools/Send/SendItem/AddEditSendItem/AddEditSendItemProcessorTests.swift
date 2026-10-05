@@ -142,6 +142,34 @@ class AddEditSendItemProcessorTests: BitwardenTestCase { // swiftlint:disable:th
         XCTAssertEqual(coordinator.routes.last, .deleted)
     }
 
+    /// `perform(_:)` with `loadData` clears a copied Send's hide-email value when the policy
+    /// disables hide-email, so a "Make a copy" of a non-compliant Send isn't saved non-compliant.
+    @MainActor
+    func test_perform_loadData_clearsHideEmailWhenDisabledByPolicy() async {
+        let sendView = SendView.fixture(hideEmail: true)
+        subject.state = AddEditSendItemState(copyingFrom: sendView)
+        XCTAssertTrue(subject.state.isHideMyEmailOn)
+
+        policyService.getSendPolicyOptionsResult.isHideEmailDisabled = true
+        await subject.perform(.loadData)
+
+        XCTAssertFalse(subject.state.isHideMyEmailOn)
+    }
+
+    /// `perform(_:)` with `loadData` doesn't clear an existing Send's hide-email value when editing,
+    /// even if the policy disables hide-email, since the field remains editable in that case.
+    @MainActor
+    func test_perform_loadData_doesNotClearHideEmailWhenEditingDisabledByPolicy() async {
+        let sendView = SendView.fixture(hideEmail: true)
+        subject.state = AddEditSendItemState(sendView: sendView)
+        XCTAssertTrue(subject.state.isHideMyEmailOn)
+
+        policyService.getSendPolicyOptionsResult.isHideEmailDisabled = true
+        await subject.perform(.loadData)
+
+        XCTAssertTrue(subject.state.isHideMyEmailOn)
+    }
+
     /// `perform(_:)` with `loadData` loads the policy data for the view.
     @MainActor
     func test_perform_loadData_policies() async {
@@ -178,6 +206,88 @@ class AddEditSendItemProcessorTests: BitwardenTestCase { // swiftlint:disable:th
         await subject.perform(.loadData)
         XCTAssertEqual(subject.state.policyEnforcedAccessType, .specificPeople)
         XCTAssertEqual(subject.state.accessType, .specificPeople)
+    }
+
+    /// `perform(_:)` with `loadData` shows an alert and exits the flow when the current Send type
+    /// conflicts with the policy-enforced Send type.
+    @MainActor
+    func test_perform_loadData_enforcedSendType_mismatch() async throws {
+        subject.state.type = .file
+        policyService.getSendPolicyOptionsResult.enforcedSendType = .text
+        await subject.perform(.loadData)
+
+        XCTAssertEqual(coordinator.alertShown, [.sendTypeRestrictedByPolicy(.text) {}])
+        XCTAssertFalse(subject.state.hasPremium)
+
+        let alert = try XCTUnwrap(coordinator.alertShown.last)
+        try await alert.tapAction(title: Localizations.ok)
+        XCTAssertEqual(coordinator.routes.last, .cancel)
+    }
+
+    /// `perform(_:)` with `loadData` does not show an alert when the current Send type matches
+    /// the policy-enforced Send type.
+    @MainActor
+    func test_perform_loadData_enforcedSendType_matching() async {
+        subject.state.type = .text
+        policyService.getSendPolicyOptionsResult.enforcedSendType = .text
+        await subject.perform(.loadData)
+
+        XCTAssertTrue(coordinator.alertShown.isEmpty)
+    }
+
+    /// `perform(_:)` with `loadData` does not show an alert when editing an existing Send whose
+    /// type no longer matches a policy that was enforced after the Send was created.
+    @MainActor
+    func test_perform_loadData_enforcedSendType_editModeMismatch() async {
+        subject.state.mode = .edit
+        subject.state.type = .file
+        policyService.getSendPolicyOptionsResult.enforcedSendType = .text
+        await subject.perform(.loadData)
+
+        XCTAssertTrue(coordinator.alertShown.isEmpty)
+    }
+
+    /// `perform(_:)` with `loadData` applies a policy-enforced deletion date, forcing the deletion
+    /// date and marking it enforced.
+    @MainActor
+    func test_perform_loadData_enforcedDeletionDate() async {
+        await subject.perform(.loadData)
+        XCTAssertNil(subject.state.policyEnforcedDeletionDate)
+        XCTAssertFalse(subject.state.isDeletionDateEnforcedByPolicy)
+
+        policyService.getSendPolicyOptionsResult.enforcedDeletionDateHours = 168
+        await subject.perform(.loadData)
+        XCTAssertEqual(subject.state.policyEnforcedDeletionDate, .sevenDays)
+        XCTAssertEqual(subject.state.deletionDate, .sevenDays)
+        XCTAssertTrue(subject.state.isDeletionDateEnforcedByPolicy)
+    }
+
+    /// `perform(_:)` with `loadData` leaves the deletion date unchanged when no deletion date is
+    /// enforced by policy.
+    @MainActor
+    func test_perform_loadData_noEnforcedDeletionDate() async {
+        subject.state.deletionDate = .oneDay
+        await subject.perform(.loadData)
+        XCTAssertNil(subject.state.policyEnforcedDeletionDate)
+        XCTAssertFalse(subject.state.isDeletionDateEnforcedByPolicy)
+        XCTAssertEqual(subject.state.deletionDate, .oneDay)
+    }
+
+    /// `perform(_:)` with `loadData` does not overwrite the deletion date when editing an existing
+    /// Send, even if a deletion date is enforced by policy: the persisted date was valid relative
+    /// to the Send's creation date, and replacing it with a preset value would recalculate it
+    /// relative to now on save, which could push it past what the policy allows. The menu is still
+    /// marked as enforced so it can't be changed.
+    @MainActor
+    func test_perform_loadData_enforcedDeletionDate_editMode() async {
+        let sendView = SendView.fixture(deletionDate: Date(year: 2023, month: 11, day: 5, hour: 9, minute: 41))
+        subject.state = AddEditSendItemState(sendView: sendView)
+        policyService.getSendPolicyOptionsResult.enforcedDeletionDateHours = 168
+        await subject.perform(.loadData)
+
+        XCTAssertEqual(subject.state.policyEnforcedDeletionDate, .sevenDays)
+        XCTAssertEqual(subject.state.deletionDate, .custom(sendView.deletionDate))
+        XCTAssertTrue(subject.state.isDeletionDateEnforcedByPolicy)
     }
 
     /// `perform(_:)` with `loadData` loads whether the Send Controls policy feature flag is enabled.
@@ -244,6 +354,30 @@ class AddEditSendItemProcessorTests: BitwardenTestCase { // swiftlint:disable:th
         XCTAssertEqual(subject.state.sendPolicyOptions.enforcedAccessType, .specificPeople)
         XCTAssertEqual(subject.state.accessType, .specificPeople)
         XCTAssertTrue(subject.state.isAccessTypeEnforcedByPolicy)
+    }
+
+    /// `perform(_:)` with `sendListItemRow(removePassword())` leaves the Send's actual deletion
+    /// date untouched when a deletion date is enforced by policy, while still marking the menu as
+    /// enforced, so removing the password doesn't push the date past what the policy allows
+    /// relative to the Send's original creation date.
+    @MainActor
+    func test_perform_removePassword_success_preservesPolicyEnforcedDeletionDate() async throws {
+        let sendView = SendView.fixture(
+            id: "SEND_ID",
+            deletionDate: Date(year: 2023, month: 11, day: 5, hour: 9, minute: 41),
+        )
+        subject.state.originalSendView = sendView
+        subject.state.isSendControlsPolicyEnabled = true
+        subject.state.sendPolicyOptions = SendPolicyOptions(enforcedDeletionDateHours: 168)
+        sendRepository.removePasswordFromSendResult = .success(sendView)
+        await subject.perform(.removePassword)
+
+        let alert = try XCTUnwrap(coordinator.alertShown.last)
+        try await alert.tapAction(title: Localizations.remove)
+
+        XCTAssertEqual(subject.state.sendPolicyOptions.enforcedDeletionDateHours, 168)
+        XCTAssertEqual(subject.state.deletionDate, .custom(sendView.deletionDate))
+        XCTAssertTrue(subject.state.isDeletionDateEnforcedByPolicy)
     }
 
     /// `perform(_:)` with `sendListItemRow(removePassword())` uses the send repository to remove
@@ -501,6 +635,25 @@ class AddEditSendItemProcessorTests: BitwardenTestCase { // swiftlint:disable:th
         guard case DataMappingError.invalidData = errorAlertWithRetry.error else {
             return XCTFail("Expected DataMappingError.invalidData, got \(errorAlertWithRetry.error)")
         }
+    }
+
+    /// `perform(_:)` with `.savePressed` shows a validation alert when "Anyone with password" access
+    /// is selected and no password is set, even when policy doesn't enforce password access. This
+    /// covers copying a password-protected Send: the copy preselects "Anyone with password" but
+    /// carries no password, so a password must still be required.
+    @MainActor
+    func test_perform_savePressed_anyoneWithPassword_noPasswordAndNotEnforcedByPolicy() async {
+        let sendView = SendView.fixture(hasPassword: true, type: .text)
+        subject.state = AddEditSendItemState(copyingFrom: sendView)
+        subject.state.name = "Name"
+
+        await subject.perform(.savePressed)
+
+        XCTAssertTrue(coordinator.loadingOverlaysShown.isEmpty)
+        XCTAssertNil(sendRepository.addTextSendSendView)
+        XCTAssertEqual(coordinator.alertShown, [
+            .validationFieldRequired(fieldName: Localizations.password),
+        ])
     }
 
     /// `perform(_:)` with `.savePressed` and valid input in the share extension saves the item and

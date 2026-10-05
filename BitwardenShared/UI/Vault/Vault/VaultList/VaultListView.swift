@@ -472,10 +472,10 @@ struct VaultListView: View {
             await store.perform(.streamOrganizations)
         }
         .task {
-            await store.perform(.streamPremiumUpgradePendingState)
+            await store.perform(.streamShowWebIcons)
         }
         .task {
-            await store.perform(.streamShowWebIcons)
+            await store.perform(.streamSyncComplete)
         }
         .onAppear { restartVaultListStream() }
         .onChange(of: store.state.vaultFilterType) { _ in restartVaultListStream() }
@@ -544,7 +544,7 @@ struct VaultListView: View {
                 processor: StateProcessor(
                     state: VaultListState(
                         loadingState: .error(
-                            errorMessage: Localizations.weAreUnableToProcessYourRequestPleaseTryAgainOrContactUs,
+                            errorMessage: Localizations.weCouldntSyncYourVaultWithTheServerDescriptionLong,
                         ),
                     ),
                 ),

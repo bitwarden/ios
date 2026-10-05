@@ -68,14 +68,6 @@ class DefaultPremiumUpgradeHelper<Route: PremiumUpgradeRoute, Event>: PremiumUpg
     /// The coordinator used for navigation.
     private let coordinator: any Coordinator<Route, Event>
 
-    /// Whether a `startInAppPremiumUpgrade(onConfirmed:)` call's pending-state check is currently
-    /// in flight, to guard against a rapid double-tap firing two overlapping checks.
-    private var isResolvingStartRequest = false
-
-    /// Whether `startInAppPremiumUpgrade(onConfirmed:)` navigated to the Premium upgrade screen
-    /// for the current checkout status subscription.
-    private var navigatedToUpgradeScreen = false
-
     /// An optional closure called before showing the upgrade pending alert, to transiently hide
     /// any visible upsell UI for the duration of the pending upgrade. A pending upgrade isn't
     /// the user asking to stop seeing that UI permanently, so this must not persist a permanent
@@ -125,41 +117,14 @@ class DefaultPremiumUpgradeHelper<Route: PremiumUpgradeRoute, Event>: PremiumUpg
     }
 
     func startInAppPremiumUpgrade(onConfirmed: (() async -> Void)? = nil) {
-        guard !isResolvingStartRequest else { return }
-        isResolvingStartRequest = true
-        // Reset before subscribing, so a status that arrives before the pending-state check
-        // below resolves isn't judged against a stale value.
-        navigatedToUpgradeScreen = false
         subscribeToPremiumCheckoutStatus(onConfirmed: onConfirmed)
-        Task { [weak self] in
-            guard let self else { return }
-            defer { isResolvingStartRequest = false }
-            // Single choke point for all entry points into this flow, so a pending upgrade
-            // blocks a second, redundant checkout from any of them.
-            guard await services.billingService.premiumUpgradePendingState().isPending else {
-                navigatedToUpgradeScreen = true
-                coordinator.navigate(to: .premiumUpgrade)
-                return
-            }
-            showUpgradePendingAlert()
-        }
+        coordinator.navigate(to: .premiumUpgrade)
     }
 
     // MARK: Private Methods
 
-    /// Calls `onPendingDismiss`, then shows the upgrade pending alert with "Sync Now" wired to
-    /// `reconcileCheckoutSuccess()`.
-    ///
-    private func showUpgradePendingAlert() {
-        onPendingDismiss?()
-        coordinator.showAlert(.upgradePending { [weak self] in
-            await self?.services.billingService.reconcileCheckoutSuccess()
-        })
-    }
-
     /// Subscribes to checkout status updates. On `.confirmed`, calls `onConfirmed`.
-    /// On `.pending`, dismisses the Premium upgrade screen first if one was navigated to for
-    /// this subscription, then shows the upgrade pending alert.
+    /// On `.pending`, navigates to dismiss and shows the upgrade pending alert.
     ///
     /// - Parameter onConfirmed: An optional closure called when the upgrade is confirmed.
     ///
@@ -178,16 +143,13 @@ class DefaultPremiumUpgradeHelper<Route: PremiumUpgradeRoute, Event>: PremiumUpg
                         Task { @MainActor in await onConfirmed() }
                     }
                 case .pending:
-                    guard navigatedToUpgradeScreen else {
-                        showUpgradePendingAlert()
-                        return
-                    }
-                    // Consume the flag so a later `.pending` doesn't dismiss the screen again.
-                    navigatedToUpgradeScreen = false
                     coordinator.navigate(to: .dismiss(DismissAction { [weak self] in
                         guard let self else { return }
                         coordinator.hideLoadingOverlay()
-                        showUpgradePendingAlert()
+                        onPendingDismiss?()
+                        coordinator.showAlert(.upgradePending {
+                            await self.services.billingService.retryPendingUpgrade()
+                        })
                     }))
                 case .syncing:
                     // PremiumUpgradeProcessor shows the loading overlay on the upgrade screen.

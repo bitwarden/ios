@@ -50,6 +50,14 @@ class VaultItemSelectionProcessor: StateProcessor<
     /// The helper to handle the more options menu for a vault item.
     private let vaultItemMoreOptionsHelper: VaultItemMoreOptionsHelper
 
+    /// The delegate used when editing an item from the more options menu. This screen's own
+    /// delegate conformance dismisses on save, which is correct for the OTP key flow but not for
+    /// a plain edit, which should stay put and show a confirmation toast. Retained here because
+    /// `AddEditItemProcessor` holds its delegate weakly.
+    private lazy var moreOptionsEditDelegate = CipherSavedToastDelegate { [weak self] toast in
+        self?.state.toast = toast
+    }
+
     // MARK: Initialization
 
     /// Initialize a `VaultItemSelectionProcessor`.
@@ -87,6 +95,7 @@ class VaultItemSelectionProcessor: StateProcessor<
         case let .morePressed(item):
             await vaultItemMoreOptionsHelper.showMoreOptionsAlert(
                 for: item,
+                delegate: moreOptionsEditDelegate,
                 handleDisplayToast: { [weak self] toast in
                     self?.state.toast = toast
                 },
@@ -287,7 +296,7 @@ class VaultItemSelectionProcessor: StateProcessor<
 // MARK: - CipherItemOperationDelegate
 
 extension VaultItemSelectionProcessor: CipherItemOperationDelegate {
-    func itemAdded() -> Bool {
+    func itemAdded(type _: CipherType) -> Bool {
         coordinator.navigate(to: .dismiss())
         // Return false to notify the calling processor that the dismissal occurs here.
         return false
@@ -297,11 +306,17 @@ extension VaultItemSelectionProcessor: CipherItemOperationDelegate {
         coordinator.navigate(to: .dismiss())
     }
 
+    func itemDismissed() -> Bool {
+        coordinator.navigate(to: .dismiss())
+        // Return false to notify the calling processor that the dismissal occurs here.
+        return false
+    }
+
     func itemUnarchived() {
         coordinator.navigate(to: .dismiss())
     }
 
-    func itemUpdated() -> Bool {
+    func itemUpdated(type _: CipherType) -> Bool {
         coordinator.navigate(to: .dismiss())
         // Return false to notify the calling processor that the dismissal occurs here.
         return false

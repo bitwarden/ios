@@ -658,6 +658,62 @@ class PolicyServiceTests: BitwardenTestCase { // swiftlint:disable:this type_bod
         XCTAssertNil(options.enforcedAccessType)
     }
 
+    // MARK: - getSendPolicyOptions (enforcedSendType) Tests
+
+    /// `getSendPolicyOptions()` maps a single-type `allowedSendTypes` array to the enforced Send type.
+    func test_getSendPolicyOptions_enforcedSendType() async {
+        configService.featureFlagsBool[.sendControls] = true
+        stateService.activeAccount = .fixture()
+        organizationService.fetchAllOrganizationsResult = .success([.fixture()])
+        policyDataStore.fetchPoliciesResult = .success(
+            [
+                .fixture(
+                    data: [PolicyOptionType.allowedSendTypes.rawValue: .array([.int(1)])],
+                    type: .sendControls,
+                ),
+            ],
+        )
+
+        let options = await subject.getSendPolicyOptions()
+        XCTAssertEqual(options.enforcedSendType, .file)
+    }
+
+    /// `getSendPolicyOptions()` enforces no Send type when both types are allowed.
+    func test_getSendPolicyOptions_enforcedSendType_bothAllowed() async {
+        configService.featureFlagsBool[.sendControls] = true
+        stateService.activeAccount = .fixture()
+        organizationService.fetchAllOrganizationsResult = .success([.fixture()])
+        policyDataStore.fetchPoliciesResult = .success(
+            [
+                .fixture(
+                    data: [PolicyOptionType.allowedSendTypes.rawValue: .array([.int(0), .int(1)])],
+                    type: .sendControls,
+                ),
+            ],
+        )
+
+        let options = await subject.getSendPolicyOptions()
+        XCTAssertNil(options.enforcedSendType)
+    }
+
+    /// When the Send Controls feature flag is disabled, `getSendPolicyOptions()` enforces no Send type.
+    func test_getSendPolicyOptions_enforcedSendType_flagOff() async {
+        configService.featureFlagsBool[.sendControls] = false
+        stateService.activeAccount = .fixture()
+        organizationService.fetchAllOrganizationsResult = .success([.fixture()])
+        policyDataStore.fetchPoliciesResult = .success(
+            [
+                .fixture(
+                    data: [PolicyOptionType.allowedSendTypes.rawValue: .array([.int(1)])],
+                    type: .sendControls,
+                ),
+            ],
+        )
+
+        let options = await subject.getSendPolicyOptions()
+        XCTAssertNil(options.enforcedSendType)
+    }
+
     // MARK: - getSendPolicyOptions (isHideEmailDisabled) Tests
 
     /// `getSendPolicyOptions()` reports the hide email option disabled when the Send Controls policy

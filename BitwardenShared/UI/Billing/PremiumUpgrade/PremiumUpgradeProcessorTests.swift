@@ -183,7 +183,8 @@ struct PremiumUpgradeProcessorTests {
         #expect(coordinator.alertShown.count == 1)
     }
 
-    /// `perform(_:)` with `.upgradeNowTapped` calls `reconcileCheckoutSuccess` when the session returns a success URL.
+    /// `perform(_:)` with `.upgradeNowTapped` calls `premiumCheckoutSucceeded` when the session
+    /// returns a success URL, so the upgrade is marked pending.
     @Test
     func perform_upgradeNowTapped_checkoutSucceeded() async throws {
         let checkoutURL = URL(string: "https://checkout.stripe.com/session")!
@@ -197,7 +198,7 @@ struct PremiumUpgradeProcessorTests {
 
         #expect(billingService.createCheckoutSessionCallsCount == 1)
         #expect(delegate.performCheckoutWebAuthSessionReceivedUrl == checkoutURL)
-        #expect(billingService.reconcileCheckoutSuccessCalled)
+        #expect(billingService.premiumCheckoutSucceededCalled)
         #expect(subject.state.isLoading == false)
     }
 

@@ -57,11 +57,11 @@ enum VaultListEffect: Equatable {
     /// Stream the list of organizations for the user.
     case streamOrganizations
 
-    /// Stream live updates to the Premium upgrade pending state.
-    case streamPremiumUpgradePendingState
-
     /// Stream the show web icons setting.
     case streamShowWebIcons
+
+    /// Stream sync-complete events to reload the item types the user can create.
+    case streamSyncComplete
 
     /// Stream the vault list for the user.
     case streamVaultList

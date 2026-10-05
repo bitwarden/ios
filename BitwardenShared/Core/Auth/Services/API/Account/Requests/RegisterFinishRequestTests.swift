@@ -21,10 +21,17 @@ class RegisterFinishRequestTests: BitwardenTestCase {
             body: RegisterFinishRequestModel(
                 email: "example@email.com",
                 emailVerificationToken: "thisisanawesometoken",
-                kdfConfig: KdfConfig(),
-                masterPasswordHash: "1a2b3c",
+                masterPasswordAuthentication: MasterPasswordAuthenticationDataRequestModel(
+                    kdf: KdfConfig(),
+                    masterPasswordAuthenticationHash: "1a2b3c",
+                    salt: "example@email.com",
+                ),
                 masterPasswordHint: "hint",
-                userSymmetricKey: "key",
+                masterPasswordUnlock: MasterPasswordUnlockDataRequestModel(
+                    kdf: KdfConfig(),
+                    masterKeyWrappedUserKey: "key",
+                    salt: "example@email.com",
+                ),
                 userAsymmetricKeys: KeysRequestModel(encryptedPrivateKey: "private"),
             ),
         )
