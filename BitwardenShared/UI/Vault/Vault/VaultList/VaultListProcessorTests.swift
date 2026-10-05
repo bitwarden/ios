@@ -859,7 +859,7 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
     }
 
     /// `perform(_:)` with `.appeared` shows the Premium upgrade action card when the account
-    /// doesn't have Premium.
+    /// doesn't have Premium and nothing else hides the card.
     @MainActor
     func test_perform_appeared_premiumUpgradeActionCard_shownWhenNotPremium() async {
         billingRepository.isInAppUpgradeAvailableReturnValue = true
