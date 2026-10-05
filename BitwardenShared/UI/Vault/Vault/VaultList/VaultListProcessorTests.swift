@@ -571,9 +571,8 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         XCTAssertEqual(subject.state.itemTypesUserCanCreate, [.card])
     }
 
-    /// `perform(_:)` with `.streamSyncComplete` re-shows the Premium upgrade action card once a
-    /// completed sync shows the pending upgrade is no longer pending, without requiring a fresh
-    /// `.appeared`.
+    /// `perform(_:)` with `.streamSyncComplete` shows the Premium upgrade action card when the
+    /// upgrade is no longer pending.
     @MainActor
     func test_perform_streamSyncComplete_showsPremiumUpgradeActionCardWhenNoLongerPending() {
         billingRepository.isInAppUpgradeAvailableReturnValue = true
@@ -836,7 +835,7 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
     }
 
     /// `perform(_:)` with `.appeared` hides the Premium upgrade action card when an upgrade is
-    /// currently pending, even when the banner isn't dismissed and in-app upgrade is available.
+    /// pending.
     @MainActor
     func test_perform_appeared_premiumUpgradeActionCard_hiddenWhilePending() async {
         billingRepository.isInAppUpgradeAvailableReturnValue = true
@@ -847,9 +846,8 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         XCTAssertFalse(subject.state.shouldShowPremiumUpgradeActionCard)
     }
 
-    /// `perform(_:)` with `.appeared` doesn't hide the Premium upgrade action card on account of
-    /// the lifecycle state when the account is `.premium`, leaving it to the other gating
-    /// conditions.
+    /// `perform(_:)` with `.appeared` shows the Premium upgrade action card when the lifecycle
+    /// state is `.premium`.
     @MainActor
     func test_perform_appeared_premiumUpgradeActionCard_notHiddenByLifecycleStateWhenPremium() async {
         billingRepository.isInAppUpgradeAvailableReturnValue = true
@@ -861,7 +859,7 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
     }
 
     /// `perform(_:)` with `.appeared` shows the Premium upgrade action card when no upgrade is
-    /// pending and the other gating conditions allow it.
+    /// pending.
     @MainActor
     func test_perform_appeared_premiumUpgradeActionCard_shownWhenNotPending() async {
         billingRepository.isInAppUpgradeAvailableReturnValue = true

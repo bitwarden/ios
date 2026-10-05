@@ -236,14 +236,8 @@ struct VaultListProcessorBillingTests {
         #expect(premiumUpgradeHelper.startInAppPremiumUpgradeCalled)
     }
 
-    /// `receive(_:)` with `.upgradeToPremium`, when the checkout ends with the upgrade pending,
-    /// hides the action card without persisting a permanent dismissal — a pending upgrade is a
-    /// temporary state, not the user asking to stop seeing this card.
-    ///
-    /// Builds its own subject with a real `DefaultPremiumUpgradeHelper` (unlike the rest of this
-    /// file, which substitutes `MockPremiumUpgradeHelper`), because the behavior under test —
-    /// `onPendingDismiss`'s closure — is private wiring inside `VaultListProcessor`'s real
-    /// helper that the mock can't stand in for.
+    /// `receive(_:)` with `.upgradeToPremium` hides the Premium upgrade action card without
+    /// persisting the dismissal when the upgrade is pending.
     @Test
     func receive_upgradeToPremium_pendingUpgrade_hidesActionCardWithoutPersistingDismissal() async throws {
         let statusSubject = PassthroughSubject<PremiumCheckoutStatus, Never>()
