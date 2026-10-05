@@ -6,82 +6,78 @@ import UniformTypeIdentifiers
 
 @testable import AuthenticatorShared
 
-// MARK: - PasteboardServiceTests
-
 @MainActor
 struct PasteboardServiceTests {
-    // MARK: Properties
-
-    let appSettingsStore: MockAppSettingsStore
-    let pasteboard: MockPasteboard
+    let appSettingsStore = MockAppSettingsStore()
+    let pasteboard = MockPasteboard()
+    let provider: DefaultPasteboardSettingsProvider
     let subject: DefaultPasteboardService
 
-    // MARK: Setup
-
     init() {
-        appSettingsStore = MockAppSettingsStore()
-        pasteboard = MockPasteboard()
-        subject = DefaultPasteboardService(
-            appSettingsStore: appSettingsStore,
-            errorReporter: MockErrorReporter(),
-            pasteboard: pasteboard,
-        )
+        provider = DefaultPasteboardSettingsProvider(appSettingsStore: appSettingsStore)
+        subject = DefaultPasteboardService(pasteboard: pasteboard, settingsProvider: provider)
     }
 
-    // MARK: Tests
-
-    /// Copies remain local by default without adding an expiration date.
     @Test
-    func copy_defaultsToLocalOnly() {
+    func copy_defaultsToLocalOnly() throws {
         subject.copy("123456")
 
-        #expect(pasteboard.items.first?[UTType.utf8PlainText.identifier] as? String == "123456")
-        #expect(pasteboard.options[.localOnly] as? Bool == true)
-        #expect(pasteboard.options[.expirationDate] == nil)
+        let arguments = try #require(pasteboard.setItemsReceivedArguments)
+        #expect(arguments.items.first?[UTType.utf8PlainText.identifier] as? String == "123456")
+        #expect(arguments.options[.localOnly] as? Bool == true)
+        #expect(arguments.options[.expirationDate] == nil)
+        #expect(provider.clearClipboardValue == .never)
     }
 
-    /// Each copy uses the latest preference, including enabling and then disabling it.
     @Test
-    func copy_readsCurrentPreference() {
+    func copy_readsCurrentPreference() throws {
         appSettingsStore.allowUniversalClipboard = true
         subject.copy("123456")
-        #expect(pasteboard.options[.localOnly] as? Bool == false)
+        #expect(pasteboard.setItemsReceivedArguments?.options[.localOnly] as? Bool == false)
 
         appSettingsStore.allowUniversalClipboard = false
         subject.copy("654321")
-        #expect(pasteboard.options[.localOnly] as? Bool == true)
-        #expect(pasteboard.items.first?[UTType.utf8PlainText.identifier] as? String == "654321")
+        #expect(pasteboard.setItemsReceivedArguments?.options[.localOnly] as? Bool == true)
+        let copiedText = pasteboard.setItemsReceivedArguments?.items.first?[UTType.utf8PlainText.identifier] as? String
+        #expect(copiedText == "654321")
     }
 
-    /// A stored opt-in applies to the first copy after recreating the service.
     @Test
     func copy_restoresPreferenceBeforeFirstCopy() {
         appSettingsStore.allowUniversalClipboard = true
         let restartedService = DefaultPasteboardService(
-            appSettingsStore: appSettingsStore,
-            errorReporter: MockErrorReporter(),
             pasteboard: pasteboard,
+            settingsProvider: DefaultPasteboardSettingsProvider(appSettingsStore: appSettingsStore),
         )
 
         restartedService.copy("123456")
 
-        #expect(pasteboard.options[.localOnly] as? Bool == false)
+        #expect(pasteboard.setItemsReceivedArguments?.options[.localOnly] as? Bool == false)
     }
 
-    /// Finite clipboard expiration is retained with either sharing preference.
     @Test(arguments: [false, true])
     func copy_preservesExpiration(allowUniversalClipboard: Bool) throws {
-        appSettingsStore.allowUniversalClipboard = allowUniversalClipboard
-        subject.updateClearClipboardValue(.tenSeconds)
+        provider.updateAllowUniversalClipboard(allowUniversalClipboard)
+        provider.updateClearClipboardValue(.tenSeconds)
         let earliestExpiration = Date().addingTimeInterval(10)
 
         subject.copy("123456")
 
         let latestExpiration = Date().addingTimeInterval(10)
-        let expiration = try #require(pasteboard.options[.expirationDate] as? Date)
+        let arguments = try #require(pasteboard.setItemsReceivedArguments)
+        let expiration = try #require(arguments.options[.expirationDate] as? Date)
         #expect(expiration >= earliestExpiration)
         #expect(expiration <= latestExpiration)
-        #expect(pasteboard.options[.localOnly] as? Bool == !allowUniversalClipboard)
-        #expect(pasteboard.items.first?[UTType.utf8PlainText.identifier] as? String == "123456")
+        #expect(arguments.options[.localOnly] as? Bool == !allowUniversalClipboard)
+    }
+
+    @Test
+    func provider_updatesStoreAndMemory() {
+        provider.updateAllowUniversalClipboard(true)
+        provider.updateClearClipboardValue(.twentySeconds)
+
+        #expect(appSettingsStore.allowUniversalClipboard)
+        #expect(provider.allowUniversalClipboard)
+        #expect(provider.clearClipboardValue == .twentySeconds)
     }
 }

@@ -31,6 +31,8 @@ class MockStateService: StateService, ActiveAccountStateProvider, AutofillStateS
     var addSitePromptShown = false
     var allowSyncOnRefresh = [String: Bool]()
     var allowUniversalClipboard = [String: Bool]()
+    var getAllowUniversalClipboardError: Error?
+    var setAllowUniversalClipboardError: Error?
     var appLanguage: LanguageOption = .default
     var appRehydrationState = [String: AppRehydrationState]()
     var appTheme: AppTheme?
@@ -285,6 +287,7 @@ class MockStateService: StateService, ActiveAccountStateProvider, AutofillStateS
     }
 
     func getAllowUniversalClipboard(userId: String?) async throws -> Bool {
+        if let getAllowUniversalClipboardError { throw getAllowUniversalClipboardError }
         let userId = try unwrapUserId(userId)
         return allowUniversalClipboard[userId] ?? false
     }
@@ -612,6 +615,7 @@ class MockStateService: StateService, ActiveAccountStateProvider, AutofillStateS
     }
 
     func setAllowUniversalClipboard(_ allowUniversalClipboard: Bool, userId: String?) async throws {
+        if let setAllowUniversalClipboardError { throw setAllowUniversalClipboardError }
         let userId = try unwrapUserId(userId)
         self.allowUniversalClipboard[userId] = allowUniversalClipboard
     }

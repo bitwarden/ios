@@ -243,7 +243,7 @@ class SendListProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         await subject.perform(.sendListItemRow(.copyLinkPressed(sendView)))
 
         XCTAssertEqual(sendRepository.shareURLSendView, sendView)
-        XCTAssertEqual(pasteboardService.copiedString, "https://example.com")
+        XCTAssertEqual(pasteboardService.copyReceivedString, "https://example.com")
         XCTAssertEqual(
             subject.state.toast,
             Toast(title: Localizations.valueHasBeenCopied(Localizations.sendLink)),
