@@ -834,6 +834,18 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         XCTAssertFalse(subject.state.hasPremium)
     }
 
+    /// `perform(_:)` with `.appeared` hides the Premium upgrade action card when the account has
+    /// Premium.
+    @MainActor
+    func test_perform_appeared_premiumUpgradeActionCard_hiddenWhenPremium() async {
+        billingRepository.isInAppUpgradeAvailableReturnValue = true
+        billingService.premiumUpgradeLifecycleStateReturnValue = .premium
+
+        await subject.perform(.appeared)
+
+        XCTAssertFalse(subject.state.shouldShowPremiumUpgradeActionCard)
+    }
+
     /// `perform(_:)` with `.appeared` hides the Premium upgrade action card when an upgrade is
     /// pending.
     @MainActor
@@ -846,23 +858,12 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         XCTAssertFalse(subject.state.shouldShowPremiumUpgradeActionCard)
     }
 
-    /// `perform(_:)` with `.appeared` shows the Premium upgrade action card when the lifecycle
-    /// state is `.premium`.
+    /// `perform(_:)` with `.appeared` shows the Premium upgrade action card when the account
+    /// doesn't have Premium.
     @MainActor
-    func test_perform_appeared_premiumUpgradeActionCard_notHiddenByLifecycleStateWhenPremium() async {
+    func test_perform_appeared_premiumUpgradeActionCard_shownWhenNotPremium() async {
         billingRepository.isInAppUpgradeAvailableReturnValue = true
-        billingService.premiumUpgradeLifecycleStateReturnValue = .premium
-
-        await subject.perform(.appeared)
-
-        XCTAssertTrue(subject.state.shouldShowPremiumUpgradeActionCard)
-    }
-
-    /// `perform(_:)` with `.appeared` shows the Premium upgrade action card when no upgrade is
-    /// pending.
-    @MainActor
-    func test_perform_appeared_premiumUpgradeActionCard_shownWhenNotPending() async {
-        billingRepository.isInAppUpgradeAvailableReturnValue = true
+        billingService.premiumUpgradeLifecycleStateReturnValue = .notPremium
 
         await subject.perform(.appeared)
 
