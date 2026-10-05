@@ -536,8 +536,7 @@ extension VaultListProcessor {
 
     /// Refreshes the visibility of the premium-related action cards, ensuring the subscription
     /// attention card and the upgrade card are mutually exclusive — the attention card takes
-    /// priority when a payment problem is detected. The upgrade card is also hidden while a
-    /// Premium upgrade is pending.
+    /// priority when a payment problem is detected.
     ///
     private func refreshPremiumActionCards() async {
         state.shouldShowSubscriptionAttentionCard =
