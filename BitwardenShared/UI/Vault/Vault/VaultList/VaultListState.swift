@@ -87,11 +87,25 @@ struct VaultListState: Equatable {
 
     // MARK: Computed Properties
 
-    /// The active action card to show, determined by priority. Only one card is shown at a time.
-    /// Some cards are additionally gated on vault state: import logins requires an empty vault,
-    /// and archive onboarding requires a populated vault.
+    /// The active action card to show, determined by priority from highest to lowest. Only one
+    /// card is shown at a time. Some cards are additionally gated on vault state: import logins
+    /// requires an empty vault, and archive onboarding requires a populated vault.
     var activeActionCard: VaultListActionCard? {
-        VaultListActionCard.allCases.first { shouldShow($0) }
+        if let organizationUserNotificationBannerData {
+            .organizationBanner(organizationUserNotificationBannerData)
+        } else if shouldShowUpgradedToPremiumActionCard {
+            .upgradedToPremium
+        } else if shouldShowPremiumUpgradeActionCard {
+            .upgradeNeeded
+        } else if shouldShowSubscriptionAttentionCard {
+            .subscriptionNeedsAttention
+        } else if shouldShowArchiveOnboardingActionCard, !isVaultEmpty {
+            .introducingArchive
+        } else if shouldShowImportLoginsActionCard, isVaultEmpty {
+            .importItems
+        } else {
+            nil
+        }
     }
 
     /// Whether the vault is in an empty data state (loaded successfully with no sections).
@@ -138,31 +152,16 @@ struct VaultListState: Equatable {
             searchVaultFilterType: vaultFilterType,
         )
     }
-
-    // MARK: Private
-
-    /// Whether a given action card's eligibility conditions are met.
-    ///
-    /// - Parameters:
-    ///   - card: The action card to evaluate.
-    ///
-    /// - Returns: `true` if the card should be displayed; `false` otherwise.
-    private func shouldShow(_ card: VaultListActionCard) -> Bool {
-        switch card {
-        case .upgradedToPremium: shouldShowUpgradedToPremiumActionCard
-        case .upgradeNeeded: shouldShowPremiumUpgradeActionCard
-        case .subscriptionNeedsAttention: shouldShowSubscriptionAttentionCard
-        case .introducingArchive: shouldShowArchiveOnboardingActionCard && !isVaultEmpty
-        case .importItems: shouldShowImportLoginsActionCard && isVaultEmpty
-        }
-    }
 }
 
 // MARK: - VaultListActionCard
 
-/// The action card to show on the vault list. Only one is shown at a time.
-/// Cases are declared in priority order from highest to lowest.
-enum VaultListActionCard: CaseIterable, Equatable {
+/// The action card to show on the vault list. Only one is shown at a time; see
+/// `VaultListState.activeActionCard` for the priority order.
+enum VaultListActionCard: Equatable {
+    /// The organization user notification banner, with the data to display.
+    case organizationBanner(OrganizationUserNotificationBannerData)
+
     /// The post-upgrade confirmation card.
     case upgradedToPremium
 
