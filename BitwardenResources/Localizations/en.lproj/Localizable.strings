@@ -1301,3 +1301,4 @@
 "NotNow" = "Not now";
 "SyncUnsuccessful" = "Sync unsuccessful";
 "WeCouldntSyncYourVaultWithTheServerDescriptionLong" = "We couldn’t sync your vault with the server. Your vault may not reflect your latest changes. You can try again now or it will sync automatically later.";
+"TextToShareRequired" = "Text to share (required)";
