@@ -7,7 +7,24 @@ import SwiftUI
 /// A view that allows the user to add or edit a driver's license item for a vault.
 ///
 struct AddEditDriversLicenseItemView: View {
+    // MARK: Types
+
+    /// The focusable fields in the driver's license view.
+    enum FocusedField: Int, Hashable {
+        case firstName
+        case middleName
+        case lastName
+        case licenseNumber
+        case issuingCountry
+        case issuingState
+        case issuingAuthority
+        case licenseClass
+    }
+
     // MARK: Properties
+
+    /// The currently focused field.
+    @FocusState private var focusedField: FocusedField?
 
     /// The `Store` for this view.
     @ObservedObject var store: Store<
@@ -26,7 +43,9 @@ struct AddEditDriversLicenseItemView: View {
                         send: AddEditDriversLicenseItemAction.firstNameChanged,
                     ),
                     accessibilityIdentifier: "DriversLicenseFirstNameEntry",
+                    focus: .field($focusedField, equals: .firstName),
                 )
+                .onSubmit { focusNextField($focusedField) }
 
                 BitwardenTextField(
                     title: Localizations.middleName,
@@ -35,7 +54,9 @@ struct AddEditDriversLicenseItemView: View {
                         send: AddEditDriversLicenseItemAction.middleNameChanged,
                     ),
                     accessibilityIdentifier: "DriversLicenseMiddleNameEntry",
+                    focus: .field($focusedField, equals: .middleName),
                 )
+                .onSubmit { focusNextField($focusedField) }
 
                 BitwardenTextField(
                     title: Localizations.lastName,
@@ -44,7 +65,9 @@ struct AddEditDriversLicenseItemView: View {
                         send: AddEditDriversLicenseItemAction.lastNameChanged,
                     ),
                     accessibilityIdentifier: "DriversLicenseLastNameEntry",
+                    focus: .field($focusedField, equals: .lastName),
                 )
+                .onSubmit { focusNextField($focusedField) }
 
                 BitwardenTextField(
                     title: Localizations.licenseNumber,
@@ -54,11 +77,13 @@ struct AddEditDriversLicenseItemView: View {
                     ),
                     accessibilityIdentifier: "DriversLicenseNumberEntry",
                     passwordVisibilityAccessibilityId: "ShowDriversLicenseNumberButton",
+                    focus: .field($focusedField, equals: .licenseNumber),
                     isPasswordVisible: store.binding(
                         get: \.isLicenseNumberVisible,
                         send: AddEditDriversLicenseItemAction.toggleLicenseNumberVisibilityChanged,
                     ),
                 )
+                .onSubmit { focusNextField($focusedField) }
 
                 DateFieldPicker(
                     title: Localizations.dateOfBirth,
@@ -77,7 +102,9 @@ struct AddEditDriversLicenseItemView: View {
                         send: AddEditDriversLicenseItemAction.issuingCountryChanged,
                     ),
                     accessibilityIdentifier: "DriversLicenseIssuingCountryEntry",
+                    focus: .field($focusedField, equals: .issuingCountry),
                 )
+                .onSubmit { focusNextField($focusedField) }
 
                 BitwardenTextField(
                     title: Localizations.issuingStateProvince,
@@ -86,7 +113,9 @@ struct AddEditDriversLicenseItemView: View {
                         send: AddEditDriversLicenseItemAction.issuingStateChanged,
                     ),
                     accessibilityIdentifier: "DriversLicenseIssuingStateEntry",
+                    focus: .field($focusedField, equals: .issuingState),
                 )
+                .onSubmit { focusNextField($focusedField) }
 
                 BitwardenTextField(
                     title: Localizations.issuingAuthority,
@@ -95,7 +124,9 @@ struct AddEditDriversLicenseItemView: View {
                         send: AddEditDriversLicenseItemAction.issuingAuthorityChanged,
                     ),
                     accessibilityIdentifier: "DriversLicenseIssuingAuthorityEntry",
+                    focus: .field($focusedField, equals: .issuingAuthority),
                 )
+                .onSubmit { focusNextField($focusedField) }
 
                 DateFieldPicker(
                     title: Localizations.issueDate,
@@ -123,6 +154,7 @@ struct AddEditDriversLicenseItemView: View {
                         send: AddEditDriversLicenseItemAction.licenseClassChanged,
                     ),
                     accessibilityIdentifier: "DriversLicenseClassEntry",
+                    focus: .field($focusedField, equals: .licenseClass),
                 )
             }
         }
