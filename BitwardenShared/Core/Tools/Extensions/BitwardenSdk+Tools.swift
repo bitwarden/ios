@@ -13,7 +13,7 @@ extension SendDataModel {
         let data = try JSONEncoder.defaultEncoder.encode(cipher)
         self.init(
             data: String(data: data, encoding: .utf8),
-            encryptionVersion: SendEncryptionVersion(encryptionType: sendItem.encryptionVersion),
+            encryptionVersion: Int(sendItem.encryptionVersion.rawValue),
         )
     }
 }
@@ -132,12 +132,24 @@ extension BitwardenSdk.SendType {
 
 extension BitwardenSdk.SendItem {
     init(sendDataModel model: SendDataModel) throws {
-        guard let encryptionVersion = model.encryptionVersion.sdkEncryptionType,
-              let data = model.data?.data(using: .utf8) else {
+        guard let data = model.data?.data(using: .utf8) else {
             throw DataMappingError.invalidData
         }
+
+        // A missing encryption version defaults to v1, matching the SDK.
+        var encryptionVersion = BitwardenSdk.SendEncryptionType.v1
+        if let rawVersion = model.encryptionVersion {
+            guard let version = UInt8(exactly: rawVersion).flatMap(BitwardenSdk.SendEncryptionType.init) else {
+                throw DataMappingError.invalidData
+            }
+            encryptionVersion = version
+        }
+
         let cipher = try CipherDetailsResponseModel.decoder.decode(CipherDetailsResponseModel.self, from: data)
-        self.init(encryptionVersion: encryptionVersion, data: Cipher(responseModel: cipher))
+        self.init(
+            encryptionVersion: encryptionVersion,
+            data: Cipher(responseModel: cipher),
+        )
     }
 }
 
