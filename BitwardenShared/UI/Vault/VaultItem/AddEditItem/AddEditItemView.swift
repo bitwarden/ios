@@ -252,18 +252,10 @@ private extension AddEditItemView {
                     ),
                     accessibilityIdentifier: "MasterPasswordRepromptToggle",
                     accessibilityLabel: Localizations.passwordPrompt,
+                    helpURL: ExternalLinksConstants.protectIndividualItems,
+                    helpAccessibilityLabel: Localizations.masterPasswordRePromptHelp,
                     title: {
                         Text(Localizations.passwordPrompt)
-                    },
-                    accessory: {
-                        Button {
-                            openURL(ExternalLinksConstants.protectIndividualItems)
-                        } label: {
-                            SharedAsset.Icons.questionCircle16.swiftUIImage
-                        }
-                        .buttonStyle(.fieldLabelIcon)
-                        .accessibilityLabel(Localizations.masterPasswordRePromptHelp)
-                        .accessibilityHint(Localizations.externalLink)
                     },
                 )
                 .toggleStyle(.bitwarden)
