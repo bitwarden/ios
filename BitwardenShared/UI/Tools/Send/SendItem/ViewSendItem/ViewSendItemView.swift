@@ -200,7 +200,7 @@ struct ViewSendItemView: View {
             case .text:
                 if let text = store.state.sendView.text?.text {
                     BitwardenTextValueField(
-                        title: Localizations.textToShare,
+                        title: Localizations.textToShareRequired,
                         value: text,
                         valueAccessibilityIdentifier: "ViewSendContentText",
                     )
