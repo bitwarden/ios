@@ -222,7 +222,11 @@ public struct DateFieldPicker: View {
             }
             .buttonStyle(.plain)
             .accessibilityIdentifier("\(resolvedAccessibilityIdentifier)HeaderButton")
-            .accessibilityHint(isExpanded ? Localizations.closesDatePicker : Localizations.opensDatePicker)
+            .accessibilityHint(
+                isExpanded
+                    ? Localizations.doubleTapToCloseThePicker
+                    : Localizations.doubleTapToActivateThePicker,
+            )
 
             if date != nil {
                 AccessoryButton(
