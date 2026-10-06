@@ -48,9 +48,11 @@ final class Fido2CredentialStoreService: Fido2CredentialStore {
     /// Gets all the active login ciphers that have Fido2 credentials.
     /// - Returns: Array of active login ciphers that have Fido2 credentials.
     func allCredentials() async throws -> [BitwardenSdk.CipherListView] {
-        try await clientService.vault().ciphers().decryptList(
-            ciphers: cipherService.fetchAllCiphers().filter(\.isActiveWithFido2Credentials),
+        try await clientService.vault().ciphers().decryptListWithFailures(
+            ciphers: cipherService.fetchAllCiphers().filter(\.isActiveLogin),
         )
+        .successes
+        .filter { $0.type.loginListView?.hasFido2 == true }
     }
 
     /// Finds active login ciphers that have Fido2 credentials, match the `ripId` and if `ids` is sent
@@ -103,19 +105,23 @@ final class Fido2CredentialStoreService: Fido2CredentialStore {
         shouldCheckSync: Bool,
         userHandle: Data?,
     ) async throws -> [BitwardenSdk.CipherView] {
-        let activeCiphersWithFido2Credentials = try await cipherService.fetchAllCiphers()
-            .filter(\.isActiveWithFido2Credentials)
-            .asyncMap { cipher in
-                try await self.clientService.vault().ciphers().decrypt(cipher: cipher)
-            }
-
         var needsSync = false
         if shouldCheckSync {
             needsSync = await needsSyncCheckingLocally()
         }
 
+        // Decrypt one login at a time so only the matches are retained, not every login.
         var result = [BitwardenSdk.CipherView]()
-        for cipherView in activeCiphersWithFido2Credentials {
+        for cipher in try await cipherService.fetchAllCiphers().filter(\.isActiveLogin) {
+            let cipherView: BitwardenSdk.CipherView
+            do {
+                cipherView = try await clientService.vault().ciphers().decrypt(cipher: cipher)
+            } catch {
+                // Skip ciphers that fail to decrypt, so one broken login doesn't fail every passkey lookup.
+                errorReporter.log(error: error)
+                continue
+            }
+
             let fido2CredentialAutofillViews = try await clientService.platform()
                 .fido2()
                 .decryptFido2AutofillCredentials(cipherView: cipherView)
@@ -172,11 +178,9 @@ final class Fido2CredentialStoreService: Fido2CredentialStore {
 }
 
 private extension Cipher {
-    /// Whether the cipher is active, is a login and has Fido2 credentials.
-    var isActiveWithFido2Credentials: Bool {
-        !isHidden
-            && type == .login
-            && login?.fido2Credentials?.isEmpty == false
+    /// Whether the cipher is active and is a login. Fido2 credentials can only be checked after decryption.
+    var isActiveLogin: Bool {
+        !isHidden && type == .login
     }
 }
 

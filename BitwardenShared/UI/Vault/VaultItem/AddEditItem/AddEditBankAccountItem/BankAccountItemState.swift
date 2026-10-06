@@ -10,7 +10,7 @@ struct BankAccountItemState: Equatable {
     var accountNumber: String = ""
 
     /// The type of the bank account.
-    var accountType: DefaultableType<BankAccountType> = .default
+    var accountType: DefaultableType<BankAccountType> = .custom(.checking)
 
     /// The contact phone number for the bank.
     var bankContactPhone: String = ""

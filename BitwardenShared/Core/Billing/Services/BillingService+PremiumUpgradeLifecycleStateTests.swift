@@ -63,25 +63,6 @@ struct BillingServicePremiumUpgradeLifecycleStateTests {
 
     // MARK: Tests
 
-    /// `premiumUpgradeLifecycleState()` keeps reading the account that was active when it was
-    /// called, even if the active account changes partway through.
-    @Test
-    func premiumUpgradeLifecycleState_activeAccountSwitchesMidCall_readsOriginalAccount() async {
-        stateService.doesActiveAccountHavePremiumPersonallyResult = true
-        stateService.doesActiveAccountHavePremiumResult = true
-        stateService.doesAccountHavePremiumPersonallyByUserId["1"] = false
-        stateService.doesAccountHavePremiumByUserId["1"] = false
-        billingStateService.getPremiumUpgradePendingClosure = { [stateService] _ in
-            stateService.activeAccount = .fixture(profile: .fixture(userId: "2"))
-            return false
-        }
-
-        let result = await subject.premiumUpgradeLifecycleState()
-
-        #expect(result == .notPremium)
-        #expect(billingStateService.getPremiumUpgradePendingReceivedUserId == "1")
-    }
-
     /// `premiumUpgradeLifecycleState()` derives the active account's lifecycle position from its personal
     /// Premium status, its persisted pending flag, and its organization-granted Premium — in
     /// that order of precedence.

@@ -17,8 +17,6 @@
         <string>Bitwarden לא הצליח לפענח %d פריט בכספת.</string>
         <key>two</key>
         <string>Bitwarden לא הצליח לפענח %d פריטים בכספת.</string>
-        <key>many</key>
-        <string>Bitwarden לא הצליח לפענח %d פריטים בכספת.</string>
         <key>other</key>
         <string>Bitwarden לא הצליח לפענח %d פריטים בכספת.</string>
       </dict>
@@ -37,8 +35,6 @@
         <key>one</key>
         <string>סיסמת האב חייבת להיות באורך של %d תו לפחות.</string>
         <key>two</key>
-        <string>סיסמת האב חייבת להיות באורך של %d תווים לפחות.</string>
-        <key>many</key>
         <string>סיסמת האב חייבת להיות באורך של %d תווים לפחות.</string>
         <key>other</key>
         <string>סיסמת האב חייבת להיות באורך של %d תווים לפחות.</string>
@@ -59,8 +55,6 @@
         <string>סיסמה זו נחשפה %d פעם אחת בפרצות אבטחה.</string>
         <key>two</key>
         <string>סיסמה זו נחשפה %d פעמים בפרצות אבטחה.</string>
-        <key>many</key>
-        <string>סיסמה זו נחשפה %d פעמים בפרצות אבטחה.</string>
         <key>other</key>
         <string>סיסמה זו נחשפה %d פעמים בפרצות אבטחה.</string>
       </dict>
@@ -79,8 +73,6 @@
         <key>one</key>
         <string>תו אחד</string>
         <key>two</key>
-        <string>%d תווים</string>
-        <key>many</key>
         <string>%d תווים</string>
         <key>other</key>
         <string>%d תווים</string>
@@ -101,8 +93,6 @@
         <string>יום אחד</string>
         <key>two</key>
         <string>%d ימים</string>
-        <key>many</key>
-        <string>%d ימים</string>
         <key>other</key>
         <string>%d ימים</string>
       </dict>
@@ -121,8 +111,6 @@
         <key>one</key>
         <string>שעה אחת</string>
         <key>two</key>
-        <string>%d שעות</string>
-        <key>many</key>
         <string>%d שעות</string>
         <key>other</key>
         <string>%d שעות</string>
@@ -143,8 +131,6 @@
         <string>פריט אחד</string>
         <key>two</key>
         <string>%d פריטים</string>
-        <key>many</key>
-        <string>%d פריטים</string>
         <key>other</key>
         <string>%d פריטים</string>
       </dict>
@@ -163,8 +149,6 @@
         <key>one</key>
         <string>%d פריט יובא בהצלחה</string>
         <key>two</key>
-        <string>%d פריטים יובאו בהצלחה</string>
-        <key>many</key>
         <string>%d פריטים יובאו בהצלחה</string>
         <key>other</key>
         <string>%d פריטים יובאו בהצלחה</string>
@@ -185,8 +169,6 @@
         <string>דקה אחת</string>
         <key>two</key>
         <string>%d דקות</string>
-        <key>many</key>
-        <string>%d דקות</string>
         <key>other</key>
         <string>%d דקות</string>
       </dict>
@@ -205,8 +187,6 @@
         <key>one</key>
         <string>שנייה אחת</string>
         <key>two</key>
-        <string>%d שניות</string>
-        <key>many</key>
         <string>%d שניות</string>
         <key>other</key>
         <string>%d שניות</string>
@@ -227,8 +207,6 @@
         <string>שבוע אחד</string>
         <key>two</key>
         <string>%d שבועות</string>
-        <key>many</key>
-        <string>%d שבועות</string>
         <key>other</key>
         <string>%d שבועות</string>
       </dict>
@@ -248,8 +226,6 @@
         <string>יש לך תקופת חסד של %1$d יום ממועד פקיעת המנוי שלך.</string>
         <key>two</key>
         <string>יש לך תקופת חסד של %1$d ימים ממועד פקיעת המנוי שלך.</string>
-        <key>many</key>
-        <string>יש לך תקופת חסד של %1$d ימים ממועד פקיעת המנוי שלך.</string>
         <key>other</key>
         <string>יש לך תקופת חסד של %1$d ימים ממועד פקיעת המנוי שלך.</string>
       </dict>
@@ -268,8 +244,6 @@
         <key>one</key>
         <string>ה-PIN שלך חייב להיות באורך של %d תו לפחות.</string>
         <key>two</key>
-        <string>ה-PIN שלך חייב להיות באורך של %d תווים לפחות.</string>
-        <key>many</key>
         <string>ה-PIN שלך חייב להיות באורך של %d תווים לפחות.</string>
         <key>other</key>
         <string>ה-PIN שלך חייב להיות באורך של %d תווים לפחות.</string>

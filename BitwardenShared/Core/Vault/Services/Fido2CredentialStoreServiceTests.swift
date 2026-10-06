@@ -79,6 +79,45 @@ class Fido2CredentialStoreServiceTests: BitwardenTestCase { // swiftlint:disable
         XCTAssertTrue(result[0].id == "5")
     }
 
+    /// `.allCredentials()` returns v2 ciphers, whose encrypted login is `nil`, when their decrypted
+    /// list view has Fido2 credentials.
+    func test_allCredentials_v2Cipher() async throws {
+        cipherService.fetchAllCiphersResult = .success([
+            .fixture(data: "sealed-blob", id: "1", login: nil, type: .login),
+            .fixture(data: "sealed-blob", id: "2", login: nil, type: .login),
+        ])
+        clientService.mockVault.clientCiphers.decryptListWithFailuresClosure = { ciphers in
+            DecryptCipherListResult(
+                successes: ciphers.map { cipher in
+                    .fixture(id: cipher.id, type: .login(.fixture(hasFido2: cipher.id == "1")))
+                },
+                failures: [],
+            )
+        }
+
+        let result = try await subject.allCredentials()
+
+        XCTAssertEqual(result.map(\.id), ["1"])
+    }
+
+    /// `.allCredentials()` skips ciphers that fail to decrypt and returns the others.
+    func test_allCredentials_skipsUndecryptableCipher() async throws {
+        let passkeyCipher = Cipher.fixture(data: "sealed-blob", id: "1", login: nil, type: .login)
+        let brokenCipher = Cipher.fixture(id: "2", type: .login)
+        cipherService.fetchAllCiphersResult = .success([passkeyCipher, brokenCipher])
+        clientService.mockVault.clientCiphers.decryptListThrowableError = BitwardenTestError.example
+        clientService.mockVault.clientCiphers.decryptListWithFailuresClosure = { _ in
+            DecryptCipherListResult(
+                successes: [.fixture(id: "1", type: .login(.fixture(hasFido2: true)))],
+                failures: [brokenCipher],
+            )
+        }
+
+        let result = try await subject.allCredentials()
+
+        XCTAssertEqual(result.map(\.id), ["1"])
+    }
+
     /// `.allCredentials()` throws when fetching ciphers.
     func test_allCredentials_throwsFetchingCiphers() async throws {
         cipherService.fetchAllCiphersResult = .failure(BitwardenTestError.example)
@@ -88,7 +127,7 @@ class Fido2CredentialStoreServiceTests: BitwardenTestCase { // swiftlint:disable
         }
     }
 
-    /// `.allCredentials()` throws when decrypting ciphers.
+    /// `.allCredentials()` throws when decrypting the cipher list fails as a whole.
     func test_allCredentials_throwsDecryptingCiphers() async throws {
         cipherService.fetchAllCiphersResult = .success([
             .fixture(
@@ -101,7 +140,7 @@ class Fido2CredentialStoreServiceTests: BitwardenTestCase { // swiftlint:disable
                 type: .login,
             ),
         ])
-        clientService.mockVault.clientCiphers.decryptListThrowableError = BitwardenTestError.example
+        clientService.mockVault.clientCiphers.decryptListWithFailuresThrowableError = BitwardenTestError.example
 
         await assertAsyncThrows(error: BitwardenTestError.example) {
             _ = try await subject.allCredentials()
@@ -202,6 +241,53 @@ class Fido2CredentialStoreServiceTests: BitwardenTestCase { // swiftlint:disable
         XCTAssertFalse(syncService.didFetchSync)
     }
 
+    /// `.findCredentials(ids:ripId:)` returns v2 ciphers, whose encrypted login is `nil`, when their
+    /// decrypted cipher has Fido2 credentials.
+    func test_findCredentials_v2Cipher() async throws {
+        let expectedRpId = Fido2CredentialAutofillView.defaultRpId
+        cipherService.fetchAllCiphersResult = .success([
+            .fixture(data: "sealed-blob", id: "1", login: nil, type: .login),
+            .fixture(data: "sealed-blob", id: "2", login: nil, type: .login),
+        ])
+        stateService.activeAccount = .fixture(profile: .fixture(userId: "user123"))
+        syncService.needsSyncResult = .success(false)
+
+        clientService.mockPlatform.mockFido2.decryptFido2AutofillCredentialsClosure = { cipherView in
+            guard let cipherId = cipherView.id, cipherId == "1" else {
+                return []
+            }
+            return [.fixture(cipherId: cipherId, rpId: expectedRpId)]
+        }
+
+        let result = try await subject.findCredentials(ids: nil, ripId: expectedRpId, userHandle: nil)
+
+        XCTAssertEqual(result.map(\.id), ["1"])
+    }
+
+    /// `.findCredentials(ids:ripId:)` skips login ciphers that fail to decrypt and returns the
+    /// passkey ciphers that decrypt.
+    func test_findCredentials_skipsUndecryptableCipher() async throws {
+        let expectedRpId = Fido2CredentialAutofillView.defaultRpId
+        cipherService.fetchAllCiphersResult = .success([
+            .fixture(data: "sealed-blob", id: "1", login: nil, type: .login),
+            .fixture(id: "2", type: .login),
+        ])
+        stateService.activeAccount = .fixture(profile: .fixture(userId: "user123"))
+        syncService.needsSyncResult = .success(false)
+        clientService.mockVault.clientCiphers.decryptClosure = { cipher in
+            guard cipher.id != "2" else { throw BitwardenTestError.example }
+            return CipherView(cipher: cipher)
+        }
+        clientService.mockPlatform.mockFido2.decryptFido2AutofillCredentialsClosure = { cipherView in
+            [.fixture(cipherId: cipherView.id ?? "", rpId: expectedRpId)]
+        }
+
+        let result = try await subject.findCredentials(ids: nil, ripId: expectedRpId, userHandle: nil)
+
+        XCTAssertEqual(result.map(\.id), ["1"])
+        XCTAssertEqual(errorReporter.errors as? [BitwardenTestError], [.example])
+    }
+
     /// `.findCredentials(ids:ripId:)` returns empty if there are active Fido2 credentials.
     func test_findCredentials_empty() async throws {
         cipherService.fetchAllCiphersResult = .success([])
@@ -222,7 +308,7 @@ class Fido2CredentialStoreServiceTests: BitwardenTestCase { // swiftlint:disable
         syncService.needsSyncResult = .success(true)
 
         clientService.mockPlatform.mockFido2.decryptFido2AutofillCredentialsClosure = { cipherView in
-            guard let cipherId = cipherView.id else {
+            guard let cipherId = cipherView.id, cipherView.hasFido2Credentials else {
                 return []
             }
             let hasExpectedCredentialId = cipherId == expectedCipherId
@@ -256,7 +342,7 @@ class Fido2CredentialStoreServiceTests: BitwardenTestCase { // swiftlint:disable
         syncService.needsSyncResult = .success(false)
 
         clientService.mockPlatform.mockFido2.decryptFido2AutofillCredentialsClosure = { cipherView in
-            guard let cipherId = cipherView.id else {
+            guard let cipherId = cipherView.id, cipherView.hasFido2Credentials else {
                 return []
             }
             let hasExpectedCredentialId = cipherId == expectedCipherId
@@ -290,7 +376,7 @@ class Fido2CredentialStoreServiceTests: BitwardenTestCase { // swiftlint:disable
         syncService.needsSyncResult = .failure(BitwardenTestError.example)
 
         clientService.mockPlatform.mockFido2.decryptFido2AutofillCredentialsClosure = { cipherView in
-            guard let cipherId = cipherView.id else {
+            guard let cipherId = cipherView.id, cipherView.hasFido2Credentials else {
                 return []
             }
             let hasExpectedCredentialId = cipherId == expectedCipherId
@@ -346,28 +432,6 @@ class Fido2CredentialStoreServiceTests: BitwardenTestCase { // swiftlint:disable
     /// `.findCredentials(ids:ripId:)` throws when fetching ciphers..
     func test_findCredentials_throwsWhenFetchingCipher() async throws {
         cipherService.fetchAllCiphersResult = .failure(BitwardenTestError.example)
-
-        await assertAsyncThrows(error: BitwardenTestError.example) {
-            _ = try await subject.findCredentials(ids: nil, ripId: "something", userHandle: nil)
-        }
-    }
-
-    /// `.findCredentials(ids:ripId:)` throws when decrypting ciphers..
-    func test_findCredentials_throwsWhenDecryptingCiphers() async throws {
-        cipherService.fetchAllCiphersResult = .success([
-            .fixture(
-                id: "1",
-                login: .fixture(
-                    fido2Credentials: [
-                        .fixture(),
-                    ],
-                ),
-                type: .login,
-            ),
-        ])
-        clientService.mockVault.clientCiphers.decryptClosure = { _ in
-            throw BitwardenTestError.example
-        }
 
         await assertAsyncThrows(error: BitwardenTestError.example) {
             _ = try await subject.findCredentials(ids: nil, ripId: "something", userHandle: nil)
