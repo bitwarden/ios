@@ -200,15 +200,14 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
         XCTAssertEqual(processor.dispatchedActions.last, .masterPasswordRePromptChanged(true))
     }
 
-    /// The master password re-prompt info button is independently reachable by VoiceOver and is
-    /// announced as an external link.
+    /// The master password re-prompt info button's image has an accessibility label, which names
+    /// the custom accessibility action exposed on the toggle.
     @MainActor
     func test_masterPasswordRePromptToggle_infoButton_accessibility() throws {
         processor.state.isAdditionalOptionsExpanded = true
-        let button = try subject.inspect().find(
-            buttonWithAccessibilityLabel: Localizations.masterPasswordRePromptHelp,
-        )
-        try XCTAssertEqual(button.accessibilityHint().string(), Localizations.externalLink)
+        XCTAssertNoThrow(try subject.inspect().find(ViewType.Image.self) { image in
+            try image.accessibilityLabel().string() == Localizations.masterPasswordRePromptHelp
+        })
     }
 
     /// Updating the name text field dispatches the `.nameChanged()` action.
