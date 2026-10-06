@@ -434,7 +434,7 @@ struct AddEditSendItemView: View { // swiftlint:disable:this type_body_length
     /// The attributes for a text type send.
     @ViewBuilder private var textSendAttributes: some View {
         BitwardenTextView(
-            title: Localizations.textToShare,
+            title: Localizations.textToShareRequired,
             text: store.binding(
                 get: \.text,
                 send: AddEditSendItemAction.textChanged,
