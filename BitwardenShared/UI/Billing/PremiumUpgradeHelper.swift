@@ -11,9 +11,7 @@ protocol PremiumUpgradeRoute {
     /// The route to the Premium upgrade screen.
     static var premiumUpgrade: Self { get }
 
-    /// The route to a standalone Premium upgrade complete screen, shown when an upgrade
-    /// resolves outside of the upgrade screen itself (e.g. a "Sync Now" retry succeeding after
-    /// the upgrade screen has already been dismissed).
+    /// The route to the Premium upgrade complete screen.
     static var premiumUpgradeComplete: Self { get }
 
     /// The route to dismiss the current screen with an optional action.
