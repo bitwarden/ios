@@ -77,10 +77,7 @@ class BillingCoordinator: NSObject, Coordinator, HasStackNavigator {
 
     // MARK: Private Methods
 
-    /// Shows the Premium upgrade complete screen on top of the currently-visible
-    /// `PremiumUpgradeView`, for the synchronous-confirm-while-upgrade-screen-is-open path. Use
-    /// `showPremiumUpgradeCompleteStandalone()` instead when no `PremiumUpgradeView` has been
-    /// shown in this coordinator instance.
+    /// Shows the Premium upgrade complete screen.
     ///
     private func showPremiumUpgradeComplete() {
         premiumUpgradeCompleteOnClose = isUpgradeAsModalRoot
@@ -99,11 +96,7 @@ class BillingCoordinator: NSObject, Coordinator, HasStackNavigator {
         stackNavigator?.present(view)
     }
 
-    /// Shows the Premium upgrade complete screen as the sole content of this coordinator's
-    /// stack, with no `PremiumUpgradeView` shown first. Use this when a Premium upgrade
-    /// resolves outside of the upgrade screen itself — e.g. a "Sync Now" retry succeeding after
-    /// the upgrade screen has already been dismissed — so `.dismiss` can simply close the whole
-    /// modal without any `isUpgradeAsModalRoot`/Settings-plan branching.
+    /// Shows the Premium upgrade complete screen as the sole content of this coordinator's stack.
     ///
     private func showPremiumUpgradeCompleteStandalone() {
         let processor = PremiumUpgradeCompleteProcessor(
