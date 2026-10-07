@@ -77,6 +77,7 @@ struct AddEditDriversLicenseItemView: View {
                     ),
                     accessibilityIdentifier: "DriversLicenseNumberEntry",
                     passwordVisibilityAccessibilityId: "ShowDriversLicenseNumberButton",
+                    passwordVisibilityFieldName: Localizations.licenseNumber,
                     focus: .field($focusedField, equals: .licenseNumber),
                     isPasswordVisible: store.binding(
                         get: \.isLicenseNumberVisible,
