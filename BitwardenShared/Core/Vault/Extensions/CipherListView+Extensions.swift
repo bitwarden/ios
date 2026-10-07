@@ -174,7 +174,6 @@ extension CipherListView {
             organizationId: cipher.organizationId,
             folderId: cipher.folderId,
             collectionIds: cipher.collectionIds,
-            key: cipher.key,
             name: Localizations.errorCannotDecrypt,
             subtitle: "",
             type: type,
@@ -192,6 +191,7 @@ extension CipherListView {
             archivedDate: cipher.archivedDate,
             copyableFields: [],
             localData: nil,
+            partial: false,
         )
     }
 }

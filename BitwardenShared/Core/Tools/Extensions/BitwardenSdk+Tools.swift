@@ -8,11 +8,11 @@ import Foundation
 
 extension SendDataModel {
     init(sendItem: SendItem) throws {
-        // The API stores the item's cipher as an opaque JSON string.
-        let cipher = try CipherDetailsResponseModel(cipher: sendItem.data)
-        let data = try JSONEncoder.defaultEncoder.encode(cipher)
+        // The SDK already hands back the sealed cipher blob the API stores verbatim.
+        // TODO: PM-41094 - Share: `SendItemMetadata.itemId` has no counterpart on `SendDataModel`,
+        // so it isn't carried over to the API model.
         self.init(
-            data: String(data: data, encoding: .utf8),
+            data: sendItem.data,
             encryptionVersion: Int(sendItem.encryptionVersion.rawValue),
         )
     }
@@ -132,7 +132,7 @@ extension BitwardenSdk.SendType {
 
 extension BitwardenSdk.SendItem {
     init(sendDataModel model: SendDataModel) throws {
-        guard let data = model.data?.data(using: .utf8) else {
+        guard let data = model.data else {
             throw DataMappingError.invalidData
         }
 
@@ -145,10 +145,13 @@ extension BitwardenSdk.SendItem {
             encryptionVersion = version
         }
 
-        let cipher = try CipherDetailsResponseModel.decoder.decode(CipherDetailsResponseModel.self, from: data)
+        // The API model stores the sealed cipher blob verbatim, so it's passed straight through.
+        // TODO: PM-41094 - Share: `SendDataModel` carries no item ID, so the metadata can't be
+        // round-tripped from the API response yet.
         self.init(
             encryptionVersion: encryptionVersion,
-            data: Cipher(responseModel: cipher),
+            data: data,
+            metadata: SendItemMetadata(itemId: ""),
         )
     }
 }

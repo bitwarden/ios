@@ -733,6 +733,7 @@ extension CipherItemState {
             deletedDate: nil,
             revisionDate: creationDate,
             archivedDate: nil,
+            partial: false,
         )
     }
 } // swiftlint:disable:this file_length
