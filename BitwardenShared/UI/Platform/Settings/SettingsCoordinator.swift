@@ -520,11 +520,7 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator { // swiftlint:d
         coordinator.navigate(to: .premiumUpgrade)
     }
 
-    /// Shows a standalone Premium upgrade complete screen, for when an upgrade resolves outside
-    /// of the upgrade screen itself (e.g. a "Sync Now" retry succeeding after the upgrade screen
-    /// has already been dismissed). Unlike `showPremiumUpgrade()`, this presents its own fresh
-    /// modal rather than pushing onto Settings' existing stack, matching every other origin
-    /// screen's treatment of this same screen.
+    /// Shows a standalone Premium upgrade complete screen in a new modal.
     ///
     private func showPremiumUpgradeCompleteScreen() {
         // Unlike every other origin, Settings pushes `PremiumUpgradeView` (rather than
