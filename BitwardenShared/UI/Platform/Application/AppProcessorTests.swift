@@ -1474,6 +1474,27 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
         XCTAssertTrue(billingService.refreshSubscriptionAttentionCardCalled)
     }
 
+    /// `onFetchSyncSucceeded(userId:)` completes a pending Premium upgrade for the account that
+    /// synced, on every sync — so an upgrade the checkout's own sync didn't confirm still clears
+    /// once a later sync reports it.
+    func test_onFetchSyncSucceeded_completesPendingPremiumUpgrade() async {
+        await subject.onFetchSyncSucceeded(userId: "1")
+
+        XCTAssertTrue(billingService.completeUpgradeIfPendingCalled)
+        XCTAssertEqual(billingService.completeUpgradeIfPendingReceivedUserId, "1")
+    }
+
+    /// `onFetchSyncSucceeded(userId:)` completes a pending Premium upgrade even on a repeat sync,
+    /// after the once-per-login work below it has been skipped.
+    func test_onFetchSyncSucceeded_completesPendingPremiumUpgradeOnRepeatSync() async {
+        stateService.hasPerformedSyncAfterLogin["1"] = true
+
+        await subject.onFetchSyncSucceeded(userId: "1")
+
+        XCTAssertTrue(billingService.completeUpgradeIfPendingCalled)
+        XCTAssertEqual(billingService.completeUpgradeIfPendingReceivedUserId, "1")
+    }
+
     /// `removeMasterPassword(organizationName:)` notifies the coordinator to show the remove
     /// master password screen.
     @MainActor

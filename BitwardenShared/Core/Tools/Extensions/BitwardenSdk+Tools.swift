@@ -2,8 +2,21 @@
 
 import BitwardenKit
 import BitwardenSdk
+import Foundation
 
 // MARK: - Sends
+
+extension SendDataModel {
+    init(sendItem: SendItem) throws {
+        // The API stores the item's cipher as an opaque JSON string.
+        let cipher = try CipherDetailsResponseModel(cipher: sendItem.data)
+        let data = try JSONEncoder.defaultEncoder.encode(cipher)
+        self.init(
+            data: String(data: data, encoding: .utf8),
+            encryptionVersion: Int(sendItem.encryptionVersion.rawValue),
+        )
+    }
+}
 
 extension SendFileModel {
     init(sendFile: SendFile) {
@@ -19,10 +32,11 @@ extension SendFileModel {
 extension SendResponseModel {
     init(send: Send) throws {
         guard let id = send.id, let accessId = send.accessId else { throw DataMappingError.missingId }
-        self.init(
+        try self.init(
             accessCount: send.accessCount,
             accessId: accessId,
             authType: SendAuthType(authType: send.authType),
+            data: send.data.map(SendDataModel.init),
             deletionDate: send.deletionDate,
             disabled: send.disabled,
             emails: send.emails,
@@ -79,7 +93,7 @@ extension BitwardenSdk.Send {
         guard let type = BitwardenSdk.SendType(type: model.type) else {
             throw DataMappingError.invalidData
         }
-        self.init(
+        try self.init(
             id: model.id,
             accessId: model.accessId,
             name: model.name,
@@ -89,6 +103,7 @@ extension BitwardenSdk.Send {
             type: type,
             file: model.file.map(SendFile.init),
             text: model.text.map(SendText.init),
+            data: model.data.map(SendItem.init),
             maxAccessCount: model.maxAccessCount,
             accessCount: model.accessCount,
             disabled: model.disabled,
@@ -112,6 +127,29 @@ extension BitwardenSdk.SendType {
         case .unknown:
             return nil
         }
+    }
+}
+
+extension BitwardenSdk.SendItem {
+    init(sendDataModel model: SendDataModel) throws {
+        guard let data = model.data?.data(using: .utf8) else {
+            throw DataMappingError.invalidData
+        }
+
+        // A missing encryption version defaults to v1, matching the SDK.
+        var encryptionVersion = BitwardenSdk.SendEncryptionType.v1
+        if let rawVersion = model.encryptionVersion {
+            guard let version = UInt8(exactly: rawVersion).flatMap(BitwardenSdk.SendEncryptionType.init) else {
+                throw DataMappingError.invalidData
+            }
+            encryptionVersion = version
+        }
+
+        let cipher = try CipherDetailsResponseModel.decoder.decode(CipherDetailsResponseModel.self, from: data)
+        self.init(
+            encryptionVersion: encryptionVersion,
+            data: Cipher(responseModel: cipher),
+        )
     }
 }
 
