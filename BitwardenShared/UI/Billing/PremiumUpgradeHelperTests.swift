@@ -169,6 +169,52 @@ struct PremiumUpgradeHelperTests {
 
         try await waitForAsync { onConfirmedCalled }
         #expect(onConfirmedCalled)
+        #expect(coordinator.routes.last == .premiumUpgrade)
+    }
+
+    /// A `.confirmed` after `.pending` has dismissed the upgrade screen navigates to the Premium
+    /// upgrade complete screen and calls `onConfirmed`.
+    @Test
+    func subscribeToPremiumCheckoutStatus_confirmed_afterPending_navigatesToPremiumUpgradeComplete() async throws {
+        billingRepository.isInAppUpgradeAvailableReturnValue = true
+        let statusSubject = PassthroughSubject<PremiumCheckoutStatus, Never>()
+        billingService.premiumCheckoutStatusPublisherReturnValue = statusSubject.eraseToAnyPublisher()
+        var onConfirmedCalled = false
+        let subject = makeSubject()
+        await subject.navigateToPremiumUpgrade(onConfirmed: { onConfirmedCalled = true })
+        statusSubject.send(.pending)
+        try await waitForAsync {
+            guard case .dismiss = coordinator.routes.last else { return false }
+            return true
+        }
+
+        statusSubject.send(.confirmed)
+
+        try await waitForAsync { onConfirmedCalled }
+        #expect(coordinator.routes.last == .premiumUpgradeComplete)
+    }
+
+    /// A `.confirmed` after a new upgrade starts following an earlier `.pending` doesn't navigate
+    /// to the Premium upgrade complete screen.
+    @Test
+    func subscribeToPremiumCheckoutStatus_confirmed_afterPending_newUpgradeStarted_doesNotNavigate() async throws {
+        billingRepository.isInAppUpgradeAvailableReturnValue = true
+        let statusSubject = PassthroughSubject<PremiumCheckoutStatus, Never>()
+        billingService.premiumCheckoutStatusPublisherReturnValue = statusSubject.eraseToAnyPublisher()
+        var onConfirmedCalled = false
+        let subject = makeSubject()
+        await subject.navigateToPremiumUpgrade()
+        statusSubject.send(.pending)
+        try await waitForAsync {
+            guard case .dismiss = coordinator.routes.last else { return false }
+            return true
+        }
+        subject.startInAppPremiumUpgrade(onConfirmed: { onConfirmedCalled = true })
+
+        statusSubject.send(.confirmed)
+
+        try await waitForAsync { onConfirmedCalled }
+        #expect(coordinator.routes.last == .premiumUpgrade)
     }
 
     /// When the billing service emits `.pending`, the coordinator navigates to `.dismiss`.

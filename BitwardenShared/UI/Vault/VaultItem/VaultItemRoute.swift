@@ -88,6 +88,11 @@ enum VaultItemRoute: Equatable, Hashable {
     /// A route to the Premium upgrade screen.
     case premiumUpgrade
 
+    /// A route to a standalone Premium upgrade complete screen, shown when an upgrade resolves
+    /// outside of the upgrade screen itself (e.g. a "Sync Now" retry succeeding after the
+    /// upgrade screen has already been dismissed).
+    case premiumUpgradeComplete
+
     /// A route to the file saving view.
     ///
     /// - Parameter temporaryUrl: The url where the file is currently stored.
