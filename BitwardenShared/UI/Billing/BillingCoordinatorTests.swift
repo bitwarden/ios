@@ -117,8 +117,8 @@ struct BillingCoordinatorTests {
         #expect(action.view is PremiumUpgradeCompleteView)
     }
 
-    /// `navigate(to:)` with `.premiumUpgradeCompleteStandalone` replaces the stack's root with the
-    /// Premium upgrade complete view, rather than presenting it as a child of an existing screen.
+    /// `navigate(to:)` with `.premiumUpgradeCompleteStandalone` replaces the stack with the
+    /// Premium upgrade complete view.
     @Test
     func navigate_premiumUpgradeCompleteStandalone() throws {
         subject.navigate(to: .premiumUpgradeCompleteStandalone)
@@ -129,9 +129,7 @@ struct BillingCoordinatorTests {
         #expect(action.view is PremiumUpgradeCompleteView)
     }
 
-    /// `navigate(to:)` with `.dismiss` after `.premiumUpgradeCompleteStandalone` dismisses the
-    /// entire modal directly, without any of the modal-root/settings-context branching that
-    /// `.premiumUpgradeComplete` needs.
+    /// `navigate(to:)` with `.dismiss` after `.premiumUpgradeCompleteStandalone` dismisses the modal.
     @Test
     func navigate_dismiss_afterPremiumUpgradeCompleteStandalone() throws {
         subject.navigate(to: .premiumUpgradeCompleteStandalone)
