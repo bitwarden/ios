@@ -464,9 +464,7 @@ class VaultItemCoordinator: NSObject, Coordinator, HasStackNavigator { // swiftl
         stackNavigator?.present(navigationController)
     }
 
-    /// Shows a standalone Premium upgrade complete screen, for when an upgrade resolves outside
-    /// of the upgrade screen itself (e.g. a "Sync Now" retry succeeding after the upgrade screen
-    /// has already been dismissed).
+    /// Shows a standalone Premium upgrade complete screen in a new modal.
     ///
     private func showPremiumUpgradeCompleteScreen() {
         let navigationController = module.makeNavigationController()

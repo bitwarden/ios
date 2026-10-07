@@ -77,9 +77,7 @@ public enum VaultRoute: Equatable, Hashable {
     /// A route to the Premium upgrade view.
     case premiumUpgrade
 
-    /// A route to a standalone Premium upgrade complete screen, shown when an upgrade resolves
-    /// outside of the upgrade screen itself (e.g. a "Sync Now" retry succeeding after the
-    /// upgrade screen has already been dismissed).
+    /// A route to the Premium upgrade complete screen.
     case premiumUpgradeComplete
 
     /// A route to switch accounts.
