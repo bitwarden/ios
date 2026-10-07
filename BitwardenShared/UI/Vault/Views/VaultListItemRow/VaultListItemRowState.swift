@@ -6,11 +6,11 @@ import Foundation
 struct VaultListItemRowState {
     // MARK: Properties
 
-    /// The base url used to fetch icons.
-    var iconBaseURL: URL?
-
     /// Whether the active account has Premium, used to gate the Copy TOTP accessibility action.
     var hasPremium: Bool = false
+
+    /// The base url used to fetch icons.
+    var iconBaseURL: URL?
 
     /// Whether we are in an extension context.
     var isFromExtension: Bool = false

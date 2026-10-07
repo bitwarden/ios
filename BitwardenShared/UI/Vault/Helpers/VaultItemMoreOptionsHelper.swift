@@ -9,6 +9,27 @@ import Foundation
 /// responding to the user's selection.
 ///
 protocol VaultItemMoreOptionsHelper {
+    /// Performs the more-options action identified by `kind` for `item` directly, without
+    /// presenting the action sheet. Used by the vault list row's VoiceOver accessibility actions.
+    ///
+    /// - Parameters
+    ///   - kind: The kind of more-options action to perform.
+    ///   - item: The selected item to perform the action on.
+    ///   - delegate: The delegate notified of operations performed on the item from within the
+    ///     add/edit item view, used when the edit option is selected.
+    ///   - handleDisplayToast: A closure called to handle displaying a toast.
+    ///   - handleNavigateToPremiumUpgrade: A closure called to navigate to the Premium upgrade flow.
+    ///   - handleOpenURL: A closure called to open a URL.
+    ///
+    func performMoreOptionsAction( // swiftlint:disable:this function_parameter_count
+        _ kind: MoreOptionsActionKind,
+        for item: VaultListItem,
+        delegate: CipherItemOperationDelegate?,
+        handleDisplayToast: @escaping (Toast) -> Void,
+        handleNavigateToPremiumUpgrade: @escaping () async -> Void,
+        handleOpenURL: @escaping (URL) -> Void,
+    ) async
+
     /// Show the more options alert for the selected item.
     ///
     /// - Parameters
@@ -22,24 +43,6 @@ protocol VaultItemMoreOptionsHelper {
     func showMoreOptionsAlert(
         for item: VaultListItem,
         delegate: CipherItemOperationDelegate?,
-        handleDisplayToast: @escaping (Toast) -> Void,
-        handleNavigateToPremiumUpgrade: @escaping () async -> Void,
-        handleOpenURL: @escaping (URL) -> Void,
-    ) async
-
-    /// Performs the more-options action identified by `kind` for `item` directly, without
-    /// presenting the action sheet. Used by the vault list row's VoiceOver accessibility actions.
-    ///
-    /// - Parameters
-    ///   - kind: The kind of more-options action to perform.
-    ///   - item: The selected item to perform the action on.
-    ///   - handleDisplayToast: A closure called to handle displaying a toast.
-    ///   - handleNavigateToPremiumUpgrade: A closure called to navigate to the Premium upgrade flow.
-    ///   - handleOpenURL: A closure called to open a URL.
-    ///
-    func performMoreOptionsAction(
-        _ kind: MoreOptionsActionKind,
-        for item: VaultListItem,
         handleDisplayToast: @escaping (Toast) -> Void,
         handleNavigateToPremiumUpgrade: @escaping () async -> Void,
         handleOpenURL: @escaping (URL) -> Void,
@@ -94,6 +97,38 @@ class DefaultVaultItemMoreOptionsHelper: VaultItemMoreOptionsHelper {
 
     // MARK: Methods
 
+    func performMoreOptionsAction( // swiftlint:disable:this function_parameter_count
+        _ kind: MoreOptionsActionKind,
+        for item: VaultListItem,
+        delegate: CipherItemOperationDelegate?,
+        handleDisplayToast: @escaping (Toast) -> Void,
+        handleNavigateToPremiumUpgrade: @escaping () async -> Void,
+        handleOpenURL: @escaping (URL) -> Void,
+    ) async {
+        do {
+            guard case let .cipher(cipherListView, _) = item.itemType,
+                  let cipherId = cipherListView.id,
+                  let cipherView = try await services.vaultRepository.fetchCipher(withId: cipherId) else {
+                return
+            }
+
+            let hasPremium = await services.vaultRepository.doesActiveAccountHavePremium()
+            await performMoreOptionsAction(
+                kind,
+                cipherView: cipherView,
+                delegate: delegate,
+                handleDisplayToast: handleDisplayToast,
+                handleNavigateToPremiumUpgrade: handleNavigateToPremiumUpgrade,
+                handleOpenURL: handleOpenURL,
+                hasPremium: hasPremium,
+                itemId: item.id,
+            )
+        } catch {
+            services.errorReporter.log(error: error)
+            coordinator.showAlert(.defaultAlert(title: Localizations.anErrorHasOccurred))
+        }
+    }
+
     func showMoreOptionsAlert(
         for item: VaultListItem,
         delegate: CipherItemOperationDelegate?,
@@ -109,60 +144,21 @@ class DefaultVaultItemMoreOptionsHelper: VaultItemMoreOptionsHelper {
                 return
             }
 
-            let canEdit = cipherView.deletedDate == nil
             let hasPremium = await services.vaultRepository.doesActiveAccountHavePremium()
+            let kinds = cipherListView.applicableMoreOptionsActionKinds(hasPremium: hasPremium)
 
-            coordinator.showAlert(.moreOptions(
-                context: MoreOptionsAlertContext(
-                    canArchive: cipherView.canBeArchived,
-                    canCopyTotp: hasPremium || cipherView.organizationUseTotp,
-                    canUnarchive: cipherView.canBeUnarchived,
-                    cipherView: cipherView,
-                    id: item.id,
-                    showEdit: canEdit,
-                ),
-            ) { action in
-                await self.handleMoreOptionsAction(
-                    action,
+            coordinator.showAlert(.moreOptions(title: cipherView.name, kinds: kinds) { kind in
+                await self.performMoreOptionsAction(
+                    kind,
                     cipherView: cipherView,
                     delegate: delegate,
                     handleDisplayToast: handleDisplayToast,
                     handleNavigateToPremiumUpgrade: handleNavigateToPremiumUpgrade,
                     handleOpenURL: handleOpenURL,
                     hasPremium: hasPremium,
+                    itemId: item.id,
                 )
             })
-        } catch {
-            services.errorReporter.log(error: error)
-            coordinator.showAlert(.defaultAlert(title: Localizations.anErrorHasOccurred))
-        }
-    }
-
-    func performMoreOptionsAction(
-        _ kind: MoreOptionsActionKind,
-        for item: VaultListItem,
-        handleDisplayToast: @escaping (Toast) -> Void,
-        handleNavigateToPremiumUpgrade: @escaping () async -> Void,
-        handleOpenURL: @escaping (URL) -> Void,
-    ) async {
-        do {
-            guard case let .cipher(cipherListView, _) = item.itemType,
-                  let cipherId = cipherListView.id,
-                  let cipherView = try await services.vaultRepository.fetchCipher(withId: cipherId) else {
-                return
-            }
-
-            let hasPremium = await services.vaultRepository.doesActiveAccountHavePremium()
-            guard let action = kind.moreOptionsAction(cipherView: cipherView, itemId: item.id) else { return }
-
-            await handleMoreOptionsAction(
-                action,
-                cipherView: cipherView,
-                handleDisplayToast: handleDisplayToast,
-                handleNavigateToPremiumUpgrade: handleNavigateToPremiumUpgrade,
-                handleOpenURL: handleOpenURL,
-                hasPremium: hasPremium,
-            )
         } catch {
             services.errorReporter.log(error: error)
             coordinator.showAlert(.defaultAlert(title: Localizations.anErrorHasOccurred))
@@ -303,6 +299,41 @@ class DefaultVaultItemMoreOptionsHelper: VaultItemMoreOptionsHelper {
                 self.coordinator.navigate(to: .viewItem(id: id, masterPasswordRepromptCheckCompleted: true))
             }
         }
+    }
+
+    /// Resolves `kind` against the fetched cipher and performs the resulting action. Shared by the
+    /// action sheet and the VoiceOver custom accessibility actions.
+    ///
+    /// - Parameters:
+    ///   - kind: The kind of more-options action to perform.
+    ///   - cipherView: The cipher to act upon.
+    ///   - delegate: The delegate notified of operations performed on the item from within the
+    ///     add/edit item view, used when the edit option is selected.
+    ///   - handleDisplayToast: A closure to display a toast.
+    ///   - handleNavigateToPremiumUpgrade: A closure called to navigate to the Premium upgrade flow.
+    ///   - handleOpenURL: A closure to open an URL.
+    ///   - hasPremium: Whether the user has Premium account.
+    ///   - itemId: The id of the vault list item, used for the view action.
+    private func performMoreOptionsAction( // swiftlint:disable:this function_parameter_count
+        _ kind: MoreOptionsActionKind,
+        cipherView: CipherView,
+        delegate: CipherItemOperationDelegate?,
+        handleDisplayToast: @escaping (Toast) -> Void,
+        handleNavigateToPremiumUpgrade: @escaping () async -> Void,
+        handleOpenURL: @escaping (URL) -> Void,
+        hasPremium: Bool,
+        itemId: String,
+    ) async {
+        guard let action = kind.moreOptionsAction(cipherView: cipherView, itemId: itemId) else { return }
+        await handleMoreOptionsAction(
+            action,
+            cipherView: cipherView,
+            delegate: delegate,
+            handleDisplayToast: handleDisplayToast,
+            handleNavigateToPremiumUpgrade: handleNavigateToPremiumUpgrade,
+            handleOpenURL: handleOpenURL,
+            hasPremium: hasPremium,
+        )
     }
 
     /// Performs an operation and shows a toast.

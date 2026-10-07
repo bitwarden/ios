@@ -244,8 +244,8 @@ struct VaultGroupView: View {
             store: store.child(
                 state: { state in
                     VaultListItemRowState(
-                        iconBaseURL: state.iconBaseURL,
                         hasPremium: state.hasPremium,
+                        iconBaseURL: state.iconBaseURL,
                         isVfo1FoundationFeatureFlagEnabled: state.isVfo1FoundationFeatureFlagEnabled,
                         item: item,
                         hasDivider: !isLastInSection,

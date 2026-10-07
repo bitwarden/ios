@@ -205,6 +205,29 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
         XCTAssertTrue(searchProcessorMediatorFactory.makeCalled)
     }
 
+    /// `perform(_:)` with `.accessibilityMoreOptionsActionPressed` has the vault item more options
+    /// helper perform the action directly.
+    @MainActor
+    func test_perform_accessibilityMoreOptionsActionPressed() async throws {
+        let item = VaultListItem.fixture()
+        await subject.perform(.accessibilityMoreOptionsActionPressed(item, .copyUsername))
+
+        XCTAssertTrue(vaultItemMoreOptionsHelper.performActionCalled)
+        XCTAssertEqual(vaultItemMoreOptionsHelper.performActionKind, .copyUsername)
+        XCTAssertEqual(vaultItemMoreOptionsHelper.performActionItem, item)
+        XCTAssertIdentical(vaultItemMoreOptionsHelper.performActionDelegate as AnyObject?, subject)
+        XCTAssertNotNil(vaultItemMoreOptionsHelper.performActionHandleDisplayToast)
+        XCTAssertNotNil(vaultItemMoreOptionsHelper.performActionHandleOpenURL)
+
+        let toast = Toast(title: Localizations.valueHasBeenCopied(Localizations.username))
+        vaultItemMoreOptionsHelper.performActionHandleDisplayToast?(toast)
+        XCTAssertEqual(subject.state.toast, toast)
+
+        let url = URL.example
+        vaultItemMoreOptionsHelper.performActionHandleOpenURL?(url)
+        XCTAssertEqual(subject.state.url, url)
+    }
+
     /// `perform(_:)` with `.appeared` loads the vfo1-foundation feature flag.
     @MainActor
     func test_perform_appeared_featureFlags_vfo1Foundation() {
@@ -374,28 +397,6 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
             subject.state.vaultFilterState.vaultFilterOptions,
             [.allVaults, .myVault, .organization(.fixture())],
         )
-    }
-
-    /// `perform(_:)` with `.accessibilityMoreOptionsActionPressed` has the vault item more options
-    /// helper perform the action directly.
-    @MainActor
-    func test_perform_accessibilityMoreOptionsActionPressed() async throws {
-        let item = VaultListItem.fixture()
-        await subject.perform(.accessibilityMoreOptionsActionPressed(item, .copyUsername))
-
-        XCTAssertTrue(vaultItemMoreOptionsHelper.performActionCalled)
-        XCTAssertEqual(vaultItemMoreOptionsHelper.performActionKind, .copyUsername)
-        XCTAssertEqual(vaultItemMoreOptionsHelper.performActionItem, item)
-        XCTAssertNotNil(vaultItemMoreOptionsHelper.performActionHandleDisplayToast)
-        XCTAssertNotNil(vaultItemMoreOptionsHelper.performActionHandleOpenURL)
-
-        let toast = Toast(title: Localizations.valueHasBeenCopied(Localizations.username))
-        vaultItemMoreOptionsHelper.performActionHandleDisplayToast?(toast)
-        XCTAssertEqual(subject.state.toast, toast)
-
-        let url = URL.example
-        vaultItemMoreOptionsHelper.performActionHandleOpenURL?(url)
-        XCTAssertEqual(subject.state.url, url)
     }
 
     /// `perform(_:)` with `.morePressed` has the vault item more options helper display the alert.

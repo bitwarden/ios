@@ -150,6 +150,45 @@ class VaultItemSelectionProcessorTests: BitwardenTestCase { // swiftlint:disable
         XCTAssertFalse(shouldDismiss)
     }
 
+    /// `perform(_:)` with `.accessibilityMoreOptionsActionPressed` has the vault item more options
+    /// helper perform the action directly.
+    @MainActor
+    func test_perform_accessibilityMoreOptionsActionPressed() async throws {
+        let item = VaultListItem.fixture()
+        await subject.perform(.accessibilityMoreOptionsActionPressed(item, .copyUsername))
+
+        XCTAssertTrue(vaultItemMoreOptionsHelper.performActionCalled)
+        XCTAssertEqual(vaultItemMoreOptionsHelper.performActionKind, .copyUsername)
+        XCTAssertEqual(vaultItemMoreOptionsHelper.performActionItem, item)
+        XCTAssertNotNil(vaultItemMoreOptionsHelper.performActionHandleDisplayToast)
+        XCTAssertNotNil(vaultItemMoreOptionsHelper.performActionHandleOpenURL)
+
+        let toast = Toast(title: Localizations.valueHasBeenCopied(Localizations.username))
+        vaultItemMoreOptionsHelper.performActionHandleDisplayToast?(toast)
+        XCTAssertEqual(subject.state.toast, toast)
+
+        let url = URL.example
+        vaultItemMoreOptionsHelper.performActionHandleOpenURL?(url)
+        XCTAssertEqual(subject.state.url, url)
+    }
+
+    /// `perform(_:)` with `.accessibilityMoreOptionsActionPressed` passes a delegate that shows a
+    /// confirmation toast once the item is saved and leaves this screen in place, rather than this
+    /// screen's own delegate conformance, which dismisses on save for the OTP key flow.
+    @MainActor
+    func test_perform_accessibilityMoreOptionsActionPressed_editShowsToastWithoutDismissing() async throws {
+        await subject.perform(.accessibilityMoreOptionsActionPressed(.fixture(), .edit))
+
+        let delegate = try XCTUnwrap(vaultItemMoreOptionsHelper.performActionDelegate)
+        XCTAssertNotIdentical(delegate as AnyObject, subject)
+
+        let shouldDismiss = delegate.itemUpdated(type: .driversLicense)
+
+        XCTAssertTrue(shouldDismiss)
+        XCTAssertEqual(subject.state.toast, Toast(title: Localizations.licenseSaved))
+        XCTAssertTrue(coordinator.routes.isEmpty)
+    }
+
     /// `perform(_:)` with `.loadData` loads the vfo1-foundation feature flag.
     @MainActor
     func test_perform_loadData_featureFlags_vfo1Foundation() async {
@@ -191,28 +230,6 @@ class VaultItemSelectionProcessorTests: BitwardenTestCase { // swiftlint:disable
         await subject.perform(.loadData)
 
         XCTAssertTrue(subject.state.hasPremium)
-    }
-
-    /// `perform(_:)` with `.accessibilityMoreOptionsActionPressed` has the vault item more options
-    /// helper perform the action directly.
-    @MainActor
-    func test_perform_accessibilityMoreOptionsActionPressed() async throws {
-        let item = VaultListItem.fixture()
-        await subject.perform(.accessibilityMoreOptionsActionPressed(item, .copyUsername))
-
-        XCTAssertTrue(vaultItemMoreOptionsHelper.performActionCalled)
-        XCTAssertEqual(vaultItemMoreOptionsHelper.performActionKind, .copyUsername)
-        XCTAssertEqual(vaultItemMoreOptionsHelper.performActionItem, item)
-        XCTAssertNotNil(vaultItemMoreOptionsHelper.performActionHandleDisplayToast)
-        XCTAssertNotNil(vaultItemMoreOptionsHelper.performActionHandleOpenURL)
-
-        let toast = Toast(title: Localizations.valueHasBeenCopied(Localizations.username))
-        vaultItemMoreOptionsHelper.performActionHandleDisplayToast?(toast)
-        XCTAssertEqual(subject.state.toast, toast)
-
-        let url = URL.example
-        vaultItemMoreOptionsHelper.performActionHandleOpenURL?(url)
-        XCTAssertEqual(subject.state.url, url)
     }
 
     /// `perform(_:)` with `.morePressed` has the vault item more options helper display the alert.

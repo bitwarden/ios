@@ -196,6 +196,29 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         XCTAssertEqual(subject.state.toast, Toast(title: Localizations.folderCreated))
     }
 
+    /// `perform(_:)` with `.accessibilityMoreOptionsActionPressed` has the vault item more options
+    /// helper perform the action directly.
+    @MainActor
+    func test_perform_accessibilityMoreOptionsActionPressed() async throws {
+        let item = VaultListItem.fixture()
+        await subject.perform(.accessibilityMoreOptionsActionPressed(item, .copyUsername))
+
+        XCTAssertTrue(vaultItemMoreOptionsHelper.performActionCalled)
+        XCTAssertEqual(vaultItemMoreOptionsHelper.performActionKind, .copyUsername)
+        XCTAssertEqual(vaultItemMoreOptionsHelper.performActionItem, item)
+        XCTAssertIdentical(vaultItemMoreOptionsHelper.performActionDelegate as AnyObject?, subject)
+        XCTAssertNotNil(vaultItemMoreOptionsHelper.performActionHandleDisplayToast)
+        XCTAssertNotNil(vaultItemMoreOptionsHelper.performActionHandleOpenURL)
+
+        let toast = Toast(title: Localizations.valueHasBeenCopied(Localizations.username))
+        vaultItemMoreOptionsHelper.performActionHandleDisplayToast?(toast)
+        XCTAssertEqual(subject.state.toast, toast)
+
+        let url = URL.example
+        vaultItemMoreOptionsHelper.performActionHandleOpenURL?(url)
+        XCTAssertEqual(subject.state.url, url)
+    }
+
     /// `perform(_:)` with `.checkAppReviewEligibility` schedules a review prompt if the user is eligible
     /// and the feature flags are enabled.
     @MainActor
@@ -923,28 +946,6 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
 
         XCTAssertEqual(coordinator.alertShown, [.defaultAlert(error: StateServiceError.noActiveAccount)])
         XCTAssertEqual(errorReporter.errors as? [StateServiceError], [.noActiveAccount])
-    }
-
-    /// `perform(_:)` with `.accessibilityMoreOptionsActionPressed` has the vault item more options
-    /// helper perform the action directly.
-    @MainActor
-    func test_perform_accessibilityMoreOptionsActionPressed() async throws {
-        let item = VaultListItem.fixture()
-        await subject.perform(.accessibilityMoreOptionsActionPressed(item, .copyUsername))
-
-        XCTAssertTrue(vaultItemMoreOptionsHelper.performActionCalled)
-        XCTAssertEqual(vaultItemMoreOptionsHelper.performActionKind, .copyUsername)
-        XCTAssertEqual(vaultItemMoreOptionsHelper.performActionItem, item)
-        XCTAssertNotNil(vaultItemMoreOptionsHelper.performActionHandleDisplayToast)
-        XCTAssertNotNil(vaultItemMoreOptionsHelper.performActionHandleOpenURL)
-
-        let toast = Toast(title: Localizations.valueHasBeenCopied(Localizations.username))
-        vaultItemMoreOptionsHelper.performActionHandleDisplayToast?(toast)
-        XCTAssertEqual(subject.state.toast, toast)
-
-        let url = URL.example
-        vaultItemMoreOptionsHelper.performActionHandleOpenURL?(url)
-        XCTAssertEqual(subject.state.url, url)
     }
 
     /// `perform(_:)` with `.morePressed` has the vault item more options helper display the alert.

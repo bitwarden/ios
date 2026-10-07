@@ -263,8 +263,8 @@ private struct SearchableVaultListView: View {
             store: store.child(
                 state: { state in
                     VaultListItemRowState(
-                        iconBaseURL: state.iconBaseURL,
                         hasPremium: state.hasPremium,
+                        iconBaseURL: state.iconBaseURL,
                         isFromExtension: false,
                         isVfo1FoundationFeatureFlagEnabled: state.isVfo1FoundationFeatureFlagEnabled,
                         item: item,

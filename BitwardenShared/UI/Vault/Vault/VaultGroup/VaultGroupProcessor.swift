@@ -273,29 +273,6 @@ final class VaultGroupProcessor: StateProcessor<// swiftlint:disable:this type_b
         })
     }
 
-    /// Performs the more-options action identified by `kind` for the given vault item, activated
-    /// via a VoiceOver custom accessibility action.
-    ///
-    /// - Parameters:
-    ///   - kind: The kind of more-options action to perform.
-    ///   - item: The vault list item to perform the action on.
-    ///
-    private func performMoreOptionsAction(_ kind: MoreOptionsActionKind, for item: VaultListItem) async {
-        await vaultItemMoreOptionsHelper.performMoreOptionsAction(
-            kind,
-            for: item,
-            handleDisplayToast: { [weak self] toast in
-                self?.state.toast = toast
-            },
-            handleNavigateToPremiumUpgrade: { [weak self] in
-                await self?.navigateToPremiumUpgrade()
-            },
-            handleOpenURL: { [weak self] url in
-                self?.state.url = url
-            },
-        )
-    }
-
     /// Navigates to the view item view for the specified cipher. If the cipher requires master
     /// password reprompt, this will prompt the user before navigation.
     ///
@@ -312,6 +289,30 @@ final class VaultGroupProcessor: StateProcessor<// swiftlint:disable:this type_b
                 )
             }
         }
+    }
+
+    /// Performs the more-options action identified by `kind` for the given vault item, activated
+    /// via a VoiceOver custom accessibility action.
+    ///
+    /// - Parameters:
+    ///   - kind: The kind of more-options action to perform.
+    ///   - item: The vault list item to perform the action on.
+    ///
+    private func performMoreOptionsAction(_ kind: MoreOptionsActionKind, for item: VaultListItem) async {
+        await vaultItemMoreOptionsHelper.performMoreOptionsAction(
+            kind,
+            for: item,
+            delegate: self,
+            handleDisplayToast: { [weak self] toast in
+                self?.state.toast = toast
+            },
+            handleNavigateToPremiumUpgrade: { [weak self] in
+                await self?.navigateToPremiumUpgrade()
+            },
+            handleOpenURL: { [weak self] url in
+                self?.state.url = url
+            },
+        )
     }
 
     /// Refreshes the vault group's TOTP Codes.
