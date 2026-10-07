@@ -143,6 +143,8 @@ class VaultItemCoordinator: NSObject, Coordinator, HasStackNavigator { // swiftl
             showPasswordHistory(passwordHistory)
         case .premiumUpgrade:
             showPremiumUpgrade()
+        case .premiumUpgradeComplete:
+            showPremiumUpgradeCompleteScreen()
         case let .saveFile(temporaryUrl):
             showSaveFile(temporaryUrl)
         case .setupTotpManual:
@@ -459,6 +461,17 @@ class VaultItemCoordinator: NSObject, Coordinator, HasStackNavigator { // swiftl
         let navigationController = module.makeNavigationController()
         let coordinator = module.makeBillingCoordinator(stackNavigator: navigationController)
         coordinator.navigate(to: .premiumUpgrade)
+        stackNavigator?.present(navigationController)
+    }
+
+    /// Shows a standalone Premium upgrade complete screen, for when an upgrade resolves outside
+    /// of the upgrade screen itself (e.g. a "Sync Now" retry succeeding after the upgrade screen
+    /// has already been dismissed).
+    ///
+    private func showPremiumUpgradeCompleteScreen() {
+        let navigationController = module.makeNavigationController()
+        let coordinator = module.makeBillingCoordinator(stackNavigator: navigationController)
+        coordinator.navigate(to: .premiumUpgradeCompleteStandalone)
         stackNavigator?.present(navigationController)
     }
 
