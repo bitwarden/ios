@@ -4,6 +4,7 @@
 import BitwardenKit
 import BitwardenKitMocks
 import BitwardenSdk
+import Foundation
 import Testing
 
 @testable import BitwardenShared
@@ -11,7 +12,7 @@ import Testing
 
 // MARK: - StateServiceSdkStateBridgeTests
 
-struct StateServiceSdkStateBridgeTests {
+struct StateServiceSdkStateBridgeTests { // swiftlint:disable:this type_body_length
     // MARK: Properties
 
     let appSettingsStore: MockAppSettingsStore
@@ -356,6 +357,52 @@ struct StateServiceSdkStateBridgeTests {
         await subject.setUserKeyId(nil, userId: "1")
 
         #expect(appSettingsStore.userKeyIdByUserId["1"] == nil)
+    }
+
+    // MARK: Tests - V2 Encrypted Migrations Grace Period Start
+
+    /// `getV2EncryptedMigrationsGracePeriodStart(userId:)` returns the grace period start stored in
+    /// `AppSettingsStore` for the specified user.
+    @Test
+    func getV2EncryptedMigrationsGracePeriodStart() async {
+        let date = Date(year: 2024, month: 1, day: 1)
+        appSettingsStore.v2EncryptedMigrationsGracePeriodStarts["1"] = date
+
+        let result = await subject.getV2EncryptedMigrationsGracePeriodStart(userId: "1")
+
+        #expect(result == date)
+    }
+
+    /// `getV2EncryptedMigrationsGracePeriodStart(userId:)` returns `nil` when no value is stored
+    /// for the user.
+    @Test
+    func getV2EncryptedMigrationsGracePeriodStart_nil() async {
+        let result = await subject.getV2EncryptedMigrationsGracePeriodStart(userId: "1")
+
+        #expect(result == nil)
+    }
+
+    /// `setV2EncryptedMigrationsGracePeriodStart(_:userId:)` persists the grace period start to
+    /// `AppSettingsStore` for the specified user.
+    @Test
+    func setV2EncryptedMigrationsGracePeriodStart() async {
+        let date = Date(year: 2024, month: 1, day: 1)
+
+        await subject.setV2EncryptedMigrationsGracePeriodStart(date, userId: "1")
+
+        #expect(appSettingsStore.v2EncryptedMigrationsGracePeriodStarts["1"] == date)
+    }
+
+    /// `setV2EncryptedMigrationsGracePeriodStart(_:userId:)` clears the value in `AppSettingsStore`
+    /// when passed `nil`.
+    @Test
+    func setV2EncryptedMigrationsGracePeriodStart_nil() async {
+        let date = Date(year: 2024, month: 1, day: 1)
+        appSettingsStore.v2EncryptedMigrationsGracePeriodStarts["1"] = date
+
+        await subject.setV2EncryptedMigrationsGracePeriodStart(nil, userId: "1")
+
+        #expect(appSettingsStore.v2EncryptedMigrationsGracePeriodStarts["1"] == nil)
     }
 
     // MARK: Tests - V2 Upgrade Token
