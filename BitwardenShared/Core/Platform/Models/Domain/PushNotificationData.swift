@@ -180,6 +180,17 @@ struct SyncSendNotification: Codable, Equatable, NotificationWithUser {
     let userId: String
 }
 
+// MARK: - AgentFillApprovalPushNotification
+
+/// The payload of an agent fill approval request push notification.
+struct AgentFillApprovalPushNotification: Codable, Equatable {
+    /// The ID of the approval request.
+    let id: String
+
+    /// The ID of the user the approval request belongs to.
+    let userId: String
+}
+
 // MARK: - LoginRequestNotification
 
 /// Additional information that can be contained in the push notification payload for certain types of notifications.

@@ -1136,6 +1136,15 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
         XCTAssertEqual(coordinator.routes.last, .auth(.landing))
     }
 
+    /// `showAgentFillApproval(_:)` saves the route as the auth completion route and navigates to it.
+    @MainActor
+    func test_showAgentFillApproval() async {
+        await subject.showAgentFillApproval("approval-1")
+
+        XCTAssertEqual(coordinator.events, [.setAuthCompletionRoute(.agentFillApproval(approvalId: "approval-1"))])
+        XCTAssertEqual(coordinator.routes.last, .agentFillApproval(approvalId: "approval-1"))
+    }
+
     /// `showLoginRequest(_:)` navigates to show the login request view.
     @MainActor
     func test_showLoginRequest() {
@@ -1312,6 +1321,21 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
         await subject.start(appContext: .mainApp, navigator: rootNavigator, window: nil)
 
         XCTAssertEqual(stateService.accountSetupAutofill, ["1": .complete])
+    }
+
+    /// `switchAccountsForAgentFillApproval(to:approvalId:)` saves the route to show after unlocking
+    /// and has the coordinator switch to the specified account.
+    @MainActor
+    func test_switchAccountsForAgentFillApproval() async {
+        await subject.switchAccountsForAgentFillApproval(to: "2", approvalId: "approval-1")
+
+        XCTAssertEqual(
+            coordinator.events,
+            [
+                .setAuthCompletionRoute(.agentFillApproval(approvalId: "approval-1")),
+                .switchAccounts(userId: "2", isAutomatic: false),
+            ],
+        )
     }
 
     /// `switchAccountsForLoginRequest(to:showAlert:)` has the coordinator switch to the specified

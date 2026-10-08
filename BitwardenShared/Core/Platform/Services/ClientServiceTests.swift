@@ -58,6 +58,17 @@ final class ClientServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
 
     // MARK: Tests
 
+    /// `agentFill(for:)` returns a new `AgentFillClientService` for every user.
+    func test_agentFill() async throws {
+        stateService.activeAccount = .fixture(profile: .fixture(userId: "1"))
+
+        let agentFill = try await subject.agentFill()
+        XCTAssertIdentical(agentFill, clientBuilder.clients.first?.agentFillClient)
+
+        let user2AgentFill = try await subject.agentFill(for: "2")
+        XCTAssertNotIdentical(agentFill, user2AgentFill)
+    }
+
     /// `auth(for:)` returns a new `AuthClientProtocol` for every user.
     func test_auth() async throws {
         stateService.activeAccount = .fixture(profile: .fixture(userId: "1"))

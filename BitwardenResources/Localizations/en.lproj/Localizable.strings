@@ -1302,3 +1302,35 @@
 "SyncUnsuccessful" = "Sync unsuccessful";
 "WeCouldntSyncYourVaultWithTheServerDescriptionLong" = "We couldn’t sync your vault with the server. Your vault may not reflect your latest changes. You can try again now or it will sync automatically later.";
 "TextToShareRequired" = "Text to share (required)";
+/* Title of the notification and screen shown when an AI agent asks to fill a login or card on the user's computer. */
+"AIAgentFillRequest" = "AI agent fill request";
+/* Describes an AI agent fill request for a login. The placeholders are the connection name (e.g. Claude Desktop), the website domain and the browser name. */
+"AIAgentFillLoginDescription" = "%1$@ wants to fill your %2$@ login in %3$@.";
+/* Describes an AI agent fill request for a card. The placeholders are the connection name (e.g. Claude Desktop), the website domain and the browser name. */
+"AIAgentFillCardDescription" = "%1$@ wants to fill a card on %2$@ in %3$@.";
+/* Header above the list of vault items the user can pick to approve an AI agent fill request. */
+"AIAgentFillChooseItem" = "Choose an item to fill";
+/* Shown when no vault items match an AI agent fill request. */
+"AIAgentFillNoMatchingItems" = "No items in your vault match this request.";
+/* Button to approve an AI agent fill request with the selected item. */
+"AIAgentFillApprove" = "Approve";
+/* Menu title for denying an AI agent fill request. */
+"AIAgentFillDeny" = "Deny";
+/* Option to deny an AI agent fill request without giving a reason. */
+"AIAgentFillDenyNoReason" = "No reason";
+/* Option to deny an AI agent fill request because it was for the wrong account. */
+"AIAgentFillDenyWrongAccount" = "Wrong account";
+/* Option to deny an AI agent fill request because the user didn't ask for it. */
+"AIAgentFillDenyNotRequested" = "I didn’t ask for this";
+/* Shown when an AI agent fill request was already answered, for example on another device. */
+"AIAgentFillHandled" = "This request was already answered.";
+/* Shown when an AI agent fill request has expired. */
+"AIAgentFillExpired" = "This request has expired.";
+/* Shown when an AI agent fill request can't be opened or verified. */
+"AIAgentFillCouldNotOpen" = "We couldn’t open this request, so it can’t be approved.";
+/* Reason shown in the system biometric prompt when approving an AI agent fill request. */
+"AIAgentFillBiometricPrompt" = "Approve this AI agent fill request";
+/* Toast shown after the user approves an AI agent fill request. */
+"AIAgentFillApproved" = "Request approved";
+/* Toast shown after the user denies an AI agent fill request. */
+"AIAgentFillDenied" = "Request denied";

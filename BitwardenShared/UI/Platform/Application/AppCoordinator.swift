@@ -12,7 +12,8 @@ class AppCoordinator: Coordinator, HasRootNavigator { // swiftlint:disable:this 
     // MARK: Types
 
     /// The types of modules used by this coordinator.
-    typealias Module = AuthModule
+    typealias Module = AgentFillApprovalModule
+        & AuthModule
         & DebugMenuModule
         & ExtensionSetupModule
         & FileSelectionModule
@@ -121,6 +122,8 @@ class AppCoordinator: Coordinator, HasRootNavigator { // swiftlint:disable:this 
 
     func navigate(to route: AppRoute, context _: AnyObject?) {
         switch route {
+        case let .agentFillApproval(approvalId):
+            showAgentFillApproval(approvalId: approvalId)
         case let .auth(authRoute):
             showAuth(authRoute)
         case .debugMenu:
@@ -286,6 +289,37 @@ class AppCoordinator: Coordinator, HasRootNavigator { // swiftlint:disable:this 
             coordinator.start()
             coordinator.navigate(to: route)
             childCoordinator = coordinator
+        }
+    }
+
+    /// Show the agent fill approval request. If the user isn't authenticated yet, the route stays
+    /// saved as the auth completion route and is shown once they are.
+    ///
+    /// - Parameter approvalId: The ID of the agent fill approval request to show.
+    ///
+    private func showAgentFillApproval(approvalId: String) {
+        DispatchQueue.main.async {
+            // Make sure that the user is authenticated and not currently viewing an approval.
+            guard self.childCoordinator is AnyCoordinator<TabRoute, Void> else { return }
+            let currentView = self.rootNavigator?.rootViewController?.topmostViewController()
+            guard !(currentView is UIHostingController<AgentFillApprovalView>) else { return }
+
+            // The approval is being shown, so it no longer has to wait for authentication.
+            if self.authCompletionRoute == .agentFillApproval(approvalId: approvalId) {
+                self.authCompletionRoute = nil
+            }
+
+            // Create the approval view.
+            let navigationController = self.module.makeNavigationController()
+            let coordinator = self.module.makeAgentFillApprovalCoordinator(stackNavigator: navigationController)
+            coordinator.start()
+            coordinator.navigate(to: .approval(id: approvalId), context: self)
+
+            // Present the approval view.
+            self.rootNavigator?.rootViewController?.topmostViewController().present(
+                navigationController,
+                animated: true,
+            )
         }
     }
 
@@ -492,6 +526,18 @@ extension AppCoordinator: DebugMenuCoordinatorDelegate {
 
 extension AppCoordinator: HasErrorAlertServices {
     var errorAlertServices: ErrorAlertServices { services }
+}
+
+// MARK: - AgentFillApprovalDelegate
+
+extension AppCoordinator: AgentFillApprovalDelegate {
+    /// Show a toast over the current window with the result of answering the approval request.
+    ///
+    /// - Parameter approved: Whether the request was approved or denied.
+    ///
+    func agentFillApprovalAnswered(approved: Bool) {
+        showToast(approved ? Localizations.aiAgentFillApproved : Localizations.aiAgentFillDenied)
+    }
 }
 
 // MARK: - LoginRequestDelegate

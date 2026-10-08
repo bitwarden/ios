@@ -6,6 +6,7 @@ import BitwardenSdkMocks
 @testable import BitwardenShared
 
 class MockClientService: ClientService {
+    var mockAgentFill: MockAgentFillClientService
     var mockAuth: MockAuthClientService
     var mockAuthIsPreAuth = false
     var mockAuthUserId: String?
@@ -25,6 +26,7 @@ class MockClientService: ClientService {
     var userClientArray = [String: BitwardenSdkClient]()
 
     init(
+        agentFill: MockAgentFillClientService = MockAgentFillClientService(),
         auth: MockAuthClientService = MockAuthClientService(),
         crypto: MockCryptoClientProtocol = MockCryptoClientProtocol(),
         exporters: MockExporterClientProtocol = MockExporterClientProtocol(),
@@ -40,6 +42,7 @@ class MockClientService: ClientService {
         }(),
         vault: MockVaultClientService = MockVaultClientService(),
     ) {
+        mockAgentFill = agentFill
         mockAuth = auth
         mockCrypto = crypto
         mockExporters = exporters
@@ -48,6 +51,10 @@ class MockClientService: ClientService {
         mockPolicies = policies
         mockSends = sends
         mockVault = vault
+    }
+
+    func agentFill(for userId: String?) -> AgentFillClientService {
+        mockAgentFill
     }
 
     func auth(for userId: String?, isPreAuth: Bool) -> AuthClientService {

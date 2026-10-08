@@ -13,6 +13,7 @@ import TestHelpers
 extension ServiceContainer {
     @MainActor
     static func withMocks( // swiftlint:disable:this function_body_length
+        agentFillApprovalRepository: AgentFillApprovalRepository = MockAgentFillApprovalRepository(),
         application: Application? = nil,
         appContextHelper: AppContextHelper = MockAppContextHelper(),
         appIDSettingsStore: AppIDSettingsStore = MockAppIDSettingsStore(),
@@ -103,6 +104,7 @@ extension ServiceContainer {
             environmentService: environmentService,
         )
         return ServiceContainer(
+            agentFillApprovalRepository: agentFillApprovalRepository,
             apiService: apiService,
             appContextHelper: appContextHelper,
             appIDService: AppIDService(appIDSettingsStore: appIDSettingsStore),

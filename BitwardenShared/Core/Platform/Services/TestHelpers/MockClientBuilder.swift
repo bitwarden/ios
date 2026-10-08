@@ -20,6 +20,7 @@ final class MockClientBuilder: ClientBuilder {
 }
 
 class MockClient: BitwardenSdkClient {
+    var agentFillClient = MockAgentFillClientService()
     var authClient = MockAuthClientService()
     var cryptoClient = MockCryptoClientProtocol()
     var exporterClient = MockExporterClientProtocol()
@@ -29,6 +30,10 @@ class MockClient: BitwardenSdkClient {
     var policiesClient = MockPoliciesClientProtocol()
     var sendClient = MockSendClientProtocol()
     var vaultClient = MockVaultClientService()
+
+    func agentFill() -> any AgentFillClientService {
+        agentFillClient
+    }
 
     func auth() -> any AuthClientService {
         authClient

@@ -59,11 +59,26 @@ protocol NotificationServiceDelegate: AnyObject {
     ///
     func routeToLanding() async
 
+    /// Show the agent fill approval request, once the vault of its account is unlocked.
+    ///
+    /// - Parameter approvalId: The ID of the agent fill approval request.
+    ///
+    func showAgentFillApproval(_ approvalId: String) async
+
     /// Show the login request.
     ///
     /// - Parameter loginRequest: The login request.
     ///
     func showLoginRequest(_ loginRequest: LoginRequest)
+
+    /// Switch the active account in order to show the agent fill approval request, which is shown
+    /// once the account's vault is unlocked.
+    ///
+    /// - Parameters:
+    ///   - userId: The ID of the account the approval request belongs to.
+    ///   - approvalId: The ID of the agent fill approval request.
+    ///
+    func switchAccountsForAgentFillApproval(to userId: String, approvalId: String) async
 
     /// Switch the active account in order to show the login request, prompting the user if necessary.
     ///
@@ -79,6 +94,14 @@ protocol NotificationServiceDelegate: AnyObject {
 /// The default implementation of `NotificationService`.
 ///
 class DefaultNotificationService: NotificationService { // swiftlint:disable:this type_body_length
+    // MARK: Static Properties
+
+    /// The key of the approval request ID in the `userInfo` of an agent fill approval notification.
+    private static let agentFillApprovalIdKey = "agentFillApprovalId"
+
+    /// The key of the user ID in the `userInfo` of an agent fill approval notification.
+    private static let agentFillApprovalUserIdKey = "userId"
+
     // MARK: Properties
 
     /// The delegate to handle login request actions originating from notifications.
@@ -190,7 +213,12 @@ class DefaultNotificationService: NotificationService { // swiftlint:disable:thi
         notificationTapped: Bool?,
     ) async {
         do {
-            // First attempt to decode the message as a response.
+            // Agent fill approval banners are local notifications that carry their own IDs.
+            if await handleAgentFillApprovalNotification(message, notificationTapped: notificationTapped) {
+                return
+            }
+
+            // Then attempt to decode the message as a response.
             if await handleLoginRequestResponse(
                 message,
                 notificationDismissed: notificationDismissed,
@@ -209,6 +237,9 @@ class DefaultNotificationService: NotificationService { // swiftlint:disable:thi
 
             // Handle the notification according to the type of data.
             switch type {
+            case .agentFillApprovalRequest:
+                guard await configService.getFeatureFlag(.agentFillApprovals) else { return }
+                try await handleAgentFillApprovalRequest(notificationData)
             case .syncCipherCreate,
                  .syncCipherUpdate:
                 let data: SyncCipherNotification = try notificationData.data()
@@ -332,6 +363,66 @@ class DefaultNotificationService: NotificationService { // swiftlint:disable:thi
               notificationData.contextId != appId
         else { return nil }
         return notificationData
+    }
+
+    /// A helper method to handle an agent fill approval request push notification by showing a
+    /// local notification. Only IDs are logged.
+    ///
+    /// - Parameter notificationData: The decoded payload from the push notification.
+    ///
+    private func handleAgentFillApprovalRequest(_ notificationData: PushNotificationData) async throws {
+        let data: AgentFillApprovalPushNotification = try notificationData.data()
+        await flightRecorder.log("[AgentFill] Received approval request \(data.id)")
+
+        let content = UNMutableNotificationContent()
+        content.title = Localizations.aiAgentFillRequest
+        content.userInfo = [
+            Self.agentFillApprovalIdKey: data.id,
+            Self.agentFillApprovalUserIdKey: data.userId,
+        ]
+        let request = UNNotificationRequest(identifier: data.id, content: content, trigger: nil)
+        try await UNUserNotificationCenter.current().add(request)
+    }
+
+    /// Handles a local agent fill approval notification being presented or tapped. A tap shows the
+    /// approval request, switching to the account that owns it if necessary.
+    ///
+    /// - Parameters:
+    ///   - message: The `userInfo` of the notification.
+    ///   - notificationTapped: `true` if the notification banner has been tapped.
+    /// - Returns: `true` if the message was an agent fill approval notification.
+    ///
+    private func handleAgentFillApprovalNotification(
+        _ message: [AnyHashable: Any],
+        notificationTapped: Bool?,
+    ) async -> Bool {
+        guard let approvalId = message[Self.agentFillApprovalIdKey] as? String,
+              let userId = message[Self.agentFillApprovalUserIdKey] as? String else {
+            return false
+        }
+
+        // Presenting the banner in the foreground requires no action.
+        guard notificationTapped == true,
+              await configService.getFeatureFlag(.agentFillApprovals) else {
+            return true
+        }
+
+        do {
+            await flightRecorder.log("[AgentFill] Notification tapped for approval \(approvalId)")
+            _ = try await stateService.getAccount(userId: userId)
+            if try await stateService.getActiveAccountId() == userId {
+                await delegate?.showAgentFillApproval(approvalId)
+            } else {
+                await delegate?.switchAccountsForAgentFillApproval(to: userId, approvalId: approvalId)
+            }
+        } catch StateServiceError.noAccounts {
+            await flightRecorder.log(
+                "[AgentFill] Notification tapped for approval \(approvalId) but account (\(userId)) not found",
+            )
+        } catch {
+            errorReporter.log(error: error)
+        }
+        return true
     }
 
     /// A helper method to handle a login request push notification.

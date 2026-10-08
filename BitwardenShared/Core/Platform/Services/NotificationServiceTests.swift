@@ -475,6 +475,156 @@ class NotificationServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
         )
     }
 
+    /// `messageReceived(_:notificationDismissed:notificationTapped:)` ignores an agent fill approval request
+    /// when the feature flag is off.
+    func test_messageReceived_agentFillApprovalRequest_flagOff() async throws {
+        stateService.setIsAuthenticated()
+        appIDSettingsStore.appID = "10"
+        configService.featureFlagsBool[.agentFillApprovals] = false
+        let payload = try JSONEncoder().encode(AgentFillApprovalPushNotification(id: "approval-1", userId: "1"))
+        nonisolated(unsafe) let message: [AnyHashable: Any] = [
+            "data": [
+                "type": NotificationType.agentFillApprovalRequest.rawValue,
+                "payload": String(data: payload, encoding: .utf8) ?? "",
+            ],
+        ]
+
+        await subject.messageReceived(message, notificationDismissed: nil, notificationTapped: nil)
+
+        XCTAssertTrue(errorReporter.errors.isEmpty)
+        XCTAssertNil(delegate.showAgentFillApprovalId)
+        XCTAssertEqual(
+            flightRecorder.logMessages,
+            ["[Notification] Received push notification, type: agentFillApprovalRequest"],
+        )
+    }
+
+    /// `messageReceived(_:notificationDismissed:notificationTapped:)` records the receipt of an agent fill
+    /// approval request with its ID only when the feature flag is on.
+    func test_messageReceived_agentFillApprovalRequest_flagOn() async throws {
+        stateService.setIsAuthenticated()
+        appIDSettingsStore.appID = "10"
+        configService.featureFlagsBool[.agentFillApprovals] = true
+        let payload = try JSONEncoder().encode(AgentFillApprovalPushNotification(id: "approval-1", userId: "1"))
+        nonisolated(unsafe) let message: [AnyHashable: Any] = [
+            "data": [
+                "type": NotificationType.agentFillApprovalRequest.rawValue,
+                "payload": String(data: payload, encoding: .utf8) ?? "",
+            ],
+        ]
+
+        await subject.messageReceived(message, notificationDismissed: nil, notificationTapped: nil)
+
+        XCTAssertTrue(errorReporter.errors.isEmpty)
+        XCTAssertEqual(
+            flightRecorder.logMessages,
+            [
+                "[Notification] Received push notification, type: agentFillApprovalRequest",
+                "[AgentFill] Received approval request approval-1",
+            ],
+        )
+    }
+
+    /// `messageReceived(_:notificationDismissed:notificationTapped:)` shows the approval request when the
+    /// local notification is tapped for the active account.
+    @MainActor
+    func test_messageReceived_agentFillApprovalNotificationTapped_sameAccount() async {
+        stateService.accounts = [.fixture()]
+        stateService.activeAccount = .fixture()
+        configService.featureFlagsBool[.agentFillApprovals] = true
+        nonisolated(unsafe) let message: [AnyHashable: Any] = [
+            "agentFillApprovalId": "approval-1",
+            "userId": "1",
+        ]
+
+        await subject.messageReceived(message, notificationDismissed: nil, notificationTapped: true)
+
+        XCTAssertEqual(delegate.showAgentFillApprovalId, "approval-1")
+        XCTAssertNil(delegate.switchAccountsAgentFillApproval)
+        XCTAssertEqual(flightRecorder.logMessages, ["[AgentFill] Notification tapped for approval approval-1"])
+    }
+
+    /// `messageReceived(_:notificationDismissed:notificationTapped:)` switches accounts when the local
+    /// notification is tapped for a non-active account.
+    @MainActor
+    func test_messageReceived_agentFillApprovalNotificationTapped_differentAccount() async {
+        stateService.accounts = [.fixture(), .fixture(profile: .fixture(userId: "differentUser"))]
+        stateService.activeAccount = .fixture()
+        configService.featureFlagsBool[.agentFillApprovals] = true
+        nonisolated(unsafe) let message: [AnyHashable: Any] = [
+            "agentFillApprovalId": "approval-1",
+            "userId": "differentUser",
+        ]
+
+        await subject.messageReceived(message, notificationDismissed: nil, notificationTapped: true)
+
+        XCTAssertNil(delegate.showAgentFillApprovalId)
+        XCTAssertEqual(delegate.switchAccountsAgentFillApproval?.userId, "differentUser")
+        XCTAssertEqual(delegate.switchAccountsAgentFillApproval?.approvalId, "approval-1")
+    }
+
+    /// `messageReceived(_:notificationDismissed:notificationTapped:)` doesn't show the approval request
+    /// when the local notification is only presented in the foreground.
+    @MainActor
+    func test_messageReceived_agentFillApprovalNotificationPresented() async {
+        stateService.accounts = [.fixture()]
+        stateService.activeAccount = .fixture()
+        configService.featureFlagsBool[.agentFillApprovals] = true
+        nonisolated(unsafe) let message: [AnyHashable: Any] = [
+            "agentFillApprovalId": "approval-1",
+            "userId": "1",
+        ]
+
+        await subject.messageReceived(message, notificationDismissed: nil, notificationTapped: nil)
+
+        XCTAssertNil(delegate.showAgentFillApprovalId)
+        XCTAssertNil(delegate.switchAccountsAgentFillApproval)
+        XCTAssertTrue(errorReporter.errors.isEmpty)
+    }
+
+    /// `messageReceived(_:notificationDismissed:notificationTapped:)` ignores a tapped local notification
+    /// when the feature flag is off.
+    @MainActor
+    func test_messageReceived_agentFillApprovalNotificationTapped_flagOff() async {
+        stateService.accounts = [.fixture()]
+        stateService.activeAccount = .fixture()
+        configService.featureFlagsBool[.agentFillApprovals] = false
+        nonisolated(unsafe) let message: [AnyHashable: Any] = [
+            "agentFillApprovalId": "approval-1",
+            "userId": "1",
+        ]
+
+        await subject.messageReceived(message, notificationDismissed: nil, notificationTapped: true)
+
+        XCTAssertNil(delegate.showAgentFillApprovalId)
+        XCTAssertNil(delegate.switchAccountsAgentFillApproval)
+    }
+
+    /// `messageReceived(_:notificationDismissed:notificationTapped:)` logs when the account of a tapped
+    /// local notification no longer exists.
+    @MainActor
+    func test_messageReceived_agentFillApprovalNotificationTapped_accountNotFound() async {
+        stateService.accounts = [.fixture()]
+        stateService.activeAccount = .fixture()
+        configService.featureFlagsBool[.agentFillApprovals] = true
+        nonisolated(unsafe) let message: [AnyHashable: Any] = [
+            "agentFillApprovalId": "approval-1",
+            "userId": "unknownUser",
+        ]
+
+        await subject.messageReceived(message, notificationDismissed: nil, notificationTapped: true)
+
+        XCTAssertNil(delegate.showAgentFillApprovalId)
+        XCTAssertNil(delegate.switchAccountsAgentFillApproval)
+        XCTAssertEqual(
+            flightRecorder.logMessages,
+            [
+                "[AgentFill] Notification tapped for approval approval-1",
+                "[AgentFill] Notification tapped for approval approval-1 but account (unknownUser) not found",
+            ],
+        )
+    }
+
     /// `messageReceived(_:notificationDismissed:notificationTapped:)` tells
     /// the delegate to show the switch account alert if it's a login request for a non-active account.
     @MainActor
@@ -962,7 +1112,11 @@ class NotificationServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
 class MockNotificationServiceDelegate: NotificationServiceDelegate {
     var routeToLandingCalled: Bool = false
 
+    var showAgentFillApprovalId: String?
+
     var showLoginRequestRequest: LoginRequest?
+
+    var switchAccountsAgentFillApproval: (userId: String, approvalId: String)?
 
     var switchAccountsAccount: Account?
     var switchAccountsShowAlert: Bool?
@@ -971,8 +1125,16 @@ class MockNotificationServiceDelegate: NotificationServiceDelegate {
         routeToLandingCalled = true
     }
 
+    func showAgentFillApproval(_ approvalId: String) {
+        showAgentFillApprovalId = approvalId
+    }
+
     func showLoginRequest(_ loginRequest: LoginRequest) {
         showLoginRequestRequest = loginRequest
+    }
+
+    func switchAccountsForAgentFillApproval(to userId: String, approvalId: String) {
+        switchAccountsAgentFillApproval = (userId, approvalId)
     }
 
     func switchAccountsForLoginRequest(to account: Account, showAlert: Bool) {

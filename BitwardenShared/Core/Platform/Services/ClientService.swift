@@ -9,6 +9,13 @@ import BitwardenSdk
 protocol ClientService {
     // MARK: Methods
 
+    /// Returns an `AgentFillClientService` for agent fill tasks.
+    ///
+    /// - Parameter userId: The user ID mapped to the client instance.
+    /// - Returns: An `AgentFillClientService` for agent fill tasks.
+    ///
+    func agentFill(for userId: String?) async throws -> AgentFillClientService
+
     /// Returns a `AuthClientService` for auth data tasks.
     ///
     /// - Parameters:
@@ -84,6 +91,12 @@ protocol ClientService {
 // MARK: Extension
 
 extension ClientService {
+    /// Returns an `AgentFillClientService` for agent fill tasks.
+    ///
+    func agentFill() async throws -> AgentFillClientService {
+        try await agentFill(for: nil)
+    }
+
     /// Returns a `AuthClientService` for auth data tasks.
     ///
     /// - Parameter isPreAuth: Whether the client is being used for a user prior to authentication
@@ -218,6 +231,10 @@ actor DefaultClientService: ClientService {
     }
 
     // MARK: Methods
+
+    func agentFill(for userId: String?) async throws -> AgentFillClientService {
+        try await client(for: userId).agentFill()
+    }
 
     func auth(for userId: String?, isPreAuth: Bool = false) async throws -> AuthClientService {
         try await client(for: userId, isPreAuth: isPreAuth).auth()
@@ -356,6 +373,9 @@ actor DefaultClientService: ClientService {
 /// A protocol that exposed the SDK `ClientProtocol` methods.
 ///
 protocol BitwardenSdkClient {
+    /// Returns agent fill operations.
+    func agentFill() -> AgentFillClientService
+
     /// Returns auth operations.
     func auth() -> AuthClientService
 
@@ -388,6 +408,10 @@ protocol BitwardenSdkClient {
 // MARK: BitwardenSdkClient Extension
 
 extension Client: BitwardenSdkClient {
+    func agentFill() -> AgentFillClientService {
+        agentFill() as AgentFillClient
+    }
+
     func auth() -> AuthClientService {
         auth() as AuthClient
     }

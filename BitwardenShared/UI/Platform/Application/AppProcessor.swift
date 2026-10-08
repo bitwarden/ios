@@ -665,12 +665,34 @@ extension AppProcessor: NotificationServiceDelegate {
         coordinator?.navigate(to: .auth(.landing))
     }
 
+    /// Show the agent fill approval request. If the vault is locked, it's shown after unlocking.
+    ///
+    /// - Parameter approvalId: The ID of the agent fill approval request.
+    ///
+    func showAgentFillApproval(_ approvalId: String) async {
+        let route = AppRoute.agentFillApproval(approvalId: approvalId)
+        await coordinator?.handleEvent(.setAuthCompletionRoute(route))
+        coordinator?.navigate(to: route)
+    }
+
     /// Show the login request.
     ///
     /// - Parameter loginRequest: The login request.
     ///
     func showLoginRequest(_ loginRequest: LoginRequest) {
         coordinator?.navigate(to: .loginRequest(loginRequest))
+    }
+
+    /// Switch to the account that owns the agent fill approval request. The request is shown when
+    /// their vault loads, either immediately or after unlocking.
+    ///
+    /// - Parameters:
+    ///   - userId: The ID of the account the approval request belongs to.
+    ///   - approvalId: The ID of the agent fill approval request.
+    ///
+    func switchAccountsForAgentFillApproval(to userId: String, approvalId: String) async {
+        await coordinator?.handleEvent(.setAuthCompletionRoute(.agentFillApproval(approvalId: approvalId)))
+        await coordinator?.handleEvent(.switchAccounts(userId: userId, isAutomatic: false))
     }
 
     /// Switch the active account in order to show the login request, prompting the user if necessary.

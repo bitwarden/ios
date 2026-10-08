@@ -8,6 +8,7 @@
 
 import BitwardenSdk
 
+extension AgentFillApprovalClientProtocol {}
 extension AttachmentsClientProtocol {}
 extension CiphersClientProtocol {}
 extension ClientFido2AuthenticatorProtocol {}

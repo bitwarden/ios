@@ -3,6 +3,12 @@
 /// A top level route from the initial screen of the app to anywhere in the app.
 ///
 public enum AppRoute: Equatable {
+    /// A route to show an agent fill approval request.
+    ///
+    /// - Parameter approvalId: The ID of the agent fill approval request.
+    ///
+    case agentFillApproval(approvalId: String)
+
     /// A route to the authentication flow.
     case auth(AuthRoute)
 

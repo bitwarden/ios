@@ -21,6 +21,9 @@ extension FeatureFlag: @retroactive CaseIterable {
     /// A feature flag to enable/disable V2 account encryption for TDE.
     static let accountEncryptionV2TDE = FeatureFlag(rawValue: "pm-27279-v2-registration-tde-jit")
 
+    /// Flag to enable/disable agent fill approval requests from the desktop app.
+    static let agentFillApprovals = FeatureFlag(rawValue: "ai-136-agent-fill-approvals")
+
     /// A feature flag to enable/disable scanning a card to autocomplete its details in add/edit cipher.
     static let cardScanner = FeatureFlag(rawValue: "pm-34171-card-scanner")
 
@@ -78,6 +81,7 @@ extension FeatureFlag: @retroactive CaseIterable {
             .accountEncryptionV2KeyConnector,
             .accountEncryptionV2PasswordRegistration,
             .accountEncryptionV2TDE,
+            .agentFillApprovals,
             .cardScanner,
             .debugDisableSelfHostPremiumCheck,
             .deviceAuthKey,

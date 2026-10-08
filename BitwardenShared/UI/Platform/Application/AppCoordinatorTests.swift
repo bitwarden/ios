@@ -558,6 +558,56 @@ class AppCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         XCTAssertFalse(module.generatorCoordinator.isStarted)
     }
 
+    /// `navigate(to:)` with `.agentFillApproval(approvalId:)` shows the approval screen and clears the
+    /// saved auth completion route.
+    @MainActor
+    func test_navigateTo_agentFillApproval() async {
+        // Set up.
+        rootNavigator.rootViewController = MockUIViewController()
+        subject.navigate(to: .tab(.vault(.list)))
+        await subject.handleEvent(.setAuthCompletionRoute(.agentFillApproval(approvalId: "approval-1")))
+
+        // Test.
+        let task = Task {
+            subject.navigate(to: .agentFillApproval(approvalId: "approval-1"))
+        }
+        waitFor((rootNavigator.rootViewController as? MockUIViewController)?.presentCalled == true)
+        task.cancel()
+
+        // Validate.
+        XCTAssertTrue(
+            (rootNavigator.rootViewController as? MockUIViewController)?.presentedView is UINavigationController,
+        )
+        XCTAssertTrue(module.agentFillApprovalCoordinator.isStarted)
+        XCTAssertEqual(module.agentFillApprovalCoordinator.routes.last, .approval(id: "approval-1"))
+        XCTAssertNil(subject.authCompletionRoute)
+    }
+
+    /// `navigate(to:)` with `.agentFillApproval(approvalId:)` doesn't show the approval screen until the
+    /// user is authenticated, keeping the saved auth completion route.
+    @MainActor
+    func test_navigateTo_agentFillApproval_notAuthenticated() async throws {
+        rootNavigator.rootViewController = MockUIViewController()
+        await subject.handleEvent(.setAuthCompletionRoute(.agentFillApproval(approvalId: "approval-1")))
+
+        subject.navigate(to: .agentFillApproval(approvalId: "approval-1"))
+        try await Task.sleep(nanoseconds: 100_000_000)
+
+        XCTAssertFalse(module.agentFillApprovalCoordinator.isStarted)
+        XCTAssertEqual(subject.authCompletionRoute, .agentFillApproval(approvalId: "approval-1"))
+    }
+
+    /// `agentFillApprovalAnswered(approved:)` shows a toast with the result.
+    @MainActor
+    func test_agentFillApprovalAnswered() throws {
+        rootNavigator.rootViewController = UIViewController()
+        try setKeyWindowRoot(viewController: XCTUnwrap(subject.rootNavigator?.rootViewController))
+
+        subject.agentFillApprovalAnswered(approved: true)
+
+        XCTAssertNotNil(window.viewWithTag(ToastDisplayHelper.toastTag))
+    }
+
     /// `navigate(to:)` with `.loginRequest(_)` shows the login request view.
     @MainActor
     func test_navigateTo_loginRequest() {

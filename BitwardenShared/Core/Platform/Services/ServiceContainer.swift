@@ -27,6 +27,9 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
     /// The service used by the application to make API requests.
     let apiService: APIService
 
+    /// The repository used by the application to manage agent fill approval requests.
+    let agentFillApprovalRepository: AgentFillApprovalRepository
+
     /// Helper used to know app context.
     let appContextHelper: AppContextHelper
 
@@ -246,6 +249,8 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
     /// Initialize a `ServiceContainer`.
     ///
     /// - Parameters:
+    ///   - agentFillApprovalRepository: The repository used by the application to manage agent fill
+    ///     approval requests.
     ///   - apiService: The service used by the application to make API requests.
     ///   - appContextHelper: The helper used to know app context.
     ///   - appIDService: The service used by the application to manage the app's ID.
@@ -327,6 +332,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
     ///
     @MainActor
     init( // swiftlint:disable:this function_body_length
+        agentFillApprovalRepository: AgentFillApprovalRepository,
         apiService: APIService,
         appContextHelper: AppContextHelper,
         appIDService: AppIDService,
@@ -399,6 +405,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
         vaultTimeoutService: VaultTimeoutService,
         watchService: WatchService,
     ) {
+        self.agentFillApprovalRepository = agentFillApprovalRepository
         self.apiService = apiService
         self.appContextHelper = appContextHelper
         self.appIDService = appIDService
@@ -795,6 +802,17 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
             timeProvider: timeProvider,
         )
 
+        let agentFillApprovalRepository = DefaultAgentFillApprovalRepository(
+            apiService: apiService,
+            cipherMatchingHelperFactory: DefaultCipherMatchingHelperFactory(
+                settingsService: settingsService,
+                stateService: stateService,
+            ),
+            cipherService: cipherService,
+            clientService: clientService,
+            flightRecorder: flightRecorder,
+        )
+
         let syncService = DefaultSyncService(
             accountAPIService: apiService,
             appContextHelper: appContextHelper,
@@ -1183,6 +1201,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
         Task { await authenticatorSyncService.start() }
 
         self.init(
+            agentFillApprovalRepository: agentFillApprovalRepository,
             apiService: apiService,
             appContextHelper: appContextHelper,
             appIDService: appIDService,
