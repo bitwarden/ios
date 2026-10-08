@@ -303,9 +303,7 @@ private extension ViewItemProcessor {
     ///
     private func confirmDownload(_ attachment: AttachmentView) {
         // If the attachment is larger than 10 MB, make the user confirm downloading it.
-        if let sizeName = attachment.sizeName,
-           let size = Int(attachment.size ?? ""),
-           size >= Constants.largeFileSize {
+        if attachment.isLargeFile, let sizeName = attachment.sizeName {
             coordinator.showAlert(.confirmDownload(fileSize: sizeName) {
                 await self.downloadAttachment(attachment)
             })

@@ -94,9 +94,7 @@ class AttachmentPreviewProcessor: StateProcessor<
     /// downloaded until the user asks for them.
     ///
     private func confirmDownload() async {
-        if let sizeName = state.attachment.sizeName,
-           let size = Int(state.attachment.size ?? ""),
-           size >= Constants.largeFileSize {
+        if state.attachment.isLargeFile, let sizeName = state.attachment.sizeName {
             coordinator.showAlert(.confirmDownload(fileSize: sizeName) {
                 await self.downloadAttachment()
             })
