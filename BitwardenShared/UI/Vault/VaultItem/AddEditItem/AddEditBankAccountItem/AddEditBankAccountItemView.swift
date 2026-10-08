@@ -83,6 +83,7 @@ struct AddEditBankAccountItemView: View {
                         get: \.isAccountNumberVisible,
                         send: AddEditBankAccountItemAction.toggleAccountNumberVisibilityChanged,
                     ),
+                    spellOutAccessibilityValue: true,
                 )
                 .onSubmit { focusNextField($focusedField) }
 
@@ -94,6 +95,7 @@ struct AddEditBankAccountItemView: View {
                     ),
                     accessibilityIdentifier: "RoutingNumberEntry",
                     focus: .field($focusedField, equals: .routingNumber),
+                    spellOutAccessibilityValue: true,
                 )
                 .onSubmit { focusNextField($focusedField) }
 
@@ -105,6 +107,7 @@ struct AddEditBankAccountItemView: View {
                     ),
                     accessibilityIdentifier: "BranchNumberEntry",
                     focus: .field($focusedField, equals: .branchNumber),
+                    spellOutAccessibilityValue: true,
                 )
                 .onSubmit { focusNextField($focusedField) }
 
@@ -122,6 +125,7 @@ struct AddEditBankAccountItemView: View {
                         get: \.isPinVisible,
                         send: AddEditBankAccountItemAction.togglePinVisibilityChanged,
                     ),
+                    spellOutAccessibilityValue: true,
                 )
                 .onSubmit { focusNextField($focusedField) }
 
@@ -133,6 +137,7 @@ struct AddEditBankAccountItemView: View {
                     ),
                     accessibilityIdentifier: "SwiftCodeEntry",
                     focus: .field($focusedField, equals: .swiftCode),
+                    spellOutAccessibilityValue: true,
                 )
                 .onSubmit { focusNextField($focusedField) }
 
@@ -150,6 +155,7 @@ struct AddEditBankAccountItemView: View {
                         get: \.isIbanVisible,
                         send: AddEditBankAccountItemAction.toggleIbanVisibilityChanged,
                     ),
+                    spellOutAccessibilityValue: true,
                 )
                 .onSubmit { focusNextField($focusedField) }
 
@@ -161,6 +167,7 @@ struct AddEditBankAccountItemView: View {
                     ),
                     accessibilityIdentifier: "BankContactPhoneEntry",
                     focus: .field($focusedField, equals: .bankContactPhone),
+                    spellOutAccessibilityValue: true,
                 )
                 .textFieldConfiguration(.numeric(.telephoneNumber))
             }
