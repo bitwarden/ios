@@ -235,8 +235,6 @@ struct BillingServicePremiumUpgradePendingTests { // swiftlint:disable:this type
             .sink { lateStatuses.append($0) }
         defer { lateCancellable.cancel() }
 
-        // Wait out the 100ms debounce before sending the next status, so a replayed `.confirmed`
-        // would arrive as its own element rather than collapsing into the one sent below.
         try await Task.sleep(nanoseconds: 200_000_000)
         subject.premiumCheckoutCanceled()
 
@@ -331,8 +329,6 @@ struct BillingServicePremiumUpgradePendingTests { // swiftlint:disable:this type
             .sink { lateStatuses.append($0) }
         defer { lateCancellable.cancel() }
 
-        // Wait out the 100ms debounce before sending the next status, so a replayed `.pending`
-        // would arrive as its own element rather than collapsing into the one sent below.
         try await Task.sleep(nanoseconds: 200_000_000)
         subject.premiumCheckoutCanceled()
 
