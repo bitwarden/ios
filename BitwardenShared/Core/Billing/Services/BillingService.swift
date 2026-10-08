@@ -65,9 +65,7 @@ protocol BillingService: AnyObject { // sourcery: AutoMockable
     ///
     func premiumCheckoutCanceled()
 
-    /// A publisher that emits the status of the Premium checkout sync process. Subscribers receive
-    /// only statuses published after they subscribe; a previously published status is never
-    /// replayed.
+    /// A publisher that emits the status of the Premium checkout sync process.
     ///
     func premiumCheckoutStatusPublisher() -> AnyPublisher<PremiumCheckoutStatus, Never>
 
@@ -185,8 +183,7 @@ class DefaultBillingService: BillingService {
     /// The service used by the application to report non-fatal errors.
     private let errorReporter: ErrorReporter
 
-    /// Subject that emits the Premium checkout sync status. Subscribers attach fresh per upgrade
-    /// flow, so this must never replay a status from a previous flow or account.
+    /// Subject that emits the Premium checkout sync status.
     private let premiumCheckoutStatusSubject = PassthroughSubject<PremiumCheckoutStatus, Never>()
 
     /// The service used to manage the app's state.
