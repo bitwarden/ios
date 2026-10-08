@@ -292,8 +292,7 @@ struct BillingServiceTests { // swiftlint:disable:this type_body_length
         #expect(result.cancelAt != nil)
     }
 
-    /// `premiumCheckoutCanceled()` publishes `.canceled` to current subscribers without replaying
-    /// it to a later subscriber.
+    /// `premiumCheckoutCanceled()` publishes `.canceled`.
     @Test
     func premiumCheckoutCanceled() async throws {
         var statuses = [PremiumCheckoutStatus]()
@@ -305,18 +304,27 @@ struct BillingServiceTests { // swiftlint:disable:this type_body_length
 
         try await waitForAsync { !statuses.isEmpty }
         #expect(statuses == [.canceled])
+    }
+
+    /// `premiumCheckoutStatusPublisher()` doesn't replay an earlier status to a later subscriber.
+    @Test
+    func premiumCheckoutStatusPublisher_doesNotReplayToLateSubscriber() async throws {
+        var earlyStatuses = [PremiumCheckoutStatus]()
+        let earlyCancellable = subject.premiumCheckoutStatusPublisher()
+            .sink { earlyStatuses.append($0) }
+        defer { earlyCancellable.cancel() }
+        subject.premiumCheckoutCanceled()
+        try await waitForAsync { earlyStatuses.count == 1 }
 
         var lateStatuses = [PremiumCheckoutStatus]()
         let lateCancellable = subject.premiumCheckoutStatusPublisher()
             .sink { lateStatuses.append($0) }
         defer { lateCancellable.cancel() }
-
         try await Task.sleep(nanoseconds: 200_000_000)
         subject.premiumCheckoutCanceled()
 
-        try await waitForAsync { statuses.count == 2 }
-        #expect(statuses == [.canceled, .canceled])
-        #expect(lateStatuses == [.canceled])
+        try await waitForAsync { earlyStatuses.count == 2 }
+        #expect(lateStatuses.count == 1)
     }
 
     /// `premiumStatusChanged()` force-syncs an account that already has Premium — the server
