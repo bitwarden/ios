@@ -87,17 +87,57 @@ struct AttachmentPreviewProcessorTests {
         #expect(coordinator.routes.last == .saveFile(temporaryUrl: url))
     }
 
-    /// `perform(_:)` with `.downloadPressed` doesn't write a file for content that keeps its
-    /// downloaded file, and navigates to `.saveFile`.
+    /// `perform(_:)` with `.downloadPressed` saves a non-image file from its existing download without
+    /// downloading it again, and doesn't write a file for that content.
     @Test(arguments: [AttachmentPreviewContent.fileError, .unsupportedFileType(fileExtension: "pdf")])
-    func perform_downloadPressed_nonImageContent(content: AttachmentPreviewContent) async {
+    func perform_downloadPressed_nonImageContent(content: AttachmentPreviewContent) async throws {
         let url = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        defer { try? FileManager.default.removeItem(at: url) }
+        try Data("file".utf8).write(to: url)
         let subject = makeSubject(content: content, temporaryUrl: url)
 
         await subject.perform(.downloadPressed)
 
-        #expect(!FileManager.default.fileExists(atPath: url.path))
+        #expect(vaultRepository.downloadAttachmentAttachment == nil)
+        #expect(try Data(contentsOf: url) == Data("file".utf8))
         #expect(coordinator.routes.last == .saveFile(temporaryUrl: url))
+    }
+
+    /// `perform(_:)` with `.downloadPressed` downloads a non-image file again when its downloaded
+    /// file no longer exists, for example because the export picker moved it after it was saved.
+    @Test(arguments: [AttachmentPreviewContent.fileError, .unsupportedFileType(fileExtension: "pdf")])
+    func perform_downloadPressed_nonImageContent_fileMoved(content: AttachmentPreviewContent) async {
+        let url = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        let downloadUrl = URL(fileURLWithPath: "/tmp/\(UUID().uuidString).pdf")
+        vaultRepository.downloadAttachmentResult = .success(downloadUrl)
+        let subject = makeSubject(content: content, temporaryUrl: url)
+
+        await subject.perform(.downloadPressed)
+
+        #expect(vaultRepository.downloadAttachmentAttachment == .fixture(fileName: "photo.png"))
+        #expect(subject.state.temporaryUrl == downloadUrl)
+        #expect(coordinator.routes.last == .saveFile(temporaryUrl: downloadUrl))
+    }
+
+    /// `perform(_:)` with `.downloadPressed` asks the user to confirm before downloading a large image
+    /// that is too large to preview, and only downloads it once the user confirms.
+    @Test
+    func perform_downloadPressed_fileTooLarge_largeFileConfirm() async throws {
+        let downloadUrl = URL(fileURLWithPath: "/tmp/photo.png")
+        let attachment = AttachmentView.fixture(fileName: "photo.png", size: "11000000", sizeName: "big")
+        vaultRepository.downloadAttachmentResult = .success(downloadUrl)
+        let subject = makeSubject(attachment: attachment, content: .fileTooLarge, temporaryUrl: nil)
+
+        await subject.perform(.downloadPressed)
+
+        let alert = try #require(coordinator.alertShown.last)
+        #expect(alert.title == Localizations.attachmentLargeWarning("big"))
+        #expect(vaultRepository.downloadAttachmentAttachment == nil)
+
+        try await alert.tapAction(title: Localizations.yes)
+
+        #expect(vaultRepository.downloadAttachmentAttachment == attachment)
+        #expect(coordinator.routes.last == .saveFile(temporaryUrl: downloadUrl))
     }
 
     /// `perform(_:)` with `.downloadPressed` shows an alert and logs the error if the image data

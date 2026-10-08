@@ -11,6 +11,9 @@ enum AttachmentPreviewContent: Equatable, Hashable, Sendable {
     /// The attachment could not be decoded into a displayable image.
     case fileError
 
+    /// The attachment is an image that is too large to preview. It is only downloaded if the user asks for it.
+    case fileTooLarge
+
     /// The attachment is an image that decoded successfully, with its raw data.
     case image(Data)
 
