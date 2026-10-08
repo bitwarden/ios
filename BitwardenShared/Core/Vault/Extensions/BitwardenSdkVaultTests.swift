@@ -1,6 +1,7 @@
 // swiftlint:disable:this file_name
 // swiftlint:disable file_length
 
+import BitwardenKit
 import BitwardenKitMocks
 import BitwardenSdk
 import XCTest
@@ -71,6 +72,20 @@ class BitwardenSdkVaultAttachmentViewTests: BitwardenTestCase {
         XCTAssertFalse(AttachmentView.fixture(fileName: "photo").isImage)
         XCTAssertFalse(AttachmentView.fixture(fileName: "photo.png.").isImage)
         XCTAssertFalse(AttachmentView.fixture(fileName: nil).isImage)
+    }
+
+    /// `isLargeFile` returns `true` for an attachment at or above the large file size.
+    func test_isLargeFile_true() {
+        XCTAssertTrue(AttachmentView.fixture(size: "\(Constants.largeFileSize)", sizeName: "10 MB").isLargeFile)
+        XCTAssertTrue(AttachmentView.fixture(size: "11000000", sizeName: "11 MB").isLargeFile)
+    }
+
+    /// `isLargeFile` returns `false` for an attachment below the large file size, or without both a size
+    /// and a size name.
+    func test_isLargeFile_false() {
+        XCTAssertFalse(AttachmentView.fixture(size: "\(Constants.largeFileSize - 1)", sizeName: "10 MB").isLargeFile)
+        XCTAssertFalse(AttachmentView.fixture(size: "11000000", sizeName: nil).isLargeFile)
+        XCTAssertFalse(AttachmentView.fixture(size: nil, sizeName: "11 MB").isLargeFile)
     }
 }
 
