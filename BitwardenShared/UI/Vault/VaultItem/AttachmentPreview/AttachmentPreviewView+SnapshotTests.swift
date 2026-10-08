@@ -110,12 +110,14 @@ class AttachmentPreviewViewTests: BitwardenTestCase {
 private extension AttachmentPreviewState {
     static func fixture(
         attachment: AttachmentView = .fixture(fileName: "photo.png"),
+        cipher: CipherView = .fixture(),
         content: AttachmentPreviewContent = .fileError,
         fileName: String = "photo.png",
-        temporaryUrl: URL = URL(fileURLWithPath: "/tmp/photo.png"),
+        temporaryUrl: URL? = URL(fileURLWithPath: "/tmp/photo.png"),
     ) -> AttachmentPreviewState {
         AttachmentPreviewState(
             attachment: attachment,
+            cipher: cipher,
             content: content,
             fileName: fileName,
             temporaryUrl: temporaryUrl,
