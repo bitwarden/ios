@@ -67,7 +67,7 @@ extension Alert {
         }
         let alert = Alert(
             title: Localizations.premiumSubscriptionRequired,
-            message: Localizations.viewingAndDownloadingAttachmentsIsAPremiumFeatureDescriptionLong,
+            message: Localizations.attachmentsAreAPremiumFeatureDescriptionLong,
             alertActions: [
                 preferredAction,
                 AlertAction(title: Localizations.cancel, style: .cancel),

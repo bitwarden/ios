@@ -45,7 +45,7 @@ class AlertVaultTests: BitwardenTestCase { // swiftlint:disable:this type_body_l
         XCTAssertEqual(subject.title, Localizations.premiumSubscriptionRequired)
         XCTAssertEqual(
             subject.message,
-            Localizations.viewingAndDownloadingAttachmentsIsAPremiumFeatureDescriptionLong,
+            Localizations.attachmentsAreAPremiumFeatureDescriptionLong,
         )
         XCTAssertEqual(subject.alertActions.count, 2)
         XCTAssertEqual(subject.alertActions[0].title, Localizations.upgradeToPremium)
