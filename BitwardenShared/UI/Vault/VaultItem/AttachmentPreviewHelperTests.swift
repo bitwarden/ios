@@ -228,6 +228,21 @@ struct AttachmentPreviewHelperTests {
         #expect(coordinator.loadingOverlaysShown.isEmpty)
     }
 
+    /// `showPreview(for:cipher:handleNavigateToPremiumUpgrade:)` shows the Premium-required alert for a
+    /// non-image attachment when the active account lacks Premium, rather than the unsupported state.
+    @Test
+    func showPreview_nonImage_noPremium() async throws {
+        vaultRepository.doesActiveAccountHavePremiumResult = false
+        let attachment = AttachmentView.fixture(fileName: "statement.pdf", size: "10", sizeName: "small")
+        let cipher = CipherView.loginFixture()
+
+        await subject.showPreview(for: attachment, cipher: cipher) {}
+
+        #expect(coordinator.alertShown.last == .attachmentPreviewUnavailable(action: {}))
+        #expect(coordinator.routes.isEmpty)
+        #expect(vaultRepository.downloadAttachmentAttachment == nil)
+    }
+
     /// `showPreview(for:cipher:)` doesn't ask for confirmation before showing a large non-image
     /// attachment, since it isn't downloaded when it's previewed.
     @Test
@@ -235,7 +250,7 @@ struct AttachmentPreviewHelperTests {
         let attachment = AttachmentView.fixture(fileName: "archive.zip", size: "11000000", sizeName: "big")
         let cipher = CipherView.loginFixture()
 
-        await subject.showPreview(for: attachment, cipher: cipher)
+        await subject.showPreview(for: attachment, cipher: cipher) {}
 
         #expect(coordinator.alertShown.isEmpty)
         #expect(vaultRepository.downloadAttachmentAttachment == nil)
