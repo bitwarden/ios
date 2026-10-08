@@ -42,6 +42,7 @@ extension Cipher {
             revisionDate: revisionDate,
             archivedDate: archivedDate,
             data: data,
+            partialData: partialData,
         )
     }
 
@@ -83,6 +84,7 @@ extension Cipher {
             revisionDate: revisionDate,
             archivedDate: archivedDate,
             data: data,
+            partialData: partialData,
         )
     }
 }

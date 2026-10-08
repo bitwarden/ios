@@ -53,6 +53,20 @@ extension Send {
     }
 }
 
+extension SendItem {
+    static func fixture(
+        data: String = "SEALED_CIPHER_BLOB",
+        encryptionVersion: SendEncryptionType = .v1,
+        itemId: String = "CIPHER_ID",
+    ) -> SendItem {
+        SendItem(
+            encryptionVersion: encryptionVersion,
+            data: data,
+            metadata: SendItemMetadata(itemId: itemId),
+        )
+    }
+}
+
 extension SendFileModel {
     static func fixture(
         id: String? = nil,
