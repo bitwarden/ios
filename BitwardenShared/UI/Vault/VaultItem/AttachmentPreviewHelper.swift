@@ -59,7 +59,7 @@ class DefaultAttachmentPreviewHelper: AttachmentPreviewHelper {
         // Files that can't be previewed aren't downloaded here. The preview screen shows its
         // unsupported or too large state right away, and the file is only downloaded if the user
         // taps Download.
-        guard attachment.isImage, !isLargeFile(attachment) else {
+        guard attachment.isImage, !attachment.isLargeFile else {
             let content: AttachmentPreviewContent = attachment.isImage
                 ? .fileTooLarge
                 : .unsupportedFileType(fileExtension: attachment.fileExtension ?? "")
@@ -77,16 +77,6 @@ class DefaultAttachmentPreviewHelper: AttachmentPreviewHelper {
     }
 
     // MARK: Private Methods
-
-    /// Whether the attachment is at least `Constants.largeFileSize`. The size is checked the same way
-    /// as when the user is asked to confirm a download.
-    ///
-    /// - Parameter attachment: The attachment to check.
-    /// - Returns: `true` if the attachment is large, `false` otherwise.
-    private func isLargeFile(_ attachment: AttachmentView) -> Bool {
-        guard attachment.sizeName != nil, let size = Int(attachment.size ?? "") else { return false }
-        return size >= Constants.largeFileSize
-    }
 
     /// Classifies the downloaded image's content for display in the preview screen. Reading and
     /// decoding the file is done off the main actor since attachments can be large.
