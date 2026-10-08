@@ -1,6 +1,7 @@
 import BitwardenKit
 import BitwardenKitMocks
 import BitwardenResources
+import BitwardenSdk
 import Foundation
 import TestHelpers
 import Testing
@@ -30,6 +31,7 @@ struct AttachmentPreviewProcessorTests {
             services: ServiceContainer.withMocks(errorReporter: errorReporter, vaultRepository: vaultRepository),
             state: AttachmentPreviewState(
                 attachment: .fixture(fileName: "photo.png"),
+                cipher: .loginFixture(),
                 content: .image(Data()),
                 fileName: "photo.png",
                 temporaryUrl: temporaryUrl,
@@ -116,6 +118,104 @@ struct AttachmentPreviewProcessorTests {
         #expect(errorReporter.errors.count == 1)
     }
 
+    /// `perform(_:)` with `.downloadPressed` downloads a file that can't be previewed, stores its
+    /// url in the state, and navigates to `.saveFile(temporaryUrl:)`.
+    @Test
+    func perform_downloadPressed_unsupportedFile() async {
+        let downloadUrl = URL(fileURLWithPath: "/tmp/statement.pdf")
+        let attachment = AttachmentView.fixture(fileName: "statement.pdf")
+        let cipher = CipherView.loginFixture()
+        vaultRepository.downloadAttachmentResult = .success(downloadUrl)
+        let subject = makeSubject(
+            attachment: attachment,
+            cipher: cipher,
+            content: .unsupportedFileType(fileExtension: "pdf"),
+            temporaryUrl: nil,
+        )
+
+        await subject.perform(.downloadPressed)
+
+        #expect(vaultRepository.downloadAttachmentAttachment == attachment)
+        #expect(vaultRepository.downloadAttachmentCipher == cipher)
+        #expect(subject.state.temporaryUrl == downloadUrl)
+        #expect(coordinator.routes.last == .saveFile(temporaryUrl: downloadUrl))
+    }
+
+    /// `perform(_:)` with `.downloadPressed` doesn't download a large file that can't be previewed
+    /// if the user cancels the confirmation alert.
+    @Test
+    func perform_downloadPressed_unsupportedFile_largeFileCancel() async throws {
+        let attachment = AttachmentView.fixture(fileName: "archive.zip", size: "11000000", sizeName: "big")
+        let subject = makeSubject(
+            attachment: attachment,
+            content: .unsupportedFileType(fileExtension: "zip"),
+            temporaryUrl: nil,
+        )
+
+        await subject.perform(.downloadPressed)
+
+        let alert = try #require(coordinator.alertShown.last)
+        try await alert.tapAction(title: Localizations.no)
+
+        #expect(vaultRepository.downloadAttachmentAttachment == nil)
+        #expect(coordinator.routes.isEmpty)
+        #expect(subject.state.temporaryUrl == nil)
+    }
+
+    /// `perform(_:)` with `.downloadPressed` asks the user to confirm before downloading a large file
+    /// that can't be previewed, and only downloads it once the user confirms.
+    @Test
+    func perform_downloadPressed_unsupportedFile_largeFileConfirm() async throws {
+        let downloadUrl = URL(fileURLWithPath: "/tmp/archive.zip")
+        let attachment = AttachmentView.fixture(fileName: "archive.zip", size: "11000000", sizeName: "big")
+        vaultRepository.downloadAttachmentResult = .success(downloadUrl)
+        let subject = makeSubject(
+            attachment: attachment,
+            content: .unsupportedFileType(fileExtension: "zip"),
+            temporaryUrl: nil,
+        )
+
+        await subject.perform(.downloadPressed)
+
+        let alert = try #require(coordinator.alertShown.last)
+        #expect(alert.title == Localizations.attachmentLargeWarning("big"))
+        #expect(vaultRepository.downloadAttachmentAttachment == nil)
+
+        try await alert.tapAction(title: Localizations.yes)
+
+        #expect(vaultRepository.downloadAttachmentAttachment == attachment)
+        #expect(coordinator.routes.last == .saveFile(temporaryUrl: downloadUrl))
+    }
+
+    /// `perform(_:)` with `.downloadPressed` shows an alert and logs the error if downloading a file
+    /// that can't be previewed throws.
+    @Test
+    func perform_downloadPressed_unsupportedFile_downloadError() async {
+        vaultRepository.downloadAttachmentResult = .failure(BitwardenTestError.example)
+        let subject = makeSubject(content: .unsupportedFileType(fileExtension: "pdf"), temporaryUrl: nil)
+
+        await subject.perform(.downloadPressed)
+
+        #expect(coordinator.alertShown.last == .defaultAlert(title: Localizations.unableToDownloadFile))
+        #expect(coordinator.routes.isEmpty)
+        #expect(subject.state.temporaryUrl == nil)
+        #expect(errorReporter.errors as? [BitwardenTestError] == [.example])
+    }
+
+    /// `perform(_:)` with `.downloadPressed` shows an alert and doesn't navigate if downloading a file
+    /// that can't be previewed returns no url.
+    @Test
+    func perform_downloadPressed_unsupportedFile_nilUrl() async {
+        vaultRepository.downloadAttachmentResult = .success(nil)
+        let subject = makeSubject(content: .unsupportedFileType(fileExtension: "pdf"), temporaryUrl: nil)
+
+        await subject.perform(.downloadPressed)
+
+        #expect(coordinator.alertShown.last == .defaultAlert(title: Localizations.unableToDownloadFile))
+        #expect(coordinator.routes.isEmpty)
+        #expect(subject.state.temporaryUrl == nil)
+    }
+
     /// The processor clears any temporary downloads when it's deallocated.
     @Test
     func deinit_clearsTemporaryDownloads() {
@@ -124,6 +224,7 @@ struct AttachmentPreviewProcessorTests {
             services: ServiceContainer.withMocks(vaultRepository: vaultRepository),
             state: AttachmentPreviewState(
                 attachment: .fixture(fileName: "photo.png"),
+                cipher: .loginFixture(),
                 content: .image(Data()),
                 fileName: "photo.png",
                 temporaryUrl: temporaryUrl,
@@ -139,15 +240,21 @@ struct AttachmentPreviewProcessorTests {
 
     // MARK: Private Methods
 
-    /// Creates a processor for the given content and temporary url.
-    private func makeSubject(content: AttachmentPreviewContent, temporaryUrl: URL) -> AttachmentPreviewProcessor {
+    /// Creates a processor for the given attachment, cipher, content, and temporary url.
+    private func makeSubject(
+        attachment: AttachmentView = .fixture(fileName: "photo.png"),
+        cipher: CipherView = .loginFixture(),
+        content: AttachmentPreviewContent,
+        temporaryUrl: URL?,
+    ) -> AttachmentPreviewProcessor {
         AttachmentPreviewProcessor(
             coordinator: coordinator.asAnyCoordinator(),
             services: ServiceContainer.withMocks(errorReporter: errorReporter, vaultRepository: vaultRepository),
             state: AttachmentPreviewState(
-                attachment: .fixture(fileName: "photo.png"),
+                attachment: attachment,
+                cipher: cipher,
                 content: content,
-                fileName: "photo.png",
+                fileName: attachment.fileName ?? "",
                 temporaryUrl: temporaryUrl,
             ),
         )

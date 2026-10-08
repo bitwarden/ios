@@ -223,13 +223,12 @@ struct AttachmentPreviewHelperTests {
     }
 
     /// `showPreview(for:cipher:)` navigates to the preview screen with `.unsupportedFileType`
-    /// content for a non-image attachment, without attempting to read/decode its data.
+    /// content for a non-image attachment without downloading it, so that the file is only
+    /// downloaded if the user asks for it.
     @Test
     func showPreview_nonImage() async throws {
         let attachment = AttachmentView.fixture(fileName: "statement.pdf", size: "10", sizeName: "small")
         let cipher = CipherView.loginFixture()
-        let temporaryUrl = try writeTemporaryFile(data: Data("%PDF-1.4".utf8))
-        vaultRepository.downloadAttachmentResult = .success(temporaryUrl)
 
         await subject.showPreview(for: attachment, cipher: cipher)
 
@@ -237,8 +236,30 @@ struct AttachmentPreviewHelperTests {
             Issue.record("Expected a navigation to .attachmentPreview")
             return
         }
+        #expect(state.attachment == attachment)
+        #expect(state.cipher == cipher)
         #expect(state.content == .unsupportedFileType(fileExtension: "pdf"))
-        #expect(FileManager.default.fileExists(atPath: temporaryUrl.path))
+        #expect(state.temporaryUrl == nil)
+        #expect(vaultRepository.downloadAttachmentAttachment == nil)
+        #expect(coordinator.loadingOverlaysShown.isEmpty)
+    }
+
+    /// `showPreview(for:cipher:)` doesn't ask for confirmation before showing a large non-image
+    /// attachment, since it isn't downloaded when it's previewed.
+    @Test
+    func showPreview_nonImage_largeFile() async throws {
+        let attachment = AttachmentView.fixture(fileName: "archive.zip", size: "11000000", sizeName: "big")
+        let cipher = CipherView.loginFixture()
+
+        await subject.showPreview(for: attachment, cipher: cipher)
+
+        #expect(coordinator.alertShown.isEmpty)
+        #expect(vaultRepository.downloadAttachmentAttachment == nil)
+        guard case let .attachmentPreview(state) = coordinator.routes.last else {
+            Issue.record("Expected a navigation to .attachmentPreview")
+            return
+        }
+        #expect(state.content == .unsupportedFileType(fileExtension: "zip"))
     }
 
     /// `showPreview(for:cipher:)` shows the existing blocking alert and doesn't navigate when the
