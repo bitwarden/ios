@@ -185,7 +185,7 @@
 "CopyTotp" = "Kopieer TOTP";
 "CopyTotpAutomaticallyDescription" = "As 'n aanmelding 'n verifikasiesleutel het, kopieer die TOTP-verifikasiekode na u knipbord wanneer u die aanmelding outovul.";
 "CopyTotpAutomatically" = "Kopieer TOTP outomaties";
-"AttachementAdded" = "Aanhegsel toegevoeg";
+"AttachmentAdded" = "Aanhegsel toegevoeg";
 "AttachmentDeleted" = "Aanhegsel geskrap";
 "ChooseFile" = "Kies lêer";
 "File" = "Lêer";

@@ -185,7 +185,7 @@
 "CopyTotp" = "Kopiraj TOTP";
 "CopyTotpAutomaticallyDescription" = "Če ima prijava ključ overovitelja, ko samodejno izpolnite prijavo, kopirajte kodo TOTP v odložišče.";
 "CopyTotpAutomatically" = "Samodejno kopiraj TOTP";
-"AttachementAdded" = "Priloga dodana";
+"AttachmentAdded" = "Priloga dodana";
 "AttachmentDeleted" = "Priloga izbrisana";
 "ChooseFile" = "Izberite datoteko";
 "File" = "Datoteka";

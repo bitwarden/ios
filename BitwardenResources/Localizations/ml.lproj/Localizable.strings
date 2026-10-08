@@ -185,7 +185,7 @@
 "CopyTotp" = "TOTP പകർത്തുക";
 "CopyTotpAutomaticallyDescription" = "ഒരു ലോഗിനിൽ ആധികാരിക കീ ഉണ്ടെങ്കിൽ, നിങ്ങൾ ലോഗിൻ ഓട്ടോഫിൽ ചെയ്യുമ്പോൾ TOTP പരിശോധന കോഡ് നിങ്ങളുടെ ക്ലിപ്പ്ബോർഡിലേക്ക് പകർത്തുക.";
 "CopyTotpAutomatically" = "TOTP യാന്ത്രികമായി പകർത്തുക";
-"AttachementAdded" = "അറ്റാച്ചുമെന്റ് ചേർത്തു";
+"AttachmentAdded" = "അറ്റാച്ചുമെന്റ് ചേർത്തു";
 "AttachmentDeleted" = "അറ്റാച്ചുമെന്റ് നീക്കംചെയ്തു";
 "ChooseFile" = "ഫയൽ തിരഞ്ഞെടുക്കുക";
 "File" = "ഫയൽ";

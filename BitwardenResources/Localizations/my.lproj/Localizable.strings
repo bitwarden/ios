@@ -185,7 +185,7 @@
 "CopyTotp" = "TOTP ကူးယူပါ";
 "CopyTotpAutomaticallyDescription" = "ဝင်ရောက်မှုတစ်ခုတွင် အောက်တန်မီတာ သော့ရှိပါက၊ သင်ဝင်ရောက်မှုကို အလိုအလျောက်ဖြည့်သည့်အခါ TOTP အတည်ပြုကုဒ်ကို သင့်ကလစ်ဘုတ်သို့ ကူးယူပါ။";
 "CopyTotpAutomatically" = "TOTP ကို အလိုအလျောက် ကူးယူပါ";
-"AttachementAdded" = "ပူးတွဲပစ္စည်း ထည့်ပြီးပါပြီ";
+"AttachmentAdded" = "ပူးတွဲပစ္စည်း ထည့်ပြီးပါပြီ";
 "AttachmentDeleted" = "ပူးတွဲပစ္စည်း ဖျက်ပြီးပါပြီ";
 "ChooseFile" = "ဖိုင် ရွေးပါ";
 "File" = "ဖိုင်";

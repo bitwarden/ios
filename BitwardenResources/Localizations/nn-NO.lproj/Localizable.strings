@@ -185,7 +185,7 @@
 "CopyTotp" = "Skriv av TOTP";
 "CopyTotpAutomaticallyDescription" = "Viss ein pålogging har ein autentiseringsnøkkel, kopier TOTP-verifiseringskoden til utklippstavla når du autoutfyller påloggingen.";
 "CopyTotpAutomatically" = "Kopier TOTP-en automatisk";
-"AttachementAdded" = "Vedlegg lagd til";
+"AttachmentAdded" = "Vedlegg lagd til";
 "AttachmentDeleted" = "Vedlegg sletta";
 "ChooseFile" = "Vel fil";
 "File" = "Fil";
@@ -849,7 +849,7 @@
 "YouMayNeedToEnableDevicePasscodeOrBiometrics" = "Du må kanskje aktivere eingspasskode eller biometri.";
 "StartImportCXFDescriptionLong" = "Importer passord, passnøklar, kredittkort, og all personleg identitetsinformasjon frå ein annan passordbehandlar.\n\nDine data vil **ikkje** bli sletta frå din tidlegare leverandør.";
 "ImportPasswords" = "Importer passord";
-"ImportingEllipsis" = "Importerer...";
+"ImportingEllipsis" = "Importerer…";
 "AreYouSureYouWantToCancelTheImportProcessQuestionMark" = "Er du sikker på at du vil avbryte importprosessen?";
 "ImportFailed" = "Import feila";
 "ThereWasAnIssueImportingAllOfYourPasswordsNoDataWasDeleted" = "Det oppstod eit problem under importeringa av alle passorda dine.\n\nIngen data blei sletta.";

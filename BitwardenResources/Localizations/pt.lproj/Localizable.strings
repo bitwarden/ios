@@ -185,7 +185,7 @@
 "CopyTotp" = "Copiar TOTP";
 "CopyTotpAutomaticallyDescription" = "Se uma credencial tiver uma chave de autenticação, copie o código de verificação TOTP para a sua área de transferência quando preencher automaticamente o início de sessão.";
 "CopyTotpAutomatically" = "Copiar TOTP automaticamente";
-"AttachementAdded" = "Anexo adicionado";
+"AttachmentAdded" = "Anexo adicionado";
 "AttachmentDeleted" = "Anexo eliminado";
 "ChooseFile" = "Escolher ficheiro";
 "File" = "Ficheiro";
@@ -418,7 +418,7 @@
 "MasterPasswordPolicyValidationTitle" = "Palavra-passe inválida";
 "MasterPasswordPolicyValidationMessage" = "A palavra-passe não corresponde aos requisitos da organização. Verifique as informações da política e tente novamente.";
 "Loading" = "A carregar";
-"LoadingSubscription" = "A carregar subscrição...";
+"LoadingSubscription" = "A carregar subscrição…";
 "AcceptPoliciesError" = "Os Termos de utilização e a Política de privacidade não foram aceites.";
 "PrivacyPolicy" = "Política de privacidade";
 "PersonalOwnershipPolicyInEffect" = "Uma política da organização está a afetar as suas opções de propriedade.";

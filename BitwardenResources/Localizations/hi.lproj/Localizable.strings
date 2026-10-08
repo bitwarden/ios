@@ -185,7 +185,7 @@
 "CopyTotp" = "टीओटीपी कॉपी करें";
 "CopyTotpAutomaticallyDescription" = "यदि किसी लॉगिन में ऑथेंटिकेटर कुंजी है, तो जब आप लॉगिन ऑटोफिल करते हैं तो TOTP सत्यापन कोड को अपने क्लिपबोर्ड पर कॉपी करें।";
 "CopyTotpAutomatically" = "टीओटीपी अपनेआप कॉपी करें";
-"AttachementAdded" = "अटैचमेंट डाला गया";
+"AttachmentAdded" = "अटैचमेंट डाला गया";
 "AttachmentDeleted" = "अटैचमेंट हटाया गया";
 "ChooseFile" = "फाइल चुनें";
 "File" = "फाइल";

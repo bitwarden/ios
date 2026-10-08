@@ -186,7 +186,7 @@
 "CopyTotp" = "TOTP ಅನ್ನು ನಕಲಿಸಿ";
 "CopyTotpAutomaticallyDescription" = "ಲಾಗಿನ್ ಅಧಿಕೃತ ಕೀಲಿಯನ್ನು ಹೊಂದಿದ್ದರೆ, ನೀವು ಲಾಗಿನ್ ಅನ್ನು ಸ್ವಯಂ ಭರ್ತಿ ಮಾಡುವಾಗ TOTP ಪರಿಶೀಲನಾ ಕೋಡ್ ಅನ್ನು ನಿಮ್ಮ ಕ್ಲಿಪ್ಬೋರ್ಡ್ಗೆ ನಕಲಿಸಿ.";
 "CopyTotpAutomatically" = "TOTP ಅನ್ನು ಸ್ವಯಂಚಾಲಿತವಾಗಿ ನಕಲಿಸಿ";
-"AttachementAdded" = "ಲಗತ್ತು ಸೇರಿಸಲಾಗಿದೆ";
+"AttachmentAdded" = "ಲಗತ್ತು ಸೇರಿಸಲಾಗಿದೆ";
 "AttachmentDeleted" = "ಲಗತ್ತು ಅಳಿಸಲಾಗಿದೆ";
 "ChooseFile" = "ಫೈಲ್ ಆಯ್ಕೆ";
 "File" = "ಫೈಲ್";

@@ -185,7 +185,7 @@
 "CopyTotp" = "Copiere TOTP";
 "CopyTotpAutomaticallyDescription" = "Dacă o autentificare are o cheie authenticator, copiază codul de verificare TOTP în clipboard când completezi automat autentificarea.";
 "CopyTotpAutomatically" = "Copiați automat TOTP";
-"AttachementAdded" = "Atașamentul s-a adăugat";
+"AttachmentAdded" = "Atașamentul s-a adăugat";
 "AttachmentDeleted" = "Atașamentul s-a șters";
 "ChooseFile" = "Alegere fișier";
 "File" = "Fișier";

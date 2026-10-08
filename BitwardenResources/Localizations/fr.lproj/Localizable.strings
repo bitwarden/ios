@@ -185,7 +185,7 @@
 "CopyTotp" = "Copier le TOTP";
 "CopyTotpAutomaticallyDescription" = "Si un identifiant possède une clé d'authentification, copiez le code de vérification TOTP dans votre presse-papiers lorsque vous saisissez automatiquement l'identifiant.";
 "CopyTotpAutomatically" = "Copier TOTP automatiquement";
-"AttachementAdded" = "Pièce jointe ajoutée";
+"AttachmentAdded" = "Pièce jointe ajoutée";
 "AttachmentDeleted" = "Pièce jointe supprimée";
 "ChooseFile" = "Choisir un fichier";
 "File" = "Fichier";

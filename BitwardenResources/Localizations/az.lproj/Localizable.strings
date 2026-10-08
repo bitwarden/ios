@@ -136,7 +136,7 @@
 "ItemUpdated" = "Element saxlanıldı";
 "Submitting" = "Təqdim olunur…";
 "Syncing" = "Sinxronlaşdırılır…";
-"SyncingLogins" = "Girişlər sinxronlaşdırılır...";
+"SyncingLogins" = "Girişlər sinxronlaşdırılır…";
 "SyncingComplete" = "Sinxr tamamlandı";
 "TouchID" = "Touch ID";
 "TwoStepLogin" = "İki mərhələli giriş";
@@ -185,7 +185,7 @@
 "CopyTotp" = "TOTP-ni kopyala";
 "CopyTotpAutomaticallyDescription" = "Bir giriş prosesinin kimlik doğrulayıcı açarı varsa, giriş məlumatlarını avto-doldurduğunuz zaman TOTP doğrulama kodunu kopyalayın.";
 "CopyTotpAutomatically" = "TOTP-ni avtomatik kopyala";
-"AttachementAdded" = "Qoşma əlavə edildi";
+"AttachmentAdded" = "Qoşma əlavə edildi";
 "AttachmentDeleted" = "Qoşma silindi";
 "ChooseFile" = "Fayl seç";
 "File" = "Fayl";

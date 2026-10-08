@@ -136,7 +136,7 @@
 "ItemUpdated" = "Ставка ажурирана.";
 "Submitting" = "Постављање…";
 "Syncing" = "Синхронизација…";
-"SyncingLogins" = "Синхронизовање пријављивања...";
+"SyncingLogins" = "Синхронизовање пријављивања…";
 "SyncingComplete" = "Синхронизација је завршена.";
 "TouchID" = "Додирни ИД";
 "TwoStepLogin" = "Дво-коракна лозинка";
@@ -185,7 +185,7 @@
 "CopyTotp" = "Копирај једнократни код";
 "CopyTotpAutomaticallyDescription" = "Ако пријава има кључ за аутентификацију, копирај ТОТП верификациони кôд у међуспремнику када аутоматски попуниш пријаву.";
 "CopyTotpAutomatically" = "Аутоматски копирај једнократни кôд";
-"AttachementAdded" = "Прилог додат";
+"AttachmentAdded" = "Прилог додат";
 "AttachmentDeleted" = "Прилог избрисан";
 "ChooseFile" = "Изабери датотеку";
 "File" = "Датотека";
@@ -849,7 +849,7 @@
 "YouMayNeedToEnableDevicePasscodeOrBiometrics" = "Можда ћете морати да омогућите шифру или биометрију уређаја.";
 "StartImportCXFDescriptionLong" = "Увезите лозинке, фразе, кредитне картице и сваки други вид идентификације из другог менаџера лозинки.\n\nВаши подаци **неће** бити обрисани из вашег ранијег провајдера.";
 "ImportPasswords" = "Увези лозинке";
-"ImportingEllipsis" = "Увожење...";
+"ImportingEllipsis" = "Увожење…";
 "AreYouSureYouWantToCancelTheImportProcessQuestionMark" = "Да ли заиста желите да прекинете процес увожења?";
 "ImportFailed" = "Увоз није успео";
 "ThereWasAnIssueImportingAllOfYourPasswordsNoDataWasDeleted" = "Дошло је до проблема у увозу свих ваших лозинки.\n\nНиједан податак није избрисан.";
@@ -1049,7 +1049,7 @@
 "DefaultX" = "Подразумевано (%1$@)";
 "UpdateYourEncryptionSettings" = "Ажурирајте своје поставке за шифровање";
 "TheNewRecommendedEncryptionSettingsDescriptionLong" = "Нова препоручена подешавања шифрирања побољшаће вашу сигурност налога. Унесите своју главну лозинку за ажурирање.";
-"Updating" = "Ажурирање...";
+"Updating" = "Ажурирање…";
 "EncryptionSettingsUpdated" = "Подешавања шифровања су ажурирани";
 "IntroducingArchive" = "Представљамо Архиву";
 "KeepYtemsYouDontNeedRightNowSafeButOutOfSight" = "Држите ставке које вам тренутно нису потребне на сигурном, али ван видокруга.";

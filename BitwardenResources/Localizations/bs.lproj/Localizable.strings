@@ -185,7 +185,7 @@
 "CopyTotp" = "Iskopirajte TOTP";
 "CopyTotpAutomaticallyDescription" = "Ako prijava ima authenticator ključ, kopiraj TOTP verifikacijski kod u međuspremnik kada automatski popunite prijavu.";
 "CopyTotpAutomatically" = "Kopiraj TOTP (autentifikacijski kod) automatski";
-"AttachementAdded" = "Prilog dodat";
+"AttachmentAdded" = "Prilog dodat";
 "AttachmentDeleted" = "Prilog izbrisan";
 "ChooseFile" = "Odaberite datoteku";
 "File" = "Datoteka";

@@ -185,7 +185,7 @@
 "CopyTotp" = "Kopeeri TOTP";
 "CopyTotpAutomaticallyDescription" = "Kui sisselogimisel on autentimisvõti, kopeerige TOTP-kinnituskood lõikelauale, kui täidate sisselogimise automaatselt.";
 "CopyTotpAutomatically" = "TOTP automaatne kopeerimine";
-"AttachementAdded" = "Manus on lisatud";
+"AttachmentAdded" = "Manus on lisatud";
 "AttachmentDeleted" = "Manus on kustutatud";
 "ChooseFile" = "Vali fail";
 "File" = "Fail";
@@ -849,7 +849,7 @@
 "YouMayNeedToEnableDevicePasscodeOrBiometrics" = "Võimalik, et peate lubama seadme pääsukoodi või biomeetrilised andmed.";
 "StartImportCXFDescriptionLong" = "Importige paroolid, pääsukoodid, krediitkaardid ja isikuandmed teisest paroolihaldurist.\n\nTeie andmeid **ei** kustutata teie eelmiselt teenusepakkujalt.";
 "ImportPasswords" = "Impordi paroolid";
-"ImportingEllipsis" = "Importimine...";
+"ImportingEllipsis" = "Importimine…";
 "AreYouSureYouWantToCancelTheImportProcessQuestionMark" = "Kas olete kindel, et soovite importimise tühistada?";
 "ImportFailed" = "Importimine ebaõnnestus";
 "ThereWasAnIssueImportingAllOfYourPasswordsNoDataWasDeleted" = "Kõigi teie paroolide importimisel tekkis probleem.\n\nÜhtegi andmeid ei kustutatud.";

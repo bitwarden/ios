@@ -185,7 +185,7 @@
 "CopyTotp" = "نسخ TOTP";
 "CopyTotpAutomaticallyDescription" = "إذا كانت بيانات الدخول تحتوي على مفتاح أداة مصادقة، فسيتم نسخ رمز التحقق TOTP إلى الحافظة عند إتمام الملء التلقائي لبيانات الدخول.";
 "CopyTotpAutomatically" = "نسخ TOTP تلقائيا";
-"AttachementAdded" = "تم إضافة المرفق";
+"AttachmentAdded" = "تم إضافة المرفق";
 "AttachmentDeleted" = "تم حذف المرفق";
 "ChooseFile" = "اختيار ملف";
 "File" = "ملف";

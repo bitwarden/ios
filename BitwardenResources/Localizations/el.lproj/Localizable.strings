@@ -136,7 +136,7 @@
 "ItemUpdated" = "Το στοιχείο αποθηκεύτηκε";
 "Submitting" = "Υποβολή…";
 "Syncing" = "Συγχρονισμός…";
-"SyncingLogins" = "Συγχρονισμός συνδέσεων...";
+"SyncingLogins" = "Συγχρονισμός συνδέσεων…";
 "SyncingComplete" = "Ο συγχρονισμός ολοκληρώθηκε";
 "TouchID" = "Touch ID";
 "TwoStepLogin" = "Σύνδεση δύο βημάτων";
@@ -185,7 +185,7 @@
 "CopyTotp" = "Αντιγραφή TOTP";
 "CopyTotpAutomaticallyDescription" = "Εάν η σύνδεση έχει κάποιο κλειδί αυθεντικοποίησης, αντιγράψτε τον κωδικό επαλήθευσης TOTP στο πρόχειρο σας όταν κάνετε με αυτόματη συμπλήρωση τη συνδεση.";
 "CopyTotpAutomatically" = "Αυτόματη αντιγραφή TOTP";
-"AttachementAdded" = "Το συνημμένο προστέθηκε";
+"AttachmentAdded" = "Το συνημμένο προστέθηκε";
 "AttachmentDeleted" = "Το συνημμένο διαγράφηκε";
 "ChooseFile" = "Επιλογή αρχείου";
 "File" = "Αρχείο";
@@ -434,7 +434,7 @@
 "CurrentAccessCount" = "Τρέχων Αριθμός Πρόσβασης";
 "RemovePassword" = "Αφαίρεση κωδικού πρόσβασης";
 "AreYouSureRemoveSendPassword" = "Είστε βέβαιοι ότι θέλετε να καταργήσετε τον κωδικό πρόσβασης;";
-"RemovingSendPassword" = "Αφαίρεση κωδικού...";
+"RemovingSendPassword" = "Αφαίρεση κωδικού…";
 "SendPasswordRemoved" = "Ο κωδικός πρόσβασης αφαιρέθηκε";
 "CopyLink" = "Αντιγραφή συνδέσμου";
 "ShareLink" = "Κοινοποίηση συνδέσμου";
@@ -849,7 +849,7 @@
 "YouMayNeedToEnableDevicePasscodeOrBiometrics" = "Ίσως χρειαστεί να ενεργοποιήσετε τον κωδικό πρόσβασης συσκευής ή τα βιομετρικά στοιχεία.";
 "StartImportCXFDescriptionLong" = "Εισαγωγή κωδικών πρόσβασης, κλειδιών πρόσβασης, πιστωτικών καρτών και τυχόν πληροφοριών προσωπικής ταυτότητας από άλλον διαχειριστή κωδικών πρόσβασης.\n\nΤα δεδομένα σας **δεν** θα διαγραφούν από τον προηγούμενο πάροχο.";
 "ImportPasswords" = "Εισαγωγή κωδικών πρόσβασης";
-"ImportingEllipsis" = "Εισαγωγή...";
+"ImportingEllipsis" = "Εισαγωγή…";
 "AreYouSureYouWantToCancelTheImportProcessQuestionMark" = "Είστε βέβαιοι ότι θέλετε να ακυρώσετε τη διαδικασία εισαγωγής;";
 "ImportFailed" = "Αποτυχία εισαγωγής";
 "ThereWasAnIssueImportingAllOfYourPasswordsNoDataWasDeleted" = "Παρουσιάστηκε πρόβλημα κατά την εισαγωγή όλων των κωδικών πρόσβασής σας.\n\nΔεν διαγράφηκαν δεδομένα.";

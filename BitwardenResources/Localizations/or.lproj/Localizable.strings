@@ -185,7 +185,7 @@
 "CopyTotp" = "TOTP କପି";
 "CopyTotpAutomaticallyDescription" = "ଯଦି ଏକ ପ୍ରବେଶରେ ପ୍ରାମାଣିକ କୀ ଅଛି, ତେବେ ଆପଣ ପ୍ରବେଶ ଅଟୋଫିଲ୍ କଲାବେଳେ TOTP ଯାଞ୍ଚ କୋଡ୍ ଆପଣଙ୍କ କ୍ଲିପବୋର୍ଡ୍‌ରେ କପି କରନ୍ତୁ।";
 "CopyTotpAutomatically" = "TOTP ସ୍ୱୟଂଚାଳିତ କପି";
-"AttachementAdded" = "ସଂଲଗ୍ନ ଯୋଡ଼ାଗଲା";
+"AttachmentAdded" = "ସଂଲଗ୍ନ ଯୋଡ଼ାଗଲା";
 "AttachmentDeleted" = "ସଂଲଗ୍ନ ଲିଭାଗଲା";
 "ChooseFile" = "ଫାଇଲ୍ ବାଛନ୍ତୁ";
 "File" = "ଫାଇଲ୍";

@@ -185,7 +185,7 @@
 "CopyTotp" = "Копиране на кода за потвърждаване";
 "CopyTotpAutomaticallyDescription" = "Ако към вписването има и удостоверителен ключ, кодът за потвърждаване се копира автоматично в буфера при автоматично попълване.";
 "CopyTotpAutomatically" = "Автоматично копиране на TOTP";
-"AttachementAdded" = "Файлът е прикачен";
+"AttachmentAdded" = "Файлът е прикачен";
 "AttachmentDeleted" = "Файлът е махнат";
 "ChooseFile" = "Изберете файл";
 "File" = "Файл";

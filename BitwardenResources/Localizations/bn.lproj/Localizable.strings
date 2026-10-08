@@ -185,7 +185,7 @@
 "CopyTotp" = "TOTP কপি করুন";
 "CopyTotpAutomaticallyDescription" = "যদি একটি লগইনে অথেন্টিকেটর কী থাকে, তাহলে আপনি লগইনটি অটোফিল করার সময় TOTP যাচাইকরণ কোডটি আপনার ক্লিপবোর্ডে কপি করুন।";
 "CopyTotpAutomatically" = "স্বয়ংক্রিয়ভাবে TOTP কপি করুন";
-"AttachementAdded" = "সংযুক্তি যোগ করা হয়েছে";
+"AttachmentAdded" = "সংযুক্তি যোগ করা হয়েছে";
 "AttachmentDeleted" = "সংযুক্তি মুছে ফেলা হয়েছে";
 "ChooseFile" = "ফাইল নির্বাচন করুন";
 "File" = "ফাইল";

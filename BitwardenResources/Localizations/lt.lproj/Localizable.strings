@@ -185,7 +185,7 @@
 "CopyTotp" = "Kopijuoti TOTP";
 "CopyTotpAutomaticallyDescription" = "Jei prisijungimas turi autentifikavimo raktą, automatiškai pildant prisijungimo duomenis, nukopijuokite TOTP patikrinimo kodą į iškarpinę.";
 "CopyTotpAutomatically" = "Kopijuoti vienkartinį kodą (TOTP) automatiškai";
-"AttachementAdded" = "Priedas pridėtas";
+"AttachmentAdded" = "Priedas pridėtas";
 "AttachmentDeleted" = "Priedas ištrintas";
 "ChooseFile" = "Pasirinkti failą";
 "File" = "Failas";
@@ -849,7 +849,7 @@
 "YouMayNeedToEnableDevicePasscodeOrBiometrics" = "Gali tekti įjungti įrenginio slaptažodį arba biometriją.";
 "StartImportCXFDescriptionLong" = "Importuokite slaptažodžius, prieigos raktus, kredito korteles ir bet kokią asmeninę tapatybės informaciją iš kitos slaptažodžių tvarkyklės.\n\nJūsų duomenys iš ankstesnio teikėjo **nebus** ištrinti.";
 "ImportPasswords" = "Importuoti slaptažodžius";
-"ImportingEllipsis" = "Importuojama...";
+"ImportingEllipsis" = "Importuojama…";
 "AreYouSureYouWantToCancelTheImportProcessQuestionMark" = "Ar tikrai norite atšaukti importavimo procesą?";
 "ImportFailed" = "Importas nepavyko";
 "ThereWasAnIssueImportingAllOfYourPasswordsNoDataWasDeleted" = "Importuojant visus jūsų slaptažodžius kilo problema.\n\nJokie duomenys nebuvo ištrinti.";

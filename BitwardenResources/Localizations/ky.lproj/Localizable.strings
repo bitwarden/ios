@@ -185,7 +185,7 @@
 "CopyTotp" = "TOTPди көчүрүү";
 "CopyTotpAutomaticallyDescription" = "Эгерде кирүүдө аутентификатор ачкычы болсо, сиз кирүүнү автолуктоодо TOTP текшерүү кодун буферге көчүрүңүз.";
 "CopyTotpAutomatically" = "TOTPди автоматтык түрдө көчүрүү";
-"AttachementAdded" = "Тиркеме кошулду";
+"AttachmentAdded" = "Тиркеме кошулду";
 "AttachmentDeleted" = "Тиркеме өчүрүлдү";
 "ChooseFile" = "Файлды тандоо";
 "File" = "Файл";

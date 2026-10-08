@@ -185,7 +185,7 @@
 "CopyTotp" = "TOTP प्रतिलिपि गर्नुहोस्";
 "CopyTotpAutomaticallyDescription" = "यदि लगइनसँग प्रमाणीकरण कुञ्जी छ भने, तपाईंले लगइन स्वत: भरण गर्दा TOTP प्रमाणीकरण कोड तपाईंको क्लिपबोर्डमा प्रतिलिपि गर्नुहोस्।";
 "CopyTotpAutomatically" = "TOTP स्वचालित रूपमा प्रतिलिपि गर्नुहोस्";
-"AttachementAdded" = "संलग्न थपियो";
+"AttachmentAdded" = "संलग्न थपियो";
 "AttachmentDeleted" = "संलग्न मेटियो";
 "ChooseFile" = "फाइल छान्नुहोस्";
 "File" = "फाइल";

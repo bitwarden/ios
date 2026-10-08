@@ -185,7 +185,7 @@
 "CopyTotp" = "Копіювати TOTP";
 "CopyTotpAutomaticallyDescription" = "Якщо запис має ключ автентифікації, копіювати код підтвердження TOTP до буфера обміну під час автозаповнення.";
 "CopyTotpAutomatically" = "Автоматично копіювати коди TOTP";
-"AttachementAdded" = "Вкладення додано";
+"AttachmentAdded" = "Вкладення додано";
 "AttachmentDeleted" = "Вкладення видалено";
 "ChooseFile" = "Обрати файл";
 "File" = "Файл";

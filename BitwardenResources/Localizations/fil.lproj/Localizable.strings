@@ -185,7 +185,7 @@
 "CopyTotp" = "Kopyahin ang TOTP";
 "CopyTotpAutomaticallyDescription" = "Kung ang isang login ay may authenticator key, kopyahin ang TOTP verification code sa iyong clipboard kapag inautofill mo ang login.";
 "CopyTotpAutomatically" = "Awtomatikong kopyahin ang TOTP";
-"AttachementAdded" = "Idinagdag ang attachment";
+"AttachmentAdded" = "Idinagdag ang attachment";
 "AttachmentDeleted" = "Tinanggal ang attachment";
 "ChooseFile" = "Pumili ng file";
 "File" = "File";

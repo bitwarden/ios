@@ -185,7 +185,7 @@
 "CopyTotp" = "Copia TOTP";
 "CopyTotpAutomaticallyDescription" = "Se un login ha una chiave di autenticazione, copia il codice di verifica TOTP negli appunti quando riempi automaticamente il login.";
 "CopyTotpAutomatically" = "Copia TOTP automaticamente";
-"AttachementAdded" = "Allegato aggiunto";
+"AttachmentAdded" = "Allegato aggiunto";
 "AttachmentDeleted" = "Allegato eliminato";
 "ChooseFile" = "Seleziona file";
 "File" = "File";

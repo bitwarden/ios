@@ -136,7 +136,7 @@
 "ItemUpdated" = "アイテムを更新しました。";
 "Submitting" = "送信中…";
 "Syncing" = "同期中…";
-"SyncingLogins" = "ログインを同期...";
+"SyncingLogins" = "ログインを同期…";
 "SyncingComplete" = "同期が完了しました。";
 "TouchID" = "Touch ID";
 "TwoStepLogin" = "2段階認証";
@@ -185,7 +185,7 @@
 "CopyTotp" = "TOTP のコピー";
 "CopyTotpAutomaticallyDescription" = "ログイン情報に認証キーがある場合は、自動入力時にクリップボードに TOTP 認証コードをコピーします。";
 "CopyTotpAutomatically" = "TOTP を自動的にコピー";
-"AttachementAdded" = "添付ファイルを追加しました";
+"AttachmentAdded" = "添付ファイルを追加しました";
 "AttachmentDeleted" = "添付ファイルを削除しました";
 "ChooseFile" = "ファイルを選択";
 "File" = "ファイル";
@@ -418,7 +418,7 @@
 "MasterPasswordPolicyValidationTitle" = "無効なパスワード";
 "MasterPasswordPolicyValidationMessage" = "パスワードが組織の要件を満たしていません。ポリシー情報を確認して、もう一度やり直してください。";
 "Loading" = "読み込み中";
-"LoadingSubscription" = "サブスクリプションを読み込み中...";
+"LoadingSubscription" = "サブスクリプションを読み込み中…";
 "AcceptPoliciesError" = "利用規約とプライバシーポリシーが確認されていません。";
 "PrivacyPolicy" = "プライバシーポリシー";
 "PersonalOwnershipPolicyInEffect" = "組織のポリシーが所有者のオプションに影響を与えています。";

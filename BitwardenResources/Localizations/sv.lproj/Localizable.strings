@@ -185,7 +185,7 @@
 "CopyTotp" = "Kopiera TOTP";
 "CopyTotpAutomaticallyDescription" = "Om en inloggning har en autentiseringsnyckel kopierar du TOTP-verifieringskoden till ditt urklipp när du fyller i inloggningen automatiskt.";
 "CopyTotpAutomatically" = "Kopiera TOTP automatiskt";
-"AttachementAdded" = "Bilaga tillagd";
+"AttachmentAdded" = "Bilaga tillagd";
 "AttachmentDeleted" = "Bilaga borttagen";
 "ChooseFile" = "Välj fil";
 "File" = "Fil";

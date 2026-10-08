@@ -185,7 +185,7 @@
 "CopyTotp" = "TOTP कॉपी करा";
 "CopyTotpAutomaticallyDescription" = "जर एखाद्या लॉगिनमध्ये प्रमाणीकरण की असेल, तर तुम्ही लॉगिन स्वयंपूर्त करता तेव्हा TOTP सत्यापन कोड तुमच्या क्लिपबोर्डवर कॉपी करा.";
 "CopyTotpAutomatically" = "TOTP स्वयंचलितपणे कॉपी करा";
-"AttachementAdded" = "संलग्नक जोडला";
+"AttachmentAdded" = "संलग्नक जोडला";
 "AttachmentDeleted" = "संलग्नक हटवला";
 "ChooseFile" = "फाइल निवडा";
 "File" = "फाइल";

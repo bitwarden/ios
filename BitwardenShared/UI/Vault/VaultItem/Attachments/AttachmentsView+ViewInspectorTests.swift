@@ -3,6 +3,7 @@ import BitwardenKit
 import BitwardenKitMocks
 import BitwardenResources
 import BitwardenSdk
+import ViewInspector
 import XCTest
 
 @testable import BitwardenShared
@@ -66,6 +67,22 @@ class AttachmentsViewTests: BitwardenTestCase {
         let button = try subject.inspect().find(buttonWithAccessibilityLabel: Localizations.delete)
         try button.tap()
         XCTAssertEqual(processor.dispatchedActions.last, .deletePressed(.fixture()))
+    }
+
+    /// The file name text field shows the chosen file's name without its extension, and the
+    /// extension is shown after it. Updating the text field sends the `.fileNameChanged` action.
+    @MainActor
+    func test_fileNameTextField_updated() throws {
+        processor.state.fileName = "photo.jpg"
+        processor.state.fileNameExtension = ".jpg"
+        let textField = try subject.inspect()
+            .find(viewWithAccessibilityIdentifier: "AttachmentFileNameEntry")
+            .find(ViewType.TextField.self)
+        XCTAssertEqual(try textField.input(), "photo")
+        XCTAssertNoThrow(try subject.inspect().find(text: ".jpg"))
+
+        try textField.setInput("vacation")
+        XCTAssertEqual(processor.dispatchedActions.last, .fileNameChanged("vacation"))
     }
 
     /// Tapping the save button performs the `.savePressed` effect.

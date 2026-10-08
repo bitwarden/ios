@@ -185,7 +185,7 @@
 "CopyTotp" = "คัดลอก TOTP";
 "CopyTotpAutomaticallyDescription" = "หากข้อมูลเข้าสู่ระบบมีคีย์แอปยืนยันตัวตน ให้คัดลอกรหัสยืนยัน TOTP ไปยังคลิปบอร์ดเมื่อป้อนอัตโนมัติ";
 "CopyTotpAutomatically" = "คัดลอก TOTP อัตโนมัติ";
-"AttachementAdded" = "เพิ่มไฟล์แนบแล้ว";
+"AttachmentAdded" = "เพิ่มไฟล์แนบแล้ว";
 "AttachmentDeleted" = "ลบไฟล์แนบแล้ว";
 "ChooseFile" = "เลือกไฟล์";
 "File" = "ไฟล์";

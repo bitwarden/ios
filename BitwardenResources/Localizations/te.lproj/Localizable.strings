@@ -185,7 +185,7 @@
 "CopyTotp" = "TOTP కాపీ చేయి";
 "CopyTotpAutomaticallyDescription" = "ఒక లాగిన్‌కు ఆథెంటికేటర్ కీ ఉంటే, మీరు లాగిన్‌ను ఆటోఫిల్ చేసినప్పుడు TOTP ధృవీకరణ కోడ్‌ను మీ క్లిప్‌బోర్డ్‌కు కాపీ చేయండి.";
 "CopyTotpAutomatically" = "TOTP ఆటోమేటిక్‌గా కాపీ చేయి";
-"AttachementAdded" = "అటాచ్మెంట్ జోడించబడింది";
+"AttachmentAdded" = "అటాచ్మెంట్ జోడించబడింది";
 "AttachmentDeleted" = "అటాచ్మెంట్ తొలగించబడింది";
 "ChooseFile" = "ఫైల్ ఎంచుకోండి";
 "File" = "ఫైల్";

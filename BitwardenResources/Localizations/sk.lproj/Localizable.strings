@@ -185,7 +185,7 @@
 "CopyTotp" = "Kopírovať TOTP";
 "CopyTotpAutomaticallyDescription" = "Ak majú prihlasovacie údaje nastavený kľúč overovateľa, overovací kód TOTP bude automaticky skopírovaný do schránky vždy, keď použijete automatické vypĺňanie.";
 "CopyTotpAutomatically" = "Automaticky kopírovať TOTP";
-"AttachementAdded" = "Príloha pridaná";
+"AttachmentAdded" = "Príloha pridaná";
 "AttachmentDeleted" = "Príloha odstránená";
 "ChooseFile" = "Vybrať súbor";
 "File" = "Súbor";

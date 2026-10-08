@@ -185,7 +185,7 @@
 "CopyTotp" = "Sao chép TOTP";
 "CopyTotpAutomaticallyDescription" = "Nếu tài khoản đăng nhập có khóa xác thực, mã xác minh TOTP sẽ được sao chép vào bộ nhớ tạm khi bạn tự động điền thông tin đăng nhập.";
 "CopyTotpAutomatically" = "Tự động sao chép mã TOTP";
-"AttachementAdded" = "Đã thêm tệp đính kèm";
+"AttachmentAdded" = "Đã thêm tệp đính kèm";
 "AttachmentDeleted" = "Đã xóa tệp đính kèm";
 "ChooseFile" = "Chọn tập tin";
 "File" = "Tập tin";
