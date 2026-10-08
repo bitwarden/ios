@@ -55,7 +55,7 @@ class AttachmentPreviewProcessor: StateProcessor<
     override func perform(_ effect: AttachmentPreviewEffect) async {
         switch effect {
         case .downloadPressed:
-            if let temporaryUrl = state.temporaryUrl {
+            if let temporaryUrl = state.temporaryUrl, canSaveDownloadedFile(at: temporaryUrl) {
                 saveFile(at: temporaryUrl)
             } else {
                 await confirmDownload()
@@ -71,6 +71,23 @@ class AttachmentPreviewProcessor: StateProcessor<
     }
 
     // MARK: Private Methods
+
+    /// Whether the downloaded file at the given url can still be saved. Image content is held in
+    /// memory and is written back to the url when it's saved, so its file doesn't need to exist.
+    /// Other content can only be saved from the downloaded file. The export picker moves that file
+    /// away once the user saves it, so it must still exist.
+    ///
+    /// - Parameter temporaryUrl: The url where the downloaded file is stored.
+    /// - Returns: `true` if the file can be saved without downloading it again.
+    ///
+    private func canSaveDownloadedFile(at temporaryUrl: URL) -> Bool {
+        switch state.content {
+        case .animatedImage, .image:
+            true
+        case .fileError, .fileTooLarge, .unsupportedFileType:
+            FileManager.default.fileExists(atPath: temporaryUrl.path)
+        }
+    }
 
     /// Downloads the attachment, after confirming with the user if it's large, and then presents
     /// the save file picker. This is used for files that can't be previewed, which aren't
@@ -89,7 +106,7 @@ class AttachmentPreviewProcessor: StateProcessor<
     }
 
     /// Downloads the attachment and presents the save file picker. The downloaded url is stored in
-    /// the state so that the file isn't downloaded again if the user saves it more than once.
+    /// the state so that the file can be saved again without downloading it, while it still exists.
     ///
     private func downloadAttachment() async {
         defer { coordinator.hideLoadingOverlay() }
@@ -123,7 +140,7 @@ class AttachmentPreviewProcessor: StateProcessor<
         switch state.content {
         case let .animatedImage(imageData), let .image(imageData):
             data = imageData
-        case .fileError, .unsupportedFileType:
+        case .fileError, .fileTooLarge, .unsupportedFileType:
             return
         }
 

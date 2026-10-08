@@ -37,43 +37,26 @@ struct AttachmentPreviewHelperTests {
 
     // MARK: Tests
 
-    /// `showPreview(for:cipher:)` shows a confirmation alert before downloading a large attachment
-    /// and only downloads once the user confirms.
+    /// `showPreview(for:cipher:)` navigates to the preview screen with `.fileTooLarge` content for a
+    /// large image without downloading it or asking for confirmation. The file is only downloaded if
+    /// the user asks for it.
     @Test
-    func showPreview_largeFile_confirmation() async throws {
+    func showPreview_largeImage_fileTooLarge() async throws {
         let attachment = AttachmentView.fixture(fileName: "photo.png", size: "11000000", sizeName: "big")
         let cipher = CipherView.loginFixture()
 
         await subject.showPreview(for: attachment, cipher: cipher)
 
-        let alert = try #require(coordinator.alertShown.last)
-        #expect(alert.title == Localizations.attachmentLargeWarning("big"))
+        #expect(coordinator.alertShown.isEmpty)
         #expect(vaultRepository.downloadAttachmentAttachment == nil)
-
-        vaultRepository.downloadAttachmentResult = try .success(writeTemporaryImage())
-        try await alert.tapAction(title: Localizations.yes)
-
-        #expect(vaultRepository.downloadAttachmentAttachment == attachment)
-        guard case .attachmentPreview = coordinator.routes.last else {
+        guard case let .attachmentPreview(state) = coordinator.routes.last else {
             Issue.record("Expected a navigation to .attachmentPreview")
             return
         }
-    }
-
-    /// `showPreview(for:cipher:)` doesn't download a large attachment if the user cancels the
-    /// confirmation alert.
-    @Test
-    func showPreview_largeFile_cancel() async throws {
-        let attachment = AttachmentView.fixture(fileName: "photo.png", size: "11000000", sizeName: "big")
-        let cipher = CipherView.loginFixture()
-
-        await subject.showPreview(for: attachment, cipher: cipher)
-
-        let alert = try #require(coordinator.alertShown.last)
-        try await alert.tapAction(title: Localizations.no)
-
-        #expect(vaultRepository.downloadAttachmentAttachment == nil)
-        #expect(coordinator.routes.isEmpty)
+        #expect(state.attachment == attachment)
+        #expect(state.cipher == cipher)
+        #expect(state.content == .fileTooLarge)
+        #expect(state.temporaryUrl == nil)
     }
 
     /// `showPreview(for:cipher:)` skips the confirmation alert for small attachments.
