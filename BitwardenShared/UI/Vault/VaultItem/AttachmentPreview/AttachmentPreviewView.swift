@@ -64,7 +64,7 @@ struct AttachmentPreviewView: View {
             )
         case .unsupportedFileType:
             emptyStateView(message: Localizations.previewUnavailableDescriptionLong)
-        case .fileError:
+        case .fileError, .fileTooLarge:
             emptyStateView(message: Localizations.previewUnavailableDescriptionLong)
         }
     }
