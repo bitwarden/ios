@@ -1,7 +1,7 @@
 {
   "images" : [
     {
-      "filename" : "Content=File not found, mode=light.pdf",
+      "filename" : "preview-unavailable.pdf",
       "idiom" : "universal"
     },
     {
@@ -11,7 +11,7 @@
           "value" : "dark"
         }
       ],
-      "filename" : "Content=File not found, mode=dark 1.pdf",
+      "filename" : "preview-unavailable-dark.pdf",
       "idiom" : "universal"
     }
   ],

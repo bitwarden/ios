@@ -56,6 +56,19 @@ class DefaultAttachmentPreviewHelper: AttachmentPreviewHelper {
         for attachment: AttachmentView,
         cipher: CipherView,
     ) async {
+        // Files that can't be previewed aren't downloaded here. The preview screen shows its
+        // unsupported state right away, and the file is only downloaded if the user taps Download.
+        guard attachment.isImage else {
+            coordinator.navigate(to: .attachmentPreview(AttachmentPreviewState(
+                attachment: attachment,
+                cipher: cipher,
+                content: .unsupportedFileType(fileExtension: attachment.fileExtension ?? ""),
+                fileName: attachment.fileName ?? "",
+                temporaryUrl: nil,
+            )))
+            return
+        }
+
         if let sizeName = attachment.sizeName,
            let size = Int(attachment.size ?? ""),
            size >= Constants.largeFileSize {
@@ -69,23 +82,16 @@ class DefaultAttachmentPreviewHelper: AttachmentPreviewHelper {
 
     // MARK: Private Methods
 
-    /// Classifies the downloaded file's content for display in the preview screen. Reading and
+    /// Classifies the downloaded image's content for display in the preview screen. Reading and
     /// decoding the file is done off the main actor since attachments can be large.
     ///
-    /// - Parameter attachment: The attachment that was downloaded.
+    /// - Parameter attachment: The image attachment that was downloaded.
     /// - Parameter temporaryUrl: The url where the downloaded file is stored.
     /// - Returns: The content to show in the preview screen.
     private func classify(_ attachment: AttachmentView, temporaryUrl: URL) async -> AttachmentPreviewContent {
-        let fileExtension = attachment.fileExtension ?? ""
         let isGif = attachment.isGif
-        let isImage = attachment.isImage
         return await Task.detached {
-            classifyDownloadedFile(
-                fileExtension: fileExtension,
-                isGif: isGif,
-                isImage: isImage,
-                temporaryUrl: temporaryUrl,
-            )
+            classifyDownloadedFile(isGif: isGif, temporaryUrl: temporaryUrl)
         }.value
     }
 
@@ -134,6 +140,7 @@ class DefaultAttachmentPreviewHelper: AttachmentPreviewHelper {
             coordinator.hideLoadingOverlay()
             coordinator.navigate(to: .attachmentPreview(AttachmentPreviewState(
                 attachment: attachment,
+                cipher: cipher,
                 content: content,
                 fileName: attachment.fileName ?? "",
                 temporaryUrl: temporaryUrl,
@@ -147,24 +154,17 @@ class DefaultAttachmentPreviewHelper: AttachmentPreviewHelper {
 
 // MARK: - Private
 
-/// Classifies a downloaded file's content for display in the preview screen. This reads and decodes
+/// Classifies a downloaded image's content for display in the preview screen. This reads and decodes
 /// the file synchronously, so it should be called off the main actor.
 ///
 /// - Parameters:
-///   - fileExtension: The attachment's file extension.
 ///   - isGif: Whether the attachment has a GIF file extension.
-///   - isImage: Whether the attachment has an image file extension.
 ///   - temporaryUrl: The url where the downloaded file is stored.
 /// - Returns: The content to show in the preview screen.
 private nonisolated func classifyDownloadedFile(
-    fileExtension: String,
     isGif: Bool,
-    isImage: Bool,
     temporaryUrl: URL,
 ) -> AttachmentPreviewContent {
-    guard isImage else {
-        return .unsupportedFileType(fileExtension: fileExtension)
-    }
     guard let data = try? Data(contentsOf: temporaryUrl), UIImage(data: data) != nil else {
         return .fileError
     }
