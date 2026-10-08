@@ -241,15 +241,31 @@ class VaultItemCoordinator: NSObject, Coordinator, HasStackNavigator { // swiftl
 
     /// Shows the attachment preview screen.
     ///
+    /// If another view is already presented, such as the attachments screen, the preview is shown
+    /// from a child coordinator. Dismissing a view presented on top of another view also dismisses
+    /// the view beneath it, so this keeps closing the preview from closing the attachments screen.
+    /// A child coordinator's navigator is empty, so the preview becomes its root view.
+    ///
     /// - Parameter state: The initial state of the attachment preview screen.
     ///
     private func showAttachmentPreview(state: AttachmentPreviewState) {
+        guard let stackNavigator else { return }
+        if !stackNavigator.isEmpty, stackNavigator.isPresenting {
+            presentChildVaultItemCoordinator(route: .attachmentPreview(state), context: nil)
+            return
+        }
+
         let processor = AttachmentPreviewProcessor(
             coordinator: asAnyCoordinator(),
             services: services,
             state: state,
         )
-        stackNavigator?.present(AttachmentPreviewView(store: Store(processor: processor)))
+        let view = AttachmentPreviewView(store: Store(processor: processor))
+        if stackNavigator.isEmpty {
+            stackNavigator.replace(view)
+        } else {
+            stackNavigator.present(view)
+        }
     }
 
     /// Shows the attachments screen.
