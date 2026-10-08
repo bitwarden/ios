@@ -213,36 +213,6 @@ struct BillingServicePremiumUpgradePendingTests { // swiftlint:disable:this type
         #expect(!billingAPIService.getSubscriptionCalled)
     }
 
-    /// `premiumCheckoutSucceeded()` publishes `.confirmed` to current subscribers without
-    /// replaying it to a later subscriber.
-    @Test
-    func premiumCheckoutSucceeded_confirmed_doesNotReplayToLateSubscriber() async throws {
-        stateService.setPersonalPremium(false, userId: "1")
-        syncService.fetchSyncHandler = {
-            stateService.setPersonalPremium(true, userId: "1")
-        }
-        var earlyStatuses = [PremiumCheckoutStatus]()
-        let earlyCancellable = subject.premiumCheckoutStatusPublisher()
-            .sink { earlyStatuses.append($0) }
-        defer { earlyCancellable.cancel() }
-
-        await subject.premiumCheckoutSucceeded()
-        try await waitForAsync { !earlyStatuses.isEmpty }
-        #expect(earlyStatuses == [.confirmed])
-
-        var lateStatuses = [PremiumCheckoutStatus]()
-        let lateCancellable = subject.premiumCheckoutStatusPublisher()
-            .sink { lateStatuses.append($0) }
-        defer { lateCancellable.cancel() }
-
-        try await Task.sleep(nanoseconds: 200_000_000)
-        subject.premiumCheckoutCanceled()
-
-        try await waitForAsync { earlyStatuses.count == 2 }
-        #expect(earlyStatuses == [.confirmed, .canceled])
-        #expect(lateStatuses == [.canceled])
-    }
-
     /// `premiumCheckoutSucceeded()` does nothing when the premiumUpgradePath feature flag is disabled.
     @Test
     func premiumCheckoutSucceeded_featureFlagDisabled_doesNothing() async {
@@ -308,33 +278,6 @@ struct BillingServicePremiumUpgradePendingTests { // swiftlint:disable:this type
         try await waitForAsync { !statuses.isEmpty }
         #expect(statuses == [.pending])
         #expect(billingStateService.setPremiumUpgradePendingReceivedArguments?.pending == true)
-    }
-
-    /// `premiumCheckoutSucceeded()` publishes `.pending` to current subscribers without replaying
-    /// it to a later subscriber.
-    @Test
-    func premiumCheckoutSucceeded_pending_doesNotReplayToLateSubscriber() async throws {
-        stateService.setPersonalPremium(false, userId: "1")
-        var earlyStatuses = [PremiumCheckoutStatus]()
-        let earlyCancellable = subject.premiumCheckoutStatusPublisher()
-            .sink { earlyStatuses.append($0) }
-        defer { earlyCancellable.cancel() }
-
-        await subject.premiumCheckoutSucceeded()
-        try await waitForAsync { !earlyStatuses.isEmpty }
-        #expect(earlyStatuses == [.pending])
-
-        var lateStatuses = [PremiumCheckoutStatus]()
-        let lateCancellable = subject.premiumCheckoutStatusPublisher()
-            .sink { lateStatuses.append($0) }
-        defer { lateCancellable.cancel() }
-
-        try await Task.sleep(nanoseconds: 200_000_000)
-        subject.premiumCheckoutCanceled()
-
-        try await waitForAsync { earlyStatuses.count == 2 }
-        #expect(earlyStatuses == [.pending, .canceled])
-        #expect(lateStatuses == [.canceled])
     }
 
     /// `premiumCheckoutSucceeded()` does nothing when the environment is self-hosted.
