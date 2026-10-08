@@ -62,7 +62,10 @@ struct ViewLoginItemView: View {
                 .accessibilityIdentifier("LoginPasswordEntry")
         } accessoryContent: {
             if store.state.canViewPassword {
-                PasswordVisibilityButton(isPasswordVisible: store.state.isPasswordVisible) {
+                PasswordVisibilityButton(
+                    accessibilityIdentifier: "ShowLoginPasswordButton",
+                    isPasswordVisible: store.state.isPasswordVisible,
+                ) {
                     store.send(.passwordVisibilityPressed)
                 }
 
