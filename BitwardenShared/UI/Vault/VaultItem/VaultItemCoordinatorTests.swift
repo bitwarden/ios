@@ -259,6 +259,7 @@ class VaultItemCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this t
     func test_navigateTo_attachmentPreview() throws {
         let state = AttachmentPreviewState(
             attachment: .fixture(fileName: "photo.png"),
+            cipher: .fixture(),
             content: .fileError,
             fileName: "photo.png",
             temporaryUrl: URL(fileURLWithPath: "/tmp/photo.png"),

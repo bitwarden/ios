@@ -28,16 +28,21 @@ struct AttachmentPreviewState: Equatable, Hashable, Sendable {
     /// The attachment being previewed.
     let attachment: AttachmentView
 
+    /// The cipher that owns the attachment, used to download the attachment when the user chooses
+    /// to download a file that can't be previewed.
+    let cipher: CipherView
+
     /// The content to display for the attachment.
     var content: AttachmentPreviewContent
 
     /// The attachment's file name.
     let fileName: String
 
-    /// The url where the decrypted attachment is temporarily stored. For image content, the file
-    /// is deleted once the image is loaded into memory and is only written back to this url when
-    /// the user downloads the attachment.
-    let temporaryUrl: URL
+    /// The url where the decrypted attachment is temporarily stored, or `nil` if a file that can't
+    /// be previewed hasn't been downloaded yet. For image content, the file is deleted once the
+    /// image is loaded into memory and is only written back to this url when the user downloads
+    /// the attachment.
+    var temporaryUrl: URL?
 
     // MARK: Computed Properties
 

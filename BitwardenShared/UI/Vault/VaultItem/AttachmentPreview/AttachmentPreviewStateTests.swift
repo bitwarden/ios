@@ -14,6 +14,7 @@ struct AttachmentPreviewStateTests {
     func truncatedFileName_shortName() {
         let subject = AttachmentPreviewState(
             attachment: .fixture(fileName: "photo.png"),
+            cipher: .fixture(),
             content: .fileError,
             fileName: "photo.png",
             temporaryUrl: URL(fileURLWithPath: "/tmp/photo.png"),
@@ -27,6 +28,7 @@ struct AttachmentPreviewStateTests {
         let name = String(repeating: "a", count: 50) + ".pdf"
         let subject = AttachmentPreviewState(
             attachment: .fixture(fileName: name),
+            cipher: .fixture(),
             content: .fileError,
             fileName: name,
             temporaryUrl: URL(fileURLWithPath: "/tmp/\(name)"),
@@ -43,6 +45,7 @@ struct AttachmentPreviewStateTests {
         let name = String(repeating: "b", count: 50)
         let subject = AttachmentPreviewState(
             attachment: .fixture(fileName: name),
+            cipher: .fixture(),
             content: .fileError,
             fileName: name,
             temporaryUrl: URL(fileURLWithPath: "/tmp/\(name)"),
