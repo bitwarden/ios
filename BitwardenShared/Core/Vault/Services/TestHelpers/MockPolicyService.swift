@@ -33,7 +33,7 @@ class MockPolicyService: PolicyService {
 
     var policyAppliesToUserResult = [BitwardenShared.PolicyType: Bool]()
     var policyAppliesToUserPoliciesType = [BitwardenShared.PolicyType]()
-    var policyAppliesToUserPolicies = [Policy]()
+    var policyAppliesToUserPolicies = [BitwardenShared.Policy]()
     var getRestrictedItemCipherTypesResult: [BitwardenShared.CipherType] = []
 
     var replacePoliciesPolicies = [PolicyResponseModel]()

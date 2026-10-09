@@ -454,6 +454,7 @@ class CipherViewTests: BitwardenTestCase {
                 deletedDate: nil,
                 revisionDate: timeProvider.presentTime,
                 archivedDate: nil,
+                partial: false,
             ),
         )
     }
@@ -509,6 +510,7 @@ class CipherViewTests: BitwardenTestCase {
                 deletedDate: nil,
                 revisionDate: timeProvider.presentTime,
                 archivedDate: nil,
+                partial: false,
             ),
         )
     }
