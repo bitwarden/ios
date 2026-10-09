@@ -233,6 +233,10 @@ struct SettingsView: View {
             .padding(.horizontal, 16)
             .padding(.vertical, 12)
         }
+        .accessibilityLinks(
+            in: Localizations.learnMoreLink(ExternalLinksConstants.totpSyncHelp),
+            isDefaultActionEnabled: false,
+        )
         .background(Asset.Colors.backgroundPrimary.swiftUIColor)
     }
 

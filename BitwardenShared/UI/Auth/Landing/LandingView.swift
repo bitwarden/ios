@@ -166,6 +166,9 @@ struct LandingView: View {
             .buttonStyle(.bitwardenBorderless)
             .frame(maxWidth: .infinity, alignment: .center)
         }
+        // Without an explicit container, a disabled Continue button prevents Full Keyboard Access
+        // from navigating to the buttons below it.
+        .accessibilityElement(children: .contain)
     }
 }
 
