@@ -6,6 +6,9 @@ import BitwardenKit
 /// Actions that can be processed by an `AttachmentsProcessor`.
 ///
 enum AttachmentsAction: Equatable, Sendable {
+    /// An attachment row was tapped to preview it.
+    case attachmentTapped(AttachmentView)
+
     /// The choose file button was pressed.
     case chooseFilePressed
 
