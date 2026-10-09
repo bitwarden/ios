@@ -4,7 +4,7 @@ import Foundation
 
 // MARK: - DefaultFido2CredentialStore
 
-/// A `Fido2CredentialStore` for the SDK-backed passkey scenarios, backed by an injected
+/// A `Fido2CredentialStore` for the passkey scenarios, backed by an injected
 /// `CipherStorageService` so credentials survive app relaunches as long as the same synthetic
 /// identity — and therefore the same crypto keys — is reconstructed alongside it.
 ///
