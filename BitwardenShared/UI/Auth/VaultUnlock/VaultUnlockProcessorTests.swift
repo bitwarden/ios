@@ -109,6 +109,20 @@ class VaultUnlockProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
         )
     }
 
+    /// `perform(_:)` with `.appeared` focuses the master password or PIN field when biometric
+    /// unlock isn't available.
+    @MainActor
+    func test_perform_appeared_loadData_biometricsNotAvailable_focusesField() async {
+        stateService.activeAccount = .fixture()
+        biometricsRepository.getBiometricUnlockStatusReturnValue = .notAvailable
+        subject.shouldAttemptAutomaticBiometricUnlock = true
+
+        await subject.perform(.appeared)
+
+        XCTAssertFalse(authRepository.unlockVaultWithBiometricsCalled)
+        XCTAssertTrue(subject.state.shouldFocusPasswordOrPinField)
+    }
+
     /// `perform(_:)` with `.appeared` doesn't attempt to unlock the vault with biometrics if the
     /// app is in the background.
     @MainActor
@@ -122,6 +136,39 @@ class VaultUnlockProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
 
         XCTAssertFalse(authRepository.unlockVaultWithBiometricsCalled)
         XCTAssertTrue(coordinator.events.isEmpty)
+        XCTAssertTrue(subject.state.shouldFocusPasswordOrPinField)
+    }
+
+    /// `perform(_:)` with `.appeared` focuses the master password or PIN field when the automatic
+    /// biometric unlock attempt is cancelled.
+    @MainActor
+    func test_perform_appeared_loadData_unlockWithBiometrics_cancelled_focusesField() async throws {
+        stateService.activeAccount = .fixture()
+        biometricsRepository.getBiometricUnlockStatusReturnValue = .available(.faceID, enabled: true)
+        authRepository.unlockVaultWithBiometricsResult = .failure(BiometricsServiceError.biometryCancelled)
+        subject.shouldAttemptAutomaticBiometricUnlock = true
+
+        await subject.perform(.appeared)
+
+        XCTAssertTrue(authRepository.unlockVaultWithBiometricsCalled)
+        XCTAssertTrue(coordinator.events.isEmpty)
+        XCTAssertTrue(subject.state.shouldFocusPasswordOrPinField)
+    }
+
+    /// `perform(_:)` with `.appeared` doesn't focus the master password or PIN field when biometric
+    /// unlock is attempted automatically and succeeds.
+    @MainActor
+    func test_perform_appeared_loadData_unlockWithBiometrics_success_doesNotFocusField() async throws {
+        stateService.activeAccount = .fixture()
+        biometricsRepository.getBiometricUnlockStatusReturnValue = .available(.faceID, enabled: true)
+        authRepository.unlockVaultWithBiometricsResult = .success(())
+        subject.shouldAttemptAutomaticBiometricUnlock = true
+
+        await subject.perform(.appeared)
+
+        XCTAssertTrue(authRepository.unlockVaultWithBiometricsCalled)
+        XCTAssertEqual(coordinator.events.last, .didCompleteAuth)
+        XCTAssertFalse(subject.state.shouldFocusPasswordOrPinField)
     }
 
     /// `perform(.appeared)` with no master password but with a biometrics status enabled,
@@ -679,6 +726,7 @@ class VaultUnlockProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
         XCTAssertNil(coordinator.routes.last)
         XCTAssertEqual(subject.state.unsuccessfulUnlockAttemptsCount, 1)
         XCTAssertEqual(userSessionStateService.setUnsuccessfulUnlockAttemptsReceivedArguments?.attempts, 1)
+        XCTAssertTrue(subject.state.shouldFocusPasswordOrPinField)
 
         XCTAssertEqual(errorReporter.errors.count, 1)
         XCTAssertEqual(
@@ -794,12 +842,14 @@ class VaultUnlockProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
         await subject.perform(.unlockVaultWithBiometrics)
         XCTAssertNil(authRepository.allowBiometricUnlock)
         XCTAssertNil(coordinator.routes.last)
+        XCTAssertTrue(subject.state.shouldFocusPasswordOrPinField)
     }
 
     /// `perform(_:)` with `.unlockWithBiometrics` requires successful biometrics.
     @MainActor
     func test_perform_unlockWithBiometrics_success() async throws {
         subject.state.unsuccessfulUnlockAttemptsCount = 3
+        subject.state.shouldFocusPasswordOrPinField = true
         biometricsRepository.getBiometricUnlockStatusReturnValue = .available(.faceID, enabled: true)
         authRepository.unlockVaultWithBiometricsResult = .success(())
 
@@ -807,6 +857,7 @@ class VaultUnlockProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
         let event = try XCTUnwrap(coordinator.events.last)
         XCTAssertEqual(event, .didCompleteAuth)
         XCTAssertEqual(0, subject.state.unsuccessfulUnlockAttemptsCount)
+        XCTAssertFalse(subject.state.shouldFocusPasswordOrPinField)
     }
 
     /// `receive(_:)` with `.logOut` shows a logout confirmation alert and allows the user to logout.
