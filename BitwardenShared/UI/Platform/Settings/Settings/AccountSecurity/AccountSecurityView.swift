@@ -6,7 +6,7 @@ import SwiftUI
 
 /// A view that allows the user to update their account security settings.
 ///
-struct AccountSecurityView: View {
+struct AccountSecurityView: View { // swiftlint:disable:this type_body_length
     // MARK: Properties
 
     /// An action that opens URLs.
@@ -195,6 +195,34 @@ struct AccountSecurityView: View {
                     ),
                 )
                 .disabled(store.state.isSessionTimeoutActionDisabled)
+            }
+            if store.state.isSessionKeySharingFeatureEnabled {
+                ContentBlock(dividerLeadingPadding: 16) {
+                    BitwardenToggle(
+                        Localizations.keepVaultUnlockedUntilTimeout,
+                        isOn: store.bindingAsync(
+                            get: \.isSessionKeySharingEnabled,
+                            perform: AccountSecurityEffect.toggleSessionKeySharing,
+                        ),
+                        accessibilityIdentifier: "KeepVaultUnlockedUntilTimeoutSwitch",
+                    ) {
+                        VStack(alignment: .leading, spacing: 0) {
+                            Text(Localizations.keepVaultUnlockedUntilTimeoutDescriptionLong)
+                                .styleGuide(.subheadline)
+                                .foregroundColor(Color(asset: SharedAsset.Colors.textSecondary))
+                                .padding(.top, 12)
+
+                            Button {
+                                openURL(ExternalLinksConstants.keepVaultUnlockedUntilTimeoutHelp)
+                            } label: {
+                                Text(Localizations.learnMore)
+                                    .styleGuide(.subheadline, weight: .bold)
+                                    .foregroundColor(Color(asset: SharedAsset.Colors.textInteraction))
+                            }
+                            .padding(.bottom, 12)
+                        }
+                    }
+                }
             }
         }
     }
