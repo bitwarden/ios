@@ -77,6 +77,9 @@ public enum VaultRoute: Equatable, Hashable {
     /// A route to the Premium upgrade view.
     case premiumUpgrade
 
+    /// A route to the Premium upgrade complete screen.
+    case premiumUpgradeComplete
+
     /// A route to switch accounts.
     ///
     /// - Parameter userId: The user id of the selected account.

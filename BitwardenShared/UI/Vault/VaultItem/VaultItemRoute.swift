@@ -88,6 +88,9 @@ enum VaultItemRoute: Equatable, Hashable {
     /// A route to the Premium upgrade screen.
     case premiumUpgrade
 
+    /// A route to the Premium upgrade complete screen.
+    case premiumUpgradeComplete
+
     /// A route to the file saving view.
     ///
     /// - Parameter temporaryUrl: The url where the file is currently stored.
