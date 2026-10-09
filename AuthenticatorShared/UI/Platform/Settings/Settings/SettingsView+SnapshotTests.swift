@@ -38,6 +38,16 @@ class SettingsViewTests: BitwardenTestCase {
 
     // MARK: Tests
 
+    /// Tests the view with Universal Clipboard enabled.
+    @MainActor
+    func disabletest_snapshot_allowUniversalClipboard() {
+        processor.state.allowUniversalClipboard = true
+        assertSnapshots(
+            of: subject,
+            as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5],
+        )
+    }
+
     /// Tests the view renders correctly.
     func disabletest_snapshot_viewRender() {
         assertSnapshots(

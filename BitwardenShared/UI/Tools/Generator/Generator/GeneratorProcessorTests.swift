@@ -485,7 +485,7 @@ class GeneratorProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         subject.receive(.copyGeneratedValue)
         waitFor { !reviewPromptService.userActions.isEmpty }
 
-        XCTAssertEqual(pasteboardService.copiedString, "PASSWORD")
+        XCTAssertEqual(pasteboardService.copyReceivedString, "PASSWORD")
         XCTAssertEqual(subject.state.toast, Toast(title: Localizations.valueHasBeenCopied(Localizations.password)))
         XCTAssertEqual(reviewPromptService.userActions, [.copiedOrInsertedGeneratedValue])
     }
@@ -500,7 +500,7 @@ class GeneratorProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         subject.receive(.copyGeneratedValue)
         waitFor { !reviewPromptService.userActions.isEmpty }
 
-        XCTAssertEqual(pasteboardService.copiedString, "PASSPHRASE")
+        XCTAssertEqual(pasteboardService.copyReceivedString, "PASSPHRASE")
         XCTAssertEqual(subject.state.toast, Toast(title: Localizations.valueHasBeenCopied(Localizations.passphrase)))
         XCTAssertEqual(reviewPromptService.userActions, [.copiedOrInsertedGeneratedValue])
     }
@@ -515,7 +515,7 @@ class GeneratorProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         subject.receive(.copyGeneratedValue)
         waitFor { !reviewPromptService.userActions.isEmpty }
 
-        XCTAssertEqual(pasteboardService.copiedString, "USERNAME")
+        XCTAssertEqual(pasteboardService.copyReceivedString, "USERNAME")
         XCTAssertEqual(subject.state.toast, Toast(title: Localizations.valueHasBeenCopied(Localizations.username)))
         XCTAssertEqual(reviewPromptService.userActions, [.copiedOrInsertedGeneratedValue])
     }

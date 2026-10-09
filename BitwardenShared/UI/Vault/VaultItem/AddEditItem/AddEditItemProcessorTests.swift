@@ -946,7 +946,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
         await subject.perform(.copyTotpPressed)
         XCTAssertEqual(
             subject.state.loginState.authenticatorKey,
-            pasteboardService.copiedString,
+            pasteboardService.copyReceivedString,
         )
     }
 

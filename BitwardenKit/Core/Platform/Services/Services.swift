@@ -49,6 +49,13 @@ public protocol HasLanguageStateService {
     var languageStateService: LanguageStateService { get }
 }
 
+/// Protocol for an object that provides a `PasteboardService`.
+///
+public protocol HasPasteboardService {
+    /// The service used by the application for sharing data with other apps.
+    var pasteboardService: PasteboardService { get }
+}
+
 /// Protocol for an object that provides a `ServerCommunicationConfigClientSingleton`.
 ///
 public protocol HasServerCommunicationConfigClientSingleton {

@@ -39,6 +39,9 @@ enum SettingsAction: Equatable {
     /// The toast was shown or hidden.
     case toastShown(Toast?)
 
+    /// The Universal Clipboard preference was changed.
+    case toggleAllowUniversalClipboard(Bool)
+
     /// The tutorial button was tapped
     case tutorialTapped
 }

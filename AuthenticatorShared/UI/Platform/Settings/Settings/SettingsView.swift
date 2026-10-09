@@ -130,6 +130,20 @@ struct SettingsView: View {
                 )
                 .accessibilityIdentifier("ShowNextCodeSwitch")
                 .accessibilityLabel(Localizations.showNextCode)
+
+                BitwardenToggle(
+                    Localizations.allowUniversalClipboard,
+                    isOn: store.binding(
+                        get: \.allowUniversalClipboard,
+                        send: SettingsAction.toggleAllowUniversalClipboard,
+                    ),
+                    accessibilityIdentifier: "UniversalClipboardChooser",
+                ) {
+                    Text(Localizations.useUniversalClipboardToCopyDescriptionLong)
+                        .styleGuide(.footnote, includeLinePadding: false, includeLineSpacing: false)
+                        .foregroundColor(Color(asset: SharedAsset.Colors.textSecondary))
+                        .padding(.vertical, 12)
+                }
             }
         }
     }
