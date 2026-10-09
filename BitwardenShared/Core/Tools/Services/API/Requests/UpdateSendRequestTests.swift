@@ -19,17 +19,21 @@ class UpdateSendRequestTests: BitwardenTestCase {
         XCTAssertEqual(subject.sendId, "ID")
     }
 
-    /// `init(send:)` includes the send's item data in the request body.
+    /// `init(send:)` includes the send's sealed item data and metadata in the request body.
     func test_init_send_data() throws {
-        let send = Send.fixture(data: SendItem(encryptionVersion: .v1, data: .fixture(id: "CIPHER_ID")))
+        let send = Send.fixture(data: SendItem(
+            encryptionVersion: .v1,
+            data: "SEALED",
+            metadata: SendItemMetadata(itemId: "CIPHER_ID"),
+        ))
         let subject = try UpdateSendRequest(send: send)
 
         let body = try XCTUnwrap(subject.body?.encode())
         let json = try XCTUnwrap(JSONSerialization.jsonObject(with: body) as? [String: Any])
         let data = try XCTUnwrap(json["data"] as? [String: Any])
-        let cipherJSON = try XCTUnwrap((data["data"] as? String)?.data(using: .utf8))
-        let cipher = try CipherDetailsResponseModel.decoder.decode(CipherDetailsResponseModel.self, from: cipherJSON)
-        XCTAssertEqual(cipher.id, "CIPHER_ID")
+        XCTAssertEqual(data["data"] as? String, "SEALED")
+        let metadata = try XCTUnwrap(data["metadata"] as? [String: Any])
+        XCTAssertEqual(metadata["itemId"] as? String, "CIPHER_ID")
     }
 
     /// `init(send:)` without a send id throws an error.

@@ -18,7 +18,7 @@ public protocol ClientFido2Service: AnyObject { // sourcery: AutoMockable
     /// Decrypts the `CipherView` Fido2 credentials but returning an array of `Fido2CredentialAutofillView`
     /// - Parameter cipherView: `CipherView` containing the Fido2 credentials to decrypt.
     /// - Returns: An array of decrypted Fido2 credentials of type `Fido2CredentialAutofillView`.
-    func decryptFido2AutofillCredentials(cipherView: CipherView) throws -> [Fido2CredentialAutofillView]
+    func getFido2AutofillCredentials(cipherView: CipherView) throws -> [Fido2CredentialAutofillView]
 
     /// Returns the `ClientFido2Authenticator` to perform Fido2 authenticator tasks.
     /// - Parameters:

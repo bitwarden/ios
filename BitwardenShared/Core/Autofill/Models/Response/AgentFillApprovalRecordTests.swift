@@ -2,6 +2,7 @@ import Foundation
 import Testing
 
 @testable import BitwardenShared
+@testable import BitwardenSharedMocks
 
 // MARK: - AgentFillApprovalRecordTests
 

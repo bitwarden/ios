@@ -11,24 +11,31 @@ import Testing
 // MARK: - BitwardenSdkToolsTests
 
 struct BitwardenSdkToolsTests {
+    // MARK: Properties
+
+    /// The item send used in the tests.
+    private var sendItem: SendItem {
+        SendItem(encryptionVersion: .v1, data: "SEALED", metadata: SendItemMetadata(itemId: "CIPHER_ID"))
+    }
+
     // MARK: Tests
 
     /// `Send(sendResponseModel:)` maps the response's item data into the SDK send.
     @Test
     func send_init_sendResponseModel_data() throws {
-        let model = try SendResponseModel.fixture(data: SendDataModel(data: cipherJSON(), encryptionVersion: 1))
+        let model = SendResponseModel.fixture(data: sendDataModel(encryptionVersion: 1))
 
         let send = try Send(sendResponseModel: model)
 
-        #expect(send.data == SendItem(encryptionVersion: .v1, data: Cipher.fixture(id: "CIPHER_ID")))
+        #expect(send.data == sendItem)
     }
 
-    /// `Send(sendResponseModel:)` throws if the item data can't be decoded.
+    /// `Send(sendResponseModel:)` throws if the item data has no metadata.
     @Test
-    func send_init_sendResponseModel_invalidData() {
-        let model = SendResponseModel.fixture(data: SendDataModel(data: "not valid json", encryptionVersion: 1))
+    func send_init_sendResponseModel_missingMetadata() {
+        let model = SendResponseModel.fixture(data: SendDataModel(data: "SEALED", encryptionVersion: 1))
 
-        #expect(throws: (any Error).self) {
+        #expect(throws: DataMappingError.invalidData) {
             try Send(sendResponseModel: model)
         }
     }
@@ -45,70 +52,73 @@ struct BitwardenSdkToolsTests {
 
     /// `Send(sendResponseModel:)` throws if the item data has an unknown encryption version.
     @Test
-    func send_init_sendResponseModel_unknownEncryptionVersion() throws {
-        let model = try SendResponseModel.fixture(data: SendDataModel(data: cipherJSON(), encryptionVersion: 2))
+    func send_init_sendResponseModel_unknownEncryptionVersion() {
+        let model = SendResponseModel.fixture(data: sendDataModel(encryptionVersion: 2))
 
         #expect(throws: DataMappingError.invalidData) {
             try Send(sendResponseModel: model)
         }
     }
 
-    /// `SendDataModel(sendItem:)` encodes the item's cipher and encryption version.
+    /// `SendDataModel(sendItem:)` keeps the sealed blob, the encryption version and the item ID.
     @Test
-    func sendDataModel_init_sendItem() throws {
-        let sendItem = SendItem(encryptionVersion: .v1, data: Cipher.fixture(id: "CIPHER_ID"))
+    func sendDataModel_init_sendItem() {
+        let model = SendDataModel(sendItem: sendItem)
 
-        let model = try SendDataModel(sendItem: sendItem)
-
-        #expect(model.data != nil)
-        #expect(model.encryptionVersion == 1)
+        #expect(model == sendDataModel(encryptionVersion: 1))
     }
 
     /// `SendItem(sendDataModel:)` defaults to v1 if the encryption version is missing.
     @Test
     func sendItem_init_sendDataModel_missingEncryptionVersion() throws {
-        let model = try SendDataModel(data: cipherJSON(), encryptionVersion: nil)
+        let sendItem = try SendItem(sendDataModel: sendDataModel(encryptionVersion: nil))
 
-        let sendItem = try SendItem(sendDataModel: model)
-
-        #expect(sendItem == SendItem(encryptionVersion: .v1, data: Cipher.fixture(id: "CIPHER_ID")))
+        #expect(sendItem == self.sendItem)
     }
 
     /// `SendItem(sendDataModel:)` throws if the encryption version is outside the SDK's raw value range.
     @Test(arguments: [-1, 300])
-    func sendItem_init_sendDataModel_outOfRangeEncryptionVersion(encryptionVersion: Int) throws {
-        let model = try SendDataModel(data: cipherJSON(), encryptionVersion: encryptionVersion)
-
+    func sendItem_init_sendDataModel_outOfRangeEncryptionVersion(encryptionVersion: Int) {
         #expect(throws: DataMappingError.invalidData) {
-            try SendItem(sendDataModel: model)
+            try SendItem(sendDataModel: sendDataModel(encryptionVersion: encryptionVersion))
         }
     }
 
     /// `SendItem(sendDataModel:)` throws if the encryption version is unknown.
     @Test
-    func sendItem_init_sendDataModel_unknownEncryptionVersion() throws {
-        let model = try SendDataModel(data: cipherJSON(), encryptionVersion: 2)
+    func sendItem_init_sendDataModel_unknownEncryptionVersion() {
+        #expect(throws: DataMappingError.invalidData) {
+            try SendItem(sendDataModel: sendDataModel(encryptionVersion: 2))
+        }
+    }
+
+    /// `SendItem(sendDataModel:)` throws if the sealed data is missing.
+    @Test
+    func sendItem_init_sendDataModel_missingData() {
+        let model = SendDataModel(
+            data: nil,
+            encryptionVersion: 1,
+            metadata: SendItemMetadataModel(itemId: "CIPHER_ID"),
+        )
 
         #expect(throws: DataMappingError.invalidData) {
             try SendItem(sendDataModel: model)
         }
     }
 
-    /// `SendItem(sendDataModel:)` maps a v1 encryption version and the item's cipher.
+    /// `SendItem(sendDataModel:)` maps a v1 encryption version, the sealed blob and the item ID.
     @Test
     func sendItem_init_sendDataModel_v1EncryptionVersion() throws {
-        let model = try SendDataModel(data: cipherJSON(), encryptionVersion: 1)
+        let sendItem = try SendItem(sendDataModel: sendDataModel(encryptionVersion: 1))
 
-        let sendItem = try SendItem(sendDataModel: model)
-
-        #expect(sendItem == SendItem(encryptionVersion: .v1, data: Cipher.fixture(id: "CIPHER_ID")))
+        #expect(sendItem == self.sendItem)
     }
 
     /// `SendResponseModel(send:)` and `Send(sendResponseModel:)` keep the send's item data
     /// through a round trip.
     @Test
     func sendResponseModel_roundTrip_data() throws {
-        let send = Send.fixture(data: SendItem(encryptionVersion: .v1, data: Cipher.fixture(id: "CIPHER_ID")))
+        let send = Send.fixture(data: sendItem)
 
         let model = try SendResponseModel(send: send)
         let encoded = try JSONEncoder.defaultEncoder.encode(model)
@@ -119,10 +129,15 @@ struct BitwardenSdkToolsTests {
 
     // MARK: Private
 
-    /// Returns a cipher fixture encoded as the JSON string the API stores in an item send.
-    private func cipherJSON() throws -> String? {
-        let cipherResponseModel = try CipherDetailsResponseModel(cipher: Cipher.fixture(id: "CIPHER_ID"))
-        let data = try JSONEncoder.defaultEncoder.encode(cipherResponseModel)
-        return String(data: data, encoding: .utf8)
+    /// Returns the API model of the item send used in the tests.
+    ///
+    /// - Parameter encryptionVersion: The encryption version of the model.
+    ///
+    private func sendDataModel(encryptionVersion: Int?) -> SendDataModel {
+        SendDataModel(
+            data: "SEALED",
+            encryptionVersion: encryptionVersion,
+            metadata: SendItemMetadataModel(itemId: "CIPHER_ID"),
+        )
     }
 }

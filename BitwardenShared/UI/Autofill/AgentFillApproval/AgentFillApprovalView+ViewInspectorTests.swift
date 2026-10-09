@@ -22,9 +22,9 @@ class AgentFillApprovalViewTests: BitwardenTestCase {
 
         processor = MockProcessor(state: AgentFillApprovalState(
             approvalId: "approval-1",
-            browserName: "Chrome",
             connectionName: "Claude Desktop",
             domain: "delta.com",
+            browserName: "Chrome",
             items: [
                 AgentFillApprovalItem(id: "cipher-1", name: "Delta", subtitle: "user@example.com"),
                 AgentFillApprovalItem(id: "cipher-2", name: "Delta work", subtitle: "work@example.com"),

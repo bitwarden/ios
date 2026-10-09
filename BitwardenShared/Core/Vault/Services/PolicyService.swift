@@ -252,7 +252,7 @@ actor DefaultPolicyService: PolicyService {
         }
 
         let policies = try await policiesNewForUser(userId: userId, filter: filter)
-        let sdkPolicies = policies.compactMap { BitwardenSdk.PolicyView($0) }
+        let sdkPolicies = policies.compactMap { BitwardenSdk.Policy($0) }
         guard !sdkPolicies.isEmpty else {
             return []
         }

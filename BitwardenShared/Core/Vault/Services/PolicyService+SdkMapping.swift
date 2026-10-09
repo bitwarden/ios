@@ -4,10 +4,10 @@ import BitwardenKit
 import BitwardenSdk
 import Foundation
 
-// MARK: - Policy ↔ SDK PolicyView
+// MARK: - Policy ↔ SDK Policy
 
-extension BitwardenSdk.PolicyView {
-    /// Converts an iOS `Policy` to a `BitwardenSdk.PolicyView`.
+extension BitwardenSdk.Policy {
+    /// Converts an iOS `Policy` to a `BitwardenSdk.Policy`.
     ///
     /// Returns `nil` when the iOS policy type has no SDK equivalent (e.g., `.unknown`).
     ///
@@ -30,9 +30,9 @@ extension BitwardenSdk.PolicyView {
 }
 
 extension Policy {
-    /// Converts a `BitwardenSdk.PolicyView` to an iOS `Policy`.
+    /// Converts a `BitwardenSdk.Policy` to an iOS `Policy`.
     ///
-    init(_ policyView: BitwardenSdk.PolicyView) {
+    init(_ policyView: BitwardenSdk.Policy) {
         let decodedData: [String: AnyCodable]? = policyView.data
             .flatMap { $0.data(using: .utf8) }
             .flatMap { try? JSONDecoder().decode([String: AnyCodable].self, from: $0) }

@@ -7,13 +7,12 @@ import Foundation
 // MARK: - Sends
 
 extension SendDataModel {
-    init(sendItem: SendItem) throws {
-        // The API stores the item's cipher as an opaque JSON string.
-        let cipher = try CipherDetailsResponseModel(cipher: sendItem.data)
-        let data = try JSONEncoder.defaultEncoder.encode(cipher)
+    init(sendItem: SendItem) {
+        // The sealed cipher blob is stored by the API as-is.
         self.init(
-            data: String(data: data, encoding: .utf8),
+            data: sendItem.data,
             encryptionVersion: Int(sendItem.encryptionVersion.rawValue),
+            metadata: SendItemMetadataModel(itemId: sendItem.metadata.itemId),
         )
     }
 }
@@ -132,7 +131,7 @@ extension BitwardenSdk.SendType {
 
 extension BitwardenSdk.SendItem {
     init(sendDataModel model: SendDataModel) throws {
-        guard let data = model.data?.data(using: .utf8) else {
+        guard let data = model.data, let itemId = model.metadata?.itemId else {
             throw DataMappingError.invalidData
         }
 
@@ -145,10 +144,10 @@ extension BitwardenSdk.SendItem {
             encryptionVersion = version
         }
 
-        let cipher = try CipherDetailsResponseModel.decoder.decode(CipherDetailsResponseModel.self, from: data)
         self.init(
             encryptionVersion: encryptionVersion,
-            data: Cipher(responseModel: cipher),
+            data: data,
+            metadata: SendItemMetadata(itemId: itemId),
         )
     }
 }

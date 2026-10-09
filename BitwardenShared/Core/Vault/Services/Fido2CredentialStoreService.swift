@@ -124,7 +124,7 @@ final class Fido2CredentialStoreService: Fido2CredentialStore {
 
             let fido2CredentialAutofillViews = try await clientService.platform()
                 .fido2()
-                .decryptFido2AutofillCredentials(cipherView: cipherView)
+                .getFido2AutofillCredentials(cipherView: cipherView)
 
             guard let fido2CredentialAutofillView = fido2CredentialAutofillViews[safeIndex: 0],
                   ripId == fido2CredentialAutofillView.rpId else {

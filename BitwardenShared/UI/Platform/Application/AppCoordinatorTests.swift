@@ -558,14 +558,12 @@ class AppCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         XCTAssertFalse(module.generatorCoordinator.isStarted)
     }
 
-    /// `navigate(to:)` with `.agentFillApproval(approvalId:)` shows the approval screen and clears the
-    /// saved auth completion route.
+    /// `navigate(to:)` with `.agentFillApproval(approvalId:)` shows the approval screen.
     @MainActor
-    func test_navigateTo_agentFillApproval() async {
+    func test_navigateTo_agentFillApproval() {
         // Set up.
         rootNavigator.rootViewController = MockUIViewController()
         subject.navigate(to: .tab(.vault(.list)))
-        await subject.handleEvent(.setAuthCompletionRoute(.agentFillApproval(approvalId: "approval-1")))
 
         // Test.
         let task = Task {
@@ -580,7 +578,6 @@ class AppCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         )
         XCTAssertTrue(module.agentFillApprovalCoordinator.isStarted)
         XCTAssertEqual(module.agentFillApprovalCoordinator.routes.last, .approval(id: "approval-1"))
-        XCTAssertNil(subject.authCompletionRoute)
     }
 
     /// `navigate(to:)` with `.agentFillApproval(approvalId:)` doesn't show the approval screen until the

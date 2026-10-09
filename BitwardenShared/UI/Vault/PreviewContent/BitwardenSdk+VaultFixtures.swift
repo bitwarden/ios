@@ -28,6 +28,7 @@ extension AttachmentView {
 extension Cipher {
     static func fixture(
         archivedDate: Date? = nil,
+        partialData: String? = nil,
         attachments: [Attachment]? = nil,
         bankAccount: BankAccount? = nil,
         card: Card? = nil,
@@ -91,6 +92,7 @@ extension Cipher {
             revisionDate: revisionDate,
             archivedDate: archivedDate,
             data: data,
+            partialData: partialData,
         )
     }
 }
@@ -101,7 +103,6 @@ extension CipherListView {
         organizationId: Uuid? = nil,
         folderId: Uuid? = nil,
         collectionIds: [Uuid] = [],
-        key: EncString? = nil,
         name: String = "Bitwarden",
         subtitle: String = "",
         type: CipherListViewType = .login(.fixture()),
@@ -119,13 +120,13 @@ extension CipherListView {
         archivedDate: DateTime? = nil,
         copyableFields: [CopyableCipherFields] = [],
         localData: LocalDataView? = nil,
+        partial: Bool = false,
     ) -> CipherListView {
         .init(
             id: id,
             organizationId: organizationId,
             folderId: folderId,
             collectionIds: collectionIds,
-            key: key,
             name: name,
             subtitle: subtitle,
             type: type,
@@ -143,6 +144,7 @@ extension CipherListView {
             archivedDate: archivedDate,
             copyableFields: copyableFields,
             localData: localData,
+            partial: partial,
         )
     }
 
@@ -151,7 +153,6 @@ extension CipherListView {
         organizationId: Uuid? = nil,
         folderId: Uuid? = nil,
         collectionIds: [Uuid] = [],
-        key: EncString? = nil,
         login: LoginListView,
         name: String = "Bitwarden",
         subtitle: String = "",
@@ -169,13 +170,13 @@ extension CipherListView {
         archivedDate: DateTime? = nil,
         copyableFields: [CopyableCipherFields] = [],
         localData: LocalDataView? = nil,
+        partial: Bool = false,
     ) -> CipherListView {
         .init(
             id: id,
             organizationId: organizationId,
             folderId: folderId,
             collectionIds: collectionIds,
-            key: key,
             name: name,
             subtitle: subtitle,
             type: .login(login),
@@ -193,6 +194,7 @@ extension CipherListView {
             archivedDate: archivedDate,
             copyableFields: copyableFields,
             localData: localData,
+            partial: partial,
         )
     }
 }
@@ -256,6 +258,7 @@ extension BankAccountView {
 extension CipherView {
     static func fixture(
         archivedDate: Date? = nil,
+        partial: Bool = false,
         attachments: [AttachmentView]? = nil,
         bankAccount: BankAccountView? = nil,
         card: CardView? = nil,
@@ -318,6 +321,7 @@ extension CipherView {
             deletedDate: deletedDate,
             revisionDate: revisionDate,
             archivedDate: archivedDate,
+            partial: partial,
         )
     }
 
@@ -343,6 +347,7 @@ extension CipherView {
 
     static func cardFixture(
         archivedDate: Date? = nil,
+        partial: Bool = false,
         attachments: [AttachmentView]? = nil,
         card: CardView = CardView.fixture(),
         collectionIds: [String] = [],
@@ -397,6 +402,7 @@ extension CipherView {
             deletedDate: deletedDate,
             revisionDate: revisionDate,
             archivedDate: archivedDate,
+            partial: partial,
         )
     }
 
@@ -447,6 +453,7 @@ extension CipherView {
             deletedDate: nil,
             revisionDate: Date(year: 2023, month: 11, day: 5),
             archivedDate: nil,
+            partial: false,
         )
     }
 
@@ -497,11 +504,13 @@ extension CipherView {
             deletedDate: nil,
             revisionDate: Date(year: 2023, month: 11, day: 5),
             archivedDate: nil,
+            partial: false,
         )
     }
 
     static func loginFixture(
         archivedDate: Date? = nil,
+        partial: Bool = false,
         attachments: [AttachmentView]? = nil,
         collectionIds: [String] = [],
         creationDate: DateTime = Date(year: 2023, month: 11, day: 5, hour: 9, minute: 41),
@@ -556,6 +565,7 @@ extension CipherView {
             deletedDate: deletedDate,
             revisionDate: revisionDate,
             archivedDate: archivedDate,
+            partial: partial,
         )
     }
 
@@ -882,7 +892,7 @@ extension BitwardenSdk.LoginListView {
 
 extension BitwardenSdk.LoginView {
     static func fixture(
-        fido2Credentials: [Fido2Credential]? = nil,
+        fido2Credentials: [Fido2CredentialView]? = nil,
         password: String? = nil,
         passwordRevisionDate: DateTime? = nil,
         uris: [LoginUriView]? = nil,

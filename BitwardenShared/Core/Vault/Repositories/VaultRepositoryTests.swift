@@ -656,7 +656,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
     func test_createAutofillListExcludedCredentialSection_throws() async throws {
         let cipher = CipherView.fixture()
         cipherService.fetchCipherResult = .success(.fixture(id: "1"))
-        clientService.mockPlatform.mockFido2.decryptFido2AutofillCredentialsThrowableError = BitwardenTestError.example
+        clientService.mockPlatform.mockFido2.getFido2AutofillCredentialsThrowableError = BitwardenTestError.example
 
         await assertAsyncThrows(error: BitwardenTestError.example) {
             _ = try await subject.createAutofillListExcludedCredentialSection(from: cipher)
@@ -1968,7 +1968,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         expectedCredentialId: Data,
         cipherIdToReturnEmptyFido2Credentials: String? = nil,
     ) {
-        clientService.mockPlatform.mockFido2.decryptFido2AutofillCredentialsClosure = { cipherView in
+        clientService.mockPlatform.mockFido2.getFido2AutofillCredentialsClosure = { cipherView in
             guard let cipherId = cipherView.id,
                   cipherId != cipherIdToReturnEmptyFido2Credentials else {
                 return []

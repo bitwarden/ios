@@ -63,7 +63,6 @@ public extension CipherListView {
             organizationId: cipher.organizationId,
             folderId: cipher.folderId,
             collectionIds: cipher.collectionIds,
-            key: cipher.key,
             name: cipher.name ?? "",
             subtitle: "",
             type: CipherListViewType(cipher: cipher),
@@ -81,6 +80,7 @@ public extension CipherListView {
             archivedDate: cipher.archivedDate,
             copyableFields: [],
             localData: cipher.localData.map(LocalDataView.init),
+            partial: false,
         )
     }
 }
@@ -159,6 +159,7 @@ public extension Cipher {
             revisionDate: cipherView.revisionDate,
             archivedDate: cipherView.archivedDate,
             data: nil,
+            partialData: nil,
         )
     }
 }
@@ -170,7 +171,7 @@ public extension CipherView {
             organizationId: cipher.organizationId,
             folderId: cipher.folderId,
             collectionIds: cipher.collectionIds,
-            key: cipher.key,
+            key: nil,
             name: cipher.name ?? "",
             notes: cipher.notes,
             type: cipher.type,
@@ -197,6 +198,7 @@ public extension CipherView {
             deletedDate: cipher.deletedDate,
             revisionDate: cipher.revisionDate,
             archivedDate: cipher.archivedDate,
+            partial: false,
         )
     }
 }
@@ -375,7 +377,7 @@ public extension Login {
             uris: loginView.uris?.map(LoginUri.init),
             totp: loginView.totp,
             autofillOnPageLoad: loginView.autofillOnPageLoad,
-            fido2Credentials: loginView.fido2Credentials,
+            fido2Credentials: loginView.fido2Credentials?.map(Fido2Credential.init),
         )
     }
 }
@@ -389,7 +391,7 @@ public extension LoginView {
             uris: login.uris?.map(LoginUriView.init),
             totp: login.totp,
             autofillOnPageLoad: login.autofillOnPageLoad,
-            fido2Credentials: login.fido2Credentials,
+            fido2Credentials: login.fido2Credentials?.map(Fido2CredentialView.init),
         )
     }
 }

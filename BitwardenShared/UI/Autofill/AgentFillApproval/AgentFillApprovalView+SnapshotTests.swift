@@ -21,9 +21,9 @@ class AgentFillApprovalViewTests: BitwardenTestCase {
 
         processor = MockProcessor(state: AgentFillApprovalState(
             approvalId: "approval-1",
-            browserName: "Chrome",
             connectionName: "Claude Desktop",
             domain: "delta.com",
+            browserName: "Chrome",
             items: [
                 AgentFillApprovalItem(id: "cipher-1", name: "Delta", subtitle: "user@example.com"),
                 AgentFillApprovalItem(id: "cipher-2", name: "Delta work", subtitle: "work@example.com"),
@@ -44,6 +44,7 @@ class AgentFillApprovalViewTests: BitwardenTestCase {
     // MARK: Snapshots
 
     /// The pending request renders correctly.
+    @MainActor
     func disabletest_snapshot_pending() {
         assertSnapshots(
             of: subject.navStackWrapped,
@@ -56,6 +57,7 @@ class AgentFillApprovalViewTests: BitwardenTestCase {
     }
 
     /// The pending request with no matching items renders correctly.
+    @MainActor
     func disabletest_snapshot_noMatchingItems() {
         processor.state.items = []
         processor.state.selectedItemId = nil
@@ -70,6 +72,7 @@ class AgentFillApprovalViewTests: BitwardenTestCase {
     }
 
     /// The handled state renders correctly.
+    @MainActor
     func disabletest_snapshot_handled() {
         processor.state.status = .handled
         assertSnapshots(
@@ -83,6 +86,7 @@ class AgentFillApprovalViewTests: BitwardenTestCase {
     }
 
     /// The expired state renders correctly.
+    @MainActor
     func disabletest_snapshot_expired() {
         processor.state.status = .expired
         assertSnapshots(
