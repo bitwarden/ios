@@ -18,6 +18,7 @@ class SyncServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
     var clientService: MockClientService!
     var collectionService: MockCollectionService!
     var configService: MockConfigService!
+    var errorReporter: MockErrorReporter!
     var fillAssistRepository: MockFillAssistRepository!
     var flightRecorder: MockFlightRecorder!
     var folderService: MockFolderService!
@@ -44,6 +45,7 @@ class SyncServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
         clientService = MockClientService()
         collectionService = MockCollectionService()
         configService = MockConfigService()
+        errorReporter = MockErrorReporter()
         fillAssistRepository = MockFillAssistRepository()
         flightRecorder = MockFlightRecorder()
         folderService = MockFolderService()
@@ -75,6 +77,7 @@ class SyncServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
             clientService: clientService,
             collectionService: collectionService,
             configService: configService,
+            errorReporter: errorReporter,
             fillAssistRepository: fillAssistRepository,
             flightRecorder: flightRecorder,
             folderService: folderService,
@@ -101,6 +104,7 @@ class SyncServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
         clientService = nil
         collectionService = nil
         configService = nil
+        errorReporter = nil
         fillAssistRepository = nil
         flightRecorder = nil
         folderService = nil
@@ -1169,6 +1173,23 @@ class SyncServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
             flightRecorder.logMessages,
             ["[Auth] Re-initialized user crypto after sync with V2 upgrade token"],
         )
+    }
+
+    /// `fetchSync()` logs an error but still completes the sync if re-initializing the SDK's user crypto fails.
+    @MainActor
+    func test_fetchSync_reinitUserCrypto_error() async throws {
+        client.result = .httpSuccess(testData: .syncWithUserDecryption)
+        stateService.activeAccount = .fixture()
+        stateService.accountCryptographicStates["1"] = .fixtureV2()
+        clientService.mockCrypto.reinitUserCryptoThrowableError = BitwardenTestError.example
+
+        try await subject.fetchSync(forceSync: false)
+
+        XCTAssertTrue(clientService.mockCrypto.reinitUserCryptoCalled)
+        XCTAssertEqual(errorReporter.errors as? [BitwardenTestError], [.example])
+        XCTAssertTrue(flightRecorder.logMessages.isEmpty)
+        XCTAssertNotNil(cipherService.replaceCiphersCiphers)
+        XCTAssertEqual(syncServiceDelegate.onFetchSyncSucceededCalledWithuserId, "1")
     }
 
     /// `fetchSync()` does not re-initialize the SDK's user crypto when the user's vault is locked, even if the
