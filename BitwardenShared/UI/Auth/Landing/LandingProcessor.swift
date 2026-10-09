@@ -170,6 +170,9 @@ class LandingProcessor: StateProcessor<LandingState, LandingAction, LandingEffec
             return
         }
 
+        if let urls = await services.stateService.getPreAuthEnvironmentURLs() {
+            await services.stateService.setAccountCreationEnvironmentURLs(urls: urls, email: email)
+        }
         coordinator.navigate(to: .login(username: email))
     }
 
