@@ -36,12 +36,34 @@ class VaultListItemRowViewTests: BitwardenTestCase {
 
     // MARK: Tests
 
+    /// Test that tapping the row dispatches the `.pressed` effect.
+    @MainActor
+    func test_pressed_tap() async throws {
+        let button = try subject.inspect().find(asyncButtonWithAccessibilityIdentifier: "VaultListItemRowButton")
+        try await button.tap()
+        XCTAssertEqual(processor.effects.last, .pressed)
+    }
+
     /// Test that tapping the more button dispatches the `.morePressed` action.
     @MainActor
     func test_moreButton_tap() async throws {
         let button = try subject.inspect().find(asyncButtonWithAccessibilityLabel: Localizations.moreOptions)
         try await button.tap()
         XCTAssertEqual(processor.effects.last, .morePressed)
+    }
+
+    /// Test that the more options button isn't shown when displayed from an extension.
+    @MainActor
+    func test_moreButton_notShownFromExtension() throws {
+        processor.state = VaultListItemRowState(
+            isFromExtension: true,
+            item: .fixture(),
+            hasDivider: false,
+            showWebIcons: true,
+        )
+        XCTAssertThrowsError(
+            try subject.inspect().find(asyncButtonWithAccessibilityLabel: Localizations.moreOptions),
+        )
     }
 
     /// Test that tapping the totp copy button dispatches the `.copyTOTPCode` action.

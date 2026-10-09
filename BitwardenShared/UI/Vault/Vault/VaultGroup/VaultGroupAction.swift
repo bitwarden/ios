@@ -18,12 +18,6 @@ enum VaultGroupAction: Equatable, Sendable {
     ///
     case copyTOTPCode(_ code: String)
 
-    /// An item in the vault group was tapped.
-    ///
-    /// - Parameter item: The item that was tapped.
-    ///
-    case itemPressed(_ item: VaultListItem)
-
     /// The user tapped in "Restart Premium" subscription for archive.
     case restartPremiumSubscription
 

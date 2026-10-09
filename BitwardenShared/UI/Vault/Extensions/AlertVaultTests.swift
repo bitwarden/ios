@@ -279,373 +279,54 @@ class AlertVaultTests: BitwardenTestCase { // swiftlint:disable:this type_body_l
         XCTAssertTrue(actionCalled)
     }
 
-    /// `moreOptions(context:action:)` includes
-    /// archive option when `canArchive` is `true`.
+    /// `moreOptions(title:kinds:action:)` builds an action sheet with one action per kind, in the
+    /// order given, followed by a cancel action.
     @MainActor
-    func test_moreOptions_archive() async throws {
-        var capturedAction: MoreOptionsAction?
-        let action: (MoreOptionsAction) -> Void = { action in
-            capturedAction = action
-        }
-        let cipher = CipherView.loginFixture(id: "123", name: "Test Login")
-        let alert = Alert.moreOptions(
-            context: MoreOptionsAlertContext(
-                canArchive: true,
-                canCopyTotp: false,
-                canUnarchive: false,
-                cipherView: cipher,
-                id: cipher.id!,
-                showEdit: true,
-            ),
-            action: action,
-        )
+    func test_moreOptions() async throws {
+        let kinds: [MoreOptionsActionKind] = [.view, .edit, .copyUsername, .copyPassword, .archive]
+        let alert = Alert.moreOptions(title: "Test Login", kinds: kinds) { _ in }
 
-        XCTAssertEqual(alert.title, cipher.name)
+        XCTAssertEqual(alert.title, "Test Login")
+        XCTAssertNil(alert.message)
         XCTAssertEqual(alert.preferredStyle, .actionSheet)
-        XCTAssertTrue(alert.alertActions.contains(where: { $0.title == Localizations.archive }))
-
-        try await alert.tapAction(title: Localizations.archive)
-        XCTAssertEqual(capturedAction, .archive(cipherView: cipher))
+        XCTAssertEqual(
+            alert.alertActions.map(\.title),
+            kinds.map(\.localizedName) + [Localizations.cancel],
+        )
+        XCTAssertEqual(alert.alertActions.dropLast().map(\.style), Array(repeating: .default, count: kinds.count))
+        XCTAssertEqual(alert.alertActions.last?.style, .cancel)
     }
 
-    /// `moreOptions(context:action:)` for a bank account includes copy actions for the
-    /// account number and routing number.
+    /// `moreOptions(title:kinds:action:)` doesn't call the action when cancel is tapped.
     @MainActor
-    func test_moreOptions_bankAccount() async throws { // swiftlint:disable:this function_body_length
-        var capturedAction: MoreOptionsAction?
-        let action: (MoreOptionsAction) -> Void = { action in
-            capturedAction = action
+    func test_moreOptions_cancel() async throws {
+        var actionCalled = false
+        let alert = Alert.moreOptions(title: "Test Login", kinds: [.view]) { _ in actionCalled = true }
+
+        try await alert.tapCancel()
+
+        XCTAssertFalse(actionCalled)
+    }
+
+    /// `moreOptions(title:kinds:action:)` only has the cancel action when there are no kinds.
+    @MainActor
+    func test_moreOptions_noKinds() {
+        let alert = Alert.moreOptions(title: "Test Login", kinds: []) { _ in }
+
+        XCTAssertEqual(alert.alertActions.map(\.title), [Localizations.cancel])
+    }
+
+    /// `moreOptions(title:kinds:action:)` calls the action with the kind of the tapped option.
+    @MainActor
+    func test_moreOptions_tapAction() async throws {
+        var capturedKinds = [MoreOptionsActionKind]()
+        let kinds: [MoreOptionsActionKind] = [.view, .edit, .copyUsername, .unarchive]
+        let alert = Alert.moreOptions(title: "Test Login", kinds: kinds) { capturedKinds.append($0) }
+
+        for (index, kind) in kinds.enumerated() {
+            try await alert.tapAction(byIndex: index, withTitle: kind.localizedName)
         }
-        let cipher = CipherView.fixture(
-            bankAccount: .fixture(accountNumber: "1234567890", routingNumber: "021000021"),
-            edit: false,
-            id: "123",
-            name: "Test Cipher",
-            type: .bankAccount,
-        )
-        let alert = Alert.moreOptions(
-            context: MoreOptionsAlertContext(
-                canArchive: false,
-                canCopyTotp: false,
-                canUnarchive: false,
-                cipherView: cipher,
-                id: cipher.id!,
-                showEdit: true,
-            ),
-            action: action,
-        )
-        XCTAssertEqual(alert.title, cipher.name)
-        XCTAssertEqual(alert.preferredStyle, .actionSheet)
-        XCTAssertEqual(alert.alertActions.count, 5)
-
-        try await alert.tapAction(byIndex: 0, withTitle: Localizations.view)
-        XCTAssertEqual(capturedAction, .view(id: "123"))
-        capturedAction = nil
-
-        try await alert.tapAction(byIndex: 1, withTitle: Localizations.edit)
-        XCTAssertEqual(capturedAction, .edit(cipherView: cipher))
-        capturedAction = nil
-
-        try await alert.tapAction(byIndex: 2, withTitle: Localizations.copyAccountNumber)
-        XCTAssertEqual(
-            capturedAction,
-            .copy(
-                toast: Localizations.accountNumber,
-                value: "1234567890",
-                requiresMasterPasswordReprompt: true,
-                logEvent: nil,
-                cipherId: nil,
-            ),
-        )
-        capturedAction = nil
-
-        try await alert.tapAction(byIndex: 3, withTitle: Localizations.copyRoutingNumber)
-        XCTAssertEqual(
-            capturedAction,
-            .copy(
-                toast: Localizations.routingNumber,
-                value: "021000021",
-                requiresMasterPasswordReprompt: true,
-                logEvent: nil,
-                cipherId: nil,
-            ),
-        )
-        capturedAction = nil
-
-        try await alert.tapAction(byIndex: 4, withTitle: Localizations.cancel)
-        XCTAssertNil(capturedAction)
-    }
-
-    /// `static moreOptions(canCopyTotp:cipherView:hasMasterPassword:id:showEdit:action:)` returns
-    /// the appropriate options for `.driversLicense` type
-    @MainActor
-    func test_moreOptions_driversLicense() async throws {
-        var capturedAction: MoreOptionsAction?
-        let action: (MoreOptionsAction) -> Void = { action in
-            capturedAction = action
-        }
-        let cipher = CipherView.fixture(
-            driversLicense: .fixture(),
-            edit: false,
-            id: "123",
-            name: "Test Cipher",
-            type: .driversLicense,
-            viewPassword: true,
-        )
-        let alert = Alert.moreOptions(
-            context: MoreOptionsAlertContext(
-                canArchive: false,
-                canCopyTotp: false,
-                canUnarchive: false,
-                cipherView: cipher,
-                id: cipher.id!,
-                showEdit: true,
-            ),
-            action: action,
-        )
-        XCTAssertEqual(alert.title, cipher.name)
-        XCTAssertEqual(alert.preferredStyle, .actionSheet)
-        XCTAssertEqual(alert.alertActions.count, 4)
-
-        try await alert.tapAction(byIndex: 0, withTitle: Localizations.view)
-        XCTAssertEqual(capturedAction, .view(id: "123"))
-        capturedAction = nil
-
-        try await alert.tapAction(byIndex: 1, withTitle: Localizations.edit)
-        XCTAssertEqual(
-            capturedAction,
-            .edit(cipherView: cipher),
-        )
-        capturedAction = nil
-
-        try await alert.tapAction(byIndex: 2, withTitle: Localizations.copyLicenseNumber)
-        XCTAssertEqual(
-            capturedAction,
-            .copy(
-                toast: Localizations.licenseNumber,
-                value: "D1234567",
-                requiresMasterPasswordReprompt: true,
-                logEvent: nil,
-                cipherId: "123",
-            ),
-        )
-        capturedAction = nil
-
-        try await alert.tapAction(byIndex: 3, withTitle: Localizations.cancel)
-        XCTAssertNil(capturedAction)
-    }
-
-    /// `moreOptions(context:action:)` does not
-    /// include archive option when `canArchive` is `false`.
-    @MainActor
-    func test_moreOptions_noArchive() async throws {
-        let cipher = CipherView.loginFixture(id: "123", name: "Test Login")
-        let alert = Alert.moreOptions(
-            context: MoreOptionsAlertContext(
-                canArchive: false,
-                canCopyTotp: false,
-                canUnarchive: false,
-                cipherView: cipher,
-                id: cipher.id!,
-                showEdit: true,
-            ),
-            action: { _ in },
-        )
-
-        XCTAssertFalse(alert.alertActions.contains(where: { $0.title == Localizations.archive }))
-    }
-
-    /// `moreOptions(context:action:)` does not
-    /// include unarchive option when `canUnarchive` is `false`.
-    @MainActor
-    func test_moreOptions_noUnarchive() async throws {
-        let cipher = CipherView.loginFixture(id: "123", name: "Test Login")
-        let alert = Alert.moreOptions(
-            context: MoreOptionsAlertContext(
-                canArchive: false,
-                canCopyTotp: false,
-                canUnarchive: false,
-                cipherView: cipher,
-                id: cipher.id!,
-                showEdit: true,
-            ),
-            action: { _ in },
-        )
-
-        XCTAssertFalse(alert.alertActions.contains(where: { $0.title == Localizations.unarchive }))
-    }
-
-    /// `static moreOptions(canCopyTotp:cipherView:hasMasterPassword:id:showEdit:action:)` returns
-    /// the appropriate options for `.passport` type
-    @MainActor
-    func test_moreOptions_passport() async throws {
-        var capturedAction: MoreOptionsAction?
-        let action: (MoreOptionsAction) -> Void = { action in
-            capturedAction = action
-        }
-        let cipher = CipherView.fixture(
-            edit: false,
-            id: "123",
-            name: "Test Cipher",
-            passport: .fixture(),
-            type: .passport,
-            viewPassword: true,
-        )
-        let alert = Alert.moreOptions(
-            context: MoreOptionsAlertContext(
-                canArchive: false,
-                canCopyTotp: false,
-                canUnarchive: false,
-                cipherView: cipher,
-                id: cipher.id!,
-                showEdit: true,
-            ),
-            action: action,
-        )
-        XCTAssertEqual(alert.title, cipher.name)
-        XCTAssertEqual(alert.preferredStyle, .actionSheet)
-        XCTAssertEqual(alert.alertActions.count, 4)
-
-        try await alert.tapAction(byIndex: 0, withTitle: Localizations.view)
-        XCTAssertEqual(capturedAction, .view(id: "123"))
-        capturedAction = nil
-
-        try await alert.tapAction(byIndex: 1, withTitle: Localizations.edit)
-        XCTAssertEqual(
-            capturedAction,
-            .edit(cipherView: cipher),
-        )
-        capturedAction = nil
-
-        try await alert.tapAction(byIndex: 2, withTitle: Localizations.copyPassportNumber)
-        XCTAssertEqual(
-            capturedAction,
-            .copy(
-                toast: Localizations.passportNumber,
-                value: "P1234567",
-                requiresMasterPasswordReprompt: true,
-                logEvent: nil,
-                cipherId: "123",
-            ),
-        )
-        capturedAction = nil
-
-        try await alert.tapAction(byIndex: 3, withTitle: Localizations.cancel)
-        XCTAssertNil(capturedAction)
-    }
-
-    /// `static moreOptions(canCopyTotp:cipherView:hasMasterPassword:id:showEdit:action:)` returns
-    /// the appropriate options for `.sshKey` type
-    @MainActor
-    func test_moreOptions_sshKey() async throws { // swiftlint:disable:this function_body_length
-        var capturedAction: MoreOptionsAction?
-        let action: (MoreOptionsAction) -> Void = { action in
-            capturedAction = action
-        }
-        let cipher = CipherView.fixture(
-            edit: false,
-            id: "123",
-            name: "Test Cipher",
-            sshKey: .fixture(),
-            type: .sshKey,
-            viewPassword: true,
-        )
-        let alert = Alert.moreOptions(
-            context: MoreOptionsAlertContext(
-                canArchive: false,
-                canCopyTotp: false,
-                canUnarchive: false,
-                cipherView: cipher,
-                id: cipher.id!,
-                showEdit: true,
-            ),
-            action: action,
-        )
-        XCTAssertEqual(alert.title, cipher.name)
-        XCTAssertEqual(alert.preferredStyle, .actionSheet)
-        XCTAssertEqual(alert.alertActions.count, 6)
-
-        try await alert.tapAction(byIndex: 0, withTitle: Localizations.view)
-        XCTAssertEqual(capturedAction, .view(id: "123"))
-        capturedAction = nil
-
-        try await alert.tapAction(byIndex: 1, withTitle: Localizations.edit)
-        XCTAssertEqual(
-            capturedAction,
-            .edit(cipherView: cipher),
-        )
-        capturedAction = nil
-
-        try await alert.tapAction(byIndex: 2, withTitle: Localizations.copyPublicKey)
-        XCTAssertEqual(
-            capturedAction,
-            .copy(
-                toast: Localizations.publicKey,
-                value: "publicKey",
-                requiresMasterPasswordReprompt: true,
-                logEvent: nil,
-                cipherId: "123",
-            ),
-        )
-        capturedAction = nil
-
-        try await alert.tapAction(byIndex: 3, withTitle: Localizations.copyPrivateKey)
-        XCTAssertEqual(
-            capturedAction,
-            .copy(
-                toast: Localizations.privateKey,
-                value: "privateKey",
-                requiresMasterPasswordReprompt: true,
-                logEvent: nil,
-                cipherId: "123",
-            ),
-        )
-        capturedAction = nil
-
-        try await alert.tapAction(byIndex: 4, withTitle: Localizations.copyFingerprint)
-        XCTAssertEqual(
-            capturedAction,
-            .copy(
-                toast: Localizations.fingerprint,
-                value: "fingerprint",
-                requiresMasterPasswordReprompt: true,
-                logEvent: nil,
-                cipherId: "123",
-            ),
-        )
-        capturedAction = nil
-
-        try await alert.tapAction(byIndex: 5, withTitle: Localizations.cancel)
-        XCTAssertNil(capturedAction)
-    }
-
-    /// `moreOptions(context:action:)` includes
-    /// unarchive option when `canUnarchive` is `true`.
-    @MainActor
-    func test_moreOptions_unarchive() async throws {
-        var capturedAction: MoreOptionsAction?
-        let action: (MoreOptionsAction) -> Void = { action in
-            capturedAction = action
-        }
-        let cipher = CipherView.loginFixture(archivedDate: .now, id: "123", name: "Test Login")
-        let alert = Alert.moreOptions(
-            context: MoreOptionsAlertContext(
-                canArchive: false,
-                canCopyTotp: false,
-                canUnarchive: true,
-                cipherView: cipher,
-                id: cipher.id!,
-                showEdit: true,
-            ),
-            action: action,
-        )
-
-        XCTAssertEqual(alert.title, cipher.name)
-        XCTAssertEqual(alert.preferredStyle, .actionSheet)
-        XCTAssertTrue(alert.alertActions.contains(where: { $0.title == Localizations.unarchive }))
-
-        try await alert.tapAction(title: Localizations.unarchive)
-        XCTAssertEqual(capturedAction, .unarchive(cipherView: cipher))
+        XCTAssertEqual(capturedKinds, kinds)
     }
 
     /// `passwordAutofillInformation()` constructs an `Alert` that informs the user about password

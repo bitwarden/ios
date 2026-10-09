@@ -1,8 +1,19 @@
 import BitwardenResources
 import BitwardenSdk
+import Foundation
 
 extension CipherListView {
     // MARK: Properties
+
+    /// Whether this cipher can be archived. Mirrors `CipherView.canBeArchived`.
+    var canBeArchived: Bool {
+        archivedDate == nil && deletedDate == nil
+    }
+
+    /// Whether this cipher can be unarchived. Mirrors `CipherView.canBeUnarchived`.
+    var canBeUnarchived: Bool {
+        archivedDate != nil && deletedDate == nil
+    }
 
     /// Determines whether the cipher can be used in basic password autofill operations.
     ///

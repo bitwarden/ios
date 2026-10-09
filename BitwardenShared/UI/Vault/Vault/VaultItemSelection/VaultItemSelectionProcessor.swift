@@ -89,8 +89,24 @@ class VaultItemSelectionProcessor: StateProcessor<
 
     override func perform(_ effect: VaultItemSelectionEffect) async {
         switch effect {
+        case let .accessibilityMoreOptionsActionPressed(item, kind):
+            await vaultItemMoreOptionsHelper.performMoreOptionsAction(
+                kind,
+                for: item,
+                delegate: moreOptionsEditDelegate,
+                handleDisplayToast: { [weak self] toast in
+                    self?.state.toast = toast
+                },
+                handleNavigateToPremiumUpgrade: { [weak self] in
+                    await self?.navigateToPremiumUpgrade()
+                },
+                handleOpenURL: { [weak self] url in
+                    self?.state.url = url
+                },
+            )
         case .loadData:
             state.isVfo1FoundationFeatureFlagEnabled = await services.configService.getFeatureFlag(.vfo1Foundation)
+            state.hasPremium = await services.vaultRepository.doesActiveAccountHavePremium()
             await refreshProfileState()
         case let .morePressed(item):
             await vaultItemMoreOptionsHelper.showMoreOptionsAlert(
