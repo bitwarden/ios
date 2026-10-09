@@ -213,7 +213,6 @@ public struct BitwardenTextField<FooterContent: View, TrailingContent: View>: Vi
                     .styleGuide(.bodyMonospaced, includeLineSpacing: false)
                     .id(title)
                     .accessibilityLabel(title ?? "")
-                    .speechSpellsOutCharacters(spellOutAccessibilityValue)
                     .foregroundStyle(
                         isEnabled && !isTextFieldDisabled
                             ? SharedAsset.Colors.textPrimary.swiftUIColor
@@ -233,9 +232,15 @@ public struct BitwardenTextField<FooterContent: View, TrailingContent: View>: Vi
                     .introspect(.textField, on: .iOS(.v15, .v16, .v17, .v18, .v26)) { textField in
                         textField.smartDashesType = isPassword ? .no : .default
                         textField.smartQuotesType = isPassword ? .no : .default
+                        // Set on the native text field so VoiceOver spells out only the value, not the label.
+                        textField.accessibilityAttributedValue = spellOutAccessibilityValue && !localText.isEmpty
+                            ? NSAttributedString(
+                                string: localText,
+                                attributes: [.accessibilitySpeechSpellOut: true],
+                            )
+                            : nil
                     }
                     .accessibilityLabel(title ?? "")
-                    .speechSpellsOutCharacters(spellOutAccessibilityValue)
                     .foregroundStyle(
                         isEnabled && !isTextFieldDisabled
                             ? SharedAsset.Colors.textPrimary.swiftUIColor
