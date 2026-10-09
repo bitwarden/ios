@@ -12,7 +12,7 @@ settings:
 packages:
   SwiftUIIntrospect:
     url: https://github.com/siteline/SwiftUI-Introspect
-    exactVersion: 26.0.1
+    exactVersion: 26.1.0
 schemes:
   AuthenticatorBridgeKit:
     build:
