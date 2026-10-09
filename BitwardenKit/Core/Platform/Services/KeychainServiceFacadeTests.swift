@@ -386,6 +386,58 @@ struct KeychainServiceFacadeTests { // swiftlint:disable:this type_body_length
         #expect(storedData == Data("new-value".utf8))
     }
 
+    /// `setValue(_:for:context:)` puts a supplied `LAContext` in the update query.
+    @Test
+    func setValue_withContext_updatesExistingItem_contextInQuery() async throws {
+        let item = MockKeychainItem(unformattedKey: "test_key")
+        let context = LAContext()
+        keychainService.accessControlReturnValue = try makeAccessControl()
+
+        try await subject.setValue("new-value", for: item, context: context)
+
+        #expect(!keychainService.addCalled)
+        let updateReceivedArguments = try #require(keychainService.updateReceivedArguments)
+
+        let updateQuery = try #require(updateReceivedArguments.query as? [String: Any])
+        let queryContext = try #require(updateQuery[kSecUseAuthenticationContext as String] as? LAContext)
+        #expect(queryContext === context)
+
+        let receivedAttributes = try #require(updateReceivedArguments.attributes as? [String: Any])
+        #expect(receivedAttributes[kSecUseAuthenticationContext as String] == nil)
+    }
+
+    /// `setValue(_:for:context:)` includes a supplied `LAContext` in the add attributes when the
+    /// update returns `errSecItemNotFound`.
+    @Test
+    func setValue_withContext_addsNewItem_contextInAttributes() async throws {
+        let item = MockKeychainItem(unformattedKey: "test_key")
+        let context = LAContext()
+        keychainService.accessControlReturnValue = try makeAccessControl()
+        keychainService.updateThrowableError = KeychainServiceError.osStatusError(errSecItemNotFound)
+
+        try await subject.setValue("new-value", for: item, context: context)
+
+        #expect(keychainService.addCallsCount == 1)
+        let addAttributes = try #require(keychainService.addReceivedAttributes as? [String: Any])
+        let addContext = try #require(addAttributes[kSecUseAuthenticationContext as String] as? LAContext)
+        #expect(addContext === context)
+        let storedData = try #require(addAttributes[kSecValueData as String] as? Data)
+        #expect(storedData == Data("new-value".utf8))
+    }
+
+    /// `setValue(_:for:)` doesn't include an authentication context when none is supplied.
+    @Test
+    func setValue_withoutContext_omitsContext() async throws {
+        let item = MockKeychainItem(unformattedKey: "test_key")
+        keychainService.accessControlReturnValue = try makeAccessControl()
+
+        try await subject.setValue("new-value", for: item)
+
+        let updateReceivedArguments = try #require(keychainService.updateReceivedArguments)
+        let updateQuery = try #require(updateReceivedArguments.query as? [String: Any])
+        #expect(updateQuery[kSecUseAuthenticationContext as String] == nil)
+    }
+
     /// `setValue(_:for:)` passes the item's `protection` and `accessControlFlags` to the access control call.
     @Test
     func setValue_usesItemProtectionAndFlags() async throws {

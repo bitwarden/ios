@@ -250,6 +250,14 @@ class DefaultNotificationService: NotificationService { // swiftlint:disable:thi
                     break
                 }
 
+                if data.reason == .keyRotation, data.userId == userId {
+                    // Don't log the user out for a no-logout key rotation; sync to pick up the
+                    // rotated key instead.
+                    await flightRecorder.log("[Notification] Received no-logout key rotation notification")
+                    try await syncService.fetchSync(forceSync: true)
+                    break
+                }
+
                 try await authRepository.logout(userId: data.userId, userInitiated: true)
                 // Only route to landing page if the current active user was logged out.
                 if data.userId == userId {

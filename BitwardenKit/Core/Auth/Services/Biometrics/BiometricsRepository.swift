@@ -41,7 +41,11 @@ public protocol BiometricsRepository: AnyObject { // sourcery: AutoMockable
 
     /// Attempts to retrieve a user's auth key with biometrics.
     ///
-    func getUserAuthKey() async throws -> String
+    /// - Parameter context: An `LAContext` to reuse for biometric evaluation, or `nil` to let the
+    ///   system create one. Pass the same context to a subsequent `restoreBiometricUnlockKey`
+    ///   call to share a single biometric prompt across both operations.
+    ///
+    func getUserAuthKey(context: LAContext?) async throws -> String
 
     /// Returns whether the biometric unlock key exists in the keychain for the given user,
     /// without triggering a biometric authentication prompt.
@@ -57,8 +61,11 @@ public protocol BiometricsRepository: AnyObject { // sourcery: AutoMockable
     /// - Parameters:
     ///   - authKey: The user auth key to store in the keychain.
     ///   - userId: The user ID for the user to restore biometric unlock. Defaults to the active user if nil.
+    ///   - context: An `LAContext` to reuse for biometric evaluation, or `nil` to let the system
+    ///     create one. Pass the same context used for a prior `getUserAuthKey` call to share a
+    ///     single biometric prompt across both operations.
     ///
-    func restoreBiometricUnlockKey(authKey: String, userId: String?) async throws
+    func restoreBiometricUnlockKey(authKey: String, userId: String?, context: LAContext?) async throws
 
     /// Sets the biometric unlock preference for a user.
     ///
@@ -80,6 +87,12 @@ public extension BiometricsRepository {
         try await getBiometricUnlockStatus(userId: nil)
     }
 
+    /// Attempts to retrieve the active user's auth key with biometrics.
+    ///
+    func getUserAuthKey() async throws -> String {
+        try await getUserAuthKey(context: nil)
+    }
+
     /// Returns whether the biometric unlock key exists for the active user, without triggering a
     /// biometric authentication prompt.
     ///
@@ -89,12 +102,22 @@ public extension BiometricsRepository {
         await hasBiometricUnlockKey(userId: nil)
     }
 
+    /// Restores the biometric unlock key after a trusted vault unlock (e.g., master password unlock).
+    ///
+    /// - Parameters:
+    ///   - authKey: The user auth key to store in the keychain.
+    ///   - userId: The user ID for the user to restore biometric unlock. Defaults to the active user if nil.
+    ///
+    func restoreBiometricUnlockKey(authKey: String, userId: String?) async throws {
+        try await restoreBiometricUnlockKey(authKey: authKey, userId: userId, context: nil)
+    }
+
     /// Restores the biometric unlock key for the active user after a trusted vault unlock.
     ///
     /// - Parameter authKey: The user auth key to store in the keychain.
     ///
     func restoreBiometricUnlockKey(authKey: String) async throws {
-        try await restoreBiometricUnlockKey(authKey: authKey, userId: nil)
+        try await restoreBiometricUnlockKey(authKey: authKey, userId: nil, context: nil)
     }
 
     /// Sets the biometric unlock preference for the active user.
@@ -168,11 +191,11 @@ public class DefaultBiometricsRepository: BiometricsRepository {
         }
     }
 
-    public func getUserAuthKey() async throws -> String {
+    public func getUserAuthKey(context: LAContext?) async throws -> String {
         let id = try await stateService.getActiveAccountId()
 
         do {
-            let string = try await keychainRepository.getUserBiometricAuthKey(userId: id)
+            let string = try await keychainRepository.getUserBiometricAuthKey(userId: id, context: context)
             guard !string.isEmpty else {
                 throw BiometricsServiceError.getAuthKeyFailed
             }
@@ -209,11 +232,11 @@ public class DefaultBiometricsRepository: BiometricsRepository {
         return await keychainRepository.userBiometricAuthKeyExists(userId: userId)
     }
 
-    public func restoreBiometricUnlockKey(authKey: String, userId: String?) async throws {
+    public func restoreBiometricUnlockKey(authKey: String, userId: String?, context: LAContext?) async throws {
         let userId = try await stateService.userIdOrActive(userId)
         switch biometricsService.getBiometricAuthStatus() {
         case .authorized:
-            try await setUserBiometricAuthKey(value: authKey, userId: userId)
+            try await setUserBiometricAuthKey(value: authKey, userId: userId, context: context)
             try await stateService.setBiometricAuthenticationEnabled(true, userId: userId)
         case .denied,
              .noBiometrics,
@@ -260,10 +283,12 @@ extension DefaultBiometricsRepository {
     /// - Parameters:
     ///   - value: The key to be stored.
     ///   - userId: The user ID for the user to set the auth key.
+    ///   - context: An `LAContext` to reuse for biometric evaluation, or `nil` to let the system
+    ///     create one.
     ///
-    private func setUserBiometricAuthKey(value: String, userId: String) async throws {
+    private func setUserBiometricAuthKey(value: String, userId: String, context: LAContext? = nil) async throws {
         do {
-            try await keychainRepository.setUserBiometricAuthKey(userId: userId, value: value)
+            try await keychainRepository.setUserBiometricAuthKey(userId: userId, value: value, context: context)
         } catch {
             throw BiometricsServiceError.setAuthKeyFailed
         }

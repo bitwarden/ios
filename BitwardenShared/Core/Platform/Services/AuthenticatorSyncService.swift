@@ -61,6 +61,9 @@ actor DefaultAuthenticatorSyncService: NSObject, AuthenticatorSyncService {
     /// The service used by the application to report non-fatal errors.
     private let errorReporter: ErrorReporter
 
+    /// The service used by the application for recording temporary debug logs.
+    private let flightRecorder: FlightRecorder
+
     /// Keychain Repository for storing/accessing the Authenticator Vault Key.
     private let keychainRepository: KeychainRepository
 
@@ -96,6 +99,7 @@ actor DefaultAuthenticatorSyncService: NSObject, AuthenticatorSyncService {
     ///   - cipherDataStore: The service used to manage syncing and updates to the user's ciphers.
     ///   - clientService: The service that handles common client functionality such as encryption and decryption.
     ///   - errorReporter: The service used by the application to report non-fatal errors.\ organizations.
+    ///   - flightRecorder: The service used by the application for recording temporary debug logs.
     ///   - keychainRepository: Keychain Repository for storing/accessing the Authenticator Vault Key.
     ///   - organizationService: The service for managing the organizations for the user.
     ///   - sharedKeychainRepository: The keychain repository for managing the key shared
@@ -109,6 +113,7 @@ actor DefaultAuthenticatorSyncService: NSObject, AuthenticatorSyncService {
         cipherDataStore: CipherDataStore,
         clientService: ClientService,
         errorReporter: ErrorReporter,
+        flightRecorder: FlightRecorder,
         keychainRepository: KeychainRepository,
         organizationService: OrganizationService,
         sharedKeychainRepository: SharedKeychainRepository,
@@ -120,6 +125,7 @@ actor DefaultAuthenticatorSyncService: NSObject, AuthenticatorSyncService {
         self.cipherDataStore = cipherDataStore
         self.clientService = clientService
         self.errorReporter = errorReporter
+        self.flightRecorder = flightRecorder
         self.keychainRepository = keychainRepository
         self.organizationService = organizationService
         self.sharedKeychainRepository = sharedKeychainRepository
@@ -186,23 +192,36 @@ actor DefaultAuthenticatorSyncService: NSObject, AuthenticatorSyncService {
     }
 
     /// Store the user's vault key in the keychain so we can unlock that vault for them when ciphers are received.
+    /// Also refreshes the stored key if it no longer matches the current user key, e.g. after a no-logout key
+    /// rotation.
     ///
     /// Note: The userId must be the active account or else this function will return without setting up the key.
     ///
     /// - Parameter userId: The userId of the account whose vault unlock is being set up.
     ///
     private func createAuthenticatorVaultKeyIfNeeded(userId: String) async throws {
-        let authVaultKey = try? await keychainRepository.getAuthenticatorVaultKey(userId: userId)
-        guard authVaultKey == nil,
-              let activeId = try? await stateService.getActiveAccountId(),
-              activeId == userId else { return }
+        guard let activeId = try? await stateService.getActiveAccountId(), activeId == userId else { return }
 
         // This requires `clientService` here (as opposed to `authenticatorClientService`) along
-        // with an unlocked vault in order to create the authenticator vault key. After the key is
+        // with an unlocked vault in order to create or refresh the authenticator vault key. After the key is
         // created, `authenticatorClientService` can handle ongoing vault decryption tasks to keep
         // authenticator synced.
-        let key = try await clientService.crypto(for: userId).getUserEncryptionKey()
-        try await keychainRepository.setAuthenticatorVaultKey(key, userId: userId)
+        let crypto = try await clientService.crypto(for: userId)
+        let currentKey = try await crypto.getUserEncryptionKey()
+
+        let existingAuthVaultKey = try? await keychainRepository.getAuthenticatorVaultKey(userId: userId)
+        if let authVaultKey = existingAuthVaultKey {
+            let storedKeyId = try crypto.getKeyIdForSymmetricKey(key: authVaultKey)
+            let currentKeyId = try crypto.getKeyIdForSymmetricKey(key: currentKey)
+            guard storedKeyId != currentKeyId else { return }
+        }
+
+        try await keychainRepository.setAuthenticatorVaultKey(currentKey, userId: userId)
+        if existingAuthVaultKey == nil {
+            await flightRecorder.log("[Auth] Created authenticator vault key")
+        } else {
+            await flightRecorder.log("[Auth] Refreshed stale authenticator vault key")
+        }
     }
 
     /// Take a list of encrypted ciphers, filter for only active ciphers with a totp code,  decrypt them, then

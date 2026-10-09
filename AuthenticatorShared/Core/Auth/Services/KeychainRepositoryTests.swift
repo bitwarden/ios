@@ -31,7 +31,7 @@ struct KeychainRepositoryTests {
 
         #expect(result == "secret-value")
 
-        let actualReceivedItem = keychainServiceFacade.getValueReceivedItem as? AuthenticatorKeychainItem
+        let actualReceivedItem = keychainServiceFacade.getValueReceivedArguments?.item as? AuthenticatorKeychainItem
         let expectedReceivedItem = AuthenticatorKeychainItem.secretKey(userId: "user-1")
         #expect(actualReceivedItem == expectedReceivedItem)
     }
@@ -102,7 +102,7 @@ struct KeychainRepositoryTests {
 
         #expect(result == "biometric-key")
 
-        let actualReceivedItem = keychainServiceFacade.getValueReceivedItem as? AuthenticatorKeychainItem
+        let actualReceivedItem = keychainServiceFacade.getValueReceivedArguments?.item as? AuthenticatorKeychainItem
         let expectedReceivedItem = AuthenticatorKeychainItem.biometrics(userId: "user-1")
         #expect(actualReceivedItem == expectedReceivedItem)
     }

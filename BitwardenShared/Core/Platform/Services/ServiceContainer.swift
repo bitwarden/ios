@@ -802,6 +802,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
             clientService: clientService,
             collectionService: collectionService,
             configService: configService,
+            errorReporter: errorReporter,
             fillAssistRepository: fillAssistRepository,
             flightRecorder: flightRecorder,
             folderService: folderService,
@@ -862,6 +863,15 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
             syncService: syncService,
         )
 
+        let unlockKeyMaintenanceService = DefaultUnlockKeyMaintenanceService(
+            biometricsRepository: biometricsRepository,
+            clientService: clientService,
+            errorReporter: errorReporter,
+            flightRecorder: flightRecorder,
+            keychainService: keychainRepository,
+            stateService: stateService,
+        )
+
         let authRepository = DefaultAuthRepository(
             accountAPIService: apiService,
             appContextHelper: appContextHelper,
@@ -885,6 +895,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
             stateService: stateService,
             syncService: syncService,
             trustDeviceService: trustDeviceService,
+            unlockKeyMaintenanceService: unlockKeyMaintenanceService,
             userSessionStateService: stateService,
             vaultTimeoutService: vaultTimeoutService,
         )
@@ -1174,6 +1185,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
             cipherDataStore: dataStore,
             clientService: clientService,
             errorReporter: errorReporter,
+            flightRecorder: flightRecorder,
             keychainRepository: keychainRepository,
             organizationService: organizationService,
             sharedKeychainRepository: sharedKeychainRepository,
