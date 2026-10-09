@@ -63,6 +63,7 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         billingService.isSelfHostedReturnValue = false
         billingService.shouldShowSubscriptionAttentionCardReturnValue = false
         billingService.isPremiumUpgradeBannerDismissedReturnValue = false
+        billingService.premiumUpgradeLifecycleStateReturnValue = .notPremium
         billingService.shouldShowUpgradedToPremiumActionCardReturnValue = false
         errorReporter = MockErrorReporter()
         changeKdfService = MockChangeKdfService()
@@ -570,6 +571,30 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         XCTAssertEqual(subject.state.itemTypesUserCanCreate, [.card])
     }
 
+    /// `perform(_:)` with `.streamSyncComplete` shows the Premium upgrade action card when the
+    /// upgrade is no longer pending.
+    @MainActor
+    func test_perform_streamSyncComplete_showsPremiumUpgradeActionCardWhenNoLongerPending() {
+        billingRepository.isInAppUpgradeAvailableReturnValue = true
+        billingService.premiumUpgradeLifecycleStateReturnValue = .pending
+        subject.state.shouldShowPremiumUpgradeActionCard = true
+
+        let task = Task {
+            await subject.perform(.streamSyncComplete)
+        }
+        defer { task.cancel() }
+
+        // The sync-complete subject replays on subscribe, so confirm that emission hides the card
+        // while pending before resolving it below.
+        waitFor(subject.state.shouldShowPremiumUpgradeActionCard == false)
+
+        billingService.premiumUpgradeLifecycleStateReturnValue = .notPremium
+        syncService.syncCompleteSubject.send(())
+
+        waitFor(subject.state.shouldShowPremiumUpgradeActionCard == true)
+        XCTAssertTrue(subject.state.shouldShowPremiumUpgradeActionCard)
+    }
+
     /// Loading the item types the user can create discards a stale result from an older,
     /// slower-resolving call when a newer, overlapping call has already updated the state.
     @MainActor
@@ -807,6 +832,42 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         await subject.perform(.appeared)
 
         XCTAssertFalse(subject.state.hasPremium)
+    }
+
+    /// `perform(_:)` with `.appeared` hides the Premium upgrade action card when the account has
+    /// Premium.
+    @MainActor
+    func test_perform_appeared_premiumUpgradeActionCard_hiddenWhenPremium() async {
+        billingRepository.isInAppUpgradeAvailableReturnValue = true
+        billingService.premiumUpgradeLifecycleStateReturnValue = .premium
+
+        await subject.perform(.appeared)
+
+        XCTAssertFalse(subject.state.shouldShowPremiumUpgradeActionCard)
+    }
+
+    /// `perform(_:)` with `.appeared` hides the Premium upgrade action card when an upgrade is
+    /// pending.
+    @MainActor
+    func test_perform_appeared_premiumUpgradeActionCard_hiddenWhilePending() async {
+        billingRepository.isInAppUpgradeAvailableReturnValue = true
+        billingService.premiumUpgradeLifecycleStateReturnValue = .pending
+
+        await subject.perform(.appeared)
+
+        XCTAssertFalse(subject.state.shouldShowPremiumUpgradeActionCard)
+    }
+
+    /// `perform(_:)` with `.appeared` shows the Premium upgrade action card when the account
+    /// doesn't have Premium and nothing else hides the card.
+    @MainActor
+    func test_perform_appeared_premiumUpgradeActionCard_shownWhenNotPremium() async {
+        billingRepository.isInAppUpgradeAvailableReturnValue = true
+        billingService.premiumUpgradeLifecycleStateReturnValue = .notPremium
+
+        await subject.perform(.appeared)
+
+        XCTAssertTrue(subject.state.shouldShowPremiumUpgradeActionCard)
     }
 
     /// `perform(_:)` with `.dismissArchiveOnboardingActionCard` dismisses the archive onboarding card

@@ -68,7 +68,7 @@ final class VaultListProcessor: StateProcessor<
         coordinator: coordinator,
         setURL: { [weak self] url in self?.state.url = url },
         onPendingDismiss: { [weak self] in
-            Task { @MainActor in await self?.dismissPremiumUpgradeActionCard() }
+            self?.hidePremiumUpgradeActionCardForPendingUpgrade()
         },
     )
 
@@ -484,6 +484,16 @@ extension VaultListProcessor {
         }
     }
 
+    /// Hides the Premium upgrade action card without persisting a permanent dismissal. Used
+    /// while a Premium upgrade is pending — that's a temporary state, not the user asking to
+    /// stop seeing this card, so unlike `dismissPremiumUpgradeActionCard()` this doesn't touch
+    /// the banner-dismissed preference. `refreshPremiumActionCards()` re-evaluates the card on
+    /// the next appearance or completed sync.
+    ///
+    private func hidePremiumUpgradeActionCardForPendingUpgrade() {
+        state.shouldShowPremiumUpgradeActionCard = false
+    }
+
     /// Loads the organization user notification banner data, suppressing it when the user has already dismissed
     /// the banner for the current policy revision.
     private func loadOrganizationUserNotificationBannerData() async {
@@ -535,7 +545,8 @@ extension VaultListProcessor {
             await services.billingService.shouldShowUpgradedToPremiumActionCard()
 
         let isBannerDismissed = await services.billingService.isPremiumUpgradeBannerDismissed()
-        guard !isBannerDismissed,
+        guard await services.billingService.premiumUpgradeLifecycleState() == .notPremium,
+              !isBannerDismissed,
               !state.shouldShowSubscriptionAttentionCard,
               await !services.billingService.isSelfHosted()
         else {
@@ -821,6 +832,7 @@ extension VaultListProcessor {
     private func streamSyncComplete() async {
         for await _ in services.syncService.syncCompletePublisher() {
             await loadItemTypesUserCanCreate()
+            await refreshPremiumActionCards()
         }
     }
 

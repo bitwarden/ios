@@ -2,6 +2,7 @@
 import BitwardenKit
 import BitwardenKitMocks
 import BitwardenResources
+import Combine
 import TestHelpers
 import Testing
 
@@ -33,6 +34,7 @@ struct VaultListProcessorBillingTests {
         billingService.isSelfHostedReturnValue = false
         billingService.shouldShowSubscriptionAttentionCardReturnValue = false
         billingService.isPremiumUpgradeBannerDismissedReturnValue = false
+        billingService.premiumUpgradeLifecycleStateReturnValue = .notPremium
         billingService.shouldShowUpgradedToPremiumActionCardReturnValue = false
         coordinator = MockCoordinator()
         premiumUpgradeHelper = MockPremiumUpgradeHelper()
@@ -232,6 +234,46 @@ struct VaultListProcessorBillingTests {
         subject.receive(.upgradeToPremium)
 
         #expect(premiumUpgradeHelper.startInAppPremiumUpgradeCalled)
+    }
+
+    /// `receive(_:)` with `.upgradeToPremium` hides the Premium upgrade action card without
+    /// persisting the dismissal when the upgrade is pending.
+    @Test
+    func receive_upgradeToPremium_pendingUpgrade_hidesActionCardWithoutPersistingDismissal() async throws {
+        let statusSubject = PassthroughSubject<PremiumCheckoutStatus, Never>()
+        billingService.premiumCheckoutStatusPublisherReturnValue = statusSubject.eraseToAnyPublisher()
+        var state = VaultListState()
+        state.shouldShowPremiumUpgradeActionCard = true
+        let services = ServiceContainer.withMocks(
+            billingRepository: billingRepository,
+            billingService: billingService,
+            searchProcessorMediatorFactory: searchProcessorMediatorFactory,
+            stateService: stateService,
+            vaultRepository: vaultRepository,
+        )
+        let realSubject = VaultListProcessor(
+            coordinator: coordinator.asAnyCoordinator(),
+            masterPasswordRepromptHelper: MockMasterPasswordRepromptHelper(),
+            services: services,
+            state: state,
+            vaultItemMoreOptionsHelper: MockVaultItemMoreOptionsHelper(),
+        )
+        realSubject.receive(.upgradeToPremium)
+
+        statusSubject.send(.pending)
+        try await waitForAsync {
+            guard case let .dismiss(action) = coordinator.routes.last else { return false }
+            return action != nil
+        }
+        guard case let .dismiss(action) = coordinator.routes.last else {
+            Issue.record("Expected .dismiss route")
+            return
+        }
+        action?.action()
+
+        #expect(coordinator.alertShown.last?.title == Localizations.upgradePending)
+        #expect(!realSubject.state.shouldShowPremiumUpgradeActionCard)
+        #expect(!billingService.setPremiumUpgradeBannerDismissedCalled)
     }
 
     /// `receive(_:)` with `.viewPlan` navigates to the Premium plan screen.
