@@ -1554,6 +1554,33 @@ class VaultListDataPreparatorTests: BitwardenTestCase { // swiftlint:disable:thi
         XCTAssertNotNil(result)
     }
 
+    /// `prepareSearchData(from:filter:)` decrypts blob-encrypted login ciphers when searching within
+    /// the `.totp` group, since their TOTP key is only available after decryption.
+    @MainActor
+    func test_prepareSearchData_totpGroup_includesBlobEncryptedLogin() async throws {
+        ciphersClientWrapperService.decryptAndProcessCiphersInBatchOnCipherParameterToPass = .fixture(
+            id: "blob",
+            type: .login(.fixture(totp: "123")),
+        )
+
+        let result = await subject.prepareSearchData(
+            from: [
+                .fixture(data: "encrypted-data", id: "blob", login: nil, name: nil, type: .login),
+                .fixture(id: "card", type: .card),
+            ],
+            filter: VaultListFilter(group: .totp, searchText: "blob"),
+        )
+
+        let preFilteredCiphers = try ciphersClientWrapperService.decryptAndProcessCiphersInBatchPreFilterResult.get()
+        XCTAssertEqual(preFilteredCiphers.map(\.id), ["blob"])
+        XCTAssertEqual(mockCallOrderHelper.callOrder, [
+            "prepareRestrictItemsPolicyOrganizations",
+            "prepareNewItemTypesEnabled",
+            "addSearchResultItem",
+        ])
+        XCTAssertNotNil(result)
+    }
+
     // MARK: Private
 
     /// Tests `prepareGroupData(from:collections:folders:filter:)` generically for most groups.
