@@ -140,6 +140,16 @@ class ChangeKdfServiceTests: BitwardenTestCase {
         XCTAssertEqual(clientService.mockCrypto.makeUpdateKdfReceivedArguments?.kdf, .pbkdf2(iterations: 600_000))
         XCTAssertEqual(clientService.mockCrypto.makeUpdateKdfReceivedArguments?.password, "password123!")
 
+        XCTAssertEqual(stateService.setAccountKdfByUserId["1"], .defaultKdfConfig)
+        XCTAssertEqual(
+            stateService.masterPasswordUnlockByUserId["1"],
+            MasterPasswordUnlockResponseModel(
+                kdf: KdfConfig(kdfType: .pbkdf2sha256, iterations: 600_000),
+                masterKeyEncryptedUserKey: "MASTER_KEY_WRAPPED_USER_KEY",
+                salt: "UNLOCK_SALT",
+            ),
+        )
+
         XCTAssertEqual(client.requests.count, 1)
         XCTAssertNotNil(client.requests[0].body)
         XCTAssertEqual(client.requests[0].method, .post)
