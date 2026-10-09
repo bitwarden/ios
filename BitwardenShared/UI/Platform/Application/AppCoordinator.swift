@@ -163,13 +163,13 @@ class AppCoordinator: Coordinator, HasRootNavigator { // swiftlint:disable:this 
 
         // HACK: This is needed for the case when we have all of the next:
         // - Autofill with Fido2 credential
-        // - Never timeout
+        // - Vault auto-unlocked without user interaction (never timeout, or a stored session key)
         // - Needs user interaction because of user verification
         // When this happens, then sometimes the biometrics prompt may not be shown to the user
         // because some race condition from the OS showing the view vs displaying the bio prompt.
         // To fix this we show a transparent navigation controller which makes the
         // biometric prompt work again.
-        if route == .completeWithNeverUnlockKey,
+        if route == .completeWithNeverUnlockKey || route == .completeWithUserSessionKey,
            let credentialProviderExtensionDelegate = appExtensionDelegate as? CredentialProviderExtensionDelegate,
            case .autofillFido2Credential = credentialProviderExtensionDelegate.extensionMode {
             showTransparentController()
