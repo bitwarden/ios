@@ -176,6 +176,9 @@ class DefaultSyncService: SyncService {
     /// The service to get server-specified configuration.
     private let configService: ConfigService
 
+    /// The service used by the application to report non-fatal errors.
+    private let errorReporter: ErrorReporter
+
     /// The repository used by the application to manage fill-assist data.
     private let fillAssistRepository: FillAssistRepository
 
@@ -232,6 +235,7 @@ class DefaultSyncService: SyncService {
     ///   - clientService: The service that handles common client functionality such as encryption and decryption.
     ///   - collectionService: The service for managing the collections for the user.
     ///   - configService: The service to get server-specified configuration.
+    ///   - errorReporter: The service used by the application to report non-fatal errors.
     ///   - flightRecorder: The service used by the application for recording temporary debug logs.
     ///   - folderService: The service for managing the folders for the user.
     ///   - keyConnectorService: The service used by the application to manage Key Connector.
@@ -252,6 +256,7 @@ class DefaultSyncService: SyncService {
         clientService: ClientService,
         collectionService: CollectionService,
         configService: ConfigService,
+        errorReporter: ErrorReporter,
         fillAssistRepository: FillAssistRepository,
         flightRecorder: FlightRecorder,
         folderService: FolderService,
@@ -272,6 +277,7 @@ class DefaultSyncService: SyncService {
         self.clientService = clientService
         self.collectionService = collectionService
         self.configService = configService
+        self.errorReporter = errorReporter
         self.fillAssistRepository = fillAssistRepository
         self.flightRecorder = flightRecorder
         self.folderService = folderService
@@ -472,7 +478,7 @@ extension DefaultSyncService {
             await stateService.setAccountMasterPasswordUnlock(masterPasswordUnlock, userId: userId)
         }
         await stateService.setV2UpgradeToken(response.userDecryption?.v2UpgradeToken, userId: userId)
-        try await reinitUserCryptoIfNeeded(userId: userId)
+        await reinitUserCryptoIfNeeded(userId: userId)
 
         try await cipherService.replaceCiphers(response.ciphers, userId: userId)
         try await collectionService.replaceCollections(response.collections, userId: userId)
@@ -669,20 +675,27 @@ extension DefaultSyncService {
     /// upgrade token and their vault is currently unlocked, e.g. after a no-logout key rotation. Without this, an
     /// unlocked SDK would continue decrypting with the old (V1) user key until the next full vault unlock.
     ///
+    /// Errors are logged rather than thrown so a failed re-initialization doesn't block the rest of the sync. The
+    /// next vault unlock initializes the SDK's crypto with the upgrade token, which recovers from this.
+    ///
     /// - Parameter userId: The userId of the account whose crypto should be re-initialized.
     ///
-    private func reinitUserCryptoIfNeeded(userId: String) async throws {
+    private func reinitUserCryptoIfNeeded(userId: String) async {
         guard await !vaultTimeoutService.isLocked(userId: userId),
               let upgradeToken = await stateService.getV2UpgradeToken(userId: userId)
         else { return }
 
-        let cryptographicState = try await stateService.getAccountCryptographicState(userId: userId)
-        try await clientService.crypto(for: userId).reinitUserCrypto(
-            req: ReinitUserCryptoRequest(
-                accountCryptographicState: cryptographicState,
-                upgradeToken: upgradeToken,
-            ),
-        )
-        await flightRecorder.log("[Auth] Re-initialized user crypto after sync with V2 upgrade token")
+        do {
+            let cryptographicState = try await stateService.getAccountCryptographicState(userId: userId)
+            try await clientService.crypto(for: userId).reinitUserCrypto(
+                req: ReinitUserCryptoRequest(
+                    accountCryptographicState: cryptographicState,
+                    upgradeToken: upgradeToken,
+                ),
+            )
+            await flightRecorder.log("[Auth] Re-initialized user crypto after sync with V2 upgrade token")
+        } catch {
+            errorReporter.log(error: error)
+        }
     }
 } // swiftlint:disable:this file_length
