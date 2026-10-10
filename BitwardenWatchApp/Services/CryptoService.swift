@@ -17,9 +17,21 @@ public class CryptoService {
 
         let nonce = randomData(lengthInBytes: 12)
 
-        let plainData = plainText.data(using: .utf8)
-        let sealedData = try! AES.GCM.seal(plainData!, using: key, nonce: AES.GCM.Nonce(data: nonce))
-        return sealedData.combined
+        guard let plainData = plainText.data(using: .utf8) else {
+            return nil
+        }
+
+        do {
+            let sealedData = try AES.GCM.seal(
+                plainData,
+                using: key,
+                nonce: AES.GCM.Nonce(data: nonce),
+            )
+            return sealedData.combined
+        } catch {
+            Log.e("Failed to encrypt watch data: \(error)")
+            return nil
+        }
     }
 
     func decrypt<T: Decodable>(_ combinedEncryptedData: Data, _ type: T.Type) -> T? {
@@ -27,14 +39,13 @@ public class CryptoService {
             return nil
         }
 
-        let sealedBox = try! AES.GCM.SealedBox(combined: combinedEncryptedData)
-        let decryptedData = try! AES.GCM.open(sealedBox, using: key)
-
         do {
+            let sealedBox = try AES.GCM.SealedBox(combined: combinedEncryptedData)
+            let decryptedData = try AES.GCM.open(sealedBox, using: key)
             let item = try JSONDecoder().decode(type, from: decryptedData)
             return item
         } catch {
-            Log.e("Fail to decode item for keychain: \(error)")
+            Log.e("Failed to decrypt watch data: \(error)")
             return nil
         }
     }
@@ -44,9 +55,13 @@ public class CryptoService {
             return nil
         }
 
-        let sealedBox = try! AES.GCM.SealedBox(combined: combinedEncryptedData)
-        let decryptedData = try! AES.GCM.open(sealedBox, using: key)
-        return decryptedData
+        do {
+            let sealedBox = try AES.GCM.SealedBox(combined: combinedEncryptedData)
+            return try AES.GCM.open(sealedBox, using: key)
+        } catch {
+            Log.e("Failed to decrypt watch data: \(error)")
+            return nil
+        }
     }
 
     func loadKey() -> SymmetricKey {
