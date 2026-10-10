@@ -92,13 +92,24 @@ class VaultUnlockProcessor: StateProcessor<
         do {
             _ = try await services.biometricsRepository.getUserAuthKey()
             await coordinator.handleEvent(.didCompleteAuth)
-        } catch let error as BiometricsServiceError {
-            Logger.processor.error("BiometricsServiceError unlocking vault with biometrics: \(error)")
-            if case .biometryCancelled = error {
-                // Do nothing if the user cancels.
-                return
-            }
-            await loadData()
+        } catch BiometricsServiceError.biometryCancelled {
+            // Do nothing if the user cancels.
+            Logger.processor.error("Biometric unlock cancelled.")
+        } catch BiometricsServiceError.getAuthKeyFailed {
+            // Biometric unlock is enabled, but the key is missing from the keychain. This happens
+            // when the app is reinstalled or the device is restored from a backup, either of which
+            // preserves the user's preference but not the biometric key.
+            //
+            // The key can never be recovered, so leaving the preference enabled strands the user on
+            // the unlock screen behind a button that cannot succeed. Clear the stale preference so
+            // the app returns to its unlocked state, matching what the user gets today by manually
+            // revoking the app's biometrics permission in the Settings app.
+            services.errorReporter.log(error: BitwardenError.generalError(
+                type: "VaultUnlock: Get Biometrics Auth Key Failed",
+                message: "Biometrics auth is enabled but key was unable to be found. Disabling biometric unlock.",
+            ))
+            try? await services.biometricsRepository.setBiometricUnlockKey(authKey: nil)
+            await coordinator.handleEvent(.didCompleteAuth)
         } catch {
             Logger.processor.error("Error unlocking vault with biometrics: \(error)")
             await loadData()
