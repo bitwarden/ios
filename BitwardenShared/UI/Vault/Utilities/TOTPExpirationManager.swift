@@ -62,8 +62,8 @@ class DefaultTOTPExpirationManager: TOTPExpirationManager {
         updateTimer = Timer.scheduledTimer(
             withTimeInterval: 0.25,
             repeats: true,
-            block: { _ in
-                self.checkForExpirations()
+            block: { [weak self] _ in
+                self?.checkForExpirations()
             },
         )
     }
