@@ -133,6 +133,18 @@ protocol AuthService {
     ///
     func answerLoginRequest(_ request: LoginRequest, approve: Bool) async throws
 
+    /// Checks the supplied master password against any active organization Master Password
+    /// policy after the vault has been unlocked with it, setting `forcePasswordResetReason` if
+    /// the password does not satisfy the policy. Uses the policy captured during the most recent
+    /// SSO/TDE login for this email if one is cached, otherwise falls back to whatever policy
+    /// data is already available via `PolicyService`.
+    ///
+    /// - Parameters:
+    ///   - email: The email of the account that was unlocked.
+    ///   - masterPassword: The master password used to unlock the vault.
+    ///
+    func checkMasterPasswordPolicyAfterUnlock(email: String, masterPassword: String) async throws
+
     /// Check the status of the pending login request for the unauthenticated user.
     ///
     func checkPendingLoginRequest(withId id: String) async throws -> LoginRequest
@@ -355,6 +367,12 @@ class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_leng
     /// the callback the `ASWebAuthenticationSession` is configured to match.
     private var singleSignOnCallbackUrl: String { callbackUrl(for: .singleSignOn) }
 
+    /// The master password policy captured from the identity token response during an SSO/TDE
+    /// login, cached (keyed by email) until the user unlocks the vault with their master
+    /// password. Only consumed when the email matches the account being unlocked, to avoid a
+    /// stale policy from one account leaking into a later unlock for a different account.
+    private var ssoMasterPasswordPolicy: (email: String, policy: MasterPasswordPolicyResponseModel?)?
+
     /// The service used by the application to manage account state.
     private let stateService: StateService
 
@@ -454,6 +472,19 @@ class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_leng
             requestApproved: approve,
         )
         _ = try await authAPIService.answerLoginRequest(loginRequest.id, requestModel: requestModel)
+    }
+
+    func checkMasterPasswordPolicyAfterUnlock(email: String, masterPassword: String) async throws {
+        let cached = ssoMasterPasswordPolicy
+        ssoMasterPasswordPolicy = nil
+        let policy = cached?.email == email ? cached?.policy : nil
+
+        try await checkMasterPasswordPolicies(
+            isPreAuth: false,
+            masterPassword: masterPassword,
+            masterPasswordPolicy: policy,
+            username: email,
+        )
     }
 
     func checkPendingLoginRequest(withId id: String) async throws -> LoginRequest {
@@ -756,6 +787,12 @@ class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_leng
             email: email,
         )
 
+        // Cache the master password policy so it can be checked once the user unlocks the vault
+        // with their master password (covers both the direct master password unlock method and
+        // the TDE "approve with master password" flow, which is reached via the
+        // `AuthError.requireDecryptionOptions` throw below).
+        ssoMasterPasswordPolicy = (email, response.masterPasswordPolicy)
+
         return try await unlockMethod(for: response)
     }
 
@@ -778,6 +815,17 @@ class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_leng
 
         // Get the identity token to log in to Bitwarden.
         let response = try await getIdentityTokenResponse(email: email, request: twoFactorRequest)
+
+        // Cache the master password policy so it can be checked once the user unlocks the vault
+        // with their master password. Only applies to SSO/TDE logins that also required two-factor
+        // authentication, where the policy from the first (pre-2FA) identity token response was
+        // never captured because that attempt threw `twoFactorRequired` before reaching the
+        // caching in `loginWithSingleSignOn`. Plain password logins already have their policy
+        // checked above via `preAuthForcePasswordResetReason`, so caching it again here would
+        // just cause it to be redundantly re-checked once the vault is unlocked.
+        if case .authorizationCode = twoFactorRequest.authenticationMethod {
+            ssoMasterPasswordPolicy = (email, response.masterPasswordPolicy)
+        }
 
         // If it's assigned then we need to update the required reset password and remove the cache.
         if preAuthForcePasswordResetReason != nil {
