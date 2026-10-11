@@ -609,8 +609,8 @@
 "RequestAdminApproval" = "Admin-Genehmigung anfordern";
 "ApproveWithMasterPassword" = "Mit Master-Passwort genehmigen";
 "TurnOffUsingPublicDevice" = "Mit einem öffentlichen Gerät ausschalten";
-"TurnOnFillAssist" = "Ausfüllhilfe einschalten";
-"TurnOnFillAssistDescriptionLong" = "Die Ausfüllhilfe verbessert die Genauigkeit von Auto-Ausfüllen auf unterstützten Websites durch die Verwendung von Website-spezifischen Regeln.";
+"TurnOnFillAssist" = "Fill Assist aktivieren";
+"TurnOnFillAssistDescriptionLong" = "Fill Assist verbessert die Genauigkeit von Auto-Ausfüllen auf unterstützten Websites durch die Verwendung von Website-spezifischen Regeln.";
 "RememberThisDevice" = "Dieses Gerät merken";
 "Passkey" = "Passkey";
 "Passkeys" = "Passkeys";
@@ -1275,10 +1275,10 @@
 "Server" = "Server";
 /* Accessibility label for the button that clears a field's value. %1$@ is the field's title (e.g. "Date of birth"), so the spoken label reads "Clear Date of birth". */
 "ClearFieldName" = "%1$@ leeren";
-/* Accessibility hint on a collapsed date field announcing that activating it opens the calendar picker. */
-"OpensDatePicker" = "Öffnet die Datumsauswahl";
+/* Accessibility hint on a collapsed date field announcing that activating it activates the calendar picker. */
+"DoubleTapToActivateThePicker" = "Double tap to activate the picker";
 /* Accessibility hint on an expanded date field announcing that activating it closes the calendar picker. */
-"ClosesDatePicker" = "Schließt die Datumsauswahl";
+"DoubleTapToCloseThePicker" = "Double tap to close the picker";
 /* VoiceOver announcement posted when a date picker whose range excludes future dates, e.g. date of birth or an issue date, reports landing on today (the latest available day) while scrolling the wheel. */
 "FutureDatesUnavailable" = "Ein Datum in der Zukunft ist nicht möglich";
 "PremiumRequiredTOTPDescriptionLong" = "Authentifizierungsschlüssel (TOTP) sind eine Premium-Funktion. Dein aktueller Tarif enthält keinen Zugriff auf diese Funktion.";
@@ -1301,3 +1301,4 @@
 "NotNow" = "Nicht jetzt";
 "SyncUnsuccessful" = "Synchronisation fehlgeschlagen";
 "WeCouldntSyncYourVaultWithTheServerDescriptionLong" = "Wir konnten deinen Tresor nicht mit dem Server synchronisieren. Möglicherweise sind deine letzten Änderungen noch nicht im Tresor enthalten. Du kannst es jetzt erneut versuchen oder die Synchronisierung erfolgt später automatisch.";
+"TextToShareRequired" = "Text to share (required)";

@@ -1275,10 +1275,10 @@
 "Server" = "Server";
 /* Accessibility label for the button that clears a field's value. %1$@ is the field's title (e.g. "Date of birth"), so the spoken label reads "Clear Date of birth". */
 "ClearFieldName" = "Vyčistiť %1$@";
-/* Accessibility hint on a collapsed date field announcing that activating it opens the calendar picker. */
-"OpensDatePicker" = "Otvorí výber dátumu";
+/* Accessibility hint on a collapsed date field announcing that activating it activates the calendar picker. */
+"DoubleTapToActivateThePicker" = "Dvakrát ťuknite pre aktiváciu výberu";
 /* Accessibility hint on an expanded date field announcing that activating it closes the calendar picker. */
-"ClosesDatePicker" = "Zatvorí výber dátumu";
+"DoubleTapToCloseThePicker" = "Dvakrát ťuknite pre ukončenie výberu";
 /* VoiceOver announcement posted when a date picker whose range excludes future dates, e.g. date of birth or an issue date, reports landing on today (the latest available day) while scrolling the wheel. */
 "FutureDatesUnavailable" = "Dátum musí byť z minulosti";
 "PremiumRequiredTOTPDescriptionLong" = "Kľúč overovacej aplikácie (TOTP) je prémiová funkcia. Váš súčasný plán nezahŕňa prístup k tejto funkcii.";
@@ -1301,3 +1301,4 @@
 "NotNow" = "Teraz nie";
 "SyncUnsuccessful" = "Synchronizácia zlyhala";
 "WeCouldntSyncYourVaultWithTheServerDescriptionLong" = "Nepodarilo sa nám synchronizovať váš trezor so serverom. Je možné, že váš trezor nezahŕňa vaše najnovšie zmeny. Môžete to skúsiť znova teraz, alebo sa synchronizácia vykoná automaticky neskôr.";
+"TextToShareRequired" = "Text na zdieľanie (povinné)";

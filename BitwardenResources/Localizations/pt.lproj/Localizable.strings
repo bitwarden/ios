@@ -1275,10 +1275,10 @@
 "Server" = "Servidor";
 /* Accessibility label for the button that clears a field's value. %1$@ is the field's title (e.g. "Date of birth"), so the spoken label reads "Clear Date of birth". */
 "ClearFieldName" = "Limpar %1$@";
-/* Accessibility hint on a collapsed date field announcing that activating it opens the calendar picker. */
-"OpensDatePicker" = "Abre o seletor de data";
+/* Accessibility hint on a collapsed date field announcing that activating it activates the calendar picker. */
+"DoubleTapToActivateThePicker" = "Toque duas vezes para ativar o seletor";
 /* Accessibility hint on an expanded date field announcing that activating it closes the calendar picker. */
-"ClosesDatePicker" = "Fecha o seletor de data";
+"DoubleTapToCloseThePicker" = "Toque duas vezes para fechar o seletor";
 /* VoiceOver announcement posted when a date picker whose range excludes future dates, e.g. date of birth or an issue date, reports landing on today (the latest available day) while scrolling the wheel. */
 "FutureDatesUnavailable" = "Datas futuras indisponíveis";
 "PremiumRequiredTOTPDescriptionLong" = "A chave de autenticação (TOTP) é uma funcionalidade Premium. O seu plano atual não inclui acesso a esta funcionalidade.";
@@ -1301,3 +1301,4 @@
 "NotNow" = "Agora não";
 "SyncUnsuccessful" = "Falha na sincronização";
 "WeCouldntSyncYourVaultWithTheServerDescriptionLong" = "Não foi possível sincronizar o seu cofre com o servidor. O seu cofre poderá não refletir as alterações mais recentes. Pode tentar novamente agora ou a sincronização será efetuada automaticamente mais tarde.";
+"TextToShareRequired" = "Texto a partilhar (obrigatório)";
