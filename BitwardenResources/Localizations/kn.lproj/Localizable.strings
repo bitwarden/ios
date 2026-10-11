@@ -1276,10 +1276,10 @@
 "Server" = "ಸರ್ವರ್";
 /* Accessibility label for the button that clears a field's value. %1$@ is the field's title (e.g. "Date of birth"), so the spoken label reads "Clear Date of birth". */
 "ClearFieldName" = "%1$@ ತೆರವುಗೊಳಿಸಿ";
-/* Accessibility hint on a collapsed date field announcing that activating it opens the calendar picker. */
-"OpensDatePicker" = "Opens date picker";
+/* Accessibility hint on a collapsed date field announcing that activating it activates the calendar picker. */
+"DoubleTapToActivateThePicker" = "Double tap to activate the picker";
 /* Accessibility hint on an expanded date field announcing that activating it closes the calendar picker. */
-"ClosesDatePicker" = "Closes date picker";
+"DoubleTapToCloseThePicker" = "Double tap to close the picker";
 /* VoiceOver announcement posted when a date picker whose range excludes future dates, e.g. date of birth or an issue date, reports landing on today (the latest available day) while scrolling the wheel. */
 "FutureDatesUnavailable" = "Future dates unavailable";
 "PremiumRequiredTOTPDescriptionLong" = "ಅಧಿಕೃತ ಕೀಲಿ (TOTP) ಪ್ರೀಮಿಯಂ ವೈಶಿಷ್ಟ್ಯವಾಗಿದೆ. ನಿಮ್ಮ ಪ್ರಸ್ತುತ ಯೋಜನೆಯು ಈ ವೈಶಿಷ್ಟ್ಯಕ್ಕೆ ಪ್ರವೇಶವನ್ನು ಒಳಗೊಂಡಿಲ್ಲ.";
@@ -1302,3 +1302,4 @@
 "NotNow" = "ಈಗ ಅಲ್ಲ";
 "SyncUnsuccessful" = "ಸಿಂಕ್ ಯಶಸ್ವಿಯಾಗಿಲ್ಲ";
 "WeCouldntSyncYourVaultWithTheServerDescriptionLong" = "ನಮಗೆ ನಿಮ್ಮ ವಾಲ್ಟ್ ಅನ್ನು ಸರ್ವರ್ನೊಂದಿಗೆ ಸಿಂಕ್ ಮಾಡಲು ಸಾಧ್ಯವಾಗಲಿಲ್ಲ. ನಿಮ್ಮ ವಾಲ್ಟ್ ನಿಮ್ಮ ಇತ್ತೀಚಿನ ಬದಲಾವಣೆಗಳನ್ನು ಪ್ರತಿಬಿಂಬಿಸದಿರಬಹುದು. ನೀವು ಈಗ ಮತ್ತೆ ಪ್ರಯತ್ನಿಸಬಹುದು ಅಥವಾ ಅದು ನಂತರ ಸ್ವಯಂಚಾಲಿತವಾಗಿ ಸಿಂಕ್ ಆಗುತ್ತದೆ.";
+"TextToShareRequired" = "Text to share (required)";

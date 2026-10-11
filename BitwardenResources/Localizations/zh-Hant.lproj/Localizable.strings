@@ -1276,10 +1276,10 @@
 "Server" = "伺服器";
 /* Accessibility label for the button that clears a field's value. %1$@ is the field's title (e.g. "Date of birth"), so the spoken label reads "Clear Date of birth". */
 "ClearFieldName" = "清除 %1$@";
-/* Accessibility hint on a collapsed date field announcing that activating it opens the calendar picker. */
-"OpensDatePicker" = "開啟日期選擇器";
+/* Accessibility hint on a collapsed date field announcing that activating it activates the calendar picker. */
+"DoubleTapToActivateThePicker" = "Double tap to activate the picker";
 /* Accessibility hint on an expanded date field announcing that activating it closes the calendar picker. */
-"ClosesDatePicker" = "關閉日期選擇器";
+"DoubleTapToCloseThePicker" = "Double tap to close the picker";
 /* VoiceOver announcement posted when a date picker whose range excludes future dates, e.g. date of birth or an issue date, reports landing on today (the latest available day) while scrolling the wheel. */
 "FutureDatesUnavailable" = "無法選擇未來日期";
 "PremiumRequiredTOTPDescriptionLong" = "驗證器金鑰（TOTP）為 Premium 功能。您目前的方案未包含此功能。";
@@ -1302,3 +1302,4 @@
 "NotNow" = "以後再說";
 "SyncUnsuccessful" = "同步失敗";
 "WeCouldntSyncYourVaultWithTheServerDescriptionLong" = "無法將您的保管庫與伺服器同步。您的保管庫可能未反映最新變更。您可以立即重試，或稍後等待系統自動同步。";
+"TextToShareRequired" = "Text to share (required)";

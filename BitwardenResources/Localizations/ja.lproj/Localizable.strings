@@ -1275,10 +1275,10 @@
 "Server" = "サーバー";
 /* Accessibility label for the button that clears a field's value. %1$@ is the field's title (e.g. "Date of birth"), so the spoken label reads "Clear Date of birth". */
 "ClearFieldName" = "%1$@ をクリア";
-/* Accessibility hint on a collapsed date field announcing that activating it opens the calendar picker. */
-"OpensDatePicker" = "日付ピッカーを開く";
+/* Accessibility hint on a collapsed date field announcing that activating it activates the calendar picker. */
+"DoubleTapToActivateThePicker" = "ダブルタップでピッカーを有効化";
 /* Accessibility hint on an expanded date field announcing that activating it closes the calendar picker. */
-"ClosesDatePicker" = "日付ピッカーを閉じる";
+"DoubleTapToCloseThePicker" = "ダブルタップでピッカーを閉じる";
 /* VoiceOver announcement posted when a date picker whose range excludes future dates, e.g. date of birth or an issue date, reports landing on today (the latest available day) while scrolling the wheel. */
 "FutureDatesUnavailable" = "将来の日付は利用できません";
 "PremiumRequiredTOTPDescriptionLong" = "認証キー（TOTP）はプレミアム機能です。現在のプランにはこの機能へのアクセス権が含まれていません。";
@@ -1301,3 +1301,4 @@
 "NotNow" = "後で";
 "SyncUnsuccessful" = "同期に失敗しました";
 "WeCouldntSyncYourVaultWithTheServerDescriptionLong" = "サーバーとあなたの保管庫を同期できませんでした。あなたの保管庫は最新の変更を反映していない可能性があります。 後で自動的に同期しますが、今すぐ再試行することもできます。";
+"TextToShareRequired" = "共有するテキスト (必須)";
