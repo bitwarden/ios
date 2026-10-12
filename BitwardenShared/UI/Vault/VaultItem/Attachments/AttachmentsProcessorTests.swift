@@ -59,7 +59,26 @@ class AttachmentsProcessorTests: BitwardenTestCase {
         let data = Data("data".utf8)
         subject.fileSelectionCompleted(fileName: "exampleFile.txt", data: data)
         XCTAssertEqual(subject.state.fileName, "exampleFile.txt")
+        XCTAssertEqual(subject.state.fileNameExtension, ".txt")
+        XCTAssertEqual(subject.state.fileNameStem, "exampleFile")
         XCTAssertEqual(subject.state.fileData, data)
+    }
+
+    /// `fileSelectionCompleted()` stores an empty extension when the file doesn't have one.
+    @MainActor
+    func test_fileSelectionCompleted_noExtension() {
+        subject.fileSelectionCompleted(fileName: "README", data: Data())
+        XCTAssertEqual(subject.state.fileNameExtension, "")
+        XCTAssertEqual(subject.state.fileNameStem, "README")
+    }
+
+    /// `fileSelectionCompleted()` lowercases the file's extension and keeps the rest of the name.
+    @MainActor
+    func test_fileSelectionCompleted_uppercaseExtension() {
+        subject.fileSelectionCompleted(fileName: "REPORT.PDF", data: Data())
+        XCTAssertEqual(subject.state.fileName, "REPORT.pdf")
+        XCTAssertEqual(subject.state.fileNameExtension, ".pdf")
+        XCTAssertEqual(subject.state.fileNameStem, "REPORT")
     }
 
     /// `perform(_:)` with `.loadPremiumStatus` shows the Premium upgrade alert if the user lacks Premium.
@@ -110,7 +129,7 @@ class AttachmentsProcessorTests: BitwardenTestCase {
         XCTAssertEqual(subject.state.cipher, .fixture())
         XCTAssertNil(subject.state.fileName)
         XCTAssertNil(subject.state.fileData)
-        XCTAssertEqual(subject.state.toast, Toast(title: Localizations.attachementAdded))
+        XCTAssertEqual(subject.state.toast, Toast(title: Localizations.attachmentAdded))
     }
 
     /// `perform(_:)` with `.save` handles any errors.
@@ -139,6 +158,36 @@ class AttachmentsProcessorTests: BitwardenTestCase {
             coordinator.alertShown.last,
             .inputValidationAlert(error: .init(message: Localizations.validationFieldRequired(Localizations.file))),
         )
+    }
+
+    /// `perform(_:)` with `.save` shows an error if the file name is empty before its extension.
+    @MainActor
+    func test_perform_save_emptyName() async throws {
+        subject.state.cipher = .fixture()
+        subject.fileSelectionCompleted(fileName: "report.pdf", data: Data())
+        subject.state.hasPremium = true
+        subject.receive(.fileNameChanged("  "))
+
+        await subject.perform(.save)
+
+        XCTAssertEqual(
+            coordinator.alertShown.last,
+            .inputValidationAlert(error: .init(message: Localizations.validationFieldRequired(Localizations.fileName))),
+        )
+        XCTAssertNil(vaultRepository.saveAttachmentFileName)
+    }
+
+    /// `perform(_:)` with `.save` saves the file with the name the user entered and its original extension.
+    @MainActor
+    func test_perform_save_renamed() async throws {
+        subject.state.cipher = .fixture()
+        subject.fileSelectionCompleted(fileName: "report.pdf", data: Data())
+        subject.state.hasPremium = true
+        subject.receive(.fileNameChanged("  quarterly summary "))
+
+        await subject.perform(.save)
+
+        XCTAssertEqual(vaultRepository.saveAttachmentFileName, "quarterly summary.pdf")
     }
 
     /// `perform(_:)` with `.save` shows the Premium upgrade alert if the user doesn't have Premium.
@@ -284,6 +333,27 @@ class AttachmentsProcessorTests: BitwardenTestCase {
         subject.receive(.dismissPressed)
 
         XCTAssertEqual(coordinator.routes.last, .dismiss())
+    }
+
+    /// `receive(_:)` with `.fileNameChanged` updates the file name and keeps the file's extension.
+    @MainActor
+    func test_receive_fileNameChanged() {
+        subject.fileSelectionCompleted(fileName: "report.pdf", data: Data())
+
+        subject.receive(.fileNameChanged("summary"))
+        XCTAssertEqual(subject.state.fileName, "summary.pdf")
+        XCTAssertEqual(subject.state.fileNameStem, "summary")
+
+        subject.receive(.fileNameChanged(""))
+        XCTAssertEqual(subject.state.fileName, ".pdf")
+        XCTAssertEqual(subject.state.fileNameStem, "")
+    }
+
+    /// `receive(_:)` with `.fileNameChanged` does nothing if no file has been chosen.
+    @MainActor
+    func test_receive_fileNameChanged_noFile() {
+        subject.receive(.fileNameChanged("summary"))
+        XCTAssertNil(subject.state.fileName)
     }
 
     /// `receive(_:)` with `.toastShown` updates the state's toast value.
