@@ -195,6 +195,7 @@
 "AttachmentDeleted" = "Attachment deleted";
 "ChooseFile" = "Choose file";
 "File" = "File";
+"FileName" = "File name";
 "NoAttachments" = "There are no attachments.";
 "MaxFileSize" = "Maximum file size is 100 MB.";
 "RequiredMaximumFileSizeIsX" = "Required. Maximum file size is %1$@.";
