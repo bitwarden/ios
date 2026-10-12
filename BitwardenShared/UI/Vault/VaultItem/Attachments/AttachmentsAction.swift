@@ -21,6 +21,9 @@ enum AttachmentsAction: Equatable, Sendable {
     /// The dismiss button was pressed.
     case dismissPressed
 
+    /// The name of the chosen file was changed. The value doesn't include the file's extension.
+    case fileNameChanged(String)
+
     /// The toast was shown or hidden.
     case toastShown(Toast?)
 }
