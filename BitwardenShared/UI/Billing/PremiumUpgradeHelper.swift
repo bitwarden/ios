@@ -41,8 +41,8 @@ protocol PremiumUpgradeHelper { // sourcery: AutoMockable
     func navigateToPremiumUpgrade(onConfirmed: (() async -> Void)?) async
 
     /// Subscribes to checkout status, then navigates to the Premium upgrade screen. Shows the upgrade
-    /// pending alert instead if an upgrade is already pending. Skips the availability check, so use
-    /// when availability is already known (e.g., action card tap).
+    /// pending alert without subscribing instead if an upgrade is already pending. Skips the
+    /// availability check, so use when availability is already known (e.g., action card tap).
     ///
     /// - Parameters:
     ///   - onConfirmed: An optional closure called when the upgrade is confirmed.
@@ -130,24 +130,31 @@ class DefaultPremiumUpgradeHelper<Route: PremiumUpgradeRoute, Event>: PremiumUpg
         guard !isResolvingStartRequest else { return }
         isResolvingStartRequest = true
         defer { isResolvingStartRequest = false }
-        subscribeToPremiumCheckoutStatus(onConfirmed: onConfirmed)
         guard await services.billingService.premiumUpgradeLifecycleState() != .pending else {
-            showUpgradePendingAlert()
+            showUpgradePendingAlert(onConfirmed: onConfirmed)
             return
         }
+        subscribeToPremiumCheckoutStatus(onConfirmed: onConfirmed)
         isShowingUpgradeScreen = true
         coordinator.navigate(to: .premiumUpgrade)
     }
 
     // MARK: Private Methods
 
-    /// Calls `onPendingDismiss`, then shows the upgrade pending alert with "Sync Now" wired to
+    /// Cancels the checkout status subscription and calls `onPendingDismiss`, then shows the
+    /// upgrade pending alert. "Sync Now" subscribes to checkout status again, then calls
     /// `retryPendingUpgrade()`.
     ///
-    private func showUpgradePendingAlert() {
+    /// - Parameters:
+    ///   - onConfirmed: An optional closure called when a retry confirms the upgrade.
+    ///
+    private func showUpgradePendingAlert(onConfirmed: (() async -> Void)?) {
+        premiumStatusChangedCancellable = nil
         onPendingDismiss?()
         coordinator.showAlert(.upgradePending { [weak self] in
-            await self?.services.billingService.retryPendingUpgrade()
+            guard let self else { return }
+            subscribeToPremiumCheckoutStatus(onConfirmed: onConfirmed)
+            await services.billingService.retryPendingUpgrade()
         })
     }
 
@@ -178,14 +185,14 @@ class DefaultPremiumUpgradeHelper<Route: PremiumUpgradeRoute, Event>: PremiumUpg
                     }
                 case .pending:
                     guard isShowingUpgradeScreen else {
-                        showUpgradePendingAlert()
+                        showUpgradePendingAlert(onConfirmed: onConfirmed)
                         return
                     }
                     isShowingUpgradeScreen = false
                     coordinator.navigate(to: .dismiss(DismissAction { [weak self] in
                         guard let self else { return }
                         coordinator.hideLoadingOverlay()
-                        showUpgradePendingAlert()
+                        showUpgradePendingAlert(onConfirmed: onConfirmed)
                     }))
                 case .syncing:
                     // PremiumUpgradeProcessor shows the loading overlay on the upgrade screen.
