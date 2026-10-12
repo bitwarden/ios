@@ -12,6 +12,9 @@ struct VaultItemSelectionState: Equatable {
     /// The base url used to fetch icons.
     let iconBaseURL: URL?
 
+    /// Whether the `vfo1-foundation` feature flag is enabled.
+    var isVfo1FoundationFeatureFlagEnabled = false
+
     /// The user's current account profile state and alternative accounts.
     var profileSwitcherState: ProfileSwitcherState = .empty(shouldAlwaysHideAddAccount: true)
 

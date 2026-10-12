@@ -128,8 +128,9 @@ public extension EnvironmentURLs {
         // use their entered URLs, like self-hosted.
         let environmentURLData: EnvironmentURLData = switch environmentURLData.region {
         case .europe: .defaultEU
-        case .unitedStates: .defaultUS
+        case .gov: .defaultGov
         case .internal, .selfHosted: environmentURLData
+        case .unitedStates: .defaultUS
         }
 
         if environmentURLData.region == .selfHosted || environmentURLData.region == .internal,
@@ -149,7 +150,7 @@ public extension EnvironmentURLs {
             webVaultURL = environmentURLData.webVault ?? URL(string: "https://vault.bitwarden.com")!
         }
         fillAssistRulesURL = fillAssistRulesUrl
-            ?? URL(string: "https://github.com/bitwarden/map-the-web/releases/latest/download")!
+            ?? URL(string: "https://fillassist.bitwarden.com")!
         importItemsURL = environmentURLData.importItemsURL ?? URL(string: "https://vault.bitwarden.com/#/tools/import")!
         recoveryCodeURL = environmentURLData.recoveryCodeURL ?? URL(
             string: "https://vault.bitwarden.com/#/recover-2fa",

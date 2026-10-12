@@ -11,7 +11,20 @@ public enum GeneratorRoute: Equatable, Hashable {
     case dismiss
 
     /// A route to the generator screen.
-    case generator(staticType: GeneratorType? = nil, emailWebsite: String? = nil)
+    ///
+    /// - Parameters:
+    ///   - staticType: When set, locks the generator to this type and prevents the user from switching.
+    ///   - emailWebsite: The website used to pre-populate the email generator's website field.
+    ///   - passwordRules: A password rules string (from the AutoFill credential API) used to
+    ///     constrain password generation to site-specific requirements.
+    ///   - savePasswordHistory: When `false`, generated passwords are not saved to password history.
+    ///     Use when the vault is not unlocked (e.g. the generate-password credential extension flow).
+    case generator(
+        staticType: GeneratorType? = nil,
+        emailWebsite: String? = nil,
+        passwordRules: String? = nil,
+        savePasswordHistory: Bool = true,
+    )
 
     /// A route to the generator history screen.
     case generatorHistory

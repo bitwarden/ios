@@ -828,11 +828,29 @@ class AccountSecurityProcessorTests: BitwardenTestCase { // swiftlint:disable:th
         XCTAssertEqual(coordinator.events.last, .authAction(.logout(userId: nil, userInitiated: true)))
     }
 
+    /// `.receive(_:)` with `.manageDevicesTapped` navigates to the device management view.
+    @MainActor
+    func test_receive_manageDevicesTapped() {
+        subject.receive(.manageDevicesTapped)
+        XCTAssertEqual(coordinator.routes.last, .deviceManagement)
+    }
+
     /// `.receive(_:)` with `.pendingLoginRequestsTapped` navigates to the pending requests view.
     @MainActor
     func test_receive_pendingLoginRequestsTapped() {
         subject.receive(.pendingLoginRequestsTapped)
         XCTAssertEqual(coordinator.routes.last, .pendingLoginRequests)
+    }
+
+    /// `perform(.loadData)` sets `isManageDevicesEnabled` from the `manageDevices` feature flag.
+    @MainActor
+    func test_perform_loadData_setsIsManageDevicesEnabled() async {
+        stateService.activeAccount = .fixture()
+        configService.featureFlagsBool[.manageDevices] = true
+
+        await subject.perform(.loadData)
+
+        XCTAssertTrue(subject.state.isManageDevicesEnabled)
     }
 
     /// `receive(_:)` with `sessionTimeoutActionChanged(:)` presents an alert if `logout` was selected.

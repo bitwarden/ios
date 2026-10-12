@@ -11,8 +11,9 @@ protocol CipherService {
     ///
     /// - Parameters:
     ///   - cipher: The cipher to add.
+    ///   - encryptedByKeyId: The hex-encoded ID of the key used to encrypt the `cipher`.
     ///   - encryptedFor: The user ID who encrypted the `cipher`.
-    func addCipherWithServer(_ cipher: Cipher, encryptedFor: String) async throws
+    func addCipherWithServer(_ cipher: Cipher, encryptedByKeyId: String?, encryptedFor: String) async throws
 
     /// Archives a cipher for the current user both in the backend and in local storage.
     ///
@@ -25,13 +26,11 @@ protocol CipherService {
     /// Shares multiple ciphers with an organization and updates the locally stored data.
     ///
     /// - Parameters:
-    ///   - ciphers: The ciphers to share.
+    ///   - encryptionContexts: The encryption contexts containing the ciphers and per-cipher encryption metadata.
     ///   - collectionIds: The collection IDs to associate with the ciphers.
-    ///   - encryptedFor: The user ID who encrypted the ciphers.
     func bulkShareCiphersWithServer(
-        _ ciphers: [Cipher],
+        _ encryptionContexts: [EncryptionContext],
         collectionIds: [String],
-        encryptedFor: String,
     ) async throws
 
     /// Returns the count of ciphers in the data store for the current user.
@@ -130,8 +129,9 @@ protocol CipherService {
     ///
     /// - Parameters:
     ///   - cipher: The cipher to share.
+    ///   - encryptedByKeyId: The hex-encoded ID of the key used to encrypt the `cipher`.
     ///   - encryptedFor: The user ID who encrypted the `cipher`.
-    func shareCipherWithServer(_ cipher: Cipher, encryptedFor: String) async throws
+    func shareCipherWithServer(_ cipher: Cipher, encryptedByKeyId: String?, encryptedFor: String) async throws
 
     /// Soft deletes a cipher for the current user both in the backend and in local storage.
     ///
@@ -157,8 +157,9 @@ protocol CipherService {
     ///
     /// - Parameters:
     ///   - cipher: The cipher to update.
+    ///   - encryptedByKeyId: The hex-encoded ID of the key used to encrypt the `cipher`.
     ///   - encryptedFor: The user ID who encrypted the `cipher`.
-    func updateCipherWithServer(_ cipher: Cipher, encryptedFor: String) async throws
+    func updateCipherWithServer(_ cipher: Cipher, encryptedByKeyId: String?, encryptedFor: String) async throws
 
     /// Updates the cipher for the current user in local storage only.
     ///
@@ -222,14 +223,18 @@ class DefaultCipherService: CipherService {
 }
 
 extension DefaultCipherService {
-    func addCipherWithServer(_ cipher: Cipher, encryptedFor: String) async throws {
+    func addCipherWithServer(_ cipher: Cipher, encryptedByKeyId: String?, encryptedFor: String) async throws {
         let userId = try await stateService.getActiveAccountId()
 
         // Add the cipher in the backend.
         var response: CipherDetailsResponseModel = if cipher.collectionIds.isEmpty {
-            try await cipherAPIService.addCipher(cipher, encryptedFor: encryptedFor)
+            try await cipherAPIService.addCipher(cipher, encryptedByKeyId: encryptedByKeyId, encryptedFor: encryptedFor)
         } else {
-            try await cipherAPIService.addCipherWithCollections(cipher, encryptedFor: encryptedFor)
+            try await cipherAPIService.addCipherWithCollections(
+                cipher,
+                encryptedByKeyId: encryptedByKeyId,
+                encryptedFor: encryptedFor,
+            )
         }
 
         // The API doesn't return the collectionIds, so manually add them back.
@@ -253,22 +258,20 @@ extension DefaultCipherService {
     }
 
     func bulkShareCiphersWithServer(
-        _ ciphers: [Cipher],
+        _ encryptionContexts: [EncryptionContext],
         collectionIds: [String],
-        encryptedFor: String,
     ) async throws {
         let userId = try await stateService.getActiveAccountId()
 
         // Share the ciphers with the backend.
         let response = try await cipherAPIService.bulkShareCiphers(
-            ciphers,
+            encryptionContexts,
             collectionIds: collectionIds,
-            encryptedFor: encryptedFor,
         )
 
         // Create a dictionary for quick lookup of original ciphers by ID.
-        let ciphersById = Dictionary(uniqueKeysWithValues: ciphers.compactMap { cipher in
-            cipher.id.map { ($0, cipher) }
+        let ciphersById = Dictionary(uniqueKeysWithValues: encryptionContexts.compactMap { context in
+            context.cipher.id.map { ($0, context.cipher) }
         })
 
         // Update ciphers in local storage.
@@ -408,11 +411,15 @@ extension DefaultCipherService {
         return updatedCipher
     }
 
-    func shareCipherWithServer(_ cipher: Cipher, encryptedFor: String) async throws {
+    func shareCipherWithServer(_ cipher: Cipher, encryptedByKeyId: String?, encryptedFor: String) async throws {
         let userId = try await stateService.getActiveAccountId()
 
         // Share the cipher from the backend.
-        var response = try await cipherAPIService.shareCipher(cipher, encryptedFor: encryptedFor)
+        var response = try await cipherAPIService.shareCipher(
+            cipher,
+            encryptedByKeyId: encryptedByKeyId,
+            encryptedFor: encryptedFor,
+        )
 
         // The API doesn't return the collectionIds, so manually add them back.
         response.collectionIds = cipher.collectionIds
@@ -459,12 +466,16 @@ extension DefaultCipherService {
         }
     }
 
-    func updateCipherWithServer(_ cipher: Cipher, encryptedFor: String) async throws {
+    func updateCipherWithServer(_ cipher: Cipher, encryptedByKeyId: String?, encryptedFor: String) async throws {
         let userId = try await stateService.getActiveAccountId()
 
         // Update the cipher in the backend.
         var response: CipherDetailsResponseModel = if cipher.edit {
-            try await cipherAPIService.updateCipher(cipher, encryptedFor: encryptedFor)
+            try await cipherAPIService.updateCipher(
+                cipher,
+                encryptedByKeyId: encryptedByKeyId,
+                encryptedFor: encryptedFor,
+            )
         } else {
             // if the cipher is not editable, update the favorite status and folder only.
             try await cipherAPIService.updateCipherPreference(cipher)

@@ -37,7 +37,7 @@ class AddItemStateTests: XCTestCase {
               ▿ login: Optional<LoginView>
                 ▿ some: LoginView
                   - autofillOnPageLoad: Optional<Bool>.none
-                  - fido2Credentials: Optional<Array<Fido2Credential>>.none
+                  - fido2Credentials: Optional<Array<Fido2CredentialView>>.none
                   - password: Optional<String>.none
                   - passwordRevisionDate: Optional<Date>.none
                   - totp: Optional<String>.none
@@ -47,6 +47,7 @@ class AddItemStateTests: XCTestCase {
               - notes: Optional<String>.none
               - organizationId: Optional<String>.none
               - organizationUseTotp: false
+              - partial: false
               - passport: Optional<PassportView>.none
               - passwordHistory: Optional<Array<PasswordHistoryView>>.none
               - permissions: Optional<CipherPermissions>.none
@@ -95,7 +96,7 @@ class AddItemStateTests: XCTestCase {
               ▿ login: Optional<LoginView>
                 ▿ some: LoginView
                   - autofillOnPageLoad: Optional<Bool>.none
-                  - fido2Credentials: Optional<Array<Fido2Credential>>.none
+                  - fido2Credentials: Optional<Array<Fido2CredentialView>>.none
                   ▿ password: Optional<String>
                     - some: "top secret!"
                   - passwordRevisionDate: Optional<Date>.none
@@ -114,6 +115,7 @@ class AddItemStateTests: XCTestCase {
                 - some: "Bitwarden Login"
               - organizationId: Optional<String>.none
               - organizationUseTotp: false
+              - partial: false
               - passport: Optional<PassportView>.none
               - passwordHistory: Optional<Array<PasswordHistoryView>>.none
               - permissions: Optional<CipherPermissions>.none
@@ -136,7 +138,7 @@ class AddItemStateTests: XCTestCase {
         var subject = CipherItemState(hasPremium: true)
         subject.allUserCollections = [collectionOrg1, collectionOrg2]
         subject.ownershipOptions = [
-            .personal(email: "user@bitwarden.com"),
+            .personal(displayName: "user@bitwarden.com"),
             .organization(id: "1", name: "Organization 1"),
             .organization(id: "2", name: "Organization 2"),
         ]
@@ -173,7 +175,7 @@ class AddItemStateTests: XCTestCase {
 
         subject.organizationId = "1"
         subject.ownershipOptions = [
-            .personal(email: "user@bitwarden.com"),
+            .personal(displayName: "user@bitwarden.com"),
             .organization(id: "1", name: "Organization"),
         ]
         XCTAssertEqual(subject.owner, .organization(id: "1", name: "Organization"))
@@ -186,15 +188,15 @@ class AddItemStateTests: XCTestCase {
         XCTAssertNil(subject.owner)
 
         subject.ownershipOptions = [
-            .personal(email: "user@bitwarden.com"),
+            .personal(displayName: "user@bitwarden.com"),
             .organization(id: "1", name: "Organization"),
         ]
-        XCTAssertEqual(subject.owner, .personal(email: "user@bitwarden.com"))
+        XCTAssertEqual(subject.owner, .personal(displayName: "user@bitwarden.com"))
     }
 
     /// Changing the owner clears the list of a cipher's `collectionIds`.
     func test_owner_clearsCollectionIds() {
-        let personalOwner = CipherOwner.personal(email: "user@bitwarden.com")
+        let personalOwner = CipherOwner.personal(displayName: "user@bitwarden.com")
         let organization1Owner = CipherOwner.organization(id: "1", name: "Organization")
         let organization2Owner = CipherOwner.organization(id: "2", name: "Organization 2")
 
@@ -214,7 +216,7 @@ class AddItemStateTests: XCTestCase {
 
     /// Setting the owner updates the cipher's `organizationId`.`
     func test_owner_updatesOrganizationId() {
-        let personalOwner = CipherOwner.personal(email: "user@bitwarden.com")
+        let personalOwner = CipherOwner.personal(displayName: "user@bitwarden.com")
         let organization1Owner = CipherOwner.organization(id: "1", name: "Organization")
         let organization2Owner = CipherOwner.organization(id: "2", name: "Organization 2")
 

@@ -9,6 +9,9 @@ public enum PillBadgeStyle {
     /// A danger style with red colors.
     case danger
 
+    /// An info style with blue colors.
+    case info
+
     /// A success style with green colors.
     case success
 
@@ -20,6 +23,8 @@ public enum PillBadgeStyle {
         switch self {
         case .danger:
             SharedAsset.Colors.badgeDangerBackground.swiftUIColor
+        case .info:
+            SharedAsset.Colors.badgeInfoBackground.swiftUIColor
         case .success:
             SharedAsset.Colors.badgeSuccessBackground.swiftUIColor
         case .warning:
@@ -32,6 +37,8 @@ public enum PillBadgeStyle {
         switch self {
         case .danger:
             SharedAsset.Colors.badgeDangerBorder.swiftUIColor
+        case .info:
+            SharedAsset.Colors.badgeInfoBorder.swiftUIColor
         case .success:
             SharedAsset.Colors.badgeSuccessBorder.swiftUIColor
         case .warning:
@@ -44,6 +51,8 @@ public enum PillBadgeStyle {
         switch self {
         case .danger:
             SharedAsset.Colors.badgeDangerText.swiftUIColor
+        case .info:
+            SharedAsset.Colors.badgeInfoText.swiftUIColor
         case .success:
             SharedAsset.Colors.badgeSuccessText.swiftUIColor
         case .warning:

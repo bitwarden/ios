@@ -13,6 +13,7 @@ class AppProcessorTests: BitwardenTestCase {
     var coordinator: MockCoordinator<AppRoute, AppEvent>!
     var errorReporter: MockErrorReporter!
     var notificationCenter: MockNotificationCenterService!
+    var stateService: MockStateService!
     var subject: AppProcessor!
     var timeProvider: MockTimeProvider!
 
@@ -26,6 +27,7 @@ class AppProcessorTests: BitwardenTestCase {
         coordinator = MockCoordinator()
         errorReporter = MockErrorReporter()
         notificationCenter = MockNotificationCenterService()
+        stateService = MockStateService()
         timeProvider = MockTimeProvider(.mockTime(Date(year: 2024, month: 6, day: 1, hour: 2, minute: 30, second: 10)))
 
         subject = AppProcessor(
@@ -34,6 +36,7 @@ class AppProcessorTests: BitwardenTestCase {
                 appSettingsStore: appSettingsStore,
                 errorReporter: errorReporter,
                 notificationCenterService: notificationCenter,
+                stateService: stateService,
                 timeProvider: timeProvider,
             ),
         )
@@ -43,11 +46,19 @@ class AppProcessorTests: BitwardenTestCase {
     override func tearDown() {
         super.tearDown()
 
+        // Complete the notification and theme publishers so the long-lived listener tasks
+        // `AppProcessor` starts in `init`/`start` end cleanly instead of leaking (parked forever
+        // on a publisher that will never emit again) for the rest of the test run.
+        notificationCenter.willEnterForegroundSubject.send(completion: .finished)
+        notificationCenter.didEnterBackgroundSubject.send(completion: .finished)
+        stateService.appThemeSubject.send(completion: .finished)
+
         appModule = nil
         appSettingsStore = nil
         coordinator = nil
         errorReporter = nil
         notificationCenter = nil
+        stateService = nil
         subject = nil
         timeProvider = nil
     }

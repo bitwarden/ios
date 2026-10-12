@@ -85,9 +85,14 @@ public protocol SendRepository: AnyObject {
 
     /// A publisher for all the sends in the user's account.
     ///
+    /// - Parameter includeTypesSection: Whether to include the "Types" filter section (the Text/File
+    ///   groups) in the returned sections. Pass `false` to omit it, e.g. when the user is restricted
+    ///   to a single Send type and filtering by type is no longer meaningful.
     /// - Returns: A publisher for the list of sends in the user's account.
     ///
-    func sendListPublisher() async throws -> AsyncThrowingPublisher<AnyPublisher<[SendListSection], Error>>
+    func sendListPublisher(
+        includeTypesSection: Bool,
+    ) async throws -> AsyncThrowingPublisher<AnyPublisher<[SendListSection], Error>>
 
     /// A publisher for a send.
     ///
@@ -278,10 +283,12 @@ class DefaultSendRepository: SendRepository {
         }.eraseToAnyPublisher().values
     }
 
-    func sendListPublisher() async throws -> AsyncThrowingPublisher<AnyPublisher<[SendListSection], Error>> {
+    func sendListPublisher(
+        includeTypesSection: Bool,
+    ) async throws -> AsyncThrowingPublisher<AnyPublisher<[SendListSection], Error>> {
         try await sendService.sendsPublisher()
             .asyncTryMap { sends in
-                try await self.sendListSections(from: sends)
+                try await self.sendListSections(from: sends, includeTypesSection: includeTypesSection)
             }
             .eraseToAnyPublisher()
             .values
@@ -312,16 +319,33 @@ class DefaultSendRepository: SendRepository {
 
     /// Returns a list of the sections in the vault list from a sync response.
     ///
-    /// - Parameter sends: The sends used to build the list of sections.
+    /// - Parameters:
+    ///   - sends: The sends used to build the list of sections.
+    ///   - includeTypesSection: Whether to include the "Types" filter section (the Text/File groups).
     /// - Returns: A list of the sections to display in the vault list.
     ///
-    private func sendListSections(from sends: [Send]) async throws -> [SendListSection] {
+    private func sendListSections(
+        from sends: [Send],
+        includeTypesSection: Bool,
+    ) async throws -> [SendListSection] {
         let sends = try await sends
             .asyncMap { try await clientService.sends().decrypt(send: $0) }
             .sorted { $0.name.localizedStandardCompare($1.name) == .orderedAscending }
 
         guard !sends.isEmpty else {
             return []
+        }
+
+        let allSendsSection = SendListSection(
+            id: "AllSends",
+            items: sends.compactMap(SendListItem.init),
+            name: Localizations.allSends,
+        )
+
+        // The "Types" filter section is omitted when filtering by type is not meaningful, e.g. when
+        // the user is restricted to a single Send type by policy.
+        guard includeTypesSection else {
+            return [allSendsSection]
         }
 
         let fileSendsCount = sends
@@ -335,19 +359,13 @@ class DefaultSendRepository: SendRepository {
             SendListItem(id: "Types.File", itemType: .group(.file, fileSendsCount)),
         ]
 
-        let allItems = sends.compactMap(SendListItem.init)
-
         return [
             SendListSection(
                 id: "Types",
                 items: types,
                 name: Localizations.types,
             ),
-            SendListSection(
-                id: "AllSends",
-                items: allItems,
-                name: Localizations.allSends,
-            ),
+            allSendsSection,
         ]
     }
 

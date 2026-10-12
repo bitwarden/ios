@@ -6,7 +6,7 @@
     <key>BitwardenCouldNotDecryptXVaultItemsDescriptionLong</key>
     <dict>
       <key>NSStringLocalizedFormatKey</key>
-      <string>%#@vaultitems@. Daha fazla veri kaybını önlemek için bu hata raporunu kopyalayıp müşteri başarı ekibiyle paylaşın.</string>
+      <string>%#@BitwardenCouldNotDecryptVaultItems@. Daha fazla veri kaybını önlemek için bu hata raporunu kopyalayıp müşteri başarı ekibiyle paylaşın.</string>
       <key>BitwardenCouldNotDecryptVaultItems</key>
       <dict>
         <key>NSStringFormatSpecTypeKey</key>
@@ -193,7 +193,7 @@
     <key>YouHaveAGracePeriodOfXDaysFromYourSubscriptionDescriptionLong</key>
     <dict>
       <key>NSStringLocalizedFormatKey</key>
-      <string>%1$#@YouHaveAGracePeriodOfXDaysFromYourSubscriptionExpirationDate@ Please resolve the past due invoices by **%2$@**.</string>
+      <string>Aboneliğinizin sona erme tarihinden itibaren %1$#@YouHaveAGracePeriodOfXDaysFromYourSubscriptionExpirationDate@ ek süreniz bulunmaktadır. Lütfen vadesi geçmiş faturalarınızı %2$@ tarihine kadar ödeyin.</string>
       <key>YouHaveAGracePeriodOfXDaysFromYourSubscriptionExpirationDate</key>
       <dict>
         <key>NSStringFormatSpecTypeKey</key>
@@ -201,9 +201,9 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>d</string>
         <key>one</key>
-        <string>You have a grace period of %1$d day from your subscription expiration date.</string>
+        <string>Aboneliğinizin sona erme tarihinden itibaren %1$d günlük ek süreniz bulunmaktadır.</string>
         <key>other</key>
-        <string>You have a grace period of %1$d days from your subscription expiration date.</string>
+        <string>Mevcut aboneliğinizin bitiş tarihine %1$d günlük ek süre tanınmıştır.</string>
       </dict>
     </dict>
     <!-- A message indicating the minimum length of a PIN in characters. -->

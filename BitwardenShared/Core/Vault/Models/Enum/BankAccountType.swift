@@ -24,4 +24,15 @@ public enum BankAccountType: String, CaseIterable, Codable, Equatable, Hashable,
 
     /// A savings account.
     case savings
+
+    /// The cases in the order they should be displayed to the user, per design.
+    public static let displayOrder: [BankAccountType] = [
+        .checking,
+        .savings,
+        .certificateOfDeposit,
+        .lineOfCredit,
+        .investmentBrokerage,
+        .moneyMarket,
+        .other,
+    ]
 }

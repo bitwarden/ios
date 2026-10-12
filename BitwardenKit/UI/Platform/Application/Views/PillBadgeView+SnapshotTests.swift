@@ -17,6 +17,7 @@ final class PillBadgeViewSnapshotTests: BitwardenTestCase {
             PillBadgeView(text: "Active", style: .success)
             PillBadgeView(text: "Canceled", style: .danger)
             PillBadgeView(text: "Past due", style: .warning)
+            PillBadgeView(text: "Current session", style: .info)
         }
         .padding()
 

@@ -33,6 +33,7 @@ extension Cipher {
         card: Card? = nil,
         collectionIds: [String] = [],
         creationDate: DateTime = Date(year: 2023, month: 11, day: 5, hour: 9, minute: 41),
+        data: String? = nil,
         deletedDate: Date? = nil,
         driversLicense: DriversLicense? = nil,
         edit: Bool = true,
@@ -44,10 +45,11 @@ extension Cipher {
         key: String? = nil,
         localData: LocalData? = nil,
         login: BitwardenSdk.Login? = nil,
-        name: String = "Bitwarden",
+        name: String? = "Bitwarden",
         notes: String? = nil,
         organizationId: String? = nil,
         organizationUseTotp: Bool = false,
+        partialData: String? = nil,
         passport: Passport? = nil,
         passwordHistory: [PasswordHistory]? = nil,
         permissions: CipherPermissions? = nil,
@@ -89,7 +91,8 @@ extension Cipher {
             deletedDate: deletedDate,
             revisionDate: revisionDate,
             archivedDate: archivedDate,
-            data: nil,
+            data: data,
+            partialData: partialData,
         )
     }
 }
@@ -100,7 +103,6 @@ extension CipherListView {
         organizationId: Uuid? = nil,
         folderId: Uuid? = nil,
         collectionIds: [Uuid] = [],
-        key: EncString? = nil,
         name: String = "Bitwarden",
         subtitle: String = "",
         type: CipherListViewType = .login(.fixture()),
@@ -118,13 +120,13 @@ extension CipherListView {
         archivedDate: DateTime? = nil,
         copyableFields: [CopyableCipherFields] = [],
         localData: LocalDataView? = nil,
+        partial: Bool = false,
     ) -> CipherListView {
         .init(
             id: id,
             organizationId: organizationId,
             folderId: folderId,
             collectionIds: collectionIds,
-            key: key,
             name: name,
             subtitle: subtitle,
             type: type,
@@ -142,6 +144,7 @@ extension CipherListView {
             archivedDate: archivedDate,
             copyableFields: copyableFields,
             localData: localData,
+            partial: partial,
         )
     }
 
@@ -150,7 +153,6 @@ extension CipherListView {
         organizationId: Uuid? = nil,
         folderId: Uuid? = nil,
         collectionIds: [Uuid] = [],
-        key: EncString? = nil,
         login: LoginListView,
         name: String = "Bitwarden",
         subtitle: String = "",
@@ -168,13 +170,13 @@ extension CipherListView {
         archivedDate: DateTime? = nil,
         copyableFields: [CopyableCipherFields] = [],
         localData: LocalDataView? = nil,
+        partial: Bool = false,
     ) -> CipherListView {
         .init(
             id: id,
             organizationId: organizationId,
             folderId: folderId,
             collectionIds: collectionIds,
-            key: key,
             name: name,
             subtitle: subtitle,
             type: .login(login),
@@ -192,6 +194,7 @@ extension CipherListView {
             archivedDate: archivedDate,
             copyableFields: copyableFields,
             localData: localData,
+            partial: partial,
         )
     }
 }
@@ -275,6 +278,7 @@ extension CipherView {
         notes: String? = nil,
         organizationId: String? = nil,
         organizationUseTotp: Bool = false,
+        partial: Bool = false,
         passport: PassportView? = nil,
         passwordHistory: [PasswordHistoryView]? = nil,
         permissions: CipherPermissions? = nil,
@@ -317,6 +321,7 @@ extension CipherView {
             deletedDate: deletedDate,
             revisionDate: revisionDate,
             archivedDate: archivedDate,
+            partial: partial,
         )
     }
 
@@ -396,6 +401,7 @@ extension CipherView {
             deletedDate: deletedDate,
             revisionDate: revisionDate,
             archivedDate: archivedDate,
+            partial: false,
         )
     }
 
@@ -421,12 +427,12 @@ extension CipherView {
                 firstName: "Bit",
                 middleName: "W",
                 lastName: "Warden",
-                dateOfBirth: "1989-08-01",
+                dateOfBirth: Date(year: 1989, month: 8, day: 1),
                 licenseNumber: "D1234567",
                 issuingCountry: "United States",
                 issuingState: "California",
-                issueDate: "2019-08-01",
-                expirationDate: "2029-08-01",
+                issueDate: Date(year: 2019, month: 8, day: 1),
+                expirationDate: Date(year: 2029, month: 8, day: 1),
                 issuingAuthority: "DMV",
                 licenseClass: "C",
             ),
@@ -446,6 +452,7 @@ extension CipherView {
             deletedDate: nil,
             revisionDate: Date(year: 2023, month: 11, day: 5),
             archivedDate: nil,
+            partial: false,
         )
     }
 
@@ -469,7 +476,7 @@ extension CipherView {
             passport: PassportView(
                 surname: "Warden",
                 givenName: "Bit",
-                dateOfBirth: "1989-08-01",
+                dateOfBirth: Date(year: 1989, month: 8, day: 1),
                 sex: "Male",
                 birthPlace: "San Francisco, USA",
                 nationality: "USA",
@@ -478,8 +485,8 @@ extension CipherView {
                 passportType: "Regular/Tourist",
                 nationalIdentificationNumber: "123456789",
                 issuingAuthority: "U.S. Department of State",
-                issueDate: "2019-08-01",
-                expirationDate: "2029-08-01",
+                issueDate: Date(year: 2019, month: 8, day: 1),
+                expirationDate: Date(year: 2029, month: 8, day: 1),
             ),
             favorite: false,
             reprompt: .none,
@@ -496,6 +503,7 @@ extension CipherView {
             deletedDate: nil,
             revisionDate: Date(year: 2023, month: 11, day: 5),
             archivedDate: nil,
+            partial: false,
         )
     }
 
@@ -555,6 +563,7 @@ extension CipherView {
             deletedDate: deletedDate,
             revisionDate: revisionDate,
             archivedDate: archivedDate,
+            partial: false,
         )
     }
 
@@ -881,7 +890,7 @@ extension BitwardenSdk.LoginListView {
 
 extension BitwardenSdk.LoginView {
     static func fixture(
-        fido2Credentials: [Fido2Credential]? = nil,
+        fido2Credentials: [Fido2CredentialView]? = nil,
         password: String? = nil,
         passwordRevisionDate: DateTime? = nil,
         uris: [LoginUriView]? = nil,
@@ -988,12 +997,12 @@ extension BitwardenSdk.DriversLicenseView {
         firstName: String? = nil,
         middleName: String? = nil,
         lastName: String? = nil,
-        dateOfBirth: String? = nil,
+        dateOfBirth: Date? = nil,
         licenseNumber: String? = "D1234567",
         issuingCountry: String? = nil,
         issuingState: String? = nil,
-        issueDate: String? = nil,
-        expirationDate: String? = nil,
+        issueDate: Date? = nil,
+        expirationDate: Date? = nil,
         issuingAuthority: String? = nil,
         licenseClass: String? = nil,
     ) -> BitwardenSdk.DriversLicenseView {
@@ -1017,7 +1026,7 @@ extension BitwardenSdk.PassportView {
     static func fixture(
         surname: String? = nil,
         givenName: String? = nil,
-        dateOfBirth: String? = nil,
+        dateOfBirth: Date? = nil,
         sex: String? = nil,
         birthPlace: String? = nil,
         nationality: String? = nil,
@@ -1026,8 +1035,8 @@ extension BitwardenSdk.PassportView {
         passportType: String? = nil,
         nationalIdentificationNumber: String? = nil,
         issuingAuthority: String? = nil,
-        issueDate: String? = nil,
-        expirationDate: String? = nil,
+        issueDate: Date? = nil,
+        expirationDate: Date? = nil,
     ) -> BitwardenSdk.PassportView {
         BitwardenSdk.PassportView(
             surname: surname,

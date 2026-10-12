@@ -8,8 +8,12 @@
 "Copy" = "Копіювати";
 "CopyLicenseNumber" = "Копіювати номер ліцензії";
 "CopyPassportNumber" = "Копіювати номер паспорта";
+"CopyPassphrase" = "Копіювати парольну фразу";
 "CopyPassword" = "Копіювати пароль";
 "CopyUsername" = "Копіювати ім'я користувача";
+"UseThisPassphrase" = "Використати цю парольну фразу";
+"UseThisPassword" = "Використати цей пароль";
+"UseThisUsername" = "Використати це ім'я користувача";
 "Delete" = "Видалити";
 "DeleteAll" = "Видалити все";
 "Deleting" = "Видалення…";
@@ -21,11 +25,13 @@
 "EnterPIN" = "Введіть PIN-код.";
 "Favorites" = "Обране";
 "Folder" = "Тека";
-"FolderCreated" = "Нову теку створено.";
+"FolderCreated" = "Нову теку створено";
 "FolderDeleted" = "Теку видалено.";
 "FolderNone" = "Без теки";
 "Folders" = "Теки";
 "FolderUpdated" = "Теку збережено";
+"MyFolder" = "Моя тека";
+"MyFolders" = "Мої теки";
 "InternetConnectionRequiredMessage" = "Щоб продовжити, під'єднайтеся до інтернету.";
 "InternetConnectionRequiredTitle" = "Необхідно під'єднатися до інтернету";
 "InvalidMasterPassword" = "Недійсний головний пароль. Спробуйте знову.";
@@ -39,6 +45,8 @@
 "RemoveAccount" = "Вилучити обліковий запис";
 "RemoveAccountConfirmation" = "Ви дійсно хочете вилучити цей обліковий запис?";
 "AccountAlreadyAdded" = "Обліковий запис вже додано";
+"AccountCreationRestricted" = "Створення облікових записів обмежено";
+"XOnlyAllowsInvitedUsersToCreateAccounts" = "%1$@ дозволяє створювати облікові записи тільки запрошеним користувачам.";
 "SwitchToAlreadyAddedAccountConfirmation" = "Бажаєте перемкнутися на нього зараз?";
 "MasterPassword" = "Головний пароль";
 "MoreOptions" = "Інші варіанти";
@@ -49,6 +57,7 @@
 "OK" = "OK";
 "Password" = "Пароль";
 "Save" = "Зберегти";
+/* Action to move a vault item to another vault; used as a button label, menu item, and screen title. */
 "Move" = "Перемістити";
 "Saving" = "Збереження…";
 "Settings" = "Налаштування";
@@ -57,7 +66,7 @@
 "Submit" = "Відправити";
 "UseFingerprintToUnlock" = "Розблокуйте відбитком пальця";
 "UseThisButtonToGenerateANewUniquePassword" = "Використовуйте цю кнопку, щоб згенерувати новий унікальний пароль.";
-"YouWillOnlyNeedToSetUpAnAuthenticatorKeyDescriptionLong" = "Вам потрібно налаштувати ключі автентифікації лише для записів, які потребують двоетапної перевірки за допомогою коду. Цей ключ постійно генеруватиме коди з 6 цифр, які можна використовувати для входу.";
+"YouWillOnlyNeedToSetUpAnAuthenticatorKeyDescriptionLong" = "Вам потрібно налаштувати ключі автентифікації лише для записів, які потребують двофакторної автентифікації за допомогою коду. Цей ключ постійно генеруватиме коди з 6 цифр, які можна використовувати для входу.";
 "UseTheGeneratorToCreateASecurePasswordPassphrasesAndUsernames" = "Використовуйте генератор для створення надійних паролів, парольних фраз та імен користувачів.";
 "PassphrasesAreOftenEasierToRememberDescriptionLong" = "Парольні фрази легше запам'ятовуються і вводяться, порівняно з випадковими паролями. Їх доцільно використовувати для входу в облікові записи, де автозаповнення недоступне, як-от телевізійні служби потокової трансляції.";
 "UniqueUsernamesAddAnExtraLayerOfSecurityAndCanHelpPreventHackersFromFindingYourAccounts" = "Унікальні імена користувачів додають ще один рівень безпеки й запобігають знаходженню ваших облікових записів хакерами.";
@@ -124,7 +133,6 @@
 "PasswordOverrideAlert" = "Ви дійсно хочете перезаписати поточний пароль?";
 "PushNotificationAlert" = "Bitwarden автоматично синхронізує ваше сховище за допомогою push-сповіщень. Для найкращої роботи оберіть \"Дозволити\" в наступному запиті про ввімкнення push-сповіщень.";
 "Security" = "Безпека";
-"Select" = "Обрати";
 "ItemUpdated" = "Запис збережено";
 "Submitting" = "Відправлення…";
 "Syncing" = "Синхронізація…";
@@ -177,7 +185,6 @@
 "CopyTotp" = "Копіювати TOTP";
 "CopyTotpAutomaticallyDescription" = "Якщо запис має ключ автентифікації, копіювати код підтвердження TOTP до буфера обміну під час автозаповнення.";
 "CopyTotpAutomatically" = "Автоматично копіювати коди TOTP";
-"PremiumRequired" = "Для використання цієї функції необхідна передплата Premium.";
 "AttachementAdded" = "Вкладення додано";
 "AttachmentDeleted" = "Вкладення видалено";
 "ChooseFile" = "Обрати файл";
@@ -198,18 +205,18 @@
 "CustomFields" = "Власні поля";
 "CopyNumber" = "Копіювати номер";
 "CopySecurityCode" = "Копіювати код безпеки";
-"CopyAccountNumber" = "Copy account number";
-"CopyRoutingNumber" = "Copy routing number";
+"CopyAccountNumber" = "Копіювати номер рахунку";
+"CopyRoutingNumber" = "Копіювати номер відстеження";
 "Number" = "Номер";
 "SecurityCode" = "Код безпеки";
-"AccountNumber" = "Account number";
-"RoutingNumber" = "Routing number";
-"TypeBankAccount" = "Bank account";
+"AccountNumber" = "Номер рахунку";
+"RoutingNumber" = "Номер відстеження";
+"TypeBankAccount" = "Банківський рахунок";
 "TypeCard" = "Картка";
 "TypeIdentity" = "Посвідчення";
-"TypeLicense" = "License";
+"TypeLicense" = "Ліцензія";
 "TypeLogin" = "Вхід";
-"TypePassport" = "Passport";
+"TypePassport" = "Паспорт";
 "TypeSecureNote" = "Захищена нотатка";
 "Address1" = "Адреса 1";
 "Address2" = "Адреса 2";
@@ -218,7 +225,6 @@
 "August" = "Серпень";
 "Brand" = "Тип картки";
 "CardholderName" = "Ім'я власника картки";
-"WeFoundMultipleMatchesChooseTheCorrectOne" = "We found multiple matches. Choose the correct one.";
 "CityTown" = "Місто / Селище";
 "Company" = "Компанія";
 "Country" = "Країна";
@@ -256,8 +262,14 @@
 "ShowWebsiteIconsDescription" = "Показувати впізнаване зображення біля кожного запису.";
 "IconsUrl" = "URL-адреса сервера піктограм";
 "AutofillWithBitwarden" = "Автозаповнення з Bitwarden";
+/* Section header and screen title for viewing/managing a cipher's collections. */
 "Collections" = "Збірки";
+/* Section header and screen title for viewing/managing a cipher's shared folders. */
+"SharedFolders" = "Спільні теки";
+/* Empty state message shown when a collection has no items. */
 "NoItemsCollection" = "У цій збірці немає записів";
+/* Empty state message shown when a shared folder has no items. */
+"ThereAreNoItemsInThisSharedFolder" = "У цій спільній теці немає записів";
 "NoItemsFolder" = "У цій теці немає записів";
 "NoItemsTrash" = "У смітнику немає записів.";
 "FaceID" = "Face ID";
@@ -277,6 +289,7 @@
 "RegEx" = "Регулярний вираз";
 "StartsWith" = "Починається з";
 "MatchDetection" = "Виявлення збігів";
+/* Field label on the Move screen shown when the "vfo1-foundation" feature flag is disabled; superseded by "Vault" when enabled. */
 "Organization" = "Організація";
 "HoldYubikeyNearTop" = "Утримуйте Yubikey біля верхньої частини пристрою.";
 "TryAgain" = "Спробуйте знову";
@@ -297,6 +310,7 @@
 "NoEmailAddressesEntered" = "Не введено жодної адреси е-пошти";
 "EnterAtLeastOneValidEmailToShareSend" = "Введіть принаймні одну дійсну адресу е-пошти, щоб поділитися цим відправленням.";
 "OneOrMoreEmailAddressesIncorrect" = "Одна або кілька адрес електронної пошти неправильні. Перевірте і повторіть спробу.";
+"OnlyIncludeTheFollowingDomainsDescriptionLong" = "Вкажіть лише такі домени: %1$@. Перевірте й повторіть спробу.";
 "Cards" = "Картки";
 "Identities" = "Особисті дані";
 "Logins" = "Записи входу";
@@ -312,14 +326,27 @@
 "NoItemsToList" = "Немає записів.";
 "MoveDown" = "Перемістити вниз";
 "MoveUp" = "Перемістити вгору";
+/* Empty state message on the Collections screen shown when a user has no collections. */
 "NoCollectionsToList" = "Немає збірок.";
+/* Empty state message on the Shared folders screen shown when a user has no shared folders. */
+"ThereAreNoSharedFoldersToList" = "Немає спільних тек для показу.";
 "MovedItemToOrg" = "%1$@ переміщено до %2$@.";
+/* Alert message shown when saving an item with no collection selected. */
 "SelectOneCollection" = "Необхідно вибрати принаймні одну збірку.";
+/* Alert message shown when saving an item with no shared folder selected. */
+"YouMustSelectAtLeastOneSharedFolder" = "Необхідно вибрати принаймні одну спільну теку.";
 "Share" = "Поділитися";
 "ShareAll" = "Поділитись усім";
+/* Overflow menu item and screen title on the Move screen shown when the "vfo1-foundation" feature flag is disabled; superseded by "Move" when enabled. */
 "MoveToOrganization" = "Перемістити до організації";
+/* Empty state message shown when a user has no vaults available to move an item into, when the "vfo1-foundation" feature flag is enabled. */
+"NoVaultsToList" = "Немає сховищ для показу.";
+/* Empty state message shown when a user has no organizations available to move an item into, when the "vfo1-foundation" feature flag is disabled. */
 "NoOrgsToList" = "Немає організацій.";
-"MoveToOrgDesc" = "Виберіть організацію, до якої ви бажаєте перемістити цей запис. Переміщуючи до організації, власність запису передається тій організації. Ви більше не будете єдиним власником цього запису після переміщення.";
+/* Footer text on the Move screen explaining that moving an item transfers its ownership to the destination vault's organization, when the "vfo1-foundation" feature flag is enabled. */
+"ChooseAVaultThatYouWishToMoveThisItemToDescriptionLong" = "Виберіть сховище, до якого ви бажаєте перемістити цей запис. Власність запису передається організації, до сховища якої він переміщується. Ви більше не володітимете безпосередньо цим записом після переміщення.";
+/* Footer text on the Move screen explaining that moving an item transfers its ownership to the destination organization, when the "vfo1-foundation" feature flag is disabled. */
+"MoveToOrgDesc" = "Виберіть організацію, до якої ви бажаєте перемістити цей запис. Власність запису передається організації, до якої він переміщується. Ви більше не володітимете безпосередньо цим записом після переміщення.";
 "NumberOfWords" = "Кількість слів";
 "Passphrase" = "Парольна фраза";
 "WordSeparator" = "Розділювач слів";
@@ -391,7 +418,7 @@
 "MasterPasswordPolicyValidationTitle" = "Неправильний пароль";
 "MasterPasswordPolicyValidationMessage" = "Пароль не відповідає вимогам організації. Перевірте інформацію про політику і спробуйте знову.";
 "Loading" = "Завантаження";
-"LoadingSubscription" = "Loading subscription…";
+"LoadingSubscription" = "Завантаження передплати…";
 "AcceptPoliciesError" = "Умови користування та політика приватності не погоджені.";
 "PrivacyPolicy" = "Політика приватності";
 "PersonalOwnershipPolicyInEffect" = "Політика організації впливає на ваші параметри власності.";
@@ -419,11 +446,19 @@
 "NewSendCreated" = "Відправлення створено";
 "Custom" = "Власний";
 "SendDisabledWarning" = "У зв'язку з політикою компанії, ви можете лише видалити наявне відправлення.";
+"ThisDateIsEnforcedByYourOrganization" = "Цією датою керує ваша організація";
 "AboutSend" = "Про відправлення";
 "HideEmail" = "Приховувати мою адресу електронної пошти від отримувачів";
 "SendOptionsPolicyInEffect" = "На параметри відправлень впливають одна чи декілька політик організації.";
-"SendFilePremiumRequired" = "З безплатним обліковим записом можна відправляти лише текст. Щоб відправляти файли через Send, необхідна передплата Premium.";
+"SendFilePremiumRequired" = "З безплатним обліковим записом можна відправляти лише текст. Щоб відправляти файли, необхідна передплата Premium.";
 "SendFileEmailVerificationRequired" = "Для відправлення файлів необхідно підтвердити електронну пошту. Ви можете виконати підтвердження у вебсховищі.";
+/* Alert message shown when Send Controls policy restricts creation to one Send type. %1$@ is the allowed Send type, either "File" or "Text". */
+"DueToAnEnterprisePolicyYouCanOnlyCreateXSends" = "Відповідно до політики компанії, ви можете створити лише %1$@ відправлень.";
+"OrganizationPolicyRestriction" = "Обмеження політики організації";
+"TextSendsAreNotAllowedDescriptionLong" = "Для вашої організації не дозволено текстові відправлення, тому це відправлення автоматично видалиться у визначену дату.";
+"ThisSendIsNotCompliantDescriptionLong" = "Це відправлення не відповідає політиці вашої організації щодо відправлень і автоматично видалиться у визначену дату.";
+"ToEditThisSendMakeACopyDescriptionLong" = "Щоб редагувати це відправлення, зробіть копію. Якщо термін дії цього відправлення може завершитися у встановлену дату видалення, жодних дій виконувати не потрібно.";
+"MakeACopy" = "Зробити копію";
 "PasswordPrompt" = "Повторний запит головного пароля";
 "PasswordConfirmation" = "Підтвердження головного пароля";
 "PasswordConfirmationDesc" = "Ця дія захищена. Щоб продовжити, повторно введіть головний пароль.";
@@ -465,6 +500,8 @@
 "SpecialCharacters" = "Спеціальні символи (!@#$%^&*)";
 "PasswordIsVisibleTapToHide" = "Пароль видимий. Торкніться, щоб приховати.";
 "PasswordIsNotVisibleTapToShow" = "Пароль прихований. Торкніться, щоб показати.";
+"FieldValueIsVisibleTapToHide" = "%1$@ зображається; натисніть, щоб приховати.";
+"FieldValueIsNotVisibleTapToShow" = "%1$@ не зображається, натисніть, щоб показати.";
 "FilterByVault" = "Фільтрувати записи за сховищем";
 "AllVaults" = "Усі сховища";
 "Vaults" = "Сховища";
@@ -540,16 +577,16 @@
 "LanguageChangeRequiresAppRestart" = "Для зміни мови потрібно перезапустити програму";
 "DefaultSystem" = "Типова (Система)";
 "Important" = "Важливо";
-"WeakMasterPassword" = "Слабкий головний пароль";
-"WeakPasswordIdentifiedUseAStrongPasswordToProtectYourAccount" = "Виявлено слабкий пароль. Використовуйте надійний пароль для захисту свого облікового запису. Ви дійсно хочете використати слабкий пароль?";
-"Weak" = "Слабкий";
+"WeakMasterPassword" = "Ненадійний головний пароль";
+"WeakPasswordIdentifiedUseAStrongPasswordToProtectYourAccount" = "Виявлено ненадійний пароль. Використовуйте надійний пароль для захисту свого облікового запису. Ви дійсно хочете використати ненадійний пароль?";
+"Weak" = "Ненадійний";
 "Good" = "Хороший";
 "Strong" = "Надійний";
 "CheckKnownDataBreachesForThisPassword" = "Перевірити відомі витоки даних для цього пароля";
 "ExposedMasterPassword" = "Головний пароль викрито";
 "PasswordFoundInADataBreachAlertDescription" = "Пароль знайдено у витоку даних. Використовуйте унікальний пароль для захисту свого облікового запису. Ви дійсно хочете використати викритий пароль?";
-"WeakAndExposedMasterPassword" = "Слабкий і викритий головний пароль";
-"WeakPasswordIdentifiedAndFoundInADataBreachAlertDescription" = "Виявлено слабкий пароль, який знайдено у витоку даних. Використовуйте надійний та унікальний пароль для захисту свого облікового запису. Ви дійсно хочете використати цей пароль?";
+"WeakAndExposedMasterPassword" = "Ненадійний і викритий головний пароль";
+"WeakPasswordIdentifiedAndFoundInADataBreachAlertDescription" = "Виявлено ненадійний пароль, який знайдено у витоку даних. Використовуйте надійний та унікальний пароль для захисту свого облікового запису. Ви дійсно хочете використати цей пароль?";
 "AddTheKeyToAnExistingOrNewItem" = "Додати ключ до наявного чи нового запису";
 "ThereAreNoItemsInYourVaultThatMatchX" = "У вашому сховищі немає записів, які відповідають \"%1$@\"";
 "SearchForAnItemOrAddANewItem" = "Шукати запис або додати новий запис";
@@ -558,19 +595,22 @@
 "ThereAreNoCardsInYourVault" = "У вашому сховищі немає карток";
 "ThereAreNoNotesInYourVault" = "У вашому сховищі немає нотаток";
 "ThereAreNoIdentitiesInYourVault" = "У вашому сховищі немає посвідчень";
-"ThereAreNoPassportsInYourVault" = "There are no passports in your vault";
+"ThereAreNoPassportsInYourVault" = "У вашому сховищі немає паспортів";
 "ThereAreNoSSHKeysInYourVault" = "У вашому сховищі немає ключів SSH";
-"ThereAreNoBankAccountsInYourVault" = "There are no bank accounts in your vault";
+"ThereAreNoBankAccountsInYourVault" = "У вашому сховищі немає банківських рахунків";
 "US" = "США";
 "EU" = "ЄС";
+"Gov" = "Gov";
 "SelfHosted" = "Власне розміщення";
-"UpdateWeakMasterPasswordWarning" = "Ваш головний пароль не відповідає одній або більше політикам вашої організації. Щоб отримати доступ до сховища, вам необхідно оновити свій головний пароль зараз. Продовживши, ви вийдете з поточного сеансу, після чого потрібно буде повторно виконати вхід. Сеанси на інших пристроях можуть залишатися активними протягом однієї години.";
+"UpdateWeakMasterPasswordWarning" = "Ваш головний пароль не відповідає щонайменше одній політиці вашої організації. Щоб отримати доступ до сховища, вам необхідно оновити свій головний пароль зараз. Продовживши, ви вийдете з поточного сеансу, після чого потрібно буде повторно виконати вхід. Сеанси на інших пристроях можуть залишатися активними протягом однієї години.";
 "CurrentMasterPasswordRequired" = "Чинний головний пароль (обов'язково)";
 "NewMasterPasswordRequired" = "Новий головний пароль (обов'язково)";
 "ApproveWithMyOtherDevice" = "Затвердити з моїм іншим пристроєм";
 "RequestAdminApproval" = "Запит підтвердження адміністратора";
 "ApproveWithMasterPassword" = "Затвердити з головним паролем";
 "TurnOffUsingPublicDevice" = "Вимкнути використання загальнодоступного пристрою";
+"TurnOnFillAssist" = "Увімкнути помічник із заповнення";
+"TurnOnFillAssistDescriptionLong" = "Помічник із заповнення покращує точність автозаповнення на підтримуваних сайтах, використовуючи специфічні правила для кожного сайту.";
 "RememberThisDevice" = "Запам'ятати цей пристрій";
 "Passkey" = "Ключ доступу";
 "Passkeys" = "Ключі доступу";
@@ -584,6 +624,7 @@
 "LoginApproved" = "Вхід затверджено";
 "LogInWithDevice" = "Увійти з пристроєм";
 "LoggingInOn" = "Увійти на";
+/* The word "Vault", used generically as a field label, screen title, and app-wide term for a user's or organization's item collection. */
 "Vault" = "Сховище";
 "Appearance" = "Подання";
 "AccountSecurity" = "Безпека облікового запису";
@@ -619,10 +660,9 @@
 "SetUpAutofill" = "Налаштувати автозаповнення";
 "AppInfo" = "Про програму";
 "Browse" = "Огляд";
-"SelectCardholderName" = "Select cardholder name";
 "SelectLanguage" = "Обрати мову";
 "ContinueToCompleteWebAuthnVerification" = "Продовжуйте, щоб завершити перевірку WebAuthn.";
-"ThereWasAnErrorStartingWebAuthnTwoFactorAuthentication" = "Сталася помилка під час запуску двоетапної перевірки WebAuthn";
+"ThereWasAnErrorStartingWebAuthnTwoFactorAuthentication" = "Сталася помилка під час запуску двофакторної автентифікації WebAuthn";
 "LaunchWebAuthn" = "Запустити WebAuthn";
 "Duo" = "Duo";
 "FilePassword" = "Пароль файлу";
@@ -638,7 +678,6 @@
 "ByContinuingYouAgreeToTheTermsOfServiceAndPrivacyPolicy" = "Продовжуючи, ви погоджуєтеся з **[Умовами використання](%1$@)** і **[Політикою приватності](%2$@)**";
 "GetAdviceAnnouncementsAndResearchOpportunitiesFromBitwardenInYourInboxUnsubscribeAtAnyTime." = "Отримуйте поради, оголошення та інформацію щодо можливості участі в дослідженнях від Bitwarden у вашій поштовій скриньці. **[Відпишіться](%1$@)** коли завгодно.";
 "UserVerificationForPasskey" = "Перевірка для використання ключа доступу";
-"NewItem" = "Новий запис";
 "ExploreTheGenerator" = "Ознайомитися з генератором";
 "LearnMoreAboutGeneratingSecureLoginCredentialsWithAGuidedTour" = "Дізнайтеся про те, як генерувати надійні облікові дані для входу, пройшовши ознайомлення.";
 "ExportVaultFilePwProtectInfo" = "Цей експортований файл буде захищений паролем, який необхідно ввести для його розшифрування.";
@@ -718,25 +757,25 @@
 "TheVaultProtectsMoreThanJustPasswordsStoreSecureLoginsIdsCardsAndNotesSecurelyHere" = "Сховище захищає не лише ваші паролі. Безпечно зберігайте дані для входу, посвідчення, картки й нотатки.";
 "SendSensitiveInformationSafely" = "Безпечно надсилайте конфіденційну інформацію";
 "ShareFilesAndDataSecurelyWithAnyoneOnAnyPlatformYourInformationWillRemainEndToEndEncrypted" = "Безпечно діліться файлами й даними з ким завгодно, на будь-якій платформі. Ваша інформація наскрізно зашифрована та має обмежений доступ.";
-"AddLogin" = "Add login";
-"AddCard" = "Add card";
-"AddIdentity" = "Add identity";
-"AddNote" = "Add note";
-"AddSSHKey" = "Add SSH key";
-"AddBankAccount" = "Add bank account";
-"AddLicense" = "Add license";
-"AddPassport" = "Add passport";
-"EditBankAccount" = "Edit bank account";
-"EditLicense" = "Edit license";
-"EditPassport" = "Edit passport";
+"AddLogin" = "Додати запис";
+"AddCard" = "Додати картку";
+"AddIdentity" = "Додати посвідчення";
+"AddNote" = "Додати нотатку";
+"AddSSHKey" = "Додати ключ SSH";
+"AddBankAccount" = "Додати банківський рахунок";
+"AddLicense" = "Додати ліцензію";
+"AddPassport" = "Додати паспорт";
+"EditBankAccount" = "Редагувати банківський рахунок";
+"EditLicense" = "Редагувати ліцензію";
+"EditPassport" = "Редагувати паспорт";
 "EditLogin" = "Редагувати запис";
 "EditCard" = "Редагувати картку";
 "EditIdentity" = "Редагувати посвідчення";
 "EditNote" = "Редагувати нотатку";
 "EditSSHKey" = "Редагувати ключ SSH";
-"ViewBankAccount" = "View bank account";
-"ViewLicense" = "View license";
-"ViewPassport" = "View passport";
+"ViewBankAccount" = "Переглянути банківський рахунок";
+"ViewLicense" = "Переглянути ліцензію";
+"ViewPassport" = "Переглянути паспорт";
 "ViewLogin" = "Переглянути запис";
 "ViewCard" = "Переглянути картку";
 "ViewIdentity" = "Переглянути посвідчення";
@@ -769,7 +808,7 @@
 "BitwardenTools" = "Інструменти Bitwarden";
 "ImportSuccessful" = "Успішно імпортовано!";
 "ManageYourLoginsFromAnywhereWithBitwardenToolsForWebAndDesktop" = "Керуйте своїми паролями звідусіль за допомогою вебінструментів та програм Bitwarden.";
-"ManageYourSubscriptionPlanInTheBitwardenWebApp" = "Manage your subscription plan in the Bitwarden web app.";
+"ManageYourSubscriptionPlanInTheBitwardenWebApp" = "Керуйте своїм планом передплати у вебпрограмі Bitwarden.";
 "DownloadTheBrowserExtension" = "Завантажте розширення браузера";
 "GoToBitwardenToIntegrateBitwardenIntoYourFavoriteBrowserForASeamlessExperience" = "Відкрийте bitwarden.com/download, щоб інтегрувати Bitwarden у свій браузер для найкращої продуктивності.";
 "UseTheWebApp" = "Використовуйте вебпрограму";
@@ -778,6 +817,8 @@
 "SetUpAutofillOnAllYourDevicesToLoginWithASingleTapAnywhere" = "Налаштуйте автозаповнення на всіх пристроях для входу одним дотиком.";
 "GoBack" = "Повернутися";
 "GotIt" = "Зрозуміло";
+/* masterPasswordUnlock is the name of some data we want to delete, so there's no need to localize it. */
+"ClearMasterPasswordUnlock" = "Стерти masterPasswordUnlock";
 "ClearSsoCookies" = "Очистити SSO cookies";
 "GenerateCrash" = "Генерувати звіт про збій";
 "GenerateErrorReport" = "Генерувати звіт про помилку";
@@ -794,7 +835,7 @@
 "UnableToMoveTheSelectedItemPleaseTryAgain" = "Не вдалося перемістити вибраний запис. Повторіть спробу.";
 "Done" = "Виконано";
 "Next" = "Далі";
-"NextCode" = "Next code";
+"NextCode" = "Наступний код";
 "CopyPublicKey" = "Копіювати відкритий ключ";
 "CopyPrivateKey" = "Копіювати закритий ключ";
 "CopyFingerprint" = "Копіювати відбиток";
@@ -850,6 +891,10 @@
 "Identification" = "Ідентифікація";
 "Owner" = "Власник";
 "VerifyYourIdentity" = "Підтвердьте свою особу";
+"ThisOperationIsNotAllowedOnThisAccount" = "Ця операція не дозволена в цьому обліковому записі";
+"AnErrorOccurredWhileTryingToLockTheCurrentUser" = "Під час спроби блокування поточного користувача сталася помилка";
+"LockAllAccounts" = "Заблокувати всі облікові записи";
+"AllAccountsHaveBeenLocked" = "Всі облікові записи заблоковано";
 "ShareErrorDetails" = "Поширити подробиці про помилку";
 "FlightRecorder" = "Чорна скринька";
 "EnableFlightRecorder" = "Увімкнути чорну скриньку";
@@ -863,8 +908,13 @@
 "ShowLess" = "Згорнути";
 "ItemNameX" = "Назва запису, %1$@";
 "OwnerX" = "Власник, %1$@";
+"VaultX" = "Сховище, %1$@";
+/* VoiceOver accessibility label for a collection the item belongs to. */
 "CollectionX" = "Збірка, %1$@";
+/* VoiceOver accessibility label for a shared folder the item belongs to. */
+"SharedFolderX" = "Спільна тека, %1$@";
 "FolderX" = "Тека, %1$@";
+"MyFolderX" = "Моя тека, %1$@";
 "ItemXOfY" = "Запис %1$@ з %2$@";
 "ViewRecordedLogs" = "Перегляд записаних подій";
 "RecordedLogs" = "Записані події";
@@ -873,7 +923,13 @@
 "ExpiresOnXDate" = "Термін дії до %1$@";
 "ExpiresTomorrow" = "Термін дії до завтра";
 "DateRangeXToY" = "%1$@ – %2$@";
+"LogOutAllAccounts" = "Вийти з усіх облікових записів";
+"AllAccountsHaveBeenLoggedOut" = "Виконано вихід з усіх облікових записів";
+"AnErrorOccurredWhileTryingToLogOutAllAccounts" = "Під час спроби виходу з усіх облікових записів сталася помилка";
 "SelfHostServerURL" = "URL-адреса власного сервера";
+"OpenGenerator" = "Відкрити генератор";
+"OpenPasswordGenerator" = "Відкрити генератор паролів";
+"GeneratePassphrase" = "Генерувати парольну фразу";
 "AllowUniversalClipboard" = "Дозволити універсальний буфер обміну";
 "UseUniversalClipboardToCopyDescriptionLong" = "Використовуйте універсальний буфер обміну, щоб копіювати дані тут і вставити на інших пристроях, на яких виконано вхід із цим Apple ID.";
 "RemoveMasterPasswordConfirmDomain" = "Головний пароль більше не є обов'язковим для учасників зазначеної організації. Підтвердьте вказаний нижче домен з адміністратором вашої організації.";
@@ -893,6 +949,7 @@
 "GoToSettings" = "Відкрити налаштування";
 "SiriAndShortcutsAccess" = "Доступ до Siri та Команд";
 "EnableToAllowTheAppToRespondToSiriAndShortcutsUsingAppIntents" = "Увімкніть, щоб дозволити програмі реагувати на Siri та Команди за допомогою App Intents.";
+"ThereIsNoActiveAccount" = "Немає активного облікового запису.";
 "NewFileSend" = "Нове файлове відправлення";
 "NewTextSend" = "Нове текстове відправлення";
 "EditFileSend" = "Редагувати файлове відправлення";
@@ -943,7 +1000,6 @@
 "NoAskMe" = "Ні, запитувати щоразу";
 "NoCodes" = "У вас немає кодів для показу";
 "None" = "Немає";
-"NoneOfTheAbove" = "None of the above";
 "NumberOfDigits" = "Кількість цифр";
 "OtpType" = "Тип OTP";
 "RefreshPeriod" = "Період оновлення";
@@ -953,8 +1009,8 @@
 "SaveThisAuthenticatorKeyHereOrAddItToALoginInYourBitwardenApp" = "Збережіть цей ключ автентифікації тут, або додайте його до запису в програмі Bitwarden.";
 "SaveToBitwarden" = "Зберегти в Bitwarden";
 "ScanCard" = "Сканувати картку";
-"PositionYourCardInTheFrameToScanIt" = "Position your card in the frame to scan it";
-"EnableCameraPermissionInSettingsToScanYourCard" = "Enable camera access in Settings to scan your card.";
+"PositionYourCardInTheFrameToScanIt" = "Розташуйте картку в кадрі для сканування.";
+"EnableCameraPermissionInSettingsToScanYourCard" = "Увімкніть доступ до камери в налаштуваннях, щоб сканувати вашу картку.";
 "ScanComplete" = "Сканування завершено";
 "ScanTheQRCodeInYourSettings" = "Скануйте QR-код у налаштуваннях двоетапної перевірки будь-якого облікового запису.";
 "SecureYourAssetsWithBitwardenAuthenticator" = "Захистіть свої облікові записи за допомогою Bitwarden Authenticator";
@@ -1028,7 +1084,7 @@
 "ArchiveItem" = "Архівувати запис";
 "OnceArchivedThisItemWillBeExcludedDescriptionLong" = "Після архівації цей запис буде виключено з результатів пошуку і пропозицій автозаповнення.";
 "ArchivingItemsIsAPremiumFeatureDescriptionLong" = "Архівування записів є функцією Premium. Ваш поточний тарифний план не передбачає доступ до цієї функції.";
-"AddingAttachmentsIsAPremiumFeatureDescriptionLong" = "Adding attachments is a Premium feature. Your current plan does not include access to this feature.";
+"AddingAttachmentsIsAPremiumFeatureDescriptionLong" = "Додавання вкладень – це функція Premium. Ваш поточний тарифний план не передбачає доступ до цієї функції.";
 "UpgradeToPremium" = "Покращити до Premium";
 "ThisItemIsArchived" = "Цей запис архівовано.";
 "YourPremiumSubscriptionEnded" = "Ваша передплата Premium завершилася";
@@ -1041,6 +1097,7 @@
 "AnyoneWithTheLink" = "Будь-хто з посиланням";
 "AnyoneWithThisLinkCanViewThisSend" = "Будь-хто з цим посиланням може переглядати це відправлення.";
 "AfterSharingThisSendLinkDescriptionLong" = "Після того, як ви поділитеся посиланням на це відправлення, користувачі мають підтвердити свою е-пошту за допомогою коду, щоб переглянути його.";
+"IndividualsWillNeedToEnterThisPasswordDescriptionLong" = "Щоб переглянути це повідомлення, користувачам потрібно буде ввести цей пароль";
 "SpecificPeople" = "Певні користувачі";
 "WhoCanView" = "Хто може переглядати";
 "SharingWithSpecificPeopleIsPremiumFeatureDescriptionLong" = "Спільний доступ з певними користувачами є функцією Premium. Ваш поточний тарифний план не передбачає доступ до цієї функції.";
@@ -1061,6 +1118,8 @@
 "ReplaceCertificate" = "Замінити сертифікат";
 "ReplaceExistingCertificate" = "Замінити наявний сертифікат";
 "UnableToReadCertificateFile" = "Не вдалося прочитати файл сертифіката.";
+/* masterPasswordUnlock is the name of some data we want to delete, so there's no need to localize it. */
+"MasterPasswordUnlockCleared" = "masterPasswordUnlock стерто.";
 "SsoCookiesCleared" = "SSO cookies очищено";
 "YourRequestWasInterruptedBecauseTheAppNeededToReAuthenticatePleaseTryAgain" = "Ваш запит перервано, оскільки програма потребувала повторної автентифікації. Повторіть спробу.";
 "AutofillWithBitwardenDescriptionLong" = "Bitwarden може пропонувати ваші паролі та інші облікові дані під час входу в програмах і на вебсайтах.";
@@ -1073,91 +1132,172 @@
 "Active" = "Активний";
 "Canceled" = "Скасовано";
 "PastDue" = "Протерміновано";
-"PendingCancellation" = "Pending cancellation";
+"PendingCancellation" = "Очікується скасування";
+"Unpaid" = "Не сплачено";
 "UpdatePayment" = "Оновити платіж";
 "BillingAmount" = "Сума до сплати";
 "StorageCost" = "Вартість сховища";
 "Discount" = "Знижка";
-"EstimatedTax" = "Estimated tax";
-"Total" = "Total";
+"EstimatedTax" = "Приблизний податок";
+"Total" = "Всього";
 "ManagePlan" = "Керувати планом";
 "CancelPremium" = "Скасувати Premium";
 "ExternalLink" = "Зовнішнє посилання";
-"YourNextChargeIsForXDueOnY" = "Your next charge is for **%1$@**, due on **%2$@**.";
-"WeCouldNotProcessYourPaymentUpdateYourPaymentMethodDescriptionLong" = "We could not process your payment. Update your payment method before your subscription ends on **%1$@**.";
-"YourSubscriptionWasCanceledOnXDescriptionLong" = "Your subscription was canceled on **%1$@**. Resubscribe to continue using Premium features.";
-"YourSubscriptionExpiredOnXDescriptionLong" = "Your subscription expired on **%1$@**. Resubscribe to continue using Premium features.";
-"YourSubscriptionIsScheduledToCancelOnXDescriptionLong" = "Your subscription is scheduled to cancel on **%1$@**. You can reinstate it anytime before then.";
+"YourNextChargeIsForXDueOnY" = "Ваш наступний платіж за **%1$@**, термін – **%2$@**.";
+"WeCouldNotProcessYourPaymentUpdateYourPaymentMethodDescriptionLong" = "Не вдалося обробити ваш платіж. Оновіть спосіб оплати до завершення вашої передплати **%1$@**.";
+/* Error message shown when the Premium Plan screen fails to load subscription data, with a prompt to retry. */
+"WeCouldntLoadYourSubscriptionDetailsPleaseRetry" = "Не вдалося завантажити дані вашої передплати. Повторіть спробу.";
+"YourSubscriptionWasCanceledOnXDescriptionLong" = "Вашу передплату було скасовано **%1$@**. Поновіть передплату, щоб і надалі користуватися функціями Premium.";
+"YourSubscriptionWasSuspendedOnXDescriptionLong" = "Вашу передплату було призупинено **%1$@**. Щоб повторно активувати дію, сплатіть свої протерміновані рахунки.";
+"YourSubscriptionExpiredOnXDescriptionLong" = "Ваша передплата завершилась **%1$@**. Поновіть передплату, щоб і надалі користуватися функціями Premium.";
+"YourSubscriptionIsScheduledToCancelOnXDescriptionLong" = "Скасування вашої передплати заплановано на **%1$@**. Її можна анулювати будь-коли до цього часу.";
 "PerMonth" = "/ місяць";
-"PerYear" = "/ year";
+/* VoiceOver reading of "PerMonth", spoken instead of shown. */
+"PerMonthVoiceOver" = "за місяць";
+"PerYear" = "/ рік";
+/* VoiceOver reading of "PerYear", spoken instead of shown. */
+"PerYearVoiceOver" = "за рік";
 "XAmountPerCadence" = "%1$@ %2$@";
+/* %1$@ is an amount and cadence together, e.g. "$1.65 / month". */
+"XCancelAnytime" = "%1$@ · Скасування будь-коли";
+/* VoiceOver reading of "XCancelAnytime", spoken instead of shown. */
+"XCancelAnytimeVoiceOver" = "%1$@, Скасування будь-коли";
 "NegativeX" = "-%1$@";
-"UnknownStatus" = "Unknown";
-"YourSubscriptionStatusIsUnknownVisitTheWebAppDescriptionLong" = "Your subscription status could not be determined. Please visit the web app for more details or update to the latest version.";
-"AtTheMomentPremiumPlanIsNotAvailableDescriptionLong" = "At the moment Premium plan is not available, please try again later.";
-"UnlockMoreAdvancedFeaturesWithPremiumPlan" = "Розблокувати розширені функції з планом Premium.";
+"UnknownStatus" = "Невідомо";
+"YourSubscriptionStatusIsUnknownVisitTheWebAppDescriptionLong" = "Неможливо визначити статус вашої передплати. Відвідайте вебверсію для перегляду відомостей або оновіть програму.";
+/* Headline on the Premium upgrade screen. */
+"UnlockAdvancedProtection" = "Розблокуйте розширений захист";
+/* Premium benefit list item. */
+"BreezeThrough2faWithBuiltInCodes" = "Користуйтеся 2FA за допомогою вбудованих кодів";
+/* Premium benefit list item. */
+"RunReportsToFindRiskyPasswords" = "Створюйте звіти для виявлення ризикованих паролів";
+/* Premium benefit list item. */
+"KeepDocumentsSafeAndEncrypted" = "Зберігайте документи в безпеці та зашифрованому вигляді";
+/* Premium benefit list item. */
+"AddATrustedEmergencyContact" = "Додайте довірений екстрений контакт";
+/* Premium benefit list item. */
+"IdentifyUnsecureWebsites" = "Виявляйте незахищені вебсайти";
+/* Premium benefit list item. */
+"FlagAccountsWithInactive2fa" = "Позначайте облікові записи з неактивною функцією 2FA";
+/* Premium benefit list item; "Send" is the Bitwarden Send feature name and shouldn't be translated. */
+"ShareFilesSecurelyWithAnyoneUsingSend" = "Безпечно обмінюйтесь файлами з ким завгодно за допомогою відправлень";
+/* Premium benefit list item. */
+"Receive247PrioritySupport" = "Отримуйте цілодобову пріоритетну підтримку";
 "BuiltInAuthenticator" = "Вбудований автентифікатор";
 "EmergencyAccess" = "Екстрений доступ";
 "PaymentNotReceivedYet" = "Платіж ще не отримано";
-"ReturnToStripeInYourBrowserToFinishYourUpgradeDescriptionLong" = "Return to Stripe in your browser to finish your upgrade.";
-"SecureCheckoutDidntLoad" = "Secure checkout didn't load";
-"WeHadTroubleOpeningThePaymentPageDescriptionLong" = "We had trouble opening the payment page, so try again.";
+"ReturnToStripeInYourBrowserToFinishYourUpgradeDescriptionLong" = "Поверніться до Stripe у вашому браузері, щоб завершити оновлення.";
+"SecureCheckoutDidntLoad" = "Не вдалося завантажити безпечне оформлення замовлення";
+"WeHadTroubleOpeningThePaymentPageDescriptionLong" = "Не вдалося відкрити сторінку оплати. Спробуйте ще раз.";
 "SecureFileStorage" = "Захищене сховище файлів";
 "BreachMonitoring" = "Моніторинг витоків даних";
-"UpgradeNow" = "Покращити зараз";
 "ConfirmingYourUpgrade" = "Підтвердження вашого покращення…";
-"OpeningCheckout" = "Opening checkout…";
+"OpeningCheckout" = "Відкриття оформлення замовлення…";
 "UpgradePending" = "Покращення в очікуванні";
-"YourUpgradeIsBeingProcessedDescriptionLong" = "Your upgrade is being processed. You'll remain on the free plan until it's complete. Sync now to check, or continue and it will update automatically.";
+"YourUpgradeIsBeingProcessedDescriptionLong" = "Ваше оновлення обробляється. Доки процес оновлення не завершиться, ви залишатиметесь на безплатному тарифному плані. Синхронізуйте зараз, щоб перевірити, або перейдіть далі для автоматичного оновлення.";
 "UpgradedToPremium" = "Покращено до Premium";
-"YouNowHaveAccessToAdvancedSecurityDescriptionLong" = "You now have access to advanced security features. Learn more about what's included with Premium.";
-"YouNowHaveAccessToAllAdvancedSecurityFeatures" = "You now have access to all advanced security features.";
-"YoullGoToStripeSecureCheckoutToCompleteYourPurchase" = "You´ll go to Stripe´s secure checkout to complete your purchase.";
-"ContinueToStripe" = "Continue to Stripe?";
-"YoullBeTakenToStripeToManageYourSubscriptionCancellation" = "You'll be taken to Stripe to manage your subscription cancellation.";
+"SubscriptionNeedsAttention" = "Ваша передплата потребує уваги";
+"CheckYourPlanForDetails" = "Перевірте свій тарифний план для отримання детальної інформації.";
+"ViewPlan" = "Переглянути план";
+"YouNowHaveAccessToAdvancedSecurityDescriptionLong" = "Тепер у вас є доступ до розширених функцій безпеки. Дізнайтеся більше про можливості Premium.";
+"YouNowHaveAccessToAllAdvancedSecurityFeatures" = "Тепер ви маєте доступ до всіх розширених функцій безпеки.";
+/* Footer on the Premium upgrade screen; "Stripe" is the payment processor's name and shouldn't be translated. */
+"YoullCompleteThePurchaseWithStripeSecureCheckout" = "Ви завершите покупку за допомогою безпечного оформлення замовлення Stripe.";
+"ContinueToStripe" = "Продовжити у Stripe?";
+"YoullBeTakenToStripeToManageYourSubscriptionCancellation" = "Вас буде спрямовано на сторінку Stripe для керування скасуванням передплати.";
 "UserIDCopiedToTheClipboard" = "ID користувача скопійовано до буфера обміну";
 "UserID" = "ID користувача";
 "CopyUserID" = "Копіювати ID користувача";
 "UserIDUnavailable" = "ID користувача недоступний";
 "ToManageYourPremiumSubscriptionDescriptionLong" = "Щоб керувати передплатою Premium, увійдіть до свого вебсховища на комп'ютері.";
-"CheckYourConnectionAndTryAgain" = "Check your connection and try again.";
+"CheckYourConnectionAndTryAgain" = "Перевірте з'єднання і спробуйте ще раз.";
 "PricingUnavailable" = "Ціни недоступні";
-"BankAccount" = "Bank account";
-"BankAccounts" = "Bank accounts";
-"License" = "License";
-"Licenses" = "Licenses";
-"Passport" = "Passport";
-"Passports" = "Passports";
-"LicenseDetails" = "License details";
-"DateOfBirth" = "Date of birth";
-"IssuingCountry" = "Issuing country";
-"IssuingStateProvince" = "Issuing state / province";
-"IssuingAuthority" = "Issuing authority";
-"IssueDate" = "Issue date";
-"ExpirationDate" = "Expiration date";
-"LicenseClass" = "License class";
-"PassportDetails" = "Passport details";
+"BankAccount" = "Банківський рахунок";
+"BankAccounts" = "Банківські рахунки";
+"License" = "Ліцензія";
+"Licenses" = "Ліцензії";
+"Passport" = "Паспорт";
+"Passports" = "Паспорти";
+"LicenseDetails" = "Деталі ліцензії";
+"DateOfBirth" = "Дата народження";
+"IssuingCountry" = "Країна випуску";
+"IssuingStateProvince" = "Штат / область видачі";
+"IssuingAuthority" = "Установа випуску";
+"IssueDate" = "Дата випуску";
+"ExpirationDate" = "Дата завершення";
+"LicenseClass" = "Клас ліцензії";
+"PassportDetails" = "Паспортні дані";
 /* Label for the sex/gender field as printed on a passport (e.g. "M", "F", "X"). */
-"Sex" = "Sex";
-"BirthPlace" = "Birth place";
+"Sex" = "Стать";
+"BirthPlace" = "Місце народження";
 /* Label for the nationality field on a passport (the country a person is a national of). */
-"Nationality" = "Nationality";
+"Nationality" = "Національність";
 /* Label for the category of passport (e.g. "Regular/Tourist", "Diplomatic", "Official"). */
-"PassportType" = "Passport type";
-"NationalIdentificationNumber" = "National identification number";
+"PassportType" = "Тип паспорта";
+"NationalIdentificationNumber" = "Національний ідентифікаційний номер";
 /* Label for the government authority or office that issued the passport. */
-"IssuingAuthorityOffice" = "Issuing authority/office";
-"AccountDetails" = "Account details";
-"BankName" = "Bank name";
-"NameOnAccount" = "Name on account";
-"AccountType" = "Account type";
-"BranchNumber" = "Branch number";
-"SwiftCode" = "SWIFT code";
+"IssuingAuthorityOffice" = "Установа або офіс, що випустили";
+"AccountDetails" = "Подробиці рахунку";
+"BankName" = "Назва банку";
+"NameOnAccount" = "Ім'я власника рахунку";
+"AccountType" = "Тип рахунку";
+"BranchNumber" = "Номер відділення";
+"SwiftCode" = "SWIFT-код";
 "IBAN" = "IBAN";
-"BankContactPhone" = "Bank contact phone";
-"CertificateOfDeposit" = "Certificate of deposit";
-"Checking" = "Checking";
-"InvestmentBrokerage" = "Investment/brokerage";
-"LineOfCredit" = "Line of credit";
-"MoneyMarket" = "Money market";
-"Savings" = "Savings";
+"BankContactPhone" = "Номер телефону банку";
+"CertificateOfDeposit" = "Депозитний сертифікат";
+"Checking" = "Перевірка";
+"InvestmentBrokerage" = "Інвестиція/брокераж";
+"LineOfCredit" = "Кредитна лінія";
+"MoneyMarket" = "Грошовий ринок";
+"Savings" = "Заощадження";
+"Devices" = "Пристрої";
+"NoDevicesFound" = "Пристроїв не знайдено";
+"CurrentSession" = "Поточний сеанс";
+"PendingRequest" = "Запит в очікуванні";
+"Trusted" = "Надійний";
+"RecentlyActiveLabel" = "Нещодавно активний:";
+"FirstLoginLabel" = "Перший вхід:";
+"Today" = "Сьогодні";
+"PastSevenDays" = "Минулі 7 днів";
+"PastFourteenDays" = "Минулі 14 днів";
+"PastThirtyDays" = "Минулі 30 днів";
+"OverThirtyDaysAgo" = "Понад 30 днів тому";
+"Unknown" = "Невідомо";
+/* Device display name. %1$@ = category (e.g. "Mobile"), %2$@ = platform (e.g. "iOS"). */
+"DeviceDisplayNameXHyphenY" = "%1$@ - %2$@";
+"Mobile" = "Мобільний";
+"BrowserExtension" = "Розширення";
+"WebVault2" = "Вебпрограма";
+"Desktop" = "Комп'ютер";
+"Cli" = "CLI";
+"Sdk" = "SDK";
+"Server" = "Сервер";
+/* Accessibility label for the button that clears a field's value. %1$@ is the field's title (e.g. "Date of birth"), so the spoken label reads "Clear Date of birth". */
+"ClearFieldName" = "Очистити %1$@";
+/* Accessibility hint on a collapsed date field announcing that activating it opens the calendar picker. */
+"OpensDatePicker" = "Відкриває вікно вибору дати";
+/* Accessibility hint on an expanded date field announcing that activating it closes the calendar picker. */
+"ClosesDatePicker" = "Закриває вікно вибору дати";
+/* VoiceOver announcement posted when a date picker whose range excludes future dates, e.g. date of birth or an issue date, reports landing on today (the latest available day) while scrolling the wheel. */
+"FutureDatesUnavailable" = "Майбутні дати недоступні";
+"PremiumRequiredTOTPDescriptionLong" = "Ключ автентифікації (TOTP) – це функція Premium. Ваш поточний тарифний план не передбачає доступ до цієї функції.";
+/* Toast shown after a login item is saved. */
+"LoginSaved" = "Запис збережено";
+/* Toast shown after a card item is saved. */
+"CardSaved" = "Картку збережено";
+/* Toast shown after an identity item is saved. */
+"IdentitySaved" = "Посвідчення збережено";
+/* Toast shown after a secure note item is saved. */
+"SecureNoteSaved" = "Захищену нотатку збережено";
+/* Toast shown after an SSH key item is saved. */
+"SSHKeySaved" = "Ключ SSH збережено";
+/* Toast shown after a bank account item is saved. */
+"BankAccountSaved" = "Банківський рахунок збережено";
+/* Toast shown after a driver's license item is saved. */
+"LicenseSaved" = "Ліцензію збережено";
+/* Toast shown after a passport item is saved. */
+"PassportSaved" = "Паспорт збережено";
+"NotNow" = "Не зараз";
+"SyncUnsuccessful" = "Не вдалося синхронізувати";
+"WeCouldntSyncYourVaultWithTheServerDescriptionLong" = "Не вдалося синхронізувати ваше сховище з сервером. Ваше сховище може не показувати останні зміни. Ви можете повторити спробу зараз або синхронізація відбудеться згодом автоматично.";

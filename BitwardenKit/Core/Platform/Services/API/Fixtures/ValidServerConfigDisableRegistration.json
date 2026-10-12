@@ -1,0 +1,18 @@
+{
+    "version": "2024.4.2",
+    "gitHash": "75238191",
+    "server": null,
+    "environment": {
+        "cloudRegion": "US",
+        "vault": "https://vault.qa.bitwarden.pw",
+        "api": "https://api.qa.bitwarden.pw",
+        "identity": "https://identity.qa.bitwarden.pw",
+        "notifications": "https://notifications.qa.bitwarden.pw",
+        "sso": "https://sso.qa.bitwarden.pw"
+    },
+    "settings": {
+        "disableUserRegistration": true
+    },
+    "featureStates": {},
+    "object": "config"
+}

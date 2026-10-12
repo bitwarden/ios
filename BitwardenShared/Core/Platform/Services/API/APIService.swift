@@ -61,6 +61,7 @@ class APIService {
         accountTokenProvider: AccountTokenProvider? = nil,
         activeAccountStateProvider: ActiveAccountStateProvider,
         client: HTTPClient = URLSession.shared,
+        fillAssistClient: HTTPClient = URLSession.shared,
         environmentService: EnvironmentService,
         errorReporter: ErrorReporter,
         flightRecorder: FlightRecorder,
@@ -113,8 +114,12 @@ class APIService {
         identityService = httpServiceBuilder.makeService(
             baseURLGetter: { environmentService.identityURL },
         )
-        fillAssistService = httpServiceBuilder.makeService(
+        // Fill-Assist requests target an external CDN (GitHub Releases) that uses multi-hop 302
+        // redirects. CertificateHTTPClient deliberately blocks 302s for SSO, so we default to
+        // URLSession.shared which follows all redirects. Tests may inject a mock client.
+        fillAssistService = HTTPService(
             baseURLGetter: { environmentService.fillAssistRulesURL },
+            client: fillAssistClient,
         )
     }
 

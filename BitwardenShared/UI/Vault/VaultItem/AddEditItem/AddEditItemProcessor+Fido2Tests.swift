@@ -235,7 +235,7 @@ class AddEditItemProcessorFido2Tests: BitwardenTestCase {
         XCTAssertFalse(vaultRepository.addCipherCiphers.isEmpty)
         XCTAssertTrue(appExtensionDelegate.completeSavePasswordRequestCalled)
         XCTAssertTrue(coordinator.routes.isEmpty)
-        XCTAssertTrue(reviewPromptService.userActions.isEmpty)
+        XCTAssertEqual(reviewPromptService.userActions, [.addedNewItem])
     }
 
     /// `perform(_:)` with `.savePressed` in the save-password-credential flow shows an error alert
@@ -253,6 +253,21 @@ class AddEditItemProcessorFido2Tests: BitwardenTestCase {
 
         XCTAssertFalse(appExtensionDelegate.completeSavePasswordRequestCalled)
         XCTAssertEqual(coordinator.errorAlertsShown.last as? BitwardenTestError, .example)
+        XCTAssertTrue(coordinator.routes.isEmpty)
+    }
+
+    /// `receive(_:)` with `.dismissPressed` in the save-password-credential extension flow cancels
+    /// the extension instead of dismissing only the coordinator, which would leave a blank screen.
+    @MainActor
+    func test_receive_dismissPressed_savePasswordExtensionFlow_cancelsExtension() {
+        appExtensionDelegate.extensionMode = .savePasswordCredential(
+            MockSavePasswordRequestProxy(),
+            userInteraction: true,
+        )
+
+        subject.receive(.dismissPressed)
+
+        XCTAssertTrue(appExtensionDelegate.didCancelCalled)
         XCTAssertTrue(coordinator.routes.isEmpty)
     }
 }

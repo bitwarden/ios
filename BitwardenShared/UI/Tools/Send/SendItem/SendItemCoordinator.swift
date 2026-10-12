@@ -146,6 +146,8 @@ final class SendItemCoordinator: Coordinator, HasStackNavigator, ProfileSwitcher
     private func showAddItem(content: AddSendContentType?) {
         var state = AddEditSendItemState()
         switch content {
+        case let .copy(sendView):
+            state = AddEditSendItemState(copyingFrom: sendView)
         case let .file(fileName, fileData):
             state.fileName = fileName
             state.fileData = fileData

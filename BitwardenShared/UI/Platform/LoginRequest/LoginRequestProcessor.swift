@@ -99,7 +99,11 @@ final class LoginRequestProcessor: StateProcessor<LoginRequestState, LoginReques
             coordinator.showLoadingOverlay(title: Localizations.loading)
 
             // First reload the request to ensure it hasn't expired or been answered already.
-            await reloadData()
+            // If the reload blocked the update, an alert has already been shown; don't
+            // answer the request.
+            guard await reloadData() else {
+                return coordinator.hideLoadingOverlay()
+            }
 
             // Answer the login request.
             try await services.authService.answerLoginRequest(state.request, approve: approve)
@@ -128,31 +132,47 @@ final class LoginRequestProcessor: StateProcessor<LoginRequestState, LoginReques
     }
 
     /// Reload the login request.
-    private func reloadData() async {
+    ///
+    /// - Returns: `false` if the reload found the request has expired or already been answered,
+    ///     and blocked the update, showing an alert in that case. Returns `true` otherwise,
+    ///     including when the request could not be reloaded at all, matching this method's prior
+    ///     behavior of not blocking on a lookup miss or network error.
+    ///
+    /// - Note: This intentionally never writes the reloaded request back into `state.request`.
+    ///     The fingerprint the user verified — and the public key the vault key is later wrapped
+    ///     to — must always be the one from the request as originally loaded, never whatever
+    ///     public key the server returns on a later reload, which could be substituted by a
+    ///     malicious or compromised server.
+    ///
+    @discardableResult
+    private func reloadData() async -> Bool {
         do {
-            // Reload the request.
+            // Reload the request only to check whether it has expired or already been answered.
             let request = try await services.authService.getPendingLoginRequest(withId: state.request.id).first
-            guard let request else { return }
+            guard let request else { return true }
 
             // Show an alert and dismiss the view if the request has expired or been answered.
             guard !request.isExpired else {
-                return coordinator.showAlert(.requestExpired {
+                coordinator.showAlert(.requestExpired {
                     self.coordinator.navigate(to: .dismiss())
                 })
+                return false
             }
             guard !request.isAnswered else {
-                return coordinator.showAlert(.requestAnswered {
+                coordinator.showAlert(.requestAnswered {
                     self.coordinator.navigate(to: .dismiss())
                 })
+                return false
             }
-
-            // Update the data.
-            state.request = request
 
             // Reset the timer.
             setUpdateTimer()
+
+            return true
         } catch {
             services.errorReporter.log(error: error)
+            // A reload failure doesn't block answering, only an expired/answered request does.
+            return true
         }
     }
 

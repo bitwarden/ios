@@ -131,6 +131,7 @@ struct AddEditItemView: View {
                             isMoveToOrganizationEnabled: store.state.canMoveToOrganization,
                             isRestoreEnabled: false,
                             isUnarchiveEnabled: store.state.canBeUnarchived,
+                            isVfo1FoundationFeatureFlagEnabled: store.state.isVfo1FoundationFeatureFlagEnabled,
                             store: store.child(
                                 state: { _ in },
                                 mapAction: { .morePressed($0) },
@@ -184,7 +185,7 @@ struct AddEditItemView: View {
 
             ContentBlock {
                 BitwardenMenuField(
-                    title: Localizations.folder,
+                    title: store.state.folderTitle,
                     options: store.state.folders,
                     selection: store.binding(
                         get: \.folder,
@@ -201,7 +202,7 @@ struct AddEditItemView: View {
                 if store.state.configuration.isAdding, store.state.hasOrganizations, let owner = store.state.owner {
                     ContentBlock(dividerLeadingPadding: 16) {
                         BitwardenMenuField(
-                            title: Localizations.owner,
+                            title: store.state.ownerFieldTitle,
                             accessibilityIdentifier: "ItemOwnershipPicker",
                             options: store.state.ownershipOptions,
                             selection: store.binding(
@@ -244,25 +245,28 @@ private extension AddEditItemView {
             }
 
             if store.state.showMasterPasswordReprompt {
-                BitwardenToggle(isOn: store.binding(
-                    get: \.isMasterPasswordRePromptOn,
-                    send: AddEditItemAction.masterPasswordRePromptChanged,
-                )) {
-                    HStack(alignment: .center, spacing: 8) {
+                BitwardenToggle(
+                    isOn: store.binding(
+                        get: \.isMasterPasswordRePromptOn,
+                        send: AddEditItemAction.masterPasswordRePromptChanged,
+                    ),
+                    accessibilityIdentifier: "MasterPasswordRepromptToggle",
+                    accessibilityLabel: Localizations.passwordPrompt,
+                    title: {
                         Text(Localizations.passwordPrompt)
-
+                    },
+                    accessory: {
                         Button {
                             openURL(ExternalLinksConstants.protectIndividualItems)
                         } label: {
                             SharedAsset.Icons.questionCircle16.swiftUIImage
                         }
-                        .accessibilityLabel(Localizations.masterPasswordRePromptHelp)
                         .buttonStyle(.fieldLabelIcon)
-                    }
-                }
+                        .accessibilityLabel(Localizations.masterPasswordRePromptHelp)
+                        .accessibilityHint(Localizations.externalLink)
+                    },
+                )
                 .toggleStyle(.bitwarden)
-                .accessibilityIdentifier("MasterPasswordRepromptToggle")
-                .accessibilityLabel(Localizations.passwordPrompt)
                 .contentBlock()
             }
 
@@ -457,7 +461,7 @@ struct AddEditItemView_Previews: PreviewProvider {
             ),
             hasPremium: true,
         )!
-        state.ownershipOptions = [.personal(email: "user@bitwarden.com")]
+        state.ownershipOptions = [.personal(displayName: "user@bitwarden.com")]
         return state
     }
 
@@ -527,7 +531,7 @@ struct AddEditItemView_Previews: PreviewProvider {
                             ]
                             copy.isFavoriteOn = false
                             copy.isMasterPasswordRePromptOn = true
-                            copy.owner = .personal(email: "security@bitwarden.com")
+                            copy.owner = .personal(displayName: "security@bitwarden.com")
                             return copy.addEditState
                         }(),
                     ),

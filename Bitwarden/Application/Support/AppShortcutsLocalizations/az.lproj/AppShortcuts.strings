@@ -1,6 +1,6 @@
 "Lock all ${applicationName} accounts" = "Bütün ${applicationName} hesablarını kilidlə";
 "Secure every ${applicationName} account" = "Hər bir ${applicationName} hesabını mühafizə et";
-"Lock down all ${applicationName} sessions" = "Bütün ${applicationName} seanslarını kilidlə";
+"Lock down all ${applicationName} sessions" = "Bütün ${applicationName} sessiyalarını kilidlə";
 "${applicationName}, lock all vaults" = "${applicationName}, bütün seyfləri kilidlə";
 "Activate full lock for ${applicationName}" = "${applicationName} üçün tam kilidi aktivləşdir";
 "Freeze every ${applicationName} account" = "Hər bir ${applicationName} hesabını dondur";
@@ -10,15 +10,15 @@
 "${applicationName}, secure all profiles" = "${applicationName}, bütün profilləri mühafizə et";
 "Global lock for ${applicationName}" = "${applicationName} üçün qlobal kilid";
 "Log out all ${applicationName} accounts" = "Bütün ${applicationName} hesablarından çıxış et";
-"Sign out of every ${applicationName} session" = "Hər bir ${applicationName} seansından çıxış et";
+"Sign out of every ${applicationName} session" = "Hər bir ${applicationName} sessiyasından çıxış et";
 "${applicationName}, log out all users" = "${applicationName}, bütün istifadəçilərdən çıxış et";
 "Terminate all ${applicationName} logins" = "Bütün ${applicationName} giriş proseslərini bitir";
 "Disconnect all ${applicationName} accounts" = "Bütün ${applicationName} hesablarının bağlantısını kəs";
-"Remove every ${applicationName} session" = "Hər bir ${applicationName} seansını sil";
+"Remove every ${applicationName} session" = "Hər bir ${applicationName} sessiyasını sil";
 "End all ${applicationName} connections" = "Bütün ${applicationName} bağlantılarını bitir";
 "Close all ${applicationName} profiles" = "Bütün ${applicationName} profillərini bağla";
 "Full sign-out from ${applicationName}" = "${applicationName} tətbiqində hesabdan tam çıxış et";
-"Erase all ${applicationName} sessions" = "Bütün ${applicationName} seanslarını sil";
+"Erase all ${applicationName} sessions" = "Bütün ${applicationName} sessiyalarını sil";
 "Exit every ${applicationName} account" = "Hər bir ${applicationName} hesabından çıx";
 "Open password generator using ${applicationName}" = "${applicationName} istifadə edərək parol yaradıcını aç";
 "Launch ${applicationName} password creator" = "${applicationName} parol yaradıcısını aç";

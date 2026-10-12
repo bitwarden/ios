@@ -62,6 +62,9 @@ protocol AddEditItemState: Sendable {
     /// The list of all folders that the item could be added to.
     var folders: [DefaultableType<FolderView>] { get set }
 
+    /// The title of the folder-assignment field.
+    var folderTitle: String { get }
+
     /// The state for guided tour view.
     var guidedTourViewState: GuidedTourViewState { get set }
 
@@ -89,6 +92,9 @@ protocol AddEditItemState: Sendable {
     /// Whether the cipher is read-only.
     var isReadOnly: Bool { get }
 
+    /// Whether the `vfo1-foundation` feature flag is enabled.
+    var isVfo1FoundationFeatureFlagEnabled: Bool { get set }
+
     /// The state for a login type item.
     var loginState: LoginItemState { get set }
 
@@ -109,6 +115,9 @@ protocol AddEditItemState: Sendable {
 
     /// The owner of this item.
     var owner: CipherOwner? { get set }
+
+    /// The title to display for the ownership field.
+    var ownerFieldTitle: String { get }
 
     /// The list of ownership options to allow the user to select from.
     var ownershipOptions: [CipherOwner] { get set }

@@ -39,6 +39,7 @@ typealias Services = HasAPIService
     & HasFido2UserInterfaceHelper
     & HasFileAPIService
     & HasFillAssistAPIService
+    & HasFillAssistRepository
     & HasFlightRecorder
     & HasGeneratorRepository
     & HasImportCiphersRepository
@@ -284,6 +285,13 @@ protocol HasFileAPIService {
 protocol HasFillAssistAPIService {
     /// The service used by the application to make Fill-Assist API requests.
     var fillAssistAPIService: FillAssistAPIService { get }
+}
+
+/// Protocol for an object that provides a `FillAssistRepository`.
+///
+protocol HasFillAssistRepository {
+    /// The repository used by the application to manage fill-assist data.
+    var fillAssistRepository: FillAssistRepository { get }
 }
 
 /// Protocol for an object that provides a `GeneratorRepository`.

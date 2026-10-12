@@ -69,6 +69,19 @@ class LoginRequestProcessorTests: BitwardenTestCase {
         }
     }
 
+    /// `.perform(_:)` with `.answerRequest` always answers using the originally-verified request,
+    /// even if the server returns a different public key on the approve-time reload — the vault
+    /// key must never be wrapped to a public key the user didn't verify.
+    @MainActor
+    func test_perform_answerRequest_doesNotUseReloadedPublicKey() async {
+        authService.getPendingLoginRequestResult = .success([.fixture(publicKey: "attackerPublicKey")])
+
+        await subject.perform(.answerRequest(approve: true))
+
+        XCTAssertEqual(authService.answerLoginRequestRequest, .fixture())
+        XCTAssertNotEqual(authService.answerLoginRequestRequest?.publicKey, "attackerPublicKey")
+    }
+
     /// `.perform(_:)` with `.answerRequest` handles an errors
     @MainActor
     func test_perform_answerRequest_error() async {
@@ -131,6 +144,18 @@ class LoginRequestProcessorTests: BitwardenTestCase {
         let okAction = try XCTUnwrap(coordinator.alertShown.last?.alertActions.first)
         await okAction.handler?(okAction, [])
         XCTAssertEqual(coordinator.routes.last, .dismiss())
+    }
+
+    /// `.perform(_:)` with `.reloadData` never overwrites the currently held request, even when
+    /// the server returns different data for it (e.g. a different public key) — the request
+    /// whose fingerprint the user verified must never be replaced.
+    @MainActor
+    func test_perform_reloadData_doesNotOverwriteRequest() async {
+        authService.getPendingLoginRequestResult = .success([.fixture(publicKey: "attackerPublicKey")])
+
+        await subject.perform(.reloadData)
+
+        XCTAssertEqual(subject.state.request, .fixture())
     }
 
     /// `.receive(_:)` with `.dismiss` dismisses the view.

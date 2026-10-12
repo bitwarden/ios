@@ -26,6 +26,9 @@ public struct ServerConfig: Equatable, Codable, Sendable {
     /// Third party server information.
     public let server: ThirdPartyServerConfig?
 
+    /// Server-level settings.
+    public let settings: ServerSettings?
+
     /// The version of the server.
     public let version: String
 
@@ -36,10 +39,27 @@ public struct ServerConfig: Equatable, Codable, Sendable {
         featureStates = responseModel.featureStates ?? [:]
         gitHash = responseModel.gitHash
         server = responseModel.server.map(ThirdPartyServerConfig.init)
+        settings = responseModel.settings.map(ServerSettings.init)
         version = responseModel.version
     }
 
     // MARK: Methods
+
+    /// Returns `true` when this config's vault host matches the vault host derived from
+    /// `environmentURLs`, confirming that the cached config was fetched for the given
+    /// environment and is not a stale result from a previously selected region.
+    ///
+    /// - Parameter environmentURLs: The environment URLs to compare against (pre- or post-auth).
+    /// - Returns: `true` if the vault hosts match; `false` if either value is missing or they differ.
+    ///
+    public func isCurrentConfig(for environmentURLs: EnvironmentURLData?) -> Bool {
+        guard let vaultString = environment?.vault,
+              let configHost = URL(string: vaultString)?.host,
+              let envHost = environmentURLs?.webVaultHost else {
+            return false
+        }
+        return configHost == envHost
+    }
 
     /// Checks if the server is an official Bitwarden server.
     ///
@@ -175,5 +195,29 @@ public struct ServerCommunicationBootstrapSettings: Equatable, Codable, Sendable
         idpLoginUrl = responseModel.idpLoginUrl
         cookieName = responseModel.cookieName
         cookieDomain = responseModel.cookieDomain
+    }
+}
+
+// MARK: - ServerSettings
+
+/// Domain model for server-level settings.
+public struct ServerSettings: Equatable, Codable, Sendable {
+    // MARK: Properties
+
+    /// Whether user registration is disabled on this server.
+    public let disableUserRegistration: Bool
+
+    // MARK: Initialization
+
+    /// Creates a new `ServerSettings`.
+    ///
+    /// - Parameter disableUserRegistration: Whether user registration is disabled on this server.
+    ///
+    public init(disableUserRegistration: Bool) {
+        self.disableUserRegistration = disableUserRegistration
+    }
+
+    public init(responseModel: ServerSettingsResponseModel) {
+        disableUserRegistration = responseModel.disableUserRegistration
     }
 }

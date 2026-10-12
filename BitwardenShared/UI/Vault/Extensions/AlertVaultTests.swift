@@ -670,6 +670,25 @@ class AlertVaultTests: BitwardenTestCase { // swiftlint:disable:this type_body_l
         XCTAssertEqual(subject.alertActions.first?.style, .default)
     }
 
+    /// `sendTypeRestrictedByPolicy(_:action:)` returns an `Alert` notifying the user that an
+    /// enterprise policy restricts them to a single Send type.
+    func test_sendTypeRestrictedByPolicy() async throws {
+        var called = false
+        let subject = Alert.sendTypeRestrictedByPolicy(.text) { called = true }
+
+        XCTAssertNil(subject.title)
+        XCTAssertEqual(
+            subject.message,
+            Localizations.dueToAnEnterprisePolicyYouCanOnlyCreateXSends(SendType.text.localizedName),
+        )
+        XCTAssertEqual(subject.alertActions.count, 1)
+        XCTAssertEqual(subject.alertActions[0].title, Localizations.ok)
+        XCTAssertEqual(subject.alertActions[0].style, .default)
+
+        try await subject.tapAction(title: Localizations.ok)
+        XCTAssertTrue(called)
+    }
+
     /// `specificPeopleUnavailable(action:)` returns an `Alert` notifying the user that the
     /// "Specific People" Send feature requires Premium.
     func test_specificPeopleUnavailable() async throws {
@@ -700,6 +719,35 @@ class AlertVaultTests: BitwardenTestCase { // swiftlint:disable:this type_body_l
         XCTAssertFalse(called)
     }
 
+    /// `syncUnsuccessful(message:tryAgainHandler:)` returns an `Alert` notifying the user that the
+    /// vault sync failed, with an option to try again.
+    func test_syncUnsuccessful() async throws {
+        var called = false
+        let subject = Alert.syncUnsuccessful(message: "sync error message") { called = true }
+
+        XCTAssertEqual(subject.title, Localizations.syncUnsuccessful)
+        XCTAssertEqual(subject.message, "sync error message")
+        XCTAssertEqual(subject.alertActions.count, 2)
+        XCTAssertEqual(subject.alertActions[0].title, Localizations.notNow)
+        XCTAssertEqual(subject.alertActions[0].style, .cancel)
+        XCTAssertEqual(subject.alertActions[1].title, Localizations.tryAgain)
+        XCTAssertEqual(subject.alertActions[1].style, .default)
+        XCTAssertNil(subject.preferredAction)
+
+        try await subject.tapAction(title: Localizations.tryAgain)
+        XCTAssertTrue(called)
+    }
+
+    /// `syncUnsuccessful(message:tryAgainHandler:)` doesn't call the try again handler when
+    /// "Not now" is tapped.
+    func test_syncUnsuccessful_notNow() async throws {
+        var called = false
+        let subject = Alert.syncUnsuccessful(message: "sync error message") { called = true }
+
+        try await subject.tapAction(title: Localizations.notNow)
+        XCTAssertFalse(called)
+    }
+
     /// `totpPremiumRequired(action:)` returns an `Alert` notifying the user that a Premium
     /// subscription is required to view TOTP codes.
     func test_totpPremiumRequired() async throws {
@@ -707,7 +755,7 @@ class AlertVaultTests: BitwardenTestCase { // swiftlint:disable:this type_body_l
         let subject = Alert.totpPremiumRequired { called = true }
 
         XCTAssertEqual(subject.title, Localizations.premiumSubscriptionRequired)
-        XCTAssertEqual(subject.message, Localizations.premiumRequired)
+        XCTAssertEqual(subject.message, Localizations.premiumRequiredTOTPDescriptionLong)
         XCTAssertEqual(subject.alertActions.count, 2)
         XCTAssertEqual(subject.alertActions[0].title, Localizations.upgradeToPremium)
         XCTAssertEqual(subject.alertActions[0].style, .default)

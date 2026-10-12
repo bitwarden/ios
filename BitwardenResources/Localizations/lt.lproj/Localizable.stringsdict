@@ -6,7 +6,7 @@
     <key>BitwardenCouldNotDecryptXVaultItemsDescriptionLong</key>
     <dict>
       <key>NSStringLocalizedFormatKey</key>
-      <string>%#@BitwardenCouldNotDecryptVaultItems@ Copy and share this error report with customer success to avoid additional data loss.</string>
+      <string>%#@BitwardenCouldNotDecryptVaultItems@ Nukopijuokite ir bendrinkite šią klaidų ataskaitą su klientų aptarnavimo tarnyba, kad išvengtumėte papildomų duomenų praradimų.</string>
       <key>BitwardenCouldNotDecryptVaultItems</key>
       <dict>
         <key>NSStringFormatSpecTypeKey</key>
@@ -14,13 +14,13 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>d</string>
         <key>one</key>
-        <string>Bitwarden could not decrypt %d vault item.</string>
+        <string>„Bitwarden“ nepavyko iššifruoti %d saugyklos elemento.</string>
         <key>few</key>
-        <string>Bitwarden could not decrypt %d vault items.</string>
+        <string>„Bitwarden“ nepavyko iššifruoti %d saugyklos elementų.</string>
         <key>many</key>
-        <string>Bitwarden could not decrypt %d vault items.</string>
+        <string>„Bitwarden“ nepavyko iššifruoti %d saugyklos elementų.</string>
         <key>other</key>
-        <string>Bitwarden could not decrypt %d vault items.</string>
+        <string>„Bitwarden“ nepavyko iššifruoti %d saugyklos elementų.</string>
       </dict>
     </dict>
     <!-- A message indicating the minimum length of a master password in characters. -->
@@ -35,20 +35,20 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>d</string>
         <key>one</key>
-        <string>Master password must be at least %d character long.</string>
+        <string>Pagrindinis slaptažodis turi būti bent %d simbolio ilgio.</string>
         <key>few</key>
-        <string>Master password must be at least %d characters long.</string>
+        <string>Pagrindinis slaptažodis turi būti bent %d simbolių ilgio.</string>
         <key>many</key>
-        <string>Master password must be at least %d characters long.</string>
+        <string>Pagrindinis slaptažodis turi būti bent %d simbolių ilgio.</string>
         <key>other</key>
-        <string>Master password must be at least %d characters long.</string>
+        <string>Pagrindinis slaptažodis turi būti bent %d simbolių ilgio.</string>
       </dict>
     </dict>
     <!-- A warning if we have determined that a password has been exposed in a data breach. -->
     <key>ThisPasswordHasBeenExposedXTimesDescriptionLong</key>
     <dict>
       <key>NSStringLocalizedFormatKey</key>
-      <string>%#@ThisPasswordHasBeenExposedTimes@ You should change it.</string>
+      <string>%#@ThisPasswordHasBeenExposedTimes@ Turėtumėte jį pakeisti.</string>
       <key>ThisPasswordHasBeenExposedTimes</key>
       <dict>
         <key>NSStringFormatSpecTypeKey</key>
@@ -56,13 +56,13 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>d</string>
         <key>one</key>
-        <string>This password has been exposed %d time in data breaches.</string>
+        <string>Šis slaptažodis buvo atskleistas %d kartą duomenų nutekėjimų metu.</string>
         <key>few</key>
-        <string>This password has been exposed %d times in data breaches.</string>
+        <string>Šis slaptažodis buvo atskleistas %d kartus duomenų nutekėjimų metu.</string>
         <key>many</key>
-        <string>This password has been exposed %d times in data breaches.</string>
+        <string>Šis slaptažodis buvo atskleistas %d kartus duomenų nutekėjimų metu.</string>
         <key>other</key>
-        <string>This password has been exposed %d times in data breaches.</string>
+        <string>Šis slaptažodis buvo atskleistas %d kartus duomenų nutekėjimų metu.</string>
       </dict>
     </dict>
     <!-- A number of characters, as in letters/numbers/punctuation. For example, the minimum number of characters when creating a password. -->
@@ -77,13 +77,13 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>d</string>
         <key>one</key>
-        <string>%d character</string>
+        <string>%d simbolis</string>
         <key>few</key>
-        <string>%d characters</string>
+        <string>%d simboliai</string>
         <key>many</key>
-        <string>%d characters</string>
+        <string>%d simbolių</string>
         <key>other</key>
-        <string>%d characters</string>
+        <string>%d simbolių</string>
       </dict>
     </dict>
     <!-- A number of days, used in menu selections. For example, the number of days to keep a send before deletion. -->
@@ -98,13 +98,13 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>d</string>
         <key>one</key>
-        <string>%d day</string>
+        <string>%d diena</string>
         <key>few</key>
-        <string>%d days</string>
+        <string>%d dienos</string>
         <key>many</key>
-        <string>%d days</string>
+        <string>%d dienų</string>
         <key>other</key>
-        <string>%d days</string>
+        <string>%d dienų</string>
       </dict>
     </dict>
     <!-- A number of hours, used in menu selections. For example, how long to log events in the flight recorder. -->
@@ -119,13 +119,13 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>d</string>
         <key>one</key>
-        <string>%d hour</string>
+        <string>%d valanda</string>
         <key>few</key>
-        <string>%d hours</string>
+        <string>%d valandos</string>
         <key>many</key>
-        <string>%d hours</string>
+        <string>%d valandų</string>
         <key>other</key>
-        <string>%d hours</string>
+        <string>%d valandų</string>
       </dict>
     </dict>
     <!-- A number of items, used in headers' voiceover to indicate how many items are in a section. -->
@@ -140,13 +140,13 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>d</string>
         <key>one</key>
-        <string>%d item</string>
+        <string>%d elementas</string>
         <key>few</key>
-        <string>%d items</string>
+        <string>%d elementai</string>
         <key>many</key>
-        <string>%d items</string>
+        <string>%d elementų</string>
         <key>other</key>
-        <string>%d items</string>
+        <string>%d elementų</string>
       </dict>
     </dict>
     <!-- Message indicating a number of items were successfully imported in the Credential Exchange flow. -->
@@ -161,13 +161,13 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>d</string>
         <key>one</key>
-        <string>%d item successfully imported</string>
+        <string>%d elementas sėkmingai importuotas</string>
         <key>few</key>
-        <string>%d items successfully imported</string>
+        <string>%d elementai sėkmingai importuoti</string>
         <key>many</key>
-        <string>%d items successfully imported</string>
+        <string>%d elementų sėkmingai importuota</string>
         <key>other</key>
-        <string>%d items successfully imported</string>
+        <string>%d elementų sėkmingai importuota</string>
       </dict>
     </dict>
     <!-- A number of minutes, used in menu selections. For example, the amount of time to keep the vault unlocked after being unlocked. -->
@@ -182,13 +182,13 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>d</string>
         <key>one</key>
-        <string>%d minute</string>
+        <string>%d minutė</string>
         <key>few</key>
-        <string>%d minutes</string>
+        <string>%d minutės</string>
         <key>many</key>
-        <string>%d minutes</string>
+        <string>%d minučių</string>
         <key>other</key>
-        <string>%d minutes</string>
+        <string>%d minučių</string>
       </dict>
     </dict>
     <!-- A number of seconds, used in menu selection. For example, how long to keep copied fields in the clipboard before clearing. -->
@@ -203,13 +203,13 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>d</string>
         <key>one</key>
-        <string>%d second</string>
+        <string>%d sekundė</string>
         <key>few</key>
-        <string>%d seconds</string>
+        <string>%d sekundės</string>
         <key>many</key>
-        <string>%d seconds</string>
+        <string>%d sekundžių</string>
         <key>other</key>
-        <string>%d seconds</string>
+        <string>%d sekundžių</string>
       </dict>
     </dict>
     <!-- A number of weeks, used in menu selection. For example, how long to log events in the flight recorder. -->
@@ -224,20 +224,20 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>d</string>
         <key>one</key>
-        <string>%d week</string>
+        <string>%d savaitė</string>
         <key>few</key>
-        <string>%d weeks</string>
+        <string>%d savaitės</string>
         <key>many</key>
-        <string>%d weeks</string>
+        <string>%d savaičių</string>
         <key>other</key>
-        <string>%d weeks</string>
+        <string>%d savaičių</string>
       </dict>
     </dict>
     <!-- A message indicating the grace period for a past due subscription, with pluralized days and the date. -->
     <key>YouHaveAGracePeriodOfXDaysFromYourSubscriptionDescriptionLong</key>
     <dict>
       <key>NSStringLocalizedFormatKey</key>
-      <string>%1$#@YouHaveAGracePeriodOfXDaysFromYourSubscriptionExpirationDate@ Please resolve the past due invoices by **%2$@**.</string>
+      <string>%1$#@YouHaveAGracePeriodOfXDaysFromYourSubscriptionExpirationDate@ Prašome apmokėti pradelstas sąskaitas iki **%2$@**.</string>
       <key>YouHaveAGracePeriodOfXDaysFromYourSubscriptionExpirationDate</key>
       <dict>
         <key>NSStringFormatSpecTypeKey</key>
@@ -245,20 +245,20 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>d</string>
         <key>one</key>
-        <string>You have a grace period of %1$d day from your subscription expiration date.</string>
+        <string>Jūs turite %1$d dienos lengvatinį laikotarpį nuo prenumeratos pabaigos datos.</string>
         <key>few</key>
-        <string>You have a grace period of %1$d days from your subscription expiration date.</string>
+        <string>Jūs turite %1$d dienų lengvatinį laikotarpį nuo prenumeratos pabaigos datos.</string>
         <key>many</key>
-        <string>You have a grace period of %1$d days from your subscription expiration date.</string>
+        <string>Jūs turite %1$d dienų lengvatinį laikotarpį nuo prenumeratos pabaigos datos.</string>
         <key>other</key>
-        <string>You have a grace period of %1$d days from your subscription expiration date.</string>
+        <string>Jūs turite %1$d dienų lengvatinį laikotarpį nuo prenumeratos pabaigos datos.</string>
       </dict>
     </dict>
     <!-- A message indicating the minimum length of a PIN in characters. -->
     <key>YourPINMustBeAtLeastXCharactersDescriptionLong</key>
     <dict>
       <key>NSStringLocalizedFormatKey</key>
-      <string>%#@YourPINMustBeAtLeastCharacters@ Your PIN settings will be reset if you ever fully log out of the application.</string>
+      <string>%#@YourPINMustBeAtLeastCharacters@ Jūsų PIN nustatymai bus iš naujo nustatyti, jei kada nors visiškai atsijungsite nuo programos.</string>
       <key>YourPINMustBeAtLeastCharacters</key>
       <dict>
         <key>NSStringFormatSpecTypeKey</key>
@@ -266,13 +266,13 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>d</string>
         <key>one</key>
-        <string>Your PIN must be at least %d character.</string>
+        <string>Jūsų PIN kodas turi būti bent %d simbolio ilgio.</string>
         <key>few</key>
-        <string>Your PIN must be at least %d characters.</string>
+        <string>Jūsų PIN kodas turi būti bent %d simbolių ilgio.</string>
         <key>many</key>
-        <string>Your PIN must be at least %d characters.</string>
+        <string>Jūsų PIN kodas turi būti bent %d simbolių ilgio.</string>
         <key>other</key>
-        <string>Your PIN must be at least %d characters.</string>
+        <string>Jūsų PIN kodas turi būti bent %d simbolių ilgio.</string>
       </dict>
     </dict>
   </dict>

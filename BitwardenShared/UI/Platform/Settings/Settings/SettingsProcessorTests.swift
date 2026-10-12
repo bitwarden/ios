@@ -17,6 +17,7 @@ class SettingsProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
     var coordinator: MockCoordinator<SettingsRoute, SettingsEvent>!
     var delegate: MockSettingsProcessorDelegate!
     var errorReporter: MockErrorReporter!
+    var premiumUpgradeHelper: MockPremiumUpgradeHelper!
     var subject: SettingsProcessor!
     var stateService: MockStateService!
     var storefrontService: MockStorefrontService!
@@ -34,6 +35,7 @@ class SettingsProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         coordinator = MockCoordinator()
         delegate = MockSettingsProcessorDelegate()
         errorReporter = MockErrorReporter()
+        premiumUpgradeHelper = MockPremiumUpgradeHelper()
         stateService = MockStateService()
         storefrontService = MockStorefrontService()
         storefrontService.isUSStorefrontReturnValue = true
@@ -50,6 +52,7 @@ class SettingsProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         coordinator = nil
         delegate = nil
         errorReporter = nil
+        premiumUpgradeHelper = nil
         subject = nil
         stateService = nil
         storefrontService = nil
@@ -71,6 +74,7 @@ class SettingsProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
             ),
             state: SettingsState(presentationMode: presentationMode),
         )
+        subject.premiumUpgradeHelper = premiumUpgradeHelper
     }
 
     // MARK: Tests
@@ -161,7 +165,7 @@ class SettingsProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
     func test_receive_dismiss() {
         subject.receive(.dismiss)
 
-        XCTAssertEqual(coordinator.routes.last, .dismiss)
+        XCTAssertEqual(coordinator.routes.last, .dismiss())
     }
 
     /// Receiving `.otherPressed` navigates to the other screen.
@@ -221,7 +225,7 @@ class SettingsProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
 
         await subject.perform(.planPressed)
 
-        XCTAssertEqual(coordinator.routes.last, .premiumUpgrade)
+        XCTAssertTrue(premiumUpgradeHelper.startInAppPremiumUpgradeCalled)
         XCTAssertEqual(coordinator.loadingOverlaysShown, [LoadingOverlayState(title: Localizations.loading)])
         XCTAssertFalse(errorReporter.errors.contains { $0 is GetSubscriptionRequestError })
     }
@@ -249,7 +253,7 @@ class SettingsProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
 
         await subject.perform(.planPressed)
 
-        XCTAssertEqual(coordinator.routes.last, .premiumUpgrade)
+        XCTAssertTrue(premiumUpgradeHelper.startInAppPremiumUpgradeCalled)
         XCTAssertEqual(coordinator.loadingOverlaysShown, [LoadingOverlayState(title: Localizations.loading)])
     }
 

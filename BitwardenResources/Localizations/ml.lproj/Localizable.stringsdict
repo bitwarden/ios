@@ -6,7 +6,7 @@
     <key>BitwardenCouldNotDecryptXVaultItemsDescriptionLong</key>
     <dict>
       <key>NSStringLocalizedFormatKey</key>
-      <string>%#@BitwardenCouldNotDecryptVaultItems@ Copy and share this error report with customer success to avoid additional data loss.</string>
+      <string>%#@BitwardenCouldNotDecryptVaultItems@ അധിക ഡാറ്റ നഷ്ടം ഒഴിവാക്കാൻ ഈ പിശക് റിപ്പോർട്ട് പകർത്തി ഉപഭോക്തൃ വിജയവുമായി പങ്കിടുക.</string>
       <key>BitwardenCouldNotDecryptVaultItems</key>
       <dict>
         <key>NSStringFormatSpecTypeKey</key>
@@ -14,9 +14,9 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>d</string>
         <key>one</key>
-        <string>Bitwarden could not decrypt %d vault item.</string>
+        <string>%d വോൾട്ട് ഇനം ഡീക്രിപ്റ്റ് ചെയ്യാൻ Bitwarden-ന് കഴിഞ്ഞില്ല.</string>
         <key>other</key>
-        <string>Bitwarden could not decrypt %d vault items.</string>
+        <string>%d വോൾട്ട് ഇനങ്ങൾ ഡീക്രിപ്റ്റ് ചെയ്യാൻ Bitwarden-ന് കഴിഞ്ഞില്ല.</string>
       </dict>
     </dict>
     <!-- A message indicating the minimum length of a master password in characters. -->
@@ -31,16 +31,16 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>d</string>
         <key>one</key>
-        <string>Master password must be at least %d character long.</string>
+        <string>മാസ്റ്റർ പാസ്വേഡ് കുറഞ്ഞത് %d പ്രതീകം നീളമുള്ളതായിരിക്കണം.</string>
         <key>other</key>
-        <string>Master password must be at least %d characters long.</string>
+        <string>മാസ്റ്റർ പാസ്വേഡ് കുറഞ്ഞത് %d പ്രതീകങ്ങൾ നീളമുള്ളതായിരിക്കണം.</string>
       </dict>
     </dict>
     <!-- A warning if we have determined that a password has been exposed in a data breach. -->
     <key>ThisPasswordHasBeenExposedXTimesDescriptionLong</key>
     <dict>
       <key>NSStringLocalizedFormatKey</key>
-      <string>%#@ThisPasswordHasBeenExposedTimes@ You should change it.</string>
+      <string>%#@ThisPasswordHasBeenExposedTimes@ നിങ്ങൾ അത് മാറ്റണം.</string>
       <key>ThisPasswordHasBeenExposedTimes</key>
       <dict>
         <key>NSStringFormatSpecTypeKey</key>
@@ -48,9 +48,9 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>d</string>
         <key>one</key>
-        <string>This password has been exposed %d time in data breaches.</string>
+        <string>ഈ പാസ്വേഡ് ഡാറ്റാ ലംഘനങ്ങളിൽ %d തവണ തുറന്നുകാണിക്കപ്പെട്ടു.</string>
         <key>other</key>
-        <string>This password has been exposed %d times in data breaches.</string>
+        <string>ഈ പാസ്വേഡ് ഡാറ്റാ ലംഘനങ്ങളിൽ %d തവണ തുറന്നുകാണിക്കപ്പെട്ടു.</string>
       </dict>
     </dict>
     <!-- A number of characters, as in letters/numbers/punctuation. For example, the minimum number of characters when creating a password. -->
@@ -65,9 +65,9 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>d</string>
         <key>one</key>
-        <string>%d character</string>
+        <string>%d പ്രതീകം</string>
         <key>other</key>
-        <string>%d characters</string>
+        <string>%d പ്രതീകങ്ങൾ</string>
       </dict>
     </dict>
     <!-- A number of days, used in menu selections. For example, the number of days to keep a send before deletion. -->
@@ -82,9 +82,9 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>d</string>
         <key>one</key>
-        <string>%d day</string>
+        <string>%d ദിവസം</string>
         <key>other</key>
-        <string>%d days</string>
+        <string>%d ദിവസങ്ങൾ</string>
       </dict>
     </dict>
     <!-- A number of hours, used in menu selections. For example, how long to log events in the flight recorder. -->
@@ -99,9 +99,9 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>d</string>
         <key>one</key>
-        <string>%d hour</string>
+        <string>%d മണിക്കൂർ</string>
         <key>other</key>
-        <string>%d hours</string>
+        <string>%d മണിക്കൂറുകൾ</string>
       </dict>
     </dict>
     <!-- A number of items, used in headers' voiceover to indicate how many items are in a section. -->
@@ -116,9 +116,9 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>d</string>
         <key>one</key>
-        <string>%d item</string>
+        <string>%d ഇനം</string>
         <key>other</key>
-        <string>%d items</string>
+        <string>%d ഇനങ്ങൾ</string>
       </dict>
     </dict>
     <!-- Message indicating a number of items were successfully imported in the Credential Exchange flow. -->
@@ -133,9 +133,9 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>d</string>
         <key>one</key>
-        <string>%d item successfully imported</string>
+        <string>%d ഇനം വിജയകരമായി ഇംപോർട്ട് ചെയ്തു</string>
         <key>other</key>
-        <string>%d items successfully imported</string>
+        <string>%d ഇനങ്ങൾ വിജയകരമായി ഇംപോർട്ട് ചെയ്തു</string>
       </dict>
     </dict>
     <!-- A number of minutes, used in menu selections. For example, the amount of time to keep the vault unlocked after being unlocked. -->
@@ -150,9 +150,9 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>d</string>
         <key>one</key>
-        <string>%d minute</string>
+        <string>%d മിനിറ്റ്</string>
         <key>other</key>
-        <string>%d minutes</string>
+        <string>%d മിനിറ്റുകൾ</string>
       </dict>
     </dict>
     <!-- A number of seconds, used in menu selection. For example, how long to keep copied fields in the clipboard before clearing. -->
@@ -167,9 +167,9 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>d</string>
         <key>one</key>
-        <string>%d second</string>
+        <string>%d സെക്കൻഡ്</string>
         <key>other</key>
-        <string>%d seconds</string>
+        <string>%d സെക്കൻഡുകൾ</string>
       </dict>
     </dict>
     <!-- A number of weeks, used in menu selection. For example, how long to log events in the flight recorder. -->
@@ -184,16 +184,16 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>d</string>
         <key>one</key>
-        <string>%d week</string>
+        <string>%d ആഴ്ച</string>
         <key>other</key>
-        <string>%d weeks</string>
+        <string>%d ആഴ്ചകൾ</string>
       </dict>
     </dict>
     <!-- A message indicating the grace period for a past due subscription, with pluralized days and the date. -->
     <key>YouHaveAGracePeriodOfXDaysFromYourSubscriptionDescriptionLong</key>
     <dict>
       <key>NSStringLocalizedFormatKey</key>
-      <string>%1$#@YouHaveAGracePeriodOfXDaysFromYourSubscriptionExpirationDate@ Please resolve the past due invoices by **%2$@**.</string>
+      <string>%1$#@YouHaveAGracePeriodOfXDaysFromYourSubscriptionExpirationDate@ **%2$@**-ന് മുമ്പായി കാലതാമസമുള്ള ഇൻവോയ്സുകൾ പരിഹരിക്കുക.</string>
       <key>YouHaveAGracePeriodOfXDaysFromYourSubscriptionExpirationDate</key>
       <dict>
         <key>NSStringFormatSpecTypeKey</key>
@@ -201,16 +201,16 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>d</string>
         <key>one</key>
-        <string>You have a grace period of %1$d day from your subscription expiration date.</string>
+        <string>നിങ്ങളുടെ സബ്സ്ക്രിപ്ഷൻ കാലഹരണ തീയതി മുതൽ %1$d ദിവസത്തെ ഗ്രേസ് പിരീഡ് നിങ്ങൾക്കുണ്ട്.</string>
         <key>other</key>
-        <string>You have a grace period of %1$d days from your subscription expiration date.</string>
+        <string>നിങ്ങളുടെ സബ്സ്ക്രിപ്ഷൻ കാലഹരണ തീയതി മുതൽ %1$d ദിവസങ്ങളുടെ ഗ്രേസ് പിരീഡ് നിങ്ങൾക്കുണ്ട്.</string>
       </dict>
     </dict>
     <!-- A message indicating the minimum length of a PIN in characters. -->
     <key>YourPINMustBeAtLeastXCharactersDescriptionLong</key>
     <dict>
       <key>NSStringLocalizedFormatKey</key>
-      <string>%#@YourPINMustBeAtLeastCharacters@ Your PIN settings will be reset if you ever fully log out of the application.</string>
+      <string>%#@YourPINMustBeAtLeastCharacters@ നിങ്ങൾ ആപ്ലിക്കേഷനിൽ നിന്ന് പൂർണ്ണമായും ലോഗ് ഔട്ട് ചെയ്യുകയാണെങ്കിൽ നിങ്ങളുടെ PIN ക്രമീകരണങ്ങൾ പുനഃസജ്ജമാക്കപ്പെടും.</string>
       <key>YourPINMustBeAtLeastCharacters</key>
       <dict>
         <key>NSStringFormatSpecTypeKey</key>
@@ -218,9 +218,9 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>d</string>
         <key>one</key>
-        <string>Your PIN must be at least %d character.</string>
+        <string>നിങ്ങളുടെ PIN കുറഞ്ഞത് %d പ്രതീകമെങ്കിലും ആയിരിക്കണം.</string>
         <key>other</key>
-        <string>Your PIN must be at least %d characters.</string>
+        <string>നിങ്ങളുടെ PIN കുറഞ്ഞത് %d പ്രതീകങ്ങളെങ്കിലും ആയിരിക്കണം.</string>
       </dict>
     </dict>
   </dict>

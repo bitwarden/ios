@@ -14,6 +14,7 @@ final class ViewItemProcessor: StateProcessor<ViewItemState, ViewItemAction, Vie
         & HasAuthRepository
         & HasBillingRepository
         & HasBillingService
+        & HasConfigService
         & HasEnvironmentService
         & HasErrorReporter
         & HasEventService
@@ -61,6 +62,9 @@ final class ViewItemProcessor: StateProcessor<ViewItemState, ViewItemAction, Vie
 
     /// The delegate that is notified when delete cipher item have occurred.
     private weak var delegate: CipherItemOperationDelegate?
+
+    /// Whether the `vfo1-foundation` feature flag is enabled.
+    private var isVfo1FoundationFeatureFlagEnabled = false
 
     /// The ID of the item being viewed.
     private let itemId: String
@@ -124,6 +128,7 @@ final class ViewItemProcessor: StateProcessor<ViewItemState, ViewItemAction, Vie
     override func perform(_ effect: ViewItemEffect) async {
         switch effect {
         case .appeared:
+            await loadFeatureFlags()
             streamCipherDetailsTask?.cancel()
             streamCipherDetailsTask = Task {
                 await streamCipherDetails()
@@ -368,6 +373,11 @@ private extension ViewItemProcessor {
             let hasPremium = await services.vaultRepository.doesActiveAccountHavePremium()
             coordinator.navigate(to: .editItem(cipher, hasPremium), context: self)
         }
+    }
+
+    /// Loads the feature flags required for this processor.
+    private func loadFeatureFlags() async {
+        isVfo1FoundationFeatureFlagEnabled = await services.configService.getFeatureFlag(.vfo1Foundation)
     }
 
     /// Permanently deletes the item currently stored in `state`.
@@ -683,12 +693,17 @@ private extension ViewItemProcessor {
                     itemState.loginState.totpState = totpState
                     itemState.allUserCollections = collections
                     itemState.folderName = folder?.name
+                    itemState.isVfo1FoundationFeatureFlagEnabled = isVfo1FoundationFeatureFlagEnabled
                     itemState.organizationName = organization?.name
                     itemState.ownershipOptions = ownershipOptions
                     itemState.showWebIcons = showWebIcons
 
                     newState.loadingState = .data(itemState)
                 }
+
+                // Carry over any toast, so that a toast shown in response to saving the item isn't
+                // cleared out from under the user by the cipher update that the save triggers.
+                newState.toast = state.toast
                 state = newState
             }
         } catch {
@@ -752,6 +767,11 @@ private extension ViewItemProcessor {
 // MARK: - CipherItemOperationDelegate
 
 extension ViewItemProcessor: CipherItemOperationDelegate {
+    func itemAdded(type: CipherType) -> Bool {
+        state.toast = Toast(title: type.savedToastTitle)
+        return true
+    }
+
     func itemArchived() {
         coordinator.navigate(to: .dismiss(DismissAction(action: { [delegate] in delegate?.itemArchived() })))
     }
@@ -771,13 +791,19 @@ extension ViewItemProcessor: CipherItemOperationDelegate {
     func itemUnarchived() {
         coordinator.navigate(to: .dismiss(DismissAction(action: { [delegate] in delegate?.itemUnarchived() })))
     }
+
+    func itemUpdated(type: CipherType) -> Bool {
+        state.toast = Toast(title: type.savedToastTitle)
+        return true
+    }
 }
 
 // MARK: - EditCollectionsProcessorDelegate
 
 extension ViewItemProcessor: EditCollectionsProcessorDelegate {
     func didUpdateCipher() {
-        state.toast = Toast(title: Localizations.itemUpdated)
+        let title = state.loadingState.data?.type.savedToastTitle ?? Localizations.itemUpdated
+        state.toast = Toast(title: title)
     }
 }
 

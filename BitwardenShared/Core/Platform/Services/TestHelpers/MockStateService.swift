@@ -2,6 +2,8 @@ import BitwardenKit
 import BitwardenKitMocks
 import struct BitwardenSdk.EnrollPinResponse
 import struct BitwardenSdk.ServerCommunicationConfig
+import struct BitwardenSdk.V2UpgradeToken
+import enum BitwardenSdk.WrappedAccountCryptographicState
 import Combine
 import Foundation
 
@@ -10,7 +12,7 @@ import Foundation
 
 class MockStateService: StateService, ActiveAccountStateProvider, AutofillStateService, ServerCommunicationConfigStateService { // swiftlint:disable:this type_body_length line_length
     var accessTokenExpirationDateByUserId = [String: Date]()
-    var accountEncryptionKeys = [String: AccountEncryptionKeys]()
+    var accountCryptographicStates = [String: WrappedAccountCryptographicState]()
     var accountSetupAutofill = [String: AccountSetupProgress]()
     var accountSetupAutofillError: Error?
     var accountSetupImportLogins = [String: AccountSetupProgress]()
@@ -21,6 +23,11 @@ class MockStateService: StateService, ActiveAccountStateProvider, AutofillStateS
     var accountsLoggedOut = [String]()
     var activeAccount: Account?
     var accounts: [Account]?
+    var addFillAssistDebugRuleCalled = false
+    var addFillAssistDebugRuleDomain: String?
+    var addFillAssistDebugRulePasswordId: String?
+    var addFillAssistDebugRuleResult: Result<Void, Error> = .success(())
+    var addFillAssistDebugRuleUsernameId: String?
     var addSitePromptShown = false
     var allowSyncOnRefresh = [String: Bool]()
     var allowUniversalClipboard = [String: Bool]()
@@ -28,16 +35,12 @@ class MockStateService: StateService, ActiveAccountStateProvider, AutofillStateS
     var appRehydrationState = [String: AppRehydrationState]()
     var appTheme: AppTheme?
     var archiveOnboardingShown = false
-    var premiumUpgradeBannerDismissedByUserId = [String: Bool]()
-    var premiumUpgradeBannerDismissedResult: Result<Void, Error> = .success(())
-    var setSubscriptionAttentionCardResult: Result<Void, Error> = .success(())
-    var setUpgradedToPremiumActionCardResult: Result<Void, Error> = .success(())
-    var subscriptionAttentionCardVisibleResult: Bool = false
-    var upgradedToPremiumActionCardVisibleResult: Bool = false
     var biometricsEnabled = [String: Bool]()
     var capturedUserId: String?
     var clearClipboardValues = [String: ClearClipboardValue]()
     var clearClipboardResult: Result<Void, Error> = .success(())
+    var clearFillAssistCacheCalled = false
+    var clearFillAssistCacheResult: Result<Void, Error> = .success(())
     // swiftlint:disable:next identifier_name
     var clearMasterPasswordUnlockForActiveAccountCalled = false
     // swiftlint:disable:next identifier_name
@@ -50,7 +53,12 @@ class MockStateService: StateService, ActiveAccountStateProvider, AutofillStateS
     var defaultUriMatchTypeByUserId = [String: UriMatchType]()
     var didAccountSwitchInExtensionResult: Result<Bool, Error> = .success(false)
     var disableAutoTotpCopyByUserId = [String: Bool]()
+    var doesAccountHavePremiumByUserId = [String: Bool]()
+    var doesAccountHavePremiumPersonallyByUserId = [String: Bool]()
     var doesActiveAccountHavePremiumCalled = false
+    var fillAssistEnabledByUserId = [String: Bool]()
+    var getFillAssistEnabledError: Error?
+    var setFillAssistEnabledError: Error?
     var doesActiveAccountHavePremiumResult: Bool = true
     var doesActiveAccountHavePremiumPersonallyCalled = false // swiftlint:disable:this identifier_name
     var doesActiveAccountHavePremiumPersonallyResult: Bool = true // swiftlint:disable:this identifier_name
@@ -67,13 +75,11 @@ class MockStateService: StateService, ActiveAccountStateProvider, AutofillStateS
     var isAuthenticated = [String: Bool]()
     var isAuthenticatedError: Error?
     var isInitialSyncRequiredByUserId = [String: Bool]()
-    var isPremiumUpgradeBannerDismissedResult: Bool = false
-    var isPremiumUpgradeEligibleResult: Bool = false
     var learnGeneratorActionCardStatus: AccountSetupProgress?
     var learnNewLoginActionCardStatus: AccountSetupProgress?
     var loginRequest: LoginRequestNotification?
     var logoutAccountUserInitiated = false
-    var getAccountEncryptionKeysError: Error?
+    var getAccountCryptographicStateError: Error?
     // swiftlint:disable:next identifier_name
     var getAccountHasBeenUnlockedInteractivelyResult: Result<Bool, Error> = .success(false)
     var getActiveAccountIdError: Error?
@@ -88,6 +94,8 @@ class MockStateService: StateService, ActiveAccountStateProvider, AutofillStateS
     var masterPasswordUnlockByUserId = [String: MasterPasswordUnlockResponseModel]()
     var notificationsLastRegistrationDates = [String: Date]()
     var notificationsLastRegistrationError: Error?
+    // swiftlint:disable:next identifier_name
+    var organizationUserNotificationBannerDismissals = [String: OrganizationUserNotificationBannerDismissal]()
     var passwordGenerationOptions = [String: PasswordGenerationOptions]()
     var pendingAppIntentActions: [PendingAppIntentAction]?
     var pendingAppIntentActionsSubject = CurrentValueSubject<[PendingAppIntentAction]?, Never>(nil)
@@ -131,6 +139,7 @@ class MockStateService: StateService, ActiveAccountStateProvider, AutofillStateS
     var userIds = [String]()
     var usernameGenerationOptions = [String: UsernameGenerationOptions]()
     var usesKeyConnector = [String: Bool]()
+    var v2UpgradeTokens = [String: V2UpgradeToken]()
 
     lazy var activeIdSubject = CurrentValueSubject<String?, Never>(self.activeAccount?.profile.userId)
     lazy var appThemeSubject = CurrentValueSubject<AppTheme, Never>(self.appTheme ?? .default)
@@ -138,6 +147,23 @@ class MockStateService: StateService, ActiveAccountStateProvider, AutofillStateS
     func addAccount(_ account: Account) async {
         accountsAdded.append(account)
         activeAccount = account
+    }
+
+    func addFillAssistDebugRule(
+        domain: String,
+        usernameFieldId: String,
+        passwordFieldId: String,
+    ) async throws {
+        addFillAssistDebugRuleCalled = true
+        addFillAssistDebugRuleDomain = domain
+        addFillAssistDebugRuleUsernameId = usernameFieldId
+        addFillAssistDebugRulePasswordId = passwordFieldId
+        try addFillAssistDebugRuleResult.get()
+    }
+
+    func clearFillAssistCache() async throws {
+        clearFillAssistCacheCalled = true
+        try clearFillAssistCacheResult.get()
     }
 
     func clearMasterPasswordUnlockForActiveAccount() async throws {
@@ -172,26 +198,32 @@ class MockStateService: StateService, ActiveAccountStateProvider, AutofillStateS
         try didAccountSwitchInExtensionResult.get()
     }
 
-    func doesActiveAccountHavePremium() async -> Bool {
-        doesActiveAccountHavePremiumCalled = true
-        return doesActiveAccountHavePremiumResult
+    func doesAccountHavePremium(userId: String?) async -> Bool {
+        guard let userId else {
+            doesActiveAccountHavePremiumCalled = true
+            return doesActiveAccountHavePremiumResult
+        }
+        return doesAccountHavePremiumByUserId[userId] ?? doesActiveAccountHavePremiumResult
     }
 
-    func doesActiveAccountHavePremiumPersonally() async -> Bool {
-        doesActiveAccountHavePremiumPersonallyCalled = true
-        return doesActiveAccountHavePremiumPersonallyResult
+    func doesAccountHavePremiumPersonally(userId: String?) async -> Bool {
+        guard let userId else {
+            doesActiveAccountHavePremiumPersonallyCalled = true
+            return doesActiveAccountHavePremiumPersonallyResult
+        }
+        return doesAccountHavePremiumPersonallyByUserId[userId] ?? doesActiveAccountHavePremiumPersonallyResult
     }
 
-    func getAccountEncryptionKeys(userId: String?) async throws -> AccountEncryptionKeys {
-        if let error = getAccountEncryptionKeysError {
+    func getAccountCryptographicState(userId: String?) async throws -> WrappedAccountCryptographicState {
+        if let error = getAccountCryptographicStateError {
             throw error
         }
         let id = try await getAccountIdOrActiveId(userId: userId)
-        guard let encryptionKeys = accountEncryptionKeys[id]
+        guard let cryptographicState = accountCryptographicStates[id]
         else {
             throw StateServiceError.noActiveAccount
         }
-        return encryptionKeys
+        return cryptographicState
     }
 
     func getAccountHasBeenUnlockedInteractively(userId: String?) async throws -> Bool {
@@ -270,12 +302,6 @@ class MockStateService: StateService, ActiveAccountStateProvider, AutofillStateS
         archiveOnboardingShown
     }
 
-    func getPremiumUpgradeBannerDismissed(userId: String?) async throws -> Bool {
-        try premiumUpgradeBannerDismissedResult.get()
-        let userId = try unwrapUserId(userId)
-        return premiumUpgradeBannerDismissedByUserId[userId] ?? false
-    }
-
     func getClearClipboardValue(userId: String?) async throws -> ClearClipboardValue {
         try clearClipboardResult.get()
         let userId = try unwrapUserId(userId)
@@ -322,6 +348,14 @@ class MockStateService: StateService, ActiveAccountStateProvider, AutofillStateS
         try eventsResult.get()
         let userId = try unwrapUserId(userId)
         return events[userId] ?? []
+    }
+
+    func getFillAssistEnabled(userId: String?) async throws -> Bool {
+        if let getFillAssistEnabledError {
+            throw getFillAssistEnabledError
+        }
+        let userId = try unwrapUserId(userId)
+        return fillAssistEnabledByUserId[userId] ?? false
     }
 
     func getFlightRecorderData() async -> FlightRecorderData? {
@@ -382,6 +416,13 @@ class MockStateService: StateService, ActiveAccountStateProvider, AutofillStateS
         }
         let userId = try unwrapUserId(userId)
         return notificationsLastRegistrationDates[userId]
+    }
+
+    func getOrganizationUserNotificationBannerDismissal(
+        userId: String?,
+    ) async throws -> OrganizationUserNotificationBannerDismissal? {
+        let userId = try unwrapUserId(userId)
+        return organizationUserNotificationBannerDismissals[userId]
     }
 
     func getPasswordGenerationOptions(userId: String?) async throws -> PasswordGenerationOptions? {
@@ -447,14 +488,6 @@ class MockStateService: StateService, ActiveAccountStateProvider, AutofillStateS
         twoFactorTokens[email]
     }
 
-    func getSubscriptionAttentionCardVisible() async -> Bool {
-        subscriptionAttentionCardVisibleResult
-    }
-
-    func getUpgradedToPremiumActionCardVisible() async -> Bool {
-        upgradedToPremiumActionCardVisibleResult
-    }
-
     func getUserHasMasterPassword(userId: String?) async throws -> Bool {
         if let userHasMasterPasswordError { throw userHasMasterPasswordError }
         let userId = try unwrapUserId(userId)
@@ -475,6 +508,10 @@ class MockStateService: StateService, ActiveAccountStateProvider, AutofillStateS
         return usesKeyConnector[userId] ?? false
     }
 
+    func getV2UpgradeToken(userId: String) async -> V2UpgradeToken? {
+        v2UpgradeTokens[userId]
+    }
+
     func isAuthenticated(userId: String?) async throws -> Bool {
         let userId = try unwrapUserId(userId)
         if let isAuthenticatedError { throw isAuthenticatedError }
@@ -484,14 +521,6 @@ class MockStateService: StateService, ActiveAccountStateProvider, AutofillStateS
     func isInitialSyncRequired(userId: String?) async -> Bool {
         guard let userId = try? unwrapUserId(userId) else { return false }
         return isInitialSyncRequiredByUserId[userId] ?? false
-    }
-
-    func isPremiumUpgradeBannerDismissed() async -> Bool {
-        isPremiumUpgradeBannerDismissedResult
-    }
-
-    func isPremiumUpgradeEligible() async -> Bool {
-        isPremiumUpgradeEligibleResult
     }
 
     func logoutAccount(userId: String?, userInitiated: Bool) async throws {
@@ -520,9 +549,12 @@ class MockStateService: StateService, ActiveAccountStateProvider, AutofillStateS
         accessTokenExpirationDateByUserId[userId] = expirationDate
     }
 
-    func setAccountEncryptionKeys(_ encryptionKeys: AccountEncryptionKeys, userId: String?) async throws {
+    func setAccountCryptographicState(
+        _ cryptographicState: WrappedAccountCryptographicState,
+        userId: String?,
+    ) async throws {
         let userId = try unwrapUserId(userId)
-        accountEncryptionKeys[userId] = encryptionKeys
+        accountCryptographicStates[userId] = cryptographicState
     }
 
     func setAccountHasBeenUnlockedInteractively(userId: String?, value: Bool) async throws {
@@ -608,29 +640,17 @@ class MockStateService: StateService, ActiveAccountStateProvider, AutofillStateS
         archiveOnboardingShown = shown
     }
 
-    func setPremiumUpgradeBannerDismissed(_ dismissed: Bool, userId: String?) async throws {
-        try premiumUpgradeBannerDismissedResult.get()
-        let userId = try unwrapUserId(userId)
-        premiumUpgradeBannerDismissedByUserId[userId] = dismissed
-    }
-
-    func setSubscriptionAttentionCardVisible(_ visible: Bool) async throws {
-        try setSubscriptionAttentionCardResult.get()
-        subscriptionAttentionCardVisibleResult = visible
-    }
-
-    func setUpgradedToPremiumActionCardVisible(_ visible: Bool) async throws {
-        try setUpgradedToPremiumActionCardResult.get()
-        upgradedToPremiumActionCardVisibleResult = visible
-    }
-
     func setClearClipboardValue(_ clearClipboardValue: ClearClipboardValue?, userId: String?) async throws {
         try clearClipboardResult.get()
         let userId = try unwrapUserId(userId)
         clearClipboardValues[userId] = clearClipboardValue
     }
 
+    @MainActor
     func setCollapsedVaultListSectionIds(_ ids: [String], userId: String?) async throws {
+        // `@MainActor` isolates the write below: callers await this from processor code that isn't
+        // itself actor-isolated, so without this the mutation runs on a background thread and races
+        // with tests polling `collapsedVaultListSectionIds` from the main thread via `waitFor`.
         let userId = try unwrapUserId(userId)
         collapsedVaultListSectionIds[userId] = ids
     }
@@ -664,6 +684,18 @@ class MockStateService: StateService, ActiveAccountStateProvider, AutofillStateS
     func setEvents(_ events: [EventData], userId: String?) async throws {
         let userId = try unwrapUserId(userId)
         self.events[userId] = events
+    }
+
+    @MainActor
+    func setFillAssistEnabled(_ fillAssistEnabled: Bool, userId: String?) async throws {
+        // `@MainActor` isolates the write below for the same reason as `setCollapsedVaultListSectionIds`
+        // above: it keeps this mutation serialized with tests polling `fillAssistEnabledByUserId` from
+        // the main thread via `waitFor`, rather than racing with it from a background thread.
+        if let setFillAssistEnabledError {
+            throw setFillAssistEnabledError
+        }
+        let userId = try unwrapUserId(userId)
+        fillAssistEnabledByUserId[userId] = fillAssistEnabled
     }
 
     func setFlightRecorderData(_ data: FlightRecorderData?) async {
@@ -740,6 +772,14 @@ class MockStateService: StateService, ActiveAccountStateProvider, AutofillStateS
     func setNotificationsLastRegistrationDate(_ date: Date?, userId: String?) async throws {
         let userId = try unwrapUserId(userId)
         notificationsLastRegistrationDates[userId] = date
+    }
+
+    func setOrganizationUserNotificationBannerDismissal(
+        _ dismissal: OrganizationUserNotificationBannerDismissal?,
+        userId: String?,
+    ) async throws {
+        let userId = try unwrapUserId(userId)
+        organizationUserNotificationBannerDismissals[userId] = dismissal
     }
 
     func setPasswordGenerationOptions(_ options: PasswordGenerationOptions?, userId: String?) async throws {
@@ -846,6 +886,10 @@ class MockStateService: StateService, ActiveAccountStateProvider, AutofillStateS
     func setUsesKeyConnector(_ usesKeyConnector: Bool, userId: String?) async throws {
         let userId = try unwrapUserId(userId)
         self.usesKeyConnector[userId] = usesKeyConnector
+    }
+
+    func setV2UpgradeToken(_ token: V2UpgradeToken?, userId: String) async {
+        v2UpgradeTokens[userId] = token
     }
 
     /// Attempts to convert a possible user id into an account, or returns the active account.

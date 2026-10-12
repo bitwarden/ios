@@ -130,10 +130,10 @@ class ViewPassportItemViewTests: BitwardenTestCase {
     private func populatedState() -> PassportItemState {
         PassportItemState(
             birthPlace: "San Francisco, USA",
-            dateOfBirth: "1989-08-01",
-            expirationDate: "2029-08-01",
+            dateOfBirth: Date(year: 1989, month: 8, day: 1),
+            expirationDate: Date(year: 2029, month: 8, day: 1),
             givenName: "Bit",
-            issueDate: "2019-08-01",
+            issueDate: Date(year: 2019, month: 8, day: 1),
             issuingAuthority: "U.S. Department of State",
             issuingCountry: "United States",
             nationalIdentificationNumber: "123456789",

@@ -508,7 +508,39 @@ class AppCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         subject.navigate(to: .generatePasswordCredential)
 
         XCTAssertTrue(module.generatorCoordinator.isStarted)
-        XCTAssertEqual(module.generatorCoordinator.routes, [.generator(staticType: .password)])
+        XCTAssertEqual(
+            module.generatorCoordinator.routes,
+            [.generator(staticType: .password, savePasswordHistory: false)],
+        )
+    }
+
+    /// `navigate(to:)` with `.generatePasswordCredential` forwards `passwordFieldPasswordRules`
+    /// from the extension request to the generator route.
+    @MainActor
+    @available(iOS 26.2, *)
+    func test_navigateTo_generatePasswordCredential_withPasswordRules() throws {
+        guard #available(iOS 26.2, iOSApplicationExtension 26.2, *) else {
+            throw XCTSkip("Test requires iOS 26.2")
+        }
+        let request = MockGeneratePasswordRequestProxy()
+        request.passwordFieldPasswordRules = "minlength: 20;"
+        let extensionDelegate = MockCredentialProviderExtensionDelegate()
+        extensionDelegate.extensionMode = .generatePasswordCredential(request, userInteraction: true)
+        subject = AppCoordinator(
+            appContext: .mainApp,
+            appExtensionDelegate: extensionDelegate,
+            module: module,
+            rootNavigator: rootNavigator,
+            services: ServiceContainer.withMocks(),
+        )
+
+        subject.navigate(to: .generatePasswordCredential)
+
+        XCTAssertTrue(module.generatorCoordinator.isStarted)
+        XCTAssertEqual(
+            module.generatorCoordinator.routes,
+            [.generator(staticType: .password, passwordRules: "minlength: 20;", savePasswordHistory: false)],
+        )
     }
 
     /// `navigate(to:)` with `.generatePasswordCredential` does nothing when the extension delegate

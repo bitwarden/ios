@@ -13,6 +13,9 @@ public enum SendType: Int, CaseIterable, Codable, Equatable, Identifiable, Menua
     /// The send contains an attached file.
     case file = 1
 
+    /// An unknown or unimplemented send type.
+    case unknown = -1
+
     // MARK: Type Properties
 
     public static let allCases: [SendType] = [.file, .text]
@@ -23,6 +26,7 @@ public enum SendType: Int, CaseIterable, Codable, Equatable, Identifiable, Menua
         switch self {
         case .text: "SendTextButton"
         case .file: "SendFileButton"
+        case .unknown: ""
         }
     }
 
@@ -34,6 +38,7 @@ public enum SendType: Int, CaseIterable, Codable, Equatable, Identifiable, Menua
         switch self {
         case .text: Localizations.text
         case .file: Localizations.file
+        case .unknown: ""
         }
     }
 
@@ -42,6 +47,13 @@ public enum SendType: Int, CaseIterable, Codable, Equatable, Identifiable, Menua
         switch self {
         case .text: false
         case .file: true
+        case .unknown: false
         }
     }
+}
+
+// MARK: - DefaultValueProvider
+
+extension SendType: DefaultValueProvider {
+    public static var defaultValue: SendType { .unknown }
 }

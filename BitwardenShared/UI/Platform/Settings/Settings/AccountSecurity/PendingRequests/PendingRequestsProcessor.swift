@@ -66,7 +66,7 @@ final class PendingRequestsProcessor: StateProcessor<
         case .declineAllRequestsTapped:
             confirmDenyAllRequests()
         case .dismiss:
-            coordinator.navigate(to: .dismiss, context: self)
+            coordinator.navigate(to: .dismiss(), context: self)
         case let .requestTapped(request):
             coordinator.navigate(to: .loginRequest(request), context: self)
         case let .toastShown(newValue):

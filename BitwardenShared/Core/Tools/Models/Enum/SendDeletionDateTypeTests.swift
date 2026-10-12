@@ -28,11 +28,36 @@ class SendDeletionDateTypeTests: BitwardenTestCase {
         let sevenDays = SendDeletionDateType.sevenDays.calculateDate(from: originDate)
         XCTAssertEqual(sevenDays, Date(year: 2023, month: 11, day: 12))
 
+        let fourteenDays = SendDeletionDateType.fourteenDays.calculateDate(from: originDate)
+        XCTAssertEqual(fourteenDays, Date(year: 2023, month: 11, day: 19))
+
         let thirtyDays = SendDeletionDateType.thirtyDays.calculateDate(from: originDate)
         XCTAssertEqual(thirtyDays, Date(year: 2023, month: 12, day: 5))
 
         let custom = SendDeletionDateType.custom(customDate).calculateDate(from: originDate)
         XCTAssertEqual(custom, customDate)
+    }
+
+    /// `from(hours:)` maps a preset number of hours to the matching preset case.
+    func test_fromHours_presets() {
+        let originDate = Date(year: 2023, month: 11, day: 5)
+        XCTAssertEqual(SendDeletionDateType.from(hours: 1, originDate: originDate), .oneHour)
+        XCTAssertEqual(SendDeletionDateType.from(hours: 24, originDate: originDate), .oneDay)
+        XCTAssertEqual(SendDeletionDateType.from(hours: 48, originDate: originDate), .twoDays)
+        XCTAssertEqual(SendDeletionDateType.from(hours: 72, originDate: originDate), .threeDays)
+        XCTAssertEqual(SendDeletionDateType.from(hours: 168, originDate: originDate), .sevenDays)
+        XCTAssertEqual(SendDeletionDateType.from(hours: 336, originDate: originDate), .fourteenDays)
+        XCTAssertEqual(SendDeletionDateType.from(hours: 720, originDate: originDate), .thirtyDays)
+    }
+
+    /// `from(hours:)` falls back to a custom date `hours` from the origin date when the number of
+    /// hours doesn't match a preset.
+    func test_fromHours_customFallback() {
+        let originDate = Date(year: 2023, month: 11, day: 5)
+        XCTAssertEqual(
+            SendDeletionDateType.from(hours: 100, originDate: originDate),
+            .custom(Date(year: 2023, month: 11, day: 9, hour: 4)),
+        )
     }
 
     /// `localizedName` returns the localized name of the option to display in the menu.
@@ -42,6 +67,7 @@ class SendDeletionDateTypeTests: BitwardenTestCase {
         XCTAssertEqual(SendDeletionDateType.twoDays.localizedName, Localizations.xDays(2))
         XCTAssertEqual(SendDeletionDateType.threeDays.localizedName, Localizations.xDays(3))
         XCTAssertEqual(SendDeletionDateType.sevenDays.localizedName, Localizations.xDays(7))
+        XCTAssertEqual(SendDeletionDateType.fourteenDays.localizedName, Localizations.xDays(14))
         XCTAssertEqual(SendDeletionDateType.thirtyDays.localizedName, Localizations.xDays(30))
 
         XCTAssertEqual(

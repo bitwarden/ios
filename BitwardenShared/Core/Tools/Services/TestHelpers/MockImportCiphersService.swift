@@ -4,20 +4,20 @@ import BitwardenSdk
 
 class MockImportCiphersService: ImportCiphersService {
     var importCiphersCalled = false
-    var importCiphersCiphers: [Cipher]?
+    var importCiphersEncryptionContexts: [EncryptionContext]?
     var importCiphersError: Error?
-    var importCiphersFolders: [Folder]?
     var importCiphersFolderRelationships: [(key: Int, value: Int)]?
+    var importCiphersFolders: [Folder]?
 
     func importCiphers(
-        ciphers: [Cipher],
+        encryptionContexts: [EncryptionContext],
         folders: [Folder],
         folderRelationships: [(key: Int, value: Int)],
     ) async throws {
         importCiphersCalled = true
-        importCiphersCiphers = ciphers
-        importCiphersFolders = folders
+        importCiphersEncryptionContexts = encryptionContexts
         importCiphersFolderRelationships = folderRelationships
+        importCiphersFolders = folders
         if let importCiphersError {
             throw importCiphersError
         }

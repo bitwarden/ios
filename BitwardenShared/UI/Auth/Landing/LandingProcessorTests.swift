@@ -102,6 +102,72 @@ class LandingProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_
         XCTAssertNil(environmentService.setPreAuthEnvironmentURLsData)
     }
 
+    /// `perform(.appeared)` seeds `isCreateAccountButtonHidden` from the cached pre-auth config when
+    /// the config's vault host matches the current pre-auth URLs (no network round-trip required).
+    @MainActor
+    func test_perform_appeared_cachedConfig_disableUserRegistration_matchingURLs() async {
+        stateService.preAuthEnvironmentURLs = .defaultUS
+        configService.configMocker.withResult(
+            ServerConfig(
+                date: Date(),
+                responseModel: ConfigResponseModel(
+                    communication: nil,
+                    environment: EnvironmentServerConfigResponseModel(
+                        api: nil,
+                        cloudRegion: nil,
+                        fillAssistRules: nil,
+                        identity: nil,
+                        notifications: nil,
+                        sso: nil,
+                        vault: "https://vault.bitwarden.com",
+                    ),
+                    featureStates: [:],
+                    gitHash: nil,
+                    server: nil,
+                    settings: ServerSettingsResponseModel(disableUserRegistration: true),
+                    version: "2025.1.0",
+                ),
+            ),
+        )
+
+        await subject.perform(.appeared)
+
+        XCTAssertTrue(subject.state.isCreateAccountButtonHidden)
+    }
+
+    /// `perform(.appeared)` ignores a cached pre-auth config whose vault host does not match the
+    /// current pre-auth URLs (stale config from a previously selected region), leaving the button visible.
+    @MainActor
+    func test_perform_appeared_cachedConfig_disableUserRegistration_mismatchedURLs() async {
+        stateService.preAuthEnvironmentURLs = .defaultUS
+        configService.configMocker.withResult(
+            ServerConfig(
+                date: Date(),
+                responseModel: ConfigResponseModel(
+                    communication: nil,
+                    environment: EnvironmentServerConfigResponseModel(
+                        api: nil,
+                        cloudRegion: nil,
+                        fillAssistRules: nil,
+                        identity: nil,
+                        notifications: nil,
+                        sso: nil,
+                        vault: "https://vault.bitwarden.eu",
+                    ),
+                    featureStates: [:],
+                    gitHash: nil,
+                    server: nil,
+                    settings: ServerSettingsResponseModel(disableUserRegistration: true),
+                    version: "2025.1.0",
+                ),
+            ),
+        )
+
+        await subject.perform(.appeared)
+
+        XCTAssertFalse(subject.state.isCreateAccountButtonHidden)
+    }
+
     /// `perform(.appeared)` with no pre-auth URLs defaults the region and URLs to the US environment.
     @MainActor
     func test_perform_appeared_loadsRegion_noPreAuthUrls() async {
@@ -403,6 +469,136 @@ class LandingProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_
         XCTAssertTrue(subject.state.isRememberMeOn)
     }
 
+    /// The `configPublisher` subscription in `init` hides the create account button when the
+    /// emitted config has `disableUserRegistration` set to `true` and its vault host matches the
+    /// current pre-auth environment.
+    @MainActor
+    func test_configPublisher_disableUserRegistration_true() async throws {
+        stateService.preAuthEnvironmentURLs = .defaultUS
+        let config = ServerConfig(
+            date: Date(),
+            responseModel: ConfigResponseModel(
+                communication: nil,
+                environment: EnvironmentServerConfigResponseModel(
+                    api: nil,
+                    cloudRegion: nil,
+                    fillAssistRules: nil,
+                    identity: nil,
+                    notifications: nil,
+                    sso: nil,
+                    vault: "https://vault.bitwarden.com",
+                ),
+                featureStates: [:],
+                gitHash: nil,
+                server: nil,
+                settings: ServerSettingsResponseModel(disableUserRegistration: true),
+                version: "2024.4.0",
+            ),
+        )
+        configService.configSubject.send(MetaServerConfig(
+            isPreAuth: true,
+            userId: nil,
+            serverConfig: config,
+        ))
+        try await waitForAsync { self.subject.state.isCreateAccountButtonHidden }
+    }
+
+    /// The `configPublisher` subscription in `init` shows the create account button when the
+    /// emitted config has `disableUserRegistration` set to `false` and its vault host matches the
+    /// current pre-auth environment.
+    @MainActor
+    func test_configPublisher_disableUserRegistration_false() async throws {
+        stateService.preAuthEnvironmentURLs = .defaultUS
+        subject.state.isCreateAccountButtonHidden = true
+        let config = ServerConfig(
+            date: Date(),
+            responseModel: ConfigResponseModel(
+                communication: nil,
+                environment: EnvironmentServerConfigResponseModel(
+                    api: nil,
+                    cloudRegion: nil,
+                    fillAssistRules: nil,
+                    identity: nil,
+                    notifications: nil,
+                    sso: nil,
+                    vault: "https://vault.bitwarden.com",
+                ),
+                featureStates: [:],
+                gitHash: nil,
+                server: nil,
+                settings: ServerSettingsResponseModel(disableUserRegistration: false),
+                version: "2024.4.0",
+            ),
+        )
+        configService.configSubject.send(MetaServerConfig(
+            isPreAuth: true,
+            userId: nil,
+            serverConfig: config,
+        ))
+        try await waitForAsync { !self.subject.state.isCreateAccountButtonHidden }
+    }
+
+    /// The `configPublisher` subscription in `init` leaves the create account button visible when
+    /// no config is emitted.
+    @MainActor
+    func test_configPublisher_noConfig_showsCreateAccount() async {
+        await Task.yield()
+        XCTAssertFalse(subject.state.isCreateAccountButtonHidden)
+    }
+
+    /// The `configPublisher` subscription in `init` ignores a config whose vault host does not match
+    /// the current pre-auth environment (stale config from a previously selected region).
+    @MainActor
+    func test_configPublisher_staleConfig_doesNotUpdateButton() async {
+        stateService.preAuthEnvironmentURLs = .defaultUS
+        // Seed the button as hidden (as if the current US server disables registration).
+        subject.state.isCreateAccountButtonHidden = true
+
+        // A stale EU config (vault host doesn't match US pre-auth URLs) with disableUserRegistration:
+        // false should not flip the button to visible.
+        configService.configSubject.send(MetaServerConfig(
+            isPreAuth: true,
+            userId: nil,
+            serverConfig: ServerConfig(
+                date: Date(),
+                responseModel: ConfigResponseModel(
+                    communication: nil,
+                    environment: EnvironmentServerConfigResponseModel(
+                        api: nil,
+                        cloudRegion: nil,
+                        fillAssistRules: nil,
+                        identity: nil,
+                        notifications: nil,
+                        sso: nil,
+                        vault: "https://vault.bitwarden.eu",
+                    ),
+                    featureStates: [:],
+                    gitHash: nil,
+                    server: nil,
+                    settings: ServerSettingsResponseModel(disableUserRegistration: false),
+                    version: "2025.1.0",
+                ),
+            ),
+        ))
+
+        await Task.yield()
+
+        XCTAssertTrue(subject.state.isCreateAccountButtonHidden)
+    }
+
+    /// The `configPublisher` subscription in `init` does not retain `self`, so the processor can be
+    /// deinitialized while the publisher is still active. Prevents regression of the retain cycle
+    /// where `guard let self` before the `for await` loop would pin `self` for the loop's lifetime.
+    @MainActor
+    func test_configPublisher_doesNotRetainSelf() {
+        weak var weakSubject = subject
+        subject = nil
+        XCTAssertNil(
+            weakSubject,
+            "LandingProcessor was not deinitialized; configSubscriptionTask likely retains self.",
+        )
+    }
+
     /// `receive(_:)` with `.createAccountPressed` navigates to the start registration screen.
     @MainActor
     func test_receive_createAccountPressed() {
@@ -430,7 +626,7 @@ class LandingProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_
         XCTAssertTrue(subject.state.isContinueButtonEnabled)
     }
 
-    /// `perform(_:)` with `.regionPressed` navigates to the region selection screen.
+    /// `perform(_:)` with `.regionPressed` shows US, EU, Self-Hosted — Gov is excluded by default.
     @MainActor
     func test_perform_regionPressed() async throws {
         await subject.perform(.regionPressed)
@@ -438,7 +634,8 @@ class LandingProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_
         var alert = try XCTUnwrap(coordinator.alertShown.last)
         XCTAssertEqual(alert.title, Localizations.loggingInOn)
         XCTAssertNil(alert.message)
-        XCTAssertEqual(alert.alertActions.count, 4)
+        XCTAssertEqual(alert.alertActions.count, 4) // US + EU + Self-Hosted + Cancel (no Gov)
+        XCTAssertNil(alert.alertActions.first(where: { $0.title == "bitwarden-gov.com" }))
 
         XCTAssertEqual(alert.alertActions[0].title, "bitwarden.com")
         try await alert.tapAction(title: "bitwarden.com")
@@ -455,6 +652,78 @@ class LandingProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_
         XCTAssertEqual(alert.alertActions[2].title, Localizations.selfHosted)
         try await alert.tapAction(title: Localizations.selfHosted)
         XCTAssertEqual(coordinator.routes.last, .selfHosted(currentRegion: .europe))
+    }
+
+    /// `perform(_:)` with `.regionPressed` includes Gov when `fedrampGovRegion` is enabled
+    /// and the cached config matches the current region.
+    @MainActor
+    func test_perform_regionPressed_fedrampGovRegionEnabled() async throws {
+        stateService.preAuthEnvironmentURLs = .defaultUS
+        configService.configMocker.withResult(
+            ServerConfig(
+                date: Date(),
+                responseModel: ConfigResponseModel(
+                    communication: nil,
+                    environment: EnvironmentServerConfigResponseModel(
+                        api: nil,
+                        cloudRegion: nil,
+                        fillAssistRules: nil,
+                        identity: nil,
+                        notifications: nil,
+                        sso: nil,
+                        vault: "https://vault.bitwarden.com",
+                    ),
+                    featureStates: [:],
+                    gitHash: nil,
+                    server: nil,
+                    version: "2025.1.0",
+                ),
+            ),
+        )
+        configService.featureFlagsBoolPreAuth[.fedrampGovRegion] = true
+
+        await subject.perform(.regionPressed)
+
+        let alert = try XCTUnwrap(coordinator.alertShown.last)
+        XCTAssertEqual(alert.alertActions.count, 5)
+        XCTAssertEqual(alert.alertActions[2].title, "bitwarden-gov.com")
+        try await alert.tapAction(title: "bitwarden-gov.com")
+        XCTAssertEqual(subject.state.region, .gov)
+    }
+
+    /// `perform(_:)` with `.regionPressed` excludes Gov when `fedrampGovRegion` is enabled
+    /// but the cached config belongs to a different region (stale cache).
+    @MainActor
+    func test_perform_regionPressed_fedrampGovRegionEnabled_staleConfig() async throws {
+        stateService.preAuthEnvironmentURLs = .defaultUS
+        configService.configMocker.withResult(
+            ServerConfig(
+                date: Date(),
+                responseModel: ConfigResponseModel(
+                    communication: nil,
+                    environment: EnvironmentServerConfigResponseModel(
+                        api: nil,
+                        cloudRegion: nil,
+                        fillAssistRules: nil,
+                        identity: nil,
+                        notifications: nil,
+                        sso: nil,
+                        vault: "https://vault.bitwarden.eu",
+                    ),
+                    featureStates: [:],
+                    gitHash: nil,
+                    server: nil,
+                    version: "2025.1.0",
+                ),
+            ),
+        )
+        configService.featureFlagsBoolPreAuth[.fedrampGovRegion] = true
+
+        await subject.perform(.regionPressed)
+
+        let alert = try XCTUnwrap(coordinator.alertShown.last)
+        XCTAssertEqual(alert.alertActions.count, 4)
+        XCTAssertNil(alert.alertActions.first(where: { $0.title == "bitwarden-gov.com" }))
     }
 
     /// `receive(_:)` with `.rememberMeChanged(true)` updates the state to reflect the changes.

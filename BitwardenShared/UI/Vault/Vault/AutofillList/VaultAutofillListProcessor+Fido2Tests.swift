@@ -120,6 +120,30 @@ class VaultAutofillListProcessorFido2Tests: BitwardenTestCase { // swiftlint:dis
         XCTAssertEqual(subject.state.excludedCredentialIdFound, "1")
     }
 
+    /// `receive(_:)` with `.cancelTapped` notifies the delegate that a matched excluded credential
+    /// was found instead of a plain cancel when an excluded credential was found.
+    @MainActor
+    func test_receive_cancelTapped_withExcludedCredentialFound() throws {
+        guard #available(iOS 18.0, *) else { return }
+
+        subject.state.excludedCredentialIdFound = "1"
+
+        subject.receive(.cancelTapped)
+
+        XCTAssertTrue(appExtensionDelegate.setMatchedExcludedCredentialFoundCalled)
+        XCTAssertFalse(appExtensionDelegate.didCancelCalled)
+    }
+
+    /// `receive(_:)` with `.cancelTapped` notifies the delegate to cancel the extension when no
+    /// excluded credential was found.
+    @MainActor
+    func test_receive_cancelTapped_withoutExcludedCredentialFound() {
+        subject.receive(.cancelTapped)
+
+        XCTAssertTrue(appExtensionDelegate.didCancelCalled)
+        XCTAssertFalse(appExtensionDelegate.setMatchedExcludedCredentialFoundCalled)
+    }
+
     /// `getter:isAutofillingFromList` returns `true` when delegate is autofilling from list.
     @MainActor
     func test_isAutofillingFromList_true() async throws {
@@ -502,9 +526,12 @@ class VaultAutofillListProcessorFido2Tests: BitwardenTestCase { // swiftlint:dis
     }
 
     /// `perform(_:)` with `.excludedCredentialFoundChanged` throws when getting the excluded credential cipher
-    /// from the publisher so it shows an error and cancels the extension flow.
+    /// from the publisher so it shows an error and notifies the delegate that a matched excluded credential
+    /// was found instead of a plain cancel.
     @MainActor
     func test_perform_excludedCredentialFoundChanged_cipherPublisherThrows() async throws {
+        guard #available(iOS 18.0, *) else { return }
+
         let cipher = CipherView.fixture()
         subject.state.excludedCredentialIdFound = cipher.id
         vaultRepository.cipherDetailsSubject.send(completion: .failure(BitwardenTestError.example))
@@ -538,13 +565,17 @@ class VaultAutofillListProcessorFido2Tests: BitwardenTestCase { // swiftlint:dis
         }
         onDismissed()
 
-        XCTAssertTrue(appExtensionDelegate.didCancelCalled)
+        XCTAssertTrue(appExtensionDelegate.setMatchedExcludedCredentialFoundCalled)
+        XCTAssertFalse(appExtensionDelegate.didCancelCalled)
     }
 
     /// `perform(_:)` with `.excludedCredentialFoundChanged` throws when creating the excluded credential cipher
-    /// section so it shows an error and cancels the extension flow.
+    /// section so it shows an error and notifies the delegate that a matched excluded credential was found
+    /// instead of a plain cancel.
     @MainActor
     func test_informExcludedCredentialFound_creatingExcludeCredentialSectionThrows() async throws {
+        guard #available(iOS 18.0, *) else { return }
+
         let cipher = CipherView.fixture(login: .fixture(fido2Credentials: [.fixture()]))
         subject.state.excludedCredentialIdFound = cipher.id
         vaultRepository.cipherDetailsSubject.send(cipher)
@@ -579,7 +610,8 @@ class VaultAutofillListProcessorFido2Tests: BitwardenTestCase { // swiftlint:dis
         }
         onDismissed()
 
-        XCTAssertTrue(appExtensionDelegate.didCancelCalled)
+        XCTAssertTrue(appExtensionDelegate.setMatchedExcludedCredentialFoundCalled)
+        XCTAssertFalse(appExtensionDelegate.didCancelCalled)
     }
 
     /// `vaultItemTapped(_:)` with Fido2 credential signals the `Fido2UserInterfaceHelper`

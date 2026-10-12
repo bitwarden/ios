@@ -40,6 +40,7 @@ public struct IllustratedMessageView<Accessory: View>: View {
                 .if(style.imageColor != nil) { view in
                     view.foregroundStyle(style.imageColor!)
                 }
+                .accessibilityHidden(true)
 
             VStack(spacing: style.spaceBetweenTitleAndMessage) {
                 if let title {

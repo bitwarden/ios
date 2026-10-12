@@ -6,7 +6,7 @@
     <key>BitwardenCouldNotDecryptXVaultItemsDescriptionLong</key>
     <dict>
       <key>NSStringLocalizedFormatKey</key>
-      <string>%#@BitwardenCouldNotDecryptVaultItems@ Copy and share this error report with customer success to avoid additional data loss.</string>
+      <string>%#@BitwardenCouldNotDecryptVaultItems@ နောက်ထပ် ဒေတာဆုံးရှုံးမှုကို ရှောင်ရှားရန် ဤအမှားအစီရင်ခံစာကို ကူးယူပြီး ဖောက်သည်အောင်မြင်ရေးအဖွဲ့ထံ မျှဝေပါ။</string>
       <key>BitwardenCouldNotDecryptVaultItems</key>
       <dict>
         <key>NSStringFormatSpecTypeKey</key>
@@ -14,7 +14,7 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>d</string>
         <key>other</key>
-        <string>Bitwarden could not decrypt %d vault items.</string>
+        <string>Bitwarden သည် ဗော်လ်တ်ပစ္စည်း %d ခုကို ကုဒ်ဖြင့်ဖွင့်၍ မရပါ။</string>
       </dict>
     </dict>
     <!-- A message indicating the minimum length of a master password in characters. -->
@@ -29,14 +29,14 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>d</string>
         <key>other</key>
-        <string>Master password must be at least %d characters long.</string>
+        <string>မာစတာစကားဝှက်သည် အနည်းဆုံး စာလုံး %d ရှည်ရပါမည်။</string>
       </dict>
     </dict>
     <!-- A warning if we have determined that a password has been exposed in a data breach. -->
     <key>ThisPasswordHasBeenExposedXTimesDescriptionLong</key>
     <dict>
       <key>NSStringLocalizedFormatKey</key>
-      <string>%#@ThisPasswordHasBeenExposedTimes@ You should change it.</string>
+      <string>%#@ThisPasswordHasBeenExposedTimes@ သင်သည် ၎င်းကို ပြောင်းသင့်သည်။</string>
       <key>ThisPasswordHasBeenExposedTimes</key>
       <dict>
         <key>NSStringFormatSpecTypeKey</key>
@@ -44,7 +44,7 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>d</string>
         <key>other</key>
-        <string>This password has been exposed %d times in data breaches.</string>
+        <string>ဤစကားဝှက်ကို ဒေတာချိုးဖောက်မှုများတွင် %d ကြိမ် ဖော်ထုတ်ခံထားရသည်။</string>
       </dict>
     </dict>
     <!-- A number of characters, as in letters/numbers/punctuation. For example, the minimum number of characters when creating a password. -->
@@ -59,7 +59,7 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>d</string>
         <key>other</key>
-        <string>%d characters</string>
+        <string>%d စာလုံး</string>
       </dict>
     </dict>
     <!-- A number of days, used in menu selections. For example, the number of days to keep a send before deletion. -->
@@ -74,7 +74,7 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>d</string>
         <key>other</key>
-        <string>%d days</string>
+        <string>%d ရက်</string>
       </dict>
     </dict>
     <!-- A number of hours, used in menu selections. For example, how long to log events in the flight recorder. -->
@@ -89,7 +89,7 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>d</string>
         <key>other</key>
-        <string>%d hours</string>
+        <string>%d နာရီ</string>
       </dict>
     </dict>
     <!-- A number of items, used in headers' voiceover to indicate how many items are in a section. -->
@@ -104,7 +104,7 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>d</string>
         <key>other</key>
-        <string>%d items</string>
+        <string>%d ပစ္စည်း</string>
       </dict>
     </dict>
     <!-- Message indicating a number of items were successfully imported in the Credential Exchange flow. -->
@@ -119,7 +119,7 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>d</string>
         <key>other</key>
-        <string>%d items successfully imported</string>
+        <string>%d ပစ္စည်း အောင်မြင်စွာ တင်သွင်းပြီး</string>
       </dict>
     </dict>
     <!-- A number of minutes, used in menu selections. For example, the amount of time to keep the vault unlocked after being unlocked. -->
@@ -134,7 +134,7 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>d</string>
         <key>other</key>
-        <string>%d minutes</string>
+        <string>%d မိနစ်</string>
       </dict>
     </dict>
     <!-- A number of seconds, used in menu selection. For example, how long to keep copied fields in the clipboard before clearing. -->
@@ -149,7 +149,7 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>d</string>
         <key>other</key>
-        <string>%d seconds</string>
+        <string>%d စက္ကန့်</string>
       </dict>
     </dict>
     <!-- A number of weeks, used in menu selection. For example, how long to log events in the flight recorder. -->
@@ -164,14 +164,14 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>d</string>
         <key>other</key>
-        <string>%d weeks</string>
+        <string>%d ပတ်</string>
       </dict>
     </dict>
     <!-- A message indicating the grace period for a past due subscription, with pluralized days and the date. -->
     <key>YouHaveAGracePeriodOfXDaysFromYourSubscriptionDescriptionLong</key>
     <dict>
       <key>NSStringLocalizedFormatKey</key>
-      <string>%1$#@YouHaveAGracePeriodOfXDaysFromYourSubscriptionExpirationDate@ Please resolve the past due invoices by **%2$@**.</string>
+      <string>%1$#@YouHaveAGracePeriodOfXDaysFromYourSubscriptionExpirationDate@ ကျော်လွန်နေသော ငွေတောင်းခံလွှာများကို **%2$@** တွင် ဖြေရှင်းပါ။</string>
       <key>YouHaveAGracePeriodOfXDaysFromYourSubscriptionExpirationDate</key>
       <dict>
         <key>NSStringFormatSpecTypeKey</key>
@@ -179,14 +179,14 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>d</string>
         <key>other</key>
-        <string>You have a grace period of %1$d days from your subscription expiration date.</string>
+        <string>သင့်စာရင်းသွင်းမှု သက်တမ်းကုန်ဆုံးသည့်ရက်မှ ကရုဏာကာလ %1$d ရက်ရှိသည်။</string>
       </dict>
     </dict>
     <!-- A message indicating the minimum length of a PIN in characters. -->
     <key>YourPINMustBeAtLeastXCharactersDescriptionLong</key>
     <dict>
       <key>NSStringLocalizedFormatKey</key>
-      <string>%#@YourPINMustBeAtLeastCharacters@ Your PIN settings will be reset if you ever fully log out of the application.</string>
+      <string>%#@YourPINMustBeAtLeastCharacters@ အက်ပ်မှ အပြည့်အဝ ထွက်ပါက သင့် PIN ဆက်တင်များကို ပြန်လည်သတ်မှတ်မည်။</string>
       <key>YourPINMustBeAtLeastCharacters</key>
       <dict>
         <key>NSStringFormatSpecTypeKey</key>
@@ -194,7 +194,7 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>d</string>
         <key>other</key>
-        <string>Your PIN must be at least %d characters.</string>
+        <string>သင့် PIN သည် အနည်းဆုံး စာလုံး %d ရှိရပါမည်။</string>
       </dict>
     </dict>
   </dict>

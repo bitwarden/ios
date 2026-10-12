@@ -38,7 +38,7 @@ private struct MainSendListView: View {
             content
                 .hidden(isSearching)
                 .overlay(alignment: .bottomTrailing) {
-                    if let sendType = store.state.type {
+                    if let sendType = store.state.type ?? store.state.restrictedSendType {
                         addItemFloatingActionButton {
                             await store.perform(.addItemPressed(sendType))
                         }
@@ -96,7 +96,7 @@ private struct MainSendListView: View {
             ) {
                 Group {
                     let newSendLabel = Label(Localizations.newSend, image: SharedAsset.Icons.plus16.swiftUIImage)
-                    if let sendType = store.state.type {
+                    if let sendType = store.state.type ?? store.state.restrictedSendType {
                         AsyncButton {
                             await store.perform(.addItemPressed(sendType))
                         } label: {
@@ -280,7 +280,7 @@ struct SendListView: View {
             )
             .task { await store.perform(.appeared) }
             .task { await store.perform(.loadData) }
-            .task { await store.perform(.streamSendList) }
+            .task(id: store.state.restrictedSendType) { await store.perform(.streamSendList) }
             .searchDebouncedTask(id: store.state.searchText) {
                 await store.perform(.search(store.state.searchText))
             }

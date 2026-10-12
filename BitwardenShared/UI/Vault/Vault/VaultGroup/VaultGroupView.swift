@@ -44,6 +44,9 @@ struct VaultGroupView: View {
             .task {
                 await store.perform(.streamShowWebIcons)
             }
+            .task {
+                await store.perform(.streamSyncComplete)
+            }
             .toast(
                 store.binding(
                     get: \.toast,
@@ -250,6 +253,7 @@ struct VaultGroupView: View {
                 state: { state in
                     VaultListItemRowState(
                         iconBaseURL: state.iconBaseURL,
+                        isVfo1FoundationFeatureFlagEnabled: state.isVfo1FoundationFeatureFlagEnabled,
                         item: item,
                         hasDivider: !isLastInSection,
                         showWebIcons: state.showWebIcons,

@@ -263,20 +263,21 @@ public class AppProcessor {
     ///
     @available(iOSApplicationExtension 26.2, *)
     public func generatePasswordCredential(request: any GeneratePasswordRequestProxy) async throws -> String {
-        // TODO: PM-29569 Map ASGeneratePasswordsRequest rules to PasswordGeneratorRequest once SDK exposes the API.
-        let passwordRequest = PasswordGeneratorRequest(
-            lowercase: true,
-            uppercase: true,
-            numbers: true,
-            special: false,
-            length: 14,
-            avoidAmbiguous: false,
-            minLowercase: 1,
-            minUppercase: 1,
-            minNumber: 1,
-            minSpecial: nil,
-        )
-        return try await services.generatorRepository.generatePassword(settings: passwordRequest)
+        let rulesString = request.passwordFieldPasswordRules ?? request.passwordRulesFromQuirks
+
+        let (passwordOptions, _) = try await services.generatorRepository
+            .getEffectivePasswordGenerationOptions(rules: rulesString)
+
+        switch passwordOptions.type ?? .password {
+        case .passphrase:
+            return try await services.generatorRepository.generatePassphrase(
+                settings: passwordOptions.passphraseGeneratorRequest,
+            )
+        case .password:
+            return try await services.generatorRepository.generatePassword(
+                settings: passwordOptions.passwordGeneratorRequest,
+            )
+        }
     }
 
     /// Saves a password credential to the vault without showing UI.
@@ -709,6 +710,10 @@ extension AppProcessor: SyncServiceDelegate {
         // Refresh the subscription attention card cache on every sync so the vault list
         // always reflects current subscription status without making a live API call there.
         await services.billingService.refreshSubscriptionAttentionCard(subscription: nil)
+
+        // An upgrade the checkout's own sync didn't report has to be completed by whichever
+        // later sync does, so this runs after every sync rather than just that one.
+        await services.billingService.completeUpgradeIfPending(userId: userId)
 
         do {
             let hasPerformedSyncAfterLogin = try await services.stateService.getHasPerformedSyncAfterLogin(

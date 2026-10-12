@@ -44,7 +44,6 @@ class SdkRepositoryFactoryTests: BitwardenTestCase {
         let repositories = subject.makeRepositories(userId: "1")
         XCTAssertNotNil(repositories.cipher)
         XCTAssertNil(repositories.folder)
-        XCTAssertNil(repositories.userKeyState)
         XCTAssertNotNil(repositories.localUserDataKeyState)
     }
 

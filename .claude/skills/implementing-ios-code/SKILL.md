@@ -86,6 +86,30 @@ All new public types and methods require DocC (`///`) documentation.
 Exceptions: protocol property/function implementations (docs live in the protocol), mock classes.
 Use pragma marks to organize code. `// MARK: -` is used to denote different objects in the same file; `// MARK:` is used to denote different sections within an object.
 
+## Step 7: Verify — Lint, Format, and Regenerate
+
+Run these checks after all code and tests are written, **before** handing back. Fix every violation found — do not leave warnings for the commit phase.
+
+**If new localization strings were added**, regenerate first so SwiftGen picks them up:
+```bash
+mint run swiftgen config run --config swiftgen-bwr.yml   # BitwardenResources (most common)
+# Run the appropriate swiftgen-*.yml if strings landed in a different target
+```
+
+**Then run the pre-commit checks:**
+```bash
+./Scripts/pre-commit
+```
+
+This runs spell-check, SwiftFormat, and SwiftLint on changed files — the same checks that run at commit time. If violations are reported, fix them and re-run until it passes cleanly.
+
+For SwiftLint violations that require manual fixes, prefer fixing the root cause over suppressing with `// swiftlint:disable` comments. Suppression is appropriate when the violation is structural and fixing it would require an artificial or non-idiomatic refactor. Common cases:
+- **`line_length`** — wrap long lines using Xcode's ⌃M style (each argument on its own indented line); fix rather than suppress
+- **`file_length`** — if a `#if DEBUG` preview section pushed a file over the limit, add `// swiftlint:disable file_length` at the top of the file (this is the established pattern — do NOT move previews to a separate file)
+- **`type_body_length`** — split large types using `// MARK:` extensions in separate files if needed; suppress only if the type is inherently large and splitting would hurt readability
+
+Only hand back once `./Scripts/pre-commit` passes cleanly for files touched in this session.
+
 ## Conventions
 
 - **Member ordering** — within a `// MARK:` section, keep members in a single alphabetical order (stored properties, computed properties, methods, and static members share that order), and alphabetize function and initializer parameters the same way (default-valued, variadic, then trailing-closure parameters last). Insert new members and parameters at their alphabetical position rather than appending. Exceptions: UI objects (views, view modifiers) follow visual layout order, not alphabetical; and protocol *conformance* ordering is not enforced.

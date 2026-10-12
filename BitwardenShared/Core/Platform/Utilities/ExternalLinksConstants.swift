@@ -23,6 +23,9 @@ extension ExternalLinksConstants {
     /// A link to the auto fill help page.
     static let autofillHelp = URL(string: "https://bitwarden.com/help/auto-fill-ios/#keyboard-auto-fill")!
 
+    /// A link to Bitwarden's help page for the Fill Assist feature.
+    static let fillAssistHelp = URL(string: "https://bitwarden.com/help/fill-assist/")!
+
     /// A link to Bitwarden's help page for learning more about the account fingerprint phrase.
     static let fingerprintPhrase = URL(string: "https://bitwarden.com/help/fingerprint-phrase/")!
 
