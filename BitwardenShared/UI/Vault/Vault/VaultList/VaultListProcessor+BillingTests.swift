@@ -148,6 +148,25 @@ struct VaultListProcessorBillingTests {
         #expect(!subject.state.shouldShowPremiumUpgradeActionCard)
     }
 
+    /// `perform(_:)` with `.appeared` shows the Premium upgrade action card only when the account
+    /// doesn't have Premium and nothing else hides the card.
+    @Test(arguments: [
+        (PremiumUpgradeLifecycleState.notPremium, true),
+        (.pending, false),
+        (.premium, false),
+    ])
+    func perform_appeared_premiumUpgradeActionCard_lifecycleState(
+        lifecycleState: PremiumUpgradeLifecycleState,
+        expectedVisible: Bool,
+    ) async {
+        billingRepository.isInAppUpgradeAvailableReturnValue = true
+        billingService.premiumUpgradeLifecycleStateReturnValue = lifecycleState
+
+        await subject.perform(.appeared)
+
+        #expect(subject.state.shouldShowPremiumUpgradeActionCard == expectedVisible)
+    }
+
     /// `perform(_:)` with `.appeared` still shows the upgraded-to-Premium card even when the
     /// upgrade banner was previously dismissed.
     @Test
