@@ -68,4 +68,7 @@ enum VaultListEffect: Equatable {
 
     /// The try again button was tapped on the error view.
     case tryAgainTapped
+
+    /// The upgrade to Premium button was tapped.
+    case upgradeToPremium
 }
