@@ -71,12 +71,6 @@ jobs:
         with:
           xcode-version: ${{ env._XCODE_VERSION }}
 
-      - name: Install simulators for specific Xcode version
-        if: ${{ env._XCODE_VERSION == '26.0-beta' }}
-        run: |
-          xcodebuild -downloadPlatform iOS
-          xcodebuild -downloadPlatform watchOS
-
       - name: Configure Ruby
         uses: ruby/setup-ruby@12fd324f1d0b43274fdc8130f6980590a667c455 # v1.312.0
         with:
