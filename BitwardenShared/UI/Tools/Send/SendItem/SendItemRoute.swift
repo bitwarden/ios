@@ -6,6 +6,10 @@ import Foundation
 /// Values describing content that can be used to pre-fill the add send screen.
 ///
 public enum AddSendContentType: Equatable, Hashable {
+    /// A copy of an existing, policy-restricted send, whose details should be pre-filled and then
+    /// adjusted to comply with the active Send Controls policy.
+    case copy(SendView)
+
     /// A file type, with the provided name and data.
     case file(fileName: String, fileData: Data)
 

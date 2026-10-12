@@ -78,13 +78,16 @@ struct VaultGroupState: Equatable, Sendable {
     var iconBaseURL: URL?
 
     /// List of available item type for creation.
-    var itemTypesUserCanCreate: [CipherType] = CipherType.canCreateCases
+    var itemTypesUserCanCreate: [CipherType] = []
 
     /// Whether the policy is enforced to disable personal vault ownership.
     var isPersonalOwnershipDisabled: Bool = false
 
     /// Is the view searching.
     var isSearching: Bool = false
+
+    /// Whether the `vfo1-foundation` feature flag is enabled.
+    var isVfo1FoundationFeatureFlagEnabled = false
 
     /// The current loading state.
     var loadingState: LoadingState<[VaultListSection]> = .loading(nil)
@@ -99,7 +102,9 @@ struct VaultGroupState: Equatable, Sendable {
         case .card:
             Localizations.thereAreNoCardsInYourVault
         case .collection:
-            Localizations.noItemsCollection
+            isVfo1FoundationFeatureFlagEnabled
+                ? Localizations.thereAreNoItemsInThisSharedFolder
+                : Localizations.noItemsCollection
         case .folder:
             Localizations.noItemsFolder
         case .identity:

@@ -180,12 +180,6 @@ protocol AppSettingsStore: AnyObject {
     ///
     func events(userId: String) -> [EventData]
 
-    /// Gets the encrypted user key for the user ID.
-    ///
-    /// - Parameter userId: The user ID associated with the encrypted user key.
-    ///
-    func encryptedUserKey(userId: String) -> String?
-
     /// Gets the cached Fill-Assist rules data for the user ID.
     ///
     /// - Parameter userId: The user ID associated with the cached data.
@@ -299,6 +293,14 @@ protocol AppSettingsStore: AnyObject {
     /// - Returns: Whether the Premium upgrade banner has been dismissed.
     ///
     func premiumUpgradeBannerDismissed(userId: String) -> Bool
+
+    /// Gets whether a Premium upgrade is pending for the given user.
+    ///
+    /// - Parameters:
+    ///   - userId: The user ID.
+    /// - Returns: Whether a Premium upgrade is pending.
+    ///
+    func premiumUpgradePending(userId: String) -> Bool
 
     /// Gets whether the "subscription needs attention" action card should be shown for the given user.
     ///
@@ -450,14 +452,6 @@ protocol AppSettingsStore: AnyObject {
     ///
     func setEncryptedPin(_ encryptedPin: String?, userId: String)
 
-    /// Sets the encrypted user key for a user ID.
-    ///
-    /// - Parameters:
-    ///   - key: The user's encrypted user key.
-    ///   - userId: The user ID associated with the encrypted user key.
-    ///
-    func setEncryptedUserKey(key: String?, userId: String)
-
     /// Sets the user's events for a user ID.
     ///
     /// - Parameters:
@@ -587,6 +581,14 @@ protocol AppSettingsStore: AnyObject {
     ///
     func setPremiumUpgradeBannerDismissed(_ dismissed: Bool, userId: String)
 
+    /// Sets whether a Premium upgrade is pending for the given user.
+    ///
+    /// - Parameters:
+    ///   - pending: Whether a Premium upgrade is pending.
+    ///   - userId: The user ID.
+    ///
+    func setPremiumUpgradePending(_ pending: Bool, userId: String)
+
     /// Sets whether the "subscription needs attention" action card should be shown for the given user.
     ///
     /// - Parameters:
@@ -657,6 +659,14 @@ protocol AppSettingsStore: AnyObject {
     ///
     func setTwoFactorToken(_ token: String?, email: String)
 
+    /// Sets the ID of the user's active symmetric encryption key.
+    ///
+    /// - Parameters:
+    ///   - keyId: The ID of the user's active symmetric encryption key, or `nil` to clear it.
+    ///   - userId: The user ID associated with the user key ID.
+    ///
+    func setUserKeyId(_ keyId: String?, userId: String)
+
     /// Sets whether the user uses key connector.
     ///
     /// - Parameters:
@@ -672,6 +682,23 @@ protocol AppSettingsStore: AnyObject {
     ///   - userId: The user ID associated with the username generation options.
     ///
     func setUsernameGenerationOptions(_ options: UsernameGenerationOptions?, userId: String)
+
+    /// Sets the time the v2 encrypted migrations grace period started for the user. The SDK owns
+    /// writing this value, the app should only clear it to intentionally reset the window.
+    ///
+    /// - Parameters:
+    ///   - date: The time the grace period started, or `nil` to clear it.
+    ///   - userId: The user ID.
+    ///
+    func setV2EncryptedMigrationsGracePeriodStart(_ date: V2EncryptedMigrationsGracePeriodStart?, userId: String)
+
+    /// Sets the user's V2 encryption upgrade token.
+    ///
+    /// - Parameters:
+    ///   - token: The user's V2 encryption upgrade token.
+    ///   - userId: The user ID.
+    ///
+    func setV2UpgradeToken(_ token: V2UpgradeToken?, userId: String)
 
     /// Get whether the device should be trusted.
     ///
@@ -708,6 +735,13 @@ protocol AppSettingsStore: AnyObject {
     ///
     func twoFactorToken(email: String) -> String?
 
+    /// The ID of the user's active symmetric encryption key.
+    ///
+    /// - Parameter userId: The user ID associated with the stored user key ID.
+    /// - Returns: The user key ID, or `nil` if not yet stored.
+    ///
+    func userKeyId(userId: String) -> String?
+
     /// Gets the username generation options for a user ID.
     ///
     /// - Parameter userId: The user ID associated with the username generation options.
@@ -721,6 +755,21 @@ protocol AppSettingsStore: AnyObject {
     /// - Returns: Whether the user uses key connector.
     ///
     func usesKeyConnector(userId: String) -> Bool
+
+    /// The time the SDK first checked whether the user could be prompted to migrate to v2
+    /// encryption, anchoring the two-week grace period before that prompt may be shown.
+    ///
+    /// - Parameter userId: The user ID associated with the V2 encrypted migrations grace period start.
+    /// - Returns: The time the grace period started, or `nil` if the SDK hasn't checked yet.
+    ///
+    func v2EncryptedMigrationsGracePeriodStart(userId: String) -> V2EncryptedMigrationsGracePeriodStart?
+
+    /// The user's V2 encryption upgrade token.
+    ///
+    /// - Parameter userId: The user ID associated with the V2 upgrade token.
+    /// - Returns: The user's V2 encryption upgrade token.
+    ///
+    func v2UpgradeToken(userId: String) -> V2UpgradeToken?
 
     // MARK: Publishers
 
@@ -868,7 +917,6 @@ extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore {
         case disableAutoTotpCopy(userId: String)
         case disableWebIcons
         case encryptedPin(userId: String)
-        case encryptedUserKey(userId: String)
         case events(userId: String)
         case fillAssistCachedData(userId: String)
         case fillAssistEnabled(userId: String)
@@ -897,6 +945,7 @@ extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore {
         case accountCreationEnvironmentURLs(email: String)
         case preAuthServerConfig
         case premiumUpgradeBannerDismissed(userId: String)
+        case premiumUpgradePending(userId: String)
         case rememberedEmail
         case rememberedOrgIdentifier
         case reviewPromptData
@@ -908,8 +957,11 @@ extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore {
         case subscriptionAttentionCardVisible(userId: String)
         case twoFactorToken(email: String)
         case upgradedToPremiumActionCardVisible(userId: String)
+        case userKeyId(userId: String)
         case usernameGenerationOptions(userId: String)
         case usesKeyConnector(userId: String)
+        case v2EncryptedMigrationsGracePeriodStart(userId: String)
+        case v2UpgradeToken(userId: String)
         case vaultTimeoutAction(userId: String)
 
         /// Returns the key used to store the data under for retrieving it later.
@@ -957,8 +1009,6 @@ extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore {
                 "disableAutoTotpCopy_\(userId)"
             case .disableWebIcons:
                 "disableFavicon"
-            case let .encryptedUserKey(userId):
-                "masterKeyEncryptedUserKey_\(userId)"
             case let .encryptedPin(userId):
                 "protectedPin_\(userId)"
             case let .events(userId):
@@ -1015,6 +1065,8 @@ extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore {
                 "preAuthServerConfig"
             case let .premiumUpgradeBannerDismissed(userId):
                 "premiumUpgradeBannerDismissed_\(userId)"
+            case let .premiumUpgradePending(userId):
+                "premiumUpgradePending_\(userId)"
             case .rememberedEmail:
                 "rememberedEmail"
             case .rememberedOrgIdentifier:
@@ -1037,10 +1089,16 @@ extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore {
                 "twoFactorToken_\(email)"
             case let .upgradedToPremiumActionCardVisible(userId):
                 "upgradedToPremiumActionCardVisible_\(userId)"
+            case let .userKeyId(userId):
+                "userKeyId_\(userId)"
             case let .usernameGenerationOptions(userId):
                 "usernameGenerationOptions_\(userId)"
             case let .usesKeyConnector(userId):
                 "usesKeyConnector_\(userId)"
+            case let .v2EncryptedMigrationsGracePeriodStart(userId):
+                "v2EncryptedMigrationsGracePeriodStart_\(userId)"
+            case let .v2UpgradeToken(userId):
+                "v2UpgradeToken_\(userId)"
             case let .vaultTimeoutAction(userId):
                 "vaultTimeoutAction_\(userId)"
             }
@@ -1214,10 +1272,6 @@ extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore {
         fetch(for: .encryptedPin(userId: userId))
     }
 
-    func encryptedUserKey(userId: String) -> String? {
-        fetch(for: .encryptedUserKey(userId: userId))
-    }
-
     func events(userId: String) -> [EventData] {
         fetch(for: .events(userId: userId)) ?? []
     }
@@ -1290,6 +1344,10 @@ extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore {
 
     func premiumUpgradeBannerDismissed(userId: String) -> Bool {
         fetch(for: .premiumUpgradeBannerDismissed(userId: userId))
+    }
+
+    func premiumUpgradePending(userId: String) -> Bool {
+        fetch(for: .premiumUpgradePending(userId: userId))
     }
 
     func subscriptionAttentionCardVisible(userId: String) -> Bool {
@@ -1370,10 +1428,6 @@ extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore {
         store(encryptedPin, for: .encryptedPin(userId: userId))
     }
 
-    func setEncryptedUserKey(key: String?, userId: String) {
-        store(key, for: .encryptedUserKey(userId: userId))
-    }
-
     func setEvents(_ events: [EventData], userId: String) {
         store(events, for: .events(userId: userId))
     }
@@ -1441,6 +1495,10 @@ extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore {
         store(dismissed, for: .premiumUpgradeBannerDismissed(userId: userId))
     }
 
+    func setPremiumUpgradePending(_ pending: Bool, userId: String) {
+        store(pending, for: .premiumUpgradePending(userId: userId))
+    }
+
     func setSubscriptionAttentionCardVisible(_ visible: Bool, userId: String) {
         store(visible, for: .subscriptionAttentionCardVisible(userId: userId))
     }
@@ -1473,12 +1531,24 @@ extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore {
         store(token, for: .twoFactorToken(email: email))
     }
 
+    func setUserKeyId(_ keyId: String?, userId: String) {
+        store(keyId, for: .userKeyId(userId: userId))
+    }
+
     func setUsernameGenerationOptions(_ options: UsernameGenerationOptions?, userId: String) {
         store(options, for: .usernameGenerationOptions(userId: userId))
     }
 
     func setUsesKeyConnector(_ usesKeyConnector: Bool, userId: String) {
         store(usesKeyConnector, for: .usesKeyConnector(userId: userId))
+    }
+
+    func setV2EncryptedMigrationsGracePeriodStart(_ date: V2EncryptedMigrationsGracePeriodStart?, userId: String) {
+        store(date?.timeIntervalSince1970, for: .v2EncryptedMigrationsGracePeriodStart(userId: userId))
+    }
+
+    func setV2UpgradeToken(_ token: V2UpgradeToken?, userId: String) {
+        store(token, for: .v2UpgradeToken(userId: userId))
     }
 
     func setSiriAndShortcutsAccess(_ siriAndShortcutsAccess: Bool, userId: String) {
@@ -1501,12 +1571,24 @@ extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore {
         fetch(for: .twoFactorToken(email: email))
     }
 
+    func userKeyId(userId: String) -> String? {
+        fetch(for: .userKeyId(userId: userId))
+    }
+
     func usernameGenerationOptions(userId: String) -> UsernameGenerationOptions? {
         fetch(for: .usernameGenerationOptions(userId: userId))
     }
 
     func usesKeyConnector(userId: String) -> Bool {
         fetch(for: .usesKeyConnector(userId: userId))
+    }
+
+    func v2EncryptedMigrationsGracePeriodStart(userId: String) -> V2EncryptedMigrationsGracePeriodStart? {
+        fetch(for: .v2EncryptedMigrationsGracePeriodStart(userId: userId)).map { Date(timeIntervalSince1970: $0) }
+    }
+
+    func v2UpgradeToken(userId: String) -> V2UpgradeToken? {
+        fetch(for: .v2UpgradeToken(userId: userId))
     }
 
     func activeAccountIdPublisher() -> AnyPublisher<String?, Never> {

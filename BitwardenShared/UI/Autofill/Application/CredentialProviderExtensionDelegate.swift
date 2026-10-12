@@ -42,6 +42,11 @@ public protocol CredentialProviderExtensionDelegate: AppExtensionDelegate {
     /// Gets a publisher for when `didAppear` happens.
     func getDidAppearPublisher() -> AsyncPublisher<AnyPublisher<Bool, Never>>
 
+    /// Marks that a credential matching one in the relying party's excluded credentials list was
+    /// found and fails the registration request accordingly.
+    @available(iOSApplicationExtension 18.0, *)
+    func setMatchedExcludedCredentialFound()
+
     /// Marks that user interaction is required.
     func setUserInteractionRequired()
 }

@@ -80,8 +80,6 @@ private struct SearchableVaultListView: View {
     @ViewBuilder private var emptyVault: some View {
         VStack(spacing: 24) {
             Group {
-                organizationBannerActionCard
-
                 actionCard
 
                 vaultFilterRow
@@ -237,8 +235,6 @@ private struct SearchableVaultListView: View {
     @ViewBuilder
     private func vaultContents(with sections: [VaultListSection]) -> some View {
         VStack(spacing: 20) {
-            organizationBannerActionCard
-
             actionCard
 
             vaultFilterRow
@@ -277,6 +273,7 @@ private struct SearchableVaultListView: View {
                     VaultListItemRowState(
                         iconBaseURL: state.iconBaseURL,
                         isFromExtension: false,
+                        isVfo1FoundationFeatureFlagEnabled: state.isVfo1FoundationFeatureFlagEnabled,
                         item: item,
                         hasDivider: !isLastInSection,
                         showWebIcons: state.showWebIcons,
@@ -331,6 +328,24 @@ extension SearchableVaultListView {
                 SharedAsset.Icons.archive24.swiftUIImage
                     .foregroundStyle(SharedAsset.Colors.iconSecondary.swiftUIColor)
             }
+        case let .organizationBanner(data):
+            ActionCard(
+                title: data.headerText,
+                message: data.description,
+                actionButtonState: data.buttonText.map { text in
+                    ActionCard.ButtonState(title: text) {
+                        await store.perform(.dismissOrganizationBanner(fromActionButton: true))
+                    }
+                },
+                dismissButtonState: data.buttonText == nil
+                    ? ActionCard.ButtonState(title: Localizations.dismiss) {
+                        await store.perform(.dismissOrganizationBanner(fromActionButton: false))
+                    }
+                    : nil,
+            ) {
+                SharedAsset.Icons.informationCircle24.swiftUIImage
+                    .foregroundStyle(SharedAsset.Colors.iconSecondary.swiftUIColor)
+            }
         case .subscriptionNeedsAttention:
             ActionCard(
                 title: Localizations.subscriptionNeedsAttention,
@@ -357,29 +372,6 @@ extension SearchableVaultListView {
             )
         case nil:
             EmptyView()
-        }
-    }
-
-    /// The action card for the organization user notification banner.
-    @ViewBuilder private var organizationBannerActionCard: some View {
-        if let data = store.state.organizationUserNotificationBannerData {
-            ActionCard(
-                title: data.headerText,
-                message: data.description,
-                actionButtonState: data.buttonText.map { text in
-                    ActionCard.ButtonState(title: text) {
-                        await store.perform(.dismissOrganizationBanner(fromActionButton: true))
-                    }
-                },
-                dismissButtonState: data.buttonText == nil
-                    ? ActionCard.ButtonState(title: Localizations.dismiss) {
-                        await store.perform(.dismissOrganizationBanner(fromActionButton: false))
-                    }
-                    : nil,
-            ) {
-                SharedAsset.Icons.informationCircle24.swiftUIImage
-                    .foregroundStyle(SharedAsset.Colors.iconSecondary.swiftUIColor)
-            }
         }
     }
 }
@@ -473,6 +465,9 @@ struct VaultListView: View {
         .task {
             await store.perform(.streamShowWebIcons)
         }
+        .task {
+            await store.perform(.streamSyncComplete)
+        }
         .onAppear { restartVaultListStream() }
         .onChange(of: store.state.vaultFilterType) { _ in restartVaultListStream() }
         .onDisappear {
@@ -540,7 +535,7 @@ struct VaultListView: View {
                 processor: StateProcessor(
                     state: VaultListState(
                         loadingState: .error(
-                            errorMessage: Localizations.weAreUnableToProcessYourRequestPleaseTryAgainOrContactUs,
+                            errorMessage: Localizations.weCouldntSyncYourVaultWithTheServerDescriptionLong,
                         ),
                     ),
                 ),

@@ -227,6 +227,7 @@ private struct VaultItemSelectionSearchableView: View {
                     state: { state in
                         VaultListItemRowState(
                             iconBaseURL: state.iconBaseURL,
+                            isVfo1FoundationFeatureFlagEnabled: state.isVfo1FoundationFeatureFlagEnabled,
                             item: item,
                             hasDivider: hasDivider,
                             showWebIcons: state.showWebIcons,

@@ -38,25 +38,49 @@ struct StateServiceBillingStateServiceTests {
 
     // MARK: Premium Upgrade Banner
 
-    /// `isPremiumUpgradeBannerDismissed()` returns `true` when the banner has been dismissed.
+    /// `getPremiumUpgradeBannerDismissed(userId:)` returns whether the Premium upgrade banner has
+    /// been dismissed.
     @Test
-    func isPremiumUpgradeBannerDismissed_true() async {
+    func getPremiumUpgradeBannerDismissed() async throws {
         await subject.addAccount(.fixture())
+        var hasDismissedBanner = try await subject.getPremiumUpgradeBannerDismissed(userId: nil)
+        #expect(!hasDismissedBanner)
+
         appSettingsStore.premiumUpgradeBannerDismissedByUserId["1"] = true
-
-        let isDismissed = await subject.isPremiumUpgradeBannerDismissed()
-        #expect(isDismissed)
+        hasDismissedBanner = try await subject.getPremiumUpgradeBannerDismissed(userId: nil)
+        #expect(hasDismissedBanner)
     }
 
-    /// `isPremiumUpgradeBannerDismissed()` returns `false` when the banner has not been dismissed.
+    /// `getPremiumUpgradeBannerDismissed(userId:)` throws errors if no user exists.
     @Test
-    func isPremiumUpgradeBannerDismissed_false() async {
-        await subject.addAccount(.fixture())
-        appSettingsStore.premiumUpgradeBannerDismissedByUserId["1"] = false
-
-        let isDismissed = await subject.isPremiumUpgradeBannerDismissed()
-        #expect(!isDismissed)
+    func getPremiumUpgradeBannerDismissed_error() async {
+        await #expect(throws: StateServiceError.noActiveAccount) {
+            _ = try await subject.getPremiumUpgradeBannerDismissed(userId: nil)
+        }
     }
+
+    /// `setPremiumUpgradeBannerDismissed(_:userId:)` sets whether the Premium upgrade banner has
+    /// been dismissed.
+    @Test
+    func setPremiumUpgradeBannerDismissed() async throws {
+        await subject.addAccount(.fixture())
+
+        try await subject.setPremiumUpgradeBannerDismissed(true, userId: nil)
+        #expect(appSettingsStore.premiumUpgradeBannerDismissedByUserId["1"] == true)
+
+        try await subject.setPremiumUpgradeBannerDismissed(false, userId: nil)
+        #expect(appSettingsStore.premiumUpgradeBannerDismissedByUserId["1"] == false)
+    }
+
+    /// `setPremiumUpgradeBannerDismissed(_:userId:)` throws errors if no user exists.
+    @Test
+    func setPremiumUpgradeBannerDismissed_error() async {
+        await #expect(throws: StateServiceError.noActiveAccount) {
+            try await subject.setPremiumUpgradeBannerDismissed(true, userId: nil)
+        }
+    }
+
+    // MARK: Premium Upgrade Eligibility
 
     /// `isPremiumUpgradeEligible()` returns `true` when user is free and account is 7+ days old.
     @Test
@@ -89,7 +113,7 @@ struct StateServiceBillingStateServiceTests {
     }
 
     /// `isPremiumUpgradeEligible()` returns `true` even when the banner has been dismissed,
-    /// since dismissal is a separate concern checked via `isPremiumUpgradeBannerDismissed()`.
+    /// since dismissal is a separate concern checked via `getPremiumUpgradeBannerDismissed(userId:)`.
     @Test
     func isPremiumUpgradeEligible_bannerDismissedDoesNotAffectEligibility() async {
         let fixedDate = Date(timeIntervalSince1970: 1_000_000_000)
@@ -130,6 +154,71 @@ struct StateServiceBillingStateServiceTests {
 
         let isEligible = await subject.isPremiumUpgradeEligible()
         #expect(!isEligible)
+    }
+
+    // MARK: Premium Upgrade Pending
+
+    /// `getPremiumUpgradePending()` returns `false` when no value has been set.
+    @Test
+    func getPremiumUpgradePending_defaultsFalse() async throws {
+        await subject.addAccount(.fixture())
+
+        let result = try await subject.getPremiumUpgradePending()
+        #expect(!result)
+    }
+
+    /// `getPremiumUpgradePending()` returns the stored value for the active account.
+    @Test
+    func getPremiumUpgradePending_storedValue() async throws {
+        await subject.addAccount(.fixture())
+        appSettingsStore.premiumUpgradePendingByUserId["1"] = true
+
+        let result = try await subject.getPremiumUpgradePending()
+        #expect(result)
+    }
+
+    /// `getPremiumUpgradePending()` throws when there is no active account.
+    @Test
+    func getPremiumUpgradePending_noActiveAccount() async {
+        await #expect(throws: StateServiceError.noActiveAccount) {
+            _ = try await subject.getPremiumUpgradePending()
+        }
+    }
+
+    /// `setPremiumUpgradePending(_:)` persists the value for the active account.
+    @Test
+    func setPremiumUpgradePending() async throws {
+        await subject.addAccount(.fixture())
+
+        try await subject.setPremiumUpgradePending(true)
+        #expect(appSettingsStore.premiumUpgradePendingByUserId["1"] == true)
+
+        try await subject.setPremiumUpgradePending(false)
+        #expect(appSettingsStore.premiumUpgradePendingByUserId["1"] == false)
+    }
+
+    /// `setPremiumUpgradePending(_:)` throws errors if no user exists.
+    @Test
+    func setPremiumUpgradePending_error() async {
+        await #expect(throws: StateServiceError.noActiveAccount) {
+            try await subject.setPremiumUpgradePending(true)
+        }
+    }
+
+    /// `getPremiumUpgradePending(userId:)` and `setPremiumUpgradePending(_:userId:)` operate on the
+    /// given account regardless of which account is currently active.
+    @Test
+    func premiumUpgradePending_explicitUserId_notActiveAccount() async throws {
+        await subject.addAccount(.fixture(profile: .fixture(userId: "1")))
+        await subject.addAccount(.fixture(profile: .fixture(userId: "2")))
+        try await subject.setActiveAccount(userId: "1")
+
+        try await subject.setPremiumUpgradePending(true, userId: "2")
+
+        let activeAccountPending = try await subject.getPremiumUpgradePending()
+        let otherAccountPending = try await subject.getPremiumUpgradePending(userId: "2")
+        #expect(!activeAccountPending)
+        #expect(otherAccountPending)
     }
 
     // MARK: Subscription Attention Card
@@ -201,5 +290,30 @@ struct StateServiceBillingStateServiceTests {
 
         try await subject.setUpgradedToPremiumActionCardVisible(false)
         #expect(appSettingsStore.upgradedToPremiumCardVisibleByUserId["1"] == false)
+    }
+
+    /// `setUpgradedToPremiumActionCardVisible(_:)` throws errors if no user exists.
+    @Test
+    func setUpgradedToPremiumActionCardVisible_error() async {
+        await #expect(throws: StateServiceError.noActiveAccount) {
+            try await subject.setUpgradedToPremiumActionCardVisible(true)
+        }
+    }
+
+    /// `getUpgradedToPremiumActionCardVisible(userId:)` and
+    /// `setUpgradedToPremiumActionCardVisible(_:userId:)` operate on the given account regardless
+    /// of which account is currently active.
+    @Test
+    func upgradedToPremiumActionCardVisible_explicitUserId_notActiveAccount() async throws {
+        await subject.addAccount(.fixture(profile: .fixture(userId: "1")))
+        await subject.addAccount(.fixture(profile: .fixture(userId: "2")))
+        try await subject.setActiveAccount(userId: "1")
+
+        try await subject.setUpgradedToPremiumActionCardVisible(true, userId: "2")
+
+        let activeAccountVisible = try await subject.getUpgradedToPremiumActionCardVisible()
+        let otherAccountVisible = try await subject.getUpgradedToPremiumActionCardVisible(userId: "2")
+        #expect(!activeAccountVisible)
+        #expect(otherAccountVisible)
     }
 }

@@ -39,6 +39,10 @@ struct DeviceListItem: Comparable, Identifiable, Sendable {
     /// The date of the last activity on this device.
     let lastActivityDate: Date?
 
+    /// The unique identifier of this device's pending authentication request, as reported
+    /// directly by the server on the device record. Used to look up the matching `pendingRequest`.
+    let pendingAuthRequestId: String?
+
     /// The most recent pending login request for this device, if any.
     var pendingRequest: LoginRequest?
 }
@@ -93,6 +97,7 @@ extension DeviceListItem {
         isCurrentSession = false
         isTrusted = device.isTrusted
         lastActivityDate = device.lastActivityDate
+        pendingAuthRequestId = device.devicePendingAuthRequest?.id
         pendingRequest = nil
     }
 }

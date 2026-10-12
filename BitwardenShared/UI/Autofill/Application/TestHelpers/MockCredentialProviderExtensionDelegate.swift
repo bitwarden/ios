@@ -19,6 +19,7 @@ class MockCredentialProviderExtensionDelegate: MockAppExtensionDelegate, Credent
     var completeTextRequestTextToInsert: String?
     var extensionMode: CredentialProviderMode = .configureAutofill
     var didAppearPublisher = CurrentValueSubject<Bool, Never>(false)
+    var setMatchedExcludedCredentialFoundCalled = false
     var setUserInteractionRequiredCalled = false
 
     var flowWithUserInteraction: Bool = true
@@ -54,6 +55,11 @@ class MockCredentialProviderExtensionDelegate: MockAppExtensionDelegate, Credent
         didAppearPublisher
             .eraseToAnyPublisher()
             .values
+    }
+
+    @available(iOSApplicationExtension 18.0, *)
+    func setMatchedExcludedCredentialFound() {
+        setMatchedExcludedCredentialFoundCalled = true
     }
 
     func setUserInteractionRequired() {

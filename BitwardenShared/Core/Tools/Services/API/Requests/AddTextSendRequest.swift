@@ -34,6 +34,7 @@ struct AddTextSendRequest: Request {
     init(send: Send) {
         requestModel = SendRequestModel(
             authType: SendAuthType(authType: send.authType),
+            data: nil,
             deletionDate: send.deletionDate,
             disabled: send.disabled,
             emails: send.emails,

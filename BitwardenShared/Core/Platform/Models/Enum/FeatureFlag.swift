@@ -42,7 +42,7 @@ extension FeatureFlag: @retroactive CaseIterable {
     static let fillAssistTargetingRules = FeatureFlag(rawValue: "fill-assist-targeting-rules")
 
     /// Feature flag for device management screen.
-    static let manageDevices = FeatureFlag(rawValue: "pm-4516-manage-devices")
+    static let manageDevices = FeatureFlag(rawValue: "pm-4516-devices-add-last-activity-date")
 
     /// Flag to enable/disable migration from My Vault Items to My Items.
     static let migrateMyVaultToMyItems = FeatureFlag(rawValue: "pm-20558-migrate-myvault-to-myitems")

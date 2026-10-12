@@ -23,14 +23,14 @@ protocol BillingRepository { // sourcery: AutoMockable
 class DefaultBillingRepository: BillingRepository {
     // MARK: Properties
 
+    /// The service used to manage the app's billing state.
+    private let billingStateService: BillingStateService
+
     /// The service used to manage feature flags.
     private let configService: ConfigService
 
     /// The service used by the application to report non-fatal errors.
     private let errorReporter: ErrorReporter
-
-    /// The service used to manage the app's state.
-    private let stateService: BillingStateService
 
     /// The service used to retrieve App Store storefront information.
     private let storefrontService: StorefrontService
@@ -43,22 +43,22 @@ class DefaultBillingRepository: BillingRepository {
     /// Creates a new `DefaultBillingRepository`.
     ///
     /// - Parameters:
+    ///   - billingStateService: The service used to manage the app's billing state.
     ///   - configService: The service used to manage feature flags.
     ///   - errorReporter: The service used by the application to report non-fatal errors.
-    ///   - stateService: The service used to manage the app's state.
     ///   - storefrontService: The service used to retrieve App Store storefront information.
     ///   - vaultRepository: The repository used to manage vault data.
     ///
     init(
+        billingStateService: BillingStateService,
         configService: ConfigService,
         errorReporter: ErrorReporter,
-        stateService: BillingStateService,
         storefrontService: StorefrontService,
         vaultRepository: VaultRepository,
     ) {
+        self.billingStateService = billingStateService
         self.configService = configService
         self.errorReporter = errorReporter
-        self.stateService = stateService
         self.storefrontService = storefrontService
         self.vaultRepository = vaultRepository
     }
@@ -68,7 +68,7 @@ class DefaultBillingRepository: BillingRepository {
     func isInAppUpgradeAvailable() async -> Bool {
         guard await configService.getFeatureFlag(.premiumUpgradePath),
               await storefrontService.isUSStorefront(),
-              await stateService.isPremiumUpgradeEligible()
+              await billingStateService.isPremiumUpgradeEligible()
         else { return false }
         do {
             guard try await vaultRepository

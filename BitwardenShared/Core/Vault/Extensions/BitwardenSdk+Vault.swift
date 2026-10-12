@@ -122,6 +122,7 @@ extension CipherDetailsResponseModel {
             card: cipher.card.map(CipherCardModel.init),
             collectionIds: cipher.collectionIds,
             creationDate: cipher.creationDate,
+            data: cipher.data,
             deletedDate: cipher.deletedDate,
             driversLicense: cipher.driversLicense.map(CipherDriversLicenseModel.init),
             edit: cipher.edit,
@@ -132,7 +133,7 @@ extension CipherDetailsResponseModel {
             identity: cipher.identity.map(CipherIdentityModel.init),
             key: cipher.key,
             login: cipher.login.map(CipherLoginModel.init),
-            name: cipher.name ?? "",
+            name: cipher.name,
             notes: cipher.notes,
             organizationId: cipher.organizationId,
             organizationUseTotp: cipher.organizationUseTotp,
@@ -484,7 +485,8 @@ extension BitwardenSdk.Cipher {
             deletedDate: model.deletedDate,
             revisionDate: model.revisionDate,
             archivedDate: model.archivedDate,
-            data: nil,
+            data: model.data,
+            partialData: nil,
         )
     }
 
@@ -532,7 +534,8 @@ extension BitwardenSdk.Cipher {
             deletedDate: model.deletedDate,
             revisionDate: model.revisionDate,
             archivedDate: model.archivedDate,
-            data: nil,
+            data: model.data,
+            partialData: nil,
         )
     }
 }
@@ -540,6 +543,16 @@ extension BitwardenSdk.Cipher {
 extension BitwardenSdk.CipherListView: @retroactive Identifiable, Fido2UserVerifiableCipherView {}
 
 extension BitwardenSdk.CipherListViewType {
+    /// Whether the type is a bankAccount.
+    var isBankAccount: Bool {
+        switch self {
+        case .bankAccount:
+            true
+        default:
+            false
+        }
+    }
+
     /// Whether the type is card.
     var isCard: Bool {
         switch self {
@@ -624,6 +637,7 @@ extension BitwardenSdk.CipherView: @retroactive Identifiable, Fido2UserVerifiabl
             deletedDate: nil,
             revisionDate: timeProvider.presentTime,
             archivedDate: nil,
+            partial: false,
         )
     }
 }

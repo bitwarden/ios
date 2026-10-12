@@ -20,7 +20,7 @@ class MockPolicyService: PolicyService {
         ),
     )
 
-    var isSendHideEmailDisabledByPolicy = false
+    var getSendPolicyOptionsResult = SendPolicyOptions()
 
     var fetchTimeoutPolicyValuesResult: Result<SessionTimeoutPolicy?, Error> = .success(nil)
 
@@ -33,7 +33,7 @@ class MockPolicyService: PolicyService {
 
     var policyAppliesToUserResult = [BitwardenShared.PolicyType: Bool]()
     var policyAppliesToUserPoliciesType = [BitwardenShared.PolicyType]()
-    var policyAppliesToUserPolicies = [Policy]()
+    var policyAppliesToUserPolicies = [BitwardenShared.Policy]()
     var getRestrictedItemCipherTypesResult: [BitwardenShared.CipherType] = []
 
     var replacePoliciesPolicies = [PolicyResponseModel]()
@@ -69,8 +69,8 @@ class MockPolicyService: PolicyService {
         try getMasterPasswordPolicyOptionsResult.get()
     }
 
-    func isSendHideEmailDisabledByPolicy() async -> Bool {
-        isSendHideEmailDisabledByPolicy
+    func getSendPolicyOptions() async -> SendPolicyOptions {
+        getSendPolicyOptionsResult
     }
 
     func fetchTimeoutPolicyValues() async throws -> SessionTimeoutPolicy? {

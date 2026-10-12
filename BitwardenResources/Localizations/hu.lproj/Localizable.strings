@@ -8,8 +8,12 @@
 "Copy" = "Másolás";
 "CopyLicenseNumber" = "Vezetői engedély szám másolása";
 "CopyPassportNumber" = "Útlevélszám másolása";
+"CopyPassphrase" = "Jelmondat másolása";
 "CopyPassword" = "Jelszó másolása";
 "CopyUsername" = "Felhasználónév másolása";
+"UseThisPassphrase" = "Jelmondat használata";
+"UseThisPassword" = "Jelszó használata";
+"UseThisUsername" = "Felhasználónév használata";
 "Delete" = "Törlés";
 "DeleteAll" = "Összes törlése";
 "Deleting" = "Törlés…";
@@ -21,11 +25,13 @@
 "EnterPIN" = "Add meg a PIN-kódodat.";
 "Favorites" = "Kedvencek";
 "Folder" = "Mappa";
-"FolderCreated" = "Új mappa létrehozva.";
+"FolderCreated" = "Az új mappa létrejött.";
 "FolderDeleted" = "A mappa törlése megtörtént.";
 "FolderNone" = "Nincs mappa";
 "Folders" = "Mappák";
 "FolderUpdated" = "A mappa mentésre került.";
+"MyFolder" = "Saját mappa";
+"MyFolders" = "Saját mappák";
 "InternetConnectionRequiredMessage" = "Csatlakozzunk az internetre a folytatás előtt.";
 "InternetConnectionRequiredTitle" = "Internetkapcsolat szükséges";
 "InvalidMasterPassword" = "A mesterjelszó érvénytelen. Próbáljuk újra.";
@@ -39,6 +45,8 @@
 "RemoveAccount" = "Fiók eltávolítása";
 "RemoveAccountConfirmation" = "Biztosan törlésre kerüljön ez a fiók?";
 "AccountAlreadyAdded" = "A fiók már hozzáadásra került.";
+"AccountCreationRestricted" = "A fiók létrehozása korlátozott.";
+"XOnlyAllowsInvitedUsersToCreateAccounts" = "%1$@ csak a meghívott felhasználók számára teszi lehetővé fiókok létrehozását.";
 "SwitchToAlreadyAddedAccountConfirmation" = "Szeretnénk most átkapcsolni erre?";
 "MasterPassword" = "Mesterjelszó";
 "MoreOptions" = "További opciók";
@@ -49,6 +57,7 @@
 "OK" = "OK";
 "Password" = "Jelszó";
 "Save" = "Mentés";
+/* Action to move a vault item to another vault; used as a button label, menu item, and screen title. */
 "Move" = "Áthelyezés";
 "Saving" = "Mentés…";
 "Settings" = "Beállítások";
@@ -124,11 +133,10 @@
 "PasswordOverrideAlert" = "Biztosan felül akarod írni a jelenlegi jelszót?";
 "PushNotificationAlert" = "Bitwarden keeps your vault automatically synced by using push notifications. For the best possible experience, please select “Allow” on the following prompt when asked to allow push notifications.";
 "Security" = "Biztonság";
-"Select" = "Kijelölés";
 "ItemUpdated" = "Az elem frissítésre került.";
 "Submitting" = "Beküldés…";
 "Syncing" = "Szinkronizálás…";
-"SyncingLogins" = "Bejelentkezések szinkronizálása…";
+"SyncingLogins" = "Bejelentkezések szinkronizálása...";
 "SyncingComplete" = "A szinkronizálás kész.";
 "TouchID" = "Touch ID";
 "TwoStepLogin" = "Kétlépcsős bejelentkezés";
@@ -177,7 +185,6 @@
 "CopyTotp" = "Egyszeri jelszó másolása";
 "CopyTotpAutomaticallyDescription" = "Ha egy belépéshez tartozik hitelesítő kulcs, másolja a TOTP megerősítő kódot a vágólapra amikor a belépést tölti.";
 "CopyTotpAutomatically" = "TOTP automatikus másolása";
-"PremiumRequired" = "A funkció használatához prémium tagság szükséges.";
 "AttachementAdded" = "Melléklet hozzáadva";
 "AttachmentDeleted" = "Melléklet törölve";
 "ChooseFile" = "Fájl kiválasztása";
@@ -218,7 +225,6 @@
 "August" = "augusztus";
 "Brand" = "Márka";
 "CardholderName" = "Kártyatulajdonos neve";
-"WeFoundMultipleMatchesChooseTheCorrectOne" = "Több egyezés is található. Válasszuk ki a megfelelőt.";
 "CityTown" = "Település";
 "Company" = "Cég";
 "Country" = "Ország";
@@ -256,8 +262,14 @@
 "ShowWebsiteIconsDescription" = "Felismerhető kép megjelenítése minden bejelentkezés mellett.";
 "IconsUrl" = "Ikonszerver webcím";
 "AutofillWithBitwarden" = "Töltse ki automatikusan a Bitwarden-nel";
+/* Section header and screen title for viewing/managing a cipher's collections. */
 "Collections" = "Gyűjtemények";
+/* Section header and screen title for viewing/managing a cipher's shared folders. */
+"SharedFolders" = "Megosztott mappák";
+/* Empty state message shown when a collection has no items. */
 "NoItemsCollection" = "Nincsenek elemek a gyűjteményben";
+/* Empty state message shown when a shared folder has no items. */
+"ThereAreNoItemsInThisSharedFolder" = "Nincsenek elemek ebben a megosztott mappában.";
 "NoItemsFolder" = "Nincsenek elemek a mappában";
 "NoItemsTrash" = "Nincs elem a lomtárban.";
 "FaceID" = "Face ID";
@@ -277,6 +289,7 @@
 "RegEx" = "Reguláris kifejezés";
 "StartsWith" = "Ezzel kezdődik";
 "MatchDetection" = "Egyezés felismerése";
+/* Field label on the Move screen shown when the "vfo1-foundation" feature flag is disabled; superseded by "Vault" when enabled. */
 "Organization" = "Szervezet";
 "HoldYubikeyNearTop" = "Tartsuk lenyomva a Yubikey-t, a készülék tetején.";
 "TryAgain" = "Próbáluk újra";
@@ -297,6 +310,7 @@
 "NoEmailAddressesEntered" = "Nincsenek megadva email címek.";
 "EnterAtLeastOneValidEmailToShareSend" = "Adjunk meg legalább egy érvényes email címet a Send elem megosztásához.";
 "OneOrMoreEmailAddressesIncorrect" = "Egy vagy több email cím helytelen. Tekintsük át és próbáljuk újra.";
+"OnlyIncludeTheFollowingDomainsDescriptionLong" = "Csak a következő tartományokat tartalmazza: %1$@. Tekintsük át és próbáljuk újra.";
 "Cards" = "Kártyák";
 "Identities" = "Azonosságok";
 "Logins" = "Bejelentkezések";
@@ -312,13 +326,26 @@
 "NoItemsToList" = "Nincsenek megjeleníthető elemek.";
 "MoveDown" = "Lefelé mozgatás";
 "MoveUp" = "Felfelé mozgatás";
+/* Empty state message on the Collections screen shown when a user has no collections. */
 "NoCollectionsToList" = "Nincsenek megjeleníthető gyűjtemények.";
+/* Empty state message on the Shared folders screen shown when a user has no shared folders. */
+"ThereAreNoSharedFoldersToList" = "Nincsenek listázható megosztott mappák.";
 "MovedItemToOrg" = "%1$@ áthelyezésre került: %2$@.";
+/* Alert message shown when saving an item with no collection selected. */
 "SelectOneCollection" = "Legalább egy gyűjteményt ki kell választani.";
+/* Alert message shown when saving an item with no shared folder selected. */
+"YouMustSelectAtLeastOneSharedFolder" = "Legalább egy megosztott mappát ki kell választani.";
 "Share" = "Megosztás";
 "ShareAll" = "Összes megosztása";
+/* Overflow menu item and screen title on the Move screen shown when the "vfo1-foundation" feature flag is disabled; superseded by "Move" when enabled. */
 "MoveToOrganization" = "Áthelyezés szervezetbe";
+/* Empty state message shown when a user has no vaults available to move an item into, when the "vfo1-foundation" feature flag is enabled. */
+"NoVaultsToList" = "Nincsenek listázandó széfek.";
+/* Empty state message shown when a user has no organizations available to move an item into, when the "vfo1-foundation" feature flag is disabled. */
 "NoOrgsToList" = "Nincs megjeleníthető szervezet.";
+/* Footer text on the Move screen explaining that moving an item transfers its ownership to the destination vault's organization, when the "vfo1-foundation" feature flag is enabled. */
+"ChooseAVaultThatYouWishToMoveThisItemToDescriptionLong" = "Válasszunk egy széfet, ahová áthelyezni szeretnénk ezt az elemet. A széfbe áthelyezés átruházza az elem tulajdonjogát az adott szervezetre. Az áthelyezés után többé nem leszünk az elem közvetlen tulajdonosa.";
+/* Footer text on the Move screen explaining that moving an item transfers its ownership to the destination organization, when the "vfo1-foundation" feature flag is disabled. */
 "MoveToOrgDesc" = "Válasszunk egy szervezetet, ahová áthelyezni szeretnénk ezt az elemet. A szervezetbe áthelyezés átruházza az elem tulajdonjogát az adott szervezetre. Az áthelyezés után többé nem leszünk az elem közvetlen tulajdonosa.";
 "NumberOfWords" = "Szavak száma";
 "Passphrase" = "Kulcsszó";
@@ -391,7 +418,7 @@
 "MasterPasswordPolicyValidationTitle" = "Érvénytelen jelszó.";
 "MasterPasswordPolicyValidationMessage" = "A jelszó nem egyezik a szervezeti követelményekhez. Ellenőrizzük a szabály információt és próbáljuk újra.";
 "Loading" = "A betöltés folyamatban van.";
-"LoadingSubscription" = "Előfizetés betöltése…";
+"LoadingSubscription" = "Előfizetés betöltése...";
 "AcceptPoliciesError" = "A szolgáltatási feltételeket és az adatvédelmi irányelveket nem vették figyelembe.";
 "PrivacyPolicy" = "Adatvédelmi Irányelvek";
 "PersonalOwnershipPolicyInEffect" = "Egy szervezeti házirend befolyásolja a tulajdonjog beállításait.";
@@ -419,11 +446,19 @@
 "NewSendCreated" = "Az új Send elem létrejött.";
 "Custom" = "Egyedi";
 "SendDisabledWarning" = "A vállalati házirend miatt csak egy meglévő Send elem törölhető.";
+"ThisDateIsEnforcedByYourOrganization" = "Ezt a dátumot a szervezet erőlteti.";
 "AboutSend" = "A Sendről";
 "HideEmail" = "Saját email cím elrejtése a címzettek elől.";
 "SendOptionsPolicyInEffect" = "Egy vagy több szervezeti szabály érinti a Send opciókat.";
 "SendFilePremiumRequired" = "Ingyenes fiókkal csak szöveget lehet megosztani. Prémium tagság szükséges a fájlok használatához a Sendnél.";
 "SendFileEmailVerificationRequired" = "Ha fájlokat szeretnénk használni a Senddel, ellenőrizni kell az email címet.";
+/* Alert message shown when Send Controls policy restricts creation to one Send type. %1$@ is the allowed Send type, either "File" or "Text". */
+"DueToAnEnterprisePolicyYouCanOnlyCreateXSends" = "A vállalati szabályzat miatt csak %1$@ Send elem hozható létre.";
+"OrganizationPolicyRestriction" = "Szervezeti szabályzat korlátozás";
+"TextSendsAreNotAllowedDescriptionLong" = "Ez a szöveges Send elem nem felel meg a szervezet Küldés házirendjének és ez a Send elem automatikusan lejár a beállított törlési napon.";
+"ThisSendIsNotCompliantDescriptionLong" = "Ez a Send elem nem felel meg a szervezet Küldés házirendjének és automatikusan lejár a beállított törlési napon.";
+"ToEditThisSendMakeACopyDescriptionLong" = "A Send elem szerkesztéséhez készítsünk másolatot. Ha ez a Send elem a beállított törlési dátumon lejárhat, nincs szükség műveletre.";
+"MakeACopy" = "Másolat létrehozása";
 "PasswordPrompt" = "Mesterjelszó újbóli bekérése";
 "PasswordConfirmation" = "Mesterjelszó megerősítése";
 "PasswordConfirmationDesc" = "Ez a művelet védett. A folytatásért ismételten meg kell adni a mesterjelszőt az személyazonosság ellenőrzéséhez.";
@@ -465,6 +500,8 @@
 "SpecialCharacters" = "Speciális karakterek (!@#$%^&*)";
 "PasswordIsVisibleTapToHide" = "A jelszó látható, koppintással elrejthető.";
 "PasswordIsNotVisibleTapToShow" = "A jelszó nem látható, koppintással megjeleníthető.";
+"FieldValueIsVisibleTapToHide" = "%1$@ látható, koppintással elrejthető.";
+"FieldValueIsNotVisibleTapToShow" = "%1$@ nem látható, koppintással megjeleníthető.";
 "FilterByVault" = "Elemek szűrése széf szerint";
 "AllVaults" = "Összes széf";
 "Vaults" = "Széfek";
@@ -563,6 +600,7 @@
 "ThereAreNoBankAccountsInYourVault" = "Nincsenek bankszámlák a széfben.";
 "US" = "US";
 "EU" = "EU";
+"Gov" = "Kormányzat";
 "SelfHosted" = "Saját kiszolgáló";
 "UpdateWeakMasterPasswordWarning" = "A mesterjelszó nem felel meg egy vagy több szervezeti szabályzatnak. A széf eléréséhez frissíteni kell a meszerjelszót. A továbblépés kijelentkeztet az aktuális munkamenetből és újra be kell jelentkezni. A többi eszközön lévő aktív munkamenetek akár egy óráig is aktívak maradhatnak.";
 "CurrentMasterPasswordRequired" = "Jelenlegi mesterjelszó (kötelező)";
@@ -586,6 +624,7 @@
 "LoginApproved" = "A bejelentkezés jóváhagyásra került.";
 "LogInWithDevice" = "Bejelentkezés eszközzel";
 "LoggingInOn" = "Bejelentkezés:";
+/* The word "Vault", used generically as a field label, screen title, and app-wide term for a user's or organization's item collection. */
 "Vault" = "Széf";
 "Appearance" = "Megjelenés";
 "AccountSecurity" = "Fiókbiztonság";
@@ -621,7 +660,6 @@
 "SetUpAutofill" = "Automata-kitöltés beállítása";
 "AppInfo" = "App infó";
 "Browse" = "Böngészés";
-"SelectCardholderName" = "Válasszuk ki a kártyabirtokos nevét.";
 "SelectLanguage" = "Nyelv kiválasztása";
 "ContinueToCompleteWebAuthnVerification" = "Tovább a WebAuthn megerősítés befejezéséhez.";
 "ThereWasAnErrorStartingWebAuthnTwoFactorAuthentication" = "Hiba lépett fel a WebAuthn kétfaktoros hitelesítés indítása során";
@@ -640,7 +678,6 @@
 "ByContinuingYouAgreeToTheTermsOfServiceAndPrivacyPolicy" = "A folytatással elfogadjuk a **[Használati feltételeket](%1$@)** és az **[Adatvédelmi szabályokat](%2$@)**";
 "GetAdviceAnnouncementsAndResearchOpportunitiesFromBitwardenInYourInboxUnsubscribeAtAnyTime." = "Tanácsokat, bejelentéseket és kutatási lehetőségeket kaphatunk a Bitwardentől a postaládába. **[Leiratkozás](%1$@)** bármikor.";
 "UserVerificationForPasskey" = "Használjon megerősítést a belépőkulcshoz";
-"NewItem" = "Új elem";
 "ExploreTheGenerator" = "A generátor felfedezése";
 "LearnMoreAboutGeneratingSecureLoginCredentialsWithAGuidedTour" = "Tudjunk meg többet a biztonságos bejelentkezési hitelesítő adatok létrehozásáról egy vezetett bemutatóval.";
 "ExportVaultFilePwProtectInfo" = "Ez a fájl export jelszó védett lesz, és ugyanezzel a jelszóval lehet később feloldani.";
@@ -812,7 +849,7 @@
 "YouMayNeedToEnableDevicePasscodeOrBiometrics" = "Lehetséges, hogy engedélyezni kell az eszköz jelkódot vagy a biometrikus adatokat.";
 "StartImportCXFDescriptionLong" = "Importáljunk jelszavakat, belépőkulcsokat, hitelkártyákat és bármilyen személyes azonosító információt egy másik jelszókezelőből.\n\nAz adatok **nem** kerülnek törlésre a korábbi szolgáltatónál.";
 "ImportPasswords" = "Jelszavak importálása";
-"ImportingEllipsis" = "Importálás…";
+"ImportingEllipsis" = "Importálás...";
 "AreYouSureYouWantToCancelTheImportProcessQuestionMark" = "Biztosan megszakításra kerüljön az importálási folyamat?";
 "ImportFailed" = "Az importálás sikertelen volt.";
 "ThereWasAnIssueImportingAllOfYourPasswordsNoDataWasDeleted" = "Hiba történt az összes jelszó importálásakor.\n\nNem lett adat törölve.";
@@ -854,6 +891,10 @@
 "Identification" = "Azonosítás";
 "Owner" = "Tulajdonos";
 "VerifyYourIdentity" = "Személyazonosság ellenőrzése";
+"ThisOperationIsNotAllowedOnThisAccount" = "Ez a művelet nem engedélyezett ezen a fiókon.";
+"AnErrorOccurredWhileTryingToLockTheCurrentUser" = "Hiba történt az aktuális felhasználó zárolásának kísérlete közben.";
+"LockAllAccounts" = "Összes fiók lezárása";
+"AllAccountsHaveBeenLocked" = "Az összes fiók zárolásra került.";
 "ShareErrorDetails" = "Hiba részletek megosztása";
 "FlightRecorder" = "Adatrögzítő";
 "EnableFlightRecorder" = "Adatrögzítő engedélyezése";
@@ -867,8 +908,13 @@
 "ShowLess" = "Kevesebb mutatása";
 "ItemNameX" = "Elem név, %1$@";
 "OwnerX" = "Tulajdonos, %1$@";
+"VaultX" = "Széf: %1$@";
+/* VoiceOver accessibility label for a collection the item belongs to. */
 "CollectionX" = "Kollekció, %1$@";
+/* VoiceOver accessibility label for a shared folder the item belongs to. */
+"SharedFolderX" = "Megosztott mappa, %1$@";
 "FolderX" = "Mappa, %1$@";
+"MyFolderX" = "Saját mappa, %1$@";
 "ItemXOfY" = "Item %1$@ of %2$@";
 "ViewRecordedLogs" = "Rögzített naplók megtekintése";
 "RecordedLogs" = "Adatrögzítő naplók";
@@ -877,7 +923,13 @@
 "ExpiresOnXDate" = "Lejárat: %1$@";
 "ExpiresTomorrow" = "Holnap lejár";
 "DateRangeXToY" = "%1$@ - %2$@";
+"LogOutAllAccounts" = "Összes fiók kijelentkeztetése";
+"AllAccountsHaveBeenLoggedOut" = "Az összes fiók kijelentkeztetésre került.";
+"AnErrorOccurredWhileTryingToLogOutAllAccounts" = "Hiba történt az összes fiók kijelentkeztetésének kísérlete közben.";
 "SelfHostServerURL" = "Saját üzemeltetésű szerver webcím";
+"OpenGenerator" = "Generátor megnyitása";
+"OpenPasswordGenerator" = "Jelszó generátor megnyitása";
+"GeneratePassphrase" = "Jelmondat generálás";
 "AllowUniversalClipboard" = "Univerzális vágólap engedélyezése";
 "UseUniversalClipboardToCopyDescriptionLong" = "Az Univerzális vágólap segítségével másolhatunk itt, majd beilleszthetünk más eszközökre, amelyeken ugyanazzal az Apple azonosítóval vagyunk bejelentkezve.";
 "RemoveMasterPasswordConfirmDomain" = "A következő szervezet tagjai számára már nincs szükség mesterjelszóra. Erősítsük meg az alábbi tartományt a szervezet adminisztrátorával.";
@@ -897,6 +949,7 @@
 "GoToSettings" = "Ugrás a beállításokhoz";
 "SiriAndShortcutsAccess" = "Siri és parancsikonok hozzáférés";
 "EnableToAllowTheAppToRespondToSiriAndShortcutsUsingAppIntents" = "Engedélyezzük, hogy az alkalmazás az App Intents használatával válaszoljon a Siri és a parancsikonokra.";
+"ThereIsNoActiveAccount" = "Nincs aktív fiók.";
 "NewFileSend" = "Új fájl Send elem";
 "NewTextSend" = "Új szöveges Send elem";
 "EditFileSend" = "Send fájl szerkesztése";
@@ -947,7 +1000,6 @@
 "NoAskMe" = "Nem, rákérdezés";
 "NoCodes" = "Nincs megjeleníthető kód.";
 "None" = "Nincs";
-"NoneOfTheAbove" = "A fentiek közül egyik sem";
 "NumberOfDigits" = "Számjegyek száma";
 "OtpType" = "OTP típus";
 "RefreshPeriod" = "Frissítési gyakoriság";
@@ -997,7 +1049,7 @@
 "DefaultX" = "Alapértelmezés (%1$@)";
 "UpdateYourEncryptionSettings" = "A titkosítási beállítások frissítése";
 "TheNewRecommendedEncryptionSettingsDescriptionLong" = "Az új ajánlott titkosítási beállítások javítják a fiók biztonságát. Adjuk meg a mesterjelszót a frissítéshez most.";
-"Updating" = "Frissítés…";
+"Updating" = "Frissítés...";
 "EncryptionSettingsUpdated" = "A titkosítási beállítások frissítésre kerültek.";
 "IntroducingArchive" = "Archívum bemutatása";
 "KeepYtemsYouDontNeedRightNowSafeButOutOfSight" = "Tartsuk biztonságban azokat az elemeket, amelyekre jelenleg nincs szükség, de ne lássuk azokat.";
@@ -1012,7 +1064,7 @@
 "LeaveX" = "%1$@ elhagyása";
 "YouLeftTheOrganization" = "Megtörtént a szervezet elhagyása.";
 "ItemTransferRequiresMainAppDescriptionLong" = "Egy szervezet a személyes elemek tulajdonjogát kéri. Nyissuk meg a fő Bitwarden alkalmazást a kérés áttekintéséhez és befejezéséhez.";
-"ThisSettingIsManagedByYourOrganization" = "Ezt a beállítást a szervezet lezeli.";
+"ThisSettingIsManagedByYourOrganization" = "Ezt a beállítást a szervezet kezeli.";
 "YourOrganizationHasSetTheMaximumSessionTimeoutToX" = "A szervezet a maximális munkamenet időkifutást %1$@ értékre állította.";
 "YourOrganizationHasSetTheDefaultSessionTimeoutToNever" = "A szervezet a maximális munkamenet időkifutást soha értékre állította.";
 "YourOrganizationHasSetTheDefaultSessionTimeoutToAppRestart" = "A szervezet a maximális munkamenet időkifutást alkalmazás újraindítás értékre állította.";
@@ -1045,6 +1097,7 @@
 "AnyoneWithTheLink" = "Bárki ezzel a hivatkozással";
 "AnyoneWithThisLinkCanViewThisSend" = "Bárki ezzel a hivatkozással megtekintheti ezt a Send elemet.";
 "AfterSharingThisSendLinkDescriptionLong" = "A Send hivatkozás megosztása után a személyeknek ellenőrizniük kell email címüket egy kóddal a Send megtekintéséhez.";
+"IndividualsWillNeedToEnterThisPasswordDescriptionLong" = "A személyeknek meg kell adniuk a jelszót a Send elem megtekintéséhez.";
 "SpecificPeople" = "Adott személyek";
 "WhoCanView" = "Ki láthatja";
 "SharingWithSpecificPeopleIsPremiumFeatureDescriptionLong" = "Az elemek archiválása prémium funkció. A jelenlegi csomag nem tartalmazza a hozzáférést ehhez a funkcióhoz.";
@@ -1138,7 +1191,7 @@
 "WeHadTroubleOpeningThePaymentPageDescriptionLong" = "Problémák adódtak a fizetési oldal megnyitásával, úgyhogy próbáljuk újra.";
 "SecureFileStorage" = "Biztonságos fájl tárolás";
 "BreachMonitoring" = "Adatszivárgás figyelés";
-"ConfirmingYourUpgrade" = "A frissítés megerősítése…";
+"ConfirmingYourUpgrade" = "A frissítés megerősítése...";
 "OpeningCheckout" = "Pénztár megnyitása…";
 "UpgradePending" = "Függő áttérés";
 "YourUpgradeIsBeingProcessedDescriptionLong" = "Az áttérés feldolgozása folyamatban van. Az ingyenes csomag marad, amíg az be nem fejeződik. Szinkronizáljunk most az ellenőrzéshez vagy a folytatáshoz, és az áttérés automatikus.";
@@ -1198,7 +1251,53 @@
 "LineOfCredit" = "Hitelkeret";
 "MoneyMarket" = "Pénzpiac";
 "Savings" = "Megtakarítások";
+"Devices" = "Eszközök";
+"NoDevicesFound" = "Nem található eszköz.";
+"CurrentSession" = "Jelenlegi munkamenet";
+"PendingRequest" = "Függő kérés";
+"Trusted" = "Megbízható";
+"RecentlyActiveLabel" = "Legutóbb aktív:";
+"FirstLoginLabel" = "Első bejelentkezés:";
+"Today" = "Ma";
+"PastSevenDays" = "Az elmúlt 7 nap";
+"PastFourteenDays" = "Az elmúlt 14 nap";
+"PastThirtyDays" = "Az elmúlt 30 nap";
+"OverThirtyDaysAgo" = "Több, mint 30 napja";
+"Unknown" = "Ismeretlen";
+/* Device display name. %1$@ = category (e.g. "Mobile"), %2$@ = platform (e.g. "iOS"). */
+"DeviceDisplayNameXHyphenY" = "%1$@ - %2$@";
+"Mobile" = "Mobil";
+"BrowserExtension" = "Böngésző bővítmény";
+"WebVault2" = "Webes széf";
+"Desktop" = "Asztali";
+"Cli" = "CLI";
+"Sdk" = "SDK";
+"Server" = "Szerver";
 /* Accessibility label for the button that clears a field's value. %1$@ is the field's title (e.g. "Date of birth"), so the spoken label reads "Clear Date of birth". */
 "ClearFieldName" = "%1$@ kiürítése";
-"SelectDate" = "Dátum kiválasztása";
+/* Accessibility hint on a collapsed date field announcing that activating it opens the calendar picker. */
+"OpensDatePicker" = "Dátumválasztó megnyitása";
+/* Accessibility hint on an expanded date field announcing that activating it closes the calendar picker. */
+"ClosesDatePicker" = "Dátumválasztó bezárása";
+/* VoiceOver announcement posted when a date picker whose range excludes future dates, e.g. date of birth or an issue date, reports landing on today (the latest available day) while scrolling the wheel. */
+"FutureDatesUnavailable" = "A jövőbeli dátumok nem érhetők el.";
 "PremiumRequiredTOTPDescriptionLong" = "A hitelesítési kulcs (TOTP) egy prémium funkció. A jelenlegi csomag nem tartalmazza a hozzáférést ehhez a funkcióhoz.";
+/* Toast shown after a login item is saved. */
+"LoginSaved" = "A bejelentkezés mentésre került.";
+/* Toast shown after a card item is saved. */
+"CardSaved" = "A kártya mentésre került.";
+/* Toast shown after an identity item is saved. */
+"IdentitySaved" = "A személyazonosság mentésre került.";
+/* Toast shown after a secure note item is saved. */
+"SecureNoteSaved" = "A biztonságos jegyzet mentésre került.";
+/* Toast shown after an SSH key item is saved. */
+"SSHKeySaved" = "Az SSH kulcs mentésre került.";
+/* Toast shown after a bank account item is saved. */
+"BankAccountSaved" = "A bankszámla mentésre került.";
+/* Toast shown after a driver's license item is saved. */
+"LicenseSaved" = "A licensz mentésre került.";
+/* Toast shown after a passport item is saved. */
+"PassportSaved" = "Az útlevél mentésre került.";
+"NotNow" = "Most nem";
+"SyncUnsuccessful" = "A szinkronizáció sikertelen volt.";
+"WeCouldntSyncYourVaultWithTheServerDescriptionLong" = "Nem lehetett szinkronizálni a széfet a szerverrel. Előfordulhat, hogy a széf nem tükrözi a legújabb változtatásokat. Most újra próbálkozhatunk vagy később automatikusan szinkronizálódik.";

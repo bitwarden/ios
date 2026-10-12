@@ -7,7 +7,26 @@ import SwiftUI
 /// A view that allows the user to add or edit a passport item for a vault.
 ///
 struct AddEditPassportItemView: View {
+    // MARK: Types
+
+    /// The focusable fields in the passport view.
+    enum FocusedField: Int, Hashable {
+        case givenName
+        case surname
+        case sex
+        case birthPlace
+        case nationality
+        case passportNumber
+        case passportType
+        case nationalIdentificationNumber
+        case issuingCountry
+        case issuingAuthority
+    }
+
     // MARK: Properties
+
+    /// The currently focused field.
+    @FocusState private var focusedField: FocusedField?
 
     /// The `Store` for this view.
     @ObservedObject var store: Store<
@@ -26,7 +45,9 @@ struct AddEditPassportItemView: View {
                         send: AddEditPassportItemAction.givenNameChanged,
                     ),
                     accessibilityIdentifier: "PassportFirstNameEntry",
+                    focus: .field($focusedField, equals: .givenName),
                 )
+                .onSubmit { focusNextField($focusedField) }
 
                 BitwardenTextField(
                     title: Localizations.lastName,
@@ -35,14 +56,18 @@ struct AddEditPassportItemView: View {
                         send: AddEditPassportItemAction.surnameChanged,
                     ),
                     accessibilityIdentifier: "PassportLastNameEntry",
+                    focus: .field($focusedField, equals: .surname),
                 )
+                .onSubmit { focusNextField($focusedField) }
 
-                // TODO: PM-38360 - replace with DateFieldPicker
-                BitwardenTextField(
+                DateFieldPicker(
                     title: Localizations.dateOfBirth,
-                    text: .constant(store.state.dateOfBirthDisplay),
                     accessibilityIdentifier: "PassportDateOfBirthEntry",
-                    isTextFieldDisabled: true,
+                    date: store.binding(
+                        get: \.dateOfBirth,
+                        send: AddEditPassportItemAction.dateOfBirthChanged,
+                    ),
+                    in: Date.distantPast ... Date().asUTCCalendarDay(),
                 )
 
                 BitwardenTextField(
@@ -52,7 +77,9 @@ struct AddEditPassportItemView: View {
                         send: AddEditPassportItemAction.sexChanged,
                     ),
                     accessibilityIdentifier: "PassportSexEntry",
+                    focus: .field($focusedField, equals: .sex),
                 )
+                .onSubmit { focusNextField($focusedField) }
 
                 BitwardenTextField(
                     title: Localizations.birthPlace,
@@ -61,7 +88,9 @@ struct AddEditPassportItemView: View {
                         send: AddEditPassportItemAction.birthPlaceChanged,
                     ),
                     accessibilityIdentifier: "PassportBirthPlaceEntry",
+                    focus: .field($focusedField, equals: .birthPlace),
                 )
+                .onSubmit { focusNextField($focusedField) }
 
                 BitwardenTextField(
                     title: Localizations.nationality,
@@ -70,7 +99,9 @@ struct AddEditPassportItemView: View {
                         send: AddEditPassportItemAction.nationalityChanged,
                     ),
                     accessibilityIdentifier: "PassportNationalityEntry",
+                    focus: .field($focusedField, equals: .nationality),
                 )
+                .onSubmit { focusNextField($focusedField) }
 
                 BitwardenTextField(
                     title: Localizations.passportNumber,
@@ -80,11 +111,13 @@ struct AddEditPassportItemView: View {
                     ),
                     accessibilityIdentifier: "PassportNumberEntry",
                     passwordVisibilityAccessibilityId: "ShowPassportNumberButton",
+                    focus: .field($focusedField, equals: .passportNumber),
                     isPasswordVisible: store.binding(
                         get: \.isPassportNumberVisible,
                         send: AddEditPassportItemAction.togglePassportNumberVisibilityChanged,
                     ),
                 )
+                .onSubmit { focusNextField($focusedField) }
 
                 BitwardenTextField(
                     title: Localizations.passportType,
@@ -93,7 +126,9 @@ struct AddEditPassportItemView: View {
                         send: AddEditPassportItemAction.passportTypeChanged,
                     ),
                     accessibilityIdentifier: "PassportTypeEntry",
+                    focus: .field($focusedField, equals: .passportType),
                 )
+                .onSubmit { focusNextField($focusedField) }
 
                 BitwardenTextField(
                     title: Localizations.nationalIdentificationNumber,
@@ -103,11 +138,13 @@ struct AddEditPassportItemView: View {
                     ),
                     accessibilityIdentifier: "PassportNationalIdentificationNumberEntry",
                     passwordVisibilityAccessibilityId: "ShowPassportNationalIdentificationNumberButton",
+                    focus: .field($focusedField, equals: .nationalIdentificationNumber),
                     isPasswordVisible: store.binding(
                         get: \.isNationalIdentificationNumberVisible,
                         send: AddEditPassportItemAction.toggleNationalIdentificationNumberVisibilityChanged,
                     ),
                 )
+                .onSubmit { focusNextField($focusedField) }
 
                 BitwardenTextField(
                     title: Localizations.issuingCountry,
@@ -116,7 +153,9 @@ struct AddEditPassportItemView: View {
                         send: AddEditPassportItemAction.issuingCountryChanged,
                     ),
                     accessibilityIdentifier: "PassportIssuingCountryEntry",
+                    focus: .field($focusedField, equals: .issuingCountry),
                 )
+                .onSubmit { focusNextField($focusedField) }
 
                 BitwardenTextField(
                     title: Localizations.issuingAuthorityOffice,
@@ -125,22 +164,27 @@ struct AddEditPassportItemView: View {
                         send: AddEditPassportItemAction.issuingAuthorityChanged,
                     ),
                     accessibilityIdentifier: "PassportIssuingAuthorityEntry",
+                    focus: .field($focusedField, equals: .issuingAuthority),
                 )
+                .onSubmit { focusNextField($focusedField) }
 
-                // TODO: PM-38360 - replace with DateFieldPicker
-                BitwardenTextField(
+                DateFieldPicker(
                     title: Localizations.issueDate,
-                    text: .constant(store.state.issueDateDisplay),
                     accessibilityIdentifier: "PassportIssueDateEntry",
-                    isTextFieldDisabled: true,
+                    date: store.binding(
+                        get: \.issueDate,
+                        send: AddEditPassportItemAction.issueDateChanged,
+                    ),
+                    in: Date.distantPast ... Date().asUTCCalendarDay(),
                 )
 
-                // TODO: PM-38360 - replace with DateFieldPicker
-                BitwardenTextField(
+                DateFieldPicker(
                     title: Localizations.expirationDate,
-                    text: .constant(store.state.expirationDateDisplay),
                     accessibilityIdentifier: "PassportExpirationDateEntry",
-                    isTextFieldDisabled: true,
+                    date: store.binding(
+                        get: \.expirationDate,
+                        send: AddEditPassportItemAction.expirationDateChanged,
+                    ),
                 )
             }
         }
@@ -209,10 +253,10 @@ private extension PassportItemState {
     static var previewPopulated: PassportItemState {
         PassportItemState(
             birthPlace: "USA",
-            dateOfBirth: "2025-04-20",
-            expirationDate: "2026-08-10",
+            dateOfBirth: Date(year: 2025, month: 4, day: 20),
+            expirationDate: Date(year: 2026, month: 8, day: 10),
             givenName: "Mitchell",
-            issueDate: "2021-08-10",
+            issueDate: Date(year: 2021, month: 8, day: 10),
             issuingAuthority: "U.S. Department of State",
             issuingCountry: "United States",
             nationalIdentificationNumber: "123456789",

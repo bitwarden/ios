@@ -9,17 +9,23 @@ import Testing
 struct DeviceRowStateTests {
     // MARK: Tests
 
-    /// `formattedFirstLogin` formats the device's first-login date with medium date and short
-    /// time styles.
+    /// `formattedFirstLogin` formats the device's first-login date as "MMM d, yyyy, h:mm:ss a",
+    /// including seconds.
     @Test
     func formattedFirstLogin() {
         let firstLogin = Date(timeIntervalSince1970: 1_718_020_800)
         let subject = DeviceRowState(device: .fixture(firstLogin: firstLogin))
 
-        let expectedFormatter = DateFormatter()
-        expectedFormatter.dateStyle = .medium
-        expectedFormatter.timeStyle = .short
+        let expectedDateFormatter = DateFormatter()
+        expectedDateFormatter.locale = Locale.current
+        expectedDateFormatter.setLocalizedDateFormatFromTemplate("MMM d, yyyy")
 
-        #expect(subject.formattedFirstLogin == expectedFormatter.string(from: firstLogin))
+        let expectedTimeFormatter = DateFormatter()
+        expectedTimeFormatter.locale = Locale.current
+        expectedTimeFormatter.setLocalizedDateFormatFromTemplate("jj:mm:ss")
+
+        let expected = "\(expectedDateFormatter.string(from: firstLogin)), " +
+            "\(expectedTimeFormatter.string(from: firstLogin))"
+        #expect(subject.formattedFirstLogin == expected)
     }
 }

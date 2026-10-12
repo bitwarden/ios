@@ -50,14 +50,13 @@ struct DefaultSdkRepositoryFactory: SdkRepositoryFactory {
         Repositories(
             cipher: makeCipherRepository(userId: userId),
             folder: nil,
-            userKeyState: nil,
             localUserDataKeyState: SdkLocalUserDataKeyStateRepository(
                 stateService: stateService,
                 userId: userId,
             ),
-            ephemeralPinEnvelopeState: nil,
             organizationSharedKey: nil,
             send: nil,
+            policy: nil,
         )
     }
 

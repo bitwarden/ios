@@ -55,4 +55,34 @@ class DeviceManagementViewTests: BitwardenTestCase {
 
         XCTAssertEqual(processor.dispatchedActions.last, .deviceRow(.rowTapped(device)))
     }
+
+    /// The recently active row is hidden for the current session's device, even when it has a
+    /// last activity date.
+    @MainActor
+    func test_deviceRow_recentlyActiveRow_hiddenForCurrentSession() throws {
+        let device = DeviceListItem.fixture(isCurrentSession: true, lastActivityDate: Date())
+        processor.state.loadingState = .data([device])
+
+        XCTAssertThrowsError(try subject.inspect().find(viewWithAccessibilityIdentifier: "RecentlyActiveRow"))
+    }
+
+    /// The recently active row is hidden for a device with a pending request, even when it has a
+    /// last activity date.
+    @MainActor
+    func test_deviceRow_recentlyActiveRow_hiddenForPendingRequest() throws {
+        var device = DeviceListItem.fixture(lastActivityDate: Date())
+        device.pendingRequest = .fixture()
+        processor.state.loadingState = .data([device])
+
+        XCTAssertThrowsError(try subject.inspect().find(viewWithAccessibilityIdentifier: "RecentlyActiveRow"))
+    }
+
+    /// The recently active row is shown for a regular device with a last activity date.
+    @MainActor
+    func test_deviceRow_recentlyActiveRow_shownForRegularDevice() throws {
+        let device = DeviceListItem.fixture(isCurrentSession: false, lastActivityDate: Date())
+        processor.state.loadingState = .data([device])
+
+        XCTAssertNoThrow(try subject.inspect().find(viewWithAccessibilityIdentifier: "RecentlyActiveRow"))
+    }
 }

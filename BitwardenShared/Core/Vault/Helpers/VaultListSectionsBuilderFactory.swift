@@ -19,6 +19,8 @@ struct DefaultVaultListSectionsBuilderFactory: VaultListSectionsBuilderFactory {
     let clientService: ClientService
     /// The helper functions for collections.
     let collectionHelper: CollectionHelper
+    /// The service used by the application to determine feature flag state.
+    let configService: ConfigService
     /// The service used by the application to report non-fatal errors.
     let errorReporter: ErrorReporter
     /// The service used by the application to manage account state.
@@ -28,6 +30,7 @@ struct DefaultVaultListSectionsBuilderFactory: VaultListSectionsBuilderFactory {
         DefaultVaultListSectionsBuilder(
             clientService: clientService,
             collectionHelper: collectionHelper,
+            configService: configService,
             errorReporter: errorReporter,
             stateService: stateService,
             withData: preparedData,

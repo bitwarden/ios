@@ -20,7 +20,7 @@ class CipherListViewExtensionsTests: BitwardenTestCase { // swiftlint:disable:th
     /// `belongsToGroup(_:)` returns `true` when the cipher is a bank account type and the group is
     /// `.bankAccount`.
     func test_belongsToGroup_bankAccount() {
-        let cipher = CipherListView.fixture(type: .bankAccount)
+        let cipher = CipherListView.fixture(type: .bankAccount(.init(accountNumber: nil, accountType: nil)))
         XCTAssertTrue(cipher.belongsToGroup(.bankAccount))
         XCTAssertFalse(cipher.belongsToGroup(.identity))
         XCTAssertFalse(cipher.belongsToGroup(.login))
@@ -289,6 +289,17 @@ class CipherListViewExtensionsTests: BitwardenTestCase { // swiftlint:disable:th
                 copyableFields: [.cardSecurityCode, .loginPassword, .identityUsername],
             ).canBeUsedInBasicLoginAutofill,
         )
+    }
+
+    /// `init(cipherDecryptFailure:)` builds a `.bankAccount` cipher list view with `nil` account details
+    /// for a bank account cipher that failed to decrypt.
+    func test_init_cipherDecryptFailure_bankAccount() {
+        let cipher = Cipher.fixture(id: "1", type: .bankAccount)
+        let cipherListView = CipherListView(cipherDecryptFailure: cipher)
+
+        XCTAssertEqual(cipherListView.id, "1")
+        XCTAssertTrue(cipherListView.isDecryptionFailure)
+        XCTAssertEqual(cipherListView.type, .bankAccount(BankAccountListView(accountNumber: nil, accountType: nil)))
     }
 
     /// `matchesSearchQuery(_:)` returns `.exact` when query matches cipher name.

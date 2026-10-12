@@ -58,8 +58,7 @@ class VaultUnlockViewTests: BitwardenTestCase {
     func test_isMasterPasswordRevealed_false() throws {
         processor.state.isMasterPasswordRevealed = false
         XCTAssertNoThrow(try subject.inspect().find(secureField: ""))
-        let textField = try subject.inspect().find(textField: "")
-        XCTAssertTrue(textField.isHidden())
+        XCTAssertThrowsError(try subject.inspect().find(textField: ""))
     }
 
     /// The text field is visible when `isMasterPasswordRevealed` is `true`.

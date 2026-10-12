@@ -16,6 +16,7 @@ class BitwardenTabBarControllerTests: BitwardenTestCase {
     var rootNavigator: MockRootNavigator!
     var settingsDelegate: MockSettingsCoordinatorDelegate!
     var subject: BitwardenTabBarController!
+    var syncService: MockSyncService!
     var vaultDelegate: MockVaultCoordinatorDelegate!
     var vaultRepository: MockVaultRepository!
 
@@ -29,6 +30,7 @@ class BitwardenTabBarControllerTests: BitwardenTestCase {
         policyService = MockPolicyService()
         rootNavigator = MockRootNavigator()
         settingsDelegate = MockSettingsCoordinatorDelegate()
+        syncService = MockSyncService()
         vaultDelegate = MockVaultCoordinatorDelegate()
         vaultRepository = MockVaultRepository()
         subject = BitwardenTabBarController()
@@ -39,6 +41,7 @@ class BitwardenTabBarControllerTests: BitwardenTestCase {
             policyService: policyService,
             rootNavigator: rootNavigator,
             settingsDelegate: settingsDelegate,
+            syncService: syncService,
             tabNavigator: subject,
             vaultDelegate: vaultDelegate,
             vaultRepository: vaultRepository,
@@ -57,6 +60,7 @@ class BitwardenTabBarControllerTests: BitwardenTestCase {
         rootNavigator = nil
         settingsDelegate = nil
         subject = nil
+        syncService = nil
         vaultDelegate = nil
         vaultRepository = nil
     }

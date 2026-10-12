@@ -14,15 +14,21 @@ struct BulkShareCiphersRequestModel: JSONRequestBody {
 }
 
 extension BulkShareCiphersRequestModel {
-    /// Initialize a `BulkShareCiphersRequestModel` from an array of `Cipher` objects.
+    /// Initialize a `BulkShareCiphersRequestModel` from an array of `EncryptionContext` objects.
     ///
     /// - Parameters:
-    ///   - ciphers: The `Cipher` objects to share.
+    ///   - encryptionContexts: The encryption contexts containing the ciphers and per-cipher encryption metadata.
     ///   - collectionIds: The collection identifiers to share the ciphers with.
-    ///   - encryptedFor: The user ID who encrypted the ciphers.
     ///
-    init(ciphers: [Cipher], collectionIds: [String], encryptedFor: String?) {
-        self.ciphers = ciphers.map { CipherRequestModel(cipher: $0, encryptedFor: encryptedFor, includeId: true) }
+    init(encryptionContexts: [EncryptionContext], collectionIds: [String]) {
+        ciphers = encryptionContexts.map { context in
+            CipherRequestModel(
+                cipher: context.cipher,
+                encryptedByKeyId: context.encryptedByKeyId,
+                encryptedFor: context.encryptedFor,
+                includeId: true,
+            )
+        }
         self.collectionIds = collectionIds
     }
 }

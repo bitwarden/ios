@@ -13,18 +13,38 @@ struct DeviceRowState: Equatable {
 
     /// The formatted first-login date and time for display.
     var formattedFirstLogin: String {
-        DeviceRowState.dateTimeFormatter.string(from: device.firstLogin)
+        DeviceRowState.formattedDateTime(from: device.firstLogin)
     }
 }
 
 extension DeviceRowState {
-    /// Shared formatter for device activity dates.
-    private static let dateTimeFormatter: DateFormatter = {
+    /// Locale-aware formatter for the date portion of a first-login timestamp, e.g. "Apr 1, 2026".
+    private static let dateFormatter: DateFormatter = {
         let formatter = DateFormatter()
-        formatter.dateStyle = .medium
-        formatter.timeStyle = .short
+        formatter.locale = Locale.current
+        formatter.setLocalizedDateFormatFromTemplate("MMM d, yyyy")
         return formatter
     }()
+
+    /// Locale-aware formatter for the time portion of a first-login timestamp, including seconds
+    /// and respecting the user's 12/24-hour preference, e.g. "5:29:54 PM".
+    private static let timeFormatter: DateFormatter = {
+        let formatter = DateFormatter()
+        formatter.locale = Locale.current
+        formatter.setLocalizedDateFormatFromTemplate("jj:mm:ss")
+        return formatter
+    }()
+
+    /// Formats a date as a localized "MMM d, yyyy, h:mm:ss a"-style string (e.g.
+    /// "Apr 1, 2026, 5:29:54 PM"), including seconds and respecting the user's 12/24-hour
+    /// preference.
+    ///
+    /// - Parameter date: The date to format.
+    /// - Returns: The formatted date and time string.
+    ///
+    private static func formattedDateTime(from date: Date) -> String {
+        "\(dateFormatter.string(from: date)), \(timeFormatter.string(from: date))"
+    }
 }
 
 // MARK: - DeviceRowAction
@@ -93,7 +113,7 @@ struct DeviceRow: View {
                 }
 
                 VStack(alignment: .leading, spacing: 0) {
-                    if store.state.device.lastActivityDate != nil {
+                    if shouldShowRecentlyActiveRow {
                         recentlyActiveRow
                     }
 
@@ -111,6 +131,15 @@ struct DeviceRow: View {
         }
         .padding(16)
         .contentShape(Rectangle())
+    }
+
+    /// Whether the recently active row should be shown. It's hidden for the current session and
+    /// for devices with a pending request, since those cases are already communicated by their
+    /// badge and don't need a separate activity timestamp.
+    private var shouldShowRecentlyActiveRow: Bool {
+        !store.state.device.isCurrentSession &&
+            !store.state.device.hasPendingRequest &&
+            store.state.device.lastActivityDate != nil
     }
 
     /// The recently active row with bold label and regular status.
@@ -157,6 +186,7 @@ struct DeviceRow: View {
             isCurrentSession: true,
             isTrusted: true,
             lastActivityDate: Date(),
+            pendingAuthRequestId: nil,
             pendingRequest: nil,
         )))),
     )
@@ -177,6 +207,7 @@ struct DeviceRow: View {
             isCurrentSession: false,
             isTrusted: false,
             lastActivityDate: Date().addingTimeInterval(-86400 * 3),
+            pendingAuthRequestId: nil,
             pendingRequest: .fixture(),
         )))),
     )
@@ -197,6 +228,7 @@ struct DeviceRow: View {
             isCurrentSession: false,
             isTrusted: true,
             lastActivityDate: Date().addingTimeInterval(-86400 * 10),
+            pendingAuthRequestId: nil,
             pendingRequest: nil,
         )))),
     )

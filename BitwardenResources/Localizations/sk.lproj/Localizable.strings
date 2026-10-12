@@ -8,8 +8,12 @@
 "Copy" = "Kopírovať";
 "CopyLicenseNumber" = "Kopírovať číslo licencie";
 "CopyPassportNumber" = "Kopírovať číslo pasu";
+"CopyPassphrase" = "Kopírovať prístupovú frázu";
 "CopyPassword" = "Kopírovať heslo";
 "CopyUsername" = "Kopírovať používateľské meno";
+"UseThisPassphrase" = "Použiť túto prístupovú frázu";
+"UseThisPassword" = "Použiť toto heslo";
+"UseThisUsername" = "Použiť toto používateľské meno";
 "Delete" = "Odstrániť";
 "DeleteAll" = "Odstrániť všetko";
 "Deleting" = "Odstraňuje sa…";
@@ -21,11 +25,13 @@
 "EnterPIN" = "Zadajte PIN kód.";
 "Favorites" = "Obľúbené";
 "Folder" = "Priečinok";
-"FolderCreated" = "Nový priečinok vytvorený.";
+"FolderCreated" = "Nový priečinok vytvorený";
 "FolderDeleted" = "Priečinok bol odstránený.";
 "FolderNone" = "Žiadny priečinok";
 "Folders" = "Priečinky";
 "FolderUpdated" = "Priečinok bol uložený";
+"MyFolder" = "Môj priečinok";
+"MyFolders" = "Moje priečinky";
 "InternetConnectionRequiredMessage" = "Pripojte sa k internetu pred pokračovaním.";
 "InternetConnectionRequiredTitle" = "Vyžaduje sa internetové pripojenie";
 "InvalidMasterPassword" = "Neplatné hlavné heslo. Skúste to znova.";
@@ -39,6 +45,8 @@
 "RemoveAccount" = "Odstrániť účet";
 "RemoveAccountConfirmation" = "Naozaj chcete odstrániť tento účet?";
 "AccountAlreadyAdded" = "Účet je už pridaný";
+"AccountCreationRestricted" = "Vytvorenie účtu je obmedzené";
+"XOnlyAllowsInvitedUsersToCreateAccounts" = "%1$@ umožňuje vytvárať účty iba pozvaným používateľom.";
 "SwitchToAlreadyAddedAccountConfirmation" = "Chceli by ste naň prejsť teraz?";
 "MasterPassword" = "Hlavné heslo";
 "MoreOptions" = "Ďalšie možnosti";
@@ -49,6 +57,7 @@
 "OK" = "OK";
 "Password" = "Heslo";
 "Save" = "Uložiť";
+/* Action to move a vault item to another vault; used as a button label, menu item, and screen title. */
 "Move" = "Presunúť";
 "Saving" = "Ukladá sa…";
 "Settings" = "Nastavenia";
@@ -124,7 +133,6 @@
 "PasswordOverrideAlert" = "Naozaj chcete prepísať aktuálne heslo?";
 "PushNotificationAlert" = "Bitwarden udržiava váš trezor automaticky synchronizovaný pomocou push notifikácií. Pre čo najlepší zážitok z používania vyberte v nasledujúcej výzve možnosť \"Povoliť\", keď budete požiadaní o povolenie push notifikácií.";
 "Security" = "Zabezpečenie";
-"Select" = "Vybrať";
 "ItemUpdated" = "Položka bola uložená";
 "Submitting" = "Odosiela sa…";
 "Syncing" = "Synchronizuje sa…";
@@ -177,7 +185,6 @@
 "CopyTotp" = "Kopírovať TOTP";
 "CopyTotpAutomaticallyDescription" = "Ak majú prihlasovacie údaje nastavený kľúč overovateľa, overovací kód TOTP bude automaticky skopírovaný do schránky vždy, keď použijete automatické vypĺňanie.";
 "CopyTotpAutomatically" = "Automaticky kopírovať TOTP";
-"PremiumRequired" = "Na použitie tejto funkcie je potrebné prémiové členstvo.";
 "AttachementAdded" = "Príloha pridaná";
 "AttachmentDeleted" = "Príloha odstránená";
 "ChooseFile" = "Vybrať súbor";
@@ -218,7 +225,6 @@
 "August" = "August";
 "Brand" = "Značka";
 "CardholderName" = "Meno držiteľa karty";
-"WeFoundMultipleMatchesChooseTheCorrectOne" = "Našli sme viacero zhôd. Vyberte správne.";
 "CityTown" = "Mesto";
 "Company" = "Spoločnosť";
 "Country" = "Krajina";
@@ -256,8 +262,14 @@
 "ShowWebsiteIconsDescription" = "Pri každom prihlásení zobrazí rozpoznateľný obrázok.";
 "IconsUrl" = "URL servera ikon";
 "AutofillWithBitwarden" = "Automaticky vyplniť Bitwardenom";
+/* Section header and screen title for viewing/managing a cipher's collections. */
 "Collections" = "Zbierky";
+/* Section header and screen title for viewing/managing a cipher's shared folders. */
+"SharedFolders" = "Zdieľané priečinky";
+/* Empty state message shown when a collection has no items. */
 "NoItemsCollection" = "V zbierke sa nenachádzajú žiadne položky";
+/* Empty state message shown when a shared folder has no items. */
+"ThereAreNoItemsInThisSharedFolder" = "V tomto zdieľanom priečinku sa nenachádzajú žiadne položky";
 "NoItemsFolder" = "V tomto priečinku sa nenachádzajú žiadne položky";
 "NoItemsTrash" = "V koši nie sú žiadne položky";
 "FaceID" = "Face ID";
@@ -277,6 +289,7 @@
 "RegEx" = "Regulárny výraz";
 "StartsWith" = "Začína na";
 "MatchDetection" = "Zisťovanie zhody";
+/* Field label on the Move screen shown when the "vfo1-foundation" feature flag is disabled; superseded by "Vault" when enabled. */
 "Organization" = "Organizácia";
 "HoldYubikeyNearTop" = "Držte vaše Yubikey blízko hornej časti prístroja.";
 "TryAgain" = "Skúsiť Znovu";
@@ -297,6 +310,7 @@
 "NoEmailAddressesEntered" = "Nezadali ste žiadne e-mailové adresy";
 "EnterAtLeastOneValidEmailToShareSend" = "Zadajte aspoň jednu platnú e-mailovú adresu, aby ste mohli zdieľať tento Send.";
 "OneOrMoreEmailAddressesIncorrect" = "Jedna alebo viaceré e-mailové adresy sú nesprávne. Skontrolujte ich a skúste to znovu.";
+"OnlyIncludeTheFollowingDomainsDescriptionLong" = "Zahrnúť iba nasledujúce domény: %1$@. Skontrolujte to a skúste to znova.";
 "Cards" = "Karty";
 "Identities" = "Identity";
 "Logins" = "Prihlasovacie údaje";
@@ -312,13 +326,26 @@
 "NoItemsToList" = "Neexistujú žiadne položky na zobrazenie.";
 "MoveDown" = "Posunúť nižšie";
 "MoveUp" = "Posunúť vyššie";
+/* Empty state message on the Collections screen shown when a user has no collections. */
 "NoCollectionsToList" = "Neexistujú žiadne zbierky na zobrazenie.";
+/* Empty state message on the Shared folders screen shown when a user has no shared folders. */
+"ThereAreNoSharedFoldersToList" = "Na zobrazenie nie sú žiadne zdieľané priečinky.";
 "MovedItemToOrg" = "%1$@ presunuté do %2$@.";
+/* Alert message shown when saving an item with no collection selected. */
 "SelectOneCollection" = "Musíte vybrať aspoň jednu zbierku.";
+/* Alert message shown when saving an item with no shared folder selected. */
+"YouMustSelectAtLeastOneSharedFolder" = "Musíte vybrať aspoň jeden zdieľaný priečinok.";
 "Share" = "Zdieľať";
 "ShareAll" = "Zdieľať všetko";
+/* Overflow menu item and screen title on the Move screen shown when the "vfo1-foundation" feature flag is disabled; superseded by "Move" when enabled. */
 "MoveToOrganization" = "Presunúť do Organizácie";
+/* Empty state message shown when a user has no vaults available to move an item into, when the "vfo1-foundation" feature flag is enabled. */
+"NoVaultsToList" = "Nie sú žiadne trezory na zobrazenie.";
+/* Empty state message shown when a user has no organizations available to move an item into, when the "vfo1-foundation" feature flag is disabled. */
 "NoOrgsToList" = "Nenašli sa žiadne organizácie.";
+/* Footer text on the Move screen explaining that moving an item transfers its ownership to the destination vault's organization, when the "vfo1-foundation" feature flag is enabled. */
+"ChooseAVaultThatYouWishToMoveThisItemToDescriptionLong" = "Vyberte trezor, do ktorého chcete túto položku presunúť. Presunutím do iného trezoru sa vlastníctvo položky prevedie na danú organizáciu. Po presunutí už nebudete priamym vlastníkom tejto položky.";
+/* Footer text on the Move screen explaining that moving an item transfers its ownership to the destination organization, when the "vfo1-foundation" feature flag is disabled. */
 "MoveToOrgDesc" = "Vyberte organizáciu, do ktorej chcete presunúť túto položku. Presunom do organizácie sa vlastníctvo položky prenáša na túto organizáciu. Po presunutí už nebudete priamym vlastníkom danej položky.";
 "NumberOfWords" = "Počet slov";
 "Passphrase" = "Prístupová fráza";
@@ -419,11 +446,19 @@
 "NewSendCreated" = "Send bol vytvorený";
 "Custom" = "Vlastné";
 "SendDisabledWarning" = "Z dôvodu podnikovej politiky môžete odstrániť iba existujúci Send.";
+"ThisDateIsEnforcedByYourOrganization" = "Tento dátum je stanovený vašou organizáciou";
 "AboutSend" = "O Sende";
 "HideEmail" = "Skryť moju e-mailovú adresu pred príjemcami";
 "SendOptionsPolicyInEffect" = "Jedno alebo viac pravidiel organizácie ovplyvňujú vaše možnosti funkcie Send.";
 "SendFilePremiumRequired" = "Bezplatné účty sú obmedzené len na zdieľanie textu. Na odosielanie súborov cez Send sa vyžaduje prémiové členstvo.";
 "SendFileEmailVerificationRequired" = "Na odosielanie súborov cez Send musíte overiť svoj e-mail.";
+/* Alert message shown when Send Controls policy restricts creation to one Send type. %1$@ is the allowed Send type, either "File" or "Text". */
+"DueToAnEnterprisePolicyYouCanOnlyCreateXSends" = "Vzhľadom na pravidlá spoločnosti môžete vytvoriť len %1$@ Send.";
+"OrganizationPolicyRestriction" = "Obmedzenie politiky organizácie";
+"TextSendsAreNotAllowedDescriptionLong" = "Vaša organizácia nepovoľuje textové Sendy a tento Send automaticky vyprší v nastavený deň odstránenia.";
+"ThisSendIsNotCompliantDescriptionLong" = "Tento Send nie je v súlade s politikou Sendu vašej organizácie a jeho platnosť automaticky vyprší v stanovený deň odstránenia.";
+"ToEditThisSendMakeACopyDescriptionLong" = "Na úpravu tohto Sendu si urobte kópiu. Ak tento Send môže vypršať v stanovenom dátume na odstránenie, nemusíte nič robiť.";
+"MakeACopy" = "Vytvoriť kópiu";
 "PasswordPrompt" = "Znova vyzvať na zadanie hlavného hesla";
 "PasswordConfirmation" = "Potvrdenie hlavného hesla";
 "PasswordConfirmationDesc" = "Táto akcia je chránená. Ak chcete pokračovať, znova zadajte hlavné heslo a overte svoju totožnosť.";
@@ -465,6 +500,8 @@
 "SpecialCharacters" = "Špeciálne znaky (!@#$%^&*)";
 "PasswordIsVisibleTapToHide" = "Heslo je viditeľné, ťuknutím ho skryjete.";
 "PasswordIsNotVisibleTapToShow" = "Heslo nie je viditeľné, ťuknutím ho zobrazíte.";
+"FieldValueIsVisibleTapToHide" = "%1$@ je viditeľné, klepnutím skryjete.";
+"FieldValueIsNotVisibleTapToShow" = "%1$@ je skryté, klepnutím zobrazíte.";
 "FilterByVault" = "Filtrovať položky podľa trezora";
 "AllVaults" = "Všetky trezory";
 "Vaults" = "Trezory";
@@ -563,6 +600,7 @@
 "ThereAreNoBankAccountsInYourVault" = "V trezore sa nenachádzajú žiadne bankové účty";
 "US" = "USA";
 "EU" = "EÚ";
+"Gov" = "Gov";
 "SelfHosted" = "Vlastný hosting";
 "UpdateWeakMasterPasswordWarning" = "Vaše hlavné heslo nespĺňa jednu alebo viacero podmienok vašej organizácie. Ak chcete získať prístup k trezoru, musíte teraz aktualizovať svoje hlavné heslo. Pokračovaním sa odhlásite z aktuálnej relácie a budete sa musieť znova prihlásiť. Aktívne relácie na iných zariadeniach môžu zostať aktívne až jednu hodinu.";
 "CurrentMasterPasswordRequired" = "Súčasné hlavné heslo (povinné)";
@@ -586,6 +624,7 @@
 "LoginApproved" = "Prihlásenie bolo schválené";
 "LogInWithDevice" = "Prihlásiť sa pomocou zariadenia";
 "LoggingInOn" = "Server";
+/* The word "Vault", used generically as a field label, screen title, and app-wide term for a user's or organization's item collection. */
 "Vault" = "Trezor";
 "Appearance" = "Vzhľad";
 "AccountSecurity" = "Zabezpečenie účtu";
@@ -621,7 +660,6 @@
 "SetUpAutofill" = "Nastaviť automatické vypĺňanie";
 "AppInfo" = "Informácie o aplikácii";
 "Browse" = "Prehľadávať";
-"SelectCardholderName" = "Vyberte meno vlastníka karty";
 "SelectLanguage" = "Vyberte jazyk";
 "ContinueToCompleteWebAuthnVerification" = "Dokončite overovanie WebAuthn.";
 "ThereWasAnErrorStartingWebAuthnTwoFactorAuthentication" = "Pri spustení dvojstupňového overovania WebAuthn došlo k chybe";
@@ -640,7 +678,6 @@
 "ByContinuingYouAgreeToTheTermsOfServiceAndPrivacyPolicy" = "Ak budete pokračovať, tak súhlasíte s **[Podmienkami používania](%1$@)** a **[Zásadami ochrany osobných údajov](%2$@)**";
 "GetAdviceAnnouncementsAndResearchOpportunitiesFromBitwardenInYourInboxUnsubscribeAtAnyTime." = "Dostávajte do schránky rady, oznámenia a príležitosti na výskum od spoločnosti Bitwarden. **[Odhlásiť](%1$@)** sa môžete kedykoľvek.";
 "UserVerificationForPasskey" = "Overenie používateľa pre prístupový kľúč";
-"NewItem" = "Nová položka";
 "ExploreTheGenerator" = "Preskúmajte generátor";
 "LearnMoreAboutGeneratingSecureLoginCredentialsWithAGuidedTour" = "Ďalšie informácie o generovaní bezpečných prihlasovacích údajov získate pomocou prehliadky so sprievodcom.";
 "ExportVaultFilePwProtectInfo" = "Tento exportovaný súbor bude chránený heslom a na dešifrovanie bude potrebné heslo súboru.";
@@ -854,6 +891,10 @@
 "Identification" = "Identifikácia";
 "Owner" = "Vlastník";
 "VerifyYourIdentity" = "Overte svoju totožnosť";
+"ThisOperationIsNotAllowedOnThisAccount" = "Táto operácia nie je s týmto účtom povolená";
+"AnErrorOccurredWhileTryingToLockTheCurrentUser" = "Pri pokuse o uzamknutie aktuálneho používateľa sa vyskytla chyba";
+"LockAllAccounts" = "Uzamknúť všetky účty";
+"AllAccountsHaveBeenLocked" = "Všetky účty boli uzamknuté";
 "ShareErrorDetails" = "Zdieľať podrobnosti o chybe";
 "FlightRecorder" = "Čierna skrinka";
 "EnableFlightRecorder" = "Povoliť čiernu skrinku";
@@ -867,8 +908,13 @@
 "ShowLess" = "Zobraziť menej";
 "ItemNameX" = "Názov položky, %1$@";
 "OwnerX" = "Vlastník, %1$@";
+"VaultX" = "Trezor, %1$@";
+/* VoiceOver accessibility label for a collection the item belongs to. */
 "CollectionX" = "Zbierka, %1$@";
+/* VoiceOver accessibility label for a shared folder the item belongs to. */
+"SharedFolderX" = "Zdieľaný priečinok, %1$@";
 "FolderX" = "Priečinok, %1$@";
+"MyFolderX" = "Môj priečinok, %1$@";
 "ItemXOfY" = "Položka %1$@ z %2$@";
 "ViewRecordedLogs" = "Zobraziť zaznamenané logy";
 "RecordedLogs" = "Zaznamenané logy";
@@ -877,7 +923,13 @@
 "ExpiresOnXDate" = "Platnosť končí %1$@";
 "ExpiresTomorrow" = "Platnosť končí zajtra";
 "DateRangeXToY" = "%1$@ do %2$@";
+"LogOutAllAccounts" = "Odhlásiť všetky účty";
+"AllAccountsHaveBeenLoggedOut" = "Všetky účty boli odhlásené";
+"AnErrorOccurredWhileTryingToLogOutAllAccounts" = "Pri pokuse o odhlásenie všetkých účtov došlo k chybe";
 "SelfHostServerURL" = "Adresa URL vlastného hostingu";
+"OpenGenerator" = "Otvoriť generátor";
+"OpenPasswordGenerator" = "Otvoriť generátor hesla";
+"GeneratePassphrase" = "Generovať prístupovú frázu";
 "AllowUniversalClipboard" = "Povoliť Univerzálnu schránku";
 "UseUniversalClipboardToCopyDescriptionLong" = "Použiť Univerzálnu schránku na kopírovanie a vkladanie na ďalších zariadeniach prihlásených s rovnakým Apple ID.";
 "RemoveMasterPasswordConfirmDomain" = "Hlavné heslo sa už nevyžaduje pre členov tejto organizácie. Nižšie uvedenú doménu potvrďte u správcu organizácie.";
@@ -897,6 +949,7 @@
 "GoToSettings" = "Prejsť do nastavení";
 "SiriAndShortcutsAccess" = "Prístup k Siri a Skratky";
 "EnableToAllowTheAppToRespondToSiriAndShortcutsUsingAppIntents" = "Povoliť, aby aplikácia mohla pomocou intencií aplikácie odpovedať Siri a Skratky.";
+"ThereIsNoActiveAccount" = "Neexistuje žiadny aktívny účet.";
 "NewFileSend" = "Nový súborový Send";
 "NewTextSend" = "Nový textový Send";
 "EditFileSend" = "Upraviť súborový Send";
@@ -947,7 +1000,6 @@
 "NoAskMe" = "Nie, opýtať sa ma";
 "NoCodes" = "Nemáte žiadne kódy na zobrazenie";
 "None" = "Žiadne";
-"NoneOfTheAbove" = "Žiadne z uvedených";
 "NumberOfDigits" = "Počet číslic";
 "OtpType" = "Typ OTP";
 "RefreshPeriod" = "Interval obnovenia";
@@ -1045,6 +1097,7 @@
 "AnyoneWithTheLink" = "Ktokoľvek s odkazom";
 "AnyoneWithThisLinkCanViewThisSend" = "Ktokoľvek s týmto odkazom môže zobraziť tento Send.";
 "AfterSharingThisSendLinkDescriptionLong" = "Po zdieľaní tohto odkazu na Send budú musieť jednotlivci overiť svoju e-mailovú adresu pomocou kódu na zobrazenie tohto Sendu.";
+"IndividualsWillNeedToEnterThisPasswordDescriptionLong" = "Jednotlivci budú musieť zadať toto heslo, aby mohli zobraziť tento Send";
 "SpecificPeople" = "Konkrétne osoby";
 "WhoCanView" = "Kto môže zobraziť";
 "SharingWithSpecificPeopleIsPremiumFeatureDescriptionLong" = "Zdieľanie s konkrétnymi osobami je prémiová funkcia. Váš aktuálny plán nezahŕňa prístup k tejto funkcii.";
@@ -1198,7 +1251,53 @@
 "LineOfCredit" = "Úverový rámec";
 "MoneyMarket" = "Peňažný trh";
 "Savings" = "Sporiaci účet";
+"Devices" = "Zariadenia";
+"NoDevicesFound" = "Žiadne zariadenia neboli nájdené";
+"CurrentSession" = "Aktuálna relácia";
+"PendingRequest" = "Čakajúca požiadavka";
+"Trusted" = "Dôveryhodné";
+"RecentlyActiveLabel" = "Nedávno aktívne:";
+"FirstLoginLabel" = "Prvé prihlásenie:";
+"Today" = "Dnes";
+"PastSevenDays" = "Posledných 7 dní";
+"PastFourteenDays" = "Posledných 14 dní";
+"PastThirtyDays" = "Posledných 30 dní";
+"OverThirtyDaysAgo" = "Pred viac ako 30 dňami";
+"Unknown" = "Neznáme";
+/* Device display name. %1$@ = category (e.g. "Mobile"), %2$@ = platform (e.g. "iOS"). */
+"DeviceDisplayNameXHyphenY" = "%1$@ – %2$@";
+"Mobile" = "Mobil";
+"BrowserExtension" = "Rozšírenie prehliadača";
+"WebVault2" = "Webová aplikácia";
+"Desktop" = "Počítač";
+"Cli" = "CLI";
+"Sdk" = "SDK";
+"Server" = "Server";
 /* Accessibility label for the button that clears a field's value. %1$@ is the field's title (e.g. "Date of birth"), so the spoken label reads "Clear Date of birth". */
 "ClearFieldName" = "Vyčistiť %1$@";
-"SelectDate" = "Vyberte dátum";
+/* Accessibility hint on a collapsed date field announcing that activating it opens the calendar picker. */
+"OpensDatePicker" = "Otvorí výber dátumu";
+/* Accessibility hint on an expanded date field announcing that activating it closes the calendar picker. */
+"ClosesDatePicker" = "Zatvorí výber dátumu";
+/* VoiceOver announcement posted when a date picker whose range excludes future dates, e.g. date of birth or an issue date, reports landing on today (the latest available day) while scrolling the wheel. */
+"FutureDatesUnavailable" = "Dátum musí byť z minulosti";
 "PremiumRequiredTOTPDescriptionLong" = "Kľúč overovacej aplikácie (TOTP) je prémiová funkcia. Váš súčasný plán nezahŕňa prístup k tejto funkcii.";
+/* Toast shown after a login item is saved. */
+"LoginSaved" = "Prihlasovacie údaje boli uložené";
+/* Toast shown after a card item is saved. */
+"CardSaved" = "Karta bola uložená";
+/* Toast shown after an identity item is saved. */
+"IdentitySaved" = "Identita bola uložená";
+/* Toast shown after a secure note item is saved. */
+"SecureNoteSaved" = "Zabezpečená poznámka bola uložená";
+/* Toast shown after an SSH key item is saved. */
+"SSHKeySaved" = "Kľúč SSH bol uložený";
+/* Toast shown after a bank account item is saved. */
+"BankAccountSaved" = "Bankový účet bol uložený";
+/* Toast shown after a driver's license item is saved. */
+"LicenseSaved" = "Vodičský preukaz bol uložený";
+/* Toast shown after a passport item is saved. */
+"PassportSaved" = "Pas bol uložený";
+"NotNow" = "Teraz nie";
+"SyncUnsuccessful" = "Synchronizácia zlyhala";
+"WeCouldntSyncYourVaultWithTheServerDescriptionLong" = "Nepodarilo sa nám synchronizovať váš trezor so serverom. Je možné, že váš trezor nezahŕňa vaše najnovšie zmeny. Môžete to skúsiť znova teraz, alebo sa synchronizácia vykoná automaticky neskôr.";

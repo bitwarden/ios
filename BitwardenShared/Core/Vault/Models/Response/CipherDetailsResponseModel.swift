@@ -25,6 +25,12 @@ struct CipherDetailsResponseModel: JSONResponse, Equatable {
     /// The date the cipher was created.
     let creationDate: Date
 
+    /// The cipher's encrypted data blob.
+    ///
+    /// - Note: For blob-encrypted ciphers, this contains the full sealed payload and the
+    ///   legacy per-type fields (`login`, `card`, `name`, etc.) are `nil`.
+    let data: String?
+
     /// The date the cipher was deleted.
     let deletedDate: Date?
 
@@ -56,7 +62,10 @@ struct CipherDetailsResponseModel: JSONResponse, Equatable {
     let login: CipherLoginModel?
 
     /// The name of the cipher.
-    let name: String
+    ///
+    /// - Note: `nil` for blob-encrypted ciphers, where the name lives inside the sealed `data`
+    ///   blob; present on the legacy field-level format.
+    let name: String?
 
     /// Notes containing within the cipher.
     let notes: String?

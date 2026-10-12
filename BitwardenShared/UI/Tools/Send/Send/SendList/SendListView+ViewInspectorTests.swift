@@ -33,6 +33,18 @@ class SendListViewTests: BitwardenTestCase {
 
     // MARK: Tests
 
+    /// When restricted to a single Send type by policy, tapping the floating action button opens
+    /// that type directly, performing the `.addItemPressed` effect without showing the menu.
+    @MainActor
+    func test_addItemFloatingActionButton_restrictedSendType_tap() async throws {
+        processor.state.restrictedSendType = .text
+        let fab = try subject.inspect().find(
+            floatingActionButtonWithAccessibilityIdentifier: "AddItemFloatingActionButton",
+        )
+        try await fab.tap()
+        XCTAssertEqual(processor.effects.last, .addItemPressed(.text))
+    }
+
     /// Tapping the add item floating action button in the file type list performs the `.addItemPressed` effect.
     @MainActor
     func test_addItemFloatingActionButton_sendTypeFile_tap() async throws {
@@ -63,12 +75,31 @@ class SendListViewTests: BitwardenTestCase {
         XCTAssertEqual(processor.effects.last, .addItemPressed(.file))
     }
 
+    /// When restricted to a single Send type by policy, the add item floating action menu is not
+    /// shown (the chooser is bypassed).
+    @MainActor
+    func test_addItemFloatingActionMenu_restrictedSendType_hidden() throws {
+        processor.state.restrictedSendType = .text
+        XCTAssertThrowsError(try subject.inspect().find(asyncButton: Localizations.file))
+    }
+
     /// Tapping the add item floating action menu and selecting the text type performs the `.addItemPressed` effect.
     @MainActor
     func test_addItemFloatingActionMenu_text_tap() async throws {
         let fabMenuButton = try subject.inspect().find(asyncButton: Localizations.text)
         try await fabMenuButton.tap()
         XCTAssertEqual(processor.effects.last, .addItemPressed(.text))
+    }
+
+    /// When restricted to a single Send type by policy, tapping the empty state's New Send button
+    /// opens that type directly, performing the `.addItemPressed` effect without showing the menu.
+    @MainActor
+    func test_emptyState_addSendButton_restrictedSendType_tap() async throws {
+        processor.state = .empty
+        processor.state.restrictedSendType = .file
+        let button = try subject.inspect().find(asyncButton: Localizations.newSend)
+        try await button.tap()
+        XCTAssertEqual(processor.effects.last, .addItemPressed(.file))
     }
 
     /// Tapping the add a send button in the empty state performs the `.addItemPressed` effect.

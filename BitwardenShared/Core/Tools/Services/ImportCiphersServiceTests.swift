@@ -1,3 +1,4 @@
+import BitwardenSdk
 import TestHelpers
 import XCTest
 
@@ -33,20 +34,28 @@ class ImportCiphersServiceTests: BitwardenTestCase {
 
     // MARK: Tests
 
-    /// `importCiphers(ciphers:folders:folderRelationships:)` import the ciphers calling the API.
+    /// `importCiphers(encryptionContexts:folders:folderRelationships:)` imports the ciphers calling the API.
     func test_importCiphers_succeeds() async throws {
         client.results = [.httpSuccess(testData: .emptyResponse)]
-        try await subject.importCiphers(ciphers: [.fixture()], folders: [], folderRelationships: [])
+        try await subject.importCiphers(
+            encryptionContexts: [EncryptionContext(encryptedFor: "user-1", cipher: .fixture())],
+            folders: [],
+            folderRelationships: [],
+        )
         let request = try XCTUnwrap(client.requests.first)
         XCTAssertEqual(request.url.absoluteString, "https://example.com/api/ciphers/import")
         XCTAssertEqual(request.method, .post)
     }
 
-    /// `importCiphers(ciphers:folders:folderRelationships:)` throws when calling the API.
+    /// `importCiphers(encryptionContexts:folders:folderRelationships:)` throws when calling the API.
     func test_importCiphers_throws() async throws {
         client.results = [.httpFailure(BitwardenTestError.example)]
         await assertAsyncThrows(error: BitwardenTestError.example) {
-            try await subject.importCiphers(ciphers: [.fixture()], folders: [], folderRelationships: [])
+            try await subject.importCiphers(
+                encryptionContexts: [EncryptionContext(encryptedFor: "user-1", cipher: .fixture())],
+                folders: [],
+                folderRelationships: [],
+            )
         }
     }
 }

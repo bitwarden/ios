@@ -9,12 +9,12 @@ import Foundation
 protocol ImportCiphersService {
     /// Performs an API request to import ciphers in the vault.
     /// - Parameters:
-    ///   - ciphers: The ciphers to import.
+    ///   - encryptionContexts: The encryption contexts containing ciphers and their encryption metadata to import.
     ///   - folders: The folders to import.
     ///   - folderRelationships: The cipher<->folder relationships map. The key is the cipher index
     ///    and the value is the folder index in their respective arrays.
     func importCiphers(
-        ciphers: [Cipher],
+        encryptionContexts: [EncryptionContext],
         folders: [Folder],
         folderRelationships: [(key: Int, value: Int)],
     ) async throws
@@ -42,13 +42,13 @@ class DefaultImportCiphersService: ImportCiphersService {
 
 extension DefaultImportCiphersService {
     func importCiphers(
-        ciphers: [Cipher],
+        encryptionContexts: [EncryptionContext],
         folders: [Folder],
         folderRelationships: [(key: Int, value: Int)],
     ) async throws {
         _ = try await importCiphersAPIService
             .importCiphers(
-                ciphers: ciphers,
+                encryptionContexts: encryptionContexts,
                 folders: folders,
                 folderRelationships: folderRelationships,
             )

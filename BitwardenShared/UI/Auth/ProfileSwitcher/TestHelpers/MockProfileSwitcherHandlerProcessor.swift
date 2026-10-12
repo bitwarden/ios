@@ -12,6 +12,7 @@ class MockProfileSwitcherHandlerProcessor:
     var profileSwitcherState: ProfileSwitcherState
     var profileServices: ProfileServices
     var shouldHideAddAccount = false
+    var showAddAccountCalled = false
     var showProfileSwitcherCalled = false
     var toast: Toast?
 
@@ -29,7 +30,9 @@ class MockProfileSwitcherHandlerProcessor:
         handleAuthEvents.append(authEvent)
     }
 
-    func showAddAccount() {}
+    func showAddAccount() {
+        showAddAccountCalled = true
+    }
 
     func showAlert(_ alert: BitwardenKit.Alert) {
         alertsShown.append(alert)

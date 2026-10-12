@@ -536,6 +536,26 @@ extension Alert {
         )
     }
 
+    /// Returns an alert notifying the user that an enterprise policy restricts them to a single
+    /// Send type, and that the current action can't be completed.
+    ///
+    /// - Parameters:
+    ///   - allowedType: The Send type permitted by policy.
+    ///   - action: A closure to execute when the user acknowledges the alert.
+    /// - Returns: The alert shown when a Send of the disallowed type would otherwise be created.
+    static func sendTypeRestrictedByPolicy(
+        _ allowedType: SendType,
+        action: @escaping () -> Void,
+    ) -> Alert {
+        Alert(
+            title: nil,
+            message: Localizations.dueToAnEnterprisePolicyYouCanOnlyCreateXSends(allowedType.localizedName),
+            alertActions: [
+                AlertAction(title: Localizations.ok, style: .default) { _, _ in action() },
+            ],
+        )
+    }
+
     /// Returns an alert for when the "Specific People" Send feature is unavailable due to
     /// lack of Premium subscription.
     ///
@@ -556,6 +576,36 @@ extension Alert {
         )
         alert.preferredAction = preferredAction
         return alert
+    }
+
+    /// An alert shown when a vault sync fails.
+    ///
+    /// - Parameters:
+    ///   - message: The message to display — a server-supplied message when one is available,
+    ///     otherwise the generic sync failure copy.
+    ///   - tryAgainHandler: A closure called when the user taps "Try again".
+    /// - Returns: An `Alert` with "Not now" and "Try again" actions.
+    static func syncUnsuccessful(
+        message: String,
+        tryAgainHandler: @escaping () async -> Void,
+    ) -> Alert {
+        Alert(
+            title: Localizations.syncUnsuccessful,
+            message: message,
+            alertActions: [
+                AlertAction(
+                    title: Localizations.notNow,
+                    style: .cancel,
+                ),
+                AlertAction(
+                    title: Localizations.tryAgain,
+                    style: .default,
+                    handler: { _, _ in
+                        await tryAgainHandler()
+                    },
+                ),
+            ],
+        )
     }
 
     /// Returns an alert notifying the user that a Premium subscription is required to view TOTP

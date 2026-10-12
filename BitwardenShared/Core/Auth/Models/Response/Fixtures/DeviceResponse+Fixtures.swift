@@ -6,6 +6,7 @@ import Foundation
 extension DeviceResponse {
     static func fixture(
         creationDate: Date = Date(timeIntervalSince1970: 1_704_067_200),
+        devicePendingAuthRequest: DevicePendingAuthRequest? = nil,
         id: String = "device-id-1",
         identifier: String = "device-identifier-1",
         isTrusted: Bool = true,
@@ -15,6 +16,7 @@ extension DeviceResponse {
     ) -> DeviceResponse {
         DeviceResponse(
             creationDate: creationDate,
+            devicePendingAuthRequest: devicePendingAuthRequest,
             id: id,
             identifier: identifier,
             isTrusted: isTrusted,

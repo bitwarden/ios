@@ -2,6 +2,8 @@
 
 Use for: Changes only to `Mintfile`, `project-*.yml` version references, or `Package.swift`. No business logic changes.
 
+**Bitwarden SDK bumps have their own skill.** If the change updates the `BitwardenSdk` revision in `project-common.yml` (branch `sdlc/sdk-update`, commit subject `SDK Update - …`), use `evaluating-sdk-internal-updates` instead of this checklist. It diffs the generated Swift bindings between the pinned `sdk-swift` revisions and covers the gates this checklist does not: the load-bearing version comment asserted by `SDKVersionInfoTests`, the hand-maintained protocol list in `BitwardenSdkMocks`, and `Codable`/serialization changes that produce no compile error.
+
 ## Focus Areas
 
 Dependency update reviews are **expedited** — verify the update is safe and intentional. Skip architecture and business logic review entirely.

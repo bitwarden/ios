@@ -105,13 +105,13 @@ class AddEditSendItemViewTests: BitwardenTestCase {
 
     @MainActor
     func disabletest_snapshot_sendDisabled() {
-        processor.state.isSendDisabled = true
+        processor.state.sendPolicyOptions.isSendDisabled = true
         assertSnapshot(of: subject.navStackWrapped, as: .defaultPortrait)
     }
 
     @MainActor
     func disabletest_snapshot_sendHideEmailDisabled() {
-        processor.state.isSendHideEmailDisabled = true
+        processor.state.sendPolicyOptions.isHideEmailDisabled = true
         assertSnapshot(of: subject.navStackWrapped, as: .defaultPortrait)
     }
 

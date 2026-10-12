@@ -8,8 +8,12 @@
 "Copy" = "Скапіяваць";
 "CopyLicenseNumber" = "Скапіяваць нумар ліцэнзіі";
 "CopyPassportNumber" = "Скапіяваць нумар пашпарта";
+"CopyPassphrase" = "Copy passphrase";
 "CopyPassword" = "Скапіяваць пароль";
 "CopyUsername" = "Скапіяваць імя карыстальніка";
+"UseThisPassphrase" = "Use this passphrase";
+"UseThisPassword" = "Use this password";
+"UseThisUsername" = "Use this username";
 "Delete" = "Выдаліць";
 "DeleteAll" = "Выдаліць усё";
 "Deleting" = "Выдаленне…";
@@ -26,6 +30,8 @@
 "FolderNone" = "Без папкі";
 "Folders" = "Папкі";
 "FolderUpdated" = "Папка абноўлена.";
+"MyFolder" = "My folder";
+"MyFolders" = "My folders";
 "InternetConnectionRequiredMessage" = "Калі ласка, спачатку падлучыце інтэрнэт.";
 "InternetConnectionRequiredTitle" = "Патрабуецца доступ да інтэрнэту";
 "InvalidMasterPassword" = "Памылковы асноўны пароль. Паспрабуйце яшчэ раз.";
@@ -39,6 +45,8 @@
 "RemoveAccount" = "Выдаліць уліковы запіс";
 "RemoveAccountConfirmation" = "Вы сапраўды хочаце выдаліць уліковы запіс?";
 "AccountAlreadyAdded" = "Уліковы запіс ужо дададзены";
+"AccountCreationRestricted" = "Стварэнне ўліковых запісаў абмежаванае";
+"XOnlyAllowsInvitedUsersToCreateAccounts" = "%1$@ дазваляе ствараць уліковыя запісы толькі запрошаным карыстальнікам.";
 "SwitchToAlreadyAddedAccountConfirmation" = "Хочаце пераключыцца на яго зараз?";
 "MasterPassword" = "Асноўны пароль";
 "MoreOptions" = "Дадатковыя параметры";
@@ -49,6 +57,7 @@
 "OK" = "Добра";
 "Password" = "Пароль";
 "Save" = "Захаваць";
+/* Action to move a vault item to another vault; used as a button label, menu item, and screen title. */
 "Move" = "Перамясціць";
 "Saving" = "Захаванне…";
 "Settings" = "Налады";
@@ -124,7 +133,6 @@
 "PasswordOverrideAlert" = "Вы сапраўды хочаце перазапісаць бягучы пароль?";
 "PushNotificationAlert" = "Bitwarden падтрымлівае аўтаматычную сінхранізацыю вашага сховішча з дапамогай push-апавяшчэнняў. Для найлепшага вопыту, калі з'явіцца запыт на дазвол push-апавяшчэнняў, абярыце «Дазволіць».";
 "Security" = "Бяспека";
-"Select" = "Выбраць";
 "ItemUpdated" = "Элемент абноўлены.";
 "Submitting" = "Адпраўка…";
 "Syncing" = "Сінхранізацыя…";
@@ -177,7 +185,6 @@
 "CopyTotp" = "Скапіяваць TOTP";
 "CopyTotpAutomaticallyDescription" = "Калі ўваход мае ключ аўтэнтыфікатара, капіруйце TOTP-код праверкі ў буфер абмену пры аўтазапаўненні ўваходу.";
 "CopyTotpAutomatically" = "Скапіяваць TOTP аўтаматычна";
-"PremiumRequired" = "Для выкарыстання гэтай функцыі патрабуецца прэміяльны статус.";
 "AttachementAdded" = "Далучэнне дададзена";
 "AttachmentDeleted" = "Далучэнне выдалена";
 "ChooseFile" = "Выбраць файл";
@@ -218,7 +225,6 @@
 "August" = "Жнівень";
 "Brand" = "Тып карткі";
 "CardholderName" = "Імя ўладальніка карткі";
-"WeFoundMultipleMatchesChooseTheCorrectOne" = "Мы знайшлі некалькі супадзенняў. Выберыце правільнае.";
 "CityTown" = "Горад / Пасёлак";
 "Company" = "Кампанія";
 "Country" = "Краіна";
@@ -256,8 +262,14 @@
 "ShowWebsiteIconsDescription" = "Паказваць распазнавальны відарыс побач з кожным лагінам.";
 "IconsUrl" = "URL-адрас сервера значкоў";
 "AutofillWithBitwarden" = "Аўтазапаўненне з Bitwarden";
+/* Section header and screen title for viewing/managing a cipher's collections. */
 "Collections" = "Калекцыі";
+/* Section header and screen title for viewing/managing a cipher's shared folders. */
+"SharedFolders" = "Shared folders";
+/* Empty state message shown when a collection has no items. */
 "NoItemsCollection" = "У гэтай калекцыі няма элементаў";
+/* Empty state message shown when a shared folder has no items. */
+"ThereAreNoItemsInThisSharedFolder" = "There are no items in this shared folder";
 "NoItemsFolder" = "У гэтай тэчцы няма элементаў";
 "NoItemsTrash" = "У сметніцы адсутнічаюць элементы.";
 "FaceID" = "Face ID";
@@ -277,6 +289,7 @@
 "RegEx" = "Рэгулярны выраз";
 "StartsWith" = "Пачынаецца з";
 "MatchDetection" = "Выяўленне супадзенняў";
+/* Field label on the Move screen shown when the "vfo1-foundation" feature flag is disabled; superseded by "Vault" when enabled. */
 "Organization" = "Арганізацыя";
 "HoldYubikeyNearTop" = "Трымайце ваш YubiKey каля верхняй часткі прылады.";
 "TryAgain" = "Паспрабуйце яшчэ раз";
@@ -297,6 +310,7 @@
 "NoEmailAddressesEntered" = "Адрасы электроннай пошты не ўведзеныя";
 "EnterAtLeastOneValidEmailToShareSend" = "Увядзіце прынамсі адзін сапраўдны адрас электроннай пошты, каб абагуліць гэты Send.";
 "OneOrMoreEmailAddressesIncorrect" = "Адзін або некалькі адрасоў электроннай пошты няправільныя. Калі ласка, праверце і паспрабуйце яшчэ раз.";
+"OnlyIncludeTheFollowingDomainsDescriptionLong" = "Only include the following domains: %1$@. Please review and try again.";
 "Cards" = "Карткі";
 "Identities" = "Пасведчанні";
 "Logins" = "Лагіны";
@@ -312,13 +326,26 @@
 "NoItemsToList" = "У спісе адсутнічаюць элементы.";
 "MoveDown" = "Перамясціць уніз";
 "MoveUp" = "Перамясціць уверх";
+/* Empty state message on the Collections screen shown when a user has no collections. */
 "NoCollectionsToList" = "У спісе адсутнічаюць калекцыі.";
+/* Empty state message on the Shared folders screen shown when a user has no shared folders. */
+"ThereAreNoSharedFoldersToList" = "There are no shared folders to list.";
 "MovedItemToOrg" = "%1$@ перамешчана ў %2$@.";
+/* Alert message shown when saving an item with no collection selected. */
 "SelectOneCollection" = "Вы павінны выбраць прынамсі адну калекцыю.";
+/* Alert message shown when saving an item with no shared folder selected. */
+"YouMustSelectAtLeastOneSharedFolder" = "You must select at least one shared folder.";
 "Share" = "Абагуліць";
 "ShareAll" = "Абагуліць усё";
+/* Overflow menu item and screen title on the Move screen shown when the "vfo1-foundation" feature flag is disabled; superseded by "Move" when enabled. */
 "MoveToOrganization" = "Перамясціць у арганізацыю";
+/* Empty state message shown when a user has no vaults available to move an item into, when the "vfo1-foundation" feature flag is enabled. */
+"NoVaultsToList" = "No vaults to list.";
+/* Empty state message shown when a user has no organizations available to move an item into, when the "vfo1-foundation" feature flag is disabled. */
 "NoOrgsToList" = "Няма арганізацый для паказу.";
+/* Footer text on the Move screen explaining that moving an item transfers its ownership to the destination vault's organization, when the "vfo1-foundation" feature flag is enabled. */
+"ChooseAVaultThatYouWishToMoveThisItemToDescriptionLong" = "Choose a vault that you wish to move this item to. Moving to another vault transfers ownership of the item to that organization. You will no longer be the direct owner of this item once it has been moved.";
+/* Footer text on the Move screen explaining that moving an item transfers its ownership to the destination organization, when the "vfo1-foundation" feature flag is disabled. */
 "MoveToOrgDesc" = "Выберыце арганізацыю, у якую вы хочаце перамясціць гэты элемент. Пры перамяшчэнні ў арганізацыю ўсе правы ўласнасці на дадзены элемент пяройдуць да гэтай арганізацыі. Вы больш не будзеце адзіным уласнікам гэтага элемента пасля яго перамяшчэння.";
 "NumberOfWords" = "Колькасць слоў";
 "Passphrase" = "Парольная фраза";
@@ -419,11 +446,19 @@
 "NewSendCreated" = "Створаны новы Send.";
 "Custom" = "Карыстальніцкі";
 "SendDisabledWarning" = "У адпаведнасці з палітыкай прадпрыемства, вы можаце выдаліць толькі бягучы Send.";
+"ThisDateIsEnforcedByYourOrganization" = "This date is enforced by your organization";
 "AboutSend" = "Пра Send";
 "HideEmail" = "Схаваць мой адрас электроннай пошты ад атрымальнікаў";
 "SendOptionsPolicyInEffect" = "Адна або больш палітык арганізацыі ўплываюць на параметры Send.";
 "SendFilePremiumRequired" = "У бясплатных уліковых запісах можна адпраўляць толькі тэкст. Для адпраўкі файлаў праз Send, патрабуецца прэміяльны статус.";
 "SendFileEmailVerificationRequired" = "Для адпраўкі файлаў з дапамогай Send, вам неабходна праверыць вашу электронную пошту. Зрабіць гэта можна ў вэб-сховішчы.";
+/* Alert message shown when Send Controls policy restricts creation to one Send type. %1$@ is the allowed Send type, either "File" or "Text". */
+"DueToAnEnterprisePolicyYouCanOnlyCreateXSends" = "Due to an enterprise policy, you can only create %1$@ Sends.";
+"OrganizationPolicyRestriction" = "Organization policy restriction";
+"TextSendsAreNotAllowedDescriptionLong" = "Text Sends are not allowed for your organization and this Send will automatically expire at the set deletion date.";
+"ThisSendIsNotCompliantDescriptionLong" = "This Send is not compliant with your organization's Send policy and will automatically expire at the set deletion date.";
+"ToEditThisSendMakeACopyDescriptionLong" = "To edit this Send, make a copy. If this Send can expire at the set deletion date, no action is needed.";
+"MakeACopy" = "Make a copy";
 "PasswordPrompt" = "Паўторны запыт асноўнага пароля";
 "PasswordConfirmation" = "Пацвярджэнне асноўнага пароля";
 "PasswordConfirmationDesc" = "Гэта дзеянне абаронена. Паўторна ўвядзіце асноўны пароль, каб праверыць сваю асобу і працягнуць далей.";
@@ -465,6 +500,8 @@
 "SpecialCharacters" = "Спецыяльныя сімвалы (!@#$%^&*)";
 "PasswordIsVisibleTapToHide" = "Пароль бачны. Дакраніцеся, каб схаваць.";
 "PasswordIsNotVisibleTapToShow" = "Пароль схаваны. Дакраніцеся, каб паказаць.";
+"FieldValueIsVisibleTapToHide" = "%1$@ is visible, tap to hide.";
+"FieldValueIsNotVisibleTapToShow" = "%1$@ is not visible, tap to show.";
 "FilterByVault" = "Фільтр элементаў па сховішчу";
 "AllVaults" = "Усе сховішчы";
 "Vaults" = "Сховішчы";
@@ -563,6 +600,7 @@
 "ThereAreNoBankAccountsInYourVault" = "У вашым сховішчы няма банкаўскіх рахункаў";
 "US" = "ЗША";
 "EU" = "ЕС";
+"Gov" = "Gov";
 "SelfHosted" = "Уласнае размяшчэнне";
 "UpdateWeakMasterPasswordWarning" = "Ваш асноўны пароль не адпавядае адной або некалькім палітыкам арганізацыі. Для атрымання доступу да сховішча, вы павінны абнавіць яго. Працягваючы, вы выйдзіце з бягучага сеанса і вам неабходна будзе ўвайсці паўторна. Актыўныя сеансы на іншых прыладах могуць заставацца актыўнымі на працягу адной гадзіны.";
 "CurrentMasterPasswordRequired" = "Бягучы галоўны пароль (абавязкова)";
@@ -586,6 +624,7 @@
 "LoginApproved" = "Уваход ухвалены";
 "LogInWithDevice" = "Увайсці з іншай прылады";
 "LoggingInOn" = "Увайсці на";
+/* The word "Vault", used generically as a field label, screen title, and app-wide term for a user's or organization's item collection. */
 "Vault" = "Сховішча";
 "Appearance" = "Знешні выгляд";
 "AccountSecurity" = "Бяспеке акаўнта";
@@ -621,7 +660,6 @@
 "SetUpAutofill" = "Наладзіць аўтазапаўненне";
 "AppInfo" = "Пра праграму";
 "Browse" = "Агляд";
-"SelectCardholderName" = "Выберыце імя ўладальніка карты";
 "SelectLanguage" = "Абраць мову";
 "ContinueToCompleteWebAuthnVerification" = "Працягніце, каб завяршыць праверку WebAuthn.";
 "ThereWasAnErrorStartingWebAuthnTwoFactorAuthentication" = "Узнікла памылка пры запуску двухфактарнай аўтэнтыфікацыі WebAuthn";
@@ -640,7 +678,6 @@
 "ByContinuingYouAgreeToTheTermsOfServiceAndPrivacyPolicy" = "Працягваючы, вы згаджаецеся з **[Умовамі абслугоўвання](%1$@)** і **[Палітыкай прыватнасці](%2$@)**";
 "GetAdviceAnnouncementsAndResearchOpportunitiesFromBitwardenInYourInboxUnsubscribeAtAnyTime." = "Атрымлівайце парады, аб'явы і магчымасці даследаванняў ад Bitwarden у сваю паштоўку. **[Адпісацца](%1$@)** можна ў любы час.";
 "UserVerificationForPasskey" = "Праверка карыстальніка для ключа доступу";
-"NewItem" = "Новы элемент";
 "ExploreTheGenerator" = "Даследаваць генератар";
 "LearnMoreAboutGeneratingSecureLoginCredentialsWithAGuidedTour" = "Даведайцеся больш пра стварэнне бяспечных уліковых дадзеных з дапамогай экскурсіі.";
 "ExportVaultFilePwProtectInfo" = "Гэты экспартаваны файл будзе абаронены паролем, які неабходна будзе ўвесці для яго расшыфроўкі.";
@@ -812,7 +849,7 @@
 "YouMayNeedToEnableDevicePasscodeOrBiometrics" = "Магчыма, вам трэба ўключыць код-пароль прылады або біяметрыю.";
 "StartImportCXFDescriptionLong" = "Імпартуйце паролі, ключы доступу, крэдытныя карты і любыя асабістыя ідэнтыфікацыйныя даныя з іншага мэнэджара пароляў.\n\nВашы даныя **не будуць** выдалены ад вашага папярэдняга правайдэра.";
 "ImportPasswords" = "Імпартаваць паролі";
-"ImportingEllipsis" = "Імпартаванне…";
+"ImportingEllipsis" = "Імпартаванне...";
 "AreYouSureYouWantToCancelTheImportProcessQuestionMark" = "Вы ўпэўнены, што хочаце адмяніць працэс імпарту?";
 "ImportFailed" = "Імпарт не ўдаўся";
 "ThereWasAnIssueImportingAllOfYourPasswordsNoDataWasDeleted" = "Узнікла праблема пры імпарце ўсіх вашых пароляў.\n\nНіякія даныя не былі выдалены.";
@@ -854,6 +891,10 @@
 "Identification" = "Ідэнтыфікацыя";
 "Owner" = "Уладальнік";
 "VerifyYourIdentity" = "Пацвердзіце сваю асобу";
+"ThisOperationIsNotAllowedOnThisAccount" = "This operation is not allowed on this account";
+"AnErrorOccurredWhileTryingToLockTheCurrentUser" = "An error occurred while trying to lock the current user";
+"LockAllAccounts" = "Lock all accounts";
+"AllAccountsHaveBeenLocked" = "All accounts have been locked";
 "ShareErrorDetails" = "Абагуліць звесткі пра памылку";
 "FlightRecorder" = "Бартавы самапісец";
 "EnableFlightRecorder" = "Уключыць бартавы самапісец";
@@ -867,8 +908,13 @@
 "ShowLess" = "Паказаць менш";
 "ItemNameX" = "Назва элемента, %1$@";
 "OwnerX" = "Уладальнік, %1$@";
+"VaultX" = "Vault, %1$@";
+/* VoiceOver accessibility label for a collection the item belongs to. */
 "CollectionX" = "Калекцыя, %1$@";
+/* VoiceOver accessibility label for a shared folder the item belongs to. */
+"SharedFolderX" = "Shared folder, %1$@";
 "FolderX" = "Тэчка, %1$@";
+"MyFolderX" = "My folder, %1$@";
 "ItemXOfY" = "Элемент %1$@ з %2$@";
 "ViewRecordedLogs" = "Праглядзець запісаныя лагі";
 "RecordedLogs" = "Запісаныя лагі";
@@ -877,7 +923,13 @@
 "ExpiresOnXDate" = "Скончваецца %1$@";
 "ExpiresTomorrow" = "Скончваецца заўтра";
 "DateRangeXToY" = "%1$@ – %2$@";
+"LogOutAllAccounts" = "Log out all accounts";
+"AllAccountsHaveBeenLoggedOut" = "All accounts have been logged out";
+"AnErrorOccurredWhileTryingToLogOutAllAccounts" = "An error occurred while trying to log out all accounts";
 "SelfHostServerURL" = "URL самастойнага сервера";
+"OpenGenerator" = "Open generator";
+"OpenPasswordGenerator" = "Open password generator";
+"GeneratePassphrase" = "Generate passphrase";
 "AllowUniversalClipboard" = "Дазволіць Universal Clipboard";
 "UseUniversalClipboardToCopyDescriptionLong" = "Выкарыстоўвайце Universal Clipboard, каб капіраваць тут і ўстаўляць на іншых прыладах, увайшоўшых пад тым жа Apple ID.";
 "RemoveMasterPasswordConfirmDomain" = "Галоўны пароль больш не патрабуецца для членаў наступнай арганізацыі. Калі ласка, пацвердзіце дамен ніжэй са сваім адміністратарам арганізацыі.";
@@ -897,6 +949,7 @@
 "GoToSettings" = "Перайсці ў налады";
 "SiriAndShortcutsAccess" = "Доступ Siri і Shortcuts";
 "EnableToAllowTheAppToRespondToSiriAndShortcutsUsingAppIntents" = "Уключыце, каб дазволіць праграме адказваць на Siri і Shortcuts з дапамогай App Intents.";
+"ThereIsNoActiveAccount" = "There is no active account.";
 "NewFileSend" = "Новая файлавая адпраўка";
 "NewTextSend" = "Новая тэкставая адпраўка";
 "EditFileSend" = "Рэдагаваць файлавую адпраўку";
@@ -947,7 +1000,6 @@
 "NoAskMe" = "Не, пытацца ў мяне";
 "NoCodes" = "У вас няма кодаў для адлюстравання";
 "None" = "Няма";
-"NoneOfTheAbove" = "Ніводнае з вышэйпералічанага";
 "NumberOfDigits" = "Колькасць лічбаў";
 "OtpType" = "Тып OTP";
 "RefreshPeriod" = "Перыяд абнаўлення";
@@ -1045,6 +1097,7 @@
 "AnyoneWithTheLink" = "Хто заўгодна са спасылкай";
 "AnyoneWithThisLinkCanViewThisSend" = "Кожны, у каго ёсць гэтая спасылка, можа прагледзець гэтую адпраўку.";
 "AfterSharingThisSendLinkDescriptionLong" = "Пасля таго як вы падзяліцеся спасылкай на гэтую адпраўку, карыстальнікам трэба будзе пацвердзіць сваю электронную пошту з дапамогай кода, каб убачыць яе.";
+"IndividualsWillNeedToEnterThisPasswordDescriptionLong" = "Individuals will need to enter this password to view this Send";
 "SpecificPeople" = "Пэўныя людзі";
 "WhoCanView" = "Хто можа праглядаць";
 "SharingWithSpecificPeopleIsPremiumFeatureDescriptionLong" = "Абмен з пэўнымі людзьмі — гэта функцыя Premium. Ваш бягучы тарыф не ўключае доступ да гэтай функцыі.";
@@ -1198,7 +1251,53 @@
 "LineOfCredit" = "Крэдытная лінія";
 "MoneyMarket" = "Грашовы рынак";
 "Savings" = "Ашчадны";
+"Devices" = "Прылады";
+"NoDevicesFound" = "No devices found";
+"CurrentSession" = "Бягучы сеанс";
+"PendingRequest" = "Запыт чакае";
+"Trusted" = "Давераны";
+"RecentlyActiveLabel" = "Recently active:";
+"FirstLoginLabel" = "First login:";
+"Today" = "Сёння";
+"PastSevenDays" = "Апошнія 7 дзён";
+"PastFourteenDays" = "Апошнія 14 дзён";
+"PastThirtyDays" = "Апошнія 30 дзён";
+"OverThirtyDaysAgo" = "Больш за 30 дзён таму";
+"Unknown" = "Невядома";
+/* Device display name. %1$@ = category (e.g. "Mobile"), %2$@ = platform (e.g. "iOS"). */
+"DeviceDisplayNameXHyphenY" = "%1$@ - %2$@";
+"Mobile" = "Mobile";
+"BrowserExtension" = "Extension";
+"WebVault2" = "Web app";
+"Desktop" = "Desktop";
+"Cli" = "CLI";
+"Sdk" = "SDK";
+"Server" = "Сервер";
 /* Accessibility label for the button that clears a field's value. %1$@ is the field's title (e.g. "Date of birth"), so the spoken label reads "Clear Date of birth". */
 "ClearFieldName" = "Ачысціць %1$@";
-"SelectDate" = "Выбраць дату";
+/* Accessibility hint on a collapsed date field announcing that activating it opens the calendar picker. */
+"OpensDatePicker" = "Opens date picker";
+/* Accessibility hint on an expanded date field announcing that activating it closes the calendar picker. */
+"ClosesDatePicker" = "Closes date picker";
+/* VoiceOver announcement posted when a date picker whose range excludes future dates, e.g. date of birth or an issue date, reports landing on today (the latest available day) while scrolling the wheel. */
+"FutureDatesUnavailable" = "Future dates unavailable";
 "PremiumRequiredTOTPDescriptionLong" = "Ключ аўтэнтыфікацыі (TOTP) — гэта функцыя Premium. Ваш бягучы план не ўключае доступ да гэтай функцыі.";
+/* Toast shown after a login item is saved. */
+"LoginSaved" = "Login saved";
+/* Toast shown after a card item is saved. */
+"CardSaved" = "Card saved";
+/* Toast shown after an identity item is saved. */
+"IdentitySaved" = "Identity saved";
+/* Toast shown after a secure note item is saved. */
+"SecureNoteSaved" = "Secure note saved";
+/* Toast shown after an SSH key item is saved. */
+"SSHKeySaved" = "SSH key saved";
+/* Toast shown after a bank account item is saved. */
+"BankAccountSaved" = "Bank account saved";
+/* Toast shown after a driver's license item is saved. */
+"LicenseSaved" = "License saved";
+/* Toast shown after a passport item is saved. */
+"PassportSaved" = "Passport saved";
+"NotNow" = "Не зараз";
+"SyncUnsuccessful" = "Сінхранізацыя не ўдалася";
+"WeCouldntSyncYourVaultWithTheServerDescriptionLong" = "Мы не змаглі сінхранізаваць ваша сховішча з серверам. Ваша сховішча можа не адлюстроўваць апошнія змены. Вы можаце паспрабаваць яшчэ раз зараз або сінхранізацыя адбудзецца аўтаматычна пазней.";

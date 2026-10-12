@@ -23,6 +23,7 @@ class VaultGroupViewTests: BitwardenTestCase {
         super.setUp()
         processor = MockProcessor(
             state: VaultGroupState(
+                itemTypesUserCanCreate: CipherType.canCreateCases,
                 searchVaultFilterType: .allVaults,
                 vaultFilterType: .allVaults,
             ),

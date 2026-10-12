@@ -14,11 +14,11 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>d</string>
         <key>one</key>
-        <string>Bitwarden could not decrypt %d vault item.</string>
+        <string>Bitwarden nije mogao da dešifruje %d stavku trezora.</string>
         <key>few</key>
-        <string>Bitwarden could not decrypt %d vault items.</string>
+        <string>Bitwarden nije mogao da dešifruje %d stavke trezora.</string>
         <key>other</key>
-        <string>Bitwarden could not decrypt %d vault items.</string>
+        <string>Bitwarden nije mogao da dešifruje %d stavki trezora.</string>
       </dict>
     </dict>
     <!-- A message indicating the minimum length of a master password in characters. -->
@@ -33,11 +33,11 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>d</string>
         <key>one</key>
-        <string>Master password must be at least %d character long.</string>
+        <string>Glavna lozinka mora imati najmanje %d karakter.</string>
         <key>few</key>
-        <string>Master password must be at least %d characters long.</string>
+        <string>Glavna lozinka mora imati najmanje %d karaktera.</string>
         <key>other</key>
-        <string>Master password must be at least %d characters long.</string>
+        <string>Glavna lozinka mora imati najmanje %d karaktera.</string>
       </dict>
     </dict>
     <!-- A warning if we have determined that a password has been exposed in a data breach. -->
@@ -52,11 +52,11 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>d</string>
         <key>one</key>
-        <string>This password has been exposed %d time in data breaches.</string>
+        <string>Ova lozinka je izložena %d put u kršenjima podataka.</string>
         <key>few</key>
-        <string>This password has been exposed %d times in data breaches.</string>
+        <string>Ova lozinka je izložena %d puta u kršenjima podataka.</string>
         <key>other</key>
-        <string>This password has been exposed %d times in data breaches.</string>
+        <string>Ova lozinka je izložena %d puta u kršenjima podataka.</string>
       </dict>
     </dict>
     <!-- A number of characters, as in letters/numbers/punctuation. For example, the minimum number of characters when creating a password. -->
@@ -147,11 +147,11 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>d</string>
         <key>one</key>
-        <string>%d item successfully imported</string>
+        <string>%d stavka uspešno uvezena</string>
         <key>few</key>
-        <string>%d items successfully imported</string>
+        <string>%d stavke uspešno uvezene</string>
         <key>other</key>
-        <string>%d items successfully imported</string>
+        <string>%d stavki uspešno uvezeno</string>
       </dict>
     </dict>
     <!-- A number of minutes, used in menu selections. For example, the amount of time to keep the vault unlocked after being unlocked. -->
@@ -215,7 +215,7 @@
     <key>YouHaveAGracePeriodOfXDaysFromYourSubscriptionDescriptionLong</key>
     <dict>
       <key>NSStringLocalizedFormatKey</key>
-      <string>%1$#@YouHaveAGracePeriodOfXDaysFromYourSubscriptionExpirationDate@ Please resolve the past due invoices by **%2$@**.</string>
+      <string>%1$#@YouHaveAGracePeriodOfXDaysFromYourSubscriptionExpirationDate@ Rešite dospelе račune do **%2$@**.</string>
       <key>YouHaveAGracePeriodOfXDaysFromYourSubscriptionExpirationDate</key>
       <dict>
         <key>NSStringFormatSpecTypeKey</key>
@@ -223,11 +223,11 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>d</string>
         <key>one</key>
-        <string>You have a grace period of %1$d day from your subscription expiration date.</string>
+        <string>Imate period od %1$d dan od datuma isteka pretplate.</string>
         <key>few</key>
-        <string>You have a grace period of %1$d days from your subscription expiration date.</string>
+        <string>Imate period od %1$d dana od datuma isteka pretplate.</string>
         <key>other</key>
-        <string>You have a grace period of %1$d days from your subscription expiration date.</string>
+        <string>Imate period od %1$d dana od datuma isteka pretplate.</string>
       </dict>
     </dict>
     <!-- A message indicating the minimum length of a PIN in characters. -->
@@ -242,11 +242,11 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>d</string>
         <key>one</key>
-        <string>Your PIN must be at least %d character.</string>
+        <string>Vaš PIN mora imati najmanje %d karakter.</string>
         <key>few</key>
-        <string>Your PIN must be at least %d characters.</string>
+        <string>Vaš PIN mora imati najmanje %d karaktera.</string>
         <key>other</key>
-        <string>Your PIN must be at least %d characters.</string>
+        <string>Vaš PIN mora imati najmanje %d karaktera.</string>
       </dict>
     </dict>
   </dict>

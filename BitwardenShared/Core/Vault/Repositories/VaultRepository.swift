@@ -501,6 +501,7 @@ extension DefaultVaultRepository: VaultRepository {
         let cipherEncryptionContext = try await clientService.vault().ciphers().encrypt(cipherView: cipher)
         try await cipherService.addCipherWithServer(
             cipherEncryptionContext.cipher,
+            encryptedByKeyId: cipherEncryptionContext.encryptedByKeyId,
             encryptedFor: cipherEncryptionContext.encryptedFor,
         )
     }
@@ -551,14 +552,13 @@ extension DefaultVaultRepository: VaultRepository {
                 collectionIds: newCollectionIds,
             )
 
-        guard let encryptedFor = encryptionContexts.first?.encryptedFor else {
+        guard !encryptionContexts.isEmpty else {
             return
         }
 
         try await cipherService.bulkShareCiphersWithServer(
-            encryptionContexts.map(\.cipher),
+            encryptionContexts,
             collectionIds: newCollectionIds,
-            encryptedFor: encryptedFor,
         )
     }
 
@@ -879,6 +879,7 @@ extension DefaultVaultRepository: VaultRepository {
             .encrypt(cipherView: organizationCipher)
         try await cipherService.shareCipherWithServer(
             organizationCipherEncryptionContext.cipher,
+            encryptedByKeyId: organizationCipherEncryptionContext.encryptedByKeyId,
             encryptedFor: organizationCipherEncryptionContext.encryptedFor,
         )
     }
@@ -911,6 +912,7 @@ extension DefaultVaultRepository: VaultRepository {
         let cipherEncryptionContext = try await clientService.vault().ciphers().encrypt(cipherView: cipherView)
         try await cipherService.updateCipherWithServer(
             cipherEncryptionContext.cipher,
+            encryptedByKeyId: cipherEncryptionContext.encryptedByKeyId,
             encryptedFor: cipherEncryptionContext.encryptedFor,
         )
     }
@@ -1044,7 +1046,7 @@ extension DefaultVaultRepository: VaultRepository {
         let decryptedFido2Credentials = try await clientService
             .platform()
             .fido2()
-            .decryptFido2AutofillCredentials(cipherView: cipherView)
+            .getFido2AutofillCredentials(cipherView: cipherView)
 
         guard let fido2CredentialAutofillView = decryptedFido2Credentials.first else {
             errorReporter.log(error: Fido2Error.decryptFido2AutofillCredentialsEmpty)

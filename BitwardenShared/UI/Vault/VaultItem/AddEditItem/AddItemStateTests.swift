@@ -37,7 +37,7 @@ class AddItemStateTests: XCTestCase {
               ▿ login: Optional<LoginView>
                 ▿ some: LoginView
                   - autofillOnPageLoad: Optional<Bool>.none
-                  - fido2Credentials: Optional<Array<Fido2Credential>>.none
+                  - fido2Credentials: Optional<Array<Fido2CredentialView>>.none
                   - password: Optional<String>.none
                   - passwordRevisionDate: Optional<Date>.none
                   - totp: Optional<String>.none
@@ -47,6 +47,7 @@ class AddItemStateTests: XCTestCase {
               - notes: Optional<String>.none
               - organizationId: Optional<String>.none
               - organizationUseTotp: false
+              - partial: false
               - passport: Optional<PassportView>.none
               - passwordHistory: Optional<Array<PasswordHistoryView>>.none
               - permissions: Optional<CipherPermissions>.none
@@ -95,7 +96,7 @@ class AddItemStateTests: XCTestCase {
               ▿ login: Optional<LoginView>
                 ▿ some: LoginView
                   - autofillOnPageLoad: Optional<Bool>.none
-                  - fido2Credentials: Optional<Array<Fido2Credential>>.none
+                  - fido2Credentials: Optional<Array<Fido2CredentialView>>.none
                   ▿ password: Optional<String>
                     - some: "top secret!"
                   - passwordRevisionDate: Optional<Date>.none
@@ -114,6 +115,7 @@ class AddItemStateTests: XCTestCase {
                 - some: "Bitwarden Login"
               - organizationId: Optional<String>.none
               - organizationUseTotp: false
+              - partial: false
               - passport: Optional<PassportView>.none
               - passwordHistory: Optional<Array<PasswordHistoryView>>.none
               - permissions: Optional<CipherPermissions>.none

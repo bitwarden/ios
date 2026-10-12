@@ -58,8 +58,8 @@ struct AddEditIdentityItemView: View {
                         send: AddEditIdentityItemAction.address1Changed,
                     ),
                     accessibilityIdentifier: "IdentityAddressOneEntry",
+                    focus: .field($focusedField, equals: .address1),
                 )
-                .focused($focusedField, equals: .address1)
                 .onSubmit { focusNextField($focusedField) }
 
                 BitwardenTextField(
@@ -69,8 +69,8 @@ struct AddEditIdentityItemView: View {
                         send: AddEditIdentityItemAction.address2Changed,
                     ),
                     accessibilityIdentifier: "IdentityAddressTwoEntry",
+                    focus: .field($focusedField, equals: .address2),
                 )
-                .focused($focusedField, equals: .address2)
                 .onSubmit { focusNextField($focusedField) }
 
                 BitwardenTextField(
@@ -80,8 +80,8 @@ struct AddEditIdentityItemView: View {
                         send: AddEditIdentityItemAction.address3Changed,
                     ),
                     accessibilityIdentifier: "IdentityAddressThreeEntry",
+                    focus: .field($focusedField, equals: .address3),
                 )
-                .focused($focusedField, equals: .address3)
                 .onSubmit { focusNextField($focusedField) }
 
                 BitwardenTextField(
@@ -91,8 +91,8 @@ struct AddEditIdentityItemView: View {
                         send: AddEditIdentityItemAction.cityOrTownChanged,
                     ),
                     accessibilityIdentifier: "IdentityCityEntry",
+                    focus: .field($focusedField, equals: .city),
                 )
-                .focused($focusedField, equals: .city)
                 .onSubmit { focusNextField($focusedField) }
 
                 BitwardenTextField(
@@ -102,8 +102,8 @@ struct AddEditIdentityItemView: View {
                         send: AddEditIdentityItemAction.stateChanged,
                     ),
                     accessibilityIdentifier: "IdentityStateEntry",
+                    focus: .field($focusedField, equals: .state),
                 )
-                .focused($focusedField, equals: .state)
                 .onSubmit { focusNextField($focusedField) }
 
                 BitwardenTextField(
@@ -113,8 +113,8 @@ struct AddEditIdentityItemView: View {
                         send: AddEditIdentityItemAction.postalCodeChanged,
                     ),
                     accessibilityIdentifier: "IdentityPostalCodeEntry",
+                    focus: .field($focusedField, equals: .zipcode),
                 )
-                .focused($focusedField, equals: .zipcode)
                 .onSubmit { focusNextField($focusedField) }
 
                 BitwardenTextField(
@@ -124,8 +124,8 @@ struct AddEditIdentityItemView: View {
                         send: AddEditIdentityItemAction.countryChanged,
                     ),
                     accessibilityIdentifier: "IdentityCountryEntry",
+                    focus: .field($focusedField, equals: .country),
                 )
-                .focused($focusedField, equals: .country)
                 .onSubmit { focusNextField($focusedField) }
             }
         }
@@ -142,9 +142,9 @@ struct AddEditIdentityItemView: View {
                         send: AddEditIdentityItemAction.emailChanged,
                     ),
                     accessibilityIdentifier: "IdentityEmailEntry",
+                    focus: .field($focusedField, equals: .email),
                 )
                 .textFieldConfiguration(.email)
-                .focused($focusedField, equals: .email)
                 .onSubmit { focusNextField($focusedField) }
 
                 BitwardenTextField(
@@ -154,9 +154,9 @@ struct AddEditIdentityItemView: View {
                         send: AddEditIdentityItemAction.phoneNumberChanged,
                     ),
                     accessibilityIdentifier: "IdentityPhoneEntry",
+                    focus: .field($focusedField, equals: .phone),
                 )
                 .textFieldConfiguration(.numeric(.telephoneNumber))
-                .focused($focusedField, equals: .phone)
                 .onSubmit { focusNextField($focusedField) }
             }
         }
@@ -175,12 +175,12 @@ struct AddEditIdentityItemView: View {
                     accessibilityIdentifier: "IdentitySsnEntry",
                     passwordVisibilityAccessibilityId: "IdentitySsnVisibilityButton",
                     canViewPassword: true,
+                    focus: .field($focusedField, equals: .ssn),
                     isPasswordVisible: store.binding(
                         get: \.showSocialSecurityNumber,
                         send: AddEditIdentityItemAction.ssnVisibilityChanged,
                     ),
                 )
-                .focused($focusedField, equals: .ssn)
                 .onSubmit { focusNextField($focusedField) }
 
                 BitwardenTextField(
@@ -190,8 +190,8 @@ struct AddEditIdentityItemView: View {
                         send: AddEditIdentityItemAction.passportNumberChanged,
                     ),
                     accessibilityIdentifier: "IdentityPassportNumberEntry",
+                    focus: .field($focusedField, equals: .passport),
                 )
-                .focused($focusedField, equals: .passport)
                 .onSubmit { focusNextField($focusedField) }
 
                 BitwardenTextField(
@@ -201,8 +201,8 @@ struct AddEditIdentityItemView: View {
                         send: AddEditIdentityItemAction.licenseNumberChanged,
                     ),
                     accessibilityIdentifier: "IdentityLicenseNumberEntry",
+                    focus: .field($focusedField, equals: .license),
                 )
-                .focused($focusedField, equals: .license)
                 .onSubmit { focusNextField($focusedField) }
             }
         }
@@ -229,8 +229,8 @@ struct AddEditIdentityItemView: View {
                         send: AddEditIdentityItemAction.firstNameChanged,
                     ),
                     accessibilityIdentifier: "IdentityFirstNameEntry",
+                    focus: .field($focusedField, equals: .firstName),
                 )
-                .focused($focusedField, equals: .firstName)
                 .onSubmit { focusNextField($focusedField) }
 
                 BitwardenTextField(
@@ -240,8 +240,8 @@ struct AddEditIdentityItemView: View {
                         send: AddEditIdentityItemAction.middleNameChanged,
                     ),
                     accessibilityIdentifier: "IdentityMiddleNameEntry",
+                    focus: .field($focusedField, equals: .middleName),
                 )
-                .focused($focusedField, equals: .middleName)
                 .onSubmit { focusNextField($focusedField) }
 
                 BitwardenTextField(
@@ -251,8 +251,8 @@ struct AddEditIdentityItemView: View {
                         send: AddEditIdentityItemAction.lastNameChanged,
                     ),
                     accessibilityIdentifier: "IdentityLastNameEntry",
+                    focus: .field($focusedField, equals: .lastName),
                 )
-                .focused($focusedField, equals: .lastName)
                 .onSubmit { focusNextField($focusedField) }
 
                 BitwardenTextField(
@@ -262,9 +262,9 @@ struct AddEditIdentityItemView: View {
                         send: AddEditIdentityItemAction.userNameChanged,
                     ),
                     accessibilityIdentifier: "IdentityUsernameEntry",
+                    focus: .field($focusedField, equals: .username),
                 )
                 .textFieldConfiguration(.username)
-                .focused($focusedField, equals: .username)
                 .onSubmit { focusNextField($focusedField) }
 
                 BitwardenTextField(
@@ -274,8 +274,8 @@ struct AddEditIdentityItemView: View {
                         send: AddEditIdentityItemAction.companyChanged,
                     ),
                     accessibilityIdentifier: "IdentityCompanyEntry",
+                    focus: .field($focusedField, equals: .company),
                 )
-                .focused($focusedField, equals: .company)
                 .onSubmit { focusNextField($focusedField) }
             }
         }

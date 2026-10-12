@@ -68,7 +68,9 @@ struct DeviceManagementProcessorTests {
             id: "current",
             lastActivityDate: Date(timeIntervalSince1970: 1_717_900_000),
         )
+        let pendingRequest = LoginRequest.fixture(requestDeviceType: "Chrome")
         let pendingDevice = DeviceResponse.fixture(
+            devicePendingAuthRequest: .fixture(creationDate: pendingRequest.creationDate, id: pendingRequest.id),
             id: "pending",
             isTrusted: false,
             lastActivityDate: Date(timeIntervalSince1970: 1_717_800_000),
@@ -80,7 +82,6 @@ struct DeviceManagementProcessorTests {
             lastActivityDate: Date(timeIntervalSince1970: 1_600_000_000),
             type: .macOsDesktop,
         )
-        let pendingRequest = LoginRequest.fixture(requestDeviceType: "Chrome")
 
         deviceAPIService.getDevicesReturnValue = [oldDevice, pendingDevice, currentDevice]
         deviceAPIService.getCurrentDeviceReturnValue = currentDevice
@@ -95,83 +96,75 @@ struct DeviceManagementProcessorTests {
         #expect(items[2].id == "old") // oldest last
     }
 
-    /// `perform(_:)` assigns the most recent pending request when multiple exist for the same platform.
+    /// `perform(_:)` matches a device's pending request by the id the server reports directly on
+    /// that device, not by a coarse platform-name heuristic.
     @Test
-    func perform_loadData_matchesMostRecentPendingRequest() async throws {
-        let chromeDevice = DeviceResponse.fixture(id: "chrome", type: .chromeExtension)
+    func perform_loadData_matchesPendingRequestById() async throws {
+        let otherRequest = LoginRequest.fixture(id: "other-request", requestDeviceType: "Chrome")
+        let matchingRequest = LoginRequest.fixture(id: "matching-request", requestDeviceType: "Chrome")
+        let chromeDevice = DeviceResponse.fixture(
+            devicePendingAuthRequest: .fixture(creationDate: matchingRequest.creationDate, id: matchingRequest.id),
+            id: "chrome",
+            type: .chromeExtension,
+        )
         let currentDevice = DeviceResponse.fixture(id: "current")
-        let olderRequest = LoginRequest.fixture(
-            creationDate: Date(timeIntervalSince1970: 1_000_000),
-            id: "older",
-            requestDeviceType: "Chrome",
-        )
-        let newerRequest = LoginRequest.fixture(
-            creationDate: Date(timeIntervalSince1970: 2_000_000),
-            id: "newer",
-            requestDeviceType: "Chrome",
-        )
 
         deviceAPIService.getDevicesReturnValue = [chromeDevice, currentDevice]
         deviceAPIService.getCurrentDeviceReturnValue = currentDevice
-        authService.getPendingLoginRequestResult = .success([olderRequest, newerRequest])
+        authService.getPendingLoginRequestResult = .success([otherRequest, matchingRequest])
 
         await subject.perform(.loadData)
 
         let items = try #require(subject.state.loadingState.data)
         let chromeItem = try #require(items.first(where: { $0.id == "chrome" }))
-        #expect(chromeItem.pendingRequest?.id == "newer")
+        #expect(chromeItem.pendingRequest?.id == "matching-request")
     }
 
-    /// `perform(_:)` matches a pending request to a device's platform regardless of case.
+    /// `perform(_:)` only flags the device the server marked with a pending auth request, even when
+    /// multiple devices share the same platform and multiple valid requests exist for that platform.
     @Test
-    func perform_loadData_matchesPendingRequestCaseInsensitively() async throws {
-        let chromeDevice = DeviceResponse.fixture(id: "chrome", type: .chromeExtension)
+    func perform_loadData_multipleDevicesSamePlatformOnlyMatchesFlaggedDevice() async throws {
+        let flaggedRequest = LoginRequest.fixture(id: "flagged-request", requestDeviceType: "Chrome")
+        let otherRequest1 = LoginRequest.fixture(id: "other-request-1", requestDeviceType: "Chrome")
+        let otherRequest2 = LoginRequest.fixture(id: "other-request-2", requestDeviceType: "Chrome")
+
+        let flaggedChromeDevice = DeviceResponse.fixture(
+            devicePendingAuthRequest: .fixture(creationDate: flaggedRequest.creationDate, id: flaggedRequest.id),
+            id: "chrome-1",
+            type: .chromeExtension,
+        )
+        let unflaggedChromeDevice1 = DeviceResponse.fixture(id: "chrome-2", type: .chromeExtension)
+        let unflaggedChromeDevice2 = DeviceResponse.fixture(id: "chrome-3", type: .chromeExtension)
         let currentDevice = DeviceResponse.fixture(id: "current")
-        let request = LoginRequest.fixture(requestDeviceType: "chrome")
+
+        deviceAPIService.getDevicesReturnValue = [
+            flaggedChromeDevice, unflaggedChromeDevice1, unflaggedChromeDevice2, currentDevice,
+        ]
+        deviceAPIService.getCurrentDeviceReturnValue = currentDevice
+        authService.getPendingLoginRequestResult = .success([flaggedRequest, otherRequest1, otherRequest2])
+
+        await subject.perform(.loadData)
+
+        let items = try #require(subject.state.loadingState.data)
+        #expect(items.first(where: { $0.id == "chrome-1" })?.pendingRequest?.id == "flagged-request")
+        #expect(items.first(where: { $0.id == "chrome-2" })?.pendingRequest == nil)
+        #expect(items.first(where: { $0.id == "chrome-3" })?.pendingRequest == nil)
+    }
+
+    /// `perform(_:)` leaves a device unmatched when its pending auth request id isn't present in
+    /// the pending login requests list (e.g. it was answered or expired between the two calls).
+    @Test
+    func perform_loadData_pendingAuthRequestIdWithNoMatchingRequestLeavesUnmatched() async throws {
+        let chromeDevice = DeviceResponse.fixture(
+            devicePendingAuthRequest: .fixture(id: "missing-request"),
+            id: "chrome",
+            type: .chromeExtension,
+        )
+        let currentDevice = DeviceResponse.fixture(id: "current")
 
         deviceAPIService.getDevicesReturnValue = [chromeDevice, currentDevice]
         deviceAPIService.getCurrentDeviceReturnValue = currentDevice
-        authService.getPendingLoginRequestResult = .success([request])
-
-        await subject.perform(.loadData)
-
-        let items = try #require(subject.state.loadingState.data)
-        let chromeItem = try #require(items.first(where: { $0.id == "chrome" }))
-        #expect(chromeItem.pendingRequest?.id == request.id)
-    }
-
-    /// `perform(_:)` does not assign a pending request to the current session's device, even if
-    /// its platform matches, and instead matches another device with the same platform.
-    @Test
-    func perform_loadData_skipsCurrentSessionDeviceForPendingRequest() async throws {
-        let currentDevice = DeviceResponse.fixture(id: "current", type: .chromeExtension)
-        let otherChromeDevice = DeviceResponse.fixture(id: "other-chrome", type: .chromeExtension)
-        let request = LoginRequest.fixture(requestDeviceType: "Chrome")
-
-        deviceAPIService.getDevicesReturnValue = [currentDevice, otherChromeDevice]
-        deviceAPIService.getCurrentDeviceReturnValue = currentDevice
-        authService.getPendingLoginRequestResult = .success([request])
-
-        await subject.perform(.loadData)
-
-        let items = try #require(subject.state.loadingState.data)
-        let currentItem = try #require(items.first(where: { $0.id == "current" }))
-        let otherItem = try #require(items.first(where: { $0.id == "other-chrome" }))
-        #expect(currentItem.pendingRequest == nil)
-        #expect(otherItem.pendingRequest?.id == request.id)
-    }
-
-    /// `perform(_:)` leaves a pending request unmatched when the current session's device is the
-    /// only one with a matching platform.
-    @Test
-    func perform_loadData_currentSessionOnlyMatch_leavesPendingRequestUnmatched() async throws {
-        let currentDevice = DeviceResponse.fixture(id: "current", type: .chromeExtension)
-        let otherDevice = DeviceResponse.fixture(id: "other", type: .macOsDesktop)
-        let request = LoginRequest.fixture(requestDeviceType: "Chrome")
-
-        deviceAPIService.getDevicesReturnValue = [currentDevice, otherDevice]
-        deviceAPIService.getCurrentDeviceReturnValue = currentDevice
-        authService.getPendingLoginRequestResult = .success([request])
+        authService.getPendingLoginRequestResult = .success([])
 
         await subject.perform(.loadData)
 
@@ -179,30 +172,13 @@ struct DeviceManagementProcessorTests {
         #expect(items.allSatisfy { $0.pendingRequest == nil })
     }
 
-    /// `perform(_:)` leaves every device without a pending request when none of their platforms
-    /// match the request's device type.
+    /// `perform(_:)` leaves a device without a pending auth request id unmatched, even when
+    /// pending login requests exist for other devices.
     @Test
-    func perform_loadData_noMatchingDeviceForPendingRequest() async throws {
+    func perform_loadData_deviceWithoutPendingAuthRequestIdRemainsUnmatched() async throws {
         let chromeDevice = DeviceResponse.fixture(id: "chrome", type: .chromeExtension)
         let currentDevice = DeviceResponse.fixture(id: "current")
-        let request = LoginRequest.fixture(requestDeviceType: "Firefox")
-
-        deviceAPIService.getDevicesReturnValue = [chromeDevice, currentDevice]
-        deviceAPIService.getCurrentDeviceReturnValue = currentDevice
-        authService.getPendingLoginRequestResult = .success([request])
-
-        await subject.perform(.loadData)
-
-        let items = try #require(subject.state.loadingState.data)
-        #expect(items.allSatisfy { $0.pendingRequest == nil })
-    }
-
-    /// `perform(_:)` skips a pending request that has an empty device type.
-    @Test
-    func perform_loadData_skipsPendingRequestWithEmptyDeviceType() async throws {
-        let chromeDevice = DeviceResponse.fixture(id: "chrome", type: .chromeExtension)
-        let currentDevice = DeviceResponse.fixture(id: "current")
-        let request = LoginRequest.fixture(requestDeviceType: "")
+        let request = LoginRequest.fixture(requestDeviceType: "Chrome")
 
         deviceAPIService.getDevicesReturnValue = [chromeDevice, currentDevice]
         deviceAPIService.getCurrentDeviceReturnValue = currentDevice
