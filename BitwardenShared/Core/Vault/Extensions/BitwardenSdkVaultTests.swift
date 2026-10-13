@@ -80,11 +80,14 @@ class BitwardenSdkVaultAttachmentViewTests: BitwardenTestCase {
         XCTAssertTrue(AttachmentView.fixture(size: "11000000", sizeName: "11 MB").isLargeFile)
     }
 
-    /// `isLargeFile` returns `false` for an attachment below the large file size, or without both a size
-    /// and a size name.
+    /// `isLargeFile` returns `true` for a large attachment even when it has no size name.
+    func test_isLargeFile_trueWithoutSizeName() {
+        XCTAssertTrue(AttachmentView.fixture(size: "11000000", sizeName: nil).isLargeFile)
+    }
+
+    /// `isLargeFile` returns `false` for an attachment below the large file size, or without a size.
     func test_isLargeFile_false() {
         XCTAssertFalse(AttachmentView.fixture(size: "\(Constants.largeFileSize - 1)", sizeName: "10 MB").isLargeFile)
-        XCTAssertFalse(AttachmentView.fixture(size: "11000000", sizeName: nil).isLargeFile)
         XCTAssertFalse(AttachmentView.fixture(size: nil, sizeName: "11 MB").isLargeFile)
     }
 }
